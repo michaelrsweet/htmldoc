@@ -2,11 +2,11 @@
 
 #ifndef HelpDialog_h
 #define HelpDialog_h
-#include "HelpView.h"
 #include <FL/Fl.H>
-#include <FL/Fl_Button.H>
 #include <FL/Fl_Window.H>
 #include <string.h>
+#include "HelpView.h"
+#include <FL/Fl_Button.H>
 
 class HelpDialog {
   int index_;
@@ -28,10 +28,18 @@ private:
   Fl_Button *forward_;
   inline void cb_forward__i(Fl_Button*, void*);
   static void cb_forward_(Fl_Button*, void*);
+  Fl_Button *smaller_;
+  inline void cb_smaller__i(Fl_Button*, void*);
+  static void cb_smaller_(Fl_Button*, void*);
+  Fl_Button *larger_;
+  inline void cb_larger__i(Fl_Button*, void*);
+  static void cb_larger_(Fl_Button*, void*);
 public:
   void hide();
   void load(const char *f);
   void show();
+  void textsize(uchar s);
+  uchar textsize();
   void topline(const char *n);
   void topline(int n);
   int visible();

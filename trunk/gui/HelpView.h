@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h,v 1.5 1999/10/12 16:25:30 mike Exp $"
+// "$Id: HelpView.h,v 1.6 1999/11/18 16:08:13 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
@@ -82,6 +82,8 @@ struct HelpTarget
 
 class HelpView : public Fl_Group	//// Help viewer widget
 {
+  char		title_[1024];		// Title string
+
   uchar		textfont_,		// Default font for text
 		textsize_;		// Default font size
   const char	*value_;		// HTML text value
@@ -138,6 +140,7 @@ class HelpView : public Fl_Group	//// Help viewer widget
   uchar		textfont() const { return (textfont_); }
   void		textsize(uchar s) { textsize_ = s; format(); }
   uchar		textsize() const { return (textsize_); }
+  const char	*title() { return (title_); }
   void		topline(const char *n);
   void		topline(int);
   int		topline() const { return (topline_); }
@@ -148,5 +151,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.5 1999/10/12 16:25:30 mike Exp $".
+// End of "$Id: HelpView.h,v 1.6 1999/11/18 16:08:13 mike Exp $".
 //
