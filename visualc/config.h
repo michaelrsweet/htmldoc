@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.6 2001/02/23 13:47:19 mike Exp $"
+ * "$Id: config.h,v 1.20.2.7 2001/03/14 00:07:09 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -60,10 +60,8 @@
  * How about snprintf() and vsnprintf()?
  */
 
-#ifndef _CONSOLE
-#  define HAVE_SNPRINTF
-#  define HAVE_VSNPRINTF
-#endif /* !_CONSOLE */
+#define HAVE_SNPRINTF
+#define HAVE_VSNPRINTF
 
 
 /*
@@ -87,6 +85,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h,v 1.20.2.6 2001/02/23 13:47:19 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.7 2001/03/14 00:07:09 mike Exp $".
  */
 
