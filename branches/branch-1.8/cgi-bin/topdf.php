@@ -17,7 +17,11 @@ function topdf($filename, $options = "") {
 global $SERVER_NAME;
 global $SERVER_PORT;
 global $PATH_INFO;
+global $QUERY_STRING;
 
-topdf("http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO");
-
+if ($QUERY_STRING != "") {
+    topdf("http://${SERVER_NAME}:${SERVER_PORT}${PATH_INFO}?${QUERY_STRING}");
+} else {
+    topdf("http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO");
+}
 ?>

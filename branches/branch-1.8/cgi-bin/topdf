@@ -22,4 +22,4 @@ echo ""
 # Run HTMLDOC to generate the PDF file...
 #
 
-htmldoc $options http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO
+htmldoc $options http://${SERVER_NAME}:${SERVER_PORT}${PATH_INFO}?$QUERY_STRING

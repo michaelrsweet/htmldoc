@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.82 2001/06/19 15:30:31 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.83 2001/06/20 16:37:43 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4730,6 +4730,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       if (row == 0 || cells[row][col] != cells[row - 1][col])
       {
+        check_pages(*page);
+
 	cell_start[col] = endpages[*page];
 	cell_page[col]  = temp_page;
 	cell_y[col]     = temp_y;
@@ -4857,8 +4859,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         colspan --;
 
-        if (cell_start[col] == NULL || cell_start[col] == cell_end[col] ||
-	    row_spans[col] > 1 || cells[row][col] == NULL)
+        if (cell_start[col] == NULL || row_spans[col] > 1 ||
+	    cells[row][col] == NULL)
 	  continue;
 
         if (row_spans[col])
@@ -4892,12 +4894,18 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         	break;
           }
 
-	DEBUG_printf(("row = %d, col = %d, cell_height = %.1f, span_heights = %.1f, delta_y = %.1f\n",
-	              row, col, cell_height[col], span_heights[col], delta_y));
+	DEBUG_printf(("row = %d, col = %d, valign = %d, cell_height = %.1f, span_heights = %.1f, delta_y = %.1f\n",
+	              row, col, cells[row][col]->valignment,
+		      cell_height[col], span_heights[col], delta_y));
 
         if (delta_y > 0.0f)
 	{
-          for (p = cell_start[col]->next; p != NULL; p = p->next)
+	  if (cell_start[col] == cell_end[col])
+	    p = cell_start[col];
+	  else
+	    p = cell_start[col]->next;
+
+          for (; p != NULL; p = p->next)
 	  {
             p->y -= delta_y;
             if (p == cell_end[col])
@@ -9017,5 +9025,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.82 2001/06/19 15:30:31 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.83 2001/06/20 16:37:43 mike Exp $".
  */
