@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.17 2001/08/14 20:07:38 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.18 2001/08/16 20:34:37 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1335,24 +1335,24 @@ GUI::newBook(void)
   formats['T'] = 14;
   formats['D'] = 15;
 
-  pageHeaderLeft->value(formats[Header[0]]);
-  pageHeaderCenter->value(formats[Header[1]]);
-  pageHeaderRight->value(formats[Header[2]]);
+//  pageHeaderLeft->value(formats[Header[0]]);
+//  pageHeaderCenter->value(formats[Header[1]]);
+//  pageHeaderRight->value(formats[Header[2]]);
 
-  pageFooterLeft->value(formats[Footer[0]]);
-  pageFooterCenter->value(formats[Footer[1]]);
-  pageFooterRight->value(formats[Footer[2]]);
+//  pageFooterLeft->value(formats[Footer[0]]);
+//  pageFooterCenter->value(formats[Footer[1]]);
+//  pageFooterRight->value(formats[Footer[2]]);
 
   tocLevels->value(TocLevels);
   numberedToc->value(TocNumbers);
 
-  tocHeaderLeft->value(formats[TocHeader[0]]);
-  tocHeaderCenter->value(formats[TocHeader[1]]);
-  tocHeaderRight->value(formats[TocHeader[2]]);
+//  tocHeaderLeft->value(formats[TocHeader[0]]);
+//  tocHeaderCenter->value(formats[TocHeader[1]]);
+//  tocHeaderRight->value(formats[TocHeader[2]]);
 
-  tocFooterLeft->value(formats[TocFooter[0]]);
-  tocFooterCenter->value(formats[TocFooter[1]]);
-  tocFooterRight->value(formats[TocFooter[2]]);
+//  tocFooterLeft->value(formats[TocFooter[0]]);
+//  tocFooterCenter->value(formats[TocFooter[1]]);
+//  tocFooterRight->value(formats[TocFooter[2]]);
 
   tocTitle->value(TocTitle);
 
@@ -3205,6 +3205,7 @@ void
 GUI::saveOptionsCB(Fl_Widget *w,
                    GUI       *gui)
 {
+  char		temp[4];		// Format string
   static char	*formats = ".tchl1iIaAC/:dTD";
 					// Format characters
 
@@ -3231,21 +3232,30 @@ GUI::saveOptionsCB(Fl_Widget *w,
 
   strcpy(TocTitle, gui->tocTitle->value());
 
-  TocHeader[0] = formats[gui->tocHeaderLeft->value()];
-  TocHeader[1] = formats[gui->tocHeaderCenter->value()];
-  TocHeader[2] = formats[gui->tocHeaderRight->value()];
+  temp[0] = formats[gui->tocHeaderLeft->value()];
+  temp[1] = formats[gui->tocHeaderCenter->value()];
+  temp[2] = formats[gui->tocHeaderRight->value()];
+  temp[3] = '\0';
 
-  TocFooter[0] = formats[gui->tocFooterLeft->value()];
-  TocFooter[1] = formats[gui->tocFooterCenter->value()];
-  TocFooter[2] = formats[gui->tocFooterRight->value()];
+  get_format(temp, TocHeader);
 
-  Header[0]    = formats[gui->pageHeaderLeft->value()];
-  Header[1]    = formats[gui->pageHeaderCenter->value()];
-  Header[2]    = formats[gui->pageHeaderRight->value()];
+  temp[0] = formats[gui->tocFooterLeft->value()];
+  temp[1] = formats[gui->tocFooterCenter->value()];
+  temp[2] = formats[gui->tocFooterRight->value()];
 
-  Footer[0]    = formats[gui->pageFooterLeft->value()];
-  Footer[1]    = formats[gui->pageFooterCenter->value()];
-  Footer[2]    = formats[gui->pageFooterRight->value()];
+  get_format(temp, TocFooter);
+
+  temp[0]    = formats[gui->pageHeaderLeft->value()];
+  temp[1]    = formats[gui->pageHeaderCenter->value()];
+  temp[2]    = formats[gui->pageHeaderRight->value()];
+
+  get_format(temp, Header);
+
+  temp[0]    = formats[gui->pageFooterLeft->value()];
+  temp[1]    = formats[gui->pageFooterCenter->value()];
+  temp[2]    = formats[gui->pageFooterRight->value()];
+
+  get_format(temp, Footer);
 
   _htmlBodyFont    = (typeface_t)gui->bodyFont->value();
   _htmlHeadingFont = (typeface_t)gui->headingFont->value();
@@ -3712,21 +3722,30 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   strcpy(TocTitle, gui->tocTitle->value());
 
-  TocHeader[0] = formats[gui->tocHeaderLeft->value()];
-  TocHeader[1] = formats[gui->tocHeaderCenter->value()];
-  TocHeader[2] = formats[gui->tocHeaderRight->value()];
+  temp[0] = formats[gui->tocHeaderLeft->value()];
+  temp[1] = formats[gui->tocHeaderCenter->value()];
+  temp[2] = formats[gui->tocHeaderRight->value()];
+  temp[3] = '\0';
 
-  TocFooter[0] = formats[gui->tocFooterLeft->value()];
-  TocFooter[1] = formats[gui->tocFooterCenter->value()];
-  TocFooter[2] = formats[gui->tocFooterRight->value()];
+  get_format(temp, TocHeader);
 
-  Header[0]    = formats[gui->pageHeaderLeft->value()];
-  Header[1]    = formats[gui->pageHeaderCenter->value()];
-  Header[2]    = formats[gui->pageHeaderRight->value()];
+  temp[0] = formats[gui->tocFooterLeft->value()];
+  temp[1] = formats[gui->tocFooterCenter->value()];
+  temp[2] = formats[gui->tocFooterRight->value()];
 
-  Footer[0]    = formats[gui->pageFooterLeft->value()];
-  Footer[1]    = formats[gui->pageFooterCenter->value()];
-  Footer[2]    = formats[gui->pageFooterRight->value()];
+  get_format(temp, TocFooter);
+
+  temp[0]    = formats[gui->pageHeaderLeft->value()];
+  temp[1]    = formats[gui->pageHeaderCenter->value()];
+  temp[2]    = formats[gui->pageHeaderRight->value()];
+
+  get_format(temp, Header);
+
+  temp[0]    = formats[gui->pageFooterLeft->value()];
+  temp[1]    = formats[gui->pageFooterCenter->value()];
+  temp[2]    = formats[gui->pageFooterRight->value()];
+
+  get_format(temp, Footer);
 
   _htmlBodyFont    = (typeface_t)gui->bodyFont->value();
   _htmlHeadingFont = (typeface_t)gui->headingFont->value();
@@ -3940,5 +3959,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.17 2001/08/14 20:07:38 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.18 2001/08/16 20:34:37 mike Exp $".
 //
