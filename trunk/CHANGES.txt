@@ -5,19 +5,22 @@ CHANGES IN HTMLDOC v1.8.7
 
     NEW FEATURES
 
-	- The configure script now uses the local PNG, ZLIB, and/or JPEG
-	  libraries when they are new enough.
-	- The configure script now uses the -fno-rtti, -fno-exceptions, and
-	  -fomit-stack-frame options when compiling with GCC (smaller,
-	  faster executables.)
-	- Added a --toctitle option to set the table-of-contents title
-	  from the command-line (was only available in the GUI in
-	  previous releases...)
+	- The configure script now uses the local PNG, ZLIB,
+	  and/or JPEG libraries when they are new enough.
+	- The configure script now uses the -fno-rtti,
+	  -fno-exceptions, and -fomit-stack-frame options when
+	  compiling with GCC (smaller, faster executables.)
+	- Added a --toctitle option to set the table-of-contents
+	  title from the command-line (was only available in the
+	  GUI in previous releases...)
 
     CHANGES
 
 	- Increased default MAX_PAGES to 10000 (was 5000.)
-	- File links in book files now point to the top of the next page.
+	- File links in book files now point to the top of the
+	  next page.
+	- <TABLE ALIGN=xyz> now aligns the table (previously it
+	  just set the default alignment of cells.)
 
     BUG FIXES
 
