@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.68 2004/05/09 18:51:59 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.69 2004/05/09 19:57:37 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -143,14 +143,6 @@ main(int  argc,				/* I - Number of command-line arguments */
   exportfunc = (exportfunc_t)html_export;
 
  /*
-  * Load preferences...
-  */
-
-  prefs_load();
-
-  Errors = 0;
-
- /*
   * Check if we are being executed as a CGI program...
   */
 
@@ -164,8 +156,9 @@ main(int  argc,				/* I - Number of command-line arguments */
     // -t pdf
     // -f -
     //
-    // Additional args can be provided on the command-line, however
-    // the format and output file cannot be changed...
+    // Additional args cannot be provided on the command-line, however
+    // the prefs_load() function will load directory-specific options
+    // from the web server directory...
 
     CGIMode       = 1;
     TocLevels     = 0;
@@ -183,7 +176,17 @@ main(int  argc,				/* I - Number of command-line arguments */
 
     progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
     progress_error(HD_ERROR_NONE, "INFO: TMPDIR is \"%s\"\n", getenv("TMPDIR"));
+
+    argc = 1;
   }
+
+ /*
+  * Load preferences...
+  */
+
+  prefs_load();
+
+  Errors = 0;
 
  /*
   * Parse command-line options...
@@ -1048,27 +1051,13 @@ main(int  argc,				/* I - Number of command-line arguments */
 	snprintf(url, sizeof(url), "http://%s:%s%s", getenv("SERVER_NAME"),
         	 getenv("SERVER_PORT"), getenv("PATH_INFO"));
 
-      if (query && argc == 1)
+      if (query && *query && *query != '-')
       {
 	// Include query string on end of URL...
         strlcat(url, "?", sizeof(url));
 	strlcat(url, query, sizeof(url));
       }
-    }
-    else if (query && (!strncmp(query, "http:", 5)
-#ifdef HAVE_SSL
-             || !strncmp(query, "https:", 6)
-#endif // HAVE_SSL
-             ))
-    {
-      // Use URL in query string...
-      strlcpy(url, query, sizeof(url));
-    }
-    else
-      url[0] = '\0';
 
-    if (url[0])
-    {
       progress_error(HD_ERROR_NONE, "INFO: HTMLDOC converting \"%s\".", url);
 
       num_files ++;
@@ -1186,6 +1175,11 @@ prefs_getrc(void)
   if ((home = getenv("HOME")) == NULL)
     home = _htmlData;
 #endif // WIN32
+
+  // When running in CGI mode, use a directory-specific preference
+  // file if it exists...
+  if (CGIMode && !access(".htmldocrc", 0))
+    return (".htmldocrc");
 
   // Format the rc filename and return...
   snprintf(htmldocrc, sizeof(htmldocrc), "%s/.htmldocrc", home);
@@ -2388,5 +2382,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.68 2004/05/09 18:51:59 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.69 2004/05/09 19:57:37 mike Exp $".
  */
