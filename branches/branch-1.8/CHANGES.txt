@@ -24,10 +24,10 @@ CHANGES IN HTMLDOC v1.8.13
 	  under Windows, just like UNIX.  This provides
 	  user-specific preferences and allows preferences to
 	  be kept when upgrading to new versions of HTMLDOC.
-	- The book loading code now allows for blank lines,
-	  even though these are not a part of the format.
-	  (added to support some scripted apps that include
-	   extra newlines...)
+	- The book loading code now allows for blank lines, even
+	  though these are not a part of the format. (added to
+	  support some scripted apps that include extra
+	  newlines...)
 
     BUG FIXES
 
@@ -51,8 +51,8 @@ CHANGES IN HTMLDOC v1.8.13
 	  writing a document with encryption enabled.
 	- The temporary file creation and cleanup functions did
 	  not use the same template under Windows, causing
-	  multiple conversions to fail when temporary files
-	  were used.
+	  multiple conversions to fail when temporary files were
+	  used.
 
 
 CHANGES IN HTMLDOC v1.8.12
