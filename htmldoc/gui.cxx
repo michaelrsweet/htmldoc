@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.61 2003/01/06 22:09:25 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.62 2003/01/07 03:23:06 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -398,12 +398,17 @@ GUI::GUI(const char *filename)		// Book file to load initially
     typeHTML->callback((Fl_Callback *)outputFormatCB, this);
     _tooltip(typeHTML, "Generate HTML file(s).");
 
-    typePS = new RadioButton(205, 100, 45, 20, "PS");
+    typeHTMLSep = new RadioButton(205, 100, 135, 20, "Separated HTML");
+    typeHTMLSep->type(FL_RADIO_BUTTON);
+    typeHTMLSep->callback((Fl_Callback *)outputFormatCB, this);
+    _tooltip(typeHTMLSep, "Generate separate HTML files for each TOC heading.");
+
+    typePS = new RadioButton(340, 100, 45, 20, "PS");
     typePS->type(FL_RADIO_BUTTON);
     typePS->callback((Fl_Callback *)outputFormatCB, this);
     _tooltip(typePS, "Generate Adobe PostScript(r) file(s).");
 
-    typePDF = new RadioButton(250, 100, 55, 20, "PDF");
+    typePDF = new RadioButton(385, 100, 55, 20, "PDF");
     typePDF->type(FL_RADIO_BUTTON);
     typePDF->callback((Fl_Callback *)outputFormatCB, this);
     _tooltip(typePDF, "Generate an Adobe Acrobat file.");
@@ -1306,15 +1311,15 @@ GUI::loadSettings()
 
   get_format(temp, TocFooter);
 
-  temp[0]    = formats[pageHeaderLeft->value()];
-  temp[1]    = formats[pageHeaderCenter->value()];
-  temp[2]    = formats[pageHeaderRight->value()];
+  temp[0] = formats[pageHeaderLeft->value()];
+  temp[1] = formats[pageHeaderCenter->value()];
+  temp[2] = formats[pageHeaderRight->value()];
 
   get_format(temp, Header);
 
-  temp[0]    = formats[pageFooterLeft->value()];
-  temp[1]    = formats[pageFooterCenter->value()];
-  temp[2]    = formats[pageFooterRight->value()];
+  temp[0] = formats[pageFooterLeft->value()];
+  temp[1] = formats[pageFooterCenter->value()];
+  temp[2] = formats[pageFooterRight->value()];
 
   get_format(temp, Footer);
 
@@ -1988,6 +1993,11 @@ GUI::parseOptions(const char *line)	// I - Line from file
         typeHTML->setonly();
 	outputFormatCB(typeHTML, this);
       }
+      else if (strcmp(temp2, "htmlsep") == 0)
+      {
+        typeHTMLSep->setonly();
+	outputFormatCB(typeHTMLSep, this);
+      }
       else if (strcmp(temp2, "ps1") == 0)
       {
         typePS->setonly();
@@ -2298,6 +2308,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   // Write the options...
   if (typeHTML->value())
     fputs("-t html", fp);
+  else if (typeHTMLSep->value())
+    fputs("-t htmlsep", fp);
   else if (typePS->value())
   {
     if (ps1->value())
@@ -2372,7 +2384,7 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   if (bodyImage->size() > 0)
     fprintf(fp, " --bodyimage %s", bodyImage->value());
 
-  if (!typeHTML->value())
+  if (!typeHTML->value() && !typeHTMLSep->value())
   {
     if (pageSize->size() > 0)
       fprintf(fp, " --size %s", pageSize->value());
@@ -2595,6 +2607,7 @@ GUI::docTypeCB(Fl_Widget *w,	// I - Toggle button widget
   if (w == gui->typeBook)
   {
     gui->typeHTML->activate();
+    gui->typeHTMLSep->activate();
 
     gui->titlePage->value(1);
 
@@ -2607,8 +2620,9 @@ GUI::docTypeCB(Fl_Widget *w,	// I - Toggle button widget
   else
   {
     gui->typeHTML->deactivate();
+    gui->typeHTMLSep->deactivate();
 
-    if (gui->typeHTML->value())
+    if (gui->typeHTML->value() || gui->typeHTMLSep->value())
     {
       gui->typePDF->setonly();
       outputFormatCB(gui->typePDF, gui);
@@ -3038,14 +3052,23 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
   if (w == gui->outputBrowse)
   {
     gui->fc->label("Output Path?");
-    gui->fc->type(FileChooser::CREATE);
 
-    if (gui->typeHTML->value())
-      gui->fc->filter("*.htm*");
-    else if (gui->typePDF->value())
-      gui->fc->filter("*.pdf");
+    if (gui->outputFile->value())
+    {
+      gui->fc->type(FileChooser::CREATE);
+
+      if (gui->typeHTML->value())
+	gui->fc->filter("*.htm*");
+      else if (gui->typePDF->value())
+	gui->fc->filter("*.pdf");
+      else
+	gui->fc->filter("*.ps");
+    }
     else
-      gui->fc->filter("*.ps");
+    {
+      gui->fc->type(FileChooser::DIRECTORY | FileChooser::CREATE);
+      gui->fc->filter("*");
+    }
 
     gui->fc->show();
     while (gui->fc->shown())
@@ -3071,7 +3094,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
 	  outputFormatCB(gui->typePDF, gui);
 	}
       }
-      else
+      else if (gui->outputFile->value())
       {
         // No extension - add one!
 	if (gui->typeHTML->value())
@@ -3113,6 +3136,7 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->pdfTab->activate();
     gui->securityTab->activate();
     gui->outputDirectory->deactivate();
+    gui->outputFile->setonly();
 
     ext = ".pdf";
   }
@@ -3123,7 +3147,15 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->outputDirectory->activate();
   }
 
-  if (w == gui->typeHTML)
+  if (w == gui->typeHTMLSep)
+  {
+    gui->outputFile->deactivate();
+    gui->outputDirectory->setonly();
+  }
+  else
+    gui->outputFile->activate();
+
+  if (w == gui->typeHTML || w == gui->typeHTMLSep)
   {
     gui->compression->value(0);
 
@@ -4004,6 +4036,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
     if (gui->typeHTML->value())
       html_export(document, toc);
+    else if (gui->typeHTMLSep->value())
+      htmlsep_export(document, toc);
     else
       pspdf_export(document, toc);
 
@@ -4063,5 +4097,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.61 2003/01/06 22:09:25 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.62 2003/01/07 03:23:06 mike Exp $".
 //
