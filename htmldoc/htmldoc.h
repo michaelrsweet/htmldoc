@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.14 2000/05/08 14:27:41 mike Exp $"
+ * "$Id: htmldoc.h,v 1.15 2000/06/05 03:18:23 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -101,6 +101,14 @@ enum	/* PDF transition effect */
   PDF_WIPE_UP
 };
 
+enum	/* PDF document permissions */
+{
+  PDF_PERM_PRINT = 4,
+  PDF_PERM_MODIFY = 8,
+  PDF_PERM_COPY = 16,
+  PDF_PERM_ANNOTATE = 32
+};
+
 
 /*
  * Globals...
@@ -137,6 +145,10 @@ VAR int		PDFPageMode	VALUE(PDF_OUTLINE),
 		PDFEffect	VALUE(PDF_NONE);/* Page transition effect */
 VAR float	PDFEffectDuration VALUE(1.0),	/* Page effect duration */
 		PDFPageDuration	VALUE(10.0);	/* Page duration */
+VAR int		Encryption	VALUE(0),	/* Encrypt the PDF file? */
+		Permissions	VALUE(-4);	/* File permissions? */
+VAR char	OwnerPassword[33] VALUE(""),	/* Owner password */
+		UserPassword[33] VALUE("");	/* User password */
 VAR int		PSLevel		VALUE(2),	/* Language level (0 for PDF) */
 		PSCommands	VALUE(0);	/* Output PostScript commands? */
 VAR int		PageWidth	VALUE(595),	/* Page width in points */
@@ -231,5 +243,5 @@ extern char	*format_number(int n, char f);
 #  endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.14 2000/05/08 14:27:41 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.15 2000/06/05 03:18:23 mike Exp $".
  */

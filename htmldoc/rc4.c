@@ -1,5 +1,5 @@
 /*
- * "$Id: rc4.c,v 1.1 2000/06/03 23:03:36 mike Exp $"
+ * "$Id: rc4.c,v 1.2 2000/06/05 03:18:24 mike Exp $"
  *
  *   RC4 functions for HTMLDOC.
  *
@@ -29,9 +29,7 @@
  *   rc4_encrypt() - Encrypt the given buffer.
  */
 
-#include <config.h>
-#ifdef USE_ENCRYPTION
-#  include "rc4.h"
+#include "rc4.h"
 
 
 /*
@@ -142,8 +140,6 @@ rc4_encrypt(rc4_context_t       *text,		/* I - Context */
 }
 
 
-#endif /* USE_ENCRYPTION */
-
 /*
- * End of "$Id: rc4.c,v 1.1 2000/06/03 23:03:36 mike Exp $".
+ * End of "$Id: rc4.c,v 1.2 2000/06/05 03:18:24 mike Exp $".
  */

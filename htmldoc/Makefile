@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.8 2000/05/08 16:13:35 mike Exp $"
+#   "$Id: Makefile,v 1.9 2000/06/05 03:18:22 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -34,7 +34,7 @@ include ../Makedefs
 #
 
 OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o image.o iso8859.o \
-		progress.o ps-pdf.o string.o toc.o util.o
+		md5.o progress.o ps-pdf.o rc4.o string.o toc.o util.o
 
 #
 # Make everything...
@@ -80,9 +80,11 @@ htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h types.h
 htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h types.h
 image.o:	debug.h htmldoc.h image.h types.h
 iso8859.o:	iso8859.h types.h
-ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h types.h
-toc.o:		html.h htmldoc.h image.h iso8859.h types.h
+md5.o:		md5.h
+ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h md5.h rc4.h types.h
+rc4.o:		rc4.h
 string.o:	string.h
+toc.o:		html.h htmldoc.h image.h iso8859.h types.h
 util.o:		htmldoc.h types.h
 
 #
@@ -104,5 +106,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.8 2000/05/08 16:13:35 mike Exp $".
+# End of "$Id: Makefile,v 1.9 2000/06/05 03:18:22 mike Exp $".
 #
