@@ -1,0 +1,563 @@
+.\"
+.\" "$Id: htmldoc.man,v 1.9 2004/03/31 07:01:56 mike Exp $"
+.\"
+.\"   Manual page for HTMLDOC, a HTML document processing program.
+.\"
+.\"   Copyright 1997-2004 by Easy Software Products.
+.\"
+.\"   HTMLDOC is distributed under the terms of the GNU General Public License
+.\"   which is described in the file "COPYING.txt".
+.\"
+.TH htmldoc 1 "HTMLDOC 1.8.24" "2 February 2004" "Easy Software Products"
+.SH NAME
+htmldoc \- convert html source files into html, postscript, or pdf.
+.sp
+.SH SYNOPSIS
+htmldoc [options] filename1.html [ ... filenameN.html ]
+.LP
+htmldoc [options] -
+.LP
+htmldoc [filename.book]
+.sp
+.SH DESCRIPTION
+\fIHTMLDOC\fR converts HTML source files into indexed HTML, PostScript, or
+Portable Document Format (PDF) files that can be viewed online or printed.
+With no options a PDF document is produced on stdout.
+.LP
+The second form of \fIHTMLDOC\fR reads HTML source from stdin, which allows
+you to use \fIHTMLDOC\fR as a filter.
+.LP
+The third form of \fIHTMLDOC\fR launches a graphical interface that allows you
+to change options and generate documents interactively.
+.SH COMMON MISTAKES
+There are two types of HTML files - structured documents using
+headings (H1, H2, etc.) which \fIHTMLDOC\fR calls "books", and
+unstructured documents that do not use headings which \fIHTMLDOC\fR
+calls "web pages".
+.LP
+A very common mistake is to try converting a web page using:
+.TP 5
+htmldoc -f filename.pdf filename.html
+.LP
+which will likely produce a PDF file with no pages. To convert web
+page files you \fBmust\fR use the \fI--webpage\fR or \fI--continuous\fR
+options at the command-line or choose \fIWeb Page\fR or \fIContinuous\fR
+in the input tab of the GUI.
+.SH OPTIONS
+The following command-line options are supported by \fIHTMLDOC\fR:
+
+.TP 5
+--batch \fIfilename.book\fR
+.br
+Generates the specified book file without opening the GUI.
+
+.TP 5
+--bodycolor \fIcolor\fR
+.br
+Specifies the background color for all pages.
+
+.TP 5
+--bodyfont \fI{courier,times,helvetica}\fR
+.TP 5
+--textfont \fI{courier,times,helvetica}\fR
+.br
+Specifies the default typeface for all normal text.
+
+.TP 5
+--bodyimage \fIfilename\fR
+.br
+Specifies the background image that is tiled on all pages.
+
+.TP 5
+--book
+.br
+Specifies that the HTML sources are structured (headings, chapters, etc.)
+
+.TP 5
+--bottom \fImargin\fR
+.br
+Specifies the bottom margin in points (no suffix or ##pt), inches
+(##in), centimeters (##cm), or millimeters (##mm).
+
+.TP 5
+--charset \fI{8859-1...8859-15}\fR
+.br
+Specifies the ISO character set to use for the output.
+
+.TP 5
+--color
+.br
+Specifies that PostScript or PDF output should be in color.
+
+.TP 5
+--continuous
+.br
+Specifies that the HTML sources are unstructured (plain web pages.)
+No page breaks are inserted between each file or URL in the output.
+
+.TP 5
+--datadir \fIdirectory\fR
+.br
+Specifies the location of the \fIHTMLDOC\fR data files, usually
+\fI/usr/share/htmldoc\fR or \fIC:\\Program Files\\HTMLDOC\fR.
+
+.TP 5
+--duplex
+.br
+Specifies that the output should be formatted for double-sided printing.
+
+.TP 5
+--effectduration \fI{ 0.1..10.0 }\fR
+.br
+Specifies the duration in seconds of PDF page transition effects.
+
+.TP 5
+--embedfonts
+.br
+Specifies that fonts should be embedded in PDF and PostScript output.
+
+.TP 5
+--encryption
+.br
+Enables encryption of PDF files.
+
+.TP 5
+--fontsize \fIsize\fR
+.br
+Specifies the default font size for body text.
+
+.TP 5
+--fontspacing \fIspacing\fR
+.br
+Specifies the default line spacing for body text. The line spacing is
+a multiplier for the font size, so a value of 1.2 will provide an
+additional 20% of space between the lines.
+
+.TP 5
+--footer \fIfff\fR
+.br
+Sets the page footer to use on body pages. See the \fIHEADERS/FOOTERS FORMATS\fR
+section below.
+
+.TP 5
+--format \fIformat\fR
+.TP 5
+-t \fIformat\fR
+.br
+Specifies the output format: html, htmlsep (separate HTML files for each
+heading in the table-of-contents), ps or ps2 (PostScript Level
+2), ps1 (PostScript Level 1), ps3 (PostScript Level 3), pdf11
+(PDF 1.1/Acrobat 2.0), pdf12 (PDF 1.2/Acrobat 3.0), pdf or pdf13
+(PDF 1.3/Acrobat 4.0), or pdf14 (PDF 1.4/Acrobat 5.0).
+
+.TP 5
+--gray
+.br
+Specifies that PostScript or PDF output should be grayscale.
+
+.TP 5
+--header \fIfff\fR
+.br
+Sets the page header to use on body pages. See the \fIHEADERS/FOOTERS FORMATS\fR
+section below.
+
+.TP 5
+--headfootfont \fIfont\fR
+.br
+Sets the font to use on headers and footers.
+
+.TP 5
+--headfootsize \fIsize\fR
+.br
+Sets the size of the font to use on headers and footers.
+
+.TP 5
+--headingfont \fItypeface\fR
+.br
+Sets the typeface to use for headings.
+
+.TP 5
+--help
+.br
+Displays a summary of command-line options.
+
+.TP 5
+--helpdir \fIdirectory\fR
+.br
+Specifies the location of the \fIHTMLDOC\fR on-line help files, usually
+\fI/usr/share/doc/htmldoc\fR or \fIC:\\Program Files\\HTMLDOC\\DOC\fR.
+
+.TP 5
+--jpeg\fI[=quality]\fR
+.br
+Sets the JPEG compression level to use for large images. A value of 0
+disables JPEG compression.
+
+.TP 5
+--left \fImargin\fR
+.br
+Specifies the left margin in points (no suffix or ##pt), inches
+(##in), centimeters (##cm), or millimeters (##mm).
+
+.TP 5
+--linkcolor \fIcolor\fR
+.br
+Sets the color of links.
+
+.TP 5
+--links
+.br
+Enables generation of links in PDF files (default).
+
+.TP 5
+--linkstyle \fI{plain,underline}\fR
+.br
+Sets the style of links.
+
+.TP 5
+--logoimage \fIfilename\fR
+.br
+Specifies an image to be used as a logo in the header or footer in a
+PostScript or PDF document, and in the navigation bar of a HTML document.
+
+Note that you need to use the \fI--header\fR and/or
+\fI--footer\fR options with the \fIl\fR parameter or use the
+corresponding HTML page comments to display the logo image in
+the header or footer.
+
+.TP 5
+--no-compression
+.br
+Disables compression of PostScript or PDF files.
+
+.TP 5
+--no-duplex
+.br
+Disables double-sided printing.
+
+.TP 5
+--no-embedfonts
+.br
+Specifies that fonts should not be embedded in PDF and PostScript output.
+
+.TP 5
+--no-encryption
+.br
+Disables document encryption.
+
+.TP 5
+--no-jpeg
+.br
+Disables JPEG compression of large images.
+
+.TP 5
+--no-links
+.br
+Disables generation of links in a PDF document.
+
+.TP 5
+--no-numbered
+.br
+Disables automatic heading numbering.
+
+.TP 5
+--no-pscommands
+.br
+Disables generation of PostScript setpagedevice commands.
+
+.TP 5
+--no-strict
+.br
+Disables strict HTML input checking.
+
+.TP 5
+--no-title
+.br
+Disables generation of a title page.
+
+.TP 5
+--no-toc
+.br
+Disables generation of a table of contents.
+
+.TP 5
+--numbered
+.br
+Numbers all headings in a document.
+
+.TP 5
+--nup \fIpages\fR
+.br
+Sets the number of pages that are placed on each output page.
+Valid values are 1, 2, 4, 6, 9, and 16.
+
+.TP 5
+--outdir \fIdirectory\fR
+.TP 5
+-d \fIdirectory\fR
+.br
+Specifies that output should be sent to a directory in multiple files.
+(Not compatible with PDF output)
+
+.TP 5
+--outfile \fIfilename\fR
+.TP 5
+-f \fIfilename\fR
+.br
+Specifies that output should be sent to a single file.
+
+.TP 5
+--owner-password \fIpassword\fR
+.br
+Sets the owner password for encrypted PDF files.
+
+.TP 5
+--pageduration \fI{1.0..60.0}\fR
+.br
+Sets the view duration of a page in a PDF document.
+
+.TP 5
+--pageeffect \fIeffect\fR
+.br
+Specifies the page transition effect for all pages; this attribute
+is ignored by all Adobe PDF viewers...
+
+.TP 5
+--pagelayout \fI{single,one,twoleft,tworight}\fR
+.br
+Specifies the initial layout of pages for a PDF file.
+
+.TP 5
+--pagemode \fI{document,outlines,fullscreen}\fR
+.br
+Specifies the initial viewing mode for a PDF file.
+
+.TP 5
+--path \fI\"dir1;dir2;dir3;...;dirN\"\fR
+.br
+Specifies a search path for files in a document.
+
+.TP 5
+--permissions \fIpermission\fR
+.br
+Specifies document permissions for encrypted PDF files. Multiple
+\fI--permissions\fR options are required to grant or deny
+specific permissions. The following values are understood: all,
+none, annotate, no-annotate, copy, no-copy, modify, no-modify,
+print, and no-print.
+
+.TP 5
+--pscommands
+.br
+Specifies that PostScript setpagedevice commands should be included
+in the output.
+
+.TP 5
+--quiet
+.br
+Suppresses all messages, even error messages.
+
+.TP 5
+--right \fImargin\fR
+.br
+Specifies the right margin in points (no suffix or ##pt), inches
+(##in), centimeters (##cm), or millimeters (##mm).
+
+.TP 5
+--size \fIpagesize\fR
+.br
+Specifies the page size using a standard name or in points (no
+suffix or ##x##pt), inches (##x##in), centimeters (##x##cm), or
+millimeters (##x##mm). The standard sizes that are currently
+recognized are "letter" (8.5x11in), "legal" (8.5x14in), "a4"
+(210x297mm), and "universal" (8.27x11in).
+
+.TP 5
+--strict
+.br
+Enables strict HTML input checking.
+
+.TP 5
+--textcolor \fIcolor\fR
+.br
+Specifies the default color of all text.
+
+.TP 5
+--title
+.br
+Enables the generation of a title page.
+
+.TP 5
+--titlefile \fIfilename\fR
+.TP 5
+--titleimage \fIfilename\fR
+.br
+Specifies the file to use for the title page. If the file is an image then
+the title page is automatically generated using the document meta data and
+title image.
+
+.TP 5
+--tocfooter \fIfff\fR
+.br
+Sets the page footer to use on table-of-contents pages. See the
+\fIHEADERS/FOOTERS FORMATS\fR section below.
+
+.TP 5
+--tocheader \fIfff\fR
+.br
+Sets the page header to use on table-of-contents pages. See the
+\fIHEADERS/FOOTERS FORMATS\fR section below.
+
+.TP 5
+--toclevels \fIlevels\fR
+.br
+Sets the number of levels in the table-of-contents.
+
+.TP 5
+--toctitle \fIstring\fR
+.br
+Sets the title for the table-of-contents.
+
+.TP 5
+--top \fImargin\fR
+.br
+Specifies the top margin in points (no suffix or ##pt), inches
+(##in), centimeters (##cm), or millimeters (##mm).
+
+.TP 5
+--user-password \fIpassword\fR
+.br
+Specifies the user password for encryption of PDF files.
+
+.TP 5
+--verbose
+.TP 5
+-v
+.br
+Provides verbose messages.
+
+.TP 5
+--version
+.br
+Displays the current version number.
+
+.TP 5
+--webpage
+.br
+Specifies that the HTML sources are unstructured (plain web pages.)
+A page break is inserted between each file or URL in the output.
+
+.SH HEADER/FOOTER FORMATS
+The header and footer of each page can contain up to three preformatted
+values. These values are specified using a single character for the
+left, middle, and right of the page, resulting in the \fIfff\fR notation
+shown previously.
+.LP
+Each character can be one of the following:
+
+.TP 5
+\.
+.br
+blank
+
+.TP 5
+/
+.br
+n/N arabic page numbers (1/3, 2/3, 3/3)
+
+.TP 5
+:
+.br
+c/C arabic chapter page numbers (1/2, 2/2, 1/4, 2/4, ...)
+
+.TP 5
+1
+.br
+arabic numbers (1, 2, 3, ...)
+
+.TP 5
+a
+.br
+lowercase letters
+
+.TP 5
+A
+.br
+uppercase letters
+
+.TP 5
+c
+.br
+current chapter heading
+
+.TP 5
+C
+.br
+current chapter page number (arabic)
+
+.TP 5
+d
+.br
+current date
+
+.TP 5
+D
+.br
+current date and time
+
+.TP 5
+h
+.br
+current heading
+
+.TP 5
+i
+.br
+lowercase roman numerals
+
+.TP 5
+I
+.br
+uppercase roman numerals
+
+.TP 5
+l
+.br
+logo image
+
+.TP 5
+t
+.br
+title text
+
+.TP 5
+T
+.br
+current time
+
+.SH SEE ALSO
+HTMLDOC Software Users Manual
+.LP
+http://www.easysw.com/htmldoc
+.SH AUTHOR
+Michael Sweet (mike@easysw.com), Easy Software Products
+.SH TRADEMARKS
+PostScript is a trademark that may be registered in some countries and Adobe is
+a registered trademark of Adobe Systems Incorporated.
+.SH COPYRIGHTS
+Portable Document Format Copyright 1993-1999 by Adobe Systems Incorporated.
+.LP
+HTMLDOC is copyright 1997-2004 by Easy Software Products. This program is free
+software; you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version.
+.LP
+This program is based in part on the work of the Independent JPEG Group.
+.SH NO WARRANTY
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+.\"
+.\" End of "$Id: htmldoc.man,v 1.9 2004/03/31 07:01:56 mike Exp $".
+.\"
