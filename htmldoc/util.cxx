@@ -1,9 +1,9 @@
 /*
- * "$Id: util.cxx,v 1.1 2000/05/08 16:13:37 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.8 2001/08/29 20:42:10 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -26,6 +26,7 @@
  *   format_number()   - Format a number into arabic numerals, roman numerals,
  *                       or letters.
  *   get_color()       - Get a standard color value...
+ *   get_format()      - Convert an old "fff" format string to the new format.
  *   get_measurement() - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
  *   set_page_size()   - Set the output page size.
@@ -48,7 +49,7 @@ char *				/* O - String */
 format_number(int  n,		/* I - Number */
               char f)		/* I - Format */
 {
-  static char	*ones[10] =	/* Roman numerals, 0-9 */
+  static const char *ones[10] =	/* Roman numerals, 0-9 */
 		{
 		  "",	"i",	"ii",	"iii",	"iv",
 		  "v",	"vi",	"vii",	"viii",	"ix"
@@ -63,7 +64,7 @@ format_number(int  n,		/* I - Number */
 		  "",	"c",	"cc",	"ccc",	"cd",
 		  "d",	"dc",	"dcc",	"dccc",	"cm"
 		};
-  static char	*ONES[10] =	/* Roman numerals, 0-9 */
+  static const char *ONES[10] =	/* Roman numerals, 0-9 */
 		{
 		  "",	"I",	"II",	"III",	"IV",
 		  "V",	"VI",	"VII",	"VIII",	"IX"
@@ -140,9 +141,10 @@ get_color(const uchar *color,	/* I - Color attribute */
 	  int         defblack)	/* I - Default color is black? */
 {
   int		i;		/* Looping vars */
+  static uchar	tempcolor[8];	/* Temporary holding place for hex colors */
   static struct
   {
-    char	*name;		/* Color name */
+    const char	*name;		/* Color name */
     uchar	red,		/* Red value */
 		green,		/* Green value */
 		blue;		/* Blue value */
@@ -170,6 +172,22 @@ get_color(const uchar *color,	/* I - Color attribute */
   };
 
 
+  // First, see if this is a hex color with a missing # in front...
+  if (strlen((char *)color) == 6)
+  {
+    for (i = 0; i < 6; i ++)
+      if (!isxdigit(color[i]))
+        break;
+
+    if (i == 6)
+    {
+      // Update the color name to be #RRGGBB instead of RRGGBB...
+      tempcolor[0] = '#';
+      strcpy((char *)tempcolor + 1, (char *)color);
+      color = tempcolor;
+    }
+  }
+
   if (!color[0])
   {
     if (defblack)
@@ -193,14 +211,98 @@ get_color(const uchar *color,	/* I - Color attribute */
   }
   else
   {
-    for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
+    for (i = 0; i < (int)(sizeof(colors) / sizeof(colors[0])); i ++)
       if (strcasecmp(colors[i].name, (char *)color) == 0)
-      {
-        rgb[0] = colors[i].red / 255.0f;
-        rgb[1] = colors[i].green / 255.0f;
-        rgb[2] = colors[i].blue / 255.0f;
-      }
+	break;
+
+    if (i >= (int)(sizeof(colors) / sizeof(colors[0])))
+      i = 1; /* Black */
+
+    rgb[0] = colors[i].red / 255.0f;
+    rgb[1] = colors[i].green / 255.0f;
+    rgb[2] = colors[i].blue / 255.0f;
   }
+}
+
+
+//
+// 'get_format()' - Convert an old "fff" format string to the new format.
+//
+
+extern void
+get_format(const char *fmt,		// I - Old "fff" format
+           char       **formats)	// O - New format strings
+{
+  int	i;				// Looping var
+
+
+  for (i = 0; i < 3; i ++)
+    switch (fmt[i])
+    {
+      case '/' :
+          formats[i] = strdup("$PAGE(1)/$PAGES");
+          break;
+
+      case ':' :
+          formats[i] = strdup("$CHAPTERPAGE(1)/$CHAPTERPAGES");
+          break;
+
+      case '1' :
+          formats[i] = strdup("$PAGE(1)");
+          break;
+
+      case 'a' :
+          formats[i] = strdup("$PAGE(a)");
+          break;
+
+      case 'A' :
+          formats[i] = strdup("$PAGE(A)");
+          break;
+
+      case 'c' :
+          formats[i] = strdup("$CHAPTER");
+          break;
+
+      case 'C' :
+          formats[i] = strdup("$CHAPTERPAGE(1)");
+          break;
+
+      case 'd' :
+          formats[i] = strdup("$DATE");
+          break;
+
+      case 'D' :
+          formats[i] = strdup("$DATE $TIME");
+          break;
+
+      case 'h' :
+          formats[i] = strdup("$HEADING");
+          break;
+
+      case 'i' :
+          formats[i] = strdup("$PAGE(i)");
+          break;
+
+      case 'I' :
+          formats[i] = strdup("$PAGE(I)");
+          break;
+
+      case 'l' :
+          formats[i] = strdup("$LOGOIMAGE");
+          break;
+
+      case 't' :
+          formats[i] = strdup("$TITLE");
+          break;
+
+      case 'T' :
+          formats[i] = strdup("$TIME");
+          break;
+
+      default :
+          formats[i] = NULL;
+          break;
+    }
 }
 
 
@@ -210,7 +312,8 @@ get_color(const uchar *color,	/* I - Color attribute */
  */
 
 int				/* O - Measurement in points */
-get_measurement(const char *s)	/* I - Measurement string */
+get_measurement(const char *s,	/* I - Measurement string */
+                float      mul)	/* I - Multiplier */
 {
   float	val;			/* Measurement value */
 
@@ -233,6 +336,8 @@ get_measurement(const char *s)	/* I - Measurement string */
     val *= 72.0f / 2.54f;
   else if (strncasecmp(s, "in", 2) == 0)
     val *= 72.0f;
+  else
+    val *= mul;
 
   return ((int)val);
 }
@@ -313,5 +418,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1 2000/05/08 16:13:37 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.8 2001/08/29 20:42:10 mike Exp $".
  */
