@@ -118,6 +118,10 @@ SOURCE=..\htmldoc\iso8859.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\htmldoc\progress.cxx
+# End Source File
+# Begin Source File
+
 SOURCE="..\htmldoc\ps-pdf.cxx"
 # End Source File
 # Begin Source File
