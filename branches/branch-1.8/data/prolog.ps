@@ -31,6 +31,12 @@ product (HP LaserJet 5Si/5Si MX PS) eq
 product (HP LaserJet 2100 Series) eq
   { /trayMap [3 0 1 -1 -1 -1 -1 -1] def } if
 
+product (Xerox Document Centre 220/230) eq
+  { /trayMap [1 2 3 4 -1 5 -1 -1] def } if
+
+product (Xerox Document Centre 332/340) eq
+  { /trayMap [1 2 3 4 -1 5 -1 -1] def } if
+
 %product (Insert ModelName string here) eq
 %  { /trayMap [-1 -1 -1 -1 -1 -1 -1 -1] def } if
 
@@ -42,7 +48,8 @@ product (HP LaserJet 2100 Series) eq
 %
 
 /haveMediaColor
-  product (Xerox Document Centre 332/340) eq
+  product (Xerox Document Centre 220/230) eq
+  product (Xerox Document Centre 332/340) eq or
 %  product (Insert ModelName string here) eq or
 def
 
@@ -56,6 +63,7 @@ def
 /haveMediaPosition
   product (Xerox DocuPrint N2025 PS) eq
   product (Xerox DocuPrint N4025 PS3) eq or
+  product (Xerox Document Centre 220/230) eq or
   product (Xerox Document Centre 332/340) eq or
   product (HP LaserJet 5Si/5Si MX PS) eq or
   product (HP LaserJet 2100 Series) eq or
@@ -72,6 +80,7 @@ def
 /haveMediaType
   product (Xerox DocuPrint N2025 PS) eq
   product (Xerox DocuPrint N4025 PS3) eq or
+  product (Xerox Document Centre 220/230) eq or
   product (Xerox Document Centre 332/340) eq or
   product (HP LaserJet 5Si/5Si MX PS) eq or
 %  product (Insert ModelName string here) eq or
@@ -104,6 +113,8 @@ def
   product (Xerox DocuPrint N4025 PS3) eq or
   product (HP LaserJet 5Si/5Si MX PS) eq or
   product (HP LaserJet 2100 Series) eq or
+  product (Xerox Document Centre 220/230) eq or
+  product (Xerox Document Centre 332/340) eq or
 %  product (Insert ModelName string here) eq or
   not
 def
@@ -118,6 +129,8 @@ def
 /haveTraySwitch
   product (Xerox DocuPrint N2025 PS) eq
   product (Xerox DocuPrint N4025 PS3) eq or
+  product (Xerox Document Centre 220/230) eq or
+  product (Xerox Document Centre 332/340) eq or
 %  product (Insert ModelName string here) eq or
   not
 def
