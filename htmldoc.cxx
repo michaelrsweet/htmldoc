@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.2 1999/11/07 15:59:47 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.3 1999/11/07 23:06:06 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -167,11 +167,15 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        if (strcasecmp(argv[i], "courier") == 0)
+        if (strcasecmp(argv[i], "courier") == 0 ||
+	    strcasecmp(argv[i], "monospace") == 0)
 	  _htmlBodyFont = TYPE_COURIER;
-        else if (strcasecmp(argv[i], "times") == 0)
+        else if (strcasecmp(argv[i], "times") == 0 ||
+	         strcasecmp(argv[i], "serif") == 0)
 	  _htmlBodyFont = TYPE_TIMES;
-        else if (strcasecmp(argv[i], "helvetica") == 0)
+        else if (strcasecmp(argv[i], "helvetica") == 0 ||
+	         strcasecmp(argv[i], "arial") == 0 ||
+		 strcasecmp(argv[i], "sans-serif") == 0)
 	  _htmlBodyFont = TYPE_HELVETICA;
       }
       else
@@ -256,6 +260,8 @@ main(int  argc,		/* I - Number of command-line arguments */
 	  fontsize = 6.0f;
 	else if (fontsize > 24.0f)
 	  fontsize = 24.0f;
+
+        htmlSetBaseSize(fontsize, fontspacing);
       }
       else
         usage();
@@ -271,13 +277,16 @@ main(int  argc,		/* I - Number of command-line arguments */
 	  fontspacing = 1.0f;
 	else if (fontspacing > 3.0f)
 	  fontspacing = 3.0f;
+
+        htmlSetBaseSize(fontsize, fontspacing);
       }
       else
         usage();
     }
     else if (compare_strings(argv[i], "--gray", 3) == 0)
     {
-      OutputColor = 0;
+      OutputColor    = 0;
+      _htmlGrayscale = 1;
     }
     else if (compare_strings(argv[i], "--header", 7) == 0)
     {
@@ -322,11 +331,15 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        if (strcasecmp(argv[i], "courier") == 0)
+        if (strcasecmp(argv[i], "courier") == 0 ||
+	    strcasecmp(argv[i], "monospace") == 0)
 	  _htmlHeadingFont = TYPE_COURIER;
-        else if (strcasecmp(argv[i], "times") == 0)
+        else if (strcasecmp(argv[i], "times") == 0 ||
+	         strcasecmp(argv[i], "serif") == 0)
 	  _htmlHeadingFont = TYPE_TIMES;
-        else if (strcasecmp(argv[i], "helvetica") == 0)
+        else if (strcasecmp(argv[i], "helvetica") == 0 ||
+	         strcasecmp(argv[i], "arial") == 0 ||
+	         strcasecmp(argv[i], "sans-serif") == 0)
 	  _htmlHeadingFont = TYPE_HELVETICA;
       }
       else
@@ -577,17 +590,6 @@ main(int  argc,		/* I - Number of command-line arguments */
     usage();
 
  /*
-  * Setup the standard fonts...
-  */
-
-  if (fontsize < 6.0f)
-    fontsize = 6.0f;
-  if (fontspacing < 1.0f)
-    fontspacing = 1.0f;
-
-  htmlSetBaseSize(fontsize, fontspacing);
-
- /*
   * Find the first one in the list...
   */
 
@@ -600,6 +602,8 @@ main(int  argc,		/* I - Number of command-line arguments */
 
   if (TocLevels > 0)
     toc = toc_build(document);
+  else
+    toc = NULL;
 
  /*
   * Figure out the printable area of the output page...
@@ -1072,5 +1076,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.2 1999/11/07 15:59:47 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.3 1999/11/07 23:06:06 mike Exp $".
  */

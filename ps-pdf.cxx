@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.2 1999/11/07 15:59:47 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.3 1999/11/07 23:06:06 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -91,7 +91,6 @@
 
 /*#define DEBUG*/
 #include "htmldoc.h"
-#include "widths.h"
 #include <stdarg.h>
 #include <ctype.h>
 #include <time.h>
@@ -369,14 +368,6 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
 
  /*
-  * Flush the image cache if we're not outputting color - we'll need to reload
-  * some images...
-  */
-
-  if (!OutputColor)
-    image_flush_cache();
-
- /*
   * Get the document title, author, etc...
   */
 
@@ -392,7 +383,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   {
     timage_width  = timage->width * PagePrintWidth / 680.0f;
     timage_height = timage_width * timage->height / timage->width;
-  };
+  }
 
   find_background(document);
 
@@ -436,7 +427,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       r = new_render(0, RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
                      y - timage_height, timage_width, timage_height, timage);
       y -= timage->height + _htmlSpacings[SIZE_P];
-    };
+    }
 
     if (title != NULL)
     {
@@ -463,10 +454,10 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 	r->data.text.size     = _htmlSizes[SIZE_P];
 
 	y -= _htmlSpacings[SIZE_P];
-      };
+      }
 
       y -= _htmlSpacings[SIZE_P];
-    };
+    }
 
     if (author != NULL)
     {
@@ -480,7 +471,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       r->data.text.size     = _htmlSizes[SIZE_P];
 
       y -= _htmlSpacings[SIZE_P];
-    };
+    }
 
     if (copyright != NULL)
     {
@@ -492,7 +483,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       r->data.text.typeface = _htmlBodyFont;
       r->data.text.style    = STYLE_NORMAL;
       r->data.text.size     = _htmlSizes[SIZE_P];
-    };
+    }
   }
   else
     num_pages = 0;
@@ -508,7 +499,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     chapter           = 1;
     TocDocCount       = 1;
     chapter_starts[1] = num_pages;
-  };
+  }
 
   page            = num_pages;
   current_heading = NULL;
@@ -555,7 +546,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     if (PageDuplex && (num_pages & 1))
       num_pages ++;
     chapter_ends[0] = num_pages - 1;
-  };
+  }
 
  /*
   * Write the document to disk...
@@ -608,7 +599,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
 
     if (TitlePage)
       *file_page += PageDuplex + 1;
-  };
+  }
 
   if (chapter < 0 || TocLevels <= 0)
     ord_page = page + 1;
@@ -638,13 +629,13 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   {
     print_page = page - chapter_starts[1] + 1;
     page_text  = format_number(print_page, '1');
-  };
+  }
 
   if (Verbosity)
   {
     progress_show("Writing page %s...", page_text);
     progress_update(100 * page / num_pages);
-  };
+  }
 
  /*
   * Add page headings...
@@ -674,7 +665,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
                             width, Header, PagePrintLength);
     pspdf_prepare_heading(page, print_page, title, title_width, *page_heading,
                           width, Footer, 0);
-  };
+  }
 
   return (page_text);
 }
@@ -769,7 +760,7 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 	  else
 	    temp = NULL;
 	  break;
-    };	
+    }	
 
     if (temp == NULL)
       continue;
@@ -788,7 +779,7 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
       case 2 : /* Right justified */
           temp->x = PagePrintWidth - temp->width;
           break;
-    };
+    }
 
    /*
     * Set the text font...
@@ -799,8 +790,8 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
       temp->data.text.typeface = HeadFootFont;
       temp->data.text.style    = STYLE_NORMAL;
       temp->data.text.size     = HeadFootSize;
-    };
-  };
+    }
+  }
 }
 
 
@@ -843,7 +834,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
       return; /**** NEED TO ADD ERROR MESSAGE HOOK ****/
 
     write_prolog(out, num_pages, title, author, creator, copyright);
-  };
+  }
 
   if (TitlePage)
   {
@@ -851,7 +842,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     {
       out = open_file();
       write_prolog(out, PageDuplex + 1, title, author, creator, copyright);
-    };
+    }
 
     ps_write_page(out, 0, NULL, 0.0, &page_heading);
     if (PageDuplex)
@@ -861,8 +852,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     {
       write_trailer(out, 0);
       fclose(out);
-    };
-  };
+    }
+  }
 
   if (TocLevels > 0)
     chapter = 0;
@@ -881,7 +872,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
         return; /**** NEED TO ADD ERROR MESSAGE HOOK ****/
 
       write_prolog(out, chapter_ends[chapter] - chapter_starts[chapter] + 1, title, author, creator, copyright);
-    };
+    }
 
     for (page = chapter_starts[chapter], page_heading = NULL;
          page <= chapter_ends[chapter];
@@ -896,8 +887,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     {
       write_trailer(out, 0);
       fclose(out);
-    };
-  };
+    }
+  }
 
  /*
   * Close the output file as necessary...
@@ -908,7 +899,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     write_trailer(out, 0);
     if (out != stdout)
       fclose(out);
-  };
+  }
 
   if (Verbosity)
     progress_hide();
@@ -1001,11 +992,11 @@ ps_write_page(FILE  *out,		/* I - Output file */
             fprintf(out, " %.1f L\n", r->width);
           render_x += r->width;
           break;
-    };
+    }
 
     next = r->next;
     free(r);
-  };
+  }
 
  /*
   * Output the page trailer...
@@ -1036,7 +1027,7 @@ ps_write_background(FILE *out)		/* I - Output file */
     putc('<', out);
     ps_hex(out, background_image->pixels + y * pwidth, pwidth);
     putc('>', out);
-  };
+  }
   fputs("]def", out);
 }
 
@@ -1091,7 +1082,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
     fprintf(out, "%d 0 R\n", pages_object + 1);
     if (PageDuplex)
       fprintf(out, "%d 0 R\n", pages_object + 4);
-  };
+  }
 
   if (TocLevels > 0)
     chapter = 0;
@@ -1114,7 +1105,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
     pdf_write_page(out, 0, NULL, 0.0, &page_heading);
     if (PageDuplex)
       pdf_write_page(out, 1, NULL, 0.0, &page_heading);
-  };
+  }
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
   {
@@ -1125,7 +1116,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
          page <= chapter_ends[chapter];
          page ++)
       pdf_write_page(out, page, title, title_width, &page_heading);
-  };
+  }
 
   if (TocLevels > 0)
   {
@@ -1175,14 +1166,14 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
 	fInfo.fdType    = 'PDF ';
 	fInfo.fdCreator = 'CARO';
 	FSpSetFInfo(&fSpec, &fInfo);
-      };
+      }
 
     //
     // Now that the PDF file is associated with that type, close the file.
     //
 
     fclose(out);
-  };
+  }
 #else
   if (out != stdout)
     fclose(out);
@@ -1220,7 +1211,7 @@ pdf_write_resources(FILE *out,	/* I - Output file */
     {
       text_used = 1;
       fonts_used[r->data.text.typeface * 4 + r->data.text.style] = 1;
-    };
+    }
 
   fputs("/Resources<<", out);
 
@@ -1239,7 +1230,7 @@ pdf_write_resources(FILE *out,	/* I - Output file */
       fputs("/ProcSet[/PDF/Text/ImageB/ImageC]", out);
     else
       fputs("/ProcSet[/PDF/Text/ImageB]", out);
-  };
+  }
 
   fputs("/Font<<", out);
   for (i = 0; i < 16; i ++)
@@ -1364,7 +1355,7 @@ pdf_write_page(FILE  *out,		/* I - Output file */
         pdf_puts("ET\n", out);
 
       last_render = r->type;
-    };
+    }
 
     switch (r->type)
     {
@@ -1394,13 +1385,13 @@ pdf_write_page(FILE  *out,		/* I - Output file */
             set_color(out, r->data.fbox);
             pdf_printf(out, "%.1f %.1f %.1f %.1f re f\n",
                     r->x, r->y, r->width, r->height);
-          };
+          }
           break;
-    };
+    }
 
     next = r->next;
     free(r);
-  };
+  }
 
  /*
   * Output the page trailer...
@@ -1511,7 +1502,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     {
       entry = thisobj + 1;
       count = 0;
-    };
+    }
 
     for (; temp != NULL && count < MAX_HEADINGS; temp = temp->next)
       if (temp->markup == MARKUP_B || temp->markup == MARKUP_LI)
@@ -1524,7 +1515,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
           entry_counts[count] = 0;
 	entry += entry_counts[count] + 1;
 	count ++;
-      };
+      }
 
    /*
     * Output the top-level object...
@@ -1543,7 +1534,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       fprintf(out, "/Count %d", parent == 0 ? count : -count);
       fprintf(out, "/First %d 0 R", entry_objects[0]);
       fprintf(out, "/Last %d 0 R", entry_objects[count - 1]);
-    };
+    }
 
     if (toc->markup == MARKUP_B || toc->markup == MARKUP_LI)
     {
@@ -1552,7 +1543,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 	fputs("/Title", out);
 	write_string(out, text, 0);
 	free(text);
-      };
+      }
 
       if (heading_pages[*heading] > 0)
 	fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
@@ -1560,7 +1551,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
         	heading_tops[*heading]);
 
       (*heading) ++;
-    };
+    }
 
     if (prev > 0)
       fprintf(out, "/Prev %d 0 R", prev);
@@ -1575,7 +1566,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       pdf_write_contents(out, entries[i], thisobj, i > 0 ? entry_objects[i - 1] : 0,
                 	 i < (count - 1) ? entry_objects[i + 1] : 0,
                 	 heading);
-  };
+  }
 }
 
 
@@ -1693,11 +1684,11 @@ pdf_write_links(FILE *out)		/* I - Output file */
         }
         else
           num_lobjs += 2;
-      };
+      }
 
     if (num_lobjs > 0)
       pages_object += num_lobjs + 1;
-  };
+  }
 
  /*
   * Add space for named links for PDF 1.2 output...
@@ -1788,7 +1779,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		default :
 		    putc(*filename, out);
 		    break;
-	      };
+	      }
 
             putc(')', out);
 	  }
@@ -1812,10 +1803,10 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		default :
 		    putc(*filename, out);
 		    break;
-	      };
+	      }
 
             putc(')', out);
-	  };
+	  }
 
           fputs(">>", out);
           fputs("endobj\n", out);
@@ -1839,8 +1830,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	  fprintf(out, "/A %d 0 R", num_objects - 1);
           fputs(">>", out);
           fputs("endobj\n", out);
-	};
-      };
+	}
+      }
 
     if (num_lobjs > 0)
     {
@@ -1854,8 +1845,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
         fprintf(out, "%d 0 R\n", lobjs[lobj]);
       fputs("]", out);
       fputs("endobj\n", out);
-    };
-  };
+    }
+  }
 }
 
 
@@ -1926,7 +1917,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
   {
     write_string(out, link->name, 0);
     fprintf(out, "%d 0 R", num_objects + i);
-  };
+  }
   fputs("]", out);
 
   fputs(">>", out);
@@ -1944,7 +1935,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
             link->top);
     fputs(">>", out);
     fputs("endobj\n", out);
-  };
+  }
 
 }
 
@@ -1976,7 +1967,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 		*next;
   render_t	*r;
   static char	*contents = CONTENTS;
-#define dot_width  (_htmlSizes[SIZE_P] * char_widths[t->typeface][t->style]['.'])
+#define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
 
 
   DEBUG_printf(("parse_contents(t=%08x, y=%.1f, page=%d, heading=%d)\n",
@@ -2020,7 +2011,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
             r->data.text.size     = _htmlSizes[SIZE_H1];
 
             *y -= _htmlSpacings[SIZE_H1];
-          };
+          }
 
           x  = left + 36.0f * t->indent;
 	  *y -= height;
@@ -2052,8 +2043,8 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 		rgb[1] = 0.0f;
 		rgb[2] = 1.0f;
 		r = new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
-	      };
-	    };
+	      }
+	    }
 
 	    switch (temp->markup)
 	    {
@@ -2065,7 +2056,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
         	    */
 
         	    add_link(link, *page, (int)(*y + 6 * height));
-        	  };
+        	  }
         	  break;
 
               case MARKUP_NONE :
@@ -2078,7 +2069,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 		    rgb[1] = temp->green / 255.0f;
 		    rgb[2] = temp->blue / 255.0f;
 		    r = new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
-		  };
+		  }
 
 		  if (temp->strikethrough)
 		  {
@@ -2086,7 +2077,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 		    rgb[1] = temp->green / 255.0f;
 		    rgb[2] = temp->blue / 255.0f;
 		    r = new_render(*page, RENDER_BOX, x, *y + t->height * 0.5f, temp->width, 0, rgb);
-		  };
+		  }
 
         	  r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
         	  r->data.text.typeface = temp->typeface;
@@ -2106,12 +2097,12 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	                	 temp->height,
 				 image_load((char *)htmlGetVariable(temp, (uchar *)"SRC"), !OutputColor));
 		  break;
-	    };
+	    }
 
 	    x += temp->width;
 	    next = temp->next;
 	    free(temp);
-	  };
+	  }
 
          /*
           * Draw dots leading up to the page number...
@@ -2143,10 +2134,10 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
       default :
           parse_contents(t->child, left, right, bottom, top, y, page, heading);
           break;
-    };
+    }
 
     t = t->next;
-  };
+  }
 }
 
 
@@ -2192,7 +2183,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       */
 
       add_link(name, *page, (int)(*y + 3 * t->height));
-    };
+    }
 
     if (t->markup == MARKUP_H1 && TocLevels > 0)
     {
@@ -2201,7 +2192,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         parse_paragraph(para, left, right, bottom, top, x, y, page);
         htmlDeleteTree(para->child);
         para->child = para->last_child = NULL;
-      };
+      }
 
       if (chapter > 0)
       {
@@ -2213,7 +2204,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           progress_show("Formatting page %d", *page);
 
         chapter_ends[chapter] = *page - 1;
-      };
+      }
 
       chapter ++;
       chapter_starts[chapter] = *page;
@@ -2223,7 +2214,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
       if (page_headings[*page] == NULL)
         page_headings[*page] = htmlGetText(current_heading);
-    };
+    }
 
     if (chapter == 0)
     {
@@ -2232,7 +2223,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
       t = t->next;
       continue;
-    };
+    }
 
     switch (t->markup)
     {
@@ -2244,7 +2235,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           {
             para->halignment = t->halignment;
             para->indent     = t->indent;
-          };
+          }
 
           if ((temp = htmlAddTree(para, t->markup, t->data)) != NULL)
           {
@@ -2267,7 +2258,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
               htmlSetVariable(temp, var->name, var->value);
 
             copy_tree(temp, t->child);
-          };
+          }
           break;
 
       case MARKUP_TABLE :
@@ -2276,7 +2267,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           parse_table(t, left, right, bottom, top, x, y, page);
           break;
@@ -2293,7 +2284,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           parse_heading(t, left, right, bottom, top, x, y, page);
           break;
@@ -2304,7 +2295,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           if (t->prev != NULL && *y < top)
 	    *y -= _htmlSpacings[t->size];
@@ -2323,7 +2314,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           if (t->prev != NULL && *y < top)
 	    *y -= _htmlSpacings[t->size];
@@ -2342,7 +2333,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           if (t->prev != NULL && *y < top)
 	    *y -= _htmlSpacings[t->size];
@@ -2356,7 +2347,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           parse_pre(t, left, right, bottom, top, x, y, page);
           break;
@@ -2370,7 +2361,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           *x = (float)(left + 36);
 
@@ -2396,7 +2387,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           parse_list(t, left, right, bottom, top, x, y, page);
           break;
@@ -2407,7 +2398,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           parse_paragraph(t, left, right, bottom, top, x, y, page);
           break;
@@ -2418,7 +2409,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          };
+          }
 
           *x = (float)(left + 36);
 
@@ -2434,7 +2425,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
 	    if (*y < top)
 	      *y -= _htmlSpacings[para->size];
-          };
+          }
 
           if (htmlGetVariable(t, (uchar *)"BREAK") == NULL)
 	  {
@@ -2450,7 +2441,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	        width = atoi((char *)name) * (right - left) / 100;
 	      else
                 width = atoi((char *)name) * PagePrintWidth / 680.0f;
-            };
+            }
 
             if ((name = htmlGetVariable(t, (uchar *)"SIZE")) == NULL)
 	      height = 2;
@@ -2468,7 +2459,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      case ALIGN_RIGHT :
 	          *x = (float)right - width;
 		  break;
-	    };
+	    }
 
             if (*y < ((float)bottom + height + _htmlSpacings[SIZE_P]))
 	    {
@@ -2483,7 +2474,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
               if (page_headings[*page] == NULL)
         	page_headings[*page] = htmlGetText(current_heading);
-            };
+            }
 
             (*y)   -= height + _htmlSpacings[SIZE_P];
             rgb[0] = t->red / 255.0f;
@@ -2506,7 +2497,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
             if (page_headings[*page] == NULL)
               page_headings[*page] = htmlGetText(current_heading);
-	  };
+	  }
 
           *x = (float)left;
           break;
@@ -2526,7 +2517,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             {
               para->halignment = t->halignment;
               para->indent     = t->indent;
-            };
+            }
 
             if ((temp = htmlAddTree(para, t->markup, t->data)) != NULL)
             {
@@ -2547,24 +2538,24 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
               temp->blue          = t->blue;
               for (i = 0, var = t->vars; i < t->nvars; i ++, var ++)
         	htmlSetVariable(temp, var->name, var->value);
-            };
-	  };
+            }
+	  }
 
       default :
 	  if (t->child != NULL)
             parse_doc(t->child, left, right, bottom, top, x, y, page, para);
           break;
-    };
+    }
 
     t = t->next;
-  };
+  }
 
   if (para->child != NULL && cpara != para)
   {
     parse_paragraph(para, left, right, bottom, top, x, y, page);
     htmlDeleteTree(para->child);
     para->child = para->last_child = NULL;
-  };
+  }
 
   if (cpara != para)
     htmlDeleteTree(para);
@@ -2597,7 +2588,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
     *y = (float)top;
     if (Verbosity)
       progress_show("Formatting page %d", *page);
-  };
+  }
 
   if (page_headings[*page] == NULL || t->markup == MARKUP_H1)
     page_headings[*page] = htmlGetText(current_heading);
@@ -2615,11 +2606,11 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
                     num_headings, *page - 1));
       heading_pages[num_headings] = *page;
-    };
+    }
 
     heading_tops[num_headings] = (int)(*y + 2 * _htmlSpacings[t->size]);
     num_headings ++;
-  };
+  }
 
   parse_paragraph(t, left, right, bottom, top, x, y, page);
 
@@ -2718,7 +2709,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
           if (page_headings[*page] == NULL)
             page_headings[*page] = htmlGetText(current_heading);
-        };
+        }
 
         new_render(*page, RENDER_IMAGE, (float)left, *y - temp->height, temp->width,
                    temp->height,
@@ -2746,7 +2737,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
           if (page_headings[*page] == NULL)
             page_headings[*page] = htmlGetText(current_heading);
-        };
+        }
 
         new_render(*page, RENDER_IMAGE, right - temp->width, *y - temp->height,
                    temp->width, temp->height,
@@ -2761,8 +2752,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         free(temp);
         temp = prev;
-      };
-    };
+      }
+    }
 
     if (temp != NULL)
     {
@@ -2771,7 +2762,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     }
     else
       temp = flat;
-  };
+  }
 
  /*
   * Then format the text and inline images...
@@ -2795,7 +2786,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       {
         if ((temp_width == 0.0 || whitespace) &&
             temp->markup == MARKUP_NONE && temp->data[0] == ' ')
-          temp_width -= char_widths[temp->typeface][temp->style][' '] *
+          temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
                         _htmlSizes[temp->size];
 
         if (temp->markup == MARKUP_NONE && temp->data[strlen((char *)temp->data) - 1] == ' ')
@@ -2827,14 +2818,14 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       }
       else
         break;
-    };
+    }
 
     if (start == end)
     {
       end   = start->next;
       flat  = start->next;
       width = start->width;
-    };
+    }
 
     for (height = 0.0, temp = prev = start; temp != end; temp = temp->next)
     {
@@ -2846,7 +2837,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
       if (temp_height > height)
         height = temp_height;
-    };
+    }
 
     if (prev != NULL && prev->markup == MARKUP_NONE &&
         prev->data[strlen((char *)prev->data) - 1] == ' ')
@@ -2856,11 +2847,11 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       */
 
       prev->data[strlen((char *)prev->data) - 1] = '\0';
-      temp_width = char_widths[prev->typeface][prev->style][' '] *
+      temp_width = _htmlWidths[prev->typeface][prev->style][' '] *
                    _htmlSizes[prev->size];
       prev->width -= temp_width;
       width       -= temp_width;
-    };
+    }
 
     if (*y < (height + bottom))
     {
@@ -2872,7 +2863,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
       if (page_headings[*page] == NULL)
         page_headings[*page] = htmlGetText(current_heading);
-    };
+    }
 
     *y -= height;
 
@@ -2918,8 +2909,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  rgb[1] = 0.0f;
 	  rgb[2] = 1.0f;
 	  r = new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, rgb);
-	};
-      };
+	}
+      }
 
      /*
       * See if we are doing a run of characters in a line and need to
@@ -2951,7 +2942,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         free(linetype);
         linetype = NULL;
-      };
+      }
 
       switch (temp->markup)
       {
@@ -2963,7 +2954,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
               */
 
               add_link(link, *page, (int)(*y + 6 * height));
-            };
+            }
             break;
 
         case MARKUP_NONE :
@@ -2976,7 +2967,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      lineptr   = line;
 	      linex     = *x;
 	      linewidth = 0.0;
-	    };
+	    }
 
 	    if (temp->underline)
 	    {
@@ -2984,7 +2975,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      rgb[1] = temp->green / 255.0f;
 	      rgb[2] = temp->blue / 255.0f;
 	      r = new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, rgb);
-	    };
+	    }
 
 	    if (temp->strikethrough)
 	    {
@@ -2992,7 +2983,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      rgb[1] = temp->green / 255.0f;
 	      rgb[2] = temp->blue / 255.0f;
 	      r = new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f, temp->width, 0, rgb);
-	    };
+	    }
 
             if ((temp == start || whitespace) && temp->data[0] == ' ')
 	    {
@@ -3019,14 +3010,14 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 			   image_load((char *)htmlGetVariable(temp, (uchar *)"SRC"), !OutputColor));
             whitespace = 0;
 	    break;
-      };
+      }
 
       *x += temp->width;
       prev = temp;
       temp = temp->next;
       if (prev != linetype)
         free(prev);
-    };
+    }
 
    /*
     * See if we have a run of characters that hasn't been output...
@@ -3047,7 +3038,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         r->y += height / 1.2 - linetype->height * 1.2;
 
       free(linetype);
-    };
+    }
 
    /*
     * Update the margins after we pass below the images...
@@ -3058,8 +3049,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       image_left   = (float)left;
       image_right  = (float)right;
       format_width = image_right - image_left;
-    };
-  };
+    }
+  }
 
   *x = (float)left;
   if (*y > image_y && image_y > 0.0)
@@ -3119,14 +3110,14 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
 	if (page_headings[*page] == NULL)
           page_headings[*page] = htmlGetText(current_heading);
-      };
+      }
     
       *x = (float)left;
       *y -= _htmlSpacings[t->size];
 
       if (Verbosity)
         progress_update(100 - 100 * (*y) / PagePrintLength);
-    };
+    }
 
     if (flat->link != NULL)
     {
@@ -3153,8 +3144,8 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	rgb[1] = 0.0f;
 	rgb[2] = 1.0f;
 	r = new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0, rgb);
-      };
-    };
+      }
+    }
 
     switch (flat->markup)
     {
@@ -3166,7 +3157,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
             */
 
             add_link(link, *page, (int)(*y + 6 * t->height));
-          };
+          }
           break;
 
       case MARKUP_BR :
@@ -3195,7 +3186,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
             {
               *lineptr++ = *dataptr;
               col ++;
-            };
+            }
 
           *lineptr = '\0';
 
@@ -3214,7 +3205,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	    rgb[1] = flat->green / 255.0f;
 	    rgb[2] = flat->blue / 255.0f;
 	    r = new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0, rgb);
-	  };
+	  }
 
 	  if (flat->strikethrough)
 	  {
@@ -3222,7 +3213,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	    rgb[1] = flat->green / 255.0f;
 	    rgb[2] = flat->blue / 255.0f;
 	    r = new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f, flat->width, 0, rgb);
-	  };
+	  }
 
           *x += flat->width;
           break;
@@ -3235,12 +3226,12 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
           *x += flat->width;
           col ++;
 	  break;
-    };
+    }
 
     next = flat->next;
     free(flat);
     flat = next;
-  };
+  }
 
   *x = (float)left;
 }
@@ -3285,7 +3276,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		*flat,
 		*next,
 		*cells[MAX_ROWS][MAX_COLUMNS];
-  static float	black[3] = { 0.0, 0.0, 0.0 };
+  static float	black[3] = { 0.0, 0.0, 0.0 }
 
 
   DEBUG_printf(("parse_table(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
@@ -3322,7 +3313,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
             cells[num_rows][col] = tempcol;
             col ++;
             colspan --;
-          };
+          }
 
           if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
 	  {
@@ -3360,19 +3351,19 @@ parse_table(tree_t *t,		/* I - Tree to parse */
               next = flat->next;
               free(flat);
               flat = next;
-            };
+            }
 
             if (width > col_widths[col - 1] &&
 	        (col <= 1 || cells[num_rows][col - 1] != cells[num_rows][col - 2]))
               col_widths[col - 1] = width;
-	  };
-        };
+	  }
+        }
 
       if (col > num_cols)
         num_cols = col;
 
       num_rows ++;
-    };
+    }
 
  /*
   * Now figure out the width of the table...
@@ -3411,7 +3402,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     if (width > (right - left))
       width = (float)(right - left);
-  };
+  }
 
  /*
   * Compute the width of each column based on the printable width.
@@ -3432,8 +3423,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     {
       regular_cols ++;
       col_widths[col] = 0.0;
-    };
-  };
+    }
+  }
 
   if (regular_cols > 0)
   {
@@ -3443,7 +3434,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     {
       if (col_widths[col] == 0.0)
 	col_widths[col] = regular_width;
-    };
+    }
   }
   else if (width > actual_width)
   {
@@ -3451,7 +3442,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     for (col = 0; col < num_cols; col ++)
       col_widths[col] += regular_width;
-  };
+  }
 
   switch (t->halignment)
   {
@@ -3464,14 +3455,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     case ALIGN_RIGHT :
         *x = right - width + border + cellpadding + cellspacing;
         break;
-  };
+  }
 
   for (col = 0; col < num_cols; col ++)
   {
     col_lefts[col]  = (int)*x;
     col_rights[col] = (int)(*x + col_widths[col] + 0.5);
     *x = (float)col_rights[col] + 2 * (border + cellpadding + cellspacing);
-  };
+  }
 
   *y -= (border + cellpadding + cellspacing);
 
@@ -3487,7 +3478,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       if (page_headings[*page] == NULL)
         page_headings[*page] = htmlGetText(current_heading);
-    };
+    }
 
     row_y    = *y;
     row_page = *page;
@@ -3519,7 +3510,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       }
       else if (temp_y < row_y && temp_page == row_page)
         row_y = temp_y;
-    };
+    }
 
     row_y -= 2 * (border + cellpadding + cellspacing);
 
@@ -3561,12 +3552,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
                      *y - row_y - 2 * cellspacing, black);
 
 	col += colspan;
-      };
-    };
+      }
+    }
 
     *page = row_page;
     *y    = row_y;
-  };
+  }
 
   *x = (float)left;
   *y -= _htmlSpacings[SIZE_P] - (border + cellpadding + cellspacing);
@@ -3580,7 +3571,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     if (page_headings[*page] == NULL)
       page_headings[*page] = htmlGetText(current_heading);
-  };
+  }
 }
 
 
@@ -3617,7 +3608,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
 
     if (page_headings[*page] == NULL)
       page_headings[*page] = htmlGetText(current_heading);
-  };
+  }
 
   switch (list_types[t->indent])
   {
@@ -3636,7 +3627,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
         sprintf((char *)number, "%c ", list_types[t->indent]);
         typeface = TYPE_SYMBOL;
         break;
-  };
+  }
 
   width = get_width(number, typeface, t->style, t->size);
 
@@ -3759,11 +3750,11 @@ find_background(tree_t *t)	/* I - Document to search */
           background_color[0] = colors[i].red / 255.0f;
           background_color[1] = colors[i].green / 255.0f;
           background_color[2] = colors[i].blue / 255.0f;
-	};
-    };
+	}
+    }
 
     return;
-  };
+  }
 
  /*
   * If not, search the document tree...
@@ -3800,16 +3791,16 @@ find_background(tree_t *t)	/* I - Document to search */
               background_color[0] = colors[i].red / 255.0f;
               background_color[1] = colors[i].green / 255.0f;
               background_color[2] = colors[i].blue / 255.0f;
-            };
-	};
-      };
-    };
+            }
+	}
+      }
+    }
 
     if (t->child != NULL)
       find_background(t->child);
 
     t = t->next;
-  };
+  }
 }
 
 
@@ -3839,7 +3830,7 @@ write_background(FILE *out)	/* I - File to write to */
   	      pdf_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
               pdf_puts("/BG Do\n", out);
 	      pdf_puts("Q\n", out);
-            };
+            }
 	  break;
 
       case 1 :
@@ -3858,7 +3849,7 @@ write_background(FILE *out)	/* I - File to write to */
 	    fputs("false 3 colorimage\n", out);
 	  fputs("GR}for}for\n", out);
           break;
-    };
+    }
   }
   else if (background_color[0] != 1.0 ||
            background_color[1] != 1.0 ||
@@ -3875,8 +3866,8 @@ write_background(FILE *out)	/* I - File to write to */
     {
       set_color(out, background_color);
       pdf_printf(out, "0 0 %d %d re f\n", PageWidth, PageLength);
-    };
-  };
+    }
+  }
 }
 
 
@@ -3921,7 +3912,7 @@ new_render(int   page,		/* I - Page number (0-n) */
         {
           free(r);
           return (NULL);
-        };
+        }
         strcpy((char *)r->data.text.buffer, (char *)data);
         break;
     case RENDER_IMAGE :
@@ -3929,7 +3920,7 @@ new_render(int   page,		/* I - Page number (0-n) */
         {
           free(r);
           return (NULL);
-        };
+        }
         r->data.image = (image_t *)data;
         break;
     case RENDER_BOX :
@@ -3943,10 +3934,10 @@ new_render(int   page,		/* I - Page number (0-n) */
         {
           free(r);
           return (NULL);
-        };
+        }
         strcpy((char *)r->data.link, (char *)data);
         break;
-  };
+  }
 
   if (endpages[page] != NULL)
     endpages[page]->next = r;
@@ -3993,7 +3984,7 @@ add_link(uchar *name,	/* I - Name of link */
     if (num_links > 1)
       qsort(links, num_links, sizeof(link_t),
             (int (*)(const void *, const void *))compare_links);
-  };
+  }
 }
 
 
@@ -4066,10 +4057,10 @@ copy_tree(tree_t *parent,	/* I - Source tree */
         htmlSetVariable(temp, var->name, var->value);
 
       copy_tree(temp, t->child);
-    };
+    }
 
     t = t->next;
-  };
+  }
 }
 
 
@@ -4120,7 +4111,7 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
 	    if (flat != NULL)
               flat->next = temp;
             flat = temp;
-          };
+          }
 	  break;
 
       case MARKUP_P :
@@ -4148,7 +4139,7 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
             flat->next = temp;
           flat = temp;
           break;
-    };
+    }
 
     if (t->child != NULL)
     {
@@ -4160,14 +4151,14 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
         flat->next = temp;
       else
         flat = temp;
-    };
+    }
 
     if (flat != NULL)
       while (flat->next != NULL)
         flat = flat->next;
 
     t = t->next;
-  };
+  }
 
   if (flat == NULL)
     return (NULL);
@@ -4206,7 +4197,7 @@ update_image_size(tree_t *t)	/* I - Tree entry */
       t->height = atoi((char *)height) * PagePrintWidth / 100.0f;
     else
       t->height = atoi((char *)height) * PagePrintWidth / 680.0f;
-  };
+  }
 
   img = image_load((char *)htmlGetVariable(t, (uchar *)"SRC"), !OutputColor);
 
@@ -4235,7 +4226,7 @@ update_image_size(tree_t *t)	/* I - Tree entry */
   {
     t->width  = img->width * PagePrintWidth / 680.0f;
     t->height = img->height * PagePrintWidth / 680.0f;
-  };
+  }
 }
 
 
@@ -4257,7 +4248,7 @@ get_width(uchar *s,		/* I - String to scan */
     return (0.0);
 
   for (width = 0.0, ptr = s; *ptr != '\0'; ptr ++)
-    width += char_widths[typeface][style][*ptr];
+    width += _htmlWidths[typeface][style][*ptr];
 
   return (width * _htmlSizes[size]);
 }
@@ -4281,7 +4272,7 @@ get_title(tree_t *doc)	/* I - Document */
       if ((temp = get_title(doc->child)) != NULL)
         return (temp);
     doc = doc->next;
-  };
+  }
 
   return (NULL);
 }
@@ -4421,7 +4412,7 @@ set_pos(FILE  *out,	/* I - File to write to */
   {
     sprintf(xs, "%.1f", x - render_startx);
     sprintf(ys, "%.1f", y - render_y);
-  };
+  }
 
  /*
   * Strip trailing 0's and decimals...
@@ -4479,7 +4470,7 @@ ps_hex(FILE  *out,	/* I - File to print to */
     col = (col + 1) % 40;
     if (col == 0)
       putc('\n', out);
-  };
+  }
 
   if (col > 0)
     putc('\n', out);
@@ -4523,11 +4514,11 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
       c[0] = b + '!';
 
       fwrite(c, 5, 1, out);
-    };
+    }
 
     data += 4;
     length -= 4;
-  };
+  }
 
   if (length > 0)
   {
@@ -4544,7 +4535,7 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
     c[0] = b + '!';
 
     fwrite(c, length + 1, 1, out);
-  };
+  }
 }
 
 
@@ -4726,7 +4717,7 @@ write_image(FILE     *out,	/* I - Output file */
 	{
 	  grays[*pixel] = 1;
 	  ncolors ++;
-	};
+	}
 
       if (ncolors <= 16)
       {
@@ -4738,7 +4729,7 @@ write_image(FILE     *out,	/* I - Output file */
 	    colors[j][2] = i;
 	    grays[i]   = j;
 	    j ++;
-	  };
+	  }
       }
       else
         ncolors = 0;
@@ -4772,18 +4763,21 @@ write_image(FILE     *out,	/* I - Output file */
           if (ncolors > 1)
             qsort(colors[0], ncolors, 3,
                   (int (*)(const void *, const void *))compare_rgb);
-        };
-      };
+        }
+      }
 
       if (i > 0)
         ncolors = 0;
-    };
-  };
+    }
+  }
 
   if (ncolors > 0)
   {
     if (ncolors <= 2)
+    {
+      ncolors = 2; /* Adobe doesn't like only 1 color... */
       indbits = 1;
+    }
     else if (ncolors <= 4)
       indbits = 2;
     else if (ncolors <= 16)
@@ -4819,11 +4813,11 @@ write_image(FILE     *out,	/* I - Output file */
 		  case 0 :
 	              *indptr++ |= grays[*pixel];
 		      break;
-        	};
+        	}
 
 	      if (k != 7)
 		indptr ++;
-	    };
+	    }
 	    break;
 
         case 2 :
@@ -4846,11 +4840,11 @@ write_image(FILE     *out,	/* I - Output file */
 		  case 3 :
 	              *indptr++ |= grays[*pixel];
 		      break;
-        	};
+        	}
 
 	      if (k)
 		indptr ++;
-	    };
+	    }
 	    break;
 
         case 4 :
@@ -4866,9 +4860,9 @@ write_image(FILE     *out,	/* I - Output file */
 
 	      if (k)
 		indptr ++;
-	    };
+	    }
 	    break;
-      };
+      }
     }
     else
     {
@@ -4900,12 +4894,12 @@ write_image(FILE     *out,	/* I - Output file */
 		  case 0 :
 	              *indptr++ |= m;
 		      break;
-        	};
-	      };
+        	}
+	      }
 
 	      if (k != 7)
 	        indptr ++;
-	    };
+	    }
 	    break;
 
         case 2 :
@@ -4933,12 +4927,12 @@ write_image(FILE     *out,	/* I - Output file */
 		  case 3 :
 	              *indptr++ |= m;
 		      break;
-        	};
-	      };
+        	}
+	      }
 
 	      if (k)
 	        indptr ++;
-	    };
+	    }
 	    break;
 
         case 4 :
@@ -4956,11 +4950,11 @@ write_image(FILE     *out,	/* I - Output file */
 		  *indptr++ |= m;
 		else
 		  *indptr = m << 4;
-	      };
+	      }
 
 	      if (k)
 	        indptr ++;
-	    };
+	    }
 	    break;
 
         case 8 :
@@ -4973,12 +4967,12 @@ write_image(FILE     *out,	/* I - Output file */
         	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
                         	         (int (*)(const void *, const void *))compare_rgb);
 	        *indptr = (match - colors[0]) / 3;
-	      };
-	    };
+	      }
+	    }
 	    break;
-      };
-    };
-  };
+      }
+    }
+  }
 
  /*
   * Now write the image...
@@ -5035,9 +5029,9 @@ write_image(FILE     *out,	/* I - Output file */
                	     img->width, img->height); 
 
   	  pdf_write(out, img->pixels, img->width * img->height * img->depth);
-        };
+        }
 
-	pdf_puts("EI\nQ\n", out);
+	pdf_puts("\nEI\nQ\n", out);
         break;
 
     case 1 : /* PostScript, Level 1 */
@@ -5150,11 +5144,11 @@ write_image(FILE     *out,	/* I - Output file */
 
 	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth);
           fputs("~>\n", out);
-        };
+        }
 
 	fputs("GR\n", out);
         break;
-  };
+  }
 
   if (ncolors > 0)
     free(indices);
@@ -5173,32 +5167,13 @@ write_prolog(FILE *out,		/* I - Output file */
              uchar *creator,	/* I - Application that generated the HTML file */
              uchar *copyright)	/* I - Copyright (if any) on the document */
 {
-  int		i,		/* Looping var */
+  int		i, j,		/* Looping vars */
 		encoding_object;/* Font encoding object */
   time_t	curtime;	/* Current time */
   struct tm	*curdate;	/* Current date */
   int		page;		/* Current page */
   render_t	*r;		/* Current render data */
-  int		fonts_used[16];	/* Whether or not a font is used */
-  static char	*typefaces[] =	/* Long font names */
-  {
-    "Courier",
-    "Courier-Bold",
-    "Courier-Oblique",
-    "Courier-BoldOblique",
-    "Times-Roman",
-    "Times-Bold",
-    "Times-Italic",
-    "Times-BoldItalic",
-    "Helvetica",
-    "Helvetica-Bold",
-    "Helvetica-Oblique",
-    "Helvetica-BoldOblique",
-    "Symbol",
-    "Symbol",
-    "Symbol",
-    "Symbol"
-  };
+  int		fonts_used[4][4];/* Whether or not a font is used */
 
 
  /*
@@ -5213,12 +5188,12 @@ write_prolog(FILE *out,		/* I - Output file */
   */
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  fonts_used[HeadFootFont * 4] = 1;
+  fonts_used[HeadFootFont][0] = 1;
 
   for (page = 0; page < num_pages; page ++)
     for (r = pages[page]; r != NULL; r = r->next)
       if (r->type == RENDER_TEXT)
-	fonts_used[r->data.text.typeface * 4 + r->data.text.style] = 1;
+	fonts_used[r->data.text.typeface][r->data.text.style] = 1;
 
  /*
   * Generate the heading...
@@ -5250,93 +5225,52 @@ write_prolog(FILE *out,		/* I - Output file */
     else
       fputs("%%Pages: (atend)\n", out);
     fputs("%%DocumentNeededResources:\n", out);
-    for (i = 0; i < 16; i ++)
-      if (fonts_used[i])
-        fprintf(out, "%%%%+ font %s\n", typefaces[i]);
+    for (i = 0; i < 4; i ++)
+      for (j = 0; j < 4; j ++)
+        if (fonts_used[i][j])
+          fprintf(out, "%%%%+ font %s\n", _htmlFonts[i][j]);
     fputs("%%DocumentData: Clean7bit\n", out);
     fputs("%%EndComments\n", out);
 
     fputs("%%BeginProlog\n", out);
 
    /*
-    * Oh, joy, another font encoding.  For now assume that all documents use
-    * ISO-8859-1 encoding (this covers about 1/2 of the human population)...
+    * Output the font encoding for the current character set...  For now we
+    * just support 8-bit fonts since true Unicode support needs a very large
+    * number of extra fonts that aren't normally available on a PS printer.
     */
 
-    fputs("/iso8859encoding[", out);
-    fputs("/.notdef/.notdef/.notdef/.notdef", out);
-    fputs("/.notdef/.notdef/.notdef/.notdef", out);
-    fputs("/.notdef/.notdef/.notdef/.notdef", out);
-    fputs("/.notdef/.notdef/.notdef/.notdef", out);
-    fputs("/.notdef/.notdef/.notdef/.notdef", out);
-    fputs("/.notdef/.notdef/.notdef/.notdef", out);
-    fputs("/.notdef/.notdef/.notdef/.notdef", out);
-    fputs("/.notdef/.notdef/.notdef/.notdef", out);
-    fputs("/space/exclam/quotedbl/numbersign", out);
-    fputs("/dollar/percent/ampersand/quoteright", out);
-    fputs("/parenleft/parenright/asterisk/plus", out);
-    fputs("/comma/hyphen/period/slash", out);
-    fputs("/zero/one/two/three/four/five/six/seven", out);
-    fputs("/eight/nine/colon/semicolon", out);
-    fputs("/less/equal/greater/question", out);
-    fputs("/at/A/B/C/D/E/F/G", out);
-    fputs("/H/I/J/K/L/M/N/O", out);
-    fputs("/P/Q/R/S/T/U/V/W", out);
-    fputs("/X/Y/Z/bracketleft", out);
-    fputs("/backslash/bracketright/asciicircum/underscore", out);
-    fputs("/quoteleft/a/b/c/d/e/f/g", out);
-    fputs("/h/i/j/k/l/m/n/o", out);
-    fputs("/p/q/r/s/t/u/v/w", out);
-    fputs("/x/y/z/braceleft", out);
-    fputs("/bar/braceright/asciitilde/guilsinglright", out);
-    fputs("/fraction/florin/quotesingle/quotedblleft", out);
-    fputs("/guilsinglleft/fi/fl/endash", out);
-    fputs("/dagger/daggerdbl/bullet/quotesinglbase", out);
-    fputs("/quotedblbase/quotedblright/ellipsis/trademark", out);
-    fputs("/dotlessi/grave/acute/circumflex", out);
-    fputs("/tilde/macron/breve/dotaccent", out);
-    fputs("/dieresis/perthousand/ring/cedilla", out);
-    fputs("/Ydieresis/hungarumlaut/ogonek/caron", out);
-    fputs("/emdash/exclamdown/cent/sterling", out);
-    fputs("/currency/yen/brokenbar/section", out);
-    fputs("/dieresis/copyright/ordfeminine/guillemotleft", out);
-    fputs("/logicalnot/hyphen/registered/macron", out);
-    fputs("/degree/plusminus/twosuperior/threesuperior", out);
-    fputs("/acute/mu/paragraph/periodcentered", out);
-    fputs("/cedilla/onesuperior/ordmasculine/guillemotright", out);
-    fputs("/onequarter/onehalf/threequarters/questiondown", out);
-    fputs("/Agrave/Aacute/Acircumflex/Atilde", out);
-    fputs("/Adieresis/Aring/AE/Ccedilla", out);
-    fputs("/Egrave/Eacute/Ecircumflex/Edieresis", out);
-    fputs("/Igrave/Iacute/Icircumflex/Idieresis", out);
-    fputs("/Eth/Ntilde/Ograve/Oacute", out);
-    fputs("/Ocircumflex/Otilde/Odieresis/multiply", out);
-    fputs("/Oslash/Ugrave/Uacute/Ucircumflex", out);
-    fputs("/Udieresis/Yacute/Thorn/germandbls", out);
-    fputs("/agrave/aacute/acircumflex/atilde", out);
-    fputs("/adieresis/aring/ae/ccedilla", out);
-    fputs("/egrave/eacute/ecircumflex/edieresis", out);
-    fputs("/igrave/iacute/icircumflex/idieresis", out);
-    fputs("/eth/ntilde/ograve/oacute", out);
-    fputs("/ocircumflex/otilde/odieresis/divide", out);
-    fputs("/oslash/ugrave/uacute/ucircumflex", out);
-    fputs("/udieresis/yacute/thorn/ydieresis]def", out);
+    fputs("/fontencoding[\n", out);
+    for (i = 0; i < 256; i ++)
+    {
+      putc('/', out);
+      if (_htmlGlyphs[i])
+        fputs(_htmlGlyphs[i], out);
+      else
+        fputs(".notdef", out);
+
+      if ((i & 7) == 7)
+        putc('\n', out);
+    }
+
+    fputs("]def", out);
 
    /*
     * Fonts...
     */
 
-    for (i = 0; i < 16; i ++)
-      if (fonts_used[i])
-      {
-	fprintf(out, "/%s findfont\n", typefaces[i]);
-	if (i < 12)
-	  fputs("dup length dict begin"
-        	"{1 index/FID ne{def}{pop pop}ifelse}forall"
-        	"/Encoding iso8859encoding def"
-        	"	currentdict end\n", out);
-	fprintf(out, "/F%x exch definefont pop\n", i);
-      };
+    for (i = 0; i < 4; i ++)
+      for (j = 0; j < 4; j ++)
+        if (fonts_used[i][j])
+        {
+	  fprintf(out, "/%s findfont\n", _htmlFonts[i][j]);
+	  if (i < 3)
+	    fputs("dup length dict begin"
+        	  "{1 index/FID ne{def}{pop pop}ifelse}forall"
+        	  "/Encoding fontencoding def"
+        	  " currentdict end\n", out);
+	  fprintf(out, "/F%x exch definefont pop\n", i * 4 + j);
+        }
 
    /*
     * Now for the macros...
@@ -5387,22 +5321,29 @@ write_prolog(FILE *out,		/* I - Output file */
     {
       fputs("/Title", out);
       write_string(out, title, 0);
-    };
+    }
 
     if (author != NULL)
     {
       fputs("/Author", out);
       write_string(out, author, 0);
-    };
+    }
 
     if (creator != NULL)
     {
       fputs("/Creator", out);
       write_string(out, creator, 0);
-    };
+    }
 
     fputs(">>", out);
     fputs("endobj\n", out);
+
+   /*
+    * Write the font encoding for the selected character set.  Note that
+    * we *should* be able to use the WinAnsiEncoding value for ISO-8859-1
+    * to make smaller files, however Acrobat Exchange does not like it
+    * despite the fact that it is defined in the PDF specification...
+    */
 
     num_objects ++;
     encoding_object = num_objects;
@@ -5411,31 +5352,46 @@ write_prolog(FILE *out,		/* I - Output file */
     fprintf(out, "%d 0 obj", encoding_object);
     fputs("<<", out);
     fputs("/Type/Encoding", out);
-    fputs("/BaseEncoding/WinAnsiEncoding", out);
-    fputs(">>", out);
+    fputs("/Differences[", out);
+    for (i = 0, j = -1; i < 256; i ++)
+      if (_htmlGlyphs[i])
+      {
+       /*
+        * Output a character index if we had blank ones...
+	*/
+
+        if (j != (i - 1))
+	  fprintf(out, " %d", i);
+
+        fprintf(out, "/%s", _htmlGlyphs[i]);
+	j = i;
+      }
+
+    fputs("]>>", out);
     fputs("endobj\n", out);
 
-    for (i = 0; i < 16; i ++)
-      if (fonts_used[i])
-      {
-	num_objects ++;
-	font_objects[i] = num_objects;
-	objects[num_objects] = ftell(out);
+    for (i = 0; i < 4; i ++)
+      for (j = 0; j < 4; j ++)
+        if (fonts_used[i][j])
+        {
+	  num_objects ++;
+	  font_objects[i * 4 + j] = num_objects;
+	  objects[num_objects] = ftell(out);
 
-	fprintf(out, "%d 0 obj", font_objects[i]);
-	fputs("<<", out);
-	fputs("/Type/Font", out);
-	fputs("/Subtype/Type1", out);
-	fprintf(out, "/BaseFont/%s", typefaces[i]);
-	if (i < 12) /* Use native encoding for symbols */
-	  fprintf(out, "/Encoding %d 0 R", encoding_object);
-	fputs(">>", out);
-	fputs("endobj\n", out);
-      };
+	  fprintf(out, "%d 0 obj", font_objects[i * 4 + j]);
+	  fputs("<<", out);
+	  fputs("/Type/Font", out);
+	  fputs("/Subtype/Type1", out);
+	  fprintf(out, "/BaseFont/%s", _htmlFonts[i][j]);
+	  if (i < 3) /* Use native encoding for symbols */
+	    fprintf(out, "/Encoding %d 0 R", encoding_object);
+	  fputs(">>", out);
+	  fputs("endobj\n", out);
+        }
 
     if (background_image != NULL)
       pdf_write_background(out);
-  };
+  }
 }
 
 
@@ -5482,10 +5438,10 @@ write_string(FILE  *out,	/* I - Output file */
         putc('\\', out);
 
       putc(*s, out);
-    };
+    }
 
     s ++;
-  };
+  }
 
   if (compress)
     pdf_write(out, (uchar *)")", 1);
@@ -5562,7 +5518,7 @@ write_trailer(FILE *out,	/* I - Output file */
         fputs("/ViewerPreferences<</PageLayout/TwoColumnRight>>", out);
       else
         fputs("/ViewerPreferences<</PageLayout/OneColumn>>", out);
-    };
+    }
 
     if (outline_object > 0)
     {
@@ -5594,7 +5550,7 @@ write_trailer(FILE *out,	/* I - Output file */
     fputs("startxref\n", out);
     fprintf(out, "%d\n", offset);
     fputs("%%EOF\n", out);
-  };
+  }
 }
 
 
@@ -5639,7 +5595,7 @@ pdf_close_stream(FILE *out)	/* I - Output file */
     fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
     compressor.next_out  = (Bytef *)comp_buffer;
     compressor.avail_out = sizeof(comp_buffer);
-  };
+  }
 
   if ((uchar *)compressor.next_out > (uchar *)comp_buffer)
     fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
@@ -5706,10 +5662,10 @@ pdf_write(FILE *out,	/* I - Output file */
 	fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
 	compressor.next_out  = (Bytef *)comp_buffer;
 	compressor.avail_out = sizeof(comp_buffer);
-      };
+      }
 
       deflate(&compressor, Z_NO_FLUSH);
-    };
+    }
   }
   else
 #endif /* HAVE_LIBZ */
@@ -5718,5 +5674,5 @@ pdf_write(FILE *out,	/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.2 1999/11/07 15:59:47 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.3 1999/11/07 23:06:06 mike Exp $".
  */

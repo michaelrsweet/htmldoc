@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.1 1999/11/07 13:33:16 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.2 1999/11/07 23:06:06 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -42,10 +42,8 @@
  */
 
 #include "htmldoc.h"
-#include "widths.h"
 #include <ctype.h>
 
-#define IMAGE_DPI	80.0f
 
 
 /*
@@ -144,12 +142,48 @@ char		*_htmlMarkups[] =
 		  "WBR"
 		};
 
+const char	*_htmlData = ".";	/* Data directory */
+float		_htmlPPI = 80.0f;	/* Image resolution */
+int		_htmlGrayscale = 0;	/* Grayscale output? */
 float		_htmlSizes[8] =		/* Point size for each HTML size */
 		{ 6.0f, 8.0f, 9.0f, 11.0f, 14.0f, 17.0f, 20.0f, 24.0f };
 float		_htmlSpacings[8] =	/* Line height for each HTML size */
 		{ 7.2f, 9.6f, 10.8f, 13.2f, 16.8f, 20.4f, 24.0f, 28.8f };
 typeface_t	_htmlBodyFont = TYPE_TIMES,
 		_htmlHeadingFont = TYPE_HELVETICA;
+
+int		_htmlInitialized = 0;	/* Initialized glyphs yet? */
+char		_htmlCharset[256] = "";	/* Character set name */
+float		_htmlWidths[4][4][256];	/* Character widths of fonts */
+const char	*_htmlGlyphsAll[65536];	/* Character glyphs for Unicode */
+const char	*_htmlGlyphs[256];	/* Character glyphs for charset */
+const char	*_htmlFonts[4][4] =
+		{
+		  {
+		    "Courier",
+		    "Courier-Bold",
+		    "Courier-Oblique",
+		    "Courier-BoldOblique"
+		  },
+		  {
+		    "Times-Roman",
+		    "Times-Bold",
+		    "Times-Italic",
+		    "Times-BoldItalic"
+		  },
+		  {
+		    "Helvetica",
+		    "Helvetica-Bold",
+		    "Helvetica-Oblique",
+		    "Helvetica-BoldOblique"
+		  },
+		  {
+		    "Symbol",
+		    "Symbol",
+		    "Symbol",
+		    "Symbol"
+		  }
+		};
 
 
 /*
@@ -242,11 +276,11 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       {
         have_whitespace = 1;
         ch              = getc(fp);
-      };
+      }
 
       if (ch == EOF)
         break;
-    };
+    }
 
    /*
     * Allocate a new tree entry - use calloc() to get zeroed data...
@@ -284,7 +318,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       t->blue          = parent->blue;
       t->underline     = parent->underline;
       t->strikethrough = parent->strikethrough;
-    };
+    }
 
    /*
     * See what the character was...
@@ -307,7 +341,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
 	free(t);
 	continue;
-      };
+      }
       
       if (ch != '/')
         ungetc(ch, fp);
@@ -316,7 +350,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       {
         free(t);
         break;
-      };
+      }
 
      /*
       * If this is the matching close mark, or if we are starting the same
@@ -349,7 +383,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	  {
 	    temp = NULL;
             break;
-	  };
+	  }
       }
       else if (islist(t->markup))
       {
@@ -360,7 +394,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	  {
 	    temp = NULL;
             break;
-	  };
+	  }
 
       }
       else if (isblock(t->markup))
@@ -373,7 +407,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	  {
 	    temp = NULL;
 	    break;
-	  };
+	  }
       }
       else if (istable(t->markup))
       {
@@ -384,7 +418,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	  {
 	    temp = NULL;
             break;
-	  };
+	  }
       }
       else if (istentry(t->markup))
       {
@@ -395,7 +429,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	  {
 	    temp = NULL;
             break;
-	  };
+	  }
       }
       else if (t->markup == MARKUP_LI)
       {
@@ -406,7 +440,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           {
 	    temp = NULL;
 	    break;
-	  };
+	  }
       }
       else
         temp = NULL;
@@ -430,7 +464,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       {
         free(t);
 	continue;
-      };
+      }
     }
     else if (t->preformatted)
     {
@@ -453,7 +487,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
           *glyphptr = '\0';
           ch = iso8859(glyph);
-        };
+        }
 
         if (ch != 0)
           *ptr++ = ch;
@@ -462,7 +496,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
         ch = getc(fp);
-      };
+      }
 
       *ptr = '\0';
 
@@ -498,13 +532,13 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
           *glyphptr = '\0';
           ch = iso8859(glyph);
-        };
+        }
 
         if (ch != 0)
           *ptr++ = ch;
 
         ch = getc(fp);
-      };
+      }
 
       if (isspace(ch))
         *ptr++ = ' ';
@@ -518,7 +552,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       t->data   = (uchar *)strdup((char *)s);
 
       DEBUG_printf(("%sfragment %s\n", indent, s));
-    };
+    }
 
    /*
     * If the parent tree pointer is not null and this is the first
@@ -653,8 +687,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
               t->child = htmlReadFile(t, embed, newbase);
               fclose(embed);
-            };
-	  };
+            }
+	  }
           break;
 
       case MARKUP_TH :
@@ -684,7 +718,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
               t->typeface = TYPE_COURIER;
             else if (strstr((char *)face, "symbol") != NULL)
               t->typeface = TYPE_SYMBOL;
-          };
+          }
 
           if ((color = htmlGetVariable(t, (uchar *)"COLOR")) != NULL)
             compute_color(t, color);
@@ -702,7 +736,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
               t->size = 7;
             else
               t->size = sizeval;
-          };
+          }
 
           t->child = htmlReadFile(t, fp, base);
           break;
@@ -814,8 +848,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
           t->child = htmlReadFile(t, fp, base);
           break;
-    };
-  };  
+    }
+  }  
 
 #ifdef DEBUG
   indent[strlen((char *)indent) - 4] = '\0';
@@ -858,7 +892,7 @@ write_file(tree_t *t,		/* I - Tree entry */
 	{
           putc('\n', fp);
           col = 0;
-	};
+	}
 
         for (ptr = t->data; *ptr != '\0'; ptr ++)
           fputs((char *)iso8859(*ptr), fp);
@@ -869,8 +903,8 @@ write_file(tree_t *t,		/* I - Tree entry */
 	{
           putc('\n', fp);
           col = 0;
-	};
-      };
+	}
+      }
     }
     else if (t->markup == MARKUP_COMMENT)
       fprintf(fp, "\n<!--%s-->\n", t->data);
@@ -907,9 +941,9 @@ write_file(tree_t *t,		/* I - Tree entry */
             {
               putc('\n', fp);
               col = 0;
-            };
+            }
             break;
-      };
+      }
 
       col += fprintf(fp, "<%s", _htmlMarkups[t->markup]);
       for (i = 0; i < t->nvars; i ++)
@@ -918,13 +952,13 @@ write_file(tree_t *t,		/* I - Tree entry */
 	{
           putc('\n', fp);
           col = 0;
-	};
+	}
 
         if (col > 0)
         {
           putc(' ', fp);
           col ++;
-        };
+        }
 
 	if (t->vars[i].value == NULL)
           col += fprintf(fp, "%s", t->vars[i].name);
@@ -935,7 +969,7 @@ write_file(tree_t *t,		/* I - Tree entry */
           col += fprintf(fp, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
 	else
           col += fprintf(fp, "%s=%s", t->vars[i].name, t->vars[i].value);
-      };
+      }
 
       putc('>', fp);
       col ++;
@@ -944,7 +978,7 @@ write_file(tree_t *t,		/* I - Tree entry */
       {
 	putc('\n', fp);
 	col = 0;
-      };
+      }
 
       if (t->child != NULL)
       {
@@ -954,7 +988,7 @@ write_file(tree_t *t,		/* I - Tree entry */
 	{
 	  putc('\n', fp);
 	  col = 0;
-	};
+	}
 	
         col += fprintf(fp, "</%s>", _htmlMarkups[t->markup]);
         switch (t->markup)
@@ -987,12 +1021,12 @@ write_file(tree_t *t,		/* I - Tree entry */
               putc('\n', fp);
               col = 0;
               break;
-        };
-      };
-    };
+        }
+      }
+    }
 
     t = t->next;
-  };
+  }
 
   return (col);
 }
@@ -1043,7 +1077,7 @@ htmlAddTree(tree_t   *parent,	/* I - Parent entry */
       parent->child = t;
 
     parent->last_child = t;
-  };
+  }
 
   return (t);
 }
@@ -1080,7 +1114,7 @@ htmlDeleteTree(tree_t *parent)	/* I - Parent to delete */
       free(var->name);
       if (var->value != NULL)
         free(var->value);
-    };
+    }
 
     if (parent->vars != NULL)
       free(parent->vars);
@@ -1088,7 +1122,7 @@ htmlDeleteTree(tree_t *parent)	/* I - Parent to delete */
     free(parent);
 
     parent = next;
-  };
+  }
 
   return (0);
 }
@@ -1124,7 +1158,7 @@ htmlInsertTree(tree_t   *parent,/* I - Parent entry */
       parent->last_child = t;
 
     parent->child = t;
-  };
+  }
 
   return (t);
 }
@@ -1184,7 +1218,7 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
     t->blue          = parent->blue;
     t->underline     = parent->underline;
     t->strikethrough = parent->strikethrough;
-  };
+  }
 
   switch (t->markup)
   {
@@ -1298,7 +1332,7 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
     case MARKUP_DEL :
         t->strikethrough = 1;
         break;
-  };
+  }
 
   t->parent = parent;
 
@@ -1327,10 +1361,10 @@ get_text(tree_t *tree,	/* I - Tree to pick */
     {
       strcat((char *)buf, " ");
       buf ++;
-    };
+    }
 
     tree = tree->next;
-  };
+  }
 
   return (buf);
 }
@@ -1390,7 +1424,7 @@ htmlGetMeta(tree_t *tree,	/* I - Document tree */
     */
 
     tree = tree->next;
-  };
+  }
 
   return (NULL);
 }
@@ -1447,7 +1481,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
 
     v = (var_t *)bsearch(&key, t->vars, t->nvars, sizeof(var_t),
         	         (int (*)(const void *, const void *))compare_variables);
-  };
+  }
 
   if (v == NULL)
   {
@@ -1462,7 +1496,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
 
       t->nvars = 0;
       return (-1);
-    };
+    }
 
     v        = t->vars + t->nvars;
     t->nvars ++;
@@ -1476,7 +1510,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
     {
       DEBUG_printf(("%s---- Set link to %s ----\n", indent, value));
       t->link = t;
-    };
+    }
 
     if (t->nvars > 1)
       qsort(t->vars, t->nvars, sizeof(var_t),
@@ -1490,7 +1524,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
       v->value = (uchar *)strdup((char *)value);
     else
       v->value = NULL;
-  };
+  }
 
   return (0);
 }
@@ -1512,7 +1546,139 @@ htmlSetBaseSize(float p,	/* I - Point size of paragraph font */
   {
     _htmlSizes[i]    = p;
     _htmlSpacings[i] = p * s;
-  };
+  }
+}
+
+
+/*
+ * 'htmlSetCharSet()' - Set the character set for output.
+ */
+
+void
+htmlSetCharSet(const char *cs)	/* I - Character set file to load */
+{
+  int		i, j;		/* Looping vars */
+  char		filename[1024];	/* Filenames */
+  FILE		*fp;		/* Files */
+  int		ch, unicode;	/* Character values */
+  float		width;		/* Width value */
+  char		glyph[64];	/* Glyph name */
+  char		line[1024];	/* Line from AFM file */
+  int		chars[256];	/* Character encoding array */
+
+
+  if (strcmp(cs, _htmlCharset) == 0)
+    return;
+
+  strcpy(_htmlCharset, cs);
+
+  if (!_htmlInitialized)
+  {
+   /*
+    * Load the PostScript glyph names for all of Unicode...
+    */
+
+    memset(_htmlGlyphsAll, 0, sizeof(_htmlGlyphsAll));
+
+    if ((fp = fopen("data/psglyphs", "r")) != NULL)
+    {
+      while (fscanf(fp, "%x%63s", &unicode, glyph) == 2)
+        _htmlGlyphsAll[unicode] = strdup(glyph);
+
+      fclose(fp);
+    }
+
+    _htmlInitialized = 1;
+  }
+
+  memset(_htmlGlyphs, 0, sizeof(_htmlGlyphs));
+
+  sprintf(filename, "data/%s", cs);
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
+   /*
+    * Can't open charset file; use ISO-8859-1...
+    */
+
+    for (i = 0; i < 256; i ++)
+      chars[i] = i;
+  }
+  else
+  {
+   /*
+    * Read the <char> <unicode> lines from the file...
+    */
+
+    memset(chars, 0, sizeof(chars));
+
+    while (fscanf(fp, "%x%x", &ch, &unicode) == 2)
+      chars[ch] = unicode;
+
+    fclose(fp);
+  }
+
+ /*
+  * Build the glyph array...
+  */
+
+  for (i = 0; i < 256; i ++)
+    if (chars[i] == 0)
+      _htmlGlyphs[i] = NULL;
+    else
+      _htmlGlyphs[i] = _htmlGlyphsAll[chars[i]];
+
+ /*
+  * Now read all of the font widths...
+  */
+
+  for (i = 0; i < 4; i ++)
+    for (j = 0; j < 4; j ++)
+    {
+      for (ch = 0; ch < 256; ch ++)
+        _htmlWidths[i][j][ch] = 0.6f;
+
+      sprintf(filename, "afm/%s", _htmlFonts[i][j]);
+      if ((fp = fopen(filename, "r")) == NULL)
+        continue;
+
+      while (fgets(line, sizeof(line), fp) != NULL)
+      {
+        if (strncmp(line, "C ", 2) != 0)
+	  continue;
+
+        if (i < 3)
+	{
+	 /*
+	  * Handle encoding of Courier, Times, and Helvetica using
+	  * assigned charset...
+	  */
+
+          if (sscanf(line, "%*s%*s%*s%*s%f%*s%*s%s", &width, glyph) != 2)
+	    continue;
+
+          for (ch = 0; ch < 256; ch ++)
+	    if (_htmlGlyphs[ch] && strcmp(_htmlGlyphs[ch], glyph) == 0)
+	      break;
+
+          if (ch < 256)
+	    _htmlWidths[i][j][ch] = width * 0.001f;
+	}
+	else
+	{
+	 /*
+	  * Symbol font uses its own encoding...
+	  */
+
+          if (sscanf(line, "%*s%d%*s%*s%f", &ch, &width) != 2)
+	    continue;
+
+          if (ch < 256)
+	    _htmlWidths[i][j][ch] = width * 0.001f;
+	}
+      }
+
+      fclose(fp);
+    }
 }
 
 
@@ -1593,7 +1759,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     cptr      = comment;
 
     DEBUG_printf(("%s%s\n", indent, markup));
-  };
+  }
 
   if (t->markup == MARKUP_COMMENT)
   {
@@ -1601,7 +1767,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     {
       *cptr++ = ch;
       ch = getc(fp);
-    };
+    }
 
     *cptr = '\0';
     t->data = (uchar *)strdup((char *)comment);
@@ -1614,11 +1780,11 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
       {
         ungetc(ch, fp);
         parse_variable(t, fp);
-      };
+      }
 
       ch = getc(fp);
-    };
-  };
+    }
+  }
 
   return (t->markup);
 }
@@ -1699,10 +1865,10 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
           *ptr = '\0';
           if (ch == '>')
             ungetc(ch, fp);
-        };
+        }
 
         return (htmlSetVariable(t, name, value));
-  };
+  }
 }
 
 
@@ -1721,6 +1887,9 @@ compute_size(tree_t *t)		/* I - Tree entry */
   image_t	*img;		/* Image */
 
 
+  if (!_htmlInitialized)
+    htmlSetCharSet("8859-1");
+
   if (t->markup == MARKUP_IMG)
   {
     width_ptr  = htmlGetVariable(t, (uchar *)"WIDTH");
@@ -1728,32 +1897,33 @@ compute_size(tree_t *t)		/* I - Tree entry */
 
     if (width_ptr != NULL && height_ptr != NULL)
     {
-      t->width  = atoi((char *)width_ptr) / IMAGE_DPI * 72.0f;
-      t->height = atoi((char *)height_ptr) / IMAGE_DPI * 72.0f;
+      t->width  = atoi((char *)width_ptr) / _htmlPPI * 72.0f;
+      t->height = atoi((char *)height_ptr) / _htmlPPI * 72.0f;
 
       return (0);
-    };
+    }
 
-    img = image_load((char *)htmlGetVariable(t, (uchar *)"SRC"), 0);
+    img = image_load((char *)htmlGetVariable(t, (uchar *)"SRC"),
+                     _htmlGrayscale);
 
     if (img == NULL)
       return (-1);
 
     if (width_ptr != NULL)
     {
-      t->width  = atoi((char *)width_ptr) / IMAGE_DPI * 72.0f;
+      t->width  = atoi((char *)width_ptr) / _htmlPPI * 72.0f;
       t->height = t->width * img->height / img->width;
     }
     else if (height_ptr != NULL)
     {
-      t->height = atoi((char *)height_ptr) / IMAGE_DPI * 72.0f;
+      t->height = atoi((char *)height_ptr) / _htmlPPI * 72.0f;
       t->width  = t->height * img->width / img->height;
     }
     else
     {
-      t->width  = img->width / IMAGE_DPI * 72.0f;
-      t->height = img->height / IMAGE_DPI * 72.0f;
-    };
+      t->width  = img->width / _htmlPPI * 72.0f;
+      t->height = img->height / _htmlPPI * 72.0f;
+    }
 
     return (0);
   }
@@ -1768,14 +1938,14 @@ compute_size(tree_t *t)		/* I - Tree entry */
       else if (*ptr == '\t')
         width = (float)(((int)width + 7) & ~7);
       else
-        width += char_widths[t->typeface][t->style][*ptr];
+        width += _htmlWidths[t->typeface][t->style][*ptr];
 
    if (width < max_width)
      width = max_width;
   }
   else
     for (width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
-      width += char_widths[t->typeface][t->style][*ptr];
+      width += _htmlWidths[t->typeface][t->style][*ptr];
 
   t->width  = width * _htmlSizes[t->size];
   t->height = _htmlSizes[t->size];
@@ -1826,7 +1996,7 @@ compute_color(tree_t *t,	/* I - Tree entry */
     t->blue  = i & 255;
 
     return (0);
-  };
+  }
 
   for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
     if (strcasecmp(colors[i].name, (char *)color) == 0)
@@ -1835,7 +2005,7 @@ compute_color(tree_t *t,	/* I - Tree entry */
       t->green = colors[i].green;
       t->blue  = colors[i].blue;
       return (0);
-    };
+    }
 
   return (-1);
 }
@@ -1859,7 +2029,7 @@ get_alignment(tree_t *t)	/* I - Tree entry */
       t->halignment = ALIGN_CENTER;
     else if (strcasecmp((char *)align, "right") == 0)
       t->halignment = ALIGN_RIGHT;
-  };
+  }
 
   if ((align = htmlGetVariable(t, (uchar *)"VALIGN")) != NULL)
   {
@@ -1869,7 +2039,7 @@ get_alignment(tree_t *t)	/* I - Tree entry */
       t->valignment = ALIGN_MIDDLE;
     else if (strcasecmp((char *)align, "bottom") == 0)
       t->valignment = ALIGN_BOTTOM;
-  };
+  }
 
   return (0);
 }
@@ -1948,7 +2118,7 @@ fix_filename(char *filename,		/* I - Original filename */
     if ((slash = strrchr(newfilename, '/')) != NULL)
       *slash = '\0';
 #endif // WIN32 || __EMX__
-  };
+  }
 
 #ifdef MAC
   strcat(newfilename, ":");
@@ -2001,7 +2171,7 @@ strcasecmp(const char *s,	// I - First string
 
     s ++;
     t ++;
-  };
+  }
 
   if (*s == '\0' && *t == '\0')
     return (0);
@@ -2032,7 +2202,7 @@ strncasecmp(const char *s,	// I - First string
     s ++;
     t ++;
     n --;
-  };
+  }
 
   if (n == 0)
     return (0);
@@ -2213,5 +2383,5 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.1 1999/11/07 13:33:16 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.2 1999/11/07 23:06:06 mike Exp $".
  */
