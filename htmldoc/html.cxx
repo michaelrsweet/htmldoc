@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.26 2002/05/29 19:51:41 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.27 2002/06/13 18:44:09 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -573,6 +573,15 @@ write_all(FILE   *out,		/* I - Output file */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
+      case MARKUP_H7 :
+      case MARKUP_H8 :
+      case MARKUP_H9 :
+      case MARKUP_H10 :
+      case MARKUP_H11 :
+      case MARKUP_H12 :
+      case MARKUP_H13 :
+      case MARKUP_H14 :
+      case MARKUP_H15 :
       case MARKUP_HR :
       case MARKUP_LI :
       case MARKUP_OL :
@@ -617,6 +626,9 @@ write_all(FILE   *out,		/* I - Output file */
 	      if (strcasecmp((char *)t->vars[i].name, "REALSRC") == 0 &&
 	          t->markup == MARKUP_IMG)
 		continue;
+
+              if (strncasecmp((char *)t->vars[i].name, "_HD_", 4) == 0)
+	        continue;
 
 	      if (col > 72 && !t->preformatted)
 	      {
@@ -697,6 +709,15 @@ write_all(FILE   *out,		/* I - Output file */
         case MARKUP_H4 :
         case MARKUP_H5 :
         case MARKUP_H6 :
+	case MARKUP_H7 :
+	case MARKUP_H8 :
+	case MARKUP_H9 :
+	case MARKUP_H10 :
+	case MARKUP_H11 :
+	case MARKUP_H12 :
+	case MARKUP_H13 :
+	case MARKUP_H14 :
+	case MARKUP_H15 :
         case MARKUP_LI :
         case MARKUP_OL :
         case MARKUP_P :
@@ -959,5 +980,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.26 2002/05/29 19:51:41 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.27 2002/06/13 18:44:09 mike Exp $".
  */

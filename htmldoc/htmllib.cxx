@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.58 2002/06/05 03:59:35 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.59 2002/06/13 18:44:10 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -107,6 +107,15 @@ const char	*_htmlMarkups[] =
 		  "H4",
 		  "H5",
 		  "H6",
+		  "H7",
+		  "H8",
+		  "H9",
+		  "H10",
+		  "H11",
+		  "H12",
+		  "H13",
+		  "H14",
+		  "H15",
 		  "HEAD",
 		  "HR",
 		  "HTML",
@@ -852,15 +861,33 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
+      case MARKUP_H7 :
+      case MARKUP_H8 :
+      case MARKUP_H9 :
+      case MARKUP_H10 :
+      case MARKUP_H11 :
+      case MARKUP_H12 :
+      case MARKUP_H13 :
+      case MARKUP_H14 :
+      case MARKUP_H15 :
           get_alignment(t);
 
           t->typeface      = _htmlHeadingFont;
-          t->size          = SIZE_H1 - t->markup + MARKUP_H1;
           t->subscript     = 0;
           t->superscript   = 0;
           t->strikethrough = 0;
           t->preformatted  = 0;
-          t->style         = STYLE_BOLD;
+
+	  if (t->markup > MARKUP_H6)
+          {
+	    t->size  = SIZE_H7;
+            t->style = STYLE_ITALIC;
+	  }
+	  else
+	  {
+            t->size  = SIZE_H1 - t->markup + MARKUP_H1;
+            t->style = STYLE_BOLD;
+	  }
 
           descend = 1;
           break;
@@ -2160,7 +2187,11 @@ static int			/* O - -1 if m0 < m1, 0 if m0 == m1, 1 if m0 > m1 */
 compare_markups(uchar **m0,	/* I - First markup */
                 uchar **m1)	/* I - Second markup */
 {
-  return (strcasecmp((char *)*m0, (char *)*m1));
+  if (tolower((*m0)[0]) == 'h' && isdigit((*m0)[1]) &&
+      tolower((*m1)[0]) == 'h' && isdigit((*m1)[1]))
+    return (atoi((char *)*m0 + 1) - atoi((char *)*m1 + 1));
+  else
+    return (strcasecmp((char *)*m0, (char *)*m1));
 }
 
 
@@ -2810,5 +2841,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.58 2002/06/05 03:59:35 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.59 2002/06/13 18:44:10 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.5.2.5 2002/01/28 00:52:45 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.6 2002/06/13 18:44:23 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -47,10 +47,14 @@ static void	parse_tree(tree_t *t);
  * Local globals...
  */
 
-static int	heading_numbers[7];
-static uchar	heading_types[7] = { '1', '1', '1', '1', '1', '1', '1' };
+static int	heading_numbers[15];
+static uchar	heading_types[15] =
+		{
+		  '1', '1', '1', '1', '1', '1', '1', '1',
+		  '1', '1', '1', '1', '1', '1', '1'
+		};
 static int	last_level;
-static tree_t	*heading_parents[7];
+static tree_t	*heading_parents[15];
 
 
 /*
@@ -77,13 +81,22 @@ toc_build(tree_t *tree)		/* I - Document tree */
   htmlSetVariable(link, (uchar *)"NAME", (uchar *)"CONTENTS");
   htmlAddTree(link, MARKUP_NONE, (uchar *)TocTitle);
 
-  heading_parents[0] = toc;
-  heading_parents[1] = toc;
-  heading_parents[2] = toc;
-  heading_parents[3] = toc;
-  heading_parents[4] = toc;
-  heading_parents[5] = toc;
-  heading_parents[6] = toc;
+  heading_parents[0]  = toc;
+  heading_parents[1]  = toc;
+  heading_parents[2]  = toc;
+  heading_parents[3]  = toc;
+  heading_parents[4]  = toc;
+  heading_parents[5]  = toc;
+  heading_parents[6]  = toc;
+  heading_parents[7]  = toc;
+  heading_parents[8]  = toc;
+  heading_parents[9]  = toc;
+  heading_parents[10] = toc;
+  heading_parents[11] = toc;
+  heading_parents[12] = toc;
+  heading_parents[13] = toc;
+  heading_parents[14] = toc;
+  heading_parents[15] = toc;
 
   parse_tree(tree);
 
@@ -171,6 +184,15 @@ parse_tree(tree_t *t)		/* I - Document tree */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
+      case MARKUP_H7 :
+      case MARKUP_H8 :
+      case MARKUP_H9 :
+      case MARKUP_H10 :
+      case MARKUP_H11 :
+      case MARKUP_H12 :
+      case MARKUP_H13 :
+      case MARKUP_H14 :
+      case MARKUP_H15 :
           level = t->markup - MARKUP_H1;
 
           if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
@@ -184,7 +206,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
           if ((var = htmlGetVariable(t, (uchar *)"TYPE")) != NULL)
             heading_types[level] = var[0];
 
-          for (i = level + 1; i < 7; i ++)
+          for (i = level + 1; i < 15; i ++)
             heading_numbers[i] = 0;
 
           heading[0]  = '\0';
@@ -297,6 +319,9 @@ parse_tree(tree_t *t)		/* I - Document tree */
             else
               parent = htmlAddTree(heading_parents[level], MARKUP_LI, NULL);
 
+            if ((var = htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC")) != NULL)
+	      htmlSetVariable(parent, (uchar *)"_HD_OMIT_TOC", var);
+
             if (TocLinks)
             {
              /*
@@ -353,5 +378,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5.2.5 2002/01/28 00:52:45 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.6 2002/06/13 18:44:23 mike Exp $".
  */

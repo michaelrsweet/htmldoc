@@ -1,10 +1,13 @@
-CHANGES.txt - 06/11/2002
+CHANGES.txt - 06/12/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
 
     NEW FEATURES
 
+	- HTMLDOC now supports heading levels 1 to 15.
+	- HTMLDOC now allows the author to omit headings from
+	  the TOC using the _HD_OMIT_TOC attribute.
 
     CHANGES
 
