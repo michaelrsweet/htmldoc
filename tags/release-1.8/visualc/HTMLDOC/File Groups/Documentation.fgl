@@ -1,0 +1,8 @@
+[TopDir]
+file0=C:\mike\htmldoc1\doc\htmldoc.pdf
+file1=C:\mike\htmldoc1\doc\help.html
+
+[General]
+Type=FILELIST
+Version=1.00.000
+

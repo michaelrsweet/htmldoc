@@ -1,0 +1,32 @@
+
+Known bugs and suggested enhancements in libpng-1.0.3
+
+
+1. March 15, 1998 -- OPTIMIZATION -- Kevin Bracey
+
+   Loops need to be optimized everywhere
+
+   Make them count down instead of up -- Kevin Bracey
+
+   Optimizing compilers don't need this, and making
+   the change would be error prone -- Tom Lane, Glenn R-P
+
+   Question whether i-- or --i is better.
+
+   STATUS: Under investigation, postponed until after
+   libpng-1.0.3.  About 160 loops will be turned around
+   in libpng-1.0.Nn, for testing.
+
+2. July 4, 1998 -- ENHANCEMENT -- Glenn R-P
+
+   libpng-1.0.2 and earlier transform colors to gamma=1.0 space for
+   merging with background, and then back to the image's gamma.  The
+   bit_depth of the intermediate (gamma=1.0) representation is probably
+   not sufficient.  In the typical gamma=1/2.2 situation, the linear
+   pixels need about 4 more bits than the gamma-encoded ones, to avoid
+   loss of precision.  A similar situation exists with the rgb_to_gray
+   operation.
+
+   STATUS: under development.
+
+
