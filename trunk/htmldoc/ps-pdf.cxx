@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.79 2000/06/05 17:55:45 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.80 2000/06/05 20:18:28 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6416,13 +6416,13 @@ write_prolog(FILE *out,		/* I - Output file */
       else
       {
        /*
-        * Generate a random owner password...
+        * Generate a pseudo-random owner password...
 	*/
 
-	srandom(curtime);
+	srand(curtime);
 
 	for (i = 0; i < 32; i ++)
-	  owner_pad[i] = random();
+	  owner_pad[i] = rand();
       }
 
      /*
@@ -7096,5 +7096,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.79 2000/06/05 17:55:45 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.80 2000/06/05 20:18:28 mike Exp $".
  */
