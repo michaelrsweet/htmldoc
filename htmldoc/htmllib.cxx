@@ -1,5 +1,5 @@
 //
-// "$Id: htmllib.cxx,v 1.42 2000/10/16 03:25:07 mike Exp $"
+// "$Id: htmllib.cxx,v 1.43 2000/11/06 19:53:04 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -1424,8 +1424,11 @@ HDtree::parse_markup(FILE *fp)	// I - Input file
       *mptr++ = ch;
 
       // Handle comments without whitespace...
-      if ((mptr - m) == 3 && strncmp((const char *)m, "!--", 3) == 0)
+      if ((mptr - m) == 3 && memcmp((const char *)m, "!--", 3) == 0)
+      {
+        ch = getc(fp);
         break;
+      }
     }
 
   *mptr = '\0';
@@ -2133,5 +2136,5 @@ HDtree::flatten(float  padding)	// I - Padding for table cells
 
 
 //
-// End of "$Id: htmllib.cxx,v 1.42 2000/10/16 03:25:07 mike Exp $".
+// End of "$Id: htmllib.cxx,v 1.43 2000/11/06 19:53:04 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: format.cxx,v 1.2 2000/10/19 00:41:42 mike Exp $"
+// "$Id: format.cxx,v 1.3 2000/11/06 19:53:03 mike Exp $"
 //
 //   Formatting routines for HTMLDOC, a HTML document processing
 //   program.
@@ -617,20 +617,21 @@ HTMLDOC::parse_doc(HDtree *t,		// I - Tree to parse
 
 void
 HTMLDOC::parse_heading(HDtree *t,	// I - Tree to parse
-              float  left,	// I - Left margin
-              float  right,	// I - Printable width
-              float  bottom,	// I - Bottom margin
-              float  top,	// I - Printable top
-              float  *x,	// IO - X position
-              float  *y,	// IO - Y position
-              int    *page,	// IO - Page #
-              int    needspace)	// I - Need whitespace?
+        	       float  left,	// I - Left margin
+        	       float  right,	// I - Printable width
+        	       float  bottom,	// I - Bottom margin
+        	       float  top,	// I - Printable top
+        	       float  *x,	// IO - X position
+        	       float  *y,	// IO - Y position
+        	       int    *page,	// IO - Page #
+        	       int    needspace)// I - Need whitespace?
 {
   DEBUG_printf(("parse_heading(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
                 t, left, right, *x, *y, *page));
 
-  if (((t->markup - MARKUP_H1) < toc_levels_ || toc_levels_ == 0) && !in_title_page_)
-    current_heading = t->child;
+  if (((t->markup - MARKUP_H1) < toc_levels_ || toc_levels_ == 0) &&
+      !in_title_page_)
+    current_heading_ = t->child;
 
   if (*y < (5 * HDtree::spacings[SIZE_P] + bottom))
   {
@@ -641,10 +642,10 @@ HTMLDOC::parse_heading(HDtree *t,	// I - Tree to parse
   }
 
   if (t->markup == MARKUP_H1 && !in_title_page_)
-    page_chapters_[*page] = current_heading->get_text();
+    page_chapters_[*page] = current_heading_->get_text();
 
   if ((page_headings_[*page] == NULL || t->markup == MARKUP_H1) && !in_title_page_)
-    page_headings_[*page] = current_heading->get_text();
+    page_headings_[*page] = current_heading_->get_text();
 
   if ((t->markup - MARKUP_H1) < toc_levels_ && !in_title_page_)
   {
@@ -2030,7 +2031,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
         colspan --;
 
         if (cell_start[col] == NULL || cell_start[col] == cell_end[col] ||
-	    row_spans[col] > 1)
+	    cells[row][col] == NULL || row_spans[col] > 1)
 	  continue;
 
         if (row_spans[col])
@@ -2738,5 +2739,5 @@ HTMLDOC::get_title(HDtree *doc)	// I - Document
 
 
 //
-// End of "$Id: format.cxx,v 1.2 2000/10/19 00:41:42 mike Exp $".
+// End of "$Id: format.cxx,v 1.3 2000/11/06 19:53:03 mike Exp $".
 //
