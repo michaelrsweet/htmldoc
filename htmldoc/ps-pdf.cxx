@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.39 2001/03/09 21:47:41 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.40 2001/03/11 15:51:37 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3792,11 +3792,11 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
-#undef DEBUG_puts
-#define DEBUG_puts(x) puts(x)
-#define DEBUG
-#undef DEBUG_printf
-#define DEBUG_printf(x) printf x
+//#undef DEBUG_puts
+//#define DEBUG_puts(x) puts(x)
+//#define DEBUG
+//#undef DEBUG_printf
+//#define DEBUG_printf(x) printf x
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
  */
@@ -4250,13 +4250,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     for (col = 0; col < num_cols; col ++)
     {
-      width -= col_widths[col];
+      regular_width = width - col_widths[col];
 
       col_widths[col] = table_width * col_widths[col] / width;
       if (col_widths[col] < col_mins[col])
         col_widths[col] = col_mins[col];
 
-      width += col_widths[col];
+      width = regular_width + col_widths[col];
 
       DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
     }
@@ -4353,10 +4353,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         if (cells[row][col] != NULL &&
 	    cells[row][col]->height > temp_height)
 	  temp_height = cells[row][col]->height;
-    }
 
-    if (temp_height > (PageLength / 8) && height_var == NULL)
-      temp_height = PageLength / 8;
+      if (temp_height > (PageLength / 8) && height_var == NULL)
+	temp_height = PageLength / 8;
+    }
 
     if (*y < (bottom + 2 * (border + cellpadding) + temp_height) &&
         temp_height <= (top - bottom - 2 * (border + cellpadding)))
@@ -4715,11 +4715,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     free(cells);
   }
 }
-#undef DEBUG
-#undef DEBUG_puts
-#define DEBUG_puts(x)
-#undef DEBUG_printf
-#define DEBUG_printf(x)
+//#undef DEBUG
+//#undef DEBUG_puts
+//#define DEBUG_puts(x)
+//#undef DEBUG_printf
+//#define DEBUG_printf(x)
 
 
 /*
@@ -5399,8 +5399,8 @@ copy_tree(tree_t *parent,	/* I - Source tree */
 }
 
 
-#undef DEBUG_printf
-#define DEBUG_printf(x) printf x
+//#undef DEBUG_printf
+//#define DEBUG_printf(x) printf x
 
 //
 // 'get_cell_size()' - Compute the minimum width of a cell.
@@ -5760,8 +5760,8 @@ get_table_size(tree_t *t,		// I - Table
 
   return (width);
 }
-#undef DEBUG_printf
-#define DEBUG_printf(x)
+//#undef DEBUG_printf
+//#define DEBUG_printf(x)
 
 
 /*
@@ -8257,5 +8257,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.39 2001/03/09 21:47:41 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.40 2001/03/11 15:51:37 mike Exp $".
  */
