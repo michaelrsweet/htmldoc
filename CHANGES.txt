@@ -1,4 +1,4 @@
-CHANGES.txt - 12/18/2003
+CHANGES.txt - 02/02/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -35,6 +35,7 @@ CHANGES IN HTMLDOC v1.8.24
 	- The table formatter now subtracts the outside border
 	  and padding widths for percentage-based widths.  This
 	  helps to eliminate "truncation or overlapping" errors.
+	- Dropped support for FLTK 1.0.x when building the GUI.
 	- The default vertical alignment is now "bottom" inside
 	  paragraphs to correctly align different sized text and
 	  images to the baseline.
