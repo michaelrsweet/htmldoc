@@ -1,5 +1,5 @@
 //
-// "$Id: stylefont.cxx,v 1.3 2002/02/23 04:03:30 mike Exp $"
+// "$Id: stylefont.cxx,v 1.4 2002/02/24 02:57:27 mike Exp $"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
@@ -154,21 +154,179 @@ hdStyleFont::compare_kerns(hdFontKernPair *a,	// I - First kerning pair
 
 
 //
+// 'hdStyleFont::get_char()' - Get a character from a string.
+//
+
+int					// O  - Character from string
+hdStyleFont::get_char(const char *&s)	// IO - String pointer
+{
+  const uchar	*us;			// Unsigned string
+  int		ch,			// Next character from string
+		i,			// Looping var
+		count;			// Number of bytes in UTF-8 encoding
+
+
+  // Handle the easy cases...
+  if (!s || !*s)
+    return (0);
+  else if (encoding == HD_FONTENCODING_8BIT)
+    return (*s++ & 255);
+
+  // OK, extract a single UTF-8 encoded char...  This code also supports
+  // reading ISO-8859-1 characters that are masquerading as UTF-8.
+  if (*us < 192)
+  {
+    s ++;
+    return (*us);
+  }
+
+  if ((*us & 0xe0) == 0xc0)
+  {
+    ch    = *us & 0x1f;
+    count = 1;
+  }
+  else if ((*us & 0xf0) == 0xe0)
+  {
+    ch    = *us & 0x0f;
+    count = 2;
+  }
+  else
+  {
+    ch    = *us & 0x07;
+    count = 3;
+  }
+
+  for (i = 1; i <= count && *us; i ++)
+    if (us[i] < 128 || us[i] > 191)
+      break;
+    else
+      ch = (ch << 6) | (us[i] & 0x3f);
+
+  if (i <= count)
+  {
+    // Return just the initial char...
+    s ++;
+    return (*us);
+  }
+  else
+  {
+    // Return the decoded char...
+    s += count + 1;
+    return (ch);
+  }
+}
+
+
+//
 // 'hdStyleFont::get_kerning()' - Get the kerning list for a string.
 //
 
-int						// O - Number of kerning entries
-hdStyleFont::get_kerning(const char *s,		// I - String to kern
-                         float      *tk,	// O - Total kerning adjustment
-                         float      **kl)	// O - Kerning adjustments
+int					// O - Number of kerning entries
+hdStyleFont::get_kerning(const char *s,	// I - String to kern
+                         float      *tk,// O - Total kerning adjustment
+                         float      **kl)// O - Kerning adjustments
 {
-//  qsort(kerns, num_kerns, sizeof(hdFontKernPair),
-//          (hdCompareFunc)compare_kerns);
+  int			i,		// Looping var
+			first,		// First char from string
+			second,		// Second char from string
+			num_chars;	// Number of characters
+  float			tadjust,	// Overall adjustment
+			*adjusts;	// Array of adjustments...
+  hdFontKernPair	key,		// Search key
+			*pair;		// Kerning pair
 
+
+  // Handle simple, empty strings and when there is no kerning info...
   *tk = 0.0f;
   *kl = NULL;
 
-  return (0);
+  if (num_kerns == 0 || (num_chars = get_num_chars(s)) < 2)
+    return (0);
+
+  // Then allocate the adjustment array and loop through...
+  num_chars --; // only kerning *pairs*...
+  adjusts = new float[num_chars];
+  tadjust = 0.0f;
+
+  for (i = 0, first = get_char(s); i < num_chars; i ++, first = second)
+  {
+    // Get the second character for the kerning...
+    second = get_char(s);
+
+    // See if we have a kerning entry...
+    key.first  = first;
+    key.second = second;
+
+    pair = (hdFontKernPair *)bsearch(&key, kerns, num_kerns,
+                                     sizeof(hdFontKernPair),
+                                     (hdCompareFunc)compare_kerns);
+
+    if (pair)
+    {
+      adjusts[i] = pair->adjust;
+      tadjust    += pair->adjust;
+    }
+    else
+      adjusts[i] = 0.0f;
+  }
+
+  // If there is no adjustment, delete the adjustment array and return 0...
+  if (tadjust == 0.0f)
+  {
+    delete[] adjusts;
+    return (0);
+  }
+
+  // Return the kerning adjustments...
+  *tk = tadjust;
+  *kl = adjusts;
+
+  return (num_chars);
+}
+
+
+//
+// 'hdStyleFont::get_num_chars()' - Get the number of characters in the string.
+//
+
+int					// O - Number of chars in string
+hdStyleFont::get_num_chars(const char *s)// I - String
+{
+  const uchar	*us;			// Unsigned string
+  int		num_chars;		// Number of characters
+
+
+  // Handle the easy cases...
+  if (!s || !*s)
+    return (0);
+  else if (encoding == HD_FONTENCODING_8BIT)
+    return (strlen(s));
+
+  // OK, loop through the string, looking for chars in the range of
+  // 1 to 127 and 192 to 255 which indicate the start of UTF-8
+  // encoded char codes...
+  for (num_chars = 0, us = (const unsigned char *)s; *us; us ++, num_chars ++)
+    if (*us > 191)
+    {
+      // This hack is necessary to support ISO-8859-1 encoded text
+      // that is masquerading as UTF-8 text...
+      int count;
+
+      if ((*us & 0xe0) == 0xc0)
+        count = 1;
+      else if ((*us & 0xf0) == 0xe0)
+        count = 2;
+      else
+        count = 3;
+
+      for (; count > 0 && *us; count --, us ++)
+        if (*us < 128 || *us > 191)
+	  break;
+
+      us --;
+    }
+
+  return (num_chars);
 }
 
 
@@ -181,20 +339,14 @@ hdStyleFont::get_width(const char *s)	// I - String to measure
 {
   int	ch;				// Character in string
   float	w;				// Current width
+  float	*adjusts;			// Adjustments array
 
 
-//  printf("get_width(\"%s\")\n", s);
+  if (get_kerning(s, &w, &adjusts) > 0)
+    delete[] adjusts;
 
-  for (w = 0.0f; *s; s ++)
-  {
-    ch = *s & 255;
-
-//    printf("    widths[%d] = %.3f\n", ch, widths[ch]);
-
+  while ((ch = get_char(s)) != 0)
     w += widths[ch];
-  }
-
-//  printf("    returning %.3f...\n", w);
 
   return (w);
 }
@@ -359,5 +511,5 @@ hdStyleFont::read_ttf(hdFile       *fp,	// I - File to read from
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.3 2002/02/23 04:03:30 mike Exp $".
+// End of "$Id: stylefont.cxx,v 1.4 2002/02/24 02:57:27 mike Exp $".
 //
