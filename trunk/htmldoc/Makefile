@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.9 2000/06/05 03:18:22 mike Exp $"
+#   "$Id: Makefile,v 1.10 2000/06/20 16:12:05 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -51,7 +51,7 @@ install:	all
 		$(MKDIR) $(bindir);\
 	fi
 	cp htmldoc $(bindir)
-	chmod 555 $(bindir)/htmldoc
+	chmod ugo+rx $(bindir)/htmldoc
 
 
 #
@@ -106,5 +106,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.9 2000/06/05 03:18:22 mike Exp $".
+# End of "$Id: Makefile,v 1.10 2000/06/20 16:12:05 mike Exp $".
 #
