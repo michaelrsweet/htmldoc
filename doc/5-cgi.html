@@ -234,15 +234,21 @@ class htmldoc
     String	server_name,		// SERVER_NAME env var
 		server_port,		// SERVER_PORT env var
 		path_info,		// PATH_INFO env var
+		query_string,		// QUERY_STRING env var
 		filename;		// File to convert
 
 
-    if ((server_name = System.getProperty("SERVER_NAME")) != null &&
-        (server_port = System.getProperty("SERVER_PORT")) != null &&
+    if ((server_name = System.getProperty("SERVER_NAME")) != null &amp;&amp;
+        (server_port = System.getProperty("SERVER_PORT")) != null &amp;&amp;
 	(path_info = System.getProperty("PATH_INFO")) != null)
     {
       // Construct a URL for the resource specified...
       filename = "http://" + server_name + ":" + server_port + path_info;
+
+      if ((query_string = System.getProperty("QUERY_STRING")) != null)
+      {
+        filename = filename + "?" + query_string;
+      }
     }
     else if (args.length == 1)
     {

@@ -1,4 +1,4 @@
-COMPILE.txt - 06/04/2001
+COMPILE.txt - 07/08/2001
 ------------------------
 
 REQUIREMENTS

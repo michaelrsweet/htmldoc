@@ -1,4 +1,4 @@
-README.txt - 06/04/2001
+README.txt - 07/08/2001
 -----------------------
 
 INTRODUCTION
@@ -77,7 +77,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.13-windows.exe" or "htmldoc-1.8.13-winfree.exe" files
+    the "htmldoc-1.8.14-windows.exe" or "htmldoc-1.8.14-winfree.exe" files
     to start the installation wizard.
 
     (the -windows file is the supported version, while the -winfree file
@@ -88,19 +88,23 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.13-linux-2.0-intel.rpm ENTER
+        rpm -i htmldoc-1.8.14-linux-2.0-intel.rpm ENTER
 
     or:
 
-        rpm -i htmldoc-1.8.13-linux-2.2-intel.rpm ENTER
+        rpm -i htmldoc-1.8.14-linux-2.2-intel.rpm ENTER
+
+    or:
+
+        rpm -i htmldoc-1.8.14-linux-2.4-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.13-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.13-platform.tar ENTER
+        gunzip htmldoc-1.8.14-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.14-platform.tar ENTER
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
@@ -202,10 +206,11 @@ CREDITS
 
 ENCRYPTION SUPPORT
 
-    HTMLDOC includes code to encrypt PDF document files using the RC4
-    algorithm with a 40-bit key. While this software and code may be
-    freely used and exported under current US laws, other countries
-    may restrict your use and possession of this code and software.
+    HTMLDOC includes code to encrypt PDF document files using
+    the RC4 algorithm with up to a 128-bit key. While this
+    software and code may be freely used and exported under
+    current US laws, other countries may restrict your use and
+    possession of this code and software.
 
 
 LEGAL STUFF
