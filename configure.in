@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.1 2000/11/30 18:33:44 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.2 2000/12/06 18:59:58 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -12,6 +12,15 @@ dnl
 AC_INIT(htmldoc/htmldoc.h)
 AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
+
+dnl Get the operating system and version number...
+
+uname=`uname`
+uversion=`uname -r | sed -e '1,$s/[[^0-9]]//g'`
+
+if test "$uname" = "IRIX64"; then
+    uname="IRIX"
+fi
 
 dnl Clear the debugging options unless the user asks for them...
 OPTIM=""
@@ -53,6 +62,12 @@ dnl Checks for string functions.
 AC_CHECK_FUNCS(strdup)
 AC_CHECK_FUNCS(strcasecmp)
 AC_CHECK_FUNCS(strncasecmp)
+if test "$uname" = "HP-UX" -a "$uversion" = "1020"; then
+	echo Forcing snprintf emulation for HP-UX.
+else
+	AC_CHECK_FUNCS(snprintf)
+	AC_CHECK_FUNCS(vsnprintf)
+fi
 
 dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
@@ -69,7 +84,7 @@ if test "$x_libraries" = "/usr/lib"; then
 fi
 if test ! "$x_libraries" = "NONE" -a ! "$x_libraries" = ""; then
 	LDFLAGS="$LDFLAGS -L$x_libraries"
-	if test "`uname`" = "SunOS"; then
+	if test "$uname" = "SunOS"; then
 		LDFLAGS="$LDFLAGS -R$x_libraries"
 	fi
 fi
@@ -156,7 +171,7 @@ if test -n "$GXX"; then
 
 	# Set optimization flags...
 	if test -z "$OPTIM"; then
-		if test "`uname`" = "HP-UX"; then
+		if test "$uname" = "HP-UX"; then
 			# ZLIB has trouble with GCC 2.95 and -O2...
 			OPTIM="-O1"
 		else
@@ -177,7 +192,7 @@ if test -n "$GXX"; then
 	CFLAGS="$OLDCFLAGS"
 
 	# See if we are running Solaris; if so, try the -fpermissive option...
-	if test "`uname`" = SunOS; then
+	if test "$uname" = SunOS; then
 		echo "Testing if GCC supports -fpermissive..."
 
 		OLDCFLAGS="$CFLAGS"
@@ -189,7 +204,7 @@ if test -n "$GXX"; then
 		CFLAGS="$OLDCFLAGS"
 	fi
 else
-	case `uname` in
+	case $uname in
         	IRIX*)
 			if test -z "$OPTIM"; then
 				if test `uname -r | sed -e '1,$s/\.//g'` -ge 62; then
@@ -217,5 +232,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.1 2000/11/30 18:33:44 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.2 2000/12/06 18:59:58 mike Exp $".
 dnl

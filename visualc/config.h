@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.2 2000/12/06 16:24:15 mike Exp $"
+ * "$Id: config.h,v 1.20.2.3 2000/12/06 19:00:02 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -55,6 +55,7 @@
 #define HAVE_STRCASECMP
 #define HAVE_STRNCASECMP
 
+
 /*
  * How about snprintf() and vsnprintf()?
  */
@@ -63,6 +64,7 @@
 #  define HAVE_SNPRINTF
 #  define HAVE_VSNPRINTF
 #endif /* !_CONSOLE */
+
 
 /*
  * What is the version number for this software?
@@ -85,6 +87,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h,v 1.20.2.2 2000/12/06 16:24:15 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.3 2000/12/06 19:00:02 mike Exp $".
  */
 
