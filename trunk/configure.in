@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.21 2000/06/30 12:33:00 mike Exp $"
+dnl "$Id: configure.in,v 1.22 2000/09/10 21:15:18 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -84,8 +84,13 @@ fi
 
 AC_CHECK_LIB(X11,XOpenDisplay)
 AC_CHECK_LIB(Xext,XdbeQueryExtension)
-AC_CHECK_LIB(GL,glEnable)
+
 AC_CHECK_LIB(fltk,numericsort)
+if test "$ac_cv_lib_fltk_numericsort" = no; then
+	ac_cv_lib_fltk_numericsort=""
+	AC_CHECK_LIB(GL,glEnable)
+	AC_CHECK_LIB(fltk,numericsort)
+fi
 
 NEWLIBS=""
 
@@ -144,6 +149,10 @@ AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
 
 dnl Update compiler options...
 if test -n "$GXX"; then
+	# Since we don't use libstdc++, use gcc to avoid getting it linked in...
+	CXX="gcc"
+
+	# Set optimization flags...
 	if test -z "$OPTIM"; then
 		if test "`uname`" = "HP-UX"; then
 			# ZLIB has trouble with GCC 2.95 and -O2...
@@ -206,5 +215,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.21 2000/06/30 12:33:00 mike Exp $".
+dnl End of "$Id: configure.in,v 1.22 2000/09/10 21:15:18 mike Exp $".
 dnl

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.33 2000/08/14 13:49:02 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.34 2000/09/10 21:15:21 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -489,6 +489,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       PageDuplex = 0;
     else if (compare_strings(argv[i], "--no-encryption", 6) == 0)
       Encryption = 0;
+    else if (compare_strings(argv[i], "--no-numbered", 6) == 0)
+      TocNumbers = 0;
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
       PSCommands = 0;
     else if (compare_strings(argv[i], "--no-toc", 7) == 0)
@@ -1604,6 +1606,7 @@ usage(void)
   puts("  --no-compression");
   puts("  --no-duplex");
   puts("  --no-encryption");
+  puts("  --no-numbered");
   puts("  --no-pscommands");
   puts("  --no-title");
   puts("  --no-toc");
@@ -1613,7 +1616,7 @@ usage(void)
   puts("  --pageduration {1.0..60.0}");
   puts("  --pageeffect {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}");
   puts("  --pagelayout {single,one,twoleft,tworight}");
-  puts("  --pagemode {document,outlines,fullscreen}");
+  puts("  --pagemode {document,outline,fullscreen}");
   puts("  --path \"dir1;dir2;dir3;...;dirN\"");
   puts("  --permissions {all,annotate,copy,modify,print,no-annotate,no-copy,no-modify,no-print,none}");
   puts("  --portrait");
@@ -1653,5 +1656,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.33 2000/08/14 13:49:02 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.34 2000/09/10 21:15:21 mike Exp $".
  */

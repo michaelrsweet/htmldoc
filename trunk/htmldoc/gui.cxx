@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.34 2000/06/29 01:15:56 mike Exp $"
+// "$Id: gui.cxx,v 1.35 2000/09/10 21:15:20 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1302,21 +1302,25 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     return (0);
   }
 
-  fgets(line, sizeof(line), fp);  /* Get input file count... */
-  count = atoi(line);
+  fgets(line, sizeof(line), fp);  /* Skip input file count... */
 
-  for (i = 0; i < count; i ++)
+ /*
+  * Get input files...
+  */
+
+  while (fgets(line, sizeof(line), fp) != NULL)
   {
-    fgets(line, sizeof(line), fp);  /* Get input file... */
     line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
 
-    inputFiles->add(line, icon);
+    if (line[0] == '-')
+      break; /* Found options */
+    else if (line[0] == '\\')
+      inputFiles->add(line + 1, icon);
+    else
+      inputFiles->add(line, icon);
   }
 
   inputFiles->topline(1);
-
-  fgets(line, sizeof(line), fp);  /* Get options... */
-  line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
 
   for (lineptr = line; *lineptr != '\0';)
   {
@@ -1400,6 +1404,11 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     else if (strcmp(temp, "--numbered") == 0)
     {
       numberedToc->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-numbered") == 0)
+    {
+      numberedToc->clear();
       continue;
     }
     else if (strcmp(temp, "--no-toc") == 0)
@@ -1761,7 +1770,10 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   fprintf(fp, "%d\n", count);
 
   for (i = 1; i <= count; i ++)
-    fprintf(fp, "%s\n", inputFiles->text(i));
+    if (inputFiles->text(i)[0] == '-')
+      fprintf(fp, "\\%s\n", inputFiles->text(i));
+    else
+      fprintf(fp, "%s\n", inputFiles->text(i));
 
   if (typeHTML->value())
     fputs("-t html", fp);
@@ -1799,6 +1811,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
     if (numberedToc->value())
       fputs(" --numbered", fp);
+    else
+      fputs(" --no-numbered", fp);
 
     fprintf(fp, " --toctitle \"%s\"", tocTitle->value());
   }
@@ -2528,6 +2542,8 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
 
   if (w == gui->typeHTML)
   {
+    gui->compression->value(0);
+
     gui->jpegCompress->value(0);
     gui->jpegCompress->deactivate();
     gui->jpegGroup->deactivate();
@@ -2582,6 +2598,7 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->compGroup->activate();
   else
     gui->compGroup->deactivate();
+
 }
 
 
@@ -2659,10 +2676,13 @@ GUI::pdfCB(Fl_Widget *w,	// I - Widget
   REF(w);
 
 
-  if (gui->pdf11->value())
-    gui->compGroup->deactivate();
-  else
-    gui->compGroup->activate();
+  if (gui->typePDF->value())
+  {
+    if (w == gui->pdf11)
+      gui->compGroup->deactivate();
+    else
+      gui->compGroup->activate();
+  }
 
   gui->title(gui->book_filename, 1);
 }
@@ -2739,10 +2759,13 @@ GUI::psCB(Fl_Widget *w,		// I - Widget
     gui->psCommands->activate();
   }
 
-  if (w == gui->ps3)
-    gui->compGroup->activate();
-  else
-    gui->compGroup->deactivate();
+  if (gui->typePS->value())
+  {
+    if (w == gui->ps3)
+      gui->compGroup->activate();
+    else
+      gui->compGroup->deactivate();
+  }
 
   gui->title(gui->book_filename, 1);
 }
@@ -3510,5 +3533,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.34 2000/06/29 01:15:56 mike Exp $".
+// End of "$Id: gui.cxx,v 1.35 2000/09/10 21:15:20 mike Exp $".
 //
