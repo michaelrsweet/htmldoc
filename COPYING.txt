@@ -2,11 +2,11 @@
 
                 Copyright 1997-2004 by Easy Software Products
                         44141 AIRPORT VIEW DR STE 204
-                     HOLLYWOOD, MARYLAND 20636-3142 USA
+                        HOLLYWOOD, MARYLAND 20636 USA
 
                            Voice: +1.301.373.9600
-                          Email: info@easysw.com
-                          WWW: http://www.easysw.com
+                           Email: info@easysw.com
+                         WWW: http://www.htmldoc.org
 
 
 INTRODUCTION
@@ -17,8 +17,9 @@ of the GNU General Public License ("GPL") with a license
 exception for the OpenSSL toolkit. A copy of the exception and
 license follows this introduction.
 
-The binaries are provided under more restrictive terms common in
-commercial software.
+The binaries are provided under a typical commercial software
+end-user license agreement which is more restrictive than the
+GNU GPL.
 
 
 SOURCE CODE AND THE GNU GPL
@@ -61,10 +62,11 @@ modifications to HTMLDOC under the GNU GPL. For information
 please contact us at the address shown above.
 
 
-SUPPORT
+BINARIES AND SUPPORT
 
-Easy Software Products sells software support for HTMLDOC. You
-can find out more at the HTMLDOC home page:
+Easy Software Products sells commercial HTMLDOC binaries and
+support. You can find out more at the HTMLDOC commercial home
+page:
 
      http://www.easysw.com/htmldoc/
 
