@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.9 1999/11/22 18:07:40 mike Exp $"
+ * "$Id: html.cxx,v 1.10 1999/12/30 15:55:24 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -297,7 +297,10 @@ write_header(FILE   **out,	/* IO - Output file */
     if (LogoImage[0] != '\0')
       fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
 
-    fputs("<A HREF=toc.html>Contents</a>\n", *out);
+    if (TitlePage)
+      fputs("<A HREF=\"toc.html\">Contents</a>\n", *out);
+    else
+      fputs("<A HREF=\"index.html\">Contents</a>\n", *out);
 
     if (t->prev != NULL)
       fprintf(*out, "<A HREF=\"%s\">Previous</a>\n",
@@ -330,7 +333,11 @@ write_footer(FILE **out,	/* IO - Output file pointer */
     if (LogoImage[0] != '\0')
       fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
 
-    fputs("<A HREF=\"toc.html\">Contents</a>\n", *out);
+    if (TitlePage)
+      fputs("<A HREF=\"toc.html\">Contents</a>\n", *out);
+    else
+      fputs("<A HREF=\"index.html\">Contents</a>\n", *out);
+
 
     if (t->prev != NULL)
       fprintf(*out, "<A HREF=\"%s\">Previous</a>\n",
@@ -825,5 +832,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.9 1999/11/22 18:07:40 mike Exp $".
+ * End of "$Id: html.cxx,v 1.10 1999/12/30 15:55:24 mike Exp $".
  */
