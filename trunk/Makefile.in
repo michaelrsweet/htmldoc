@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.9 2000/06/30 13:42:05 mike Exp $"
+# "$Id: Makefile.in,v 1.10 2000/06/30 13:46:30 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -122,7 +122,14 @@ tardist:
 pkg:
 	epm -v -f pkg htmldoc
 
+#
+# Make an HP-UX distribution using EPM.
+#
+
+depot:
+	epm -v -f depot htmldoc
+
 
 #
-# End of "$Id: Makefile.in,v 1.9 2000/06/30 13:42:05 mike Exp $".
+# End of "$Id: Makefile.in,v 1.10 2000/06/30 13:46:30 mike Exp $".
 #
