@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.3 2002/02/08 19:39:52 mike Exp $"
+// "$Id: tree.cxx,v 1.4 2002/02/09 23:54:39 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -29,8 +29,9 @@
 // Include necessary headers.
 //
 
-#include "tree.h"
+#include "htmldoc.h"
 #include "hdstring.h"
+#include <math.h>
 
 
 //
@@ -398,8 +399,136 @@ hdTree::add(hdTree *p)			// I - Parent node
 //
 
 void
-hdTree::compute_size()
+hdTree::compute_size(hdStyleSheet *css)	// I - Stylesheet
 {
+  const char	*width_ptr,		// Pointer to width string
+		*height_ptr,		// Pointer to height string
+		*size_ptr,		// Pointer to size string
+		*type_ptr;		// Pointer to spacer type string
+  hdImage	*img;			// Image
+  char		number[255];		// Width or height value
+
+
+  // Don't even bother if we don't have a style for this node yet...
+  if (style == NULL)
+  {
+    width  = 0.0f;
+    height = 0.0f;
+    return;
+  }
+
+  switch (element)
+  {
+    case HD_ELEMENT_IMG :
+	// Load an image
+	width_ptr  = get_attr("WIDTH");
+	height_ptr = get_attr("HEIGHT");
+	img        = hdImage::find(get_attr("_HD_SRC"), css->grayscale);
+
+	if (width_ptr != NULL && height_ptr != NULL)
+	{
+	  width  = style->get_length(width_ptr, css->print_width, css);
+	  height = style->get_length(height_ptr, css->print_length, css);
+	}
+	else if (img == NULL || img->width() == 0 || img->height() == 0)
+	  return;
+	else if (width_ptr != NULL)
+	{
+	  // Scale the height so that the aspect ratio is preserved...
+	  width  = style->get_length(width_ptr, css->print_width, css);
+	  height = width * img->height() / img->width();
+
+	  // Set the HEIGHT attribute appropriately...
+	  sprintf(number, "%d", 
+        	  atoi(width_ptr) * img->height() / img->width());
+
+	  if (strchr(width_ptr, '%') != NULL)
+            strcat(number, "%");
+
+	  set_attr("HEIGHT", number);
+	}
+	else if (height_ptr != NULL)
+	{
+	  // Scale the width so that the aspect ratio is preserved...
+	  height = style->get_length(height_ptr, css->print_length, css);
+	  width  = height * img->width() / img->height();
+
+	  // Set the WIDTH attribute appropriately...
+	  sprintf(number, "%d",
+        	  atoi(height_ptr) * img->width() / img->height());
+
+	  if (strchr(height_ptr, '%') != NULL)
+            strcat(number, "%");
+
+	  set_attr("WIDTH", number);
+	}
+	else
+	{
+	  // Use the normal image size...
+	  width  = img->width() * 72.0f / css->ppi;
+	  height = img->height() * 72.0f / css->ppi;
+
+	  // Set the WIDTH and HEIGHT attributes appropriately...
+	  sprintf(number, "%d", img->width());
+	  set_attr("WIDTH", number);
+
+	  sprintf(number, "%d", img->height());
+	  set_attr("HEIGHT", number);
+	}
+	break;
+
+    case HD_ELEMENT_SPACER :
+	width_ptr  = get_attr("WIDTH");
+	height_ptr = get_attr("HEIGHT");
+	size_ptr   = get_attr("SIZE");
+	type_ptr   = get_attr("TYPE");
+
+	if (width_ptr != NULL)
+	  width = style->get_length(width_ptr, css->print_width, css);
+	else if (size_ptr != NULL)
+	  width = style->get_length(size_ptr, css->print_width, css);
+	else
+	  width = 1.0f;
+
+	if (height_ptr != NULL)
+	  height = style->get_length(height_ptr, css->print_length, css);
+	else if (size_ptr != NULL)
+	  height = style->get_length(size_ptr, css->print_length, css);
+	else
+	  height = 1.0f;
+
+	if (type_ptr == NULL)
+	  break;
+
+	if (strcasecmp(type_ptr, "horizontal") == 0)
+	  height = 0.0f;
+	else if (strcasecmp(type_ptr, "vertical") == 0)
+	  width = 0.0f;
+	break;
+
+    case HD_ELEMENT_BR :
+	width  = 0.0f;
+	height = style->font_size;
+	break;
+
+    case HD_ELEMENT_NONE :
+        if (style->font && data)
+	{
+	  width  = style->font->width(data) * style->font_size;
+	  height = style->font_size;
+	}
+	else
+	{
+	  width  = 0.0f;
+	  height = 0.0f;
+	}
+	break;
+
+    default :
+        width  = 0.0f;
+	height = 0.0f;
+        break;
+  }
 }
 
 
@@ -414,7 +543,79 @@ hdTree::fix_url(const char *url,	// I - URL
                 char       *s,		// O - Fixed URL buffer
 		int        slen)	// I - Size of URL buffer
 {
-  return ((char *)url);
+  char	*slash;				// Location of slash
+  char	temp[1024];			// Temporary buffer for final find
+
+
+  // Range check...
+  if (url == NULL)
+    return (NULL);
+
+  // Grab a local file or an absolute http/https URL...
+  if (base == NULL || strcmp(base, ".") == 0 || strstr(url, "//") != NULL)
+    return (hdFile::find(path, url, s, slen));
+
+  // Strip leading ./ from URL...
+  if (strncmp(url, "./", 2) == 0 ||
+      strncmp(url, ".\\", 2) == 0)
+    url += 2;
+
+  // Make sure the last char in the URL output buffer is 0...
+  slen --;
+  s[slen] = '\0';
+
+  // Copy the base path to the output buffer...
+  if (strncmp(base, "http://", 7) == 0)
+  {
+    // Base path is a URL...
+    strncpy(s, base, slen - 1);
+    base = s + 7;
+
+    // Handle local or remote paths...
+    if (url[0] == '/')
+    {
+      if ((slash = strchr(base, '/')) != NULL)
+        strncpy(slash, url, slen);
+      else
+        strncat(s, url, slen);
+
+      return (s);
+    }
+    else if ((slash = strchr(base, '/')) == NULL)
+      strncat(s, "/", slen);
+  }
+  else
+  {
+    // Base path is a directory...
+    if (url[0] == '/' || url[0] == '\\' || base[0] == '\0' ||
+        (isalpha(url[0]) && url[1] == ':'))
+      return (hdFile::find(path, url, s, slen + 1)); // No change needed for absolute path
+
+    strncpy(s, base, slen);
+    base = s;
+  }
+
+  // Now handle relative paths in the URL as needed...
+  while (strncmp(url, "../", 3) == 0 ||
+         strncmp(url, "..\\", 3) == 0)
+  {
+    url += 3;
+
+    if ((slash = strrchr(base, '/')) != NULL)
+      *slash = '\0';
+    else if ((slash = strrchr(base, '\\')) != NULL)
+      *slash = '\0';
+    else
+    {
+      url -= 3;
+      break;
+    }
+  }
+
+  // Now construct a temporary path for searching and return the result.
+  snprintf(temp, sizeof(temp), "%s/%s", s, url);
+
+  return (hdFile::find(path, temp, s, slen + 1));
 }
 
 
@@ -717,6 +918,131 @@ hdTree::parse_element(hdFile *fp)	// I - File to read from
 
 
 //
+// 'hdTree::parse_entity()' - Parse a HTML entity and return the text for it.
+//
+
+void
+hdTree::parse_entity(hdFile       *fp,	// I - File to read from
+                     hdStyleSheet *css,	// I - Stylesheet
+	             char         *s,	// O - Glyph string buffer
+		     int          slen)	// I - Size of glyph string buffer
+{
+  int		ch,		// Character from file...
+		code;		// Code for entity...
+  char		html[16],	// Entity name (&#nnn; or &name;)
+		*ptr;		// Pointer in entity string
+  const char	*glyph;		// PostScript glyph...
+
+
+  // Make sure the string buffer is nul-terminated...
+  slen --;
+  s[slen] = '\0';
+
+  // Now read all of the entity text; if the first char is invalid
+  // (not a letter or #), then unget the one character and put an
+  // ampersand in the output string.  Files that don't quote the
+  // ampersands are not conformant, but unfortunately exist...
+  ch = fp->get();
+
+  if (!isalpha(ch) && ch != '#')
+  {
+    // Bad ampersand in file...
+    fp->unget(ch);
+
+    // Put an ampersand in the string buffer...
+    s[0] = '&';
+    s[1] = '\0';
+
+    fprintf(stderr, "Bad character sequence \"&%c\"!\n", ch);
+    return;
+  }
+
+  ptr = html;
+
+  if (ch == '#')
+  {
+    *ptr++ = ch;
+    ch     = fp->get();
+
+    while (isdigit(ch))
+    {
+      if (ptr < (html + sizeof(html) - 1))
+	*ptr++ = ch;
+
+      ch = fp->get();
+    }
+  }
+  else
+  {    
+    while (isalnum(ch))
+    {
+      if (ptr < (html + sizeof(html) - 1))
+	*ptr++ = ch;
+
+      ch = fp->get();
+    }
+  }
+
+  *ptr = '\0';
+
+  if (ch != ';')
+  {
+    fp->unget(ch);
+
+    snprintf(s, slen + 1, "&%s", html);
+    return;
+  }
+
+  if (html[0] == '#')
+  {
+    // &#NNNN; quotes a raw character value in the current charset...
+    code = atoi(html + 1);
+  }
+  else
+  {
+    // Start by lookup up the PostScript glyph...
+    glyph = hdGlobal.find_glyph(html);
+
+    // Then look at the current charset for the code associated
+    // with the glyph...
+    for (code = 0; code < css->num_glyphs; code ++)
+      if (css->glyphs[code] && strcmp(glyph, css->glyphs[code]) == 0)
+        break;
+  }
+
+  if (code >= css->num_glyphs)
+  {
+    // The code can't be represented by the current character set,
+    // so just return the text...
+    snprintf(s, slen + 1, "&%s;", html);
+    return;
+  }
+
+  // For all 8-bit charsets, we just put a single character in the
+  // buffer.  Otherwise we have to decompose the character code
+  // into the correct UTF-8 stream...
+  if (css->encoding == HD_FONTENCODING_8BIT || code < 128)
+  {
+    s[0] = code;
+    s[1] = '\0';
+  }
+  else if (code < 2048)
+  {
+    s[0] = 0xc0 | (code >> 6);
+    s[1] = 0x80 | (code & 63);
+    s[2] = '\0';
+  }
+  else
+  {
+    s[0] = 0xe0 | (code >> 12);
+    s[1] = 0x80 | ((code >> 6) & 63);
+    s[2] = 0x80 | (code & 63);
+    s[3] = '\0';
+  }
+}
+
+
+//
 // 'hdTree::read()' - Read a HTML file into a document tree.
 //
 
@@ -727,16 +1053,12 @@ hdTree::read(hdFile       *fp,		// I - File to read from
              hdStyleSheet *css)		// I - Stylesheet
 {
   int		ch;			// Character from file
-  char		*ptr,			// Pointer in string
-		glyph[16],		// Glyph name (&#nnn; or &name;)
-		*glyphptr;		// Pointer in glyph string
-  hdTree	*tree,			// "top" of this tree
-		*t,			// New tree node
+  char		*ptr;			// Pointer in string
+  hdTree	*t,			// New tree node
 		*p,			// Parent tree node
-		*temp;			// Temporary looping var
+		*temp;			// Temporary tree node
   hdStyle	*style;			// Current style
   hdSelector	selector;		// Style selector...
-  int		pos;			// Current file position
   hdFile	*embed;			// File pointer for EMBED
   char		newbase[1024];		// New base directory for EMBED
   const char	*filename,		// Filename for EMBED tag
@@ -925,23 +1247,12 @@ hdTree::read(hdFile       *fp,		// I - File to read from
       ptr = s;
       while (ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
       {
-#if 0
         if (ch == '&')
-        {
-          for (glyphptr = glyph;
-               (ch = fp->get()) != EOF && (glyphptr - glyph) < 15;
-               glyphptr ++)
-            if (ch == ';' || isspace(ch))
-              break;
-            else
-              *glyphptr = ch;
-
-          *glyphptr = '\0';
-          ch = iso8859(glyph);
-        }
-#endif // 0
-
-        if (ch != 0 && ch != '\r')
+	{
+	  t->parse_entity(fp, css, ptr, sizeof(s) - (ptr - s));
+	  ptr += strlen(ptr);
+	}
+	else if (ch != '\r')
           *ptr++ = ch;
 
         if (ch == '\n')
@@ -966,23 +1277,12 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 
       while (!isspace(ch) && ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
       {
-#if 0
         if (ch == '&')
-        {
-          for (glyphptr = glyph;
-               (ch = fp->get()) != EOF && (glyphptr - glyph) < 15;
-               glyphptr ++)
-            if (ch == ';' || isspace(ch))
-              break;
-            else
-              *glyphptr = ch;
-
-          *glyphptr = '\0';
-          ch = iso8859(glyph);
-        }
-#endif // 0
-
-        if (ch != 0)
+	{
+	  t->parse_entity(fp, css, ptr, sizeof(s) - (ptr - s));
+	  ptr += strlen(ptr);
+	}
+	else
           *ptr++ = ch;
 
         ch = fp->get();
@@ -1102,99 +1402,93 @@ hdTree::read(hdFile       *fp,		// I - File to read from
           if ((filename = t->get_attr("SRC")) != NULL)
 	  {
 	    if ((filename = fix_url(filename, base, path, s, sizeof(s))) != NULL)
-	      t->set_attr("_HD_SRC", strdup(filename));
+	      t->set_attr("_HD_SRC", filename);
           }
 
  	  // Figure out the width & height of this element...
-          t->compute_size();
+          t->compute_size(css);
 	  break;
 
       case HD_ELEMENT_BR :
       case HD_ELEMENT_NONE :
       case HD_ELEMENT_SPACER :
  	  // Figure out the width & height of this element...
-          t->compute_size();
+          t->compute_size(css);
 	  break;
 
-#if 0
       case HD_ELEMENT_EMBED :
           if ((filename = t->get_attr("SRC")) != NULL)
 	  {
-	    filename = (char *)fix_filename((char *)filename,
-	                                     (char *)base);
+	    fix_url(filename, base, path, s, sizeof(s));
 
-            if ((embed = fopen((char *)filename, "r")) != NULL)
+            if ((embed = hdFile::open(s, HD_FILE_READ)) != NULL)
             {
-	      strcpy(newbase, file_directory((char *)filename));
+	      hdFile::directory(s, newbase, sizeof(newbase));
 
-              htmlReadFile(t, embed, newbase);
-              fclose(embed);
+	      if ((temp = read(embed, newbase, path, css)) != NULL)
+	        temp->add(t);
+
+	      delete embed;
             }
-#ifndef DEBUG
+#if 0
 	    else
 	      progress_error(HD_ERROR_FILE_NOT_FOUND,
                              "Unable to embed \"%s\" - %s", filename,
 	                     strerror(errno));
-#endif // !DEBUG
+#endif // 0
 	  }
           break;
 
       case HD_ELEMENT_FONT :
+          if (t->style == NULL)
+	    break;
+
           if ((face = t->get_attr("FACE")) != NULL)
           {
-            for (ptr = face; *ptr != '\0'; ptr ++)
-              *ptr = tolower(*ptr);
+	    // Reset the font_family attribute...
+	    if (t->style->font_family)
+	      free(t->style->font_family);
 
-            if (strstr((char *)face, "arial") != NULL ||
-                strstr((char *)face, "helvetica") != NULL)
-              t->typeface = HD_FONTFACE_HELVETICA;
-            else if (strstr((char *)face, "times") != NULL)
-              t->typeface = HD_FONTFACE_TIMES;
-            else if (strstr((char *)face, "courier") != NULL)
-	    {
-              t->typeface = HD_FONTFACE_COURIER;
+	    t->style->font_family = strdup(face);
+	    t->style->updated     = 0;
 
-              if (whitespace)
-	      {
-		// Insert a space before monospaced text...
-		insert_space(parent, t);
-
-		whitespace = 0;
-	      }
-            }
-	    else if (strstr((char *)face, "symbol") != NULL)
-              t->typeface = HD_FONTFACE_SYMBOL;
+            // Update the style data...
+	    t->style->update(css);
           }
 
           if ((color = t->get_attr("COLOR")) != NULL)
-            compute_color(t, color);
+	  {
+	    t->style->color_set = 1;
+	    t->style->get_color(color, t->style->color);
+	  }
 
           if ((size = t->get_attr("SIZE")) != NULL)
           {
-            if (whitespace)
-	    {
-	      // Insert a space before sized text...
-	      insert_space(parent, t);
-
-	      whitespace = 0;
-	    }
-
 	    if (isdigit(size[0]))
-	      sizeval = atoi((char *)size);
+	    {
+	      // Absolute size change...
+	      sizeval = atoi(size) - 3;
+
+	      // Get the base font size from the BODY element...
+	      selector.element = HD_ELEMENT_BODY;
+	      selector.class_  = NULL;
+	      selector.pseudo  = NULL;
+	      selector.id      = NULL;
+
+	      if ((style = css->find_style(1, &selector, 1)) != NULL)
+	        t->style->font_size = style->font_size * pow(1.2f, sizeval);
+              else
+	        t->style->font_size = 11.0f * pow(1.2f, sizeval);
+	    }
 	    else
-              sizeval = t->size + atoi((char *)size);
+	    {
+	      // Relative size change...
+              sizeval = atoi(size);
 
-            if (sizeval < 0)
-              t->size = 0;
-            else if (sizeval > 7)
-              t->size = 7;
-            else
-              t->size = sizeval;
+              t->style->font_size *= pow(1.2f, sizeval);
+	    }
           }
-
-          htmlReadFile(t, fp, base);
           break;
-#endif // 0
 
       case HD_ELEMENT_TABLE :
           // Get the table alignment...
@@ -1428,312 +1722,6 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 #if 0
-static void	delete_node(hdTree *t);
-static void	insert_space(hdTree *parent, hdTree *t);
-static int	parse_element(hdTree *t, FILE *fp);
-static int	parse_variable(hdTree *t, FILE *fp);
-static int	compute_size(hdTree *t);
-static int	compute_color(hdTree *t, char *color);
-static int	get_alignment(hdTree *t);
-static const char *fix_filename(char *path, char *base);
-
-
-/*
- * 'htmlReadFile()' - Read a file for HTML element codes.
- */
-
-hdTree *			/* O - Pointer to top of file tree */
-htmlReadFile(hdTree     *parent,/* I - Parent tree node */
-             FILE       *fp,	/* I - File pointer */
-	     const char *base)	/* I - Base directory for file */
-{
-}
-
-
-/*
- * 'htmlAddTree()' - Add a tree node to the parent.
- */
-
-hdTree *			/* O - New entry */
-htmlAddTree(hdTree   *parent,	/* I - Parent entry */
-            hdElement element,	/* I - Markup code */
-            char    *data)	/* I - Data/text */
-{
-  hdTree	*t;		/* New tree node */
-
-
-  if ((t = htmlNewTree(parent, element, data)) == NULL)
-    return (NULL);
-
- /*
-  * Add the tree node to the end of the chain of children...
-  */
-
-  if (parent != NULL)
-  {
-    if (parent->last_child != NULL)
-    {
-      parent->last_child->next = t;
-      t->prev                  = parent->last_child;
-    }
-    else
-      parent->child = t;
-
-    parent->last_child = t;
-  }
-
-  return (t);
-}
-
-
-/*
- * 'htmlDeleteTree()' - Free all memory associated with a tree...
- */
-
-int				/* O - 0 for success, -1 for failure */
-htmlDeleteTree(hdTree *parent)	/* I - Parent to delete */
-{
-  hdTree	*next;		/* Next tree node */
-
-
-  if (parent == NULL)
-    return (-1);
-
-  while (parent != NULL)
-  {
-    next = parent->next;
-
-    if (parent->child != NULL)
-      if (htmlDeleteTree(parent->child))
-        return (-1);
-
-    delete_node(parent);
-
-    parent = next;
-  }
-
-  return (0);
-}
-
-
-/*
- * 'htmlInsertTree()' - Insert a tree node under the parent.
- */
-
-hdTree *			/* O - New entry */
-htmlInsertTree(hdTree   *parent,/* I - Parent entry */
-               hdElement element,	/* I - Markup code */
-               char    *data)	/* I - Data/text */
-{
-  hdTree	*t;		/* New tree node */
-
-
-  if ((t = htmlNewTree(parent, element, data)) == NULL)
-    return (NULL);
-
- /*
-  * Insert the tree node at the beginning of the chain of children...
-  */
-
-  if (parent != NULL)
-  {
-    if (parent->child != NULL)
-    {
-      parent->child->prev = t;
-      t->next             = parent->child;
-    }
-    else
-      parent->last_child = t;
-
-    parent->child = t;
-  }
-
-  return (t);
-}
-
-
-/*
- * 'htmlNewTree()' - Create a new tree node for the parent.
- */
-
-hdTree *			/* O - New entry */
-htmlNewTree(hdTree   *parent,	/* I - Parent entry */
-            hdElement element,	/* I - Markup code */
-            char    *data)	/* I - Data/text */
-{
-  hdTree	*t;		/* New tree node */
-
-
- /*
-  * Allocate a new tree node - use calloc() to get zeroed data...
-  */
-
-  t = (hdTree *)calloc(sizeof(hdTree), 1);
-  if (t == NULL)
-    return (NULL);
-
- /*
-  * Set the element code and copy the data if necessary...
-  */
-
-  t->element = element;
-  if (data != NULL)
-    t->data = (char *)strdup((char *)data);
-
- /*
-  * Set/copy font characteristics...
-  */
-
-  if (parent == NULL)
-  {
-    t->halignment = HD_ALIGN_LEFT;
-    t->valignment = HD_ALIGN_MIDDLE;
-    t->typeface   = body_font;
-    t->size       = HD_FONTSIZE_P;
-
-    compute_color(t, text_color);
-  }
-  else
-  {
-    t->link          = parent->link;
-    t->halignment    = parent->halignment;
-    t->valignment    = parent->valignment;
-    t->typeface      = parent->typeface;
-    t->size          = parent->size;
-    t->style         = parent->style;
-    t->preformatted  = parent->preformatted;
-    t->indent        = parent->indent;
-    t->red           = parent->red;
-    t->green         = parent->green;
-    t->blue          = parent->blue;
-    t->underline     = parent->underline;
-    t->strikethrough = parent->strikethrough;
-  }
-
-  switch (t->element)
-  {
-    case HD_ELEMENT_NONE :
-    case HD_ELEMENT_IMG :
-       /*
-	* Figure out the width & height of this fragment...
-	*/
-
-        compute_size(t);
-	break;
-
-    case HD_ELEMENT_H1 :
-    case HD_ELEMENT_H2 :
-    case HD_ELEMENT_H3 :
-    case HD_ELEMENT_H4 :
-    case HD_ELEMENT_H5 :
-    case HD_ELEMENT_H6 :
-        get_alignment(t);
-
-        t->typeface      = heading_font;
-        t->size          = HD_FONTSIZE_H1 - t->element + HD_ELEMENT_H1;
-        t->subscript     = 0;
-        t->superscript   = 0;
-        t->strikethrough = 0;
-        t->preformatted  = 0;
-        t->style         = HD_FONTSTYLE_BOLD;
-        break;
-
-    case HD_ELEMENT_P :
-        get_alignment(t);
-
-        t->typeface      = body_font;
-        t->size          = HD_FONTSIZE_P;
-        t->style         = HD_FONTSTYLE_NORMAL;
-        t->subscript     = 0;
-        t->superscript   = 0;
-        t->strikethrough = 0;
-        t->preformatted  = 0;
-        break;
-
-    case HD_ELEMENT_PRE :
-        t->typeface      = HD_FONTFACE_COURIER;
-        t->size          = HD_FONTSIZE_PRE;
-        t->style         = HD_FONTSTYLE_NORMAL;
-        t->subscript     = 0;
-        t->superscript   = 0;
-        t->strikethrough = 0;
-        t->preformatted  = 1;
-        break;
-
-    case HD_ELEMENT_DIV :
-        get_alignment(t);
-        break;
-
-    case HD_ELEMENT_BLOCKQUOTE :
-        t->style = HD_FONTSTYLE_ITALIC;
-
-    case HD_ELEMENT_UL :
-    case HD_ELEMENT_DIR :
-    case HD_ELEMENT_MENU :
-    case HD_ELEMENT_OL :
-    case HD_ELEMENT_DL :
-        t->indent ++;
-        break;
-
-    case HD_ELEMENT_AREA :
-    case HD_ELEMENT_BR :
-    case HD_ELEMENT_COMMENT :
-    case HD_ELEMENT_HR :
-    case HD_ELEMENT_INPUT :
-    case HD_ELEMENT_ISINDEX :
-    case HD_ELEMENT_META :
-    case HD_ELEMENT_WBR :
-        break;
-
-    case HD_ELEMENT_TH :
-        t->style = HD_FONTSTYLE_BOLD;
-    case HD_ELEMENT_TD :
-        get_alignment(t);
-        break;
-
-    case HD_ELEMENT_SUP :
-        t->superscript = 1;
-        t->size        = HD_FONTSIZE_P + HD_FONTSIZE_SUP;
-        break;
-
-    case HD_ELEMENT_SUB :
-        t->subscript = 1;
-        t->size      = HD_FONTSIZE_P + HD_FONTSIZE_SUB;
-        break;
-
-    case HD_ELEMENT_B :
-        t->style = (style_t)(t->style | HD_FONTSTYLE_BOLD);
-        break;
-
-    case HD_ELEMENT_DD :
-        t->indent ++;
-        break;
-
-    case HD_ELEMENT_DT :
-    case HD_ELEMENT_I :
-        t->style = (style_t)(t->style | HD_FONTSTYLE_ITALIC);
-        break;
-
-    case HD_ELEMENT_U :
-    case HD_ELEMENT_INS :
-        t->underline = 1;
-        break;
-
-    case HD_ELEMENT_STRIKE :
-    case HD_ELEMENT_DEL :
-        t->strikethrough = 1;
-        break;
-
-    default :
-        break;
-  }
-
-  t->parent = parent;
-
-  return (t);
-}
-
-
 /*
  * 'get_text()' - Get all text from the given tree.
  */
@@ -1822,792 +1810,9 @@ htmlGetMeta(hdTree *tree,	/* I - Document tree */
 
   return (NULL);
 }
-
-
-/*
- * 'htmlGetVariable()' - Get a variable value from a element entry.
- */
-
-char *				/* O - Value or NULL if variable does not exist */
-htmlGetVariable(hdTree *t,	/* I - Tree entry */
-                char  *name)	/* I - Variable name */
-{
-}
-
-
-/*
- * 'htmlSetVariable()' - Set a variable for a element entry.
- */
-
-int				/* O - Set status: 0 = success, -1 = fail */
-htmlSetVariable(hdTree *t,	/* I - Tree entry */
-                char  *name,	/* I - Variable name */
-                char  *value)	/* I - Variable value */
-{
-}
-
-
-/*
- * 'htmlSetBaseSize()' - Set the font sizes and spacings...
- */
-
-void
-htmlSetBaseSize(float p,	/* I - Point size of paragraph font */
-                float s)	/* I - Spacing */
-{
-  int	i;			/* Looping var */
-
-
-  p /= 1.2 * 1.2 * 1.2;
-  for (i = 0; i < 8; i ++, p *= 1.2)
-  {
-    font_sizes[i]    = p;
-    line_spacings[i] = p * s;
-  }
-}
-
-
-/*
- * 'htmlSetCharSet()' - Set the character set for output.
- */
-
-void
-htmlSetCharSet(const char *cs)	/* I - Character set file to load */
-{
-  int		i, j;		/* Looping vars */
-  char		filename[1024];	/* Filenames */
-  FILE		*fp;		/* Files */
-  int		ch, unicode;	/* Character values */
-  float		width;		/* Width value */
-  char		glyph[64];	/* Glyph name */
-  char		line[1024];	/* Line from AFM file */
-  int		chars[256];	/* Character encoding array */
-
-
-  strcpy(font_charset, cs);
-
-  if (!initialized)
-  {
-   /*
-    * Load the PostScript glyph names for all of Unicode...
-    */
-
-    memset(font_glyphs_unicode, 0, sizeof(font_glyphs_unicode));
-
-    snprintf(line, sizeof(line), "%s/data/psglyphs", data_dir);
-    if ((fp = fopen(line, "r")) != NULL)
-    {
-      while (fscanf(fp, "%x%63s", &unicode, glyph) == 2)
-        font_glyphs_unicode[unicode] = strdup(glyph);
-
-      fclose(fp);
-
-      initialized = 1;
-    }
-#ifndef DEBUG
-    else
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open psglyphs data file!");
-#endif /* !DEBUG */
-  }
-
-  memset(font_glyphs, 0, sizeof(font_glyphs));
-
-  if (strncmp(cs, "8859-", 5) == 0)
-    snprintf(filename, sizeof(filename), "%s/data/iso-%s", data_dir, cs);
-  else
-    snprintf(filename, sizeof(filename), "%s/data/%s", data_dir, cs);
-
-  if ((fp = fopen(filename, "r")) == NULL)
-  {
-   /*
-    * Can't open charset file; use ISO-8859-1...
-    */
-
-#ifndef DEBUG
-    progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to open character set file %s!", cs);
-#endif /* !DEBUG */
-
-    for (i = 0; i < 256; i ++)
-      chars[i] = i;
-
-   /*
-    * Hardcode characters 128 to 159 for Microsoft's version of ISO-8859-1...
-    */
-
-    chars[0x80] = 0x20ac; /* Euro */
-    chars[0x82] = 0x201a;
-    chars[0x83] = 0x0192;
-    chars[0x84] = 0x201e;
-    chars[0x85] = 0x2026;
-    chars[0x86] = 0x2020;
-    chars[0x87] = 0x2021;
-    chars[0x88] = 0x02c6;
-    chars[0x89] = 0x2030;
-    chars[0x8a] = 0x0160;
-    chars[0x8b] = 0x2039;
-    chars[0x8c] = 0x0152;
-    chars[0x91] = 0x2018;
-    chars[0x92] = 0x2019;
-    chars[0x93] = 0x201c;
-    chars[0x94] = 0x201d;
-    chars[0x95] = 0x2022;
-    chars[0x96] = 0x2013;
-    chars[0x97] = 0x2014;
-    chars[0x98] = 0x02dc;
-    chars[0x99] = 0x2122;
-    chars[0x9a] = 0x0161;
-    chars[0x9b] = 0x203a;
-    chars[0x9c] = 0x0153;
-    chars[0x9f] = 0x0178;
-  }
-  else
-  {
-   /*
-    * Read the <char> <unicode> lines from the file...
-    */
-
-    memset(chars, 0, sizeof(chars));
-
-    while (fscanf(fp, "%x%x", &ch, &unicode) == 2)
-      chars[ch] = unicode;
-
-    fclose(fp);
-  }
-
- /*
-  * Build the glyph array...
-  */
-
-  for (i = 0; i < 256; i ++)
-    if (chars[i] == 0)
-      font_glyphs[i] = NULL;
-    else
-      font_glyphs[i] = font_glyphs_unicode[chars[i]];
-
- /*
-  * Now read all of the font widths...
-  */
-
-  for (i = 0; i < 4; i ++)
-    for (j = 0; j < 4; j ++)
-    {
-      for (ch = 0; ch < 256; ch ++)
-        font_widths[i][j][ch] = 0.6f;
-
-      snprintf(filename, sizeof(filename), "%s/afm/%s", data_dir,
-               fonts[i][j]);
-      if ((fp = fopen(filename, "r")) == NULL)
-      {
-#ifndef DEBUG
-        progress_error(HD_ERROR_FILE_NOT_FOUND,
-                       "Unable to open font width file %s!", fonts[i][j]);
-#endif /* !DEBUG */
-        continue;
-      }
-
-      while (fgets(line, sizeof(line), fp) != NULL)
-      {
-        if (strncmp(line, "C ", 2) != 0)
-	  continue;
-
-        if (i < 3)
-	{
-	 /*
-	  * Handle encoding of Courier, Times, and Helvetica using
-	  * assigned charset...
-	  */
-
-          if (sscanf(line, "%*s%*s%*s%*s%f%*s%*s%s", &width, glyph) != 2)
-	    continue;
-
-          for (ch = 0; ch < 256; ch ++)
-	    if (font_glyphs[ch] && strcmp(font_glyphs[ch], glyph) == 0)
-	      break;
-
-          if (ch < 256)
-	    font_widths[i][j][ch] = width * 0.001f;
-	}
-	else
-	{
-	 /*
-	  * Symbol font uses its own encoding...
-	  */
-
-          if (sscanf(line, "%*s%d%*s%*s%f", &ch, &width) != 2)
-	    continue;
-
-          if (ch < 256)
-	    font_widths[i][j][ch] = width * 0.001f;
-	}
-      }
-
-      fclose(fp);
-    }
-}
-
-
-/*
- * 'htmlSetTextColor()' - Set the default text color.
- */
-
-void
-htmlSetTextColor(char *color)	/* I - Text color */
-{
-  strncpy((char *)text_color, (char *)color, sizeof(text_color));
-  text_color[sizeof(text_color) - 1] = '\0';
-}
-
-
-/*
- * 'delete_node()' - Free all memory associated with a node...
- */
-
-static void
-delete_node(hdTree *t)		/* I - Node to delete */
-{
-  int		i;		/* Looping var */
-  hdTreeAttr		*var;		/* Current variable */
-
-
-  if (t == NULL)
-    return;
-
-  if (t->data != NULL)
-    free(t->data);
-
-  for (i = nattrs, var = attrs; i > 0; i --, var ++)
-  {
-    free(var->name);
-    if (var->value != NULL)
-      free(var->value);
-  }
-
-  if (attrs != NULL)
-    free(attrs);
-
-  free(t);
-}
-
-
-//
-// 'insert_space()' - Insert a whitespace character before the
-//                    specified node.
-//
-
-static void
-insert_space(hdTree *parent,	// I - Parent node
-             hdTree *t)		// I - Node to insert before
-{
-  hdTree	*space;		// Space node
-
-
-  // Allocate memory for the whitespace...
-  space = (hdTree *)calloc(sizeof(hdTree), 1);
-  if (space == NULL)
-  {
-#ifndef DEBUG
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory for HTML tree node!");
-#endif /* !DEBUG */
-    return;
-  }
-
-  // Set/copy font characteristics...
-  if (parent)
-  {
-    space->typeface = parent->typeface;
-    space->size     = parent->size;
-    space->style    = parent->style;
-  }
-  else
-  {
-    space->typeface = body_font;
-    space->size     = HD_FONTSIZE_P;
-  }
-
-  // Initialize element data...
-  space->element = HD_ELEMENT_NONE;
-  space->data   = (char *)strdup(" ");
-
-  // Set tree pointers...
-  space->parent = parent;
-  space->prev   = t->prev;
-  space->next   = t;
-
-  if (space->prev)
-    space->prev->next = space;
-  else if (parent)
-    parent->child = space;
-
-  t->prev = space;
-
-  compute_size(space);
-}
-
-
-/*
- * 'parse_element()' - Parse a element string.
- */
-
-static int			/* O - -1 on error, HD_ELEMENT_nnnn otherwise */
-parse_element(hdTree *t,		/* I - Current tree node */
-             FILE   *fp)	/* I - Input file */
-{
-  int	ch, ch2;		/* Characters from file */
-  char	element[255],		/* Markup string... */
-	*mptr,			/* Current character... */
-	comment[10240],		/* Comment string */
-	*cptr,			/* Current char... */
-	**temp;			/* Markup variable entry */
-
-
-  mptr = element;
-
-  while ((ch = getc(fp)) != EOF && mptr < (element + sizeof(element) - 1))
-    if (ch == '>' || isspace(ch))
-      break;
-    else
-    {
-      *mptr++ = ch;
-
-      // Handle comments without whitespace...
-      if ((mptr - element) == 3 && strncmp((const char *)element, "!--", 3) == 0)
-      {
-        ch = getc(fp);
-        break;
-      }
-    }
-
-  *mptr = '\0';
-
-  if (ch == EOF)
-    return (HD_ELEMENT_ERROR);
-
-  mptr = element;
-  temp = (char **)bsearch(&mptr, elements,
-                           sizeof(elements) / sizeof(elements[0]),
-                           sizeof(elements[0]),
-                           (compare_func_t)compare_elements);
-
-  if (temp == NULL)
-  {
-   /*
-    * Unrecognized element stuff...
-    */
-
-    t->element = HD_ELEMENT_COMMENT;
-    strcpy((char *)comment, (char *)element);
-    cptr = comment + strlen((char *)comment);
-
-    DEBUG_printf(("%s%s (unrecognized!)\n", indent, element));
-  }
-  else
-  {
-    t->element = (hdElement)((const char **)temp - elements);
-    cptr      = comment;
-
-    DEBUG_printf(("%s%s\n", indent, element));
-  }
-
-  if (t->element == HD_ELEMENT_COMMENT)
-  {
-    while (ch != EOF && cptr < (comment + sizeof(comment) - 1))
-    {
-      if (ch == '>' && temp == NULL)
-        break;
-
-      *cptr++ = ch;
-
-      if (ch == '-')
-      {
-        if ((ch2 = getc(fp)) == '>')
-	{
-	  // Erase trailing -->
-	  cptr --;
-	  if (*cptr == '-' && cptr > comment)
-	    cptr --;
-
-	  break;
-        }
-	else
-	  ch = ch2;
-      }
-      else
-        ch = getc(fp);
-    }
-
-    *cptr = '\0';
-    t->data = (char *)strdup((char *)comment);
-  }
-  else
-  {
-    while (ch != EOF && ch != '>')
-    {
-      if (!isspace(ch))
-      {
-        ungetc(ch, fp);
-        parse_variable(t, fp);
-      }
-
-      ch = getc(fp);
-    }
-  }
-
-  return (t->element);
-}
-
-
-/*
- * 'parse_variable()' - Parse a element variable string.
- */
-
-static int			/* O - -1 on error, 0 on success */
-parse_variable(hdTree *t,	/* I - Current tree node */
-               FILE   *fp)	/* I - Input file */
-{
-}
-
-
-/*
- * 'compute_color()' - Compute the red, green, blue color from the given
- *                     string.
- */
-
-static int
-compute_color(hdTree *t,	/* I - Tree entry */
-              char  *color)	/* I - Color string */
-{
-  float	rgb[3];			/* RGB color */
-
-
-  get_color(color, rgb);
-
-  t->red   = (char)(rgb[0] * 255.0f + 0.5f);
-  t->green = (char)(rgb[1] * 255.0f + 0.5f);
-  t->blue  = (char)(rgb[2] * 255.0f + 0.5f);
-
-  return (0);
-}
-
-
-/*
- * 'compute_size()' - Compute the width and height of a tree node.
- */
-
-static int			/* O - 0 = success, -1 = failure */
-compute_size(hdTree *t)		/* I - Tree entry */
-{
-  char		*ptr;		/* Current character */
-  float		width,		/* Current width */
-		max_width;	/* Maximum width */
-  char		*width_ptr,	/* Pointer to width string */
-		*height_ptr,	/* Pointer to height string */
-		*size_ptr,	/* Pointer to size string */
-		*type_ptr;	/* Pointer to spacer type string */
-  image_t	*img;		/* Image */
-  char		number[255];	/* Width or height value */
-
-
-  if (!initialized)
-    htmlSetCharSet("8859-1");
-
-  if (t->element == HD_ELEMENT_IMG)
-  {
-    width_ptr  = t->get_attr("WIDTH");
-    height_ptr = t->get_attr("HEIGHT");
-
-    img = image_load((char *)t->get_attr("_HD_SRC"),
-                     grayscale);
-
-    if (width_ptr != NULL && height_ptr != NULL)
-    {
-      t->width  = atoi((char *)width_ptr) / ppi * 72.0f;
-      t->height = atoi((char *)height_ptr) / ppi * 72.0f;
-
-      return (0);
-    }
-
-    if (img == NULL)
-      return (-1);
-
-    if (width_ptr != NULL)
-    {
-      t->width  = atoi((char *)width_ptr) / ppi * 72.0f;
-      t->height = t->width * img->height / img->width;
-
-      sprintf(number, "%d",
-              atoi((char *)width_ptr) * img->height / img->width);
-      if (strchr((char *)width_ptr, '%') != NULL)
-        strcat(number, "%");
-      htmlSetVariable(t, "HEIGHT", (char *)number);
-    }
-    else if (height_ptr != NULL)
-    {
-      t->height = atoi((char *)height_ptr) / ppi * 72.0f;
-      t->width  = t->height * img->width / img->height;
-
-      sprintf(number, "%d",
-              atoi((char *)height_ptr) * img->width / img->height);
-      if (strchr((char *)height_ptr, '%') != NULL)
-        strcat(number, "%");
-      htmlSetVariable(t, "WIDTH", (char *)number);
-    }
-    else
-    {
-      t->width  = img->width / ppi * 72.0f;
-      t->height = img->height / ppi * 72.0f;
-
-      sprintf(number, "%d", img->width);
-      htmlSetVariable(t, "WIDTH", (char *)number);
-
-      sprintf(number, "%d", img->height);
-      htmlSetVariable(t, "HEIGHT", (char *)number);
-    }
-
-    return (0);
-  }
-  else if (t->element == HD_ELEMENT_SPACER)
-  {
-    width_ptr  = t->get_attr("WIDTH");
-    height_ptr = t->get_attr("HEIGHT");
-    size_ptr   = t->get_attr("SIZE");
-    type_ptr   = t->get_attr("TYPE");
-
-    if (width_ptr != NULL)
-      t->width = atoi((char *)width_ptr) / ppi * 72.0f;
-    else if (size_ptr != NULL)
-      t->width = atoi((char *)size_ptr) / ppi * 72.0f;
-    else
-      t->width = 1.0f;
-
-    if (height_ptr != NULL)
-      t->height = atoi((char *)height_ptr) / ppi * 72.0f;
-    else if (size_ptr != NULL)
-      t->height = atoi((char *)size_ptr) / ppi * 72.0f;
-    else
-      t->height = 1.0f;
-
-    if (type_ptr == NULL)
-      return (0);
-
-    if (strcasecmp(type_ptr, "horizontal") == 0)
-      t->height = 0.0;
-    else if (strcasecmp(type_ptr, "vertical") == 0)
-      t->width = 0.0;
-
-    return (0);
-  }
-  else if (t->element == HD_ELEMENT_BR)
-  {
-    t->width  = 0.0;
-    t->height = font_sizes[t->size];
-
-    return (0);
-  }
-  else if (t->preformatted && t->data)
-  {
-    for (max_width = 0.0, width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
-      if (*ptr == '\n')
-      {
-        if (width > max_width)
-          max_width = width;
-      }
-      else if (*ptr == '\t')
-        width = (float)(((int)width + 7) & ~7);
-      else
-        width += font_widths[t->typeface][t->style][*ptr];
-
-   if (width < max_width)
-     width = max_width;
-  }
-  else if (t->data)
-    for (width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
-      width += font_widths[t->typeface][t->style][*ptr];
-  else
-    width = 0.0f;
-
-  t->width  = width * font_sizes[t->size];
-  t->height = font_sizes[t->size];
-
-  DEBUG_printf(("%swidth = %.1f, height = %.1f\n",
-                indent, t->width, t->height));
-
-  return (0);
-}
-
-
-/*
- * 'get_alignment()' - Get horizontal & vertical alignment values.
- */
-
-static int			/* O - 0 for success, -1 for failure */
-get_alignment(hdTree *t)	/* I - Tree entry */
-{
-  char	*align;			/* Alignment string */
-
-
-  if ((align = t->get_attr("ALIGN")) == NULL)
-    align = htmlGetStyle(t, "text-align");
-
-  if (align != NULL)
-  {
-    if (strcasecmp(align, "left") == 0)
-      t->halignment = HD_ALIGN_LEFT;
-    else if (strcasecmp(align, "center") == 0)
-      t->halignment = HD_ALIGN_CENTER;
-    else if (strcasecmp(align, "right") == 0)
-      t->halignment = HD_ALIGN_RIGHT;
-    else if (strcasecmp(align, "justify") == 0)
-      t->halignment = HD_ALIGN_JUSTIFY;
-    else if (strcasecmp(align, "top") == 0)
-      t->valignment = HD_ALIGN_TOP;
-    else if (strcasecmp(align, "middle") == 0)
-      t->valignment = HD_ALIGN_MIDDLE;
-    else if (strcasecmp(align, "bottom") == 0)
-      t->valignment = HD_ALIGN_BOTTOM;
-  }
-
-  if ((align = t->get_attr("VALIGN")) == NULL)
-    align = htmlGetStyle(t, "vertical-align");
-
-  if (align != NULL)
-  {
-    if (strcasecmp(align, "top") == 0)
-      t->valignment = HD_ALIGN_TOP;
-    else if (strcasecmp(align, "middle") == 0)
-      t->valignment = HD_ALIGN_MIDDLE;
-    else if (strcasecmp(align, "center") == 0)
-      t->valignment = HD_ALIGN_MIDDLE;
-    else if (strcasecmp(align, "bottom") == 0)
-      t->valignment = HD_ALIGN_BOTTOM;
-  }
-
-  return (0);
-}
-
-
-/*
- * 'fix_filename()' - Fix a filename to be relative to the base directory.
- */
-
-static const char *				/* O - Fixed filename */
-fix_filename(char *filename,		/* I - Original filename */
-             char *base)		/* I - Base directory */
-{
-  char		*slash;			/* Location of slash */
-  static char	newfilename[1024];	/* New filename */
-
-
-  if (filename == NULL)
-    return (NULL);
-
-  if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
-    return (file_find(Path, filename));
-
-#ifdef MAC
-  //
-  // Convert UNIX/DOS/WINDOWS slashes to colons for MacOS...
-  //
-  // Question: WHY doesn't the Mac standard C library do this for
-  // you???
-  //
-
-  for (slash = strchr(filename, '/'); slash != NULL; slash = strchr(slash + 1, '/'))
-    *slash = ':';
-
-  for (slash = strchr(filename, '\\'); slash != NULL; slash = strchr(slash + 1, '\\'))
-    *slash = ':';
-#endif // MAC
-
-  if (strncmp(filename, "./", 2) == 0 ||
-      strncmp(filename, ".\\", 2) == 0)
-    filename += 2;
-
-  if (strncmp(base, "http://", 7) == 0)
-  {
-    strcpy(newfilename, base);
-    base = newfilename + 7;
-
-    if (filename[0] == '/')
-    {
-      if ((slash = strchr(base, '/')) != NULL)
-        strcpy(slash, filename);
-      else
-        strcat(newfilename, filename);
-
-      return (newfilename);
-    }
-    else if ((slash = strchr(base, '/')) == NULL)
-      strcat(newfilename, "/");
-  }
-  else
-  {
-    if (filename[0] == '/' || filename[0] == '\\' || base == NULL ||
-	base[0] == '\0' || (isalpha(filename[0]) && filename[1] == ':'))
-      return (file_find(Path, filename)); /* No change needed for absolute path */
-
-    strcpy(newfilename, base);
-    base = newfilename;
-  }
-
-#ifdef MAC
-  //
-  // Convert UNIX/DOS/WINDOWS slashes to colons for MacOS...
-  //
-  // Question: WHY doesn't the Mac standard C library do this for
-  // you???
-  //
-
-  for (slash = strchr(newfilename, '/'); slash != NULL; slash = strchr(slash + 1, '/'))
-    *slash = ':';
-
-  for (slash = strchr(newfilename, '\\'); slash != NULL; slash = strchr(slash + 1, '\\'))
-    *slash = ':';
-#endif // MAC
-
-#if defined(WIN32) || defined(__EMX__)
-  while (strncmp(filename, "../", 3) == 0 ||
-         strncmp(filename, "..\\", 3) == 0)
-#elif defined(MAC)
-  while (strncmp(filename, "..:", 3) == 0)
-#else
-  while (strncmp(filename, "../", 3) == 0)
-#endif // WIN32 || __EMX__
-  {
-    filename += 3;
-#if defined(WIN32) || defined(__EMX__)
-    if ((slash = strrchr(base, '/')) != NULL)
-      *slash = '\0';
-    else if ((slash = strrchr(base, '\\')) != NULL)
-      *slash = '\0';
-#elif defined(MAC)
-    if ((slash = strrchr(base, ':')) != NULL)
-      *slash = '\0';
-#else
-    if ((slash = strrchr(base, '/')) != NULL)
-      *slash = '\0';
-#endif // WIN32 || __EMX__
-    else
-    {
-      filename -= 3;
-      break;
-    }
-  }
-
-#ifdef MAC
-  strcat(newfilename, ":");
-#else
-  strcat(newfilename, "/");
-#endif // MAC
-  strcat(newfilename, filename);
-
-  return (file_find(Path, newfilename));
-}
 #endif // 0
 
 
 //
-// End of "$Id: tree.cxx,v 1.3 2002/02/08 19:39:52 mike Exp $".
+// End of "$Id: tree.cxx,v 1.4 2002/02/09 23:54:39 mike Exp $".
 //
