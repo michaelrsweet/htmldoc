@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.7 2001/02/16 16:57:17 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.8 2001/02/22 01:22:41 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -924,6 +924,8 @@ main(int  argc,		/* I - Number of command-line arguments */
 
   htmlDeleteTree(document);
   htmlDeleteTree(toc);
+
+  file_cleanup();
   image_flush_cache();
 
   return (Errors);
@@ -1743,5 +1745,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.7 2001/02/16 16:57:17 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.8 2001/02/22 01:22:41 mike Exp $".
  */

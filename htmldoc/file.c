@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.7 2001/02/13 15:31:15 mike Exp $"
+ * "$Id: file.c,v 1.13.2.8 2001/02/22 01:22:40 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -23,14 +23,16 @@
  *
  * Contents:
  *
- *   file_basename()  - Return the base filename without directory or target.
- *   file_directory() - Return the directory without filename or target.
- *   file_extension() - Return the extension of a file without the target.
- *   file_find()      - Find a file in one of the path directories.
- *   file_localize()  - Localize a filename for the new working directory.
- *   file_method()    - Return the method for a filename or URL.
- *   file_proxy()     - Set the proxy host for all HTTP requests.
- *   file_target()    - Return the target of a link.
+ *   file_basename()    - Return the base filename without directory or target.
+ *   file_cleanup()     - Close an open HTTP connection and remove temporary files...
+ *   file_directory()   - Return the directory without filename or target.
+ *   file_extension()   - Return the extension of a file without the target.
+ *   file_find()        - Find a file in one of the path directories.
+ *   file_localize()    - Localize a filename for the new working directory.
+ *   file_method()      - Return the method for a filename or URL.
+ *   file_proxy()       - Set the proxy host for all HTTP requests.
+ *   file_target()      - Return the target of a link.
+ *   file_temp()        - Create and open a temporary file.
  */
 
 /*
@@ -49,6 +51,8 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+
 
 /*
  * Local globals...
@@ -58,13 +62,6 @@ char	proxy_host[HTTP_MAX_URI] = "";
 int	proxy_port = 0;
 http_t	*http = NULL;
 int	web_files = 0;
-
-
-/*
- * Local functions...
- */
-
-static void	close_connection(void);
 
 
 /*
@@ -102,6 +99,49 @@ file_basename(const char *s)	/* I - Filename or URL */
   *strchr(buf, '#') = '\0';
 
   return (buf);
+}
+
+
+/*
+ * 'file_cleanup()' - Close an open HTTP connection and remove temporary files...
+ */
+
+void
+file_cleanup(void)
+{
+  char		filename[1024];		/* Temporary file */
+#ifdef WIN32
+  char		tmpdir[1024];		/* Temporary directory */
+#else
+  const char	*tmpdir;		/* Temporary directory */
+#endif /* WIN32 */
+
+
+  if (http)
+  {
+    httpClose(http);
+    http = NULL;
+  }
+
+#ifdef WIN32
+  GetTempPath(sizeof(tmpdir), tmpdir);
+#else
+  if ((tmpdir = getenv("TMPDIR")) == NULL)
+    tmpdir = "/var/tmp";
+#endif /* WIN32 */
+
+  while (web_files > 0)
+  {
+#ifdef WIN32
+    snprintf(filename, sizeof(filename), "%s/%06d.%06d.dat", tmpdir,
+             GetCurrentProcessId(), web_files);
+#else
+    snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, getpid(), web_files);
+#endif /* WIN32 */
+
+    unlink(filename);
+    web_files --;
+  }
 }
 
 
@@ -234,12 +274,6 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   int		bytes,			/* Bytes read */
 		count,			/* Number of bytes so far */
 		total;			/* Total bytes in file */
-#if defined(WIN32)
-  char		tmpdir[1024];		/* Buffer for temp dir */
-#else
-  const char	*tmpdir;		/* Temporary directory */
-#endif /* WIN32 */
-  int		fd;			/* File descriptor */
   static char	filename[HTTP_MAX_URI];	/* Current filename */
 
 
@@ -360,7 +394,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     if (http == NULL)
     {
       progress_show("Connecting to %s...", connhost);
-      atexit(close_connection);
+      atexit(file_cleanup);
       if ((http = httpConnect(connhost, connport)) == NULL)
       {
         progress_hide();
@@ -401,40 +435,16 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       return (NULL);
     }
 
-    web_files ++;
-
-#if defined(WIN32)
-    GetTempPath(sizeof(tmpdir), tmpdir);
-
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d.dat", tmpdir,
-             GetCurrentProcessId(), web_files);
-#else
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "/var/tmp";
-
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, web_files,
-             getpid());
-    if ((fd = open(filename, O_CREAT | O_EXCL | O_TRUNC, 0600)) >= 0)
-      close(fd);
-    else
-    {
-      progress_hide();
-      progress_error("Unable to create temp file - %s!", strerror(errno));
-      httpFlush(http);
-      return (NULL);
-    }
-#endif /* WIN32 */
-
-    if ((total = atoi(httpGetField(http, HTTP_FIELD_CONTENT_LENGTH))) == 0)
-      total = 1024 * 1024;
-
-    if ((fp = fopen(filename, "wb")) == NULL)
+    if ((fp = file_temp(filename, sizeof(filename))) == NULL)
     {
       progress_hide();
       progress_error("Unable to create temporary file \"%s\"!", filename);
       httpFlush(http);
       return (NULL);
     }
+
+    if ((total = atoi(httpGetField(http, HTTP_FIELD_CONTENT_LENGTH))) == 0)
+      total = 1024 * 1024;
 
     count = 0;
     while ((bytes = httpRead(http, resource, sizeof(resource))) > 0)
@@ -629,49 +639,52 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * 'close_connection()' - Close an open HTTP connection on exit...
+ * 'file_temp()' - Create and open a temporary file.
  */
 
-static void
-close_connection(void)
+FILE *					/* O - Temporary file */
+file_temp(char *name,			/* O - Filename */
+          int  len)			/* I - Length of filename buffer */
 {
-  char		filename[1024];		/* Temporary file */
+  FILE		*fp;			/* File pointer */
+  int		fd;			/* File descriptor */
 #ifdef WIN32
-  char		tmpdir[1024];		/* Temporary directory */
+  char		tmpdir[1024];		/* Buffer for temp dir */
 #else
   const char	*tmpdir;		/* Temporary directory */
 #endif /* WIN32 */
 
 
-  if (http)
-  {
-    httpClose(http);
-    http = NULL;
-  }
+  web_files ++;
 
-#if defined(WIN32)
+#ifdef WIN32
   GetTempPath(sizeof(tmpdir), tmpdir);
+
+  snprintf(name, len, "%s/%06d.%06d.dat", tmpdir, GetCurrentProcessId(), web_files);
+
+  fd = _open(name, _O_CREAT | _O_WRONLY | _O_EXCL | _O_TRUNC | _O_SHORT_LIVED,
+             _S_IREAD | _S_IWRITE);
 #else
   if ((tmpdir = getenv("TMPDIR")) == NULL)
     tmpdir = "/var/tmp";
+
+  snprintf(name, len, "%s/%06d.%06d", tmpdir, getpid(), web_files);
+
+  fd = open(name, O_CREAT | O_WRONLY | O_EXCL | O_TRUNC, 0600);
 #endif /* WIN32 */
 
-  while (web_files > 0)
-  {
-#if defined(WIN32)
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d.dat", tmpdir,
-             GetCurrentProcessId(), web_files);
-#else
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, web_files,
-             getpid());
-#endif /* WIN32 */
+  if (fd >= 0)
+    fp = fdopen(fd, "wb");
+  else
+    fp = NULL;
 
-    unlink(filename);
+  if (!fp)
     web_files --;
-  }
+
+  return (fp);
 }
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.7 2001/02/13 15:31:15 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.8 2001/02/22 01:22:40 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.7 2001/02/16 16:57:16 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.8 2001/02/22 01:22:41 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -3623,6 +3623,9 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   htmlDeleteTree(document);
   htmlDeleteTree(toc);
 
+  file_cleanup();
+  image_flush_cache();
+
   gui->controls->activate();
   gui->window->cursor(FL_CURSOR_DEFAULT);
   gui->progress(0);
@@ -3650,5 +3653,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.7 2001/02/16 16:57:16 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.8 2001/02/22 01:22:41 mike Exp $".
 //
