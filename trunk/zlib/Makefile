@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.9 2002/12/04 20:21:50 swdev Exp $"
+# "$Id: Makefile,v 1.10 2002/12/17 19:00:29 swdev Exp $"
 #
 #   ZIP library Makefile for the Common UNIX Printing System (CUPS).
 #
-#   Makefile copyright 1997-2002 by Easy Software Products, all rights
+#   Makefile copyright 1997-2003 by Easy Software Products, all rights
 #   reserved.
 #   ZIP library copyright 1995-1998 Jean-loup Gailly.
 #   For conditions of distribution and use, see copyright notice in zlib.h 
@@ -79,5 +79,5 @@ include Dependencies
 
 
 #
-# End of "$Id: Makefile,v 1.9 2002/12/04 20:21:50 swdev Exp $".
+# End of "$Id: Makefile,v 1.10 2002/12/17 19:00:29 swdev Exp $".
 #
