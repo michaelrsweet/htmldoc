@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.55 2000/03/16 00:25:19 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.56 2000/03/16 14:24:39 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3749,7 +3749,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
        temprow != NULL && num_rows < MAX_ROWS;
        temprow = temprow->next)
     if (temprow->markup == MARKUP_CAPTION)
+    {
       parse_paragraph(temprow, left, right, bottom, top, x, y, page);
+      (*y) -= _htmlSpacings[SIZE_P];
+    }
     else if (temprow->markup == MARKUP_TR || temprow->markup == MARKUP_THEAD)
     {
       for (tempcol = temprow->child, col = 0;
@@ -3948,7 +3951,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   */
 
   for (col = 0, regular_cols = 0; col < num_cols; col ++)
-    if (col_widths[col] > 0.0)
+    if (col_widths[col] > 0.0f)
     {
       if (col_mins[col] > col_widths[col])
         col_widths[col] = col_mins[col];
@@ -3978,7 +3981,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       if (col_widths[col] == 0.0f)
       {
 	pref_width = col_prefs[col] * regular_width;
-	if (pref_width < col_mins[col])
+	if (pref_width < col_mins[col] &&
+	    (actual_width + col_mins[col]) <= width)
           pref_width = col_mins[col];
 
 	if ((actual_width + pref_width) > width)
@@ -4977,6 +4981,8 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_LI :
       case MARKUP_DD :
       case MARKUP_DT :
+      case MARKUP_TR :
+      case MARKUP_CAPTION :
 	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
 	  temp->markup = MARKUP_BR;
 	  temp->parent = NULL;
@@ -6795,5 +6801,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.55 2000/03/16 00:25:19 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.56 2000/03/16 14:24:39 mike Exp $".
  */
