@@ -19,6 +19,7 @@ languagelevel 1 eq { /setpagedevice {pop} BD } if
 
 /trayOffset 0 def
 product (Xerox DocuPrint N4025 PS3) eq
+%product (Insert ModelName string here) eq or
   { /trayOffset -1 def } if
 
 %
@@ -31,7 +32,6 @@ product (Xerox DocuPrint N4025 PS3) eq
 /haveMediaColor
   product (Xerox Document Centre 332/340) eq
 %  product (Insert ModelName string here) eq or
-  { true } { false } ifelse
 def
 
 %
@@ -45,7 +45,6 @@ def
   product (Xerox DocuPrint N4025 PS3) eq
   product (Xerox Document Centre 332/340) eq or
 %  product (Insert ModelName string here) eq or
-  { true } { false } ifelse
 def
 
 %
@@ -59,7 +58,6 @@ def
   product (Xerox DocuPrint N4025 PS3) eq
   product (Xerox Document Centre 332/340) eq or
 %  product (Insert ModelName string here) eq or
-  { true } { false } ifelse
 def
 
 %
@@ -72,7 +70,7 @@ def
 /haveDeferredMediaSelection
   product (Xerox DocuPrint N4025 PS3) eq
 %  product (Insert ModelName string here) eq or
-  { true } { false } ifelse
+  not
 def
 
 %
@@ -85,7 +83,7 @@ def
 /haveManualFeed
   product (Xerox DocuPrint N4025 PS3) eq
 %  product (Insert ModelName string here) eq or
-  { false } { true } ifelse
+  not
 def
 
 %
@@ -98,7 +96,7 @@ def
 /haveTraySwitch
   product (Xerox DocuPrint N4025 PS3) eq
 %  product (Insert ModelName string here) eq or
-  { false } { true } ifelse
+  not
 def
 
 %
