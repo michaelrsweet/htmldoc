@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.42 2003/01/06 22:09:24 mike Exp $"
+ * "$Id: file.c,v 1.13.2.43 2003/01/15 16:07:55 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -151,10 +151,9 @@ file_cleanup(void)
 {
   int		i;			/* Looping var */
   char		filename[1024];		/* Temporary file */
-#ifdef WIN32
-  char		tmpdir[1024];		/* Temporary directory */
-#else
   const char	*tmpdir;		/* Temporary directory */
+#ifdef WIN32
+  char		tmppath[1024];		/* Temporary directory */
 #endif /* WIN32 */
   const char	*debug;			/* HTMLDOC_DEBUG env var */
 
@@ -166,7 +165,11 @@ file_cleanup(void)
   }
 
 #ifdef WIN32
-  GetTempPath(sizeof(tmpdir), tmpdir);
+  if ((tmpdir = getenv("TEMP")) == NULL)
+  {
+    GetTempPath(sizeof(tmppath), tmppath);
+    tmpdir = tmppath;
+  }
 #else
   if ((tmpdir = getenv("TMPDIR")) == NULL)
     tmpdir = "/var/tmp";
@@ -986,10 +989,9 @@ file_temp(char *name,			/* O - Filename */
   cache_t	*temp;			/* Pointer to cache entry */
   FILE		*fp;			/* File pointer */
   int		fd;			/* File descriptor */
-#ifdef WIN32
-  char		tmpdir[1024];		/* Buffer for temp dir */
-#else
   const char	*tmpdir;		/* Temporary directory */
+#ifdef WIN32
+  char		tmppath[1024];		/* Buffer for temp dir */
 #endif /* WIN32 */
 
 
@@ -1028,7 +1030,11 @@ file_temp(char *name,			/* O - Filename */
   web_files ++;
 
 #ifdef WIN32
-  GetTempPath(sizeof(tmpdir), tmpdir);
+  if ((tmpdir = getenv("TEMP")) == NULL)
+  {
+    GetTempPath(sizeof(tmppath), tmppath);
+    tmpdir = tmppath;
+  }
 #else
   if ((tmpdir = getenv("TMPDIR")) == NULL)
     tmpdir = "/var/tmp";
@@ -1051,5 +1057,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.42 2003/01/06 22:09:24 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.43 2003/01/15 16:07:55 mike Exp $".
  */
