@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.48 2001/05/10 13:12:20 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.49 2001/05/11 21:11:21 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3936,7 +3936,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   else
     border = 0.0f;
 
-  if (border == 0.0f)
+  if (border == 0.0f && cellpadding > 0.0f)
   {
    /*
     * Ah, the strange table formatting nightmare that is HTML.
@@ -4033,8 +4033,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           // Compute the cell size...
           col_width = get_cell_size(tempcol, 0.0f, table_width, &col_min,
 	                            &col_pref, &col_height);
-          if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL &&
-	      colspan == 1)
+          if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
 	  {
 	    if (var[strlen((char *)var) - 1] == '%')
               col_width -= 2.0 * cellpadding - cellspacing;
@@ -4058,7 +4057,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	      col_swidths[col] = col_width;
 
 	    if (col_min > col_smins[col])
-	      col_smins[col] = col_pref;
+	      col_smins[col] = col_min;
           }
 	  else
 	  {
@@ -8329,5 +8328,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.48 2001/05/10 13:12:20 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.49 2001/05/11 21:11:21 mike Exp $".
  */
