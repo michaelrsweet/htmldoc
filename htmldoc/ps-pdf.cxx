@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.60 2001/05/21 20:40:08 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.61 2001/05/23 20:55:14 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7232,19 +7232,11 @@ write_imagemask(FILE     *out,	/* I - Output file */
 	switch (PSLevel)
 	{
 	  case 0 : // PDF
-	      flate_printf(out, "%.6f %.6f m\n",
-		           (float)startx * scalex,
-		           (float)y * scaley);
-	      flate_printf(out, "%.6f %.6f l\n",
-		           (float)(startx + count) * scalex,
-		           (float)y * scaley);
-	      flate_printf(out, "%.6f %.6f l\n",
-		           (float)(startx + count) * scalex,
-		           (float)(y + 1) * scaley);
-	      flate_printf(out, "%.6f %.6f l\n",
-		           (float)startx * scalex,
-		           (float)(y + 1) * scaley);
-	      flate_puts("h\n", out);
+	      flate_printf(out, "%.6f %.6f %.6f %.6f re\n",
+			   (float)startx * scalex,
+			   (float)y * scaley,
+			   (float)count * scalex,
+			   1.0f * scaley);
               break;
 
 	  case 1 : // PostScript Level 1
@@ -7508,13 +7500,13 @@ write_prolog(FILE  *out,	/* I - Output file */
       if (Landscape)
       {
         if (PageWidth == 612 && PageLength == 792)
-	  fputs("%%BeginFeature: PageSize Letter.Transverse\n", out);
+	  fputs("%%BeginFeature: *PageSize Letter.Transverse\n", out);
         if (PageWidth == 612 && PageLength == 1008)
-	  fputs("%%BeginFeature: PageSize Legal.Transverse\n", out);
+	  fputs("%%BeginFeature: *PageSize Legal.Transverse\n", out);
         if (PageWidth == 595 && PageLength == 842)
-	  fputs("%%BeginFeature: PageSize A4.Transverse\n", out);
+	  fputs("%%BeginFeature: *PageSize A4.Transverse\n", out);
         else
-	  fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageLength,
+	  fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", PageLength,
 	          PageWidth);
 
 	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageLength,
@@ -7523,7 +7515,7 @@ write_prolog(FILE  *out,	/* I - Output file */
 
         if (PageDuplex)
 	{
-	  fputs("%%BeginFeature: Duplex DuplexTumble\n", out);
+	  fputs("%%BeginFeature: *Duplex DuplexTumble\n", out);
 	  fputs("<</Duplex true/Tumble true>>setpagedevice\n", out);
           fputs("%%EndFeature\n", out);
 	}
@@ -7531,13 +7523,13 @@ write_prolog(FILE  *out,	/* I - Output file */
       else
       {
         if (PageWidth == 612 && PageLength == 792)
-	  fputs("%%BeginFeature: PageSize Letter\n", out);
+	  fputs("%%BeginFeature: *PageSize Letter\n", out);
         if (PageWidth == 612 && PageLength == 1008)
-	  fputs("%%BeginFeature: PageSize Legal\n", out);
+	  fputs("%%BeginFeature: *PageSize Legal\n", out);
         if (PageWidth == 595 && PageLength == 842)
-	  fputs("%%BeginFeature: PageSize A4\n", out);
+	  fputs("%%BeginFeature: *PageSize A4\n", out);
         else
-	  fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageWidth,
+	  fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", PageWidth,
 	          PageLength);
 
 	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageWidth,
@@ -7546,7 +7538,7 @@ write_prolog(FILE  *out,	/* I - Output file */
 
         if (PageDuplex)
 	{
-	  fputs("%%BeginFeature: Duplex DuplexNoTumble\n", out);
+	  fputs("%%BeginFeature: *Duplex DuplexNoTumble\n", out);
 	  fputs("<</Duplex true/Tumble false>>setpagedevice\n", out);
           fputs("%%EndFeature\n", out);
 	}
@@ -7554,7 +7546,7 @@ write_prolog(FILE  *out,	/* I - Output file */
 
       if (!PageDuplex)
       {
-	fputs("%%BeginFeature: Duplex None\n", out);
+	fputs("%%BeginFeature: *Duplex None\n", out);
 	fputs("<</Duplex false>>setpagedevice\n", out);
         fputs("%%EndFeature\n", out);
       }
@@ -7621,11 +7613,22 @@ write_prolog(FILE  *out,	/* I - Output file */
 
      /*
       * What is the key length?
+      *
+      * Note: Currently this code is disabled; all encrypted output is
+      *       40-bits until Adobe (or someone) clears up the errors in
+      *       the PDF 1.4 "delta" document.
+      *
+      *       (Also, it is interesting that the standard document
+      *        explicitly states that the U and O keys must be passed
+      *        as hex strings, but Acrobat puts out an unquoted (string)
+      *        entry...)
       */
 
+#if 0
       if (PDFVersion > 1.3)
         encrypt_len = 8;	// 64 bits
       else
+#endif /* 0 */
         encrypt_len = 5;	// 40 bits
 
      /*
@@ -7645,10 +7648,7 @@ write_prolog(FILE  *out,	/* I - Output file */
           md5_append(&md5, digest, 16);
           md5_finish(&md5, digest);
 	}
-      }
 
-      if (encrypt_len > 5)
-      {
         // Copy the padded user password...
         memcpy(owner_key, user_pad, 32);
 
@@ -7706,14 +7706,10 @@ write_prolog(FILE  *out,	/* I - Output file */
 
       if (encrypt_len > 5)
       {
-#if 0
         md5_init(&md5);
         md5_append(&md5, encrypt_key, encrypt_len);
         md5_append(&md5, file_id, 16);
         md5_finish(&md5, user_key);
-#else
-        memcpy(user_key, pad, 32);
-#endif /* 0 */
 
         // Encrypt the result 20 times...
         for (i = 0; i < 20; i ++)
@@ -7723,7 +7719,7 @@ write_prolog(FILE  *out,	/* I - Output file */
 	    digest[j] = encrypt_key[j] ^ i;
 
           rc4_init(&rc4, digest, encrypt_len);
-          rc4_encrypt(&rc4, user_key, user_key, 32);
+          rc4_encrypt(&rc4, user_key, user_key, 16);
 	}
       }
       else
@@ -7744,7 +7740,7 @@ write_prolog(FILE  *out,	/* I - Output file */
       fputs(">/U<", out);
       if (encrypt_len > 5)
       {
-        for (i = 0; i < 32; i ++)
+        for (i = 0; i < 16; i ++)
           fprintf(out, "%02x", user_key[i]);
       }
       else
@@ -7753,6 +7749,7 @@ write_prolog(FILE  *out,	/* I - Output file */
           fprintf(out, "%02x", user_key[i]);
       }
       fputs(">", out);
+
       if (encrypt_len > 5)
       {
         // 64-bit encryption...
@@ -8604,5 +8601,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.60 2001/05/21 20:40:08 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.61 2001/05/23 20:55:14 mike Exp $".
  */
