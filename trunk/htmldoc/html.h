@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.16 2004/03/31 10:35:07 mike Exp $"
+ * "$Id: html.h,v 1.17 2004/10/22 05:43:14 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -71,6 +71,9 @@ extern hdTree	*htmlAddTree(hdTree *parent, hdElement markup, uchar *data);
 extern int	htmlDeleteTree(hdTree *parent);
 extern hdTree	*htmlInsertTree(hdTree *parent, hdElement markup, uchar *data);
 extern hdTree	*htmlNewTree(hdTree *parent, hdElement markup, uchar *data);
+
+extern hdTree	*htmlFindFile(hdTree *doc, uchar *filename);
+extern void	htmlFixLinks(hdTree *doc, hdTree *tree, uchar *base = 0);
 
 extern uchar	*htmlGetText(hdTree *tree);
 extern uchar	*htmlGetMeta(hdTree *tree, uchar *name);
@@ -163,5 +166,5 @@ extern const char	*_htmlFonts[4][4];
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.16 2004/03/31 10:35:07 mike Exp $".
+ * End of "$Id: html.h,v 1.17 2004/10/22 05:43:14 mike Exp $".
  */

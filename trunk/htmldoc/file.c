@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.21 2004/04/11 21:20:28 mike Exp $"
+ * "$Id: file.c,v 1.22 2004/10/22 05:43:14 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -26,6 +26,7 @@
  *   file_basename()    - Return the base filename without directory or target.
  *   file_cleanup()     - Close an open HTTP connection and remove
  *                        temporary files...
+ *   file_cookies()     - Set the HTTP cookies for remote accesses.
  *   file_directory()   - Return the directory without filename or target.
  *   file_extension()   - Return the extension of a file without the target.
  *   file_find_check()  - Check to see if the specified file or URL exists...
@@ -68,7 +69,7 @@
 
 #ifdef WIN32
 #  define getpid	GetCurrentProcessId
-#  define TEMPLATE	"%s%08lx.%06d.tmp"
+#  define TEMPLATE	"%s/%08lx.%06d.tmp"
 #  define OPENMODE	(_O_CREAT | _O_RDWR | _O_TRUNC | _O_BINARY)
 #  define OPENPERM	(_S_IREAD | _S_IWRITE)
 #else
@@ -100,6 +101,7 @@ int	web_files = 0,			/* Number of temporary files */
 	web_alloc = 0;			/* Number of allocated files */
 cache_t	*web_cache = NULL;		/* Cache array */
 int	no_local = 0;			/* Non-zero to disable local files */
+char	cookies[1024] = "";		/* HTTP cookies, if any */
 
 
 /*
@@ -120,10 +122,6 @@ file_basename(const char *s)	/* I - Filename or URL */
     basename ++;
   else if ((basename = strrchr(s, '\\')) != NULL)
     basename ++;
-#ifdef MAC
-  else if ((basename = strrchr(s, ':')) != NULL)
-    basename ++;
-#endif /* MAC */
   else
     basename = (char *)s;
 
@@ -133,8 +131,7 @@ file_basename(const char *s)	/* I - Filename or URL */
   if (strchr(basename, '#') == NULL)
     return (basename);
 
-  strncpy(buf, basename, sizeof(buf) - 1);
-  buf[sizeof(buf) - 1] = '\0';
+  strlcpy(buf, basename, sizeof(buf));
   *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
@@ -238,6 +235,20 @@ file_cleanup(void)
 
 
 /*
+ * 'file_cookies()' - Set the HTTP cookies for remote accesses.
+ */
+
+void
+file_cookies(const char *s)		/* I - Cookie string or NULL */
+{
+  if (s)
+    strlcpy(cookies, s, sizeof(cookies));
+  else
+    cookies[0] = '\0';
+}
+
+
+/*
  * 'file_directory()' - Return the directory without filename or target.
  */
 
@@ -281,24 +292,20 @@ file_directory(const char *s)	/* I - Filename or URL */
     * Normal stuff...
     */
 
-    strncpy(buf, s, sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = '\0';
+    strlcpy(buf, s, sizeof(buf));
 
     if ((dir = strrchr(buf, '/')) != NULL)
       *dir = '\0';
     else if ((dir = strrchr(buf, '\\')) != NULL)
       *dir = '\0';
-#ifdef MAC
-    else if ((dir = strrchr(buf, ':')) != NULL)
-      *dir = '\0';
-#endif /* MAC */
     else
       return (".");
 
     if (strncmp(buf, "file:", 5) == 0)
-      strcpy(buf, buf + 5);
+      hd_strcpy(buf, buf + 5);
 
     if (!buf[0])
+      /* Safe because buf is more than 2 chars long */
       strcpy(buf, "/");
   }
 
@@ -324,10 +331,6 @@ file_extension(const char *s)	/* I - Filename or URL */
     extension ++;
   else if ((extension = strrchr(s, '\\')) != NULL)
     extension ++;
-#ifdef MAC
-  else if ((extension = strrchr(s, ':')) != NULL)
-    extension ++;
-#endif /* MAC */
   else
     extension = s;
 
@@ -339,8 +342,7 @@ file_extension(const char *s)	/* I - Filename or URL */
   if (strchr(extension, '#') == NULL)
     return (extension);
 
-  strncpy(buf, extension, sizeof(buf) - 1);
-  buf[sizeof(buf) - 1] = '\0';
+  strlcpy(buf, extension, sizeof(buf));
 
   *(char *)strchr(buf, '#') = '\0';
 
@@ -444,8 +446,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
         connhost = hostname;
         connport = port;
-        strncpy(connpath, resource, sizeof(connpath) - 1);
-	connpath[sizeof(connpath) - 1] = '\0';
+        strlcpy(connpath, resource, sizeof(connpath));
       }
 
       if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
@@ -490,6 +491,8 @@ file_find_check(const char *filename)	/* I - File or URL */
         httpEncode64(connauth + 6, username);
         httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
       }
+
+      httpSetCookie(http, cookies);
 
       if (!httpGet(http, connpath))
       {
@@ -606,10 +609,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   */
 
   if (strchr(s, '%') == NULL)
-  {
-    strncpy(basename, s, sizeof(basename) - 1);
-    basename[sizeof(basename) - 1] = '\0';
-  }
+    strlcpy(basename, s, sizeof(basename));
   else
   {
     for (sptr = s, temp = basename;
@@ -688,7 +688,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
           basename[0] != '/')
 	*temp++ = '/';
 
-      strncpy(temp, basename, sizeof(filename) - (temp - filename) - 1);
+      strlcpy(temp, basename, sizeof(filename) - (temp - filename));
 
      /*
       * See if the file or URL exists...
@@ -840,10 +840,7 @@ file_localize(const char *filename,	/* I - Filename */
     sprintf(temp, "%s/%s", cwd, newslash);
   }
   else
-  {
-    strncpy(temp, filename, sizeof(temp) - 1);
-    temp[sizeof(temp) - 1] = '\0';
-  }
+    strlcpy(temp, filename, sizeof(temp));
 
   for (slash = temp, newslash = newcwd;
        *slash != '\0' && *newslash != '\0';
@@ -874,11 +871,11 @@ file_localize(const char *filename,	/* I - Filename */
   while (*newslash != '\0')
   {
     if (*newslash == '/' || *newslash == '\\')
-      strcat(newfilename, "../");
+      strlcat(newfilename, "../", sizeof(newfilename));
     newslash ++;
   }
 
-  strcat(newfilename, slash);
+  strlcat(newfilename, slash, sizeof(newfilename));
 
   return (newfilename);
 }
@@ -942,8 +939,7 @@ file_proxy(const char *url)	/* I - URL of proxy server */
 
     if (strcmp(method, "http") == 0)
     {
-      strncpy(proxy_host, hostname, sizeof(proxy_host) - 1);
-      proxy_host[sizeof(proxy_host) - 1] = '\0';
+      strlcpy(proxy_host, hostname, sizeof(proxy_host));
       proxy_port = port;
     }
   }
@@ -968,10 +964,6 @@ file_target(const char *s)	/* I - Filename or URL */
     basename ++;
   else if ((basename = strrchr(s, '\\')) != NULL)
     basename ++;
-#ifdef MAC
-  else if ((basename = strrchr(s, ':')) != NULL)
-    basename ++;
-#endif /* MAC */
   else
     basename = s;
 
@@ -1061,5 +1053,5 @@ file_temp(char   *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.21 2004/04/11 21:20:28 mike Exp $".
+ * End of "$Id: file.c,v 1.22 2004/10/22 05:43:14 mike Exp $".
  */

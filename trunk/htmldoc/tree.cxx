@@ -1,5 +1,5 @@
 /*
- * "$Id: tree.cxx,v 1.26 2004/04/11 21:20:28 mike Exp $"
+ * "$Id: tree.cxx,v 1.27 2004/10/22 05:43:14 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2962,6 +2962,119 @@ htmlDebugStats(const char *title,	// I - Title
 }
 
 
+//
+// 'htmlFindFile()' - Find a file in the document.
+//
+
+hdTree *				// O - Node for file
+htmlFindFile(hdTree *doc,		// I - Document pointer
+             uchar  *filename)		// I - Filename
+{
+  hdTree	*tree;			// Current node
+  uchar		*treename;		// Filename from node
+
+
+  if (!filename || !doc)
+    return (NULL);
+
+  for (tree = doc; tree; tree = tree->next)
+    if ((treename = htmlGetVariable(tree, (uchar *)"_HD_FILENAME")) != NULL &&
+        !strcmp((char *)treename, (char *)filename))
+      return (tree);
+
+  return (NULL);
+}
+
+
+//
+// 'htmlFixLinks()' - Fix the external links in the document.
+//
+
+void
+htmlFixLinks(hdTree *doc,		// I - Top node
+             hdTree *tree,		// I - Current node
+	     uchar  *base)		// I - Base directory/path
+{
+  uchar		*href;			// HREF attribute
+  char		full_href[1024];	// Full HREF value
+  const char	*debug;			// HTMLDOC_DEBUG environment variable
+  static int	show_debug = -1;	// Show debug messages?
+
+
+  if (show_debug < 0)
+  {
+    if ((debug = getenv("HTMLDOC_DEBUG")) == NULL ||
+	(strstr(debug, "all") == NULL && strstr(debug, "links") == NULL))
+      show_debug = 0;
+    else
+      show_debug = 1;
+  }
+
+  while (tree)
+  {
+    if (tree->element == HD_ELEMENT_A && base && base[0] &&
+        (href = htmlGetVariable(tree, (uchar *)"HREF")) != NULL)
+    {
+      // Check if the link needs to be localized...
+      if (href[0] != '#' && file_method((char *)href) == NULL &&
+          file_method((char *)base) != NULL &&
+	  htmlFindFile(doc, (uchar *)file_basename((char *)href)) == NULL)
+      {
+        // Yes, localize it...
+	if (href[0] == '/')
+	{
+	  // Absolute URL, just copy scheme, server, etc.
+	  char *ptr;			// Pointer into URL...
+
+	  strlcpy(full_href, (char *)base, sizeof(full_href));
+
+          if (href[1] == '/')
+	  {
+	    // Just use scheme...
+	    if ((ptr = strstr(full_href, "//")) != NULL)
+	      *ptr ='\0';
+	  }
+	  else if ((ptr = strstr(full_href, "//")) != NULL  &&
+	           (ptr = strchr(ptr + 2, '/')) != NULL)
+	    *ptr ='\0';
+
+	  strlcat(full_href, (char *)href, sizeof(full_href));
+	}
+	else if (!strncmp((char *)href, "./", 2))
+	{
+	  // Relative URL of the form "./foo/bar", append href sans
+	  // "./" to base to form full href...
+	  snprintf(full_href, sizeof(full_href), "%s/%s", base, href + 2);
+	}
+	else
+	{
+	  // Relative URL, append href to base to form full href...
+	  snprintf(full_href, sizeof(full_href), "%s/%s", base, href);
+	}
+
+//        if (show_debug)
+//          progress_error(HD_ERROR_NONE, "DEBUG: Mapping \"%s\" to \"%s\"...\n",
+//	        	 href, full_href);
+
+	htmlSetVariable(tree, (uchar *)"_HD_FULL_HREF", (uchar *)full_href);
+      }
+      else
+      {
+        // No, just mirror the link in the _HD_FULL_HREF attribute...
+	htmlSetVariable(tree, (uchar *)"_HD_FULL_HREF", href);
+      }
+    }
+    else if (tree->element == HD_ELEMENT_FILE)
+      base = htmlGetVariable(tree, (uchar *)"_HD_BASE");
+
+    if (tree->child)
+      htmlFixLinks(doc, tree->child, base);
+
+    tree = tree->next;
+  }
+}
+
+
 /*
- * End of "$Id: tree.cxx,v 1.26 2004/04/11 21:20:28 mike Exp $".
+ * End of "$Id: tree.cxx,v 1.27 2004/10/22 05:43:14 mike Exp $".
  */

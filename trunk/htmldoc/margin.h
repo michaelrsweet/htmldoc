@@ -1,5 +1,5 @@
 //
-// "$Id: margin.h,v 1.11 2004/10/18 03:11:41 mike Exp $"
+// "$Id: margin.h,v 1.12 2004/10/22 05:43:14 mike Exp $"
 //
 // Margin class definitions for HTMLDOC, a HTML document processing
 // program.
@@ -121,7 +121,7 @@ class hdMargin
     *
     * @return The length in points.
     */
-    float	length() { return (bottom_[0] - top_); }
+    float	length() { return (top_ - bottom_[0]); }
 
    /**
     * The <TT>push()</TT> method pushes a new set of margins on the stack.
@@ -203,5 +203,5 @@ class hdMargin
 
 
 //
-// End of "$Id: margin.h,v 1.11 2004/10/18 03:11:41 mike Exp $".
+// End of "$Id: margin.h,v 1.12 2004/10/22 05:43:14 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: book.h,v 1.6 2004/04/11 21:20:28 mike Exp $"
+// "$Id: book.h,v 1.7 2004/10/22 05:43:14 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -238,8 +238,9 @@ struct hdPage				//// Page information
   hdRender	*start,			// First render element
 		*end;			// Last render element
   uchar		*chapter,		// Chapter text
-		*heading,		// Heading text
-		*header[3],		// Headers
+		*heading;		// Heading text
+  hdTree	*headnode;		// Heading node
+  uchar		*header[3],		// Headers
 		*footer[3];		// Footers
   char		media_color[64],	// Media color
 		media_type[64];		// Media type
@@ -375,6 +376,7 @@ struct hdBook
   int		last_level;
   hdTree	*heading_parents[15];
 
+  bool		CGIMode;		// Running as CGI?
   int		Compression;		// Non-zero means compress PDFs
   bool		TitlePage,		// Need a title page
 		TocLinks,		// Generate links
@@ -476,6 +478,7 @@ struct hdBook
   void		get_format(const char *fmt, char **formats);
   int		get_measurement(const char *s, float mul = 1.0f);
   void		set_page_size(const char *size);
+  void		set_permissions(const char *p);
 
   const char	*prefs_getrc(char *s, int slen);
   void		prefs_load(void);
@@ -536,12 +539,13 @@ struct hdBook
   void		ps_write_background(FILE *out);
   void		pdf_write_document(uchar *author, uchar *creator,
 		                   uchar *copyright, uchar *keywords,
-				   uchar *subject, hdTree *toc);
+				   uchar *subject, hdTree *doc, hdTree *toc);
   void		pdf_write_outpage(FILE *out, int outpage);
   void		pdf_write_page(FILE *out, int page);
   void		pdf_write_resources(FILE *out, int page);
   void		pdf_write_contents(FILE *out, hdTree *toc, int parent,
 		                   int prev, int next, int *heading);
+  void		pdf_write_files(FILE *out, hdTree *doc);
   void		pdf_write_links(FILE *out);
   void		pdf_write_names(FILE *out);
   int		pdf_count_headings(hdTree *toc);
@@ -607,7 +611,7 @@ struct hdBook
 		             uchar *creator, uchar *copyright,
 			     uchar *keywords, uchar *subject);
   void		ps_hex(FILE *out, uchar *data, int length);
-  void		ps_ascii85(FILE *out, uchar *data, int length);
+  void		ps_ascii85(FILE *out, uchar *data, int length, int eod = 0);
   static void	jpg_init(j_compress_ptr cinfo);
   static boolean jpg_empty(j_compress_ptr cinfo);
   static void	jpg_term(j_compress_ptr cinfo);
@@ -633,5 +637,5 @@ struct hdBook
 #endif // !HTMLDOC_BOOK_H
 
 //
-// End of "$Id: book.h,v 1.6 2004/04/11 21:20:28 mike Exp $".
+// End of "$Id: book.h,v 1.7 2004/10/22 05:43:14 mike Exp $".
 //
