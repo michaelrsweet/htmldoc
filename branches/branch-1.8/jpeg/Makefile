@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.5 2000/03/06 20:42:50 mike Exp $"
+# "$Id: Makefile,v 1.5.2.1 2001/02/02 15:11:04 mike Exp $"
 #
 #   JPEG library Makefile for the Common UNIX Printing System (CUPS).
 #
-#   Copyright 1997-2000 by Easy Software Products, all rights reserved.
+#   Copyright 1997-2001 by Easy Software Products, all rights reserved.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -67,5 +67,5 @@ $(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
 		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.5 2000/03/06 20:42:50 mike Exp $".
+# End of "$Id: Makefile,v 1.5.2.1 2001/02/02 15:11:04 mike Exp $".
 #

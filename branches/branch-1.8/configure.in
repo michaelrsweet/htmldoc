@@ -1,9 +1,9 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.3 2000/12/08 22:28:47 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.4 2001/02/02 15:10:52 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
-dnl   Copyright 1997-2000 by Michael Sweet, all rights reserved.
+dnl   Copyright 1997-2001 by Michael Sweet, all rights reserved.
 dnl
 dnl   HTMLDOC is distributed under the terms of the GNU General Public License
 dnl   which is described in the file "COPYING-2.0".
@@ -244,5 +244,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.3 2000/12/08 22:28:47 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.4 2001/02/02 15:10:52 mike Exp $".
 dnl

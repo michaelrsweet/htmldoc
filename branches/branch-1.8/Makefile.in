@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile.in,v 1.10 2000/06/30 13:46:30 mike Exp $"
+# "$Id: Makefile.in,v 1.10.2.1 2001/02/02 15:10:52 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2000 by Easy Software Products.
+#   Copyright 1997-2001 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -131,5 +131,5 @@ depot:
 
 
 #
-# End of "$Id: Makefile.in,v 1.10 2000/06/30 13:46:30 mike Exp $".
+# End of "$Id: Makefile.in,v 1.10.2.1 2001/02/02 15:10:52 mike Exp $".
 #

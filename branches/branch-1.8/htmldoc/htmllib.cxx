@@ -1,9 +1,9 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.7 2001/02/02 01:59:16 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.8 2001/02/02 15:10:58 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -2351,5 +2351,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.7 2001/02/02 01:59:16 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.8 2001/02/02 15:10:58 mike Exp $".
  */

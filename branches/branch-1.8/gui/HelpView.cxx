@@ -1,9 +1,9 @@
 //
-// "$Id: HelpView.cxx,v 1.30 2000/06/29 01:15:55 mike Exp $"
+// "$Id: HelpView.cxx,v 1.30.2.1 2001/02/02 15:10:56 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
-//   Copyright 1997-2000 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //   Image support donated by Matthias Melcher, Copyright 2000.
 //
 //   These coded instructions, statements, and computer programs are the
@@ -3120,5 +3120,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.30 2000/06/29 01:15:55 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.30.2.1 2001/02/02 15:10:56 mike Exp $".
 //

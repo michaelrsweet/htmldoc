@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.9 2001/02/02 14:08:28 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.10 2001/02/02 15:11:00 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6862,7 +6862,7 @@ write_prolog(FILE *out,		/* I - Output file */
     else
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
-    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2000 Easy Software Products, All Rights Reserved.\n", out);
+    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2001 Easy Software Products, All Rights Reserved.\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02dZ\n",
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
             curdate->tm_hour, curdate->tm_min, curdate->tm_sec);
@@ -7138,7 +7138,7 @@ write_prolog(FILE *out,		/* I - Output file */
     fprintf(out, "%d 0 obj", num_objects);
     fputs("<<", out);
     fputs("/Producer", out);
-    write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2000 Easy "
+    write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2001 Easy "
                                "Software Products, All Rights Reserved.", 0);
     fputs("/CreationDate", out);
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02dZ",
@@ -7747,5 +7747,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.9 2001/02/02 14:08:28 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.10 2001/02/02 15:11:00 mike Exp $".
  */

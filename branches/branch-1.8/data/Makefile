@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.4 2000/01/04 13:52:22 mike Exp $"
+# "$Id: Makefile,v 1.4.2.1 2001/02/02 15:10:53 mike Exp $"
 #
 #   Makefile for HTMLDOC data files.
 #
-#   Copyright 1997-2000 by Easy Software Products.
+#   Copyright 1997-2001 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -63,5 +63,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.4 2000/01/04 13:52:22 mike Exp $".
+# End of "$Id: Makefile,v 1.4.2.1 2001/02/02 15:10:53 mike Exp $".
 #
