@@ -23,6 +23,10 @@ htmldoc -f filename.pdf filename.html
 page files you <B>must</B> use the <CODE>--webpage</CODE> option at the
 command-line or choose <VAR>Web Page</VAR> in the input tab of the GUI.
 
+<P><B><I>HTMLDOC</I> does not support HTML 4.0 elements, attributes,
+stylesheets, or scripting.</B>
+
+<!-- NEED 5in -->
 <H2>Elements</H2>
 
 The following HTML elements are recognized by <I>HTMLDOC</I>:
@@ -34,7 +38,6 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 <TR><TD>A</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#LINKS">See Below</A></TD></TR>
 <TR><TD>ACRONYM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>No font change</TD></TR>
 <TR><TD>ADDRESS</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
-<TR><TD>APPLET</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>AREA</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>B</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>BASE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
@@ -48,8 +51,6 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 <TR><TD>CENTER</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>CITE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Italic/Oblique</TD></TR>
 <TR><TD>CODE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
-<TR><TD>COL</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
-<TR><TD>COLGROUP</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>DD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>DEL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Strikethrough</TD></TR>
 <TR><TD>DFN</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Helvetica</TD></TR>
@@ -98,16 +99,12 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 <TR><TD>SPACER</TD><TD ALIGN="CENTER">N3.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>STRIKE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>STRONG</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface Italic/Oblique</TD></TR>
-<TR><TD>STYLE</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>SUB</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Reduced Fontsize</TD></TR>
 <TR><TD>SUP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Reduced Fontsize</TD></TR>
 <TR><TD>TABLE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#TABLE">See Below</A></TD></TR>
-<TR><TD>TBODY</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>TD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>TEXTAREA</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
-<TR><TD>TFOOT</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>TH</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface Center</TD></TR>
-<TR><TD>THEAD</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>TITLE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>TR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>TT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
@@ -144,6 +141,7 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 
 </DL>
 
+<!-- NEED 5in -->
 <H2><A NAME="FONT">FONT Attributes</A></H2>
 
 Limited typeface specification is currently supported to ensure
@@ -221,6 +219,7 @@ the table-of-contents that is generated will show:
 	</UL>
 </UL>
 
+<!-- NEED 6in -->
 <H3>Numbered Headings</H3>
 
 When the numbered headings option is enabled, <I>HTMLDOC</I> recognizes the
@@ -256,13 +255,9 @@ following additional attributes for all heading elements:
 
 <H2><A NAME="IMAGES">Images</A></H2>
 
-<I>HTMLDOC</I> supports loading of GIF, JPEG, and PNG image files.
-EPS, BMP, and other types of image files are not supported at this
+<I>HTMLDOC</I> supports loading of BMP, GIF, JPEG, and PNG image files.
+EPS, and other types of image files are not supported at this
 time.
-
-<P><B>Image files must be located on the local system</B>. HTMLDOC
-does not currently support loading of images on remote systems via
-HTTP or FTP.
 
 <H2><A NAME="LINKS">Links</A></H2>
 
@@ -282,6 +277,7 @@ can directly link to another local PDF file from your HTML document with:
 &lt;A HREF="filename.pdf"&gt;...&lt;/A&gt;
 </PRE></UL>
 
+<!-- NEED 5in -->
 <H2><A NAME="META">META Attributes</A></H2>
 
 <I>HTMLDOC</I> supports the following <CODE>META</CODE> attributes for the
@@ -300,6 +296,9 @@ title page and document information:
 
 	<DT><CODE>&lt;META NAME="GENERATOR" CONTENT="..."</CODE>
 	<DD>Specifies the application that generated the HTML file.
+
+	<DT><CODE>&lt;META NAME="KEYWORDS" CONTENT="..."</CODE>
+	<DD>Specifies document search keywords.
 
 </DL>
 
@@ -331,6 +330,10 @@ included with the source code.
 	of the table.
 
 </UL>
+
+<P><B><I>HTMLDOC</I> does not support HTML 4.0 table elements or
+attributes, such as <CODE>TBODY</CODE>, <CODE>THEAD</CODE>,
+<CODE>TFOOT</CODE>, or <CODE>RULES</CODE>.</B>
 
 </BODY>
 </HTML>
