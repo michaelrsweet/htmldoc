@@ -7,15 +7,12 @@ REQUIREMENTS
     installation. The following platforms are supported:
 
 	- AIX 4.3.3 or higher
-        - Compaq Tru64 UNIX 4.0 or higher
-        - Digital UNIX 4.0 or higher
-	- FreeBSD 4.5 or higher
-	- HP-UX 10.20 or higher
-	- IRIX 5.3 or higher
-	- Linux 2.2 or higher (Intel only)
+	- HP-UX 11.00 or higher
+	- IRIX 6.5 or higher
+	- Linux 2.4 or higher (Intel only)
 	- MacOS X 10.2 or higher
 	- Microsoft Windows 95 or higher
-	- Solaris 2.5 or higher (SPARC and Intel)
+	- Solaris 7 or higher (SPARC and Intel)
 
 
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
