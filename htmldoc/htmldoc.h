@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.7 1999/11/12 17:48:25 mike Exp $"
+ * "$Id: htmldoc.h,v 1.8 1999/11/13 13:52:18 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -56,6 +56,54 @@ extern "C" {
 
 
 /*
+ * PDF constants...
+ */
+
+enum	/* PDF page mode */
+{
+  PDF_DOCUMENT,
+  PDF_OUTLINE,
+  PDF_FULLSCREEN
+};
+
+enum	/* PDF page layout */
+{
+  PDF_SINGLE,
+  PDF_ONE_COLUMN,
+  PDF_TWO_COLUMN_LEFT,
+  PDF_TWO_COLUMN_RIGHT
+};
+
+enum	/* PDF first page */
+{
+  PDF_PAGE_1,
+  PDF_TOC,
+  PDF_CHAPTER_1
+};
+
+enum	/* PDF transition effect */
+{
+  PDF_NONE,
+  PDF_BOX_INWARD,
+  PDF_BOX_OUTWARD,
+  PDF_DISSOLVE,
+  PDF_GLITTER_DOWN,
+  PDF_GLITTER_DOWN_RIGHT,
+  PDF_GLITTER_RIGHT,
+  PDF_HORIZONTAL_BLINDS,
+  PDF_HORIZONTAL_SWEEP_INWARD,
+  PDF_HORIZONTAL_SWEEP_OUTWARD,
+  PDF_VERTICAL_BLINDS,
+  PDF_VERTICAL_SWEEP_INWARD,
+  PDF_VERTICAL_SWEEP_OUTWARD,
+  PDF_WIPE_DOWN,
+  PDF_WIPE_LEFT,
+  PDF_WIPE_RIGHT,
+  PDF_WIPE_UP
+};
+
+
+/*
  * Globals...
  */
 
@@ -80,6 +128,15 @@ VAR int		OutputFiles	VALUE(0),	/* Generate multiple files? */
 		OutputColor	VALUE(1);	/* Output color images */
 VAR int		OutputJPEG	VALUE(0);	/* JPEG compress images? */
 VAR float	PDFVersion	VALUE(1.2);	/* Version of PDF to support */
+VAR int		PDFPageMode	VALUE(PDF_OUTLINE),
+						/* PageMode attribute */
+		PDFPageLayout	VALUE(PDF_SINGLE),
+						/* PageLayout attribute */
+		PDFFirstPage	VALUE(PDF_CHAPTER_1),
+						/* First page */
+		PDFEffect	VALUE(PDF_NONE);/* Page transition effect */
+VAR float	PDFEffectDuration VALUE(1.0),	/* Page effect duration */
+		PDFPageDuration	VALUE(10.0);	/* Page duration */
 VAR int		PSLevel		VALUE(2),	/* Language level (0 for PDF) */
 		PSCommands	VALUE(0);	/* Output PostScript commands? */
 VAR int		PageWidth	VALUE(595),	/* Page width in points */
@@ -110,6 +167,28 @@ VAR char	TitleImage[255]	VALUE("");	/* Title page image */
 VAR char	LogoImage[255]	VALUE("");	/* Logo image */
 VAR char	BodyColor[255]	VALUE(""),	/* Body color */
 		BodyImage[255]	VALUE("");	/* Body image */
+
+VAR char	*PDFModes[3]			/* Mode strings */
+#  ifdef _HTMLDOC_C_
+= { "document", "outlines", "fullscreen" }
+#  endif /* _HTMLDOC_C_ */
+;
+VAR char	*PDFLayouts[4]			/* Layout strings */
+#  ifdef _HTMLDOC_C_
+= { "single", "one", "twoleft", "tworight" }
+#  endif /* _HTMLDOC_C_ */
+;
+VAR char	*PDFPages[3]			/* First page strings */
+#  ifdef _HTMLDOC_C_
+= { "p1", "toc", "c1" }
+#  endif /* _HTMLDOC_C_ */
+;
+VAR char	*PDFEffects[17]			/* Effect strings */
+#  ifdef _HTMLDOC_C_
+= { "none", "bi", "bo", "d", "gd", "gdr", "gr", "hb", "hsi", "hso",
+    "vb", "vsi", "vso", "wd", "wl", "wr", "wu" }
+#  endif /* _HTMLDOC_C_ */
+;
 
 #ifdef HAVE_LIBFLTK
 VAR GUI		*BookGUI	VALUE(NULL);	/* GUI for book files */
@@ -149,5 +228,5 @@ extern char	*format_number(int n, char f);
 #  endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.7 1999/11/12 17:48:25 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.8 1999/11/13 13:52:18 mike Exp $".
  */

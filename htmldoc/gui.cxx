@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.14 1999/11/12 21:55:04 mike Exp $"
+// "$Id: gui.cxx,v 1.15 1999/11/13 13:52:17 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -645,7 +645,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   pageEffect = new Fl_Choice(140, 180, 210, 25, "Page Effect: ");
   pageEffect->menu(effectMenu);
-  pageEffect->callback((Fl_Callback *)changeCB, this);
+  pageEffect->callback((Fl_Callback *)effectCB, this);
 
   pageDuration = new Fl_Value_Slider(140, 210, 310, 20, "Page Duration: ");
   pageDuration->align(FL_ALIGN_LEFT);
@@ -681,7 +681,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   htmlBrowse = new Fl_Button(355, 45, 95, 25, "Browse...");
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
 
-  saveOptions = new Fl_Button(350, 235, 100, 25, "Save Options");
+  saveOptions = new Fl_Button(270, 235, 180, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
 
   optionsTab->end();
@@ -901,6 +901,8 @@ GUI::newBook(void)
   if (!checkSave())
     return (0);
 
+  prefs_load();
+
   if (OutputBook)
   {
     typeBook->setonly();
@@ -1008,11 +1010,33 @@ GUI::newBook(void)
 
   pdfTab->deactivate();
   if (PDFVersion == 1.1)
+  {
     pdf11->setonly();
+    pdfCB(pdf11, this);
+  }
   else if (PDFVersion == 1.2)
+  {
     pdf12->setonly();
+    pdfCB(pdf12, this);
+  }
   else
+  {
     pdf13->setonly();
+    pdfCB(pdf13, this);
+  }
+
+  pageMode->value(PDFPageMode);
+
+  pageLayout->value(PDFPageLayout);
+
+  firstPage->value(PDFFirstPage);
+
+  pageEffect->value(PDFEffect);
+  effectCB(pageEffect, this);
+
+  pageDuration->value(PDFPageDuration);
+
+  effectDuration->value(PDFEffectDuration);
 
   if (PSLevel == 1)
     ps1->setonly();
@@ -1378,7 +1402,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       headFootSize->value(atof(temp2));
     else if (strcmp(temp, "--headfootfont") == 0)
     {
-      for (i = 0; i < 3; i ++)
+      for (i = 0; i < 12; i ++)
         if (strcasecmp(fonts[i], temp2) == 0)
 	{
 	  headFootFont->value(i);
@@ -1394,6 +1418,47 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 	  break;
 	}
     }
+    else if (strcmp(temp, "--pagemode") == 0)
+    {
+      for (i = 0; i < (sizeof(PDFModes) / sizeof(PDFModes[0])); i ++)
+        if (strcasecmp(temp2, PDFModes[i]) == 0)
+	{
+	  pageMode->value(i);
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--pagelayout") == 0)
+    {
+      for (i = 0; i < (sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); i ++)
+        if (strcasecmp(temp2, PDFLayouts[i]) == 0)
+	{
+	  pageLayout->value(i);
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--firstpage") == 0)
+    {
+      for (i = 0; i < (sizeof(PDFPages) / sizeof(PDFPages[0])); i ++)
+        if (strcasecmp(temp2, PDFPages[i]) == 0)
+	{
+	  firstPage->value(i);
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--pageeffect") == 0)
+    {
+      for (i = 0; i < (sizeof(PDFEffects) / sizeof(PDFEffects[0])); i ++)
+        if (strcasecmp(temp2, PDFEffects[i]) == 0)
+	{
+	  pageEffect->value(i);
+	  effectCB(pageEffect, this);
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--pageduration") == 0)
+      pageDuration->value(atof(temp2));
+    else if (strcmp(temp, "--effectduration") == 0)
+      effectDuration->value(atof(temp2));
   }
 
   fclose(fp);
@@ -1565,6 +1630,16 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   fprintf(fp, " --headfootsize %.1f", headFootSize->value());
   fprintf(fp, " --headfootfont %s", fonts[headFootFont->value()]);
   fprintf(fp, " --charset %s", charset->text(charset->value()));
+
+  if (typePDF->value())
+  {
+    fprintf(fp, " --pagemode %s", PDFModes[pageMode->value()]);
+    fprintf(fp, " --pagelayout %s", PDFLayouts[pageLayout->value()]);
+    fprintf(fp, " --firstpage %s", PDFPages[firstPage->value()]);
+    fprintf(fp, " --pageeffect %s", PDFEffects[pageEffect->value()]);
+    fprintf(fp, " --pageduration %.0f", pageDuration->value());
+    fprintf(fp, " --effectduration %.1f", effectDuration->value());
+  }
 
   fputs("\n", fp);
   fclose(fp);
@@ -2340,6 +2415,13 @@ GUI::saveOptionsCB(Fl_Widget *w,
   else
     PDFVersion = 1.3;
 
+  PDFPageMode       = gui->pageMode->value();
+  PDFPageLayout     = gui->pageLayout->value();
+  PDFFirstPage      = gui->firstPage->value();
+  PDFEffect         = gui->pageEffect->value();
+  PDFPageDuration   = gui->pageDuration->value();
+  PDFEffectDuration = gui->effectDuration->value();
+
   if (gui->typePDF->value())
     PSLevel = 0;
   else if (gui->ps1->value())
@@ -2752,6 +2834,13 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   else
     PDFVersion = 1.3;
 
+  PDFPageMode       = gui->pageMode->value();
+  PDFPageLayout     = gui->pageLayout->value();
+  PDFFirstPage      = gui->firstPage->value();
+  PDFEffect         = gui->pageEffect->value();
+  PDFPageDuration   = gui->pageDuration->value();
+  PDFEffectDuration = gui->effectDuration->value();
+
   if (gui->typePDF->value())
     PSLevel = 0;
   else if (gui->ps1->value())
@@ -2884,5 +2973,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.14 1999/11/12 21:55:04 mike Exp $".
+// End of "$Id: gui.cxx,v 1.15 1999/11/13 13:52:17 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.12 1999/11/12 22:07:53 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.13 1999/11/13 13:52:18 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -114,6 +114,11 @@
 #ifdef MAC		// MacOS-specific header file...
 #  include <Files.h>
 #endif // MAC
+
+#if defined(WIN32) || defined(__EMX__)
+#  include <io.h>
+#  include <fcntl.h>
+#endif // WIN32 || __EMX__
 
 #include <zlib.h>
 
@@ -1195,6 +1200,26 @@ pdf_write_resources(FILE *out,	/* I - Output file */
   int		fonts_used[16];	/* Non-zero if the page uses a font */
   int		images_used;	/* Non-zero if the page uses an image */
   int		text_used;	/* Non-zero if the page uses text */
+  static char	*effects[] =	/* Effects and their commands */
+		{
+		  "",
+		  "/S/Box/M/I",
+		  "/S/Box/M/O",
+		  "/S/Dissolve",
+		  "/S/Glitter/Di 270",
+		  "/S/Glitter/Di 315",
+		  "/S/Glitter/Di 0",
+		  "/S/Blinds/Dm/H",
+		  "/S/Split/Dm/H/M/I",
+		  "/S/Split/Dm/H/M/O",
+		  "/S/Blinds/Dm/V",
+		  "/S/Split/Dm/V/M/I",
+		  "/S/Split/Dm/V/M/O",
+		  "/S/Wipe/Di 270",
+		  "/S/Wipe/Di 180",
+		  "/S/Wipe/Di 0",
+		  "/S/Wipe/Di 90"
+		};
 
 
   memset(fonts_used, 0, sizeof(fonts_used));
@@ -1241,6 +1266,11 @@ pdf_write_resources(FILE *out,	/* I - Output file */
 
   if (background_object > 0)
     fprintf(out, "/XObject<</BG %d 0 R>>", background_object);
+
+  if (PDFEffect)
+    fprintf(out, "/Dur %.0f/Trans<</D %.1f%s>>", PDFPageDuration,
+            PDFEffectDuration, effects[PDFEffect]);
+
   fputs(">>", out);
 }
 
@@ -5707,8 +5737,21 @@ static void
 write_trailer(FILE *out,	/* I - Output file */
               int  pages)	/* I - Number of pages in file */
 {
-  int	i,			/* Looping var */
-	offset;			/* Offset to xref table in PDF file */
+  int		i,		/* Looping var */
+		offset;		/* Offset to xref table in PDF file */
+  static char	*modes[] =	/* Page modes */
+		{
+		  "UseNone",
+		  "UseOutlines",
+		  "FullScreen"
+		};
+  static char	*layouts[] =	/* Page layouts */
+		{
+		  "SinglePage",
+		  "OneColumn",
+		  "TwoColumnLeft",
+		  "TwoColumnRight"
+		};
 
 
   if (PSLevel > 0)
@@ -5739,22 +5782,38 @@ write_trailer(FILE *out,	/* I - Output file */
     if (PDFVersion >= 1.2)
     {
       fprintf(out, "/Names %d 0 R", names_object);
-
-      if (PageDuplex)
-        fputs("/ViewerPreferences<</PageLayout/TwoColumnRight>>", out);
-      else
-        fputs("/ViewerPreferences<</PageLayout/OneColumn>>", out);
+      fprintf(out, "/ViewerPreferences<</PageLayout/%s>>",
+              layouts[PDFPageLayout]);
     }
 
     if (outline_object > 0)
-    {
       fprintf(out, "/Outlines %d 0 R", outline_object);
-      fputs("/PageMode/UseOutlines", out);
-      fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
-              pages_object + 3 * chapter_starts[1] + 1);
+
+    switch (PDFFirstPage)
+    {
+      case PDF_PAGE_1 :
+          if (TitlePage)
+	  {
+            fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
+                    pages_object + 1);
+            break;
+	  }
+          break;
+      case PDF_TOC :
+          if (TocLevels > 0)
+	  {
+            fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
+                    pages_object + 3 * chapter_starts[0] + 1);
+	    break;
+	  }
+          break;
+      case PDF_CHAPTER_1 :
+          fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
+                  pages_object + 3 * chapter_starts[1] + 1);
+          break;
     }
-    else
-      fputs("/PageMode/UseNone", out);
+
+    fprintf(out, "/PageMode/%s", modes[PDFPageMode]);
 
     fputs(">>", out);
     fputs("endobj\n", out);
@@ -5912,5 +5971,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.12 1999/11/12 22:07:53 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.13 1999/11/13 13:52:18 mike Exp $".
  */
