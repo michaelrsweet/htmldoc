@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.65 2000/04/25 13:53:03 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.66 2000/04/28 19:01:49 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3202,7 +3202,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         end  = temp;
         flat = temp;
 
-        if (prev->markup == MARKUP_BR && width > 0.0)
+        if (prev->markup == MARKUP_BR)
           break;
       }
       else if (width == 0.0)
@@ -4162,8 +4162,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         row_y = temp_y;
     }
 
-    DEBUG_printf(("AFTER row = %d, row_y = %.1f, *y = %.1f, do_valign = %d\n",
-                  row, row_y, *y, do_valign));
+    DEBUG_printf(("AFTER row = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n",
+                  row, row_y, row_height, *y, do_valign));
 
    /*
     * Do the vertical alignment
@@ -4199,7 +4199,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         colspan --;
 
-        if (cells[row][col] == NULL || cells[row][col]->child == NULL)
+        if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
+	    cell_start[col] == NULL || cell_start[col] == cell_end[col])
 	  continue;
 
         switch (cells[row][col]->valignment)
@@ -4217,11 +4218,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
               break;
         }
 
+	DEBUG_printf(("row = %d, col = %d, cell_height = %.1f, delta_y = %.1f\n",
+	              row, col, cell_height[col], delta_y));
+
         if (delta_y > 0.0f)
 	{
-	  DEBUG_printf(("row = %d, col = %d, delta_y = %.1f\n", row, col,
-	                delta_y));
-
           for (p = cell_start[col]->next; p != NULL; p = p->next)
 	  {
             p->y -= delta_y;
@@ -6840,5 +6841,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.65 2000/04/25 13:53:03 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.66 2000/04/28 19:01:49 mike Exp $".
  */
