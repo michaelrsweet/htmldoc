@@ -1,7 +1,7 @@
 /* XPM */
 static char * htmldoc_m_pm[] = {
 "32 32 64 1",
-" 	c #00007f",
+" 	c None",
 ".	c #080604",
 "+	c #0E1211",
 "@	c #131A26",
