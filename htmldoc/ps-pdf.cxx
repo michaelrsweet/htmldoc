@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.62 2000/04/21 13:08:28 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.63 2000/04/22 18:12:25 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4106,7 +4106,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     }
 
     do_valign  = 1;
-    row_y      = *y - (border + cellspacing);
+    row_y      = *y - (border + cellspacing + cellpadding);
     row_page   = *page;
     row_height = 0.0f;
 
@@ -4130,7 +4130,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         continue;
 
       *x        = col_lefts[col];
-      temp_y    = *y - (border + cellspacing);
+      temp_y    = *y - (border + cellspacing + cellpadding);
       temp_page = *page;
 
       cell_start[col] = endpages[*page];
@@ -4146,7 +4146,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  cell_start[col] = pages[*page];
 
         cell_end[col]    = endpages[*page];
-        cell_height[col] = *y - (border + cellspacing) - temp_y;
+        cell_height[col] = *y - (border + cellspacing + cellpadding) - temp_y;
         if (cell_height[col] > row_height)
           row_height = cell_height[col];
       }
@@ -6841,5 +6841,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.62 2000/04/21 13:08:28 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.63 2000/04/22 18:12:25 mike Exp $".
  */
