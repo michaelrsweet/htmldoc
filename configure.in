@@ -1,13 +1,26 @@
-dnl
-dnl "$Id: configure.in,v 1.23.2.56 2004/09/24 14:51:18 swdev Exp $"
-dnl
-dnl   Configuration script for HTMLDOC, an HTML document processing program.
-dnl
-dnl   Copyright 1997-2004 by Michael Sweet, all rights reserved.
-dnl
-dnl   HTMLDOC is distributed under the terms of the GNU General Public License
-dnl   which is described in the file "COPYING-2.0".
-dnl
+#
+# "$Id: configure.in,v 1.23.2.57 2004/10/23 08:28:59 mike Exp $"
+#
+#   Configuration script for HTMLDOC, an HTML document processing program.
+#
+#   Copyright 1997-2004 by Easy Software Products.
+#
+#   These coded instructions, statements, and computer programs are the
+#   property of Easy Software Products and are protected by Federal
+#   copyright law.  Distribution and use rights are outlined in the file
+#   "COPYING.txt" which should have been included with this file.  If this
+#   file is missing or damaged please contact Easy Software Products
+#   at:
+#
+#       Attn: ESP Licensing Information
+#       Easy Software Products
+#       44141 Airport View Drive, Suite 204
+#       Hollywood, Maryland 20636 USA
+#
+#       Voice: (301) 373-9600
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
+#
 
 AC_INIT(htmldoc/htmldoc.h)
 AC_CONFIG_HEADER(config.h)
@@ -139,7 +152,7 @@ if test x$enable_ssl != xno; then
 	        "-lcrypto -lRSAglue -lrsaref"
 	    do
 		AC_CHECK_LIB(ssl,SSL_new,
-		    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT"
+		    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT -DOPENSSL_NO_KRB5"
 		     SSLLIBS="-lssl $libcrypto"
 		     AC_DEFINE(HAVE_SSL)
 		     AC_DEFINE(HAVE_LIBSSL)],,
@@ -274,29 +287,29 @@ AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
 
 dnl Update compiler options...
 if test -n "$GXX"; then
-    # Starting with GCC 3.0, you must link C++ programs against either
-    # libstdc++ (shared by default), or libsupc++ (always static).  If
-    # you care about binary portability between Linux distributions,
-    # you need to either 1) build your own GCC with static C++ libraries
-    # or 2) link using gcc and libsupc++.  We choose the latter since
-    # CUPS doesn't (currently) use any of the stdc++ library.
-    #
-    # Also, GCC 3.0.x still has problems compiling some code.  You may
-    # or may not have success with it.  USE 3.0.x WITH EXTREME CAUTION!
-    #
-    # Previous versions of GCC do not have the reliance on the stdc++
-    # or g++ libraries, so the extra supc++ library is not needed.
+    dnl Starting with GCC 3.0, you must link C++ programs against either
+    dnl libstdc++ (shared by default), or libsupc++ (always static).  If
+    dnl you care about binary portability between Linux distributions,
+    dnl you need to either 1) build your own GCC with static C++ libraries
+    dnl or 2) link using gcc and libsupc++.  We choose the latter since
+    dnl CUPS doesn't (currently) use any of the stdc++ library.
+    dnl
+    dnl Also, GCC 3.0.x still has problems compiling some code.  You may
+    dnl or may not have success with it.  USE 3.0.x WITH EXTREME CAUTION!
+    dnl
+    dnl Previous versions of GCC do not have the reliance on the stdc++
+    dnl or g++ libraries, so the extra supc++ library is not needed.
 
     AC_MSG_CHECKING(if libsupc++ is required)
 
     SUPC="`$CXX -print-file-name=libsupc++.a 2>/dev/null`"
     case "$SUPC" in
     	libsupc++.a*)
-	    # Library not found, so this is and older GCC...
+	    dnl Library not found, so this is and older GCC...
 	    AC_MSG_RESULT(no)
 	    ;;
 	*)
-            # This is gcc 3.x, and it knows of libsupc++, so we need it
+            dnl This is gcc 3.x, and it knows of libsupc++, so we need it
             LIBS="$LIBS -lsupc++"
             AC_MSG_RESULT(yes)
 	    ;;
@@ -304,23 +317,23 @@ if test -n "$GXX"; then
 
     CXX="$CC"
 
-    # Set optimization flags...
+    dnl Set optimization flags...
     if test -z "$OPTIM"; then
 	if test "$uname" = "HP-UX"; then
-	    # ZLIB has trouble with GCC 2.95 and -O2...
+	    dnl ZLIB has trouble with GCC 2.95 and -O2...
 	    OPTIM="-O1"
         else
             OPTIM="-O2 -fforce-mem -fforce-addr -fcaller-saves"
 	fi
     fi
 
-    # Show all standard warnings + unused variables when compiling...
+    dnl Show all standard warnings + unused variables when compiling...
     OPTIM="-Wall -Wunused -Wno-char-subscripts $OPTIM"
 
-    # The following additional warnings are useful for tracking down problems...
+    dnl The following additional warnings are useful for tracking down problems...
     OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
 
-    # See if GCC supports -fno-rtti...
+    dnl See if GCC supports -fno-rtti...
     AC_MSG_CHECKING(if GCC supports -fno-rtti)
     OLDCFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS -fno-rtti"
@@ -330,7 +343,7 @@ if test -n "$GXX"; then
 	AC_MSG_RESULT(no))
     CFLAGS="$OLDCFLAGS"
 
-    # See if GCC supports -fno-exceptions...
+    dnl See if GCC supports -fno-exceptions...
     AC_MSG_CHECKING(if GCC supports -fno-exceptions)
     OLDCFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS -fno-exceptions"
@@ -340,7 +353,7 @@ if test -n "$GXX"; then
 	AC_MSG_RESULT(no))
     CFLAGS="$OLDCFLAGS"
 
-    # See if we are running Solaris; if so, try the -fpermissive option...
+    dnl See if we are running Solaris; if so, try the -fpermissive option...
     if test "$uname" = SunOS; then
 	AC_MSG_CHECKING(if GCC supports -fpermissive)
 
@@ -369,7 +382,7 @@ else
 	    fi
 	    ;;
 	SunOS*)
-	    # Solaris
+	    dnl Solaris
 	    if test -z "$OPTIM"; then
 		OPTIM="-xO4 -xarch=generic"
 	    fi
@@ -380,6 +393,6 @@ fi
 dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
 
-dnl
-dnl End of "$Id: configure.in,v 1.23.2.56 2004/09/24 14:51:18 swdev Exp $".
-dnl
+#
+# End of "$Id: configure.in,v 1.23.2.57 2004/10/23 08:28:59 mike Exp $".
+#

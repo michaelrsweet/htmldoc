@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.10.2.16 2004/05/26 19:48:21 mike Exp $"
+# "$Id: Makefile.in,v 1.10.2.17 2004/10/23 08:28:59 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -64,6 +64,12 @@ clean:
 		echo Cleaning in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS) clean) || break;\
 	done
+	$(RM) *.bak
+	$(RM) *.bck
+	$(RM) core
+	$(RM) core.* 
+	$(RM) -r autom4te*.cache
+	$(RM) config.h config.log config.status
 
 
 #
@@ -146,5 +152,5 @@ epm:
 
 
 #
-# End of "$Id: Makefile.in,v 1.10.2.16 2004/05/26 19:48:21 mike Exp $".
+# End of "$Id: Makefile.in,v 1.10.2.17 2004/10/23 08:28:59 mike Exp $".
 #
