@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.59 2004/02/06 03:51:08 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.60 2004/02/06 16:54:19 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -81,7 +81,7 @@ static void	parse_options(const char *line, exportfunc_t *exportfunc);
 static int	read_file(const char *filename, tree_t **document,
 		          const char *path);
 static void	term_handler(int signum);
-static void	usage(void);
+static void	usage(const char *arg = NULL);
 
 
 /*
@@ -169,6 +169,11 @@ main(int  argc,		/* I - Number of command-line arguments */
   num_files   = 0;
 
   for (i = 1; i < argc; i ++)
+  {
+#ifdef DEBUG
+    printf("argv[%d] = \"%s\"\n", i, argv[i]);
+#endif // DEBUG
+
     if (compare_strings(argv[i], "--batch", 4) == 0)
     {
       i ++;
@@ -178,7 +183,7 @@ main(int  argc,		/* I - Number of command-line arguments */
         load_book(argv[i], &document, &exportfunc);
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--bodycolor", 7) == 0)
     {
@@ -186,7 +191,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         strcpy((char *)BodyColor, argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--bodyfont", 7) == 0 ||
              compare_strings(argv[i], "--textfont", 7) == 0)
@@ -206,7 +211,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	  _htmlBodyFont = TYPE_HELVETICA;
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--bodyimage", 7) == 0)
     {
@@ -214,7 +219,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         strcpy((char *)BodyImage, argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--book", 5) == 0)
       OutputType = OUTPUT_BOOK;
@@ -224,7 +229,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         PageBottom = get_measurement(argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--browserwidth", 4) == 0)
     {
@@ -241,7 +246,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	}
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--charset", 4) == 0)
     {
@@ -249,7 +254,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         htmlSetCharSet(argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--color", 5) == 0)
     {
@@ -278,7 +283,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         _htmlData = argv[i];
       else
-        usage();
+        usage(argv[i - 1]);
     }
 #if defined(HAVE_LIBFLTK) && !WIN32
     else if (compare_strings(argv[i], "-display", 3) == 0 ||
@@ -290,7 +295,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         Fl::display(argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
 #endif // HAVE_LIBFLTK && !WIN32
     else if (compare_strings(argv[i], "--duplex", 4) == 0)
@@ -310,7 +315,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	}
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--embedfonts", 4) == 0)
       EmbedFonts = 1;
@@ -320,7 +325,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i >= argc)
-        usage();
+        usage(argv[i - 1]);
 
       for (j = 0; j < (int)(sizeof(PDFPages) / sizeof(PDFPages[0])); j ++)
         if (strcasecmp(argv[i], PDFPages[j]) == 0)
@@ -344,7 +349,7 @@ main(int  argc,		/* I - Number of command-line arguments */
         htmlSetBaseSize(fontsize, fontspacing);
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--fontspacing", 8) == 0)
     {
@@ -361,7 +366,7 @@ main(int  argc,		/* I - Number of command-line arguments */
         htmlSetBaseSize(fontsize, fontspacing);
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--footer", 5) == 0)
     {
@@ -369,7 +374,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         get_format(argv[i], Footer);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--format", 5) == 0 ||
              strcmp(argv[i], "-t") == 0)
@@ -424,10 +429,10 @@ main(int  argc,		/* I - Number of command-line arguments */
         else if (strcasecmp(argv[i], "htmlsep") == 0)
           exportfunc = (exportfunc_t)htmlsep_export;
 	else
-	  usage();
+	  usage(argv[i - 1]);
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--grayscale", 3) == 0)
     {
@@ -440,7 +445,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         get_format(argv[i], Header);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--headfootfont", 11) == 0)
     {
@@ -510,7 +515,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	}
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--headfootsize", 11) == 0)
     {
@@ -525,7 +530,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	  HeadFootSize = 24.0f;
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--headingfont", 7) == 0)
     {
@@ -544,10 +549,10 @@ main(int  argc,		/* I - Number of command-line arguments */
 	  _htmlHeadingFont = TYPE_HELVETICA;
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--help", 6) == 0)
-      usage();
+      usage(argv[i - 1]);
 #ifdef HAVE_LIBFLTK
     else if (compare_strings(argv[i], "--helpdir", 7) == 0)
     {
@@ -555,7 +560,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         GUI::help_dir = argv[i];
       else
-        usage();
+        usage(argv[i - 1]);
     }
 #endif // HAVE_LIBFLTK
     else if (compare_strings(argv[i], "--jpeg", 3) == 0 ||
@@ -574,7 +579,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         PageLeft = get_measurement(argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--linkcolor", 7) == 0)
     {
@@ -582,7 +587,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         strcpy(LinkColor, argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (strcmp(argv[i], "--links") == 0)
       Links = 1;
@@ -596,10 +601,10 @@ main(int  argc,		/* I - Number of command-line arguments */
         else if (strcmp(argv[i], "underline") == 0)
 	  LinkStyle = 1;
 	else
-	  usage();
+	  usage(argv[i - 1]);
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--logoimage", 5) == 0)
     {
@@ -607,7 +612,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         strcpy(LogoImage, argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--no-compression", 6) == 0)
       Compression = 0;
@@ -646,13 +651,13 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i >= argc)
-        usage();
+        usage(argv[i - 1]);
 
       NumberUp = atoi(argv[i]);
 
       if (NumberUp != 1 && NumberUp != 2 && NumberUp != 4 &&
           NumberUp != 6 && NumberUp != 9 && NumberUp != 16)
-	usage();
+	usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--outdir", 6) == 0 ||
              strcmp(argv[i], "-d") == 0)
@@ -664,7 +669,7 @@ main(int  argc,		/* I - Number of command-line arguments */
         OutputFiles = 1;
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--outfile", 6) == 0 ||
              strcmp(argv[i], "-f") == 0)
@@ -694,7 +699,7 @@ main(int  argc,		/* I - Number of command-line arguments */
         }
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--owner-password", 4) == 0)
     {
@@ -705,7 +710,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--pageduration", 7) == 0)
     {
@@ -722,13 +727,13 @@ main(int  argc,		/* I - Number of command-line arguments */
 	}
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--pageeffect", 7) == 0)
     {
       i ++;
       if (i >= argc)
-        usage();
+        usage(argv[i - 1]);
 
       for (j = 0; j < (int)(sizeof(PDFEffects) / sizeof(PDFEffects[0])); j ++)
         if (strcasecmp(argv[i], PDFEffects[j]) == 0)
@@ -741,7 +746,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i >= argc)
-        usage();
+        usage(argv[i - 1]);
 
       for (j = 0; j < (int)(sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); j ++)
         if (strcasecmp(argv[i], PDFLayouts[j]) == 0)
@@ -754,7 +759,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i >= argc)
-        usage();
+        usage(argv[i - 1]);
 
       for (j = 0; j < (int)(sizeof(PDFModes) / sizeof(PDFModes[0])); j ++)
         if (strcasecmp(argv[i], PDFModes[j]) == 0)
@@ -772,13 +777,13 @@ main(int  argc,		/* I - Number of command-line arguments */
 	Path[sizeof(Path) - 1] = '\0';
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--permissions", 4) == 0)
     {
       i ++;
       if (i >= argc)
-        usage();
+        usage(argv[i - 1]);
 
       if (strcasecmp(argv[i], "all") == 0)
         Permissions = -4;
@@ -816,7 +821,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	file_proxy(Proxy);
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--pscommands", 3) == 0)
       PSCommands = 1;
@@ -828,7 +833,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         PageRight = get_measurement(argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--size", 4) == 0)
     {
@@ -836,7 +841,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         set_page_size(argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--strict", 4) == 0)
       StrictHTML = 1;
@@ -846,7 +851,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         htmlSetTextColor((uchar *)argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--title", 7) == 0)
       TitlePage = 1;
@@ -857,7 +862,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         strcpy(TitleImage, argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
 
       TitlePage = 1;
     }
@@ -867,7 +872,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         get_format(argv[i], TocFooter);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--tocheader", 6) == 0)
     {
@@ -875,7 +880,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         get_format(argv[i], TocHeader);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--toclevels", 6) == 0)
     {
@@ -883,7 +888,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         TocLevels = atoi(argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--toctitle", 6) == 0)
     {
@@ -894,7 +899,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	TocTitle[sizeof(TocTitle) - 1] = '\0';
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--top", 5) == 0)
     {
@@ -902,7 +907,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         PageTop = get_measurement(argv[i]);
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--user-password", 4) == 0)
     {
@@ -913,7 +918,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	UserPassword[sizeof(UserPassword) - 1] = '\0';
       }
       else
-        usage();
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--truetype", 4) == 0)
     {
@@ -978,7 +983,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       }
     }
     else if (argv[i][0] == '-')
-      usage();
+      usage(argv[i]);
 #ifdef HAVE_LIBFLTK
     else if (strlen(argv[i]) > 5 &&
              strcmp(argv[i] + strlen(argv[i]) - 5, ".book") == 0)
@@ -999,6 +1004,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 
       read_file(argv[i], &document, Path);
     }
+  }
 
  /*
   * Display the GUI if necessary...
@@ -2179,8 +2185,11 @@ term_handler(int signum)	// I - Signal number
  */
 
 static void
-usage(void)
+usage(const char *arg)			// I - Bad argument string
 {
+  if (arg)
+    printf("Bad option argument \"%s\"!\n\n", arg);
+
   puts("HTMLDOC Version " SVERSION " Copyright 1997-2004 Easy Software Products, All Rights Reserved.");
   puts("This software is governed by the GNU General Public License, Version 2, and");
   puts("is based in part on the work of the Independent JPEG Group.");
@@ -2299,5 +2308,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.59 2004/02/06 03:51:08 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.60 2004/02/06 16:54:19 mike Exp $".
  */
