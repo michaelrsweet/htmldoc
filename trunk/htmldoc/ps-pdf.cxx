@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.52 2000/03/06 21:11:39 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.53 2000/03/11 17:17:53 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4246,9 +4246,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  */
 
 	  if (border > 0)
+	  {
             new_render(temp_page, RENDER_BOX, col_lefts[col] - cellpadding - border,
-                       bottom + cellspacing, width,
+                       bottom + cellspacing, 0.0f,
                        top - bottom - 2 * cellspacing, rgb);
+            new_render(temp_page, RENDER_BOX, col_rights[col] + cellpadding + border,
+                       bottom + cellspacing, 0.0f,
+                       top - bottom - 2 * cellspacing, rgb);
+          }
 
 	  if (bgcolor != NULL)
             new_render(temp_page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
@@ -6766,5 +6771,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.52 2000/03/06 21:11:39 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.53 2000/03/11 17:17:53 mike Exp $".
  */
