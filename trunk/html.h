@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.1 1999/11/07 13:33:17 mike Exp $"
+ * "$Id: html.h,v 1.2 1999/11/07 23:06:06 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -244,10 +244,16 @@ typedef struct tree_str
  */
 
 extern char		*_htmlMarkups[];
+extern const char	*_htmlData;
+extern float		_htmlPPI;
+extern int		_htmlGrayscale;
 extern float		_htmlSizes[],
 			_htmlSpacings[];
 extern typeface_t	_htmlBodyFont,
 			_htmlHeadingFont;
+extern float		_htmlWidths[4][4][256];
+extern const char	*_htmlGlyphs[];
+extern const char	*_htmlFonts[4][4];
 
 
 /*
@@ -269,6 +275,7 @@ extern uchar	*htmlGetVariable(tree_t *t, uchar *name);
 extern int	htmlSetVariable(tree_t *t, uchar *name, uchar *value);
 
 extern void	htmlSetBaseSize(float p, float s);
+extern void	htmlSetCharSet(const char *cs);
 
 extern char	*file_basename(const char *s);
 extern char	*file_directory(const char *s);
@@ -295,5 +302,5 @@ extern int	strncasecmp(const char *s, const char *t, size_t n);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.1 1999/11/07 13:33:17 mike Exp $".
+ * End of "$Id: html.h,v 1.2 1999/11/07 23:06:06 mike Exp $".
  */
