@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.02 [en] (Win95; I) [Netscape]">
+</HEAD>
+<BODY>
+
+<DIV ALIGN=right>
+<H1>
+1 - Compiling HTMLDOC</H1></DIV>
+This chapter describes the steps needed to compile <I>HTMLDOC</I> on your
+system.
+<H2>
+Getting a Precompiled Executable</H2>
+If you don't think you're up to compiling <I>HTMLDOC</I>, or you don't
+have the compiler and libraries listed below, consider downloading a precompiled
+version of <I>HTMLDOC</I>. Precompiled binaries are currently available
+for the following systems:
+<UL>
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-dunix.tar.gz">
+	Digital<SUP>TM</SUP> UNIX&reg; 4.0 or higher</A></LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-hpux.tar.gz">
+	HP-UX 10.20 or higher</A></LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-irix.tar.gz">
+	IRIX<SUP>TM</SUP> 5.2 or higher</A></LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-linux-x86.tar.gz">
+	Linux x86 2.0 or higher</A></LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-solaris-sparc.tar.gz">
+	Solaris&reg; SPARC&reg; 2.5 or higher</A></LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-solaris-x86.tar.gz">
+	Solaris x86 2.5 or higher</A></LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-windows.exe">
+	Windows 95&reg; or Windows NT&reg; 4.0 or higher</A></LI>
+</UL>
+
+<H2>Requirements</H2>
+
+<I>HTMLDOC</I> requires the following software and libraries:
+
+<UL>
+	<LI>C++ compiler (GCC will work)</LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/jpeg">JPEG library</A>, version
+	6 or higher</LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/png">PNG library</A>, version
+	1.0.1 or higher</LI>
+
+	<LI><A HREF="ftp://ftp.easysw.com/pub/htmldoc/zlib">GZIP library (zlib)</A>,
+	version 1.0.4 or higher</LI>
+
+	<LI><A HREF=http://fltk.easysw.com>Fast Light Tool Kit (FLTK)</A>,
+	version 19990107 or newer</LI>
+
+	<LI><A HREF="ftp://ftp.x.org">X11 libraries</A>, R5 or higher (UNIX
+	only).</LI>
+</UL>
+
+The GZIP library is used for reading PNG image files as well as writing
+compressed PDF files. GIF reading support is provided by <I>HTMLDOC</I>
+source code.
+
+<P>The JPEG library is used for reading JPEG image files as well as
+writing JPEG-compressed images in Level 2 PostScript and PDF output.
+
+<P>For the Microsoft Windows version of <I>HTMLDOC</I> you'll probably
+need Microsoft Visual C++ 5.0 or higher (other PC compilers <I>may</I>
+work; I didn't have much luck with Borland C++ 5.02).
+
+<H2>Compiling under UNIX</H2>
+
+<I>If you are compiling for Windows, see <A HREF="#VISUALC">"Compiling
+with the Visual C++ Project File"</A>.</I>
+
+<P><I>HTMLDOC</I> is built from a single Makefile in the distribution's
+main directory (<I>htmldoc-1.8</I>). To configure the Makefile for your
+system you must run the <I>configure</I> script:
+
+<UL><PRE>
+% <B>./configure <I>Enter</I></B>
+</PRE></UL>
+
+To compile <I>HTMLDOC</I> simply run the "make" command in the
+<I>HTMLDOC</I> directory. If you get any fatal errors please send a
+copy of the make/compiler output to <A HREF="mailto:mike@easysw.com">
+"mike@easysw.com"</A> for assistance. Please note the version of
+<I>HTMLDOC</I> that you are using as well as any pertinent system
+information (operating system, OS version, compiler, etc.)
+
+<H3>Installing the Software</H3>
+
+The Makefile built by the <I>configure</I> script supports installation of the
+program and man pages under <I>/usr/local</I> or a directory provided to the
+<I>configure</I> script using the "--prefix=directory" option.
+
+<P>To install <I>HTMLDOC</I> simply run the "make install" command as root.
+
+<H2><A NAME="VISUALC">Compiling with the Visual C++ Project File</A></H2>
+
+A sample project file for Visual C++ 5.0 is included in the source
+distribution in the file <I>htmldoc.dsp</I>. You will need to change
+the include directories and libraries to point to the directories
+containing the JPEG, PNG, ZLIB, and FLTK libraries.
+
+</BODY>
+</HTML>
