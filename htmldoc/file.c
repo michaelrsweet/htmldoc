@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.44 2004/02/06 03:51:08 mike Exp $"
+ * "$Id: file.c,v 1.13.2.45 2004/05/05 18:58:40 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -1057,5 +1057,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.44 2004/02/06 03:51:08 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.45 2004/05/05 18:58:40 mike Exp $".
  */

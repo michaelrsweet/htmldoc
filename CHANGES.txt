@@ -1,10 +1,14 @@
-CHANGES.txt - 04/15/2004
+CHANGES.txt - 05/05/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
 
     NEW FEATURES
 
+	- HTMLDOC now generates a document outline for each
+	  input file or URL in webpage mode; the outline shows
+	  the title for the file and links to the first page
+	  containing that file.
 	- HTMLDOC now offers an "htmlsep" output type which
 	  generates HTML output with a separate file for each
 	  heading in the table of contents.

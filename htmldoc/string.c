@@ -1,5 +1,5 @@
 /*
- * "$Id: string.c,v 1.4.2.5 2004/01/13 02:51:27 mike Exp $"
+ * "$Id: string.c,v 1.4.2.6 2004/05/05 18:58:41 mike Exp $"
  *
  *   String functions for HTMLDOC.
  *
@@ -15,9 +15,9 @@
  *       Attn: CUPS Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
- *       Voice: (301) 373-9603
+ *       Voice: (301) 373-9600
  *       EMail: cups-info@cups.org
  *         WWW: http://www.cups.org
  *
@@ -222,5 +222,5 @@ hd_strlcpy(char       *dst,	/* O - Destination string */
 
 
 /*
- * End of "$Id: string.c,v 1.4.2.5 2004/01/13 02:51:27 mike Exp $".
+ * End of "$Id: string.c,v 1.4.2.6 2004/05/05 18:58:41 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.245 2004/05/04 20:00:46 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.246 2004/05/05 18:58:40 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -20,7 +20,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -46,6 +46,7 @@
  *   pdf_write_page()         - Write a page to a PDF file.
  *   pdf_write_contents()     - Write the table of contents as outline records
  *                              to a PDF file.
+ *   pdf_write_files()        - Write an outline of HTML files.
  *   pdf_count_headings()     - Count the number of headings under this TOC
  *   pdf_write_links()        - Write annotation link objects for each page in
  *                              the document.
@@ -362,12 +363,13 @@ static void	ps_write_page(FILE *out, int page);
 static void	ps_write_background(FILE *out);
 static void	pdf_write_document(uchar *author, uchar *creator,
 		                   uchar *copyright, uchar *keywords,
-				   uchar *subject, tree_t *toc);
+				   uchar *subject, tree_t *doc, tree_t *toc);
 static void	pdf_write_outpage(FILE *out, int outpage);
 static void	pdf_write_page(FILE *out, int page);
 static void	pdf_write_resources(FILE *out, int page);
 static void	pdf_write_contents(FILE *out, tree_t *toc, int parent,
 		                   int prev, int next, int *heading);
+static void	pdf_write_files(FILE *out, tree_t *doc);
 static void	pdf_write_links(FILE *out);
 static void	pdf_write_names(FILE *out);
 static int	pdf_count_headings(tree_t *toc);
@@ -909,7 +911,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     if (PSLevel > 0)
       ps_write_document(author, creator, copyright, keywords, subject);
     else
-      pdf_write_document(author, creator, copyright, keywords, subject, toc);
+      pdf_write_document(author, creator, copyright, keywords, subject,
+                         document, toc);
   }
   else
   {
@@ -2211,6 +2214,7 @@ pdf_write_document(uchar  *author,	// I - Author of document
         	   uchar  *copyright,	// I - Copyright (if any) on the document
                    uchar  *keywords,	// I - Search keywords
 		   uchar  *subject,	// I - Subject
+		   tree_t *doc,		// I - Document
                    tree_t *toc)		// I - Table of contents tree
 {
   int		i;			// Looping variable
@@ -2295,14 +2299,20 @@ pdf_write_document(uchar  *author,	// I - Author of document
   if (OutputType == OUTPUT_BOOK && TocLevels > 0)
   {
    /*
-    * Write the outline tree...
+    * Write the outline tree using the table-of-contents...
     */
 
     heading = 0;
     pdf_write_contents(out, toc, 0, 0, 0, &heading);
   }
   else
-    outline_object = 0;
+  {
+   /*
+    * Write the outline tree using the HTML files.
+    */
+
+    pdf_write_files(out, doc);
+  }
 
  /*
   * Write the trailer and close the output file...
@@ -2905,6 +2915,89 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     free(entry_counts);
     free(entries);
   }
+}
+
+
+//
+// 'pdf_write_files()' - Write an outline of HTML files.
+//
+
+static void
+pdf_write_files(FILE   *out,		// I - Output file
+                tree_t *doc)		// I - Document tree
+{
+  int		i,			// Looping var
+		num_files,		// Number of FILE elements
+		entry,			// Entry object
+		alloc_text;		// Allocated text?
+  uchar		*text;			// Entry text
+  tree_t	*temp;			// Current node
+  link_t	*link;			// Link to file...
+  float		x, y;			// Position of link
+
+
+  // Figure out the number of (top-level) files in the document...
+  for (num_files = 0, temp = doc; temp; temp = temp->next)
+    if (temp->markup == MARKUP_FILE)
+      num_files ++;
+
+  if (!num_files)
+  {
+    // No files to outline...
+    outline_object = 0;
+  
+    return;
+  }
+
+  // Write the outline dictionary...
+  outline_object = pdf_start_object(out);
+
+  fprintf(out, "/Count %d", num_files);
+  fprintf(out, "/First %d 0 R", outline_object + 1);
+  fprintf(out, "/Last %d 0 R", outline_object + num_files);
+
+  pdf_end_object(out);
+
+  // Now write the outline items...
+  for (i = 0, temp = doc; temp; temp = temp->next)
+    if (temp->markup == MARKUP_FILE)
+    {
+      alloc_text = 0;
+
+      if ((text = get_title(temp->child)) != NULL)
+        alloc_text = 1;
+      else if ((text = htmlGetVariable(temp, (uchar *)"_HD_FILENAME")) == NULL)
+        text = (uchar *)"Unknown";
+
+      entry = pdf_start_object(out);
+      
+      fprintf(out, "/Parent %d 0 R", outline_object);
+
+      fputs("/Title", out);
+      write_string(out, text, 0);
+      if (alloc_text)
+        free(text);
+
+      if ((link = find_link(htmlGetVariable(temp, (uchar *)"_HD_FILENAME"))) != NULL)
+      {
+	x = 0.0f;
+	y = link->top + pages[link->page].bottom;
+	pspdf_transform_coords(pages + link->page, x, y);
+
+	fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+        	pages_object + 2 * pages[link->page].outpage + 1, x, y);
+      }
+
+      if (i > 0)
+        fprintf(out, "/Prev %d 0 R", outline_object + i);
+ 
+      if (i < (num_files - 1))
+        fprintf(out, "/Next %d 0 R", outline_object + i + 2);
+
+      pdf_end_object(out);
+
+      i ++;
+    }
 }
 
 
@@ -12285,5 +12378,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.245 2004/05/04 20:00:46 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.246 2004/05/05 18:58:40 mike Exp $".
  */
