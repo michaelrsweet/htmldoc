@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.5.2.6 2002/06/13 18:44:23 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.7 2002/08/23 23:51:58 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -96,7 +96,6 @@ toc_build(tree_t *tree)		/* I - Document tree */
   heading_parents[12] = toc;
   heading_parents[13] = toc;
   heading_parents[14] = toc;
-  heading_parents[15] = toc;
 
   parse_tree(tree);
 
@@ -378,5 +377,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5.2.6 2002/06/13 18:44:23 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.7 2002/08/23 23:51:58 mike Exp $".
  */
