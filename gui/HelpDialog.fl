@@ -1,13 +1,10 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0100 
+version 1.0104 
 i18n_type 1 
 i18n_include "gui.h" 
 i18n_function _ 
 header_name {.h} 
-code_name {.cxx} 
-gridx 5 
-gridy 5 
-snap 3
+code_name {.cxx}
 class HelpDialog {open
 } {
   decl {int index_;} {}
@@ -56,7 +53,7 @@ else if (view_->filename())
         private xywh {0 80 535 305} box DOWN_BOX resizable
       }
       Fl_Group {} {open selected
-        xywh {0 25 535 55} box FLAT_BOX
+        xywh {0 25 535 55}
       } {
         Fl_Pack {} {open
           xywh {0 25 535 55}
