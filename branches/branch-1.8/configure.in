@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.23 2001/10/31 21:15:27 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.24 2001/11/01 16:15:14 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -92,10 +92,10 @@ fi
 dnl See if the tm structure has the tm_gmtoff member...
 AC_MSG_CHECKING(for tm_gmtoff member in tm structure)
 AC_TRY_COMPILE([#include <time.h>],[struct tm t;
-  int o = t.tm_gmtoff;],
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_TM_GMTOFF),
-  AC_MSG_RESULT(no))
+    int o = t.tm_gmtoff;],
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(HAVE_TM_GMTOFF),
+    AC_MSG_RESULT(no))
 
 dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
@@ -253,7 +253,29 @@ AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
 
 dnl Update compiler options...
 if test -n "$GXX"; then
-    # Since we don't use libstdc++, use gcc to avoid getting it linked in...
+    # Starting with GCC 3.0, you must link C++ programs against either
+    # libstdc++ (shared by default), or libsupc++ (always static).  If
+    # you care about binary portability between Linux distributions,
+    # you need to either 1) build your own GCC with static C++ libraries
+    # or 2) link using gcc and libsupc++.  We choose the latter since
+    # HTMLDOC doesn't (currently) use any of the stdc++ library.
+    #
+    # Also, GCC 3.0.x still has problems compiling some code.  You may
+    # or may not have success with it.  USE 3.0.x WITH EXTREME CAUTION!
+    #
+    # Previous versions of GCC do not have the reliance on the stdc++
+    # or g++ libraries, so the extra supc++ library is not needed.
+
+    case "`$CXX --version`" in
+    	3*)
+	    AC_MSG_WARN(GCC 3.0.x is known to produce incorrect code - use with caution!)
+	    LIBS="$LIBS -lsupc++"
+	    ;;
+    	3.1*)
+	    LIBS="$LIBS -lsupc++"
+	    ;;
+    esac
+
     CXX="$CC"
 
     # Set optimization flags...
@@ -266,28 +288,38 @@ if test -n "$GXX"; then
 	fi
     fi
 
-    OPTIM="-Wall -fno-rtti $OPTIM"
+    OPTIM="-Wall $OPTIM"
+
+    # See if GCC supports -fno-rtti...
+    AC_MSG_CHECKING(Checking if GCC supports -fno-rtti)
+    OLDCFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -fno-rtti"
+    AC_TRY_COMPILE(,,
+	OPTIM="$OPTIM -fno-rtti"
+	AC_MSG_RESULT(yes),
+	AC_MSG_RESULT(no))
+    CFLAGS="$OLDCFLAGS"
 
     # See if GCC supports -fno-exceptions...
-    echo "Testing if GCC supports -fno-exceptions..."
+    AC_MSG_CHECKING(Checking if GCC supports -fno-exceptions)
     OLDCFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS -fno-exceptions"
     AC_TRY_COMPILE(,,
 	OPTIM="$OPTIM -fno-exceptions"
-	echo "Congratulations - your GCC supports exceptions; disabling them...",
-	echo "GCC does not support exceptions...")
+	AC_MSG_RESULT(yes),
+	AC_MSG_RESULT(no))
     CFLAGS="$OLDCFLAGS"
 
     # See if we are running Solaris; if so, try the -fpermissive option...
     if test "$uname" = SunOS; then
-	echo "Testing if GCC supports -fpermissive..."
+	AC_MSG_CHECKING(Checking if GCC supports -fpermissive)
 
 	OLDCFLAGS="$CFLAGS"
 	CFLAGS="$CFLAGS -fpermissive"
 	AC_TRY_COMPILE(,,
 	    OPTIM="$OPTIM -fpermissive"
-	    echo "Enabling -fpermissive to work around X header bugs...",
-	    echo "The -fpermissive option is not required by your GCC...")
+	    AC_MSG_RESULT(yes),
+	    AC_MSG_RESULT(no))
 	CFLAGS="$OLDCFLAGS"
     fi
 else
@@ -323,5 +355,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.23 2001/10/31 21:15:27 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.24 2001/11/01 16:15:14 mike Exp $".
 dnl
