@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.217 2003/03/07 18:06:23 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.218 2003/03/11 15:23:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1880,8 +1880,14 @@ ps_write_outpage(FILE *out,	/* I - Output file */
 
   fprintf(out, "%%%%Page: %s %d\n", p->page_text, file_page);
   if (op->nup == 1)
-    fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
-            p->left, p->bottom, p->width - p->right, p->length - p->top);
+  {
+    if (p->duplex && !(file_page & 1))
+      fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
+              p->right, p->bottom, p->width - p->left, p->length - p->top);
+    else
+      fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
+              p->left, p->bottom, p->width - p->right, p->length - p->top);
+  }
   else
     fprintf(out, "%%%%PageBoundingBox: 0 0 %d %d\n", p->width, p->length);
 
@@ -5446,10 +5452,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   if (t->child == NULL)
     return;   /* Empty table... */
 
-  rgb[0] = t->red / 255.0f;
-  rgb[1] = t->green / 255.0f;
-  rgb[2] = t->blue / 255.0f;
-
  /*
   * Figure out the # of rows, columns, and the desired widths...
   */
@@ -5496,6 +5498,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   }
   else
     border = 0.0f;
+
+  rgb[0] = t->red / 255.0f;
+  rgb[1] = t->green / 255.0f;
+  rgb[2] = t->blue / 255.0f;
+
+  if ((var = htmlGetVariable(t, (uchar *)"BORDERCOLOR")) != NULL)
+    get_color(var, rgb, 0);
 
   if (border == 0.0f && cellpadding > 0.0f)
   {
@@ -10365,7 +10374,7 @@ write_imagemask(FILE     *out,	/* I - Output file */
 
   img    = r->data.image;
   width  = img->width * img->maskscale;
-  height = img->width * img->maskscale;
+  height = img->height * img->maskscale;
   scalex = 1.0f / width;
   scaley = 1.0f / height;
 
@@ -12086,5 +12095,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.217 2003/03/07 18:06:23 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.218 2003/03/11 15:23:29 mike Exp $".
  */

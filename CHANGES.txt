@@ -1,4 +1,4 @@
-CHANGES.txt - 02/28/2003
+CHANGES.txt - 03/11/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -11,6 +11,8 @@ CHANGES IN HTMLDOC v1.8.24
 	- HTMLDOC now includes LINK elements in generated HTML
 	  so that intelligent browsers like Mozilla can show
 	  next/prev/contents/top buttons.
+	- HTMLDOC now supports the BORDERCOLOR attribute for
+	  tables, a MSIE extension.
 
     CHANGES
 
@@ -27,6 +29,11 @@ CHANGES IN HTMLDOC v1.8.24
 	- HTMLDOC didn't read back the HTTP response properly in
 	  all situations.
 	- Fixed some more PNG transparency cases.
+	- The PageBoundingBox comments in PostScript output did
+	  not account for the back page when duplexing was
+	  enabled.
+	- HTMLDOC generated an incorrect image mask for some
+	  images.
 
 
 CHANGES IN HTMLDOC v1.8.23
