@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0010 
+version 1.0011 
 i18n_type 1 
 i18n_include "gui.h" 
 i18n_function _ 
@@ -10,6 +10,10 @@ gridy 5
 snap 3
 class HelpDialog {open
 } {
+  decl {\#include "icons/back.xpm"} {}
+  decl {\#include "icons/dback.xpm"} {}
+  decl {\#include "icons/forward.xpm"} {}
+  decl {\#include "icons/dforward.xpm"} {}
   decl {int index_;} {}
   decl {int max_;} {}
   decl {int line_[100];} {}
@@ -18,7 +22,7 @@ class HelpDialog {open
   } {
     Fl_Window window_ {
       label {Help Dialog} open
-      private xywh {464 372 530 385} resizable
+      private xywh {464 372 535 385} resizable
       code0 {\#include <string.h>} visible
     } {
       Fl_Group view_ {
@@ -39,11 +43,19 @@ class HelpDialog {open
   line_[index_] = view_->topline();
 
   if (index_ > 0)
-    back_->activate();
+  {
+    back_->show();
+    dback_->hide();
+  }
   else
-    back_->deactivate();
+  {
+    back_->hide();
+    dback_->show();
+  }
 
-  forward_->deactivate();
+  forward_->hide();
+  dforward_->show();
+
   window_->label(view_->title());
 }
 else if (view_->filename())
@@ -52,70 +64,107 @@ else if (view_->filename())
   file_[index_][255] = '\\0';
   line_[index_] = view_->topline();
 }} open
-        private xywh {10 10 510 330} box DOWN_BOX resizable
+        private xywh {0 80 535 305} box DOWN_BOX resizable
         code0 {\#include "HelpView.h"}
         class HelpView
       } {}
-      Fl_Button {} {
-        label Close
-        callback {window_->hide();} selected
-        xywh {425 350 95 25}
-      }
-      Fl_Button back_ {
-        label {@<-}
-        callback {if (index_ > 0)
+      Fl_Pack {} {open
+        xywh {0 25 535 55} box FLAT_BOX
+        code0 {o->type(Fl_Pack::HORIZONTAL);}
+      } {
+        Fl_Button back_ {
+          label Back
+          callback {if (index_ > 0)
   index_ --;
 
 if (index_ == 0)
-  back_->deactivate();
+{
+  back_->hide();
+  dback_->show();
+}
 
-forward_->activate();
+forward_->show();
+dforward_->hide();
 
 if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {365 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
-      }
-      Fl_Button forward_ {
-        label {@->}
-        callback {if (index_ < max_)
+          private xywh {0 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
+          code0 {guiAddImage(back_, (const char **)back_xpm);}
+        }
+        Fl_Button dback_ {
+          label Back
+          private xywh {0 25 60 55} box FLAT_BOX align 17 hide deactivate
+          code0 {guiAddImage(dback_, (const char **)dback_xpm);}
+        }
+        Fl_Button forward_ {
+          label Forward
+          callback {if (index_ < max_)
   index_ ++;
 
 if (index_ >= max_)
-  forward_->deactivate();
+{
+  forward_->hide();
+  dforward_->show();
+}
 
-back_->activate();
+
+back_->show();
+dback_->hide();
 
 if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {395 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
-      }
-      Fl_Button smaller_ {
-        label F
-        callback {if (view_->textsize() > 8)
+          private xywh {60 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
+          code0 {guiAddImage(forward_, (const char **)forward_xpm);}
+        }
+        Fl_Button dforward_ {
+          label Forward
+          private xywh {60 25 60 55} box FLAT_BOX align 17 hide deactivate
+          code0 {guiAddImage(dforward_, (const char **)dforward_xpm);}
+        }
+        Fl_Button smaller_ {
+          label F
+          callback {if (view_->textsize() > 8)
   view_->textsize(view_->textsize() - 2);
 
 if (view_->textsize() <= 8)
   smaller_->deactivate();
 larger_->activate();}
-        private xywh {305 350 25 25} labelfont 1 labelsize 10
-      }
-      Fl_Button larger_ {
-        label F
-        callback {if (view_->textsize() < 18)
+          private xywh {120 25 55 55} box FLAT_BOX down_box DOWN_BOX labelfont 1
+        }
+        Fl_Button larger_ {
+          label F
+          callback {if (view_->textsize() < 18)
   view_->textsize(view_->textsize() + 2);
 
 if (view_->textsize() >= 18)
   larger_->deactivate();
 smaller_->activate();}
-        private xywh {335 350 25 25} labelfont 1 labelsize 16
+          private xywh {175 25 55 55} box FLAT_BOX down_box DOWN_BOX labelfont 1 labelsize 40
+        }
+      }
+      Fl_Menu_Bar {} {open
+        xywh {0 0 535 25}
+      } {
+        submenu {} {
+          label {&File} open
+          xywh {0 0 100 20}
+        } {
+          menuitem {} {
+            label {&Close}
+            callback {window_->hide();}
+            xywh {0 0 100 20} shortcut 0x40077
+          }
+        }
       }
     }
-    code {back_->deactivate();
-forward_->deactivate();
+    code {back_->hide();
+dback_->show();
+forward_->hide();
+dforward_->show();
 
 index_ = -1;
 max_  = 0;} {}
@@ -142,9 +191,12 @@ window_->label(view_->title());} {}
   } {
     code {window_->resize(xx, yy, ww, hh);} {}
   }
-  Function {show()} {return_type void
+  Function {show()} {open return_type void
   } {
-    code {window_->show();} {}
+    code {char *name = (char *)"HelpDialog";
+
+window_->show(1, &name);} {selected
+    }
   }
   Function {textsize(uchar s)} {return_type void
   } {
