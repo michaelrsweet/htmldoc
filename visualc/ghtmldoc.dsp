@@ -175,6 +175,10 @@ SOURCE=..\htmldoc\htmldoc.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\htmldoc\http.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\htmldoc\image.h
 # End Source File
 # Begin Source File

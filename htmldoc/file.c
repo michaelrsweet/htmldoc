@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.10 2001/02/28 20:22:50 mike Exp $"
+ * "$Id: file.c,v 1.13.2.11 2001/03/01 01:16:32 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -379,68 +379,85 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       httpSeparate(filename, method, username, hostname, &port, resource);
     }
 
-    if (proxy_port)
-    {
-     /*
-      * Send request to proxy host...
-      */
-
-      connhost = proxy_host;
-      connport = proxy_port;
-      snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", method,
-               hostname, port, resource);
-    }
-    else
-    {
-     /*
-      * Send request to host directly...
-      */
-
-      connhost = hostname;
-      connport = port;
-      strcpy(connpath, resource);
-    }
-
-    if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
-    {
-      httpClose(http);
-      http = NULL;
-    }
-
-    if (http == NULL)
-    {
-      progress_show("Connecting to %s...", connhost);
-      atexit(file_cleanup);
-      if ((http = httpConnect(connhost, connport)) == NULL)
-      {
-        progress_hide();
-        progress_error("Unable to connect to %s!", connhost);
-        return (NULL);
-      }
-    }
-
-    httpClearFields(http);
-    httpSetField(http, HTTP_FIELD_HOST, hostname);
-    httpSetField(http, HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
-    httpSetField(http, HTTP_FIELD_CONNECTION, "Keep-Alive");
-
-    if (username[0])
-    {
-      strcpy(connauth, "Basic ");
-      httpEncode64(connauth + 6, username);
-      httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
-    }
-
-    progress_show("Getting %s...", connpath);
-
     for (status = HTTP_ERROR, retry = 0;
          status == HTTP_ERROR && retry < 5;
          retry ++)
     {
+      if (proxy_port)
+      {
+       /*
+        * Send request to proxy host...
+        */
+
+        connhost = proxy_host;
+        connport = proxy_port;
+        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", method,
+                 hostname, port, resource);
+      }
+      else
+      {
+       /*
+        * Send request to host directly...
+        */
+
+        connhost = hostname;
+        connport = port;
+        strcpy(connpath, resource);
+      }
+
+      if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
+      {
+        httpClose(http);
+        http = NULL;
+      }
+
+      if (http == NULL)
+      {
+        progress_show("Connecting to %s...", connhost);
+        atexit(file_cleanup);
+        if ((http = httpConnect(connhost, connport)) == NULL)
+        {
+          progress_hide();
+          progress_error("Unable to connect to %s!", connhost);
+          return (NULL);
+        }
+      }
+
+      progress_show("Getting %s...", connpath);
+
+      httpClearFields(http);
+      httpSetField(http, HTTP_FIELD_HOST, hostname);
+      httpSetField(http, HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
+      httpSetField(http, HTTP_FIELD_CONNECTION, "Keep-Alive");
+
+      if (username[0])
+      {
+        strcpy(connauth, "Basic ");
+        httpEncode64(connauth + 6, username);
+        httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
+      }
+
       if (!httpGet(http, connpath))
 	while ((status = httpUpdate(http)) == HTTP_CONTINUE);
       else
 	status = HTTP_ERROR;
+
+      if (status >= HTTP_MOVED_PERMANENTLY && status <= HTTP_SEE_OTHER)
+      {
+       /*
+        * Flush text...
+	*/
+
+	httpFlush(http);
+
+       /*
+        * Grab new location from HTTP data...
+	*/
+
+        httpSeparate(httpGetField(http, HTTP_FIELD_LOCATION), method, username,
+	             hostname, &port, resource);
+        status = ERROR;
+      }
     }
 
     if (status != HTTP_OK)
@@ -710,5 +727,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.10 2001/02/28 20:22:50 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.11 2001/03/01 01:16:32 mike Exp $".
  */
