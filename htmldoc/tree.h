@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.10 2002/04/03 18:12:57 mike Exp $"
+// "$Id: tree.h,v 1.11 2002/04/03 21:04:31 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -84,7 +84,7 @@ struct hdTree
 			            const char *prefix);
   hdTree		*build_toc(hdStyleSheet *css, int levels, int numbered);
   void			compute_size(hdStyleSheet *css);
-  void			copy_text(hdTree *p);
+  void			copy_text(hdStyleSheet *css, hdTree *p);
   hdTree		*find(hdElement e);
   static char		*fix_url(const char *url, const char *base,
 			         const char *path, char *s, int slen);
@@ -109,5 +109,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.10 2002/04/03 18:12:57 mike Exp $".
+// End of "$Id: tree.h,v 1.11 2002/04/03 21:04:31 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: index.cxx,v 1.3 2002/04/03 18:12:56 mike Exp $"
+// "$Id: index.cxx,v 1.4 2002/04/03 21:04:31 mike Exp $"
 //
 //   Indexing methods for HTMLDOC, a HTML document processing program.
 //
@@ -157,24 +157,24 @@ hdTree::build_index(hdStyleSheet *css,	// I - Style sheet
 					// I - Phrases
 {
   int		i, j;			// Looping vars
-  hdTree	*t,			// Current node
-		*tnext,			// Next node
-		*tlink,			// Pointer to link
-		*ttemp;			// Temporary node pointer
   hdIndex	*inddata;		// Index data
   hdIndexPhrase	**p;			// Index phrase
+  int		ch;			// Current character
+  char		*topic;			// Current topic
   hdTree	*ind,			// Table of contents
 		*indptr,		// Pointer into index
 		*indnode,		// Node in index
+		*indtext,		// Text node in index
 		*indlink;		// Link node in index
-  const char	*val;			// Attribute value
+  char		s[1024];		// String value
 
 
   // Create the index data...
   inddata = new hdIndex(num_phrases, phrases);
-
   inddata->scan(this);
+  inddata->sort_topics();
 
+#if 0
   for (i = 0, p = inddata->phrases; i < inddata->num_phrases; i ++, p ++)
   {
      printf("%s:", p[0]->topic);
@@ -187,143 +187,99 @@ hdTree::build_index(hdStyleSheet *css,	// I - Style sheet
        printf("    #%d%p (%s)\n", j + 1, p[0]->matches[j],
               p[0]->matches[j]->get_attr("name"));
   }
+#endif // 0
 
   // Create a root node for the index...
   ind = new hdTree(HD_ELEMENT_BODY);
   ind->set_attr("class", "INDEX");
   ind->style = css->find_style(ind);
 
-#if 0
-  // Scan the document tree for headings...
-  for (indptr = ind, t = this; t; t = tnext)
+  indptr = ind;
+
+  // Loop through the index data and create the index...
+  for (i = 0, p = inddata->phrases, ch = -1, topic = NULL;
+       i < inddata->num_phrases;
+       i ++, p ++)
   {
-    // Point to the next node in the tree...
-    tnext = t->real_next();
+    // Skip phrases with no matches...
+    if (p[0]->num_matches == 0)
+      continue;
 
-    // See if we have a heading...
-    if (t->element >= HD_ELEMENT_H1 && t->element <= HD_ELEMENT_H6)
+    // See if this is a new initial letter...
+    if (ch != toupper(p[0]->topic[0]))
     {
-      // Yes, handle it...
-      tnext    = t->next;
-      newlevel = t->element - HD_ELEMENT_H1;
+      // Get the new initial letter...
+      ch = toupper(p[0]->topic[0]);
 
-      // If the new level is not the same as the old level, (un)indent
-      // as needed...
-      while (newlevel > level)
-      {
-        // Indent lower...
-        level ++;
-
-        numbers[level] = 0;
-
-	indnode = new hdTree(HD_ELEMENT_UL, NULL, indptr);
-	indnode->set_attr("class", "INDEX");
-	indnode->style = css->find_style(indnode);
-	indptr = indnode;
-      }
-      
-      while (newlevel < level)
-      {
-        // Unindent higher...
-        level --;
-
-	indptr = indptr->parent;
-      }
-
-      // Bump the chapter number as needed...
-      if (level == 0)
-        chapter ++;
-
-      // See if we have a new format or number value...
-      if ((val = t->get_attr("VALUE")) != NULL)
-        numbers[level] = atoi(val);
-      else
-        numbers[level] ++;
-
-      if ((val = t->get_attr("TYPE")) != NULL)
-        formats[level] = *val;
-
-      // Do we need heading numbers?
-      if (numbers)
-      {
-        // Yes, format the number...
-        s[0]             = '\0';
-	s[sizeof(s) - 1] = '\0';
-
-        for (i = 0, sptr = s; i <= level; i ++, sptr += strlen(s))
-	{
-	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
-	                         formats[i], numbers[i]);
-
-          if (i < level)
-	    strncat(sptr, ".", sizeof(s) - (sptr - s) - 1);
-        }
-
-        indnumber = new hdTree(HD_ELEMENT_NONE, s);
-	indnumber->insert(t);
-	indnumber->style = t->style;
-	indnumber->compute_size(css);
-
-	if (indnumber->next)
-	  indnumber->next->whitespace = 1;
-      }
-
-      // Do we need to add a link target?
-      if ((tlink = t->find(HD_ELEMENT_A)) == NULL)
-      {
-        // No link node; insert one...
-	tlink = new hdTree(HD_ELEMENT_A);
-	tlink->child      = t->child;
-	tlink->last_child = t->last_child;
-
-	for (ttemp = t->child; ttemp != NULL; ttemp = ttemp->next)
-	  ttemp->parent = tlink;
-
-        t->child      = tlink;
-	t->last_child = tlink;
-      }
-
-      if (tlink->get_attr("name") == NULL)
-      {
-        // Add a named link...
-	strcpy(s, "HD_");
-	s[sizeof(s) - 1] = '\0';
-
-        for (i = 0, sptr = s + 3; i <= level; i ++, sptr += strlen(s))
-	{
-	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
-	                         formats[i], numbers[i]);
-
-          if (i < level)
-	    strncat(sptr, "_", sizeof(s) - (sptr - s) - 1);
-        }
-
-	tlink->set_attr("name", s);
-      }
-
-      // Then add a new node for the heading...
-      indnode = new hdTree(level == 0 ? HD_ELEMENT_P : HD_ELEMENT_LI, NULL, indptr);
+      // Create an "h2" heading with the letter...
+      indnode = new hdTree(HD_ELEMENT_H2, NULL, ind);
       indnode->set_attr("class", "INDEX");
       indnode->style = css->find_style(indnode);
 
-      // And a node for the link...
-      snprintf(s, sizeof(s), "#%s", tlink->get_attr("name"));
+      s[0] = ch;
+      s[1] = '\0';
+      indtext = new hdTree(HD_ELEMENT_NONE, s, indnode);
+      indtext->compute_size(css);
+    }
 
-      indlink = new hdTree(HD_ELEMENT_A, "", indnode);
-      indlink->set_attr("href", s);
+    if (topic != p[0]->topic)
+    {
+      if (p[0]->topic == p[0]->words[0])
+      {
+        // No topic...
+        topic  = NULL;
+	indptr = ind;
+      }
+      else
+      {
+        // Phrase with topic...
+        topic = p[0]->topic;
+
+	// Create an paragraph with the topic...
+	indnode = new hdTree(HD_ELEMENT_P, NULL, ind);
+	indnode->set_attr("class", "INDEX");
+	indnode->style = css->find_style(indnode);
+
+	indtext = new hdTree(HD_ELEMENT_NONE, topic, indnode);
+        indtext->compute_size(css);
+
+	// Then the unordered list for the items...
+	indptr = new hdTree(HD_ELEMENT_UL, NULL, ind);
+	indptr->set_attr("class", "INDEX");
+	indptr->style = css->find_style(indptr);
+      }
+    }
+
+    indnode = new hdTree(indptr == ind ? HD_ELEMENT_P : HD_ELEMENT_LI, NULL,
+                         indptr);
+    indnode->set_attr("class", "INDEX");
+    indnode->style = css->find_style(indnode);
+
+    for (j = 0; j < p[0]->num_words; j ++)
+    {
+      indtext = new hdTree(HD_ELEMENT_NONE, p[0]->words[j], indnode);
+      indtext->whitespace = j > 0;
+      indtext->compute_size(css);
+    }
+
+    for (j = 0; j < p[0]->num_matches; j ++)
+    {
+      // Add the link...
+      indlink = new hdTree(HD_ELEMENT_A, NULL, indnode);
       indlink->set_attr("class", "INDEX");
       indlink->style = css->find_style(indlink);
 
-      // Copy the text to the index...
-      t->copy_text(indlink);
+      snprintf(s, sizeof(s), "#%s", p[0]->matches[j]->get_attr("name"));
+      indlink->set_attr("href", s);
 
-      // Finally, add a pseudo-attribute for the chapter number...
-      snprintf(s, sizeof(s), "%d", chapter);
-      tlink->set_attr("_HD_CHAPTER", s);
-      indlink->set_attr("_HD_CHAPTER", s);
+      // Add a link for the page...
+      sprintf(s, "%d%c", j + 1, j < (p[0]->num_matches - 1) ? ',' : 0);
+
+      indtext = new hdTree(HD_ELEMENT_NONE, s, indlink);
+      indtext->whitespace = 1;
+      indtext->compute_size(css);
     }
   }
-#endif // 0
 
   return (ind);
 }
@@ -741,5 +697,5 @@ hdIndexPhrase::compare_words(const hdIndexPhrase **a,
 
 
 //
-// End of "$Id: index.cxx,v 1.3 2002/04/03 18:12:56 mike Exp $".
+// End of "$Id: index.cxx,v 1.4 2002/04/03 21:04:31 mike Exp $".
 //

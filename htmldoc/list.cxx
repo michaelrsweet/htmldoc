@@ -1,5 +1,5 @@
 //
-// "$Id: list.cxx,v 1.3 2002/04/03 02:18:52 mike Exp $"
+// "$Id: list.cxx,v 1.4 2002/04/03 21:04:31 mike Exp $"
 //
 //   List generation methods for HTMLDOC, a HTML document processing program.
 //
@@ -175,7 +175,7 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
       listlink->style = css->find_style(listlink);
 
       // Copy the text to the TOC...
-      t->copy_text(listlink);
+      t->copy_text(css, listlink);
 
       // Finally, add a pseudo-attribute for the chapter number...
       snprintf(s, sizeof(s), "%d", chapter);
@@ -189,5 +189,5 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: list.cxx,v 1.3 2002/04/03 02:18:52 mike Exp $".
+// End of "$Id: list.cxx,v 1.4 2002/04/03 21:04:31 mike Exp $".
 //
