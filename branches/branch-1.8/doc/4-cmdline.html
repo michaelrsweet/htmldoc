@@ -9,6 +9,8 @@ Command-Line</A></H1>
 
 <P>This chapter describes how to use <I>HTMLDOC</I> from the
 command-line to convert web pages and generate books.
+If you don't sepcify an input type (webpage, continous or book), HTMLDOC
+will default to the book input type.
 
 <BLOCKQUOTE><B>Note:</B> The free version of <I>HTMLDOC</I> for Windows does
 not include the command-line program.</BLOCKQUOTE>
@@ -30,8 +32,7 @@ the HTML file you are converting.
 
 <P>The <CODE>--webpage</CODE> option tells <I>HTMLDOC</I> that
 you want to convert a web page or other unstructured document.
-
-<P>The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
+The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
 generate. If you don't specify an output file then a PDF file is
 send to the standard output.
 
@@ -50,6 +51,9 @@ to <CODE>fileN.html</CODE> are the HTML files you want to convert.
 
 <P>The <CODE>--webpage</CODE> option tells <I>HTMLDOC</I> that you want to
 convert more than one HTML file but with no page breaks between each HTML file.
+The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
+generate. If you don't specify an output file then a PDF file is
+send to the standard output.
 
 <P>To convert more than one web page with no page breaks between each HTML file, type:
 
@@ -79,12 +83,19 @@ to <CODE>fileN.html</CODE> are the HTML files you want to use for the book.
 
 <P>The <CODE>--book</CODE> option tells <I>HTMLDOC</I> that you want to
 generate a book from the HTML file(s) you specified.
-<I>HTMLDOC</I> will build a table of contents for the book using
+The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
+generate. If you don't specify an output file then a PDF file is
+send to the standard output.
+
+<P><I>HTMLDOC</I> will build a table of contents for the book using
 the heading elements (<CODE>H1</CODE>, <CODE>H2</CODE>, etc.) in
 your HTML files. It will also add a title page using the
 document <CODE>TITLE</CODE> text and other <CODE>META</CODE>
 information you supply in your HTML files.
 
+<BLOCKQUOTE><B>Note:</B> HTMLDOC will start rendering from the first <CODE>H1</CODE> element.
+What this means is that any text, images, table and other viewable elements
+that proceed the first <CODE>H1</CODE> element will be ignored.</BLOCKQUOTE>
 
 <H2>Setting the Title File</H2>
 
