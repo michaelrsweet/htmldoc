@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.124 2001/11/02 21:08:28 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.125 2001/11/09 20:42:35 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2096,10 +2096,10 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   else
   {
    /*
-    * Allocate the arrays...
+    * Allocate the arrays...  Add 1 to hold the TOC at the top level...
     */
 
-    if ((entry_counts = (int *)calloc(sizeof(int), num_headings)) == NULL)
+    if ((entry_counts = (int *)calloc(sizeof(int), num_headings + 1)) == NULL)
     {
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d headings - %s",
@@ -2107,7 +2107,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       return;
     }
 
-    if ((entry_objects = (int *)calloc(sizeof(int), num_headings)) == NULL)
+    if ((entry_objects = (int *)calloc(sizeof(int), num_headings + 1)) == NULL)
     {
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d headings - %s",
@@ -2116,7 +2116,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       return;
     }
 
-    if ((entries = (tree_t **)calloc(sizeof(tree_t *), num_headings)) == NULL)
+    if ((entries = (tree_t **)calloc(sizeof(tree_t *), num_headings + 1)) == NULL)
     {
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d headings - %s",
@@ -2157,7 +2157,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       count = 0;
     }
 
-    for (; temp != NULL && count < num_headings; temp = temp->next)
+    for (; temp != NULL && count <= num_headings; temp = temp->next)
       if (temp->markup == MARKUP_B || temp->markup == MARKUP_LI)
       {
 	entries[count]       = temp;
@@ -10398,5 +10398,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.124 2001/11/02 21:08:28 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.125 2001/11/09 20:42:35 mike Exp $".
  */
