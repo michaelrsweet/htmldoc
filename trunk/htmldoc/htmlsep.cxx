@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.7 2004/10/23 04:57:40 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.8 2004/10/25 14:30:03 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -340,7 +340,7 @@ hdBook::htmlsep_title(FILE  *out,	// I - Output file
       return;
     }
 
-    t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+    t = htmlReadFile(NULL, fp, file_directory(TitleImage), NULL);
     htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
     fclose(fp);
 
@@ -909,5 +909,5 @@ hdBook::htmlsep_update_links(hdTree *t,	// I - Document tree
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.7 2004/10/23 04:57:40 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.8 2004/10/25 14:30:03 mike Exp $".
 //

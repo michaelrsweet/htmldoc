@@ -1,5 +1,5 @@
 /*
- * "$Id: tree.cxx,v 1.29 2004/10/24 03:23:42 mike Exp $"
+ * "$Id: tree.cxx,v 1.30 2004/10/25 14:30:03 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -258,32 +258,32 @@ static uchar	indent[255] = "";
  * 'htmlReadFile()' - Read a file for HTML markup codes.
  */
 
-hdTree *			/* O - Pointer to top of file tree */
-htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
-             FILE       *fp,	/* I - File pointer */
-	     const char *base)	/* I - Base directory for file */
+hdTree *				// O - Pointer to top of file tree
+htmlReadFile(hdTree     *parent,	// I - Parent tree entry
+             FILE       *fp,		// I - File pointer
+	     const char *base,		// I - Base directory for file
+             hdStyleSheet *stylesheet)	// I - Stylesheet
 {
-  int		ch;		/* Character from file */
-  uchar		*ptr,		/* Pointer in string */
-		glyph[16],	/* Glyph name (&#nnn; or &name;) */
-		*glyphptr;	/* Pointer in glyph string */
-  hdTree	*tree,		/* "top" of this tree */
-		*t,		/* New tree entry */
-		*prev,		/* Previous tree entry */
-		*temp;		/* Temporary looping var */
-  int		descend;	/* Descend into node? */
-  FILE		*embed;		/* File pointer for EMBED */
-  char		newbase[1024];	/* New base directory for EMBED */
-  uchar		*filename,	/* Filename for EMBED tag */
-		*face,		/* Typeface for FONT tag */
-		*color,		/* Color for FONT tag */
-		*size,		/* Size for FONT tag */
-		*type;		/* Type for EMBED tag */
-  int		sizeval;	/* Size value from FONT tag */
-  int		linenum;	/* Line number in file */
-  static uchar	s[10240];	/* String from file */
-  static int	have_whitespace = 0;
-  				/* Non-zero if there was leading whitespace */
+  int		ch;			// Character from file
+  uchar		*ptr,			// Pointer in string
+		entity[16],		// Character entity name (&#nnn; or &name;)
+		*eptr;			// Pointer in entity string
+  hdTree	*tree,			// "top" of this tree
+		*t,			// New tree entry
+		*prev,			// Previous tree entry
+		*temp;			// Temporary looping var
+  int		descend;		// Descend into node?
+  FILE		*embed;			// File pointer for EMBED
+  char		newbase[1024];		// New base directory for EMBED
+  uchar		*filename,		// Filename for EMBED tag
+		*face,			// Typeface for FONT tag
+		*color,			// Color for FONT tag
+		*size,			// Size for FONT tag
+		*type;			// Type for EMBED tag
+  int		sizeval;		// Size value from FONT tag
+  int		linenum;		// Line number in file
+  static uchar	s[10240];		// String from file
+  static int	have_whitespace = 0;	// Non-zero if there was leading whitespace
 
 
   DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
@@ -693,39 +693,56 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
       {
         if (ch == '&')
         {
-          for (glyphptr = glyph;
-               (ch = getc(fp)) != EOF && (glyphptr - glyph) < 15;
-               glyphptr ++)
-            if (ch == ';' || isspace(ch))
-	    {
-	      if (ch == '\n')
-	        linenum ++;
+	  // Possibly a character entity...
+	  eptr = entity;
+	  while (eptr < (entity + sizeof(entity) - 1) &&
+	         (ch = getc(fp)) != EOF)
+	    if (!isalnum(ch) && ch != '#')
+	      break;
+	    else
+	      *eptr++ = ch;
 
-              break;
-	    }
-            else
-              *glyphptr = ch;
+          if (ch != ';')
+	  {
+	    ungetc(ch, fp);
+	    ch = 0;
+	  }
 
-          if (glyphptr == glyph)
+          *eptr = '\0';
+          if (!ch)
 	  {
 //	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
 //	                   linenum);
-            ch = '&';
-	  }
-	  else
-	  {
-            *glyphptr = '\0';
-            ch = iso8859(glyph);
-	  }
-        }
 
-        if (ch != 0 && ch != '\r')
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = '&';
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+	    ptr += strlen((char *)ptr);
+	  }
+	  else if ((ch = iso8859(entity)) == 0)
+	  {
+//	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+//	                   entity, linenum);
+
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = '&';
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+	    ptr += strlen((char *)ptr);
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = ';';
+	  }
+	  else if (ptr < (s + sizeof(s) - 1))
+	    *ptr++ = ch;
+        }
+	else if (ch != 0 && ch != '\r')
+	{
           *ptr++ = ch;
 
-        if (ch == '\n')
-	{
-	  linenum ++;
-          break;
+          if (ch == '\n')
+	  {
+	    linenum ++;
+            break;
+	  }
 	}
 
         ch = getc(fp);
@@ -758,28 +775,48 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
       {
         if (ch == '&')
         {
-          for (glyphptr = glyph;
-               (ch = getc(fp)) != EOF && (glyphptr - glyph) < 15;
-               glyphptr ++)
-            if (ch == ';' || isspace(ch))
-              break;
-            else
-              *glyphptr = ch;
+	  // Possibly a character entity...
+	  eptr = entity;
+	  while (eptr < (entity + sizeof(entity) - 1) &&
+	         (ch = getc(fp)) != EOF)
+	    if (!isalnum(ch) && ch != '#')
+	      break;
+	    else
+	      *eptr++ = ch;
 
-          if (glyphptr == glyph)
+          if (ch != ';')
+	  {
+	    ungetc(ch, fp);
+	    ch = 0;
+	  }
+
+          *eptr = '\0';
+          if (!ch)
 	  {
 //	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
 //	                   linenum);
-            ch = '&';
-	  }
-	  else
-	  {
-            *glyphptr = '\0';
-            ch = iso8859(glyph);
-	  }
-        }
 
-        if (ch != 0)
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = '&';
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+	    ptr += strlen((char *)ptr);
+	  }
+	  else if ((ch = iso8859(entity)) == 0)
+	  {
+//	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+//	                   entity, linenum);
+
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = '&';
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+	    ptr += strlen((char *)ptr);
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = ';';
+	  }
+	  else if (ptr < (s + sizeof(s) - 1))
+	    *ptr++ = ch;
+        }
+	else if (ch)
           *ptr++ = ch;
 
         ch = getc(fp);
@@ -997,7 +1034,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
             {
 	      strcpy(newbase, hdBook::file_directory((char *)filename));
 
-              htmlReadFile(t, embed, newbase);
+              htmlReadFile(t, embed, newbase, stylesheet);
               fclose(embed);
             }
 #ifndef DEBUG
@@ -1204,7 +1241,6 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
       case HD_ELEMENT_STRONG :
           t->style = (hdFontInternal)(t->style | HD_FONTINTERNAL_BOLD);
       case HD_ELEMENT_CITE :
-      case HD_ELEMENT_DT :
       case HD_ELEMENT_EM :
       case HD_ELEMENT_I :
           t->style = (hdFontInternal)(t->style | HD_FONTINTERNAL_ITALIC);
@@ -1275,7 +1311,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
     if (descend)
     {
 #ifdef DEBUG
-      strcat((char *)indent, "    ");
+      strlcat((char *)indent, "    ", sizeof(indent));
 #endif // DEBUG
 
       parent = t;
@@ -2039,7 +2075,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
   int		chars[256];	/* Character encoding array */
 
 
-  strcpy(_htmlCharSet, cs);
+  strlcpy(_htmlCharSet, cs, sizeof(_htmlCharSet));
 
   if (!_htmlInitialized)
   {
@@ -2211,8 +2247,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 void
 htmlSetTextColor(uchar *color)	/* I - Text color */
 {
-  strncpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
-  _htmlTextColor[sizeof(_htmlTextColor) - 1] = '\0';
+  strlcpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
 }
 
 
@@ -2375,6 +2410,16 @@ parse_markup(hdTree *t,		/* I - Current tree entry */
   while ((ch = getc(fp)) != EOF && mptr < (markup + sizeof(markup) - 1))
     if (ch == '>' || isspace(ch))
       break;
+    else if (ch == '/' && mptr > markup)
+    {
+      // Look for "/>"...
+      ch = getc(fp);
+
+      if (ch != '>')
+        return (HD_ELEMENT_ERROR);
+
+      break;
+    }
     else
     {
       *mptr++ = ch;
@@ -2405,7 +2450,7 @@ parse_markup(hdTree *t,		/* I - Current tree entry */
     */
 
     t->element = HD_ELEMENT_UNKNOWN;
-    strcpy((char *)comment, (char *)markup);
+    strlcpy((char *)comment, (char *)markup, sizeof(comment));
     cptr = comment + strlen((char *)comment);
 
     DEBUG_printf(("%s%s (unrecognized!)\n", indent, markup));
@@ -2425,13 +2470,13 @@ parse_markup(hdTree *t,		/* I - Current tree entry */
       if (ch == '>' && temp == NULL)
         break;
 
-      *cptr++ = ch;
-
       if (ch == '\n')
         (*linenum) ++;
 
       if (ch == '-')
       {
+        *cptr++ = ch;
+
         if ((ch2 = getc(fp)) == '>')
 	{
 	  // Erase trailing -->
@@ -2445,7 +2490,61 @@ parse_markup(hdTree *t,		/* I - Current tree entry */
 	  ch = ch2;
       }
       else
+      {
+        if (ch == '&')
+	{
+          // Handle character entities...
+	  uchar	entity[16],		// Character entity name
+		*eptr;			// Pointer into name
+
+
+	  eptr = entity;
+	  while (eptr < (entity + sizeof(entity) - 1) &&
+		 (ch = getc(fp)) != EOF)
+	    if (!isalnum(ch) && ch != '#')
+	      break;
+	    else
+	      *eptr++ = ch;
+
+	  if (ch != ';')
+	  {
+	    ungetc(ch, fp);
+	    ch = 0;
+	  }
+
+	  *eptr = '\0';
+	  if (!ch)
+	  {
+//	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+//	                   *linenum);
+
+            if (cptr < (comment + sizeof(comment) - 1))
+	      *cptr++ = '&';
+            strlcpy((char *)cptr, (char *)entity,
+	            sizeof(comment) - (cptr - comment));
+	    cptr += strlen((char *)cptr);
+	  }
+	  else if ((ch = iso8859(entity)) == 0)
+	  {
+//	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+//	                   entity, *linenum);
+
+            if (cptr < (comment + sizeof(comment) - 1))
+	      *cptr++ = '&';
+            strlcpy((char *)cptr, (char *)entity,
+	            sizeof(comment) - (cptr - comment));
+	    cptr += strlen((char *)cptr);
+            if (cptr < (comment + sizeof(comment) - 1))
+	      *cptr++ = ';';
+	  }
+	  else if (cptr < (comment + sizeof(comment) - 1))
+	    *cptr++ = ch;
+	}
+	else
+	  *cptr++ = ch;
+
         ch = getc(fp);
+      }
     }
 
     *cptr = '\0';
@@ -2465,6 +2564,17 @@ parse_markup(hdTree *t,		/* I - Current tree entry */
       }
 
       ch = getc(fp);
+
+      if (ch == '/')
+      {
+	// Look for "/>"...
+	ch = getc(fp);
+
+	if (ch != '>')
+          return (HD_ELEMENT_ERROR);
+
+	break;
+      }
     }
   }
 
@@ -2481,15 +2591,19 @@ parse_variable(hdTree *t,	/* I - Current tree entry */
                FILE   *fp,	/* I - Input file */
 	       int    *linenum)	/* I - Current line number */
 {
-  uchar	name[1024],		/* Name of variable */
-	value[10240],		/* Value of variable */
-	*ptr;			/* Temporary pointer */
-  int	ch;			/* Character from file */
+  uchar	name[1024],			// Name of variable
+	value[10240],			// Value of variable
+	*ptr,				// Temporary pointer
+	entity[16],			// Character entity name
+	*eptr;				// Pointer into name
+  int	ch;				// Character from file
 
 
   ptr = name;
   while ((ch = getc(fp)) != EOF)
     if (isspace(ch) || ch == '=' || ch == '>' || ch == '\r')
+      break;
+    else if (ch == '/' && ptr == name)
       break;
     else if (ptr < (name + sizeof(name) - 1))
       *ptr++ = ch;
@@ -2527,26 +2641,126 @@ parse_variable(hdTree *t,	/* I - Current tree entry */
         if (ch == '\'')
         {
           while ((ch = getc(fp)) != EOF)
+	  {
             if (ch == '\'')
               break;
+	    else if (ch == '&')
+	    {
+	      // Possibly a character entity...
+	      eptr = entity;
+	      while (eptr < (entity + sizeof(entity) - 1) &&
+	             (ch = getc(fp)) != EOF)
+	        if (!isalnum(ch) && ch != '#')
+		  break;
+		else
+		  *eptr++ = ch;
+
+              if (ch != ';')
+	      {
+	        ungetc(ch, fp);
+		ch = 0;
+	      }
+
+              *eptr = '\0';
+              if (!ch)
+	      {
+//		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+//	                       *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+	      }
+	      else if ((ch = iso8859(entity)) == 0)
+	      {
+//		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+//	                       entity, *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = ';';
+	      }
+	      else if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ch;
+	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
               *ptr++ = ch;
 	    else if (ch == '\n')
+	    {
+	      if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ' ';
+
 	      (*linenum) ++;
+	    }
+	  }
 
           *ptr = '\0';
         }
         else if (ch == '\"')
         {
           while ((ch = getc(fp)) != EOF)
+	  {
             if (ch == '\"')
               break;
+	    else if (ch == '&')
+	    {
+	      // Possibly a character entity...
+	      eptr = entity;
+	      while (eptr < (entity + sizeof(entity) - 1) &&
+	             (ch = getc(fp)) != EOF)
+	        if (!isalnum(ch) && ch != '#')
+		  break;
+		else
+		  *eptr++ = ch;
+
+              if (ch != ';')
+	      {
+	        ungetc(ch, fp);
+		ch = 0;
+	      }
+
+              *eptr = '\0';
+              if (!ch)
+	      {
+//		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+//	                       *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+	      }
+	      else if ((ch = iso8859(entity)) == 0)
+	      {
+//		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+//	                       entity, *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = ';';
+	      }
+	      else if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ch;
+	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
               *ptr++ = ch;
 	    else if (ch == '\n')
+	    {
+	      if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ' ';
+
 	      (*linenum) ++;
+	    }
+	  }
 
           *ptr = '\0';
         }
@@ -2554,10 +2768,55 @@ parse_variable(hdTree *t,	/* I - Current tree entry */
         {
           *ptr++ = ch;
           while ((ch = getc(fp)) != EOF)
+	  {
             if (isspace(ch) || ch == '>' || ch == '\r')
               break;
+	    else if (ch == '&')
+	    {
+	      // Possibly a character entity...
+	      eptr = entity;
+	      while (eptr < (entity + sizeof(entity) - 1) &&
+	             (ch = getc(fp)) != EOF)
+	        if (!isalnum(ch) && ch != '#')
+		  break;
+		else
+		  *eptr++ = ch;
+
+              if (ch != ';')
+	      {
+	        ungetc(ch, fp);
+		ch = 0;
+	      }
+
+              *eptr = '\0';
+              if (!ch)
+	      {
+//		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+//	                       *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+	      }
+	      else if ((ch = iso8859(entity)) == 0)
+	      {
+//		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+//	                       entity, *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = ';';
+	      }
+	      else if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ch;
+	    }
             else if (ptr < (value + sizeof(value) - 1))
               *ptr++ = ch;
+	  }
 
 	  if (ch == '\n')
 	    (*linenum) ++;
@@ -2624,7 +2883,7 @@ compute_size(hdTree *t)		/* I - Tree entry */
       sprintf(number, "%d",
               atoi((char *)width_ptr) * img->height / img->width);
       if (strchr((char *)width_ptr, '%') != NULL)
-        strcat(number, "%");
+        strlcat(number, "%", sizeof(number));
       htmlSetVariable(t, (uchar *)"HEIGHT", (uchar *)number);
     }
     else if (height_ptr != NULL)
@@ -2635,7 +2894,7 @@ compute_size(hdTree *t)		/* I - Tree entry */
       sprintf(number, "%d",
               atoi((char *)height_ptr) * img->width / img->height);
       if (strchr((char *)height_ptr, '%') != NULL)
-        strcat(number, "%");
+        strlcat(number, "%", sizeof(number));
       htmlSetVariable(t, (uchar *)"WIDTH", (uchar *)number);
     }
     else
@@ -2810,7 +3069,7 @@ fix_filename(char *filename,		/* I - Original filename */
     return (NULL);
 
 //  if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
-//    return (file_find(Path, filename));
+//    return (hdBook::file_find(Path, filename));
 
   if (strncmp(filename, "./", 2) == 0 ||
       strncmp(filename, ".\\", 2) == 0)
@@ -2818,51 +3077,34 @@ fix_filename(char *filename,		/* I - Original filename */
 
   if (strncmp(base, "http://", 7) == 0 || strncmp(base, "https://", 8) == 0)
   {
-    strcpy(newfilename, base);
+    strlcpy(newfilename, base, sizeof(newfilename));
     base = strchr(newfilename, ':') + 3;
 
     if (filename[0] == '/')
     {
       if ((slash = strchr(base, '/')) != NULL)
-        strcpy(slash, filename);
+        strlcpy(slash, filename, sizeof(newfilename) - (slash - newfilename));
       else
-        strcat(newfilename, filename);
+        strlcat(newfilename, filename, sizeof(newfilename));
 
       return (newfilename);
     }
     else if ((slash = strchr(base, '/')) == NULL)
-      strcat(newfilename, "/");
+      strlcat(newfilename, "/", sizeof(newfilename));
   }
   else
   {
 //    if (filename[0] == '/' || filename[0] == '\\' || base == NULL ||
 //	base[0] == '\0' || (isalpha(filename[0]) && filename[1] == ':'))
-//      return (file_find(Path, filename)); /* No change needed for absolute path */
+//      return (hdBook::file_find(Path, filename)); /* No change needed for absolute path */
 
-    strcpy(newfilename, base);
+    strlcpy(newfilename, base, sizeof(newfilename));
     base = newfilename;
   }
-
-#ifdef MAC
-  //
-  // Convert UNIX/DOS/WINDOWS slashes to colons for MacOS...
-  //
-  // Question: WHY doesn't the Mac standard C library do this for
-  // you???
-  //
-
-  for (slash = strchr(newfilename, '/'); slash != NULL; slash = strchr(slash + 1, '/'))
-    *slash = ':';
-
-  for (slash = strchr(newfilename, '\\'); slash != NULL; slash = strchr(slash + 1, '\\'))
-    *slash = ':';
-#endif // MAC
 
 #if defined(WIN32) || defined(__EMX__)
   while (strncmp(filename, "../", 3) == 0 ||
          strncmp(filename, "..\\", 3) == 0)
-#elif defined(MAC)
-  while (strncmp(filename, "..:", 3) == 0)
 #else
   while (strncmp(filename, "../", 3) == 0)
 #endif // WIN32 || __EMX__
@@ -2887,17 +3129,13 @@ fix_filename(char *filename,		/* I - Original filename */
     }
   }
 
-#ifdef MAC
-  strcat(newfilename, ":");
-#else
   if (filename[0] != '/' && *base && base[strlen(base) - 1] != '/')
-    strcat(newfilename, "/");
-#endif // MAC
+    strlcat(newfilename, "/", sizeof(newfilename));
 
-  strcat(newfilename, filename);
+  strlcat(newfilename, filename, sizeof(newfilename));
 
   return (newfilename);
-//  return (file_find(Path, newfilename));
+//  return (hdBook::file_find(Path, newfilename));
 }
 
 
@@ -3076,5 +3314,5 @@ htmlFixLinks(hdTree *doc,		// I - Top node
 
 
 /*
- * End of "$Id: tree.cxx,v 1.29 2004/10/24 03:23:42 mike Exp $".
+ * End of "$Id: tree.cxx,v 1.30 2004/10/25 14:30:03 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.17 2004/10/22 05:43:14 mike Exp $"
+ * "$Id: html.h,v 1.18 2004/10/25 14:30:03 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -64,7 +64,8 @@ extern "C" {
 
 struct hdTree;
 
-extern hdTree	*htmlReadFile(hdTree *parent, FILE *fp, const char *base);
+extern hdTree	*htmlReadFile(hdTree *parent, FILE *fp, const char *base,
+		              hdStyleSheet *stylesheet);
 extern int	htmlWriteFile(hdTree *parent, FILE *fp);
 
 extern hdTree	*htmlAddTree(hdTree *parent, hdElement markup, uchar *data);
@@ -106,31 +107,31 @@ struct hdAttr
 
 struct hdTree
 {
-  hdTree	*parent,		/* Parent tree entry */
-		*child,			/* First child entry */
-		*last_child,		/* Last child entry */
-		*prev,			/* Previous entry on this level */
-		*next,			/* Next entry on this level */
-		*link;			/* Linked-to */
+  hdTree	*parent;		/* Parent tree entry */
+  hdTree	*child;			/* First child entry */
+  hdTree	*last_child;		/* Last child entry */
+  hdTree	*prev;			/* Previous entry on this level */
+  hdTree	*next;			/* Next entry on this level */
+  hdTree	*link;			/* Linked-to */
   hdElement	element;		/* Element */
   uchar		*data;			/* Text (HD_ELEMENT_NONE or HD_ELEMENT_COMMENT) */
   hdStyle	*css;			/* Stylesheet data */
-  unsigned	halignment:2,		/* Horizontal alignment */
-		valignment:3,		/* Vertical alignment */
-		typeface:4,		/* Typeface code */
-		style:2,		/* Style of text */
-		underline:1,		/* Text is underlined? */
-		strikethrough:1,	/* Text is struck-through? */
-		subscript:1,		/* Text is subscripted? */
-		superscript:1,		/* Text is superscripted? */
-		preformatted:2,		/* Preformatted text? */
-		indent:4;		/* Indentation level 0-15 */
-  uchar		red,			/* Color of this fragment */
-		green,
-		blue;
-  float		width,			/* Width of this fragment in points */
-		height,			/* Height of this fragment in points */
-		size;			/* Point size of text */
+  unsigned	halignment:2;		/* Horizontal alignment */
+  unsigned	valignment:3;		/* Vertical alignment */
+  unsigned	typeface:4;		/* Typeface code */
+  unsigned	style:2;		/* Style of text */
+  unsigned	underline:1;		/* Text is underlined? */
+  unsigned	strikethrough:1;	/* Text is struck-through? */
+  unsigned	subscript:1;		/* Text is subscripted? */
+  unsigned	superscript:1;		/* Text is superscripted? */
+  unsigned	preformatted:2;		/* Preformatted text? */
+  unsigned	indent:4;		/* Indentation level 0-15 */
+  uchar		red;			/* Color of this fragment */
+  uchar		green;
+  uchar		blue;
+  float		width;			/* Width of this fragment in points */
+  float		height;			/* Height of this fragment in points */
+  float		size;			/* Point size of text */
   int		nvars;			/* Number of variables... */
   hdAttr	*vars;			/* Variables... */
 
@@ -166,5 +167,5 @@ extern const char	*_htmlFonts[4][4];
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.17 2004/10/22 05:43:14 mike Exp $".
+ * End of "$Id: html.h,v 1.18 2004/10/25 14:30:03 mike Exp $".
  */

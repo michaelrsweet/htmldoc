@@ -1,5 +1,5 @@
 /*
- * "$Id: testhtml.cxx,v 1.8 2004/10/23 20:23:19 mike Exp $"
+ * "$Id: testhtml.cxx,v 1.9 2004/10/25 14:30:03 mike Exp $"
  *
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
@@ -142,7 +142,7 @@ main(int  argc,				// I - Number of command-line arguments
       else
         base[0] = '\0';
 
-      t = htmlReadFile(NULL, fp, base);
+      t = htmlReadFile(NULL, fp, base, NULL);
       fclose(fp);
 
       if (t != NULL)
@@ -170,5 +170,5 @@ main(int  argc,				// I - Number of command-line arguments
 
 
 /*
- * End of "$Id: testhtml.cxx,v 1.8 2004/10/23 20:23:19 mike Exp $".
+ * End of "$Id: testhtml.cxx,v 1.9 2004/10/25 14:30:03 mike Exp $".
  */
