@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.16 1999/11/12 19:21:20 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.17 1999/11/16 18:20:46 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -207,6 +207,7 @@ FileBrowser::item_draw(void *p,		// I - List item data
 		       int  h) const	// I - Height of item
 {
   FL_BLINE	*line;			// Pointer to line
+  Fl_Color	c;			// Text color
 
 
   // Draw the list item text...
@@ -215,11 +216,14 @@ FileBrowser::item_draw(void *p,		// I - List item data
   fl_font(textfont(), textsize());
 
   if (line->flags & SELECTED)
-    fl_color(contrast(textcolor(), selection_color()));
-  else if (active_r())
-    fl_color(textcolor());
+    c = contrast(textcolor(), selection_color());
   else
-    fl_color(inactive(textcolor()));
+    c = textcolor();
+
+  if (active_r())
+    fl_color(c);
+  else
+    fl_color(inactive(c));
 
   if (FileIcon::first() == NULL)
   {
@@ -365,15 +369,15 @@ FileBrowser::load(const char *directory)// I - Directory to load
 
     for (i = 0; i < num_files; i ++)
     {
-      if (strcmp(files[i]->d_name, ".") == 0 ||
-          strcmp(files[i]->d_name, "..") == 0)
-	continue;
+      if (strcmp(files[i]->d_name, ".") != 0 &&
+          strcmp(files[i]->d_name, "..") != 0)
+      {
+	sprintf(filename, "%s/%s", directory_, files[i]->d_name);
 
-      sprintf(filename, "%s/%s", directory_, files[i]->d_name);
-
-      if (filename_isdir(filename) ||
-          filename_match(files[i]->d_name, pattern_))
-        add(files[i]->d_name, FileIcon::find(filename));
+	if (filename_isdir(filename) ||
+            filename_match(files[i]->d_name, pattern_))
+          add(files[i]->d_name, FileIcon::find(filename));
+      }
 
       free(files[i]);
     }
@@ -404,5 +408,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.16 1999/11/12 19:21:20 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.17 1999/11/16 18:20:46 mike Exp $".
 //
