@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "fltk"=..\..\fltk\visualc\fltk.lib.dsp - Package Owner=<4>
+Project: "fltk"="..\..\fltk-1.1\visualc\fltk.lib.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "fluid"=..\..\fltk\visualc\fluid.dsp - Package Owner=<4>
+Project: "fltkimages"="..\..\fltk-1.1\visualc\fltkimages.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ghtmldoc"=.\ghtmldoc.dsp - Package Owner=<4>
+Project: "ghtmldoc"=".\ghtmldoc.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -35,23 +35,26 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name jpeg
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libpng
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name zlib
+    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name fltk
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name jpeg
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libpng
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name zlib
+    Project_Dep_Name fltkimages
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "htmldoc"=.\htmldoc.dsp - Package Owner=<4>
+Project: "htmldoc"=".\htmldoc.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -72,7 +75,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "jpeg"=.\jpeg.dsp - Package Owner=<4>
+Project: "jpeg"=".\jpeg.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -84,7 +87,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libpng"=.\libpng.dsp - Package Owner=<4>
+Project: "libpng"=".\libpng.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -96,7 +99,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "zlib"=.\zlib.dsp - Package Owner=<4>
+Project: "zlib"=".\zlib.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
