@@ -1,5 +1,5 @@
 //
-// "$Id: margin.h,v 1.10 2004/03/31 07:01:57 mike Exp $"
+// "$Id: margin.h,v 1.11 2004/10/18 03:11:41 mike Exp $"
 //
 // Margin class definitions for HTMLDOC, a HTML document processing
 // program.
@@ -155,6 +155,15 @@ class hdMargin
     void	clear(float y, int p);
 
    /**
+    * The <TT>end()</TT> method pops all margins and updates the
+    * vertical position and page.
+    *
+    * @param y float The vertical position on the page in points.
+    * @param p int The page number.
+    */
+    void	end(float &y, int &p);
+
+   /**
     * The <TT>level()</TT> method returns the current stack depth.
     *
     * @return The stack depth.
@@ -194,5 +203,5 @@ class hdMargin
 
 
 //
-// End of "$Id: margin.h,v 1.10 2004/03/31 07:01:57 mike Exp $".
+// End of "$Id: margin.h,v 1.11 2004/10/18 03:11:41 mike Exp $".
 //

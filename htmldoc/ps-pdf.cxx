@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.99 2004/04/11 19:38:58 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.100 2004/10/18 03:11:41 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5884,6 +5884,8 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 
           parse_doc(cells[row][col]->child, cell_margins,
                     x, &temp_y, &temp_page, NULL, &tempspace);
+
+          cell_margins->end(temp_y, temp_page);
 
           delete cell_margins;
         }
@@ -11792,5 +11794,5 @@ hdBook::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.99 2004/04/11 19:38:58 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.100 2004/10/18 03:11:41 mike Exp $".
  */
