@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.58 2000/03/18 16:08:57 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.59 2000/03/30 16:47:27 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3754,8 +3754,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       parse_paragraph(temprow, left, right, bottom, top, x, y, page);
       (*y) -= _htmlSpacings[SIZE_P];
     }
-    else if (temprow->markup == MARKUP_TR || temprow->markup == MARKUP_THEAD)
+    else if (temprow->markup == MARKUP_TR || temprow->markup == MARKUP_TBODY)
     {
+      // Descend into table body as needed...
+      if (temprow->markup == MARKUP_TBODY)
+        temprow = temprow->child;
+
       for (tempcol = temprow->child, col = 0;
            tempcol != NULL && col < MAX_COLUMNS;
            tempcol = tempcol->next)
@@ -4071,14 +4075,17 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   for (row = 0; row < num_rows; row ++)
   {
-    if ((var = htmlGetVariable(cells[row][0]->parent,
-                               (uchar *)"HEIGHT")) == NULL)
-      for (col = 0; col < num_cols; col ++)
-	if ((var = htmlGetVariable(cells[row][col],
-                                   (uchar *)"HEIGHT")) != NULL)
-	  break;
+    if (cells[row][0] != NULL)
+    {  
+      if ((var = htmlGetVariable(cells[row][0]->parent,
+                        	 (uchar *)"HEIGHT")) == NULL)
+	for (col = 0; col < num_cols; col ++)
+	  if ((var = htmlGetVariable(cells[row][col],
+                                     (uchar *)"HEIGHT")) != NULL)
+	    break;
+    }
 
-    if (var != NULL)
+    if (cells[row][0] != NULL && var != NULL)
     {
       // Row height specified; make sure it'll fit...
       if (var[strlen((char *)var) - 1] == '%')
@@ -6820,5 +6827,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.58 2000/03/18 16:08:57 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.59 2000/03/30 16:47:27 mike Exp $".
  */
