@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.24 2004/06/10 21:08:33 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.25 2004/06/13 22:11:18 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -84,11 +84,25 @@ EOF
 %system linux freebsd netbsd openbsd
 f 0444 root sys /etc/X11/applnk/Office/htmldoc.desktop desktop/htmldoc.desktop
 f 0444 root sys /usr/share/mimelnk/application/vnd.htmldoc-book.desktop desktop/vnd.htmldoc-book.desktop
-f 0444 root sys /usr/share/pixmaps/htmldoc.png desktop/htmldoc.png
+f 0444 root sys /usr/share/icons/hicolor/16x16/apps/htmldoc.png desktop/htmldoc-16.png
+f 0444 root sys /usr/share/icons/hicolor/24x24/apps/htmldoc.png desktop/htmldoc-24.png
+f 0444 root sys /usr/share/icons/hicolor/32x32/apps/htmldoc.png desktop/htmldoc-32.png
+f 0444 root sys /usr/share/icons/hicolor/48x48/apps/htmldoc.png desktop/htmldoc-48.png
+f 0444 root sys /usr/share/icons/hicolor/64x64/apps/htmldoc.png desktop/htmldoc-64.png
+f 0444 root sys /usr/share/icons/hicolor/96x96/apps/htmldoc.png desktop/htmldoc-96.png
+f 0444 root sys /usr/share/icons/hicolor/128x128/apps/htmldoc.png desktop/htmldoc-128.png
+
 %system irix
-# Nothing for IRIX yet
+f 0444 root sys /usr/lib/images/htmldoc.icon desktop/htmldoc.icon
+f 0444 root sys /usr/lib/filetype/install/esp.htmldoc.ftr desktop/htmldoc.ftr
+f 0444 root sys /usr/lib/filetype/install/iconlib/esp.htmldoc.fti desktop/htmldoc.fti
+l 0555 root sys /usr/lib/desktop/iconcatalog/C/Applications/HTMLDOC $bindir/htmldoc
+%postinstall <<EOF
+tag 0x00FE2000 $bindir/htmldoc
+/usr/lib/desktop/telldesktop restart
+EOF
 %system all
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.24 2004/06/10 21:08:33 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.25 2004/06/13 22:11:18 mike Exp $".
 #
