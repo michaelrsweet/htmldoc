@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.54 2000/03/13 20:52:44 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.55 2000/03/16 00:25:19 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5670,10 +5670,7 @@ write_image(FILE     *out,	/* I - Output file */
   if (ncolors > 0)
   {
     if (ncolors <= 2)
-    {
-      ncolors = 2; /* Adobe doesn't like 1 color images... */
       indbits = 1;
-    }
     else if (ncolors <= 4)
       indbits = 2;
     else if (ncolors <= 16)
@@ -5883,6 +5880,9 @@ write_image(FILE     *out,	/* I - Output file */
 
 	if (ncolors > 0)
 	{
+	  if (ncolors <= 2)
+	    ncolors = 2; /* Adobe doesn't like 1 color images... */
+
 	  flate_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
 	  for (i = 0; i < ncolors; i ++)
 	    flate_printf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
@@ -5961,6 +5961,9 @@ write_image(FILE     *out,	/* I - Output file */
 
           if (ncolors > 0)
           {
+	    if (ncolors <= 2)
+	      ncolors = 2; /* Adobe doesn't like 1 color images... */
+
 	    fprintf(out, "[/Indexed/DeviceRGB %d<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
 	      fprintf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
@@ -6464,6 +6467,18 @@ static void
 write_text(FILE     *out,	/* I - Output file */
            render_t *r)		/* I - Text entity */
 {
+  uchar	*ptr;			/* Pointer into text */
+
+
+  // Quick optimization - don't output spaces...
+  for (ptr = r->data.text.buffer; *ptr; ptr ++)
+    if (!isspace(*ptr) && *ptr != 0xa0)
+      break;
+
+  if (!*ptr)
+    return;
+
+  // Not just whitespace - send it out...
   set_color(out, r->data.text.rgb);
   set_font(out, r->data.text.typeface, r->data.text.style, r->data.text.size);
   set_pos(out, r->x, r->y);
@@ -6780,5 +6795,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.54 2000/03/13 20:52:44 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.55 2000/03/16 00:25:19 mike Exp $".
  */
