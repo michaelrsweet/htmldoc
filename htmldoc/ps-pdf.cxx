@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.129 2001/11/20 16:21:59 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.130 2001/11/20 18:07:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4516,6 +4516,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		regular_width,
 		actual_width,
 		table_width,
+		min_width,
+		temp_width,
 		row_y, temp_y,
 		temp_bottom,
 		temp_top;
@@ -4997,14 +4999,30 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     * as determined at the beginning...
     */
 
+    for (col = 0, min_width = -cellspacing; col < num_cols; col ++)
+      min_width += col_mins[col];
+
+    DEBUG_printf(("    table_width = %.1f, width = %.1f, min_width = %.1f\n",
+                  table_width, width, min_width));
+
+    temp_width = table_width - min_width;
+    if (temp_width < 0.0f)
+      temp_width = 0.0f;
+
+    width -= min_width;
+    if (width < 1.0f)
+      width = 1.0f;
+
     for (col = 0; col < num_cols; col ++)
     {
-      col_widths[col] = table_width * col_widths[col] / width;
+      col_widths[col] = col_mins[col] +
+                        temp_width * (col_widths[col] - col_mins[col]) / width;
 
       DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
     }
 
-    width = table_width;
+    for (col = 0, width = 0.0f; col < num_cols; col ++)
+      width += col_widths[col];
   }
 
   DEBUG_puts("");
@@ -7399,6 +7417,7 @@ get_table_size(tree_t *t,		// I - Table
 		row_pref,		// Row preferred width
 		row_min,		// Row minimum width
 		row_height,		// Row minimum height
+		border,			// Border around cells
 		cellpadding,		// Padding inside cells
 		cellspacing;		// Spacing around cells
   int		columns,		// Current number of columns
@@ -7516,6 +7535,33 @@ get_table_size(tree_t *t,		// I - Table
     cellspacing = atoi((char *)var);
   else
     cellspacing = 0.0f;
+
+  if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
+  {
+    if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
+      border = 1.0f;
+
+    cellpadding += border;
+  }
+  else
+    border = 0.0f;
+
+  if (border == 0.0f && cellpadding > 0.0f)
+  {
+   /*
+    * Ah, the strange table formatting nightmare that is HTML.
+    * Netscape and MSIE assign an invisible border width of 1
+    * pixel if no border is specified...
+    */
+
+    cellpadding += 1.0f;
+  }
+
+  cellspacing *= PagePrintWidth / _htmlBrowserWidth;
+  cellpadding *= PagePrintWidth / _htmlBrowserWidth;
+
+  DEBUG_printf(("ADDING %.1f for table space...\n",
+                max_columns * (2 * cellpadding + cellspacing) - cellspacing));
 
   if (width > 0.0f)
     width += max_columns * (2 * cellpadding + cellspacing) - cellspacing;
@@ -10457,5 +10503,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.129 2001/11/20 16:21:59 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.130 2001/11/20 18:07:09 mike Exp $".
  */

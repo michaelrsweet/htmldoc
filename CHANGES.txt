@@ -1,4 +1,4 @@
-CHANGES.txt - 11/16/2001
+CHANGES.txt - 11/20/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.17
@@ -28,6 +28,10 @@ CHANGES IN HTMLDOC v1.8.17
 	  bookmarks would be missing the last chapter heading.
 	- Table cells that ended with a break would render
 	  incorrectly.
+	- Fixed the table pre-format sizing code to properly
+	  account for borders, padding, etc.
+	- Fixed the table squeezing code to honor minimum widths
+	  and properly resize the remaining space.
 
 
 CHANGES IN HTMLDOC v1.8.16
