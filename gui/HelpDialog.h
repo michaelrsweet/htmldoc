@@ -35,13 +35,19 @@ private:
   inline void cb_larger__i(Fl_Button*, void*);
   static void cb_larger_(Fl_Button*, void*);
 public:
+  int h();
   void hide();
   void load(const char *f);
+  void position(int xx, int yy);
+  void resize(int xx, int yy, int ww, int hh);
   void show();
   void textsize(uchar s);
   uchar textsize();
   void topline(const char *n);
   void topline(int n);
   int visible();
+  int w();
+  int x();
+  int y();
 };
 #endif

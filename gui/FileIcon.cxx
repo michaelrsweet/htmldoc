@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.18 2000/01/04 13:45:51 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.19 2000/01/22 15:21:07 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -52,6 +52,8 @@
 #if defined(WIN32) || defined(__EMX__)
 #  include <io.h>
 #  define F_OK	0
+#  define strcasecmp stricmp
+#  define strncasecmp strnicmp
 #else
 #  include <unistd.h>
 #endif /* WIN32 || __EMX__ */
@@ -829,11 +831,11 @@ FileIcon::load_xpm(const char *xpm)	// I - File to read from
     else
     {
       // Read a color name...
-      if (strncmp(ptr + 2, "white", 5) == 0)
+      if (strncasecmp(ptr + 2, "white", 5) == 0)
         colors[ch] = FL_WHITE;
-      else if (strncmp(ptr + 2, "black", 5) == 0)
+      else if (strncasecmp(ptr + 2, "black", 5) == 0)
         colors[ch] = FL_BLACK;
-      else if (strncmp(ptr + 2, "none", 4) == 0)
+      else if (strncasecmp(ptr + 2, "none", 4) == 0)
       {
         colors[ch] = FL_BLACK;
 	bg = ch;
@@ -1102,10 +1104,9 @@ load_kde_icons(const char *directory)	// I - Directory to load
       else
 	load_kde_mimelnk(full);				
     }
-  }
 
-  for (i = 0; i < n; i ++)
     free((void *)entries[i]);
+  }
 
   free((void*)entries);
 }
@@ -1128,7 +1129,7 @@ load_kde_mimelnk(const char *filename)
   FileIcon	*icon;
 
 
-  if ((fp = fopen(filename, "r")) == NULL)
+  if ((fp = fopen(filename, "r")) != NULL)
   {
     while (fgets(tmp, sizeof(tmp), fp))
     {
@@ -1212,5 +1213,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.18 2000/01/04 13:45:51 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.19 2000/01/22 15:21:07 mike Exp $".
 //

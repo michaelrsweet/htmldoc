@@ -41,13 +41,14 @@ class HelpDialog {open
     back_->deactivate();
 
   forward_->deactivate();
+  window_->label(view_->title());
 }
 else if (view_->filename())
 {
   strncpy(file_[index_], view_->filename(), 255);
   file_[index_][255] = '\\0';
   line_[index_] = view_->topline();
-}}
+}} open
         private xywh {10 10 510 330} box DOWN_BOX resizable
         code0 {\#include "HelpView.h"}
         class HelpView
@@ -96,7 +97,7 @@ view_->topline(line_[index_]);}
 
 if (view_->textsize() <= 8)
   smaller_->deactivate();
-larger_->activate();} selected
+larger_->activate();}
         private xywh {345 350 25 25} labelfont 1 labelsize 10
       }
       Fl_Button larger_ {
@@ -116,14 +117,27 @@ forward_->deactivate();
 index_ = -1;
 max_  = 0;} {}
   }
+  Function {h()} {selected return_type int
+  } {
+    code {return (window_->h());} {}
+  }
   Function {hide()} {return_type void
   } {
     code {window_->hide();} {}
   }
-  Function {load(const char *f)} {open return_type void
+  Function {load(const char *f)} {return_type void
   } {
-    code {view_->load(f);
+    code {view_->set_changed();
+view_->load(f);
 window_->label(view_->title());} {}
+  }
+  Function {position(int xx, int yy)} {return_type void
+  } {
+    code {window_->position(xx, yy);} {}
+  }
+  Function {resize(int xx, int yy, int ww, int hh)} {return_type void
+  } {
+    code {window_->resize(xx, yy, ww, hh);} {}
   }
   Function {show()} {return_type void
   } {
@@ -158,5 +172,17 @@ else
   Function {visible()} {return_type int
   } {
     code {return (window_->visible());} {}
+  }
+  Function {w()} {return_type int
+  } {
+    code {return (window_->w());} {}
+  }
+  Function {x()} {return_type int
+  } {
+    code {return (window_->x());} {}
+  }
+  Function {y()} {return_type int
+  } {
+    code {return (window_->y());} {}
   }
 } 

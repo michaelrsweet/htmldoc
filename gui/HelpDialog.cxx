@@ -25,6 +25,7 @@ inline void HelpDialog::cb_view__i(HelpView*, void*) {
     back_->deactivate();
 
   forward_->deactivate();
+  window_->label(view_->title());
 }
 else if (view_->filename())
 {
@@ -149,13 +150,26 @@ index_ = -1;
 max_  = 0;
 }
 
+int HelpDialog::h() {
+  return (window_->h());
+}
+
 void HelpDialog::hide() {
   window_->hide();
 }
 
 void HelpDialog::load(const char *f) {
-  view_->load(f);
+  view_->set_changed();
+view_->load(f);
 window_->label(view_->title());
+}
+
+void HelpDialog::position(int xx, int yy) {
+  window_->position(xx, yy);
+}
+
+void HelpDialog::resize(int xx, int yy, int ww, int hh) {
+  window_->resize(xx, yy, ww, hh);
 }
 
 void HelpDialog::show() {
@@ -190,4 +204,16 @@ void HelpDialog::topline(int n) {
 
 int HelpDialog::visible() {
   return (window_->visible());
+}
+
+int HelpDialog::w() {
+  return (window_->w());
+}
+
+int HelpDialog::x() {
+  return (window_->x());
+}
+
+int HelpDialog::y() {
+  return (window_->y());
 }
