@@ -361,14 +361,26 @@ portability across platforms and for older PostScript printers:</P>
 
 <H2><A NAME="HEADING">Headings</A></H2>
 
-Currently <I>HTMLDOC</I> supports a maximum of 10000 headings and 100
-chapters. These limits can be increased by changing the constants in the
-<VAR>config.h</VAR> file included with the source code.
+<P>Currently <I>HTMLDOC</I> supports a maximum of 1000 chapters
+(H1 headings). This limit can be increased by changing the
+<CODE>MAX_CHAPTERS</CODE> constant in the <VAR>config.h</VAR>
+file included with the source code.
 
 <P>All chapters start with a top-level heading (H1) markup. Any
-headings within a chapter must be of a lower level (H2 to H6). Each
+headings within a chapter must be of a lower level (H2 to H15). Each
 chapter starts a new page or the next odd-numbered page if duplexing is
 selected.
+
+<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" BGCOLOR="#cccccc">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>Heading levels 7 to 15 are not standard HTML and will
+	not likely be recognized by most web browsers.
+
+	</TD>
+</TR>
+</TABLE></CENTER>
 
 <P>The headings you use within a chapter must start at level 2 (H2). If
 you skip levels the heading will be shown under the last level that was
