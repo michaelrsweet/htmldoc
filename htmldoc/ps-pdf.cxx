@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.38 2001/03/09 16:14:12 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.39 2001/03/09 21:47:41 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3792,11 +3792,11 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
-//#undef DEBUG_puts
-//#define DEBUG_puts(x) puts(x)
-//#define DEBUG
-//#undef DEBUG_printf
-//#define DEBUG_printf(x) printf x
+#undef DEBUG_puts
+#define DEBUG_puts(x) puts(x)
+#define DEBUG
+#undef DEBUG_printf
+#define DEBUG_printf(x) printf x
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
  */
@@ -3972,14 +3972,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       }
 
       // Figure out the starting column...
-      width = table_width;
       if (num_rows)
       {
 	for (col = 0; row_spans[col] && col < num_cols; col ++)
-	{
           cells[num_rows][col] = cells[num_rows - 1][col];
-	  width -= col_mins[col];
-	}
       }
       else
         col = 0;
@@ -3999,7 +3995,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
             row_spans[col] = atoi((char *)var);
 
           // Compute the cell size...
-          col_width = get_cell_size(tempcol, 0.0f, width, &col_min,
+          col_width = get_cell_size(tempcol, 0.0f, table_width, &col_min,
 	                            &col_pref, &col_height);
           if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL &&
 	      colspan == 1)
@@ -4013,7 +4009,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           tempcol->height = col_height;
 
 	  DEBUG_printf(("%d,%d: colsp=%d, rowsp=%d, width=%.1f, minw=%.1f, prefw=%.1f, minh=%.1f\n",
-	                col, row, colspan, row_spans[col], col_width,
+	                col, num_rows, colspan, row_spans[col], col_width,
 			col_min, col_pref, col_height));
 
           // Add widths to columns...
@@ -4042,7 +4038,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
 	  while (colspan > 0 && col < MAX_COLUMNS)
 	  {
-            width -= col_mins[col];
             cells[num_rows][col] = tempcol;
             col ++;
             colspan --;
@@ -4158,8 +4153,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       if (col_widths[col] == 0.0f)
       {
 	pref_width = col_prefs[col] * regular_width;
-	if (pref_width < col_mins[col] &&
-	    (actual_width + col_mins[col]) <= width)
+	if (pref_width < col_mins[col])
           pref_width = col_mins[col];
 
 	if ((actual_width + pref_width) > width)
@@ -4256,7 +4250,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     for (col = 0; col < num_cols; col ++)
     {
+      width -= col_widths[col];
+
       col_widths[col] = table_width * col_widths[col] / width;
+      if (col_widths[col] < col_mins[col])
+        col_widths[col] = col_mins[col];
+
+      width += col_widths[col];
+
       DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
     }
 
@@ -4714,11 +4715,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     free(cells);
   }
 }
-//#undef DEBUG
-//#undef DEBUG_puts
-//#define DEBUG_puts(x)
-//#undef DEBUG_printf
-//#define DEBUG_printf(x)
+#undef DEBUG
+#undef DEBUG_puts
+#define DEBUG_puts(x)
+#undef DEBUG_printf
+#define DEBUG_printf(x)
 
 
 /*
@@ -5398,8 +5399,9 @@ copy_tree(tree_t *parent,	/* I - Source tree */
 }
 
 
-//#undef DEBUG_printf
-//#define DEBUG_printf(x) printf x
+#undef DEBUG_printf
+#define DEBUG_printf(x) printf x
+
 //
 // 'get_cell_size()' - Compute the minimum width of a cell.
 //
@@ -5415,6 +5417,7 @@ get_cell_size(tree_t *t,		// I - Cell
   tree_t	*temp,			// Current tree entry
 		*next;			// Next tree entry
   uchar		*var;			// Attribute value
+  int		nowrap;			// NOWRAP attribute?
   float		width,			// Width of cell
 		frag_width,		// Fragment required width
 		frag_height,		// Fragment height
@@ -5437,16 +5440,12 @@ get_cell_size(tree_t *t,		// I - Cell
       width = (right - left) * atoi((char *)var) * 0.01f;
     else
       width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
-
-    minw  = width;
-    prefw = width;
   }
   else
-  {
     width = 0.0f;
-    minw  = 0.0f;
-    prefw = 0.0f;
-  }
+
+  minw  = 0.0f;
+  prefw = 0.0f;
 
   // Then the height...
   if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
@@ -5460,133 +5459,123 @@ get_cell_size(tree_t *t,		// I - Cell
   else
     minh = 0.0f;
 
-  // See if we need to figure anything out by hand...
-  if (minw <= 0.0f || minh <= 0.0f)
+  nowrap = (htmlGetVariable(t, (uchar *)"NOWRAP") != NULL);
+
+  for (temp = t->child, frag_width = 0.0f, frag_pref = 0.0f;
+       temp != NULL;
+       temp = next)
   {
-    // Yes, figure it out by hand...
-    for (temp = t->child, frag_width = 0.0f, frag_pref = 0.0f;
-         temp != NULL;
-	 temp = next)
+    // Point to next markup, if any...
+    next = temp->child;
+
+    switch (temp->markup)
     {
-      // Point to next markup, if any...
-      next = temp->child;
+      case MARKUP_TABLE :
+          // For nested tables, compute the width of the table.
+          frag_width = get_table_size(temp, left, right, &frag_min,
+	                              &frag_pref, &frag_height);
 
-      // For nested tables, compute the width of the table.
-      if (temp->markup == MARKUP_TABLE)
-      {
-        frag_width = get_table_size(temp, left, right, &frag_min, &frag_pref,
-	                            &frag_height);
+	  if (frag_pref > prefw)
+	    prefw = frag_pref;
 
-	if (frag_width > width)
-	  width = frag_width;
+	  if (frag_min > minw)
+	    minw = frag_min;
 
-	if (frag_pref > prefw)
-	  prefw = frag_pref;
+	  frag_width = 0.0f;
+	  frag_pref  = 0.0f;
+	  frag_min   = 0.0f;
+	  next       = NULL;
+	  break;
 
-	if (frag_min > minw)
-	  minw = frag_min;
+      case MARKUP_IMG :
+          // Update the image width as needed...
+	  if (temp->markup == MARKUP_IMG)
+	    update_image_size(temp);
+      case MARKUP_NONE :
+      case MARKUP_SPACER :
+          frag_height = temp->height;
 
-	frag_width = 0.0f;
-	frag_pref  = 0.0f;
-	frag_min   = 0.0f;
-	next       = NULL;
-      }
-      else
-      {
-        // Update the image width as needed...
-	if (temp->markup == MARKUP_IMG)
-	  update_image_size(temp);
+          // Handle min/preferred widths separately...
+          if (temp->width > minw)
+	    minw = temp->width;
 
-        frag_height = temp->height;
+          if (temp->preformatted && temp->data != NULL &&
+              temp->data[strlen((char *)temp->data) - 1] == '\n')
+          {
+	    // End of a line - check preferred width...
+	    frag_pref += temp->width + 1;
 
-        // Handle min/preferred widths separately...
-        if (temp->width > minw)
-	  minw = temp->width;
+            if (frag_pref > prefw)
+              prefw = frag_pref;
 
-        if (temp->markup == MARKUP_BR ||
-            (temp->preformatted &&
-             temp->data != NULL &&
-             temp->data[strlen((char *)temp->data) - 1] == '\n'))
-        {
-	  // End of a line - check preferred width...
-	  frag_pref += temp->width + 1;
+            if (temp->preformatted && frag_pref > minw)
+              minw = frag_pref;
 
-          if (frag_pref > prefw)
-            prefw = frag_pref;
+	    frag_pref = 0.0f;
+          }
+          else if (temp->data != NULL)
+	    frag_pref += temp->width + 1;
+	  else
+	    frag_pref += temp->width;
 
-          if (temp->preformatted && frag_pref > width)
-            width = frag_pref;
+          if ((temp->preformatted && temp->data != NULL &&
+               temp->data[strlen((char *)temp->data) - 1] == '\n') ||
+	      (!temp->preformatted && temp->data != NULL &&
+	       (isspace(temp->data[0]) ||
+		isspace(temp->data[strlen((char *)temp->data) - 1]))))
+	  {
+	    // Check required width...
+            frag_width += temp->width + 1;
 
-	  frag_pref = 0.0f;
-        }
-        else if (temp->data != NULL)
-	  frag_pref += temp->width + 1;
-	else
-	  frag_pref += temp->width;
+            if (frag_width > minw)
+              minw = frag_width;
 
-        if (temp->markup == MARKUP_BR ||
-            (temp->preformatted &&
-             temp->data != NULL &&
-             temp->data[strlen((char *)temp->data) - 1] == '\n') ||
-	    (!temp->preformatted &&
-	     temp->data != NULL &&
-	     (isspace(temp->data[0]) ||
-	      isspace(temp->data[strlen((char *)temp->data) - 1]))))
-	{
-	  // Check required width...
-          frag_width += temp->width + 1;
+            frag_width = 0.0f;
+	  }
+	  else if (temp->data != NULL)
+            frag_width += temp->width + 1;
+	  else
+	    frag_width += temp->width;
+	  break;
 
-          if (frag_width > minw)
-            minw = frag_width;
+      default :
+	  if (nowrap && frag_pref > prefw)
+	    prefw = frag_pref;
 
-          if (temp->preformatted && frag_width > width)
-            width = frag_width;
-
-          frag_width = 0.0f;
-	}
-	else if (temp->data != NULL)
-          frag_width += temp->width + 1;
-	else
-	  frag_width += temp->width;
-      }
-
-      // Update minimum height...
-      if (frag_height > minh)
-	minh = frag_height;
-
-      // Update next pointer as needed...
-      if (next == NULL)
-        next = temp->next;
-
-      if (next == NULL)
-      {
-        // This code is almost funny if you say it fast... :)
-        for (next = temp->parent; next != NULL && next != t; next = next->parent)
-	  if (next->next != NULL)
-	    break;
-
-        if (next == t)
-	  next = NULL;
-	else if (next)
-	  next = next->next;
-      }
+          frag_pref   = 0.0f;
+          frag_height = 0.0f;
+	  break;
     }
 
-    // Check the last fragment's width...
-    if (frag_width > minw)
-      minw = frag_width;
+    // Update minimum height...
+    if (frag_height > minh)
+      minh = frag_height;
 
-    if (minw > width)
-      width = minw;
+    // Update next pointer as needed...
+    if (next == NULL)
+      next = temp->next;
 
-    if (frag_pref > prefw)
-      prefw = frag_pref;
+    if (next == NULL)
+    {
+      // This code is almost funny if you say it fast... :)
+      for (next = temp->parent; next != NULL && next != t; next = next->parent)
+	if (next->next != NULL)
+	  break;
 
-    // Handle the "NOWRAP" option...
-    if (htmlGetVariable(t, (uchar *)"NOWRAP") != NULL &&
-        prefw > width)
-      width = prefw;
+      if (next == t)
+	next = NULL;
+      else if (next)
+	next = next->next;
+    }
   }
+
+  // Check the last fragment's width...
+  if (frag_pref > prefw)
+    prefw = frag_pref;
+
+  // Handle the "NOWRAP" option...
+  if (nowrap && prefw > minw)
+    minw = prefw;
 
   // Return the required, minimum, and preferred size of the cell...
   *minwidth  = minw;
@@ -5647,16 +5636,12 @@ get_table_size(tree_t *t,		// I - Table
       width = (right - left) * atoi((char *)var) * 0.01f;
     else
       width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
-
-    minw  = width;
-    prefw = width;
   }
   else
-  {
     width = 0.0f;
-    minw  = 0.0f;
-    prefw = 0.0f;
-  }
+
+  minw  = 0.0f;
+  prefw = 0.0f;
 
   // Then the height...
   if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
@@ -5671,80 +5656,73 @@ get_table_size(tree_t *t,		// I - Table
     minh = 0.0f;
 
   // Update the size as needed...
-  if (minw <= 0.0f || minh <= 0.0f)
+  for (temp = t->child, row_width = 0.0f, row_min = 0.0f, row_pref = 0.0f,
+	   row_height = 0.0f, columns = 0, rows = 0, max_columns = 0;
+       temp != NULL;
+       temp = next)
   {
-    // No, figure it out by hand...
-    for (temp = t->child, row_width = 0.0f, row_min = 0.0f, row_pref = 0.0f,
-	     row_height = 0.0f, columns = 0, rows = 0, max_columns = 0;
-         temp != NULL;
-	 temp = next)
+    // Point to next markup, if any...
+    next = temp->child;
+
+    // Start a new row or add the cell width as needed...
+    if (temp->markup == MARKUP_TR)
     {
-      // Point to next markup, if any...
-      next = temp->child;
+      minh += row_height;
 
-      // Start a new row or add the cell width as needed...
-      if (temp->markup == MARKUP_TR)
-      {
-        minh += row_height;
+      row_width  = 0.0f;
+      row_pref   = 0.0f;
+      row_min    = 0.0f;
+      row_height = 0.0f;
+      rows ++;
+      columns = 0;
+    }
+    else if (temp->markup == MARKUP_TD || temp->markup == MARKUP_TH)
+    {
+      // Update columns...
+      columns ++;
+      if (columns > max_columns)
+	max_columns = columns;
 
-        row_width  = 0.0f;
-	row_pref   = 0.0f;
-	row_min    = 0.0f;
-	row_height = 0.0f;
-	columns    = 0;
-	rows ++;
-      }
-      else if (temp->markup == MARKUP_TD || temp->markup == MARKUP_TH)
-      {
-        // Update number of columns...
-	columns ++;
-	if (columns > max_columns)
-	  max_columns = columns;
+      // Get widths of cell...
+      cell_width = get_cell_size(temp, left, right, &cell_min, &cell_pref,
+                                 &cell_height);
 
-        // Get widths of cell...
-        cell_width = get_cell_size(temp, 0.0f, right - left - row_pref,
-	                           &cell_min, &cell_pref, &cell_height);
+      // Update row widths...
+      row_width += cell_width;
+      row_pref  += cell_pref;
+      row_min   += cell_min;
 
-        // Update row widths...
-        row_width += cell_width;
-	row_pref  += cell_pref;
-	row_min   += cell_min;
+      if (cell_height > row_height)
+	row_height = cell_height;
 
-        if (cell_height > row_height)
-	  row_height = cell_height;
+      // Check current row widths against table...
+      if (row_pref > prefw)
+	prefw = row_pref;
 
-	// Check current row widths against table...
-	if (row_width > width)
-	  width = row_width;
-
-	if (row_pref > prefw)
-	  prefw = row_pref;
-
-	if (row_min > minw)
-	  minw = row_min;
-      }
-
-      // Update next pointer as needed...
-      if (next == NULL)
-        next = temp->next;
-
-      if (next == NULL)
-      {
-        // This code is almost funny if you say it fast... :)
-        for (next = temp->parent; next != NULL && next != t; next = next->parent)
-	  if (next->next != NULL)
-	    break;
-
-        if (next == t)
-	  next = NULL;
-	else if (next)
-	  next = next->next;
-      }
+      if (row_min > minw)
+	minw = row_min;
     }
 
-    // Make sure last row is counted in min height calcs.
-    minh += row_height;
+    // Update next pointer as needed...
+    if (next == NULL)
+      next = temp->next;
+
+    if (next == NULL)
+    {
+      // This code is almost funny if you say it fast... :)
+      for (next = temp->parent; next != NULL && next != t; next = next->parent)
+	if (next->next != NULL)
+	  break;
+
+      if (next == t)
+	next = NULL;
+      else if (next)
+	next = next->next;
+    }
   }
+
+  // Make sure last row is counted in min height calcs.
+  minh += row_height;
 
   // Add room for spacing, padding, and borders...
   if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
@@ -5765,7 +5743,9 @@ get_table_size(tree_t *t,		// I - Table
   else
     border = 0.0f;
 
-  width += max_columns * (2 * (border + cellpadding) + cellspacing);
+  if (width > 0.0f)
+    width += max_columns * (2 * (border + cellpadding) + cellspacing);
+
   minw  += max_columns * (2 * (border + cellpadding) + cellspacing);
   prefw += max_columns * (2 * (border + cellpadding) + cellspacing);
   minh  += rows * (2 * (border + cellpadding) + cellspacing);
@@ -5780,8 +5760,8 @@ get_table_size(tree_t *t,		// I - Table
 
   return (width);
 }
-//#undef DEBUG_printf
-//#define DEBUG_printf(x)
+#undef DEBUG_printf
+#define DEBUG_printf(x)
 
 
 /*
@@ -8277,5 +8257,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.38 2001/03/09 16:14:12 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.39 2001/03/09 21:47:41 mike Exp $".
  */
