@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.24 2000/06/14 14:20:48 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.25 2000/06/21 22:33:23 mike Exp $"
 //
 //   More FileChooser routines.
 //
@@ -57,6 +57,7 @@
 #  include <io.h>
 #else
 #  include <unistd.h>
+#  include <pwd.h>
 #endif /* WIN32 */
 
 
@@ -474,8 +475,40 @@ FileChooser::fileNameCB()
     pathname[sizeof(pathname) - 1] = '\0';
   }
 #else
-  if (directory_[0] != '\0' &&
-      filename[0] != '/')
+  if (filename[0] == '~')
+  {
+    // Lookup user...
+    struct passwd	*pwd;
+
+    if (!filename[1] || filename[1] == '/')
+      pwd = getpwuid(getuid());
+    else
+    {
+      strncpy(pathname, filename + 1, sizeof(pathname) - 1);
+      pathname[sizeof(pathname) - 1] = '\0';
+
+      i = strlen(pathname) - 1;
+      if (pathname[i] == '/')
+        pathname[i] = '\0';
+
+      pwd = getpwnam(pathname);
+    }
+
+    if (pwd)
+    {
+      strncpy(pathname, pwd->pw_dir, sizeof(pathname) - 1);
+      pathname[sizeof(pathname) - 1] = '\0';
+
+      if (filename[strlen(filename) - 1] == '/')
+        strncat(pathname, "/", sizeof(pathname) - 1);
+    }
+    else
+      sprintf(pathname, "%s/%s", directory_, filename);
+
+    endpwent();
+  }
+  else if (directory_[0] != '\0' &&
+           filename[0] != '/')
     sprintf(pathname, "%s/%s", directory_, filename);
   else
   {
@@ -633,5 +666,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.24 2000/06/14 14:20:48 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.25 2000/06/21 22:33:23 mike Exp $".
 //
