@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.244 2004/05/03 01:23:22 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.245 2004/05/04 20:00:46 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6124,14 +6124,13 @@ parse_table(tree_t *t,			// I - Tree to parse
       * Get height...
       */
 
-      if ((height_var = htmlGetVariable(t, (uchar *)"HEIGHT")) == NULL)
-	if ((height_var = htmlGetVariable(cells[row][0]->parent,
-                           	          (uchar *)"HEIGHT")) == NULL)
-	  for (col = 0; col < num_cols; col ++)
-	    if (htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") == NULL)
-	      if ((height_var = htmlGetVariable(cells[row][col],
-                                                (uchar *)"HEIGHT")) != NULL)
-	        break;
+      if ((height_var = htmlGetVariable(cells[row][0]->parent,
+                           	        (uchar *)"HEIGHT")) == NULL)
+	for (col = 0; col < num_cols; col ++)
+	  if (htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") == NULL)
+	    if ((height_var = htmlGetVariable(cells[row][col],
+                                              (uchar *)"HEIGHT")) != NULL)
+	      break;
     }
 
     if (cells[row][0] != NULL && height_var != NULL)
@@ -6146,6 +6145,19 @@ parse_table(tree_t *t,			// I - Tree to parse
       if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
         temp_height /= num_rows;
 
+      temp_height -= 2 * cellpadding;
+    }
+    else if (cells[row][0] != NULL &&
+             (height_var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
+    {
+      // Table height specified; make sure it'll fit...
+      if (height_var[strlen((char *)height_var) - 1] == '%')
+	temp_height = atof((char *)height_var) * 0.01f *
+	              (PagePrintLength - 2 * cellpadding);
+      else
+        temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
+
+      temp_height /= num_rows;
       temp_height -= 2 * cellpadding;
     }
     else
@@ -6373,6 +6385,8 @@ parse_table(tree_t *t,			// I - Tree to parse
 
         if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
           temp_height /= num_rows;
+
+        temp_height -= 2 * cellpadding;
 
         if (temp_height > row_height)
 	{
@@ -12271,5 +12285,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.244 2004/05/03 01:23:22 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.245 2004/05/04 20:00:46 mike Exp $".
  */
