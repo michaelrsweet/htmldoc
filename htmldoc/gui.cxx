@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.2 1999/11/07 23:57:09 mike Exp $"
+// "$Id: gui.cxx,v 1.1 1999/11/08 18:35:16 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -2173,5 +2173,5 @@ closeBookCB(Fl_Widget *w,	// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.2 1999/11/07 23:57:09 mike Exp $".
+// End of "$Id: gui.cxx,v 1.1 1999/11/08 18:35:16 mike Exp $".
 //

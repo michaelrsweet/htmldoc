@@ -1,5 +1,5 @@
 /*
- * "$Id: string.h,v 1.1 1999/11/08 17:12:42 mike Exp $"
+ * "$Id: string.h,v 1.2 1999/11/08 18:35:19 mike Exp $"
  *
  *   HTML string definitions for HTMLDOC, a HTML document processing program.
  *
@@ -41,26 +41,24 @@ extern "C" {
  * Standard string functions that might not be available...
  */
 
-#ifndef HAVE_STRDUP
+#  ifndef HAVE_STRDUP
 extern char	*strdup(const char *s);
-#endif /* !HAVE_STRDUP */
+#  endif /* !HAVE_STRDUP */
 
-#ifndef HAVE_STRCASECMP
+#  ifndef HAVE_STRCASECMP
 extern int	strcasecmp(const char *s, const char *t);
-#endif /* !HAVE_STRCASECMP */
+#  endif /* !HAVE_STRCASECMP */
 
-#ifndef HAVE_STRNCASECMP
+#  ifndef HAVE_STRNCASECMP
 extern int	strncasecmp(const char *s, const char *t, size_t n);
-#endif /* !HAVE_STRNCASECMP */
-
-#endif /* !_STRING_H_ */
+#  endif /* !HAVE_STRNCASECMP */
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* _STRING_H_ */
+#endif /* !_STRING_H_ */
 
 /*
- * End of "$Id: string.h,v 1.1 1999/11/08 17:12:42 mike Exp $".
+ * End of "$Id: string.h,v 1.2 1999/11/08 18:35:19 mike Exp $".
  */

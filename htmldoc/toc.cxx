@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.c,v 1.1 1999/11/08 17:12:42 mike Exp $"
+ * "$Id: toc.cxx,v 1.1 1999/11/08 18:35:19 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -243,7 +243,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
 	    existing = htmlGetVariable(t->child, (uchar *)"NAME");
 
           if (existing != NULL &&
-	      strlen((char *)existing) >= 124)	// Max size of link name
+	      strlen((char *)existing) >= 124)	/* Max size of link name */
 	    existing = NULL;
 
           if (existing != NULL)
@@ -330,5 +330,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.c,v 1.1 1999/11/08 17:12:42 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.1 1999/11/08 18:35:19 mike Exp $".
  */

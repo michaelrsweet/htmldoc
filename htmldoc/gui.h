@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.2 1999/11/07 23:57:09 mike Exp $"
+ * "$Id: gui.h,v 1.1 1999/11/08 18:35:16 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -62,9 +62,8 @@ class GUI
       Fl_Check_Button	*grayscale,
 			*compression,
 			*titlePage;
-#ifdef HAVE_LIBJPEG
       Fl_Check_Button	*jpegCompress;
-#endif // HAVE_LIBJPEG
+
       Fl_Input		*bodyColor;
       Fl_Button		*bodyLookup;
       Fl_Input		*bodyImage;
@@ -111,9 +110,7 @@ class GUI
       Fl_Group		*optionsTab;
       Fl_Input		*htmlEditor;
       Fl_Button		*htmlBrowse;
-#ifdef HAVE_LIBJPEG
       Fl_Value_Slider	*jpegQuality;
-#endif // HAVE_LIBJPEG
       Fl_Slider		*compressionLevel;
       Fl_Group		*pdfVersion;
       Fl_Button		*pdf11,
@@ -174,5 +171,5 @@ extern void generateBookCB(Fl_Widget *w, GUI *gui);
 extern void closeBookCB(Fl_Widget *w, GUI *gui);
 
 /*
- * End of "$Id: gui.h,v 1.2 1999/11/07 23:57:09 mike Exp $".
+ * End of "$Id: gui.h,v 1.1 1999/11/08 18:35:16 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.1 1999/11/08 17:12:42 mike Exp $"
+ * "$Id: htmldoc.h,v 1.2 1999/11/08 18:35:17 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -24,11 +24,15 @@
 
 #ifdef HAVE_LIBFLTK
 #  include "gui.h"
-#endif // HAVE_LIBFLTK
+#endif /* HAVE_LIBFLTK */
 
-#ifdef WIN32	    // Include all 8 million Windows header files...
+#ifdef WIN32	    /* Include all 8 million Windows header files... */
 #  include <windows.h>
-#endif // WIN32
+#endif /* WIN32 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 
 /*
@@ -60,9 +64,7 @@ VAR int		TitlePage	VALUE(1),	/* Need a title page */
 VAR char	OutputPath[255]	VALUE("");	/* Output directory/name */
 VAR int		OutputFiles	VALUE(0),	/* Generate multiple files? */
 		OutputColor	VALUE(1);	/* Output color images */
-#ifdef HAVE_LIBJPEG
 VAR int		OutputJPEG	VALUE(0);	/* JPEG compress images? */
-#endif // HAVE_LIBJPEG
 VAR float	PDFVersion	VALUE(1.2);	/* Version of PDF to support */
 
 VAR int		PageWidth	VALUE(595),	/* Page width in points */
@@ -86,13 +88,13 @@ VAR char	LogoImage[255]	VALUE("");	/* Logo image */
 VAR char	BodyColor[255]	VALUE(""),	/* Body color */
 		BodyImage[255]	VALUE("");	/* Body image */
 #ifdef HAVE_LIBFLTK
-VAR GUI		*BookGUI	VALUE(NULL);	// GUI for book files
-#  ifdef WIN32					// Editor for HTML files
+VAR GUI		*BookGUI	VALUE(NULL);	/* GUI for book files */
+#  ifdef WIN32					/* Editor for HTML files */
 VAR char	HTMLEditor[1024] VALUE("notepad.exe %s");
 #  else
 VAR char	HTMLEditor[1024] VALUE("nedit %s");
-#  endif // WIN32
-#endif // HAVE_LIBFLTK
+#  endif /* WIN32 */
+#endif /* HAVE_LIBFLTK */
 
 /*
  * Prototypes...
@@ -120,6 +122,10 @@ extern void	prefs_save(void);
 
 extern char	*format_number(int n, char f);
 
+#  ifdef __cplusplus
+}
+#  endif /* __cplusplus */
+
 /*
- * End of "$Id: htmldoc.h,v 1.1 1999/11/08 17:12:42 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.2 1999/11/08 18:35:17 mike Exp $".
  */

@@ -1,0 +1,93 @@
+.\"
+.\" "$Id: htmldoc.man,v 1.1 1999/11/08 18:35:16 mike Exp $"
+.\"
+.\"   Manual page for HTMLDOC, a HTML document processing program.
+.\"
+.\"   Copyright 1997-1998 by Michael Sweet.
+.\"
+.\"   HTMLDOC is distributed under the terms of the GNU General Public License
+.\"   which is described in the file "COPYING-2.0".
+.\"
+.TH htmldoc 1 "HTMLDOC 1.7" "4 January 1999" "Michael Sweet"
+.SH NAME
+htmldoc \- convert html source files into html, postscript, or pdf.
+.sp
+.SH SYNOPSIS
+htmldoc [options] filename1.html [ ... filenameN.html ]
+.LP
+htmldoc [options] -
+.LP
+htmldoc [filename.book]
+.sp
+.SH OPTIONS
+.nf
+--barcolor color
+--bodycolor color
+--bodyfont {courier,times,helvetica}
+--bodyimage filename.{gif,png,jpg}
+--bottom margin{in,cm,mm}
+--color
+--duplex
+--fontsize {6.0..24.0}
+--fontspacing {1.0..3.0}
+--footer fff
+{--format, -t} {ps1,ps2,pdf,html}
+--gray
+--header fff
+--headfootfont {courier,times,helvetica}
+--headfootsize {6.0..24.0}
+--headingfont {courier,times,helvetica}
+--help
+--jpeg[=quality]
+--left margin{in,cm,mm}
+--logo filename.{gif,jpg,png}
+--no-compression
+--no-title
+--no-toc
+--numbered
+{--outdir, -d} dirname
+{--outfile, -f} filename.{ps,pdf,html}
+--right margin{in,cm,mm}
+--size {letter,a4,universal,WxH{in,cm,mm},etc}
+--title filename.{gif,jpg,png}
+--tocfooter fff
+--tocheader fff
+--toclevels levels
+--top margin{in,cm,mm}
+{--verbose, -v}
+--webpage
+.fi
+.SH DESCRIPTION
+\fIHTMLDOC\fR converts HTML source files into indexed HTML, PostScript, or
+Portable Document Format (PDF) files that can be viewed online or printed.
+With no options an indexed HTML document is produced on stdout.
+.LP
+The second form of \fIHTMLDOC\fR reads HTML source from stdin, which allows
+you to use \fIHTMLDOC\fR as a filter.
+.LP
+The third form of \fIHTMLDOC\fR launches a graphical interface that allows you
+to change options and generate documents interactively.
+.SH SEE ALSO
+HTMLDOC 1.7 User's Guide
+.LP
+HTMLDOC WWW page, http://www.easysw.com/~mike/htmldoc
+.SH AUTHOR
+Michael Sweet (mike@easysw.com), Easy Software Products
+.SH TRADEMARKS
+PostScript is a trademark that may be registered in some countries and Adobe is
+a registered trademark of Adobe Systems Incorporated.
+.SH COPYRIGHTS
+Portable Document Format Copyright 1993, 1996 by Adobe Systems Incorporated.
+.LP
+HTMLDOC Copyright 1997-1999 by Michael Sweet. This program is free
+software; you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version.
+.SH NO WARRANTY
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+.\"
+.\" End of "$Id: htmldoc.man,v 1.1 1999/11/08 18:35:16 mike Exp $".
+.\"

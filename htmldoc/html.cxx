@@ -1,5 +1,5 @@
 /*
- * "$Id: html.c,v 1.1 1999/11/08 17:12:41 mike Exp $"
+ * "$Id: html.cxx,v 1.1 1999/11/08 18:35:17 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -770,5 +770,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.c,v 1.1 1999/11/08 17:12:41 mike Exp $".
+ * End of "$Id: html.cxx,v 1.1 1999/11/08 18:35:17 mike Exp $".
  */

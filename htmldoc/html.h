@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.1 1999/11/08 17:12:41 mike Exp $"
+ * "$Id: html.h,v 1.2 1999/11/08 18:35:17 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -18,9 +18,14 @@
 
 #  include <stdio.h>
 #  include <stdlib.h>
-#  include <string.h>
 
+#  include "file.h"
+#  include "string.h"
 #  include "iso8859.h"
+
+#  ifdef __cplusplus
+extern "C" {
+#  endif /* __cplusplus */
 
 
 /*
@@ -277,30 +282,12 @@ extern int	htmlSetVariable(tree_t *t, uchar *name, uchar *value);
 extern void	htmlSetBaseSize(float p, float s);
 extern void	htmlSetCharSet(const char *cs);
 
-extern char	*file_basename(const char *s);
-extern char	*file_directory(const char *s);
-extern char	*file_extension(const char *s);
-extern char	*file_method(const char *s);
-extern char	*file_target(const char *s);
-
-/*
- * Standard string functions that might not be available...
- */
-
-#ifndef HAVE_STRDUP
-extern char	*strdup(const char *s);
-#endif // !HAVE_STRDUP
-
-#ifndef HAVE_STRCASECMP
-extern int	strcasecmp(const char *s, const char *t);
-#endif // !HAVE_STRCASECMP
-
-#ifndef HAVE_STRNCASECMP
-extern int	strncasecmp(const char *s, const char *t, size_t n);
-#endif // !HAVE_STRNCASECMP
+#  ifdef __cplusplus
+}
+#  endif /* __cplusplus */
 
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.1 1999/11/08 17:12:41 mike Exp $".
+ * End of "$Id: html.h,v 1.2 1999/11/08 18:35:17 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.c,v 1.1 1999/11/08 17:12:41 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.1 1999/11/08 18:35:17 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1076,5 +1076,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.c,v 1.1 1999/11/08 17:12:41 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.1 1999/11/08 18:35:17 mike Exp $".
  */
