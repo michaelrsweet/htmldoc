@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.133 2001/11/21 17:38:29 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.134 2001/11/21 17:47:33 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5511,7 +5511,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         if (bgcolor != NULL)
           new_render(*page, RENDER_BOX, border_left, bottom,
                      width + border,
-		     cell_y[col] - bottom + cellpadding + border, bgrgb);
+		     cell_y[col] - bottom + cellpadding + border, bgrgb,
+		     pages[*page].start);
 
         for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
 	{
@@ -5534,7 +5535,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  if (bgcolor != NULL)
             new_render(temp_page, RENDER_BOX, border_left, bottom,
                        width + border, top - bottom, bgrgb,
-		       cell_start[col]);
+		       pages[temp_page].start);
         }
 
         if (border > 0.0f)
@@ -5559,7 +5560,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         if (bgcolor != NULL)
           new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
 	             width + border, top - row_y, bgrgb,
-		     cell_start[col]);
+		     pages[cell_endpage[col]].start);
       }
       else
       {
@@ -10579,5 +10580,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.133 2001/11/21 17:38:29 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.134 2001/11/21 17:47:33 mike Exp $".
  */
