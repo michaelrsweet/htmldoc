@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.96 2001/08/17 14:30:46 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.97 2001/08/29 20:42:04 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -316,8 +316,8 @@ static void	pdf_end_object(FILE *out);
 static void	encrypt_init(void);
 static void	flate_open_stream(FILE *out);
 static void	flate_close_stream(FILE *out);
-static void	flate_puts(char *s, FILE *out);
-static void	flate_printf(FILE *out, char *format, ...);
+static void	flate_puts(const char *s, FILE *out);
+static void	flate_printf(FILE *out, const char *format, ...);
 static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
 
 static void	parse_contents(tree_t *t, float left, float width, float bottom,
@@ -378,11 +378,14 @@ static void	write_prolog(FILE *out, int pages, uchar *title, uchar *author,
 		             uchar *creator, uchar *copyright, uchar *keywords);
 static void	ps_hex(FILE *out, uchar *data, int length);
 static void	ps_ascii85(FILE *out, uchar *data, int length);
+extern "C" {
 static void	jpg_init(j_compress_ptr cinfo);
 static boolean	jpg_empty(j_compress_ptr cinfo);
 static void	jpg_term(j_compress_ptr cinfo);
 static void	jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
 static int	compare_rgb(uchar *rgb1, uchar *rgb2);
+typedef int	(*compare_func_t)(const void *, const void *);
+}
 static void	write_image(FILE *out, render_t *r, int write_obj = 0);
 static void	write_imagemask(FILE *out, render_t *r);
 static void	write_string(FILE *out, uchar *s, int compress);
@@ -878,10 +881,8 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   char		*page_text;			/* Page number text */
 
 
-  DEBUG_printf(("pspdf_prepare_page(%d, %p, \"%s\", %.1f, \"%s\")\n",
-                page, file_page, title ? (const char *)title : "(null)",
-	        title_width,
-		*page_heading ? (const char *)*page_heading : "(null)"));
+  DEBUG_printf(("pspdf_prepare_page(%d, %p, \"%s\")\n",
+                page, file_page, title ? (const char *)title : "(null)"));
 
   if (OutputFiles && chapter >= 0)
     *file_page = page - chapter_starts[chapter] + 1;
@@ -994,9 +995,9 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
   render_t	*temp;		/* Render structure for titles, etc. */
 
 
-  DEBUG_printf(("pspdf_prepare_heading(%d, %d, \"%s\", %.1f, \"%s\", %.1f, \"%s\", %d)\n",
-                page, print_page, title ? title : "(null)", title_width,
-		heading ? heading : "(null)", heading_width, format, y));
+  DEBUG_printf(("pspdf_prepare_heading(%d, %d, \"%s\", %p, %d)\n",
+                page, print_page, title ? (const char *)title : "(null)",
+		format, y));
 
  /*
   * Add page headings...
@@ -1364,9 +1365,8 @@ ps_write_page(FILE  *out,		/* I - Output file */
   if (page < 0 || page >= alloc_pages)
     return;
 
-  DEBUG_printf(("ps_write_page(%p, %d, \"%s\", %.1f, \"%s\")\n",
-                out, page, title ? title : "(null)", title_width,
-		*page_heading ? *page_heading : "(null)"));
+  DEBUG_printf(("ps_write_page(%p, %d, \"%s\")\n",
+                out, page, title ? (const char *)title : "(null)"));
 
  /*
   * Add headers/footers as needed...
@@ -1393,6 +1393,19 @@ ps_write_page(FILE  *out,		/* I - Output file */
   */
 
   fprintf(out, "%%%%Page: %s %d\n", page_text, file_page);
+
+  if (pages[page].landscape)
+    fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
+            pages[page].left,
+	    pages[page].bottom,
+	    pages[page].length - pages[page].right,
+	    pages[page].width - pages[page].top);
+  else
+    fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
+            pages[page].left,
+	    pages[page].bottom,
+	    pages[page].width - pages[page].right,
+	    pages[page].length - pages[page].top);
 
   if (PSLevel > 1 && PSCommands)
   {
@@ -1811,7 +1824,7 @@ pdf_write_resources(FILE *out,	/* I - Output file */
   int		fonts_used[16];	/* Non-zero if the page uses a font */
   int		images_used;	/* Non-zero if the page uses an image */
   int		text_used;	/* Non-zero if the page uses text */
-  static char	*effects[] =	/* Effects and their commands */
+  static const char *effects[] =	/* Effects and their commands */
 		{
 		  "",
 		  "/S/Box/M/I",
@@ -2922,8 +2935,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 		rgb[3];		/* RGB color of rule */
 
 
-  DEBUG_printf(("parse_doc(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d, cpara = %p\n",
-                t, left, right, *x, *y, *page, cpara));
+  DEBUG_printf(("parse_doc(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, cpara=%p, needspace=%d\n",
+                t, *left, *right, *bottom, *top, *x, *y, *page, cpara,
+	        *needspace));
 
   if (cpara == NULL)
     para = htmlNewTree(NULL, MARKUP_P, NULL);
@@ -3438,8 +3452,8 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   int	*temp;			// Temporary integer array pointer
 
 
-  DEBUG_printf(("parse_heading(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
-                t, left, right, *x, *y, *page));
+  DEBUG_printf(("parse_heading(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
+                t, left, right, bottom, top, *x, *y, *page, needspace));
 
   if (((t->markup - MARKUP_H1) < TocLevels || TocLevels == 0) && !title_page)
     current_heading = t->child;
@@ -3576,8 +3590,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   int		firstline;
 
 
-  DEBUG_printf(("parse_paragraph(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
-                t, left, right, *x, *y, *page, needspace));
+  DEBUG_printf(("parse_paragraph(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
+                t, left, right, bottom, top, *x, *y, *page, needspace));
 
   flat        = flatten_tree(t->child);
   image_left  = left;
@@ -3773,8 +3787,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       width = start->width;
     }
 
-    DEBUG_printf(("    width = %.1f\n", width));
-
     for (height = 0.0, num_chars = 0, temp = prev = start;
          temp != end;
 	 temp = temp->next)
@@ -3862,6 +3874,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     }
 
     *y -= height;
+
+    DEBUG_printf(("    y = %.1f, width = %.1f, height = %.1f\n", *y, width,
+                  height));
 
     if (Verbosity)
       progress_update(100 - (int)(100 * (*y) / PagePrintLength));
@@ -4979,7 +4994,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       {
         check_pages(*page);
 
-	cell_start[col] = pages[*page].start;
+	cell_start[col] = pages[*page].end;
 	cell_page[col]  = temp_page;
 	cell_y[col]     = temp_y;
 
@@ -5003,7 +5018,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         cell_endpage[col] = temp_page;
         cell_endy[col]    = temp_y;
         cell_height[col]  = *y - cellpadding - temp_y;
-        cell_end[col]     = pages[*page].start;
+        cell_end[col]     = pages[*page].end;
 
         if (cell_start[col] == NULL)
 	  cell_start[col] = pages[*page].start;
@@ -5164,6 +5179,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
           for (; p != NULL; p = p->next)
 	  {
+	    DEBUG_printf(("aligning %p, y was %.1f, now %.1f\n",
+	                  p, p->y, p->y - delta_y));
+
             p->y -= delta_y;
             if (p == cell_end[col])
 	      break;
@@ -5389,7 +5407,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
 
   oldy    = *y;
   oldpage = *page;
-  r       = pages[*page].start;
+  r       = pages[*page].end;
   tempx   = *x;
 
   if (t->indent == 0)
@@ -6569,6 +6587,9 @@ new_render(int   page,		/* I - Page number (0-n) */
   static render_t	dummy;	/* Dummy var for errors... */
 
 
+  DEBUG_printf(("new_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%d)\n",
+                page, type, x, y, width, height, data, insert));
+
   check_pages(page);
 
   if (page < 0 || page >= alloc_pages)
@@ -6655,6 +6676,8 @@ new_render(int   page,		/* I - Page number (0-n) */
   if (page >= num_pages)
     num_pages = page + 1;
 
+  DEBUG_printf(("    returning r = %p\n", r));
+
   return (r);
 }
 
@@ -6668,6 +6691,8 @@ check_pages(int page)	// I - Current page
 {
   page_t	*temp;	// Temporary page pointer
 
+
+  DEBUG_printf(("check_pages(%d)\n", page));
 
   // See if we need to allocate memory for the page...
   if (page >= alloc_pages)
@@ -6696,30 +6721,30 @@ check_pages(int page)	// I - Current page
   }
 
   // Initialize the page data as needed...
-  temp = pages + page;
-  if (!temp->width)
-  {
-    if (page == 0)
+  for (temp = pages + num_pages; num_pages <= page; num_pages ++, temp ++)
+    if (!temp->width)
     {
-      temp->width     = PageWidth;
-      temp->length    = PageLength;
-      temp->left      = PageLeft;
-      temp->right     = PageRight;
-      temp->top       = PageTop;
-      temp->bottom    = PageBottom;
-      temp->duplex    = PageDuplex;
-      temp->landscape = Landscape;
+      if (page == 0)
+      {
+	temp->width     = PageWidth;
+	temp->length    = PageLength;
+	temp->left      = PageLeft;
+	temp->right     = PageRight;
+	temp->top       = PageTop;
+	temp->bottom    = PageBottom;
+	temp->duplex    = PageDuplex;
+	temp->landscape = Landscape;
 
-      memcpy(temp->header, Header, sizeof(temp->header));
-      memcpy(temp->footer, Footer, sizeof(temp->footer));
+	memcpy(temp->header, Header, sizeof(temp->header));
+	memcpy(temp->footer, Footer, sizeof(temp->footer));
+      }
+      else
+      {
+	memcpy(temp, temp - 1, sizeof(page_t));
+	temp->start = NULL;
+	temp->end   = NULL;
+      }
     }
-    else
-    {
-      memcpy(temp, temp - 1, sizeof(page_t));
-      temp->start = NULL;
-      temp->end   = NULL;
-    }
-  }
 }
 
 
@@ -6779,7 +6804,7 @@ add_link(uchar *name,	/* I - Name of link */
 
     if (num_links > 1)
       qsort(links, num_links, sizeof(link_t),
-            (int (*)(const void *, const void *))compare_links);
+            (compare_func_t)compare_links);
   }
 }
 
@@ -6804,7 +6829,7 @@ find_link(uchar *name)	/* I - Name to find */
   strncpy((char *)key.name, (char *)name, sizeof(key.name) - 1);
   key.name[sizeof(key.name) - 1] = '\0';
   match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t),
-                            (int (*)(const void *, const void *))compare_links);
+                            (compare_func_t)compare_links);
 
   return (match);
 }
@@ -7432,7 +7457,8 @@ get_width(uchar *s,		/* I - String to scan */
   float	width;			/* Current width */
 
 
-  DEBUG_printf(("get_width(\"%s\", %d, %d, %d)\n", s == NULL ? "(null)" : s,
+  DEBUG_printf(("get_width(\"%s\", %d, %d, %d)\n",
+                s == NULL ? "(null)" : (const char *)s,
                 typeface, style, size));
 
   if (s == NULL)
@@ -7648,7 +7674,7 @@ ps_hex(FILE  *out,	/* I - File to print to */
        int   length)	/* I - Number of bytes to print */
 {
   int		col;
-  static char	*hex = "0123456789ABCDEF";
+  static const char *hex = "0123456789ABCDEF";
 
 
   col = 0;
@@ -7991,7 +8017,7 @@ write_image(FILE     *out,	/* I - Output file */
       {
         if (ncolors > 0)
           match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                                   (int (*)(const void *, const void *))compare_rgb);
+                                   (compare_func_t)compare_rgb);
         else
           match = NULL;
 
@@ -8007,7 +8033,7 @@ write_image(FILE     *out,	/* I - Output file */
 
           if (ncolors > 1)
             qsort(colors[0], ncolors, 3,
-                  (int (*)(const void *, const void *))compare_rgb);
+                  (compare_func_t)compare_rgb);
         }
       }
 
@@ -8122,7 +8148,7 @@ write_image(FILE     *out,	/* I - Output file */
 	      for (j = img->width, k = 7; j > 0; j --, k = (k + 7) & 7, pixel += 3)
 	      {
         	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                            	         (int (*)(const void *, const void *))compare_rgb);
+                            	         (compare_func_t)compare_rgb);
 	        m = (match - colors[0]) / 3;
 
 		switch (k)
@@ -8152,7 +8178,7 @@ write_image(FILE     *out,	/* I - Output file */
 	      for (j = img->width, k = 0; j > 0; j --, k = (k + 1) & 3, pixel += 3)
 	      {
         	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                           	         (int (*)(const void *, const void *))compare_rgb);
+                           	         (compare_func_t)compare_rgb);
 	        m = (match - colors[0]) / 3;
 
 		switch (k)
@@ -8185,7 +8211,7 @@ write_image(FILE     *out,	/* I - Output file */
 	      for (j = img->width, k = 0; j > 0; j --, k ^= 1, pixel += 3)
 	      {
         	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                        	         (int (*)(const void *, const void *))compare_rgb);
+                        	         (compare_func_t)compare_rgb);
 	        m = (match - colors[0]) / 3;
 
 		if (k)
@@ -8207,7 +8233,7 @@ write_image(FILE     *out,	/* I - Output file */
 	      for (j = img->width; j > 0; j --, pixel += 3, indptr ++)
 	      {
         	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                        	         (int (*)(const void *, const void *))compare_rgb);
+                        	         (compare_func_t)compare_rgb);
 	        *indptr = (match - colors[0]) / 3;
 	      }
 	    }
@@ -9392,13 +9418,13 @@ write_trailer(FILE *out,	/* I - Output file */
   int		i, j,		/* Looping vars */
 		type,		/* Type of number */
 		offset;		/* Offset to xref table in PDF file */
-  static char	*modes[] =	/* Page modes */
+  static const char *modes[] =	/* Page modes */
 		{
 		  "UseNone",
 		  "UseOutlines",
 		  "FullScreen"
 		};
-  static char	*layouts[] =	/* Page layouts */
+  static const char *layouts[] =/* Page layouts */
 		{
 		  "SinglePage",
 		  "OneColumn",
@@ -9882,8 +9908,8 @@ flate_close_stream(FILE *out)	/* I - Output file */
  */
 
 static void
-flate_puts(char *s,	/* I - String to write */
-           FILE *out)	/* I - Output file */
+flate_puts(const char *s,	/* I - String to write */
+           FILE       *out)	/* I - Output file */
 {
   flate_write(out, (uchar *)s, strlen(s));
 }
@@ -9894,8 +9920,8 @@ flate_puts(char *s,	/* I - String to write */
  */
 
 static void
-flate_printf(FILE *out,		/* I - Output file */
-             char *format,	/* I - Format string */
+flate_printf(FILE       *out,	/* I - Output file */
+             const char *format,/* I - Format string */
              ...)		/* I - Additional args as necessary */
 {
   int		length;		/* Length of output string */
@@ -9973,5 +9999,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.96 2001/08/17 14:30:46 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.97 2001/08/29 20:42:04 mike Exp $".
  */

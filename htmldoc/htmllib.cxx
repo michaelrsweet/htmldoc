@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.30 2001/08/16 21:11:51 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.31 2001/08/29 20:42:03 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -65,7 +65,7 @@
  * Markup strings...
  */
 
-char		*_htmlMarkups[] =
+const char	*_htmlMarkups[] =
 		{
 		  "",		/* MARKUP_NONE */
 		  "!--",	/* MARKUP_COMMENT */
@@ -209,8 +209,11 @@ const char	*_htmlFonts[4][4] =
  */
 
 static int	write_file(tree_t *t, FILE *fp, int col);
+extern "C" {
 static int	compare_variables(var_t *v0, var_t *v1);
 static int	compare_markups(uchar **m0, uchar **m1);
+typedef int	(*compare_func_t)(const void *, const void *);
+}
 static void	delete_node(tree_t *t);
 static void	insert_space(tree_t *parent, tree_t *t);
 static int	parse_markup(tree_t *t, FILE *fp);
@@ -245,9 +248,9 @@ static uchar	indent[255] = "";
  */
 
 tree_t *			/* O - Pointer to top of file tree */
-htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
-             FILE   *fp,	/* I - File pointer */
-	     char   *base)	/* I - Base directory for file */
+htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
+             FILE       *fp,	/* I - File pointer */
+	     const char *base)	/* I - Base directory for file */
 {
   int		ch;		/* Character from file */
   uchar		*ptr,		/* Pointer in string */
@@ -689,7 +692,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           // Update the background image as necessary...
           if ((filename = htmlGetVariable(t, (uchar *)"BACKGROUND")) != NULL)
 	    htmlSetVariable(t, (uchar *)"BACKGROUND",
-	                    (uchar *)fix_filename((char *)filename, base));
+	                    (uchar *)fix_filename((char *)filename,
+			                          (char *)base));
 
           htmlReadFile(t, fp, base);
           break;
@@ -710,7 +714,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           // Update the image source as necessary...
           if ((filename = htmlGetVariable(t, (uchar *)"SRC")) != NULL)
 	    htmlSetVariable(t, (uchar *)"SRC",
-	                    (uchar *)fix_filename((char *)filename, base));
+	                    (uchar *)fix_filename((char *)filename,
+			                          (char *)base));
 
       case MARKUP_BR :
       case MARKUP_NONE :
@@ -802,7 +807,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       case MARKUP_EMBED :
           if ((filename = htmlGetVariable(t, (uchar *)"SRC")) != NULL)
 	  {
-	    filename = (uchar *)fix_filename((char *)filename, base);
+	    filename = (uchar *)fix_filename((char *)filename,
+	                                     (char *)base);
 
             if ((embed = fopen((char *)filename, "r")) != NULL)
             {
@@ -1697,7 +1703,7 @@ htmlGetVariable(tree_t *t,	/* I - Tree entry */
   key.name = name;
 
   v = (var_t *)bsearch(&key, t->vars, t->nvars, sizeof(var_t),
-                       (int (*)(const void *, const void *))compare_variables);
+                       (compare_func_t)compare_variables);
   if (v == NULL)
     return (NULL);
   else if (v->value == NULL)
@@ -1729,7 +1735,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
     key.name = name;
 
     v = (var_t *)bsearch(&key, t->vars, t->nvars, sizeof(var_t),
-        	         (int (*)(const void *, const void *))compare_variables);
+        	         (compare_func_t)compare_variables);
   }
 
   if (v == NULL)
@@ -1763,7 +1769,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
 
     if (t->nvars > 1)
       qsort(t->vars, t->nvars, sizeof(var_t),
-            (int (*)(const void *, const void *))compare_variables);
+            (compare_func_t)compare_variables);
   }
   else if (v->value != value)
   {
@@ -2144,7 +2150,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
   temp = (uchar **)bsearch(&mptr, _htmlMarkups,
                            sizeof(_htmlMarkups) / sizeof(_htmlMarkups[0]),
                            sizeof(_htmlMarkups[0]),
-                           (int (*)(const void *, const void *))compare_markups);
+                           (compare_func_t)compare_markups);
 
   if (temp == NULL)
   {
@@ -2630,5 +2636,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.30 2001/08/16 21:11:51 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.31 2001/08/29 20:42:03 mike Exp $".
  */

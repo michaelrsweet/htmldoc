@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.7 2001/08/27 13:26:41 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.8 2001/08/29 20:42:02 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -189,22 +189,22 @@ VAR int		Links		VALUE(1);	/* 1 = generate links, 0 = no links */
 VAR char	Path[2048]	VALUE(""),	/* Search path */
 		Proxy[1024]	VALUE("");	/* Proxy URL */
 
-VAR char	*PDFModes[3]			/* Mode strings */
+VAR const char	*PDFModes[3]			/* Mode strings */
 #  ifdef _HTMLDOC_CXX_
 = { "document", "outline", "fullscreen" }
 #  endif /* _HTMLDOC_CXX_ */
 ;
-VAR char	*PDFLayouts[4]			/* Layout strings */
+VAR const char	*PDFLayouts[4]			/* Layout strings */
 #  ifdef _HTMLDOC_CXX_
 = { "single", "one", "twoleft", "tworight" }
 #  endif /* _HTMLDOC_CXX_ */
 ;
-VAR char	*PDFPages[3]			/* First page strings */
+VAR const char	*PDFPages[3]			/* First page strings */
 #  ifdef _HTMLDOC_CXX_
 = { "p1", "toc", "c1" }
 #  endif /* _HTMLDOC_CXX_ */
 ;
-VAR char	*PDFEffects[17]			/* Effect strings */
+VAR const char	*PDFEffects[17]			/* Effect strings */
 #  ifdef _HTMLDOC_CXX_
 = { "none", "bi", "bo", "d", "gd", "gdr", "gr", "hb", "hsi", "hso",
     "vb", "vsi", "vso", "wd", "wl", "wr", "wu" }
@@ -246,5 +246,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.7 2001/08/27 13:26:41 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.8 2001/08/29 20:42:02 mike Exp $".
  */
