@@ -51,17 +51,17 @@ OOPPTTIIOONNSS
        _D_O_C:
 
 
+       --batch _f_i_l_e_n_a_m_e_._b_o_o_k
+            Generates the specified book file without opening the
+            GUI.
+
+
        --bodycolor _c_o_l_o_r
             Specifies the background color for all pages.
 
 
-       --bodyfont _{_c_o_u_r_i_e_r_,_t_i_m_e_s_,_h_e_l_v_e_t_i_c_a_}
 
-
-
-
-
-27 February 2001          HTMLDOC 1.8.12                        1
+21 May 2001               HTMLDOC 1.8.13                        1
 
 
 
@@ -70,12 +70,14 @@ OOPPTTIIOONNSS
 htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
+       --bodyfont _{_c_o_u_r_i_e_r_,_t_i_m_e_s_,_h_e_l_v_e_t_i_c_a_}
+
        --textfont _{_c_o_u_r_i_e_r_,_t_i_m_e_s_,_h_e_l_v_e_t_i_c_a_}
             Specifies the default typeface for all normal text.
 
 
        --bodyimage _f_i_l_e_n_a_m_e
-            Specifies the background image that is tiled  on  all
+            Specifies  the  background image that is tiled on all
             pages.
 
 
@@ -85,29 +87,29 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --bottom _m_a_r_g_i_n
-            Specifies the bottom margin in points (no  suffix  or
+            Specifies  the  bottom margin in points (no suffix or
             ##pt), inches (##in), centimeters (##cm), or millime-
             ters (##mm).
 
 
        --charset _{_8_8_5_9_-_1_._._._8_8_5_9_-_1_5_}
-            Specifies the ISO character set to use for  the  out-
+            Specifies  the  ISO character set to use for the out-
             put.
 
 
        --color
-            Specifies  that PostScript or PDF output should be in
+            Specifies that PostScript or PDF output should be  in
             color.
 
 
        --datadir _d_i_r_e_c_t_o_r_y
-            Specifies the location of  the  _H_T_M_L_D_O_C  data  files,
-            usually      _/_u_s_r_/_s_h_a_r_e_/_h_t_m_l_d_o_c     or     _C_:_\_P_r_o_g_r_a_m
+            Specifies  the  location  of  the _H_T_M_L_D_O_C data files,
+            usually     _/_u_s_r_/_s_h_a_r_e_/_h_t_m_l_d_o_c     or      _C_:_\_P_r_o_g_r_a_m
             _F_i_l_e_s_\_H_T_M_L_D_O_C.
 
 
        --duplex
-            Specifies that the output  should  be  formatted  for
+            Specifies  that  the  output  should be formatted for
             double-sided printing.
 
 
@@ -125,9 +127,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
 
-
-
-27 February 2001          HTMLDOC 1.8.12                        2
+21 May 2001               HTMLDOC 1.8.13                        2
 
 
 
@@ -138,33 +138,33 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
        --fontspacing _s_p_a_c_i_n_g
             Specifies the default line spacing for body text. The
-            line  spacing is a multiplier for the font size, so a
-            value of 1.2 will provide an additional 20% of  space
+            line spacing is a multiplier for the font size, so  a
+            value  of 1.2 will provide an additional 20% of space
             between the lines.
 
 
        --footer _f_f_f
-            Sets  the  page  footer to use on body pages. See the
+            Sets the page footer to use on body  pages.  See  the
             _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
 
 
        --format _f_o_r_m_a_t
 
        -t _f_o_r_m_a_t
-            Specifies  the  output  format:  html,  ps   or   ps2
-            (PostScript  Level  2), ps1 (PostScript Level 1), ps3
-            (PostScript Level 3), pdf or pdf12  (PDF  1.2/Acrobat
-            3.0),  pdf11  (PDF  1.1/Acrobat  2.0),  or pdf13 (PDF
-            1.3/Acrobat 4.0)
+            Specifies   the   output  format:  html,  ps  or  ps2
+            (PostScript Level 2), ps1 (PostScript Level  1),  ps3
+            (PostScript  Level  3),  pdf11 (PDF 1.1/Acrobat 2.0),
+            pdf12  (PDF  1.2/Acrobat  3.0),  pdf  or  pdf13  (PDF
+            1.3/Acrobat 4.0), or pdf14 (PDF 1.4/Acrobat 5.0).
 
 
        --gray
-            Specifies that PostScript or  PDF  output  should  be
+            Specifies  that  PostScript  or  PDF output should be
             grayscale.
 
 
        --header _f_f_f
-            Sets  the  page  header to use on body pages. See the
+            Sets the page header to use on body  pages.  See  the
             _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
 
 
@@ -186,14 +186,14 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --helpdir _d_i_r_e_c_t_o_r_y
-            Specifies  the  location  of the _H_T_M_L_D_O_C on-line help
-            files, usually _/_u_s_r_/_s_h_a_r_e_/_d_o_c_/_h_t_m_l_d_o_c  or  _C_:_\_P_r_o_g_r_a_m
+            Specifies the location of the  _H_T_M_L_D_O_C  on-line  help
+            files,  usually  _/_u_s_r_/_s_h_a_r_e_/_d_o_c_/_h_t_m_l_d_o_c or _C_:_\_P_r_o_g_r_a_m
             _F_i_l_e_s_\_H_T_M_L_D_O_C_\_D_O_C.
 
 
 
 
-27 February 2001          HTMLDOC 1.8.12                        3
+21 May 2001               HTMLDOC 1.8.13                        3
 
 
 
@@ -203,12 +203,12 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --jpeg_[_=_q_u_a_l_i_t_y_]
-            Sets  the  JPEG  compression  level  to use for large
+            Sets the JPEG compression  level  to  use  for  large
             images. A value of 0 disables JPEG compression.
 
 
        --left _m_a_r_g_i_n
-            Specifies the left margin in  points  (no  suffix  or
+            Specifies  the  left  margin  in points (no suffix or
             ##pt), inches (##in), centimeters (##cm), or millime-
             ters (##mm).
 
@@ -252,14 +252,14 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --no-pscommands
-            Disables generation of PostScript setpagedevice  com-
+            Disables  generation of PostScript setpagedevice com-
             mands.
 
 
 
 
 
-27 February 2001          HTMLDOC 1.8.12                        4
+21 May 2001               HTMLDOC 1.8.13                        4
 
 
 
@@ -287,14 +287,14 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
        --outdir _d_i_r_e_c_t_o_r_y
 
        -d _d_i_r_e_c_t_o_r_y
-            Specifies  that  output should be sent to a directory
+            Specifies that output should be sent to  a  directory
             in multiple files.  (Not compatible with PDF output)
 
 
        --outfile _f_i_l_e_n_a_m_e
 
        -f _f_i_l_e_n_a_m_e
-            Specifies that output should  be  sent  to  a  single
+            Specifies  that  output  should  be  sent to a single
             file.
 
 
@@ -307,7 +307,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --pageeffect _e_f_f_e_c_t
-            Specifies  the  page transition effect for all pages;
+            Specifies the page transition effect for  all  pages;
             this attribute is ignored by all Adobe PDF viewers...
 
 
@@ -325,7 +325,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
 
-27 February 2001          HTMLDOC 1.8.12                        5
+21 May 2001               HTMLDOC 1.8.13                        5
 
 
 
@@ -337,14 +337,14 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
        --permissions _p_e_r_m_i_s_s_i_o_n
             Specifies  document  permissions  for  encrypted  PDF
             files. Multiple _-_-_p_e_r_m_i_s_s_i_o_n_s options are required to
-            grant or deny  specific  permissions.  The  following
+            grant  or  deny  specific  permissions. The following
             values  are  understood:  all,  none,  annotate,  no-
-            annotate, copy, no-copy,  modify,  no-modify,  print,
+            annotate,  copy,  no-copy,  modify, no-modify, print,
             and no-print.
 
 
        --pscommands
-            Specifies   that  PostScript  setpagedevice  commands
+            Specifies  that  PostScript  setpagedevice   commands
             should be included in the output.
 
 
@@ -353,16 +353,16 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --right _m_a_r_g_i_n
-            Specifies the right margin in points  (no  suffix  or
+            Specifies  the  right  margin in points (no suffix or
             ##pt), inches (##in), centimeters (##cm), or millime-
             ters (##mm).
 
 
        --size _p_a_g_e_s_i_z_e
-            Specifies the page size using a standard name  or  in
+            Specifies  the  page size using a standard name or in
             points (no suffix or ##x##pt), inches (##x##in), cen-
-            timeters (##x##cm),  or  millimeters  (##x##mm).  The
-            standard  sizes  that  are  currently  recognized are
+            timeters  (##x##cm),  or  millimeters  (##x##mm). The
+            standard sizes  that  are  currently  recognized  are
             "letter"   (8.5x11in),   "legal"   (8.5x14in),   "a4"
             (210x297mm), and "universal" (8.27x11in).
 
@@ -378,20 +378,20 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
        --titlefile _f_i_l_e_n_a_m_e
 
        --titleimage _f_i_l_e_n_a_m_e
-            Specifies  the file to use for the title page. If the
+            Specifies the file to use for the title page. If  the
             file is an image then the title page is automatically
-            generated  using  the  document  meta  data and title
+            generated using the  document  meta  data  and  title
             image.
 
 
        --tocfooter _f_f_f
-            Sets the page  footer  to  use  on  table-of-contents
+            Sets  the  page  footer  to  use on table-of-contents
             pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
 
 
 
 
-27 February 2001          HTMLDOC 1.8.12                        6
+21 May 2001               HTMLDOC 1.8.13                        6
 
 
 
@@ -401,7 +401,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --tocheader _f_f_f
-            Sets the page  header  to  use  on  table-of-contents
+            Sets  the  page  header  to  use on table-of-contents
             pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
 
 
@@ -414,7 +414,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --top _m_a_r_g_i_n
-            Specifies the top margin  in  points  (no  suffix  or
+            Specifies  the  top  margin  in  points (no suffix or
             ##pt), inches (##in), centimeters (##cm), or millime-
             ters (##mm).
 
@@ -424,7 +424,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --user-password _p_a_s_s_w_o_r_d
-            Specifies the user password  for  encryption  of  PDF
+            Specifies  the  user  password  for encryption of PDF
             files.
 
 
@@ -435,14 +435,14 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        --webpage
-            Specifies  that  the  HTML  sources  are unstructured
+            Specifies that  the  HTML  sources  are  unstructured
             (plain web pages.)
 
 
 HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
        The header and footer of each page can contain up to three
-       preformatted  values.  These  values are specified using a
-       single character for the left, middle, and  right  of  the
+       preformatted values. These values are  specified  using  a
+       single  character  for  the left, middle, and right of the
        page, resulting in the _f_f_f notation shown previously.
 
        Each character can be one of the following:
@@ -457,7 +457,7 @@ HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
 
 
 
-27 February 2001          HTMLDOC 1.8.12                        7
+21 May 2001               HTMLDOC 1.8.13                        7
 
 
 
@@ -467,7 +467,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
        :
-            c/C  arabic chapter page numbers (1/2, 2/2, 1/4, 2/4,
+            c/C arabic chapter page numbers (1/2, 2/2, 1/4,  2/4,
             ...)
 
 
@@ -523,7 +523,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
 
-27 February 2001          HTMLDOC 1.8.12                        8
+21 May 2001               HTMLDOC 1.8.13                        8
 
 
 
@@ -536,7 +536,7 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
 SSEEEE AALLSSOO
-       HTMLDOC 1.8.10 Software Users Manual
+       HTMLDOC 1.8.13 Software Users Manual
 
        http://www.easysw.com/htmldoc
 
@@ -544,29 +544,29 @@ AAUUTTHHOORR
        Michael Sweet (mike@easysw.com), Easy Software Products
 
 TTRRAADDEEMMAARRKKSS
-       PostScript is a trademark that may be registered  in  some
-       countries  and  Adobe  is  a registered trademark of Adobe
+       PostScript  is  a trademark that may be registered in some
+       countries and Adobe is a  registered  trademark  of  Adobe
        Systems Incorporated.
 
 CCOOPPYYRRIIGGHHTTSS
        Portable Document Format Copyright 1993-1999 by Adobe Sys-
        tems Incorporated.
 
-       HTMLDOC  is copyright 1997-2001 by Easy Software Products.
-       This program is free software;  you  can  redistribute  it
+       HTMLDOC is copyright 1997-2001 by Easy Software  Products.
+       This  program  is  free  software; you can redistribute it
        and/or modify it under the terms of the GNU General Public
-       License as published  by  the  Free  Software  Foundation;
-       either  version  2 of the License, or (at your option) any
+       License  as  published  by  the  Free Software Foundation;
+       either version 2 of the License, or (at your  option)  any
        later version.
 
-       This program is based in part on the work of the  Indepen-
+       This  program is based in part on the work of the Indepen-
        dent JPEG Group.
 
 NNOO WWAARRRRAANNTTYY
-       This  program  is  distributed in the hope that it will be
+       This program is distributed in the hope that  it  will  be
        useful, but WITHOUT ANY WARRANTY; without even the implied
-       warranty  of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
-       PURPOSE.  See the GNU  General  Public  License  for  more
+       warranty of MERCHANTABILITY or FITNESS  FOR  A  PARTICULAR
+       PURPOSE.   See  the  GNU  General  Public License for more
        details.
 
 
@@ -589,6 +589,6 @@ NNOO WWAARRRRAANNTTYY
 
 
 
-27 February 2001          HTMLDOC 1.8.12                        9
+21 May 2001               HTMLDOC 1.8.13                        9
 
 
