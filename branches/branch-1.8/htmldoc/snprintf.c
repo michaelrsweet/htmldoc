@@ -1,5 +1,5 @@
 /*
- * "$Id: snprintf.c,v 1.1.2.8 2004/02/06 03:51:09 mike Exp $"
+ * "$Id: snprintf.c,v 1.1.2.9 2004/05/05 18:58:41 mike Exp $"
  *
  *   snprintf functions for HTMLDOC.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -299,6 +299,6 @@ snprintf(char       *buffer,	/* O - Output buffer */
 
 
 /*
- * End of "$Id: snprintf.c,v 1.1.2.8 2004/02/06 03:51:09 mike Exp $".
+ * End of "$Id: snprintf.c,v 1.1.2.9 2004/05/05 18:58:41 mike Exp $".
  */
 

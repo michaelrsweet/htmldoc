@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.9.2.14 2004/04/15 19:58:20 mike Exp $"
+ * "$Id: html.h,v 1.9.2.15 2004/05/05 18:58:40 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -324,5 +324,5 @@ extern void	htmlDebugStats(const char *title, tree_t *t);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.14 2004/04/15 19:58:20 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.15 2004/05/05 18:58:40 mike Exp $".
  */
