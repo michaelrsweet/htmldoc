@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.5.2.9 2003/03/25 22:06:06 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.10 2003/03/31 20:27:18 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -195,7 +195,14 @@ parse_tree(tree_t *t)		/* I - Document tree */
           level = t->markup - MARKUP_H1;
 
 	  if ((level - last_level) > 1)
-	    level = last_level + 1;
+	  {
+	   /*
+	    * This step necessary to keep page numbers synced up...
+	    */
+
+	    level     = last_level + 1;
+	    t->markup = (markup_t)(MARKUP_H1 + level);
+	  }
 
           if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
             heading_numbers[level] = atoi((char *)var);
@@ -380,5 +387,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5.2.9 2003/03/25 22:06:06 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.10 2003/03/31 20:27:18 mike Exp $".
  */
