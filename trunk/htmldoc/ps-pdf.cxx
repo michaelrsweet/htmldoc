@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.43 1999/12/31 15:42:14 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.44 2000/01/04 13:52:25 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -8,7 +8,7 @@
  *   broken into more manageable pieces once we make all of the output
  *   "drivers" into classes...
  *
- *   Copyright 1997-1999 by Easy Software Products.
+ *   Copyright 1997-2000 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -5835,7 +5835,7 @@ write_prolog(FILE *out,		/* I - Output file */
     else
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
-    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-1999 Easy Software Products, All Rights Reserved.\n", out);
+    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2000 Easy Software Products, All Rights Reserved.\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02dZ\n",
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
             curdate->tm_hour, curdate->tm_min, curdate->tm_sec);
@@ -5984,7 +5984,7 @@ write_prolog(FILE *out,		/* I - Output file */
     objects[num_objects] = ftell(out);
     fprintf(out, "%d 0 obj", num_objects);
     fputs("<<", out);
-    fputs("/Producer(htmldoc " SVERSION " Copyright 1997-1999 Easy Software Products, All Rights Reserved.)", out);
+    fputs("/Producer(htmldoc " SVERSION " Copyright 1997-2000 Easy Software Products, All Rights Reserved.)", out);
     fprintf(out, "/CreationDate(D:%04d%02d%02d%02d%02d%02dZ)",
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
             curdate->tm_hour, curdate->tm_min, curdate->tm_sec);
@@ -6446,5 +6446,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.43 1999/12/31 15:42:14 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.44 2000/01/04 13:52:25 mike Exp $".
  */

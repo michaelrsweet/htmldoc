@@ -1,9 +1,9 @@
 /*
- * "$Id: string.h,v 1.4 1999/11/19 17:38:10 mike Exp $"
+ * "$Id: string.h,v 1.5 2000/01/04 13:52:26 mike Exp $"
  *
  *   HTML string definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-1999 by Easy Software Products.
+ *   Copyright 1997-2000 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -73,5 +73,5 @@ extern int	strncasecmp(const char *s, const char *t, size_t n);
 #endif /* !_HTMLDOC_STRING_H_ */
 
 /*
- * End of "$Id: string.h,v 1.4 1999/11/19 17:38:10 mike Exp $".
+ * End of "$Id: string.h,v 1.5 2000/01/04 13:52:26 mike Exp $".
  */

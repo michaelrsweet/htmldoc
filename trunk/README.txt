@@ -9,7 +9,7 @@ INTRODUCTION
     Commercial support for HTMLDOC is available from Easy Software
     Products for $99 US.
 
-    HTMLDOC is copyright 1997-1999 by Easy Software Products and is
+    HTMLDOC is copyright 1997-2000 by Easy Software Products and is
     currently available under the GNU General Public License, version
     2.  See the LEGAL STUFF section below for details.
 
@@ -172,7 +172,7 @@ CREDITS
 
 LEGAL STUFF
 
-    The Adobe Portable Document Format is Copyright 1993-1999 by Adobe
+    The Adobe Portable Document Format is Copyright 1993-2000 by Adobe
     Systems Incorporated. Adobe, FrameMaker, and PostScript are
     registered trademarks of Adobe Systems, Incorporated.
 
@@ -196,7 +196,7 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC is copyright 1997-1999 by Easy Software Products. This
+    HTMLDOC is copyright 1997-2000 by Easy Software Products. This
     program is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or

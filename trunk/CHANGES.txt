@@ -1,5 +1,18 @@
-CHANGES.txt - 12/31/1999
+CHANGES.txt - 01/04/2000
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.5
+
+    NEW FEATURES
+
+	- New "--titlefile" option to include an HTML file for the
+	  title page(s).
+
+    CHANGES
+
+
+    BUG FIXES
+
 
 CHANGES IN HTMLDOC v1.8.4
 
