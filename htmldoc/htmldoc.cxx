@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.46 2004/10/23 20:23:19 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.47 2004/10/25 14:30:03 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1004,7 +1004,7 @@ main(int  argc,				// I - Number of command-line arguments
       _fsetmode(stdin, "b");
 #endif // WIN32 || __EMX__
 
-      htmlReadFile(file, stdin, ".");
+      htmlReadFile(file, stdin, ".", NULL);
 
       if (document == NULL)
         document = file;
@@ -1776,7 +1776,7 @@ read_file(hdBook     *book,		// I  - Book
                       (uchar *)hdBook::file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
-      htmlReadFile(file, docfile, base);
+      htmlReadFile(file, docfile, base, NULL);
 
       fclose(docfile);
 
@@ -2026,5 +2026,5 @@ usage(hdBook     *book,			// I - Book
 
 
 //
-// End of "$Id: htmldoc.cxx,v 1.46 2004/10/23 20:23:19 mike Exp $".
+// End of "$Id: htmldoc.cxx,v 1.47 2004/10/25 14:30:03 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.45 2004/10/23 20:23:19 mike Exp $"
+// "$Id: gui.cxx,v 1.46 2004/10/25 14:30:03 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -3957,7 +3957,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
                       (uchar *)hdBook::file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
-      htmlReadFile(file, docfile, base);
+      htmlReadFile(file, docfile, base, NULL);
 
       fclose(docfile);
 
@@ -4157,5 +4157,5 @@ GUI::showAboutCB(void)
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.45 2004/10/23 20:23:19 mike Exp $".
+// End of "$Id: gui.cxx,v 1.46 2004/10/25 14:30:03 mike Exp $".
 //

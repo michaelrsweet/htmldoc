@@ -1,5 +1,5 @@
 //
-// "$Id: html.cxx,v 1.26 2004/10/23 04:45:54 mike Exp $"
+// "$Id: html.cxx,v 1.27 2004/10/25 14:30:03 mike Exp $"
 //
 //   HTML exporting functions for HTMLDOC, a HTML document processing program.
 //
@@ -382,7 +382,7 @@ hdBook::html_title(FILE  *out,		// I - Output file
       return;
     }
 
-    t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+    t = htmlReadFile(NULL, fp, file_directory(TitleImage), NULL);
     htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
     fclose(fp);
 
@@ -846,5 +846,5 @@ hdBook::get_title(hdTree *doc)		// I - Document tree
 
 
 /*
- * End of "$Id: html.cxx,v 1.26 2004/10/23 04:45:54 mike Exp $".
+ * End of "$Id: html.cxx,v 1.27 2004/10/25 14:30:03 mike Exp $".
  */
