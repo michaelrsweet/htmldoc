@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.64 2004/05/08 01:27:32 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.65 2004/05/08 01:58:51 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -159,19 +159,18 @@ main(int  argc,				/* I - Number of command-line arguments */
     // Additional args can be provided on the command-line, however
     // the format and output file cannot be changed...
 
-    CGIMode      = 1;
-    TocLevels    = 0;
-    TitlePage    = 0;
-    OutputType   = OUTPUT_WEBPAGES;
-    exportfunc   = (exportfunc_t)pspdf_export;
-    PSLevel      = 0;
-    PDFVersion   = 13;
-    PDFPageMode  = PDF_DOCUMENT;
-    PDFFirstPage = PDF_PAGE_1;
+    CGIMode       = 1;
+    TocLevels     = 0;
+    TitlePage     = 0;
+    OutputPath[0] = '\0';
+    OutputType    = OUTPUT_WEBPAGES;
+    exportfunc    = (exportfunc_t)pspdf_export;
+    PSLevel       = 0;
+    PDFVersion    = 13;
+    PDFPageMode   = PDF_DOCUMENT;
+    PDFFirstPage  = PDF_PAGE_1;
 
     file_nolocal();
-
-    strcpy(OutputPath, "-");
   }
 
  /*
@@ -2400,5 +2399,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.64 2004/05/08 01:27:32 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.65 2004/05/08 01:58:51 mike Exp $".
  */
