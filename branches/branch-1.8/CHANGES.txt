@@ -1,4 +1,4 @@
-CHANGES.txt - 08/16/2001
+CHANGES.txt - 09/13/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.15
@@ -20,6 +20,10 @@ CHANGES IN HTMLDOC v1.8.15
 	  them when no longer needed.  This provides a dramatic
 	  reduction in memory usage with files that contain a
 	  lot of in-line images.
+	- Now use the long names for the Flate and DCT filters
+	  in all non-inline PDF streams.  This avoids a stupid
+	  bug in Acrobat Reader when printing to PostScript
+	  printers.
 
     BUG FIXES
 
