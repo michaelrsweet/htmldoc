@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list,v 1.11.2.16 2001/10/17 21:13:27 mike Exp $"
+# "$Id: htmldoc.list,v 1.11.2.17 2001/11/01 16:22:47 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -11,7 +11,7 @@
 %vendor Easy Software Products
 %license COPYING.txt
 %readme README.txt
-%version 1.8.15
+%version 1.8.16
 
 # Program
 f 0555 root sys /usr/bin/htmldoc htmldoc/htmldoc
@@ -58,5 +58,5 @@ f 0444 root sys /usr/share/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
 f 0444 root sys /usr/share/doc/htmldoc/help.html doc/help.html
 
 #
-# End of "$Id: htmldoc.list,v 1.11.2.16 2001/10/17 21:13:27 mike Exp $".
+# End of "$Id: htmldoc.list,v 1.11.2.17 2001/11/01 16:22:47 mike Exp $".
 #
