@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.7 2001/03/06 19:46:49 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.8 2001/03/15 13:46:10 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -95,6 +95,44 @@ else
 	echo "Not using -lnsl since you are running IRIX."
 fi)
 
+dnl Check for image libraries...
+NEWLIBS=""
+
+AC_CHECK_LIB(jpeg,jpeg_CreateCompress,
+	JPEGINC=""
+	JPEG=""
+	LIBS="-ljpeg $LIBS",
+	JPEGINC="-I../jpeg"
+	JPEG="jpeg"
+	NEWLIBS="../jpeg/libjpeg.a $NEWLIBS")
+AC_CHECK_LIB(z,gzgets,
+	ZLIBINC=""
+	ZLIB=""
+	LIBS="-lz $LIBS",
+	ZLIBINC="-I../zlib"
+	ZLIB="zlib"
+	NEWLIBS="../zlib/libz.a $NEWLIBS")
+AC_CHECK_LIB(png,png_set_tRNS_to_alpha,
+	PNGINC=""
+	PNG=""
+	LIBS="-lpng $LIBS",
+	PNGINC="-I../png"
+	PNG="png"
+	NEWLIBS="../png/libpng.a $NEWLIBS")
+
+LIBS="$NEWLIBS $LIBS"
+
+AC_SUBST(JPEG)
+AC_SUBST(JPEGINC)
+AC_SUBST(PNG)
+AC_SUBST(PNGINC)
+AC_SUBST(ZLIB)
+AC_SUBST(ZLIBINC)
+
+AC_DEFINE(HAVE_LIBJPEG)
+AC_DEFINE(HAVE_LIBPNG)
+AC_DEFINE(HAVE_LIBZ)
+
 dnl Check for GUI libraries...
 OLDLIBS="$LIBS"
 
@@ -148,44 +186,6 @@ else
 fi
 
 AC_SUBST(GUI)
-
-dnl Check for image libraries...
-NEWLIBS=""
-
-AC_CHECK_LIB(jpeg,jpeg_CreateCompress,
-	JPEGINC=""
-	JPEG=""
-	LIBS="-ljpeg $LIBS",
-	JPEGINC="-I../jpeg"
-	JPEG="jpeg"
-	NEWLIBS="../jpeg/libjpeg.a $NEWLIBS")
-AC_CHECK_LIB(z,gzgets,
-	ZLIBINC=""
-	ZLIB=""
-	LIBS="-lz $LIBS",
-	ZLIBINC="-I../zlib"
-	ZLIB="zlib"
-	NEWLIBS="../zlib/libz.a $NEWLIBS")
-AC_CHECK_LIB(png,png_set_tRNS_to_alpha,
-	PNGINC=""
-	PNG=""
-	LIBS="-lpng $LIBS",
-	PNGINC="-I../png"
-	PNG="png"
-	NEWLIBS="../png/libpng.a $NEWLIBS")
-
-LIBS="$NEWLIBS $LIBS"
-
-AC_SUBST(JPEG)
-AC_SUBST(JPEGINC)
-AC_SUBST(PNG)
-AC_SUBST(PNGINC)
-AC_SUBST(ZLIB)
-AC_SUBST(ZLIBINC)
-
-AC_DEFINE(HAVE_LIBJPEG)
-AC_DEFINE(HAVE_LIBPNG)
-AC_DEFINE(HAVE_LIBZ)
 
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
@@ -263,5 +263,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.7 2001/03/06 19:46:49 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.8 2001/03/15 13:46:10 mike Exp $".
 dnl
