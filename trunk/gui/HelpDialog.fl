@@ -59,7 +59,7 @@ else if (view_->filename())
       Fl_Button {} {
         label Close
         callback {window_->hide();}
-        xywh {465 350 55 25}
+        xywh {445 350 75 25}
       }
       Fl_Button back_ {
         label {@<-}
@@ -75,7 +75,7 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {405 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
+        private xywh {375 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
       }
       Fl_Button forward_ {
         label {@->}
@@ -91,7 +91,7 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {435 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
+        private xywh {410 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
       }
       Fl_Button smaller_ {
         label F
@@ -100,8 +100,8 @@ view_->topline(line_[index_]);}
 
 if (view_->textsize() <= 8)
   smaller_->deactivate();
-larger_->activate();}
-        private xywh {345 350 25 25} labelfont 1 labelsize 10
+larger_->activate();} selected
+        private xywh {305 350 25 25} labelfont 1 labelsize 10
       }
       Fl_Button larger_ {
         label F
@@ -111,7 +111,7 @@ larger_->activate();}
 if (view_->textsize() >= 18)
   larger_->deactivate();
 smaller_->activate();}
-        private xywh {375 350 25 25} labelfont 1 labelsize 16
+        private xywh {340 350 25 25} labelfont 1 labelsize 16
       }
     }
     code {back_->deactivate();
@@ -120,7 +120,7 @@ forward_->deactivate();
 index_ = -1;
 max_  = 0;} {}
   }
-  Function {h()} {selected return_type int
+  Function {h()} {return_type int
   } {
     code {return (window_->h());} {}
   }
