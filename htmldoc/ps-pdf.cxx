@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.109 2001/10/03 19:36:27 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.110 2001/10/05 12:02:57 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -216,9 +216,9 @@ typedef struct			//// Page information
  * Timezone offset for dates, below...
  */
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__)
 #  define timezone (doc_date->tm_gmtoff)
-#endif /* __*BSD__ */
+#endif /* __*BSD__ || __APPLE__ */
 
 
 /*
@@ -769,7 +769,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
     parse_contents(toc, 0, PagePrintWidth, bottom, top, &y, &page, &heading);
     if (PageDuplex && (num_pages & 1))
-      num_pages ++;
+      check_pages(num_pages);
     chapter_ends[0] = num_pages - 1;
   }
 
@@ -10061,5 +10061,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.109 2001/10/03 19:36:27 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.110 2001/10/05 12:02:57 mike Exp $".
  */
