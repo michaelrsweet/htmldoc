@@ -1,0 +1,468 @@
+<HTML>
+<BODY>
+
+<H1 ALIGN=RIGHT>4 - Generating Documents from the Command-Line</H1>
+
+This chapter describes how to generate one or more document files from
+a given set of HTML "source" files using the <I>HTMLDOC</I> software from the
+command-line.  If you are converting web pages from HTML to PostScript or PDF
+format, be sure to look at the <A HREF=#WEB>Converting Web Pages</A> section.
+
+<H2>Generating a Single File</H2>
+
+To generate a single file containing the entire document, type the following:
+
+<UL><PRE>
+% <B>htmldoc -f outfile.html infile1.html infile2.html ...</B>
+% <B>htmldoc -f outfile.pdf infile1.html infile2.html ...</B>
+% <B>htmldoc -f outfile.ps infile1.html infile2.html ...</B>
+</PRE></UL>
+
+The "outfile.html", "outfile.pdf", and "outfile.ps" arguments are the desired
+output file. "infile1.html", "infile2.html", etc. are your HTML source
+files.
+
+<P>By default <I>HTMLDOC</I> looks at the extension of the output file
+to determine the output format. Files ending in ".ps" select Level 2 Adobe&reg;
+PostScript<SUP>TM</SUP> output. For Level 1 PostScript see <A HREF="#LEVEL1">"Forcing
+Level 1 Output"</A> below.
+
+<H2>Generating Multiple Files</H2>
+
+To generate multiple files for the document, type the following:
+
+<UL><PRE>
+% <B>htmldoc -d outdir -t html infile1.html infile2.html ...</B>
+% <B>htmldoc -d outdir -t ps1 infile1.html infile2.html ...</B>
+% <B>htmldoc -d outdir -t ps2 infile1.html infile2.html ...</B>
+</PRE></UL>
+
+The "outdir" argument is the desired output directory. The "-t html", "-t
+ps1", and "-t ps2" arguments select HTML and PostScript output, respectively.
+"infile1.html", "infile2.html", etc. are your HTML source files. A separate
+HTML or PostScript file (doc####.html or doc####.ps) will be created for
+each chapter (H1 heading) in the document as well as a table of contents
+file (index.html or index.ps). For HTML output, all local image files that
+are referenced in the document will be copied to the output directory as
+well.
+
+<P><B>Multiple output files are currently not supported for PDF output.</B>
+
+<H2>General Options</H2>
+
+The following options apply to all output formats.
+
+<H3>Numbering the Headings</H3>
+
+Some types of documents require paragraph/heading numbers. To enable automatic
+heading numbering use the "--numbered" option:
+
+<UL><PRE>
+% <B>htmldoc --numbered -f outfile.html ...</B>
+</PRE></UL>
+
+<H3>Adding a Logo Image</H3>
+
+The logo image is optionally displayed in the page heading of
+PostScript and PDF output and at the top of the navigation bar along
+the left side of the page of HTML output. To include a document "logo"
+use the "--logo" option to <I>HTMLDOC</I>:
+
+<UL><PRE>
+% <B>htmldoc --logo logo.gif ...</B>
+</PRE></UL>
+
+The logo file can be of any supported image file type (GIF, JPEG, PNG).
+
+<H3>Adding a Title Image</H3>
+
+The title image is displayed on the title page. To include a title page
+image use the "--title" option to <I>HTMLDOC</I>:
+
+<UL><PRE>
+% <B>htmldoc --title title.gif ...</B>
+</PRE></UL>
+
+The logo file can be of any supported image file type (GIF, JPEG, PNG).
+
+<H3 ID=WEB>Converting Web Pages</H3>
+
+To convert unstructured HTML documents such as web pages, use the "--webpage"
+option to <I>HTMLDOC</I>:
+
+<UL><PRE>
+% <B>htmldoc --webpage ...</B>
+</PRE></UL>
+
+This is equivalent to using the "--no-title" and "--no-toc" options.
+
+<H3>Setting the Table of Contents Depth</H3>
+
+To set the number of heading levels to show in the table-of-contents use
+the "--toclevels" option to <I>HTMLDOC</I>:
+
+<UL><PRE>
+% <B>htmldoc --toclevels # ...</B>
+</PRE></UL>
+
+The default depth is three levels (H1 to H3). To turn the table of contents
+off, use the "--no-toc" option:
+
+<UL><PRE>
+% <B>htmldoc --no-toc ...</B>
+</PRE></UL>
+
+<H3>Disabling the Title Page</H3>
+
+The title page is normally generated for all HTML, PostScript, and PDF output.
+To turn the title page off use the "--no-title" option:
+
+<UL><PRE>
+% <B>htmldoc --no-title ...</B>
+</PRE></UL>
+
+<H3>Changing the Body (Background) Color</H3>
+
+Use the "--bodycolor" option to change the background color:
+
+<UL><PRE>
+% <B>htmldoc --bodycolor #RRGGBB ...</B>
+</PRE></UL>
+
+The color can be any primary color (black, red, green, yellow, blue, magenta,
+cyan, or white) or a specific red-green-blue value.
+
+<H3>Changing the Body (Background) Image</H3>
+
+Use the "--bodyimage" option to change the background image:
+
+<UL><PRE>
+% <B>htmldoc --bodyimage filename ...</B>
+</PRE></UL>
+
+The image file can be any PNG, GIF, or JPEG image.
+
+<H2>HTML-Specific Options</H2>
+
+The following options apply to HTML output.
+
+<H3>Changing the Navigation Bar Color</H3>
+
+Use the "--barcolor" option to match the navigation bar color to your logo
+image:
+
+<UL><PRE>
+% <B>htmldoc --logo logo.gif --barcolor #RRGGBB ...</B>
+</PRE></UL>
+
+The color can be any primary color (black, red, green, yellow, blue, magenta,
+cyan, or white) or a specific red-green-blue value.
+
+<H2>PostScript-Specific Options</H2>
+
+The following options apply to PostScript output.
+
+<H3>Forcing Grayscale Output</H3>
+
+To force all output to be in grayscale use the "--gray" option:
+
+<UL><PRE>
+% <B>htmldoc --gray -f outfile.ps ...</B>
+</PRE></UL>
+
+This option is necessary for all B&amp;W Level 1 PostScript printers.
+
+<H3>Using JPEG Compression</H3>
+
+To use JPEG compression for large images use the "--jpeg" option:
+
+<UL><PRE>
+% <B>htmldoc --jpeg -f outfile.ps ...</B>
+</PRE></UL>
+
+The default JPEG quality is 90; to set a different quality use:
+
+<UL><PRE>
+% <B>htmldoc --jpeg=<I>quality</I> -f outfile.ps ...</B>
+</PRE></UL>
+
+where <I>quality</I> is the standard JPEG quality level from 1 to 100.
+
+<P>JPEG compression is not available on Level 1 PostScript printers.
+
+<H3><A NAME="LEVEL1"></A>Forcing Level 1 Output</H3>
+
+To force Level 1 PostScript output use the "-t ps1" option:
+
+<UL><PRE>
+% <B>htmldoc -f outfile.ps -t ps1 ...</B>
+</PRE></UL>
+
+This option is necessary for all Level 1 PostScript printers.
+
+<H3>Requesting Double-Sided Output</H3>
+
+The "--duplex" option specifies double-sided output:
+
+<UL><PRE>
+% <B>htmldoc --duplex -f outfile.ps ...</B>
+</PRE></UL>
+
+Note that this does not select duplexing on the printer but merely adjusts
+the formatting so that the left &amp; right margins are swapped on the
+back side and chapters start on an odd-numbered page. You must still select
+duplexing in your printer driver or on the printer itself.
+
+<H3>Setting the Page Size</H3>
+
+The "--size" option specifies the output page size:
+
+<UL><PRE>
+% <B>htmldoc --size letter ...</B>
+% <B>htmldoc --size a4 ...</B>
+% <B>htmldoc --size universal ...</B>
+% <B>htmldoc --size WIDTHxHEIGHT ...</B>
+% <B>htmldoc --size WIDTHxHEIGHTin ...</B>
+% <B>htmldoc --size WIDTHxHEIGHTcm ...</B>
+% <B>htmldoc --size WIDTHxHEIGHTmm ...</B>
+</PRE></UL>
+
+The "WIDTH" and "HEIGHT" arguments can be in points (no units specified),
+inches, centimeters, or millimeters. The default page size is Universal
+(8.27x11in or 210x279mm) which is the minimum of the US and European standard
+sizes (Letter and A4, respectively).
+
+<P>Note that this does not select a media size on the printer but merely
+adjusts the formatting so that the text and images appear within the given
+page area. You must still select the appropriate media size in your printer
+driver or on the printer itself.
+
+<H3>Setting the Page Margins</H3>
+
+The "--left", "--right", "--top", and "--bottom" options control the page
+margins of the output. The defaults are 1 inch (25mm) for the left and
+0.5 inches (12mm) for the right, top, and bottom margins.
+
+<H3>Setting the Default Font Typeface and Size</H3>
+
+The default font size, spacing, and typefaces are controlled by the
+"--fontsize", "--fontspacing", "--bodyfont", and "--headingfont"
+options:
+
+<UL><PRE>
+% <B>htmldoc --fontsize 9.0 --fontspacing 2.0 ...</B>
+% <B>htmldoc --bodyfont helvetica ...</B>
+% <B>htmldoc --headingfont times ...</B>
+</PRE></UL>
+
+The typefaces for "--bodyfont" and "--headingfont" can be "courier",
+"times", or "helvetica".
+
+<H3>Customizing the Page Headers and Footers</H3>
+
+The "--header" and "--footer" options allow you to customize the headers and
+footers used for the document body.  Each option requires a three character
+string that specifies the left, middle, and right fields:
+
+<CENTER><TABLE WIDTH=50% BORDER=1>
+<TR>
+	<TH WIDTH=60>Char</TH>
+	<TH>Description</TD>
+</TR>
+<TR>
+	<TD>.</TD>
+	<TD>A period indicates that the field should be blank.</TD>
+</TR>
+<TR>
+	<TD>t</TD>
+	<TD>A "t" indicates that the field should contain the document title.</TD>
+</TR>
+<TR>
+	<TD>h</TD>
+	<TD>An "h" indicates that the field should contain the current heading.</TD>
+</TR>
+<TR>
+	<TD>l</TD>
+	<TD>A lowercase L indicates that the field should contain the logo
+	image.</TD>
+</TR>
+<TR>
+	<TD>1</TD>
+	<TD>The number 1 indicates that the field should contain the current
+	page number in decimal format (1, 2, 3, ...)</TD>
+</TR>
+<TR>
+	<TD>i</TD>
+	<TD>A lowercase I indicates that the field should contain the current
+	page number in lowercase roman numerals (i, ii, iii, ...)</TD>
+</TR>
+<TR>
+	<TD>I</TD>
+	<TD>An uppercase I indicates that the field should contain the current
+	page number in uppercase roman numerals (I, II, III, ...)</TD>
+</TR>
+</TABLE></CENTER>
+
+The "--tocheader" and "--tocfooter" options control the header and footer on
+table-of-contents pages.
+
+<H3>Setting the Header and Footer Font</H3>
+
+The "--headfootsize" and "--headfootfont" options set the size and typeface
+of the font used for the page headers and footers:
+
+<UL><PRE>
+% <B>htmldoc --headfootsize 9.0 --headfootfont courier ...</B>
+</PRE></UL>
+
+<H2>PDF-Specific Options</H2>
+
+The following options apply to PDF output.
+
+<H3>Forcing Grayscale Output</H3>
+
+To force all output to be in grayscale use the "--gray" option:
+
+<UL><PRE>
+% <B>htmldoc --gray -f outfile.pdf ...</B>
+</PRE></UL>
+
+<H3>Using JPEG Compression</H3>
+
+To use JPEG compression for large images use the "--jpeg" option:
+
+<UL><PRE>
+% <B>htmldoc --jpeg -f outfile.pdf ...</B>
+</PRE></UL>
+
+The default JPEG quality is 90; to set a different quality use:
+
+<UL><PRE>
+% <B>htmldoc --jpeg=<I>quality</I> -f outfile.pdf ...</B>
+</PRE></UL>
+
+where <I>quality</I> is the standard JPEG quality level from 1 to 100.
+
+<H3>Requesting Double-Sided Output</H3>
+
+The "--duplex" option specifies double-sided output:
+
+<UL><PRE>
+% <B>htmldoc --duplex -f outfile.pdf ...</B>
+</PRE></UL>
+
+Note that this does not select duplexing on the printer but merely adjusts
+the formatting so that the left &amp; right margins are swapped on the
+back side and chapters start on an odd-numbered page. You must still select
+duplexing in your printer driver or on the printer itself.
+
+<H3>Setting the Page Size</H3>
+
+The "--size" option specifies the output page size:
+
+<UL><PRE>
+% <B>htmldoc --size letter ...</B>
+% <B>htmldoc --size a4 ...</B>
+% <B>htmldoc --size universal ...</B>
+% <B>htmldoc --size WIDTHxHEIGHT ...</B>
+% <B>htmldoc --size WIDTHxHEIGHTin ...</B>
+% <B>htmldoc --size WIDTHxHEIGHTcm ...</B>
+% <B>htmldoc --size WIDTHxHEIGHTmm ...</B>
+</PRE></UL>
+
+The "WIDTH" and "HEIGHT" arguments can be in points (no units specified),
+inches, centimeters, or millimeters. The default page size is Universal
+(8.27x11in or 210x279mm) which is the minimum of the US and European standard
+sizes (Letter and A4, respectively).
+
+<P>Note that this does not select a media size on the printer but merely
+adjusts the formatting so that the text and images appear within the given
+page area. You must still select the appropriate media size in your printer
+driver or on the printer itself.
+
+<H3>Setting the Page Margins</H3>
+
+The "--left", "--right", "--top", and "--bottom" options control the page
+margins of the output. The defaults are 1 inch (25mm) for the left and
+0.5 inches (12mm) for the right, top, and bottom margins.
+
+<H3>Setting the Default Font Typeface and Size</H3>
+
+The default font size, spacing, and typefaces are controlled by the
+"--fontsize", "--fontspacing", "--bodyfont", and "--headingfont"
+options:
+
+<UL><PRE>
+% <B>htmldoc --fontsize 9.0 --fontspacing 2.0 ...</B>
+% <B>htmldoc --bodyfont helvetica ...</B>
+% <B>htmldoc --headingfont times ...</B>
+</PRE></UL>
+
+The typefaces for "--bodyfont" and "--headingfont" can be "courier",
+"times", or "helvetica".
+
+<H3>Customizing the Page Headers and Footers</H3>
+
+The "--header" and "--footer" options allow you to customize the headers and
+footers used for the document body.  Each option requires a three character
+string that specifies the left, middle, and right fields:
+
+<CENTER><TABLE WIDTH=50% BORDER=1>
+<TR>
+	<TH WIDTH=60>Char</TH>
+	<TH>Description</TD>
+</TR>
+<TR>
+	<TD>.</TD>
+	<TD>A period indicates that the field should be blank.</TD>
+</TR>
+<TR>
+	<TD>t</TD>
+	<TD>A "t" indicates that the field should contain the document title.</TD>
+</TR>
+<TR>
+	<TD>h</TD>
+	<TD>An "h" indicates that the field should contain the current heading.</TD>
+</TR>
+<TR>
+	<TD>l</TD>
+	<TD>A lowercase L indicates that the field should contain the logo
+	image.</TD>
+</TR>
+<TR>
+	<TD>1</TD>
+	<TD>The number 1 indicates that the field should contain the current
+	page number in decimal format (1, 2, 3, ...)</TD>
+</TR>
+<TR>
+	<TD>i</TD>
+	<TD>A lowercase I indicates that the field should contain the current
+	page number in lowercase roman numerals (i, ii, iii, ...)</TD>
+</TR>
+<TR>
+	<TD>I</TD>
+	<TD>An uppercase I indicates that the field should contain the current
+	page number in uppercase roman numerals (I, II, III, ...)</TD>
+</TR>
+</TABLE></CENTER>
+
+The "--tocheader" and "--tocfooter" options control the header and footer on
+table-of-contents pages.
+
+<H3>Setting the Header and Footer Font</H3>
+
+The "--headfootsize" and "--headfootfont" options set the size and typeface
+of the font used for the page headers and footers:
+
+<UL><PRE>
+% <B>htmldoc --headfootsize 9.0 --headfootfont courier ...</B>
+</PRE></UL>
+
+<H3>Disabling Document Compression</H3>
+
+Normally each page in a PDF file is compressed using the Flate method (GZIP).
+Versions of Acrobat Reader prior to 3.0 do not understand Flate compression.
+To disable compression use the "--no-compression" option.
+
+</BODY>
+</HTML>

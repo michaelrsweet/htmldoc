@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.11 1999/11/12 21:59:57 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.12 1999/11/14 13:15:08 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1921,6 +1921,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
   uchar		*width_ptr,	/* Pointer to width string */
 		*height_ptr;	/* Pointer to height string */
   image_t	*img;		/* Image */
+  char		number[255];	/* Width or height value */
 
 
   if (!_htmlInitialized)
@@ -1949,16 +1950,34 @@ compute_size(tree_t *t)		/* I - Tree entry */
     {
       t->width  = atoi((char *)width_ptr) / _htmlPPI * 72.0f;
       t->height = t->width * img->height / img->width;
+
+      sprintf(number, "%d",
+              atoi((char *)width_ptr) * img->height / img->width);
+      if (strchr((char *)width_ptr, '%') != NULL)
+        strcat(number, "%");
+      cgiSetVariable(t, (uchar *)"HEIGHT", (uchar *)number);
     }
     else if (height_ptr != NULL)
     {
       t->height = atoi((char *)height_ptr) / _htmlPPI * 72.0f;
       t->width  = t->height * img->width / img->height;
+
+      sprintf(number, "%d",
+              atoi((char *)height_ptr) * img->width / img->height);
+      if (strchr((char *)height_ptr, '%') != NULL)
+        strcat(number, "%");
+      cgiSetVariable(t, (uchar *)"WIDTH", (uchar *)number);
     }
     else
     {
       t->width  = img->width / _htmlPPI * 72.0f;
       t->height = img->height / _htmlPPI * 72.0f;
+
+      sprintf(number, "%d", img->width);
+      cgiSetVariable(t, (uchar *)"WIDTH", (uchar *)number);
+
+      sprintf(number, "%d", img->height);
+      cgiSetVariable(t, (uchar *)"HEIGHT", (uchar *)number);
     }
 
     return (0);
@@ -2184,5 +2203,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.11 1999/11/12 21:59:57 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.12 1999/11/14 13:15:08 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.15 1999/11/13 14:34:29 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.16 1999/11/14 13:15:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2203,8 +2203,10 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       add_link(name, *page, (int)(*y + 3 * t->height));
     }
 
-    if (t->markup == MARKUP_H1 && OutputBook)
+    if ((t->markup == MARKUP_H1 && OutputBook) ||
+        (t->markup == MARKUP_FILE && !OutputBook))
     {
+      // New page on H1 in book mode or file in webpage mode...
       if (para->child != NULL)
       {
         parse_paragraph(para, left, right, bottom, top, x, y, page);
@@ -5890,8 +5892,7 @@ write_trailer(FILE *out,	/* I - Output file */
     if (PDFVersion >= 1.2)
     {
       fprintf(out, "/Names %d 0 R", names_object);
-      fprintf(out, "/ViewerPreferences<</PageLayout/%s>>",
-              layouts[PDFPageLayout]);
+      fprintf(out, "/PageLayout/%s", layouts[PDFPageLayout]);
     }
 
     if (outline_object > 0)
@@ -6082,5 +6083,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.15 1999/11/13 14:34:29 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.16 1999/11/14 13:15:09 mike Exp $".
  */
