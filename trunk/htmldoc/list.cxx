@@ -1,9 +1,9 @@
 //
-// "$Id: list.cxx,v 1.4 2002/04/03 21:04:31 mike Exp $"
+// "$Id: list.cxx,v 1.5 2004/02/03 02:55:28 mike Exp $"
 //
 //   List generation methods for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -189,5 +189,5 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: list.cxx,v 1.4 2002/04/03 21:04:31 mike Exp $".
+// End of "$Id: list.cxx,v 1.5 2004/02/03 02:55:28 mike Exp $".
 //

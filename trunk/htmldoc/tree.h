@@ -1,9 +1,9 @@
 //
-// "$Id: tree.h,v 1.19 2003/02/18 03:54:33 mike Exp $"
+// "$Id: tree.h,v 1.20 2004/02/03 02:55:29 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -219,7 +219,7 @@ struct hdTree
   * @param page int&amp; The current page.
   */
   void			format_comment(hdStyleSheet *css, hdMargin *m,
-			               float &x, float &y, int &page);
+			               float &x, float &y);
 
  /**
   * The <TT>format_contents()</TT> method formats a table-of-contents.
@@ -231,7 +231,7 @@ struct hdTree
   * @param page int&amp; The current page.
   */
   void			format_contents(hdStyleSheet *css, hdMargin *m,
-			                float &x, float &y, int &page);
+			                float &x, float &y);
 
  /**
   * The <TT>format_doc()</TT> method formats this node and all child nodes,
@@ -244,7 +244,7 @@ struct hdTree
   * @param page int&amp; The current page.
   */
   void			format_doc(hdStyleSheet *css, hdMargin *m,
-			           float &x, float &y, int &page);
+			           float &x, float &y);
 
  /**
   * The <TT>format_index()</TT> method formats an index.
@@ -256,7 +256,7 @@ struct hdTree
   * @param page int&amp; The current page.
   */
   void			format_index(hdStyleSheet *css, hdMargin *m,
-			             float &x, float &y, int &page);
+			             float &x, float &y);
 
  /**
   * The <TT>format_list()</TT> method formats a list of whatever.
@@ -268,7 +268,7 @@ struct hdTree
   * @param page int&amp; The current page.
   */
   void			format_list(hdStyleSheet *css, hdMargin *m,
-			            float &x, float &y, int &page);
+			            float &x, float &y);
 
  /**
   * The <TT>format_table()</TT> method formats a table, updating the width,
@@ -281,7 +281,7 @@ struct hdTree
   * @param page int&amp; The current page.
   */
   void			format_table(hdStyleSheet *css, hdMargin *m,
-			             float &x, float &y, int &page);
+			             float &x, float &y);
 
  /**
   * The <TT>get_attr()</TT> method retrieves the value of a node attribute.
@@ -453,5 +453,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.19 2003/02/18 03:54:33 mike Exp $".
+// End of "$Id: tree.h,v 1.20 2004/02/03 02:55:29 mike Exp $".
 //

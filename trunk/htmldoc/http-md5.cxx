@@ -1,9 +1,9 @@
 //
-// "$Id: http-md5.cxx,v 1.3 2002/09/24 23:26:49 mike Exp $"
+// "$Id: http-md5.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $"
 //
 //   MD5 password support for HTMLDOC.
 //
-//   Copyright 1997-2002 by Easy Software Products, all rights reserved.
+//   Copyright 1997-2004 by Easy Software Products, all rights reserved.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -146,5 +146,5 @@ hdHTTP::md5_string(const hdByte *sum,		/* I - MD5 sum data */
 
 
 /*
- * End of "$Id: http-md5.cxx,v 1.3 2002/09/24 23:26:49 mike Exp $".
+ * End of "$Id: http-md5.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $".
  */

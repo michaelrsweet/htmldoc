@@ -1,9 +1,9 @@
 //
-// "$Id: stylemedia.cxx,v 1.1 2002/05/06 21:00:17 mike Exp $"
+// "$Id: stylemedia.cxx,v 1.2 2004/02/03 02:55:29 mike Exp $"
 //
 //   CSS media routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -188,5 +188,5 @@ hdStyleMedia::update_printable()
 
 
 //
-// End of "$Id: stylemedia.cxx,v 1.1 2002/05/06 21:00:17 mike Exp $".
+// End of "$Id: stylemedia.cxx,v 1.2 2004/02/03 02:55:29 mike Exp $".
 //

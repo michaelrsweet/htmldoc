@@ -1,9 +1,9 @@
 //
-// "$Id: file-rc4.cxx,v 1.1 2002/02/26 05:16:00 mike Exp $"
+// "$Id: file-rc4.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $"
 //
 //   RC4 filter functions for HTMLDOC.
 //
-//   Copyright 2001-2002 by Easy Software Products
+//   Copyright 2001-2004 by Easy Software Products
 //
 //   Original code by Tim Martin
 //   Copyright 1999 by Carnegie Mellon University, All Rights Reserved
@@ -256,5 +256,5 @@ hdRC4Filter::encrypt(const unsigned char *input,// I - Input buffer
 
 
 //
-// End of "$Id: file-rc4.cxx,v 1.1 2002/02/26 05:16:00 mike Exp $".
+// End of "$Id: file-rc4.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $".
 //

@@ -1,9 +1,9 @@
 //
-// "$Id: image-jpeg.cxx,v 1.5 2002/01/08 19:21:03 mike Exp $"
+// "$Id: image-jpeg.cxx,v 1.6 2004/02/03 02:55:28 mike Exp $"
 //
 // JPEG image handling routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2002 by Easy Software Products.
+// Copyright 1997-2004 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -301,5 +301,5 @@ jpg_source::jpg_source(j_decompress_ptr cinfo,	// I - Decompressor data
 
 
 //
-// End of "$Id: image-jpeg.cxx,v 1.5 2002/01/08 19:21:03 mike Exp $".
+// End of "$Id: image-jpeg.cxx,v 1.6 2004/02/03 02:55:28 mike Exp $".
 //

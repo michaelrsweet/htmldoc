@@ -1,9 +1,9 @@
 //
-// "$Id: http.h,v 1.12 2002/09/24 23:26:49 mike Exp $"
+// "$Id: http.h,v 1.13 2004/02/03 02:55:28 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class definitions for HTMLDOC.
 //
-//   Copyright 1997-2002 by Easy Software Products, all rights reserved.
+//   Copyright 1997-2004 by Easy Software Products, all rights reserved.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -333,5 +333,5 @@ class hdHTTP
 #endif // !_HTMLDOC_HTTP_H_
 
 //
-// End of "$Id: http.h,v 1.12 2002/09/24 23:26:49 mike Exp $".
+// End of "$Id: http.h,v 1.13 2004/02/03 02:55:28 mike Exp $".
 //

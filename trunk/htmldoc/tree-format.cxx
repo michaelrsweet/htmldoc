@@ -1,9 +1,9 @@
 //
-// "$Id: tree-format.cxx,v 1.6 2003/02/18 03:54:33 mike Exp $"
+// "$Id: tree-format.cxx,v 1.7 2004/02/03 02:55:29 mike Exp $"
 //
 //   HTML formatting routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -86,7 +86,7 @@ hdTree::format_doc(hdStyleSheet *css,		// I  - Style sheet
 
   while (temp != NULL)
   {
-    printf("temp = %p\n", temp);
+//    printf("temp = %p\n", temp);
 
     // If there is whitespace here, process the fragment...
     temp->nodebreak = HD_NODEBREAK_NONE;
@@ -430,5 +430,5 @@ hdTree::format_list(hdStyleSheet *css,		// I  - Style sheet
 
 
 //
-// End of "$Id: tree-format.cxx,v 1.6 2003/02/18 03:54:33 mike Exp $".
+// End of "$Id: tree-format.cxx,v 1.7 2004/02/03 02:55:29 mike Exp $".
 //

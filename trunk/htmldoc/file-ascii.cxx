@@ -1,9 +1,9 @@
 //
-// "$Id: file-ascii.cxx,v 1.1 2002/02/26 05:16:00 mike Exp $"
+// "$Id: file-ascii.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $"
 //
 //   ASCII filter functions for HTMLDOC.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -401,5 +401,5 @@ hdASCIIHexFilter::unget(int c)	// I - Character to unget
 
 
 //
-// End of "$Id: file-ascii.cxx,v 1.1 2002/02/26 05:16:00 mike Exp $".
+// End of "$Id: file-ascii.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $".
 //

@@ -1,9 +1,9 @@
 //
-// "$Id: tree.cxx,v 1.21 2003/01/02 04:36:07 mike Exp $"
+// "$Id: tree.cxx,v 1.22 2004/02/03 02:55:29 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1818,5 +1818,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.21 2003/01/02 04:36:07 mike Exp $".
+// End of "$Id: tree.cxx,v 1.22 2004/02/03 02:55:29 mike Exp $".
 //

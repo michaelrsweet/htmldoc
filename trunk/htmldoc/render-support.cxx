@@ -1,10 +1,10 @@
 //
-// "$Id: render-support.cxx,v 1.2 2002/05/06 13:23:41 mike Exp $"
+// "$Id: render-support.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $"
 //
 //   Rendering support methods for HTMLDOC, a HTML document processing
 //   program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -497,5 +497,5 @@ hdRenderNode::~hdRenderNode()
 
 
 //
-// End of "$Id: render-support.cxx,v 1.2 2002/05/06 13:23:41 mike Exp $".
+// End of "$Id: render-support.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $".
 //

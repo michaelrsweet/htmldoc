@@ -1,9 +1,9 @@
 //
-// "$Id: render.h,v 1.19 2003/12/06 04:01:35 mike Exp $"
+// "$Id: render.h,v 1.20 2004/02/03 02:55:29 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -606,5 +606,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.19 2003/12/06 04:01:35 mike Exp $".
+// End of "$Id: render.h,v 1.20 2004/02/03 02:55:29 mike Exp $".
 //

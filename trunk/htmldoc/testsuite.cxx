@@ -1,9 +1,9 @@
 //
-// "$Id: testsuite.cxx,v 1.12 2003/01/08 02:38:50 mike Exp $"
+// "$Id: testsuite.cxx,v 1.13 2004/02/03 02:55:29 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -720,5 +720,5 @@ write_test(hdFile *fp)	// I - File to write to...
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.12 2003/01/08 02:38:50 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.13 2004/02/03 02:55:29 mike Exp $".
 //

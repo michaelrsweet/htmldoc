@@ -1,5 +1,5 @@
 #
-#   "$Id: Makedefs.in,v 1.10 2002/02/08 19:39:48 mike Exp $"
+#   "$Id: Makedefs.in,v 1.11 2004/02/03 02:55:28 mike Exp $"
 #
 #   Makefile definitions for HTMLDOC, an HTML document processing program.
 #
@@ -68,11 +68,13 @@ top_srcdir	=	@top_srcdir@
 #
 
 ARFLAGS	=	@ARFLAGS@
-CFLAGS	=	@CFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@ -I..
-CXXFLAGS =	@CXXFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@ -I..
+CFLAGS	=	-I.. @CFLAGS@ $(OPTIM) $(SSLFLAGS) @JPEGINC@ @PNGINC@ @ZLIBINC@
+CXXFLAGS =	-I.. @CXXFLAGS@ $(OPTIM) $(SSLFLAGS) @JPEGINC@ @PNGINC@ @ZLIBINC@
 LDFLAGS	=	@LDFLAGS@ $(OPTIM)
 LIBS	=	@LIBS@
 OPTIM	=	@OPTIM@
+SSLFLAGS =	@SSLFLAGS@
+
 
 #
 # Rules...
@@ -88,5 +90,5 @@ OPTIM	=	@OPTIM@
 	$(CXX) $(CXXFLAGS) -c $<
 
 #
-# End of "$Id: Makedefs.in,v 1.10 2002/02/08 19:39:48 mike Exp $".
+# End of "$Id: Makedefs.in,v 1.11 2004/02/03 02:55:28 mike Exp $".
 #

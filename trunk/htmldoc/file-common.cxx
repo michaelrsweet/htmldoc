@@ -1,9 +1,9 @@
 //
-// "$Id: file-common.cxx,v 1.2 2002/01/06 20:04:47 mike Exp $"
+// "$Id: file-common.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $"
 //
 //   Common file routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -329,5 +329,5 @@ hdFile::puts(const char *s)	// I - String to write
 
 
 //
-// End of "$Id: file-common.cxx,v 1.2 2002/01/06 20:04:47 mike Exp $".
+// End of "$Id: file-common.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $".
 //
