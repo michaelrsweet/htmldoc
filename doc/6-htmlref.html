@@ -258,18 +258,18 @@ following additional attributes for all heading elements:
 <H2><A NAME="IMAGES">Images</A></H2>
 
 <I>HTMLDOC</I> supports loading of BMP, GIF, JPEG, and PNG image files.
-EPS, and other types of image files are not supported at this
+EPS and other types of image files are not supported at this
 time.
 
 <H2><A NAME="LINKS">Links</A></H2>
 
-Currently <I>HTMLDOC</I> supports a maximum of 20000 links within a
+<P>Currently <I>HTMLDOC</I> supports a maximum of 20000 links within a
 document. This limit can be increased by changing the constant in
 the <VAR>config.h</VAR> file included with the source code.
 
-<P>External URL links are fully supported for HTML and PDF output, and
-internal links (<CODE>#target</CODE> and <CODE>filename.html</CODE>)
-are supported in HTML and PDF output.
+<P>External URL and internal (<CODE>#target</CODE> and
+<CODE>filename.html</CODE>) links are fully supported for HTML
+and PDF output.
 
 <P>When generating PDF files, local PDF file links will be converted to
 external file links for the PDF viewer instead of URL links. That is, you
