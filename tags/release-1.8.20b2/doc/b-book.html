@@ -1,0 +1,121 @@
+<HTML>
+<BODY>
+
+<!-- FOOTER RIGHT "B-$CHAPTERPAGE" -->
+<DIV ALIGN="justify">
+
+<H1 ALIGN="RIGHT"><A NAME="BOOKFORMAT">Appendix B - Book File Format</A></H1>
+
+<P>This appendix describes the <I>HTMLDOC</I> <VAR>.book</VAR> file format.
+
+<H2>Introduction</H2>
+
+<P>The <I>HTMLDOC</I> <VAR>.book</VAR> file format is a simple
+text format that provides the command-line options and files
+that are part of the document. These files can be used from the
+GUI interface or from the command-line using the
+<CODE>--batch</CODE> option:
+
+<UL><PRE>
+htmldoc filename.book
+htmldoc --batch filename.book
+</PRE></UL>
+
+<P>The first form will load the book and display the GUI interface, if configured.
+Windows users should use <VAR>ghtmldoc.exe</VAR> executable to show the GUI and
+<VAR>htmldoc.exe</VAR> for the batch mode:
+
+<UL><PRE>
+ghtmldoc.exe filename.book
+htmldoc.exe --batch filename.book
+</PRE></UL>
+
+<H2>The Header</H2>
+
+<P>Each <VAR>.book</VAR> file starts with a line reading:
+
+<UL><PRE>
+#HTMLDOC 1.8.17
+</PRE></UL>
+
+<P>The version number (1.8.17) is optional.
+
+<H2>The Options</H2>
+
+<P>Following the header is a line containing the options for the book. You can
+use any valid command-line option on this line:
+
+<UL><PRE>
+-f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
+</PRE></UL>
+
+<P>Long option lines can be broken using a trailing backslash (<TT>\</TT>) on
+the end of each continuation line:</P>
+
+<UL><PRE>
+-f htmldoc.pdf --titleimage htmldoc.png --duplex \
+--compression=9 --jpeg=90
+</PRE></UL>
+
+<H2>The Files</H2>
+
+<P>Following the options are a list of files or URLs to include in the document:
+
+<UL><PRE>
+intro.html
+1-install.html
+2-starting.html
+3-books.html
+4-cmdline.html
+5-cgi.html
+6-htmlref.html
+7-guiref.html
+8-cmdref.html
+a-license.html
+b-book.html
+c-relnotes.html
+</PRE></UL>
+
+<H2>Putting It All Together</H2>
+
+<P>The following is the complete book file needed to generate this documentation:
+
+<UL><PRE>
+#HTMLDOC 1.8.13
+-f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
+intro.html
+1-install.html
+2-starting.html
+3-books.html
+4-cmdline.html
+5-cgi.html
+6-htmlref.html
+7-guiref.html
+8-cmdref.html
+a-license.html
+b-book.html
+c-relnotes.html
+</PRE></UL>
+
+<!-- NEED 3in -->
+<H2>Older Book Files</H2>
+
+<P>Prior to <I>HTMLDOC</I> version 1.8.12, the book file format was slightly
+different:
+
+<UL><PRE>
+#HTMLDOC version
+file count
+file(s)
+options
+</PRE></UL>
+
+<P>While <I>HTMLDOC</I> still supports reading this format, we do not recommend
+using it for new books. In particular, when generating a document using the
+<CODE>--batch</CODE> option, some options may not be applied correctly since
+the files are loaded prior to setting the output options in the old format.
+
+</DIV>
+
+</BODY>
+</HTML>
