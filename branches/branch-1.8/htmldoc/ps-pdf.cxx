@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.33 2001/03/01 01:16:32 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.34 2001/03/04 12:29:59 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4239,7 +4239,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     {
       // Row height specified; make sure it'll fit...
       if (height_var[strlen((char *)height_var) - 1] == '%')
-	temp_height = atof((char *)height_var) * 0.01f * PagePrintLength;
+	temp_height = atof((char *)height_var) * 0.01f *
+	              (PagePrintLength - 2 * (border + cellpadding));
       else
         temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
 
@@ -4259,11 +4260,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  temp_height = cells[row][col]->height;
     }
 
-    if (temp_height > (PageLength / 8))
+    if (temp_height > (PageLength / 8) && height_var == NULL)
       temp_height = PageLength / 8;
 
     if (*y < (bottom + 2 * (border + cellpadding) + temp_height) &&
-        temp_height < (top - bottom - 2 * (border + cellpadding)))
+        temp_height <= (top - bottom - 2 * (border + cellpadding)))
     {
       *y = top;
       (*page) ++;
@@ -8180,5 +8181,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.33 2001/03/01 01:16:32 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.34 2001/03/04 12:29:59 mike Exp $".
  */

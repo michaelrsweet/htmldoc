@@ -17,6 +17,8 @@ CHANGES IN HTMLDOC v1.8.12
 	  PostScript Level 2 or 3 output!
 	- The GUI now automatically changes the extension of the
 	  output filename as needed.
+	- The GUI now collects all error messages and shows them
+	  once after the document is generated.
 
     CHANGES
 
