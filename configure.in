@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.26 2001/12/14 19:37:05 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.27 2001/12/21 20:39:10 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -177,6 +177,7 @@ dnl Check for GUI libraries...
 POST=:
 if test "x$FLTKCONFIG" != x; then
     LIBS="$LIBS `$FLTKCONFIG --ldflags`"
+    OPTIM="'$FLTKCONFIG --cflags' $OPTIM"
     AC_DEFINE(HAVE_LIBFLTK)
     GUI=""
     POST="$FLTKCONFIG --post"
@@ -364,5 +365,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.26 2001/12/14 19:37:05 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.27 2001/12/21 20:39:10 mike Exp $".
 dnl
