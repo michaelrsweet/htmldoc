@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.13 2001/06/06 05:19:35 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.14 2001/06/06 13:30:31 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -79,7 +79,7 @@ AC_CHECK_FUNCS(strdup)
 AC_CHECK_FUNCS(strcasecmp)
 AC_CHECK_FUNCS(strncasecmp)
 if test "$uname" = "HP-UX" -a "$uversion" = "1020"; then
-    AC_MSG_WARNING(Forcing snprintf emulation for HP-UX...)
+    AC_MSG_WARN(Forcing snprintf emulation for HP-UX...)
 else
     AC_CHECK_FUNCS(snprintf)
     AC_CHECK_FUNCS(vsnprintf)
@@ -303,5 +303,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.13 2001/06/06 05:19:35 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.14 2001/06/06 13:30:31 mike Exp $".
 dnl
