@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.7 1999/11/12 14:24:27 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.8 1999/11/12 17:48:25 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -334,6 +334,21 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   render_t	*r;		/* Rendering structure... */
   float		rgb[3];		/* Text color */
 
+
+ /*
+  * Figure out the printable area of the output page...
+  */
+
+  if (Landscape)
+  {
+    PagePrintWidth  = PageLength - PageLeft - PageRight;
+    PagePrintLength = PageWidth - PageTop - PageBottom;
+  }
+  else
+  {
+    PagePrintWidth  = PageWidth - PageLeft - PageRight;
+    PagePrintLength = PageLength - PageTop - PageBottom;
+  }
 
  /*
   * Get the document title, author, etc...
@@ -921,6 +936,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
   */
 
   fprintf(out, "%%%%Page: %s %d\n", page_text, file_page);
+
   fputs("GS\n", out);
 
   write_background(out);
@@ -1045,7 +1061,10 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
   fprintf(out, "%d 0 obj", num_objects);
   fputs("<<", out);
   fputs("/Type/Pages", out);
-  fprintf(out, "/MediaBox[0 0 %d %d]", PageWidth, PageLength);
+  if (Landscape)
+    fprintf(out, "/MediaBox[0 0 %d %d]", PageLength, PageWidth);
+  else
+    fprintf(out, "/MediaBox[0 0 %d %d]", PageWidth, PageLength);
 
   fprintf(out, "/Count %d", num_pages);
   fputs("/Kids[", out);
@@ -3893,9 +3912,21 @@ find_background(tree_t *t)	/* I - Document to search */
 static void
 write_background(FILE *out)	/* I - File to write to */
 {
-  float	    x, y;
-  float	    width, height;
+  float	x, y;
+  float	width, height;
+  int	page_width, page_length;
 
+
+  if (Landscape)
+  {
+    page_length = PageWidth;
+    page_width  = PageLength;
+  }
+  else
+  {
+    page_width  = PageWidth;
+    page_length = PageLength;
+  }
 
   if (background_image != NULL)
   {
@@ -3905,8 +3936,8 @@ write_background(FILE *out)	/* I - File to write to */
     switch (PSLevel)
     {
       case 0 :
-          for (x = 0.0; x < PageWidth; x += width)
-            for (y = 0.0; y < PageLength; y += height)
+          for (x = 0.0; x < page_width; x += width)
+            for (y = 0.0; y < page_length; y += height)
             {
   	      flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
               flate_puts("/BG Do\n", out);
@@ -3917,7 +3948,7 @@ write_background(FILE *out)	/* I - File to write to */
       case 1 :
       case 2 :
           fprintf(out, "0 %.1f %d{/y exch def 0 %.1f %d{/x exch def\n",
-	          height, PageLength + (int)height - 1, width, PageWidth);
+	          height, page_length + (int)height - 1, width, page_width);
           fprintf(out, "GS[%.1f 0 0 %.1f x y]CM/iy -1 def\n", width, height);
 	  fprintf(out, "%d %d 8[%d 0 0 %d 0 %d]",
 	          background_image->width, background_image->height,
@@ -3941,12 +3972,12 @@ write_background(FILE *out)	/* I - File to write to */
       render_x = -1.0;
       render_y = -1.0;
       set_color(out, background_color);
-      fprintf(out, "0 0 M %d %d F\n", PageWidth, PageLength);
+      fprintf(out, "0 0 M %d %d F\n", page_width, page_length);
     }
     else
     {
       set_color(out, background_color);
-      flate_printf(out, "0 0 %d %d re f\n", PageWidth, PageLength);
+      flate_printf(out, "0 0 %d %d re f\n", page_width, page_length);
     }
   }
 }
@@ -4582,23 +4613,23 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
 	   uchar *data,		/* I - Data to print */
 	   int   length)	/* I - Number of bytes to print */
 {
-  int		i;
+  int		col;		/* Column */
   unsigned	b;
   uchar		c[5];
+  uchar		temp[4];
 
+
+  col = 0;
 
   while (length > 3)
   {
-#if defined(i386) || defined(__alpha) || defined(__EMX__) || defined(WIN32)
-    /* little-endian */
     b = (((((data[0] << 8) | data[1]) << 8) | data[2]) << 8) | data[3];
-#else
-    /* big-endian */
-    b = *((unsigned *)data);
-#endif /* i386 || __alpha || __EMX__ || WIN32 */
 
     if (b == 0)
+    {
       putc('z', out);
+      col ++;
+    }
     else
     {
       c[4] = (b % 85) + '!';
@@ -4612,15 +4643,25 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
       c[0] = b + '!';
 
       fwrite(c, 5, 1, out);
+      col += 5;
     }
 
     data += 4;
     length -= 4;
+
+    if (col >= 80)
+    {
+      col = 0;
+      putc('\n', out);
+    }
   }
 
   if (length > 0)
   {
-    for (b = 0, i = length; i > 0; b = (b << 8) | data[0], data ++, i --);
+    memcpy(temp, data, length);
+    memset(temp + length, 0, 4 - length);
+
+    b = (((((temp[0] << 8) | temp[1]) << 8) | temp[2]) << 8) | temp[3];
 
     c[4] = (b % 85) + '!';
     b /= 85;
@@ -4669,32 +4710,15 @@ jpg_init(j_compress_ptr cinfo)	/* I - Compressor info */
 static boolean			/* O - True if buffer written OK */
 jpg_empty(j_compress_ptr cinfo)	/* I - Compressor info */
 {
-  int nbytes;			/* Number of bytes to write */
-
-
   (void)cinfo;
 
-  nbytes = sizeof(jpg_buf) - jpg_dest.free_in_buffer;
-
   if (PSLevel > 0)
-  {
-    ps_ascii85(jpg_file, jpg_buf, nbytes & ~3);
-
-    if (nbytes & 3)
-      memcpy(jpg_buf, jpg_buf + (nbytes & ~3), nbytes & 3);
-
-    nbytes &= 3;
-
-    jpg_dest.next_output_byte = jpg_buf + nbytes;
-    jpg_dest.free_in_buffer   = sizeof(jpg_buf) - nbytes;
-  }
+    ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
   else
-  {
-    flate_write(jpg_file, jpg_buf, nbytes);
+    flate_write(jpg_file, jpg_buf, sizeof(jpg_buf));
 
-    jpg_dest.next_output_byte = jpg_buf;
-    jpg_dest.free_in_buffer   = sizeof(jpg_buf);
-  }
+  jpg_dest.next_output_byte = jpg_buf;
+  jpg_dest.free_in_buffer   = sizeof(jpg_buf);
 
   return (TRUE);
 }
@@ -5327,7 +5351,10 @@ write_prolog(FILE *out,		/* I - Output file */
     */
 
     fputs("%!PS-Adobe-3.0\n", out);
-    fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
+    if (Landscape)
+      fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageLength, PageWidth);
+    else
+      fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
     fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-1999 Easy Software Products, All Rights Reserved.\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02dZ\n",
@@ -5418,6 +5445,51 @@ write_prolog(FILE *out,		/* I - Output file */
       ps_write_background(out);
 
     fputs("%%EndProlog\n", out);
+
+    if (PSLevel > 1 && PSCommands)
+    {
+      fputs("%%BeginSetup\n", out);
+
+      if (Landscape)
+      {
+	fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageLength,
+	        PageWidth);
+	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageLength,
+	        PageWidth);
+        fputs("%%EndFeature\n", out);
+
+        if (PageDuplex)
+	{
+	  fputs("%%BeginFeature: Duplex DuplexTumble\n", out);
+	  fputs("<</Duplex true/Tumble true>>setpagedevice\n", out);
+          fputs("%%EndFeature\n", out);
+	}
+      }
+      else
+      {
+	fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageWidth,
+	        PageLength);
+	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageWidth,
+	        PageLength);
+        fputs("%%EndFeature\n", out);
+
+        if (PageDuplex)
+	{
+	  fputs("%%BeginFeature: Duplex DuplexNoTumble\n", out);
+	  fputs("<</Duplex true/Tumble false>>setpagedevice\n", out);
+          fputs("%%EndFeature\n", out);
+	}
+      }
+
+      if (!PageDuplex)
+      {
+	fputs("%%BeginFeature: Duplex None\n", out);
+	fputs("<</Duplex false>>setpagedevice\n", out);
+        fputs("%%EndFeature\n", out);
+      }
+
+      fputs("%%EndSetup\n", out);
+    }
   }
   else
   {
@@ -5807,5 +5879,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.7 1999/11/12 14:24:27 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.8 1999/11/12 17:48:25 mike Exp $".
  */

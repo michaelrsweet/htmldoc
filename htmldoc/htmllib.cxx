@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.8 1999/11/11 21:36:45 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.9 1999/11/12 17:48:25 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -160,7 +160,7 @@ typeface_t	_htmlBodyFont = TYPE_TIMES,
 		_htmlHeadingFont = TYPE_HELVETICA;
 
 int		_htmlInitialized = 0;	/* Initialized glyphs yet? */
-char		_htmlCharset[256] = "";	/* Character set name */
+char		_htmlCharSet[256] = "";	/* Character set name */
 float		_htmlWidths[4][4][256];	/* Character widths of fonts */
 const char	*_htmlGlyphsAll[65536];	/* Character glyphs for Unicode */
 const char	*_htmlGlyphs[256];	/* Character glyphs for charset */
@@ -1590,10 +1590,10 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
   int		chars[256];	/* Character encoding array */
 
 
-  if (strcmp(cs, _htmlCharset) == 0)
+  if (strcmp(cs, _htmlCharSet) == 0)
     return;
 
-  strcpy(_htmlCharset, cs);
+  strcpy(_htmlCharSet, cs);
 
   if (!_htmlInitialized)
   {
@@ -2173,5 +2173,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.8 1999/11/11 21:36:45 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.9 1999/11/12 17:48:25 mike Exp $".
  */

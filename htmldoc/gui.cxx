@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.10 1999/11/12 14:24:26 mike Exp $"
+// "$Id: gui.cxx,v 1.11 1999/11/12 17:48:24 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -98,6 +98,13 @@ GUI::GUI(const char *filename)		// Book file to load initially
   Fl_Button		*button;	// Push button
   Fl_Box		*label;		// Label box
   static char		*htmldoc[1] = { "htmldoc" };	// argv[] array
+  static Fl_Menu	sizeMenu[] =	// Menu items for page size button */
+			{
+			  {"A4", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Letter", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Universal", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {0}
+			};
   static Fl_Menu	tocMenu[] =	// Menu items for TOC chooser
 			{
 			  {"None", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
@@ -235,7 +242,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   group->end();
 
   inputFiles = new FileBrowser(140, 70, 215, 125);
-  inputFiles->color((Fl_Color)196);
   inputFiles->type(FL_MULTI_BROWSER);
   inputFiles->callback((Fl_Callback *)inputFilesCB, this);
   inputFiles->when(FL_WHEN_RELEASE | FL_WHEN_NOT_CHANGED);
@@ -260,7 +266,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   moveDownFile->callback((Fl_Callback *)moveDownFilesCB, this);
 
   logoImage = new Fl_Input(140, 205, 230, 25, "Logo Image: ");
-  logoImage->color((Fl_Color)196);
   logoImage->when(FL_WHEN_CHANGED);
   logoImage->callback((Fl_Callback *)logoImageCB, this);
 
@@ -268,7 +273,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   logoBrowse->callback((Fl_Callback *)logoImageCB, this);
 
   titleImage = new Fl_Input(140, 235, 230, 25, "Title Image: ");
-  titleImage->color((Fl_Color)196);
   titleImage->when(FL_WHEN_CHANGED);
   titleImage->callback((Fl_Callback *)titleImageCB, this);
 
@@ -298,7 +302,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   group->end();
 
   outputPath = new Fl_Input(140, 70, 230, 25, "Output Path: ");
-  outputPath->color((Fl_Color)196);
   outputPath->when(FL_WHEN_CHANGED);
   outputPath->callback((Fl_Callback *)outputPathCB, this);
 
@@ -389,12 +392,19 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageTab = new Fl_Group(10, 35, 450, 220, "Page");
   pageTab->hide();
 
-  pageSize = new Fl_Input(140, 45, 120, 25, "Page Size: ");
+  pageSize = new Fl_Input(140, 45, 100, 25, "Page Size: ");
   pageSize->when(FL_WHEN_CHANGED);
   pageSize->callback((Fl_Callback *)changeCB, this);
 
-  pageDuplex = new CheckButton(265, 48, 130, 20, "Double-sided");
+  pageSizeMenu = new Fl_Menu_Button(240, 45, 25, 25, "");
+  pageSizeMenu->menu(sizeMenu);
+  pageSizeMenu->callback((Fl_Callback *)sizeCB, this);
+
+  pageDuplex = new CheckButton(270, 48, 70, 20, "Duplex");
   pageDuplex->callback((Fl_Callback *)changeCB, this);
+
+  landscape = new CheckButton(340, 48, 90, 20, "Landscape");
+  landscape->callback((Fl_Callback *)changeCB, this);
 
   pageTop = new Fl_Input(225, 75, 60, 25, "Top");
   pageTop->when(FL_WHEN_CHANGED);
@@ -508,7 +518,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   bodyLookup->callback((Fl_Callback *)bodyColorCB, this);
 
   bodyImage = new Fl_Input(140, 75, 230, 25, "Body Image: ");
-  bodyImage->color((Fl_Color)196);
   bodyImage->when(FL_WHEN_CHANGED);
   bodyImage->callback((Fl_Callback *)bodyImageCB, this);
 
@@ -670,7 +679,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   optionsTab->hide();
 
   htmlEditor = new Fl_Input(140, 45, 215, 25, "HTML Editor: ");
-  htmlEditor->color((Fl_Color)196);
   htmlEditor->value(HTMLEditor);
   htmlEditor->callback((Fl_Callback *)htmlEditorCB, this);
 
@@ -678,6 +686,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
 
   saveOptions = new Fl_Button(350, 235, 100, 25, "Save Options");
+  saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
 
   optionsTab->end();
 
@@ -770,7 +779,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   window->show(1, htmldoc);
 
   fc = new FileChooser(".", "*", FileChooser::SINGLE, "Title");
-  fc->color((Fl_Color)196);
 
   help = new HelpDialog();
 
@@ -890,11 +898,23 @@ GUI::title(const char *filename,// Name of file being edited
 int			// O - 1 on success, 0 on failure
 GUI::newBook(void)
 {
+  char	size[255];	// Page size string
+  char	formats[256];	// Format characters
+
+
   if (!checkSave())
     return (0);
 
-  typeBook->setonly();
-  docTypeCB(typeBook, this);
+  if (OutputBook)
+  {
+    typeBook->setonly();
+    docTypeCB(typeBook, this);
+  }
+  else
+  {
+    typeWebPage->setonly();
+    docTypeCB(typeWebPage, this);
+  }
 
   inputFiles->clear();
   inputFilesCB(inputFiles, this);
@@ -910,64 +930,103 @@ GUI::newBook(void)
   typeHTML->setonly();
   outputFormatCB(typeHTML, this);
 
-  grayscale->clear();
-  titlePage->set();
-  jpegCompress->clear();
+  grayscale->value(!OutputColor);
+  titlePage->value(TitlePage);
 
-  bodyColor->value("");
-  bodyImage->value("");
-  textColor->value("");
+  bodyColor->value(BodyColor);
+  bodyImage->value(BodyImage);
+  textColor->value((char *)_htmlTextColor);
 
-  pageSize->value("Universal");
-  pageLeft->value("1.0in");
-  pageRight->value("0.5in");
-  pageTop->value("0.5in");
-  pageBottom->value("0.5in");
-  pageDuplex->clear();
+  if (PageWidth == 595 && PageLength == 842)
+    pageSize->value("A4");
+  else if (PageWidth == 595 && PageLength == 792)
+    pageSize->value("Universal");
+  else if (PageWidth == 612 && PageLength == 792)
+    pageSize->value("Letter");
+  else
+  {
+    sprintf(size, "%.2fx%.2fin", PageWidth / 72.0f, PageLength / 72.0f);
+    pageSize->value(size);
+  }
 
-  pageHeaderLeft->value(0);	/* Blank */
-  pageHeaderCenter->value(1);	/* Title */
-  pageHeaderRight->value(0);	/* Blank */
+  sprintf(size, "%.2fin", PageLeft / 72.0f);
+  pageLeft->value(size);
 
-  pageFooterLeft->value(3);	/* Heading */
-  pageFooterCenter->value(0);	/* Blank */
-  pageFooterRight->value(5);	/* 1,2,3,... */
+  sprintf(size, "%.2fin", PageRight / 72.0f);
+  pageRight->value(size);
 
-  tocLevels->value(3);
-  numberedToc->clear();
+  sprintf(size, "%.2fin", PageTop / 72.0f);
+  pageTop->value(size);
 
-  tocHeaderLeft->value(0);	/* Blank */
-  tocHeaderCenter->value(1);	/* Title */
-  tocHeaderRight->value(0);	/* Blank */
+  sprintf(size, "%.2fin", PageBottom / 72.0f);
+  pageBottom->value(size);
 
-  tocFooterLeft->value(3);	/* Heading */
-  tocFooterCenter->value(0);	/* Blank */
-  tocFooterRight->value(6);	/* i,ii,iii,... */
+  pageDuplex->value(PageDuplex);
 
-  tocTitle->value("Table of Contents");
+  landscape->value(Landscape);
 
-  headingFont->value(2);	/* Helvetica */
-  bodyFont->value(1);		/* Times */
-  headFootFont->value(10);	/* Helvetica-Oblique */
+  memset(formats, 0, sizeof(formats));
+  formats['t'] = 1;
+  formats['c'] = 2;
+  formats['h'] = 3;
+  formats['l'] = 4;
+  formats['1'] = 5;
+  formats['i'] = 6;
+  formats['I'] = 7;
 
-  fontBaseSize->value(11.0);
-  fontSpacing->value(1.2);
-  headFootSize->value(11.0);
+  pageHeaderLeft->value(formats[Header[0]]);
+  pageHeaderCenter->value(formats[Header[1]]);
+  pageHeaderRight->value(formats[Header[2]]);
 
-  compression->value(0.0);
+  pageFooterLeft->value(formats[Footer[0]]);
+  pageFooterCenter->value(formats[Footer[1]]);
+  pageFooterRight->value(formats[Footer[2]]);
+
+  tocLevels->value(TocLevels);
+  numberedToc->value(TocNumbers);
+
+  tocHeaderLeft->value(formats[TocHeader[0]]);
+  tocHeaderCenter->value(formats[TocHeader[1]]);
+  tocHeaderRight->value(formats[TocHeader[2]]);
+
+  tocFooterLeft->value(formats[TocFooter[0]]);
+  tocFooterCenter->value(formats[TocFooter[1]]);
+  tocFooterRight->value(formats[TocFooter[2]]);
+
+  tocTitle->value(TocTitle);
+
+  headingFont->value(_htmlHeadingFont);
+  bodyFont->value(_htmlBodyFont);
+  headFootFont->value(HeadFootType * 4 + HeadFootStyle);
+
+  fontBaseSize->value(_htmlSizes[SIZE_P]);
+  fontSpacing->value(_htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+  headFootSize->value(HeadFootSize);
+
+  compression->value(Compression);
   compGroup->deactivate();
 
-  jpegQuality->value(90.0);
+  jpegCompress->value(OutputJPEG > 0);
+  jpegQuality->value(OutputJPEG > 0 ? OutputJPEG : 90);
   jpegGroup->deactivate();
 
   pdfTab->deactivate();
-  pdf12->setonly();
+  if (PDFVersion == 1.1)
+    pdf11->setonly();
+  else if (PDFVersion == 1.2)
+    pdf12->setonly();
+  else
+    pdf13->setonly();
 
-  psLevel->deactivate();
-  ps2->setonly();
+  if (PSLevel == 1)
+    ps1->setonly();
+  else if (PSLevel == 2)
+    ps2->setonly();
+  else
+    ps3->setonly();
 
   psCommands->deactivate();
-  psCommands->value(0);
+  psCommands->value(PSCommands);
 
   title(NULL, 0);
 
@@ -990,8 +1049,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 		temp[1024],
 		temp2[1024],
 		*tempptr;
-  static char	formats[256],
-		first_time = 1;
+  char		formats[256];
   static char	*types[] =		// Typeface names...
 		{ "Courier", "Times", "Helvetica" };
   static char	*fonts[] =		// Font names...
@@ -1005,22 +1063,17 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 
 
   //
-  // Initialize the format character lookup table as needed...
+  // Initialize the format character lookup table...
   //
 
-  if (first_time)
-  {
-    first_time = 0;
-
-    memset(formats, 0, sizeof(formats));
-    formats['t'] = 1;
-    formats['c'] = 2;
-    formats['h'] = 3;
-    formats['l'] = 4;
-    formats['1'] = 5;
-    formats['i'] = 6;
-    formats['I'] = 7;
-  }
+  memset(formats, 0, sizeof(formats));
+  formats['t'] = 1;
+  formats['c'] = 2;
+  formats['h'] = 3;
+  formats['l'] = 4;
+  formats['1'] = 5;
+  formats['i'] = 6;
+  formats['I'] = 7;
 
   //
   // If the filename contains a path, chdir to it first...
@@ -1094,6 +1147,11 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       pageDuplex->set();
       continue;
     }
+    else if (strcmp(temp, "--landscape") == 0)
+    {
+      landscape->set();
+      continue;
+    }
     else if (strncmp(temp, "--jpeg", 6) == 0)
     {
       jpegCompress->set();
@@ -1137,9 +1195,20 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       tocLevels->value(0);
       continue;
     }
+    else if (strcmp(temp, "--title") == 0)
+    {
+      titlePage->set();
+      continue;
+    }
     else if (strcmp(temp, "--no-title") == 0)
     {
       titlePage->clear();
+      continue;
+    }
+    else if (strcmp(temp, "--book") == 0)
+    {
+      typeBook->setonly();
+      docTypeCB(typeBook, this);
       continue;
     }
     else if (strcmp(temp, "--webpage") == 0)
@@ -1157,8 +1226,22 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     while (*lineptr == ' ')
       lineptr ++;
 
-    for (tempptr = temp2; *lineptr != '\0' && *lineptr != ' ';)
-      *tempptr++ = *lineptr++;
+    if (*lineptr == '\"')
+    {
+      lineptr ++;
+
+      for (tempptr = temp2; *lineptr != '\0' && *lineptr != '\"';)
+	*tempptr++ = *lineptr++;
+
+      if (*lineptr == '\"')
+        lineptr ++;
+    }
+    else
+    {
+      for (tempptr = temp2; *lineptr != '\0' && *lineptr != ' ';)
+	*tempptr++ = *lineptr++;
+    }
+
     *tempptr = '\0';
 
     if (strcmp(temp, "-t") == 0)
@@ -1215,7 +1298,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     }
     else if (strcmp(temp, "--logo") == 0)
       logoImage->value(temp2);
-    else if (strcmp(temp, "--title") == 0)
+    else if (strcmp(temp, "--titleimage") == 0)
       titleImage->value(temp2);
     else if (strcmp(temp, "-f") == 0)
     {
@@ -1271,6 +1354,8 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       tocFooterCenter->value(formats[temp2[1]]);
       tocFooterRight->value(formats[temp2[2]]);
     }
+    else if (strcmp(temp, "--toctitle") == 0)
+      tocTitle->value(temp2);
     else if (strcmp(temp, "--fontsize") == 0)
       fontBaseSize->value(atof(temp2));
     else if (strcmp(temp, "--fontspacing") == 0)
@@ -1301,6 +1386,15 @@ GUI::loadBook(const char *filename)	// I - Name of book file
         if (strcasecmp(fonts[i], temp2) == 0)
 	{
 	  headFootFont->value(i);
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--charset") == 0)
+    {
+      for (i = 0; i < (charset->size() - 1); i ++)
+        if (strcasecmp(temp2, charset->text(i)) == 0)
+	{
+	  charset->value(i);
 	  break;
 	}
     }
@@ -1379,6 +1473,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fputs(" --webpage", fp);
   else
   {
+    fputs(" --book", fp);
+
     if (titlePage->value() == 0)
       fputs(" --no-title", fp);
 
@@ -1389,13 +1485,15 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
     if (numberedToc->value())
       fputs(" --numbered", fp);
+
+    fprintf(fp, " --toctitle \"%s\"", tocTitle->value());
   }
 
   if (logoImage->size() > 0)
     fprintf(fp, " --logo %s", logoImage->value());
 
   if (titleImage->size() > 0)
-    fprintf(fp, " --title %s", titleImage->value());
+    fprintf(fp, " --titleimage %s", titleImage->value());
 
   if (textColor->size() > 0)
     fprintf(fp, " --textcolor %s", textColor->value());
@@ -1446,6 +1544,9 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     if (pageDuplex->value())
       fputs(" --duplex", fp);
 
+    if (landscape->value())
+      fputs(" --landscape", fp);
+
     if (grayscale->value())
       fputs(" --grayscale", fp);
 
@@ -1459,14 +1560,15 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
     if (jpegCompress->value())
       fprintf(fp, " --jpeg=%.0f", jpegQuality->value());
-
-    fprintf(fp, " --fontsize %.1f", fontBaseSize->value());
-    fprintf(fp, " --fontspacing %.1f", fontSpacing->value());
-    fprintf(fp, " --headingfont %s", types[headingFont->value()]);
-    fprintf(fp, " --bodyfont %s", types[bodyFont->value()]);
-    fprintf(fp, " --headfootsize %.1f", headFootSize->value());
-    fprintf(fp, " --headfootfont %s", fonts[headFootFont->value()]);
   }
+
+  fprintf(fp, " --fontsize %.1f", fontBaseSize->value());
+  fprintf(fp, " --fontspacing %.1f", fontSpacing->value());
+  fprintf(fp, " --headingfont %s", types[headingFont->value()]);
+  fprintf(fp, " --bodyfont %s", types[bodyFont->value()]);
+  fprintf(fp, " --headfootsize %.1f", headFootSize->value());
+  fprintf(fp, " --headfootfont %s", fonts[headFootFont->value()]);
+  fprintf(fp, " --charset %s", charset->text(charset->value()));
 
   fputs("\n", fp);
   fclose(fp);
@@ -1952,8 +2054,6 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->tocFooterLeft->deactivate();
     gui->tocFooterCenter->deactivate();
     gui->tocFooterRight->deactivate();
-
-    gui->fontsTab->deactivate();
   }
   else
   {
@@ -1968,8 +2068,6 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->tocFooterLeft->activate();
     gui->tocFooterCenter->activate();
     gui->tocFooterRight->activate();
-
-    gui->fontsTab->activate();
 
     if (w == gui->typePDF || !gui->ps1->value())
       gui->jpegCompress->activate();
@@ -2017,6 +2115,21 @@ GUI::jpegCB(Fl_Widget *w,	// I - Widget
 
 
 //
+// 'GUI::sizeCB()' - Change the page size based on the menu selection.
+//
+
+void
+GUI::sizeCB(Fl_Widget *w,	// I - Widget
+            GUI       *gui)	// I - GUI
+{
+  REF(w);
+
+  gui->title(gui->book_filename, 1);
+  gui->pageSize->value(gui->pageSizeMenu->text(gui->pageSizeMenu->value()));
+}
+
+
+//
 // 'GUI::tocCB()' - Handle Table-of-Contents changes.
 //
 
@@ -2060,6 +2173,32 @@ GUI::pdfCB(Fl_Widget *w,	// I - Widget
     gui->compGroup->deactivate();
   else
     gui->compGroup->activate();
+
+  gui->title(gui->book_filename, 1);
+}
+
+
+//
+// 'GUI::effectCB()' - Handle PDF effect changes.
+//
+
+void
+GUI::effectCB(Fl_Widget *w,	// I - Widget
+              GUI       *gui)	// I - GUI
+{
+  REF(w);
+
+
+  if (gui->pageEffect->value())
+  {
+    gui->pageDuration->activate();
+    gui->effectDuration->activate();
+  }
+  else
+  {
+    gui->pageDuration->deactivate();
+    gui->effectDuration->deactivate();
+  }
 
   gui->title(gui->book_filename, 1);
 }
@@ -2138,6 +2277,91 @@ GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
   }
 
   strcpy(HTMLEditor, gui->htmlEditor->value());
+}
+
+
+//
+// 'GUI::saveOptionsCB()' - Save preferences...
+//
+
+void
+GUI::saveOptionsCB(Fl_Widget *w,
+                   GUI       *gui)
+{
+  static char	*formats = ".tchl1iI";	// Format characters
+
+
+  set_page_size((char *)gui->pageSize->value());
+
+  PageLeft     = get_measurement((char *)gui->pageLeft->value());
+  PageRight    = get_measurement((char *)gui->pageRight->value());
+  PageTop      = get_measurement((char *)gui->pageTop->value());
+  PageBottom   = get_measurement((char *)gui->pageBottom->value());
+
+  PageDuplex   = gui->pageDuplex->value();
+  Landscape    = gui->landscape->value();
+  Compression  = (int)gui->compression->value();
+  OutputColor  = !gui->grayscale->value();
+  TocNumbers   = gui->numberedToc->value();
+  TocLevels    = gui->tocLevels->value();
+  TitlePage    = gui->titlePage->value();
+
+  if (gui->jpegCompress->value())
+    OutputJPEG = (int)gui->jpegQuality->value();
+  else
+    OutputJPEG = 0;
+
+  strcpy(TocTitle, gui->tocTitle->value());
+
+  TocHeader[0] = formats[gui->tocHeaderLeft->value()];
+  TocHeader[1] = formats[gui->tocHeaderCenter->value()];
+  TocHeader[2] = formats[gui->tocHeaderRight->value()];
+
+  TocFooter[0] = formats[gui->tocFooterLeft->value()];
+  TocFooter[1] = formats[gui->tocFooterCenter->value()];
+  TocFooter[2] = formats[gui->tocFooterRight->value()];
+
+  Header[0]    = formats[gui->pageHeaderLeft->value()];
+  Header[1]    = formats[gui->pageHeaderCenter->value()];
+  Header[2]    = formats[gui->pageHeaderRight->value()];
+
+  Footer[0]    = formats[gui->pageFooterLeft->value()];
+  Footer[1]    = formats[gui->pageFooterCenter->value()];
+  Footer[2]    = formats[gui->pageFooterRight->value()];
+
+  _htmlBodyFont    = (typeface_t)gui->bodyFont->value();
+  _htmlHeadingFont = (typeface_t)gui->headingFont->value();
+  htmlSetBaseSize(gui->fontBaseSize->value(), gui->fontSpacing->value());
+
+  HeadFootType  = (typeface_t)(gui->headFootFont->value() / 4);
+  HeadFootStyle = (style_t)(gui->headFootFont->value() & 3);
+  HeadFootSize  = gui->headFootSize->value();
+
+  if (gui->pdf11->value())
+    PDFVersion = 1.1;
+  else if (gui->pdf12->value())
+    PDFVersion = 1.2;
+  else
+    PDFVersion = 1.3;
+
+  if (gui->typePDF->value())
+    PSLevel = 0;
+  else if (gui->ps1->value())
+    PSLevel = 1;
+  else if (gui->ps2->value())
+    PSLevel = 2;
+  else
+    PSLevel = 3;
+
+  PSCommands = gui->psCommands->value();
+
+  strcpy(BodyColor, gui->bodyColor->value());
+  strcpy(BodyImage, gui->bodyImage->value());
+
+  htmlSetTextColor((uchar *)gui->textColor->value());
+  htmlSetCharSet(gui->charset->text(gui->charset->value()));
+
+  prefs_save();
 }
 
 
@@ -2292,6 +2516,9 @@ GUI::openBookCB(Fl_Widget *w,	// I - Widget
 {
   REF(w);
 
+  if (!gui->checkSave())
+    return;
+
   gui->fc->filter("*.book");
   gui->fc->label("Book File?");
   gui->fc->type(FileChooser::SINGLE);
@@ -2428,6 +2655,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   PageBottom   = get_measurement((char *)gui->pageBottom->value());
 
   PageDuplex   = gui->pageDuplex->value();
+  Landscape    = gui->landscape->value();
   Compression  = (int)gui->compression->value();
   OutputColor  = !gui->grayscale->value();
   TocNumbers   = gui->numberedToc->value();
@@ -2438,6 +2666,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     OutputJPEG = (int)gui->jpegQuality->value();
   else
     OutputJPEG = 0;
+
+  strcpy(TocTitle, gui->tocTitle->value());
 
   TocHeader[0] = formats[gui->tocHeaderLeft->value()];
   TocHeader[1] = formats[gui->tocHeaderCenter->value()];
@@ -2566,13 +2796,6 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     toc = NULL;
 
  /*
-  * Figure out the printable area of the output page...
-  */
-
-  PagePrintWidth  = PageWidth - PageLeft - PageRight;
-  PagePrintLength = PageLength - PageTop - PageBottom;
-
- /*
   * Generate the output file(s).
   */
 
@@ -2609,5 +2832,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.10 1999/11/12 14:24:26 mike Exp $".
+// End of "$Id: gui.cxx,v 1.11 1999/11/12 17:48:24 mike Exp $".
 //

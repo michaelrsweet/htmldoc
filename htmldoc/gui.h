@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.7 1999/11/11 21:36:44 mike Exp $"
+ * "$Id: gui.h,v 1.8 1999/11/12 17:48:24 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -32,6 +32,7 @@
 #include <FL/Fl_Counter.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Multi_Browser.H>
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Tabs.H>
@@ -86,7 +87,9 @@ class GUI
 
   Fl_Group	*pageTab;
   Fl_Input	*pageSize;
-  CheckButton	*pageDuplex;
+  Fl_Menu_Button *pageSizeMenu;
+  CheckButton	*pageDuplex,
+		*landscape;
   Fl_Input	*pageTop,
 		*pageLeft,
 		*pageRight,
@@ -185,6 +188,8 @@ class GUI
   static void	outputFormatCB(Fl_Widget *w, GUI *gui);
   static void	jpegCB(Fl_Widget *w, GUI *gui);
 
+  static void	sizeCB(Fl_Widget *w, GUI *gui);
+
   static void	tocCB(Fl_Widget *w, GUI *gui);
 
   static void	bodyColorCB(Fl_Widget *w, GUI *gui);
@@ -192,8 +197,12 @@ class GUI
   static void	textColorCB(Fl_Widget *w, GUI *gui);
 
   static void	psCB(Fl_Widget *w, GUI *gui);
+
   static void	pdfCB(Fl_Widget *w, GUI *gui);
+  static void	effectCB(Fl_Widget *w, GUI *gui);
+
   static void	htmlEditorCB(Fl_Widget *w, GUI *gui);
+  static void	saveOptionsCB(Fl_Widget *w, GUI *gui);
 
   static void	helpCB(Fl_Widget *w, GUI *gui);
   static void	newBookCB(Fl_Widget *w, GUI *gui);
@@ -222,5 +231,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.7 1999/11/11 21:36:44 mike Exp $".
+ * End of "$Id: gui.h,v 1.8 1999/11/12 17:48:24 mike Exp $".
  */
