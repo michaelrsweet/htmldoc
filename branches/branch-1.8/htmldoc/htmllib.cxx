@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.52 2002/04/09 21:03:07 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.53 2002/04/10 17:51:28 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -537,17 +537,53 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	{
           DEBUG_printf(("%s>>>> Auto-ascend <<<\n", indent));
 
-          delete_node(t);
+          // Safety check; should never happen, since MARKUP_FILE is
+	  // the root node created by the caller...
+          if (temp->parent)
+	    parent = temp->parent;
+	  else
+	    parent = temp;
 
-	 /*
-          * If the markup doesn't start with a slash, or if it does but
-          * doesn't match up with the parent (i.e. <UL><LI>...<LI>...</UL>)
-          * then seek back so the parent entry gets a copy...
-          */
+          prev = parent->last_child;
 
-          if (ch != '/' || temp != parent)
-            fseek(fp, pos, SEEK_SET);	/* Make sure parent gets this markup... */
-          break;
+          if (ch == '/')
+	  {
+	    // Closing element, so delete this node...
+            delete_node(t);
+	    continue;
+	  }
+	  else
+	  {
+	    // Reparent the node...
+	    if (parent == NULL)
+	    {
+	      t->halignment   = ALIGN_LEFT;
+	      t->valignment   = ALIGN_MIDDLE;
+	      t->typeface     = _htmlBodyFont;
+	      t->size         = SIZE_P;
+
+	      compute_color(t, _htmlTextColor);
+	    }
+	    else
+	    {
+	      t->link          = parent->link;
+	      t->halignment    = parent->halignment;
+	      t->valignment    = parent->valignment;
+	      t->typeface      = parent->typeface;
+	      t->size          = parent->size;
+	      t->style         = parent->style;
+	      t->superscript   = parent->superscript;
+	      t->subscript     = parent->subscript;
+	      t->preformatted  = parent->preformatted;
+	      t->indent        = parent->indent;
+	      t->red           = parent->red;
+	      t->green         = parent->green;
+	      t->blue          = parent->blue;
+	      t->underline     = parent->underline;
+	      t->strikethrough = parent->strikethrough;
+	    }
+	    
+          }
 	}
 	else if (ch == '/')
 	{
@@ -666,7 +702,8 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
     t->prev   = prev;
     if (prev != NULL)
       prev->next = t;
-    else
+
+    if (tree != NULL)
       tree = t;
 
     prev = t;
@@ -2664,5 +2701,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.52 2002/04/09 21:03:07 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.53 2002/04/10 17:51:28 mike Exp $".
  */
