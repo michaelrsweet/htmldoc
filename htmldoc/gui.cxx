@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.43 2001/12/19 21:55:08 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.44 2001/12/19 21:58:33 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -3269,7 +3269,7 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
 
     gui->tabs->box(FL_PLASTIC_UP_BOX);
 
-    Fl::background(0xe7, 0xe7, 0xe7);
+    Fl::background(0xe0, 0xe0, 0xe0);
 
     gui->typeBook->down_box(FL_ROUND_UP_BOX);
     gui->typeContinuous->down_box(FL_ROUND_UP_BOX);
@@ -4211,5 +4211,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.43 2001/12/19 21:55:08 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.44 2001/12/19 21:58:33 mike Exp $".
 //
