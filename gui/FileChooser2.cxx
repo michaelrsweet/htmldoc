@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.25.2.3 2001/04/19 15:34:35 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.25.2.4 2001/05/16 02:59:20 mike Exp $"
 //
 //   More FileChooser routines.
 //
@@ -345,7 +345,7 @@ FileChooser::newdir()
 
 
   // Get a directory name from the user
-  if ((dir = fl_input("New Directory?")) == NULL)
+  if ((dir = fl_input("New Directory?", NULL)) == NULL)
     return;
 
   // Make it relative to the current directory as needed...
@@ -672,5 +672,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.25.2.3 2001/04/19 15:34:35 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.25.2.4 2001/05/16 02:59:20 mike Exp $".
 //
