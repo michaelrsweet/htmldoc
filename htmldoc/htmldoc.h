@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.27 2002/02/23 04:03:30 mike Exp $"
+// "$Id: htmldoc.h,v 1.28 2002/02/26 05:16:01 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -30,8 +30,7 @@
 // Include necessary headers...
 //
 
-#  include "image.h"
-#  include "tree.h"
+#  include "render.h"
 
 
 //
@@ -109,5 +108,5 @@ extern hdCommon	hdGlobal;
 #endif // !_HTMLDOC_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.27 2002/02/23 04:03:30 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.28 2002/02/26 05:16:01 mike Exp $".
 //

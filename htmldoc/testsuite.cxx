@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.4 2002/02/23 04:03:31 mike Exp $"
+// "$Id: testsuite.cxx,v 1.5 2002/02/26 05:16:03 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -39,22 +39,27 @@
 
 void	print_tree(hdTree *t, int indent);
 void	print_style(hdStyle *s);
+void	write_test(hdFile *fp);
 
 
 //
 // 'main()' - Main entry.
 //
 
-int				// O - Exit status
-main(int  argc,			// I - Number of command-line arguments
-     char *argv[])		// I - Command-line arguments
+int					// O - Exit status
+main(int  argc,				// I - Number of command-line arguments
+     char *argv[])			// I - Command-line arguments
 {
-  int		i, j;		// Looping vars
-  hdImage	*img;		// Image
-  char		filename[1024];	// Remote file from local cache
-  hdFile	*fp;		// File to read
-  hdStyleSheet	*css;		// Style sheet
-  hdTree	*html;		// HTML file
+  int			i, j;		// Looping vars
+  hdImage		*img;		// Image
+  char			filename[3072];	// Remote file from local cache
+  hdFile		*fp;		// File to read/write
+  hdASCII85Filter	*ascii85;	// ASCII85 filter
+  hdASCIIHexFilter	*asciihex;	// ASCIIHex filter
+  hdFlateFilter		*flate;		// Flate filter
+  hdJPEGFilter		*jpeg;		// JPEG filter
+  hdStyleSheet		*css;		// Style sheet
+  hdTree		*html;		// HTML file
 
 
   setbuf(stdout, NULL);
@@ -144,6 +149,112 @@ main(int  argc,			// I - Number of command-line arguments
       puts("Unable to open ../testsuite/basic.html!");
 
     delete css;
+  }
+
+  // Test output filters...
+  if ((fp = hdFile::open("test.file", HD_FILE_WRITE)) == NULL)
+  {
+    puts("Unable to create test.file!");
+  }
+  else
+  {
+    fp->puts("Text no filters:\n\n");
+    write_test(fp);
+
+    fp->puts("\nText ASCIIHex filter:\n\n");
+    asciihex = new hdASCIIHexFilter(fp);
+    write_test(asciihex);
+    delete asciihex;
+
+    fp->puts("\nText ASCII85 filter:\n\n");
+    ascii85 = new hdASCII85Filter(fp);
+    write_test(ascii85);
+    delete ascii85;
+
+    fp->puts("\nText ASCIIHex + Flate filter:\n\n");
+    asciihex = new hdASCIIHexFilter(fp);
+    flate    = new hdFlateFilter(asciihex, 9);
+    write_test(flate);
+    delete flate;
+    delete asciihex;
+
+    fp->puts("\nText ASCII85 + Flate filter:\n\n");
+    ascii85 = new hdASCII85Filter(fp);
+    flate   = new hdFlateFilter(ascii85, 9);
+    write_test(flate);
+    delete flate;
+    delete ascii85;
+
+    for (i = 0; i < 96; i += 3)
+      for (j = i; j < 3072; j += 96)
+      {
+        filename[j + 0] = i * 255 / 95;
+        filename[j + 1] = 255 - i * 255 / 95;
+        filename[j + 2] = j * 255 / 3071;
+      }
+
+    fp->puts("\nImage ASCIIHex filter:\n\n");
+    asciihex = new hdASCIIHexFilter(fp);
+    asciihex->write(filename, 32 * 32 * 3);
+    delete asciihex;
+
+    fp->puts("\nImage ASCII85 filter:\n\n");
+    ascii85 = new hdASCII85Filter(fp);
+    ascii85->write(filename, 32 * 32 * 3);
+    delete ascii85;
+
+    fp->puts("\nImage ASCIIHex + Flate filter:\n\n");
+    asciihex = new hdASCIIHexFilter(fp);
+    flate    = new hdFlateFilter(asciihex, 9);
+    flate->write(filename, 32 * 32 * 3);
+    delete flate;
+    delete asciihex;
+
+    fp->puts("\nImage ASCII85 + Flate filter:\n\n");
+    ascii85 = new hdASCII85Filter(fp);
+    flate   = new hdFlateFilter(ascii85, 9);
+    flate->write(filename, 32 * 32 * 3);
+    delete flate;
+    delete ascii85;
+
+    fp->puts("\nImage ASCIIHex + JPEG filter:\n\n");
+    asciihex = new hdASCIIHexFilter(fp);
+    jpeg     = new hdJPEGFilter(asciihex, 32, 32, 3);
+    jpeg->write(filename, 32 * 32 * 3);
+    delete jpeg;
+    delete asciihex;
+
+    fp->puts("\nImage ASCII85 + JPEG filter:\n\n");
+    ascii85 = new hdASCII85Filter(fp);
+    jpeg    = new hdJPEGFilter(ascii85, 32, 32, 3);
+    jpeg->write(filename, 32 * 32 * 3);
+    delete jpeg;
+    delete ascii85;
+
+    fp->puts("\nImage ASCIIHex + Flate + JPEG filter:\n\n");
+    asciihex = new hdASCIIHexFilter(fp);
+    flate    = new hdFlateFilter(asciihex, 9);
+    jpeg     = new hdJPEGFilter(flate, 32, 32, 3);
+    jpeg->write(filename, 32 * 32 * 3);
+    delete jpeg;
+    delete flate;
+    delete asciihex;
+
+    fp->puts("\nImage ASCII85 + Flate + JPEG filter:\n\n");
+    ascii85 = new hdASCII85Filter(fp);
+    flate   = new hdFlateFilter(ascii85, 9);
+    jpeg    = new hdJPEGFilter(flate, 32, 32, 3);
+    jpeg->write(filename, 32 * 32 * 3);
+    delete jpeg;
+    delete flate;
+    delete ascii85;
+
+    delete fp;
+
+    fp = hdFile::open("test.ppm", HD_FILE_WRITE);
+    fp->printf("P6\n32\n32\n255\n");
+    fp->write(filename, 32 * 32 * 3);
+    delete fp;
   }
 
   return (0);
@@ -303,5 +414,23 @@ print_style(hdStyle *s)		// I - Style
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.4 2002/02/23 04:03:31 mike Exp $".
+// 'write_test()' - Write test data to the specified file.
+//
+
+void
+write_test(hdFile *fp)	// I - File to write to...
+{
+  int	i, j, k;	// Looping vars...
+
+
+  fp->puts("Now is the time for all good men to come to "
+           "the aide of their country.\n");
+
+  for (i = 1, j = 1; i < 100; k = i, i += j, j = k)
+    fp->printf("%d\n", i);
+}
+
+
+//
+// End of "$Id: testsuite.cxx,v 1.5 2002/02/26 05:16:03 mike Exp $".
 //
