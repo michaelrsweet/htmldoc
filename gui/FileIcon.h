@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.h,v 1.1 1999/04/21 01:22:21 mike Exp $"
+// "$Id: FileIcon.h,v 1.2 1999/04/21 23:51:53 mike Exp $"
 //
 //   FileIcon definitions for HTMLDOC, an HTML document processing program.
 //
@@ -58,7 +58,8 @@ class FileIcon			//// Icon data
   short		*add(short d);
   short		*add_color(short c);
   short		*add_vertex(short x, short y);
-  short		*add_vertex(float x, float y);
+  short		*add_vertex(float x, float y)
+		{ add_vertex((int)(x * 32767.0), (int)(y * 32767.0)); }
   void		draw() { draw(_data); }
   const char	*pattern() { return (_pattern); }
   int		size() { return (_num_data); }
@@ -73,5 +74,5 @@ class FileIcon			//// Icon data
 #endif // !_GUI_FILEICON_H_
 
 //
-// End of "$Id: FileIcon.h,v 1.1 1999/04/21 01:22:21 mike Exp $".
+// End of "$Id: FileIcon.h,v 1.2 1999/04/21 23:51:53 mike Exp $".
 //
