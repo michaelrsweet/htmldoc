@@ -1,4 +1,4 @@
-CHANGES.txt - 06/13/2002
+CHANGES.txt - 06/25/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -22,6 +22,7 @@ CHANGES IN HTMLDOC v1.8.21
 	  character name table was not sorted properly...
 	- Links didn't always point to the right page in PDF
 	  output.
+	- XRX comment output could crash HTMLDOC.
 
 
 CHANGES IN HTMLDOC v1.8.20

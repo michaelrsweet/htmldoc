@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.188 2002/06/13 19:23:29 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.189 2002/06/25 20:00:02 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -10322,7 +10322,7 @@ write_prolog(FILE  *out,	/* I - Output file */
 		       pages[0].media_color) != 0 ||
 		pages[outpages[i].pages[0]].duplex != pages[0].duplex)
 	    {
-	      for (count = 1; (i + count) <= end; count ++)
+	      for (count = 1; (i + count) < end; count ++)
 		if (pages[outpages[i].pages[0]].width !=
 		        pages[outpages[i + count].pages[0]].width ||
 		    pages[outpages[i].pages[0]].length !=
@@ -11748,5 +11748,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.188 2002/06/13 19:23:29 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.189 2002/06/25 20:00:02 mike Exp $".
  */
