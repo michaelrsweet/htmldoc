@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.18 2002/01/28 00:52:25 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.19 2002/07/25 02:18:49 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -736,7 +736,8 @@ image_load(const char *filename,/* I - Name of image file */
 
   if (num_images > 0)
   {
-    strcpy(key.filename, filename);
+    strncpy(key.filename, filename, sizeof(key.filename) - 1);
+    key.filename[sizeof(key.filename) - 1] = '\0';
     keyptr = &key;
 
     match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
@@ -817,7 +818,7 @@ image_load(const char *filename,/* I - Name of image file */
 
     images[num_images] = img;
 
-    strcpy(img->filename, filename);
+    strncpy(img->filename, filename, sizeof(img->filename) - 1);
     img->use = 1;
   }
   else
@@ -836,6 +837,12 @@ image_load(const char *filename,/* I - Name of image file */
   else
   {
     progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", filename);
+    progress_error(HD_ERROR_BAD_FORMAT, "First 16 bytes are: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
+		   header[0], header[1], header[2], header[3],
+		   header[4], header[5], header[6], header[7],
+		   header[8], header[9], header[10], header[11],
+		   header[12], header[13], header[14],
+		   header[15]);
     fclose(fp);
     free(img);
     return (NULL);
@@ -1693,5 +1700,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.18 2002/01/28 00:52:25 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.19 2002/07/25 02:18:49 mike Exp $".
  */
