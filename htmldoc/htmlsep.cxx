@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.6 2004/04/03 03:18:32 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.7 2004/10/23 04:57:40 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -16,7 +16,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3142 USA
+//       Hollywood, Maryland 20636 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -204,14 +204,9 @@ hdBook::htmlsep_header(FILE   **out,	// IO - Output file
 
   fputs("<style type='text/css'><!--\n", *out);
   fprintf(*out, "BODY { font-family: %s }\n", families[_htmlBodyFont]);
-  fprintf(*out, "H1 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H2 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H3 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H4 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H5 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H6 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fputs("SUB { font-size: smaller }\n", *out);
-  fputs("SUP { font-size: smaller }\n", *out);
+  fprintf(*out, "H1, H2, H3, H4, H5, H6 { font-family: %s }\n",
+          families[_htmlHeadingFont]);
+  fputs("SUB, SUP { font-size: 50% }\n", *out);
   fputs("PRE { font-family: monospace }\n", *out);
 
   if (!LinkStyle)
@@ -254,7 +249,7 @@ hdBook::htmlsep_header(FILE   **out,	// IO - Output file
     if (heading < (num_headings - 1))
       fprintf(*out, "<a href='%s.html'>Next</a>\n", headings[heading + 1]);
 
-    fputs("<hr>\n", *out);
+    fputs("<hr noshade>\n", *out);
   }
 }
 
@@ -270,7 +265,7 @@ hdBook::htmlsep_footer(FILE **out,	// IO - Output file pointer
   if (*out == NULL)
     return;
 
-  fputs("<hr>\n", *out);
+  fputs("<hr noshade>\n", *out);
 
   if (heading >= 0)
   {
@@ -332,7 +327,7 @@ hdBook::htmlsep_title(FILE  *out,	// I - Output file
     if ((title_file = file_find(Path, TitleImage)) == NULL)
     {
       progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to find title file '%s'!", TitleImage);
+                     "Unable to find title file \"%s\"!", TitleImage);
       return;
     }
 
@@ -340,12 +335,13 @@ hdBook::htmlsep_title(FILE  *out,	// I - Output file
     if ((fp = fopen(title_file, "rb")) == NULL)
     {
       progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open title file '%s' - %s!",
+                     "Unable to open title file \"%s\" - %s!",
                      TitleImage, strerror(errno));
       return;
     }
 
     t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+    htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
     fclose(fp);
 
     htmlsep_write(out, t, 0);
@@ -360,8 +356,10 @@ hdBook::htmlsep_title(FILE  *out,	// I - Output file
     {
       image_t *img = image_load(TitleImage, !OutputColor);
 
-      fprintf(out, "<img src='%s' width='%d' height='%d'><br>\n",
-              file_basename((char *)TitleImage), img->width, img->height);
+      fprintf(out, "<img src='%s' width='%d' height='%d' "
+                   "alt='%s'><br>\n",
+              file_basename((char *)TitleImage), img->width, img->height,
+	      title ? (char *)title : "");
     }
 
     if (title != NULL)
@@ -378,6 +376,7 @@ hdBook::htmlsep_title(FILE  *out,	// I - Output file
     if (copyright != NULL)
       fprintf(out, "%s<br>\n", copyright);
 
+    fputs("<a href='toc.html'>Table of Contents</a>", out);
     fputs("</center>\n", out);
   }
 }
@@ -473,6 +472,7 @@ hdBook::htmlsep_node(FILE   *out,	// I - Output file
 {
   int		i;			// Looping var
   uchar		*ptr,			// Pointer to output string
+		*entity,		// Entity string
 		*src,			// Source image
 		newsrc[1024];		// New source image filename
 
@@ -519,7 +519,11 @@ hdBook::htmlsep_node(FILE   *out,	// I - Output file
 
     case HD_ELEMENT_COMMENT :
     case HD_ELEMENT_UNKNOWN :
-        fprintf(out, "\n<!--%s-->\n", t->data);
+        fputs("\n<!--", out);
+        for (ptr = t->data; *ptr; ptr ++)
+          fputs((char *)iso8859(*ptr), out);
+	fputs("-->\n", out);
+	col = 0;
 	break;
 
     case HD_ELEMENT_AREA :
@@ -581,7 +585,7 @@ hdBook::htmlsep_node(FILE   *out,	// I - Output file
 	      (!isalpha(src[0]) || src[1] != ':'))
           {
             image_copy((char *)src, OutputPath);
-            strcpy((char *)newsrc, file_basename((char *)src));
+            strlcpy((char *)newsrc, file_basename((char *)src), sizeof(newsrc));
             htmlSetVariable(t, (uchar *)"SRC", newsrc);
           }
 	}
@@ -616,10 +620,19 @@ hdBook::htmlsep_node(FILE   *out,	// I - Output file
 
 	    if (t->vars[i].value == NULL)
               col += fprintf(out, "%s", t->vars[i].name);
-	    else if (strchr((char *)t->vars[i].value, '\'') != NULL)
-              col += fprintf(out, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
 	    else
-              col += fprintf(out, "%s='%s'", t->vars[i].name, t->vars[i].value);
+	    {
+	      col += fprintf(out, "%s=\"", t->vars[i].name);
+	      for (ptr = t->vars[i].value; *ptr; ptr ++)
+	      {
+		entity = iso8859(*ptr);
+		fputs((char *)entity, out);
+		col += strlen((char *)entity);
+	      }
+
+	      putc('\"', out);
+	      col ++;
+	    }
 	  }
 
 	  putc('>', out);
@@ -896,5 +909,5 @@ hdBook::htmlsep_update_links(hdTree *t,	// I - Document tree
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.6 2004/04/03 03:18:32 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.7 2004/10/23 04:57:40 mike Exp $".
 //
