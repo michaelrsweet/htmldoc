@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.17 2000/01/24 01:27:21 mike Exp $"
+// "$Id: HelpView.cxx,v 1.18 2000/01/24 01:59:47 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -410,7 +410,8 @@ HelpView::draw()
 	  }
 	  else if (strcasecmp(buf, "HR") == 0)
 	  {
-	    fl_line(block->x, yy + 2 * hh, block->w, yy + 2 * hh);
+	    fl_line(block->x + x(), yy + 2 * hh + y(), block->w + x(),
+	            yy + 2 * hh + y());
 
 	    if (line < 31)
 	      line ++;
@@ -1696,5 +1697,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.17 2000/01/24 01:27:21 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.18 2000/01/24 01:59:47 mike Exp $".
 //
