@@ -1,0 +1,75 @@
+#
+# "$Id: htmldoc.list.in,v 1.1.2.19 2003/11/17 19:57:02 mike Exp $"
+#
+#   ESP Package Manager (EPM) file list for HTMLDOC.
+#
+#   EPM can be found at "http://www.easysw.com/epm".
+#
+
+%product HTMLDOC
+%copyright 1997-2003 by Easy Software Products, All Rights Reserved.
+%vendor Easy Software Products
+%license COPYING.txt
+%readme README.txt
+%version @SVERSION@
+
+# Directories...
+$prefix=@prefix@
+$exec_prefix=@exec_prefix@
+$bindir=@bindir@
+$mandir=@mandir@
+$datadir=@datadir@
+
+# Program
+%system darwin
+f 0555 root sys /Applications/htmldoc.app/Contents/MacOS/htmldoc htmldoc/htmldoc nostrip()
+l 0555 root sys $bindir/htmldoc /Applications/htmldoc.app/Contents/MacOS/htmldoc
+f 0444 root sys /Applications/htmldoc.app/Contents/Resources/htmldoc.icns htmldoc.icns
+f 0444 root sys /Applications/htmldoc.app/Contents/Info.plist htmldoc.plist
+f 0444 root sys /Applications/htmldoc.app/Contents/PkgInfo htmldoc.info
+
+%system !darwin
+f 0555 root sys $bindir/htmldoc htmldoc/htmldoc
+%system all
+
+# Font files
+f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.afm
+f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.pfa
+
+# Data files
+f 0444 root sys $datadir/htmldoc/data/cp-874 data/cp-874
+f 0444 root sys $datadir/htmldoc/data/cp-1250 data/cp-1250
+f 0444 root sys $datadir/htmldoc/data/cp-1251 data/cp-1251
+f 0444 root sys $datadir/htmldoc/data/cp-1252 data/cp-1252
+f 0444 root sys $datadir/htmldoc/data/cp-1253 data/cp-1253
+f 0444 root sys $datadir/htmldoc/data/cp-1254 data/cp-1254
+f 0444 root sys $datadir/htmldoc/data/cp-1255 data/cp-1255
+f 0444 root sys $datadir/htmldoc/data/cp-1256 data/cp-1256
+f 0444 root sys $datadir/htmldoc/data/cp-1257 data/cp-1257
+f 0444 root sys $datadir/htmldoc/data/cp-1258 data/cp-1258
+f 0444 root sys $datadir/htmldoc/data/iso-8859-1 data/iso-8859-1
+f 0444 root sys $datadir/htmldoc/data/iso-8859-14 data/iso-8859-14
+f 0444 root sys $datadir/htmldoc/data/iso-8859-15 data/iso-8859-15
+f 0444 root sys $datadir/htmldoc/data/iso-8859-2 data/iso-8859-2
+f 0444 root sys $datadir/htmldoc/data/iso-8859-3 data/iso-8859-3
+f 0444 root sys $datadir/htmldoc/data/iso-8859-4 data/iso-8859-4
+f 0444 root sys $datadir/htmldoc/data/iso-8859-5 data/iso-8859-5
+f 0444 root sys $datadir/htmldoc/data/iso-8859-6 data/iso-8859-6
+f 0444 root sys $datadir/htmldoc/data/iso-8859-7 data/iso-8859-7
+f 0444 root sys $datadir/htmldoc/data/iso-8859-8 data/iso-8859-8
+f 0444 root sys $datadir/htmldoc/data/iso-8859-9 data/iso-8859-9
+f 0444 root sys $datadir/htmldoc/data/koi8-r data/koi8-r
+f 0444 root sys $datadir/htmldoc/data/prolog.ps data/prolog.ps
+f 0444 root sys $datadir/htmldoc/data/psglyphs data/psglyphs
+
+# Documentation
+f 0444 root sys $mandir/cat1/htmldoc.1 doc/htmldoc.1
+f 0444 root sys $mandir/man1/htmldoc.1 doc/htmldoc.man
+%system all
+
+f 0444 root sys $datadir/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
+f 0444 root sys $datadir/doc/htmldoc/help.html doc/help.html
+
+#
+# End of "$Id: htmldoc.list.in,v 1.1.2.19 2003/11/17 19:57:02 mike Exp $".
+#
