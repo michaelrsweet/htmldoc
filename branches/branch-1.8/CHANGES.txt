@@ -1,4 +1,4 @@
-CHANGES.txt - 05/20/2001
+CHANGES.txt - 05/23/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.13
@@ -6,7 +6,6 @@ CHANGES IN HTMLDOC v1.8.13
     NEW FEATURES
 
 	- Added support for Acrobat 5.0 (PDF 1.4).
-	- Added support for 64-bit encryption of PDF files.
 	- Added support for transparency in PostScript and
 	  PDF 1.1 and 1.2 output.
 
@@ -55,6 +54,7 @@ CHANGES IN HTMLDOC v1.8.13
 	  grayscale JPEG images.
 	- JPEG images were not encrypted when writing a document
 	  with encryption enabled.
+	- The user password was not properly encrypted.
 	- The colormap of indexed images were not encrypted when
 	  writing a document with encryption enabled.
 	- The temporary file creation and cleanup functions did
