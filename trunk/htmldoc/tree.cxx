@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.5 2002/02/17 22:44:55 mike Exp $"
+// "$Id: tree.cxx,v 1.6 2002/02/20 22:42:55 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -1205,20 +1205,25 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 	else if (hdElIsBlock(t->element))
 	{
           for (temp = p; temp != NULL; temp = temp->parent)
-            if (hdElIsBlock(temp->element) || hdElIsItem(temp->element))
+            if (hdElIsBlock(temp->element))
               break;
 	    else if (hdElIsCell(temp->element) || hdElIsList(temp->element) ||
-	             hdElIsGroup(temp->element))
+	             hdElIsGroup(temp->element) || hdElIsItem(temp->element))
 	    {
 	      temp = NULL;
 	      break;
 	    }
 	}
-	else if (hdElIsTable(t->element))
+	else if (hdElIsRowCol(t->element))
 	{
           for (temp = p; temp != NULL; temp = temp->parent)
-            if (hdElIsTable(temp->element))
+            if (hdElIsRowCol(temp->element))
 	      break;
+	    else if (temp->element == HD_ELEMENT_TABLE)
+	    {
+	      temp = NULL;
+	      break;
+	    }
 	}
 	else if (hdElIsCell(t->element))
 	{
@@ -1826,5 +1831,5 @@ htmlGetMeta(hdTree *tree,	/* I - Document tree */
 
 
 //
-// End of "$Id: tree.cxx,v 1.5 2002/02/17 22:44:55 mike Exp $".
+// End of "$Id: tree.cxx,v 1.6 2002/02/20 22:42:55 mike Exp $".
 //
