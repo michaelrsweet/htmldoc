@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.12 2002/03/11 02:33:06 mike Exp $"
+// "$Id: style.h,v 1.13 2002/03/17 19:24:53 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -495,7 +495,7 @@ struct hdStyle
 
   hdBorderStyle	get_border_style(const char *value);
   float		get_border_width(const char *value, hdStyleSheet *css);
-  int		get_color(const char *color, unsigned char *rgb);
+  static int	get_color(const char *color, unsigned char *rgb);
   float		get_length(const char *length, float max_length,
 		           hdStyleSheet *css, int *relative = (int *)0);
   hdListStyleType get_list_style_type(const char *value);
@@ -594,5 +594,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.12 2002/03/11 02:33:06 mike Exp $".
+// End of "$Id: style.h,v 1.13 2002/03/17 19:24:53 mike Exp $".
 //

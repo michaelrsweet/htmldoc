@@ -1,5 +1,5 @@
 //
-// "$Id: render.cxx,v 1.5 2002/03/11 02:33:05 mike Exp $"
+// "$Id: render.cxx,v 1.6 2002/03/17 19:24:52 mike Exp $"
 //
 //   Core rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -32,7 +32,7 @@
 
 //#define DEBUG*/
 #include "htmldoc.h"
-#include <config.h>
+#include "hdstring.h"
 
 
 //
@@ -337,6 +337,29 @@ hdRender::add_render(int   page,
         	     int   insert)
 {
   return (NULL);
+}
+
+
+//
+// 'hdRender::get_color()' - Get a color value.
+//
+
+void
+hdRender::get_color(const char *c,	// I - Color name
+                    float      *rgb,	// O - RGB color
+	            int        defblack)// I - Default to black?
+{
+  unsigned char	rgbc[3];		// Integer RGB value...
+
+
+  // Initialize color value...
+  memset(rgbc, defblack ? 0 : 255, 3);
+
+  hdStyle::get_color(c, rgbc);
+
+  rgb[0] = rgbc[0] / 255.0f;
+  rgb[1] = rgbc[1] / 255.0f;
+  rgb[2] = rgbc[2] / 255.0f;
 }
 
 
@@ -6314,5 +6337,5 @@ get_title(tree_t *doc)	// I - Document
 
 
 //
-// End of "$Id: render.cxx,v 1.5 2002/03/11 02:33:05 mike Exp $".
+// End of "$Id: render.cxx,v 1.6 2002/03/17 19:24:52 mike Exp $".
 //
