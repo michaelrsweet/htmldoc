@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.102 2004/10/24 03:23:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.103 2004/10/24 22:44:54 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2355,139 +2355,153 @@ hdBook::pdf_write_contents(FILE   *out,			/* I - Output file */
       fprintf(out, "/Next %d 0 R", next);
 
     pdf_end_object(out);
+    return;
+  }
+
+ /*
+  * Allocate the arrays...  Add 1 to hold the TOC at the top level...
+  */
+
+  if ((entry_counts = (int *)calloc(sizeof(int), num_headings + 1)) == NULL)
+  {
+    progress_error(HD_ERROR_OUT_OF_MEMORY,
+                   "Unable to allocate memory for %d headings - %s",
+                   num_headings, strerror(errno));
+    return;
+  }
+
+  if ((entry_objects = (int *)calloc(sizeof(int), num_headings + 1)) == NULL)
+  {
+    progress_error(HD_ERROR_OUT_OF_MEMORY,
+                   "Unable to allocate memory for %d headings - %s",
+                   num_headings, strerror(errno));
+    free(entry_counts);
+    return;
+  }
+
+  if ((entries = (hdTree **)calloc(sizeof(hdTree *), num_headings + 1)) == NULL)
+  {
+    progress_error(HD_ERROR_OUT_OF_MEMORY,
+                   "Unable to allocate memory for %d headings - %s",
+                   num_headings, strerror(errno));
+    free(entry_objects);
+    free(entry_counts);
+    return;
+  }
+
+  if (parent == 0 && TocLevels > 0)
+  {
+   /*
+    * Add the table of contents to the top-level contents...
+    */
+
+    entries[0]       = NULL;
+    entry_objects[0] = num_objects + 2;
+    entry            = num_objects + 3;
+    count            = 1;
   }
   else
   {
-   /*
-    * Allocate the arrays...  Add 1 to hold the TOC at the top level...
-    */
-
-    if ((entry_counts = (int *)calloc(sizeof(int), num_headings + 1)) == NULL)
-    {
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
-                     "Unable to allocate memory for %d headings - %s",
-                     num_headings, strerror(errno));
-      return;
-    }
-
-    if ((entry_objects = (int *)calloc(sizeof(int), num_headings + 1)) == NULL)
-    {
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
-                     "Unable to allocate memory for %d headings - %s",
-                     num_headings, strerror(errno));
-      free(entry_counts);
-      return;
-    }
-
-    if ((entries = (hdTree **)calloc(sizeof(hdTree *), num_headings + 1)) == NULL)
-    {
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
-                     "Unable to allocate memory for %d headings - %s",
-                     num_headings, strerror(errno));
-      free(entry_objects);
-      free(entry_counts);
-      return;
-    }
-
-   /*
-    * Find and count the children (entries)...
-    */
-
-    if (toc->element == HD_ELEMENT_B || toc->element == HD_ELEMENT_LI)
-    {
-      if (toc->next != NULL && toc->next->element == HD_ELEMENT_UL)
-	temp = toc->next->child;
-      else
-	temp = NULL;
-    }
-    else
-      temp = toc->child;
-
-    if (parent == 0 && TocLevels > 0)
-    {
-     /*
-      * Add the table of contents to the top-level contents...
-      */
-
-      entries[0]       = NULL;
-      entry_objects[0] = num_objects + 2;
-      entry            = num_objects + 3;
-      count            = 1;
-    }
-    else
-    {
-      entry = num_objects + 2;
-      count = 0;
-    }
-
-    for (; temp != NULL && count <= num_headings; temp = temp->next)
-      if (temp->element == HD_ELEMENT_B || temp->element == HD_ELEMENT_LI)
-      {
-	entries[count]       = temp;
-	entry_objects[count] = entry;
-	if (temp->next != NULL && temp->next->element == HD_ELEMENT_UL)
-          entry_counts[count] = pdf_count_headings(temp->next->child);
-	else
-          entry_counts[count] = 0;
-	entry += entry_counts[count] + 1;
-	count ++;
-      }
-
-   /*
-    * Output the top-level object...
-    */
-
-    thisobj = pdf_start_object(out);
-
-    if (parent == 0)
-      outline_object = thisobj;
-    else
-      fprintf(out, "/Parent %d 0 R", parent);
-
-    if (count > 0)
-    {
-      fprintf(out, "/Count %d", parent == 0 ? count : -count);
-      fprintf(out, "/First %d 0 R", entry_objects[0]);
-      fprintf(out, "/Last %d 0 R", entry_objects[count - 1]);
-    }
-
-    if (toc->element == HD_ELEMENT_B || toc->element == HD_ELEMENT_LI)
-    {
-      if ((text = htmlGetText(toc->child)) != NULL)
-      {
-	fputs("/Title", out);
-	write_string(out, text, 0);
-	free(text);
-      }
-
-      i = heading_pages[*heading];
-      x = 0.0f;
-      y = heading_tops[*heading] + pages[i].bottom;
-      pspdf_transform_coords(pages + i, x, y);
-
-      fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
-              pages_object + 2 * pages[i].outpage + 1, x, y);
-
-      (*heading) ++;
-    }
-
-    if (prev > 0)
-      fprintf(out, "/Prev %d 0 R", prev);
-
-    if (next > 0)
-      fprintf(out, "/Next %d 0 R", next);
-
-    pdf_end_object(out);
-
-    for (i = 0; i < count ; i ++)
-      pdf_write_contents(out, entries[i], thisobj, i > 0 ? entry_objects[i - 1] : 0,
-                	 i < (count - 1) ? entry_objects[i + 1] : 0,
-                	 heading);
-
-    free(entry_objects);
-    free(entry_counts);
-    free(entries);
+    entry = num_objects + 2;
+    count = 0;
   }
+
+ /*
+  * Find and count the children (entries)...
+  */
+
+  if (toc->element == HD_ELEMENT_B && toc->next && toc->next->element == HD_ELEMENT_UL)
+    temp = toc->next->child;
+  else if (toc->element == HD_ELEMENT_LI && toc->last_child &&
+           toc->last_child->element == HD_ELEMENT_UL)
+    temp = toc->last_child->child;
+  else
+    temp = toc->child;
+
+  for (; temp && count <= num_headings; temp = temp->next)
+  {
+    if (temp->element == HD_ELEMENT_B)
+    {
+      entries[count]       = temp;
+      entry_objects[count] = entry;
+
+      if (temp->next && temp->next->element == HD_ELEMENT_UL)
+        entry_counts[count] = pdf_count_headings(temp->next->child);
+      else
+        entry_counts[count] = 0;
+
+      entry += entry_counts[count] + 1;
+      count ++;
+    }
+    else if (temp->element == HD_ELEMENT_LI)
+    {
+      entries[count]       = temp;
+      entry_objects[count] = entry;
+
+      if (temp->last_child && temp->last_child->element == HD_ELEMENT_UL)
+        entry_counts[count] = pdf_count_headings(temp->last_child);
+      else
+        entry_counts[count] = 0;
+
+      entry += entry_counts[count] + 1;
+      count ++;
+    }
+  }
+
+ /*
+  * Output the top-level object...
+  */
+
+  thisobj = pdf_start_object(out);
+
+  if (parent == 0)
+    outline_object = thisobj;
+  else
+    fprintf(out, "/Parent %d 0 R", parent);
+
+  if (count > 0)
+  {
+    fprintf(out, "/Count %d", parent == 0 ? count : -count);
+    fprintf(out, "/First %d 0 R", entry_objects[0]);
+    fprintf(out, "/Last %d 0 R", entry_objects[count - 1]);
+  }
+
+  if (parent > 0 && toc->child && toc->child->element == HD_ELEMENT_A)
+  {
+    if ((text = htmlGetText(toc->child->child)) != NULL)
+    {
+      fputs("/Title", out);
+      write_string(out, text, 0);
+      free(text);
+    }
+
+    i = heading_pages[*heading];
+    x = 0.0f;
+    y = heading_tops[*heading] + pages[i].bottom;
+    pspdf_transform_coords(pages + i, x, y);
+
+    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+            pages_object + 2 * pages[i].outpage + 1, x, y);
+
+    (*heading) ++;
+  }
+
+  if (prev > 0)
+    fprintf(out, "/Prev %d 0 R", prev);
+
+  if (next > 0)
+    fprintf(out, "/Next %d 0 R", next);
+
+  pdf_end_object(out);
+
+  for (i = 0; i < count ; i ++)
+    pdf_write_contents(out, entries[i], thisobj, i > 0 ? entry_objects[i - 1] : 0,
+                       i < (count - 1) ? entry_objects[i + 1] : 0,
+                       heading);
+
+  free(entry_objects);
+  free(entry_counts);
+  free(entries);
 }
 
 
@@ -2586,10 +2600,12 @@ hdBook::pdf_count_headings(hdTree *toc)	/* I - TOC entry */
 
 
   for (nheadings = 0; toc != NULL; toc = toc->next)
-    if (toc->element == HD_ELEMENT_B || toc->element == HD_ELEMENT_LI)
+  {
+    if (toc->element == HD_ELEMENT_A)
       nheadings ++;
-    else if (toc->element == HD_ELEMENT_UL && toc->child != NULL)
+    if (toc->child != NULL)
       nheadings += pdf_count_headings(toc->child);
+  }
 
   return (nheadings);
 }
@@ -3081,7 +3097,7 @@ hdBook::render_contents(hdTree   *t,		/* I  - Tree to parse */
   * Put the text...
   */
 
-  flat = flatten_tree(t->child);
+  flat = flatten_tree(t->child->child);
 
   for (height = 0.0, temp = flat; temp != NULL; temp = temp->next)
     if (temp->height > height)
@@ -3285,6 +3301,8 @@ hdBook::count_headings(hdTree *t)		// I - Tree to count
       case HD_ELEMENT_B :
       case HD_ELEMENT_LI :
           count ++;
+	  if (t->last_child && t->last_child->element == HD_ELEMENT_UL)
+	    count += count_headings(t->last_child);
 	  break;
 
       default :
@@ -3349,10 +3367,19 @@ hdBook::parse_contents(hdTree   *t,		/* I - Tree to parse */
 
 	    if (t->element == HD_ELEMENT_B &&
 		pages[*page].chapter == pages[*page - 1].chapter)
-	      pages[*page].chapter = htmlGetText(t->child);
+	      pages[*page].chapter = htmlGetText(t->child->child);
 
 	    if (pages[*page].heading == pages[*page - 1].heading)
-	      pages[*page].heading = htmlGetText(t->child);
+	      pages[*page].heading = htmlGetText(t->child->child);
+
+           /*
+            * Next heading...
+            */
+
+            (*heading) ++;
+
+            if (t->last_child->element == HD_ELEMENT_UL)
+              parse_contents(t->last_child, margins, y, page, heading, chap);
           }
 	  else if (t->next != NULL && t->next->element == HD_ELEMENT_UL)
 	  {
@@ -3362,14 +3389,8 @@ hdBook::parse_contents(hdTree   *t,		/* I - Tree to parse */
 
 	    t = t->next;
 
-	    (*heading) += count_headings(t->child);
+	    (*heading) += count_headings(t->child) + 1;
 	  }
-
-         /*
-          * Next heading...
-          */
-
-          (*heading) ++;
           break;
 
       default :
@@ -11925,5 +11946,5 @@ hdBook::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.102 2004/10/24 03:23:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.103 2004/10/24 22:44:54 mike Exp $".
  */
