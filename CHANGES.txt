@@ -1,5 +1,17 @@
-CHANGES.txt - 08/12/2002
+CHANGES.txt - 08/19/2002
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.22
+
+    NEW FEATURES
+
+    CHANGES
+
+    BUG FIXES
+
+	- HTMLDOC could crash when checking if a URL is already
+	  cached.
+
 
 CHANGES IN HTMLDOC v1.8.21
 
