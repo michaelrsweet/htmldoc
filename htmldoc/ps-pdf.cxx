@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.31 1999/11/30 18:14:51 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.32 1999/12/04 12:54:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -259,20 +259,20 @@ static void	flate_puts(char *s, FILE *out);
 static void	flate_printf(FILE *out, char *format, ...);
 static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
 
-static void	parse_contents(tree_t *t, int left, int width, int bottom,
-		               int length, float *y, int *page, int *heading);
-static void	parse_doc(tree_t *t, int left, int width, int bottom, int length,
+static void	parse_contents(tree_t *t, float left, float width, float bottom,
+		               float length, float *y, int *page, int *heading);
+static void	parse_doc(tree_t *t, float left, float width, float bottom, float length,
 		          float *x, float *y, int *page, tree_t *cpara);
-static void	parse_heading(tree_t *t, int left, int width, int bottom,
-		              int length, float *x, float *y, int *page);
-static void	parse_paragraph(tree_t *t, int left, int width, int bottom,
-		                int length, float *x, float *y, int *page);
-static void	parse_pre(tree_t *t, int left, int width, int bottom,
-		          int length, float *x, float *y, int *page);
-static void	parse_table(tree_t *t, int left, int width, int bottom,
-		            int length, float *x, float *y, int *page);
-static void	parse_list(tree_t *t, int left, int width, int bottom,
-		           int length, float *x, float *y, int *page);
+static void	parse_heading(tree_t *t, float left, float width, float bottom,
+		              float length, float *x, float *y, int *page);
+static void	parse_paragraph(tree_t *t, float left, float width, float bottom,
+		                float length, float *x, float *y, int *page);
+static void	parse_pre(tree_t *t, float left, float width, float bottom,
+		          float length, float *x, float *y, int *page);
+static void	parse_table(tree_t *t, float left, float width, float bottom,
+		            float length, float *x, float *y, int *page);
+static void	parse_list(tree_t *t, float left, float width, float bottom,
+		           float length, float *x, float *y, int *page);
 static void	init_list(tree_t *t);
 
 static tree_t	*real_prev(tree_t *t);
@@ -1988,10 +1988,10 @@ pdf_write_names(FILE *out)		/* I - Output file */
 
 static void
 parse_contents(tree_t *t,		/* I - Tree to parse */
-               int    left,		/* I - Left margin */
-               int    right,		/* I - Printable width */
-               int    bottom,		/* I - Bottom margin */
-               int    top,		/* I - Printable top */
+               float  left,		/* I - Left margin */
+               float  right,		/* I - Printable width */
+               float  bottom,		/* I - Bottom margin */
+               float  top,		/* I - Printable top */
                float  *y,		/* IO - Y position */
                int    *page,		/* IO - Page # */
                int    *heading)		/* IO - Heading # */
@@ -2178,10 +2178,10 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
 static void
 parse_doc(tree_t *t,		/* I - Tree to parse */
-          int    left,		/* I - Left margin */
-          int    right,		/* I - Printable width */
-          int    bottom,	/* I - Bottom margin */
-          int    top,		/* I - Printable top */
+          float  left,		/* I - Left margin */
+          float  right,		/* I - Printable width */
+          float  bottom,	/* I - Bottom margin */
+          float  top,		/* I - Printable top */
           float  *x,		/* IO - X position */
           float  *y,		/* IO - Y position */
           int    *page,		/* IO - Page # */
@@ -2670,10 +2670,10 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
 static void
 parse_heading(tree_t *t,	/* I - Tree to parse */
-              int    left,	/* I - Left margin */
-              int    right,	/* I - Printable width */
-              int    bottom,	/* I - Bottom margin */
-              int    top,	/* I - Printable top */
+              float  left,	/* I - Left margin */
+              float  right,	/* I - Printable width */
+              float  bottom,	/* I - Bottom margin */
+              float  top,	/* I - Printable top */
               float  *x,	/* IO - X position */
               float  *y,	/* IO - Y position */
               int    *page)	/* IO - Page # */
@@ -2742,10 +2742,10 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
 static void
 parse_paragraph(tree_t *t,	/* I - Tree to parse */
-        	int    left,	/* I - Left margin */
-        	int    right,	/* I - Printable width */
-        	int    bottom,	/* I - Bottom margin */
-        	int    top,	/* I - Printable top */
+        	float  left,	/* I - Left margin */
+        	float  right,	/* I - Printable width */
+        	float  bottom,	/* I - Bottom margin */
+        	float  top,	/* I - Printable top */
         	float  *x,	/* IO - X position */
         	float  *y,	/* IO - Y position */
                 int    *page)	/* IO - Page # */
@@ -3163,10 +3163,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
 static void
 parse_pre(tree_t *t,		/* I - Tree to parse */
-          int    left,		/* I - Left margin */
-          int    right,		/* I - Printable width */
-          int    bottom,	/* I - Bottom margin */
-          int    top,		/* I - Printable top */
+          float  left,		/* I - Left margin */
+          float  right,		/* I - Printable width */
+          float  bottom,	/* I - Bottom margin */
+          float  top,		/* I - Printable top */
           float  *x,		/* IO - X position */
           float  *y,		/* IO - Y position */
           int    *page)		/* IO - Page # */
@@ -3339,10 +3339,10 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
 static void
 parse_table(tree_t *t,		/* I - Tree to parse */
-            int    left,	/* I - Left margin */
-            int    right,	/* I - Printable width */
-            int    bottom,	/* I - Bottom margin */
-            int    top,		/* I - Printable top */
+            float  left,	/* I - Left margin */
+            float  right,	/* I - Printable width */
+            float  bottom,	/* I - Bottom margin */
+            float  top,		/* I - Printable top */
             float  *x,		/* IO - X position */
             float  *y,		/* IO - Y position */
             int    *page)	/* IO - Page # */
@@ -3357,14 +3357,17 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		num_rows,
 		regular_cols,
 		preformatted,
-		col_lefts[MAX_COLUMNS],
-		col_rights[MAX_COLUMNS];
-  float		col_width,
+		col_spans[MAX_COLUMNS];
+  float		col_lefts[MAX_COLUMNS],
+		col_rights[MAX_COLUMNS],
+		col_width,
 		col_widths[MAX_COLUMNS],
+		col_swidths[MAX_COLUMNS],
 		col_min,
 		col_mins[MAX_COLUMNS],
 		col_pref,
 		col_prefs[MAX_COLUMNS],
+		col_sprefs[MAX_COLUMNS],
 		width,
 		pref_width,
 		table_width,
@@ -3526,12 +3529,19 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  }
 
           // Add widths to columns...
-          col_width /= colspan;
-	  col_pref  /= colspan;
-	  col_min   /= colspan;
-
-          while (colspan > 0 && col < MAX_COLUMNS)
+          if (colspan > 0)
           {
+	    if (col_spans[columns] > colspan)
+	      col_spans[columns] = colspan;
+
+	    if (col_width > col_swidths[col])
+	      col_swidths[col] = col_width;
+
+	    if (col_pref > col_sprefs[col])
+	      col_sprefs[col] = col_pref;
+          }
+	  else
+	  {
 	    if (col_width > col_widths[col])
 	      col_widths[col] = col_width;
 
@@ -3540,7 +3550,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
 	    if (col_min > col_mins[col])
 	      col_mins[col] = col_min;
+          }
 
+	  while (colspan > 0 && col < MAX_COLUMNS)
+	  {
             cells[num_rows][col] = tempcol;
             col ++;
             colspan --;
@@ -3580,7 +3593,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     if (var[strlen((char *)var) - 1] == '%')
       width = atof((char *)var) * (right - left) / 100.0f;
     else
-      width = atoi((char *)var) * 0.9f;
+      width = atoi((char *)var) * PagePrintWidth / 680.0f;
   }
   else
   {
@@ -3632,12 +3645,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   for (col = 0; col < num_cols; col ++)
     if (col_widths[col] == 0.0f)
     {
-      pref_width = (col_prefs[col] - col_mins[col]) * regular_width +
-                   col_mins[col];
+      pref_width = col_prefs[col] * regular_width;
+      if (pref_width < col_mins[col])
+        pref_width = col_mins[col];
 
       if ((actual_width + pref_width) > width)
       {
-        if (col == (num_cols - 1))
+        if (col == (num_cols - 1) && (width - actual_width) >= col_mins[col])
 	  col_widths[col] = width - actual_width;
 	else
 	  col_widths[col] = col_mins[col];
@@ -3675,9 +3689,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   for (col = 0; col < num_cols; col ++)
   {
-    col_lefts[col]  = (int)*x;
-    col_rights[col] = (int)(*x + col_widths[col] + 0.5);
-    *x = (float)col_rights[col] + 2 * (border + cellpadding + cellspacing);
+    col_lefts[col]  = *x;
+    col_rights[col] = *x + col_widths[col];
+    *x = col_rights[col] + 2 * (border + cellpadding + cellspacing);
 
     DEBUG_printf(("left[%d] = %d, right[%d] = %d\n", col, col_lefts[col], col,
                   col_rights[col]));
@@ -3838,10 +3852,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
 static void
 parse_list(tree_t *t,		/* I - Tree to parse */
-           int    left,		/* I - Left margin */
-           int    right,	/* I - Printable width */
-           int    bottom,	/* I - Bottom margin */
-           int    top,		/* I - Printable top */
+           float  left,		/* I - Left margin */
+           float  right,	/* I - Printable width */
+           float  bottom,	/* I - Bottom margin */
+           float  top,		/* I - Printable top */
            float  *x,		/* IO - X position */
            float  *y,		/* IO - Y position */
            int    *page)	/* IO - Page # */
@@ -6269,5 +6283,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.31 1999/11/30 18:14:51 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.32 1999/12/04 12:54:29 mike Exp $".
  */
