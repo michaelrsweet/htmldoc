@@ -1,11 +1,12 @@
-CHANGES.txt - 08/20/2002
+CHANGES.txt - 08/26/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.22
 
     NEW FEATURES
 
-    CHANGES
+	- Now support many Windows code pages in addition to ISO
+	  charsets.
 
     BUG FIXES
 
@@ -14,6 +15,8 @@ CHANGES IN HTMLDOC v1.8.22
 	- HTMLDOC didn't adjust the top margin when changing the
 	  page header if the comment didn't appear at the top of
 	  a page.
+	- HTMLDOC didn't initialize the right number of TOC
+	  headings.
 
 
 CHANGES IN HTMLDOC v1.8.21
