@@ -8,7 +8,7 @@ code_name {.cxx}
 gridx 5 
 gridy 5 
 snap 3
-class HelpDialog {open selected
+class HelpDialog {open
 } {
   decl {int index_;} {}
   decl {int max_;} {}
@@ -55,13 +55,16 @@ else if (view_->filename())
 }}
         private xywh {0 80 535 305} box DOWN_BOX resizable
       }
-      Fl_Pack {} {open
-        xywh {0 25 535 55}
-        code0 {o->type(Fl_Pack::HORIZONTAL);}
+      Fl_Group {} {open selected
+        xywh {0 25 535 55} box FLAT_BOX
       } {
-        Fl_Button back_ {
-          label Back
-          callback {if (index_ > 0)
+        Fl_Pack {} {open
+          xywh {0 25 535 55}
+          code0 {o->type(Fl_Pack::HORIZONTAL);}
+        } {
+          Fl_Button back_ {
+            label Back
+            callback {if (index_ > 0)
   index_ --;
 
 if (index_ == 0)
@@ -73,11 +76,11 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-          private image {icons/back.xpm} deimage {icons/dback.xpm} xywh {0 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
-        }
-        Fl_Button forward_ {
-          label Forward
-          callback {if (index_ < max_)
+            private image {icons/back.xpm} deimage {icons/dback.xpm} xywh {0 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
+          }
+          Fl_Button forward_ {
+            label Forward
+            callback {if (index_ < max_)
   index_ ++;
 
 if (index_ >= max_)
@@ -89,27 +92,28 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-          private image {icons/forward.xpm} deimage {icons/dforward.xpm} xywh {60 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
-        }
-        Fl_Button smaller_ {
-          label F
-          callback {if (view_->textsize() > 8)
+            private image {icons/forward.xpm} deimage {icons/dforward.xpm} xywh {60 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
+          }
+          Fl_Button smaller_ {
+            label F
+            callback {if (view_->textsize() > 8)
   view_->textsize(view_->textsize() - 2);
 
 if (view_->textsize() <= 8)
   smaller_->deactivate();
 larger_->activate();}
-          private xywh {120 25 55 55} box FLAT_BOX down_box DOWN_BOX labelfont 1
-        }
-        Fl_Button larger_ {
-          label F
-          callback {if (view_->textsize() < 18)
+            private xywh {120 25 55 55} box FLAT_BOX down_box DOWN_BOX labelfont 1
+          }
+          Fl_Button larger_ {
+            label F
+            callback {if (view_->textsize() < 18)
   view_->textsize(view_->textsize() + 2);
 
 if (view_->textsize() >= 18)
   larger_->deactivate();
 smaller_->activate();}
-          private xywh {175 25 55 55} box FLAT_BOX down_box DOWN_BOX labelfont 1 labelsize 40
+            private xywh {175 25 55 55} box FLAT_BOX down_box DOWN_BOX labelfont 1 labelsize 40
+          }
         }
       }
       Fl_Menu_Bar {} {open

@@ -55,11 +55,11 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
 view_->topline(line_[index_]);
 }
 void HelpDialog::cb_back_(Fl_Button* o, void* v) {
-  ((HelpDialog*)(o->parent()->parent()->user_data()))->cb_back__i(o,v);
+  ((HelpDialog*)(o->parent()->parent()->parent()->user_data()))->cb_back__i(o,v);
 }
 
 #include <FL/Fl_Pixmap.H>
-static const char *image_back[] = {
+static const char *idata_back[] = {
 "32 32 33 1",
 " \tc None",
 ".\tc #064606",
@@ -127,9 +127,9 @@ static const char *image_back[] = {
 "                                ",
 "                                "
 };
-static Fl_Pixmap pixmap_back(image_back);
+static Fl_Pixmap image_back(idata_back);
 
-static const char *image_dback[] = {
+static const char *idata_dback[] = {
 "32 32 33 1",
 " \tc None",
 ".\tc #242424",
@@ -197,7 +197,7 @@ static const char *image_dback[] = {
 "                                ",
 "                                "
 };
-static Fl_Pixmap pixmap_dback(image_dback);
+static Fl_Pixmap image_dback(idata_dback);
 
 inline void HelpDialog::cb_forward__i(Fl_Button*, void*) {
   if (index_ < max_)
@@ -214,10 +214,10 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
 view_->topline(line_[index_]);
 }
 void HelpDialog::cb_forward_(Fl_Button* o, void* v) {
-  ((HelpDialog*)(o->parent()->parent()->user_data()))->cb_forward__i(o,v);
+  ((HelpDialog*)(o->parent()->parent()->parent()->user_data()))->cb_forward__i(o,v);
 }
 
-static const char *image_forward[] = {
+static const char *idata_forward[] = {
 "32 32 33 1",
 " \tc None",
 ".\tc #073D07",
@@ -285,9 +285,9 @@ static const char *image_forward[] = {
 "                                ",
 "                                "
 };
-static Fl_Pixmap pixmap_forward(image_forward);
+static Fl_Pixmap image_forward(idata_forward);
 
-static const char *image_dforward[] = {
+static const char *idata_dforward[] = {
 "32 32 33 1",
 " \tc None",
 ".\tc #1E1E1E",
@@ -355,7 +355,7 @@ static const char *image_dforward[] = {
 "                                ",
 "                                "
 };
-static Fl_Pixmap pixmap_dforward(image_dforward);
+static Fl_Pixmap image_dforward(idata_dforward);
 
 inline void HelpDialog::cb_smaller__i(Fl_Button*, void*) {
   if (view_->textsize() > 8)
@@ -366,7 +366,7 @@ if (view_->textsize() <= 8)
 larger_->activate();
 }
 void HelpDialog::cb_smaller_(Fl_Button* o, void* v) {
-  ((HelpDialog*)(o->parent()->parent()->user_data()))->cb_smaller__i(o,v);
+  ((HelpDialog*)(o->parent()->parent()->parent()->user_data()))->cb_smaller__i(o,v);
 }
 
 inline void HelpDialog::cb_larger__i(Fl_Button*, void*) {
@@ -378,7 +378,7 @@ if (view_->textsize() >= 18)
 smaller_->activate();
 }
 void HelpDialog::cb_larger_(Fl_Button* o, void* v) {
-  ((HelpDialog*)(o->parent()->parent()->user_data()))->cb_larger__i(o,v);
+  ((HelpDialog*)(o->parent()->parent()->parent()->user_data()))->cb_larger__i(o,v);
 }
 
 inline void HelpDialog::cb_Close_i(Fl_Menu_*, void*) {
@@ -405,37 +405,41 @@ HelpDialog::HelpDialog() {
       o->callback((Fl_Callback*)cb_view_);
       Fl_Group::current()->resizable(o);
     }
-    { Fl_Pack* o = new Fl_Pack(0, 25, 535, 55);
-      { Fl_Button* o = back_ = new Fl_Button(0, 25, 60, 55, _("Back"));
-        o->box(FL_FLAT_BOX);
-        o->down_box(FL_DOWN_BOX);
-        o->image(pixmap_back);
-        o->deimage(pixmap_dback);
-        o->callback((Fl_Callback*)cb_back_);
-        o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
+    { Fl_Group* o = new Fl_Group(0, 25, 535, 55);
+      o->box(FL_FLAT_BOX);
+      { Fl_Pack* o = new Fl_Pack(0, 25, 535, 55);
+        { Fl_Button* o = back_ = new Fl_Button(0, 25, 60, 55, _("Back"));
+          o->box(FL_FLAT_BOX);
+          o->down_box(FL_DOWN_BOX);
+          o->image(image_back);
+          o->deimage(image_dback);
+          o->callback((Fl_Callback*)cb_back_);
+          o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
+        }
+        { Fl_Button* o = forward_ = new Fl_Button(60, 25, 60, 55, _("Forward"));
+          o->box(FL_FLAT_BOX);
+          o->down_box(FL_DOWN_BOX);
+          o->image(image_forward);
+          o->deimage(image_dforward);
+          o->callback((Fl_Callback*)cb_forward_);
+          o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
+        }
+        { Fl_Button* o = smaller_ = new Fl_Button(120, 25, 55, 55, _("F"));
+          o->box(FL_FLAT_BOX);
+          o->down_box(FL_DOWN_BOX);
+          o->labelfont(1);
+          o->callback((Fl_Callback*)cb_smaller_);
+        }
+        { Fl_Button* o = larger_ = new Fl_Button(175, 25, 55, 55, _("F"));
+          o->box(FL_FLAT_BOX);
+          o->down_box(FL_DOWN_BOX);
+          o->labelfont(1);
+          o->labelsize(40);
+          o->callback((Fl_Callback*)cb_larger_);
+        }
+        o->type(Fl_Pack::HORIZONTAL);
+        o->end();
       }
-      { Fl_Button* o = forward_ = new Fl_Button(60, 25, 60, 55, _("Forward"));
-        o->box(FL_FLAT_BOX);
-        o->down_box(FL_DOWN_BOX);
-        o->image(pixmap_forward);
-        o->deimage(pixmap_dforward);
-        o->callback((Fl_Callback*)cb_forward_);
-        o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
-      }
-      { Fl_Button* o = smaller_ = new Fl_Button(120, 25, 55, 55, _("F"));
-        o->box(FL_FLAT_BOX);
-        o->down_box(FL_DOWN_BOX);
-        o->labelfont(1);
-        o->callback((Fl_Callback*)cb_smaller_);
-      }
-      { Fl_Button* o = larger_ = new Fl_Button(175, 25, 55, 55, _("F"));
-        o->box(FL_FLAT_BOX);
-        o->down_box(FL_DOWN_BOX);
-        o->labelfont(1);
-        o->labelsize(40);
-        o->callback((Fl_Callback*)cb_larger_);
-      }
-      o->type(Fl_Pack::HORIZONTAL);
       o->end();
     }
     { Fl_Menu_Bar* o = new Fl_Menu_Bar(0, 0, 535, 25);
