@@ -1,7 +1,7 @@
 //
-// "$Id: toc.cxx,v 1.9 2002/04/02 04:22:37 mike Exp $"
+// "$Id: index.cxx,v 1.1 2002/04/02 04:22:36 mike Exp $"
 //
-//   Table-of-contents methods for HTMLDOC, a HTML document processing program.
+//   Indexing methods for HTMLDOC, a HTML document processing program.
 //
 //   Copyright 1997-2002 by Easy Software Products.
 //
@@ -23,7 +23,6 @@
 //
 // Contents:
 //
-//   hdTree::build_toc() - Build a table-of-contents...
 //
 
 //
@@ -38,11 +37,12 @@
 // 'hdTree::build_toc()' - Build a table-of-contents...
 //
 
-hdTree *				// O - Table of contents tree
-hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
-                  int          levels,	// I - Number of levels
-		  int          numbered)// I - Number the headings?
+hdTree *				// O - Index tree
+hdTree::build_index(hdStyleSheet *css,	// I - Style sheet
+                    int          num_words,// I - Number of words
+		    const char   **words)// I - Words
 {
+#if 0
   int		i;			// Looping var
   int		chapter;		// Chapter number
   int		numbers[6];		// Current heading numbers
@@ -206,9 +206,12 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
   }
 
   return (toc);
+#else
+  return (NULL);
+#endif // 0
 }
 
 
 //
-// End of "$Id: toc.cxx,v 1.9 2002/04/02 04:22:37 mike Exp $".
+// End of "$Id: index.cxx,v 1.1 2002/04/02 04:22:36 mike Exp $".
 //
