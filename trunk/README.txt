@@ -1,4 +1,4 @@
-README.txt - 12/30/1999
+README.txt - 12/31/1999
 -----------------------
 
 INTRODUCTION
