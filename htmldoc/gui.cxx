@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.52 2002/06/05 03:59:29 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.53 2002/06/05 05:30:48 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -717,10 +717,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   charset->callback((Fl_Callback *)changeCB, this);
   _tooltip(charset, "Choose the encoding of text.");
 
-  group = new Fl_Group(140, 260, 350, 25, "Options: ");
+  group = new Fl_Group(200, 255, 285, 25, "Options: ");
   group->align(FL_ALIGN_LEFT);
 
-    embedFonts = new CheckButton(140, 260, 110, 25, "Embed Fonts");
+    embedFonts = new CheckButton(200, 255, 110, 25, "Embed Fonts");
     embedFonts->callback((Fl_Callback *)changeCB, this);
     _tooltip(embedFonts, "Check to embed fonts in the output file.");
 
@@ -4043,5 +4043,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.52 2002/06/05 03:59:29 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.53 2002/06/05 05:30:48 mike Exp $".
 //
