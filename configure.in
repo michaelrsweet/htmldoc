@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.55 2004/06/18 19:08:09 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.56 2004/09/24 14:51:18 swdev Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -14,7 +14,7 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.8.24rc1"
+SVERSION="1.8.24rc1 Open Source"
 NVERSION=10802390
 AC_SUBST(SVERSION)
 AC_SUBST(NVERSION)
@@ -56,6 +56,9 @@ AC_PATH_PROG(FLTKCONFIG,fltk-config)
 AC_PATH_PROG(MV,mv)
 AC_PATH_PROG(MKDIR,mkdir)
 AC_PATH_PROG(RM,rm)
+
+dnl See if we need a .exe extension on executables...
+AC_EXEEXT
 
 dnl Figure out the correct "ar" command flags...
 if test "$ac_cv_prog_ranlib" = ":"; then
@@ -253,9 +256,6 @@ AC_SUBST(POST)
 
 LIBS="$NEWLIBS $LIBS"
 
-dnl See if we need a .exe extension on executables...
-AC_EXEEXT
-
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
     prefix=/usr
@@ -381,5 +381,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.55 2004/06/18 19:08:09 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.56 2004/09/24 14:51:18 swdev Exp $".
 dnl
