@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.1 2000/11/30 18:33:50 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.2 2000/12/06 16:24:13 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -68,10 +68,12 @@ typedef uchar	gif_cmap_t[256][3];
  * BMP definitions...
  */
 
+#ifndef BI_RGB
 #  define BI_RGB       0             /* No compression - straight BGR data */
 #  define BI_RLE8      1             /* 8-bit run-length compression */
 #  define BI_RLE4      2             /* 4-bit run-length compression */
 #  define BI_BITFIELDS 3             /* RGB bitmap with RGB masks */
+#endif /* !BI_RGB */
 
 
 /*
@@ -1494,5 +1496,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.1 2000/11/30 18:33:50 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.2 2000/12/06 16:24:13 mike Exp $".
  */
