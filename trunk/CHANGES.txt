@@ -13,6 +13,11 @@ CHANGES IN HTMLDOC v1.8.6
 
     BUG FIXES
 
+	- Didn't add whitespace after a table caption.
+	- Nested tables caused formatting problems (flatten_tree()
+	  didn't insert breaks for new rows)
+	- A cell whose minimum width exceeded the available width
+	  for the table would cause the table to go off the page.
 	- Cells that spanned more than two pages were drawn with boxes
 	  around them rather than just the sides.
 	- The stylesheet info in the HTML output specified the H1 size
