@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/vnd.htmldoc-book">
+    <comment xml:lang="en">HTMLDOC Book File</comment>
+    <magic priority="50">
+      <match type="string" value="#HTMLDOC" offset="0"/>
+    </magic>
+    <glob pattern="*.book"/>
+  </mime-type>
+</mime-info>
