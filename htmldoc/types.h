@@ -1,9 +1,9 @@
 /*
- * "$Id: types.h,v 1.3 2000/01/04 13:52:26 mike Exp $"
+ * "$Id: types.h,v 1.3.2.1 2001/02/02 15:11:04 mike Exp $"
  *
  *   Common data types for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -32,5 +32,5 @@ typedef unsigned char uchar;
 #endif /* !_TYPES_H_ */
 
 /*
- * End of "$Id: types.h,v 1.3 2000/01/04 13:52:26 mike Exp $".
+ * End of "$Id: types.h,v 1.3.2.1 2001/02/02 15:11:04 mike Exp $".
  */

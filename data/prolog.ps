@@ -1,0 +1,172 @@
+%%BeginResource: procset htmldoc-device 1.8 15
+
+% The following procedures use setpagedevice, which is not supported by
+% Level 1 PostScript interpreters.  For these systems, make setpagedevice
+% a no-op.
+languagelevel 1 eq { /setpagedevice {pop} BD } if
+
+% Define several global variables for the various functions, depending
+% on the printer being used...
+/trayOffset
+  product (Xerox DocuPrint N4025 PS3) eq
+  { -1 } { 0 } ifelse
+def
+
+/haveMediaColor
+  product (Xerox Document Centre 332/340) eq
+  { true } { false } ifelse
+def
+
+/haveMediaPosition
+  product (Xerox DocuPrint N4025 PS3) eq
+  product (Xerox Document Centre 332/340) eq
+  or
+  { true } { false } ifelse
+def
+
+/haveMediaType
+  product (Xerox DocuPrint N4025 PS3) eq
+  product (Xerox Document Centre 332/340) eq
+  or
+  { true } { false } ifelse
+def
+
+/haveDeferredMediaSelection
+  product (Xerox DocuPrint N4025 PS3) eq
+  { true } { false } ifelse
+def
+
+/haveManualFeed
+  product (Xerox DocuPrint N4025 PS3) eq
+  { false } { true } ifelse
+def
+
+/haveTraySwitch
+  product (Xerox DocuPrint N4025 PS3) eq
+  { false } { true } ifelse
+def
+
+% copies SetCopies -
+%
+% Set the number of copies to print.
+/SetCopies {
+  % Set the number of copies of each page. For Level 1 printers, use the
+  % #copies variable; otherwise, use the NumCopies attribute in the
+  % page device dictionary...
+  languagelevel 1 eq
+  { /#copies 1 index def }
+  { << /NumCopies 2 index >> setpagedevice }
+  ifelse
+
+  % Discard the argument on the stack...
+  pop
+} BD
+
+% duplex tumble SetDuplexMode -
+%
+% Set the duplexing mode; "duplex" and "tumble" are boolean values.
+/SetDuplexMode {
+  % Build a page device dictionary with the Duplex and Tumble
+  % attributes...
+  <<
+    /Duplex 3 index
+    /Tumble 5 index
+  >>
+
+  % Register the new attributes...
+  setpagedevice
+
+  % Discard the arguments on the stack...
+  pop pop
+} BD
+
+% string SetMediaColor -
+%
+% Set the media color for the output.
+/SetMediaColor {
+  haveMediaType {
+    haveMediaColor {
+      % Build a page device dictionary with the MediaColor attribute set to
+      % the argument...
+      <<
+	/MediaColor 2 index
+      >>
+    } {
+      % Build a page device dictionary with the MediaType attribute set to
+      % "Color"...
+      <<
+	/MediaType (Color)
+      >>
+    } ifelse
+
+    % Register any new attributes...
+    setpagedevice
+  } if
+
+  % Discard the media color on the stack...
+  pop
+} BD
+
+% number SetMediaPosition -
+%
+% Set the media position (tray) for the output.
+/SetMediaPosition {
+  haveMediaPosition {
+    % Add any tray position offset to the tray number.
+    trayOffset add
+
+    % Build a page device dictionary with the MediaPosition,
+    % DeferredMediaSelection, ManualFeed, and TraySwitch attributes...
+    <<
+      /MediaPosition 2 index
+      haveDeferredMediaSelection { /DeferredMediaSelection true } if
+      haveTraySwitch { /TraySwitch false } if
+      haveManualFeed { /ManualFeed false } if
+    >>
+
+    % Register the new attributes...
+    setpagedevice
+  } if
+
+  % Discard the media position on the stack...
+  pop
+} BD
+
+% string SetMediaType -
+%
+% Set the media type for the output.  Use a null string to do auto selection.
+/SetMediaType {
+  % Build a page device dictionary with the MediaPosition attribute...
+  <<
+    /MediaType 2 index
+  >>
+
+  % Register the new attribute...
+  setpagedevice
+
+  % Discard the media type on the stack...
+  pop
+} BD
+
+% width height SetPageSize -
+%
+% Set the media size for the output.
+/SetPageSize {
+  % Put the arguments in an array...
+  2 array astore
+
+  % Build a page device dictionary with the PageSize and ImageableArea
+  % attributes...
+  <<
+    /PageSize 2 index
+    /ImageableArea null
+  >>
+
+  % Register the new attributes...
+  setpagedevice
+
+  % Discard the size on the stack...
+  pop
+} BD
+
+%%EndResource

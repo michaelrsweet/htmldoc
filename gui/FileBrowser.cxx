@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.27 2001/04/18 18:13:35 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.22.2.3 2001/04/18 23:24:09 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -542,5 +542,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.27 2001/04/18 18:13:35 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.22.2.3 2001/04/18 23:24:09 mike Exp $".
 //
