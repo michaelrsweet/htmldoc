@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.37 2001/12/14 19:37:05 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.38 2001/12/15 15:24:13 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -2547,7 +2547,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
   gui->fc->type(FileChooser::MULTI);
   gui->fc->label("Add HTML Files?");
   gui->fc->show();
-  while (gui->fc->visible())
+  while (gui->fc->shown())
     Fl::wait();
 
   if (gui->fc->count())
@@ -2815,7 +2815,7 @@ GUI::logoImageCB(Fl_Widget *w,		// I - Widget
     gui->fc->label("Logo Image?");
     gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
-    while (gui->fc->visible())
+    while (gui->fc->shown())
       Fl::wait();
 
     if (gui->fc->count())
@@ -2843,7 +2843,7 @@ GUI::titleImageCB(Fl_Widget *w,		// I - Widget
     gui->fc->label("Title Image?");
     gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
-    while (gui->fc->visible())
+    while (gui->fc->shown())
       Fl::wait();
 
     if (gui->fc->count())
@@ -2907,7 +2907,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
       gui->fc->filter("*.ps");
 
     gui->fc->show();
-    while (gui->fc->visible())
+    while (gui->fc->shown())
       Fl::wait();
 
     if (gui->fc->count())
@@ -3256,7 +3256,7 @@ GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
     gui->fc->label("HTML Editor?");
     gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
-    while (gui->fc->visible())
+    while (gui->fc->shown())
       Fl::wait();
 
     if (gui->fc->count())
@@ -3617,7 +3617,7 @@ GUI::bodyImageCB(Fl_Widget *w,		// I - Widget
     gui->fc->label("Body Image?");
     gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
-    while (gui->fc->visible())
+    while (gui->fc->shown())
       Fl::wait();
 
     if (gui->fc->count())
@@ -3765,7 +3765,7 @@ GUI::openBookCB(Fl_Widget *w,	// I - Widget
   gui->fc->label("Book File?");
   gui->fc->type(FileChooser::SINGLE);
   gui->fc->show();
-  while (gui->fc->visible())
+  while (gui->fc->shown())
     Fl::wait();
 
   if (gui->fc->count())
@@ -3809,7 +3809,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
   gui->fc->label("Book File?");
   gui->fc->type(FileChooser::CREATE);
   gui->fc->show();
-  while (gui->fc->visible())
+  while (gui->fc->shown())
     Fl::wait();
 
   if (gui->fc->count())
@@ -4165,7 +4165,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   {
     gui->error_window->show();
 
-    while (gui->error_window->visible())
+    while (gui->error_window->shown())
       Fl::wait();
   }
 
@@ -4207,5 +4207,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.37 2001/12/14 19:37:05 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.38 2001/12/15 15:24:13 mike Exp $".
 //
