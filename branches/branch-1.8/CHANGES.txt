@@ -1,4 +1,4 @@
-CHANGES.txt - 10/31/2001
+CHANGES.txt - 11/09/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.17
@@ -17,6 +17,8 @@ CHANGES IN HTMLDOC v1.8.17
 	- The buffer used for periods that lead up to the page
 	  number in the table-of-contents was not large enough
 	  for a legal-size document in landscape format.
+	- If a book only contained chapter headings, the PDF
+	  bookmarks would be missing the last chapter heading.
 
 
 CHANGES IN HTMLDOC v1.8.16
