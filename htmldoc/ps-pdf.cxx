@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.207 2002/10/04 15:43:51 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.208 2002/10/07 19:54:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4924,6 +4924,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         linetype = NULL;
       }
 
+
       switch (temp->markup)
       {
         case MARKUP_A :
@@ -4943,6 +4944,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         case MARKUP_NONE :
             if (temp->data == NULL)
               break;
+
+	    if (temp->width > (right - left) ||
+	        temp->height > (top - bottom))
+	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
+	                     "Text on page %d too large - "
+			     "truncation or overlapping may occur!", *page + 1);
 
 	    switch (temp->valignment)
 	    {
@@ -4988,6 +4995,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    break;
 
 	case MARKUP_IMG :
+	    if (temp->width > (right - left) ||
+	        temp->height > (top - bottom))
+	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
+	                     "Image on page %d too large - "
+			     "truncation or overlapping may occur!", *page + 1);
+
 	    if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
 	      borderspace = atof((char *)border);
 	    else if (temp->link)
@@ -5316,6 +5329,11 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
       next = start->next;
       free(start);
       start = next;
+
+      if (*x > right)
+	progress_error(HD_ERROR_CONTENT_TOO_LARGE,
+	               "Preformatted text on page %d too long - "
+		       "truncation or overlapping may occur!", *page + 1);
     }
 
     *y -= _htmlSpacings[t->size] - _htmlSizes[t->size];
@@ -5942,6 +5960,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     width -= cellspacing;
   }
+
+  if (width > (right - left))
+    progress_error(HD_ERROR_CONTENT_TOO_LARGE,
+                   "Table on page %d too wide - "
+		   "truncation or overlapping may occur!", *page + 1);
 
   DEBUG_puts("");
 
@@ -11875,5 +11898,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.207 2002/10/04 15:43:51 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.208 2002/10/07 19:54:09 mike Exp $".
  */
