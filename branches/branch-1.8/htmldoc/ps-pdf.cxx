@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.49 2001/05/11 21:11:21 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.50 2001/05/17 21:06:38 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7161,7 +7161,6 @@ write_prolog(FILE  *out,	/* I - Output file */
 {
   int		i, j,		/* Looping vars */
 		encoding_object;/* Font encoding object */
-  struct tm	*curdate;	/* Current date */
   int		page;		/* Current page */
   render_t	*r;		/* Current render data */
   int		fonts_used[4][4];/* Whether or not a font is used */
@@ -7200,12 +7199,6 @@ write_prolog(FILE  *out,	/* I - Output file */
 
 
  /*
-  * Get the current time and date (ZULU).
-  */
-
-  curdate = gmtime(&doc_time);
-
- /*
   * See what fonts are used...
   */
 
@@ -7234,9 +7227,10 @@ write_prolog(FILE  *out,	/* I - Output file */
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
     fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2001 Easy Software Products, All Rights Reserved.\n", out);
-    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02dZ\n",
-            curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
-            curdate->tm_hour, curdate->tm_min, curdate->tm_sec);
+    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d+%03d%02d\n",
+            doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
+            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
+	    _timezone / 3600, abs((_timezone / 60) % 60));
     if (title != NULL)
       fprintf(out, "%%%%Title: %s\n", title);
     if (author != NULL)
@@ -7507,9 +7501,10 @@ write_prolog(FILE  *out,	/* I - Output file */
     write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2001 Easy "
                                "Software Products, All Rights Reserved.", 0);
     fputs("/CreationDate", out);
-    sprintf(temp, "D:%04d%02d%02d%02d%02d%02dZ",
-            curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
-            curdate->tm_hour, curdate->tm_min, curdate->tm_sec);
+    sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
+            doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
+            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
+	    _timezone / 3600, abs((_timezone / 60) % 60));
     write_string(out, (uchar *)temp, 0);
 
     if (title != NULL)
@@ -8328,5 +8323,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.49 2001/05/11 21:11:21 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.50 2001/05/17 21:06:38 mike Exp $".
  */
