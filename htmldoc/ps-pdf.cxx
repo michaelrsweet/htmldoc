@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.74 2000/05/10 14:43:30 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.75 2000/05/17 20:19:06 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3535,6 +3535,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		colspan,
 		num_cols,
 		num_rows,
+		alloc_rows,
 		regular_cols,
 		preformatted,
 		tempspace,
@@ -3565,7 +3566,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		*tempcol,
 		*flat,
 		*next,
-		**cells[MAX_ROWS];
+		***cells;
   int		do_valign;			// True if we should do vertical alignment of cells
   float		row_height,			// Total height of the row
 		temp_height;			// Temporary holder
@@ -3586,20 +3587,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   rgb[0] = t->red / 255.0f;
   rgb[1] = t->green / 255.0f;
   rgb[2] = t->blue / 255.0f;
-
- /*
-  * Allocate memory for the table...
-  */
-
-  if ((cells[0] = (tree_t **)calloc(sizeof(tree_t *),
-                                    MAX_COLUMNS * MAX_ROWS)) == NULL)
-  {
-    progress_error("Unable to allocate memory for table!");
-    return;
-  }
-
-  for (row = 1; row < MAX_ROWS; row ++)
-    cells[row] = cells[0] + row * MAX_COLUMNS;
 
  /*
   * Figure out the # of rows, columns, and the desired widths...
@@ -3640,8 +3627,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   else
     border = 0.0f;
 
-  for (temprow = t->child, num_cols = 0, num_rows = 0;
-       temprow != NULL && num_rows < MAX_ROWS;
+  for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0;
+       temprow != NULL;
        temprow = temprow->next)
     if (temprow->markup == MARKUP_CAPTION)
     {
@@ -3653,6 +3640,29 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       // Descend into table body as needed...
       if (temprow->markup == MARKUP_TBODY)
         temprow = temprow->child;
+
+      // Allocate memory for the table as needed...
+      if (num_rows >= alloc_rows)
+      {
+        alloc_rows += MAX_ROWS;
+
+        if (alloc_rows == MAX_ROWS)
+	  cells = (tree_t ***)malloc(sizeof(tree_t **) * alloc_rows);
+	else
+	  cells = (tree_t ***)realloc(cells, sizeof(tree_t **) * alloc_rows);
+
+        if (cells == (tree_t ***)0)
+	{
+	  progress_error("Unable to allocate memory for table!");
+	  return;
+	}
+      }	
+
+      if ((cells[num_rows] = (tree_t **)calloc(sizeof(tree_t *), MAX_COLUMNS)) == NULL)
+      {
+	progress_error("Unable to allocate memory for table!");
+	return;
+      }
 
       for (tempcol = temprow->child, col = 0;
            tempcol != NULL && col < MAX_COLUMNS;
@@ -4245,7 +4255,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   * Free memory for the table...
   */
 
-  free(cells[0]);
+  for (row = 0; row < num_rows; row ++)
+    free(cells[row]);
+
+  free(cells);
 }
 //#undef DEBUG_printf
 //#define DEBUG_printf(x)
@@ -6799,5 +6812,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.74 2000/05/10 14:43:30 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.75 2000/05/17 20:19:06 mike Exp $".
  */
