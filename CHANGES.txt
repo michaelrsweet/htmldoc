@@ -7,7 +7,7 @@ CHANGES IN HTMLDOC v1.8.20
 
 	- New --nup and NUMBER-UP options for PostScript and PDF
 	  output.
-	- Now log HTML errors.
+	- HTMLDOC now logs HTML errors.
 
     CHANGES
 
@@ -26,7 +26,9 @@ CHANGES IN HTMLDOC v1.8.20
 	  didn't get the links.
 	- Header and footer comments would interfere with the
 	  top and bottom margin settings.
-
+	- Fixed a bug in the htmlReadFile() function which
+	  caused user-provided title pages not to be displayed
+	  in PS or PDF output.
 
 CHANGES IN HTMLDOC v1.8.19
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.55 2002/05/29 19:51:42 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.56 2002/05/30 15:44:08 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -274,6 +274,9 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
   static int	have_whitespace = 0;
   				/* Non-zero if there was leading whitespace */
 
+
+  DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
+                parent, fp, base ? base : "(null)"));
 
 #ifdef DEBUG
   strcat((char *)indent, "    ");
@@ -581,6 +584,9 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	                   "No /%s element before %s element on line %d.",
 	                   _htmlMarkups[temp->markup],
 			   _htmlMarkups[t->markup], linenum);
+	    DEBUG_printf(("%sNo /%s element before %s element on line %d.\n",
+	                  indent, _htmlMarkups[temp->markup],
+			  _htmlMarkups[t->markup], linenum));
 	  }
 
           // Safety check; should never happen, since MARKUP_FILE is
@@ -634,11 +640,17 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	else if (ch == '/')
 	{
 	  // Log this condition as an error...
-	  if (t->markup != MARKUP_UNKNOWN)
+	  if (t->markup != MARKUP_UNKNOWN &&
+	      t->markup != MARKUP_COMMENT)
+	  {
 	    progress_error(HD_ERROR_HTML_ERROR,
 	                   "Dangling /%s element on line %d.",
 			   _htmlMarkups[t->markup], linenum);
-          delete_node(t);
+	    DEBUG_printf(("%sDangling /%s element on line %d.\n",
+			  indent, _htmlMarkups[t->markup], linenum));
+          }
+
+	  delete_node(t);
 	  continue;
 	}
       }
@@ -765,7 +777,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
     if (prev != NULL)
       prev->next = t;
 
-    if (tree != NULL)
+    if (tree == NULL)
       tree = t;
 
     prev = t;
@@ -2794,5 +2806,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.55 2002/05/29 19:51:42 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.56 2002/05/30 15:44:08 mike Exp $".
  */

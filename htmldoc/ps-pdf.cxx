@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.176 2002/05/23 16:37:00 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.177 2002/05/30 15:44:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -558,6 +558,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   links          = NULL;
   num_pages      = 0;
 
+  DEBUG_printf(("pspdf_export: TitlePage = %d, TitleImage = \"%s\"\n",
+                TitlePage, TitleImage));
+
   if (TitlePage)
   {
 #ifdef WIN32
@@ -574,6 +577,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 	strcmp(file_extension(TitleImage), "png") != 0)
 #endif // WIN32
     {
+      DEBUG_printf(("pspdf_export: Generating a titlepage using \"%s\"\n",
+                    TitleImage));
+
       // Find the title file...
       if ((title_file = file_find(Path, TitleImage)) == NULL)
         return (1);
@@ -606,6 +612,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
       if (PageDuplex && (num_pages & 1))
 	check_pages(num_pages);
+
+      printf("Title pages = %d\n", num_pages);
 
       htmlDeleteTree(t);
     }
@@ -3534,6 +3542,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
   DEBUG_printf(("parse_doc(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, cpara=%p, needspace=%d\n",
                 t, *left, *right, *bottom, *top, *x, *y, *page, cpara,
 	        *needspace));
+  DEBUG_printf(("    title_page = %d, chapter = %d\n", title_page, chapter));
 
   if (cpara == NULL)
     para = htmlNewTree(NULL, MARKUP_P, NULL);
@@ -7666,7 +7675,7 @@ new_render(int      page,	/* I - Page number (0-n) */
   static render_t	dummy;	/* Dummy var for errors... */
 
 
-  DEBUG_printf(("new_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%d)\n",
+  DEBUG_printf(("new_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%p)\n",
                 page, type, x, y, width, height, data, insert));
 
   check_pages(page);
@@ -11454,5 +11463,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.176 2002/05/23 16:37:00 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.177 2002/05/30 15:44:09 mike Exp $".
  */

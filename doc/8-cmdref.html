@@ -807,6 +807,67 @@ job comments should be written to the output files.
 
 <P>This option is only available when generating PostScript files.
 
+<H2>Messages</H2>
+
+<P><I>HTMLDOC</I> sends error and status messages to stderr unless the
+<CODE>--quiet</CODE> option is provided on the command-line.
+Applications can capture these messages to relay errors or
+statistics to the user.
+
+<H3>BYTES: Message</H3>
+
+<P>The <CODE>BYTES:</CODE> message specifies the number of bytes
+that were written to an output file. If the output is directed
+at a directory then multiple <CODE>BYTES:</CODE> messages will
+be sent.
+
+<H3>PAGES: Message</H3>
+
+<P>The <CODE>PAGES:</CODE> message specifies the number of pages
+that were written to an output file. If the output is directed
+at a directory then multiple <CODE>PAGES:</CODE> messages will
+be sent. No <CODE>PAGES:</CODE> messages are sent when
+generating HTML output.
+
+<H3>ERRnnn: Messages</H3>
+
+<P>The <CODE>ERRnnn:</CODE> messages specify an error condition.
+Error numbers 1 to 13 map to the following errors:
+
+<OL>
+
+	<LI>No files were found or loadable.</LI>
+
+	<LI>No pages were generated.</LI>
+
+	<LI>The document contains too many files or chapters.</LI>
+
+	<LI><I>HTMLDOC</I> ran out of memory.</LI>
+
+	<LI>The specified file could not be found.</LI>
+
+	<LI>The comment contains a bad <I>HTMLDOC</I> formatting command.</LI>
+
+	<LI>The image file is not in a known format.</LI>
+
+	<LI><I>HTMLDOC</I> was unable to remove a temporary file.</LI>
+
+	<LI><I>HTMLDOC</I> had an unspecified internal error.</LI>
+
+	<LI><I>HTMLDOC</I> encountered a networking error when retrieving a
+	file via a URL.</LI>
+
+	<LI><I>HTMLDOC</I> was unable to read a file.</LI>
+
+	<LI><I>HTMLDOC</I> was unable to write a file.</LI>
+
+	<LI>A HTML error was found in a source file.</LI>
+
+</OL>
+
+<P>Error numbers 100 to 505 correspond directly to a HTTP status
+code.
+
 </DIV>
 
 </BODY>
