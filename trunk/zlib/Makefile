@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.2 1999/05/03 18:36:48 mike Exp $"
+# "$Id: Makefile,v 1.3 1999/06/18 18:36:56 mike Exp $"
 #
 #   ZIP library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -17,7 +17,7 @@
 #
 #       Attn: CUPS Licensing Information
 #       Easy Software Products
-#       44145 Airport View Drive, Suite 204
+#       44141 Airport View Drive, Suite 204
 #       Hollywood, Maryland 20636-3111 USA
 #
 #       Voice: (301) 373-9603
@@ -73,5 +73,5 @@ trees.o:	deflate.h zutil.h trees.h
 zutil.o:	zutil.h
 
 #
-# End of "$Id: Makefile,v 1.2 1999/05/03 18:36:48 mike Exp $".
+# End of "$Id: Makefile,v 1.3 1999/06/18 18:36:56 mike Exp $".
 #

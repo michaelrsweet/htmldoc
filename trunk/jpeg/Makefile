@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.1 1999/05/03 18:34:19 mike Exp $"
+# "$Id: Makefile,v 1.2 1999/06/18 18:36:21 mike Exp $"
 #
 #   JPEG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -14,7 +14,7 @@
 #
 #       Attn: CUPS Licensing Information
 #       Easy Software Products
-#       44145 Airport View Drive, Suite 204
+#       44141 Airport View Drive, Suite 204
 #       Hollywood, Maryland 20636-3111 USA
 #
 #       Voice: (301) 373-9603
@@ -66,5 +66,5 @@ $(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
 		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.1 1999/05/03 18:34:19 mike Exp $".
+# End of "$Id: Makefile,v 1.2 1999/06/18 18:36:21 mike Exp $".
 #
