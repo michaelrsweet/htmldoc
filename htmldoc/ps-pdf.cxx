@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.66 2001/05/27 12:50:41 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.67 2001/05/27 20:32:03 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3234,29 +3234,31 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     while (flat != NULL)
     {
+      // Get fragments...
       temp_width = 0.0;
       temp       = flat;
       whitespace = 0;
 
-      do
+      while (temp != NULL && !whitespace)
       {
-        if ((temp_width == 0.0 || whitespace) &&
-            temp->markup == MARKUP_NONE && temp->data[0] == ' ')
-          temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
-                        _htmlSizes[temp->size];
-
-        if (temp->markup == MARKUP_NONE &&
-	    (temp->data[strlen((char *)temp->data) - 1] == ' ' ||
-	     temp->data[0] == ' '))
-          whitespace = 1;
+        if (temp->markup == MARKUP_NONE && temp->data[0] == ' ')
+	{
+          if (temp == start)
+            temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
+                          _htmlSizes[temp->size];
+          else
+	    whitespace = 1;
+	}
         else
           whitespace = 0;
 
         prev       = temp;
         temp       = temp->next;
         temp_width += prev->width;
+
+        if (prev->markup == MARKUP_BR)
+	  break;
       }
-      while (temp != NULL && !whitespace && prev->markup != MARKUP_BR);
 
       if ((width + temp_width) <= format_width)
       {
@@ -3356,7 +3358,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       temp_width = _htmlWidths[temp->typeface][temp->style][' '] *
                    _htmlSizes[temp->size];
       temp->width -= temp_width;
-      width       -= temp_width;
       num_chars --;
     }
 
@@ -3364,21 +3365,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       temp = end->prev;
     else
       temp = NULL;
-
-    if (temp != NULL && temp->markup == MARKUP_NONE &&
-        temp->data[strlen((char *)temp->data) - 1] == ' ')
-    {
-     /*
-      * Remove trailing space...
-      */
-
-      temp->data[strlen((char *)temp->data) - 1] = '\0';
-      temp_width = _htmlWidths[temp->typeface][temp->style][' '] *
-                   _htmlSizes[temp->size];
-      temp->width -= temp_width;
-      width       -= temp_width;
-      num_chars --;
-    }
 
     if (*y < (spacing + bottom))
     {
@@ -8608,5 +8594,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.66 2001/05/27 12:50:41 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.67 2001/05/27 20:32:03 mike Exp $".
  */

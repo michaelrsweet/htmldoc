@@ -98,6 +98,47 @@ sub topdf {
 }
 </PRE></UL>
 
+<H2>Calling HTMLDOC from PHP</H2>
+
+<P>PHP is quickly becoming the most popular server-side scripting
+language available. PHP provides a <CODE>popen()</CODE> function that
+can be used to pipe an HTML report into <I>HTMLDOC</I>. This combined
+with the <CODE>set_header()</CODE> function can be used to provide
+on-the-fly reports in PDF format.
+
+<P>Here is a simple PHP function that can be used to pipe a HTML report
+to the HTTP client in PDF format:
+
+<UL><PRE>
+function topdf() {
+    # Write the content type to the client...
+    set_header("Content-Type: application/pdf");
+    flush();
+
+    # Run HTMLDOC to provide the PDF file to the user...
+    return (popen("htmldoc -t pdf --quiet --webpage -", "w"));
+}
+</PRE></UL>
+
+<P>The return value is the file number for the pipe. Call pclose() after you
+are done writing the report:
+
+<UL><PRE>
+$pdf = topdf();
+
+fputs($pdf, "&lt;HTML>\n"
+           ."&lt;HEAD>&lt;TITLE>My Report&lt;/TITLE>&lt;/HEAD>\n"
+	   ."&lt;BODY>\n"
+	   ."&lt;H1>This is My Report&lt;/H1>\n"
+	   ."&lt;P>We sold 600 wozsnots and 100 widgets in this quarter. Here is the "
+	   ."graph of the sales:&lt;/P>\n"
+	   ."&lt;P ALIGN=\"CENTER\">&lt;IMG SRC=\"graph.gif\">&lt;/P>\n"
+	   ."&lt;/BODY>\n"
+	   ."&lt;/HTML>\n");
+
+pclose($pdf);
+</PRE></UL>
+
 <!-- NEED 5in -->
 <H2>Calling HTMLDOC from C</H2>
 

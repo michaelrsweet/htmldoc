@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.21 2001/05/27 11:39:49 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.22 2001/05/27 20:32:02 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -453,9 +453,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	else if (issuper(t->markup))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (issuper(temp->markup))
-              break;
-	    else if (istentry(temp->markup) || temp->markup == MARKUP_EMBED)
+	    if (istentry(temp->markup) || temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
               break;
@@ -625,7 +623,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       }
 
       if (isspace(ch))
-        *ptr++ = ' ';
+        have_whitespace = 1;
 
       *ptr = '\0';
 
@@ -684,13 +682,52 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_IMG :
+          if (have_whitespace)
+	  {
+	    // Insert a space before this image...
+	    tree_t *space;
+
+	    space = (tree_t *)calloc(sizeof(tree_t), 1);
+	    if (space == NULL)
+	    {
+#ifndef DEBUG
+	      progress_error("Unable to allocate memory for HTML tree node!");
+#endif /* !DEBUG */
+	      break;
+	    }
+
+	   /*
+	    * Set/copy font characteristics...
+	    */
+
+	    if (parent == NULL)
+	    {
+	      space->typeface = _htmlBodyFont;
+	      space->size     = SIZE_P;
+	    }
+	    else
+	    {
+	      space->typeface = parent->typeface;
+	      space->size     = parent->size;
+	      space->style    = parent->style;
+            }
+
+            space->markup   = MARKUP_NONE;
+	    space->data     = (uchar *)strdup(" ");
+            space->parent   = parent;
+            space->prev     = t->prev;
+            space->next     = t;
+
+	    t->prev         = space;
+
+	    have_whitespace = 0;
+	  }
+
+          // Get the image alignment...
           t->valignment = ALIGN_TOP;
           get_alignment(t);
 
-         /*
-	  * Update the image source as necessary...
-	  */
-
+          // Update the image source as necessary...
           if ((filename = htmlGetVariable(t, (uchar *)"SRC")) != NULL)
 	    htmlSetVariable(t, (uchar *)"SRC",
 	                    (uchar *)fix_filename((char *)filename, base));
@@ -2419,5 +2456,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.21 2001/05/27 11:39:49 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.22 2001/05/27 20:32:02 mike Exp $".
  */

@@ -14,6 +14,7 @@
 	<LI>Added support for Acrobat 5.0 (PDF 1.4).
 	<LI>Added support for transparency in PostScript and
 	PDF 1.1 and 1.2 output.
+	<LI>Added a --no-jpeg option (same as --jpeg=0)
 
 	<H3>Changes</H3>
 
@@ -74,6 +75,11 @@
 	but before generating the document. If there were
 	problems reading the files/URLs, HTMLDOC would return a
 	0 exit status instead of 1.
+	<LI>Image objects that were both JPEG and Flate compressed
+	would not display (filters specified in the wrong
+	order.)
+	<LI>Images with more than 256 colors would cause a segfault
+	on some systems.
 
 </UL>
 

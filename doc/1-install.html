@@ -47,15 +47,15 @@ following environments:
 Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
 
 <UL><PRE>
-% <KBD>dselect install htmldoc-1.8-linux-2.0.36-intel.deb ENTER</KBD>
+% <KBD>dselect install htmldoc-<I>version</I>-linux-2.0-intel.deb ENTER</KBD>
 </PRE></UL>
 
-<H3>Ininstalling HTMLDOC under Debian GNU/Linux</H3>
+<H3>Uninstalling HTMLDOC under Debian GNU/Linux</H3>
 
-Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
+Run the following command to remove <I>HTMLDOC</I> under Debian GNU/Linux:
 
 <UL><PRE>
-% <KBD>dselect remove htmldoc-1.8-linux-2.0.36-intel.deb ENTER</KBD>
+% <KBD>dselect remove htmldoc ENTER</KBD>
 </PRE></UL>
 
 <H3>Installing HTMLDOC under Red Hat Linux</H3>
@@ -63,7 +63,7 @@ Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
 Run the following command to install <I>HTMLDOC</I> under Red Hat Linux:
 
 <UL><PRE>
-% <KBD>rpm -i htmldoc-1.8-linux-2.0.36-intel.rpm ENTER</KBD>
+% <KBD>rpm -i htmldoc-<I>version</I>-linux-2.0-intel.rpm ENTER</KBD>
 </PRE></UL>
 
 <H3>Uninstalling HTMLDOC under Red Hat Linux</H3>
@@ -80,12 +80,12 @@ system:
 Run the following commands to install <I>HTMLDOC</I> under UNIX:
 
 <UL><PRE>
-% <KBD>gunzip htmldoc-1.8-<I>platform</I>.tar.gz ENTER</KBD>
-% <KBD>tar xf htmldoc-1.8-<I>platform</I>.tar ENTER</KBD>
+% <KBD>gunzip htmldoc-<I>version</I>-<I>platform</I>.tar.gz ENTER</KBD>
+% <KBD>tar xf htmldoc-<I>version</I>-<I>platform</I>.tar ENTER</KBD>
 % <KBD>./setup ENTER</KBD>
 </PRE></UL>
 
-Substitute the correct platform string as needed.
+Substitute the correct version and platform strings as appropriate.
 
 <H3>Uninstalling HTMLDOC under UNIX</H3>
 
@@ -102,9 +102,9 @@ Windows. Double-click on the setup icon to install HTMLDOC under Windows.
 
 <H3>Uninstalling HTMLDOC under Windows</H3>
 
-Open the Control Panel window and double-click on the Add/Remove Software
+Open the Control Panel window and double-click on the <VAR>Add/Remove Software</VAR>
 icon. When the available software list is displayed, select HTMLDOC and
-click on the Remove button.
+click on the <VAR>Remove</VAR> button.
 
 <H2>Installing HTMLDOC from the Source Distribution</H2>
 
@@ -119,7 +119,7 @@ work fine. To build the GUI you'll also need:
 <UL>
 
 	<LI><A HREF="http://fltk.easysw.com">Fast Light Tool Kit ("FLTK")</A>,
-	version 1.0 or newer (version 1.0.10 preferred).
+	version 1.0 or newer (version 1.0.11 preferred).
 
 	<LI><A HREF="ftp://ftp.x.org">X11 libraries</A>, R5 or higher (needed
 	to build under UNIX and OS/2 only.)
