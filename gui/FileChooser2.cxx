@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.15 1999/05/06 17:28:31 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.16 1999/07/09 18:42:35 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -244,7 +244,7 @@ FileChooser::value(const char *filename)	// I - Filename + directory
 
 
   // See if the filename is actually a directory...
-  if (filename_isdir(filename))
+  if (filename == NULL || filename_isdir(filename))
   {
     // Yes, just change the current directory...
     directory(filename);
@@ -606,5 +606,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.15 1999/05/06 17:28:31 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.16 1999/07/09 18:42:35 mike Exp $".
 //
