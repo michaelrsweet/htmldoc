@@ -1,0 +1,108 @@
+/*
+ * "$Id: config.h.in,v 1.19.2.15 2001/09/21 19:59:42 mike Exp $"
+ *
+ *   Configuration file for HTMLDOC.
+ *
+ *   Copyright 1997-2001 by Easy Software Products.
+ *
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Easy Software Products and are protected by Federal
+ *   copyright law.  Distribution and use rights are outlined in the file
+ *   "COPYING.txt" which should have been included with this file.  If this
+ *   file is missing or damaged please contact Easy Software Products
+ *   at:
+ *
+ *       Attn: ESP Licensing Information
+ *       Easy Software Products
+ *       44141 Airport View Drive, Suite 204
+ *       Hollywood, Maryland 20636-3111 USA
+ *
+ *       Voice: (301) 373-9600
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
+ */
+
+/*
+ * Locations of files...
+ */
+
+#define DOCUMENTATION	"/usr/share/doc/htmldoc"
+#define HTML_DATA	"/usr/share/htmldoc"
+
+
+/*
+ * Do we have the FLTK library?
+ */
+
+#undef HAVE_LIBFLTK
+
+
+/*
+ * Do we have the Xpm library?
+ */
+
+#undef HAVE_LIBXPM
+
+
+/*
+ * Do we have the OpenSSL library?
+ */
+
+#undef HAVE_LIBSSL
+
+
+/*
+ * Do we need to use <strings.h>?
+ */
+
+#undef HAVE_STRINGS_H
+
+
+/*
+ * Do we have some of the "standard" string functions?
+ */
+
+#undef HAVE_STRDUP
+#undef HAVE_STRCASECMP
+#undef HAVE_STRNCASECMP
+
+
+/*
+ * How about snprintf() and vsnprintf()?
+ */
+
+#undef HAVE_SNPRINTF
+#undef HAVE_VSNPRINTF
+
+
+/*
+ * What is the version number for this software?
+ */
+
+#define SVERSION	"1.8.15b5"
+
+
+/*
+ * Limits for the output "engines"...
+ */
+
+#define MAX_CHAPTERS	1000
+#define MAX_COLUMNS	200
+
+
+/*
+ * Memory allocation units for other stuff...
+ */
+
+#define ALLOC_FILES	10	/* Temporary/image files */
+#define ALLOC_HEADINGS	50	/* Headings */
+#define ALLOC_LINKS	100	/* Web links */
+#define ALLOC_OBJECTS	100	/* PDF objects */
+#define ALLOC_PAGES	10	/* PS/PDF pages */
+#define ALLOC_ROWS	20	/* Table rows */
+
+
+/*
+ * End of "$Id: config.h.in,v 1.19.2.15 2001/09/21 19:59:42 mike Exp $".
+ */
+
