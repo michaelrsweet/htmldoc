@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.148 2002/01/29 02:00:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.149 2002/01/29 18:39:50 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -514,21 +514,24 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (TitlePage)
   {
-    title_file = file_find(Path, TitleImage);
-
 #ifdef WIN32
-    if (stricmp(file_extension(TitleImage), "bmp") != 0 &&
+    if (TitleImage[0] &&
+        stricmp(file_extension(TitleImage), "bmp") != 0 &&
 	stricmp(file_extension(TitleImage), "gif") != 0 &&
 	stricmp(file_extension(TitleImage), "jpg") != 0 &&
-	stricmp(file_extension(TitleImage), "png") != 0 &&
+	stricmp(file_extension(TitleImage), "png") != 0)
 #else
-    if (strcmp(file_extension(TitleImage), "bmp") != 0 &&
+    if (TitleImage[0] &&
+        strcmp(file_extension(TitleImage), "bmp") != 0 &&
 	strcmp(file_extension(TitleImage), "gif") != 0 &&
 	strcmp(file_extension(TitleImage), "jpg") != 0 &&
-	strcmp(file_extension(TitleImage), "png") != 0 &&
+	strcmp(file_extension(TitleImage), "png") != 0)
 #endif // WIN32
-        title_file != NULL)
     {
+      // Find the title file...
+      if ((title_file = file_find(Path, TitleImage)) == NULL)
+        return (1);
+
       // Write a title page from HTML source...
       if ((fp = fopen(title_file, "rb")) == NULL)
       {
@@ -10674,5 +10677,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.148 2002/01/29 02:00:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.149 2002/01/29 18:39:50 mike Exp $".
  */

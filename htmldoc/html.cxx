@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.24 2002/01/29 02:00:40 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.25 2002/01/29 18:39:45 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -412,12 +412,14 @@ write_title(FILE  *out,		/* I - Output file */
     return;
 
 #ifdef WIN32
-  if (stricmp(file_extension(TitleImage), "bmp") != 0 &&
+  if (TitleImage[0] &&
+      stricmp(file_extension(TitleImage), "bmp") != 0 &&
       stricmp(file_extension(TitleImage), "gif") != 0 &&
       stricmp(file_extension(TitleImage), "jpg") != 0 &&
       stricmp(file_extension(TitleImage), "png") != 0)
 #else
-  if (strcmp(file_extension(TitleImage), "bmp") != 0 &&
+  if (TitleImage[0] &&
+      strcmp(file_extension(TitleImage), "bmp") != 0 &&
       strcmp(file_extension(TitleImage), "gif") != 0 &&
       strcmp(file_extension(TitleImage), "jpg") != 0 &&
       strcmp(file_extension(TitleImage), "png") != 0)
@@ -956,5 +958,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.24 2002/01/29 02:00:40 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.25 2002/01/29 18:39:45 mike Exp $".
  */
