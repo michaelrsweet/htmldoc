@@ -1,7 +1,7 @@
-CHANGES.txt - 10/16/2000
+CHANGES.txt - 11/30/2000
 ------------------------
 
-CHANGES IN HTMLDOC v1.9
+CHANGES IN HTMLDOC v1.8.9
 
     NEW FEATURES
 
@@ -11,6 +11,8 @@ CHANGES IN HTMLDOC v1.9
 	- Added support for BMP images.
 	- Added support for ROWSPAN attribute in tables.
 	- Added support for HTTP file references.
+	- Added new sample CGI program that can produce a PDF
+	  file for any page on a server.
 
     CHANGES
 
@@ -21,7 +23,7 @@ CHANGES IN HTMLDOC v1.9
 	  the options. (use a backslash to quote filenames
 	  starting with a dash)
 	- Multiple-line paragraphs that have only 1 line on the
-	  bottom of the current page are not started on the
+	  bottom of the current page are now started on the
 	  following page.
 	- DSC comments in PostScript output were not 100%
 	  conformant with the DSC spec.
@@ -50,6 +52,8 @@ CHANGES IN HTMLDOC v1.9
 	- The compression slider was enabled in the GUI even
 	  though HTML output was selected.
 	- The Perl example code was incorrect.
+	- Fixed the check for whether or not pages were
+	  generated.
 
 
 CHANGES IN HTMLDOC v1.8.8

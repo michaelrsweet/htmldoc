@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14 2000/06/29 01:15:57 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.1 2000/11/30 18:33:46 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -63,6 +63,7 @@ class GUI
 		*typeWebPage;
   FileBrowser	*inputFiles;
   Fl_Button	*addFile,
+		*addURL,
 		*editFile,
 		*deleteFile,
 		*moveUpFile,
@@ -173,6 +174,7 @@ class GUI
   Fl_Button	*htmlBrowse;
   Fl_Value_Slider *browserWidth;
   Fl_Input	*path;
+  Fl_Input	*proxy;
   Fl_Button	*saveOptions;
 
   Fl_Button	*bookSave,
@@ -195,6 +197,7 @@ class GUI
   static void	docTypeCB(Fl_Widget *w, GUI *gui);
   static void	inputFilesCB(Fl_Widget *w, GUI *gui);
   static void	addFileCB(Fl_Widget *w, GUI *gui);
+  static void	addURLCB(Fl_Widget *w, GUI *gui);
   static void	editFilesCB(Fl_Widget *w, GUI *gui);
   static void	deleteFilesCB(Fl_Widget *w, GUI *gui);
   static void	moveUpFilesCB(Fl_Widget *w, GUI *gui);
@@ -253,5 +256,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14 2000/06/29 01:15:57 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.1 2000/11/30 18:33:46 mike Exp $".
  */
