@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.9 2001/05/27 12:50:41 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.10 2001/06/01 18:13:20 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -133,7 +133,10 @@ gif_read_cmap(FILE       *fp,		/* I  - File to read from */
   */
 
   if (fread(cmap, 3, ncolors, fp) < (size_t)ncolors)
+  {
+    progress_error("Unable to read GIF colormap: %s", strerror(errno));
     return (-1);
+  }
 
  /*
   * Check to see if the colormap is a grayscale ramp...
@@ -186,6 +189,8 @@ gif_get_block(FILE  *fp,	/* I - File to read from */
     gif_eof = 1;
   else if (fread(buf, 1, count, fp) < (size_t)count)
   {
+    progress_error("Unable to read GIF block of %d bytes: %s", count,
+                   strerror(errno));
     gif_eof = 1;
     return (-1);
   }
@@ -241,7 +246,10 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     */
 
     if (done)
+    {
+      progress_error("Not enough data left to read GIF compression code.");
       return (-1);	/* Sorry, no more... */
+    }
 
    /*
     * Move last two bytes to front of buffer...
@@ -1578,5 +1586,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.9 2001/05/27 12:50:41 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.10 2001/06/01 18:13:20 mike Exp $".
  */
