@@ -1,5 +1,5 @@
 //
-// "$Id: image-gif.cxx,v 1.7 2002/01/06 20:04:47 mike Exp $"
+// "$Id: image-gif.cxx,v 1.8 2002/09/24 23:15:07 mike Exp $"
 //
 // Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -85,7 +85,7 @@ hdGIFImage::check(const char *p,	// I - URI for image file
 
 int					// O - Number characters read
 hdGIFImage::get_block(hdFile *fp,	// I - File to read from
-		      uchar  *buf)	// I - Input buffer
+		      hdByte  *buf)	// I - Input buffer
 {
   int	count;				// Number of character to read
 
@@ -125,7 +125,7 @@ hdGIFImage::get_code(hdFile *fp,	// I - File to read from
   unsigned		i, j,		// Looping vars
 			ret;		// Return value
   int			count;		// Number of bytes read
-  static uchar		buf[280];	// Input buffer
+  static hdByte		buf[280];	// Input buffer
   static unsigned	curbit,		// Current bit
 			lastbit,	// Last bit in buffer
 			done,		// Done with this buffer?
@@ -261,7 +261,7 @@ hdGIFImage::read_image(hdFile *fp,	// I - Input file
 		       int    interlace,// I - Non-zero = interlaced image
 		       int    transparent)// I - Transparent color
 {
-  uchar		code_size,		// Code size
+  hdByte		code_size,		// Code size
 		*temp;			// Current pixel
   int		xpos,			// Current X position
 		ypos,			// Current Y position
@@ -419,7 +419,7 @@ hdGIFImage::read_lzw(hdFile *fp,	// I - File to read from
     }
     else if (code == end_code)
     {
-      uchar	buf[260];
+      hdByte	buf[260];
 
 
       if (!eof)
@@ -480,7 +480,7 @@ hdGIFImage::real_load(int img,	// I - 1 = load image data, 0 = just info
                       int gs)	// I - 0 = color, 1 = grayscale
 {
   hdFile	*fp;		// File to load from
-  uchar		buf[1024];	// Input buffer
+  hdByte	buf[1024];	// Input buffer
   cmap_t	cmap;		// Colormap
   int		ncolors,	// Bits per pixel
 		transparent;	// Transparent color index
@@ -571,5 +571,5 @@ hdGIFImage::real_load(int img,	// I - 1 = load image data, 0 = just info
 
 
 //
-// End of "$Id: image-gif.cxx,v 1.7 2002/01/06 20:04:47 mike Exp $".
+// End of "$Id: image-gif.cxx,v 1.8 2002/09/24 23:15:07 mike Exp $".
 //

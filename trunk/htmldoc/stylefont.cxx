@@ -1,5 +1,5 @@
 //
-// "$Id: stylefont.cxx,v 1.6 2002/09/02 23:04:12 mike Exp $"
+// "$Id: stylefont.cxx,v 1.7 2002/09/24 23:15:08 mike Exp $"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
@@ -160,7 +160,7 @@ hdStyleFont::compare_kerns(hdFontKernPair *a,	// I - First kerning pair
 int					// O  - Character from string
 hdStyleFont::get_char(const char *&s)	// IO - String pointer
 {
-  const uchar	*us;			// Unsigned string
+  const hdByte	*us;			// Unsigned string
   int		ch,			// Next character from string
 		i,			// Looping var
 		count;			// Number of bytes in UTF-8 encoding
@@ -292,7 +292,7 @@ hdStyleFont::get_kerning(const char *s,	// I - String to kern
 int					// O - Number of chars in string
 hdStyleFont::get_num_chars(const char *s)// I - String
 {
-  const uchar	*us;			// Unsigned string
+  const hdByte	*us;			// Unsigned string
   int		num_chars;		// Number of characters
 
 
@@ -514,5 +514,5 @@ hdStyleFont::read_ttf(hdFile       *fp,	// I - File to read from
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.6 2002/09/02 23:04:12 mike Exp $".
+// End of "$Id: stylefont.cxx,v 1.7 2002/09/24 23:15:08 mike Exp $".
 //

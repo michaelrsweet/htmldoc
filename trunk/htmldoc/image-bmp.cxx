@@ -1,5 +1,5 @@
 //
-// "$Id: image-bmp.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $"
+// "$Id: image-bmp.cxx,v 1.7 2002/09/24 23:15:07 mike Exp $"
 //
 // BMP image handling routines for HTMLDOC.
 //
@@ -116,10 +116,10 @@ hdBMPImage::real_load(int img,	// I - Load image data?
 		count,		// Number of times to repeat
 		temp,		// Temporary color
 		align;		// Alignment bytes
-  uchar		bit,		// Bit in image
+  hdByte	bit,		// Bit in image
 		byte;		// Byte in image
-  uchar		*ptr;		// Pointer into pixels
-  uchar		colormap[256][4];// Colormap
+  hdByte	*ptr;		// Pointer into pixels
+  hdByte	colormap[256][4];// Colormap
 
 
   // Open the file if possible...
@@ -483,5 +483,5 @@ read_long(hdFile *fp)		// I - File to read from
 
 
 //
-// End of "$Id: image-bmp.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $".
+// End of "$Id: image-bmp.cxx,v 1.7 2002/09/24 23:15:07 mike Exp $".
 //
