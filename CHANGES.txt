@@ -1,4 +1,4 @@
-CHANGES.txt - 06/16/2001
+CHANGES.txt - 06/20/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.14
@@ -6,6 +6,8 @@ CHANGES IN HTMLDOC v1.8.14
     NEW FEATURES
 
 	- Added support for 128-bit encryption.
+	- Added support for GET form request data in the PHP and
+	  Java "portal" examples.
 
     CHANGES
 
@@ -19,6 +21,8 @@ CHANGES IN HTMLDOC v1.8.14
 
 	- Tables with a lot of COLSPANs could cause a divide-
 	  by-zero error or bad pages (NAN instead of a number.)
+	- Table cells with a single render element would not be
+	  vertically aligned.
 
 
 CHANGES IN HTMLDOC v1.8.13

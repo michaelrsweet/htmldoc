@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.java,v 1.1.2.2 2001/03/08 19:40:47 mike Exp $"
+// "$Id: htmldoc.java,v 1.1.2.3 2001/06/20 16:37:43 mike Exp $"
 //
 //   Java interface to HTMLDOC.
 //
@@ -77,6 +77,7 @@ class htmldoc
     String	server_name,		// SERVER_NAME env var
 		server_port,		// SERVER_PORT env var
 		path_info,		// PATH_INFO env var
+		query_string,		// QUERY_STRING env var
 		filename;		// File to convert
 
 
@@ -86,6 +87,11 @@ class htmldoc
     {
       // Construct a URL for the resource specified...
       filename = "http://" + server_name + ":" + server_port + path_info;
+
+      if ((query_string = System.getProperty("QUERY_STRING")) != null)
+      {
+        filename = filename + "?" + query_string;
+      }
     }
     else if (args.length == 1)
     {
@@ -106,5 +112,5 @@ class htmldoc
 
 
 //
-// End of "$Id: htmldoc.java,v 1.1.2.2 2001/03/08 19:40:47 mike Exp $".
+// End of "$Id: htmldoc.java,v 1.1.2.3 2001/06/20 16:37:43 mike Exp $".
 //
