@@ -1,5 +1,5 @@
 //
-// "$Id: image-gif.cxx,v 1.3 2001/12/04 22:07:42 mike Exp $"
+// "$Id: image-gif.cxx,v 1.4 2001/12/17 03:03:55 mike Exp $"
 //
 // Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -23,12 +23,6 @@
 //
 // Contents:
 //
-//   hdGIFImage::read_cmap()  - Read the colormap from a GIF file...
-//   hdGIFImage::get_block()  - Read a GIF data block...
-//   hdGIFImage::get_code()   - Get a LZW code from the file...
-//   hdGIFImage::read_image() - Read a GIF image stream...
-//   hdGIFImage::read_lzw()   - Read a byte from the LZW stream...
-//   hdGIFImage::load()       - Load a GIF image file...
 //
 
 //
@@ -48,46 +42,15 @@
 
 
 //
-// 'hdGIFImage::read_cmap()' - Read the colormap from a GIF file...
+// 'hdGIFImage::hdGIFImage()' - Create a new GIF image.
 //
 
-int					// O  - 0 on success, -1 on error
-hdGIFImage::read_cmap(FILE   *fp,	// I  - File to read from
-  		      int    ncolors,	// I  - Number of colors
-		      cmap_t cmap,	// IO - Colormap array
-		      int    *gray)	// IO - 1 = grayscale
+hdGIFImage::hdGIFImage(const char *p,	// I - URI of image
+                       int        gs)	// I - 0 = color, 1 = grayscale
 {
-  int	i;				// Looping var
+  uri(p);
 
-
-  // Read the colormap...
-  if (fread(cmap, 3, ncolors, fp) < (size_t)ncolors)
-  {
-    progress_error(HD_ERROR_READ_ERROR,
-                   "Unable to read GIF colormap: %s", strerror(errno));
-    return (-1);
-  }
-
-  // Check to see if the colormap is a grayscale ramp...
-  for (i = 0; i < ncolors; i ++)
-    if (cmap[i][0] != cmap[i][1] || cmap[i][1] != cmap[i][2])
-      break;
-
-  if (i == ncolors)
-  {
-    *gray = 1;
-    return (0);
-  }
-
-  // If this needs to be a grayscale image, convert the RGB values to
-  // luminance values...
-  if (*gray)
-  {
-    for (i = 0; i < ncolors; i ++)
-      cmap[i][0] = (cmap[i][0] * 31 + cmap[i][1] * 61 + cmap[i][2] * 8) / 100;
-  }
-
-  return (0);
+  real_load(0, gs);
 }
 
 
@@ -96,25 +59,25 @@ hdGIFImage::read_cmap(FILE   *fp,	// I  - File to read from
 //
 
 int					// O - Number characters read
-hdGIFImage::get_block(FILE  *fp,	// I - File to read from
-		      uchar *buf)	// I - Input buffer
+hdGIFImage::get_block(hdFile *fp,	// I - File to read from
+		      uchar  *buf)	// I - Input buffer
 {
   int	count;				// Number of character to read
 
 
   // Read the count byte followed by the data from the file...
-  if ((count = getc(fp)) == EOF)
+  if ((count = fp->get()) == EOF)
   {
     eof = 1;
     return (-1);
   }
   else if (count == 0)
     eof = 1;
-  else if (fread(buf, 1, count, fp) < (size_t)count)
+  else if (fp->read(buf, count) < count)
   {
-    progress_error(HD_ERROR_READ_ERROR,
-                   "Unable to read GIF block of %d bytes: %s", count,
-                   strerror(errno));
+//    progress_error(HD_ERROR_READ_ERROR,
+//                   "Unable to read GIF block of %d bytes: %s", count,
+//                   strerror(errno));
     eof = 1;
     return (-1);
   }
@@ -130,9 +93,9 @@ hdGIFImage::get_block(FILE  *fp,	// I - File to read from
 //
 
 int					// O - LZW code
-hdGIFImage::get_code(FILE *fp,		// I - File to read from
-	             int  code_size,	// I - Size of code in bits
-	             int  first_time)	// I - 1 = first time, 0 = not first time
+hdGIFImage::get_code(hdFile *fp,	// I - File to read from
+	             int    code_size,	// I - Size of code in bits
+	             int    first_time)	// I - 1 = first time, 0 = not first time
 {
   unsigned		i, j,		// Looping vars
 			ret;		// Return value
@@ -164,8 +127,8 @@ hdGIFImage::get_code(FILE *fp,		// I - File to read from
     // Don't have enough bits to hold the code...
     if (done)
     {
-      progress_error(HD_ERROR_READ_ERROR,
-                     "Not enough data left to read GIF compression code.");
+//      progress_error(HD_ERROR_READ_ERROR,
+//                     "Not enough data left to read GIF compression code.");
       return (-1);	// Sorry, no more...
     }
 
@@ -183,7 +146,7 @@ hdGIFImage::get_code(FILE *fp,		// I - File to read from
     }
 
     // Read in another buffer...
-    if ((count = get_block (fp, buf + last_byte)) <= 0)
+    if ((count = get_block(fp, buf + last_byte)) <= 0)
     {
       // Whoops, no more data!
       done = 1;
@@ -191,9 +154,9 @@ hdGIFImage::get_code(FILE *fp,		// I - File to read from
     }
 
     // Update buffer state...
-    curbit    = (curbit - lastbit) + 8// last_byte;
+    curbit    = (curbit - lastbit) + 8 * last_byte;
     last_byte += count;
-    lastbit   = last_byte// 8;
+    lastbit   = last_byte * 8;
   }
 
   ret = 0;
@@ -209,14 +172,69 @@ hdGIFImage::get_code(FILE *fp,		// I - File to read from
 
 
 //
+// 'hdGIFImage::load()' - Load the image data...
+//
+
+int					// O - 0 on success, -1 on error
+hdGIFImage::load()
+{
+  return (real_load(1, depth() == 1));
+}
+
+
+//
+// 'hdGIFImage::read_cmap()' - Read the colormap from a GIF file...
+//
+
+int					// O  - 0 on success, -1 on error
+hdGIFImage::read_cmap(hdFile *fp,	// I  - File to read from
+  		      int    ncolors,	// I  - Number of colors
+		      cmap_t cmap,	// IO - Colormap array
+		      int    *gray)	// IO - 1 = grayscale
+{
+  int	i;				// Looping var
+
+
+  // Read the colormap...
+  if (fp->read(cmap, 3 * ncolors) < (3 * ncolors))
+  {
+//    progress_error(HD_ERROR_READ_ERROR,
+//                   "Unable to read GIF colormap: %s", strerror(errno));
+    return (-1);
+  }
+
+  // Check to see if the colormap is a grayscale ramp...
+  for (i = 0; i < ncolors; i ++)
+    if (cmap[i][0] != cmap[i][1] || cmap[i][1] != cmap[i][2])
+      break;
+
+  if (i == ncolors)
+  {
+    *gray = 1;
+    return (0);
+  }
+
+  // If this needs to be a grayscale image, convert the RGB values to
+  // luminance values...
+  if (*gray)
+  {
+    for (i = 0; i < ncolors; i ++)
+      cmap[i][0] = (cmap[i][0] * 31 + cmap[i][1] * 61 + cmap[i][2] * 8) / 100;
+  }
+
+  return (0);
+}
+
+
+//
 // 'hdGIFImage::read_image()' - Read a GIF image stream...
 //
 
-int						// I - 0 = success, -1 = failure
-hdGIFImage::read_image(FILE   *fp,		// I - Input file
-		       cmap_t cmap,		// I - Colormap
-		       int    interlace,	// I - Non-zero = interlaced image
-		       int    transparent)	// I - Transparent color
+int					// I - 0 = success, -1 = failure
+hdGIFImage::read_image(hdFile *fp,	// I - Input file
+		       cmap_t cmap,	// I - Colormap
+		       int    interlace,// I - Non-zero = interlaced image
+		       int    transparent)// I - Transparent color
 {
   uchar		code_size,		// Code size
 		*temp;			// Current pixel
@@ -231,50 +249,50 @@ hdGIFImage::read_image(FILE   *fp,		// I - Input file
   xpos      = 0;
   ypos      = 0;
   pass      = 0;
-  code_size = getc(fp);
+  code_size = fp->get();
 
   if (read_lzw(fp, 1, code_size) < 0)
     return (-1);
 
-  temp = img->pixels;
+  temp = pixels();
 
   while ((pixel = read_lzw(fp, 0, code_size)) >= 0)
   {
     temp[0] = cmap[pixel][0];
 
-    if (img->depth > 1)
+    if (depth() > 1)
     {
       temp[1] = cmap[pixel][1];
       temp[2] = cmap[pixel][2];
     }
 
     if (pixel == transparent)
-      image_set_mask(img, xpos, ypos);
+      set_mask(xpos, ypos);
 
     xpos ++;
-    temp += img->depth;
-    if (xpos == img->width)
+    temp += depth();
+    if (xpos == width())
     {
       xpos = 0;
 
       if (interlace)
       {
         ypos += xpasses[pass];
-        temp += (xpasses[pass] - 1)// img->width// img->depth;
+        temp += (xpasses[pass] - 1) * width() * depth();
 
-        if (ypos >= img->height)
+        if (ypos >= height())
 	{
 	  pass ++;
 
           ypos = ypasses[pass];
-          temp = img->pixels + ypos// img->width// img->depth;
+          temp = pixels() + ypos * width() * depth();
 	}
       }
       else
 	ypos ++;
     }
 
-    if (ypos >= img->height)
+    if (ypos >= height())
       break;
   }
 
@@ -286,10 +304,10 @@ hdGIFImage::read_image(FILE   *fp,		// I - Input file
 // 'hdGIFImage::read_lzw()' - Read a byte from the LZW stream...
 //
 
-int						// O - Byte from stream
-hdGIFImage::read_lzw(FILE *fp,			// I - File to read from
-		     int  first_time,		// I - 1 = first time, 0 = not first time
- 		     int  input_code_size)	// I - Code size in bits
+int					// O - Byte from stream
+hdGIFImage::read_lzw(hdFile *fp,	// I - File to read from
+		     int    first_time,	// I - 1 = first time, 0 = not first time
+ 		     int    input_code_size)// I - Code size in bits
 {
   int		i,			// Looping var
 		code,			// Current code
@@ -315,7 +333,7 @@ hdGIFImage::read_lzw(FILE *fp,			// I - File to read from
     code_size     = set_code_size + 1;
     clear_code    = 1 << set_code_size;
     end_code      = clear_code + 1;
-    max_code_size = 2// clear_code;
+    max_code_size = 2 * clear_code;
     max_code      = clear_code + 2;
 
     // Initialize input buffers...
@@ -365,7 +383,7 @@ hdGIFImage::read_lzw(FILE *fp,			// I - File to read from
 	table[0][i] = table[1][i] = 0;
 
       code_size     = set_code_size + 1;
-      max_code_size = 2// clear_code;
+      max_code_size = 2 * clear_code;
       max_code      = clear_code + 2;
 
       sp = stack;
@@ -429,42 +447,52 @@ hdGIFImage::read_lzw(FILE *fp,			// I - File to read from
 
 
 //
-// 'hdGIFImage::load()' - Load a GIF image file...
+// 'hdGIFImage::real_load()' - Load a GIF image file...
 //
 
 int				// O - 0 = success, -1 = fail
-hdGIFImage::load(FILE *fp,	// I - File to load from
-                 int  gray,	// I - 0 = color, 1 = grayscale
-                 int  load_data)// I - 1 = load image data, 0 = just info
+hdGIFImage::real_load(int img,	// I - 1 = load image data, 0 = just info
+                      int gs)	// I - 0 = color, 1 = grayscale
 {
+  hdFile	*fp;		// File to load from
   uchar		buf[1024];	// Input buffer
   cmap_t	cmap;		// Colormap
   int		ncolors,	// Bits per pixel
 		transparent;	// Transparent color index
+  int		w, h;		// Width and height of image
+  int		status;		// Status of load...
 
+
+  // Open the image file...
+  if ((fp = hdFile::open(uri(), HD_FILE_READ)) == NULL)
+    return (-1);
 
   // Read the header; we already know it is a GIF file...
-  fread(buf, 13, 1, fp);
+  fp->read(buf, 13);
 
-  img->width  = (buf[7] << 8) | buf[6];
-  img->height = (buf[9] << 8) | buf[8];
-  ncolors     = 2 << (buf[10] & 0x07);
+  w       = (buf[7] << 8) | buf[6];
+  h       = (buf[9] << 8) | buf[8];
+  ncolors = 2 << (buf[10] & 0x07);
 
   if (buf[10] & GIF_COLORMAP)
-    if (read_cmap(fp, ncolors, cmap, &gray))
+    if (read_cmap(fp, ncolors, cmap, &gs))
+    {
+      delete fp;
       return (-1);
+    }
 
   transparent = -1;
 
   while (1)
   {
-    switch (getc(fp))
+    switch (fp->get())
     {
       case ';' :	// End of image
-          return (-1);		// Early end of file
+          delete fp;
+          return (-1);	// Early end of file
 
       case '!' :	// Extension record
-          buf[0] = getc(fp);
+          buf[0] = fp->get();
           if (buf[0] == 0xf9)	// Graphic Control Extension
           {
             get_block(fp, buf);
@@ -476,57 +504,47 @@ hdGIFImage::load(FILE *fp,	// I - File to load from
           break;
 
       case ',' :	// Image data
-          fread(buf, 9, 1, fp);
+          fp->read(buf, 9);
 
           if (buf[8] & GIF_COLORMAP)
           {
             ncolors = 2 << (buf[8] & 0x07);
 
-	    if (read_cmap(fp, ncolors, cmap, &gray))
+	    if (read_cmap(fp, ncolors, cmap, &gs))
+	    {
+	      delete fp;
 	      return (-1);
+	    }
 	  }
+
+          w = (buf[5] << 8) | buf[4];
+          h = (buf[7] << 8) | buf[6];
+
+          set_size(w, h, gs ? 1 : 3);
+
+	  if (!img)
+	  {
+	    delete fp;
+	    return (0);
+	  }
+
+          alloc_pixels();
 
           if (transparent >= 0)
           {
-            // Map transparent color to background color...
-            if (BodyColor[0])
-	    {
-	      float rgb[3]; // RGB color
-
-
-	      get_color((uchar *)BodyColor, rgb);
-
-	      cmap[transparent][0] = (uchar)(rgb[0] * 255.0f + 0.5f);
-	      cmap[transparent][1] = (uchar)(rgb[1] * 255.0f + 0.5f);
-	      cmap[transparent][2] = (uchar)(rgb[2] * 255.0f + 0.5f);
-	    }
-	    else
-	    {
-	      cmap[transparent][0] = 255;
-              cmap[transparent][1] = 255;
-              cmap[transparent][2] = 255;
-	    }
-
 	    // Allocate a mask image...
             alloc_mask();
 	  }
 
-          img->width  = (buf[5] << 8) | buf[4];
-          img->height = (buf[7] << 8) | buf[6];
-          img->depth  = gray ? 1 : 3;
-	  if (!load_data)
-	    return (0);
+	  status = read_image(fp, cmap, buf[8] & GIF_INTERLACE, transparent);
+	  delete fp;
 
-          img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
-          if (img->pixels == NULL)
-            return (-1);
-
-	  return (read_image(fp, img, cmap, buf[8] & GIF_INTERLACE, transparent));
+	  return (status);
     }
   }
 }
 
 
 //
-// End of "$Id: image-gif.cxx,v 1.3 2001/12/04 22:07:42 mike Exp $".
+// End of "$Id: image-gif.cxx,v 1.4 2001/12/17 03:03:55 mike Exp $".
 //

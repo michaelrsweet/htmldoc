@@ -1,5 +1,5 @@
 //
-// "$Id: image-bmp.cxx,v 1.2 2001/12/17 01:46:18 mike Exp $"
+// "$Id: image-bmp.cxx,v 1.3 2001/12/17 03:03:55 mike Exp $"
 //
 // BMP image handling routines for HTMLDOC.
 //
@@ -23,6 +23,12 @@
 //
 // Contents:
 //
+//   hdBMPImage::hdBMPImage() - Create a new BMP image.
+//   hdBMPImage::load()       - Read a BMP image file.
+//   hdBMPImage::read_load()  - Really read a BMP image file...
+//   read_word()              - Read a 16-bit unsigned integer.
+//   read_dword()             - Read a 32-bit unsigned integer.
+//   read_long()              - Read a 32-bit signed integer.
 //
 
 //
@@ -446,5 +452,5 @@ read_long(hdFile *fp)		// I - File to read from
 
 
 //
-// End of "$Id: image-bmp.cxx,v 1.2 2001/12/17 01:46:18 mike Exp $".
+// End of "$Id: image-bmp.cxx,v 1.3 2001/12/17 03:03:55 mike Exp $".
 //
