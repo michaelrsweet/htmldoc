@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.27 2000/05/18 12:14:06 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.28 2000/05/19 14:59:40 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -37,6 +37,11 @@
 #define _HTMLDOC_C_
 #include "htmldoc.h"
 #include <ctype.h>
+
+#if defined(WIN32) || defined(__EMX__)
+#  include <io.h>
+#endif // WIN32 || __EMX__
+#include <fcntl.h>
 
 
 /*
@@ -1502,5 +1507,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.27 2000/05/18 12:14:06 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.28 2000/05/19 14:59:40 mike Exp $".
  */
