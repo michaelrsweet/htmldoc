@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.142 2002/01/07 20:42:02 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.143 2002/01/16 16:35:20 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4563,6 +4563,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		row,
 		tcol,
 		colspan,
+		rowspan,
 		num_cols,
 		num_rows,
 		alloc_rows,
@@ -4766,6 +4767,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       // Figure out the starting column...
       if (num_rows)
       {
+	for (col = 0, rowspan = 9999; col < num_cols; col ++)
+	  if (row_spans[col] < rowspan)
+	    rowspan = row_spans[col];
+
+	for (col = 0; col < num_cols; col ++)
+	  row_spans[col] -= rowspan;
+
 	for (col = 0; row_spans[col] && col < num_cols; col ++)
           cells[num_rows][col] = cells[num_rows - 1][col];
       }
@@ -5231,7 +5239,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     DEBUG_printf(("BEFORE row_y = %.1f, *y = %.1f\n", row_y, *y));
 
-    for (col = 0; col < num_cols;)
+    for (col = 0, rowspan = 9999; col < num_cols; col += colspan)
     {
       if (row_spans[col] == 0)
       {
@@ -5244,6 +5252,19 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	span_heights[col] = 0.0f;
       }
 
+      if (row_spans[col] < rowspan)
+	rowspan = row_spans[col];
+
+      for (colspan = 1; (col + colspan) < num_cols; colspan ++)
+        if (cells[row][col] != cells[row][col + colspan])
+          break;
+    }
+
+    if (!rowspan)
+      rowspan = 1;
+
+    for (col = 0; col < num_cols;)
+    {
       for (colspan = 1; (col + colspan) < num_cols; colspan ++)
         if (cells[row][col] != cells[row][col + colspan])
           break;
@@ -5299,7 +5320,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  cell_height[col] > row_height)
         row_height = cell_height[col];
 
-      if (row_spans[col] < 2)
+      if (row_spans[col] < (rowspan + 1))
       {
 	if (cell_page[col] != cell_endpage[col])
 	  do_valign = 0;
@@ -5341,7 +5362,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       DEBUG_printf(("col = %d, row_spans = %d, span_heights = %.1f, cell_height = %.1f\n",
                     col, row_spans[col], span_heights[col], cell_height[col]));
 
-      if (row_spans[col] == 1 &&
+      if (row_spans[col] == rowspan &&
           cell_page[col] == cell_endpage[col] &&
 	  cell_height[col] > span_heights[col])
       {
@@ -5399,7 +5420,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         colspan --;
 
-        if (cell_start[col] == NULL || row_spans[col] > 1 ||
+        if (cell_start[col] == NULL || row_spans[col] > rowspan ||
 	    cells[row][col] == NULL || cells[row][col]->child == NULL)
 	  continue;
 
@@ -5475,15 +5496,15 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       }
     }
 
-    // Update all current columns with ROWSPAN <= 1 to use the same
+    // Update all current columns with ROWSPAN <= rowspan to use the same
     // end page...
     for (col = 1, temp_page = cell_endpage[0]; col < num_cols; col ++)
-      if (cell_endpage[col] > temp_page && row_spans[col] <= 1 &&
+      if (cell_endpage[col] > temp_page && row_spans[col] <= rowspan &&
           cells[row][col] != NULL && cells[row][col]->child != NULL)
         temp_page = cell_endpage[col];
 
     for (col = 0; col < num_cols; col ++)
-      if (row_spans[col] <= 1 &&
+      if (row_spans[col] <= rowspan &&
           cells[row][col] != NULL && cells[row][col]->child != NULL)
         cell_endpage[col] = temp_page;
 
@@ -5494,8 +5515,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       if (row_spans[col] > 0)
       {
         DEBUG_printf(("row = %d, col = %d, decrementing row_spans (%d) to %d...\n", row,
-	              col, row_spans[col], row_spans[col] - 1));
-        row_spans[col] --;
+	              col, row_spans[col], row_spans[col] - rowspan));
+        row_spans[col] -= rowspan;
       }
 
       for (colspan = 1; (col + colspan) < num_cols; colspan ++)
@@ -10629,5 +10650,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.142 2002/01/07 20:42:02 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.143 2002/01/16 16:35:20 mike Exp $".
  */
