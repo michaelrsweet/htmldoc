@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.21 2003/01/07 03:29:13 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.22 2003/02/05 17:14:33 swdev Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -219,6 +219,9 @@ Sets the style of links.
 .br
 Specifies an image to be used as a logo in the header or footer in a
 PostScript or PDF document, and in the navigation bar of a HTML document.
+
+Note that you would need to include either the \fI--header\fR and/or the
+\fI--footer\fR option with the use of the \fIl\fR parameter.
 
 .TP 5
 --no-compression
@@ -554,5 +557,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.21 2003/01/07 03:29:13 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.22 2003/02/05 17:14:33 swdev Exp $".
 .\"
