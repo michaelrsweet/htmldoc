@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.9 1999/11/18 22:07:50 mike Exp $"
+# "$Id: Makefile,v 1.10 1999/11/22 18:07:39 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -54,10 +54,14 @@ all: $(DOCUMENTS)
 #
 
 install: $(DOCUMENTS)
-	$(MKDIR) $(datadir)/doc/htmldoc
+	if [ ! -d $(datadir)/doc/htmldoc ]; then\
+		$(MKDIR) $(datadir)/doc/htmldoc;\
+	fi
 	$(CP) $(DOCFILES) $(datadir)/doc/htmldoc
 	$(CHMOD) ugo+r $(datadir)/doc/htmldoc/*
-	$(MKDIR) $(mandir)/man1
+	if [ ! -d $(mandir)/man1 ]; then\
+		$(MKDIR) $(mandir)/man1;\
+	fi
 	$(CP) htmldoc.man $(mandir)/man1/htmldoc.1
 	$(CHMOD) ugo+r $(mandir)/man1/htmldoc.1
 
@@ -98,5 +102,5 @@ htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
 
 
 #
-# End of "$Id: Makefile,v 1.9 1999/11/18 22:07:50 mike Exp $".
+# End of "$Id: Makefile,v 1.10 1999/11/22 18:07:39 mike Exp $".
 #

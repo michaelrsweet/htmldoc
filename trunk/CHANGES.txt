@@ -1,6 +1,39 @@
 CHANGES.txt - 11/18/1999
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.1
+
+    NEW FEATURES
+
+
+    CHANGES
+
+	- The configure script didn't update the ARFLAGS
+	  variable for *BSD operating systems (no "s" option to
+	  build the symbol table...)
+	- Changed the installation commands to only create the
+	  installation directory if it does not exist.  This
+	  prevents installation errors on some platforms the
+	  second time around.
+	- Now use the Microsoft definitions for characters 128
+	  through 159 that are otherwise unused by the
+	  ISO-8859-x character sets.
+	- Now set optimization settings when we know the compiler.	
+	- Now always quote attribute values in HTML output to make
+	  HTML lint programs happy.
+
+    BUG FIXES
+
+	- Wasn't using TOC title string in PDF document outline.
+	- Preformatted text in tables didn't force the column
+	  width.
+	- Cells using COLSPAN > 1 didn't contribute to the width
+	  of columns.
+	- The configure script and makefiles didn't work when
+	  FLTK was not available.  They now only build the "gui"
+	  library when it is available.
+
+
 CHANGES IN HTMLDOC v1.8
 
     NEW FEATURES

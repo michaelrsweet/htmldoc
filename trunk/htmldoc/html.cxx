@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.8 1999/11/17 12:50:37 mike Exp $"
+ * "$Id: html.cxx,v 1.9 1999/11/22 18:07:40 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -536,13 +536,8 @@ write_all(FILE   *out,		/* I - Output file */
 
 	      if (t->vars[i].value == NULL)
         	col += fprintf(out, "%s", t->vars[i].name);
-	      else if (strchr((char *)t->vars[i].value, ' ') != NULL ||
-        	       strchr((char *)t->vars[i].value, '\t') != NULL ||
-        	       strchr((char *)t->vars[i].value, '\n') != NULL ||
-        	       strchr((char *)t->vars[i].value, '\r') != NULL)
-        	col += fprintf(out, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
 	      else
-        	col += fprintf(out, "%s=%s", t->vars[i].name, t->vars[i].value);
+        	col += fprintf(out, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
 	    }
 
 	    putc('>', out);
@@ -830,5 +825,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.8 1999/11/17 12:50:37 mike Exp $".
+ * End of "$Id: html.cxx,v 1.9 1999/11/22 18:07:40 mike Exp $".
  */

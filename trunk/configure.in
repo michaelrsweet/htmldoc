@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.7 1999/11/19 18:04:55 mike Exp $"
+dnl "$Id: configure.in,v 1.8 1999/11/22 18:07:38 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -37,6 +37,15 @@ AC_PATH_PROG(MV,mv)
 AC_PATH_PROG(MKDIR,mkdir)
 AC_PATH_PROG(RM,rm)
 
+dnl Figure out the correct "ar" command flags...
+if test "$ac_cv_prog_ranlib" = ":"; then
+	ARFLAGS="crs"
+else
+	ARFLAGS="cr"
+fi
+
+AC_SUBST(ARFLAGS)
+
 dnl Check for libraries...
 LDFLAGS="$CXXFLAGS"
 AC_SUBST(LDFLAGS)
@@ -63,10 +72,14 @@ fi
 AC_CHECK_LIB(fltk,numericsort)
 
 if test "$ac_cv_lib_fltk_numericsort" = yes -a "$ac_cv_prog_CXX" != ""; then
-	LIBS="$LIBS -lXext -lX11 -lm"
+	LIBS="../gui/libgui.a $LIBS -lXext -lX11 -lm"
+	GUI="gui"
 else
 	AC_MSG_WARN(C++ compiler or FLTK not available so no GUI will be built.)
+	GUI=""
 fi
+
+AC_SUBST(GUI)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -84,9 +97,44 @@ fi
 AC_DEFINE_UNQUOTED(DOCUMENTATION, "$prefix/share/doc/htmldoc")
 AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
 
-dnl Generate the Makedefs file...
-AC_OUTPUT(Makedefs)
+dnl Update compiler options...
+if test -n "$GXX"; then
+	if test -z "$OPTIM"; then
+		if test "`uname`" = "HP-UX"; then
+			# ZLIB has trouble with GCC 2.95 and -O2...
+			OPTIM="-O1"
+		else
+	        	OPTIM="-O2"
+		fi
+	fi
+else
+	case `uname` in
+        	IRIX*)
+			if test -z "$OPTIM"; then
+				if test `uname -r | sed -e '1,$s/\.//g'` -ge 62; then
+					OPTIM="-O3 -OPT:Olimit=4000 -IPA"
+        			else
+					OPTIM="-O2"
+				fi
+			fi
+			;;
+		HP-UX*)
+			if test -z "$OPTIM"; then
+				OPTIM="+O2"
+			fi
+			;;
+		SunOS*)
+			# Solaris
+			if test -z "$OPTIM"; then
+				OPTIM="-O"
+			fi
+			;;
+	esac
+fi
+
+dnl Generate the top-level Makefile and Makedefs file...
+AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.7 1999/11/19 18:04:55 mike Exp $".
+dnl End of "$Id: configure.in,v 1.8 1999/11/22 18:07:38 mike Exp $".
 dnl
