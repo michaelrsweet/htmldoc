@@ -46,6 +46,9 @@ CHANGES IN HTMLDOC v1.8.7
 	  differences between web browsers and HTMLDOC.
 	- The PNG loading code did not handle interlacing or
 	  transparency.
+	- The HTML parsing code did not prevent elements in
+	  embedded files from completing elements in the parent
+	  file.
 
 
 CHANGES IN HTMLDOC v1.8.6

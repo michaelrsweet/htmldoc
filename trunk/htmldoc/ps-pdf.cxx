@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.68 2000/04/29 11:20:07 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.69 2000/05/05 17:06:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4095,7 +4095,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     }
 
     do_valign  = 1;
-    row_y      = *y - (border + cellspacing + cellpadding);
+    row_y      = *y - (border + cellpadding - cellspacing);
     row_page   = *page;
     row_height = 0.0f;
 
@@ -4119,14 +4119,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         continue;
 
       *x        = col_lefts[col];
-      temp_y    = *y - (border + cellspacing + cellpadding);
+      temp_y    = *y - (border + cellpadding - cellspacing);
       temp_page = *page;
 
       cell_start[col] = endpages[*page];
       parse_doc(cells[row][col]->child,
                 col_lefts[col], col_rights[col + colspan],
-                bottom + border + cellspacing + cellpadding,
-                top - border - cellspacing - cellpadding,
+                bottom + border + cellpadding,
+                top - border - cellpadding,
                 x, &temp_y, &temp_page, NULL);
 
       if (temp_page == row_page)
@@ -4135,7 +4135,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  cell_start[col] = pages[*page];
 
         cell_end[col]    = endpages[*page];
-        cell_height[col] = *y - (border + cellspacing + cellpadding) - temp_y;
+        cell_height[col] = *y - (border + cellpadding - cellspacing) - temp_y;
         if (cell_height[col] > row_height)
           row_height = cell_height[col];
       }
@@ -6757,5 +6757,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.68 2000/04/29 11:20:07 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.69 2000/05/05 17:06:29 mike Exp $".
  */
