@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.24 2000/04/28 21:37:55 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.25 2000/05/08 14:27:41 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -911,9 +911,9 @@ format_number(int  n,		/* I - Number */
  */
 
 void
-get_color(uchar *color,		/* I - Color attribute */
-          float *rgb,		/* O - RGB value */
-	  int   defblack)	/* I - Default color is black? */
+get_color(const uchar *color,	/* I - Color attribute */
+          float       *rgb,	/* O - RGB value */
+	  int         defblack)	/* I - Default color is black? */
 {
   int		i;		/* Looping vars */
   static struct
@@ -986,7 +986,7 @@ get_color(uchar *color,		/* I - Color attribute */
  */
 
 int				/* O - Measurement in points */
-get_measurement(char *s)	/* I - Measurement string */
+get_measurement(const char *s)	/* I - Measurement string */
 {
   float	val;			/* Measurement value */
 
@@ -1019,7 +1019,7 @@ get_measurement(char *s)	/* I - Measurement string */
  */
 
 void
-set_page_size(char *size)	/* I - Page size string */
+set_page_size(const char *size)	/* I - Page size string */
 {
   float	width,			/* Width in points */
 	length;			/* Length in points */
@@ -1775,5 +1775,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.24 2000/04/28 21:37:55 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.25 2000/05/08 14:27:41 mike Exp $".
  */

@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.6 2000/04/16 17:31:40 mike Exp $"
+#   "$Id: Makefile,v 1.7 2000/05/08 14:27:41 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -78,7 +78,7 @@ gui.o:		gui.h html.h htmldoc.h image.h iso8859.h types.h htmldoc.xbm
 html.o:		html.h htmldoc.h image.h iso8859.h types.h
 htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h types.h
 htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h types.h
-image.o:	debug.h image.h types.h
+image.o:	debug.h htmldoc.h image.h types.h
 iso8859.o:	iso8859.h types.h
 ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h types.h
 toc.o:		html.h htmldoc.h image.h iso8859.h types.h
@@ -102,5 +102,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.6 2000/04/16 17:31:40 mike Exp $".
+# End of "$Id: Makefile,v 1.7 2000/05/08 14:27:41 mike Exp $".
 #

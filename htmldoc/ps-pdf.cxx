@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.70 2000/05/05 18:41:12 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.71 2000/05/08 14:27:41 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -57,6 +57,7 @@
  *   parse_table()           - Parse a table and produce rendering output.
  *   parse_list()            - Parse a list entry and produce rendering output.
  *   init_list()             - Initialize the list type and value as necessary.
+ *   parse_comment()         - Parse a comment for HTMLDOC comments.
  *   real_prev()             - Return the previous non-link markup in the tree.
  *   real_next()             - Return the next non-link markup in the tree.
  *   find_background()       - Find the background image/color for the given
@@ -285,6 +286,9 @@ static void	parse_table(tree_t *t, float left, float width, float bottom,
 static void	parse_list(tree_t *t, float left, float width, float bottom,
 		           float length, float *x, float *y, int *page);
 static void	init_list(tree_t *t);
+static void	parse_comment(tree_t *t, float left, float width, float bottom,
+		              float length, float *x, float *y, int *page,
+			      tree_t *para);
 
 static tree_t	*real_prev(tree_t *t);
 static tree_t	*real_next(tree_t *t);
@@ -2382,10 +2386,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 		*temp;		/* Paragraph entry */
   var_t		*var;		/* Variable entry */
   uchar		*name;		/* ID name */
-  char		*comment;	/* Comment text */
   float		width,		/* Width of horizontal rule */
 		height,		/* Height of rule */
-		need,		/* Amount of space needed */
 		rgb[3];		/* RGB color of rule */
 
 
@@ -2811,113 +2813,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
       case MARKUP_COMMENT :
           // Check comments for commands...
-          for (comment = (char *)t->data;
-	       *comment && isspace(*comment);
-	       comment ++); // Skip leading whitespace...
-
-          if (strncasecmp(comment, "PAGE BREAK", 10) == 0 ||
-	      strncasecmp(comment, "NEW PAGE", 8) == 0)
-	  {
-	   /*
-	    * <!-- PAGE BREAK --> and <!-- NEW PAGE --> generate a page
-	    * break...
-	    */
-
-            if (para->child != NULL)
-            {
-              parse_paragraph(para, left, right, bottom, top, x, y, page);
-              htmlDeleteTree(para->child);
-              para->child = para->last_child = NULL;
-            }
-
-            (*page) ++;
-	    if (Verbosity)
-	      progress_show("Formatting page %d", *page);
-            *x = left;
-            *y = top;
-	  }
-	  else if (strncasecmp(comment, "NEW SHEET", 9) == 0)
-	  {
-	   /*
-	    * <!-- NEW SHEET --> generate a page break to a new sheet...
-	    */
-
-            if (para->child != NULL)
-            {
-              parse_paragraph(para, left, right, bottom, top, x, y, page);
-              htmlDeleteTree(para->child);
-              para->child = para->last_child = NULL;
-            }
-
-            (*page) ++;
-	    if (PageDuplex && ((*page) & 1))
-	      (*page) ++;
-
-	    if (Verbosity)
-	      progress_show("Formatting page %d", *page);
-            *x = left;
-            *y = top;
-	  }
-	  else if (strncasecmp(comment, "HALF PAGE", 9) == 0)
-	  {
-	   /*
-	    * <!-- HALF PAGE --> Go to the next half page.  If in the
-	    * top half of a page, go to the bottom half.  If in the
-	    * bottom half, go to the next page.
-	    */
-	    float halfway;
-
-
-            if (para->child != NULL)
-            {
-              parse_paragraph(para, left, right, bottom, top, x, y, page);
-              htmlDeleteTree(para->child);
-              para->child = para->last_child = NULL;
-            }
-
-	    halfway = 0.5f * (top + bottom);
-
-	    if (*y <= halfway)
-	    {
-	      (*page) ++;
-	      if (Verbosity)
-		progress_show("Formatting page %d", *page);
-	      *x = left;
-	      *y = top;
-	    }
-	    else
-	    {
-	      *x = left;
-	      *y = halfway;
-	    }
-	  }
-	  else if (strncasecmp(comment, "NEED ", 5) == 0)
-	  {
-	   /*
-	    * <!-- NEED amount --> generate a page break if there isn't
-	    * enough remaining space...
-	    */
-
-            if (para->child != NULL)
-            {
-              parse_paragraph(para, left, right, bottom, top, x, y, page);
-              htmlDeleteTree(para->child);
-              para->child = para->last_child = NULL;
-            }
-
-            need = get_measurement(comment + 5);
-
-	    if ((*y - need) < bottom)
-	    {
-              (*page) ++;
-
-	      if (Verbosity)
-		progress_show("Formatting page %d", *page);
-              *y = top;
-	    }
-
-            *x = left;
-	  }
+          parse_comment(para, left, right, bottom, top, x, y, page, para);
           break;
 
       case MARKUP_TITLE :
@@ -4102,7 +3998,21 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   for (row = 0; row < num_rows; row ++)
   {
     if (cells[row][0] != NULL)
-    {  
+    {
+     /*
+      * Do page comments...
+      */
+
+      if (cells[row][0]->parent->prev != NULL &&
+          cells[row][0]->parent->prev->markup == MARKUP_COMMENT)
+        parse_comment(cells[row][0]->parent->prev,
+                      left, right, bottom + border + cellpadding,
+                      top - border - cellpadding, x, y, page, NULL);
+
+     /*
+      * Get height...
+      */
+
       if ((var = htmlGetVariable(cells[row][0]->parent,
                         	 (uchar *)"HEIGHT")) == NULL)
 	for (col = 0; col < num_cols; col ++)
@@ -4497,6 +4407,135 @@ init_list(tree_t *t)		/* I - List entry */
   }
   else if (t->markup == MARKUP_OL)
     list_values[t->indent] = 1;
+}
+
+
+/*
+ * 'parse_comment()' - Parse a comment for HTMLDOC comments.
+ */
+
+static void
+parse_comment(tree_t *t,	/* I - Tree to parse */
+              float  left,	/* I - Left margin */
+              float  right,	/* I - Printable width */
+              float  bottom,	/* I - Bottom margin */
+              float  top,	/* I - Printable top */
+              float  *x,	/* IO - X position */
+              float  *y,	/* IO - Y position */
+              int    *page,	/* IO - Page # */
+	      tree_t *para)	/* I - Current paragraph */
+{
+  const char	*comment;	/* Comment text */
+
+
+  if (t->data == NULL)
+    return;
+
+  for (comment = (const char *)t->data;
+       *comment && isspace(*comment);
+       comment ++);		// Skip leading whitespace...
+
+  if (strncasecmp(comment, "PAGE BREAK", 10) == 0 ||
+      strncasecmp(comment, "NEW PAGE", 8) == 0)
+  {
+   /*
+    * <!-- PAGE BREAK --> and <!-- NEW PAGE --> generate a page
+    * break...
+    */
+
+    if (para != NULL && para->child != NULL)
+    {
+      parse_paragraph(para, left, right, bottom, top, x, y, page);
+      htmlDeleteTree(para->child);
+      para->child = para->last_child = NULL;
+    }
+
+    (*page) ++;
+    if (Verbosity)
+      progress_show("Formatting page %d", *page);
+    *x = left;
+    *y = top;
+  }
+  else if (strncasecmp(comment, "NEW SHEET", 9) == 0)
+  {
+   /*
+    * <!-- NEW SHEET --> generate a page break to a new sheet...
+    */
+
+    if (para != NULL && para->child != NULL)
+    {
+      parse_paragraph(para, left, right, bottom, top, x, y, page);
+      htmlDeleteTree(para->child);
+      para->child = para->last_child = NULL;
+    }
+
+    (*page) ++;
+    if (PageDuplex && ((*page) & 1))
+      (*page) ++;
+
+    if (Verbosity)
+      progress_show("Formatting page %d", *page);
+    *x = left;
+    *y = top;
+  }
+  else if (strncasecmp(comment, "HALF PAGE", 9) == 0)
+  {
+   /*
+    * <!-- HALF PAGE --> Go to the next half page.  If in the
+    * top half of a page, go to the bottom half.  If in the
+    * bottom half, go to the next page.
+    */
+    float halfway;
+
+
+    if (para != NULL && para->child != NULL)
+    {
+      parse_paragraph(para, left, right, bottom, top, x, y, page);
+      htmlDeleteTree(para->child);
+      para->child = para->last_child = NULL;
+    }
+
+    halfway = 0.5f * (top + bottom);
+
+    if (*y <= halfway)
+    {
+      (*page) ++;
+      if (Verbosity)
+	progress_show("Formatting page %d", *page);
+      *x = left;
+      *y = top;
+    }
+    else
+    {
+      *x = left;
+      *y = halfway;
+    }
+  }
+  else if (strncasecmp(comment, "NEED ", 5) == 0)
+  {
+   /*
+    * <!-- NEED amount --> generate a page break if there isn't
+    * enough remaining space...
+    */
+
+    if (para != NULL && para->child != NULL)
+    {
+      parse_paragraph(para, left, right, bottom, top, x, y, page);
+      htmlDeleteTree(para->child);
+      para->child = para->last_child = NULL;
+    }
+
+    if ((*y - get_measurement(comment + 5)) < bottom)
+    {
+      (*page) ++;
+
+      if (Verbosity)
+	progress_show("Formatting page %d", *page);
+      *y = top;
+    }
+
+    *x = left;
+  }
 }
 
 
@@ -6785,5 +6824,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.70 2000/05/05 18:41:12 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.71 2000/05/08 14:27:41 mike Exp $".
  */
