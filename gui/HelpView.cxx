@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.12 2000/01/04 13:45:51 mike Exp $"
+// "$Id: HelpView.cxx,v 1.13 2000/01/22 06:30:49 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -27,8 +27,10 @@
 //   HelpView::add_link()        - Add a new link to the list.
 //   HelpView::add_target()      - Add a new target to the list.
 //   HelpView::compare_targets() - Compare two targets.
+//   HelpView::do_align()        - Compute the alignment for a line in a block.
 //   HelpView::draw()            - Draw the HelpView widget.
 //   HelpView::format()          - Format the help text.
+//   HelpView::get_align()       - Get an alignment attribute.
 //   HelpView::get_attr()        - Get an attribute value from the string.
 //   HelpView::handle()          - Handle events in the widget.
 //   HelpView::HelpView()        - Build a HelpView widget.
@@ -73,8 +75,7 @@ HelpView::add_block(const char *s,	// I - Pointer to start of block text
                     int        xx,	// I - X position of block
 		    int        yy,	// I - Y position of block
 		    int        ww,	// I - Right margin of block
-		    int        hh,	// I - Height of block
-		    int        a)	// I - Block alignment
+		    int        hh)	// I - Height of block
 {
   HelpBlock	*temp;			// New block
 
@@ -95,7 +96,6 @@ HelpView::add_block(const char *s,	// I - Pointer to start of block text
   temp->y     = yy;
   temp->w     = ww;
   temp->h     = hh;
-  temp->align = a;
 
   nblocks_ ++;
 
@@ -195,6 +195,49 @@ HelpView::compare_targets(const HelpTarget *t0,	// I - First target
 
 
 //
+// 'HelpView::do_align()' - Compute the alignment for a line in a block.
+//
+
+int					// O - New line
+HelpView::do_align(HelpBlock *block,	// I - Block to add to
+                   int       line,	// I - Current line
+		   int       xx,	// I - Current X position
+		   int       a,		// I - Current alignment
+		   int       &l)	// IO - Starting link
+{
+  int	offset;				// Alignment offset
+
+
+  switch (a)
+  {
+    case RIGHT :	// Right align
+	offset = block->w - xx;
+	break;
+    case CENTER :	// Center
+	offset = (block->w - xx) / 2;
+	break;
+    case LEFT :		// Left align
+	offset = 0;
+	break;
+  }
+
+  block->line[line] = block->x + offset;
+
+  if (line < 31)
+    line ++;
+
+  while (l < nlinks_)
+  {
+    links_[l].x += offset;
+    links_[l].w += offset;
+    l ++;
+  }
+
+  return (line);
+}
+
+
+//
 // 'HelpView::draw()' - Draw the HelpView widget.
 //
 
@@ -209,6 +252,7 @@ HelpView::draw()
 		buf[1024],	// Text buffer
 		attr[1024];	// Attribute buffer
   int		xx, yy, ww, hh;	// Current positions and sizes
+  int		line;		// Current line
   uchar		font, size;	// Current font and size
   int		head, pre,	// Flags for text
 		needspace;	// Do we need whitespace?
@@ -236,7 +280,8 @@ HelpView::draw()
   for (i = 0, block = blocks_; i < nblocks_ && (block->y - topline_) < h(); i ++, block ++)
     if ((block->y + block->h) >= topline_)
     {
-      xx        = block->x;
+      line      = 0;
+      xx        = block->line[line];
       yy        = block->y - topline_;
       hh        = 0;
       pre       = 0;
@@ -254,14 +299,16 @@ HelpView::draw()
             // Check width...
             *s = '\0';
             s  = buf;
-            ww = fl_width(buf);
+            ww = (int)fl_width(buf);
 
             if (needspace && xx > block->x)
-	      xx += fl_width(' ');
+	      xx += (int)fl_width(' ');
 
             if ((xx + ww) > block->w)
 	    {
-	      xx = block->x;
+	      if (line < 31)
+	        line ++;
+	      xx = block->line[line];
 	      yy += hh;
 	      hh = 0;
 	    }
@@ -285,7 +332,9 @@ HelpView::draw()
 
                 fl_draw(buf, xx + x(), yy + y());
 
-        	xx = block->x;
+		if (line < 31)
+	          line ++;
+		xx = block->line[line];
 		yy += hh;
 		hh = size + 2;
 	      }
@@ -310,7 +359,7 @@ HelpView::draw()
 	      s = buf;
 
               fl_draw(buf, xx + x(), yy + y());
-              xx += fl_width(buf);
+              xx += (int)fl_width(buf);
 	    }
 
 	    needspace = 0;
@@ -347,19 +396,24 @@ HelpView::draw()
             head = 1;
 	  else if (strcasecmp(buf, "BR") == 0)
 	  {
-            xx       = block->x;
-            yy       += hh;
-	    hh       = 0;
+	    if (line < 31)
+	      line ++;
+	    xx = block->line[line];
+            yy += hh;
+	    hh = 0;
 	  }
 	  else if (strcasecmp(buf, "HR") == 0)
 	  {
 	    fl_line(block->x, yy + 2 * hh, block->w, yy + 2 * hh);
 
-            xx       = block->x;
-            yy       += 2 * hh;
-	    hh       = 0;
+	    if (line < 31)
+	      line ++;
+	    xx = block->line[line];
+            yy += 2 * hh;
+	    hh = 0;
 	  }
-	  else if (strcasecmp(buf, "P") == 0 ||
+	  else if (strcasecmp(buf, "CENTER") == 0 ||
+        	   strcasecmp(buf, "P") == 0 ||
         	   strcasecmp(buf, "H1") == 0 ||
 		   strcasecmp(buf, "H2") == 0 ||
 		   strcasecmp(buf, "H3") == 0 ||
@@ -453,9 +507,11 @@ HelpView::draw()
 
           fl_draw(buf, xx + x(), yy + y());
 
-	  xx        = block->x;
-	  yy        += hh;
-	  hh        = size + 2;
+	  if (line < 31)
+	    line ++;
+	  xx = block->line[line];
+	  yy += hh;
+	  hh = size + 2;
 	  needspace = 0;
 
 	  ptr ++;
@@ -533,14 +589,16 @@ HelpView::draw()
 
       if (s > buf && !pre && !head)
       {
-	ww = fl_width(buf);
+	ww = (int)fl_width(buf);
 
         if (needspace && xx > block->x)
-	  xx += fl_width(' ');
+	  xx += (int)fl_width(' ');
 
 	if ((xx + ww) > block->w)
 	{
-	  xx = block->x;
+	  if (line < 31)
+	    line ++;
+	  xx = block->line[line];
 	  yy += hh;
 	  hh = 0;
 	}
@@ -572,6 +630,8 @@ HelpView::format()
 		attr[1024],	// Attribute buffer
 		link[1024];	// Link destination
   int		xx, yy, ww, hh;	// Size of current text fragment
+  int		line;		// Current line in block
+  int		links;		// Links for current line
   uchar		font, size;	// Current font and size
   int		align,		// Current alignment
 		head,		// In the <HEAD> section?
@@ -593,14 +653,16 @@ HelpView::format()
 
   initfont(font, size);
 
+  line      = 0;
+  links     = 0;
   xx        = 4;
   yy        = size + 2;
   hh        = 0;
-  block     = add_block(value_, xx, yy, w() - 24, 0, 1);
+  block     = add_block(value_, xx, yy, w() - 24, 0);
   row       = 0;
   head      = 0;
   pre       = 0;
-  align     = 1;
+  align     = LEFT;
   needspace = 0;
   link[0]   = '\0';
 
@@ -612,13 +674,14 @@ HelpView::format()
       {
         // Check width...
         *s = '\0';
-        ww = fl_width(buf);
+        ww = (int)fl_width(buf);
 
         if (needspace && xx > block->x)
-	  xx += fl_width(' ');
+	  ww += (int)fl_width(' ');
 
         if ((xx + ww) > block->w)
 	{
+          line     = do_align(block, line, xx, align, links);
 	  xx       = block->x;
 	  yy       += hh;
 	  block->h += hh;
@@ -644,10 +707,11 @@ HelpView::format()
             if (link[0])
 	      add_link(link, xx, yy - hh, ww, hh);
 
-            xx = block->x;
-	    yy += hh;
+            line     = do_align(block, line, xx, align, links);
+            xx       = block->x;
+	    yy       += hh;
 	    block->h += hh;
-	    hh = size + 2;
+	    hh       = size + 2;
 	  }
 
           if ((size + 2) > hh)
@@ -716,12 +780,14 @@ HelpView::format()
         link[0] = '\0';
       else if (strcasecmp(buf, "BR") == 0)
       {
+        line     = do_align(block, line, xx, align, links);
         xx       = block->x;
 	block->h += hh;
         yy       += hh;
 	hh       = 0;
       }
-      else if (strcasecmp(buf, "P") == 0 ||
+      else if (strcasecmp(buf, "CENTER") == 0 ||
+               strcasecmp(buf, "P") == 0 ||
                strcasecmp(buf, "H1") == 0 ||
 	       strcasecmp(buf, "H2") == 0 ||
 	       strcasecmp(buf, "H3") == 0 ||
@@ -739,9 +805,9 @@ HelpView::format()
 	       strcasecmp(buf, "TABLE") == 0)
       {
         block->end = start;
-
-        xx       = block->x;
-        block->h += hh;
+        line       = do_align(block, line, xx, align, links);
+        xx         = block->x;
+        block->h   += hh;
 
         if (!block->h && nblocks_ > 1)
 	{
@@ -806,8 +872,14 @@ HelpView::format()
 	  hh = size;
 	}
 
-        block     = add_block(start, xx, yy, w() - 24, 0, align);
+        block     = add_block(start, xx, yy, w() - 24, 0);
 	needspace = 0;
+	line      = 0;
+
+	if (strcasecmp(buf, "CENTER") == 0)
+	  align = CENTER;
+	else
+	  align = get_align(attrs, LEFT);
       }
       else if (strcasecmp(buf, "/P") == 0 ||
 	       strcasecmp(buf, "/H1") == 0 ||
@@ -822,8 +894,8 @@ HelpView::format()
 	       strcasecmp(buf, "/DL") == 0 ||
 	       strcasecmp(buf, "/TABLE") == 0)
       {
-        xx = block->x;
-
+        line       = do_align(block, line, xx, align, links);
+        xx         = block->x;
         block->end = ptr;
 
         if (strcasecmp(buf, "/UL") == 0 ||
@@ -852,16 +924,17 @@ HelpView::format()
         if (tolower(buf[2]) == 'l')
           yy += size + 2;
 
-        block     = add_block(ptr, xx, yy, w() - 24, 0, align);
+        block     = add_block(ptr, xx, yy, w() - 24, 0);
 	needspace = 0;
 	hh        = 0;
+	line      = 0;
       }
       else if (strcasecmp(buf, "TR") == 0)
       {
         block->end = start;
-
-        xx       = block->x;
-        block->h += hh;
+        line       = do_align(block, line, xx, align, links);
+        xx         = block->x;
+        block->h   += hh;
 
         if (!block->h && nblocks_ > 1)
 	{
@@ -885,13 +958,15 @@ HelpView::format()
 
 	yy        = block->y + block->h - 4;
 	hh        = 0;
-        block     = add_block(start, xx, yy, w() - 24, 0, align);
+        block     = add_block(start, xx, yy, w() - 24, 0);
 	row       = block - blocks_;
 	needspace = 0;
 	column    = 0;
+	line      = 0;
       }
       else if (strcasecmp(buf, "/TR") == 0 && row)
       {
+        line       = do_align(block, line, xx, align, links);
         block->end = start;
 	block->h   += hh;
 
@@ -915,13 +990,15 @@ HelpView::format()
 	  cell->h = block->h;
 
 	yy        = block->y + block->h - 4;
-        block     = add_block(start, xx, yy, w() - 24, 0, align);
+        block     = add_block(start, xx, yy, w() - 24, 0);
 	needspace = 0;
 	row       = 0;
+	line      = 0;
       }
       else if ((strcasecmp(buf, "TD") == 0 ||
                 strcasecmp(buf, "TH") == 0) && row)
       {
+        line       = do_align(block, line, xx, align, links);
         block->end = start;
 	block->h   += hh;
 
@@ -959,8 +1036,11 @@ HelpView::format()
 
 	yy        = blocks_[row].y;
 	hh        = 0;
-        block     = add_block(start, xx, yy, xx + ww, 0, align);
+        block     = add_block(start, xx, yy, xx + ww, 0);
 	needspace = 0;
+	line      = 0;
+
+	align = get_align(attrs, tolower(buf[1]) == 'h' ? CENTER : LEFT);
 
 	column ++;
       }
@@ -989,6 +1069,7 @@ HelpView::format()
       if (link[0])
 	add_link(link, xx, yy - hh, ww, hh);
 
+      line      = do_align(block, line, xx, align, links);
       xx        = block->x;
       yy        += hh;
       block->h  += hh;
@@ -1059,10 +1140,10 @@ HelpView::format()
   if (s > buf && !pre && !head)
   {
     *s = '\0';
-    ww = fl_width(buf);
+    ww = (int)fl_width(buf);
 
     if (needspace && xx > block->x)
-      xx += fl_width(' ');
+      ww += (int)fl_width(' ');
 
     if ((xx + ww) > block->w)
     {
@@ -1088,6 +1169,29 @@ HelpView::format()
     scrollbar_.show();
 
   topline(topline_);
+}
+
+
+//
+// 'HelpView::get_align()' - Get an alignment attribute.
+//
+
+int					// O - Alignment
+HelpView::get_align(const char *p,	// I - Pointer to start of attrs
+                    int        a)	// I - Default alignment
+{
+  char	buf[255];			// Alignment value
+
+
+  if (get_attr(p, "ALIGN", buf, sizeof(buf)) == NULL)
+    return (a);
+
+  if (strcasecmp(buf, "CENTER") == 0)
+    return (CENTER);
+  else if (strcasecmp(buf, "RIGHT") == 0)
+    return (RIGHT);
+  else
+    return (LEFT);
 }
 
 
@@ -1294,18 +1398,34 @@ HelpView::~HelpView()
 int				// O - 0 on success, -1 on error
 HelpView::load(const char *f)	// I - Filename to load (may also have target)
 {
-  FILE	*fp;			// File to read from
-  long	len;			// Length of file
-  char	*target;		// Target in file
+  FILE		*fp;		// File to read from
+  long		len;		// Length of file
+  char		*target;	// Target in file
+  char		*slash;		// Directory separator
+  const char	*localname;	// Local filename
 
 
-  strncpy(filename_, f, sizeof(filename_) - 1);
-  filename_[sizeof(filename_) - 1] = '\0';
+  if ((slash = strrchr(f, '/')) == NULL && directory_[0])
+    sprintf(filename_, "%s/%s", directory_, f);
+  else
+    strcpy(filename_, f);
+
+  strcpy(directory_, filename_);
+
+  if ((slash = strrchr(directory_, '/')) == NULL)
+    directory_[0] = '\0';
+  else
+    *slash = '\0';
 
   if ((target = strrchr(filename_, '#')) != NULL)
     *target++ = '\0';
 
-  if ((fp = fopen(filename_, "rb")) == NULL)
+  if (link_)
+    localname = (*link_)(filename_);
+  else
+    localname = filename_;
+
+  if ((fp = fopen(localname, "rb")) == NULL)
     return (-1);
 
   fseek(fp, 0, SEEK_END);
@@ -1316,7 +1436,7 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
     free((void *)value_);
 
   value_ = (const char *)calloc(len + 1, 1);
-  fread((void *)value_, len, 1, fp);
+  fread((void *)value_, 1, len, fp);
   fclose(fp);
 
   format();
@@ -1434,5 +1554,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.12 2000/01/04 13:45:51 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.13 2000/01/22 06:30:49 mike Exp $".
 //

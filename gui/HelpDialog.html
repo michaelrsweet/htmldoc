@@ -12,7 +12,7 @@
 
 <H1 ALIGN=CENTER>HelpDialog Widget for FLTK</H1>
 
-<P ALIGN=CENTER>Version 1.0.1.1 - October 19, 1999 -
+<P ALIGN=CENTER>Version 1.1 - January 22, 2000 -
 <A HREF="mailto:mike@easysw.com">Michael Sweet</A>
 
 <H2>Introduction</H2>
@@ -27,19 +27,20 @@ Source Code</H2>
 
 <P>The source code is provided under the terms of the GNU Library General
 Public License and is used to provide on-line help for the
-<A HREF="http://www.easysw.com/printpro">ESP Print Pro</A> software.
+<A HREF="http://www.easysw.com/printpro">ESP Print Pro</A> and
+<A HREF="http://www.easysw.com/htmldoc">HTMLDOC</A> software.
 
-<P>You can download the source for the current version (1.0.1) in several
+<P>You can download the source for the current version (1.1) in several
 formats:
 
 <UL>
-	<LI><A HREF="HelpDialog-1.0.1.tar.gz">HelpDialog-1.0.1.tar.gz (48k)</A>
-	<LI><A HREF="HelpDialog-1.0.1.zip">HelpDialog-1.0.1.zip (49k)</A>
+	<LI><A HREF="HelpDialog-1.1.tar.gz">HelpDialog-1.1.tar.gz (48k)</A>
+	<LI><A HREF="HelpDialog-1.1.zip">HelpDialog-1.1.zip (49k)</A>
 </UL>
 
 <H2>Overview</H2>
 
-<P>The <code>HelpDialog</code> widget is based upon the <CODE>HelpView</CODE>
+<P>The <CODE>HelpDialog</CODE> widget is based upon the <CODE>HelpView</CODE>
 widget which supports basic HTML elements including tables. Images and text
 alignment are not supported at this time, although the hooks are there for
 the alignment stuff.
@@ -52,7 +53,7 @@ the alignment stuff.
 ...
 
 {
-  HelpView help();
+  HelpDialog help();
 
   help.load("filename.html");
   help.show();
@@ -101,9 +102,24 @@ numbered line.
 
 <P>Returns 1 if the <code>HelpDialog</code> window is visible.
 
-<H2><A NAME="ChangeLog">Changes Since v1.0</A></H2>
+<H2><A NAME="ChangeLog">Changes in v1.1</A></H2>
 
-<P>I've made the following changes since version 1.0 of HelpDialog:
+<UL>
+
+	<LI>Got rid of several compiler warnings (converting from float to int).
+
+	<LI>Now support horizontal alignment.
+
+	<LI>Now open files in binary mode (fixes loading under Windows)
+
+	<LI>Fixed scrollbar problems.
+
+	<LI>New <CODE>link()</CODE> callback method - allows you to support
+	loading of data from other locations.
+
+</UL>
+
+<H2>Changes in v1.0.1</H2>
 
 <UL>
 
