@@ -1,9 +1,9 @@
 //
-// "$Id: gui.cxx,v 1.36.2.3 2000/12/08 15:55:09 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.4 2001/01/30 01:35:55 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
-//   Copyright 1997-2000 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -140,6 +140,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"A,B,C,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Chapter Page", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"1/N,2/N,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1/C,2/C,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Date", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Date + Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
@@ -704,6 +705,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   effectDuration->step(0.1);
   effectDuration->callback((Fl_Callback *)changeCB, this);
 
+  links = new CheckButton(140, 260, 100, 25, "Links: ");
+  links->align(FL_ALIGN_LEFT);
+  links->callback((Fl_Callback *)changeCB, this);
+
   pdfTab->end();
 
   //
@@ -827,7 +832,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   //
 
   label = new Fl_Box(10, 300, 450, 50,
-          "HTMLDOC " SVERSION " Copyright 1997-2000 by Easy Software Products "
+          "HTMLDOC " SVERSION " Copyright 1997-2001 by Easy Software Products "
 	  "(http://www.easysw.com). This program is free software; you can "
 	  "redistribute it and/or modify it under the terms of the GNU General "
 	  "Public License as published by the Free Software Foundation. This "
@@ -1086,6 +1091,7 @@ GUI::newBook(void)
   textColor->value((char *)_htmlTextColor);
   linkColor->value(LinkColor);
   linkStyle->value(LinkStyle);
+  links->value(Links);
 
   if (PageWidth == 595 && PageLength == 842)
     pageSize->value("A4");
@@ -1127,9 +1133,10 @@ GUI::newBook(void)
   formats['A'] = 9;
   formats['C'] = 10;
   formats['/'] = 11;
-  formats['d'] = 12;
-  formats['T'] = 13;
-  formats['D'] = 14;
+  formats[':'] = 12;
+  formats['d'] = 13;
+  formats['T'] = 14;
+  formats['D'] = 15;
 
   pageHeaderLeft->value(formats[Header[0]]);
   pageHeaderCenter->value(formats[Header[1]]);
@@ -1301,9 +1308,10 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   formats['A'] = 9;
   formats['C'] = 10;
   formats['/'] = 11;
-  formats['d'] = 12;
-  formats['T'] = 13;
-  formats['D'] = 14;
+  formats[':'] = 12;
+  formats['d'] = 13;
+  formats['T'] = 14;
+  formats['D'] = 15;
 
   //
   // If the filename contains a path, chdir to it first...
@@ -1418,6 +1426,16 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     else if (strcmp(temp, "--color") == 0)
     {
       grayscale->clear();
+      continue;
+    }
+    else if (strcmp(temp, "--links") == 0)
+    {
+      links->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-links") == 0)
+    {
+      links->clear();
       continue;
     }
     else if (strcmp(temp, "--pscommands") == 0)
@@ -1788,7 +1806,7 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   int		i,			// Looping var
 		count;			// Number of files
   FILE		*fp;			// Book file pointer
-  static char	*formats = ".tchl1iIaAC/dTD";
+  static char	*formats = ".tchl1iIaAC/:dTD";
 					// Format characters
   static char	*types[] =		// Typeface names...
 		{ "Courier", "Times", "Helvetica" };
@@ -1885,6 +1903,11 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fputs(" --linkstyle underline", fp);
   else
     fputs(" --linkstyle plain", fp);
+
+  if (links->value())
+    fputs(" --links", fp);
+  else
+    fputs(" --no-links", fp);
 
   if (bodyColor->size() > 0)
     fprintf(fp, " --bodycolor %s", bodyColor->value());
@@ -2893,7 +2916,7 @@ void
 GUI::saveOptionsCB(Fl_Widget *w,
                    GUI       *gui)
 {
-  static char	*formats = ".tchl1iIaAC/dTD";
+  static char	*formats = ".tchl1iIaAC/:dTD";
 					// Format characters
 
 
@@ -2989,6 +3012,7 @@ GUI::saveOptionsCB(Fl_Widget *w,
 
   strcpy(LinkColor, gui->linkColor->value());
   LinkStyle = gui->linkStyle->value();
+  Links     = gui->links->value();
 
   _htmlBrowserWidth = gui->browserWidth->value();
 
@@ -3341,7 +3365,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   char		*filename,	// HTML filename
 		base[1024],	// Base directory of HTML file
 		bookbase[1024];	// Base directory of book file
-  static char	*formats = ".tchl1iIaAC/dTD";
+  static char	*formats = ".tchl1iIaAC/:dTD";
 				// Format characters
 
 
@@ -3469,6 +3493,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   strcpy(LinkColor, gui->linkColor->value());
   LinkStyle = gui->linkStyle->value();
+  Links     = gui->links->value();
 
   _htmlBrowserWidth = gui->browserWidth->value();
 
@@ -3598,5 +3623,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.3 2000/12/08 15:55:09 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.4 2001/01/30 01:35:55 mike Exp $".
 //

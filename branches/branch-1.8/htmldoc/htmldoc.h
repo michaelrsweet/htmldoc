@@ -1,9 +1,9 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.1 2000/11/30 18:33:50 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.2 2001/01/30 01:36:00 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -182,6 +182,7 @@ VAR char	TitleImage[255]	VALUE(""),	/* Title page image */
 		BodyImage[255]	VALUE(""),	/* Body image */
 		LinkColor[255]	VALUE("");	/* Link color */
 VAR int		LinkStyle	VALUE(1);	/* 1 = underline, 0 = plain */
+VAR int		Links		VALUE(1);	/* 1 = generate links, 0 = no links */
 VAR char	Path[2048]	VALUE(""),	/* Search path */
 		Proxy[1024]	VALUE("");	/* Proxy URL */
 
@@ -241,5 +242,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.1 2000/11/30 18:33:50 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.2 2001/01/30 01:36:00 mike Exp $".
  */

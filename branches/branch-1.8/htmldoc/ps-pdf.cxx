@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.5 2000/12/08 20:54:31 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.6 2001/01/30 01:36:00 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -8,7 +8,7 @@
  *   broken into more manageable pieces once we make all of the output
  *   "drivers" into classes...
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -893,6 +893,19 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 	  strcat(nofN, "/");
 	  strcat(nofN, format_number(chapter_ends[TocDocCount] -
 	                             chapter_starts[1] + 1, '1'));
+
+	  temp   = new_render(page, RENDER_TEXT, 0, y,
+                              HeadFootSize / _htmlSizes[SIZE_P] *
+			      get_width((uchar *)nofN, HeadFootType,
+			                HeadFootStyle, SIZE_P),
+			      HeadFootSize, nofN);
+          break;
+
+      case ':' : /* c/C */
+          strcpy(nofN, format_number(print_page - chapter_starts[::chapter], '1'));
+	  strcat(nofN, "/");
+	  strcat(nofN, format_number(chapter_ends[::chapter] -
+	                             chapter_starts[::chapter] + 1, '1'));
 
 	  temp   = new_render(page, RENDER_TEXT, 0, y,
                               HeadFootSize / _htmlSizes[SIZE_P] *
@@ -1993,10 +2006,34 @@ pdf_write_links(FILE *out)		/* I - Output file */
       }
 
  /*
-  * Figure out how many link objects we'll have...
+  * Clear all of the annotation objects...
+  */
+
+  memset(annots_objects, 0, sizeof(annots_objects));
+
+ /*
+  * Setup the initial pages_object number...
   */
 
   pages_object = num_objects + 1;
+
+ /*
+  * Add space for named links in PDF 1.2 output...
+  */
+
+  if (PDFVersion >= 1.2)
+    pages_object += num_links + 3;
+
+ /*
+  * Stop here if we won't be generating links in the output...
+  */
+
+  if (!Links)
+    return;
+
+ /*
+  * Figure out how many link objects we'll have...
+  */
 
   for (page = 0; page < num_pages; page ++)
   {
@@ -2016,17 +2053,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
   }
 
  /*
-  * Add space for named links for PDF 1.2 output...
-  */
-
-  if (PDFVersion >= 1.2)
-    pages_object += num_links + 3;
-
- /*
   * Then generate annotation objects for all the links...
   */
-
-  memset(annots_objects, 0, sizeof(annots_objects));
 
   for (page = 0; page < num_pages; page ++)
   {
@@ -2351,7 +2379,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	      new_render(*page, RENDER_LINK, x, *y, temp->width,
 	                 temp->height, link);
 
-	      if (PSLevel == 0)
+	      if (PSLevel == 0 && Links)
 	      {
                 memcpy(rgb, link_color, sizeof(rgb));
 
@@ -2604,6 +2632,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           }
 
           parse_table(t, left, right, bottom, top, x, y, page, *needspace);
+	  *needspace = 0;
           break;
 
       case MARKUP_H1 :
@@ -3239,7 +3268,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       width       -= temp_width;
     }
 
-    if (*y < (height + bottom))
+    if (*y < (spacing + bottom))
     {
       (*page) ++;
       *y = top;
@@ -3290,7 +3319,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	new_render(*page, RENDER_LINK, *x, *y, temp->width,
 	           temp->height, link);
 
-	if (PSLevel == 0)
+	if (PSLevel == 0 && Links)
 	{
 	  temp->red   = (int)(link_color[0] * 255.0);
 	  temp->green = (int)(link_color[1] * 255.0);
@@ -3590,7 +3619,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
       new_render(*page, RENDER_LINK, *x, *y, flat->width,
 	         flat->height, link);
 
-      if (PSLevel == 0)
+      if (PSLevel == 0 && Links)
       {
         memcpy(rgb, link_color, sizeof(rgb));
 
@@ -3739,6 +3768,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   uchar		*var;
   tree_t	*temprow,
 		*tempcol,
+		*tempnext,
 		*flat,
 		*next,
 		***cells;
@@ -3814,18 +3844,29 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0;
        temprow != NULL;
-       temprow = temprow->next)
+       temprow = tempnext)
+  {
     if (temprow->markup == MARKUP_CAPTION)
     {
       parse_paragraph(temprow, left, right, bottom, top, x, y, page, needspace);
       needspace = 1;
+      tempnext  = temprow->next;
     }
     else if (temprow->markup == MARKUP_TR ||
-             (temprow->markup == MARKUP_TBODY && temprow->child != NULL))
+             ((temprow->markup == MARKUP_TBODY || temprow->markup == MARKUP_THEAD ||
+               temprow->markup == MARKUP_TFOOT) && temprow->child != NULL))
     {
       // Descend into table body as needed...
-      if (temprow->markup == MARKUP_TBODY)
+      if (temprow->markup == MARKUP_TBODY || temprow->markup == MARKUP_THEAD ||
+          temprow->markup == MARKUP_TFOOT)
         temprow = temprow->child;
+
+      // Figure out the next row...
+      if ((tempnext = temprow->next) == NULL)
+        if (temprow->parent->markup == MARKUP_TBODY ||
+            temprow->parent->markup == MARKUP_THEAD ||
+            temprow->parent->markup == MARKUP_TFOOT)
+          tempnext = temprow->parent->next;
 
       // Allocate memory for the table as needed...
       if (num_rows >= alloc_rows)
@@ -4011,7 +4052,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         if (row_spans[col])
 	  row_spans[col] --;
     }
-
+  }
 
  /*
   * Now figure out the width of the table...
@@ -4470,13 +4511,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  * |   |   |   |
 	  */
 
-          new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+          new_render(cell_page[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
                      bottom, 0.0f,
                      cell_y[col] - bottom, rgb);
-          new_render(*page, RENDER_BOX, col_rights[col] + cellpadding + border,
+          new_render(cell_page[col], RENDER_BOX, col_rights[col] + cellpadding + border,
                      bottom, 0.0f,
                      cell_y[col] - bottom, rgb);
-          new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+          new_render(cell_page[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
                      cell_y[col], width, 0.0f, rgb);
         }
 
@@ -4511,26 +4552,26 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  * +---+---+---+
 	  */
 
-          new_render(row_page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+          new_render(cell_endpage[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
                      row_y, 0.0f, top - row_y, rgb);
-          new_render(row_page, RENDER_BOX, col_rights[col] + cellpadding + border,
+          new_render(cell_endpage[col], RENDER_BOX, col_rights[col] + cellpadding + border,
                      row_y, 0.0f, top - row_y, rgb);
-          new_render(row_page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+          new_render(cell_endpage[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
                      row_y, width, 0.0f, rgb);
         }
 
         if (bgcolor != NULL)
-          new_render(row_page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
+          new_render(cell_endpage[col], RENDER_FBOX, col_lefts[col] - cellpadding - border,
                      row_y, width, top - row_y, bgrgb, 1);
       }
       else
       {
         if (border > 0)
-          new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+          new_render(cell_page[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
                      row_y, width, cell_y[col] - row_y + border + cellpadding, rgb);
 
         if (bgcolor != NULL)
-          new_render(*page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
+          new_render(cell_page[col], RENDER_FBOX, col_lefts[col] - cellpadding - border,
                      row_y, width, cell_y[col] - row_y + border + cellpadding, bgrgb, 1);
       }
     }
@@ -7450,5 +7491,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.5 2000/12/08 20:54:31 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.6 2001/01/30 01:36:00 mike Exp $".
  */

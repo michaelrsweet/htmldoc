@@ -1,9 +1,9 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.2 2000/12/01 21:46:44 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.3 2001/01/30 01:35:56 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -460,7 +460,9 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
-    else if (compare_strings(argv[i], "--linkstyle", 7) == 0)
+    else if (strcmp(argv[i], "--links") == 0)
+      Links = 1;
+    else if (compare_strings(argv[i], "--linkstyle", 8) == 0)
     {
       i ++;
       if (i < argc)
@@ -489,6 +491,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       PageDuplex = 0;
     else if (compare_strings(argv[i], "--no-encryption", 6) == 0)
       Encryption = 0;
+    else if (compare_strings(argv[i], "--no-links", 6) == 0)
+      Links = 0;
     else if (compare_strings(argv[i], "--no-numbered", 6) == 0)
       TocNumbers = 0;
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
@@ -653,6 +657,8 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--pscommands", 3) == 0)
       PSCommands = 1;
+    else if (compare_strings(argv[i], "--quiet", 3) == 0)
+      Verbosity = -1;
     else if (compare_strings(argv[i], "--right", 3) == 0)
     {
       i ++;
@@ -971,6 +977,10 @@ prefs_load(void)
     LinkStyle = atoi(value);
 
   size = sizeof(value);
+  if (!RegQueryValueEx(key, "links", NULL, NULL, (unsigned char *)value, &size))
+    Links = atoi(value);
+
+  size = sizeof(value);
   if (!RegQueryValueEx(key, "browserwidth", NULL, NULL, (unsigned char *)value, &size))
     _htmlBrowserWidth = atof(value);
 
@@ -1171,6 +1181,8 @@ prefs_load(void)
 	  strcpy(LinkColor, line + 10);
         else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
 	  LinkStyle = atoi(line + 10);
+        else if (strncasecmp(line, "LINKS=", 6) == 0)
+	  Links = atoi(line + 6);
         else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
 	  _htmlBrowserWidth = atof(line + 13);
         else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
@@ -1330,6 +1342,10 @@ prefs_save(void)
   sprintf(value, "%d", LinkStyle);
   size = strlen(value) + 1;
   RegSetValueEx(key, "linkstyle", 0, REG_SZ, (unsigned char *)value, size);
+
+  sprintf(value, "%d", Links);
+  size = strlen(value) + 1;
+  RegSetValueEx(key, "links", 0, REG_SZ, (unsigned char *)value, size);
 
   sprintf(value, "%.0f", _htmlBrowserWidth);
   size = strlen(value) + 1;
@@ -1510,6 +1526,7 @@ prefs_save(void)
       fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
       fprintf(fp, "LINKCOLOR=%s\n", LinkColor);
       fprintf(fp, "LINKSTYLE=%d\n", LinkStyle);
+      fprintf(fp, "LINKS=%d\n", Links);
       fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlBrowserWidth);
       fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
       fprintf(fp, "PAGELENGTH=%d\n", PageLength);
@@ -1591,7 +1608,7 @@ compare_strings(char *s,	/* I - Command-line string */
 static void
 usage(void)
 {
-  puts("HTMLDOC Version " SVERSION " Copyright 1997-2000 Easy Software Products, All Rights Reserved.");
+  puts("HTMLDOC Version " SVERSION " Copyright 1997-2001 Easy Software Products, All Rights Reserved.");
   puts("This software is governed by the GNU General Public License, Version 2, and");
   puts("is based in part on the work of the Independent JPEG Group.");
   puts("");
@@ -1636,12 +1653,14 @@ usage(void)
   puts("  --landscape");
   puts("  --left margin{in,cm,mm}");
   puts("  --linkcolor color");
+  puts("  --links");
   puts("  --linkstyle {plain,underline}");
   puts("  --logoimage filename.{gif,jpg,png}");
   puts("  --owner-password password");
   puts("  --no-compression");
   puts("  --no-duplex");
   puts("  --no-encryption");
+  puts("  --no-links");
   puts("  --no-numbered");
   puts("  --no-pscommands");
   puts("  --no-title");
@@ -1658,6 +1677,7 @@ usage(void)
   puts("  --portrait");
   puts("  --proxy http://host:port");
   puts("  --pscommands");
+  puts("  --quiet");
   puts("  --right margin{in,cm,mm}");
   puts("  --size {letter,a4,WxH{in,cm,mm},etc}");
   puts("  --textcolor color");
@@ -1677,6 +1697,8 @@ usage(void)
   puts("  fff = heading format string; each \'f\' can be one of:");
   puts("");
   puts("        . = blank");
+  puts("        / = n/N arabic page numbers (1/3, 2/3, 3/3)");
+  puts("        : = c/C arabic chapter page numbers (1/2, 2/2, 1/4, 2/4, ...)");
   puts("        1 = arabic numbers (1, 2, 3, ...)");
   puts("        a = lowercase letters");
   puts("        A = uppercase letters");
@@ -1696,5 +1718,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.2 2000/12/01 21:46:44 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.3 2001/01/30 01:35:56 mike Exp $".
  */
