@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.114 2001/10/18 01:53:30 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.115 2001/10/18 20:51:26 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1499,7 +1499,8 @@ ps_write_page(FILE  *out,		/* I - Output file */
     switch (r->type)
     {
       case RENDER_IMAGE :
-          write_image(out, r);
+          if (r->width > 0.01f && r->height > 0.01f)
+            write_image(out, r);
           break;
       case RENDER_TEXT :
           write_text(out, r);
@@ -1976,7 +1977,8 @@ pdf_write_page(FILE  *out,		/* I - Output file */
     switch (r->type)
     {
       case RENDER_IMAGE :
-          write_image(out, r);
+          if (r->width > 0.01f && r->height > 0.01f)
+            write_image(out, r);
           break;
       case RENDER_TEXT :
           write_text(out, r);
@@ -9158,7 +9160,7 @@ write_prolog(FILE  *out,	/* I - Output file */
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
     fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2001 Easy Software Products, All Rights Reserved.\n", out);
-    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d+%03d%02d\n",
+    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%+03d%02d\n",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
 	    (int)(-timezone / 3600),
@@ -9740,11 +9742,13 @@ write_text(FILE     *out,	/* I - Output file */
 
 static void
 write_trailer(FILE *out,	/* I - Output file */
-              int  pages)	/* I - Number of pages in file */
+              int  num_pages)	/* I - Number of pages in file */
 {
-  int		i,		/* Looping vars */
+  int		i, j, k,	/* Looping vars */
 		type,		/* Type of number */
-		offset;		/* Offset to xref table in PDF file */
+		offset,		/* Offset to xref table in PDF file */
+		start;		/* Start page number */
+  page_t	*page;		/* Start page of chapter */
   static const char *modes[] =	/* Page modes */
 		{
 		  "UseNone",
@@ -9767,8 +9771,8 @@ write_trailer(FILE *out,	/* I - Output file */
     */
 
     fputs("%%Trailer\n", out);
-    if (pages > 0)
-      fprintf(out, "%%%%Pages: %d\n", pages);
+    if (num_pages > 0)
+      fprintf(out, "%%%%Pages: %d\n", num_pages);
 
     fputs("%%EOF\n", out);
   }
@@ -9844,45 +9848,56 @@ write_trailer(FILE *out,	/* I - Output file */
       if (TocLevels > 0)
       {
         type = 'r';
-#if 0
+
         for (j = 0; j < 3; j ++)
-	  if (TocHeader[j] == '1')
+	  if ((TocHeader[j] && strstr(TocHeader[j], "$PAGE(1)")) ||
+	      (TocFooter[j] && strstr(TocFooter[j], "$PAGE(1)")))
 	    type = 'D';
-	  else if (TocHeader[j] == 'i')
-	    type = 'r';
-	  else if (TocHeader[j] == 'I')
+	  else if ((TocHeader[j] && strstr(TocHeader[j], "$PAGE(I)")) ||
+	           (TocFooter[j] && strstr(TocFooter[j], "$PAGE(I)")))
 	    type = 'R';
-	  else if (TocFooter[j] == '1')
-	    type = 'D';
-	  else if (TocFooter[j] == 'i')
-	    type = 'r';
-	  else if (TocFooter[j] == 'I')
-	    type = 'R';
-#endif /* 0 */
+	  else if ((TocHeader[j] && strstr(TocHeader[j], "$PAGE(a)")) ||
+	           (TocFooter[j] && strstr(TocFooter[j], "$PAGE(a)")))
+	    type = 'a';
+	  else if ((TocHeader[j] && strstr(TocHeader[j], "$PAGE(A)")) ||
+	           (TocFooter[j] && strstr(TocFooter[j], "$PAGE(A)")))
+	    type = 'A';
 
         fprintf(out, "%d<</S/%c>>", i, type);
 
         i += chapter_ends[0] - chapter_starts[0] + 1;
       }
 
-      type = 'D';
-#if 0
-      for (j = 0; j < 3; j ++)
-	if (Header[j] == '1')
-	  type = 'D';
-	else if (Header[j] == 'i')
-	  type = 'r';
-	else if (Header[j] == 'I')
-	  type = 'R';
-	else if (Footer[j] == '1')
-	  type = 'D';
-	else if (Footer[j] == 'i')
-	  type = 'r';
-	else if (Footer[j] == 'I')
-	  type = 'R';
-#endif /* 0 */
+      for (j = 1; j <= TocDocCount; j ++)
+      {
+        page  = pages + chapter_starts[j];
+	start = chapter_starts[j] - chapter_starts[1] + 1;
+	type  = 'D';
 
-      fprintf(out, "%d<</S/%c>>", i, type);
+	for (k = 0; k < 3; k ++)
+	{
+	  if ((page->header[k] && strstr((char *)page->header[k], "$PAGE(i)")) ||
+	      (page->footer[k] && strstr((char *)page->footer[k], "$PAGE(i)")))
+	    type = 'r';
+	  else if ((page->header[k] && strstr((char *)page->header[k], "$PAGE(I)")) ||
+	           (page->footer[k] && strstr((char *)page->footer[k], "$PAGE(I)")))
+	    type = 'R';
+	  else if ((page->header[k] && strstr((char *)page->header[k], "$PAGE(a)")) ||
+	           (page->footer[k] && strstr((char *)page->footer[k], "$PAGE(a)")))
+	    type = 'a';
+	  else if ((page->header[k] && strstr((char *)page->header[k], "$PAGE(A)")) ||
+	           (page->footer[k] && strstr((char *)page->footer[k], "$PAGE(A)")))
+	    type = 'A';
+
+	  if ((page->header[k] && strstr((char *)page->header[k], "$CHAPTERPAGE")) ||
+	      (page->footer[k] && strstr((char *)page->footer[k], "$CHAPTERPAGE")))
+	    start = 1;
+        }
+
+	fprintf(out, "%d<</S/%c/St %d>>", i, type, start);
+        i += chapter_ends[j] - chapter_starts[j] + 1;
+      }
+
       fputs("]>>", out);
     }
 
@@ -10326,5 +10341,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.114 2001/10/18 01:53:30 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.115 2001/10/18 20:51:26 mike Exp $".
  */

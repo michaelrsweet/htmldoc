@@ -13,15 +13,16 @@
 
 	<LI>Now support media source, type, and color attributes
 	in PS output.
-
 	<LI>Now support per-page size, margins, headers, footers,
 	orientation, and duplexing.
-
 	<LI>Now support plain text for headers and footers, with $
 	variables to include page numbers and so forth.
-
 	<LI>New device control prolog file for printer-specific
 	option commands.
+	<LI>Now support a new continuous web page mode that
+	doesn't automatically insert a page break with each
+	HTML file or URL (--continuous).
+	<LI>Now draw border around inline images as needed.
 
 	<H3>Changes</H3>
 
@@ -29,17 +30,43 @@
 	them when no longer needed.  This provides a dramatic
 	reduction in memory usage with files that contain a
 	lot of in-line images.
+	<LI>Now use the long names for the Flate and DCT filters
+	in all non-inline PDF streams.  This avoids a stupid
+	bug in Acrobat Reader when printing to PostScript
+	printers.
+	<LI>HTMLDOC now strips any trailing GET query information
+	when saving the start of files (target) in a document.
+	<LI>Unqualified URLs (no leading scheme name, e.g. http:)
+	now default to the HTTP port (80) instead of the IPP
+	port (631).
+	<LI>Optimized the image writing code to do more efficient
+	color searching.  This provides a significant speed
+	improvement when including images.
+	<LI>Now hide all text inside SCRIPT, SELECT, and TEXTAREA
+	elements.
 
 	<H3>Bug Fixes
 
 	<LI>If a document started with a heading greater than H1,
 	HTMLDOC would crash.
-
 	<LI>Full justification would incorrectly be applied to
 	text ending with a break.
-
 	<LI>Images using ALIGN="MIDDLE" were not centered properly
 	on the baseline.
+	<LI>Table cells that used both ROWSPAN and COLSPAN did not
+	format properly (the colspan was lost after the first
+	row.)
+	<LI>Tables that used cells that exclusively used COLSPAN
+	did not format properly.
+	<LI>When writing HTML output, image references would
+	incorrectly be mapped using the current path.
+	<LI>Images with a width or height of 0 should not be
+	written to PS or PDF output.
+	<LI>The CreationDate comment in PostScript output
+	contained a bad timezone offset (+-0500, for example,
+	instead of -0500).
+	<LI>The PHP portal example now verifies that the URL
+	passed to it contains no illegal characters.
 
 </UL>
 
