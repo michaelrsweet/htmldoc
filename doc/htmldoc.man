@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.24 2004/02/06 16:54:19 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.25 2004/10/29 20:41:28 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.24" "2 February 2004" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.24" "29 October 2004" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -22,7 +22,7 @@ htmldoc [filename.book]
 .SH DESCRIPTION
 \fIHTMLDOC\fR converts HTML source files into indexed HTML, PostScript, or
 Portable Document Format (PDF) files that can be viewed online or printed.
-With no options a PDF document is produced on stdout.
+With no options a HTML document is produced on stdout.
 .LP
 The second form of \fIHTMLDOC\fR reads HTML source from stdin, which allows
 you to use \fIHTMLDOC\fR as a filter.
@@ -559,5 +559,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.24 2004/02/06 16:54:19 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.25 2004/10/29 20:41:28 mike Exp $".
 .\"
