@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.16 2001/12/13 19:04:10 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.17 2002/01/08 19:11:35 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -831,8 +831,7 @@ image_load(const char *filename,/* I - Name of image file */
     status = image_load_bmp(img, fp, gray, load_data);
   else if (memcmp(header, "\211PNG", 4) == 0)
     status = image_load_png(img, fp, gray, load_data);
-  else if (memcmp(header, "\377\330\377", 3) == 0 &&	/* Start-of-Image */
-	   header[3] >= 0xe0 && header[3] <= 0xef)	/* APPn */
+  else if (memcmp(header, "\377\330\377", 3) == 0)
     status = image_load_jpeg(img, fp, gray, load_data);
   else
   {
@@ -1694,5 +1693,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.16 2001/12/13 19:04:10 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.17 2002/01/08 19:11:35 mike Exp $".
  */
