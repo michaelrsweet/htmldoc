@@ -1,5 +1,5 @@
 //
-// "$Id: image-bmp.cxx,v 1.4 2002/01/05 23:14:40 mike Exp $"
+// "$Id: image-bmp.cxx,v 1.5 2002/01/06 17:50:29 mike Exp $"
 //
 // BMP image handling routines for HTMLDOC.
 //
@@ -292,6 +292,13 @@ hdBMPImage::real_load(int img,	// I - Load image data?
 	      bit    = 0xf0;
 	    }
 	  }
+
+	  if (!compression) {
+            // Read remaining bytes to align to 32 bits...
+	    for (temp = (width() + 1) / 2; temp & 3; temp ++) {
+	      fp->get();
+	    }
+	  }
           break;
 
       case 8 : // 256-color
@@ -358,6 +365,13 @@ hdBMPImage::real_load(int img,	// I - Load image data?
 	    }
 
 	    *ptr++ = colormap[temp][0];
+	  }
+
+	  if (!compression) {
+            // Read remaining bytes to align to 32 bits...
+	    for (temp = width(); temp & 3; temp ++) {
+	      fp->get();
+	    }
 	  }
           break;
 
@@ -452,5 +466,5 @@ read_long(hdFile *fp)		// I - File to read from
 
 
 //
-// End of "$Id: image-bmp.cxx,v 1.4 2002/01/05 23:14:40 mike Exp $".
+// End of "$Id: image-bmp.cxx,v 1.5 2002/01/06 17:50:29 mike Exp $".
 //
