@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.174 2002/05/22 20:40:21 swdev Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.175 2002/05/22 20:44:19 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -982,6 +982,11 @@ pspdf_transform_page(int outpage,	// I - Output page
 
   DEBUG_printf(("pspdf_transform_page(outpage = %d, pos = %d, page = %d)\n",
                 outpage, pos, page));
+  printf("pspdf_transform_page(outpage = %d, pos = %d, page = %d)\n",
+         outpage, pos, page);
+
+  if (pos > 15)
+    progress_error(HD_ERROR_INTERNAL_ERROR, "Internal error: pos = %d", pos);
 
   op             = outpages + outpage;
   op->pages[pos] = page;
@@ -11451,5 +11456,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.174 2002/05/22 20:40:21 swdev Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.175 2002/05/22 20:44:19 mike Exp $".
  */
