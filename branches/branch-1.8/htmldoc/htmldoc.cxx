@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.56 2003/01/06 22:09:27 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.57 2003/01/07 03:29:14 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -2212,7 +2212,7 @@ usage(void)
   puts("  --fontsize {6.0..24.0}");
   puts("  --fontspacing {1.0..3.0}");
   puts("  --footer fff");
-  puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html}");
+  puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html,htmlsep}");
   puts("  --gray");
   puts("  --header fff");
   puts("  --headfootfont {courier{-bold,-oblique,-boldoblique},\n"
@@ -2299,5 +2299,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.56 2003/01/06 22:09:27 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.57 2003/01/07 03:29:14 mike Exp $".
  */
