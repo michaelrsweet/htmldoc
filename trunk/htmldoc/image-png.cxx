@@ -1,9 +1,9 @@
 //
-// "$Id: image-png.cxx,v 1.2 2001/12/30 19:46:22 mike Exp $"
+// "$Id: image-png.cxx,v 1.3 2002/01/05 23:14:41 mike Exp $"
 //
 // PNG image handling routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2001 by Easy Software Products.
+// Copyright 1997-2002 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -235,5 +235,5 @@ png_read(png_structp pp,		// I - PNG image
 
 
 //
-// End of "$Id: image-png.cxx,v 1.2 2001/12/30 19:46:22 mike Exp $".
+// End of "$Id: image-png.cxx,v 1.3 2002/01/05 23:14:41 mike Exp $".
 //

@@ -1,9 +1,9 @@
 //
-// "$Id: http.cxx,v 1.4 2002/01/01 21:24:31 mike Exp $"
+// "$Id: http.cxx,v 1.5 2002/01/05 23:14:40 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class routines for HTMLDOC.
 //
-//   Copyright 1997-2001 by Easy Software Products, all rights reserved.
+//   Copyright 1997-2002 by Easy Software Products, all rights reserved.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -535,8 +535,8 @@ hdHTTP::reconnect()
 
 void
 hdHTTP::separate(const char *uri,	// I - Universal Resource Identifier
-        	 char       *method,	// O - Method (http, https, etc.)
-		 int        methodlen,	// I - Size of method buffer
+        	 char       *scheme,	// O - Method (http, https, etc.)
+		 int        schemelen,	// I - Size of scheme buffer
 		 char       *username,	// O - Username
 		 int        usernamelen,// I - Size of username buffer
 		 char       *host,	// O - Hostname
@@ -551,20 +551,20 @@ hdHTTP::separate(const char *uri,	// I - Universal Resource Identifier
 
 
   // Range check input...
-  if (uri == NULL || method == NULL || username == NULL || host == NULL ||
+  if (uri == NULL || scheme == NULL || username == NULL || host == NULL ||
       port == NULL || resource == NULL)
     return;
 
-  // Grab the method portion of the URI...
+  // Grab the scheme portion of the URI...
   if (strncmp(uri, "//", 2) == 0)
   {
     // Workaround for common bad URLs...
-    strncpy(method, "http", methodlen - 1);
-    method[methodlen - 1] = '\0';
+    strncpy(scheme, "http", schemelen - 1);
+    scheme[schemelen - 1] = '\0';
   }
   else
   {
-    // Standard URI with method...
+    // Standard URI with scheme...
     for (ptr = host; *uri != ':' && *uri != '\0'; uri ++)
       if (ptr < (host + hostlen - 1))
         *ptr++ = *uri;
@@ -573,7 +573,7 @@ hdHTTP::separate(const char *uri,	// I - Universal Resource Identifier
     if (*uri == ':')
       uri ++;
 
-    // If the method contains a period or slash, then it's probably
+    // If the scheme contains a period or slash, then it's probably
     // hostname/filename...
     if (strchr(host, '.') != NULL || strchr(host, '/') != NULL || *uri == '\0')
     {
@@ -600,16 +600,16 @@ hdHTTP::separate(const char *uri,	// I - Universal Resource Identifier
       else
 	*port = 80;
 
-      strncpy(method, "http", methodlen - 1);
-      method[methodlen - 1] = '\0';
+      strncpy(scheme, "http", schemelen - 1);
+      scheme[schemelen - 1] = '\0';
 
       username[0] = '\0';
       return;
     }
     else
     {
-      strncpy(method, host, methodlen - 1);
-      method[methodlen - 1] = '\0';
+      strncpy(scheme, host, schemelen - 1);
+      scheme[schemelen - 1] = '\0';
     }
   }
 
@@ -655,9 +655,9 @@ hdHTTP::separate(const char *uri,	// I - Universal Resource Identifier
 
   if (*uri != ':')
   {
-    if (strcasecmp(method, "http") == 0)
+    if (strcasecmp(scheme, "http") == 0)
       *port = 80;
-    else if (strcasecmp(method, "https") == 0)
+    else if (strcasecmp(scheme, "https") == 0)
       *port = 443;
     else
       *port = 0;
@@ -1842,5 +1842,5 @@ hdHTTP::upgrade()
 
 
 //
-// End of "$Id: http.cxx,v 1.4 2002/01/01 21:24:31 mike Exp $".
+// End of "$Id: http.cxx,v 1.5 2002/01/05 23:14:40 mike Exp $".
 //

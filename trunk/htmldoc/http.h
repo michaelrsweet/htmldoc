@@ -1,5 +1,5 @@
 //
-// "$Id: http.h,v 1.10 2002/01/02 00:39:28 mike Exp $"
+// "$Id: http.h,v 1.11 2002/01/05 23:14:40 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class definitions for HTMLDOC.
 //
@@ -318,10 +318,10 @@ class hdHTTP
   static time_t		get_date_time(const char *s);
   static char		*md5(const char *username, const char *realm,
 			     const char *passwd, char *s, int slen);
-  static char		*md5_final(const char *nonce, const char *method,
+  static char		*md5_final(const char *nonce, const char *scheme,
 			           const char *resource, char *s, int slen);
   static char		*md5_string(const hdMD5Byte *sum, char *s, int slen);
-  static void		separate(const char *uri, char *method, int methodlen,
+  static void		separate(const char *uri, char *scheme, int schemelen,
 			         char *username, int usernamelen,
 				 char *host, int hostlen,
 				 int *port,
@@ -333,5 +333,5 @@ class hdHTTP
 #endif // !_HTMLDOC_HTTP_H_
 
 //
-// End of "$Id: http.h,v 1.10 2002/01/02 00:39:28 mike Exp $".
+// End of "$Id: http.h,v 1.11 2002/01/05 23:14:40 mike Exp $".
 //
