@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.216 2003/02/21 16:45:48 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.217 2003/03/07 18:06:23 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5385,7 +5385,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		tempspace,
 		col_spans[MAX_COLUMNS],
 		row_spans[MAX_COLUMNS];
-  char		col_fixed[MAX_COLUMNS];
+  char		col_fixed[MAX_COLUMNS],
+		col_percent[MAX_COLUMNS];
   float		col_lefts[MAX_COLUMNS],
 		col_rights[MAX_COLUMNS],
 		col_width,
@@ -5455,6 +5456,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   memset(col_spans, 0, sizeof(col_spans));
   memset(col_fixed, 0, sizeof(col_fixed));
+  memset(col_percent, 0, sizeof(col_percent));
   memset(col_widths, 0, sizeof(col_widths));
   memset(col_swidths, 0, sizeof(col_swidths));
   memset(col_mins, 0, sizeof(col_mins));
@@ -5620,7 +5622,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
 	  {
 	    if (var[strlen((char *)var) - 1] == '%')
+	    {
               col_width -= 2.0 * cellpadding - cellspacing;
+
+	      if (colspan <= 1)
+	        col_percent[col] = 1;
+	    }
 	  }
 	  else if (htmlGetVariable(tempcol, (uchar *)"NOWRAP") != NULL)
 	    col_width = col_pref;
@@ -5734,13 +5741,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   DEBUG_printf(("    width = %.1f, actual_width = %.1f, regular_width = %.1f\n\n",
                 width, actual_width, regular_width));
-  DEBUG_puts("    Col  Width   Min     Pref    Fixed?");
-  DEBUG_puts("    ---  ------  ------  ------  ------");
+  DEBUG_puts("    Col  Width   Min     Pref    Fixed?  Percent?");
+  DEBUG_puts("    ---  ------  ------  ------  ------  --------");
 
 #ifdef DEBUG
   for (col = 0; col < num_cols; col ++)
-    printf("    %-3d  %-6.1f  %-6.1f  %-6.1f  %s\n", col, col_widths[col],
-           col_mins[col], col_prefs[col], col_fixed[col] ? "YES" : "NO");
+    printf("    %-3d  %-6.1f  %-6.1f  %-6.1f  %-6s  %s\n", col, col_widths[col],
+           col_mins[col], col_prefs[col], col_fixed[col] ? "YES" : "NO",
+	   col_percent[col] ? "YES" : "NO");
 
   puts("");
 #endif /* DEBUG */
@@ -5906,14 +5914,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   if (width > actual_width)
   {
-    if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
-      colspan = num_cols;
-    else
-    {
-      for (col = 0, colspan = 0; col < num_cols; col ++)
-	if (!col_fixed[col])
-          colspan ++;
-    }
+    for (col = 0, colspan = 0; col < num_cols; col ++)
+      if (!col_fixed[col] || col_percent[col])
+        colspan ++;
 
     if (colspan > 0)
     {
@@ -12083,5 +12086,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.216 2003/02/21 16:45:48 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.217 2003/03/07 18:06:23 mike Exp $".
  */
