@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.9 1999/04/28 19:51:06 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.10 1999/04/28 20:43:06 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -198,13 +198,14 @@ FileChooser::directory(const char *d)	// I - Directory to change to
 int				// O - Number of selected files
 FileChooser::count()
 {
-  int	i;			// Looping var
-  int	count;			// Number of selected files
+  int		i;		// Looping var
+  int		count;		// Number of selected files
+  const char	*filename;	// Filename in input field or list
+  char		pathname[1024];	// Full path to file
 
 
   if (type_ != MULTI)
   {
-    const char *filename;	// Filename in input field
 
 
     // Check to see if the file name input field is blank...
@@ -217,7 +218,17 @@ FileChooser::count()
 
   for (i = 1, count = 0; i <= fileList->size(); i ++)
     if (fileList->selected(i))
-      count ++;
+    {
+      // See if this file is a directory...
+      filename = (char *)fileList->text(i);
+      if (directory_[0] != '\0')
+	sprintf(pathname, "%s/%s", directory_, filename);
+      else
+	strcpy(pathname, filename);
+
+      if (!filename_isdir(pathname))
+	count ++;
+    }
 
   return (count);
 }
@@ -249,13 +260,16 @@ FileChooser::value(int f)	// I - File number
   for (i = 1, count = 0; i <= fileList->size(); i ++)
     if (fileList->selected(i))
     {
-      count ++;
-      if (count == f)
-      {
-        name = fileList->text(i);
+      // See if this file is a directory...
+      name = fileList->text(i);
+      sprintf(pathname, "%s/%s", directory_, name);
 
-        sprintf(pathname, "%s/%s", directory_, name);
-        return ((const char *)pathname);
+      if (!filename_isdir(pathname))
+      {
+        // Nope, see if this this is "the one"...
+	count ++;
+	if (count == f)
+          return ((const char *)pathname);
       }
     }
 
@@ -430,7 +444,7 @@ FileChooser::fileListCB()
     else
       window->hide();
   }
-  else
+  else if (fileList->size() == 1)
     fileName->value(filename);
 }
 
@@ -498,9 +512,9 @@ FileChooser::fileNameCB()
     else
     {
       // File doesn't exist, so beep at the user...
-      // NOTE: NEED TO ADD fl_beep() function to 2.0!
+      // TODO: NEED TO ADD fl_beep() FUNCTION TO 2.0!
 #ifdef WIN32
-      // Add code to beep the console under Windows
+      MessageBeep(MB_ICONEXCLAMATION);
 #else
       XBell(fl_display, 100);
 #endif // WIN32
@@ -589,5 +603,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.9 1999/04/28 19:51:06 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.10 1999/04/28 20:43:06 mike Exp $".
 //
