@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.5.2.3 2002/09/11 19:24:40 swdev Exp $"
+# "$Id: Makefile,v 1.5.2.4 2004/05/10 01:14:53 mike Exp $"
 #
 #   JPEG library Makefile for the HTMLDOC software.
 #
@@ -15,9 +15,9 @@
 #       Attn: HTMLDOC Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3111 USA
+#       Hollywood, Maryland 20636-3142 USA
 #
-#       Voice: (301) 373-9603
+#       Voice: (301) 373-9600
 #       EMail: info@easysw.com
 #         WWW: http://www.easysw.com
 #
@@ -67,5 +67,5 @@ $(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
 		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.5.2.3 2002/09/11 19:24:40 swdev Exp $".
+# End of "$Id: Makefile,v 1.5.2.4 2004/05/10 01:14:53 mike Exp $".
 #

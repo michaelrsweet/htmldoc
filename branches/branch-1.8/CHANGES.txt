@@ -51,10 +51,11 @@ CHANGES IN HTMLDOC v1.8.24
 	- The default vertical alignment is now "bottom" inside
 	  paragraphs to correctly align different sized text and
 	  images to the baseline.
-	- Indexed images are now written as PDF image objects when
-	  encryption is enabled; this works around a serious bug in
-	  Acrobat 6 which tries to decrypt the colormap of in-line
-	  images twice, causing some very strange colors!
+	- Indexed images are now written as PDF image objects
+	  when encryption is enabled; this works around a
+	  serious bug in Acrobat 6 which tries to decrypt the
+	  colormap of in-line images twice, causing some very
+	  strange colors!
 	- Table captions can now be bottom aligned.
 	- Blocks now break at the bottom of a page if the
 	  current line height + standard line height goes below
@@ -64,7 +65,9 @@ CHANGES IN HTMLDOC v1.8.24
 	- Character entities are now supported in HTML
 	  attributes and unknown or invalid character entities
 	  are left as plain text.
-	- Fixed handling of NOWRAP for some tables.
+	- Changed handling of NOWRAP for some tables.
+	- The --permissions option now supports multiple
+	  permission keywords in a single invocation.
 
     BUG FIXES
 
