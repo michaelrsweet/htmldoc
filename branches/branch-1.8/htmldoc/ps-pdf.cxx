@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.226 2003/11/07 15:39:14 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.227 2003/11/17 19:49:32 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5536,7 +5536,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   border      *= PagePrintWidth / _htmlBrowserWidth;
   border_size *= PagePrintWidth / _htmlBrowserWidth;
 
-  table_width -= 2.0f * (border_size + cellpadding);
+  DEBUG_printf(("border = %.1f, cellpadding = %.1f\n", border,
+                cellpadding));
+
+  table_width -= 2.0f * (border + cellpadding);
+
+  DEBUG_printf(("adjusted table_width = %.1f\n", table_width));
 
   temp_bottom = bottom - cellpadding;
   temp_top    = top + cellpadding;
@@ -5972,7 +5977,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     */
 
     for (col = 0, min_width = -cellspacing; col < num_cols; col ++)
-      min_width += col_mins[col];
+      min_width += col_mins[col] + 2 * cellpadding + cellspacing;
 
     DEBUG_printf(("    table_width = %.1f, width = %.1f, min_width = %.1f\n",
                   table_width, width, min_width));
@@ -5993,13 +5998,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
     }
 
-    for (col = 0, width = 0.0f; col < num_cols; col ++)
+    for (col = 0, width = -cellspacing; col < num_cols; col ++)
       width += col_widths[col] + 2 * cellpadding + cellspacing;
 
-    width -= cellspacing;
+    DEBUG_printf(("    new width = %.1f, max width = %.1f\n", width,
+                  right - left));
   }
 
-  if ((width - right + left) > 0.001)
+  if ((width - right + left) > 0.001f)
     progress_error(HD_ERROR_CONTENT_TOO_LARGE,
                    "Table on page %d too wide - "
 		   "truncation or overlapping may occur!", *page + 1);
@@ -12113,5 +12119,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.226 2003/11/07 15:39:14 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.227 2003/11/17 19:49:32 mike Exp $".
  */
