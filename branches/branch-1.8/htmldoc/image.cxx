@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.6 2001/02/27 02:13:13 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.7 2001/05/18 15:41:31 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -23,25 +23,26 @@
  *
  * Contents:
  *
- *   gif_read_cmap()     - Read the colormap from a GIF file...
- *   gif_get_block()     - Read a GIF data block...
- *   gif_get_code()      - Get a LZW code from the file...
- *   gif_read_image()    - Read a GIF image stream...
- *   gif_read_lzw()      - Read a byte from the LZW stream...
- *   image_compare()     - Compare two image filenames...
- *   image_copy()        - Copy image files to the destination directory...
- *   image_flush_cache() - Flush the image cache...
- *   image_getlist()     - Get the list of images that are loaded.
- *   image_load()        - Load an image file from disk...
- *   image_load_bmp()    - Read a BMP image file.
- *   image_load_gif()    - Load a GIF image file...
- *   image_load_jpeg()   - Load a JPEG image file.
- *   image_load_png()    - Load a PNG image file.
- *   image_need_mask()   - Allocate memory for the image mask...
- *   image_set_mask()  - Clear a bit in the image mask.
- *   read_word()         - Read a 16-bit unsigned integer.
- *   read_dword()        - Read a 32-bit unsigned integer.
- *   read_long()         - Read a 32-bit signed integer.
+ *   gif_read_cmap()      - Read the colormap from a GIF file...
+ *   gif_get_block()      - Read a GIF data block...
+ *   gif_get_code()       - Get a LZW code from the file...
+ *   gif_read_image()     - Read a GIF image stream...
+ *   gif_read_lzw()       - Read a byte from the LZW stream...
+ *   image_compare()      - Compare two image filenames...
+ *   image_copy()         - Copy image files to the destination directory...
+ *   image_flush_cache()  - Flush the image cache...
+ *   image_getlist()      - Get the list of images that are loaded.
+ *   image_load()         - Load an image file from disk...
+ *   image_load_bmp()     - Read a BMP image file.
+ *   image_load_gif()     - Load a GIF image file...
+ *   image_load_jpeg()    - Load a JPEG image file.
+ *   image_load_png()     - Load a PNG image file.
+ *   image_need_mask()    - Allocate memory for the image mask...
+ *   image_set_mask()     - Clear a bit in the image mask.
+ *   jpeg_error_handler() - Handle JPEG errors by not exiting.
+ *   read_word()          - Read a 16-bit unsigned integer.
+ *   read_dword()         - Read a 32-bit unsigned integer.
+ *   read_long()          - Read a 32-bit signed integer.
  */
 
 /*
@@ -108,6 +109,7 @@ static int	image_load_png(image_t *img, FILE *fp, int gray);
 static void	image_need_mask(image_t *img);
 static void	image_set_mask(image_t *img, int x, int y);
 
+static void		jpeg_error_handler(j_common_ptr);
 static int		read_long(FILE *fp);
 static unsigned short	read_word(FILE *fp);
 static unsigned int	read_dword(FILE *fp);
@@ -1268,14 +1270,17 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
   JSAMPROW			row;		/* Sample row pointer */
 
 
-  cinfo.err = jpeg_std_error(&jerr);
+  jpeg_std_error(&jerr);
+  jerr.error_exit = jpeg_error_handler;
+
+  cinfo.err = &jerr;
   jpeg_create_decompress(&cinfo);
   jpeg_stdio_src(&cinfo, fp);
   jpeg_read_header(&cinfo, 1);
 
   cinfo.quantize_colors = 0;
 
-  if (gray)
+  if (gray || cinfo.num_components == 1)
   {
     cinfo.out_color_space      = JCS_GRAYSCALE;
     cinfo.out_color_components = 1;
@@ -1508,6 +1513,17 @@ image_set_mask(image_t *img,	/* I - Image to operate on */
 
 
 /*
+ * 'jpeg_error_handler()' - Handle JPEG errors by not exiting.
+ */
+
+static void
+jpeg_error_handler(j_common_ptr)
+{
+  return;
+}
+
+
+/*
  * 'read_word()' - Read a 16-bit unsigned integer.
  */
 
@@ -1560,5 +1576,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.6 2001/02/27 02:13:13 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.7 2001/05/18 15:41:31 mike Exp $".
  */

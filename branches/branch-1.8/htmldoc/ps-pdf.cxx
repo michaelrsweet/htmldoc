@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.50 2001/05/17 21:06:38 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.51 2001/05/18 15:41:32 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3393,38 +3393,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     while (temp != end)
     {
-      if (temp->link != NULL && temp->markup == MARKUP_NONE)
-      {
-        link = htmlGetVariable(temp->link, (uchar *)"HREF");
-
-       /*
-	* Add a page link...
-	*/
-
-	if (file_method((char *)link) == NULL)
-	{
-	  if (file_target((char *)link) != NULL)
-	    link = (uchar *)file_target((char *)link) - 1; // Include # sign
-	  else
-	    link = (uchar *)file_basename((char *)link);
-	}
-
-	new_render(*page, RENDER_LINK, linex, *y, temp->width,
-	           temp->height, link);
-
-	if (PSLevel == 0 && Links)
-	{
-	  temp->red   = (int)(link_color[0] * 255.0);
-	  temp->green = (int)(link_color[1] * 255.0);
-	  temp->blue  = (int)(link_color[2] * 255.0);
-
-          if (LinkStyle)
-	    new_render(*page, RENDER_BOX, linex, *y - 1, 
-	               temp->width + char_spacing * strlen((char *)temp->data), 0,
-	               link_color);
-	}
-      }
-
      /*
       * See if we are doing a run of characters in a line and need to
       * output this run...
@@ -3517,7 +3485,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
             temp_width = temp->width + char_spacing * strlen((char *)lineptr);
 
-	    if (temp->underline)
+	    if (temp->underline && (!temp->link || !LinkStyle))
 	      new_render(*page, RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
 
 	    if (temp->strikethrough)
@@ -3551,6 +3519,38 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             whitespace = 0;
 	    temp_width = temp->width;
 	    break;
+      }
+
+      if (temp->link != NULL)
+      {
+        link = htmlGetVariable(temp->link, (uchar *)"HREF");
+
+       /*
+	* Add a page link...
+	*/
+
+	if (file_method((char *)link) == NULL)
+	{
+	  if (file_target((char *)link) != NULL)
+	    link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	  else
+	    link = (uchar *)file_basename((char *)link);
+	}
+
+	new_render(*page, RENDER_LINK, linex, *y + offset, temp->width,
+	           temp->height, link);
+
+	if (PSLevel == 0 && Links && temp->markup == MARKUP_NONE)
+	{
+	  temp->red   = (int)(link_color[0] * 255.0);
+	  temp->green = (int)(link_color[1] * 255.0);
+	  temp->blue  = (int)(link_color[2] * 255.0);
+
+          if (LinkStyle)
+	    new_render(*page, RENDER_BOX, linex, *y - 1, 
+	               temp->width + char_spacing * strlen((char *)temp->data), 0,
+	               link_color);
+	}
       }
 
       linex += temp_width;
@@ -7147,6 +7147,15 @@ write_image(FILE     *out,	/* I - Output file */
 
 
 /*
+ * Timezone offset for dates, below...
+ */
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#  define timezone (doc_date->tm_gmtoff)
+#endif /* __*BSD__ */
+
+
+/*
  * 'write_prolog()' - Write the file prolog...
  */
 
@@ -7230,7 +7239,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d+%03d%02d\n",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    _timezone / 3600, abs((_timezone / 60) % 60));
+	    timezone / 3600, abs((timezone / 60) % 60));
     if (title != NULL)
       fprintf(out, "%%%%Title: %s\n", title);
     if (author != NULL)
@@ -7504,7 +7513,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    _timezone / 3600, abs((_timezone / 60) % 60));
+	    -timezone / 3600, abs((timezone / 60) % 60));
     write_string(out, (uchar *)temp, 0);
 
     if (title != NULL)
@@ -8323,5 +8332,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.50 2001/05/17 21:06:38 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.51 2001/05/18 15:41:32 mike Exp $".
  */

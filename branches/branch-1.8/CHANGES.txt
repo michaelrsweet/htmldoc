@@ -31,6 +31,9 @@ CHANGES IN HTMLDOC v1.8.13
 	- When piping PDF output, the temporary file that is
 	  created needed to be open for reading and writing,
 	  but HTMLDOC only opened the file for writing.
+	- Image links did not work.
+	- The JPEG image loading code did not correctly handle
+	  grayscale JPEG images.
 
 
 CHANGES IN HTMLDOC v1.8.12

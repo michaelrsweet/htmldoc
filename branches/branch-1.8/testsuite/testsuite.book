@@ -1,7 +1,8 @@
 #HTMLDOC 1.8.11
-14
+15
 attributes.html
 basic.html
+links.html
 list.html
 table-allspan.html
 table-cellspacing.html
@@ -14,4 +15,4 @@ table-rowspan.html
 table-simple.html
 table-valign.html
 whitespace.html
--t ps2 -f testsuite.ps --webpage --no-title --linkstyle underline --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --footer h.1 --tocheader .t. --tocfooter ..i --portrait --color --no-pscommands --no-compression --jpeg=0 --fontsize 11.0 --fontspacing 1.2 --headingfont Helvetica --bodyfont Times --headfootsize 11.0 --headfootfont Helvetica --charset 8859-1 --browserwidth 680
+-t pdf -f testsuite.pdf --webpage --no-title --linkstyle underline --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --footer h.1 --tocheader .t. --tocfooter ..i --portrait --color --no-pscommands --no-compression --jpeg=0 --fontsize 11.0 --fontspacing 1.2 --headingfont Helvetica --bodyfont Times --headfootsize 11.0 --headfootfont Helvetica --charset 8859-1 --browserwidth 680
