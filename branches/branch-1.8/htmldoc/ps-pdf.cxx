@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.88 2001/07/17 18:35:38 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.89 2001/07/26 20:38:27 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7807,13 +7807,14 @@ write_prolog(FILE  *out,	/* I - Output file */
              uchar *copyright,	/* I - Copyright (if any) on the document */
              uchar *keywords)	/* I - Search keywords */
 {
+  FILE		*prolog;	/* PostScript prolog file */
   int		i, j,		/* Looping vars */
 		encoding_object;/* Font encoding object */
   int		page;		/* Current page */
   render_t	*r;		/* Current render data */
   int		fonts_used[4][4];/* Whether or not a font is used */
   int		font_desc[4][4];/* Font descriptor objects */
-  char		temp[255];	/* Temporary string */
+  char		temp[1024];	/* Temporary string */
   md5_state_t	md5;		/* MD5 state */
   md5_byte_t	digest[16];	/* MD5 digest value */
   rc4_context_t	rc4;		/* RC4 context */
@@ -7902,6 +7903,27 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("%%DocumentData: Clean7bit\n", out);
     fputs("%%EndComments\n", out);
 
+    // The following comments are Xerox job ticket information that
+    // is used on the high-end Laser Printing Systems rather than
+    // embedded commands...
+    fputs("%XRXbegin: 001.0300\n", out);
+    fputs("%XRXPDLformat: PS-Adobe\n", out);
+    fprintf(out, "%%XRXtitle: %s\n", title);
+    fputs("%XRXcopyCount: 1\n", out);
+    if (PageDuplex)
+    {
+      if (Landscape)
+	fputs("%XRXrequirements: duplex(tumble)\n", out);
+      else
+	fputs("%XRXrequirements: duplex\n", out);
+    }
+    fputs("%XRXdisposition: PRINT\n", out);
+    fputs("%XRXsignature: False\n", out);
+    fprintf(out, "%%XRXpaperType-size: %d %d\n", PageWidth, PageLength);
+    fputs("%XRXpaperType-preFinish: Plain 0 0\n", out);
+    fputs("%XRXdocumentPaperColors: white\n", out);
+    fputs("%XRXend\n", out);
+
     fputs("%%BeginProlog\n", out);
 
    /*
@@ -7946,6 +7968,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     * Now for the macros...
     */
 
+    fputs("%%BeginResource: procset htmldoc-page 1.8 15\n", out);
     fputs("/BD{bind def}bind def\n", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath stroke}BD\n", out);
     if (!OutputColor)
@@ -7966,6 +7989,32 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("/SF{findfont hdFontSize scalefont setfont}BD", out);
     fputs("/SP{showpage}BD", out);
     fputs("/T{translate}BD\n", out);
+    fputs("%%EndResource\n", out);
+
+    snprintf(temp, sizeof(temp), "%s/data/prolog.ps", _htmlData);
+    if ((prolog = fopen(temp, "rb")) != NULL)
+    {
+      while (fgets(temp, sizeof(temp), prolog) != NULL)
+        fputs(temp, out);
+
+      fclose(prolog);
+    }
+    else
+    {
+      progress_error("Unable to open data file \"%s\" - %s", temp,
+                     strerror(errno));
+
+      fputs("%%BeginResource: procset htmldoc-device 1.8 15\n", out);
+      fputs("languagelevel 1 eq{/setpagedevice{pop}BD}if\n", out);
+      fputs("/SetDuplexMode{<</Duplex 3 index/Tumble 5 index>>setpagedevice "
+            "pop pop}BD\n", out);
+      fputs("/SetMediaColor{pop}BD\n", out);
+      fputs("/SetMediaType{pop}BD\n", out);
+      fputs("/SetMediaPosition{pop}BD\n", out);
+      fputs("/SetPageSize{2 array astore<</PageSize 2 index/ImageableArea "
+            "null>>setpagedevice pop}BD\n", out);
+      fputs("%%EndResource\n", out);
+    }
 
     if (background_image != NULL)
       ps_write_background(out);
@@ -7988,14 +8037,14 @@ write_prolog(FILE  *out,	/* I - Output file */
 	  fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", PageLength,
 	          PageWidth);
 
-	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageLength,
-	        PageWidth);
+	fprintf(out, "%d %d SetPageSize\n", PageLength, PageWidth);
+
         fputs("%%EndFeature\n", out);
 
         if (PageDuplex)
 	{
 	  fputs("%%BeginFeature: *Duplex DuplexTumble\n", out);
-	  fputs("<</Duplex true/Tumble true>>setpagedevice\n", out);
+	  fputs("true true SetDuplexMode\n", out);
           fputs("%%EndFeature\n", out);
 	}
       }
@@ -8011,14 +8060,13 @@ write_prolog(FILE  *out,	/* I - Output file */
 	  fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", PageWidth,
 	          PageLength);
 
-	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageWidth,
-	        PageLength);
+	fprintf(out, "%d %d SetPageSize\n", PageWidth, PageLength);
         fputs("%%EndFeature\n", out);
 
         if (PageDuplex)
 	{
 	  fputs("%%BeginFeature: *Duplex DuplexNoTumble\n", out);
-	  fputs("<</Duplex true/Tumble false>>setpagedevice\n", out);
+	  fputs("true false SetDuplexMode\n", out);
           fputs("%%EndFeature\n", out);
 	}
       }
@@ -8026,7 +8074,7 @@ write_prolog(FILE  *out,	/* I - Output file */
       if (!PageDuplex)
       {
 	fputs("%%BeginFeature: *Duplex None\n", out);
-	fputs("<</Duplex false>>setpagedevice\n", out);
+	fputs("false false SetDuplexMode\n", out);
         fputs("%%EndFeature\n", out);
       }
 
@@ -9071,5 +9119,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.88 2001/07/17 18:35:38 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.89 2001/07/26 20:38:27 mike Exp $".
  */

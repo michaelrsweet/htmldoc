@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.4.2.3 2001/02/20 15:06:55 mike Exp $"
+# "$Id: Makefile,v 1.4.2.4 2001/07/26 20:38:26 mike Exp $"
 #
 #   Makefile for HTMLDOC data files.
 #
@@ -35,7 +35,7 @@ include ../Makedefs
 
 FILES	=	iso-8859-1 iso-8859-14 iso-8859-15 iso-8859-2 iso-8859-3 \
 		iso-8859-4 iso-8859-5 iso-8859-6 iso-8859-7 iso-8859-8 \
-		iso-8859-9 koi8-r psglyphs
+		iso-8859-9 koi8-r prolog.ps psglyphs
 
 
 #
@@ -64,5 +64,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.4.2.3 2001/02/20 15:06:55 mike Exp $".
+# End of "$Id: Makefile,v 1.4.2.4 2001/07/26 20:38:26 mike Exp $".
 #
