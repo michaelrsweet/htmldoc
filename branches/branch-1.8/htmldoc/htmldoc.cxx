@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.36 2002/01/28 00:52:13 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.37 2002/01/29 18:39:46 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -217,7 +217,16 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
+      {
         _htmlBrowserWidth = atof(argv[i]);
+
+	if (_htmlBrowserWidth < 1.0f)
+	{
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad browser width \"%s\"!",
+	                 argv[i]);
+	  usage();
+	}
+      }
       else
         usage();
     }
@@ -278,7 +287,16 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
+      {
         PDFEffectDuration = atof(argv[i]);
+
+	if (PDFEffectDuration < 0.0f)
+	{
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad effect duration \"%s\"!",
+	                 argv[i]);
+	  usage();
+	}
+      }
       else
         usage();
     }
@@ -656,7 +674,16 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
+      {
         PDFPageDuration = atof(argv[i]);
+
+	if (PDFPageDuration < 1.0f)
+	{
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad page duration \"%s\"!",
+	                 argv[i]);
+	  usage();
+	}
+      }
       else
         usage();
     }
@@ -2174,5 +2201,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.36 2002/01/28 00:52:13 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.37 2002/01/29 18:39:46 mike Exp $".
  */
