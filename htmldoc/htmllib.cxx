@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.20 2001/05/21 15:08:42 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.21 2001/05/27 11:39:49 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1045,6 +1045,7 @@ write_file(tree_t *t,		/* I - Tree entry */
               putc('\n', fp);
               col = 0;
             }
+        default :
             break;
       }
 
@@ -1124,7 +1125,8 @@ write_file(tree_t *t,		/* I - Tree entry */
           case MARKUP_MENU :
               putc('\n', fp);
               col = 0;
-              break;
+          default :
+	      break;
         }
       }
     }
@@ -1423,6 +1425,9 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
     case MARKUP_STRIKE :
     case MARKUP_DEL :
         t->strikethrough = 1;
+        break;
+
+    default :
         break;
   }
 
@@ -2414,5 +2419,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.20 2001/05/21 15:08:42 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.21 2001/05/27 11:39:49 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.13 2001/05/20 13:05:15 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.14 2001/05/27 11:39:44 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1787,7 +1787,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--pagemode") == 0)
     {
-      for (i = 0; i < (sizeof(PDFModes) / sizeof(PDFModes[0])); i ++)
+      for (i = 0; i < (int)(sizeof(PDFModes) / sizeof(PDFModes[0])); i ++)
         if (strcasecmp(temp2, PDFModes[i]) == 0)
 	{
 	  pageMode->value(i);
@@ -1796,7 +1796,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--pagelayout") == 0)
     {
-      for (i = 0; i < (sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); i ++)
+      for (i = 0; i < (int)(sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); i ++)
         if (strcasecmp(temp2, PDFLayouts[i]) == 0)
 	{
 	  pageLayout->value(i);
@@ -1805,7 +1805,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--firstpage") == 0)
     {
-      for (i = 0; i < (sizeof(PDFPages) / sizeof(PDFPages[0])); i ++)
+      for (i = 0; i < (int)(sizeof(PDFPages) / sizeof(PDFPages[0])); i ++)
         if (strcasecmp(temp2, PDFPages[i]) == 0)
 	{
 	  firstPage->value(i);
@@ -1814,7 +1814,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--pageeffect") == 0)
     {
-      for (i = 0; i < (sizeof(PDFEffects) / sizeof(PDFEffects[0])); i ++)
+      for (i = 0; i < (int)(sizeof(PDFEffects) / sizeof(PDFEffects[0])); i ++)
         if (strcasecmp(temp2, PDFEffects[i]) == 0)
 	{
 	  pageEffect->value(i);
@@ -2708,6 +2708,8 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
 
 
   gui->title(gui->book_filename, 1);
+
+  ext = NULL; // To make GCC happy...
 
   if (w == gui->typePDF)
   {
@@ -3766,5 +3768,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.13 2001/05/20 13:05:15 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.14 2001/05/27 11:39:44 mike Exp $".
 //
