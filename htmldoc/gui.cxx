@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.13 1999/11/12 21:22:53 mike Exp $"
+// "$Id: gui.cxx,v 1.14 1999/11/12 21:55:04 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -79,9 +79,6 @@
 #    include <unistd.h>
 #    include "htmldoc.xbm"
 #  endif // WIN32
-
-#undef SVERSION
-#define SVERSION "1.8"
 
 
 const char	*GUI::help_dir = DOCUMENTATION;
@@ -2887,5 +2884,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.13 1999/11/12 21:22:53 mike Exp $".
+// End of "$Id: gui.cxx,v 1.14 1999/11/12 21:55:04 mike Exp $".
 //
