@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.26 2001/09/17 16:59:51 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.27 2001/10/12 16:14:02 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -593,6 +593,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       TocLevels = 0;
     else if (compare_strings(argv[i], "--no-truetype", 7) == 0)
       TrueType = 0;
+    else if (compare_strings(argv[i], "--no-xrxcomments", 6) == 0)
+      XRXComments = 0;
     else if (compare_strings(argv[i], "--numbered", 4) == 0)
       TocNumbers = 1;
     else if (compare_strings(argv[i], "--outdir", 6) == 0 ||
@@ -863,6 +865,8 @@ main(int  argc,		/* I - Number of command-line arguments */
 	PSLevel    = 0;
       }
     }
+    else if (compare_strings(argv[i], "--xrxcomments", 3) == 0)
+      XRXComments = 1;
     else if (strcmp(argv[i], "-") == 0)
     {
      /*
@@ -2145,5 +2149,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.26 2001/09/17 16:59:51 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.27 2001/10/12 16:14:02 mike Exp $".
  */
