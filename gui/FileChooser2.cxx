@@ -1,9 +1,9 @@
 //
-// "$Id: FileChooser2.cxx,v 1.29 2001/05/14 20:57:23 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.30 2002/01/02 20:25:08 mike Exp $"
 //
 //   More FileChooser routines.
 //
-//   Copyright 1997-2001 by Easy Software Products.
+//   Copyright 1997-2002 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -673,5 +673,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.29 2001/05/14 20:57:23 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.30 2002/01/02 20:25:08 mike Exp $".
 //
