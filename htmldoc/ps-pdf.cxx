@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.80 2001/06/05 14:07:53 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.81 2001/06/06 19:16:36 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3901,11 +3901,14 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
-//#undef DEBUG_puts
-//#define DEBUG_puts(x) puts(x)
-//#define DEBUG
-//#undef DEBUG_printf
-//#define DEBUG_printf(x) printf x
+#ifdef TABLE_DEBUG
+#  undef DEBUG_puts
+#  define DEBUG_puts(x) puts(x)
+#  define DEBUG
+#  undef DEBUG_printf
+#  define DEBUG_printf(x) printf x
+#endif /* TABLE_DEBUG */
+
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
  */
@@ -4329,6 +4332,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       span_width += (2 * cellpadding + cellspacing) *
                     (col_spans[col] - 1) - cellspacing;
       pref_width = 0.0f;
+
+      if (span_width < 1.0f)
+        span_width = 1.0f;
 
       if (span_width < col_swidths[col])
         pref_width = col_swidths[col];
@@ -4886,11 +4892,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     free(cells);
   }
 }
-//#undef DEBUG
-//#undef DEBUG_puts
-//#define DEBUG_puts(x)
-//#undef DEBUG_printf
-//#define DEBUG_printf(x)
+#ifdef TABLE_DEBUG
+#  undef DEBUG
+#  undef DEBUG_puts
+#  define DEBUG_puts(x)
+#  undef DEBUG_printf
+#  define DEBUG_printf(x)
+#endif /* TABLE_DEBUG */
 
 
 /*
@@ -5570,8 +5578,10 @@ copy_tree(tree_t *parent,	/* I - Source tree */
 }
 
 
-//#undef DEBUG_printf
-//#define DEBUG_printf(x) printf x
+#ifdef TABLE_DEBUG
+#  undef DEBUG_printf
+#  define DEBUG_printf(x) printf x
+#endif /* TABLE_DEBUG */
 
 //
 // 'get_cell_size()' - Compute the minimum width of a cell.
@@ -5922,8 +5932,11 @@ get_table_size(tree_t *t,		// I - Table
 
   return (width);
 }
-//#undef DEBUG_printf
-//#define DEBUG_printf(x)
+
+#ifdef TABLE_DEBUG
+#  undef DEBUG_printf
+#  define DEBUG_printf(x)
+#endif /* TABLE_DEBUG */
 
 
 /*
@@ -8684,5 +8697,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.80 2001/06/05 14:07:53 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.81 2001/06/06 19:16:36 mike Exp $".
  */
