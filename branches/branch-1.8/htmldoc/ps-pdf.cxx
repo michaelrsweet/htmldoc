@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.257 2004/07/21 19:32:23 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.258 2004/09/23 20:47:45 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -10221,8 +10221,10 @@ write_image(FILE     *out,		/* I - Output file */
           else
             fputs("/ColorSpace/DeviceRGB", out);
 
+#ifdef HTMLDOC_INTERPOLATION
           if (ncolors != 2)
             fputs("/Interpolate true", out);
+#endif // HTMLDOC_INTERPOLATION
 
           if (Compression && (ncolors || !OutputJPEG))
             fputs("/Filter/FlateDecode", out);
@@ -10395,8 +10397,10 @@ write_image(FILE     *out,		/* I - Output file */
         	    img->width, -img->height, img->height,
         	    (1 << indbits) - 1);
 
+#ifdef HTMLDOC_INTERPOLATION
             if (ncolors != 2)
 	      fputs("/Interpolate true", out);
+#endif // HTMLDOC_INTERPOLATION
 
 	    fputs("/DataSource currentfile/ASCII85Decode filter", out);
 
@@ -10465,12 +10469,16 @@ write_image(FILE     *out,		/* I - Output file */
 	                 "/Height %d"
 	                 "/BitsPerComponent 8"
 	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
-	                 "/Decode[%s]"
-	                 "/Interpolate true"
-                         "/DataSource currentfile/ASCII85Decode filter",
+	                 "/Decode[%s]",
 	            img->width, img->height,
         	    img->width, -img->height, img->height,
         	    img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+
+#ifdef HTMLDOC_INTERPOLATION
+	    fputs("/Interpolate true", out);
+#endif HTMLDOC_INTERPOLATION
+
+            fputs("/DataSource currentfile/ASCII85Decode filter", out);
 
             if (Compression)
 	      fputs("/FlateDecode filter", out);
@@ -10559,8 +10567,10 @@ write_image(FILE     *out,		/* I - Output file */
         	  img->width, -img->height, img->height,
         	  (1 << indbits) - 1);
 
+#ifdef HTMLDOC_INTERPOLATION
           if (ncolors != 2)
 	    fputs("/Interpolate true", out);
+#endif // HTMLDOC_INTERPOLATION
 
 	  fputs("/DataSource currentfile/ASCII85Decode filter>>image\n", out);
 
@@ -10581,13 +10591,17 @@ write_image(FILE     *out,		/* I - Output file */
 	               "/Height %d"
 	               "/BitsPerComponent 8"
 	               "/ImageMatrix[%d 0 0 %d 0 %d]"
-	               "/Decode[%s]"
-		       "/Interpolate true"
-	               "/DataSource currentfile/ASCII85Decode filter/DCTDecode filter"
-	               ">>image\n",
+	               "/Decode[%s]",
 	          img->width, img->height,
         	  img->width, -img->height, img->height,
         	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+
+#ifdef HTMLDOC_INTERPOLATION
+	  fputs("/Interpolate true", out);
+#endif // HTMLDOC_INTERPOLATION
+
+	  fputs("/DataSource currentfile/ASCII85Decode filter/DCTDecode filter"
+	        ">>image\n", out);
 
 	  jpg_setup(out, img, &cinfo);
 
@@ -10615,13 +10629,17 @@ write_image(FILE     *out,		/* I - Output file */
 	               "/Height %d"
 	               "/BitsPerComponent 8"
 	               "/ImageMatrix[%d 0 0 %d 0 %d]"
-	               "/Decode[%s]"
-		       "/Interpolate true"
-	               "/DataSource currentfile/ASCII85Decode filter"
-	               ">>image\n",
+	               "/Decode[%s]",
 	          img->width, img->height,
         	  img->width, -img->height, img->height,
         	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+
+#ifdef HTMLDOC_INTERPOLATION
+	  fputs("/Interpolate true", out);
+#endif // HTMLDOC_INTERPOLATION
+
+          fputs("/DataSource currentfile/ASCII85Decode filter"
+	        ">>image\n", out);
 
 	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth);
           ps_ascii85(out, (uchar *)"", 0);
@@ -12374,5 +12392,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.257 2004/07/21 19:32:23 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.258 2004/09/23 20:47:45 mike Exp $".
  */
