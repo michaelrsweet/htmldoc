@@ -1,4 +1,4 @@
-CHANGES.txt - 03/08/2001
+CHANGES.txt - 03/13/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.12
@@ -10,11 +10,11 @@ CHANGES IN HTMLDOC v1.8.12
 	- Added support for the "-display" option on systems
 	  that use X11.
 	- Now use image objects in PDF output for images when
-	  the image width * height >= 1024.
+	  the image width * height * depth > 32k.
 	- Now use JPEG compression when the number of colors
 	  would be > 32 colors or 16 gray shades.
-	- True transparency support for GIF files and PDF 1.3 and
-	  PostScript Level 2 or 3 output!
+	- True transparency support for GIF files in PDF 1.3
+	  output!
 	- The GUI now automatically changes the extension of the
 	  output filename as needed.
 	- The GUI now collects all error messages and shows them
