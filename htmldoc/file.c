@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.27 2001/12/07 15:46:00 mike Exp $"
+ * "$Id: file.c,v 1.13.2.28 2001/12/10 20:49:16 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -354,7 +354,13 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     */
 
     if (no_local)
+    {
+      for (i = 0; i < web_files; i ++)
+        if (strcmp(s, web_cache[i].name) == 0)
+	  return (s);
+
       return (NULL);
+    }
 
    /*
     * If the path is NULL or empty, return the filename...
@@ -903,5 +909,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.27 2001/12/07 15:46:00 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.28 2001/12/10 20:49:16 mike Exp $".
  */
