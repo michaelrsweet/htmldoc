@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.32 2000/06/29 01:15:57 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.33 2000/08/14 13:49:02 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -422,6 +422,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+    else if (compare_strings(argv[i], "--help", 6) == 0)
+      usage();
 #ifdef HAVE_LIBFLTK
     else if (compare_strings(argv[i], "--helpdir", 7) == 0)
     {
@@ -1651,5 +1653,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.32 2000/06/29 01:15:57 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.33 2000/08/14 13:49:02 mike Exp $".
  */

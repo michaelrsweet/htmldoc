@@ -18,6 +18,7 @@ CHANGES IN HTMLDOC v1.8.9
 	  crash.
 	- Comments were incorrectly terminated by ">" instead
 	  of "-->".
+	- The "--help" option didn't work.
 
 
 CHANGES IN HTMLDOC v1.8.8
