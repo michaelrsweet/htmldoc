@@ -49,9 +49,9 @@ void FileChooser::cb_upButton(Fl_Button* o, void* v) {
 }
 
 #include <FL/Fl_Bitmap.H>
-static unsigned char bits_up[] = {  
-0, 0, 120, 0, 132, 0, 2, 1, 49, 254, 121, 128, 253, 128, 49, 128, 49, 128, 49, 128, 49, 128, 49, 128, 1, 128, 1, 128, 255, 255, 0, 0
-};
+static unsigned char bits_up[] =
+"\0\0x\0\204\0\2\1""1\376y\200\375\200""1\200""1\200""1\200""1\200""1\200\1\
+\200\1\200\377\377\0\0";
 static Fl_Bitmap bitmap_up(bits_up, 16, 16);
 
 inline void FileChooser::cb_newButton_i(Fl_Button*, void*) {
@@ -61,9 +61,9 @@ void FileChooser::cb_newButton(Fl_Button* o, void* v) {
   ((FileChooser*)(o->parent()->user_data()))->cb_newButton_i(o,v);
 }
 
-static unsigned char bits_new[] = {  
-0, 0, 120, 0, 132, 0, 2, 1, 1, 254, 1, 128, 49, 128, 49, 128, 253, 128, 253, 128, 49, 128, 49, 128, 1, 128, 1, 128, 255, 255, 0, 0
-};
+static unsigned char bits_new[] =
+"\0\0x\0\204\0\2\1\1\376\1\200""1\200""1\200\375\200\375\200""1\200""1\200\1\
+\200\1\200\377\377\0\0";
 static Fl_Bitmap bitmap_new(bits_new, 16, 16);
 
 inline void FileChooser::cb_dirMenu_i(Fl_Choice*, void*) {
@@ -87,9 +87,8 @@ void FileChooser::cb_allfiles(Fl_Button* o, void* v) {
   ((FileChooser*)(o->parent()->user_data()))->cb_allfiles_i(o,v);
 }
 
-static unsigned char bits_allfiles[] = {  
-252, 63, 4, 32, 4, 32, 4, 32, 132, 33, 164, 37, 196, 35, 244, 47, 244, 47, 196, 35, 164, 37, 132, 33, 4, 32, 4, 32, 4, 32, 252, 63
-};
+static unsigned char bits_allfiles[] =
+"\374?\4 \4 \4 \204!\244%\304#\364/\364/\304#\244%\204!\4 \4 \4 \374?";
 static Fl_Bitmap bitmap_allfiles(bits_allfiles, 16, 16);
 
 FileChooser::FileChooser(const char *d, const char *p, int t, const char *title) {
@@ -102,6 +101,7 @@ FileChooser::FileChooser(const char *d, const char *p, int t, const char *title)
       o->type(2);
       o->callback((Fl_Callback*)cb_fileList);
       Fl_Group::current()->resizable(o);
+      w->hotspot(o);
     }
     { Fl_Button* o = new Fl_Button(300, 280, 65, 25, "Cancel");
       o->callback((Fl_Callback*)cb_Cancel);

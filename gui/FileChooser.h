@@ -2,16 +2,16 @@
 
 #ifndef FileChooser_h
 #define FileChooser_h
-#include "FileBrowser.h"
-#include "FileInput.h"
 #include <FL/Fl.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Choice.H>
-#include <FL/Fl_Return_Button.H>
 #include <FL/Fl_Window.H>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "FileBrowser.h"
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Return_Button.H>
+#include "FileInput.h"
+#include <FL/Fl_Choice.H>
 
 class FileChooser {
 public:
