@@ -164,9 +164,6 @@ post_process_prepass (j_decompress_ptr cinfo,
   my_post_ptr post = (my_post_ptr) cinfo->post;
   JDIMENSION old_next_row, num_rows;
 
-  (void)output_buf;
-  (void)out_rows_avail;
-
   /* Reposition virtual buffer if at start of strip. */
   if (post->next_row == 0) {
     post->buffer = (*cinfo->mem->access_virt_sarray)
@@ -210,10 +207,6 @@ post_process_2pass (j_decompress_ptr cinfo,
 {
   my_post_ptr post = (my_post_ptr) cinfo->post;
   JDIMENSION num_rows, max_rows;
-
-  (void)input_buf;
-  (void)in_row_group_ctr;
-  (void)in_row_groups_avail;
 
   /* Reposition virtual buffer if at start of strip. */
   if (post->next_row == 0) {
