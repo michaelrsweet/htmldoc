@@ -1,5 +1,5 @@
 //
-// "$Id: image-reduce.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $"
+// "$Id: image-reduce.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   Image color reduction methods for HTMLDOC, a HTML document processing
 //   program.
@@ -389,5 +389,5 @@ hdImage::reduce(int          max_colors,	// I - Maximum number of colors to use
 
 
 //
-// End of "$Id: image-reduce.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: image-reduce.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $".
 //

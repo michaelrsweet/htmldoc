@@ -1,5 +1,5 @@
 //
-// "$Id: file-std.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $"
+// "$Id: file-std.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   Stdio file routines for HTMLDOC, a HTML document processing program.
 //
@@ -299,5 +299,5 @@ hdStdFile::unget(int c)			// I - Character to push back
 
 
 //
-// End of "$Id: file-std.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $".
+// End of "$Id: file-std.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $".
 //

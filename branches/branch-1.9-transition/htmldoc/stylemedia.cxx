@@ -1,5 +1,5 @@
 //
-// "$Id: stylemedia.cxx,v 1.2 2004/02/03 02:55:29 mike Exp $"
+// "$Id: stylemedia.cxx,v 1.2.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   CSS media routines for HTMLDOC, a HTML document processing program.
 //
@@ -188,5 +188,5 @@ hdStyleMedia::update_printable()
 
 
 //
-// End of "$Id: stylemedia.cxx,v 1.2 2004/02/03 02:55:29 mike Exp $".
+// End of "$Id: stylemedia.cxx,v 1.2.2.1 2004/03/22 21:56:29 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: image-png.cxx,v 1.6 2004/02/03 02:55:28 mike Exp $"
+// "$Id: image-png.cxx,v 1.6.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 // PNG image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -251,5 +251,5 @@ png_read(png_structp pp,		// I - PNG image
 
 
 //
-// End of "$Id: image-png.cxx,v 1.6 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: image-png.cxx,v 1.6.2.1 2004/03/22 21:56:29 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: file-rc4.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $"
+// "$Id: file-rc4.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   RC4 filter functions for HTMLDOC.
 //
@@ -264,5 +264,5 @@ hdRC4Filter::encrypt(const unsigned char *input,
 
 
 //
-// End of "$Id: file-rc4.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $".
+// End of "$Id: file-rc4.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $".
 //

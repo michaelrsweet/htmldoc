@@ -1,5 +1,5 @@
 //
-// "$Id: image-bmp.cxx,v 1.8 2004/02/03 02:55:28 mike Exp $"
+// "$Id: image-bmp.cxx,v 1.8.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 // BMP image handling routines for HTMLDOC.
 //
@@ -483,5 +483,5 @@ read_long(hdFile *fp)		// I - File to read from
 
 
 //
-// End of "$Id: image-bmp.cxx,v 1.8 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: image-bmp.cxx,v 1.8.2.1 2004/03/22 21:56:29 mike Exp $".
 //

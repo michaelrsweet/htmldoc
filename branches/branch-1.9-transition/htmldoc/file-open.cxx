@@ -1,5 +1,5 @@
 //
-// "$Id: file-open.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file-open.cxx,v 1.2.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   File open routines for HTMLDOC, a HTML document processing program.
 //
@@ -80,5 +80,5 @@ hdFile::open(const char *uri,		// I - URI to open
 
 
 //
-// End of "$Id: file-open.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file-open.cxx,v 1.2.2.1 2004/03/22 21:56:29 mike Exp $".
 //

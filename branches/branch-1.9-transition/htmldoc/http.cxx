@@ -1,5 +1,5 @@
 //
-// "$Id: http.cxx,v 1.7 2004/02/03 02:55:28 mike Exp $"
+// "$Id: http.cxx,v 1.7.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class routines for HTMLDOC.
 //
@@ -1842,5 +1842,5 @@ hdHTTP::upgrade()
 
 
 //
-// End of "$Id: http.cxx,v 1.7 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: http.cxx,v 1.7.2.1 2004/03/22 21:56:29 mike Exp $".
 //

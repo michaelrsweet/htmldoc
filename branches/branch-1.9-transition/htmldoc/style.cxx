@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.11 2004/02/03 02:55:29 mike Exp $"
+// "$Id: style.cxx,v 1.11.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -2889,5 +2889,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.11 2004/02/03 02:55:29 mike Exp $".
+// End of "$Id: style.cxx,v 1.11.2.1 2004/03/22 21:56:29 mike Exp $".
 //

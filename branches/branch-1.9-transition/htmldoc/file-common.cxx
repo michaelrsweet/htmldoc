@@ -1,5 +1,5 @@
 //
-// "$Id: file-common.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $"
+// "$Id: file-common.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   Common file routines for HTMLDOC, a HTML document processing program.
 //
@@ -329,5 +329,5 @@ hdFile::puts(const char *s)		// I - String to write
 
 
 //
-// End of "$Id: file-common.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $".
+// End of "$Id: file-common.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $".
 //

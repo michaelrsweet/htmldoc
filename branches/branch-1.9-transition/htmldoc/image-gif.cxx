@@ -1,5 +1,5 @@
 //
-// "$Id: image-gif.cxx,v 1.9 2004/02/03 02:55:28 mike Exp $"
+// "$Id: image-gif.cxx,v 1.9.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 // Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -571,5 +571,5 @@ hdGIFImage::real_load(int img,	// I - 1 = load image data, 0 = just info
 
 
 //
-// End of "$Id: image-gif.cxx,v 1.9 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: image-gif.cxx,v 1.9.2.1 2004/03/22 21:56:29 mike Exp $".
 //
