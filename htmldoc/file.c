@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.1 2000/11/08 22:23:26 mike Exp $"
+ * "$Id: file.c,v 1.13.2.2 2000/12/06 16:24:13 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -41,7 +41,12 @@
 #include "http.h"
 #include "progress.h"
 
-#include <unistd.h>
+#if defined(WIN32) || defined(__EMX__)
+#  include <io.h>
+#else
+#  include <unistd.h>
+#endif /* WIN32 || __EMX__ */
+
 #include <errno.h>
 #include <fcntl.h>
 
@@ -198,7 +203,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   int		bytes,			/* Bytes read */
 		count,			/* Number of bytes so far */
 		total;			/* Total bytes in file */
+#if defined(WIN32) || defined(__EMX__)
+  char		tmpdir[1024];		/* Buffer for temp dir */
+#else
   const char	*tmpdir;		/* Temporary directory */
+#endif /* WIN32 || __EMX__ */
   int		fd;			/* File descriptor */
   static char	filename[HTTP_MAX_URI];	/* Current filename */
 
@@ -375,10 +384,10 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     web_files ++;
 
 #if defined(WIN32) || defined(__EMX__)
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "C:/WINDOWS/TEMP";
+    GetTempPath(sizeof(tmpdir), tmpdir);
 
-    snprintf(filename, sizeof(filename), "%s/%06d.dat", tmpdir, web_files);
+    snprintf(filename, sizeof(filename), "%s/%06d.%06d.dat", tmpdir,
+             GetCurrentProcessId(), web_files);
 #else
     if ((tmpdir = getenv("TMPDIR")) == NULL)
       tmpdir = "/var/tmp";
@@ -640,5 +649,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.1 2000/11/08 22:23:26 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.2 2000/12/06 16:24:13 mike Exp $".
  */

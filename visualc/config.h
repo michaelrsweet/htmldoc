@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.1 2000/11/30 18:33:52 mike Exp $"
+ * "$Id: config.h,v 1.20.2.2 2000/12/06 16:24:15 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -34,8 +34,9 @@
  * Do we have the FLTK library?
  */
 
-#define HAVE_LIBFLTK
-
+#ifndef _CONSOLE
+#  define HAVE_LIBFLTK
+#endif /* !_CONSOLE */
 
 /*
  * Do we have the image libraries?
@@ -53,6 +54,15 @@
 #define HAVE_STRDUP
 #define HAVE_STRCASECMP
 #define HAVE_STRNCASECMP
+
+/*
+ * How about snprintf() and vsnprintf()?
+ */
+
+#ifndef _CONSOLE
+#  define HAVE_SNPRINTF
+#  define HAVE_VSNPRINTF
+#endif /* !_CONSOLE */
 
 /*
  * What is the version number for this software?
@@ -75,6 +85,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h,v 1.20.2.1 2000/11/30 18:33:52 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.2 2000/12/06 16:24:15 mike Exp $".
  */
 
