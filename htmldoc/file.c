@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.2 2000/12/06 16:24:13 mike Exp $"
+ * "$Id: file.c,v 1.13.2.3 2000/12/30 21:37:43 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -264,7 +264,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       * Append the filename...
       */
 
-      strncpy(temp, resource, sizeof(filename) - (temp - filename));
+      strncpy(temp, s, sizeof(filename) - (temp - filename));
       filename[sizeof(filename) - 1] = '\0';
 
      /*
@@ -649,5 +649,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.2 2000/12/06 16:24:13 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.3 2000/12/30 21:37:43 mike Exp $".
  */
