@@ -1,4 +1,4 @@
-CHANGES.txt - 04/09/2002
+CHANGES.txt - 04/10/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.19
@@ -37,6 +37,8 @@ CHANGES IN HTMLDOC v1.8.19
 	  space.
 	- PRE text didn't adjust the line height for the tallest
 	  fragment in the line.
+	- HTMLDOC tried to seek backwards when reading HTML
+	  from the standard input.
 
 
 CHANGES IN HTMLDOC v1.8.18
