@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.12 1999/11/12 20:15:58 mike Exp $"
+// "$Id: gui.cxx,v 1.13 1999/11/12 21:22:53 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -2587,10 +2587,6 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
              strcasecmp(extension, "html") == 0 ||
              strcasecmp(extension, "ps") == 0)
     {
-      fl_alert("To generate a HTML, PDF, or PS file you must click on "
-               "the GENERATE button.  The SAVE and SAVE AS buttons "
-	       "save the current book file.");
-
       gui->tabs->value(gui->outputTab);
 
       gui->outputPath->value(file_localize(filename, NULL));
@@ -2612,6 +2608,10 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
         gui->typePS->setonly();
 	outputFormatCB(gui->typePS, gui);
       }
+
+      fl_alert("To generate a HTML, PDF, or PS file you must click on "
+               "the GENERATE button.  The SAVE and SAVE AS buttons "
+	       "save the current book file.");
 
       return;
     }
@@ -2667,6 +2667,21 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   REF(w);
 
  /*
+  * Do we have an output filename?
+  */
+
+  if (gui->outputPath->size() == 0)
+  {
+    gui->tabs->value(gui->outputTab);
+    gui->outputPath->take_focus();
+
+    fl_alert("You must specify an output directory or filename before "
+             "you click on GENERATE.");
+
+    return;
+  }
+
+ /*
   * Disable the GUI while we generate...
   */
 
@@ -2689,18 +2704,18 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   set_page_size((char *)gui->pageSize->value());
 
-  PageLeft     = get_measurement((char *)gui->pageLeft->value());
-  PageRight    = get_measurement((char *)gui->pageRight->value());
-  PageTop      = get_measurement((char *)gui->pageTop->value());
-  PageBottom   = get_measurement((char *)gui->pageBottom->value());
-
-  PageDuplex   = gui->pageDuplex->value();
-  Landscape    = gui->landscape->value();
-  Compression  = (int)gui->compression->value();
-  OutputColor  = !gui->grayscale->value();
-  TocNumbers   = gui->numberedToc->value();
-  TocLevels    = gui->tocLevels->value();
-  TitlePage    = gui->titlePage->value();
+  PageLeft       = get_measurement((char *)gui->pageLeft->value());
+  PageRight      = get_measurement((char *)gui->pageRight->value());
+  PageTop        = get_measurement((char *)gui->pageTop->value());
+  PageBottom     = get_measurement((char *)gui->pageBottom->value());
+  PageDuplex     = gui->pageDuplex->value();
+  Landscape      = gui->landscape->value();
+  Compression    = (int)gui->compression->value();
+  OutputColor    = !gui->grayscale->value();
+  _htmlGrayscale = gui->grayscale->value();
+  TocNumbers     = gui->numberedToc->value();
+  TocLevels      = gui->tocLevels->value();
+  TitlePage      = gui->titlePage->value();
 
   if (gui->jpegCompress->value())
     OutputJPEG = (int)gui->jpegQuality->value();
@@ -2872,5 +2887,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.12 1999/11/12 20:15:58 mike Exp $".
+// End of "$Id: gui.cxx,v 1.13 1999/11/12 21:22:53 mike Exp $".
 //
