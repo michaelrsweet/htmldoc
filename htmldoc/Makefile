@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.18 2001/12/31 16:39:54 mike Exp $"
+# "$Id: Makefile,v 1.19 2002/01/04 21:50:51 mike Exp $"
 #
 # Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -40,7 +40,7 @@ TARGETS	=	libhtmldoc.a
 # Object files...
 #
 
-LIBOBJS	=	file.o http.o md5.o \
+LIBOBJS	=	file.o http.o http-md5.o md5.o \
 		image.o image-bmp.o image-gif.o image-jpeg.o image-png.o \
 		margin.o
 
@@ -86,5 +86,5 @@ libhtmldoc.a:	$(LIBOBJS) ../Makedefs
 
 
 #
-# End of "$Id: Makefile,v 1.18 2001/12/31 16:39:54 mike Exp $".
+# End of "$Id: Makefile,v 1.19 2002/01/04 21:50:51 mike Exp $".
 #
