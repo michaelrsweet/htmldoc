@@ -1,0 +1,16 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "icons.h"
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "icons.h\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+IDI_ICON                ICON    DISCARDABLE     "htmldoc.ico"
