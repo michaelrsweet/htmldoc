@@ -42,6 +42,8 @@ CHANGES IN HTMLDOC v1.8.12
 	- The HTML output now also includes a font-family style
 	  for PRE text; otherwise the body font would override
 	  the PRE font with some browsers.
+	- The snprintf/vsnprintf emulation functions were not
+	  included in the HTMLDOC makefile.
 
     BUG FIXES
 
