@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.11.2.11 2002/07/31 19:14:54 mike Exp $"
+# "$Id: Makefile,v 1.11.2.12 2004/05/10 01:14:53 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -15,7 +15,7 @@
 #       Attn: ESP Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3111 USA
+#       Hollywood, Maryland 20636-3142 USA
 #
 #       Voice: (301) 373-9600
 #       EMail: info@easysw.com
@@ -113,5 +113,5 @@ htmldoc.1:	htmldoc.man
 
 
 #
-# End of "$Id: Makefile,v 1.11.2.11 2002/07/31 19:14:54 mike Exp $".
+# End of "$Id: Makefile,v 1.11.2.12 2004/05/10 01:14:53 mike Exp $".
 #
