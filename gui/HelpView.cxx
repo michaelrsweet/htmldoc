@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.10 1999/11/18 16:08:12 mike Exp $"
+// "$Id: HelpView.cxx,v 1.11 1999/12/29 03:10:39 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -1305,7 +1305,7 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
   if ((target = strrchr(filename_, '#')) != NULL)
     *target++ = '\0';
 
-  if ((fp = fopen(filename_, "r")) == NULL)
+  if ((fp = fopen(filename_, "rb")) == NULL)
     return (-1);
 
   fseek(fp, 0, SEEK_END);
@@ -1381,24 +1381,17 @@ HelpView::topline(const char *n)	// I - Target name
 void
 HelpView::topline(int t)	// I - Top line number
 {
-  int	hh;			// Height of scroller
-
-
   if (!value_)
     return;
 
   if (size_ < (h() - 8) || t < 0)
     t = 0;
-  else if (t > (size_ - h() - 8))
-    t = size_ - h() - 8;
+  else if (t > size_)
+    t = size_;
 
   topline_ = t;
 
-  hh = h() - size_ / h();
-  if (hh < 20)
-    hh = 20;
-
-  scrollbar_.value(topline_, hh, 0, size_ - h());
+  scrollbar_.value(topline_, h(), 0, size_);
 
   do_callback();
   clear_changed();
@@ -1441,5 +1434,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.10 1999/11/18 16:08:12 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.11 1999/12/29 03:10:39 mike Exp $".
 //
