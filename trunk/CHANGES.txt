@@ -7,12 +7,17 @@ CHANGES IN HTMLDOC v1.8.9
 
     CHANGES
 
+	- Wasn't aligning images and text on lines based on the
+	  line height.
+
     BUG FIXES
 
 	- Didn't allow &#nnn; character escapes inside
 	  preformatted text.
 	- Empty TBODY groups would cause parse_table() to
 	  crash.
+	- Comments were incorrectly terminated by ">" instead
+	  of "-->".
 
 
 CHANGES IN HTMLDOC v1.8.8
