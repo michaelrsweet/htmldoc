@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.10 2001/10/01 20:57:05 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.11 2001/10/17 21:13:29 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -160,7 +160,8 @@ class GUI
   RadioButton	*ps1,
 		*ps2,
 		*ps3;
-  CheckButton	*psCommands;
+  CheckButton	*psCommands,
+		*xrxComments;
 
   Fl_Group	*pdfTab;
   Fl_Group	*pdfVersion;
@@ -283,5 +284,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.10 2001/10/01 20:57:05 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.11 2001/10/17 21:13:29 mike Exp $".
  */

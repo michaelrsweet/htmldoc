@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.27 2001/10/12 16:14:02 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.28 2001/10/17 21:13:29 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1181,6 +1181,8 @@ prefs_load(void)
 	PSLevel = atoi(line + 8);
       else if (strncasecmp(line, "PSCOMMANDS=", 11) == 0)
 	PSCommands = atoi(line + 11);
+      else if (strncasecmp(line, "XRXCOMMENTS=", 12) == 0)
+	XRXComments = atoi(line + 12);
       else if (strncasecmp(line, "CHARSET=", 8) == 0)
 	htmlSetCharSet(line + 8);
       else if (strncasecmp(line, "PAGEMODE=", 9) == 0)
@@ -1296,10 +1298,10 @@ prefs_save(void)
     fprintf(fp, "TOCNUMBERS=%d\n", TocNumbers);
     fprintf(fp, "TOCLEVELS=%d\n", TocLevels);
     fprintf(fp, "JPEG=%d\n", OutputJPEG);
-//    fprintf(fp, "PAGEHEADER=%s\n", Header);
-//    fprintf(fp, "PAGEFOOTER=%s\n", Footer);
-//    fprintf(fp, "TOCHEADER=%s\n", TocHeader);
-//    fprintf(fp, "TOCFOOTER=%s\n", TocFooter);
+    fprintf(fp, "PAGEHEADER=%s\n", get_fmt(Header));
+    fprintf(fp, "PAGEFOOTER=%s\n", get_fmt(Footer));
+    fprintf(fp, "TOCHEADER=%s\n", get_fmt(TocHeader));
+    fprintf(fp, "TOCFOOTER=%s\n", get_fmt(TocFooter));
     fprintf(fp, "TOCTITLE=%s\n", TocTitle);
     fprintf(fp, "BODYFONT=%d\n", _htmlBodyFont);
     fprintf(fp, "HEADINGFONT=%d\n", _htmlHeadingFont);
@@ -1312,6 +1314,7 @@ prefs_save(void)
     fprintf(fp, "PDFVERSION=%.1f\n", PDFVersion);
     fprintf(fp, "PSLEVEL=%d\n", PSLevel);
     fprintf(fp, "PSCOMMANDS=%d\n", PSCommands);
+    fprintf(fp, "XRXCOMMENTS=%d\n", XRXComments);
     fprintf(fp, "CHARSET=%s\n", _htmlCharSet);
     fprintf(fp, "PAGEMODE=%d\n", PDFPageMode);
     fprintf(fp, "PAGELAYOUT=%d\n", PDFPageLayout);
@@ -1526,6 +1529,16 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--no-pscommands") == 0)
     {
       PSCommands = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--xrxcomments") == 0)
+    {
+      XRXComments = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--no-xrxcomments") == 0)
+    {
+      XRXComments = 0;
       continue;
     }
     else if (strncmp(temp, "--compression", 13) == 0)
@@ -2149,5 +2162,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.27 2001/10/12 16:14:02 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.28 2001/10/17 21:13:29 mike Exp $".
  */

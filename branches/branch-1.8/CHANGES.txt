@@ -1,4 +1,4 @@
-CHANGES.txt - 09/13/2001
+CHANGES.txt - 09/17/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.15
@@ -16,6 +16,7 @@ CHANGES IN HTMLDOC v1.8.15
 	- Now support a new continuous web page mode that
 	  doesn't automatically insert a page break with each
 	  HTML file or URL (--continuous).
+	- Now draw border around inline images as needed.
 
     CHANGES
 

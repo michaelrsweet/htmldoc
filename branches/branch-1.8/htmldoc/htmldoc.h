@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.10 2001/10/12 16:14:07 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.11 2001/10/17 21:13:33 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -246,6 +246,7 @@ extern int	html_export(tree_t *document, tree_t *toc);
 extern tree_t	*toc_build(tree_t *tree);
 
 extern void	get_color(const uchar *c, float *rgb, int defblack = 1);
+extern const char *get_fmt(char **formats);
 extern void	get_format(const char *fmt, char **formats);
 extern int	get_measurement(const char *s, float mul = 1.0f);
 extern void	set_page_size(const char *size);
@@ -260,5 +261,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.10 2001/10/12 16:14:07 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.11 2001/10/17 21:13:33 mike Exp $".
  */
