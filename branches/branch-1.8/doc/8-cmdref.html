@@ -170,6 +170,17 @@ amount of compression) to 9 (slowest and most amount of compression).
 <P>This option is only available when generating Level 3 PostScript or
 PDF files.
 
+<H3>--continuous</H3>
+
+The <CODE>--continuous</CODE> option specifies that the input files
+comprise a web page (or site) and that no title page or
+table-of-contents should be generated. Unlike the <CODE>--webpage</CODE>
+option described later in this chapter, page breaks are not inserted
+between each input file.
+
+<P>This option is only available when generating PostScript or PDF
+files.
+
 <H3>--datadir directory</H3>
 
 The <CODE>--datadir</CODE> option specifies the location of data files used
@@ -743,7 +754,8 @@ sent/displayed to the standard error file.
 
 The <CODE>--webpage</CODE> option specifies that the input files
 comprise a web page (or site) and that no title page or
-table-of-contents should be generated.
+table-of-contents should be generated. <I>HTMLDOC</I> will insert
+a page break between each input file.
 
 <P>This option is only available when generating PostScript or PDF
 files.

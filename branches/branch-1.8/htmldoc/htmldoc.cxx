@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.25 2001/08/30 18:11:38 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.26 2001/09/17 16:59:51 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -198,7 +198,7 @@ main(int  argc,		/* I - Number of command-line arguments */
         usage();
     }
     else if (compare_strings(argv[i], "--book", 5) == 0)
-      OutputBook = 1;
+      OutputType = OUTPUT_BOOK;
     else if (compare_strings(argv[i], "--bottom", 5) == 0)
     {
       i ++;
@@ -235,6 +235,20 @@ main(int  argc,		/* I - Number of command-line arguments */
         Compression = atoi(argv[i] + 14);
       else if (PDFVersion >= 1.2)
         Compression = 1;
+    }
+    else if (compare_strings(argv[i], "--continuous", 5) == 0)
+    {
+      TocLevels    = 0;
+      TitlePage    = 0;
+      OutputType   = OUTPUT_CONTINUOUS;
+      PDFPageMode  = PDF_DOCUMENT;
+      PDFFirstPage = PDF_PAGE_1;
+
+      if (exportfunc == (exportfunc_t)html_export)
+      {
+        exportfunc = (exportfunc_t)pspdf_export;
+	PSLevel    = 0;
+      }
     }
     else if (compare_strings(argv[i], "--datadir", 4) == 0)
     {
@@ -839,7 +853,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       TocLevels    = 0;
       TitlePage    = 0;
-      OutputBook   = 0;
+      OutputType   = OUTPUT_WEBPAGES;
       PDFPageMode  = PDF_DOCUMENT;
       PDFFirstPage = PDF_PAGE_1;
 
@@ -955,7 +969,7 @@ main(int  argc,		/* I - Number of command-line arguments */
   * Build a table of contents for the documents if necessary...
   */
 
-  if (OutputBook && TocLevels > 0)
+  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
     toc = toc_build(document);
   else
     toc = NULL;
@@ -1556,12 +1570,17 @@ parse_options(const char   *line,	// I - Options from book file
     }
     else if (strcmp(temp, "--book") == 0)
     {
-      OutputBook = 1;
+      OutputType = OUTPUT_BOOK;
+      continue;
+    }
+    else if (strcmp(temp, "--continuous") == 0)
+    {
+      OutputType = OUTPUT_CONTINUOUS;
       continue;
     }
     else if (strcmp(temp, "--webpage") == 0)
     {
-      OutputBook = 0;
+      OutputType = OUTPUT_WEBPAGES;
       continue;
     }
     else if (strcmp(temp, "--encryption") == 0)
@@ -2126,5 +2145,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.25 2001/08/30 18:11:38 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.26 2001/09/17 16:59:51 mike Exp $".
  */

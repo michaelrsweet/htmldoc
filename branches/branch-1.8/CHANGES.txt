@@ -13,6 +13,9 @@ CHANGES IN HTMLDOC v1.8.15
 	  variables to include page numbers and so forth.
 	- New device control prolog file for printer-specific
 	  option commands.
+	- Now support a new continuous web page mode that
+	  doesn't automatically insert a page break with each
+	  HTML file or URL (--continuous).
 
     CHANGES
 
@@ -24,6 +27,8 @@ CHANGES IN HTMLDOC v1.8.15
 	  in all non-inline PDF streams.  This avoids a stupid
 	  bug in Acrobat Reader when printing to PostScript
 	  printers.
+	- HTMLDOC now strips any trailing GET query information
+	  when saving the start of files (target) in a document.
 
     BUG FIXES
 
