@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.16 2000/01/23 19:17:11 mike Exp $"
+// "$Id: HelpView.cxx,v 1.17 2000/01/24 01:27:21 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -960,6 +960,7 @@ HelpView::format()
 	needspace = 0;
 	hh        = 0;
 	line      = 0;
+	align     = LEFT;
       }
       else if (strcasecmp(buf, "TR") == 0)
       {
@@ -1419,12 +1420,11 @@ HelpView::handle(int event)	// I - Event to handle
 
     if (strcmp(link->filename, filename_) != 0 && link->filename[0])
     {
-      char 	*slash;		// Directory separator
       char	dir[1024];	// Current directory
       char	temp[1024];	// Temporary filename
 
 
-      if ((slash = strrchr(link->filename, '/')) == NULL)
+      if (link->filename[0] != '/' && strchr(link->filename, ':') == NULL)
       {
 	if (directory_[0])
 	  sprintf(temp, "%s/%s", directory_, link->filename);
@@ -1696,5 +1696,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.16 2000/01/23 19:17:11 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.17 2000/01/24 01:27:21 mike Exp $".
 //
