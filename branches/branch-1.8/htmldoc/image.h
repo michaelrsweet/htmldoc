@@ -1,5 +1,5 @@
 /*
- * "$Id: image.h,v 1.5.2.6 2002/01/28 00:52:26 mike Exp $"
+ * "$Id: image.h,v 1.5.2.7 2002/10/04 15:43:51 mike Exp $"
  *
  *   Image management definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -55,7 +55,8 @@ typedef struct			/**** Image structure ****/
 		obj;		/* Object number */
   uchar		*pixels;	/* 8-bit pixel data */
   uchar		*mask;		/* 1-bit mask data, if any */
-  int		maskwidth;	/* Byte width of mask data */
+  int		maskwidth,	/* Byte width of mask data */
+		maskscale;	/* Scaling of mask data */
 } image_t;
 
 
@@ -77,5 +78,5 @@ extern void	image_unload(image_t *img);
 #endif /* !_IMAGE_H_ */
 
 /*
- * End of "$Id: image.h,v 1.5.2.6 2002/01/28 00:52:26 mike Exp $".
+ * End of "$Id: image.h,v 1.5.2.7 2002/10/04 15:43:51 mike Exp $".
  */

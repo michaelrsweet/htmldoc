@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.25 2002/10/03 17:43:18 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.26 2002/10/04 15:43:50 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -38,7 +38,7 @@
  *   image_load_jpeg()    - Load a JPEG image file.
  *   image_load_png()     - Load a PNG image file.
  *   image_need_mask()    - Allocate memory for the image mask...
- *   image_set_mask()     - Clear a bit in the image mask.
+ *   image_set_mask()     - Set a bit in the image mask.
  *   jpeg_error_handler() - Handle JPEG errors by not exiting.
  *   read_word()          - Read a 16-bit unsigned integer.
  *   read_dword()         - Read a 32-bit unsigned integer.
@@ -107,8 +107,8 @@ static int	image_load_bmp(image_t *img, FILE *fp, int gray, int load_data);
 static int	image_load_gif(image_t *img, FILE *fp, int gray, int load_data);
 static int	image_load_jpeg(image_t *img, FILE *fp, int gray, int load_data);
 static int	image_load_png(image_t *img, FILE *fp, int gray, int load_data);
-static void	image_need_mask(image_t *img);
-static void	image_set_mask(image_t *img, int x, int y);
+static void	image_need_mask(image_t *img, int scaling = 1);
+static void	image_set_mask(image_t *img, int x, int y, uchar alpha = 0);
 
 static void		jpeg_error_handler(j_common_ptr);
 static int		read_long(FILE *fp);
@@ -1438,15 +1438,13 @@ image_load_png(image_t *img,	/* I - Image pointer */
                int     gray,	/* I - 0 = color, 1 = grayscale */
                int     load_data)/* I - 1 = load image data, 0 = just info */
 {
-  int		i;	/* Looping var */
-  png_structp	pp;	/* PNG read pointer */
-  png_infop	info;	/* PNG info pointers */
-  png_bytep	*rows;	/* PNG row pointers */
-  uchar		*inptr,	/* Input pixels */
-		*outptr;/* Output pixels */
-  png_color_16	bg;	/* Background color */
-  int		bgmax;	/* Maximum color value for background */
-  float		rgb[3];	/* RGB color of background */
+  int		i, j;		/* Looping vars */
+  png_structp	pp;		/* PNG read pointer */
+  png_infop	info;		/* PNG info pointers */
+  int		depth;		/* Input image depth */
+  png_bytep	*rows;		/* PNG row pointers */
+  uchar		*inptr,		/* Input pixels */
+		*outptr;	/* Output pixels */
 
 
  /*
@@ -1501,16 +1499,39 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   png_read_info(pp, info);
 
-  if (info->color_type == PNG_COLOR_TYPE_PALETTE)
-    png_set_expand(pp);
-
-  if (info->color_type == PNG_COLOR_TYPE_GRAY)
-    img->depth = 1;
-  else
+  if (info->color_type & PNG_COLOR_MASK_COLOR)
+  {
+    depth      = 3;
     img->depth = gray ? 1 : 3;
+  }
+  else
+  {
+    depth      = 1;
+    img->depth = 1;
+  }
 
   img->width  = info->width;
   img->height = info->height;
+
+  if (info->color_type & PNG_COLOR_MASK_ALPHA)
+  {
+    image_need_mask(img, PSLevel == 0 && PDFVersion >= 13 ? 4 : 2);
+
+    depth ++;
+  }
+
+#ifdef DEBUG
+  printf("color_type=0x%04x, depth=%d, img->width=%d, img->height=%d, img->depth=%d\n",
+         info->color_type, depth, img->width, img->height, img->depth);
+  if (info->color_type & PNG_COLOR_MASK_COLOR)
+    puts("    COLOR");
+  else
+    puts("    GRAYSCALE");
+  if (info->color_type & PNG_COLOR_MASK_ALPHA)
+    puts("    ALPHA");
+  if (info->color_type & PNG_COLOR_MASK_PALETTE)
+    puts("    PALETTE");
+#endif // DEBUG
 
   if (!load_data)
   {
@@ -1518,52 +1539,15 @@ image_load_png(image_t *img,	/* I - Image pointer */
     return (0);
   }
 
-  img->pixels = (uchar *)malloc(img->width * img->height * 3);
+  img->pixels = (uchar *)malloc(img->width * img->height * depth);
 
-  bgmax = 255;
-
-  if (info->bit_depth < 8)
+  if ((info->color_type & PNG_COLOR_MASK_PALETTE) || info->bit_depth < 8)
   {
     png_set_packing(pp);
     png_set_expand(pp);
   }
   else if (info->bit_depth == 16)
-  {
     png_set_strip_16(pp);
-    bgmax = 65535;
-  }
-
- /*
-  * Handle transparency...
-  */
-
-  if (png_get_valid(pp, info, PNG_INFO_tRNS))
-    png_set_tRNS_to_alpha(pp);
-
-  if (BodyColor[0])
-  {
-   /*
-    * User-defined color...
-    */
-
-    get_color((uchar *)BodyColor, rgb);
-
-    bg.red   = (png_uint_16)(rgb[0] * bgmax + 0.5f);
-    bg.green = (png_uint_16)(rgb[1] * bgmax + 0.5f);
-    bg.blue  = (png_uint_16)(rgb[2] * bgmax + 0.5f);
-  }
-  else
-  {
-   /*
-    * Default to white...
-    */
-
-    bg.red   = bgmax;
-    bg.green = bgmax;
-    bg.blue  = bgmax;
-  }
-
-  png_set_background(pp, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
 
  /*
   * Allocate pointers...
@@ -1572,10 +1556,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   rows = (png_bytep *)calloc(info->height, sizeof(png_bytep));
 
   for (i = 0; i < (int)info->height; i ++)
-    if (info->color_type == PNG_COLOR_TYPE_GRAY)
-      rows[i] = img->pixels + i * img->width;
-    else
-      rows[i] = img->pixels + i * img->width * 3;
+    rows[i] = img->pixels + i * img->width * depth;
 
  /*
   * Read the image, handling interlacing as needed...
@@ -1585,10 +1566,39 @@ image_load_png(image_t *img,	/* I - Image pointer */
     png_read_rows(pp, rows, NULL, img->height);
 
  /*
+  * Generate the alpha mask as necessary...
+  */
+
+  if (info->color_type & PNG_COLOR_MASK_ALPHA)
+  {
+#ifdef DEBUG
+    for (inptr = img->pixels, i = 0; i < img->height; i ++)
+    {
+      for (j = 0; j < img->width; j ++, inptr += depth)
+        switch (depth)
+	{
+	  case 2 :
+	      printf(" %02X%02X", inptr[0], inptr[1]);
+	      break;
+	  case 4 :
+	      printf(" %02X%02X%02X%02X", inptr[0], inptr[1], inptr[2], inptr[3]);
+	      break;
+	}
+
+      putchar('\n');
+    }
+#endif // DEBUG
+
+    for (inptr = img->pixels + depth - 1, i = 0; i < img->height; i ++)
+      for (j = 0; j < img->width; j ++, inptr += depth)
+        image_set_mask(img, j, i, *inptr);
+  }
+
+ /*
   * Reformat the data as necessary for the reader...
   */
 
-  if (gray && info->color_type != PNG_COLOR_TYPE_GRAY)
+  if (gray && info->color_type & PNG_COLOR_MASK_COLOR)
   {
    /*
     * Greyscale output needed...
@@ -1596,8 +1606,33 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
     for (inptr = img->pixels, outptr = img->pixels, i = img->width * img->height;
          i > 0;
-         inptr += 3, outptr ++, i --)
+         inptr += depth, outptr ++, i --)
       *outptr = (31 * inptr[0] + 61 * inptr[1] + 8 * inptr[2]) / 100;
+  }
+  else if (img->depth != depth)
+  {
+   /*
+    * Remove alpha from final array...
+    */
+
+    if (depth == 4)
+    {
+      for (inptr = img->pixels, outptr = img->pixels, i = img->width * img->height;
+           i > 0;
+           inptr ++, i --)
+      {
+        *outptr++ = *inptr++;
+        *outptr++ = *inptr++;
+        *outptr++ = *inptr++;
+      }
+    }
+    else
+    {
+      for (inptr = img->pixels, outptr = img->pixels, i = img->width * img->height;
+           i > 0;
+           inptr ++, i --)
+        *outptr++ = *inptr++;
+    }
   }
 
  /*
@@ -1618,7 +1653,8 @@ image_load_png(image_t *img,	/* I - Image pointer */
  */
 
 static void
-image_need_mask(image_t *img)	/* I - Image to add mask to */
+image_need_mask(image_t *img,	/* I - Image to add mask to */
+                int     scaling)/* I - Scaling for mask image */
 {
   int	size;			/* Byte size of mask image */
 
@@ -1631,36 +1667,82 @@ image_need_mask(image_t *img)	/* I - Image to add mask to */
   * bits needed...
   */
 
-  img->maskwidth = (img->width + 7) / 8;
-  size           = img->maskwidth * img->height;
+  img->maskscale = scaling;
+  img->maskwidth = (img->width * scaling + 7) / 8;
+  size           = img->maskwidth * img->height * scaling;
   
   img->mask = (uchar *)calloc(size, 1);
 }
 
 
 /*
- * 'image_set_mask()' - Clear a bit in the image mask.
+ * 'image_set_mask()' - Set a bit in the image mask.
  */
 
 static void
 image_set_mask(image_t *img,	/* I - Image to operate on */
                int     x,	/* I - X coordinate */
-               int     y)	/* I - Y coordinate */
+               int     y,	/* I - Y coordinate */
+	       uchar   alpha)	/* I - Alpha value */
 {
+  int		i, j;		/* Looping vars */
   uchar		*maskptr;	/* Pointer into mask image */
   static uchar	masks[8] =	/* Masks for each bit */
 		{
 		  0x80, 0x40, 0x20, 0x10,
 		  0x08, 0x04, 0x02, 0x01
 		};
+  static uchar	dither[16][16] = // Simple 16x16 Floyd dither
+		{
+		 { 0,   128, 32,  160, 8,   136, 40,  168,
+		   2,   130, 34,  162, 10,  138, 42,  170 },
+		 { 192, 64,  224, 96,  200, 72,  232, 104,
+		   194, 66,  226, 98,  202, 74,  234, 106 },
+		 { 48,  176, 16,  144, 56,  184, 24,  152,
+		   50,  178, 18,  146, 58,  186, 26,  154 },
+		 { 240, 112, 208, 80,  248, 120, 216, 88,
+		   242, 114, 210, 82,  250, 122, 218, 90 },
+		 { 12,  140, 44,  172, 4,   132, 36,  164,
+		   14,  142, 46,  174, 6,   134, 38,  166 },
+		 { 204, 76,  236, 108, 196, 68,  228, 100,
+		   206, 78,  238, 110, 198, 70,  230, 102 },
+		 { 60,  188, 28,  156, 52,  180, 20,  148,
+		   62,  190, 30,  158, 54,  182, 22,  150 },
+		 { 252, 124, 220, 92,  244, 116, 212, 84,
+		   254, 126, 222, 94,  246, 118, 214, 86 },
+		 { 3,   131, 35,  163, 11,  139, 43,  171,
+		   1,   129, 33,  161, 9,   137, 41,  169 },
+		 { 195, 67,  227, 99,  203, 75,  235, 107,
+		   193, 65,  225, 97,  201, 73,  233, 105 },
+		 { 51,  179, 19,  147, 59,  187, 27,  155,
+		   49,  177, 17,  145, 57,  185, 25,  153 },
+		 { 243, 115, 211, 83,  251, 123, 219, 91,
+		   241, 113, 209, 81,  249, 121, 217, 89 },
+		 { 15,  143, 47,  175, 7,   135, 39,  167,
+		   13,  141, 45,  173, 5,   133, 37,  165 },
+		 { 207, 79,  239, 111, 199, 71,  231, 103,
+		   205, 77,  237, 109, 197, 69,  229, 101 },
+		 { 63,  191, 31,  159, 55,  183, 23,  151,
+		   61,  189, 29,  157, 53,  181, 21,  149 },
+		 { 254, 127, 223, 95,  247, 119, 215, 87,
+		   253, 125, 221, 93,  245, 117, 213, 85 }
+	       };
 
 
   if (img == NULL || img->mask == NULL || x < 0 || x >= img->width ||
       y < 0 || y > img->height)
     return;
 
-  maskptr  = img->mask + y * img->maskwidth + x / 8;
-  *maskptr |= masks[x & 7];
+  x *= img->maskscale;
+  y *= img->maskscale;
+
+  for (i = 0; i < img->maskscale; i ++, y ++, x -= img->maskscale)
+    for (j = 0; j < img->maskscale; j ++, x ++)
+    {
+      maskptr  = img->mask + y * img->maskwidth + x / 8;
+      if (alpha <= dither[x & 15][y & 15])
+	*maskptr |= masks[x & 7];
+    }
 }
 
 
@@ -1754,5 +1836,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.25 2002/10/03 17:43:18 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.26 2002/10/04 15:43:50 mike Exp $".
  */
