@@ -1,0 +1,25 @@
+# DO NOT DELETE
+
+common.o: htmldoc.h image.h file.h http.h md5.h types.h ../config.h tree.h
+common.o: style.h hdstring.h
+file.o: file.h http.h md5.h hdstring.h ../config.h
+file-common.o: file.h http.h md5.h hdstring.h ../config.h
+file-mem.o: file.h http.h md5.h hdstring.h ../config.h
+file-open.o: file.h http.h md5.h hdstring.h ../config.h
+file-std.o: file.h http.h md5.h hdstring.h ../config.h
+http.o: http.h md5.h hdstring.h ../config.h debug.h
+http-md5.o: http.h md5.h hdstring.h ../config.h
+md5.o: md5.h hdstring.h ../config.h
+image.o: image.h file.h http.h md5.h types.h ../config.h hdstring.h
+image-bmp.o: image.h file.h http.h md5.h types.h ../config.h hdstring.h
+image-gif.o: image.h file.h http.h md5.h types.h ../config.h hdstring.h
+image-jpeg.o: image.h file.h http.h md5.h types.h ../config.h hdstring.h
+image-png.o: image.h file.h http.h md5.h types.h ../config.h
+margin.o: margin.h
+style.o: tree.h file.h http.h md5.h style.h hdstring.h ../config.h
+stylefont.o: tree.h file.h http.h md5.h style.h hdstring.h ../config.h
+stylesheet.o: htmldoc.h image.h file.h http.h md5.h types.h ../config.h
+stylesheet.o: tree.h style.h hdstring.h
+tree.o: tree.h file.h http.h md5.h style.h hdstring.h ../config.h
+testsuite.o: htmldoc.h image.h file.h http.h md5.h types.h ../config.h tree.h
+testsuite.o: style.h hdstring.h

@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.5 2002/02/06 20:24:08 mike Exp $"
+// "$Id: style.h,v 1.6 2002/02/08 19:39:51 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -149,7 +149,7 @@ enum hdElGroup
 #define hdElIsList(x)	(hdTree::elgroup[x] & HD_ELGROUP_LIST)
 #define hdElIsItem(x)	(hdTree::elgroup[x] & HD_ELGROUP_ITEM)
 #define hdElIsInline(x)	(hdTree::elgroup[x] & HD_ELGROUP_INLINE)
-#define hdElIsNone	(hdTree::elgroup[x] == HD_ELGROUP_NONE)
+#define hdElIsNone(x)	(hdTree::elgroup[x] == HD_ELGROUP_NONE)
 
 
 //
@@ -398,12 +398,19 @@ struct hdBorder
   float			width;		// Width of border
 };
 
+#define HD_SELECTOR_MAX	100
+
 struct hdSelector
 {
   hdElement		element;	// Element for selection
   char			*class_,	// Class name for selection
 			*pseudo,	// Pseudo-class for selection
 			*id;		// ID for selection
+
+  hdSelector();
+
+  void	set(hdElement e, const char *c, const char *p, const char *i);
+  void	clear();
 };
 
 struct hdStyle
@@ -463,10 +470,10 @@ struct hdStyle
   ~hdStyle();
 
   hdBorderStyle	get_border_style(const char *value);
-  float		get_border_width(const char *value);
+  float		get_border_width(const char *value, hdStyleSheet *css);
   int		get_color(const char *color, unsigned char *rgb);
   float		get_length(const char *length, float max_length,
-		           int *relative = (int *)0);
+		           hdStyleSheet *css, int *relative = (int *)0);
   hdListStyleType get_list_style_type(const char *value);
   hdPageBreak	get_page_break(const char *value);
   int		get_pos(const char *name);
@@ -503,7 +510,8 @@ struct hdStyleSheet
   int		num_styles,	// Number of styles
 		alloc_styles;	// Allocate style slots
   hdStyle	**styles;	// Array of styles
-  int		max_selectors;	// Maximum number of selectors in styles
+  int		max_selectors[HD_ELEMENT_MAX];
+				// Maximum number of selectors in styles
   int		elements[HD_ELEMENT_MAX];
 				// First style for each element
   int		num_fonts;	// Number of fonts defined
@@ -514,6 +522,7 @@ struct hdStyleSheet
   int		num_glyphs;	// Number of glyphs in charset
   char		**glyphs;	// Glyphs in charset
 
+  char		size_name[64];	// Page size name
   float		width,		// Page width, points
 		length,		// Page length, points
 		left,		// Left position, points
@@ -525,6 +534,10 @@ struct hdStyleSheet
 
   hdOrientation	orientation;	// Orientation of the page
   hdSides	sides;		// Format single or double-sided?
+  int		grayscale;	// Grayscale output?
+  float		ppi;		// Pixel resolution
+  unsigned	private_id;	// Private style ID
+
 
   hdStyleSheet();
   ~hdStyleSheet();
@@ -532,7 +545,8 @@ struct hdStyleSheet
   void		add_style(hdStyle *s);
   hdStyleFont	*find_font(hdStyle *s);
   hdStyle	*find_style(hdTree *t);
-  hdStyle	*find_style(int nsels, hdSelector *sels);
+  hdStyle	*find_style(int nsels, hdSelector *sels, int exact = 0);
+  hdStyle	*get_private_style(hdTree *t);
   int		load(hdFile *f, const char *path = (const char *)0);
   void		pattern(const char *r, char p[256]);
   char		*read(hdFile *f, const char *p, char *s, int slen);
@@ -540,7 +554,8 @@ struct hdStyleSheet
   void		set_margins(float l, float b, float r, float t);
   void		set_orientation(hdOrientation o);
   void		set_size(float w, float l);
-  void		update();
+  void		set_size(const char *name); 
+ 
   void		update_printable();
   void		update_styles();
 };
@@ -549,5 +564,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.5 2002/02/06 20:24:08 mike Exp $".
+// End of "$Id: style.h,v 1.6 2002/02/08 19:39:51 mike Exp $".
 //

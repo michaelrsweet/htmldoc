@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.3 2002/02/05 17:47:59 mike Exp $"
+// "$Id: tree.h,v 1.4 2002/02/08 19:39:52 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -59,69 +59,45 @@ struct hdTree
 		*link;		// Linked-to
   hdElement	element;	// Markup element
   char		*data;		// Text (HD_ELEMENT_NONE or HD_ELEMENT_COMMENT)
-  unsigned	halignment:2,	// Horizontal alignment
-		valignment:2,	// Vertical alignment
-		typeface:4,	// Typeface code
-		size:3,		// Size of text
-		style:2,	// Style of text
-		underline:1,	// Text is underlined?
-		strikethrough:1,// Text is struck-through?
-		subscript:1,	// Text is subscripted?
-		superscript:1,	// Text is superscripted?
-		preformatted:1,	// Preformatted text?
-		indent:4;	// Indentation level 0-15
-  char		red,		// Color of this fragment
-		green,
-		blue;
+  hdStyle	*style;		// Style data
+  int		whitespace;	// Whitespace before this node?
   float		width,		// Width of this fragment in points
 		height;		// Height of this fragment in points
-  int		nattrs;		// Number of attributes...
+  short		aattrs,		// Allocated attributes...
+		nattrs;		// Number of attributes...
   hdTreeAttr	*attrs;		// Attributes...
 
   // Global data...
   static const char	*elements[];
   static unsigned char	elgroup[HD_ELEMENT_MAX];
   static hdElement	elparent[HD_ELEMENT_MAX];
-  static const char	*datadir;
-  static float		ppi;
-  static int		grayscale;
-  static char		text_color[];
-  static float		browser_width;
-  static float		font_sizes[],
-			line_spacings[];
-  static hdFontFace	body_font,
-			heading_font;
-  static char		text_charset[32];
-  static float		font_widths[4][4][256];
-  static const char	font_glyphs[];
-  static const char	*fonts[4][4];
 
   // Methods...
-  hdTree(hdElement e = HD_ELEMENT_NONE, const char *d = (const char *)0);
+  hdTree(hdElement e = HD_ELEMENT_NONE, const char *d = (const char *)0,
+         hdTree *p = (hdTree *)0);
   ~hdTree();
 
-  void		add(hdTree *p);	// Add to end of parent
-  void		insert(hdTree *p);// Insert at beginning of parent
-  void		remove();	// Remove from parent
-
-  char		*get_text();	// Create a copy of the text under this node
-  const char	*get_meta(const char *name);
-				// Find META data
-  static hdTree	*read(hdTree *p, hdFile *fp, const char *base,
-		      const char *path);
-
-  const char	*get_attr(const char *name);
-  void		set_attr(const char *name, const char *value);
-
-  const char	*get_style(const char *name);
-
-  static void	set_base_size(float p, float s);
-  static void	set_charset(const char *cs);
-  static void	set_text_color(const char *color);
+  void			add(hdTree *p);
+  void			compute_size();
+  static char		*fix_url(const char *url, const char *base,
+			         const char *path, char *s, int slen);
+  const char		*get_attr(const char *name);
+  static hdElement	get_element(const char *name);
+  const char		*get_meta(const char *name);
+  char			*get_text();
+  void			insert(hdTree *p);
+  int			parse_attribute(hdFile *fp);
+  hdElement		parse_element(hdFile *fp);
+  static hdTree		*read(hdFile *fp, const char *base,
+			      const char *path, hdStyleSheet *css);
+  hdTree		*real_next();
+  hdTree		*real_prev();
+  void			remove();
+  void			set_attr(const char *name, const char *value);
 };
 
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.3 2002/02/05 17:47:59 mike Exp $".
+// End of "$Id: tree.h,v 1.4 2002/02/08 19:39:52 mike Exp $".
 //
