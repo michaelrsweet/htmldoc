@@ -82,7 +82,7 @@ void FileChooser::cb_dirMenu(Fl_Choice* o, void* v) {
 
 inline void FileChooser::cb_allfiles_i(Fl_Button*, void*) {
   const char *f;
-if ((f = fl_input("New Filter?",
+if ((f = fl_input(_("New Filter?"),
                   fileList->filter())) != NULL)
 {
   fileList->filter(f);
@@ -109,10 +109,10 @@ FileChooser::FileChooser(const char *d, const char *p, int t, const char *title)
       Fl_Group::current()->resizable(o);
       w->hotspot(o);
     }
-    { Fl_Button* o = new Fl_Button(300, 280, 65, 25, _("Cancel"));
+    { Fl_Button* o = new Fl_Button(285, 280, 80, 25, _("Cancel"));
       o->callback((Fl_Callback*)cb_Cancel);
     }
-    { Fl_Return_Button* o = okButton = new Fl_Return_Button(240, 280, 55, 25, _("OK"));
+    { Fl_Return_Button* o = okButton = new Fl_Return_Button(210, 280, 70, 25, _("OK"));
       o->callback((Fl_Callback*)cb_okButton);
     }
     { FileInput* o = fileName = new FileInput(10, 245, 355, 25, _("Filename:"));
@@ -131,7 +131,7 @@ FileChooser::FileChooser(const char *d, const char *p, int t, const char *title)
       o->labelsize(8);
       o->callback((Fl_Callback*)cb_newButton);
     }
-    { Fl_Choice* o = dirMenu = new Fl_Choice(75, 10, 200, 25, _("Directory:"));
+    { Fl_Choice* o = dirMenu = new Fl_Choice(95, 10, 180, 25, _("Directory:"));
       o->callback((Fl_Callback*)cb_dirMenu);
     }
     { Fl_Button* o = new Fl_Button(340, 10, 25, 25);

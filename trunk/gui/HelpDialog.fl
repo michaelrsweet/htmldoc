@@ -18,7 +18,7 @@ class HelpDialog {open
   } {
     Fl_Window window_ {
       label {Help Dialog} open
-      private xywh {459 351 530 385} resizable
+      private xywh {464 372 530 385} resizable
       code0 {\#include <string.h>} visible
     } {
       Fl_Group view_ {
@@ -58,8 +58,8 @@ else if (view_->filename())
       } {}
       Fl_Button {} {
         label Close
-        callback {window_->hide();}
-        xywh {445 350 75 25}
+        callback {window_->hide();} selected
+        xywh {425 350 95 25}
       }
       Fl_Button back_ {
         label {@<-}
@@ -75,7 +75,7 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {375 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
+        private xywh {365 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
       }
       Fl_Button forward_ {
         label {@->}
@@ -91,7 +91,7 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {410 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
+        private xywh {395 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
       }
       Fl_Button smaller_ {
         label F
@@ -100,7 +100,7 @@ view_->topline(line_[index_]);}
 
 if (view_->textsize() <= 8)
   smaller_->deactivate();
-larger_->activate();} selected
+larger_->activate();}
         private xywh {305 350 25 25} labelfont 1 labelsize 10
       }
       Fl_Button larger_ {
@@ -111,7 +111,7 @@ larger_->activate();} selected
 if (view_->textsize() >= 18)
   larger_->deactivate();
 smaller_->activate();}
-        private xywh {340 350 25 25} labelfont 1 labelsize 16
+        private xywh {335 350 25 25} labelfont 1 labelsize 16
       }
     }
     code {back_->deactivate();
