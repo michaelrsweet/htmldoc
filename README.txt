@@ -1,4 +1,4 @@
-README.txt - 09/23/2004
+README.txt - 11/16/2004
 -----------------------
 
 INTRODUCTION
@@ -13,8 +13,9 @@ INTRODUCTION
 
     HTMLDOC is copyright 1997-2004 by Easy Software Products.
     The source code is available under the GNU General Public
-    License, version 2.  See the LEGAL STUFF section below for
-    details.
+    License, version 2.  Binaries are provided under a typical
+    commercial End-User License Agreement. See the LEGAL STUFF
+    section below for details.
 
     Documentation for HTMLDOC is available in the "doc"
     subdirectory and is been generated from HTML "source" files
@@ -53,15 +54,14 @@ INTERNET RESOURCES
 
         http://www.easysw.com/htmldoc/
 
-    Commercial support is provided by Easy Software Products;
-    send commercial support requests to the following email
-    address:
-
-        htmldoc-support@easysw.com
-
-    or use the form at the following page:
+    Commercial support is provided by Easy Software Products.
+    Submit commercial support requests using the form at:
 
 	http://www.easysw.com/support.php
+
+    or to the following email address:
+
+        htmldoc-support@easysw.com
 
 
 REQUIREMENTS
@@ -185,10 +185,11 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC is the trademark property of Easy Software Products.
+    HTMLDOC and <HTML>DOC are the trademark property of Easy
+    Software Products.
 
     HTMLDOC is copyright 1997-2004 by Easy Software Products.
-    See Appendix A of the HTMLDOC Software Users Manual or the
+    See Appendix A of the HTMLDOC Software Users Manual and the
     files "COPYING.txt" and "htmldoc.eula" for the terms of use.
 
     This software is based in part on the work of the
