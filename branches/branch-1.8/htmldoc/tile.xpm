@@ -2,7 +2,7 @@
 static const char * tile_xpm[] = {
 "16 16 2 1",
 "o	c #CCCCCC",
-".	c #DDDDDD",
+".	c #FFFFFF",
 "oooooooooooooooo",
 "................",
 "oooooooooooooooo",
