@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.21 2001/12/13 19:04:06 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.22 2001/12/17 18:27:33 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -236,13 +236,13 @@ write_header(FILE   **out,	/* IO - Output file */
 
     snprintf(realname, sizeof(realname), "%s/%s", OutputPath, basename);
 
-    *out = fopen(realname, "w");
+    *out = fopen(realname, "wb");
   }
   else if (OutputPath[0] != '\0')
   {
     if (*out == NULL)
     {
-      *out    = fopen(OutputPath, "w");
+      *out    = fopen(OutputPath, "wb");
       newfile = 1;
     }
     else
@@ -942,5 +942,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.21 2001/12/13 19:04:06 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.22 2001/12/17 18:27:33 mike Exp $".
  */

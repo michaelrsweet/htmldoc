@@ -1,4 +1,4 @@
-CHANGES.txt - 12/13/2001
+CHANGES.txt - 12/17/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.17
@@ -24,6 +24,11 @@ CHANGES IN HTMLDOC v1.8.17
 	- Changed the TOC numbering to use 32-bit integers
 	  instead of 8-bit integers...
 	- Now handle local links with quoted (%HH) characters.
+	- The command-line interface no longer sets PDF output
+	  mode when using --continuous or --webpage.
+	- HTMLDOC now opens HTML output files in binary mode to
+	  prevent extra CR's under Windows, and strips incoming
+	  CR's from PRE text.
 
     BUG FIXES
 
