@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.cxx,v 1.6.2.7 2001/09/17 16:59:55 mike Exp $"
+ * "$Id: progress.cxx,v 1.6.2.8 2001/09/21 19:59:44 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
@@ -42,6 +42,13 @@
 
 
 /*
+ * Local globals...
+ */
+
+static int	progress_visible = 0;
+
+
+/*
  * 'progress_error()' - Display an error message.
  */
 
@@ -73,13 +80,13 @@ progress_error(HDerror    error,	/* I - Error number */
 
   if (Verbosity >= 0)
   {
-    if (Verbosity)
-      putc('\r', stderr);
+    if (progress_visible)
+      fprintf(stderr, "\r%-79.79s\r", "");
 
     if (error)
-      fprintf(stderr, "ERR%03d: %-71.71s\n", error, text);
+      fprintf(stderr, "ERR%03d: %s\n", error, text);
     else
-      fprintf(stderr, "%-79.79s\n", text);
+      fprintf(stderr, "%s\n", text);
   }
 }
 
@@ -101,9 +108,11 @@ progress_hide(void)
 
   if (Verbosity > 0)
   {
-    fprintf(stderr, "\r%-79s\r", "");
+    fprintf(stderr, "\r%-79.79s\r", "");
     fflush(stderr);
   }
+
+  progress_visible = 0;
 }
 
 
@@ -136,6 +145,8 @@ progress_show(const char *format,	/* I - Printf-style format string */
     fprintf(stderr, "\r%-79s", text);
     fflush(stderr);
   }
+
+  progress_visible = 1;
 }
 
 
@@ -157,5 +168,5 @@ progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.6.2.7 2001/09/17 16:59:55 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.6.2.8 2001/09/21 19:59:44 mike Exp $".
  */
