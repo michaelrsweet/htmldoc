@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.27 2000/04/16 17:31:40 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.28 2000/04/21 13:08:28 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -255,7 +255,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 		*color,		/* Color for FONT tag */
 		*size;		/* Size for FONT tag */
   int		sizeval;	/* Size value from FONT tag */
-  unsigned	halignment;	/* Saved horizontal alignment for tables. */
 
 
 #ifdef DEBUG
@@ -843,19 +842,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       case MARKUP_CENTER :
           t->halignment = ALIGN_CENTER;
           t->child      = htmlReadFile(t, fp, base);
-          break;
-
-      case MARKUP_TABLE :
-         /*
-          * Tables have the overall table alignment and the cell alignment...
-          */
-
-          halignment    = t->halignment;
-	  t->halignment = ALIGN_LEFT;
-          get_alignment(t);
-
-          t->child      = htmlReadFile(t, fp, base);
-	  t->halignment = halignment;
           break;
 
       default :
@@ -2282,5 +2268,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.27 2000/04/16 17:31:40 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.28 2000/04/21 13:08:28 mike Exp $".
  */
