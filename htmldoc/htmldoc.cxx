@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.28 2001/10/17 21:13:29 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.29 2001/10/18 20:51:22 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1261,7 +1261,7 @@ prefs_load(void)
       break;
 
   if (pos == 3)
-    get_format("..1", TocFooter);
+    get_format("..i", TocFooter);
 }
 
 
@@ -1461,8 +1461,10 @@ parse_options(const char   *line,	// I - Options from book file
     while (*lineptr == ' ')
       lineptr ++;
 
-    for (tempptr = temp; *lineptr != '\0' && *lineptr != ' ';)
-      *tempptr++ = *lineptr++;
+    for (tempptr = temp; *lineptr != '\0' && *lineptr != ' '; lineptr ++)
+      if (tempptr < (temp + sizeof(temp) - 1))
+        *tempptr++ = *lineptr;
+
     *tempptr = '\0';
 
     while (*lineptr == ' ')
@@ -1615,16 +1617,18 @@ parse_options(const char   *line,	// I - Options from book file
     {
       lineptr ++;
 
-      for (tempptr = temp2; *lineptr != '\0' && *lineptr != '\"';)
-	*tempptr++ = *lineptr++;
+      for (tempptr = temp2; *lineptr != '\0' && *lineptr != '\"'; lineptr ++)
+        if (tempptr < (temp2 + sizeof(temp2) - 1))
+	  *tempptr++ = *lineptr;
 
       if (*lineptr == '\"')
         lineptr ++;
     }
     else
     {
-      for (tempptr = temp2; *lineptr != '\0' && *lineptr != ' ';)
-	*tempptr++ = *lineptr++;
+      for (tempptr = temp2; *lineptr != '\0' && *lineptr != ' '; lineptr ++)
+        if (tempptr < (temp2 + sizeof(temp2) - 1))
+	  *tempptr++ = *lineptr;
     }
 
     *tempptr = '\0';
@@ -2162,5 +2166,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.28 2001/10/17 21:13:29 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.29 2001/10/18 20:51:22 mike Exp $".
  */

@@ -1,4 +1,4 @@
-CHANGES.txt - 09/17/2001
+CHANGES.txt - 09/18/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.15
@@ -54,6 +54,13 @@ CHANGES IN HTMLDOC v1.8.15
 	  did not format properly.
 	- When writing HTML output, image references would
 	  incorrectly be mapped using the current path.
+	- Images with a width or height of 0 should not be
+	  written to PS or PDF output.
+	- The CreationDate comment in PostScript output
+	  contained a bad timezone offset (+-0500, for example,
+	  instead of -0500).
+	- The PHP portal example now verifies that the URL
+	  passed to it contains no illegal characters.
 
 
 CHANGES IN HTMLDOC v1.8.14
