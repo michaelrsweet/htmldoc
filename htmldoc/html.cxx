@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.2 2000/12/06 13:55:39 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.3 2000/12/06 13:56:32 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -439,7 +439,7 @@ write_title(FILE  *out,		/* I - Output file */
     }
 
     if (title != NULL)
-      fprintf(out, "<h1>%s</h1></A><BR>\n", title);
+      fprintf(out, "<H1>%s</H1></A><BR>\n", title);
     else
       fputs("</A>\n", out);
 
@@ -886,5 +886,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.2 2000/12/06 13:55:39 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.3 2000/12/06 13:56:32 mike Exp $".
  */
