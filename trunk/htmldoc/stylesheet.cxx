@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.17 2004/04/11 19:38:58 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.18 2004/10/24 03:23:42 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -236,8 +236,8 @@ hdStyleSheet::find_font(hdStyle *s)	// I - Style record
 
 
   // Figure out the font style we need...
-  if (s->font_weight == HD_FONTWEIGHT_BOLD ||
-      s->font_weight == HD_FONTWEIGHT_BOLDER)
+  if (s->font_weight == HD_FONT_WEIGHT_BOLD ||
+      s->font_weight == HD_FONT_WEIGHT_BOLDER)
     fs = HD_FONTINTERNAL_BOLD;
   else
     fs = HD_FONTINTERNAL_NORMAL;
@@ -1210,5 +1210,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.17 2004/04/11 19:38:58 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.18 2004/10/24 03:23:42 mike Exp $".
 //

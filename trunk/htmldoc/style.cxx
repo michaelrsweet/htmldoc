@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.17 2004/04/11 19:38:58 mike Exp $"
+// "$Id: style.cxx,v 1.18 2004/10/24 03:23:42 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -244,23 +244,23 @@ hdStyle::get_border_style(const char *value)
 					// I - String value
 {
   if (strcasecmp(value, "dotted") == 0)
-    return (HD_BORDERSTYLE_DOTTED);
+    return (HD_BORDER_STYLE_DOTTED);
   else if (strcasecmp(value, "dashed") == 0)
-    return (HD_BORDERSTYLE_DASHED);
+    return (HD_BORDER_STYLE_DASHED);
   else if (strcasecmp(value, "solid") == 0)
-    return (HD_BORDERSTYLE_SOLID);
+    return (HD_BORDER_STYLE_SOLID);
   else if (strcasecmp(value, "double") == 0)
-    return (HD_BORDERSTYLE_DOUBLE);
+    return (HD_BORDER_STYLE_DOUBLE);
   else if (strcasecmp(value, "groove") == 0)
-    return (HD_BORDERSTYLE_GROOVE);
+    return (HD_BORDER_STYLE_GROOVE);
   else if (strcasecmp(value, "ridge") == 0)
-    return (HD_BORDERSTYLE_RIDGE);
+    return (HD_BORDER_STYLE_RIDGE);
   else if (strcasecmp(value, "inset") == 0)
-    return (HD_BORDERSTYLE_INSET);
+    return (HD_BORDER_STYLE_INSET);
   else if (strcasecmp(value, "outset") == 0)
-    return (HD_BORDERSTYLE_OUTSET);
+    return (HD_BORDER_STYLE_OUTSET);
   else
-    return (HD_BORDERSTYLE_NONE);
+    return (HD_BORDER_STYLE_NONE);
 }
 
 
@@ -520,23 +520,23 @@ hdStyle::get_list_style_type(const char *value)
 					// I - String value
 {
   if (strcasecmp(value, "disc") == 0)
-    return (HD_LISTSTYLEHD_FONTFACE_DISC);
+    return (HD_LIST_STYLE_TYPE_DISC);
   else if (strcasecmp(value, "circle") == 0)
-    return (HD_LISTSTYLEHD_FONTFACE_CIRCLE);
+    return (HD_LIST_STYLE_TYPE_CIRCLE);
   else if (strcasecmp(value, "square") == 0)
-    return (HD_LISTSTYLEHD_FONTFACE_SQUARE);
+    return (HD_LIST_STYLE_TYPE_SQUARE);
   else if (strcasecmp(value, "decimal") == 0)
-    return (HD_LISTSTYLEHD_FONTFACE_DECIMAL);
+    return (HD_LIST_STYLE_TYPE_DECIMAL);
   else if (strcasecmp(value, "lower-roman") == 0)
-    return (HD_LISTSTYLEHD_FONTFACE_LOWER_ROMAN);
+    return (HD_LIST_STYLE_TYPE_LOWER_ROMAN);
   else if (strcasecmp(value, "upper-roman") == 0)
-    return (HD_LISTSTYLEHD_FONTFACE_UPPER_ROMAN);
+    return (HD_LIST_STYLE_TYPE_UPPER_ROMAN);
   else if (strcasecmp(value, "lower-alpha") == 0)
-    return (HD_LISTSTYLEHD_FONTFACE_LOWER_ALPHA);
+    return (HD_LIST_STYLE_TYPE_LOWER_ALPHA);
   else if (strcasecmp(value, "upper-alpha") == 0)
-    return (HD_LISTSTYLEHD_FONTFACE_UPPER_ALPHA);
+    return (HD_LIST_STYLE_TYPE_UPPER_ALPHA);
   else
-    return (HD_LISTSTYLEHD_FONTFACE_NONE);
+    return (HD_LIST_STYLE_TYPE_NONE);
 }
 
 
@@ -549,15 +549,15 @@ hdStyle::get_page_break(const char *value)
 					// I - String value
 {
   if (strcasecmp(value, "always") == 0)
-    return (HD_PAGEBREAK_ALWAYS);
+    return (HD_PAGE_BREAK_ALWAYS);
   else if (strcasecmp(value, "avoid") == 0)
-    return (HD_PAGEBREAK_AVOID);
+    return (HD_PAGE_BREAK_AVOID);
   else if (strcasecmp(value, "left") == 0)
-    return (HD_PAGEBREAK_LEFT);
+    return (HD_PAGE_BREAK_LEFT);
   else if (strcasecmp(value, "right") == 0)
-    return (HD_PAGEBREAK_RIGHT);
+    return (HD_PAGE_BREAK_RIGHT);
   else
-    return (HD_PAGEBREAK_AUTO);
+    return (HD_PAGE_BREAK_AUTO);
 }
 
 
@@ -1127,19 +1127,19 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	}
 	else if (strcasecmp(subvalue, "repeat") == 0)
 	{
-	  background_repeat = HD_BACKGROUNDREPEAT_REPEAT;
+	  background_repeat = HD_BACKGROUND_REPEAT_REPEAT;
 	}
 	else if (strcasecmp(subvalue, "repeat-x") == 0)
 	{
-	  background_repeat = HD_BACKGROUNDREPEAT_REPEAT_X;
+	  background_repeat = HD_BACKGROUND_REPEAT_REPEAT_X;
 	}
 	else if (strcasecmp(subvalue, "repeat-y") == 0)
 	{
-	  background_repeat = HD_BACKGROUNDREPEAT_REPEAT_Y;
+	  background_repeat = HD_BACKGROUND_REPEAT_REPEAT_Y;
 	}
 	else if (strcasecmp(subvalue, "no-repeat") == 0)
 	{
-	  background_repeat = HD_BACKGROUNDREPEAT_NO_REPEAT;
+	  background_repeat = HD_BACKGROUND_REPEAT_NO_REPEAT;
 	}
 	else if (isdigit(subvalue[0]))
 	{
@@ -1368,19 +1368,19 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     {
       if (strcasecmp(value, "repeat") == 0)
       {
-	background_repeat = HD_BACKGROUNDREPEAT_REPEAT;
+	background_repeat = HD_BACKGROUND_REPEAT_REPEAT;
       }
       else if (strcasecmp(value, "repeat-x") == 0)
       {
-	background_repeat = HD_BACKGROUNDREPEAT_REPEAT_X;
+	background_repeat = HD_BACKGROUND_REPEAT_REPEAT_X;
       }
       else if (strcasecmp(value, "repeat-y") == 0)
       {
-	background_repeat = HD_BACKGROUNDREPEAT_REPEAT_Y;
+	background_repeat = HD_BACKGROUND_REPEAT_REPEAT_Y;
       }
       else if (strcasecmp(value, "no-repeat") == 0)
       {
-	background_repeat = HD_BACKGROUNDREPEAT_NO_REPEAT;
+	background_repeat = HD_BACKGROUND_REPEAT_NO_REPEAT;
       }
       else
       {
@@ -1992,15 +1992,15 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  switch (pos)
 	  {
 	    case 0 : // Style
-	        font_style = HD_FONTHD_FONTINTERNAL_NORMAL;
+	        font_style = HD_FONT_STYLE_NORMAL;
 		break;
 
 	    case 1 : // Variant
-	        font_variant = HD_FONTVARIANT_NORMAL;
+	        font_variant = HD_FONT_VARIANT_NORMAL;
 		break;
 
 	    case 2 : // Weight
-	        font_weight = HD_FONTWEIGHT_NORMAL;
+	        font_weight = HD_FONT_WEIGHT_NORMAL;
 		break;
 
             default :
@@ -2013,17 +2013,17 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	}
 	else if (strcasecmp(subvalue, "italic") == 0)
 	{
-	  font_style = HD_FONTHD_FONTINTERNAL_ITALIC;
+	  font_style = HD_FONT_STYLE_ITALIC;
 	  pos = 1;
 	}
 	else if (strcasecmp(subvalue, "oblique") == 0)
 	{
-	  font_style = HD_FONTHD_FONTINTERNAL_OBLIQUE;
+	  font_style = HD_FONT_STYLE_OBLIQUE;
 	  pos = 1;
 	}
 	else if (strcasecmp(subvalue, "small-caps") == 0)
 	{
-	  font_variant = HD_FONTVARIANT_SMALL_CAPS;
+	  font_variant = HD_FONT_VARIANT_SMALL_CAPS;
 	  pos = 2;
 	}
 	else if (strcasecmp(subvalue, "bold") == 0 ||
@@ -2032,15 +2032,15 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	         strcasecmp(subvalue, "800") == 0 ||
 	         strcasecmp(subvalue, "900") == 0)
 	{
-	  font_weight = HD_FONTWEIGHT_BOLD;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
 	else if (strcasecmp(subvalue, "bolder") == 0)
 	{
-	  font_weight = HD_FONTWEIGHT_BOLDER;
+	  font_weight = HD_FONT_WEIGHT_BOLDER;
 	}
 	else if (strcasecmp(subvalue, "lighter") == 0)
 	{
-	  font_weight = HD_FONTWEIGHT_LIGHTER;
+	  font_weight = HD_FONT_WEIGHT_LIGHTER;
 	}
 	else if (strcasecmp(subvalue, "100") == 0 ||
 	         strcasecmp(subvalue, "200") == 0 ||
@@ -2048,7 +2048,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	         strcasecmp(subvalue, "400") == 0 ||
 	         strcasecmp(subvalue, "500") == 0)
 	{
-	  font_weight = HD_FONTWEIGHT_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
 	else if (isdigit(subvalue[0]))
 	{
@@ -2144,15 +2144,15 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     {
       if (strcasecmp(value, "normal") == 0)
       {
-        font_style = HD_FONTHD_FONTINTERNAL_NORMAL;
+        font_style = HD_FONT_STYLE_NORMAL;
       }
       else if (strcasecmp(value, "italic") == 0)
       {
-	font_style = HD_FONTHD_FONTINTERNAL_ITALIC;
+	font_style = HD_FONT_STYLE_ITALIC;
       }
       else if (strcasecmp(value, "oblique") == 0)
       {
-	font_style = HD_FONTHD_FONTINTERNAL_OBLIQUE;
+	font_style = HD_FONT_STYLE_OBLIQUE;
       }
       else
       {
@@ -2164,11 +2164,11 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     {
       if (strcasecmp(value, "normal") == 0)
       {
-        font_variant = HD_FONTVARIANT_NORMAL;
+        font_variant = HD_FONT_VARIANT_NORMAL;
       }
       else if (strcasecmp(value, "small-caps") == 0)
       {
-	font_variant = HD_FONTVARIANT_SMALL_CAPS;
+	font_variant = HD_FONT_VARIANT_SMALL_CAPS;
       }
       else
       {
@@ -2184,15 +2184,15 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  strcasecmp(value, "800") == 0 ||
 	  strcasecmp(value, "900") == 0)
       {
-	font_weight = HD_FONTWEIGHT_BOLD;
+	font_weight = HD_FONT_WEIGHT_BOLD;
       }
       else if (strcasecmp(value, "bolder") == 0)
       {
-	font_weight = HD_FONTWEIGHT_BOLDER;
+	font_weight = HD_FONT_WEIGHT_BOLDER;
       }
       else if (strcasecmp(value, "lighter") == 0)
       {
-	font_weight = HD_FONTWEIGHT_LIGHTER;
+	font_weight = HD_FONT_WEIGHT_LIGHTER;
       }
       else if (strcasecmp(value, "normal") == 0 ||
                strcasecmp(value, "100") == 0 ||
@@ -2201,7 +2201,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	       strcasecmp(value, "400") == 0 ||
 	       strcasecmp(value, "500") == 0)
       {
-	font_weight = HD_FONTWEIGHT_NORMAL;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
       }
       else
       {
@@ -2259,7 +2259,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  switch (pos)
 	  {
 	    case 0 : // list-style-type
-	        list_style_type = HD_LISTSTYLEHD_FONTFACE_NONE;
+	        list_style_type = HD_LIST_STYLE_TYPE_NONE;
 		break;
 
 	    case 1 : // list-style-image
@@ -2286,11 +2286,11 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	}
         else if (strcasecmp(subvalue, "inside") == 0)
 	{
-	  list_style_position = HD_LISTSTYLEPOSITION_INSIDE;
+	  list_style_position = HD_LIST_STYLE_POSITION_INSIDE;
 	}
         else if (strcasecmp(subvalue, "outside") == 0)
 	{
-	  list_style_position = HD_LISTSTYLEPOSITION_OUTSIDE;
+	  list_style_position = HD_LIST_STYLE_POSITION_OUTSIDE;
 	}
         else if (strncasecmp(subvalue, "url(", 4) == 0)
 	{
@@ -2342,11 +2342,11 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     {
       if (strcasecmp(value, "inside") == 0)
       {
-	list_style_position = HD_LISTSTYLEPOSITION_INSIDE;
+	list_style_position = HD_LIST_STYLE_POSITION_INSIDE;
       }
       else if (strcasecmp(value, "outside") == 0)
       {
-	list_style_position = HD_LISTSTYLEPOSITION_OUTSIDE;
+	list_style_position = HD_LIST_STYLE_POSITION_OUTSIDE;
       }
       else
       {
@@ -2699,13 +2699,13 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (strcasecmp(name, "text-align") == 0)
     {
       if (strcasecmp(value, "left") == 0)
-        text_align = HD_TEXTALIGN_LEFT;
+        text_align = HD_TEXT_ALIGN_LEFT;
       else if (strcasecmp(value, "center") == 0)
-        text_align = HD_TEXTALIGN_CENTER;
+        text_align = HD_TEXT_ALIGN_CENTER;
       else if (strcasecmp(value, "right") == 0)
-        text_align = HD_TEXTALIGN_RIGHT;
+        text_align = HD_TEXT_ALIGN_RIGHT;
       else if (strcasecmp(value, "justify") == 0)
-        text_align = HD_TEXTALIGN_JUSTIFY;
+        text_align = HD_TEXT_ALIGN_JUSTIFY;
       else
       {
 	// Unknown value...
@@ -2716,13 +2716,13 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (strcasecmp(name, "text-decoration") == 0)
     {
       if (strcasecmp(value, "none") == 0)
-        text_decoration = HD_TEXTDECORATION_NONE;
+        text_decoration = HD_TEXT_DECORATION_NONE;
       else if (strcasecmp(value, "underline") == 0)
-        text_decoration = HD_TEXTDECORATION_UNDERLINE;
+        text_decoration = HD_TEXT_DECORATION_UNDERLINE;
       else if (strcasecmp(value, "overline") == 0)
-        text_decoration = HD_TEXTDECORATION_OVERLINE;
+        text_decoration = HD_TEXT_DECORATION_OVERLINE;
       else if (strcasecmp(value, "line-through") == 0)
-        text_decoration = HD_TEXTDECORATION_LINE_THROUGH;
+        text_decoration = HD_TEXT_DECORATION_LINE_THROUGH;
       else
       {
 	// Unknown value...
@@ -2754,13 +2754,13 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (strcasecmp(name, "text-transform") == 0)
     {
       if (strcasecmp(value, "none") == 0)
-        text_transform = HD_TEXTTRANSFORM_NONE;
+        text_transform = HD_TEXT_TRANSFORM_NONE;
       else if (strcasecmp(value, "capitalize") == 0)
-        text_transform = HD_TEXTTRANSFORM_CAPITALIZE;
+        text_transform = HD_TEXT_TRANSFORM_CAPITALIZE;
       else if (strcasecmp(value, "uppercase") == 0)
-        text_transform = HD_TEXTTRANSFORM_UPPERCASE;
+        text_transform = HD_TEXT_TRANSFORM_UPPERCASE;
       else if (strcasecmp(value, "lowercase") == 0)
-        text_transform = HD_TEXTTRANSFORM_LOWERCASE;
+        text_transform = HD_TEXT_TRANSFORM_LOWERCASE;
       else
       {
 	// Unknown value...
@@ -2775,21 +2775,21 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (strcasecmp(name, "vertical-align") == 0)
     {
       if (strcasecmp(value, "baseline") == 0)
-        vertical_align = HD_VERTICALALIGN_BASELINE;
+        vertical_align = HD_VERTICAL_ALIGN_BASELINE;
       else if (strcasecmp(value, "sub") == 0)
-        vertical_align = HD_VERTICALALIGN_SUB;
+        vertical_align = HD_VERTICAL_ALIGN_SUB;
       else if (strcasecmp(value, "super") == 0)
-        vertical_align = HD_VERTICALALIGN_SUPER;
+        vertical_align = HD_VERTICAL_ALIGN_SUPER;
       else if (strcasecmp(value, "top") == 0)
-        vertical_align = HD_VERTICALALIGN_TOP;
+        vertical_align = HD_VERTICAL_ALIGN_TOP;
       else if (strcasecmp(value, "text-top") == 0)
-        vertical_align = HD_VERTICALALIGN_TEXT_TOP;
+        vertical_align = HD_VERTICAL_ALIGN_TEXT_TOP;
       else if (strcasecmp(value, "middle") == 0)
-        vertical_align = HD_VERTICALALIGN_MIDDLE;
+        vertical_align = HD_VERTICAL_ALIGN_MIDDLE;
       else if (strcasecmp(value, "bottom") == 0)
-        vertical_align = HD_VERTICALALIGN_BOTTOM;
+        vertical_align = HD_VERTICAL_ALIGN_BOTTOM;
       else if (strcasecmp(value, "text-bottom") == 0)
-        vertical_align = HD_VERTICALALIGN_TEXT_BOTTOM;
+        vertical_align = HD_VERTICAL_ALIGN_TEXT_BOTTOM;
       else
       {
 	// Unknown value...
@@ -2800,11 +2800,11 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (strcasecmp(name, "white-space") == 0)
     {
       if (strcasecmp(value, "normal") == 0)
-        white_space = HD_WHITESPACE_NORMAL;
+        white_space = HD_WHITE_SPACE_NORMAL;
       else if (strcasecmp(value, "pre") == 0)
-        white_space = HD_WHITESPACE_PRE;
+        white_space = HD_WHITE_SPACE_PRE;
       else if (strcasecmp(value, "nowrap") == 0)
-        white_space = HD_WHITESPACE_NOWRAP;
+        white_space = HD_WHITE_SPACE_NOWRAP;
       else
       {
 	// Unknown value...
@@ -2946,5 +2946,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.17 2004/04/11 19:38:58 mike Exp $".
+// End of "$Id: style.cxx,v 1.18 2004/10/24 03:23:42 mike Exp $".
 //
