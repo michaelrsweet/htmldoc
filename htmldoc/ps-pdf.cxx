@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.32 1999/12/04 12:54:29 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.33 1999/12/04 13:30:59 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3365,12 +3365,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		col_swidths[MAX_COLUMNS],
 		col_min,
 		col_mins[MAX_COLUMNS],
+		col_smins[MAX_COLUMNS],
 		col_pref,
 		col_prefs[MAX_COLUMNS],
-		col_sprefs[MAX_COLUMNS],
 		width,
 		pref_width,
 		table_width,
+		span_width,
 		regular_width,
 		actual_width,
 		row_y, temp_y;
@@ -3400,8 +3401,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   * Figure out the # of rows, columns, and the desired widths...
   */
 
+  memset(col_spans, 0, sizeof(col_spans));
   memset(col_widths, 0, sizeof(col_widths));
+  memset(col_swidths, 0, sizeof(col_swidths));
   memset(col_mins, 0, sizeof(col_mins));
+  memset(col_smins, 0, sizeof(col_smins));
   memset(col_prefs, 0, sizeof(col_prefs));
   memset(cells, 0, sizeof(cells));
 
@@ -3410,7 +3414,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     if (var[strlen((char *)var) - 1] == '%')
       table_width = atof((char *)var) * (right - left) / 100.0f;
     else
-      table_width = atoi((char *)var) * 0.9f;
+      table_width = atoi((char *)var) * PagePrintWidth / 680.0f;
   }
   else
     table_width = (float)(right - left);
@@ -3529,16 +3533,16 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  }
 
           // Add widths to columns...
-          if (colspan > 0)
+          if (colspan > 1)
           {
-	    if (col_spans[columns] > colspan)
-	      col_spans[columns] = colspan;
+	    if (col_spans[col] > colspan)
+	      col_spans[col] = colspan;
 
 	    if (col_width > col_swidths[col])
 	      col_swidths[col] = col_width;
 
-	    if (col_pref > col_sprefs[col])
-	      col_sprefs[col] = col_pref;
+	    if (col_min > col_smins[col])
+	      col_smins[col] = col_pref;
           }
 	  else
 	  {
@@ -3600,7 +3604,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     for (col = 0, width = 0.0; col < num_cols; col ++)
       width += col_prefs[col];
 
-    width += 2 * (border + cellpadding + cellspacing) * num_cols + 2;
+    width += 2 * (border + cellpadding + cellspacing) * num_cols;
 
     if (width > (right - left))
       width = (float)(right - left);
@@ -3660,6 +3664,40 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         col_widths[col] = pref_width;
 
       actual_width += col_widths[col];
+    }
+
+ /*
+  * Pass three enforces any hard or minimum widths for COLSPAN'd
+  * columns...
+  */
+
+  for (col = 0; col < num_cols; col ++)
+    if (col_spans[col] > 1)
+    {
+      for (colspan = 0, span_width = 0.0f; colspan < col_spans[col]; colspan ++)
+        span_width += col_widths[col + colspan];
+
+      span_width += 2 * (border + cellpadding + cellspacing) *
+                    (col_spans[col] - 1);
+      pref_width = 0.0f;
+
+      if (span_width < col_swidths[col])
+        pref_width = col_swidths[col];
+      if (span_width < col_smins[col] || pref_width < col_smins[col])
+        pref_width = col_smins[col];
+
+      if (pref_width > 0.0f)
+      {
+        // Expand cells proportionately...
+	regular_width = pref_width / span_width;
+
+	for (colspan = 0; colspan < col_spans[col]; colspan ++)
+	{
+	  actual_width -= col_widths[col + colspan];
+	  col_widths[col + colspan] *= regular_width;
+	  actual_width += col_widths[col + colspan];
+	}
+      }
     }
 
  /*
@@ -6283,5 +6321,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.32 1999/12/04 12:54:29 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.33 1999/12/04 13:30:59 mike Exp $".
  */
