@@ -6,7 +6,7 @@
 
 <H1 ALIGN="RIGHT"><A NAME="CGI">Chapter 5 - Using HTMLDOC on a Web Server</A></H1>
 
-<P>This chapter describes how to interface HTMLDOC to your web
+<P>This chapter describes how to interface <I>HTMLDOC</I> to your web
 server using CGI scripts and programs.</P>
 
 <CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
@@ -46,10 +46,10 @@ browser. See the next sections for more information.</P>
 	<B>WARNING:</B>
 
 	<P>Passing information directly from the web browser to
-	HTMLDOC can potentially expose your system to security
+	<I>HTMLDOC</I> can potentially expose your system to security
 	risks.  Always be sure to "sanitize" any input from the
 	web browser so that filenames, URLs, and options passed
-	to HTMLDOC are not acted on by the shell program.</P>
+	to <I>HTMLDOC</I> are not acted on by the shell program.</P>
 	</TD>
 </TR>
 </TABLE></CENTER>
@@ -94,7 +94,7 @@ htmldoc $options http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO
 file of the site's home page.
 
 <P>The <VAR>options</VAR> variable in the script can be set to use any
-supported command-line option for HTMLDOC; for a complete list see
+supported command-line option for <I>HTMLDOC</I>; for a complete list see
 <A HREF="#CMDREF">Chapter 8 - Command-Line Reference</A>.
 
 <!-- NEED 5in -->
@@ -181,7 +181,7 @@ function bad_url($url) {
 
 <P>Another method is to use the <CODE>escapeshellarg()</CODE> function
 provided with PHP 4.0.3 and higher to generate a quoted shell argument
-for HTMLDOC.</P>
+for <I>HTMLDOC</I>.</P>
 
 <P>To make a "portal" script, add the following code to complete the
 example:</P>
