@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.19 2001/06/04 12:12:30 mike Exp $"
+ * "$Id: file.c,v 1.13.2.20 2001/06/19 15:30:29 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -75,18 +75,26 @@
 
 
 /*
+ * Cache file structure...
+ */
+
+typedef struct		/* Cache for all temporary files */
+{
+  char	*name;				/* Temporary filename */
+  char	*url;				/* URL */
+} cache_t;
+
+
+/*
  * Local globals...
  */
 
 char	proxy_host[HTTP_MAX_URI] = "";	/* Proxy hostname */
 int	proxy_port = 0;			/* Proxy port */
 http_t	*http = NULL;			/* Connection to remote server */
-int	web_files = 0;			/* Number of temporary files */
-struct					/* Cache for all temporary files */
-{
-  char	*name;				/* Temporary filename */
-  char	*url;				/* URL */
-}	web_cache[2 * MAX_IMAGES];
+int	web_files = 0,			/* Number of temporary files */
+	web_alloc = 0;			/* Number of allocated files */
+cache_t	*web_cache = NULL;		/* Cache array */
 
 
 /*
@@ -170,6 +178,14 @@ file_cleanup(void)
       free(web_cache[web_files].name);
     if (web_cache[web_files].url)
       free(web_cache[web_files].url);
+  }
+
+  if (web_alloc)
+  {
+    free(web_cache);
+
+    web_alloc = 0;
+    web_cache = NULL;
   }
 }
 
@@ -721,6 +737,7 @@ FILE *					/* O - Temporary file */
 file_temp(char *name,			/* O - Filename */
           int  len)			/* I - Length of filename buffer */
 {
+  cache_t	*temp;			/* Pointer to cache entry */
   FILE		*fp;			/* File pointer */
   int		fd;			/* File descriptor */
 #ifdef WIN32
@@ -730,8 +747,37 @@ file_temp(char *name,			/* O - Filename */
 #endif /* WIN32 */
 
 
-  web_cache[web_files].name = NULL;
-  web_cache[web_files].url  = NULL;
+ /*
+  * Allocate memory for the file cache as needed...
+  */
+
+  if (web_files >= web_alloc)
+  {
+    web_alloc += ALLOC_FILES;
+    if (web_files == 0)
+      temp = (cache_t *)malloc(sizeof(cache_t) * web_alloc);
+    else
+      temp = (cache_t *)realloc(web_cache, sizeof(cache_t) * web_alloc);
+
+    if (temp == NULL)
+    {
+      progress_error("Unable to allocate memory for %d file entries - %s",
+                     web_alloc, strerror(errno));
+      web_alloc -= ALLOC_FILES;
+      return (NULL);
+    }
+
+    web_cache = temp;
+  }
+
+ /*
+  * Clear a new file cache entry...
+  */
+
+  temp = web_cache + web_files;
+
+  temp->name = NULL;
+  temp->url  = NULL;
   web_files ++;
 
 #ifdef WIN32
@@ -756,5 +802,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.19 2001/06/04 12:12:30 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.20 2001/06/19 15:30:29 mike Exp $".
  */

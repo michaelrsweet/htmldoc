@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.14 2001/06/06 13:30:31 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.15 2001/06/19 15:30:28 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -166,7 +166,7 @@ OLDLIBS="$LIBS"
 
 AC_PATH_X
 
-if text x$with_x = xyes; then
+if test x$with_x != xno; then
     if test "$x_libraries" = "/usr/lib"; then
 	echo "Ignoring X library directory \"$x_libraries\" requested by configure."
 	x_libraries="NONE"
@@ -303,5 +303,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.14 2001/06/06 13:30:31 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.15 2001/06/19 15:30:28 mike Exp $".
 dnl

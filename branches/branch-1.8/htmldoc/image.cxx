@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.11 2001/06/04 13:22:31 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.12 2001/06/19 15:30:30 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -84,8 +84,9 @@ typedef uchar	gif_cmap_t[256][3];
  * Local globals...
  */
 
-static int	num_images = 0;		/* Number of images in cache */
-static image_t	*images[MAX_IMAGES];	/* Images in cache */
+static int	num_images = 0,		/* Number of images in cache */
+		alloc_images = 0;	/* Allocated images */
+static image_t	**images = NULL;	/* Images in cache */
 static int	gif_eof = 0;		/* Did we hit EOF? */
 
 
@@ -662,6 +663,13 @@ image_flush_cache(void)
     free(images[i]);
   }
 
+  if (alloc_images)
+  {
+    free(images);
+
+    alloc_images = 0;
+  }
+
   num_images = 0;
 }
 
@@ -691,7 +699,8 @@ image_load(const char *filename,/* I - Name of image file */
   image_t	*img,		/* New image buffer */
 		key,		/* Search key... */
 		*keyptr,	/* Pointer to search key... */
-		**match;	/* Matching image */
+		**match,	/* Matching image */
+		**temp;		/* Temporary array pointer */
   int		status;		/* Status of load... */
   const char	*realname;	/* Real filename */
 
@@ -753,10 +762,29 @@ image_load(const char *filename,/* I - Name of image file */
 
   rewind(fp);
 
- /*
-  * Allocate memory...
-  */
+  // See if the images array needs to be resized...
+  if (num_images >= alloc_images)
+  {
+    // Yes...
+    alloc_images += ALLOC_FILES;
 
+    if (num_images == 0)
+      temp = (image_t **)malloc(sizeof(image_t *) * alloc_images);
+    else
+      temp = (image_t **)realloc(images, sizeof(image_t *) * alloc_images);
+
+    if (temp == NULL)
+    {
+      progress_error("Unable to allocate memory for %d images - %s",
+                     alloc_images, strerror(errno));
+      fclose(fp);
+      return (NULL);
+    }
+
+    images = temp;
+  }
+
+  // Allocate memory...
   img = (image_t *)calloc(sizeof(image_t), 1);
 
   if (img == NULL)
@@ -773,10 +801,7 @@ image_load(const char *filename,/* I - Name of image file */
   strcpy(img->filename, filename);
   img->use = 1;
 
- /*
-  * Load the image as appropriate...
-  */
-
+  // Load the image as appropriate...
   if (memcmp(header, "GIF87a", 6) == 0 ||
       memcmp(header, "GIF89a", 6) == 0)
     status = image_load_gif(img,  fp, gray);
@@ -1595,5 +1620,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.11 2001/06/04 13:22:31 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.12 2001/06/19 15:30:30 mike Exp $".
  */

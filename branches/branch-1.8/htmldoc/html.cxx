@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.11 2001/03/21 17:08:06 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.12 2001/06/19 15:30:29 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -59,8 +59,9 @@ typedef struct
  */
 
 
-static int	num_links;
-static link_t	links[MAX_LINKS];
+static int	num_links = 0,
+		alloc_links = 0;
+static link_t	*links;
 
 
 /*
@@ -130,7 +131,9 @@ html_export(tree_t *document,	/* I - Document to export */
   * Scan for all links in the document, and then update them...
   */
 
-  num_links = 0;
+  num_links   = 0;
+  alloc_links = 0;
+  links       = NULL;
 
   scan_links(document, NULL);
   update_links(document, NULL);
@@ -182,6 +185,15 @@ html_export(tree_t *document,	/* I - Document to export */
 
   if (title != NULL)
     free(title);
+
+  if (alloc_links)
+  {
+    free(links);
+
+    num_links   = 0;
+    alloc_links = 0;
+    links       = NULL;
+  }
 
   return (0);
 }
@@ -714,8 +726,31 @@ add_link(uchar *name,		/* I - Name of link */
 
   if ((temp = find_link(name)) != NULL)
     temp->filename = filename;
-  else if (num_links < MAX_LINKS)
+  else
   {
+    // See if we need to allocate memory for links...
+    if (num_links >= alloc_links)
+    {
+      // Allocate more links...
+      alloc_links += ALLOC_LINKS;
+
+      if (num_links == 0)
+        temp = (link_t *)malloc(sizeof(link_t) * alloc_links);
+      else
+        temp = (link_t *)realloc(links, sizeof(link_t) * alloc_links);
+
+      if (temp == NULL)
+      {
+	progress_error("Unable to allocate memory for %d links - %s",
+	               alloc_links, strerror(errno));
+        alloc_links -= ALLOC_LINKS;
+	return;
+      }
+
+      links = temp;
+    }
+
+    // Add a new link...
     temp = links + num_links;
     num_links ++;
 
@@ -890,5 +925,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.11 2001/03/21 17:08:06 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.12 2001/06/19 15:30:29 mike Exp $".
  */
