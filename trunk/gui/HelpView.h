@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h,v 1.11 2000/06/15 00:32:44 mike Exp $"
+// "$Id: HelpView.h,v 1.12 2000/06/16 02:10:51 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
@@ -140,13 +140,14 @@ class HelpView : public Fl_Group	//// Help viewer widget
   char		filename_[1024];	// Current filename
   int		topline_,		// Top line in document
 		size_;			// Total document length
-  Fl_Scrollbar	scrollbar_;		// Scrollbar for document
+  Fl_Scrollbar	scrollbar_;		// Vertical scrollbar for document
 
   int		nimage_,		// Number of images in a page
 		aimage_;		// Allocated blocks
   HelpImage	*image_;		// list of image descriptors
 
-  HelpImage	*add_image(const char *name);
+  HelpImage	*add_image(const char *name, const char *wattr,
+		           const char *hattr);
   HelpImage	*find_image(const char *name);
   int		load_gif(HelpImage *img, FILE *fp);
   int		load_jpeg(HelpImage *img, FILE *fp);
@@ -203,5 +204,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.11 2000/06/15 00:32:44 mike Exp $".
+// End of "$Id: HelpView.h,v 1.12 2000/06/16 02:10:51 mike Exp $".
 //
