@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.8 2001/05/20 13:05:23 mike Exp $"
+ * "$Id: config.h,v 1.20.2.9 2001/06/03 19:35:21 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -37,6 +37,14 @@
 #ifndef _CONSOLE
 #  define HAVE_LIBFLTK
 #endif /* !_CONSOLE */
+
+
+/*
+ * Do we have the OpenSSL library?
+ */
+
+/*#undef HAVE_LIBSSL*/
+
 
 /*
  * Do we have the image libraries?
@@ -85,6 +93,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h,v 1.20.2.8 2001/05/20 13:05:23 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.9 2001/06/03 19:35:21 mike Exp $".
  */
 

@@ -1,4 +1,4 @@
-README.txt - 05/30/2001
+README.txt - 06/04/2001
 -----------------------
 
 INTRODUCTION
@@ -50,8 +50,10 @@ INTERNET RESOURCES
 REQUIREMENTS
 
     HTMLDOC requires an average of 2MB of disk space for installation.
-    Binary distributions are available for the following platforms:
+    Binary distributions are available for the following platforms for
+    customers with a support contract:
 
+	- AIX 4.3.3 or higher
         - Compaq Tru64 UNIX 4.0 or higher
         - Digital UNIX 4.0 or higher
 	- HP-UX 10.20 or higher
@@ -65,6 +67,9 @@ REQUIREMENTS
 	- Red Hat Linux 5.2 or higher (Intel only)
 	- Solaris 2.5 or higher (SPARC and Intel)
 
+    A free, unsupported binary distribution is also available for
+    Microsoft Windows.
+
     See the file "COMPILE.txt" for instructions on compiling HTMLDOC
     from the source code.
 
@@ -72,8 +77,11 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.13-windows.exe" file to start the installation
-    wizard.
+    the "htmldoc-1.8.13-windows.exe" or "htmldoc-1.8.13-winfree.exe" files
+    to start the installation wizard.
+
+    (the -windows file is the supported version, while the -winfree file
+     is the unsupported version)
 
 
 INSTALLING HTMLDOC UNDER RED HAT LINUX

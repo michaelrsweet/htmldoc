@@ -1,5 +1,5 @@
 /*
- * "$Id: http.h,v 1.2.2.4 2001/02/13 15:31:20 mike Exp $"
+ * "$Id: http.h,v 1.2.2.5 2001/06/03 19:35:20 mike Exp $"
  *
  *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
  *   System (CUPS).
@@ -32,7 +32,7 @@
 
 #  include <string.h>
 #  include <time.h>
-#  if defined(WIN32)
+#  if defined(WIN32) || defined(__EMX__)
 #    include <winsock.h>
 #  else
 #    include <unistd.h>
@@ -45,7 +45,7 @@
 #    include <netinet/in_systm.h>
 #    include <netinet/ip.h>
 #    include <netinet/tcp.h>
-#  endif /* WIN32 */
+#  endif /* WIN32 || __EMX__ */
 
 #  include "md5.h"
 
@@ -290,6 +290,8 @@ extern int		httpCheck(http_t *http);
 						httpSetField((http), HTTP_FIELD_HOST, (http)->hostname)
 extern void		httpClose(http_t *http);
 extern http_t		*httpConnect(const char *host, int port);
+extern http_t		*httpConnectEncrypt(const char *host, int port,
+			                    http_encryption_t encrypt);
 extern int		httpDelete(http_t *http, const char *uri);
 extern int		httpEncryption(http_t *http, http_encryption_t e);
 #  define		httpError(http) ((http)->error)
@@ -338,5 +340,5 @@ extern char		*httpMD5String(const md5_byte_t *, char [33]);
 #endif /* !_CUPS_HTTP_H_ */
 
 /*
- * End of "$Id: http.h,v 1.2.2.4 2001/02/13 15:31:20 mike Exp $".
+ * End of "$Id: http.h,v 1.2.2.5 2001/06/03 19:35:20 mike Exp $".
  */

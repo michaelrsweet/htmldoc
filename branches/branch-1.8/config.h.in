@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.19.2.7 2001/05/30 19:38:18 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.8 2001/06/03 19:35:18 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -42,6 +42,13 @@
  */
 
 #undef HAVE_LIBXPM
+
+
+/*
+ * Do we have the OpenSSL library?
+ */
+
+#undef HAVE_LIBSSL
 
 
 /*
@@ -89,6 +96,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h.in,v 1.19.2.7 2001/05/30 19:38:18 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.8 2001/06/03 19:35:18 mike Exp $".
  */
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.1.2.4 2001/03/06 15:40:34 mike Exp $"
+ * "$Id: http.c,v 1.1.2.5 2001/06/03 19:35:20 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
  *
@@ -23,41 +23,43 @@
  *
  * Contents:
  *
- *   httpInitialize()    - Initialize the HTTP interface library and set the
- *                         default HTTP proxy (if any).
- *   httpCheck()         - Check to see if there is a pending response from
- *                         the server.
- *   httpClose()         - Close an HTTP connection...
- *   httpConnect()       - Connect to a HTTP server.
- *   httpEncryption()    - Set the required encryption on the link.
- *   httpReconnect()     - Reconnect to a HTTP server...
- *   httpSeparate()      - Separate a Universal Resource Identifier into its
- *                         components.
- *   httpSetField()      - Set the value of an HTTP header.
- *   httpDelete()        - Send a DELETE request to the server.
- *   httpGet()           - Send a GET request to the server.
- *   httpHead()          - Send a HEAD request to the server.
- *   httpOptions()       - Send an OPTIONS request to the server.
- *   httpPost()          - Send a POST request to the server.
- *   httpPut()           - Send a PUT request to the server.
- *   httpTrace()         - Send an TRACE request to the server.
- *   httpFlush()         - Flush data from a HTTP connection.
- *   httpRead()          - Read data from a HTTP connection.
- *   httpWrite()         - Write data to a HTTP connection.
- *   httpGets()          - Get a line of text from a HTTP connection.
- *   httpPrintf()        - Print a formatted string to a HTTP connection.
- *   httpStatus()        - Return a short string describing a HTTP status code.
- *   httpGetDateString() - Get a formatted date/time string from a time value.
- *   httpGetDateTime()   - Get a time value from a formatted date/time string.
- *   httpUpdate()        - Update the current HTTP state for incoming data.
- *   httpDecode64()      - Base64-decode a string.
- *   httpEncode64()      - Base64-encode a string.
- *   httpGetLength()     - Get the amount of data remaining from the
- *                         content-length or transfer-encoding fields.
- *   http_field()        - Return the field index for a field name.
- *   http_send()         - Send a request with all fields and the trailing
- *                         blank line.
- *   http_upgrade()      - Force upgrade to TLS encryption.
+ *   httpInitialize()     - Initialize the HTTP interface library and set the
+ *                          default HTTP proxy (if any).
+ *   httpCheck()          - Check to see if there is a pending response from
+ *                          the server.
+ *   httpClose()          - Close an HTTP connection...
+ *   httpConnect()        - Connect to a HTTP server.
+ *   httpConnectEncrypt() - Connect to a HTTP server using encryption.
+ *   httpEncryption()     - Set the required encryption on the link.
+ *   httpReconnect()      - Reconnect to a HTTP server...
+ *   httpSeparate()       - Separate a Universal Resource Identifier into its
+ *                          components.
+ *   httpGetSubField()    - Get a sub-field value.
+ *   httpSetField()       - Set the value of an HTTP header.
+ *   httpDelete()         - Send a DELETE request to the server.
+ *   httpGet()            - Send a GET request to the server.
+ *   httpHead()           - Send a HEAD request to the server.
+ *   httpOptions()        - Send an OPTIONS request to the server.
+ *   httpPost()           - Send a POST request to the server.
+ *   httpPut()            - Send a PUT request to the server.
+ *   httpTrace()          - Send an TRACE request to the server.
+ *   httpFlush()          - Flush data from a HTTP connection.
+ *   httpRead()           - Read data from a HTTP connection.
+ *   httpWrite()          - Write data to a HTTP connection.
+ *   httpGets()           - Get a line of text from a HTTP connection.
+ *   httpPrintf()         - Print a formatted string to a HTTP connection.
+ *   httpStatus()         - Return a short string describing a HTTP status code.
+ *   httpGetDateString()  - Get a formatted date/time string from a time value.
+ *   httpGetDateTime()    - Get a time value from a formatted date/time string.
+ *   httpUpdate()         - Update the current HTTP state for incoming data.
+ *   httpDecode64()       - Base64-decode a string.
+ *   httpEncode64()       - Base64-encode a string.
+ *   httpGetLength()      - Get the amount of data remaining from the
+ *                          content-length or transfer-encoding fields.
+ *   http_field()         - Return the field index for a field name.
+ *   http_send()          - Send a request with all fields and the trailing
+ *                          blank line.
+ *   http_upgrade()       - Force upgrade to TLS encryption.
  */
 
 /*
@@ -75,9 +77,9 @@
 #include "http.h"
 #include "debug.h"
 
-#if !defined(WIN32)
+#if !defined(WIN32) && !defined(__EMX__)
 #  include <signal.h>
-#endif /* !WIN32 */
+#endif /* !WIN32 && !__EMX__ */
 
 #ifdef HAVE_LIBSSL
 #  include <openssl/err.h>
@@ -183,7 +185,7 @@ httpInitialize(void)
   unsigned char		data[1024];	/* Seed data */
 #endif /* HAVE_LIBSSL */
 
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
   WSADATA	winsockdata;	/* WinSock data */
   static int	initialized = 0;/* Has WinSock been initialized? */
 
@@ -205,7 +207,7 @@ httpInitialize(void)
   sigaction(SIGPIPE, &action, NULL);
 #else
   signal(SIGPIPE, SIG_IGN);
-#endif /* WIN32 */
+#endif /* WIN32 || __EMX__ */
 
 #ifdef HAVE_LIBSSL
   SSL_load_error_strings();
@@ -310,6 +312,32 @@ http_t *			/* O - New HTTP connection */
 httpConnect(const char *host,	/* I - Host to connect to */
             int        port)	/* I - Port number */
 {
+  http_encryption_t	encrypt;/* Type of encryption to use */
+
+
+ /*
+  * Set the default encryption status...
+  */
+
+  if (port == 443)
+    encrypt = HTTP_ENCRYPT_ALWAYS;
+  else
+    encrypt = HTTP_ENCRYPT_IF_REQUESTED;
+
+  return (httpConnectEncrypt(host, port, encrypt));
+}
+
+
+/*
+ * 'httpConnectEncrypt()' - Connect to a HTTP server using encryption.
+ */
+
+http_t *				/* O - New HTTP connection */
+httpConnectEncrypt(const char *host,	/* I - Host to connect to */
+                   int        port,	/* I - Port number */
+		   http_encryption_t encrypt)
+					/* I - Type of encryption to use */
+{
   http_t		*http;		/* New HTTP connection */
   struct hostent	*hostaddr;	/* Host address data */
 
@@ -324,7 +352,17 @@ httpConnect(const char *host,	/* I - Host to connect to */
   */
 
   if ((hostaddr = gethostbyname(host)) == NULL)
-    return (NULL);
+  {
+   /*
+    * This hack to make users that don't have a localhost entry in
+    * their hosts file or DNS happy...
+    */
+
+    if (strcasecmp(host, "localhost") != 0)
+      return (NULL);
+    else if ((hostaddr = gethostbyname("127.0.0.1")) == NULL)
+      return (NULL);
+  }
 
  /*
   * Verify that it is an IPv4 address (IPv6 support will come in CUPS 1.2...)
@@ -360,11 +398,10 @@ httpConnect(const char *host,	/* I - Host to connect to */
 #endif /* WIN32 */
 
  /*
-  * Set the default encryption status...
+  * Set the encryption status...
   */
 
-  if (port == 443)
-    http->encryption = HTTP_ENCRYPT_ALWAYS;
+  http->encryption = encrypt;
 
  /*
   * Connect to the remote system...
@@ -453,11 +490,11 @@ httpReconnect(http_t *http)	/* I - HTTP data */
 
   if ((http->fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
     http->error  = WSAGetLastError();
 #else
     http->error  = errno;
-#endif /* WIN32 */
+#endif /* WIN32 || __EMX__ */
     http->status = HTTP_ERROR;
     return (-1);
   }
@@ -482,11 +519,11 @@ httpReconnect(http_t *http)	/* I - HTTP data */
   if (connect(http->fd, (struct sockaddr *)&(http->hostaddr),
               sizeof(http->hostaddr)) < 0)
   {
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
     http->error  = WSAGetLastError();
 #else
     http->error  = errno;
-#endif /* WIN32 */
+#endif /* WIN32 || __EMX__ */
     http->status = HTTP_ERROR;
 
 #ifdef WIN32
@@ -519,11 +556,11 @@ httpReconnect(http_t *http)	/* I - HTTP data */
       SSL_CTX_free(context);
       SSL_free(conn);
 
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
       http->error  = WSAGetLastError();
 #else
       http->error  = errno;
-#endif /* WIN32 */
+#endif /* WIN32 || __EMX__ */
       http->status = HTTP_ERROR;
 
 #ifdef WIN32
@@ -586,55 +623,70 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
   * Grab the method portion of the URI...
   */
 
-  for (ptr = host; *uri != ':' && *uri != '\0'; uri ++)
-    if (ptr < (host + HTTP_MAX_URI - 1))
-      *ptr++ = *uri;
-
-  *ptr = '\0';
-  if (*uri == ':')
-    uri ++;
-
- /*
-  * If the method contains a period or slash, then it's probably
-  * hostname/filename...
-  */
-
-  if (strchr(host, '.') != NULL || strchr(host, '/') != NULL || *uri == '\0')
+  if (strncmp(uri, "//", 2) == 0)
   {
-    if ((ptr = strchr(host, '/')) != NULL)
-    {
-      strncpy(resource, ptr, HTTP_MAX_URI);
-      resource[HTTP_MAX_URI - 1] = '\0';
-      *ptr = '\0';
-    }
-    else
-      resource[0] = '\0';
+   /*
+    * Workaround for HP IPP client bug...
+    */
 
-    if (isdigit(*uri))
-    {
-     /*
-      * OK, we have "hostname:port[/resource]"...
-      */
-
-      *port = strtol(uri, (char **)&uri, 10);
-
-      if (*uri == '/')
-      {
-        strncpy(resource, uri, HTTP_MAX_URI);
-        resource[HTTP_MAX_URI - 1] = '\0';
-      }
-    }
-    else
-      *port = 80;
-
-    strcpy(method, "http");
-    username[0] = '\0';
-    return;
+    strcpy(method, "ipp");
   }
   else
   {
-    strncpy(method, host, 31);
-    method[31] = '\0';
+   /*
+    * Standard URI with method...
+    */
+
+    for (ptr = host; *uri != ':' && *uri != '\0'; uri ++)
+      if (ptr < (host + HTTP_MAX_URI - 1))
+        *ptr++ = *uri;
+
+    *ptr = '\0';
+    if (*uri == ':')
+      uri ++;
+
+   /*
+    * If the method contains a period or slash, then it's probably
+    * hostname/filename...
+    */
+
+    if (strchr(host, '.') != NULL || strchr(host, '/') != NULL || *uri == '\0')
+    {
+      if ((ptr = strchr(host, '/')) != NULL)
+      {
+	strncpy(resource, ptr, HTTP_MAX_URI);
+	resource[HTTP_MAX_URI - 1] = '\0';
+	*ptr = '\0';
+      }
+      else
+	resource[0] = '\0';
+
+      if (isdigit(*uri))
+      {
+       /*
+	* OK, we have "hostname:port[/resource]"...
+	*/
+
+	*port = strtol(uri, (char **)&uri, 10);
+
+	if (*uri == '/')
+	{
+          strncpy(resource, uri, HTTP_MAX_URI);
+          resource[HTTP_MAX_URI - 1] = '\0';
+	}
+      }
+      else
+	*port = 631;
+
+      strcpy(method, "http");
+      username[0] = '\0';
+      return;
+    }
+    else
+    {
+      strncpy(method, host, 31);
+      method[31] = '\0';
+    }
   }
 
  /*
@@ -695,10 +747,6 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
       *port = 80;
     else if (strcasecmp(method, "https") == 0)
       *port = 443;
-    else if (strcasecmp(method, "ipp") == 0)
-      *port = 631;
-    else if (strcasecmp(method, "socket") == 0)	/* Not registered yet... */
-      *port = 9100;
     else
       *port = 0;
   }
@@ -758,6 +806,9 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
       name == NULL || value == NULL)
     return (NULL);
 
+  DEBUG_printf(("httpGetSubField(%p, %d, \"%s\", %p)\n",
+                http, field, name, value));
+
   for (fptr = http->fields[field]; *fptr;)
   {
    /*
@@ -783,15 +834,20 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
 
     *ptr = '\0';
 
+    DEBUG_printf(("name = \"%s\"\n", temp));
+
    /*
     * Skip trailing chars up to the '='...
     */
 
-    while (*fptr && *fptr != '=')
+    while (isspace(*fptr))
       fptr ++;
 
     if (!*fptr)
       break;
+
+    if (*fptr != '=')
+      continue;
 
    /*
     * Skip = and leading whitespace...
@@ -835,6 +891,8 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
       while (*fptr && !isspace(*fptr) && *fptr != ',')
         fptr ++;
     }
+
+    DEBUG_printf(("value = \"%s\"\n", value));
 
    /*
     * See if this is the one...
@@ -1060,11 +1118,11 @@ httpRead(http_t *http,			/* I - HTTP data */
   if (bytes > 0)
     http->data_remaining -= bytes;
   else if (bytes < 0)
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
     http->error = WSAGetLastError();
 #else
     http->error = errno;
-#endif /* WIN32 */
+#endif /* WIN32 || __EMX__ */
 
   if (http->data_remaining == 0)
   {
@@ -1201,11 +1259,11 @@ httpGets(char   *line,			/* I - Line to read into */
   * Pre-scan the buffer and see if there is a newline in there...
   */
 
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
   WSASetLastError(0);
 #else
   errno = 0;
-#endif /* WIN32 */
+#endif /* WIN32 || __EMX__ */
 
   do
   {
@@ -1238,7 +1296,7 @@ httpGets(char   *line,			/* I - Line to read into */
 	* Nope, can't get a line this time...
 	*/
 
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
         if (WSAGetLastError() != http->error)
 	{
 	  http->error = WSAGetLastError();
@@ -1254,7 +1312,7 @@ httpGets(char   *line,			/* I - Line to read into */
 	}
 
         DEBUG_printf(("httpGets(): recv() error %d!\n", errno));
-#endif /* WIN32 */
+#endif /* WIN32 || __EMX__ */
 
         return (NULL);
       }
@@ -1524,11 +1582,11 @@ httpUpdate(http_t *http)		/* I - HTTP data */
 	  SSL_CTX_free(context);
 	  SSL_free(conn);
 
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
 	  http->error  = WSAGetLastError();
 #else
 	  http->error  = errno;
-#endif /* WIN32 */
+#endif /* WIN32 || __EMX__ */
 	  http->status = HTTP_ERROR;
 
 #ifdef WIN32
@@ -2012,5 +2070,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.1.2.4 2001/03/06 15:40:34 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.5 2001/06/03 19:35:20 mike Exp $".
  */
