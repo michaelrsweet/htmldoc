@@ -1,0 +1,50 @@
+[Language]
+LanguageSupport0=0009
+
+[OperatingSystem]
+OSSupport=0000000000011010
+
+[Data]
+CurrentMedia=
+set_mifserial=
+ProductName=HTMLDOC
+CurrentComponentDef=Default.cdf
+set_dlldebug=No
+AppExe=C:\mike\htmldoc1\visualc\htmldoc.exe
+DevEnvironment=Microsoft Visual C++ 6
+set_mif=No
+set_testmode=No
+Instructions=Instructions.txt
+EmailAddresss=
+SummaryText=
+Department=
+Type=Win32 (x86) Application
+Author=
+HomeURL=
+InstallRoot=C:\My Installations\HTMLDOC
+set_level=Level 3
+InstallationGUID={3A95C230-9907-11D3-B96A-00105A139CAC}
+Version=1.8
+set_miffile=Status.mif
+set_args=
+set_maxerr=50
+Notes=Notes.txt
+CurrentFileGroupDef=Default.fdf
+set_dllcmdline=
+set_warnaserr=No
+Copyright=
+set_preproc=
+Category=
+CurrentPlatform=
+set_crc=Yes
+set_maxwarn=50
+Description=Description.txt
+CompanyName=Easy Software Products
+CurrentLanguage=English
+
+[MediaInfo]
+
+[General]
+Type=INSTALLMAIN
+Version=1.10.000
+
