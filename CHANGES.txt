@@ -8,6 +8,8 @@ CHANGES IN HTMLDOC v1.8.6
 	- Minor source changes for OS/2 compilation.
 	- SUP and SUB now raise/lower text more to be consistent with
 	  browser look-n-feel.
+	- Non-breaking space by itself was being output.  Now check for
+	  that and ignore strings that consist entirely of whitespace.
 
     BUG FIXES
 
@@ -18,6 +20,9 @@ CHANGES IN HTMLDOC v1.8.6
 	- The title page was incorrectly formatted when an image was
 	  specified - the text start position was computed using the
 	  pixel height of the title image and not the formatted height.
+	- 1 color images didn't come out right; the "fix" to work around
+	  an Acrobat Reader bug was being done too soon, so the color
+	  lookups were wrong.
 
 
 CHANGES IN HTMLDOC v1.8.5
