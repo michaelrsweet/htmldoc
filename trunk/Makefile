@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.3 1999/11/09 22:16:40 mike Exp $"
+# "$Id: Makefile,v 1.4 1999/11/10 15:59:23 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -33,7 +33,8 @@ include Makedefs
 # Subdirectories...
 #
 
-DIRS	=	gui jpeg png zlib htmldoc
+DIRS	=	gui jpeg png zlib htmldoc doc
+
 
 #
 # Make all targets...
@@ -45,6 +46,7 @@ all:
 		(cd $$dir; make);\
 	done
 
+
 #
 # Remove object and target files...
 #
@@ -54,16 +56,24 @@ clean:
 		echo Cleaning in $$dir...;\
 		(cd $$dir; $(MAKE) clean);\
 	done
+
+
 #
 # Install object and target files...
 #
 
 install:
-	for dir in $(DIRS); do\
-		echo Installing in $$dir...;\
-		(cd $$dir; $(MAKE) install);\
-	done
+	echo Installing in afm...
+	(cd afm; $(MAKE) install)
+	echo Installing in data...
+	(cd data; $(MAKE) install)
+	echo Installing in doc...
+	(cd doc; $(MAKE) install)
+	echo Installing in htmldoc...
+	(cd htmldoc; $(MAKE) install)
+	echo Installation is complete.
+
 
 #
-# End of "$Id: Makefile,v 1.3 1999/11/09 22:16:40 mike Exp $".
+# End of "$Id: Makefile,v 1.4 1999/11/10 15:59:23 mike Exp $".
 #

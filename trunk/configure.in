@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.4 1999/11/09 22:16:40 mike Exp $"
+dnl "$Id: configure.in,v 1.5 1999/11/10 15:59:24 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -76,9 +76,13 @@ AC_CHECK_FUNCS(strdup)
 AC_CHECK_FUNCS(strcasecmp)
 AC_CHECK_FUNCS(strncasecmp)
 
+dnl Directories for config.h...
+AC_DEFINE_UNQUOTED(DOCUMENTATION, "$prefix/share/doc/htmldoc")
+AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
+
 dnl Generate the Makedefs file...
 AC_OUTPUT(Makedefs)
 
 dnl
-dnl End of "$Id: configure.in,v 1.4 1999/11/09 22:16:40 mike Exp $".
+dnl End of "$Id: configure.in,v 1.5 1999/11/10 15:59:24 mike Exp $".
 dnl
