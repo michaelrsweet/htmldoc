@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.5 1999/11/15 21:38:02 mike Exp $"
+# "$Id: Makefile,v 1.6 1999/11/18 20:22:13 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -83,5 +83,39 @@ config.h:	config.h.in Makedefs.in configure
 
 
 #
-# End of "$Id: Makefile,v 1.5 1999/11/15 21:38:02 mike Exp $".
+# Make a portable binary distribution using EPM.
+#
+# EPM = ESP Package Manager, available at "http://www.easysw.com/epm".
+#
+
+epm:
+	epm htmldoc
+
+
+#
+# Make a RPM distribution using EPM.
+#
+
+rpm:
+	epm -f rpm htmldoc
+
+
+#
+# Make a Debian distribution using EPM.
+#
+
+deb:
+	epm -f deb htmldoc
+
+
+#
+# Make an IRIX distribution using EPM.
+#
+
+tardist:
+	epm -f tardist htmldoc
+
+
+#
+# End of "$Id: Makefile,v 1.6 1999/11/18 20:22:13 mike Exp $".
 #

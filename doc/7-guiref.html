@@ -7,7 +7,7 @@ This chapter describes all of the GUI controls in <I>HTMLDOC</I>.
 
 <H2>The HTMLDOC GUI</H2>
 
-The <I>HTMLDOC</I> GUI (Figures 5 through 13) is contained in a single window
+The <I>HTMLDOC</I> GUI (Figures 7-1 through 7-9) is contained in a single window
 showing the input, output, and generation options. At the bottom are buttons
 to load, save, and generate documents.
 
@@ -69,14 +69,14 @@ settings in the <I>HTMLDOC</I> GUI, click on the <VAR>Save</VAR> or
 
 The <VAR>Close</VAR> button closes the <I>HTMLDOC</I> window.
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-input.gif"><BR>
-Figure 5 - The Input Tab</P>
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig71.png">
+<BR>Figure 7-1 - The Input Tab
 
 <H2>The Input Tab</H2>
 
-The input tab lists all of the HTML source files that are used to generate
-the document. You also specify the type of document (book or web page) and
-the title and logo images in this tab.
+The input tab (Figure 7-1) lists all of the HTML source files that are
+used to generate the document. You also specify the type of document
+(book or web page) and the title and logo images in this tab.
 
 <H3>Document Type</H3>
 
@@ -141,13 +141,13 @@ shown on the title page.
 <P>Click on the <VAR>Browse...</VAR> button to select a title image file using
 the <A HREF="#FILECHOOSER">file chooser</A> dialog.
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-output.gif"><BR>
-Figure 6 - The Output Tab</P>
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig72.png">
+<BR>Figure 7-2 - The Output Tab
 
 <H2>The Output Tab</H2>
 
-The output tab specifies where your document will be generated, the output
-format, and some of the generic output options.
+The output tab (Figure 7-2) specifies where your document will be
+generated, the output format, and some of the generic output options.
 
 <H3>Output To</H3>
 
@@ -187,13 +187,13 @@ compression that is used when writing PDF or Level 3 PostScript output.
 The <VAR>JPEG Quality</VAR> slider controls the quality level used
 when JPEG compressing continuous-tone images.
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-page.gif"><BR>
-Figure 7 - The Page Tab</P>
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig73.png">
+<BR>Figure 7-3 - The Page Tab
 
 <H2>The Page Tab</H2>
 
-The page tab defines the page header, footer, size, and margins for
-PostScript and PDF output.
+The page tab (Figure 7-3) defines the page header, footer, size, and
+margins for PostScript and PDF output.
 
 <H3>Page Size</H3>
 
@@ -237,12 +237,12 @@ buttons set the text that is left-justified, while the middle buttons
 set the text that is centered and the right buttons set the text that
 is right-justified.
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-toc.gif"><BR>
-Figure 8 - The TOC Tab</P>
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig74.png">
+<BR>Figure 7-4 - The TOC Tab
 
 <H2>The TOC Tab</H2>
 
-The TOC tab defines the table-of-contents options.
+The TOC tab (Figure 7-4) defines the table-of-contents options.
 
 <H3>Table of Contents</H3>
 
@@ -267,31 +267,246 @@ is right-justified.
 Enter the desired title for the table-of-contents in the <VAR>Title</VAR>
 field.
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-colors.gif"><BR>
-Figure 8 - The Colors Tab</P>
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig75.png">
+<BR>Figure 7-5 - The Colors Tab
 
 <H2>The Colors Tab</H2>
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-fonts.gif"><BR>
-Figure 8 - The Fonts Tab</P>
+The colors tab (Figure 7-5) defines the color and image information that is
+used for the entire document.
+
+<H3>Body Color</H3>
+
+The <VAR>Body Color</VAR> field specifies the default background color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<H3>Body Image</H3>
+
+The <VAR>Body Image</VAR> field specifies the default background image.
+Click on the <VAR>Browse...</VAR> button to pick the background image using
+the <A HREF="#FILECHOOSER">file chooser</A>.
+
+<H3>Text Color</H3>
+
+The <VAR>Text Color</VAR> field specifies the default text color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig76.png">
+<BR>Figure 7-6 - The Fonts Tab
 
 <H2>The Fonts Tab</H2>
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-ps.gif"><BR>
-Figure 8 - The PS Tab</P>
+The fonts tab (Figure 7-6) defines the fonts and character set used by the
+document.
+
+<H3>Base Font Size</H3>
+
+The <VAR>Base Font Size</VAR> field specifies the size of normal text
+in the document in points (1 point = 1/72nd inch). Click on the single
+arrow buttons to decrease or increase the size by 1/10th point or on
+the double arrow buttons to decrease or increase the size by whole
+points.
+
+<H3>Line Spacing</H3>
+
+The <VAR>Line Spacing</VAR> field specifies the spacing between lines
+as a multiple of the base font size. Click on the single arrow buttons
+to decrease or increase the size by 10ths or on the double arrow
+buttons to decrease or increase the size by whole numbers.
+
+<H3>Body Typeface</H3>
+
+The <VAR>Body Typeface</VAR> option button specifies the typeface to
+use for normal text. Click on the option button to select a typeface.
+
+<H3>Heading Typeface</H3>
+
+The <VAR>Heading Typeface</VAR> option button specifies the typeface to
+use for headings. Click on the option button to select a typeface.
+
+<H3>Header/Footer Size</H3>
+
+The <VAR>Header/Footer Size</VAR> field specifies the size of header
+and footer text in the document in points (1 point = 1/72nd inch).
+Click on the single arrow buttons to decrease or increase the size by
+1/10th point or on the double arrow buttons to decrease or increase the
+size by whole points.
+
+<H3>Header/Footer Font</H3>
+
+The <VAR>Header/Footer Font</VAR> option button specifies the typeface
+and style to use for header and footer text. Click on the option button
+to select a typeface and style.
+
+<H3>Character Set</H3>
+
+The <VAR>Character Set</VAR> option button specifies the encoding of
+characters in the document. Click on the option button to select a
+character set.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig77.png">
+<BR>Figure 7-7 - The PS Tab
 
 <H2>The PS Tab</H2>
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-pdf.gif"><BR>
-Figure 8 - The PDF Tab</P>
+The PS tab (Figure 7-7) contains options specific to PostScript output.
+
+<H3>PostScript Level</H3>
+
+Click on of the <VAR>Level</VAR> radio buttons to select the language
+level to generate. PostScript Level 1 is compatible with all PostScript
+printers and will produce the largest output files.
+
+<P>PostScript Level 2 is compatible with most PostScript printers and
+supports printer commands and JPEG image compression.
+
+<P>PostScript Level 3 is compatible with only the newest PostScript
+printers and supports Flate image compression in addition to the Level
+2 features.
+
+<H3>Send Printer Commands</H3>
+
+The <VAR>Send Printer Commands</VAR> check box controls whether or not
+the output files contain PostScript <CODE>setpagedevice</CODE> commands
+for the page size and duplex settings. Click in the check box to enable
+or disable printer commands.
+
+<P>Printer commands are only available with Level 2 and 3 output and
+may not work with some printers.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig78.png">
+<BR>Figure 7-8 - The PDF Tab
 
 <H2>The PDF Tab</H2>
 
-<P ALIGN=CENTER><IMG SRC="htmldoc-options.gif"><BR>
-Figure 8 - The Options Tab</P>
+The PDF tab (Figure 7-8) contains settings specific to PDF output.
+
+<H3>PDF Version</H3>
+
+The <VAR>PDF Version</VAR> radio buttons control what version of PDF is
+generated. PDF 1.2 is the most commonly supported version. Click on the
+corresponding radio button to set the version.
+
+<H3>Page Mode</H3>
+
+The <VAR>Page Mode</VAR> option button controls the initial viewing mode
+for the document. Click on the option button to set the page mode.
+
+<P>The <VAR>Document</VAR> page mode displays only the document pages.
+The <VAR>Outline</VAR> page mode displays the table-of-contents outline
+as well as the document pages. The <VAR>Full-Screen</VAR> page mode
+displays the document pages on the whole screen; this mode is used
+primarily for presentations.
+
+<H3>Page Layout</H3>
+
+The <VAR>Page Layout</VAR> option button controls the initial layout of
+document pages on the screen. Click on the option button to set the page
+layout.
+
+<P>The <VAR>Single</VAR> page layout displays a single page at a time.
+The <VAR>One Column</VAR> page layout displays a single column of pages
+at a time. The <VAR>Two Column Left</VAR> and <VAR>Two Column
+Right</VAR> page layouts display two columns of pages at a time; the
+first page is displayed in the left or right column as selected.
+
+<H3>First Page</H3>
+
+The <VAR>First Page</VAR> option button controls the initial page that is
+displayed. Click on the option button to choose the first page.
+
+<H3>Page Effect</H3>
+
+The <VAR>Page Effect</VAR> option button controls the page effect that is
+displayed in <VAR>Full-Screen</VAR> mode. Click on the option button to
+select a page effect.
+
+<H3>Page Duration</H3>
+
+The <VAR>Page Duration</VAR> slider controls the number of seconds that
+each page will be visible in <VAR>Full-Screen</VAR> mode. Drag the slider
+to adjust the number of seconds.
+
+<H3>Effect Duration</H3>
+
+The <VAR>Effect Duration</VAR> slider controls the number of seconds
+that the page effect will last when changing pages. Drag the slider to
+adjust the number of seconds.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig79.png">
+<BR>Figure 7-9 - The Options Tab
 
 <H2>The Options Tab</H2>
 
+The options tab (Figure 7-9) contains the HTML file editor of your
+choice and allows you to save the settings and options that will be
+used in new documents.
+
+<H3>HTML Editor</H3>
+
+The <VAR>HTML Editor</VAR> field contains the name of the HTML editor
+to run when you double-click on an input file or click on the <VAR>Edit
+Files...</VAR> button. Enter the program name in the field or click on
+the <VAR>Browse...</VAR> button to select the editor using the
+<A HREF="#FILECHOOSER">file chooser</A>.
+
+<P>The <CODE>%s</CODE> is added automatically to the end of the command
+name to insert the name of the file to be edited. If you are using
+Netscape Composer to edit your HTML files you should put "-edit" before
+the <CODE>%s</CODE> to tell Netscape to edit the file and not display
+it.
+
+<H3>Save Options and Defaults</H3>
+
+The <VAR>Save Options and Defaults</VAR> button saves the HTML editor
+and all of the document settings on the other tabs for use in new
+documents. These settings are also used by the command-line version of
+<I>HTMLDOC</I>.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig7a.png">
+<BR>Figure 7-10 - The File Chooser
+
+<H2><A NAME="FILECHOOSER">The File Chooser</A></H2>
+
+The file chooser (Figure 7-10) allows you to select one or more files and
+create files and directories.
+
+<H3>Directory</H3>
+
+The <VAR>Directory</VAR> option button (1) shows the current directory
+or folder that is displayed in the file list (3). Click on the option
+button to navigate to other directories or folders.
+
+<H3>Directory Buttons</H3>
+
+The directory buttons (2) allow you to go up one level in the directory
+hierarchy, create a new directory, and show all files in the directory,
+respectively.
+
+<H3>File List</H3>
+
+The file list (3) lists the files and directories in the current
+directory or folder. Double-click on a file or directory to select that
+file or directory. Drag the mouse or hold the <KBD>CTRL</KBD> key down
+while clicking to select multiple files.
+
+<H3>Filename</H3>
+
+The <VAR>Filename</VAR> field contains the currently selected filename.
+Type a name in the field to select a file or directory. As you type any
+matching filenames will be highlighted; press the <KBD>TAB</KBD> key to
+accept the matches.
+
+<H3>Dialog Buttons</H3>
+
+The dialog buttons (5) close the file chooser dialog window. Click on
+the <VAR>OK</VAR> button to accept your selections or the
+<VAR>Cancel</VAR> button to reject your selections and cancel the file
+operation.
 
 </BODY>
 </HTML>

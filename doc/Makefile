@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.6 1999/11/17 22:03:05 mike Exp $"
+# "$Id: Makefile,v 1.7 1999/11/18 20:22:15 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -39,12 +39,7 @@ SOURCES	=	intro.html 1-install.html 2-starting.html \
 		a-license.html
 
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
-DOCFILES =	htmldoc.html htmldoc.pdf htmldoc.ps \
-		htmldoc-colors.gif htmldoc-fonts.gif \
-		htmldoc-input.gif htmldoc-options.gif \
-		htmldoc-output.gif htmldoc-page.gif \
-		htmldoc-startmenu.gif htmldoc-toc.gif \
-		htmldoc.gif
+DOCFILES =	help.html htmldoc.pdf
 
 
 #
@@ -65,9 +60,6 @@ install: $(DOCUMENTS)
 	$(MKDIR) $(mandir)/man1
 	$(CP) htmldoc.man $(mandir)/man1/htmldoc.1
 	$(CHMOD) ugo+r $(mandir)/man1/htmldoc.1
-	$(MKDIR) $(mandir)/cat1
-	$(CP) htmldoc.1 $(mandir)/cat1/htmldoc.1
-	$(CHMOD) ugo+r $(mandir)/cat1/htmldoc.1
 
 
 #
@@ -106,5 +98,5 @@ htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
 
 
 #
-# End of "$Id: Makefile,v 1.6 1999/11/17 22:03:05 mike Exp $".
+# End of "$Id: Makefile,v 1.7 1999/11/18 20:22:15 mike Exp $".
 #
