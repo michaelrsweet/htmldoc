@@ -15,7 +15,9 @@ not include the command-line program.</BLOCKQUOTE>
 
 <H2>Converting Web Pages</H2>
 
-To convert a web page type:
+<H3>Converting a Single Web Page</H3>
+
+<P>To convert a single web page type:
 
 <UL><PRE>
 % <KBD>htmldoc --webpage -f output.pdf filename.html <I>ENTER</I></KBD>
@@ -32,6 +34,33 @@ you want to convert a web page or other unstructured document.
 <P>The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
 generate. If you don't specify an output file then a PDF file is
 send to the standard output.
+
+<H3>Converting Multiple Web Pages</H3>
+
+<P>To convert more than one web page with page breaks between each HTML file, type:
+
+<UL><PRE>
+% <KBD>htmldoc --webpage -f output.pdf file1.html ... fileN.html <I>ENTER</I></KBD>
+% <KBD>htmldoc --webpage -f output.ps file1.html ... fileN.html <I>ENTER</I></KBD>
+</PRE></UL>
+
+where <CODE>output.html</CODE>, <CODE>output.pdf</CODE>, and <CODE>output.ps</CODE>
+are the names of the files you want to generate, and <CODE>file1.html</CODE>
+to <CODE>fileN.html</CODE> are the HTML files you want to convert.
+
+<P>The <CODE>--webpage</CODE> option tells <I>HTMLDOC</I> that you want to
+convert more than one HTML file but with no page breaks between each HTML file.
+
+<P>To convert more than one web page with no page breaks between each HTML file, type:
+
+<UL><PRE>
+% <KBD>htmldoc --continuous -f output.pdf file1.html ... fileN.html <I>ENTER</I></KBD>
+% <KBD>htmldoc --continuous -f output.ps file1.html ... fileN.html <I>ENTER</I></KBD>
+</PRE></UL>
+
+<P>The arguments are pretty much the same except for the first one.
+The <CODE>--continous</CODE> option tells <I>HTMLDOC</I> that you want to
+convert more than one HTML file but with no page breaks between each HTML file.
 
 <!-- NEED 4in -->
 <H2>Generating Books</H2>
@@ -55,6 +84,7 @@ the heading elements (<CODE>H1</CODE>, <CODE>H2</CODE>, etc.) in
 your HTML files. It will also add a title page using the
 document <CODE>TITLE</CODE> text and other <CODE>META</CODE>
 information you supply in your HTML files.
+
 
 <H2>Setting the Title File</H2>
 
