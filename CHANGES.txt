@@ -8,8 +8,9 @@ CHANGES IN HTMLDOC v1.8.7
 	- The configure script now uses the local PNG, ZLIB,
 	  and/or JPEG libraries when they are new enough.
 	- The configure script now uses the -fno-rtti,
-	  -fno-exceptions, and -fomit-stack-frame options when
-	  compiling with GCC (smaller, faster executables.)
+	  -fno-exceptions, -fomit-frame-pointer, and -fpermissive
+	  options as needed with GCC (smaller, faster executables,
+	  works around X header bugs in Solaris.)
 	- Added a --toctitle option to set the table-of-contents
 	  title from the command-line (was only available in the
 	  GUI in previous releases...)
