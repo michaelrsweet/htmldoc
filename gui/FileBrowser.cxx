@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.17 1999/11/16 18:20:46 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.18 1999/12/13 13:24:55 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -367,6 +367,9 @@ FileBrowser::load(const char *directory)// I - Directory to load
     num_files = filename_list(directory_, &files);
 #endif /* WIN32 || __EMX__ */
 
+    if (num_files <= 0)
+      return (0);
+
     for (i = 0; i < num_files; i ++)
     {
       if (strcmp(files[i]->d_name, ".") != 0 &&
@@ -408,5 +411,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.17 1999/11/16 18:20:46 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.18 1999/12/13 13:24:55 mike Exp $".
 //
