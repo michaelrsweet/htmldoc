@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.16 2002/05/31 12:57:28 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.17 2002/06/04 15:15:08 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -138,6 +138,7 @@ enum	/* PDF document permissions */
 #endif /* _HTML_DOC_CXX_ */
 
 VAR int		Verbosity	VALUE(0);	/* Verbosity */
+VAR int		StrictHTML	VALUE(0);	/* Do strict HTML checking */
 VAR int		Errors		VALUE(0);	/* Number of errors */
 VAR int		Compression	VALUE(1);	/* Non-zero means compress PDFs */
 VAR int		TitlePage	VALUE(1),	/* Need a title page */
@@ -264,5 +265,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.16 2002/05/31 12:57:28 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.17 2002/06/04 15:15:08 mike Exp $".
  */

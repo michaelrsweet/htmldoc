@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.50 2002/06/04 14:52:02 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.51 2002/06/04 15:15:03 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -958,6 +958,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
     modern_skin->deactivate();
 #  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 
+    strict_html = new CheckButton(140, 210, 120, 25, "Strict HTML");
+    strict_html->value(StrictHTML);
+    _tooltip(strict_html, "Check to require strict HTML conformance.");
+
   group->end();
 
   saveOptions = new Fl_Button(295, 260, 190, 25, "Save Options and Defaults");
@@ -1365,6 +1369,8 @@ GUI::loadSettings()
   strcpy(Path, path->value());
 
   strcpy(Proxy, proxy->value());
+
+  StrictHTML = strict_html->value();
 }
 
 
@@ -1615,6 +1621,7 @@ GUI::newBook(void)
   path->value(Path);
   proxy->value(Proxy);
   browserWidth->value(_htmlBrowserWidth);
+  strict_html->value(StrictHTML);
 
   title(NULL, 0);
 
@@ -4029,5 +4036,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.50 2002/06/04 14:52:02 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.51 2002/06/04 15:15:03 mike Exp $".
 //
