@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.132 2001/11/20 22:12:43 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.133 2001/11/21 17:38:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -148,8 +148,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
 #define RENDER_TEXT	0
 #define RENDER_IMAGE	1
 #define RENDER_BOX	2
-#define RENDER_FBOX	3
-#define RENDER_LINK	4
+#define RENDER_LINK	3
 
 
 /*
@@ -158,6 +157,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
 
 typedef struct render_str	/**** Render entity structure ****/
 {
+  struct render_str	*prev;	/* Previous rendering entity */
   struct render_str	*next;	/* Next rendering entity */
   int	type;			/* Type of entity */
   float	x,			/* Position in points */
@@ -177,7 +177,6 @@ typedef struct render_str	/**** Render entity structure ****/
     }   	text;
     image_t	*image;		/* Image pointer */
     float	box[3];		/* Box color */
-    float	fbox[3];	/* Filled box color */
     uchar	link[1];	/* Link URL */
   }	data;
 } render_t;
@@ -367,7 +366,8 @@ static void	find_background(tree_t *t);
 static void	write_background(int page, FILE *out);
 
 static render_t	*new_render(int page, int type, float x, float y,
-		            float width, float height, void *data, int insert = 0);
+		            float width, float height, void *data,
+			    render_t *insert = 0);
 static void	copy_tree(tree_t *parent, tree_t *t);
 static float	get_cell_size(tree_t *t, float left, float right,
 		              float *minwidth, float *prefwidth,
@@ -713,7 +713,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
             &needspace);
 
   if (PageDuplex && (num_pages & 1))
-    num_pages ++;
+    check_pages(num_pages);
   chapter_ends[chapter] = num_pages - 1;
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
@@ -724,7 +724,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   * Parse the table-of-contents if necessary...
   */
 
-  if (TocLevels > 0)
+  if (TocLevels > 0 && num_headings > 0)
   {
     // Restore default page size, etc...
     PageWidth  = toc_width;
@@ -1353,16 +1353,19 @@ ps_write_document(uchar *author,	/* I - Author of document */
  */
 
 static void
-ps_write_page(FILE  *out,		/* I - Output file */
-              int   page)		/* I - Page number */
+ps_write_page(FILE  *out,	/* I - Output file */
+              int   page)	/* I - Page number */
 {
   int		file_page;	/* Current page # in document */
   render_t	*r,		/* Render pointer */
 		*next;		/* Next render */
+  page_t	*p;		/* Current page */
 
 
   if (page < 0 || page >= alloc_pages)
     return;
+
+  p = pages + page;
 
   DEBUG_printf(("ps_write_page(%p, %d)\n", out, page));
 
@@ -1372,7 +1375,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
 
   if (Verbosity)
   {
-    progress_show("Writing page %s...", pages[page].page_text);
+    progress_show("Writing page %s...", p->page_text);
     progress_update(100 * page / num_pages);
   }
 
@@ -1420,41 +1423,33 @@ ps_write_page(FILE  *out,		/* I - Output file */
   * Output the page prolog...
   */
 
-  fprintf(out, "%%%%Page: %s %d\n", pages[page].page_text, file_page);
-
-  if (pages[page].landscape)
-    fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
-            pages[page].left,
-	    pages[page].bottom,
-	    pages[page].length - pages[page].right,
-	    pages[page].width - pages[page].top);
-  else
-    fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
-            pages[page].left,
-	    pages[page].bottom,
-	    pages[page].width - pages[page].right,
-	    pages[page].length - pages[page].top);
+  fprintf(out, "%%%%Page: %s %d\n", p->page_text, file_page);
+  fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
+          p->left,
+	  p->bottom,
+	  p->width - p->right,
+	  p->length - p->top);
 
   if (PSLevel > 1 && PSCommands)
   {
     fputs("%%BeginPageSetup\n", out);
 
-    if (pages[page].width == 612 && pages[page].length == 792)
+    if (p->width == 612 && p->length == 792)
       fputs("%%BeginFeature: *PageSize Letter\n", out);
-    else if (pages[page].width == 612 && pages[page].length == 1008)
+    else if (p->width == 612 && p->length == 1008)
       fputs("%%BeginFeature: *PageSize Legal\n", out);
-    else if (pages[page].width == 595 && pages[page].length == 842)
+    else if (p->width == 595 && p->length == 842)
       fputs("%%BeginFeature: *PageSize A4\n", out);
     else
-      fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", pages[page].width,
-	      pages[page].length);
+      fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", p->width,
+	      p->length);
 
-    fprintf(out, "%d %d SetPageSize\n", pages[page].width, pages[page].length);
+    fprintf(out, "%d %d SetPageSize\n", p->width, p->length);
     fputs("%%EndFeature\n", out);
 
-    if (pages[page].duplex)
+    if (p->duplex)
     {
-      if (pages[page].landscape)
+      if (p->landscape)
       {
 	fputs("%%BeginFeature: *Duplex DuplexTumble\n", out);
 	fputs("true true SetDuplexMode\n", out);
@@ -1474,25 +1469,25 @@ ps_write_page(FILE  *out,		/* I - Output file */
       fputs("%%EndFeature\n", out);
     }
 
-    if (pages[page].media_color[0])
+    if (p->media_color[0])
     {
-      fprintf(out, "%%%%BeginFeature: *MediaColor %s\n", pages[page].media_color);
-      fprintf(out, "(%s) SetMediaColor\n", pages[page].media_color);
+      fprintf(out, "%%%%BeginFeature: *MediaColor %s\n", p->media_color);
+      fprintf(out, "(%s) SetMediaColor\n", p->media_color);
       fputs("%%EndFeature\n", out);
     }
 
-    if (pages[page].media_position)
+    if (p->media_position)
     {
       fprintf(out, "%%%%BeginFeature: *InputSlot Tray%d\n",
-              pages[page].media_position);
-      fprintf(out, "%d SetMediaPosition\n", pages[page].media_position);
+              p->media_position);
+      fprintf(out, "%d SetMediaPosition\n", p->media_position);
       fputs("%%EndFeature\n", out);
     }
 
-    if (pages[page].media_type[0])
+    if (p->media_type[0])
     {
-      fprintf(out, "%%%%BeginFeature: *MediaType %s\n", pages[page].media_type);
-      fprintf(out, "(%s) SetMediaType\n", pages[page].media_type);
+      fprintf(out, "%%%%BeginFeature: *MediaType %s\n", p->media_type);
+      fprintf(out, "(%s) SetMediaType\n", p->media_type);
       fputs("%%EndFeature\n", out);
     }
 
@@ -1501,57 +1496,53 @@ ps_write_page(FILE  *out,		/* I - Output file */
 
   fputs("GS\n", out);
 
-  if (pages[page].landscape)
+  if (p->landscape)
   {
-    if (pages[page].duplex && (page & 1))
-      fprintf(out, "0 %d T -90 rotate\n", pages[page].length);
+    if (p->duplex && (page & 1))
+      fprintf(out, "0 %d T -90 rotate\n", p->length);
     else
-      fprintf(out, "%d 0 T 90 rotate\n", pages[page].width);
+      fprintf(out, "%d 0 T 90 rotate\n", p->width);
   }
 
   write_background(page, out);
 
-  if (pages[page].duplex && (page & 1))
-    fprintf(out, "%d %d T\n", pages[page].right, pages[page].bottom);
+  if (p->duplex && (page & 1))
+    fprintf(out, "%d %d T\n", p->right, p->bottom);
   else
-    fprintf(out, "%d %d T\n", pages[page].left, pages[page].bottom);
+    fprintf(out, "%d %d T\n", p->left, p->bottom);
 
  /*
-  * Render all page elements, freeing used memory as we go...
+  * Render all graphics elements...
   */
 
-  for (r = pages[page].start, next = NULL; r != NULL; r = next)
-  {
+  for (r = p->start; r != NULL; r = r->next)
     switch (r->type)
     {
+      case RENDER_BOX :
+	  set_color(out, r->data.box);
+	  set_pos(out, r->x, r->y);
+	  if (r->height > 0.0f)
+            fprintf(out, " %.1f %.1f F\n", r->width, r->height);
+	  else
+            fprintf(out, " %.1f L\n", r->width);
+
+	  render_x = -1.0f;
+	  break;
+
       case RENDER_IMAGE :
           if (r->width > 0.01f && r->height > 0.01f)
             write_image(out, r);
           break;
-      case RENDER_TEXT :
-          write_text(out, r);
-          break;
-      case RENDER_BOX :
-          set_color(out, r->data.box);
-          set_pos(out, r->x, r->y);
-          if (r->height > 0.0f)
-            fprintf(out, " %.1f %.1f B\n", r->width, r->height);
-          else
-            fprintf(out, " %.1f L\n", r->width);
-          render_x        = -1.0f;
-          render_spacing  = -1.0f;
-          break;
-      case RENDER_FBOX :
-          set_color(out, r->data.box);
-          set_pos(out, r->x, r->y);
-          if (r->height > 0.0f)
-            fprintf(out, " %.1f %.1f F\n", r->width, r->height);
-          else
-            fprintf(out, " %.1f L\n", r->width);
-          render_x        = -1.0f;
-          render_spacing  = -1.0f;
-          break;
     }
+
+ /*
+  * Render all text elements, freeing used memory as we go...
+  */
+
+  for (r = p->start, next = NULL; r != NULL; r = next)
+  {
+    if (r->type == RENDER_TEXT)
+      write_text(out, r);
 
     next = r->next;
     free(r);
@@ -1895,14 +1886,16 @@ static void
 pdf_write_page(FILE  *out,		/* I - Output file */
                int   page)		/* I - Page number */
 {
-  int		last_render;	/* Last type of render */
   render_t	*r,		/* Render pointer */
 		*next;		/* Next render */
   float		box[3];		/* RGB color for boxes */
+  page_t	*p;		/* Current page */
 
 
   if (page < 0 || page >= alloc_pages)
     return;
+
+  p = pages + page;
 
  /*
   * Let the user know which page we are writing...
@@ -1910,7 +1903,7 @@ pdf_write_page(FILE  *out,		/* I - Output file */
 
   if (Verbosity)
   {
-    progress_show("Writing page %s...", pages[page].page_text);
+    progress_show("Writing page %s...", p->page_text);
     progress_update(100 * page / num_pages);
   }
 
@@ -1918,15 +1911,11 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   * Clear the render cache...
   */
 
-  render_typeface = -1;
-  render_style    = -1;
-  render_size     = -1;
   render_rgb[0]   = 0.0f;
   render_rgb[1]   = 0.0f;
   render_rgb[2]   = 0.0f;
   render_x        = -1.0f;
   render_y        = -1.0f;
-  render_spacing  = -1.0f;
   box[0]          = -1.0f;
   box[1]          = -1.0f;
   box[2]          = -1.0f;
@@ -1940,12 +1929,12 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   fputs("/Type/Page", out);
   fprintf(out, "/Parent %d 0 R", pages_object);
   fprintf(out, "/Contents %d 0 R", num_objects + 1);
-  if (pages[page].landscape)
-    fprintf(out, "/MediaBox[0 0 %d %d]", pages[page].length,
-            pages[page].width);
+  if (p->landscape)
+    fprintf(out, "/MediaBox[0 0 %d %d]", p->length,
+            p->width);
   else
-    fprintf(out, "/MediaBox[0 0 %d %d]", pages[page].width,
-            pages[page].length);
+    fprintf(out, "/MediaBox[0 0 %d %d]", p->width,
+            p->length);
 
   pdf_write_resources(out, page);
 
@@ -1953,8 +1942,8 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   * Actions (links)...
   */
 
-  if (pages[page].annot_object > 0)
-    fprintf(out, "/Annots %d 0 R", pages[page].annot_object);
+  if (p->annot_object > 0)
+    fprintf(out, "/Annots %d 0 R", p->annot_object);
 
   pdf_end_object(out);
 
@@ -1970,91 +1959,73 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   flate_puts("q\n", out);
   write_background(page, out);
 
-  if (pages[page].duplex && (page & 1))
-    flate_printf(out, "1 0 0 1 %d %d cm\n", pages[page].right,
-                 pages[page].bottom);
+  if (p->duplex && (page & 1))
+    flate_printf(out, "1 0 0 1 %d %d cm\n", p->right,
+                 p->bottom);
   else
-    flate_printf(out, "1 0 0 1 %d %d cm\n", pages[page].left,
-                 pages[page].bottom);
-
-  flate_puts("BT\n", out);
-  last_render = RENDER_TEXT;
+    flate_printf(out, "1 0 0 1 %d %d cm\n", p->left,
+                 p->bottom);
 
  /*
-  * Render all page elements, freeing used memory as we go...
+  * Render all graphics elements...
   */
 
-  for (r = pages[page].start, next = NULL; r != NULL; r = next)
-  {
-    if (r->type != last_render)
-    {
-      if (r->type == RENDER_TEXT)
-      {
-	render_x        = -1.0f;
-	render_y        = -1.0f;
-        render_spacing  = -1.0f;
-        flate_puts("BT\n", out);
-      }
-      else if (last_render == RENDER_TEXT)
-        flate_puts("ET\n", out);
-
-      last_render = r->type;
-    }
-
+  for (r = p->start; r != NULL; r = r->next)
     switch (r->type)
     {
       case RENDER_IMAGE :
           if (r->width > 0.01f && r->height > 0.01f)
             write_image(out, r);
           break;
-      case RENDER_TEXT :
-          write_text(out, r);
-          break;
-      case RENDER_BOX :
-          if (box[0] != r->data.box[0] ||
-	      box[1] != r->data.box[1] ||
-	      box[2] != r->data.box[2])
-            flate_printf(out, "%.2f %.2f %.2f RG\n", box[0] = r->data.box[0],
-	                 box[1] = r->data.box[1], box[2] = r->data.box[2]);
 
-          if (r->height == 0.0)
-            flate_printf(out, "%.1f %.1f m %.1f %.1f l S\n",
-                         r->x, r->y, r->x + r->width, r->y);
-          else
-            flate_printf(out, "%.1f %.1f %.1f %.1f re S\n",
-                         r->x, r->y, r->width, r->height);
-          break;
-      case RENDER_FBOX :
-          if (r->height == 0.0)
+      case RENDER_BOX :
+	  if (r->height == 0.0)
 	  {
             if (box[0] != r->data.box[0] ||
-	        box[1] != r->data.box[1] ||
-	        box[2] != r->data.box[2])
+		box[1] != r->data.box[1] ||
+		box[2] != r->data.box[2])
               flate_printf(out, "%.2f %.2f %.2f RG\n", box[0] = r->data.box[0],
-	                   box[1] = r->data.box[1], box[2] = r->data.box[2]);
+	        	   box[1] = r->data.box[1], box[2] = r->data.box[2]);
 
             flate_printf(out, "%.1f %.1f m %.1f %.1f l S\n",
-                         r->x, r->y, r->x + r->width, r->y);
-          }
+                	 r->x, r->y, r->x + r->width, r->y);
+	  }
 	  else
-          {
-            set_color(out, r->data.fbox);
+	  {
+            set_color(out, r->data.box);
             flate_printf(out, "%.1f %.1f %.1f %.1f re f\n",
-                         r->x, r->y, r->width, r->height);
-          }
-          break;
+                	 r->x, r->y, r->width, r->height);
+	  }
+	  break;
     }
+
+ /*
+  * Render all text elements, freeing used memory as we go...
+  */
+
+  flate_puts("BT\n", out);
+
+  render_typeface = -1;
+  render_style    = -1;
+  render_size     = -1;
+  render_x        = -1.0f;
+  render_y        = -1.0f;
+  render_spacing  = -1.0f;
+
+  for (r = p->start, next = NULL; r != NULL; r = next)
+  {
+    if (r->type == RENDER_TEXT)
+      write_text(out, r);
 
     next = r->next;
     free(r);
   }
 
+  flate_puts("ET\n", out);
+
  /*
   * Output the page trailer...
   */
-
-  if (last_render == RENDER_TEXT)
-   flate_puts("ET\n", out);
 
   flate_puts("Q\n", out);
   flate_close_stream(out);
@@ -2767,6 +2738,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 
       if (chap != t)
       {
+        *y += height;
         render_contents(chap, left, right, bottom, top, y, page, -1, 0);
 	*y -= _htmlSpacings[SIZE_P];
       }
@@ -3402,7 +3374,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             rgb[1] = t->green / 255.0f;
             rgb[2] = t->blue / 255.0f;
 
-            new_render(*page, RENDER_FBOX, *x, *y + _htmlSpacings[SIZE_P] * 0.5,
+            new_render(*page, RENDER_BOX, *x, *y + _htmlSpacings[SIZE_P] * 0.5,
 	               width, height, rgb);
 	  }
 	  else
@@ -3740,16 +3712,16 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  }
 
 	  // Top
-          new_render(*page, RENDER_FBOX, image_left, *y,
+          new_render(*page, RENDER_BOX, image_left, *y,
 		     temp->width + 2 * borderspace, borderspace, rgb);
 	  // Left
-          new_render(*page, RENDER_FBOX, image_left, *y,
+          new_render(*page, RENDER_BOX, image_left, *y,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Right
-          new_render(*page, RENDER_FBOX, image_left + temp->width + borderspace, *y,
+          new_render(*page, RENDER_BOX, image_left + temp->width + borderspace, *y,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Bottom
-          new_render(*page, RENDER_FBOX, image_left, *y + temp->height + borderspace,
+          new_render(*page, RENDER_BOX, image_left, *y + temp->height + borderspace,
                      temp->width + 2 * borderspace, borderspace, rgb);
 	}
 
@@ -3809,16 +3781,16 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  }
 
 	  // Top
-          new_render(*page, RENDER_FBOX, image_right, *y,
+          new_render(*page, RENDER_BOX, image_right, *y,
 		     temp->width + 2 * borderspace, borderspace, rgb);
 	  // Left
-          new_render(*page, RENDER_FBOX, image_right, *y,
+          new_render(*page, RENDER_BOX, image_right, *y,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Right
-          new_render(*page, RENDER_FBOX, image_right + temp->width + borderspace, *y,
+          new_render(*page, RENDER_BOX, image_right + temp->width + borderspace, *y,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Bottom
-          new_render(*page, RENDER_FBOX, image_right, *y + temp->height + borderspace,
+          new_render(*page, RENDER_BOX, image_right, *y + temp->height + borderspace,
                      temp->width + 2 * borderspace, borderspace, rgb);
 	}
 
@@ -4243,16 +4215,16 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             if (borderspace > 0.0f)
 	    {
 	      // Top
-              new_render(*page, RENDER_FBOX, linex, *y + offset,
+              new_render(*page, RENDER_BOX, linex, *y + offset,
 			 temp->width + 2 * borderspace, borderspace, rgb);
 	      // Left
-              new_render(*page, RENDER_FBOX, linex, *y + offset,
+              new_render(*page, RENDER_BOX, linex, *y + offset,
                 	 borderspace, temp->height + 2 * borderspace, rgb);
 	      // Right
-              new_render(*page, RENDER_FBOX, linex + temp->width + borderspace, *y + offset,
+              new_render(*page, RENDER_BOX, linex + temp->width + borderspace, *y + offset,
                 	 borderspace, temp->height + 2 * borderspace, rgb);
 	      // Bottom
-              new_render(*page, RENDER_FBOX, linex, *y + offset + temp->height + borderspace,
+              new_render(*page, RENDER_BOX, linex, *y + offset + temp->height + borderspace,
                 	 temp->width + 2 * borderspace, borderspace, rgb);
 	    }
 
@@ -5524,22 +5496,22 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  */
 
 	  // Top
-          new_render(cell_page[col], RENDER_FBOX, border_left,
+          new_render(cell_page[col], RENDER_BOX, border_left,
                      cell_y[col] + cellpadding,
 		     width + border, border, rgb);
 	  // Left
-          new_render(cell_page[col], RENDER_FBOX, border_left, bottom,
+          new_render(cell_page[col], RENDER_BOX, border_left, bottom,
                      border, cell_y[col] - bottom + cellpadding + border, rgb);
 	  // Right
-          new_render(cell_page[col], RENDER_FBOX,
+          new_render(cell_page[col], RENDER_BOX,
 	             border_left + width, bottom,
 		     border, cell_y[col] - bottom + cellpadding + border, rgb);
         }
 
         if (bgcolor != NULL)
-          new_render(*page, RENDER_FBOX, border_left, bottom,
+          new_render(*page, RENDER_BOX, border_left, bottom,
                      width + border,
-		     cell_y[col] - bottom + cellpadding + border, bgrgb, 1);
+		     cell_y[col] - bottom + cellpadding + border, bgrgb);
 
         for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
 	{
@@ -5551,17 +5523,18 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  if (border > 0.0f)
 	  {
 	    // Left
-            new_render(temp_page, RENDER_FBOX, border_left, bottom,
+            new_render(temp_page, RENDER_BOX, border_left, bottom,
                        border, top - bottom, rgb);
 	    // Right
-            new_render(temp_page, RENDER_FBOX,
+            new_render(temp_page, RENDER_BOX,
 	               border_left + width, bottom,
 		       border, top - bottom, rgb);
           }
 
 	  if (bgcolor != NULL)
-            new_render(temp_page, RENDER_FBOX, border_left, bottom,
-                       width + border, top - bottom, bgrgb, 1);
+            new_render(temp_page, RENDER_BOX, border_left, bottom,
+                       width + border, top - bottom, bgrgb,
+		       cell_start[col]);
         }
 
         if (border > 0.0f)
@@ -5572,20 +5545,21 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  */
 
 	  // Left
-          new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
+          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
                      border, top - row_y, rgb);
 	  // Right
-          new_render(cell_endpage[col], RENDER_FBOX,
+          new_render(cell_endpage[col], RENDER_BOX,
 	             border_left + width, row_y,
                      border, top - row_y, rgb);
 	  // Bottom
-          new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
+          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
                      width + border, border, rgb);
         }
 
         if (bgcolor != NULL)
-          new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
-	             width + border, top - row_y, bgrgb, 1);
+          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
+	             width + border, top - row_y, bgrgb,
+		     cell_start[col]);
       }
       else
       {
@@ -5598,25 +5572,26 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         if (border > 0.0f)
 	{
 	  // Top
-          new_render(cell_page[col], RENDER_FBOX, border_left,
+          new_render(cell_page[col], RENDER_BOX, border_left,
                      cell_y[col] + cellpadding,
 		     width + border, border, rgb);
 	  // Left
-          new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
+          new_render(cell_page[col], RENDER_BOX, border_left, row_y,
                      border, cell_y[col] - row_y + cellpadding + border, rgb);
 	  // Right
-          new_render(cell_page[col], RENDER_FBOX,
+          new_render(cell_page[col], RENDER_BOX,
 	             border_left + width, row_y,
                      border, cell_y[col] - row_y + cellpadding + border, rgb);
 	  // Bottom
-          new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
+          new_render(cell_page[col], RENDER_BOX, border_left, row_y,
                      width + border, border, rgb);
 	}
 
         if (bgcolor != NULL)
-          new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
+          new_render(cell_page[col], RENDER_BOX, border_left, row_y,
                      width + border,
-		     cell_y[col] - row_y + cellpadding + border, bgrgb, 1);
+		     cell_y[col] - row_y + cellpadding + border, bgrgb,
+		     cell_start[col]);
       }
     }
 
@@ -6894,14 +6869,14 @@ write_background(int  page,	/* I - Page we are writing for */
  */
 
 static render_t *		/* O - New render structure */
-new_render(int   page,		/* I - Page number (0-n) */
-           int   type,		/* I - Type of render primitive */
-           float x,		/* I - Horizontal position */
-           float y,		/* I - Vertical position */
-           float width,		/* I - Width */
-           float height,	/* I - Height */
-           void  *data,		/* I - Data */
-	   int   insert)	/* I - Insert instead of append? */
+new_render(int      page,	/* I - Page number (0-n) */
+           int      type,	/* I - Type of render primitive */
+           float    x,		/* I - Horizontal position */
+           float    y,		/* I - Vertical position */
+           float    width,	/* I - Width */
+           float    height,	/* I - Height */
+           void     *data,	/* I - Data */
+	   render_t *insert)	/* I - Insert before here... */
 {
   render_t		*r;	/* New render primitive */
   static render_t	dummy;	/* Dummy var for errors... */
@@ -6962,9 +6937,6 @@ new_render(int   page,		/* I - Page number (0-n) */
     case RENDER_BOX :
         memcpy(r->data.box, data, sizeof(r->data.box));
         break;
-    case RENDER_FBOX :
-        memcpy(r->data.fbox, data, sizeof(r->data.fbox));
-        break;
     case RENDER_LINK :
         if (data == NULL)
         {
@@ -6977,10 +6949,14 @@ new_render(int   page,		/* I - Page number (0-n) */
 
   if (insert)
   {
-    r->next           = pages[page].start;
-    pages[page].start = r;
-    if (r->next == NULL)
-      pages[page].end = r;
+    if (insert->prev)
+      insert->prev->next = r;
+    else
+      pages[page].start = r;
+
+    r->prev      = insert->prev;
+    r->next      = insert;
+    insert->prev = r;
   }
   else
   {
@@ -6990,11 +6966,9 @@ new_render(int   page,		/* I - Page number (0-n) */
       pages[page].start = r;
 
     r->next         = NULL;
+    r->prev         = pages[page].end;
     pages[page].end = r;
   }
-
-  if (page >= num_pages)
-    num_pages = page + 1;
 
   DEBUG_printf(("    returning r = %p\n", r));
 
@@ -10605,5 +10579,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.132 2001/11/20 22:12:43 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.133 2001/11/21 17:38:29 mike Exp $".
  */
