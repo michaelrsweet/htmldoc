@@ -1,7 +1,7 @@
 #
-# "$Id: Makefile,v 1.25 2002/02/05 19:50:33 mike Exp $"
+# "$Id: Makefile,v 1.26 2002/02/08 19:39:50 mike Exp $"
 #
-# Makefile for HTMLDOC, an HTML document processing program.
+# Makefile for HTMLDOC library.
 #
 # Copyright 1997-2002 by Easy Software Products.
 #
@@ -40,7 +40,8 @@ TARGETS	=	libhtmldoc.a testsuite
 # Object files...
 #
 
-LIBOBJS	=	file.o file-common.o file-open.o file-std.o \
+LIBOBJS	=	common.o \
+		file.o file-common.o file-mem.o file-open.o file-std.o \
 		http.o http-md5.o md5.o \
 		image.o image-bmp.o image-gif.o image-jpeg.o image-png.o \
 		margin.o \
@@ -101,5 +102,15 @@ $(OBJS):	../Makedefs
 
 
 #
-# End of "$Id: Makefile,v 1.25 2002/02/05 19:50:33 mike Exp $".
+# depend
+#
+
+depend:
+	makedepend -Y -I.. -f Dependencies $(LIBOBJS:.o=.cxx) testsuite.cxx
+
+include Dependencies
+
+
+#
+# End of "$Id: Makefile,v 1.26 2002/02/08 19:39:50 mike Exp $".
 #

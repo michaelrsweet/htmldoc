@@ -1,5 +1,5 @@
 //
-// "$Id: file.h,v 1.14 2002/01/05 23:14:39 mike Exp $"
+// "$Id: file.h,v 1.15 2002/02/08 19:39:50 mike Exp $"
 //
 //   File class definitions for HTMLDOC, a HTML document processing program.
 //
@@ -151,6 +151,36 @@ class hdStdFile : public hdFile
 
 
 //
+// Memory buffer-based files...
+//
+
+class hdMemFile : public hdFile
+{
+  char	*buffer_,	// Start of buffer
+	*current_,	// Current position in buffer
+	*end_;		// End of buffer
+  long	size_,		// Current size of buffer file
+	alloc_size_,	// Allocated size of buffer
+	max_size_,	// Maximum size of buffer
+	incr_size_;	// Size increment
+
+  public:
+
+  hdMemFile(char *buffer, long buflen = 0, hdMode m = HD_FILE_READ);
+  hdMemFile(long init_size, hdMode m, long max_size = 0, long incr_size = 0);
+  virtual ~hdMemFile();
+
+  virtual int	get();
+  virtual int	put(int c);
+  virtual int	read(void *b, int len);
+  virtual int	seek(long p, int w);
+  virtual long	size();
+  virtual int	write(const void *b, int len);
+  virtual int	unget(int c);
+};
+
+
+//
 // File filter...
 //
 
@@ -218,5 +248,5 @@ class hdRC4Filter : public hdFile
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h,v 1.14 2002/01/05 23:14:39 mike Exp $".
+// End of "$Id: file.h,v 1.15 2002/02/08 19:39:50 mike Exp $".
 //

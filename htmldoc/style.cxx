@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.4 2002/02/06 20:24:08 mike Exp $"
+// "$Id: style.cxx,v 1.5 2002/02/08 19:39:51 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -23,6 +23,9 @@
 //
 // Contents:
 //
+//   hdSelector::hdSelector()       - Initialize a selector.
+//   hdSelector::set()              - Set selector values.
+//   hdSelector::clear()            - Free selector strings.
 //   hdStyle::hdStyle()             - Create a new style record.
 //   hdStyle::~hdStyle()            - Destroy a style record.
 //   hdStyle::get_border_style()    - Get a border style value.
@@ -47,6 +50,74 @@
 #include "tree.h"
 #include "hdstring.h"
 #include <stdlib.h>
+
+
+//
+// 'hdSelector::hdSelector()' - Initialize a selector.
+//
+
+hdSelector::hdSelector()
+{
+  // Clear the whole structure to 0...
+  memset(this, 0, sizeof(hdSelector));
+}
+
+
+//
+// 'hdSelector::set()' - Set selector values.
+//
+
+void
+hdSelector::set(hdElement  e,	// I - Element
+                const char *c,	// I - Class string
+                const char *p,	// I - Pseudo-selector string
+		const char *i)	// I - ID string
+{
+  // Set/allocate the new values...
+  element = e;
+
+  if (c)
+    class_ = strdup(c);
+  else
+    class_ = NULL;
+
+  if (p)
+    pseudo = strdup(p);
+  else
+    pseudo = NULL;
+
+  if (i)
+    id = strdup(i);
+  else
+    id = NULL;
+}
+
+
+//
+// 'hdSelector::clear()' - Free selector strings.
+//
+
+void
+hdSelector::clear()
+{
+  if (class_)
+  {
+    free(class_);
+    class_  = NULL;
+  }
+
+  if (pseudo)
+  {
+    free(pseudo);
+    pseudo  = NULL;
+  }
+
+  if (id)
+  {
+    free(id);
+    id  = NULL;
+  }
+}
 
 
 //
@@ -188,16 +259,17 @@ hdStyle::get_border_style(const char *value)	// I - String value
 //
 
 float						// O - Numeric value
-hdStyle::get_border_width(const char *value)	// I - String value
+hdStyle::get_border_width(const char   *value,	// I - String value
+                          hdStyleSheet *css)	// I - Stylesheet
 {
   if (strcasecmp(value, "thin") == 0)
-    return (1.0f);
+    return (1.0f * 72.0f / css->ppi);
   else if (strcasecmp(value, "medium") == 0)
-    return (2.0f);
+    return (2.0f * 72.0f / css->ppi);
   else if (strcasecmp(value, "thick") == 0)
-    return (3.0f);
+    return (3.0f * 72.0f / css->ppi);
   else
-    return (get_length(value, 100.0f));
+    return (get_length(value, css->ppi, css));
 }
 
 
@@ -328,9 +400,10 @@ hdStyle::get_color(const char    *color,// I - Color string
 //
 
 float						// O - Length value
-hdStyle::get_length(const char *length,		// I - Length string
-                    float      max_length,	// I - Maximum length
-		    int        *relative)	// O - Relative value?
+hdStyle::get_length(const char   *length,	// I - Length string
+                    float        max_length,	// I - Maximum length
+                    hdStyleSheet *css,		// I - Stylesheet
+		    int          *relative)	// O - Relative value?
 {
   float	val;					// Length value
   char	*units;					// Units after length
@@ -380,9 +453,9 @@ hdStyle::get_length(const char *length,		// I - Length string
   else if (strcasecmp(units, "px") == 0 || !*units)
   {
     // Pixel resolutions use a global "pixels per inch" setting
-    // that is used by all documents...
+    // from the stylesheet...
 
-    val *= 72.0f / hdTree::ppi;
+    val *= 72.0f / css->ppi;
   }
   else if (strcasecmp(units, "%") == 0)
   {
@@ -623,7 +696,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
       if (height_rel)
         free(height_rel);
 
-      height_rel = strdup(height_rel);
+      height_rel = strdup(p->height_rel);
     }
     else if (p->height != HD_HEIGHT_AUTO)
     {
@@ -698,7 +771,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
       if (width_rel)
         free(width_rel);
 
-      width_rel = strdup(width_rel);
+      width_rel = strdup(p->width_rel);
     }
     else if (p->width != HD_WIDTH_AUTO)
     {
@@ -726,7 +799,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
     if (font_family)
       free(font_family);
 
-    font_family = strdup(font_family);
+    font_family = strdup(p->font_family);
   }
 
   if (p->font_size_rel)
@@ -1006,7 +1079,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	else if (isdigit(subvalue[0]))
 	{
 	  // Get a numeric position for the background...
-          length = get_length(subvalue, 100.0, &relative);
+          length = get_length(subvalue, 100.0, css, &relative);
 
 	  if (pos < 0)
 	  {
@@ -1175,7 +1248,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	else if (isdigit(subvalue[0]))
 	{
 	  // Get a numeric position for the background...
-          length = get_length(subvalue, 100.0, &relative);
+          length = get_length(subvalue, 100.0, css, &relative);
 
 	  if (pos < 0)
 	  {
@@ -1317,7 +1390,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 		 strcasecmp(subvalue, "thick") == 0 ||
 		 isdigit(subvalue[0]))
 	{
-	  float bw = get_border_width(subvalue);
+	  float bw = get_border_width(subvalue, css);
 
 
 	  if (last != 'w')
@@ -1431,7 +1504,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 		 strcasecmp(subvalue, "thick") == 0 ||
 		 isdigit(subvalue[0]))
 	{
-	  border[pos].width = get_border_width(subvalue);
+	  border[pos].width = get_border_width(subvalue, css);
 	}
         else if (strcasecmp(subvalue, "none") == 0 ||
 	         strcasecmp(subvalue, "dotted") == 0 ||
@@ -1474,7 +1547,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
              strcasecmp(name, "border-right-width") == 0 ||
              strcasecmp(name, "border-top-width") == 0)
     {
-      border[get_pos(name)].width = get_border_width(value);
+      border[get_pos(name)].width = get_border_width(value, css);
     }
     else if (strcasecmp(name, "border-collapse") == 0)
     {
@@ -1571,7 +1644,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 		 strcasecmp(subvalue, "thick") == 0 ||
 		 isdigit(subvalue[0]))
 	{
-	  border[pos].width = get_border_width(subvalue);
+	  border[pos].width = get_border_width(subvalue, css);
 	}
         else if (strcasecmp(subvalue, "none") == 0 ||
 	         strcasecmp(subvalue, "dotted") == 0 ||
@@ -1678,7 +1751,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	    strcasecmp(subvalue, "thick") == 0 ||
 	    isdigit(subvalue[0]))
 	{
-	  float bw = get_border_width(subvalue);
+	  float bw = get_border_width(subvalue, css);
 
 
           switch (pos)
@@ -1723,7 +1796,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
              strcasecmp(name, "top") == 0)
     {
       pos           = get_pos(name);
-      position[pos] = get_length(value, 100.0, &relative);
+      position[pos] = get_length(value, 100.0, css, &relative);
 
       if (relative)
         position_rel[pos] = strdup(value);
@@ -1920,7 +1993,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
           if ((lh = strchr(subvalue, '/')) != NULL)
 	    *lh++ = '\0';
 
-          font_size = get_length(subvalue, 11.0f, &relative);
+          font_size = get_length(subvalue, 11.0f, css, &relative);
 
 	  if (relative)
 	  {
@@ -1932,7 +2005,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 
           if (lh)
 	  {
-	    line_height = get_length(lh, font_size, &relative);
+	    line_height = get_length(lh, font_size, css, &relative);
 
             if (line_height_rel)
 	      free(line_height_rel);
@@ -1971,7 +2044,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
       if ((lh = strchr(value, '/')) != NULL)
 	*lh++ = '\0';
 
-      font_size = get_length(value, 11.0f, &relative);
+      font_size = get_length(value, 11.0f, css, &relative);
 
       if (relative)
       {
@@ -1983,7 +2056,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 
       if (lh)
       {
-	line_height = get_length(lh, font_size, &relative);
+	line_height = get_length(lh, font_size, css, &relative);
 
         if (line_height_rel)
 	  free(line_height_rel);
@@ -2073,7 +2146,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "height") == 0)
     {
-      height = get_length(value, 100.0f, &relative);
+      height = get_length(value, css->print_length, css, &relative);
 
       if (relative)
       {
@@ -2090,11 +2163,11 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "letter-spacing") == 0)
     {
-      letter_spacing = get_length(value, 0.0f);
+      letter_spacing = get_length(value, 0.0f, css);
     }
     else if (strcasecmp(name, "line-height") == 0)
     {
-      line_height = get_length(value, font_size, &relative);
+      line_height = get_length(value, font_size, css, &relative);
 
       if (line_height_rel)
 	free(line_height_rel);
@@ -2249,7 +2322,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	valueptr = get_subvalue(valueptr);
 
         // Process it...
-        length = get_length(subvalue, 100.0f, &relative);
+        length = get_length(subvalue, 100.0f, css, &relative);
 
         switch (pos)
 	{
@@ -2341,7 +2414,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     {
       pos = get_pos(name);
 
-      margin[pos] = get_length(value, 100.0f, &relative);
+      margin[pos] = get_length(value, 100.0f, css, &relative);
 
       if (relative)
       {
@@ -2423,7 +2496,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	valueptr = get_subvalue(valueptr);
 
         // Process it...
-        length = get_length(subvalue, 100.0f, &relative);
+        length = get_length(subvalue, 100.0f, css, &relative);
 
         switch (pos)
 	{
@@ -2515,7 +2588,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     {
       pos = get_pos(name);
 
-      padding[pos] = get_length(value, 100.0f, &relative);
+      padding[pos] = get_length(value, 100.0f, css, &relative);
 
       if (relative)
       {
@@ -2594,7 +2667,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "text-indent") == 0)
     {
-      text_indent = get_length(value, 100.0f, &relative);
+      text_indent = get_length(value, css->print_width, css, &relative);
 
       if (relative)
       {
@@ -2680,7 +2753,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "width") == 0)
     {
-      width = get_length(value, 100.0f, &relative);
+      width = get_length(value, css->print_width, css, &relative);
 
       if (relative)
       {
@@ -2697,7 +2770,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "word-spacing") == 0)
     {
-      word_spacing = get_length(value, 0.0f);
+      word_spacing = get_length(value, 0.0f, css);
     }
     else if (strcasecmp(name, "z-index") == 0)
     {
@@ -2742,12 +2815,12 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
     if (selectors[0].element == HD_ELEMENT_BODY ||
         (body_style = css->find_style(1, &body)) == NULL)
-      font_size = get_length(font_size_rel, 11.0f);
+      font_size = get_length(font_size_rel, 11.0f, css);
     else
     {
       body_style->update(css);
 
-      font_size = get_length(font_size_rel, body_style->font_size);
+      font_size = get_length(font_size_rel, body_style->font_size, css);
     }
   }
 
@@ -2755,56 +2828,58 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
   // Then do all of the other relative properties...
   if (background_position_rel[0])
-    background_position[0] = get_length(background_position_rel[0], css->print_width);
+    background_position[0] = get_length(background_position_rel[0],
+                                        css->print_width, css);
   if (background_position_rel[1])
-    background_position[1] = get_length(background_position_rel[1], css->print_length);
+    background_position[1] = get_length(background_position_rel[1],
+                                        css->print_length, css);
 
   if (height_rel)
-    height = get_length(height_rel, css->print_length);
+    height = get_length(height_rel, css->print_length, css);
 
   if (line_height_rel)
   {
     if (strcasecmp(line_height_rel, "normal") == 0)
       line_height = 1.2f * font_size;
     else
-      line_height = get_length(line_height_rel, font_size);
+      line_height = get_length(line_height_rel, font_size, css);
   }
 
   if (margin_rel[0])
-    margin[0] = get_length(margin_rel[0], css->print_length);
+    margin[0] = get_length(margin_rel[0], css->print_length, css);
   if (margin_rel[1])
-    margin[1] = get_length(margin_rel[1], css->print_width);
+    margin[1] = get_length(margin_rel[1], css->print_width, css);
   if (margin_rel[2])
-    margin[2] = get_length(margin_rel[2], css->print_width);
+    margin[2] = get_length(margin_rel[2], css->print_width, css);
   if (margin_rel[3])
-    margin[3] = get_length(margin_rel[3], css->print_length);
+    margin[3] = get_length(margin_rel[3], css->print_length, css);
 
   if (padding_rel[0])
-    padding[0] = get_length(padding_rel[0], css->print_length);
+    padding[0] = get_length(padding_rel[0], css->print_length, css);
   if (padding_rel[1])
-    padding[1] = get_length(padding_rel[1], css->print_width);
+    padding[1] = get_length(padding_rel[1], css->print_width, css);
   if (padding_rel[2])
-    padding[2] = get_length(padding_rel[2], css->print_width);
+    padding[2] = get_length(padding_rel[2], css->print_width, css);
   if (padding_rel[3])
-    padding[3] = get_length(padding_rel[3], css->print_length);
+    padding[3] = get_length(padding_rel[3], css->print_length, css);
 
   if (position_rel[0])
-    position[0] = get_length(position_rel[0], css->print_length);
+    position[0] = get_length(position_rel[0], css->print_length, css);
   if (position_rel[1])
-    position[1] = get_length(position_rel[1], css->print_width);
+    position[1] = get_length(position_rel[1], css->print_width, css);
   if (position_rel[2])
-    position[2] = get_length(position_rel[2], css->print_width);
+    position[2] = get_length(position_rel[2], css->print_width, css);
   if (position_rel[3])
-    position[3] = get_length(position_rel[3], css->print_length);
+    position[3] = get_length(position_rel[3], css->print_length, css);
 
   if (text_indent_rel)
-    text_indent = get_length(text_indent_rel, css->print_width);
+    text_indent = get_length(text_indent_rel, css->print_width, css);
 
   if (width_rel)
-    width = get_length(width_rel, css->print_width);
+    width = get_length(width_rel, css->print_width, css);
 }
 
 
 //
-// End of "$Id: style.cxx,v 1.4 2002/02/06 20:24:08 mike Exp $".
+// End of "$Id: style.cxx,v 1.5 2002/02/08 19:39:51 mike Exp $".
 //
