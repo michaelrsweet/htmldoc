@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.149 2002/01/29 18:39:50 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.150 2002/02/12 20:38:47 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5129,10 +5129,15 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     }
 
     for (col = 0, width = 0.0f; col < num_cols; col ++)
-      width += col_widths[col];
+      width += col_widths[col] + 2 * cellpadding + cellspacing;
+
+    width -= cellspacing;
   }
 
   DEBUG_puts("");
+
+  DEBUG_printf(("Final table width = %.1f, alignment = %d\n",
+                width, t->halignment));
 
   switch (t->halignment)
   {
@@ -10677,5 +10682,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.149 2002/01/29 18:39:50 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.150 2002/02/12 20:38:47 mike Exp $".
  */
