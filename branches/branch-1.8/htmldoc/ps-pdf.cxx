@@ -1,5 +1,6 @@
+#define TABLE_DEBUG
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.127 2001/11/14 17:39:24 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.128 2001/11/20 14:24:57 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4814,7 +4815,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   actual_width  = (2 * cellpadding + cellspacing) * num_cols -
                   cellspacing;
-  regular_width = (table_width - actual_width) / num_cols;
+  regular_width = (width - actual_width) / num_cols;
 
   DEBUG_printf(("    width = %.1f, actual_width = %.1f, regular_width = %.1f\n\n",
                 width, actual_width, regular_width));
@@ -4864,7 +4865,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   if (pref_width > 0.0f)
   {
-    if ((regular_width = (table_width - actual_width) / pref_width) < 0.0f)
+    if ((regular_width = (width - actual_width) / pref_width) < 0.0f)
       regular_width = 0.0f;
     else if (regular_width > 1.0f)
       regular_width = 1.0f;
@@ -4880,8 +4881,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
 	if ((actual_width + pref_width) > width)
 	{
-          if (col == (num_cols - 1) && (table_width - actual_width) >= col_mins[col])
-	    col_widths[col] = table_width - actual_width;
+          if (col == (num_cols - 1) && (width - actual_width) >= col_mins[col])
+	    col_widths[col] = width - actual_width;
 	  else
 	    col_widths[col] = col_mins[col];
 	}
@@ -7274,8 +7275,11 @@ get_cell_size(tree_t *t,		// I - Cell
       case MARKUP_LI :
       case MARKUP_P :
       case MARKUP_PRE :
-	  if (nowrap && frag_pref > prefw)
+	  if (frag_pref > prefw)
 	    prefw = frag_pref;
+
+	  if (nowrap && frag_pref > minw)
+	    minw = frag_pref;
 
           frag_pref   = 0.0f;
           frag_height = 0.0f;
@@ -10409,5 +10413,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.127 2001/11/14 17:39:24 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.128 2001/11/20 14:24:57 mike Exp $".
  */
