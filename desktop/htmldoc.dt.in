@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.dt,v 1.1.2.1 2004/06/10 20:58:00 mike Exp $"
+# "$Id: htmldoc.dt.in,v 1.1.2.1 2004/06/14 17:23:51 mike Exp $"
 #
 #   CDE Action and DataType Definitions for HTMLDOC.
 #
@@ -64,7 +64,7 @@ ACTION htmldoc
 	ICON		htmldoc
 	TYPE		COMMAND
 	WINDOW_TYPE	NO_STDIO
-	EXEC_STRING	/usr/bin/htmldoc %Arg_1%
+	EXEC_STRING	@bindir@/htmldoc %Arg_1%
 	DESCRIPTION	HTMLDOC converts HTML files and web pages to PDF and PostScript.
 }
 
@@ -81,5 +81,5 @@ ACTION Open
 
 
 #
-# End of "$Id: htmldoc.dt,v 1.1.2.1 2004/06/10 20:58:00 mike Exp $".
+# End of "$Id: htmldoc.dt.in,v 1.1.2.1 2004/06/14 17:23:51 mike Exp $".
 #
