@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.203 2002/08/23 19:55:17 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.204 2002/08/27 19:14:53 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1395,10 +1395,7 @@ pspdf_prepare_page(int page)		/* I - Page number */
     PagePrintLength = pages[page].length - pages[page].top - pages[page].bottom;
   }
 
-  if (logo_height > HeadFootSize)
-    top = (int)(PagePrintLength - logo_height);
-  else
-    top = (int)(PagePrintLength - HeadFootSize);
+  top = (int)(PagePrintLength - HeadFootSize);
 
   if (chapter == 0)
   {
@@ -11861,5 +11858,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.203 2002/08/23 19:55:17 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.204 2002/08/27 19:14:53 mike Exp $".
  */
