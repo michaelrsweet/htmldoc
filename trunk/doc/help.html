@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-	<TITLE>&lt;HTML&gt;DOC On-Line Help</TITLE>
+	<TITLE>HTMLDOC On-Line Help</TITLE>
 	<STYLE>
 	BODY { font-family: serif }
 	H1 { font-family: sans-serif }
@@ -16,7 +16,7 @@
 </HEAD>
 <BODY>
 
-<H1><A NAME="CONTENTS">&lt;HTML&gt;DOC On-Line Help</A></H1>
+<H1><A NAME="CONTENTS">HTMLDOC On-Line Help</A></H1>
 
 <UL>
 
@@ -48,10 +48,10 @@
 
 <H1>Loading and Saving Books</H1>
 
-<I>HTMLDOC</I> stores the HTML files, settings,
-and options you have chosen in <CODE>.BOOK</CODE> files.  The buttons on
-the bottom of the <I>HTMLDOC</I> window allow you
-manage these files and generate formatted documents.
+<I>HTMLDOC</I> stores the HTML files, settings, and options you have
+chosen in <CODE>.BOOK</CODE> files.  The buttons on the bottom of the
+<I>HTMLDOC</I> window allow you manage these files and generate
+formatted documents.
 
 <TABLE>
 <TR>
@@ -97,9 +97,9 @@ manage these files and generate formatted documents.
 
 <H1>The Input Tab</H1>
 
-The input tab lists all of the HTML source files that are used to generate
-the document. You can also specify the type of document (book or web page)
-and the title and logo images.
+The input tab lists all of the HTML source files that are used to
+generate the document. You can also specify the type of document (book
+or web page) and the title and logo images.
 
 <H2>Setting the Document Type</H2>
 
@@ -323,11 +323,25 @@ is centered and the right buttons set the text that is right-justified.
 The colors tab specifies the colors and background image that should be
 used for the document.
 
-<H2>Background Color</H2>
+<H2>Body Color</H2>
 
-<H2>Background Image</H2>
+The <VAR>Body Color</VAR> field specifies the default background color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<H2>Body Image</H2>
+
+The <VAR>Body Image</VAR> field specifies the default background image.
+Click on the <VAR>Browse...</VAR> button to pick the background image using
+the file chooser.
 
 <H2>Text Color</H2>
+
+The <VAR>Text Color</VAR> field specifies the default text color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
 
 <HR>
 
@@ -409,23 +423,55 @@ The PDF tab contains settings specific to PDF output.
 
 <H2>PDF Version</H2>
 
-Older versions of Adobe Acrobat Reader cannot handle the Flate compression and
-named links present in the normal output of HTMLDOC.  To change the PDF
-version, click on the radio button that corresponds to the version of Acrobat
-you or your users will be using. If you have Acrobat Reader 4.0, choose
-version 1.2.
+The <VAR>PDF Version</VAR> radio buttons control what version of PDF is
+generated. PDF 1.2 is the most commonly supported version. Click on the
+corresponding radio button to set the version.
 
 <H2>Page Mode</H2>
 
+The <VAR>Page Mode</VAR> option button controls the initial viewing mode
+for the document. Click on the option button to set the page mode.
+
+<P>The <VAR>Document</VAR> page mode displays only the document pages.
+The <VAR>Outline</VAR> page mode displays the table-of-contents outline
+as well as the document pages. The <VAR>Full-Screen</VAR> page mode
+displays the document pages on the whole screen; this mode is used
+primarily for presentations.
+
 <H2>Page Layout</H2>
+
+The <VAR>Page Layout</VAR> option button controls the initial layout of
+document pages on the screen. Click on the option button to set the page
+layout.
+
+<P>The <VAR>Single</VAR> page layout displays a single page at a time.
+The <VAR>One Column</VAR> page layout displays a single column of pages
+at a time. The <VAR>Two Column Left</VAR> and <VAR>Two Column
+Right</VAR> page layouts display two columns of pages at a time; the
+first page is displayed in the left or right column as selected.
 
 <H2>First Page</H2>
 
+The <VAR>First Page</VAR> option button controls the initial page that is
+displayed. Click on the option button to choose the first page.
+
 <H2>Page Effect</H2>
+
+The <VAR>Page Effect</VAR> option button controls the page effect that is
+displayed in <VAR>Full-Screen</VAR> mode. Click on the option button to
+select a page effect.
 
 <H2>Page Duration</H2>
 
+The <VAR>Page Duration</VAR> slider controls the number of seconds that
+each page will be visible in <VAR>Full-Screen</VAR> mode. Drag the slider
+to adjust the number of seconds.
+
 <H2>Effect Duration</H2>
+
+The <VAR>Effect Duration</VAR> slider controls the number of seconds
+that the page effect will last when changing pages. Drag the slider to
+adjust the number of seconds.
 
 <HR>
 

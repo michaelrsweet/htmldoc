@@ -56,6 +56,23 @@ Run the following command to remove <I>HTMLDOC</I> from your UNIX system:
 % <KBD>/etc/software/htmldoc.remove ENTER</KBD>
 </PRE></UL>
 
+<H3>Installing HTMLDOC under Red Hat Linux</H3>
+
+Run the following command to install <I>HTMLDOC</I> under Red Hat Linux:
+
+<UL><PRE>
+% <KBD>rpm -i htmldoc-1.8-linux-2.0.36-intel.rpm ENTER</KBD>
+</PRE></UL>
+
+<H3>Uninstalling HTMLDOC under UNIX</H3>
+
+Run the following command to remove <I>HTMLDOC</I> from your Red Hat Linux
+system:
+
+<UL><PRE>
+% <KBD>rpm -r htmldoc ENTER</KBD>
+</PRE></UL>
+
 <H3>Installing HTMLDOC under Windows</H3>
 
 <I>HTMLDOC</I> is provided in a self-extracting installation file under
@@ -96,7 +113,7 @@ variable to the name and path of your ANSI C compiler:
 
 <UL><PRE>
 % <KBD>setenv CC /path/to/compiler</KBD>			[C Shell]
-% <KBD>CC=/path/to/compiler; export CC</KBD>		[Born/Korn Shell]
+% <KBD>CC=/path/to/compiler; export CC</KBD>		[Bourne/Korn Shell]
 </PRE></UL>
 
 Similarly, if your C++ compiler is not called <VAR>CC</VAR>, <VAR>gcc</VAR>,
@@ -105,7 +122,7 @@ variable to the name and path of your C++ compiler:
 
 <UL><PRE>
 % <KBD>setenv CXX /path/to/compiler</KBD>			[C Shell]
-% <KBD>CXX=/path/to/compiler; export CXX</KBD>		[Born/Korn Shell]
+% <KBD>CXX=/path/to/compiler; export CXX</KBD>		[Bourne/Korn Shell]
 </PRE></UL>
 
 Finally, if the FLTK library is not installed in a standard location for
@@ -117,7 +134,7 @@ your compilers, set the <CODE>CFLAGS</CODE>, <CODE>CXXFLAGS</CODE>, and
 % <KBD>setenv CXXFLAGS -I/path/to/fltk</KBD>
 % <KBD>setenv LDFLAGS -L/path/to/fltk/lib</KBD>
 
-% <KBD>CFLAGS=-I/path/to/fltk; export CFLAGS</KBD>		[Born/Korn Shell]
+% <KBD>CFLAGS=-I/path/to/fltk; export CFLAGS</KBD>		[Bourne/Korn Shell]
 % <KBD>CXXFLAGS=-I/path/to/fltk; export CXXFLAGS</KBD>
 % <KBD>LDFLAGS=-L/path/to/fltk/lib; export LDFLAGS</KBD>
 </PRE></UL>
