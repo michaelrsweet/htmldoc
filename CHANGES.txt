@@ -10,6 +10,7 @@ CHANGES IN HTMLDOC v1.8.8
 	- Added missing casts in htmllib.cxx that were causing a
 	  compile warning with some compilers.
 	- No longer draw borders around empty cells in tables..
+	- Now disable the TOC tab when using webpage mode.
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.30 2000/03/18 16:08:56 mike Exp $"
+// "$Id: gui.cxx,v 1.31 2000/06/03 23:03:35 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1857,17 +1857,8 @@ GUI::docTypeCB(Fl_Widget *w,		// I - Toggle button widget
 
     gui->titlePage->value(1);
 
+    gui->tocTab->activate();
     gui->tocLevels->value(3);
-    gui->tocLevels->activate();
-    gui->numberedToc->activate();
-
-    gui->tocHeaderLeft->activate();
-    gui->tocHeaderCenter->activate();
-    gui->tocHeaderRight->activate();
-
-    gui->tocFooterLeft->activate();
-    gui->tocFooterCenter->activate();
-    gui->tocFooterRight->activate();
   }
   else
   {
@@ -1881,19 +1872,7 @@ GUI::docTypeCB(Fl_Widget *w,		// I - Toggle button widget
 
     gui->titlePage->value(0);
 
-    gui->tocLevels->value(0);
-    gui->tocLevels->deactivate();
-
-    gui->numberedToc->value(0);
-    gui->numberedToc->deactivate();
-
-    gui->tocHeaderLeft->deactivate();
-    gui->tocHeaderCenter->deactivate();
-    gui->tocHeaderRight->deactivate();
-
-    gui->tocFooterLeft->deactivate();
-    gui->tocFooterCenter->deactivate();
-    gui->tocFooterRight->deactivate();
+    gui->tocTab->deactivate();
   }
 }
 
@@ -3243,7 +3222,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   * Build a table of contents for the documents...
   */
 
-  if (TocLevels > 0)
+  if (OutputBook && TocLevels > 0)
     toc = toc_build(document);
   else
     toc = NULL;
@@ -3289,5 +3268,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.30 2000/03/18 16:08:56 mike Exp $".
+// End of "$Id: gui.cxx,v 1.31 2000/06/03 23:03:35 mike Exp $".
 //
