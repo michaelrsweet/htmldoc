@@ -5,11 +5,11 @@ code_name {.cxx}
 gridx 5 
 gridy 5 
 snap 3
-class FileChooser {open selected
+class FileChooser {open
 } {
   decl {enum { SINGLE, MULTI, CREATE };} {public
   }
-  Function {FileChooser(const char *d, char *p, int t, const char *title)} {open
+  Function {FileChooser(const char *d, char *p, int t, const char *title)} {open selected
   } {
     Fl_Window window {
       label {Pick a File} open
@@ -106,7 +106,48 @@ rescan();} {}
   } {
     code {window->hide();} {}
   }
-  Function {type(int t)} {open return_type void
+  Function {iconsize(uchar s)} {return_type void
+  } {
+    code {fileList->iconsize(s);} {}
+  }
+  Function {iconsize()} {return_type uchar
+  } {
+    code {return (fileList->iconsize());} {}
+  }
+  Function {label(const char *l)} {return_type void
+  } {
+    code {window->label(l);} {}
+  }
+  Function {show()} {return_type void
+  } {
+    code {window->show();
+fileList->deselect();} {}
+  }
+  Function {textcolor(Fl_Color c)} {return_type void
+  } {
+    code {fileList->textcolor(c);} {}
+  }
+  Function {textcolor()} {return_type Fl_Color
+  } {
+    code {return (fileList->textcolor());} {}
+  }
+  Function {textfont(uchar f)} {return_type void
+  } {
+    code {fileList->textfont(f);} {}
+  }
+  Function {textfont()} {return_type uchar
+  } {
+    code {return (fileList->textfont());} {}
+  }
+  Function {textsize(uchar s)} {return_type void
+  } {
+    code {fileList->textsize(s);} {}
+  }
+  Function {textsize()} {return_type uchar
+  } {
+    code {return (fileList->textsize());} {}
+  }
+  Function {type(int t)} {return_type void
   } {
     code {type_ = t;
 if (t == MULTI)
@@ -122,11 +163,6 @@ else
   } {
     code {return (type_);} {}
   }
-  Function {show()} {return_type void
-  } {
-    code {window->show();
-fileList->deselect();} {}
-  }
   decl {const char *value(int f = 1);} {public
   }
   decl {void value(const char *filename);} {public
@@ -134,9 +170,5 @@ fileList->deselect();} {}
   Function {visible()} {return_type int
   } {
     code {return window->visible();} {}
-  }
-  Function {label(const char *l)} {return_type void
-  } {
-    code {window->label(l);} {}
   }
 } 
