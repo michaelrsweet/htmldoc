@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.22 2000/03/18 16:08:57 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.23 2000/04/18 20:36:49 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -639,6 +639,17 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
         TocLevels = atoi(argv[i]);
+      else
+        usage();
+    }
+    else if (compare_strings(argv[i], "--toctitle", 6) == 0)
+    {
+      i ++;
+      if (i < argc)
+      {
+        strncpy(TocTitle, argv[i], sizeof(TocTitle) - 1);
+	TocTitle[sizeof(TocTitle) - 1] = '\0';
+      }
       else
         usage();
     }
@@ -1665,6 +1676,7 @@ usage(void)
   puts("  --tocfooter fff");
   puts("  --tocheader fff");
   puts("  --toclevels levels");
+  puts("  --toctitle string");
   puts("  --top margin{in,cm,mm}");
   puts("  {--verbose, -v}");
   puts("  --webpage");
@@ -1688,5 +1700,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.22 2000/03/18 16:08:57 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.23 2000/04/18 20:36:49 mike Exp $".
  */

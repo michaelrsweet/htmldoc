@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.4 2000/04/16 17:31:39 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.5 2000/04/18 20:36:49 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -83,6 +83,8 @@ htmldoc [filename.book]
 .I fff
 ] [ --toclevels
 .I levels
+] [ --toctitle
+.I string
 ] [ --top
 .I margin
 ] [ --verbose ] [ --webpage ]
@@ -118,5 +120,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.4 2000/04/16 17:31:39 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.5 2000/04/18 20:36:49 mike Exp $".
 .\"
