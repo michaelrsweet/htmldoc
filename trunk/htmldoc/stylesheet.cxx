@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.4 2002/02/17 22:44:55 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.5 2002/02/23 04:03:31 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -49,6 +49,9 @@ hdStyleSheet::hdStyleSheet()
 
   ppi = 80.0f;
 
+  // Set the default character set to "iso-8859-1"...
+  set_charset("iso-8859-1");
+
   // Set the default page to "Universal" with half-inch margins all the
   // way around...
 
@@ -78,19 +81,27 @@ hdStyleSheet::~hdStyleSheet()
 
   // Free all fonts...
   for (i = 0; i < num_fonts; i ++)
+  {
     for (j = 0; j < HD_FONTINTERNAL_MAX; j ++)
       if (fonts[i][j])
         delete fonts[i][j];
+
+    if (font_names[i])
+      free(font_names[i]);
+  }
 
   // Free all glyphs...
   if (charset)
     free(charset);
 
-  for (i = 0; i < num_glyphs; i ++)
-    if (glyphs[i])
-      free(glyphs[i]);
+  if (num_glyphs)
+  {
+    for (i = 0; i < num_glyphs; i ++)
+      if (glyphs[i])
+	free(glyphs[i]);
 
-  delete[] glyphs;
+    delete[] glyphs;
+  }
 }
 
 
@@ -207,13 +218,112 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
 hdStyleFont *				// O - Font record
 hdStyleSheet::find_font(hdStyle *s)	// I - Style record
 {
-  char	face[1024],			// Font face property
-	*start,				// Start of current font face
-	*ptr,				// End of current font face
-	filename[1024];			// Name of font file
+  char		face[1024],		// Font face property
+		*start,			// Start of current font face
+		*ptr;			// End of current font face
+  int		i;			// Looping var
+  int		tf;			// Typeface index
+  int		fs;			// Font style index
+  hdStyleFont	*temp;			// New font record
 
 
-  
+  // Figure out the font style we need...
+  if (s->font_weight == HD_FONTWEIGHT_BOLD ||
+      s->font_weight == HD_FONTWEIGHT_BOLDER)
+    fs = HD_FONTINTERNAL_BOLD;
+  else
+    fs = HD_FONTINTERNAL_NORMAL;
+
+  if (s->font_style)
+    fs += 2;
+
+  // Make a copy of the font family...
+  if (s->font_family)
+  {
+    strncpy(face, s->font_family, sizeof(face) - 1);
+    face[sizeof(face) - 1] = '\0';
+  }
+  else
+    strcpy(face, "Times");
+
+  // Loop until we find a matching font...
+  for (ptr = face; *ptr;)
+  {
+    // Find the next face name...
+    start = ptr;
+
+    while (*ptr && !isspace(*ptr) && *ptr != ',')
+      ptr ++;
+
+    // Nul-terminate the name as needed, then do lookup...
+    while (isspace(*ptr) || *ptr == ',')
+      *ptr++ = '\0';
+
+    // See if the font face exists already...
+    if (strcasecmp(start, "monospace") == 0 ||
+        strcasecmp(start, "Courier") == 0)
+      tf = HD_FONTFACE_MONOSPACE;
+    else if (strcasecmp(start, "serif") == 0 ||
+             strcasecmp(start, "Times") == 0)
+      tf = HD_FONTFACE_SERIF;
+    else if (strcasecmp(start, "sans-serif") == 0 ||
+             strcasecmp(start, "Arial") == 0 ||
+             strcasecmp(start, "Helvetica") == 0)
+      tf = HD_FONTFACE_SANS_SERIF;
+    else if (strcasecmp(start, "symbol") == 0)
+      tf = HD_FONTFACE_SYMBOL;
+    else if (strcasecmp(start, "cursive") == 0 ||
+             strcasecmp(start, "ZapfChancery") == 0)
+      tf = HD_FONTFACE_CURSIVE;
+    else
+    {
+      // Add a custom font...
+      for (tf = HD_FONTFACE_CUSTOM; tf < HD_FONTFACE_MAX; tf ++)
+        if (font_names[tf] == NULL)
+	  break;
+	else if (strcasecmp(start, font_names[tf]) == 0)
+	  break;
+
+      if (tf >= HD_FONTFACE_MAX)
+        tf = HD_FONTFACE_SERIF;
+    }
+
+    // Return the existing font, if any...
+    if (fonts[tf][fs] != NULL)
+      return (fonts[tf][fs]);
+
+    // Try loading a new font...
+    for (i = 0; i < 4; i ++)
+    {
+      // Load the font...
+      temp = new hdStyleFont(this, (hdFontFace)tf, (hdFontInternal)i, start);
+
+      // See if we were able to load it...
+      if (temp->ps_name == NULL)
+      {
+        delete temp;
+
+	for (i --; i >= 0; i --)
+	{
+	  delete fonts[tf][i];
+	  fonts[tf][i] = NULL;
+	}
+
+	break;
+      }
+      else
+        fonts[tf][i] = temp;
+    }
+
+    if (fonts[tf][fs])
+    {
+      // Font was loaded, set the name and return the font...
+      font_names[tf] = strdup(start);
+      return (fonts[tf][fs]);
+    }
+  }
+
+  // Couldn't find font, return 0...
   return ((hdStyleFont *)0);
 }
 
@@ -336,6 +446,26 @@ hdStyleSheet::find_style(int        nsels,	// I - Number of selectors
 
   // Return the best match...
   return (best);
+}
+
+
+//
+// 'hdStyleSheet::get_glyph()' - Find the index for the named glyph...
+//
+
+int					// O - Glyph index or -1 if not found
+hdStyleSheet::get_glyph(const char *s)	// I - Glyph name
+{
+  int	i;				// Looping var
+
+
+  // Do a brute-force search for the glyph name...
+  for (i = 0; i < num_glyphs; i ++)
+    if (glyphs[i] && strcmp(glyphs[i], s) == 0)
+      return (i);
+
+  // Didn't find the glyph, so return -1...
+  return (-1);
 }
 
 
@@ -597,6 +727,9 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 
     delete[] selectors[i];
   }
+
+  // Update all style data...
+  update_styles();
 
   // Return the load status...
   return (status);
@@ -1007,5 +1140,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.4 2002/02/17 22:44:55 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.5 2002/02/23 04:03:31 mike Exp $".
 //

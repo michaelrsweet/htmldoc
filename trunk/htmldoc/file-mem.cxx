@@ -1,5 +1,5 @@
 //
-// "$Id: file-mem.cxx,v 1.1 2002/02/08 19:39:50 mike Exp $"
+// "$Id: file-mem.cxx,v 1.2 2002/02/23 04:03:30 mike Exp $"
 //
 //   Memory buffer file routines for HTMLDOC, a HTML document processing
 //   program.
@@ -118,9 +118,12 @@ hdMemFile::get()
 
 
   if (current_ < (buffer_ + size_))
+  {
     c = *current_++;
-
-  pos(pos() + 1);
+    pos(pos() + 1);
+  }
+  else
+    c = EOF;
 
   return (c);
 }
@@ -339,5 +342,5 @@ hdMemFile::unget(int c)			// I - Character to push back
 
 
 //
-// End of "$Id: file-mem.cxx,v 1.1 2002/02/08 19:39:50 mike Exp $".
+// End of "$Id: file-mem.cxx,v 1.2 2002/02/23 04:03:30 mike Exp $".
 //

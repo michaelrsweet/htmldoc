@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.6 2002/02/20 22:42:55 mike Exp $"
+// "$Id: tree.cxx,v 1.7 2002/02/23 04:03:31 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -514,7 +514,7 @@ hdTree::compute_size(hdStyleSheet *css)	// I - Stylesheet
     case HD_ELEMENT_NONE :
         if (style->font && data)
 	{
-	  width  = style->font->width(data) * style->font_size;
+	  width  = style->font->get_width(data) * style->font_size;
 	  height = style->font_size;
 	}
 	else
@@ -1087,6 +1087,8 @@ hdTree::read(hdFile       *fp,		// I - File to read from
   p = new hdTree(HD_ELEMENT_FILE);
 
   // Parse data until we hit end-of-file...
+  whitespace = 0;
+
   while ((ch = fp->get()) != EOF)
   {
     // Ignore leading whitespace...
@@ -1831,5 +1833,5 @@ htmlGetMeta(hdTree *tree,	/* I - Document tree */
 
 
 //
-// End of "$Id: tree.cxx,v 1.6 2002/02/20 22:42:55 mike Exp $".
+// End of "$Id: tree.cxx,v 1.7 2002/02/23 04:03:31 mike Exp $".
 //

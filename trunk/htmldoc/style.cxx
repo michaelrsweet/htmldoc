@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.5 2002/02/08 19:39:51 mike Exp $"
+// "$Id: style.cxx,v 1.6 2002/02/23 04:03:30 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -142,7 +142,8 @@ hdStyle::hdStyle(int        nsels,	// I - Number of selectors
   for (i = 0; i < 4; i ++)
     border[i].width = HD_WIDTH_AUTO;
 
-  display = HD_DISPLAY_INLINE;
+  display   = HD_DISPLAY_INLINE;
+  font_size = 11.0f;
 
   // Copy the selectors.  The selector strings are allocated by
   // the caller, but are freed by the destructor...
@@ -1301,19 +1302,19 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "background-repeat") == 0)
     {
-      if (strcasecmp(subvalue, "repeat") == 0)
+      if (strcasecmp(value, "repeat") == 0)
       {
 	background_repeat = HD_BACKGROUNDREPEAT_REPEAT;
       }
-      else if (strcasecmp(subvalue, "repeat-x") == 0)
+      else if (strcasecmp(value, "repeat-x") == 0)
       {
 	background_repeat = HD_BACKGROUNDREPEAT_REPEAT_X;
       }
-      else if (strcasecmp(subvalue, "repeat-y") == 0)
+      else if (strcasecmp(value, "repeat-y") == 0)
       {
 	background_repeat = HD_BACKGROUNDREPEAT_REPEAT_Y;
       }
-      else if (strcasecmp(subvalue, "no-repeat") == 0)
+      else if (strcasecmp(value, "no-repeat") == 0)
       {
 	background_repeat = HD_BACKGROUNDREPEAT_NO_REPEAT;
       }
@@ -1686,14 +1687,14 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 
         // Process it...
         if (strcasecmp(subvalue, "none") == 0 ||
-	         strcasecmp(subvalue, "dotted") == 0 ||
-	         strcasecmp(subvalue, "dashed") == 0 ||
-	         strcasecmp(subvalue, "solid") == 0 ||
-	         strcasecmp(subvalue, "double") == 0 ||
-	         strcasecmp(subvalue, "groove") == 0 ||
-	         strcasecmp(subvalue, "ridge") == 0 ||
-	         strcasecmp(subvalue, "inset") == 0 ||
-	         strcasecmp(subvalue, "outset") == 0)
+	    strcasecmp(subvalue, "dotted") == 0 ||
+	    strcasecmp(subvalue, "dashed") == 0 ||
+	    strcasecmp(subvalue, "solid") == 0 ||
+	    strcasecmp(subvalue, "double") == 0 ||
+	    strcasecmp(subvalue, "groove") == 0 ||
+	    strcasecmp(subvalue, "ridge") == 0 ||
+	    strcasecmp(subvalue, "inset") == 0 ||
+	    strcasecmp(subvalue, "outset") == 0)
 	{
 	  hdBorderStyle bs = get_border_style(subvalue);
 
@@ -2051,7 +2052,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	if (font_size_rel)
 	  free(font_size_rel);
 
-	font_size_rel = strdup(subvalue);
+	font_size_rel = strdup(value);
       }
 
       if (lh)
@@ -2881,5 +2882,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.5 2002/02/08 19:39:51 mike Exp $".
+// End of "$Id: style.cxx,v 1.6 2002/02/23 04:03:30 mike Exp $".
 //
