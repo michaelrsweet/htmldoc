@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.2 2002/03/05 12:47:28 mike Exp $"
+// "$Id: render.h,v 1.3 2002/03/08 20:39:26 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -270,7 +270,7 @@ class hdRender
 };
 
 
-class hdPSRender public hdRender
+class hdPSRender : public hdRender
 {
   public:
 
@@ -293,7 +293,7 @@ class hdPSRender public hdRender
 };
 
 
-class hdPDFRender public hdRender
+class hdPDFRender : public hdRender
 {
   public:
 
@@ -436,5 +436,5 @@ class hdPDFRender public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.2 2002/03/05 12:47:28 mike Exp $".
+// End of "$Id: render.h,v 1.3 2002/03/08 20:39:26 mike Exp $".
 //
