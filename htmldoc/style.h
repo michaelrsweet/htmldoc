@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.2 2002/01/16 22:10:49 mike Exp $"
+// "$Id: style.h,v 1.3 2002/01/20 15:10:14 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -283,15 +283,16 @@ enum hdWhiteSpace
 
 
 //
-// Font data...
+// Font constants...
 //
 
 enum hdFontFace
 {
-  HD_FONTFACE_COURIER = 0,
-  HD_FONTFACE_TIMES,
-  HD_FONTFACE_HELVETICA,
+  HD_FONTFACE_MONOSPACE = 0,
+  HD_FONTFACE_SERIF,
+  HD_FONTFACE_SANS_SERIF,
   HD_FONTFACE_SYMBOL,
+  HD_FONTFACE_CURSIVE,
   HD_FONTFACE_CUSTOM,
   HD_FONTFACE_MAX = 16
 };
@@ -302,20 +303,13 @@ enum hdFontInternal
   HD_FONTINTERNAL_BOLD,
   HD_FONTINTERNAL_ITALIC,
   HD_FONTINTERNAL_BOLD_ITALIC,
-  HD_FONTINTERNAL_MAX,
+  HD_FONTINTERNAL_MAX
 };
 
-struct hdStyleFont
+enum hdFontEncoding
 {
-  hdFontFace	typeface;	// Typeface identifier
-  char		*ps_name;	// PostScript font name
-  float		ul_position,	// Offset for underline
-		ul_thickness,	// Thickness for underline
-		cap_height,	// Height of uppercase letters
-		x_height,	// Height of lowercase letters
-		ascender,	// Highest point in font
-		descender;	// Lowest point in font
-  float		*widths;	// Character widths for 1pt text
+  HD_FONTENCODING_8BIT = 0,
+  HD_FONTENCODING_UTF8
 };
 
 
@@ -323,14 +317,45 @@ struct hdStyleFont
 // Style data...
 //
 
+
+struct hdStyleSheet;
+
+struct hdStyleFont
+{
+  hdFontFace	typeface;	// Typeface identifier
+  hdFontInternal style;		// Internal font style
+  hdFontEncoding encoding;	// Character encoding
+  char		*ps_name,	// PostScript font name
+		*full_name;	// Full font name
+  float		ul_position,	// Offset for underline
+		ul_thickness,	// Thickness for underline
+		cap_height,	// Height of uppercase letters
+		x_height,	// Height of lowercase letters
+		ascender,	// Highest point in font
+		descender;	// Lowest point in font
+  int		num_widths;	// Number of widths in array
+  float		**widths;	// Character widths for 1pt text
+				// (arrays of 256 chars)
+
+  hdStyleFont(hdStyleSheet *css, hdFontFace t, hdFontInternal s, const char *n);
+  ~hdStyleFont();
+
+  float		width(const char *s);
+};
+
+struct hdSelector
+{
+  hdElement		elements;	// Element for selection
+  char			*class_,	// Class name for selection
+			*pseudo,	// Pseudo-class for selection
+			*id;		// ID for selection
+};
+
 struct hdStyle
 {
   int			updated;	// True if relative attrs have been updated
   int			num_selectors;	// Number of selectors for style
-  hdElement		*elements;	// Elements for selection
-  char			*classes,	// Classes for selection
-			*ids,		// IDs for selection
-			*targets;	// Targets for selection
+  hdSelector		*selectors;	// Selectors for style
 
   unsigned char		background_color[3];
   char			background_color_set;
@@ -407,6 +432,12 @@ struct hdStyle
   float			width;
   char			*width_rel;
   float			word_spacing;
+
+  hdStyle(hdStyle *p = (hdStyle *)0, int nsels = 0, hdSelector *sels = (hdSelector *)0);
+  ~hdStyle();
+
+  int	load(hdStyleSheet *css, const char *s);
+  void	update(hdStyleSheet *css);
 };
 
 
@@ -429,13 +460,21 @@ enum hdSides
   HD_SIDES_TWO_SIDED_SHORT_EDGE
 }
 
+struct hdTree;
+
 struct hdStyleSheet
 {
-  int		num_styles;	// Number of styles
+  int		num_styles,	// Number of styles
+		alloc_styles;	// Allocate style slots
   hdStyle	**styles;	// Array of styles
 
+  int		num_fonts;	// Number of fonts defined
   hdStyleFont	*fonts[HD_FONTFACE_MAX][HD_FONTINTERNAL_MAX];
 				// Array of fonts
+  char		*charset;	// Character set
+  hdFontEncoding encoding;	// Character encoding
+  int		num_glyphs;	// Number of glyphs in charset
+  char		**glyphs;	// Glyphs in charset
 
   float		width,		// Page width, points
 		length,		// Page length, points
@@ -448,11 +487,22 @@ struct hdStyleSheet
 
   hdOrientation	orientation;	// Orientation of the page
   hdSides	sides;		// Format single or double-sided?
+
+  hdStyleSheet();
+  ~hdStyleSheet();
+
+  void		add_style(hdStyle *s);
+  hdStyleFont	*find_font(hdStyle *s);
+  hdStyle	*find_style(hdTree *t);
+  int		load(hdFile *f, const char *path = (const char *)0);
+  void		set_charset(const char *cs);
+  void		update();
+  void		update_styles();
 };
 
 
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.2 2002/01/16 22:10:49 mike Exp $".
+// End of "$Id: style.h,v 1.3 2002/01/20 15:10:14 mike Exp $".
 //
