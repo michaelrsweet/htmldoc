@@ -28,8 +28,9 @@ class FileChooser {open
       Fl_Check_Button followLinks {
         label {Follow Local Links}
         private xywh {5 225 140 25} down_box DOWN_BOX color 7 selection_color 0 hide
-        code0 {if (t) followLinks->deactivate();}
-        code1 {\#include "CheckButton.h"}
+        code0 {\#include "CheckButton.h"}
+        code1 {if (!(t & TYPE_FOLLOW))
+  followLinks->hide();}
         class CheckButton
       }
       Fl_Button {} {
@@ -62,7 +63,7 @@ fileList->redraw();}
       }
       Fl_Input fileName {
         label {Filename:}
-        callback {fileNameCB();} selected
+        callback {fileNameCB();}
         xywh {75 190 215 25} when 1
       }
       Fl_Button {} {
@@ -121,9 +122,15 @@ rescan();} {}
   } {
     code {followLinks->value(f);
 if (f)
+{
+  followLinks->show();
   type_ |= TYPE_FOLLOW;
+}
 else
-  type_ &= ~TYPE_FOLLOW;} {}
+{
+  followLinks->hide();
+  type_ &= ~TYPE_FOLLOW;
+}} {}
   }
   Function {follow_links()} {return_type int
   } {
@@ -160,5 +167,10 @@ fileList->deselect();} {}
   Function {visible()} {return_type int
   } {
     code {return window->visible();} {}
+  }
+  Function {label(const char *l)} {return_type void
+  } {
+    code {window->label(l);} {selected
+    }
   }
 } 

@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.3 1999/02/20 14:16:49 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.4 1999/02/24 02:04:09 mike Exp $"
 //
 //   More FileChooser routines for HTMLDOC, an HTML document processing program.
 //
@@ -81,22 +81,35 @@ FileChooser::count()
 // 'FileChooser::value()' - Return a selected filename.
 //
 
-const char *
-FileChooser::value(int f)
+const char *			// O - Filename or NULL
+FileChooser::value(int f)	// I - File number
 {
-  int	i;			// Looping var
-  int	count;			// Number of selected files
-
+  int		i;		// Looping var
+  int		count;		// Number of selected files
+  const char	*name;		// Current filename
+  static char	pathname[1024];	// Filename + directory
 
   if (!(type_ & TYPE_MULTI))
-    return (fileName->value());
+  {
+    name = fileName->value();
+    if (name[0] == '\0')
+      return (NULL);
+
+    sprintf(pathname, "%s/%s", directory_, name);
+    return ((const char *)pathname);
+  }
 
   for (i = 1, count = 0; i <= fileList->size(); i ++)
     if (fileList->selected(i))
     {
       count ++;
       if (count == f)
-        return (fileList->text(i));
+      {
+        name = fileList->text(i);
+
+        sprintf(pathname, "%s/%s", directory_, name);
+        return ((const char *)pathname);
+      }
     }
 
   return (NULL);
@@ -732,5 +745,5 @@ mix(int c)		// I - Color value
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.3 1999/02/20 14:16:49 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.4 1999/02/24 02:04:09 mike Exp $".
 //
