@@ -1927,8 +1927,8 @@ png_do_read_filler(png_row_infop row_info, png_bytep row,
          /* This changes the data from RRGGBB to RRGGBBXX */
          if (flags & PNG_FLAG_FILLER_AFTER)
          {
-            png_bytep sp = row + (png_size_t)row_width * 3;
-            png_bytep dp = sp  + (png_size_t)row_width;
+            png_bytep sp = row + (png_size_t)row_width * 6;
+            png_bytep dp = sp  + (png_size_t)row_width * 2;
             for (i = 1; i < row_width; i++)
             {
                *(--dp) = hi_filler;
@@ -1949,8 +1949,8 @@ png_do_read_filler(png_row_infop row_info, png_bytep row,
          /* This changes the data from RRGGBB to XXRRGGBB */
          else
          {
-            png_bytep sp = row + (png_size_t)row_width * 3;
-            png_bytep dp = sp  + (png_size_t)row_width;
+            png_bytep sp = row + (png_size_t)row_width * 6;
+            png_bytep dp = sp  + (png_size_t)row_width * 2;
             for (i = 0; i < row_width; i++)
             {
                *(--dp) = *(--sp);
