@@ -1,4 +1,4 @@
-CHANGES.txt - 02/01/2001
+CHANGES.txt - 02/12/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.10
@@ -37,6 +37,8 @@ CHANGES IN HTMLDOC v1.8.10
 	- Large images could end up covering the footer at the
 	  bottom of the page (wasn't accounting for the line
 	  spacing.)
+	- Fixed some memory leaks that would affect Windows
+	  95/98/Me users.
 
 
 CHANGES IN HTMLDOC v1.8.9

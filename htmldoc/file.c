@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.5 2001/02/02 15:10:57 mike Exp $"
+ * "$Id: file.c,v 1.13.2.6 2001/02/12 17:06:04 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -119,21 +119,52 @@ file_directory(const char *s)	/* I - Filename or URL */
   if (s == NULL)
     return (NULL);
 
-  strcpy(buf, s);
+  if (strncmp(s, "http://", 7) == 0)
+  {
+   /*
+    * Handle URLs...
+    */
 
-  if ((dir = strrchr(buf, '/')) != NULL)
-    *dir = '\0';
-  else if ((dir = strrchr(buf, '\\')) != NULL)
-    *dir = '\0';
-#ifdef MAC
-  else if ((dir = strrchr(buf, ':')) != NULL)
-    *dir = '\0';
-#endif /* MAC */
+    char	method[HTTP_MAX_URI],
+		username[HTTP_MAX_URI],
+		hostname[HTTP_MAX_URI],
+		resource[HTTP_MAX_URI];
+    int		port;
+
+
+    httpSeparate(s, method, username, hostname, &port, resource);
+    if ((dir = strrchr(resource, '/')) != NULL)
+      *dir = '\0';
+
+    if (username[0])
+      snprintf(buf, sizeof(buf), "%s://%s@%s:%d%s", method, username, hostname,
+               port, resource);
+    else
+      snprintf(buf, sizeof(buf), "%s://%s:%d%s", method, hostname, port,
+               resource);
+  }
   else
-    return (".");
+  {
+   /*
+    * Normal stuff...
+    */
 
-  if (strncmp(buf, "file:", 5) == 0)
-    strcpy(buf, buf + 5);
+    strcpy(buf, s);
+
+    if ((dir = strrchr(buf, '/')) != NULL)
+      *dir = '\0';
+    else if ((dir = strrchr(buf, '\\')) != NULL)
+      *dir = '\0';
+#ifdef MAC
+    else if ((dir = strrchr(buf, ':')) != NULL)
+      *dir = '\0';
+#endif /* MAC */
+    else
+      return (".");
+
+    if (strncmp(buf, "file:", 5) == 0)
+      strcpy(buf, buf + 5);
+  }
 
   return (buf);
 }
@@ -296,17 +327,6 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
         snprintf(filename, sizeof(filename), "%s/%s", path, s);
 
       httpSeparate(filename, method, username, hostname, &port, resource);
-    }
-
-    if (resource[strlen(resource) - 1] == '/' &&
-        s[strlen(s) - 1] != '/')
-    {
-     /*
-      * This is a questionable hack, but necessary until we make the
-      * interface smarter...
-      */
-
-      strcat((char *)s, "/");
     }
 
     if (proxy_port)
@@ -649,5 +669,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.5 2001/02/02 15:10:57 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.6 2001/02/12 17:06:04 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.13 2001/02/10 16:18:12 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.14 2001/02/12 17:06:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1196,11 +1196,11 @@ ps_write_page(FILE  *out,		/* I - Output file */
   render_typeface = -1;
   render_style    = -1;
   render_size     = -1;
-  render_rgb[0]   = 0.0;
-  render_rgb[1]   = 0.0;
-  render_rgb[2]   = 0.0;
-  render_x        = -1.0;
-  render_y        = -1.0;
+  render_rgb[0]   = 0.0f;
+  render_rgb[1]   = 0.0f;
+  render_rgb[2]   = 0.0f;
+  render_x        = -1.0f;
+  render_y        = -1.0f;
 
  /*
   * Output the page prolog...
@@ -1594,11 +1594,11 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   render_typeface = -1;
   render_style    = -1;
   render_size     = -1;
-  render_rgb[0]   = 0.0;
-  render_rgb[1]   = 0.0;
-  render_rgb[2]   = 0.0;
-  render_x        = -1.0;
-  render_y        = -1.0;
+  render_rgb[0]   = 0.0f;
+  render_rgb[1]   = 0.0f;
+  render_rgb[2]   = 0.0f;
+  render_x        = -1.0f;
+  render_y        = -1.0f;
 
  /*
   * Output the page prolog...
@@ -5045,7 +5045,7 @@ new_render(int   page,		/* I - Page number (0-n) */
     return (&dummy);
   }
 
-  if (type == RENDER_IMAGE || data == NULL)
+  if ((type != RENDER_TEXT && type != RENDER_LINK) || data == NULL)
     r = (render_t *)calloc(sizeof(render_t), 1);
   else
     r = (render_t *)calloc(sizeof(render_t) + strlen((char *)data), 1);
@@ -6316,7 +6316,7 @@ write_image(FILE     *out,	/* I - Output file */
   DEBUG_printf(("img->width = %d, ->height = %d, ->depth = %d\n", img->width,
                 img->height, img->depth));
 
-  if (PSLevel != 1 && PDFVersion >= 1.2)
+  if (PSLevel != 1 && PDFVersion >= 1.2f)
   {
     if (img->depth == 1)
     {
@@ -6600,8 +6600,17 @@ write_image(FILE     *out,	/* I - Output file */
 
 	if (ncolors > 0)
 	{
-	  if (ncolors <= 2)
-	    ncolors = 2; /* Adobe doesn't like 1 color images... */
+	  if (ncolors < 2)
+	  {
+	   /*
+	    * Adobe doesn't like 1 color images...
+	    */
+
+	    ncolors      = 2;
+	    colors[1][0] = 0;
+	    colors[1][1] = 0;
+	    colors[1][2] = 0;
+	  }
 
 	  flate_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
 	  for (i = 0; i < ncolors; i ++)
@@ -7793,5 +7802,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.13 2001/02/10 16:18:12 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.14 2001/02/12 17:06:09 mike Exp $".
  */
