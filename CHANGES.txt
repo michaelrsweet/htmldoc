@@ -20,6 +20,7 @@ CHANGES IN HTMLDOC v1.8.10
 	  sections and handles multiple TBODY, THEAD, and TFOOT
 	  sections.  The THEAD and TFOOT rows are treated as ordinary
 	  rows.
+	- Image alignment should now match W3C recommendations.
 
     BUG FIXES
 
