@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.97 2004/03/31 10:35:07 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.98 2004/03/31 10:45:01 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -690,7 +690,8 @@ pspdf_export(hdTree *document,	/* I - Document to export */
 
       if (doc_title != NULL)
       {
-	width = get_width(doc_title, _htmlHeadingFont, HD_FONTINTERNAL_BOLD, SIZE_H1);
+	width = get_width(doc_title, _htmlHeadingFont, HD_FONTINTERNAL_BOLD,
+	                  _htmlSizes[SIZE_H1]);
 	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                 	   y - _htmlSpacings[SIZE_H1], width,
 			   _htmlSizes[SIZE_H1], doc_title);
@@ -704,7 +705,8 @@ pspdf_export(hdTree *document,	/* I - Document to export */
 
 	if (docnumber != NULL)
 	{
-	  width = get_width(docnumber, _htmlBodyFont, HD_FONTINTERNAL_NORMAL, SIZE_P);
+	  width = get_width(docnumber, _htmlBodyFont, HD_FONTINTERNAL_NORMAL,
+	                    _htmlSizes[SIZE_P]);
 	  r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                              y - _htmlSpacings[SIZE_P], width,
 			     _htmlSizes[SIZE_P], docnumber);
@@ -722,7 +724,8 @@ pspdf_export(hdTree *document,	/* I - Document to export */
 
       if (author != NULL)
       {
-	width = get_width(author, _htmlBodyFont, HD_FONTINTERNAL_NORMAL, SIZE_P);
+	width = get_width(author, _htmlBodyFont, HD_FONTINTERNAL_NORMAL,
+	                  _htmlSizes[SIZE_P]);
 	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                 	   y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
 			   author);
@@ -737,7 +740,8 @@ pspdf_export(hdTree *document,	/* I - Document to export */
 
       if (copyright != NULL)
       {
-	width = get_width(copyright, _htmlBodyFont, HD_FONTINTERNAL_NORMAL, SIZE_P);
+	width = get_width(copyright, _htmlBodyFont, HD_FONTINTERNAL_NORMAL,
+	                  _htmlSizes[SIZE_P]);
 	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                 	   y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
 			   copyright);
@@ -1720,8 +1724,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
       if (render_heading)
 	temp = new_render(page, RENDER_TEXT, 0, y,
                 	  get_width((uchar *)buffer, HeadFootType,
-			            HeadFootStyle, SIZE_P) * HeadFootSize /
-			      _htmlSizes[SIZE_P],
+			            HeadFootStyle, HeadFootSize),
 	        	  HeadFootSize, (uchar *)buffer);
 
       if (strstr((char *)*format, "$PAGE") ||
@@ -12348,5 +12351,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.97 2004/03/31 10:35:07 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.98 2004/03/31 10:45:01 mike Exp $".
  */

@@ -1,4 +1,4 @@
-README.txt - 03/02/2004
+README.txt - 03/31/2004
 -----------------------
 
 INTRODUCTION
@@ -6,10 +6,6 @@ INTRODUCTION
     This README file describes HTMLDOC, a HTML processing
     program that generates HTML, PostScript, and PDF files with
     a table of contents.
-
-    **** HTMLDOC CURRENTLY ONLY SUPPORTS HTML 3.2 AND DOES NOT ****
-    **** SUPPORT STYLE SHEETS!  PLEASE READ THE DOCUMENTATION  ****
-    **** BEFORE ASKING QUESTIONS.                              ****
 
     HTMLDOC is copyright 1997-2004 by Easy Software Products and
     is currently available under the GNU General Public License,

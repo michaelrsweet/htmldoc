@@ -1,5 +1,5 @@
 /*
- * "$Id: tree.cxx,v 1.24 2004/03/31 10:35:07 mike Exp $"
+ * "$Id: tree.cxx,v 1.25 2004/03/31 10:45:01 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -350,7 +350,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
       t->halignment   = HD_TEXTALIGN_LEFT;
       t->valignment   = HD_VERTICALALIGN_BOTTOM;
       t->typeface     = _htmlBodyFont;
-      t->size         = SIZE_P;
+      t->size         = _htmlSizes[SIZE_P];
 
       compute_color(t, _htmlTextColor);
     }
@@ -639,7 +639,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	      t->halignment   = HD_TEXTALIGN_LEFT;
 	      t->valignment   = HD_VERTICALALIGN_BOTTOM;
 	      t->typeface     = _htmlBodyFont;
-	      t->size         = SIZE_P;
+	      t->size         = _htmlSizes[SIZE_P];
 
 	      compute_color(t, _htmlTextColor);
 	    }
@@ -912,12 +912,12 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 
 	  if (t->element > HD_ELEMENT_H6)
           {
-	    t->size  = SIZE_H7;
+	    t->size  = _htmlSizes[SIZE_H7];
             t->style = HD_FONTINTERNAL_ITALIC;
 	  }
 	  else
 	  {
-            t->size  = SIZE_H1 - t->element + HD_ELEMENT_H1;
+            t->size  = _htmlSizes[SIZE_H1 - t->element + HD_ELEMENT_H1];
             t->style = HD_FONTINTERNAL_BOLD;
 	  }
 
@@ -928,7 +928,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
           get_alignment(t);
 
           t->typeface      = _htmlBodyFont;
-          t->size          = SIZE_P;
+          t->size          = _htmlSizes[SIZE_P];
           t->style         = HD_FONTINTERNAL_NORMAL;
           t->subscript     = 0;
           t->superscript   = 0;
@@ -940,7 +940,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 
       case HD_ELEMENT_PRE :
           t->typeface      = HD_FONTFACE_MONOSPACE;
-          t->size          = SIZE_PRE;
+          t->size          = _htmlSizes[SIZE_PRE];
           t->style         = HD_FONTINTERNAL_NORMAL;
           t->subscript     = 0;
           t->superscript   = 0;
@@ -1110,11 +1110,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	    have_whitespace = 0;
 	  }
 
-          if (t->size < 6)
-            t->size += 2;
-          else
-            t->size = 7;
-
+          t->size *= 1.44;
           descend = 1;
           break;
 
@@ -1127,11 +1123,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	    have_whitespace = 0;
 	  }
 
-          if (t->size > 2)
-            t->size -= 2;
-          else
-            t->size = 0;
-
+          t->size /= 1.44;
           descend = 1;
           break;
 
@@ -1623,7 +1615,7 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
     t->halignment = HD_TEXTALIGN_LEFT;
     t->valignment = HD_VERTICALALIGN_BOTTOM;
     t->typeface   = _htmlBodyFont;
-    t->size       = SIZE_P;
+    t->size       = _htmlSizes[SIZE_P];
 
     compute_color(t, _htmlTextColor);
   }
@@ -1664,7 +1656,7 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
         get_alignment(t);
 
         t->typeface      = _htmlHeadingFont;
-        t->size          = SIZE_H1 - t->element + HD_ELEMENT_H1;
+        t->size          = _htmlSizes[SIZE_H1 - t->element + HD_ELEMENT_H1];
         t->subscript     = 0;
         t->superscript   = 0;
         t->strikethrough = 0;
@@ -1676,7 +1668,7 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
         get_alignment(t);
 
         t->typeface      = _htmlBodyFont;
-        t->size          = SIZE_P;
+        t->size          = _htmlSizes[SIZE_P];
         t->style         = HD_FONTINTERNAL_NORMAL;
         t->subscript     = 0;
         t->superscript   = 0;
@@ -1686,7 +1678,7 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
 
     case HD_ELEMENT_PRE :
         t->typeface      = HD_FONTFACE_MONOSPACE;
-        t->size          = SIZE_PRE;
+        t->size          = _htmlSizes[SIZE_PRE];
         t->style         = HD_FONTINTERNAL_NORMAL;
         t->subscript     = 0;
         t->superscript   = 0;
@@ -1727,12 +1719,12 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
 
     case HD_ELEMENT_SUP :
         t->superscript = 1;
-        t->size        = SIZE_P + SIZE_SUP;
+        t->size        = _htmlSizes[SIZE_P + SIZE_SUP];
         break;
 
     case HD_ELEMENT_SUB :
         t->subscript = 1;
-        t->size      = SIZE_P + SIZE_SUB;
+        t->size      = _htmlSizes[SIZE_P + SIZE_SUB];
         break;
 
     case HD_ELEMENT_B :
@@ -2316,7 +2308,7 @@ insert_space(hdTree *parent,	// I - Parent node
   else
   {
     space->typeface = _htmlBodyFont;
-    space->size     = SIZE_P;
+    space->size     = _htmlSizes[SIZE_P];
   }
 
   // Initialize element data...
@@ -2981,5 +2973,5 @@ htmlDebugStats(const char *title,	// I - Title
 
 
 /*
- * End of "$Id: tree.cxx,v 1.24 2004/03/31 10:35:07 mike Exp $".
+ * End of "$Id: tree.cxx,v 1.25 2004/03/31 10:45:01 mike Exp $".
  */
