@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.99 2001/08/30 18:11:44 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.100 2001/08/30 20:54:32 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -505,6 +505,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   num_links      = 0;
   alloc_links    = 0;
   links          = NULL;
+  num_pages      = 0;
 
   if (TitlePage)
   {
@@ -530,7 +531,6 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       t = htmlReadFile(NULL, fp, file_directory(TitleImage));
       fclose(fp);
 
-      num_pages       = 0;
       page            = 0;
       title_page      = 1;
       current_heading = NULL;
@@ -546,7 +546,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
                 &needspace);
 
       if (PageDuplex && (num_pages & 1))
-	num_pages ++;
+	check_pages(num_pages);
 
       htmlDeleteTree(t);
     }
@@ -564,7 +564,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       else
         timage_width = timage_height = 0.0f;
 
-      num_pages = PageDuplex ? 2 : 1;
+      check_pages(0);
+      if (PageDuplex)
+        check_pages(1);
 
       height = 0.0;
 
@@ -651,8 +653,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       }
     }
   }
-  else
-    num_pages = 0;
+
+  for (page = 0; page < num_pages; page ++)
+    check_pages(page);
 
  /*
   * Parse the document...
@@ -668,7 +671,6 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   }
 
   title_page      = 0;
-  page            = num_pages;
   current_heading = NULL;
   x               = 0.0f;
   needspace       = 0;
@@ -6725,7 +6727,7 @@ check_pages(int page)	// I - Current page
   for (temp = pages + num_pages; num_pages <= page; num_pages ++, temp ++)
     if (!temp->width)
     {
-      if (page == 0)
+      if (num_pages == 0)
       {
 	temp->width     = PageWidth;
 	temp->length    = PageLength;
@@ -10000,5 +10002,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.99 2001/08/30 18:11:44 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.100 2001/08/30 20:54:32 mike Exp $".
  */
