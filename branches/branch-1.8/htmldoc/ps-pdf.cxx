@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.71 2001/05/30 23:35:53 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.72 2001/05/31 02:02:13 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2705,12 +2705,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             temp->blue          = t->blue;
             for (i = 0, var = t->vars; i < t->nvars; i ++, var ++)
               htmlSetVariable(temp, var->name, var->value);
-
-            copy_tree(temp, t->child);
           }
-
-	  if (t->markup == MARKUP_NONE && strcmp((char *)t->data, " ") == 0)
-	    puts("SAW SPACE!");
           break;
 
       case MARKUP_TABLE :
@@ -3010,11 +3005,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         	htmlSetVariable(temp, var->name, var->value);
             }
 	  }
-
-      case MARKUP_CODE :
-      case MARKUP_TT :
-      case MARKUP_SAMP :
-          printf("MONO prev = %p\n", t->prev);
 
       default :
 	  if (t->child != NULL)
@@ -3321,9 +3311,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       {
         if (temp->markup == MARKUP_NONE && temp->data[0] == ' ')
 	{
-          if (strcmp((char *)temp->data, " ") == 0)
-	    printf("SPACE width = %.1f\n", temp->width);
-
           if (temp == start)
             temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
                           _htmlSizes[temp->size];
@@ -8680,5 +8667,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.71 2001/05/30 23:35:53 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.72 2001/05/31 02:02:13 mike Exp $".
  */
