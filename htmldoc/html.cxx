@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.6 1999/11/14 13:15:08 mike Exp $"
+ * "$Id: html.cxx,v 1.7 1999/11/14 13:28:07 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -242,6 +242,8 @@ write_header(FILE   **out,	/* IO - Output file */
 
   if (newfile)
   {
+    fputs("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "
+          "\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n", *out);
     fputs("<HTML>\n", *out);
     fputs("<HEAD>\n", *out);
     fprintf(*out, "<TITLE>%s</TITLE>\n", title);
@@ -251,24 +253,27 @@ write_header(FILE   **out,	/* IO - Output file */
       fprintf(*out, "<META NAME=\"COPYRIGHT\" CONTENT=\"%s\">\n", copyright);
     if (docnumber != NULL)
       fprintf(*out, "<META NAME=\"DOCNUMBER\" CONTENT=\"%s\">\n", docnumber);
+    fprintf(*out, "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=iso-%s\">\n",
+            _htmlCharSet);
+
     fputs("<STYLE>\n", *out);
-    fprintf("BODY { font-family: %s; font-size: %.1fpt }\n",
-            BodyFont, _htmlSizes[SIZE_P]);
-    fprintf("H1 { font-family: %s; font-size: %.1fpt }\n",
-            HeadingFont, _htmlSizes[SIZE_H1]);
-    fprintf("H2 { font-family: %s; font-size: %.1fpt }\n",
-            HeadingFont, _htmlSizes[SIZE_H1]);
-    fprintf("H3 { font-family: %s; font-size: %.1fpt }\n",
-            HeadingFont, _htmlSizes[SIZE_H1]);
-    fprintf("H4 { font-family: %s; font-size: %.1fpt }\n",
-            HeadingFont, _htmlSizes[SIZE_H1]);
-    fprintf("H5 { font-family: %s; font-size: %.1fpt }\n",
-            HeadingFont, _htmlSizes[SIZE_H1]);
-    fprintf("H6 { font-family: %s; font-size: %.1fpt }\n",
-            HeadingFont, _htmlSizes[SIZE_H1]);
-    fprintf("SUB { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
-    fprintf("SUP { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
-    fprintf("PRE { font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
+    fprintf(*out, "BODY { font-family: %s; font-size: %.1fpt }\n",
+            families[_htmlBodyFont], _htmlSizes[SIZE_P]);
+    fprintf(*out, "H1 { font-family: %s; font-size: %.1fpt }\n",
+            families[_htmlHeadingFont], _htmlSizes[SIZE_H1]);
+    fprintf(*out, "H2 { font-family: %s; font-size: %.1fpt }\n",
+            families[_htmlHeadingFont], _htmlSizes[SIZE_H1]);
+    fprintf(*out, "H3 { font-family: %s; font-size: %.1fpt }\n",
+            families[_htmlHeadingFont], _htmlSizes[SIZE_H1]);
+    fprintf(*out, "H4 { font-family: %s; font-size: %.1fpt }\n",
+            families[_htmlHeadingFont], _htmlSizes[SIZE_H1]);
+    fprintf(*out, "H5 { font-family: %s; font-size: %.1fpt }\n",
+            families[_htmlHeadingFont], _htmlSizes[SIZE_H1]);
+    fprintf(*out, "H6 { font-family: %s; font-size: %.1fpt }\n",
+            families[_htmlHeadingFont], _htmlSizes[SIZE_H1]);
+    fprintf(*out, "SUB { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
+    fprintf(*out, "SUP { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
+    fprintf(*out, "PRE { font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
     fputs("</STYLE>\n", *out);
     fputs("</HEAD>\n", *out);
 
@@ -827,5 +832,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.6 1999/11/14 13:15:08 mike Exp $".
+ * End of "$Id: html.cxx,v 1.7 1999/11/14 13:28:07 mike Exp $".
  */
