@@ -1,5 +1,5 @@
 //
-// "$Id: book.cxx,v 1.2 2004/04/01 03:26:43 mike Exp $"
+// "$Id: book.cxx,v 1.3 2004/04/03 03:18:32 mike Exp $"
 //
 //   Book routines for HTMLDOC, a HTML document processing program.
 //
@@ -101,6 +101,9 @@ hdBook::hdBook()
   sizes             = (hdPageSize *)0;
   num_entities      = 0;
   entities          = (hdEntity *)0;
+  num_headings      = 0;
+  alloc_headings    = 0;
+  headings          = (uchar **)0;
   num_links         = 0;
   alloc_links       = 0;
   links             = (hdLink *)0;
@@ -203,6 +206,9 @@ hdBook::~hdBook()
 
     delete[] entities;
   }
+
+  if (alloc_headings)
+    free(headings);
 
   if (alloc_links)
     free(links);
@@ -983,5 +989,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: book.cxx,v 1.2 2004/04/01 03:26:43 mike Exp $".
+// End of "$Id: book.cxx,v 1.3 2004/04/03 03:18:32 mike Exp $".
 //
