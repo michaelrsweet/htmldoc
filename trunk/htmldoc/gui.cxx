@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.32 2000/06/05 03:18:23 mike Exp $"
+// "$Id: gui.cxx,v 1.33 2000/06/05 17:55:44 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1703,9 +1703,9 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 	permAnnotate->clear();
     }
     else if (strcmp(temp, "--user-password") == 0)
-      userPassword->value(temp);
+      userPassword->value(temp2);
     else if (strcmp(temp, "--owner-password") == 0)
-      ownerPassword->value(temp);
+      ownerPassword->value(temp2);
   }
 
   fclose(fp);
@@ -3493,5 +3493,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.32 2000/06/05 03:18:23 mike Exp $".
+// End of "$Id: gui.cxx,v 1.33 2000/06/05 17:55:44 mike Exp $".
 //

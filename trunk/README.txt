@@ -1,4 +1,4 @@
-README.txt - 05/31/2000
+README.txt - 06/05/2000
 -----------------------
 
 INTRODUCTION
@@ -174,7 +174,13 @@ CREDITS
 
     The table VALIGN and "HALF PAGE" code was contributed by
     D. Richard Hipp (drh@acm.org).
-    
+
+    The RC4 encryption code is from librc4 1.1 by the folks at
+    Carnegie Mellon University.
+
+    The MD5 hash code is from L. Peter Deutsch (ghost@aladdin.com)
+    at Aladdin Enterprises (creators of Ghostscript).
+
 
 LEGAL STUFF
 

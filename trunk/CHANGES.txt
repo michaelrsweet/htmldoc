@@ -1,9 +1,11 @@
-CHANGES.txt - 05/31/2000
+CHANGES.txt - 06/05/2000
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.8
 
     NEW FEATURES
+
+	- Added support for PDF security/encryption!
 
     CHANGES
 

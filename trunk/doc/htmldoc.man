@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.5 2000/04/18 20:36:49 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.6 2000/06/05 17:55:43 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.7" "15 April 2000" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.8" "5 June 2000" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -34,7 +34,11 @@ htmldoc [filename.book]
 .I filename
 ] [ --book ] [ --bottom
 .I margin
-] [ --color ] [ --duplex ] [ --fontsize
+] [ --charset
+.I {8859-1...8859-15}
+] [ --color ] [ --duplex ] [ --effectduration
+.I { 0.1..10.0 }
+] [ --encryption ] [ --fontsize
 .I size
 ] [ --fontspacing
 .I spacing
@@ -60,12 +64,24 @@ htmldoc [filename.book]
 .I {plain,underline}
 ] [ --logoimage
 .I filename
-] [ --no-compression ] [ --no-duplex ] [ --no-numbered ] [ --no-pscommands ]
-[ --no-title ] [ --no-toc ] [ --numbered ] [ --outdir
+] [ --no-compression ] [ --no-duplex ] [ --no-encryption ] [ --no-numbered ]
+[ --no-pscommands ] [ --no-title ] [ --no-toc ] [ --numbered ] [ --outdir
 .I directory
 ] [ --outfile
 .I filename
-] [ --right
+] [ --owner-password
+.I password
+] [ --pageduration
+.I {1.0..60.0}
+] [ --pageeffect
+.I {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}
+] [ --pagelayout
+.I {single,one,twoleft,tworight}
+] [ --pagemode
+.I {document,outlines,fullscreen}
+] [ --permissions
+.I permission
+] [ --pscommands ] [ --right
 .I margin
 ] [ --size
 .I pagesize
@@ -87,6 +103,8 @@ htmldoc [filename.book]
 .I string
 ] [ --top
 .I margin
+] [ --user-password
+.I password
 ] [ --verbose ] [ --webpage ]
 .SH DESCRIPTION
 \fIHTMLDOC\fR converts HTML source files into indexed HTML, PostScript, or
@@ -99,7 +117,7 @@ you to use \fIHTMLDOC\fR as a filter.
 The third form of \fIHTMLDOC\fR launches a graphical interface that allows you
 to change options and generate documents interactively.
 .SH SEE ALSO
-HTMLDOC 1.8.7 Software Users Manual
+HTMLDOC 1.8.8 Software Users Manual
 .LP
 http://www.easysw.com/htmldoc
 .SH AUTHOR
@@ -120,5 +138,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.5 2000/04/18 20:36:49 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.6 2000/06/05 17:55:43 mike Exp $".
 .\"

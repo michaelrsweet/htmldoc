@@ -1,5 +1,5 @@
 /*
- * "$Id: rc4.c,v 1.2 2000/06/05 03:18:24 mike Exp $"
+ * "$Id: rc4.c,v 1.3 2000/06/05 17:55:45 mike Exp $"
  *
  *   RC4 functions for HTMLDOC.
  *
@@ -58,7 +58,7 @@ rc4_init(rc4_context_t       *text,	/* IO - Context */
     * j = (j + Si + Ki) mod 256
     */
 
-    j = (j + text->sbox[i] + key[i % keylen]) % 256;
+    j = (j + text->sbox[i] + key[i % keylen]) & 255;
 
    /*
     * Swap Si and Sj...
@@ -106,8 +106,8 @@ rc4_encrypt(rc4_context_t       *text,		/* I - Context */
     * Get the next S box indices...
     */
 
-    i = (i + 1) % 256;
-    j = (j + text->sbox[i]) % 256;
+    i = (i + 1) & 255;
+    j = (j + text->sbox[i]) & 255;
 
    /*
     * Swap Si and Sj...
@@ -121,7 +121,7 @@ rc4_encrypt(rc4_context_t       *text,		/* I - Context */
     * Get the S box index for this byte...
     */
 
-    t = (text->sbox[i] + text->sbox[j]) % 256;
+    t = (text->sbox[i] + text->sbox[j]) & 255;
 
    /*
     * Encrypt using the S box...
@@ -141,5 +141,5 @@ rc4_encrypt(rc4_context_t       *text,		/* I - Context */
 
 
 /*
- * End of "$Id: rc4.c,v 1.2 2000/06/05 03:18:24 mike Exp $".
+ * End of "$Id: rc4.c,v 1.3 2000/06/05 17:55:45 mike Exp $".
  */

@@ -171,6 +171,13 @@ transition effect in seconds.
 
 <P>This option is only available when generating PDF files.
 
+<H3>--encryption</H3>
+
+<P>The <CODE>--encryption</CODE> option enables encryption and security
+features for PDF output.
+
+<P>This option is only available when generating PDF files.
+
 <H3>--firstpage page</H3>
 
 The <CODE>--firstpage</CODE> option specifies the first page that will be
@@ -389,6 +396,13 @@ files. The supported formats are GIF, JPEG, and PNG.
 The <CODE>--no-compression</CODE> option specifies that Flate compresion
 should not be performed on the output files.
 
+<H3>--no-encryption</H3>
+
+<P>The <CODE>--no-encryption</CODE> option specifies that no encryption/security
+features should be enabled in PDF output.
+
+<P>This option is only available when generating PDF files.
+
 <H3>--no-pscommands</H3>
 
 The <CODE>--no-pscommands</CODE> option specifies that PostScript device
@@ -418,6 +432,14 @@ document files.
 <H3>--outfile filename</H3>
 
 The <CODE>--outfile</CODE> option specifies an output file for the document.
+
+<H3>--owner-password password</H3>
+
+<P>The <CODE>--owner-password</CODE> option specifies the owner password for
+a PDF file. If not specified or the empty string (""), a random password is
+generated.
+
+<P>This option is only available when generating PDF files.
 
 <H3>--pageduration seconds</H3>
 
@@ -479,6 +501,27 @@ PDF viewer. The <CODE>mode</CODE> parameter can be one of the following:
 <TR><TD>document</TD><TD>The document pages are displayed in a normal window.</TD></TR>
 <TR><TD>outline</TD><TD>The document outline and pages are displayed.</TD></TR>
 <TR><TD>fullscreen</TD><TD>The document pages are displayed on the entire screen in "slideshow" mode.</TD></TR>
+</TABLE></CENTER>
+
+<P>This option is only available when generating PDF files.
+
+<H3>--permissions permission</H3>
+
+<P>The <CODE>--permissions</CODE> option specifies the document permissions.
+Multiple options can be specified as needed:
+
+<CENTER><TABLE BORDER="1>
+<TR><TH>Permission</TH><TH>Description</TH></TR>
+<TR><TD>all</TD><TD>All permissions</TD></TR>
+<TR><TD>annotate</TD><TD>User can annotate document</TD></TR>
+<TR><TD>copy</TD><TD>User can copy text and images from document</TD></TR>
+<TR><TD>modify</TD><TD>User can modify document</TD></TR>
+<TR><TD>print</TD><TD>User can print document</TD></TR>
+<TR><TD>no-annotate</TD><TD>User cannot annotate document</TD></TR>
+<TR><TD>no-copy</TD><TD>User cannot copy text and images from document</TD></TR>
+<TR><TD>no-modify</TD><TD>User cannot modify document</TD></TR>
+<TR><TD>no-print</TD><TD>User cannot print document</TD></TR>
+<TR><TD>none</TD><TD>No permissions</TD></TR>
 </TABLE></CENTER>
 
 <P>This option is only available when generating PDF files.
@@ -634,6 +677,14 @@ units are points (1 point = 1/72nd inch); the suffixes "in", "cm", and "mm"
 specify inches, centimeters, and millimeters, respectively.
 
 <P>This option is only available when generating PostScript or PDF files.
+
+<H3>--user-password password</H3>
+
+<P>The <CODE>--user-password</CODE> option specifies the user password for
+a PDF file. If not specified or the empty string (""), no password will be
+required to view the document.
+
+<P>This option is only available when generating PDF files.
 
 <H3>--verbose</H3>
 
