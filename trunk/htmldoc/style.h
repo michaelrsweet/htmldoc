@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.23 2004/03/31 09:51:27 mike Exp $"
+// "$Id: style.h,v 1.24 2004/03/31 20:56:56 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -646,7 +646,7 @@ struct hdStyle
   //* The <tt>list-style-position</tt> value.
   hdListStylePosition	list_style_position;
   //* The <tt>list-style-type</tt> value.
-  hdListStyleType	list_hdFontInternalype;
+  hdListStyleType	list_style_type;
   //* The <tt>margin-left</tt>, <tt>margin-right</tt>, <tt>margin-top</tt>,
   //* and <tt>margin-bottom</tt> values.
   float			margin[4];
@@ -789,13 +789,13 @@ struct hdStyle
 		           hdStyleSheet *css, int *relative = (int *)0);
 
  /**
-  * The <tt>get_list_hdFontInternalype()</tt> method returns the list style associated
+  * The <tt>get_list_style_type()</tt> method returns the list style associated
   * with a string.
   *
   * @param value const&nbsp;char* The string value.
   * @return The list style integer value.
   */
-  hdListStyleType get_list_hdFontInternalype(const char *value);
+  hdListStyleType get_list_style_type(const char *value);
 
  /**
   * The <tt>get_margin()</tt> method returns the margin value in points.
@@ -1166,5 +1166,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_HD_FONTINTERNAL_H_
 
 //
-// End of "$Id: style.h,v 1.23 2004/03/31 09:51:27 mike Exp $".
+// End of "$Id: style.h,v 1.24 2004/03/31 20:56:56 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.15 2004/03/31 10:35:07 mike Exp $"
+// "$Id: style.cxx,v 1.16 2004/03/31 20:56:56 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -239,8 +239,9 @@ hdStyle::~hdStyle()
 // 'hdStyle::get_border_style()' - Get a border style value.
 //
 
-hdBorderStyle					// O - Numeric value
-hdStyle::get_border_style(const char *value)	// I - String value
+hdBorderStyle				// O - Numeric value
+hdStyle::get_border_style(const char *value)
+					// I - String value
 {
   if (strcasecmp(value, "dotted") == 0)
     return (HD_BORDERSTYLE_DOTTED);
@@ -267,9 +268,11 @@ hdStyle::get_border_style(const char *value)	// I - String value
 // 'hdStyle::get_border_width()' - Get a border width value.
 //
 
-float						// O - Numeric value
-hdStyle::get_border_width(const char   *value,	// I - String value
-                          hdStyleSheet *css)	// I - Stylesheet
+float					// O - Numeric value
+hdStyle::get_border_width(const char   *value,
+					// I - String value
+                          hdStyleSheet *css)
+					// I - Stylesheet
 {
   if (strcasecmp(value, "thin") == 0)
     return (1.0f * 72.0f / css->ppi);
@@ -429,14 +432,17 @@ hdStyle::get_color(const char *color,	// I - Color string
 // 'hdStyle::get_length()' - Get a length/measurement value...
 //
 
-float						// O - Length value
-hdStyle::get_length(const char   *length,	// I - Length string
-                    float        max_length,	// I - Maximum length
-                    hdStyleSheet *css,		// I - Stylesheet
-		    int          *relative)	// O - Relative value?
+float					// O - Length value
+hdStyle::get_length(const char   *length,
+					// I - Length string
+                    float        max_length,
+					// I - Maximum length
+                    hdStyleSheet *css,	// I - Stylesheet
+		    int          *relative)
+					// O - Relative value?
 {
-  float	val;					// Length value
-  char	*units;					// Units after length
+  float	val;				// Length value
+  char	*units;				// Units after length
 
 
   // Unless otherwise set, all values are absolute...
@@ -506,11 +512,12 @@ hdStyle::get_length(const char   *length,	// I - Length string
 
 
 //
-// 'hdStyle::get_list_hdFontInternalype()' - Get a list style type value.
+// 'hdStyle::get_list_style_type()' - Get a list style type value.
 //
 
-hdListStyleType					// O - Numeric value
-hdStyle::get_list_hdFontInternalype(const char *value)	// I - String value
+hdListStyleType				// O - Numeric value
+hdStyle::get_list_style_type(const char *value)
+					// I - String value
 {
   if (strcasecmp(value, "disc") == 0)
     return (HD_LISTSTYLEHD_FONTFACE_DISC);
@@ -537,8 +544,9 @@ hdStyle::get_list_hdFontInternalype(const char *value)	// I - String value
 // 'hdStyle::get_page_break()' - Get a page break value.
 //
 
-hdPageBreak					// O - Numeric value
-hdStyle::get_page_break(const char *value)	// I - String value
+hdPageBreak				// O - Numeric value
+hdStyle::get_page_break(const char *value)
+					// I - String value
 {
   if (strcasecmp(value, "always") == 0)
     return (HD_PAGEBREAK_ALWAYS);
@@ -2938,5 +2946,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.15 2004/03/31 10:35:07 mike Exp $".
+// End of "$Id: style.cxx,v 1.16 2004/03/31 20:56:56 mike Exp $".
 //
