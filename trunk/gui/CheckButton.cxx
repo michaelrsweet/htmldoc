@@ -1,5 +1,5 @@
 //
-// "$Id: CheckButton.cxx,v 1.4 1999/11/09 01:08:44 mike Exp $"
+// "$Id: CheckButton.cxx,v 1.5 1999/11/09 21:36:22 mike Exp $"
 //
 //   CheckButton routines for the Common UNIX Printing System (CUPS).
 //
@@ -59,12 +59,8 @@ void CheckButton::draw()
     // Then the check...
     if (value())
     {
-      fl_color(FL_BLACK);
-#ifdef WIN32
-      fl_pie(x() + 4, y() + offset + 4, size - 8, size - 8, 0.0, 360.0);
-#else
+      fl_color(active_r() ? FL_BLACK : FL_GRAY);
       fl_pie(x() + 4, y() + offset + 4, size - 9, size - 9, 0.0, 360.0);
-#endif // WIN32
     }
   }
   else
@@ -75,7 +71,7 @@ void CheckButton::draw()
     // Then the check...
     if (value())
     {
-      fl_color(FL_BLACK);
+      fl_color(active_r() ? FL_BLACK : FL_GRAY);
       fl_line(x() + 3, y() + offset + 3,
               x() + size - 4, y() + offset + size - 4);
       fl_line(x() + 4, y() + offset + 3,
@@ -105,5 +101,5 @@ CheckButton::CheckButton(int x, int y, int w, int h, const char* l)
 
 
 //
-// End of "$Id: CheckButton.cxx,v 1.4 1999/11/09 01:08:44 mike Exp $".
+// End of "$Id: CheckButton.cxx,v 1.5 1999/11/09 21:36:22 mike Exp $".
 //

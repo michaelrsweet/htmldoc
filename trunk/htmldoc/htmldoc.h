@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.2 1999/11/08 18:35:17 mike Exp $"
+ * "$Id: htmldoc.h,v 1.3 1999/11/09 21:36:23 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -66,7 +66,8 @@ VAR int		OutputFiles	VALUE(0),	/* Generate multiple files? */
 		OutputColor	VALUE(1);	/* Output color images */
 VAR int		OutputJPEG	VALUE(0);	/* JPEG compress images? */
 VAR float	PDFVersion	VALUE(1.2);	/* Version of PDF to support */
-
+VAR int		PSLevel		VALUE(2),	/* Language level (0 for PDF) */
+		PSCommands	VALUE(0);	/* Output PostScript commands? */
 VAR int		PageWidth	VALUE(595),	/* Page width in points */
 		PageLength	VALUE(792),	/* Page length in points */
 		PageLeft	VALUE(72),	/* Left margin */
@@ -76,17 +77,25 @@ VAR int		PageWidth	VALUE(595),	/* Page width in points */
 		PagePrintWidth,			/* Printable width */
 		PagePrintLength,		/* Printable length */
 		PageDuplex	VALUE(0);	/* Adjust margins/pages for duplexing? */
-VAR typeface_t	HeadFootFont	VALUE(TYPE_HELVETICA);
-						/* Font for header & footer */
+
+VAR typeface_t	HeadFootType	VALUE(TYPE_HELVETICA);
+						/* Typeface for header & footer */
+VAR style_t	HeadFootStyle	VALUE(STYLE_NORMAL);
+						/* Type style */
 VAR float	HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
+
 VAR char	Header[4]	VALUE(".t."),	/* Header for regular pages */
 		TocHeader[4]	VALUE(".t."),	/* Header for TOC pages */
 		Footer[4] 	VALUE("h.1"),	/* Regular page footer */
-		TocFooter[4]	VALUE("..i");	/* Footer for TOC pages */
+		TocFooter[4]	VALUE("..i"),	/* Footer for TOC pages */
+		TocTitle[1024]	VALUE("Table of Contents");
+						/* TOC title string */
+
 VAR char	TitleImage[255]	VALUE("");	/* Title page image */
 VAR char	LogoImage[255]	VALUE("");	/* Logo image */
 VAR char	BodyColor[255]	VALUE(""),	/* Body color */
 		BodyImage[255]	VALUE("");	/* Body image */
+
 #ifdef HAVE_LIBFLTK
 VAR GUI		*BookGUI	VALUE(NULL);	/* GUI for book files */
 #  ifdef WIN32					/* Editor for HTML files */
@@ -96,15 +105,12 @@ VAR char	HTMLEditor[1024] VALUE("nedit %s");
 #  endif /* WIN32 */
 #endif /* HAVE_LIBFLTK */
 
+
 /*
  * Prototypes...
  */
 
-extern int	pdf_export(tree_t *document, tree_t *toc);
-
-extern int	ps_export_level1(tree_t *document, tree_t *toc);
-
-extern int	ps_export_level2(tree_t *document, tree_t *toc);
+extern int	pspdf_export(tree_t *document, tree_t *toc);
 
 extern int	html_export(tree_t *document, tree_t *toc);
 
@@ -127,5 +133,5 @@ extern char	*format_number(int n, char f);
 #  endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.2 1999/11/08 18:35:17 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.3 1999/11/09 21:36:23 mike Exp $".
  */

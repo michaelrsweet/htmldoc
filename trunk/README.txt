@@ -1,4 +1,4 @@
-README - 01/14/1999
+README - 11/10/1999
 -------------------
 
 INTRODUCTION
@@ -6,10 +6,11 @@ INTRODUCTION
     This README file describes HTMLDOC, a HTML processing program that
     generates HTML, PostScript, and PDF files with a table of contents.
 
-    HTMLDOC is copyright 1997-1999 by Michael Sweet and is currently
-    available under the GNU General Public License, version 2.  As
-    such, there is NO WARRANTY, EXPRESSED OR IMPLIED.  This software
-    is based in part on the work of the Independent JPEG Group.
+    HTMLDOC is copyright 1997-1999 by Easy Software Products and is
+    currently available under the GNU General Public License, version
+    2.  As such, there is NO WARRANTY, EXPRESSED OR IMPLIED.  This
+    software is based in part on the work of the Independent JPEG
+    Group.
 
     Documentation for HTMLDOC is available in the "doc" subdirectory
     and has been generated from HTML "source" files into HTML,
@@ -25,38 +26,30 @@ INTRODUCTION
 
 INTERNET RESOURCES
 
-    Problem reports should be addressed to "mike@easysw.com".  For
+    Problem reports should be addressed to "htmldoc-support@easysw.com".  For
     general discussions about HTMLDOC, subscribe to the HTMLDOC mailing
     list by sending a message to "majordomo@easysw.com" with the text
     "subscribe htmldoc".
 
     The HTMLDOC home page is located at:
 
-        http://www.easysw.com/~mike/htmldoc
+        http://www.easysw.com/htmldoc
 
-    The current version of HTMLDOC can be also downloaded from any of
-    the following locations:
+    The current version of HTMLDOC can be also downloaded from:
 
-        ftp://ftp.easysw.com/pub/htmldoc
-        ftp://ftp.funet.fi/mirrors/ftp.easysw.com/pub/htmldoc
-
-    Consult the HTMLDOC web page for a list of other FTP locations that
-    may not have made it into this README file.
+        http://www.easysw.com/software.html
 
 
 REQUIREMENTS
 
     To compile HTMLDOC you'll need a C++ compiler (gcc is fine, most
-    vendor compilers work, too) and the JPEG, PNG, and ZLIB libraries
-    available on the 'net.  If you are missing one or more of these
-    libraries then certain options will not work (e.g. compression of
-    PDF files if you don't have ZLIB, etc.)
+    vendor compilers work, too).  The JPEG, PNG, and ZLIB libraries are
+    provided with HTMLDOC.
 
-    For the GUI support you'll need FLTK 19981022 or higher (this works
-    for both UNIX and Windows).  I have only successfully compiled
-    HTMLDOC under Windows using the Microsoft Visual C++ 5.0 compiler
-    (Borland C++ 5.02 didn't work), so you may have trouble with other
-    PC compilers.
+    For the GUI support you'll need FLTK 1.0 or higher (this works for
+    both UNIX and Windows).  I have only successfully compiled HTMLDOC
+    under Windows using the Microsoft Visual C++ compiler (Borland C++
+    5.02 didn't work), so you may have trouble with other PC compilers.
 
 
 COMPILING THE SOFTWARE
@@ -73,6 +66,8 @@ COMPILING THE SOFTWARE
         setenv CXXFLAGS "-I/some/directory"
         setenv LDFLAGS "-L/some/directory"
 
+    for CSH and TCSH.
+
     If you aren't using "gcc", "g++", "c++", or "CC" for your C++
     compiler, you'll also need to set the CXX environment variable:
 
@@ -82,6 +77,8 @@ COMPILING THE SOFTWARE
 
         setenv CXX "compiler"
 
+    for CSH and TCSH.
+
     Once you have set any necessary environment variables, run
     configure with:
 
@@ -89,10 +86,10 @@ COMPILING THE SOFTWARE
 
     Then just run "make" to build the software.
 
-    For the Windows version I have included a Visual C++ project file
-    (htmldoc.dsp) that is setup to compile HTMLDOC for any Intel
-    processor.  You will probably have to adjust the locations of the
-    FLTK, JPEG, PNG, and ZLIB libraries in the project settings.
+    For the Windows version I have included Visual C++ workspace and
+    project files under the "visualc" directory.  You will probably
+    have to adjust the locations of the FLTK project file and include
+    directory.
 
 
 INSTALLING THE SOFTWARE
@@ -104,11 +101,12 @@ READING THE DOCUMENTATION
 
     PLEASE READ THE DOCUMENTATION PROVIDED.  Most (if not all)
     questions are answered there.  The documentation is provided in
-    several forms for your convenience and is located in the "docs"
-    sub-directory.
+    several forms for your convenience and is located in the "doc"
+    sub-directory.  This documentation can be accessed from within
+    HTMLDOC by clicking on the "Help" button.
 
     Under Windows the documentation is generally located in the
-    "C:\Program Files\HTMLDOC" directory.
+    "C:\Program Files\HTMLDOC\doc" directory.
 
     The documentation was of course produced using HTMLDOC... 
 
@@ -180,7 +178,15 @@ RUNNING HTMLDOC FROM YOUR WEB SERVER
 
     Note that this does not handle sending the "Content-Type:
     application/pdf" header, so if you do this in a CGI script you'll
-    need to send this header prior to running htmldoc.
+    need to send this header prior to running htmldoc.  For a typical
+    C program you could use:
+
+	 FILE *fp;
+
+	 puts("Content-Type: application/pdf\n");
+	 fp = popen("htmldoc --webpage -t pdf -", "w");
+	 ... write HTML to fp ...
+	 pclose(fp);
 
 
 CURRENT LIMITATIONS
@@ -198,22 +204,23 @@ CURRENT LIMITATIONS
 
 CREDITS
 
-    Many thanks to Leonard Rosenthol (leonardr@lazerware.com) for providing
-    changes to support a command-line version of HTMLDOC on the MAC.
+    Many thanks to Leonard Rosenthol (leonardr@lazerware.com) for
+    providing changes to support a MacOS version of HTMLDOC.
 
 
 CHANGE LOG
 
-    01/14/1999 - HTMLDOC v1.8
+    11/10/1999 - HTMLDOC v1.8
 
-	- Added support for PDF 1.1 (Acrobat 2.x).
+	- Added support for PDF 1.1 (Acrobat 2.x) and PDF 1.3 (Acrobat
+	  4.0).
 	- Changed HTML output to use less invasive navigation bars at
 	  the top and bottom of each file.  This also means that the
 	  "--barcolor" option is no longer supported!
 	- Updated to use existing filenames in HTML (directory) output.
 	- Now add filenames as needed to HTML links.
-	- Now recognize any local PDF file as a local file link
-	  (i.e. you just need "HREF=filename.pdf" and not
+	- Now recognize any local PDF file as a local file link (i.e.
+	  you just need "HREF=filename.pdf" and not
 	  "HREF=file:filename.pdf")
 	- Added optimizations to output code to further reduce PDF and
 	  PostScript file size.
@@ -225,11 +232,18 @@ CHANGE LOG
 	  avoid nested link name bug in Netscape and MSIE.
 	- Extremely long link names could cause TOC generation to fail
 	  and HTMLDOC to crash.
-	- PDF output was not compatible with Ghostscript/Ghostview because
-	  Ghostscript does not support inherited page resources or the
-	  "Fl" abbreviation for the "FlateDecode" compression filter.
-	- PostScript DSC comments didn't have unique page numbers.
-	  This caused Ghostview (among others) to get confused.
+	- PDF output was not compatible with Ghostscript/Ghostview
+	  because Ghostscript does not support inherited page resources
+	  or the "Fl" abbreviation for the "FlateDecode" compression
+	  filter.
+	- PostScript DSC comments didn't have unique page numbers. This
+	  caused Ghostview (among others) to get confused.
+	- Some functions didn't handle empty text fragments.
+	- Images couldn't be scaled both horizontally and vertically.
+	- <LI> didn't support the VALUE attribute (but <OL> did...)
+	- <TT>, <CODE>, and <SAMP> no longer reduce the font size.
+	- Fixed whitespace problems before and after some markups that
+	  was caused by intervening links.
 
     01/07/1999 - HTMLDOC v1.7
 

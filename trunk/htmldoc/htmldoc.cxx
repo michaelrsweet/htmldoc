@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.2 1999/11/08 22:11:35 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.3 1999/11/09 21:36:23 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -162,7 +162,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
-    else if (compare_strings(argv[i], "--bodyfont", 7) == 0)
+    else if (compare_strings(argv[i], "--bodyfont", 7) == 0 ||
+             compare_strings(argv[i], "--textfont", 7) == 0)
     {
       i ++;
       if (i < argc)
@@ -228,18 +229,38 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
       {
         if (strcasecmp(argv[i], "ps1") == 0)
-          exportfunc = ps_export_level1;
+        {
+	  exportfunc = pspdf_export;
+	  PSLevel    = 1;
+	}
         else if (strcasecmp(argv[i], "ps2") == 0 ||
                  strcasecmp(argv[i], "ps") == 0)
-          exportfunc = ps_export_level2;
-        else if (strcasecmp(argv[i], "pdf") == 0)
+        {
+	  exportfunc = pspdf_export;
+	  PSLevel    = 2;
+	}
+        else if (strcasecmp(argv[i], "ps3") == 0)
+        {
+	  exportfunc = pspdf_export;
+	  PSLevel    = 3;
+	}
+        else if (strcasecmp(argv[i], "pdf13") == 0)
 	{
-          exportfunc = pdf_export;
+          exportfunc = pspdf_export;
+	  PSLevel    = 0;
+	  PDFVersion = 1.3;
+	}
+        else if (strcasecmp(argv[i], "pdf12") == 0 ||
+	         strcasecmp(argv[i], "pdf") == 0)
+	{
+          exportfunc = pspdf_export;
+	  PSLevel    = 0;
 	  PDFVersion = 1.2;
 	}
         else if (strcasecmp(argv[i], "pdf11") == 0)
 	{
-          exportfunc  = pdf_export;
+          exportfunc  = pspdf_export;
+	  PSLevel     = 0;
 	  PDFVersion  = 1.1;
 	  Compression = 0;
 	}
@@ -302,11 +323,66 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
       {
         if (strcasecmp(argv[i], "courier") == 0)
-	  HeadFootFont = TYPE_COURIER;
-        else if (strcasecmp(argv[i], "times") == 0)
-	  HeadFootFont = TYPE_TIMES;
+	{
+	  HeadFootType  = TYPE_COURIER;
+	  HeadFootStyle = STYLE_NORMAL;
+	}
+        else if (strcasecmp(argv[i], "courier-bold") == 0)
+	{
+	  HeadFootType  = TYPE_COURIER;
+	  HeadFootStyle = STYLE_BOLD;
+	}
+        else if (strcasecmp(argv[i], "courier-oblique") == 0)
+	{
+	  HeadFootType  = TYPE_COURIER;
+	  HeadFootStyle = STYLE_ITALIC;
+	}
+        else if (strcasecmp(argv[i], "courier-boldoblique") == 0)
+	{
+	  HeadFootType  = TYPE_COURIER;
+	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	}
+        else if (strcasecmp(argv[i], "times") == 0 ||
+	         strcasecmp(argv[i], "times-roman") == 0)
+	{
+	  HeadFootType  = TYPE_TIMES;
+	  HeadFootStyle = STYLE_NORMAL;
+	}
+        else if (strcasecmp(argv[i], "times-bold") == 0)
+	{
+	  HeadFootType  = TYPE_TIMES;
+	  HeadFootStyle = STYLE_BOLD;
+	}
+        else if (strcasecmp(argv[i], "times-italic") == 0)
+	{
+	  HeadFootType  = TYPE_TIMES;
+	  HeadFootStyle = STYLE_ITALIC;
+	}
+        else if (strcasecmp(argv[i], "times-bolditalic") == 0)
+	{
+	  HeadFootType  = TYPE_TIMES;
+	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	}
         else if (strcasecmp(argv[i], "helvetica") == 0)
-	  HeadFootFont = TYPE_HELVETICA;
+	{
+	  HeadFootType  = TYPE_HELVETICA;
+	  HeadFootStyle = STYLE_NORMAL;
+	}
+        else if (strcasecmp(argv[i], "helvetica-bold") == 0)
+	{
+	  HeadFootType  = TYPE_HELVETICA;
+	  HeadFootStyle = STYLE_BOLD;
+	}
+        else if (strcasecmp(argv[i], "helvetica-oblique") == 0)
+	{
+	  HeadFootType  = TYPE_HELVETICA;
+	  HeadFootStyle = STYLE_ITALIC;
+	}
+        else if (strcasecmp(argv[i], "helvetica-boldoblique") == 0)
+	{
+	  HeadFootType  = TYPE_HELVETICA;
+	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	}
       }
       else
         usage();
@@ -408,18 +484,27 @@ main(int  argc,		/* I - Number of command-line arguments */
 
         if ((extension = file_extension(argv[i])) != NULL)
         {
-          if (strcasecmp(extension, "ps") == 0 &&
-              exportfunc != ps_export_level1)
-            exportfunc = ps_export_level2;
+          if (strcasecmp(extension, "ps") == 0)
+          {
+	    exportfunc = pspdf_export;
+
+	    if (PSLevel == 0)
+	      PSLevel = 2;
+	  }
           else if (strcasecmp(extension, "pdf") == 0)
-            exportfunc = pdf_export;
-          else if (strcasecmp(extension, "html") == 0)
+	  {
+            exportfunc = pspdf_export;
+	    PSLevel    = 0;
+          }
+	  else if (strcasecmp(extension, "html") == 0)
             exportfunc = html_export;
         }
       }
       else
         usage();
     }
+    else if (compare_strings(argv[i], "--pscommands", 3) == 0)
+      PSCommands = 1;
     else if (compare_strings(argv[i], "--right", 3) == 0)
     {
       i ++;
@@ -433,6 +518,14 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
         set_page_size(argv[i]);
+      else
+        usage();
+    }
+    else if (compare_strings(argv[i], "--textcolor", 7) == 0)
+    {
+      i ++;
+      if (i < argc)
+        htmlSetTextColor((uchar *)argv[i]);
       else
         usage();
     }
@@ -576,8 +669,14 @@ main(int  argc,		/* I - Number of command-line arguments */
 
   if (BookGUI != NULL)
   {
-    i = BookGUI->doGUI();
+    BookGUI->show();
+
+    i = Fl::run();
+
     delete BookGUI;
+
+    prefs_save();
+
     return (i);
   }
 #endif /* HAVE_LIBFLTK */
@@ -894,18 +993,37 @@ set_page_size(char *size)	/* I - Page size string */
 void
 prefs_load(void)
 {
-#ifdef HAVE_LIBFLTK
-#  ifdef WIN32			//// Do registry magic...
+#ifdef WIN32			//// Do registry magic...
   HKEY		key;		// Registry key
   DWORD		size;		// Size of string
+  static char	data[1024];	// Data directory
+  static char	doc[1024];	// Documentation directory
 
 
   // Figure out what the HTML editor is...
-  size = sizeof(HTMLEditor);
+  if (RegOpenKeyEx(HKEY_CLASSES_ROOT, "htmldoc", 0, KEY_READ, &key))
+    return;
 
-  if (!RegOpenKeyEx(HKEY_CLASSES_ROOT, "htmldoc", 0, KEY_READ, &key))
-    RegQueryValueEx(key, "editor", NULL, NULL, (unsigned char *)HTMLEditor, &size);
-#  else				//// Do .htmldocrc file in home dir...
+#  ifdef HAVE_LIBFLTK
+  size = sizeof(HTMLEditor);
+  RegQueryValueEx(key, "editor", NULL, NULL, (unsigned char *)HTMLEditor, &size);
+#  endif // HAVE_LIBFLTK
+
+  // Now grab the installed directories...
+  size    = sizeof(data);
+  data[0] = '\0';
+  RegQueryValueEx(key, "data", NULL, NULL, (unsigned char *)data, &size);
+  if (data[0])
+    _htmlData = data;
+
+#  ifdef HAVE_LIBFLTK
+  size   = sizeof(doc);
+  doc[0] = '\0';
+  RegQueryValueEx(key, "doc", NULL, NULL, (unsigned char *)doc, &size);
+  if (doc[0])
+    GUI::help_dir = doc;
+#  endif // HAVE_LIBFLTK
+#elif defined(HAVE_FLTK)	//// Do .htmldocrc file in home dir...
   char	line[1024],		// Line from RC file
 	htmldocrc[1024];	// HTMLDOC RC file
   FILE	*fp;			// File pointer
@@ -929,8 +1047,7 @@ prefs_load(void)
       fclose(fp);
     }
   }
-#  endif // WIN32
-#endif // HAVE_LIBFLTK
+#endif // WIN32
 }
 
 
@@ -947,7 +1064,7 @@ prefs_save(void)
   DWORD		size;		// Size of string
 
 
-  // Figure out what the HTML editor is...
+  // Save what the HTML editor is...
   size = sizeof(HTMLEditor);
 
   if (RegCreateKeyEx(HKEY_CLASSES_ROOT, "htmldoc", 0, "htmldoc",
@@ -1070,5 +1187,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.2 1999/11/08 22:11:35 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.3 1999/11/09 21:36:23 mike Exp $".
  */

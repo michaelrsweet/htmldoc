@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.1 1999/11/08 18:35:19 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.2 1999/11/09 21:36:23 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -48,6 +48,8 @@
  *   parse_table()           - Parse a table and produce rendering output.
  *   parse_list()            - Parse a list entry and produce rendering output.
  *   init_list()             - Initialize the list type and value as necessary.
+ *   real_prev()             - Return the previous non-link markup in the tree.
+ *   real_next()             - Return the next non-link markup in the tree.
  *   new_render()            - Allocate memory for a new rendering structure.
  *   add_link()              - Add a named link...
  *   find_link()             - Find a named link...
@@ -55,6 +57,8 @@
  *   copy_tree()             - Copy a markup tree...
  *   flatten_tree()          - Flatten an HTML tree to only include the text,
  *                             image, link, and break markups.
+ *   find_background()       - Find the background image/color for the given
+ *                             document.
  *   update_image_size()     - Update the size of an image based upon the
  *                             printable width.
  *   get_width()             - Get the width of a string in points.
@@ -100,15 +104,11 @@
 #  include <Files.h>
 #endif // MAC
 
-#ifdef HAVE_LIBZ
-#  include <zlib.h>
-#endif /* HAVE_LIBZ */
+#include <zlib.h>
 
-#ifdef HAVE_LIBJPEG
 extern "C" {		/* Workaround for JPEG header problems... */
-#  include <jpeglib.h>	/* JPEG/JFIF image definitions */
+#include <jpeglib.h>	/* JPEG/JFIF image definitions */
 }
-#endif /* HAVE_LIBJPEG */
 
 
 /*
@@ -165,8 +165,6 @@ typedef struct			/**** Named link position structure */
  * Local globals...
  */
 
-static int	pslevel;
-
 static int	chapter,
 		chapter_starts[MAX_CHAPTERS],
 		chapter_ends[MAX_CHAPTERS];
@@ -211,17 +209,14 @@ static float	render_size,
 		render_y,
 		render_startx;
 
-#ifdef HAVE_LIBZ
 static z_stream	compressor;
 static uchar	comp_buffer[64 * 1024];
-#endif /* HAVE_LIBZ */
 
 
 /*
  * Local functions...
  */
 
-static int	pspdf_export(tree_t *document, tree_t *toc);
 static char	*pspdf_prepare_page(int page, int *file_page, uchar *title,
 		                    float title_width, uchar **page_heading);
 static void	pspdf_prepare_heading(int page, int print_page, uchar *title,
@@ -266,15 +261,19 @@ static void	parse_list(tree_t *t, int left, int width, int bottom,
 		           int length, float *x, float *y, int *page);
 static void	init_list(tree_t *t);
 
+static tree_t	*real_prev(tree_t *t);
+static tree_t	*real_next(tree_t *t);
+
 static void	add_link(uchar *name, int page, int top);
 static link_t	*find_link(uchar *name);
 static int	compare_links(link_t *n1, link_t *n2);
 
+static void	get_color(uchar *color, float *rgb);
 static void	find_background(tree_t *t);
 static void	write_background(FILE *out);
 
 static render_t	*new_render(int page, int type, float x, float y,
-		            float width, float height, void *data);
+		            float width, float height, void *data, int insert = 0);
 static void	copy_tree(tree_t *parent, tree_t *t);
 static tree_t	*flatten_tree(tree_t *t);
 static float	get_width(uchar *s, int typeface, int style, int size);
@@ -288,12 +287,10 @@ static void	write_prolog(FILE *out, int pages, uchar *title, uchar *author,
 		             uchar *creator, uchar *copyright);
 static void	ps_hex(FILE *out, uchar *data, int length);
 static void	ps_ascii85(FILE *out, uchar *data, int length);
-#ifdef HAVE_LIBJPEG
 static void	jpg_init(j_compress_ptr cinfo);
 static boolean	jpg_empty(j_compress_ptr cinfo);
 static void	jpg_term(j_compress_ptr cinfo);
 static void	jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
-#endif // HAVE_LIBJPEG
 static int	compare_rgb(uchar *rgb1, uchar *rgb2);
 static void	write_image(FILE *out, render_t *r);
 static void	write_string(FILE *out, uchar *s, int compress);
@@ -302,51 +299,10 @@ static void	write_trailer(FILE *out, int pages);
 
 
 /*
- * 'pdf_export()' - Export PDF file(s)...
- */
-
-int
-pdf_export(tree_t *document,	/* I - Document to export */
-           tree_t *toc)		/* I - Table of contents for document */
-{
-  pslevel = 0;
-
-  return (pspdf_export(document, toc));
-}
-
-
-/*
- * 'ps_export_level1()' - Export level 1 PostScript file(s)...
- */
-
-int
-ps_export_level1(tree_t *document,	/* I - Document to export */
-                 tree_t *toc)		/* I - Table of contents for document */
-{
-  pslevel = 1;
-
-  return (pspdf_export(document, toc));
-}
-
-
-/*
- * 'ps_export_level2()' - Export level 2 PostScript file(s)...
- */
-
-int
-ps_export_level2(tree_t *document, tree_t *toc)
-{
-  pslevel = 2;
-
-  return (pspdf_export(document, toc));
-}
-
-
-/*
  * 'pspdf_export()' - Export PostScript/PDF file(s)...
  */
 
-static int
+int
 pspdf_export(tree_t *document,	/* I - Document to export */
              tree_t *toc)	/* I - Table of contents for document */
 {
@@ -552,7 +508,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   * Write the document to disk...
   */
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
     ps_write_document(title, author, creator, copyright);
   else
     pdf_write_document(title, author, creator, copyright, toc);
@@ -575,7 +531,6 @@ pspdf_prepare_page(int   page,			/* I - Page number */
         	   float title_width,		/* I - Width of title string */
         	   uchar **page_heading)	/* IO - Page heading string */
 {
-  int		ord_page;	/* Ordinal page # in file */
   int		print_page;	/* Printed page # */
   float		width;		/* Width of page heading */
   char		*page_text;	/* Page number text */
@@ -600,11 +555,6 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     if (TitlePage)
       *file_page += PageDuplex + 1;
   }
-
-  if (chapter < 0 || TocLevels <= 0)
-    ord_page = page + 1;
-  else
-    ord_page = page - chapter_starts[chapter] + 1;
 
  /*
   * Get the new heading if necessary...
@@ -731,8 +681,8 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
           number = format_number(print_page, *format);
 	  temp   = new_render(page, RENDER_TEXT, 0, y,
                               HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)number, HeadFootFont,
-			                STYLE_NORMAL, SIZE_P),
+			      get_width((uchar *)number, HeadFootType,
+			                HeadFootStyle, SIZE_P),
 			      HeadFootSize, number);
           break;
 
@@ -787,8 +737,8 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 
     if (temp->type == RENDER_TEXT)
     {
-      temp->data.text.typeface = HeadFootFont;
-      temp->data.text.style    = STYLE_NORMAL;
+      temp->data.text.typeface = HeadFootType;
+      temp->data.text.style    = HeadFootStyle;
       temp->data.text.size     = HeadFootSize;
     }
   }
@@ -817,7 +767,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
 
   if (title != NULL)
     title_width = HeadFootSize / _htmlSizes[SIZE_P] *
-                  get_width(title, HeadFootFont, STYLE_NORMAL, SIZE_P);
+                  get_width(title, HeadFootType, HeadFootStyle, SIZE_P);
 
  /*
   * Write the title page(s)...
@@ -1052,7 +1002,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
 
   if (title != NULL)
     title_width = HeadFootSize / _htmlSizes[SIZE_P] *
-                  get_width(title, HeadFootFont, STYLE_NORMAL, SIZE_P);
+                  get_width(title, HeadFootType, HeadFootStyle, SIZE_P);
 
   out = open_file();
   if (out == NULL)
@@ -1200,7 +1150,7 @@ pdf_write_resources(FILE *out,	/* I - Output file */
 
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  fonts_used[HeadFootFont * 4] = 1;
+  fonts_used[HeadFootType * 4 + HeadFootStyle] = 1;
   images_used = background_object > 0;
   text_used   = 0;
 
@@ -1232,11 +1182,14 @@ pdf_write_resources(FILE *out,	/* I - Output file */
       fputs("/ProcSet[/PDF/Text/ImageB]", out);
   }
 
-  fputs("/Font<<", out);
-  for (i = 0; i < 16; i ++)
-    if (fonts_used[i])
-      fprintf(out, "/F%1x %d 0 R", i, font_objects[i]);
-  fputs(">>", out);
+  if (text_used)
+  {
+    fputs("/Font<<", out);
+    for (i = 0; i < 16; i ++)
+      if (fonts_used[i])
+	fprintf(out, "/F%1x %d 0 R", i, font_objects[i]);
+    fputs(">>", out);
+  }
 
   if (background_object > 0)
     fprintf(out, "/XObject<</BG %d 0 R>>", background_object);
@@ -1315,10 +1268,8 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   fprintf(out, "%d 0 obj", num_objects);
   fputs("<<", out);
   fprintf(out, "/Length %d 0 R", num_objects + 1);
-#ifdef HAVE_LIBZ
   if (Compression)
     fputs("/Filter/FlateDecode", out);
-#endif /* HAVE_LIBZ */
   fputs(">>", out);
   fputs("stream\n", out);
 
@@ -1368,23 +1319,23 @@ pdf_write_page(FILE  *out,		/* I - Output file */
       case RENDER_BOX :
           if (r->height == 0.0)
             pdf_printf(out, "%.2f %.2f %.2f RG %.1f %.1f m %.1f %.1f l S\n",
-                    r->data.box[0], r->data.box[1], r->data.box[2],
-                    r->x, r->y, r->x + r->width, r->y);
+                       r->data.box[0], r->data.box[1], r->data.box[2],
+                       r->x, r->y, r->x + r->width, r->y);
           else
             pdf_printf(out, "%.2f %.2f %.2f RG %.1f %.1f %.1f %.1f re S\n",
-                    r->data.box[0], r->data.box[1], r->data.box[2],
-                    r->x, r->y, r->width, r->height);
+                       r->data.box[0], r->data.box[1], r->data.box[2],
+                       r->x, r->y, r->width, r->height);
           break;
       case RENDER_FBOX :
           if (r->height == 0.0)
             pdf_printf(out, "%.2f %.2f %.2f RG %.1f %.1f m %.1f %.1f l S\n",
-                    r->data.box[0], r->data.box[1], r->data.box[2],
-                    r->x, r->y, r->x + r->width, r->y);
+                       r->data.box[0], r->data.box[1], r->data.box[2],
+                       r->x, r->y, r->x + r->width, r->y);
           else
           {
             set_color(out, r->data.fbox);
             pdf_printf(out, "%.1f %.1f %.1f %.1f re f\n",
-                    r->x, r->y, r->width, r->height);
+                       r->x, r->y, r->width, r->height);
           }
           break;
     }
@@ -1618,10 +1569,8 @@ pdf_write_background(FILE *out)		/* I - Output file */
   fprintf(out, "/Width %d/Height %d/BitsPerComponent 8",
       	  background_image->width, background_image->height); 
   fprintf(out, "/Length %d 0 R", num_objects + 1);
-#ifdef HAVE_LIBZ
   if (Compression)
     fputs("/Filter/FlateDecode", out);
-#endif /* HAVE_LIBZ */
   fputs(">>", out);
   fputs("stream\n", out);
 
@@ -2033,7 +1982,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	      r = new_render(*page, RENDER_LINK, x, *y, temp->width,
 	        	     temp->height, link);
 
-	      if (pslevel == 0)
+	      if (PSLevel == 0)
 	      {
 		temp->red   = 0;
 		temp->green = 0;
@@ -2297,12 +2246,12 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          if (t->prev != NULL && *y < top)
+          if (real_prev(t) != NULL && *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           parse_doc(t->child, left + 36, right - 36, bottom, top, x, y, page, NULL);
 
-          if (t->next != NULL && *y < top)
+          if (real_next(t) != NULL && *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           *x = (float)left;
@@ -2316,12 +2265,12 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          if (t->prev != NULL && *y < top)
+          if (real_prev(t) && *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL);
 
-          if (t->next != NULL && *y < top)
+          if (real_next(t) && *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           *x = (float)left;
@@ -2335,7 +2284,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          if (t->prev != NULL && *y < top)
+          if (real_prev(t) != NULL && *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL);
@@ -2365,18 +2314,24 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
           *x = (float)(left + 36);
 
-          if (t->prev != NULL && t->prev->markup != MARKUP_LI && *y < top)
+          temp = real_prev(t);
+          if (temp != NULL && *y < top &&
+	      temp->markup != MARKUP_LI &&
+	      temp->markup != MARKUP_UL &&
+	      temp->markup != MARKUP_DL &&
+	      temp->markup != MARKUP_OL)
 	    *y -= _htmlSpacings[t->size];
 
           parse_doc(t->child, left + 36, right, bottom, top, x, y, page, para);
 
-          if (t->next != NULL &&
-	      t->next->markup != MARKUP_LI &&
-	      t->next->markup != MARKUP_UL &&
-	      t->next->markup != MARKUP_OL &&
-	      t->next->markup != MARKUP_DL &&
-	      t->next->markup != MARKUP_HR &&
-	      (t->next->markup < MARKUP_H1 || t->next->markup > MARKUP_H7) &&
+          temp = real_next(t);
+          if (temp != NULL &&
+	      temp->markup != MARKUP_LI &&
+	      temp->markup != MARKUP_UL &&
+	      temp->markup != MARKUP_OL &&
+	      temp->markup != MARKUP_DL &&
+	      temp->markup != MARKUP_HR &&
+	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H7) &&
 	      *y < top)
 	    *y -= _htmlSpacings[t->size];
           break;
@@ -2582,7 +2537,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   if ((t->markup - MARKUP_H1) < TocLevels || TocLevels == 0)
     current_heading = t->child;
 
-  if (*y < (3 * _htmlSpacings[t->size] + bottom))
+  if (*y < (5 * _htmlSpacings[t->size] + bottom))
   {
     (*page) ++;
     *y = (float)top;
@@ -2899,7 +2854,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	r = new_render(*page, RENDER_LINK, *x, *y, temp->width,
 	               temp->height, link);
 
-	if (pslevel == 0)
+	if (PSLevel == 0)
 	{
 	  temp->red   = 0;
 	  temp->green = 0;
@@ -3134,7 +3089,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
       r = new_render(*page, RENDER_LINK, *x, *y, flat->width,
 	             flat->height, link);
 
-      if (pslevel == 0)
+      if (PSLevel == 0)
       {
 	flat->red   = 0;
 	flat->green = 0;
@@ -3266,6 +3221,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   float		col_widths[MAX_COLUMNS],
 		col_mins[MAX_COLUMNS],
 		width,
+		table_width,
 		regular_width,
 		actual_width,
 		row_y, temp_y;
@@ -3276,7 +3232,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		*flat,
 		*next,
 		*cells[MAX_ROWS][MAX_COLUMNS];
-  static float	black[3] = { 0.0, 0.0, 0.0 }
+  uchar		*bgcolor;
+  float		rgb[3];
+  static float	black[3] = { 0.0, 0.0, 0.0 };
 
 
   DEBUG_printf(("parse_table(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
@@ -3293,6 +3251,16 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   memset(col_mins, 0, sizeof(col_mins));
   memset(cells, 0, sizeof(cells));
 
+  if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
+  {
+    if (var[strlen((char *)var) - 1] == '%')
+      table_width = atof((char *)var) * (right - left) / 100.0f;
+    else
+      table_width = atoi((char *)var) * 0.9f;
+  }
+  else
+    table_width = (float)(right - left);
+
   for (temprow = t->child, num_cols = 0, num_rows = 0;
        temprow != NULL && num_rows < MAX_ROWS;
        temprow = temprow->next)
@@ -3308,54 +3276,70 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           else
             colspan = 1;
 
-          while (colspan > 0 && col < MAX_COLUMNS)
-          {
+          DEBUG_printf(("num_rows = %d, col = %d, colspan = %d (%s)\n",
+	                num_rows, col, colspan, var));
+
+          if (colspan == 1)
+	  {
+            if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
+	    {
+              if (var[strlen((char *)var) - 1] == '%')
+        	col_widths[col] = atof((char *)var) * table_width / 100.0f;
+              else
+        	col_widths[col] = atoi((char *)var) * PagePrintWidth / 680.0f;
+
+              col_mins[col] = col_widths[col];
+	    }
+	    else
+	    {
+              flat  = flatten_tree(tempcol->child);
+              width = 0.0;
+              while (flat != NULL)
+              {
+        	if (flat->markup == MARKUP_BR ||
+                    (flat->preformatted &&
+                     flat->data != NULL &&
+                     flat->data[strlen((char *)flat->data) - 1] == '\n') ||
+		    (!flat->preformatted &&
+		     flat->data != NULL &&
+		     (isspace(flat->data[0]) ||
+		      isspace(flat->data[strlen((char *)flat->data) - 1]))))
+        	{
+                  width += flat->width + 1;
+
+                  if (width > col_mins[col])
+                    col_mins[col] = width;
+
+                  width = 0.0;
+        	}
+        	else if (flat->data != NULL)
+                  width += flat->width + 1;
+		else
+                  width += flat->width;
+
+        	if (flat->width > col_mins[col])
+	          col_mins[col] = flat->width;
+
+        	next = flat->next;
+        	free(flat);
+        	flat = next;
+              };
+
+              if (width > col_mins[col])
+        	col_mins[col] = width;
+	    }
+
             cells[num_rows][col] = tempcol;
             col ++;
-            colspan --;
-          }
-
-          if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
-	  {
-            if (var[strlen((char *)var) - 1] == '%')
-              col_widths[col - 1] = atoi((char *)var) * PagePrintWidth / 100.0f;
-            else
-              col_widths[col - 1] = atoi((char *)var) * PagePrintWidth / 680.0f;
-
-            col_mins[col - 1] = col_widths[col - 1];
 	  }
 	  else
 	  {
-            flat  = flatten_tree(tempcol->child);
-            width = 0.0;
-            while (flat != NULL)
+            while (colspan > 0 && col < MAX_COLUMNS)
             {
-              if (flat->markup == MARKUP_BR ||
-                  (flat->preformatted &&
-                   flat->data != NULL &&
-                   flat->data[strlen((char *)flat->data) - 1] == '\n'))
-              {
-                width += flat->width;
-
-                if (width > col_widths[col - 1])
-                  col_widths[col - 1] = width;
-
-                width = 0.0;
-              }
-              else
-                width += flat->width;
-
-              if (flat->width > col_mins[col - 1])
-	        col_mins[col - 1] = flat->width;
-
-              next = flat->next;
-              free(flat);
-              flat = next;
+              cells[num_rows][col] = tempcol;
+              col ++;
+              colspan --;
             }
-
-            if (width > col_widths[col - 1] &&
-	        (col <= 1 || cells[num_rows][col - 1] != cells[num_rows][col - 2]))
-              col_widths[col - 1] = width;
 	  }
         }
 
@@ -3372,7 +3356,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
     cellpadding = atoi((char *)var);
   else
-    cellpadding = 4;
+    cellpadding = 2;
 
   if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
     cellspacing = atoi((char *)var);
@@ -3390,14 +3374,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
-      width = atoi((char *)var) * (right - left) / 100.0f;
+      width = atof((char *)var) * (right - left) / 100.0f;
     else
       width = atoi((char *)var) * 0.9f;
   }
   else
   {
     for (col = 0, width = 0.0; col < num_cols; col ++)
-      width += col_widths[col];
+      width += col_mins[col];
     width += 2 * (border + cellpadding + cellspacing) * num_cols;
 
     if (width > (right - left))
@@ -3413,27 +3397,38 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   for (col = 0, regular_cols = 0; col < num_cols; col ++)
   {
-    if ((actual_width + col_widths[col]) < width &&
-        (col_mins[col] > regular_width ||
-	 col_widths[col] < regular_width ||
-         (cells[0][col] != NULL &&
-	  htmlGetVariable(cells[0][col], (uchar *)"WIDTH") != NULL)))
-      actual_width += col_widths[col];
-    else
+    if (col_widths[col] > 0.0)
     {
-      regular_cols ++;
-      col_widths[col] = 0.0;
+      if (col_mins[col] > col_widths[col])
+        col_widths[col] = col_mins[col];
+
+      actual_width += col_widths[col];
     }
+    else if ((actual_width + col_mins[col]) < width &&
+             col_mins[col] > regular_width)
+    {
+      actual_width    += col_mins[col];
+      col_widths[col] = col_mins[col];
+    }
+    else
+      regular_cols ++;
   }
 
   if (regular_cols > 0)
   {
-    regular_width = (width - actual_width) / regular_cols;
-
-    for (col = 0; col < num_cols; col ++)
+    if (actual_width > width)
     {
-      if (col_widths[col] == 0.0)
-	col_widths[col] = regular_width;
+      for (col = 0; col < num_cols; col ++)
+	if (col_widths[col] == 0.0)
+	  col_widths[col] = col_mins[col];
+    }
+    else
+    {
+      regular_width = (width - actual_width) / regular_cols;
+
+      for (col = 0; col < num_cols; col ++)
+	if (col_widths[col] == 0.0)
+	  col_widths[col] = regular_width;
     }
   }
   else if (width > actual_width)
@@ -3462,6 +3457,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     col_lefts[col]  = (int)*x;
     col_rights[col] = (int)(*x + col_widths[col] + 0.5);
     *x = (float)col_rights[col] + 2 * (border + cellpadding + cellspacing);
+
+    DEBUG_printf(("left[%d] = %d, right[%d] = %d\n", col, col_lefts[col], col,
+                  col_rights[col]));
   }
 
   *y -= (border + cellpadding + cellspacing);
@@ -3490,6 +3488,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           break;
       colspan --;
 
+      DEBUG_printf(("row = %d, col = %d, colspan = %d, left = %d, right = %d\n",
+                    row, col, colspan, col_lefts[col], col_rights[col + colspan]));
+
       if (cells[row][col] == NULL)
         continue;
 
@@ -3514,45 +3515,80 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     row_y -= 2 * (border + cellpadding + cellspacing);
 
-    if (border > 0)
+    for (col = 0; col < num_cols; col ++)
     {
-      for (col = 0; col < num_cols; col ++)
+      for (colspan = 1; (col + colspan) < num_cols; colspan ++)
+        if (cells[row][col] != cells[row][col + colspan])
+          break;
+      colspan --;
+
+      width = (float)(col_rights[col + colspan] - col_lefts[col] +
+                      2 * cellpadding + 2 * border);
+
+      if (cells[row][col] == NULL)
+        bgcolor = NULL;
+      else if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
+        if ((bgcolor = htmlGetVariable(cells[row][col]->parent, (uchar *)"BGCOLOR")) == NULL)
+	  bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR");
+
+      if (bgcolor != NULL)
+        get_color(bgcolor, rgb);
+
+      if (row_page != *page)
       {
-	for (colspan = 1; (col + colspan) < num_cols; colspan ++)
-          if (cells[row][col] != cells[row][col + colspan])
-            break;
-	colspan --;
+       /*
+        * Crossing a page boundary...
+        */
 
-        width = (float)(col_rights[col + colspan] - col_lefts[col] +
-                        2 * cellpadding + 2 * border);
-
-        if (row_page != *page)
-        {
-         /*
-          * Crossing a page boundary...
-          */
-
+        if (border > 0)
           new_render(*page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
                      (float)(bottom + cellspacing), width,
                      *y - bottom - 2 * cellspacing,
                      black);
 
-          for (temp_page = *page + 1; temp_page != row_page; temp_page ++)
+        if (bgcolor != NULL)
+          new_render(*page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
+                     (float)(bottom + cellspacing), width,
+                     *y - bottom - 2 * cellspacing,
+                     rgb, 1);
+
+        for (temp_page = *page + 1; temp_page != row_page; temp_page ++)
+	{
+	  if (border > 0)
             new_render(temp_page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
                        (float)(bottom + cellspacing), width,
                        (float)(top - bottom - 2 * cellspacing), black);
 
+	  if (bgcolor != NULL)
+            new_render(temp_page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
+                       (float)(bottom + cellspacing), width,
+                       (float)(top - bottom - 2 * cellspacing), rgb, 1);
+        }
+
+        if (border > 0)
           new_render(row_page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
                      row_y + cellspacing, width,
                      top - row_y - 2 * cellspacing, black);
-        }
-        else
+
+        if (bgcolor != NULL)
+          new_render(row_page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
+                     row_y + cellspacing, width,
+                     top - row_y - 2 * cellspacing, rgb, 1);
+      }
+      else
+      {
+        if (border > 0)
           new_render(*page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
                      row_y + cellspacing, width,
                      *y - row_y - 2 * cellspacing, black);
 
-	col += colspan;
+        if (bgcolor != NULL)
+          new_render(*page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
+                     row_y + cellspacing, width,
+                     *y - row_y - 2 * cellspacing, rgb, 1);
       }
+
+      col += colspan;
     }
 
     *page = row_page;
@@ -3590,6 +3626,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
            int    *page)	/* IO - Page # */
 {
   uchar		number[255];	/* List number (for numbered types) */
+  uchar		*value;		/* VALUE= variable */
   int		typeface;	/* Typeface of list number */
   float		width;		/* Width of list number */
   render_t	*r;		/* Render primitive */
@@ -3608,6 +3645,16 @@ parse_list(tree_t *t,		/* I - Tree to parse */
 
     if (page_headings[*page] == NULL)
       page_headings[*page] = htmlGetText(current_heading);
+  }
+
+  if ((value = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
+  {
+    if (isdigit(value[0]))
+      list_values[t->indent] = atoi((char *)value);
+    else if (isupper(value[0]))
+      list_values[t->indent] = value[0] - 'A' + 1;
+    else
+      list_values[t->indent] = value[0] - 'a' + 1;
   }
 
   switch (list_types[t->indent])
@@ -3691,14 +3738,61 @@ init_list(tree_t *t)		/* I - List entry */
 
 
 /*
- * 'find_background()' - Find the background image/color for the given document.
+ * 'real_prev()' - Return the previous non-link markup in the tree.
+ */
+
+static tree_t *		/* O - Pointer to previous markup */
+real_prev(tree_t *t)	/* I - Current markup */
+{
+  if (t == NULL)
+    return (NULL);
+
+  if (t->prev != NULL && t->prev->markup == MARKUP_A)
+    t = t->prev;
+
+  if (t->prev != NULL)
+    return (t->prev);
+
+  t = t->parent;
+  if (t == NULL)
+    return (NULL);
+
+  if (t->markup != MARKUP_A)
+    return (t);
+  else
+    return (real_prev(t));
+}
+
+
+/*
+ * 'real_next()' - Return the next non-link markup in the tree.
+ */
+
+static tree_t *		/* O - Pointer to next markup */
+real_next(tree_t *t)	/* I - Current markup */
+{
+  if (t == NULL)
+    return (NULL);
+
+  if (t->next != NULL && t->next->markup == MARKUP_A)
+    t = t->next;
+
+  if (t->next != NULL)
+    return (t->next);
+
+  return (real_next(t->parent));
+}
+
+
+/*
+ * 'get_color()' - Get a standard color value...
  */
 
 static void
-find_background(tree_t *t)	/* I - Document to search */
+get_color(uchar *color,
+          float *rgb)
 {
   int		i;		/* Looping vars */
-  uchar		*var;		/* BGCOLOR/BACKGROUND variable */
   static struct
   {
     char	*name;		/* Color name */
@@ -3717,6 +3811,39 @@ find_background(tree_t *t)	/* I - Document to search */
     { "white",		255, 255, 255 }
   };
 
+  if (color[0] == '#')
+  {
+   /*
+    * RGB value in hex...
+    */
+
+    i = strtol((char *)color + 1, NULL, 16);
+    rgb[0] = (i >> 16) / 255.0f;
+    rgb[1] = ((i >> 8) & 255) / 255.0f;
+    rgb[2] = (i & 255) / 255.0f;
+  }
+  else
+  {
+    for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
+      if (strcasecmp(colors[i].name, (char *)color) == 0)
+      {
+        rgb[0] = colors[i].red / 255.0f;
+        rgb[1] = colors[i].green / 255.0f;
+        rgb[2] = colors[i].blue / 255.0f;
+      };
+  };
+}
+
+
+/*
+ * 'find_background()' - Find the background image/color for the given document.
+ */
+
+static void
+find_background(tree_t *t)	/* I - Document to search */
+{
+  uchar		*var;		/* BGCOLOR/BACKGROUND variable */
+
 
  /*
   * First see if the --bodycolor or --bodyimage options have been
@@ -3730,29 +3857,7 @@ find_background(tree_t *t)	/* I - Document to search */
   }
   else if (BodyColor[0] != '\0')
   {
-    if (BodyColor[0] == '#')
-    {
-     /*
-      * RGB value in hex...
-      */
-
-      i = strtol(BodyColor + 1, NULL, 16);
-
-      background_color[0] = (i >> 16) / 255.0f;
-      background_color[1] = ((i >> 8) & 255) / 255.0f;
-      background_color[2] = (i & 255) / 255.0f;
-    }
-    else
-    {
-      for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
-	if (strcasecmp(colors[i].name, BodyColor) == 0)
-	{
-          background_color[0] = colors[i].red / 255.0f;
-          background_color[1] = colors[i].green / 255.0f;
-          background_color[2] = colors[i].blue / 255.0f;
-	}
-    }
-
+    get_color((uchar *)BodyColor, background_color);
     return;
   }
 
@@ -3770,30 +3875,7 @@ find_background(tree_t *t)	/* I - Document to search */
         background_image = image_load((char *)var, !OutputColor);
 
       if ((var = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL)
-      {
-        if (var[0] == '#')
-        {
-         /*
-          * RGB value in hex...
-          */
-
-          i = strtol((char *)var + 1, NULL, 16);
-
-          background_color[0] = (i >> 16) / 255.0f;
-          background_color[1] = ((i >> 8) & 255) / 255.0f;
-          background_color[2] = (i & 255) / 255.0f;
-        }
-	else
-	{
-          for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
-            if (strcasecmp(colors[i].name, (char *)var) == 0)
-            {
-              background_color[0] = colors[i].red / 255.0f;
-              background_color[1] = colors[i].green / 255.0f;
-              background_color[2] = colors[i].blue / 255.0f;
-            }
-	}
-      }
+        get_color(var, background_color);
     }
 
     if (t->child != NULL)
@@ -3821,7 +3903,7 @@ write_background(FILE *out)	/* I - File to write to */
     width  = background_image->width * PagePrintWidth / 680.0f;
     height = background_image->height * PagePrintWidth / 680.0f;
 
-    switch (pslevel)
+    switch (PSLevel)
     {
       case 0 :
           for (x = 0.0; x < PageWidth; x += width)
@@ -3855,7 +3937,7 @@ write_background(FILE *out)	/* I - File to write to */
            background_color[1] != 1.0 ||
            background_color[2] != 1.0)
   {
-    if (pslevel > 0)
+    if (PSLevel > 0)
     {
       render_x = -1.0;
       render_y = -1.0;
@@ -3882,7 +3964,8 @@ new_render(int   page,		/* I - Page number (0-n) */
            float y,		/* I - Vertical position */
            float width,		/* I - Width */
            float height,	/* I - Height */
-           void  *data)		/* I - Data */
+           void  *data,		/* I - Data */
+	   int   insert)	/* I - Insert instead of append? */
 {
   render_t		*r;	/* New render primitive */
   static render_t	dummy;	/* Dummy var for errors... */
@@ -3939,13 +4022,23 @@ new_render(int   page,		/* I - Page number (0-n) */
         break;
   }
 
-  if (endpages[page] != NULL)
-    endpages[page]->next = r;
-  else
+  if (insert)
+  {
+    r->next     = pages[page];
     pages[page] = r;
+    if (r->next == NULL)
+      endpages[page] = r;
+  }
+  else
+  {
+    if (endpages[page] != NULL)
+      endpages[page]->next = r;
+    else
+      pages[page] = r;
 
-  r->next        = NULL;
-  endpages[page] = r;
+    r->next        = NULL;
+    endpages[page] = r;
+  }
 
   if (page >= num_pages)
     num_pages = page + 1;
@@ -4083,6 +4176,8 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
     switch (t->markup)
     {
       case MARKUP_NONE :
+          if (t->data == NULL)
+	    break;
       case MARKUP_BR :
       case MARKUP_IMG :
 	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
@@ -4189,14 +4284,16 @@ update_image_size(tree_t *t)	/* I - Tree entry */
   if (width != NULL && height != NULL)
   {
     if (width[strlen((char *)width) - 1] == '%')
-      t->width = atoi((char *)width) * PagePrintWidth / 100.0f;
+      t->width = atof((char *)width) * PagePrintWidth / 100.0f;
     else
       t->width = atoi((char *)width) * PagePrintWidth / 680.0f;
 
     if (height[strlen((char *)height) - 1] == '%')
-      t->height = atoi((char *)height) * PagePrintWidth / 100.0f;
+      t->height = atof((char *)height) * PagePrintWidth / 100.0f;
     else
       t->height = atoi((char *)height) * PagePrintWidth / 680.0f;
+
+    return;
   }
 
   img = image_load((char *)htmlGetVariable(t, (uchar *)"SRC"), !OutputColor);
@@ -4207,7 +4304,7 @@ update_image_size(tree_t *t)	/* I - Tree entry */
   if (width != NULL)
   {
     if (width[strlen((char *)width) - 1] == '%')
-      t->width = atoi((char *)width) * PagePrintWidth / 100.0f;
+      t->width = atof((char *)width) * PagePrintWidth / 100.0f;
     else
       t->width = atoi((char *)width) * PagePrintWidth / 680.0f;
 
@@ -4216,7 +4313,7 @@ update_image_size(tree_t *t)	/* I - Tree entry */
   else if (height != NULL)
   {
     if (height[strlen((char *)height) - 1] == '%')
-      t->height = atoi((char *)height) * PagePrintWidth / 100.0f;
+      t->height = atof((char *)height) * PagePrintWidth / 100.0f;
     else
       t->height = atoi((char *)height) * PagePrintWidth / 680.0f;
 
@@ -4288,7 +4385,7 @@ open_file(void)
   char	filename[255];	/* Filename */
 
 
-  if (OutputFiles && pslevel > 0)
+  if (OutputFiles && PSLevel > 0)
   {
     if (chapter == -1)
       sprintf(filename, "%s/cover.ps", OutputPath);
@@ -4329,7 +4426,7 @@ set_color(FILE  *out,	/* I - File to write to */
   render_rgb[1] = rgb[1];
   render_rgb[2] = rgb[2];
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
     fprintf(out, "%.2f %.2f %.2f C ", rgb[0], rgb[1], rgb[2]);
   else
     pdf_printf(out, "%.2f %.2f %.2f rg ", rgb[0], rgb[1], rgb[2]);
@@ -4375,7 +4472,7 @@ set_font(FILE  *out,		/* I - File to write to */
   render_style    = style;
   render_size     = size;
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
     fprintf(out, "%s/F%x SF ", sizes, typeface * 4 + style);
   else
     pdf_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
@@ -4403,7 +4500,7 @@ set_pos(FILE  *out,	/* I - File to write to */
   * Format X and Y...
   */
 
-  if (pslevel > 0 || render_x == -1.0)
+  if (PSLevel > 0 || render_x == -1.0)
   {
     sprintf(xs, "%.1f", x);
     sprintf(ys, "%.1f", y);
@@ -4430,7 +4527,7 @@ set_pos(FILE  *out,	/* I - File to write to */
   if (*s == '.')
     *s = '\0';
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
     fprintf(out, "%s %s M", xs, ys);
   else
     pdf_printf(out, "%s %s Td", xs, ys);
@@ -4493,11 +4590,13 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
 
   while (length > 3)
   {
-#if defined(i386) || defined(WIN32)	/* little-endian */
+#if defined(i386) || defined(__alpha) || defined(__EMX__) || defined(WIN32)
+    /* little-endian */
     b = (((((data[0] << 8) | data[1]) << 8) | data[2]) << 8) | data[3];
-#else		/* big-endian */
+#else
+    /* big-endian */
     b = *((unsigned *)data);
-#endif /* i386 || WIN32 */
+#endif /* i386 || __alpha || __EMX__ || WIN32 */
 
     if (b == 0)
       putc('z', out);
@@ -4539,7 +4638,6 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
 }
 
 
-#ifdef HAVE_LIBJPEG
 /*
  * JPEG library destination data manager.  These routines direct
  * compressed data from libjpeg into the PDF or PostScript file.
@@ -4574,7 +4672,7 @@ jpg_empty(j_compress_ptr cinfo)	/* I - Compressor info */
 {
   (void)cinfo;
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
     ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
   else
     pdf_write(jpg_file, jpg_buf, sizeof(jpg_buf));
@@ -4600,7 +4698,7 @@ jpg_term(j_compress_ptr cinfo)	/* I - Compressor info */
 
   nbytes = sizeof(jpg_buf) - jpg_dest.free_in_buffer;
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
     ps_ascii85(jpg_file, jpg_buf, nbytes);
   else
     pdf_write(jpg_file, jpg_buf, nbytes);
@@ -4616,8 +4714,10 @@ jpg_setup(FILE           *out,	/* I - Output file */
           image_t        *img,	/* I - Output image */
           j_compress_ptr cinfo)	/* I - Compressor info */
 {
-  jpg_file    = out;
+  int	i;			// Looping var
 
+
+  jpg_file    = out;
   cinfo->err  = jpeg_std_error(&jerr);
 
   jpeg_create_compress(cinfo);
@@ -4633,15 +4733,24 @@ jpg_setup(FILE           *out,	/* I - Output file */
   cinfo->in_color_space   = img->depth == 1 ? JCS_GRAYSCALE : JCS_RGB;
 
   jpeg_set_defaults(cinfo);
+  jpeg_set_linear_quality(cinfo, OutputJPEG, TRUE);
 
-  jpeg_set_quality(cinfo, OutputJPEG, TRUE);
+  // Update things when writing to PS files...
+  if (PSLevel)
+  {
+    // Adobe uses sampling == 1
+    for (i = 0; i < img->depth; i ++)
+    {
+      cinfo->comp_info[i].h_samp_factor = 1;
+      cinfo->comp_info[i].v_samp_factor = 1;
+    }
+  }
 
   cinfo->write_JFIF_header  = FALSE;
   cinfo->write_Adobe_marker = TRUE;
 
-  jpeg_start_compress(cinfo, FALSE);
+  jpeg_start_compress(cinfo, TRUE);
 }
-#endif /* HAVE_LIBJPEG */
 
 
 /*
@@ -4688,9 +4797,7 @@ write_image(FILE     *out,	/* I - Output file */
 		grays[256],	/* Grayscale usage */
 		*match;		/* Matching color value */
   image_t 	*img;		/* Image */
-#ifdef HAVE_LIBJPEG
   struct jpeg_compress_struct	cinfo;	/* JPEG compressor */
-#endif /* HAVE_LIBJPEG */
 
 
  /*
@@ -4700,7 +4807,7 @@ write_image(FILE     *out,	/* I - Output file */
   img     = r->data.image;
   ncolors = 0;
 
-  if (pslevel != 1 && PDFVersion >= 1.2)
+  if (PSLevel != 1 && PDFVersion >= 1.2)
   {
     if (img->depth == 1)
     {
@@ -4978,7 +5085,7 @@ write_image(FILE     *out,	/* I - Output file */
   * Now write the image...
   */
 
-  switch (pslevel)
+  switch (PSLevel)
   {
     case 0 : /* PDF */
 	pdf_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width, r->height,
@@ -5006,7 +5113,6 @@ write_image(FILE     *out,	/* I - Output file */
 
   	  pdf_write(out, indices, indwidth * img->height);
 	}
-#ifdef HAVE_LIBJPEG
 	else if (OutputJPEG)
 	{
   	  pdf_printf(out, "/W %d/H %d/BPC 8/F/DCT ID\n",
@@ -5022,7 +5128,6 @@ write_image(FILE     *out,	/* I - Output file */
 	  jpeg_finish_compress(&cinfo);
 	  jpeg_destroy_compress(&cinfo);
         }
-#endif /* HAVE_LIBJPEG */
 	else
 	{
   	  pdf_printf(out, "/W %d/H %d/BPC 8 ID\n",
@@ -5086,7 +5191,6 @@ write_image(FILE     *out,	/* I - Output file */
 	  ps_ascii85(out, indices, indwidth * img->height);
           fputs("~>\n", out);
         }
-#ifdef HAVE_LIBJPEG
 	else if (OutputJPEG)
 	{
 	  if (img->depth == 1)
@@ -5120,7 +5224,6 @@ write_image(FILE     *out,	/* I - Output file */
 
           fputs("~>\n", out);
         }
-#endif /* HAVE_LIBJPEG */
         else
         {
 	  if (img->depth == 1)
@@ -5188,7 +5291,7 @@ write_prolog(FILE *out,		/* I - Output file */
   */
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  fonts_used[HeadFootFont][0] = 1;
+  fonts_used[HeadFootType][HeadFootStyle] = 1;
 
   for (page = 0; page < num_pages; page ++)
     for (r = pages[page]; r != NULL; r = r->next)
@@ -5199,7 +5302,7 @@ write_prolog(FILE *out,		/* I - Output file */
   * Generate the heading...
   */
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
   {
    /*
     * Write PostScript prolog stuff...
@@ -5207,7 +5310,7 @@ write_prolog(FILE *out,		/* I - Output file */
 
     fputs("%!PS-Adobe-3.0\n", out);
     fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
-    fprintf(out,"%%%%LanguageLevel: %d\n", pslevel);
+    fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
     fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-1999 Michael Sweet, All Rights Reserved.\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02dZ\n",
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
@@ -5221,7 +5324,7 @@ write_prolog(FILE *out,		/* I - Output file */
     if (copyright != NULL)
       fprintf(out, "%%%%docCopyright: %s\n", copyright);
     if (page_count > 0)
-      fprintf(out, "%%Pages: %d\n", page_count);
+      fprintf(out, "%%%%Pages: %d\n", page_count);
     else
       fputs("%%Pages: (atend)\n", out);
     fputs("%%DocumentNeededResources:\n", out);
@@ -5462,9 +5565,9 @@ write_text(FILE     *out,	/* I - Output file */
   set_font(out, r->data.text.typeface, r->data.text.style, r->data.text.size);
   set_pos(out, r->x, r->y);
 
-  write_string(out, r->data.text.buffer, pslevel == 0);
+  write_string(out, r->data.text.buffer, PSLevel == 0);
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
     fputs("S\n", out);
   else
     pdf_puts("Tj\n", out);
@@ -5485,7 +5588,7 @@ write_trailer(FILE *out,	/* I - Output file */
 	offset;			/* Offset to xref table in PDF file */
 
 
-  if (pslevel > 0)
+  if (PSLevel > 0)
   {
    /*
     * PostScript...
@@ -5563,7 +5666,6 @@ pdf_open_stream(FILE *out)	/* I - Output file */
 {
   REF(out);
 
-#ifdef HAVE_LIBZ
   if (!Compression)
     return;
 
@@ -5575,7 +5677,6 @@ pdf_open_stream(FILE *out)	/* I - Output file */
 
   compressor.next_out  = (Bytef *)comp_buffer;
   compressor.avail_out = sizeof(comp_buffer);
-#endif /* HAVE_LIBZ */
 }
 
 
@@ -5586,7 +5687,6 @@ pdf_open_stream(FILE *out)	/* I - Output file */
 static void
 pdf_close_stream(FILE *out)	/* I - Output file */
 {
-#ifdef HAVE_LIBZ
   if (!Compression)
     return;
 
@@ -5601,7 +5701,6 @@ pdf_close_stream(FILE *out)	/* I - Output file */
     fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
 
   deflateEnd(&compressor);
-#endif /* HAVE_LIBZ */
 }
 
 
@@ -5649,7 +5748,6 @@ pdf_write(FILE *out,	/* I - Output file */
           uchar *buf,	/* I - Buffer */
           int  length)	/* I - Number of bytes to write */
 {
-#ifdef HAVE_LIBZ
   if (Compression)
   {
     compressor.next_in  = buf;
@@ -5668,11 +5766,10 @@ pdf_write(FILE *out,	/* I - Output file */
     }
   }
   else
-#endif /* HAVE_LIBZ */
     fwrite(buf, length, 1, out);
 }
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.1 1999/11/08 18:35:19 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.2 1999/11/09 21:36:23 mike Exp $".
  */
