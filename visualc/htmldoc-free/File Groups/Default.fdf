@@ -1,10 +1,10 @@
 [FileGroups]
-group0=AFM Files
+group0=Font Files
 group1=Program Executables
-group2=Data Files
-group3=Documentation
+group2=Documentation
+group3=Data Files
 
-[AFM Files]
+[Font Files]
 SELFREGISTERING=No
 HTTPLOCATION=
 LANGUAGE=
@@ -37,7 +37,7 @@ Type=FileGrp
 Version=1.00.000
 Name=
 
-[Documentation]
+[Data Files]
 SELFREGISTERING=No
 HTTPLOCATION=
 LANGUAGE=
@@ -51,7 +51,7 @@ COMPRESSDLL=
 POTENTIALLY=No
 MISC=
 
-[Data Files]
+[Documentation]
 SELFREGISTERING=No
 HTTPLOCATION=
 LANGUAGE=
