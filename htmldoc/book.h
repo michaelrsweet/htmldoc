@@ -1,5 +1,5 @@
 //
-// "$Id: book.h,v 1.2 2004/04/01 03:26:43 mike Exp $"
+// "$Id: book.h,v 1.3 2004/04/03 03:18:32 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -196,9 +196,14 @@ struct hdBook
   int		num_entities;		// Number of entities in table
   hdEntity	*entities;		// Entity table
 
-  int		num_links,
-		alloc_links;
-  hdLink	*links;
+  // Heading strings used for filenames...
+  int		num_headings,		// Number of headings
+		alloc_headings;		// Allocated headings
+  uchar		**headings;		// Heading strings
+
+  int		num_links,		// Number of links
+		alloc_links;		// Allocated links
+  hdLink	*links;			// Links
 
   int		Compression;		// Non-zero means compress PDFs
   bool		TitlePage,		// Need a title page
@@ -316,7 +321,26 @@ struct hdBook
   void		html_title(FILE *out, uchar *title, uchar *author,
 		           uchar *copyright, uchar *docnumber);
   int		html_write(FILE *out, hdTree *t, int col);
+
+  void		htmlsep_header(FILE **out, uchar *filename, uchar *title,
+		               uchar *author, uchar *copyright,
+			       uchar *docnumber, int heading);
+  void		htmlsep_footer(FILE **out, int heading);
+  void		htmlsep_title(FILE *out, uchar *title, uchar *author,
+		              uchar *copyright, uchar *docnumber);
+  int		htmlsep_write(FILE *out, hdTree *t, int col);
+  int		htmlsep_doc(FILE **out, hdTree *t, int col, int *heading,
+		            uchar *title, uchar *author, uchar *copyright,
+			    uchar *docnumber);
+  int		htmlsep_node(FILE *out, hdTree *t, int col);
+  int		htmlsep_nodeclose(FILE *out, hdTree *t, int col);
+
+  void		htmlsep_scan_links(hdTree *t);
+  void		htmlsep_update_links(hdTree *t, int *heading);
+
   uchar		*get_title(hdTree *doc);
+
+  void		add_heading(hdTree *t);
 
   void		add_link(uchar *name, uchar *filename, int page = 0, int top = 0);
   static int	compare_links(hdLink *n1, hdLink *n2);
@@ -327,5 +351,5 @@ struct hdBook
 #endif // !HTMLDOC_BOOK_H
 
 //
-// End of "$Id: book.h,v 1.2 2004/04/01 03:26:43 mike Exp $".
+// End of "$Id: book.h,v 1.3 2004/04/03 03:18:32 mike Exp $".
 //
