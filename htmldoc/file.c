@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.46 2004/05/07 22:04:57 mike Exp $"
+ * "$Id: file.c,v 1.13.2.47 2004/05/08 01:27:32 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -121,10 +121,6 @@ file_basename(const char *s)	/* I - Filename or URL */
     basename ++;
   else if ((basename = strrchr(s, '\\')) != NULL)
     basename ++;
-#ifdef MAC
-  else if ((basename = strrchr(s, ':')) != NULL)
-    basename ++;
-#endif /* MAC */
   else
     basename = (char *)s;
 
@@ -283,10 +279,6 @@ file_directory(const char *s)	/* I - Filename or URL */
       *dir = '\0';
     else if ((dir = strrchr(buf, '\\')) != NULL)
       *dir = '\0';
-#ifdef MAC
-    else if ((dir = strrchr(buf, ':')) != NULL)
-      *dir = '\0';
-#endif /* MAC */
     else
       return (".");
 
@@ -319,10 +311,6 @@ file_extension(const char *s)	/* I - Filename or URL */
     extension ++;
   else if ((extension = strrchr(s, '\\')) != NULL)
     extension ++;
-#ifdef MAC
-  else if ((extension = strrchr(s, ':')) != NULL)
-    extension ++;
-#endif /* MAC */
   else
     extension = s;
 
@@ -963,10 +951,6 @@ file_target(const char *s)	/* I - Filename or URL */
     basename ++;
   else if ((basename = strrchr(s, '\\')) != NULL)
     basename ++;
-#ifdef MAC
-  else if ((basename = strrchr(s, ':')) != NULL)
-    basename ++;
-#endif /* MAC */
   else
     basename = s;
 
@@ -1056,5 +1040,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.46 2004/05/07 22:04:57 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.47 2004/05/08 01:27:32 mike Exp $".
  */

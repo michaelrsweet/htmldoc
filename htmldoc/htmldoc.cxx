@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.63 2004/05/05 18:58:40 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.64 2004/05/08 01:27:32 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -31,6 +31,7 @@
  *   load_book()       - Load a book file...
  *   parse_options()   - Parse options from a book file...
  *   read_file()       - Read a file into the current document.
+ *   set_permissions() - Set the PDF permission bits...
  *   term_handler()    - Handle CTRL-C or kill signals...
  *   usage()           - Show program version and command-line options.
  */
@@ -80,6 +81,7 @@ static int	load_book(const char *filename, tree_t **document,
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
 static int	read_file(const char *filename, tree_t **document,
 		          const char *path);
+static void	set_permissions(const char *p);
 static void	term_handler(int signum);
 static void	usage(const char *arg = NULL);
 
@@ -88,31 +90,19 @@ static void	usage(const char *arg = NULL);
  * 'main()' - Main entry for HTMLDOC.
  */
 
-#ifdef MAC		// MacOS subverts ANSI C...
 int
-main(void)
+main(int  argc,				/* I - Number of command-line arguments */
+     char *argv[])			/* I - Command-line arguments */
 {
-  int		argc;	// Number of command-line arguments
-  char		**argv;	// Command-line arguments
-
-
-  argc = ccommand(&argv);
-#else			// All other operating systems...
-int
-main(int  argc,		/* I - Number of command-line arguments */
-     char *argv[])	/* I - Command-line arguments */
-{
-#endif // MAC
-
-  int		i, j;		/* Looping vars */
-  tree_t	*document,	/* Master HTML document */
-		*file,		/* HTML document file */
-		*toc;		/* Table of contents */
-  exportfunc_t	exportfunc;	/* Export function */
-  const char	*extension;	/* Extension of output filename */
-  float		fontsize,	/* Base font size */
-		fontspacing;	/* Base font spacing */
-  int		num_files;	/* Number of files provided on the command-line */
+  int		i, j;			/* Looping vars */
+  tree_t	*document,		/* Master HTML document */
+		*file,			/* HTML document file */
+		*toc;			/* Table of contents */
+  exportfunc_t	exportfunc;		/* Export function */
+  const char	*extension;		/* Extension of output filename */
+  float		fontsize,		/* Base font size */
+		fontspacing;		/* Base font spacing */
+  int		num_files;		/* Number of files provided on the command-line */
 
 
 #ifdef __APPLE__
@@ -146,19 +136,51 @@ main(int  argc,		/* I - Number of command-line arguments */
 #endif // WIN32
 
  /*
+  * Default to producing HTML files.
+  */
+
+  document   = NULL;
+  exportfunc = (exportfunc_t)html_export;
+
+ /*
+  * Check if we are being executed as a CGI program...
+  */
+
+  if (getenv("GATEWAY_INTERFACE") && getenv("SERVER_NAME") &&
+      getenv("SERVER_SOFTWARE") && !getenv("HTMLDOC_NOCGI"))
+  {
+    // CGI mode implies the following options:
+    //
+    // --no-localfiles
+    // --webpage
+    // -t pdf
+    // -f -
+    //
+    // Additional args can be provided on the command-line, however
+    // the format and output file cannot be changed...
+
+    CGIMode      = 1;
+    TocLevels    = 0;
+    TitlePage    = 0;
+    OutputType   = OUTPUT_WEBPAGES;
+    exportfunc   = (exportfunc_t)pspdf_export;
+    PSLevel      = 0;
+    PDFVersion   = 13;
+    PDFPageMode  = PDF_DOCUMENT;
+    PDFFirstPage = PDF_PAGE_1;
+
+    file_nolocal();
+
+    strcpy(OutputPath, "-");
+  }
+
+ /*
   * Load preferences...
   */
 
   prefs_load();
 
   Errors = 0;
-
- /*
-  * Default to producing HTML files.
-  */
-
-  document   = NULL;
-  exportfunc = (exportfunc_t)html_export;
 
  /*
   * Parse command-line options...
@@ -280,7 +302,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--datadir", 4) == 0)
     {
       i ++;
-      if (i < argc)
+      if (i < argc && !CGIMode)
         _htmlData = argv[i];
       else
         usage(argv[i - 1]);
@@ -292,7 +314,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       // The X standard requires support for the -display option, but
       // we also support the GNU standard --display...
       i ++;
-      if (i < argc)
+      if (i < argc && !CGIMode)
         Fl::display(argv[i]);
       else
         usage(argv[i - 1]);
@@ -380,7 +402,7 @@ main(int  argc,		/* I - Number of command-line arguments */
              strcmp(argv[i], "-t") == 0)
     {
       i ++;
-      if (i < argc)
+      if (i < argc && !CGIMode)
       {
         if (strcasecmp(argv[i], "ps1") == 0)
         {
@@ -557,7 +579,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--helpdir", 7) == 0)
     {
       i ++;
-      if (i < argc)
+      if (i < argc && !CGIMode)
         GUI::help_dir = argv[i];
       else
         usage(argv[i - 1]);
@@ -686,7 +708,7 @@ main(int  argc,		/* I - Number of command-line arguments */
              strcmp(argv[i], "-d") == 0)
     {
       i ++;
-      if (i < argc)
+      if (i < argc && !CGIMode)
       {
         strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 1;
@@ -698,7 +720,7 @@ main(int  argc,		/* I - Number of command-line arguments */
              strcmp(argv[i], "-f") == 0)
     {
       i ++;
-      if (i < argc)
+      if (i < argc && !CGIMode)
       {
         strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 0;
@@ -808,36 +830,14 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i >= argc)
         usage(argv[i - 1]);
 
-      if (strcasecmp(argv[i], "all") == 0)
-        Permissions = -4;
-      else if (strcasecmp(argv[i], "none") == 0)
-        Permissions = -64;
-      else if (strcasecmp(argv[i], "print") == 0)
-        Permissions |= PDF_PERM_PRINT;
-      else if (strcasecmp(argv[i], "no-print") == 0)
-        Permissions &= ~PDF_PERM_PRINT;
-      else if (strcasecmp(argv[i], "modify") == 0)
-        Permissions |= PDF_PERM_MODIFY;
-      else if (strcasecmp(argv[i], "no-modify") == 0)
-        Permissions &= ~PDF_PERM_MODIFY;
-      else if (strcasecmp(argv[i], "copy") == 0)
-        Permissions |= PDF_PERM_COPY;
-      else if (strcasecmp(argv[i], "no-copy") == 0)
-        Permissions &= ~PDF_PERM_COPY;
-      else if (strcasecmp(argv[i], "annotate") == 0)
-        Permissions |= PDF_PERM_ANNOTATE;
-      else if (strcasecmp(argv[i], "no-annotate") == 0)
-        Permissions &= ~PDF_PERM_ANNOTATE;
-
-      if (Permissions != -4)
-        Encryption = 1;
+      set_permissions(argv[i]);
     }
     else if (compare_strings(argv[i], "--portrait", 4) == 0)
       Landscape = 0;
     else if (compare_strings(argv[i], "--proxy", 4) == 0)
     {
       i ++;
-      if (i < argc)
+      if (i < argc && !CGIMode)
       {
         strncpy(Proxy, argv[i], sizeof(Proxy) - 1);
 	Proxy[sizeof(Proxy) - 1] = '\0';
@@ -1030,12 +1030,28 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
   }
 
+  if (CGIMode && getenv("SERVER_PORT") && getenv("PATH_INFO"))
+  {
+    // Read the referenced file from the local server...
+    char	url[1024];		// URL
+
+
+    if (getenv("HTTPS"))
+      snprintf(url, sizeof(url), "https://%s:%s%s", getenv("SERVER_NAME"),
+               getenv("SERVER_PORT"), getenv("PATH_INFO"));
+    else
+      snprintf(url, sizeof(url), "http://%s:%s%s", getenv("SERVER_NAME"),
+               getenv("SERVER_PORT"), getenv("PATH_INFO"));
+
+    read_file(url, &document, Path);
+  }
+
  /*
   * Display the GUI if necessary...
   */
 
 #ifdef HAVE_LIBFLTK
-  if (num_files == 0 && BookGUI == NULL)
+  if (num_files == 0 && BookGUI == NULL && !CGIMode)
     BookGUI = new GUI();
 
   if (BookGUI != NULL)
@@ -1057,10 +1073,7 @@ main(int  argc,		/* I - Number of command-line arguments */
   */
 
   if (num_files == 0 || document == NULL)
-  {
-    puts("ERROR: No HTML files!");
-    usage();
-  }
+    usage("No HTML files!");
 
  /*
   * Find the first one in the list...
@@ -1792,7 +1805,7 @@ parse_options(const char   *line,	// I - Options from book file
 
     *tempptr = '\0';
 
-    if (strcmp(temp, "-t") == 0)
+    if (strcmp(temp, "-t") == 0 && !CGIMode)
     {
       if (strcmp(temp2, "html") == 0)
         *exportfunc = (exportfunc_t)html_export;
@@ -1852,13 +1865,13 @@ parse_options(const char   *line,	// I - Options from book file
       strncpy(TitleImage, temp2, sizeof(TitleImage) - 1);
       TitleImage[sizeof(TitleImage) - 1] = '\0';
     }
-    else if (strcmp(temp, "-f") == 0)
+    else if (strcmp(temp, "-f") == 0 && !CGIMode)
     {
       OutputFiles = 0;
       strncpy(OutputPath, temp2, sizeof(OutputPath) - 1);
       OutputPath[sizeof(OutputPath) - 1] = '\0';
     }
-    else if (strcmp(temp, "-d") == 0)
+    else if (strcmp(temp, "-d") == 0 && !CGIMode)
     {
       OutputFiles = 1;
       strncpy(OutputPath, temp2, sizeof(OutputPath) - 1);
@@ -2076,28 +2089,7 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--effectduration") == 0)
       PDFEffectDuration = atof(temp2);
     else if (strcmp(temp, "--permissions") == 0)
-    {
-      if (strcasecmp(temp2, "all") == 0)
-        Permissions = -4;
-      else if (strcasecmp(temp2, "none") == 0)
-        Permissions = -64;
-      else if (strcasecmp(temp2, "print") == 0)
-        Permissions |= PDF_PERM_PRINT;
-      else if (strcasecmp(temp2, "no-print") == 0)
-        Permissions &= ~PDF_PERM_PRINT;
-      else if (strcasecmp(temp2, "modify") == 0)
-        Permissions |= PDF_PERM_MODIFY;
-      else if (strcasecmp(temp2, "no-modify") == 0)
-        Permissions &= ~PDF_PERM_MODIFY;
-      else if (strcasecmp(temp2, "copy") == 0)
-        Permissions |= PDF_PERM_COPY;
-      else if (strcasecmp(temp2, "no-copy") == 0)
-        Permissions &= ~PDF_PERM_COPY;
-      else if (strcasecmp(temp2, "annotate") == 0)
-        Permissions |= PDF_PERM_ANNOTATE;
-      else if (strcasecmp(temp2, "no-annotate") == 0)
-        Permissions &= ~PDF_PERM_ANNOTATE;
-    }
+      set_permissions(temp2);
     else if (strcmp(temp, "--user-password") == 0)
     {
       strncpy(UserPassword, temp2, sizeof(UserPassword) - 1);
@@ -2113,7 +2105,7 @@ parse_options(const char   *line,	// I - Options from book file
       strncpy(Path, temp2, sizeof(Path) - 1);
       Path[sizeof(Path) - 1] = '\0';
     }
-    else if (strcmp(temp, "--proxy") == 0)
+    else if (strcmp(temp, "--proxy") == 0 && !CGIMode)
     {
       strncpy(Proxy, temp2, sizeof(Proxy) - 1);
       Proxy[sizeof(Proxy) - 1] = '\0';
@@ -2195,6 +2187,63 @@ read_file(const char *filename,		// I  - File/URL to read
 
 
 //
+// 'set_permissions()' - Set the PDF permission bits.
+//
+
+void
+set_permissions(const char *p)		// I - Permission string
+{
+  char	*copyp,				// Copy of string
+	*start,				// Start of current keyword
+	*ptr;				// Pointer into string
+
+
+  // Range check input...
+  if (!p || !*p)
+    return;
+
+  // Make a copy of the string and parse it...
+  copyp = strdup(p);
+  if (!copyp)
+    return;
+
+  for (start = copyp; *start; start = ptr)
+  {
+    for (ptr = start; *ptr; ptr ++)
+      if (*ptr == ',')
+      {
+	*ptr++ = '\0';
+	break;
+      }
+
+    if (!strcasecmp(start, "all"))
+      Permissions = -4;
+    else if (!strcasecmp(start, "none"))
+      Permissions = -64;
+    else if (!strcasecmp(start, "print"))
+      Permissions |= PDF_PERM_PRINT;
+    else if (!strcasecmp(start, "no-print"))
+      Permissions &= ~PDF_PERM_PRINT;
+    else if (!strcasecmp(start, "modify"))
+      Permissions |= PDF_PERM_MODIFY;
+    else if (!strcasecmp(start, "no-modify"))
+      Permissions &= ~PDF_PERM_MODIFY;
+    else if (!strcasecmp(start, "copy"))
+      Permissions |= PDF_PERM_COPY;
+    else if (!strcasecmp(start, "no-copy"))
+      Permissions &= ~PDF_PERM_COPY;
+    else if (!strcasecmp(start, "annotate"))
+      Permissions |= PDF_PERM_ANNOTATE;
+    else if (!strcasecmp(start, "no-annotate"))
+      Permissions &= ~PDF_PERM_ANNOTATE;
+  }
+
+  if (Permissions != -4)
+    Encryption = 1;
+}
+
+
+//
 // 'term_handler()' - Handle CTRL-C or kill signals...
 //
 
@@ -2216,8 +2265,13 @@ term_handler(int signum)	// I - Signal number
 static void
 usage(const char *arg)			// I - Bad argument string
 {
-  if (arg)
+  if (CGIMode)
+    puts("Content-Type: text/plain\r\n\r");
+
+  if (arg && arg[0] == '-')
     printf("Bad option argument \"%s\"!\n\n", arg);
+  else
+    printf("ERROR: %s\n", arg);
 
   puts("HTMLDOC Version " SVERSION " Copyright 1997-2004 Easy Software Products, All Rights Reserved.");
   puts("This software is governed by the GNU General Public License, Version 2, and");
@@ -2241,7 +2295,8 @@ usage(const char *arg)			// I - Bad argument string
   puts("  --charset {cp-874...1258,iso-8859-1...8859-15,koi8-r}");
   puts("  --color");
   puts("  --compression[=level]");
-  puts("  --datadir directory");
+  if (!CGIMode)
+    puts("  --datadir directory");
   puts("  --duplex");
   puts("  --effectduration {0.1..10.0}");
   puts("  --embedfonts");
@@ -2250,7 +2305,8 @@ usage(const char *arg)			// I - Bad argument string
   puts("  --fontsize {4.0..24.0}");
   puts("  --fontspacing {1.0..3.0}");
   puts("  --footer fff");
-  puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html,htmlsep}");
+  if (!CGIMode)
+    puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html,htmlsep}");
   puts("  --gray");
   puts("  --header fff");
   puts("  --headfootfont {courier{-bold,-oblique,-boldoblique},\n"
@@ -2260,7 +2316,8 @@ usage(const char *arg)			// I - Bad argument string
   puts("  --headingfont {courier,times,helvetica}");
   puts("  --help");
 #ifdef HAVE_LIBFLTK
-  puts("  --helpdir directory");
+  if (!CGIMode)
+    puts("  --helpdir directory");
 #endif // HAVE_LIBFLTK
   for (int i = 0; i < MAX_HF_IMAGES; i ++)
     printf("  --hfimage%d filename.{bmp,gif,jpg,png}\n", i);
@@ -2285,8 +2342,11 @@ usage(const char *arg)			// I - Bad argument string
   puts("  --no-toc");
   puts("  --numbered");
   puts("  --nup {1,2,4,6,9,16}");
-  puts("  {--outdir, -d} dirname");
-  puts("  {--outfile, -f} filename.{ps,pdf,html}");
+  if (!CGIMode)
+  {
+    puts("  {--outdir, -d} dirname");
+    puts("  {--outfile, -f} filename.{ps,pdf,html}");
+  }
   puts("  --pageduration {1.0..60.0}");
   puts("  --pageeffect {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}");
   puts("  --pagelayout {single,one,twoleft,tworight}");
@@ -2294,7 +2354,8 @@ usage(const char *arg)			// I - Bad argument string
   puts("  --path \"dir1;dir2;dir3;...;dirN\"");
   puts("  --permissions {all,annotate,copy,modify,print,no-annotate,no-copy,no-modify,no-print,none}");
   puts("  --portrait");
-  puts("  --proxy http://host:port");
+  if (!CGIMode)
+    puts("  --proxy http://host:port");
   puts("  --pscommands");
   puts("  --quiet");
   puts("  --right margin{in,cm,mm}");
@@ -2339,5 +2400,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.63 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.64 2004/05/08 01:27:32 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.248 2004/05/07 23:01:02 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.249 2004/05/08 01:27:32 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -139,10 +139,6 @@
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
-
-#ifdef MAC		// MacOS-specific header file...
-#  include <Files.h>
-#endif // MAC
 
 #ifdef WIN32
 #  include <io.h>
@@ -2322,33 +2318,19 @@ pdf_write_document(uchar  *author,	// I - Author of document
 
   write_trailer(out, 0);
 
-#ifdef MAC
-  //
-  // On the MacOS, files are not associated with applications by extensions.
-  // Instead, it uses a pair of values called the type & creator.  
-  // This block of code sets the those values for PDF files.
-  //
-
-  FCBPBRec	fcbInfo;	// File control block information
-  Str32		name;		// Name of file
-  FInfo		fInfo;		// File type/creator information
-  FSSpec	fSpec;		// File specification
-
-
-  memset(&fcbInfo, 0, sizeof(FCBPBRec));
-  fcbInfo.ioRefNum  = out->handle;
-  fcbInfo.ioNamePtr = name;
-  if (!PBGetFCBInfoSync(&fcbInfo))
-    if (FSMakeFSSpec(fcbInfo.ioFCBVRefNum, fcbInfo.ioFCBParID, name, &fSpec) == noErr)
-    {
-      FSpGetFInfo(&fSpec, &fInfo);
-      fInfo.fdType    = 'PDF ';
-      fInfo.fdCreator = 'CARO';
-      FSpSetFInfo(&fSpec, &fInfo);
-    }
-#endif // MAC
-
   progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
+
+  if (CGIMode)
+  {
+    // In CGI mode, we only produce PDF output to stdout...
+    printf("Content-Type: application/pdf\r\n"
+	   "Content-Length: %ld\r\n"
+	   "Content-Disposition: inline; filename=\"htmldoc.pdf\"\r\n"
+	   "Cache-Control: no-cache\r\n"
+	   "Accept-Ranges: none\r\n"
+	   "X-Creator: HTMLDOC " SVERSION "\r\n"
+	   "\r\n", ftell(out));
+  }
 
   fclose(out);
 
@@ -12376,5 +12358,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.248 2004/05/07 23:01:02 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.249 2004/05/08 01:27:32 mike Exp $".
  */

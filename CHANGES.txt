@@ -5,6 +5,8 @@ CHANGES IN HTMLDOC v1.8.24
 
     NEW FEATURES
 
+	- HTMLDOC now features a CGI mode which provides PDF
+	  conversion functionality for web servers.
 	- HTMLDOC now generates a document outline for each
 	  input file or URL in webpage mode; the outline shows
 	  the title for the file and links to the first page
