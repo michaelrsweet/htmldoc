@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.30.2.1 2001/02/02 15:10:56 mike Exp $"
+// "$Id: HelpView.cxx,v 1.30.2.2 2001/04/18 23:24:10 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -94,6 +94,14 @@ extern "C"
 }
 #endif // HAVE_LIBJPEG
 
+//
+// Typedef the C API sort function type the only way I know how...
+//
+
+extern "C"
+{
+  typedef int (*compare_func_t)(const void *, const void *);
+}
 
 //
 // GIF definitions...
@@ -109,7 +117,7 @@ typedef unsigned char	gif_cmap_t[256][3];
 // Local globals...
 //
 
-static char	*broken_xpm[] =
+static const char *broken_xpm[] =
 		{
 		  "16 24 4 1",
 		  "@ c #000000",
@@ -1993,7 +2001,7 @@ HelpView::format()
 
   if (ntargets_ > 1)
     qsort(targets_, ntargets_, sizeof(HelpTarget),
-          (int (*)(const void *, const void *))compare_targets);
+          (compare_func_t)compare_targets);
 
   if (size_ < (h() - 8))
     scrollbar_.hide();
@@ -2307,7 +2315,7 @@ HelpView::HelpView(int        xx,	// I - Left position
   image_       = (HelpImage *)0;
 
   if (!broken_image)
-    broken_image = new Fl_Pixmap(broken_xpm);
+    broken_image = new Fl_Pixmap((char **)broken_xpm);
 
   alinks_      = 0;
   nlinks_      = 0;
@@ -2708,7 +2716,7 @@ HelpView::topline(const char *n)	// I - Target name
   key.name[sizeof(key.name) - 1] = '\0';
 
   target = (HelpTarget *)bsearch(&key, targets_, ntargets_, sizeof(HelpTarget),
-                                 (int (*)(const void *, const void *))compare_targets);
+                                 (compare_func_t)compare_targets);
 
   if (target != NULL)
     topline(target->y);
@@ -3120,5 +3128,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.30.2.1 2001/02/02 15:10:56 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.30.2.2 2001/04/18 23:24:10 mike Exp $".
 //

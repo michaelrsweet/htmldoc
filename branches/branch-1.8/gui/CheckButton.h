@@ -1,5 +1,5 @@
 //
-// "$Id: CheckButton.h,v 1.3.2.1 2001/02/02 15:10:55 mike Exp $"
+// "$Id: CheckButton.h,v 1.3.2.2 2001/04/18 23:24:09 mike Exp $"
 //
 //   CheckButton definitions for the Common UNIX Printing System (CUPS).
 //
@@ -48,5 +48,5 @@ public:
 #endif // !_CHECKBUTTON_H_
 
 //
-// End of "$Id: CheckButton.h,v 1.3.2.1 2001/02/02 15:10:55 mike Exp $".
+// End of "$Id: CheckButton.h,v 1.3.2.2 2001/04/18 23:24:09 mike Exp $".
 //
