@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.61 2000/04/19 01:33:50 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.62 2000/04/21 13:08:28 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3060,7 +3060,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   tree_t	*linetype;
   float		linex,
 		linewidth;
-  static float	blue[3] = { 0.0f, 0.0f, 1.0f };
 
 
   if (*page > MAX_PAGES)
@@ -6842,5 +6841,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.61 2000/04/19 01:33:50 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.62 2000/04/21 13:08:28 mike Exp $".
  */
