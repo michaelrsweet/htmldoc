@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.9 2004/03/31 07:01:56 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.10 2004/10/23 18:15:49 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -559,5 +559,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.9 2004/03/31 07:01:56 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.10 2004/10/23 18:15:49 mike Exp $".
 .\"

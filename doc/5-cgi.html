@@ -1,348 +1,495 @@
-<HTML>
-<BODY>
+<html>
+<body>
 
 <!-- FOOTER RIGHT "5-$CHAPTERPAGE" -->
-<DIV ALIGN="justify">
+<div align='justify'>
 
-<H1 ALIGN="RIGHT"><A NAME="CGI">Chapter 5 - Using HTMLDOC on a Web Server</A></H1>
+<h1 align='right'><a name='CGI'>Chapter 5 - Using HTMLDOC on a
+Web Server</a></h1>
 
-<P>This chapter describes how to interface <I>HTMLDOC</I> to your web
-server using CGI scripts and programs.</P>
+<p>This chapter describes how to interface HTMLDOC to your web
+server using CGI and your own server-side scripts and
+programs.</p>
 
-<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
-<TR>
-	<TD><B>Note:</B>
+<h2>The Basics</h2>
 
-	<P>The free version of <I>HTMLDOC</I> for Windows does
-	not support use from a web server.
+<p>HTMLDOC can be used in a variety of ways to generate
+formatted reports on a web server. The most common way is to use
+HTMLDOC as a CGI program with your web server to provide
+PDF-formatted output of a web page. Examples are provided for
+Microsoft IIS and the Apache web servers.</p>
 
-	</TD>
-</TR>
-</TABLE></CENTER>
-
-<H2>The Basics</H2>
-
-<P><I>HTMLDOC</I> can be used in a variety of ways to generate
-formatted reports on a web server. The most common way is to
-combine <I>HTMLDOC</I> with a CGI script or program and send the
-output to the HTTP client.
-
-<P>To make this work the CGI script or program must send the
-appropriate HTTP attributes, the required empty line to signify
-the beginning of the document, and then execute the
-<I>HTMLDOC</I> program to generate the HTML, PostScript, or PDF
-file as needed.
-
-<P>Another way to generate PDF files from your reports is to use
-<I>HTMLDOC</I> as a "portal" application. When used as a portal,
-<I>HTMLDOC</I> automatically retrieves the named document or
-report from your server and passes a PDF version to the web
-browser. See the next sections for more information.</P>
+<p>HTMLDOC can also be called from your own server-side scripts
+and programs. Examples are provided for PHP and Java.</p>
 
 <!-- NEED 3in -->
-<CENTER><TABLE WIDTH="80%" CELLPADDING="5" BORDER="1" BGCOLOR="#cccccc">
-<TR>
-	<TD>
-	<B>WARNING:</B>
+<center><table width='80%' cellpadding='5' border='1' bgcolor='#cccccc'>
+<tr>
+	<td>
 
-	<P>Passing information directly from the web browser to
-	<I>HTMLDOC</I> can potentially expose your system to security
-	risks.  Always be sure to "sanitize" any input from the
+	<b>WARNING:</b>
+
+	<p>Passing information directly from the web browser to
+	HTMLDOC can potentially expose your system to security
+	risks. Always be sure to "sanitize" any input from the
 	web browser so that filenames, URLs, and options passed
-	to <I>HTMLDOC</I> are not acted on by the shell program.</P>
-	</TD>
-</TR>
-</TABLE></CENTER>
+	to HTMLDOC are not acted on by the shell program or
+	other processes.</p>
+
+	</td>
+</tr>
+</table></center>
+
+<h2>Using HTMLDOC as a CGI Program</h2>
+
+<p>HTMLDOC 1.8.24 and higher supports operation as a CGI
+program. You can copy or symlink the <var>htmldoc</var> (all but
+Windows) or <var>htmldoc.exe</var> (Windows) executable to your
+web server's <var>cgi-bin</var> directory and then use it to
+produce PDF versions of your web pages.</p>
+
+<p>The CGI converts a page on your local server to PDF and sends
+it to the client's web browser. For example, to convert a page
+called <var>superproducts.html</var> at the following URL:</p>
+
+<pre>
+    http://servername/superproducts.html
+</pre>
+
+<p>and if you installed HTMLDOC in your server's
+<var>cgi-bin</var> directory, you would direct your clients to
+the following URL:</p>
+
+<pre>
+    http://servername<b>/cgi-bin/htmldoc</b>/superproducts.html
+</pre>
+
+<p>The boldface portion represents the location of the
+HTMLDOC executable on the web server. You simply place
+that path before the page you want to convert.</p>
+
+<p>Form data using the <code>GET</code> method can be passed at
+the end of the URL, for example:</p>
+
+<pre>
+    http://servername/cgi-bin/htmldoc/superproducts.html<b>?name=value</b>
+</pre>
+
+<h3>Server-Side Preferences</h3>
+
+<p>When run as a CGI program, HTMLDOC will try to read a
+book file to set any preferences for the conversion to PDF. For
+the <var>superproducts.html</var> file described previously,
+HTMLDOC will look at the following URLs for a book
+file:</p>
+
+<pre>
+    http://servername/superproducts.html.book
+    http://servername/.book
+    http://servername/cgi-bin/.book
+</pre>
+
+<p>The first book file that is found will be used.</p>
+
+<h3>Configuring HTMLDOC with Apache</h3>
+
+<p>The Apache web server is easily configured to use
+HTMLDOC. The simplest way is to copy or symlink the
+<var>htmldoc</var> executable to the configured
+<var>cgi-bin</var> directory. For example, if your Apache
+installation is configured to look for CGI programs in the
+<var>/var/www/cgi-bin</var> directory, the default for Apache on
+Red Hat Linux, then the command to install HTMLDOC on
+your web server would be:</p>
+
+<pre>
+    <kbd>ln -s /usr/bin/htmldoc /var/www/cgi-bin ENTER</kbd>
+</pre>
+
+<p>Apache also allows you to associate CGI programs with a
+specific extension. If you add the following line to your
+<var>httpd.conf</var> file:</p>
+
+<pre>
+    AddHandler cgi-script .cgi
+</pre>
+
+<p>and enable CGI execution with the <tt>Options</tt> directive
+for a directory:</p>
+
+<pre>
+    Options +ExecCGI
+</pre>
+
+<p>then you can copy or symlink the <var>htmldoc</var>
+executable to an alternate location. For example, if you have a
+web directory called <var>/var/www/htdocs/products</var>, you
+can install HTMLDOC in this directory with the following
+command:</p>
+
+<pre>
+    <kbd>ln -s /usr/bin/htmldoc /var/www/htdocs/products/htmldoc.cgi ENTER</kbd>
+</pre>
+
+<h3>Configuring HTMLDOC with Microsoft IIS</h3>
+
+<p>The IIS web server is configured to run CGI programs by either
+modifying the permissions of an existing directory or by creating
+a new virtual directory that allows for execution of programs.</p>
+
+<ol>
+
+	<li>Click on Start
+	<li>Click on Settings
+	<li>Click on Control Panel
+	<li>Double-Click on Administrative Tools
+	<li>Double-Click on Internet Services Manager
+
+</ol>
+
+<p align='center'><img src='htmldoc-fig51.png' alt=''><br />
+<i>Figure 5-1: </i></p>
+
+<p align='center'><img src='htmldoc-fig52.png' alt=''><br />
+<i>Figure 5-2: </i></p>
+
+<p align='center'><img src='htmldoc-fig53.png' alt=''><br />
+<i>Figure 5-3: </i></p>
+
+<p align='center'><img src='htmldoc-fig54.png' alt=''><br />
+<i>Figure 5-4: </i></p>
+
+<p align='center'><img src='htmldoc-fig55.png' alt=''><br />
+<i>Figure 5-5: </i></p>
+
+<p align='center'><img src='htmldoc-fig56.png' alt=''><br />
+<i>Figure 5-6: </i></p>
+
+<p align='center'><img src='htmldoc-fig57.png' alt=''><br />
+<i>Figure 5-7: </i></p>
+
+<p align='center'><img src='htmldoc-fig58.png' alt=''><br />
+<i>Figure 5-8: </i></p>
+
+
+<p>Step-by-step for IIS setup here.</p>
+
+<p>Once configured, copy the <var>htmldoc.exe</var> program to
+the web server directory. For example, for a virtual directory
+called <var>cgi-bin</var>, the PDF converted URL would be as
+follows:</p>
+
+<pre>
+    http://servername<b>/cgi-bin/htmldoc.exe</b>/superproducts.html
+</pre>
+
+<p>The boldface portion represents the location of the
+HTMLDOC program on the web server.</p>
+
+
+<h2>Using HTMLDOC From Server-Side Scripts and Programs</h2>
+
+<p>To make this work the CGI script or program must send the
+appropriate HTTP attributes, the required empty line to signify
+the beginning of the document, and then execute the
+HTMLDOC program to generate the HTML, PostScript, or PDF
+file as needed.</p>
+
+<p>Another way to generate PDF files from your reports is to use
+HTMLDOC as a "portal" application. When used as a portal,
+HTMLDOC automatically retrieves the named document or
+report from your server and passes a PDF version to the web
+browser. See the next sections for more information.</p>
 
 <!-- NEED 6in -->
-<H2>Calling HTMLDOC from a Shell Script</H2>
+<h3>Calling HTMLDOC from a Shell Script</h3>
 
-<P>Shell scripts are probably the easiest to work with, but are normally
+<p>Shell scripts are probably the easiest to work with, but are normally
 limited to GET type requests. Here is a script called
-<VAR>topdf</VAR> that acts as a portal, converting the named file to PDF:
+<var>topdf</var> that acts as a portal, converting the named file to PDF:</p>
 
-<UL><PRE>
-#!/bin/sh
-#
-# Sample "portal" script to convert the named HTML file to PDF on-the-fly.
-#
-# Usage: http://www.domain.com/path/topdf/path/filename.html
-#
+<pre>
+    #!/bin/sh
+    #
+    # Sample "portal" script to convert the named HTML file to PDF on-the-fly.
+    #
+    # Usage: http://www.domain.com/path/topdf/path/filename.html
+    #
 
-#
-# The "options" variable contains any options you want to pass to HTMLDOC.
-#
+    #
+    # The "options" variable contains any options you want to pass to HTMLDOC.
+    #
 
-options="-t pdf --webpage --header ... --footer ..."
+    options='-t pdf --webpage --header ... --footer ..."
 
-#
-# Tell the browser to expect a PDF file...
-#
+    #
+    # Tell the browser to expect a PDF file...
+    #
 
-echo "Content-Type: application/pdf"
-echo ""
+    echo "Content-Type: application/pdf"
+    echo ""
 
-#
-# Run HTMLDOC to generate the PDF file...
-#
+    #
+    # Run HTMLDOC to generate the PDF file...
+    #
 
-htmldoc $options http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO
-</PRE></UL>
+    htmldoc $options http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO
+</pre>
 
-<P>Users of this CGI would reference the URL
+<p>Users of this CGI would reference the URL
 "http://www.domain.com/topdf.cgi/index.html" to generate a PDF
-file of the site's home page.
+file of the site's home page.</p>
 
-<P>The <VAR>options</VAR> variable in the script can be set to use any
-supported command-line option for <I>HTMLDOC</I>; for a complete list see
-<A HREF="#CMDREF">Chapter 8 - Command-Line Reference</A>.
+<p>The <var>options</var> variable in the script can be set to use any
+supported command-line option for HTMLDOC; for a complete list see
+<a href='#CMDREF'>Chapter 8 - Command-Line Reference</a>.</p>
 
 <!-- NEED 5in -->
-<H2>Calling HTMLDOC from Perl</H2>
+<h3>Calling HTMLDOC from Perl</h3>
 
-<P>Perl scripts offer the ability to generate more complex reports, pull
+<p>Perl scripts offer the ability to generate more complex reports, pull
 data from databases, etc. The easiest way to interface Perl scripts
-with <I>HTMLDOC</I> is to write a report to a temporary file and then
-execute <I>HTMLDOC</I> to generate the PDF file.
+with HTMLDOC is to write a report to a temporary file and then
+execute HTMLDOC to generate the PDF file.</p>
 
-<P>Here is a simple Perl subroutine that can be used to write a PDF report
-to the HTTP client:
+<p>Here is a simple Perl subroutine that can be used to write a PDF report
+to the HTTP client:</p>
 
-<UL><PRE>
-sub topdf(filename);
+<pre>
+    sub topdf {
+	# Get the filename argument...
+	my $filename = shift;
 
-sub topdf {
-    # Get the filename argument...
-    my $filename = shift;
+	# Make stdout unbuffered...
+	select(STDOUT); $| = 1;
 
-    # Make stdout unbuffered...
-    select(STDOUT); $| = 1;
+	# Write the content type to the client...
+	print "Content-Type: application/pdf\n\n";
 
-    # Write the content type to the client...
-    print "Content-Type: application/pdf\n\n";
+	# Run HTMLDOC to provide the PDF file to the user...
+	system "htmldoc -t pdf --quiet --webpage $filename";
+    }
+</pre>
 
-    # Run HTMLDOC to provide the PDF file to the user...
-    system "htmldoc -t pdf --quiet --webpage $filename";
-}
-</PRE></UL>
+<h3>Calling HTMLDOC from PHP</h3>
 
-<H2>Calling HTMLDOC from PHP</H2>
-
-<P>PHP is quickly becoming the most popular server-side
+<p>PHP is quickly becoming the most popular server-side
 scripting language available. PHP provides a
-<CODE>passthru()</CODE> function that can be used to run
-<I>HTMLDOC</I>. This combined with the <CODE>header()</CODE>
+<code>passthru()</code> function that can be used to run
+HTMLDOC. This combined with the <code>header()</code>
 function can be used to provide on-the-fly reports in PDF
-format.
+format.</p>
 
-<P>Here is a simple PHP function that can be used to convert a HTML report
-to PDF and send it to the HTTP client:
+<p>Here is a simple PHP function that can be used to convert a HTML report
+to PDF and send it to the HTTP client:</p>
 
-<UL><PRE>
-function topdf($filename, $options = "") {
-    # Write the content type to the client...
-    header("Content-Type: application/pdf");
-    flush();
+<pre>
+    function topdf($filename, $options = "") {
+	# Write the content type to the client...
+	header("Content-Type: application/pdf");
+	flush();
 
-    # Run HTMLDOC to provide the PDF file to the user...
-    passthru("htmldoc -t pdf --quiet --jpeg --webpage $options '$filename'");
-}
-</PRE></UL>
+	# Run HTMLDOC to provide the PDF file to the user...
+	passthru("htmldoc -t pdf --quiet --jpeg --webpage $options '$filename'");
+    }
+</pre>
 
-<P>The function accepts a filename and an optional "options"
-string for specifying the header, footer, fonts, etc.</P>
+<p>The function accepts a filename and an optional "options"
+string for specifying the header, footer, fonts, etc.</p>
 
-<P>To prevent malicious users from passing in unauthorized
+<p>To prevent malicious users from passing in unauthorized
 characters into this function, the following function can be
 used to verify that the URL/filename does not contain any
-characters that might be interpreted by the shell:</P>
+characters that might be interpreted by the shell:</p>
 
 <!-- NEED 5in -->
-<UL><PRE>
-function bad_url($url) {
-    // See if the URL starts with http: or https:...
-    if (strncmp($url, "http://", 7) != 0 &amp;&amp;
-	strncmp($url, "https://", 8) != 0) {
-        return 1;
-    }
-
-    // Check for bad characters in the URL...
-    $len = strlen($url);
-    for ($i = 0; $i &lt; $len; $i ++) {
-        if (!strchr("~_*()/:%?+-&amp;@;=,$.", $url[$i]) &amp;&amp;
-	    !ctype_alnum($url[$i])) {
-	    return 1;
+<pre>
+    function bad_url($url) {
+	// See if the URL starts with http: or https:...
+	if (strncmp($url, "http://", 7) != 0 &amp;&amp;
+	    strncmp($url, "https://", 8) != 0) {
+            return 1;
 	}
+
+	// Check for bad characters in the URL...
+	$len = strlen($url);
+	for ($i = 0; $i &lt; $len; $i ++) {
+            if (!strchr("~_*()/:%?+-&amp;@;=,$.", $url[$i]) &amp;&amp;
+		!ctype_alnum($url[$i])) {
+		return 1;
+	    }
+	}
+
+	return 0;
+    }
+</pre>
+
+<p>Another method is to use the <code>escapeshellarg()</code>
+function provided with PHP 4.0.3 and higher to generate a quoted
+shell argument for HTMLDOC.</p>
+
+<p>To make a "portal" script, add the following code to complete the
+example:</p>
+
+<pre>
+    global $SERVER_NAME;
+    global $SERVER_PORT;
+    global $PATH_INFO;
+    global $QUERY_STRING;
+
+    if ($QUERY_STRING != "") {
+	$url = "http://${SERVER_NAME}:${SERVER_PORT}${PATH_INFO}?${QUERY_STRING}";
+    } else {
+	$url = "http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO";
     }
 
-    return 0;
-}
-</PRE></UL>
-
-<P>Another method is to use the <CODE>escapeshellarg()</CODE> function
-provided with PHP 4.0.3 and higher to generate a quoted shell argument
-for <I>HTMLDOC</I>.</P>
-
-<P>To make a "portal" script, add the following code to complete the
-example:</P>
-
-<UL><PRE>
-global $SERVER_NAME;
-global $SERVER_PORT;
-global $PATH_INFO;
-global $QUERY_STRING;
-
-if ($QUERY_STRING != "") {
-    $url = "http://${SERVER_NAME}:${SERVER_PORT}${PATH_INFO}?${QUERY_STRING}";
-} else {
-    $url = "http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO";
-}
-
-if (bad_url($url)) {
-  print("&lt;HTML>&lt;HEAD>&lt;TITLE>Bad URL&lt;/TITLE>&lt;/HEAD>\n"
-       ."&lt;BODY>&lt;H1>Bad URL&lt;/H1>\n",
-       ."&lt;P>The URL &lt;B>&lt;TT>$url&lt;/TT>&lt;/B> is bad.&lt;/P>\n"
-       ."&lt;/BODY>&lt;/HTML>\n");
-} else {
-  topdf($url);
-}
-</PRE></UL>
+    if (bad_url($url)) {
+      print("&lt;html>&lt;head>&lt;title>Bad URL&lt;/title>&lt;/head>\n"
+	   ."&lt;body>&lt;h1>Bad URL&lt;/h1>\n",
+	   ."&lt;p>The URL &lt;b>&lt;tt>$url&lt;/tt>&lt;/b> is bad.&lt;/p>\n"
+	   ."&lt;/body>&lt;/html>\n");
+    } else {
+      topdf($url);
+    }
+</pre>
 
 <!-- NEED 5in -->
-<H2>Calling HTMLDOC from C</H2>
+<h3>Calling HTMLDOC from C</h3>
 
-<P>C programs offer the best flexibility and easily supports on-the-fly
-report generation without the need for temporary files.
+<p>C programs offer the best flexibility and easily supports
+on-the-fly report generation without the need for temporary
+files.</p>
 
-<P>Here are some simple C functions that can be used to generate a PDF
-report to the HTTP client from a temporary file or pipe:
+<p>Here are some simple C functions that can be used to generate
+a PDF report to the HTTP client from a temporary file or
+pipe:</p>
 
-<UL><PRE>
-#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-
-
-/* topdf() - convert a HTML file to PDF */
-FILE *topdf(const char *filename)	/* HTML file to convert */
-{
-  char	command[1024];			/* Command to execute */
+<pre>
+    #include &lt;stdio.h&gt;
+    #include &lt;stdlib.h&gt;
 
 
-  puts("Content-Type: application/pdf\n");
-
-  sprintf(command, "htmldoc -t pdf --webpage %s", filename);
-
-  return (popen(command, "w"));
-}
+    /* topdf() - convert a HTML file to PDF */
+    FILE *topdf(const char *filename)	/* HTML file to convert */
+    {
+      char	command[1024];			/* Command to execute */
 
 
-/* topdf2() - pipe HTML output to HTMLDOC for conversion to PDF */
-FILE *topdf2(void)
-{
-  puts("Content-Type: application/pdf\n");
-  return (popen("htmldoc -t pdf --webpage -", "w"));
-}
-</PRE></UL>
+      puts("Content-Type: application/pdf\n");
+
+      sprintf(command, "htmldoc -t pdf --webpage %s", filename);
+
+      return (popen(command, "w"));
+    }
+
+
+    /* topdf2() - pipe HTML output to HTMLDOC for conversion to PDF */
+    FILE *topdf2(void)
+    {
+      puts("Content-Type: application/pdf\n");
+      return (popen("htmldoc -t pdf --webpage -", "w"));
+    }
+</pre>
 
 <!-- NEED 5in -->
-<H2>Calling HTMLDOC from Java</H2>
+<h3>Calling HTMLDOC from Java</h3>
 
-<P>Java programs are a portable way to add PDF support to your web
-server. Here is a class called <VAR>htmldoc</VAR> that acts as a
+<p>Java programs are a portable way to add PDF support to your web
+server. Here is a class called <var>htmldoc</var> that acts as a
 portal, converting the named file to PDF. It can also be called
 by your Java servlets to process an HTML file and send the
-result to the client in PDF format:
+result to the client in PDF format:</p>
 
-<UL><PRE>
-class htmldoc
-{
-  // Convert named file to PDF on stdout...
-  public static int topdf(String filename)// I - Name of file to convert
-  {
-    String		command;	// Command string
-    Process		process;	// Process for HTMLDOC
-    Runtime		runtime;	// Local runtime object
-    java.io.InputStream	input;		// Output from HTMLDOC
-    byte		buffer [];	// Buffer for output data
-    int			bytes;		// Number of bytes
-
-
-    // First tell the client that we will be sending PDF...
-    System.out.print("Content-type: application/pdf\n\n");
-
-    // Construct the command string
-    command = "htmldoc --quiet --jpeg --webpage -t pdf --left 36 " +
-              "--header .t. --footer .1. " + filename;
-
-    // Run the process and wait for it to complete...
-    runtime = Runtime.getRuntime();
-
-    try
+<pre>
+    class htmldoc
     {
-      // Create a new HTMLDOC process...
-      process = runtime.exec(command);
-
-      // Get stdout from the process and a buffer for the data...
-      input  = process.getInputStream();
-      buffer = new byte[8192];
-
-      // Read output from HTMLDOC until we have it all...
-      while ((bytes = input.read(buffer)) > 0)
-        System.out.write(buffer, 0, bytes);
-
-      // Return the exit status from HTMLDOC...
-      return (process.waitFor());
-    }
-    catch (Exception e)
-    {
-      // An error occurred - send it to stderr for the web server...
-      System.err.print(e.toString() + " caught while running:\n\n");
-      System.err.print("    " + command + "\n");
-      return (1);
-    }
-  }
-
-  // Main entry for htmldoc class
-  public static void main(String[] args)// I - Command-line args
-  {
-    String	server_name,		// SERVER_NAME env var
-		server_port,		// SERVER_PORT env var
-		path_info,		// PATH_INFO env var
-		query_string,		// QUERY_STRING env var
-		filename;		// File to convert
-
-
-    if ((server_name = System.getProperty("SERVER_NAME")) != null &amp;&amp;
-        (server_port = System.getProperty("SERVER_PORT")) != null &amp;&amp;
-	(path_info = System.getProperty("PATH_INFO")) != null)
-    {
-      // Construct a URL for the resource specified...
-      filename = "http://" + server_name + ":" + server_port + path_info;
-
-      if ((query_string = System.getProperty("QUERY_STRING")) != null)
+      // Convert named file to PDF on stdout...
+      public static int topdf(String filename)// I - Name of file to convert
       {
-        filename = filename + "?" + query_string;
+        String              command;          // Command string
+        Process             process;          // Process for HTMLDOC
+        Runtime             runtime;          // Local runtime object
+        java.io.InputStream input;            // Output from HTMLDOC
+        byte                buffer [];        // Buffer for output data
+        int                 bytes;            // Number of bytes
+
+
+        // First tell the client that we will be sending PDF...
+        System.out.print("Content-type: application/pdf\n\n");
+
+        // Construct the command string
+        command = "htmldoc --quiet --jpeg --webpage -t pdf --left 36 " +
+                  "--header .t. --footer .1. " + filename;
+
+        // Run the process and wait for it to complete...
+        runtime = Runtime.getRuntime();
+
+        try
+        {
+          // Create a new HTMLDOC process...
+          process = runtime.exec(command);
+
+          // Get stdout from the process and a buffer for the data...
+          input  = process.getInputStream();
+          buffer = new byte[8192];
+
+          // Read output from HTMLDOC until we have it all...
+          while ((bytes = input.read(buffer)) > 0)
+            System.out.write(buffer, 0, bytes);
+
+          // Return the exit status from HTMLDOC...
+          return (process.waitFor());
+        }
+        catch (Exception e)
+        {
+          // An error occurred - send it to stderr for the web server...
+          System.err.print(e.toString() + " caught while running:\n\n");
+          System.err.print("    " + command + "\n");
+          return (1);
+        }
+      }
+
+      // Main entry for htmldoc class
+      public static void main(String[] args)// I - Command-line args
+      {
+        String server_name,                 // SERVER_NAME env var
+               server_port,                 // SERVER_PORT env var
+               path_info,                   // PATH_INFO env var
+               query_string,                // QUERY_STRING env var
+               filename;                    // File to convert
+
+
+        if ((server_name = System.getProperty("SERVER_NAME")) != null &amp;&amp;
+            (server_port = System.getProperty("SERVER_PORT")) != null &amp;&amp;
+            (path_info = System.getProperty("PATH_INFO")) != null)
+        {
+          // Construct a URL for the resource specified...
+          filename = "http://" + server_name + ":" + server_port + path_info;
+
+          if ((query_string = System.getProperty("QUERY_STRING")) != null)
+          {
+            filename = filename + "?" + query_string;
+          }
+        }
+        else if (args.length == 1)
+        {
+          // Pull the filename from the command-line...
+          filename = args[0];
+        }
+        else
+        {
+          // Error - no args or env variables!
+          System.err.print("Usage: htmldoc.class filename\n");
+          return;
+        }
+
+        // Convert the file to PDF and send to the web client...
+        topdf(filename);
       }
     }
-    else if (args.length == 1)
-    {
-      // Pull the filename from the command-line...
-      filename = args[0];
-    }
-    else
-    {
-      // Error - no args or env variables!
-      System.err.print("Usage: htmldoc.class filename\n");
-      return;
-    }
+</pre>
 
-    // Convert the file to PDF and send to the web client...
-    topdf(filename);
-  }
-}
-</PRE></UL>
+</div>
 
-</DIV>
-
-</BODY>
-</HTML>
+</body>
+</html>
