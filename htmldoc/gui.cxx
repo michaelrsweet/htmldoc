@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.2 2000/12/01 21:46:43 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.3 2000/12/08 15:55:09 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -2383,8 +2383,7 @@ GUI::moveUpFilesCB(Fl_Widget *w,	// I - Widget
     if (gui->inputFiles->selected(i))
       break;
 
-  if (!gui->inputFiles->visible(i))
-    gui->inputFiles->topline(i);
+  gui->inputFiles->make_visible(i);
 
   if (gui->inputFiles->selected(1))
     gui->moveUpFile->deactivate();
@@ -2426,8 +2425,7 @@ GUI::moveDownFilesCB(Fl_Widget *w,	// I - Widget
     if (gui->inputFiles->selected(i))
       break;
 
-  if (!gui->inputFiles->visible(i))
-    gui->inputFiles->bottomline(i);
+  gui->inputFiles->make_visible(i);
 
   if (!gui->inputFiles->selected(1))
     gui->moveUpFile->activate();
@@ -3600,5 +3598,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.2 2000/12/01 21:46:43 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.3 2000/12/08 15:55:09 mike Exp $".
 //

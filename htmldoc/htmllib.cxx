@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.3 2000/12/06 13:55:39 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.4 2000/12/08 15:55:10 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -32,13 +32,19 @@
  *   htmlNewTree()       - Create a new tree node for the parent.
  *   get_text()          - Get all text from the given tree.
  *   htmlGetText()       - Get all text from the given tree.
+ *   htmlGetMeta()       - Get document "meta" data...
  *   htmlGetVariable()   - Get a variable value from a markup entry.
  *   htmlSetVariable()   - Set a variable for a markup entry.
  *   htmlSetBaseSize()   - Set the font sizes and spacings...
+ *   htmlSetCharSet()    - Set the character set for output.
+ *   htmlSetTextColor()  - Set the default text color.
  *   compare_variables() - Compare two markup variables.
  *   compare_markups()   - Compare two markup strings...
  *   parse_markup()      - Parse a markup string.
  *   parse_variable()    - Parse a markup variable string.
+ *   compute_size()      - Compute the width and height of a tree entry.
+ *   compute_color()     - Compute the red, green, blue color from the given
+ *   get_alignment()     - Get horizontal & vertical alignment values.
  *   fix_filename()      - Fix a filename to be relative to the base directory.
  */
 
@@ -48,7 +54,6 @@
 
 #include "htmldoc.h"
 #include <ctype.h>
-
 
 
 /*
@@ -1629,9 +1634,6 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
   int		chars[256];	/* Character encoding array */
 
 
-  if (strcmp(cs, _htmlCharSet) == 0)
-    return;
-
   strcpy(_htmlCharSet, cs);
 
   if (!_htmlInitialized)
@@ -2328,5 +2330,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.3 2000/12/06 13:55:39 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.4 2000/12/08 15:55:10 mike Exp $".
  */
