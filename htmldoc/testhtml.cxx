@@ -1,10 +1,10 @@
 /*
- * "$Id: testhtml.cxx,v 1.3.2.4 2003/01/06 22:09:44 mike Exp $"
+ * "$Id: testhtml.cxx,v 1.3.2.5 2004/02/06 03:51:09 mike Exp $"
  *
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
  *
- *   Copyright 1997-2003 by Michael Sweet.
+ *   Copyright 1997-2004 by Michael Sweet.
  *
  *   HTMLDOC is distributed under the terms of the Aladdin Free Public License
  *   which is described in the file "LICENSE.txt".
@@ -161,5 +161,5 @@ main(int  argc,			/* I - Number of command-line arguments */
 
 
 /*
- * End of "$Id: testhtml.cxx,v 1.3.2.4 2003/01/06 22:09:44 mike Exp $".
+ * End of "$Id: testhtml.cxx,v 1.3.2.5 2004/02/06 03:51:09 mike Exp $".
  */

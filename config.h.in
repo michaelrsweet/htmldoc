@@ -1,9 +1,9 @@
 /*
- * "$Id: config.h.in,v 1.19.2.33 2004/01/13 02:51:27 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.34 2004/02/06 03:51:08 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2003 by Easy Software Products.
+ *   Copyright 1997-2004 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -127,6 +127,6 @@
 
 
 /*
- * End of "$Id: config.h.in,v 1.19.2.33 2004/01/13 02:51:27 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.34 2004/02/06 03:51:08 mike Exp $".
  */
 

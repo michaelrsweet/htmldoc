@@ -1,39 +1,40 @@
-COMPILE.txt - 01/06/2003
+COMPILE.txt - 02/05/2004
 ------------------------
 
 REQUIREMENTS
 
-    To compile HTMLDOC you'll need ANSI-compliant C and C++ compilers
-    (gcc is fine, most vendor compilers work, too).  The JPEG, PNG, and
-    ZLIB libraries are provided with HTMLDOC.
+    To compile HTMLDOC you'll need ANSI-compliant C and C++
+    compilers (gcc is fine, most vendor compilers work, too). 
+    The JPEG, PNG, and ZLIB libraries are provided with HTMLDOC.
 
-    For the GUI support you'll need FLTK 1.0 or higher.  FLTK is a
-    LGPL'd cross-platform GUI toolkit and can be downloaded from:
+    For the GUI support you'll need FLTK 1.1 or higher.  FLTK is
+    a LGPL'd cross-platform GUI toolkit and can be downloaded
+    from:
 
-        http://www.fltk.org
-
-    FLTK 1.1.x is highly recommended.
+        http://www.fltk.org/
 
 
 COMPILING HTMLDOC UNDER WINDOWS
 
-    For the Windows version we have included Visual C++ workspace and
-    project files under the "visualc" directory.  You will probably
-    have to adjust the locations of the FLTK project file and include
-    directory for your system.  Dependencies are setup so you can just
-    build the HTMLDOC target and all of the support libraries will be
-    compiled as needed.
+    For the Windows version we have included Visual C++
+    workspace and project files under the "visualc" directory. 
+    You will probably have to adjust the locations of the FLTK
+    project file and include directory for your system. 
+    Dependencies are setup so you can just build the HTMLDOC
+    target and all of the support libraries will be compiled as
+    needed.
 
 
 INSTALLING HTMLDOC UNDER WINDOWS
 
-    We highly recommend installing the software using InstallShield.
-    Project files for InstallShield are included in the
-    "visualc/HTMLDOC" subdirectory.
+    We highly recommend installing the software using
+    InstallShield. Project files for InstallShield are included
+    in the "visualc/HTMLDOC" subdirectory.
 
-    If you want to install the software by hand, create a directory
-    for the software and copy the HTMLDOC executable, the "afm"
-    directory, the "data" directory, and the "doc" directory to it.
+    If you want to install the software by hand, create a
+    directory for the software and copy the HTMLDOC executable,
+    the "afm" directory, the "data" directory, and the "doc"
+    directory to it.
 
     Then create the following registry entries with REGEDIT:
 

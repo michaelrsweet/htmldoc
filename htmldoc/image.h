@@ -1,10 +1,10 @@
 /*
- * "$Id: image.h,v 1.5.2.8 2003/01/06 22:09:33 mike Exp $"
+ * "$Id: image.h,v 1.5.2.9 2004/02/06 03:51:09 mike Exp $"
  *
  *   Image management definitions for HTMLDOC, a HTML document processing
  *   program.
  *
- *   Copyright 1997-2003 by Easy Software Products.
+ *   Copyright 1997-2004 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -78,5 +78,5 @@ extern void	image_unload(image_t *img);
 #endif /* !_IMAGE_H_ */
 
 /*
- * End of "$Id: image.h,v 1.5.2.8 2003/01/06 22:09:33 mike Exp $".
+ * End of "$Id: image.h,v 1.5.2.9 2004/02/06 03:51:09 mike Exp $".
  */

@@ -1,9 +1,9 @@
 //
-// "$Id: gui.cxx,v 1.36.2.62 2003/01/07 03:23:06 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.63 2004/02/06 03:51:08 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
-//   Copyright 1997-2003 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1031,7 +1031,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   //
 
   label = new Fl_Box(10, 300, 485, 50,
-          "HTMLDOC " SVERSION " Copyright 1997-2003 by Easy Software Products "
+          "HTMLDOC " SVERSION " Copyright 1997-2004 by Easy Software Products "
 	  "(http://www.easysw.com). This program is free software; you can "
 	  "redistribute it and/or modify it under the terms of the GNU General "
 	  "Public License as published by the Free Software Foundation. This "
@@ -4097,5 +4097,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.62 2003/01/07 03:23:06 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.63 2004/02/06 03:51:08 mike Exp $".
 //

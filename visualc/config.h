@@ -1,9 +1,9 @@
 /*
- * "$Id: config.h,v 1.20.2.31 2003/01/06 22:09:45 mike Exp $"
+ * "$Id: config.h,v 1.20.2.32 2004/02/06 03:51:09 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2003 by Easy Software Products.
+ *   Copyright 1997-2004 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -74,19 +74,13 @@
 
 
 /*
- * Do we have the OpenSSL library?
+ * Which encryption libraries do we have?
  */
 
+#undef HAVE_CDSASSL
+#undef HAVE_GNUTLS
 #define HAVE_LIBSSL
-
-
-/*
- * Do we have the image libraries?
- */
-
-#define HAVE_LIBJPEG
-#define HAVE_LIBPNG
-#define HAVE_LIBZ
+#define HAVE_SSL
 
 
 /*
@@ -128,6 +122,13 @@
 
 
 /*
- * End of "$Id: config.h,v 1.20.2.31 2003/01/06 22:09:45 mike Exp $".
+ * Do we have hstrerror()?
+ */
+
+#undef HAVE_HSTRERROR
+
+
+/*
+ * End of "$Id: config.h,v 1.20.2.32 2004/02/06 03:51:09 mike Exp $".
  */
 

@@ -1,9 +1,9 @@
 /*
- * "$Id: util.cxx,v 1.1.2.16 2003/08/11 18:57:36 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.17 2004/02/06 03:51:09 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2003 by Easy Software Products.
+ *   Copyright 1997-2004 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -514,5 +514,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.16 2003/08/11 18:57:36 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.17 2004/02/06 03:51:09 mike Exp $".
  */
