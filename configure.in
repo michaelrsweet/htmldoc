@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.8 1999/11/22 18:07:38 mike Exp $"
+dnl "$Id: configure.in,v 1.9 1999/11/23 13:38:49 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -47,7 +47,7 @@ fi
 AC_SUBST(ARFLAGS)
 
 dnl Check for libraries...
-LDFLAGS="$CXXFLAGS"
+LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
 AC_PATH_X
@@ -136,5 +136,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.8 1999/11/22 18:07:38 mike Exp $".
+dnl End of "$Id: configure.in,v 1.9 1999/11/23 13:38:49 mike Exp $".
 dnl

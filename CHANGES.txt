@@ -1,10 +1,7 @@
-CHANGES.txt - 11/18/1999
+CHANGES.txt - 11/23/1999
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.1
-
-    NEW FEATURES
-
 
     CHANGES
 
@@ -29,9 +26,18 @@ CHANGES IN HTMLDOC v1.8.1
 	  width.
 	- Cells using COLSPAN > 1 didn't contribute to the width
 	  of columns.
+	- The table code didn't enforce the per-column minimums
+	  under certain circumstances, causing "scrambled"
+	  columns.
 	- The configure script and makefiles didn't work when
 	  FLTK was not available.  They now only build the "gui"
 	  library when it is available.
+	- The Windows distribution was installing files under
+	  PROGRAMDIR instead of TARGETDIR.  This prevented users
+	  from customizing the installation directory.
+	- The configure script overrode the LDFLAGS environment
+	  variable, preventing FLTK from being located in a non-
+	  default directory.
 
 
 CHANGES IN HTMLDOC v1.8
