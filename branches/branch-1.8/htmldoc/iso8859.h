@@ -1,9 +1,9 @@
 /*
- * "$Id: iso8859.h,v 1.3.2.3 2003/01/06 22:09:33 mike Exp $"
+ * "$Id: iso8859.h,v 1.3.2.4 2004/02/06 03:51:09 mike Exp $"
  *
  *   ISO-8859-1 definitions for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2003 by Easy Software Products.
+ *   Copyright 1997-2004 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -42,5 +42,5 @@ extern uchar	*iso8859(uchar value);
 #endif /* !_ISO8859_H_ */
 
 /*
- * End of "$Id: iso8859.h,v 1.3.2.3 2003/01/06 22:09:33 mike Exp $".
+ * End of "$Id: iso8859.h,v 1.3.2.4 2004/02/06 03:51:09 mike Exp $".
  */

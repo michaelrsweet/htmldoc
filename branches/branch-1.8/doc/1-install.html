@@ -31,11 +31,11 @@ following environments:
 
 	<LI>IRIX 5.3 or higher
 
-	<LI>Linux 2.0 or higher
+	<LI>Linux 2.2 or higher
 
 	<LI>MacOS X 10.2 or higher
 
-	<LI>Microsoft Windows 95/98/Me/NT 4.0/2000/XP
+	<LI>Microsoft Windows 95 or higher
 
 	<LI>Solaris 2.5 or higher
 
@@ -50,7 +50,7 @@ platforms other than those listed previously.
 Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
 
 <UL><PRE>
-% <KBD>dselect install htmldoc-<I>version</I>-linux-2.0-intel.deb ENTER</KBD>
+% <KBD>dselect install htmldoc-<I>version</I>-linux-2.2-intel.deb ENTER</KBD>
 </PRE></UL>
 
 <H3>Uninstalling HTMLDOC under Debian GNU/Linux</H3>
@@ -66,7 +66,7 @@ Run the following command to remove <I>HTMLDOC</I> under Debian GNU/Linux:
 Run the following command to install <I>HTMLDOC</I> under Red Hat Linux:
 
 <UL><PRE>
-% <KBD>rpm -i htmldoc-<I>version</I>-linux-2.0-intel.rpm ENTER</KBD>
+% <KBD>rpm -i htmldoc-<I>version</I>-linux-2.2-intel.rpm ENTER</KBD>
 </PRE></UL>
 
 <H3>Uninstalling HTMLDOC under Red Hat Linux</H3>
@@ -127,16 +127,16 @@ work fine. To build the GUI you'll also need:
 <UL>
 
 	<LI><A HREF="http://www.fltk.org">Fast Light Tool Kit ("FLTK")</A>,
-	version 1.0 or newer (version 1.1.x preferred).
+	version 1.1 or higher.
 
 	<LI><A HREF="ftp://ftp.x.org">X11 libraries</A>, R5 or higher (needed
 	to build under UNIX and OS/2 only.)
 
 </UL>
 
-<P>Secure (https) URL support can be enabled via the
-<A HREF="http://www.openssl.org">OpenSSL</A> library. You should use at
-least version 0.9.6.
+<P>Secure (https) URL support can be enabled via the <A
+HREF="http://www.openssl.org/">OpenSSL</A> library. You should
+use at least version 0.9.6l.
 
 <H3>Configuring the UNIX Source</H3>
 
@@ -235,20 +235,32 @@ then you'll need to be logged in as root.
 
 <H3>Compiling with Visual C++</H3>
 
-A Visual C++ 6.0 workspace file and associated project files are
+<P>A Visual C++ 6.0 workspace file and associated project files are
 included in the source distribution under the "visualc" directory. Open
 the workspace file "htmldoc.dsw", adjust the FLTK include and project
 file locations, and then build the <I>HTMLDOC</I> target.
 
+<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLPADDING="0" BGCOLOR="#cccccc">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>You also need to download the OpenSSL and FLTK
+	libraries in order to compile HTMLDOC with Visual
+	C++.</P>
+
+	</TD>
+</TR>
+</TABLE></CENTER>
+
 <H3>Installing with Visual C++</H3>
 
 The Windows installation package is created using InstallShield for Visual C++
-6. The "visualc/HTMLDOC" directory contains the installation information
+6. The "visualc/HTMLDOC" dijrectory contains the installation information
 for <I>HTMLDOC</I> needed to build a binary distribution with InstallShield.
 
 <P>To install <I>HTMLDOC</I> without InstallShield, create an
 installation directory and copy the <VAR>htmldoc.exe</VAR> executable,
-the <VAR>afm</VAR> directory, the <VAR>data</VAR> directory, and the
+the <VAR>afm</VAR> directoryj, the <VAR>data</VAR> directory, and the
 <VAR>doc</VAR> directory to it.
 
 <P>Then use the <VAR>regedit</VAR> program to create the following two string

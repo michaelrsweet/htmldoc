@@ -1,9 +1,9 @@
 /*
- * "$Id: image.cxx,v 1.11.2.30 2003/03/11 15:23:28 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.31 2004/02/06 03:51:09 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2003 by Easy Software Products.
+ *   Copyright 1997-2004 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -1839,5 +1839,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.30 2003/03/11 15:23:28 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.31 2004/02/06 03:51:09 mike Exp $".
  */
