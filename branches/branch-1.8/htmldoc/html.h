@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.9.2.1 2001/02/02 15:10:58 mike Exp $"
+ * "$Id: html.h,v 1.9.2.2 2001/02/20 02:15:56 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -156,7 +156,8 @@ typedef enum
 {
 	ALIGN_LEFT = 0,
 	ALIGN_CENTER,
-	ALIGN_RIGHT
+	ALIGN_RIGHT,
+	ALIGN_JUSTIFY
 } halignment_t;
 
 /*
@@ -305,5 +306,5 @@ extern void	htmlSetTextColor(uchar *color);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.1 2001/02/02 15:10:58 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.2 2001/02/20 02:15:56 mike Exp $".
  */

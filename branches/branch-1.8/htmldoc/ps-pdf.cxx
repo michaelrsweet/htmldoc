@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.19 2001/02/16 16:57:22 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.20 2001/02/20 02:15:57 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -167,6 +167,7 @@ typedef struct render_str	/**** Render entity structure ****/
       int	typeface,	/* Typeface for text */
 		style;		/* Style of text */
       float	size;		/* Size of text in points */
+      float	spacing;	/* Inter-character spacing */
       float	rgb[3];		/* Color of text */
       uchar	buffer[1];	/* String buffer */
     }   	text;
@@ -240,7 +241,8 @@ static float	render_size,
 		render_rgb[3],
 		render_x,
 		render_y,
-		render_startx;
+		render_startx,
+		render_spacing;
 
 static z_stream		compressor;
 static uchar		comp_buffer[64 * 1024];
@@ -1204,6 +1206,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
   render_rgb[2]   = 0.0f;
   render_x        = -1.0f;
   render_y        = -1.0f;
+  render_spacing  = -1.0f;
 
  /*
   * Output the page prolog...
@@ -1245,20 +1248,22 @@ ps_write_page(FILE  *out,		/* I - Output file */
       case RENDER_BOX :
           set_color(out, r->data.box);
           set_pos(out, r->x, r->y);
-          if (r->height > 0.0)
+          if (r->height > 0.0f)
             fprintf(out, " %.1f %.1f B\n", r->width, r->height);
           else
             fprintf(out, " %.1f L\n", r->width);
-          render_x = -1;
+          render_x        = -1.0f;
+          render_spacing  = -1.0f;
           break;
       case RENDER_FBOX :
           set_color(out, r->data.box);
           set_pos(out, r->x, r->y);
-          if (r->height > 0.0)
+          if (r->height > 0.0f)
             fprintf(out, " %.1f %.1f F\n", r->width, r->height);
           else
             fprintf(out, " %.1f L\n", r->width);
-          render_x = -1;
+          render_x        = -1.0f;
+          render_spacing  = -1.0f;
           break;
     }
 
@@ -1579,6 +1584,7 @@ pdf_write_page(FILE  *out,		/* I - Output file */
 		last_render;	/* Last type of render */
   render_t	*r,		/* Render pointer */
 		*next;		/* Next render */
+  float		box[3];		/* RGB color for boxes */
 
 
   if (page < 0 || page >= MAX_PAGES)
@@ -1602,6 +1608,10 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   render_rgb[2]   = 0.0f;
   render_x        = -1.0f;
   render_y        = -1.0f;
+  render_spacing  = -1.0f;
+  box[0]          = -1.0f;
+  box[1]          = -1.0f;
+  box[2]          = -1.0f;
 
  /*
   * Output the page prolog...
@@ -1664,8 +1674,9 @@ pdf_write_page(FILE  *out,		/* I - Output file */
     {
       if (r->type == RENDER_TEXT)
       {
-	render_x = -1.0;
-	render_y = -1.0;
+	render_x        = -1.0f;
+	render_y        = -1.0f;
+        render_spacing  = -1.0f;
         flate_puts("BT\n", out);
       }
       else if (last_render == RENDER_TEXT)
@@ -1683,25 +1694,36 @@ pdf_write_page(FILE  *out,		/* I - Output file */
           write_text(out, r);
           break;
       case RENDER_BOX :
+          if (box[0] != r->data.box[0] ||
+	      box[1] != r->data.box[1] ||
+	      box[2] != r->data.box[2])
+            flate_printf(out, "%.2f %.2f %.2f RG\n", box[0] = r->data.box[0],
+	                 box[1] = r->data.box[1], box[2] = r->data.box[2]);
+
           if (r->height == 0.0)
-            flate_printf(out, "%.2f %.2f %.2f RG %.1f %.1f m %.1f %.1f l S\n",
-                       r->data.box[0], r->data.box[1], r->data.box[2],
-                       r->x, r->y, r->x + r->width, r->y);
+            flate_printf(out, "%.1f %.1f m %.1f %.1f l S\n",
+                         r->x, r->y, r->x + r->width, r->y);
           else
-            flate_printf(out, "%.2f %.2f %.2f RG %.1f %.1f %.1f %.1f re S\n",
-                       r->data.box[0], r->data.box[1], r->data.box[2],
-                       r->x, r->y, r->width, r->height);
+            flate_printf(out, "%.1f %.1f %.1f %.1f re S\n",
+                         r->x, r->y, r->width, r->height);
           break;
       case RENDER_FBOX :
           if (r->height == 0.0)
-            flate_printf(out, "%.2f %.2f %.2f RG %.1f %.1f m %.1f %.1f l S\n",
-                       r->data.box[0], r->data.box[1], r->data.box[2],
-                       r->x, r->y, r->x + r->width, r->y);
-          else
+	  {
+            if (box[0] != r->data.box[0] ||
+	        box[1] != r->data.box[1] ||
+	        box[2] != r->data.box[2])
+              flate_printf(out, "%.2f %.2f %.2f RG\n", box[0] = r->data.box[0],
+	                   box[1] = r->data.box[1], box[2] = r->data.box[2]);
+
+            flate_printf(out, "%.1f %.1f m %.1f %.1f l S\n",
+                         r->x, r->y, r->x + r->width, r->y);
+          }
+	  else
           {
             set_color(out, r->data.fbox);
             flate_printf(out, "%.1f %.1f %.1f %.1f re f\n",
-                       r->x, r->y, r->width, r->height);
+                         r->x, r->y, r->width, r->height);
           }
           break;
     }
@@ -3024,6 +3046,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		temp_width,
 		temp_height;
   float		format_width, image_y, image_left, image_right;
+  float		char_spacing;
+  int		num_chars;
   render_t	*r;
   uchar		*align,
 		*link;
@@ -3199,11 +3223,14 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       width = start->width;
     }
 
-    for (height = 0.0, spacing = 0.0, temp = prev = start;
+    for (height = 0.0, spacing = 0.0, num_chars = 0, temp = prev = start;
          temp != end;
 	 temp = temp->next)
     {
       prev = temp;
+
+      if (temp->markup == MARKUP_NONE)
+        num_chars += strlen((char *)temp->data);
 
       if (temp->height > height &&
           (temp->markup != MARKUP_IMG || temp->valignment == ALIGN_TOP))
@@ -3252,18 +3279,38 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     if (height == 0.0f)
       height = spacing;
 
-    if (prev != NULL && prev->markup == MARKUP_NONE &&
-        prev->data[strlen((char *)prev->data) - 1] == ' ')
+    for (temp = start; temp != end; temp = temp->next)
+      if (temp->markup != MARKUP_A)
+        break;
+
+    if (temp != NULL && temp->markup == MARKUP_NONE && temp->data[0] == ' ')
+    {
+      strcpy((char *)temp->data, (char *)temp->data + 1);
+      temp_width = _htmlWidths[temp->typeface][temp->style][' '] *
+                   _htmlSizes[temp->size];
+      temp->width -= temp_width;
+      width       -= temp_width;
+      num_chars --;
+    }
+
+    if (end != NULL)
+      temp = end->prev;
+    else
+      temp = NULL;
+
+    if (temp != NULL && temp->markup == MARKUP_NONE &&
+        temp->data[strlen((char *)temp->data) - 1] == ' ')
     {
      /*
       * Remove trailing space...
       */
 
-      prev->data[strlen((char *)prev->data) - 1] = '\0';
-      temp_width = _htmlWidths[prev->typeface][prev->style][' '] *
-                   _htmlSizes[prev->size];
-      prev->width -= temp_width;
+      temp->data[strlen((char *)temp->data) - 1] = '\0';
+      temp_width = _htmlWidths[temp->typeface][temp->style][' '] *
+                   _htmlSizes[temp->size];
+      temp->width -= temp_width;
       width       -= temp_width;
+      num_chars --;
     }
 
     if (*y < (spacing + bottom))
@@ -3280,12 +3327,17 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     if (Verbosity)
       progress_update(100 - (int)(100 * (*y) / PagePrintLength));
 
-    if (t->halignment == ALIGN_LEFT)
+    if (t->halignment == ALIGN_LEFT || t->halignment == ALIGN_JUSTIFY)
       *x = image_left;
     else if (t->halignment == ALIGN_CENTER)
       *x = image_left + 0.5f * (format_width - width);
     else
       *x = image_right - width;
+
+    if (t->halignment == ALIGN_JUSTIFY && flat != NULL && num_chars > 0)
+      char_spacing = (format_width - width) / num_chars;
+    else
+      char_spacing = 0.0f;
 
     whitespace = 0;
     temp       = start;
@@ -3335,8 +3387,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       */
 
       if (linetype != NULL &&
-	  (fabs(linex - *x) > 0.1 ||
-	   temp->markup != MARKUP_NONE ||
+	  fabs(linex - *x) > 0.1 &&
+	  (temp->markup != MARKUP_NONE ||
 	   temp->typeface != linetype->typeface ||
 	   temp->style != linetype->style ||
 	   temp->size != linetype->size ||
@@ -3362,6 +3414,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	r->data.text.typeface = linetype->typeface;
 	r->data.text.style    = linetype->style;
 	r->data.text.size     = _htmlSizes[linetype->size];
+	r->data.text.spacing  = char_spacing;
         memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	if (linetype->superscript)
@@ -3384,6 +3437,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
               add_link(link, *page, (int)(*y + 6 * height));
             }
+
+	default :
+	    temp_width = temp->width;
             break;
 
         case MARKUP_NONE :
@@ -3416,25 +3472,20 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      linetype->valignment = ALIGN_MIDDLE;
 	    }
 
+            strcpy((char *)lineptr, (char *)temp->data);
+
+            temp_width = temp->width + char_spacing * strlen((char *)lineptr);
+
 	    if (temp->underline)
-	      new_render(*page, RENDER_BOX, *x, *y + offset - 1, temp->width, 0, rgb);
+	      new_render(*page, RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
 
 	    if (temp->strikethrough)
-	      new_render(*page, RENDER_BOX, *x, *y + offset + temp->height * 0.25f,
-	                 temp->width, 0, rgb);
+	      new_render(*page, RENDER_BOX, linex, *y + offset + temp->height * 0.25f,
+	                 temp_width, 0, rgb);
 
-            if ((linex - left) < 0.01f && temp->data[0] == ' ')
-	    {
-	      strcpy((char *)lineptr, (char *)temp->data + 1);
-              temp->width -= get_width((uchar *)" ", temp->typeface,
-	                               temp->style, temp->size);
-            }
-	    else
-	      strcpy((char *)lineptr, (char *)temp->data);
-
-            lineptr   += strlen((char *)lineptr);
-            linewidth += temp->width;
-	    linex     += temp->width;
+            linewidth  += temp_width;
+	    linex      += temp_width;
+            lineptr    += strlen((char *)lineptr);
 
             if (lineptr[-1] == ' ')
               whitespace = 1;
@@ -3458,10 +3509,11 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    new_render(*page, RENDER_IMAGE, *x, *y + offset, temp->width, temp->height,
 		       image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
             whitespace = 0;
+	    temp_width = temp->width;
 	    break;
       }
 
-      *x += temp->width;
+      *x += temp_width;
       prev = temp;
       temp = temp->next;
       if (prev != linetype)
@@ -3490,6 +3542,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
                      linewidth, linetype->height, line);
       r->data.text.typeface = linetype->typeface;
       r->data.text.style    = linetype->style;
+      r->data.text.spacing  = char_spacing;
       r->data.text.size     = _htmlSizes[linetype->size];
       memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
@@ -4495,7 +4548,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         if (bgcolor != NULL)
           new_render(*page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
-                     bottom, width, cell_y[col] - bottom, bgrgb, 1);
+                     bottom, width, cell_y[col] - bottom + border + cellpadding, bgrgb, 1);
 
         for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
 	{
@@ -7027,10 +7080,11 @@ write_prolog(FILE  *out,	/* I - Output file */
       fputs("/C{0.08 mul exch 0.61 mul add exch 0.31 mul add setgray}BD\n", out);
     else
       fputs("/C{setrgbcolor}BD\n", out);
-    fputs("/CM{concat}BD\n", out);
+    fputs("/CM{concat}BD", out);
     fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n", out);
     fputs("/GS{gsave}BD", out);
     fputs("/GR{grestore}BD", out);
+    fputs("/J{ashow}BD", out);
     fputs("/L{0 rlineto stroke}BD", out);
     fputs("/M{moveto}BD\n", out);
     fputs("/S{show}BD", out);
@@ -7449,10 +7503,23 @@ write_text(FILE     *out,	/* I - Output file */
   set_font(out, r->data.text.typeface, r->data.text.style, r->data.text.size);
   set_pos(out, r->x, r->y);
 
+  if (PSLevel > 0)
+  {
+    if (r->data.text.spacing > 0.0f)
+      fprintf(out, "%.3f 0.0 ", r->data.text.spacing);
+  }
+  else if (r->data.text.spacing != render_spacing)
+    flate_printf(out, " %.3f Tc", render_spacing = r->data.text.spacing);
+
   write_string(out, r->data.text.buffer, PSLevel == 0);
 
   if (PSLevel > 0)
-    fputs("S\n", out);
+  {
+    if (r->data.text.spacing > 0.0f)
+      fputs("J\n", out);
+    else
+      fputs("S\n", out);
+  }
   else
     flate_puts("Tj\n", out);
 
@@ -8055,5 +8122,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.19 2001/02/16 16:57:22 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.20 2001/02/20 02:15:57 mike Exp $".
  */
