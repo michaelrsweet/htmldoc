@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h,v 1.12 2000/06/16 02:10:51 mike Exp $"
+// "$Id: HelpView.h,v 1.13 2000/06/21 22:33:24 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
@@ -96,7 +96,9 @@ struct Fl_Image;
 
 struct HelpImage 
 {
-  char		*name;		// Path and name of the image
+  char		*name,		// Path and name of the image
+		wattr[8],	// Width attribute
+		hattr[8];	// Height attribute
   Fl_Image	*image;		// FLTK image representation
   unsigned char	*data;		// Raw image data
   int		w, h, d;	// Image size & depth
@@ -147,8 +149,9 @@ class HelpView : public Fl_Group	//// Help viewer widget
   HelpImage	*image_;		// list of image descriptors
 
   HelpImage	*add_image(const char *name, const char *wattr,
+		           const char *hattr, int make = 1);
+  HelpImage	*find_image(const char *name, const char *wattr,
 		           const char *hattr);
-  HelpImage	*find_image(const char *name);
   int		load_gif(HelpImage *img, FILE *fp);
   int		load_jpeg(HelpImage *img, FILE *fp);
   int		load_png(HelpImage *img, FILE *fp);
@@ -204,5 +207,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.12 2000/06/16 02:10:51 mike Exp $".
+// End of "$Id: HelpView.h,v 1.13 2000/06/21 22:33:24 mike Exp $".
 //

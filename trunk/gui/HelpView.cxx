@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.28 2000/06/16 02:10:51 mike Exp $"
+// "$Id: HelpView.cxx,v 1.29 2000/06/21 22:33:23 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -465,9 +465,11 @@ HelpView::add_block(const char *s,	// I - Pointer to start of block text
 HelpImage *				// O - Image or NULL if not found
 HelpView::add_image(const char *name,	// I - Path of image
                     const char *wattr,	// I - Width attribute
-		    const char *hattr)	// I - Height attribute
+		    const char *hattr,	// I - Height attribute
+                    int        make)	// I - Make the image?
 {
-  HelpImage	*img;			// New image
+  HelpImage	*img,			// New image
+		*orig;			// Original image
   FILE		*fp;			// File pointer
   unsigned char	header[16];		// First 16 bytes of file
   int		status;			// Status of load...
@@ -479,8 +481,17 @@ HelpView::add_image(const char *name,	// I - Path of image
 
 
   // See if the image has already been loaded...
-  if ((img = find_image(name)) != (HelpImage *)0)
+  if ((img = find_image(name, wattr, hattr)) != (HelpImage *)0)
+  {
+    // Make the image if needed...
+    if (!img->image)
+      img->image = new Fl_Image(img->data, img->w, img->h, img->d);
+
     return (img);
+  }
+
+  // See if the image exists with the default size info...
+  orig = find_image(name, "", "");
 
   // Allocate memory as needed...
   if (aimage_ == nimage_)
@@ -492,65 +503,90 @@ HelpView::add_image(const char *name,	// I - Path of image
   img       = image_ + nimage_;
   img->name = strdup(name);
 
-  // See if the image can be found...
-  if (name[0] != '/' && strchr(name, ':') == NULL)
+  if (!orig)
   {
-    if (directory_[0])
-      sprintf(temp, "%s/%s", directory_, name);
-    else
+    // See if the image can be found...
+    if (name[0] != '/' && strchr(name, ':') == NULL)
     {
-      getcwd(dir, sizeof(dir));
-      sprintf(temp, "file:%s/%s", dir, name);
+      if (directory_[0])
+	sprintf(temp, "%s/%s", directory_, name);
+      else
+      {
+	getcwd(dir, sizeof(dir));
+	sprintf(temp, "file:%s/%s", dir, name);
+      }
+
+      if (link_)
+	localname = (*link_)(temp);
+      else
+	localname = temp;
+    }
+    else if (link_)
+      localname = (*link_)(name);
+    else
+      localname = name;
+
+    if (!localname)
+      return ((HelpImage *)0);
+
+    if (strncmp(localname, "file:", 5) == 0)
+      localname += 5;
+
+    // Figure out the file type...
+    if ((fp = fopen(localname, "rb")) == NULL)
+      return ((HelpImage *)0);
+
+    if (fread(header, 1, sizeof(header), fp) == 0)
+      return ((HelpImage *)0);
+
+    rewind(fp);
+
+    // Load the image as appropriate...
+    if (memcmp(header, "GIF87a", 6) == 0 ||
+	memcmp(header, "GIF89a", 6) == 0)
+      status = load_gif(img,  fp);
+  #ifdef HAVE_LIBPNG
+    else if (memcmp(header, "\211PNG", 4) == 0)
+      status = load_png(img, fp);
+  #endif // HAVE_LIBPNG
+  #ifdef HAVE_LIBJPEG
+    else if (memcmp(header, "\377\330\377", 3) == 0 &&	// Start-of-Image
+	     header[3] >= 0xe0 && header[3] <= 0xef)	// APPn
+      status = load_jpeg(img, fp);
+  #endif // HAVE_LIBJPEG
+    else
+      status = 0;
+
+    fclose(fp);
+
+    if (!status)
+    {
+      free(img->name);
+      return ((HelpImage *)0);
     }
 
-    if (link_)
-      localname = (*link_)(temp);
-    else
-      localname = temp;
+    img->wattr[0] = '\0';
+    img->hattr[0] = '\0';
+
+    nimage_ ++;
+
+    // Allocate memory as needed for the new copy...
+    if (aimage_ == nimage_)
+    {
+      aimage_ += 16;
+      image_  = (HelpImage *)realloc(image_, sizeof(HelpImage) * aimage_);
+    }
+
+    orig      = image_ + nimage_ - 1;
+    img       = image_ + nimage_;
+    img->name = strdup(name);
   }
-  else if (link_)
-    localname = (*link_)(name);
-  else
-    localname = name;
 
-  if (!localname)
-    return ((HelpImage *)0);
-
-  if (strncmp(localname, "file:", 5) == 0)
-    localname += 5;
-
-  // Figure out the file type...
-  if ((fp = fopen(localname, "rb")) == NULL)
-    return ((HelpImage *)0);
-
-  if (fread(header, 1, sizeof(header), fp) == 0)
-    return ((HelpImage *)0);
-
-  rewind(fp);
-
-  // Load the image as appropriate...
-  if (memcmp(header, "GIF87a", 6) == 0 ||
-      memcmp(header, "GIF89a", 6) == 0)
-    status = load_gif(img,  fp);
-#ifdef HAVE_LIBPNG
-  else if (memcmp(header, "\211PNG", 4) == 0)
-    status = load_png(img, fp);
-#endif // HAVE_LIBPNG
-#ifdef HAVE_LIBJPEG
-  else if (memcmp(header, "\377\330\377", 3) == 0 &&	// Start-of-Image
-	   header[3] >= 0xe0 && header[3] <= 0xef)	// APPn
-    status = load_jpeg(img, fp);
-#endif // HAVE_LIBJPEG
-  else
-    status = 0;
-
-  fclose(fp);
-
-  if (!status)
-  {
-    free(img->name);
-    return ((HelpImage *)0);
-  }
+  // Copy image data from original image...
+  img->data = orig->data;
+  img->w    = orig->w;
+  img->h    = orig->h;
+  img->d    = orig->d;
 
   // Figure out the size of the image...
   if (wattr[0])
@@ -640,7 +676,8 @@ HelpView::add_image(const char *name,	// I - Path of image
        }
 
        // Finally, copy the new size and data to the image structure...
-       free(img->data);
+       if (!orig)
+         free(img->data);
 
        img->w    = width;
        img->h    = height;
@@ -648,7 +685,15 @@ HelpView::add_image(const char *name,	// I - Path of image
      }
   }
 
-  img->image = new Fl_Image(img->data, img->w, img->h, img->d);
+  strncpy(img->wattr, wattr, sizeof(img->wattr) - 1);
+  img->wattr[sizeof(img->wattr) - 1] = '\0';
+  strncpy(img->hattr, hattr, sizeof(img->hattr) - 1);
+  img->hattr[sizeof(img->hattr) - 1] = '\0';
+
+  if (make)
+    img->image = new Fl_Image(img->data, img->w, img->h, img->d);
+  else
+    img->image = (Fl_Image *)0;
 
   nimage_ ++;
 
@@ -1089,9 +1134,14 @@ HelpView::draw()
 	    HelpImage	*img = (HelpImage *)0;
 	    int		width = 16;
 	    int		height = 24;
+	    char	wattr[8], hattr[8];
+
+
+            get_attr(attrs, "WIDTH", wattr, sizeof(wattr));
+            get_attr(attrs, "HEIGHT", hattr, sizeof(hattr));
 
 	    if (get_attr(attrs, "SRC", attr, sizeof(attr))) 
-	      if ((img = find_image(attr)) != NULL && !img->image)
+	      if ((img = find_image(attr, wattr, hattr)) != NULL && !img->image)
 	        img = (HelpImage *)0;
 
 	    if (img)
@@ -1248,14 +1298,18 @@ HelpView::draw()
 //
 
 HelpImage *				// O - Image or NULL if not found
-HelpView::find_image(const char *name)	// I - Path and name of image
+HelpView::find_image(const char *name,	// I - Path and name of image
+                     const char *wattr,	// I - Width attribute of image
+		     const char	*hattr)	// I - Height attribute of image
 {
   int		i;			// Looping var
   HelpImage	*img;			// Current image
 
 
   for (i = nimage_, img = image_; i > 0; i --, img ++) 
-    if (strcmp(img->name, name) == 0)
+    if (strcmp(img->name, name) == 0 &&
+        strcmp(img->wattr, wattr) == 0 &&
+        strcmp(img->hattr, hattr) == 0)
       return (img);
 
   return ((HelpImage *)0);
@@ -1269,6 +1323,7 @@ HelpView::find_image(const char *name)	// I - Path and name of image
 void
 HelpView::format()
 {
+  int		i;		// Looping var
   HelpBlock	*block,		// Current block
 		*cell;		// Current table cell
   int		row;		// Current table row (block number)
@@ -1296,6 +1351,7 @@ HelpView::format()
 		columns[200];	// Column widths
 
 
+  // Reset state variables...
   nblocks_   = 0;
   nlinks_    = 0;
   ntargets_  = 0;
@@ -1309,6 +1365,22 @@ HelpView::format()
   if (!value_)
     return;
 
+  // Flush images that are scaled by percentage...
+  for (i = 0; i < nimage_; i ++)
+    if (strchr(image_[i].wattr, '%') != NULL ||
+        strchr(image_[i].hattr, '%') != NULL)
+    {
+      // Flush this one...
+      free(image_[i].name);
+      free(image_[i].data);
+      delete image_[i].image;
+      nimage_ --;
+      if (i < nimage_)
+        memcpy(image_ + i, image_ + i + 1, (nimage_ - i) * sizeof(HelpImage));
+      i --;
+    }
+
+  // Setup for formatting...
   initfont(font, size);
 
   line      = 0;
@@ -3013,5 +3085,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.28 2000/06/16 02:10:51 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.29 2000/06/21 22:33:23 mike Exp $".
 //
