@@ -1,22 +1,36 @@
-CHANGES.txt - 12/08/2000
+CHANGES.txt - 01/31/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.10
 
     NEW FEATURES
 
+	- New "--quiet" option to suppress error messages sent to
+	  stderr.
+	- New chapter n/N page number format (:)
+	- New "--links" and "--no-links" options for PDF output.
 
     CHANGES
 
+	- Documentation updates.
 	- If a heading already contains a link, the name assigned for
 	  the heading is stored in the existing link to avoid nested
 	  links.
+	- The table parsing code now also traverses THEAD and TFOOT
+	  sections and handles multiple TBODY, THEAD, and TFOOT
+	  sections.  The THEAD and TFOOT rows are treated as ordinary
+	  rows.
 
     BUG FIXES
 
 	- The path support was still broken.
 	- Embedded files and images did not use path or HTTP
 	  support.
+	- Table cell borders could be drawn on the wrong page
+	  if the cell spans more than one page.
+	- Large images could end up covering the footer at the
+	  bottom of the page (wasn't accounting for the line
+	  spacing.)
 
 
 CHANGES IN HTMLDOC v1.8.9

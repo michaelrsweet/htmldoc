@@ -1,9 +1,9 @@
 /*
- * "$Id: gui.h,v 1.14.2.1 2000/11/30 18:33:46 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.2 2001/01/30 01:35:56 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -128,6 +128,7 @@ class GUI
   Fl_Input	*linkColor;
   Fl_Button	*linkLookup;
   Fl_Choice	*linkStyle;
+  CheckButton	*links;
 
   Fl_Group	*fontsTab;
   Fl_Choice	*headingFont,
@@ -256,5 +257,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.1 2000/11/30 18:33:46 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.2 2001/01/30 01:35:56 mike Exp $".
  */
