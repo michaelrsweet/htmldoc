@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.52 2002/07/31 19:11:08 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.53 2002/08/16 20:27:47 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -114,6 +114,50 @@ main(int  argc,		/* I - Number of command-line arguments */
 		fontspacing;	/* Base font spacing */
   int		num_files;	/* Number of files provided on the command-line */
 
+
+#ifdef __APPLE__
+ /*
+  * Change the default data directory to the root directory of the
+  * HTMLDOC package...
+  */
+
+  char datadir[1024];
+  strncpy(datadir, argv[0], sizeof(datadir) - 1);
+  datadir[sizeof(datadir) - 1] = '\0';
+
+  char *slash = strstr(datadir, "/Contents/MacOS");
+
+  if (slash)
+  {
+    *slash = '\0';
+    _htmlData = datadir; 
+  }
+
+#  ifdef HAVE_LIBFLTK
+  char helpdir[1024];
+  strncpy(helpdir, argv[0], sizeof(helpdir) - 1);
+  helpdir[sizeof(helpdir) - 1] = '\0';
+
+  slash = strstr(helpdir, "/Contents/MacOS");
+
+  if (slash)
+  {
+    strcpy(slash, "/Contents/Resources");
+    GUI::help_dir = helpdir; 
+  }
+#  endif // HAVE_LIBFLTK
+
+ /*
+  * OSX passes an extra command-line option when run from the Finder.
+  * If the first command-line argument is "-psn..." then skip it...
+  */
+
+  if (argc > 1 && strncmp(argv[1], "-psn", 4) == 0)
+  {
+    argv ++;
+    argc --;
+  }
+#endif // __APPLE__
 
  /*
   * Localize as needed...
@@ -2280,5 +2324,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.52 2002/07/31 19:11:08 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.53 2002/08/16 20:27:47 mike Exp $".
  */
