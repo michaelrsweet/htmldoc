@@ -3,9 +3,6 @@ CHANGES.txt - 10/31/2001
 
 CHANGES IN HTMLDOC v1.8.16
 
-    NEW FEATURES
-
-
     CHANGES
 
 	- Now break before and after DIV groups to match most
@@ -19,7 +16,8 @@ CHANGES IN HTMLDOC v1.8.16
 	- The "HALF PAGE" comment would lock up HTMLDOC -
 	  HTMLDOC would keep adding pages until it ran out of
 	  memory.
-	- SUP and SUB 
+	- SUP and SUB used a fixed (reduced) size instead of
+	  using a smaller size from the current one.
 	- Empty cells could cause unnecessary vertical alignment
 	  on the same row.
 
