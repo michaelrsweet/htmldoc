@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.12 1999/04/29 01:34:37 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.13 1999/04/29 13:12:18 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -129,9 +129,9 @@ FileChooser::directory(const char *d)	// I - Directory to change to
   if (d == NULL)
     d = ".";
 
-  // Make the directory absolute...
   if (d[0] != '\0')
   {
+    // Make the directory absolute...
 #if defined(WIN32) || defined(__EMX__)
     if (d[0] != '/' && d[0] != '\\' && d[1] != ':')
 #else
@@ -207,8 +207,6 @@ FileChooser::count()
 
   if (type_ != MULTI)
   {
-
-
     // Check to see if the file name input field is blank...
     filename = fileName->value();
     if (filename == NULL || filename[0] == '\0')
@@ -292,15 +290,15 @@ FileChooser::value(const char *filename)	// I - Filename + directory
 
 
   // See if the filename is actually a directory...
-  if (filename_isdir(pathname))
+  if (filename_isdir(filename))
   {
     // Yes, just change the current directory...
-    directory(pathname);
+    directory(filename);
     return;
   }
 
   // Switch to single-selection mode as needed
-  if (type_ != MULTI)
+  if (type_ == MULTI)
     type(SINGLE);
 
   // See if there is a directory in there...
@@ -320,6 +318,7 @@ FileChooser::value(const char *filename)	// I - Filename + directory
   // Set the input field to the remaining portion
   fileName->value(slash);
   fileName->position(0, strlen(slash));
+  okButton->activate();
 
   // Then find the file in the file list and select it...
   count = fileList->size();
@@ -410,8 +409,11 @@ FileChooser::newdir()
 void
 FileChooser::rescan()
 {
-  // Build the file list...
+  // Clear the current filename
   fileName->value("");
+  okButton->deactivate();
+
+  // Build the file list...
   fileList->load(directory_);
 }
 
@@ -449,8 +451,11 @@ FileChooser::fileListCB()
     else
       window->hide();
   }
-  else
+  else if (!filename_isdir(pathname))
+  {
     fileName->value(filename);
+    okButton->activate();
+  }
 }
 
 
@@ -476,7 +481,10 @@ FileChooser::fileNameCB()
   filename = (char *)fileName->value();
 
   if (filename == NULL || filename[0] == '\0')
+  {
+    okButton->deactivate();
     return;
+  }
 
 #if defined(WIN32) || defined(__EMX__)
   if (directory_[0] != '\0' &&
@@ -517,19 +525,20 @@ FileChooser::fileNameCB()
     }
     else
     {
-      // File doesn't exist, so beep at the user...
+      // File doesn't exist, so beep at and alert the user...
       // TODO: NEED TO ADD fl_beep() FUNCTION TO 2.0!
 #ifdef WIN32
       MessageBeep(MB_ICONEXCLAMATION);
 #else
       XBell(fl_display, 100);
 #endif // WIN32
+
+      fl_alert("Please choose an existing file!");
     }
   }
   else if (Fl::event_key() != FL_Delete)
   {
     // Check to see if the user has entered a directory...
-
     if ((slash = strrchr(filename, '/')) == NULL)
       slash = strrchr(filename, '\\');
 
@@ -560,11 +569,11 @@ FileChooser::fileNameCB()
     }
 
     // Other key pressed - do filename completion as possible...
-
     num_files  = fileList->size();
     min_match  = strlen(filename);
     max_match  = 100000;
     first_line = 0;
+
     for (i = 1; i <= num_files && max_match > min_match; i ++)
     {
       file = fileList->text(i);
@@ -626,5 +635,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.12 1999/04/29 01:34:37 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.13 1999/04/29 13:12:18 mike Exp $".
 //
