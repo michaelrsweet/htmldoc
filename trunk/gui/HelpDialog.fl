@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0011 
+version 1.0100 
 i18n_type 1 
 i18n_include "gui.h" 
 i18n_function _ 
@@ -8,12 +8,8 @@ code_name {.cxx}
 gridx 5 
 gridy 5 
 snap 3
-class HelpDialog {open
+class HelpDialog {open selected
 } {
-  decl {\#include "icons/back.xpm"} {}
-  decl {\#include "icons/dback.xpm"} {}
-  decl {\#include "icons/forward.xpm"} {}
-  decl {\#include "icons/dforward.xpm"} {}
   decl {int index_;} {}
   decl {int max_;} {}
   decl {int line_[100];} {}
@@ -25,7 +21,7 @@ class HelpDialog {open
       private xywh {464 372 535 385} resizable
       code0 {\#include <string.h>} visible
     } {
-      Fl_Group view_ {
+      Fl_Help_View view_ {
         callback {if (view_->changed())
 {
   index_ ++;
@@ -43,18 +39,11 @@ class HelpDialog {open
   line_[index_] = view_->topline();
 
   if (index_ > 0)
-  {
-    back_->show();
-    dback_->hide();
-  }
+    back_->activate();
   else
-  {
-    back_->hide();
-    dback_->show();
-  }
+    back_->deactivate();
 
-  forward_->hide();
-  dforward_->show();
+  forward_->deactivate();
 
   window_->label(view_->title());
 }
@@ -63,12 +52,10 @@ else if (view_->filename())
   strncpy(file_[index_], view_->filename(), 255);
   file_[index_][255] = '\\0';
   line_[index_] = view_->topline();
-}} open
+}}
         private xywh {0 80 535 305} box DOWN_BOX resizable
-        code0 {\#include "HelpView.h"}
-        class HelpView
-      } {}
-      Fl_Pack {} {open selected
+      }
+      Fl_Pack {} {open
         xywh {0 25 535 55}
         code0 {o->type(Fl_Pack::HORIZONTAL);}
       } {
@@ -78,25 +65,15 @@ else if (view_->filename())
   index_ --;
 
 if (index_ == 0)
-{
-  back_->hide();
-  dback_->show();
-}
+  back_->deactivate();
 
-forward_->show();
-dforward_->hide();
+forward_->activate();
 
 if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-          private xywh {0 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
-          code0 {guiAddImage(back_, (const char **)back_xpm);}
-        }
-        Fl_Button dback_ {
-          label Back
-          private xywh {0 25 60 55} box FLAT_BOX align 17 hide deactivate
-          code0 {guiAddImage(dback_, (const char **)dback_xpm);}
+          private image {/home/mike/c/espPrint/gui/icons/back.xpm} deimage {/home/mike/c/espPrint/gui/icons/dback.xpm} xywh {0 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
         }
         Fl_Button forward_ {
           label Forward
@@ -104,26 +81,15 @@ view_->topline(line_[index_]);}
   index_ ++;
 
 if (index_ >= max_)
-{
-  forward_->hide();
-  dforward_->show();
-}
+  forward_->deactivate();
 
-
-back_->show();
-dback_->hide();
+back_->activate();
 
 if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-          private xywh {60 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
-          code0 {guiAddImage(forward_, (const char **)forward_xpm);}
-        }
-        Fl_Button dforward_ {
-          label Forward
-          private xywh {60 25 60 55} box FLAT_BOX align 17 hide deactivate
-          code0 {guiAddImage(dforward_, (const char **)dforward_xpm);}
+          private image {/home/mike/c/espPrint/gui/icons/forward.xpm} deimage {/home/mike/c/espPrint/gui/icons/dforward.xpm} xywh {60 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
         }
         Fl_Button smaller_ {
           label F
@@ -161,10 +127,8 @@ smaller_->activate();}
         }
       }
     }
-    code {back_->hide();
-dback_->show();
-forward_->hide();
-dforward_->show();
+    code {back_->deactivate();
+forward_->deactivate();
 
 index_ = -1;
 max_  = 0;} {}
