@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.11 2004/05/09 15:04:38 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.12 2004/05/19 15:31:47 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -169,6 +169,11 @@ htmlsep_export(tree_t *document,	// I - Document to export
                  docnumber, -1);
     if (out != NULL)
       write_title(out, title, author, copyright, docnumber);
+
+    write_footer(&out, -1);
+
+    write_header(&out, (uchar *)"toc.html", title, author, copyright,
+                 docnumber, -1);
   }
   else
     write_header(&out, (uchar *)"index.html", title, author, copyright,
@@ -469,6 +474,7 @@ write_title(FILE  *out,		/* I - Output file */
     if (copyright != NULL)
       fprintf(out, "%s<BR>\n", copyright);
 
+    fputs("<A HREF=\"toc.html\">Table of Contents</A>", out);
     fputs("</CENTER>\n", out);
   }
 }
@@ -1119,5 +1125,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.11 2004/05/09 15:04:38 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.12 2004/05/19 15:31:47 mike Exp $".
 //
