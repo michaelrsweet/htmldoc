@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.16 2001/07/09 15:32:23 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.17 2001/07/17 22:48:03 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -238,7 +238,7 @@ AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
 dnl Update compiler options...
 if test -n "$GXX"; then
     # Since we don't use libstdc++, use gcc to avoid getting it linked in...
-    CXX="gcc"
+    CXX="$GCC"
 
     # Set optimization flags...
     if test -z "$OPTIM"; then
@@ -307,5 +307,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.16 2001/07/09 15:32:23 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.17 2001/07/17 22:48:03 mike Exp $".
 dnl
