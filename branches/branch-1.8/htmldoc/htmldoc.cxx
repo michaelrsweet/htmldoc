@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.50 2002/07/26 16:07:09 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.51 2002/07/27 03:41:32 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1022,6 +1022,8 @@ main(int  argc,		/* I - Number of command-line arguments */
   while (document->prev != NULL)
     document = document->prev;
 
+  htmlDebugStats("Document Tree", document);
+
  /*
   * Build a table of contents for the documents if necessary...
   */
@@ -1030,6 +1032,8 @@ main(int  argc,		/* I - Number of command-line arguments */
     toc = toc_build(document);
   else
     toc = NULL;
+
+  htmlDebugStats("Table of Contents Tree", toc);
 
  /*
   * Generate the output file(s).
@@ -2253,5 +2257,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.50 2002/07/26 16:07:09 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.51 2002/07/27 03:41:32 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.194 2002/07/19 18:37:49 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.195 2002/07/27 03:41:37 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -29,6 +29,7 @@
  * Contents:
  *
  *   pspdf_export()           - Export PostScript/PDF file(s)...
+ *   pspdf_debug_stats()      - Display debug statistics for render memory use.
  *   pspdf_transform_coords() - Transform page coordinates.
  *   pspdf_transform_page()   - Transform a page.
  *   pspdf_prepare_outpages() - Prepare output pages...
@@ -335,6 +336,8 @@ static md5_byte_t	file_id[16];
 extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
 }
+
+static void	pspdf_debug_stats();
 
 static void	pspdf_transform_coords(page_t *p, float &x, float  &y);
 static void	pspdf_transform_page(int outpage, int pos, int page);
@@ -864,6 +867,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
     pspdf_prepare_outpages();
 
+    pspdf_debug_stats();
+
     progress_error(HD_ERROR_NONE, "PAGES: %d", num_outpages);
 
     if (PSLevel > 0)
@@ -876,6 +881,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
    /*
     * No, show an error...
     */
+
+    pspdf_debug_stats();
 
     progress_error(HD_ERROR_NO_PAGES,
                    "Error: no pages generated! (did you remember to use webpage mode?");
@@ -948,6 +955,47 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   }
 
   return (0);
+}
+
+
+
+//
+// 'pspdf_debug_stats()' - Display debug statistics for render memory use.
+//
+
+static void
+pspdf_debug_stats()
+{
+  const char	*debug;			// HTMLDOC_DEBUG env var
+  int		i;			// Looping var
+  render_t	*r;			// Render node
+  int		bytes;			// Number of bytes
+
+
+  if ((debug = getenv("HTMLDOC_DEBUG")) == NULL ||
+      (strstr(debug, "all") == NULL && strstr(debug, "memory") == NULL))
+    return;
+
+  bytes = alloc_headings * sizeof(int) * 2;
+
+  bytes += alloc_pages * sizeof(page_t);
+  for (i = 0; i < num_pages; i ++)
+  {
+    for (r = pages[i].start; r != NULL; r = r->next)
+    {
+      bytes += sizeof(render_t);
+
+      if (r->type == RENDER_TEXT)
+        bytes += strlen((char *)r->data.text.buffer);
+    }
+  }
+
+  bytes += num_outpages * sizeof(outpage_t);
+  bytes += alloc_links * sizeof(link_t);
+  bytes += alloc_objects * sizeof(int);
+
+  progress_error(HD_ERROR_NONE, "DEBUG: Render Data = %d kbytes",
+                 (bytes + 1023) / 1024);
 }
 
 
@@ -11761,5 +11809,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.194 2002/07/19 18:37:49 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.195 2002/07/27 03:41:37 mike Exp $".
  */

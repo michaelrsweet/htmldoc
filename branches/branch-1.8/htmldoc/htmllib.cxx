@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.60 2002/07/19 18:37:48 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.61 2002/07/27 03:41:36 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -50,6 +50,8 @@
  *   compute_color()     - Compute the red, green, blue color from the given
  *   get_alignment()     - Get horizontal & vertical alignment values.
  *   fix_filename()      - Fix a filename to be relative to the base directory.
+ *   html_memory_used()  - Figure out the amount of memory that was used.
+ *   htmlDebugStats()    - Display debug statistics for HTML tree memory use.
  */
 
 /*
@@ -2870,6 +2872,67 @@ fix_filename(char *filename,		/* I - Original filename */
 }
 
 
+//
+// 'html_memory_used()' - Figure out the amount of memory that was used.
+//
+
+static int				// O - Bytes used
+html_memory_used(tree_t *t)		// I - Tree node
+{
+  int	i;				// Looping var
+  int	bytes;				// Bytes used
+
+
+  if (t == NULL)
+    return (0);
+
+  bytes = 0;
+
+  while (t != NULL)
+  {
+    bytes += sizeof(tree_t);
+    bytes += t->nvars * sizeof(var_t);
+
+    for (i = 0; i < t->nvars; i ++)
+    {
+      bytes += (strlen((char *)t->vars[i].name) + 8) & ~7;
+
+      if (t->vars[i].value != NULL)
+        bytes += (strlen((char *)t->vars[i].value) + 8) & ~7;
+    }
+
+    if (t->data != NULL)
+      bytes += (strlen((char *)t->data) + 8) & ~7;
+
+    bytes += html_memory_used(t->child);
+
+    t = t->next;
+  }
+
+  return (bytes);
+}
+
+
+//
+// 'htmlDebugStats()' - Display debug statistics for HTML tree memory use.
+//
+
+void
+htmlDebugStats(const char *title,	// I - Title
+               tree_t     *t)		// I - Document root node
+{
+  const char	*debug;			/* HTMLDOC_DEBUG env var */
+
+
+  if ((debug = getenv("HTMLDOC_DEBUG")) == NULL ||
+      (strstr(debug, "all") == NULL && strstr(debug, "memory") == NULL))
+    return;
+
+  progress_error(HD_ERROR_NONE, "DEBUG: %s = %d kbytes", title,
+                 (html_memory_used(t) + 1023) / 1024);
+}
+
+
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.60 2002/07/19 18:37:48 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.61 2002/07/27 03:41:36 mike Exp $".
  */

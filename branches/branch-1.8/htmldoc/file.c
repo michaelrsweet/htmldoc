@@ -1,6 +1,5 @@
-#define DEBUG
 /*
- * "$Id: file.c,v 1.13.2.35 2002/07/26 16:07:08 mike Exp $"
+ * "$Id: file.c,v 1.13.2.36 2002/07/27 03:41:31 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -150,12 +149,14 @@ file_basename(const char *s)	/* I - Filename or URL */
 void
 file_cleanup(void)
 {
+  int		i;			/* Looping var */
   char		filename[1024];		/* Temporary file */
 #ifdef WIN32
   char		tmpdir[1024];		/* Temporary directory */
 #else
   const char	*tmpdir;		/* Temporary directory */
 #endif /* WIN32 */
+  const char	*debug;			/* HTMLDOC_DEBUG env var */
 
 
   if (http)
@@ -164,15 +165,42 @@ file_cleanup(void)
     http = NULL;
   }
 
-  if (getenv("HTMLDOC_NOCLEANUP"))
-    return;
-
 #ifdef WIN32
   GetTempPath(sizeof(tmpdir), tmpdir);
 #else
   if ((tmpdir = getenv("TMPDIR")) == NULL)
     tmpdir = "/var/tmp";
 #endif /* WIN32 */
+
+ /*
+  * Check to see if we want to leave the temporary files around for
+  * debugging...
+  */
+
+  if ((debug = getenv("HTMLDOC_DEBUG")) != NULL &&
+      (strstr(debug, "all") != NULL || strstr(debug, "tempfiles") != NULL))
+  {
+   /*
+    * Yes, leave the files, but show the mapping from filename to URL...
+    */
+
+    progress_error(HD_ERROR_NONE, "DEBUG: Temporary File Summary");
+    progress_error(HD_ERROR_NONE, "DEBUG:");
+    progress_error(HD_ERROR_NONE, "DEBUG: URL                             Filename");
+    progress_error(HD_ERROR_NONE, "DEBUG: ------------------------------- ---------------------");
+
+    for (i = 0; i < web_files; i ++)
+    {
+      snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
+               getpid(), i + 1);
+      progress_error(HD_ERROR_NONE, "DEBUG: %-31.31s %s\n",
+                     web_cache[i].url ? web_cache[i].url : "none", filename);
+    }
+
+    progress_error(HD_ERROR_NONE, "DEBUG:");
+
+    return;
+  }
 
   while (web_files > 0)
   {
@@ -338,6 +366,8 @@ file_find_check(const char *filename)	/* I - File or URL */
 		total;			/* Total bytes in file */
   char		tempname[HTTP_MAX_URI];	/* Temporary filename */
 
+
+  DEBUG_printf(("file_find_check(filename=\"%s\")\n", filename));
 
   if (strncmp(filename, "http:", 5) == 0 || strncmp(filename, "//", 2) == 0)
     strcpy(method, "http");
@@ -609,12 +639,18 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   */
 
   if (path != NULL && !path[0])
+  {
+    DEBUG_puts("file_find: Resetting path to NULL since path is empty...");
     path = NULL;
+  }
 
-  if (strncmp(filename, "http:", 5) == 0 ||
-      strncmp(filename, "https:", 6) == 0 ||
-      strncmp(filename, "//", 2) == 0)
+  if (strncmp(s, "http:", 5) == 0 ||
+      strncmp(s, "https:", 6) == 0 ||
+      strncmp(s, "//", 2) == 0)
+  {
+    DEBUG_puts("file_find: Resetting path to NULL since filename is a URL...");
     path = NULL;
+  }
 
  /*
   * Loop through the path as needed...
@@ -1011,5 +1047,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.35 2002/07/26 16:07:08 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.36 2002/07/27 03:41:31 mike Exp $".
  */
