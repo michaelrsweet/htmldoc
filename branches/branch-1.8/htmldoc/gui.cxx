@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.36 2001/12/13 20:11:09 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.37 2001/12/14 19:37:05 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1020,6 +1020,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Load the HTMLDOC icon image...
   window->icon((char *)LoadImage(fl_display, MAKEINTRESOURCE(IDI_ICON),
                                  IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
+#  elif defined(__APPLE__)
+  // NEED TO DO MacOS stuff here...
 #  elif defined(HAVE_LIBXPM) // X11 w/Xpm library
   Pixmap	pixmap, mask;	// Icon pixmaps
   XpmAttributes	attrs;		// Attributes of icon
@@ -4205,5 +4207,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.36 2001/12/13 20:11:09 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.37 2001/12/14 19:37:05 mike Exp $".
 //
