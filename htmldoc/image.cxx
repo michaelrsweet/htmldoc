@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.14 2001/10/30 14:26:04 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.15 2001/10/20 21:49:22 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -1691,5 +1691,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.14 2001/10/30 14:26:04 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.15 2001/10/20 21:49:22 mike Exp $".
  */

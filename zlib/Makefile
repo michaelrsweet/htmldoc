@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.7 2001/01/22 15:04:05 mike Exp $"
+# "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:06 mike Exp $"
 #
 #   ZIP library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -74,5 +74,5 @@ trees.o:	deflate.h zutil.h trees.h
 zutil.o:	zutil.h
 
 #
-# End of "$Id: Makefile,v 1.7 2001/01/22 15:04:05 mike Exp $".
+# End of "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:06 mike Exp $".
 #
