@@ -11,6 +11,8 @@ CHANGES IN HTMLDOC v1.8.9
 
 	- Didn't allow &#nnn; character escapes inside
 	  preformatted text.
+	- Empty TBODY groups would cause parse_table() to
+	  crash.
 
 
 CHANGES IN HTMLDOC v1.8.8
