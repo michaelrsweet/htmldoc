@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.23 2000/03/21 04:03:29 mike Exp $"
+// "$Id: HelpView.cxx,v 1.24 2000/04/21 20:00:31 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -1563,6 +1563,8 @@ HelpView::HelpView(int        xx,	// I - Left position
     : Fl_Group(xx, yy, ww, hh, l),
       scrollbar_(xx + ww - 17, yy, 17, hh)
 {
+  link_        = (HelpFunc *)0;
+
   filename_[0] = '\0';
   value_       = NULL;
 
@@ -1798,5 +1800,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.23 2000/03/21 04:03:29 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.24 2000/04/21 20:00:31 mike Exp $".
 //
