@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.47 2001/05/01 18:42:39 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.48 2001/05/10 13:12:20 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3930,11 +3930,29 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   {
     if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
       border = 1.0f;
+
+    cellpadding += border;
   }
   else
     border = 0.0f;
 
+  if (border == 0.0f)
+  {
+   /*
+    * Ah, the strange table formatting nightmare that is HTML.
+    * Netscape and MSIE assign an invisible border width of 1
+    * pixel if no border is specified...
+    */
+
+    cellpadding += 1.0f;
+  }
+
   border_size = border - 1.0f;
+
+  cellspacing *= PagePrintWidth / _htmlBrowserWidth;
+  cellpadding *= PagePrintWidth / _htmlBrowserWidth;
+  border      *= PagePrintWidth / _htmlBrowserWidth;
+  border_size *= PagePrintWidth / _htmlBrowserWidth;
 
   memset(row_spans, 0, sizeof(row_spans));
   memset(span_heights, 0, sizeof(span_heights));
@@ -8311,5 +8329,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.47 2001/05/01 18:42:39 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.48 2001/05/10 13:12:20 mike Exp $".
  */
