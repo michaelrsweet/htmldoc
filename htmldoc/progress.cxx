@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.cxx,v 1.6.2.1 2001/01/30 01:36:00 mike Exp $"
+ * "$Id: progress.cxx,v 1.6.2.2 2001/03/04 03:05:06 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
@@ -62,7 +62,7 @@ progress_error(char *format,	/* I - Printf-style format string */
 #ifdef HAVE_LIBFLTK
   if (BookGUI != NULL)
   {
-    fl_alert("%s", text);
+    BookGUI->add_error(text);
     return;
   }
 #endif /* HAVE_LIBFLTK */
@@ -145,5 +145,5 @@ progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.6.2.1 2001/01/30 01:36:00 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.6.2.2 2001/03/04 03:05:06 mike Exp $".
  */
