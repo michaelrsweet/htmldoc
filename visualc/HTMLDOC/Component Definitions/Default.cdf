@@ -1,8 +1,8 @@
 [Components]
 component0=Font Files
 component1=Program Executables
-component2=Documentation
-component3=Data Files
+component2=Data Files
+component3=Documentation
 
 [TopComponents]
 component0=Program Executables
@@ -76,36 +76,10 @@ Name=
 Comment=
 item0=Font Files
 item1=Program Executables
-item2=Data Files
-item3=Documentation
+item2=Documentation
+item3=Data Files
 Descrip=
 DisplayText=
-
-[Data Files]
-required0=Program Executables
-SELECTED=Yes
-FILENEED=STANDARD
-HTTPLOCATION=
-STATUS=Data Files
-UNINSTALLABLE=Yes
-TARGET=<TARGETDIR>\data
-FTPLOCATION=
-VISIBLE=Yes
-DESCRIPTION=Data Files
-DISPLAYTEXT=Data Files
-IMAGE=
-DEFSELECTION=Yes
-filegroup0=Data Files
-COMMENT=
-INCLUDEINBUILD=Yes
-INSTALLATION=ALWAYSOVERWRITE
-COMPRESSIFSEPARATE=No
-MISC=
-ENCRYPT=No
-DISK=ANYDISK
-TARGETDIRCDROM=
-PASSWORD=
-TARGETHIDDEN=General Application Destination\data
 
 [Documentation]
 required0=Program Executables
@@ -132,4 +106,30 @@ DISK=ANYDISK
 TARGETDIRCDROM=
 PASSWORD=
 TARGETHIDDEN=General Application Destination\doc
+
+[Data Files]
+required0=Program Executables
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Data Files
+UNINSTALLABLE=Yes
+TARGET=<TARGETDIR>\data
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=Data Files
+DISPLAYTEXT=Data Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Data Files
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=General Application Destination\data
 
