@@ -1,5 +1,5 @@
 //
-// "$Id: render-table.cxx,v 1.4 2002/03/18 00:03:22 mike Exp $"
+// "$Id: render-table.cxx,v 1.5 2002/04/04 01:48:58 mike Exp $"
 //
 //   Table rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -201,7 +201,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
     tempnext = temprow->next;
 
     if (temprow->element == HD_ELEMENT_CAPTION)
-      parse_block(temprow, m, x, y, page);
+      parse_doc(temprow, m, x, y, page);
     else if (temprow->element == HD_ELEMENT_TR ||
              ((temprow->element == HD_ELEMENT_TBODY || temprow->element == HD_ELEMENT_THEAD ||
                temprow->element == HD_ELEMENT_TFOOT) && temprow->child != NULL))
@@ -1575,5 +1575,5 @@ hdRender::get_table_size(hdTree *t,		// I - Table
 
 
 //
-// End of "$Id: render-table.cxx,v 1.4 2002/03/18 00:03:22 mike Exp $".
+// End of "$Id: render-table.cxx,v 1.5 2002/04/04 01:48:58 mike Exp $".
 //
