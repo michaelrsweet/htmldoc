@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.29 2002/03/11 02:33:04 mike Exp $"
+// "$Id: htmldoc.h,v 1.30 2002/04/01 22:45:30 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -122,6 +122,7 @@ struct hdCommon
   const char	*find_glyph(const char *h);
   hdPageSize	*find_size(const char *n);
   hdPageSize	*find_size(float w, float l);
+  char		*format_number(char *s, int slen, char format, int number);
   void		load_entities();
   void		load_sizes();
 
@@ -137,5 +138,5 @@ extern hdCommon	hdGlobal;
 #endif // !_HTMLDOC_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.29 2002/03/11 02:33:04 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.30 2002/04/01 22:45:30 mike Exp $".
 //

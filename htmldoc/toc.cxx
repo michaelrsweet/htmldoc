@@ -1,5 +1,5 @@
 //
-// "$Id: toc.cxx,v 1.7 2002/04/01 11:56:14 mike Exp $"
+// "$Id: toc.cxx,v 1.8 2002/04/01 22:45:30 mike Exp $"
 //
 //   Table-of-contents methods for HTMLDOC, a HTML document processing program.
 //
@@ -30,6 +30,7 @@
 //
 
 #include "htmldoc.h"
+#include "hdstring.h"
 
 
 //
@@ -42,359 +43,171 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 		  int          numbered)// I - Number the headings?
 {
   int		i;			// Looping var
+  int		chapter;		// Chapter number
   int		numbers[6];		// Current heading numbers
   char		formats[6];		// Current heading formats
   int		level,			// Current heading level
 		newlevel;		// New heading level
   hdTree	*t,			// Current node
 		*tnext,			// Next node
-		*tlink;			// Pointer to link
+		*tlink,			// Pointer to link
+		*ttemp;			// Temporary node pointer
   hdTree	*toc,			// Table of contents
 		*tocptr,		// Pointer into TOC
-		*tocnode;		// Node in toc
+		*tocnode,		// Node in TOC
+		*tocnumber,		// Number node in TOC
+		*toclink;		// Link node in TOC
   char		s[1024],		// Text for heading number
 		*sptr;			// Pointer into heading number
+  const char	*val;			// Attribute value
 
 
   // Initialize the numbers and formats...
   memset(numbers, 0, sizeof(numbers));
   memset(formats, '1', sizeof(formats));
 
-  level = 0;
+  level   = 0;
+  chapter = 0;
 
   // Create a root node for the TOC...
   toc = new hdTree(HD_ELEMENT_BODY);
-  toc->
+  toc->set_attr("CLASS", "TOC");
+  toc->style = css->find_style(toc);
+
   // Scan the document tree for headings...
-  for (t = this; t; t = tnext)
+  for (tocptr = toc, t = this; t; t = tnext)
   {
+    // Point to the next node in the tree...
     tnext = t->real_next();
-  }
 
-  return (toc);
-}
-
-
-
-
-#if 0
-/*
- * Local functions...
- */
-
-static void	parse_tree(tree_t *t);
-
-
-/*
- * Local globals...
- */
-
-static int	heading_numbers[7];
-static uchar	heading_types[7] = { '1', '1', '1', '1', '1', '1', '1' };
-static int	last_level;
-static tree_t	*heading_parents[7];
-
-
-/*
- * 'toc_build()' - Build a table of contents of the given HTML tree.
- */
-
-tree_t *			/* O - Table of contents tree */
-toc_build(tree_t *tree)		/* I - Document tree */
-{
-  tree_t	*toc,		/* TOC tree pointer */
-		*title,		/* Title entry */
-		*link;		/* Link entry */
-
-
-  TocDocCount        = 0;
-  last_level         = 0;	/* Currently at the "top" level */
-  heading_numbers[0] = 0;	/* Start at 1 (see below) */
-
-  toc = htmlAddTree(NULL, MARKUP_BODY, NULL);
-
-  title = htmlAddTree(toc, MARKUP_H1, NULL);
-  htmlSetVariable(title, (uchar *)"ALIGN", (uchar *)"CENTER");
-  link = htmlAddTree(title, MARKUP_A, NULL);
-  htmlSetVariable(link, (uchar *)"NAME", (uchar *)"CONTENTS");
-  htmlAddTree(link, MARKUP_NONE, (uchar *)TocTitle);
-
-  heading_parents[0] = toc;
-  heading_parents[1] = toc;
-  heading_parents[2] = toc;
-  heading_parents[3] = toc;
-  heading_parents[4] = toc;
-  heading_parents[5] = toc;
-  heading_parents[6] = toc;
-
-  parse_tree(tree);
-
-  return (toc);
-}
-
-
-/*
- * 'add_heading()' - Add heading records to the given toc entry...
- */
-
-void
-add_heading(tree_t *toc,	/* I - Table of contents */
-            tree_t *heading)	/* I - Heading entry */
-{
-  while (heading != NULL)
-  {
-    if (heading->child != NULL)
-      add_heading(toc, heading->child);
-    else if (heading->markup == MARKUP_NONE && heading->data != NULL)
-      htmlAddTree(toc, MARKUP_NONE, heading->data);
-
-    heading = heading->next;
-  }
-}
-
-
-/*
- * 'parse_tree()' - Parse headings from the given tree...
- *
- * Note: We also add anchor points and numbers as necessary...
- */
-
-static void			/* O - Tree of TOC entries */
-parse_tree(tree_t *t)		/* I - Document tree */
-{
-  tree_t	*parent;	/* Parent of toc entry (DD or LI) */
-  tree_t	*target,	/* Link target */
-		*temp;		/* Looping var */
-  uchar		heading[255],	/* Heading numbers */
-		link[255],	/* Actual link */
-		baselink[255],	/* Base link (numbered) */
-		*existing;	/* Existing link string */
-  int		i, level;	/* Header level */
-  uchar		*var;		/* Starting value/type for this level */
-  static const char *ones[10] =
-		{
-		  "",	"i",	"ii",	"iii",	"iv",
-		  "v",	"vi",	"vii",	"viii",	"ix"
-		},
-		*tens[10] =
-		{
-		  "",	"x",	"xx",	"xxx",	"xl",
-		  "l",	"lx",	"lxx",	"lxxx",	"xc"
-		},
-		*hundreds[10] =
-		{
-		  "",	"c",	"cc",	"ccc",	"cd",
-		  "d",	"dc",	"dcc",	"dccc",	"cm"
-		},
-		*ONES[10] =
-		{
-		  "",	"I",	"II",	"III",	"IV",
-		  "V",	"VI",	"VII",	"VIII",	"IX"
-		},
-		*TENS[10] =
-		{
-		  "",	"X",	"XX",	"XXX",	"XL",
-		  "L",	"LX",	"LXX",	"LXXX",	"XC"
-		},
-		*HUNDREDS[10] =
-		{
-		  "",	"C",	"CC",	"CCC",	"CD",
-		  "D",	"DC",	"DCC",	"DCCC",	"CM"
-		};
-
-
-  while (t != NULL)
-  {
-    switch (t->markup)
+    // See if we have a heading...
+    if (t->element >= HD_ELEMENT_H1 && t->element <= HD_ELEMENT_H6)
     {
-      case MARKUP_H1 :
-      case MARKUP_H2 :
-      case MARKUP_H3 :
-      case MARKUP_H4 :
-      case MARKUP_H5 :
-      case MARKUP_H6 :
-          level = t->markup - MARKUP_H1;
+      // Yes, handle it...
+      tnext    = t->next;
+      newlevel = t->element - HD_ELEMENT_H1;
 
-          if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
-            heading_numbers[level] = atoi((char *)var);
-          else
-            heading_numbers[level] ++;
+      // If the new level is not the same as the old level, (un)indent
+      // as needed...
+      while (newlevel > level)
+      {
+        // Indent lower...
+        level ++;
 
-          if (level == 0)
-            TocDocCount ++;
+        numbers[level] = 0;
 
-          if ((var = htmlGetVariable(t, (uchar *)"TYPE")) != NULL)
-            heading_types[level] = var[0];
+	tocnode = new hdTree(HD_ELEMENT_UL, NULL, tocptr);
+	tocnode->set_attr("CLASS", "TOC");
+	tocnode->style = css->find_style(tocnode);
+	tocptr = tocnode;
+      }
+      
+      while (newlevel < level)
+      {
+        // Unindent higher...
+        level --;
 
-          for (i = level + 1; i < 7; i ++)
-            heading_numbers[i] = 0;
+	tocptr = tocptr->parent;
+      }
 
-          heading[0]  = '\0';
-	  baselink[0] = '\0';
+      // Bump the chapter number as needed...
+      if (level == 0)
+        chapter ++;
 
-          for (i = 0; i <= level; i ++)
-          {
-            if (i == 0)
-              sprintf((char *)baselink + strlen((char *)baselink), "%d", TocDocCount);
-            else
-              sprintf((char *)baselink + strlen((char *)baselink), "%d", heading_numbers[i]);
+      // See if we have a new format or number value...
+      if ((val = t->get_attr("VALUE")) != NULL)
+        numbers[level] = atoi(val);
+      else
+        numbers[level] ++;
 
-            switch (heading_types[i])
-            {
-              case '1' :
-                  sprintf((char *)heading + strlen((char *)heading), "%d", heading_numbers[i]);
-                  break;
-              case 'a' :
-                  if (heading_numbers[i] > 26)
-                    sprintf((char *)heading + strlen((char *)heading), "%c%c",
-                            'a' + (heading_numbers[i] / 26) - 1,
-                            'a' + (heading_numbers[i] % 26) - 1);
-                  else
-                    sprintf((char *)heading + strlen((char *)heading), "%c",
-                            'a' + heading_numbers[i] - 1);
-                  break;
-              case 'A' :
-                  if (heading_numbers[i] > 26)
-                    sprintf((char *)heading + strlen((char *)heading), "%c%c",
-                            'A' + (heading_numbers[i] / 26) - 1,
-                            'A' + (heading_numbers[i] % 26) - 1);
-                  else
-                    sprintf((char *)heading + strlen((char *)heading), "%c",
-                            'A' + heading_numbers[i] - 1);
-                  break;
-              case 'i' :
-                  sprintf((char *)heading + strlen((char *)heading), "%s%s%s",
-                          hundreds[heading_numbers[i] / 100],
-                          tens[(heading_numbers[i] / 10) % 10],
-                          ones[heading_numbers[i] % 10]);
-                  break;
-              case 'I' :
-                  sprintf((char *)heading + strlen((char *)heading), "%s%s%s",
-                          HUNDREDS[heading_numbers[i] / 100],
-                          TENS[(heading_numbers[i] / 10) % 10],
-                          ONES[heading_numbers[i] % 10]);
-                  break;
-            }
+      if ((val = t->get_attr("TYPE")) != NULL)
+        formats[level] = *val;
 
-            if (i < level)
-            {
-              strcat((char *)heading, ".");
-              strcat((char *)baselink, "_");
-            }
-          }
+      // Do we need heading numbers?
+      if (numbers)
+      {
+        // Yes, format the number...
+        s[0]             = '\0';
+	s[sizeof(s) - 1] = '\0';
 
-         /*
-	  * See if we have an existing <A NAME=...> for this heading...
-	  */
+        for (i = 0, sptr = s; i <= level; i ++, sptr += strlen(s))
+	{
+	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
+	                         formats[i], numbers[i]);
 
-          existing = NULL;
+          if (i < level)
+	    strncat(sptr, ".", sizeof(s) - (sptr - s) - 1);
+        }
 
-          if (t->parent != NULL && t->parent->markup == MARKUP_A)
-	    existing = htmlGetVariable(t->parent, (uchar *)"NAME");
+        tocnumber = new hdTree(HD_ELEMENT_NONE, s);
+	tocnumber->insert(t);
+	tocnumber->style = t->style;
+	tocnumber->compute_size(css);
 
-	  if (existing == NULL &&
-              t->child != NULL && t->child->markup == MARKUP_A)
-	    existing = htmlGetVariable(t->child, (uchar *)"NAME");
+	if (tocnumber->next)
+	  tocnumber->next->whitespace = 1;
+      }
 
-          if (existing != NULL &&
-	      strlen((char *)existing) >= 124)	/* Max size of link name */
-	    existing = NULL;
+      // Do we need to add a link target?
+      if ((tlink = t->find(HD_ELEMENT_A)) == NULL)
+      {
+        // No link node; insert one...
+	tlink = new hdTree(HD_ELEMENT_A);
+	tlink->child      = t->child;
+	tlink->last_child = t->last_child;
 
-          if (existing != NULL)
-	    sprintf((char *)link, "#%s", existing);
-	  else
-	    sprintf((char *)link, "#%s", baselink);
+	for (ttemp = t->child; ttemp != NULL; ttemp = ttemp->next)
+	  ttemp->parent = tlink;
 
-         /*
-	  * Number the headings as needed...
-	  */
+        t->child      = tlink;
+	t->last_child = tlink;
+      }
 
-          if (TocNumbers)
-	  {
-            strcat((char *)heading, " ");
+      if (tlink->get_attr("NAME") == NULL)
+      {
+        // Add a named link...
+	strcpy(s, "HD_");
+	s[sizeof(s) - 1] = '\0';
 
-            htmlInsertTree(t, MARKUP_NONE, heading);
-	  }
+        for (i = 0, sptr = s + 3; i <= level; i ++, sptr += strlen(s))
+	{
+	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
+	                         formats[i], numbers[i]);
 
-         /*
-	  * Add the heading to the table of contents...
-	  */
+          if (i < level)
+	    strncat(sptr, "_", sizeof(s) - (sptr - s) - 1);
+        }
 
-          if (level < TocLevels)
-          {
-            if (level > last_level)
-              heading_parents[level] = htmlAddTree(heading_parents[level - 1],
-                                                   MARKUP_UL, NULL);
+	tlink->set_attr("NAME", s);
+      }
 
-            if (level == 0)
-            {
-              if (last_level == 0)
-              {
-                htmlAddTree(heading_parents[level], MARKUP_BR, NULL);
-                htmlAddTree(heading_parents[level], MARKUP_BR, NULL);
-              }
+      // Then add a new node for the heading...
+      tocnode = new hdTree(level == 0 ? HD_ELEMENT_P : HD_ELEMENT_LI, NULL, tocptr);
+      tocnode->set_attr("CLASS", "TOC");
+      tocnode->style = css->find_style(tocnode);
 
-              parent = htmlAddTree(heading_parents[level], MARKUP_B, NULL);
-            }
-            else
-              parent = htmlAddTree(heading_parents[level], MARKUP_LI, NULL);
+      // And a node for the link...
+      snprintf(s, sizeof(s), "#%s", tlink->get_attr("NAME"));
 
-            if (TocLinks)
-            {
-             /*
-              * Add a link for the toc...
-              */
+      toclink = new hdTree(HD_ELEMENT_A, "", tocnode);
+      toclink->set_attr("HREF", s);
+      toclink->set_attr("CLASS", "TOC");
+      toclink->style = css->find_style(toclink);
 
-              parent = htmlAddTree(parent, MARKUP_A, NULL);
-              htmlSetVariable(parent, (uchar *)"HREF", link);
+      // Copy the text to the TOC...
+      t->copy_text(toclink);
 
-             /*
-              * Insert a NAME marker if needed and reparent all the
-	      * heading children.
-              */
-
-              if (existing == NULL)
-	      {
-	       /*
-	        * Add NAME to existing A element, if present.
-		*/
-
-                if (t->parent != NULL && t->parent->markup == MARKUP_A)
-	          htmlSetVariable(t->parent, (uchar *)"NAME", baselink);
-		else if (t->child != NULL && t->child->markup == MARKUP_A)
-	          htmlSetVariable(t->child, (uchar *)"NAME", baselink);
-		else
-		{
-        	  target = htmlNewTree(t, MARKUP_A, NULL);
-
-        	  htmlSetVariable(target, (uchar *)"NAME", baselink);
-        	  for (temp = t->child; temp != NULL; temp = temp->next)
-                    temp->parent = target;
-
-        	  target->child = t->child;
-        	  t->child      = target;
-	        }
-	      }
-            }
-
-            add_heading(parent, t->child);
-          }
-
-          last_level = level;
-          break;
-
-      default :
-          if (t->child != NULL)
-            parse_tree(t->child);
-          break;
+      // Finally, add a pseudo-attribute for the chapter number...
+      snprintf(s, sizeof(s), "%d", chapter);
+      tlink->set_attr("_HD_CHAPTER", s);
+      toclink->set_attr("_HD_CHAPTER", s);
     }
-
-    t = t->next;
   }
+
+  return (toc);
 }
-#endif /* 0 */
 
 
 //
-// End of "$Id: toc.cxx,v 1.7 2002/04/01 11:56:14 mike Exp $".
+// End of "$Id: toc.cxx,v 1.8 2002/04/01 22:45:30 mike Exp $".
 //

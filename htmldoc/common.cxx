@@ -1,5 +1,5 @@
 //
-// "$Id: common.cxx,v 1.2 2002/02/09 23:54:39 mike Exp $"
+// "$Id: common.cxx,v 1.3 2002/04/01 22:45:30 mike Exp $"
 //
 //   Common routines for HTMLDOC, a HTML document processing program.
 //
@@ -177,6 +177,99 @@ hdCommon::find_size(const char *name)	// I - Page size name
       return (s);
 
   return (NULL);
+}
+
+
+//
+// 'hdCommon::format_number()' - Format a numeric value.
+//
+
+char *					// O - String
+hdCommon::format_number(char *s,	// O - String
+                        int  slen,	// I - Size of string buffer
+			char format,	// I - Format type
+			int  number)	// I - Number to format
+{
+  static const char *ones[10] =	/* Roman numerals, 0-9 */
+		{
+		  "",	"i",	"ii",	"iii",	"iv",
+		  "v",	"vi",	"vii",	"viii",	"ix"
+		},
+		*tens[10] =	/* Roman numerals, 10-90 */
+		{
+		  "",	"x",	"xx",	"xxx",	"xl",
+		  "l",	"lx",	"lxx",	"lxxx",	"xc"
+		},
+		*hundreds[10] =	/* Roman numerals, 100-900 */
+		{
+		  "",	"c",	"cc",	"ccc",	"cd",
+		  "d",	"dc",	"dcc",	"dccc",	"cm"
+		};
+  static const char *ONES[10] =	/* Roman numerals, 0-9 */
+		{
+		  "",	"I",	"II",	"III",	"IV",
+		  "V",	"VI",	"VII",	"VIII",	"IX"
+		},
+		*TENS[10] =	/* Roman numerals, 10-90 */
+		{
+		  "",	"X",	"XX",	"XXX",	"XL",
+		  "L",	"LX",	"LXX",	"LXXX",	"XC"
+		},
+		*HUNDREDS[10] =	/* Roman numerals, 100-900 */
+		{
+		  "",	"C",	"CC",	"CCC",	"CD",
+		  "D",	"DC",	"DCC",	"DCCC",	"CM"
+		};
+
+
+  switch (format)
+  {
+    default :
+        s[0] = '\0';
+	break;
+
+    case 'a' :
+        if (number >= (26 * 26))
+	  s[0] = '\0';
+        else if (number > 26)
+          snprintf(s, slen, "%c%c", 'a' + (number / 26) - 1,
+	           'a' + (number % 26) - 1);
+        else
+          snprintf(s, slen, "%c", 'a' + number - 1);
+        break;
+
+    case 'A' :
+        if (number >= (26 * 26))
+	  s[0] = '\0';
+        else if (number > 26)
+          snprintf(s, slen, "%c%c", 'A' + (number / 26) - 1,
+	           'A' + (number % 26) - 1);
+        else
+          snprintf(s, slen, "%c", 'A' + number - 1);
+        break;
+
+    case '1' :
+        snprintf(s, slen, "%d", number);
+        break;
+
+    case 'i' :
+        if (number >= 1000)
+	  s[0] = '\0';
+	else
+          snprintf(s, slen, "%s%s%s", hundreds[number / 100],
+	           tens[(number / 10) % 10], ones[number % 10]);
+        break;
+
+    case 'I' :
+        if (number >= 1000)
+	  s[0] = '\0';
+	else
+          snprintf(s, slen, "%s%s%s", HUNDREDS[number / 100],
+	           TENS[(number / 10) % 10], ONES[number % 10]);
+        break;
+  }
+
+  return (s);
 }
 
 
@@ -386,5 +479,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: common.cxx,v 1.2 2002/02/09 23:54:39 mike Exp $".
+// End of "$Id: common.cxx,v 1.3 2002/04/01 22:45:30 mike Exp $".
 //
