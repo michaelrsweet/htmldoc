@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.63 2004/02/06 03:51:08 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.64 2004/02/10 22:08:31 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -274,6 +274,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   controls = new Fl_Group(0, 0, 505, 385);
   tabs     = new Fl_Tabs(10, 10, 485, 285);
+
+  tabs->selection_color(FL_WHITE);
 
   //
   // Input tab...
@@ -4097,5 +4099,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.63 2004/02/06 03:51:08 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.64 2004/02/10 22:08:31 mike Exp $".
 //
