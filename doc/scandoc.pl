@@ -322,7 +322,7 @@ sub handleCommentLine {
     # for param and exception, split the param name and the text
     # seperate them with tabs.
     if ($tag eq "param" || $tag eq "exception") {
-      s/^\s*(\w+)\s*(\w+)\s*(.*)/\t$1\t$2\t$3/;
+      s/^\s*(\w+)\s*(\S+)\s*(.*)/\t$1\t$2\t$3/;
     }
     elsif ($tag eq "heading") {
       # 'heading' is processed by the template, if at all.

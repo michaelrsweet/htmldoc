@@ -1,5 +1,5 @@
 //
-// "$Id: margin.h,v 1.5 2002/07/29 02:10:28 mike Exp $"
+// "$Id: margin.h,v 1.6 2002/09/08 00:15:01 mike Exp $"
 //
 // Margin class definitions for HTMLDOC, a HTML document processing
 // program.
@@ -34,37 +34,131 @@
 #  define HD_MARGIN_MAX	10
 
 
-//
-// Margin class...
-//
-
+/**
+ * The <TT>hdMargin</TT> class tracks changes to the margins for a document
+ * in a stack. This is used to manage margins around floating elements such
+ * as images and tables.
+ */
 class hdMargin
 {
   private:
-    float	_left[HD_MARGIN_MAX],	// Left margin
-		_right[HD_MARGIN_MAX],	// Right margin
-		_bottom[HD_MARGIN_MAX],	// Bottom margin
-		_top;			// Top margin
-    int		_page[HD_MARGIN_MAX];	// Page number
-    int		_level;			// Stack level
+    //* Left margin stack
+    float	_left[HD_MARGIN_MAX];
+    //* Right margin stack
+    float	_right[HD_MARGIN_MAX];
+    //* Bottom margin stack
+    float	_bottom[HD_MARGIN_MAX];
+    //* Top margin
+    float	_top;
+    //* End page stack
+    int		_page[HD_MARGIN_MAX];
+    //* Stack level
+    int		_level;
 
   public:
 
+   /**
+    * The constructor creates a new margin stack object.
+    *
+    * @param l float Initial left margin in points.
+    * @param b float Initial bottom margin in points.
+    * @param r float Initial right margin in points.
+    * @param t float Top margin in points.
+    */
     hdMargin(float l, float r, float b, float t = 0.0);
 
+   /**
+    * The left() method returns the current left margin.
+    *
+    * @return The left margin in points.
+    */
     float	left() { return (_left[_level]); }
+
+   /**
+    * The right() method returns the current right margin.
+    *
+    * @return The right margin in points.
+    */
     float	right() { return (_right[_level]); }
+
+   /**
+    * The bottom() method returns the current bottom margin.
+    *
+    * @return The bottom margin in points.
+    */
     float	bottom() { return (_bottom[_level]); }
+
+   /**
+    * The bottom0() method returns the initial bottom margin.
+    *
+    * @return The bottom margin in points.
+    */
     float	bottom0() { return (_bottom[0]); }
+
+   /**
+    * The page() method returns the ending page for the current margins.
+    *
+    * @return The ending page number.
+    */
     int		page() { return (_page[_level]); }
+
+   /**
+    * The top() method returns the top margin.
+    *
+    * @return The top margin in points.
+    */
     float	top() { return (_top); }
+
+   /**
+    * The width() method returns the current width.
+    *
+    * @return The width in points.
+    */
     float	width() { return (_right[_level] - _left[_level]); }
+
+   /**
+    * The length() method returns the current length.
+    *
+    * @return The length in points.
+    */
     float	length() { return (_bottom[0] - _top); }
 
+   /**
+    * The push() method pushes a new set of margins on the stack.
+    *
+    * @param l float The new left margin in points.
+    * @param r float The new right margin in points.
+    * @param b float The new bottom margin in points.
+    * @param p int The new ending page.
+    */
     void	push(float l, float r, float b, int p = 0);
+
+   /**
+    * The pop() method pops the current margins off the stack. If the
+    * current margins are at the top of the stack, nothing is popped.
+    */
     void	pop() { if (_level) _level --; }
+
+   /**
+    * The clear() method pops all margins off the stack, leaving the
+    * initial margins only.
+    */
     void	clear() { _level = 0; }
+
+   /**
+    * The clear() method pops all margins earlier than the specified
+    * vertical position and page.
+    *
+    * @param y float The vertical position on the page in points.
+    * @param p int The page number.
+    */
     void	clear(float y, int p);
+
+   /**
+    * The level() method returns the current stack depth.
+    *
+    * @return The stack depth.
+    */
     int		level() { return (_level); }
 };
 
@@ -72,5 +166,5 @@ class hdMargin
 
 
 //
-// End of "$Id: margin.h,v 1.5 2002/07/29 02:10:28 mike Exp $".
+// End of "$Id: margin.h,v 1.6 2002/09/08 00:15:01 mike Exp $".
 //
