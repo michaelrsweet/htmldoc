@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.2 1999/11/09 22:16:42 mike Exp $"
+ * "$Id: image.cxx,v 1.3 1999/11/11 21:36:45 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -94,8 +94,8 @@ static int	gif_read_image(FILE *fp, image_t *img, gif_cmap_t cmap,
  */
 
 image_t *			/* O - Pointer to image */
-image_load(char *filename,	/* I - Name of image file */
-           int  gray)		/* I - 0 = color, 1 = grayscale */
+image_load(const char *filename,/* I - Name of image file */
+           int        gray)	/* I - 0 = color, 1 = grayscale */
 {
   FILE		*fp;		/* File pointer */
   uchar		header[16];	/* First 16 bytes of file */
@@ -128,7 +128,10 @@ image_load(char *filename,	/* I - Name of image file */
     match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
                                 (int (*)(const void *, const void *))image_compare);
     if (match != NULL)
+    {
+      (*match)->use ++;
       return (*match);
+    }
   }
 
  /*
@@ -155,6 +158,7 @@ image_load(char *filename,	/* I - Name of image file */
   images[num_images] = img;
 
   strcpy(img->filename, filename);
+  img->use = 1;
 
  /*
   * Load the image as appropriate...
@@ -188,6 +192,47 @@ image_load(char *filename,	/* I - Name of image file */
 
 
 /*
+ * 'image_find()' - Find an image file in memory...
+ */
+
+image_t *			/* O - Pointer to image */
+image_find(const char *filename)/* I - Name of image file */
+{
+  image_t	key,		/* Search key... */
+		*keyptr,	/* Pointer to search key... */
+		**match;	/* Matching image */
+
+
+ /*
+  * Range check...
+  */
+
+  if (filename == NULL)
+    return (NULL);
+
+  if (filename[0] == '\0')	/* Microsoft VC++ runtime bug workaround... */
+    return (NULL);
+
+ /*
+  * See if we've already loaded it...
+  */
+
+  if (num_images > 0)
+  {
+    strcpy(key.filename, filename);
+    keyptr = &key;
+
+    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
+                                (int (*)(const void *, const void *))image_compare);
+    if (match != NULL)
+      return (*match);
+  }
+
+  return (NULL);
+}
+
+
+/*
  * 'image_flush_cache()' - Flush the image cache...
  */
 
@@ -216,8 +261,8 @@ image_flush_cache(void)
  */
 
 void
-image_copy(char *filename,	/* I - Source file */
-           char *destpath)	/* I - Destination path */
+image_copy(const char *filename,/* I - Source file */
+           const char *destpath)/* I - Destination path */
 {
   char	dest[255];		/* Destination file */
   FILE	*in, *out;		/* Input/output files */
@@ -262,15 +307,27 @@ image_copy(char *filename,	/* I - Source file */
  * 'image_compare()' - Compare two image filenames...
  */
 
-static int
-image_compare(image_t **img1,
-              image_t **img2)
+static int			/* O - Result of comparison */
+image_compare(image_t **img1,	/* I - First image */
+              image_t **img2)	/* I - Second image */
 {
 #if defined(WIN32) || defined(__EMX__)
   return (strcasecmp((*img1)->filename, (*img2)->filename));
 #else
   return (strcmp((*img1)->filename, (*img2)->filename));
 #endif /* WIN32 || __EMX__ */
+}
+
+
+/*
+ * 'image_getlist()' - Get the list of images that are loaded.
+ */
+
+int				/* O - Number of images in array */
+image_getlist(image_t ***ptrs)	/* O - Pointer to images array */
+{
+  *ptrs = images;
+  return (num_images);
 }
 
 
@@ -927,5 +984,5 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
 
 /*
- * End of "$Id: image.cxx,v 1.2 1999/11/09 22:16:42 mike Exp $".
+ * End of "$Id: image.cxx,v 1.3 1999/11/11 21:36:45 mike Exp $".
  */

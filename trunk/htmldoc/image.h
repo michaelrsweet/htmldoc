@@ -1,5 +1,5 @@
 /*
- * "$Id: image.h,v 1.3 1999/11/09 22:16:42 mike Exp $"
+ * "$Id: image.h,v 1.4 1999/11/11 21:36:45 mike Exp $"
  *
  *   Image management definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -50,17 +50,21 @@ typedef struct			/**** Image structure ****/
   char		filename[1024];	/* Name of image file (for caching of images */
   int		width,		/* Width of image in pixels */
 		height,		/* Height of image in pixels */
-		depth;		/* 1 for grayscale, 3 for RGB */
+		depth,		/* 1 for grayscale, 3 for RGB */
+		use;		/* Number of times this image was used */
   uchar		*pixels;	/* 8-bit pixel data */
 } image_t;
+
 
 /*
  * Prototypes...
  */
 
-extern image_t	*image_load(char *filename, int gray);
+extern void	image_copy(const char *filename, const char *destpath);
+extern image_t	*image_find(const char *filename);
 extern void	image_flush_cache(void);
-extern void	image_copy(char *filename, char *destpath);
+extern int	image_getlist(image_t ***ptrs);
+extern image_t	*image_load(const char *filename, int gray);
 
 #  ifdef __cplusplus
 }
@@ -69,5 +73,5 @@ extern void	image_copy(char *filename, char *destpath);
 #endif /* !_IMAGE_H_ */
 
 /*
- * End of "$Id: image.h,v 1.3 1999/11/09 22:16:42 mike Exp $".
+ * End of "$Id: image.h,v 1.4 1999/11/11 21:36:45 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.4 1999/11/09 22:16:41 mike Exp $"
+ * "$Id: htmldoc.h,v 1.5 1999/11/11 21:36:45 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -132,8 +132,9 @@ extern tree_t	*toc_build(tree_t *tree);
 extern int	get_measurement(char *s);
 extern void	set_page_size(char *size);
 
-extern void	progress_show(char *format, ...);
+extern void	progress_error(char *format, ...);
 extern void	progress_hide(void);
+extern void	progress_show(char *format, ...);
 extern void	progress_update(int percent);
 
 extern void	prefs_load(void);
@@ -146,5 +147,5 @@ extern char	*format_number(int n, char f);
 #  endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.4 1999/11/09 22:16:41 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.5 1999/11/11 21:36:45 mike Exp $".
  */

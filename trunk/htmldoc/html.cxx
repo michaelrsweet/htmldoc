@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.3 1999/11/09 22:16:41 mike Exp $"
+ * "$Id: html.cxx,v 1.4 1999/11/11 21:36:44 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -161,7 +161,7 @@ html_export(tree_t *document,	/* I - Document to export */
     write_footer(&out, document);
 
     document = document->next;
-  };
+  }
 
   if (!OutputFiles && out != stdout)
   {
@@ -169,7 +169,7 @@ html_export(tree_t *document,	/* I - Document to export */
     fputs("</HTML>\n", out);
 
     fclose(out);
-  };
+  }
 
   if (title != NULL)
     free(title);
@@ -224,10 +224,15 @@ write_header(FILE   **out,	/* IO - Output file */
     }
     else
       newfile = 0;
-  };
+  }
 
   if (*out == NULL)
-    return;		/**** NEED TO ADD ERROR MESSAGE HOOK ****/
+  {
+    progress_error("Unable to create output file \"%s\" - %s.\n",
+                   OutputFiles ? realname : OutputPath,
+		   strerror(errno));
+    return;
+  }
 
   if (newfile)
   {
@@ -240,6 +245,9 @@ write_header(FILE   **out,	/* IO - Output file */
       fprintf(*out, "<META NAME=\"COPYRIGHT\" CONTENT=\"%s\">\n", copyright);
     if (docnumber != NULL)
       fprintf(*out, "<META NAME=\"DOCNUMBER\" CONTENT=\"%s\">\n", docnumber);
+    fputs("<STYLE>\n", *out);
+    /***** INSERT STYLE SHEET STUFF HERE *****/
+    fputs("</STYLE>\n", *out);
     fputs("</HEAD>\n", *out);
 
     if (BodyImage[0] != '\0')
@@ -268,7 +276,7 @@ write_header(FILE   **out,	/* IO - Output file */
               file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
 
     fputs("<HR>\n", *out);
-  };
+  }
 }
 
 
@@ -290,7 +298,7 @@ write_footer(FILE **out,	/* IO - Output file pointer */
     if (LogoImage[0] != '\0')
       fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
 
-    fputs("<A HREF=toc.html>Contents</a>\n", *out);
+    fputs("<A HREF=\"toc.html\">Contents</a>\n", *out);
 
     if (t->prev != NULL)
       fprintf(*out, "<A HREF=\"%s\">Previous</a>\n",
@@ -299,7 +307,7 @@ write_footer(FILE **out,	/* IO - Output file pointer */
     if (t->next != NULL)
       fprintf(*out, "<A HREF=\"%s\">Next</a>\n",
               file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
-  };
+  }
 
   if (OutputFiles)
   {
@@ -308,7 +316,7 @@ write_footer(FILE **out,	/* IO - Output file pointer */
 
     fclose(*out);
     *out = NULL;
-  };
+  }
 }
 
 
@@ -327,18 +335,18 @@ write_title(FILE *out,		/* I - Output file */
     return;
 
   if (OutputFiles)
-    fputs("<CENTER><A HREF=toc.html>", out);
+    fputs("<CENTER><A HREF=\"toc.html\">", out);
   else
-    fputs("<CENTER><A HREF=#contents>", out);
+    fputs("<CENTER><A HREF=\"#CONTENTS\">", out);
 
   if (TitleImage[0] != '\0')
   {
     if (OutputFiles)
-      fprintf(out, "<IMG SRC=\"%s\" BORDER=0><BR>\n",
+      fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\"><BR>\n",
               file_basename((char *)TitleImage));
     else
-      fprintf(out, "<IMG SRC=\"%s\" BORDER=0><BR>\n", TitleImage);
-  };
+      fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\"><BR>\n", TitleImage);
+  }
 
   if (title != NULL)
     fprintf(out, "<H1>%s</H1></A><BR>\n", title);
@@ -397,7 +405,7 @@ write_all(FILE   *out,		/* I - Output file */
 	    {
               putc('\n', out);
               col = 0;
-	    };
+	    }
 
             for (ptr = t->data; *ptr != '\0'; ptr ++)
               fputs((char *)iso8859(*ptr), out);
@@ -408,8 +416,8 @@ write_all(FILE   *out,		/* I - Output file */
 	    {
               putc('\n', out);
               col = 0;
-	    };
-	  };
+	    }
+	  }
 	  break;
 
       case MARKUP_COMMENT :
@@ -451,7 +459,7 @@ write_all(FILE   *out,		/* I - Output file */
           {
             putc('\n', out);
             col = 0;
-          };
+          }
 
       default :
 	  if (t->markup == MARKUP_IMG && OutputFiles &&
@@ -468,45 +476,52 @@ write_all(FILE   *out,		/* I - Output file */
               image_copy((char *)src, OutputPath);
               strcpy((char *)newsrc, file_basename((char *)src));
               htmlSetVariable(t, (uchar *)"SRC", newsrc);
-            };
-	  };
+            }
+	  }
 
-	  col += fprintf(out, "<%s", _htmlMarkups[t->markup]);
-	  for (i = 0; i < t->nvars; i ++)
+          if (t->markup != MARKUP_EMBED)
 	  {
+	    col += fprintf(out, "<%s", _htmlMarkups[t->markup]);
+	    for (i = 0; i < t->nvars; i ++)
+	    {
+	      if (strcasecmp((char *)t->vars[i].name, "BREAK") == 0 &&
+	          t->markup == MARKUP_HR)
+		continue;
+
+	      if (col > 72 && !t->preformatted)
+	      {
+        	putc('\n', out);
+        	col = 0;
+	      }
+
+              if (col > 0)
+              {
+        	putc(' ', out);
+        	col ++;
+              }
+
+	      if (t->vars[i].value == NULL)
+        	col += fprintf(out, "%s", t->vars[i].name);
+	      else if (strchr((char *)t->vars[i].value, ' ') != NULL ||
+        	       strchr((char *)t->vars[i].value, '\t') != NULL ||
+        	       strchr((char *)t->vars[i].value, '\n') != NULL ||
+        	       strchr((char *)t->vars[i].value, '\r') != NULL)
+        	col += fprintf(out, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
+	      else
+        	col += fprintf(out, "%s=%s", t->vars[i].name, t->vars[i].value);
+	    }
+
+	    putc('>', out);
+	    col ++;
+
 	    if (col > 72 && !t->preformatted)
 	    {
-              putc('\n', out);
-              col = 0;
-	    };
-
-            if (col > 0)
-            {
-              putc(' ', out);
-              col ++;
-            };
-
-	    if (t->vars[i].value == NULL)
-              col += fprintf(out, "%s", t->vars[i].name);
-	    else if (strchr((char *)t->vars[i].value, ' ') != NULL ||
-        	     strchr((char *)t->vars[i].value, '\t') != NULL ||
-        	     strchr((char *)t->vars[i].value, '\n') != NULL ||
-        	     strchr((char *)t->vars[i].value, '\r') != NULL)
-              col += fprintf(out, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
-	    else
-              col += fprintf(out, "%s=%s", t->vars[i].name, t->vars[i].value);
-	  };
-
-	  putc('>', out);
-	  col ++;
-
-	  if (col > 72 && !t->preformatted)
-	  {
-	    putc('\n', out);
-	    col = 0;
-	  };
+	      putc('\n', out);
+	      col = 0;
+	    }
+	  }
 	  break;
-    };
+    }
 
     if (t->child != NULL &&
         t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
@@ -517,7 +532,7 @@ write_all(FILE   *out,		/* I - Output file */
       {
 	putc('\n', out);
 	col = 0;
-      };
+      }
 
       switch (t->markup)
       {
@@ -530,9 +545,9 @@ write_all(FILE   *out,		/* I - Output file */
 	case MARKUP_BODY :
 	case MARKUP_ERROR :
 	case MARKUP_FILE :
+	case MARKUP_EMBED :
             break;
 
-        case MARKUP_BR :
         case MARKUP_CENTER :
         case MARKUP_DD :
         case MARKUP_DL :
@@ -544,7 +559,6 @@ write_all(FILE   *out,		/* I - Output file */
         case MARKUP_H5 :
         case MARKUP_H6 :
         case MARKUP_H7 :
-        case MARKUP_HR :
         case MARKUP_LI :
         case MARKUP_OL :
         case MARKUP_P :
@@ -559,11 +573,11 @@ write_all(FILE   *out,		/* I - Output file */
 	default :
             col += fprintf(out, "</%s>", _htmlMarkups[t->markup]);
 	    break;
-      };
-    };
+      }
+    }
 
     t = t->next;
-  };
+  }
 
   return (col);
 }
@@ -588,7 +602,7 @@ get_title(tree_t *doc)	/* I - Document tree */
         return (temp);
 
     doc = doc->next;
-  };
+  }
 
   return (NULL);
 }
@@ -619,7 +633,7 @@ add_link(uchar *name,		/* I - Name of link */
     if (num_links > 1)
       qsort(links, num_links, sizeof(link_t),
             (int (*)(const void *, const void *))compare_links);
-  };
+  }
 }
 
 
@@ -688,7 +702,7 @@ scan_links(tree_t *t,		/* I - Document tree */
       scan_links(t->child, filename);
 
     t = t->next;
-  };
+  }
 }
 
 
@@ -735,9 +749,9 @@ update_links(tree_t *t,		/* I - Document tree */
 	  {
 	    sprintf((char *)newhref, "%s%s", link->filename, href);
 	    htmlSetVariable(t, (uchar *)"HREF", newhref);
-	  };
-	};
-      };
+	  }
+	}
+      }
 
       if (t->child != NULL)
       {
@@ -745,10 +759,10 @@ update_links(tree_t *t,		/* I - Document tree */
           update_links(t->child, htmlGetVariable(t, (uchar *)"FILENAME"));
 	else
           update_links(t->child, filename);
-      };
+      }
 
       t = t->next;
-    };
+    }
   }
   else
   {
@@ -770,18 +784,18 @@ update_links(tree_t *t,		/* I - Document tree */
 	{
 	  sprintf((char *)newhref, "#%s", link->name);
 	  htmlSetVariable(t, (uchar *)"HREF", newhref);
-	};
-      };
+	}
+      }
 
       if (t->child != NULL)
         update_links(t->child, filename);
 
       t = t->next;
-    };
-  };
+    }
+  }
 }
 
 
 /*
- * End of "$Id: html.cxx,v 1.3 1999/11/09 22:16:41 mike Exp $".
+ * End of "$Id: html.cxx,v 1.4 1999/11/11 21:36:44 mike Exp $".
  */

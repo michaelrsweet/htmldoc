@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.6 1999/11/10 15:59:26 mike Exp $"
+ * "$Id: gui.h,v 1.7 1999/11/11 21:36:44 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -79,7 +79,9 @@ class GUI
   CheckButton	*grayscale,
 		*titlePage,
 		*jpegCompress;
+  Fl_Group	*compGroup;
   Fl_Slider	*compression;
+  Fl_Group	*jpegGroup;
   Fl_Value_Slider *jpegQuality;
 
   Fl_Group	*pageTab;
@@ -124,19 +126,31 @@ class GUI
   Fl_Counter	*fontBaseSize,
 		*fontSpacing,
 		*headFootSize;
+  Fl_Choice	*charset;
 
-  Fl_Group	*optionsTab;
-  Fl_Input	*htmlEditor;
-  Fl_Button	*htmlBrowse;
+  Fl_Group	*psTab;
   Fl_Group	*psLevel;
   Fl_Button	*ps1,
 		*ps2,
 		*ps3;
   CheckButton	*psCommands;
+
+  Fl_Group	*pdfTab;
   Fl_Group	*pdfVersion;
   Fl_Button	*pdf11,
 		*pdf12,
 		*pdf13;
+  Fl_Choice	*pageMode,
+		*pageLayout,
+		*firstPage,
+		*pageEffect;
+  Fl_Value_Slider *pageDuration,
+		*effectDuration;
+
+  Fl_Group	*optionsTab;
+  Fl_Input	*htmlEditor;
+  Fl_Button	*htmlBrowse;
+  Fl_Button	*saveOptions;
 
   Fl_Button	*bookSave,
 		*bookSaveAs,
@@ -153,9 +167,6 @@ class GUI
   int		book_changed;
 
   void		title(const char *filename = NULL, int changed = 0);
-
-  static const char *file_localize(const char *filename,
-  		                   const char *newcwd = (const char *)0);
 
   static void	changeCB(Fl_Widget *w, GUI *gui);
 
@@ -211,5 +222,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.6 1999/11/10 15:59:26 mike Exp $".
+ * End of "$Id: gui.h,v 1.7 1999/11/11 21:36:44 mike Exp $".
  */

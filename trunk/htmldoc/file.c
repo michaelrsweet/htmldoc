@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.2 1999/11/09 22:16:40 mike Exp $"
+ * "$Id: file.c,v 1.3 1999/11/11 21:36:44 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -26,6 +26,7 @@
  *   file_basename()  - Return the base filename without directory or target.
  *   file_directory() - Return the directory without filename or target.
  *   file_extension() - Return the extension of a file without the target.
+ *   file_localize()  - Localize a filename for the new working directory.
  *   file_method()    - Return the method for a filename or URL.
  *   file_target()    - Return the target of a link.
  */
@@ -150,6 +151,72 @@ file_extension(const char *s)	/* I - Filename or URL */
 
 
 /*
+ * 'file_localize()' - Localize a filename for the new working directory.
+ */
+
+char *					/* O - New filename */
+file_localize(const char *filename,	/* I - Filename */
+                   const char *newcwd)	/* I - New directory */
+{
+  const char	*newslash;		/* Directory separator */
+  char		*slash;			/* Directory separator */
+  char		cwd[1024];		/* Current directory */
+  char		temp[1024];		/* Temporary pathname */
+  static char	newfilename[1024];	/* New filename */
+
+
+  if (filename[0] == '\0')
+    return ("");
+
+  getcwd(cwd, sizeof(cwd));
+  if (newcwd == NULL)
+    newcwd = cwd;
+
+#if defined(WIN32) || defined(__EMX__)
+  if (filename[0] != '/' &&
+      filename[0] != '\\' &&
+      !(isalpha(filename[0]) && filename[1] == ':'))
+#else
+  if (filename[0] != '/')
+#endif /* WIN32 || __EMX__ */
+    sprintf(temp, "%s/%s", cwd, filename);
+  else
+    strcpy(temp, filename);
+
+  for (slash = temp, newslash = newcwd;
+       *slash != '\0' && *newslash != '\0';
+       slash ++, newslash ++)
+    if ((*slash == '/' || *slash == '\\') &&
+        (*newslash == '/' || *newslash == '\\'))
+      continue;
+    else if (*slash != *newslash)
+      break;
+
+  while (*slash != '/' && *slash != '\\' && slash > temp)
+    slash --;
+
+  slash ++;
+
+  if (*newslash != '\0')
+    while (*newslash != '/' && *newslash != '\\' && newslash > newcwd)
+      newslash --;
+
+  newfilename[0] = '\0';
+
+  while (*newslash != '\0')
+  {
+    if (*newslash == '/' || *newslash == '\\')
+      strcat(newfilename, "../");
+    newslash ++;
+  }
+
+  strcat(newfilename, slash);
+
+  return (newfilename);
+}
+
+
+/*
  * 'file_method()' - Return the method for a filename or URL.
  *
  * Returns NULL if the URL is a local file.
@@ -204,5 +271,5 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * End of "$Id: file.c,v 1.2 1999/11/09 22:16:40 mike Exp $".
+ * End of "$Id: file.c,v 1.3 1999/11/11 21:36:44 mike Exp $".
  */

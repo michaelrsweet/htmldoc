@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.4 1999/11/10 00:01:16 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.5 1999/11/11 21:36:46 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -92,13 +92,12 @@
  *   write_string()          - Write a text entity.
  *   write_text()            - Write a text entity.
  *   write_trailer()         - Write the file trailer.
- *   pdf_open_stream()       - Open a deflated output stream in a PDF file.
- *   pdf_close_stream()      - Close a deflated output string in a PDF file.
- *   pdf_puts()              - Write a character string to a compressed stream
- *                             in a PDF file.
- *   pdf_printf()            - Write a formatted character string to a
- *                             compressed stream in a PDF file.
- *   pdf_write()             - Write data to a compressed stream in a PDF file.
+ *   flate_open_stream()     - Open a deflated output stream.
+ *   flate_close_stream()    - Close a deflated output stream.
+ *   flate_puts()            - Write a character string to a compressed stream.
+ *   flate_printf()          - Write a formatted character string to a
+ *                             compressed stream.
+ *   flate_write()           - Write data to a compressed stream.
  */
 
 /*
@@ -251,11 +250,11 @@ static void	pdf_write_links(FILE *out);
 static void	pdf_write_names(FILE *out);
 static int	pdf_count_headings(tree_t *toc);
 
-static void	pdf_open_stream(FILE *out);
-static void	pdf_close_stream(FILE *out);
-static void	pdf_puts(char *s, FILE *out);
-static void	pdf_printf(FILE *out, char *format, ...);
-static void	pdf_write(FILE *out, uchar *inbuf, int length);	
+static void	flate_open_stream(FILE *out);
+static void	flate_close_stream(FILE *out);
+static void	flate_puts(char *s, FILE *out);
+static void	flate_printf(FILE *out, char *format, ...);
+static void	flate_write(FILE *out, uchar *inbuf, int length);	
 
 static void	parse_contents(tree_t *t, int left, int width, int bottom,
 		               int length, float *y, int *page, int *heading);
@@ -333,6 +332,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   float		timage_width,	/* Title image width */
 		timage_height;	/* Title image height */
   render_t	*r;		/* Rendering structure... */
+  float		rgb[3];		/* Text color */
 
 
  /*
@@ -397,6 +397,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       y -= timage->height + _htmlSpacings[SIZE_P];
     }
 
+    get_color(_htmlTextColor, rgb);
+
     if (title != NULL)
     {
       width = get_width(title, _htmlHeadingFont, STYLE_BOLD, SIZE_H1);
@@ -407,6 +409,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       r->data.text.typeface = _htmlHeadingFont;
       r->data.text.style    = STYLE_BOLD;
       r->data.text.size     = _htmlSizes[SIZE_H1];
+      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
       y -= _htmlSpacings[SIZE_H1];
 
@@ -420,6 +423,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 	r->data.text.typeface = _htmlBodyFont;
 	r->data.text.style    = STYLE_NORMAL;
 	r->data.text.size     = _htmlSizes[SIZE_P];
+        memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	y -= _htmlSpacings[SIZE_P];
       }
@@ -437,6 +441,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       r->data.text.typeface = _htmlBodyFont;
       r->data.text.style    = STYLE_NORMAL;
       r->data.text.size     = _htmlSizes[SIZE_P];
+      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
       y -= _htmlSpacings[SIZE_P];
     }
@@ -451,6 +456,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       r->data.text.typeface = _htmlBodyFont;
       r->data.text.style    = STYLE_NORMAL;
       r->data.text.size     = _htmlSizes[SIZE_P];
+      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
     }
   }
   else
@@ -744,7 +750,7 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
     }
 
    /*
-    * Set the text font...
+    * Set the text font and color...
     */
 
     if (temp->type == RENDER_TEXT)
@@ -752,6 +758,8 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
       temp->data.text.typeface = HeadFootType;
       temp->data.text.style    = HeadFootStyle;
       temp->data.text.size     = HeadFootSize;
+
+      get_color(temp->data.text.rgb, _htmlTextColor);
     }
   }
 }
@@ -1018,7 +1026,10 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
 
   out = open_file();
   if (out == NULL)
-    return; /**** NEED TO ADD ERROR MESSAGE HOOK ****/
+  {
+    progress_error("Unable to write document file - %s\n", strerror(errno));
+    return;
+  }
 
   write_prolog(out, num_pages, title, author, creator, copyright);
 
@@ -1028,7 +1039,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
 
   num_objects ++;
   if (pages_object != num_objects)
-    puts("ERROR pages_object != num_objects");
+    progress_error("Internal error: pages_object != num_objects");
 
   objects[num_objects] = ftell(out);
   fprintf(out, "%d 0 obj", num_objects);
@@ -1287,17 +1298,17 @@ pdf_write_page(FILE  *out,		/* I - Output file */
 
   length = ftell(out);
 
-  pdf_open_stream(out);
+  flate_open_stream(out);
 
-  pdf_puts("q\n", out);
+  flate_puts("q\n", out);
   write_background(out);
 
   if (PageDuplex && (page & 1))
-    pdf_printf(out, "1 0 0 1 %d %d cm\n", PageRight, PageBottom);
+    flate_printf(out, "1 0 0 1 %d %d cm\n", PageRight, PageBottom);
   else
-    pdf_printf(out, "1 0 0 1 %d %d cm\n", PageLeft, PageBottom);
+    flate_printf(out, "1 0 0 1 %d %d cm\n", PageLeft, PageBottom);
 
-  pdf_puts("BT\n", out);
+  flate_puts("BT\n", out);
   last_render = RENDER_TEXT;
 
  /*
@@ -1312,10 +1323,10 @@ pdf_write_page(FILE  *out,		/* I - Output file */
       {
 	render_x = -1.0;
 	render_y = -1.0;
-        pdf_puts("BT\n", out);
+        flate_puts("BT\n", out);
       }
       else if (last_render == RENDER_TEXT)
-        pdf_puts("ET\n", out);
+        flate_puts("ET\n", out);
 
       last_render = r->type;
     }
@@ -1330,23 +1341,23 @@ pdf_write_page(FILE  *out,		/* I - Output file */
           break;
       case RENDER_BOX :
           if (r->height == 0.0)
-            pdf_printf(out, "%.2f %.2f %.2f RG %.1f %.1f m %.1f %.1f l S\n",
+            flate_printf(out, "%.2f %.2f %.2f RG %.1f %.1f m %.1f %.1f l S\n",
                        r->data.box[0], r->data.box[1], r->data.box[2],
                        r->x, r->y, r->x + r->width, r->y);
           else
-            pdf_printf(out, "%.2f %.2f %.2f RG %.1f %.1f %.1f %.1f re S\n",
+            flate_printf(out, "%.2f %.2f %.2f RG %.1f %.1f %.1f %.1f re S\n",
                        r->data.box[0], r->data.box[1], r->data.box[2],
                        r->x, r->y, r->width, r->height);
           break;
       case RENDER_FBOX :
           if (r->height == 0.0)
-            pdf_printf(out, "%.2f %.2f %.2f RG %.1f %.1f m %.1f %.1f l S\n",
+            flate_printf(out, "%.2f %.2f %.2f RG %.1f %.1f m %.1f %.1f l S\n",
                        r->data.box[0], r->data.box[1], r->data.box[2],
                        r->x, r->y, r->x + r->width, r->y);
           else
           {
             set_color(out, r->data.fbox);
-            pdf_printf(out, "%.1f %.1f %.1f %.1f re f\n",
+            flate_printf(out, "%.1f %.1f %.1f %.1f re f\n",
                        r->x, r->y, r->width, r->height);
           }
           break;
@@ -1361,10 +1372,10 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   */
 
   if (last_render == RENDER_TEXT)
-   pdf_puts("ET\n", out);
+   flate_puts("ET\n", out);
 
-  pdf_puts("Q\n", out);
-  pdf_close_stream(out);
+  flate_puts("Q\n", out);
+  flate_close_stream(out);
   length = ftell(out) - length;
   fputs("endstream\n", out);
   fputs("endobj\n", out);
@@ -1588,11 +1599,11 @@ pdf_write_background(FILE *out)		/* I - Output file */
 
   length = ftell(out);
 
-  pdf_open_stream(out);
-  pdf_write(out, background_image->pixels,
+  flate_open_stream(out);
+  flate_write(out, background_image->pixels,
             background_image->width * background_image->height *
 	    background_image->depth);
-  pdf_close_stream(out);
+  flate_close_stream(out);
 
   length = ftell(out) - length;
   fputs("endstream\n", out);
@@ -1927,7 +1938,6 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 		*temp,
 		*next;
   render_t	*r;
-  static char	*contents = CONTENTS;
 #define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
 
 
@@ -1963,13 +1973,14 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
             (*page) ++;
 	    if (Verbosity)
 	      progress_show("Formatting page %d", *page);
-            width = get_width((uchar *)contents, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
+            width = get_width((uchar *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
             *y = top - _htmlSpacings[SIZE_H1];
             x  = left + 0.5f * (right - left - width);
-            r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, contents);
+            r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
             r->data.text.typeface = TYPE_HELVETICA;
             r->data.text.style    = STYLE_BOLD;
             r->data.text.size     = _htmlSizes[SIZE_H1];
+	    get_color(_htmlTextColor, r->data.text.rgb);
 
             *y -= _htmlSpacings[SIZE_H1];
           }
@@ -1979,6 +1990,10 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
           for (temp = flat; temp != NULL; temp = next)
           {
+	    rgb[0] = temp->red / 255.0f;
+	    rgb[1] = temp->green / 255.0f;
+	    rgb[2] = temp->blue / 255.0f;
+
 	    if (temp->link != NULL)
 	    {
               link = htmlGetVariable(temp->link, (uchar *)"HREF");
@@ -2025,28 +2040,16 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
         	    break;
 
 		  if (temp->underline)
-		  {
-		    rgb[0] = temp->red / 255.0f;
-		    rgb[1] = temp->green / 255.0f;
-		    rgb[2] = temp->blue / 255.0f;
 		    r = new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
-		  }
 
 		  if (temp->strikethrough)
-		  {
-		    rgb[0] = temp->red / 255.0f;
-		    rgb[1] = temp->green / 255.0f;
-		    rgb[2] = temp->blue / 255.0f;
 		    r = new_render(*page, RENDER_BOX, x, *y + t->height * 0.5f, temp->width, 0, rgb);
-		  }
 
         	  r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
         	  r->data.text.typeface = temp->typeface;
         	  r->data.text.style    = temp->style;
         	  r->data.text.size     = _htmlSizes[temp->size];
-        	  r->data.text.rgb[0]   = temp->red / 255.0f;
-        	  r->data.text.rgb[1]   = temp->green / 255.0f;
-        	  r->data.text.rgb[2]   = temp->blue / 255.0f;
+        	  memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
         	  if (temp->superscript)
         	    r->y += height / 1.2 - temp->height * 1.2;
@@ -2056,7 +2059,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	          update_image_size(temp);
 		  r = new_render(*page, RENDER_IMAGE, x, *y, temp->width,
 	                	 temp->height,
-				 image_load((char *)htmlGetVariable(temp, (uchar *)"SRC"), !OutputColor));
+				 image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
 		  break;
 	    }
 
@@ -2081,9 +2084,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
           r->data.text.typeface = t->typeface;
           r->data.text.style    = t->style;
           r->data.text.size     = _htmlSizes[t->size];
-          r->data.text.rgb[0]   = t->red / 255.0f;
-          r->data.text.rgb[1]   = t->green / 255.0f;
-          r->data.text.rgb[2]   = t->blue / 255.0f;
+          memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
          /*
           * Next heading...
@@ -2680,7 +2681,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         new_render(*page, RENDER_IMAGE, (float)left, *y - temp->height, temp->width,
                    temp->height,
-		   image_load((char *)htmlGetVariable(temp, (uchar *)"SRC"), !OutputColor));
+		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
         image_left = left + temp->width;
         image_y    = *y - temp->height;
 
@@ -2708,7 +2709,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         new_render(*page, RENDER_IMAGE, right - temp->width, *y - temp->height,
                    temp->width, temp->height,
-		   image_load((char *)htmlGetVariable(temp, (uchar *)"SRC"), !OutputColor));
+		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
         image_right = right - temp->width;
         image_y     = *y - temp->height;
 
@@ -2851,6 +2852,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     while (temp != end)
     {
+      rgb[0] = temp->red / 255.0f;
+      rgb[1] = temp->green / 255.0f;
+      rgb[2] = temp->blue / 255.0f;
+
       if (temp->link != NULL)
       {
         link = htmlGetVariable(temp->link, (uchar *)"HREF");
@@ -2900,9 +2905,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	r->data.text.typeface = linetype->typeface;
 	r->data.text.style    = linetype->style;
 	r->data.text.size     = _htmlSizes[linetype->size];
-	r->data.text.rgb[0]   = linetype->red / 255.0f;
-	r->data.text.rgb[1]   = linetype->green / 255.0f;
-	r->data.text.rgb[2]   = linetype->blue / 255.0f;
+        memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	if (linetype->superscript)
           r->y += height / 1.2 - linetype->height * 1.2;
@@ -2937,20 +2940,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    }
 
 	    if (temp->underline)
-	    {
-	      rgb[0] = temp->red / 255.0f;
-	      rgb[1] = temp->green / 255.0f;
-	      rgb[2] = temp->blue / 255.0f;
 	      r = new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, rgb);
-	    }
 
 	    if (temp->strikethrough)
-	    {
-	      rgb[0] = temp->red / 255.0f;
-	      rgb[1] = temp->green / 255.0f;
-	      rgb[2] = temp->blue / 255.0f;
 	      r = new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f, temp->width, 0, rgb);
-	    }
 
             if ((temp == start || whitespace) && temp->data[0] == ' ')
 	    {
@@ -2974,7 +2967,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	case MARKUP_IMG :
 	    r = new_render(*page, RENDER_IMAGE, *x, *y, temp->width,
 	                   temp->height,
-			   image_load((char *)htmlGetVariable(temp, (uchar *)"SRC"), !OutputColor));
+			   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
             whitespace = 0;
 	    break;
       }
@@ -2997,9 +2990,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       r->data.text.typeface = linetype->typeface;
       r->data.text.style    = linetype->style;
       r->data.text.size     = _htmlSizes[linetype->size];
-      r->data.text.rgb[0]   = linetype->red / 255.0f;
-      r->data.text.rgb[1]   = linetype->green / 255.0f;
-      r->data.text.rgb[2]   = linetype->blue / 255.0f;
+      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
       if (linetype->superscript)
         r->y += height / 1.2 - linetype->height * 1.2;
@@ -3065,6 +3056,10 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
   while (flat != NULL)
   {
+    rgb[0] = flat->red / 255.0f;
+    rgb[1] = flat->green / 255.0f;
+    rgb[2] = flat->blue / 255.0f;
+
     if (col == 0)
     {
       if (*y < (_htmlSpacings[t->size] + bottom))
@@ -3162,25 +3157,13 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
           r->data.text.typeface = flat->typeface;
           r->data.text.style    = flat->style;
           r->data.text.size     = _htmlSizes[flat->size];
-          r->data.text.rgb[0]   = flat->red / 255.0f;
-          r->data.text.rgb[1]   = flat->green / 255.0f;
-          r->data.text.rgb[2]   = flat->blue / 255.0f;
+          memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	  if (flat->underline)
-	  {
-	    rgb[0] = flat->red / 255.0f;
-	    rgb[1] = flat->green / 255.0f;
-	    rgb[2] = flat->blue / 255.0f;
 	    r = new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0, rgb);
-	  }
 
 	  if (flat->strikethrough)
-	  {
-	    rgb[0] = flat->red / 255.0f;
-	    rgb[1] = flat->green / 255.0f;
-	    rgb[2] = flat->blue / 255.0f;
 	    r = new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f, flat->width, 0, rgb);
-	  }
 
           *x += flat->width;
           break;
@@ -3188,7 +3171,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
       case MARKUP_IMG :
 	  r = new_render(*page, RENDER_IMAGE, *x, *y, flat->width,
 	                 flat->height,
-			 image_load((char *)htmlGetVariable(flat, (uchar *)"SRC"), !OutputColor));
+			 image_find((char *)htmlGetVariable(flat, (uchar *)"SRC")));
 
           *x += flat->width;
           col ++;
@@ -3245,8 +3228,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		*next,
 		*cells[MAX_ROWS][MAX_COLUMNS];
   uchar		*bgcolor;
-  float		rgb[3];
-  static float	black[3] = { 0.0, 0.0, 0.0 };
+  float		rgb[3],
+		bgrgb[3];
 
 
   DEBUG_printf(("parse_table(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
@@ -3254,6 +3237,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   if (t->child == NULL)
     return;   /* Empty table... */
+
+  rgb[0] = t->red / 255.0f;
+  rgb[1] = t->green / 255.0f;
+  rgb[2] = t->blue / 255.0f;
 
  /*
   * Figure out the # of rows, columns, and the desired widths...
@@ -3335,7 +3322,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         	next = flat->next;
         	free(flat);
         	flat = next;
-              };
+              }
 
               if (width > col_mins[col])
         	col_mins[col] = width;
@@ -3544,7 +3531,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR");
 
       if (bgcolor != NULL)
-        get_color(bgcolor, rgb);
+        get_color(bgcolor, bgrgb);
 
       if (row_page != *page)
       {
@@ -3556,48 +3543,48 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           new_render(*page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
                      (float)(bottom + cellspacing), width,
                      *y - bottom - 2 * cellspacing,
-                     black);
+                     rgb);
 
         if (bgcolor != NULL)
           new_render(*page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
                      (float)(bottom + cellspacing), width,
                      *y - bottom - 2 * cellspacing,
-                     rgb, 1);
+                     bgrgb, 1);
 
         for (temp_page = *page + 1; temp_page != row_page; temp_page ++)
 	{
 	  if (border > 0)
             new_render(temp_page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
                        (float)(bottom + cellspacing), width,
-                       (float)(top - bottom - 2 * cellspacing), black);
+                       (float)(top - bottom - 2 * cellspacing), rgb);
 
 	  if (bgcolor != NULL)
             new_render(temp_page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
                        (float)(bottom + cellspacing), width,
-                       (float)(top - bottom - 2 * cellspacing), rgb, 1);
+                       (float)(top - bottom - 2 * cellspacing), bgrgb, 1);
         }
 
         if (border > 0)
           new_render(row_page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
                      row_y + cellspacing, width,
-                     top - row_y - 2 * cellspacing, black);
+                     top - row_y - 2 * cellspacing, rgb);
 
         if (bgcolor != NULL)
           new_render(row_page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
                      row_y + cellspacing, width,
-                     top - row_y - 2 * cellspacing, rgb, 1);
+                     top - row_y - 2 * cellspacing, bgrgb, 1);
       }
       else
       {
         if (border > 0)
           new_render(*page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
                      row_y + cellspacing, width,
-                     *y - row_y - 2 * cellspacing, black);
+                     *y - row_y - 2 * cellspacing, rgb);
 
         if (bgcolor != NULL)
           new_render(*page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
                      row_y + cellspacing, width,
-                     *y - row_y - 2 * cellspacing, rgb, 1);
+                     *y - row_y - 2 * cellspacing, bgrgb, 1);
       }
 
       col += colspan;
@@ -3921,9 +3908,9 @@ write_background(FILE *out)	/* I - File to write to */
           for (x = 0.0; x < PageWidth; x += width)
             for (y = 0.0; y < PageLength; y += height)
             {
-  	      pdf_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
-              pdf_puts("/BG Do\n", out);
-	      pdf_puts("Q\n", out);
+  	      flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
+              flate_puts("/BG Do\n", out);
+	      flate_puts("Q\n", out);
             }
 	  break;
 
@@ -3959,7 +3946,7 @@ write_background(FILE *out)	/* I - File to write to */
     else
     {
       set_color(out, background_color);
-      pdf_printf(out, "0 0 %d %d re f\n", PageWidth, PageLength);
+      flate_printf(out, "0 0 %d %d re f\n", PageWidth, PageLength);
     }
   }
 }
@@ -4308,7 +4295,7 @@ update_image_size(tree_t *t)	/* I - Tree entry */
     return;
   }
 
-  img = image_load((char *)htmlGetVariable(t, (uchar *)"SRC"), !OutputColor);
+  img = image_find((char *)htmlGetVariable(t, (uchar *)"SRC"));
 
   if (img == NULL)
     return;
@@ -4441,7 +4428,7 @@ set_color(FILE  *out,	/* I - File to write to */
   if (PSLevel > 0)
     fprintf(out, "%.2f %.2f %.2f C ", rgb[0], rgb[1], rgb[2]);
   else
-    pdf_printf(out, "%.2f %.2f %.2f rg ", rgb[0], rgb[1], rgb[2]);
+    flate_printf(out, "%.2f %.2f %.2f rg ", rgb[0], rgb[1], rgb[2]);
 }
 
 
@@ -4487,7 +4474,7 @@ set_font(FILE  *out,		/* I - File to write to */
   if (PSLevel > 0)
     fprintf(out, "%s/F%x SF ", sizes, typeface * 4 + style);
   else
-    pdf_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
+    flate_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
 }
 
 
@@ -4542,7 +4529,7 @@ set_pos(FILE  *out,	/* I - File to write to */
   if (PSLevel > 0)
     fprintf(out, "%s %s M", xs, ys);
   else
-    pdf_printf(out, "%s %s Td", xs, ys);
+    flate_printf(out, "%s %s Td", xs, ys);
 
   render_x = render_startx = x;
   render_y = y;
@@ -4687,7 +4674,7 @@ jpg_empty(j_compress_ptr cinfo)	/* I - Compressor info */
   if (PSLevel > 0)
     ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
   else
-    pdf_write(jpg_file, jpg_buf, sizeof(jpg_buf));
+    flate_write(jpg_file, jpg_buf, sizeof(jpg_buf));
 
   jpg_dest.next_output_byte = jpg_buf;
   jpg_dest.free_in_buffer   = sizeof(jpg_buf);
@@ -4713,7 +4700,7 @@ jpg_term(j_compress_ptr cinfo)	/* I - Compressor info */
   if (PSLevel > 0)
     ps_ascii85(jpg_file, jpg_buf, nbytes);
   else
-    pdf_write(jpg_file, jpg_buf, nbytes);
+    flate_write(jpg_file, jpg_buf, nbytes);
 }
 
 
@@ -4894,7 +4881,7 @@ write_image(FILE     *out,	/* I - Output file */
   {
     if (ncolors <= 2)
     {
-      ncolors = 2; /* Adobe doesn't like only 1 color... */
+      ncolors = 2; /* Adobe doesn't like 1 color images... */
       indbits = 1;
     }
     else if (ncolors <= 4)
@@ -5100,34 +5087,34 @@ write_image(FILE     *out,	/* I - Output file */
   switch (PSLevel)
   {
     case 0 : /* PDF */
-	pdf_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width, r->height,
+	flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width, r->height,
 	           r->x, r->y);
-        pdf_puts("BI", out);
+        flate_puts("BI", out);
 
 	if (ncolors > 0)
 	{
-	  pdf_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
+	  flate_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
 	  for (i = 0; i < ncolors; i ++)
-	    pdf_printf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
-	  pdf_puts(">]", out);
+	    flate_printf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
+	  flate_puts(">]", out);
         }
 	else if (img->depth == 1)
-          pdf_puts("/CS/G", out);
+          flate_puts("/CS/G", out);
         else
-          pdf_puts("/CS/RGB", out);
+          flate_puts("/CS/RGB", out);
 
-        pdf_puts("/I true", out);
+        flate_puts("/I true", out);
 
         if (ncolors > 0)
 	{
-  	  pdf_printf(out, "/W %d/H %d/BPC %d ID\n",
+  	  flate_printf(out, "/W %d/H %d/BPC %d ID\n",
                	     img->width, img->height, indbits); 
 
-  	  pdf_write(out, indices, indwidth * img->height);
+  	  flate_write(out, indices, indwidth * img->height);
 	}
 	else if (OutputJPEG)
 	{
-  	  pdf_printf(out, "/W %d/H %d/BPC 8/F/DCT ID\n",
+  	  flate_printf(out, "/W %d/H %d/BPC 8/F/DCT ID\n",
                	     img->width, img->height); 
 
 	  jpg_setup(out, img, &cinfo);
@@ -5142,13 +5129,13 @@ write_image(FILE     *out,	/* I - Output file */
         }
 	else
 	{
-  	  pdf_printf(out, "/W %d/H %d/BPC 8 ID\n",
+  	  flate_printf(out, "/W %d/H %d/BPC 8 ID\n",
                	     img->width, img->height); 
 
-  	  pdf_write(out, img->pixels, img->width * img->height * img->depth);
+  	  flate_write(out, img->pixels, img->width * img->height * img->depth);
         }
 
-	pdf_puts("\nEI\nQ\n", out);
+	flate_puts("\nEI\nQ\n", out);
         break;
 
     case 1 : /* PostScript, Level 1 */
@@ -5175,6 +5162,7 @@ write_image(FILE     *out,	/* I - Output file */
         break;
 
     case 2 : /* PostScript, Level 2 */
+    case 3 : /* PostScript, Level 3 */
         fputs("GS", out);
 	fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	        r->x, r->y);
@@ -5323,7 +5311,7 @@ write_prolog(FILE *out,		/* I - Output file */
     fputs("%!PS-Adobe-3.0\n", out);
     fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
-    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-1999 Michael Sweet, All Rights Reserved.\n", out);
+    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-1999 Easy Software Products, All Rights Reserved.\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02dZ\n",
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
             curdate->tm_hour, curdate->tm_min, curdate->tm_sec);
@@ -5427,7 +5415,7 @@ write_prolog(FILE *out,		/* I - Output file */
     objects[num_objects] = ftell(out);
     fprintf(out, "%d 0 obj", num_objects);
     fputs("<<", out);
-    fputs("/Producer(htmldoc " SVERSION " Copyright 1997-1999 Michael Sweet, All Rights Reserved.)", out);
+    fputs("/Producer(htmldoc " SVERSION " Copyright 1997-1999 Easy Software Products, All Rights Reserved.)", out);
     fprintf(out, "/CreationDate(D:%04d%02d%02d%02d%02d%02dZ)",
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
             curdate->tm_hour, curdate->tm_min, curdate->tm_sec);
@@ -5520,7 +5508,7 @@ write_string(FILE  *out,	/* I - Output file */
 	     int   compress)	/* I - Compress output? */
 {
   if (compress)
-    pdf_write(out, (uchar *)"(", 1);
+    flate_write(out, (uchar *)"(", 1);
   else
     putc('(', out);
 
@@ -5529,23 +5517,23 @@ write_string(FILE  *out,	/* I - Output file */
     if (*s == 160) /* &nbsp; */
     {
       if (compress)
-        pdf_write(out, (uchar *)" ", 1);
+        flate_write(out, (uchar *)" ", 1);
       else
         putc(' ', out);
     }
     else if (*s < 32 || *s > 126)
     {
       if (compress)
-        pdf_printf(out, "\\%o", *s);
+        flate_printf(out, "\\%o", *s);
       else
         fprintf(out, "\\%o", *s);
     }
     else if (compress)
     {
       if (*s == '(' || *s == ')' || *s == '\\')
-        pdf_write(out, (uchar *)"\\", 1);
+        flate_write(out, (uchar *)"\\", 1);
 
-      pdf_write(out, s, 1);
+      flate_write(out, s, 1);
     }
     else
     {
@@ -5559,7 +5547,7 @@ write_string(FILE  *out,	/* I - Output file */
   }
 
   if (compress)
-    pdf_write(out, (uchar *)")", 1);
+    flate_write(out, (uchar *)")", 1);
   else
     putc(')', out);
 }
@@ -5582,7 +5570,7 @@ write_text(FILE     *out,	/* I - Output file */
   if (PSLevel > 0)
     fputs("S\n", out);
   else
-    pdf_puts("Tj\n", out);
+    flate_puts("Tj\n", out);
 
   render_x += r->width;
 }
@@ -5670,11 +5658,11 @@ write_trailer(FILE *out,	/* I - Output file */
 
 
 /*
- * 'pdf_open_stream()' - Open a deflated output stream in a PDF file.
+ * 'flate_open_stream()' - Open a deflated output stream.
  */
 
 static void
-pdf_open_stream(FILE *out)	/* I - Output file */
+flate_open_stream(FILE *out)	/* I - Output file */
 {
   REF(out);
 
@@ -5693,48 +5681,58 @@ pdf_open_stream(FILE *out)	/* I - Output file */
 
 
 /*
- * 'pdf_close_stream()' - Close a deflated output string in a PDF file.
+ * 'flate_close_stream()' - Close a deflated output stream.
  */
 
 static void
-pdf_close_stream(FILE *out)	/* I - Output file */
+flate_close_stream(FILE *out)	/* I - Output file */
 {
   if (!Compression)
     return;
 
   while (deflate(&compressor, Z_FINISH) != Z_STREAM_END)
   {
-    fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+    if (PSLevel)
+      ps_ascii85(out, comp_buffer,
+                 (uchar *)compressor.next_out - (uchar *)comp_buffer);
+    else
+      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+
     compressor.next_out  = (Bytef *)comp_buffer;
     compressor.avail_out = sizeof(comp_buffer);
   }
 
   if ((uchar *)compressor.next_out > (uchar *)comp_buffer)
-    fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+  {
+    if (PSLevel)
+      ps_ascii85(out, comp_buffer,
+                 (uchar *)compressor.next_out - (uchar *)comp_buffer);
+    else
+      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+  }
 
   deflateEnd(&compressor);
 }
 
 
 /*
- * 'pdf_puts()' - Write a character string to a compressed stream in a PDF file.
+ * 'flate_puts()' - Write a character string to a compressed stream.
  */
 
 static void
-pdf_puts(char *s,	/* I - String to write */
+flate_puts(char *s,	/* I - String to write */
          FILE *out)	/* I - Output file */
 {
-  pdf_write(out, (uchar *)s, strlen(s));
+  flate_write(out, (uchar *)s, strlen(s));
 }
 
 
 /*
- * 'pdf_printf()' - Write a formatted character string to a compressed stream
- *                  in a PDF file.
+ * 'flate_printf()' - Write a formatted character string to a compressed stream.
  */
 
 static void
-pdf_printf(FILE *out,		/* I - Output file */
+flate_printf(FILE *out,		/* I - Output file */
            char *format,	/* I - Format string */
            ...)			/* I - Additional args as necessary */
 {
@@ -5747,16 +5745,16 @@ pdf_printf(FILE *out,		/* I - Output file */
   length = vsprintf(buf, format, ap);
   va_end(ap);
 
-  pdf_write(out, (uchar *)buf, length);
+  flate_write(out, (uchar *)buf, length);
 }
 
 
 /*
- * 'pdf_write()' - Write data to a compressed stream in a PDF file.
+ * 'flate_write()' - Write data to a compressed stream.
  */
 
 static void
-pdf_write(FILE *out,	/* I - Output file */
+flate_write(FILE *out,	/* I - Output file */
           uchar *buf,	/* I - Buffer */
           int  length)	/* I - Number of bytes to write */
 {
@@ -5769,7 +5767,13 @@ pdf_write(FILE *out,	/* I - Output file */
     {
       if (compressor.avail_out < (sizeof(comp_buffer) / 8))
       {
-	fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+	if (PSLevel)
+	  ps_ascii85(out, comp_buffer,
+                     (uchar *)compressor.next_out - (uchar *)comp_buffer);
+	else
+	  fwrite(comp_buffer,
+	         (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+
 	compressor.next_out  = (Bytef *)comp_buffer;
 	compressor.avail_out = sizeof(comp_buffer);
       }
@@ -5783,5 +5787,5 @@ pdf_write(FILE *out,	/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.4 1999/11/10 00:01:16 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.5 1999/11/11 21:36:46 mike Exp $".
  */

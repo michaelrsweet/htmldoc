@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.5 1999/11/11 17:10:38 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.6 1999/11/11 21:36:45 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -24,9 +24,6 @@
  * Contents:
  *
  *   main()            - Main entry for HTMLDOC.
- *   progress_show()   - Show the current run status.
- *   progress_hide()   - Hide the current run status.
- *   progress_update() - Update the current run status.
  *   format_number()   - Format a number into arabic numerals, roman numerals,
  *                       or letters.
  *   get_measurement() - Get a size measurement in inches, points, centimeters,
@@ -45,7 +42,6 @@
 #define _HTMLDOC_C_
 #include "htmldoc.h"
 #include <ctype.h>
-#include <stdarg.h>
 
 
 /*
@@ -211,10 +207,16 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
-    else if (compare_strings(argv[i], "--color", 5) == 0)
+    else if (compare_strings(argv[i], "--charset", 4) == 0)
     {
-      OutputColor = 1;
+      i ++;
+      if (i < argc)
+        htmlSetCharSet(argv[i]);
+      else
+        usage();
     }
+    else if (compare_strings(argv[i], "--color", 5) == 0)
+      OutputColor = 1;
     else if (compare_strings(argv[i], "--compression", 5) == 0 ||
              strncmp(argv[i], "--compression=", 14) == 0)
     {
@@ -694,8 +696,6 @@ main(int  argc,		/* I - Number of command-line arguments */
 
     delete BookGUI;
 
-    prefs_save();
-
     return (i);
   }
 #endif /* HAVE_LIBFLTK */
@@ -737,72 +737,6 @@ main(int  argc,		/* I - Number of command-line arguments */
   (*exportfunc)(document, toc);
 
   return (0);
-}
-
-
-/*
- * 'progress_show()' - Show the current run status.
- */
-
-void
-progress_show(char *format,	/* I - Printf-style format string */
-              ...)		/* I - Additional args as needed */
-{
-  va_list	ap;		/* Argument pointer */
-  char		text[2048];	/* Formatted text string */
-
-
-  va_start(ap, format);
-  vsprintf(text, format, ap);
-  va_end(ap);
-
-#ifdef HAVE_LIBFLTK
-  if (BookGUI != NULL)
-  {
-    BookGUI->progress(0, text);
-    return;
-  }
-#endif /* HAVE_LIBFLTK */
-
-  printf("\r%-79s", text);
-  fflush(stdout);
-}
-
-
-/*
- * 'progress_hide()' - Hide the current run status.
- */
-
-void
-progress_hide(void)
-{
-#ifdef HAVE_LIBFLTK
-  if (BookGUI != NULL)
-  {
-    BookGUI->progress(0, "HTMLDOC " SVERSION " Ready.");
-    return;
-  }
-#endif /* HAVE_LIBFLTK */
-
-  printf("\r%-79s\r", "");
-  fflush(stdout);
-}
-
-
-/*
- * 'progress_update()' - Update the current run status.
- */
-
-void
-progress_update(int percent)	/* I - Percent complete */
-{
-#ifdef HAVE_LIBFLTK
-  if (BookGUI != NULL)
-  {
-    BookGUI->progress(percent);
-    return;
-  }
-#endif /* HAVE_LIBFLTK */
 }
 
 
@@ -1042,7 +976,7 @@ prefs_load(void)
   if (doc[0])
     GUI::help_dir = doc;
 #  endif // HAVE_LIBFLTK
-#elif defined(HAVE_FLTK)	//// Do .htmldocrc file in home dir...
+#else				//// Do .htmldocrc file in home dir...
   char	line[1024],		// Line from RC file
 	htmldocrc[1024];	// HTMLDOC RC file
   FILE	*fp;			// File pointer
@@ -1059,8 +993,10 @@ prefs_load(void)
         if (line[strlen(line) - 1] == '\n')
 	  line[strlen(line) - 1] = '\0';
 
+#  ifdef HAVE_FLTK
         if (strncasecmp(line, "EDITOR=", 7) == 0)
 	  strcpy(HTMLEditor, line + 7);
+#  endif // HAVE_FLTK
       }
 
       fclose(fp);
@@ -1206,5 +1142,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.5 1999/11/11 17:10:38 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.6 1999/11/11 21:36:45 mike Exp $".
  */
