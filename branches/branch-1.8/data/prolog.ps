@@ -1,4 +1,4 @@
-%%BeginResource: procset htmldoc-device 1.8 15
+%%BeginResource: procset htmldoc-device 1.8 21
 
 %
 % The following procedures use setpagedevice, which is not supported by
@@ -160,19 +160,31 @@ def
 % Set the duplexing mode; "duplex" and "tumble" are boolean values.
 %
 
+/CurrentDuplex false def
+/CurrentTumble false def
+
 /SetDuplexMode {
-  % Build a page device dictionary with the Duplex and Tumble
-  % attributes...
-  <<
-    /Duplex 3 index
-    /Tumble 5 index
-  >>
+  % See if the duplex settings have changed; if not, don't change
+  % them, otherwise some printers will reset their state and you
+  % end up with single-sided output...
+  1 index CurrentDuplex ne
+  1 index CurrentTumble ne or
 
-  % Register the new attributes...
-  setpagedevice
+  {
+    % Build a page device dictionary with the Duplex and Tumble
+    % attributes...
+    <<
+      /Duplex 3 index
+      /Tumble 5 index
+    >>
 
-  % Discard the arguments on the stack...
-  pop pop
+    % Register the new attributes...
+    setpagedevice
+  } if
+
+  % Save the arguments on the stack...
+  /CurrentTumble exch def
+  /CurrentDuplex exch def
 } BD
 
 %
@@ -181,28 +193,33 @@ def
 % Set the media color for the output.
 %
 
-/SetMediaColor {
-  haveMediaType {
-    haveMediaColor {
-      % Build a page device dictionary with the MediaColor attribute set to
-      % the argument...
-      <<
-	/MediaColor 2 index
-      >>
-    } {
-      % Build a page device dictionary with the MediaType attribute set to
-      % "Color"...
-      <<
-	/MediaType (Color)
-      >>
-    } ifelse
+/CurrentMediaColor () def
 
-    % Register any new attributes...
-    setpagedevice
+/SetMediaColor {
+  dup CurrentMediaColor ne
+  {
+    haveMediaType {
+      haveMediaColor {
+	% Build a page device dictionary with the MediaColor attribute set to
+	% the argument...
+	<<
+	  /MediaColor 2 index
+	>>
+      } {
+	% Build a page device dictionary with the MediaType attribute set to
+	% "Color"...
+	<<
+	  /MediaType (Color)
+	>>
+      } ifelse
+
+      % Register any new attributes...
+      setpagedevice
+    } if
   } if
 
-  % Discard the media color on the stack...
-  pop
+  % Save the media color on the stack...
+  /CurrentMediaColor exch def
 } BD
 
 %
@@ -211,29 +228,34 @@ def
 % Set the media position (tray) for the output.
 %
 
-/SetMediaPosition {
-  haveMediaPosition {
-    % Add any tray position offset to the tray number.
-    trayMap exch 1 sub get dup 0 ge
-    {
-      % Build a page device dictionary with the MediaPosition,
-      % DeferredMediaSelection, ManualFeed, and TraySwitch attributes...
-      <<
-	/MediaPosition 2 index
-	haveDeferredMediaSelection { /DeferredMediaSelection true } if
-	haveTraySwitch { /TraySwitch false } if
-	haveManualFeed { /ManualFeed false } if
-      >>
+/CurrentMediaPosition -1 def
 
-      % Register the new attributes...
-      setpagedevice
-    }
-    { pop }
-    ifelse
+/SetMediaPosition {
+  dup CurrentMediaPosition ne
+  {
+    haveMediaPosition {
+      % Add any tray position offset to the tray number.
+      trayMap exch 1 sub get dup 0 ge
+      {
+	% Build a page device dictionary with the MediaPosition,
+	% DeferredMediaSelection, ManualFeed, and TraySwitch attributes...
+	<<
+	  /MediaPosition 2 index
+	  haveDeferredMediaSelection { /DeferredMediaSelection true } if
+	  haveTraySwitch { /TraySwitch false } if
+	  haveManualFeed { /ManualFeed false } if
+	>>
+
+	% Register the new attributes...
+	setpagedevice
+      }
+      { pop }
+      ifelse
+    } if
   } if
 
-  % Discard the media position on the stack...
-  pop
+  % Save the media position on the stack...
+  /CurrentMediaPosition exch def
 } BD
 
 %
@@ -242,17 +264,25 @@ def
 % Set the media type for the output.  Use a null string to do auto selection.
 %
 
+/CurrentMediaType () def
+
 /SetMediaType {
-  % Build a page device dictionary with the MediaPosition attribute...
-  <<
-    /MediaType 2 index
-  >>
+  dup CurrentMediaType ne
+  {
+    haveMediaType
+    {
+      % Build a page device dictionary with the MediaType attribute...
+      <<
+	/MediaType 2 index
+      >>
 
-  % Register the new attribute...
-  setpagedevice
+      % Register the new attribute...
+      setpagedevice
+    } if
+  } if
 
-  % Discard the media type on the stack...
-  pop
+  % Save the media type on the stack...
+  /CurrentMediaType exch def
 } BD
 
 %
@@ -261,22 +291,34 @@ def
 % Set the media size for the output.
 %
 
+/CurrentPageWidth 0 def
+/CurrentPageLength 0 def
+
 /SetPageSize {
-  % Put the arguments in an array...
-  2 array astore
+  1 index CurrentPageWidth ne
+  1 index CurrentPageLength ne or
 
-  % Build a page device dictionary with the PageSize and ImageableArea
-  % attributes...
-  <<
-    /PageSize 2 index
-    /ImageableArea null
-  >>
+  {
+    % Put the arguments in an array...
+    2 copy 2 array astore
 
-  % Register the new attributes...
-  setpagedevice
+    % Build a page device dictionary with the PageSize and ImageableArea
+    % attributes...
+    <<
+      /PageSize 2 index
+      /ImageableArea null
+    >>
 
-  % Discard the size on the stack...
-  pop
+    % Register the new attributes...
+    setpagedevice
+
+    % Don't need the page size array anymore...
+    pop
+  } if
+
+  % Save the size on the stack...
+  /CurrentPageLength exch def
+  /CurrentPageWidth exch def
 } BD
 
 %%EndResource

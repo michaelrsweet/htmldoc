@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.49 2002/07/19 18:37:45 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.50 2002/07/26 16:07:09 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -78,7 +78,8 @@ static int	compare_strings(const char *s, const char *t, int tmin);
 static int	load_book(const char *filename, tree_t **document,
 		          exportfunc_t *exportfunc);
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
-static int	read_file(const char *filename, tree_t **document);
+static int	read_file(const char *filename, tree_t **document,
+		          const char *path);
 static void	term_handler(int signum);
 static void	usage(void);
 
@@ -979,7 +980,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       num_files ++;
 
-      read_file(argv[i], &document);
+      read_file(argv[i], &document, Path);
     }
 
  /*
@@ -1453,11 +1454,19 @@ load_book(const char   *filename,	// I  - Book file
   char		line[10240];		// Line from file
   const char 	*dir;			// Directory
   const char	*local;			// Local filename
-  char		html[1024];		// HTML filename
+  char		path[2048];		// Current path
 
 
   // See if the filename contains a path...
   dir = file_directory(filename);
+
+  if (dir != NULL)
+    snprintf(path, sizeof(path), "%s;%s", dir, Path);
+  else
+  {
+    strncpy(path, Path, sizeof(path) - 1);
+    path[sizeof(path) - 1] = '\0';
+  }
 
   // Open the file...
   if ((local = file_find(Path, filename)) == NULL)
@@ -1497,19 +1506,10 @@ load_book(const char   *filename,	// I  - Book file
       continue;				// Skip blank lines
     else if (line[0] == '-')
       parse_options(line, exportfunc);
-    else if (dir != NULL && line[0] != '/')
-    {
-      if (line[0] == '\\')
-	snprintf(html, sizeof(html), "%s/%s", dir, line + 1);
-      else
-	snprintf(html, sizeof(html), "%s/%s", dir, line);
-
-      read_file(html, document);
-    }
     else if (line[0] == '\\')
-      read_file(line + 1, document);
+      read_file(line + 1, document, path);
     else
-      read_file(line, document);
+      read_file(line, document, path);
   }
 
   // Close the book file and return...
@@ -2051,7 +2051,8 @@ parse_options(const char   *line,	// I - Options from book file
 
 static int				// O  - 1 on success, 0 on failure
 read_file(const char *filename,		// I  - File/URL to read
-          tree_t     **document)	// IO - Current document
+          tree_t     **document,	// IO - Current document
+	  const char *path)		// I  - Search path
 {
   FILE		*docfile;		// Document file
   tree_t	*file;			// HTML document file
@@ -2059,7 +2060,10 @@ read_file(const char *filename,		// I  - File/URL to read
   char		base[1024];		// Base directory name of file
 
 
-  if ((realname = file_find(Path, filename)) != NULL)
+  DEBUG_printf(("read_file(filename=\"%s\", document=%p, path=\"%s\")\n",
+                filename, document, path));
+
+  if ((realname = file_find(path, filename)) != NULL)
   {
     if ((docfile = fopen(realname, "rb")) != NULL)
     {
@@ -2249,5 +2253,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.49 2002/07/19 18:37:45 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.50 2002/07/26 16:07:09 mike Exp $".
  */

@@ -33,6 +33,10 @@ CHANGES IN HTMLDOC v1.8.21
 	- XRX comment output could crash HTMLDOC.
 	- Fixed-width columns in tables could be resized by
 	  HTMLDOC.
+	- When writing PostScript commands, some printers reset
+	  their duplexing state when a new setpagedevice command
+	  is received; we now cache the current duplex state and
+	  change it only as needed.
 
 
 CHANGES IN HTMLDOC v1.8.20

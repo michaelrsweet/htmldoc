@@ -1,5 +1,6 @@
+#define DEBUG
 /*
- * "$Id: file.c,v 1.13.2.34 2002/07/25 21:29:24 mike Exp $"
+ * "$Id: file.c,v 1.13.2.35 2002/07/26 16:07:08 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -1010,5 +1011,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.34 2002/07/25 21:29:24 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.35 2002/07/26 16:07:08 mike Exp $".
  */
