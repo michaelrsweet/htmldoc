@@ -1,4 +1,4 @@
-CHANGES.txt - 09/25/2002
+CHANGES.txt - 10/02/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.23
@@ -9,7 +9,21 @@ CHANGES IN HTMLDOC v1.8.23
 	  columns. While the HTML in technically not in error,
 	  it is not exactly something you'd expect someone to
 	  do.
-	  
+	- HTMLDOC didn't report an error when it could not
+	  find the specified title page file.
+	- HTMLDOC could crash if it was unable to create its
+	  output files.
+	- HTMLDOC could crash when writing HTML output
+	  containing unknown HTML elements.
+	- HTMLDOC could crash when writing HTML output if the
+	  output document had no title.
+	- The htmlGetText() function used a fixed-size (10k)
+	  buffer which allowed for a buffer overflow.  The new
+	  code (from HTMLDOC 1.9) allocates its buffer instead.
+	- The header/footer text was not centered properly if
+	  the header/footer font size was different than the
+	  default body font size.
+
 
 CHANGES IN HTMLDOC v1.8.22
 

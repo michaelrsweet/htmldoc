@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.205 2002/09/25 19:56:00 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.206 2002/10/02 18:53:07 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -588,7 +588,11 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
       // Find the title file...
       if ((title_file = file_find(Path, TitleImage)) == NULL)
-        return (1);
+      {
+	progress_error(HD_ERROR_FILE_NOT_FOUND,
+	               "Unable to find title file \"%s\"!", TitleImage);
+	return (1);
+      }
 
       // Write a title page from HTML source...
       if ((fp = fopen(title_file, "rb")) == NULL)
@@ -1645,7 +1649,8 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 
       temp = new_render(page, RENDER_TEXT, 0, y,
                 	get_width((uchar *)buffer, HeadFootType,
-			          HeadFootStyle, SIZE_P),
+			          HeadFootStyle, SIZE_P) * HeadFootSize /
+			    _htmlSizes[SIZE_P],
 	        	HeadFootSize, (uchar *)buffer);
 
       if (strstr((char *)*format, "$PAGE") ||
@@ -11866,5 +11871,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.205 2002/09/25 19:56:00 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.206 2002/10/02 18:53:07 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.27 2002/06/13 18:44:09 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.28 2002/10/02 18:53:05 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -154,7 +154,8 @@ html_export(tree_t *document,	/* I - Document to export */
   {
     write_header(&out, (uchar *)"index.html", title, author, copyright,
                  docnumber, NULL);
-    write_title(out, title, author, copyright, docnumber);
+    if (out != NULL)
+      write_title(out, title, author, copyright, docnumber);
 
     write_footer(&out, NULL);
     write_header(&out, (uchar *)"toc.html", title, author, copyright,
@@ -164,7 +165,8 @@ html_export(tree_t *document,	/* I - Document to export */
     write_header(&out, (uchar *)"index.html", title, author, copyright,
                  docnumber, NULL);
 
-  write_all(out, toc, 0);
+  if (out != NULL)
+    write_all(out, toc, 0);
   write_footer(&out, NULL);
 
  /*
@@ -175,13 +177,14 @@ html_export(tree_t *document,	/* I - Document to export */
   {
     write_header(&out, htmlGetVariable(document, (uchar *)"FILENAME"),
                  title, author, copyright, docnumber, document);
-    write_all(out, document->child, 0);
+    if (out != NULL)
+      write_all(out, document->child, 0);
     write_footer(&out, document);
 
     document = document->next;
   }
 
-  if (!OutputFiles && out != stdout)
+  if (!OutputFiles && out != stdout && out != NULL)
   {
     fputs("</BODY>\n", out);
     fputs("</HTML>\n", out);
@@ -203,7 +206,7 @@ html_export(tree_t *document,	/* I - Document to export */
     links       = NULL;
   }
 
-  return (0);
+  return (out == NULL);
 }
 
 
@@ -276,7 +279,8 @@ write_header(FILE   **out,	/* IO - Output file */
           "\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n", *out);
     fputs("<HTML>\n", *out);
     fputs("<HEAD>\n", *out);
-    fprintf(*out, "<TITLE>%s</TITLE>\n", title);
+    if (title != NULL)
+      fprintf(*out, "<TITLE>%s</TITLE>\n", title);
     if (author != NULL)
       fprintf(*out, "<META NAME=\"author\" CONTENT=\"%s\">\n", author);
     if (copyright != NULL)
@@ -429,8 +433,7 @@ write_title(FILE  *out,		/* I - Output file */
     if ((title_file = file_find(Path, TitleImage)) == NULL)
     {
       progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open title file \"%s\" - %s!",
-                     TitleImage, strerror(errno));
+                     "Unable to find title file \"%s\"!", TitleImage);
       return;
     }
 
@@ -697,6 +700,7 @@ write_all(FILE   *out,		/* I - Output file */
 	case MARKUP_NOBR :
 	case MARKUP_SPACER :
 	case MARKUP_WBR :
+	case MARKUP_UNKNOWN :
             break;
 
         case MARKUP_CENTER :
@@ -980,5 +984,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.27 2002/06/13 18:44:09 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.28 2002/10/02 18:53:05 mike Exp $".
  */
