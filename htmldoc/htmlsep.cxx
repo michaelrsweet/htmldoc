@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.3 2003/05/26 20:18:59 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.4 2003/05/26 20:28:14 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -159,13 +159,9 @@ htmlsep_export(tree_t *document,	// I - Document to export
   if (TitlePage)
   {
     write_header(&out, (uchar *)"index.html", title, author, copyright,
-                 docnumber, -2);
+                 docnumber, -1);
     if (out != NULL)
       write_title(out, title, author, copyright, docnumber);
-
-    write_footer(&out, -2);
-    write_header(&out, (uchar *)"toc.html", title, author, copyright,
-                 docnumber, -1);
   }
   else
     write_header(&out, (uchar *)"index.html", title, author, copyright,
@@ -434,20 +430,20 @@ write_title(FILE  *out,		/* I - Output file */
   else
   {
     // Write a "standard" title page with image...
-    fputs("<CENTER><A HREF=\"toc.html\">", out);
+    fputs("<CENTER>", out);
 
     if (TitleImage[0] != '\0')
     {
       image_t *img = image_load(TitleImage, !OutputColor);
 
-      fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\"><BR>\n",
+      fprintf(out, "<IMG SRC=\"%s\" WIDTH=\"%d\" HEIGHT=\"%d\"><BR>\n",
               file_basename((char *)TitleImage), img->width, img->height);
     }
 
     if (title != NULL)
-      fprintf(out, "<H1>%s</H1></A><BR>\n", title);
+      fprintf(out, "<H1>%s</H1><BR>\n", title);
     else
-      fputs("</A>\n", out);
+      fputs("\n", out);
 
     if (docnumber != NULL)
       fprintf(out, "%s<BR>\n", docnumber);
@@ -1091,5 +1087,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.3 2003/05/26 20:18:59 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.4 2003/05/26 20:28:14 mike Exp $".
 //
