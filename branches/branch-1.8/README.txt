@@ -1,4 +1,4 @@
-README.txt - 05/12/2004
+README.txt - 09/23/2004
 -----------------------
 
 INTRODUCTION
@@ -24,16 +24,18 @@ INTRODUCTION
     well as BMP, GIF, JPEG, and PNG images.  Eventually HTMLDOC
     will be compliant with HTML 4.0 and support style sheets.
 
-    Please support continued HTMLDOC development by purchasing a
-    yearly membership from the following page:
+    Please support continued HTMLDOC development by purchasing
+    HTMLDOC on CD-ROM from the following page:
 
         http://www.easysw.com/htmldoc/
 
-    Patron memberships are available for $49.99 which provide
-    access to pre-compiled executables and "how to" articles. 
-    Professional memberships are available for $499.99 which
-    provide the patron benefits as well as commercial telephone,
-    email, and WWW support and priority bug fixes.
+    HTMLDOC Basic is available for $49.95 and provides the
+    software on CD-ROM and 30 days of installation support via
+    email, telephone, and WWW.
+
+    HTMLDOC Professional is available for $499.95 and provides
+    the software on CD-ROM and one year of general support via
+    email, telephone, and WWW.
 
 
 INTERNET RESOURCES
@@ -43,18 +45,21 @@ INTERNET RESOURCES
 
 	http://lists.easysw.com/mailman/listinfo/htmldoc
 
-    The HTMLDOC home page is located at:
+    The HTMLDOC open source home page is located at:
+
+        http://www.htmldoc.org/
+
+    The HTMLDOC commercial home page is located at:
 
         http://www.easysw.com/htmldoc/
 
-    The current version of HTMLDOC can be also downloaded from:
+    Commercial support is provided by Easy Software Products;
+    send commercial support requests to the following email
+    address:
 
-        http://www.easysw.com/htmldoc/software.php
+        htmldoc-support@easysw.com
 
-    Commercial support is provided to professional members by
-    Easy Software Products; send commercial support requests to
-    "htmldoc-support@easysw.com" or use the form at the
-    following page:
+    or use the form at the following page:
 
 	http://www.easysw.com/support.php
 
@@ -63,7 +68,7 @@ REQUIREMENTS
 
     HTMLDOC requires an average of 2MB of disk space for
     installation. Binary distributions are available to any
-    HTMLDOC member at the download page:
+    HTMLDOC commercial user at the commercial download page:
 
         http://www.easysw.com/htmldoc/software.php
 
