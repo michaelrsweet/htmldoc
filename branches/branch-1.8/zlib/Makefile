@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.6.2.4 2004/05/10 01:14:53 mike Exp $"
+# "$Id: Makefile,v 1.6.2.5 2004/09/24 03:21:10 mike Exp $"
 #
 #   ZIP library Makefile for the HTMLDOC software.
 #
@@ -32,8 +32,7 @@ include ../Makedefs
 #
 
 OBJS	=	adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o \
-		trees.o zutil.o inflate.o infblock.o inftrees.o infcodes.o \
-		infutil.o inffast.o
+		trees.o zutil.o inflate.o inftrees.o inffast.o
 
 #
 # Make all targets...
@@ -60,19 +59,15 @@ libz.a:	$(OBJS)
 	$(RANLIB) $@
 
 $(OBJS):	zlib.h zconf.h ../Makedefs
-deflate.o:	deflate.h zutil.h
+crc32.o:	zutil.h crc32.h
 gzio.o:		zutil.h
-infblock.o:	infblock.h inftrees.h infcodes.h infutil.h zutil.h
-infcodes.o:	zutil.h
-infcodes.o:	inftrees.h infblock.h infcodes.h infutil.h inffast.h
-inffast.o:	zutil.h inftrees.h
-inffast.o:	infblock.h infcodes.h infutil.h inffast.h
-inflate.o:	zutil.h infblock.h
-inftrees.o:	zutil.h inftrees.h
-infutil.o:	zutil.h infblock.h inftrees.h infcodes.h infutil.h
+deflate.o:	deflate.h zutil.h
 trees.o:	deflate.h zutil.h trees.h
 zutil.o:	zutil.h
+inflate.o:	zutil.h inftrees.h inflate.h inffast.h inffixed.h
+inftrees.o:	zutil.h inftrees.h
+inffast.o:	zutil.h inftrees.h inflate.h inffast.h
 
 #
-# End of "$Id: Makefile,v 1.6.2.4 2004/05/10 01:14:53 mike Exp $".
+# End of "$Id: Makefile,v 1.6.2.5 2004/09/24 03:21:10 mike Exp $".
 #
