@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.263 2004/10/24 22:32:32 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.264 2004/10/29 19:53:59 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4393,6 +4393,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_TEXTAREA :
           break;
 
+      case MARKUP_STYLE :
+          break;
+
       case MARKUP_A :
           if (htmlGetVariable(t, (uchar *)"NAME") != NULL)
 	  {
@@ -4427,9 +4430,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         	htmlSetVariable(temp, var->name, var->value);
             }
 	  }
-
-      case MARKUP_STYLE :
-          break;
 
       default :
 	  if (t->child != NULL)
@@ -12484,5 +12484,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.263 2004/10/24 22:32:32 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.264 2004/10/29 19:53:59 mike Exp $".
  */
