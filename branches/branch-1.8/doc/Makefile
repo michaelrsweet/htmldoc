@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.11.2.13 2004/05/12 12:01:31 mike Exp $"
+# "$Id: Makefile,v 1.11.2.14 2004/10/24 22:32:32 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -78,6 +78,14 @@ clean:
 
 
 #
+# htmldoc program (dummy rule)
+#
+
+../htmldoc/htmldoc$(EXEEXT):
+	echo Rebuilding documentation...
+
+
+#
 # htmldoc.html
 #
 
@@ -114,5 +122,5 @@ htmldoc.1:	htmldoc.man
 
 
 #
-# End of "$Id: Makefile,v 1.11.2.13 2004/05/12 12:01:31 mike Exp $".
+# End of "$Id: Makefile,v 1.11.2.14 2004/10/24 22:32:32 mike Exp $".
 #
