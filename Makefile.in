@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile.in,v 1.10 2000/06/30 13:46:30 mike Exp $"
+# "$Id: Makefile.in,v 1.10.2.11 2003/01/06 22:09:22 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2000 by Easy Software Products.
+#   Copyright 1997-2003 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -34,13 +34,14 @@ include Makedefs
 #
 
 DIRS	=	@GUI@ @JPEG@ @ZLIB@ @PNG@ htmldoc doc
+INSTALLDIRS =	fonts data doc htmldoc
 
 
 #
 # Make all targets...
 #
 
-all:	Makedefs
+all:	Makedefs Makefile config.h htmldoc.list
 	for dir in $(DIRS); do\
 		echo Making all in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
@@ -63,23 +64,67 @@ clean:
 #
 
 install:
-	echo Installing in afm...
-	(cd afm; $(MAKE) -$(MAKEFLAGS) install)
-	echo Installing in data...
-	(cd data; $(MAKE) -$(MAKEFLAGS) install)
-	echo Installing in doc...
-	(cd doc; $(MAKE) -$(MAKEFLAGS) install)
-	echo Installing in htmldoc...
-	(cd htmldoc; $(MAKE) -$(MAKEFLAGS) install)
-	echo Installation is complete.
+	$(MAKE) all
+	for dir in $(INSTALLDIRS); do\
+		echo Installing in $$dir...;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS) install) || break;\
+	done
 
 
 #
 # Makedefs
 #
 
-Makedefs:	config.h.in Makedefs.in configure
-	./configure
+Makedefs:	Makedefs.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# Makefile
+#
+
+Makefile:	Makefile.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# config.h
+#
+
+config.h:	config.h.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# htmldoc.list
+#
+
+htmldoc.list:	htmldoc.list.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
 
 
 #
@@ -116,6 +161,13 @@ tardist:
 	epm -v -f tardist htmldoc
 
 #
+# Make a MacOS X distribution using EPM.
+#
+
+osx:
+	epm -v -f osx htmldoc
+
+#
 # Make a Solaris distribution using EPM.
 #
 
@@ -131,5 +183,5 @@ depot:
 
 
 #
-# End of "$Id: Makefile.in,v 1.10 2000/06/30 13:46:30 mike Exp $".
+# End of "$Id: Makefile.in,v 1.10.2.11 2003/01/06 22:09:22 mike Exp $".
 #

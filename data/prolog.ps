@@ -1,0 +1,324 @@
+%%BeginResource: procset htmldoc-device 1.8 24
+
+%
+% The following procedures use setpagedevice, which is not supported by
+% Level 1 PostScript interpreters.  For these systems, make setpagedevice
+% a no-op.
+%
+
+languagelevel 1 eq { /setpagedevice {pop} BD } if
+
+%
+% trayMap
+%
+% The trayMap variable defines an array of tray positions that are
+% used when looking up the "MEDIA POSITION nnn" page comment.  The
+% array should be exactly 8 elements long.  Unavailable trays should
+% be set to -1.
+%
+
+/trayMap [-1 -1 -1 -1 -1 -1 -1 -1] def
+
+product (Xerox DocuPrint N4025 PS3) eq
+  { /trayMap [0 1 2 3 4 -1 -1 -1] def } if
+
+product (Xerox DocuPrint N2025 PS) eq
+  { /trayMap [0 1 2 3 -1 -1 -1 -1] def } if
+
+product (HP LaserJet 5Si/5Si MX PS) eq
+  { /trayMap [3 0 1 4 -1 -1 -1 -1] def } if
+
+product (HP LaserJet 2100 Series) eq
+  { /trayMap [3 0 1 -1 -1 -1 -1 -1] def } if
+
+product (Xerox Document Centre 220/230) eq
+  { /trayMap [1 2 3 4 -1 5 -1 -1] def } if
+
+product (Xerox Document Centre 332/340) eq
+  { /trayMap [1 2 3 4 -1 5 -1 -1] def } if
+
+%product (Insert ModelName string here) eq
+%  { /trayMap [-1 -1 -1 -1 -1 -1 -1 -1] def } if
+
+%
+% haveMediaColor
+%
+% The haveMediaColor variable defines whether a printer supports the
+% MediaColor attribute in the page device dictionary.
+%
+
+/haveMediaColor
+  product (Xerox Document Centre 220/230) eq
+  product (Xerox Document Centre 332/340) eq or
+%  product (Insert ModelName string here) eq or
+def
+
+%
+% haveMediaPosition
+%
+% The haveMediaPosition variable defines whether a printer supports
+% the MediaPosition attribute in the page device dictionary.
+%
+
+/haveMediaPosition
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
+  product (Xerox Document Centre 220/230) eq or
+  product (Xerox Document Centre 332/340) eq or
+  product (HP LaserJet 5Si/5Si MX PS) eq or
+  product (HP LaserJet 2100 Series) eq or
+%  product (Insert ModelName string here) eq or
+def
+
+%
+% haveMediaType
+%
+% The haveMediaType variable defines whether a printer supports
+% the MediaType attribute in the page device dictionary.
+%
+
+/haveMediaType
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
+  product (Xerox Document Centre 220/230) eq or
+  product (Xerox Document Centre 332/340) eq or
+  product (HP LaserJet 5Si/5Si MX PS) eq or
+%  product (Insert ModelName string here) eq or
+def
+
+%
+% haveDeferredMediaSelection
+%
+% The haveDeferredMediaSelection variable defines whether a printer supports
+% the DeferredMediaSelection attribute in the page device dictionary.
+%
+
+/haveDeferredMediaSelection
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
+  product (HP LaserJet 5Si/5Si MX PS) eq or
+%  product (Insert ModelName string here) eq or
+  not
+def
+
+%
+% haveManualFeed
+%
+% The haveManualFeed variable defines whether a printer supports
+% the ManualFeed attribute in the page device dictionary.
+%
+
+/haveManualFeed
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
+  product (HP LaserJet 5Si/5Si MX PS) eq or
+  product (HP LaserJet 2100 Series) eq or
+  product (Xerox Document Centre 220/230) eq or
+  product (Xerox Document Centre 332/340) eq or
+%  product (Insert ModelName string here) eq or
+  not
+def
+
+%
+% haveTraySwitch
+%
+% The haveTraySwitch variable defines whether a printer supports
+% the TraySwitch attribute in the page device dictionary.
+%
+
+/haveTraySwitch
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
+  product (Xerox Document Centre 220/230) eq or
+  product (Xerox Document Centre 332/340) eq or
+%  product (Insert ModelName string here) eq or
+  not
+def
+
+%
+% copies SetCopies -
+%
+% Set the number of copies to print.
+%
+
+/SetCopies {
+  % Set the number of copies of each page. For Level 1 printers, use the
+  % #copies variable; otherwise, use the NumCopies attribute in the
+  % page device dictionary...
+  languagelevel 1 eq
+  { /#copies 1 index def }
+  { 2 dict begin /NumCopies 1 index currentdict end setpagedevice }
+  ifelse
+
+  % Discard the argument on the stack...
+  pop
+} BD
+
+%
+% duplex tumble SetDuplexMode -
+%
+% Set the duplexing mode; "duplex" and "tumble" are boolean values.
+%
+
+/CurrentDuplex false def
+/CurrentTumble false def
+
+/SetDuplexMode {
+  % See if the duplex settings have changed; if not, don't change
+  % them, otherwise some printers will reset their state and you
+  % end up with single-sided output...
+  1 index CurrentDuplex ne
+  1 index CurrentTumble ne or
+
+  {
+    % Build a page device dictionary with the Duplex and Tumble
+    % attributes...
+    4 dict begin
+      /Duplex 2 index def
+      /Tumble 1 index def
+    currentdict end
+
+    % Register the new attributes...
+    setpagedevice
+  } if
+
+  % Save the arguments on the stack...
+  /CurrentTumble exch def
+  /CurrentDuplex exch def
+} BD
+
+%
+% string SetMediaColor -
+%
+% Set the media color for the output.
+%
+
+/CurrentMediaColor () def
+
+/SetMediaColor {
+  dup CurrentMediaColor ne
+  {
+    haveMediaType {
+      haveMediaColor {
+	% Build a page device dictionary with the MediaColor attribute set to
+	% the argument...
+	2 dict begin
+	  /MediaColor 1 index def
+	currentdict end
+      } {
+	% Build a page device dictionary with the MediaType attribute set to
+	% "Color"...
+	2 dict begin
+	  /MediaType (Color) def
+	currentdict end
+      } ifelse
+
+      % Register any new attributes...
+      setpagedevice
+    } if
+  } if
+
+  % Save the media color on the stack...
+  /CurrentMediaColor exch def
+} BD
+
+%
+% number SetMediaPosition -
+%
+% Set the media position (tray) for the output.
+%
+
+/CurrentMediaPosition -1 def
+
+/SetMediaPosition {
+  dup CurrentMediaPosition ne
+  {
+    haveMediaPosition {
+      % Add any tray position offset to the tray number.
+      trayMap exch 1 sub get dup 0 ge
+      {
+	% Build a page device dictionary with the MediaPosition,
+	% DeferredMediaSelection, ManualFeed, and TraySwitch attributes...
+	8 dict begin
+	  /MediaPosition 1 index def
+	  haveDeferredMediaSelection { /DeferredMediaSelection true def } if
+	  haveTraySwitch { /TraySwitch false def } if
+	  haveManualFeed { /ManualFeed false def } if
+	currentdict end
+
+	% Register the new attributes...
+	setpagedevice
+      }
+      { pop }
+      ifelse
+    } if
+  } if
+
+  % Save the media position on the stack...
+  /CurrentMediaPosition exch def
+} BD
+
+%
+% string SetMediaType -
+%
+% Set the media type for the output.  Use a null string to do auto selection.
+%
+
+/CurrentMediaType () def
+
+/SetMediaType {
+  dup CurrentMediaType ne
+  {
+    haveMediaType
+    {
+      % Build a page device dictionary with the MediaType attribute...
+      2 dict begin
+	/MediaType 1 index def
+      currentdict end
+
+      % Register the new attribute...
+      setpagedevice
+    } if
+  } if
+
+  % Save the media type on the stack...
+  /CurrentMediaType exch def
+} BD
+
+%
+% width height SetPageSize -
+%
+% Set the media size for the output.
+%
+
+/CurrentPageWidth 0 def
+/CurrentPageLength 0 def
+
+/SetPageSize {
+  1 index CurrentPageWidth ne
+  1 index CurrentPageLength ne or
+
+  {
+    % Put the arguments in an array...
+    2 copy 2 array astore
+
+    % Build a page device dictionary with the PageSize and ImageableArea
+    % attributes...
+    4 dict begin
+      /PageSize 1 index def
+      /ImageableArea null def
+    currentdict end
+
+    % Register the new attributes...
+    setpagedevice
+
+    % Don't need the page size array anymore...
+    pop
+  } if
+
+  % Save the size on the stack...
+  /CurrentPageLength exch def
+  /CurrentPageWidth exch def
+} BD
+
+%%EndResource

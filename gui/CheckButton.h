@@ -1,9 +1,9 @@
 //
-// "$Id: CheckButton.h,v 1.6 2002/12/17 18:59:32 swdev Exp $"
+// "$Id: CheckButton.h,v 1.3.2.4 2002/09/11 19:24:38 swdev Exp $"
 //
-//   CheckButton definitions for the Common UNIX Printing System (CUPS).
+//   CheckButton definitions for the HTMLDOC software.
 //
-//   Copyright 1997-2003 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -12,14 +12,14 @@
 //   file is missing or damaged please contact Easy Software Products
 //   at:
 //
-//       Attn: CUPS Licensing Information
+//       Attn: HTMLDOC Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
 //       Hollywood, Maryland 20636-3111 USA
 //
 //       Voice: (301) 373-9603
-//       EMail: cups-info@cups.org
-//         WWW: http://www.cups.org
+//       EMail: info@easysw.com
+//         WWW: http://www.easysw.com
 //
 
 #ifndef _CHECKBUTTON_H_
@@ -48,5 +48,5 @@ public:
 #endif // !_CHECKBUTTON_H_
 
 //
-// End of "$Id: CheckButton.h,v 1.6 2002/12/17 18:59:32 swdev Exp $".
+// End of "$Id: CheckButton.h,v 1.3.2.4 2002/09/11 19:24:38 swdev Exp $".
 //

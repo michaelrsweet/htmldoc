@@ -1,9 +1,9 @@
 //
-// "$Id: FileChooser2.cxx,v 1.32 2002/12/17 18:59:33 swdev Exp $"
+// "$Id: FileChooser2.cxx,v 1.25.2.4 2001/05/16 02:59:20 mike Exp $"
 //
 //   More FileChooser routines.
 //
-//   Copyright 1997-2003 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -39,7 +39,6 @@
 //
 
 #include "FileChooser.h"
-#include "gui.h"
 #include <FL/filename.H>
 #include <FL/fl_ask.H>
 #include <FL/x.H>
@@ -89,7 +88,7 @@ FileChooser::directory(const char *d)	// I - Directory to change to
 #else
     if (d[0] != '/' && d[0] != '\\')
 #endif /* WIN32 || __EMX__ */
-      fl_filename_absolute(directory_, d);
+      filename_absolute(directory_, d);
     else
     {
       strncpy(directory_, d, sizeof(directory_) - 1);
@@ -109,9 +108,9 @@ FileChooser::directory(const char *d)	// I - Directory to change to
   // Clear the directory menu and fill it as needed...
   dirMenu->clear();
 #if defined(WIN32) || defined(__EMX__)
-  dirMenu->add(_("My Computer"));
+  dirMenu->add("My Computer");
 #else
-  dirMenu->add(_("File Systems"));
+  dirMenu->add("File Systems");
 #endif /* WIN32 || __EMX__ */
 
   levels = 0;
@@ -176,7 +175,7 @@ FileChooser::count()
       pathname[sizeof(pathname) - 1] = '\0';
     }
 
-    if (fl_filename_isdir(pathname))
+    if (filename_isdir(pathname))
       return (0);
     else
       return (1);
@@ -195,7 +194,7 @@ FileChooser::count()
 	pathname[sizeof(pathname) - 1] = '\0';
       }
 
-      if (!fl_filename_isdir(pathname))
+      if (!filename_isdir(pathname))
 	count ++;
     }
 
@@ -233,7 +232,7 @@ FileChooser::value(int f)	// I - File number
       name = fileList->text(i);
       sprintf(pathname, "%s/%s", directory_, name);
 
-      if (!fl_filename_isdir(pathname))
+      if (!filename_isdir(pathname))
       {
         // Nope, see if this this is "the one"...
 	count ++;
@@ -262,7 +261,7 @@ FileChooser::value(const char *filename)	// I - Filename + directory
 //  printf("FileChooser::value(\"%s\")\n", filename == NULL ? "(null)" : filename);
 
   // See if the filename is actually a directory...
-  if (filename == NULL || !filename[0] || fl_filename_isdir(filename))
+  if (filename == NULL || !filename[0] || filename_isdir(filename))
   {
     // Yes, just change the current directory...
     directory(filename);
@@ -346,7 +345,7 @@ FileChooser::newdir()
 
 
   // Get a directory name from the user
-  if ((dir = fl_input(_("New Directory?"), NULL)) == NULL)
+  if ((dir = fl_input("New Directory?", NULL)) == NULL)
     return;
 
   // Make it relative to the current directory as needed...
@@ -370,7 +369,7 @@ FileChooser::newdir()
 #endif /* WIN32 */
     if (errno != EEXIST)
     {
-      fl_alert(_("Unable to create directory!"));
+      fl_alert("Unable to create directory!");
       return;
     }
 
@@ -422,9 +421,9 @@ FileChooser::fileListCB()
   {
 #if defined(WIN32) || defined(__EMX__)
     if ((strlen(pathname) == 2 && pathname[1] == ':') ||
-        fl_filename_isdir(pathname))
+        filename_isdir(pathname))
 #else
-    if (fl_filename_isdir(pathname))
+    if (filename_isdir(pathname))
 #endif /* WIN32 || __EMX__ */
     {
       directory(pathname);
@@ -437,7 +436,7 @@ FileChooser::fileListCB()
   {
     fileName->value(filename);
 
-    if (!fl_filename_isdir(pathname))
+    if (!filename_isdir(pathname))
       okButton->activate();
   }
 }
@@ -530,9 +529,9 @@ FileChooser::fileNameCB()
 
 #if defined(WIN32) || defined(__EMX__)
     if ((strlen(pathname) == 2 && pathname[1] == ':') ||
-        fl_filename_isdir(pathname))
+        filename_isdir(pathname))
 #else
-    if (fl_filename_isdir(pathname))
+    if (filename_isdir(pathname))
 #endif /* WIN32 || __EMX__ */
       directory(pathname);
     else if (type_ == CREATE || access(pathname, 0) == 0)
@@ -555,7 +554,7 @@ FileChooser::fileNameCB()
       XBell(fl_display, 100);
 #endif // WIN32
 
-      fl_alert(_("Please choose an existing file!"));
+      fl_alert("Please choose an existing file!");
     }
   }
   else if (Fl::event_key() != FL_Delete)
@@ -664,7 +663,7 @@ FileChooser::fileNameCB()
     sprintf(pathname, "%s/%s", directory_, fileName->value());
 
     if ((type_ == CREATE || access(pathname, 0) == 0) &&
-        !fl_filename_isdir(pathname))
+        !filename_isdir(pathname))
       okButton->activate();
     else
       okButton->deactivate();
@@ -673,5 +672,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.32 2002/12/17 18:59:33 swdev Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.25.2.4 2001/05/16 02:59:20 mike Exp $".
 //
