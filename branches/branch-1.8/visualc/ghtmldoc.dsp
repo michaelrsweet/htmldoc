@@ -135,6 +135,10 @@ SOURCE=..\htmldoc\iso8859.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\htmldoc\license.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\htmldoc\md5.c
 # End Source File
 # Begin Source File
