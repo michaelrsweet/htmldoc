@@ -11,11 +11,12 @@ class HelpDialog {open
   decl {int max_;} {}
   decl {int line_[100];} {}
   decl {char file_[100][256];} {}
+  decl {int find_pos_;} {}
   Function {HelpDialog()} {open
   } {
     Fl_Window window_ {
       label {Help Dialog} open
-      private xywh {464 372 535 385} resizable
+      private xywh {464 372 535 430} resizable
       code0 {\#include <string.h>} visible
     } {
       Fl_Help_View view_ {
@@ -50,9 +51,9 @@ else if (view_->filename())
   file_[index_][255] = '\\0';
   line_[index_] = view_->topline();
 }}
-        private xywh {0 80 535 305} box DOWN_BOX resizable
+        private xywh {0 125 535 305} box DOWN_BOX resizable
       }
-      Fl_Group {} {open
+      Fl_Group {} {
         xywh {0 25 535 55}
       } {
         Fl_Pack {} {open
@@ -72,8 +73,8 @@ forward_->activate();
 if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
-view_->topline(line_[index_]);} selected
-            private image {icons/back.xpm} deimage {icons/dback.xpm} xywh {0 25 60 55} box NO_BOX down_box DOWN_BOX align 17
+view_->topline(line_[index_]);}
+            private image {icons/back.xpm} deimage {icons/dback.xpm} xywh {0 25 60 55} box NO_BOX align 17
           }
           Fl_Button forward_ {
             label Forward
@@ -88,8 +89,8 @@ back_->activate();
 if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
-view_->topline(line_[index_]);} selected
-            private image {icons/forward.xpm} deimage {icons/dforward.xpm} xywh {60 25 60 55} box NO_BOX down_box DOWN_BOX align 17
+view_->topline(line_[index_]);}
+            private image {icons/forward.xpm} deimage {icons/dforward.xpm} xywh {60 25 60 55} box NO_BOX align 17
           }
           Fl_Button smaller_ {
             label F
@@ -98,8 +99,8 @@ view_->topline(line_[index_]);} selected
 
 if (view_->textsize() <= 8)
   smaller_->deactivate();
-larger_->activate();} selected
-            private xywh {120 25 55 55} box NO_BOX down_box DOWN_BOX labelfont 1
+larger_->activate();}
+            private xywh {120 25 55 55} box NO_BOX labelfont 1
           }
           Fl_Button larger_ {
             label F
@@ -108,9 +109,22 @@ larger_->activate();} selected
 
 if (view_->textsize() >= 18)
   larger_->deactivate();
-smaller_->activate();} selected
-            private xywh {175 25 55 55} box NO_BOX down_box DOWN_BOX labelfont 1 labelsize 40
+smaller_->activate();}
+            private xywh {175 25 55 55} box NO_BOX labelfont 1 labelsize 40
           }
+        }
+      }
+      Fl_Group {} {open
+        xywh {0 80 535 45} box THIN_UP_BOX
+      } {
+        Fl_Input find_ {
+          label {Find: }
+          callback {find_pos_ = view_->find(find_->value(), find_pos_);
+
+if (find_pos_ < 0) {
+  fl_beep();
+}} selected
+          private xywh {75 90 450 25} labelfont 1 when 10
         }
       }
       Fl_Menu_Bar {} {open
@@ -131,8 +145,9 @@ smaller_->activate();} selected
     code {back_->deactivate();
 forward_->deactivate();
 
-index_ = -1;
-max_  = 0;} {}
+index_    = -1;
+max_      = 0;
+find_pos_ = 0;} {}
   }
   Function {h()} {return_type int
   } {
