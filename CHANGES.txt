@@ -1,4 +1,4 @@
-CHANGES.txt - 09/30/2004
+CHANGES.txt - 10/24/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -81,7 +81,6 @@ CHANGES IN HTMLDOC v1.8.24
 	- HTMLDOC now ignores content inside a STYLE element
 	  (PR #5183)
 
-
     BUG FIXES
 
 	- Switching between landscape and portrait orientations
@@ -134,6 +133,9 @@ CHANGES IN HTMLDOC v1.8.24
 	- Borders around left and right-aligned images were not
 	  drawn properly (PR #5112)
 	- Grayscale PDF output was not truly grayscale (STR #32)
+	- Fixed a table-of-contents bug introduced in 1.8.24rc1
+	  which caused the PDF document outline and actual TOC
+	  pages were not rendered properly (STR #37)
 
 
 CHANGES IN HTMLDOC v1.8.23
