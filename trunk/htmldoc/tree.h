@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.12 2002/07/22 01:43:46 mike Exp $"
+// "$Id: tree.h,v 1.13 2002/07/24 12:55:55 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -89,31 +89,31 @@ struct hdTree
   hdTree		*find(hdElement e);
   static char		*fix_url(const char *url, const char *base,
 			         const char *path, char *s, int slen);
-  void			format_block(hdMargin *m, float *x, float *y,
-		        	     int *page);
-  int			format_comment(hdMargin *m, float *x, float *y,
-		        	       int *page);
-  void			format_contents(hdMargin *m, int *page,
-		        		const char *label);
-  void			format_doc(hdMargin *m, float *x, float *y,
-		        	   int *page);
-  void			format_image(hdMargin *m, float *x, float *y,
-		        	     int *page);
-  void			format_index(hdMargin *m, int *page,
-		        	     const char *label);
-  void			format_line(hdTree *line, hdMargin *m, float *x, float *y,
-		        	    int *page, int lastline);
-  void			format_list(hdMargin *m,  float *x, float *y,
-		        	    int *page);
-  void			format_table(hdMargin *m, float *x, float *y,
-			             int *page);
+  void			format(hdStyleSheet *css, hdMargin *m,
+			       float &x, float &y, int &page);
+  void			format_block(hdStyleSheet *css, hdMargin *m,
+			             float &x, float &y, int &page);
+  void			format_comment(hdStyleSheet *css, hdMargin *m,
+			               float &x, float &y, int &page);
+  void			format_contents(hdStyleSheet *css, hdMargin *m,
+			                float &x, float &y, int &page);
+  void			format_image(hdStyleSheet *css, hdMargin *m,
+			             float &x, float &y, int &page);
+  void			format_index(hdStyleSheet *css, hdMargin *m,
+			             float &x, float &y, int &page);
+  void			format_list(hdStyleSheet *css, hdMargin *m,
+			            float &x, float &y, int &page);
+  void			format_table(hdStyleSheet *css, hdMargin *m,
+			             float &x, float &y, int &page);
   const char		*get_attr(const char *name);
-  float			get_cell_size(hdMargin *m, float *minwidth,
-			              float *prefwidth, float *minheight);
+  float			get_cell_size(hdStyleSheet *css, hdMargin *m,
+			              float &minwidth, float &prefwidth,
+				      float &minheight);
   static hdElement	get_element(const char *name);
   const char		*get_meta(const char *name);
-  float			get_table_size(hdMargin *m, float *minwidth,
-			               float *prefwidth, float *minheight);
+  float			get_table_size(hdStyleSheet *css, hdMargin *m,
+			               float &minwidth, float &prefwidth,
+				       float &minheight);
   char			*get_text(int comments = 0);
   char			*get_title();
   void			insert(hdTree *p);
@@ -132,5 +132,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.12 2002/07/22 01:43:46 mike Exp $".
+// End of "$Id: tree.h,v 1.13 2002/07/24 12:55:55 mike Exp $".
 //
