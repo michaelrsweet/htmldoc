@@ -10,6 +10,8 @@ CHANGES IN HTMLDOC v1.8.21
 	  the TOC using the _HD_OMIT_TOC attribute.
 	- HTMLDOC now supports remote book files when running
 	  from the command-line.
+	- HTMLDOC now supports hexadecimal character constants
+	  (&#xFF)
 
     CHANGES
 
@@ -39,6 +41,7 @@ CHANGES IN HTMLDOC v1.8.21
 	  change it only as needed.
 	- The MEDIA SIZE comment didn't adjust the printable
 	  size for the current landscape setting.
+	- HTMLDOC placed the header one line too high.
 
 
 CHANGES IN HTMLDOC v1.8.20

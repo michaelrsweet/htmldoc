@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.34 2002/07/08 17:11:09 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.35 2002/07/29 16:48:20 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -29,10 +29,10 @@ CFLAGS="${CFLAGS:=}"
 CXXFLAGS="${CXXFLAGS:=}"
 LDFLAGS="${LDFLAGS:=}"
 
-AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging [default=no]],
-[if eval "test x$enable_debug = xyes"; then
-    OPTIM="-g "
-fi])
+AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging, default=no],
+    [if eval "test x$enable_debug = xyes"; then
+	OPTIM="-g "
+    fi])
 
 AC_ARG_WITH(fltk-libs, [  --with-fltk-libs        set directory for FLTK library],
     LDFLAGS="-L$withval $LDFLAGS",)
@@ -42,7 +42,7 @@ AC_ARG_WITH(fltk-includes, [  --with-fltk-includes    set directory for FLTK inc
     CXXFLAGS="-I$withval $CXXFLAGS"
     CPPFLAGS="-I$withval $CPPFLAGS",)
 
-AC_ARG_WITH(gui, [  --with-gui              compile the GUI version of HTMLDOC [default=yes]])
+AC_ARG_WITH(gui, [  --with-gui              compile the GUI version of HTMLDOC, default=yes])
 
 AC_ARG_WITH(openssl-libs, [  --with-openssl-libs     set directory for OpenSSL library],
     if test "$withval" = "no"; then
@@ -152,6 +152,11 @@ LIBS="$SAVELIBS $SSLLIBS"
 dnl Check for image libraries...
 NEWLIBS=""
 
+AC_ARG_ENABLE(localjpeg, [  --enable-localjpeg      use local JPEG library, default=auto],
+    [if eval "test x$enable_localjpeg = xyes"; then
+	ac_cv_lib_jpeg_jpeg_CreateCompress=no
+    fi])
+
 AC_CHECK_LIB(jpeg,jpeg_CreateCompress,
     JPEGINC=""
     JPEG=""
@@ -159,6 +164,12 @@ AC_CHECK_LIB(jpeg,jpeg_CreateCompress,
     JPEGINC="-I../jpeg"
     JPEG="jpeg"
     NEWLIBS="../jpeg/libjpeg.a $NEWLIBS")
+
+AC_ARG_ENABLE(localzlib, [  --enable-localzlib      use local ZLIB library, default=auto],
+    [if eval "test x$enable_localzlib = xyes"; then
+	ac_cv_lib_z_gzgets=no
+    fi])
+
 AC_CHECK_LIB(z,gzgets,
     ZLIBINC=""
     ZLIB=""
@@ -166,6 +177,12 @@ AC_CHECK_LIB(z,gzgets,
     ZLIBINC="-I../zlib"
     ZLIB="zlib"
     NEWLIBS="../zlib/libz.a $NEWLIBS")
+
+AC_ARG_ENABLE(localpng, [  --enable-localpng       use local PNG library, default=auto],
+    [if eval "test x$enable_localpng = xyes"; then
+	ac_cv_lib_png_png_set_tRNS_to_alpha=no
+    fi])
+
 AC_CHECK_LIB(png,png_set_tRNS_to_alpha,
     PNGINC=""
     PNG=""
@@ -384,5 +401,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.34 2002/07/08 17:11:09 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.35 2002/07/29 16:48:20 mike Exp $".
 dnl

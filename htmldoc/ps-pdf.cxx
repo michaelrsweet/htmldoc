@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.196 2002/07/27 04:15:08 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.197 2002/07/29 16:48:23 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1345,6 +1345,7 @@ pspdf_prepare_page(int page)		/* I - Page number */
 {
   int	print_page;			/* Printed page # */
   char	page_text[64];			/* Page number text */
+  int	top;				/* Top of page */
 
 
   DEBUG_printf(("pspdf_prepare_page(%d)\n", page));
@@ -1387,14 +1388,19 @@ pspdf_prepare_page(int page)		/* I - Page number */
     PagePrintLength = pages[page].length - pages[page].top - pages[page].bottom;
   }
 
+  if (logo_height > HeadFootSize)
+    top = (int)(PagePrintLength - logo_height);
+  else
+    top = (int)(PagePrintLength - HeadFootSize);
+
   if (chapter == 0)
   {
    /*
     * Add table-of-contents header & footer...
     */
 
-    pspdf_prepare_heading(page, print_page, pages[page].header,
-                          PagePrintLength, page_text, sizeof(page_text));
+    pspdf_prepare_heading(page, print_page, pages[page].header, top,
+                          page_text, sizeof(page_text));
     pspdf_prepare_heading(page, print_page, pages[page].footer, 0,
                           page_text, sizeof(page_text));
   }
@@ -1405,8 +1411,8 @@ pspdf_prepare_page(int page)		/* I - Page number */
     */
 
     if (page > chapter_starts[chapter] || OutputType != OUTPUT_BOOK)
-      pspdf_prepare_heading(page, print_page, pages[page].header,
-                            PagePrintLength, page_text, sizeof(page_text));
+      pspdf_prepare_heading(page, print_page, pages[page].header, top,
+                            page_text, sizeof(page_text));
     pspdf_prepare_heading(page, print_page, pages[page].footer, 0,
                           page_text, sizeof(page_text));
   }
@@ -11826,5 +11832,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.196 2002/07/27 04:15:08 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.197 2002/07/29 16:48:23 mike Exp $".
  */
