@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.259 2004/10/01 01:59:15 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.260 2004/10/04 20:59:51 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -20,7 +20,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -442,7 +442,7 @@ static void	write_prolog(FILE *out, int pages, uchar *author,
 		             uchar *creator, uchar *copyright,
 			     uchar *keywords, uchar *subject);
 static void	ps_hex(FILE *out, uchar *data, int length);
-static void	ps_ascii85(FILE *out, uchar *data, int length);
+static void	ps_ascii85(FILE *out, uchar *data, int length, int eod = 0);
 static void	jpg_init(j_compress_ptr cinfo);
 static boolean	jpg_empty(j_compress_ptr cinfo);
 static void	jpg_term(j_compress_ptr cinfo);
@@ -8193,6 +8193,24 @@ write_background(int  page,	/* I - Page we are writing for */
     page_length = pages[page].length;
   }
 
+  if (background_color[0] != 1.0 ||
+      background_color[1] != 1.0 ||
+      background_color[2] != 1.0)
+  {
+    if (PSLevel > 0)
+    {
+      render_x = -1.0;
+      render_y = -1.0;
+      set_color(out, background_color);
+      fprintf(out, "0 0 M %d %d F\n", page_width, page_length);
+    }
+    else
+    {
+      set_color(out, background_color);
+      flate_printf(out, "0 0 %d %d re f\n", page_width, page_length);
+    }
+  }
+
   if (background_image != NULL)
   {
     width  = background_image->width * 72.0f / _htmlPPI;
@@ -8207,8 +8225,9 @@ write_background(int  page,	/* I - Page we are writing for */
     {
       case 0 :
           for (x = 0.0; x < page_width; x += width)
-            for (y = 0.0; y < page_length; y += height)
+            for (y = page_length; y >= 0.0f;)
             {
+	      y -= height;
   	      flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
               flate_printf(out, "/I%d Do\n", background_image->obj);
 	      flate_puts("Q\n", out);
@@ -8216,8 +8235,10 @@ write_background(int  page,	/* I - Page we are writing for */
 	  break;
 
       default :
-          fprintf(out, "0 %.1f %d{/y exch def 0 %.1f %d{/x exch def\n",
-	          height, page_length + (int)height - 1, width, page_width);
+          fprintf(out, "0 %.1f %d{/y exch neg %d add def\n",
+	          height, page_length + (int)height - 1, page_length);
+	  fprintf(out, "0 %.1f %d{/x exch def\n",
+	          width, page_width);
           fprintf(out, "GS[%.1f 0 0 %.1f x y]CM/iy -1 def\n", width, height);
 	  fprintf(out, "%d %d 8[%d 0 0 %d 0 %d]",
 	          background_image->width, background_image->height,
@@ -8230,23 +8251,6 @@ write_background(int  page,	/* I - Page we are writing for */
 	    fputs("false 3 colorimage\n", out);
 	  fputs("GR}for}for\n", out);
           break;
-    }
-  }
-  else if (background_color[0] != 1.0 ||
-           background_color[1] != 1.0 ||
-           background_color[2] != 1.0)
-  {
-    if (PSLevel > 0)
-    {
-      render_x = -1.0;
-      render_y = -1.0;
-      set_color(out, background_color);
-      fprintf(out, "0 0 M %d %d F\n", page_width, page_length);
-    }
-    else
-    {
-      set_color(out, background_color);
-      flate_printf(out, "0 0 %d %d re f\n", page_width, page_length);
     }
   }
 }
@@ -9538,16 +9542,16 @@ ps_hex(FILE  *out,			/* I - File to print to */
 static void
 ps_ascii85(FILE  *out,			/* I - File to print to */
 	   uchar *data,			/* I - Data to print */
-	   int   length)		/* I - Number of bytes to print */
+	   int   length,		/* I - Number of bytes to print */
+	   int   eod)			/* I - 1 = end-of-data */
 {
-  int		col;			/* Column */
-  unsigned	b;
-  uchar		c[5];
-  static uchar	leftdata[4];
-  static int	leftcount = 0;
+  unsigned	b;			/* Current 32-bit word */
+  uchar		c[5];			/* Base-85 encoded characters */
+  static int	col = 0;		/* Column */
+  static uchar	leftdata[4];		/* Leftover data at the end */
+  static int	leftcount = 0;		/* Size of leftover data */
 
 
-  col    = 0;
   length += leftcount;
 
   while (length > 3)
@@ -9568,25 +9572,19 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
 	  break;
     }
 
+    if (col >= 64)
+    {
+      col = 0;
+      putc('\n', out);
+    }
+
     if (b == 0)
     {
-      if (col >= 80)
-      {
-	col = 0;
-	putc('\n', out);
-      }
-
       putc('z', out);
       col ++;
     }
     else
     {
-      if (col >= 75)
-      {
-	col = 0;
-	putc('\n', out);
-      }
-
       c[4] = (b % 85) + '!';
       b /= 85;
       c[3] = (b % 85) + '!';
@@ -9597,7 +9595,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
       b /= 85;
       c[0] = b + '!';
 
-      fwrite(c, 5, 1, out);
+      fwrite(c, 1, 5, out);
       col += 5;
     }
 
@@ -9608,15 +9606,29 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
 
   if (length > 0)
   {
-    if (leftcount)
-    {
-      if (col >= 75)
-      {
-	col = 0;
-	putc('\n', out);
-      }
+    // Copy any remainder into the leftdata array...
+    if ((length - leftcount) > 0)
+      memcpy(leftdata + leftcount, data, length - leftcount);
 
-      b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) | leftdata[3];
+    memset(leftdata + length, 0, 4 - length);
+
+    leftcount = length;
+  }
+
+  if (eod)
+  {
+    // Do the end-of-data dance...
+    if (col >= 64)
+    {
+      col = 0;
+      putc('\n', out);
+    }
+
+    if (leftcount > 0)
+    {
+      // Write the remaining bytes as needed...
+      b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) |
+          leftdata[3];
 
       c[4] = (b % 85) + '!';
       b /= 85;
@@ -9628,14 +9640,11 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
       b /= 85;
       c[0] = b + '!';
 
-      fwrite(c, length + 1, 1, out);
+      fwrite(c, leftcount + 1, 1, out);
     }
-    else
-    {
-      memcpy(leftdata, data, length);
-      memset(leftdata + length, 0, 4 - length);
-      leftcount = length;
-    }
+
+    fputs("~>\n", out);
+    col = 0;
   }
 }
 
@@ -10476,7 +10485,7 @@ write_image(FILE     *out,		/* I - Output file */
 
 #ifdef HTMLDOC_INTERPOLATION
 	    fputs("/Interpolate true", out);
-#endif HTMLDOC_INTERPOLATION
+#endif // HTMLDOC_INTERPOLATION
 
             fputs("/DataSource currentfile/ASCII85Decode filter", out);
 
@@ -10575,15 +10584,14 @@ write_image(FILE     *out,		/* I - Output file */
 	  fputs("/DataSource currentfile/ASCII85Decode filter>>image\n", out);
 
 	  ps_ascii85(out, indices, indwidth * img->height);
-          ps_ascii85(out, (uchar *)"", 0);
-          fputs("~>\n", out);
+          ps_ascii85(out, (uchar *)"", 0, 1);
         }
 	else if (OutputJPEG)
 	{
 	  if (img->depth == 1)
-	    fputs("/DeviceGray setcolorspace", out);
+	    fputs("/DeviceGray setcolorspace\n", out);
 	  else
-	    fputs("/DeviceRGB setcolorspace", out);
+	    fputs("/DeviceRGB setcolorspace\n", out);
 
 	  fprintf(out, "<<"
 	               "/ImageType 1"
@@ -10613,15 +10621,14 @@ write_image(FILE     *out,		/* I - Output file */
 	  jpeg_finish_compress(&cinfo);
 	  jpeg_destroy_compress(&cinfo);
 
-          ps_ascii85(out, (uchar *)"", 0);
-          fputs("~>\n", out);
+          ps_ascii85(out, (uchar *)"", 0, 1);
         }
         else
         {
 	  if (img->depth == 1)
-	    fputs("/DeviceGray setcolorspace", out);
+	    fputs("/DeviceGray setcolorspace\n", out);
 	  else
-	    fputs("/DeviceRGB setcolorspace", out);
+	    fputs("/DeviceRGB setcolorspace\n", out);
 
 	  fprintf(out, "<<"
 	               "/ImageType 1"
@@ -10642,8 +10649,7 @@ write_image(FILE     *out,		/* I - Output file */
 	        ">>image\n", out);
 
 	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth);
-          ps_ascii85(out, (uchar *)"", 0);
-          fputs("~>\n", out);
+          ps_ascii85(out, (uchar *)"", 0, 1);
         }
 
 	fputs("GR\n", out);
@@ -12238,10 +12244,7 @@ flate_close_stream(FILE *out)		/* I - Output file */
   if (!Compression)
   {
     if (PSLevel)
-    {
-      ps_ascii85(out, (uchar *)"", 0);
-      fputs("~>\n", out);
-    }
+      ps_ascii85(out, (uchar *)"", 0, 1);
 
     return;
   }
@@ -12287,10 +12290,7 @@ flate_close_stream(FILE *out)		/* I - Output file */
   compressor_active = 0;
 
   if (PSLevel)
-  {
-    ps_ascii85(out, (uchar *)"", 0);
-    fputs("~>\n", out);
-  }
+    ps_ascii85(out, (uchar *)"", 0, 1);
 }
 
 
@@ -12392,5 +12392,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.259 2004/10/01 01:59:15 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.260 2004/10/04 20:59:51 mike Exp $".
  */
