@@ -39,6 +39,8 @@ CHANGES IN HTMLDOC v1.8.19
 	  fragment in the line.
 	- HTMLDOC tried to seek backwards when reading HTML
 	  from the standard input.
+	- The media margin comments did not work properly when
+	  the current media orientation was landscape.
 
 
 CHANGES IN HTMLDOC v1.8.18
