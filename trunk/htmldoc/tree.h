@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.18 2003/01/08 02:38:50 mike Exp $"
+// "$Id: tree.h,v 1.19 2003/02/18 03:54:33 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -210,19 +210,6 @@ struct hdTree
 			         const char *path, char *s, int slen);
 
  /**
-  * The <TT>format_block()</TT> method formats a block node and its children, updating
-  * the width, height, and nodebreak members.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The margins to use.
-  * @param x float&amp; The current X position in points.
-  * @param y float&amp; The current Y position in points.
-  * @param page int&amp; The current page.
-  */
-  void			format_block(hdStyleSheet *css, hdMargin *m,
-			             float &x, float &y, int &page);
-
- /**
   * The <TT>format_comment()</TT> method processes HTML comments.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -258,19 +245,6 @@ struct hdTree
   */
   void			format_doc(hdStyleSheet *css, hdMargin *m,
 			           float &x, float &y, int &page);
-
- /**
-  * The <TT>format_image()</TT> method formats an image, updating the width,
-  * height, and nodebreak members.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The margins to use.
-  * @param x float&amp; The current X position in points.
-  * @param y float&amp; The current Y position in points.
-  * @param page int&amp; The current page.
-  */
-  void			format_image(hdStyleSheet *css, hdMargin *m,
-			             float &x, float &y, int &page);
 
  /**
   * The <TT>format_index()</TT> method formats an index.
@@ -479,5 +453,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.18 2003/01/08 02:38:50 mike Exp $".
+// End of "$Id: tree.h,v 1.19 2003/02/18 03:54:33 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: tree-format.cxx,v 1.5 2003/01/08 02:38:50 mike Exp $"
+// "$Id: tree-format.cxx,v 1.6 2003/02/18 03:54:33 mike Exp $"
 //
 //   HTML formatting routines for HTMLDOC, a HTML document processing program.
 //
@@ -95,6 +95,14 @@ hdTree::format_doc(hdStyleSheet *css,		// I  - Style sheet
     {
       if ((fragwidth + x) > linewidth)
       {
+        if (block)
+	{
+	  if (block->width < x)
+	    block->width = x;
+
+	  block->height += ascender + descender;
+	}
+
         frag->nodebreak = HD_NODEBREAK_LINE;
 	x               = 0.0;
 	y               += ascender + descender;
@@ -105,6 +113,14 @@ hdTree::format_doc(hdStyleSheet *css,		// I  - Style sheet
 	{
 	  y = 0.0;
 	  page ++;
+
+	  if (block && block->height < m->length())
+	  {
+	    // MRS: Need to update this for min space for paragraph
+	    // via style???
+	    block->nodebreak = HD_NODEBREAK_PAGE;
+	    y                = block->height;
+	  }
 	}
 
 	m->clear(y, page);
@@ -266,6 +282,29 @@ hdTree::format_doc(hdStyleSheet *css,		// I  - Style sheet
           }
 	  break;
 
+      case HD_ELEMENT_COMMENT :
+          tempx    = x;
+	  tempy    = y;
+	  temppage = page;
+
+          temp->format_comment(css, m, tempx, tempy, temppage);
+	  if (temppage != page && block)
+	  {
+	    block->height += m->length() - y;
+	    page ++;
+
+	    while (page < temppage)
+	    {
+	      page ++;
+	      block->height += m->length();
+	    }
+	  }
+
+	  page = temppage;
+	  x    = tempx;
+	  y    = tempy;
+	  break;
+          
       default :
           if (hdElIsGroup(temp->element))
 	  {
@@ -274,7 +313,10 @@ hdTree::format_doc(hdStyleSheet *css,		// I  - Style sheet
 	    if (block)
 	      y += block->style->get_format_spacing(HD_POS_BOTTOM);
 
-            block = temp;
+            block            = temp;
+	    block->nodebreak = HD_NODEBREAK_LINE;
+	    block->width     = 0.0f;
+	    block->height    = 0.0f;
 
 	    y += block->style->get_format_spacing(HD_POS_TOP);
 
@@ -332,20 +374,6 @@ hdTree::format_doc(hdStyleSheet *css,		// I  - Style sheet
 
 
 //
-// 'hdTree::format_block()' - Format a block.
-//
-
-void
-hdTree::format_block(hdStyleSheet *css,		// I  - Style sheet
-                     hdMargin     *m,		// IO - Margins
-                     float        &x,		// IO - Current X position
-                     float        &y,		// IO - Current Y position
-		     int          &page)	// IO - Current page
-{
-}
-
-
-//
 // 'hdTree::format_comment()' - Format a comment.
 //
 
@@ -369,20 +397,6 @@ hdTree::format_contents(hdStyleSheet *css,	// I  - Style sheet
                 	float        &x,	// IO - Current X position
                 	float        &y,	// IO - Current Y position
 			int          &page)	// IO - Current page
-{
-}
-
-
-//
-// 'hdTree::format_image()' - Format an image.
-//
-
-void
-hdTree::format_image(hdStyleSheet *css,		// I  - Style sheet
-                     hdMargin     *m,		// IO - Margins
-                     float        &x,		// IO - Current X position
-                     float        &y,		// IO - Current Y position
-		     int          &page)	// IO - Current page
 {
 }
 
@@ -416,5 +430,5 @@ hdTree::format_list(hdStyleSheet *css,		// I  - Style sheet
 
 
 //
-// End of "$Id: tree-format.cxx,v 1.5 2003/01/08 02:38:50 mike Exp $".
+// End of "$Id: tree-format.cxx,v 1.6 2003/02/18 03:54:33 mike Exp $".
 //
