@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.5 1999/11/11 21:36:46 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.6 1999/11/12 00:48:27 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -254,7 +254,7 @@ static void	flate_open_stream(FILE *out);
 static void	flate_close_stream(FILE *out);
 static void	flate_puts(char *s, FILE *out);
 static void	flate_printf(FILE *out, char *format, ...);
-static void	flate_write(FILE *out, uchar *inbuf, int length);	
+static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
 
 static void	parse_contents(tree_t *t, int left, int width, int bottom,
 		               int length, float *y, int *page, int *heading);
@@ -759,7 +759,7 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
       temp->data.text.style    = HeadFootStyle;
       temp->data.text.size     = HeadFootSize;
 
-      get_color(temp->data.text.rgb, _htmlTextColor);
+      get_color(_htmlTextColor, temp->data.text.rgb);
     }
   }
 }
@@ -4669,15 +4669,32 @@ jpg_init(j_compress_ptr cinfo)	/* I - Compressor info */
 static boolean			/* O - True if buffer written OK */
 jpg_empty(j_compress_ptr cinfo)	/* I - Compressor info */
 {
+  int nbytes;			/* Number of bytes to write */
+
+
   (void)cinfo;
 
-  if (PSLevel > 0)
-    ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
-  else
-    flate_write(jpg_file, jpg_buf, sizeof(jpg_buf));
+  nbytes = sizeof(jpg_buf) - jpg_dest.free_in_buffer;
 
-  jpg_dest.next_output_byte = jpg_buf;
-  jpg_dest.free_in_buffer   = sizeof(jpg_buf);
+  if (PSLevel > 0)
+  {
+    ps_ascii85(jpg_file, jpg_buf, nbytes & ~3);
+
+    if (nbytes & 3)
+      memcpy(jpg_buf, jpg_buf + (nbytes & ~3), nbytes & 3);
+
+    nbytes &= 3;
+
+    jpg_dest.next_output_byte = jpg_buf + nbytes;
+    jpg_dest.free_in_buffer   = sizeof(jpg_buf) - nbytes;
+  }
+  else
+  {
+    flate_write(jpg_file, jpg_buf, nbytes);
+
+    jpg_dest.next_output_byte = jpg_buf;
+    jpg_dest.free_in_buffer   = sizeof(jpg_buf);
+  }
 
   return (TRUE);
 }
@@ -5108,14 +5125,14 @@ write_image(FILE     *out,	/* I - Output file */
         if (ncolors > 0)
 	{
   	  flate_printf(out, "/W %d/H %d/BPC %d ID\n",
-               	     img->width, img->height, indbits); 
+               	       img->width, img->height, indbits); 
 
-  	  flate_write(out, indices, indwidth * img->height);
+  	  flate_write(out, indices, indwidth * img->height, 1);
 	}
 	else if (OutputJPEG)
 	{
   	  flate_printf(out, "/W %d/H %d/BPC 8/F/DCT ID\n",
-               	     img->width, img->height); 
+                       img->width, img->height); 
 
 	  jpg_setup(out, img, &cinfo);
 
@@ -5130,12 +5147,13 @@ write_image(FILE     *out,	/* I - Output file */
 	else
 	{
   	  flate_printf(out, "/W %d/H %d/BPC 8 ID\n",
-               	     img->width, img->height); 
+               	       img->width, img->height); 
 
-  	  flate_write(out, img->pixels, img->width * img->height * img->depth);
+  	  flate_write(out, img->pixels,
+	              img->width * img->height * img->depth, 1);
         }
 
-	flate_puts("\nEI\nQ\n", out);
+	flate_write(out, (uchar *)"\nEI\nQ\n", 6, 1);
         break;
 
     case 1 : /* PostScript, Level 1 */
@@ -5754,9 +5772,10 @@ flate_printf(FILE *out,		/* I - Output file */
  */
 
 static void
-flate_write(FILE *out,	/* I - Output file */
-          uchar *buf,	/* I - Buffer */
-          int  length)	/* I - Number of bytes to write */
+flate_write(FILE  *out,		/* I - Output file */
+            uchar *buf,		/* I - Buffer */
+            int   length,	/* I - Number of bytes to write */
+	    int   flush)	/* I - Flush when writing data? */
 {
   if (Compression)
   {
@@ -5778,7 +5797,8 @@ flate_write(FILE *out,	/* I - Output file */
 	compressor.avail_out = sizeof(comp_buffer);
       }
 
-      deflate(&compressor, Z_NO_FLUSH);
+      deflate(&compressor, flush ? Z_FULL_FLUSH : Z_NO_FLUSH);
+      flush = 0;
     }
   }
   else
@@ -5787,5 +5807,5 @@ flate_write(FILE *out,	/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.5 1999/11/11 21:36:46 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.6 1999/11/12 00:48:27 mike Exp $".
  */
