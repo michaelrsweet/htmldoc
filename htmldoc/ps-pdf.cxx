@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.4 2000/12/08 20:28:00 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.5 2000/12/08 20:54:31 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1843,7 +1843,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       if (heading_pages[*heading] > 0)
 	fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
         	pages_object + 3 * (heading_pages[*heading] +
-		                    chapter_starts[0]) - 2,
+		                    chapter_starts[1]) - 2,
         	heading_tops[*heading]);
 
       (*heading) ++;
@@ -2936,7 +2936,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
     DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
                   num_headings, *page - 1));
     heading_pages[num_headings] = *page - chapter_starts[1] + 1;
-    heading_tops[num_headings]  = (int)(*y + 2 * _htmlSpacings[SIZE_P]);
+    heading_tops[num_headings]  = (int)(*y + 4 * _htmlSpacings[SIZE_P]);
     num_headings ++;
   }
 
@@ -7450,5 +7450,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.4 2000/12/08 20:28:00 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.5 2000/12/08 20:54:31 mike Exp $".
  */
