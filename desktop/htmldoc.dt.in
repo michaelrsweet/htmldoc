@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.dt.in,v 1.1.2.1 2004/06/14 17:23:51 mike Exp $"
+# "$Id: htmldoc.dt.in,v 1.1.2.2 2004/06/17 18:30:20 swdev Exp $"
 #
 #   CDE Action and DataType Definitions for HTMLDOC.
 #
@@ -64,7 +64,7 @@ ACTION htmldoc
 	ICON		htmldoc
 	TYPE		COMMAND
 	WINDOW_TYPE	NO_STDIO
-	EXEC_STRING	@bindir@/htmldoc %Arg_1%
+	EXEC_STRING	@bindir@/htmldoc %(File)Arg_1%
 	DESCRIPTION	HTMLDOC converts HTML files and web pages to PDF and PostScript.
 }
 
@@ -74,12 +74,15 @@ ACTION htmldoc
 
 ACTION Open
 {
+	LABEL		Open
 	ARG_TYPE	HTMLDOCBOOK
-	TYPE		MAP
-	MAP_ACTION	HTMLDOC
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	@bindir@/htmldoc %(File)Arg_1%
+	DESCRIPTION	This action opens a HTMLDOC book file.
 }
 
 
 #
-# End of "$Id: htmldoc.dt.in,v 1.1.2.1 2004/06/14 17:23:51 mike Exp $".
+# End of "$Id: htmldoc.dt.in,v 1.1.2.2 2004/06/17 18:30:20 swdev Exp $".
 #
