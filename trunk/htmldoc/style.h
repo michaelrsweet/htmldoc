@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.4 2002/02/05 17:47:58 mike Exp $"
+// "$Id: style.h,v 1.5 2002/02/06 20:24:08 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -534,8 +534,14 @@ struct hdStyleSheet
   hdStyle	*find_style(hdTree *t);
   hdStyle	*find_style(int nsels, hdSelector *sels);
   int		load(hdFile *f, const char *path = (const char *)0);
+  void		pattern(const char *r, char p[256]);
+  char		*read(hdFile *f, const char *p, char *s, int slen);
   void		set_charset(const char *cs);
+  void		set_margins(float l, float b, float r, float t);
+  void		set_orientation(hdOrientation o);
+  void		set_size(float w, float l);
   void		update();
+  void		update_printable();
   void		update_styles();
 };
 
@@ -543,5 +549,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.4 2002/02/05 17:47:58 mike Exp $".
+// End of "$Id: style.h,v 1.5 2002/02/06 20:24:08 mike Exp $".
 //

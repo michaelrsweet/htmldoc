@@ -1,7 +1,7 @@
 //
-// "$Id: style.cxx,v 1.3 2002/02/05 19:50:34 mike Exp $"
+// "$Id: style.cxx,v 1.4 2002/02/06 20:24:08 mike Exp $"
 //
-//   CSS routines for HTMLDOC, a HTML document processing program.
+//   CSS style routines for HTMLDOC, a HTML document processing program.
 //
 //   Copyright 1997-2002 by Easy Software Products.
 //
@@ -23,6 +23,21 @@
 //
 // Contents:
 //
+//   hdStyle::hdStyle()             - Create a new style record.
+//   hdStyle::~hdStyle()            - Destroy a style record.
+//   hdStyle::get_border_style()    - Get a border style value.
+//   hdStyle::get_border_width()    - Get a border width value.
+//   hdStyle::get_color()           - Get a color value.
+//   hdStyle::get_length()          - Get a length/measurement value...
+//   hdStyle::get_list_style_type() - Get a list style type value.
+//   hdStyle::get_page_break()      - Get a page break value.
+//   hdStyle::get_pos()             - Get a margin/position/padding/border
+//                                    index.
+//   hdStyle::get_subvalue()        - Get a subvalue from a property value.
+//   hdStyle::inherit()             - Inherit style properties from a parent
+//                                    style.
+//   hdStyle::load()                - Load a style definition from a string.
+//   hdStyle::update()              - Update relative style definitions.
 //
 
 //
@@ -2740,12 +2755,12 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
   // Then do all of the other relative properties...
   if (background_position_rel[0])
-    background_position[0] = get_length(background_position_rel[0], css->width);
+    background_position[0] = get_length(background_position_rel[0], css->print_width);
   if (background_position_rel[1])
-    background_position[1] = get_length(background_position_rel[1], css->length);
+    background_position[1] = get_length(background_position_rel[1], css->print_length);
 
   if (height_rel)
-    height = get_length(height_rel, css->length);
+    height = get_length(height_rel, css->print_length);
 
   if (line_height_rel)
   {
@@ -2756,40 +2771,40 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
   }
 
   if (margin_rel[0])
-    margin[0] = get_length(margin_rel[0], css->length);
+    margin[0] = get_length(margin_rel[0], css->print_length);
   if (margin_rel[1])
-    margin[1] = get_length(margin_rel[1], css->width);
+    margin[1] = get_length(margin_rel[1], css->print_width);
   if (margin_rel[2])
-    margin[2] = get_length(margin_rel[2], css->width);
+    margin[2] = get_length(margin_rel[2], css->print_width);
   if (margin_rel[3])
-    margin[3] = get_length(margin_rel[3], css->length);
+    margin[3] = get_length(margin_rel[3], css->print_length);
 
   if (padding_rel[0])
-    padding[0] = get_length(padding_rel[0], css->length);
+    padding[0] = get_length(padding_rel[0], css->print_length);
   if (padding_rel[1])
-    padding[1] = get_length(padding_rel[1], css->width);
+    padding[1] = get_length(padding_rel[1], css->print_width);
   if (padding_rel[2])
-    padding[2] = get_length(padding_rel[2], css->width);
+    padding[2] = get_length(padding_rel[2], css->print_width);
   if (padding_rel[3])
-    padding[3] = get_length(padding_rel[3], css->length);
+    padding[3] = get_length(padding_rel[3], css->print_length);
 
   if (position_rel[0])
-    position[0] = get_length(position_rel[0], css->length);
+    position[0] = get_length(position_rel[0], css->print_length);
   if (position_rel[1])
-    position[1] = get_length(position_rel[1], css->width);
+    position[1] = get_length(position_rel[1], css->print_width);
   if (position_rel[2])
-    position[2] = get_length(position_rel[2], css->width);
+    position[2] = get_length(position_rel[2], css->print_width);
   if (position_rel[3])
-    position[3] = get_length(position_rel[3], css->length);
+    position[3] = get_length(position_rel[3], css->print_length);
 
   if (text_indent_rel)
-    text_indent = get_length(text_indent_rel, css->width);
+    text_indent = get_length(text_indent_rel, css->print_width);
 
   if (width_rel)
-    width = get_length(width_rel, css->width);
+    width = get_length(width_rel, css->print_width);
 }
 
 
 //
-// End of "$Id: style.cxx,v 1.3 2002/02/05 19:50:34 mike Exp $".
+// End of "$Id: style.cxx,v 1.4 2002/02/06 20:24:08 mike Exp $".
 //
