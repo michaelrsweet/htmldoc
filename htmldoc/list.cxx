@@ -1,5 +1,5 @@
 //
-// "$Id: list.cxx,v 1.2 2002/04/02 22:01:56 mike Exp $"
+// "$Id: list.cxx,v 1.3 2002/04/03 02:18:52 mike Exp $"
 //
 //   List generation methods for HTMLDOC, a HTML document processing program.
 //
@@ -49,8 +49,7 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
   char		formats[2];		// Format types
   hdTree	*t,			// Current node
 		*tnext,			// Next node
-		*tlink,			// Pointer to link
-		*ttemp;			// Temporary node pointer
+		*tlink;			// Pointer to link
   hdTree	*list,			// List
 		*listptr,		// Pointer into list
 		*listnode,		// Node in list
@@ -69,7 +68,7 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
 
   // Create a root node for the list...
   list = new hdTree(HD_ELEMENT_BODY);
-  list->set_attr("CLASS", class_);
+  list->set_attr("class", class_);
   list->style = css->find_style(list);
 
   // Scan the document tree for headings...
@@ -101,7 +100,7 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
       // Have a caption; see if we have the right class name...
       tnext = t->next;
 
-      if ((val = t->get_attr("CLASS")) == NULL ||
+      if ((val = t->get_attr("class")) == NULL ||
           strcasecmp(class_, val) != 0)
 	continue;
 
@@ -141,52 +140,38 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
 	  listnumber->next->whitespace = 1;
       }
 
-      // Do we need to add a link target?
-      if ((tlink = t->find(HD_ELEMENT_A)) == NULL)
+      // Add a link target?
+      tlink = new hdTree(HD_ELEMENT_A);
+      tlink->insert(t->parent);
+
+      // Add a named link...
+      snprintf(s, sizeof(s), "HD_%s_", class_);
+      s[sizeof(s) - 1] = '\0';
+
+      for (i = 0, sptr = s; i < 2; i ++)
       {
-        // No link node; insert one...
-	tlink = new hdTree(HD_ELEMENT_A);
-	tlink->child      = t->child;
-	tlink->last_child = t->last_child;
+	sptr += strlen(sptr);
 
-	for (ttemp = t->child; ttemp != NULL; ttemp = ttemp->next)
-	  ttemp->parent = tlink;
+	hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
+	                       formats[i], numbers[i]);
 
-        t->child      = tlink;
-	t->last_child = tlink;
+        if (!i)
+	  strncat(sptr, "_", sizeof(s) - (sptr - s) - 1);
       }
 
-      if (tlink->get_attr("NAME") == NULL)
-      {
-        // Add a named link...
-	snprintf(s, sizeof(s), "HD_%s_", prefix);
-	s[sizeof(s) - 1] = '\0';
-
-        for (i = 0, sptr = s; i < 2; i ++)
-	{
-	  sptr += strlen(sptr);
-
-	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
-	                         formats[i], numbers[i]);
-
-          if (!i)
-	    strncat(sptr, "_", sizeof(s) - (sptr - s) - 1);
-        }
-
-	tlink->set_attr("NAME", s);
-      }
+      tlink->set_attr("name", s);
 
       // Then add a new node for the heading...
       listnode = new hdTree(HD_ELEMENT_P, NULL, listptr);
-      listnode->set_attr("CLASS", class_);
+      listnode->set_attr("class", class_);
       listnode->style = css->find_style(listnode);
 
       // And a node for the link...
-      snprintf(s, sizeof(s), "#%s", tlink->get_attr("NAME"));
+      snprintf(s, sizeof(s), "#%s", tlink->get_attr("name"));
 
       listlink = new hdTree(HD_ELEMENT_A, "", listnode);
-      listlink->set_attr("HREF", s);
-      listlink->set_attr("CLASS", class_);
+      listlink->set_attr("href", s);
+      listlink->set_attr("class", class_);
       listlink->style = css->find_style(listlink);
 
       // Copy the text to the TOC...
@@ -204,5 +189,5 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: list.cxx,v 1.2 2002/04/02 22:01:56 mike Exp $".
+// End of "$Id: list.cxx,v 1.3 2002/04/03 02:18:52 mike Exp $".
 //
