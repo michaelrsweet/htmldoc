@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.46 2001/04/27 20:11:08 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.47 2001/05/01 18:42:39 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2225,8 +2225,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
       fprintf(out, "%d 0 obj", num_objects);
       fputs("[", out);
       for (lobj = 0; lobj < num_lobjs; lobj ++)
-        fprintf(out, "%d 0 R\n", lobjs[lobj]);
-      fputs("]", out);
+        fprintf(out, "%d 0 R%s", lobjs[lobj],
+	        lobj < (num_lobjs - 1) ? "\n" : "]");
       fputs("endobj\n", out);
     }
   }
@@ -8311,5 +8311,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.46 2001/04/27 20:11:08 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.47 2001/05/01 18:42:39 mike Exp $".
  */
