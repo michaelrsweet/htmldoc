@@ -1,5 +1,5 @@
 /*
- * "$Id: render.cxx,v 1.14.2.2 2004/03/22 15:31:42 mike Exp $"
+ * "$Id: render.cxx,v 1.14.2.3 2004/03/22 21:14:46 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1734,7 +1734,7 @@ hdRender::ps_write_page(FILE  *out,	/* I - Output file */
   * Clear the render cache...
   */
 
-  hdRenderNodeypeface = -1;
+  render_typeface = -1;
   render_style    = -1;
   render_size     = -1;
   render_rgb[0]   = -1.0f;
@@ -2328,7 +2328,7 @@ hdRender::pdf_write_page(FILE  *out,	/* I - Output file */
 
   flate_puts("BT\n", out);
 
-  hdRenderNodeypeface = -1;
+  render_typeface = -1;
   render_style    = -1;
   render_size     = -1;
   render_x        = -1.0f;
@@ -9008,7 +9008,7 @@ hdRender::set_font(FILE  *out,		/* I - File to write to */
 	*s;		/* Pointer to end of string */
 
 
-  if (typeface == hdRenderNodeypeface &&
+  if (typeface == render_typeface &&
       style == render_style &&
       size == render_size)
     return;
@@ -9039,7 +9039,7 @@ hdRender::set_font(FILE  *out,		/* I - File to write to */
   else
     flate_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
 
-  hdRenderNodeypeface = typeface;
+  render_typeface = typeface;
   render_style    = style;
   render_size     = size;
 }
@@ -11988,5 +11988,5 @@ hdRender::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: render.cxx,v 1.14.2.2 2004/03/22 15:31:42 mike Exp $".
+ * End of "$Id: render.cxx,v 1.14.2.3 2004/03/22 21:14:46 mike Exp $".
  */

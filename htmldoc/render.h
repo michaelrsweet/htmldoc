@@ -1,5 +1,5 @@
 /*
- * "$Id: render.h,v 1.21.2.2 2004/03/22 15:31:42 mike Exp $"
+ * "$Id: render.h,v 1.21.2.3 2004/03/22 21:14:46 mike Exp $"
  *
  *   Render class definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -381,7 +381,7 @@ class hdRender
   float		background_color[3],
 		link_color[3];
 
-  int		hdRenderNodeypeface,
+  int		render_typeface,
 		render_style;
   float		render_size,
 		render_rgb[3],
@@ -524,5 +524,5 @@ class hdRender
 
 
 /*
- * End of "$Id: render.h,v 1.21.2.2 2004/03/22 15:31:42 mike Exp $".
+ * End of "$Id: render.h,v 1.21.2.3 2004/03/22 21:14:46 mike Exp $".
  */

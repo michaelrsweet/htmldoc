@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.61 2004/02/09 22:25:11 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.61.2.1 2004/03/22 21:14:45 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -88,31 +88,19 @@ static void	usage(const char *arg = NULL);
  * 'main()' - Main entry for HTMLDOC.
  */
 
-#ifdef MAC		// MacOS subverts ANSI C...
 int
-main(void)
+main(int  argc,				/* I - Number of command-line arguments */
+     char *argv[])			/* I - Command-line arguments */
 {
-  int		argc;	// Number of command-line arguments
-  char		**argv;	// Command-line arguments
-
-
-  argc = ccommand(&argv);
-#else			// All other operating systems...
-int
-main(int  argc,		/* I - Number of command-line arguments */
-     char *argv[])	/* I - Command-line arguments */
-{
-#endif // MAC
-
-  int		i, j;		/* Looping vars */
-  tree_t	*document,	/* Master HTML document */
-		*file,		/* HTML document file */
-		*toc;		/* Table of contents */
-  exportfunc_t	exportfunc;	/* Export function */
-  const char	*extension;	/* Extension of output filename */
-  float		fontsize,	/* Base font size */
-		fontspacing;	/* Base font spacing */
-  int		num_files;	/* Number of files provided on the command-line */
+  int		i, j;			/* Looping vars */
+  tree_t	*document,		/* Master HTML document */
+		*file,			/* HTML document file */
+		*toc;			/* Table of contents */
+  exportfunc_t	exportfunc;		/* Export function */
+  const char	*extension;		/* Extension of output filename */
+  float		fontsize,		/* Base font size */
+		fontspacing;		/* Base font spacing */
+  int		num_files;		/* Number of files provided on the command-line */
 
 
 #ifdef __APPLE__
@@ -2333,5 +2321,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.61 2004/02/09 22:25:11 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.61.2.1 2004/03/22 21:14:45 mike Exp $".
  */
