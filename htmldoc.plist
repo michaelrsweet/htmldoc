@@ -11,7 +11,7 @@
 	<string>com.easysw.htmldoc</string>
 
 	<key>CFBundleVersion</key>
-	<string>1.8.21</string>
+	<string>1.8.23</string>
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
@@ -36,10 +36,10 @@
 	<string>htmldoc.icns</string>
 
 	<key>CFBundleShortVersionString</key>
-	<string>1.8.21</string>
+	<string>1.8.23</string>
 
 	<key>CFBundleGetInfoString</key>
-	<string>1.8.21, Copyright Easy Software Products 1997-2002</string>
+	<string>1.8.23, Copyright Easy Software Products 1997-2002</string>
 
 	<key>CFBundleDocumentTypes</key>
 	<array>
