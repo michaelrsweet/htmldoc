@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.19 2000/01/04 15:50:51 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.20 2000/03/03 21:24:12 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1278,6 +1278,14 @@ prefs_load(void)
       fclose(fp);
     }
   }
+
+  if (getenv("HTMLDOC_DATA") != NULL)
+    _htmlData = getenv("HTMLDOC_DATA");
+
+#  ifdef HAVE_LIBFLTK
+  if (getenv("HTMLDOC_HELP") != NULL)
+    GUI::help_dir = getenv("HTMLDOC_HELP");
+#  endif // HAVE_LIBFLTK
 #endif // WIN32
 }
 
@@ -1633,5 +1641,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.19 2000/01/04 15:50:51 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.20 2000/03/03 21:24:12 mike Exp $".
  */

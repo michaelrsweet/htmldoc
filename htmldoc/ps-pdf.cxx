@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.48 2000/01/06 21:58:47 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.49 2000/03/03 21:24:13 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -117,8 +117,11 @@
 
 #if defined(WIN32) || defined(__EMX__)
 #  include <io.h>
-#  include <fcntl.h>
+#else
+#  include <unistd.h>
 #endif // WIN32 || __EMX__
+
+#include <fcntl.h>
 
 #include <zlib.h>
 
@@ -201,6 +204,7 @@ static link_t	links[MAX_LINKS];
 static uchar	list_types[16];
 static int	list_values[16];
 
+static char	stdout_filename[256];
 static int	num_objects,
 		objects[MAX_OBJECTS],
 		root_object,
@@ -1157,6 +1161,8 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
   int		page,		/* Current page # */
 		heading;	/* Current heading # */
   float		title_width;	/* Width of title string */
+  int		bytes;		/* Number of bytes */
+  char		buffer[8192];	/* Copy buffer */
 
 
   if (title != NULL)
@@ -1252,42 +1258,60 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
   write_trailer(out, 0);
 
 #ifdef MAC
-  if (out != stdout)
-  {
-    //
-    // On the MacOS, files are not associated with applications by extensions.
-    // Instead, it uses a pair of values called the type & creator.  
-    // This block of code sets the those values for PDF files.
-    //
+  //
+  // On the MacOS, files are not associated with applications by extensions.
+  // Instead, it uses a pair of values called the type & creator.  
+  // This block of code sets the those values for PDF files.
+  //
 
-    FCBPBRec    fcbInfo;	// File control block information
-    Str32	name;		// Name of file
-    FInfo	fInfo;		// File type/creator information
-    FSSpec	fSpec;		// File specification
+  FCBPBRec    fcbInfo;	// File control block information
+  Str32	name;		// Name of file
+  FInfo	fInfo;		// File type/creator information
+  FSSpec	fSpec;		// File specification
 
 
-    memset(&fcbInfo, 0, sizeof(FCBPBRec));
-    fcbInfo.ioRefNum  = out->handle;
-    fcbInfo.ioNamePtr = name;
-    if (!PBGetFCBInfoSync(&fcbInfo))
-      if (FSMakeFSSpec(fcbInfo.ioFCBVRefNum, fcbInfo.ioFCBParID, name, &fSpec) == noErr)
-      {
-	FSpGetFInfo(&fSpec, &fInfo);
-	fInfo.fdType    = 'PDF ';
-	fInfo.fdCreator = 'CARO';
-	FSpSetFInfo(&fSpec, &fInfo);
-      }
+  memset(&fcbInfo, 0, sizeof(FCBPBRec));
+  fcbInfo.ioRefNum  = out->handle;
+  fcbInfo.ioNamePtr = name;
+  if (!PBGetFCBInfoSync(&fcbInfo))
+    if (FSMakeFSSpec(fcbInfo.ioFCBVRefNum, fcbInfo.ioFCBParID, name, &fSpec) == noErr)
+    {
+      FSpGetFInfo(&fSpec, &fInfo);
+      fInfo.fdType    = 'PDF ';
+      fInfo.fdCreator = 'CARO';
+      FSpSetFInfo(&fSpec, &fInfo);
+    }
 
-    //
-    // Now that the PDF file is associated with that type, close the file.
-    //
+  //
+  // Now that the PDF file is associated with that type, close the file.
+  //
 
-    fclose(out);
-  }
+  fclose(out);
 #else
-  if (out != stdout)
-    fclose(out);
+  fclose(out);
 #endif // MAC
+
+  //
+  // If we are sending the output to stdout, copy the temp file now...
+  //
+
+  if (!OutputPath[0])
+  {
+#if defined(WIN32) || defined(__EMX__)
+    // Make sure we are in binary mode...  stupid Microsoft!
+    setmode(1, O_BINARY);
+#endif // WIN32 || __EMX__
+
+    // Open the temporary file and copy it to stdout...
+    out = fopen(stdout_filename, "rb");
+
+    while ((bytes = fread(buffer, 1, sizeof(buffer), out)) > 0)
+      fwrite(buffer, 1, bytes, stdout);
+
+    // Close and remove the temporary file...
+    fclose(out);
+    unlink(stdout_filename);
+  }
 
   if (Verbosity)
     progress_hide();
@@ -1940,7 +1964,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
             fputs("/D[0/XYZ null null 0]", out);
             fputs("/F(", out);
 
-	    for (filename = r->data.link + 5; *filename != '\0'; filename ++)
+	    for (filename = r->data.link; *filename != '\0'; filename ++)
 	      switch (*filename)
 	      {
 	        case '\\' :
@@ -2398,8 +2422,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	  TocDocCount = chapter;
       }
 
-      *y = (float)top;
-      *x = (float)left;
+      *y = top;
+      *x = left;
     }
 
     if (chapter == 0 && !title_page)
@@ -2499,7 +2523,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           if (real_next(t) != NULL && *y < top)
 	    *y -= _htmlSpacings[t->size];
 
-          *x = (float)left;
+          *x = left;
           break;
 
       case MARKUP_CENTER :
@@ -2527,7 +2551,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           if (real_next(t) && *y < top)
 	    *y -= _htmlSpacings[t->size];
 
-          *x = (float)left;
+          *x = left;
           break;
 
       case MARKUP_P :
@@ -2589,7 +2613,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          *x = (float)(left + 36);
+          *x = left + 36.0f;
 
           temp = real_prev(t);
           if (temp != NULL &&
@@ -2648,7 +2672,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          parse_paragraph(t, left, right, bottom, top, x, y, page);
+          parse_doc(t->child, left, right, bottom, top, x, y, page, NULL);
           break;
 
       case MARKUP_DD :
@@ -2659,9 +2683,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          *x = (float)(left + 36);
+          *x = left + 36.0f;
 
-          parse_paragraph(t, left + 36, right, bottom, top, x, y, page);
+          parse_doc(t->child, left + 36, right, bottom, top, x, y, page, NULL);
           break;
 
       case MARKUP_HR :
@@ -2699,17 +2723,17 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             switch (t->halignment)
 	    {
 	      case ALIGN_LEFT :
-	          *x = (float)left;
+	          *x = left;
 		  break;
 	      case ALIGN_CENTER :
-	          *x = (float)left + ((float)(right - left) - width) * 0.5;
+	          *x = left + (right - left - width) * 0.5f;
 		  break;
 	      case ALIGN_RIGHT :
-	          *x = (float)right - width;
+	          *x = right - width;
 		  break;
 	    }
 
-            if (*y < ((float)bottom + height + _htmlSpacings[SIZE_P]))
+            if (*y < (bottom + height + _htmlSpacings[SIZE_P]))
 	    {
 	     /*
 	      * Won't fit on this page...
@@ -2718,7 +2742,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
               (*page) ++;
 	      if (Verbosity)
 	        progress_show("Formatting page %d", *page);
-              *y = (float)top;
+              *y = top;
             }
 
             (*y)   -= height + _htmlSpacings[SIZE_P];
@@ -2738,10 +2762,10 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             (*page) ++;
 	    if (Verbosity)
 	      progress_show("Formatting page %d", *page);
-            *y = (float)top;
+            *y = top;
 	  }
 
-          *x = (float)left;
+          *x = left;
           break;
 
       case MARKUP_COMMENT :
@@ -2768,8 +2792,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             (*page) ++;
 	    if (Verbosity)
 	      progress_show("Formatting page %d", *page);
-            *x = (float)left;
-            *y = (float)top;
+            *x = left;
+            *y = top;
 	  }
 	  else if (strncasecmp(comment, "NEW SHEET", 9) == 0)
 	  {
@@ -2790,8 +2814,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
 	    if (Verbosity)
 	      progress_show("Formatting page %d", *page);
-            *x = (float)left;
-            *y = (float)top;
+            *x = left;
+            *y = top;
 	  }
           break;
 
@@ -2878,7 +2902,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   if (*y < (5 * _htmlSpacings[t->size] + bottom))
   {
     (*page) ++;
-    *y = (float)top;
+    *y = top;
     if (Verbosity)
       progress_show("Formatting page %d", *page);
   }
@@ -2975,8 +2999,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
                 t, left, right, *x, *y, *page));
 
   flat        = flatten_tree(t->child);
-  image_left  = (float)left;
-  image_right = (float)right;
+  image_left  = left;
+  image_right = right;
   image_y     = 0;
 
   if (flat == NULL)
@@ -3002,13 +3026,13 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         if (*y < (bottom + temp->height))
         {
 	  (*page) ++;
-	  *y = (float)top;
+	  *y = top;
 
 	  if (Verbosity)
 	    progress_show("Formatting page %d", *page);
         }
 
-        new_render(*page, RENDER_IMAGE, (float)left, *y - temp->height, temp->width,
+        new_render(*page, RENDER_IMAGE, left, *y - temp->height, temp->width,
                    temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
         image_left = left + temp->width;
@@ -3027,7 +3051,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         if (*y < (bottom + temp->height))
         {
 	  (*page) ++;
-	  *y = (float)top;
+	  *y = top;
 
 	  if (Verbosity)
 	    progress_show("Formatting page %d", *page);
@@ -3150,7 +3174,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     if (*y < (height + bottom))
     {
       (*page) ++;
-      *y = (float)top;
+      *y = top;
 
       if (Verbosity)
         progress_show("Formatting page %d", *page);
@@ -3331,13 +3355,13 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     if (*y < image_y)
     {
-      image_left   = (float)left;
-      image_right  = (float)right;
+      image_left   = left;
+      image_right  = right;
       format_width = image_right - image_left;
     }
   }
 
-  *x = (float)left;
+  *x = left;
   if (*y > image_y && image_y > 0.0)
     *y = image_y;
 }
@@ -3403,13 +3427,13 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
       if (*y < (_htmlSpacings[t->size] + bottom))
       {
         (*page) ++;
-        *y = (float)top;
+        *y = top;
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
       }
     
-      *x = (float)left;
+      *x = left;
       *y -= _htmlSpacings[t->size];
 
       if (Verbosity)
@@ -3522,7 +3546,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     flat = next;
   }
 
-  *x = (float)left;
+  *x = left;
 }
 
 
@@ -3544,9 +3568,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   int		col,
 		row,
 		colspan,
-		cellpadding,
-		cellspacing,
-		border,
 		num_cols,
 		num_rows,
 		regular_cols,
@@ -3562,6 +3583,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		col_smins[MAX_COLUMNS],
 		col_pref,
 		col_prefs[MAX_COLUMNS],
+		cellpadding,
+		cellspacing,
+		border,
 		width,
 		pref_width,
 		table_width,
@@ -3624,7 +3648,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       table_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
   }
   else
-    table_width = (float)(right - left);
+    table_width = right - left;
 
   for (temprow = t->child, num_cols = 0, num_rows = 0;
        temprow != NULL && num_rows < MAX_ROWS;
@@ -3784,20 +3808,20 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
     cellpadding = atoi((char *)var);
   else
-    cellpadding = 2;
+    cellpadding = 2.0f;
 
   if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
     cellspacing = atoi((char *)var);
   else
-    cellspacing = 0;
+    cellspacing = 0.0f;
 
   if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
   {
-    if ((border = atoi((char *)var)) == 0 && var[0] != '0')
-      border = 1;
+    if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
+      border = 1.0f;
   }
   else
-    border = 0;
+    border = 0.0f;
 
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
@@ -3814,14 +3838,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     width += 2 * (border + cellpadding + cellspacing) * num_cols;
 
     if (width > (right - left))
-      width = (float)(right - left);
+      width = right - left;
   }
 
  /*
   * Compute the width of each column based on the printable width.
   */
 
-  actual_width  = (float)(2 * (border + cellpadding + cellspacing) * num_cols);
+  actual_width  = 2 * (border + cellpadding + cellspacing) * num_cols;
   regular_width = (width - actual_width) / num_cols;
 
  /*
@@ -3922,7 +3946,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   switch (t->halignment)
   {
     case ALIGN_LEFT :
-        *x = (float)(left + border + cellpadding + cellspacing);
+        *x = left + border + cellpadding + cellspacing;
         break;
     case ALIGN_CENTER :
         *x = left + 0.5f * (right - left - width) + border + cellpadding + cellspacing;
@@ -3946,7 +3970,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   {
     if (*y < (bottom + 2 * (border + cellpadding + cellspacing) + _htmlSpacings[SIZE_P]))
     {
-      *y = (float)top;
+      *y = top;
       (*page) ++;
 
       if (Verbosity)
@@ -3969,7 +3993,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       if (cells[row][col] == NULL)
         continue;
 
-      *x        = (float)col_lefts[col];
+      *x        = col_lefts[col];
       temp_y    = *y - (border + cellspacing);
       temp_page = *page;
 
@@ -3997,8 +4021,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           break;
       colspan --;
 
-      width = (float)(col_rights[col + colspan] - col_lefts[col] +
-                      2 * cellpadding + 2 * border);
+      width = col_rights[col + colspan] - col_lefts[col] +
+              2 * cellpadding + 2 * border;
 
       if (cells[row][col] == NULL)
         bgcolor = NULL;
@@ -4016,51 +4040,78 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         */
 
         if (border > 0)
-          new_render(*page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
-                     (float)(bottom + cellspacing), width,
-                     *y - bottom - 2 * cellspacing,
-                     rgb);
+	{
+	 /*
+	  * +---+---+---+
+	  * |   |   |   |
+	  */
+
+          new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+                     bottom + cellspacing, 0.0f,
+                     *y - bottom - 2 * cellspacing, rgb);
+          new_render(*page, RENDER_BOX, col_rights[col] + cellpadding + border,
+                     bottom + cellspacing, 0.0f,
+                     *y - bottom - 2 * cellspacing, rgb);
+          new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+                     *y - cellspacing, width, 0.0f, rgb);
+        }
 
         if (bgcolor != NULL)
-          new_render(*page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
-                     (float)(bottom + cellspacing), width,
-                     *y - bottom - 2 * cellspacing,
+          new_render(*page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
+                     bottom + cellspacing, width, *y - bottom - 2 * cellspacing,
                      bgrgb, 1);
 
         for (temp_page = *page + 1; temp_page != row_page; temp_page ++)
 	{
+	 /*
+	  * |   |   |   |
+	  * |   |   |   |
+	  */
+
 	  if (border > 0)
-            new_render(temp_page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
-                       (float)(bottom + cellspacing), width,
-                       (float)(top - bottom - 2 * cellspacing), rgb);
+            new_render(temp_page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+                       bottom + cellspacing, width,
+                       top - bottom - 2 * cellspacing, rgb);
 
 	  if (bgcolor != NULL)
-            new_render(temp_page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
-                       (float)(bottom + cellspacing), width,
-                       (float)(top - bottom - 2 * cellspacing), bgrgb, 1);
+            new_render(temp_page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
+                       bottom + cellspacing, width,
+                       top - bottom - 2 * cellspacing, bgrgb, 1);
         }
 
         if (border > 0)
-          new_render(row_page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
-                     row_y + cellspacing, width,
-                     top - row_y - 2 * cellspacing, rgb);
+	{
+	 /*
+	  * |   |   |   |
+	  * +---+---+---+
+	  */
+
+          new_render(row_page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+                     row_y + cellspacing, 0.0f, top - row_y - 2 * cellspacing,
+                     rgb);
+          new_render(row_page, RENDER_BOX, col_rights[col] + cellpadding + border,
+                     row_y + cellspacing, 0.0f, top - row_y - 2 * cellspacing,
+                     rgb);
+          new_render(row_page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+                     row_y + cellspacing, width, 0.0f, rgb);
+        }
 
         if (bgcolor != NULL)
-          new_render(row_page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
-                     row_y + cellspacing, width,
-                     top - row_y - 2 * cellspacing, bgrgb, 1);
+          new_render(row_page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
+                     row_y + cellspacing, width, top - row_y - 2 * cellspacing,
+		     bgrgb, 1);
       }
       else
       {
         if (border > 0)
-          new_render(*page, RENDER_BOX, (float)(col_lefts[col] - cellpadding - border),
-                     row_y + cellspacing, width,
-                     *y - row_y - 2 * cellspacing, rgb);
+          new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
+                     row_y + cellspacing, width, *y - row_y - 2 * cellspacing,
+		     rgb);
 
         if (bgcolor != NULL)
-          new_render(*page, RENDER_FBOX, (float)(col_lefts[col] - cellpadding - border),
-                     row_y + cellspacing, width,
-                     *y - row_y - 2 * cellspacing, bgrgb, 1);
+          new_render(*page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
+                     row_y + cellspacing, width, *y - row_y - 2 * cellspacing,
+		     bgrgb, 1);
       }
 
       col += colspan;
@@ -4070,7 +4121,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     *y    = row_y;
   }
 
-  *x = (float)left;
+  *x = left;
 
  /*
   * Free memory for the table...
@@ -4107,7 +4158,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
   if (*y < (_htmlSpacings[t->size] + bottom))
   {
     (*page) ++;
-    *y = (float)top;
+    *y = top;
 
     if (Verbosity)
       progress_show("Formatting page %d", *page);
@@ -4920,12 +4971,24 @@ open_file(void)
     return (fopen(OutputPath, "wb"));
   else
   {
+    if (PSLevel == 0)
+    {
 #if defined(WIN32) || defined(__EMX__)
-    // Make sure we are in binary mode...  stupid Microsoft!
-    setmode(1, O_BINARY);
+      if (getenv("TMP") != NULL)
+        sprintf(stdout_filename, "%s/XXXXXX", getenv("TMP"));
+      else
+        strcpy(stdout_filename, "C:/XXXXXX");
+#else
+      if (getenv("TMP") != NULL)
+        sprintf(stdout_filename, "%s/XXXXXX", getenv("TMP"));
+      else
+        strcpy(stdout_filename, "/var/tmp/XXXXXX");
 #endif // WIN32 || __EMX__
 
-    return (stdout);
+      return (fopen(stdout_filename, "wb"));
+    }
+    else
+      return (stdout);
   }
 }
 
@@ -6526,5 +6589,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.48 2000/01/06 21:58:47 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.49 2000/03/03 21:24:13 mike Exp $".
  */
