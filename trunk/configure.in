@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.12 1999/12/13 16:12:03 mike Exp $"
+dnl "$Id: configure.in,v 1.13 1999/12/16 14:12:11 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -46,6 +46,14 @@ fi
 
 AC_SUBST(ARFLAGS)
 
+dnl Checks for header files.
+AC_HEADER_STDC
+
+dnl Checks for string functions.
+AC_CHECK_FUNCS(strdup)
+AC_CHECK_FUNCS(strcasecmp)
+AC_CHECK_FUNCS(strncasecmp)
+
 dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
@@ -69,11 +77,12 @@ if test ! "$x_includes" = "NONE" -a ! "$x_includes" = ""; then
 	CFLAGS="$CFLAGS -I$x_includes"
 	CXXFLAGS="$CXXFLAGS -I$x_includes"
 fi
+AC_CHECK_LIB(Xext,XdbeQueryExtension)
 AC_CHECK_LIB(GL,glEnable)
 AC_CHECK_LIB(fltk,numericsort)
 
 if test "$ac_cv_lib_fltk_numericsort" = yes -a "$ac_cv_prog_CXX" != ""; then
-	LIBS="../gui/libgui.a $LIBS -lXext -lX11 -lm"
+	LIBS="../gui/libgui.a $LIBS -lm"
 	GUI="gui"
 else
 	AC_MSG_WARN(C++ compiler or FLTK not available so no GUI will be built.)
@@ -81,14 +90,6 @@ else
 fi
 
 AC_SUBST(GUI)
-
-dnl Checks for header files.
-AC_HEADER_STDC
-
-dnl Checks for string functions.
-AC_CHECK_FUNCS(strdup)
-AC_CHECK_FUNCS(strcasecmp)
-AC_CHECK_FUNCS(strncasecmp)
 
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
@@ -137,5 +138,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.12 1999/12/13 16:12:03 mike Exp $".
+dnl End of "$Id: configure.in,v 1.13 1999/12/16 14:12:11 mike Exp $".
 dnl
