@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.42 2002/05/07 23:30:45 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.43 2002/05/31 12:57:24 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -246,9 +246,9 @@ main(int  argc,		/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--compression", 5) == 0 ||
              strncmp(argv[i], "--compression=", 14) == 0)
     {
-      if (strlen(argv[i]) > 14 && PDFVersion >= 1.2)
+      if (strlen(argv[i]) > 14 && PDFVersion >= 12)
         Compression = atoi(argv[i] + 14);
-      else if (PDFVersion >= 1.2)
+      else if (PDFVersion >= 12)
         Compression = 1;
     }
     else if (compare_strings(argv[i], "--continuous", 5) == 0)
@@ -383,26 +383,26 @@ main(int  argc,		/* I - Number of command-line arguments */
 	{
           exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 0;
-	  PDFVersion = 1.4;
+	  PDFVersion = 14;
 	}
         else if (strcasecmp(argv[i], "pdf13") == 0 ||
 	         strcasecmp(argv[i], "pdf") == 0)
 	{
           exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 0;
-	  PDFVersion = 1.3;
+	  PDFVersion = 13;
 	}
         else if (strcasecmp(argv[i], "pdf12") == 0)
 	{
           exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 0;
-	  PDFVersion = 1.2;
+	  PDFVersion = 12;
 	}
         else if (strcasecmp(argv[i], "pdf11") == 0)
 	{
           exportfunc  = (exportfunc_t)pspdf_export;
 	  PSLevel     = 0;
-	  PDFVersion  = 1.1;
+	  PDFVersion  = 11;
 	  Compression = 0;
 	}
         else if (strcasecmp(argv[i], "html") == 0)
@@ -1226,7 +1226,12 @@ prefs_load(void)
       else if (strncasecmp(line, "HEADFOOTSIZE=", 13) == 0)
 	HeadFootSize = atof(line + 13);
       else if (strncasecmp(line, "PDFVERSION=", 11) == 0)
-	PDFVersion = atof(line + 11);
+      {
+        if (strchr(line + 11, '.') != NULL)
+	  PDFVersion = (int)(atof(line + 11) * 10.0 + 0.5);
+	else
+	  PDFVersion = atoi(line + 11);
+      }
       else if (strncasecmp(line, "PSLEVEL=", 8) == 0)
 	PSLevel = atoi(line + 8);
       else if (strncasecmp(line, "PSCOMMANDS=", 11) == 0)
@@ -1366,7 +1371,7 @@ prefs_save(void)
     fprintf(fp, "HEADFOOTTYPE=%d\n", HeadFootType);
     fprintf(fp, "HEADFOOTSTYLE=%d\n", HeadFootStyle);
     fprintf(fp, "HEADFOOTSIZE=%.2f\n", HeadFootSize);
-    fprintf(fp, "PDFVERSION=%.1f\n", PDFVersion);
+    fprintf(fp, "PDFVERSION=%d\n", PDFVersion);
     fprintf(fp, "PSLEVEL=%d\n", PSLevel);
     fprintf(fp, "PSCOMMANDS=%d\n", PSCommands);
     fprintf(fp, "XRXCOMMENTS=%d\n", XRXComments);
@@ -1711,26 +1716,26 @@ parse_options(const char   *line,	// I - Options from book file
       {
         *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
-	PDFVersion  = 1.1f;
+	PDFVersion  = 11;
       }
       else if (strcmp(temp2, "pdf12") == 0)
       {
         *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
-	PDFVersion  = 1.2f;
+	PDFVersion  = 12;
       }
       else if (strcmp(temp2, "pdf") == 0 ||
                strcmp(temp2, "pdf13") == 0)
       {
         *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
-	PDFVersion  = 1.3f;
+	PDFVersion  = 13;
       }
       else if (strcmp(temp2, "pdf14") == 0)
       {
         *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
-	PDFVersion  = 1.4f;
+	PDFVersion  = 14;
       }
     }
     else if (strcmp(temp, "--logo") == 0 ||
@@ -2225,5 +2230,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.42 2002/05/07 23:30:45 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.43 2002/05/31 12:57:24 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.48 2002/05/07 23:30:43 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.49 2002/05/31 12:57:22 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1307,13 +1307,13 @@ GUI::loadSettings()
   HeadFootSize  = headFootSize->value();
 
   if (pdf11->value())
-    PDFVersion = 1.1;
+    PDFVersion = 11;
   else if (pdf12->value())
-    PDFVersion = 1.2;
+    PDFVersion = 12;
   else if (pdf13->value())
-    PDFVersion = 1.3;
+    PDFVersion = 13;
   else
-    PDFVersion = 1.4;
+    PDFVersion = 14;
 
   PDFPageMode       = pageMode->value();
   PDFPageLayout     = pageLayout->value();
@@ -1520,17 +1520,17 @@ GUI::newBook(void)
 
   pdfTab->deactivate();
 
-  if (PDFVersion < 1.2)
+  if (PDFVersion < 12)
   {
     pdf11->setonly();
     pdfCB(pdf11, this);
   }
-  else if (PDFVersion < 1.3)
+  else if (PDFVersion < 13)
   {
     pdf12->setonly();
     pdfCB(pdf12, this);
   }
-  else if (PDFVersion < 1.4)
+  else if (PDFVersion < 14)
   {
     pdf13->setonly();
     pdfCB(pdf13, this);
@@ -4026,5 +4026,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.48 2002/05/07 23:30:43 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.49 2002/05/31 12:57:22 mike Exp $".
 //
