@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.32 2001/08/30 13:25:32 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.33 2001/08/30 18:11:42 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -208,12 +208,13 @@ const char	*_htmlFonts[4][4] =
  * Local functions.
  */
 
-static int	write_file(tree_t *t, FILE *fp, int col);
 extern "C" {
-static int	compare_variables(var_t *v0, var_t *v1);
-static int	compare_markups(uchar **m0, uchar **m1);
 typedef int	(*compare_func_t)(const void *, const void *);
 }
+
+static int	write_file(tree_t *t, FILE *fp, int col);
+static int	compare_variables(var_t *v0, var_t *v1);
+static int	compare_markups(uchar **m0, uchar **m1);
 static void	delete_node(tree_t *t);
 static void	insert_space(tree_t *parent, tree_t *t);
 static int	parse_markup(tree_t *t, FILE *fp);
@@ -2636,5 +2637,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.32 2001/08/30 13:25:32 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.33 2001/08/30 18:11:42 mike Exp $".
  */

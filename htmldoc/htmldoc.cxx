@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.24 2001/08/29 20:41:59 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.25 2001/08/30 18:11:38 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -73,9 +73,7 @@ static int	load_book(const char *filename, tree_t **document,
 		          exportfunc_t *exportfunc);
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
 static int	read_file(const char *filename, tree_t **document);
-extern "C" {
 static void	term_handler(int signum);
-}
 static void	usage(void);
 
 
@@ -2128,5 +2126,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.24 2001/08/29 20:41:59 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.25 2001/08/30 18:11:38 mike Exp $".
  */

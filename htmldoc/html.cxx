@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.15 2001/08/29 20:41:58 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.16 2001/08/30 18:11:38 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -68,6 +68,10 @@ static link_t	*links;
  * Local functions...
  */
 
+extern "C" {
+typedef int	(*compare_func_t)(const void *, const void *);
+}
+
 static void	write_header(FILE **out, uchar *filename, uchar *title,
 		             uchar *author, uchar *copyright, uchar *docnumber,
 			     tree_t *t);
@@ -79,10 +83,7 @@ static uchar	*get_title(tree_t *doc);
 
 static void	add_link(uchar *name, uchar *filename);
 static link_t	*find_link(uchar *name);
-extern "C" {
 static int	compare_links(link_t *n1, link_t *n2);
-typedef int	(*compare_func_t)(const void *, const void *);
-}
 static void	scan_links(tree_t *t, uchar *filename);
 static void	update_links(tree_t *t, uchar *filename);
 
@@ -934,5 +935,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.15 2001/08/29 20:41:58 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.16 2001/08/30 18:11:38 mike Exp $".
  */
