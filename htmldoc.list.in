@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.29 2004/06/16 01:25:43 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.30 2004/06/16 14:00:17 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -96,6 +96,7 @@ f 0444 root sys /usr/share/mimelnk/application/vnd.htmldoc-book.desktop desktop/
 if test -x /usr/bin/update-mime-database; then
 	/usr/bin/update-mime-database /usr/share/mime
 fi
+EOF
 
 %system irix
 f 0444 root sys /usr/lib/images/htmldoc.icon desktop/htmldoc.icon
@@ -110,5 +111,5 @@ EOF
 %system all
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.29 2004/06/16 01:25:43 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.30 2004/06/16 14:00:17 mike Exp $".
 #
