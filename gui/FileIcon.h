@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.h,v 1.6 1999/10/14 15:24:37 mike Exp $"
+// "$Id: FileIcon.h,v 1.7 1999/11/12 19:21:20 mike Exp $"
 //
 //   FileIcon definitions.
 //
@@ -81,7 +81,7 @@ class FileIcon			//// Icon data
 		{ short *d = add(VERTEX); add((int)(x * 10000.0));
 		  add((int)(y * 10000.0)); return (d); }
   void		clear() { num_data_ = 0; }
-  void		draw(int x, int y, int w, int h, Fl_Color ic);
+  void		draw(int x, int y, int w, int h, Fl_Color ic, int active = 1);
   void		label(Fl_Widget *w);
   static void	labeltype(const Fl_Label *o, int x, int y, int w, int h, Fl_Align a);
   void		load(const char *f);
@@ -102,5 +102,5 @@ class FileIcon			//// Icon data
 #endif // !_GUI_FILEICON_H_
 
 //
-// End of "$Id: FileIcon.h,v 1.6 1999/10/14 15:24:37 mike Exp $".
+// End of "$Id: FileIcon.h,v 1.7 1999/11/12 19:21:20 mike Exp $".
 //

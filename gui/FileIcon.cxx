@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.10 1999/11/07 15:59:47 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.11 1999/11/12 19:21:20 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -232,7 +232,8 @@ FileIcon::draw(int      x,	// I - Upper-lefthand X
                int      y,	// I - Upper-lefthand Y
 	       int      w,	// I - Width of bounding box
 	       int	h,	// I - Height of bounding box
-               Fl_Color ic)	// I - Icon color...
+               Fl_Color ic,	// I - Icon color...
+               int      active)	// I - Active or inactive?
 {
   Fl_Color	c;		// Current color
   short		*d;		// Pointer to data
@@ -256,7 +257,11 @@ FileIcon::draw(int      x,	// I - Upper-lefthand X
   d    = data_;
   prim = NULL;
   c    = ic;
-  fl_color(c);
+
+  if (active)
+    fl_color(c);
+  else
+    fl_color(inactive(c));
 
   while (*d != END || prim)
     switch (*d)
@@ -279,10 +284,21 @@ FileIcon::draw(int      x,	// I - Upper-lefthand X
 	    case OUTLINEPOLYGON :
 		fl_end_polygon();
 
-                if (prim[1] == 256)
-		  fl_color(ic);
+                if (active)
+		{
+                  if (prim[1] == 256)
+		    fl_color(ic);
+		  else
+		    fl_color((Fl_Color)prim[1]);
+		}
 		else
-		  fl_color((Fl_Color)prim[1]);
+		{
+                  if (prim[1] == 256)
+		    fl_color(inactive(ic));
+		  else
+		    fl_color(inactive((Fl_Color)prim[1]));
+		}
+
 		fl_begin_loop();
 
 		prim += 2;
@@ -306,6 +322,10 @@ FileIcon::draw(int      x,	// I - Upper-lefthand X
 	    c = ic;
 	  else
 	    c = (Fl_Color)d[1];
+
+          if (!active)
+	    c = inactive(c);
+
           fl_color(c);
 	  d += 2;
 	  break;
@@ -360,10 +380,21 @@ FileIcon::draw(int      x,	// I - Upper-lefthand X
       case OUTLINEPOLYGON :
 	  fl_end_polygon();
 
-          if (prim[1] == 256)
-	    fl_color(ic);
+          if (active)
+	  {
+            if (prim[1] == 256)
+	      fl_color(ic);
+	    else
+	      fl_color((Fl_Color)prim[1]);
+	  }
 	  else
-	    fl_color((Fl_Color)prim[1]);
+	  {
+            if (prim[1] == 256)
+	      fl_color(inactive(ic));
+	    else
+	      fl_color(inactive((Fl_Color)prim[1]));
+	  }
+
 	  fl_begin_loop();
 
 	  prim += 2;
@@ -952,5 +983,5 @@ FileIcon::load_system_icons(void)
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.10 1999/11/07 15:59:47 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.11 1999/11/12 19:21:20 mike Exp $".
 //

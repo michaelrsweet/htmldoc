@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.15 1999/11/07 15:59:46 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.16 1999/11/12 19:21:20 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -216,8 +216,10 @@ FileBrowser::item_draw(void *p,		// I - List item data
 
   if (line->flags & SELECTED)
     fl_color(contrast(textcolor(), selection_color()));
-  else
+  else if (active_r())
     fl_color(textcolor());
+  else
+    fl_color(inactive(textcolor()));
 
   if (FileIcon::first() == NULL)
   {
@@ -234,7 +236,8 @@ FileBrowser::item_draw(void *p,		// I - List item data
     if (line->data)
       ((FileIcon *)line->data)->draw(x, y, iconsize_, iconsize_,
                                      (line->flags & SELECTED) ? FL_YELLOW :
-				                                FL_LIGHT2);
+				                                FL_LIGHT2,
+				     active_r());
   }
 }
 
@@ -401,5 +404,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.15 1999/11/07 15:59:46 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.16 1999/11/12 19:21:20 mike Exp $".
 //
