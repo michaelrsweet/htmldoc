@@ -1,4 +1,4 @@
-CHANGES.txt - 11/20/2001
+CHANGES.txt - 12/07/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.17
@@ -8,6 +8,8 @@ CHANGES IN HTMLDOC v1.8.17
 	- Improved table-of-contents generation, with chapter
 	  headings at the top of new TOC pages and page numbers
 	  based on the header/footer string.
+	- Added new "--no-localfiles" option to disable access
+	  to local files for added security in web services.
 
     CHANGES
 

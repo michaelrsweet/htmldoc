@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.26 2001/11/14 17:38:59 mike Exp $"
+ * "$Id: file.c,v 1.13.2.27 2001/12/07 15:46:00 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -33,6 +33,7 @@
  *                        or CR LF.
  *   file_localize()    - Localize a filename for the new working directory.
  *   file_method()      - Return the method for a filename or URL.
+ *   file_nolocal()     - Disable access to local files.
  *   file_proxy()       - Set the proxy host for all HTTP requests.
  *   file_target()      - Return the target of a link.
  *   file_temp()        - Create and open a temporary file.
@@ -98,6 +99,7 @@ http_t	*http = NULL;			/* Connection to remote server */
 int	web_files = 0,			/* Number of temporary files */
 	web_alloc = 0;			/* Number of allocated files */
 cache_t	*web_cache = NULL;		/* Cache array */
+int	no_local = 0;			/* Non-zero to disable local files */
 
 
 /*
@@ -347,6 +349,13 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
   if (strcmp(method, "file") == 0)
   {
+   /*
+    * If we are not allowing access to local files, return NULL...
+    */
+
+    if (no_local)
+      return (NULL);
+
    /*
     * If the path is NULL or empty, return the filename...
     */
@@ -746,6 +755,17 @@ file_method(const char *s)	/* I - Filename or URL */
 
 
 /*
+ * 'file_nolocal()' - Disable access to local files.
+ */
+
+void
+file_nolocal()
+{
+  no_local = 1;
+}
+
+
+/*
  * 'file_proxy()' - Set the proxy host for all HTTP requests.
  */
 
@@ -883,5 +903,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.26 2001/11/14 17:38:59 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.27 2001/12/07 15:46:00 mike Exp $".
  */
