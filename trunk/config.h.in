@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.1 1999/11/07 13:32:59 mike Exp $"
+ * "$Id: config.h.in,v 1.2 1999/11/08 17:12:39 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *   @configure_input@
@@ -11,13 +11,11 @@
  */
 
 /*
- * Do we have various libraries?
+ * Do we have the FLTK library?
  */
 
 #undef HAVE_LIBFLTK
-#undef HAVE_LIBJPEG
-#undef HAVE_LIBPNG
-#undef HAVE_LIBZ
+
 
 /*
  * Do we have some of the "standard" string functions?
@@ -31,7 +29,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8b4"
+#define SVERSION	"1.8b5"
 
 
 /*
@@ -39,7 +37,7 @@
  */
 
 #define MAX_CHAPTERS	100
-#define MAX_COLUMNS	20
+#define MAX_COLUMNS	100
 #define MAX_HEADINGS	10000
 #define MAX_IMAGES	1000
 #define MAX_LINKS	20000
@@ -48,6 +46,6 @@
 #define MAX_ROWS	1000
 
 /*
- * End of "$Id: config.h.in,v 1.1 1999/11/07 13:32:59 mike Exp $".
+ * End of "$Id: config.h.in,v 1.2 1999/11/08 17:12:39 mike Exp $".
  */
 

@@ -1,0 +1,79 @@
+#
+#   "$Id: Makedefs.in,v 1.1 1999/11/08 17:12:39 mike Exp $"
+#
+#   Makefile definitions for HTMLDOC, an HTML document processing program.
+#
+#   Copyright 1997-1999 by Michael Sweet.
+#
+#   HTMLDOC is distributed under the terms of the GNU General Public License
+#   which is described in the file "COPYING.txt".
+#
+
+#
+# Programs...
+#
+
+AR	=	@AR@
+AWK	=	@AWK@
+CC	=	@CC@
+CXX	=	@CXX@
+CHMOD	=	@CHMOD@
+CP	=	@CP@
+LN	=	/bin/ln -sf
+MKDIR	=	@MKDIR@ -p
+MV	=	@MV@
+RANLIB	=	@RANLIB@
+RM	=	@RM@ -f
+SHELL	=	/bin/sh
+
+#
+# Program options...
+#
+# OPTIM   defines the common compiler optimization/debugging options.
+#
+
+ARFLAGS	=	crvs
+CFLAGS	=	@CFLAGS@ $(OPTIM) -I.. -I../jpeg -I../png -I../zlib
+CXXFLAGS =	@CXXFLAGS@ $(OPTIM) -I.. -I../jpeg -I../png -I../zlib
+LDFLAGS	=	@LDFLAGS@ $(OPTIM)
+LIBS	=	-L../jpeg -ljpeg -L../png -lpng -L../zlib -lz \
+		@LIBS@ @X_LIBS@ @X_EXTRA_LIBS@ -lm
+OPTIM	=	@OPTIM@
+
+#
+# Directories...
+#
+
+bindir		=	@bindir@
+datadir		=	@datadir@
+exec_prefix	=	@exec_prefix@
+includedir	=	@includedir@
+infodir		=	@infodir@
+libdir		=	@libdir@
+libexecdir	=	@libexecdir@
+localstatedir	=	@localstatedir@
+mandir		=	@mandir@
+oldincludedir	=	@oldincludedir@
+prefix		=	@prefix@
+sbindir		=	@sbindir@
+sharedstatedir	=	@sharedstatedir@
+srcdir		=	@srcdir@
+sysconfdir	=	@sysconfdir@
+top_srcdir	=	@top_srcdir@
+
+#
+# Rules...
+#
+
+.SILENT:
+.SUFFIXES:	.a .c .cxx .h .o
+.c.o:
+	echo Compiling $<...
+	$(CC) $(CFLAGS) -c $<
+.cxx.o:
+	echo Compiling $<...
+	$(CXX) $(CXXFLAGS) -c $<
+
+#
+# End of "$Id: Makedefs.in,v 1.1 1999/11/08 17:12:39 mike Exp $".
+#

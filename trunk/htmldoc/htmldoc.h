@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.1 1999/11/07 13:33:10 mike Exp $"
+ * "$Id: htmldoc.h,v 1.1 1999/11/08 17:12:42 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -121,5 +121,5 @@ extern void	prefs_save(void);
 extern char	*format_number(int n, char f);
 
 /*
- * End of "$Id: htmldoc.h,v 1.1 1999/11/07 13:33:10 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.1 1999/11/08 17:12:42 mike Exp $".
  */

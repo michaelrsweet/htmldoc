@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.2 1999/11/07 23:06:06 mike Exp $"
+ * "$Id: html.h,v 1.1 1999/11/08 17:12:41 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -302,5 +302,5 @@ extern int	strncasecmp(const char *s, const char *t, size_t n);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.2 1999/11/07 23:06:06 mike Exp $".
+ * End of "$Id: html.h,v 1.1 1999/11/08 17:12:41 mike Exp $".
  */
