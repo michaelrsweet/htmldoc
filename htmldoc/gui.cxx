@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.15 1999/11/13 13:52:17 mike Exp $"
+// "$Id: gui.cxx,v 1.16 1999/11/13 14:24:05 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -681,7 +681,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   htmlBrowse = new Fl_Button(355, 45, 95, 25, "Browse...");
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
 
-  saveOptions = new Fl_Button(270, 235, 180, 25, "Save Options and Defaults");
+  saveOptions = new Fl_Button(260, 235, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
 
   optionsTab->end();
@@ -1536,9 +1536,6 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   {
     fputs(" --book", fp);
 
-    if (titlePage->value() == 0)
-      fputs(" --no-title", fp);
-
     if (tocLevels->value() == 0)
       fputs(" --no-toc", fp);
     else
@@ -1549,6 +1546,11 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
     fprintf(fp, " --toctitle \"%s\"", tocTitle->value());
   }
+
+  if (titlePage->value())
+    fputs(" --title", fp);
+  else
+    fputs(" --no-title", fp);
 
   if (logoImage->size() > 0)
     fprintf(fp, " --logo %s", logoImage->value());
@@ -1714,7 +1716,7 @@ GUI::docTypeCB(Fl_Widget *w,		// I - Toggle button widget
   {
     gui->typeHTML->activate();
 
-    gui->titlePage->value(0);
+    gui->titlePage->value(1);
 
     gui->tocLevels->value(3);
     gui->tocLevels->activate();
@@ -2973,5 +2975,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.15 1999/11/13 13:52:17 mike Exp $".
+// End of "$Id: gui.cxx,v 1.16 1999/11/13 14:24:05 mike Exp $".
 //
