@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.86 2000/09/10 21:15:22 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.87 2000/09/15 00:27:31 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2200,6 +2200,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 {
   float		x,
 		width,
+		numberwidth,
 		height,
 		rgb[3];
   uchar		number[255],
@@ -2239,31 +2240,50 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
           height *= _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
 
-          if (*y < (bottom + height))
-          {
-            (*page) ++;
-	    if (Verbosity)
-	      progress_show("Formatting page %d", *page);
-            width = get_width((uchar *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
-            *y = top - _htmlSpacings[SIZE_H1];
-            x  = left + 0.5f * (right - left - width);
-            r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
-            r->data.text.typeface = TYPE_HELVETICA;
-            r->data.text.style    = STYLE_BOLD;
-            r->data.text.size     = _htmlSizes[SIZE_H1];
-	    get_color(_htmlTextColor, r->data.text.rgb);
-
-            *y -= _htmlSpacings[SIZE_H1];
-          }
-
           x  = left + 36.0f * t->indent;
 	  *y -= height;
+
+	 /*
+	  * Get the width of the page number, leave room for three dots...
+	  */
+
+          sprintf((char *)number, "%d", heading_pages[*heading]);
+          numberwidth = get_width(number, t->typeface, t->style, t->size) +
+	                3.0f * dot_width;
 
           for (temp = flat; temp != NULL; temp = next)
           {
 	    rgb[0] = temp->red / 255.0f;
 	    rgb[1] = temp->green / 255.0f;
 	    rgb[2] = temp->blue / 255.0f;
+
+	    if ((x + temp->width) >= (right - numberwidth))
+	    {
+	     /*
+	      * Too wide to fit, continue on the next line
+	      */
+
+	      *y -= _htmlSpacings[SIZE_P];
+	      x  = left + 36.0f * t->indent;
+	    }
+
+            if (*y < bottom)
+            {
+              (*page) ++;
+	      if (Verbosity)
+		progress_show("Formatting page %d", *page);
+              width = get_width((uchar *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
+              *y = top - _htmlSpacings[SIZE_H1];
+              x  = left + 0.5f * (right - left - width);
+              r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
+              r->data.text.typeface = TYPE_HELVETICA;
+              r->data.text.style    = STYLE_BOLD;
+              r->data.text.size     = _htmlSizes[SIZE_H1];
+	      get_color(_htmlTextColor, r->data.text.rgb);
+
+              *y -= _htmlSpacings[SIZE_H1];
+	      x  = left + 36.0f * t->indent;
+            }
 
 	    if (temp->link != NULL)
 	    {
@@ -7371,5 +7391,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.86 2000/09/10 21:15:22 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.87 2000/09/15 00:27:31 mike Exp $".
  */
