@@ -1,9 +1,12 @@
-CHANGES.txt - 07/17/2001
+CHANGES.txt - 07/31/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.15
 
     NEW FEATURES
+
+	- Now support media source, type, and color attributes
+	  in PS output.
 
     CHANGES
 
@@ -16,6 +19,8 @@ CHANGES IN HTMLDOC v1.8.15
 
 	- If a document started with a heading greater than H1,
 	  HTMLDOC would crash.
+	- Full justification would incorrectly be applied to
+	  text ending with a break.
 
 
 CHANGES IN HTMLDOC v1.8.14
