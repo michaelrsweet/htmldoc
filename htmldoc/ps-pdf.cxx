@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.16 2001/02/13 15:31:21 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.17 2001/02/13 20:07:23 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3249,19 +3249,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     if (height == 0.0f)
       height = spacing;
 
-    if (start != NULL && start->markup == MARKUP_NONE && start->data[0] == ' ')
-    {
-     /*
-      * Remove leading space...
-      */
-
-      strcpy((char *)start->data, (char *)start->data + 1);
-      temp_width = _htmlWidths[start->typeface][start->style][' '] *
-                   _htmlSizes[start->size];
-      start->width -= temp_width;
-      width        -= temp_width;
-    }
-
     if (prev != NULL && prev->markup == MARKUP_NONE &&
         prev->data[strlen((char *)prev->data) - 1] == ' ')
     {
@@ -3433,7 +3420,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      new_render(*page, RENDER_BOX, *x, *y + offset + temp->height * 0.25f,
 	                 temp->width, 0, rgb);
 
-            if ((temp == start || whitespace) && temp->data[0] == ' ')
+            if ((linex - left) < 0.01f && temp->data[0] == ' ')
 	    {
 	      strcpy((char *)lineptr, (char *)temp->data + 1);
               temp->width -= get_width((uchar *)" ", temp->typeface,
@@ -4476,12 +4463,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
           new_render(cell_page[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
                      bottom, 0.0f,
-                     cell_y[col] - bottom, rgb);
+                     cell_y[col] - bottom + border + cellpadding, rgb);
           new_render(cell_page[col], RENDER_BOX, col_rights[col] + cellpadding + border,
                      bottom, 0.0f,
-                     cell_y[col] - bottom, rgb);
+                     cell_y[col] - bottom + border + cellpadding, rgb);
           new_render(cell_page[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
-                     cell_y[col], width, 0.0f, rgb);
+                     cell_y[col] + border + cellpadding, width, 0.0f, rgb);
         }
 
         if (bgcolor != NULL)
@@ -7812,5 +7799,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.16 2001/02/13 15:31:21 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.17 2001/02/13 20:07:23 mike Exp $".
  */

@@ -26,6 +26,10 @@ CHANGES IN HTMLDOC v1.8.10-1
 	  settings to generate error messages about missing
 	  files (these were reloaded when the document data was
 	  read, however.)
+	- The first border for a table cell that spanned
+	  multiple pages did not account for the cellpadding or
+	  border width.
+	- Leading whitespace was not eliminated in all cases.
 
 
 CHANGES IN HTMLDOC v1.8.10
