@@ -147,7 +147,7 @@ def
   % page device dictionary...
   languagelevel 1 eq
   { /#copies 1 index def }
-  { << /NumCopies 2 index >> setpagedevice }
+  { 2 dict begin /NumCopies 1 index currentdict end setpagedevice }
   ifelse
 
   % Discard the argument on the stack...
@@ -173,10 +173,10 @@ def
   {
     % Build a page device dictionary with the Duplex and Tumble
     % attributes...
-    <<
-      /Duplex 3 index
-      /Tumble 5 index
-    >>
+    4 dict begin
+      /Duplex 2 index def
+      /Tumble 1 index def
+    currentdict end
 
     % Register the new attributes...
     setpagedevice
@@ -202,15 +202,15 @@ def
       haveMediaColor {
 	% Build a page device dictionary with the MediaColor attribute set to
 	% the argument...
-	<<
-	  /MediaColor 2 index
-	>>
+	2 dict begin
+	  /MediaColor 1 index def
+	currentdict end
       } {
 	% Build a page device dictionary with the MediaType attribute set to
 	% "Color"...
-	<<
-	  /MediaType (Color)
-	>>
+	2 dict begin
+	  /MediaType (Color) def
+	currentdict end
       } ifelse
 
       % Register any new attributes...
@@ -239,12 +239,12 @@ def
       {
 	% Build a page device dictionary with the MediaPosition,
 	% DeferredMediaSelection, ManualFeed, and TraySwitch attributes...
-	<<
-	  /MediaPosition 2 index
-	  haveDeferredMediaSelection { /DeferredMediaSelection true } if
-	  haveTraySwitch { /TraySwitch false } if
-	  haveManualFeed { /ManualFeed false } if
-	>>
+	8 dict begin
+	  /MediaPosition 1 index def
+	  haveDeferredMediaSelection { /DeferredMediaSelection true def } if
+	  haveTraySwitch { /TraySwitch false def } if
+	  haveManualFeed { /ManualFeed false def } if
+	currentdict end
 
 	% Register the new attributes...
 	setpagedevice
@@ -272,9 +272,9 @@ def
     haveMediaType
     {
       % Build a page device dictionary with the MediaType attribute...
-      <<
-	/MediaType 2 index
-      >>
+      2 dict begin
+	/MediaType 1 index def
+      currentdict end
 
       % Register the new attribute...
       setpagedevice
@@ -304,10 +304,10 @@ def
 
     % Build a page device dictionary with the PageSize and ImageableArea
     % attributes...
-    <<
-      /PageSize 2 index
-      /ImageableArea null
-    >>
+    4 dict begin
+      /PageSize 1 index def
+      /ImageableArea null def
+    currentdict end
 
     % Register the new attributes...
     setpagedevice
