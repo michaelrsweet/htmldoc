@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.60 2000/04/12 02:35:30 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.61 2000/04/19 01:33:50 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3640,8 +3640,8 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
-#undef DEBUG_printf
-#define DEBUG_printf(x) printf x
+//#undef DEBUG_printf
+//#define DEBUG_printf(x) printf x
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
  */
@@ -4124,10 +4124,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           break;
       colspan --;
 
-      DEBUG_printf(("    col = %d, colspan = %d, left = %.1f, right = %.1f\n",
-                    col, colspan, col_lefts[col], col_rights[col + colspan]));
+      DEBUG_printf(("    col = %d, colspan = %d, left = %.1f, right = %.1f, cell = %p\n",
+                    col, colspan, col_lefts[col], col_rights[col + colspan], cells[row][col]));
 
-      if (cells[row][col] == NULL)
+      if (cells[row][col] == NULL || cells[row][col]->child == NULL)
         continue;
 
       *x        = col_lefts[col];
@@ -4201,7 +4201,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         colspan --;
 
-        if (cells[row][col] == NULL)
+        if (cells[row][col] == NULL || cells[row][col]->child == NULL)
 	  continue;
 
         switch (cells[row][col]->valignment)
@@ -4356,8 +4356,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   free(cells[0]);
 }
-#undef DEBUG_printf
-#define DEBUG_printf(x)
+//#undef DEBUG_printf
+//#define DEBUG_printf(x)
 
 
 /*
@@ -6842,5 +6842,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.60 2000/04/12 02:35:30 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.61 2000/04/19 01:33:50 mike Exp $".
  */
