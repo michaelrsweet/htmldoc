@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.25 2001/02/23 20:47:00 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.26 2001/02/26 01:14:20 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -244,6 +244,7 @@ static float	render_size,
 		render_startx,
 		render_spacing;
 
+static int		compressor_active = 0;
 static z_stream		compressor;
 static uchar		comp_buffer[64 * 1024];
 static uchar		encrypt_key[16];
@@ -350,7 +351,7 @@ static boolean	jpg_empty(j_compress_ptr cinfo);
 static void	jpg_term(j_compress_ptr cinfo);
 static void	jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
 static int	compare_rgb(uchar *rgb1, uchar *rgb2);
-static void	write_image(FILE *out, render_t *r);
+static void	write_image(FILE *out, render_t *r, int write_obj = 0);
 static void	write_string(FILE *out, uchar *s, int compress);
 static void	write_text(FILE *out, render_t *r);
 static void	write_trailer(FILE *out, int pages);
@@ -1316,20 +1317,26 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
                    uchar  *keywords,	/* I - Search keywords */
                    tree_t *toc)		/* I - Table of contents tree */
 {
-  uchar		*page_chapter,	/* Current chapter text */
-		*page_heading;	/* Current heading text */
-  FILE		*out;		/* Output file */
-  int		page,		/* Current page # */
-		heading;	/* Current heading # */
-  float		title_width;	/* Width of title string */
-  int		bytes;		/* Number of bytes */
-  char		buffer[8192];	/* Copy buffer */
+  int		i;			// Looping variable
+  uchar		*page_chapter,		/* Current chapter text */
+		*page_heading;		/* Current heading text */
+  FILE		*out;			/* Output file */
+  int		page,			/* Current page # */
+		heading;		/* Current heading # */
+  float		title_width;		/* Width of title string */
+  int		bytes;			/* Number of bytes */
+  char		buffer[8192];		/* Copy buffer */
+  int		num_images;		/* Number of images in document */
+  image_t	**images;		/* Pointers to images */
+  render_t	temp;			// Dummy rendering data...
 
 
+  // Get the title width...
   if (title != NULL)
     title_width = HeadFootSize / _htmlSizes[SIZE_P] *
                   get_width(title, HeadFootType, HeadFootStyle, SIZE_P);
 
+  // Open the output file...
   out = open_file();
   if (out == NULL)
   {
@@ -1337,12 +1344,27 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
     return;
   }
 
+  // Write the prolog...
   write_prolog(out, num_pages, title, author, creator, copyright, keywords);
 
+  // Write images as needed...
+  num_images = image_getlist(&images);
+  for (i = 0; i < num_images; i ++)
+    if (images[i]->use > 1 || images[i]->mask ||
+        (images[i]->width * images[i]->height) > 1024 ||
+	images[i] == background_image)
+    {
+      progress_show("Writing image %d (%s)...", i + 1, images[i]->filename);
+      temp.data.image = images[i];
+      write_image(out, &temp, 1);
+    }
+        
+  // Write links and target names...
   pdf_write_links(out);
   if (PDFVersion >= 1.2)
     pdf_write_names(out);
 
+  // Verify that everything is working so far...
   num_objects ++;
   if (pages_object != num_objects)
     progress_error("Internal error: pages_object != num_objects");
@@ -1555,8 +1577,13 @@ pdf_write_resources(FILE *out,	/* I - Output file */
     fputs(">>", out);
   }
 
-  if (background_object > 0)
-    fprintf(out, "/XObject<</BG %d 0 R>>", background_object);
+  fputs("/XObject<<", out);
+
+  for (r = pages[page]; r != NULL; r = r->next)
+    if (r->type == RENDER_IMAGE && r->data.image->obj)
+      fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
+
+  fputs(">>", out);
 
   if (PDFEffect)
     fprintf(out, "/Dur %.0f/Trans<</D %.1f%s>>", PDFPageDuration,
@@ -5043,13 +5070,12 @@ write_background(FILE *out)	/* I - File to write to */
             for (y = 0.0; y < page_length; y += height)
             {
   	      flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
-              flate_puts("/BG Do\n", out);
+              flate_printf(out, "/I%d Do\n", background_image->obj);
 	      flate_puts("Q\n", out);
             }
 	  break;
 
-      case 1 :
-      case 2 :
+      default :
           fprintf(out, "0 %.1f %d{/y exch def 0 %.1f %d{/x exch def\n",
 	          height, page_length + (int)height - 1, width, page_width);
           fprintf(out, "GS[%.1f 0 0 %.1f x y]CM/iy -1 def\n", width, height);
@@ -6338,7 +6364,8 @@ compare_rgb(uchar *rgb1,	/* I - First color */
 
 static void
 write_image(FILE     *out,	/* I - Output file */
-            render_t *r)	/* I - Image to write */
+            render_t *r,	/* I - Image to write */
+	    int      write_obj)	/* I - Write an object? */
 {
   int		i, j, k, m,	/* Looping vars */
 		ncolors;	/* Number of colors */
@@ -6352,6 +6379,7 @@ write_image(FILE     *out,	/* I - Output file */
 		*match;		/* Matching color value */
   image_t 	*img;		/* Image */
   struct jpeg_compress_struct cinfo;	/* JPEG compressor */
+  long		length;		/* Length of image data */
 
 
  /*
@@ -6635,6 +6663,8 @@ write_image(FILE     *out,	/* I - Output file */
       }
     }
   }
+  else
+    indbits = 8;
 
  /*
   * Now write the image...
@@ -6643,9 +6673,62 @@ write_image(FILE     *out,	/* I - Output file */
   switch (PSLevel)
   {
     case 0 : /* PDF */
-	flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width, r->height,
-	           r->x, r->y);
-        flate_puts("BI", out);
+        if (!write_obj)
+	  flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width, r->height,
+	               r->x, r->y);
+
+        if (img->obj)
+	{
+	  flate_printf(out, "/I%d Do Q\n", img->obj);
+	  break;
+	}
+
+        if (img->mask && write_obj)
+	{
+	  // We have a mask image, write it!
+	  num_objects ++;
+	  objects[num_objects] = ftell(out);
+	  fprintf(out, "%d 0 obj<<", num_objects);
+	  fputs("/Type/XObject/SubType/Image", out);
+	  fprintf(out, "/W %d/H %d/BPC 1/ImageMask true/Length %d 0 R",
+	          img->width, img->height, num_objects + 1);
+          if (Compression)
+            fputs("/Filter/FlateDecode", out);
+          fputs(">>", out);
+          fputs("stream\n", out);
+
+          length = ftell(out);
+
+          flate_open_stream(out);
+  	  flate_write(out, img->mask, img->maskwidth * img->height, 1);
+	  flate_close_stream(out);
+
+          length = ftell(out) - length;
+
+          fputs("endstream\n", out);
+          fputs("endobj\n", out);
+
+          num_objects ++;
+          objects[num_objects] = ftell(out);
+
+          fprintf(out, "%d 0 obj\n", num_objects);
+          fprintf(out, "%d\n", length);
+          fputs("endobj\n", out);
+	}
+
+        if (write_obj)
+	{
+	  num_objects ++;
+	  img->obj = num_objects;
+	  objects[num_objects] = ftell(out);
+	  fprintf(out, "%d 0 obj<<", num_objects);
+	  fputs("/Type/XObject/SubType/Image", out);
+	  fprintf(out, "/Length %d 0 R", num_objects + 1);
+	  if (img->mask)
+	    fprintf(out, "/Mask %d 0 R", num_objects - 2);
+        }
+	else
+          flate_puts("BI", out);
 
 	if (ncolors > 0)
 	{
@@ -6673,38 +6756,89 @@ write_image(FILE     *out,	/* I - Output file */
 
         flate_puts("/I true", out);
 
-        if (ncolors > 0)
+        if (write_obj)
 	{
-  	  flate_printf(out, "/W %d/H %d/BPC %d ID\n",
-               	       img->width, img->height, indbits); 
+          if (Compression && ncolors || !OutputJPEG)
+            fputs("/Filter/FlateDecode", out);
+	  else if (OutputJPEG && ncolors == 0)
+	    fputs("/Filter/DCTDecode", out);
 
-  	  flate_write(out, indices, indwidth * img->height, 1);
+  	  fprintf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits);
+          fputs(">>", out);
+          fputs("stream\n", out);
+
+          length = ftell(out);
+
+          if (OutputJPEG)
+	  {
+	    jpg_setup(out, img, &cinfo);
+
+	    for (i = img->height, pixel = img->pixels;
+	         i > 0;
+	         i --, pixel += img->width * img->depth)
+	      jpeg_write_scanlines(&cinfo, &pixel, 1);
+
+	    jpeg_finish_compress(&cinfo);
+	    jpeg_destroy_compress(&cinfo);
+	  }
+          else
+	  {
+	    if (Compression)
+              flate_open_stream(out);
+	    
+	    if (ncolors > 0)
+   	      flate_write(out, indices, indwidth * img->height, 1);
+	    else
+  	      flate_write(out, img->pixels,
+	                  img->width * img->height * img->depth, 1);
+
+	    if (Compression)
+              flate_close_stream(out);
+          }
+
+          length = ftell(out) - length;
+
+          fputs("endstream\n", out);
+          fputs("endobj\n", out);
+
+          num_objects ++;
+          objects[num_objects] = ftell(out);
+
+          fprintf(out, "%d 0 obj\n", num_objects);
+          fprintf(out, "%d\n", length);
+          fputs("endobj\n", out);
 	}
-	else if (OutputJPEG)
-	{
-  	  flate_printf(out, "/W %d/H %d/BPC 8/F/DCT ID\n",
-                       img->width, img->height); 
-
-	  jpg_setup(out, img, &cinfo);
-
-	  for (i = img->height, pixel = img->pixels;
-	       i > 0;
-	       i --, pixel += img->width * img->depth)
-	    jpeg_write_scanlines(&cinfo, &pixel, 1);
-
-	  jpeg_finish_compress(&cinfo);
-	  jpeg_destroy_compress(&cinfo);
-        }
 	else
 	{
-  	  flate_printf(out, "/W %d/H %d/BPC 8 ID\n",
-               	       img->width, img->height); 
+  	  flate_printf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits); 
 
-  	  flate_write(out, img->pixels,
-	              img->width * img->height * img->depth, 1);
-        }
+	  if (ncolors > 0)
+	  {
+  	    flate_puts(" ID\n", out);
+  	    flate_write(out, indices, indwidth * img->height, 1);
+	  }
+	  else if (OutputJPEG)
+	  {
+  	    flate_puts("/F/DCT ID\n", out);
 
-	flate_write(out, (uchar *)"\nEI\nQ\n", 6, 1);
+	    jpg_setup(out, img, &cinfo);
+
+	    for (i = img->height, pixel = img->pixels;
+	         i > 0;
+	         i --, pixel += img->width * img->depth)
+	      jpeg_write_scanlines(&cinfo, &pixel, 1);
+
+	    jpeg_finish_compress(&cinfo);
+	    jpeg_destroy_compress(&cinfo);
+          }
+	  else
+	  {
+  	    flate_puts(" ID\n", out);
+  	    flate_write(out, img->pixels, img->width * img->height * img->depth, 1);
+          }
+
+	  flate_write(out, (uchar *)"\nEI\nQ\n", 6, 1);
+	}
         break;
 
     case 1 : /* PostScript, Level 1 */
@@ -7936,6 +8070,7 @@ flate_open_stream(FILE *out)	/* I - Output file */
   if (!Compression)
     return;
 
+  compressor_active = 1;
   compressor.zalloc = (alloc_func)0;
   compressor.zfree  = (free_func)0;
   compressor.opaque = (voidpf)0;
@@ -7995,6 +8130,8 @@ flate_close_stream(FILE *out)	/* I - Output file */
 
   deflateEnd(&compressor);
 
+  compressor_active = 0;
+
   if (PSLevel)
     fputs("~>\n", out);
 }
@@ -8018,8 +8155,8 @@ flate_puts(char *s,	/* I - String to write */
 
 static void
 flate_printf(FILE *out,		/* I - Output file */
-           char *format,	/* I - Format string */
-           ...)			/* I - Additional args as necessary */
+             char *format,	/* I - Format string */
+             ...)		/* I - Additional args as necessary */
 {
   int		length;		/* Length of output string */
   char		buf[10240];	/* Output buffer */
@@ -8044,7 +8181,7 @@ flate_write(FILE  *out,		/* I - Output file */
             int   length,	/* I - Number of bytes to write */
 	    int   flush)	/* I - Flush when writing data? */
 {
-  if (Compression)
+  if (compressor_active)
   {
     compressor.next_in  = buf;
     compressor.avail_in = length;
@@ -8099,5 +8236,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.25 2001/02/23 20:47:00 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.26 2001/02/26 01:14:20 mike Exp $".
  */
