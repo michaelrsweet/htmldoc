@@ -1,7 +1,7 @@
 CHANGES.txt - 12/21/2001
 ------------------------
 
-CHANGES IN HTMLDOC v1.8.17+
+CHANGES IN HTMLDOC v1.8.18
 
     CHANGES
 
@@ -22,6 +22,9 @@ CHANGES IN HTMLDOC v1.8.17+
 	- The "--webpage" option didn't force toc levels to 0,
 	  which caused a bad page object reference to be
 	  inserted in the PDF output file.
+	- Background colors in nested tables didn't always get
+	  drawn in the right order, resulting in the wrong
+	  colors showing through.
 
 
 CHANGES IN HTMLDOC v1.8.17

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.143 2002/01/16 16:35:20 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.144 2002/01/26 02:23:47 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4615,6 +4615,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		cell_endy[MAX_COLUMNS],		// Row or each cell
 		cell_height[MAX_COLUMNS],	// Height of each cell in a row
 		span_heights[MAX_COLUMNS];	// Height of spans
+  render_t	*cell_bg[MAX_COLUMNS];		// Background rectangles
   render_t	*cell_start[MAX_COLUMNS];	// Start of the content for a cell in the row
   render_t	*cell_end[MAX_COLUMNS];		// End of the content for a cell in a row
   uchar		*bgcolor;
@@ -5158,6 +5159,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   memset(cell_start, 0, sizeof(cell_start));
   memset(cell_end, 0, sizeof(cell_end));
   memset(cell_height, 0, sizeof(cell_height));
+  memset(cell_bg, 0, sizeof(cell_bg));
 
   for (row = 0; row < num_rows; row ++)
   {
@@ -5281,6 +5283,24 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       if (row == 0 || cells[row][col] != cells[row - 1][col])
       {
         check_pages(*page);
+
+	if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
+          if ((bgcolor = htmlGetVariable(cells[row][col]->parent, (uchar *)"BGCOLOR")) == NULL)
+	    bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR");
+
+	if (bgcolor != NULL)
+	{
+          get_color(bgcolor, bgrgb, 0);
+
+	  width       = col_rights[col + colspan] - col_lefts[col] +
+        	        2 * cellpadding;
+	  border_left = col_lefts[col] - cellpadding;
+
+          cell_bg[col] = new_render(*page, RENDER_BOX, border_left, row_y,
+                                    width + border, 0.0, bgrgb);
+	}
+	else
+	  cell_bg[col] = NULL;
 
 	cell_start[col] = pages[*page].end;
 	cell_page[col]  = temp_page;
@@ -5567,10 +5587,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         }
 
         if (bgcolor != NULL)
-          new_render(*page, RENDER_BOX, border_left, bottom,
-                     width + border,
-		     cell_y[col] - bottom + cellpadding + border, bgrgb,
-		     pages[*page].start);
+        {
+	  cell_bg[col]->y      = bottom;
+	  cell_bg[col]->height = cell_y[col] - bottom + cellpadding + border;
+	}
 
         for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
 	{
@@ -5647,15 +5667,18 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	}
 
         if (bgcolor != NULL)
-          new_render(cell_page[col], RENDER_BOX, border_left, row_y,
-                     width + border,
-		     cell_y[col] - row_y + cellpadding + border, bgrgb,
-		     cell_start[col]);
+	{
+	  cell_bg[col]->y      = row_y;
+	  cell_bg[col]->height = cell_y[col] - row_y + cellpadding + border;
+	}
       }
     }
 
     *page = row_page;
-    *y    = row_y - cellspacing;
+    *y    = row_y;
+
+    if (row < (num_rows - 1))
+      (*y) -= cellspacing;
 
     DEBUG_printf(("END row = %d, *y = %.1f, *page = %d\n", row, *y, *page));
   }
@@ -10650,5 +10673,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.143 2002/01/16 16:35:20 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.144 2002/01/26 02:23:47 mike Exp $".
  */
