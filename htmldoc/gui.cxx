@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.32 2001/11/14 17:39:01 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.33 2001/11/30 02:59:04 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -100,154 +100,18 @@
 #    endif // HAVE_LIBXPM
 #  endif // WIN32
 
+#  if FL_MINOR_VERSION >= 1
+#    include <FL/Fl_Pixmap.H>
+#    include <FL/Fl_Tiled_Image.H>
+#    include "tile.xpm"
+#  endif // FL_MINOR_VERSION >= 1
+
 
 //
 // Class globals...
 //
 
 const char	*GUI::help_dir = DOCUMENTATION;
-
-
-//
-// The following button types are just things we are playing with.
-// Uncomment the NEW_BUTTON_TYPES define below to see them...
-//
-
-//#define NEW_BUTTON_TYPES
-#ifdef NEW_BUTTON_TYPES
-extern uchar *fl_gray_ramp();
-
-/*
-**** JUST DOCS FOR MY REFERENCE, IN CASE I WANT TO MAKE THE ENDS OF THE
-     BUTTONS ROUND... ****
-points to obtain the complete circle. At each stage through the loop in the code sample
-below the point (x,y) is calculated. The WRITE_CIRCLE function then takes this
-point and can plot the following list of points: 
-       (x,y), (y,x), (y,-x), (x,-y), (-x,-y), (-y,-x), (-y,x), (-x,y)
-
-midpoint_circle ( int radius, colour )
-{  int x = 0;
-  int y = radius;
-  int d = 1-radius;
-
-  WRITE_CIRCLE(x, y, colour);
-
-  while (x < y)
-  {
-    if (d<0)
-      d = d + 2*x + 3;
-    else
-    {
-      d = d + 2*(x-y) + 5;
-      y = y - 1;
-    }
-    x = x - 1;
-    WRITE_CIRCLE( x, y, colour);
-   }
-}
-*/
-
-inline Fl_Color shade_color(uchar gc, Fl_Color bc) {
-  return fl_color_average((Fl_Color)gc, bc, 0.67f);
-}
-
-void shade_frame(int x, int y, int w, int h, const char *c, Fl_Color bc)
-{
-  uchar *g = fl_gray_ramp();
-  int b = strlen(c) / 4 + 1;
-
-  for (x += b, y += b, w -= 2 * b, h -= 2 * b; b > 1; b --)
-  {
-    fl_color(shade_color(g[*c++], bc));
-    fl_line(x, y + h + b, x + w - 1, y + h + b, x + w + b - 1, y + h);
-    fl_color(shade_color(g[*c++], bc));
-    fl_line(x + w + b - 1, y + h, x + w + b - 1, y, x + w - 1, y - b);
-    fl_color(shade_color(g[*c++], bc));
-    fl_line(x + w - 1, y - b, x, y - b, x - b, y);
-    fl_color(shade_color(g[*c++], bc));
-    fl_line(x - b, y, x - b, y + h, x, y + h + b);
-  }
-}
-
-
-void shade_rect(int x, int y, int w, int h, const char *c, Fl_Color bc)
-{
-  uchar		*g = fl_gray_ramp();
-  int		xoff, yoff;
-  int		cmod, cerr;
-  int		clen = strlen(c);
-
-
-  if (w >= h)
-  {
-    h ++;
-    cmod = clen % h;
-    cerr = 0;
-
-    fl_color(shade_color(g[*c], bc));
-
-    for (yoff = 0; yoff < h; yoff ++)
-    {
-      fl_xyline(x, y + yoff, x + w - 1);
-
-      cerr += cmod;
-      if (cerr >= h)
-      {
-        cerr -= h;
-	c ++;
-
-        fl_color(shade_color(g[*c], bc));
-      }
-    }
-  }
-  else
-  {
-    w ++;
-    cmod = clen % w;
-    cerr = 0;
-
-    fl_color(shade_color(g[*c], bc));
-
-    for (xoff = 0; xoff < w; xoff ++)
-    {
-      fl_yxline(x + xoff, y, y + h - 1);
-
-      cerr += cmod;
-      if (cerr >= w)
-      {
-        cerr -= w;
-	c ++;
-
-        fl_color(shade_color(g[*c], bc));
-      }
-    }
-  }
-}
-
-void up_box(int x, int y, int w, int h, Fl_Color c) {
-  if (w > 30 && h > 30)
-  {
-    fl_color(c);
-    fl_rectf(x + 2, y + 2, w - 4, h - 4);
-  }
-  else
-    shade_rect(x + 2, y + 2, w - 4, h - 4, "VUTSSTUVWW", c);
-
-  shade_frame(x, y, w, h, "RRSSDLNN", c);
-}
-
-void down_box(int x, int y, int w, int h, Fl_Color c) {
-  if (w > 30 && h > 30)
-  {
-    fl_color(c);
-    fl_rectf(x + 2, y + 2, w - 4, h - 4);
-  }
-  else
-    shade_rect(x + 2, y + 2, w - 4, h - 4, "STUVWWWWVT", c);
-
-  shade_frame(x, y, w, h, "LLRRTTLL", c);
-}
-#endif // NEW_BUTTON_TYPES
 
 
 //
@@ -378,16 +242,19 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			};
 
 
-#ifdef NEW_BUTTON_TYPES
+#  if FL_MINOR_VERSION >= 1
   //
-  // Pseudo-Aqua buttons...
+  // Use "plastic" buttons...
   //
 
-  Fl::set_boxtype(FL_UP_BOX, up_box, 3, 3, 5, 5);
-  Fl::set_boxtype(FL_DOWN_BOX, down_box, 3, 3, 5, 5);
-  Fl::set_boxtype(_FL_ROUND_UP_BOX, up_box, 3, 3, 5, 5);
-  Fl::set_boxtype(_FL_ROUND_DOWN_BOX, down_box, 3, 3, 5, 5);
-#endif // NEW_BUTTON_TYPES
+  Fl_Pixmap	*tile = new Fl_Pixmap((const char * const *)tile_xpm);
+  Fl_Group	*tile_group;
+
+  Fl::set_boxtype(FL_UP_BOX, FL_PLASTIC_UP_BOX);
+  Fl::set_boxtype(FL_DOWN_BOX, FL_PLASTIC_DOWN_BOX);
+  Fl::set_boxtype(_FL_ROUND_UP_BOX, FL_PLASTIC_UP_BOX);
+  Fl::set_boxtype(_FL_ROUND_DOWN_BOX, FL_PLASTIC_DOWN_BOX);
+#  endif // FL_MINOR_VERSION >= 1
 
   //
   // Create a dialog window...
@@ -396,9 +263,14 @@ GUI::GUI(const char *filename)		// Book file to load initially
   window = new Fl_Double_Window(505, 415, "HTMLDOC " SVERSION);
   window->callback((Fl_Callback *)closeBookCB, this);
 
+#  if FL_MINOR_VERSION >= 1
+  tile_group = new Fl_Group(0, 0, 505, 415);
+  tile_group->align(FL_ALIGN_INSIDE);
+  tile_group->image(new Fl_Tiled_Image(tile, 505, 415));
+#  endif // FL_MINOR_VERSION >= 1
+
   controls = new Fl_Group(0, 0, 505, 385);
   tabs     = new Fl_Tabs(10, 10, 485, 285);
-
 
   //
   // Input tab...
@@ -1076,9 +948,9 @@ GUI::GUI(const char *filename)		// Book file to load initially
     tooltips->callback((Fl_Callback *)tooltipCB, this);
     tooltips->value(Tooltips);
     _tooltip(tooltips, "Check to show tooltips.");
-#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
+#  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
     tooltips->deactivate();
-#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
+#  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 
   group->end();
 
@@ -1089,6 +961,87 @@ GUI::GUI(const char *filename)		// Book file to load initially
   optionsTab->end();
 
   tabs->end();
+
+#  if FL_MINOR_VERSION >= 1
+  tabs->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+
+  inputTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  outputTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  pageTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  fontsTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  colorsTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  tocTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  psTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  pdfTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  securityTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  optionsTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+
+  typeBook->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  typeContinuous->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  typeWebPage->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  outputFile->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  outputDirectory->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  typeHTML->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  typePS->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  typePDF->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  grayscale->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  titlePage->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  jpegCompress->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  pageDuplex->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  landscape->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  numberedToc->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  ps1->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  ps2->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  ps3->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  psCommands->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  xrxComments->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  pdf11->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  pdf12->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  pdf13->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  pdf14->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  links->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  truetype->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  encryptionYes->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  encryptionNo->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  permPrint->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  permModify->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  permCopy->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  permAnnotate->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  tooltips->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+
+  typeBook->down_box(FL_ROUND_UP_BOX);
+  typeContinuous->down_box(FL_ROUND_UP_BOX);
+  typeWebPage->down_box(FL_ROUND_UP_BOX);
+  outputFile->down_box(FL_ROUND_UP_BOX);
+  outputDirectory->down_box(FL_ROUND_UP_BOX);
+  typeHTML->down_box(FL_ROUND_UP_BOX);
+  typePS->down_box(FL_ROUND_UP_BOX);
+  typePDF->down_box(FL_ROUND_UP_BOX);
+  grayscale->down_box(FL_UP_BOX);
+  titlePage->down_box(FL_UP_BOX);
+  jpegCompress->down_box(FL_UP_BOX);
+  pageDuplex->down_box(FL_UP_BOX);
+  landscape->down_box(FL_UP_BOX);
+  numberedToc->down_box(FL_UP_BOX);
+  ps1->down_box(FL_ROUND_UP_BOX);
+  ps2->down_box(FL_ROUND_UP_BOX);
+  ps3->down_box(FL_ROUND_UP_BOX);
+  psCommands->down_box(FL_UP_BOX);
+  xrxComments->down_box(FL_UP_BOX);
+  pdf11->down_box(FL_ROUND_UP_BOX);
+  pdf12->down_box(FL_ROUND_UP_BOX);
+  pdf13->down_box(FL_ROUND_UP_BOX);
+  pdf14->down_box(FL_ROUND_UP_BOX);
+  links->down_box(FL_UP_BOX);
+  truetype->down_box(FL_UP_BOX);
+  encryptionYes->down_box(FL_ROUND_UP_BOX);
+  encryptionNo->down_box(FL_ROUND_UP_BOX);
+  permPrint->down_box(FL_UP_BOX);
+  permModify->down_box(FL_UP_BOX);
+  permCopy->down_box(FL_UP_BOX);
+  permAnnotate->down_box(FL_UP_BOX);
+  tooltips->down_box(FL_UP_BOX);
+#  endif // FL_MINOR_VERSION >= 1
 
   //
   // Button bar...
@@ -1143,6 +1096,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   //
 
   progressBar = new Progress(10, 385, 485, 20, "HTMLDOC " SVERSION " Ready.");
+
+#  if FL_MINOR_VERSION >= 1
+  tile_group->end();
+#  endif // FL_MINOR_VERSION >= 1
 
   window->end();
 
@@ -1267,9 +1224,9 @@ GUI::GUI(const char *filename)		// Book file to load initially
   else
     loadBook(filename);
 
-#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
+#  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
   Fl_Tooltip::enable(Tooltips);
-#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
+#  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 }
 
 
@@ -4131,5 +4088,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.32 2001/11/14 17:39:01 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.33 2001/11/30 02:59:04 mike Exp $".
 //
