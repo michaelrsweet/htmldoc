@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.77 2001/06/01 20:40:52 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.78 2001/06/04 12:29:45 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -237,7 +237,6 @@ static int	num_objects,
 		names_object,
 		encrypt_object,
 		annots_objects[MAX_PAGES],
-		background_object = 0,
 		font_objects[16];
 
 static image_t	*logo_image = NULL;
@@ -1562,7 +1561,7 @@ pdf_write_resources(FILE *out,	/* I - Output file */
 
   memset(fonts_used, 0, sizeof(fonts_used));
   fonts_used[HeadFootType * 4 + HeadFootStyle] = 1;
-  images_used = background_object > 0;
+  images_used = background_image != NULL;
   text_used   = 0;
 
   for (r = pages[page]; r != NULL; r = r->next)
@@ -1607,6 +1606,10 @@ pdf_write_resources(FILE *out,	/* I - Output file */
   for (r = pages[page]; r != NULL; r = r->next)
     if (r->type == RENDER_IMAGE && r->data.image->obj)
       fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
+
+  if (background_image)
+    fprintf(out, "/I%d %d 0 R", background_image->obj,
+            background_image->obj);
 
   fputs(">>", out);
 
@@ -8684,5 +8687,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.77 2001/06/01 20:40:52 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.78 2001/06/04 12:29:45 mike Exp $".
  */
