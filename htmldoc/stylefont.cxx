@@ -1,5 +1,5 @@
 //
-// "$Id: stylefont.cxx,v 1.12 2004/03/31 10:35:07 mike Exp $"
+// "$Id: stylefont.cxx,v 1.13 2004/03/31 20:56:56 mike Exp $"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
@@ -106,7 +106,7 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
   {
     // Read the AFM file...
     read_afm(fp, css);
-    delete fp;
+    fclose(fp);
 
     // Change the extension to ".pfa" and save the font filename for later
     // use as needed...
@@ -514,5 +514,5 @@ hdStyleFont::read_ttf(FILE       *fp,	// I - File to read from
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.12 2004/03/31 10:35:07 mike Exp $".
+// End of "$Id: stylefont.cxx,v 1.13 2004/03/31 20:56:56 mike Exp $".
 //

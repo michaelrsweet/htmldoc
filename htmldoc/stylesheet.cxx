@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.15 2004/03/31 10:35:07 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.16 2004/03/31 20:56:56 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -1118,7 +1118,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
     progress_error(HD_ERROR_CSS_ERROR,
                             "Unable to read charset type from \"%s\"!",
 			    filename);
-    delete fp;
+    fclose(fp);
     return;
   }
 
@@ -1127,7 +1127,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
     progress_error(HD_ERROR_CSS_ERROR,
                             "Bad charset type \"%s\" in \"%s\"!",
 			    line, filename);
-    delete fp;
+    fclose(fp);
     return;
   }
 
@@ -1184,7 +1184,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
     glyphs[code] = strdup(name);
   }
 
-  delete fp;
+  fclose(fp);
 }
 
 
@@ -1210,5 +1210,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.15 2004/03/31 10:35:07 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.16 2004/03/31 20:56:56 mike Exp $".
 //
