@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.8 1999/11/12 17:48:25 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.9 1999/11/12 21:22:53 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -218,7 +218,10 @@ main(int  argc,		/* I - Number of command-line arguments */
         usage();
     }
     else if (compare_strings(argv[i], "--color", 5) == 0)
-      OutputColor = 1;
+    {
+      OutputColor    = 1;
+      _htmlGrayscale = 0;
+    }
     else if (compare_strings(argv[i], "--compression", 5) == 0 ||
              strncmp(argv[i], "--compression=", 14) == 0)
     {
@@ -1012,7 +1015,10 @@ prefs_load(void)
         else if (strncasecmp(line, "COMPRESSION=", 12) == 0)
 	  Compression = atoi(line + 12);
         else if (strncasecmp(line, "OUTPUTCOLOR=", 12) == 0)
-	  OutputColor = atoi(line + 12);
+	{
+	  OutputColor    = atoi(line + 12);
+	  _htmlGrayscale = !OutputColor;
+	}
         else if (strncasecmp(line, "TOCNUMBERS=", 11) == 0)
 	  TocNumbers = atoi(line + 11);
         else if (strncasecmp(line, "TOCLEVELS=", 10) == 0)
@@ -1236,5 +1242,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.8 1999/11/12 17:48:25 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.9 1999/11/12 21:22:53 mike Exp $".
  */

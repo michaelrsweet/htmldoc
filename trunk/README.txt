@@ -150,6 +150,9 @@ RUNNING HTMLDOC FROM THE COMMAND-LINE
     guidelines can be found in the user's manual in the "doc"
     directory.
 
+    NOTE: HTMLDOC 1.8 changed the "--title" option to "--titleimage"
+    and added a new "--title" option that enables the title page.
+
 
 RUNNING THE GUI SOFTWARE
 
