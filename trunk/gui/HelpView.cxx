@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.4 1999/09/24 20:41:02 mike Exp $"
+// "$Id: HelpView.cxx,v 1.5 1999/09/30 17:19:37 mike Exp $"
 //
 //   Help Viewer routines for the Common UNIX Printing System (CUPS).
 //
@@ -110,12 +110,14 @@ HelpView::add_link(const char *n,
   temp->w       = xx + ww;
   temp->h       = yy + hh;
 
-  strcpy(temp->filename, n);
+  strncpy(temp->filename, n, sizeof(temp->filename));
+  temp->filename[sizeof(temp->filename) - 1] = '\0';
 
   if ((target = strrchr(temp->filename, '#')) != NULL)
   {
     *target++ = '\0';
-    strcpy(temp->name, target);
+    strncpy(temp->name, target, sizeof(temp->name));
+    temp->name[sizeof(temp->name) - 1] = '\0';
   }
   else
     temp->name[0] = '\0';
@@ -148,7 +150,8 @@ HelpView::add_target(const char *n,
   temp = targets_ + ntargets_;
 
   temp->y = yy;
-  strcpy(temp->name, n);
+  strncpy(temp->name, n, sizeof(temp->name));
+  temp->name[sizeof(temp->name) - 1] = '\0';
 
   ntargets_ ++;
 }
@@ -291,7 +294,10 @@ HelpView::draw()
 	{
 	  ptr ++;
 	  while (*ptr && *ptr != '>' && !isspace(*ptr))
-            *s++ = *ptr++;
+            if (s < (buf + sizeof(buf) - 1))
+	      *s++ = *ptr++;
+	    else
+	      ptr ++;
 
 	  *s = '\0';
 	  s = buf;
@@ -520,8 +526,8 @@ void
 HelpView::format()
 {
   HelpBlock	*block,
-		*row,
 		*cell;
+  int		row;
   const char	*ptr,
 		*start,
 		*attrs;
@@ -553,7 +559,7 @@ HelpView::format()
   yy        = size + 2;
   hh        = 0;
   block     = add_block(value_, xx, yy, w() - 24, 0, 1);
-  row       = NULL;
+  row       = 0;
   head      = 0;
   pre       = 0;
   align     = 1;
@@ -629,7 +635,10 @@ HelpView::format()
       start = ptr;
       ptr ++;
       while (*ptr && *ptr != '>' && !isspace(*ptr))
-        *s++ = *ptr++;
+        if (s < (buf + sizeof(buf) - 1))
+          *s++ = *ptr++;
+	else
+	  ptr ++;
 
       *s = '\0';
       s = buf;
@@ -682,7 +691,7 @@ HelpView::format()
         xx       = block->x;
         block->h += hh;
 
-        if (!block->h)
+        if (!block->h && nblocks_ > 1)
 	{
 	  nblocks_ --;
 	  block --;
@@ -797,7 +806,7 @@ HelpView::format()
         xx       = block->x;
         block->h += hh;
 
-        if (!block->h)
+        if (!block->h && nblocks_ > 1)
 	{
 	  nblocks_ --;
 	  block --;
@@ -805,53 +814,53 @@ HelpView::format()
 
         if (row)
 	{
-          yy = row->y + row->h;
+          yy = blocks_[row].y + blocks_[row].h;
 
-	  for (cell = row + 1; cell <= block; cell ++)
+	  for (cell = blocks_ + row + 1; cell <= block; cell ++)
 	    if ((cell->y + cell->h) > yy)
 	      yy = cell->y + cell->h;
 
           block->h = yy - block->y + 2;
 
-	  for (cell = row + 1; cell < block; cell ++)
+	  for (cell = blocks_ + row + 1; cell < block; cell ++)
 	    cell->h = block->h;
 	}
 
 	yy        = block->y + block->h - 4;
 	hh        = 0;
-        block     = row = add_block(start, xx, yy, w() - 24, 0, align);
+        block     = add_block(start, xx, yy, w() - 24, 0, align);
+	row       = block - blocks_;
 	needspace = 0;
-
-	column = 0;
+	column    = 0;
       }
-      else if (strcasecmp(buf, "/TR") == 0 && row != NULL)
+      else if (strcasecmp(buf, "/TR") == 0 && row)
       {
         block->end = start;
 	block->h   += hh;
 
-        xx = row->x;
+        xx = blocks_[row].x;
 
-        if (block->end == block->start)
+        if (block->end == block->start && nblocks_ > 1)
 	{
 	  nblocks_ --;
 	  block --;
 	}
 
-        yy = row->y + row->h;
+        yy = blocks_[row].y + blocks_[row].h;
 
-	for (cell = row + 1; cell <= block; cell ++)
+	for (cell = blocks_ + row + 1; cell <= block; cell ++)
 	  if ((cell->y + cell->h) > yy)
 	    yy = cell->y + cell->h;
 
         block->h = yy - block->y + 2;
 
-	for (cell = row + 1; cell < block; cell ++)
+	for (cell = blocks_ + row + 1; cell < block; cell ++)
 	  cell->h = block->h;
 
 	yy        = block->y + block->h - 4;
         block     = add_block(start, xx, yy, w() - 24, 0, align);
 	needspace = 0;
-	row       = NULL;
+	row       = 0;
       }
       else if ((strcasecmp(buf, "TD") == 0 ||
                 strcasecmp(buf, "TH") == 0) && row)
@@ -871,7 +880,7 @@ HelpView::format()
 	else
           xx = block->w + 6;
 
-        if (block->end == block->start)
+        if (block->end == block->start && nblocks_ > 1)
 	{
 	  nblocks_ --;
 	  block --;
@@ -891,7 +900,7 @@ HelpView::format()
 	else
 	  ww = columns[column];
 
-	yy        = row->y;
+	yy        = blocks_[row].y;
 	hh        = 0;
         block     = add_block(start, xx, yy, xx + ww, 0, align);
 	needspace = 0;
@@ -935,7 +944,7 @@ HelpView::format()
 
       ptr ++;
     }
-    else if (*ptr == '&')
+    else if (*ptr == '&' && s < (buf + sizeof(buf) - 1))
     {
       ptr ++;
 
@@ -980,7 +989,10 @@ HelpView::format()
     }
     else
     {
-      *s++ = *ptr++;
+      if (s < (buf + sizeof(buf) - 1))
+        *s++ = *ptr++;
+      else
+        ptr ++;
 
       if ((size + 2) > hh)
         hh = size + 2;
@@ -1046,7 +1058,11 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
       return (NULL);
 
     for (ptr = name; *p && !isspace(*p) && *p != '=';)
-      *ptr++ = *p++;
+      if (ptr < (name + sizeof(name) - 1))
+        *ptr++ = *p++;
+      else
+        p ++;
+
     *ptr = '\0';
 
     if (isspace(*p) || !*p)
@@ -1133,7 +1149,7 @@ HelpView::handle(int event)
 
     set_changed();
 
-    if (strcmp(link->filename, filename_) != 0)
+    if (strcmp(link->filename, filename_) != 0 && link->filename[0])
       load(link->filename);
 
     if (target[0])
@@ -1167,6 +1183,7 @@ HelpView::HelpView(int xx, int yy, int ww, int hh, const char *l)
   ntargets_    = 0;
   targets_     = (HelpTarget *)0;
 
+  nfonts_      = 0;
   textfont_    = FL_TIMES;
   textsize_    = 12;
 
@@ -1185,6 +1202,23 @@ HelpView::HelpView(int xx, int yy, int ww, int hh, const char *l)
 
 
 //
+// 'HelpView::~HelpView()' - Destroy a HelpView widget.
+//
+
+HelpView::~HelpView()
+{
+  if (nblocks_)
+    free(blocks_);
+  if (nlinks_)
+    free(links_);
+  if (ntargets_)
+    free(targets_);
+  if (value_)
+    free((void *)value_);
+}
+
+
+//
 // 'HelpView::load()' - Load the specified file.
 //
 
@@ -1196,12 +1230,12 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
   char	*target;	// Target in file
 
 
-  if ((fp = fopen(f, "r")) == NULL)
-    return (-1);
-
   strcpy(filename_, f);
   if ((target = strrchr(filename_, '#')) != NULL)
     *target++ = '\0';
+
+  if ((fp = fopen(filename_, "r")) == NULL)
+    return (-1);
 
   fseek(fp, 0, SEEK_END);
   len = ftell(fp);
@@ -1316,5 +1350,5 @@ HelpView::value(const char *v)	// I - Text to view
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.4 1999/09/24 20:41:02 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.5 1999/09/30 17:19:37 mike Exp $".
 //
