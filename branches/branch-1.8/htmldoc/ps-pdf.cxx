@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.64 2001/05/27 11:39:51 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.65 2001/05/27 11:48:08 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -8595,7 +8595,7 @@ flate_write(FILE  *out,		/* I - Output file */
 
     for (i = 0; i < length; i += sizeof(newbuf))
     {
-      if ((bytes = length - i) > sizeof(newbuf))
+      if ((bytes = length - i) > (int)sizeof(newbuf))
         bytes = sizeof(newbuf);
 
       rc4_encrypt(&encrypt_state, buf + i, newbuf, bytes);
@@ -8608,5 +8608,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.64 2001/05/27 11:39:51 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.65 2001/05/27 11:48:08 mike Exp $".
  */
