@@ -1,11 +1,11 @@
 //
-// "$Id: FileIcon.cxx,v 1.17 1999/12/16 21:09:45 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.18 2000/01/04 13:45:51 mike Exp $"
 //
 //   FileIcon routines.
 //
 //   KDE icon code donated by Maarten De Boer.
 //
-//   Copyright 1997-1999 by Easy Software Products.
+//   Copyright 1997-2000 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1212,5 +1212,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.17 1999/12/16 21:09:45 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.18 2000/01/04 13:45:51 mike Exp $".
 //

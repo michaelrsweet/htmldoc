@@ -1,9 +1,9 @@
 //
-// "$Id: FileInput.cxx,v 1.2 1999/10/14 15:24:38 mike Exp $"
+// "$Id: FileInput.cxx,v 1.3 2000/01/04 13:45:51 mike Exp $"
 //
 //   FileInput routines.
 //
-//   Copyright 1997-1999 by Easy Software Products.
+//   Copyright 1997-2000 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -71,5 +71,5 @@ FileInput::handle(int event)	// I - Event to handle
 
 
 //
-// End of "$Id: FileInput.cxx,v 1.2 1999/10/14 15:24:38 mike Exp $".
+// End of "$Id: FileInput.cxx,v 1.3 2000/01/04 13:45:51 mike Exp $".
 //
