@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.224 2003/09/03 15:29:19 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.225 2003/10/17 12:52:53 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1979,20 +1979,6 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   }
 
  /*
-  * Clear the render cache...
-  */
-
-  render_typeface = -1;
-  render_style    = -1;
-  render_size     = -1;
-  render_rgb[0]   = 0.0f;
-  render_rgb[1]   = 0.0f;
-  render_rgb[2]   = 0.0f;
-  render_x        = -1.0f;
-  render_y        = -1.0f;
-  render_spacing  = -1.0f;
-
- /*
   * Render all of the pages...
   */
 
@@ -2048,6 +2034,20 @@ ps_write_page(FILE  *out,	/* I - Output file */
   p = pages + page;
 
   DEBUG_printf(("ps_write_page(%p, %d)\n", out, page));
+
+ /*
+  * Clear the render cache...
+  */
+
+  render_typeface = -1;
+  render_style    = -1;
+  render_size     = -1;
+  render_rgb[0]   = -1.0f;
+  render_rgb[1]   = -1.0f;
+  render_rgb[2]   = -1.0f;
+  render_x        = -1.0f;
+  render_y        = -1.0f;
+  render_spacing  = -1.0f;
 
  /*
   * Setup the page...
@@ -2499,16 +2499,6 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
   flate_open_stream(out);
 
  /*
-  * Clear the render cache...
-  */
-
-  render_rgb[0]   = 0.0f;
-  render_rgb[1]   = 0.0f;
-  render_rgb[2]   = 0.0f;
-  render_x        = -1.0f;
-  render_y        = -1.0f;
-
- /*
   * Render all of the pages...
   */
 
@@ -2564,6 +2554,16 @@ pdf_write_page(FILE  *out,	/* I - Output file */
     return;
 
   p = pages + page;
+
+ /*
+  * Clear the render cache...
+  */
+
+  render_rgb[0]   = -1.0f;
+  render_rgb[1]   = -1.0f;
+  render_rgb[2]   = -1.0f;
+  render_x        = -1.0f;
+  render_y        = -1.0f;
 
  /*
   * Output the page header...
@@ -12111,5 +12111,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.224 2003/09/03 15:29:19 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.225 2003/10/17 12:52:53 mike Exp $".
  */

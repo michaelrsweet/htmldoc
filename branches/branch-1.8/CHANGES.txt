@@ -51,6 +51,10 @@ CHANGES IN HTMLDOC v1.8.24
 	  images.
 	- The first page of each chapter did not use the custom
 	  page number if it was placed inside the heading.
+	- HTMLDOC did not reset the rendering cache before each
+	  page when producing N-up output; this caused font
+	  errors in some cases that prevented the document from
+	  printing or displaying properly.
 
 
 CHANGES IN HTMLDOC v1.8.23
