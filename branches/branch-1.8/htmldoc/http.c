@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.1.2.18 2004/02/06 03:51:09 mike Exp $"
+ * "$Id: http.c,v 1.1.2.19 2004/03/30 21:31:48 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS).
  *
@@ -1978,9 +1978,9 @@ static int				/* O - 1 if data is available, 0 otherwise */
 http_wait(http_t *http,			/* I - HTTP data */
           int    msec)			/* I - Milliseconds to wait */
 {
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__EMX__)
   struct rlimit		limit;          /* Runtime limit */
-#endif /* !WIN32 */
+#endif /* !WIN32 && !__EMX__ */
   struct timeval	timeout;	/* Timeout */
   int			nfds;		/* Result from select() */
 
@@ -2013,7 +2013,7 @@ http_wait(http_t *http,			/* I - HTTP data */
 
   if (!http->input_set)
   {
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
    /*
     * Windows has a fixed-size select() structure, different (surprise,
     * surprise!) from all UNIX implementations.  Just allocate this
@@ -2420,5 +2420,5 @@ CDSAWriteFunc(SSLConnectionRef connection,	/* I  - SSL/TLS connection */
 
 
 /*
- * End of "$Id: http.c,v 1.1.2.18 2004/02/06 03:51:09 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.19 2004/03/30 21:31:48 mike Exp $".
  */

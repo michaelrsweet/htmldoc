@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.9.2.12 2004/02/06 03:51:08 mike Exp $"
+ * "$Id: html.h,v 1.9.2.13 2004/03/30 21:31:48 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -45,10 +45,10 @@ extern "C" {
  * Define some compatibility macros for Microsoft Windows...
  */
 
-#  if defined(WIN32) || defined(__EMX__)
+#  ifdef WIN32
 #    define strcasecmp(s,t)	stricmp(s,t)
 #    define strncasecmp(s,t,n)	strnicmp(s,t,n)
-#  endif /* WIN32 || __EMX__ */
+#  endif /* WIN32 */
 
 
 /*
@@ -320,5 +320,5 @@ extern void	htmlDebugStats(const char *title, tree_t *t);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.12 2004/02/06 03:51:08 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.13 2004/03/30 21:31:48 mike Exp $".
  */
