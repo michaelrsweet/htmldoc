@@ -242,12 +242,12 @@ SOURCE=..\gui\HelpView.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\htmldoc.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\icons.rc
 # End Source File
 # End Group
-# Begin Source File
-
-SOURCE=.\htmldoc.ico
-# End Source File
 # End Target
 # End Project

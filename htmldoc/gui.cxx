@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.5 1999/11/09 22:16:41 mike Exp $"
+// "$Id: gui.cxx,v 1.6 1999/11/10 11:23:23 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -631,7 +631,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
 #  ifdef WIN32
   // Load the HTMLDOC icon image...
-  window->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON)));
+  window->icon((char *)LoadImage(fl_display, MAKEINTRESOURCE(IDI_ICON),
+                                 IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
 #  else // X11
   // Open the X display and load the HTMLDOC icon image...
   fl_open_display();
@@ -2538,5 +2539,5 @@ GUI::file_localize(char *filename,	// I - Filename
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.5 1999/11/09 22:16:41 mike Exp $".
+// End of "$Id: gui.cxx,v 1.6 1999/11/10 11:23:23 mike Exp $".
 //
