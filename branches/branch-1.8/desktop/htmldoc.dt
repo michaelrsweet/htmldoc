@@ -1,0 +1,85 @@
+#
+# "$Id: htmldoc.dt,v 1.1.2.1 2004/06/10 20:58:00 mike Exp $"
+#
+#   CDE Action and DataType Definitions for HTMLDOC.
+#
+#   This file adds an additional 'Print' action that allows users to set
+#   printer options (and choose printers) prior to printing a file.
+#
+#   Copyright 1997-2004 by Easy Software Products.
+#
+#   These coded instructions, statements, and computer programs are the
+#   property of Easy Software Products and are protected by Federal
+#   copyright law.  Distribution and use rights are outlined in the file
+#   "COPYING.txt" which should have been included with this file.  If this
+#   file is missing or damaged please contact Easy Software Products
+#   at:
+#
+#       Attn: ESP Licensing Information
+#       Easy Software Products
+#       44141 Airport View Drive, Suite 204
+#       Hollywood, Maryland 20636-3142 USA
+#
+#       Voice: (301) 373-9600
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
+#
+
+set DtDbVersion=1.0
+
+
+#
+# Define the HTMLDOC book file type to be any file with the ".book" extension
+# or starting with the string #HTMLDOC.
+#
+
+DATA_CRITERIA HTMLDOCBOOK_1
+{
+	ACTIONS		Open
+	ICON		htmldoc
+	NAME_PATTERN	*.book
+	CONTENT		0 string #HTMLDOC
+	MODE		f&!x
+	DATA_ATTRIBUTES_NAME HTMLDOCBOOK
+}
+
+DATA_ATTRIBUTES HTMLDOCBOOK
+{
+	DESCRIPTION	HTMLDOC Book File
+	ICON		htmldoc
+	ACTIONS		Open
+	NAME_TEMPLATE	%s.book
+	IS_TEXT		false
+	MIME_TYPE	application/vnd.htmldoc-book
+}
+
+
+#
+# The htmldoc action invokes the HTMLDOC GUI.
+#
+
+ACTION htmldoc
+{
+	LABEL		HTMLDOC
+	ICON		htmldoc
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	/usr/bin/htmldoc %Arg_1%
+	DESCRIPTION	HTMLDOC converts HTML files and web pages to PDF and PostScript.
+}
+
+#
+# The Open action opens a HTMLDOC book file...
+#
+
+ACTION Open
+{
+	ARG_TYPE	HTMLDOCBOOK
+	TYPE		MAP
+	MAP_ACTION	HTMLDOC
+}
+
+
+#
+# End of "$Id: htmldoc.dt,v 1.1.2.1 2004/06/10 20:58:00 mike Exp $".
+#

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=MimeType
+MimeType=application/vnd.htmldoc-book
+Icon=htmldoc.png
+Patterns=*.book
+Comment=HTMLDOC Book File
