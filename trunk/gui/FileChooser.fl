@@ -38,9 +38,11 @@ window->hide();}
       }
       Fl_Input fileName {
         label {Filename:}
-        callback {fileNameCB();}
+        callback {fileNameCB();} selected
         private xywh {10 245 355 25} align 5 when 8
         code0 {fileName->when(FL_WHEN_CHANGED | FL_WHEN_ENTER_KEY_ALWAYS);}
+        code1 {\#include "FileInput.h"}
+        class FileInput
       }
       Fl_Button upButton {
         label {up.xbm}
@@ -121,7 +123,7 @@ rescan();} {}
   } {
     code {window->label(l);} {}
   }
-  Function {label()} {selected return_type {const char *}
+  Function {label()} {return_type {const char *}
   } {
     code {return (window->label());} {}
   }
