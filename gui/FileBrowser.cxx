@@ -1,7 +1,7 @@
 //
-// "$Id: FileBrowser.cxx,v 1.11 1999/10/13 15:34:46 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.12 1999/10/14 15:24:34 mike Exp $"
 //
-//   FileBrowser routines for the Common UNIX Printing System (CUPS).
+//   FileBrowser routines.
 //
 //   Copyright 1997-1999 by Easy Software Products.
 //
@@ -400,5 +400,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.11 1999/10/13 15:34:46 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.12 1999/10/14 15:24:34 mike Exp $".
 //

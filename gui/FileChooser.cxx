@@ -5,6 +5,7 @@
 inline void FileChooser::cb_window_i(Fl_Window*, void*) {
   fileList->deselect();
 fileName->value("");
+window->hide();
 }
 void FileChooser::cb_window(Fl_Window* o, void* v) {
   ((FileChooser*)(o->user_data()))->cb_window_i(o,v);

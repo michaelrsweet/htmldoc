@@ -1,7 +1,7 @@
 //
-// "$Id: FileIcon.h,v 1.5 1999/10/13 15:34:48 mike Exp $"
+// "$Id: FileIcon.h,v 1.6 1999/10/14 15:24:37 mike Exp $"
 //
-//   FileIcon definitions for the Common UNIX Printing System (CUPS).
+//   FileIcon definitions.
 //
 //   Copyright 1997-1999 by Easy Software Products.
 //
@@ -28,6 +28,9 @@
 
 #ifndef _GUI_FILEICON_H_
 #  define _GUI_FILEICON_H_
+
+#  include <FL/Fl.H>
+
 
 //
 // FileIcon class...
@@ -72,26 +75,32 @@ class FileIcon			//// Icon data
   short		*add(short d);
   short		*add_color(short c)
 		{ short *d = add(COLOR); add(c); return (d); }
-  short		*add_vertex(short x, short y)
+  short		*add_vertex(int x, int y)
 		{ short *d = add(VERTEX); add(x); add(y); return (d); }
   short		*add_vertex(float x, float y)
 		{ short *d = add(VERTEX); add((int)(x * 10000.0));
 		  add((int)(y * 10000.0)); return (d); }
   void		clear() { num_data_ = 0; }
   void		draw(int x, int y, int w, int h, Fl_Color ic);
-  void		load(const char *fti);
+  void		label(Fl_Widget *w);
+  static void	labeltype(const Fl_Label *o, int x, int y, int w, int h, Fl_Align a);
+  void		load(const char *f);
+  void		load_fti(const char *fti);
+  void		load_xpm(const char *xpm);
   const char	*pattern() { return (pattern_); }
   int		size() { return (num_data_); }
   int		type() { return (type_); }
   short		*value() { return (data_); }
 
-  static FileIcon *find(const char *filename, int filetype  = ANY);
+  static FileIcon *find(const char *filename, int filetype = ANY);
   static FileIcon *first() { return (first_); }
   static void	load_system_icons(void);
 };
 
+#define _FL_ICON_LABEL	FL_FREE_LABELTYPE
+
 #endif // !_GUI_FILEICON_H_
 
 //
-// End of "$Id: FileIcon.h,v 1.5 1999/10/13 15:34:48 mike Exp $".
+// End of "$Id: FileIcon.h,v 1.6 1999/10/14 15:24:37 mike Exp $".
 //
