@@ -1,5 +1,5 @@
 //
-// "$Id: stylefont.cxx,v 1.4 2002/02/24 02:57:27 mike Exp $"
+// "$Id: stylefont.cxx,v 1.5 2002/04/11 01:41:11 mike Exp $"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
@@ -436,10 +436,10 @@ hdStyleFont::read_afm(hdFile       *fp,	// I - File to read from
       if (sscanf(lineptr, "%*d%*s%*s%d%*s%*s%31s", &number, value) != 2)
         continue;
 
-      if ((glyph = css->get_glyph(value)) < 0)
-        continue;
-
-      widths[glyph] = number * 0.001f;
+      // Assign the width to all code points with this glyph...
+      for (glyph = 0; glyph < css->num_glyphs; glyph ++)
+        if (css->glyphs[glyph] && strcmp(css->glyphs[glyph], value) == 0)
+          widths[glyph] = number * 0.001f;
     }
     else if (strcmp(line, "KPX") == 0)
     {
@@ -482,6 +482,9 @@ hdStyleFont::read_afm(hdFile       *fp,	// I - File to read from
     qsort(kerns, num_kerns, sizeof(hdFontKernPair),
           (hdCompareFunc)compare_kerns);
 
+  // Make sure that non-breaking space has the same width as space...
+  widths[160] = widths[32];
+
   return (0);
 }
 
@@ -511,5 +514,5 @@ hdStyleFont::read_ttf(hdFile       *fp,	// I - File to read from
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.4 2002/02/24 02:57:27 mike Exp $".
+// End of "$Id: stylefont.cxx,v 1.5 2002/04/11 01:41:11 mike Exp $".
 //
