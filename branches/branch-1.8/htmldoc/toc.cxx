@@ -1,10 +1,10 @@
 /*
- * "$Id: toc.cxx,v 1.5.2.7 2002/08/23 23:51:58 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.8 2003/01/06 22:09:45 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
  *
- *   Copyright 1997-2002 by Easy Software Products.
+ *   Copyright 1997-2003 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -377,5 +377,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5.2.7 2002/08/23 23:51:58 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.8 2003/01/06 22:09:45 mike Exp $".
  */

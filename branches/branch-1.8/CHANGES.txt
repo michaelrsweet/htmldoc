@@ -1,7 +1,13 @@
-CHANGES.txt - 10/31/2002
+CHANGES.txt - 01/06/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
+
+    NEW FEATURES
+
+	- HTMLDOC now offers an "htmlsep" output type which
+	  generates HTML output with a separate file for each
+	  heading in the table of contents.
 
     BUG FIXES
 

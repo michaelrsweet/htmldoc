@@ -6,11 +6,23 @@
 
 <P>This appendix provides the release notes for each version of <I>HTMLDOC</I>.
 
+<H2>Changes in HTMLDOC v1.8.24</H2>
+
+<UL>
+
+	<H3 _HD_OMIT_TOC>New Features</H3>
+
+	<H3 _HD_OMIT_TOC>Changes</H3>
+
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
+
+</UL>
+
 <H2>Changes in HTMLDOC v1.8.23</H2>
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>HTMLDOC now supports a full alpha channel in PNG
 	files.
@@ -19,12 +31,12 @@
 	section of text overflows into an adjacent table cell
 	or off the right edge of the page.
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>The NEW SHEET page comment now breaks on N-up
 	boundaries when N is greater than 1.
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>HTMLDOC tried to format tables with no rows or
 	columns. While the HTML in technically not in error,
@@ -63,12 +75,12 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Now support many Windows code pages in addition to ISO
 	charsets.
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>HTMLDOC could crash when checking if a URL is already cached.
 
@@ -88,7 +100,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>HTMLDOC now supports heading levels 1 to 15.
 
@@ -101,7 +113,7 @@
 	<LI>HTMLDOC now supports hexadecimal character constants
 	(&amp;#xFF)
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>HTMLDOC now calculates the resolution of the body
 	image using the printable width instead of the page
@@ -121,7 +133,7 @@
 	This should make documents that use non-standard color
 	names still appear readable.
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>"make install" didn't work in the fonts directory.
 
@@ -155,7 +167,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>New --nup and NUMBER-UP options for PostScript and PDF
 	output.
@@ -168,12 +180,12 @@
 	<LI>HTMLDOC now supports embedding of the base Type1
 	fonts in PostScript and PDF output.
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>The HTML parser now allows BODY to auto-close HEAD
 	and visa-versa.
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>HTMLDOC wouldn't compile using GCC under HP-UX due
 	to a badly "fixed" system header file (vmtypes.h).
@@ -204,11 +216,11 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Now support the "subject" meta variable.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Updated the HTML parser to use HTML 4.0 rules for
 	embedding elements inside a LI.</LI>
@@ -225,7 +237,7 @@
 
 	<LI><I>HTMLDOC</I> now properly ignores the HTML 4.0 COL element.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Squeezed tables were not centered or right-aligned
 	properly.</LI>
@@ -260,11 +272,11 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Added support for remote HTML title pages.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Now accept all JPEG files, even if they don't start
 	with an APPn marker.</LI>
@@ -272,7 +284,7 @@
 	<LI>Now only start a new page for a chapter/filter if we
 	aren't already at the top of a page.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>ROWSPAN handling in tables has been updated to match
 	the MSIE behavior, where the current rowspan is
@@ -299,7 +311,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Improved table-of-contents generation, with chapter
 	headings at the top of new TOC pages and page numbers
@@ -313,7 +325,7 @@
 
 	<LI>Added a modern "skin" to the GUI interface.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Made some changes in how COLSPAN and ROWSPAN are
 	handled to better match how Netscape and MSIE format
@@ -331,7 +343,7 @@
 	<LI>Now support inserting the current chapter and heading
 	in the table-of-contents headers and footers.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>The table cell border and background were offset by
 	the cellpadding when they should only be offset by the
@@ -358,12 +370,12 @@
 
 <UL>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Now break before and after DIV groups to match most
 	browsers (the HTML spec is ambivalent about it...)</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>HR elements didn't render properly.</LI>
 	<LI>Background images didn't render properly and could
@@ -383,7 +395,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Now support media source, type, and color attributes
 	in PS output.</LI>
@@ -402,7 +414,7 @@
 	"vertical-align" style attributes, but only for style
 	information in an element's STYLE attribute.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Now load images into memory only as needed, and unload
 	them when no longer needed.  This provides a dramatic
@@ -424,7 +436,7 @@
 	elements.</LI>
 	<LI>OS/2 port changes from Alexander Mai.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>If a document started with a heading greater than H1,
 	<I>HTMLDOC</I> would crash.</LI>
@@ -453,13 +465,13 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Added support for 128-bit encryption.</LI>
 	<LI>Added support for GET form request data in the PHP and
 	Java "portal" examples.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Most output generation limits have been removed;
 	<I>HTMLDOC</I> now dynamically allocates memory as needed for
@@ -473,7 +485,7 @@
 	of 10 for a table that has only 6 rows remaining needs
 	to be reduced to 6...</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Tables with a lot of COLSPANs could cause a divide-
 	by-zero error or bad pages (NAN instead of a number.)</LI>
@@ -490,7 +502,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Added support for secure (https) URLs via the
 	OpenSSL library.</LI>
@@ -502,7 +514,7 @@
 	page-break-after properties.</LI>
 	<LI>Added a PHP example.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>External file references to non-PDF files now use the
 	"Launch" action so they can be opened/executed/saved
@@ -525,7 +537,7 @@
 	<LI>Changed the leading space handling of blocks to more
 	closely match the standard browser behavior.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>The table formatting code adding the border width to
 	the cell width, while Netscape and MSIE don't.  This
@@ -577,7 +589,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Added new "--batch" option to convert <I>HTMLDOC</I> book
 	files from the command-line.</LI>
@@ -597,7 +609,7 @@
 	with ALIGN="LEFT" or ALIGN="RIGHT".</LI>
 	<LI>Added new Java interface to <I>HTMLDOC</I>.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Consolidated temporary file management into new
 	file_temp() function.  The new function also makes use
@@ -631,7 +643,7 @@
 	<LI>The title image is no longer scaled to 100% in the
 	HTML output.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>The web page output was not divided into chapters for
 	each input file.</LI>
@@ -659,7 +671,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Added koi8-r character set.</LI>
 	<LI>Added new "TrueType" font option for PDF output. This
@@ -669,7 +681,7 @@
 	currently implemented by adding additional space
 	between characters (no automatic hyphenation...)</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>The "make install" target does a "make all" to ensure
 	that the software is built before installing it.  This
@@ -680,7 +692,7 @@
 	<LI>Tables that exceed the printable width of the page are
 	now squeezed to fit.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>The temporary file created for PDF output to stdout
 	was not unique.</LI>
@@ -705,7 +717,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>New "--quiet" option to suppress all messages sent to
 	stderr.</LI>
@@ -713,7 +725,7 @@
 	<LI>New "--links" and "--no-links" options for PDF output.</LI>
 	<LI>Added "&euro;" character name support.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Documentation updates.</LI>
 	<LI>If a heading already contains a link, the name assigned for
@@ -729,7 +741,7 @@
 	<LI>The STYLE data generated in HTML output now includes the
 	TYPE="text/css" attribute.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>The path support was still broken.</LI>
 	<LI>Embedded files and images did not use path or HTTP
@@ -748,7 +760,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Added a "--no-numbered" option to turn heading numbers
 	off.</LI>
@@ -761,7 +773,7 @@
 	<LI>Added new n/N, date, and time formats for the header
 	and footer.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Configuration script changes.</LI>
 	<LI>Now ignore file count in book files; instead, we now
@@ -778,7 +790,7 @@
 	(original patch supplied by Richard Pennington)</LI>
 	<LI>New color icon under UNIX when Xpm library available.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Didn't allow &amp;#nnn; character escapes inside
 	preformatted text.</LI>
@@ -815,7 +827,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Added support for PDF security/encryption!</LI>
 	<LI>Now support TABLE height attribute.</LI>
@@ -826,7 +838,7 @@
 	to search for files.  This is useful when the source
 	files use absolute server paths.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Added missing casts in htmllib.cxx that were causing a
 	compile warning with some compilers.</LI>
@@ -836,7 +848,7 @@
 	<LI>Now handle comments with missing whitespace after the
 	"&lt;!--".</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Nested tables didn't take into account the table
 	border width, spacing, or padding values.</LI>
@@ -852,7 +864,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>The configure script now uses the local PNG, ZLIB,
 	and/or JPEG libraries when they are new enough.</LI>
@@ -870,7 +882,7 @@
 	<LI>Table rows are now allocated dynamically, MAX_ROWS at
 	a time.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Increased default MAX_PAGES to 10000 (was 5000.)</LI>
 	<LI>File links in book files now point to the top of the
@@ -894,7 +906,7 @@
 	actual maximum number of rows depends on available
 	memory.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Now ignore illegal HTML in tables.</LI>
 	<LI>The VALIGN code didn't handle empty cells properly.
@@ -926,11 +938,11 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>New linkcolor and linkstyle options.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Minor source changes for OS/2 compilation.</LI>
 	<LI>SUP and SUB now raise/lower text more to be consistent with
@@ -939,7 +951,7 @@
 	that and ignore strings that consist entirely of whitespace.</LI>
 	<LI>New progress bar.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Didn't add whitespace after a table caption.</LI>
 	<LI>Nested tables caused formatting problems (flatten_tree()
@@ -974,7 +986,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>New "--titlefile" option to include an HTML file for
 	the title page(s).</LI>
@@ -985,7 +997,7 @@
 	<LI>New "HALF PAGE" page comment to feed 1/2 page.</LI>
 	<LI>Added VALIGN and HEIGHT support in tables.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Now optimize link objects in PDF files (provides a 40k
 	reduction in file size for the <I>HTMLDOC</I> manual alone)</LI>
@@ -999,7 +1011,7 @@
 	it would appear in a web browser)</LI>
 	<LI>Now recognize VALIGN="MIDDLE" or VALIGN="CENTER".</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Generation of PDF files to the standard output (i.e.
 	to the web server + browser) didn't work on some
@@ -1022,14 +1034,14 @@
 
 <UL>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>More configure script changes for FLTK DSOs.</LI>
 	<LI>FileIcon.cxx was still using NULL for outline (an
 	integer), which caused some ANSI C++ compilers to
 	complain.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>The Fonts and Colors tab groups did not extend to
 	the full width of the tab area, which prevented the
@@ -1058,19 +1070,19 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>New "--browserwidth" option to control scaling of images and
 	tables that use fixed pixel widths.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>The configure script now looks for the OpenGL library
 	(required if you use a shared FLTK library with OpenGL
 	support.)</LI>
 	<LI>Increased the max number of chapters to 1000.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Page break comments didn't force a paragraph break.</LI>
 	<LI>--no-toc prevented chapters from being output in PS
@@ -1090,18 +1102,18 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>New "setup" program for UNIX software installation.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Documentation updated for new UNIX "setup" program and
 	"..." usage for headers and footers.</LI>
 	<LI>Changed margins to floating point (instead of integer) to
 	improve table column accuracy.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI><I>HTMLDOC</I> could crash under Microsoft Windows with some
 	types of HTML files.  This was caused by a stack overflow,
@@ -1122,7 +1134,7 @@
 
 <UL>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>The configure script didn't update the ARFLAGS
 	variable for *BSD operating systems (no "s" option to
@@ -1138,7 +1150,7 @@
 	<LI>Now always quote attribute values in HTML output to make
 	HTML lint programs happy.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Wasn't using TOC title string in PDF document outline.</LI>
 	<LI>Preformatted text in tables didn't force the column
@@ -1164,7 +1176,7 @@
 
 <UL>
 
-	<H3>New Features</H3>
+	<H3 _HD_OMIT_TOC>New Features</H3>
 
 	<LI>Now support PDF 1.1 (Acrobat 2.x) and PDF 1.3 (Acrobat 4.0).</LI>
 	<LI>Now support PDF page modes, layouts, and effects, and the
@@ -1196,7 +1208,7 @@
 	document.</LI>
 	<LI>Now support BGCOLOR in tables.</LI>
 
-	<H3>Changes</H3>
+	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Lots of documentation changes.</LI>
 	<LI>Much better table formatting.</LI>
@@ -1217,7 +1229,7 @@
 	<LI>Now filter out the BREAK attribute from HR elements.</LI>
 	<LI>Now only load images once.</LI>
 
-	<H3>Bug Fixes</H3>
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>Wasn't escaping &amp;,&lt;, or > in HTML output</LI>
 	<LI>Wasn't preserving &amp;nbsp;</LI>

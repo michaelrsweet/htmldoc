@@ -1,9 +1,9 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.18 2002/06/05 03:59:34 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.19 2003/01/06 22:09:30 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2002 by Easy Software Products.
+ *   Copyright 1997-2003 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -247,6 +247,8 @@ extern int	pspdf_export(tree_t *document, tree_t *toc);
 
 extern int	html_export(tree_t *document, tree_t *toc);
 
+extern int	htmlsep_export(tree_t *document, tree_t *toc);
+
 extern tree_t	*toc_build(tree_t *tree);
 
 extern void	get_color(const uchar *c, float *rgb, int defblack = 1);
@@ -265,5 +267,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.18 2002/06/05 03:59:34 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.19 2003/01/06 22:09:30 mike Exp $".
  */

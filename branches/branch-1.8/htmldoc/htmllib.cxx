@@ -1,9 +1,9 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.64 2002/10/11 14:23:28 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.65 2003/01/06 22:09:31 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2002 by Easy Software Products.
+ *   Copyright 1997-2003 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -2945,5 +2945,5 @@ htmlDebugStats(const char *title,	// I - Title
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.64 2002/10/11 14:23:28 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.65 2003/01/06 22:09:31 mike Exp $".
  */

@@ -1,10 +1,10 @@
 /*
- * "$Id: progress.h,v 1.1.2.6 2002/10/07 19:54:09 mike Exp $"
+ * "$Id: progress.h,v 1.1.2.7 2003/01/06 22:09:34 mike Exp $"
  *
  *   Progress function definitions for HTMLDOC, a HTML document
  *   processing program.
  *
- *   Copyright 1997-2002 by Easy Software Products.
+ *   Copyright 1997-2003 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -72,5 +72,5 @@ extern void	progress_update(int percent);
 #endif /* !_PROGRESS_H_ */
 
 /*
- * End of "$Id: progress.h,v 1.1.2.6 2002/10/07 19:54:09 mike Exp $".
+ * End of "$Id: progress.h,v 1.1.2.7 2003/01/06 22:09:34 mike Exp $".
  */
