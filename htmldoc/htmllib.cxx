@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.8 2001/02/02 15:10:58 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.9 2001/02/09 22:12:44 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1989,7 +1989,8 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
           while ((ch = getc(fp)) != EOF)
             if (ch == '\'')
               break;
-            else if (ptr < (value + sizeof(value) - 1))
+            else if (ptr < (value + sizeof(value) - 1) &&
+	             ch != '\n' && ch != '\r')
               *ptr++ = ch;
 
           *ptr = '\0';
@@ -1999,7 +2000,8 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
           while ((ch = getc(fp)) != EOF)
             if (ch == '\"')
               break;
-            else if (ptr < (value + sizeof(value) - 1))
+            else if (ptr < (value + sizeof(value) - 1) &&
+	             ch != '\n' && ch != '\r')
               *ptr++ = ch;
 
           *ptr = '\0';
@@ -2351,5 +2353,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.8 2001/02/02 15:10:58 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.9 2001/02/09 22:12:44 mike Exp $".
  */

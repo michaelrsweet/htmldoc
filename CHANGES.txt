@@ -22,6 +22,10 @@ CHANGES IN HTMLDOC v1.8.10
 	  sections.  The THEAD and TFOOT rows are treated as ordinary
 	  rows.
 	- Image alignment should now match W3C recommendations.
+	- Newlines inside quoted values (e.g. SRC="filename\r\n")
+	  are now ignored.
+	- The STYLE data generated in HTML output now includes the
+	  TYPE="text/css" attribute.
 
     BUG FIXES
 
