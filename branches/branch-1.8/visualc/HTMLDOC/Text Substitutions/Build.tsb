@@ -1,26 +1,26 @@
-[<HKUS>]
-Value=
-KeyType=4
-
 [<HKCR>]
-Value=
 KeyType=4
+Value=
+
+[<HKUS>]
+KeyType=4
+Value=
 
 [<PROGRAMFILES>]
-Value=
 KeyType=4
+Value=
 
 [<WINSYSDIR>]
-Value=
 KeyType=4
+Value=
 
 [<COMMONFILES>]
-Value=
 KeyType=4
+Value=
 
 [<WINDIR>]
-Value=
 KeyType=4
+Value=
 
 [Data]
 Key0=<PROGRAMFILES>
@@ -38,19 +38,19 @@ Key9=<HKCR>
 Type=TEXTSUB
 Version=1.00.000
 
-[<HKLM>]
-Value=
-KeyType=4
-
 [<HKCU>]
-Value=
 KeyType=4
+Value=
 
-[<HKCC>]
-Value=
+[<HKLM>]
 KeyType=4
+Value=
 
 [<HKDD>]
-Value=
 KeyType=4
+Value=
+
+[<HKCC>]
+KeyType=4
+Value=
 
