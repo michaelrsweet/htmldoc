@@ -1,5 +1,5 @@
 //
-// "$Id: html.h,v 1.10 2000/10/16 03:25:07 mike Exp $"
+// "$Id: html.h,v 1.11 2001/09/27 22:33:22 mike Exp $"
 //
 //   HTML parsing definitions for HTMLDOC, a HTML document processing program.
 //
@@ -22,8 +22,8 @@
 //         WWW: http://www.easysw.com
 //
 
-#ifndef _HTML_H_
-#  define _HTML_H_
+#ifndef _HD_HTML_H_
+#  define _HD_HTML_H_
 
 //
 // Include necessary headers...
@@ -51,97 +51,97 @@
 // Markup constants...
 //
 
-enum HDmarkup
+enum HDelement
 {
-  MARKUP_FILE = -2,	// File Delimiter
-  MARKUP_ERROR = -1,
-  MARKUP_NONE = 0,
-  MARKUP_COMMENT,
-  MARKUP_DOCTYPE,
-  MARKUP_A,
-  MARKUP_ACRONYM,
-  MARKUP_ADDRESS,
-  MARKUP_APPLET,
-  MARKUP_AREA,
-  MARKUP_B,
-  MARKUP_BASE,
-  MARKUP_BASEFONT,
-  MARKUP_BIG,
-  MARKUP_BLINK,
-  MARKUP_BLOCKQUOTE,
-  MARKUP_BODY,
-  MARKUP_BR,
-  MARKUP_CAPTION,
-  MARKUP_CENTER,
-  MARKUP_CITE,
-  MARKUP_CODE,
-  MARKUP_COL,
-  MARKUP_COLGROUP,
-  MARKUP_DD,
-  MARKUP_DEL,
-  MARKUP_DFN,
-  MARKUP_DIR,
-  MARKUP_DIV,
-  MARKUP_DL,
-  MARKUP_DT,
-  MARKUP_EM,
-  MARKUP_EMBED,
-  MARKUP_FONT,
-  MARKUP_FORM,
-  MARKUP_FRAME,
-  MARKUP_FRAMESET,
-  MARKUP_H1,
-  MARKUP_H2,
-  MARKUP_H3,
-  MARKUP_H4,
-  MARKUP_H5,
-  MARKUP_H6,
-  MARKUP_HEAD,
-  MARKUP_HR,
-  MARKUP_HTML,
-  MARKUP_I,
-  MARKUP_IMG,
-  MARKUP_INPUT,
-  MARKUP_INS,
-  MARKUP_ISINDEX,
-  MARKUP_KBD,
-  MARKUP_LI,
-  MARKUP_LINK,
-  MARKUP_MAP,
-  MARKUP_MENU,
-  MARKUP_META,
-  MARKUP_MULTICOL,
-  MARKUP_NOBR,
-  MARKUP_NOFRAMES,
-  MARKUP_OL,
-  MARKUP_OPTION,
-  MARKUP_P,
-  MARKUP_PRE,
-  MARKUP_S,
-  MARKUP_SAMP,
-  MARKUP_SCRIPT,
-  MARKUP_SELECT,
-  MARKUP_SMALL,
-  MARKUP_SPACER,
-  MARKUP_STRIKE,
-  MARKUP_STRONG,
-  MARKUP_STYLE,
-  MARKUP_SUB,
-  MARKUP_SUP,
-  MARKUP_TABLE,
-  MARKUP_TBODY,
-  MARKUP_TD,
-  MARKUP_TEXTAREA,
-  MARKUP_TFOOT,
-  MARKUP_TH,
-  MARKUP_THEAD,
-  MARKUP_TITLE,
-  MARKUP_TR,
-  MARKUP_TT,
-  MARKUP_U,
-  MARKUP_UL,
-  MARKUP_VAR,
-  MARKUP_WBR
+  HD_MARKUP_FILE = -2,	// File Delimiter
+  HD_MARKUP_ERROR = -1,
+  HD_MARKUP_NONE = 0,
+  HD_MARKUP_COMMENT,
+  HD_MARKUP_DOCTYPE,
+  HD_MARKUP_A,
+  HD_MARKUP_ACRONYM,
+  HD_MARKUP_ADDRESS,
+  HD_MARKUP_APPLET,
+  HD_MARKUP_AREA,
+  HD_MARKUP_B,
+  HD_MARKUP_BASE,
+  HD_MARKUP_BASEFONT,
+  HD_MARKUP_BIG,
+  HD_MARKUP_BLINK,
+  HD_MARKUP_BLOCKQUOTE,
+  HD_MARKUP_BODY,
+  HD_MARKUP_BR,
+  HD_MARKUP_CAPTION,
+  HD_MARKUP_CENTER,
+  HD_MARKUP_CITE,
+  HD_MARKUP_CODE,
+  HD_MARKUP_COL,
+  HD_MARKUP_COLGROUP,
+  HD_MARKUP_DD,
+  HD_MARKUP_DEL,
+  HD_MARKUP_DFN,
+  HD_MARKUP_DIR,
+  HD_MARKUP_DIV,
+  HD_MARKUP_DL,
+  HD_MARKUP_DT,
+  HD_MARKUP_EM,
+  HD_MARKUP_EMBED,
+  HD_MARKUP_FONT,
+  HD_MARKUP_FORM,
+  HD_MARKUP_FRAME,
+  HD_MARKUP_FRAMESET,
+  HD_MARKUP_H1,
+  HD_MARKUP_H2,
+  HD_MARKUP_H3,
+  HD_MARKUP_H4,
+  HD_MARKUP_H5,
+  HD_MARKUP_H6,
+  HD_MARKUP_HEAD,
+  HD_MARKUP_HR,
+  HD_MARKUP_HTML,
+  HD_MARKUP_I,
+  HD_MARKUP_IMG,
+  HD_MARKUP_INPUT,
+  HD_MARKUP_INS,
+  HD_MARKUP_ISINDEX,
+  HD_MARKUP_KBD,
+  HD_MARKUP_LI,
+  HD_MARKUP_LINK,
+  HD_MARKUP_MAP,
+  HD_MARKUP_MENU,
+  HD_MARKUP_META,
+  HD_MARKUP_MULTICOL,
+  HD_MARKUP_NOBR,
+  HD_MARKUP_NOFRAMES,
+  HD_MARKUP_OL,
+  HD_MARKUP_OPTION,
+  HD_MARKUP_P,
+  HD_MARKUP_PRE,
+  HD_MARKUP_S,
+  HD_MARKUP_SAMP,
+  HD_MARKUP_SCRIPT,
+  HD_MARKUP_SELECT,
+  HD_MARKUP_SMALL,
+  HD_MARKUP_SPACER,
+  HD_MARKUP_STRIKE,
+  HD_MARKUP_STRONG,
+  HD_MARKUP_STYLE,
+  HD_MARKUP_SUB,
+  HD_MARKUP_SUP,
+  HD_MARKUP_TABLE,
+  HD_MARKUP_TBODY,
+  HD_MARKUP_TD,
+  HD_MARKUP_TEXTAREA,
+  HD_MARKUP_TFOOT,
+  HD_MARKUP_TH,
+  HD_MARKUP_THEAD,
+  HD_MARKUP_TITLE,
+  HD_MARKUP_TR,
+  HD_MARKUP_TT,
+  HD_MARKUP_U,
+  HD_MARKUP_UL,
+  HD_MARKUP_VAR,
+  HD_MARKUP_WBR
 };
 
 //
@@ -245,8 +245,8 @@ class HDtree
 		*prev,		// Previous entry on this level
 		*next,		// Next entry on this level
 		*link;		// Linked-to
-  HDmarkup	markup;		// Markup code
-  uchar		*data;		// Text (MARKUP_NONE or MARKUP_COMMENT)
+  HDelement	markup;		// Markup code
+  uchar		*data;		// Text (HD_MARKUP_NONE or HD_MARKUP_COMMENT)
   unsigned	halignment:2,	// Horizontal alignment
 		valignment:2,	// Vertical alignment
 		typeface:2,	// Typeface code
@@ -268,7 +268,7 @@ class HDtree
   HDvar		*vars;		// Variables...
 
   HDtree(HDtree *p = (HDtree *)0) { init(parent); }
-  HDtree(HDtree *p, HDmarkup m, uchar *d, int ins = 0);
+  HDtree(HDtree *p, HDelement m, uchar *d, int ins = 0);
   ~HDtree();
 
   void		add(HDtree *p);
@@ -309,8 +309,8 @@ class HDtree
   static const char	*fonts[4][4];
 };
 
-#endif // !_HTML_H_
+#endif // !_HD_HTML_H_
 
 //
-// End of "$Id: html.h,v 1.10 2000/10/16 03:25:07 mike Exp $".
+// End of "$Id: html.h,v 1.11 2001/09/27 22:33:22 mike Exp $".
 //
