@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.5 2001/02/23 13:47:12 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.6 2001/03/06 17:30:16 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -27,11 +27,17 @@ OPTIM=""
 AC_SUBST(OPTIM)
 CFLAGS="${CFLAGS:=}"
 CXXFLAGS="${CXXFLAGS:=}"
+LDFLAGS="${LDFLAGS:=}"
 
 AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging [default=no]],
 [if eval "test x$enable_debug = xyes"; then
 	OPTIM="-g "
 fi])
+
+AC_ARG_WITH(fltk, [  --with-fltk=prefix      set prefix for FLTK include and library directories],
+	CFLAGS="-I$withval/include $CFLAGS"
+	CXXFLAGS="-I$withval/include $CXXFLAGS"
+	LDFLAGS="-L$withval/lib $LDFLAGS",)
 
 dnl Checks for programs...
 AC_PROG_AWK
@@ -255,5 +261,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.5 2001/02/23 13:47:12 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.6 2001/03/06 17:30:16 mike Exp $".
 dnl
