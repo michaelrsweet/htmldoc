@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.13 1999/12/16 14:12:11 mike Exp $"
+dnl "$Id: configure.in,v 1.14 1999/12/30 16:08:52 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -58,6 +58,8 @@ dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
+OLDLIBS="$LIBS"
+
 AC_PATH_X
 if test "$x_libraries" = "/usr/lib"; then
 	echo "Ignoring X library directory \"$x_libraries\" requested by configure."
@@ -77,6 +79,8 @@ if test ! "$x_includes" = "NONE" -a ! "$x_includes" = ""; then
 	CFLAGS="$CFLAGS -I$x_includes"
 	CXXFLAGS="$CXXFLAGS -I$x_includes"
 fi
+
+AC_CHECK_LIB(X11,XOpenDisplay)
 AC_CHECK_LIB(Xext,XdbeQueryExtension)
 AC_CHECK_LIB(GL,glEnable)
 AC_CHECK_LIB(fltk,numericsort)
@@ -86,6 +90,7 @@ if test "$ac_cv_lib_fltk_numericsort" = yes -a "$ac_cv_prog_CXX" != ""; then
 	GUI="gui"
 else
 	AC_MSG_WARN(C++ compiler or FLTK not available so no GUI will be built.)
+	LIBS="$OLDLIBS"
 	GUI=""
 fi
 
@@ -138,5 +143,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.13 1999/12/16 14:12:11 mike Exp $".
+dnl End of "$Id: configure.in,v 1.14 1999/12/30 16:08:52 mike Exp $".
 dnl
