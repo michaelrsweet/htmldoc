@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.15 2002/07/01 16:56:32 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.16 2002/07/31 19:14:54 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.21" "1 July 2002" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.21" "31 July 2002" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -260,6 +260,11 @@ Disables automatic heading numbering.
 Disables generation of PostScript setpagedevice commands.
 
 .TP 5
+--no-strict
+.br
+Disables strict HTML input checking.
+
+.TP 5
 --no-title
 .br
 Disables generation of a title page.
@@ -354,6 +359,11 @@ suffix or ##x##pt), inches (##x##in), centimeters (##x##cm), or
 millimeters (##x##mm). The standard sizes that are currently
 recognized are "letter" (8.5x11in), "legal" (8.5x14in), "a4"
 (210x297mm), and "universal" (8.27x11in).
+
+.TP 5
+--strict
+.br
+Enables strict HTML input checking.
 
 .TP 5
 --textcolor \fIcolor\fR
@@ -537,5 +547,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.15 2002/07/01 16:56:32 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.16 2002/07/31 19:14:54 mike Exp $".
 .\"
