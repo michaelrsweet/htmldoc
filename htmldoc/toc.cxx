@@ -1,5 +1,5 @@
 //
-// "$Id: toc.cxx,v 1.12 2002/04/03 21:04:31 mike Exp $"
+// "$Id: toc.cxx,v 1.13 2002/04/03 21:53:21 mike Exp $"
 //
 //   Table-of-contents methods for HTMLDOC, a HTML document processing program.
 //
@@ -47,7 +47,8 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
   int		chapter;		// Chapter number
   int		numbers[6];		// Current heading numbers
   char		formats[6];		// Current heading formats
-  int		level,			// Current heading level
+  int		toclevel,		// Current TOC level
+		level,			// Current heading level
 		newlevel;		// New heading level
   hdTree	*t,			// Current node
 		*tnext,			// Next node
@@ -67,8 +68,9 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
   memset(numbers, 0, sizeof(numbers));
   memset(formats, '1', sizeof(formats));
 
-  level   = 0;
-  chapter = 0;
+  level    = 0;
+  toclevel = 0;
+  chapter  = 0;
 
   // Create a root node for the TOC...
   toc = new hdTree(HD_ELEMENT_BODY);
@@ -88,41 +90,26 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
       tnext    = t->next;
       newlevel = t->element - HD_ELEMENT_H1;
 
-      // If the new level is not the same as the old level, (un)indent
-      // as needed...
-      while (newlevel > level)
-      {
-        // Indent lower...
-        level ++;
-
-        numbers[level] = 0;
-
-	tocnode = new hdTree(HD_ELEMENT_UL, NULL, tocptr);
-	tocnode->set_attr("class", "TOC");
-	tocnode->style = css->find_style(tocnode);
-	tocptr = tocnode;
-      }
-      
-      while (newlevel < level)
-      {
-        // Unindent higher...
-        level --;
-
-	tocptr = tocptr->parent;
-      }
-
       // Bump the chapter number as needed...
-      if (level == 0)
+      if (newlevel == 0)
         chapter ++;
 
       // See if we have a new format or number value...
+      while (level < newlevel)
+      {
+        level ++;
+        numbers[level] = 0;
+      }
+
+      level = newlevel;
+
       if ((val = t->get_attr("VALUE")) != NULL)
-        numbers[level] = atoi(val);
+        numbers[newlevel] = atoi(val);
       else
-        numbers[level] ++;
+        numbers[newlevel] ++;
 
       if ((val = t->get_attr("TYPE")) != NULL)
-        formats[level] = *val;
+        formats[newlevel] = *val;
 
       // Do we need heading numbers?
       if (numbers)
@@ -131,12 +118,12 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
         s[0]             = '\0';
 	s[sizeof(s) - 1] = '\0';
 
-        for (i = 0, sptr = s; i <= level; i ++, sptr += strlen(sptr))
+        for (i = 0, sptr = s; i <= newlevel; i ++, sptr += strlen(sptr))
 	{
 	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
 	                         formats[i], numbers[i]);
 
-          if (i < level)
+          if (i < newlevel)
 	    strncat(sptr, ".", sizeof(s) - (sptr - s) - 1);
         }
 
@@ -183,26 +170,51 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 	tlink->set_attr("name", s);
       }
 
-      // Then add a new node for the heading...
-      tocnode = new hdTree(level == 0 ? HD_ELEMENT_P : HD_ELEMENT_LI, NULL, tocptr);
-      tocnode->set_attr("class", "TOC");
-      tocnode->style = css->find_style(tocnode);
+      if (level < levels)
+      {
+	// If the new level is not the same as the old level, (un)indent
+	// as needed...
+	while (level > toclevel)
+	{
+          // Indent lower...
+          toclevel ++;
 
-      // And a node for the link...
-      snprintf(s, sizeof(s), "#%s", tlink->get_attr("name"));
+	  tocnode = new hdTree(HD_ELEMENT_UL, NULL, tocptr);
+	  tocnode->set_attr("class", "TOC");
+	  tocnode->style = css->find_style(tocnode);
+	  tocptr = tocnode;
+	}
 
-      toclink = new hdTree(HD_ELEMENT_A, "", tocnode);
-      toclink->set_attr("href", s);
-      toclink->set_attr("class", "TOC");
-      toclink->style = css->find_style(toclink);
+	while (level < toclevel)
+	{
+          // Unindent higher...
+          toclevel --;
 
-      // Copy the text to the TOC...
-      t->copy_text(css, toclink);
+	  tocptr = tocptr->parent;
+	}
 
-      // Finally, add a pseudo-attribute for the chapter number...
-      snprintf(s, sizeof(s), "%d", chapter);
-      tlink->set_attr("_HD_CHAPTER", s);
-      toclink->set_attr("_HD_CHAPTER", s);
+	// Then add a new node for the heading...
+	tocnode = new hdTree(toclevel == 0 ? HD_ELEMENT_P : HD_ELEMENT_LI,
+	                     NULL, tocptr);
+	tocnode->set_attr("class", "TOC");
+	tocnode->style = css->find_style(tocnode);
+
+	// And a node for the link...
+	snprintf(s, sizeof(s), "#%s", tlink->get_attr("name"));
+
+	toclink = new hdTree(HD_ELEMENT_A, "", tocnode);
+	toclink->set_attr("href", s);
+	toclink->set_attr("class", "TOC");
+	toclink->style = css->find_style(toclink);
+
+	// Copy the text to the TOC...
+	t->copy_text(css, toclink);
+
+	// Finally, add a pseudo-attribute for the chapter number...
+	snprintf(s, sizeof(s), "%d", chapter);
+	tlink->set_attr("_HD_CHAPTER", s);
+	toclink->set_attr("_HD_CHAPTER", s);
+      }
     }
   }
 
@@ -211,5 +223,5 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: toc.cxx,v 1.12 2002/04/03 21:04:31 mike Exp $".
+// End of "$Id: toc.cxx,v 1.13 2002/04/03 21:53:21 mike Exp $".
 //
