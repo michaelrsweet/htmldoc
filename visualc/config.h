@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.14 2001/09/21 19:59:52 mike Exp $"
+ * "$Id: config.h,v 1.20.2.15 2001/10/12 16:14:14 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -26,8 +26,8 @@
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"C:/mike/htmldoc1/doc"
-#define HTML_DATA	"C:/mike/htmldoc1"
+#define DOCUMENTATION	"C:/Program Files/HTMLDOC/doc"
+#define HTML_DATA	"C:/Program Files/HTMLDOC"
 
 
 /*
@@ -76,7 +76,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.15b5"
+#define SVERSION	"1.8.15b6"
 
 
 /*
@@ -100,6 +100,6 @@
 
 
 /*
- * End of "$Id: config.h,v 1.20.2.14 2001/09/21 19:59:52 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.15 2001/10/12 16:14:14 mike Exp $".
  */
 

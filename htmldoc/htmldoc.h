@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.9 2001/09/17 16:59:55 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.10 2001/10/12 16:14:07 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -167,7 +167,8 @@ VAR char	OwnerPassword[33] VALUE(""),	/* Owner password */
 		UserPassword[33] VALUE("");	/* User password */
 VAR int		TrueType	VALUE(0);	/* Use TrueType fonts (PDF)? */
 VAR int		PSLevel		VALUE(2),	/* Language level (0 for PDF) */
-		PSCommands	VALUE(0);	/* Output PostScript commands? */
+		PSCommands	VALUE(0),	/* Output PostScript commands? */
+		XRXComments	VALUE(0);	/* Output Xerox comments? */
 VAR int		PageWidth	VALUE(595),	/* Page width in points */
 		PageLength	VALUE(792),	/* Page length in points */
 		PageLeft	VALUE(72),	/* Left margin */
@@ -259,5 +260,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.9 2001/09/17 16:59:55 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.10 2001/10/12 16:14:07 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.110 2001/10/05 12:02:57 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.111 2001/10/12 16:14:07 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1411,81 +1411,35 @@ ps_write_page(FILE  *out,		/* I - Output file */
   {
     fputs("%%BeginPageSetup\n", out);
 
-    // The following comments are Xerox job ticket information that
-    // is used on the high-end Laser Printing Systems rather than
-    // embedded commands...
-    fputs("%XRXbegin: 001.0300\n", out);
-    fputs("%XRXPDLformat: PS-Adobe\n", out);
-    if (title)
-      fprintf(out, "%%XRXtitle: %s\n", title);
-    fputs("%XRXcopyCount: 1\n", out);
+    if (pages[page].width == 612 && pages[page].length == 792)
+      fputs("%%BeginFeature: *PageSize Letter\n", out);
+    else if (pages[page].width == 612 && pages[page].length == 1008)
+      fputs("%%BeginFeature: *PageSize Legal\n", out);
+    else if (pages[page].width == 595 && pages[page].length == 842)
+      fputs("%%BeginFeature: *PageSize A4\n", out);
+    else
+      fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", pages[page].width,
+	      pages[page].length);
+
+    fprintf(out, "%d %d SetPageSize\n", pages[page].width, pages[page].length);
+    fputs("%%EndFeature\n", out);
+
     if (pages[page].duplex)
     {
       if (pages[page].landscape)
-	fputs("%XRXrequirements: duplex(tumble)\n", out);
-      else
-	fputs("%XRXrequirements: duplex\n", out);
-    }
-    fputs("%XRXdisposition: PRINT\n", out);
-    fputs("%XRXsignature: False\n", out);
-    fprintf(out, "%%XRXpaperType-size: %d %d\n", pages[page].width, pages[page].length);
-    if (pages[page].media_type[0])
-      fprintf(out, "%%XRXpaperType-preFinish: %c%s 0 0\n",
-              tolower(pages[page].media_type[0]),
-	      pages[page].media_type + 1);
-    if (pages[page].media_color[0])
-      fprintf(out, "%%XRXdocumentPaperColors: %c%s 0 0\n",
-              tolower(pages[page].media_color[0]),
-	      pages[page].media_color + 1);
-    fputs("%XRXend\n", out);
-
-    if (pages[page].landscape)
-    {
-      if (pages[page].width == 612 && pages[page].length == 792)
-	fputs("%%BeginFeature: *PageSize Letter.Transverse\n", out);
-      else if (pages[page].width == 612 && pages[page].length == 1008)
-	fputs("%%BeginFeature: *PageSize Legal.Transverse\n", out);
-      else if (pages[page].width == 595 && pages[page].length == 842)
-	fputs("%%BeginFeature: *PageSize A4.Transverse\n", out);
-      else
-	fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", pages[page].length,
-	        pages[page].width);
-
-      fprintf(out, "%d %d SetPageSize\n", pages[page].length, pages[page].width);
-
-      fputs("%%EndFeature\n", out);
-
-      if (pages[page].duplex)
       {
 	fputs("%%BeginFeature: *Duplex DuplexTumble\n", out);
 	fputs("true true SetDuplexMode\n", out);
         fputs("%%EndFeature\n", out);
       }
-    }
-    else
-    {
-      if (pages[page].width == 612 && pages[page].length == 792)
-	fputs("%%BeginFeature: *PageSize Letter\n", out);
-      else if (pages[page].width == 612 && pages[page].length == 1008)
-	fputs("%%BeginFeature: *PageSize Legal\n", out);
-      else if (pages[page].width == 595 && pages[page].length == 842)
-	fputs("%%BeginFeature: *PageSize A4\n", out);
       else
-	fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", pages[page].width,
-	        pages[page].length);
-
-      fprintf(out, "%d %d SetPageSize\n", pages[page].width, pages[page].length);
-      fputs("%%EndFeature\n", out);
-
-      if (pages[page].duplex)
       {
 	fputs("%%BeginFeature: *Duplex DuplexNoTumble\n", out);
 	fputs("true false SetDuplexMode\n", out);
         fputs("%%EndFeature\n", out);
       }
     }
-
-    if (!pages[page].duplex)
+    else
     {
       fputs("%%BeginFeature: *Duplex None\n", out);
       fputs("false false SetDuplexMode\n", out);
@@ -1519,7 +1473,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
 
   fputs("GS\n", out);
 
-  if (pages[page].landscape && !PSCommands)
+  if (pages[page].landscape)
   {
     if (pages[page].duplex && (page & 1))
       fprintf(out, "0 %d T -90 rotate\n", pages[page].length);
@@ -6305,12 +6259,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         Header[pos] = NULL;
 
-      if (*y >= *top)
-      {
-	check_pages(*page);
+      check_pages(*page);
 
-        pages[*page].header[pos] = (uchar *)Header[pos];
-      }
+      pages[*page].header[pos] = (uchar *)Header[pos];
 
       // Adjust top margin as needed...
       for (pos = 0; pos < 3; pos ++)
@@ -6396,12 +6347,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         Footer[pos] = NULL;
 
-      if (*y >= *top)
-      {
-	check_pages(*page);
+      check_pages(*page);
 
-        pages[*page].footer[pos] = (uchar *)Footer[pos];
-      }
+      pages[*page].footer[pos] = (uchar *)Footer[pos];
 
       // Adjust bottom margin as needed...
       for (pos = 0; pos < 3; pos ++)
@@ -8886,6 +8834,151 @@ write_prolog(FILE  *out,	/* I - Output file */
     * Write PostScript prolog stuff...
     */
 
+    if (XRXComments)
+    {
+      int start, end;	// Start and end of document pages...
+      int count;	// Number of exception pages in this range...
+
+
+      // The following comments are Xerox job ticket information that
+      // is used on the high-end Laser Printing Systems rather than
+      // embedded commands...
+      fputs("%XRXbegin: 001.0300\n", out);
+      fputs("%XRXPDLformat: PS-Adobe\n", out);
+      if (title)
+	fprintf(out, "%%XRXtitle: %s\n", title);
+      fputs("%XRXcopyCount: 1\n", out);
+
+      if (OutputFiles)
+      {
+        // Output a single chapter...
+	if (chapter < 0)
+	{
+	  start = 0;
+	  end   = chapter_starts[1] - 1;
+	}
+	else
+	{
+	  start = chapter_starts[chapter];
+	  end = chapter_ends[chapter];
+	}
+      }
+      else
+      {
+        start = 0;
+	end   = 0;
+      }
+
+      if (pages[start].duplex)
+      {
+	if (pages[start].landscape)
+	  fputs("%XRXrequirements: duplex(tumble)\n", out);
+	else
+	  fputs("%XRXrequirements: duplex\n", out);
+      }
+      else
+	fputs("%XRXrequirements: simplex\n", out);
+
+      fputs("%XRXdisposition: PRINT\n", out);
+      fputs("%XRXsignature: False\n", out);
+      fprintf(out, "%%XRXpaperType-size: %d %d\n", pages[start].width,
+              pages[start].length);
+      if (pages[start].media_type[0])
+	fprintf(out, "%%XRXpaperType-preFinish: %s 0 0\n",
+        	pages[start].media_type);
+      if (pages[start].media_color[0])
+	fprintf(out, "%%XRXdocumentPaperColors: %c%s 0 0\n",
+        	tolower(pages[start].media_color[0]),
+		pages[start].media_color + 1);
+
+      if (OutputFiles)
+      {
+        // Handle document settings per-chapter...
+	for (i = start + 1; i <= end; i += count)
+	{
+	  if (pages[i].width != pages[start].width ||
+	      pages[i].length != pages[start].length ||
+	      strcmp(pages[i].media_type, pages[start].media_type) != 0 ||
+	      strcmp(pages[i].media_color, pages[start].media_color) != 0 ||
+	      pages[i].duplex != pages[start].duplex)
+	  {
+	    for (count = 1; (i + count) <= end; count ++)
+	      if (pages[i].width != pages[i + count].width ||
+		  pages[i].length != pages[i + count].length ||
+		  strcmp(pages[i].media_type, pages[i + count].media_type) != 0 ||
+		  strcmp(pages[i].media_color, pages[i + count].media_color) != 0 ||
+		  pages[i].duplex != pages[i + count].duplex)
+		break;
+
+	    fprintf(out, "%%XRXpageExceptions: %d %d %d %d %c%s opaque %s 0 0\n",
+	            i + 1, i + count, pages[i].width, pages[i].length,
+		    tolower(pages[i].media_color[0]),
+		    pages[i].media_color + 1,
+		    pages[i].media_type[0] ? pages[i].media_type : "Plain");
+
+	    if (pages[i].duplex && pages[i].landscape)
+	      fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
+	              i + 1, i + count);
+	    else if (pages[i].duplex)
+	      fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex\n",
+	              i + 1, i + count);
+            else
+	      fprintf(out, "%%XRXpageExceptions-plex: %d %d simplex\n",
+	              i + 1, i + count);
+	  }
+	  else
+	    count = 1;
+        }
+      }
+      else
+      {
+        // All pages are in a single file...
+        for (j = (TocLevels == 0); j <= TocDocCount; j ++)
+	{
+	  start = chapter_starts[j];
+	  end   = chapter_ends[j];
+
+	  for (i = start + 1; i <= end; i += count)
+	  {
+	    if (pages[i].width != pages[0].width ||
+		pages[i].length != pages[0].length ||
+		strcmp(pages[i].media_type, pages[0].media_type) != 0 ||
+		strcmp(pages[i].media_color, pages[0].media_color) != 0 ||
+		pages[i].duplex != pages[0].duplex)
+	    {
+	      for (count = 1; (i + count) <= end; count ++)
+		if (pages[i].width != pages[i + count].width ||
+		    pages[i].length != pages[i + count].length ||
+		    strcmp(pages[i].media_type, pages[i + count].media_type) != 0 ||
+		    strcmp(pages[i].media_color, pages[i + count].media_color) != 0 ||
+		    pages[i].duplex != pages[i + count].duplex)
+		  break;
+
+	      fprintf(out, "%%XRXpageExceptions: %d %d %d %d %c%s opaque %s 0 0\n",
+	              i + 1, i + count, pages[i].width, pages[i].length,
+		      tolower(pages[i].media_color[0]),
+		      pages[i].media_color + 1,
+		      pages[i].media_type[0] ? pages[i].media_type : "Plain");
+
+	      if (pages[i].duplex && pages[i].landscape)
+		fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
+	        	i + 1, i + count);
+	      else if (pages[i].duplex)
+		fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex\n",
+	        	i + 1, i + count);
+              else
+		fprintf(out, "%%XRXpageExceptions-plex: %d %d simplex\n",
+	        	i + 1, i + count);
+	    }
+	    else
+	      count = 1;
+          }
+	}
+      }
+
+      fputs("%XRXend\n", out);
+    }
+
     fputs("%!PS-Adobe-3.0\n", out);
     if (Landscape)
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageLength, PageWidth);
@@ -10061,5 +10154,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.110 2001/10/05 12:02:57 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.111 2001/10/12 16:14:07 mike Exp $".
  */
