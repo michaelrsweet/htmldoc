@@ -863,8 +863,8 @@ extern PNG_EXPORT(void,png_set_gray_to_rgb) PNGARG((png_structp png_ptr));
 
 #if defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)
 /* Reduce RGB to grayscale. */
-extern PNG_EXPORT(void,png_set_rgb_to_gray) PNGARG((png_structp png_ptr,
-   int error_action, float red, float green ));
+/*extern PNG_EXPORT(void,png_set_rgb_to_gray) PNGARG((png_structp png_ptr,
+   int error_action, float red, float green ));*/
 extern PNG_EXPORT(png_byte,png_get_rgb_to_gray_status) PNGARG((png_structp
    png_ptr));
 #endif /* PNG_READ_RGB_TO_GRAY_SUPPORTED */
