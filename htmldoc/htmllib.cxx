@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.77 2004/05/09 15:04:38 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.78 2004/07/21 19:32:23 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2402,6 +2402,16 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
   while ((ch = getc(fp)) != EOF && mptr < (markup + sizeof(markup) - 1))
     if (ch == '>' || isspace(ch))
       break;
+    else if (ch == '/' && mptr > markup)
+    {
+      // Look for "/>"...
+      ch = getc(fp);
+
+      if (ch != '>')
+        return (MARKUP_ERROR);
+
+      break;
+    }
     else
     {
       *mptr++ = ch;
@@ -2546,6 +2556,17 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
       }
 
       ch = getc(fp);
+
+      if (ch == '/')
+      {
+	// Look for "/>"...
+	ch = getc(fp);
+
+	if (ch != '>')
+          return (MARKUP_ERROR);
+
+	break;
+      }
     }
   }
 
@@ -2573,6 +2594,8 @@ parse_variable(tree_t *t,		// I - Current tree entry
   ptr = name;
   while ((ch = getc(fp)) != EOF)
     if (isspace(ch) || ch == '=' || ch == '>' || ch == '\r')
+      break;
+    else if (ch == '/' && ptr == name)
       break;
     else if (ptr < (name + sizeof(name) - 1))
       *ptr++ = ch;
@@ -3275,5 +3298,5 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.77 2004/05/09 15:04:38 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.78 2004/07/21 19:32:23 mike Exp $".
  */

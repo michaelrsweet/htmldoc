@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.49 2004/05/25 18:40:35 mike Exp $"
+ * "$Id: file.c,v 1.13.2.50 2004/07/21 19:32:23 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -454,7 +454,6 @@ file_find_check(const char *filename)	/* I - File or URL */
       if (http == NULL)
       {
         progress_show("Connecting to %s...", connhost);
-        atexit(file_cleanup);
 
 #ifdef HAVE_LIBSSL
         if (strcmp(method, "http") == 0)
@@ -1049,5 +1048,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.49 2004/05/25 18:40:35 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.50 2004/07/21 19:32:23 mike Exp $".
  */

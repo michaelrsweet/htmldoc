@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.256 2004/07/12 18:58:39 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.257 2004/07/21 19:32:23 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4855,9 +4855,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         prev       = temp;
         temp       = temp->next;
         temp_width += prev->width;
-
         
-        if (prev->markup == MARKUP_BR)
+        if ((temp_width >= format_width && prev->markup == MARKUP_IMG) ||
+	    prev->markup == MARKUP_BR)
 	  break;
       }
 
@@ -5191,10 +5191,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    break;
       }
 
-      if (temp->link != NULL)
+      if (temp->link != NULL &&
+          (link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF")) != NULL)
       {
-        link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF");
-
        /*
 	* Add a page link...
 	*/
@@ -8624,7 +8623,8 @@ get_cell_size(tree_t *t,		// I - Cell
 		frag_min,		// Fragment minimum width
 		minh,			// Local minimum height
 		minw,			// Local minimum width
-		prefw;			// Local preferred width
+		prefw,			// Local preferred width
+		format_width;		// Working format width for images
 
 
   DEBUG_printf(("get_cell_size(%p, %.1f, %.1f, %p, %p, %p)\n",
@@ -8642,6 +8642,9 @@ get_cell_size(tree_t *t,		// I - Cell
   }
   else
     width = 0.0f;
+
+  if ((format_width = right - left) <= 0.0f)
+    format_width = PagePrintWidth;
 
   minw  = 0.0f;
   prefw = 0.0f;
@@ -8738,6 +8741,14 @@ get_cell_size(tree_t *t,		// I - Cell
           }
           else if (temp->data != NULL)
 	    frag_pref += temp->width + 1;
+	  else if ((frag_pref + temp->width) > format_width)
+	  {
+	    // parse_paragraph() will force a break
+            if (frag_pref > prefw)
+              prefw = frag_pref;
+
+	    frag_pref = temp->width;
+	  }
 	  else
 	    frag_pref += temp->width;
 
@@ -8777,6 +8788,9 @@ get_cell_size(tree_t *t,		// I - Cell
 	  }
 	  else if (temp->data != NULL)
             frag_width += temp->width + 1;
+	  else if ((frag_width + temp->width) > format_width)
+	    // parse_paragraph() will force a break
+	    frag_width = temp->width;
 	  else
 	    frag_width += temp->width;
 	  break;
@@ -12360,5 +12374,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.256 2004/07/12 18:58:39 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.257 2004/07/21 19:32:23 mike Exp $".
  */

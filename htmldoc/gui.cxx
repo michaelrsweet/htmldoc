@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.77 2004/06/15 01:09:09 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.78 2004/07/21 19:32:23 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -33,6 +33,7 @@
 //   GUI::newBook()        - Clear out the current GUI settings for a new book.
 //   GUI::loadBook()       - Load a book file from disk.
 //   GUI::parseOptions()   - Parse options in a book file...
+//   GUI::appleOpenCB()    - Handle open file events from Finder.
 //   GUI::saveBook()       - Save a book to disk.
 //   GUI::checkSave()      - Check to see if a save is needed.
 //   GUI::changeCB()       - Mark the current book as changed.
@@ -263,6 +264,11 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {0}
 			};
 
+
+  // Support opening of books via the finder...
+#ifdef __APPLE__
+  fl_open_callback(appleOpenCB);
+#endif // __APPLE__
 
   // Enable/disable tooltips...
   Fl_Tooltip::enable(Tooltips);
@@ -1869,6 +1875,16 @@ GUI::parseOptions(const char *line)	// I - Line from file
       titlePage->clear();
       continue;
     }
+    else if (strcmp(temp, "--strict") == 0)
+    {
+      strict_html->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-strict") == 0)
+    {
+      strict_html->clear();
+      continue;
+    }
     else if (strcmp(temp, "--book") == 0)
     {
       typeBook->setonly();
@@ -2208,6 +2224,24 @@ GUI::parseOptions(const char *line)	// I - Line from file
 }
 
 
+#ifdef __APPLE__
+//
+// 'GUI::appleOpenCB()' - Handle open file events from Finder.
+//
+
+void
+GUI::appleOpenCB(const char *f)		// I - Book file to open
+{
+  // See if the user wants to save the current book...
+  if (!BookGUI->checkSave())
+    return;
+
+  // Load the new book...
+  BookGUI->loadBook(f);
+}
+#endif // __APPLE__
+
+
 //
 // 'GUI::saveBook()' - Save a book to disk.
 //
@@ -2463,6 +2497,11 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (proxy->value()[0])
     fprintf(fp, " --proxy \"%s\"", proxy->value());
+
+  if (strict_html->value())
+    fputs(" --strict", fp);
+  else
+    fputs(" --no-strict", fp);
 
   fputs("\n", fp);
 
@@ -4112,5 +4151,5 @@ GUI::showAboutCB(void)
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.77 2004/06/15 01:09:09 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.78 2004/07/21 19:32:23 mike Exp $".
 //

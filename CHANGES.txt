@@ -1,4 +1,4 @@
-CHANGES.txt - 05/15/2004
+CHANGES.txt - 07/21/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -69,6 +69,10 @@ CHANGES IN HTMLDOC v1.8.24
 	- The --permissions option now supports multiple
 	  permission keywords in a single invocation.
 	- Dropped support for MacOS 9 and earlier.
+	- HTMLDOC now breaks between images that are too large
+	  to fit on a single line, to match the behavior of
+	  Mozilla/Netscape (STR #7).
+	- HTMLDOC now handles XHTML input more cleanly.
 
     BUG FIXES
 
@@ -111,6 +115,10 @@ CHANGES IN HTMLDOC v1.8.24
 	  used by the PDF reader application.
 	- The _HD_OMIT_TOC attribute was not being honored for
 	  HTML output.
+	- HTMLDOC now handles "open" messages from the MacOS X
+	  Finder (STR #3)
+	- The GUI did not load or save the "strict HTML" setting
+	  (STR #6)
 
 
 CHANGES IN HTMLDOC v1.8.23
