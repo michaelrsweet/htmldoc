@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.8 2001/02/02 01:59:16 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.9 2001/02/02 14:08:28 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -69,8 +69,8 @@
  *   find_link()             - Find a named link...
  *   compare_links()         - Compare two named links.
  *   copy_tree()             - Copy a markup tree...
- *   get_cell_width()        - Compute the minimum width of a cell.
- *   get_table_width()       - Compute the minimum width of a table.
+ *   get_cell_size()         - Compute the minimum width of a cell.
+ *   get_table_size()        - Compute the minimum width of a table.
  *   flatten_tree()          - Flatten an HTML tree to only include the text,
  *                             image, link, and break markups.
  *   update_image_size()     - Update the size of an image based upon the
@@ -324,10 +324,12 @@ static void	write_background(FILE *out);
 static render_t	*new_render(int page, int type, float x, float y,
 		            float width, float height, void *data, int insert = 0);
 static void	copy_tree(tree_t *parent, tree_t *t);
-static float	get_cell_width(tree_t *t, float left, float right,
-		               float *minwidth, float *prefwidth);
-static float	get_table_width(tree_t *t, float left, float right,
-		                float *minwidth, float *prefwidth);
+static float	get_cell_size(tree_t *t, float left, float right,
+		              float *minwidth, float *prefwidth,
+			      float *minheight);
+static float	get_table_size(tree_t *t, float left, float right,
+		               float *minwidth, float *prefwidth,
+			       float *minheight);
 static tree_t	*flatten_tree(tree_t *t);
 static float	get_width(uchar *s, int typeface, int style, int size);
 static void	update_image_size(tree_t *t);
@@ -3759,12 +3761,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		col_smins[MAX_COLUMNS],
 		col_pref,
 		col_prefs[MAX_COLUMNS],
+		col_height,
 		cellpadding,
 		cellspacing,
 		border,
 		width,
 		pref_width,
-		table_width,
 		span_width,
 		regular_width,
 		actual_width,
@@ -3814,16 +3816,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   memset(col_mins, 0, sizeof(col_mins));
   memset(col_smins, 0, sizeof(col_smins));
   memset(col_prefs, 0, sizeof(col_prefs));
-
-  if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
-  {
-    if (var[strlen((char *)var) - 1] == '%')
-      table_width = atof((char *)var) * (right - left) / 100.0f;
-    else
-      table_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
-  }
-  else
-    table_width = right - left;
 
   if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
     cellpadding = atoi((char *)var);
@@ -3896,10 +3888,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	return;
       }
 
-      for (col = 0; row_spans[col] && col < num_cols; col ++)
-        cells[num_rows][col] = cells[num_rows - 1][col];
+      if (num_rows)
+	for (col = 0; row_spans[col] && col < num_cols; col ++)
+          cells[num_rows][col] = cells[num_rows - 1][col];
 
-      for (tempcol = temprow->child;
+      for (tempcol = temprow->child, col = 0;
            tempcol != NULL && col < MAX_COLUMNS;
            tempcol = tempcol->next)
         if (tempcol->markup == MARKUP_TD || tempcol->markup == MARKUP_TH)
@@ -3913,22 +3906,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           if ((var = htmlGetVariable(tempcol, (uchar *)"ROWSPAN")) != NULL)
             row_spans[col] = atoi((char *)var);
 
-          // Compute the cell width...
+          // Compute the cell size...
+          col_width = get_cell_size(tempcol, left, right, &col_min,
+	                            &col_pref, &col_height);
           if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL &&
-	      colspan == 1)
-	  {
-            if (var[strlen((char *)var) - 1] == '%')
-              col_width = atof((char *)var) * table_width / 100.0f -
-	                  2.0 * (cellpadding + border) - cellspacing;
-            else
-              col_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+	      colspan == 1 && var[strlen((char *)var) - 1] == '%')
+            col_width -= 2.0 * (cellpadding + border) - cellspacing;
 
-            col_min  = col_width;
-	    col_pref = col_width;
-	  }
-	  else
-            col_width = get_cell_width(tempcol, left, right, &col_min,
-	                               &col_pref);
+          tempcol->height = col_height;
 
 	  DEBUG_printf(("%d,%d: colsp=%d, rowsp=%d, width=%.1f, minw=%.1f, prefw=%.1f\n",
 	                col, row, colspan, row_spans[col], col_width,
@@ -4189,7 +4174,15 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       temp_height -= 2 * (border + cellpadding);
     }
     else
-      temp_height = _htmlSpacings[SIZE_P];
+    {
+      // Use min height computed from get_cell_size()...
+      for (col = 0, temp_height = _htmlSpacings[SIZE_P];
+           col < num_cols;
+	   col ++)
+        if (cells[row][col] != NULL &&
+	    cells[row][col]->height > temp_height)
+	  temp_height = cells[row][col]->height;
+    }
 
     if (*y < (bottom + 2 * (border + cellpadding) + temp_height) &&
         temp_height < (top - bottom - 2 * (border + cellpadding)))
@@ -4403,12 +4396,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     // end page...
     for (col = 1, temp_page = cell_endpage[0]; col < num_cols; col ++)
       if (cell_endpage[col] > temp_page && row_spans[col] <= 1 &&
-          cells[col][row] != NULL && cells[col][row]->child != NULL)
+          cells[row][col] != NULL && cells[row][col]->child != NULL)
         temp_page = cell_endpage[col];
 
     for (col = 0; col < num_cols; col ++)
       if (row_spans[col] <= 1 &&
-          cells[col][row] != NULL && cells[col][row]->child != NULL)
+          cells[row][col] != NULL && cells[row][col]->child != NULL)
         cell_endpage[col] = temp_page;
 
     row_y -= 2 * (border + cellpadding);
@@ -5220,23 +5213,26 @@ copy_tree(tree_t *parent,	/* I - Source tree */
 
 
 //
-// 'get_cell_width()' - Compute the minimum width of a cell.
+// 'get_cell_size()' - Compute the minimum width of a cell.
 //
 
 static float				// O - Required width of cell
-get_cell_width(tree_t *t,		// I - Cell
-               float  left,		// I - Left margin
-	       float  right,		// I - Right margin
-	       float  *minwidth,	// O - Minimum width
-	       float  *prefwidth)	// O - Preferred width
+get_cell_size(tree_t *t,		// I - Cell
+              float  left,		// I - Left margin
+	      float  right,		// I - Right margin
+	      float  *minwidth,		// O - Minimum width
+	      float  *prefwidth,	// O - Preferred width
+	      float  *minheight)	// O - Minimum height
 {
   tree_t	*temp,			// Current tree entry
 		*next;			// Next tree entry
   uchar		*var;			// Attribute value
   float		width,			// Width of cell
 		frag_width,		// Fragment required width
+		frag_height,		// Fragment height
 		frag_pref,		// Fragment preferred width
 		frag_min,		// Fragment minimum width
+		minh,			// Local minimum height
 		minw,			// Local minimum width
 		prefw;			// Local preferred width
 
@@ -5246,9 +5242,7 @@ get_cell_width(tree_t *t,		// I - Cell
   {
     // Yes, use it!
     if (var[strlen((char *)var) - 1] == '%')
-    {
       width = (right - left) * atoi((char *)var) * 0.01f;
-    }
     else
       width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
 
@@ -5257,9 +5251,28 @@ get_cell_width(tree_t *t,		// I - Cell
   }
   else
   {
-    // No, figure it out by hand...
-    for (temp = t->child, width = 0.0f, minw = 0.0f, prefw = 0.0f,
-             frag_width = 0.0f, frag_pref = 0.0f;
+    width = 0.0f;
+    minw  = 0.0f;
+    prefw = 0.0f;
+  }
+
+  // Then the height...
+  if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
+  {
+    // Yes, use it!
+    if (var[strlen((char *)var) - 1] == '%')
+      minh = PagePrintLength * atoi((char *)var) * 0.01f;
+    else
+      minh = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+  }
+  else
+    minh = 0.0f;
+
+  // See if we need to figure anything out by hand...
+  if (minw <= 0.0f || minh <= 0.0f)
+  {
+    // Yes, figure it out by hand...
+    for (temp = t->child, frag_width = 0.0f, frag_pref = 0.0f;
          temp != NULL;
 	 temp = next)
     {
@@ -5269,7 +5282,8 @@ get_cell_width(tree_t *t,		// I - Cell
       // For nested tables, compute the width of the table.
       if (temp->markup == MARKUP_TABLE)
       {
-        frag_width = get_table_width(temp, left, right, &frag_min, &frag_pref);
+        frag_width = get_table_size(temp, left, right, &frag_min, &frag_pref,
+	                            &frag_height);
 
 	if (frag_width > width)
 	  width = frag_width;
@@ -5290,6 +5304,8 @@ get_cell_width(tree_t *t,		// I - Cell
         // Update the image width as needed...
 	if (temp->markup == MARKUP_IMG)
 	  update_image_size(temp);
+
+        frag_height = temp->height;
 
         // Handle min/preferred widths separately...
         if (temp->width > minw)
@@ -5342,6 +5358,10 @@ get_cell_width(tree_t *t,		// I - Cell
 	  frag_width += temp->width;
       }
 
+      // Update minimum height...
+      if (frag_height > minh)
+	minh = frag_height;
+
       // Update next pointer as needed...
       if (next == NULL)
         next = temp->next;
@@ -5376,42 +5396,48 @@ get_cell_width(tree_t *t,		// I - Cell
       width = prefw;
   }
 
-  // Return the required, minimum, and preferred width of the cell...
+  // Return the required, minimum, and preferred size of the cell...
   *minwidth  = minw;
   *prefwidth = prefw;
+  *minheight = minh;
 
   return (width);
 }
 
 
 //
-// 'get_table_width()' - Compute the minimum width of a table.
+// 'get_table_size()' - Compute the minimum width of a table.
 //
 
 static float				// O - Minimum width of table
-get_table_width(tree_t *t,		// I - Table
-        	float  left,		// I - Left margin
-		float  right,		// I - Right margin
-		float  *minwidth,	// O - Minimum width
-		float  *prefwidth)	// O - Preferred width
+get_table_size(tree_t *t,		// I - Table
+               float  left,		// I - Left margin
+	       float  right,		// I - Right margin
+	       float  *minwidth,	// O - Minimum width
+	       float  *prefwidth,	// O - Preferred width
+	       float  *minheight)	// O - Minimum height
 {
   tree_t	*temp,			// Current tree entry
 		*next;			// Next tree entry
   uchar		*var;			// Attribute value
   float		width,			// Required width of table
 		minw,			// Minimum width of table
+		minh,			// Minimum height of table
 		prefw,			// Preferred width of table
 		cell_width,		// Cell required width
 		cell_pref,		// Cell preferred width
 		cell_min,		// Cell minimum width
+		cell_height,		// Cell minimum height
 		row_width,		// Row required width
 		row_pref,		// Row preferred width
 		row_min,		// Row minimum width
+		row_height,		// Row minimum height
 		cellpadding,		// Padding inside cells
 		cellspacing,		// Spacing around cells
 		border;			// Border thickness
   int		columns,		// Current number of columns
-		max_columns;		// Maximum columns
+		max_columns,		// Maximum columns
+		rows;			// Number of rows
 
 
   // First see if the width has been specified for this table...
@@ -5428,10 +5454,29 @@ get_table_width(tree_t *t,		// I - Table
   }
   else
   {
+    width = 0.0f;
+    minw  = 0.0f;
+    prefw = 0.0f;
+  }
+
+  // Then the height...
+  if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
+  {
+    // Yes, use it!
+    if (var[strlen((char *)var) - 1] == '%')
+      minh = PagePrintLength * atoi((char *)var) * 0.01f;
+    else
+      minh = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+  }
+  else
+    minh = 0.0f;
+
+  // Update the size as needed...
+  if (minw <= 0.0f || minh <= 0.0f)
+  {
     // No, figure it out by hand...
-    for (temp = t->child, width = 0.0f, minw = 0.0f, prefw = 0.0f,
-             row_width = 0.0f, row_min = 0.0f, row_pref = 0.0f,
-	     columns = 0, max_columns = 0;
+    for (temp = t->child, row_width = 0.0f, row_min = 0.0f, row_pref = 0.0f,
+	     row_height = 0.0f, columns = 0, rows = 0, max_columns = 0;
          temp != NULL;
 	 temp = next)
     {
@@ -5441,10 +5486,14 @@ get_table_width(tree_t *t,		// I - Table
       // Start a new row or add the cell width as needed...
       if (temp->markup == MARKUP_TR)
       {
-        row_width = 0.0f;
-	row_pref  = 0.0f;
-	row_min   = 0.0f;
-	columns   = 0;
+        minh += row_height;
+
+        row_width  = 0.0f;
+	row_pref   = 0.0f;
+	row_min    = 0.0f;
+	row_height = 0.0f;
+	columns    = 0;
+	rows ++;
       }
       else if (temp->markup == MARKUP_TD || temp->markup == MARKUP_TH)
       {
@@ -5454,12 +5503,16 @@ get_table_width(tree_t *t,		// I - Table
 	  max_columns = columns;
 
         // Get widths of cell...
-        cell_width = get_cell_width(temp, left, right, &cell_min, &cell_pref);
+        cell_width = get_cell_size(temp, left, right, &cell_min, &cell_pref,
+	                           &cell_height);
 
         // Update row widths...
         row_width += cell_width;
 	row_pref  += cell_pref;
 	row_min   += cell_min;
+
+        if (cell_height > row_height)
+	  row_height = cell_height;
 
 	// Check current row widths against table...
 	if (row_width > width)
@@ -5489,6 +5542,9 @@ get_table_width(tree_t *t,		// I - Table
 	  next = next->next;
       }
     }
+
+    // Make sure last row is counted in min height calcs.
+    minh += row_height;
   }
 
   // Add room for spacing, padding, and borders...
@@ -5513,10 +5569,12 @@ get_table_width(tree_t *t,		// I - Table
   width += max_columns * (2 * (border + cellpadding) + cellspacing);
   minw  += max_columns * (2 * (border + cellpadding) + cellspacing);
   prefw += max_columns * (2 * (border + cellpadding) + cellspacing);
+  minh  += rows * (2 * (border + cellpadding) + cellspacing);
 
-  // Return the required, minimum, and preferred width of the table...
+  // Return the required, minimum, and preferred size of the table...
   *minwidth  = minw;
   *prefwidth = prefw;
+  *minheight = minh;
 
   return (width);
 }
@@ -7689,5 +7747,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.8 2001/02/02 01:59:16 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.9 2001/02/02 14:08:28 mike Exp $".
  */
