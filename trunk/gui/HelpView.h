@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h,v 1.8 2000/01/22 06:30:49 mike Exp $"
+// "$Id: HelpView.h,v 1.9 2000/01/22 15:21:08 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
@@ -52,7 +52,8 @@ struct HelpBlock
   const char	*start,		// Start of text
 		*end;		// End of text
   uchar		font,		// Text font
-		size;		// Text size
+		size,		// Text size
+		border;		// Draw border?
   short		x,		// Indentation/starting X coordinate
 		y,		// Starting Y coordinate
 		w,		// Width
@@ -93,7 +94,10 @@ class HelpView : public Fl_Group	//// Help viewer widget
   enum { RIGHT = -1, CENTER, LEFT };	// Alignments
 
   char		title_[1024];		// Title string
-
+  Fl_Color	defcolor_,		// Default text color
+		bgcolor_,		// Background color
+		textcolor_,		// Text color
+		linkcolor_;		// Link color
   uchar		textfont_,		// Default font for text
 		textsize_;		// Default font size
   const char	*value_;		// HTML text value
@@ -121,7 +125,7 @@ class HelpView : public Fl_Group	//// Help viewer widget
 		size_;			// Total document length
   Fl_Scrollbar	scrollbar_;		// Scrollbar for document
 
-  HelpBlock	*add_block(const char *s, int xx, int yy, int ww, int hh);
+  HelpBlock	*add_block(const char *s, int xx, int yy, int ww, int hh, uchar border = 0);
   void		add_link(const char *n, int xx, int yy, int ww, int hh);
   void		add_target(const char *n, int yy);
   static int	compare_targets(const HelpTarget *t0, const HelpTarget *t1);
@@ -130,6 +134,7 @@ class HelpView : public Fl_Group	//// Help viewer widget
   void		format();
   int		get_align(const char *p, int a);
   const char	*get_attr(const char *p, const char *n, char *buf, int bufsize);
+  Fl_Color	get_color(const char *n, Fl_Color c);
   int		handle(int);
 
   void		initfont(uchar &f, uchar &s) { nfonts_ = 0;
@@ -154,6 +159,8 @@ class HelpView : public Fl_Group	//// Help viewer widget
   int		load(const char *f);
   void		resize(int,int,int,int);
   int		size() const { return (size_); }
+  void		textcolor(Fl_Color c) { if (textcolor_ == defcolor_) textcolor_ = c; defcolor_ = c; }
+  Fl_Color	textcolor() const { return (defcolor_); }
   void		textfont(uchar f) { textfont_ = f; format(); }
   uchar		textfont() const { return (textfont_); }
   void		textsize(uchar s) { textsize_ = s; format(); }
@@ -169,5 +176,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.8 2000/01/22 06:30:49 mike Exp $".
+// End of "$Id: HelpView.h,v 1.9 2000/01/22 15:21:08 mike Exp $".
 //

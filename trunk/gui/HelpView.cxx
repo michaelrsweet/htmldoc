@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.13 2000/01/22 06:30:49 mike Exp $"
+// "$Id: HelpView.cxx,v 1.14 2000/01/22 15:21:08 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -32,6 +32,7 @@
 //   HelpView::format()          - Format the help text.
 //   HelpView::get_align()       - Get an alignment attribute.
 //   HelpView::get_attr()        - Get an attribute value from the string.
+//   HelpView::get_color()       - Get an alignment attribute.
 //   HelpView::handle()          - Handle events in the widget.
 //   HelpView::HelpView()        - Build a HelpView widget.
 //   HelpView::~HelpView()       - Destroy a HelpView widget.
@@ -52,6 +53,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
 
 #if defined(WIN32) || defined(__EMX__)
 #  define strcasecmp(s,t)	stricmp((s), (t))
@@ -75,7 +77,8 @@ HelpView::add_block(const char *s,	// I - Pointer to start of block text
                     int        xx,	// I - X position of block
 		    int        yy,	// I - Y position of block
 		    int        ww,	// I - Right margin of block
-		    int        hh)	// I - Height of block
+		    int        hh,	// I - Height of block
+		    uchar      border)	// I - Draw border?
 {
   HelpBlock	*temp;			// New block
 
@@ -91,12 +94,12 @@ HelpView::add_block(const char *s,	// I - Pointer to start of block text
   }
 
   temp = blocks_ + nblocks_;
-  temp->start = s;
-  temp->x     = xx;
-  temp->y     = yy;
-  temp->w     = ww;
-  temp->h     = hh;
-
+  temp->start  = s;
+  temp->x      = xx;
+  temp->y      = yy;
+  temp->w      = ww;
+  temp->h      = hh;
+  temp->border = border;
   nblocks_ ++;
 
   return (temp);
@@ -264,17 +267,17 @@ HelpView::draw()
   if (scrollbar_.visible())
   {
     draw_child(scrollbar_);
-    draw_box(b, x(), y(), w() - 20, h(), color());
+    draw_box(b, x(), y(), w() - 20, h(), bgcolor_);
   }
   else
-    draw_box(b, x(), y(), w(), h(), color());
+    draw_box(b, x(), y(), w(), h(), bgcolor_);
 
   if (!value_)
     return;
 
   // Clip the drawing to the inside of the box...
   fl_push_clip(x() + 4, y() + 4, w() - 28, h() - 8);
-  fl_color(FL_BLACK);
+  fl_color(textcolor_);
 
   // Draw all visible blocks...
   for (i = 0, block = blocks_; i < nblocks_ && (block->y - topline_) < h(); i ++, block ++)
@@ -455,9 +458,9 @@ HelpView::draw()
 	  }
 	  else if (strcasecmp(buf, "A") == 0 &&
 	           get_attr(attrs, "HREF", attr, sizeof(attr)) != NULL)
-	    fl_color(FL_BLUE);
+	    fl_color(linkcolor_);
 	  else if (strcasecmp(buf, "/A") == 0)
-	    fl_color(FL_BLACK);
+	    fl_color(textcolor_);
 	  else if (strcasecmp(buf, "B") == 0)
 	    pushfont(font |= FL_BOLD, size);
 	  else if (strcasecmp(buf, "TD") == 0 ||
@@ -468,9 +471,10 @@ HelpView::draw()
 	    else
 	      pushfont(font = textfont_, size);
 
-            fl_rect(block->x + x() - 4,
-	            block->y - topline_ + y() - size - 3,
-		    block->w - block->x + 7, block->h + size - 5);
+            if (block->border)
+              fl_rect(block->x + x() - 4,
+	              block->y - topline_ + y() - size - 3,
+		      block->w - block->x + 7, block->h + size - 5);
 	  }
 	  else if (strcasecmp(buf, "I") == 0)
 	    pushfont(font |= FL_ITALIC, size);
@@ -633,18 +637,23 @@ HelpView::format()
   int		line;		// Current line in block
   int		links;		// Links for current line
   uchar		font, size;	// Current font and size
+  uchar		border;		// Draw border?
   int		align,		// Current alignment
 		head,		// In the <HEAD> section?
 		pre,		// <PRE> text?
 		needspace;	// Do we need whitespace?
+  int		table_width;	// Width of table
   int		column,		// Current table column number
 		columns[200];	// Column widths
 
 
-  nblocks_  = 0;
-  nlinks_   = 0;
-  ntargets_ = 0;
-  size_     = 0;
+  nblocks_   = 0;
+  nlinks_    = 0;
+  ntargets_  = 0;
+  size_      = 0;
+  bgcolor_   = color();
+  textcolor_ = textcolor();
+  linkcolor_ = selection_color();
 
   strcpy(title_, "Untitled");
 
@@ -778,6 +787,15 @@ HelpView::format()
       }
       else if (strcasecmp(buf, "/A") == 0)
         link[0] = '\0';
+      else if (strcasecmp(buf, "BODY") == 0)
+      {
+        bgcolor_   = get_color(get_attr(attrs, "BGCOLOR", attr, sizeof(attr)),
+	                       color());
+        textcolor_ = get_color(get_attr(attrs, "TEXT", attr, sizeof(attr)),
+	                       textcolor());
+        linkcolor_ = get_color(get_attr(attrs, "LINK", attr, sizeof(attr)),
+	                       selection_color());
+      }
       else if (strcasecmp(buf, "BR") == 0)
       {
         line     = do_align(block, line, xx, align, links);
@@ -824,10 +842,21 @@ HelpView::format()
 	}
         else if (strcasecmp(buf, "TABLE") == 0)
 	{
+	  border = get_attr(attrs, "BORDER", attr, sizeof(attr)) != NULL;
 	  block->h += size + 2;
 
+          if (get_attr(attrs, "WIDTH", attr, sizeof(attr)))
+	  {
+	    if (attr[strlen(attr) - 1] == '%')
+	      table_width = atoi(attr) * w() / 100;
+	    else
+	      table_width = atoi(attr);
+	  }
+	  else
+	    table_width = w();
+
           for (column = 0; column < 200; column ++)
-	    columns[column] = 14 * size;
+	    columns[column] = table_width / 5;
 
 	  column = 0;
 	}
@@ -1036,7 +1065,7 @@ HelpView::format()
 
 	yy        = blocks_[row].y;
 	hh        = 0;
-        block     = add_block(start, xx, yy, xx + ww, 0);
+        block     = add_block(start, xx, yy, xx + ww, 0, border);
 	needspace = 0;
 	line      = 0;
 
@@ -1267,6 +1296,73 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
 
 
 //
+// 'HelpView::get_color()' - Get an alignment attribute.
+//
+
+Fl_Color				// O - Color value
+HelpView::get_color(const char *n,	// I - Color name
+                    Fl_Color   c)	// I - Default color value
+{
+  int	rgb, r, g, b;			// RGB values
+
+
+  if (!n)
+    return (c);
+
+  if (n[0] == '#')
+  {
+    // Do hex color lookup
+    rgb = strtol(n + 1, NULL, 16);
+
+    r = rgb >> 16;
+    g = (rgb >> 8) & 255;
+    b = rgb & 255;
+
+    if (r == g && g == b)
+      return (fl_gray_ramp(FL_NUM_GRAY * r / 256));
+    else
+      return (fl_color_cube((FL_NUM_RED - 1) * r / 255,
+                            (FL_NUM_GREEN - 1) * g / 255,
+			    (FL_NUM_BLUE - 1) * b / 255));
+  }
+  else if (strcasecmp(n, "black") == 0)
+    return (FL_BLACK);
+  else if (strcasecmp(n, "red") == 0)
+    return (FL_RED);
+  else if (strcasecmp(n, "green") == 0)
+    return (fl_color_cube(0, 4, 0));
+  else if (strcasecmp(n, "yellow") == 0)
+    return (FL_YELLOW);
+  else if (strcasecmp(n, "blue") == 0)
+    return (FL_BLUE);
+  else if (strcasecmp(n, "magenta") == 0 || strcasecmp(n, "fuchsia") == 0)
+    return (FL_MAGENTA);
+  else if (strcasecmp(n, "cyan") == 0 || strcasecmp(n, "aqua") == 0)
+    return (FL_CYAN);
+  else if (strcasecmp(n, "white") == 0)
+    return (FL_WHITE);
+  else if (strcasecmp(n, "gray") == 0 || strcasecmp(n, "grey") == 0)
+    return (FL_GRAY);
+  else if (strcasecmp(n, "lime") == 0)
+    return (FL_GREEN);
+  else if (strcasecmp(n, "maroon") == 0)
+    return (fl_color_cube(2, 0, 0));
+  else if (strcasecmp(n, "navy") == 0)
+    return (fl_color_cube(0, 0, 2));
+  else if (strcasecmp(n, "olive") == 0)
+    return (fl_color_cube(2, 4, 0));
+  else if (strcasecmp(n, "purple") == 0)
+    return (fl_color_cube(2, 0, 2));
+  else if (strcasecmp(n, "silver") == 0)
+    return (FL_LIGHT2);
+  else if (strcasecmp(n, "teal") == 0)
+    return (fl_color_cube(0, 4, 2));
+  else
+    return (c);
+}
+
+
+//
 // 'HelpView::handle()' - Handle events in the widget.
 //
 
@@ -1320,9 +1416,10 @@ HelpView::handle(int event)	// I - Event to handle
 
     if (strcmp(link->filename, filename_) != 0 && link->filename[0])
       load(link->filename);
-
-    if (target[0])
+    else if (target[0])
       topline(target);
+    else
+      topline(0);
   }
 
   return (1);
@@ -1364,6 +1461,8 @@ HelpView::HelpView(int        xx,	// I - Left position
   size_        = 0;
 
   color(FL_WHITE);
+  textcolor(FL_BLACK);
+  selection_color(FL_BLUE);
 
   scrollbar_.value(0, hh, 0, 1);
   scrollbar_.step(8.0);
@@ -1403,6 +1502,7 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
   char		*target;	// Target in file
   char		*slash;		// Directory separator
   const char	*localname;	// Local filename
+  char		error[1024];	// Error buffer
 
 
   if ((slash = strrchr(f, '/')) == NULL && directory_[0])
@@ -1425,23 +1525,43 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
   else
     localname = filename_;
 
-  if ((fp = fopen(localname, "rb")) == NULL)
-    return (-1);
-
-  fseek(fp, 0, SEEK_END);
-  len = ftell(fp);
-  rewind(fp);
-
+  if (strncmp(localname, "ftp:", 4) == 0 ||
+      strncmp(localname, "http:", 5) == 0 ||
+      strncmp(localname, "https:", 6) == 0 ||
+      strncmp(localname, "mailto:", 7) == 0 ||
+      strncmp(localname, "news:", 5) == 0)
+    localname = NULL;	// Remote link wasn't resolved...
+  else if (strncmp(localname, "file:", 5) == 0)
+    localname += 5;	// Adjust for local filename...
+      
   if (value_ != NULL)
+  {
     free((void *)value_);
+    value_ = NULL;
+  }
 
-  value_ = (const char *)calloc(len + 1, 1);
-  fread((void *)value_, 1, len, fp);
-  fclose(fp);
+  if (localname)
+  {
+    if ((fp = fopen(localname, "rb")) != NULL)
+    {
+      fseek(fp, 0, SEEK_END);
+      len = ftell(fp);
+      rewind(fp);
+
+      value_ = (const char *)calloc(len + 1, 1);
+      fread((void *)value_, 1, len, fp);
+      fclose(fp);
+    }
+    else
+    {
+      sprintf(error, "%s: %s\n", localname, strerror(errno));
+      value_ = strdup(error);
+    }
+  }
+  else
+    value_ = strdup("File or link could not be opened.\n");
 
   format();
-
-  set_changed();
 
   if (target)
     topline(target);
@@ -1554,5 +1674,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.13 2000/01/22 06:30:49 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.14 2000/01/22 15:21:08 mike Exp $".
 //
