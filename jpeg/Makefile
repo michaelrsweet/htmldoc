@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.12 2004/10/23 08:28:42 mike Exp $"
+# "$Id: Makefile,v 1.5.2.4 2004/05/10 01:14:53 mike Exp $"
 #
 #   JPEG library Makefile for the HTMLDOC software.
 #
@@ -67,5 +67,5 @@ $(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
 		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.12 2004/10/23 08:28:42 mike Exp $".
+# End of "$Id: Makefile,v 1.5.2.4 2004/05/10 01:14:53 mike Exp $".
 #

@@ -1,5 +1,5 @@
 #
-# "$Id: configure.in,v 1.30 2004/10/23 17:55:25 mike Exp $"
+# "$Id: configure.in,v 1.23.2.62 2004/11/06 03:41:58 mike Exp $"
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
@@ -27,8 +27,8 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.9b1 Open Source"
-NVERSION=10900000
+SVERSION="1.8.24 Open Source"
+NVERSION=10802401
 AC_SUBST(SVERSION)
 AC_SUBST(NVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
@@ -88,7 +88,7 @@ AC_CHECK_HEADER(strings.h, AC_DEFINE(HAVE_STRINGS_H))
 AC_CHECK_HEADER(locale.h, AC_DEFINE(HAVE_LOCALE_H))
 
 dnl Checks for string functions.
-AC_CHECK_FUNCS(strcasecmp strdup strdupf strlcat strlcpy strncasecmp)
+AC_CHECK_FUNCS(strdup strcasecmp strncasecmp strlcat strlcpy)
 if test "$uname" = "HP-UX" -a "$uversion" = "1020"; then
     AC_MSG_WARN(Forcing snprintf emulation for HP-UX...)
 else
@@ -271,11 +271,11 @@ LIBS="$NEWLIBS $LIBS"
 
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
-    prefix=/usr
+    prefix="/usr"
 fi
 
 if test "$exec_prefix" = "NONE"; then
-    exec_prefix=/usr
+    exec_prefix="$prefix"
 fi
 
 if test "$bindir" = "\${exec_prefix}/bin"; then
@@ -394,5 +394,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
 
 #
-# End of "$Id: configure.in,v 1.30 2004/10/23 17:55:25 mike Exp $".
+# End of "$Id: configure.in,v 1.23.2.62 2004/11/06 03:41:58 mike Exp $".
 #

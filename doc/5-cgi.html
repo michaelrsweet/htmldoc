@@ -22,7 +22,7 @@ Microsoft IIS and the Apache web servers.</p>
 <p>HTMLDOC can also be called from your own server-side scripts
 and programs. Examples are provided for PHP and Java.</p>
 
-<!-- NEED 3in -->
+<!-- NEED 2in -->
 <center><table width='80%' cellpadding='5' border='1' bgcolor='#cccccc'>
 <tr>
 	<td>
@@ -106,6 +106,14 @@ your web server would be:</p>
     <kbd>ln -s /usr/bin/htmldoc /var/www/cgi-bin ENTER</kbd>
 </pre>
 
+<p>If you are using Apache 2.0.30 or higher, you will also need
+to enable <tt>PATH_INFO</tt> support by adding the following
+line to your <var>httpd.conf</var> file:</p>
+
+<pre>
+    AcceptPathInfo On
+</pre>
+
 <p>Apache also allows you to associate CGI programs with a
 specific extension. If you add the following line to your
 <var>httpd.conf</var> file:</p>
@@ -133,50 +141,83 @@ command:</p>
 
 <h3>Configuring HTMLDOC with Microsoft IIS</h3>
 
-<p>The IIS web server is configured to run CGI programs by either
-modifying the permissions of an existing directory or by creating
-a new virtual directory that allows for execution of programs.</p>
+<p>The IIS web server is configured to run CGI programs by
+either modifying the permissions of an existing directory or by
+creating a new virtual directory that allows for execution of
+programs. Start by running the <var>Internet Services
+Manager</var> program (Figure 5-1):</p>
 
 <ol>
 
-	<li>Click on Start
-	<li>Click on Settings
-	<li>Click on Control Panel
-	<li>Double-Click on Administrative Tools
-	<li>Double-Click on Internet Services Manager
+	<li>Click on Start</li>
+
+	<li>Click on Settings</li>
+
+	<li>Click on Control Panel</li>
+
+	<li>Double-click on Administrative Tools</li>
+
+	<li>Double-click on Internet Services Manager</li>
 
 </ol>
 
-<p align='center'><img src='htmldoc-fig51.png' alt=''><br />
-<i>Figure 5-1: </i></p>
+<p>After the <var>Internet Services Manager</var> window (Figure
+5-1) appears, perform the following steps to add a virtual
+folder for HTMLDOC:</p>
 
-<p align='center'><img src='htmldoc-fig52.png' alt=''><br />
-<i>Figure 5-2: </i></p>
+<ol>
 
-<p align='center'><img src='htmldoc-fig53.png' alt=''><br />
-<i>Figure 5-3: </i></p>
+	<li>Click on your server in the list to show the default
+	web site service in the list (Figure 5-2)</li>
 
-<p align='center'><img src='htmldoc-fig54.png' alt=''><br />
-<i>Figure 5-4: </i></p>
+	<li>Choose <var>New->Virtual Directory</var> from the
+	<var>Action</var> menu (Figure 5-3)</li>
 
-<p align='center'><img src='htmldoc-fig55.png' alt=''><br />
-<i>Figure 5-5: </i></p>
+	<li>Click <var>Next</var> when the <var>Virtual Directory
+	Creation Wizard</var> window appears (Figure 5-4)</li>
 
-<p align='center'><img src='htmldoc-fig56.png' alt=''><br />
-<i>Figure 5-6: </i></p>
+	<li>Enter the name <tt>htmldoc</tt> in the
+	<var>Alias</var> field and click <var>Next</var> (Figure
+	5-5)</li>
 
-<p align='center'><img src='htmldoc-fig57.png' alt=''><br />
-<i>Figure 5-7: </i></p>
+	<li>Enter the HTMLDOC program folder in the <var>Directory</var>
+	field and click <var>Next</var> (Figure 5-6)</li>
 
-<p align='center'><img src='htmldoc-fig58.png' alt=''><br />
-<i>Figure 5-8: </i></p>
+	<li>Check the <var>Execute (such as ISAPI applications or CGI)</var>
+	box and click <var>Next</var> (Figure 5-7)</li>
 
+	<li>Click <var>Finish</var> to dismiss the wizard (Figure 5-8)</li>
 
-<p>Step-by-step for IIS setup here.</p>
+</ol>
 
-<p>Once configured, copy the <var>htmldoc.exe</var> program to
-the web server directory. For example, for a virtual directory
-called <var>cgi-bin</var>, the PDF converted URL would be as
+<p align='center'><img src='htmldoc-fig51.png' width='600' alt='The Internet Services Manager Window'><br />
+<i>Figure 5-1: The Internet Services Manager Window</i></p>
+
+<p align='center'><img src='htmldoc-fig52.png' width='600' alt='The Default Web Site Service'><br />
+<i>Figure 5-2: The Default Web Site Service</i></p>
+
+<p align='center'><img src='htmldoc-fig53.png' width='600' alt='Adding a New Virtual Directory'><br />
+<i>Figure 5-3: Adding a New Virtual Directory</i></p>
+
+<p align='center'><img src='htmldoc-fig54.png' width='482' alt='The Virtual Directory Creation Wizard Window'><br />
+<i>Figure 5-4: The Virtual Directory Creation Wizard Window</i></p>
+
+<p align='center'><img src='htmldoc-fig55.png' width='482' alt='Entering the Alias Name'><br />
+<i>Figure 5-5: Entering the Alias Name</i></p>
+
+<p align='center'><img src='htmldoc-fig56.png' width='482' alt='Entering the HTMLDOC Program Folder'><br />
+<i>Figure 5-6: Entering the HTMLDOC Program Folder</i></p>
+
+<p align='center'><img src='htmldoc-fig57.png' width='482' alt='Enabling CGI Mode'><br />
+<i>Figure 5-7: Enabling CGI Mode</i></p>
+
+<p align='center'><img src='htmldoc-fig58.png' width='482' alt='Completion of IIS Configuration'><br />
+<i>Figure 5-8: Completion of IIS Configuration</i></p>
+
+<p>Once configured, the <var>htmldoc.exe</var> program will be
+available in the web server directory. For example, for a
+virtual directory called <var>cgi-bin</var>, the PDF converted
+URL for the <var>superproducts.html</var> page would be as
 follows:</p>
 
 <pre>

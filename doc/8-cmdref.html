@@ -11,14 +11,14 @@ HTMLDOC.
 
 <H2>Basic Usage</H2>
 
-The basic command-line usage for HTMLDOC is:
+<p>The basic command-line usage for HTMLDOC is:
 
 <UL><PRE>
 % <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
 % <KBD>htmldoc <I>options</I> filename.book <I>ENTER</I></KBD>
 </PRE></UL>
 
-The first form converts the named HTML files to the specified output format
+<p>The first form converts the named HTML files to the specified output format
 immediately. The second form loads the specified <CODE>.book</CODE> file and
 displays the HTMLDOC window, allowing a user to make changes and/or
 generate the document interactively.
@@ -31,17 +31,17 @@ was successful and non-zero if there were errors.</p>
 
 <H2>Options</H2>
 
-The following command-line options are recognized by HTMLDOC.
+<p>The following command-line options are recognized by HTMLDOC.
 
 <H3>-d directory</H3>
 
-The <CODE>-d</CODE> option specifies an output directory for the document files.
+<p>The <CODE>-d</CODE> option specifies an output directory for the document files.
 
 <P>This option is not compatible with the PDF output format.
 
 <H3>-f filename</H3>
 
-The <CODE>-f</CODE> option specifies an output file for the document.
+<p>The <CODE>-f</CODE> option specifies an output file for the document.
 
 <H3>-t format</H3>
 
@@ -58,7 +58,7 @@ the table-of-contents.</TD></TR>
 <TR><TD>pdf12</TD><TD>Generate a PDF 1.2 file for Acrobat Reader 3.0.</TD></TR>
 <TR><TD>pdf13</TD><TD>Generate a PDF 1.3 file for Acrobat Reader 4.0.</TD></TR>
 <TR><TD>pdf14</TD><TD>Generate a PDF 1.4 file for Acrobat Reader 5.0.</TD></TR>
-<TR><TD>ps</TD><TD>Generate one or more PostScript files (default level).</TD></TR>
+<TR><TD>ps</TD><TD>Generate one or more PostScript files (default level - 2).</TD></TR>
 <TR><TD>ps1</TD><TD>Generate one or more Level 1 PostScript files.</TD></TR>
 <TR><TD>ps2</TD><TD>Generate one or more Level 2 PostScript files.</TD></TR>
 <TR><TD>ps3</TD><TD>Generate one or more Level 3 PostScript files.</TD></TR>
@@ -66,12 +66,12 @@ the table-of-contents.</TD></TR>
 
 <H3>-v</H3>
 
-The <CODE>-v</CODE> option specifies that progress information should be
+<p>The <CODE>-v</CODE> option specifies that progress information should be
 sent/displayed to the standard error file.
 
 <H3>--batch filename.book</H3>
 
-The <CODE>--batch</CODE> option specifies a book file that you would like to
+<p>The <CODE>--batch</CODE> option specifies a book file that you would like to
 generate without the GUI popping up. This option can be combined with other
 options to generate the same book in different formats and sizes:
 
@@ -82,7 +82,7 @@ options to generate the same book in different formats and sizes:
 
 <H3>--bodycolor color</H3>
 
-The <CODE>--bodycolor</CODE> option specifies the background color for all
+<p>The <CODE>--bodycolor</CODE> option specifies the background color for all
 pages in the document. The color can be specified by a standard HTML color
 name or as a 6-digit hexadecimal number of the form <CODE>#RRGGBB</CODE>.
 
@@ -173,23 +173,23 @@ HTMLDOC comes with the following character set files:</P>
 
 <H3>--color</H3>
 
-The <CODE>--color</CODE> option specifies that color output is desired.
+<p>The <CODE>--color</CODE> option specifies that color output is desired.
 
 <P>This option is only available when generating PostScript or PDF files.
 
 <H3>--compression[=level]</H3>
 
-The <CODE>--compression</CODE> option specifies that Flate compression
+<p>The <CODE>--compression</CODE> option specifies that Flate compression
 should be performed on the output file(s). The optional
 <CODE>level</CODE> parameter is a number from 1 (fastest and least
 amount of compression) to 9 (slowest and most amount of compression).
 
-<P>This option is only available when generating Level 3 PostScript or
-PDF files.
+<P>This option is only available when generating PDF or Level 3 PostScript
+files.
 
 <H3>--continuous</H3>
 
-The <CODE>--continuous</CODE> option specifies that the input files
+<p>The <CODE>--continuous</CODE> option specifies that the input files
 comprise a web page (or site) and that no title page or
 table-of-contents should be generated. Unlike the <CODE>--webpage</CODE>
 option described later in this chapter, page breaks are not inserted
@@ -210,12 +210,12 @@ order for the string to be processed correctly.</p>
 
 <H3>--datadir directory</H3>
 
-The <CODE>--datadir</CODE> option specifies the location of data files used
+<p>The <CODE>--datadir</CODE> option specifies the location of data files used
 by HTMLDOC.
 
 <H3>--duplex</H3>
 
-The <CODE>--duplex</CODE> option specifies that the output should be formatted
+<p>The <CODE>--duplex</CODE> option specifies that the output should be formatted
 for two sided printing.
 
 <P>This option is only available when generating PostScript or PDF files.
@@ -224,7 +224,7 @@ commands.
 
 <H3>--effectduration seconds</H3>
 
-The <CODE>--effectduration</CODE> option specifies the duration of a page
+<p>The <CODE>--effectduration</CODE> option specifies the duration of a page
 transition effect in seconds.
 
 <P>This option is only available when generating PDF files.
@@ -261,12 +261,12 @@ following:</P>
 
 <H3>--fontsize size</H3>
 
-The <CODE>--fontsize</CODE> option specifies the base font size for the
+<p>The <CODE>--fontsize</CODE> option specifies the base font size for the
 entire document in points (1 point = 1/72nd inch).
 
 <H3>--fontspacing spacing</H3>
 
-The <CODE>--fontspacing</CODE> option specifies the line spacing for the
+<p>The <CODE>--fontspacing</CODE> option specifies the line spacing for the
 entire document as a multiplier of the base font size. A <CODE>spacing</CODE>
 value of 1 makes each line of text the same height as the font.
 
@@ -318,7 +318,7 @@ the table-of-contents.</TD></TR>
 <TR><TD>pdf12</TD><TD>Generate a PDF 1.2 file for Acrobat Reader 3.0.</TD></TR>
 <TR><TD>pdf13</TD><TD>Generate a PDF 1.3 file for Acrobat Reader 4.0.</TD></TR>
 <TR><TD>pdf14</TD><TD>Generate a PDF 1.4 file for Acrobat Reader 5.0.</TD></TR>
-<TR><TD>ps</TD><TD>Generate one or more PostScript files (default level).</TD></TR>
+<TR><TD>ps</TD><TD>Generate one or more PostScript files (default level - 2).</TD></TR>
 <TR><TD>ps1</TD><TD>Generate one or more Level 1 PostScript files.</TD></TR>
 <TR><TD>ps2</TD><TD>Generate one or more Level 2 PostScript files.</TD></TR>
 <TR><TD>ps3</TD><TD>Generate one or more Level 3 PostScript files.</TD></TR>
@@ -326,13 +326,13 @@ the table-of-contents.</TD></TR>
 
 <H3>--gray</H3>
 
-The <CODE>--gray</CODE> option specifies that grayscale output is desired.
+<p>The <CODE>--gray</CODE> option specifies that grayscale output is desired.
 
 <P>This option is only available when generating PostScript or PDF files.
 
 <H3>--header lcr</H3>
 
-The <CODE>--header</CODE> option specifies the contents of the page
+<p>The <CODE>--header</CODE> option specifies the contents of the page
 header. The <CODE>lcr</CODE> parameter is a three-character string
 representing the left, center, and right header fields. See the
 <A HREF="#footer"><CODE>--footer</CODE></A> option for the list of
@@ -343,7 +343,7 @@ formatting characters.
 <!-- NEED 4in -->
 <H3>--headfootfont font</H3>
 
-The <CODE>--headfootfont</CODE> option specifies the font that is used for
+<p>The <CODE>--headfootfont</CODE> option specifies the font that is used for
 the header and footer text. The <CODE>font</CODE> parameter can be one of the
 following:
 
@@ -381,7 +381,7 @@ following:
 
 <H3>--headfootsize size</H3>
 
-The <CODE>--headfootsize</CODE> option sets the size of the header and footer
+<p>The <CODE>--headfootsize</CODE> option sets the size of the header and footer
 text in points (1 point = 1/72nd inch).
 
 <P>This option is only available when generating PostScript or PDF files.
@@ -407,33 +407,33 @@ be one of the following:</P>
 
 <H3>--help</H3>
 
-The <CODE>--help</CODE> option displays all of the available options to the
+<p>The <CODE>--help</CODE> option displays all of the available options to the
 standard output file.
 
 <H3>--helpdir directory</H3>
 
-The <CODE>--helpdir</CODE> option specifies the location of the on-line help
+<p>The <CODE>--helpdir</CODE> option specifies the location of the on-line help
 files.
 
 <H3>--jpeg[=quality]</H3>
 
-The <CODE>--jpeg</CODE> option enables JPEG compression of continuous-tone
+<p>The <CODE>--jpeg</CODE> option enables JPEG compression of continuous-tone
 images. The optional <CODE>quality</CODE> parameter specifies the output
 quality from 0 (worst) to 100 (best).
 
-<P>This option is only available when generating Level 2 and Level 3
-PostScript or PDF files.
+<P>This option is only available when generating PDF or Level 2 and Level 3
+PostScript files.
 
 <H3>--landscape</H3>
 
-The <CODE>--landscape</CODE> option specifies that the output should be
+<p>The <CODE>--landscape</CODE> option specifies that the output should be
 in landscape orientation (long edge on top).
 
 <P>This option is only available when generating PostScript or PDF files.
 
 <H3>--left margin</H3>
 
-The <CODE>--left</CODE> option specifies the left margin. The default
+<p>The <CODE>--left</CODE> option specifies the left margin. The default
 units are points (1 point = 1/72nd inch); the suffixes "in", "cm", and "mm"
 specify inches, centimeters, and millimeters, respectively.
 
@@ -441,7 +441,7 @@ specify inches, centimeters, and millimeters, respectively.
 
 <H3>--linkcolor color</H3>
 
-The <CODE>--linkcolor</CODE> option specifies the color of links in HTML
+<p>The <CODE>--linkcolor</CODE> option specifies the color of links in HTML
 and PDF output. The color can be specified by name or as a 6-digit
 hexadecimal number of the form <CODE>#RRGGBB</CODE>.
 
@@ -452,7 +452,7 @@ hyperlinks.
 
 <H3>--linkstyle style</H3>
 
-The <CODE>--linkstyle</CODE> option specifies the style of links in HTML
+<p>The <CODE>--linkstyle</CODE> option specifies the style of links in HTML
 and PDF output. The style can be "plain" for no decoration or "underline"
 to underline links.
 
@@ -484,12 +484,12 @@ JPEG, and PNG.
 
 <H3>--no-compression</H3>
 
-The <CODE>--no-compression</CODE> option specifies that Flate compression
+<p>The <CODE>--no-compression</CODE> option specifies that Flate compression
 should not be performed on the output files.
 
 <H3>--no-duplex</H3>
 
-The <CODE>--no-duplex</CODE> option specifies that the output should be formatted
+<p>The <CODE>--no-duplex</CODE> option specifies that the output should be formatted
 for one sided printing.
 
 <P>This option is only available when generating PostScript or PDF files.
@@ -498,7 +498,7 @@ commands.
 
 <H3>--no-embedfonts</H3>
 
-The <CODE>--no-embedfonts</CODE> option specifies that fonts should
+<p>The <CODE>--no-embedfonts</CODE> option specifies that fonts should
 not be embedded in PostScript and PDF output.
 
 <H3>--no-encryption</H3>
@@ -510,7 +510,7 @@ features should be enabled in PDF output.
 
 <H3>--no-jpeg</H3>
 
-The <CODE>--no-jpeg</CODE> option specifies that JPEG compression
+<p>The <CODE>--no-jpeg</CODE> option specifies that JPEG compression
 should not be performed on large images.
 
 <H3>--no-links</H3>
@@ -520,18 +520,18 @@ hyperlinks.
 
 <H3>--no-localfiles</H3>
 
-The <CODE>--no-localfiles</CODE> option disables access to local files on
+<p>The <CODE>--no-localfiles</CODE> option disables access to local files on
 the system. This option should be used when providing remote document
 conversion services.
 
 <H3>--no-numbered</H3>
 
-The <CODE>--no-numbered</CODE> option specifies that headings
+<p>The <CODE>--no-numbered</CODE> option specifies that headings
 should not be numbered.
 
 <H3>--no-pscommands</H3>
 
-The <CODE>--no-pscommands</CODE> option specifies that PostScript device
+<p>The <CODE>--no-pscommands</CODE> option specifies that PostScript device
 commands should not be written to the output files.
 
 <H3>--no-strict</H3>
@@ -541,40 +541,40 @@ conformance checking.
 
 <H3>--no-title</H3>
 
-The <CODE>--no-title</CODE> option specifies that the title page should not
+<p>The <CODE>--no-title</CODE> option specifies that the title page should not
 be generated.
 
 <H3>--no-toc</H3>
 
-The <CODE>--no-toc</CODE> option specifies that the table-of-contents pages
+<p>The <CODE>--no-toc</CODE> option specifies that the table-of-contents pages
 should not be generated.
 
 <H3>--no-xrxcomments</H3>
 
-The <CODE>--no-xrxcomments</CODE> option specifies that Xerox PostScript
+<p>The <CODE>--no-xrxcomments</CODE> option specifies that Xerox PostScript
 job comments should not be written to the output files.
 
 <P>This option is only available when generating PostScript files.
 
 <H3>--numbered</H3>
 
-The <CODE>--numbered</CODE> option specifies that headings should be numbered.
+<p>The <CODE>--numbered</CODE> option specifies that headings should be numbered.
 
 <H3>--nup pages</H3>
 
-The <CODE>--nup</CODE> option sets the number of pages that are placed on each output page. 
+<p>The <CODE>--nup</CODE> option sets the number of pages that are placed on each output page. 
 Valid values for the <CODE>pages</CODE> parameter are 1, 2, 4, 6, 9, and 16.
 
 <H3>--outdir directory</H3>
 
-The <CODE>--outdir</CODE> option specifies an output directory for the
+<p>The <CODE>--outdir</CODE> option specifies an output directory for the
 document files.
 
 <P>This option is not compatible with the PDF output format.
 
 <H3>--outfile filename</H3>
 
-The <CODE>--outfile</CODE> option specifies an output file for the document.
+<p>The <CODE>--outfile</CODE> option specifies an output file for the document.
 
 <H3>--owner-password password</H3>
 
@@ -586,7 +586,7 @@ generated.
 
 <H3>--pageduration seconds</H3>
 
-The <CODE>--pageduration</CODE> option specifies the number of seconds that
+<p>The <CODE>--pageduration</CODE> option specifies the number of seconds that
 each page will be displayed in the document.
 
 <P>This option is only available when generating PDF files.
@@ -666,7 +666,7 @@ optional.  They are usually used when the directory string contains spaces.
 </PRE></UL>
 
 <!-- NEED 5in -->
-<H3>--permissions permission</H3>
+<H3>--permissions permission[,permission,...]</H3>
 
 <P>The <CODE>--permissions</CODE> option specifies the document permissions.
 The available permission parameters are listed below:</P>
@@ -685,30 +685,31 @@ The available permission parameters are listed below:</P>
 <TR><TD>none</TD><TD>No permissions</TD></TR>
 </TABLE></CENTER>
 
-<P>The <CODE>--encryption</CODE> option must be used in conjunction with the <CODE>--permissions</CODE> parameter.
+<P>The <CODE>--encryption</CODE> option must be used in
+conjunction with the <CODE>--permissions</CODE> parameter.
 
 <UL><PRE>
 <KBD>--permissions no-print --encryption</KBD>
 </PRE></UL>
 
-<P>Multiple options can be specified with multiple <CODE>--permissions</CODE> entries as needed. 
+<P>Multiple options can be specified by separating them with commas:</p> 
 
 <UL><PRE>
-<KBD>--permissions no-print --permissions no-copy --encryption</KBD>
+<KBD>--permissions no-print,no-copy --encryption</KBD>
 </PRE></UL>
 
 <P>This option is only available when generating PDF files.</P>
 
 <H3>--portrait</H3>
 
-The <CODE>--portrait</CODE> option specifies that the output should be
+<p>The <CODE>--portrait</CODE> option specifies that the output should be
 in portrait orientation (short edge on top).
 
 <P>This option is only available when generating PostScript or PDF files.
 
 <H3>--pscommands</H3>
 
-The <CODE>--pscommands</CODE> option specifies that PostScript device
+<p>The <CODE>--pscommands</CODE> option specifies that PostScript device
 commands should be written to the output files.
 
 <P>This option is only available when generating Level 2 and Level 3
@@ -721,7 +722,7 @@ sent to stderr.
 
 <H3>--right margin</H3>
 
-The <CODE>--right</CODE> option specifies the right margin. The default
+<p>The <CODE>--right</CODE> option specifies the right margin. The default
 units are points (1 point = 1/72nd inch); the suffixes "in", "cm", and "mm"
 specify inches, centimeters, and millimeters, respectively.
 
@@ -756,7 +757,7 @@ messages.
 
 <H3>--textcolor color</H3>
 
-The <CODE>--textcolor</CODE> option specifies the default text color
+<p>The <CODE>--textcolor</CODE> option specifies the default text color
 for all pages in the document. The color can be specified by a standard
 HTML color name or as a 6-digit hexadecimal number of the form
 <CODE>#RRGGBB</CODE>.
@@ -782,22 +783,22 @@ the following:</P>
 
 <H3>--title</H3>
 
-The <CODE>--title</CODE> option specifies that a title page should be
+<p>The <CODE>--title</CODE> option specifies that a title page should be
 generated.
 
 <H3>--titlefile filename</H3>
 
-The <CODE>--titlefile</CODE> option specifies a HTML file to use for
+<p>The <CODE>--titlefile</CODE> option specifies a HTML file to use for
 the title page.
 
 <H3>--titleimage filename</H3>
 
-The <CODE>--titleimage</CODE> option specifies the title image for the
+<p>The <CODE>--titleimage</CODE> option specifies the title image for the
 title page. The supported formats are BMP, GIF, JPEG, and PNG.
 
 <H3>--tocfooter lcr</H3>
 
-The <CODE>--tocfooter</CODE> option specifies the contents of the
+<p>The <CODE>--tocfooter</CODE> option specifies the contents of the
 table-of-contents footer. The <CODE>lcr</CODE> parameter is a
 three-character string representing the left, center, and right footer
 fields. See the
@@ -809,7 +810,7 @@ entirely.
 
 <H3>--tocheader lcr</H3>
 
-The <CODE>--tocheader</CODE> option specifies the contents of the
+<p>The <CODE>--tocheader</CODE> option specifies the contents of the
 table-of-contents header. The <CODE>lcr</CODE> parameter is a
 three-character string representing the left, center, and right header
 fields.  See the
@@ -821,19 +822,19 @@ entirely.
 
 <H3>--toclevels levels</H3>
 
-The <CODE>--toclevels</CODE> options specifies the number of heading
+<p>The <CODE>--toclevels</CODE> options specifies the number of heading
 levels to include in the table-of-contents pages. The
 <CODE>levels</CODE> parameter is a number from 1 to 6.
 
 <H3>--toctitle string</H3>
 
-The <CODE>--toctitle</CODE> options specifies the string to display at
+<p>The <CODE>--toctitle</CODE> options specifies the string to display at
 the top of the table-of-contents; the default string is "Table of
 Contents".
 
 <H3>--top margin</H3>
 
-The <CODE>--top</CODE> option specifies the top margin. The default
+<p>The <CODE>--top</CODE> option specifies the top margin. The default
 units are points (1 point = 1/72nd inch); the suffixes "in", "cm", and "mm"
 specify inches, centimeters, and millimeters, respectively.
 
@@ -869,11 +870,12 @@ files.
 
 <H3>--xrxcomments</H3>
 
-The <CODE>--xrxcomments</CODE> option specifies that Xerox PostScript
+<p>The <CODE>--xrxcomments</CODE> option specifies that Xerox PostScript
 job comments should be written to the output files.
 
 <P>This option is only available when generating PostScript files.
 
+<!-- NEW PAGE -->
 <H2>Messages</H2>
 
 <P>HTMLDOC sends error and status messages to stderr unless the
