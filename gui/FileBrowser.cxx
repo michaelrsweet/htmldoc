@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.26 2001/04/18 17:37:45 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.27 2001/04/18 18:13:35 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -23,6 +23,8 @@
 //
 // Contents:
 //
+//   FileBrowser::full_height() - Return the height of the list.
+//   FileBrowser::item_height() - Return the height of a list item.
 //   FileBrowser::item_width()  - Return the width of a list item.
 //   FileBrowser::item_draw()   - Draw a list item.
 //   FileBrowser::FileBrowser() - Create a FileBrowser widget.
@@ -69,6 +71,24 @@ struct FL_BLINE			// data is in a linked list of these
   char		flags;		// selected, displayed
   char		txt[1];		// start of allocated array
 };
+
+
+//
+// 'FileBrowser::full_height()' - Return the height of the list.
+//
+
+int					// O - Height in pixels
+FileBrowser::full_height() const
+{
+  int	i,				// Looping var
+	th;				// Total height of list.
+
+
+  for (i = 0, th = 0; i < size(); i ++)
+    th += item_height(find_line(i));
+
+  return (th);
+}
 
 
 //
@@ -522,5 +542,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.26 2001/04/18 17:37:45 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.27 2001/04/18 18:13:35 mike Exp $".
 //
