@@ -288,8 +288,6 @@ compress_output (j_compress_ptr cinfo, JSAMPIMAGE input_buf)
   JBLOCKROW buffer_ptr;
   jpeg_component_info *compptr;
 
-  (void)input_buf;
-
   /* Align the virtual buffers for the components used in this scan. */
   for (ci = 0; ci < cinfo->comps_in_scan; ci++) {
     compptr = cinfo->cur_comp_info[ci];

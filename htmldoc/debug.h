@@ -1,5 +1,5 @@
 /*
- * "$Id: debug.h,v 1.7 2002/01/06 20:04:47 mike Exp $"
+ * "$Id: debug.h,v 1.3.2.2 2002/01/28 00:52:10 mike Exp $"
  *
  *   Debugging macros for HTMLDOC, a HTML document processing program.
  *
@@ -32,8 +32,8 @@
 #  include <stdio.h>
 
 #  ifdef DEBUG
-#    define DEBUG_printf(x) ::printf x
-#    define DEBUG_puts(x)   ::puts(x)
+#    define DEBUG_printf(x) printf x
+#    define DEBUG_puts(x)   puts(x)
 #  else
 #    define DEBUG_printf(x)
 #    define DEBUG_puts(x)
@@ -42,5 +42,5 @@
 #endif /* !_DEBUG_H_ */
 
 /*
- * End of "$Id: debug.h,v 1.7 2002/01/06 20:04:47 mike Exp $".
+ * End of "$Id: debug.h,v 1.3.2.2 2002/01/28 00:52:10 mike Exp $".
  */

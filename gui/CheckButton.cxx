@@ -1,9 +1,9 @@
 //
-// "$Id: CheckButton.cxx,v 1.12 2002/01/02 20:25:07 mike Exp $"
+// "$Id: CheckButton.cxx,v 1.10.2.2 2001/04/18 23:24:09 mike Exp $"
 //
 //   CheckButton routines for the Common UNIX Printing System (CUPS).
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -109,5 +109,5 @@ CheckButton::CheckButton(int x, int y, int w, int h, const char* l)
 
 
 //
-// End of "$Id: CheckButton.cxx,v 1.12 2002/01/02 20:25:07 mike Exp $".
+// End of "$Id: CheckButton.cxx,v 1.10.2.2 2001/04/18 23:24:09 mike Exp $".
 //
