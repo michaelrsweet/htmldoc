@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.30 1999/11/22 21:05:10 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.31 1999/11/30 18:14:51 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2247,13 +2247,15 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         if (Verbosity)
           progress_show("Formatting page %d", *page);
 
-        chapter_ends[chapter] = *page - 1;
+        if (OutputBook)
+          chapter_ends[chapter] = *page - 1;
       }
 
       if (OutputBook)
+      {
         chapter ++;
-
-      chapter_starts[chapter] = *page;
+        chapter_starts[chapter] = *page;
+      }
 
       *y = (float)top;
       *x = (float)left;
@@ -6267,5 +6269,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.30 1999/11/22 21:05:10 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.31 1999/11/30 18:14:51 mike Exp $".
  */
