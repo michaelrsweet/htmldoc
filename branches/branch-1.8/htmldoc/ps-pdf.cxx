@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.116 2001/10/20 21:49:24 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.117 2001/10/23 20:07:48 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1096,15 +1096,19 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 	  }
 	  else if (formatlen == 11 && strncasecmp(formatptr, "CHAPTERPAGE", 11) == 0)
 	  {
+	    int chapter_page;
+
+	    chapter_page = print_page - chapter_starts[::chapter] +
+	                   chapter_starts[1];
+
 	    if (formatptr[11] == '(' && formatptr[12] && formatptr[13] == ')')
             {
-	      number = format_number(print_page - chapter_starts[::chapter],
-	                             formatptr[12]);
+	      number = format_number(chapter_page, formatptr[12]);
 	      formatptr += 14;
 	    }
 	    else
 	    {
-	      number = format_number(print_page - chapter_starts[::chapter], '1');
+	      number = format_number(chapter_page, '1');
 	      formatptr += 11;
 	    }
 
@@ -10341,5 +10345,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.116 2001/10/20 21:49:24 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.117 2001/10/23 20:07:48 mike Exp $".
  */
