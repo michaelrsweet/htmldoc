@@ -1,7 +1,7 @@
-CHANGES.txt - 02/12/2001
+CHANGES.txt - 02/14/2001
 ------------------------
 
-CHANGES IN HTMLDOC v1.8.10-1
+CHANGES IN HTMLDOC v1.8.11
 
     CHANGES
 
@@ -11,6 +11,8 @@ CHANGES IN HTMLDOC v1.8.10-1
 	  build the software.
 	- Incorporated several OS/2 compile fixes from Alexander
 	  Mai.
+	- Tables that exceed the printable width of the page are
+	  now squeezed to fit.
 
     BUG FIXES
 
