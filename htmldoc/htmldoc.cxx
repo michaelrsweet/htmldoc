@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.8 2001/02/22 01:22:41 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.9 2001/02/23 13:47:14 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -38,18 +38,30 @@
 #include "htmldoc.h"
 #include <ctype.h>
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
+#  include <direct.h>
 #  include <io.h>
-#endif // WIN32 || __EMX__
+#endif // WIN32
 #include <fcntl.h>
+
+
+/*
+ * Local types...
+ */
+
+typedef int (*exportfunc_t)(tree_t *, tree_t *);
 
 
 /*
  * Local functions...
  */
 
-static void	usage(void);
 static int	compare_strings(char *s, char *t, int tmin);
+static int	load_book(const char *filename, tree_t **document,
+		          exportfunc_t *exportfunc);
+static void	parse_options(const char *line, exportfunc_t *exportfunc);
+static int	read_file(const char *filename, tree_t **document);
+static void	usage(void);
 
 
 /*
@@ -77,8 +89,7 @@ main(int  argc,		/* I - Number of command-line arguments */
   tree_t	*document,	/* Master HTML document */
 		*file,		/* HTML document file */
 		*toc;		/* Table of contents */
-  int		(*exportfunc)(tree_t *, tree_t *);
-				/* Export function */
+  exportfunc_t	exportfunc;	/* Export function */
   char		*extension,	/* Extension of output filename */
 		*filename;	/* Current filename */
   char		base[1024];	/* Base directory name of file */
@@ -107,7 +118,15 @@ main(int  argc,		/* I - Number of command-line arguments */
   fontspacing = 1.2f;
 
   for (i = 1; i < argc; i ++)
-    if (compare_strings(argv[i], "--bodycolor", 7) == 0)
+    if (compare_strings(argv[i], "--batch", 4) == 0)
+    {
+      i ++;
+      if (i < argc)
+        load_book(argv[i], &document, &exportfunc);
+      else
+        usage();
+    }
+    else if (compare_strings(argv[i], "--bodycolor", 7) == 0)
     {
       i ++;
       if (i < argc)
@@ -824,50 +843,8 @@ main(int  argc,		/* I - Number of command-line arguments */
         BookGUI->loadBook(argv[i]);
     }
 #endif /* HAVE_LIBFLTK */
-    else if ((filename = file_find(Path, argv[i])) != NULL)
-    {
-      if ((docfile = fopen(filename, "rb")) != NULL)
-      {
-       /*
-	* Read from a file...
-	*/
-
-	if (Verbosity)
-          fprintf(stderr, "htmldoc: Reading %s...\n", argv[i]);
-
-	_htmlPPI = _htmlBrowserWidth / PageWidth * 72.0f;
-
-	strcpy(base, file_directory(argv[i]));
-
-	file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-	htmlSetVariable(file, (uchar *)"FILENAME",
-                	(uchar *)file_basename(argv[i]));
-
-	htmlReadFile(file, docfile, base);
-
-	fclose(docfile);
-
-	if (file->child != NULL)
-	{
-          if (document == NULL)
-            document = file;
-          else
-          {
-            while (document->next != NULL)
-              document = document->next;
-
-            document->next = file;
-            file->prev     = document;
-          }
-	}
-	else
-          htmlDeleteTree(file);
-      }
-      else
-        progress_error("Unable to read file \"%s\"...", filename);
-    }
     else
-      progress_error("Unable to find file \"%s\"...", argv[i]);
+      read_file(argv[i], &document);
 
  /*
   * Display the GUI if necessary...
@@ -875,12 +852,17 @@ main(int  argc,		/* I - Number of command-line arguments */
 
 #ifdef HAVE_LIBFLTK
   if (document == NULL && BookGUI == NULL)
-    BookGUI = new GUI();
-
-  FileIcon::load_system_icons();
+  {
+    if (argc == 1)
+      BookGUI = new GUI();
+    else
+      usage();
+  }
 
   if (BookGUI != NULL)
   {
+    FileIcon::load_system_icons();
+
     BookGUI->show();
 
     i = Fl::run();
@@ -1626,6 +1608,651 @@ compare_strings(char *s,	/* I - Command-line string */
 }
 
 
+//
+// 'load_book' - Load a book file...
+//
+
+static int				// O  - 1 = success, 0 = failure
+load_book(const char   *filename,	// I  - Book file
+          tree_t       **document,	// IO - Document tree
+          exportfunc_t *exportfunc)	// O  - Export function
+{
+  FILE		*fp;			// File to read from
+  char		line[10240],		// Line from file
+		*dir;			// Directory
+
+
+  // If the filename contains a path, chdir to it first...
+  if ((dir = file_directory(filename)) != NULL)
+  {
+   /*
+    * Filename contains a complete path - get the directory portion and do
+    * a chdir()...
+    */
+
+    chdir(dir);
+
+    filename = file_basename(filename);
+  }
+
+  // Open the file...
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
+    fprintf(stderr, "htmldoc: Unable to open \"%s\": %s\n", filename,
+            strerror(errno));
+    return (0);
+  }
+
+  // Get the header...
+  fgets(line, sizeof(line), fp);
+  if (strncmp(line, "#HTMLDOC", 8) != 0)
+  {
+    fclose(fp);
+    fprintf(stderr, "htmldoc: Bad or missing #HTMLDOC header in %s.", filename);
+    return (0);
+  }
+
+  // Read the second line from the book file; for older book files, this will
+  // be the file count; for new files this will be the options...
+  fgets(line, sizeof(line), fp);
+  line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
+
+  if (line[0] == '-')
+    parse_options(line, exportfunc);
+
+  // Get input files/options...
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
+
+    if (line[0] == '-')
+      parse_options(line, exportfunc);
+    else if (line[0] == '\\')
+      read_file(line + 1, document);
+    else
+      read_file(line, document);
+  }
+
+  // Close the book file and return...
+  fclose(fp);
+
+  return (1);
+}
+
+
+//
+// 'parse_options()' - Parse options from a book file...
+//
+
+static void
+parse_options(const char   *line,	// I - Options from book file
+              exportfunc_t *exportfunc)	// O - Export function
+{
+  int		i;			// Looping var
+  const char	*lineptr;		// Pointer into line
+  char		temp[1024],		// Option name
+		temp2[1024],		// Option value
+		*tempptr;		// Pointer into option
+  float		fontsize,		// Size of body text
+		fontspacing;		// Spacing between lines
+
+
+  // Parse the input line...
+  for (lineptr = line; *lineptr != '\0';)
+  {
+    while (*lineptr == ' ')
+      lineptr ++;
+
+    for (tempptr = temp; *lineptr != '\0' && *lineptr != ' ';)
+      *tempptr++ = *lineptr++;
+    *tempptr = '\0';
+
+    while (*lineptr == ' ')
+      lineptr ++;
+
+    if (strcmp(temp, "--duplex") == 0)
+    {
+      PageDuplex = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--landscape") == 0)
+    {
+      Landscape = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--portrait") == 0)
+    {
+      Landscape = 0;
+      continue;
+    }
+    else if (strncmp(temp, "--jpeg", 6) == 0)
+    {
+      if (strlen(temp) > 7)
+        OutputJPEG = atoi(temp + 7);
+      else
+        OutputJPEG = 90;
+      continue;
+    }
+    else if (strcmp(temp, "--grayscale") == 0)
+    {
+      OutputColor = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--color") == 0)
+    {
+      OutputColor = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--links") == 0)
+    {
+      Links = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--no-links") == 0)
+    {
+      Links = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--truetype") == 0)
+    {
+      TrueType = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--no-truetype") == 0)
+    {
+      TrueType = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--pscommands") == 0)
+    {
+      PSCommands = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--no-pscommands") == 0)
+    {
+      PSCommands = 0;
+      continue;
+    }
+    else if (strncmp(temp, "--compression", 13) == 0)
+    {
+      if (strlen(temp) > 14)
+        Compression = atoi(temp + 14);
+      else
+        Compression = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--no-compression") == 0)
+    {
+      Compression = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--numbered") == 0)
+    {
+      TocNumbers = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--no-numbered") == 0)
+    {
+      TocNumbers = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--no-toc") == 0)
+    {
+      TocLevels = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--title") == 0 &&
+             (*lineptr == '-' || !*lineptr))
+    {
+      TitlePage = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--no-title") == 0)
+    {
+      TitlePage = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--book") == 0)
+    {
+      OutputBook = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--webpage") == 0)
+    {
+      OutputBook = 0;
+      continue;
+    }
+    else if (strcmp(temp, "--encryption") == 0)
+    {
+      Encryption = 1;
+      continue;
+    }
+    else if (strcmp(temp, "--no-encryption") == 0)
+    {
+      Encryption = 0;
+      continue;
+    }
+
+    if (*lineptr == '\"')
+    {
+      lineptr ++;
+
+      for (tempptr = temp2; *lineptr != '\0' && *lineptr != '\"';)
+	*tempptr++ = *lineptr++;
+
+      if (*lineptr == '\"')
+        lineptr ++;
+    }
+    else
+    {
+      for (tempptr = temp2; *lineptr != '\0' && *lineptr != ' ';)
+	*tempptr++ = *lineptr++;
+    }
+
+    *tempptr = '\0';
+
+    if (strcmp(temp, "-t") == 0)
+    {
+      if (strcmp(temp2, "html") == 0)
+        *exportfunc = html_export;
+      else if (strcmp(temp2, "ps1") == 0)
+      {
+        *exportfunc = pspdf_export;
+	PSLevel     = 1;
+      }
+      else if (strcmp(temp2, "ps") == 0 ||
+               strcmp(temp2, "ps2") == 0)
+      {
+        *exportfunc = pspdf_export;
+	PSLevel     = 2;
+      }
+      else if (strcmp(temp2, "ps3") == 0)
+      {
+        *exportfunc = pspdf_export;
+	PSLevel     = 3;
+      }
+      else if (strcmp(temp2, "pdf11") == 0)
+      {
+        *exportfunc = pspdf_export;
+	PSLevel     = 0;
+	PDFVersion  = 1.1f;
+      }
+      else if (strcmp(temp2, "pdf") == 0 ||
+               strcmp(temp2, "pdf12") == 0)
+      {
+        *exportfunc = pspdf_export;
+	PSLevel     = 0;
+	PDFVersion  = 1.2f;
+      }
+      else if (strcmp(temp2, "pdf13") == 0)
+      {
+        *exportfunc = pspdf_export;
+	PSLevel     = 0;
+	PDFVersion  = 1.3f;
+      }
+    }
+    else if (strcmp(temp, "--logo") == 0 ||
+             strcmp(temp, "--logoimage") == 0)
+    {
+      strncpy(LogoImage, temp2, sizeof(LogoImage) - 1);
+      LogoImage[sizeof(LogoImage) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--titleimage") == 0)
+    {
+      TitlePage = 1;
+      strncpy(TitleImage, temp2, sizeof(TitleImage) - 1);
+      TitleImage[sizeof(TitleImage) - 1] = '\0';
+    }
+    else if (strcmp(temp, "-f") == 0)
+    {
+      OutputFiles = 0;
+      strncpy(OutputPath, temp2, sizeof(OutputPath) - 1);
+      OutputPath[sizeof(OutputPath) - 1] = '\0';
+    }
+    else if (strcmp(temp, "-d") == 0)
+    {
+      OutputFiles = 1;
+      strncpy(OutputPath, temp2, sizeof(OutputPath) - 1);
+      OutputPath[sizeof(OutputPath) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--browserwidth") == 0)
+      _htmlBrowserWidth = atof(temp2);
+    else if (strcmp(temp, "--size") == 0)
+      set_page_size(temp2);
+    else if (strcmp(temp, "--left") == 0)
+      PageLeft = get_measurement(temp2);
+    else if (strcmp(temp, "--right") == 0)
+      PageRight = get_measurement(temp2);
+    else if (strcmp(temp, "--top") == 0)
+      PageTop = get_measurement(temp2);
+    else if (strcmp(temp, "--bottom") == 0)
+      PageBottom = get_measurement(temp2);
+    else if (strcmp(temp, "--header") == 0)
+    {
+      strncpy(Header, temp2, sizeof(Header) - 1);
+      Header[sizeof(Header) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--footer") == 0)
+    {
+      strncpy(Footer, temp2, sizeof(Footer) - 1);
+      Footer[sizeof(Footer) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--bodycolor") == 0)
+    {
+      strncpy(BodyColor, temp2, sizeof(BodyColor) - 1);
+      BodyColor[sizeof(BodyColor) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--bodyimage") == 0)
+    {
+      strncpy(BodyImage, temp2, sizeof(BodyImage) - 1);
+      BodyImage[sizeof(BodyImage) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--textcolor") == 0)
+      htmlSetTextColor((uchar *)temp2);
+    else if (strcmp(temp, "--linkcolor") == 0)
+    {
+      strncpy(LinkColor, temp2, sizeof(LinkColor) - 1);
+      LinkColor[sizeof(LinkColor) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--linkstyle") == 0)
+    {
+      if (strcmp(temp2, "plain") == 0)
+        LinkStyle = 0;
+      else
+        LinkStyle = 1;
+    }
+    else if (strcmp(temp, "--toclevels") == 0)
+      TocLevels = atoi(temp2);
+    else if (strcmp(temp, "--tocheader") == 0)
+    {
+      strncpy(TocHeader, temp2, sizeof(TocHeader) - 1);
+      TocHeader[sizeof(TocHeader) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--tocfooter") == 0)
+    {
+      strncpy(TocFooter, temp2, sizeof(TocFooter) - 1);
+      TocFooter[sizeof(TocFooter) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--toctitle") == 0)
+    {
+      strncpy(TocTitle, temp2, sizeof(TocTitle) - 1);
+      TocTitle[sizeof(TocTitle) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--fontsize") == 0)
+    {
+      fontsize    = atof(temp2);
+      fontspacing = _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
+
+      if (fontsize < 6.0f)
+        fontsize = 6.0f;
+      else if (fontsize > 24.0f)
+        fontsize = 24.0f;
+
+      htmlSetBaseSize(fontsize, fontspacing);
+    }
+    else if (strcmp(temp, "--fontspacing") == 0)
+    {
+      fontsize    = _htmlSizes[SIZE_P];
+      fontspacing = atof(temp2);
+
+      if (fontspacing < 1.0f)
+        fontspacing = 1.0f;
+      else if (fontspacing > 3.0f)
+        fontspacing = 3.0f;
+
+      htmlSetBaseSize(fontsize, fontspacing);
+    }
+    else if (strcmp(temp, "--headingfont") == 0)
+    {
+      if (strcasecmp(temp2, "courier") == 0 ||
+          strcasecmp(temp2, "monospace") == 0)
+        _htmlHeadingFont = TYPE_COURIER;
+      else if (strcasecmp(temp2, "times") == 0 ||
+               strcasecmp(temp2, "serif") == 0)
+        _htmlHeadingFont = TYPE_TIMES;
+      else if (strcasecmp(temp2, "helvetica") == 0 ||
+               strcasecmp(temp2, "arial") == 0 ||
+               strcasecmp(temp2, "sans-serif") == 0)
+        _htmlHeadingFont = TYPE_HELVETICA;
+    }
+    else if (strcmp(temp, "--bodyfont") == 0)
+    {
+      if (strcasecmp(temp2, "courier") == 0 ||
+          strcasecmp(temp2, "monospace") == 0)
+        _htmlBodyFont = TYPE_COURIER;
+      else if (strcasecmp(temp2, "times") == 0 ||
+               strcasecmp(temp2, "serif") == 0)
+        _htmlBodyFont = TYPE_TIMES;
+      else if (strcasecmp(temp2, "helvetica") == 0 ||
+               strcasecmp(temp2, "arial") == 0 ||
+               strcasecmp(temp2, "sans-serif") == 0)
+        _htmlBodyFont = TYPE_HELVETICA;
+    }
+    else if (strcmp(temp, "--headfootsize") == 0)
+      HeadFootSize = atof(temp2);
+    else if (strcmp(temp, "--headfootfont") == 0)
+    {
+      if (strcasecmp(temp2, "courier") == 0)
+      {
+	HeadFootType  = TYPE_COURIER;
+	HeadFootStyle = STYLE_NORMAL;
+      }
+      else if (strcasecmp(temp2, "courier-bold") == 0)
+      {
+	HeadFootType  = TYPE_COURIER;
+	HeadFootStyle = STYLE_BOLD;
+      }
+      else if (strcasecmp(temp2, "courier-oblique") == 0)
+      {
+	HeadFootType  = TYPE_COURIER;
+	HeadFootStyle = STYLE_ITALIC;
+      }
+      else if (strcasecmp(temp2, "courier-boldoblique") == 0)
+      {
+	HeadFootType  = TYPE_COURIER;
+	HeadFootStyle = STYLE_BOLD_ITALIC;
+      }
+      else if (strcasecmp(temp2, "times") == 0 ||
+	         strcasecmp(temp2, "times-roman") == 0)
+      {
+	HeadFootType  = TYPE_TIMES;
+	HeadFootStyle = STYLE_NORMAL;
+      }
+      else if (strcasecmp(temp2, "times-bold") == 0)
+      {
+	HeadFootType  = TYPE_TIMES;
+	HeadFootStyle = STYLE_BOLD;
+      }
+      else if (strcasecmp(temp2, "times-italic") == 0)
+      {
+	HeadFootType  = TYPE_TIMES;
+	HeadFootStyle = STYLE_ITALIC;
+      }
+      else if (strcasecmp(temp2, "times-bolditalic") == 0)
+      {
+	HeadFootType  = TYPE_TIMES;
+	HeadFootStyle = STYLE_BOLD_ITALIC;
+      }
+      else if (strcasecmp(temp2, "helvetica") == 0)
+      {
+	HeadFootType  = TYPE_HELVETICA;
+	HeadFootStyle = STYLE_NORMAL;
+      }
+      else if (strcasecmp(temp2, "helvetica-bold") == 0)
+      {
+	HeadFootType  = TYPE_HELVETICA;
+	HeadFootStyle = STYLE_BOLD;
+      }
+      else if (strcasecmp(temp2, "helvetica-oblique") == 0)
+      {
+	HeadFootType  = TYPE_HELVETICA;
+	HeadFootStyle = STYLE_ITALIC;
+      }
+      else if (strcasecmp(temp2, "helvetica-boldoblique") == 0)
+      {
+	HeadFootType  = TYPE_HELVETICA;
+        HeadFootStyle = STYLE_BOLD_ITALIC;
+      }
+    }
+    else if (strcmp(temp, "--charset") == 0)
+      htmlSetCharSet(temp2);
+    else if (strcmp(temp, "--pagemode") == 0)
+    {
+      for (i = 0; i < (sizeof(PDFModes) / sizeof(PDFModes[0])); i ++)
+        if (strcasecmp(temp2, PDFModes[i]) == 0)
+	{
+	  PDFPageMode = i;
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--pagelayout") == 0)
+    {
+      for (i = 0; i < (sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); i ++)
+        if (strcasecmp(temp2, PDFLayouts[i]) == 0)
+	{
+	  PDFPageLayout = i;
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--firstpage") == 0)
+    {
+      for (i = 0; i < (sizeof(PDFPages) / sizeof(PDFPages[0])); i ++)
+        if (strcasecmp(temp2, PDFPages[i]) == 0)
+	{
+	  PDFFirstPage = i;
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--pageeffect") == 0)
+    {
+      for (i = 0; i < (sizeof(PDFEffects) / sizeof(PDFEffects[0])); i ++)
+        if (strcasecmp(temp2, PDFEffects[i]) == 0)
+	{
+	  PDFEffect = i;
+	  break;
+	}
+    }
+    else if (strcmp(temp, "--pageduration") == 0)
+      PDFPageDuration = atof(temp2);
+    else if (strcmp(temp, "--effectduration") == 0)
+      PDFEffectDuration = atof(temp2);
+    else if (strcmp(temp, "--permissions") == 0)
+    {
+      if (strcasecmp(temp2, "all") == 0)
+        Permissions = -4;
+      else if (strcasecmp(temp2, "none") == 0)
+        Permissions = -64;
+      else if (strcasecmp(temp2, "print") == 0)
+        Permissions |= PDF_PERM_PRINT;
+      else if (strcasecmp(temp2, "no-print") == 0)
+        Permissions &= ~PDF_PERM_PRINT;
+      else if (strcasecmp(temp2, "modify") == 0)
+        Permissions |= PDF_PERM_MODIFY;
+      else if (strcasecmp(temp2, "no-modify") == 0)
+        Permissions &= ~PDF_PERM_MODIFY;
+      else if (strcasecmp(temp2, "copy") == 0)
+        Permissions |= PDF_PERM_COPY;
+      else if (strcasecmp(temp2, "no-copy") == 0)
+        Permissions &= ~PDF_PERM_COPY;
+      else if (strcasecmp(temp2, "annotate") == 0)
+        Permissions |= PDF_PERM_ANNOTATE;
+      else if (strcasecmp(temp2, "no-annotate") == 0)
+        Permissions &= ~PDF_PERM_ANNOTATE;
+    }
+    else if (strcmp(temp, "--user-password") == 0)
+    {
+      strncpy(UserPassword, temp2, sizeof(UserPassword) - 1);
+      UserPassword[sizeof(UserPassword) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--owner-password") == 0)
+    {
+      strncpy(OwnerPassword, temp2, sizeof(OwnerPassword) - 1);
+      OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--path") == 0)
+    {
+      strncpy(Path, temp2, sizeof(Path) - 1);
+      Path[sizeof(Path) - 1] = '\0';
+    }
+    else if (strcmp(temp, "--proxy") == 0)
+    {
+      strncpy(Proxy, temp2, sizeof(Proxy) - 1);
+      Proxy[sizeof(Proxy) - 1] = '\0';
+      file_proxy(Proxy);
+    }
+  }
+}
+
+
+//
+// 'read_file()' - Read a file into the current document.
+//
+
+static int				// O  - 1 on success, 0 on failure
+read_file(const char *filename,		// I  - File/URL to read
+          tree_t     **document)	// IO - Current document
+{
+  int		i, j;			// Looping vars
+  FILE		*docfile;		// Document file
+  tree_t	*file;			// HTML document file
+  const char	*realname;		// Real name of file
+  char		base[1024];		// Base directory name of file
+
+
+  if ((realname = file_find(Path, filename)) != NULL)
+  {
+    if ((docfile = fopen(realname, "rb")) != NULL)
+    {
+     /*
+      * Read from a file...
+      */
+
+      if (Verbosity)
+        fprintf(stderr, "htmldoc: Reading %s...\n", filename);
+
+      _htmlPPI = _htmlBrowserWidth / PageWidth * 72.0f;
+
+      strcpy(base, file_directory(filename));
+
+      file = htmlAddTree(NULL, MARKUP_FILE, NULL);
+      htmlSetVariable(file, (uchar *)"FILENAME",
+                      (uchar *)file_basename(filename));
+
+      htmlReadFile(file, docfile, base);
+
+      fclose(docfile);
+
+      if (file->child != NULL)
+      {
+        if (*document == NULL)
+          *document = file;
+        else
+        {
+          while ((*document)->next != NULL)
+            *document = (*document)->next;
+
+          (*document)->next = file;
+          file->prev        = *document;
+        }
+      }
+      else
+        htmlDeleteTree(file);
+    }
+    else
+    {
+      file = NULL;
+      progress_error("Unable to read \"%s\"...", filename);
+    }
+  }
+  else
+  {
+    file = NULL;
+    progress_error("Unable to find \"%s\"...", filename);
+  }
+
+  return (file != NULL);
+}
+
 /*
  * 'usage()' - Show program version and command-line options.
  */
@@ -1645,6 +2272,7 @@ usage(void)
   puts("");
   puts("Options:");
   puts("");
+  puts("  --batch filename.book");
   puts("  --bodycolor color");
   puts("  --bodyfont {courier,times,helvetica}");
   puts("  --bodyimage filename.{gif,jpg,png}");
@@ -1745,5 +2373,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.8 2001/02/22 01:22:41 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.9 2001/02/23 13:47:14 mike Exp $".
  */

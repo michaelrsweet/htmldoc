@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.4 2001/02/02 15:10:52 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.5 2001/02/23 13:47:12 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -87,6 +87,7 @@ else
 	echo "Not using -lnsl since you are running IRIX."
 fi)
 
+dnl Check for GUI libraries...
 OLDLIBS="$LIBS"
 
 AC_PATH_X
@@ -112,15 +113,35 @@ fi
 AC_CHECK_LIB(X11,XOpenDisplay)
 AC_CHECK_LIB(Xext,XdbeQueryExtension)
 
+dnl Check FLTK by itself
 AC_CHECK_LIB(fltk,numericsort)
+
+dnl Check for cached OpenGL library from previous configure...
+if test "x$ac_cv_lib_GL_glEnable" = xyes; then
+	AC_CHECK_LIB(GL,glEnable)
+fi
+
+dnl Check FLTK + OpenGL to see if that works...
 if test "$ac_cv_lib_fltk_numericsort" = no; then
-	ac_cv_lib_fltk_numericsort=""
+	unset ac_cv_lib_fltk_numericsort
 	AC_CHECK_LIB(GL,glEnable)
 	AC_CHECK_LIB(fltk,numericsort)
 fi
 
 AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
 
+if test "$ac_cv_lib_fltk_numericsort" = yes; then
+	LIBS="../gui/libgui.a $LIBS"
+	GUI="gui"
+else
+	AC_MSG_WARN(FLTK not available so no GUI will be built.)
+	LIBS="$OLDLIBS"
+	GUI=""
+fi
+
+AC_SUBST(GUI)
+
+dnl Check for image libraries...
 NEWLIBS=""
 
 AC_CHECK_LIB(jpeg,jpeg_CreateCompress,
@@ -147,16 +168,6 @@ AC_CHECK_LIB(png,png_set_tRNS_to_alpha,
 
 LIBS="$NEWLIBS $LIBS"
 
-if test "$ac_cv_lib_fltk_numericsort" = yes; then
-	LIBS="../gui/libgui.a $LIBS"
-	GUI="gui"
-else
-	AC_MSG_WARN(FLTK not available so no GUI will be built.)
-	LIBS="$OLDLIBS"
-	GUI=""
-fi
-
-AC_SUBST(GUI)
 AC_SUBST(JPEG)
 AC_SUBST(JPEGINC)
 AC_SUBST(PNG)
@@ -244,5 +255,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.4 2001/02/02 15:10:52 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.5 2001/02/23 13:47:12 mike Exp $".
 dnl
