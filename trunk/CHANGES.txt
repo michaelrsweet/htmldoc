@@ -3,10 +3,29 @@ CHANGES.txt - 12/06/1999
 
 CHANGES IN HTMLDOC v1.8.2
 
+    NEW FEATURES
+
+	- New "setup" program for UNIX software installation.
+
     CHANGES
 
+	- Documentation updated for new UNIX "setup" program and
+	  "..." usage for headers and footers.
+	- Changed margins to floating point (instead of integer) to
+	  improve table column accuracy.
 
     BUG FIXES
+
+	- HTMLDOC could crash under Microsoft Windows with some
+	  types of HTML files.  This was caused by a stack overflow,
+	  usually when processing nested tables.
+	- Multiple HTML files weren't being converted properly in
+	  web page mode - only the last file would be generated for
+	  PostScript output, and no file for PDF output.
+	- Wasn't preserving the whitespace between "one" and "two"
+	  in the HTML code "one<I> two</I> three".
+	- Paragraph spacing was inconsistent.
+	- <TABLE WIDTH="xx"> wasn't formatted properly.
 
 
 CHANGES IN HTMLDOC v1.8.1
