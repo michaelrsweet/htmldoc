@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.62 2001/05/25 19:17:06 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.63 2001/05/26 19:38:33 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6791,6 +6791,18 @@ write_image(FILE     *out,	/* I - Output file */
   else
     indbits = 8;
 
+  if (ncolors == 1)
+  {
+   /*
+    * Adobe doesn't like 1 color images...
+    */
+
+    ncolors      = 2;
+    colors[1][0] = 0;
+    colors[1][1] = 0;
+    colors[1][2] = 0;
+  }
+
  /*
   * Now write the image...
   */
@@ -6840,27 +6852,11 @@ write_image(FILE     *out,	/* I - Output file */
 
 	  if (ncolors > 0)
 	  {
-	    if (ncolors < 2)
-	    {
-	     /*
-	      * Adobe doesn't like 1 color images...
-	      */
-
-	      ncolors      = 2;
-	      colors[1][0] = 0;
-	      colors[1][1] = 0;
-	      colors[1][2] = 0;
-	    }
-
 	    if (Encryption)
 	    {
-              uchar ecolors[256][3]; // Encrypted colors
-
-
 	      // Encrypt the colormap...
 	      encrypt_init();
-	      rc4_encrypt(&encrypt_state, colors[0], ecolors[0], ncolors * 3);
-              memcpy(colors, ecolors, ncolors * 3);
+	      rc4_encrypt(&encrypt_state, colors[0], colors[0], ncolors * 3);
 	    }
 
 	    fprintf(out, "/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
@@ -6888,11 +6884,10 @@ write_image(FILE     *out,	/* I - Output file */
   	  fprintf(out, "/Width %d/Height %d/BitsPerComponent %d",
 	          img->width, img->height, indbits);
           pdf_start_stream(out);
+          flate_open_stream(out);
 
           if (OutputJPEG && ncolors == 0)
 	  {
-            flate_open_stream(out);
-	    
 	    jpg_setup(out, img, &cinfo);
 
 	    for (i = img->height, pixel = img->pixels;
@@ -6902,22 +6897,17 @@ write_image(FILE     *out,	/* I - Output file */
 
 	    jpeg_finish_compress(&cinfo);
 	    jpeg_destroy_compress(&cinfo);
-
-            flate_close_stream(out);
 	  }
           else
 	  {
-            flate_open_stream(out);
-	    
 	    if (ncolors > 0)
    	      flate_write(out, indices, indwidth * img->height);
 	    else
   	      flate_write(out, img->pixels,
 	                  img->width * img->height * img->depth);
-
-            flate_close_stream(out);
           }
 
+          flate_close_stream(out);
           pdf_end_object(out);
 	}
 	else
@@ -6927,18 +6917,6 @@ write_image(FILE     *out,	/* I - Output file */
 
 	  if (ncolors > 0)
 	  {
-	    if (ncolors < 2)
-	    {
-	     /*
-	      * Adobe doesn't like 1 color images...
-	      */
-
-	      ncolors      = 2;
-	      colors[1][0] = 0;
-	      colors[1][1] = 0;
-	      colors[1][2] = 0;
-	    }
-
 	    flate_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
 	      flate_printf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
@@ -8601,5 +8579,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.62 2001/05/25 19:17:06 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.63 2001/05/26 19:38:33 mike Exp $".
  */
