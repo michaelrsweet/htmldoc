@@ -29,7 +29,9 @@ CHANGES IN HTMLDOC v1.8.17
 	- HTMLDOC now opens HTML output files in binary mode to
 	  prevent extra CR's under Windows, and strips incoming
 	  CR's from PRE text.
-
+	- Now support inserting the current chapter and heading
+	  in the table-of-contents headers and footers.
+	  
     BUG FIXES
 
 	- The table cell border and background were offset by
