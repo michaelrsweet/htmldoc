@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.5 1999/11/12 17:48:24 mike Exp $"
+ * "$Id: html.cxx,v 1.6 1999/11/14 13:15:08 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -194,6 +194,12 @@ write_header(FILE   **out,	/* IO - Output file */
   char	realname[1024];		/* Real filename */
   char	*basename;		/* Filename without directory */
   int	newfile;		/* Non-zero if this is a new file */
+  static char	*families[] =	/* Typeface names */
+		{
+		  "monospace",
+		  "serif",
+		  "sans-serif"
+		};
 
 
   if (OutputFiles)
@@ -246,16 +252,37 @@ write_header(FILE   **out,	/* IO - Output file */
     if (docnumber != NULL)
       fprintf(*out, "<META NAME=\"DOCNUMBER\" CONTENT=\"%s\">\n", docnumber);
     fputs("<STYLE>\n", *out);
-    /***** INSERT STYLE SHEET STUFF HERE *****/
+    fprintf("BODY { font-family: %s; font-size: %.1fpt }\n",
+            BodyFont, _htmlSizes[SIZE_P]);
+    fprintf("H1 { font-family: %s; font-size: %.1fpt }\n",
+            HeadingFont, _htmlSizes[SIZE_H1]);
+    fprintf("H2 { font-family: %s; font-size: %.1fpt }\n",
+            HeadingFont, _htmlSizes[SIZE_H1]);
+    fprintf("H3 { font-family: %s; font-size: %.1fpt }\n",
+            HeadingFont, _htmlSizes[SIZE_H1]);
+    fprintf("H4 { font-family: %s; font-size: %.1fpt }\n",
+            HeadingFont, _htmlSizes[SIZE_H1]);
+    fprintf("H5 { font-family: %s; font-size: %.1fpt }\n",
+            HeadingFont, _htmlSizes[SIZE_H1]);
+    fprintf("H6 { font-family: %s; font-size: %.1fpt }\n",
+            HeadingFont, _htmlSizes[SIZE_H1]);
+    fprintf("SUB { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
+    fprintf("SUP { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
+    fprintf("PRE { font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
     fputs("</STYLE>\n", *out);
     fputs("</HEAD>\n", *out);
 
     if (BodyImage[0] != '\0')
-      fprintf(*out, "<BODY BACKGROUND=\"%s\">\n", file_basename(BodyImage));
+      fprintf(*out, "<BODY BACKGROUND=\"%s\"", file_basename(BodyImage));
     else if (BodyColor[0] != '\0')
-      fprintf(*out, "<BODY BGCOLOR=\"%s\">\n", BodyColor);
+      fprintf(*out, "<BODY BGCOLOR=\"%s\"", BodyColor);
     else
-      fputs("<BODY>\n", *out);
+      fputs("<BODY", *out);
+
+    if (_htmlTextColor[0] != '\0')
+      fprintf(*out, " TEXT=\"%s\">\n", _htmlTextColor);
+    else
+      fputs(">\n", *out);
   }
   else
     fputs("<HR>\n", *out);
@@ -800,5 +827,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.5 1999/11/12 17:48:24 mike Exp $".
+ * End of "$Id: html.cxx,v 1.6 1999/11/14 13:15:08 mike Exp $".
  */

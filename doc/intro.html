@@ -1,140 +1,136 @@
 <HTML>
 <HEAD>
-   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
-   <META NAME="author" CONTENT="Michael R. Sweet">
-   <META NAME="copyright" CONTENT="Copyright 1997-1999, See the GNU General Public License for Details.">
-   <META NAME="Author" CONTENT="Michael R. Sweet, Easy Software Products">
-   <TITLE>HTMLDOC 1.8 User's Guide</TITLE>
+	<META NAME="author" CONTENT="Easy Software Products">
+	<META NAME="copyright" CONTENT="Copyright 1997-1999, See the GNU General Public License for Details.">
+	<META NAME="docnumber" CONTENT="ESP-003-19991113">
+	<TITLE>HTMLDOC 1.8 Software Users Manual</TITLE>
 </HEAD>
 <BODY>
 
-<DIV ALIGN=right>
-<H1>
-Introduction</H1></DIV>
+<H1 ALIGN="RIGHT">Introduction</H1>
 
-<H2>
-About This Software</H2>
 This document describes how to use the <I>HTMLDOC</I> software, version
-1.8. <I>HTMLDOC</I> is a HTML document processing program that generates
-indexed HTML, Adobe&reg; PostScript<SUP>TM</SUP>, and Adobe Portable Document
-Format (PDF 1.2) files suitable for printing or online viewing.
+1.8. <I>HTMLDOC</I> is a Hyper-Text Markup Language ("HTML") document processing
+program that generates indexed HTML, Adobe&reg; PostScript&reg;, and Adobe Portable Document
+Format ("PDF") files suitable for printing or online viewing.
 
 <P>No restrictions are placed upon the output produced by <I>HTMLDOC</I>.
 
 <H2>History</H2>
 
 Like many programs <I>HTMLDOC</I> was developed in response to a need
-my company had for generating high-quality documentation in printed and
+our company had for generating high-quality documentation in printed and
 electronic forms. For a while we used FrameMaker&reg; and a package
-from Silicon Graphics that generated "compiled" SGML files that could
-be used by the Electronic Book Technologies documentation products (EBT
-is now owned by <A HREF="http://www.inso.com">INSO</A>.) When SGI
+from <CODE>sgi</CODE> that generated "compiled" Standard Generalized
+Markup Language ("SGML") files that could
+be used by the Electronic Book Technologies ("EBT") documentation products (EBT
+is now owned by <A HREF="http://www.inso.com">INSO</A>.) When <CODE>sgi</CODE>
 stopped supporting these tools we were stuck. INSO laughed in our faces
 when we said we could afford up to $10,000 US for an updated book
-generation product that would work with the IRIX, Solaris, and HP-UX
+generation product that would work with the IRIX&reg;, Solaris&reg;, and HP-UX
 documentation systems. Other solutions were nearly as expensive, or
 simply not capable of doing the things we needed.
 
-<P>Because of these things I decided to write my own program to generate
+<P>Because of these things we decided to write our own program to generate
 our documentation. HTML seemed to be the source format of choice since
 WYSIWYG HTML editors are widely (and freely) available and at worst you
 can use a plain text editor. We needed HTML output for documentation on
 our web server, PDF for customers to read and/or print from their computers,
 and PostScript for our own printing needs.
 
-<P>The result of my efforts is the <I>HTMLDOC</I> software which is now
+<P>The result of our efforts is the <I>HTMLDOC</I> software which is now
 available for UNIX&reg; and Microsoft&reg; Windows&reg;. Among other
-things, this user's guide was produced by <I>HTMLDOC</I>.
+things, this software users manual was produced using <I>HTMLDOC</I>.
 
 <H2>Why Just HTML?</H2>
 
 Some people have asked why this program only deals with HTML input files
-and is not able to read any Standard Generalized Markup Language (SGML)
-file. The reasons are numerous but basically boil down to:
+and is not able to read any SGML or Extensible Markup Language ("XML") file.
+The reasons are numerous but basically boil down to:
 
 <OL>
-<LI>
-SGML is a moving target since all SGML documents use Document Type Definition
-(DTD) files to define what markups are actually supported. Formatting and
-processing can become a nightmare if the DTD file contains even a single
-typographic error. Also, this would make the front-end parsing code that
-generates the document markup tree considerably larger than it already
-is, not to mention complicating the output code.</LI>
 
-<LI>
-Tools for SGML file generation cost considerably more than software that
-generates HTML files. Also, the number of HTML tools is at least an order
-of magnitude greater than the number of SGML tools!</LI>
+	<LI>SGML and XML are moving targets since all documents use Document Type Definition
+	("DTD") files to define what markups are actually supported, and special scripting
+	mechanisms to support arbitrary page markings. Formatting and
+	processing can become a nightmare if the DTD or scripting files contain even a single
+	typographic error.
+
+	<LI>Tools for SGML and XML file generation cost considerably more than software that
+	generates HTML files. Also, the number of HTML tools is at least an order
+	of magnitude greater than the number of SGML and XML tools!
+
 </OL>
-
-In the future I may add support for XML files, but at present XML has very
-little in the way of tools. Time will tell...
 
 <H2>Organization of This Manual</H2>
 
-This manual is organized into the following chapters and appendices:
+This manual is organized into tutorial and reference chapter:
 
 <UL>
-<LI>
-<A HREF="#2">Chapter 1</A> - Compiling HTMLDOC</LI>
+	<LI><A HREF="#INSTALL">Chapter 1</A> - Installing HTMLDOC
 
-<LI>
-<A HREF="#3">Chapter 2</A> - Guidelines for HTML Source Files</LI>
+	<LI><A HREF="#STARTING">Chapter 2</A> - Getting Started
 
-<LI>
-<A HREF="#4">Chapter 3</A> - Generating Documents from the GUI</LI>
+	<LI><A HREF="#BOOKS">Chapter 3</A> - Generating Books
 
-<LI>
-<A HREF="#5">Chapter 4</A> - Generating Documents from the Command-Line</LI>
+	<LI><A HREF="#CMDLINE">Chapter 4</A> - HTMLDOC from the Command-Line
 
-<LI>
-<A HREF="#6">Appendix A</A> - Implementation Limits</LI>
+	<LI><A HREF="#CGI">Chapter 5</A> - HTMLDOC from a Web Server
 
-<LI>
-<A HREF="#7">Appendix B</A> - GNU General Public License</LI>
+	<LI><A HREF="#HTMLREF">Chapter 6</A> - HTML Reference
+
+	<LI><A HREF="#GUIREF">Chapter 7</A> - GUI Reference
+
+	<LI><A HREF="#CMDREF">Chapter 8</A> - Command-Line Reference
+
+	<LI><A HREF="#LICENSE">Appendix A</A> - GNU General Public License
+
 </UL>
-If you have downloaded one of the many precompiled binaries from our <A HREF="ftp://ftp.easysw.com/pub/htmldoc">FTP
-server</A> then you can skip chapter 1.
-<H2>
-If You Have Problems</H2>
-If you have difficulty using or compiling <I>HTMLDOC</I> please send EMail
-to <A HREF="mailto:mike@easysw.com">"mike@easysw.com"</A>. Additional information
-can also be found at the <I>HTMLDOC</I> web page at <A HREF="http://www.easysw.com/~mike/htmldoc">"http://www.easysw.com/~mike/htmldoc"</A>.
-<H2>
-Copyright and Trademark Information</H2>
-The Adobe Portable Document Format is Copyright 1993, 1996 by Adobe Systems
-Incorporated. PostScript is a trademark that may be registered in some
-countries and Adobe and FrameMaker are registered trademarks of Adobe Systems,
+
+<H2>Support</H2>
+
+Commercial support is available from Easy Software Products for $99 US per year per
+system. Information can be found at the <I>HTMLDOC</I> web page,
+"<A HREF="http://www.easysw.com/htmldoc">http://www.easysw.com/htmldoc</A>".
+
+<H2>Copyright, Trademark, and License Information</H2>
+
+The Adobe Portable Document Format is Copyright 1993-1999 by Adobe Systems
+Incorporated. Adobe, FrameMaker, and PostScript are registered trademarks of Adobe Systems,
 Incorporated.
 
 <P>The Graphics Interchange Format is the copyright and GIF<SUP>SM</SUP>
-is a a service mark property of CompuServe Incorporated.
+is the service mark property of CompuServe Incorporated.
 
-<P>Microsoft, Windows, Windows 95, and Windows NT are registered trademarks
+<P>Digital is a registered trademark of Compaq Computer Corporation.
+
+<P>Intel is a registered trademark of Intel Corporation.
+
+<P>IRIX is a registered trademark of <CODE>sgi</CODE>.
+
+<P>Linux is a registered trademark of Linus Torvalds.
+
+<P>Microsoft, Windows, Windows 95, Windows 98, and Windows NT are registered trademarks
 of Microsoft Corporation.
+
+<P>Solaris is a registered trademark of Sun Microsystems, Inc.
 
 <P>SPARC is a registered trademark of SPARC International, Inc.
 
-<P>Solaris is a trademark of Sun Microsystems, Inc.
-
-<P>IRIX is a trademark of Silicon Graphics, Inc.
-
-<P>Digital is a trademark of Digital Equipment Corporation.
-
 <P>UNIX is a registered trademark of the X/Open Company, Ltd.
 
-<P><I>HTMLDOC</I> is copyright 1997-1999 by Michael Sweet. This program
+<P><I>HTMLDOC</I> is copyright 1997-1999 by Easy Software Products. This program
 is free software; you can redistribute it and/or modify it under the terms
 of the GNU General Public License as published by the Free Software Foundation;
 either version 2 of the License, or (at your option) any later version.
 
 <P>This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE. See the <A HREF="#7">GNU General Public
+or FITNESS FOR A PARTICULAR PURPOSE. See the <A HREF="#LICENSE">GNU General Public
 License</A> for more details.
 
-<P>A copy of the GNU General Public License is included in <A HREF="#7">Appendix
-B</A> of this manual. If this appendix is missing from your copy of HTMLDOC,
+<P>A copy of the GNU General Public License is included in <A HREF="#LICENSE">Appendix
+A</A> of this manual. If this appendix is missing from your copy of HTMLDOC,
 write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 
