@@ -1,4 +1,4 @@
-CHANGES.txt - 02/02/2004
+CHANGES.txt - 02/09/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -17,6 +17,7 @@ CHANGES IN HTMLDOC v1.8.24
 	  links.
 	- Added support for HP LaserJet 5000 and Xerox DocuPrint
 	  2000/100 printer commands.
+	- Added multiple header/footer image support.
 
     CHANGES
 

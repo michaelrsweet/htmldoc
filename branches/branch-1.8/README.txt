@@ -196,18 +196,20 @@ CURRENT LIMITATIONS
 
 CREDITS
 
-    Many thanks to Leonard Rosenthol (leonardr@lazerware.com)
-    for providing changes to support a MacOS version of HTMLDOC.
+    Many thanks to Leonard Rosenthol for providing changes to
+    support a MacOS version of HTMLDOC.
 
     The table VALIGN and "HALF PAGE" code was contributed by D.
-    Richard Hipp (drh@acm.org).
+    Richard Hipp.
+
+    The multiple header/footer image code was contributed by
+    Lynn Pye.
 
     The RC4 encryption code is from librc4 1.1 by the folks at
     Carnegie Mellon University.
 
-    The MD5 hash code is from L. Peter Deutsch
-    (ghost@aladdin.com) at Aladdin Enterprises (creators of
-    Ghostscript).
+    The MD5 hash code is from L. Peter Deutsch at Aladdin
+    Enterprises (creators of Ghostscript, among other things).
 
 
 ENCRYPTION SUPPORT

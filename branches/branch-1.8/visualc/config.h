@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.32 2004/02/06 03:51:09 mike Exp $"
+ * "$Id: config.h,v 1.20.2.33 2004/02/09 22:25:11 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -33,8 +33,9 @@
  * Limits for the output "engines"...
  */
 
-#define MAX_CHAPTERS	1000
-#define MAX_COLUMNS	200
+#define MAX_CHAPTERS	1000	/* Maximum number of chapters or files */
+#define MAX_COLUMNS	200	/* Maximum number of columns in a table */
+#define MAX_HF_IMAGES	10	/* Maximum number of header/footer images */
 
 
 /*
@@ -129,6 +130,6 @@
 
 
 /*
- * End of "$Id: config.h,v 1.20.2.32 2004/02/06 03:51:09 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.33 2004/02/09 22:25:11 mike Exp $".
  */
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.230 2004/02/09 21:29:52 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.231 2004/02/09 22:25:11 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -307,6 +307,12 @@ static uchar	*doc_title = NULL;
 static image_t	*logo_image = NULL;
 static float	logo_width,
 		logo_height;
+
+static image_t	*hfimage[MAX_HF_IMAGES];
+static float	hfimage_width[MAX_HF_IMAGES],
+		hfimage_height[MAX_HF_IMAGES];
+static float    maxhfheight;
+
 static image_t	*background_image = NULL;
 static float	background_color[3] = { 1.0, 1.0, 1.0 },
 		link_color[3] = { 0.0, 0.0, 1.0 };
@@ -521,22 +527,44 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   * Get the document title, author, etc...
   */
 
-  doc_title  = get_title(document);
-  author     = htmlGetMeta(document, (uchar *)"author");
-  creator    = htmlGetMeta(document, (uchar *)"generator");
-  copyright  = htmlGetMeta(document, (uchar *)"copyright");
-  docnumber  = htmlGetMeta(document, (uchar *)"docnumber");
-  keywords   = htmlGetMeta(document, (uchar *)"keywords");
-  subject    = htmlGetMeta(document, (uchar *)"subject");
-  logo_image = image_load(LogoImage, !OutputColor);
+  doc_title   = get_title(document);
+  author      = htmlGetMeta(document, (uchar *)"author");
+  creator     = htmlGetMeta(document, (uchar *)"generator");
+  copyright   = htmlGetMeta(document, (uchar *)"copyright");
+  docnumber   = htmlGetMeta(document, (uchar *)"docnumber");
+  keywords    = htmlGetMeta(document, (uchar *)"keywords");
+  subject     = htmlGetMeta(document, (uchar *)"subject");
+  logo_image  = image_load(LogoImage, !OutputColor);
+  maxhfheight = 0.0f;
 
   if (logo_image != NULL)
   {
     logo_width  = logo_image->width * PagePrintWidth / _htmlBrowserWidth;
     logo_height = logo_width * logo_image->height / logo_image->width;
+
+    if (logo_height > maxhfheight)
+      maxhfheight = logo_height;
   }
   else
     logo_width = logo_height = 0.0f;
+
+  for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
+  {
+    hfimage[hfi] = image_load(HFImage[hfi], !OutputColor);
+
+    if (hfimage[hfi])
+    {
+      hfimage_width[hfi]  = hfimage[hfi]->width * PagePrintWidth /
+                            _htmlBrowserWidth;
+      hfimage_height[hfi] = hfimage_width[hfi] * hfimage[hfi]->height /
+                            hfimage[hfi]->width;
+
+      if (hfimage_height[hfi] > maxhfheight)
+        maxhfheight = hfimage_height[hfi];
+    }
+    else
+      hfimage_width[hfi] = hfimage_height[hfi] = 0.0f;
+  }
 
   find_background(document);
   get_color((uchar *)LinkColor, link_color);
@@ -762,8 +790,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (pos == 3)
     top = PagePrintLength;
-  else if (logo_height > HeadFootSize)
-    top = PagePrintLength - logo_height - HeadFootSize;
+  else if (maxhfheight > HeadFootSize)
+    top = PagePrintLength - maxhfheight - HeadFootSize;
   else
     top = PagePrintLength - 2 * HeadFootSize;
 
@@ -774,8 +802,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (pos == 3)
     bottom = 0.0f;
-  else if (logo_height > HeadFootSize)
-    bottom = logo_height + HeadFootSize;
+  else if (maxhfheight > HeadFootSize)
+    bottom = maxhfheight + HeadFootSize;
   else
     bottom = 2 * HeadFootSize;
 
@@ -826,8 +854,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
     if (pos == 3)
       top = PagePrintLength;
-    else if (logo_height > HeadFootSize)
-      top = PagePrintLength - logo_height - HeadFootSize;
+    else if (maxhfheight > HeadFootSize)
+      top = PagePrintLength - maxhfheight - HeadFootSize;
     else
       top = PagePrintLength - 2 * HeadFootSize;
 
@@ -838,8 +866,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
     if (pos == 3)
       bottom = 0.0f;
-    else if (logo_height > HeadFootSize)
-      bottom = logo_height + HeadFootSize;
+    else if (maxhfheight > HeadFootSize)
+      bottom = maxhfheight + HeadFootSize;
     else
       bottom = 2 * HeadFootSize;
 
@@ -1509,6 +1537,29 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	                    logo_width, logo_height, logo_image);
       }
     }
+    else if (strncasecmp((char *)*format, "$HFIMAGE", 8) == 0)
+    {
+      int	hfi;			// Header/footer image index
+      char	*hfp;			// Pointer into $HFIMAGE
+
+
+      hfi = strtol((char*)((*format) + 8), &hfp, 10);
+
+      if (hfi < 0 || hfi >= MAX_HF_IMAGES || (isspace(*hfp) || !*hfp))
+        progress_error(HD_ERROR_BAD_HF_STRING,
+	               "Bad $HFIMAGE... substitution on page %d.", page + 1);
+      else
+      {
+        if (y < (PagePrintLength / 2))
+          temp = new_render(page, RENDER_IMAGE, 0, y, hfimage_width[hfi],
+                            hfimage_height[hfi], hfimage[hfi]);
+        else
+          temp = new_render(page, RENDER_IMAGE, 0,
+                            y + HeadFootSize - hfimage_height[hfi],
+                            hfimage_width[hfi], hfimage_height[hfi],
+			    hfimage[hfi]);
+      }
+    }
     else
     {
       // Otherwise format the text...
@@ -1652,6 +1703,9 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	  }
 	  else
 	  {
+            progress_error(HD_ERROR_BAD_HF_STRING,
+	        	   "Bad header/footer $ command on page %d.", page + 1);
+
             strncpy(bufptr, formatptr - 1, sizeof(buffer) - 1 - (bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	    formatptr += formatlen;
@@ -2151,21 +2205,21 @@ ps_write_background(FILE *out)		/* I - Output file */
  */
 
 static void
-pdf_write_document(uchar  *author,	/* I - Author of document */
-        	   uchar  *creator,	/* I - Application that generated the HTML file */
-        	   uchar  *copyright,	/* I - Copyright (if any) on the document */
-                   uchar  *keywords,	/* I - Search keywords */
-		   uchar  *subject,	/* I - Subject */
-                   tree_t *toc)		/* I - Table of contents tree */
+pdf_write_document(uchar  *author,	// I - Author of document
+        	   uchar  *creator,	// I - Application that generated the HTML file
+        	   uchar  *copyright,	// I - Copyright (if any) on the document
+                   uchar  *keywords,	// I - Search keywords
+		   uchar  *subject,	// I - Subject
+                   tree_t *toc)		// I - Table of contents tree
 {
   int		i;			// Looping variable
-  FILE		*out;			/* Output file */
-  int		outpage,		/* Current page # */
-		heading;		/* Current heading # */
-  int		bytes;			/* Number of bytes */
-  char		buffer[8192];		/* Copy buffer */
-  int		num_images;		/* Number of images in document */
-  image_t	**images;		/* Pointers to images */
+  FILE		*out;			// Output file
+  int		outpage,		// Current page #
+		heading;		// Current heading #
+  int		bytes;			// Number of bytes
+  char		buffer[8192];		// Copy buffer
+  int		num_images;		// Number of images in document
+  image_t	**images;		// Pointers to images
   render_t	temp;			// Dummy rendering data...
 
 
@@ -2188,11 +2242,21 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
 
   // Write images as needed...
   num_images = image_getlist(&images);
+
   for (i = 0; i < num_images; i ++)
+  {
+    int	hfi;				// Header/footer image index
+
+
+    for (hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
+      if (images[i] == hfimage[hfi])
+        break;
+
     if (images[i]->use > 1 || images[i]->mask ||
         (images[i]->width * images[i]->height * images[i]->depth) > 65536 ||
 	images[i] == background_image ||
-	images[i] == logo_image)
+	images[i] == logo_image ||
+	hfi < MAX_HF_IMAGES)
     {
       progress_show("Writing image %d (%s)...", i + 1, images[i]->filename);
       progress_update(100 * i / num_images);
@@ -2200,6 +2264,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
       temp.data.image = images[i];
       write_image(out, &temp, 1);
     }
+  }
 
   // Write links and target names...
   pdf_write_links(out);
@@ -6702,9 +6767,10 @@ parse_list(tree_t *t,		/* I - Tree to parse */
     case '1' :
     case 'i' :
     case 'I' :
-        strcpy((char *)number, format_number(list_values[t->indent],
-	                                     list_types[t->indent]));
-        strcat((char *)number, ". ");
+        strlcpy((char *)number, format_number(list_values[t->indent],
+	                                      list_types[t->indent]),
+		sizeof(number));
+        strlcat((char *)number, ". ", sizeof(number));
         typeface = t->typeface;
         break;
 
@@ -7679,8 +7745,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (pos < 3)
       {
-	if (logo_height > HeadFootSize)
-          hfspace = (int)(logo_height + HeadFootSize);
+	if (maxhfheight > HeadFootSize)
+          hfspace = (int)(maxhfheight + HeadFootSize);
 	else
           hfspace = (int)(2 * HeadFootSize);
       }
@@ -7775,8 +7841,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (pos == 3)
         hfspace = 0;
-      else if (logo_height > HeadFootSize)
-        hfspace = (int)(logo_height + HeadFootSize);
+      else if (maxhfheight > HeadFootSize)
+        hfspace = (int)(maxhfheight + HeadFootSize);
       else
         hfspace = (int)(2 * HeadFootSize);
 
@@ -12128,5 +12194,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.230 2004/02/09 21:29:52 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.231 2004/02/09 22:25:11 mike Exp $".
  */
