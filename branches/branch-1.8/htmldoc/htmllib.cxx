@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.63 2002/10/02 18:53:05 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.64 2002/10/11 14:23:28 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -523,7 +523,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	else if (islentry(t->markup))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (islentry(temp->markup) || isblock(temp->markup))
+            if (islentry(temp->markup))
               break;
 	    else if (islist(temp->markup) || issuper(temp->markup) ||
 	             istentry(temp->markup) || temp->markup == MARKUP_EMBED)
@@ -2945,5 +2945,5 @@ htmlDebugStats(const char *title,	// I - Title
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.63 2002/10/02 18:53:05 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.64 2002/10/11 14:23:28 mike Exp $".
  */
