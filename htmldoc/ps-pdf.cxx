@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.74 2001/06/01 18:13:21 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.75 2001/06/01 18:17:58 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6621,7 +6621,6 @@ write_image(FILE     *out,	/* I - Output file */
       * Greyscale image...
       */
 
-      max_colors = 16;
       memset(grays, 0, sizeof(grays));
 
       for (i = img->width * img->height, pixel = img->pixels;
@@ -6629,14 +6628,14 @@ write_image(FILE     *out,	/* I - Output file */
 	   i --, pixel ++)
 	if (!grays[*pixel])
 	{
-          if (ncolors >= max_colors)
+          if (ncolors >= 16)
 	    break;
 
 	  grays[*pixel] = 1;
 	  ncolors ++;
 	}
 
-      if (ncolors <= max_colors)
+      if (i == 0)
       {
 	for (i = 0, j = 0; i < 256; i ++)
 	  if (grays[i])
@@ -8682,5 +8681,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.74 2001/06/01 18:13:21 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.75 2001/06/01 18:17:58 mike Exp $".
  */
