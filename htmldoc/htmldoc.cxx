@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.9 2001/02/23 13:47:14 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.10 2001/02/23 19:46:11 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -37,12 +37,14 @@
 #define _HTMLDOC_C_
 #include "htmldoc.h"
 #include <ctype.h>
+#include <fcntl.h>
 
 #ifdef WIN32
 #  include <direct.h>
 #  include <io.h>
+#else
+#  include <unistd.h>
 #endif // WIN32
-#include <fcntl.h>
 
 
 /*
@@ -85,14 +87,11 @@ main(int  argc,		/* I - Number of command-line arguments */
 #endif // MAC
 
   int		i, j;		/* Looping vars */
-  FILE		*docfile;	/* Document file */
   tree_t	*document,	/* Master HTML document */
 		*file,		/* HTML document file */
 		*toc;		/* Table of contents */
   exportfunc_t	exportfunc;	/* Export function */
-  char		*extension,	/* Extension of output filename */
-		*filename;	/* Current filename */
-  char		base[1024];	/* Base directory name of file */
+  char		*extension;	/* Extension of output filename */
   float		fontsize,	/* Base font size */
 		fontspacing;	/* Base font spacing */
 
@@ -2192,7 +2191,6 @@ static int				// O  - 1 on success, 0 on failure
 read_file(const char *filename,		// I  - File/URL to read
           tree_t     **document)	// IO - Current document
 {
-  int		i, j;			// Looping vars
   FILE		*docfile;		// Document file
   tree_t	*file;			// HTML document file
   const char	*realname;		// Real name of file
@@ -2373,5 +2371,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.9 2001/02/23 13:47:14 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.10 2001/02/23 19:46:11 mike Exp $".
  */
