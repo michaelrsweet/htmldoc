@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.5 2002/02/23 04:03:31 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.6 2002/03/11 02:33:07 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -23,6 +23,24 @@
 //
 // Contents:
 //
+//   hdStyleSheet::hdStyleSheet()      - Create a new stylesheet.
+//   hdStyleSheet::~hdStyleSheet()     - Destroy a stylesheet.
+//   hdStyleSheet::add_style()         - Add a style to a stylesheet.
+//   hdStyleSheet::find_font()         - Find a font for the given style.
+//   hdStyleSheet::find_style()        - Find the default style for the given
+//   hdStyleSheet::find_style()        - Find the default style for the given
+//   hdStyleSheet::get_glyph()         - Find the index for the named glyph...
+//   hdStyleSheet::get_private_style() - Get a private style definition.
+//   hdStyleSheet::load()              - Load a stylesheet from the given file.
+//   hdStyleSheet::pattern()           - Initialize a regex pattern buffer...
+//   hdStyleSheet::read()              - Read a string from the given file.
+//   hdStyleSheet::set_charset()       - Set the document character set.
+//   hdStyleSheet::set_margins()       - Set the page margins.
+//   hdStyleSheet::set_orientation()   - Set the page orientation.
+//   hdStyleSheet::set_size()          - Set the page size by numbers.
+//   hdStyleSheet::set_size()          - Set the page size by name.
+//   hdStyleSheet::update_printable()  - Update the printable page area.
+//   hdStyleSheet::update_styles()     - Update all relative style data.
 //
 
 //
@@ -999,10 +1017,10 @@ hdStyleSheet::set_margins(float l,	// I - Left margin in points
 			  float r,	// I - Right margin in points
 			  float t)	// I - Top margin in points
 {
-  left   = l;
-  bottom = b;
-  right  = r;
-  top    = t;
+  page_left   = l;
+  page_bottom = b;
+  page_right  = r;
+  page_top    = t;
 
   update_printable();
 }
@@ -1046,8 +1064,8 @@ hdStyleSheet::set_size(float w,		// I - Width in points
   }
 
   // Now set the page size and update the printable area...
-  width  = w;
-  length = l;
+  page_width  = w;
+  page_length = l;
 
   update_printable();
 }
@@ -1071,8 +1089,8 @@ hdStyleSheet::set_size(const char *name)// I - Page size name
     strncpy(size_name, s->name, sizeof(size_name) - 1);
     size_name[sizeof(size_name) - 1] = '\0';
 
-    width  = s->width;
-    length = s->length;
+    page_width  = s->width;
+    page_length = s->length;
 
     update_printable();
   }
@@ -1085,8 +1103,8 @@ hdStyleSheet::set_size(const char *name)// I - Page size name
       strncpy(size_name, name, sizeof(size_name) - 1);
       size_name[sizeof(size_name) - 1] = '\0';
 
-      width  = w;
-      length = l;
+      page_width  = w;
+      page_length = l;
 
       update_printable();
     }
@@ -1105,14 +1123,14 @@ hdStyleSheet::update_printable()
   {
     case HD_ORIENTATION_PORTRAIT :
     case HD_ORIENTATION_REVERSE_PORTRAIT :
-        print_width  = width - left - right;
-	print_length = length - top - bottom;
+        page_print_width  = page_width - page_left - page_right;
+	page_print_length = page_length - page_top - page_bottom;
 	break;
 
     case HD_ORIENTATION_LANDSCAPE :
     case HD_ORIENTATION_REVERSE_LANDSCAPE :
-	print_width  = length - left - right;
-        print_length = width - top - bottom;
+	page_print_width  = page_length - page_left - page_right;
+        page_print_length = page_width - page_top - page_bottom;
 	break;
   }
 }
@@ -1140,5 +1158,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.5 2002/02/23 04:03:31 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.6 2002/03/11 02:33:07 mike Exp $".
 //

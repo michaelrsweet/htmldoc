@@ -1,12 +1,16 @@
 # DO NOT DELETE
 
-common.o: htmldoc.h image.h file.h http.h md5.h types.h ../config.h tree.h
-common.o: style.h hdstring.h
+common.o: htmldoc.h render.h style.h file.h http.h md5.h image.h types.h
+common.o: ../config.h tree.h margin.h hdstring.h
 file.o: file.h http.h md5.h hdstring.h ../config.h
 file-common.o: file.h http.h md5.h hdstring.h ../config.h
 file-mem.o: file.h http.h md5.h hdstring.h ../config.h
 file-open.o: file.h http.h md5.h hdstring.h ../config.h
 file-std.o: file.h http.h md5.h hdstring.h ../config.h
+file-ascii.o: file.h http.h md5.h hdstring.h ../config.h
+file-flate.o: file.h http.h md5.h
+file-jpeg.o: file.h http.h md5.h
+file-rc4.o: file.h http.h md5.h
 http.o: http.h md5.h hdstring.h ../config.h debug.h
 http-md5.o: http.h md5.h hdstring.h ../config.h
 md5.o: md5.h hdstring.h ../config.h
@@ -15,13 +19,19 @@ image-bmp.o: image.h file.h http.h md5.h types.h ../config.h hdstring.h
 image-gif.o: image.h file.h http.h md5.h types.h ../config.h hdstring.h
 image-jpeg.o: image.h file.h http.h md5.h types.h ../config.h hdstring.h
 image-png.o: image.h file.h http.h md5.h types.h ../config.h
+image-reduce.o: htmldoc.h render.h style.h file.h http.h md5.h image.h
+image-reduce.o: types.h ../config.h tree.h margin.h hdstring.h
 margin.o: margin.h
 style.o: tree.h file.h http.h md5.h style.h hdstring.h ../config.h
-stylefont.o: htmldoc.h image.h file.h http.h md5.h types.h ../config.h tree.h
-stylefont.o: style.h hdstring.h
-stylesheet.o: htmldoc.h image.h file.h http.h md5.h types.h ../config.h
-stylesheet.o: tree.h style.h hdstring.h
-tree.o: htmldoc.h image.h file.h http.h md5.h types.h ../config.h tree.h
-tree.o: style.h hdstring.h
-testsuite.o: htmldoc.h image.h file.h http.h md5.h types.h ../config.h tree.h
-testsuite.o: style.h hdstring.h
+stylefont.o: htmldoc.h render.h style.h file.h http.h md5.h image.h types.h
+stylefont.o: ../config.h tree.h margin.h hdstring.h
+stylesheet.o: htmldoc.h render.h style.h file.h http.h md5.h image.h types.h
+stylesheet.o: ../config.h tree.h margin.h hdstring.h
+tree.o: htmldoc.h render.h style.h file.h http.h md5.h image.h types.h
+tree.o: ../config.h tree.h margin.h hdstring.h
+render.o: htmldoc.h render.h style.h file.h http.h md5.h image.h types.h
+render.o: ../config.h tree.h margin.h
+render-table.o: debug.h htmldoc.h render.h style.h file.h http.h md5.h
+render-table.o: image.h types.h ../config.h tree.h margin.h hdstring.h
+testsuite.o: htmldoc.h render.h style.h file.h http.h md5.h image.h types.h
+testsuite.o: ../config.h tree.h margin.h hdstring.h

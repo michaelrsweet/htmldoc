@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.28 2002/02/26 05:16:01 mike Exp $"
+// "$Id: htmldoc.h,v 1.29 2002/03/11 02:33:04 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -31,6 +31,29 @@
 //
 
 #  include "render.h"
+
+
+//
+// Error codes (in addition to the HTTP status codes...)
+//
+
+typedef enum
+{
+  HD_ERROR_NONE = 0,
+  HD_ERROR_NO_FILES,
+  HD_ERROR_NO_PAGES,
+  HD_ERROR_TOO_MANY_CHAPTERS,
+  HD_ERROR_OUT_OF_MEMORY,
+  HD_ERROR_FILE_NOT_FOUND,
+  HD_ERROR_BAD_COMMENT,
+  HD_ERROR_BAD_FORMAT,
+  HD_ERROR_DELETE_ERROR,
+  HD_ERROR_INTERNAL_ERROR,
+  HD_ERROR_NETWORK_ERROR,
+  HD_ERROR_READ_ERROR,
+  HD_ERROR_WRITE_ERROR,
+  HD_ERROR_HTTPBASE = 100
+} hdError;
 
 
 //
@@ -82,6 +105,7 @@ struct hdEntity
 struct hdCommon
 {
   // Global data...
+  int		verbosity;	// Verbosity
   const char	*datadir;	// Directory for data files
 
   int		num_sizes;	// Number of sizes in table
@@ -100,6 +124,11 @@ struct hdCommon
   hdPageSize	*find_size(float w, float l);
   void		load_entities();
   void		load_sizes();
+
+  void		progress_error(hdError error, const char *format, ...);
+  void		progress_hide(void);
+  void		progress_show(const char *format, ...);
+  void		progress_update(int percent);
 };
 
 extern hdCommon	hdGlobal;
@@ -108,5 +137,5 @@ extern hdCommon	hdGlobal;
 #endif // !_HTMLDOC_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.28 2002/02/26 05:16:01 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.29 2002/03/11 02:33:04 mike Exp $".
 //

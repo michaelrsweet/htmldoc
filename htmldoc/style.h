@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.11 2002/03/10 03:17:28 mike Exp $"
+// "$Id: style.h,v 1.12 2002/03/11 02:33:06 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -550,16 +550,16 @@ struct hdStyleSheet
   char		**glyphs;	// Glyphs in charset
 
   char		size_name[64];	// Page size name
-  float		width,		// Page width, points
-		length,		// Page length, points
-		left,		// Left position, points
-		bottom,		// Bottom position, points
-		right,		// Right position, points
-		top,		// Top position, points
-		print_width,	// Printable width, points
-		print_length,	// Printable length, points
-		current_width,	// Current printable width, points
-		current_length;	// Current printable length, points
+  float		page_width,	// Page width, points
+		page_length,	// Page length, points
+		page_left,	// Left position, points
+		page_bottom,	// Bottom position, points
+		page_right,	// Right position, points
+		page_top,	// Top position, points
+		page_print_width,
+				// Printable width, points
+		page_print_length;
+				// Printable length, points
 
   hdOrientation	orientation;	// Orientation of the page
   hdSides	sides;		// Format single or double-sided?
@@ -594,5 +594,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.11 2002/03/10 03:17:28 mike Exp $".
+// End of "$Id: style.h,v 1.12 2002/03/11 02:33:06 mike Exp $".
 //
