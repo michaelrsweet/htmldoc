@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.13 1999/11/13 13:52:18 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.14 1999/11/13 14:24:06 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5265,9 +5265,73 @@ write_image(FILE     *out,	/* I - Output file */
 
 	fputs("GR\n", out);
         break;
+    case 3 : /* PostScript, Level 3 */
+        // Fallthrough to Level 2 output if compression is disabled...
+        if (Compression && (!OutputJPEG || ncolors > 0))
+	{
+          fputs("GS", out);
+	  fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
+	          r->x, r->y);
+
+          if (ncolors > 0)
+          {
+	    fprintf(out, "[/Indexed/DeviceRGB %d<", ncolors - 1);
+	    for (i = 0; i < ncolors; i ++)
+	      fprintf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
+	    fputs(">]setcolorspace", out);
+
+	    fprintf(out, "<<"
+	                 "/ImageType 1"
+	                 "/Width %d"
+	                 "/Height %d"
+	                 "/BitsPerComponent %d"
+	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
+	                 "/Decode[0 %d]"
+		         "/Interpolate true"
+	                 "/DataSource currentfile/ASCII85Decode filter"
+		         "/FlateDecode filter"
+	                 ">>image\n",
+	            img->width, img->height, indbits,
+        	    img->width, -img->height, img->height,
+        	    (1 << indbits) - 1);
+
+            flate_open_stream(out);
+	    flate_write(out, indices, indwidth * img->height);
+	    flate_close_stream(out);
+          }
+          else
+          {
+	    if (img->depth == 1)
+	      fputs("/DeviceGray setcolorspace", out);
+	    else
+	      fputs("/DeviceRGB setcolorspace", out);
+
+	    fprintf(out, "<<"
+	                 "/ImageType 1"
+	                 "/Width %d"
+	                 "/Height %d"
+	                 "/BitsPerComponent 8"
+	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
+	                 "/Decode[%s]"
+		         "/Interpolate true"
+	                 "/DataSource currentfile/ASCII85Decode filter"
+		         "/FlateDecode filter"
+	                 ">>image\n",
+	            img->width, img->height,
+        	    img->width, -img->height, img->height,
+        	    img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+
+            flate_open_stream(out);
+	    flate_write(out, img->pixels,
+	                img->width * img->height * img->depth);
+	    flate_close_stream(out);
+          }
+
+	  fputs("GR\n", out);
+          break;
+	}
 
     case 2 : /* PostScript, Level 2 */
-    case 3 : /* PostScript, Level 3 */
         fputs("GS", out);
 	fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	        r->x, r->y);
@@ -5894,6 +5958,9 @@ flate_close_stream(FILE *out)	/* I - Output file */
   }
 
   deflateEnd(&compressor);
+
+  if (PSLevel)
+    fputs("~>\n", out);
 }
 
 
@@ -5971,5 +6038,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.13 1999/11/13 13:52:18 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.14 1999/11/13 14:24:06 mike Exp $".
  */
