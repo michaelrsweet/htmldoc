@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.44 2000/01/04 13:52:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.45 2000/01/04 15:50:52 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -179,6 +179,7 @@ typedef struct			/**** Named link position structure */
  * Local globals...
  */
 
+static int	title_page;
 static int	chapter,
 		chapter_starts[MAX_CHAPTERS],
 		chapter_ends[MAX_CHAPTERS];
@@ -330,6 +331,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 		*creator,	/* HTML file creator (Netscape, etc) */
 		*copyright,	/* File copyright */
 		*docnumber;	/* Document number */
+  tree_t	*t;		/* Title page document tree */
+  FILE		*fp;		/* Title page file */
   float		x, y,		/* Current page position */
 		width,		/* Width of title, author, etc */
 		height;		/* Height of title area */
@@ -367,14 +370,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   creator    = htmlGetMeta(document, (uchar *)"generator");
   copyright  = htmlGetMeta(document, (uchar *)"copyright");
   docnumber  = htmlGetMeta(document, (uchar *)"docnumber");
-  timage     = image_load(TitleImage, !OutputColor);
   logo_image = image_load(LogoImage, !OutputColor);
-
-  if (timage != NULL)
-  {
-    timage_width  = timage->width * PagePrintWidth / _htmlBrowserWidth;
-    timage_height = timage_width * timage->height / timage->width;
-  }
 
   find_background(document);
 
@@ -391,96 +387,144 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   memset(chapter_starts, -1, sizeof(chapter_starts));
   memset(chapter_ends, -1, sizeof(chapter_starts));
 
+  num_headings = 0;
+  num_links    = 0;
+
   if (TitlePage)
   {
-   /*
-    * Create a title page...
-    */
-
-    num_pages = PageDuplex ? 2 : 1;
-
-    height = 0.0;
-
-    if (timage != NULL)
-      height += timage_height + _htmlSpacings[SIZE_P];
-    if (title != NULL)
-      height += _htmlSpacings[SIZE_H1] + _htmlSpacings[SIZE_P];
-    if (author != NULL)
-      height += _htmlSpacings[SIZE_P];
-    if (docnumber != NULL)
-      height += _htmlSpacings[SIZE_P];
-    if (copyright != NULL)
-      height += _htmlSpacings[SIZE_P];
-
-    y = 0.5f * (PagePrintLength + height);
-
-    if (timage != NULL)
+  #if defined(WIN32) || defined(__EMX__)
+    if (stricmp(file_extension(TitleImage), "htm") == 0 ||
+	stricmp(file_extension(TitleImage), "html") == 0 ||
+	stricmp(file_extension(TitleImage), "shtml") == 0)
+  #else
+    if (strcmp(file_extension(TitleImage), "htm") == 0 ||
+	strcmp(file_extension(TitleImage), "html") == 0 ||
+	strcmp(file_extension(TitleImage), "shtml") == 0)
+  #endif // WIN32 || __EMX__
     {
-      r = new_render(0, RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
-                     y - timage_height, timage_width, timage_height, timage);
-      y -= timage->height + _htmlSpacings[SIZE_P];
-    }
-
-    get_color(_htmlTextColor, rgb);
-
-    if (title != NULL)
-    {
-      width = get_width(title, _htmlHeadingFont, STYLE_BOLD, SIZE_H1);
-      r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	 y - _htmlSpacings[SIZE_H1], width,
-			 _htmlSizes[SIZE_H1], title);
-
-      r->data.text.typeface = _htmlHeadingFont;
-      r->data.text.style    = STYLE_BOLD;
-      r->data.text.size     = _htmlSizes[SIZE_H1];
-      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
-
-      y -= _htmlSpacings[SIZE_H1];
-
-      if (docnumber != NULL)
+      // Write a title page from HTML source...
+      if ((fp = fopen(TitleImage, "rb")) == NULL)
       {
-	width = get_width(docnumber, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
-	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                           y - _htmlSpacings[SIZE_P], width,
-			   _htmlSizes[SIZE_P], docnumber);
+	progress_error("Unable to open title file \"%s\" - %s!",
+                       TitleImage, strerror(errno));
+	return (1);
+      }
 
-	r->data.text.typeface = _htmlBodyFont;
-	r->data.text.style    = STYLE_NORMAL;
-	r->data.text.size     = _htmlSizes[SIZE_P];
-        memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+      t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+      fclose(fp);
+
+      page            = 0;
+      title_page      = 1;
+      current_heading = NULL;
+      x               = 0.0;
+      bottom          = 0;
+      top             = PagePrintLength;
+      y               = top;
+
+      parse_doc(t, 0, PagePrintWidth, bottom, top, &x, &y, &page, NULL);
+
+      if (PageDuplex && (num_pages & 1))
+	num_pages ++;
+
+      htmlDeleteTree(t);
+    }
+    else
+    {
+     /*
+      * Create a standard title page...
+      */
+
+      if ((timage = image_load(TitleImage, !OutputColor)) != NULL)
+      {
+	timage_width  = timage->width * PagePrintWidth / _htmlBrowserWidth;
+	timage_height = timage_width * timage->height / timage->width;
+      }
+
+      num_pages = PageDuplex ? 2 : 1;
+
+      height = 0.0;
+
+      if (timage != NULL)
+	height += timage_height + _htmlSpacings[SIZE_P];
+      if (title != NULL)
+	height += _htmlSpacings[SIZE_H1] + _htmlSpacings[SIZE_P];
+      if (author != NULL)
+	height += _htmlSpacings[SIZE_P];
+      if (docnumber != NULL)
+	height += _htmlSpacings[SIZE_P];
+      if (copyright != NULL)
+	height += _htmlSpacings[SIZE_P];
+
+      y = 0.5f * (PagePrintLength + height);
+
+      if (timage != NULL)
+      {
+	r = new_render(0, RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
+                       y - timage_height, timage_width, timage_height, timage);
+	y -= timage->height + _htmlSpacings[SIZE_P];
+      }
+
+      get_color(_htmlTextColor, rgb);
+
+      if (title != NULL)
+      {
+	width = get_width(title, _htmlHeadingFont, STYLE_BOLD, SIZE_H1);
+	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
+                	   y - _htmlSpacings[SIZE_H1], width,
+			   _htmlSizes[SIZE_H1], title);
+
+	r->data.text.typeface = _htmlHeadingFont;
+	r->data.text.style    = STYLE_BOLD;
+	r->data.text.size     = _htmlSizes[SIZE_H1];
+	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+
+	y -= _htmlSpacings[SIZE_H1];
+
+	if (docnumber != NULL)
+	{
+	  width = get_width(docnumber, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
+	  r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
+                             y - _htmlSpacings[SIZE_P], width,
+			     _htmlSizes[SIZE_P], docnumber);
+
+	  r->data.text.typeface = _htmlBodyFont;
+	  r->data.text.style    = STYLE_NORMAL;
+	  r->data.text.size     = _htmlSizes[SIZE_P];
+          memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+
+	  y -= _htmlSpacings[SIZE_P];
+	}
 
 	y -= _htmlSpacings[SIZE_P];
       }
 
-      y -= _htmlSpacings[SIZE_P];
-    }
+      if (author != NULL)
+      {
+	width = get_width(author, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
+	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
+                	   y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
+			   author);
 
-    if (author != NULL)
-    {
-      width = get_width(author, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
-      r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	 y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
-			 author);
+	r->data.text.typeface = _htmlBodyFont;
+	r->data.text.style    = STYLE_NORMAL;
+	r->data.text.size     = _htmlSizes[SIZE_P];
+	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
-      r->data.text.typeface = _htmlBodyFont;
-      r->data.text.style    = STYLE_NORMAL;
-      r->data.text.size     = _htmlSizes[SIZE_P];
-      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+	y -= _htmlSpacings[SIZE_P];
+      }
 
-      y -= _htmlSpacings[SIZE_P];
-    }
+      if (copyright != NULL)
+      {
+	width = get_width(copyright, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
+	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
+                	   y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
+			   copyright);
 
-    if (copyright != NULL)
-    {
-      width = get_width(copyright, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
-      r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	 y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
-			 copyright);
-
-      r->data.text.typeface = _htmlBodyFont;
-      r->data.text.style    = STYLE_NORMAL;
-      r->data.text.size     = _htmlSizes[SIZE_P];
-      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+	r->data.text.typeface = _htmlBodyFont;
+	r->data.text.style    = STYLE_NORMAL;
+	r->data.text.size     = _htmlSizes[SIZE_P];
+	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+      }
     }
   }
   else
@@ -499,10 +543,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     chapter_starts[1] = num_pages;
   }
 
+  title_page      = 0;
   page            = num_pages;
   current_heading = NULL;
-  num_headings    = 0;
-  num_links       = 0;
   x               = 0.0;
   bottom          = 0;
   top             = PagePrintLength;
@@ -606,7 +649,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     *file_page = page - chapter_starts[0] + 1;
 
     if (TitlePage)
-      *file_page += PageDuplex + 1;
+      *file_page += chapter_starts[1];
   }
   else
   {
@@ -616,7 +659,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
       *file_page += chapter_ends[0] - chapter_starts[0] + 1;
 
     if (TitlePage)
-      *file_page += PageDuplex + 1;
+      *file_page += chapter_starts[1];
   }
 
  /*
@@ -639,7 +682,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     page_text  = format_number(print_page, 'i');
   }
   else if (chapter < 0)
-    page_text = page ? (char *)"eltit" : (char *)"title";
+    page_text = (page & 1) ? (char *)"eltit" : (char *)"title";
   else
   {
     print_page = page - chapter_starts[1] + 1;
@@ -885,9 +928,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
       write_prolog(out, PageDuplex + 1, title, author, creator, copyright);
     }
 
-    ps_write_page(out, 0, NULL, 0.0, &page_chapter, &page_heading);
-    if (PageDuplex)
-      ps_write_page(out, 1, NULL, 0.0, &page_chapter, &page_heading);
+    for (page = 0; page < chapter_starts[1]; page ++)
+      ps_write_page(out, page, NULL, 0.0, &page_chapter, &page_heading);
 
     if (OutputFiles)
     {
@@ -1143,11 +1185,8 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
   fputs("/Kids[", out);
 
   if (TitlePage)
-  {
-    fprintf(out, "%d 0 R\n", pages_object + 1);
-    if (PageDuplex)
-      fprintf(out, "%d 0 R\n", pages_object + 4);
-  }
+    for (page = 0; page < chapter_starts[1]; page ++)
+      fprintf(out, "%d 0 R\n", pages_object + 1 + page * 3);
 
   if (TocLevels > 0)
     chapter = 0;
@@ -1167,11 +1206,8 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
   chapter      = -1;
 
   if (TitlePage)
-  {
-    pdf_write_page(out, 0, NULL, 0.0, &page_chapter, &page_heading);
-    if (PageDuplex)
-      pdf_write_page(out, 1, NULL, 0.0, &page_chapter, &page_heading);
-  }
+    for (page = 0; page < chapter_starts[1]; page ++)
+      pdf_write_page(out, page, NULL, 0.0, &page_chapter, &page_heading);
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
   {
@@ -2278,8 +2314,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
                (int)(*y + 3 * t->height));
     }
 
-    if ((t->markup == MARKUP_H1 && OutputBook) ||
-        (t->markup == MARKUP_FILE && !OutputBook))
+    if (((t->markup == MARKUP_H1 && OutputBook) ||
+         (t->markup == MARKUP_FILE && !OutputBook)) && !title_page)
     {
       // New page on H1 in book mode or file in webpage mode...
       if (para->child != NULL)
@@ -2323,7 +2359,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       *x = (float)left;
     }
 
-    if (chapter == 0)
+    if (chapter == 0 && !title_page)
     {
       if (t->child != NULL)
         parse_doc(t->child, left, right, bottom, top, x, y, page, para);
@@ -2793,7 +2829,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   DEBUG_printf(("parse_heading(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
                 t, left, right, *x, *y, *page));
 
-  if ((t->markup - MARKUP_H1) < TocLevels || TocLevels == 0)
+  if (((t->markup - MARKUP_H1) < TocLevels || TocLevels == 0) && !title_page)
     current_heading = t->child;
 
   if (*y < (5 * _htmlSpacings[t->size] + bottom))
@@ -2804,13 +2840,13 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       progress_show("Formatting page %d", *page);
   }
 
-  if (t->markup == MARKUP_H1)
+  if (t->markup == MARKUP_H1 && !title_page)
     page_chapters[*page] = htmlGetText(current_heading);
 
-  if (page_headings[*page] == NULL || t->markup == MARKUP_H1)
+  if ((page_headings[*page] == NULL || t->markup == MARKUP_H1) && !title_page)
     page_headings[*page] = htmlGetText(current_heading);
 
-  if ((t->markup - MARKUP_H1) < TocLevels)
+  if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
   {
     if (PageDuplex)
     {
@@ -2831,7 +2867,8 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
   parse_paragraph(t, left, right, bottom, top, x, y, page);
 
-  if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 && OutputBook)
+  if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 && OutputBook &&
+      !title_page)
   {
    /*
     * Special case - chapter heading for user's manual...
@@ -6446,5 +6483,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.44 2000/01/04 13:52:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.45 2000/01/04 15:50:52 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.26 2000/01/04 13:52:24 mike Exp $"
+// "$Id: gui.cxx,v 1.27 2000/01/04 15:50:51 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1930,7 +1930,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 
   REF(w);
 
-  gui->fc->filter("*.htm*");
+  gui->fc->filter("*.{htm,html,shtml}");
   gui->fc->type(FileChooser::MULTI);
   gui->fc->label("Add HTML Files?");
   gui->fc->show();
@@ -2139,7 +2139,7 @@ GUI::titleImageCB(Fl_Widget *w,		// I - Widget
 {
   if (w == gui->titleBrowse)
   {
-    gui->fc->filter("*.{gif|jpg|png}");
+    gui->fc->filter("*.{gif|jpg|png|htm|html|shtml}");
     gui->fc->label("Title Image?");
     gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
@@ -3149,5 +3149,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.26 2000/01/04 13:52:24 mike Exp $".
+// End of "$Id: gui.cxx,v 1.27 2000/01/04 15:50:51 mike Exp $".
 //
