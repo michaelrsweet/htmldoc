@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.java,v 1.1.2.1 2001/03/08 19:38:08 mike Exp $"
+// "$Id: htmldoc.java,v 1.1.2.2 2001/03/08 19:40:47 mike Exp $"
 //
 //   Java interface to HTMLDOC.
 //
@@ -40,7 +40,7 @@ class htmldoc
     System.out.print("Content-type: application/pdf\n\n");
 
     // Construct the command string
-    command = "htmldoc --quiet --no-compression --webpage -t pdf --left 36 " +
+    command = "htmldoc --quiet --jpeg --webpage -t pdf --left 36 " +
               "--header .t. --footer .1. " + filename;
 
     // Run the process and wait for it to complete...
@@ -106,5 +106,5 @@ class htmldoc
 
 
 //
-// End of "$Id: htmldoc.java,v 1.1.2.1 2001/03/08 19:38:08 mike Exp $".
+// End of "$Id: htmldoc.java,v 1.1.2.2 2001/03/08 19:40:47 mike Exp $".
 //

@@ -9,7 +9,7 @@
 # The "options" variable contains any options you want to pass to HTMLDOC.
 #
 
-options="-t pdf --webpage --header ... --footer ..."
+options="-t pdf --quiet --jpeg --webpage --header .t. --footer .1."
 
 #
 # Tell the browser to expect a PDF file...
