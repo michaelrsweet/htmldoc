@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.154 2002/04/04 16:35:59 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.155 2002/04/04 17:20:12 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7472,14 +7472,30 @@ get_cell_size(tree_t *t,		// I - Cell
 	  else
 	    frag_pref += temp->width;
 
-          if ((temp->preformatted && temp->data != NULL &&
-               temp->data[strlen((char *)temp->data) - 1] == '\n') ||
-	      (!temp->preformatted && temp->data != NULL &&
-	       (isspace(temp->data[0]) ||
-		isspace(temp->data[strlen((char *)temp->data) - 1]))))
+          if (temp->preformatted && temp->data != NULL &&
+              temp->data[strlen((char *)temp->data) - 1] == '\n')
 	  {
 	    // Check required width...
             frag_width += temp->width + 1;
+
+            if (frag_width > minw)
+	    {
+	      DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
+	                    frag_width, minw));
+              minw = frag_width;
+	    }
+
+            frag_width = 0.0f;
+	  }
+          else if (!temp->preformatted && temp->data != NULL &&
+	           (isspace(temp->data[0]) ||
+	 	    isspace(temp->data[strlen((char *)temp->data) - 1])))
+	  {
+	    // Check required width...
+	    if (isspace(temp->data[0]))
+	      frag_width = temp->width + 1;
+	    else
+              frag_width += temp->width + 1;
 
             if (frag_width > minw)
 	    {
@@ -10737,5 +10753,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.154 2002/04/04 16:35:59 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.155 2002/04/04 17:20:12 mike Exp $".
  */
