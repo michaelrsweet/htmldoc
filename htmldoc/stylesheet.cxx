@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.8 2002/07/18 01:14:58 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.9 2002/07/18 02:46:22 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -545,6 +545,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
   char		import[1024],		// Import string
 		*import_ptr;		// Pointer into import string
   hdFile	*import_f;		// Import file pointer
+  char		media[256];		// Current media type
 
 
   // Initialize the read patterns.
@@ -555,12 +556,19 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
   cur_style  = 0;
   num_styles = 0;
   status     = 0;
+  media[0]   = '\0';
 
   while ((ch = f->get()) != EOF)
   {
     // Skip whitespace...
-    if (isspace(ch) || ch == '}')
+    if (isspace(ch))
       continue;
+
+    if (ch == '}')
+    {
+      media[0] = '\0';
+      continue;
+    }
 
     if (ch == '/')
     {
@@ -606,6 +614,17 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 	                        "Missing property data in stylesheet!");
 	status = -1;
 	break;
+      }
+
+      while ((ch = f->get()) >= 0)
+        if (!isspace(ch))
+	  break;
+
+      if (ch != '}')
+      {
+        f->unget(ch);
+	hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                        "Missing } for style properties!");
       }
 
       // Apply properties to all styles...
@@ -756,7 +775,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
         while (isspace(*import_ptr))
 	  import_ptr ++;
 
-        if (!*import_ptr && strstr(import_ptr, "print") != NULL)
+        if ((!*import_ptr && !media[0]) || strstr(import_ptr, "print") != NULL)
 	{
 	  // Import the file...
 	  if ((import_f = hdFile::open(import, HD_FILE_READ)) != NULL)
@@ -774,9 +793,54 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
       {
         // Set page parameters...
       }
+      else if (strcmp(sel_s, "@media") == 0)
+      {
+        // Set parameters for a specific media type...
+	read(f, sel_p, media, sizeof(media));
+
+	if (strcmp(media, "print") == 0)
+	  media[0] = '\0';
+
+        // Read up to the first {...
+	while ((ch = f->get()) >= 0)
+          if (!isspace(ch))
+	    break;
+
+	if (ch != '{')
+	{
+          f->unget(ch);
+	  hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                          "Missing { for media selector!");
+	}
+      }
       else
       {
         // Show a warning message...
+	hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                        "Unsupported rule \"%s\"!", sel_s);
+
+        int braces = 0;
+
+	while ((ch = f->get()) >= 0)
+	{
+	  if (ch == '\"')
+	  {
+	    // Skip quoted string...
+	    while ((ch = f->get()) >= 0)
+	      if (ch == '\"')
+	        break;
+	  }
+	  else if (ch == '{')
+	    braces ++;
+	  else if (ch == '}' && braces > 0)
+	    braces --;
+	  else if (ch == ';' && braces == 0)
+	    break;
+	}
+
+        if (ch != ';')
+	  hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                          "Missing terminator (;) for %s!", sel_s);
       }
 
       continue;
@@ -1119,5 +1183,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.8 2002/07/18 01:14:58 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.9 2002/07/18 02:46:22 mike Exp $".
 //
