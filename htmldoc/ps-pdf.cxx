@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.23 1999/11/17 14:27:21 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.24 1999/11/17 15:53:47 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2397,6 +2397,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           parse_pre(t, left, right, bottom, top, x, y, page);
           break;
 
+      case MARKUP_DIR :
+      case MARKUP_MENU :
       case MARKUP_UL :
       case MARKUP_OL :
           init_list(t);
@@ -2414,6 +2416,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           if (temp != NULL && *y < top &&
 	      temp->markup != MARKUP_LI &&
 	      temp->markup != MARKUP_UL &&
+	      temp->markup != MARKUP_DIR &&
+	      temp->markup != MARKUP_MENU &&
 	      temp->markup != MARKUP_DL &&
 	      temp->markup != MARKUP_OL)
 	    *y -= _htmlSpacings[t->size];
@@ -2424,6 +2428,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           if (temp != NULL &&
 	      temp->markup != MARKUP_LI &&
 	      temp->markup != MARKUP_UL &&
+	      temp->markup != MARKUP_DIR &&
+	      temp->markup != MARKUP_MENU &&
 	      temp->markup != MARKUP_OL &&
 	      temp->markup != MARKUP_DL &&
 	      temp->markup != MARKUP_HR &&
@@ -2719,6 +2725,8 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   else if (t->next != NULL &&
            t->next->markup != MARKUP_HR &&
            t->next->markup != MARKUP_UL &&
+           t->next->markup != MARKUP_DIR &&
+           t->next->markup != MARKUP_MENU &&
 	   t->next->markup != MARKUP_DL &&
 	   t->next->markup != MARKUP_OL)
     *y -= _htmlSpacings[t->next->size];
@@ -3440,28 +3448,40 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         	if (flat->markup == MARKUP_BR ||
                     (flat->preformatted &&
                      flat->data != NULL &&
+                     flat->data[strlen((char *)flat->data) - 1] == '\n'))
+        	{
+		  pref_width += flat->width + 1;
+
+                  if (pref_width > col_prefs[col])
+                    col_prefs[col] = pref_width;
+
+		  pref_width = 0.0f;
+        	}
+        	else if (flat->data != NULL)
+		  pref_width += flat->width + 1;
+		else
+		  pref_width += flat->width;
+
+        	if (flat->markup == MARKUP_BR ||
+                    (flat->preformatted &&
+                     flat->data != NULL &&
                      flat->data[strlen((char *)flat->data) - 1] == '\n') ||
 		    (!flat->preformatted &&
 		     flat->data != NULL &&
 		     (isspace(flat->data[0]) ||
 		      isspace(flat->data[strlen((char *)flat->data) - 1]))))
         	{
-                  width      += flat->width + 1;
-		  pref_width += flat->width + 1;
+                  width += flat->width + 1;
 
                   if (width > col_mins[col])
                     col_mins[col] = width;
 
-                  if (pref_width > col_prefs[col])
-                    col_prefs[col] = pref_width;
-
-                  width      = 0.0f;
-		  pref_width = 0.0f;
+                  width = 0.0f;
         	}
         	else if (flat->data != NULL)
                   width += flat->width + 1;
 		else
-                  width += flat->width;
+		  width += flat->width;
 
         	if (flat->width > col_mins[col])
 	          col_mins[col] = flat->width;
@@ -3534,8 +3554,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   else
   {
     for (col = 0, width = 0.0; col < num_cols; col ++)
-      width += col_mins[col];
-    width += 2 * (border + cellpadding + cellspacing) * num_cols;
+      width += col_prefs[col];
+
+    width += 2 * (border + cellpadding + cellspacing) * num_cols + 2;
 
     if (width > (right - left))
       width = (float)(right - left);
@@ -3552,7 +3573,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   * The first pass just handles columns with a specified width...
   */
 
-  for (col = 0; col < num_cols; col ++)
+  for (col = 0, regular_cols = 0; col < num_cols; col ++)
     if (col_widths[col] > 0.0)
     {
       if (col_mins[col] > col_widths[col])
@@ -3560,28 +3581,33 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       actual_width += col_widths[col];
     }
+    else
+      regular_cols ++;
 
  /*
   * Pass two uses the "preferred" width whenever possible, and the
   * minimum otherwise...
   */
 
-  regular_width = (width - actual_width) / num_cols;
-
-  for (col = 0, regular_cols = 0; col < num_cols; col ++)
-  {
+  for (col = 0, pref_width = 0.0f; col < num_cols; col ++)
     if (col_widths[col] == 0.0f)
-    {
-      if ((actual_width + col_prefs[col]) < width)
-        col_widths[col] = col_prefs[col];
-      else if ((actual_width + col_mins[col]) < width &&
-               col_mins[col] > regular_width)
-	col_widths[col] = col_mins[col];
+      pref_width += col_prefs[col];
 
-      actual_width += col_widths[col];
-    }
-    else
-      regular_cols ++;
+  if (pref_width > 0.0f)
+  {
+    regular_width = (width - actual_width) / pref_width;
+
+    for (col = 0; col < num_cols; col ++)
+      if (col_widths[col] == 0.0f)
+      {
+        pref_width = col_prefs[col] * regular_width;
+	if (pref_width > col_mins[col])
+	{
+	  col_widths[col] = pref_width;
+	  actual_width    += pref_width;
+	  regular_cols --;
+	}
+      }
   }
 
  /*
@@ -4428,6 +4454,8 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_H5 :
       case MARKUP_H6 :
       case MARKUP_UL :
+      case MARKUP_DIR :
+      case MARKUP_MENU :
       case MARKUP_OL :
       case MARKUP_DL :
       case MARKUP_LI :
@@ -6221,5 +6249,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.23 1999/11/17 14:27:21 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.24 1999/11/17 15:53:47 mike Exp $".
  */
