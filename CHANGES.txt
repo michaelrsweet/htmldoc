@@ -19,6 +19,8 @@ CHANGES IN HTMLDOC v1.8.20
 	  produce a bad PDF file.
 	- The Xerox XRX comments used the wrong units for the
 	  media size, points instead of millimeters.
+	- IMG elements with links that use the ALIGN attribute
+	  didn't get the links.
 
 
 CHANGES IN HTMLDOC v1.8.19
