@@ -59,6 +59,8 @@ CHANGES IN HTMLDOC v1.8.24
 	  page when producing N-up output; this caused font
 	  errors in some cases that prevented the document from
 	  printing or displaying properly.
+	- Eliminated a common cause of "table too wide"
+	  formatting errors,
 
 
 CHANGES IN HTMLDOC v1.8.23
