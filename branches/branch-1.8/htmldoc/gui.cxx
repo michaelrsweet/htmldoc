@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.24 2001/10/18 01:53:29 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.25 2001/10/18 21:14:57 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -732,35 +732,44 @@ GUI::GUI(const char *filename)		// Book file to load initially
   bodyColor = new Fl_Input(140, 45, 100, 25, "Body Color: ");
   bodyColor->when(FL_WHEN_CHANGED);
   bodyColor->callback((Fl_Callback *)bodyColorCB, this);
+  _tooltip(bodyColor, "Enter the HTML color for the body (background).");
 
   bodyLookup = new Fl_Button(240, 45, 80, 25, "Lookup...");
   bodyLookup->callback((Fl_Callback *)bodyColorCB, this);
+  _tooltip(bodyLookup, "Click to choose the HTML color for the body (background).");
 
   bodyImage = new Fl_Input(140, 75, 250, 25, "Body Image: ");
   bodyImage->when(FL_WHEN_CHANGED);
   bodyImage->callback((Fl_Callback *)bodyImageCB, this);
+  _tooltip(bodyImage, "Enter the image file for the body (background).");
 
   bodyBrowse = new Fl_Button(390, 75, 95, 25, "Browse...");
   bodyBrowse->callback((Fl_Callback *)bodyImageCB, this);
+  _tooltip(bodyBrowse, "Click to choose the image file for the body (background).");
 
   textColor = new Fl_Input(140, 105, 100, 25, "Text Color: ");
   textColor->when(FL_WHEN_CHANGED);
   textColor->callback((Fl_Callback *)textColorCB, this);
+  _tooltip(textColor, "Enter the HTML color for the text.");
 
   textLookup = new Fl_Button(240, 105, 80, 25, "Lookup...");
   textLookup->callback((Fl_Callback *)textColorCB, this);
+  _tooltip(textLookup, "Click to choose the HTML color for the text.");
 
   linkColor = new Fl_Input(140, 135, 100, 25, "Link Color: ");
   linkColor->when(FL_WHEN_CHANGED);
   linkColor->callback((Fl_Callback *)linkColorCB, this);
+  _tooltip(linkColor, "Enter the HTML color for links.");
 
   linkLookup = new Fl_Button(240, 135, 80, 25, "Lookup...");
   linkLookup->callback((Fl_Callback *)linkColorCB, this);
+  _tooltip(linkLookup, "Click to choose the HTML color for links.");
 
   linkStyle = new Fl_Choice(140, 165, 100, 25, "Link Style: ");
   linkStyle->add("Plain");
   linkStyle->add("Underline");
   linkStyle->callback((Fl_Callback *)changeCB, this);
+  _tooltip(linkStyle, "Choose the appearance of links.");
 
   colorsTab->end();
 
@@ -778,6 +787,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   fontBaseSize->step(0.1);
   fontBaseSize->value(11.0);
   fontBaseSize->align(FL_ALIGN_LEFT);
+  _tooltip(fontBaseSize, "Set the default size of text.");
 
   fontSpacing = new Fl_Counter(200, 75, 150, 25, "Line Spacing: ");
   fontSpacing->callback((Fl_Callback *)changeCB, this);
@@ -786,14 +796,17 @@ GUI::GUI(const char *filename)		// Book file to load initially
   fontSpacing->step(0.1);
   fontSpacing->value(1.2);
   fontSpacing->align(FL_ALIGN_LEFT);
+  _tooltip(fontSpacing, "Set the spacing between lines of text.");
 
   bodyFont = new Fl_Choice(200, 105, 100, 25, "Body Typeface: ");
   bodyFont->menu(typefaceMenu);
   bodyFont->callback((Fl_Callback *)changeCB, this);
+  _tooltip(bodyFont, "Choose the default typeface (font) of text.");
 
   headingFont = new Fl_Choice(200, 135, 100, 25, "Heading Typeface: ");
   headingFont->menu(typefaceMenu);
   headingFont->callback((Fl_Callback *)changeCB, this);
+  _tooltip(headingFont, "Choose the default typeface (font) of headings.");
 
   headFootSize = new Fl_Counter(200, 165, 150, 25, "Header/Footer Size: ");
   headFootSize->callback((Fl_Callback *)changeCB, this);
@@ -802,14 +815,17 @@ GUI::GUI(const char *filename)		// Book file to load initially
   headFootSize->step(0.1);
   headFootSize->value(11.0);
   headFootSize->align(FL_ALIGN_LEFT);
+  _tooltip(headFootSize, "Set the size of header and footer text.");
 
   headFootFont = new Fl_Choice(200, 195, 220, 25, "Header/Footer Font: ");
   headFootFont->menu(fontMenu);
   headFootFont->callback((Fl_Callback *)changeCB, this);
+  _tooltip(headFootFont, "Choose the font for header and footer text.");
 
   charset = new Fl_Choice(200, 225, 90, 25, "Character Set: ");
   charset->menu(charsetMenu);
   charset->callback((Fl_Callback *)changeCB, this);
+  _tooltip(charset, "Choose the encoding of text.");
 
   fontsTab->end();
 
@@ -826,22 +842,28 @@ GUI::GUI(const char *filename)		// Book file to load initially
     ps1 = new RadioButton(140, 45, 70, 20, "Level 1");
     ps1->type(FL_RADIO_BUTTON);
     ps1->callback((Fl_Callback *)psCB, this);
+    _tooltip(ps1, "Produce PostScript Level 1 output.");
 
     ps2 = new RadioButton(210, 45, 70, 20, "Level 2");
     ps2->type(FL_RADIO_BUTTON);
     ps2->callback((Fl_Callback *)psCB, this);
+    _tooltip(ps2, "Produce PostScript Level 2 output.\n"
+                  "(most common)");
 
     ps3 = new RadioButton(280, 45, 70, 20, "Level 3");
     ps3->type(FL_RADIO_BUTTON);
     ps3->callback((Fl_Callback *)psCB, this);
+    _tooltip(ps3, "Produce PostScript Level 3 output.");
 
   psLevel->end();
 
   psCommands = new CheckButton(140, 70, 310, 20, "Send Printer Commands");
   psCommands->callback((Fl_Callback *)changeCB, this);
+  _tooltip(psCommands, "Include PostScript commands to set the media size, etc.");
 
   xrxComments = new CheckButton(140, 95, 310, 20, "Include Xerox Job Comments");
   xrxComments->callback((Fl_Callback *)changeCB, this);
+  _tooltip(xrxComments, "Include Xerox job comments to set the media size, etc.");
 
   psTab->end();
 
@@ -4052,5 +4074,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.24 2001/10/18 01:53:29 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.25 2001/10/18 21:14:57 mike Exp $".
 //
