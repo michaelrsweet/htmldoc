@@ -340,10 +340,10 @@ function SetupFolders()
 
   szFile = TARGETDIR ^ "htmldoc.exe";
   LongPathToQuote(szFile, TRUE);
-  AddFolderIcon(szFolder, "HTMLDOC v1.8.3", szFile, "", "", 0, "", 0);
-  AddFolderIcon(FOLDER_DESKTOP, "HTMLDOC v1.8.3", szFile, "", "", 0, "", 0);
+  AddFolderIcon(szFolder, "HTMLDOC v1.8.4", szFile, "", "", 0, "", 0);
+  AddFolderIcon(FOLDER_DESKTOP, "HTMLDOC v1.8.4", szFile, "", "", 0, "", 0);
 
-  szFile = TARGETDIR ^ "doc/htmldoc.pdf";
+  szFile = TARGETDIR ^ "doc\\htmldoc.pdf";
   LongPathToQuote(szFile, TRUE);
   AddFolderIcon(szFolder, "Software Users Manual", szFile, "", "", 0, "", 0);
 
@@ -605,6 +605,7 @@ end;
  // --- include script file section ---
 
 #include "sddialog.rul"
+
 
 
 
