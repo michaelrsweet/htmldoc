@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.6 2001/02/12 17:06:04 mike Exp $"
+ * "$Id: file.c,v 1.13.2.7 2001/02/13 15:31:15 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -234,11 +234,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   int		bytes,			/* Bytes read */
 		count,			/* Number of bytes so far */
 		total;			/* Total bytes in file */
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
   char		tmpdir[1024];		/* Buffer for temp dir */
 #else
   const char	*tmpdir;		/* Temporary directory */
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
   int		fd;			/* File descriptor */
   static char	filename[HTTP_MAX_URI];	/* Current filename */
 
@@ -403,7 +403,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
     web_files ++;
 
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
     GetTempPath(sizeof(tmpdir), tmpdir);
 
     snprintf(filename, sizeof(filename), "%s/%06d.%06d.dat", tmpdir,
@@ -423,7 +423,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       httpFlush(http);
       return (NULL);
     }
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
     if ((total = atoi(httpGetField(http, HTTP_FIELD_CONTENT_LENGTH))) == 0)
       total = 1024 * 1024;
@@ -635,8 +635,12 @@ file_target(const char *s)	/* I - Filename or URL */
 static void
 close_connection(void)
 {
-  char		filename[1024];
-  const char	*tmpdir;
+  char		filename[1024];		/* Temporary file */
+#ifdef WIN32
+  char		tmpdir[1024];		/* Temporary directory */
+#else
+  const char	*tmpdir;		/* Temporary directory */
+#endif /* WIN32 */
 
 
   if (http)
@@ -645,22 +649,22 @@ close_connection(void)
     http = NULL;
   }
 
-#if defined(WIN32) || defined(__EMX__)
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "C:/WINDOWS/TEMP";
+#if defined(WIN32)
+  GetTempPath(sizeof(tmpdir), tmpdir);
 #else
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "/var/tmp";
-#endif /* WIN32 || __EMX__ */
+  if ((tmpdir = getenv("TMPDIR")) == NULL)
+    tmpdir = "/var/tmp";
+#endif /* WIN32 */
 
   while (web_files > 0)
   {
-#if defined(WIN32) || defined(__EMX__)
-    snprintf(filename, sizeof(filename), "%s/%06d.dat", tmpdir, web_files);
+#if defined(WIN32)
+    snprintf(filename, sizeof(filename), "%s/%06d.%06d.dat", tmpdir,
+             GetCurrentProcessId(), web_files);
 #else
     snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, web_files,
              getpid());
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
     unlink(filename);
     web_files --;
@@ -669,5 +673,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.6 2001/02/12 17:06:04 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.7 2001/02/13 15:31:15 mike Exp $".
  */

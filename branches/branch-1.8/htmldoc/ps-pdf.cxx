@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.15 2001/02/12 17:46:18 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.16 2001/02/13 15:31:21 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -441,7 +441,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (TitlePage)
   {
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
     if (stricmp(file_extension(TitleImage), "htm") == 0 ||
 	stricmp(file_extension(TitleImage), "html") == 0 ||
 	stricmp(file_extension(TitleImage), "shtml") == 0)
@@ -449,7 +449,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     if (strcmp(file_extension(TitleImage), "htm") == 0 ||
 	strcmp(file_extension(TitleImage), "html") == 0 ||
 	strcmp(file_extension(TitleImage), "shtml") == 0)
-#endif // WIN32 || __EMX__
+#endif // WIN32
     {
       // Write a title page from HTML source...
       if ((fp = fopen(TitleImage, "rb")) == NULL)
@@ -2112,11 +2112,11 @@ pdf_write_links(FILE *out)		/* I - Output file */
           fputs("<<", out);
 	  if (PDFVersion >= 1.2 &&
               file_method((char *)r->data.link) == NULL &&
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
               strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
 #else
               strcmp(file_extension((char *)r->data.link), "pdf") == 0)
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 	  {
 	   /*
 	    * Link to external PDF file...
@@ -5884,19 +5884,29 @@ open_file(void)
   {
     if (PSLevel == 0)
     {
-#if defined(WIN32) || defined(__EMX__)
-      if (getenv("TMP") != NULL)
-        sprintf(stdout_filename, "%s/XXXXXX", getenv("TMP"));
-      else
-        strcpy(stdout_filename, "C:/XXXXXX");
+#ifdef WIN32
+      GetTempPath(sizeof(stdout_filename), stdout_filename);
+      strncat(stdout_filename, "/XXXXXX", sizeof(stdout_filename));
+      stdout_filename[sizeof(stdout_filename) - 1] = '\0';
+      mktemp(stdout_filename);
+
+      return (fopen(stdout_filename, "wb"));
 #else
+      int fd;
+
       if (getenv("TMP") != NULL)
         sprintf(stdout_filename, "%s/XXXXXX", getenv("TMP"));
       else
         strcpy(stdout_filename, "/var/tmp/XXXXXX");
-#endif // WIN32 || __EMX__
 
-      return (fopen(stdout_filename, "wb"));
+      if ((fd = mkstemp(stdout_filename)) >= 0)
+        return (fdopen(fd, "wb"));
+      else
+      {
+        progress_error("Unable to create temporary file: %s", strerror(errno));
+        return (NULL);
+      }
+#endif // WIN32
     }
     else
       return (stdout);
@@ -7802,5 +7812,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.15 2001/02/12 17:46:18 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.16 2001/02/13 15:31:21 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.1.2.2 2001/02/10 16:18:10 mike Exp $"
+ * "$Id: http.c,v 1.1.2.3 2001/02/13 15:31:20 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
  *
@@ -75,9 +75,9 @@
 #include "http.h"
 #include "debug.h"
 
-#if !defined(WIN32) && !defined(__EMX__)
+#if !defined(WIN32)
 #  include <signal.h>
-#endif /* !WIN32 && !__EMX__ */
+#endif /* !WIN32 */
 
 #ifdef HAVE_LIBSSL
 #  include <openssl/err.h>
@@ -183,7 +183,7 @@ httpInitialize(void)
   unsigned char		data[1024];	/* Seed data */
 #endif /* HAVE_LIBSSL */
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
   WSADATA	winsockdata;	/* WinSock data */
   static int	initialized = 0;/* Has WinSock been initialized? */
 
@@ -205,7 +205,7 @@ httpInitialize(void)
   sigaction(SIGPIPE, &action, NULL);
 #else
   signal(SIGPIPE, SIG_IGN);
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
 #ifdef HAVE_LIBSSL
   SSL_load_error_strings();
@@ -453,11 +453,11 @@ httpReconnect(http_t *http)	/* I - HTTP data */
 
   if ((http->fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
     http->error  = WSAGetLastError();
 #else
     http->error  = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
     http->status = HTTP_ERROR;
     return (-1);
   }
@@ -482,11 +482,11 @@ httpReconnect(http_t *http)	/* I - HTTP data */
   if (connect(http->fd, (struct sockaddr *)&(http->hostaddr),
               sizeof(http->hostaddr)) < 0)
   {
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
     http->error  = WSAGetLastError();
 #else
     http->error  = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
     http->status = HTTP_ERROR;
 
 #ifdef WIN32
@@ -519,11 +519,11 @@ httpReconnect(http_t *http)	/* I - HTTP data */
       SSL_CTX_free(context);
       SSL_free(conn);
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
       http->error  = WSAGetLastError();
 #else
       http->error  = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
       http->status = HTTP_ERROR;
 
 #ifdef WIN32
@@ -1060,11 +1060,11 @@ httpRead(http_t *http,			/* I - HTTP data */
   if (bytes > 0)
     http->data_remaining -= bytes;
   else if (bytes < 0)
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
     http->error = WSAGetLastError();
 #else
     http->error = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
   if (http->data_remaining == 0)
   {
@@ -1201,11 +1201,11 @@ httpGets(char   *line,			/* I - Line to read into */
   * Pre-scan the buffer and see if there is a newline in there...
   */
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
   WSASetLastError(0);
 #else
   errno = 0;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
   do
   {
@@ -1238,7 +1238,7 @@ httpGets(char   *line,			/* I - Line to read into */
 	* Nope, can't get a line this time...
 	*/
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
         if (WSAGetLastError() != http->error)
 	{
 	  http->error = WSAGetLastError();
@@ -1254,7 +1254,7 @@ httpGets(char   *line,			/* I - Line to read into */
 	}
 
         DEBUG_printf(("httpGets(): recv() error %d!\n", errno));
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
         return (NULL);
       }
@@ -1524,11 +1524,11 @@ httpUpdate(http_t *http)		/* I - HTTP data */
 	  SSL_CTX_free(context);
 	  SSL_free(conn);
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
 	  http->error  = WSAGetLastError();
 #else
 	  http->error  = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 	  http->status = HTTP_ERROR;
 
 #ifdef WIN32
@@ -2012,5 +2012,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.1.2.2 2001/02/10 16:18:10 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.3 2001/02/13 15:31:20 mike Exp $".
  */
