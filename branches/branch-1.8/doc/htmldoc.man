@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.14 2002/06/11 19:36:16 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.15 2002/07/01 16:56:32 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.21" "5 June 2002" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.21" "1 July 2002" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -403,11 +403,6 @@ Specifies the top margin in points (no suffix or ##pt), inches
 (##in), centimeters (##cm), or millimeters (##mm).
 
 .TP 5
---truetype
-.br
-Enables use of TrueType fonts in PDF output.
-
-.TP 5
 --user-password \fIpassword\fR
 .br
 Specifies the user password for encryption of PDF files.
@@ -542,5 +537,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.14 2002/06/11 19:36:16 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.15 2002/07/01 16:56:32 mike Exp $".
 .\"
