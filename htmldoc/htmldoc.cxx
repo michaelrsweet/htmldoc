@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.76 2004/05/25 18:40:35 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.77 2004/10/06 19:45:40 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -1236,6 +1236,7 @@ prefs_load(void)
   DWORD		size;		// Size of string
   static char	data[1024];	// Data directory
   static char	doc[1024];	// Documentation directory
+  static char	path[4096];	// PATH environment variable
 #endif // WIN32
 
 
@@ -1261,6 +1262,23 @@ prefs_load(void)
 #  endif // HAVE_LIBFLTK
 
     RegCloseKey(key);
+  }
+
+  // See if the HTMLDOC program folder is in the system execution path...
+  if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                    "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
+                    0, KEY_READ | KEY_WRITE, &key))
+  {
+    // Grab the current path...
+    size = sizeof(path);
+    if (!RegQueryValueEx(key, "Path", NULL, NULL, (unsigned char *)path, &size))
+      if (strstr(path, _htmlData) == NULL)
+      {
+        // The data directory is not in the path, so add it...
+        strlcat(path, ";", sizeof(path));
+        strlcat(path, _htmlData, sizeof(path));
+        RegSetValueEx(key, "Path", 0, REG_EXPAND_SZ, (unsigned char *)path, strlen(path) + 1);
+      }
   }
 #endif // WIN32
 
@@ -2413,5 +2431,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.76 2004/05/25 18:40:35 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.77 2004/10/06 19:45:40 mike Exp $".
  */
