@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.4 2003/05/26 20:28:14 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.5 2003/12/18 21:55:42 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -838,6 +838,7 @@ add_heading(tree_t *t)			// I - Heading node
 	count;				// Count of headings with this name
   uchar	*heading,			// Heading text for this node
 	*ptr,				// Pointer into text
+	*ptr2,				// Second pointer into text
 	s[1024],			// New text if we have a conflict
 	**temp;				// New heading array pointer
 
@@ -852,7 +853,10 @@ add_heading(tree_t *t)			// I - Heading node
     if (!isalnum(*ptr))
     {
       // Remove anything but letters and numbers from the filename
-      strcpy((char *)ptr, (char *)ptr + 1);
+      for (ptr2 = ptr; *ptr2; ptr2 ++)
+        *ptr2 = ptr2[1];
+
+      *ptr2 = '\0';
     }
     else
       ptr ++;
@@ -1087,5 +1091,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.4 2003/05/26 20:28:14 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.5 2003/12/18 21:55:42 mike Exp $".
 //
