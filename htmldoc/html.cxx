@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.41 2004/09/23 20:16:14 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.42 2004/10/23 06:16:41 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -675,7 +675,7 @@ write_node(FILE   *out,		/* I - Output file */
         }
 
     default :
-	if (t->markup == MARKUP_IMG &&
+	if (t->markup == MARKUP_IMG && OutputFiles &&
             (src = htmlGetVariable(t, (uchar *)"REALSRC")) != NULL)
 	{
 	 /*
@@ -1108,5 +1108,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.41 2004/09/23 20:16:14 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.42 2004/10/23 06:16:41 mike Exp $".
  */

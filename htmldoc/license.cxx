@@ -1,5 +1,5 @@
 //
-// "$Id: license.cxx,v 1.1.2.2 2004/06/14 21:51:05 mike Exp $"
+// "$Id: license.cxx,v 1.1.2.3 2004/10/23 06:16:41 mike Exp $"
 //
 //   GUI license dialog routines for HTMLDOC, an HTML document processing
 //   program.
@@ -16,7 +16,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3142 USA
+//       Hollywood, Maryland 20636 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -78,7 +78,7 @@ GUI::showLicenseCB(void)
   box = new Fl_Box(20, 45, 440, 110,
     "You are using the free, unsupported version of HTMLDOC which is "
     "provided under the terms of the GNU General Public License shown "
-    "below. Basic and professional memberships, which financially "
+    "below. HTMLDOC Basic and HTMLDOC Professional, which financially "
     "support the continued development of HTMLDOC, may be purchased at the "
     "following URL:\n"
     "\n"
@@ -364,5 +364,5 @@ closeLicenseCB(Fl_Widget *w)		// I - Close button
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: license.cxx,v 1.1.2.2 2004/06/14 21:51:05 mike Exp $".
+// End of "$Id: license.cxx,v 1.1.2.3 2004/10/23 06:16:41 mike Exp $".
 //
