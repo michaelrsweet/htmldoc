@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.13 2002/07/24 12:55:55 mike Exp $"
+// "$Id: tree.h,v 1.14 2002/07/29 02:10:28 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -35,6 +35,19 @@
 
 
 //
+// Nodebreak values...
+//
+
+enum
+{
+  HD_NODEBREAK_NONE = 0,
+  HD_NODEBREAK_LEFT = 1,
+  HD_NODEBREAK_RIGHT = 2,
+  HD_NODEBREAK_LINE = 3
+};
+
+
+//
 // Tree attribute...
 //
 
@@ -64,7 +77,7 @@ struct hdTree
   float		width,		// Width of this fragment in points
 		height;		// Height of this fragment in points
   char		whitespace,	// Whitespace before this node?
-		linebreak;	// Line break after this node?
+		nodebreak;	// Line/left/right break before this node?
   short		nattrs;		// Number of attributes...
   hdTreeAttr	*attrs;		// Attributes...
 
@@ -132,5 +145,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.13 2002/07/24 12:55:55 mike Exp $".
+// End of "$Id: tree.h,v 1.14 2002/07/29 02:10:28 mike Exp $".
 //

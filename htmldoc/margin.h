@@ -1,5 +1,5 @@
 //
-// "$Id: margin.h,v 1.4 2002/04/07 13:19:57 mike Exp $"
+// "$Id: margin.h,v 1.5 2002/07/29 02:10:28 mike Exp $"
 //
 // Margin class definitions for HTMLDOC, a HTML document processing
 // program.
@@ -59,6 +59,7 @@ class hdMargin
     int		page() { return (_page[_level]); }
     float	top() { return (_top); }
     float	width() { return (_right[_level] - _left[_level]); }
+    float	length() { return (_bottom[0] - _top); }
 
     void	push(float l, float r, float b, int p = 0);
     void	pop() { if (_level) _level --; }
@@ -71,5 +72,5 @@ class hdMargin
 
 
 //
-// End of "$Id: margin.h,v 1.4 2002/04/07 13:19:57 mike Exp $".
+// End of "$Id: margin.h,v 1.5 2002/07/29 02:10:28 mike Exp $".
 //

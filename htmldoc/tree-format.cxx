@@ -1,5 +1,5 @@
 //
-// "$Id: tree-format.cxx,v 1.1 2002/07/24 12:55:54 mike Exp $"
+// "$Id: tree-format.cxx,v 1.2 2002/07/29 02:10:28 mike Exp $"
 //
 //   HTML formatting routines for HTMLDOC, a HTML document processing program.
 //
@@ -45,6 +45,241 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
                float        &y,			// IO - Current Y position
 	       int          &page)		// IO - Current page
 {
+  float		fragwidth,			// Fragment width
+		linespacing,			// Line spacing
+		ascender,			// Ascender
+		descender;			// Descender
+  hdTree	*frag,				// Start of fragment
+		*block,				// Start of block
+		*temp;				// Current child
+  float		tempx,				// Temporary X position
+		tempy;				// Temporary Y position
+  int		temppage;			// Temporary page
+
+
+  // Don't do anything if there are no child nodes...
+  if (child == NULL)
+  {
+    compute_size(css);
+    nodebreak = HD_NODEBREAK_NONE;
+
+    return;
+  }
+
+  x          = 0.0;
+  width      = 0.0;
+  height     = 0.0;
+  temp       = child;
+  frag       = child;
+  fragwidth  = 0.0;
+  ascender   = 0.0;
+  descender  = 0.0;
+
+  while (temp != NULL)
+  {
+    // If there is whitespace here, process the fragment...
+    temp->nodebreak = HD_NODEBREAK_NONE;
+
+    if (temp->whitespace && frag != temp)
+    {
+      if ((fragwidth + x) > m->width())
+      {
+        frag->nodebreak = HD_NODEBREAK_LINE;
+	x               = 0.0;
+	y               += ascender + descender;
+	ascender        = 0.0;
+	descender       = 0.0;
+
+        if (y >= m->length())
+	{
+	  y = 0.0;
+	  page ++;
+	}
+
+	m->clear(y, page);
+
+        if (frag->whitespace)
+	  fragwidth -= frag->style->font->get_width(" ") *
+	               frag->style->font_size;
+      }
+
+      x         += fragwidth;
+      fragwidth = 0.0;
+      frag      = temp;
+    }
+
+    // Get the size of this node, if applicable...
+    switch (temp->element)
+    {
+      case HD_ELEMENT_NONE :
+          fragwidth += temp->width;
+
+	  if (temp->whitespace && x > 0.0)
+	    fragwidth += temp->style->font->get_width(" ") *
+	                 temp->style->font_size;
+
+          switch (temp->style->vertical_align)
+	  {
+	    case HD_VERTICALALIGN_BASELINE :
+	    case HD_VERTICALALIGN_TOP :
+	    case HD_VERTICALALIGN_TEXT_TOP :
+	    case HD_VERTICALALIGN_SUPER :
+		if (temp->height > ascender)
+		  ascender = temp->height;
+
+        	linespacing = temp->style->line_height - temp->height;
+
+		if (linespacing > descender)
+		  descender = linespacing;
+	        break;
+
+	    case HD_VERTICALALIGN_MIDDLE :
+		if ((temp->height * 0.5) > ascender)
+		  ascender = temp->height * 0.5;
+
+		if ((temp->height * 0.5) > descender)
+		  descender = temp->height * 0.5;
+	        break;
+
+	    case HD_VERTICALALIGN_SUB :
+	    case HD_VERTICALALIGN_BOTTOM :
+	    case HD_VERTICALALIGN_TEXT_BOTTOM :
+		if (temp->height > descender)
+		  descender = temp->height;
+	        break;
+	  }
+          break;
+
+      case HD_ELEMENT_IMG :
+          switch (temp->style->float_)
+	  {
+	    case HD_FLOAT_NONE :
+		fragwidth += temp->width;
+
+		if (temp->whitespace && x > 0.0)
+		  fragwidth += temp->style->font->get_width(" ") *
+	                       temp->style->font_size;
+
+                switch (temp->style->vertical_align)
+		{
+		  case HD_VERTICALALIGN_BASELINE :
+		  case HD_VERTICALALIGN_TOP :
+		  case HD_VERTICALALIGN_TEXT_TOP :
+		  case HD_VERTICALALIGN_SUPER :
+		      if (temp->height > ascender)
+		        ascender = temp->height;
+	              break;
+
+		  case HD_VERTICALALIGN_MIDDLE :
+		      if ((temp->height * 0.5) > ascender)
+		        ascender = temp->height * 0.5;
+
+		      if ((temp->height * 0.5) > descender)
+		        descender = temp->height * 0.5;
+	              break;
+
+		  case HD_VERTICALALIGN_SUB :
+		  case HD_VERTICALALIGN_BOTTOM :
+		  case HD_VERTICALALIGN_TEXT_BOTTOM :
+		      if (temp->height > descender)
+		        descender = temp->height;
+	              break;
+		}
+		break;
+
+	    case HD_FLOAT_LEFT :
+	        temp->nodebreak = HD_NODEBREAK_LEFT;
+
+		m->push(m->left() + temp->width, m->right(), y + temp->height);
+		break;
+
+	    case HD_FLOAT_RIGHT :
+	        temp->nodebreak = HD_NODEBREAK_RIGHT;
+
+		m->push(m->left(), m->right() + temp->width, y + temp->height);
+		break;
+	  }
+          break;
+
+      case HD_ELEMENT_SPACER :
+          fragwidth += temp->width;
+
+	  if (temp->whitespace && x > 0.0)
+	    fragwidth += temp->style->font->get_width(" ") *
+	                 temp->style->font_size;
+
+	  if (temp->height > ascender)
+	    ascender = temp->height;
+          break;
+
+      case HD_ELEMENT_TABLE :
+          switch (temp->style->float_)
+	  {
+	    case HD_FLOAT_NONE :
+        	temp->format_table(css, m, x, y, page);
+
+        	fragwidth += temp->width;
+
+		if (temp->height > ascender)
+		  ascender = temp->height;
+		break;
+
+	    case HD_FLOAT_LEFT :
+        	tempx    = x;
+		tempy    = y;
+		temppage = page;
+
+        	temp->format_table(css, m, tempx, tempy, temppage);
+	        temp->nodebreak = HD_NODEBREAK_LEFT;
+
+		m->push(m->left() + temp->width, m->right(), tempy, temppage);
+		break;
+
+	    case HD_FLOAT_RIGHT :
+        	tempx    = x;
+		tempy    = y;
+		temppage = page;
+
+        	temp->format_table(css, m, tempx, tempy, temppage);
+	        temp->nodebreak = HD_NODEBREAK_LEFT;
+
+		m->push(m->left(), m->right() + temp->width, tempy, temppage);
+		break;
+          }
+	  break;
+
+      default :
+          break;
+    }
+
+    // Find the next logical node...
+    if (temp->child != NULL)
+      temp = temp->child;
+    else if (temp->next == NULL)
+    {
+      temp = temp->parent;
+      if (temp == this)
+        temp = NULL;
+    }
+    else
+      temp = temp->next;
+  }
+
+  // Handle any remaining text fragment...
+  if ((fragwidth + x) > m->width())
+  {
+    frag->nodebreak = HD_NODEBREAK_LINE;
+    x               = 0.0;
+    y               += ascender + descender;
+
+    if (y >= m->length())
+    {
+      y = 0.0;
+      page ++;
+    }
+
+    m->clear(y, page);
+  }
 }
 
 
@@ -133,5 +368,5 @@ hdTree::format_list(hdStyleSheet *css,		// I  - Style sheet
 
 
 //
-// End of "$Id: tree-format.cxx,v 1.1 2002/07/24 12:55:54 mike Exp $".
+// End of "$Id: tree-format.cxx,v 1.2 2002/07/29 02:10:28 mike Exp $".
 //
