@@ -1,5 +1,5 @@
 //
-// "$Id: image-jpeg.cxx,v 1.4 2002/01/06 20:04:48 mike Exp $"
+// "$Id: image-jpeg.cxx,v 1.5 2002/01/08 19:21:03 mike Exp $"
 //
 // JPEG image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -93,9 +93,7 @@ hdJPEGImage::check(const char *p,	// I - URI for image file
                    int        gs,	// I - 1 = grayscale, 0 = color
 		   const char *header)	// I - First 16 bytes of file
 {
-  if (memcmp(header, "\377\330\377", 3) == 0 &&	// Start-of-Image
-      (uchar)header[3] >= 0xe0 &&
-      (uchar)header[3] <= 0xef)			// APPn
+  if (memcmp(header, "\377\330\377", 3) == 0)
     return (new hdJPEGImage(p, gs));
   else
     return (NULL);
@@ -303,5 +301,5 @@ jpg_source::jpg_source(j_decompress_ptr cinfo,	// I - Decompressor data
 
 
 //
-// End of "$Id: image-jpeg.cxx,v 1.4 2002/01/06 20:04:48 mike Exp $".
+// End of "$Id: image-jpeg.cxx,v 1.5 2002/01/08 19:21:03 mike Exp $".
 //
