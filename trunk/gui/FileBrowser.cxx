@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.8 1999/05/17 00:21:35 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.9 1999/07/09 18:42:35 mike Exp $"
 //
 //   FileBrowser routines for the Common UNIX Printing System (CUPS).
 //
@@ -131,7 +131,7 @@ FileBrowser::item_width(void *p) const	// I - List item data
       strchr(line->txt, '\t') == NULL)
   {
     // Do a fast width calculation...
-    width = fl_width(line->txt);
+    width = (int)fl_width(line->txt);
   }
   else
   {
@@ -146,7 +146,7 @@ FileBrowser::item_width(void *p) const	// I - List item data
         // Newline - nul terminate this fragment and get the width...
         *ptr = '\0';
 
-	tempwidth += fl_width(fragment);
+	tempwidth += (int)fl_width(fragment);
 
         // Update the max width as needed...
 	if (tempwidth > width)
@@ -160,7 +160,7 @@ FileBrowser::item_width(void *p) const	// I - List item data
       {
         // Advance to the next column...
         column ++;
-        tempwidth = column * fl_width("        ");
+        tempwidth = column * (int)fl_width("        ");
 
         if (tempwidth > width)
 	  width = tempwidth;
@@ -175,7 +175,7 @@ FileBrowser::item_width(void *p) const	// I - List item data
       // Nul terminate this fragment and get the width...
       *ptr = '\0';
 
-      tempwidth += fl_width(fragment);
+      tempwidth += (int)fl_width(fragment);
 
       // Update the max width as needed...
       if (tempwidth > width)
@@ -400,5 +400,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.8 1999/05/17 00:21:35 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.9 1999/07/09 18:42:35 mike Exp $".
 //
