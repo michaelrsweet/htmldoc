@@ -1,9 +1,9 @@
 #
-#   "$Id: Makedefs.in,v 1.9 2000/04/22 18:12:24 mike Exp $"
+#   "$Id: Makedefs.in,v 1.9.2.2 2001/12/14 19:37:03 mike Exp $"
 #
 #   Makefile definitions for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2000 by Easy Software Products.
+#   Copyright 1997-2001 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -35,6 +35,7 @@ CP	=	@CP@
 LN	=	/bin/ln -sf
 MKDIR	=	@MKDIR@ -p
 MV	=	@MV@
+POST	=	@POST@
 RANLIB	=	@RANLIB@
 RM	=	@RM@ -f
 SHELL	=	/bin/sh
@@ -87,5 +88,5 @@ OPTIM	=	@OPTIM@
 	$(CXX) $(CXXFLAGS) -c $<
 
 #
-# End of "$Id: Makedefs.in,v 1.9 2000/04/22 18:12:24 mike Exp $".
+# End of "$Id: Makedefs.in,v 1.9.2.2 2001/12/14 19:37:03 mike Exp $".
 #

@@ -1,5 +1,5 @@
 /*
- * "$Id: hdstring.h,v 1.2 2001/12/07 18:26:58 mike Exp $"
+ * "$Id: hdstring.h,v 1.1.2.2 2001/10/20 21:49:16 mike Exp $"
  *
  *   String definitions for HTMLDOC, a HTML document processing program.
  *
@@ -92,5 +92,5 @@ extern int	vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: hdstring.h,v 1.2 2001/12/07 18:26:58 mike Exp $".
+ * End of "$Id: hdstring.h,v 1.1.2.2 2001/10/20 21:49:16 mike Exp $".
  */
