@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.58 2002/08/26 18:04:44 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.59 2002/10/04 16:42:58 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -82,7 +82,6 @@
 #  include <ctype.h>
 #  include <math.h>
 #  include <FL/fl_ask.H>
-#  include <FL/Fl_Double_Window.H>
 #  include <FL/Fl_Color_Chooser.H>
 #  include <FL/fl_draw.H>
 #  include <FL/x.H>
@@ -269,7 +268,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Create a dialog window...
   //
 
-  window = new Fl_Double_Window(505, 415, "HTMLDOC " SVERSION);
+  window = new Fl_Window(505, 415, "HTMLDOC " SVERSION);
   window->callback((Fl_Callback *)closeBookCB, this);
 
   controls = new Fl_Group(0, 0, 505, 385);
@@ -4063,5 +4062,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.58 2002/08/26 18:04:44 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.59 2002/10/04 16:42:58 mike Exp $".
 //
