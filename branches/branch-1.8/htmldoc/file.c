@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.48 2004/05/09 15:04:38 mike Exp $"
+ * "$Id: file.c,v 1.13.2.49 2004/05/25 18:40:35 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -70,7 +70,7 @@
 
 #ifdef WIN32
 #  define getpid	GetCurrentProcessId
-#  define TEMPLATE	"%s%08lx.%06d.tmp"
+#  define TEMPLATE	"%s/%08lx.%06d.tmp"
 #  define OPENMODE	(_O_CREAT | _O_RDWR | _O_TRUNC | _O_BINARY)
 #  define OPENPERM	(_S_IREAD | _S_IWRITE)
 #else
@@ -1049,5 +1049,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.48 2004/05/09 15:04:38 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.49 2004/05/25 18:40:35 mike Exp $".
  */

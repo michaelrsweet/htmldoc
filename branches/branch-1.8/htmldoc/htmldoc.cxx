@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.75 2004/05/24 21:16:35 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.76 2004/05/25 18:40:35 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1071,16 +1071,18 @@ main(int  argc,				/* I - Number of command-line arguments */
   {
     char	url[1024];		// URL
     const char	*path_info,		// Path info, if any
-		*query;			// Query string, if any
+		*query,			// Query string, if any
+		*https;			// HTTPS env var, if any
 
 
     path_info = getenv("PATH_INFO");
     query     = getenv("QUERY_STRING");
+    https     = getenv("HTTPS");
 
     if (getenv("SERVER_PORT") && path_info && *path_info)
     {
       // Read the referenced file from the local server...
-      if (getenv("HTTPS"))
+      if (https && strcmp(https, "off"))
 	snprintf(url, sizeof(url), "https://%s:%s%s", getenv("SERVER_NAME"),
         	 getenv("SERVER_PORT"), getenv("PATH_INFO"));
       else
@@ -2411,5 +2413,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.75 2004/05/24 21:16:35 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.76 2004/05/25 18:40:35 mike Exp $".
  */
