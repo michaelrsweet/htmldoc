@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.2 1999/11/08 22:11:34 mike Exp $"
+// "$Id: gui.cxx,v 1.3 1999/11/09 01:08:44 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -130,55 +130,51 @@ GUI::GUI(const char *filename)		// Book file to load initially
   group->align(FL_ALIGN_LEFT);
     typeBook = new CheckButton(140, 45, 60, 20, "Book");
     typeBook->type(FL_RADIO_BUTTON);
-    typeBook->down_box(FL_DIAMOND_DOWN_BOX);
-    typeBook->color2(FL_BLUE);
     typeBook->setonly();
     typeBook->callback((Fl_Callback *)docTypeCB, this);
 
     typeWebPage = new CheckButton(200, 45, 90, 20, "Web Page");
     typeWebPage->type(FL_RADIO_BUTTON);
-    typeWebPage->down_box(FL_DIAMOND_DOWN_BOX);
-    typeWebPage->color2(FL_BLUE);
     typeWebPage->callback((Fl_Callback *)docTypeCB, this);
   group->end();
 
-  group = new Fl_Group(140, 70, 210, 20, "Input Files: ");
+  group = new Fl_Group(140, 70, 215, 20, "Input Files: ");
   group->align(FL_ALIGN_LEFT);
   group->end();
 
-  inputFiles = new Fl_Multi_Browser(140, 70, 210, 125);
+  inputFiles = new Fl_Multi_Browser(140, 70, 215, 125);
   inputFiles->callback((Fl_Callback *)inputFilesCB, this);
   inputFiles->when(FL_WHEN_RELEASE | FL_WHEN_NOT_CHANGED);
 
-  addFile = new Fl_Button(350, 70, 95, 25, "Add Files...");
+  addFile = new Fl_Button(355, 70, 95, 25, "Add Files...");
   addFile->callback((Fl_Callback *)addFileCB, this);
 
-  editFile = new Fl_Button(350, 95, 95, 25, "Edit Files...");
+  editFile = new Fl_Button(355, 95, 95, 25, "Edit Files...");
   editFile->deactivate();
   editFile->callback((Fl_Callback *)editFilesCB, this);
 
-  deleteFile = new Fl_Button(350, 120, 95, 25, "Delete Files");
+  deleteFile = new Fl_Button(355, 120, 95, 25, "Delete Files");
   deleteFile->deactivate();
   deleteFile->callback((Fl_Callback *)deleteFilesCB, this);
 
-  moveUpFile = new Fl_Button(350, 145, 95, 25, "Move Up");
+  moveUpFile = new Fl_Button(355, 145, 95, 25, "Move Up");
   moveUpFile->deactivate();
   moveUpFile->callback((Fl_Callback *)moveUpFilesCB, this);
 
-  moveDownFile = new Fl_Button(350, 170, 95, 25, "Move Down");
+  moveDownFile = new Fl_Button(355, 170, 95, 25, "Move Down");
   moveDownFile->deactivate();
   moveDownFile->callback((Fl_Callback *)moveDownFilesCB, this);
 
-  logoImage = new Fl_Input(140, 205, 210, 25, "Logo Image: ");
+  logoImage = new Fl_Input(140, 205, 215, 25, "Logo Image: ");
   logoImage->callback((Fl_Callback *)logoImageCB, this);
 
-  logoBrowse = new Fl_Button(350, 205, 95, 25, "Browse...");
+  logoBrowse = new Fl_Button(355, 205, 95, 25, "Browse...");
   logoBrowse->callback((Fl_Callback *)logoImageCB, this);
 
-  titleImage = new Fl_Input(140, 235, 210, 25, "Title Image: ");
+  titleImage = new Fl_Input(140, 235, 215, 25, "Title Image: ");
   titleImage->callback((Fl_Callback *)titleImageCB, this);
 
-  titleBrowse = new Fl_Button(350, 235, 95, 25, "Browse...");
+  titleBrowse = new Fl_Button(355, 235, 95, 25, "Browse...");
   titleBrowse->callback((Fl_Callback *)titleImageCB, this);
 
   inputTab->end();
@@ -195,49 +191,33 @@ GUI::GUI(const char *filename)		// Book file to load initially
   group->align(FL_ALIGN_LEFT);
     outputFile = new CheckButton(140, 45, 50, 20, "File");
     outputFile->type(FL_RADIO_BUTTON);
-    outputFile->down_box(FL_DIAMOND_DOWN_BOX);
-    outputFile->color2(FL_BLUE);
     outputFile->setonly();
     outputFile->callback((Fl_Callback *)outputTypeCB, this);
 
     outputDirectory = new CheckButton(185, 45, 105, 20, "Directory");
     outputDirectory->type(FL_RADIO_BUTTON);
-    outputDirectory->down_box(FL_DIAMOND_DOWN_BOX);
-    outputDirectory->color2(FL_BLUE);
     outputDirectory->callback((Fl_Callback *)outputTypeCB, this);
   group->end();
 
-  outputPath = new Fl_Input(140, 70, 210, 25, "Output Path: ");
+  outputPath = new Fl_Input(140, 70, 215, 25, "Output Path: ");
   outputPath->callback((Fl_Callback *)outputPathCB, this);
 
-  outputBrowse = new Fl_Button(350, 70, 95, 25, "Browse...");
+  outputBrowse = new Fl_Button(355, 70, 95, 25, "Browse...");
   outputBrowse->callback((Fl_Callback *)outputPathCB, this);
 
   group = new Fl_Group(140, 100, 255, 20, "Output Format: ");
   group->align(FL_ALIGN_LEFT);
     typeHTML = new CheckButton(140, 100, 50, 20, "HTML");
     typeHTML->type(FL_RADIO_BUTTON);
-    typeHTML->down_box(FL_DIAMOND_DOWN_BOX);
-    typeHTML->color2(FL_BLUE);
     typeHTML->setonly();
     typeHTML->callback((Fl_Callback *)outputFormatCB, this);
 
-    typePS1 = new CheckButton(200, 100, 40, 20, "PS");
-    typePS1->type(FL_RADIO_BUTTON);
-    typePS1->down_box(FL_DIAMOND_DOWN_BOX);
-    typePS1->color2(FL_BLUE);
-    typePS1->callback((Fl_Callback *)outputFormatCB, this);
+    typePS = new CheckButton(200, 100, 40, 20, "PS");
+    typePS->type(FL_RADIO_BUTTON);
+    typePS->callback((Fl_Callback *)outputFormatCB, this);
 
-    typePS2 = new CheckButton(240, 100, 45, 20, "PS2");
-    typePS2->type(FL_RADIO_BUTTON);
-    typePS2->down_box(FL_DIAMOND_DOWN_BOX);
-    typePS2->color2(FL_BLUE);
-    typePS2->callback((Fl_Callback *)outputFormatCB, this);
-
-    typePDF = new CheckButton(290, 100, 50, 20, "PDF");
+    typePDF = new CheckButton(240, 100, 50, 20, "PDF");
     typePDF->type(FL_RADIO_BUTTON);
-    typePDF->down_box(FL_DIAMOND_DOWN_BOX);
-    typePDF->color2(FL_BLUE);
     typePDF->callback((Fl_Callback *)outputFormatCB, this);
   group->end();
 
@@ -246,31 +226,24 @@ GUI::GUI(const char *filename)		// Book file to load initially
   group->end();
 
   grayscale = new CheckButton(140, 125, 90, 20, "Grayscale");
-  grayscale->down_box(FL_ROUND_DOWN_BOX);
   grayscale->callback((Fl_Callback *)changeCB, this);
 
-  compression = new CheckButton(230, 125, 110, 20, "Compression");
-  compression->down_box(FL_ROUND_DOWN_BOX);
-  compression->callback((Fl_Callback *)changeCB, this);
-
   titlePage = new CheckButton(140, 150, 90, 20, "Title Page");
-  titlePage->down_box(FL_ROUND_DOWN_BOX);
   titlePage->callback((Fl_Callback *)changeCB, this);
 
   jpegCompress = new CheckButton(230, 150, 140, 20, "JPEG Big Images");
-  jpegCompress->down_box(FL_ROUND_DOWN_BOX);
   jpegCompress->callback((Fl_Callback *)jpegCB, this);
 
-  bodyColor = new Fl_Input(140, 175, 210, 25, "Body Color: ");
+  bodyColor = new Fl_Input(140, 175, 215, 25, "Body Color: ");
   bodyColor->callback((Fl_Callback *)bodyColorCB, this);
 
-  bodyLookup = new Fl_Button(350, 175, 95, 25, "Lookup...");
+  bodyLookup = new Fl_Button(355, 175, 95, 25, "Lookup...");
   bodyLookup->callback((Fl_Callback *)bodyColorCB, this);
 
-  bodyImage = new Fl_Input(140, 205, 210, 25, "Body Image: ");
+  bodyImage = new Fl_Input(140, 205, 215, 25, "Body Image: ");
   bodyImage->callback((Fl_Callback *)bodyImageCB, this);
 
-  bodyBrowse = new Fl_Button(350, 205, 95, 25, "Browse...");
+  bodyBrowse = new Fl_Button(355, 205, 95, 25, "Browse...");
   bodyBrowse->callback((Fl_Callback *)bodyImageCB, this);
 
   outputTab->end();
@@ -286,7 +259,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageSize->callback((Fl_Callback *)changeCB, this);
 
   pageDuplex = new CheckButton(265, 48, 130, 20, "Double-sided");
-  pageDuplex->down_box(FL_ROUND_DOWN_BOX);
   pageDuplex->callback((Fl_Callback *)changeCB, this);
 
   pageTop = new Fl_Input(225, 80, 60, 25, "Top");
@@ -302,27 +274,27 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageBottom = new Fl_Input(225, 140, 60, 25, "Bottom");
   pageBottom->callback((Fl_Callback *)changeCB, this);
 
-  pageHeaderLeft = new Fl_Choice(140, 170, 95, 25, "Header: ");
+  pageHeaderLeft = new Fl_Choice(140, 170, 100, 25, "Header: ");
   pageHeaderLeft->menu(formatMenu);
   pageHeaderLeft->callback((Fl_Callback *)changeCB, this);
 
-  pageHeaderCenter = new Fl_Choice(240, 170, 95, 25);
+  pageHeaderCenter = new Fl_Choice(245, 170, 100, 25);
   pageHeaderCenter->menu(formatMenu);
   pageHeaderCenter->callback((Fl_Callback *)changeCB, this);
 
-  pageHeaderRight = new Fl_Choice(340, 170, 95, 25);
+  pageHeaderRight = new Fl_Choice(350, 170, 100, 25);
   pageHeaderRight->menu(formatMenu);
   pageHeaderRight->callback((Fl_Callback *)changeCB, this);
 
-  pageFooterLeft = new Fl_Choice(140, 200, 95, 25, "Footer: ");
+  pageFooterLeft = new Fl_Choice(140, 200, 100, 25, "Footer: ");
   pageFooterLeft->menu(formatMenu);
   pageFooterLeft->callback((Fl_Callback *)changeCB, this);
 
-  pageFooterCenter = new Fl_Choice(240, 200, 95, 25);
+  pageFooterCenter = new Fl_Choice(245, 200, 100, 25);
   pageFooterCenter->menu(formatMenu);
   pageFooterCenter->callback((Fl_Callback *)changeCB, this);
 
-  pageFooterRight = new Fl_Choice(340, 200, 95, 25);
+  pageFooterRight = new Fl_Choice(350, 200, 100, 25);
   pageFooterRight->menu(formatMenu);
   pageFooterRight->callback((Fl_Callback *)changeCB, this);
 
@@ -340,30 +312,29 @@ GUI::GUI(const char *filename)		// Book file to load initially
   tocLevels->callback((Fl_Callback *)changeCB, this);
 
   numberedToc = new CheckButton(245, 47, 160, 20, "Numbered Headings");
-  numberedToc->down_box(FL_ROUND_DOWN_BOX);
   numberedToc->callback((Fl_Callback *)changeCB, this);
 
-  tocHeaderLeft = new Fl_Choice(140, 75, 95, 25, "Header: ");
+  tocHeaderLeft = new Fl_Choice(140, 75, 100, 25, "Header: ");
   tocHeaderLeft->menu(formatMenu);
   tocHeaderLeft->callback((Fl_Callback *)changeCB, this);
 
-  tocHeaderCenter = new Fl_Choice(240, 75, 95, 25);
+  tocHeaderCenter = new Fl_Choice(245, 75, 100, 25);
   tocHeaderCenter->menu(formatMenu);
   tocHeaderCenter->callback((Fl_Callback *)changeCB, this);
 
-  tocHeaderRight = new Fl_Choice(340, 75, 95, 25);
+  tocHeaderRight = new Fl_Choice(350, 75, 100, 25);
   tocHeaderRight->menu(formatMenu);
   tocHeaderRight->callback((Fl_Callback *)changeCB, this);
 
-  tocFooterLeft = new Fl_Choice(140, 105, 95, 25, "Footer: ");
+  tocFooterLeft = new Fl_Choice(140, 105, 100, 25, "Footer: ");
   tocFooterLeft->menu(formatMenu);
   tocFooterLeft->callback((Fl_Callback *)changeCB, this);
 
-  tocFooterCenter = new Fl_Choice(240, 105, 95, 25);
+  tocFooterCenter = new Fl_Choice(245, 105, 100, 25);
   tocFooterCenter->menu(formatMenu);
   tocFooterCenter->callback((Fl_Callback *)changeCB, this);
 
-  tocFooterRight = new Fl_Choice(340, 105, 95, 25);
+  tocFooterRight = new Fl_Choice(350, 105, 100, 25);
   tocFooterRight->menu(formatMenu);
   tocFooterRight->callback((Fl_Callback *)changeCB, this);
 
@@ -430,6 +401,25 @@ GUI::GUI(const char *filename)		// Book file to load initially
   psTab->hide();
   psTab->deactivate();
 
+  label = new Fl_Box(40, 25, 100, 20, "Language Level: ");
+  label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+
+  psLevel = new Fl_Group(140, 25, 255, 20);
+
+    ps1 = new CheckButton(140, 25, 40, 20, "1");
+    ps1->type(FL_RADIO_BUTTON);
+//    ps1->callback((Fl_Callback *)psCB, this);
+
+    ps2 = new CheckButton(180, 25, 40, 20, "2");
+    ps2->type(FL_RADIO_BUTTON);
+//    ps2->callback((Fl_Callback *)psCB, this);
+
+    ps3 = new CheckButton(220, 45, 40, 20, "3");
+    ps3->type(FL_RADIO_BUTTON);
+//    ps3->callback((Fl_Callback *)psCB, this);
+
+  psLevel->end();
+
   psTab->end();
 
   //
@@ -440,37 +430,43 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pdfTab->hide();
   pdfTab->deactivate();
 
-  compressionLevel = new Fl_Slider(140, 45, 180, 25, "Compression: ");
-  compressionLevel->align(FL_ALIGN_LEFT);
-  compressionLevel->type(FL_HOR_NICE_SLIDER);
-  compressionLevel->minimum(1.0);
-  compressionLevel->maximum(9.0);
-  compressionLevel->value(1.0);
-  compressionLevel->step(1.0);
-  compressionLevel->callback((Fl_Callback *)changeCB, this);
+  compression = new Fl_Slider(140, 45, 310, 25, "Compression: ");
+  compression->align(FL_ALIGN_LEFT);
+  compression->type(FL_HOR_NICE_SLIDER);
+  compression->minimum(0.0);
+  compression->maximum(9.0);
+  compression->value(1.0);
+  compression->step(1.0);
+  compression->callback((Fl_Callback *)changeCB, this);
 
-  label = new Fl_Box(140, 70, 40, 10, "Fast");
+  label = new Fl_Box(140, 70, 40, 10, "None");
   label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+  label->labelsize(10);
+
+  label = new Fl_Box(190, 70, 40, 10, "Fast");
+  label->align(FL_ALIGN_INSIDE);
   label->labelsize(10);
 
   label = new Fl_Box(280, 70, 40, 10, "Best");
   label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
   label->labelsize(10);
 
-  pdfVersion = new Fl_Group(140, 85, 255, 20, "PDF Version: ");
-  pdfVersion->align(FL_ALIGN_LEFT);
+  label = new Fl_Box(40, 85, 100, 20, "PDF Version: ");
+  label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+
+  pdfVersion = new Fl_Group(140, 85, 255, 40);
 
     pdf11 = new CheckButton(140, 85, 125, 20, "1.1 (Acrobat 2.x)");
     pdf11->type(FL_RADIO_BUTTON);
-    pdf11->down_box(FL_DIAMOND_DOWN_BOX);
-    pdf11->color2(FL_BLUE);
     pdf11->callback((Fl_Callback *)pdfCB, this);
 
-    pdf12 = new CheckButton(270, 85, 125, 20, "1.2 (Acrobat 3.x)");
+    pdf12 = new CheckButton(270, 85, 125, 20, "1.2 (Acrobat 3.0)");
     pdf12->type(FL_RADIO_BUTTON);
-    pdf12->down_box(FL_DIAMOND_DOWN_BOX);
-    pdf12->color2(FL_BLUE);
     pdf12->callback((Fl_Callback *)pdfCB, this);
+
+    pdf13 = new CheckButton(140, 105, 125, 20, "1.3 (Acrobat 4.0)");
+    pdf13->type(FL_RADIO_BUTTON);
+    pdf13->callback((Fl_Callback *)pdfCB, this);
 
   pdfVersion->end();
 
@@ -483,14 +479,14 @@ GUI::GUI(const char *filename)		// Book file to load initially
   optionsTab = new Fl_Group(10, 35, 450, 220, "Options");
   optionsTab->hide();
 
-  htmlEditor = new Fl_Input(140, 45, 210, 25, "HTML Editor: ");
+  htmlEditor = new Fl_Input(140, 45, 215, 25, "HTML Editor: ");
   htmlEditor->value(HTMLEditor);
   htmlEditor->callback((Fl_Callback *)htmlEditorCB, this);
 
-  htmlBrowse = new Fl_Button(350, 45, 95, 25, "Browse...");
+  htmlBrowse = new Fl_Button(355, 45, 95, 25, "Browse...");
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
 
-  jpegQuality = new Fl_Value_Slider(140, 75, 305, 25, "JPEG Quality: ");
+  jpegQuality = new Fl_Value_Slider(140, 75, 310, 25, "JPEG Quality: ");
   jpegQuality->align(FL_ALIGN_LEFT);
   jpegQuality->type(FL_HOR_NICE_SLIDER);
   jpegQuality->minimum(50.0);
@@ -503,7 +499,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
   label->labelsize(10);
 
-  label = new Fl_Box(405, 100, 40, 10, "Best");
+  label = new Fl_Box(410, 100, 40, 10, "Best");
   label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
   label->labelsize(10);
 
@@ -516,9 +512,11 @@ GUI::GUI(const char *filename)		// Book file to load initially
   //
 
   button = new Fl_Button(10, 330, 50, 25, "Help");
+  button->shortcut(FL_F + 1);
   button->callback((Fl_Callback *)helpCB, this);
 
   button = new Fl_Button(65, 330, 45, 25, "New");
+  button->shortcut(FL_CTRL | 'n');
   button->callback((Fl_Callback *)newBookCB, this);
 
   button = new Fl_Button(115, 330, 60, 25, "Open...");
@@ -731,9 +729,8 @@ GUI::newBook(void)
   outputFormatCB(typeHTML, this);
 
   grayscale->clear();
-  compression->clear();
-  compressionLevel->value(1.0);
-  compressionLevel->deactivate();
+  compression->value(0.0);
+  compression->deactivate();
   titlePage->set();
   jpegCompress->clear();
   jpegQuality->value(90.0);
@@ -769,6 +766,11 @@ GUI::newBook(void)
   tocFooterRight->value(5);	/* i,ii,iii,... */
 
   pdf12->setonly();
+  ps2->setonly();
+
+  pdfTab->deactivate();
+  psTab->deactivate();
+  htmlTab->activate();
 
   title(NULL, 0);
 
@@ -902,16 +904,15 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     }
     else if (strncmp(temp, "--compression", 13) == 0)
     {
-      compression->set();
       if (strlen(temp) > 14)
-        compressionLevel->value(atof(temp + 14));
+        compression->value(atof(temp + 14));
       else
-        compressionLevel->value(1.0);
+        compression->value(1.0);
       continue;
     }
     else if (strcmp(temp, "--no-compression") == 0)
     {
-      compression->clear();
+      compression->value(0.0);
       continue;
     }
     else if (strcmp(temp, "--numbered") == 0)
@@ -957,13 +958,21 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       }
       else if (strcmp(temp2, "ps1") == 0)
       {
-        typePS1->setonly();
-	outputFormatCB(typePS1, this);
+        typePS->setonly();
+	ps1->setonly();
+	outputFormatCB(typePS, this);
       }
       else if (strcmp(temp2, "ps2") == 0)
       {
-        typePS2->setonly();
-	outputFormatCB(typePS2, this);
+        typePS->setonly();
+	ps2->setonly();
+	outputFormatCB(typePS, this);
+      }
+      else if (strcmp(temp2, "ps3") == 0)
+      {
+        typePS->setonly();
+	ps3->setonly();
+	outputFormatCB(typePS, this);
       }
       else if (strcmp(temp2, "pdf") == 0)
       {
@@ -1109,10 +1118,15 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (typeHTML->value())
     fputs("-t html", fp);
-  else if (typePS1->value())
-    fputs("-t ps1", fp);
-  else if (typePS2->value())
-    fputs("-t ps2", fp);
+  else if (typePS->value())
+  {
+    if (ps1->value())
+      fputs("-t ps1", fp);
+    else if (ps2->value())
+      fputs("-t ps2", fp);
+    else if (ps3->value())
+      fputs("-t ps3", fp);
+  }
   else if (pdf11->value())
     fputs("-t pdf11", fp);
   else
@@ -1194,10 +1208,10 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     if (grayscale->value())
       fputs(" --grayscale", fp);
 
-    if (!compression->value())
+    if (compression->value() == 0.0f)
       fputs(" --no-compression", fp);
     else
-      fprintf(fp, " --compression=%.0f", compressionLevel->value());
+      fprintf(fp, " --compression=%.0f", compression->value());
 
     if (jpegCompress->value())
       fprintf(fp, " --jpeg=%.0f", jpegQuality->value());
@@ -1286,7 +1300,7 @@ docTypeCB(Fl_Widget *w,		// I - Toggle button widget
   else
   {
     if (gui->typeHTML->value())
-      gui->typePS1->set();
+      gui->typePS->set();
 
     gui->typeHTML->deactivate();
 
@@ -1668,6 +1682,12 @@ outputFormatCB(Fl_Widget *w,
 
   if (w == gui->typeHTML)
   {
+    gui->htmlTab->activate();
+
+    gui->jpegCompress->value(0);
+    gui->jpegCompress->deactivate();
+    gui->jpegQuality->deactivate();
+
     gui->grayscale->value(0);
     gui->grayscale->deactivate();
 
@@ -1685,6 +1705,8 @@ outputFormatCB(Fl_Widget *w,
   }
   else
   {
+    gui->htmlTab->deactivate();
+
     gui->grayscale->activate();
 
     gui->pageTab->activate();
@@ -1698,16 +1720,17 @@ outputFormatCB(Fl_Widget *w,
     gui->tocFooterRight->activate();
 
     gui->fontsTab->activate();
+
+    gui->jpegCompress->activate();
+//    gui->jpegCompress->value(0);
+//    gui->jpegCompress->deactivate();
+//    gui->jpegQuality->deactivate();
   }
 
-  if (w == gui->typeHTML || w == gui->typePS1)
-  {
-    gui->jpegCompress->value(0);
-    gui->jpegCompress->deactivate();
-    gui->jpegQuality->deactivate();
-  }
+  if (w == gui->typePS)
+    gui->psTab->activate();
   else
-    gui->jpegCompress->activate();
+    gui->psTab->deactivate();
 }
 
 
@@ -1756,15 +1779,9 @@ pdfCB(Fl_Widget *w,		// I - Widget
 
 
   if (gui->pdf11->value())
-  {
     gui->compression->deactivate();
-    gui->compressionLevel->deactivate();
-  }
   else
-  {
     gui->compression->activate();
-    gui->compressionLevel->activate();
-  }
 
   gui->title(gui->book_filename, 1);
 }
@@ -2057,7 +2074,7 @@ generateBookCB(Fl_Widget *w,	// I - Widget
   PageBottom   = get_measurement((char *)gui->pageBottom->value());
 
   PageDuplex   = gui->pageDuplex->value();
-  Compression  = gui->compression->value() ? (int)gui->compressionLevel->value() : 0;
+  Compression  = (int)gui->compression->value();
   OutputColor  = !gui->grayscale->value();
   TocNumbers   = gui->numberedToc->value();
   TocLevels    = gui->tocLevels->value();
@@ -2190,10 +2207,13 @@ generateBookCB(Fl_Widget *w,	// I - Widget
 
   if (gui->typeHTML->value())
     html_export(document, toc);
-  else if (gui->typePS1->value())
-    ps_export_level1(document, toc);
-  else if (gui->typePS2->value())
-    ps_export_level2(document, toc);
+  else if (gui->typePS->value())
+  {
+    if (gui->ps1->value())
+      ps_export_level1(document, toc);
+    else
+      ps_export_level2(document, toc);
+  }
   else
     pdf_export(document, toc);
 
@@ -2296,5 +2316,5 @@ file_localize(char *filename,
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.2 1999/11/08 22:11:34 mike Exp $".
+// End of "$Id: gui.cxx,v 1.3 1999/11/09 01:08:44 mike Exp $".
 //

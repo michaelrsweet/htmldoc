@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /GX /O2 /Ob2 /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD CPP /nologo /MT /GX /O2 /Ob2 /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MTd /Gm /GX /Zi /Od /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD CPP /nologo /MTd /Gm /GX /Zi /Od /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -89,10 +89,85 @@ LINK32=link.exe
 
 # Name "htmldoc - Win32 Release"
 # Name "htmldoc - Win32 Debug"
+# Begin Group "Source"
+
+# PROP Default_Filter "c,cxx"
+# Begin Source File
+
+SOURCE=..\htmldoc\file.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\html.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\htmldoc.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\htmllib.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\image.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\iso8859.cxx
+# End Source File
+# Begin Source File
+
+SOURCE="..\htmldoc\ps-pdf.cxx"
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\string.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\toc.cxx
+# End Source File
+# End Group
+# Begin Group "Headers"
+
+# PROP Default_Filter "h"
 # Begin Source File
 
 SOURCE=..\htmldoc\debug.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\file.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\html.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\htmldoc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\image.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\iso8859.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\string.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\types.h
+# End Source File
+# End Group
+# Begin Group "GUI"
+
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\gui\CheckButton.cxx
@@ -139,6 +214,14 @@ SOURCE=..\gui\FileInput.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\htmldoc\gui.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\gui.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\gui\HelpDialog.cxx
 # End Source File
 # Begin Source File
@@ -155,59 +238,8 @@ SOURCE=..\gui\HelpView.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\htmldoc\gui.cxx
+SOURCE=.\icons.rc
 # End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\gui.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\html.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\html.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\htmldoc.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\htmldoc.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\htmllib.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\image.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\image.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\iso8859.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\iso8859.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\ps-pdf.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\toc.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\types.h
-# End Source File
+# End Group
 # End Target
 # End Project
