@@ -1,5 +1,5 @@
 //
-// "$Id: render-table.cxx,v 1.2 2002/03/11 02:33:05 mike Exp $"
+// "$Id: render-table.cxx,v 1.3 2002/03/17 19:24:52 mike Exp $"
 //
 //   Table rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -106,12 +106,13 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
 		cell_endy[HD_MAX_COLUMNS],	// Row or each cell
 		cell_height[HD_MAX_COLUMNS],	// Height of each cell in a row
 		span_heights[HD_MAX_COLUMNS];	// Height of spans
-  hdRender	*cell_bg[HD_MAX_COLUMNS];	// Background rectangles
-  hdRender	*cell_start[HD_MAX_COLUMNS];	// Start of the content for a cell in the row
-  hdRender	*cell_end[HD_MAX_COLUMNS];	// End of the content for a cell in a row
+  hdRenderNode	*cell_bg[HD_MAX_COLUMNS];	// Background rectangles
+  hdRenderNode	*cell_start[HD_MAX_COLUMNS];	// Start of the content for a cell in the row
+  hdRenderNode	*cell_end[HD_MAX_COLUMNS];	// End of the content for a cell in a row
   const char	*bgcolor;
   float		rgb[3],
 		bgrgb[3];
+  hdMargin	*cell_margin;
 
 
   DEBUG_puts("\n\nTABLE");
@@ -633,7 +634,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
       // Do page comments...
       if (cells[row][0]->parent->prev != NULL &&
           cells[row][0]->parent->prev->element == HD_ELEMENT_COMMENT)
-        parse_comment(cells[row][0]->parent->prev, m, x, y, page, NULL, 0);
+        parse_comment(cells[row][0]->parent->prev, m, x, y, page, NULL);
 
       // Get height...
       if ((height_var = t->get_attr("HEIGHT")) == NULL)
@@ -745,7 +746,8 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
 
 	if (bgcolor != NULL)
 	{
-          get_color(bgcolor, bgrgb, 0);
+	  memset(bgrgb, 0, sizeof(bgrgb));
+          get_color(bgcolor, bgrgb);
 
 	  width       = col_rights[col + colspan] - col_lefts[col] +
         	        2 * cellpadding;
@@ -757,7 +759,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
 	else
 	  cell_bg[col] = NULL;
 
-	cell_start[col] = pages[*page].end;
+	cell_start[col] = pages[*page].last;
 	cell_page[col]  = temp_page;
 	cell_y[col]     = temp_y;
 
@@ -769,10 +771,12 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
           bottom += cellpadding;
 	  top    -= cellpadding;
 
-          parse_doc(cells[row][col]->child,
-                    col_lefts + col, col_rights + col + colspan,
-                    &bottom, &top,
-                    x, &temp_y, &temp_page, NULL, &tempspace);
+          cell_margin = new hdMargin(col_lefts[col], col_rights[col + colspan],
+	                             bottom, top);
+
+          parse_doc(cells[row][col]->child, cell_margin, x, &temp_y, &temp_page);
+
+          delete cell_margin;
 
           bottom -= cellpadding;
 	  top    += cellpadding;
@@ -781,10 +785,10 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
         cell_endpage[col] = temp_page;
         cell_endy[col]    = temp_y;
         cell_height[col]  = *y - cellpadding - temp_y;
-        cell_end[col]     = pages[*page].end;
+        cell_end[col]     = pages[*page].last;
 
         if (cell_start[col] == NULL)
-	  cell_start[col] = pages[*page].start;
+	  cell_start[col] = pages[*page].first;
 
         DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n",
 	              row, col, *y - cellpadding, temp_y, cell_height[col]));
@@ -882,7 +886,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
 
       for (col = 0; col < num_cols; col += colspan + 1)
       {
-        hdRender	*p;
+        hdRenderNode	*p;
         float		delta_y;
 
 
@@ -897,7 +901,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
 	  continue;
 
         if (row_spans[col])
-          switch (cells[row][col]->valignment)
+          switch (cells[row][col]->style->vertical_align)
 	  {
             case HD_VERTICALALIGN_MIDDLE :
         	delta_y = (span_heights[col] - cell_height[col]) * 0.5f;
@@ -912,7 +916,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
         	break;
           }
 	else
-          switch (cells[row][col]->valignment)
+          switch (cells[row][col]->style->vertical_align)
 	  {
             case HD_VERTICALALIGN_MIDDLE :
         	delta_y = (row_height - cell_height[col]) * 0.5f;
@@ -1057,8 +1061,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
 
 	  if (bgcolor != NULL)
             add_render(temp_page, HD_RENDERTYPE_BOX, border_left, bottom,
-                       width + border, top - bottom, bgrgb,
-		       pages[temp_page].start);
+                       width + border, top - bottom, bgrgb, 1);
         }
 
         if (border > 0.0f)
@@ -1080,8 +1083,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
 
         if (bgcolor != NULL)
           add_render(cell_endpage[col], HD_RENDERTYPE_BOX, border_left, row_y,
-	             width + border, top - row_y, bgrgb,
-		     pages[cell_endpage[col]].start);
+	             width + border, top - row_y, bgrgb, 1);
       }
       else
       {
@@ -1123,7 +1125,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
     DEBUG_printf(("END row = %d, *y = %.1f, *page = %d\n", row, *y, *page));
   }
 
-  *x = left;
+  *x = m->left();
 
   // Free memory for the table...
   if (num_rows > 0)
@@ -1573,5 +1575,5 @@ hdRender::get_table_size(hdTree *t,		// I - Table
 
 
 //
-// End of "$Id: render-table.cxx,v 1.2 2002/03/11 02:33:05 mike Exp $".
+// End of "$Id: render-table.cxx,v 1.3 2002/03/17 19:24:52 mike Exp $".
 //

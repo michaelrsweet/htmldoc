@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.5 2002/03/11 02:33:06 mike Exp $"
+// "$Id: render.h,v 1.6 2002/03/17 19:24:53 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -247,6 +247,7 @@ class hdRender
 		            float width, float height, void *data,
 			    int insert = 0);
 
+  void		get_color(const char *c, float *rgb, int defblack = 0);
   float		get_cell_size(hdTree *t, float left, float right,
 		              float *minwidth, float *prefwidth,
 			      float *minheight);
@@ -430,5 +431,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.5 2002/03/11 02:33:06 mike Exp $".
+// End of "$Id: render.h,v 1.6 2002/03/17 19:24:53 mike Exp $".
 //
