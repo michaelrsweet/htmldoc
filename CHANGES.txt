@@ -24,6 +24,7 @@ CHANGES IN HTMLDOC v1.8.7
 	  just set the default alignment of cells.)
 	- Transparent GIFs now use the body color instead of white
 	  for the transparent color.
+	- Updated to LIBPNG 1.0.6 in source distribution.
 
     BUG FIXES
 
@@ -43,6 +44,8 @@ CHANGES IN HTMLDOC v1.8.7
 	- Cell widths did not subtract any border, padding, or
 	  spacing from the "preferred" width, causing formatting
 	  differences between web browsers and HTMLDOC.
+	- The PNG loading code did not handle interlacing or
+	  transparency.
 
 
 CHANGES IN HTMLDOC v1.8.6

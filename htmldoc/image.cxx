@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.6 2000/04/28 21:37:56 mike Exp $"
+ * "$Id: image.cxx,v 1.7 2000/05/04 16:34:04 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -411,6 +411,8 @@ image_load_png(image_t *img,	/* I - Image pointer */
   png_bytep	*rows;	/* PNG row pointers */
   uchar		*inptr,	/* Input pixels */
 		*outptr;/* Output pixels */
+  png_color_16	bg;	/* Background color */
+  float		rgb[3];	/* RGB color of background */
 
 
  /*
@@ -427,7 +429,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   png_init_io(pp, fp);
 
  /*
-  * Get the image dimensions and load the output image...
+  * Get the image dimensions and convert to grayscale or RGB...
   */
 
   png_read_info(pp, info);
@@ -455,6 +457,42 @@ image_load_png(image_t *img,	/* I - Image pointer */
   else if (info->bit_depth == 16)
     png_set_strip_16(pp);
 
+ /*
+  * Handle transparency...
+  */
+
+  if (png_get_valid(pp, info, PNG_INFO_tRNS))
+    png_set_tRNS_to_alpha(pp);
+
+  if (BodyColor[0])
+  {
+   /*
+    * User-defined color...
+    */
+
+    get_color((uchar *)BodyColor, rgb);
+
+    bg.red   = (png_uint_16)(rgb[0] * 65535.0f + 0.5f);
+    bg.green = (png_uint_16)(rgb[1] * 65535.0f + 0.5f);
+    bg.blue  = (png_uint_16)(rgb[2] * 65535.0f + 0.5f);
+  }
+  else
+  {
+   /*
+    * Default to white...
+    */
+
+    bg.red   = 65535;
+    bg.green = 65535;
+    bg.blue  = 65535;
+  }
+
+  png_set_background(pp, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
+
+ /*
+  * Allocate pointers...
+  */
+
   rows = (png_bytep *)calloc(info->height, sizeof(png_bytep));
 
   for (i = 0; i < (int)info->height; i ++)
@@ -463,7 +501,12 @@ image_load_png(image_t *img,	/* I - Image pointer */
     else
       rows[i] = img->pixels + i * img->width * 3;
 
-  png_read_image(pp, rows);
+ /*
+  * Read the image, handling interlacing as needed...
+  */
+
+  for (i = png_set_interlace_handling(pp); i > 0; i --)
+    png_read_rows(pp, rows, NULL, img->height);
 
  /*
   * Reformat the data as necessary for the reader...
@@ -568,9 +611,9 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 
 	      get_color((uchar *)BodyColor, rgb);
 
-	      cmap[transparent][0] = rgb[0] * 255.0;
-	      cmap[transparent][1] = rgb[1] * 255.0;
-	      cmap[transparent][2] = rgb[2] * 255.0;
+	      cmap[transparent][0] = (uchar)(rgb[0] * 255.0f + 0.5f);
+	      cmap[transparent][1] = (uchar)(rgb[1] * 255.0f + 0.5f);
+	      cmap[transparent][2] = (uchar)(rgb[2] * 255.0f + 0.5f);
 	    }
 	    else
 	    {
@@ -999,5 +1042,5 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
 
 /*
- * End of "$Id: image.cxx,v 1.6 2000/04/28 21:37:56 mike Exp $".
+ * End of "$Id: image.cxx,v 1.7 2000/05/04 16:34:04 mike Exp $".
  */
