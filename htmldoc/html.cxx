@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.32 2004/02/09 22:25:11 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.33 2004/04/15 19:58:20 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -182,7 +182,7 @@ html_export(tree_t *document,	/* I - Document to export */
 
   while (document != NULL)
   {
-    write_header(&out, htmlGetVariable(document, (uchar *)"FILENAME"),
+    write_header(&out, htmlGetVariable(document, (uchar *)"_HD_FILENAME"),
                  title, author, copyright, docnumber, document);
     if (out != NULL)
       write_all(out, document->child, 0);
@@ -310,11 +310,11 @@ write_header(FILE   **out,	/* IO - Output file */
       {
 	if (t->prev != NULL)
 	  fprintf(*out, "<LINK REL=\"Prev\" HREF=\"%s\">\n",
-        	  file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
+        	  file_basename((char *)htmlGetVariable(t->prev, (uchar *)"_HD_FILENAME")));
 
 	if (t->next != NULL)
 	  fprintf(*out, "<LINK REL=\"Next\" HREF=\"%s\">\n",
-        	  file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
+        	  file_basename((char *)htmlGetVariable(t->next, (uchar *)"_HD_FILENAME")));
       }
     }
 
@@ -371,11 +371,11 @@ write_header(FILE   **out,	/* IO - Output file */
 
     if (t->prev != NULL)
       fprintf(*out, "<A HREF=\"%s\">Previous</A>\n",
-              file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
+              file_basename((char *)htmlGetVariable(t->prev, (uchar *)"_HD_FILENAME")));
 
     if (t->next != NULL)
       fprintf(*out, "<A HREF=\"%s\">Next</A>\n",
-              file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
+              file_basename((char *)htmlGetVariable(t->next, (uchar *)"_HD_FILENAME")));
 
     fputs("<HR>\n", *out);
   }
@@ -412,11 +412,11 @@ write_footer(FILE **out,	/* IO - Output file pointer */
 
     if (t->prev != NULL)
       fprintf(*out, "<A HREF=\"%s\">Previous</A>\n",
-              file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
+              file_basename((char *)htmlGetVariable(t->prev, (uchar *)"_HD_FILENAME")));
 
     if (t->next != NULL)
       fprintf(*out, "<A HREF=\"%s\">Next</A>\n",
-              file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
+              file_basename((char *)htmlGetVariable(t->next, (uchar *)"_HD_FILENAME")));
   }
 
   if (OutputFiles)
@@ -913,7 +913,7 @@ scan_links(tree_t *t,		/* I - Document tree */
   while (t != NULL)
   {
     if (t->markup == MARKUP_FILE)
-      scan_links(t->child, (uchar *)file_basename((char *)htmlGetVariable(t, (uchar *)"FILENAME")));
+      scan_links(t->child, (uchar *)file_basename((char *)htmlGetVariable(t, (uchar *)"_HD_FILENAME")));
     else if (t->markup == MARKUP_A &&
              (name = htmlGetVariable(t, (uchar *)"NAME")) != NULL)
     {
@@ -979,7 +979,7 @@ update_links(tree_t *t,		/* I - Document tree */
       if (t->child != NULL)
       {
         if (t->markup == MARKUP_FILE)
-          update_links(t->child, htmlGetVariable(t, (uchar *)"FILENAME"));
+          update_links(t->child, htmlGetVariable(t, (uchar *)"_HD_FILENAME"));
 	else
           update_links(t->child, filename);
       }
@@ -1020,5 +1020,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.32 2004/02/09 22:25:11 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.33 2004/04/15 19:58:20 mike Exp $".
  */

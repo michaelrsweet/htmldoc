@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.61 2004/02/09 22:25:11 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.62 2004/04/15 19:58:20 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -980,7 +980,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME", (uchar *)"");
+      htmlSetVariable(file, (uchar *)"_HD_FILENAME", (uchar *)"");
+      htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)".");
 
 #ifdef WIN32
       // Make sure stdin is in binary mode.
@@ -1068,6 +1069,10 @@ main(int  argc,		/* I - Number of command-line arguments */
   while (document->prev != NULL)
     document = document->prev;
 
+  // Fix links...
+  htmlFixLinks(document, document);
+
+  // Show debug info...
   htmlDebugStats("Document Tree", document);
 
  /*
@@ -2152,8 +2157,9 @@ read_file(const char *filename,		// I  - File/URL to read
       strlcpy(base, file_directory(filename), sizeof(base));
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME",
+      htmlSetVariable(file, (uchar *)"_HD_FILENAME",
                       (uchar *)file_basename(filename));
+      htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
       htmlReadFile(file, docfile, base);
 
@@ -2333,5 +2339,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.61 2004/02/09 22:25:11 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.62 2004/04/15 19:58:20 mike Exp $".
  */

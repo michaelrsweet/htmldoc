@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.65 2004/03/05 01:48:44 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.66 2004/04/15 19:58:20 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -3978,8 +3978,9 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       strcpy(base, file_directory(gui->inputFiles->text(i)));
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME",
+      htmlSetVariable(file, (uchar *)"_HD_FILENAME",
                       (uchar *)file_basename(filename));
+      htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
       htmlReadFile(file, docfile, base);
 
@@ -4022,6 +4023,12 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
     while (document->prev != NULL)
       document = document->prev;
+
+    // Fix links...
+    htmlFixLinks(document, document);
+
+    // Show debug info...
+    htmlDebugStats("Document Tree", document);
 
    /*
     * Build a table of contents for the documents...
@@ -4099,5 +4106,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.65 2004/03/05 01:48:44 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.66 2004/04/15 19:58:20 mike Exp $".
 //
