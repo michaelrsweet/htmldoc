@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.24 2000/03/01 19:46:19 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.25 2000/03/03 21:24:13 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1614,6 +1614,8 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
       _htmlInitialized = 1;
     }
+    else
+      progress_error("Unable to open psglyphs data file!");
   }
 
   memset(_htmlGlyphs, 0, sizeof(_htmlGlyphs));
@@ -1625,11 +1627,13 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
     * Can't open charset file; use ISO-8859-1...
     */
 
+    progress_error("Unable to open character set file %s!", cs);
+
     for (i = 0; i < 256; i ++)
       chars[i] = i;
 
    /*
-    * Hardcode characters 128 to 159 for Microsoft's version of ISO 8859-1...
+    * Hardcode characters 128 to 159 for Microsoft's version of ISO-8859-1...
     */
 
     chars[0x80] = 0x20ac; /* Euro */
@@ -1694,7 +1698,10 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
       sprintf(filename, "%s/afm/%s", _htmlData, _htmlFonts[i][j]);
       if ((fp = fopen(filename, "r")) == NULL)
+      {
+        progress_error("Unable to open font width file %s!", _htmlFonts[i][j]);
         continue;
+      }
 
       while (fgets(line, sizeof(line), fp) != NULL)
       {
@@ -2172,6 +2179,8 @@ get_alignment(tree_t *t)	/* I - Tree entry */
       t->valignment = ALIGN_TOP;
     else if (strcasecmp((char *)align, "middle") == 0)
       t->valignment = ALIGN_MIDDLE;
+    else if (strcasecmp((char *)align, "center") == 0)
+      t->valignment = ALIGN_MIDDLE;
     else if (strcasecmp((char *)align, "bottom") == 0)
       t->valignment = ALIGN_BOTTOM;
   }
@@ -2267,5 +2276,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.24 2000/03/01 19:46:19 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.25 2000/03/03 21:24:13 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.27 2000/01/04 15:50:51 mike Exp $"
+// "$Id: gui.cxx,v 1.28 2000/03/03 21:24:11 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1930,7 +1930,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 
   REF(w);
 
-  gui->fc->filter("*.{htm,html,shtml}");
+  gui->fc->filter("*.{htm,html,shtml,book}");
   gui->fc->type(FileChooser::MULTI);
   gui->fc->label("Add HTML Files?");
   gui->fc->show();
@@ -1940,7 +1940,74 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
   if (gui->fc->count())
   {
     for (i = 1; i <= gui->fc->count(); i ++)
-      gui->inputFiles->add(file_localize(gui->fc->value(i), NULL), gui->icon);
+    {
+      if (strcasecmp(file_extension(gui->fc->value(i)), "book") == 0)
+      {
+        // Import files from the book...
+	FILE	*fp;
+	char	line[1024];
+	char	directory[1024];
+	int	count;
+
+
+        getcwd(directory, sizeof(directory));
+	chdir(file_directory(gui->fc->value(i)));
+
+	if ((fp = fopen(gui->fc->value(i), "rb")) == NULL)
+	{
+	  fl_alert("Unable to import %s:\n%s", gui->fc->value(i),
+	           strerror(errno));
+	  chdir(directory);
+	  continue;
+	}
+
+        if (fgets(line, sizeof(line), fp) == NULL)
+	{
+	  fl_alert("Unable to import %s:\nShort file.", gui->fc->value(i));
+	  fclose(fp);
+	  chdir(directory);
+	  continue;
+	}
+
+        if (strncmp(line, "#HTMLDOC", 8) != 0)
+	{
+	  fl_alert("Unable to import %s:\nBad header line.", gui->fc->value(i));
+	  fclose(fp);
+	  chdir(directory);
+	  continue;
+	}
+
+        if (fgets(line, sizeof(line), fp) == NULL)
+	{
+	  fl_alert("Unable to import %s:\nNo file count.", gui->fc->value(i));
+	  fclose(fp);
+	  chdir(directory);
+	  continue;
+	}
+
+        count = atoi(line);
+	while (count > 0)
+	{
+	  count --;
+
+          if (fgets(line, sizeof(line), fp) == NULL)
+	  {
+	    fl_alert("Unable to import %s:\nMissing file.", gui->fc->value(i));
+	    fclose(fp);
+	    chdir(directory);
+	    continue;
+	  }
+
+          line[strlen(line) - 1] = '\0'; // strip newline
+          gui->inputFiles->add(file_localize(line, directory), gui->icon);
+	}
+
+        fclose(fp);
+	chdir(directory);
+      }
+      else
+        gui->inputFiles->add(file_localize(gui->fc->value(i), NULL), gui->icon);
+    }
 
     gui->title(gui->book_filename, 1);
   }
@@ -3149,5 +3216,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.27 2000/01/04 15:50:51 mike Exp $".
+// End of "$Id: gui.cxx,v 1.28 2000/03/03 21:24:11 mike Exp $".
 //
