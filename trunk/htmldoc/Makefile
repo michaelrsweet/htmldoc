@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.7 2000/05/08 14:27:41 mike Exp $"
+#   "$Id: Makefile,v 1.8 2000/05/08 16:13:35 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -34,7 +34,7 @@ include ../Makedefs
 #
 
 OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o image.o iso8859.o \
-		progress.o ps-pdf.o string.o toc.o
+		progress.o ps-pdf.o string.o toc.o util.o
 
 #
 # Make everything...
@@ -83,18 +83,20 @@ iso8859.o:	iso8859.h types.h
 ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h types.h
 toc.o:		html.h htmldoc.h image.h iso8859.h types.h
 string.o:	string.h
+util.o:		htmldoc.h types.h
 
 #
 # testhtml
 #
 
-testhtml:	testhtml.o file.o htmllibd.o image.o iso8859.o Makefile
+testhtml:	testhtml.o file.o htmllibd.o image.o iso8859.o util.o \
+		../Makedefs
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o testhtml testhtml.o file.o htmllibd.o image.o \
-		iso8859.o $(LIBS)
+		iso8859.o util.o $(LIBS)
 
-htmllibd.o:	htmllib.cxx ../config.h ../Makedefs html.h debug.h image.h \
-		iso8859.h types.h
+htmllibd.o:	htmllib.cxx ../config.h ../Makedefs debug.h html.h htmldoc.h \
+		image.h iso8859.h types.h
 	echo Compiling $<...
 	$(CXX) $(CXXFLAGS) -DDEBUG -o htmllibd.o -c htmllib.cxx
 
@@ -102,5 +104,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.7 2000/05/08 14:27:41 mike Exp $".
+# End of "$Id: Makefile,v 1.8 2000/05/08 16:13:35 mike Exp $".
 #

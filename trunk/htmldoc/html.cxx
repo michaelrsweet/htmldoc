@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.14 2000/03/18 16:08:57 mike Exp $"
+ * "$Id: html.cxx,v 1.15 2000/05/08 16:13:36 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -284,18 +284,8 @@ write_header(FILE   **out,	/* IO - Output file */
     fprintf(*out, "SUP { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
     fprintf(*out, "PRE { font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
 
-    if (LinkStyle)
-    {
-      fputs("A:link { text-decoration: underline }\n", *out);
-      fputs("A:visited { text-decoration: underline }\n", *out);
-      fputs("A:active { text-decoration: underline }\n", *out);
-    }
-    else
-    {
-      fputs("A:link { text-decoration: none }\n", *out);
-      fputs("A:visited { text-decoration: none }\n", *out);
-      fputs("A:active { text-decoration: none }\n", *out);
-    }
+    if (!LinkStyle)
+      fputs("A { text-decoration: none }\n", *out);
 
     fputs("</STYLE>\n", *out);
     fputs("</HEAD>\n", *out);
@@ -891,5 +881,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.14 2000/03/18 16:08:57 mike Exp $".
+ * End of "$Id: html.cxx,v 1.15 2000/05/08 16:13:36 mike Exp $".
  */
