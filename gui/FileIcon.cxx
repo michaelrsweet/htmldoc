@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.2 1999/04/27 12:43:37 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.3 1999/04/27 15:13:20 mike Exp $"
 //
 //   FileIcon routines for the Common UNIX Printing System (CUPS).
 //
@@ -23,6 +23,12 @@
 //
 // Contents:
 //
+//   FileIcon::FileIcon()  - Create a new file icon.
+//   FileIcon::~FileIcon() - Remove a file icon.
+//   FileIcon::add()       - Add data to an icon.
+//   FileIcon::find()      - Find an icon based upon a given file.
+//   FileIcon::draw()      - Draw an icon.
+//   FileIcon::load()      - Load an SGI-format FTI file...
 //
 
 //
@@ -514,5 +520,5 @@ FileIcon::load(const char *fti)	// File to read from
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.2 1999/04/27 12:43:37 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.3 1999/04/27 15:13:20 mike Exp $".
 //

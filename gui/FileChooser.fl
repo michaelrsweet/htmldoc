@@ -11,7 +11,7 @@ class FileChooser {open
   } {
     Fl_Window window {
       label {Pick a File} open
-      private xywh {173 142 345 270} resizable hotspot
+      private xywh {173 142 374 270} resizable hotspot
       code0 {if (title) window->label(title);}
       code1 {\#include <stdio.h>}
       code2 {\#include <stdlib.h>}
@@ -19,7 +19,7 @@ class FileChooser {open
     } {
       Fl_Browser fileList {
         callback {fileListCB();}
-        private xywh {25 45 310 180} type Hold resizable
+        private xywh {10 45 355 180} type Hold resizable
         code1 {\#include "FileBrowser.h"}
         class FileBrowser
       }
@@ -27,60 +27,45 @@ class FileChooser {open
         label Cancel
         callback {fileList->deselect();
 window->hide();}
-        private xywh {270 235 65 25}
+        private xywh {300 235 65 25}
       }
       Fl_Return_Button {} {
         label OK
         callback {window->hide();}
-        private xywh {210 235 55 25}
-      }
-      Fl_Group {} {open
-        xywh {10 45 15 180}
-        code0 {\#include <FL/Fl_Pack.H>}
-        class Fl_Pack
-      } {
-        Fl_Button {} {
-          label {*}
-          callback {fileList->filter("*");;
-rescan();}
-          xywh {10 45 15 15} labelcolor 4 align 17
-        }
-        Fl_Roller roller {
-          callback {fileList->textsize(o->value() * 0.1);
-fileList->redraw();}
-          xywh {10 60 15 100} minimum 60 maximum 640 step 1 value 140
-        }
-        Fl_Button {} {
-          label {reset.xbm}
-          callback {roller->value(140.0);
-fileList->textsize(14.0);
-fileList->redraw();}
-          xywh {10 160 15 15} labeltype image labelsize 11
-        }
+        private xywh {240 235 55 25}
       }
       Fl_Input fileName {
         label {Filename:}
-        callback {fileNameCB();}
-        xywh {75 235 130 25} when 8
-      }
-      Fl_Input dirName {
-        label {Directory:}
-        callback {directory(dirName->value());}
-        xywh {75 10 175 25}
+        callback {fileNameCB();} selected
+        xywh {75 235 160 25} when 8
+        code0 {fileName->when(FL_WHEN_CHANGED | FL_WHEN_ENTER_KEY_ALWAYS);}
       }
       Fl_Button upButton {
         label {up.xbm}
         callback {up();}
         xywh {280 10 25 25} labeltype image labelsize 8
       }
-      Fl_Menu_Button dirMenu {
-        callback {directory(dirMenu->text());} open
-        xywh {250 10 25 25}
-      } {}
       Fl_Button {} {
         label {new.xbm}
         callback {newdir();}
         xywh {310 10 25 25} labeltype image labelsize 8
+      }
+      Fl_Choice dirMenu {
+        label {Directory:}
+        callback {char pathname[1024];
+int i;
+
+pathname[0] = '\\0';
+for (i = 1; i <= dirMenu->value(); i ++)
+  strcat(pathname, dirMenu->text(i));
+directory(pathname);} open
+        xywh {75 10 200 25}
+      } {}
+      Fl_Button {} {
+        label {allfiles.xbm}
+        callback {fileList->filter("*");;
+rescan();}
+        xywh {340 10 25 25} labeltype image labelsize 28 labelcolor 4 align 16
       }
     }
     code {window->size_range(345, 270, 345);
@@ -91,8 +76,7 @@ multi_ = m;
 if (m)
   fileList->type(FL_MULTI_BROWSER);
 else
-  fileList->type(FL_HOLD_BROWSER);} {selected
-    }
+  fileList->type(FL_HOLD_BROWSER);} {}
   }
   decl {char directory_[1024];} {}
   decl {int multi_;} {}

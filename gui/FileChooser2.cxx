@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.6 1999/04/27 12:43:36 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.7 1999/04/27 15:13:20 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -23,6 +23,18 @@
 //
 // Contents:
 //
+//   FileChooser::init_icons() - Initialize the default icons used by the
+//                               FileChooser widget.
+//   FileChooser::directory()  - Set the directory in the file chooser.
+//   FileChooser::count()      - Return the number of selected files.
+//   FileChooser::value()      - Return a selected filename.
+//   FileChooser::up()         - Go up one directory.
+//   FileChooser::newdir()     - Make a new directory.
+//   FileChooser::rescan()     - Rescan the current directory.
+//   FileChooser::fileListCB() - Handle clicks (and double-clicks) in the
+//                               FileBrowser.
+//   FileChooser::fileNameCB() - Handle text entry in the FileBrowser.
+//
 
 //
 // Include necessary headers.
@@ -40,7 +52,7 @@
 
 
 //
-// 'FileChooser::init_icons()' - Initialize the icons used for the
+// 'FileChooser::init_icons()' - Initialize the default icons used by the
 //                               FileChooser widget.
 //
 
@@ -102,42 +114,70 @@ FileChooser::directory(const char *d)	// I - Directory to change to
   char	pathname[1024],			// Full path of directory
 	*pathptr,			// Pointer into full path
 	*dirptr;			// Pointer into directory
+  int	levels;				// Number of levels in directory
 
 
   // NULL == current directory
   if (d == NULL)
-    d = "";
+    d = ".";
 
   // Make the directory absolute...
+  if (d[0] != '\0')
+  {
 #if defined(WIN32) || defined(__EMX__)
-  if (d[0] != '/' && d[0] != '\\' && d[1] != ':')
+    if (d[0] != '/' && d[0] != '\\' && d[1] != ':')
 #else
-  if (d[0] != '/' && d[0] != '\\')
+    if (d[0] != '/' && d[0] != '\\')
 #endif /* WIN32 || __EMX__ */
-    filename_absolute(directory_, d);
-  else
-    strcpy(directory_, d);
+      filename_absolute(directory_, d);
+    else
+      strcpy(directory_, d);
 
-  // Set the dirName field...
-  dirName->value(directory_);
+    // Strip any trailing slash and/or period...
+    dirptr = directory_ + strlen(directory_) - 1;
+    if (*dirptr == '.')
+      *dirptr-- = '\0';
+    if ((*dirptr == '/' || *dirptr == '\\') && dirptr > directory_)
+      *dirptr = '\0';
+  }
+  else
+    directory_[0] = '\0';
 
   // Clear the directory menu and fill it as needed...
   dirMenu->clear();
+#if defined(WIN32) || defined(__EMX__)
+  dirMenu->add("My Computer");
+#else
+  dirMenu->add("File Systems");
+#endif /* WIN32 || __EMX__ */
 
-  for (dirptr = directory_, pathptr = pathname; *dirptr != '\0'; pathptr ++)
+  levels = 0;
+  for (dirptr = directory_, pathptr = pathname; *dirptr != '\0';)
   {
-    *pathptr = *dirptr++;
-
-    if (*pathptr == '/' || *pathptr == '\\')
+    if (*dirptr == '/' || *dirptr == '\\')
     {
       // Need to quote the slash first, and then add it to the menu...
       *pathptr++ = '\\';
-      pathptr[0] = '/';
-      pathptr[1] = '\0';
+      *pathptr++ = '/';
+      *pathptr++ = '\0';
+      dirptr ++;
 
       dirMenu->add(pathname);
+      levels ++;
+      pathptr = pathname;
     }
+    else
+      *pathptr++ = *dirptr++;
   }
+
+  if (pathptr > pathname)
+  {
+    *pathptr = '\0';
+    dirMenu->add(pathname);
+    levels ++;
+  }
+
+  dirMenu->value(levels);
 
   // Rescan the directory...
   rescan();
@@ -148,7 +188,7 @@ FileChooser::directory(const char *d)	// I - Directory to change to
 // 'FileChooser::count()' - Return the number of selected files.
 //
 
-int
+int				// O - Number of selected files
 FileChooser::count()
 {
   int	i;			// Looping var
@@ -276,24 +316,7 @@ FileChooser::newdir()
 void
 FileChooser::rescan()
 {
-  char	*slash;		// Slash in directory name
-
-
-  //
-  // Then build the file list...
-  //
-
-  if (directory_[0] != '\0')
-  {
-    // Drop trailing "/." and "\."...
-    if ((slash = strrchr(directory_, '/')) == NULL)
-      slash = strrchr(directory_, '\\');
-
-    if (slash != NULL &&
-        (strcmp(slash, "/.") == 0 || strcmp(slash, "\\.") == 0))
-      *slash = '\0';
-  }
-
+  // Build the file list...
   fileName->value("");
   fileList->load(directory_);
 }
@@ -344,44 +367,103 @@ FileChooser::fileListCB()
 void
 FileChooser::fileNameCB()
 {
-  char	*filename,		// New filename
-	pathname[1024];		// Full pathname to file
+  char		*filename,	// New filename
+		pathname[1024];	// Full pathname to file
+  int		i,		// Looping var
+		min_match,	// Minimum number of matching chars
+		max_match,	// Maximum number of matching chars
+		num_files;	// Number of files in directory
+  const char	*file;		// File from directory
 
 
+  // Get the filename from the text field...
   filename = (char *)fileName->value();
 
+  if (Fl::event_key() == FL_Enter)
+  {
+    // Enter pressed - select or change directory...
+
 #if defined(WIN32) || defined(__EMX__)
-  if (directory_[0] != '\0' &&
-      filename[0] != '/' &&
-      filename[0] != '\\' &&
-      !(isalpha(filename[0]) && filename[1] == ':'))
-    sprintf(pathname, "%s/%s", directory_, filename);
-  else
-    strcpy(pathname, filename);
+    if (directory_[0] != '\0' &&
+	filename[0] != '/' &&
+	filename[0] != '\\' &&
+	!(isalpha(filename[0]) && filename[1] == ':'))
+      sprintf(pathname, "%s/%s", directory_, filename);
+    else
+      strcpy(pathname, filename);
 
-  if ((strlen(pathname) == 2 && pathname[1] == ':') ||
-    filename_isdir(pathname))
+    if ((strlen(pathname) == 2 && pathname[1] == ':') ||
+      filename_isdir(pathname))
 #else
-  if (directory_[0] != '\0' &&
-      filename[0] != '/')
-    sprintf(pathname, "%s/%s", directory_, filename);
-  else
-    strcpy(pathname, filename);
+    if (directory_[0] != '\0' &&
+	filename[0] != '/')
+      sprintf(pathname, "%s/%s", directory_, filename);
+    else
+      strcpy(pathname, filename);
 
-  if (filename_isdir(pathname))
+    if (filename_isdir(pathname))
 #endif /* WIN32 || __EMX__ */
-  {
-    directory(pathname);
-    upButton->activate();
+    {
+      directory(pathname);
+      upButton->activate();
+    }
+    else
+    {
+      multi_ = 0;
+      window->hide();
+    }
   }
-  else
+  else if (Fl::event_key() != FL_Delete)
   {
-    multi_ = 0;
-    window->hide();
+    // Other key pressed - do filename completion as possible...
+
+    num_files = fileList->size();
+    min_match = strlen(filename);
+    max_match = 100000;
+
+    for (i = 1; i <= num_files && max_match > min_match; i ++)
+    {
+      file = fileList->text(i);
+
+      if (strncmp(filename, file, min_match) == 0)
+      {
+        // OK, this one matches; check against the previous match
+
+	if (max_match == 100000)
+	{
+	  // First match; copy stuff over...
+	  max_match = strlen(file);
+	  strcpy(pathname, file);
+	}
+	else
+	{
+	  // Succeeding match; compare to find maximum string match...
+	  while (max_match > min_match)
+	    if (strncmp(file, pathname, max_match) == 0)
+	      break;
+	    else
+	      max_match --;
+
+          // Truncate the string as needed...
+          pathname[max_match] = '\0';
+	}
+      }
+    }
+
+    // If we have any matches, add them to the input field...
+    if (max_match > min_match && max_match != 100000)
+    {
+      fileName->insert(pathname + min_match);
+
+      if (Fl::event_key() == FL_BackSpace)
+        fileName->position(min_match - 1, max_match);
+      else
+        fileName->position(min_match, max_match);
+    }
   }
 }
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.6 1999/04/27 12:43:36 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.7 1999/04/27 15:13:20 mike Exp $".
 //
