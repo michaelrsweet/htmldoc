@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.7 2002/03/08 21:52:56 mike Exp $"
+# "$Id: Makefile,v 1.5.2.1 2001/02/02 15:11:04 mike Exp $"
 #
 #   JPEG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -39,13 +39,11 @@ OBJS	=	jmemnobs.o \
 		jidctflt.o jidctfst.o jidctint.o jidctred.o jquant1.o \
 		jquant2.o jutils.o jmemmgr.o
 
-
 #
 # Make all targets...
 #
 
 all:	libjpeg.a
-
 
 #
 # Clean all targets and object files...
@@ -54,15 +52,6 @@ all:	libjpeg.a
 clean:
 	$(RM) $(OBJS)
 	$(RM) libjpeg.a
-
-
-#
-# Update dependencies (without system header dependencies...)
-#
-
-depend:
-	makedepend -Y -I.. -fDependencies $(OBJS:.o=.c) >/dev/null 2>&1
-
 
 #
 # libjpeg.a
@@ -74,14 +63,9 @@ libjpeg.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
+$(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
+		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# Dependencies...
-#
-
-include Dependencies
-
-
-#
-# End of "$Id: Makefile,v 1.7 2002/03/08 21:52:56 mike Exp $".
+# End of "$Id: Makefile,v 1.5.2.1 2001/02/02 15:11:04 mike Exp $".
 #
