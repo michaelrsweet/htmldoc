@@ -121,7 +121,7 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
     if (title) window->label(title);
   }
   if (d == NULL)
-  strcpy(directory_, ".");
+  strcpy(directory_, "");
 else
   strcpy(directory_, d);
 init_symbols();
@@ -139,7 +139,8 @@ else
 }
 
 void FileChooser::directory(const char *d) {
-  strcpy(directory_, d);
+  if (d == NULL) directory_[0] = '\0';
+  else strcpy(directory_, d);
 rescan();
 }
 

@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.2 1999/02/02 21:55:06 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.3 1999/02/05 02:15:59 mike Exp $"
 //
 //   FileBrowser routines for HTMLDOC, an HTML document processing program.
 //
@@ -24,6 +24,7 @@
 #include <string.h>
 
 #if defined(WIN32) || defined(__EMX__)
+#  include <windows.h>
 #  include <direct.h>
 #endif /* WIN32 || __EMX__ */
 
@@ -92,7 +93,7 @@ FileBrowser::FileBrowser(int x, int y, int w, int h, const char *l) :
 Fl_Browser(x, y, w, h, l)
 {
   pattern_   = "*";
-  directory_ = ".";
+  directory_ = "";
 }
 
 
@@ -101,10 +102,11 @@ FileBrowser::load(const char *directory)
 {
   int	i;		// Looping var
   int	num_files;	// Number of files in directory
-  char	filename[1024];	// Current file
+  char	filename[4096];	// Current file
 
 
   clear();
+  directory_ = directory;
 
   if (directory_[0] == '\0')
   {
@@ -172,8 +174,8 @@ FileBrowser::load(const char *directory)
     // Build the file list...
     //
 
-    directory_ = directory;
-    num_files  = filename_list(directory_, &files);
+    sprintf(filename, "%s/", directory);
+    num_files  = filename_list(filename, &files);
 
     for (i = 0; i < num_files; i ++)
     {
@@ -181,6 +183,7 @@ FileBrowser::load(const char *directory)
           strcmp(files[i]->d_name, "..") == 0)
 	continue;
 
+      puts(files[i]->d_name);
       sprintf(filename, "%s/%s", directory_, files[i]->d_name);
 
       if (filename_isdir(filename))
@@ -486,5 +489,5 @@ FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.2 1999/02/02 21:55:06 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.3 1999/02/05 02:15:59 mike Exp $".
 //
