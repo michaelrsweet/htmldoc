@@ -51,6 +51,8 @@ CHANGES IN HTMLDOC v1.8.15
 	  row.)
 	- Tables that used cells that exclusively used COLSPAN
 	  did not format properly.
+	- When writing HTML output, image references would
+	  incorrectly be mapped using the current path.
 
 
 CHANGES IN HTMLDOC v1.8.14

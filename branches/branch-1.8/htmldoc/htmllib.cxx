@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.35 2001/09/25 13:16:23 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.36 2001/09/25 21:31:24 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -714,7 +714,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
           // Update the image source as necessary...
           if ((filename = htmlGetVariable(t, (uchar *)"SRC")) != NULL)
-	    htmlSetVariable(t, (uchar *)"SRC",
+	    htmlSetVariable(t, (uchar *)"REALSRC",
 	                    (uchar *)fix_filename((char *)filename,
 			                          (char *)base));
 
@@ -2328,7 +2328,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
     width_ptr  = htmlGetVariable(t, (uchar *)"WIDTH");
     height_ptr = htmlGetVariable(t, (uchar *)"HEIGHT");
 
-    img = image_load((char *)htmlGetVariable(t, (uchar *)"SRC"),
+    img = image_load((char *)htmlGetVariable(t, (uchar *)"REALSRC"),
                      _htmlGrayscale);
 
     if (width_ptr != NULL && height_ptr != NULL)
@@ -2634,5 +2634,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.35 2001/09/25 13:16:23 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.36 2001/09/25 21:31:24 mike Exp $".
  */

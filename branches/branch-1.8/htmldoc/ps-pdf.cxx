@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.106 2001/09/25 13:16:24 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.107 2001/09/25 21:31:25 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2857,7 +2857,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	      case MARKUP_IMG :
 	          update_image_size(temp);
 		  new_render(*page, RENDER_IMAGE, x, *y, temp->width, temp->height,
-			     image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
+			     image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 		  break;
 
               default :
@@ -3657,7 +3657,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         new_render(*page, RENDER_IMAGE, image_left, *y - temp->height,
 	           temp->width, temp->height,
-		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
+		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
         if (vspace != NULL)
 	  *y -= atoi((char *)vspace);
@@ -3697,7 +3697,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         new_render(*page, RENDER_IMAGE, image_right, *y - temp->height,
                    temp->width, temp->height,
-		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
+		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
         if (vspace != NULL)
 	  *y -= atoi((char *)vspace);
@@ -4067,7 +4067,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    }
 
 	    new_render(*page, RENDER_IMAGE, linex, *y + offset, temp->width, temp->height,
-		       image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
+		       image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
             whitespace = 0;
 	    temp_width = temp->width;
 	    break;
@@ -4330,7 +4330,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
       case MARKUP_IMG :
 	  new_render(*page, RENDER_IMAGE, *x, *y, flat->width, flat->height,
-		     image_find((char *)htmlGetVariable(flat, (uchar *)"SRC")));
+		     image_find((char *)htmlGetVariable(flat, (uchar *)"REALSRC")));
 
           *x += flat->width;
           col ++;
@@ -7464,7 +7464,7 @@ update_image_size(tree_t *t)	/* I - Tree entry */
     return;
   }
 
-  img = image_find((char *)htmlGetVariable(t, (uchar *)"SRC"));
+  img = image_find((char *)htmlGetVariable(t, (uchar *)"REALSRC"));
 
   if (img == NULL)
     return;
@@ -10074,5 +10074,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.106 2001/09/25 13:16:24 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.107 2001/09/25 21:31:25 mike Exp $".
  */
