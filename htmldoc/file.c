@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.8 2001/02/22 01:22:40 mike Exp $"
+ * "$Id: file.c,v 1.13.2.9 2001/02/25 23:01:43 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -660,10 +660,10 @@ file_temp(char *name,			/* O - Filename */
 #ifdef WIN32
   GetTempPath(sizeof(tmpdir), tmpdir);
 
-  snprintf(name, len, "%s/%06d.%06d.dat", tmpdir, GetCurrentProcessId(), web_files);
+  snprintf(name, len, "%s/%08x.%06d.dat", tmpdir, GetCurrentProcessId(), web_files);
 
-  fd = _open(name, _O_CREAT | _O_WRONLY | _O_EXCL | _O_TRUNC | _O_SHORT_LIVED,
-             _S_IREAD | _S_IWRITE);
+  fd = _open(name, _O_CREAT | _O_WRONLY | _O_EXCL | _O_TRUNC | _O_SHORT_LIVED |
+                   _O_BINARY, _S_IREAD | _S_IWRITE);
 #else
   if ((tmpdir = getenv("TMPDIR")) == NULL)
     tmpdir = "/var/tmp";
@@ -686,5 +686,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.8 2001/02/22 01:22:40 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.9 2001/02/25 23:01:43 mike Exp $".
  */

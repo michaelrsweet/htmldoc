@@ -24,6 +24,8 @@ CHANGES IN HTMLDOC v1.8.12
 	- The "make install" target did a clean.
 	- The configure script would remove the image libraries
 	  if you did not have FLTK installed.
+	- The fix_filename() function didn't handle relative URLs
+	  for images (e.g. SRC="../images/filename.gif")
 
 
 CHANGES IN HTMLDOC v1.8.11

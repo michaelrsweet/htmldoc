@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.15 2001/02/20 02:15:56 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.16 2001/02/25 23:01:43 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2302,23 +2302,19 @@ fix_filename(char *filename,		/* I - Original filename */
   if (strncmp(base, "http://", 7) == 0)
   {
     strcpy(newfilename, base);
+    base = newfilename + 7;
 
     if (filename[0] == '/')
     {
-      if ((slash = strchr(newfilename + 7, '/')) != NULL)
+      if ((slash = strchr(base, '/')) != NULL)
         strcpy(slash, filename);
       else
         strcat(newfilename, filename);
 
       return (newfilename);
     }
-    else if ((slash = strchr(newfilename + 7, '/')) != NULL)
-      strcpy(slash + 1, filename);
-    else
-    {
+    else if ((slash = strchr(base, '/')) == NULL)
       strcat(newfilename, "/");
-      strcat(newfilename, filename);
-    }
   }
   else
   {
@@ -2327,6 +2323,7 @@ fix_filename(char *filename,		/* I - Original filename */
       return (file_find(Path, filename)); /* No change needed for absolute path */
 
     strcpy(newfilename, base);
+    base = newfilename;
   }
 
 #ifdef MAC
@@ -2355,15 +2352,15 @@ fix_filename(char *filename,		/* I - Original filename */
   {
     filename += 3;
 #if defined(WIN32) || defined(__EMX__)
-    if ((slash = strrchr(newfilename, '/')) != NULL)
+    if ((slash = strrchr(base, '/')) != NULL)
       *slash = '\0';
-    else if ((slash = strrchr(newfilename, '\\')) != NULL)
+    else if ((slash = strrchr(base, '\\')) != NULL)
       *slash = '\0';
 #elif defined(MAC)
-    if ((slash = strrchr(newfilename, ':')) != NULL)
+    if ((slash = strrchr(base, ':')) != NULL)
       *slash = '\0';
 #else
-    if ((slash = strrchr(newfilename, '/')) != NULL)
+    if ((slash = strrchr(base, '/')) != NULL)
       *slash = '\0';
 #endif // WIN32 || __EMX__
     else
@@ -2385,5 +2382,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.15 2001/02/20 02:15:56 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.16 2001/02/25 23:01:43 mike Exp $".
  */
