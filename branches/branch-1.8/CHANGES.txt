@@ -119,6 +119,10 @@ CHANGES IN HTMLDOC v1.8.24
 	  Finder (STR #3)
 	- The GUI did not load or save the "strict HTML" setting
 	  (STR #6)
+	- The HTML version of the title page did not set the ALT
+	  attribute for the title image (STR #10)
+	- The HTML version of the table of contents did not
+	  correctly nest the lists in the parent items (STR #10)
 
 
 CHANGES IN HTMLDOC v1.8.23
