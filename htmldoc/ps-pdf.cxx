@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.215 2003/02/21 15:27:03 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.216 2003/02/21 16:45:48 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4945,8 +4945,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             if (temp->data == NULL)
               break;
 
-	    if (temp->width > (right - left) ||
-	        temp->height > (top - bottom))
+	    if ((temp->width - right + left) > 0.001 ||
+	        (temp->height - top + bottom) > 0.001)
 	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	                     "Text on page %d too large - "
 			     "truncation or overlapping may occur!", *page + 1);
@@ -4995,11 +4995,17 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    break;
 
 	case MARKUP_IMG :
-	    if (temp->width > (right - left) ||
-	        temp->height > (top - bottom))
+	    if ((temp->width - right + left) > 0.001 ||
+	        (temp->height - top + bottom) > 0.001)
+	    {
+	      DEBUG_printf(("IMAGE: %.3fx%.3f > %.3fx%.3f\n",
+	                    temp->width, temp->height,
+			    right - left, top - bottom));
+
 	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	                     "Image on page %d too large - "
 			     "truncation or overlapping may occur!", *page + 1);
+            }
 
 	    if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
 	      borderspace = atof((char *)border);
@@ -5332,7 +5338,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
     }
 
-    if (*x > right)
+    if ((*x - right) > 0.001)
       progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	             "Preformatted text on page %d too long - "
 		     "truncation or overlapping may occur!", *page + 1);
@@ -5967,7 +5973,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     width -= cellspacing;
   }
 
-  if (width > (right - left))
+  if ((width - right + left) > 0.001)
     progress_error(HD_ERROR_CONTENT_TOO_LARGE,
                    "Table on page %d too wide - "
 		   "truncation or overlapping may occur!", *page + 1);
@@ -12077,5 +12083,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.215 2003/02/21 15:27:03 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.216 2003/02/21 16:45:48 mike Exp $".
  */
