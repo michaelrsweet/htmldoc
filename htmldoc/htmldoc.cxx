@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.69 2004/05/09 19:57:37 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.70 2004/05/09 20:16:29 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -136,13 +136,6 @@ main(int  argc,				/* I - Number of command-line arguments */
 #endif // WIN32
 
  /*
-  * Default to producing HTML files.
-  */
-
-  document   = NULL;
-  exportfunc = (exportfunc_t)html_export;
-
- /*
   * Check if we are being executed as a CGI program...
   */
 
@@ -157,14 +150,15 @@ main(int  argc,				/* I - Number of command-line arguments */
     // -f -
     //
     // Additional args cannot be provided on the command-line, however
-    // the prefs_load() function will load directory-specific options
-    // from the web server directory...
+    // we load directory-specific options from the ".book" file in the
+    // current web server directory...
 
     CGIMode       = 1;
     TocLevels     = 0;
     TitlePage     = 0;
     OutputPath[0] = '\0';
     OutputType    = OUTPUT_WEBPAGES;
+    document      = NULL;
     exportfunc    = (exportfunc_t)pspdf_export;
     PSLevel       = 0;
     PDFVersion    = 13;
@@ -178,15 +172,26 @@ main(int  argc,				/* I - Number of command-line arguments */
     progress_error(HD_ERROR_NONE, "INFO: TMPDIR is \"%s\"\n", getenv("TMPDIR"));
 
     argc = 1;
+
+    // If there is a .book file in the current directory, use it...
+    if (!access(".book", 0))
+      load_book(".book", &document, &exportfunc);
   }
+  else
+  {
+   /*
+    * Default to producing HTML files.
+    */
 
- /*
-  * Load preferences...
-  */
+    document   = NULL;
+    exportfunc = (exportfunc_t)html_export;
 
-  prefs_load();
+   /*
+    * Load preferences...
+    */
 
-  Errors = 0;
+    prefs_load();
+  }
 
  /*
   * Parse command-line options...
@@ -195,6 +200,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   fontsize    = 11.0f;
   fontspacing = 1.2f;
   num_files   = 0;
+  Errors      = 0;
 
   for (i = 1; i < argc; i ++)
   {
@@ -308,7 +314,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--cookies", 5) == 0)
     {
       i ++;
-      if (i < argc && !CGIMode)
+      if (i < argc)
         file_cookies(argv[i]);
       else
         usage(argv[i - 1]);
@@ -316,7 +322,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--datadir", 4) == 0)
     {
       i ++;
-      if (i < argc && !CGIMode)
+      if (i < argc)
         _htmlData = argv[i];
       else
         usage(argv[i - 1]);
@@ -328,7 +334,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       // The X standard requires support for the -display option, but
       // we also support the GNU standard --display...
       i ++;
-      if (i < argc && !CGIMode)
+      if (i < argc)
         Fl::display(argv[i]);
       else
         usage(argv[i - 1]);
@@ -416,7 +422,7 @@ main(int  argc,				/* I - Number of command-line arguments */
              strcmp(argv[i], "-t") == 0)
     {
       i ++;
-      if (i < argc && !CGIMode)
+      if (i < argc)
       {
         if (strcasecmp(argv[i], "ps1") == 0)
         {
@@ -593,7 +599,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--helpdir", 7) == 0)
     {
       i ++;
-      if (i < argc && !CGIMode)
+      if (i < argc)
         GUI::help_dir = argv[i];
       else
         usage(argv[i - 1]);
@@ -722,7 +728,7 @@ main(int  argc,				/* I - Number of command-line arguments */
              strcmp(argv[i], "-d") == 0)
     {
       i ++;
-      if (i < argc && !CGIMode)
+      if (i < argc)
       {
         strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 1;
@@ -734,7 +740,7 @@ main(int  argc,				/* I - Number of command-line arguments */
              strcmp(argv[i], "-f") == 0)
     {
       i ++;
-      if (i < argc && !CGIMode)
+      if (i < argc)
       {
         strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 0;
@@ -845,7 +851,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--proxy", 4) == 0)
     {
       i ++;
-      if (i < argc && !CGIMode)
+      if (i < argc)
       {
         strlcpy(Proxy, argv[i], sizeof(Proxy));
 	file_proxy(Proxy);
@@ -1071,7 +1077,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   */
 
 #ifdef HAVE_LIBFLTK
-  if (num_files == 0 && BookGUI == NULL && !CGIMode)
+  if (num_files == 0 && BookGUI == NULL)
     BookGUI = new GUI();
 
   if (BookGUI != NULL)
@@ -1175,11 +1181,6 @@ prefs_getrc(void)
   if ((home = getenv("HOME")) == NULL)
     home = _htmlData;
 #endif // WIN32
-
-  // When running in CGI mode, use a directory-specific preference
-  // file if it exists...
-  if (CGIMode && !access(".htmldocrc", 0))
-    return (".htmldocrc");
 
   // Format the rc filename and return...
   snprintf(htmldocrc, sizeof(htmldocrc), "%s/.htmldocrc", home);
@@ -1809,7 +1810,7 @@ parse_options(const char   *line,	// I - Options from book file
 
     *tempptr = '\0';
 
-    if (strcmp(temp, "-t") == 0 && !CGIMode)
+    if (strcmp(temp, "-t") == 0)
     {
       if (strcmp(temp2, "html") == 0)
         *exportfunc = (exportfunc_t)html_export;
@@ -1865,12 +1866,12 @@ parse_options(const char   *line,	// I - Options from book file
       TitlePage = 1;
       strlcpy(TitleImage, temp2, sizeof(TitleImage));
     }
-    else if (strcmp(temp, "-f") == 0 && !CGIMode)
+    else if (strcmp(temp, "-f") == 0)
     {
       OutputFiles = 0;
       strlcpy(OutputPath, temp2, sizeof(OutputPath));
     }
-    else if (strcmp(temp, "-d") == 0 && !CGIMode)
+    else if (strcmp(temp, "-d") == 0)
     {
       OutputFiles = 1;
       strlcpy(OutputPath, temp2, sizeof(OutputPath));
@@ -2082,12 +2083,12 @@ parse_options(const char   *line,	// I - Options from book file
       strlcpy(OwnerPassword, temp2, sizeof(OwnerPassword));
     else if (strcmp(temp, "--path") == 0)
       strlcpy(Path, temp2, sizeof(Path) - 1);
-    else if (strcmp(temp, "--proxy") == 0 && !CGIMode)
+    else if (strcmp(temp, "--proxy") == 0)
     {
       strlcpy(Proxy, temp2, sizeof(Proxy));
       file_proxy(Proxy);
     }
-    else if (strcmp(temp, "--cookies") == 0 && !CGIMode)
+    else if (strcmp(temp, "--cookies") == 0)
       file_cookies(temp2);
   }
 }
@@ -2246,141 +2247,137 @@ usage(const char *arg)			// I - Bad argument string
   if (CGIMode)
     puts("Content-Type: text/plain\r\n\r");
 
-  if (arg && arg[0] == '-')
-    printf("Bad option argument \"%s\"!\n\n", arg);
-  else
-    printf("ERROR: %s\n", arg);
-
   puts("HTMLDOC Version " SVERSION " Copyright 1997-2004 Easy Software Products, All Rights Reserved.");
   puts("This software is governed by the GNU General Public License, Version 2, and");
   puts("is based in part on the work of the Independent JPEG Group.");
   puts("");
-  puts("Usage:");
-  puts("  htmldoc [options] filename1.html [ ... filenameN.html ]");
-#ifdef HAVE_LIBFLTK
-  puts("  htmldoc filename.book");
-#endif // HAVE_LIBFLTK
-  puts("");
-  puts("Options:");
-  puts("");
-  puts("  --batch filename.book");
-  puts("  --bodycolor color");
-  puts("  --bodyfont {courier,times,helvetica}");
-  puts("  --bodyimage filename.{bmp,gif,jpg,png}");
-  puts("  --book");
-  puts("  --bottom margin{in,cm,mm}");
-  puts("  --browserwidth pixels");
-  puts("  --charset {cp-874...1258,iso-8859-1...8859-15,koi8-r}");
-  puts("  --color");
-  puts("  --compression[=level]");
-  puts("  --continuous");
+
   if (!CGIMode)
   {
+    if (arg && arg[0] == '-')
+      printf("ERROR: Bad option argument \"%s\"!\n\n", arg);
+    else
+      printf("ERROR: %s\n", arg);
+
+    puts("");
+    puts("Usage:");
+    puts("  htmldoc [options] filename1.html [ ... filenameN.html ]");
+#ifdef HAVE_LIBFLTK
+    puts("  htmldoc filename.book");
+#endif // HAVE_LIBFLTK
+    puts("");
+    puts("Options:");
+    puts("");
+    puts("  --batch filename.book");
+    puts("  --bodycolor color");
+    puts("  --bodyfont {courier,times,helvetica}");
+    puts("  --bodyimage filename.{bmp,gif,jpg,png}");
+    puts("  --book");
+    puts("  --bottom margin{in,cm,mm}");
+    puts("  --browserwidth pixels");
+    puts("  --charset {cp-874...1258,iso-8859-1...8859-15,koi8-r}");
+    puts("  --color");
+    puts("  --compression[=level]");
+    puts("  --continuous");
     puts("  --cookies 'name=\"value with space\"; name=value'");
     puts("  --datadir directory");
-  }
-  puts("  --duplex");
-  puts("  --effectduration {0.1..10.0}");
-  puts("  --embedfonts");
-  puts("  --encryption");
-  puts("  --firstpage {p1,toc,c1}");
-  puts("  --fontsize {4.0..24.0}");
-  puts("  --fontspacing {1.0..3.0}");
-  puts("  --footer fff");
-  if (!CGIMode)
+    puts("  --duplex");
+    puts("  --effectduration {0.1..10.0}");
+    puts("  --embedfonts");
+    puts("  --encryption");
+    puts("  --firstpage {p1,toc,c1}");
+    puts("  --fontsize {4.0..24.0}");
+    puts("  --fontspacing {1.0..3.0}");
+    puts("  --footer fff");
     puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html,htmlsep}");
-  puts("  --gray");
-  puts("  --header fff");
-  puts("  --headfootfont {courier{-bold,-oblique,-boldoblique},\n"
-       "                  times{-roman,-bold,-italic,-bolditalic},\n"
-       "                  helvetica{-bold,-oblique,-boldoblique}}");
-  puts("  --headfootsize {6.0..24.0}");
-  puts("  --headingfont {courier,times,helvetica}");
-  puts("  --help");
+    puts("  --gray");
+    puts("  --header fff");
+    puts("  --headfootfont {courier{-bold,-oblique,-boldoblique},\n"
+	 "                  times{-roman,-bold,-italic,-bolditalic},\n"
+	 "                  helvetica{-bold,-oblique,-boldoblique}}");
+    puts("  --headfootsize {6.0..24.0}");
+    puts("  --headingfont {courier,times,helvetica}");
+    puts("  --help");
 #ifdef HAVE_LIBFLTK
-  if (!CGIMode)
     puts("  --helpdir directory");
 #endif // HAVE_LIBFLTK
-  for (int i = 0; i < MAX_HF_IMAGES; i ++)
-    printf("  --hfimage%d filename.{bmp,gif,jpg,png}\n", i);
-  puts("  --jpeg[=quality]");
-  puts("  --landscape");
-  puts("  --left margin{in,cm,mm}");
-  puts("  --linkcolor color");
-  puts("  --links");
-  puts("  --linkstyle {plain,underline}");
-  puts("  --logoimage filename.{bmp,gif,jpg,png}");
-  puts("  --owner-password password");
-  puts("  --no-compression");
-  puts("  --no-duplex");
-  puts("  --no-embedfonts");
-  puts("  --no-encryption");
-  puts("  --no-links");
-  puts("  --no-localfiles");
-  puts("  --no-numbered");
-  puts("  --no-pscommands");
-  puts("  --no-strict");
-  puts("  --no-title");
-  puts("  --no-toc");
-  puts("  --numbered");
-  puts("  --nup {1,2,4,6,9,16}");
-  if (!CGIMode)
-  {
+    for (int i = 0; i < MAX_HF_IMAGES; i ++)
+      printf("  --hfimage%d filename.{bmp,gif,jpg,png}\n", i);
+    puts("  --jpeg[=quality]");
+    puts("  --landscape");
+    puts("  --left margin{in,cm,mm}");
+    puts("  --linkcolor color");
+    puts("  --links");
+    puts("  --linkstyle {plain,underline}");
+    puts("  --logoimage filename.{bmp,gif,jpg,png}");
+    puts("  --owner-password password");
+    puts("  --no-compression");
+    puts("  --no-duplex");
+    puts("  --no-embedfonts");
+    puts("  --no-encryption");
+    puts("  --no-links");
+    puts("  --no-localfiles");
+    puts("  --no-numbered");
+    puts("  --no-pscommands");
+    puts("  --no-strict");
+    puts("  --no-title");
+    puts("  --no-toc");
+    puts("  --numbered");
+    puts("  --nup {1,2,4,6,9,16}");
     puts("  {--outdir, -d} dirname");
     puts("  {--outfile, -f} filename.{ps,pdf,html}");
-  }
-  puts("  --pageduration {1.0..60.0}");
-  puts("  --pageeffect {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}");
-  puts("  --pagelayout {single,one,twoleft,tworight}");
-  puts("  --pagemode {document,outline,fullscreen}");
-  puts("  --path \"dir1;dir2;dir3;...;dirN\"");
-  puts("  --permissions {all,annotate,copy,modify,print,no-annotate,no-copy,no-modify,no-print,none}");
-  puts("  --portrait");
-  if (!CGIMode)
+    puts("  --pageduration {1.0..60.0}");
+    puts("  --pageeffect {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}");
+    puts("  --pagelayout {single,one,twoleft,tworight}");
+    puts("  --pagemode {document,outline,fullscreen}");
+    puts("  --path \"dir1;dir2;dir3;...;dirN\"");
+    puts("  --permissions {all,annotate,copy,modify,print,no-annotate,no-copy,no-modify,no-print,none}");
+    puts("  --portrait");
     puts("  --proxy http://host:port");
-  puts("  --pscommands");
-  puts("  --quiet");
-  puts("  --right margin{in,cm,mm}");
-  puts("  --size {letter,a4,WxH{in,cm,mm},etc}");
-  puts("  --strict");
-  puts("  --textcolor color");
-  puts("  --textfont {courier,times,helvetica}");
-  puts("  --title");
-  puts("  --titlefile filename.{htm,html,shtml}");
-  puts("  --titleimage filename.{bmp,gif,jpg,png}");
-  puts("  --tocfooter fff");
-  puts("  --tocheader fff");
-  puts("  --toclevels levels");
-  puts("  --toctitle string");
-  puts("  --top margin{in,cm,mm}");
-  puts("  --user-password password");
-  puts("  {--verbose, -v}");
-  puts("  --version");
-  puts("  --webpage");
-  puts("");
-  puts("  fff = heading format string; each \'f\' can be one of:");
-  puts("");
-  puts("        . = blank");
-  puts("        / = n/N arabic page numbers (1/3, 2/3, 3/3)");
-  puts("        : = c/C arabic chapter page numbers (1/2, 2/2, 1/4, 2/4, ...)");
-  puts("        1 = arabic numbers (1, 2, 3, ...)");
-  puts("        a = lowercase letters");
-  puts("        A = uppercase letters");
-  puts("        c = current chapter heading");
-  puts("        C = current chapter page number (arabic)");
-  puts("        d = current date");
-  puts("        D = current date and time");
-  puts("        h = current heading");
-  puts("        i = lowercase roman numerals");
-  puts("        I = uppercase roman numerals");
-  puts("        l = logo image");
-  puts("        t = title text");
-  puts("        T = current time");
+    puts("  --pscommands");
+    puts("  --quiet");
+    puts("  --right margin{in,cm,mm}");
+    puts("  --size {letter,a4,WxH{in,cm,mm},etc}");
+    puts("  --strict");
+    puts("  --textcolor color");
+    puts("  --textfont {courier,times,helvetica}");
+    puts("  --title");
+    puts("  --titlefile filename.{htm,html,shtml}");
+    puts("  --titleimage filename.{bmp,gif,jpg,png}");
+    puts("  --tocfooter fff");
+    puts("  --tocheader fff");
+    puts("  --toclevels levels");
+    puts("  --toctitle string");
+    puts("  --top margin{in,cm,mm}");
+    puts("  --user-password password");
+    puts("  {--verbose, -v}");
+    puts("  --version");
+    puts("  --webpage");
+    puts("");
+    puts("  fff = heading format string; each \'f\' can be one of:");
+    puts("");
+    puts("        . = blank");
+    puts("        / = n/N arabic page numbers (1/3, 2/3, 3/3)");
+    puts("        : = c/C arabic chapter page numbers (1/2, 2/2, 1/4, 2/4, ...)");
+    puts("        1 = arabic numbers (1, 2, 3, ...)");
+    puts("        a = lowercase letters");
+    puts("        A = uppercase letters");
+    puts("        c = current chapter heading");
+    puts("        C = current chapter page number (arabic)");
+    puts("        d = current date");
+    puts("        D = current date and time");
+    puts("        h = current heading");
+    puts("        i = lowercase roman numerals");
+    puts("        I = uppercase roman numerals");
+    puts("        l = logo image");
+    puts("        t = title text");
+    puts("        T = current time");
+  }
 
   exit(1);
 }
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.69 2004/05/09 19:57:37 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.70 2004/05/09 20:16:29 mike Exp $".
  */
