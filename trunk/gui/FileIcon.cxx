@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.3 1999/04/27 15:13:20 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.4 1999/04/28 15:53:05 mike Exp $"
 //
 //   FileIcon routines for the Common UNIX Printing System (CUPS).
 //
@@ -47,6 +47,19 @@
 #include <FL/filename.H>
 
 #include "FileIcon.h"
+
+
+//
+// Define missing POSIX/XPG4 macros as needed...
+//
+
+#ifndef S_ISDIR
+#  define S_ISBLK(m) (((m) & S_IFMT) == S_IFBLK)
+#  define S_ISCHR(m) (((m) & S_IFMT) == S_IFCHR)
+#  define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#  define S_ISFIFO(m) (((m) & S_IFMT) == S_IFIFO)
+#  define S_ISLNK(m) (((m) & S_IFMT) == S_IFLNK)
+#endif /* !S_ISDIR */
 
 
 //
@@ -520,5 +533,5 @@ FileIcon::load(const char *fti)	// File to read from
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.3 1999/04/27 15:13:20 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.4 1999/04/28 15:53:05 mike Exp $".
 //

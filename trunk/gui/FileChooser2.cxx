@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.7 1999/04/27 15:13:20 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.8 1999/04/28 15:53:04 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -196,7 +196,17 @@ FileChooser::count()
 
 
   if (!multi_)
-    return (fileList->value() != 0);
+  {
+    const char *filename;	// Filename in input field
+
+
+    // Check to see if the file name input field is blank...
+    filename = fileName->value();
+    if (filename == NULL || filename[0] == '\0')
+      return (0);
+    else
+      return (1);
+  }
 
   for (i = 1, count = 0; i <= fileList->size(); i ++)
     if (fileList->selected(i))
@@ -243,6 +253,61 @@ FileChooser::value(int f)	// I - File number
     }
 
   return (NULL);
+}
+
+
+//
+// 'FileChooser::value()' - Set the current filename.
+//
+
+void
+FileChooser::value(const char *filename)	// I - Filename + directory
+{
+  int	i,					// Looping var
+  	count;					// Number of items in list
+  char	*slash;					// Directory separator
+  char	pathname[1024];				// Local copy of filename
+
+
+  // See if the filename is actually a directory...
+  if (filename_isdir(pathname))
+  {
+    // Yes, just change the current directory...
+    directory(pathname);
+    return;
+  }
+
+  // Switch to single-selection mode as needed
+  if (multi_)
+    multi(0);
+
+  // See if there is a directory in there...
+  strcpy(pathname, filename);
+  if ((slash = strrchr(pathname, '/')) == NULL)
+    slash = strrchr(pathname, '\\');
+
+  if (slash != NULL)
+  {
+    // Yes, change the display to the directory... 
+    *slash++ = '\0';
+    directory(pathname);
+  }
+  else
+    slash = pathname;
+
+  // Set the input field to the remaining portion
+  fileName->value(slash);
+  fileName->position(0, strlen(slash));
+
+  // Then find the file in the file list and select it...
+  count = fileList->size();
+
+  for (i = 1; i <= count; i ++)
+    if (strcmp(fileList->text(i), slash) == 0)
+    {
+      fileList->select(i);
+      break;
+    }
 }
 
 
@@ -465,5 +530,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.7 1999/04/27 15:13:20 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.8 1999/04/28 15:53:04 mike Exp $".
 //
