@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.10 2001/06/01 18:13:20 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.11 2001/06/04 13:22:31 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -737,12 +737,16 @@ image_load(const char *filename,/* I - Name of image file */
   if ((fp = fopen(realname, "rb")) == NULL)
   {
     progress_error("Unable to read image file \"%s\"!", filename);
+    progress_error("    Real filename = \"%s\"", realname);
+    progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
     return (NULL);
   }
 
   if (fread(header, 1, sizeof(header), fp) == 0)
   {
     progress_error("Unable to read image file \"%s\"!", filename);
+    progress_error("    Real filename = \"%s\"", realname);
+    progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
     fclose(fp);
     return (NULL);
   }
@@ -758,6 +762,8 @@ image_load(const char *filename,/* I - Name of image file */
   if (img == NULL)
   {
     progress_error("Unable to allocate memory for \"%s\"!", filename);
+    progress_error("    Real filename = \"%s\"", realname);
+    progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
     fclose(fp);
     return (NULL);
   }
@@ -784,6 +790,7 @@ image_load(const char *filename,/* I - Name of image file */
   else
   {
     progress_error("Unknown image file format for \"%s\"!", filename);
+    progress_error("    Real filename = \"%s\"", realname);
     fclose(fp);
     free(img);
     return (NULL);
@@ -794,6 +801,8 @@ image_load(const char *filename,/* I - Name of image file */
   if (status)
   {
     progress_error("Unable to load image file \"%s\"!", filename);
+    progress_error("    Real filename = \"%s\"", realname);
+    progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
     free(img);
     return (NULL);
   }
@@ -1586,5 +1595,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.10 2001/06/01 18:13:20 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.11 2001/06/04 13:22:31 mike Exp $".
  */
