@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.1 1999/11/07 13:33:25 mike Exp $"
+ * "$Id: gui.h,v 1.2 1999/11/07 23:57:09 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -102,6 +102,12 @@ class GUI
 			*fontSpacing,
 			*headFootSize;
 
+      Fl_Group		*htmlTab;
+
+      Fl_Group		*psTab;
+
+      Fl_Group		*pdfTab;
+
       Fl_Group		*optionsTab;
       Fl_Input		*htmlEditor;
       Fl_Button		*htmlBrowse;
@@ -159,6 +165,7 @@ extern void bodyColorCB(Fl_Widget *w, GUI *gui);
 extern void bodyImageCB(Fl_Widget *w, GUI *gui);
 extern void htmlEditorCB(Fl_Widget *w, GUI *gui);
 
+extern void helpCB(Fl_Widget *w, GUI *gui);
 extern void newBookCB(Fl_Widget *w, GUI *gui);
 extern void openBookCB(Fl_Widget *w, GUI *gui);
 extern void saveBookCB(Fl_Widget *w, GUI *gui);
@@ -167,5 +174,5 @@ extern void generateBookCB(Fl_Widget *w, GUI *gui);
 extern void closeBookCB(Fl_Widget *w, GUI *gui);
 
 /*
- * End of "$Id: gui.h,v 1.1 1999/11/07 13:33:25 mike Exp $".
+ * End of "$Id: gui.h,v 1.2 1999/11/07 23:57:09 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.1 1999/11/07 13:33:29 mike Exp $"
+// "$Id: gui.cxx,v 1.2 1999/11/07 23:57:09 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -93,6 +93,7 @@ GUI::GUI(char *filename)		// Book file to load initially
 			{
 			  {"Blank", 0,  0, 0, 0, 0, 3, 14, 0},
 			  {"Title", 0,  0, 0, 0, 0, 3, 14, 0},
+			  {"Chapter", 0,  0, 0, 0, 0, 3, 14, 0},
 			  {"Heading", 0,  0, 0, 0, 0, 3, 14, 0},
 			  {"Logo", 0,  0, 0, 0, 0, 3, 14, 0},
 			  {"1,2,3,...", 0,  0, 0, 0, 0, 3, 14, 0},
@@ -113,15 +114,15 @@ GUI::GUI(char *filename)		// Book file to load initially
   // Create a dialog window...
   //
 
-  window   = new Fl_Window(415, 390, "HTMLDOC " SVERSION);
-  controls = new Fl_Group(0, 0, 415, 360);
-  tabs     = new Fl_Tabs(10, 10, 395, 260);
+  window   = new Fl_Window(470, 390, "HTMLDOC " SVERSION);
+  controls = new Fl_Group(0, 0, 465, 360);
+  tabs     = new Fl_Tabs(10, 10, 445, 260);
 
   //
   // Input tab...
   //
 
-  inputTab = new Fl_Group(10, 35, 395, 220, "Input");
+  inputTab = new Fl_Group(10, 35, 450, 220, "Input");
 
   group = new Fl_Group(140, 45, 150, 20, "Document Type: ");
   group->align(FL_ALIGN_LEFT);
@@ -185,7 +186,7 @@ GUI::GUI(char *filename)		// Book file to load initially
   // Output tab...
   //
 
-  outputTab = new Fl_Group(10, 35, 395, 220, "Output");
+  outputTab = new Fl_Group(10, 35, 450, 220, "Output");
   outputTab->hide();
 
   group = new Fl_Group(140, 45, 265, 20, "Output To: ");
@@ -276,7 +277,7 @@ GUI::GUI(char *filename)		// Book file to load initially
   // Page tab...
   //
 
-  pageTab = new Fl_Group(10, 35, 395, 220, "Page");
+  pageTab = new Fl_Group(10, 35, 450, 220, "Page");
   pageTab->hide();
 
   pageSize = new Fl_Input(140, 45, 120, 25, "Page Size: ");
@@ -329,7 +330,7 @@ GUI::GUI(char *filename)		// Book file to load initially
   // TOC tab...
   //
 
-  tocTab = new Fl_Group(10, 35, 395, 220, "TOC");
+  tocTab = new Fl_Group(10, 35, 450, 220, "TOC");
   tocTab->hide();
 
   tocLevels = new Fl_Choice(140, 45, 100, 25, "Table of Contents: ");
@@ -411,10 +412,71 @@ GUI::GUI(char *filename)		// Book file to load initially
   fontsTab->end();
 
   //
+  // HTML tab...
+  //
+
+  htmlTab = new Fl_Group(10, 35, 450, 220, "HTML");
+  htmlTab->hide();
+
+  htmlTab->end();
+
+  //
+  // PS tab...
+  //
+
+  psTab = new Fl_Group(10, 35, 450, 220, "PS");
+  psTab->hide();
+
+  psTab->end();
+
+  //
+  // PDF tab...
+  //
+
+  pdfTab = new Fl_Group(10, 35, 450, 220, "PDF");
+  pdfTab->hide();
+
+  compressionLevel = new Fl_Slider(140, 45, 180, 25, "Compression: ");
+  compressionLevel->align(FL_ALIGN_LEFT);
+  compressionLevel->type(FL_HOR_NICE_SLIDER);
+  compressionLevel->minimum(1.0);
+  compressionLevel->maximum(9.0);
+  compressionLevel->value(1.0);
+  compressionLevel->step(1.0);
+  compressionLevel->callback((Fl_Callback *)changeCB, this);
+
+  label = new Fl_Box(140, 70, 40, 10, "Fast");
+  label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+  label->labelsize(10);
+
+  label = new Fl_Box(280, 70, 40, 10, "Best");
+  label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+  label->labelsize(10);
+
+  pdfVersion = new Fl_Group(140, 85, 255, 20, "PDF Version: ");
+  pdfVersion->align(FL_ALIGN_LEFT);
+
+    pdf11 = new Fl_Check_Button(140, 85, 125, 20, "1.1 (Acrobat 2.x)");
+    pdf11->type(FL_RADIO_BUTTON);
+    pdf11->down_box(FL_DIAMOND_DOWN_BOX);
+    pdf11->color2(FL_BLUE);
+    pdf11->callback((Fl_Callback *)pdfCB, this);
+
+    pdf12 = new Fl_Check_Button(270, 85, 125, 20, "1.2 (Acrobat 3.x)");
+    pdf12->type(FL_RADIO_BUTTON);
+    pdf12->down_box(FL_DIAMOND_DOWN_BOX);
+    pdf12->color2(FL_BLUE);
+    pdf12->callback((Fl_Callback *)pdfCB, this);
+
+  pdfVersion->end();
+
+  pdfTab->end();
+
+  //
   // Options tab...
   //
 
-  optionsTab = new Fl_Group(10, 35, 395, 220, "Options");
+  optionsTab = new Fl_Group(10, 35, 450, 220, "Options");
   optionsTab->hide();
 
   htmlEditor = new Fl_Input(140, 45, 160, 25, "HTML Editor: ");
@@ -441,40 +503,6 @@ GUI::GUI(char *filename)		// Book file to load initially
   label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
   label->labelsize(10);
 
-  compressionLevel = new Fl_Slider(140, 115, 180, 25, "Compression: ");
-  compressionLevel->align(FL_ALIGN_LEFT);
-  compressionLevel->type(FL_HOR_NICE_SLIDER);
-  compressionLevel->minimum(1.0);
-  compressionLevel->maximum(9.0);
-  compressionLevel->value(1.0);
-  compressionLevel->step(1.0);
-  compressionLevel->callback((Fl_Callback *)changeCB, this);
-
-  label = new Fl_Box(140, 140, 40, 10, "Fast");
-  label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  label->labelsize(10);
-
-  label = new Fl_Box(280, 140, 40, 10, "Best");
-  label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
-  label->labelsize(10);
-
-  pdfVersion = new Fl_Group(140, 155, 255, 20, "PDF Version: ");
-  pdfVersion->align(FL_ALIGN_LEFT);
-
-    pdf11 = new Fl_Check_Button(140, 155, 125, 20, "1.1 (Acrobat 2.x)");
-    pdf11->type(FL_RADIO_BUTTON);
-    pdf11->down_box(FL_DIAMOND_DOWN_BOX);
-    pdf11->color2(FL_BLUE);
-    pdf11->callback((Fl_Callback *)pdfCB, this);
-
-    pdf12 = new Fl_Check_Button(270, 155, 125, 20, "1.2 (Acrobat 3.x)");
-    pdf12->type(FL_RADIO_BUTTON);
-    pdf12->down_box(FL_DIAMOND_DOWN_BOX);
-    pdf12->color2(FL_BLUE);
-    pdf12->callback((Fl_Callback *)pdfCB, this);
-
-  pdfVersion->end();
-
   optionsTab->end();
 
   tabs->end();
@@ -483,26 +511,29 @@ GUI::GUI(char *filename)		// Book file to load initially
   // Button bar...
   //
 
-  button = new Fl_Button(10, 330, 45, 25, "New");
+  button = new Fl_Button(10, 330, 50, 25, "Help");
+  button->callback((Fl_Callback *)helpCB, this);
+
+  button = new Fl_Button(65, 330, 45, 25, "New");
   button->callback((Fl_Callback *)newBookCB, this);
 
-  button = new Fl_Button(60, 330, 60, 25, "Open...");
+  button = new Fl_Button(115, 330, 60, 25, "Open...");
   button->shortcut(FL_CTRL | 'o');
   button->callback((Fl_Callback *)openBookCB, this);
 
-  bookSave = new Fl_Button(125, 330, 50, 25, "Save");
+  bookSave = new Fl_Button(180, 330, 50, 25, "Save");
   bookSave->shortcut(FL_CTRL | 's');
   bookSave->callback((Fl_Callback *)saveBookCB, this);
 
-  bookSaveAs = new Fl_Button(180, 330, 80, 25, "Save As...");
+  bookSaveAs = new Fl_Button(235, 330, 80, 25, "Save As...");
   bookSaveAs->shortcut(FL_CTRL | FL_SHIFT | 's');
   bookSaveAs->callback((Fl_Callback *)saveAsBookCB, this);
 
-  bookGenerate = new Fl_Button(265, 330, 80, 25, "Generate");
+  bookGenerate = new Fl_Button(320, 330, 80, 25, "Generate");
   bookGenerate->shortcut(FL_CTRL | 'g');
   bookGenerate->callback((Fl_Callback *)generateBookCB, this);
 
-  button = new Fl_Button(350, 330, 55, 25, "Close");
+  button = new Fl_Button(405, 330, 55, 25, "Close");
   button->shortcut(FL_CTRL | 'q');
   button->callback((Fl_Callback *)closeBookCB, this);
 
@@ -512,7 +543,7 @@ GUI::GUI(char *filename)		// Book file to load initially
   // Copyright notice...
   //
 
-  label = new Fl_Box(10, 275, 395, 50,
+  label = new Fl_Box(10, 275, 450, 50,
           "HTMLDOC " SVERSION " Copyright 1997-1999 Mike Sweet (mike@easysw.com). This "
 	  "program is free software; you can redistribute it and/or modify it "
 	  "under the terms of the GNU General Public License as published by "
@@ -535,7 +566,7 @@ GUI::GUI(char *filename)		// Book file to load initially
   progressText->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
   progressText->end();
 
-  progressBar = new Fl_Slider(260, 360, 145, 20);
+  progressBar = new Fl_Slider(260, 360, 200, 20);
   progressBar->type(3);
   progressBar->color(15);
   progressBar->color2(10);
@@ -561,7 +592,7 @@ GUI::GUI(char *filename)		// Book file to load initially
 #  endif // WIN32
 
   window->resizable(tabs);
-  window->size_range(415, 390);
+  window->size_range(465, 390);
   window->show(1, htmldoc);
 
   Fl::check();
@@ -624,7 +655,7 @@ GUI::progress(int  percent,	// I - Percent complete
   {
     progressText->label("HTMLDOC " SVERSION " Ready.");
     progressText->redraw();
-  };
+  }
 
   progressBar->value(percent);
 
@@ -654,7 +685,7 @@ GUI::title(char *filename,	// Name of file being edited
   {
     strcpy(book_filename, filename);
     strcpy(title, file_basename(filename));
-  };
+  }
 
   if (changed)
     strcat(title, "(modified) - ");
@@ -778,7 +809,7 @@ GUI::loadBook(char *filename)	// I - Name of book file
     formats['1'] = 4;
     formats['i'] = 5;
     formats['I'] = 6;
-  };
+  }
 
   //
   // If the filename contains a path, chdir to it first...
@@ -794,7 +825,7 @@ GUI::loadBook(char *filename)	// I - Name of book file
     chdir(tempptr);
 
     filename = file_basename(filename);
-  };
+  }
 
   //
   // Open the file...
@@ -805,7 +836,7 @@ GUI::loadBook(char *filename)	// I - Name of book file
   {
     fl_alert("Unable to open \"%s\"!", filename);
     return (0);
-  };
+  }
 
   fgets(line, sizeof(line), fp);  /* Get header... */
   if (strncmp(line, "#HTMLDOC", 8) != 0)
@@ -813,13 +844,13 @@ GUI::loadBook(char *filename)	// I - Name of book file
     fclose(fp);
     fl_alert("Bad or missing #HTMLDOC header:\n%-80.80s", line);
     return (0);
-  };
+  }
 
   if (!newBook())
   {
     fclose(fp);
     return (0);
-  };
+  }
 
   fgets(line, sizeof(line), fp);  /* Get input file count... */
   count = atoi(line);
@@ -830,7 +861,7 @@ GUI::loadBook(char *filename)	// I - Name of book file
     line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
 
     inputFiles->add(line);
-  };
+  }
 
   inputFiles->topline(1);
 
@@ -905,7 +936,7 @@ GUI::loadBook(char *filename)	// I - Name of book file
     {
       inputFiles->add(temp);
       continue;
-    };
+    }
 
     while (*lineptr == ' ')
       lineptr ++;
@@ -942,7 +973,7 @@ GUI::loadBook(char *filename)	// I - Name of book file
         typePDF->setonly();
 	pdf11->setonly();
 	outputFormatCB(typePDF, this);
-      };
+      }
     }
     else if (strcmp(temp, "--logo") == 0)
       logoImage->value(temp2);
@@ -1011,7 +1042,7 @@ GUI::loadBook(char *filename)	// I - Name of book file
 	{
 	  headingFont->value(i);
 	  break;
-	};
+	}
     }
     else if (strcmp(temp, "--bodyfont") == 0)
     {
@@ -1020,7 +1051,7 @@ GUI::loadBook(char *filename)	// I - Name of book file
 	{
 	  bodyFont->value(i);
 	  break;
-	};
+	}
     }
     else if (strcmp(temp, "--headfootsize") == 0)
       headFootSize->value(atof(temp2));
@@ -1031,9 +1062,9 @@ GUI::loadBook(char *filename)	// I - Name of book file
 	{
 	  headFootFont->value(i);
 	  break;
-	};
-    };
-  };
+	}
+    }
+  }
 
   fclose(fp);
 
@@ -1053,7 +1084,7 @@ GUI::saveBook(char *filename)	// I - Name of book file
   int		i,			// Looping var
 		count;			// Number of files
   FILE		*fp;			// Book file pointer
-  static char	*formats = ".thl1iI";	// Format characters
+  static char	*formats = ".tchl1iI";	// Format characters
   static char	*fonts[] =		// Font names...
 		{ "Courier", "Times", "Helvetica" };
 
@@ -1063,7 +1094,7 @@ GUI::saveBook(char *filename)	// I - Name of book file
   {
     fl_alert("Unable to create \"%s\"!", filename);
     return (0);
-  };
+  }
 
   fputs("#HTMLDOC " SVERSION "\n", fp);
 
@@ -1103,7 +1134,7 @@ GUI::saveBook(char *filename)	// I - Name of book file
 
     if (numberedToc->value())
       fputs(" --numbered", fp);
-  };
+  }
 
   if (logoImage->size() > 0)
     fprintf(fp, " --logo %s", logoImage->value());
@@ -1174,7 +1205,7 @@ GUI::saveBook(char *filename)	// I - Name of book file
     fprintf(fp, " --bodyfont %s", fonts[bodyFont->value()]);
     fprintf(fp, " --headfootsize %.1f", headFootSize->value());
     fprintf(fp, " --headfootfont %s", fonts[headFootFont->value()]);
-  };
+  }
 
   fputs("\n", fp);
   fclose(fp);
@@ -1208,12 +1239,12 @@ GUI::checkSave(void)
           {
 	    saveAsBookCB(NULL, this);
 	    return (!book_changed);
-	  };
+	  }
 
       case 2 : /* Discard */
           return (1);
-    };
-  };
+    }
+  }
 
   return (1);
 }
@@ -1271,7 +1302,7 @@ docTypeCB(Fl_Widget *w,		// I - Toggle button widget
     gui->tocFooterLeft->deactivate();
     gui->tocFooterCenter->deactivate();
     gui->tocFooterRight->deactivate();
-  };
+  }
 }
 
 
@@ -1304,7 +1335,7 @@ inputFilesCB(Fl_Widget *w,	// I - Widget
   {
     gui->editFile->deactivate();
     gui->deleteFile->deactivate();
-  };
+  }
 
   if (gui->inputFiles->selected(1) || num_items == 0)
     gui->moveUpFile->deactivate();
@@ -1345,7 +1376,7 @@ addFileCB(Fl_Widget *w,		// I - Widget
     //
 
     strcpy(lastfile, file_directory(filename));
-  };
+  }
 }
 
 
@@ -1387,7 +1418,7 @@ editFilesCB(Fl_Widget *w,	// I - Widget
       if (system(command))
         fl_alert("Unable to start editor!");
 #endif // !WIN32
-    };
+    }
 }
 
 
@@ -1413,7 +1444,7 @@ deleteFilesCB(Fl_Widget *w,	// I - Widget
       gui->inputFiles->select(i, 0);
       gui->inputFiles->remove(i);
       gui->title(gui->book_filename, 1);
-    };
+    }
 }
 
 
@@ -1443,7 +1474,7 @@ moveUpFilesCB(Fl_Widget *w,	// I - Widget
       gui->inputFiles->remove(i + 1);
       gui->inputFiles->select(i, 0);
       gui->title(gui->book_filename, 1);
-    };
+    }
 
   if (gui->inputFiles->selected(1))
     gui->moveUpFile->deactivate();
@@ -1479,7 +1510,7 @@ moveDownFilesCB(Fl_Widget *w,	// I - Widget
       gui->inputFiles->remove(i);
       gui->inputFiles->select(i, 0);
       gui->title(gui->book_filename, 1);
-    };
+    }
 
   if (!gui->inputFiles->selected(1))
     gui->moveUpFile->activate();
@@ -1508,7 +1539,7 @@ logoImageCB(Fl_Widget *w,	// I - Widget
     {
       gui->logoImage->value(filename);
       gui->title(gui->book_filename, 1);
-    };
+    }
   }
   else
     gui->title(gui->book_filename, 1);
@@ -1534,7 +1565,7 @@ titleImageCB(Fl_Widget *w,	// I - Widget
     {
       gui->titleImage->value(filename);
       gui->title(gui->book_filename, 1);
-    };
+    }
   }
   else
     gui->title(gui->book_filename, 1);
@@ -1560,7 +1591,7 @@ outputTypeCB(Fl_Widget *w,	// I - Widget
   {
     gui->outputBrowse->deactivate();
     gui->typePDF->deactivate();
-  };
+  }
 
   gui->title(gui->book_filename, 1);
 }
@@ -1590,7 +1621,7 @@ outputPathCB(Fl_Widget *w,	// I - Widget
     {
       gui->outputPath->value(filename);
       gui->title(gui->book_filename, 1);
-    };
+    }
   }
   else
     gui->title(gui->book_filename, 1);
@@ -1614,7 +1645,7 @@ outputFormatCB(Fl_Widget *w,
       gui->compression->value(1);
       gui->compression->activate();
       gui->compressionLevel->activate();
-    };
+    }
 
     gui->outputDirectory->deactivate();
   }
@@ -1624,7 +1655,7 @@ outputFormatCB(Fl_Widget *w,
     gui->compression->deactivate();
     gui->compressionLevel->deactivate();
     gui->outputDirectory->activate();
-  };
+  }
 
   if (w == gui->typeHTML)
   {
@@ -1658,7 +1689,7 @@ outputFormatCB(Fl_Widget *w,
     gui->tocFooterRight->activate();
 
     gui->fontsTab->activate();
-  };
+  }
 
   if (w == gui->typeHTML || w == gui->typePS1)
   {
@@ -1724,7 +1755,7 @@ pdfCB(Fl_Widget *w,		// I - Widget
   {
     gui->compression->activate();
     gui->compressionLevel->activate();
-  };
+  }
 
   gui->title(gui->book_filename, 1);
 }
@@ -1763,8 +1794,8 @@ htmlEditorCB(Fl_Widget *w,	// I - Widget
         sprintf(command, "%s %%s", filename);
 
       gui->htmlEditor->value(command);
-    };
-  };
+    }
+  }
 
   strcpy(HTMLEditor, gui->htmlEditor->value());
 }
@@ -1796,14 +1827,14 @@ bodyColorCB(Fl_Widget *w,	// I - Widget
       r = 191;
       g = 191;
       b = 191;
-    };
+    }
 
     if (fl_color_chooser("Body Color?", r, g, b))
     {
       sprintf(newcolor, "#%02x%02x%02x", r, g, b);
       gui->bodyColor->value(newcolor);
       gui->title(gui->book_filename, 1);
-    };
+    }
   }
   else
     gui->title(gui->book_filename, 1);
@@ -1829,10 +1860,23 @@ bodyImageCB(Fl_Widget *w,	// I - Widget
     {
       gui->bodyImage->value(filename);
       gui->title(gui->book_filename, 1);
-    };
+    }
   }
   else
     gui->title(gui->book_filename, 1);
+}
+
+
+//
+// 'helpCB()' - Show on-line help...
+//
+
+void
+helpCB(Fl_Widget *w,	// I - Widget
+       GUI       *gui)	// I - GUI
+{
+  REF(w);
+  REF(gui);
 }
 
 
@@ -1906,7 +1950,7 @@ saveAsBookCB(Fl_Widget *w,	// I - Widget
 	return;
 
     gui->saveBook(filename);
-  };
+  }
 }
 
 
@@ -1928,7 +1972,7 @@ generateBookCB(Fl_Widget *w,	// I - Widget
   char		*filename,	/* HTML filename */
 		base[1024],	/* Base directory of HTML file */
 		bookbase[1024];	/* Base directory of book file */
-  static char	*formats = ".thl1iI";	// Format characters
+  static char	*formats = ".tchl1iI";	// Format characters
 
 
   REF(w);
@@ -2040,7 +2084,7 @@ generateBookCB(Fl_Widget *w,	// I - Widget
 
           document->next = file;
           file->prev     = document;
-        };
+        }
       }
       else
         htmlDeleteTree(file);
@@ -2048,7 +2092,7 @@ generateBookCB(Fl_Widget *w,	// I - Widget
     else
       fl_alert("Unable to open \"%s\" for reading!",
                gui->inputFiles->text(i));
-  };
+  }
 
  /*
   * We *must* have a document to process...
@@ -2060,7 +2104,7 @@ generateBookCB(Fl_Widget *w,	// I - Widget
     gui->progress(0);
     fl_alert("No HTML files to format, cannot generate!");
     return;
-  };
+  }
 
  /*
   * Find the first one in the list...
@@ -2129,5 +2173,5 @@ closeBookCB(Fl_Widget *w,	// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.1 1999/11/07 13:33:29 mike Exp $".
+// End of "$Id: gui.cxx,v 1.2 1999/11/07 23:57:09 mike Exp $".
 //
