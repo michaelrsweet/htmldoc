@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.21 2002/01/06 20:04:47 mike Exp $"
+# "$Id: Makefile,v 1.22 2002/01/14 02:55:21 mike Exp $"
 #
 # Makefile for HTMLDOC, an HTML document processing program.
 #
-# Copyright 1997-2001 by Easy Software Products.
+# Copyright 1997-2002 by Easy Software Products.
 #
 # These coded instructions, statements, and computer programs are the
 # property of Easy Software Products and are protected by Federal
@@ -43,7 +43,8 @@ TARGETS	=	libhtmldoc.a testsuite
 LIBOBJS	=	file.o file-common.o file-open.o file-std.o \
 		http.o http-md5.o md5.o \
 		image.o image-bmp.o image-gif.o image-jpeg.o image-png.o \
-		margin.o
+		margin.o \
+		tree.o
 
 OBJS	=	$(LIBOBJS) testsuite.o
 
@@ -100,5 +101,5 @@ $(OBJS):	../Makedefs
 
 
 #
-# End of "$Id: Makefile,v 1.21 2002/01/06 20:04:47 mike Exp $".
+# End of "$Id: Makefile,v 1.22 2002/01/14 02:55:21 mike Exp $".
 #
