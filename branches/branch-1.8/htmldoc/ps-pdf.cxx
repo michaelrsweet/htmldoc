@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.14 2001/02/12 17:06:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.15 2001/02/12 17:46:18 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3215,7 +3215,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       {
         switch (temp->valignment)
 	{
-	  case ALIGN_BOTTOM :
+	  case ALIGN_TOP :
               temp_height = temp->height;
 	      break;
 	  case ALIGN_MIDDLE :
@@ -3224,7 +3224,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      else
 	        temp_height = 0.5f * temp->height + _htmlSizes[t->size];
               break;
-	  case ALIGN_TOP :
+	  case ALIGN_BOTTOM :
 	      temp_height = temp->height + _htmlSizes[t->size];
               break;
 	}
@@ -7802,5 +7802,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.14 2001/02/12 17:06:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.15 2001/02/12 17:46:18 mike Exp $".
  */
