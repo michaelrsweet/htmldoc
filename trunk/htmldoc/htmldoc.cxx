@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.16 1999/12/11 14:33:21 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.17 1999/12/30 15:55:24 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -302,7 +302,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
-    else if (compare_strings(argv[i], "--gray", 3) == 0)
+    else if (compare_strings(argv[i], "--grayscale", 3) == 0)
     {
       OutputColor    = 0;
       _htmlGrayscale = 1;
@@ -1631,5 +1631,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.16 1999/12/11 14:33:21 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.17 1999/12/30 15:55:24 mike Exp $".
  */

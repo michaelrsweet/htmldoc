@@ -21,10 +21,15 @@ CHANGES IN HTMLDOC v1.8.4
 	- The chapter ("c") header/footer string did not work.
 	- The heading ("h") header/footer string did not always
 	  match the first heading on a page.
-	- The header and footer fonts were not used when computing the
-	  widths of the header and footer strings.
-	- The Windows distribution did not create the right shortcut
-	  for the Users Manual in the Start menu.
+	- The header and footer fonts were not used when
+	  computing the widths of the header and footer strings.
+	- The Windows distribution did not create the right
+	  shortcut for the Users Manual in the Start menu.
+	- The command-line code did not accept "--grayscale",
+	  only "--gray"
+	- Multi-file HTML output did not use the right link for
+	  the table-of-contents file if no title page was being
+	  generated.
 
 
 CHANGES IN HTMLDOC v1.8.3
