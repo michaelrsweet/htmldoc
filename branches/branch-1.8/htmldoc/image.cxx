@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.29 2003/01/06 22:09:32 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.30 2003/03/11 15:23:28 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -234,13 +234,13 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     * Just initialize the input buffer...
     */
 
-    curbit  = 0;
-    lastbit = 0;
-    done    = 0;
+    curbit    = 0;
+    lastbit   = 0;
+    last_byte = 0;
+    done      = 0;
 
     return (0);
   }
-
 
   if ((curbit + code_size) >= lastbit)
   {
@@ -1839,5 +1839,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.29 2003/01/06 22:09:32 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.30 2003/03/11 15:23:28 mike Exp $".
  */
