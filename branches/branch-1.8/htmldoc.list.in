@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.10 2002/10/23 16:07:33 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.11 2002/10/25 13:37:53 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -21,7 +21,16 @@ $mandir=@mandir@
 $datadir=@datadir@
 
 # Program
+%system darwin
+f 0555 root sys /Applications/htmldoc.app/Contents/MacOS/htmldoc htmldoc/htmldoc nostrip()
+l 0555 root sys $bindir/htmldoc /Applications/htmldoc.app/Contents/MacOS/htmldoc
+f 0444 root sys /Applications/htmldoc.app/Contents/Resources/htmldoc.icns htmldoc.icns
+f 0444 root sys /Applications/htmldoc.app/Contents/Info.plist htmldoc.plist
+f 0444 root sys /Applications/htmldoc.app/Contents/PkgInfo htmldoc.info
+
+%system !darwin
 f 0555 root sys $bindir/htmldoc htmldoc/htmldoc
+%system all
 
 # Font files
 f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.afm
@@ -62,5 +71,5 @@ f 0444 root sys $datadir/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
 f 0444 root sys $datadir/doc/htmldoc/help.html doc/help.html
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.10 2002/10/23 16:07:33 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.11 2002/10/25 13:37:53 mike Exp $".
 #
