@@ -39,6 +39,8 @@ CHANGES IN HTMLDOC v1.8.17
 	  and properly resize the remaining space.
 	- The MEDIA SIZE page comment did not reset the printable
 	  width and length of the page.
+	- Tables that used COLSPAN did not honor WIDTH values in
+	  non-spanned cells.
 
 
 CHANGES IN HTMLDOC v1.8.16

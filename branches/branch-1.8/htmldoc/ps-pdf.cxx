@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.136 2001/12/10 19:31:21 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.137 2001/12/10 20:09:42 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4553,6 +4553,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		tempspace,
 		col_spans[MAX_COLUMNS],
 		row_spans[MAX_COLUMNS];
+  char		col_fixed[MAX_COLUMNS];
   float		col_lefts[MAX_COLUMNS],
 		col_rights[MAX_COLUMNS],
 		col_width,
@@ -4620,6 +4621,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   */
 
   memset(col_spans, 0, sizeof(col_spans));
+  memset(col_fixed, 0, sizeof(col_fixed));
   memset(col_widths, 0, sizeof(col_widths));
   memset(col_swidths, 0, sizeof(col_swidths));
   memset(col_mins, 0, sizeof(col_mins));
@@ -4805,6 +4807,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           }
 	  else
 	  {
+	    if (col_width > 0.0f)
+	      col_fixed[col] = 1;
+
 	    if (col_width > col_widths[col])
 	      col_widths[col] = col_width;
 
@@ -4881,13 +4886,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   DEBUG_printf(("    width = %.1f, actual_width = %.1f, regular_width = %.1f\n\n",
                 width, actual_width, regular_width));
-  DEBUG_puts("    Col  Width   Min     Pref");
-  DEBUG_puts("    ---  ------  ------  ------");
+  DEBUG_puts("    Col  Width   Min     Pref    Fixed?");
+  DEBUG_puts("    ---  ------  ------  ------  ------");
 
 #ifdef DEBUG
   for (col = 0; col < num_cols; col ++)
-    printf("    %-3d  %-6.1f  %-6.1f  %.1f\n", col, col_widths[col],
-           col_mins[col], col_prefs[col]);
+    printf("    %-3d  %-6.1f  %-6.1f  %-6.1f  %s\n", col, col_widths[col],
+           col_mins[col], col_prefs[col], col_fixed[col] ? "YES" : "NO");
 
   puts("");
 #endif /* DEBUG */
@@ -4982,6 +4987,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       if (span_width < col_smins[col] && pref_width < col_smins[col])
         pref_width = col_smins[col];
 
+      for (colspan = 0; colspan < col_spans[col]; colspan ++)
+        if (col_fixed[col + colspan])
+	{
+          span_width -= col_widths[col + colspan];
+	  pref_width -= col_widths[col + colspan];
+	}
+
       DEBUG_printf(("    col_swidths=%.1f, col_smins=%.1f, span_width=%.1f, pref_width=%.1f\n",
                     col_swidths[col], col_smins[col], span_width, pref_width));
 
@@ -4993,13 +5005,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  regular_width = pref_width / span_width;
 
 	  for (colspan = 0; colspan < col_spans[col]; colspan ++)
-	  {
-	    actual_width -= col_widths[col + colspan];
-	    col_widths[col + colspan] *= regular_width;
-	    actual_width += col_widths[col + colspan];
+	    if (!col_fixed[col + colspan])
+	    {
+	      actual_width -= col_widths[col + colspan];
+	      col_widths[col + colspan] *= regular_width;
+	      actual_width += col_widths[col + colspan];
 
-            DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
-	  }
+              DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+	    }
         }
 	else
 	{
@@ -10598,5 +10611,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.136 2001/12/10 19:31:21 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.137 2001/12/10 20:09:42 mike Exp $".
  */
