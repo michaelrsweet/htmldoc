@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.5 1999/11/09 22:16:41 mike Exp $"
+ * "$Id: gui.h,v 1.6 1999/11/10 15:59:26 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -117,7 +117,6 @@ class GUI
   Fl_Input	*textColor;
   Fl_Button	*textLookup;
 
-
   Fl_Group	*fontsTab;
   Fl_Choice	*headingFont,
 		*bodyFont,
@@ -125,9 +124,6 @@ class GUI
   Fl_Counter	*fontBaseSize,
 		*fontSpacing,
 		*headFootSize;
-
-  Fl_Group	*htmlTab;
-
 
   Fl_Group	*optionsTab;
   Fl_Input	*htmlEditor;
@@ -158,7 +154,8 @@ class GUI
 
   void		title(const char *filename = NULL, int changed = 0);
 
-  static char	*file_localize(char *filename, char *newcwd);
+  static const char *file_localize(const char *filename,
+  		                   const char *newcwd = (const char *)0);
 
   static void	changeCB(Fl_Widget *w, GUI *gui);
 
@@ -214,5 +211,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.5 1999/11/09 22:16:41 mike Exp $".
+ * End of "$Id: gui.h,v 1.6 1999/11/10 15:59:26 mike Exp $".
  */

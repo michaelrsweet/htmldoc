@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.6 1999/11/10 11:23:23 mike Exp $"
+// "$Id: gui.cxx,v 1.7 1999/11/10 15:59:25 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -822,6 +822,14 @@ GUI::newBook(void)
 
   tocTitle->value("Table of Contents");
 
+  headingFont->value(2);	/* Helvetica */
+  bodyFont->value(1);		/* Times */
+  headFootFont->value(10);	/* Helvetica-Oblique */
+
+  fontBaseSize->value(11.0);
+  fontSpacing->value(1.2);
+  headFootSize->value(11.0);
+
   compression->value(0.0);
   compression->deactivate();
 
@@ -1513,9 +1521,9 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
     Fl::wait();
 
   if (gui->fc->count())
-  {    
+  {
     for (i = 1; i <= gui->fc->count(); i ++)
-      gui->inputFiles->add(gui->fc->value(i), gui->icon);
+      gui->inputFiles->add(file_localize(gui->fc->value(i)), gui->icon);
 
     gui->title(gui->book_filename, 1);
   }
@@ -1611,7 +1619,7 @@ GUI::moveUpFilesCB(Fl_Widget *w,	// I - Widget
     if (gui->inputFiles->selected(i))
     {
       file = (char *)gui->inputFiles->text(i);
-      gui->inputFiles->insert(i - 1, file);
+      gui->inputFiles->insert(i - 1, file, gui->icon);
       gui->inputFiles->select(i - 1);
       gui->inputFiles->remove(i + 1);
       gui->inputFiles->select(i, 0);
@@ -1647,7 +1655,7 @@ GUI::moveDownFilesCB(Fl_Widget *w,	// I - Widget
     if (gui->inputFiles->selected(i))
     {
       file = (char *)gui->inputFiles->text(i);
-      gui->inputFiles->insert(i + 2, file);
+      gui->inputFiles->insert(i + 2, file, gui->icon);
       gui->inputFiles->select(i + 2);
       gui->inputFiles->remove(i);
       gui->inputFiles->select(i, 0);
@@ -1681,7 +1689,7 @@ GUI::logoImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->logoImage->value(gui->fc->value());
+      gui->logoImage->value(file_localize(gui->fc->value()));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1709,7 +1717,7 @@ GUI::titleImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->titleImage->value(gui->fc->value());
+      gui->titleImage->value(file_localize(gui->fc->value()));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1769,7 +1777,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->outputPath->value(gui->fc->value());
+      gui->outputPath->value(file_localize(gui->fc->value()));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1856,6 +1864,12 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->psLevel->deactivate();
     gui->psCommands->deactivate();
   }
+
+  if ((w == gui->typePDF && !gui->pdf11->value()) ||
+      (w == gui->typePS && gui->ps3->value()))
+    gui->compression->activate();
+  else
+    gui->compression->deactivate();
 }
 
 
@@ -1884,7 +1898,7 @@ GUI::jpegCB(Fl_Widget *w,	// I - Widget
 
 void
 GUI::tocCB(Fl_Widget *w,	// I - Widget
-              GUI       *gui)	// I - GUI
+           GUI       *gui)	// I - GUI
 {
   REF(w);
 
@@ -1935,10 +1949,7 @@ void
 GUI::psCB(Fl_Widget *w,		// I - Widget
           GUI       *gui)	// I - GUI
 {
-  REF(w);
-
-
-  if (gui->ps1->value())
+  if (w == gui->ps1)
   {
     gui->jpegCompress->deactivate();
     gui->psCommands->deactivate();
@@ -1949,6 +1960,11 @@ GUI::psCB(Fl_Widget *w,		// I - Widget
     gui->jpegCompress->activate();
     gui->psCommands->activate();
   }
+
+  if (w == gui->ps3)
+    gui->compression->activate();
+  else
+    gui->compression->deactivate();
 
   gui->title(gui->book_filename, 1);
 }
@@ -1962,8 +1978,8 @@ void
 GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
                   GUI       *gui)	// I - GUI
 {
-  const char	*filename;	// New HTML editor file
-  char		command[1024];	// Command string
+  const char	*filename;		// New HTML editor file
+  char		command[1024];		// Command string
 
 
   if (w == gui->htmlBrowse)
@@ -2060,7 +2076,7 @@ GUI::bodyImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->bodyImage->value(gui->fc->value());
+      gui->bodyImage->value(file_localize(gui->fc->value()));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -2188,7 +2204,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
                   GUI       *gui)	// I - GUI
 {
   const char	*filename;	// Book filename
-  char		*newfile;	// New filename
+  const char	*newfile;	// New filename
   char		*dir;		// Book directory
 
 
@@ -2213,20 +2229,20 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
 
     for (int i = 1; i <= gui->inputFiles->size(); i ++)
     {
-      newfile = file_localize((char *)gui->inputFiles->text(i), dir);
+      newfile = file_localize(gui->inputFiles->text(i), dir);
       gui->inputFiles->text(i, newfile);
     }
 
-    newfile = file_localize((char *)gui->logoImage->value(), dir);
+    newfile = file_localize(gui->logoImage->value(), dir);
     gui->logoImage->value(newfile);
 
-    newfile = file_localize((char *)gui->titleImage->value(), dir);
+    newfile = file_localize(gui->titleImage->value(), dir);
     gui->titleImage->value(newfile);
 
-    newfile = file_localize((char *)gui->bodyImage->value(), dir);
+    newfile = file_localize(gui->bodyImage->value(), dir);
     gui->bodyImage->value(newfile);
 
-    newfile = file_localize((char *)gui->outputPath->value(), dir);
+    newfile = file_localize(gui->outputPath->value(), dir);
     gui->outputPath->value(newfile);
 
     chdir(dir);
@@ -2468,11 +2484,12 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 // 'file_localize()' - Localize a filename for the new working directory.
 //
 
-char *					// O - New filename
-GUI::file_localize(char *filename,	// I - Filename
-                   char *newcwd)	// I - New directory
+const char *				// O - New filename
+GUI::file_localize(const char *filename,// I - Filename
+                   const char *newcwd)	// I - New directory
 {
-  char		*newslash, *slash;	// Directory separators
+  const char	*newslash;		// Directory separator
+  char		*slash;			// Directory separator
   char		cwd[1024];		// Current directory
   char		temp[1024];		// Temporary pathname
   static char	newfilename[1024];	// New filename
@@ -2539,5 +2556,5 @@ GUI::file_localize(char *filename,	// I - Filename
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.6 1999/11/10 11:23:23 mike Exp $".
+// End of "$Id: gui.cxx,v 1.7 1999/11/10 15:59:25 mike Exp $".
 //
