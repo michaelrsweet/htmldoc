@@ -1,10 +1,13 @@
-CHANGES.txt - 03/02/2004
+CHANGES.txt - 03/31/2004
 ------------------------
 
-CHANGES IN HTMLDOC v1.8.24
+CHANGES IN HTMLDOC v1.9b1
 
     NEW FEATURES
 
+	- HTMLDOC now provides much better support for
+	  "wrapping" of text around images and new support for
+	  tables via the ALIGN attribute.
 	- HTMLDOC now offers an "htmlsep" output type which
 	  generates HTML output with a separate file for each
 	  heading in the table of contents.
