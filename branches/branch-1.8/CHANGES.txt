@@ -1,5 +1,20 @@
-CHANGES.txt - 06/05/2002
+CHANGES.txt - 06/07/2002
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.21
+
+    NEW FEATURES
+
+
+    CHANGES
+
+
+    BUG FIXES
+
+	- "make install" didn't work for the fonts directory.
+	- "&euro;" didn't work, while "&#128;" did (the name table was
+	  not sorted properly...)
+
 
 CHANGES IN HTMLDOC v1.8.20
 
