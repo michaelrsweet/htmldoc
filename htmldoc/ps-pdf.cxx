@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.101 2001/09/02 11:43:57 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.102 2001/09/13 18:16:49 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1983,7 +1983,7 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   pdf_start_object(out);
 
   if (Compression)
-    fputs("/Filter/Fl", out);
+    fputs("/Filter/FlateDecode", out);
 
   pdf_start_stream(out);
 
@@ -8293,7 +8293,7 @@ write_image(FILE     *out,	/* I - Output file */
 	  fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
 	          img->width, img->height);
           if (Compression)
-            fputs("/Filter/Fl", out);
+            fputs("/Filter/FlateDecode", out);
 
           pdf_start_stream(out);
           flate_open_stream(out);
@@ -8334,13 +8334,13 @@ write_image(FILE     *out,	/* I - Output file */
           fputs("/Interpolate true", out);
 
           if (Compression && (ncolors || !OutputJPEG))
-            fputs("/Filter/Fl", out);
+            fputs("/Filter/FlateDecode", out);
 	  else if (OutputJPEG && ncolors == 0)
 	  {
 	    if (Compression)
-	      fputs("/Filter[/Fl/DCT]", out);
+	      fputs("/Filter[/FlateDecode/DCTDecode]", out);
 	    else
-	      fputs("/Filter/DCT", out);
+	      fputs("/Filter/DCTDecode", out);
 	  }
 
   	  fprintf(out, "/Width %d/Height %d/BitsPerComponent %d",
@@ -10008,5 +10008,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.101 2001/09/02 11:43:57 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.102 2001/09/13 18:16:49 mike Exp $".
  */
