@@ -4,7 +4,7 @@
 <!-- FOOTER RIGHT "C-$CHAPTERPAGE" -->
 <H1 ALIGN="RIGHT"><A NAME="RELNOTES">Appendix C - Release Notes</A></H1>
 
-<P>This appendix provides the release notes for each version of <I>HTMLDOC</I>.
+<P>This appendix provides the release notes for each version of HTMLDOC.
 
 <H2>Changes in HTMLDOC v1.8.24</H2>
 
@@ -365,7 +365,7 @@
 	PostScript commands are not being embedded in the
 	output.</LI>
 
-	<LI><I>HTMLDOC</I> now properly ignores the HTML 4.0 COL element.</LI>
+	<LI>HTMLDOC now properly ignores the HTML 4.0 COL element.</LI>
 
 	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
@@ -390,7 +390,7 @@
 	<LI>PRE text didn't adjust the line height for the tallest
 	fragment in the line.</LI>
 
-	<LI><I>HTMLDOC</I> tried to seek backwards when reading HTML
+	<LI>HTMLDOC tried to seek backwards when reading HTML
 	from the standard input.</LI>
 
 	<LI>The media margin comments did not work properly when
@@ -420,7 +420,7 @@
 	the MSIE behavior, where the current rowspan is
 	reduced by the minimum rowspan in the table; that is,
 	if you use "ROWSPAN=17" for all cells in a row,
-	<I>HTMLDOC</I> now treats this as if you did not use ROWSPAN
+	HTMLDOC now treats this as if you did not use ROWSPAN
 	at all.  It is unclear if this is what the W3C
 	intends.</LI>
 
@@ -460,14 +460,14 @@
 	<LI>Made some changes in how COLSPAN and ROWSPAN are
 	handled to better match how Netscape and MSIE format
 	things.</LI>
-	<LI><I>HTMLDOC</I> now handles .book files with CR, LF, or CR LF
+	<LI>HTMLDOC now handles .book files with CR, LF, or CR LF
 	line endings.</LI>
 	<LI>Changed the TOC numbering to use 32-bit integers
 	instead of 8-bit integers...</LI>
 	<LI>Now handle local links with quoted (%HH) characters.</LI>
 	<LI>The command-line interface no longer sets PDF output
 	mode when using --continuous or --webpage.</LI>
-	<LI><I>HTMLDOC</I> now opens HTML output files in binary mode to
+	<LI>HTMLDOC now opens HTML output files in binary mode to
 	prevent extra CR's under Windows, and strips incoming
 	CR's from PRE text.</LI>
 	<LI>Now support inserting the current chapter and heading
@@ -509,9 +509,9 @@
 
 	<LI>HR elements didn't render properly.</LI>
 	<LI>Background images didn't render properly and could
-	lock up <I>HTMLDOC</I>.</LI>
-	<LI>The "HALF PAGE" comment would lock up <I>HTMLDOC</I> -
-	<I>HTMLDOC</I> would keep adding pages until it ran out of
+	lock up HTMLDOC.</LI>
+	<LI>The "HALF PAGE" comment would lock up HTMLDOC -
+	HTMLDOC would keep adding pages until it ran out of
 	memory.</LI>
 	<LI>SUP and SUB used a fixed (reduced) size instead of
 	using a smaller size from the current one.</LI>
@@ -554,7 +554,7 @@
 	in all non-inline PDF streams.  This avoids a stupid
 	bug in Acrobat Reader when printing to PostScript
 	printers.</LI>
-	<LI><I>HTMLDOC</I> now strips any trailing GET query information
+	<LI>HTMLDOC now strips any trailing GET query information
 	when saving the start of files (target) in a document.</LI>
 	<LI>Unqualified URLs (no leading scheme name, e.g. http:)
 	now default to the HTTP port (80) instead of the IPP
@@ -569,7 +569,7 @@
 	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
 	<LI>If a document started with a heading greater than H1,
-	<I>HTMLDOC</I> would crash.</LI>
+	HTMLDOC would crash.</LI>
 	<LI>Full justification would incorrectly be applied to
 	text ending with a break.</LI>
 	<LI>Images using ALIGN="MIDDLE" were not centered properly
@@ -604,7 +604,7 @@
 	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Most output generation limits have been removed;
-	<I>HTMLDOC</I> now dynamically allocates memory as needed for
+	HTMLDOC now dynamically allocates memory as needed for
 	pages, images, headings, and links.  This has the
 	happy side-effect of reducing the initial memory
 	footprint significantly.</LI>
@@ -659,7 +659,7 @@
 	<LI>Preferences are now stored in a user-specific file
 	under Windows, just like UNIX.  This provides
 	user-specific preferences and allows preferences to
-	be kept when upgrading to new versions of <I>HTMLDOC</I>.</LI>
+	be kept when upgrading to new versions of HTMLDOC.</LI>
 	<LI>The book loading code now allows for blank lines, even
 	though these are not a part of the format. (added to
 	support some scripted apps that include extra
@@ -685,7 +685,7 @@
 	closing tags.</LI>
 	<LI>When piping PDF output, the temporary file that is
 	created needed to be open for reading and writing,
-	but <I>HTMLDOC</I> only opened the file for writing.</LI>
+	but HTMLDOC only opened the file for writing.</LI>
 	<LI>Image links did not work.</LI>
 	<LI>The JPEG image loading code did not correctly handle
 	grayscale JPEG images.</LI>
@@ -703,7 +703,7 @@
 	<LI>The command-line program would clear the error count
 	after reading all the files/URLs on the command-line,
 	but before generating the document. If there were
-	problems reading the files/URLs, <I>HTMLDOC</I> would return a
+	problems reading the files/URLs, HTMLDOC would return a
 	0 exit status instead of 1.</LI>
 	<LI>Image objects that were both JPEG and Flate compressed
 	would not display (filters specified in the wrong
@@ -721,7 +721,7 @@
 
 	<H3 _HD_OMIT_TOC>New Features</H3>
 
-	<LI>Added new "--batch" option to convert <I>HTMLDOC</I> book
+	<LI>Added new "--batch" option to convert HTMLDOC book
 	files from the command-line.</LI>
 	<LI>Added support for the "-display" option on systems
 	that use X11.</LI>
@@ -737,7 +737,7 @@
 	once after the document is generated.</LI>
 	<LI>Added support for HSPACE and VSPACE attributes for images
 	with ALIGN="LEFT" or ALIGN="RIGHT".</LI>
-	<LI>Added new Java interface to <I>HTMLDOC</I>.</LI>
+	<LI>Added new Java interface to HTMLDOC.</LI>
 
 	<H3 _HD_OMIT_TOC>Changes</H3>
 
@@ -762,7 +762,7 @@
 	for PRE text; otherwise the body font would override
 	the PRE font with some browsers.</LI>
 	<LI>The snprintf/vsnprintf emulation functions were not
-	included in the <I>HTMLDOC</I> makefile.</LI>
+	included in the HTMLDOC makefile.</LI>
 	<LI>RGB hex colors are now recognized with or without the
 	leading #. This breaks HTML standards compliance but
 	should reduce the number of problem reports from buggy
@@ -982,7 +982,7 @@
 
 	<LI>Nested tables didn't take into account the table
 	border width, spacing, or padding values.</LI>
-	<LI><I>HTMLDOC</I> crashed under Solaris when reading HTML files
+	<LI>HTMLDOC crashed under Solaris when reading HTML files
 	from the standard input.</LI>
 	<LI>&lt;ELEM&gt;text&lt;/ELEM&gt;
 	&lt;MELE&gt;text&lt;/MELE&gt; was rendered without an
@@ -1053,7 +1053,7 @@
 	if no title page was generated.</LI>
 	<LI>Cell widths did not subtract any border, padding, or
 	spacing from the "preferred" width, causing formatting
-	differences between web browsers and <I>HTMLDOC</I>.</LI>
+	differences between web browsers and HTMLDOC.</LI>
 	<LI>The PNG loading code did not handle interlacing or
 	transparency.</LI>
 	<LI>The HTML parsing code did not prevent elements in
@@ -1101,7 +1101,7 @@
 	<LI>HTML file links now work properly.</LI>
 	<LI>Now limit all HTML input to the maximum size of input buffers
 	to avoid potential buffer overflow problems in CGIs.</LI>
-	<LI>If a row had a predefined height, <I>HTMLDOC</I> wasn't making sure
+	<LI>If a row had a predefined height, HTMLDOC wasn't making sure
 	that the row would fit on the current page.</LI>
 	<LI>THEAD, TFOOT, and TBODY caused problems when formatting tables.
 	Note: THEAD and TFOOT are *still* not supported, however the
@@ -1130,12 +1130,12 @@
 	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>Now optimize link objects in PDF files (provides a 40k
-	reduction in file size for the <I>HTMLDOC</I> manual alone)</LI>
+	reduction in file size for the HTMLDOC manual alone)</LI>
 	<LI>Table rows that cross page boundaries are now rendered
 	more like Netscape and MSIE.</LI>
 	<LI>Now support HTMLDOC_DATA and HTMLDOC_HELP environment
 	variables under UNIX (for alternate install directory)</LI>
-	<LI>Now show error messages when <I>HTMLDOC</I> can't open the
+	<LI>Now show error messages when HTMLDOC can't open the
 	AFM, character set, or PostScript glyph files.</LI>
 	<LI>The logo image is now scaled to its "natural" size (as
 	it would appear in a web browser)</LI>
@@ -1145,7 +1145,7 @@
 
 	<LI>Generation of PDF files to the standard output (i.e.
 	to the web server + browser) didn't work on some
-	versions of UNIX.  <I>HTMLDOC</I> now writes the PDF output
+	versions of UNIX.  HTMLDOC now writes the PDF output
 	to a temporary file and then copies it to the standard
 	output as needed.</LI>
 	<LI>PDF links were missing the first 5 characters in the
@@ -1245,7 +1245,7 @@
 
 	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
-	<LI><I>HTMLDOC</I> could crash under Microsoft Windows with some
+	<LI>HTMLDOC could crash under Microsoft Windows with some
 	types of HTML files.  This was caused by a stack overflow,
 	usually when processing nested tables.</LI>
 	<LI>Multiple HTML files weren't being converted properly in
@@ -1368,7 +1368,7 @@
 	<LI>Needed to use existing link name if present for headings to
 	avoid nested link name bug in Netscape and MSIE.</LI>
 	<LI>Extremely long link names could cause TOC generation to fail
-	and <I>HTMLDOC</I> to crash.</LI>
+	and HTMLDOC to crash.</LI>
 	<LI>PDF output was not compatible with Ghostscript/Ghostview
 	because Ghostscript does not support inherited page resources
 	or the "Fl" abbreviation for the "FlateDecode" compression
@@ -1382,7 +1382,7 @@
 	was caused by intervening links.</LI>
 	<LI>The indexed image output code could generate an image with only
 	1 color index used, which upset Acrobat Reader.</LI>
-	<LI>Fixed a bug in table-of-contents handling - <I>HTMLDOC</I> would crash
+	<LI>Fixed a bug in table-of-contents handling - HTMLDOC would crash
 	on some systems if you converted a web page on the command-line.</LI>
 	<LI>Wasn't setting the font size and spacing soon enough when
 	generating files on the command-line.</LI>

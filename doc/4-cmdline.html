@@ -7,14 +7,14 @@
 <H1 ALIGN="RIGHT"><A NAME="CMDLINE">Chapter 4 - HTMLDOC from the
 Command-Line</A></H1>
 
-<P>This chapter describes how to use <I>HTMLDOC</I> from the
+<P>This chapter describes how to use HTMLDOC from the
 command-line to convert web pages and generate books.</P>
 
 <CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
 <TR>
 	<TD><B>Note:</B>
 
-	<P>The free version of <I>HTMLDOC</I> for Windows does
+	<P>The free version of HTMLDOC for Windows does
 	not include the command-line program.
 
 	</TD>
@@ -38,7 +38,7 @@ each HTML file, type:
 % <KBD>htmldoc --webpage -f output.ps file1.html ... fileN.html <I>ENTER</I></KBD>
 </PRE></UL>
 
-<P>The <CODE>--webpage</CODE> option tells <I>HTMLDOC</I> that
+<P>The <CODE>--webpage</CODE> option tells HTMLDOC that
 you want to convert web pages or other unstructured HTML files.
 You can also use <CODE>--continuous</CODE> to convert multiple
 HTML files without page breaks between files and
@@ -46,7 +46,7 @@ HTML files without page breaks between files and
 headings into a book with a table of contents. The default
 document type is <CODE>--book</CODE>.
 
-<P>The <CODE>-f</CODE> option tells <I>HTMLDOC</I> the file to
+<P>The <CODE>-f</CODE> option tells HTMLDOC the file to
 generate. If you don't specify an output file, a PDF file is
 sent to the standard output. The <CODE>output.pdf</CODE> and
 <CODE>output.ps</CODE> arguments are the names of the output
@@ -80,14 +80,14 @@ one or more HTML files:
 generate, and <CODE>file1.html</CODE> to <CODE>fileN.html</CODE>
 are the HTML files you want to use for the book.
 
-<P>The <CODE>--book</CODE> option tells <I>HTMLDOC</I> that you
+<P>The <CODE>--book</CODE> option tells HTMLDOC that you
 want to generate a book from the HTML file(s) you specified.
 
-<P>The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
+<P>The <CODE>-f</CODE> option tells HTMLDOC what file to
 generate. If you don't specify an output file then a PDF file is
 sent to the standard output.
 
-<P><I>HTMLDOC</I> will build a table of contents for the book
+<P>HTMLDOC will build a table of contents for the book
 using the heading elements (<CODE>H1</CODE>, <CODE>H2</CODE>,
 etc.) in your HTML files. It will also add a title page using
 the document <CODE>TITLE</CODE> text and other <CODE>META</CODE>
@@ -124,7 +124,7 @@ image to use on the title page:
 % <KBD>htmldoc --titlefile filename.html ... <I>ENTER</I></KBD>
 </PRE></UL>
 
-<P><I>HTMLDOC</I> supports BMP, GIF, JPEG, and PNG images, as
+<P>HTMLDOC supports BMP, GIF, JPEG, and PNG images, as
 well as generic HTML text you supply for the title page(s).
 
 </DIV>

@@ -7,21 +7,20 @@
 <h1 align='right'><a name='CGI'>Chapter 5 - Using HTMLDOC on a
 Web Server</a></h1>
 
-<p>This chapter describes how to interface <i>HTMLDOC</i> to
-your web server using CGI and your own server-side scripts and
+<p>This chapter describes how to interface HTMLDOC to your web
+server using CGI and your own server-side scripts and
 programs.</p>
 
 <h2>The Basics</h2>
 
-<p><i>HTMLDOC</i> can be used in a variety of ways to generate
+<p>HTMLDOC can be used in a variety of ways to generate
 formatted reports on a web server. The most common way is to use
-<i>HTMLDOC</i> as a CGI program with your web server to provide
+HTMLDOC as a CGI program with your web server to provide
 PDF-formatted output of a web page. Examples are provided for
 Microsoft IIS and the Apache web servers.</p>
 
-<p><i>HTMLDOC</i> can also be called from your own server-side
-scripts and programs. Examples are provided for PHP and
-Java.</p>
+<p>HTMLDOC can also be called from your own server-side scripts
+and programs. Examples are provided for PHP and Java.</p>
 
 <!-- NEED 3in -->
 <center><table width='80%' cellpadding='5' border='1' bgcolor='#cccccc'>
@@ -30,12 +29,12 @@ Java.</p>
 
 	<b>WARNING:</b>
 
-        <p>Passing information directly from the web browser to
-        <i>HTMLDOC</i> can potentially expose your system to
-        security risks. Always be sure to "sanitize" any input
-        from the web browser so that filenames, URLs, and
-        options passed to <i>HTMLDOC</i> are not acted on by the
-        shell program or other processes.</p>
+	<p>Passing information directly from the web browser to
+	HTMLDOC can potentially expose your system to security
+	risks. Always be sure to "sanitize" any input from the
+	web browser so that filenames, URLs, and options passed
+	to HTMLDOC are not acted on by the shell program or
+	other processes.</p>
 
 	</td>
 </tr>
@@ -43,7 +42,7 @@ Java.</p>
 
 <h2>Using HTMLDOC as a CGI Program</h2>
 
-<p><i>HTMLDOC</i> 1.8.24 and higher support operation as a CGI
+<p>HTMLDOC 1.8.24 and higher supports operation as a CGI
 program. You can copy or symlink the <var>htmldoc</var> (all but
 Windows) or <var>htmldoc.exe</var> (Windows) executable to your
 web server's <var>cgi-bin</var> directory and then use it to
@@ -57,7 +56,7 @@ called <var>superproducts.html</var> at the following URL:</p>
     http://servername/superproducts.html
 </pre>
 
-<p>and if you installed <i>HTMLDOC</i> in your server's
+<p>and if you installed HTMLDOC in your server's
 <var>cgi-bin</var> directory, you would direct your clients to
 the following URL:</p>
 
@@ -66,7 +65,7 @@ the following URL:</p>
 </pre>
 
 <p>The boldface portion represents the location of the
-<i>HTMLDOC</i> executable on the web server. You simply place
+HTMLDOC executable on the web server. You simply place
 that path before the page you want to convert.</p>
 
 <p>Form data using the <code>GET</code> method can be passed at
@@ -78,10 +77,10 @@ the end of the URL, for example:</p>
 
 <h3>Server-Side Preferences</h3>
 
-<p>When run as a CGI program, <i>HTMLDOC</i> will try to read a
+<p>When run as a CGI program, HTMLDOC will try to read a
 book file to set any preferences for the conversion to PDF. For
 the <var>superproducts.html</var> file described previously,
-<i>HTMLDOC</i> will look at the following URLs for a book
+HTMLDOC will look at the following URLs for a book
 file:</p>
 
 <pre>
@@ -95,12 +94,12 @@ file:</p>
 <h3>Configuring HTMLDOC with Apache</h3>
 
 <p>The Apache web server is easily configured to use
-<i>HTMLDOC</i>. The simplest way is to copy or symlink the
+HTMLDOC. The simplest way is to copy or symlink the
 <var>htmldoc</var> executable to the configured
 <var>cgi-bin</var> directory. For example, if your Apache
 installation is configured to look for CGI programs in the
 <var>/var/www/cgi-bin</var> directory, the default for Apache on
-Red Hat Linux, then the command to install <i>HTMLDOC</i> on
+Red Hat Linux, then the command to install HTMLDOC on
 your web server would be:</p>
 
 <pre>
@@ -125,7 +124,7 @@ for a directory:</p>
 <p>then you can copy or symlink the <var>htmldoc</var>
 executable to an alternate location. For example, if you have a
 web directory called <var>/var/www/htdocs/products</var>, you
-can install <i>HTMLDOC</i> in this directory with the following
+can install HTMLDOC in this directory with the following
 command:</p>
 
 <pre>
@@ -150,7 +149,7 @@ follows:</p>
 </pre>
 
 <p>The boldface portion represents the location of the
-<i>HTMLDOC</i> program on the web server.</p>
+HTMLDOC program on the web server.</p>
 
 
 <h2>Using HTMLDOC From Server-Side Scripts and Programs</h2>
@@ -158,12 +157,12 @@ follows:</p>
 <p>To make this work the CGI script or program must send the
 appropriate HTTP attributes, the required empty line to signify
 the beginning of the document, and then execute the
-<i>HTMLDOC</i> program to generate the HTML, PostScript, or PDF
+HTMLDOC program to generate the HTML, PostScript, or PDF
 file as needed.</p>
 
 <p>Another way to generate PDF files from your reports is to use
-<i>HTMLDOC</i> as a "portal" application. When used as a portal,
-<i>HTMLDOC</i> automatically retrieves the named document or
+HTMLDOC as a "portal" application. When used as a portal,
+HTMLDOC automatically retrieves the named document or
 report from your server and passes a PDF version to the web
 browser. See the next sections for more information.</p>
 
@@ -207,7 +206,7 @@ limited to GET type requests. Here is a script called
 file of the site's home page.</p>
 
 <p>The <var>options</var> variable in the script can be set to use any
-supported command-line option for <i>HTMLDOC</i>; for a complete list see
+supported command-line option for HTMLDOC; for a complete list see
 <a href='#CMDREF'>Chapter 8 - Command-Line Reference</a>.</p>
 
 <!-- NEED 5in -->
@@ -215,8 +214,8 @@ supported command-line option for <i>HTMLDOC</i>; for a complete list see
 
 <p>Perl scripts offer the ability to generate more complex reports, pull
 data from databases, etc. The easiest way to interface Perl scripts
-with <i>HTMLDOC</i> is to write a report to a temporary file and then
-execute <i>HTMLDOC</i> to generate the PDF file.</p>
+with HTMLDOC is to write a report to a temporary file and then
+execute HTMLDOC to generate the PDF file.</p>
 
 <p>Here is a simple Perl subroutine that can be used to write a PDF report
 to the HTTP client:</p>
@@ -242,7 +241,7 @@ to the HTTP client:</p>
 <p>PHP is quickly becoming the most popular server-side
 scripting language available. PHP provides a
 <code>passthru()</code> function that can be used to run
-<i>HTMLDOC</i>. This combined with the <code>header()</code>
+HTMLDOC. This combined with the <code>header()</code>
 function can be used to provide on-the-fly reports in PDF
 format.</p>
 
@@ -292,7 +291,7 @@ characters that might be interpreted by the shell:</p>
 
 <p>Another method is to use the <code>escapeshellarg()</code>
 function provided with PHP 4.0.3 and higher to generate a quoted
-shell argument for <i>HTMLDOC</i>.</p>
+shell argument for HTMLDOC.</p>
 
 <p>To make a "portal" script, add the following code to complete the
 example:</p>

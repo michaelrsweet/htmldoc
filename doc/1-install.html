@@ -4,278 +4,141 @@
 <!-- FOOTER RIGHT "1-$CHAPTERPAGE" -->
 <div align='justify'>
 
-<h1 align='right'><a name='INSTALL'>Chapter 1 - Installing HTMLDOC</a></h1>
+<h1 align='right'><a name='INSTALL'>Chapter 1 - Installing
+HTMLDOC</a></h1>
 
-<p>This chapter describes the steps needed to install
-<i>HTMLDOC</i> on your system from any of the source or binary
-distributions.</p>
+<p>This chapter describes the steps needed to install the
+members version of HTMLDOC on your system. If you are installing
+HTMLDOC from source code, please see <a
+href='#COMPILING'>Appendix D, Compiling HTMLDOC from
+Source</a>.</p>
 
-<h2>Installing a Binary Distribution</h2>
+<h2>Requirements</h2>
 
-<i>HTMLDOC</i> binary distributions are available for a number of UNIX and
-Windows platforms.
-
-<h3>Requirements</h3>
-
-<i>HTMLDOC</i> requires approximately 2MB of disk space and one of the
-following environments:
+<p>HTMLDOC requires approximately 4MB of disk space and one of
+the following environments:</p>
 
 <ul>
 
-	<li>AIX 4.3 or higher
+	<li>AIX<sup>&reg;</sup> 4.3 or higher</li>
 
-	<li>Compaq Tru64 UNIX 4.0 or higher
+	<li>Compaq Tru64 UNIX<sup>&reg;</sup> 4.0 or higher</li>
 
-	<li>FreeBSD 4.5 or higher
+	<li>FreeBSD 4.5 or higher</li>
 
-	<li>HP-UX 10.20 or higher
+	<li>HP-UX 10.20 or higher</li>
 
-	<li>IRIX 5.3 or higher
+	<li>IRIX<sup>&reg;</sup> 5.3 or higher</li>
 
-	<li>Linux 2.2 or higher
+	<li>Linux<sup>&reg;</sup> 2.2 or higher</li>
 
-	<li>MacOS X 10.2 or higher
+	<li>MacOS<sup>&reg;</sup> X 10.2 or higher</li>
 
-	<li>Microsoft Windows 95 or higher
+	<li>Microsoft Windows<sup>&reg;</sup> 2000 or higher</li>
 
-	<li>Solaris 2.5 or higher
+	<li>Red Hat Linux 8 or higher</li>
 
-</ul>
-
-<p><i>HTMLDOC</i> may compile and run on other platforms,
-however we have not tested nor do we provide support for
-platforms other than those listed previously.
-
-<h3>Installing HTMLDOC under Debian GNU/Linux</h3>
-
-Run the following command to install <i>HTMLDOC</i> under Debian GNU/Linux:
-
-<ul><pre>
-% <kbd>dselect install htmldoc-<i>version</i>-linux-2.2-intel.deb ENTER</kbd>
-</pre></ul>
-
-<h3>Uninstalling HTMLDOC under Debian GNU/Linux</h3>
-
-Run the following command to remove <i>HTMLDOC</i> under Debian GNU/Linux:
-
-<ul><pre>
-% <kbd>dselect remove htmldoc ENTER</kbd>
-</pre></ul>
-
-<h3>Installing HTMLDOC under Red Hat Linux</h3>
-
-Run the following command to install <i>HTMLDOC</i> under Red Hat Linux:
-
-<ul><pre>
-% <kbd>rpm -i htmldoc-<i>version</i>-linux-2.2-intel.rpm ENTER</kbd>
-</pre></ul>
-
-<h3>Uninstalling HTMLDOC under Red Hat Linux</h3>
-
-Run the following command to remove <i>HTMLDOC</i> from your Red Hat Linux
-system:
-
-<ul><pre>
-% <kbd>rpm -e htmldoc ENTER</kbd>
-</pre></ul>
-
-<h3>Installing HTMLDOC under UNIX</h3>
-
-Run the following commands to install <i>HTMLDOC</i> under UNIX:
-
-<ul><pre>
-% <kbd>gunzip htmldoc-<i>version</i>-<i>platform</i>.tar.gz ENTER</kbd>
-% <kbd>tar xf htmldoc-<i>version</i>-<i>platform</i>.tar ENTER</kbd>
-% <kbd>./setup ENTER</kbd>
-</pre></ul>
-
-Substitute the correct version and platform strings as appropriate.
-
-<h3>Uninstalling HTMLDOC under UNIX</h3>
-
-Run the following command to remove <i>HTMLDOC</i> from your UNIX system:
-
-<ul><pre>
-% <kbd>/etc/software/htmldoc.remove ENTER</kbd>
-</pre></ul>
-
-<h3>Installing HTMLDOC under MacOS X</h3>
-
-<p>Double-click on the <i>HTMLDOC</i> package in the finder and
-follow the installer prompts.
-
-<h3>Installing HTMLDOC under Windows</h3>
-
-<i>HTMLDOC</i> is provided in a self-extracting installation file under
-Windows. Double-click on the setup icon to install <i>HTMLDOC</i> under Windows.
-
-<h3>Uninstalling HTMLDOC under Windows</h3>
-
-Open the Control Panel window and double-click on the <var>Add/Remove Software</var>
-icon. When the available software list is displayed, select <i>HTMLDOC</i> and
-click on the <var>Remove</var> button.
-
-<h2>Installing HTMLDOC from the Source Distribution</h2>
-
-The complete source to <i>HTMLDOC</i> is available to build <i>HTMLDOC</i> for
-different directories, architectures, or operating systems.
-
-<h3>Requirements</h3>
-
-<i>HTMLDOC</i> requires ANSI C and C++ compilers - recent versions of GCC/EGCS
-work fine. To build the GUI you'll also need:
-
-<ul>
-
-	<li><a href='http://www.fltk.org'>Fast Light Tool Kit ("FLTK")</a>,
-	version 1.1 or higher.
-
-	<li><a href='ftp://ftp.x.org'>X11 libraries</a>, R5 or higher (needed
-	to build under UNIX and OS/2 only.)
+	<li>Solaris<sup>&reg;</sup> 2.5 or higher</li>
 
 </ul>
 
-<p>Secure (https) URL support can be enabled via the <A
-HREF='http://www.openssl.org/'>OpenSSL</a> library. You should
-use at least version 0.9.6l.
+<p>HTMLDOC may run on other platforms, however we have not
+tested nor do we provide support for platforms other than those
+listed.</p>
 
-<h3>Configuring the UNIX Source</h3>
 
-<i>HTMLDOC</i> uses a configuration script produced by GNU autoconf to
-configure itself for your system. If your ANSI C compiler is not called
-<var>cc</var> or <var>gcc</var>, set the <code>CC</code> environment
-variable to the name and path of your ANSI C compiler:
+<h2>Installing HTMLDOC</h2>
 
-<ul><pre>
-% <kbd>setenv CC /path/to/compiler <i>ENTER</i></kbd>         [C Shell]
-% <kbd>CC=/path/to/compiler; export CC <i>ENTER</i></kbd>     [Bourne/Korn Shell]
-</pre></ul>
+<p>The following instructions describe how to install the
+HTMLDOC software on your system.</p>
 
-Similarly, if your C++ compiler is not called <var>CC</var>, <var>gcc</var>,
-<var>c++</var>, or <var>g++</var>, set the <code>CXX</code> environment
-variable to the name and path of your C++ compiler:
+<h3>Installing HTMLDOC on Microsoft Windows</h3>
 
-<ul><pre>
-% <kbd>setenv CXX /path/to/compiler <i>ENTER</i></kbd>        [C Shell]
-% <kbd>CXX=/path/to/compiler; export CXX <i>ENTER</i></kbd>   [Bourne/Korn Shell]
-</pre></ul>
+<p>HTMLDOC is provided in a self-extracting installation file
+under Windows. Double-click on the setup icon to install HTMLDOC
+under Windows.</p>
 
-<p>Then run the following command to configure <i>HTMLDOC</i> for
-installation in the default directories:
+<h3>Installing HTMLDOC on MacOS X</h3>
 
-<ul><pre>
-% <kbd>./configure <i>ENTER</i></kbd>
-</pre></ul>
+<p>Double-click on the HTMLDOC package in the finder and
+follow the installer prompts.</p>
 
-<p>The default configuration will install <i>HTMLDOC</i> in the
-<var>/usr/bin</var> directory with the data files under
-<var>/usr/share/htmldoc</var> and the documentation and on-line help
-under <var>/usr/share/doc/htmldoc</var>. Use the <code>--prefix</code>
-option to change the installation prefix to <var>/usr/local</var>:
+<h3>Installing HTMLDOC on Red Hat Linux</h3>
 
-<ul><pre>
-% <kbd>./configure --prefix=/usr/local <i>ENTER</i></kbd>
-</pre></ul>
+<p>Run the following command to install HTMLDOC under Red Hat
+Linux:</p>
 
-<p>If the FLTK library is not installed in a standard location for
-your compilers, use the <code>--with-fltk-includes</code> and
-<code>--with-fltk-libs</code> options to point to the FLTK library:
+<pre>
+    % <kbd>rpm -i htmldoc-<i>version</i>-linux-2.4-intel.rpm ENTER</kbd>
+</pre>
 
-<ul><pre>
-% <kbd>./configure --with-fltk-libs=/path/to/fltk/lib \
-        --with-fltk-includes=/path/to/fltk <i>ENTER</i></kbd>
-</pre></ul>
+<h3>Installing HTMLDOC on UNIX/Linux</h3>
 
-<p>Finally, if the OpenSSL library is not installed in a standard location for
-your compilers, use the <code>--with-openssl-includes</code> and
-<code>--with-openssl-libs</code> options to point to the OpenSSL library:
+<p>Run the following commands to install HTMLDOC under UNIX:</p>
 
-<ul><pre>
-% <kbd>./configure --with-openssl-libs=/path/to/openssl/lib \
-        --with-openssl-includes=/path/to/openssl <i>ENTER</i></kbd>
-</pre></ul>
+<pre>
+    % <kbd>gunzip htmldoc-<i>version</i>-<i>platform</i>.tar.gz ENTER</kbd>
+    % <kbd>tar xf htmldoc-<i>version</i>-<i>platform</i>.tar ENTER</kbd>
+    % <kbd>./setup ENTER</kbd>
+</pre>
 
-<!-- NEED 3in -->
-<h3>Compiling under UNIX</h3>
+<p>Substitute the correct version and platform strings as
+appropriate.</p>
 
-<i>HTMLDOC</i> is built from a Makefile in the distribution's main
-directory. Simply run the "make" command to build <i>HTMLDOC</i>:
 
-<ul><pre>
-% <kbd>make <i>ENTER</i></kbd>
-</pre></ul>
+<h2>Licensing HTMLDOC</h2>
 
-If you get any fatal errors, please subscribe to the <i>HTMLDOC</i>
-mailing list and send a copy of the make/compiler output to
-"<a href='mailto:htmldoc@easysw.com'>htmldoc@easysw.com</a>" for
-assistance. Please note the version of <i>HTMLDOC</i> that you
-are using as well as any pertinent system information (operating
-system, OS version, compiler, etc.)
+<p>Before you can use HTMLDOC, you must license it. When you first run
+HTMLDOC, the license dialog will appear:</p>
 
-<p>To subscribe to the <i>HTMLDOC</i> mailing list, send a message to
-"<a href='mailto:majordomo@easysw.com'>majordomo@easysw.com</a>"
-with the text:
+<p align='center'><img src='license.png'><br />
+<i>Figure 1-??? - The HTMLDOC License Dialog</i></p>
 
-<ul><pre>
-subscribe htmldoc
-</pre></ul>
+<p>Enter the license key that was emailed to you or came on the
+inside of the HTMLDOC CD-ROM case.</p>
 
-in the message body. <i>You must subscribe to the list to post
-questions and comments.</i>
 
-<h3>Installing under UNIX</h3>
+<h2>Uninstalling HTMLDOC</h2>
 
-To install <i>HTMLDOC</i> simply run the "make install" command:
+<p>The following instructions describe how to remove the HTMLDOC
+software from your system.</p>
 
-<ul><pre>
-% <kbd>make install <i>ENTER</i></kbd>
-</pre></ul>
+<h3>Uninstalling HTMLDOC on Microsoft Windows</h3>
 
-<p>If you are installing in a restricted directory like <var>/usr</var>
-then you'll need to be logged in as root.
+<p>Open the Control Panel window and double-click on the
+<var>Add/Remove Software</var> icon. When the available software
+list is displayed, select HTMLDOC and click on the
+<var>Remove</var> button.</p>
 
-<h3>Compiling with Visual C++</h3>
+<h3>Uninstalling HTMLDOC on MacOS X</h3>
 
-<p>A Visual C++ 6.0 workspace file and associated project files are
-included in the source distribution under the "visualc" directory. Open
-the workspace file "htmldoc.dsw", adjust the FLTK include and project
-file locations, and then build the <i>HTMLDOC</i> target.
+<p>Double-click on the HTMLDOC package in the finder and
+follow the installer prompts.</p>
 
-<center><table width='80%' border='1' cellpadding='5' cellspacing='0' bgcolor='#cccccc'>
-<tr>
-	<td><b>Note:</b>
+<h3>Uninstalling HTMLDOC on Red Hat Linux</h3>
 
-	<p>You also need to download the OpenSSL and FLTK
-	libraries in order to compile HTMLDOC with Visual
-	C++.</p>
+<p>Run the following command to install HTMLDOC under Red Hat
+Linux:</p>
 
-	</td>
-</tr>
-</table></center>
+<pre>
+    % <kbd>rpm -i htmldoc-<i>version</i>-linux-2.4-intel.rpm ENTER</kbd>
+</pre>
 
-<h3>Installing with Visual C++</h3>
+<p>Run the following command to remove HTMLDOC from your Red Hat
+Linux system:</p>
 
-The Windows installation package is created using InstallShield for Visual C++
-6. The "visualc/HTMLDOC" dijrectory contains the installation information
-for <i>HTMLDOC</i> needed to build a binary distribution with InstallShield.
+<pre>
+    % <kbd>rpm -e htmldoc ENTER</kbd>
+</pre>
 
-<p>To install <i>HTMLDOC</i> without InstallShield, create an
-installation directory and copy the <var>htmldoc.exe</var> executable,
-the <var>afm</var> directoryj, the <var>data</var> directory, and the
-<var>doc</var> directory to it.
+<h3>Uninstalling HTMLDOC on UNIX/Linux</h3>
 
-<p>Then use the <var>regedit</var> program to create the following two string
-entries:
+<p>Run the following command to remove HTMLDOC from your UNIX
+system:</p>
 
-<dl>
-
-	<dt><code>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\data</code>
-	<dd>C:\installation\directory
-
-	<dt><code>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\doc</code>
-	<dd>C:\installation\directory\doc
-
-</dl>
+<pre>
+    % <kbd>/etc/software/htmldoc.remove ENTER</kbd>
+</pre>
 
 </div>
 
