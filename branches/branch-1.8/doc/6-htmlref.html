@@ -119,15 +119,106 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 
 <H2><A NAME="COMMENTS">Comments</A></H2>
 
-<I>HTMLDOC</I> supports four special HTML comments to initiate page breaks:
+<P><I>HTMLDOC</I> supports many special HTML comments to
+initiate page breaks, set the header and footer text, and
+control the current media options:</P>
 
 <DL>
+
+	<DT><CODE>&lt;!-- FOOTER LEFT "foo" --&gt;</CODE>
+	<DD>Sets the left footer text; breaks to a new page if
+	the current page is already marked.
+
+	<DT><CODE>&lt;!-- FOOTER CENTER "foo" --&gt;</CODE>
+	<DD>Sets the center footer text; breaks to a new page if
+	the current page is already marked.
+
+	<DT><CODE>&lt;!-- FOOTER RIGHT "foo" --&gt;</CODE>
+	<DD>Sets the right footer text; breaks to a new page if
+	the current page is already marked.
 
 	<DT><CODE>&lt;!-- HALF PAGE --&gt;</CODE>
 	<DD>Break to the next half page.
 
-	<DT><CODE>&lt;!-- PAGE BREAK --&gt;</CODE>
-	<DD>Break to the next page.
+	<DT><CODE>&lt;!-- HEADER LEFT "foo" --&gt;</CODE>
+	<DD>Sets the left header text; breaks to a new page if
+	the current page is already marked.
+
+	<DT><CODE>&lt;!-- HEADER CENTER "foo" --&gt;</CODE>
+	<DD>Sets the center header text; breaks to a new page if
+	the current page is already marked.
+
+	<DT><CODE>&lt;!-- HEADER RIGHT "foo" --&gt;</CODE>
+	<DD>Sets the right header text; breaks to a new page if
+	the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA BOTTOM nnn --&gt;</CODE>
+	<DD>Sets the bottom margin of the page. The "nnn" string can
+	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
+	Breaks to a new page if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA COLOR "foo" --&gt;</CODE>
+	<DD>Sets the media color attribute for the page. The
+	"foo" string is any color name that is supported by the
+	printer, e.g. "Blue", "White", etc.  Breaks to a new
+	page or sheet if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA DUPLEX NO --&gt;</CODE>
+	<DD>Chooses single-sided printing for the page; breaks to a
+	new page or sheet if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA DUPLEX YES --&gt;</CODE>
+	<DD>Chooses double-sided printing for the page; breaks to a
+	new sheet if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA LANDSCAPE NO --&gt;</CODE>
+	<DD>Chooses portrait orientation for the page; breaks to a
+	new page if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA LANDSCAPE YES --&gt;</CODE>
+	<DD>Chooses landscape orientation for the page; breaks to a
+	new page if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA LEFT nnn --&gt;</CODE>
+	<DD>Sets the left margin of the page. The "nnn" string can
+	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
+	Breaks to a new page if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA POSITION nnn --&gt;</CODE>
+	<DD>Sets the media position attribute (input tray) for
+	the page. The "nnn" string is an integer that usually
+	specifies the tray number. Breaks to a new page or sheet
+	if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA RIGHT nnn --&gt;</CODE>
+	<DD>Sets the right margin of the page. The "nnn" string can
+	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
+	Breaks to a new page if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA SIZE foo --&gt;</CODE>
+	<DD>Sets the media size to the specified size. The "foo"
+	string can be "Letter", "Legal", "Universal", or "A4"
+	for standard sizes or "WIDTHxHEIGHTunits" for custom
+	sizes, e.g. "8.5x11in"; breaks to a new page or sheet if
+	the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA TOP nnn --&gt;</CODE>
+	<DD>Sets the top margin of the page. The "nnn" string can
+	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
+	Breaks to a new page if the current page is already marked.
+
+	<DT><CODE>&lt;!-- MEDIA TYPE "foo" --&gt;</CODE>
+	<DD>Sets the media type attribute for the page. The
+	"foo" string is any type name that is supported by the
+	printer, e.g. "Plain", "Glossy", etc.  Breaks to a new
+	page or sheet if the current page is already marked.
+
+	<DT><CODE>&lt;!-- NEED length --&gt;</CODE>
+	<DD>Break if there is less than <CODE>length</CODE>
+	units left on the current page. The <CODE>length</CODE>
+	value defaults to lines of text but can be suffixed by
+	<CODE>in</CODE>, <CODE>mm</CODE>, or <CODE>cm</CODE> to
+	convert from the corresponding units.
 
 	<DT><CODE>&lt;!-- NEW PAGE --&gt;</CODE>
 	<DD>Break to the next page.
@@ -135,11 +226,70 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 	<DT><CODE>&lt;!-- NEW SHEET --&gt;</CODE>
 	<DD>Break to the next sheet.
 
-	<DT><CODE>&lt;!-- NEED length --&gt;</CODE>
-	<DD>Break if there is less than <CODE>length</CODE> units left
-	on the current page. The <CODE>length</CODE> value defaults to
-	points but can be suffixed by <CODE>in</CODE>, <CODE>mm</CODE>,
-	or <CODE>cm</CODE> to convert from the corresponding units.
+	<DT><CODE>&lt;!-- PAGE BREAK --&gt;</CODE>
+	<DD>Break to the next page.
+
+</DL>
+
+<H3>Header/Footer Strings</H3>
+
+<P>The <CODE>HEADER</CODE> and <CODE>FOOTER</CODE> comments
+allow you to set an arbitrary string of text for the left,
+center, and right headers and footers. Each string consists of
+plain text; special values or strings can be inserted using the
+dollar sign (<CODE>$</CODE>):</P>
+
+<DL>
+
+	<DT><CODE>$$</CODE>
+	<DD>Inserts a single dollar sign in the header.
+
+	<DT><CODE>CHAPTER</CODE>
+	<DD>Inserts the current chapter heading.
+
+	<DT><CODE>$CHAPTERPAGE</CODE>
+	<DT><CODE>$CHAPTERPAGE(format)</CODE>
+	<DD>Inserts the current page number within a chapter or
+	file. When a format is specified, uses that numeric
+	format (1 = decimal, i = lowercase roman numerals, I =
+	uppercase roman numerals, a = lowercase ascii, A =
+	uppercase ascii) for the page numbers.
+
+	<DT><CODE>$CHAPTERPAGES</CODE>
+	<DT><CODE>$CHAPTERPAGES(format)</CODE>
+	<DD>Inserts the total page count within a chapter or
+	file. When a format is specified, uses that numeric
+	format (1 = decimal, i = lowercase roman numerals, I =
+	uppercase roman numerals, a = lowercase ascii, A =
+	uppercase ascii) for the page count.
+
+	<DT><CODE>$DATE</CODE>
+	<DD>Inserts the current date.
+
+	<DT><CODE>$HEADING</CODE>
+	<DD>Inserts the current heading.
+
+	<DT><CODE>$PAGE</CODE>
+	<DT><CODE>$PAGE(format)</CODE>
+	<DD>Inserts the current page number. When a format is
+	specified, uses that numeric format (1 = decimal, i =
+	lowercase roman numerals, I = uppercase roman numerals,
+	a = lowercase ascii, A = uppercase ascii) for the page
+	numbers.
+
+	<DT><CODE>$PAGES</CODE>
+	<DT><CODE>$PAGES(format)</CODE>
+	<DD>Inserts the total page count. When a format is
+	specified, uses that numeric format (1 = decimal, i =
+	lowercase roman numerals, I = uppercase roman numerals,
+	a = lowercase ascii, A = uppercase ascii) for the page
+	count.
+
+	<DT><CODE>$TIME</CODE>
+	<DD>Inserts the current time.
+
+	<DT><CODE>$TITLE</CODE>
+	<DD>Inserts the document title.
 
 </DL>
 

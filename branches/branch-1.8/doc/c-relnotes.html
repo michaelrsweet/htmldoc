@@ -5,6 +5,44 @@
 
 <P>This appendix provides the release notes for each version of HTMLDOC.
 
+<H2>Changes in HTMLDOC v1.8.15</H2>
+
+<UL>
+
+	<H3>New Features</H3>
+
+	<LI>Now support media source, type, and color attributes
+	in PS output.
+
+	<LI>Now support per-page size, margins, headers, footers,
+	orientation, and duplexing.
+
+	<LI>Now support plain text for headers and footers, with $
+	variables to include page numbers and so forth.
+
+	<LI>New device control prolog file for printer-specific
+	option commands.
+
+	<H3>Changes</H3>
+
+	<LI>Now load images into memory only as needed, and unload
+	them when no longer needed.  This provides a dramatic
+	reduction in memory usage with files that contain a
+	lot of in-line images.
+
+	<H3>Bug Fixes
+
+	<LI>If a document started with a heading greater than H1,
+	HTMLDOC would crash.
+
+	<LI>Full justification would incorrectly be applied to
+	text ending with a break.
+
+	<LI>Images using ALIGN="MIDDLE" were not centered properly
+	on the baseline.
+
+</UL>
+
 <H2>Changes in HTMLDOC v1.8.14</H2>
 
 <UL>
