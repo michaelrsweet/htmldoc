@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.26 2004/04/05 01:39:34 mike Exp $"
+ * "$Id: image.cxx,v 1.27 2004/10/18 03:11:41 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -619,6 +619,9 @@ hdBook::image_find(const char *filename,// I - Name of image file
 		**match;		// Matching image
 
 
+  DEBUG_printf(("image_find(filename=\"%s\", load_data=%d)\n",
+                filename ? filename : "(null)", load_data));
+
  /*
   * Range check...
   */
@@ -649,7 +652,7 @@ hdBook::image_find(const char *filename,// I - Name of image file
     }
   }
 
-  return (NULL);
+  return (image_load(filename, 0 /* !OutputColor */, load_data));
 }
 
 
@@ -723,6 +726,9 @@ hdBook::image_load(const char *filename,// I - Name of image file
   int		status;			// Status of load...
   const char	*realname;		// Real filename
 
+
+  DEBUG_printf(("image_load(filename=\"%s\", gray=%d, load_data=%d)\n",
+                filename ? filename : "(null)", gray, load_data));
 
  /*
   * Range check...
@@ -881,6 +887,8 @@ hdBook::image_load(const char *filename,// I - Name of image file
       qsort(images, num_images, sizeof(image_t *),
             (hdCompareFunc)image_compare);
   }
+
+  DEBUG_printf(("    returning img=%p\n", img));
 
   return (img);
 }
@@ -1868,5 +1876,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.26 2004/04/05 01:39:34 mike Exp $".
+ * End of "$Id: image.cxx,v 1.27 2004/10/18 03:11:41 mike Exp $".
  */
