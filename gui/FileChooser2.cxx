@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.27 2001/01/22 15:03:44 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.28 2001/04/18 17:37:45 mike Exp $"
 //
 //   More FileChooser routines.
 //
@@ -74,6 +74,8 @@ FileChooser::directory(const char *d)	// I - Directory to change to
 	*dirptr;			// Pointer into directory
   int	levels;				// Number of levels in directory
 
+
+//  printf("FileChooser::directory(\"%s\")\n", d == NULL ? "(null)" : d);
 
   // NULL == current directory
   if (d == NULL)
@@ -257,8 +259,10 @@ FileChooser::value(const char *filename)	// I - Filename + directory
   char	pathname[1024];				// Local copy of filename
 
 
+//  printf("FileChooser::value(\"%s\")\n", filename == NULL ? "(null)" : filename);
+
   // See if the filename is actually a directory...
-  if (filename == NULL || filename_isdir(filename))
+  if (filename == NULL || !filename[0] || filename_isdir(filename))
   {
     // Yes, just change the current directory...
     directory(filename);
@@ -382,6 +386,8 @@ FileChooser::newdir()
 void
 FileChooser::rescan()
 {
+//  printf("FileChooser::rescan(); directory = \"%s\"\n", directory_);
+
   // Clear the current filename
   fileName->value("");
   okButton->deactivate();
@@ -667,5 +673,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.27 2001/01/22 15:03:44 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.28 2001/04/18 17:37:45 mike Exp $".
 //
