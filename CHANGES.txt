@@ -73,6 +73,9 @@ CHANGES IN HTMLDOC v1.8.24
 	  to fit on a single line, to match the behavior of
 	  Mozilla/Netscape (STR #7).
 	- HTMLDOC now handles XHTML input more cleanly.
+	- HTMLDOC no longer specifies an interpolation
+	  preference for images in PostScript or PDF output (STR
+	  #8)
 
     BUG FIXES
 
