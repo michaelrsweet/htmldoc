@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.29 2001/10/18 20:51:22 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.30 2001/10/18 23:19:22 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1228,6 +1228,8 @@ prefs_load(void)
 #  ifdef HAVE_LIBFLTK
       else if (strncasecmp(line, "EDITOR=", 7) == 0)
         strcpy(HTMLEditor, line + 7);
+      else if (strncasecmp(line, "TOOLTIPS=", 9) == 0)
+        Tooltips = atoi(line + 9);
 #  endif // HAVE_LIBFLTK
     }
 
@@ -1333,6 +1335,7 @@ prefs_save(void)
 
 #ifdef HAVE_LIBFLTK
     fprintf(fp, "EDITOR=%s\n", HTMLEditor);
+    fprintf(fp, "TOOLTIPS=%d\n", Tooltips);
 #endif // HAVE_LIBFLTK
 
     fclose(fp);
@@ -2166,5 +2169,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.29 2001/10/18 20:51:22 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.30 2001/10/18 23:19:22 mike Exp $".
  */
