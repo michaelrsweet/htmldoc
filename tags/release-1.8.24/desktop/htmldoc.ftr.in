@@ -1,0 +1,34 @@
+TYPE htmldocExecutable
+	MATCH		tag == 0xfe2000;
+	LEGEND		HTMLDOC Program
+	SUPERTYPE	Executable
+	DROPIF		htmldocBook
+	CMD OPEN	$LEADER $REST
+	CMD ALTOPEN	$LEADER $REST
+	CMD DROP	$TARGET $SELECTED
+	ICON
+	{
+          if (opened)
+          {
+	    include("/usr/lib/filetype/iconlib/generic.exec.open.fti");
+	    include("/usr/lib/filetype/install/iconlib/htmldoc.open.fti");
+	  }
+	  else
+	  {
+	    include("/usr/lib/filetype/iconlib/generic.exec.closed.fti");
+	    include("/usr/lib/filetype/install/iconlib/htmldoc.closed.fti");
+	  }
+	}	
+
+TYPE htmldocBook
+	MATCH		(string(0,8) == "#HTMLDOC");
+	LEGEND		HTMLDOC Book
+	SUPERTYPE	Binary
+	CMD OPEN	@bindir@/htmldoc $LEADER $REST
+	CMD ALTOPEN	@bindir@/htmldoc $LEADER $REST
+	CMD PRINT	for book in $LEADER $REST; do @bindir@/htmldoc --batch \$book -t ps -f - | lp; done
+	ICON
+	{
+	  include("/usr/lib/filetype/iconlib/generic.doc.fti");
+	  include("/usr/lib/filetype/install/iconlib/htmldoc.book.fti");
+	}	
