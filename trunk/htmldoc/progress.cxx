@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.cxx,v 1.11 2004/04/05 01:39:34 mike Exp $"
+ * "$Id: progress.cxx,v 1.12 2004/10/23 07:06:19 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
@@ -40,6 +40,12 @@
 #ifdef HAVE_LIBFLTK
 #  include <FL/fl_ask.H>
 #endif // HAVE_LIBFLTK
+
+#ifdef WIN32
+#  define getpid	GetCurrentProcessId
+#else
+#  include <unistd.h>
+#endif // WIN32
 
 
 /*
@@ -108,15 +114,27 @@ hdBook::progress_error(hdError    error,// I - Error number
   }
 #endif /* HAVE_LIBFLTK */
 
+#ifdef WIN32
+  // IIS doesn't separate stderr from stdout, so we cannot output any CGI error messages
+  // on Windows...
+  if (CGIMode)
+    return;
+#endif // WIN32
+
   if (verbosity >= 0)
   {
     if (progress_visible)
       fprintf(stderr, "\r%-79.79s\r", "");
 
+    if (CGIMode)
+      fprintf(stderr, "HTMLDOC(%d) ", getpid());
+
     if (error)
       fprintf(stderr, "ERR%03d: %s\n", error, text);
     else
       fprintf(stderr, "%s\n", text);
+
+    fflush(stderr);
   }
 }
 
@@ -135,6 +153,9 @@ hdBook::progress_hide(void)
     return;
   }
 #endif /* HAVE_LIBFLTK */
+
+  if (CGIMode)
+    return;
 
   if (verbosity > 0)
   {
@@ -171,6 +192,17 @@ hdBook::progress_show(const char *format,
   }
 #endif /* HAVE_LIBFLTK */
 
+  if (CGIMode)
+  {
+    if (verbosity > 0)
+    {
+      fprintf(stderr, "HTMLDOC(%d) INFO: %s\n", getpid(), text);
+      fflush(stderr);
+    }
+
+    return;
+  }
+
   if (verbosity > 0)
   {
     fprintf(stderr, "\r%-79.79s", text);
@@ -199,5 +231,5 @@ hdBook::progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.11 2004/04/05 01:39:34 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.12 2004/10/23 07:06:19 mike Exp $".
  */
