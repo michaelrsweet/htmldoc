@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.16 1999/12/14 22:14:57 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.17 1999/12/16 21:09:45 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -46,6 +46,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #if defined(WIN32) || defined(__EMX__)
@@ -470,15 +471,24 @@ FileIcon::load(const char *f)	// I - File to read from
 
 
   if ((ext = filename_ext(f)) == NULL)
+  {
+    fprintf(stderr, "FileIcon::load(): Unknown file type for \"%s\".\n", f);
+    return;
+  }
 
-  if (strcmp(ext, "fti") == 0)
+  if (strcmp(ext, ".fti") == 0)
     load_fti(f);
-  else if (strcmp(ext, "xpm") == 0)
+  else if (strcmp(ext, ".xpm") == 0)
     load_xpm(f);
 #if 0
-  else if (strcmp(ext, "png") == 0)
+  else if (strcmp(ext, ".png") == 0)
     load_png(f);
 #endif /* 0 */
+  else
+  {
+    fprintf(stderr, "FileIcon::load(): Unknown file type for \"%s\".\n", f);
+    return;
+  }
 }
 
 
@@ -499,7 +509,11 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
 
   // Try to open the file...
   if ((fp = fopen(fti, "r")) == NULL)
+  {
+    fprintf(stderr, "FileIcon::load_fti(): Unable to open \"%s\" - %s\n",
+            fti, strerror(errno));
     return;
+  }
 
   // Read the entire file, adding data as needed...
   outline = 0;
@@ -525,7 +539,11 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
 
     // OK, this character better be a letter...
     if (!isalpha(ch))
+    {
+      fprintf(stderr, "FileIcon::load_fti(): Expected a letter at file position %d (saw '%c')\n",
+              ftell(fp) - 1, ch);
       break;
+    }
 
     // Scan the command name...
     ptr    = command;
@@ -543,7 +561,11 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
 
     // Make sure we stopped on a parenthesis...
     if (ch != '(')
+    {
+      fprintf(stderr, "FileIcon::load_fti(): Expected a ( at file position %d (saw '%c')\n",
+              ftell(fp) - 1, ch);
       break;
+    }
 
     // Scan the parameters...
     ptr = params;
@@ -560,11 +582,19 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
 
     // Make sure we stopped on a parenthesis...
     if (ch != ')')
+    {
+      fprintf(stderr, "FileIcon::load_fti(): Expected a ) at file position %d (saw '%c')\n",
+              ftell(fp) - 1, ch);
       break;
+    }
 
     // Make sure the next character is a semicolon...
     if ((ch = getc(fp)) != ';')
+    {
+      fprintf(stderr, "FileIcon::load_fti(): Expected a ; at file position %d (saw '%c')\n",
+              ftell(fp) - 1, ch);
       break;
+    }
 
     // Now process the command...
     if (strcmp(command, "color") == 0)
@@ -651,7 +681,11 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
       add_vertex((short)(x * 100.0 + 0.5), (short)(y * 100.0 + 0.5));
     }
     else
+    {
+      fprintf(stderr, "FileIcon::load_fti(): Unknown command \"%s\" at file position %d.\n",
+              command, ftell(fp) - 1);
       break;
+    }
   }
 
   // Close the file and return...
@@ -1178,5 +1212,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.16 1999/12/14 22:14:57 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.17 1999/12/16 21:09:45 mike Exp $".
 //

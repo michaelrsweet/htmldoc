@@ -1,5 +1,5 @@
 //
-// "$Id: CheckButton.cxx,v 1.8 1999/11/11 18:15:03 mike Exp $"
+// "$Id: CheckButton.cxx,v 1.9 1999/12/16 21:09:44 mike Exp $"
 //
 //   CheckButton routines for the Common UNIX Printing System (CUPS).
 //
@@ -48,8 +48,8 @@ void CheckButton::draw()
   int	size,		// Size of button...
 	offset;		// Box Y offset...
 
-  size   = h() - 6;
-  offset = 3;
+  size   = labelsize();
+  offset = (h() - size) / 2;
 
   if (type() == FL_RADIO_BUTTON)
   {
@@ -109,5 +109,5 @@ CheckButton::CheckButton(int x, int y, int w, int h, const char* l)
 
 
 //
-// End of "$Id: CheckButton.cxx,v 1.8 1999/11/11 18:15:03 mike Exp $".
+// End of "$Id: CheckButton.cxx,v 1.9 1999/12/16 21:09:44 mike Exp $".
 //
