@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.156 2002/04/10 17:27:04 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.157 2002/04/10 20:37:25 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6372,10 +6372,15 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       check_pages(*page);
 
-      *right         = PagePrintWidth - *right;
-      PageLeft       = pages[*page].left = get_measurement(comment);
-      PagePrintWidth = PageWidth - PageRight - PageLeft;
-      *right         = PagePrintWidth - *right;
+      *right   = PagePrintWidth - *right;
+      PageLeft = pages[*page].left = get_measurement(comment);
+
+      if (Landscape)
+	PagePrintWidth = PageLength - PageRight - PageLeft;
+      else
+	PagePrintWidth = PageWidth - PageRight - PageLeft;
+
+      *right = PagePrintWidth - *right;
 
       // Skip left...
       while (*comment && !isspace(*comment))
@@ -6413,10 +6418,15 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       check_pages(*page);
 
-      *right         = PagePrintWidth - *right;
-      PageRight      = pages[*page].right = get_measurement(comment);
-      PagePrintWidth = PageWidth - PageRight - PageLeft;
-      *right         = PagePrintWidth - *right;
+      *right    = PagePrintWidth - *right;
+      PageRight = pages[*page].right = get_measurement(comment);
+
+      if (Landscape)
+	PagePrintWidth = PageLength - PageRight - PageLeft;
+      else
+	PagePrintWidth = PageWidth - PageRight - PageLeft;
+
+      *right = PagePrintWidth - *right;
 
       // Skip right...
       while (*comment && !isspace(*comment))
@@ -6453,11 +6463,16 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       check_pages(*page);
 
-      *top            = PagePrintLength - *top;
-      PageBottom      = pages[*page].bottom = get_measurement(comment);
-      PagePrintLength = PageLength - PageTop - PageBottom;
-      *top            = PagePrintLength - *top;
-      *y              = *top;
+      *top       = PagePrintLength - *top;
+      PageBottom = pages[*page].bottom = get_measurement(comment);
+
+      if (Landscape)
+        PagePrintLength = PageWidth - PageTop - PageBottom;
+      else
+        PagePrintLength = PageLength - PageTop - PageBottom;
+
+      *top = PagePrintLength - *top;
+      *y   = *top;
 
       // Skip bottom...
       while (*comment && !isspace(*comment))
@@ -6495,11 +6510,16 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       check_pages(*page);
 
-      *top            = PagePrintLength - *top;
-      PageTop         = pages[*page].top = get_measurement(comment);
-      PagePrintLength = PageLength - PageTop - PageBottom;
-      *top            = PagePrintLength - *top;
-      *y              = *top;
+      *top    = PagePrintLength - *top;
+      PageTop = pages[*page].top = get_measurement(comment);
+
+      if (Landscape)
+        PagePrintLength = PageWidth - PageTop - PageBottom;
+      else
+        PagePrintLength = PageLength - PageTop - PageBottom;
+
+      *top = PagePrintLength - *top;
+      *y   = *top;
 
       // Skip top...
       while (*comment && !isspace(*comment))
@@ -10760,5 +10780,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.156 2002/04/10 17:27:04 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.157 2002/04/10 20:37:25 mike Exp $".
  */
