@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.1 1999/11/08 18:35:17 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.2 1999/11/08 22:11:35 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -345,7 +345,6 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
-#ifdef HAVE_LIBJPEG
     else if (compare_strings(argv[i], "--jpeg", 3) == 0 ||
              strncmp(argv[i], "--jpeg=", 7) == 0)
     {
@@ -354,7 +353,6 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         OutputJPEG = 90;
     }
-#endif // HAVE_LIBJPEG
     else if (compare_strings(argv[i], "--left", 4) == 0)
     {
       i ++;
@@ -417,7 +415,7 @@ main(int  argc,		/* I - Number of command-line arguments */
             exportfunc = pdf_export;
           else if (strcasecmp(extension, "html") == 0)
             exportfunc = html_export;
-        };
+        }
       }
       else
         usage();
@@ -510,7 +508,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 
           document->next = file;
           file->prev     = document;
-        };
+        }
       }
       else
         htmlDeleteTree(file);
@@ -558,7 +556,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 
           document->next = file;
           file->prev     = document;
-        };
+        }
       }
       else
         htmlDeleteTree(file);
@@ -574,12 +572,14 @@ main(int  argc,		/* I - Number of command-line arguments */
   if (document == NULL && BookGUI == NULL)
     BookGUI = new GUI();
 
+  FileIcon::load_system_icons();
+
   if (BookGUI != NULL)
   {
     i = BookGUI->doGUI();
     delete BookGUI;
     return (i);
-  };
+  }
 #endif /* HAVE_LIBFLTK */
     
  /*
@@ -643,7 +643,7 @@ progress_show(char *format,	/* I - Printf-style format string */
   {
     BookGUI->progress(0, text);
     return;
-  };
+  }
 #endif /* HAVE_LIBFLTK */
 
   printf("\r%-79s", text);
@@ -663,7 +663,7 @@ progress_hide(void)
   {
     BookGUI->progress(0, "HTMLDOC " SVERSION " Ready.");
     return;
-  };
+  }
 #endif /* HAVE_LIBFLTK */
 
   printf("\r%-79s\r", "");
@@ -683,7 +683,7 @@ progress_update(int percent)	/* I - Percent complete */
   {
     BookGUI->progress(percent);
     return;
-  };
+  }
 #endif /* HAVE_LIBFLTK */
 }
 
@@ -773,7 +773,7 @@ format_number(int  n,		/* I - Number */
           sprintf(buffer, "%s%s%s", HUNDREDS[n / 100], TENS[(n / 10) % 10],
                   ONES[n % 10]);
         break;
-  };
+  }
 
   return (buffer);
 }
@@ -882,8 +882,8 @@ set_page_size(char *size)	/* I - Page size string */
     {
       PageWidth  = (int)width;
       PageLength = (int)length;
-    };
-  };
+    }
+  }
 }
 
 
@@ -924,11 +924,11 @@ prefs_load(void)
 
         if (strncasecmp(line, "EDITOR=", 7) == 0)
 	  strcpy(HTMLEditor, line + 7);
-      };
+      }
 
       fclose(fp);
-    };
-  };
+    }
+  }
 #  endif // WIN32
 #endif // HAVE_LIBFLTK
 }
@@ -972,8 +972,8 @@ prefs_save(void)
       fprintf(fp, "EDITOR=%s\n", HTMLEditor);
 
       fclose(fp);
-    };
-  };
+    }
+  }
 #  endif // WIN32
 #endif // HAVE_LIBFLTK
 }
@@ -1007,12 +1007,8 @@ static void
 usage(void)
 {
   fputs("HTMLDOC Version " SVERSION " Copyright 1997-1999 Michael Sweet, All Rights Reserved.\n", stderr);
-#ifdef HAVE_LIBJPEG
   fputs("This software is governed by the GNU General Public License, Version 2, and\n", stderr);
   fputs("is based in part on the work of the Independent JPEG Group.\n", stderr);
-#else
-  fputs("This software is governed by the GNU General Public License, Version 2.\n", stderr);
-#endif /* HAVE_LIBJPEG */
   fputs("\n", stderr);
   fputs("Usage:\n", stderr);
   fputs("  htmldoc [options] filename1.html [ ... filenameN.html ]\n", stderr);
@@ -1037,9 +1033,7 @@ usage(void)
   fputs("  --headfootsize {6.0..24.0}\n", stderr);
   fputs("  --headingfont {courier,times,helvetica}\n", stderr);
   fputs("  --help\n", stderr);
-#ifdef HAVE_LIBJPEG
   fputs("  --jpeg[=quality]\n", stderr);
-#endif // HAVE_LIBJPEG
   fputs("  --left margin{in,cm,mm}\n", stderr);
   fputs("  --logo filename.{gif,jpg,png}\n", stderr);
   fputs("  --no-compression\n", stderr);
@@ -1076,5 +1070,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.1 1999/11/08 18:35:17 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.2 1999/11/08 22:11:35 mike Exp $".
  */

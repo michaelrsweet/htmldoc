@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.1 1999/11/08 18:35:18 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.2 1999/11/08 22:11:35 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -134,7 +134,7 @@ char		*_htmlMarkups[] =
 		  "WBR"
 		};
 
-const char	*_htmlData = ".";	/* Data directory */
+const char	*_htmlData = "..";	/* Data directory */
 float		_htmlPPI = 80.0f;	/* Image resolution */
 int		_htmlGrayscale = 0;	/* Grayscale output? */
 float		_htmlSizes[8] =		/* Point size for each HTML size */
@@ -1572,7 +1572,8 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
     memset(_htmlGlyphsAll, 0, sizeof(_htmlGlyphsAll));
 
-    if ((fp = fopen("data/psglyphs", "r")) != NULL)
+    sprintf(line, "%s/data/psglyphs", _htmlData);
+    if ((fp = fopen(line, "r")) != NULL)
     {
       while (fscanf(fp, "%x%63s", &unicode, glyph) == 2)
         _htmlGlyphsAll[unicode] = strdup(glyph);
@@ -1585,7 +1586,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
   memset(_htmlGlyphs, 0, sizeof(_htmlGlyphs));
 
-  sprintf(filename, "data/%s", cs);
+  sprintf(filename, "%s/data/%s", _htmlData, cs);
   if ((fp = fopen(filename, "r")) == NULL)
   {
    /*
@@ -1629,7 +1630,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
       for (ch = 0; ch < 256; ch ++)
         _htmlWidths[i][j][ch] = 0.6f;
 
-      sprintf(filename, "afm/%s", _htmlFonts[i][j]);
+      sprintf(filename, "%s/afm/%s", _htmlData, _htmlFonts[i][j]);
       if ((fp = fopen(filename, "r")) == NULL)
         continue;
 
@@ -2124,5 +2125,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.1 1999/11/08 18:35:18 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.2 1999/11/08 22:11:35 mike Exp $".
  */

@@ -91,103 +91,123 @@ LINK32=link.exe
 # Name "htmldoc - Win32 Debug"
 # Begin Source File
 
-SOURCE=..\debug.h
+SOURCE=..\htmldoc\debug.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileBrowser.cxx
+SOURCE=..\gui\CheckButton.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileBrowser.h
+SOURCE=..\gui\CheckButton.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileChooser.cxx
+SOURCE=..\gui\FileBrowser.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileChooser.h
+SOURCE=..\gui\FileBrowser.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileChooser2.cxx
+SOURCE=..\gui\FileChooser.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileIcon.cxx
+SOURCE=..\gui\FileChooser.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileIcon.h
+SOURCE=..\gui\FileChooser2.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileInput.cxx
+SOURCE=..\gui\FileIcon.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\FileInput.h
+SOURCE=..\gui\FileIcon.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\gui.cxx
+SOURCE=..\gui\FileInput.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\gui.h
+SOURCE=..\gui\FileInput.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\html.cxx
+SOURCE=..\gui\HelpDialog.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\html.h
+SOURCE=..\gui\HelpDialog.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\htmldoc.cxx
+SOURCE=..\gui\HelpView.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\htmldoc.h
+SOURCE=..\gui\HelpView.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\htmllib.cxx
+SOURCE=..\htmldoc\gui.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\image.cxx
+SOURCE=..\htmldoc\gui.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\image.h
+SOURCE=..\htmldoc\html.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\iso8859.cxx
+SOURCE=..\htmldoc\html.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\iso8859.h
+SOURCE=..\htmldoc\htmldoc.cxx
 # End Source File
 # Begin Source File
 
-SOURCE="..\ps-pdf.cxx"
+SOURCE=..\htmldoc\htmldoc.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\toc.cxx
+SOURCE=..\htmldoc\htmllib.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\types.h
+SOURCE=..\htmldoc\image.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\widths.h
+SOURCE=..\htmldoc\image.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\iso8859.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\iso8859.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\ps-pdf.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\toc.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\types.h
 # End Source File
 # End Target
 # End Project

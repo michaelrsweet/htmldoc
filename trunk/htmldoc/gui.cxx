@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.1 1999/11/08 18:35:16 mike Exp $"
+// "$Id: gui.cxx,v 1.2 1999/11/08 22:11:34 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -54,7 +54,6 @@
 
 #  include <ctype.h>
 #  include <FL/fl_ask.H>
-#  include <FL/fl_file_chooser.H>
 #  include <FL/Fl_Color_Chooser.H>
 #  include <FL/fl_draw.H>
 #  include <FL/x.H>
@@ -69,11 +68,14 @@
 #  endif // WIN32
 
 
+static char	*file_localize(char *filename, char *newcwd);
+
+
 //
 // 'GUI()' - Build the HTMLDOC GUI and load the indicated book as necessary.
 //
 
-GUI::GUI(char *filename)		// Book file to load initially
+GUI::GUI(const char *filename)		// Book file to load initially
 {
   Fl_Tabs		*tabs;		// Tabs
   Fl_Group		*group;		// Group
@@ -115,8 +117,8 @@ GUI::GUI(char *filename)		// Book file to load initially
   //
 
   window   = new Fl_Window(470, 390, "HTMLDOC " SVERSION);
-  controls = new Fl_Group(0, 0, 465, 360);
-  tabs     = new Fl_Tabs(10, 10, 445, 260);
+  controls = new Fl_Group(0, 0, 470, 360);
+  tabs     = new Fl_Tabs(10, 10, 450, 260);
 
   //
   // Input tab...
@@ -126,57 +128,57 @@ GUI::GUI(char *filename)		// Book file to load initially
 
   group = new Fl_Group(140, 45, 150, 20, "Document Type: ");
   group->align(FL_ALIGN_LEFT);
-    typeBook = new Fl_Check_Button(140, 45, 60, 20, "Book");
+    typeBook = new CheckButton(140, 45, 60, 20, "Book");
     typeBook->type(FL_RADIO_BUTTON);
     typeBook->down_box(FL_DIAMOND_DOWN_BOX);
     typeBook->color2(FL_BLUE);
     typeBook->setonly();
     typeBook->callback((Fl_Callback *)docTypeCB, this);
 
-    typeWebPage = new Fl_Check_Button(200, 45, 90, 20, "Web Page");
+    typeWebPage = new CheckButton(200, 45, 90, 20, "Web Page");
     typeWebPage->type(FL_RADIO_BUTTON);
     typeWebPage->down_box(FL_DIAMOND_DOWN_BOX);
     typeWebPage->color2(FL_BLUE);
     typeWebPage->callback((Fl_Callback *)docTypeCB, this);
   group->end();
 
-  group = new Fl_Group(140, 70, 160, 20, "Input Files: ");
+  group = new Fl_Group(140, 70, 210, 20, "Input Files: ");
   group->align(FL_ALIGN_LEFT);
   group->end();
 
-  inputFiles = new Fl_Multi_Browser(140, 70, 160, 125);
+  inputFiles = new Fl_Multi_Browser(140, 70, 210, 125);
   inputFiles->callback((Fl_Callback *)inputFilesCB, this);
   inputFiles->when(FL_WHEN_RELEASE | FL_WHEN_NOT_CHANGED);
 
-  addFile = new Fl_Button(300, 70, 95, 25, "Add File...");
+  addFile = new Fl_Button(350, 70, 95, 25, "Add Files...");
   addFile->callback((Fl_Callback *)addFileCB, this);
 
-  editFile = new Fl_Button(300, 95, 95, 25, "Edit File...");
+  editFile = new Fl_Button(350, 95, 95, 25, "Edit Files...");
   editFile->deactivate();
   editFile->callback((Fl_Callback *)editFilesCB, this);
 
-  deleteFile = new Fl_Button(300, 120, 95, 25, "Delete File");
+  deleteFile = new Fl_Button(350, 120, 95, 25, "Delete Files");
   deleteFile->deactivate();
   deleteFile->callback((Fl_Callback *)deleteFilesCB, this);
 
-  moveUpFile = new Fl_Button(300, 145, 95, 25, "Move Up");
+  moveUpFile = new Fl_Button(350, 145, 95, 25, "Move Up");
   moveUpFile->deactivate();
   moveUpFile->callback((Fl_Callback *)moveUpFilesCB, this);
 
-  moveDownFile = new Fl_Button(300, 170, 95, 25, "Move Down");
+  moveDownFile = new Fl_Button(350, 170, 95, 25, "Move Down");
   moveDownFile->deactivate();
   moveDownFile->callback((Fl_Callback *)moveDownFilesCB, this);
 
-  logoImage = new Fl_Input(140, 205, 160, 25, "Logo Image: ");
+  logoImage = new Fl_Input(140, 205, 210, 25, "Logo Image: ");
   logoImage->callback((Fl_Callback *)logoImageCB, this);
 
-  logoBrowse = new Fl_Button(300, 205, 95, 25, "Browse...");
+  logoBrowse = new Fl_Button(350, 205, 95, 25, "Browse...");
   logoBrowse->callback((Fl_Callback *)logoImageCB, this);
 
-  titleImage = new Fl_Input(140, 235, 160, 25, "Title Image: ");
+  titleImage = new Fl_Input(140, 235, 210, 25, "Title Image: ");
   titleImage->callback((Fl_Callback *)titleImageCB, this);
 
-  titleBrowse = new Fl_Button(300, 235, 95, 25, "Browse...");
+  titleBrowse = new Fl_Button(350, 235, 95, 25, "Browse...");
   titleBrowse->callback((Fl_Callback *)titleImageCB, this);
 
   inputTab->end();
@@ -191,48 +193,48 @@ GUI::GUI(char *filename)		// Book file to load initially
 
   group = new Fl_Group(140, 45, 265, 20, "Output To: ");
   group->align(FL_ALIGN_LEFT);
-    outputFile = new Fl_Check_Button(140, 45, 50, 20, "File");
+    outputFile = new CheckButton(140, 45, 50, 20, "File");
     outputFile->type(FL_RADIO_BUTTON);
     outputFile->down_box(FL_DIAMOND_DOWN_BOX);
     outputFile->color2(FL_BLUE);
     outputFile->setonly();
     outputFile->callback((Fl_Callback *)outputTypeCB, this);
 
-    outputDirectory = new Fl_Check_Button(185, 45, 105, 20, "Directory");
+    outputDirectory = new CheckButton(185, 45, 105, 20, "Directory");
     outputDirectory->type(FL_RADIO_BUTTON);
     outputDirectory->down_box(FL_DIAMOND_DOWN_BOX);
     outputDirectory->color2(FL_BLUE);
     outputDirectory->callback((Fl_Callback *)outputTypeCB, this);
   group->end();
 
-  outputPath = new Fl_Input(140, 70, 160, 25, "Output Path: ");
+  outputPath = new Fl_Input(140, 70, 210, 25, "Output Path: ");
   outputPath->callback((Fl_Callback *)outputPathCB, this);
 
-  outputBrowse = new Fl_Button(300, 70, 95, 25, "Browse...");
+  outputBrowse = new Fl_Button(350, 70, 95, 25, "Browse...");
   outputBrowse->callback((Fl_Callback *)outputPathCB, this);
 
   group = new Fl_Group(140, 100, 255, 20, "Output Format: ");
   group->align(FL_ALIGN_LEFT);
-    typeHTML = new Fl_Check_Button(140, 100, 50, 20, "HTML");
+    typeHTML = new CheckButton(140, 100, 50, 20, "HTML");
     typeHTML->type(FL_RADIO_BUTTON);
     typeHTML->down_box(FL_DIAMOND_DOWN_BOX);
     typeHTML->color2(FL_BLUE);
     typeHTML->setonly();
     typeHTML->callback((Fl_Callback *)outputFormatCB, this);
 
-    typePS1 = new Fl_Check_Button(200, 100, 40, 20, "PS");
+    typePS1 = new CheckButton(200, 100, 40, 20, "PS");
     typePS1->type(FL_RADIO_BUTTON);
     typePS1->down_box(FL_DIAMOND_DOWN_BOX);
     typePS1->color2(FL_BLUE);
     typePS1->callback((Fl_Callback *)outputFormatCB, this);
 
-    typePS2 = new Fl_Check_Button(240, 100, 45, 20, "PS2");
+    typePS2 = new CheckButton(240, 100, 45, 20, "PS2");
     typePS2->type(FL_RADIO_BUTTON);
     typePS2->down_box(FL_DIAMOND_DOWN_BOX);
     typePS2->color2(FL_BLUE);
     typePS2->callback((Fl_Callback *)outputFormatCB, this);
 
-    typePDF = new Fl_Check_Button(290, 100, 50, 20, "PDF");
+    typePDF = new CheckButton(290, 100, 50, 20, "PDF");
     typePDF->type(FL_RADIO_BUTTON);
     typePDF->down_box(FL_DIAMOND_DOWN_BOX);
     typePDF->color2(FL_BLUE);
@@ -243,32 +245,32 @@ GUI::GUI(char *filename)		// Book file to load initially
   group->align(FL_ALIGN_LEFT);
   group->end();
 
-  grayscale = new Fl_Check_Button(140, 125, 90, 20, "Grayscale");
+  grayscale = new CheckButton(140, 125, 90, 20, "Grayscale");
   grayscale->down_box(FL_ROUND_DOWN_BOX);
   grayscale->callback((Fl_Callback *)changeCB, this);
 
-  compression = new Fl_Check_Button(230, 125, 110, 20, "Compression");
+  compression = new CheckButton(230, 125, 110, 20, "Compression");
   compression->down_box(FL_ROUND_DOWN_BOX);
   compression->callback((Fl_Callback *)changeCB, this);
 
-  titlePage = new Fl_Check_Button(140, 150, 90, 20, "Title Page");
+  titlePage = new CheckButton(140, 150, 90, 20, "Title Page");
   titlePage->down_box(FL_ROUND_DOWN_BOX);
   titlePage->callback((Fl_Callback *)changeCB, this);
 
-  jpegCompress = new Fl_Check_Button(230, 150, 140, 20, "JPEG Big Images");
+  jpegCompress = new CheckButton(230, 150, 140, 20, "JPEG Big Images");
   jpegCompress->down_box(FL_ROUND_DOWN_BOX);
   jpegCompress->callback((Fl_Callback *)jpegCB, this);
 
-  bodyColor = new Fl_Input(140, 175, 160, 25, "Body Color: ");
+  bodyColor = new Fl_Input(140, 175, 210, 25, "Body Color: ");
   bodyColor->callback((Fl_Callback *)bodyColorCB, this);
 
-  bodyLookup = new Fl_Button(300, 175, 95, 25, "Lookup...");
+  bodyLookup = new Fl_Button(350, 175, 95, 25, "Lookup...");
   bodyLookup->callback((Fl_Callback *)bodyColorCB, this);
 
-  bodyImage = new Fl_Input(140, 205, 160, 25, "Body Image: ");
+  bodyImage = new Fl_Input(140, 205, 210, 25, "Body Image: ");
   bodyImage->callback((Fl_Callback *)bodyImageCB, this);
 
-  bodyBrowse = new Fl_Button(300, 205, 95, 25, "Browse...");
+  bodyBrowse = new Fl_Button(350, 205, 95, 25, "Browse...");
   bodyBrowse->callback((Fl_Callback *)bodyImageCB, this);
 
   outputTab->end();
@@ -283,7 +285,7 @@ GUI::GUI(char *filename)		// Book file to load initially
   pageSize = new Fl_Input(140, 45, 120, 25, "Page Size: ");
   pageSize->callback((Fl_Callback *)changeCB, this);
 
-  pageDuplex = new Fl_Check_Button(265, 48, 130, 20, "Double-sided");
+  pageDuplex = new CheckButton(265, 48, 130, 20, "Double-sided");
   pageDuplex->down_box(FL_ROUND_DOWN_BOX);
   pageDuplex->callback((Fl_Callback *)changeCB, this);
 
@@ -300,27 +302,27 @@ GUI::GUI(char *filename)		// Book file to load initially
   pageBottom = new Fl_Input(225, 140, 60, 25, "Bottom");
   pageBottom->callback((Fl_Callback *)changeCB, this);
 
-  pageHeaderLeft = new Fl_Choice(140, 170, 80, 25, "Header: ");
+  pageHeaderLeft = new Fl_Choice(140, 170, 95, 25, "Header: ");
   pageHeaderLeft->menu(formatMenu);
   pageHeaderLeft->callback((Fl_Callback *)changeCB, this);
 
-  pageHeaderCenter = new Fl_Choice(225, 170, 80, 25);
+  pageHeaderCenter = new Fl_Choice(240, 170, 95, 25);
   pageHeaderCenter->menu(formatMenu);
   pageHeaderCenter->callback((Fl_Callback *)changeCB, this);
 
-  pageHeaderRight = new Fl_Choice(310, 170, 80, 25);
+  pageHeaderRight = new Fl_Choice(340, 170, 95, 25);
   pageHeaderRight->menu(formatMenu);
   pageHeaderRight->callback((Fl_Callback *)changeCB, this);
 
-  pageFooterLeft = new Fl_Choice(140, 200, 80, 25, "Footer: ");
+  pageFooterLeft = new Fl_Choice(140, 200, 95, 25, "Footer: ");
   pageFooterLeft->menu(formatMenu);
   pageFooterLeft->callback((Fl_Callback *)changeCB, this);
 
-  pageFooterCenter = new Fl_Choice(225, 200, 80, 25);
+  pageFooterCenter = new Fl_Choice(240, 200, 95, 25);
   pageFooterCenter->menu(formatMenu);
   pageFooterCenter->callback((Fl_Callback *)changeCB, this);
 
-  pageFooterRight = new Fl_Choice(310, 200, 80, 25);
+  pageFooterRight = new Fl_Choice(340, 200, 95, 25);
   pageFooterRight->menu(formatMenu);
   pageFooterRight->callback((Fl_Callback *)changeCB, this);
 
@@ -337,31 +339,31 @@ GUI::GUI(char *filename)		// Book file to load initially
   tocLevels->menu(tocMenu);
   tocLevels->callback((Fl_Callback *)changeCB, this);
 
-  numberedToc = new Fl_Check_Button(245, 47, 160, 20, "Numbered Headings");
+  numberedToc = new CheckButton(245, 47, 160, 20, "Numbered Headings");
   numberedToc->down_box(FL_ROUND_DOWN_BOX);
   numberedToc->callback((Fl_Callback *)changeCB, this);
 
-  tocHeaderLeft = new Fl_Choice(140, 75, 80, 25, "Header: ");
+  tocHeaderLeft = new Fl_Choice(140, 75, 95, 25, "Header: ");
   tocHeaderLeft->menu(formatMenu);
   tocHeaderLeft->callback((Fl_Callback *)changeCB, this);
 
-  tocHeaderCenter = new Fl_Choice(225, 75, 80, 25);
+  tocHeaderCenter = new Fl_Choice(240, 75, 95, 25);
   tocHeaderCenter->menu(formatMenu);
   tocHeaderCenter->callback((Fl_Callback *)changeCB, this);
 
-  tocHeaderRight = new Fl_Choice(310, 75, 80, 25);
+  tocHeaderRight = new Fl_Choice(340, 75, 95, 25);
   tocHeaderRight->menu(formatMenu);
   tocHeaderRight->callback((Fl_Callback *)changeCB, this);
 
-  tocFooterLeft = new Fl_Choice(140, 105, 80, 25, "Footer: ");
+  tocFooterLeft = new Fl_Choice(140, 105, 95, 25, "Footer: ");
   tocFooterLeft->menu(formatMenu);
   tocFooterLeft->callback((Fl_Callback *)changeCB, this);
 
-  tocFooterCenter = new Fl_Choice(225, 105, 80, 25);
+  tocFooterCenter = new Fl_Choice(240, 105, 95, 25);
   tocFooterCenter->menu(formatMenu);
   tocFooterCenter->callback((Fl_Callback *)changeCB, this);
 
-  tocFooterRight = new Fl_Choice(310, 105, 80, 25);
+  tocFooterRight = new Fl_Choice(340, 105, 95, 25);
   tocFooterRight->menu(formatMenu);
   tocFooterRight->callback((Fl_Callback *)changeCB, this);
 
@@ -426,6 +428,7 @@ GUI::GUI(char *filename)		// Book file to load initially
 
   psTab = new Fl_Group(10, 35, 450, 220, "PS");
   psTab->hide();
+  psTab->deactivate();
 
   psTab->end();
 
@@ -435,6 +438,7 @@ GUI::GUI(char *filename)		// Book file to load initially
 
   pdfTab = new Fl_Group(10, 35, 450, 220, "PDF");
   pdfTab->hide();
+  pdfTab->deactivate();
 
   compressionLevel = new Fl_Slider(140, 45, 180, 25, "Compression: ");
   compressionLevel->align(FL_ALIGN_LEFT);
@@ -456,13 +460,13 @@ GUI::GUI(char *filename)		// Book file to load initially
   pdfVersion = new Fl_Group(140, 85, 255, 20, "PDF Version: ");
   pdfVersion->align(FL_ALIGN_LEFT);
 
-    pdf11 = new Fl_Check_Button(140, 85, 125, 20, "1.1 (Acrobat 2.x)");
+    pdf11 = new CheckButton(140, 85, 125, 20, "1.1 (Acrobat 2.x)");
     pdf11->type(FL_RADIO_BUTTON);
     pdf11->down_box(FL_DIAMOND_DOWN_BOX);
     pdf11->color2(FL_BLUE);
     pdf11->callback((Fl_Callback *)pdfCB, this);
 
-    pdf12 = new Fl_Check_Button(270, 85, 125, 20, "1.2 (Acrobat 3.x)");
+    pdf12 = new CheckButton(270, 85, 125, 20, "1.2 (Acrobat 3.x)");
     pdf12->type(FL_RADIO_BUTTON);
     pdf12->down_box(FL_DIAMOND_DOWN_BOX);
     pdf12->color2(FL_BLUE);
@@ -479,14 +483,14 @@ GUI::GUI(char *filename)		// Book file to load initially
   optionsTab = new Fl_Group(10, 35, 450, 220, "Options");
   optionsTab->hide();
 
-  htmlEditor = new Fl_Input(140, 45, 160, 25, "HTML Editor: ");
+  htmlEditor = new Fl_Input(140, 45, 210, 25, "HTML Editor: ");
   htmlEditor->value(HTMLEditor);
   htmlEditor->callback((Fl_Callback *)htmlEditorCB, this);
 
-  htmlBrowse = new Fl_Button(300, 45, 95, 25, "Browse...");
+  htmlBrowse = new Fl_Button(350, 45, 95, 25, "Browse...");
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
 
-  jpegQuality = new Fl_Value_Slider(140, 75, 180, 25, "JPEG Quality: ");
+  jpegQuality = new Fl_Value_Slider(140, 75, 305, 25, "JPEG Quality: ");
   jpegQuality->align(FL_ALIGN_LEFT);
   jpegQuality->type(FL_HOR_NICE_SLIDER);
   jpegQuality->minimum(50.0);
@@ -499,7 +503,7 @@ GUI::GUI(char *filename)		// Book file to load initially
   label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
   label->labelsize(10);
 
-  label = new Fl_Box(280, 100, 40, 10, "Best");
+  label = new Fl_Box(405, 100, 40, 10, "Best");
   label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
   label->labelsize(10);
 
@@ -547,11 +551,8 @@ GUI::GUI(char *filename)		// Book file to load initially
           "HTMLDOC " SVERSION " Copyright 1997-1999 Mike Sweet (mike@easysw.com). This "
 	  "program is free software; you can redistribute it and/or modify it "
 	  "under the terms of the GNU General Public License as published by "
-	  "the Free Software Foundation."
-#ifdef HAVE_LIBJPEG
-          " This software is based in part on the work of the Independent JPEG "
-	  "Group."
-#endif // HAVE_LIBJPEG
+	  "the Free Software Foundation. This software is based in part on the "
+	  "work of the Independent JPEG Group."
 	  );
   label->labelsize(10);
   label->align(FL_ALIGN_TOP | FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
@@ -578,8 +579,6 @@ GUI::GUI(char *filename)		// Book file to load initially
   // Set the class name to "htmldoc".
   window->xclass("htmldoc");
 
-  // The "icon()" member function is only available in the latest
-  // beta version (and/or production versions) of FLTK!
 #  ifdef WIN32
   // Load the HTMLDOC icon image...
   window->icon((char *)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON)));
@@ -592,10 +591,13 @@ GUI::GUI(char *filename)		// Book file to load initially
 #  endif // WIN32
 
   window->resizable(tabs);
-  window->size_range(465, 390);
+  window->size_range(470, 390);
   window->show(1, htmldoc);
 
-  Fl::check();
+  fc = new FileChooser(".", "*", FileChooser::SINGLE, "Title");
+
+  while (window->damage())
+    Fl::check();
 
   //
   // Load the given book or create a new one...
@@ -619,6 +621,7 @@ GUI::~GUI(void)
   checkSave();
 
   delete window;
+  delete fc;
 }
 
 
@@ -668,8 +671,8 @@ GUI::progress(int  percent,	// I - Percent complete
 //
 
 void
-GUI::title(char *filename,	// Name of file being edited
-           int  changed)	// Whether or not the file is modified
+GUI::title(const char *filename,// Name of file being edited
+           int        changed)	// Whether or not the file is modified
 {
   static char	title[1024];	// Title string
 
@@ -750,7 +753,7 @@ GUI::newBook(void)
   pageHeaderCenter->value(1);	/* Title */
   pageHeaderRight->value(0);	/* Blank */
 
-  pageFooterLeft->value(2);	/* Heading */
+  pageFooterLeft->value(3);	/* Heading */
   pageFooterCenter->value(0);	/* Blank */
   pageFooterRight->value(4);	/* 1,2,3,... */
 
@@ -761,7 +764,7 @@ GUI::newBook(void)
   tocHeaderCenter->value(1);	/* Title */
   tocHeaderRight->value(0);	/* Blank */
 
-  tocFooterLeft->value(2);	/* Heading */
+  tocFooterLeft->value(3);	/* Heading */
   tocFooterCenter->value(0);	/* Blank */
   tocFooterRight->value(5);	/* i,ii,iii,... */
 
@@ -777,8 +780,8 @@ GUI::newBook(void)
 // 'GUI::loadBook()' - Load a book file from disk.
 //
 
-int				// O - 1 = success, 0 = fail
-GUI::loadBook(char *filename)	// I - Name of book file
+int					// O - 1 = success, 0 = fail
+GUI::loadBook(const char *filename)	// I - Name of book file
 {
   int		i,
 		count;
@@ -1078,8 +1081,8 @@ GUI::loadBook(char *filename)	// I - Name of book file
 // 'GUI::saveBook()' - Save a book to disk.
 //
 
-int				// O - 1 = success, 0 = fail
-GUI::saveBook(char *filename)	// I - Name of book file
+int					// O - 1 = success, 0 = fail
+GUI::saveBook(const char *filename)	// I - Name of book file
 {
   int		i,			// Looping var
 		count;			// Number of files
@@ -1360,22 +1363,24 @@ void
 addFileCB(Fl_Widget *w,		// I - Widget
           GUI       *gui)	// I - GUI
 {
-  char		*filename;		// New file to load
-  static char	lastfile[1024] = "";	// Last file picked
+  int	i;			// Looping var
 
 
   REF(w);
 
-  if ((filename = fl_file_chooser("HTML File?", "*.htm*", lastfile)) != NULL)
-  {
-    gui->inputFiles->add(filename);
+  gui->fc->filter("*.htm*");
+  gui->fc->type(FileChooser::MULTI);
+  gui->fc->label("Add HTML Files?");
+  gui->fc->show();
+  while (gui->fc->visible())
+    Fl::wait();
+
+  if (gui->fc->count())
+  {    
+    for (i = 1; i <= gui->fc->count(); i ++)
+      gui->inputFiles->add(gui->fc->value(i));
+
     gui->title(gui->book_filename, 1);
-
-    //
-    // Copy the filename over, then delete the filename component as needed.
-    //
-
-    strcpy(lastfile, file_directory(filename));
   }
 }
 
@@ -1528,16 +1533,18 @@ void
 logoImageCB(Fl_Widget *w,	// I - Widget
             GUI       *gui)	// I - GUI
 {
-  char	*filename;		// Filename from chooser
-
-
   if (w == gui->logoBrowse)
   {
-    filename = fl_file_chooser("Logo Image?", "*.{gif|GIF|jpg|JPG|png|PNG}", NULL);
+    gui->fc->filter("*.{gif|jpg|png}");
+    gui->fc->label("Logo Image?");
+    gui->fc->type(FileChooser::SINGLE);
+    gui->fc->show();
+    while (gui->fc->visible())
+      Fl::wait();
 
-    if (filename != NULL)
+    if (gui->fc->count())
     {
-      gui->logoImage->value(filename);
+      gui->logoImage->value(gui->fc->value());
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1554,16 +1561,18 @@ void
 titleImageCB(Fl_Widget *w,	// I - Widget
              GUI       *gui)	// I - GUI
 {
-  char	*filename;		// Filename from chooser
-
-
   if (w == gui->titleBrowse)
   {
-    filename = fl_file_chooser("Title Image?", "*.{gif|GIF|jpg|JPG|png|PNG}", NULL);
+    gui->fc->filter("*.{gif|jpg|png}");
+    gui->fc->label("Title Image?");
+    gui->fc->type(FileChooser::SINGLE);
+    gui->fc->show();
+    while (gui->fc->visible())
+      Fl::wait();
 
-    if (filename != NULL)
+    if (gui->fc->count())
     {
-      gui->titleImage->value(filename);
+      gui->titleImage->value(gui->fc->value());
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1605,21 +1614,25 @@ void
 outputPathCB(Fl_Widget *w,	// I - Widget
              GUI       *gui)	// I - GUI
 {
-  char	*filename;		// Filename from chooser
-
-
   if (w == gui->outputBrowse)
   {
-    if (gui->typeHTML->value())
-      filename = fl_file_chooser("Output Path?", "*.htm*", NULL);
-    else if (gui->typePDF->value())
-      filename = fl_file_chooser("Output Path?", "*.pdf", NULL);
-    else
-      filename = fl_file_chooser("Output Path?", "*.ps", NULL);
+    gui->fc->label("Output Path?");
+    gui->fc->type(FileChooser::SINGLE);
 
-    if (filename != NULL)
+    if (gui->typeHTML->value())
+      gui->fc->filter("*.htm*");
+    else if (gui->typePDF->value())
+      gui->fc->filter("*.pdf");
+    else
+      gui->fc->filter("*.ps");
+
+    gui->fc->show();
+    while (gui->fc->visible())
+      Fl::wait();
+
+    if (gui->fc->count())
     {
-      gui->outputPath->value(filename);
+      gui->outputPath->value(gui->fc->value());
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1640,20 +1653,16 @@ outputFormatCB(Fl_Widget *w,
 
   if (w == gui->typePDF)
   {
-    if (gui->pdf12->value())
-    {
-      gui->compression->value(1);
-      gui->compression->activate();
-      gui->compressionLevel->activate();
-    }
+    gui->pdfTab->activate();
+    gui->compression->value(1);
 
     gui->outputDirectory->deactivate();
   }
   else
   {
+    gui->pdfTab->deactivate();
     gui->compression->value(0);
-    gui->compression->deactivate();
-    gui->compressionLevel->deactivate();
+
     gui->outputDirectory->activate();
   }
 
@@ -1769,27 +1778,34 @@ void
 htmlEditorCB(Fl_Widget *w,	// I - Widget
              GUI       *gui)	// I - GUI
 {
-  char	*filename;		// New HTML editor file
-  char	command[1024];		// Command string
+  const char	*filename;	// New HTML editor file
+  char		command[1024];	// Command string
 
 
   if (w == gui->htmlBrowse)
   {
-#  ifdef WIN32
-    filename = fl_file_chooser("HTML Editor?", "*.exe", NULL);
+#  if defined(WIN32) || defined(__EMX__)
+    gui->fc->filter("*.exe");
 #  else
-    filename = fl_file_chooser("HTML Editor?", "*", NULL);
-#  endif // WIN32
+    gui->fc->filter("*");
+#  endif // WIN32 || __EMX__
+    gui->fc->label("HTML Editor?");
+    gui->fc->type(FileChooser::SINGLE);
+    gui->fc->show();
+    while (gui->fc->visible())
+      Fl::wait();
 
-    if (filename != NULL)
+    if (gui->fc->count())
     {
+      filename = gui->fc->value();
+
       if (strstr(filename, "netscape") != NULL ||
           strstr(filename, "NETSCAPE") != NULL)
-#ifdef WIN32
+#if defined(WIN32) || defined(__EMX__)
         sprintf(command, "%s -edit %%s", filename);
 #else
         sprintf(command, "%s -remote \'editFile(%%s)\'", filename);
-#endif // WIN32
+#endif // WIN32 || __EMX__
       else
         sprintf(command, "%s %%s", filename);
 
@@ -1849,16 +1865,18 @@ void
 bodyImageCB(Fl_Widget *w,	// I - Widget
             GUI       *gui)	// I - GUI
 {
-  char	*filename;		// Filename from chooser
-
-
   if (w == gui->bodyBrowse)
   {
-    filename = fl_file_chooser("Body Image?", "*", NULL);
+    gui->fc->filter("*.{gif|jpg|png}");
+    gui->fc->label("Body Image?");
+    gui->fc->type(FileChooser::SINGLE);
+    gui->fc->show();
+    while (gui->fc->visible())
+      Fl::wait();
 
-    if (filename != NULL)
+    if (gui->fc->count())
     {
-      gui->bodyImage->value(filename);
+      gui->bodyImage->value(gui->fc->value());
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1902,14 +1920,17 @@ void
 openBookCB(Fl_Widget *w,	// I - Widget
            GUI       *gui)	// I - GUI
 {
-  char	*filename;		// New book file
-
-
   REF(w);
 
-  filename = fl_file_chooser("Book File?", "*.book", gui->book_filename);
-  if (filename != NULL)
-    gui->loadBook(filename);
+  gui->fc->filter("*.book");
+  gui->fc->label("Book File?");
+  gui->fc->type(FileChooser::SINGLE);
+  gui->fc->show();
+  while (gui->fc->visible())
+    Fl::wait();
+
+  if (gui->fc->count())
+    gui->loadBook(gui->fc->value());
 }
 
 
@@ -1936,18 +1957,49 @@ void
 saveAsBookCB(Fl_Widget *w,	// I - Widget
              GUI       *gui)	// I - GUI
 {
-  char	*filename;		// New book file
+  const char	*filename;	// Book filename
+  char		*newfile;	// New filename
+  char		*dir;		// Book directory
 
 
   REF(w);
 
-  filename = fl_file_chooser("Book File?", "*.book", gui->book_filename);
+  gui->fc->filter("*.book");
+  gui->fc->label("Book File?");
+  gui->fc->type(FileChooser::CREATE);
+  gui->fc->show();
+  while (gui->fc->visible())
+    Fl::wait();
 
-  if (filename != NULL)
+  if (gui->fc->count())
   {
+    filename = gui->fc->value();
+
     if (access(filename, 0) == 0)
       if (!fl_ask("File already exists!  OK to overwrite?"))
 	return;
+
+    dir = file_directory(filename);
+
+    for (int i = 1; i <= gui->inputFiles->size(); i ++)
+    {
+      newfile = file_localize((char *)gui->inputFiles->text(i), dir);
+      gui->inputFiles->text(i, newfile);
+    }
+
+    newfile = file_localize((char *)gui->logoImage->value(), dir);
+    gui->logoImage->value(newfile);
+
+    newfile = file_localize((char *)gui->titleImage->value(), dir);
+    gui->titleImage->value(newfile);
+
+    newfile = file_localize((char *)gui->bodyImage->value(), dir);
+    gui->bodyImage->value(newfile);
+
+    newfile = file_localize((char *)gui->outputPath->value(), dir);
+    gui->outputPath->value(newfile);
+
+    chdir(dir);
 
     gui->saveBook(filename);
   }
@@ -2043,6 +2095,9 @@ generateBookCB(Fl_Widget *w,	// I - Widget
     PDFVersion = 1.1;
   else
     PDFVersion = 1.2;
+
+  strcpy(BodyColor, gui->bodyColor->value());
+  strcpy(BodyImage, gui->bodyImage->value());
 
  /*
   * Load the input files...
@@ -2170,8 +2225,76 @@ closeBookCB(Fl_Widget *w,	// I - Widget
 }
 
 
+static char *
+file_localize(char *filename,
+              char *newcwd)
+{
+  char		*newslash, *slash;
+  char		cwd[1024];
+  char		temp[1024];
+  static char	newfilename[1024];
+
+
+  if (filename[0] == '\0')
+    return ("");
+
+  getcwd(cwd, sizeof(cwd));
+  if (newcwd == NULL)
+    newcwd = cwd;
+
+#if defined(WIN32) || defined(__EMX__)
+  if (filename[0] != '/' &&
+      filename[0] != '\\' &&
+      !(isalpha(filename[0]) && filename[1] == ':'))
+#else
+  if (filename[0] != '/')
+#endif /* WIN32 || __EMX__ */
+    sprintf(temp, "%s/%s", cwd, filename);
+  else
+    strcpy(temp, filename);
+
+//  printf("temp = \'%s\'\n", temp);
+//  printf("newcwd = \'%s\'\n", newcwd);
+
+  for (slash = temp, newslash = newcwd;
+       *slash != '\0' && *newslash != '\0';
+       slash ++, newslash ++)
+    if ((*slash == '/' || *slash == '\\') &&
+        (*newslash == '/' || *newslash == '\\'))
+      continue;
+    else if (*slash != *newslash)
+      break;
+
+  while (*slash != '/' && *slash != '\\' && slash > temp)
+    slash --;
+
+  slash ++;
+
+//  printf("slash = \'%s\'\n", slash);
+
+  if (*newslash != '\0')
+    while (*newslash != '/' && *newslash != '\\' && newslash > newcwd)
+      newslash --;
+
+//  printf("newslash = \'%s\'\n", newslash);
+
+  newfilename[0] = '\0';
+
+  while (*newslash != '\0')
+  {
+    if (*newslash == '/' || *newslash == '\\')
+      strcat(newfilename, "../");
+    newslash ++;
+  }
+
+  strcat(newfilename, slash);
+
+  return (newfilename);
+}
+
+
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.1 1999/11/08 18:35:16 mike Exp $".
+// End of "$Id: gui.cxx,v 1.2 1999/11/08 22:11:34 mike Exp $".
 //
