@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.220 2003/04/30 15:48:17 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.221 2003/04/30 16:06:49 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7493,11 +7493,11 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
         if (!Landscape)
 	{
 	  *top            = PageLength - PageTop - *top;
-	  PagePrintLength = PageWidth - PageTop - PageLeft;
+	  PagePrintLength = PageWidth - PageTop - PageBottom;
 	  *top            = PageWidth - PageTop - *top;
 
 	  *right         = PageWidth - PageRight - *right;
-	  PagePrintWidth = PageLength - PageRight - PageBottom;
+	  PagePrintWidth = PageLength - PageRight - PageLeft;
 	  *right         = PageLength - PageRight - *right;
         }
 
@@ -12101,5 +12101,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.220 2003/04/30 15:48:17 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.221 2003/04/30 16:06:49 mike Exp $".
  */

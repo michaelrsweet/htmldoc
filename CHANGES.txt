@@ -31,6 +31,8 @@ CHANGES IN HTMLDOC v1.8.24
 
     BUG FIXES
 
+	- Switching between landscape and portrait orientations
+	  would cause margin creepage.
 	- Images did not default to align=bottom, and the
 	  align=bottom line spacing calculation was incorrect.
 	- Whitespace before a link was underlined.
