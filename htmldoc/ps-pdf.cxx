@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.235 2004/03/02 03:35:30 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.236 2004/03/02 15:52:46 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5510,7 +5510,8 @@ parse_table(tree_t *t,			// I - Tree to parse
   tree_t	*temprow,
 		*tempcol,
 		*tempnext,
-		***cells;
+		***cells,
+		*caption;		// Caption for bottom, if any
   int		do_valign;		// True if we should do vertical alignment of cells
   float		row_height,		// Total height of the row
 		temp_height;		// Temporary holder
@@ -5625,7 +5626,7 @@ parse_table(tree_t *t,			// I - Tree to parse
   memset(row_spans, 0, sizeof(row_spans));
   memset(span_heights, 0, sizeof(span_heights));
 
-  for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0;
+  for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0, caption = NULL;
        temprow != NULL;
        temprow = tempnext)
   {
@@ -5633,8 +5634,24 @@ parse_table(tree_t *t,			// I - Tree to parse
 
     if (temprow->markup == MARKUP_CAPTION)
     {
-      parse_paragraph(temprow, left, right, bottom, top, x, y, page, needspace);
-      needspace = 1;
+      if ((var = htmlGetVariable(temprow, (uchar *)"ALIGN")) == NULL ||
+          strcasecmp((char *)var, "bottom"))
+      {
+       /*
+        * Show caption at top...
+	*/
+
+        parse_paragraph(temprow, left, right, bottom, top, x, y, page, needspace);
+        needspace = 1;
+      }
+      else
+      {
+       /*
+        * Flag caption for bottom of table...
+	*/
+
+        caption = temprow;
+      }
     }
     else if (temprow->markup == MARKUP_TR ||
              ((temprow->markup == MARKUP_TBODY || temprow->markup == MARKUP_THEAD ||
@@ -6752,6 +6769,16 @@ parse_table(tree_t *t,			// I - Tree to parse
   }
 
   *x = left;
+
+  if (caption)
+  {
+   /*
+    * Show caption at bottom...
+    */
+
+    parse_paragraph(caption, left, right, bottom, top, x, y, page, needspace);
+    needspace = 1;
+  }
 
  /*
   * Free memory for the table...
@@ -12285,5 +12312,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.235 2004/03/02 03:35:30 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.236 2004/03/02 15:52:46 mike Exp $".
  */

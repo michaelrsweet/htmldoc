@@ -1,4 +1,4 @@
-README.txt - 02/10/2004
+README.txt - 03/02/2004
 -----------------------
 
 INTRODUCTION
@@ -189,7 +189,6 @@ CURRENT LIMITATIONS
 
     - No support for style sheets.
     - No support for HTML forms.
-    - CAPTIONs are always shown at the top of the table.
     - HTML 4.0 table elements and attributes are not supported
       (rules, THEAD, TFOOT, etc.)
 
