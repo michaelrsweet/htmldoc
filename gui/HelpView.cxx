@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.7 1999/10/25 18:40:11 mike Exp $"
+// "$Id: HelpView.cxx,v 1.8 1999/11/14 14:58:32 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -1094,7 +1094,7 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
     if (*p == '>' || !*p)
       return (NULL);
 
-    for (ptr = name; *p && !isspace(*p) && *p != '=';)
+    for (ptr = name; *p && !isspace(*p) && *p != '=' && *p != '>';)
       if (ptr < (name + sizeof(name) - 1))
         *ptr++ = *p++;
       else
@@ -1102,7 +1102,7 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
 
     *ptr = '\0';
 
-    if (isspace(*p) || !*p)
+    if (isspace(*p) || !*p || *p == '>')
       buf[0] = '\0';
     else
     {
@@ -1133,6 +1133,9 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
 
     if (strcasecmp(n, name) == 0)
       return (buf);
+
+    if (*p == '>')
+      return (NULL);
   }
 
   return (NULL);
@@ -1414,5 +1417,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.7 1999/10/25 18:40:11 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.8 1999/11/14 14:58:32 mike Exp $".
 //
