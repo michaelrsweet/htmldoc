@@ -1,0 +1,634 @@
+<HTML>
+<HEAD>
+	<TITLE>HTMLDOC On-Line Help</TITLE>
+	<STYLE>
+	BODY { font-family: serif }
+	H1, H2, H3, H4, H5, H6 { font-family: sans-serif }
+	SUP, SUB, PRE { font-size: smaller }
+	</STYLE>
+</HEAD>
+<BODY>
+
+<H1><A NAME="CONTENTS">HTMLDOC On-Line Help</A></H1>
+
+<UL>
+
+	<LI><A HREF="#LOADSAVE">Loading and Saving Books</A>
+
+	<LI><A HREF="#INPUT">The Input Tab</A>
+
+	<LI><A HREF="#OUTPUT">The Output Tab</A>
+
+	<LI><A HREF="#PAGE">The Page Tab</A>
+
+	<LI><A HREF="#TOC">The TOC Tab</A>
+
+	<LI><A HREF="#COLORS">The Colors Tab</A>
+
+	<LI><A HREF="#FONTS">The Fonts Tab</A>
+
+	<LI><A HREF="#PS">The PS Tab</A>
+
+	<LI><A HREF="#PDF">The PDF Tab</A>
+
+	<LI><A HREF="#SECURITY">The Security Tab</A>
+
+	<LI><A HREF="#OPTIONS">The Options Tab</A>
+
+</UL>
+
+<HR>
+
+<P><A NAME="LOADSAVE"><A HREF="#CONTENTS">Contents</A></A>
+
+<H1>Loading and Saving Books</H1>
+
+HTMLDOC stores the HTML files, settings, and options you have
+chosen in <CODE>.BOOK</CODE> files.  The buttons on the bottom of the
+HTMLDOC window allow you manage these files and generate
+formatted documents.
+
+<TABLE>
+<TR>
+	<TH WIDTH="80">Button</TH>
+	<TH WIDTH="300">Description</TH>
+</TR>
+<TR>
+	<TD>Help</TD>
+	<TD>Displays this on-line help.</TD>
+</TR>
+<TR>
+	<TD>New</TD>
+	<TD>Creates a new <CODE>.BOOK</CODE> file.</TD>
+</TR>
+<TR>
+	<TD>Open...</TD>
+	<TD>Opens an existing <CODE>.BOOK</CODE> file.</TD>
+</TR>
+<TR>
+	<TD>Save</TD>
+	<TD>Saves the current <CODE>.BOOK</CODE> file to disk.</TD>
+</TR>
+<TR>
+	<TD>Save As...</TD>
+	<TD>Saves the current <CODE>.BOOK</CODE> file to disk using
+	the name you specify.</TD>
+</TR>
+<TR>
+	<TD>Generate</TD>
+	<TD>Generates the current <CODE>.BOOK</CODE> file into a HTML,
+	PDF, or PostScript file.</TD>
+</TR>
+<TR>
+	<TD>Close</TD>
+	<TD>Exits HTMLDOC.</TD>
+</TR>
+</TABLE>
+
+<HR>
+
+<P><A NAME="INPUT"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The Input Tab</H1>
+
+The input tab lists all of the HTML source files that are used to
+generate the document. You can also specify the type of document (book
+or web page) and the title and logo images.
+
+<H2>Setting the Document Type</H2>
+
+Normally HTMLDOC generates indexed documents from your
+structured HTML files. To convert a single unstructured document
+(or "web page") click on the <I>Continuous</I> or <I>Web
+Page</I> radio buttons. The <I>Web Page</I> type inserts page
+breaks between each file or URL, while the <I>Continuous</I>
+type does not.
+
+<P>Structured HTML files use heading elements (<CODE>H1</CODE>,
+<CODE>H2</CODE>, etc.) to delineate chapters and headings within a
+document.
+
+<H2>Adding HTML Input Files</H2>
+
+<P>Click on the <I>Add File(s)...</I> button to add one or more
+HTML files to your <CODE>.BOOK</CODE> file.
+
+<H2>Adding URLs</H2>
+
+<P>Click on the <I>Add URL(s)...</I> button to add one or more URLs
+to your <CODE>.BOOK</CODE> file.
+
+<H2>Deleting HTML Input Files</H2>
+
+Highlight the file(s) in the input file list and then click on
+the <I>Delete</I> button to remove one or more HTML files from your
+document . The files are removed from your document but are <I>not</I>
+deleted from disk.
+
+<H2>Editing HTML Input Files</H2>
+
+Hightlight the file(s) in the input file list and then click on the
+<I>Edit...</I> button to edit one or more HTML files in your document.
+By default this starts the <I>nedit</I> editor under UNIX and the
+<I>Notepad</I> editor under Windows.
+
+<P>The editor can be changed in the <A HREF="#OPTIONS">Options Tab</A>.
+
+<H2>Moving HTML Input Files</H2>
+
+Highlight the file(s) in the input file list and then click on the <I>Move
+Up</I> or <I>Move Down</I> buttons to change the order of the input files.
+
+<H2>Selecting a Logo Image</H2>
+
+The logo image can be shown in the header or footer of pages in the
+PostScript and PDF output files.  Click on the <I>Browse</I> button
+to select a logo image file using the file chooser.
+
+<H3>Selecting a Title File or Image</H3>
+
+The title file or image is used for the title page. Click on the
+<I>Browse</I> button to select a title file using the file chooser.
+
+<HR>
+
+<P><A NAME="OUTPUT"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The Output Tab</H1>
+
+The output tab specifies where your document will be generated, the output
+format, and some of the output options.
+
+<H2>Selecting File or Directory Generation</H2>
+
+HTMLDOC can generate a single HTML, PDF, or PostScript file,
+or a series of files to a directory when generating HTML or PostScript
+output.
+
+<P>Click on the <I>File</I> radio button to select single file output.
+Click on the <I>Directory</I> radio button to generate multiple files
+to a directory.
+
+<H2>Selecting an Output File or Directory</H2>
+
+The output file is the HTML, PostScript, or PDF file you wish to
+generate from your HTML files. Click on the <I>Browse</I> button
+to select an output file using the file chooser.
+
+<H2>Selecting the Output Format</H2>
+
+Click on the corresponding <I>Output Type</I> radio button to
+select an output format. You can select the PostScript language level in
+the <A HREF="#PS">PS Tab</A> and the PDF version in the <A HREF="#PDF">PDF
+Tab</A>.
+
+<H2>Selecting Grayscale Output</H2>
+
+When generating PostScript or PDF files you can choose to convert all images
+to grayscale.  This is necessary for many Level 1 printers that do not support
+color images and can reduce the size of output files considerably.
+
+<P>Click in the <I>Grayscale</I> check box to enable or disable grayscale
+output.
+
+<H2>Title Page</H2>
+
+The title page is the first page in your generated file.  Click in the
+<I>Title Page</I> check box to turn the title page on or off.
+
+<H2>JPEG Big Images</H2>
+
+JPEG compression is a great way to reduce the size of large photographic
+or continuous-tone images. It is supported when generating PDF, PostScript
+Level 2, and PostScript Level 3 output. HTMLDOC uses JPEG
+compression when the output image cannot be reduced to 256 colors or less.
+
+<P>Click in the <I>JPEG Big Images</I> check box to enable or disable
+JPEG compression.
+
+<H2>JPEG Quality</H2>
+
+Drag the <I>JPEG Quality</I> slider to change the JPEG quality setting.
+The JPEG quality setting determines the relative quality of the compressed
+image. Since JPEG is a <I>lossy</I> compression algorithm, higher
+compression generally yields lower quality. Typically a quality of 75 or
+higher provides excellent image quality with a high amount of compression.
+
+<H2>Compression</H2>
+
+PDF 1.2, PDF 1.3, PDF 1.4, and Level 3 PostScript files can be
+compressed using Flate (a.k.a. ZIP) compression to substantially
+reduce the size of files. Drag the <I>Compression</I> slider to
+set the amount of compression to use.
+
+<P>Unlike JPEG, the Flate algorithm is lossless and will not cause any
+loss of visual quality at any level of compression.
+
+<HR>
+
+<P><A NAME="PAGE"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The Page Tab</H1>
+
+<P>The page tab defines the page header, footer, size, and margins for
+PostScript and PDF output.
+
+<H2>Page Size</H2>
+
+<P>The page size option is only available for PostScript and PDF output.
+HTMLDOC supports the following standard page size names:
+
+<UL>
+	<LI>A3 - 11.69x16.54in (297x420mm)
+	<LI>A4 - 8.27x11.69in (210x297mm)
+	<LI>Legal - 8.5x14in (216x356mm)
+	<LI>Letter - 8.5x11in (216x279mm)
+	<LI>Tabloid - 11x17in (279x432mm)
+	<LI>Universal - 8.27x11in (210x279mm)
+</UL>
+
+<P>Click on the <I>Page Size</I> arrow button to select a standard page
+size. You can specify a custom page size by double-clicking on the page
+size text and entering the page width and length separated by the letter
+"x". Append the letters "in" for inches, "mm" for millimeters, or "cm"
+for centimeters.
+
+<P><B>Note:</B> This option does not set the page size on the printer.
+It only generates pages using the specified size. See the <A HREF="#PS">PS
+Tab</A> to enable printer commands for PostScript printers.
+
+<H2>2-Sided</H2>
+
+<P>Click in the <I>2-Sided</I> check box to select double-sided (duplexed)
+output.
+
+<P><B>Note:</B> This option does not select duplexing on the printer.
+It only generates pages with the left/right margins swapped on even
+numbered pages and forces all chapters (and the table-of-contents) to
+start on an odd-numbered page. See the <A HREF="#PS">PS Tab</A> to enable
+printer commands for PostScript printers.
+
+<H2>Landscape</H2>
+
+<P>Click in the <I>Landscape</I> check box to select landscape output.
+
+<H2>Page Margins</H2>
+
+<P>The left, right, top, and bottom margins can be changed by clicking in the
+appropriate text field and entering a new margin.  Append the letters "in"
+for inches, "mm" for millimeters, or "cm" for centimeters.
+
+<H2>Header and Footer</H2>
+
+<P>Select the desired text from each of the option buttons to customize the
+header and footer for the document/body pages. The left option buttons
+set the text that is left-justified, the middle buttons set the text
+that is centered, and the right buttons set the text that is right-justified.
+
+<P>The left and right header and footer are swapped automatically when
+generating duplexed output.
+
+<H2>Number Up</H2>
+
+<P>The <I>Number Up</I> chooser selects the number of document
+pages that will appear on each output page. Click on the chooser
+to select a different number of pages.
+
+<HR>
+
+<P><A NAME="TOC"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The Table-Of-Contents Tab</H1>
+
+The table-of-contents tab defines the number of levels in the
+table-of-contents and the page header and footer that are used when
+generating PostScript and PDF files.
+
+<H2>Customizing the Table of Contents</H2>
+
+To change the number of header levels listed in the table of contents, or to
+turn off table-of-contents generation entirely, click on <I>Table of Contents</I>
+chooser and select the number of levels desired.
+
+<H2>Numbering Table of Contents Headings</H2>
+
+To number the headings in your document, click on the <I>Numbered Headings</I>
+toggle button.
+
+<H2>Customizing the Header and Footer</H2>
+
+To customize the header and footer for the table-of-contents pages, select the
+desired text from each of the option buttons.  The leftmost option buttons
+set the text that is left-justified, while the middle buttons set the text that
+is centered and the right buttons set the text that is right-justified.
+
+<H3>Title</H3>
+
+Enter the desired title for the table-of-contents in the <I>Title</I>
+field.
+
+<HR>
+
+<P><A NAME="COLORS"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The Colors Tab</H1>
+
+The colors tab specifies the colors and background image that should be
+used for the document.
+
+<H2>Body Color</H2>
+
+The <VAR>Body Color</VAR> field specifies the default background color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<H2>Body Image</H2>
+
+The <VAR>Body Image</VAR> field specifies the default background image.
+Click on the <VAR>Browse...</VAR> button to pick the background image using
+the file chooser.
+
+<H2>Text Color</H2>
+
+The <VAR>Text Color</VAR> field specifies the default text color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<H3>Link Color</H3>
+
+The <VAR>Link Color</VAR> field specifies the default link color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<H3>Link Style</H3>
+
+The <VAR>Link Style</VAR> chooser specifies the default link decoration.
+
+<HR>
+
+<P><A NAME="FONTS"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The Fonts Tab</H1>
+
+The fonts tab contains all of the document font options. The default options
+roughly correspond to those used by most browsers.
+
+<H2>Base Font Size</H2>
+
+Click on the left arrow buttons to decrease the font size and the right
+arrow buttons to increase the font size.
+
+<P>The font size value is in points (there are 72 points per inch).
+
+<H2>Line Spacing</H2>
+
+Click on the left arrow buttons to decrease the line spacing and the
+right arrow buttons to increase the line spacing.
+
+<H2>Body Typeface</H2>
+
+The body typeface is the font used for paragraphs and most other text
+in a document. Click on the <I>Body Typeface</I> option button to change
+the body typeface.
+
+<H2>Heading Typeface</H2>
+
+The heading typeface is the font used for headings.  Click on the
+<I>Heading Typeface</I> option button to change the typeface used for
+headings.
+
+<H2>Header/Footer Size</H2>
+
+Click on the left arrow buttons to decrease the heading and footer font
+size and the right arrow buttons to increase the font size. The font size
+value is in points (there are 72 points per inch).
+
+<H2>Header/Footer Font</H2>
+
+The header/footer font is the font used for headers at the top of
+the page and footers at the bottom of the page.  Click on the
+<I>Header/Footer Font</I> option button to change the header/footer font.
+
+<H2>Character Set</H2>
+
+Click on the <I>Character Set</I> option button to change the encoding
+of text in the document.
+
+<H3>Options</H3>
+
+<P>The <VAR>Embed Fonts</VAR> check box controls whether or not
+fonts are embedded in PostScript and PDF output.
+
+<HR>
+
+<P><A NAME="PS"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The PS Tab</H1>
+
+The PS tab contains settings specific to PostScript output.
+
+<H2>Language Level</H2>
+
+Select the appropriate language level by clicking on the corresponding
+radio button.  Level 1 output is the most portable, however most PostScript
+printers manufactured in the last 6 years support Level 2.  Level 3 output
+supports Flate compression, however very few printers support Level 3
+PostScript at this time.
+
+<H2>Send Printer Commands</H2>
+
+Click in the <I>Send Printer Commands</I> check box to enable to
+disable printer commands in the PostScript output files. 
+Printer commands are not supported for PostScript Level 1
+output.
+
+<H2>Include Xerox Job Comments</H2>
+
+<P>The <VAR>Include Xerox Job Comments</VAR> check box controls
+whether or not the output files contain Xerox job comments.
+Click in the check box to enable or disable the job comments.
+
+<P>Job comments are available with all levels of PostScript output.
+
+<HR>
+
+<P><A NAME="PDF"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The PDF Tab</H1>
+
+The PDF tab contains settings specific to PDF output.
+
+<H2>PDF Version</H2>
+
+The <VAR>PDF Version</VAR> radio buttons control what version of PDF is
+generated. PDF 1.3 is the most commonly supported version. Click on the
+corresponding radio button to set the version.
+
+<H2>Page Mode</H2>
+
+The <VAR>Page Mode</VAR> option button controls the initial viewing mode
+for the document. Click on the option button to set the page mode.
+
+<P>The <VAR>Document</VAR> page mode displays only the document pages.
+The <VAR>Outline</VAR> page mode displays the table-of-contents outline
+as well as the document pages. The <VAR>Full-Screen</VAR> page mode
+displays the document pages on the whole screen; this mode is used
+primarily for presentations.
+
+<H2>Page Layout</H2>
+
+The <VAR>Page Layout</VAR> option button controls the initial layout of
+document pages on the screen. Click on the option button to set the page
+layout.
+
+<P>The <VAR>Single</VAR> page layout displays a single page at a time.
+The <VAR>One Column</VAR> page layout displays a single column of pages
+at a time. The <VAR>Two Column Left</VAR> and <VAR>Two Column
+Right</VAR> page layouts display two columns of pages at a time; the
+first page is displayed in the left or right column as selected.
+
+<H2>First Page</H2>
+
+The <VAR>First Page</VAR> option button controls the initial page that is
+displayed. Click on the option button to choose the first page.
+
+<H2>Page Effect</H2>
+
+The <VAR>Page Effect</VAR> option button controls the page effect that is
+displayed in <VAR>Full-Screen</VAR> mode. Click on the option button to
+select a page effect.
+
+<H2>Page Duration</H2>
+
+The <VAR>Page Duration</VAR> slider controls the number of seconds that
+each page will be visible in <VAR>Full-Screen</VAR> mode. Drag the slider
+to adjust the number of seconds.
+
+<H2>Effect Duration</H2>
+
+The <VAR>Effect Duration</VAR> slider controls the number of seconds
+that the page effect will last when changing pages. Drag the slider to
+adjust the number of seconds.
+
+<H3>Options</H3>
+
+<P>The <VAR>Include Links</VAR> check box controls whether or
+not hyperlinks are included in PDF output.
+
+<HR>
+
+<P><A NAME="SECURITY"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The Security Tab</H1>
+
+<P>The security tab allows you to enable PDF document encryption
+and security features.
+
+<H2>Encryption</H2>
+
+<P>The <VAR>Encryption</VAR> buttons control whether or not encryption is
+performed on the PDF file. Encrypted documents can be password protected and
+also provide user permissions.
+
+<H2>Permissions</H2>
+
+<P>The <VAR>Permissions</VAR> buttons control what operations are allowed by
+the PDF viewer.
+
+<H2>Owner Password</H2>
+
+<P>The <VAR>Owner Password</VAR> field contains the document owner password,
+a string that is used by Adobe Acrobat to control who can change document
+permissions, etc.
+
+<P>If this field is left blank, a random 32-character password is generated
+so that no one can change the document using the Adobe tools.
+
+<H2>User Password</H2>
+
+<P>The <VAR>User Password</VAR> field contains the document user password,
+a string that is used by Adobe Acrobat to restrict viewing permissions on
+the file.
+
+<P>If this field is left blank, any user may view the document without entering
+a password.
+
+<HR>
+
+<P><A NAME="OPTIONS"><A HREF="#CONTENTS">Contents</A> |
+<A HREF="#LOADSAVE">Loading and Saving Books</A></A>
+
+<H1>The Options Tab</H1>
+
+The options tab contains the current HTML editor and allows you to save
+the current settings as defaults.
+
+<H2>HTML Editor</H2>
+
+Type in the program name in the <I>HTML Editor</I> field or click on the
+<I>Browse...</I> button to change the HTML editor that is used.  The "%s"
+is required and is replaced by the file to edit.
+
+<P><B>NOTE:</B> To use Netscape Communicator as your HTML editor you need to
+add the "-edit" option before the "%s".
+
+<H2>Browser Width</H2>
+
+Drag the <I>Browser Width</I> slider to specify the width of the browser in
+pixels that is used to scale images and other pixel measurements to the
+printable page width. You can adjust this value to more closely match the
+formatting on the screen.
+
+<P>The default browser width is 680 pixels which corresponds
+roughly to a  96 DPI display. The browser width is only used
+when generating PostScript  or PDF files.
+
+<H2>Search Path</H2>
+
+Enter a list of directories in the <I>Search Path</I> field to specify
+a search path for files that are loaded by HTMLDOC. This is usually used
+to get images that use absolute server paths to load.
+
+<P>Directories are separated by the semicolon (;) so that drive letters
+and URLs can be specified.
+
+<H2>HTTP Proxy URL</H2>
+
+Enter the URL for the HTTP proxy in the <I>HTTP proxy URL</I> field to
+specify a proxy host for all HTTP requests.
+
+<H2>Tooltips</H2>
+
+<P>Check the <I>Tooltips</I> button to enable tooltips on GUI controls.
+
+<H2>Modern Look</H2>
+
+<P>Check the <I>Modern Look</I> button to enable GUI controls
+with a modern appearance.
+
+<H2>Strict HTML</H2>
+
+<P>Check the <I>Strict HTML</I> button to enable strict HTML conformance
+checking in HTMLDOC.
+
+<H2>Save Options and Defaults</H2>
+
+Click on the <I>Save Options and Defaults</I> button to save the current
+HTML editor, page, table-of-contents, color, font, PDF, and PostScript
+options. Default options are used for new documents and when generating
+documents from the command-line.
+
+</BODY>
+</HTML>

@@ -1,0 +1,156 @@
+#
+# "$Id: Makefile.in,v 1.10.2.17 2004/10/23 08:28:59 mike Exp $"
+#
+#   Makefile for HTMLDOC, an HTML document processing program.
+#
+#   Copyright 1997-2004 by Easy Software Products.
+#
+#   These coded instructions, statements, and computer programs are the
+#   property of Easy Software Products and are protected by Federal
+#   copyright law.  Distribution and use rights are outlined in the file
+#   "COPYING.txt" which should have been included with this file.  If this
+#   file is missing or damaged please contact Easy Software Products
+#   at:
+#
+#       Attn: ESP Licensing Information
+#       Easy Software Products
+#       44141 Airport View Drive, Suite 204
+#       Hollywood, Maryland 20636-3142 USA
+#
+#       Voice: (301) 373-9600
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
+#
+
+#
+# Include common definitions...
+#
+
+include Makedefs
+
+
+#
+# Software packaging...
+#
+
+EPM	=	epm -v --output-dir dist
+
+
+#
+# Subdirectories...
+#
+
+DIRS	=	@JPEG@ @ZLIB@ @PNG@ htmldoc doc
+INSTALLDIRS =	fonts data doc htmldoc
+
+
+#
+# Make all targets...
+#
+
+all:	Makedefs Makefile config.h htmldoc.list
+	for dir in $(DIRS); do\
+		echo Making all in $$dir...;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
+	done
+
+
+#
+# Remove object and target files...
+#
+
+clean:
+	for dir in $(DIRS); do\
+		echo Cleaning in $$dir...;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS) clean) || break;\
+	done
+	$(RM) *.bak
+	$(RM) *.bck
+	$(RM) core
+	$(RM) core.* 
+	$(RM) -r autom4te*.cache
+	$(RM) config.h config.log config.status
+
+
+#
+# Install object and target files...
+#
+
+install:
+	$(MAKE) all
+	for dir in $(INSTALLDIRS); do\
+		echo Installing in $$dir...;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS) install) || break;\
+	done
+
+
+#
+# Makedefs
+#
+
+Makedefs:	Makedefs.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# Makefile
+#
+
+Makefile:	Makefile.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# config.h
+#
+
+config.h:	config.h.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# htmldoc.list
+#
+
+htmldoc.list:	htmldoc.list.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# Make a portable binary distribution using EPM.
+#
+# EPM = ESP Package Manager, available at "http://www.easysw.com/epm/".
+#
+
+epm:
+	$(RM) -r dist
+	$(EPM) htmldoc
+
+
+#
+# End of "$Id: Makefile.in,v 1.10.2.17 2004/10/23 08:28:59 mike Exp $".
+#
