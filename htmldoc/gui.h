@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.15 2001/12/13 19:04:06 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.16 2001/12/19 21:41:46 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -78,7 +78,6 @@ class GUI
   Fl_Window	*window;
 
 #  if FL_MINOR_VERSION >= 1
-  Fl_Group	*tile_group;
   Fl_Image	*tile;
   Fl_Tiled_Image *tile_image;
 #  endif // FL_MINOR_VERSION >= 1
@@ -305,5 +304,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.15 2001/12/13 19:04:06 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.16 2001/12/19 21:41:46 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.41 2001/12/17 18:27:31 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.42 2001/12/19 21:41:45 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -251,11 +251,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   window = new Fl_Double_Window(505, 415, "HTMLDOC " SVERSION);
   window->callback((Fl_Callback *)closeBookCB, this);
-
-#  if FL_MINOR_VERSION >= 1
-  tile_group = new Fl_Group(0, 0, 505, 415);
-  tile_group->align(FL_ALIGN_INSIDE);
-#  endif // FL_MINOR_VERSION >= 1
 
   controls = new Fl_Group(0, 0, 505, 385);
   tabs     = new Fl_Tabs(10, 10, 485, 285);
@@ -1012,10 +1007,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   progressBar = new Progress(10, 385, 485, 20, "HTMLDOC " SVERSION " Ready.");
 
-#  if FL_MINOR_VERSION >= 1
-  tile_group->end();
-#  endif // FL_MINOR_VERSION >= 1
-
   window->end();
 
   // Set the class name to "htmldoc".
@@ -1073,7 +1064,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Use cheesy hardcoded "style" stuff until FLTK 2.0...
 #  if FL_MINOR_VERSION >= 1
   tile       = new Fl_Pixmap((const char * const *)tile_xpm);
-  tile_image = new Fl_Tiled_Image(tile, 505, 415);
+  tile_image = new Fl_Tiled_Image(tile, Fl::w(), Fl::h());
 
   if (ModernSkin)
     skinCB(0, this);
@@ -3260,7 +3251,9 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     // Use "plastic" buttons...
     //
 
-    gui->tile_group->image(gui->tile_image);
+    gui->window->image(gui->tile_image);
+    gui->window->labeltype(FL_NORMAL_LABEL);
+    gui->window->align(FL_ALIGN_CENTER | FL_ALIGN_INSIDE);
 
     // Copy the old boxtypes...
     Fl::set_boxtype(FL_FREE_BOXTYPE,                   FL_UP_BOX);
@@ -3355,7 +3348,8 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     // Use "plastic" buttons...
     //
 
-    gui->tile_group->image(0);
+    gui->window->image(0);
+    gui->window->labeltype(FL_NO_LABEL);
 
     // Restore the old boxtypes...
     Fl::set_boxtype(FL_UP_BOX,          FL_FREE_BOXTYPE);
@@ -4217,5 +4211,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.41 2001/12/17 18:27:31 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.42 2001/12/19 21:41:45 mike Exp $".
 //
