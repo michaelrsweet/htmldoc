@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.191 2002/07/02 19:44:01 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.192 2002/07/08 17:11:11 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -251,6 +251,8 @@ typedef struct			//// Output page info
 
 #ifdef HAVE_TM_GMTOFF
 #  define timezone (doc_date->tm_gmtoff)
+#elif defined(__CYGWIN__)
+#  define timezone _timezone
 #endif /* HAVE_TM_GMTOFF */
 
 
@@ -11759,5 +11761,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.191 2002/07/02 19:44:01 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.192 2002/07/08 17:11:11 mike Exp $".
  */

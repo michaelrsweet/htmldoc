@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.11.2.9 2002/06/11 19:36:15 mike Exp $"
+# "$Id: Makefile,v 1.11.2.10 2002/07/08 17:11:10 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -78,27 +78,27 @@ clean:
 # htmldoc.html
 #
 
-htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc
+htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.html...
-	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.html --datadir ..
+	../htmldoc/htmldoc$(EXEEXT) --datadir .. --batch htmldoc.book -f htmldoc.html --datadir ..
 
 
 #
 # htmldoc.pdf
 #
 
-htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc
+htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.pdf...
-	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.pdf --datadir ..
+	../htmldoc/htmldoc$(EXEEXT) --datadir .. --batch htmldoc.book -f htmldoc.pdf --datadir ..
 
 
 #
 # htmldoc.ps
 #
 
-htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
+htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.ps...
-	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.ps --datadir ..
+	../htmldoc/htmldoc$(EXEEXT) --datadir .. --batch htmldoc.book -f htmldoc.ps --datadir ..
 
 
 #
@@ -111,5 +111,5 @@ htmldoc.1:	htmldoc.man
 
 
 #
-# End of "$Id: Makefile,v 1.11.2.9 2002/06/11 19:36:15 mike Exp $".
+# End of "$Id: Makefile,v 1.11.2.10 2002/07/08 17:11:10 mike Exp $".
 #

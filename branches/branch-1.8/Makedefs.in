@@ -1,5 +1,5 @@
 #
-#   "$Id: Makedefs.in,v 1.9.2.4 2002/06/06 18:59:05 mike Exp $"
+#   "$Id: Makedefs.in,v 1.9.2.5 2002/07/08 17:11:06 mike Exp $"
 #
 #   Makefile definitions for HTMLDOC, an HTML document processing program.
 #
@@ -26,19 +26,22 @@
 # Programs...
 #
 
-AR	=	@AR@
-AWK	=	@AWK@
-CC	=	@CC@
-CXX	=	@CXX@
-CHMOD	=	@CHMOD@
-CP	=	@CP@
-LN	=	/bin/ln -sf
-MKDIR	=	@MKDIR@ -p
-MV	=	@MV@
-POST	=	@POST@
-RANLIB	=	@RANLIB@
-RM	=	@RM@ -f
-SHELL	=	/bin/sh
+AR		=	@AR@
+AWK		=	@AWK@
+CC		=	@CC@
+CXX		=	@CXX@
+CHMOD		=	@CHMOD@
+CP		=	@CP@
+LN		=	/bin/ln -sf
+MKDIR		=	@MKDIR@ -p
+MV		=	@MV@
+POST		=	@POST@
+RANLIB		=	@RANLIB@
+RM		=	@RM@ -f
+SHELL		=	/bin/sh
+
+# The extension to use for executables...
+EXEEXT		=	@EXEEXT@
 
 #
 # Directories...
@@ -67,12 +70,12 @@ top_srcdir	=	@top_srcdir@
 # OPTIM   defines the common compiler optimization/debugging options.
 #
 
-ARFLAGS	=	@ARFLAGS@
-CFLAGS	=	-I.. @CFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
-CXXFLAGS =	-I.. @CXXFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
-LDFLAGS	=	@LDFLAGS@ $(OPTIM)
-LIBS	=	@LIBS@
-OPTIM	=	@OPTIM@
+ARFLAGS		=	@ARFLAGS@
+CFLAGS		=	-I.. @CFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
+CXXFLAGS	=	-I.. @CXXFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
+LDFLAGS		=	@LDFLAGS@ $(OPTIM)
+LIBS		=	@LIBS@
+OPTIM		=	@OPTIM@
 
 #
 # Rules...
@@ -88,5 +91,5 @@ OPTIM	=	@OPTIM@
 	$(CXX) $(CXXFLAGS) -c $<
 
 #
-# End of "$Id: Makedefs.in,v 1.9.2.4 2002/06/06 18:59:05 mike Exp $".
+# End of "$Id: Makedefs.in,v 1.9.2.5 2002/07/08 17:11:06 mike Exp $".
 #
