@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.11 1999/04/28 21:28:35 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.12 1999/04/29 01:34:37 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -52,6 +52,7 @@
 #include <sys/stat.h>
 
 #if defined(WIN32) || defined(__EMX__)
+#  include <direct.h>
 #  include <io.h>
 #else
 #  include <unistd.h>
@@ -386,7 +387,11 @@ FileChooser::newdir()
     strcpy(pathname, dir);
 
   // Create the directory; ignore EEXIST errors...
+#if defined(WIN32) || defined(__EMX__)
+  if (mkdir(pathname))
+#else
   if (mkdir(pathname, 0777))
+#endif /* WIN32 || __EMX__ */
     if (errno != EEXIST)
     {
       fl_alert("Unable to create directory!");
@@ -462,7 +467,8 @@ FileChooser::fileNameCB()
   int		i,		// Looping var
 		min_match,	// Minimum number of matching chars
 		max_match,	// Maximum number of matching chars
-		num_files;	// Number of files in directory
+		num_files,	// Number of files in directory
+		first_line;	// First matching line
   const char	*file;		// File from directory
 
 
@@ -555,29 +561,40 @@ FileChooser::fileNameCB()
 
     // Other key pressed - do filename completion as possible...
 
-    num_files = fileList->size();
-    min_match = strlen(filename);
-    max_match = 100000;
-
+    num_files  = fileList->size();
+    min_match  = strlen(filename);
+    max_match  = 100000;
+    first_line = 0;
     for (i = 1; i <= num_files && max_match > min_match; i ++)
     {
       file = fileList->text(i);
 
+#if defined(WIN32) || defined(__EMX__)
+      if (strnicmp(filename, file, min_match) == 0)
+#else
       if (strncmp(filename, file, min_match) == 0)
+#endif // WIN32 || __EMX__
       {
         // OK, this one matches; check against the previous match
-
 	if (max_match == 100000)
 	{
 	  // First match; copy stuff over...
 	  max_match = strlen(file);
 	  strcpy(pathname, file);
+
+	  // And then make sure that the item is visible
+          fileList->topline(i);
+	  first_line = i;
 	}
 	else
 	{
 	  // Succeeding match; compare to find maximum string match...
 	  while (max_match > min_match)
+#if defined(WIN32) || defined(__EMX__)
+	    if (strnicmp(file, pathname, max_match) == 0)
+#else
 	    if (strncmp(file, pathname, max_match) == 0)
+#endif // WIN32 || __EMX__
 	      break;
 	    else
 	      max_match --;
@@ -588,10 +605,16 @@ FileChooser::fileNameCB()
       }
     }
 
+    fileList->deselect(0);
+    fileList->redraw();
+
     // If we have any matches, add them to the input field...
-    if (max_match > min_match && max_match != 100000)
+    if (first_line > 0 && min_match == max_match &&
+        max_match == (int)strlen(fileList->text(first_line)))
+      fileList->select(first_line);
+    else if (max_match > min_match && max_match != 100000)
     {
-      fileName->insert(pathname + min_match);
+      fileName->replace(0, min_match, pathname);
 
       if (Fl::event_key() == FL_BackSpace)
         fileName->position(min_match - 1, max_match);
@@ -603,5 +626,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.11 1999/04/28 21:28:35 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.12 1999/04/29 01:34:37 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.4 1999/04/28 15:53:05 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.5 1999/04/29 01:34:37 mike Exp $"
 //
 //   FileIcon routines for the Common UNIX Printing System (CUPS).
 //
@@ -86,8 +86,8 @@ FileIcon::FileIcon(const char *p,	/* I - Filename pattern */
   if (nd)
   {
     _num_data   = nd;
-    _alloc_data = nd;
-    _data       = (short *)calloc(sizeof(short), nd);
+    _alloc_data = nd + 1;
+    _data       = (short *)calloc(sizeof(short), nd + 1);
     memcpy(_data, d, nd * sizeof(short));
   }
   else
@@ -184,12 +184,18 @@ FileIcon::find(const char *filename,	// I - Name of file */
     {
       if (S_ISDIR(fileinfo.st_mode))
         filetype = DIRECTORY;
+#ifdef S_IFIFO
       else if (S_ISFIFO(fileinfo.st_mode))
         filetype = FIFO;
+#endif // S_IFIFO
+#if defined(S_ICHR) && defined(S_IBLK)
       else if (S_ISCHR(fileinfo.st_mode) || S_ISBLK(fileinfo.st_mode))
         filetype = DEVICE;
+#endif // S_ICHR && S_IBLK
+#ifdef S_ILNK
       else if (S_ISLNK(fileinfo.st_mode))
         filetype = LINK;
+#endif // S_ILNK
       else
         filetype = PLAIN;
     }
@@ -533,5 +539,5 @@ FileIcon::load(const char *fti)	// File to read from
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.4 1999/04/28 15:53:05 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.5 1999/04/29 01:34:37 mike Exp $".
 //
