@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.72 2000/05/08 16:13:36 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.73 2000/05/08 16:35:30 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -294,7 +294,7 @@ static void	parse_list(tree_t *t, float left, float width, float bottom,
 static void	init_list(tree_t *t);
 static void	parse_comment(tree_t *t, float left, float width, float bottom,
 		              float length, float *x, float *y, int *page,
-			      tree_t *para, int *needspace);
+			      tree_t *para, int needspace);
 
 static tree_t	*real_prev(tree_t *t);
 static tree_t	*real_next(tree_t *t);
@@ -2758,8 +2758,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
       case MARKUP_COMMENT :
           // Check comments for commands...
-          parse_comment(para, left, right, bottom, top, x, y, page, para,
-	                needspace);
+          parse_comment(t, left, right, bottom, top, x, y, page, para,
+	                *needspace);
           break;
 
       case MARKUP_TITLE :
@@ -3966,13 +3966,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       if (cells[row][0]->parent->prev != NULL &&
           cells[row][0]->parent->prev->markup == MARKUP_COMMENT)
-      {
-        tempspace = 0;
         parse_comment(cells[row][0]->parent->prev,
                       left, right, bottom + border + cellpadding,
-                      top - border - cellpadding, x, y, page, NULL,
-		      &tempspace);
-      }
+                      top - border - cellpadding, x, y, page, NULL, 0);
 
      /*
       * Get height...
@@ -4397,7 +4393,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
               float  *y,	/* IO - Y position */
               int    *page,	/* IO - Page # */
 	      tree_t *para,	/* I - Current paragraph */
-	      int    *needspace)/* IO - Need whitespace? */
+	      int    needspace)	/* I - Need whitespace? */
 {
   const char	*comment;	/* Comment text */
 
@@ -4419,10 +4415,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
     if (para != NULL && para->child != NULL)
     {
-      parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
+      parse_paragraph(para, left, right, bottom, top, x, y, page, needspace);
       htmlDeleteTree(para->child);
       para->child = para->last_child = NULL;
-      *needspace  = 1;
     }
 
     (*page) ++;
@@ -4439,10 +4434,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
     if (para != NULL && para->child != NULL)
     {
-      parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
+      parse_paragraph(para, left, right, bottom, top, x, y, page, needspace);
       htmlDeleteTree(para->child);
       para->child = para->last_child = NULL;
-      *needspace  = 1;
     }
 
     (*page) ++;
@@ -4466,10 +4460,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
     if (para != NULL && para->child != NULL)
     {
-      parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
+      parse_paragraph(para, left, right, bottom, top, x, y, page, needspace);
       htmlDeleteTree(para->child);
       para->child = para->last_child = NULL;
-      *needspace  = 1;
     }
 
     halfway = 0.5f * (top + bottom);
@@ -4497,10 +4490,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
     if (para != NULL && para->child != NULL)
     {
-      parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
+      parse_paragraph(para, left, right, bottom, top, x, y, page, needspace);
       htmlDeleteTree(para->child);
       para->child = para->last_child = NULL;
-      *needspace  = 1;
     }
 
     if ((*y - get_measurement(comment + 5)) < bottom)
@@ -6805,5 +6797,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.72 2000/05/08 16:13:36 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.73 2000/05/08 16:35:30 mike Exp $".
  */
