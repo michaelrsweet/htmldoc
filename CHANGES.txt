@@ -5,7 +5,7 @@ CHANGES IN HTMLDOC v1.8.10
 
     NEW FEATURES
 
-	- New "--quiet" option to suppress error messages sent to
+	- New "--quiet" option to suppress all messages sent to
 	  stderr.
 	- New chapter n/N page number format (:)
 	- New "--links" and "--no-links" options for PDF output.
