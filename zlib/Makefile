@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.7 2001/01/22 15:04:05 mike Exp $"
+# "$Id: Makefile,v 1.8 2002/03/08 21:53:06 mike Exp $"
 #
 #   ZIP library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -35,11 +35,13 @@ OBJS	=	adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o \
 		trees.o zutil.o inflate.o infblock.o inftrees.o infcodes.o \
 		infutil.o inffast.o
 
+
 #
 # Make all targets...
 #
 
 all:	libz.a
+
 
 #
 # Clean all targets and object files...
@@ -48,6 +50,15 @@ all:	libz.a
 clean:
 	$(RM) $(OBJS)
 	$(RM) libz.a
+
+
+#
+# Update dependencies (without system header dependencies...)
+#
+
+depend:
+	makedepend -Y -I.. -fDependencies $(OBJS:.o=.c) >/dev/null 2>&1
+
 
 #
 # libz.a
@@ -59,20 +70,14 @@ libz.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
-$(OBJS):	zlib.h zconf.h ../Makedefs
-deflate.o:	deflate.h zutil.h
-gzio.o:		zutil.h
-infblock.o:	infblock.h inftrees.h infcodes.h infutil.h zutil.h
-infcodes.o:	zutil.h
-infcodes.o:	inftrees.h infblock.h infcodes.h infutil.h inffast.h
-inffast.o:	zutil.h inftrees.h
-inffast.o:	infblock.h infcodes.h infutil.h inffast.h
-inflate.o:	zutil.h infblock.h
-inftrees.o:	zutil.h inftrees.h
-infutil.o:	zutil.h infblock.h inftrees.h infcodes.h infutil.h
-trees.o:	deflate.h zutil.h trees.h
-zutil.o:	zutil.h
 
 #
-# End of "$Id: Makefile,v 1.7 2001/01/22 15:04:05 mike Exp $".
+# Dependencies...
+#
+
+include Dependencies
+
+
+#
+# End of "$Id: Makefile,v 1.8 2002/03/08 21:53:06 mike Exp $".
 #
