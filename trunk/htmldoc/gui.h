@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.12 2000/03/18 16:08:56 mike Exp $"
+ * "$Id: gui.h,v 1.13 2000/06/05 03:18:23 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -32,6 +32,7 @@
 #include <FL/Fl_Counter.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Secret_Input.H>
 #include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Multi_Browser.H>
 #include <FL/Fl_Slider.H>
@@ -155,6 +156,18 @@ class GUI
   Fl_Value_Slider *pageDuration,
 		*effectDuration;
 
+  Fl_Group	*securityTab;
+  Fl_Group	*encryption;
+  CheckButton	*encryptionYes,
+		*encryptionNo;
+  Fl_Group	*permissions;
+  CheckButton	*permPrint,
+		*permModify,
+		*permCopy,
+		*permAnnotate;
+  Fl_Secret_Input *ownerPassword,
+		*userPassword;
+
   Fl_Group	*optionsTab;
   Fl_Input	*htmlEditor;
   Fl_Button	*htmlBrowse;
@@ -207,6 +220,8 @@ class GUI
   static void	pdfCB(Fl_Widget *w, GUI *gui);
   static void	effectCB(Fl_Widget *w, GUI *gui);
 
+  static void	encryptionCB(Fl_Widget *w, GUI *gui);
+
   static void	htmlEditorCB(Fl_Widget *w, GUI *gui);
   static void	saveOptionsCB(Fl_Widget *w, GUI *gui);
 
@@ -237,5 +252,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.12 2000/03/18 16:08:56 mike Exp $".
+ * End of "$Id: gui.h,v 1.13 2000/06/05 03:18:23 mike Exp $".
  */

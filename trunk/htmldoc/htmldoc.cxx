@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.29 2000/06/03 23:03:36 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.30 2000/06/05 03:18:23 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -191,7 +191,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--duplex", 4) == 0)
       PageDuplex = 1;
-    else if (compare_strings(argv[i], "--effectduration", 3) == 0)
+    else if (compare_strings(argv[i], "--effectduration", 4) == 0)
     {
       i ++;
       if (i < argc)
@@ -199,6 +199,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+    else if (compare_strings(argv[i], "--encryption", 4) == 0)
+      Encryption = 1;
     else if (compare_strings(argv[i], "--firstpage", 4) == 0)
     {
       i ++;
@@ -480,6 +482,8 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--no-compression", 6) == 0)
       Compression = 0;
+    else if (compare_strings(argv[i], "--no-encryption", 6) == 0)
+      Encryption = 0;
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
       PSCommands = 0;
     else if (compare_strings(argv[i], "--no-toc", 7) == 0)
@@ -530,6 +534,17 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+    else if (compare_strings(argv[i], "--owner-password", 4) == 0)
+    {
+      i ++;
+      if (i < argc)
+      {
+        strncpy(OwnerPassword, argv[i], sizeof(OwnerPassword) - 1);
+	OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
+      }
+      else
+        usage();
+    }
     else if (compare_strings(argv[i], "--pageduration", 7) == 0)
     {
       i ++;
@@ -576,6 +591,33 @@ main(int  argc,		/* I - Number of command-line arguments */
 	  PDFPageMode = j;
 	  break;
 	}
+    }
+    else if (compare_strings(argv[i], "--permissions", 4) == 0)
+    {
+      i ++;
+      if (i >= argc)
+        usage();
+
+      if (strcasecmp(argv[i], "all") == 0)
+        Permissions = -4;
+      else if (strcasecmp(argv[i], "none") == 0)
+        Permissions = -64;
+      else if (strcasecmp(argv[i], "print") == 0)
+        Permissions |= PDF_PERM_PRINT;
+      else if (strcasecmp(argv[i], "no-print") == 0)
+        Permissions &= ~PDF_PERM_PRINT;
+      else if (strcasecmp(argv[i], "modify") == 0)
+        Permissions |= PDF_PERM_MODIFY;
+      else if (strcasecmp(argv[i], "no-modify") == 0)
+        Permissions &= ~PDF_PERM_MODIFY;
+      else if (strcasecmp(argv[i], "copy") == 0)
+        Permissions |= PDF_PERM_COPY;
+      else if (strcasecmp(argv[i], "no-copy") == 0)
+        Permissions &= ~PDF_PERM_COPY;
+      else if (strcasecmp(argv[i], "annotate") == 0)
+        Permissions |= PDF_PERM_ANNOTATE;
+      else if (strcasecmp(argv[i], "no-annotate") == 0)
+        Permissions &= ~PDF_PERM_ANNOTATE;
     }
     else if (compare_strings(argv[i], "--portrait", 4) == 0)
       Landscape = 0;
@@ -658,6 +700,17 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
         PageTop = get_measurement(argv[i]);
+      else
+        usage();
+    }
+    else if (compare_strings(argv[i], "--user-password", 4) == 0)
+    {
+      i ++;
+      if (i < argc)
+      {
+        strncpy(UserPassword, argv[i], sizeof(UserPassword) - 1);
+	UserPassword[sizeof(UserPassword) - 1] = '\0';
+      }
       else
         usage();
     }
@@ -1018,6 +1071,22 @@ prefs_load(void)
   if (!RegQueryValueEx(key, "effectduration", NULL, NULL, (unsigned char *)value, &size))
     PDFEffectDuration = atof(value);
 
+  size = sizeof(value);
+  if (!RegQueryValueEx(key, "encryption", NULL, NULL, (unsigned char *)value, &size))
+    Encryption = atoi(value);
+
+  size = sizeof(value);
+  if (!RegQueryValueEx(key, "permissions", NULL, NULL, (unsigned char *)value, &size))
+    Permissions = atoi(value);
+
+  size = sizeof(value);
+  if (!RegQueryValueEx(key, "ownerpassword", NULL, NULL, (unsigned char *)value, &size))
+    strcpy(OwnerPassword, value);
+
+  size = sizeof(value);
+  if (!RegQueryValueEx(key, "userpassword", NULL, NULL, (unsigned char *)value, &size))
+    strcpy(UserPassword, value);
+
   RegCloseKey(key);
 #else				//// Do .htmldocrc file in home dir...
   char	line[1024],		// Line from RC file
@@ -1122,6 +1191,20 @@ prefs_load(void)
 	  PDFPageDuration = atof(line + 14);
         else if (strncasecmp(line, "EFFECTDURATION=", 16) == 0)
 	  PDFEffectDuration = atof(line + 16);
+        else if (strncasecmp(line, "ENCRYPTION=", 11) == 0)
+	  Encryption = atoi(line + 11);
+        else if (strncasecmp(line, "PERMISSIONS=", 12) == 0)
+	  Permissions = atoi(line + 12);
+        else if (strncasecmp(line, "OWNERPASSWORD=", 14) == 0)
+	{
+	  strncpy(OwnerPassword, line + 14, sizeof(OwnerPassword) - 1);
+	  OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
+	}
+        else if (strncasecmp(line, "USERPASSWORD=", 13) == 0)
+        {
+	  strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
+	  UserPassword[sizeof(UserPassword) - 1] = '\0';
+	}
 #  ifdef HAVE_LIBFLTK
         else if (strncasecmp(line, "EDITOR=", 7) == 0)
 	  strcpy(HTMLEditor, line + 7);
@@ -1320,6 +1403,22 @@ prefs_save(void)
   size = strlen(value) + 1;
   RegSetValueEx(key, "effectduration", 0, REG_SZ, (unsigned char *)value, size);
 
+  sprintf(value, "%d", Encryption);
+  size = strlen(value) + 1;
+  RegSetValueEx(key, "encryption", 0, REG_SZ, (unsigned char *)value, size);
+
+  sprintf(value, "%d", Permissions);
+  size = strlen(value) + 1;
+  RegSetValueEx(key, "permissions", 0, REG_SZ, (unsigned char *)value, size);
+
+  size = strlen(OwnerPassword) + 1;
+  RegSetValueEx(key, "ownerpassword", 0, REG_SZ,
+                (unsigned char *)OwnerPassword, size);
+
+  size = strlen(UserPassword) + 1;
+  RegSetValueEx(key, "userpassword", 0, REG_SZ,
+                (unsigned char *)UserPassword, size);
+
   RegCloseKey(key);
 #  else				//// Do .htmldocrc file in home dir...
   char	htmldocrc[1024];	// HTMLDOC RC file
@@ -1376,6 +1475,10 @@ prefs_save(void)
       fprintf(fp, "PAGEEFFECT=%d\n", PDFEffect);
       fprintf(fp, "PAGEDURATION=%.0f\n", PDFPageDuration);
       fprintf(fp, "EFFECTDURATION=%.1f\n", PDFEffectDuration);
+      fprintf(fp, "ENCRYPTION=%d\n", Encryption);
+      fprintf(fp, "PERMISSIONS=%d\n", Permissions);
+      fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
+      fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
 
       fprintf(fp, "EDITOR=%s\n", HTMLEditor);
 
@@ -1438,6 +1541,7 @@ usage(void)
   puts("  --datadir directory");
   puts("  --duplex");
   puts("  --effectduration {0.1..10.0}");
+  puts("  --encryption");
   puts("  --firstpage {p1,toc,c1}");
   puts("  --fontsize {6.0..24.0}");
   puts("  --fontspacing {1.0..3.0}");
@@ -1460,7 +1564,9 @@ usage(void)
   puts("  --linkcolor color");
   puts("  --linkstyle {plain,underline}");
   puts("  --logoimage filename.{gif,jpg,png}");
+  puts("  --owner-password password");
   puts("  --no-compression");
+  puts("  --no-encryption");
   puts("  --no-pscommands");
   puts("  --no-title");
   puts("  --no-toc");
@@ -1471,6 +1577,7 @@ usage(void)
   puts("  --pageeffect {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}");
   puts("  --pagelayout {single,one,twoleft,tworight}");
   puts("  --pagemode {document,outlines,fullscreen}");
+  puts("  --permissions {all,annotate,copy,modify,print,no-annotate,no-copy,no-modify,no-print,none}");
   puts("  --portrait");
   puts("  --pscommands");
   puts("  --right margin{in,cm,mm}");
@@ -1485,6 +1592,7 @@ usage(void)
   puts("  --toclevels levels");
   puts("  --toctitle string");
   puts("  --top margin{in,cm,mm}");
+  puts("  --user-password password");
   puts("  {--verbose, -v}");
   puts("  --webpage");
   puts("");
@@ -1507,5 +1615,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.29 2000/06/03 23:03:36 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.30 2000/06/05 03:18:23 mike Exp $".
  */

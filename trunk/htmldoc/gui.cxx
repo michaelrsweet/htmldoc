@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.31 2000/06/03 23:03:35 mike Exp $"
+// "$Id: gui.cxx,v 1.32 2000/06/05 03:18:23 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -692,6 +692,45 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pdfTab->end();
 
   //
+  // Security tab...
+  //
+
+  securityTab = new Fl_Group(10, 35, 450, 220, "Security");
+  securityTab->hide();
+
+  encryption = new Fl_Group(140, 45, 310, 20, "Encryption: ");
+  encryption->align(FL_ALIGN_LEFT);
+
+    encryptionNo = new CheckButton(140, 45, 40, 20, "No");
+    encryptionNo->type(FL_RADIO_BUTTON);
+    encryptionNo->set();
+    encryptionNo->callback((Fl_Callback *)encryptionCB, this);
+
+    encryptionYes = new CheckButton(180, 45, 45, 20, "Yes");
+    encryptionYes->type(FL_RADIO_BUTTON);
+    encryptionYes->callback((Fl_Callback *)encryptionCB, this);
+
+  encryption->end();
+
+  permissions = new Fl_Group(140, 70, 310, 40, "Permissions: ");
+  permissions->align(FL_ALIGN_LEFT);
+
+    permPrint    = new CheckButton(140, 70, 80, 20, "Print");
+    permModify   = new CheckButton(220, 70, 80, 20, "Modify");
+    permCopy     = new CheckButton(140, 90, 80, 20, "Copy");
+    permAnnotate = new CheckButton(220, 90, 80, 20, "Annotate");
+
+  permissions->end();
+
+  ownerPassword = new Fl_Secret_Input(140, 115, 150, 25, "Owner Password: ");
+  ownerPassword->maximum_size(32);
+
+  userPassword = new Fl_Secret_Input(140, 145, 150, 25, "User Password: ");
+  userPassword->maximum_size(32);
+
+  securityTab->end();
+
+  //
   // Options tab...
   //
 
@@ -1114,6 +1153,42 @@ GUI::newBook(void)
 
   effectDuration->value(PDFEffectDuration);
 
+  securityTab->deactivate();
+
+  if (Encryption)
+  {
+    encryptionYes->setonly();
+    encryptionCB(encryptionYes, this);
+  }
+  else
+  {
+    encryptionNo->setonly();
+    encryptionCB(encryptionNo, this);
+  }
+
+  if (Permissions & PDF_PERM_PRINT)
+    permPrint->set();
+  else
+    permPrint->clear();
+
+  if (Permissions & PDF_PERM_MODIFY)
+    permModify->set();
+  else
+    permModify->clear();
+
+  if (Permissions & PDF_PERM_COPY)
+    permCopy->set();
+  else
+    permCopy->clear();
+
+  if (Permissions & PDF_PERM_ANNOTATE)
+    permAnnotate->set();
+  else
+    permAnnotate->clear();
+
+  ownerPassword->value(OwnerPassword);
+  userPassword->value(UserPassword);
+
   if (PSLevel == 1)
     ps1->setonly();
   else if (PSLevel == 2)
@@ -1121,7 +1196,11 @@ GUI::newBook(void)
   else
     ps3->setonly();
 
-  psCommands->deactivate();
+  if (PSLevel == 1)
+    psCommands->deactivate();
+  else
+    psCommands->activate();
+
   psCommands->value(PSCommands);
 
   browserWidth->value(_htmlBrowserWidth);
@@ -1342,6 +1421,18 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     {
       typeWebPage->setonly();
       docTypeCB(typeWebPage, this);
+      continue;
+    }
+    else if (strcmp(temp, "--encryption") == 0)
+    {
+      encryptionYes->setonly();
+      encryptionCB(encryptionYes, this);
+      continue;
+    }
+    else if (strcmp(temp, "--no-encryption") == 0)
+    {
+      encryptionNo->setonly();
+      encryptionCB(encryptionNo, this);
       continue;
     }
     else if (temp[0] != '-')
@@ -1578,6 +1669,43 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       pageDuration->value(atof(temp2));
     else if (strcmp(temp, "--effectduration") == 0)
       effectDuration->value(atof(temp2));
+    else if (strcmp(temp, "--permissions") == 0)
+    {
+      if (strcmp(temp2, "all") == 0)
+      {
+        permPrint->set();
+	permModify->set();
+	permCopy->set();
+	permAnnotate->set();
+      }
+      else if (strcmp(temp2, "none") == 0)
+      {
+        permPrint->clear();
+	permModify->clear();
+	permCopy->clear();
+	permAnnotate->clear();
+      }
+      else if (strcmp(temp2, "print") == 0)
+        permPrint->set();
+      else if (strcmp(temp2, "no-print") == 0)
+        permPrint->clear();
+      else if (strcmp(temp2, "modify") == 0)
+	permModify->set();
+      else if (strcmp(temp2, "no-modify") == 0)
+	permModify->clear();
+      else if (strcmp(temp2, "copy") == 0)
+	permCopy->set();
+      else if (strcmp(temp2, "no-copy") == 0)
+	permCopy->clear();
+      else if (strcmp(temp2, "annotate") == 0)
+	permAnnotate->set();
+      else if (strcmp(temp2, "no-annotate") == 0)
+	permAnnotate->clear();
+    }
+    else if (strcmp(temp, "--user-password") == 0)
+      userPassword->value(temp);
+    else if (strcmp(temp, "--owner-password") == 0)
+      ownerPassword->value(temp);
   }
 
   fclose(fp);
@@ -1778,6 +1906,39 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fprintf(fp, " --pageeffect %s", PDFEffects[pageEffect->value()]);
     fprintf(fp, " --pageduration %.0f", pageDuration->value());
     fprintf(fp, " --effectduration %.1f", effectDuration->value());
+    fprintf(fp, " --%sencryption", encryptionYes->value() ? "" : "no-");
+
+    if (permPrint->value() && permModify->value() && permCopy->value() &&
+        permAnnotate->value())
+      fputs(" --permissions all", fp);
+    else if (permPrint->value() || permModify->value() || permCopy->value() ||
+             permAnnotate->value())
+    {
+      if (permPrint->value())
+        fputs(" --permissions print", fp);
+      else
+        fputs(" --permissions no-print", fp);
+
+      if (permModify->value())
+        fputs(" --permissions modify", fp);
+      else
+        fputs(" --permissions no-modify", fp);
+
+      if (permCopy->value())
+        fputs(" --permissions copy", fp);
+      else
+        fputs(" --permissions no-copy", fp);
+
+      if (permAnnotate->value())
+        fputs(" --permissions annotate", fp);
+      else
+        fputs(" --permissions no-annotate", fp);
+    }
+    else
+      fputs(" --permissions none", fp);
+
+    fprintf(fp, "  --owner-password \"%s\"", ownerPassword->value());    
+    fprintf(fp, "  --user-password \"%s\"", userPassword->value());    
   }
 
   fprintf(fp, " --browserwidth %.0f", browserWidth->value());
@@ -1859,6 +2020,9 @@ GUI::docTypeCB(Fl_Widget *w,		// I - Toggle button widget
 
     gui->tocTab->activate();
     gui->tocLevels->value(3);
+
+    gui->firstPage->activate();
+    gui->pageMode->value(1);
   }
   else
   {
@@ -1873,6 +2037,10 @@ GUI::docTypeCB(Fl_Widget *w,		// I - Toggle button widget
     gui->titlePage->value(0);
 
     gui->tocTab->deactivate();
+
+    gui->firstPage->value(0);
+    gui->firstPage->deactivate();
+    gui->pageMode->value(0);
   }
 }
 
@@ -2336,11 +2504,13 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
   if (w == gui->typePDF)
   {
     gui->pdfTab->activate();
+    gui->securityTab->activate();
     gui->outputDirectory->deactivate();
   }
   else
   {
     gui->pdfTab->deactivate();
+    gui->securityTab->deactivate();
     gui->outputDirectory->activate();
   }
 
@@ -2481,6 +2651,31 @@ GUI::pdfCB(Fl_Widget *w,	// I - Widget
     gui->compGroup->deactivate();
   else
     gui->compGroup->activate();
+
+  gui->title(gui->book_filename, 1);
+}
+
+
+//
+// 'GUI::encryptionCB()' - Handle PDF encryption changes.
+//
+
+void
+GUI::encryptionCB(Fl_Widget *w,		// I - Widget
+                  GUI       *gui)	// I - GUI
+{
+  if (w == gui->encryptionYes)
+  {
+    gui->permissions->activate();
+    gui->ownerPassword->activate();
+    gui->userPassword->activate();
+  }
+  else if (w == gui->encryptionNo)
+  {
+    gui->permissions->deactivate();
+    gui->ownerPassword->deactivate();
+    gui->userPassword->deactivate();
+  }
 
   gui->title(gui->book_filename, 1);
 }
@@ -2658,6 +2853,21 @@ GUI::saveOptionsCB(Fl_Widget *w,
   PDFEffect         = gui->pageEffect->value();
   PDFPageDuration   = gui->pageDuration->value();
   PDFEffectDuration = gui->effectDuration->value();
+
+  Encryption = gui->encryptionYes->value();
+
+  Permissions = -64;
+  if (gui->permPrint->value())
+    Permissions |= PDF_PERM_PRINT;
+  if (gui->permModify->value())
+    Permissions |= PDF_PERM_MODIFY;
+  if (gui->permCopy->value())
+    Permissions |= PDF_PERM_COPY;
+  if (gui->permAnnotate->value())
+    Permissions |= PDF_PERM_ANNOTATE;
+
+  strcpy(UserPassword, gui->userPassword->value());
+  strcpy(OwnerPassword, gui->ownerPassword->value());
 
   if (gui->ps1->value())
     PSLevel = 1;
@@ -3125,6 +3335,21 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   PDFPageDuration   = gui->pageDuration->value();
   PDFEffectDuration = gui->effectDuration->value();
 
+  Encryption = gui->encryptionYes->value();
+
+  Permissions = -64;
+  if (gui->permPrint->value())
+    Permissions |= PDF_PERM_PRINT;
+  if (gui->permModify->value())
+    Permissions |= PDF_PERM_MODIFY;
+  if (gui->permCopy->value())
+    Permissions |= PDF_PERM_COPY;
+  if (gui->permAnnotate->value())
+    Permissions |= PDF_PERM_ANNOTATE;
+
+  strcpy(UserPassword, gui->userPassword->value());
+  strcpy(OwnerPassword, gui->ownerPassword->value());
+
   if (gui->typePDF->value())
     PSLevel = 0;
   else if (gui->ps1->value())
@@ -3268,5 +3493,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.31 2000/06/03 23:03:35 mike Exp $".
+// End of "$Id: gui.cxx,v 1.32 2000/06/05 03:18:23 mike Exp $".
 //

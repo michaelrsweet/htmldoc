@@ -1,5 +1,5 @@
 /*
- * "$Id: rc4.h,v 1.1 2000/06/03 23:03:37 mike Exp $"
+ * "$Id: rc4.h,v 1.2 2000/06/05 03:18:24 mike Exp $"
  *
  *   RC4 functions for HTMLDOC.
  *
@@ -27,6 +27,10 @@
 #ifndef _RC4_H_
 #  define _RC4_H_
 
+#  ifdef __cplusplus
+extern "C" {
+#  endif /* __cplusplus */
+
 
 /*
  * RC4 context...
@@ -48,9 +52,12 @@ extern void	rc4_init(rc4_context_t *context, const unsigned char *key,
 extern void	rc4_encrypt(rc4_context_t *context, const unsigned char *input,
 			    unsigned char *output, unsigned len);
 
+#  ifdef __cplusplus
+}
+#  endif /* __cplusplus */
 
 #endif /* !_RC4_H_ */
 
 /*
- * End of "$Id: rc4.h,v 1.1 2000/06/03 23:03:37 mike Exp $".
+ * End of "$Id: rc4.h,v 1.2 2000/06/05 03:18:24 mike Exp $".
  */
