@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.3 2002/02/09 23:54:39 mike Exp $"
+// "$Id: testsuite.cxx,v 1.4 2002/02/23 04:03:31 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -68,6 +68,7 @@ main(int  argc,			// I - Number of command-line arguments
   else
     printf("testimg.jpg: %dx%d pixels\n", img->width(), img->height());
 
+#if 0
   if (hdFile::find(0, "http://www.easysw.com/images/title-htmldoc.gif",
                    filename, sizeof(filename)))
   {
@@ -83,6 +84,7 @@ main(int  argc,			// I - Number of command-line arguments
   }
   else
     puts("Unable to load title-htmldoc.gif from www.easysw.com...");
+#endif // 0
 
   if ((fp = hdFile::open("../data/webpage.css", HD_FILE_READ)) == NULL)
     puts("Unable to open ../data/webpage.css...");
@@ -301,5 +303,5 @@ print_style(hdStyle *s)		// I - Style
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.3 2002/02/09 23:54:39 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.4 2002/02/23 04:03:31 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.7 2002/02/17 22:44:55 mike Exp $"
+// "$Id: style.h,v 1.8 2002/02/23 04:03:30 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -370,14 +370,6 @@ struct hdFontKernPair		// Kerning pair data
   float		adjust;		// Horizontal adjustment
 };
 
-struct hdFontKernList		// Kerning data for strings
-{
-  const char	*s,		// String for this bunch of chars
-		length;		// Number of chars in string
-  float		width,		// Width of string
-		adjust;		// Horizontal adjustment at end...
-};
-
 
 //
 // Style data...
@@ -403,14 +395,14 @@ struct hdStyleFont
 		descender;	// Lowest point in font
   int		num_widths;	// Number of widths in array
   float		*widths;	// Character widths for 1pt text
-  int		num_kerns,	// Number of kerning pairs
-		*kerns_lut;	// Lookup array for start chars
+  int		num_kerns;	// Number of kerning pairs
   hdFontKernPair *kerns;	// Kerning pairs array
 
   hdStyleFont(hdStyleSheet *css, hdFontFace t, hdFontInternal s, const char *n);
   ~hdStyleFont();
 
-  int		get_kerning(const char *s, hdFontKernList **kl);
+  static int	compare_kerns(hdFontKernPair *a, hdFontKernPair *b);
+  int		get_kerning(const char *s, float *tk, float **kl);
   float		get_width(const char *s);
 
   int		read_afm(hdFile *fp, hdStyleSheet *css);
@@ -577,6 +569,7 @@ struct hdStyleSheet
   hdStyleFont	*find_font(hdStyle *s);
   hdStyle	*find_style(hdTree *t);
   hdStyle	*find_style(int nsels, hdSelector *sels, int exact = 0);
+  int		get_glyph(const char *s);
   hdStyle	*get_private_style(hdTree *t);
   int		load(hdFile *f, const char *path = (const char *)0);
   void		pattern(const char *r, char p[256]);
@@ -595,5 +588,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.7 2002/02/17 22:44:55 mike Exp $".
+// End of "$Id: style.h,v 1.8 2002/02/23 04:03:30 mike Exp $".
 //
