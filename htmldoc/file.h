@@ -1,9 +1,9 @@
 //
-// "$Id: file.h,v 1.16 2002/02/26 05:16:01 mike Exp $"
+// "$Id: file.h,v 1.17 2004/02/03 02:55:28 mike Exp $"
 //
 //   File class definitions for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -308,5 +308,5 @@ class hdRC4Filter : public hdFile
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h,v 1.16 2002/02/26 05:16:01 mike Exp $".
+// End of "$Id: file.h,v 1.17 2004/02/03 02:55:28 mike Exp $".
 //

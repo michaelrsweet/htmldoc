@@ -1,9 +1,9 @@
 //
-// "$Id: margin.cxx,v 1.3 2002/04/07 13:19:57 mike Exp $"
+// "$Id: margin.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $"
 //
 // Margin class routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2002 by Easy Software Products.
+// Copyright 1997-2004 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -128,5 +128,5 @@ hdMargin::push(float l,		// I - New left margin
 
 
 //
-// End of "$Id: margin.cxx,v 1.3 2002/04/07 13:19:57 mike Exp $".
+// End of "$Id: margin.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $".
 //

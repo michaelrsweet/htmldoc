@@ -1,9 +1,9 @@
 //
-// "$Id: md5.cxx,v 1.3 2002/09/24 23:26:50 mike Exp $"
+// "$Id: md5.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $"
 //
 // MD5 support code for HTMLDOC.
 //
-// Copyright 2001-2002 by Easy Software Products.
+// Copyright 2001-2004 by Easy Software Products.
 // Copyright 1999 Aladdin Enterprises.  All rights reserved.
 //
 // This software is provided 'as-is', without any express or implied
@@ -389,5 +389,5 @@ hdMD5::finish(hdByte *digest)	// O - Final sum
 
 
 //
-// End of "$Id: md5.cxx,v 1.3 2002/09/24 23:26:50 mike Exp $".
+// End of "$Id: md5.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $".
 //

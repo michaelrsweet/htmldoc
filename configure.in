@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.24 2002/02/08 19:39:49 mike Exp $"
+dnl "$Id: configure.in,v 1.25 2004/02/03 02:55:28 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -23,11 +23,15 @@ if test "$uname" = "IRIX64"; then
 fi
 
 dnl Clear the debugging options unless the user asks for them...
-OPTIM=""
-AC_SUBST(OPTIM)
 CFLAGS="${CFLAGS:=}"
 CXXFLAGS="${CXXFLAGS:=}"
 LDFLAGS="${LDFLAGS:=}"
+
+OPTIM="${OPTIM:=}"
+AC_SUBST(OPTIM)
+
+SSLFLAGS="${SSLFLAGS:=}"
+AC_SUBST(SSLFLAGS)
 
 AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging [default=no]],
 [if eval "test x$enable_debug = xyes"; then
@@ -79,14 +83,11 @@ AC_CHECK_HEADER(strings.h, AC_DEFINE(HAVE_STRINGS_H))
 AC_CHECK_HEADER(locale.h, AC_DEFINE(HAVE_LOCALE_H))
 
 dnl Checks for string functions.
-AC_CHECK_FUNCS(strdup)
-AC_CHECK_FUNCS(strcasecmp)
-AC_CHECK_FUNCS(strncasecmp)
+AC_CHECK_FUNCS(strdup strcasecmp strncasecmp)
 if test "$uname" = "HP-UX" -a "$uversion" = "1020"; then
     AC_MSG_WARN(Forcing snprintf emulation for HP-UX...)
 else
-    AC_CHECK_FUNCS(snprintf)
-    AC_CHECK_FUNCS(vsnprintf)
+    AC_CHECK_FUNCS(snprintf vsnprintf)
 fi
 
 dnl See if the tm structure has the tm_gmtoff member...
@@ -130,7 +131,10 @@ do
 	$libcrypto)
 
     if test "x${SSLLIBS}" != "x"; then
-	AC_CHECK_HEADER(openssl/ssl.h,AC_DEFINE(HAVE_LIBSSL))
+	AC_CHECK_HEADER(openssl/ssl.h,
+	    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT $SSLFLAGS"
+	     SSLFLAGS="-DOPENSSL_NO_KRB5 $SSLFLAGS"
+	     AC_DEFINE(HAVE_LIBSSL)],,"-DOPENSSL_NO_KRB5")
 	break
     fi
 done
@@ -364,5 +368,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.24 2002/02/08 19:39:49 mike Exp $".
+dnl End of "$Id: configure.in,v 1.25 2004/02/03 02:55:28 mike Exp $".
 dnl

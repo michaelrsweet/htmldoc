@@ -1,9 +1,9 @@
 //
-// "$Id: http.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $"
+// "$Id: http.cxx,v 1.7 2004/02/03 02:55:28 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class routines for HTMLDOC.
 //
-//   Copyright 1997-2002 by Easy Software Products, all rights reserved.
+//   Copyright 1997-2004 by Easy Software Products, all rights reserved.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1842,5 +1842,5 @@ hdHTTP::upgrade()
 
 
 //
-// End of "$Id: http.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $".
+// End of "$Id: http.cxx,v 1.7 2004/02/03 02:55:28 mike Exp $".
 //

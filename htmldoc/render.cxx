@@ -1,10 +1,10 @@
 //
-// "$Id: render.cxx,v 1.13 2003/12/06 04:01:35 mike Exp $"
+// "$Id: render.cxx,v 1.14 2004/02/03 02:55:28 mike Exp $"
 //
 //   Core rendering methods for HTMLDOC, a HTML document processing
 //   program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -55,36 +55,36 @@ hdRender::finish_document(const char *author,
 //
 
 void
-hdRender::render_block(hdTree   *block,		// I  - Block node
-                       hdMargin &m,		// I  - Current margins
-		       float    &x,		// IO - Current X position
-		       float    &y,		// IO - Current Y position
-        	       int      &page)		// IO - Current page
+hdRender::render_block(hdTree   *block,	// I  - Block node
+                       hdMargin &m,	// I  - Current margins
+		       float    &x,	// IO - Current X position
+		       float    &y,	// IO - Current Y position
+        	       int      &page)	// IO - Current page
 {
-  hdTree	*t,				// Current node
-		*start,				// First node in line
-		*end,				// Last node in line
-		*next,				// Next node
-		*prev,				// Previous node
-		*bend;				// End of block
-  float		tx,				// Temporary X position
-		ty,				// Temporary Y position
-		width,				// Width
-		line_width,			// Total line width
-		format_width,			// Formatted width
-		above,				// Maximum height above baseline
-		below,				// Maximum height below baseline
-		height,				// Maximum height
-		line_height,			// Line height
-		letter_spacing,			// Additional letter spacing
-		word_spacing,			// Additional word spacing
-		temp_width,			// Temporary width value
-		temp_height,			// Temporary height value
-		decorationx,			// Text decoration X offset
-		decorationy;			// Text decoration Y offset
-  int		num_chars,			// Number of characters
-		num_words;			// Number of words
-  hdRenderNode	*r;				// New render node
+  hdTree	*t,			// Current node
+		*start,			// First node in line
+		*end,			// Last node in line
+		*next,			// Next node
+		*prev,			// Previous node
+		*bend;			// End of block
+  float		tx,			// Temporary X position
+		ty,			// Temporary Y position
+		width,			// Width
+		line_width,		// Total line width
+		format_width,		// Formatted width
+		above,			// Maximum height above baseline
+		below,			// Maximum height below baseline
+		height,			// Maximum height
+		line_height,		// Line height
+		letter_spacing,		// Additional letter spacing
+		word_spacing,		// Additional word spacing
+		temp_width,		// Temporary width value
+		temp_height,		// Temporary height value
+		decorationx,		// Text decoration X offset
+		decorationy;		// Text decoration Y offset
+  int		num_chars,		// Number of characters
+		num_words;		// Number of words
+  hdRenderNode	*r;			// New render node
 
 
   // Mark the last node that we care about...
@@ -454,12 +454,12 @@ hdRender::render_block(hdTree   *block,		// I  - Block node
 // 'hdRender::render_comment()' -
 //
 
-int						// O  - Non-zero for page break
-hdRender::render_comment(hdTree   *t,		// I  - Comment node
-                         hdMargin &m,		// I  - Current margins
-			 float    &x,		// IO - Current X position
-			 float    &y,		// IO - Current Y position
-                         int      &page)	// IO - Current page
+int					// O  - Non-zero for page break
+hdRender::render_comment(hdTree   *t,	// I  - Comment node
+                         hdMargin &m,	// I  - Current margins
+			 float    &x,	// IO - Current X position
+			 float    &y,	// IO - Current Y position
+                         int      &page)// IO - Current page
 {
   return (0);
 }
@@ -470,10 +470,12 @@ hdRender::render_comment(hdTree   *t,		// I  - Comment node
 //
 
 void
-hdRender::render_contents(hdTree     *t,
-                          hdMargin   &m,
+hdRender::render_contents(hdTree     *t,// I  - Table-of-contents node
+                          hdMargin   &m,// IO - Margins
 			  int        &page,
+					// IO - Current page
 			  const char *label)
+					// I  - Table-of-contents label
 {
 }
 
@@ -483,11 +485,11 @@ hdRender::render_contents(hdTree     *t,
 //
 
 void
-hdRender::render_doc(hdTree   *t,
-                     hdMargin &m,
-		     float    &x,
-		     float    &y,
-		     int      &page)
+hdRender::render_doc(hdTree   *t,	// I  - Document node
+                     hdMargin &m,	// IO - Margins
+		     float    &x,	// IO - Image X position
+		     float    &y,	// IO - Image Y position
+		     int      &page)	// IO - Current page
 {
 }
 
@@ -497,27 +499,27 @@ hdRender::render_doc(hdTree   *t,
 //
 
 void
-hdRender::render_image(hdTree   *t,		// I  - Image node
-                       hdMargin &m,		// IO - Margins
-                       float    &x,		// IO - Image X position
-		       float    &y,		// IO - Image Y position
-		       int      &page,		// IO - Current page
-		       float    ascent,		// I  - Ascent of line
-		       float    descent)	// I  - Descent of line
+hdRender::render_image(hdTree   *t,	// I  - Image node
+                       hdMargin &m,	// IO - Margins
+                       float    &x,	// IO - Image X position
+		       float    &y,	// IO - Image Y position
+		       int      &page,	// IO - Current page
+		       float    ascent,	// I  - Ascent of line
+		       float    descent)// I  - Descent of line
 {
-  float		tx,				// Temporary X position
-		ty,				// Temporary Y position
-		temp_width,			// Temporary width
-		temp_height;			// Temporary height
-  hdImage	*img;				// Image
-  const char	*imgmapname;			// Image map name
-  hdTree	*imgmap,			// Image map
-		*imgarea;			// Image map area
-  const char	*imgareacoords;			// Image area coordinates
-  float		imgareax,			// Image area X
-		imgareay,			// Image area Y
-		imgareaw,			// Image area width
-		imgareah;			// Image area height
+  float		tx,			// Temporary X position
+		ty,			// Temporary Y position
+		temp_width,		// Temporary width
+		temp_height;		// Temporary height
+  hdImage	*img;			// Image
+  const char	*imgmapname;		// Image map name
+  hdTree	*imgmap,		// Image map
+		*imgarea;		// Image map area
+  const char	*imgareacoords;		// Image area coordinates
+  float		imgareax,		// Image area X
+		imgareay,		// Image area Y
+		imgareaw,		// Image area width
+		imgareah;		// Image area height
 
 
   // Figure out the position and size of the image box...
@@ -650,32 +652,32 @@ hdRender::render_index(hdTree     *t,
 //
 
 void
-hdRender::render_line(hdTree   *line,		// I  - Line tree
-                      hdMargin &m,		// I  - Current margins
-		      float    &x,		// IO - Current X position
-		      float    &y,		// IO - Current Y position
-		      int      &page,		// IO - Current page
-		      int      lastline)	// I  - 1 = last line
+hdRender::render_line(hdTree   *line,	// I  - Line tree
+                      hdMargin &m,	// I  - Current margins
+		      float    &x,	// IO - Current X position
+		      float    &y,	// IO - Current Y position
+		      int      &page,	// IO - Current page
+		      int      lastline)// I  - 1 = last line
 {
-  hdTree	*t;				// Current node
-  float		tx,				// Temporary X position
-		ty,				// Temporary Y position
-		width,				// Width
-		line_width,			// Total line width
-		format_width,			// Formatted width
-		above,				// Maximum height above baseline
-		below,				// Maximum height below baseline
-		height,				// Maximum height
-		line_height,			// Line height
-		letter_spacing,			// Additional letter spacing
-		word_spacing,			// Additional word spacing
-		temp_width,			// Temporary width value
-		temp_height,			// Temporary height value
-		decorationx,			// Text decoration X offset
-		decorationy;			// Text decoration Y offset
-  int		num_chars,			// Number of characters
-		num_words;			// Number of words
-  hdRenderNode	*r;				// New render node
+  hdTree	*t;			// Current node
+  float		tx,			// Temporary X position
+		ty,			// Temporary Y position
+		width,			// Width
+		line_width,		// Total line width
+		format_width,		// Formatted width
+		above,			// Maximum height above baseline
+		below,			// Maximum height below baseline
+		height,			// Maximum height
+		line_height,		// Line height
+		letter_spacing,		// Additional letter spacing
+		word_spacing,		// Additional word spacing
+		temp_width,		// Temporary width value
+		temp_height,		// Temporary height value
+		decorationx,		// Text decoration X offset
+		decorationy;		// Text decoration Y offset
+  int		num_chars,		// Number of characters
+		num_words;		// Number of words
+  hdRenderNode	*r;			// New render node
 
 
   // First loop to figure out the total width and height of the line...
@@ -6405,5 +6407,5 @@ get_title(hdTree *doc)	// I - Document
 
 
 //
-// End of "$Id: render.cxx,v 1.13 2003/12/06 04:01:35 mike Exp $".
+// End of "$Id: render.cxx,v 1.14 2004/02/03 02:55:28 mike Exp $".
 //

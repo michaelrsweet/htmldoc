@@ -1,9 +1,9 @@
 //
-// "$Id: file-jpeg.cxx,v 1.1 2002/02/26 05:16:00 mike Exp $"
+// "$Id: file-jpeg.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $"
 //
 //   JPEG filter functions for HTMLDOC.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -269,5 +269,5 @@ hdJPEGFilter::term(j_compress_ptr cinfo)// I - Compressor info
 
 
 //
-// End of "$Id: file-jpeg.cxx,v 1.1 2002/02/26 05:16:00 mike Exp $".
+// End of "$Id: file-jpeg.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $".
 //

@@ -1,9 +1,9 @@
 //
-// "$Id: htmldoc.h,v 1.31 2002/07/18 01:14:58 mike Exp $"
+// "$Id: htmldoc.h,v 1.32 2004/02/03 02:55:28 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -140,5 +140,5 @@ extern hdCommon	hdGlobal;
 #endif // !_HTMLDOC_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.31 2002/07/18 01:14:58 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.32 2004/02/03 02:55:28 mike Exp $".
 //

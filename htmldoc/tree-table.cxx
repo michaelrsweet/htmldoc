@@ -1,10 +1,10 @@
 //
-// "$Id: tree-table.cxx,v 1.2 2003/02/18 03:54:33 mike Exp $"
+// "$Id: tree-table.cxx,v 1.3 2004/02/03 02:55:29 mike Exp $"
 //
 //   HTML table formatting routines for HTMLDOC, a HTML document
 //   processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1581,5 +1581,5 @@ hdTree::get_table_size(hdStyleSheet *css,	// I  - Style sheet
 
 
 //
-// End of "$Id: tree-table.cxx,v 1.2 2003/02/18 03:54:33 mike Exp $".
+// End of "$Id: tree-table.cxx,v 1.3 2004/02/03 02:55:29 mike Exp $".
 //

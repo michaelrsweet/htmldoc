@@ -1,9 +1,9 @@
 /*
- * "$Id: debug.h,v 1.8 2002/09/04 05:32:11 mike Exp $"
+ * "$Id: debug.h,v 1.9 2004/02/03 02:55:28 mike Exp $"
  *
  *   Debugging macros for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2002 by Easy Software Products.
+ *   Copyright 1997-2004 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -47,5 +47,5 @@
 #endif /* !_DEBUG_H_ */
 
 /*
- * End of "$Id: debug.h,v 1.8 2002/09/04 05:32:11 mike Exp $".
+ * End of "$Id: debug.h,v 1.9 2004/02/03 02:55:28 mike Exp $".
  */

@@ -1,9 +1,9 @@
 //
-// "$Id: file.cxx,v 1.7 2002/03/11 02:33:04 mike Exp $"
+// "$Id: file.cxx,v 1.8 2004/02/03 02:55:28 mike Exp $"
 //
 //   Filename routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -799,5 +799,5 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
 
 
 //
-// End of "$Id: file.cxx,v 1.7 2002/03/11 02:33:04 mike Exp $".
+// End of "$Id: file.cxx,v 1.8 2004/02/03 02:55:28 mike Exp $".
 //

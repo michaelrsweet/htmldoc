@@ -1,10 +1,10 @@
 //
-// "$Id: file-mem.cxx,v 1.2 2002/02/23 04:03:30 mike Exp $"
+// "$Id: file-mem.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $"
 //
 //   Memory buffer file routines for HTMLDOC, a HTML document processing
 //   program.
 //
-//   Copyright 1997-2002 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -342,5 +342,5 @@ hdMemFile::unget(int c)			// I - Character to push back
 
 
 //
-// End of "$Id: file-mem.cxx,v 1.2 2002/02/23 04:03:30 mike Exp $".
+// End of "$Id: file-mem.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $".
 //
