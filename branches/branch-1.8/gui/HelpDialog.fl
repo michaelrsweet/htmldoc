@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.00 
+version 1.0011 
 header_name {.h} 
 code_name {.cxx} 
 gridx 5 
@@ -117,7 +117,11 @@ forward_->deactivate();
 index_ = -1;
 max_  = 0;} {}
   }
-  Function {h()} {selected return_type int
+  Function {~HelpDialog()} {} {
+    code {delete window_;} {selected
+    }
+  }
+  Function {h()} {return_type int
   } {
     code {return (window_->h());} {}
   }
