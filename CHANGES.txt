@@ -15,6 +15,8 @@ CHANGES IN HTMLDOC v1.8.24
 	  tables, a MSIE extension.
 	- The "strict HTML" mode now reports unresolved local
 	  links.
+	- Added support for HP LaserJet 5000 and Xerox DocuPrint
+	  2000/100 printer commands.
 
     CHANGES
 
