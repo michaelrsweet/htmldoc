@@ -1,5 +1,5 @@
 //
-// "$Id: book.h,v 1.7 2004/10/22 05:43:14 mike Exp $"
+// "$Id: book.h,v 1.8 2004/10/23 20:23:19 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -31,6 +31,7 @@
 //
 
 #  include "html.h"
+#  include "http.h"
 #  include "image.h"
 #  include "margin.h"
 #  include "md5.h"
@@ -264,6 +265,13 @@ struct hdOutPage			//// Output page info
 };
 
 
+struct hdFileCache			//// Cache for all temporary files
+{
+  char	*name;				// Temporary filename
+  char	*url;				// URL
+};
+
+
 //
 // The hdBook structure contains common global data and structures
 // for a book...
@@ -438,6 +446,16 @@ struct hdBook
 		Links;			// true = generate links, false = no links
   char		Path[2048],		// Search path
 		Proxy[1024];		// Proxy URL
+
+  char		proxy_host[HTTP_MAX_URI];
+					// Proxy hostname
+  int		proxy_port;		// Proxy port
+  http_t	*http;			// Connection to remote server
+  int		web_files,		// Number of temporary files
+		web_alloc;		// Number of allocated files
+  hdFileCache	*web_cache;		// Cache array
+  int		no_local;		// Non-zero to disable local files
+  char		cookies[1024];		// HTTP cookies, if any
 
   static const char *datadir;		// Directory for data files
   static const char * const PDFModes[3],// Mode strings
@@ -625,6 +643,21 @@ struct hdBook
   int		write_type1(FILE *out, hdFontFace typeface,
 			    hdFontInternal style);
 
+  static const char	*file_basename(const char *s);
+  void			file_cleanup(void);
+  void			file_cookies(const char *s);
+  static const char	*file_directory(const char *s);
+  static const char	*file_extension(const char *s);
+  const char		*file_find(const char *path, const char *s);
+  const char		*file_find_check(const char *filename);
+  static char		*file_gets(char *buf, int buflen, FILE *fp);
+  static const char	*file_localize(const char *filename, const char *newcwd);
+  static const char	*file_method(const char *s);
+  void			file_nolocal();
+  void			file_proxy(const char *url);
+  static const char	*file_target(const char *s);
+  FILE			*file_temp(char *name, size_t len);
+
   static int	image_compare(image_t **img1, image_t **img2);
   void		image_copy(const char *filename, const char *destpath);
   image_t	*image_find(const char *filename, int load_data = 0);
@@ -637,5 +670,5 @@ struct hdBook
 #endif // !HTMLDOC_BOOK_H
 
 //
-// End of "$Id: book.h,v 1.7 2004/10/22 05:43:14 mike Exp $".
+// End of "$Id: book.h,v 1.8 2004/10/23 20:23:19 mike Exp $".
 //

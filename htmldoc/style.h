@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.24 2004/03/31 20:56:56 mike Exp $"
+// "$Id: style.h,v 1.25 2004/10/23 20:23:19 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -30,7 +30,6 @@
 // Include necessary headers...
 //
 
-#  include "file.h"
 #  include "types.h"
 
 
@@ -1166,5 +1165,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_HD_FONTINTERNAL_H_
 
 //
-// End of "$Id: style.h,v 1.24 2004/03/31 20:56:56 mike Exp $".
+// End of "$Id: style.h,v 1.25 2004/10/23 20:23:19 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: tree.cxx,v 1.27 2004/10/22 05:43:14 mike Exp $"
+ * "$Id: tree.cxx,v 1.28 2004/10/23 20:23:19 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -995,7 +995,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 
             if ((embed = fopen((char *)filename, "r")) != NULL)
             {
-	      strcpy(newbase, file_directory((char *)filename));
+	      strcpy(newbase, hdBook::file_directory((char *)filename));
 
               htmlReadFile(t, embed, newbase);
               fclose(embed);
@@ -3016,9 +3016,9 @@ htmlFixLinks(hdTree *doc,		// I - Top node
         (href = htmlGetVariable(tree, (uchar *)"HREF")) != NULL)
     {
       // Check if the link needs to be localized...
-      if (href[0] != '#' && file_method((char *)href) == NULL &&
-          file_method((char *)base) != NULL &&
-	  htmlFindFile(doc, (uchar *)file_basename((char *)href)) == NULL)
+      if (href[0] != '#' && hdBook::file_method((char *)href) == NULL &&
+          hdBook::file_method((char *)base) != NULL &&
+	  htmlFindFile(doc, (uchar *)hdBook::file_basename((char *)href)) == NULL)
       {
         // Yes, localize it...
 	if (href[0] == '/')
@@ -3076,5 +3076,5 @@ htmlFixLinks(hdTree *doc,		// I - Top node
 
 
 /*
- * End of "$Id: tree.cxx,v 1.27 2004/10/22 05:43:14 mike Exp $".
+ * End of "$Id: tree.cxx,v 1.28 2004/10/23 20:23:19 mike Exp $".
  */
