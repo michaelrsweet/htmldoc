@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.27 2001/02/26 23:44:01 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.28 2001/02/27 02:13:14 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6648,7 +6648,7 @@ write_image(FILE     *out,	/* I - Output file */
 	  objects[num_objects] = ftell(out);
 	  fprintf(out, "%d 0 obj<<", num_objects);
 	  fputs("/Type/XObject/Subtype/Image", out);
-	  fprintf(out, "/W %d/H %d/BPC 1/IM true/Length %d 0 R",
+	  fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true/Length %d 0 R",
 	          img->width, img->height, num_objects + 1);
           if (Compression)
             fputs("/Filter/FlateDecode", out);
@@ -6700,30 +6700,31 @@ write_image(FILE     *out,	/* I - Output file */
 	      colors[1][2] = 0;
 	    }
 
-	    fprintf(out, "/CS[/I/RGB %d<", ncolors - 1);
+	    fprintf(out, "/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
 	      fprintf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
 	    fputs(">]", out);
           }
 	  else if (img->depth == 1)
-            fputs("/CS/Gray", out);
+            fputs("/ColorSpace/DeviceGray", out);
           else
-            fputs("/CS/RGB", out);
+            fputs("/ColorSpace/DeviceRGB", out);
 
-          fputs("/I true", out);
+          fputs("/Interpolate true", out);
 
           if (Compression && (ncolors || !OutputJPEG))
             fputs("/Filter/FlateDecode", out);
 	  else if (OutputJPEG && ncolors == 0)
 	    fputs("/Filter/DCTDecode", out);
 
-  	  fprintf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits);
+  	  fprintf(out, "/Width %d/Height %d/BitsPerComponent %d",
+	          img->width, img->height, indbits);
           fputs(">>", out);
           fputs("stream\n", out);
 
           length = ftell(out);
 
-          if (OutputJPEG)
+          if (OutputJPEG && ncolors == 0)
 	  {
 	    jpg_setup(out, img, &cinfo);
 
@@ -8216,5 +8217,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.27 2001/02/26 23:44:01 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.28 2001/02/27 02:13:14 mike Exp $".
  */

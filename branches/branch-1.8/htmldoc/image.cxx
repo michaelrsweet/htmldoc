@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.5 2001/02/26 01:14:19 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.6 2001/02/27 02:13:13 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -28,7 +28,6 @@
  *   gif_get_code()      - Get a LZW code from the file...
  *   gif_read_image()    - Read a GIF image stream...
  *   gif_read_lzw()      - Read a byte from the LZW stream...
- *   image_clear_mask()  - Clear a bit in the image mask.
  *   image_compare()     - Compare two image filenames...
  *   image_copy()        - Copy image files to the destination directory...
  *   image_flush_cache() - Flush the image cache...
@@ -39,6 +38,7 @@
  *   image_load_jpeg()   - Load a JPEG image file.
  *   image_load_png()    - Load a PNG image file.
  *   image_need_mask()   - Allocate memory for the image mask...
+ *   image_set_mask()  - Clear a bit in the image mask.
  *   read_word()         - Read a 16-bit unsigned integer.
  *   read_dword()        - Read a 32-bit unsigned integer.
  *   read_long()         - Read a 32-bit signed integer.
@@ -100,13 +100,13 @@ static int	gif_read_image(FILE *fp, image_t *img, gif_cmap_t cmap,
 		               int interlace, int transparent);
 static int	gif_read_lzw(FILE *fp, int first_time, int input_code_size);
 
-static void	image_clear_mask(image_t *img, int x, int y);
 static int	image_compare(image_t **img1, image_t **img2);
 static int	image_load_bmp(image_t *img, FILE *fp, int gray);
 static int	image_load_gif(image_t *img, FILE *fp, int gray);
 static int	image_load_jpeg(image_t *img, FILE *fp, int gray);
 static int	image_load_png(image_t *img, FILE *fp, int gray);
 static void	image_need_mask(image_t *img);
+static void	image_set_mask(image_t *img, int x, int y);
 
 static int		read_long(FILE *fp);
 static unsigned short	read_word(FILE *fp);
@@ -334,7 +334,7 @@ gif_read_image(FILE       *fp,		/* I - Input file */
     }
 
     if (pixel == transparent)
-      image_clear_mask(img, xpos, ypos);
+      image_set_mask(img, xpos, ypos);
 
     xpos ++;
     temp += img->depth;
@@ -519,32 +519,6 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
   }
 
   return (code);
-}
-
-
-/*
- * 'image_clear_mask()' - Clear a bit in the image mask.
- */
-
-static void
-image_clear_mask(image_t *img,	/* I - Image to operate on */
-                 int     x,	/* I - X coordinate */
-	         int     y)	/* I - Y coordinate */
-{
-  uchar		*maskptr;	/* Pointer into mask image */
-  static uchar	masks[8] =	/* Masks for each bit */
-		{
-		  0x7f, 0xbf, 0xdf, 0xef,
-		  0xf7, 0xfb, 0xfd, 0xfe
-		};
-
-
-  if (img == NULL || img->mask == NULL || x < 0 || x >= img->width ||
-      y < 0 || y > img->height)
-    return;
-
-  maskptr  = img->mask + y * img->maskwidth + x / 8;
-  *maskptr &= masks[x & 7];
 }
 
 
@@ -1503,8 +1477,33 @@ image_need_mask(image_t *img)	/* I - Image to add mask to */
   img->maskwidth = (img->width + 7) / 8;
   size           = img->maskwidth * img->height;
   
-  if ((img->mask = (uchar *)malloc(size)) != NULL)
-    memset(img->mask, -1, size);
+  img->mask = (uchar *)calloc(size, 1);
+}
+
+
+/*
+ * 'image_set_mask()' - Clear a bit in the image mask.
+ */
+
+static void
+image_set_mask(image_t *img,	/* I - Image to operate on */
+                 int     x,	/* I - X coordinate */
+	         int     y)	/* I - Y coordinate */
+{
+  uchar		*maskptr;	/* Pointer into mask image */
+  static uchar	masks[8] =	/* Masks for each bit */
+		{
+		  0x80, 0x40, 0x20, 0x10,
+		  0x08, 0x04, 0x02, 0x01
+		};
+
+
+  if (img == NULL || img->mask == NULL || x < 0 || x >= img->width ||
+      y < 0 || y > img->height)
+    return;
+
+  maskptr  = img->mask + y * img->maskwidth + x / 8;
+  *maskptr |= masks[x & 7];
 }
 
 
@@ -1561,5 +1560,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.5 2001/02/26 01:14:19 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.6 2001/02/27 02:13:13 mike Exp $".
  */
