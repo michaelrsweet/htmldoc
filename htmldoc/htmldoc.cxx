@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.74 2004/05/22 21:04:59 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.75 2004/05/24 21:16:35 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -82,9 +82,11 @@ static void	parse_options(const char *line, exportfunc_t *exportfunc);
 static int	read_file(const char *filename, tree_t **document,
 		          const char *path);
 static void	set_permissions(const char *p);
+#ifndef WIN32
 extern "C" {
 static void	term_handler(int signum);
 }
+#endif // !WIN32
 static void	usage(const char *arg = NULL);
 
 
@@ -2250,6 +2252,7 @@ set_permissions(const char *p)		// I - Permission string
 }
 
 
+#ifndef WIN32
 //
 // 'term_handler()' - Handle CTRL-C or kill signals...
 //
@@ -2263,6 +2266,7 @@ term_handler(int signum)	// I - Signal number
   image_flush_cache();
   exit(1);
 }
+#endif // !WIN32
 
 
 /*
@@ -2407,5 +2411,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.74 2004/05/22 21:04:59 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.75 2004/05/24 21:16:35 mike Exp $".
  */
