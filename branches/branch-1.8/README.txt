@@ -1,4 +1,4 @@
-README.txt - 04/10/2002
+README.txt - 08/19/2002
 -----------------------
 
 INTRODUCTION
@@ -58,6 +58,7 @@ REQUIREMENTS
 	- AIX 4.3.3 or higher
         - Compaq Tru64 UNIX 4.0 or higher
         - Digital UNIX 4.0 or higher
+	- FreeBSD 4.5 or higher
 	- HP-UX 10.20 or higher
 	- IRIX 5.3 or higher
 	- Linux 2.0 or higher (Intel only)
@@ -80,7 +81,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.19-windows.exe" or "htmldoc-1.8.19-winfree.exe" files
+    the "htmldoc-1.8.22-windows.exe" or "htmldoc-1.8.22-winfree.exe" files
     to start the installation wizard.
 
     (the -windows file is the supported version, while the -winfree file
@@ -91,34 +92,26 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.19-linux-2.0-intel.rpm ENTER
+        rpm -i htmldoc-1.8.22-linux-2.0-intel.rpm ENTER
 
     or:
 
-        rpm -i htmldoc-1.8.19-linux-2.2-intel.rpm ENTER
+        rpm -i htmldoc-1.8.22-linux-2.2-intel.rpm ENTER
 
     or:
 
-        rpm -i htmldoc-1.8.19-linux-2.4-intel.rpm ENTER
+        rpm -i htmldoc-1.8.22-linux-2.4-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.19-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.19-platform.tar ENTER
+        gunzip htmldoc-1.8.22-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.22-platform.tar ENTER
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
-
-
-INSTALLING HTMLDOC UNDER MacOS X
-
-    Type the following commands to install HTMLDOC under MacOS X:
-
-        tar xzf htmldoc-1.8.19-darwin-5.3-powerpc.tar.gz ENTER
-	sudo ./htmldoc.install ENTER
 
 
 RUNNING HTMLDOC FROM THE COMMAND-LINE

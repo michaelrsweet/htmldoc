@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.38 2002/08/14 19:44:58 mike Exp $"
+ * "$Id: file.c,v 1.13.2.39 2002/08/19 19:07:05 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -542,8 +542,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     fclose(fp);
 
-    web_cache[web_files - 1].name = strdup(tempname);
-    web_cache[web_files - 1].url  = strdup(filename);
+    web_cache[web_files - 1].url = strdup(filename);
 
     DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\"!\n",
 		  tempname, filename));
@@ -1042,10 +1041,12 @@ file_temp(char *name,			/* O - Filename */
   if (!fp)
     web_files --;
 
+  temp->name = strdup(name);
+
   return (fp);
 }
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.38 2002/08/14 19:44:58 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.39 2002/08/19 19:07:05 mike Exp $".
  */
