@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.183 2002/06/05 03:59:36 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.184 2002/06/06 14:32:28 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3278,14 +3278,18 @@ render_contents(tree_t *t,		/* I - Tree to parse */
   * Get the width of the page number, leave room for three dots...
   */
 
-  hpage = heading_pages[heading] + chapter_starts[1] - 1;
-
   if (heading >= 0)
+  {
+    hpage       = heading_pages[heading] + chapter_starts[1] - 1;
     numberwidth = get_width((uchar *)pages[hpage].page_text,
                             t->typeface, t->style, t->size) +
 	          3.0f * dot_width;
+  }
   else
+  {
+    hpage       = 0;
     numberwidth = 0.0f;
+  }
 
   for (temp = flat; temp != NULL; temp = next)
   {
@@ -11657,5 +11661,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.183 2002/06/05 03:59:36 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.184 2002/06/06 14:32:28 mike Exp $".
  */
