@@ -6,6 +6,7 @@
 #include <FL/Fl_Window.H>
 #include <string.h>
 #include <FL/Fl_Help_View.H>
+#include <FL/Fl_Group.H>
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Menu_Bar.H>
