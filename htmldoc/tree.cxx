@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.13 2002/04/03 02:29:30 mike Exp $"
+// "$Id: tree.cxx,v 1.14 2002/04/03 18:12:57 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -668,38 +668,30 @@ hdTree::get_element(const char *name)	// I - Element name
 const char *				// O - Meta data or NULL
 hdTree::get_meta(const char *name)	// I - Name of meta data
 {
-#if 0
-  char	*tname,			/* Name value from tree node */
-	*tcontent;		/* Content value from tree node */
+  hdTree	*t,			// Current node
+		*end;			// End node
+  const char	*tname,			// Name value from tree node
+		*tcontent;		// Content value from tree node
 
 
-  while (tree != NULL)
+  // Look here and in child nodes for the desired meta data...
+  end = real_next(0);
+
+  for (t = this; t != end; t = t->real_next())
   {
-   /*
-    * Check this tree node...
-    */
-
-    if (tree->element == HD_ELEMENT_META &&
-        (tname = htmlGetVariable(tree, "NAME")) != NULL &&
-        (tcontent = htmlGetVariable(tree, "CONTENT")) != NULL)
-      if (strcasecmp(name, (char *)tname) == 0)
+    // Check this node...
+    if (t->element == HD_ELEMENT_META &&
+        (tname = t->get_attr("NAME")) != NULL &&
+        (tcontent = t->get_attr("CONTENT")) != NULL)
+    {
+      // We have meta data; is this the data we seek?
+      if (strcasecmp(name, tname) == 0)
+      {
+        // Yes, return it...
         return (tcontent);
-
-   /*
-    * Check child entries...
-    */
-
-    if (tree->child != NULL)
-      if ((tcontent = htmlGetMeta(tree->child, name)) != NULL)
-        return (tcontent);
-
-   /*
-    * Next tree node...
-    */
-
-    tree = tree->next;
+      }
+    }
   }
-#endif // 0
 
   return (NULL);
 }
@@ -769,15 +761,11 @@ hdTree::get_text(int comments)		// I - Include comments, too?
 char *					// O - Text for the title...
 hdTree::get_title()
 {
-  char	*title;				// Title text...
+  hdTree	*title;			// Title node
 
 
-  if (element == HD_ELEMENT_TITLE)
-    return (get_text());
-  else if (child && (title = child->get_title()) != NULL)
-    return (title);
-  else if (next)
-    return (next->get_title());
+  if ((title = find(HD_ELEMENT_TITLE)) != NULL)
+    return (title->get_text());
   else
     return (NULL);
 }
@@ -1830,5 +1818,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.13 2002/04/03 02:29:30 mike Exp $".
+// End of "$Id: tree.cxx,v 1.14 2002/04/03 18:12:57 mike Exp $".
 //
