@@ -1,5 +1,5 @@
 //
-// "$Id: image-reduce.cxx,v 1.1 2002/03/10 03:17:24 mike Exp $"
+// "$Id: image-reduce.cxx,v 1.2 2002/09/24 23:15:08 mike Exp $"
 //
 //   Image color reduction methods for HTMLDOC, a HTML document processing
 //   program.
@@ -66,7 +66,7 @@ hdImage::reduce(int          max_colors,	// I - Maximum number of colors to use
   int		bits;				// Bits per index
   unsigned	key,				// Color key
 		*match;				// Matching color value
-  uchar		grays[256];			// Grayscale usage
+  hdByte	grays[256];			// Grayscale usage
 
 
   // Load the image as needed...
@@ -389,5 +389,5 @@ hdImage::reduce(int          max_colors,	// I - Maximum number of colors to use
 
 
 //
-// End of "$Id: image-reduce.cxx,v 1.1 2002/03/10 03:17:24 mike Exp $".
+// End of "$Id: image-reduce.cxx,v 1.2 2002/09/24 23:15:08 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: image-png.cxx,v 1.4 2002/01/06 20:04:48 mike Exp $"
+// "$Id: image-png.cxx,v 1.5 2002/09/24 23:15:08 mike Exp $"
 //
 // PNG image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -97,7 +97,7 @@ hdPNGImage::real_load(int img,	// I - 1 = load image data, 0 = just info
   png_bytep	*rows;		// PNG row pointers
   png_bytep	local;		// Local image data...
   png_bytep	localptr;	// Pointer to local image data...
-  uchar		*pixelptr;	// Pointer to final image data...
+  hdByte	*pixelptr;	// Pointer to final image data...
 
 
   // Open the file...
@@ -251,5 +251,5 @@ png_read(png_structp pp,		// I - PNG image
 
 
 //
-// End of "$Id: image-png.cxx,v 1.4 2002/01/06 20:04:48 mike Exp $".
+// End of "$Id: image-png.cxx,v 1.5 2002/09/24 23:15:08 mike Exp $".
 //

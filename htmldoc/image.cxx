@@ -1,5 +1,5 @@
 //
-// "$Id: image.cxx,v 1.20 2002/03/11 02:33:05 mike Exp $"
+// "$Id: image.cxx,v 1.21 2002/09/24 23:15:08 mike Exp $"
 //
 //   Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -132,7 +132,7 @@ hdImage::alloc_mask()
   maskwidth_ = (width_ + 7) / 8;
   size       = maskwidth_ * height_;
 
-  mask_ = new uchar[size];
+  mask_ = new hdByte[size];
 
   memset(mask_, 0, size);
 }
@@ -156,7 +156,7 @@ hdImage::alloc_pixels()
   // all the bits needed...
   size = width_ * height_ * depth_;
 
-  pixels_ = new uchar[size];
+  pixels_ = new hdByte[size];
 
   memset(pixels_, 0, size);
 }
@@ -286,7 +286,7 @@ hdImage::find(const char *p,	// I - Name of image file
 
   printf("First 16 bytes of \"%s\" are:\n   ", filename);
   for (i = 0; i < 16; i ++)
-    printf(" %02X", (uchar)header[i]);
+    printf(" %02X", (hdByte)header[i]);
   putchar('\n');
 
   // See if any of the registered image classes can load it...
@@ -361,13 +361,13 @@ hdImage::free()
   if (pixels_)
   {
     delete[] pixels_;
-    pixels_ = (uchar *)0;
+    pixels_ = (hdByte *)0;
   }
 
   if (mask_)
   {
     delete[] mask_;
-    mask_ = (uchar *)0;
+    mask_ = (hdByte *)0;
   }
 }
 
@@ -472,15 +472,15 @@ hdImage::save_as_png(const char *path,	// I - Destination path
 void
 hdImage::set_mask(int   x,	// I - X coordinate
                   int   y,	// I - Y coordinate
-		  uchar a)	// I - Alpha value
+		  hdByte a)	// I - Alpha value
 {
-  uchar		*maskptr;	// Pointer into mask image
-  static uchar	masks[8] =	// Masks for each bit
+  hdByte	*maskptr;	// Pointer into mask image
+  static hdByte	masks[8] =	// Masks for each bit
 		{
 		  0x80, 0x40, 0x20, 0x10,
 		  0x08, 0x04, 0x02, 0x01
 		};
-  static uchar	dither[16][16] = // Simple 16x16 Floyd dither
+  static hdByte	dither[16][16] = // Simple 16x16 Floyd dither
 		{
 		 { 0,   128, 32,  160, 8,   136, 40,  168,
 		   2,   130, 34,  162, 10,  138, 42,  170 },
@@ -572,5 +572,5 @@ hdImage::uri(const char *p)		// I - New URI
 
 
 //
-// End of "$Id: image.cxx,v 1.20 2002/03/11 02:33:05 mike Exp $".
+// End of "$Id: image.cxx,v 1.21 2002/09/24 23:15:08 mike Exp $".
 //
