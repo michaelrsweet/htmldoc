@@ -1,0 +1,137 @@
+<HTML>
+<BODY>
+
+<H1 ALIGN=RIGHT>2 - Guidelines for HTML Source Files</H1>
+
+<I>HTMLDOC</I> is capable of processing most HTML files. This chapter discusses
+the requirements for HTML files to be correctly processed by <I>HTMLDOC</I>
+
+<H2>General Requirements</H2>
+
+Since <I>HTMLDOC</I> is designed as a documentation generation program,
+it expects to have chapters and headers.
+
+<P><B>NOTE:</B> If you are converting a generic web page you must
+select the "--webpage" option on the command-line or choose "Web Page"
+as the document type in the GUI.
+
+<H2>Page Breaks</H2>
+
+To force a page break use the HR markup with the option "BREAK":
+
+<UL><PRE>
+&lt;HR BREAK&gt;
+</PRE></UL>
+
+<H2>Chapters</H2>
+
+All chapters start with a top-level heading (H1) markup. Any headings within
+a chapter must be of a lower level (H2 to H7). Each chapter starts a new
+page (the next odd-numbered page if duplexing is selected.)
+
+<H2>Headings</H2>
+
+The headings you use within a chapter must start at level 2 (H2). If you
+skip levels the heading will be shown under the last level that was known.
+For example, if you use the following hierarchy of headings:
+
+<UL><PRE>
+&lt;H1>Chapter Heading&lt;/H1>
+...
+&lt;H2>Section Heading 1&lt;/H2>
+...
+&lt;H2>Section Heading 2&lt;/H2>
+...
+&lt;H3>Sub-Section Heading 1&lt;/H3>
+...
+&lt;H4>Sub-Sub-Section Heading 1&lt;/H4>
+...
+&lt;H4>Sub-Sub-Section Heading 2&lt;/H4>
+...
+&lt;H3>Sub-Section Heading 2&lt;/H3>
+...
+&lt;H2>Section Heading 3&lt;/H2>
+...
+&lt;H4>Sub-Sub-Section Heading 3&lt;/H4>
+...
+</PRE></UL>
+
+the table-of-contents that is generated will show:
+
+<UL>
+	<B>Chapter Heading</B>
+	<UL>
+		<LI>Section Heading 1</LI>
+		<LI>Section Heading 2</LI>
+		<UL>
+			<LI>Sub-Section Heading 1</LI>
+			<UL>
+				<LI>Sub-Sub-Section Heading 1</LI>
+				<LI>Sub-Sub-Section Heading 2</LI>
+			</UL>
+			<LI>Sub-Section Heading 2</LI>
+			<UL>
+				<LI>Sub-Sub-Section Heading 3</LI>
+			</UL>
+		</UL>
+		<LI>Section Heading 3</LI>
+	</UL>
+</UL>
+
+<H2>Unsupported or Restricted HTML Features</H2>
+
+The following HTML features are either not supported or have limited support
+in this release of <I>HTMLDOC</I>.
+
+<H3>Embedded Objects</H3>
+
+Only embedded HTML files are supported using the EMBED tag.
+
+<H3>Fonts</H3>
+
+Limited typeface specification is currently supported. The "Arial" typeface
+is mapped to "Helvetica" to ensure portability across platforms and for
+older PostScript printers. All other unrecognized typefaces are silently
+ignored.
+
+<H3>Forms</H3>
+
+Forms are not yet supported when generating PostScript and PDF files.
+
+<H3>Frames</H3>
+
+HTMLDOC does not support frames.
+
+<H3>Image Maps</H3>
+
+Image maps are not exported to HTML or PDF files.
+
+<H3>Links</H3>
+
+External URL links are fully supported for HTML and PDF output. Internal
+links are supported in HTML and PDF output.
+
+<P>When generating PDF files, links of the form:
+
+<UL><PRE>
+&lt;A HREF="file:filename.pdf">Link Text&lt;/A>
+</PRE></UL>
+
+will be converted to external file links for the PDF viewer instead of
+URL links.
+
+<H3>Scripts and Applets</H3>
+
+All scripts and applets are silently stripped from the output.
+
+<H3>Style Sheets</H3>
+
+Style sheets are not yet supported.
+
+<H3>Tables</H3>
+
+Currently only the HTML 3.2 varient of tables is supported. The CAPTION,
+THEAD, TFOOT, and TBODY tags are ignored.
+
+</BODY>
+</HTML>
