@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.70 2004/05/15 21:24:23 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.71 2004/05/19 15:12:48 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1919,8 +1919,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
       tocLevels->value(0);
       continue;
     }
-    else if (strcmp(temp, "--title") == 0 &&
-             (*lineptr == '-' || !*lineptr))
+    else if (strcmp(temp, "--title") == 0)
     {
       titlePage->set();
       continue;
@@ -2051,7 +2050,8 @@ GUI::parseOptions(const char *line)	// I - Line from file
     else if (strcmp(temp, "--logo") == 0 ||
              strcmp(temp, "--logoimage") == 0)
       logoImage->value(temp2);
-    else if (strcmp(temp, "--titleimage") == 0)
+    else if (strcmp(temp, "--titlefile") == 0 ||
+             strcmp(temp, "--titleimage") == 0)
     {
       titlePage->set();
       titleImage->value(temp2);
@@ -4101,5 +4101,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.70 2004/05/15 21:24:23 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.71 2004/05/19 15:12:48 mike Exp $".
 //
