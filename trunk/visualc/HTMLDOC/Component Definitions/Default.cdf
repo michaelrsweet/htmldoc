@@ -1,40 +1,33 @@
 [Components]
-component0=Program Executables
+component0=AFM Files
+component1=Program Executables
+component2=Data Files
+component3=Documentation
 
 [TopComponents]
 component0=Program Executables
+component1=Documentation
+component2=AFM Files
+component3=Data Files
 
 [SetupType]
-setuptype0=Compact
-setuptype1=Typical
-setuptype2=Custom
+setuptype0=Typical
 
-[SetupTypeItem-Compact]
-Comment=
-item0=Program Executables
-Descrip=
-DisplayText=
-
-[SetupTypeItem-Custom]
-Comment=
-item0=Program Executables
-Descrip=
-DisplayText=
-
-[Program Executables]
+[AFM Files]
+required0=Program Executables
 SELECTED=Yes
 FILENEED=STANDARD
 HTTPLOCATION=
-STATUS=
+STATUS=Adobe Font Metric Files
 UNINSTALLABLE=Yes
-TARGET=<TARGETDIR>
+TARGET=<PROGRAMFILES>\HTMLDOC\afm
 FTPLOCATION=
 VISIBLE=Yes
-DESCRIPTION=
-DISPLAYTEXT=
+DESCRIPTION=Adobe Font Metric Files
+DISPLAYTEXT=Adobe Font Metric Files
 IMAGE=
 DEFSELECTION=Yes
-filegroup0=Program Executables
+filegroup0=AFM Files
 COMMENT=
 INCLUDEINBUILD=Yes
 INSTALLATION=ALWAYSOVERWRITE
@@ -44,7 +37,35 @@ ENCRYPT=No
 DISK=ANYDISK
 TARGETDIRCDROM=
 PASSWORD=
-TARGETHIDDEN=
+TARGETHIDDEN=Program Files Folder\HTMLDOC\afm
+
+[Program Executables]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Program Files
+UNINSTALLABLE=Yes
+TARGET=<PROGRAMFILES>\HTMLDOC
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=Program Files
+DISPLAYTEXT=Program Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Program Executables
+requiredby0=Data Files
+COMMENT=
+INCLUDEINBUILD=Yes
+requiredby1=AFM Files
+INSTALLATION=ALWAYSOVERWRITE
+requiredby2=Documentation
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Program Files Folder\HTMLDOC
 
 [Info]
 Type=CompDef
@@ -53,7 +74,62 @@ Name=
 
 [SetupTypeItem-Typical]
 Comment=
-item0=Program Executables
+item0=AFM Files
+item1=Program Executables
+item2=Data Files
+item3=Documentation
 Descrip=
 DisplayText=
+
+[Documentation]
+required0=Program Executables
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Documentation
+UNINSTALLABLE=Yes
+TARGET=<PROGRAMFILES>\HTMLDOC\doc
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=Documentation
+DISPLAYTEXT=Documentation
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Documentation
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Program Files Folder\HTMLDOC\doc
+
+[Data Files]
+required0=Program Executables
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Data Files
+UNINSTALLABLE=Yes
+TARGET=<PROGRAMFILES>\HTMLDOC\data
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=Data Files
+DISPLAYTEXT=Data Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Data Files
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Program Files Folder\HTMLDOC\data
 

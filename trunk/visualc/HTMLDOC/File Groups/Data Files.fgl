@@ -1,12 +1,7 @@
 [TopDir]
-file15=C:\mike\htmldoc1\afm\Courier-Oblique
-file16=C:\mike\htmldoc1\afm\Helvetica
 file0=C:\mike\htmldoc1\data\psglyphs
-file17=C:\mike\htmldoc1\afm\Helvetica-Bold
 file1=C:\mike\htmldoc1\data\8859-14
-file18=C:\mike\htmldoc1\afm\Helvetica-BoldOblique
 file2=C:\mike\htmldoc1\data\8859-15
-file19=C:\mike\htmldoc1\afm\Helvetica-Oblique
 file3=C:\mike\htmldoc1\data\8859-2
 file4=C:\mike\htmldoc1\data\8859-3
 file5=C:\mike\htmldoc1\data\8859-4
@@ -14,16 +9,8 @@ file6=C:\mike\htmldoc1\data\8859-5
 file7=C:\mike\htmldoc1\data\8859-6
 file8=C:\mike\htmldoc1\data\8859-7
 file9=C:\mike\htmldoc1\data\8859-8
-file20=C:\mike\htmldoc1\afm\Symbol
-file21=C:\mike\htmldoc1\afm\Times-Bold
 file10=C:\mike\htmldoc1\data\8859-9
-file22=C:\mike\htmldoc1\afm\Times-BoldItalic
 file11=C:\mike\htmldoc1\data\8859-1
-file23=C:\mike\htmldoc1\afm\Times-Italic
-file12=C:\mike\htmldoc1\afm\Courier
-file24=C:\mike\htmldoc1\afm\Times-Roman
-file13=C:\mike\htmldoc1\afm\Courier-Bold
-file14=C:\mike\htmldoc1\afm\Courier-BoldOblique
 
 [General]
 Type=FILELIST
