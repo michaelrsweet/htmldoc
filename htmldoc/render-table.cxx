@@ -1,5 +1,5 @@
 //
-// "$Id: render-table.cxx,v 1.5 2002/04/04 01:48:58 mike Exp $"
+// "$Id: render-table.cxx,v 1.6 2002/05/06 13:23:41 mike Exp $"
 //
 //   Table rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -650,7 +650,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
       // Row height specified; make sure it'll fit...
       if (height_var[strlen(height_var) - 1] == '%')
 	temp_height = atof(height_var) * 0.01f *
-	              (css->page_print_length - 2 * cellpadding);
+	              (css->media.page_print_length - 2 * cellpadding);
       else
         temp_height = atof(height_var) * 72.0f / css->ppi;
 
@@ -669,8 +669,8 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
 	    cells[row][col]->height > temp_height)
 	  temp_height = cells[row][col]->height;
 
-      if (temp_height > (page_length / 8) && height_var == NULL)
-	temp_height = page_length / 8;
+      if (temp_height > (media.page_length / 8) && height_var == NULL)
+	temp_height = media.page_length / 8;
     }
 
     DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f\n",
@@ -869,7 +869,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
       {
         // Hardcode the row height...
         if (height_var[strlen(height_var) - 1] == '%')
-	  temp_height = atof(height_var) * 0.01f * css->page_print_length;
+	  temp_height = atof(height_var) * 0.01f * css->media.page_print_length;
 	else
           temp_height = atof(height_var) * 72.0f / css->ppi;
 
@@ -1188,7 +1188,7 @@ hdRender::get_cell_size(hdTree *t,		// I - Cell
   {
     // Yes, use it!
     if (var[strlen(var) - 1] == '%')
-      minh = css->page_print_length * atoi(var) * 0.01f;
+      minh = css->media.page_print_length * atoi(var) * 0.01f;
     else
       minh = atoi(var) * 72.0f / css->ppi;
   }
@@ -1444,7 +1444,7 @@ hdRender::get_table_size(hdTree *t,		// I - Table
   {
     // Yes, use it!
     if (var[strlen(var) - 1] == '%')
-      minh = css->page_print_length * atoi(var) * 0.01f;
+      minh = css->media.page_print_length * atoi(var) * 0.01f;
     else
       minh = atoi(var) * 72.0f / css->ppi;
   }
@@ -1575,5 +1575,5 @@ hdRender::get_table_size(hdTree *t,		// I - Table
 
 
 //
-// End of "$Id: render-table.cxx,v 1.5 2002/04/04 01:48:58 mike Exp $".
+// End of "$Id: render-table.cxx,v 1.6 2002/05/06 13:23:41 mike Exp $".
 //

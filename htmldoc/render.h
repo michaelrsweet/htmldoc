@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.12 2002/04/08 01:09:18 mike Exp $"
+// "$Id: render.h,v 1.13 2002/05/06 13:23:41 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -157,19 +157,7 @@ class hdRender
   public:
 
   hdStyleSheet	*css;			// Stylesheet data
-  float		page_width,		// Current width of page in points
-		page_length,		// Current length of page in points
-		page_left,		// Current left margin in points
-		page_bottom,		// Current bottom margin in points
-		page_right,		// Current right margin in points
-		page_top,		// Current top margin in points
-		page_print_width,	// Current printable width in points
-		page_print_length;	// Current printable length in points
-  hdOrientation	orientation;		// Current orientation
-  hdSides	sides;			// Current duplex setting
-  char		media_color[64],	// Current media color
-		media_type[64];		// Current media type
-  int		media_position;		// Current media position
+  hdStyleMedia	media;			// Media attributes
   float		background_color[3];	// Current background color
   hdImage	*background_image;	// Current background image
   float		background_position[2];	// Current background start position
@@ -455,5 +443,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.12 2002/04/08 01:09:18 mike Exp $".
+// End of "$Id: render.h,v 1.13 2002/05/06 13:23:41 mike Exp $".
 //
