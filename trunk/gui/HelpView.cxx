@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.1 1999/09/22 16:51:23 mike Exp $"
+// "$Id: HelpView.cxx,v 1.2 1999/09/24 13:04:18 mike Exp $"
 //
 //   Help Viewer routines for the Common UNIX Printing System (CUPS).
 //
@@ -98,12 +98,17 @@ HelpView::draw()
 		attr[1024];
   int		xx, yy, ww;
   uchar		font, size;
-  int		align, head, pre;
+  int		align, head, pre, needspace;
   Fl_Boxtype	b = box() ? box() : FL_DOWN_BOX;
 
 
-  draw_child(scrollbar_);
-  draw_box(b, x(), y(), w() - 20, h(), color());
+  if (scrollbar_.visible())
+  {
+    draw_child(scrollbar_);
+    draw_box(b, x(), y(), w() - 20, h(), color());
+  }
+  else
+    draw_box(b, x(), y(), w(), h(), color());
 
   if (!value_)
     return;
@@ -115,11 +120,12 @@ HelpView::draw()
   for (i = 0, line = lines_; i < nlines_ && (line->y - top_) < h(); i ++, line ++)
     if ((line->y + line->h) >= top_)
     {
-      xx    = line->x;
-      yy    = line->y - top_;
-      pre   = 0;
-      head  = 0;
-      align = line->align;
+      xx        = line->x;
+      yy        = line->y - top_;
+      pre       = 0;
+      head      = 0;
+      align     = line->align;
+      needspace = 0;
 
       for (ptr = line->start, s = buf; ptr < line->end;)
       {
@@ -128,12 +134,12 @@ HelpView::draw()
 	  if (!head && !pre)
 	  {
             // Check width...
-            if (isspace(*ptr))
-              *s++ = ' ';
-
             *s = '\0';
             s  = buf;
             ww = fl_width(buf);
+
+            if (needspace && xx > line->x)
+	      xx += fl_width(' ');
 
             if ((xx + ww) > line->w)
 	    {
@@ -144,6 +150,7 @@ HelpView::draw()
             fl_draw(buf, xx + x(), yy + y());
 
             xx += ww;
+	    needspace = 0;
 	  }
 	  else if (pre)
 	  {
@@ -151,8 +158,8 @@ HelpView::draw()
 	    {
 	      if (*ptr == '\n')
 	      {
-                s = buf;
 	        *s = '\0';
+                s = buf;
 
                 fl_draw(buf, xx + x(), yy + y());
 
@@ -171,9 +178,10 @@ HelpView::draw()
 	      s = buf;
 
               fl_draw(buf, xx + x(), yy + y());
-
               xx += fl_width(buf);
 	    }
+
+	    needspace = 0;
 	  }
 	  else
 	  {
@@ -183,7 +191,8 @@ HelpView::draw()
               ptr ++;
 	  }
 	}
-	else if (*ptr == '<')
+
+	if (*ptr == '<')
 	{
 	  ptr ++;
 	  while (*ptr && *ptr != '>' && !isspace(*ptr))
@@ -251,7 +260,8 @@ HelpView::draw()
 	    fl_color(FL_BLUE);
 	  else if (strcasecmp(buf, "/A") == 0)
 	    fl_color(FL_BLACK);
-	  else if (strcasecmp(buf, "B") == 0)
+	  else if (strcasecmp(buf, "B") == 0 ||
+	           strcasecmp(buf, "TH") == 0)
 	    fl_font(font |= FL_BOLD, size);
 	  else if (strcasecmp(buf, "I") == 0)
 	    fl_font(font |= FL_ITALIC, size);
@@ -268,10 +278,7 @@ HelpView::draw()
 		   strcasecmp(buf, "/H3") == 0 ||
 		   strcasecmp(buf, "/H4") == 0 ||
 		   strcasecmp(buf, "/H5") == 0 ||
-		   strcasecmp(buf, "/H6") == 0 ||
-		   strcasecmp(buf, "/UL") == 0 ||
-		   strcasecmp(buf, "/OL") == 0 ||
-		   strcasecmp(buf, "/DL") == 0)
+		   strcasecmp(buf, "/H6") == 0)
 	  {
 	    font = textfont_;
 	    size = textsize_;
@@ -307,13 +314,24 @@ HelpView::draw()
 	  xx = line->x;
 	  yy += size + 2;
 	  ptr ++;
+	  needspace = 0;
 	}
 	else if (isspace(*ptr))
 	{
 	  if (pre)
-	    *s++ = ' ';
+	  {
+	    if (*ptr == ' ')
+	      *s++ = ' ';
+	    else
+	    {
+	      // Do tabs every 8 columns...
+	      while (((s - buf) & 7))
+	        *s++ = ' ';
+            }
+	  }
 
           ptr ++;
+	  needspace = 1;
 	}
 	else if (*ptr == '&')
 	{
@@ -365,8 +383,14 @@ HelpView::draw()
       {
 	ww = fl_width(buf);
 
+        if (needspace && xx > line->x)
+	  xx += fl_width(' ');
+
 	if ((xx + ww) > line->w)
+	{
+	  xx = line->x;
 	  yy += size + 2;
+	}
       }
 
       if (s > buf && !head)
@@ -380,7 +404,8 @@ HelpView::draw()
 void
 HelpView::format()
 {
-  HelpLine	*line;
+  HelpLine	*line,
+		*row;
   const char	*ptr,
 		*start,
 		*attrs;
@@ -389,7 +414,7 @@ HelpView::format()
 		attr[1024];
   int		xx, yy, ww;
   uchar		font, size;
-  int		align, head, pre;
+  int		align, head, pre, needspace;
 
 
   nlines_ = 0;
@@ -400,12 +425,14 @@ HelpView::format()
 
   fl_font(font = textfont_, size = textsize_);
 
-  xx    = 4;
-  yy    = size + 2;
-  line  = add_line(value_, xx, yy, w() - 24, size + 2, 1);
-  head  = 0;
-  pre   = 0;
-  align = 1;
+  xx        = 4;
+  yy        = size + 2;
+  line      = add_line(value_, xx, yy, w() - 24, size + 2, 1);
+  row       = NULL;
+  head      = 0;
+  pre       = 0;
+  align     = 1;
+  needspace = 0;
 
   for (ptr = value_, s = buf; *ptr;)
   {
@@ -414,11 +441,11 @@ HelpView::format()
       if (!head && !pre)
       {
         // Check width...
-        if (isspace(*ptr))
-          *s++ = ' ';
-
         *s = '\0';
         ww = fl_width(buf);
+
+        if (needspace && xx > line->x)
+	  xx += fl_width(' ');
 
         if ((xx + ww) > line->w)
 	{
@@ -426,8 +453,9 @@ HelpView::format()
 	  yy += size + 2;
 	  line->h += size + 2;
 	}
-	else
-	  xx += ww;
+
+	xx += ww;
+	needspace = 0;
       }
       else if (pre)
       {
@@ -442,6 +470,8 @@ HelpView::format()
 
           ptr ++;
 	}
+
+	needspace = 0;
       }
       else
       {
@@ -451,7 +481,8 @@ HelpView::format()
 
       s = buf;
     }
-    else if (*ptr == '<')
+
+    if (*ptr == '<')
     {
       start = ptr;
       ptr ++;
@@ -490,6 +521,27 @@ HelpView::format()
 
         xx = line->x;
 
+        if (nlines_ > 0)
+	{
+#if 0
+          if (tolower(buf[0]) == 'h' ||
+	      strcasecmp(buf, "P") == 0)
+#else
+          if (strcasecmp(buf, "LI") != 0 &&
+	      strcasecmp(buf, "PRE") != 0 &&
+	      tolower(buf[1]) != 'l')
+#endif /* 0 */
+	    yy = line->y + line->h + size + 2;
+          else
+	    yy = line->y + line->h;
+	}
+
+        if (line->end == line->start)
+	{
+	  nlines_ --;
+	  line --;
+	}
+
         if (strcasecmp(buf, "UL") == 0 ||
 	    strcasecmp(buf, "OL") == 0 ||
 	    strcasecmp(buf, "DL") == 0)
@@ -519,24 +571,101 @@ HelpView::format()
 
 	fl_font(font, size);
 
-        if (line->start == start)
+        line = add_line(start, xx, yy, w() - 24, size + 2, align);
+
+        yy += size + 2;
+	needspace = 0;
+      }
+      else if (strcasecmp(buf, "TR") == 0)
+      {
+        line->end = start;
+
+        xx = line->x;
+
+        if (line->end == line->start)
 	{
-	  line->x     = xx;
-	  line->w     = w() - 20 - xx;
-	  line->h     = size + 2;
-	  line->align = align;
+	  nlines_ --;
+	  line --;
 	}
-	else
+
+        if (row)
 	{
-	  yy = line->y + line->h;
+          yy = row->y + row->h;
+	  row ++;
+          while (row < line)
+	  {
+	    if ((row->y + row->h) > yy)
+	      yy = row->y + row->h;
+	    row ++;
+	  }
 
-          if (tolower(buf[0]) == 'b' ||
-	      tolower(buf[0]) == 'h' ||
-	      tolower(buf[0]) == 'p')
-	    yy += size + 2;
+          yy += size + 2;
 
-          line = add_line(start, xx, yy, w() - 20 - xx, size + 2, align);
-        }
+          row->h = yy - row->y;
+	}
+
+	yy   = line->y + line->h + size + 2;
+        line = row = add_line(start, xx, yy, w() - 24, size + 2, align);
+
+        yy += size + 2;
+	needspace = 0;
+      }
+      else if ((strcasecmp(buf, "TD") == 0 ||
+                strcasecmp(buf, "TH") == 0) && row)
+      {
+        line->end = start;
+
+        if (strcasecmp(buf, "TH") == 0)
+	  font = textfont_ | FL_BOLD;
+
+        size = textsize_;
+
+        if (strncasecmp(line->start, "<TR", 3) == 0)
+          xx = line->x + size;
+	else
+          xx = line->x + 15 * size;
+
+        if (line->end == line->start)
+	{
+	  nlines_ --;
+	  line --;
+	}
+
+	fl_font(font, size);
+
+	yy   = row->y;
+        line = add_line(start, xx, yy, xx + 14 * size, size + 2, align);
+
+        yy += size + 2;
+	needspace = 0;
+      }
+      else if (strcasecmp(buf, "/TR") == 0 && row != NULL)
+      {
+        line->end = start;
+
+        xx = row->x;
+
+        if (line->end == line->start)
+	{
+	  nlines_ --;
+	  line --;
+	}
+
+        yy = row->y + row->h;
+	row ++;
+        while (row < line)
+	{
+	  if ((row->y + row->h) > yy)
+	    yy = row->y + row->h;
+	  row ++;
+	}
+
+        yy += size + 2;
+        row->h = yy - row->y;
+        line   = add_line(start, xx, yy, w() - 24, size + 2, align);
+
+	needspace = 0;
+	row = NULL;
       }
       else if (strcasecmp(buf, "B") == 0)
 	fl_font(font |= FL_BOLD, size);
@@ -574,8 +703,6 @@ HelpView::format()
 	{
 	  if (strcasecmp(buf, "/PRE") == 0)
 	    pre = 0;
-
-          yy += textsize_ + 2;
 	}
 
 	font = textfont_;
@@ -586,7 +713,12 @@ HelpView::format()
         while (isspace(*ptr))
 	  ptr ++;
 
-        line = add_line(ptr, xx, yy, w() - 20 - xx, size + 2, align);
+        yy = line->y + line->h;
+	if (tolower(buf[2]) == 'l')
+	  yy += size + 2;
+
+        line = add_line(ptr, xx, yy, w() - 24, size + 2, align);
+	needspace = 0;
       }
       else if (strcasecmp(buf, "/B") == 0 ||
 	       strcasecmp(buf, "/I") == 0 ||
@@ -606,9 +738,14 @@ HelpView::format()
       yy += size + 2;
       line->h += size + 2;
       ptr ++;
+      needspace = 0;
     }
     else if (isspace(*ptr))
+    {
+      needspace = 1;
+
       ptr ++;
+    }
     else if (*ptr == '&')
     {
       ptr ++;
@@ -630,7 +767,7 @@ HelpView::format()
       }
       else if (strncasecmp(ptr, "nbsp;", 5) == 0)
       {
-        *s++ = ' ';
+        *s++ = '\240';
 	ptr += 5;
       }
       else if (strncasecmp(ptr, "copy;", 5) == 0)
@@ -658,6 +795,9 @@ HelpView::format()
     *s = '\0';
     ww = fl_width(buf);
 
+    if (needspace && xx > line->x)
+      xx += fl_width(' ');
+
     if ((xx + ww) > line->w)
     {
       yy += size + 2;
@@ -667,6 +807,11 @@ HelpView::format()
 
   line->end = ptr;
   size_     = yy;
+
+  if (size_ < (h() - 8))
+    scrollbar_.hide();
+  else
+    scrollbar_.show();
 
   topline(top_);
 }
@@ -790,10 +935,10 @@ HelpView::topline(int t)
   if (!value_)
     return;
 
-  if (t < 0)
+  if (size_ < (h() - 8) || t < 0)
     t = 0;
-  else if (t > (size_ - h()))
-    t = size_ - h();
+  else if (t > (size_ - h() - 8))
+    t = size_ - h() - 8;
 
   top_ = t;
 
@@ -821,5 +966,5 @@ HelpView::value(const char *v)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.1 1999/09/22 16:51:23 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.2 1999/09/24 13:04:18 mike Exp $".
 //
