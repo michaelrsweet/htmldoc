@@ -1,9 +1,10 @@
 //
-// "$Id: HelpView.h,v 1.9 2000/01/22 15:21:08 mike Exp $"
+// "$Id: HelpView.h,v 1.10 2000/05/16 02:41:29 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
 //   Copyright 1997-2000 by Easy Software Products.
+//   Image support donated by Matthias Melcher, Copyright 2000.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -29,6 +30,7 @@
 // Include necessary header files...
 //
 
+#  include <stdio.h>
 #  include <FL/Fl.H>
 #  include <FL/Fl_Group.H>
 #  include <FL/Fl_Scrollbar.H>
@@ -86,6 +88,21 @@ struct HelpTarget
 };
 
 //
+// HelpImage structure...
+//
+
+struct Fl_Pixmap;
+struct Fl_Image;
+
+struct HelpImage 
+{
+  char		*name;		// Path and name of the image
+  Fl_Image	*image;		// FLTK image representation
+  unsigned char	*data;		// Raw image data
+  int		w, h, d;	// Image size & depth
+};
+
+//
 // HelpView class...
 //
 
@@ -124,6 +141,16 @@ class HelpView : public Fl_Group	//// Help viewer widget
   int		topline_,		// Top line in document
 		size_;			// Total document length
   Fl_Scrollbar	scrollbar_;		// Scrollbar for document
+
+  int		nimage_,		// Number of images in a page
+		aimage_;		// Allocated blocks
+  HelpImage	*image_;		// list of image descriptors
+
+  HelpImage	*add_image(const char *name);
+  HelpImage	*find_image(const char *name);
+  int		load_gif(HelpImage *img, FILE *fp);
+  int		load_jpeg(HelpImage *img, FILE *fp);
+  int		load_png(HelpImage *img, FILE *fp);
 
   HelpBlock	*add_block(const char *s, int xx, int yy, int ww, int hh, uchar border = 0);
   void		add_link(const char *n, int xx, int yy, int ww, int hh);
@@ -176,5 +203,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.9 2000/01/22 15:21:08 mike Exp $".
+// End of "$Id: HelpView.h,v 1.10 2000/05/16 02:41:29 mike Exp $".
 //
