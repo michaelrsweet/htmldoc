@@ -7,6 +7,9 @@ CHANGES IN HTMLDOC v1.8.7
 
 	- The configure script now uses the local PNG, ZLIB, and/or JPEG
 	  libraries when they are new enough.
+	- The configure script now uses the -fno-rtti, -fno-exceptions, and
+	  -fomit-stack-frame options when compiling with GCC (smaller,
+	  faster executables.)
 
     CHANGES
 
