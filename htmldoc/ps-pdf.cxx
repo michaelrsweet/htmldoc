@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.119 2001/10/29 17:56:35 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.120 2001/10/29 18:08:11 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -359,7 +359,7 @@ static link_t	*find_link(uchar *name);
 static int	compare_links(link_t *n1, link_t *n2);
 
 static void	find_background(tree_t *t);
-static void	write_background(FILE *out);
+static void	write_background(int page, FILE *out);
 
 static render_t	*new_render(int page, int type, float x, float y,
 		            float width, float height, void *data, int insert = 0);
@@ -1487,7 +1487,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
       fprintf(out, "%d 0 T 90 rotate\n", pages[page].width);
   }
 
-  write_background(out);
+  write_background(page, out);
 
   if (pages[page].duplex && (page & 1))
     fprintf(out, "%d %d T\n", pages[page].right, pages[page].bottom);
@@ -1945,7 +1945,7 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   flate_open_stream(out);
 
   flate_puts("q\n", out);
-  write_background(out);
+  write_background(page, out);
 
   if (pages[page].duplex && (page & 1))
     flate_printf(out, "1 0 0 1 %d %d cm\n", pages[page].right,
@@ -5791,6 +5791,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       float halfway;
 
 
+      comment += 9;
+
       if (para != NULL && para->child != NULL)
       {
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
@@ -6656,7 +6658,8 @@ find_background(tree_t *t)	/* I - Document to search */
  */
 
 static void
-write_background(FILE *out)	/* I - File to write to */
+write_background(int  page,	/* I - Page we are writing for */
+                 FILE *out)	/* I - File to write to */
 {
   float	x, y;
   float	width, height;
@@ -6665,19 +6668,19 @@ write_background(FILE *out)	/* I - File to write to */
 
   if (Landscape)
   {
-    page_length = PageWidth;
-    page_width  = PageLength;
+    page_length = pages[page].width;
+    page_width  = pages[page].length;
   }
   else
   {
-    page_width  = PageWidth;
-    page_length = PageLength;
+    page_width  = pages[page].width;
+    page_length = pages[page].length;
   }
 
   if (background_image != NULL)
   {
-    width  = background_image->width * PagePrintWidth / _htmlBrowserWidth;
-    height = background_image->height * PagePrintWidth / _htmlBrowserWidth;
+    width  = background_image->width * 72.0f / _htmlPPI;
+    height = background_image->height * 72.0f / _htmlPPI;
 
     if (width < 1.0f)
       width = 1.0f;
@@ -10352,5 +10355,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.119 2001/10/29 17:56:35 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.120 2001/10/29 18:08:11 mike Exp $".
  */
