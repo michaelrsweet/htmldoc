@@ -5,6 +5,29 @@
 
 <P>This appendix provides the release notes for each version of HTMLDOC.
 
+<H2>Changes in HTMLDOC v1.8.14</H2>
+
+<UL>
+
+	<H3>New Features</H3>
+
+	<LI>Added support for 128-bit encryption.
+
+	<H3>Changes</H3>
+
+	<LI>Most output generation limits have been removed;
+	HTMLDOC now dynamically allocates memory as needed for
+	pages, images, headings, and links. This has the
+	happy side-effect of reducing the initial memory
+	footprint significantly.
+
+	<H3>Bug Fixes</H3>
+
+	<LI>Tables with a lot of COLSPANs could cause a divide-
+	by-zero error or bad pages (NAN instead of a number.)
+
+</UL>
+
 <H2>Changes in HTMLDOC v1.8.13</H2>
 
 <UL>

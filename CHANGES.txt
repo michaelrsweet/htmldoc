@@ -1,4 +1,4 @@
-CHANGES.txt - 06/06/2001
+CHANGES.txt - 06/16/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.14
@@ -8,6 +8,12 @@ CHANGES IN HTMLDOC v1.8.14
 	- Added support for 128-bit encryption.
 
     CHANGES
+
+	- Most output generation limits have been removed;
+	  HTMLDOC now dynamically allocates memory as needed for
+	  pages, images, headings, and links.  This has the
+	  happy side-effect of reducing the initial memory
+	  footprint significantly.
 
     BUG FIXES
 

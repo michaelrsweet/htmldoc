@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.81 2001/06/06 19:16:36 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.82 2001/06/19 15:30:31 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -67,6 +67,7 @@
  *   write_background()      - Write the background image/color for to the
  *                             current page.
  *   new_render()            - Allocate memory for a new rendering structure.
+ *   check_pages()           - Allocate memory for more pages as needed...
  *   add_link()              - Add a named link...
  *   find_link()             - Find a named link...
  *   compare_links()         - Compare two named links.
@@ -210,33 +211,37 @@ static int	chapter,
 		chapter_starts[MAX_CHAPTERS],
 		chapter_ends[MAX_CHAPTERS];
 
-static int	num_headings,
-		heading_pages[MAX_HEADINGS],
-		heading_tops[MAX_HEADINGS];
+static int	num_headings = 0,
+		alloc_headings = 0,
+		*heading_pages = NULL,
+		*heading_tops = NULL;
 
-static int	num_pages;
-static render_t	*pages[MAX_PAGES],
-		*endpages[MAX_PAGES];
-static uchar	*page_chapters[MAX_PAGES],
-		*page_headings[MAX_PAGES];
+static int	num_pages = 0,
+		alloc_pages = 0;
+static render_t	**pages = NULL,
+		**endpages = NULL;
+static uchar	**page_chapters = NULL,
+		**page_headings = NULL;
 static tree_t	*current_heading;
 
-static int	num_links;
-static link_t	links[MAX_LINKS];
+static int	num_links = 0,
+		alloc_links = 0;
+static link_t	*links = NULL;
 
 static uchar	list_types[16];
 static int	list_values[16];
 
 static char	stdout_filename[256];
-static int	num_objects,
-		objects[MAX_OBJECTS],
+static int	num_objects = 0,
+		alloc_objects = 0,
+		*objects = NULL,
 		root_object,
 		info_object,
 		outline_object,
 		pages_object,
 		names_object,
 		encrypt_object,
-		annots_objects[MAX_PAGES],
+		*annots_objects = NULL,
 		font_objects[16];
 
 static image_t	*logo_image = NULL;
@@ -257,7 +262,7 @@ static float	render_size,
 
 static int		compressor_active = 0;
 static z_stream		compressor;
-static uchar		comp_buffer[64 * 1024];
+static uchar		comp_buffer[8192];
 static uchar		encrypt_key[16];
 static int		encrypt_len;
 static rc4_context_t	encrypt_state;
@@ -294,7 +299,7 @@ static void	pdf_write_links(FILE *out);
 static void	pdf_write_names(FILE *out);
 static int	pdf_count_headings(tree_t *toc);
 
-static int	pdf_start_object(FILE *out);
+static int	pdf_start_object(FILE *out, int array = 0);
 static void	pdf_start_stream(FILE *out);
 static void	pdf_end_object(FILE *out);
 
@@ -332,6 +337,8 @@ static void	parse_comment(tree_t *t, float left, float width, float bottom,
 
 static tree_t	*real_prev(tree_t *t);
 static tree_t	*real_next(tree_t *t);
+
+static void	check_pages(int page);
 
 static void	add_link(uchar *name, int page, int top);
 static link_t	*find_link(uchar *name);
@@ -447,19 +454,28 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   * Initialize page rendering variables...
   */
 
-  memset(pages, 0, sizeof(pages));
-  memset(page_chapters, 0, sizeof(page_chapters));
-  memset(page_headings, 0, sizeof(page_headings));
-  memset(endpages, 0, sizeof(pages));
+  num_pages      = 0;
+  alloc_pages    = 0;
+  pages          = NULL;
+  endpages       = NULL;
+  page_chapters  = NULL;
+  page_headings  = NULL;
+  annots_objects = NULL;
+
   memset(list_types, 0267, sizeof(list_types));
   memset(list_values, 0, sizeof(list_values));
   memset(chapter_starts, -1, sizeof(chapter_starts));
   memset(chapter_ends, -1, sizeof(chapter_starts));
 
-  doc_time     = time(NULL);
-  doc_date     = localtime(&doc_time);
-  num_headings = 0;
-  num_links    = 0;
+  doc_time       = time(NULL);
+  doc_date       = localtime(&doc_time);
+  num_headings   = 0;
+  alloc_headings = 0;
+  heading_pages  = NULL;
+  heading_tops   = NULL;
+  num_links      = 0;
+  alloc_links    = 0;
+  links          = NULL;
 
   if (TitlePage)
   {
@@ -721,10 +737,47 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   if (title != NULL)
     free(title);
 
+  if (alloc_links)
+  {
+    free(links);
+
+    num_links    = 0;
+    alloc_links  = 0;
+    links        = NULL;
+  }
+
   for (int i = 0; i < num_pages; i ++)
   {
     if (i == 0 || page_headings[i] != page_headings[i - 1])
       free(page_headings[i]);
+  }
+
+  if (alloc_pages)
+  {
+    free(pages),
+    free(endpages);
+    free(page_headings);
+    free(page_chapters);
+    free(annots_objects);
+
+    num_pages      = 0;
+    alloc_pages    = 0;
+    pages          = NULL;
+    endpages       = NULL;
+    page_chapters  = NULL;
+    page_headings  = NULL;
+    annots_objects = NULL;
+  }
+
+  if (alloc_headings)
+  {
+    free(heading_pages);
+    free(heading_tops);
+
+    num_headings   = 0;
+    alloc_headings = 0;
+    heading_pages  = NULL;
+    heading_tops   = NULL;
   }
 
   return (0);
@@ -1206,7 +1259,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
 		*next;		/* Next render */
 
 
-  if (page < 0 || page >= MAX_PAGES)
+  if (page < 0 || page >= alloc_pages)
     return;
 
   DEBUG_printf(("ps_write_page(%p, %d, \"%s\", %.1f, \"%s\")\n",
@@ -1372,6 +1425,11 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
     return;
   }
 
+  // Clear the objects array...
+  num_objects   = 0;
+  alloc_objects = 0;
+  objects       = NULL;
+
   // Write the prolog...
   write_prolog(out, num_pages, title, author, creator, copyright, keywords);
 
@@ -1419,7 +1477,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
 
   for (; chapter <= TocDocCount; chapter ++)
     for (page = chapter_starts[chapter]; page <= chapter_ends[chapter]; page ++)
-      if (page < MAX_PAGES)
+      if (page < alloc_pages)
         fprintf(out, "%d 0 R\n", pages_object + 2 * page + 1);
   fputs("]", out);
   pdf_end_object(out);
@@ -1517,6 +1575,16 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
 
     // Close the temporary file (it is removed when the program exits...)
     fclose(out);
+  }
+
+  // Clear the objects array...
+  if (alloc_objects)
+  {
+    free(objects);
+
+    num_objects   = 0;
+    alloc_objects = 0;
+    objects       = NULL;
   }
 
   if (Verbosity)
@@ -1640,7 +1708,7 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   float		box[3];		/* RGB color for boxes */
 
 
-  if (page < 0 || page >= MAX_PAGES)
+  if (page < 0 || page >= alloc_pages)
     return;
 
  /*
@@ -1808,9 +1876,9 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 		count;				/* Number of entries at this level */
   uchar		*text;				/* Entry text */
   tree_t	*temp;				/* Looping var */
-  int		entry_counts[MAX_HEADINGS],	/* Number of sub-entries for this entry */
-		entry_objects[MAX_HEADINGS];	/* Objects for each entry */
-  tree_t	*entries[MAX_HEADINGS];		/* Pointers to each entry */
+  int		*entry_counts,			/* Number of sub-entries for this entry */
+		*entry_objects;			/* Objects for each entry */
+  tree_t	**entries;			/* Pointers to each entry */
 
 
  /*
@@ -1845,6 +1913,34 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   else
   {
    /*
+    * Allocate the arrays...
+    */
+
+    if ((entry_counts = (int *)calloc(sizeof(int), num_headings)) == NULL)
+    {
+      progress_error("Unable to allocate memory for %d headings - %s",
+                     num_headings, strerror(errno));
+      return;
+    }
+
+    if ((entry_objects = (int *)calloc(sizeof(int), num_headings)) == NULL)
+    {
+      progress_error("Unable to allocate memory for %d headings - %s",
+                     num_headings, strerror(errno));
+      free(entry_counts);
+      return;
+    }
+
+    if ((entries = (tree_t **)calloc(sizeof(tree_t *), num_headings)) == NULL)
+    {
+      progress_error("Unable to allocate memory for %d headings - %s",
+                     num_headings, strerror(errno));
+      free(entry_objects);
+      free(entry_counts);
+      return;
+    }
+
+   /*
     * Find and count the children (entries)...
     */
 
@@ -1875,7 +1971,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       count = 0;
     }
 
-    for (; temp != NULL && count < MAX_HEADINGS; temp = temp->next)
+    for (; temp != NULL && count < num_headings; temp = temp->next)
       if (temp->markup == MARKUP_B || temp->markup == MARKUP_LI)
       {
 	entries[count]       = temp;
@@ -1936,6 +2032,10 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       pdf_write_contents(out, entries[i], thisobj, i > 0 ? entry_objects[i - 1] : 0,
                 	 i < (count - 1) ? entry_objects[i + 1] : 0,
                 	 heading);
+
+    free(entry_objects);
+    free(entry_counts);
+    free(entries);
   }
 }
 
@@ -1967,6 +2067,7 @@ pdf_count_headings(tree_t *toc)	/* I - TOC entry */
 
 static int	pdf_stream_length = 0;
 static int	pdf_stream_start = 0;
+static int	pdf_object_type = 0;
 
 
 /*
@@ -1974,15 +2075,41 @@ static int	pdf_stream_start = 0;
  */
 
 static int			// O - Object number
-pdf_start_object(FILE *out)	// I - File to write to
+pdf_start_object(FILE *out,	// I - File to write to
+                 int  array)	// I - 1 = array, 0 = dictionary
 {
-  if (num_objects >= MAX_OBJECTS)
-    return (0);
+  int	*temp;			// Temporary integer pointer
+
 
   num_objects ++;
+
+  // Allocate memory as necessary...
+  if (num_objects >= alloc_objects)
+  {
+    alloc_objects += ALLOC_OBJECTS;
+
+    if (alloc_objects == ALLOC_OBJECTS)
+      temp = (int *)malloc(sizeof(int) * alloc_objects);
+    else
+      temp = (int *)realloc(objects, sizeof(int) * alloc_objects);
+
+    if (temp == NULL)
+    {
+      progress_error("Unable to allocate memory for %d objects - %s",
+                     alloc_objects, strerror(errno));
+      alloc_objects -= ALLOC_OBJECTS;
+      return (0);
+    }
+
+    objects = temp;
+  }
+
   objects[num_objects] = ftell(out);
   fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
+
+  pdf_object_type = array;
+
+  fputs(pdf_object_type ? "[" : "<<", out);
 
   return (num_objects);
 }
@@ -2030,7 +2157,7 @@ pdf_end_object(FILE *out)	// I - File to write to
     fputs("endstream\n", out);
   }
   else
-    fputs(">>", out);
+    fputs(pdf_object_type ? "]" : ">>", out);
 
   fputs("endobj\n", out);
 }
@@ -2047,7 +2174,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
   int		page,			/* Current page */
 		lobj,			/* Current link */
 		num_lobjs,		/* Number of links on this page */
-		lobjs[2 * MAX_LINKS];	/* Link objects */
+		alloc_lobjs,		/* Number of links to allocate */
+		*lobjs;			/* Link objects */
   float		x, y;			/* Position of last link */
   render_t	*r,			/* Current render primitive */
 		*rlast,			/* Last render link primitive */
@@ -2088,12 +2216,6 @@ pdf_write_links(FILE *out)		/* I - Output file */
       }
 
  /*
-  * Clear all of the annotation objects...
-  */
-
-  memset(annots_objects, 0, sizeof(annots_objects));
-
- /*
   * Setup the initial pages_object number...
   */
 
@@ -2117,7 +2239,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
   * Figure out how many link objects we'll have...
   */
 
-  for (page = 0; page < num_pages; page ++)
+  for (page = 0, alloc_lobjs = 0; page < num_pages; page ++)
   {
     num_lobjs = 0;
 
@@ -2132,6 +2254,23 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
     if (num_lobjs > 0)
       pages_object += num_lobjs + 1;
+
+    if (num_lobjs > alloc_lobjs)
+      alloc_lobjs = num_lobjs;
+  }
+
+  if (alloc_lobjs == 0)
+    return;
+
+ /*
+  * Allocate memory for the links...
+  */
+
+  if ((lobjs = (int *)malloc(sizeof(int) * alloc_lobjs)) == NULL)
+  {
+    progress_error("Unable to allocate memory for %d link objects - %s",
+                   alloc_lobjs, strerror(errno));
+    return;
   }
 
  /*
@@ -2237,18 +2376,17 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
     if (num_lobjs > 0)
     {
-      num_objects ++;
-      annots_objects[page] = num_objects;
-      objects[num_objects] = ftell(out);
+      annots_objects[page] = pdf_start_object(out, 1);
 
-      fprintf(out, "%d 0 obj", num_objects);
-      fputs("[", out);
       for (lobj = 0; lobj < num_lobjs; lobj ++)
         fprintf(out, "%d 0 R%s", lobjs[lobj],
-	        lobj < (num_lobjs - 1) ? "\n" : "]");
-      fputs("endobj\n", out);
+	        lobj < (num_lobjs - 1) ? "\n" : "");
+
+      pdf_end_object(out);
     }
   }
+
+  free(lobjs);
 }
 
 
@@ -3075,6 +3213,9 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
               int    *page,	/* IO - Page # */
               int    needspace)	/* I - Need whitespace? */
 {
+  int	*temp;			// Temporary integer array pointer
+
+
   DEBUG_printf(("parse_heading(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
                 t, left, right, *x, *y, *page));
 
@@ -3090,15 +3231,64 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   }
 
   if (t->markup == MARKUP_H1 && !title_page)
+  {
+    check_pages(*page);
     page_chapters[*page] = htmlGetText(current_heading);
+  }
 
   if ((page_headings[*page] == NULL || t->markup == MARKUP_H1) && !title_page)
+  {
+    check_pages(*page);
     page_headings[*page] = htmlGetText(current_heading);
+  }
 
   if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
   {
     DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
                   num_headings, *page - 1));
+
+    // See if we need to resize the headings arrays...
+    if (num_headings >= alloc_headings)
+    {
+      alloc_headings += ALLOC_HEADINGS;
+
+      if (num_headings == 0)
+        temp = (int *)malloc(sizeof(int) * alloc_headings);
+      else
+        temp = (int *)realloc(heading_pages, sizeof(int) * alloc_headings);
+
+      if (temp == NULL)
+      {
+        progress_error("Unable to allocate memory for %d headings - %s",
+	               alloc_headings, strerror(errno));
+	alloc_headings -= ALLOC_HEADINGS;
+	return;
+      }
+
+      memset(temp + alloc_headings - ALLOC_HEADINGS, 0,
+             sizeof(int) * ALLOC_HEADINGS);
+
+      heading_pages = temp;
+
+      if (num_headings == 0)
+        temp = (int *)malloc(sizeof(int) * alloc_headings);
+      else
+        temp = (int *)realloc(heading_tops, sizeof(int) * alloc_headings);
+
+      if (temp == NULL)
+      {
+        progress_error("Unable to allocate memory for %d headings - %s",
+	               alloc_headings, strerror(errno));
+	alloc_headings -= ALLOC_HEADINGS;
+	return;
+      }
+
+      memset(temp + alloc_headings - ALLOC_HEADINGS, 0,
+             sizeof(int) * ALLOC_HEADINGS);
+
+      heading_tops = temp;
+    }
+
     heading_pages[num_headings] = *page - chapter_starts[1] + 1;
     heading_tops[num_headings]  = (int)(*y + 4 * _htmlSpacings[SIZE_P]);
     num_headings ++;
@@ -3163,9 +3353,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		linewidth;
   int		firstline;
 
-
-  if (*page > MAX_PAGES)
-    return;
 
   DEBUG_printf(("parse_paragraph(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
                 t, left, right, *x, *y, *page, needspace));
@@ -4087,9 +4274,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       // Allocate memory for the table as needed...
       if (num_rows >= alloc_rows)
       {
-        alloc_rows += MAX_ROWS;
+        alloc_rows += ALLOC_ROWS;
 
-        if (alloc_rows == MAX_ROWS)
+        if (alloc_rows == ALLOC_ROWS)
 	  cells = (tree_t ***)malloc(sizeof(tree_t **) * alloc_rows);
 	else
 	  cells = (tree_t ***)realloc(cells, sizeof(tree_t **) * alloc_rows);
@@ -5377,9 +5564,12 @@ new_render(int   page,		/* I - Page number (0-n) */
   static render_t	dummy;	/* Dummy var for errors... */
 
 
-  if (page < 0 || page >= MAX_PAGES)
+  check_pages(page);
+
+  if (page < 0 || page >= alloc_pages)
   {
-    progress_error("Page number (%d) out of range (1...%d)\n", page + 1, MAX_PAGES);
+    progress_error("Page number (%d) out of range (1...%d)\n", page + 1,
+                   alloc_pages);
     memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
   }
@@ -5463,6 +5653,117 @@ new_render(int   page,		/* I - Page number (0-n) */
 
 
 /*
+ * 'check_pages()' - Allocate memory for more pages as needed...
+ */
+
+static void
+check_pages(int page)	// I - Current page
+{
+  render_t	**temp;	// Temporary render pointer
+  uchar		**temp2;// Temporary string pointer
+  int		*temp3;	// Temporary integer pointer
+
+
+  // See if we need to allocate memory for the page...
+  if (page >= alloc_pages)
+  {
+    // Yes, allocate enough for ALLOC_PAGES more pages...
+    alloc_pages += ALLOC_PAGES;
+
+    // Do the pages pointers...
+    if (num_pages == 0)
+      temp = (render_t **)malloc(sizeof(render_t *) * alloc_pages);
+    else
+      temp = (render_t **)realloc(pages, sizeof(render_t *) * alloc_pages);
+
+    if (temp == NULL)
+    {
+      progress_error("Unable to allocate memory for %d pages - %s",
+	             alloc_pages, strerror(errno));
+      alloc_pages -= ALLOC_PAGES;
+      return;
+    }
+
+    memset(temp + alloc_pages - ALLOC_PAGES, 0, sizeof(render_t *) * ALLOC_PAGES);
+
+    pages = temp;
+
+    // Do the endpages pointers...
+    if (num_pages == 0)
+      temp = (render_t **)malloc(sizeof(render_t *) * alloc_pages);
+    else
+      temp = (render_t **)realloc(endpages, sizeof(render_t *) * alloc_pages);
+
+    if (temp == NULL)
+    {
+      progress_error("Unable to allocate memory for %d pages - %s",
+	             alloc_pages, strerror(errno));
+      alloc_pages -= ALLOC_PAGES;
+      return;
+    }
+
+    memset(temp + alloc_pages - ALLOC_PAGES, 0, sizeof(render_t *) * ALLOC_PAGES);
+
+    endpages = temp;
+
+    // Do the page_chapters pointers...
+    if (num_pages == 0)
+      temp2 = (uchar **)malloc(sizeof(uchar *) * alloc_pages);
+    else
+      temp2 = (uchar **)realloc(page_chapters, sizeof(uchar *) * alloc_pages);
+
+    if (temp2 == NULL)
+    {
+      progress_error("Unable to allocate memory for %d pages - %s",
+	             alloc_pages, strerror(errno));
+      alloc_pages -= ALLOC_PAGES;
+      return;
+    }
+
+    memset(temp2 + alloc_pages - ALLOC_PAGES, 0, sizeof(uchar *) * ALLOC_PAGES);
+
+    page_chapters = temp2;
+
+    // Do the page_headings pointers...
+    if (num_pages == 0)
+      temp2 = (uchar **)malloc(sizeof(uchar *) * alloc_pages);
+    else
+      temp2 = (uchar **)realloc(page_headings, sizeof(uchar *) * alloc_pages);
+
+    if (temp2 == NULL)
+    {
+      progress_error("Unable to allocate memory for %d pages - %s",
+	             alloc_pages, strerror(errno));
+      alloc_pages -= ALLOC_PAGES;
+      return;
+    }
+
+    memset(temp2 + alloc_pages - ALLOC_PAGES, 0, sizeof(uchar *) * ALLOC_PAGES);
+
+    page_headings = temp2;
+
+    // Do the annots_objects pointers...
+    if (num_pages == 0)
+      temp3 = (int*)malloc(sizeof(int) * alloc_pages);
+    else
+      temp3 = (int*)realloc(annots_objects, sizeof(int) * alloc_pages);
+
+    if (temp3 == NULL)
+    {
+      progress_error("Unable to allocate memory for %d pages - %s",
+	             alloc_pages, strerror(errno));
+      alloc_pages -= ALLOC_PAGES;
+      return;
+    }
+
+    memset(temp3 + alloc_pages - ALLOC_PAGES, 0, sizeof(int) * ALLOC_PAGES);
+
+    annots_objects = temp3;
+  }
+}
+
+
+/*
  * 'add_link()' - Add a named link...
  */
 
@@ -5482,8 +5783,31 @@ add_link(uchar *name,	/* I - Name of link */
     temp->page = page - 1;
     temp->top  = top;
   }
-  else if (num_links < MAX_LINKS)
+  else
   {
+    // See if we need to allocate memory for links...
+    if (num_links >= alloc_links)
+    {
+      // Allocate more links...
+      alloc_links += ALLOC_LINKS;
+
+      if (num_links == 0)
+        temp = (link_t *)malloc(sizeof(link_t) * alloc_links);
+      else
+        temp = (link_t *)realloc(links, sizeof(link_t) * alloc_links);
+
+      if (temp == NULL)
+      {
+	progress_error("Unable to allocate memory for %d links - %s",
+	               alloc_links, strerror(errno));
+        alloc_links -= ALLOC_LINKS;
+	return;
+      }
+
+      links = temp;
+    }
+
+    // Add a new link...
     temp = links + num_links;
     num_links ++;
 
@@ -8456,15 +8780,11 @@ write_truetype(FILE       *out,		/* I - File to write to */
   * Write the character widths...
   */
 
-  num_objects ++;
-  objects[num_objects] = ftell(out);
-
-  fprintf(out, "%d 0 obj", num_objects);
-  fprintf(out, "[%d", widths[0]);
+  pdf_start_object(out, 1);
+  fprintf(out, "%d", widths[0]);
   for (ch = 1; ch < 256; ch ++)
     fprintf(out, " %d", widths[ch]);
-  fputs("]", out);
-  fputs("endobj\n", out);
+  pdf_end_object(out);
 
  /*
   * Return the font descriptor...
@@ -8697,5 +9017,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.81 2001/06/06 19:16:36 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.82 2001/06/19 15:30:31 mike Exp $".
  */
