@@ -1,5 +1,5 @@
 /*
- * "$Id: render.h,v 1.21.2.6 2004/03/23 21:54:38 mike Exp $"
+ * "$Id: render.h,v 1.21.2.7 2004/03/25 02:01:38 mike Exp $"
  *
  *   Render class definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -596,6 +596,7 @@ class hdRender
 
   char		format_number_[1024];
   const char	*format_number(int n, char f);
+  int		get_measurement(const char *s, float mul = 1.0f);
 
   hdTree	*real_prev(hdTree *t);
   hdTree	*real_next(hdTree *t);
@@ -650,5 +651,5 @@ class hdRender
 
 
 /*
- * End of "$Id: render.h,v 1.21.2.6 2004/03/23 21:54:38 mike Exp $".
+ * End of "$Id: render.h,v 1.21.2.7 2004/03/25 02:01:38 mike Exp $".
  */
