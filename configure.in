@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.9 2001/05/30 19:38:19 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.10 2001/06/03 19:35:18 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -37,7 +37,14 @@ fi])
 AC_ARG_WITH(fltk-libs, [  --with-fltk-libs        set directory for FLTK library],
 	LDFLAGS="-L$withval $LDFLAGS",)
 
-AC_ARG_WITH(fltk-libs, [  --with-fltk-includes    set directory for FLTK includes],
+AC_ARG_WITH(fltk-includes, [  --with-fltk-includes    set directory for FLTK includes],
+	CFLAGS="-I$withval $CFLAGS"
+	CXXFLAGS="-I$withval $CXXFLAGS",)
+
+AC_ARG_WITH(openssl-libs, [  --with-openssl-libs    set directory for OpenSSL library],
+	LDFLAGS="-L$withval $LDFLAGS",)
+
+AC_ARG_WITH(openssl-includes, [  --with-openssl-includes    set directory for OpenSSL includes],
 	CFLAGS="-I$withval $CFLAGS"
 	CXXFLAGS="-I$withval $CXXFLAGS",)
 
@@ -133,6 +140,36 @@ AC_SUBST(ZLIBINC)
 AC_DEFINE(HAVE_LIBJPEG)
 AC_DEFINE(HAVE_LIBPNG)
 AC_DEFINE(HAVE_LIBZ)
+
+dnl Check for OpenSSL libraries...
+SSLLIBS=""
+
+dnl Save the current libraries so the crypto stuff isn't always
+dnl included...
+SAVELIBS="$LIBS"
+
+dnl Some ELF systems can't resolve all the symbols in libcrypto
+dnl if libcrypto was linked against RSAREF, and fail to link the
+dnl test program correctly, even though a correct installation
+dnl of OpenSSL exists.  So we test the linking three times in
+dnl case the RSAREF libraries are needed.
+
+for libcrypto in \
+	"-lcrypto" \
+	"-lcrypto -lrsaref" \
+	"-lcrypto -lRSAglue -lrsaref"
+do
+	AC_CHECK_LIB(ssl,SSL_new,
+		[SSLLIBS="-lssl $libcrypto"
+		 AC_DEFINE(HAVE_LIBSSL)],,
+		$libcrypto
+	)
+	if test "x${SSLLIBS}" != "x"; then
+		break
+	fi
+done
+
+LIBS="$SAVELIBS $SSLLIBS"
 
 dnl Check for GUI libraries...
 OLDLIBS="$LIBS"
@@ -264,5 +301,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.9 2001/05/30 19:38:19 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.10 2001/06/03 19:35:18 mike Exp $".
 dnl

@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.17 2001/05/27 11:48:08 mike Exp $"
+ * "$Id: file.c,v 1.13.2.18 2001/06/03 19:35:19 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -187,7 +187,7 @@ file_directory(const char *s)	/* I - Filename or URL */
   if (s == NULL)
     return (NULL);
 
-  if (strncmp(s, "http://", 7) == 0)
+  if (strncmp(s, "http://", 7) == 0 || strncmp(s, "https://", 8) == 0)
   {
    /*
     * Handle URLs...
@@ -316,6 +316,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   if (strncmp(s, "http:", 5) == 0 ||
       (path != NULL && strncmp(path, "http:", 5) == 0))
     strcpy(method, "http");
+#ifdef HAVE_LIBSSL
+  else if (strncmp(s, "https:", 6) == 0 ||
+           (path != NULL && strncmp(path, "https:", 6) == 0))
+    strcpy(method, "https");
+#endif /* HAVE_LIBSSL */
   else
     strcpy(method, "file");
 
@@ -380,7 +385,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       if (web_cache[i].url && strcmp(web_cache[i].url, s) == 0)
         return (web_cache[i].name);
 
+#ifdef HAVE_LIBSSL
+    if (strncmp(s, "http:", 5) == 0 || strncmp(s, "https:", 6) == 0)
+#else
     if (strncmp(s, "http:", 5) == 0)
+#endif /* HAVE_LIBSSL */
       httpSeparate(s, method, username, hostname, &port, resource);
     else if (s[0] == '/')
     {
@@ -433,8 +442,18 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       {
         progress_show("Connecting to %s...", connhost);
         atexit(file_cleanup);
-        if ((http = httpConnect(connhost, connport)) == NULL)
-        {
+
+#ifdef HAVE_LIBSSL
+        if (strcmp(method, "http") == 0)
+          http = httpConnect(connhost, connport);
+	else
+          http = httpConnectEncrypt(connhost, connport, HTTP_ENCRYPT_ALWAYS);
+#else
+        http = httpConnect(connhost, connport);
+#endif /* HAVE_LIBSSL */
+
+        if (http == NULL)
+	{
           progress_hide();
           progress_error("Unable to connect to %s!", connhost);
           return (NULL);
@@ -736,5 +755,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.17 2001/05/27 11:48:08 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.18 2001/06/03 19:35:19 mike Exp $".
  */

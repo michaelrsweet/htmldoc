@@ -1,10 +1,12 @@
-CHANGES.txt - 05/31/2001
+CHANGES.txt - 06/04/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.13
 
     NEW FEATURES
 
+	- Added support for secure (https) URLs via the
+	  OpenSSL library.
 	- Added support for Acrobat 5.0 (PDF 1.4).
 	- Added support for transparency in PostScript and
 	  PDF 1.1 and 1.2 output.

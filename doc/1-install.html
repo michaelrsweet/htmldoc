@@ -124,6 +124,10 @@ work fine. To build the GUI you'll also need:
 
 </UL>
 
+<P>Secure (https) URL support can be enabled via the
+<A HREF="http://www.openssl.org">OpenSSL</A> library. You should use at
+least version 0.9.6.
+
 <H3>Configuring the UNIX Source</H3>
 
 <I>HTMLDOC</I> uses a configuration script produced by GNU autoconf to
@@ -132,8 +136,8 @@ configure itself for your system. If your ANSI C compiler is not called
 variable to the name and path of your ANSI C compiler:
 
 <UL><PRE>
-% <KBD>setenv CC /path/to/compiler</KBD>			[C Shell]
-% <KBD>CC=/path/to/compiler; export CC</KBD>		[Bourne/Korn Shell]
+% <KBD>setenv CC /path/to/compiler <I>ENTER</I></KBD>         [C Shell]
+% <KBD>CC=/path/to/compiler; export CC <I>ENTER</I></KBD>     [Bourne/Korn Shell]
 </PRE></UL>
 
 Similarly, if your C++ compiler is not called <VAR>CC</VAR>, <VAR>gcc</VAR>,
@@ -141,39 +145,43 @@ Similarly, if your C++ compiler is not called <VAR>CC</VAR>, <VAR>gcc</VAR>,
 variable to the name and path of your C++ compiler:
 
 <UL><PRE>
-% <KBD>setenv CXX /path/to/compiler</KBD>			[C Shell]
-% <KBD>CXX=/path/to/compiler; export CXX</KBD>		[Bourne/Korn Shell]
+% <KBD>setenv CXX /path/to/compiler <I>ENTER</I></KBD>        [C Shell]
+% <KBD>CXX=/path/to/compiler; export CXX <I>ENTER</I></KBD>   [Bourne/Korn Shell]
 </PRE></UL>
 
-Finally, if the FLTK library is not installed in a standard location for
-your compilers, set the <CODE>CFLAGS</CODE>, <CODE>CXXFLAGS</CODE>, and
-<CODE>LDFLAGS</CODE> environment variables to point to the FLTK library:
-
-<UL><PRE>
-% <KBD>setenv CFLAGS -I/path/to/fltk</KBD>			[C Shell]
-% <KBD>setenv CXXFLAGS -I/path/to/fltk</KBD>
-% <KBD>setenv LDFLAGS -L/path/to/fltk/lib</KBD>
-
-% <KBD>CFLAGS=-I/path/to/fltk; export CFLAGS</KBD>		[Bourne/Korn Shell]
-% <KBD>CXXFLAGS=-I/path/to/fltk; export CXXFLAGS</KBD>
-% <KBD>LDFLAGS=-L/path/to/fltk/lib; export LDFLAGS</KBD>
-</PRE></UL>
-
-Then run the following command to configure <I>HTMLDOC</I> for
+<P>Then run the following command to configure <I>HTMLDOC</I> for
 installation in the default directories:
 
 <UL><PRE>
-% <KBD>./configure ENTER</KBD>
+% <KBD>./configure <I>ENTER</I></KBD>
 </PRE></UL>
 
-The default configuration will install <I>HTMLDOC</I> in the
+<P>The default configuration will install <I>HTMLDOC</I> in the
 <VAR>/usr/bin</VAR> directory with the data files under
 <VAR>/usr/share/htmldoc</VAR> and the documentation and on-line help
 under <VAR>/usr/share/doc/htmldoc</VAR>. Use the <CODE>--prefix</CODE>
 option to change the installation prefix to <VAR>/usr/local</VAR>:
 
 <UL><PRE>
-% <KBD>./configure --prefix=/usr/local ENTER</KBD>
+% <KBD>./configure --prefix=/usr/local <I>ENTER</I></KBD>
+</PRE></UL>
+
+<P>If the FLTK library is not installed in a standard location for
+your compilers, use the <CODE>--with-fltk-includes</CODE> and
+<CODE>--with-fltk-libs</CODE> options to point to the FLTK library:
+
+<UL><PRE>
+% <KBD>./configure --with-fltk-libs=/path/to/fltk/lib \
+        --with-fltk-includes=/path/to/fltk <I>ENTER</I></KBD>
+</PRE></UL>
+
+<P>Finally, if the OpenSSL library is not installed in a standard location for
+your compilers, use the <CODE>--with-openssl-includes</CODE> and
+<CODE>--with-openssl-libs</CODE> options to point to the OpenSSL library:
+
+<UL><PRE>
+% <KBD>./configure --with-openssl-libs=/path/to/openssl/lib \
+        --with-openssl-includes=/path/to/openssl <I>ENTER</I></KBD>
 </PRE></UL>
 
 <!-- NEED 3in -->
@@ -183,7 +191,7 @@ option to change the installation prefix to <VAR>/usr/local</VAR>:
 directory. Simply run the "make" command to build <I>HTMLDOC</I>:
 
 <UL><PRE>
-% <KBD>make ENTER</KBD>
+% <KBD>make <I>ENTER</I></KBD>
 </PRE></UL>
 
 If you get any fatal errors, please subscribe to the HTMLDOC
@@ -209,7 +217,7 @@ questions and comments.</I>
 To install <I>HTMLDOC</I> simply run the "make install" command:
 
 <UL><PRE>
-% <KBD>make install ENTER</KBD>
+% <KBD>make install <I>ENTER</I></KBD>
 </PRE></UL>
 
 <P>If you are installing in a restricted directory like <VAR>/usr</VAR>
