@@ -117,16 +117,16 @@ HelpDialog::HelpDialog() {
       o->end();
       Fl_Group::current()->resizable(o);
     }
-    { Fl_Button* o = new Fl_Button(445, 350, 75, 25, _("Close"));
+    { Fl_Button* o = new Fl_Button(425, 350, 95, 25, _("Close"));
       o->callback((Fl_Callback*)cb_Close);
     }
-    { Fl_Button* o = back_ = new Fl_Button(375, 350, 25, 25, _("@<-"));
+    { Fl_Button* o = back_ = new Fl_Button(365, 350, 25, 25, _("@<-"));
       o->shortcut(0xff51);
       o->labeltype(FL_SYMBOL_LABEL);
       o->labelcolor(2);
       o->callback((Fl_Callback*)cb_back_);
     }
-    { Fl_Button* o = forward_ = new Fl_Button(410, 350, 25, 25, _("@->"));
+    { Fl_Button* o = forward_ = new Fl_Button(395, 350, 25, 25, _("@->"));
       o->shortcut(0xff53);
       o->labeltype(FL_SYMBOL_LABEL);
       o->labelcolor(2);
@@ -137,7 +137,7 @@ HelpDialog::HelpDialog() {
       o->labelsize(10);
       o->callback((Fl_Callback*)cb_smaller_);
     }
-    { Fl_Button* o = larger_ = new Fl_Button(340, 350, 25, 25, _("F"));
+    { Fl_Button* o = larger_ = new Fl_Button(335, 350, 25, 25, _("F"));
       o->labelfont(1);
       o->labelsize(16);
       o->callback((Fl_Callback*)cb_larger_);
