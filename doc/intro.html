@@ -1,153 +1,157 @@
-<HTML>
-<HEAD>
-	<META NAME="author" CONTENT="Easy Software Products">
-	<META NAME="copyright" CONTENT="Copyright 1997-2004, See the GNU General Public License for Details.">
-	<META NAME="docnumber" CONTENT="ESP-003-20040505">
-	<TITLE>HTMLDOC 1.8.24 Software Users Manual</TITLE>
-</HEAD>
-<BODY>
+<html>
+<head>
+	<meta name='author' content='Easy Software Products'>
+	<meta name='copyright' content='Copyright 1997-2004, See the GNU General Public License for Details.'>
+	<meta name='docnumber' content='ESP-003-20040512'>
+	<title>HTMLDOC 1.8.24 Software Users Manual</title>
+</head>
+<body>
 
 <!-- FOOTER RIGHT "IN-$CHAPTERPAGE" -->
-<DIV ALIGN="justify">
+<div align='justify'>
 
-<H1 ALIGN="RIGHT"><A NAME="INTRO">Introduction</A></H1>
+<h1 align='right'><a name='INTRO'>Introduction</a></h1>
 
-This document describes how to use the <I>HTMLDOC</I> software, version
-1.8.24. <I>HTMLDOC</I> converts Hyper-Text Markup Language ("HTML") input
-files into indexed HTML, Adobe&reg; PostScript&reg;, or Adobe Portable
-Document Format ("PDF") files. 
+<p>This document describes how to use the <i>HTMLDOC</i>
+software, version 1.8.24. <i>HTMLDOC</i> converts Hyper-Text
+Markup Language ("HTML") input files into indexed HTML,
+Adobe&reg; PostScript&reg;, or Adobe Portable Document Format
+("PDF") files.</p>
 
-<P><I>HTMLDOC</I> supports most HTML 3.2 elements, some HTML 4.0
-elements, and can generate title and table of contents pages. It does
-not currently support stylesheets.
+<p><i>HTMLDOC</i> supports most HTML 3.2 elements, some HTML 4.0
+elements, and can generate title and table of contents pages. It
+does not currently support stylesheets.</p>
 
-<P><I>HTMLDOC</I> can be used as a standalone application, in a batch
-document processing environment, or as a web-based report generation
-application.
+<p><i>HTMLDOC</i> can be used as a standalone application, in a
+batch document processing environment, or as a web-based report
+generation application.</p>
 
-<P>No restrictions are placed upon the output produced by <I>HTMLDOC</I>.
+<p>No restrictions are placed upon the output produced by
+<i>HTMLDOC</i>.</p>
 
-<H2>History</H2>
+<h2>History</h2>
 
-Like many programs <I>HTMLDOC</I> was developed in response to a need
-our company had for generating high-quality documentation in printed
-and electronic forms. For a while we used FrameMaker&reg; and a package
-from <CODE>sgi</CODE> that generated "compiled" Standard Generalized
-Markup Language ("SGML") files that could be used by the Electronic
-Book Technologies ("EBT") documentation products (EBT is now owned by
-<A HREF="http://www.inso.com">INSO</A>.) When <CODE>sgi</CODE> stopped
-supporting these tools we turned to INSO, but the cost of their tools
-is prohibitive to small businesses.
+<p>Like many programs <i>HTMLDOC</i> was developed in response
+to a need our company had for generating high-quality
+documentation in printed and electronic forms. For a while we
+used FrameMaker&reg; and a package from <code>sgi</code> that
+generated "compiled" Standard Generalized Markup Language
+("SGML") files that could be used by the Electronic Book
+Technologies ("EBT") documentation products; EBT was bought by
+INSO who was bought by Stellent<sup>TM</sup> who apparently has
+dropped the whole product line. When <code>sgi</code> stopped
+supporting these tools we turned to INSO, but the cost of their
+tools is prohibitive to small businesses.</p>
 
-<P>In the end we decided to write our own program to generate our
-documentation. HTML seemed to be the source format of choice since
-WYSIWYG HTML editors are widely (and freely) available and at worst you
-can use a plain text editor. We needed HTML output for documentation on
-our web server, PDF for customers to read and/or print from their
-computers, and PostScript for our own printing needs.
+<p>In the end we decided to write our own program to generate
+our documentation. HTML seemed to be the source format of choice
+since WYSIWYG HTML editors are widely (and freely) available and
+at worst you can use a plain text editor. We needed HTML output
+for documentation on our web server, PDF for customers to read
+and/or print from their computers, and PostScript for our own
+printing needs.</p>
 
-<P>The result of our efforts is the <I>HTMLDOC</I> software which is
-available for UNIX&reg; and Microsoft&reg; Windows&reg;. Among other
-things, this software users manual is produced using <I>HTMLDOC</I>.
+<p>The result of our efforts is the <i>HTMLDOC</i> software
+which is available for Linux&reg;/UNIX&reg;, MacOS&reg; X, and
+Microsoft&reg; Windows&reg;. Among other things, this software
+users manual is produced using <i>HTMLDOC</i>.</p>
 
-<H2>Organization of This Manual</H2>
+<h2>Organization of This Manual</h2>
 
-<P>This manual is organized into tutorial and reference chapters:
+<p>This manual is organized into tutorial and reference chapters
+and appendices:</p>
 
-<UL>
+<ul>
 
-	<LI><A HREF="#INSTALL">Chapter 1</A> - Installing HTMLDOC
+	<li><a href='#INSTALL'>Chapter 1</a> - Installing HTMLDOC</li>
 
-	<LI><A HREF="#STARTING">Chapter 2</A> - Getting Started
+	<li><a href='#STARTING'>Chapter 2</a> - Getting Started</li>
 
-	<LI><A HREF="#BOOKS">Chapter 3</A> - Generating Books
+	<li><a href='#BOOKS'>Chapter 3</a> - Generating Books</li>
 
-	<LI><A HREF="#CMDLINE">Chapter 4</A> - HTMLDOC from the Command-Line
+	<li><a href='#CMDLINE'>Chapter 4</a> - HTMLDOC from the Command-Line</li>
 
-	<LI><A HREF="#CGI">Chapter 5</A> - HTMLDOC from a Web Server
+	<li><a href='#CGI'>Chapter 5</a> - HTMLDOC from a Web Server</li>
 
-	<LI><A HREF="#HTMLREF">Chapter 6</A> - HTML Reference
+	<li><a href='#HTMLREF'>Chapter 6</a> - HTML Reference</li>
 
-	<LI><A HREF="#GUIREF">Chapter 7</A> - GUI Reference
+	<li><a href='#GUIREF'>Chapter 7</a> - GUI Reference</li>
 
-	<LI><A HREF="#CMDREF">Chapter 8</A> - Command-Line Reference
+	<li><a href='#CMDREF'>Chapter 8</a> - Command-Line Reference</li>
 
-	<LI><A HREF="#LICENSE">Appendix A</A> - GNU General Public License
+	<li><a href='#LICENSE'>Appendix A</a> - GNU General Public License</li>
 
-	<LI><A HREF="#BOOKFORMAT">Appendix B</A> - Book File Format
+	<li><a href='#BOOKFORMAT'>Appendix B</a> - Book File Format</li>
 
-	<LI><A HREF="#RELNOTES">Appendix C</A> - Release Notes
+	<li><a href='#RELNOTES'>Appendix C</a> - Release Notes</li>
 
-</UL>
+	<li><a href='#COMPILE'>Appendix D</a> - Compiling HTMLDOC from Source</li>
 
-<H2>Support</H2>
+</ul>
 
-Commercial support is available from Easy Software Products.
-Information can be found at the <I>HTMLDOC</I> web page,
-"<A HREF="http://www.easysw.com/htmldoc/">http://www.easysw.com/htmldoc/</A>".
+<h2>Support</h2>
 
-<H2>Encryption Support</H2>
+<p>Commercial support is available from Easy Software Products
+when you purchase the HTMLDOC Professional Membership. More
+information is available at the <i>HTMLDOC</i> web page at the
+following URL:</p>
 
-<I>HTMLDOC</I> includes code to encrypt PDF document files using
-the RC4 algorithm with up to a 128-bit key. While this software
-and code may be freely used and exported under current US laws,
-other countries may restrict your use and possession of this
-code and software.
+<pre>
+    <a href="http://www.easysw.com/htmldoc/">http://www.easysw.com/htmldoc/</a>
+</pre>
 
-<H2>Copyright, Trademark, and License Information</H2>
+<h2>Encryption Support</h2>
 
-The Adobe Portable Document Format is Copyright 1985-2003 by
+<p><i>HTMLDOC</i> includes code to encrypt PDF document files
+using the RC4 algorithm with up to a 128-bit key. While this
+software and code may be freely used and exported under current
+US laws, other countries may restrict your use and possession of
+this code and software.</p>
+
+<h2>Copyright, Trademark, and License Information</h2>
+
+<p>The Adobe Portable Document Format is Copyright 1985-2003 by
 Adobe Systems Incorporated. Adobe, FrameMaker, and PostScript
-are registered trademarks of Adobe Systems, Incorporated.
+are registered trademarks of Adobe Systems, Incorporated.</p>
 
-<P>The Graphics Interchange Format is the copyright and
-GIF<SUP>SM</SUP> is the service mark property of CompuServe
-Incorporated.
+<p>The Graphics Interchange Format is the copyright and
+GIF<sup>SM</sup> is the service mark property of CompuServe
+Incorporated.</p>
 
-<P>Compaq, Digital, and Tru64 are registered trademarks of Compaq.
+<p>Intel is a registered trademark of Intel Corporation.</p>
 
-<P>Intel is a registered trademark of Intel Corporation.
+<p>IRIX and <code>sgi</code> are registered trademarks of
+Silicon Graphics, Inc.</p>
 
-<P>IRIX and <CODE>sgi</CODE> are registered trademarks of
-Silicon Graphics, Inc.
+<p>Linux is a registered trademark of Linus Torvalds.</p>
 
-<P>Linux is a registered trademark of Linus Torvalds.
+<p>MacOS is a registered trademark of Apple Computer, Inc.</p>
 
-<P>MacOS is a registered trademark of Apple Computer, Inc.
+<p>Microsoft and Windows are registered trademarks of Microsoft
+Corporation.</p>
 
-<P>Microsoft and Windows are registered trademarks of Microsoft
-Corporation.
+<p>Red Hat and RPM are registered trademarks of Red Hat,
+Inc.</p>
 
-<P>Red Hat and RPM are registered trademarks of Red Hat, Inc.
+<p>Solaris is a registered trademark of Sun Microsystems,
+Inc.</p>
 
-<P>Solaris is a registered trademark of Sun Microsystems, Inc.
+<p>SPARC is a registered trademark of SPARC International, Inc.</p>
 
-<P>SPARC is a registered trademark of SPARC International, Inc.
+<p>UNIX is a registered trademark of the X/Open Company,
+Ltd.</p>
 
-<P>UNIX is a registered trademark of the X/Open Company, Ltd.
+<p><i>HTMLDOC</i> is the trademark property of Easy Software
+Products.</p>
 
-<P><I>HTMLDOC</I> is copyright 1997-2004 by Easy Software
-Products. This program is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public
-License as published by the Free Software Foundation; either
-version 2 of the License, or (at your option) any later version.
+<p><i>HTMLDOC</i> is copyright 1997-2004 by Easy Software
+Products. See <a href='#LICENSE'>Appendix A - License
+Agreement</a> for the terms of use.</p>
 
-<P>This program is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the <A HREF="#LICENSE">GNU General Public License</A> for
-more details.
+<p>This software is based in part on the work of the Independent
+JPEG Group and FLTK project.</p>
 
-<P>A copy of the GNU General Public License is included in <A
-HREF="#LICENSE">Appendix A</A> of this manual. If this appendix
-is missing from your copy of HTMLDOC, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-02111-1307, USA.
+</div>
 
-<P>This software is based in part on the work of the Independent
-JPEG Group and FLTK project.
-
-</DIV>
-
-</BODY>
-</HTML>
+</body>
+</html>

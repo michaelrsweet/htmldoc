@@ -1,4 +1,4 @@
-README.txt - 03/02/2004
+README.txt - 05/12/2004
 -----------------------
 
 INTRODUCTION
@@ -11,9 +11,10 @@ INTRODUCTION
     **** SUPPORT STYLE SHEETS!  PLEASE READ THE DOCUMENTATION  ****
     **** BEFORE ASKING QUESTIONS.                              ****
 
-    HTMLDOC is copyright 1997-2004 by Easy Software Products and
-    is currently available under the GNU General Public License,
-    version 2.  See the LEGAL STUFF section below for details.
+    HTMLDOC is copyright 1997-2004 by Easy Software Products.
+    The source code is available under the GNU General Public
+    License, version 2.  See the LEGAL STUFF section below for
+    details.
 
     Documentation for HTMLDOC is available in the "doc"
     subdirectory and is been generated from HTML "source" files
@@ -50,8 +51,8 @@ INTERNET RESOURCES
 
         http://www.easysw.com/htmldoc/software.php
 
-    Commercial support is available from Easy Software Products;
-    send commercial support requests to
+    Commercial support is provided to professional members by
+    Easy Software Products; send commercial support requests to
     "htmldoc-support@easysw.com" or use the form at the
     following page:
 
@@ -62,55 +63,20 @@ REQUIREMENTS
 
     HTMLDOC requires an average of 2MB of disk space for
     installation. Binary distributions are available to any
-    HTMLDOC member for the following platforms:
+    HTMLDOC member at the download page:
 
-	- AIX 4.3.3 or higher
-        - Compaq Tru64 UNIX 4.0 or higher
-        - Digital UNIX 4.0 or higher
-	- FreeBSD 4.5 or higher
-	- HP-UX 10.20 or higher
-	- IRIX 5.3 or higher
-	- Linux 2.2 or higher (Intel only)
-	- MacOS X 10.2 or higher
-	- Microsoft Windows 95 or higher
-	- Solaris 2.5 or higher (SPARC and Intel)
+        http://www.easysw.com/htmldoc/software.php
 
     See the file "COMPILE.txt" for instructions on compiling
     HTMLDOC from the source code.
 
 
-INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
+USING HTMLDOC
 
-    HTMLDOC comes in a self-extracting archive.  Double-click on
-    or run the "htmldoc-1.8.24-windows.exe" file to start the
-    installation wizard.
-
-
-INSTALLING HTMLDOC UNDER RED HAT LINUX
-
-    Type the following command to install HTMLDOC under Red Hat
-    Linux:
-
-        rpm -i htmldoc-1.8.24-linux-2.2-intel.rpm ENTER
-
-    or:
-
-        rpm -i htmldoc-1.8.24-linux-2.4-intel.rpm ENTER
-
-
-INSTALLING HTMLDOC UNDER LINUX/UNIX
-
-    Type the following commands to install HTMLDOC under
-    Linux/UNIX:
-
-        gunzip htmldoc-1.8.24-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.24-platform.tar ENTER
-	./setup ENTER *or* ./htmldoc.install ENTER
-
-    (replace "platform" with the appropriate platform name)
-
-
-RUNNING HTMLDOC FROM THE COMMAND-LINE
+    COMPLETE DOCUMENTATION FOR HTMLDOC IS AVAILABLE IN THE "doc"
+    SUBDIRECTORY.  THE FOLLOWING PROVIDES BASIC INFORMATION ON
+    USING HTMLDOC AT THE COMMAND-LINE AND DOES NOT DISCUSS THE
+    GUI OR WEB SERVER FUNCTIONALITY.
 
     HTMLDOC accepts a list of HTML "source" files and will
     generate HTML, PostScript, or PDF output via command-line
@@ -149,40 +115,6 @@ RUNNING HTMLDOC FROM THE COMMAND-LINE
     A complete description of all command-line options and HTML
     guidelines can be found in the software users manual in the
     "doc" directory.
-
-
-RUNNING THE GUI SOFTWARE
-
-    To run the UNIX GUI type:
-
-        htmldoc ENTER
-
-    To run the Windows GUI choose "HTMLDOC" from the "Start"
-    menu.
-
-    This version of HTMLDOC reads and writes "book" files
-    containing a list of HTML source files and a set of output
-    options.  These book files can be used to do batch
-    conversions from the command-line as well.
-
-
-RUNNING HTMLDOC FROM YOUR WEB SERVER
-
-    HTMLDOC supports filtering of documents from stdin to
-    stdout.  This can be useful for producing PDF or PostScript
-    versions of HTML reports on your web server.
-
-    The special filename "-" specifies the standard input or
-    standard output.  To filter web pages to PDF use the
-    command:
-
-         htmldoc --webpage -t pdf -
-
-    Note that this does not handle sending the "Content-Type:
-    application/pdf" header, so if you do this in a CGI script
-    you'll need to send this header prior to running htmldoc. 
-    See Chapter 5 of the software users manual for more
-    information.
 
 
 CURRENT LIMITATIONS
@@ -232,7 +164,8 @@ LEGAL STUFF
 
     Intel is a registered trademark of Intel Corporation.
 
-    IRIX and sgi are registered trademarks of sgi.
+    IRIX and sgi are registered trademarks of Silicon Graphics,
+    Inc.
 
     Linux is a registered trademark of Linus Torvalds.
 
@@ -247,22 +180,11 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC is copyright 1997-2004 by Easy Software Products. This
-    program is free software; you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    HTMLDOC is the trademark property of Easy Software Products.
 
-    This program is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    General Public License for more details.
+    HTMLDOC is copyright 1997-2004 by Easy Software Products.
+    See Appendix A of the HTMLDOC Software Users Manual or the
+    files "COPYING.txt" and "htmldoc.eula" for the terms of use.
 
-    A copy of the GNU General Public License is included in the file
-    "COPYING.txt" and in Appendix A of the Software Users Manual. If
-    the file or appendix is missing from your copy of HTMLDOC, write to
-    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-    Boston, MA 02111-1307, USA.
-
-    This software is based in part on the work of the Independent JPEG
-    Group.
+    This software is based in part on the work of the
+    Independent JPEG Group and FLTK project.

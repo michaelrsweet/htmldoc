@@ -1,0 +1,59 @@
+INSTALLATION INSTRUCTIONS FOR HTMLDOC
+-------------------------------------
+
+REQUIREMENTS
+
+    HTMLDOC requires an average of 2MB of disk space for
+    installation. The following platforms are supported:
+
+	- AIX 4.3.3 or higher
+        - Compaq Tru64 UNIX 4.0 or higher
+        - Digital UNIX 4.0 or higher
+	- FreeBSD 4.5 or higher
+	- HP-UX 10.20 or higher
+	- IRIX 5.3 or higher
+	- Linux 2.2 or higher (Intel only)
+	- MacOS X 10.2 or higher
+	- Microsoft Windows 95 or higher
+	- Solaris 2.5 or higher (SPARC and Intel)
+
+
+INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
+
+    HTMLDOC for Microsoft Windows is provided in a Microsoft
+    Installer (.MSI) file. Double-click on the .MSI file to
+    start the installation wizard.
+
+
+INSTALLING HTMLDOC UNDER MACOS X
+
+    HTMLDOC for MacOS X is provided in a compressed archive.
+    Open the file using StuffIt Expander to create a folder
+    called "htmldoc-1.8.24-macosx".  Open this folder and
+    double-click on the "Install" icon to start the installation
+    wizard.
+
+ 
+INSTALLING HTMLDOC UNDER LINUX/UNIX
+
+    HTMLDOC for MacOS X is provided in a compressed archive.
+    Type the following commands to install HTMLDOC under
+    Linux/UNIX:
+
+        gunzip htmldoc-1.8.24-PLATFORM.tar.gz ENTER
+	tar xf htmldoc-1.8.24-PLATFORM.tar ENTER
+	./setup ENTER *or* ./htmldoc.install ENTER
+
+    (replace "platform" with the appropriate platform name)
+
+
+INSTALLING HTMLDOC UNDER RED HAT LINUX
+
+    You must be logged in as an administrative user in order to
+    install this software.
+
+    HTMLDOC for Red Hat Linux is provided in a RPM package file.
+    Type the following command to install HTMLDOC under Red Hat
+    Linux:
+
+        rpm -i htmldoc-1.8.24-linux-intel.rpm ENTER
