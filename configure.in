@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.11 2001/06/04 14:08:02 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.12 2001/06/06 04:45:26 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -195,6 +195,7 @@ fi
 AC_CHECK_LIB(X11,XOpenDisplay)
 AC_CHECK_LIB(Xext,XdbeQueryExtension)
 
+if text x$with_x = xyes; then
 dnl Check FLTK by itself
 AC_CHECK_LIB(fltk,numericsort)
 
@@ -211,8 +212,11 @@ if test "$ac_cv_lib_fltk_numericsort" = no; then
 fi
 
 AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
+else
+	ac_cv_lib_fltk_numericsort=no
+fi
 
-if test "$ac_cv_lib_fltk_numericsort" = yes; then
+if test x$ac_cv_lib_fltk_numericsort = xyes; then
 	LIBS="../gui/libgui.a $LIBS"
 	GUI="gui"
 else
@@ -301,5 +305,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.11 2001/06/04 14:08:02 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.12 2001/06/06 04:45:26 mike Exp $".
 dnl
