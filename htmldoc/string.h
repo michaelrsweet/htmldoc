@@ -1,5 +1,5 @@
 /*
- * "$Id: string.h,v 1.5.2.2 2001/02/02 15:11:03 mike Exp $"
+ * "$Id: string.h,v 1.5.2.3 2001/02/20 02:15:59 mike Exp $"
  *
  *   HTML string definitions for HTMLDOC, a HTML document processing program.
  *
@@ -48,6 +48,8 @@ extern "C" {
 #  if defined(WIN32) || defined(__EMX__)
 #    define strcasecmp(s,t)	stricmp(s,t)
 #    define strncasecmp(s,t,n)	strnicmp(s,t,n)
+#    define snprintf		_snprintf
+#    define vsnprintf		_vsnprintf
 #  endif /* WIN32 || __EMX__ */
 
 
@@ -83,5 +85,5 @@ extern int	vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HTMLDOC_STRING_H_ */
 
 /*
- * End of "$Id: string.h,v 1.5.2.2 2001/02/02 15:11:03 mike Exp $".
+ * End of "$Id: string.h,v 1.5.2.3 2001/02/20 02:15:59 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.14 2001/02/15 22:00:04 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.15 2001/02/20 02:15:56 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -54,6 +54,7 @@
  */
 
 #include "htmldoc.h"
+#include "string.h"
 #include <ctype.h>
 
 
@@ -2235,6 +2236,8 @@ get_alignment(tree_t *t)	/* I - Tree entry */
       t->halignment = ALIGN_CENTER;
     else if (strcasecmp((char *)align, "right") == 0)
       t->halignment = ALIGN_RIGHT;
+    else if (strcasecmp((char *)align, "justify") == 0)
+      t->halignment = ALIGN_JUSTIFY;
     else if (strcasecmp((char *)align, "top") == 0)
       t->valignment = ALIGN_TOP;
     else if (strcasecmp((char *)align, "middle") == 0)
@@ -2382,5 +2385,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.14 2001/02/15 22:00:04 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.15 2001/02/20 02:15:56 mike Exp $".
  */

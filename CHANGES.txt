@@ -1,4 +1,4 @@
-CHANGES.txt - 02/16/2001
+CHANGES.txt - 02/19/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.11
@@ -9,6 +9,9 @@ CHANGES IN HTMLDOC v1.8.11
 	- Added new "TrueType" font option for PDF output. This
 	  (hopefully) should improve support for non-latin
 	  languages.
+	- Added support for "justify" alignment; this is currently
+	  implemented by adding additional space between characters
+	  (no automatic hyphenation...)
 
     CHANGES
 
