@@ -1,178 +1,305 @@
-BODY {
-  margin: 1em;
-  font-family: serif;
-  font-size: 11pt;
-  line-height: 1.2;
-  background: white;
-  color: black;
-}
+/*
+ * "$Id: standard.css,v 1.2 2004/10/23 23:17:04 mike Exp $"
+ *
+ *   Standard stylesheet for HTMLDOC.
+ *
+ *   Copyright 1997-2004 by Easy Software Products.
+ *
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Easy Software Products and are protected by Federal
+ *   copyright law.  Distribution and use rights are outlined in the file
+ *   "COPYING.txt" which should have been included with this file.  If this
+ *   file is missing or damaged please contact Easy Software Products
+ *   at:
+ *
+ *       Attn: ESP Licensing Information
+ *       Easy Software Products
+ *       44141 Airport View Drive, Suite 204
+ *       Hollywood, Maryland 20636 USA
+ *
+ *       Voice: (301) 373-9600
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
+ */
 
-H1, H2, H3, H4, H5, H6, P, UL, OL, DIR, MENU, DIV,
-DT, DD, ADDRESS, BLOCKQUOTE, CENTER, PRE, BR, HR, FORM, DL {
+/*
+ * Map all elements to their corresponding display types; the default
+ * display: attribute value is "inline"...
+ */
+
+html, address, blockquote, body, dd, div, dl, dt, fieldset,
+form, frame, frameset, h1, h2, h3, h4, h5, h6, noframes, ol, p,
+ul, center, dir, hr, menu, pre
+{
   display: block;
 }
 
-B, STRONG, I, EM, CITE, VAR, TT, CODE, KBD, SAMP,
-IMG, SPAN {
-  display: inline;
-}
-
-LI {
+li
+{
   display: list-item;
 }
 
-TABLE {
+head
+{
+  display: none;
+}
+
+table
+{
   display: table;
 }
 
-TBODY {
-  display: table-row-group;
-}
-
-THEAD {
-  display: table-header-group;
-}
-
-TFOOT {
-  display: table-footer-group;
-}
-
-COL {
-  display: table-column;
-}
-
-COLGROUP {
-  display: table-column-group;
-}
-
-TR {
+tr
+{
   display: table-row;
 }
 
-TD {
-  display: table-cell;
-  vertical-align: middle;
+thead
+{
+  display: table-header-group;
 }
 
-TH {
-  display: table-cell;
-  font-weight: bolder;
-  text-align: center;
-  vertical-align: middle;
+tbody
+{
+  display: table-row-group;
 }
 
-CAPTION {
+tfoot
+{
+  display: table-footer-group;
+}
+
+col
+{
+  display: table-column;
+}
+
+colgroup {
+  display: table-column-group;
+}
+
+td, th
+{
+  display: table-cell;
+}
+
+caption
+{
   display: table-caption;
   text-align: center;
 }
 
-H1, H2, H3, H4, H5, H6 {
+th
+{
+  font-weight: bolder;
+  text-align: center;
+}
+
+body
+{
+  margin: 8px;
+  line-height: 1.12;
+  font-family: serif;
+  font-size: 11pt;
+  background: white;
+  color: black;
+}
+
+h1, h2, h3, h4, h5, h6 {
   font-family: sans-serif;
 }
 
-H1, H2, H3, H4 {
-  margin-top: 1em;
-  margin-bottom: 1em;
+h1
+{
+  font-size: 2em;
+  margin: .67em 0;
 }
 
-H5, H6 {
-  margin-top: 1em;
+h2
+{
+  font-size: 1.5em;
+  margin: .75em 0;
 }
 
-H1, H2, H4, H6 {
-  font-weight: bold;
+h3
+{
+  font-size: 1.17em;
+  margin: .83em 0;
 }
 
-H3, H5 {
-  font-style: italic;
+h4, p, blockquote, ul, fieldset, form, ol, dl, dir, menu
+{
+  margin: 1.12em 0;
 }
 
-H1 { 
-  font-size: xx-large;
+h5
+{
+  font-size: .83em;
+  margin: 1.5em 0;
 }
 
-H2 {
-  font-size: x-large;
+h6
+{
+  font-size: .75em;
+  margin: 1.67em 0;
 }
 
-H3 {
-  font-size: large;
-}
-
-B, STRONG {
+h1, h2, h3, h4, h5, h6, b, strong
+{
   font-weight: bolder;
 }
 
-I, CITE, EM, VAR, ADDRESS, BLOCKQUOTE {
+address {
+  margin-left: 40px;
+}
+
+blockquote
+{
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+i, cite, em, var, address
+{
   font-style: italic;
 }
 
-PRE, TT, CODE, KBD, SAMP {
+pre, tt, code, kbd, samp
+{
   font-family: monospace;
 }
 
-PRE {
+pre
+{
   white-space: pre;
 }
 
-ADDRESS {
-  margin-left: 3em;
+button, textarea, input, object,  select
+{
+  display:inline-block;
 }
 
-BLOCKQUOTE {
-  margin-left: 3em;
-  margin-right: 3em;
+big
+{
+  font-size: 1.17em;
 }
 
-UL, DIR {
-  list-style: disc;
+small, sub, sup
+{
+  font-size: .83em;
 }
 
-OL {
-  list-style: decimal;
+sub
+{
+  vertical-align: sub;
 }
 
-MENU {
-  margin: 0;
+sup
+{
+  vertical-align: super;
 }
 
-LI {
-  margin-left: 3em;
+table
+{
+  border-spacing: 2px;
 }
 
-DT {
+thead, tbody, tfoot
+{
+  vertical-align: middle;
+}
+
+td, th
+{
+  vertical-align: inherit;
+}
+
+s, strike, del
+{
+  text-decoration: line-through;
+}
+
+hr
+{
+  border: 1px inset;
+}
+
+ol, ul, dir, menu, dd
+{
+  margin-left: 40px;
+}
+
+ol
+{
+  list-style-type: decimal;
+}
+
+ul, dir {
+  list-style-type: disc;
+}
+
+ol ul, ul ol, ul ul, ol ol
+{
+  margin-top: 0;
   margin-bottom: 0;
 }
 
-DD {
-  margin-top: 0;
-  margin-left: 3em;
+u, ins
+{
+  text-decoration: underline;
 }
 
-HR {
-  border-top: solid;
+br:before
+{
+  content: "\A";
 }
 
-A:link {
+:before, :after
+{
+  white-space: pre-line;
+}
+
+center
+{
+  text-align: center;
+}
+
+abbr, acronym
+{
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+}
+
+:link, :visited
+{
+  text-decoration: underline;
+}
+
+a:link {
   color: blue;
 }
 
-A:visited {
+a:visited {
   color: red;
 }
 
-A:active {
+a:active {
   color: lime;
 }
 
-A:link IMG {
+a:link img {
   border: 2px solid blue;
 }
 
-A:visited IMG {
+a:visited img {
   border: 2px solid red;
 }
 
-A:active IMG {
+a:active img {
   border: 2px solid lime;
 }
+
+
+/*
+ * End of "$Id: standard.css,v 1.2 2004/10/23 23:17:04 mike Exp $".
+ */
