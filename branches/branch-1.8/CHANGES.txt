@@ -52,6 +52,9 @@ CHANGES IN HTMLDOC v1.8.24
 	  the bottom of the page; this prevents images with
 	  captions from getting erroneously moved to the top of
 	  the next page.
+	- Character entities are now supported in HTML
+	  attributes and unknown or invalid character entities
+	  are left as plain text.
 
     BUG FIXES
 

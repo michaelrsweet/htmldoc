@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.46 2004/04/15 19:58:20 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.47 2004/04/20 20:10:06 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -14,7 +14,7 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.8.24b14"
+SVERSION="1.8.24b15"
 AC_SUBST(SVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
 
@@ -371,5 +371,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.46 2004/04/15 19:58:20 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.47 2004/04/20 20:10:06 mike Exp $".
 dnl

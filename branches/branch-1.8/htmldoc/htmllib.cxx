@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.71 2004/04/15 19:58:20 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.72 2004/04/20 20:10:06 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -258,32 +258,31 @@ static uchar	indent[255] = "";
  * 'htmlReadFile()' - Read a file for HTML markup codes.
  */
 
-tree_t *			/* O - Pointer to top of file tree */
-htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
-             FILE       *fp,	/* I - File pointer */
-	     const char *base)	/* I - Base directory for file */
+tree_t *				// O - Pointer to top of file tree
+htmlReadFile(tree_t     *parent,	// I - Parent tree entry
+             FILE       *fp,		// I - File pointer
+	     const char *base)		// I - Base directory for file
 {
-  int		ch;		/* Character from file */
-  uchar		*ptr,		/* Pointer in string */
-		glyph[16],	/* Glyph name (&#nnn; or &name;) */
-		*glyphptr;	/* Pointer in glyph string */
-  tree_t	*tree,		/* "top" of this tree */
-		*t,		/* New tree entry */
-		*prev,		/* Previous tree entry */
-		*temp;		/* Temporary looping var */
-  int		descend;	/* Descend into node? */
-  FILE		*embed;		/* File pointer for EMBED */
-  char		newbase[1024];	/* New base directory for EMBED */
-  uchar		*filename,	/* Filename for EMBED tag */
-		*face,		/* Typeface for FONT tag */
-		*color,		/* Color for FONT tag */
-		*size,		/* Size for FONT tag */
-		*type;		/* Type for EMBED tag */
-  int		sizeval;	/* Size value from FONT tag */
-  int		linenum;	/* Line number in file */
-  static uchar	s[10240];	/* String from file */
-  static int	have_whitespace = 0;
-  				/* Non-zero if there was leading whitespace */
+  int		ch;			// Character from file
+  uchar		*ptr,			// Pointer in string
+		entity[16],		// Character entity name (&#nnn; or &name;)
+		*eptr;			// Pointer in entity string
+  tree_t	*tree,			// "top" of this tree
+		*t,			// New tree entry
+		*prev,			// Previous tree entry
+		*temp;			// Temporary looping var
+  int		descend;		// Descend into node?
+  FILE		*embed;			// File pointer for EMBED
+  char		newbase[1024];		// New base directory for EMBED
+  uchar		*filename,		// Filename for EMBED tag
+		*face,			// Typeface for FONT tag
+		*color,			// Color for FONT tag
+		*size,			// Size for FONT tag
+		*type;			// Type for EMBED tag
+  int		sizeval;		// Size value from FONT tag
+  int		linenum;		// Line number in file
+  static uchar	s[10240];		// String from file
+  static int	have_whitespace = 0;	// Non-zero if there was leading whitespace
 
 
   DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
@@ -693,39 +692,56 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       {
         if (ch == '&')
         {
-          for (glyphptr = glyph;
-               (ch = getc(fp)) != EOF && (glyphptr - glyph) < 15;
-               glyphptr ++)
-            if (ch == ';' || isspace(ch))
-	    {
-	      if (ch == '\n')
-	        linenum ++;
+	  // Possibly a character entity...
+	  eptr = entity;
+	  while (eptr < (entity + sizeof(entity) - 1) &&
+	         (ch = getc(fp)) != EOF)
+	    if (!isalnum(ch) && ch != '#')
+	      break;
+	    else
+	      *eptr++ = ch;
 
-              break;
-	    }
-            else
-              *glyphptr = ch;
+          if (ch != ';')
+	  {
+	    ungetc(ch, fp);
+	    ch = 0;
+	  }
 
-          if (glyphptr == glyph)
+          *eptr = '\0';
+          if (!ch)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
 	                   linenum);
-            ch = '&';
-	  }
-	  else
-	  {
-            *glyphptr = '\0';
-            ch = iso8859(glyph);
-	  }
-        }
 
-        if (ch != 0 && ch != '\r')
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = '&';
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+	    ptr += strlen((char *)ptr);
+	  }
+	  else if ((ch = iso8859(entity)) == 0)
+	  {
+	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+	                   entity, linenum);
+
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = '&';
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+	    ptr += strlen((char *)ptr);
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = ';';
+	  }
+	  else if (ptr < (s + sizeof(s) - 1))
+	    *ptr++ = ch;
+        }
+	else if (ch != 0 && ch != '\r')
+	{
           *ptr++ = ch;
 
-        if (ch == '\n')
-	{
-	  linenum ++;
-          break;
+          if (ch == '\n')
+	  {
+	    linenum ++;
+            break;
+	  }
 	}
 
         ch = getc(fp);
@@ -758,28 +774,48 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       {
         if (ch == '&')
         {
-          for (glyphptr = glyph;
-               (ch = getc(fp)) != EOF && (glyphptr - glyph) < 15;
-               glyphptr ++)
-            if (ch == ';' || isspace(ch))
-              break;
-            else
-              *glyphptr = ch;
+	  // Possibly a character entity...
+	  eptr = entity;
+	  while (eptr < (entity + sizeof(entity) - 1) &&
+	         (ch = getc(fp)) != EOF)
+	    if (!isalnum(ch) && ch != '#')
+	      break;
+	    else
+	      *eptr++ = ch;
 
-          if (glyphptr == glyph)
+          if (ch != ';')
+	  {
+	    ungetc(ch, fp);
+	    ch = 0;
+	  }
+
+          *eptr = '\0';
+          if (!ch)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
 	                   linenum);
-            ch = '&';
-	  }
-	  else
-	  {
-            *glyphptr = '\0';
-            ch = iso8859(glyph);
-	  }
-        }
 
-        if (ch != 0)
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = '&';
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+	    ptr += strlen((char *)ptr);
+	  }
+	  else if ((ch = iso8859(entity)) == 0)
+	  {
+	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+	                   entity, linenum);
+
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = '&';
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+	    ptr += strlen((char *)ptr);
+            if (ptr < (s + sizeof(s) - 1))
+	      *ptr++ = ';';
+	  }
+	  else if (ptr < (s + sizeof(s) - 1))
+	    *ptr++ = ch;
+        }
+	else if (ch)
           *ptr++ = ch;
 
         ch = getc(fp);
@@ -2468,15 +2504,17 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
  * 'parse_variable()' - Parse a markup variable string.
  */
 
-static int			/* O - -1 on error, 0 on success */
-parse_variable(tree_t *t,	/* I - Current tree entry */
-               FILE   *fp,	/* I - Input file */
-	       int    *linenum)	/* I - Current line number */
+static int				// O - -1 on error, 0 on success
+parse_variable(tree_t *t,		// I - Current tree entry
+               FILE   *fp,		// I - Input file
+	       int    *linenum)		// I - Current line number
 {
-  uchar	name[1024],		/* Name of variable */
-	value[10240],		/* Value of variable */
-	*ptr;			/* Temporary pointer */
-  int	ch;			/* Character from file */
+  uchar	name[1024],			// Name of variable
+	value[10240],			// Value of variable
+	*ptr,				// Temporary pointer
+	entity[16],			// Character entity name
+	*eptr;				// Pointer into name
+  int	ch;				// Character from file
 
 
   ptr = name;
@@ -2519,26 +2557,126 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
         if (ch == '\'')
         {
           while ((ch = getc(fp)) != EOF)
+	  {
             if (ch == '\'')
               break;
+	    else if (ch == '&')
+	    {
+	      // Possibly a character entity...
+	      eptr = entity;
+	      while (eptr < (entity + sizeof(entity) - 1) &&
+	             (ch = getc(fp)) != EOF)
+	        if (!isalnum(ch) && ch != '#')
+		  break;
+		else
+		  *eptr++ = ch;
+
+              if (ch != ';')
+	      {
+	        ungetc(ch, fp);
+		ch = 0;
+	      }
+
+              *eptr = '\0';
+              if (!ch)
+	      {
+		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+	                       *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+	      }
+	      else if ((ch = iso8859(entity)) == 0)
+	      {
+		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+	                       entity, *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = ';';
+	      }
+	      else if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ch;
+	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
               *ptr++ = ch;
 	    else if (ch == '\n')
+	    {
+	      if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ' ';
+
 	      (*linenum) ++;
+	    }
+	  }
 
           *ptr = '\0';
         }
         else if (ch == '\"')
         {
           while ((ch = getc(fp)) != EOF)
+	  {
             if (ch == '\"')
               break;
+	    else if (ch == '&')
+	    {
+	      // Possibly a character entity...
+	      eptr = entity;
+	      while (eptr < (entity + sizeof(entity) - 1) &&
+	             (ch = getc(fp)) != EOF)
+	        if (!isalnum(ch) && ch != '#')
+		  break;
+		else
+		  *eptr++ = ch;
+
+              if (ch != ';')
+	      {
+	        ungetc(ch, fp);
+		ch = 0;
+	      }
+
+              *eptr = '\0';
+              if (!ch)
+	      {
+		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+	                       *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+	      }
+	      else if ((ch = iso8859(entity)) == 0)
+	      {
+		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+	                       entity, *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = ';';
+	      }
+	      else if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ch;
+	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
               *ptr++ = ch;
 	    else if (ch == '\n')
+	    {
+	      if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ' ';
+
 	      (*linenum) ++;
+	    }
+	  }
 
           *ptr = '\0';
         }
@@ -2546,10 +2684,55 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
         {
           *ptr++ = ch;
           while ((ch = getc(fp)) != EOF)
+	  {
             if (isspace(ch) || ch == '>' || ch == '\r')
               break;
+	    else if (ch == '&')
+	    {
+	      // Possibly a character entity...
+	      eptr = entity;
+	      while (eptr < (entity + sizeof(entity) - 1) &&
+	             (ch = getc(fp)) != EOF)
+	        if (!isalnum(ch) && ch != '#')
+		  break;
+		else
+		  *eptr++ = ch;
+
+              if (ch != ';')
+	      {
+	        ungetc(ch, fp);
+		ch = 0;
+	      }
+
+              *eptr = '\0';
+              if (!ch)
+	      {
+		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+	                       *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+	      }
+	      else if ((ch = iso8859(entity)) == 0)
+	      {
+		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+	                       entity, *linenum);
+
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = '&';
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+		ptr += strlen((char *)ptr);
+        	if (ptr < (value + sizeof(value) - 1))
+		  *ptr++ = ';';
+	      }
+	      else if (ptr < (value + sizeof(value) - 1))
+	        *ptr++ = ch;
+	    }
             else if (ptr < (value + sizeof(value) - 1))
               *ptr++ = ch;
+	  }
 
 	  if (ch == '\n')
 	    (*linenum) ++;
@@ -3056,5 +3239,5 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.71 2004/04/15 19:58:20 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.72 2004/04/20 20:10:06 mike Exp $".
  */

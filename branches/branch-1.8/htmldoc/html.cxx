@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.33 2004/04/15 19:58:20 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.34 2004/04/20 20:10:06 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -538,6 +538,7 @@ write_all(FILE   *out,		/* I - Output file */
 {
   int		i;		/* Looping var */
   uchar		*ptr,		/* Pointer to output string */
+		*entity,	/* Entity string */
 		*src,		/* Source image */
 		newsrc[1024];	/* New source image filename */
 
@@ -683,10 +684,19 @@ write_all(FILE   *out,		/* I - Output file */
 
 	      if (t->vars[i].value == NULL)
         	col += fprintf(out, "%s", t->vars[i].name);
-	      else if (strchr((char *)t->vars[i].value, '\"') != NULL)
-        	col += fprintf(out, "%s=\'%s\'", t->vars[i].name, t->vars[i].value);
 	      else
-        	col += fprintf(out, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
+	      {
+	        col += fprintf(out, "%s=\"", t->vars[i].name);
+		for (ptr = t->vars[i].value; *ptr; ptr ++)
+		{
+		  entity = iso8859(*ptr);
+		  fputs((char *)entity, out);
+		  col += strlen((char *)entity);
+		}
+
+		putc('\"', out);
+		col ++;
+	      }
 	    }
 
 	    putc('>', out);
@@ -1020,5 +1030,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.33 2004/04/15 19:58:20 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.34 2004/04/20 20:10:06 mike Exp $".
  */
