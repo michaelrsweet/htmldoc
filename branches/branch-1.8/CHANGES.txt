@@ -1,4 +1,4 @@
-CHANGES.txt - 10/24/2004
+CHANGES.txt - 10/29/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -136,6 +136,8 @@ CHANGES IN HTMLDOC v1.8.24
 	- Fixed a table-of-contents bug introduced in 1.8.24rc1
 	  which caused the PDF document outline and actual TOC
 	  pages were not rendered properly (STR #37)
+	- Links were not rendered due to a bug that was
+	  introduced in 1.8.24rc2 (STR #41)
 
 
 CHANGES IN HTMLDOC v1.8.23
