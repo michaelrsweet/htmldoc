@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.18 1999/11/15 21:38:05 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.19 1999/11/16 17:18:23 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -574,6 +574,9 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   char		*page_text;	/* Page number text */
 
 
+  DEBUG_printf(("pspdf_prepare_page(%d, %08x, \"%s\", %.1f, \"%s\")\n",
+                page, file_page, title, title_width, *page_heading));
+
   if (OutputFiles && chapter >= 0)
     *file_page = page - chapter_starts[chapter] + 1;
   else if (chapter < 0)
@@ -922,6 +925,9 @@ ps_write_page(FILE  *out,		/* I - Output file */
   if (page < 0 || page >= MAX_PAGES)
     return;
 
+  DEBUG_printf(("ps_write_page(%08x, %d, \"%s\", %.1f, \"%s\")\n",
+                out, page, title, title_width, *page_heading));
+
  /*
   * Add headers/footers as needed...
   */
@@ -950,15 +956,15 @@ ps_write_page(FILE  *out,		/* I - Output file */
 
   fputs("GS\n", out);
 
-  write_background(out);
-
   if (Landscape && !PSCommands)
   {
     if (PageDuplex && (page & 1))
-      fprintf(out, "-90 rotate 0 %d T\n", PageLength);
+      fprintf(out, "0 %d T -90 rotate\n", PageLength);
     else
-      fprintf(out, "90 rotate %d 0 T\n", PageWidth);
+      fprintf(out, "%d 0 T 90 rotate\n", PageWidth);
   }
+
+  write_background(out);
 
   if (PageDuplex && (page & 1))
     fprintf(out, "%d %d T\n", PageRight, PageBottom);
@@ -2216,7 +2222,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       * Add a file link...
       */
 
-      add_link(t->data, *page, (int)(*y + 3 * t->height));
+      add_link(htmlGetVariable(t, (uchar *)"FILENAME"), *page,
+               (int)(*y + 3 * t->height));
     }
 
     if ((t->markup == MARKUP_H1 && OutputBook) ||
@@ -2230,7 +2237,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         para->child = para->last_child = NULL;
       }
 
-      if (chapter > 0)
+      if ((chapter > 0 && OutputBook) || *page > 1)
       {
         (*page) ++;
         if (PageDuplex && (*page & 1))
@@ -2242,7 +2249,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         chapter_ends[chapter] = *page - 1;
       }
 
-      chapter ++;
+      if (OutputBook)
+        chapter ++;
+
       chapter_starts[chapter] = *page;
 
       *y = (float)top;
@@ -3389,7 +3398,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   for (temprow = t->child, num_cols = 0, num_rows = 0;
        temprow != NULL && num_rows < MAX_ROWS;
        temprow = temprow->next)
-    if (temprow->markup == MARKUP_TR || temprow->markup == MARKUP_THEAD)
+    if (temprow->markup == MARKUP_CAPTION)
+      parse_paragraph(temprow, left, right, bottom, top, x, y, page);
+    else if (temprow->markup == MARKUP_TR || temprow->markup == MARKUP_THEAD)
     {
       for (tempcol = temprow->child, col = 0;
            tempcol != NULL && col < MAX_COLUMNS;
@@ -4973,7 +4984,7 @@ write_image(FILE     *out,	/* I - Output file */
 		grays[256],	/* Grayscale usage */
 		*match;		/* Matching color value */
   image_t 	*img;		/* Image */
-  struct jpeg_compress_struct	cinfo;	/* JPEG compressor */
+  struct jpeg_compress_struct cinfo;	/* JPEG compressor */
 
 
  /*
@@ -4982,6 +4993,10 @@ write_image(FILE     *out,	/* I - Output file */
 
   img     = r->data.image;
   ncolors = 0;
+
+  DEBUG_printf(("img->filename = %s\n", img->filename));
+  DEBUG_printf(("img->width = %d, ->height = %d, ->depth = %d\n", img->width,
+                img->height, img->depth));
 
   if (PSLevel != 1 && PDFVersion >= 1.2)
   {
@@ -6110,5 +6125,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.18 1999/11/15 21:38:05 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.19 1999/11/16 17:18:23 mike Exp $".
  */
