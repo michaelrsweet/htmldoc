@@ -1,4 +1,4 @@
-CHANGES.txt - 09/23/2004
+CHANGES.txt - 09/30/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -126,6 +126,8 @@ CHANGES IN HTMLDOC v1.8.24
 	  attribute for the title image (STR #10)
 	- The HTML version of the table of contents did not
 	  correctly nest the lists in the parent items (STR #10)
+	- Borders around left and right-aligned images were not
+	  drawn properly (PR #5112)
 
 
 CHANGES IN HTMLDOC v1.8.23
