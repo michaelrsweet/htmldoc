@@ -106,6 +106,16 @@ your web server would be:</p>
     <kbd>ln -s /usr/bin/htmldoc /var/www/cgi-bin ENTER</kbd>
 </pre>
 
+<p>If you are using Apache 2.0.30 or higher, then you will also
+need to enable <tt>PATH_INFO</tt> support by adding the
+following line either inside the <tt>Directory</tt> or
+<tt>Location</tt> sections for your CGI directory or as a global
+default:</p>
+
+<pre>
+    AcceptPathInfo On
+</pre>
+
 <p>Apache also allows you to associate CGI programs with a
 specific extension. If you add the following line to your
 <var>httpd.conf</var> file:</p>
