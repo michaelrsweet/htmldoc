@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.3 2002/01/20 15:10:14 mike Exp $"
+// "$Id: style.h,v 1.4 2002/02/05 17:47:58 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -38,22 +38,20 @@
 
 enum hdElement
 {
-  HD_ELEMENT_FILE = -3,	// File Delimiter
-  HD_ELEMENT_ERROR = -2,
-  HD_ELEMENT_UNKNOWN = -1,
-  HD_ELEMENT_NONE = 0,
+  HD_ELEMENT_NONE = 0,		// Text fragment
+  HD_ELEMENT_FILE,		// File Delimiter
+  HD_ELEMENT_ERROR,		// Bad element
+  HD_ELEMENT_UNKNOWN,		// Unknown element
   HD_ELEMENT_COMMENT,
   HD_ELEMENT_DOCTYPE,
   HD_ELEMENT_A,
   HD_ELEMENT_ACRONYM,
   HD_ELEMENT_ADDRESS,
-  HD_ELEMENT_APPLET,
   HD_ELEMENT_AREA,
   HD_ELEMENT_B,
   HD_ELEMENT_BASE,
   HD_ELEMENT_BASEFONT,
   HD_ELEMENT_BIG,
-  HD_ELEMENT_BLINK,
   HD_ELEMENT_BLOCKQUOTE,
   HD_ELEMENT_BODY,
   HD_ELEMENT_BR,
@@ -74,8 +72,6 @@ enum hdElement
   HD_ELEMENT_EMBED,
   HD_ELEMENT_FONT,
   HD_ELEMENT_FORM,
-  HD_ELEMENT_FRAME,
-  HD_ELEMENT_FRAMESET,
   HD_ELEMENT_H1,
   HD_ELEMENT_H2,
   HD_ELEMENT_H3,
@@ -96,19 +92,16 @@ enum hdElement
   HD_ELEMENT_MAP,
   HD_ELEMENT_MENU,
   HD_ELEMENT_META,
-  HD_ELEMENT_MULTICOL,
-  HD_ELEMENT_NOBR,
-  HD_ELEMENT_NOFRAMES,
   HD_ELEMENT_OL,
   HD_ELEMENT_OPTION,
   HD_ELEMENT_P,
   HD_ELEMENT_PRE,
   HD_ELEMENT_S,
   HD_ELEMENT_SAMP,
-  HD_ELEMENT_SCRIPT,
   HD_ELEMENT_SELECT,
   HD_ELEMENT_SMALL,
   HD_ELEMENT_SPACER,
+  HD_ELEMENT_SPAN,
   HD_ELEMENT_STRIKE,
   HD_ELEMENT_STRONG,
   HD_ELEMENT_STYLE,
@@ -127,8 +120,36 @@ enum hdElement
   HD_ELEMENT_U,
   HD_ELEMENT_UL,
   HD_ELEMENT_VAR,
-  HD_ELEMENT_WBR
+  HD_ELEMENT_WBR,
+  HD_ELEMENT_MAX
 };
+
+//
+// Macros to test elements for various things...
+//
+
+enum hdElGroup
+{
+  HD_ELGROUP_NONE = 0,
+  HD_ELGROUP_GROUP = 1,
+  HD_ELGROUP_BLOCK = 2,
+  HD_ELGROUP_TABLE = 4,
+  HD_ELGROUP_ROWCOL = 8,
+  HD_ELGROUP_CELL = 16,
+  HD_ELGROUP_LIST = 32,
+  HD_ELGROUP_ITEM = 64,
+  HD_ELGROUP_INLINE = 128
+};
+
+#define hdElIsGroup(x)	(hdTree::elgroup[x] & HD_ELGROUP_GROUP)
+#define hdElIsBlock(x)	(hdTree::elgroup[x] & HD_ELGROUP_BLOCK)
+#define hdElIsTable(x)	(hdTree::elgroup[x] & HD_ELGROUP_TABLE)
+#define hdElIsRowCol(x)	(hdTree::elgroup[x] & HD_ELGROUP_ROWCOL)
+#define hdElIsCell(x)	(hdTree::elgroup[x] & HD_ELGROUP_CELL)
+#define hdElIsList(x)	(hdTree::elgroup[x] & HD_ELGROUP_LIST)
+#define hdElIsItem(x)	(hdTree::elgroup[x] & HD_ELGROUP_ITEM)
+#define hdElIsInline(x)	(hdTree::elgroup[x] & HD_ELGROUP_INLINE)
+#define hdElIsNone	(hdTree::elgroup[x] == HD_ELGROUP_NONE)
 
 
 //
@@ -138,6 +159,11 @@ enum hdElement
 #define HD_MARGIN_AUTO	-65536.0
 #define HD_WIDTH_AUTO	-65536.0
 #define HD_HEIGHT_AUTO	-65536.0
+
+#define HD_POS_BOTTOM	0
+#define HD_POS_LEFT	1
+#define HD_POS_RIGHT	2
+#define HD_POS_TOP	3
 
 enum hdBackgroundAttachment
 {
@@ -155,7 +181,7 @@ enum hdBackgroundRepeat
 
 enum hdBorderStyle
 {
-  HD_BORDERSTYLE_NONE,
+  HD_BORDERSTYLE_NONE = 0,
   HD_BORDERSTYLE_DOTTED,
   HD_BORDERSTYLE_DASHED,
   HD_BORDERSTYLE_SOLID,
@@ -164,6 +190,14 @@ enum hdBorderStyle
   HD_BORDERSTYLE_RIDGE,
   HD_BORDERSTYLE_INSET,
   HD_BORDERSTYLE_OUTSET
+};
+
+enum hdCaptionSide
+{
+  HD_CAPTIONSIDE_TOP = 0,
+  HD_CAPTIONSIDE_BOTTOM,
+  HD_CAPTIONSIDE_LEFT,
+  HD_CAPTIONSIDE_RIGHT
 };
 
 enum hdClear
@@ -176,10 +210,23 @@ enum hdClear
 
 enum hdDisplay
 {
-  HD_DISPLAY_NONE,
+  HD_DISPLAY_NONE = 0,
   HD_DISPLAY_BLOCK,
+  HD_DISPLAY_COMPACT,
   HD_DISPLAY_INLINE,
-  HD_DISPLAY_LIST_ITEM
+  HD_DISPLAY_INLINE_TABLE,
+  HD_DISPLAY_LIST_ITEM,
+  HD_DISPLAY_MARKER,
+  HD_DISPLAY_RUN_IN,
+  HD_DISPLAY_TABLE,
+  HD_DISPLAY_TABLE_CAPTION,
+  HD_DISPLAY_TABLE_CELL,
+  HD_DISPLAY_TABLE_COLUMN,
+  HD_DISPLAY_TABLE_COLUMN_GROUP,
+  HD_DISPLAY_TABLE_FOOTER_GROUP,
+  HD_DISPLAY_TABLE_HEADER_GROUP,
+  HD_DISPLAY_TABLE_ROW,
+  HD_DISPLAY_TABLE_ROW_GROUP
 };
 
 enum hdFloat
@@ -196,10 +243,10 @@ enum hdFontStyle
   HD_FONTSTYLE_OBLIQUE
 };
 
-enum hdFontVarient
+enum hdFontVariant
 {
-  HD_FONTVARIENT_NORMAL = 0,
-  HD_FONTVARIENT_SMALL_CAPS
+  HD_FONTVARIANT_NORMAL = 0,
+  HD_FONTVARIANT_SMALL_CAPS
 };
 
 enum hdFontWeight
@@ -212,13 +259,13 @@ enum hdFontWeight
 
 enum hdListStylePosition
 {
-  HD_LISTSTYLEPOSITION_INSIDE,
+  HD_LISTSTYLEPOSITION_INSIDE = 0,
   HD_LISTSTYLEPOSITION_OUTSIDE
 };
 
 enum hdListStyleType
 {
-  HD_LISTSTYLETYPE_NONE,
+  HD_LISTSTYLETYPE_NONE = 0,
   HD_LISTSTYLETYPE_DISC,
   HD_LISTSTYLETYPE_CIRCLE,
   HD_LISTSTYLETYPE_SQUARE,
@@ -276,7 +323,7 @@ enum hdVerticalAlign
 
 enum hdWhiteSpace
 {
-  HD_WHITESPACE_NORMAL,
+  HD_WHITESPACE_NORMAL = 0,
   HD_WHITESPACE_PRE,
   HD_WHITESPACE_NOWRAP
 };
@@ -343,9 +390,17 @@ struct hdStyleFont
   float		width(const char *s);
 };
 
+struct hdBorder
+{
+  unsigned char		color[3];	// Color of border
+  char			color_set;	// Is the color set?
+  hdBorderStyle		style;		// Rendering style of border
+  float			width;		// Width of border
+};
+
 struct hdSelector
 {
-  hdElement		elements;	// Element for selection
+  hdElement		element;	// Element for selection
   char			*class_,	// Class name for selection
 			*pseudo,	// Pseudo-class for selection
 			*id;		// ID for selection
@@ -361,22 +416,9 @@ struct hdStyle
   char			background_color_set;
   char			*background_image;
   float			background_position[2];
-  char			*background_position_rel;
+  char			*background_position_rel[2];
   hdBackgroundRepeat	background_repeat;
-  float			border_bottom;
-  hdBorderStyle		border_bottom_style;
-  float			border_bottom_width;
-  unsigned char		border_color[3];
-  char			border_color_set;
-  float			border_left;
-  hdBorderStyle		border_left_style;
-  float			border_left_width;
-  float			border_right;
-  hdBorderStyle		border_right_style;
-  float			border_right_width;
-  float			border_top;
-  hdBorderStyle		border_top_style;
-  float			border_top_width;
+  hdBorder		border[4];
   hdClear		clear;
   unsigned char		color[3];
   char			color_set;
@@ -387,57 +429,51 @@ struct hdStyle
   float			font_size;
   char			*font_size_rel;
   hdFontStyle		font_style;
-  hdFontVarient		font_variant;
+  hdFontVariant		font_variant;
   hdFontWeight		font_weight;
   float			height;
   char			*height_rel;
-  float			left;
-  char			*left_rel;
   float			letter_spacing;
   float			line_height;
   char			*line_height_rel;
   char			*list_style_image;
   hdListStylePosition	list_style_position;
   hdListStyleType	list_style_type;
-  float			margin_bottom;
-  char			*margin_bottom_set;
-  float			margin_left;
-  char			*margin_left_set;
-  float			margin_right;
-  char			*margin_right_set;
-  float			margin_top;
-  char			*margin_top_set;
-  float			padding_bottom;
-  char			*padding_bottom_rel;
-  float			padding_left;
-  char			*padding_left_rel;
-  float			padding_right;
-  char			*padding_right_rel;
-  float			padding_top;
-  char			*padding_top_rel;
+  float			margin[4];
+  char			*margin_rel[4];
+  float			padding[4];
+  char			*padding_rel[4];
   hdPageBreak		page_break_after;
   hdPageBreak		page_break_before;
   hdPageBreak		page_break_inside;
-  float			right;
-  char			*right_rel;
+  float			position[4];
+  char			*position_rel[4];
   hdTextAlign		text_align;
   hdTextDecoration	text_decoration;
   float			text_indent;
   char			*text_indent_rel;
   hdTextTransform	text_transform;
-  float			top;
-  char			*top_rel;
   hdVerticalAlign	vertical_align;
   hdWhiteSpace		white_space;
   float			width;
   char			*width_rel;
   float			word_spacing;
 
-  hdStyle(hdStyle *p = (hdStyle *)0, int nsels = 0, hdSelector *sels = (hdSelector *)0);
+  hdStyle(int nsels, hdSelector *sels, hdStyle *p = (hdStyle *)0);
   ~hdStyle();
 
-  int	load(hdStyleSheet *css, const char *s);
-  void	update(hdStyleSheet *css);
+  hdBorderStyle	get_border_style(const char *value);
+  float		get_border_width(const char *value);
+  int		get_color(const char *color, unsigned char *rgb);
+  float		get_length(const char *length, float max_length,
+		           int *relative = (int *)0);
+  hdListStyleType get_list_style_type(const char *value);
+  hdPageBreak	get_page_break(const char *value);
+  int		get_pos(const char *name);
+  char		*get_subvalue(char *valueptr);
+  void		inherit(hdStyle *p);
+  int		load(hdStyleSheet *css, const char *s);
+  void		update(hdStyleSheet *css);
 };
 
 
@@ -451,14 +487,14 @@ enum hdOrientation
   HD_ORIENTATION_LANDSCAPE,
   HD_ORIENTATION_REVERSE_PORTRAIT,
   HD_ORIENTATION_REVERSE_LANDSCAPE
-}
+};
 
 enum hdSides
 {
   HD_SIDES_ONE_SIDED = 0,
   HD_SIDES_TWO_SIDED_LONG_EDGE,
   HD_SIDES_TWO_SIDED_SHORT_EDGE
-}
+};
 
 struct hdTree;
 
@@ -467,7 +503,9 @@ struct hdStyleSheet
   int		num_styles,	// Number of styles
 		alloc_styles;	// Allocate style slots
   hdStyle	**styles;	// Array of styles
-
+  int		max_selectors;	// Maximum number of selectors in styles
+  int		elements[HD_ELEMENT_MAX];
+				// First style for each element
   int		num_fonts;	// Number of fonts defined
   hdStyleFont	*fonts[HD_FONTFACE_MAX][HD_FONTINTERNAL_MAX];
 				// Array of fonts
@@ -494,6 +532,7 @@ struct hdStyleSheet
   void		add_style(hdStyle *s);
   hdStyleFont	*find_font(hdStyle *s);
   hdStyle	*find_style(hdTree *t);
+  hdStyle	*find_style(int nsels, hdSelector *sels);
   int		load(hdFile *f, const char *path = (const char *)0);
   void		set_charset(const char *cs);
   void		update();
@@ -504,5 +543,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.3 2002/01/20 15:10:14 mike Exp $".
+// End of "$Id: style.h,v 1.4 2002/02/05 17:47:58 mike Exp $".
 //

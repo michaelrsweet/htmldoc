@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.2 2002/01/16 01:15:39 mike Exp $"
+// "$Id: tree.h,v 1.3 2002/02/05 17:47:59 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -80,6 +80,8 @@ struct hdTree
 
   // Global data...
   static const char	*elements[];
+  static unsigned char	elgroup[HD_ELEMENT_MAX];
+  static hdElement	elparent[HD_ELEMENT_MAX];
   static const char	*datadir;
   static float		ppi;
   static int		grayscale;
@@ -95,7 +97,7 @@ struct hdTree
   static const char	*fonts[4][4];
 
   // Methods...
-  hdTree(hdElement e = 0, const char *d = (const char *)0);
+  hdTree(hdElement e = HD_ELEMENT_NONE, const char *d = (const char *)0);
   ~hdTree();
 
   void		add(hdTree *p);	// Add to end of parent
@@ -116,10 +118,10 @@ struct hdTree
   static void	set_base_size(float p, float s);
   static void	set_charset(const char *cs);
   static void	set_text_color(const char *color);
-} hdTree;
+};
 
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.2 2002/01/16 01:15:39 mike Exp $".
+// End of "$Id: tree.h,v 1.3 2002/02/05 17:47:59 mike Exp $".
 //
