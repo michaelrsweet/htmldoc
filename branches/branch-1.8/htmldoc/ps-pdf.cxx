@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.218 2003/03/11 15:23:29 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.219 2003/03/25 22:05:56 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3150,11 +3150,11 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	    if (PDFVersion >= 12 &&
         	file_method((char *)r->data.link) == NULL)
 	    {
-  #ifdef WIN32
+#ifdef WIN32
               if (strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
-  #else
+#else
               if (strcmp(file_extension((char *)r->data.link), "pdf") == 0)
-  #endif /* WIN32 */
+#endif /* WIN32 */
               {
 	       /*
 		* Link to external PDF file...
@@ -3174,6 +3174,11 @@ pdf_write_links(FILE *out)		/* I - Output file */
         	fputs("/S/Launch", out);
         	fputs("/F", out);
 		write_string(out, r->data.link, 0);
+
+		if (StrictHTML)
+		  progress_error(HD_ERROR_UNRESOLVED_LINK,
+		                 "Unable to resolve link to \"%s\"!",
+		                 r->data.link);
               }
 	    }
 	    else
@@ -11744,10 +11749,10 @@ write_type1(FILE       *out,		/* I - File to write to */
              _htmlFonts[typeface][style]);
     if ((fp = fopen(filename, "r")) == NULL)
     {
-  #ifndef DEBUG
+#ifndef DEBUG
       progress_error(HD_ERROR_FILE_NOT_FOUND,
                      "Unable to open font width file %s!", filename);
-  #endif /* !DEBUG */
+#endif /* !DEBUG */
       return (0);
     }
 
@@ -12095,5 +12100,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.218 2003/03/11 15:23:29 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.219 2003/03/25 22:05:56 mike Exp $".
  */

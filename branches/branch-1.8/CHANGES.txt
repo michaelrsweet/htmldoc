@@ -1,4 +1,4 @@
-CHANGES.txt - 03/23/2003
+CHANGES.txt - 03/25/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -13,6 +13,8 @@ CHANGES IN HTMLDOC v1.8.24
 	  next/prev/contents/top buttons.
 	- HTMLDOC now supports the BORDERCOLOR attribute for
 	  tables, a MSIE extension.
+	- The "strict HTML" mode now reports unresolved local
+	  links.
 
     CHANGES
 
