@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.42 2001/03/12 16:57:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.43 2001/03/28 17:59:51 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2158,21 +2158,33 @@ pdf_write_links(FILE *out)		/* I - Output file */
           pdf_start_object(out);
 
 	  if (PDFVersion >= 1.2 &&
-              file_method((char *)r->data.link) == NULL &&
-#ifdef WIN32
-              strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
-#else
-              strcmp(file_extension((char *)r->data.link), "pdf") == 0)
-#endif /* WIN32 */
+              file_method((char *)r->data.link) == NULL)
 	  {
-	   /*
-	    * Link to external PDF file...
-	    */
+#ifdef WIN32
+            if (strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
+#else
+            if (strcmp(file_extension((char *)r->data.link), "pdf") == 0)
+#endif /* WIN32 */
+            {
+	     /*
+	      * Link to external PDF file...
+	      */
 
-            fputs("/S/GoToR", out);
-            fputs("/D[0/XYZ null null 0]", out);
-            fputs("/F", out);
-	    write_string(out, r->data.link, 0);
+              fputs("/S/GoToR", out);
+              fputs("/D[0/XYZ null null 0]", out);
+              fputs("/F", out);
+	      write_string(out, r->data.link, 0);
+            }
+	    else
+            {
+	     /*
+	      * Link to external filename...
+	      */
+
+              fputs("/S/Launch", out);
+              fputs("/F", out);
+	      write_string(out, r->data.link, 0);
+            }
 	  }
 	  else
 	  {
@@ -8273,5 +8285,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.42 2001/03/12 16:57:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.43 2001/03/28 17:59:51 mike Exp $".
  */
