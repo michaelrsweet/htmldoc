@@ -1,6 +1,21 @@
 CHANGES.txt - 12/08/2000
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.10
+
+    NEW FEATURES
+
+
+    CHANGES
+
+
+    BUG FIXES
+
+	- The path support was still broken.
+	- Embedded files and images did not use path or HTTP
+	  support.
+
+
 CHANGES IN HTMLDOC v1.8.9
 
     NEW FEATURES
