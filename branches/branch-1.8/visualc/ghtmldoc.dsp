@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /GX /Ot /Op /Ob2 /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /I "../../openssl-0.9.6a/inc32" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD CPP /nologo /MD /GX /Ot /Op /Ob2 /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.1" /I "../../openssl-0.9.6a/inc32" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
 # SUBTRACT CPP /Os
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /Gm /GX /Zi /Od /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /I "../../openssl-0.9.6a/inc32" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD CPP /nologo /MDd /Gm /GX /Zi /Od /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.1" /I "../../openssl-0.9.6a/inc32" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -199,169 +199,6 @@ SOURCE=..\htmldoc\types.h
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\gui\CheckButton.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\CheckButton.h
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileBrowser.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileBrowser.h
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileChooser.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileChooser.h
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileChooser2.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileIcon.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileIcon.h
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileInput.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\FileInput.h
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\htmldoc\gui.cxx
 
 !IF  "$(CFG)" == "ghtmldoc - Win32 Release"
@@ -378,66 +215,6 @@ SOURCE=..\htmldoc\gui.cxx
 # Begin Source File
 
 SOURCE=..\htmldoc\gui.h
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\HelpDialog.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\HelpDialog.h
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\HelpView.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\HelpView.h
 
 !IF  "$(CFG)" == "ghtmldoc - Win32 Release"
 
@@ -480,36 +257,6 @@ SOURCE=.\icons.rc
 # PROP Intermediate_Dir "../gui/Debug"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\Progress.cxx
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\gui\Progress.h
-
-!IF  "$(CFG)" == "ghtmldoc - Win32 Release"
-
-# PROP Intermediate_Dir "..\GUI\Release"
-
-!ELSEIF  "$(CFG)" == "ghtmldoc - Win32 Debug"
-
-# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
