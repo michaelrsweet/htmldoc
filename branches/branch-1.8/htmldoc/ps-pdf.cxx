@@ -1,6 +1,5 @@
-#define TABLE_DEBUG
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.128 2001/11/20 14:24:57 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.129 2001/11/20 16:21:59 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4578,6 +4577,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   else
     table_width = right - left;
 
+  DEBUG_printf(("table_width = %.1f\n", table_width));
+
   if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
     cellpadding = atoi((char *)var);
   else
@@ -7119,7 +7120,9 @@ copy_tree(tree_t *parent,	/* I - Source tree */
 
 #ifdef TABLE_DEBUG
 #  undef DEBUG_printf
+#  undef DEBUG_puts
 #  define DEBUG_printf(x) printf x
+#  define DEBUG_puts(x) puts(x)
 #endif /* TABLE_DEBUG */
 
 //
@@ -7181,6 +7184,8 @@ get_cell_size(tree_t *t,		// I - Cell
 
   nowrap = (htmlGetVariable(t, (uchar *)"NOWRAP") != NULL);
 
+  DEBUG_printf(("nowrap = %d\n", nowrap));
+
   for (temp = t->child, frag_width = 0.0f, frag_pref = 0.0f;
        temp != NULL;
        temp = next)
@@ -7199,7 +7204,11 @@ get_cell_size(tree_t *t,		// I - Cell
 	    prefw = frag_pref;
 
 	  if (frag_min > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for nested table...\n",
+	                  frag_min, minw));
 	    minw = frag_min;
+	  }
 
 	  frag_width = 0.0f;
 	  frag_pref  = 0.0f;
@@ -7215,9 +7224,23 @@ get_cell_size(tree_t *t,		// I - Cell
       case MARKUP_SPACER :
           frag_height = temp->height;
 
+#ifdef TABLE_DEBUG
+          if (temp->markup == MARKUP_NONE)
+	    printf("FRAG(%s) = %.1f\n", temp->data, temp->width);
+	  else if (temp->markup == MARKUP_SPACER)
+	    printf("SPACER = %.1f\n", temp->width);
+	  else
+	    printf("IMG(%s) = %.1f\n", htmlGetVariable(temp, (uchar *)"SRC"),
+	           temp->width);
+#endif // TABLE_DEBUG
+
           // Handle min/preferred widths separately...
           if (temp->width > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for fragment...\n",
+	                  temp->width, minw));
 	    minw = temp->width;
+	  }
 
           if (temp->preformatted && temp->data != NULL &&
               temp->data[strlen((char *)temp->data) - 1] == '\n')
@@ -7229,7 +7252,11 @@ get_cell_size(tree_t *t,		// I - Cell
               prefw = frag_pref;
 
             if (temp->preformatted && frag_pref > minw)
+	    {
+	      DEBUG_printf(("Setting minw to %.1f (was %.1f) for preformatted...\n",
+	                    frag_pref, minw));
               minw = frag_pref;
+	    }
 
 	    frag_pref = 0.0f;
           }
@@ -7248,7 +7275,11 @@ get_cell_size(tree_t *t,		// I - Cell
             frag_width += temp->width + 1;
 
             if (frag_width > minw)
+	    {
+	      DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
+	                    frag_width, minw));
               minw = frag_width;
+	    }
 
             frag_width = 0.0f;
 	  }
@@ -7275,13 +7306,20 @@ get_cell_size(tree_t *t,		// I - Cell
       case MARKUP_LI :
       case MARKUP_P :
       case MARKUP_PRE :
+          DEBUG_printf(("BREAK at %.1f\n", frag_pref));
+
 	  if (frag_pref > prefw)
 	    prefw = frag_pref;
 
 	  if (nowrap && frag_pref > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for break...\n",
+	                  frag_pref, minw));
 	    minw = frag_pref;
+	  }
 
           frag_pref   = 0.0f;
+	  frag_width  = 0.0f;
           frag_height = 0.0f;
 
       default :
@@ -7316,7 +7354,11 @@ get_cell_size(tree_t *t,		// I - Cell
 
   // Handle the "NOWRAP" option...
   if (nowrap && prefw > minw)
+  {
+    DEBUG_printf(("Setting minw to %.1f (was %.1f) for NOWRAP...\n",
+	          prefw, minw));
     minw = prefw;
+  }
 
   // Return the required, minimum, and preferred size of the cell...
   *minwidth  = minw;
@@ -7495,7 +7537,9 @@ get_table_size(tree_t *t,		// I - Table
 
 #ifdef TABLE_DEBUG
 #  undef DEBUG_printf
+#  undef DEBUG_puts
 #  define DEBUG_printf(x)
+#  define DEBUG_puts(x)
 #endif /* TABLE_DEBUG */
 
 
@@ -10413,5 +10457,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.128 2001/11/20 14:24:57 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.129 2001/11/20 16:21:59 mike Exp $".
  */
