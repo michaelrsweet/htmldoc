@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.51 2004/06/10 20:58:00 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.52 2004/06/13 22:11:18 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -370,8 +370,8 @@ else
 fi
 
 dnl Generate the top-level Makefile and Makedefs file...
-AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.plist)
+AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.ftr desktop/htmldoc.plist)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.51 2004/06/10 20:58:00 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.52 2004/06/13 22:11:18 mike Exp $".
 dnl
