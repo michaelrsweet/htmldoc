@@ -1,4 +1,4 @@
-README.txt - 12/31/1999
+README.txt - 03/06/2000
 -----------------------
 
 INTRODUCTION
@@ -63,7 +63,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.4-windows.exe" file to start the installation
+    the "htmldoc-1.8.5-windows.exe" file to start the installation
     wizard.
 
 
@@ -71,15 +71,15 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.4-linux-2.0.36-intel.rpm ENTER
+        rpm -i htmldoc-1.8.5-linux-2.0.36-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.4-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.4-platform.tar ENTER
+        gunzip htmldoc-1.8.5-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.5-platform.tar ENTER
 	./setup ENTER
 
     (replace "platform" with the appropriate platform name)
@@ -159,7 +159,7 @@ RUNNING HTMLDOC FROM YOUR WEB SERVER
 CURRENT LIMITATIONS
 
     - No support for style sheets.
-    - ROWSPAN and VALIGN are not supported in tables.
+    - ROWSPAN is not supported in tables.
     - CAPTIONs are always shown at the top of the table.
     - HTML 4.0 table elements and attributes are not supported.
 
@@ -169,10 +169,13 @@ CREDITS
     Many thanks to Leonard Rosenthol (leonardr@lazerware.com) for
     providing changes to support a MacOS version of HTMLDOC.
 
+    The table VALIGN and "HALF PAGE" code was contributed by
+    D. Richard Hipp (drh@acm.org).
+    
 
 LEGAL STUFF
 
-    The Adobe Portable Document Format is Copyright 1993-2000 by Adobe
+    The Adobe Portable Document Format is Copyright 1993-1999 by Adobe
     Systems Incorporated. Adobe, FrameMaker, and PostScript are
     registered trademarks of Adobe Systems, Incorporated.
 
