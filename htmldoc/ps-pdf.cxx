@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.131 2001/11/20 19:32:14 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.132 2001/11/20 22:12:43 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -209,6 +209,9 @@ typedef struct			//// Page information
 		media_type[64];		// Media type
   int		media_position;		// Media position
   int		annot_object;		// Annotation object
+  char		page_text[64];		// Page number for TOC
+  image_t	*background_image;	// Background image
+  float		background_color[3];	// Background color
 } page_t;
 
 
@@ -262,6 +265,7 @@ static int	num_objects = 0,
 		encrypt_object,
 		font_objects[16];
 
+static uchar	*doc_title = NULL;
 static image_t	*logo_image = NULL;
 static float	logo_width,
 		logo_height;
@@ -295,17 +299,17 @@ extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
 }
 
-static char	*pspdf_prepare_page(int page, int *file_page, uchar *title);
-static void	pspdf_prepare_heading(int page, int print_page, uchar *title,
-		        	      uchar **format, int y);
-static void	ps_write_document(uchar *title, uchar *author, uchar *creator,
+static void	pspdf_prepare_page(int page);
+static void	pspdf_prepare_heading(int page, int print_page, uchar **format,
+		                      int y, char *page_text, int page_len);
+static void	ps_write_document(uchar *author, uchar *creator,
 		                  uchar *copyright, uchar *keywords);
-static void	ps_write_page(FILE *out, int page, uchar *title);
+static void	ps_write_page(FILE *out, int page);
 static void	ps_write_background(FILE *out);
-static void	pdf_write_document(uchar *title, uchar *author, uchar *creator,
+static void	pdf_write_document(uchar *author, uchar *creator,
 		                   uchar *copyright, uchar *keywords,
 				   tree_t *toc);
-static void	pdf_write_page(FILE *out, int page, uchar *title);
+static void	pdf_write_page(FILE *out, int page);
 static void	pdf_write_resources(FILE *out, int page);
 static void	pdf_write_contents(FILE *out, tree_t *toc, int parent,
 		                   int prev, int next, int *heading);
@@ -379,7 +383,7 @@ static FILE	*open_file(void);
 static void	set_color(FILE *out, float *rgb);
 static void	set_font(FILE *out, int typeface, int style, float size);
 static void	set_pos(FILE *out, float x, float y);
-static void	write_prolog(FILE *out, int pages, uchar *title, uchar *author,
+static void	write_prolog(FILE *out, int pages, uchar *author,
 		             uchar *creator, uchar *copyright, uchar *keywords);
 static void	ps_hex(FILE *out, uchar *data, int length);
 static void	ps_ascii85(FILE *out, uchar *data, int length);
@@ -405,8 +409,7 @@ int
 pspdf_export(tree_t *document,	/* I - Document to export */
              tree_t *toc)	/* I - Table of contents for document */
 {
-  uchar		*title,		/* Title text */
-		*author,	/* Author of document */
+  uchar		*author,	/* Author of document */
 		*creator,	/* HTML file creator (Netscape, etc) */
 		*copyright,	/* File copyright */
 		*docnumber,	/* Document number */
@@ -416,8 +419,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   float		x, y,		/* Current page position */
 		left, right,	/* Left and right margins */
 		bottom, top,	/* Bottom and top margins */
-		width,		/* Width of title, author, etc */
-		height;		/* Height of title area */
+		width,		/* Width of , author, etc */
+		height;		/* Height of  area */
   int		pos,		/* Current header/footer position */
 		page,		/* Current page # */
 		heading,	/* Current heading # */
@@ -465,7 +468,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   * Get the document title, author, etc...
   */
 
-  title      = get_title(document);
+  doc_title  = get_title(document);
   author     = htmlGetMeta(document, (uchar *)"author");
   creator    = htmlGetMeta(document, (uchar *)"generator");
   copyright  = htmlGetMeta(document, (uchar *)"copyright");
@@ -573,7 +576,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
       if (timage != NULL)
 	height += timage_height + _htmlSpacings[SIZE_P];
-      if (title != NULL)
+      if (doc_title != NULL)
 	height += _htmlSpacings[SIZE_H1] + _htmlSpacings[SIZE_P];
       if (author != NULL)
 	height += _htmlSpacings[SIZE_P];
@@ -593,12 +596,12 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
       get_color(_htmlTextColor, rgb);
 
-      if (title != NULL)
+      if (doc_title != NULL)
       {
-	width = get_width(title, _htmlHeadingFont, STYLE_BOLD, SIZE_H1);
+	width = get_width(doc_title, _htmlHeadingFont, STYLE_BOLD, SIZE_H1);
 	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                 	   y - _htmlSpacings[SIZE_H1], width,
-			   _htmlSizes[SIZE_H1], title);
+			   _htmlSizes[SIZE_H1], doc_title);
 
 	r->data.text.typeface = _htmlHeadingFont;
 	r->data.text.style    = STYLE_BOLD;
@@ -653,10 +656,12 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
       }
     }
-  }
 
-  for (page = 0; page < num_pages; page ++)
-    check_pages(page);
+    for (page = 0; page < num_pages; page ++)
+      strcpy((char *)pages[page].page_text, (page & 1) ? "eltit" : "title");
+  }
+  else
+    page = 0;
 
  /*
   * Parse the document...
@@ -710,6 +715,10 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   if (PageDuplex && (num_pages & 1))
     num_pages ++;
   chapter_ends[chapter] = num_pages - 1;
+
+  for (chapter = 1; chapter <= TocDocCount; chapter ++)
+    for (page = chapter_starts[chapter]; page <= chapter_ends[chapter]; page ++)
+      pspdf_prepare_page(page);
 
  /*
   * Parse the table-of-contents if necessary...
@@ -772,6 +781,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     if (PageDuplex && (num_pages & 1))
       check_pages(num_pages);
     chapter_ends[0] = num_pages - 1;
+
+    for (page = chapter_starts[0]; page <= chapter_ends[0]; page ++)
+      pspdf_prepare_page(page);
   }
 
   if (TocDocCount > MAX_CHAPTERS)
@@ -790,9 +802,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     progress_error(HD_ERROR_NONE, "PAGES: %d", num_pages);
 
     if (PSLevel > 0)
-      ps_write_document(title, author, creator, copyright, keywords);
+      ps_write_document(author, creator, copyright, keywords);
     else
-      pdf_write_document(title, author, creator, copyright, keywords, toc);
+      pdf_write_document(author, creator, copyright, keywords, toc);
   }
   else
   {
@@ -808,8 +820,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   * Free memory...
   */
 
-  if (title != NULL)
-    free(title);
+  if (doc_title != NULL)
+    free(doc_title);
 
   if (alloc_links)
   {
@@ -877,39 +889,14 @@ pspdf_export(tree_t *document,	/* I - Document to export */
  * 'pspdf_prepare_page()' - Add headers/footers to page before writing...
  */
 
-static char *
-pspdf_prepare_page(int   page,			/* I - Page number */
-                   int   *file_page,		/* O - File page number */
-        	   uchar *title)		/* I - Title string */
+void
+pspdf_prepare_page(int page)		/* I - Page number */
 {
-  int		print_page;			/* Printed page # */
-  static char	page_text[255];			/* Page number text */
+  int	print_page;			/* Printed page # */
+  char	page_text[64];			/* Page number text */
 
 
-  DEBUG_printf(("pspdf_prepare_page(%d, %p, \"%s\")\n",
-                page, file_page, title ? (const char *)title : "(null)"));
-
-  if (OutputFiles && chapter >= 0)
-    *file_page = page - chapter_starts[chapter] + 1;
-  else if (chapter < 0)
-    *file_page = page + 1;
-  else if (chapter == 0)
-  {
-    *file_page = page - chapter_starts[0] + 1;
-
-    if (TitlePage)
-      *file_page += chapter_starts[1];
-  }
-  else
-  {
-    *file_page = page - chapter_starts[1] + 1;
-
-    if (TocLevels > 0)
-      *file_page += chapter_ends[0] - chapter_starts[0] + 1;
-
-    if (TitlePage)
-      *file_page += chapter_starts[1];
-  }
+  DEBUG_printf(("pspdf_prepare_page(%d)\n", page));
 
  /*
   * Make a page number; use roman numerals for the table of contents
@@ -934,12 +921,6 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     page_text[sizeof(page_text) - 1] = '\0';
   }
 
-  if (Verbosity)
-  {
-    progress_show("Writing page %s...", page_text);
-    progress_update(100 * page / num_pages);
-  }
-
  /*
   * Add page headings...
   */
@@ -961,23 +942,30 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     * Add table-of-contents header & footer...
     */
 
-    pspdf_prepare_heading(page, print_page, title, pages[page].header,
-                          PagePrintLength);
-    pspdf_prepare_heading(page, print_page, title, pages[page].footer, 0);
+    pspdf_prepare_heading(page, print_page, pages[page].header,
+                          PagePrintLength, page_text, sizeof(page_text));
+    pspdf_prepare_heading(page, print_page, pages[page].footer, 0,
+                          page_text, sizeof(page_text));
   }
-  else if (chapter > 0)
+  else if (chapter > 0 && !title_page)
   {
    /*
     * Add chapter header & footer...
     */
 
     if (page > chapter_starts[chapter] || OutputType != OUTPUT_BOOK)
-      pspdf_prepare_heading(page, print_page, title, pages[page].header,
-                            PagePrintLength);
-    pspdf_prepare_heading(page, print_page, title, pages[page].footer, 0);
+      pspdf_prepare_heading(page, print_page, pages[page].header,
+                            PagePrintLength, page_text, sizeof(page_text));
+    pspdf_prepare_heading(page, print_page, pages[page].footer, 0,
+                          page_text, sizeof(page_text));
   }
 
-  return (page_text);
+ /*
+  * Copy the page number for the TOC...
+  */
+
+  strncpy(pages[page].page_text, page_text, sizeof(pages[page].page_text) - 1);
+  pages[page].page_text[sizeof(pages[page].page_text) - 1] = '\0';
 }
 
 
@@ -988,9 +976,10 @@ pspdf_prepare_page(int   page,			/* I - Page number */
 static void
 pspdf_prepare_heading(int   page,		/* I - Page number */
                       int   print_page,         /* I - Printed page number */
-        	      uchar *title,		/* I - Title string */
 		      uchar **format,		/* I - Page headings */
-		      int   y)			/* I - Baseline of heading */
+		      int   y,			/* I - Baseline of heading */
+		      char  *page_text,		/* O - Page number text */
+		      int   page_len)		/* I - Size of page text */
 {
   int		pos,		/* Position in heading */
 		dir;		/* Direction of page */
@@ -1002,9 +991,8 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
   render_t	*temp;		/* Render structure for titles, etc. */
 
 
-  DEBUG_printf(("pspdf_prepare_heading(%d, %d, \"%s\", %p, %d)\n",
-                page, print_page, title ? (const char *)title : "(null)",
-		format, y));
+  DEBUG_printf(("pspdf_prepare_heading(%d, %d, %p, %d, %p, %d)\n",
+                page, print_page, format, y, page_text, page_len));
 
  /*
   * Add page headings...
@@ -1138,9 +1126,10 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 	  else if (formatlen == 5 && strncasecmp(formatptr, "TITLE", 5) == 0)
 	  {
             formatptr += 5;
-	    if (title)
+	    if (doc_title)
 	    {
-              strncpy(bufptr, (char *)title, sizeof(buffer) - 1 - (bufptr - buffer));
+              strncpy(bufptr, (char *)doc_title,
+	              sizeof(buffer) - 1 - (bufptr - buffer));
 	      bufptr += strlen(bufptr);
 	    }
 	  }
@@ -1197,6 +1186,13 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
                 	get_width((uchar *)buffer, HeadFootType,
 			          HeadFootStyle, SIZE_P),
 	        	HeadFootSize, (uchar *)buffer);
+
+      if (strstr((char *)*format, "$PAGE") ||
+          strstr((char *)*format, "$CHAPTERPAGE"))
+      {
+        strncpy(page_text, buffer, page_len - 1);
+	page_text[page_len - 1] = '\0';
+      }
     }
 
     if (temp == NULL)
@@ -1239,8 +1235,7 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
  */
 
 static void
-ps_write_document(uchar *title,		/* I - Title on all pages */
-        	  uchar *author,	/* I - Author of document */
+ps_write_document(uchar *author,	/* I - Author of document */
         	  uchar *creator,	/* I - Application that generated the HTML file */
         	  uchar *copyright,	/* I - Copyright (if any) on the document */
                   uchar *keywords)	/* I - Search keywords */
@@ -1267,7 +1262,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
       return;
     }
 
-    write_prolog(out, num_pages, title, author, creator, copyright, keywords);
+    write_prolog(out, num_pages, author, creator, copyright, keywords);
   }
 
   if (TitlePage)
@@ -1275,12 +1270,11 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     if (OutputFiles)
     {
       out = open_file();
-      write_prolog(out, PageDuplex + 1, title, author, creator, copyright,
-                   keywords);
+      write_prolog(out, PageDuplex + 1, author, creator, copyright, keywords);
     }
 
     for (page = 0; page < chapter_starts[1]; page ++)
-      ps_write_page(out, page, NULL);
+      ps_write_page(out, page);
 
     if (OutputFiles)
     {
@@ -1313,13 +1307,13 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
       }
 
       write_prolog(out, chapter_ends[chapter] - chapter_starts[chapter] + 1,
-                   title, author, creator, copyright, keywords);
+                   author, creator, copyright, keywords);
     }
 
     for (page = chapter_starts[chapter];
          page <= chapter_ends[chapter];
          page ++)
-      ps_write_page(out, page, title);
+      ps_write_page(out, page);
 
    /*
     * Close the output file as necessary...
@@ -1360,11 +1354,9 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
 
 static void
 ps_write_page(FILE  *out,		/* I - Output file */
-              int   page,		/* I - Page number */
-              uchar *title)		/* I - Title string */
+              int   page)		/* I - Page number */
 {
   int		file_page;	/* Current page # in document */
-  char		*page_text;	/* Page number text */
   render_t	*r,		/* Render pointer */
 		*next;		/* Next render */
 
@@ -1372,14 +1364,43 @@ ps_write_page(FILE  *out,		/* I - Output file */
   if (page < 0 || page >= alloc_pages)
     return;
 
-  DEBUG_printf(("ps_write_page(%p, %d, \"%s\")\n",
-                out, page, title ? (const char *)title : "(null)"));
+  DEBUG_printf(("ps_write_page(%p, %d)\n", out, page));
 
  /*
-  * Add headers/footers as needed...
+  * Let the user know which page we are writing...
   */
 
-  page_text = pspdf_prepare_page(page, &file_page, title);
+  if (Verbosity)
+  {
+    progress_show("Writing page %s...", pages[page].page_text);
+    progress_update(100 * page / num_pages);
+  }
+
+ /*
+  * Figure out the page number in the file...
+  */
+
+  if (OutputFiles && chapter >= 0)
+    file_page = page - chapter_starts[chapter] + 1;
+  else if (chapter < 0)
+    file_page = page + 1;
+  else if (chapter == 0)
+  {
+    file_page = page - chapter_starts[0] + 1;
+
+    if (TitlePage)
+      file_page += chapter_starts[1];
+  }
+  else
+  {
+    file_page = page - chapter_starts[1] + 1;
+
+    if (TocLevels > 0)
+      file_page += chapter_ends[0] - chapter_starts[0] + 1;
+
+    if (TitlePage)
+      file_page += chapter_starts[1];
+  }
 
  /*
   * Clear the render cache...
@@ -1399,7 +1420,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
   * Output the page prolog...
   */
 
-  fprintf(out, "%%%%Page: %s %d\n", page_text, file_page);
+  fprintf(out, "%%%%Page: %s %d\n", pages[page].page_text, file_page);
 
   if (pages[page].landscape)
     fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
@@ -1580,8 +1601,7 @@ ps_write_background(FILE *out)		/* I - Output file */
  */
 
 static void
-pdf_write_document(uchar  *title,	/* I - Title for all pages */
-        	   uchar  *author,	/* I - Author of document */
+pdf_write_document(uchar  *author,	/* I - Author of document */
         	   uchar  *creator,	/* I - Application that generated the HTML file */
         	   uchar  *copyright,	/* I - Copyright (if any) on the document */
                    uchar  *keywords,	/* I - Search keywords */
@@ -1613,7 +1633,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
   objects       = NULL;
 
   // Write the prolog...
-  write_prolog(out, num_pages, title, author, creator, copyright, keywords);
+  write_prolog(out, num_pages, author, creator, copyright, keywords);
 
   // Write images as needed...
   num_images = image_getlist(&images);
@@ -1664,7 +1684,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
 
   if (TitlePage)
     for (page = 0; page < chapter_starts[1]; page ++)
-      pdf_write_page(out, page, NULL);
+      pdf_write_page(out, page);
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
   {
@@ -1674,7 +1694,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
     for (page = chapter_starts[chapter];
          page <= chapter_ends[chapter];
          page ++)
-      pdf_write_page(out, page, title);
+      pdf_write_page(out, page);
   }
 
   if (TocLevels > 0)
@@ -1682,7 +1702,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
     for (chapter = 0, page = chapter_starts[0];
 	 page <= chapter_ends[0];
 	 page ++)
-      pdf_write_page(out, page, title);
+      pdf_write_page(out, page);
 
    /*
     * Write the outline tree...
@@ -1873,11 +1893,9 @@ pdf_write_resources(FILE *out,	/* I - Output file */
 
 static void
 pdf_write_page(FILE  *out,		/* I - Output file */
-               int   page,		/* I - Page number */
-               uchar  *title)		/* I - Title string */
+               int   page)		/* I - Page number */
 {
-  int		file_page,	/* Current page # in file */
-		last_render;	/* Last type of render */
+  int		last_render;	/* Last type of render */
   render_t	*r,		/* Render pointer */
 		*next;		/* Next render */
   float		box[3];		/* RGB color for boxes */
@@ -1887,10 +1905,14 @@ pdf_write_page(FILE  *out,		/* I - Output file */
     return;
 
  /*
-  * Add headers/footers as needed...
+  * Let the user know which page we are writing...
   */
 
-  pspdf_prepare_page(page, &file_page, title);
+  if (Verbosity)
+  {
+    progress_show("Writing page %s...", pages[page].page_text);
+    progress_update(100 * page / num_pages);
+  }
 
  /*
   * Clear the render cache...
@@ -2667,6 +2689,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 		numberwidth,
 		height,
 		rgb[3];
+  int		hpage;
   uchar		number[1024],
 		*nptr,
 		*link;
@@ -2677,8 +2700,8 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 #define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
 
 
-  DEBUG_printf(("render_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, show_page=%d)\n",
-                t, left, right, bottom, top, *y, *page, show_page));
+  DEBUG_printf(("render_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
+                t, left, right, bottom, top, *y, *page, heading, chap));
 
  /*
   * Put the text...
@@ -2699,17 +2722,14 @@ render_contents(tree_t *t,		/* I - Tree to parse */
   * Get the width of the page number, leave room for three dots...
   */
 
+  hpage = heading_pages[heading] + chapter_starts[1] - 1;
+
   if (heading >= 0)
-  {
-    sprintf((char *)number, "%d", heading_pages[heading]);
-    numberwidth = get_width(number, t->typeface, t->style, t->size) +
+    numberwidth = get_width((uchar *)pages[hpage].page_text,
+                            t->typeface, t->style, t->size) +
 	          3.0f * dot_width;
-  }
   else
-  {
-    number[0]   = '\0';
     numberwidth = 0.0f;
-  }
 
   for (temp = flat; temp != NULL; temp = next)
   {
@@ -2841,10 +2861,15 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 
     width = numberwidth - 3.0 * dot_width + x;
 
-    for (nptr = number; width < right; width += dot_width, nptr ++)
-      *nptr = '.';
+    for (nptr = number;
+         nptr < (number + sizeof(number) - 1) && width < right;
+	 width += dot_width)
+      *nptr++ = '.';
     nptr --;
-    sprintf((char *)nptr, "%d", heading_pages[heading]);
+
+    strncpy((char *)nptr, pages[hpage].page_text,
+            sizeof(number) - (nptr - number) - 1);
+    number[sizeof(number) - 1] = '\0';
 
     r = new_render(*page, RENDER_TEXT, right - width + x, *y, 0, 0, number);
     r->data.text.typeface = t->typeface;
@@ -3029,6 +3054,11 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
     if (chapter == 0 && !title_page)
     {
+      // Need to handle page comments before the first heading...
+      if (t->markup == MARKUP_COMMENT)
+        parse_comment(t, left, right, bottom, top, x, y, page, para,
+	              *needspace);
+
       if (t->child != NULL)
         parse_doc(t->child, left, right, bottom, top, x, y, page, para,
 	          needspace);
@@ -3080,6 +3110,11 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
               para->indent     = t->parent->indent;
 	    }
           }
+
+	  // Skip heading whitespace...
+          if (para->child == NULL && t->markup == MARKUP_NONE &&
+	      t->data != NULL && strcmp((char *)t->data, " ") == 0)
+	    break;
 
           if ((temp = htmlAddTree(para, t->markup, t->data)) != NULL)
           {
@@ -3392,13 +3427,10 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	                *needspace);
           break;
 
+      case MARKUP_HEAD : // Ignore document HEAD section
       case MARKUP_TITLE : // Ignore title and meta stuff
       case MARKUP_META :
-          break;
-
       case MARKUP_SCRIPT : // Ignore script stuff
-          break;
-
       case MARKUP_INPUT : // Ignore form stuff
       case MARKUP_SELECT :
       case MARKUP_OPTION :
@@ -5643,7 +5675,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
 
 
   DEBUG_printf(("parse_list(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
-                t, left, right, *x, *y, *page));
+                t, *left, *right, *x, *y, *page));
 
   if (needspace && *y < *top)
   {
@@ -7040,6 +7072,10 @@ check_pages(int page)	// I - Current page
 	memcpy(temp->header, Header, sizeof(temp->header));
 	memcpy(temp->footer, Footer, sizeof(temp->footer));
       }
+
+      memcpy(temp->background_color, background_color,
+             sizeof(temp->background_color));
+      temp->background_image = background_image;
     }
 }
 
@@ -9150,7 +9186,6 @@ write_imagemask(FILE     *out,	/* I - Output file */
 static void
 write_prolog(FILE  *out,	/* I - Output file */
              int   page_count,	/* I - Number of pages (0 if not known) */
-             uchar *title,	/* I - Title of document */
              uchar *author,	/* I - Author of document */
              uchar *creator,	/* I - Application that generated the HTML file */
              uchar *copyright,	/* I - Copyright (if any) on the document */
@@ -9229,8 +9264,8 @@ write_prolog(FILE  *out,	/* I - Output file */
       // embedded commands...
       fputs("%XRXbegin: 001.0300\n", out);
       fputs("%XRXPDLformat: PS-Adobe\n", out);
-      if (title)
-	fprintf(out, "%%XRXtitle: %s\n", title);
+      if (doc_title)
+	fprintf(out, "%%XRXtitle: %s\n", doc_title);
       fputs("%XRXcopyCount: 1\n", out);
 
       if (OutputFiles)
@@ -9375,8 +9410,8 @@ write_prolog(FILE  *out,	/* I - Output file */
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
 	    (int)(-timezone / 3600),
 	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
-    if (title != NULL)
-      fprintf(out, "%%%%Title: %s\n", title);
+    if (doc_title != NULL)
+      fprintf(out, "%%%%Title: %s\n", doc_title);
     if (author != NULL)
       fprintf(out, "%%%%Author: %s\n", author);
     if (creator != NULL)
@@ -9721,10 +9756,10 @@ write_prolog(FILE  *out,	/* I - Output file */
 	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
     write_string(out, (uchar *)temp, 0);
 
-    if (title != NULL)
+    if (doc_title != NULL)
     {
       fputs("/Title", out);
-      write_string(out, title, 0);
+      write_string(out, doc_title, 0);
     }
 
     if (author != NULL)
@@ -9959,6 +9994,8 @@ write_trailer(FILE *out,	/* I - Output file */
 		offset,		/* Offset to xref table in PDF file */
 		start;		/* Start page number */
   page_t	*page;		/* Start page of chapter */
+  char		prefix[64],	/* Prefix string */
+		*prefptr;	/* Pointer into prefix string */
   static const char *modes[] =	/* Page modes */
 		{
 		  "UseNone",
@@ -10084,19 +10121,26 @@ write_trailer(FILE *out,	/* I - Output file */
 	start = chapter_starts[j] - chapter_starts[1] + 1;
 	type  = 'D';
 
+        memset(prefix, 0, sizeof(prefix));
+
 	for (k = 0; k < 3; k ++)
 	{
-	  if ((page->header[k] && strstr((char *)page->header[k], "$PAGE(i)")) ||
-	      (page->footer[k] && strstr((char *)page->footer[k], "$PAGE(i)")))
+	  if (page->header[k] && strstr((char *)page->header[k], "PAGE"))
+	    strncpy(prefix, (char *)page->header[k], sizeof(prefix) - 1);
+	  else if (page->footer[k] && strstr((char *)page->footer[k], "PAGE"))
+	    strncpy(prefix, (char *)page->footer[k], sizeof(prefix) - 1);
+
+	  if ((page->header[k] && strstr((char *)page->header[k], "PAGE(i)")) ||
+	      (page->footer[k] && strstr((char *)page->footer[k], "PAGE(i)")))
 	    type = 'r';
-	  else if ((page->header[k] && strstr((char *)page->header[k], "$PAGE(I)")) ||
-	           (page->footer[k] && strstr((char *)page->footer[k], "$PAGE(I)")))
+	  else if ((page->header[k] && strstr((char *)page->header[k], "PAGE(I)")) ||
+	           (page->footer[k] && strstr((char *)page->footer[k], "PAGE(I)")))
 	    type = 'R';
-	  else if ((page->header[k] && strstr((char *)page->header[k], "$PAGE(a)")) ||
-	           (page->footer[k] && strstr((char *)page->footer[k], "$PAGE(a)")))
+	  else if ((page->header[k] && strstr((char *)page->header[k], "PAGE(a)")) ||
+	           (page->footer[k] && strstr((char *)page->footer[k], "PAGE(a)")))
 	    type = 'a';
-	  else if ((page->header[k] && strstr((char *)page->header[k], "$PAGE(A)")) ||
-	           (page->footer[k] && strstr((char *)page->footer[k], "$PAGE(A)")))
+	  else if ((page->header[k] && strstr((char *)page->header[k], "PAGE(A)")) ||
+	           (page->footer[k] && strstr((char *)page->footer[k], "PAGE(A)")))
 	    type = 'A';
 
 	  if ((page->header[k] && strstr((char *)page->header[k], "$CHAPTERPAGE")) ||
@@ -10104,7 +10148,17 @@ write_trailer(FILE *out,	/* I - Output file */
 	    start = 1;
         }
 
-	fprintf(out, "%d<</S/%c/St %d>>", i, type, start);
+        if ((prefptr = strstr(prefix, "$PAGE")) == NULL)
+	  prefptr = strstr(prefix, "$CHAPTERPAGE");
+	fprintf(out, "%d<</S/%c/St %d", i, type, start);
+	if (prefptr)
+	{
+	  *prefptr = '\0';
+	  fputs("/P", out);
+	  write_string(out, (uchar *)prefix, 0);
+	}
+	fputs(">>", out);
+
         i += chapter_ends[j] - chapter_starts[j] + 1;
       }
 
@@ -10551,5 +10605,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.131 2001/11/20 19:32:14 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.132 2001/11/20 22:12:43 mike Exp $".
  */
