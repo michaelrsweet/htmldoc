@@ -17,33 +17,6 @@ SSYYNNOOPPSSIISS
        htmldoc [filename.book]
 
 
-OOPPTTIIOONNSS
-       [ -d _d_i_r_e_c_t_o_r_y ] [ -f _f_i_l_e_n_a_m_e ] [ -t _f_o_r_m_a_t ] [  -v  ]  [
-       --bodycolor  _c_o_l_o_r ] [ --bodyfont _t_y_p_e_f_a_c_e ] [ --bodyimage
-       _f_i_l_e_n_a_m_e ] [ --book ] [  --bottom  _m_a_r_g_i_n  ]  [  --charset
-       _{_8_8_5_9_-_1_._._._8_8_5_9_-_1_5_}  ] [ --color ] [ --duplex ] [ --effect-
-       duration _{ _0_._1_._._1_0_._0 _} ] [  --encryption  ]  [  --fontsize
-       _s_i_z_e ] [ --fontspacing _s_p_a_c_i_n_g ] [ --footer _f_f_f ] [ --for-
-       mat _f_o_r_m_a_t ] [ --gray ] [ --header _f_f_f ] [  --headfootfont
-       _f_o_n_t  ] [ --headfootsize _s_i_z_e ] [ --headingfont _t_y_p_e_f_a_c_e ]
-       [ --help ]  [  --jpeg  _[_=_q_u_a_l_i_t_y_]  ]  [  --left  _m_a_r_g_i_n  ]
-       [--linkcolor  _c_o_l_o_r  ]  [--linkstyle _{_p_l_a_i_n_,_u_n_d_e_r_l_i_n_e_} ] [
-       --logoimage _f_i_l_e_n_a_m_e ] [ --no-compression ] [  --no-duplex
-       ]  [ --no-encryption ] [ --no-numbered ] [ --no-pscommands
-       ] [ --no-title ] [ --no-toc ] [ --numbered  ]  [  --outdir
-       _d_i_r_e_c_t_o_r_y  ]  [  --outfile  _f_i_l_e_n_a_m_e  ] [ --owner-password
-       _p_a_s_s_w_o_r_d ] [ --pageduration _{_1_._0_._._6_0_._0_} ]  [  --pageeffect
-       _{_n_o_n_e_,_b_i_,_b_o_,_d_,_g_d_,_g_d_r_,_g_r_,_h_b_,_h_s_i_,_h_s_o_,_v_b_,_v_s_i_,_v_s_o_,_w_d_,_w_l_,_w_r_,_w_u_}
-       ] [ --pagelayout _{_s_i_n_g_l_e_,_o_n_e_,_t_w_o_l_e_f_t_,_t_w_o_r_i_g_h_t_} ] [ --page-
-       mode  _{_d_o_c_u_m_e_n_t_,_o_u_t_l_i_n_e_s_,_f_u_l_l_s_c_r_e_e_n_} ] [ --path _] _[ _-_-_p_e_r_-
-       _m_i_s_s_i_o_n_s _p_e_r_m_i_s_s_i_o_n ] [ --pscommands ] [ --right _m_a_r_g_i_n  ]
-       [  --size  _p_a_g_e_s_i_z_e  ]  [ --textcolor _c_o_l_o_r ] [ --textfont
-       _{_c_o_u_r_i_e_r_,_t_i_m_e_s_,_h_e_l_v_e_t_i_c_a_} ]  [  --title  ]  [  --titlefile
-       _f_i_l_e_n_a_m_e ] [ --titleimage _f_i_l_e_n_a_m_e ] [ --tocfooter _f_f_f ] [
-       --tocheader _f_f_f ] [  --toclevels  _l_e_v_e_l_s  ]  [  --toctitle
-       _s_t_r_i_n_g  ]  [ --top _m_a_r_g_i_n ] [ --user-password _p_a_s_s_w_o_r_d ] [
-       --verbose ] [ --webpage ]
-
 DDEESSCCRRIIPPTTIIOONN
        _H_T_M_L_D_O_C converts HTML  source  files  into  indexed  HTML,
        PostScript,  or  Portable Document Format (PDF) files that
@@ -56,19 +29,6 @@ DDEESSCCRRIIPPTTIIOONN
        The third form of _H_T_M_L_D_O_C launches a  graphical  interface
        that  allows  you to change options and generate documents
        interactively.
-
-
-
-
-
-28 June 2000              HTMLDOC 1.8.8                         1
-
-
-
-
-
-htmldoc(1)            Easy Software Products           htmldoc(1)
-
 
 CCOOMMMMOONN MMIISSTTAAKKEESS
        There are two types of HTML files -  structured  documents
@@ -86,38 +46,519 @@ CCOOMMMMOONN MMIISSTTAAKKEESS
        at the command-line or choose _W_e_b _P_a_g_e in the input tab of
        the GUI.
 
+OOPPTTIIOONNSS
+       The  following command-line options are supported by _H_T_M_L_-
+       _D_O_C:
+
+
+       --bodycolor _c_o_l_o_r
+            Specifies the background color for all pages.
+
+
+       --bodyfont _{_c_o_u_r_i_e_r_,_t_i_m_e_s_,_h_e_l_v_e_t_i_c_a_}
+
+
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        1
+
+
+
+
+
+htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       --textfont _{_c_o_u_r_i_e_r_,_t_i_m_e_s_,_h_e_l_v_e_t_i_c_a_}
+            Specifies the default typeface for all normal text.
+
+
+       --bodyimage _f_i_l_e_n_a_m_e
+            Specifies the background image that is tiled  on  all
+            pages.
+
+
+       --book
+            Specifies that the HTML sources are structured (head-
+            ings, chapters, etc.)
+
+
+       --bottom _m_a_r_g_i_n
+            Specifies the bottom margin in points (no  suffix  or
+            ##pt), inches (##in), centimeters (##cm), or millime-
+            ters (##mm).
+
+
+       --charset _{_8_8_5_9_-_1_._._._8_8_5_9_-_1_5_}
+            Specifies the ISO character set to use for  the  out-
+            put.
+
+
+       --color
+            Specifies  that PostScript or PDF output should be in
+            color.
+
+
+       --duplex
+            Specifies that the output  should  be  formatted  for
+            double-sided printing.
+
+
+       --effectduration _{ _0_._1_._._1_0_._0 _}
+            Specifies the duration in seconds of PDF page transi-
+            tion effects.
+
+
+       --encryption
+            Enables encryption of PDF files.
+
+
+       --fontsize _s_i_z_e
+            Specifies the default font size for body text.
+
+
+       --fontspacing _s_p_a_c_i_n_g
+            Specifies the default line spacing for body text. The
+            line  spacing is a multiplier for the font size, so a
+            value of 1.2 will provide an additional 20% of  space
+            between the lines.
+
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        2
+
+
+
+
+
+htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       --footer _f_f_f
+            Sets  the  page  footer to use on body pages. See the
+            _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
+
+
+       --format _f_o_r_m_a_t
+
+       -t _f_o_r_m_a_t
+            Specifies  the  output  format:  html,  ps   or   ps2
+            (PostScript  Level  2), ps1 (PostScript Level 1), ps3
+            (PostScript Level 3), pdf or pdf12  (PDF  1.2/Acrobat
+            3.0),  pdf11  (PDF  1.1/Acrobat  2.0),  or pdf13 (PDF
+            1.3/Acrobat 4.0)
+
+
+       --gray
+            Specifies that PostScript or  PDF  output  should  be
+            grayscale.
+
+
+       --header _f_f_f
+            Sets  the  page  header to use on body pages. See the
+            _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
+
+
+       --headfootfont _f_o_n_t
+            Sets the font to use on headers and footers.
+
+
+       --headfootsize _s_i_z_e
+            Sets the size of the font to use on headers and foot-
+            ers.
+
+
+       --headingfont _t_y_p_e_f_a_c_e
+            Sets the typeface to use for headings.
+
+
+       --help
+            Displays a summary of command-line options.
+
+
+       --jpeg_[_=_q_u_a_l_i_t_y_]
+            Sets  the  JPEG  compression  level  to use for large
+            images. A value of 0 disables JPEG compression.
+
+
+       --left _m_a_r_g_i_n
+            Specifies the left margin in  points  (no  suffix  or
+            ##pt), inches (##in), centimeters (##cm), or millime-
+            ters (##mm).
+
+
+
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        3
+
+
+
+
+
+htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       --linkcolor _c_o_l_o_r
+            Sets the color of links.
+
+
+       --links
+            Enables generation of links in PDF files (default).
+
+
+       --linkstyle _{_p_l_a_i_n_,_u_n_d_e_r_l_i_n_e_}
+            Sets the style of links.
+
+
+       --logoimage _f_i_l_e_n_a_m_e
+            Specifies an image to be used as a logo in the header
+            or footer in a PostScript or PDF document, and in the
+            navigation bar of a HTML document.
+
+
+       --no-compression
+            Disables compression of PostScript or PDF files.
+
+
+       --no-duplex
+            Disables double-sided printing.
+
+
+       --no-encryption
+            Disables document encryption.
+
+
+       --no-links
+            Disables generation of links in a PDF document.
+
+
+       --no-numbered
+            Disables automatic heading numbering.
+
+
+       --no-pscommands
+            Disables generation of PostScript setpagedevice  com-
+            mands.
+
+
+       --no-title
+            Disables generation of a title page.
+
+
+       --no-toc
+            Disables generation of a table of contents.
+
+
+       --no-truetype
+            Disables use of TrueType fonts in PDF output.
+
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        4
+
+
+
+
+
+htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       --numbered
+            Numbers all headings in a document.
+
+
+       --outdir _d_i_r_e_c_t_o_r_y
+
+       -d _d_i_r_e_c_t_o_r_y
+            Specifies  that  output should be sent to a directory
+            in multiple files.  (Not compatible with PDF output)
+
+
+       --outfile _f_i_l_e_n_a_m_e
+
+       -f _f_i_l_e_n_a_m_e
+            Specifies that output should  be  sent  to  a  single
+            file.
+
+
+       --owner-password _p_a_s_s_w_o_r_d
+            Sets the owner password for encrypted PDF files.
+
+
+       --pageduration _{_1_._0_._._6_0_._0_}
+            Sets the view duration of a page in a PDF document.
+
+
+       --pageeffect _e_f_f_e_c_t
+            Specifies  the  page transition effect for all pages;
+            this attribute is ignored by all Adobe PDF viewers...
+
+
+       --pagelayout _{_s_i_n_g_l_e_,_o_n_e_,_t_w_o_l_e_f_t_,_t_w_o_r_i_g_h_t_}
+            Specifies the initial layout of pages for a PDF file.
+
+
+       --pagemode _{_d_o_c_u_m_e_n_t_,_o_u_t_l_i_n_e_s_,_f_u_l_l_s_c_r_e_e_n_}
+            Specifies the initial viewing mode for a PDF file.
+
+
+       --path
+            Specifies a search path for files in a document.
+
+
+       --permissions _p_e_r_m_i_s_s_i_o_n
+            Specifies  document  permissions  for  encrypted  PDF
+            files. Multiple _-_-_p_e_r_m_i_s_s_i_o_n_s options are required to
+            grant or deny  specific  permissions.  The  following
+            values  are  understood:  all,  none,  annotate,  no-
+            annotate, copy, no-copy,  modify,  no-modify,  print,
+            and no-print.
+
+
+       --pscommands
+            Specifies   that  PostScript  setpagedevice  commands
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        5
+
+
+
+
+
+htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+            should be included in the output.
+
+
+       --quiet
+            Suppresses all messages, even error messages.
+
+
+       --right _m_a_r_g_i_n
+            Specifies the right margin in points  (no  suffix  or
+            ##pt), inches (##in), centimeters (##cm), or millime-
+            ters (##mm).
+
+
+       --size _p_a_g_e_s_i_z_e
+            Specifies the page size using a standard name  or  in
+            points (no suffix or ##x##pt), inches (##x##in), cen-
+            timeters (##x##cm),  or  millimeters  (##x##mm).  The
+            standard  sizes  that  are  currently  recognized are
+            "letter"   (8.5x11in),   "legal"   (8.5x14in),   "a4"
+            (210x297mm), and "universal" (8.27x11in).
+
+
+       --textcolor _c_o_l_o_r
+            Specifies the default color of all text.
+
+
+       --title
+            Enables the generation of a title page.
+
+
+       --titlefile _f_i_l_e_n_a_m_e
+
+       --titleimage _f_i_l_e_n_a_m_e
+            Specifies  the file to use for the title page. If the
+            file is an image then the title page is automatically
+            generated  using  the  document  meta  data and title
+            image.
+
+
+       --tocfooter _f_f_f
+            Sets the page  footer  to  use  on  table-of-contents
+            pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
+
+
+       --tocheader _f_f_f
+            Sets the page  header  to  use  on  table-of-contents
+            pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
+
+
+       --toclevels _l_e_v_e_l_s
+            Sets the number of levels in the table-of-contents.
+
+
+
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        6
+
+
+
+
+
+htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       --toctitle _s_t_r_i_n_g
+            Sets the title for the table-of-contents.
+
+
+       --top _m_a_r_g_i_n
+            Specifies the top margin  in  points  (no  suffix  or
+            ##pt), inches (##in), centimeters (##cm), or millime-
+            ters (##mm).
+
+
+       --truetype
+            Enables use of TrueType fonts in PDF output.
+
+
+       --user-password _p_a_s_s_w_o_r_d
+            Specifies the user password  for  encryption  of  PDF
+            files.
+
+
+       --verbose
+
+       -v
+            Provides verbose messages.
+
+
+       --webpage
+            Specifies  that  the  HTML  sources  are unstructured
+            (plain web pages.)
+
+
+HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
+       The header and footer of each page can contain up to three
+       preformatted  values.  These  values are specified using a
+       single character for the left, middle, and  right  of  the
+       page, resulting in the _f_f_f notation shown previously.
+
+       Each character can be one of the following:
+
+
+       blank
+
+
+       /
+            n/N arabic page numbers (1/3, 2/3, 3/3)
+
+
+       :
+            c/C  arabic chapter page numbers (1/2, 2/2, 1/4, 2/4,
+            ...)
+
+
+       1
+            arabic numbers (1, 2, 3, ...)
+
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        7
+
+
+
+
+
+htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       a
+            lowercase letters
+
+
+       A
+            uppercase letters
+
+
+       c
+            current chapter heading
+
+
+       C
+            current chapter page number (arabic)
+
+
+       d
+            current date
+
+
+       D
+            current date and time
+
+
+       h
+            current heading
+
+
+       i
+            lowercase roman numerals
+
+
+       I
+            uppercase roman numerals
+
+
+       l
+            logo image
+
+
+       t
+            title text
+
+
+       T
+            current time
+
+
 SSEEEE AALLSSOO
-       HTMLDOC 1.8.8 Software Users Manual
+       HTMLDOC 1.8.10 Software Users Manual
 
        http://www.easysw.com/htmldoc
+
+
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        8
+
+
+
+
+
+htmldoc(1)            Easy Software Products           htmldoc(1)
+
 
 AAUUTTHHOORR
        Michael Sweet (mike@easysw.com), Easy Software Products
 
 TTRRAADDEEMMAARRKKSS
-       PostScript  is  a trademark that may be registered in some
-       countries and Adobe is a  registered  trademark  of  Adobe
+       PostScript is a trademark that may be registered  in  some
+       countries  and  Adobe  is  a registered trademark of Adobe
        Systems Incorporated.
 
 CCOOPPYYRRIIGGHHTTSS
        Portable Document Format Copyright 1993-1999 by Adobe Sys-
        tems Incorporated.
 
-       HTMLDOC is copyright 1997-2000 by Easy Software  Products.
-       This  program  is  free  software; you can redistribute it
+       HTMLDOC  is copyright 1997-2001 by Easy Software Products.
+       This program is free software;  you  can  redistribute  it
        and/or modify it under the terms of the GNU General Public
-       License  as  published  by  the  Free Software Foundation;
-       either version 2 of the License, or (at your  option)  any
+       License as published  by  the  Free  Software  Foundation;
+       either  version  2 of the License, or (at your option) any
        later version.
 
-       This  program is based in part on the work of the Indepen-
+       This program is based in part on the work of the  Indepen-
        dent JPEG Group.
 
 NNOO WWAARRRRAANNTTYY
-       This program is distributed in the hope that  it  will  be
+       This  program  is  distributed in the hope that it will be
        useful, but WITHOUT ANY WARRANTY; without even the implied
-       warranty of MERCHANTABILITY or FITNESS  FOR  A  PARTICULAR
-       PURPOSE.   See  the  GNU  General  Public License for more
+       warranty  of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+       PURPOSE.  See the GNU  General  Public  License  for  more
        details.
 
 
@@ -127,6 +568,27 @@ NNOO WWAARRRRAANNTTYY
 
 
 
-28 June 2000              HTMLDOC 1.8.8                         2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+16 February 2001          HTMLDOC 1.8.11                        9
 
 

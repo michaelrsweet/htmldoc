@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.6 2001/01/22 15:03:49 mike Exp $"
+# "$Id: Makefile,v 1.5.2.1 2001/02/02 15:11:04 mike Exp $"
 #
 #   JPEG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -67,5 +67,5 @@ $(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
 		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.6 2001/01/22 15:03:49 mike Exp $".
+# End of "$Id: Makefile,v 1.5.2.1 2001/02/02 15:11:04 mike Exp $".
 #

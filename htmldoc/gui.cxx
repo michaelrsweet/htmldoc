@@ -1,9 +1,9 @@
 //
-// "$Id: gui.cxx,v 1.36 2000/10/14 13:59:13 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.7 2001/02/16 16:57:16 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
-//   Copyright 1997-2000 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -37,6 +37,7 @@
 //   GUI::docTypeCB()      - Handle input on the document type buttons.
 //   GUI::inputFilesCB()   - Handle selections in the input files browser.
 //   GUI::addFileCB()      - Add a file to the input files list.
+//   GUI::addURLCB()       - Add a URL to the input files list.
 //   GUI::editFilesCB()    - Edit one or more files in the input files list.
 //   GUI::deleteFileCB()   - Delete one or more files from the input files list.
 //   GUI::moveUpFileCB()   - Move one or more files up in the input files list.
@@ -135,7 +136,14 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"1,2,3,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"i,ii,iii,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"I,II,III,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Ch Page", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"a,b,c,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"A,B,C,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Chapter Page", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1/N,2/N,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1/C,2/C,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Date", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Date + Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	typefaceMenu[] = // Menu items for typeface choosers
@@ -174,6 +182,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"8859-9", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"8859-14", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"8859-15", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"koi8-r", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	modeMenu[] =	// Menu items for mode chooser
@@ -225,17 +234,17 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Create a dialog window...
   //
 
-  window = new Fl_Window(470, 390, "HTMLDOC " SVERSION);
+  window = new Fl_Window(470, 415, "HTMLDOC " SVERSION);
   window->callback((Fl_Callback *)closeBookCB, this);
 
-  controls = new Fl_Group(0, 0, 470, 360);
-  tabs     = new Fl_Tabs(10, 10, 450, 260);
+  controls = new Fl_Group(0, 0, 470, 385);
+  tabs     = new Fl_Tabs(10, 10, 450, 285);
 
   //
   // Input tab...
   //
 
-  inputTab = new Fl_Group(10, 35, 450, 220, "Input");
+  inputTab = new Fl_Group(10, 35, 450, 245, "Input");
 
   group = new Fl_Group(140, 45, 150, 20, "Document Type: ");
   group->align(FL_ALIGN_LEFT);
@@ -253,7 +262,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   group->align(FL_ALIGN_LEFT);
   group->end();
 
-  inputFiles = new FileBrowser(140, 70, 215, 125);
+  inputFiles = new FileBrowser(140, 70, 215, 150);
   inputFiles->iconsize(20);
   inputFiles->type(FL_MULTI_BROWSER);
   inputFiles->callback((Fl_Callback *)inputFilesCB, this);
@@ -262,34 +271,37 @@ GUI::GUI(const char *filename)		// Book file to load initially
   addFile = new Fl_Button(355, 70, 95, 25, "Add Files...");
   addFile->callback((Fl_Callback *)addFileCB, this);
 
-  editFile = new Fl_Button(355, 95, 95, 25, "Edit Files...");
+  addURL = new Fl_Button(355, 95, 95, 25, "Add URL...");
+  addURL->callback((Fl_Callback *)addURLCB, this);
+
+  editFile = new Fl_Button(355, 120, 95, 25, "Edit Files...");
   editFile->deactivate();
   editFile->callback((Fl_Callback *)editFilesCB, this);
 
-  deleteFile = new Fl_Button(355, 120, 95, 25, "Delete Files");
+  deleteFile = new Fl_Button(355, 145, 95, 25, "Delete Files");
   deleteFile->deactivate();
   deleteFile->callback((Fl_Callback *)deleteFilesCB, this);
 
-  moveUpFile = new Fl_Button(355, 145, 95, 25, "Move Up");
+  moveUpFile = new Fl_Button(355, 170, 95, 25, "Move Up");
   moveUpFile->deactivate();
   moveUpFile->callback((Fl_Callback *)moveUpFilesCB, this);
 
-  moveDownFile = new Fl_Button(355, 170, 95, 25, "Move Down");
+  moveDownFile = new Fl_Button(355, 195, 95, 25, "Move Down");
   moveDownFile->deactivate();
   moveDownFile->callback((Fl_Callback *)moveDownFilesCB, this);
 
-  logoImage = new Fl_Input(140, 205, 230, 25, "Logo Image: ");
+  logoImage = new Fl_Input(140, 230, 230, 25, "Logo Image: ");
   logoImage->when(FL_WHEN_CHANGED);
   logoImage->callback((Fl_Callback *)logoImageCB, this);
 
-  logoBrowse = new Fl_Button(370, 205, 80, 25, "Browse...");
+  logoBrowse = new Fl_Button(370, 230, 80, 25, "Browse...");
   logoBrowse->callback((Fl_Callback *)logoImageCB, this);
 
-  titleImage = new Fl_Input(140, 235, 230, 25, "Title File/Image: ");
+  titleImage = new Fl_Input(140, 260, 230, 25, "Title File/Image: ");
   titleImage->when(FL_WHEN_CHANGED);
   titleImage->callback((Fl_Callback *)titleImageCB, this);
 
-  titleBrowse = new Fl_Button(370, 235, 80, 25, "Browse...");
+  titleBrowse = new Fl_Button(370, 260, 80, 25, "Browse...");
   titleBrowse->callback((Fl_Callback *)titleImageCB, this);
 
   inputTab->end();
@@ -299,7 +311,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Output tab...
   //
 
-  outputTab = new Fl_Group(10, 35, 450, 220, "Output");
+  outputTab = new Fl_Group(10, 35, 450, 245, "Output");
   outputTab->hide();
 
   group = new Fl_Group(140, 45, 265, 20, "Output To: ");
@@ -402,7 +414,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Page tab...
   //
 
-  pageTab = new Fl_Group(10, 35, 450, 220, "Page");
+  pageTab = new Fl_Group(10, 35, 450, 245, "Page");
   pageTab->hide();
 
   pageSize = new Fl_Input(140, 45, 100, 25, "Page Size: ");
@@ -466,7 +478,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // TOC tab...
   //
 
-  tocTab = new Fl_Group(10, 35, 450, 220, "TOC");
+  tocTab = new Fl_Group(10, 35, 450, 245, "TOC");
   tocTab->hide();
 
   tocLevels = new Fl_Choice(140, 45, 100, 25, "Table of Contents: ");
@@ -520,7 +532,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Colors tab...
   //
 
-  colorsTab = new Fl_Group(10, 35, 450, 220, "Colors");
+  colorsTab = new Fl_Group(10, 35, 450, 245, "Colors");
   colorsTab->hide();
 
   bodyColor = new Fl_Input(140, 45, 100, 25, "Body Color: ");
@@ -562,7 +574,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Fonts tab...
   //
 
-  fontsTab = new Fl_Group(10, 35, 450, 220, "Fonts");
+  fontsTab = new Fl_Group(10, 35, 450, 245, "Fonts");
   fontsTab->hide();
 
   fontBaseSize = new Fl_Counter(200, 45, 150, 25, "Base Font Size: ");
@@ -611,7 +623,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // PostScript tab...
   //
 
-  psTab = new Fl_Group(10, 35, 450, 220, "PS");
+  psTab = new Fl_Group(10, 35, 450, 245, "PS");
   psTab->hide();
 
   psLevel = new Fl_Group(140, 45, 310, 20, "PostScript: ");
@@ -640,7 +652,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // PDF tab...
   //
 
-  pdfTab = new Fl_Group(10, 35, 450, 220, "PDF");
+  pdfTab = new Fl_Group(10, 35, 450, 245, "PDF");
   pdfTab->hide();
 
   pdfVersion = new Fl_Group(140, 45, 310, 40, "PDF Version: \n ");
@@ -694,13 +706,24 @@ GUI::GUI(const char *filename)		// Book file to load initially
   effectDuration->step(0.1);
   effectDuration->callback((Fl_Callback *)changeCB, this);
 
+  group = new Fl_Group(140, 260, 350, 25, "Options: ");
+  group->align(FL_ALIGN_LEFT);
+
+  links = new CheckButton(140, 260, 105, 25, "Include Links");
+  links->callback((Fl_Callback *)changeCB, this);
+
+  truetype = new CheckButton(250, 260, 210, 25, "Use TrueType Fonts");
+  truetype->callback((Fl_Callback *)changeCB, this);
+
+  group->end();
+
   pdfTab->end();
 
   //
   // Security tab...
   //
 
-  securityTab = new Fl_Group(10, 35, 450, 220, "Security");
+  securityTab = new Fl_Group(10, 35, 450, 245, "Security");
   securityTab->hide();
 
   encryption = new Fl_Group(140, 45, 310, 20, "Encryption: ");
@@ -739,7 +762,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Options tab...
   //
 
-  optionsTab = new Fl_Group(10, 35, 450, 220, "Options");
+  optionsTab = new Fl_Group(10, 35, 450, 245, "Options");
   optionsTab->hide();
 
   htmlEditor = new Fl_Input(140, 45, 215, 25, "HTML Editor: ");
@@ -765,7 +788,13 @@ GUI::GUI(const char *filename)		// Book file to load initially
   path->when(FL_WHEN_CHANGED);
   path->callback((Fl_Callback *)changeCB, this);
 
-  saveOptions = new Fl_Button(260, 235, 190, 25, "Save Options and Defaults");
+  proxy = new Fl_Input(140, 130, 310, 25, "HTTP Proxy URL: ");
+  proxy->value(Proxy);
+  proxy->maximum_size(sizeof(Proxy) - 1);
+  proxy->when(FL_WHEN_CHANGED);
+  proxy->callback((Fl_Callback *)changeCB, this);
+
+  saveOptions = new Fl_Button(260, 260, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
 
   optionsTab->end();
@@ -776,31 +805,31 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Button bar...
   //
 
-  button = new Fl_Button(10, 330, 50, 25, "Help");
+  button = new Fl_Button(10, 355, 50, 25, "Help");
   button->shortcut(FL_F + 1);
   button->callback((Fl_Callback *)helpCB, this);
 
-  button = new Fl_Button(65, 330, 45, 25, "New");
+  button = new Fl_Button(65, 355, 45, 25, "New");
   button->shortcut(FL_CTRL | 'n');
   button->callback((Fl_Callback *)newBookCB, this);
 
-  button = new Fl_Button(115, 330, 60, 25, "Open...");
+  button = new Fl_Button(115, 355, 60, 25, "Open...");
   button->shortcut(FL_CTRL | 'o');
   button->callback((Fl_Callback *)openBookCB, this);
 
-  bookSave = new Fl_Button(180, 330, 50, 25, "Save");
+  bookSave = new Fl_Button(180, 355, 50, 25, "Save");
   bookSave->shortcut(FL_CTRL | 's');
   bookSave->callback((Fl_Callback *)saveBookCB, this);
 
-  bookSaveAs = new Fl_Button(235, 330, 80, 25, "Save As...");
+  bookSaveAs = new Fl_Button(235, 355, 80, 25, "Save As...");
   bookSaveAs->shortcut(FL_CTRL | FL_SHIFT | 's');
   bookSaveAs->callback((Fl_Callback *)saveAsBookCB, this);
 
-  bookGenerate = new Fl_Button(320, 330, 80, 25, "Generate");
+  bookGenerate = new Fl_Button(320, 355, 80, 25, "Generate");
   bookGenerate->shortcut(FL_CTRL | 'g');
   bookGenerate->callback((Fl_Callback *)generateBookCB, this);
 
-  button = new Fl_Button(405, 330, 55, 25, "Close");
+  button = new Fl_Button(405, 355, 55, 25, "Close");
   button->shortcut(FL_CTRL | 'q');
   button->callback((Fl_Callback *)closeBookCB, this);
 
@@ -810,8 +839,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Copyright notice...
   //
 
-  label = new Fl_Box(10, 275, 450, 50,
-          "HTMLDOC " SVERSION " Copyright 1997-2000 by Easy Software Products "
+  label = new Fl_Box(10, 300, 450, 50,
+          "HTMLDOC " SVERSION " Copyright 1997-2001 by Easy Software Products "
 	  "(http://www.easysw.com). This program is free software; you can "
 	  "redistribute it and/or modify it under the terms of the GNU General "
 	  "Public License as published by the Free Software Foundation. This "
@@ -824,7 +853,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Progress bar...
   //
 
-  progressBar = new Progress(10, 360, 450, 20, "HTMLDOC " SVERSION " Ready.");
+  progressBar = new Progress(10, 385, 450, 20, "HTMLDOC " SVERSION " Ready.");
 
   window->end();
 
@@ -1107,7 +1136,14 @@ GUI::newBook(void)
   formats['1'] = 5;
   formats['i'] = 6;
   formats['I'] = 7;
-  formats['C'] = 8;
+  formats['a'] = 8;
+  formats['A'] = 9;
+  formats['C'] = 10;
+  formats['/'] = 11;
+  formats[':'] = 12;
+  formats['d'] = 13;
+  formats['T'] = 14;
+  formats['D'] = 15;
 
   pageHeaderLeft->value(formats[Header[0]]);
   pageHeaderCenter->value(formats[Header[1]]);
@@ -1176,6 +1212,9 @@ GUI::newBook(void)
 
   effectDuration->value(PDFEffectDuration);
 
+  links->value(Links);
+  truetype->value(TrueType);
+
   securityTab->deactivate();
 
   if (Encryption)
@@ -1227,6 +1266,7 @@ GUI::newBook(void)
   psCommands->value(PSCommands);
 
   path->value(Path);
+  proxy->value(Proxy);
   browserWidth->value(_htmlBrowserWidth);
 
   title(NULL, 0);
@@ -1242,8 +1282,7 @@ GUI::newBook(void)
 int					// O - 1 = success, 0 = fail
 GUI::loadBook(const char *filename)	// I - Name of book file
 {
-  int		i,
-		count;
+  int		i;
   FILE		*fp;
   char		line[10240],
 		*lineptr,
@@ -1275,7 +1314,14 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   formats['1'] = 5;
   formats['i'] = 6;
   formats['I'] = 7;
-  formats['C'] = 8;
+  formats['a'] = 8;
+  formats['A'] = 9;
+  formats['C'] = 10;
+  formats['/'] = 11;
+  formats[':'] = 12;
+  formats['d'] = 13;
+  formats['T'] = 14;
+  formats['D'] = 15;
 
   //
   // If the filename contains a path, chdir to it first...
@@ -1321,10 +1367,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 
   fgets(line, sizeof(line), fp);  /* Skip input file count... */
 
- /*
-  * Get input files...
-  */
-
+  // Get input files...
   while (fgets(line, sizeof(line), fp) != NULL)
   {
     line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
@@ -1393,6 +1436,26 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     else if (strcmp(temp, "--color") == 0)
     {
       grayscale->clear();
+      continue;
+    }
+    else if (strcmp(temp, "--links") == 0)
+    {
+      links->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-links") == 0)
+    {
+      links->clear();
+      continue;
+    }
+    else if (strcmp(temp, "--truetype") == 0)
+    {
+      truetype->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-truetype") == 0)
+    {
+      truetype->clear();
       continue;
     }
     else if (strcmp(temp, "--pscommands") == 0)
@@ -1741,6 +1804,8 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       ownerPassword->value(temp2);
     else if (strcmp(temp, "--path") == 0)
       path->value(temp2);
+    else if (strcmp(temp, "--proxy") == 0)
+      proxy->value(temp2);
   }
 
   fclose(fp);
@@ -1761,7 +1826,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   int		i,			// Looping var
 		count;			// Number of files
   FILE		*fp;			// Book file pointer
-  static char	*formats = ".tchl1iIC";	// Format characters
+  static char	*formats = ".tchl1iIaAC/:dTD";
+					// Format characters
   static char	*types[] =		// Typeface names...
 		{ "Courier", "Times", "Helvetica" };
   static char	*fonts[] =		// Font names...
@@ -1940,6 +2006,16 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (typePDF->value())
   {
+    if (links->value())
+      fputs(" --links", fp);
+    else
+      fputs(" --no-links", fp);
+
+    if (truetype->value())
+      fputs(" --truetype", fp);
+    else
+      fputs(" --no-truetype", fp);
+
     fprintf(fp, " --pagemode %s", PDFModes[pageMode->value()]);
     fprintf(fp, " --pagelayout %s", PDFLayouts[pageLayout->value()]);
     fprintf(fp, " --firstpage %s", PDFPages[firstPage->value()]);
@@ -1985,6 +2061,9 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (path->value()[0])
     fprintf(fp, " --path \"%s\"", path->value());
+
+  if (proxy->value()[0])
+    fprintf(fp, " --proxy \"%s\"", proxy->value());
 
   fputs("\n", fp);
   fclose(fp);
@@ -2232,6 +2311,27 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 
 
 //
+// 'GUI::addURLCB()' - Add a URL to the input files list.
+//
+
+void
+GUI::addURLCB(Fl_Widget *w,	// I - Widget
+              GUI       *gui)	// I - GUI
+{
+  const char	*url;		// New URL to add
+
+
+  REF(w);
+
+  if ((url = fl_input("URL?", "http://")) != NULL)
+  {
+    gui->inputFiles->add(url, gui->icon);
+    gui->title(gui->book_filename, 1);
+  }
+}
+
+
+//
 // 'GUI::editFilesCB()' - Edit one or more files in the input files list.
 //
 
@@ -2331,8 +2431,7 @@ GUI::moveUpFilesCB(Fl_Widget *w,	// I - Widget
     if (gui->inputFiles->selected(i))
       break;
 
-  if (!gui->inputFiles->visible(i))
-    gui->inputFiles->topline(i);
+  gui->inputFiles->make_visible(i);
 
   if (gui->inputFiles->selected(1))
     gui->moveUpFile->deactivate();
@@ -2374,8 +2473,7 @@ GUI::moveDownFilesCB(Fl_Widget *w,	// I - Widget
     if (gui->inputFiles->selected(i))
       break;
 
-  if (!gui->inputFiles->visible(i))
-    gui->inputFiles->bottomline(i);
+  gui->inputFiles->make_visible(i);
 
   if (!gui->inputFiles->selected(1))
     gui->moveUpFile->activate();
@@ -2843,7 +2941,8 @@ void
 GUI::saveOptionsCB(Fl_Widget *w,
                    GUI       *gui)
 {
-  static char	*formats = ".tchl1iIC";	// Format characters
+  static char	*formats = ".tchl1iIaAC/:dTD";
+					// Format characters
 
 
   set_page_size((char *)gui->pageSize->value());
@@ -2905,9 +3004,10 @@ GUI::saveOptionsCB(Fl_Widget *w,
   PDFEffect         = gui->pageEffect->value();
   PDFPageDuration   = gui->pageDuration->value();
   PDFEffectDuration = gui->effectDuration->value();
+  Links             = gui->links->value();
+  TrueType          = gui->truetype->value();
 
-  Encryption = gui->encryptionYes->value();
-
+  Encryption  = gui->encryptionYes->value();
   Permissions = -64;
   if (gui->permPrint->value())
     Permissions |= PDF_PERM_PRINT;
@@ -2942,6 +3042,8 @@ GUI::saveOptionsCB(Fl_Widget *w,
   _htmlBrowserWidth = gui->browserWidth->value();
 
   strcpy(Path, gui->path->value());
+
+  strcpy(Proxy, gui->proxy->value());
 
   prefs_save();
 }
@@ -3185,6 +3287,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
   const char	*newfile;	// New filename
   char		*dir;		// Book directory
 
+
   REF(w);
 
   gui->fc->filter("*.book");
@@ -3277,25 +3380,23 @@ void
 GUI::generateBookCB(Fl_Widget *w,	// I - Widget
                     GUI       *gui)	// I - GUI
 {
-  int		i,		/* Looping var */
-	        count;		/* Number of files */
-  char	  	temp[1024];	/* Temporary string */
-  FILE		*docfile;	/* Document file */
-  tree_t	*document,	/* Master HTML document */
-		*file,		/* HTML document file */
-		*toc;		/* Table of contents */
-  char		*filename,	/* HTML filename */
-		base[1024],	/* Base directory of HTML file */
-		bookbase[1024];	/* Base directory of book file */
-  static char	*formats = ".tchl1iIC";	// Format characters
+  int		i,		// Looping var
+	        count;		// Number of files
+  char	  	temp[1024];	// Temporary string
+  FILE		*docfile;	// Document file
+  tree_t	*document,	// Master HTML document
+		*file,		// HTML document file
+		*toc;		// Table of contents
+  char		*filename,	// HTML filename
+		base[1024],	// Base directory of HTML file
+		bookbase[1024];	// Base directory of book file
+  static char	*formats = ".tchl1iIaAC/:dTD";
+				// Format characters
 
 
   REF(w);
 
- /*
-  * Do we have an output filename?
-  */
-
+  // Do we have an output filename?
   if (gui->outputPath->size() == 0)
   {
     gui->tabs->value(gui->outputTab);
@@ -3307,17 +3408,11 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     return;
   }
 
- /*
-  * Disable the GUI while we generate...
-  */
-
+  // Disable the GUI while we generate...
   gui->controls->deactivate();
   gui->window->cursor(FL_CURSOR_WAIT);
 
- /*
-  * Set global vars used for converting the HTML files to XYZ format...
-  */
-
+  // Set global vars used for converting the HTML files to XYZ format...
   strcpy(bookbase, file_directory(gui->book_filename));
 
   Verbosity = 1;
@@ -3388,10 +3483,12 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   PDFEffect         = gui->pageEffect->value();
   PDFPageDuration   = gui->pageDuration->value();
   PDFEffectDuration = gui->effectDuration->value();
+  Links             = gui->links->value();
+  TrueType          = gui->truetype->value();
 
-  Encryption = gui->encryptionYes->value();
-
+  Encryption  = gui->encryptionYes->value();
   Permissions = -64;
+
   if (gui->permPrint->value())
     Permissions |= PDF_PERM_PRINT;
   if (gui->permModify->value())
@@ -3425,8 +3522,11 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   LinkStyle = gui->linkStyle->value();
 
   _htmlBrowserWidth = gui->browserWidth->value();
+  _htmlPPI          = _htmlBrowserWidth / PageWidth * 72.0f;
 
   strcpy(Path, gui->path->value());
+
+  file_proxy(gui->proxy->value());
 
  /*
   * Load the input files...
@@ -3449,7 +3549,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       sprintf(temp, "Loading \"%s\"...", filename);
       gui->progress(100 * i / count, temp);
 
-      strcpy(base, file_directory(filename));
+      strcpy(base, file_directory(gui->inputFiles->text(i)));
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
       htmlSetVariable(file, (uchar *)"FILENAME",
@@ -3550,5 +3650,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36 2000/10/14 13:59:13 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.7 2001/02/16 16:57:16 mike Exp $".
 //

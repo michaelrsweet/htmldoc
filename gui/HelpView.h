@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h,v 1.14 2001/01/22 15:03:45 mike Exp $"
+// "$Id: HelpView.h,v 1.13.2.1 2001/02/02 15:10:56 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
@@ -207,5 +207,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.14 2001/01/22 15:03:45 mike Exp $".
+// End of "$Id: HelpView.h,v 1.13.2.1 2001/02/02 15:10:56 mike Exp $".
 //

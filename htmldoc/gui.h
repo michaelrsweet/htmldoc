@@ -1,9 +1,9 @@
 /*
- * "$Id: gui.h,v 1.14 2000/06/29 01:15:57 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.3 2001/02/16 16:57:17 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -63,6 +63,7 @@ class GUI
 		*typeWebPage;
   FileBrowser	*inputFiles;
   Fl_Button	*addFile,
+		*addURL,
 		*editFile,
 		*deleteFile,
 		*moveUpFile,
@@ -155,6 +156,8 @@ class GUI
 		*pageEffect;
   Fl_Value_Slider *pageDuration,
 		*effectDuration;
+  CheckButton	*links;
+  CheckButton	*truetype;
 
   Fl_Group	*securityTab;
   Fl_Group	*encryption;
@@ -173,6 +176,7 @@ class GUI
   Fl_Button	*htmlBrowse;
   Fl_Value_Slider *browserWidth;
   Fl_Input	*path;
+  Fl_Input	*proxy;
   Fl_Button	*saveOptions;
 
   Fl_Button	*bookSave,
@@ -195,6 +199,7 @@ class GUI
   static void	docTypeCB(Fl_Widget *w, GUI *gui);
   static void	inputFilesCB(Fl_Widget *w, GUI *gui);
   static void	addFileCB(Fl_Widget *w, GUI *gui);
+  static void	addURLCB(Fl_Widget *w, GUI *gui);
   static void	editFilesCB(Fl_Widget *w, GUI *gui);
   static void	deleteFilesCB(Fl_Widget *w, GUI *gui);
   static void	moveUpFilesCB(Fl_Widget *w, GUI *gui);
@@ -253,5 +258,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14 2000/06/29 01:15:57 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.3 2001/02/16 16:57:17 mike Exp $".
  */

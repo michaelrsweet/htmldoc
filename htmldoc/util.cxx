@@ -1,9 +1,9 @@
 /*
- * "$Id: util.cxx,v 1.1 2000/05/08 16:13:37 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.2 2001/02/12 17:06:11 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -195,11 +195,14 @@ get_color(const uchar *color,	/* I - Color attribute */
   {
     for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
       if (strcasecmp(colors[i].name, (char *)color) == 0)
-      {
-        rgb[0] = colors[i].red / 255.0f;
-        rgb[1] = colors[i].green / 255.0f;
-        rgb[2] = colors[i].blue / 255.0f;
-      }
+	break;
+
+    if (i >= (sizeof(colors) / sizeof(colors[0])))
+      i = 1; /* Black */
+
+    rgb[0] = colors[i].red / 255.0f;
+    rgb[1] = colors[i].green / 255.0f;
+    rgb[2] = colors[i].blue / 255.0f;
   }
 }
 
@@ -313,5 +316,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1 2000/05/08 16:13:37 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.2 2001/02/12 17:06:11 mike Exp $".
  */
