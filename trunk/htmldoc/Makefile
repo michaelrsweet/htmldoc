@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.24 2002/02/05 17:47:58 mike Exp $"
+# "$Id: Makefile,v 1.25 2002/02/05 19:50:33 mike Exp $"
 #
 # Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -44,7 +44,7 @@ LIBOBJS	=	file.o file-common.o file-open.o file-std.o \
 		http.o http-md5.o md5.o \
 		image.o image-bmp.o image-gif.o image-jpeg.o image-png.o \
 		margin.o \
-		style.o tree.o
+		style.o stylefont.o stylesheet.o tree.o
 
 OBJS	=	$(LIBOBJS) testsuite.o
 
@@ -101,5 +101,5 @@ $(OBJS):	../Makedefs
 
 
 #
-# End of "$Id: Makefile,v 1.24 2002/02/05 17:47:58 mike Exp $".
+# End of "$Id: Makefile,v 1.25 2002/02/05 19:50:33 mike Exp $".
 #
