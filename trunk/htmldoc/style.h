@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.1 2002/01/16 01:15:39 mike Exp $"
+// "$Id: style.h,v 1.2 2002/01/16 22:10:49 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -130,47 +130,40 @@ enum hdElement
   HD_ELEMENT_WBR
 };
 
+
 //
 // Stylesheet attribute values...
 //
-
-enum hdTextAlign
-{
-  HD_TEXTALIGN_LEFT = 0,
-  HD_TEXTALIGN_CENTER,
-  HD_TEXTALIGN_RIGHT,
-  HD_TEXTALIGN_JUSTIFY
-};
-
-enum hdVerticalAlign
-{
-  HD_VERTICALALIGN_BASELINE = 0,
-  HD_VERTICALALIGN_SUB,
-  HD_VERTICALALIGN_SUPER,
-  HD_VERTICALALIGN_TOP,
-  HD_VERTICALALIGN_TEXT_TOP,
-  HD_VERTICALALIGN_MIDDLE,
-  HD_VERTICALALIGN_BOTTOM,
-  HD_VERTICALALIGN_TEXT_BOTTOM
-};
-
-enum hdTextTransform
-{
-  HD_TEXTTRANSFORM_NONE = 0,
-  HD_TEXTTRANSFORM_CAPITALIZE,
-  HD_TEXTTRANSFORM_UPPERCASE,
-  HD_TEXTTRANSFORM_LOWERCASE
-};
 
 #define HD_MARGIN_AUTO	-65536.0
 #define HD_WIDTH_AUTO	-65536.0
 #define HD_HEIGHT_AUTO	-65536.0
 
-enum hdFloat
+enum hdBackgroundAttachment
 {
-  HD_FLOAT_NONE = 0,
-  HD_FLOAT_LEFT,
-  HD_FLOAT_RIGHT
+  HD_BACKGROUNDATTACHMENT_SCROLL = 0,
+  HD_BACKGROUNDATTACHMENT_FIXED
+};
+
+enum hdBackgroundRepeat
+{
+  HD_BACKGROUNDREPEAT_REPEAT = 0,
+  HD_BACKGROUNDREPEAT_REPEAT_X,
+  HD_BACKGROUNDREPEAT_REPEAT_Y,
+  HD_BACKGROUNDREPEAT_NO_REPEAT
+};
+
+enum hdBorderStyle
+{
+  HD_BORDERSTYLE_NONE,
+  HD_BORDERSTYLE_DOTTED,
+  HD_BORDERSTYLE_DASHED,
+  HD_BORDERSTYLE_SOLID,
+  HD_BORDERSTYLE_DOUBLE,
+  HD_BORDERSTYLE_GROOVE,
+  HD_BORDERSTYLE_RIDGE,
+  HD_BORDERSTYLE_INSET,
+  HD_BORDERSTYLE_OUTSET
 };
 
 enum hdClear
@@ -181,15 +174,19 @@ enum hdClear
   HD_CLEAR_BOTH
 };
 
-
-enum hdFontFace
+enum hdDisplay
 {
-  HD_FONTFACE_COURIER = 0,
-  HD_FONTFACE_TIMES,
-  HD_FONTFACE_HELVETICA,
-  HD_FONTFACE_SYMBOL,
-  HD_FONTFACE_CUSTOM,
-  HD_FONTFACE_MAX = 15
+  HD_DISPLAY_NONE,
+  HD_DISPLAY_BLOCK,
+  HD_DISPLAY_INLINE,
+  HD_DISPLAY_LIST_ITEM
+};
+
+enum hdFloat
+{
+  HD_FLOAT_NONE = 0,
+  HD_FLOAT_LEFT,
+  HD_FLOAT_RIGHT
 };
 
 enum hdFontStyle
@@ -213,41 +210,6 @@ enum hdFontWeight
   HD_FONTWEIGHT_LIGHTER
 };
 
-enum hdBackgroundRepeat
-{
-  HD_BACKGROUNDREPEAT_REPEAT = 0,
-  HD_BACKGROUNDREPEAT_REPEAT_X,
-  HD_BACKGROUNDREPEAT_REPEAT_Y,
-  HD_BACKGROUNDREPEAT_NO_REPEAT
-};
-
-enum hdBackgroundAttachment
-{
-  HD_BACKGROUNDATTACHMENT_SCROLL = 0,
-  HD_BACKGROUNDATTACHMENT_FIXED
-};
-
-enum hdTextDecoration
-{
-  HD_TEXTDECORATION_NONE = 0,
-  HD_TEXTDECORATION_UNDERLINE,
-  HD_TEXTDECORATION_OVERLINE,
-  HD_TEXTDECORATION_LINE_THROUGH
-};
-
-enum hdBorderStyle
-{
-  HD_BORDERSTYLE_NONE,
-  HD_BORDERSTYLE_DOTTED,
-  HD_BORDERSTYLE_DASHED,
-  HD_BORDERSTYLE_SOLID,
-  HD_BORDERSTYLE_DOUBLE,
-  HD_BORDERSTYLE_GROOVE,
-  HD_BORDERSTYLE_RIDGE,
-  HD_BORDERSTYLE_INSET,
-  HD_BORDERSTYLE_OUTSET
-};
-
 enum hdListStylePosition
 {
   HD_LISTSTYLEPOSITION_INSIDE,
@@ -267,6 +229,51 @@ enum hdListStyleType
   HD_LISTSTYLETYPE_UPPER_ALPHA
 };
 
+enum hdPageBreak
+{
+  HD_PAGEBREAK_AUTO = 0,
+  HD_PAGEBREAK_ALWAYS,
+  HD_PAGEBREAK_AVOID,
+  HD_PAGEBREAK_LEFT,
+  HD_PAGEBREAK_RIGHT
+};
+
+enum hdTextAlign
+{
+  HD_TEXTALIGN_LEFT = 0,
+  HD_TEXTALIGN_CENTER,
+  HD_TEXTALIGN_RIGHT,
+  HD_TEXTALIGN_JUSTIFY
+};
+
+enum hdTextDecoration
+{
+  HD_TEXTDECORATION_NONE = 0,
+  HD_TEXTDECORATION_UNDERLINE,
+  HD_TEXTDECORATION_OVERLINE,
+  HD_TEXTDECORATION_LINE_THROUGH
+};
+
+enum hdTextTransform
+{
+  HD_TEXTTRANSFORM_NONE = 0,
+  HD_TEXTTRANSFORM_CAPITALIZE,
+  HD_TEXTTRANSFORM_UPPERCASE,
+  HD_TEXTTRANSFORM_LOWERCASE
+};
+
+enum hdVerticalAlign
+{
+  HD_VERTICALALIGN_BASELINE = 0,
+  HD_VERTICALALIGN_SUB,
+  HD_VERTICALALIGN_SUPER,
+  HD_VERTICALALIGN_TOP,
+  HD_VERTICALALIGN_TEXT_TOP,
+  HD_VERTICALALIGN_MIDDLE,
+  HD_VERTICALALIGN_BOTTOM,
+  HD_VERTICALALIGN_TEXT_BOTTOM
+};
+
 enum hdWhiteSpace
 {
   HD_WHITESPACE_NORMAL,
@@ -274,12 +281,41 @@ enum hdWhiteSpace
   HD_WHITESPACE_NOWRAP
 };
 
-enum hdDisplay
+
+//
+// Font data...
+//
+
+enum hdFontFace
 {
-  HD_DISPLAY_NONE,
-  HD_DISPLAY_BLOCK,
-  HD_DISPLAY_INLINE,
-  HD_DISPLAY_LIST_ITEM
+  HD_FONTFACE_COURIER = 0,
+  HD_FONTFACE_TIMES,
+  HD_FONTFACE_HELVETICA,
+  HD_FONTFACE_SYMBOL,
+  HD_FONTFACE_CUSTOM,
+  HD_FONTFACE_MAX = 16
+};
+
+enum hdFontInternal
+{
+  HD_FONTINTERNAL_NORMAL = 0,
+  HD_FONTINTERNAL_BOLD,
+  HD_FONTINTERNAL_ITALIC,
+  HD_FONTINTERNAL_BOLD_ITALIC,
+  HD_FONTINTERNAL_MAX,
+};
+
+struct hdStyleFont
+{
+  hdFontFace	typeface;	// Typeface identifier
+  char		*ps_name;	// PostScript font name
+  float		ul_position,	// Offset for underline
+		ul_thickness,	// Thickness for underline
+		cap_height,	// Height of uppercase letters
+		x_height,	// Height of lowercase letters
+		ascender,	// Highest point in font
+		descender;	// Lowest point in font
+  float		*widths;	// Character widths for 1pt text
 };
 
 
@@ -290,15 +326,17 @@ enum hdDisplay
 struct hdStyle
 {
   int			updated;	// True if relative attrs have been updated
-  hdElement		elements[4];	// Elements for selection
-  char			*classes[4],	// Classes for selection
-			*ids[4],	// IDs for selection
-			*targets[4];	// Targets for selection
+  int			num_selectors;	// Number of selectors for style
+  hdElement		*elements;	// Elements for selection
+  char			*classes,	// Classes for selection
+			*ids,		// IDs for selection
+			*targets;	// Targets for selection
 
   unsigned char		background_color[3];
   char			background_color_set;
   char			*background_image;
-  hdBackgroundPosition	background_position;
+  float			background_position[2];
+  char			*background_position_rel;
   hdBackgroundRepeat	background_repeat;
   float			border_bottom;
   hdBorderStyle		border_bottom_style;
@@ -318,7 +356,8 @@ struct hdStyle
   unsigned char		color[3];
   char			color_set;
   hdDisplay		display;
-  hdFloat		_float;
+  hdFloat		float_;
+  hdStyleFont		*font;
   char			*font_family;
   float			font_size;
   char			*font_size_rel;
@@ -351,9 +390,9 @@ struct hdStyle
   char			*padding_right_rel;
   float			padding_top;
   char			*padding_top_rel;
-//  page_break_after;
-//  page_break_before;
-//  page_break_inside;
+  hdPageBreak		page_break_after;
+  hdPageBreak		page_break_before;
+  hdPageBreak		page_break_inside;
   float			right;
   char			*right_rel;
   hdTextAlign		text_align;
@@ -370,19 +409,50 @@ struct hdStyle
   float			word_spacing;
 };
 
+
 //
 // Stylesheet...
 //
+
+enum hdOrientation
+{
+  HD_ORIENTATION_PORTRAIT = 0,
+  HD_ORIENTATION_LANDSCAPE,
+  HD_ORIENTATION_REVERSE_PORTRAIT,
+  HD_ORIENTATION_REVERSE_LANDSCAPE
+}
+
+enum hdSides
+{
+  HD_SIDES_ONE_SIDED = 0,
+  HD_SIDES_TWO_SIDED_LONG_EDGE,
+  HD_SIDES_TWO_SIDED_SHORT_EDGE
+}
 
 struct hdStyleSheet
 {
   int		num_styles;	// Number of styles
   hdStyle	**styles;	// Array of styles
+
+  hdStyleFont	*fonts[HD_FONTFACE_MAX][HD_FONTINTERNAL_MAX];
+				// Array of fonts
+
+  float		width,		// Page width, points
+		length,		// Page length, points
+		left,		// Left position, points
+		bottom,		// Bottom position, points
+		right,		// Right position, points
+		top,		// Top position, points
+		print_width,	// Printable width, points
+		print_length;	// Printable length, points
+
+  hdOrientation	orientation;	// Orientation of the page
+  hdSides	sides;		// Format single or double-sided?
 };
 
 
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.1 2002/01/16 01:15:39 mike Exp $".
+// End of "$Id: style.h,v 1.2 2002/01/16 22:10:49 mike Exp $".
 //
