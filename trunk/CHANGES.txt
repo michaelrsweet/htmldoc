@@ -40,6 +40,9 @@ CHANGES IN HTMLDOC v1.8.7
 	  didn't insert a blank line.
 	- The table of contents would show the wrong page numbers
 	  if no title page was generated.
+	- Cell widths did not subtract any border, padding, or
+	  spacing from the "preferred" width, causing formatting
+	  differences between web browsers and HTMLDOC.
 
 
 CHANGES IN HTMLDOC v1.8.6

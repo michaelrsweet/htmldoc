@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.67 2000/04/28 21:37:56 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.68 2000/04/29 11:20:07 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3733,6 +3733,24 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   else
     table_width = right - left;
 
+  if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
+    cellpadding = atoi((char *)var);
+  else
+    cellpadding = 2.0f;
+
+  if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
+    cellspacing = atoi((char *)var);
+  else
+    cellspacing = 0.0f;
+
+  if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
+  {
+    if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
+      border = 1.0f;
+  }
+  else
+    border = 0.0f;
+
   for (temprow = t->child, num_cols = 0, num_rows = 0;
        temprow != NULL && num_rows < MAX_ROWS;
        temprow = temprow->next)
@@ -3760,10 +3778,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           DEBUG_printf(("num_rows = %d, col = %d, colspan = %d (%s)\n",
 	                num_rows, col, colspan, var));
 
-          if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
+          if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL &&
+	      colspan == 1)
 	  {
             if (var[strlen((char *)var) - 1] == '%')
-              col_width = atof((char *)var) * table_width / 100.0f;
+              col_width = atof((char *)var) * table_width / 100.0f -
+	                  2.0 * (cellpadding + cellspacing + border);
             else
               col_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
 
@@ -3894,24 +3914,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
  /*
   * Now figure out the width of the table...
   */
-
-  if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
-    cellpadding = atoi((char *)var);
-  else
-    cellpadding = 2.0f;
-
-  if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
-    cellspacing = atoi((char *)var);
-  else
-    cellspacing = 0.0f;
-
-  if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
-  {
-    if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
-      border = 1.0f;
-  }
-  else
-    border = 0.0f;
 
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
@@ -6755,5 +6757,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.67 2000/04/28 21:37:56 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.68 2000/04/29 11:20:07 mike Exp $".
  */

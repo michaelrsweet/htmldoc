@@ -1,9 +1,9 @@
 dnl
-dnl "$Id: configure.in,v 1.16 2000/04/26 12:58:59 mike Exp $"
+dnl "$Id: configure.in,v 1.17 2000/04/29 11:20:06 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
-dnl   Copyright 1997-1998 by Michael Sweet, all rights reserved.
+dnl   Copyright 1997-2000 by Michael Sweet, all rights reserved.
 dnl
 dnl   HTMLDOC is distributed under the terms of the GNU General Public License
 dnl   which is described in the file "COPYING-2.0".
@@ -141,11 +141,11 @@ if test -n "$GXX"; then
 			# ZLIB has trouble with GCC 2.95 and -O2...
 			OPTIM="-O1"
 		else
-	        	OPTIM="-O2"
+	        	OPTIM="-O2 -fforce-mem -fforce-addr -fcaller-saves"
 		fi
 	fi
 
-	OPTIM="-fno-rtti -fomit-frame-pointer $OPTIM"
+	OPTIM="-fno-rtti $OPTIM"
 
 	# See if GCC supports -fno-exceptions...
 	echo "Testing if GCC supports -fno-exceptions..."
@@ -158,7 +158,7 @@ if test -n "$GXX"; then
 	CFLAGS="$OLDCFLAGS"
 
 	# See if we are running Solaris; if so, try the -fpermissive option...
-	if test $uname = SunOS; then
+	if test "`uname`" = SunOS; then
 		echo "Testing if GCC supports -fpermissive..."
 
 		OLDCFLAGS="$CFLAGS"
@@ -198,5 +198,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.16 2000/04/26 12:58:59 mike Exp $".
+dnl End of "$Id: configure.in,v 1.17 2000/04/29 11:20:06 mike Exp $".
 dnl
