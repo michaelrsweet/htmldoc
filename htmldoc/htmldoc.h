@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.15 2000/06/05 03:18:23 mike Exp $"
+ * "$Id: htmldoc.h,v 1.16 2000/06/29 01:15:57 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -181,6 +181,7 @@ VAR char	TitleImage[255]	VALUE(""),	/* Title page image */
 		BodyImage[255]	VALUE(""),	/* Body image */
 		LinkColor[255]	VALUE("");	/* Link color */
 VAR int		LinkStyle	VALUE(1);	/* 1 = underline, 0 = plain */
+VAR char	Path[2048]	VALUE("");	/* Search path */
 
 VAR char	*PDFModes[3]			/* Mode strings */
 #  ifdef _HTMLDOC_C_
@@ -243,5 +244,5 @@ extern char	*format_number(int n, char f);
 #  endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.15 2000/06/05 03:18:23 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.16 2000/06/29 01:15:57 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.8 2000/05/15 21:58:29 mike Exp $"
+ * "$Id: image.cxx,v 1.9 2000/06/29 01:15:57 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -138,11 +138,24 @@ image_load(const char *filename,/* I - Name of image file */
   * Figure out the file type...
   */
 
-  if ((fp = fopen(filename, "rb")) == NULL)
+  if ((filename = file_find(Path, filename)) == NULL)
+  {
+    progress_error("Unable to find image file \"%s\"!", filename);
     return (NULL);
+  }
+
+  if ((fp = fopen(filename, "rb")) == NULL)
+  {
+    progress_error("Unable to read image file \"%s\"!", filename);
+    return (NULL);
+  }
 
   if (fread(header, 1, sizeof(header), fp) == 0)
+  {
+    progress_error("Unable to read image file \"%s\"!", filename);
+    fclose(fp);
     return (NULL);
+  }
 
   rewind(fp);
 
@@ -153,7 +166,11 @@ image_load(const char *filename,/* I - Name of image file */
   img = (image_t *)calloc(sizeof(image_t), 1);
 
   if (img == NULL)
+  {
+    progress_error("Unable to allocate memory for \"%s\"!", filename);
+    fclose(fp);
     return (NULL);
+  }
 
   images[num_images] = img;
 
@@ -173,12 +190,18 @@ image_load(const char *filename,/* I - Name of image file */
 	   header[3] >= 0xe0 && header[3] <= 0xef)	/* APPn */
     status = image_load_jpeg(img, fp, gray);
   else
-    status = -1;
+  {
+    progress_error("Unknown image file format for \"%s\"!", filename);
+    fclose(fp);
+    free(img);
+    return (NULL);
+  }
 
   fclose(fp);
 
   if (status)
   {
+    progress_error("Unable to load image file \"%s\"!", filename);
     free(img);
     return (NULL);
   }
@@ -286,6 +309,9 @@ image_copy(const char *filename,/* I - Source file */
  /*
   * Open files and copy...
   */
+
+  if ((filename = file_find(Path, filename)) == NULL)
+    return;
 
   if ((in = fopen(filename, "rb")) == NULL)
     return;
@@ -1042,5 +1068,5 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
 
 /*
- * End of "$Id: image.cxx,v 1.8 2000/05/15 21:58:29 mike Exp $".
+ * End of "$Id: image.cxx,v 1.9 2000/06/29 01:15:57 mike Exp $".
  */

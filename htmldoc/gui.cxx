@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.33 2000/06/05 17:55:44 mike Exp $"
+// "$Id: gui.cxx,v 1.34 2000/06/29 01:15:56 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -754,6 +754,12 @@ GUI::GUI(const char *filename)		// Book file to load initially
   browserWidth->step(5.0);
   browserWidth->callback((Fl_Callback *)changeCB, this);
 
+  path = new Fl_Input(140, 100, 310, 25, "Search Path: ");
+  path->value(Path);
+  path->maximum_size(sizeof(Path) - 1);
+  path->when(FL_WHEN_CHANGED);
+  path->callback((Fl_Callback *)changeCB, this);
+
   saveOptions = new Fl_Button(260, 235, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
 
@@ -1203,6 +1209,7 @@ GUI::newBook(void)
 
   psCommands->value(PSCommands);
 
+  path->value(Path);
   browserWidth->value(_htmlBrowserWidth);
 
   title(NULL, 0);
@@ -1706,6 +1713,8 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       userPassword->value(temp2);
     else if (strcmp(temp, "--owner-password") == 0)
       ownerPassword->value(temp2);
+    else if (strcmp(temp, "--path") == 0)
+      path->value(temp2);
   }
 
   fclose(fp);
@@ -1942,6 +1951,9 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   }
 
   fprintf(fp, " --browserwidth %.0f", browserWidth->value());
+
+  if (path->value()[0])
+    fprintf(fp, " --path \"%s\"", path->value());
 
   fputs("\n", fp);
   fclose(fp);
@@ -2889,6 +2901,8 @@ GUI::saveOptionsCB(Fl_Widget *w,
 
   _htmlBrowserWidth = gui->browserWidth->value();
 
+  strcpy(Path, gui->path->value());
+
   prefs_save();
 }
 
@@ -3372,6 +3386,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   _htmlBrowserWidth = gui->browserWidth->value();
 
+  strcpy(Path, gui->path->value());
+
  /*
   * Load the input files...
   */
@@ -3381,9 +3397,10 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   for (i = 1; i <= count; i ++)
   {
-    filename = (char *)gui->inputFiles->text(i);
+    filename = file_find(Path, gui->inputFiles->text(i));
 
-    if ((docfile = fopen(filename, "rb")) != NULL)
+    if (filename != NULL &&
+        (docfile = fopen(filename, "rb")) != NULL)
     {
      /*
       * Read from a file...
@@ -3493,5 +3510,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.33 2000/06/05 17:55:44 mike Exp $".
+// End of "$Id: gui.cxx,v 1.34 2000/06/29 01:15:56 mike Exp $".
 //

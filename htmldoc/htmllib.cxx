@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.33 2000/05/20 13:03:54 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.34 2000/06/29 01:15:57 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1835,7 +1835,13 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     if (ch == '>' || isspace(ch))
       break;
     else
+    {
       *mptr++ = ch;
+
+      // Handle comments without whitespace...
+      if ((mptr - markup) == 4 && strncmp((const char *)markup, "<!--", 4) == 0)
+        break;
+    }
 
   *mptr = '\0';
 
@@ -2278,5 +2284,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.33 2000/05/20 13:03:54 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.34 2000/06/29 01:15:57 mike Exp $".
  */
