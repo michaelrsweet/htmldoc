@@ -1,9 +1,9 @@
 /*
- * "$Id: gui.h,v 1.14 2000/06/29 01:15:57 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.14 2001/10/18 23:49:33 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -40,10 +40,29 @@
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Window.H>
 
-#include <gui/CheckButton.h>
-#include <gui/FileChooser.h>
-#include <gui/HelpDialog.h>
-#include <gui/Progress.h>
+#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
+#  include <gui/CheckButton.h>
+#  define RadioButton	CheckButton
+#  include <gui/FileChooser.h>
+#  include <gui/HelpDialog.h>
+#  include <gui/Progress.h>
+#  define _tooltip(w,s)
+#else
+#  include <FL/Fl_Check_Button.H>
+#  include <FL/Fl_Round_Button.H>
+#  include <FL/Fl_File_Chooser.H>
+#  include <FL/Fl_Help_Dialog.H>
+#  include <FL/Fl_Progress.H>
+#  include <FL/Fl_Tooltip.H>
+#  define CheckButton	Fl_Check_Button
+#  define RadioButton	Fl_Round_Button
+#  define FileChooser	Fl_File_Chooser
+#  define FileIcon	Fl_File_Icon
+#  define FileBrowser	Fl_File_Browser
+#  define HelpDialog	Fl_Help_Dialog
+#  define Progress	Fl_Progress
+#  define _tooltip(w,s)	(w)->tooltip((s))
+#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 
 
 /*
@@ -59,10 +78,12 @@ class GUI
   Fl_Tabs	*tabs;
 
   Fl_Group	*inputTab;
-  CheckButton	*typeBook,
+  RadioButton	*typeBook,
+		*typeContinuous,
 		*typeWebPage;
   FileBrowser	*inputFiles;
   Fl_Button	*addFile,
+		*addURL,
 		*editFile,
 		*deleteFile,
 		*moveUpFile,
@@ -73,11 +94,11 @@ class GUI
   Fl_Button	*titleBrowse;
 
   Fl_Group	*outputTab;
-  CheckButton	*outputFile,
+  RadioButton	*outputFile,
 		*outputDirectory;
   Fl_Input	*outputPath;
   Fl_Button	*outputBrowse;
-  CheckButton	*typeHTML,
+  RadioButton	*typeHTML,
 		*typePS,
 		*typePDF;
   CheckButton	*grayscale,
@@ -139,26 +160,30 @@ class GUI
 
   Fl_Group	*psTab;
   Fl_Group	*psLevel;
-  Fl_Button	*ps1,
+  RadioButton	*ps1,
 		*ps2,
 		*ps3;
-  CheckButton	*psCommands;
+  CheckButton	*psCommands,
+		*xrxComments;
 
   Fl_Group	*pdfTab;
   Fl_Group	*pdfVersion;
-  Fl_Button	*pdf11,
+  RadioButton	*pdf11,
 		*pdf12,
-		*pdf13;
+		*pdf13,
+		*pdf14;
   Fl_Choice	*pageMode,
 		*pageLayout,
 		*firstPage,
 		*pageEffect;
   Fl_Value_Slider *pageDuration,
 		*effectDuration;
+  CheckButton	*links;
+  CheckButton	*truetype;
 
   Fl_Group	*securityTab;
   Fl_Group	*encryption;
-  CheckButton	*encryptionYes,
+  RadioButton	*encryptionYes,
 		*encryptionNo;
   Fl_Group	*permissions;
   CheckButton	*permPrint,
@@ -173,20 +198,30 @@ class GUI
   Fl_Button	*htmlBrowse;
   Fl_Value_Slider *browserWidth;
   Fl_Input	*path;
+  Fl_Input	*proxy;
+  CheckButton	*tooltips;
+
   Fl_Button	*saveOptions;
 
-  Fl_Button	*bookSave,
+  Fl_Button	*bookHelp,
+		*bookNew,
+		*bookOpen,
+		*bookSave,
 		*bookSaveAs,
-		*bookGenerate;
+		*bookGenerate,
+		*bookClose;
 
   Progress	*progressBar;
+
+  char		book_filename[1024];
+  int		book_changed;
 
   FileChooser	*fc;
   FileIcon	*icon;
   HelpDialog	*help;
-
-  char		book_filename[1024];
-  int		book_changed;
+  Fl_Window	*error_window;
+  Fl_Browser	*error_list;
+  Fl_Button	*error_ok;
 
   void		title(const char *filename = NULL, int changed = 0);
 
@@ -195,6 +230,7 @@ class GUI
   static void	docTypeCB(Fl_Widget *w, GUI *gui);
   static void	inputFilesCB(Fl_Widget *w, GUI *gui);
   static void	addFileCB(Fl_Widget *w, GUI *gui);
+  static void	addURLCB(Fl_Widget *w, GUI *gui);
   static void	editFilesCB(Fl_Widget *w, GUI *gui);
   static void	deleteFilesCB(Fl_Widget *w, GUI *gui);
   static void	moveUpFilesCB(Fl_Widget *w, GUI *gui);
@@ -224,6 +260,7 @@ class GUI
   static void	encryptionCB(Fl_Widget *w, GUI *gui);
 
   static void	htmlEditorCB(Fl_Widget *w, GUI *gui);
+  static void	tooltipCB(Fl_Widget *w, GUI *gui);
   static void	saveOptionsCB(Fl_Widget *w, GUI *gui);
 
   static void	helpCB(Fl_Widget *w, GUI *gui);
@@ -234,6 +271,8 @@ class GUI
   static void	generateBookCB(Fl_Widget *w, GUI *gui);
   static void	closeBookCB(Fl_Widget *w, GUI *gui);
 
+  static void	errorCB(Fl_Widget *w, GUI *gui);
+
   public:
 
   static const char	*help_dir;
@@ -241,11 +280,13 @@ class GUI
   GUI(const char *filename = NULL);
   ~GUI(void);
 
+  void	add_error(const char *s) { error_list->add(s); }
   int	checkSave();
   void	hide() { window->hide(); help->hide(); fc->hide(); };
   int	loadBook(const char *bookfile);
   int	newBook();
-  void	progress(int percent, char *text = NULL);
+  void	parseOptions(const char *line);
+  void	progress(int percent, const char *text = NULL);
   int	saveBook(const char *bookfile);
   void	show();
   int	visible() { return (window->visible()); }
@@ -253,5 +294,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14 2000/06/29 01:15:57 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.14 2001/10/18 23:49:33 mike Exp $".
  */

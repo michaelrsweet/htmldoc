@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.3 2000/03/18 16:08:55 mike Exp $"
+# "$Id: Makefile,v 1.3.2.1 2001/02/02 15:10:56 mike Exp $"
 #
 #   Makefile for HTMLDOC GUI library.
 #
-#   Copyright 1997-2000 by Easy Software Products.
+#   Copyright 1997-2001 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -79,5 +79,5 @@ Progress.o:	Progress.h
 $(OBJS):	../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.3 2000/03/18 16:08:55 mike Exp $".
+# End of "$Id: Makefile,v 1.3.2.1 2001/02/02 15:10:56 mike Exp $".
 #

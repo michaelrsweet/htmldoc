@@ -1,9 +1,9 @@
 /*
- * "$Id: string.c,v 1.4 2000/01/04 13:52:26 mike Exp $"
+ * "$Id: string.c,v 1.4.2.2 2001/10/15 15:30:32 mike Exp $"
  *
  *   String functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -32,7 +32,7 @@
  * Include necessary headers.
  */
 
-#include "string.h"
+#include "hdstring.h"
 #include <ctype.h>
 
 
@@ -120,5 +120,5 @@ strncasecmp(const char *s,	/* I - First string */
 
 
 /*
- * End of "$Id: string.c,v 1.4 2000/01/04 13:52:26 mike Exp $".
+ * End of "$Id: string.c,v 1.4.2.2 2001/10/15 15:30:32 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.3 2001/09/27 22:33:22 mike Exp $"
+ * "$Id: http.c,v 1.1.2.10 2001/10/20 21:49:21 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
  *
@@ -70,7 +70,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>
-#include "string.h"
 #include <fcntl.h>
 #include <errno.h>
 
@@ -495,7 +494,7 @@ httpReconnect(http_t *http)	/* I - HTTP data */
 
   if ((http->fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
-#if defined(WIN32)
+#ifdef WIN32
     http->error  = WSAGetLastError();
 #else
     http->error  = errno;
@@ -524,7 +523,7 @@ httpReconnect(http_t *http)	/* I - HTTP data */
   if (connect(http->fd, (struct sockaddr *)&(http->hostaddr),
               sizeof(http->hostaddr)) < 0)
   {
-#if defined(WIN32)
+#ifdef WIN32
     http->error  = WSAGetLastError();
 #else
     http->error  = errno;
@@ -561,7 +560,7 @@ httpReconnect(http_t *http)	/* I - HTTP data */
       SSL_CTX_free(context);
       SSL_free(conn);
 
-#if defined(WIN32)
+#ifdef WIN32
       http->error  = WSAGetLastError();
 #else
       http->error  = errno;
@@ -1123,7 +1122,7 @@ httpRead(http_t *http,			/* I - HTTP data */
   if (bytes > 0)
     http->data_remaining -= bytes;
   else if (bytes < 0)
-#if defined(WIN32)
+#ifdef WIN32
     http->error = WSAGetLastError();
 #else
     http->error = errno;
@@ -1301,7 +1300,7 @@ httpGets(char   *line,			/* I - Line to read into */
 	* Nope, can't get a line this time...
 	*/
 
-#if defined(WIN32)
+#ifdef WIN32
         if (WSAGetLastError() != http->error)
 	{
 	  http->error = WSAGetLastError();
@@ -1587,11 +1586,11 @@ httpUpdate(http_t *http)		/* I - HTTP data */
 	  SSL_CTX_free(context);
 	  SSL_free(conn);
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
 	  http->error  = WSAGetLastError();
 #else
 	  http->error  = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 	  http->status = HTTP_ERROR;
 
 #ifdef WIN32
@@ -2075,5 +2074,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.3 2001/09/27 22:33:22 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.10 2001/10/20 21:49:21 mike Exp $".
  */
