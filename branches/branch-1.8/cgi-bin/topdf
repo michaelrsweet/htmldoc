@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Sample CGI shell script to convert the named HTML file to PDF on-the-fly.
+# Sample "portal" script to convert the named HTML file to PDF on-the-fly.
 #
 # Usage: http://www.domain.com/path/topdf/path/filename.html
 #
