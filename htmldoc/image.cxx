@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.13 2001/07/16 16:20:25 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.14 2001/08/16 21:11:51 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -135,7 +135,8 @@ gif_read_cmap(FILE       *fp,		/* I  - File to read from */
 
   if (fread(cmap, 3, ncolors, fp) < (size_t)ncolors)
   {
-    progress_error("Unable to read GIF colormap: %s", strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR,
+                   "Unable to read GIF colormap: %s", strerror(errno));
     return (-1);
   }
 
@@ -190,7 +191,8 @@ gif_get_block(FILE  *fp,	/* I - File to read from */
     gif_eof = 1;
   else if (fread(buf, 1, count, fp) < (size_t)count)
   {
-    progress_error("Unable to read GIF block of %d bytes: %s", count,
+    progress_error(HD_ERROR_READ_ERROR,
+                   "Unable to read GIF block of %d bytes: %s", count,
                    strerror(errno));
     gif_eof = 1;
     return (-1);
@@ -248,7 +250,8 @@ gif_get_code(FILE *fp,		/* I - File to read from */
 
     if (done)
     {
-      progress_error("Not enough data left to read GIF compression code.");
+      progress_error(HD_ERROR_READ_ERROR,
+                     "Not enough data left to read GIF compression code.");
       return (-1);	/* Sorry, no more... */
     }
 
@@ -750,23 +753,23 @@ image_load(const char *filename,/* I - Name of image file */
 
   if ((realname = file_find(Path, filename)) == NULL)
   {
-    progress_error("Unable to find image file \"%s\"!", filename);
+    progress_error(HD_ERROR_FILE_NOT_FOUND,
+                   "Unable to find image file \"%s\"!", filename);
     return (NULL);
   }
 
   if ((fp = fopen(realname, "rb")) == NULL)
   {
-    progress_error("Unable to read image file \"%s\"!", filename);
-    progress_error("    Real filename = \"%s\"", realname);
-    progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
+    progress_error(HD_ERROR_FILE_NOT_FOUND,
+                   "Unable to open image file \"%s\" (%s) for reading!",
+		   filename, realname);
     return (NULL);
   }
 
   if (fread(header, 1, sizeof(header), fp) == 0)
   {
-    progress_error("Unable to read image file \"%s\"!", filename);
-    progress_error("    Real filename = \"%s\"", realname);
-    progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR,
+                   "Unable to read image file \"%s\"!", filename);
     fclose(fp);
     return (NULL);
   }
@@ -788,7 +791,8 @@ image_load(const char *filename,/* I - Name of image file */
 
       if (temp == NULL)
       {
-	progress_error("Unable to allocate memory for %d images - %s",
+	progress_error(HD_ERROR_OUT_OF_MEMORY,
+	               "Unable to allocate memory for %d images - %s",
                        alloc_images, strerror(errno));
 	fclose(fp);
 	return (NULL);
@@ -802,9 +806,8 @@ image_load(const char *filename,/* I - Name of image file */
 
     if (img == NULL)
     {
-      progress_error("Unable to allocate memory for \"%s\"!", filename);
-      progress_error("    Real filename = \"%s\"", realname);
-      progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
+      progress_error(HD_ERROR_READ_ERROR, "Unable to allocate memory for \"%s\"",
+                     filename);
       fclose(fp);
       return (NULL);
     }
@@ -830,8 +833,7 @@ image_load(const char *filename,/* I - Name of image file */
     status = image_load_jpeg(img, fp, gray, load_data);
   else
   {
-    progress_error("Unknown image file format for \"%s\"!", filename);
-    progress_error("    Real filename = \"%s\"", realname);
+    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", filename);
     fclose(fp);
     free(img);
     return (NULL);
@@ -841,9 +843,7 @@ image_load(const char *filename,/* I - Name of image file */
 
   if (status)
   {
-    progress_error("Unable to load image file \"%s\"!", filename);
-    progress_error("    Real filename = \"%s\"", realname);
-    progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!", filename);
     if (!match)
       free(img);
     return (NULL);
@@ -1691,5 +1691,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.13 2001/07/16 16:20:25 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.14 2001/08/16 21:11:51 mike Exp $".
  */
