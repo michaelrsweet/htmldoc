@@ -1,6 +1,18 @@
 CHANGES.txt - 05/19/2000
 ------------------------
 
+CHANGES IN HTMLDOC v1.9
+
+    NEW FEATURES
+
+    CHANGES
+
+	- Added missing casts in htmllib.cxx that were causing a compile
+	  warning with some compilers.
+
+    BUG FIXES
+
+
 CHANGES IN HTMLDOC v1.8.7
 
     NEW FEATURES

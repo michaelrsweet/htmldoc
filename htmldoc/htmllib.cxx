@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.32 2000/05/10 14:43:29 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.33 2000/05/20 13:03:54 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2138,9 +2138,10 @@ compute_color(tree_t *t,	/* I - Tree entry */
 
 
   get_color(color, rgb);
-  t->red   = rgb[0] * 255.0;
-  t->green = rgb[1] * 255.0;
-  t->blue  = rgb[2] * 255.0;
+
+  t->red   = (uchar)(rgb[0] * 255.0f + 0.5f);
+  t->green = (uchar)(rgb[1] * 255.0f + 0.5f);
+  t->blue  = (uchar)(rgb[2] * 255.0f + 0.5f);
 
   return (0);
 }
@@ -2277,5 +2278,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.32 2000/05/10 14:43:29 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.33 2000/05/20 13:03:54 mike Exp $".
  */
