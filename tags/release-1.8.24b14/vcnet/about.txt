@@ -1,0 +1,5 @@
+HTMLDOC is a HTML processing program that generates HTML,
+PostScript, and PDF files with a table of contents.
+
+Yearly memberships for HTMLDOC are available from Easy Software
+Products at "http://www.easysw.com/htmldoc/".
