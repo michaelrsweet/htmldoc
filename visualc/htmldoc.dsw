@@ -3,30 +3,6 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "fltk"="..\..\fltk-1.1\visualc\fltk.lib.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "fltkimages"="..\..\fltk-1.1\visualc\fltkimages.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "ghtmldoc"=".\ghtmldoc.dsp" - Package Owner=<4>
 
 Package=<5>
@@ -45,10 +21,7 @@ Package=<4>
     Project_Dep_Name zlib
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name fltk
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name fltkimages
+    Project_Dep_Name htmldoc
     End Project Dependency
 }}}
 
