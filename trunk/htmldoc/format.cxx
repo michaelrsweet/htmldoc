@@ -1,5 +1,5 @@
 //
-// "$Id: format.cxx,v 1.1 2000/10/16 03:25:06 mike Exp $"
+// "$Id: format.cxx,v 1.2 2000/10/19 00:41:42 mike Exp $"
 //
 //   Formatting routines for HTMLDOC, a HTML document processing
 //   program.
@@ -2472,27 +2472,27 @@ HTMLDOC::find_background(HDtree *t)	// I - Document to search
   // specified...
   if (body_file_[0] != '\0')
   {
-    background_image_ = HDimage::find(body_file_, !output_color_);
+    body_image_ = HDimage::find(body_file_, !output_color_);
     return;
   }
   else if (body_color_[0] != '\0')
   {
-    get_color((uchar *)body_color_, background_rgb_);
+    get_color((uchar *)body_color_, body_rgb_);
     return;
   }
 
   // If not, search the document tree...
-  while (t != NULL && background_image_ == NULL &&
-         background_rgb_[0] == 1.0 && background_rgb_[1] == 1.0 &&
-	 background_rgb_[2] == 1.0)
+  while (t != NULL && body_image_ == NULL &&
+         body_rgb_[0] == 1.0 && body_rgb_[1] == 1.0 &&
+	 body_rgb_[2] == 1.0)
   {
     if (t->markup == MARKUP_BODY)
     {
       if ((v = t->var((uchar *)"BACKGROUND")) != NULL)
-        background_image_ = HDimage::find((char *)v, !output_color_);
+        body_image_ = HDimage::find((char *)v, !output_color_);
 
       if ((v = t->var((uchar *)"BGCOLOR")) != NULL)
-        get_color(v, background_rgb_);
+        get_color(v, body_rgb_);
     }
 
     if (t->child != NULL)
@@ -2510,7 +2510,8 @@ HTMLDOC::find_background(HDtree *t)	// I - Document to search
 void
 HTMLDOC::add_link(uchar *name,	// I - Name of link
          int   page,	// I - Page #
-         int   top)	// I - Y position
+         int   top,	// I - Y position
+	 uchar *filename)	// I - Filename
 {
   HDlink	*temp;	// New name
 
@@ -2579,6 +2580,113 @@ HTMLDOC::compare_links(HDlink *n1,	// I - First name
 
 
 //
+// 'HTMLDOC::scan_links()' - Scan a document for link targets, and keep
+//                           track of the files they are in...
+
+
+void
+HTMLDOC::scan_links(HDtree *t,		// I - Document tree
+                    uchar  *filename)	// I - Filename
+{
+  uchar	*name;				// Name of link
+
+
+  while (t != NULL)
+  {
+    if (t->markup == MARKUP_FILE)
+      scan_links(t->child, (uchar *)file_basename((char *)t->var((uchar *)"FILENAME")));
+    else if (t->markup == MARKUP_A &&
+             (name = t->var((uchar *)"NAME")) != NULL)
+    {
+      add_link(name, filename);
+      scan_links(t->child, filename);
+    }
+    else if (t->child != NULL)
+      scan_links(t->child, filename);
+
+    t = t->next;
+  }
+}
+
+
+//
+// 'HTMLDOC::update_links()' - Update links as needed.
+//
+
+void
+HTMLDOC::update_links(HDtree *t,	// I - Document tree
+                      uchar  *filename)	// I - Current filename
+{
+  HDlink	*link;			// Link
+  uchar		*href;			// Reference name
+  uchar		newhref[1024];		// New reference name
+
+
+  filename = (uchar *)file_basename((char *)filename);
+
+  if (output_files_)
+  {
+    // Need to preserve/add filenames.
+    while (t != NULL)
+    {
+      if (t->markup == MARKUP_A &&
+          (href = t->var((uchar *)"HREF")) != NULL)
+      {
+        // Update this link as needed...
+        if (href[0] == '#' && (link = find_link(href)) != NULL)
+	{
+#if defined(WIN32) || defined(__EMX__)
+	  if (filename == NULL ||
+	      strcasecmp((char *)filename, (char *)link->filename) != 0)
+#else
+          if (filename == NULL ||
+	      strcmp((char *)filename, (char *)link->filename) != 0)
+#endif // WIN32 || __EMX__
+	  {
+	    sprintf((char *)newhref, "%s%s", link->filename, href);
+	    t->var((uchar *)"HREF", newhref);
+	  }
+	}
+      }
+
+      if (t->child != NULL)
+      {
+        if (t->markup == MARKUP_FILE)
+          update_links(t->child, t->var((uchar *)"FILENAME"));
+	else
+          update_links(t->child, filename);
+      }
+
+      t = t->next;
+    }
+  }
+  else
+  {
+    // Need to strip filenames.
+    while (t != NULL)
+    {
+      if (t->markup == MARKUP_A &&
+          (href = t->var((uchar *)"HREF")) != NULL)
+      {
+        // Update this link as needed...
+        if (href[0] != '#' && file_method((char *)href) == NULL &&
+	    (link = find_link(href)) != NULL)
+	{
+	  sprintf((char *)newhref, "#%s", link->name);
+	  t->var((uchar *)"HREF", newhref);
+	}
+      }
+
+      if (t->child != NULL)
+        update_links(t->child, filename);
+
+      t = t->next;
+    }
+  }
+}
+
+
+//
 // 'HTMLDOC::get_width()' - Get the width of a string in points.
 //
 
@@ -2630,5 +2738,5 @@ HTMLDOC::get_title(HDtree *doc)	// I - Document
 
 
 //
-// End of "$Id: format.cxx,v 1.1 2000/10/16 03:25:06 mike Exp $".
+// End of "$Id: format.cxx,v 1.2 2000/10/19 00:41:42 mike Exp $".
 //
