@@ -1,0 +1,21 @@
+/* XPM */
+static const char * tile_xpm[] = {
+"16 16 2 1",
+".	c #CCCCCC",
+"o	c #DDDDDD",
+"................",
+"................",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"................",
+"................",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"................",
+"................",
+"oooooooooooooooo",
+"oooooooooooooooo",
+"................",
+"................",
+"oooooooooooooooo",
+"oooooooooooooooo"};
