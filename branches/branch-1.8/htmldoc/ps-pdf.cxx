@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.153 2002/03/27 13:54:54 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.154 2002/04/04 16:35:59 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -302,12 +302,13 @@ static void	pspdf_prepare_page(int page);
 static void	pspdf_prepare_heading(int page, int print_page, uchar **format,
 		                      int y, char *page_text, int page_len);
 static void	ps_write_document(uchar *author, uchar *creator,
-		                  uchar *copyright, uchar *keywords);
+		                  uchar *copyright, uchar *keywords,
+				  uchar *subject);
 static void	ps_write_page(FILE *out, int page);
 static void	ps_write_background(FILE *out);
 static void	pdf_write_document(uchar *author, uchar *creator,
 		                   uchar *copyright, uchar *keywords,
-				   tree_t *toc);
+				   uchar *subject, tree_t *toc);
 static void	pdf_write_page(FILE *out, int page);
 static void	pdf_write_resources(FILE *out, int page);
 static void	pdf_write_contents(FILE *out, tree_t *toc, int parent,
@@ -384,7 +385,8 @@ static void	set_color(FILE *out, float *rgb);
 static void	set_font(FILE *out, int typeface, int style, float size);
 static void	set_pos(FILE *out, float x, float y);
 static void	write_prolog(FILE *out, int pages, uchar *author,
-		             uchar *creator, uchar *copyright, uchar *keywords);
+		             uchar *creator, uchar *copyright,
+			     uchar *keywords, uchar *subject);
 static void	ps_hex(FILE *out, uchar *data, int length);
 static void	ps_ascii85(FILE *out, uchar *data, int length);
 static void	jpg_init(j_compress_ptr cinfo);
@@ -414,7 +416,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 		*creator,	/* HTML file creator (Netscape, etc) */
 		*copyright,	/* File copyright */
 		*docnumber,	/* Document number */
-		*keywords;	/* Search keywords */
+		*keywords,	/* Search keywords */
+		*subject;	/* Subject */
   tree_t	*t;		/* Title page document tree */
   FILE		*fp;		/* Title page file */
   float		x, y,		/* Current page position */
@@ -475,6 +478,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   copyright  = htmlGetMeta(document, (uchar *)"copyright");
   docnumber  = htmlGetMeta(document, (uchar *)"docnumber");
   keywords   = htmlGetMeta(document, (uchar *)"keywords");
+  subject    = htmlGetMeta(document, (uchar *)"subject");
   logo_image = image_load(LogoImage, !OutputColor);
 
   if (logo_image != NULL)
@@ -811,9 +815,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     progress_error(HD_ERROR_NONE, "PAGES: %d", num_pages);
 
     if (PSLevel > 0)
-      ps_write_document(author, creator, copyright, keywords);
+      ps_write_document(author, creator, copyright, keywords, subject);
     else
-      pdf_write_document(author, creator, copyright, keywords, toc);
+      pdf_write_document(author, creator, copyright, keywords, subject, toc);
   }
   else
   {
@@ -1247,7 +1251,8 @@ static void
 ps_write_document(uchar *author,	/* I - Author of document */
         	  uchar *creator,	/* I - Application that generated the HTML file */
         	  uchar *copyright,	/* I - Copyright (if any) on the document */
-                  uchar *keywords)	/* I - Search keywords */
+                  uchar *keywords,	/* I - Search keywords */
+		  uchar *subject)	/* I - Subject */
 {
   FILE		*out;		/* Output file */
   int		page;		/* Current page # */
@@ -1271,7 +1276,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
       return;
     }
 
-    write_prolog(out, num_pages, author, creator, copyright, keywords);
+    write_prolog(out, num_pages, author, creator, copyright, keywords, subject);
   }
 
   if (TitlePage)
@@ -1279,7 +1284,8 @@ ps_write_document(uchar *author,	/* I - Author of document */
     if (OutputFiles)
     {
       out = open_file();
-      write_prolog(out, PageDuplex + 1, author, creator, copyright, keywords);
+      write_prolog(out, PageDuplex + 1, author, creator, copyright, keywords,
+                   subject);
     }
 
     for (page = 0; page < chapter_starts[1]; page ++)
@@ -1316,7 +1322,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
       }
 
       write_prolog(out, chapter_ends[chapter] - chapter_starts[chapter] + 1,
-                   author, creator, copyright, keywords);
+                   author, creator, copyright, keywords, subject);
     }
 
     for (page = chapter_starts[chapter];
@@ -1605,6 +1611,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
         	   uchar  *creator,	/* I - Application that generated the HTML file */
         	   uchar  *copyright,	/* I - Copyright (if any) on the document */
                    uchar  *keywords,	/* I - Search keywords */
+		   uchar  *subject,	/* I - Subject */
                    tree_t *toc)		/* I - Table of contents tree */
 {
   int		i;			// Looping variable
@@ -1633,7 +1640,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
   objects       = NULL;
 
   // Write the prolog...
-  write_prolog(out, num_pages, author, creator, copyright, keywords);
+  write_prolog(out, num_pages, author, creator, copyright, keywords, subject);
 
   // Write images as needed...
   num_images = image_getlist(&images);
@@ -9288,7 +9295,8 @@ write_prolog(FILE  *out,	/* I - Output file */
              uchar *author,	/* I - Author of document */
              uchar *creator,	/* I - Application that generated the HTML file */
              uchar *copyright,	/* I - Copyright (if any) on the document */
-             uchar *keywords)	/* I - Search keywords */
+             uchar *keywords,	/* I - Search keywords */
+	     uchar *subject)	/* I - Subject */
 {
   FILE		*prolog;	/* PostScript prolog file */
   int		i, j,		/* Looping vars */
@@ -9519,6 +9527,8 @@ write_prolog(FILE  *out,	/* I - Output file */
       fprintf(out, "%%%%Copyright: %s\n", copyright);
     if (keywords != NULL)
       fprintf(out, "%%%%Keywords: %s\n", keywords);
+    if (subject != NULL)
+      fprintf(out, "%%%%Subject: %s\n", keywords);
     if (page_count > 0)
       fprintf(out, "%%%%Pages: %d\n", page_count);
     else
@@ -9893,6 +9903,12 @@ write_prolog(FILE  *out,	/* I - Output file */
     {
       fputs("/Keywords", out);
       write_string(out, keywords, 0);
+    }
+
+    if (subject != NULL)
+    {
+      fputs("/Subject", out);
+      write_string(out, subject, 0);
     }
 
     pdf_end_object(out);
@@ -10721,5 +10737,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.153 2002/03/27 13:54:54 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.154 2002/04/04 16:35:59 mike Exp $".
  */
