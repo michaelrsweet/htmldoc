@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.24 2001/05/30 19:38:24 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.25 2001/05/30 23:35:53 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -719,9 +719,15 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
             space->prev     = t->prev;
             space->next     = t;
 
-	    t->prev         = space;
+            if (space->prev == NULL && parent != NULL)
+	      parent->child = space;
+
+	    t->prev = space;
 
 	    have_whitespace = 0;
+
+            compute_size(space);
+	    printf("inserted SPACE %p width = %.1f\n", space, space->width);
 	  }
 
           // Get the image alignment...
@@ -930,6 +936,53 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       case MARKUP_TT :
       case MARKUP_CODE :
       case MARKUP_SAMP :
+          if (have_whitespace)
+	  {
+	    // Insert a space before monospaced text...
+	    tree_t *space;
+
+	    space = (tree_t *)calloc(sizeof(tree_t), 1);
+	    if (space == NULL)
+	    {
+#ifndef DEBUG
+	      progress_error("Unable to allocate memory for HTML tree node!");
+#endif /* !DEBUG */
+	      break;
+	    }
+
+	   /*
+	    * Set/copy font characteristics...
+	    */
+
+	    if (parent == NULL)
+	    {
+	      space->typeface = _htmlBodyFont;
+	      space->size     = SIZE_P;
+	    }
+	    else
+	    {
+	      space->typeface = parent->typeface;
+	      space->size     = parent->size;
+	      space->style    = parent->style;
+            }
+
+            space->markup   = MARKUP_NONE;
+	    space->data     = (uchar *)strdup(" ");
+            space->parent   = parent;
+            space->prev     = t->prev;
+            space->next     = t;
+
+            if (space->prev == NULL && parent != NULL)
+	      parent->child = space;
+
+	    t->prev = space;
+
+	    have_whitespace = 0;
+
+            compute_size(space);
+	    printf("inserted SPACE %p width = %.1f\n", space, space->width);
+	  }
+
           t->typeface = TYPE_COURIER;
           t->child    = htmlReadFile(t, fp, base);
           break;
@@ -2497,5 +2550,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.24 2001/05/30 19:38:24 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.25 2001/05/30 23:35:53 mike Exp $".
  */
