@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.3 1999/11/09 22:16:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.4 1999/11/10 00:01:16 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -943,7 +943,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
             fprintf(out, " %.1f %.1f B\n", r->width, r->height);
           else
             fprintf(out, " %.1f L\n", r->width);
-          render_x += r->width;
+          render_x = -1;
           break;
       case RENDER_FBOX :
           set_color(out, r->data.box);
@@ -952,7 +952,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
             fprintf(out, " %.1f %.1f F\n", r->width, r->height);
           else
             fprintf(out, " %.1f L\n", r->width);
-          render_x += r->width;
+          render_x = -1;
           break;
     }
 
@@ -5783,5 +5783,5 @@ pdf_write(FILE *out,	/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.3 1999/11/09 22:16:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.4 1999/11/10 00:01:16 mike Exp $".
  */

@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /GX /O2 /Ob2 /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD CPP /nologo /MT /GX /Os /Ob2 /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -132,6 +132,10 @@ SOURCE=..\htmldoc\toc.cxx
 # Begin Group "Headers"
 
 # PROP Default_Filter "h"
+# Begin Source File
+
+SOURCE=.\config.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\htmldoc\debug.h
@@ -241,5 +245,9 @@ SOURCE=..\gui\HelpView.h
 SOURCE=.\icons.rc
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\htmldoc.ico
+# End Source File
 # End Target
 # End Project
