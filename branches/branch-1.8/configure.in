@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.29 2002/01/28 00:52:08 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.30 2002/01/31 17:32:40 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -42,10 +42,12 @@ AC_ARG_WITH(fltk-includes, [  --with-fltk-includes    set directory for FLTK inc
     CXXFLAGS="-I$withval $CXXFLAGS"
     CPPFLAGS="-I$withval $CPPFLAGS",)
 
-AC_ARG_WITH(openssl-libs, [  --with-openssl-libs    set directory for OpenSSL library],
+AC_ARG_WITH(gui, [  --with-gui              compile the GUI version of HTMLDOC [default=yes]])
+
+AC_ARG_WITH(openssl-libs, [  --with-openssl-libs     set directory for OpenSSL library],
     LDFLAGS="-L$withval $LDFLAGS",)
 
-AC_ARG_WITH(openssl-includes, [  --with-openssl-includes    set directory for OpenSSL includes],
+AC_ARG_WITH(openssl-includes, [  --with-openssl-includes set directory for OpenSSL includes],
     CFLAGS="-I$withval $CFLAGS"
     CXXFLAGS="-I$withval $CXXFLAGS"
     CPPFLAGS="-I$withval $CPPFLAGS",)
@@ -175,77 +177,81 @@ AC_DEFINE(HAVE_LIBZ)
 
 dnl Check for GUI libraries...
 POST=:
-if test "x$FLTKCONFIG" != x; then
-    LIBS="$LIBS `$FLTKCONFIG --ldflags`"
-    OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
-    AC_DEFINE(HAVE_LIBFLTK)
-    GUI=""
-    POST="$FLTKCONFIG --post"
-else
-    OLDLIBS="$LIBS"
-    
-    AC_PATH_X
-    
-    if test x$with_x != xno; then
-        if test "$x_libraries" = "/usr/lib"; then
-            echo "Ignoring X library directory \"$x_libraries\" requested by configure."
-            x_libraries="NONE"
-        fi
-    
-        if test ! "$x_libraries" = "NONE" -a ! "$x_libraries" = ""; then
-            LDFLAGS="$LDFLAGS -L$x_libraries"
-            if test "$uname" = "SunOS"; then
-                    LDFLAGS="$LDFLAGS -R$x_libraries"
+if test "x$with_gui" != xno; then
+    if test "x$FLTKCONFIG" != x; then
+	LIBS="$LIBS `$FLTKCONFIG --ldflags`"
+	OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
+	AC_DEFINE(HAVE_LIBFLTK)
+	GUI=""
+	POST="$FLTKCONFIG --post"
+    else
+	OLDLIBS="$LIBS"
+
+	AC_PATH_X
+
+	if test x$with_x != xno; then
+            if test "$x_libraries" = "/usr/lib"; then
+        	echo "Ignoring X library directory \"$x_libraries\" requested by configure."
+        	x_libraries="NONE"
             fi
-        fi
-    
-        if test "$x_includes" = "/usr/include"; then
-            echo "Ignoring X include directory \"$x_includes\" requested by configure."
-            x_includes="NONE"
-        fi
-    
-        if test ! "$x_includes" = "NONE" -a ! "$x_includes" = ""; then
-            CFLAGS="$CFLAGS -I$x_includes"
-            CXXFLAGS="$CXXFLAGS -I$x_includes"
-        fi
-    
-        AC_CHECK_LIB(X11,XOpenDisplay)
-        AC_CHECK_LIB(Xext,XdbeQueryExtension)
-    
-        dnl Check FLTK by itself
-        AC_CHECK_LIB(fltk,numericsort)
-    
-        dnl Check for cached OpenGL library from previous configure...
-        if test "x$ac_cv_lib_GL_glEnable" = xyes; then
-            AC_CHECK_LIB(GL,glEnable)
-        fi
-    
-        dnl Check FLTK + OpenGL to see if that works...
-        if test "$ac_cv_lib_fltk_numericsort" = no; then
-            unset ac_cv_lib_fltk_numericsort
-            AC_CHECK_LIB(GL,glEnable)
+
+            if test ! "$x_libraries" = "NONE" -a ! "$x_libraries" = ""; then
+        	LDFLAGS="$LDFLAGS -L$x_libraries"
+        	if test "$uname" = "SunOS"; then
+                	LDFLAGS="$LDFLAGS -R$x_libraries"
+        	fi
+            fi
+
+            if test "$x_includes" = "/usr/include"; then
+        	echo "Ignoring X include directory \"$x_includes\" requested by configure."
+        	x_includes="NONE"
+            fi
+
+            if test ! "$x_includes" = "NONE" -a ! "$x_includes" = ""; then
+        	CFLAGS="$CFLAGS -I$x_includes"
+        	CXXFLAGS="$CXXFLAGS -I$x_includes"
+            fi
+
+            AC_CHECK_LIB(X11,XOpenDisplay)
+            AC_CHECK_LIB(Xext,XdbeQueryExtension)
+
+            dnl Check FLTK by itself
             AC_CHECK_LIB(fltk,numericsort)
-        fi
-    
-        AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
-    
-        if test x$ac_cv_lib_fltk_numericsort = xyes; then
-            if test x"$ac_cv_path_FLTKCONFIG" = x; then
-                LIBS="../gui/libgui.a $LIBS"
-                GUI="gui"
-            else
-                GUI=""
+
+            dnl Check for cached OpenGL library from previous configure...
+            if test "x$ac_cv_lib_GL_glEnable" = xyes; then
+        	AC_CHECK_LIB(GL,glEnable)
             fi
-        else
-            AC_MSG_WARN(FLTK not available so no GUI will be built.)
+
+            dnl Check FLTK + OpenGL to see if that works...
+            if test "$ac_cv_lib_fltk_numericsort" = no; then
+        	unset ac_cv_lib_fltk_numericsort
+        	AC_CHECK_LIB(GL,glEnable)
+        	AC_CHECK_LIB(fltk,numericsort)
+            fi
+
+            AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
+
+            if test x$ac_cv_lib_fltk_numericsort = xyes; then
+        	if test x"$ac_cv_path_FLTKCONFIG" = x; then
+                    LIBS="../gui/libgui.a $LIBS"
+                    GUI="gui"
+        	else
+                    GUI=""
+        	fi
+            else
+        	AC_MSG_WARN(FLTK not available so no GUI will be built.)
+        	LIBS="$OLDLIBS"
+        	GUI=""
+            fi
+	else
+            AC_MSG_WARN(--without-x specified so no GUI will be built.)
             LIBS="$OLDLIBS"
             GUI=""
-        fi
-    else
-        AC_MSG_WARN(--without-x specified so no GUI will be built.)
-        LIBS="$OLDLIBS"
-        GUI=""
+	fi
     fi
+else
+    GUI=""
 fi
 
 AC_SUBST(GUI)
@@ -365,5 +371,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.29 2002/01/28 00:52:08 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.30 2002/01/31 17:32:40 mike Exp $".
 dnl

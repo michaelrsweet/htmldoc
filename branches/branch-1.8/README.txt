@@ -1,4 +1,4 @@
-README.txt - 01/27/2002
+README.txt - 01/31/2002
 -----------------------
 
 INTRODUCTION
