@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.38 2001/10/15 15:30:22 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.39 2001/10/26 16:23:09 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2480,7 +2480,10 @@ get_alignment(tree_t *t)	/* I - Tree entry */
   uchar	*align;			/* Alignment string */
 
 
-  if ((align = htmlGetVariable(t, (uchar *)"ALIGN")) != NULL)
+  if ((align = htmlGetVariable(t, (uchar *)"ALIGN")) == NULL)
+    align = htmlGetStyle(t, (uchar *)"text-align");
+
+  if (align != NULL)
   {
     if (strcasecmp((char *)align, "left") == 0)
       t->halignment = ALIGN_LEFT;
@@ -2498,7 +2501,10 @@ get_alignment(tree_t *t)	/* I - Tree entry */
       t->valignment = ALIGN_BOTTOM;
   }
 
-  if ((align = htmlGetVariable(t, (uchar *)"VALIGN")) != NULL)
+  if ((align = htmlGetVariable(t, (uchar *)"VALIGN")) == NULL)
+    align = htmlGetStyle(t, (uchar *)"vertical-align");
+
+  if (align != NULL)
   {
     if (strcasecmp((char *)align, "top") == 0)
       t->valignment = ALIGN_TOP;
@@ -2634,5 +2640,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.38 2001/10/15 15:30:22 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.39 2001/10/26 16:23:09 mike Exp $".
  */

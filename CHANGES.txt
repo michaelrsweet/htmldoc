@@ -1,4 +1,4 @@
-CHANGES.txt - 09/18/2001
+CHANGES.txt - 10/26/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.15
@@ -17,6 +17,10 @@ CHANGES IN HTMLDOC v1.8.15
 	  doesn't automatically insert a page break with each
 	  HTML file or URL (--continuous).
 	- Now draw border around inline images as needed.
+	- Now support MacOS X (only command-line at present).
+	- Now support the "page-break-before", "text-align",
+	  "vertical-align" style attributes, but only for style
+	  information in an element's STYLE attribute.
 
     CHANGES
 
