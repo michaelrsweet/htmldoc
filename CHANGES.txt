@@ -35,6 +35,9 @@ CHANGES IN HTMLDOC v1.8.23
 	  doing a "save as" operation.
 	- The PNG background color was not correct for PNG files
 	  using <= 8 bits per pixel.
+	- The HTML parser didn't close the current list item if
+	  an intermediate block element (P, PRE, etc.) was
+	  inside the previous, unterminated list item.
 
 
 CHANGES IN HTMLDOC v1.8.22
