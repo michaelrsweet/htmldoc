@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.4 1999/11/10 15:59:23 mike Exp $"
+# "$Id: Makefile,v 1.5 1999/11/15 21:38:02 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -40,10 +40,10 @@ DIRS	=	gui jpeg png zlib htmldoc doc
 # Make all targets...
 #
 
-all:
+all:	config.h
 	for dir in $(DIRS); do\
 		echo Making all in $$dir...;\
-		(cd $$dir; make);\
+		(cd $$dir; $(MAKE));\
 	done
 
 
@@ -75,5 +75,13 @@ install:
 
 
 #
-# End of "$Id: Makefile,v 1.4 1999/11/10 15:59:23 mike Exp $".
+# config.h
+#
+
+config.h:	config.h.in Makedefs.in configure
+	./configure
+
+
+#
+# End of "$Id: Makefile,v 1.5 1999/11/15 21:38:02 mike Exp $".
 #

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.18 1999/11/15 01:53:07 mike Exp $"
+// "$Id: gui.cxx,v 1.19 1999/11/15 21:38:05 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -399,7 +399,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageDuplex = new CheckButton(270, 48, 70, 20, "2-Sided");
   pageDuplex->callback((Fl_Callback *)changeCB, this);
 
-  landscape = new CheckButton(340, 48, 90, 20, "Landscape");
+  landscape = new CheckButton(345, 48, 90, 20, "Landscape");
   landscape->callback((Fl_Callback *)changeCB, this);
 
   pageTop = new Fl_Input(225, 75, 60, 25, "Top");
@@ -676,6 +676,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   htmlEditor = new Fl_Input(140, 45, 215, 25, "HTML Editor: ");
   htmlEditor->value(HTMLEditor);
+  htmlEditor->when(FL_WHEN_CHANGED);
   htmlEditor->callback((Fl_Callback *)htmlEditorCB, this);
 
   htmlBrowse = new Fl_Button(355, 45, 95, 25, "Browse...");
@@ -3016,5 +3017,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.18 1999/11/15 01:53:07 mike Exp $".
+// End of "$Id: gui.cxx,v 1.19 1999/11/15 21:38:05 mike Exp $".
 //
