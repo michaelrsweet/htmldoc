@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.39 2001/12/16 13:55:52 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.40 2001/12/17 01:11:17 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -239,6 +239,11 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {0}
 			};
 
+
+  // Enable/disable tooltips...
+#  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
+  Fl_Tooltip::enable(Tooltips);
+#  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 
   //
   // Create a dialog window...
@@ -1141,10 +1146,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
     newBookCB(NULL, this);
   else
     loadBook(filename);
-
-#  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
-  Fl_Tooltip::enable(Tooltips);
-#  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 }
 
 
@@ -4214,5 +4215,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.39 2001/12/16 13:55:52 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.40 2001/12/17 01:11:17 mike Exp $".
 //
