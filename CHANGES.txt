@@ -1,5 +1,18 @@
-CHANGES.txt - 10/26/2001
+CHANGES.txt - 10/29/2001
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.16
+
+    NEW FEATURES
+
+
+    CHANGES
+
+
+    BUG FIXES
+
+	- HR elements didn't render properly.
+
 
 CHANGES IN HTMLDOC v1.8.15
 
