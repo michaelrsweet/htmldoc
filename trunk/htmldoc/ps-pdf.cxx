@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.c,v 1.1 1999/11/08 17:12:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.1 1999/11/08 18:35:19 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5674,5 +5674,5 @@ pdf_write(FILE *out,	/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.c,v 1.1 1999/11/08 17:12:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.1 1999/11/08 18:35:19 mike Exp $".
  */

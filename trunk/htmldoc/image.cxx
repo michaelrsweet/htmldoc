@@ -1,5 +1,5 @@
 /*
- * "$Id: image.c,v 1.1 1999/11/08 17:12:42 mike Exp $"
+ * "$Id: image.cxx,v 1.1 1999/11/08 18:35:18 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -30,15 +30,11 @@
 
 #include "htmldoc.h"
 
-#ifdef HAVE_LIBJPEG
 extern "C" {		/* Workaround for JPEG header problems... */
-#  include <jpeglib.h>	/* JPEG/JFIF image definitions */
+#include <jpeglib.h>	/* JPEG/JFIF image definitions */
 }
-#endif /* HAVE_LIBJPEG */
 
-#if defined(HAVE_LIBPNG) && defined(HAVE_LIBZ)
-#  include <png.h>	/* Portable Network Graphics (PNG) definitions */
-#endif /* HAVE_LIBPNG && HAVE_LIBZ */
+#include <png.h>	/* Portable Network Graphics (PNG) definitions */
 
 
 /*
@@ -66,13 +62,9 @@ static int	gif_eof = 0;		/* Did we hit EOF? */
 
 static int	image_compare(image_t **img1, image_t **img2);
 
-#ifdef HAVE_LIBJPEG
 static int	image_load_jpeg(image_t *img, FILE *fp, int gray);
-#endif /* HAVE_LIBJPEG */
 
-#if defined(HAVE_LIBPNG) && defined(HAVE_LIBZ)
 static int	image_load_png(image_t *img, FILE *fp, int gray);
-#endif /* HAVE_LIBPNG && HAVE_LIBZ */
 
 static int	image_load_gif(image_t *img, FILE *fp, int gray);
 static int	gif_read_cmap(FILE *fp, int ncolors, gif_cmap_t cmap,
@@ -124,7 +116,7 @@ image_load(char *filename,	/* I - Name of image file */
                                 (int (*)(const void *, const void *))image_compare);
     if (match != NULL)
       return (*match);
-  };
+  }
 
  /*
   * Figure out the file type...
@@ -158,14 +150,10 @@ image_load(char *filename,	/* I - Name of image file */
   if (memcmp(header, "GIF87a", 6) == 0 ||
            memcmp(header, "GIF89a", 6) == 0)
     status = image_load_gif(img,  fp, gray);
-#if defined(HAVE_LIBPNG) && defined(HAVE_LIBZ)
   else if (memcmp(header, "\211PNG", 4) == 0)
     status = image_load_png(img, fp, gray);
-#endif /* HAVE_LIBPNG && HAVE_LIBZ */
-#ifdef HAVE_LIBJPEG
   else if (memcmp(header + 6, "JFIF", 4) == 0)
     status = image_load_jpeg(img, fp, gray);
-#endif /* HAVE_LIBJPEG */
   else
     status = -1;
 
@@ -175,7 +163,7 @@ image_load(char *filename,	/* I - Name of image file */
   {
     free(img);
     return (NULL);
-  };
+  }
 
   num_images ++;
   if (num_images > 1)
@@ -204,7 +192,7 @@ image_flush_cache(void)
   {
     free(images[i]->pixels);
     free(images[i]);
-  };
+  }
 
   num_images = 0;
 }
@@ -247,7 +235,7 @@ image_copy(char *filename,	/* I - Source file */
   {
     fclose(in);
     return;
-  };
+  }
 
   while ((nbytes = fread(buffer, 1, sizeof(buffer), in)) > 0)
     fwrite(buffer, 1, nbytes, out);
@@ -273,7 +261,6 @@ image_compare(image_t **img1,
 }
 
 
-#ifdef HAVE_LIBJPEG
 /*
  * 'image_load_jpeg()' - Load a JPEG image file.
  */
@@ -306,7 +293,7 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
     cinfo.out_color_space      = JCS_RGB;
     cinfo.out_color_components = 3;
     cinfo.output_components    = 3;
-  };
+  }
 
   jpeg_calc_output_dimensions(&cinfo);
 
@@ -319,7 +306,7 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
   {
     jpeg_destroy_decompress(&cinfo);
     return (-1);
-  };
+  }
 
   jpeg_start_decompress(&cinfo);
 
@@ -329,17 +316,15 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
                      cinfo.output_scanline * cinfo.output_width *
                      cinfo.output_components);
     jpeg_read_scanlines(&cinfo, &row, (JDIMENSION)1);
-  };
+  }
 
   jpeg_finish_decompress(&cinfo);
   jpeg_destroy_decompress(&cinfo);
 
   return (0);
 }
-#endif /* HAVE_LIBJPEG */
 
 
-#if defined(HAVE_LIBPNG) && defined(HAVE_LIBZ)
 /*
  * 'image_load_png()' - Load a PNG image file.
  */
@@ -349,15 +334,6 @@ image_load_png(image_t *img,	/* I - Image pointer */
                FILE    *fp,	/* I - File to read from */
                int     gray)	/* I - 0 = color, 1 = grayscale */
 {
-#  if PNG_LIBPNG_VER < 100
- /*
-  * This PNG library is too old!  Disable PNG support!
-  */
-
-  fprintf(stderr, "image_load_png: WARNING, this version of libpng (%d.%02d) is too old!\n",
-          PNG_LIBPNG_VER / 100, PNG_LIBPNG_VER % 100);
-  return (-1);
-#  else
   int		i;	/* Looping var */
   png_structp	pp;	/* PNG read pointer */
   png_infop	info;	/* PNG info pointers */
@@ -370,23 +346,8 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Setup the PNG data structures...
   */
 
-#    if PNG_LIBPNG_VER > 88
- /*
-  * Use the "new" calling convention...
-  */
-
   pp   = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   info = png_create_info_struct(pp);
-#    else
- /*
-  * SGI (and others) supply libpng-88 and not -89c+...
-  */
-
-  pp = (png_structp)calloc(sizeof(png_struct), 1);
-  png_read_init(pp);
-
-  info = (png_infop)calloc(sizeof(png_info), 1);
-#    endif /* PNG_LIBPNG_VER > 88 */
 
  /*
   * Initialize the PNG read "engine"...
@@ -447,7 +408,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
          i > 0;
          inptr += 3, outptr ++, i --)
       *outptr = (31 * inptr[0] + 61 * inptr[1] + 8 * inptr[2]) / 100;
-  };
+  }
 
  /*
   * Free memory and return...
@@ -459,9 +420,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   png_read_destroy(pp, info, NULL);
 
   return (0);
-#  endif /* PNG_LIBPNG_VER < 88 */
 }
-#endif /* HAVE_LIBPNG && HAVE_LIBZ */
 
 
 /*
@@ -473,9 +432,9 @@ image_load_gif(image_t *img,	/* I - Image pointer */
                FILE    *fp,	/* I - File to load from */
                int     gray)	/* I - 0 = color, 1 = grayscale */
 {
-  uchar	buf[1024];	/* Input buffer */
+  uchar		buf[1024];	/* Input buffer */
   gif_cmap_t	cmap;		/* Colormap */
-  int		ncolors,		/* Bits per pixel */
+  int		ncolors,	/* Bits per pixel */
 		transparent;	/* Transparent color index */
 
 
@@ -509,7 +468,7 @@ image_load_gif(image_t *img,	/* I - Image pointer */
             gif_get_block(fp, buf);
             if (buf[0] & 1)	/* Get transparent color index */
               transparent = buf[3];
-          };
+          }
 
           while (gif_get_block(fp, buf) != 0);
           break;
@@ -523,7 +482,7 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 
 	    if (gif_read_cmap(fp, ncolors, cmap, &gray))
 	      return (-1);
-	  };
+	  }
 
           if (transparent >= 0)
           {
@@ -534,7 +493,7 @@ image_load_gif(image_t *img,	/* I - Image pointer */
             cmap[transparent][0] = 255;
             cmap[transparent][1] = 255;
             cmap[transparent][2] = 255;
-          };
+          }
 
           img->width  = (buf[5] << 8) | buf[4];
           img->height = (buf[7] << 8) | buf[6];
@@ -544,8 +503,8 @@ image_load_gif(image_t *img,	/* I - Image pointer */
             return (-1);
 
 	  return (gif_read_image(fp, img, cmap, buf[8] & GIF_INTERLACE));
-    };
-  };
+    }
+  }
 }
 
 
@@ -581,7 +540,7 @@ gif_read_cmap(FILE       *fp,
   {
     *gray = 1;
     return (0);
-  };
+  }
 
  /*
   * If this needs to be a grayscale image, convert the RGB values to
@@ -665,7 +624,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     done    = 0;
 
     return (0);
-  };
+  }
 
 
   if ((curbit + code_size) >= lastbit)
@@ -691,7 +650,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     {
       buf[0]    = buf[last_byte - 1];
       last_byte = 1;
-    };
+    }
 
    /*
     * Read in another buffer...
@@ -705,7 +664,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
 
       done = 1;
       return (-1);
-    };
+    }
 
    /*
     * Update buffer state...
@@ -714,7 +673,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     curbit    = (curbit - lastbit) + 8 * last_byte;
     last_byte += count;
     lastbit   = last_byte * 8;
-  };
+  }
 
   ret = 0;
   for (ret = 0, i = curbit + code_size - 1, j = code_size;
@@ -783,7 +742,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
     {
       table[0][i] = 0;
       table[1][i] = i;
-    };
+    }
 
     for (; i < 4096; i ++)
       table[0][i] = table[1][0] = 0;
@@ -801,7 +760,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
     while (firstcode == clear_code);
 
     return (firstcode);
-  };
+  }
 
   if (sp > stack)
     return (*--sp);
@@ -814,7 +773,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
       {
 	table[0][i] = 0;
 	table[1][i] = i;
-      };
+      }
 
       for (; i < 4096; i ++)
 	table[0][i] = table[1][i] = 0;
@@ -838,7 +797,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
         while (gif_get_block(fp, buf) > 0);
 
       return (-2);
-    };
+    }
 
     incode = code;
 
@@ -846,7 +805,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
     {
       *sp++ = firstcode;
       code  = oldcode;
-    };
+    }
 
     while (code >= clear_code)
     {
@@ -855,7 +814,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
 	return (255);
 
       code = table[0][code];
-    };
+    }
 
     *sp++ = firstcode = table[1][code];
     code  = max_code;
@@ -870,14 +829,14 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
       {
 	max_code_size *= 2;
 	code_size ++;
-      };
-    };
+      }
+    }
 
     oldcode = incode;
 
     if (sp > stack)
       return (*--sp);
-  };
+  }
 
   return (code);
 }
@@ -921,7 +880,7 @@ gif_read_image(FILE       *fp,		/* I - Input file */
     {
       temp[1] = cmap[pixel][1];
       temp[2] = cmap[pixel][2];
-    };
+    }
 
     xpos ++;
     temp += img->depth;
@@ -940,20 +899,20 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
           ypos = ypasses[pass];
           temp = img->pixels + ypos * img->width * img->depth;
-	};
+	}
       }
       else
 	ypos ++;
-    };
+    }
 
     if (ypos >= img->height)
       break;
-  };
+  }
 
   return (0);
 }
 
 
 /*
- * End of "$Id: image.c,v 1.1 1999/11/08 17:12:42 mike Exp $".
+ * End of "$Id: image.cxx,v 1.1 1999/11/08 18:35:18 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: iso8859.cxx,v 1.1 1999/11/07 13:33:25 mike Exp $"
+ * "$Id: iso8859.cxx,v 1.1 1999/11/08 18:35:18 mike Exp $"
  *
  *   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  *   processing program.
@@ -227,5 +227,5 @@ compare_lut(lut_t *a,	/* I - First glyph */
 
 
 /*
- * End of "$Id: iso8859.cxx,v 1.1 1999/11/07 13:33:25 mike Exp $".
+ * End of "$Id: iso8859.cxx,v 1.1 1999/11/08 18:35:18 mike Exp $".
  */
