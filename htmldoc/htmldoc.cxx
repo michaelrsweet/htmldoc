@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.18 2001/05/27 12:50:38 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.19 2001/05/30 19:38:20 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1265,7 +1265,9 @@ prefs_save(void)
     fprintf(fp, "PATH=%s\n", Path);
     fprintf(fp, "PROXY=%s\n", Proxy);
 
+#ifdef HAVE_LIBFLTK
     fprintf(fp, "EDITOR=%s\n", HTMLEditor);
+#endif // HAVE_LIBFLTK
 
     fclose(fp);
   }
@@ -2089,5 +2091,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.18 2001/05/27 12:50:38 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.19 2001/05/30 19:38:20 mike Exp $".
  */

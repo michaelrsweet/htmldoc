@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.8 2001/03/15 13:46:10 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.9 2001/05/30 19:38:19 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -65,6 +65,7 @@ AC_SUBST(ARFLAGS)
 
 dnl Checks for header files.
 AC_HEADER_STDC
+AC_CHECK_HEADER(strings.h, AC_DEFINE(HAVE_STRINGS_H))
 
 dnl Checks for string functions.
 AC_CHECK_FUNCS(strdup)
@@ -263,5 +264,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.8 2001/03/15 13:46:10 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.9 2001/05/30 19:38:19 mike Exp $".
 dnl

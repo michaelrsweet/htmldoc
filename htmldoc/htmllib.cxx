@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.23 2001/05/29 21:05:26 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.24 2001/05/30 19:38:24 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -935,7 +935,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_B :
-          t->style |= STYLE_BOLD;
+          t->style = (style_t)(t->style | STYLE_BOLD);
           t->child = htmlReadFile(t, fp, base);
           break;
 
@@ -945,19 +945,19 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_VAR :
-          t->style    |= STYLE_ITALIC;
+          t->style = (style_t)(t->style | STYLE_ITALIC);
       case MARKUP_DFN :
           t->typeface = TYPE_HELVETICA;
           t->child    = htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_STRONG :
-          t->style |= STYLE_BOLD;
+          t->style = (style_t)(t->style | STYLE_BOLD);
       case MARKUP_CITE :
       case MARKUP_DT :
       case MARKUP_EM :
       case MARKUP_I :
-          t->style |= STYLE_ITALIC;
+          t->style = (style_t)(t->style | STYLE_ITALIC);
           t->child = htmlReadFile(t, fp, base);
           break;
 
@@ -1443,7 +1443,7 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
         break;
 
     case MARKUP_B :
-        t->style |= STYLE_BOLD;
+        t->style = (style_t)(t->style | STYLE_BOLD);
         break;
 
     case MARKUP_DD :
@@ -1452,7 +1452,7 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
 
     case MARKUP_DT :
     case MARKUP_I :
-        t->style |= STYLE_ITALIC;
+        t->style = (style_t)(t->style | STYLE_ITALIC);
         break;
 
     case MARKUP_U :
@@ -2497,5 +2497,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.23 2001/05/29 21:05:26 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.24 2001/05/30 19:38:24 mike Exp $".
  */

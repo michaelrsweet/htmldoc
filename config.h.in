@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.19.2.6 2001/05/20 13:05:14 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.7 2001/05/30 19:38:18 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -45,6 +45,13 @@
 
 
 /*
+ * Do we need to use <strings.h>?
+ */
+
+#undef HAVE_STRINGS_H
+
+
+/*
  * Do we have some of the "standard" string functions?
  */
 
@@ -82,6 +89,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h.in,v 1.19.2.6 2001/05/20 13:05:14 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.7 2001/05/30 19:38:18 mike Exp $".
  */
 

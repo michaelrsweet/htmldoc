@@ -1,5 +1,5 @@
 /*
- * "$Id: string.h,v 1.5.2.3 2001/02/20 02:15:59 mike Exp $"
+ * "$Id: string.h,v 1.5.2.4 2001/05/30 19:38:29 mike Exp $"
  *
  *   HTML string definitions for HTMLDOC, a HTML document processing program.
  *
@@ -35,6 +35,10 @@
 #  include <stdlib.h>
 #  include <stdarg.h>
 #  include <string.h>
+
+#  ifdef HAVE_STRINGS_H
+#    include <strings.h>
+#  endif /* HAVE_STRINGS_H */
 
 #  ifdef __cplusplus
 extern "C" {
@@ -85,5 +89,5 @@ extern int	vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HTMLDOC_STRING_H_ */
 
 /*
- * End of "$Id: string.h,v 1.5.2.3 2001/02/20 02:15:59 mike Exp $".
+ * End of "$Id: string.h,v 1.5.2.4 2001/05/30 19:38:29 mike Exp $".
  */
