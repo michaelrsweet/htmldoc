@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.83 2000/07/12 16:43:30 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.84 2000/07/25 15:08:02 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2901,6 +2901,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		*temp;
   float		width,
 		height,
+		offset,
 		spacing,
 		temp_y,
 		temp_width,
@@ -3188,8 +3189,20 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	   temp->green != linetype->green ||
 	   temp->blue != linetype->blue))
       {
-        r = new_render(*page, RENDER_TEXT, linex - linewidth, *y, linewidth,
-                       linetype->height, line);
+        switch (linetype->valignment)
+	{
+	  case ALIGN_TOP :
+	      offset = height - linetype->height;
+	      break;
+	  case ALIGN_MIDDLE :
+	      offset = 0.5f * (height - linetype->height);
+	      break;
+	  case ALIGN_BOTTOM :
+	      offset = 0.0f;
+	}
+
+        r = new_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
+	               linewidth, linetype->height, line);
 	r->data.text.typeface = linetype->typeface;
 	r->data.text.style    = linetype->style;
 	r->data.text.size     = _htmlSizes[linetype->size];
@@ -3198,8 +3211,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	if (linetype->superscript)
           r->y += height - linetype->height;
         else if (linetype->subscript)
-          r->y -= height * _htmlSizes[0] / _htmlSpacings[0] -
-		  linetype->height;
+          r->y -= height - linetype->height;
 
         free(linetype);
         linetype = NULL;
@@ -3222,6 +3234,18 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             if (temp->data == NULL)
               break;
 
+	    switch (temp->valignment)
+	    {
+	      case ALIGN_TOP :
+		  offset = height - temp->height;
+		  break;
+	      case ALIGN_MIDDLE :
+		  offset = 0.5f * (height - temp->height);
+		  break;
+	      case ALIGN_BOTTOM :
+		  offset = 0.0f;
+	    }
+
             if (linetype == NULL)
             {
 	      linetype  = temp;
@@ -3232,13 +3256,15 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      rgb[0] = temp->red / 255.0f;
 	      rgb[1] = temp->green / 255.0f;
 	      rgb[2] = temp->blue / 255.0f;
+
+	      linetype->valignment = ALIGN_MIDDLE;
 	    }
 
 	    if (temp->underline)
-	      new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, rgb);
+	      new_render(*page, RENDER_BOX, *x, *y + offset - 1, temp->width, 0, rgb);
 
 	    if (temp->strikethrough)
-	      new_render(*page, RENDER_BOX, *x, *y + temp->height * 0.25f,
+	      new_render(*page, RENDER_BOX, *x, *y + offset + temp->height * 0.25f,
 	                 temp->width, 0, rgb);
 
             if ((temp == start || whitespace) && temp->data[0] == ' ')
@@ -3261,7 +3287,21 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    break;
 
 	case MARKUP_IMG :
-	    new_render(*page, RENDER_IMAGE, *x, *y, temp->width, temp->height,
+	    switch (temp->valignment)
+	    {
+	      case ALIGN_TOP :
+		  offset = _htmlSizes[0] / _htmlSpacings[0] * height -
+		           temp->height;
+		  break;
+	      case ALIGN_MIDDLE :
+		  offset = 0.5f * (_htmlSizes[0] / _htmlSpacings[0] * height -
+		                   temp->height);
+		  break;
+	      case ALIGN_BOTTOM :
+		  offset = 0.0f;
+	    }
+
+	    new_render(*page, RENDER_IMAGE, *x, *y + offset, temp->width, temp->height,
 		       image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
             whitespace = 0;
 	    break;
@@ -3280,8 +3320,20 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     if (linetype != NULL)
     {
-      r = new_render(*page, RENDER_TEXT, linex - linewidth, *y, linewidth,
-                     linetype->height, line);
+      switch (linetype->valignment)
+      {
+	case ALIGN_TOP :
+	    offset = height - linetype->height;
+	    break;
+	case ALIGN_MIDDLE :
+	    offset = 0.5f * (height - linetype->height);
+	    break;
+	case ALIGN_BOTTOM :
+	    offset = 0.0f;
+      }
+
+      r = new_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
+                     linewidth, linetype->height, line);
       r->data.text.typeface = linetype->typeface;
       r->data.text.style    = linetype->style;
       r->data.text.size     = _htmlSizes[linetype->size];
@@ -3290,8 +3342,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       if (linetype->superscript)
         r->y += height - linetype->height;
       else if (linetype->subscript)
-        r->y -= height * _htmlSizes[0] / _htmlSpacings[0] -
-		linetype->height;
+        r->y -= height - linetype->height;
 
       free(linetype);
     }
@@ -7125,5 +7176,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.83 2000/07/12 16:43:30 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.84 2000/07/25 15:08:02 mike Exp $".
  */
