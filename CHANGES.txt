@@ -1,7 +1,11 @@
-CHANGES.txt - 01/27/2002
+CHANGES.txt - 01/28/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.18
+
+    NEW FEATURES
+
+	- Added support for remote HTML title pages.
 
     CHANGES
 
