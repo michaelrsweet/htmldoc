@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.16 2004/03/31 20:56:56 mike Exp $"
+// "$Id: style.cxx,v 1.17 2004/04/11 19:38:58 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -33,7 +33,7 @@
 //   hdStyle::get_color()                - Get a 24-bit color value.
 //   hdStyle::get_color()                - Get a floating point color value.
 //   hdStyle::get_length()               - Get a length/measurement value...
-//   hdStyle::get_list_hdFontInternalype()      - Get a list style type value.
+//   hdStyle::get_list_style_type()      - Get a list style type value.
 //   hdStyle::get_page_break()           - Get a page break value.
 //   hdStyle::get_pos()                  - Get a margin/position/padding/border
 //                                         index.
@@ -927,8 +927,8 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
     if (p->list_style_position)
       list_style_position = p->list_style_position;
 
-    if (p->list_hdFontInternalype)
-      list_hdFontInternalype = p->list_hdFontInternalype;
+    if (p->list_style_type)
+      list_style_type = p->list_style_type;
   }
 
   if ((hdElIsBlock(selectors[0].element) &&
@@ -2259,7 +2259,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  switch (pos)
 	  {
 	    case 0 : // list-style-type
-	        list_hdFontInternalype = HD_LISTSTYLEHD_FONTFACE_NONE;
+	        list_style_type = HD_LISTSTYLEHD_FONTFACE_NONE;
 		break;
 
 	    case 1 : // list-style-image
@@ -2281,7 +2281,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	         strcasecmp(subvalue, "lower-alpha") == 0 ||
 	         strcasecmp(subvalue, "upper-alpha") == 0)
 	{
-	  list_hdFontInternalype = get_list_hdFontInternalype(subvalue);
+	  list_style_type = get_list_style_type(subvalue);
 	  pos = 1;
 	}
         else if (strcasecmp(subvalue, "inside") == 0)
@@ -2366,7 +2366,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  strcasecmp(value, "lower-alpha") == 0 ||
 	  strcasecmp(value, "upper-alpha") == 0)
       {
-	list_hdFontInternalype = get_list_hdFontInternalype(value);
+	list_style_type = get_list_style_type(value);
       }
       else
       {
@@ -2946,5 +2946,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.16 2004/03/31 20:56:56 mike Exp $".
+// End of "$Id: style.cxx,v 1.17 2004/04/11 19:38:58 mike Exp $".
 //

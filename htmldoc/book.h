@@ -1,5 +1,5 @@
 //
-// "$Id: book.h,v 1.4 2004/04/05 01:39:34 mike Exp $"
+// "$Id: book.h,v 1.5 2004/04/11 19:38:58 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -32,6 +32,15 @@
 
 #  include "html.h"
 #  include "image.h"
+#  include "margin.h"
+#  include "md5.h"
+#  include "rc4.h"
+#  include <zlib.h>
+
+extern "C" {		/* Workaround for JPEG header problems... */
+#  include <jpeglib.h>	/* JPEG/JFIF image definitions */
+}
+
 
 
 //
@@ -136,6 +145,31 @@ enum	/* PDF document permissions */
   HD_PDF_PERM_ANNOTATE = 32
 };
 
+
+enum					// Render types
+{
+  HD_RENDER_TEXT = 1,			// Text fragment
+  HD_RENDER_IMAGE = 2,			// Image
+  HD_RENDER_BOX = 4,			// Box
+  HD_RENDER_LINK = 8,			// Hyperlink
+  HD_RENDER_BG = 16			// Background image
+};
+
+
+//
+// Entity information...
+//
+
+struct hdEntity
+{
+  const char	*html;			// HTML entity name
+  const char	*glyph;			// PostScript glyph name
+
+  void	set(const char *h, const char *g);
+  void	clear();
+};
+
+
 //
 // Named link structure...
 //
@@ -164,17 +198,68 @@ struct hdPageSize
 };
 
 
-//
-// Entity information...
-//
-
-struct hdEntity
+struct hdRender				/**** Render entity structure ****/
 {
-  const char	*html;			// HTML entity name
-  const char	*glyph;			// PostScript glyph name
+  struct hdRender *prev;		/* Previous rendering entity */
+  struct hdRender *next;		/* Next rendering entity */
+  int		type;			/* Type of entity */
+  float		x,			/* Position in points */
+		y,			/* ... */
+		width,			/* Size in points */
+		height;			/* ... */
+  union
+  {
+    struct
+    {
+      int	typeface,		/* Typeface for text */
+		style;			/* Style of text */
+      float	size;			/* Size of text in points */
+      float	spacing;		/* Inter-character spacing */
+      float	rgb[3];			/* Color of text */
+      uchar	buffer[1];		/* String buffer */
+    }   	text;
+    image_t	*image;			/* Image pointer */
+    float	box[3];			/* Box color */
+    uchar	link[1];		/* Link URL */
+  }		data;
+};
 
-  void	set(const char *h, const char *g);
-  void	clear();
+
+struct hdPage				//// Page information
+{
+  int		width,			// Width of page in points
+		length,			// Length of page in points
+		left,			// Left margin in points
+		right,			// Right margin in points
+		top,			// Top margin in points
+		bottom,			// Bottom margin in points
+		duplex,			// Duplex this page?
+		landscape;		// Landscape orientation?
+  hdRender	*start,			// First render element
+		*end;			// Last render element
+  uchar		*chapter,		// Chapter text
+		*heading,		// Heading text
+		*header[3],		// Headers
+		*footer[3];		// Footers
+  char		media_color[64],	// Media color
+		media_type[64];		// Media type
+  int		media_position;		// Media position
+  char		page_text[64];		// Page number for TOC
+  image_t	*background_image;	// Background image
+  float		background_color[3];	// Background color
+
+  // Number-up support
+  int		nup;			// Number up pages
+  int		outpage;		// Output page #
+  float		outmatrix[2][3];	// Transform matrix
+};
+
+
+struct hdOutPage			//// Output page info
+{
+  int		nup;			// Number up pages
+  int		pages[16];		// Pages on this output page
+  int		annot_object;		// Annotation object
 };
 
 
@@ -201,6 +286,8 @@ struct hdBook
   int		num_headings,		// Number of headings
 		alloc_headings;		// Allocated headings
   uchar		**headings;		// Heading strings
+  int		*heading_pages,		// Page for headings
+		*heading_tops;		// Top position for headings
 
   int		num_images,		// Number of images in cache
 		alloc_images;		// Allocated images
@@ -209,6 +296,79 @@ struct hdBook
   int		num_links,		// Number of links
 		alloc_links;		// Allocated links
   hdLink	*links;			// Links
+
+  time_t	doc_time;		// Current time
+  struct tm	*doc_date;		// Current date
+
+  int		title_page;
+  int		chapter,
+		chapter_outstarts[MAX_CHAPTERS],
+		chapter_outends[MAX_CHAPTERS],
+		chapter_starts[MAX_CHAPTERS],
+		chapter_ends[MAX_CHAPTERS];
+
+  int		num_pages,
+		alloc_pages;
+  hdPage	*pages;
+  hdTree	*current_heading;
+
+  int		num_outpages;
+  hdOutPage	*outpages;
+
+  uchar		list_types[16];
+  int		list_values[16];
+
+  char		stdout_filename[256];
+  int		num_objects,
+		alloc_objects,
+		*objects,
+		root_object,
+		info_object,
+		outline_object,
+		pages_object,
+		names_object,
+		encrypt_object,
+		font_objects[16];
+
+  uchar		*doc_title;
+  image_t	*logo_image;
+  float		logo_width,
+		logo_height;
+
+  image_t	*hfimage[MAX_HF_IMAGES];
+  float		hfimage_width[MAX_HF_IMAGES],
+		hfimage_height[MAX_HF_IMAGES];
+  float		maxhfheight;
+
+  image_t	*background_image;
+  float		background_color[3],
+		link_color[3];
+
+  int		render_typeface,
+		render_style;
+  float		render_size,
+		render_rgb[3],
+		render_x,
+		render_y,
+		render_startx,
+		render_spacing;
+
+  int		compressor_active;
+  z_stream	compressor;
+  uchar		comp_buffer[8192];
+  uchar		encrypt_key[16];
+  int		encrypt_len;
+  rc4_context_t	encrypt_state;
+  md5_byte_t	file_id[16];
+
+  int		pdf_stream_length;
+  int		pdf_stream_start;
+  int		pdf_object_type;
+
+  FILE		*jpg_file;	/* JPEG file */
+  uchar		jpg_buf[8192];	/* JPEG buffer */
+  jpeg_destination_mgr	jpg_dest;	/* JPEG destination manager */
+  struct jpeg_error_mgr	jerr;		/* JPEG error handler */
 
   int		Compression;		// Non-zero means compress PDFs
   bool		TitlePage,		// Need a title page
@@ -351,6 +511,109 @@ struct hdBook
   static int	compare_links(hdLink *n1, hdLink *n2);
   hdLink	*find_link(uchar *name, uchar *filename = 0);
 
+  void		pspdf_debug_stats();
+
+  void		pspdf_transform_coords(hdPage *p, float &x, float  &y);
+  void		pspdf_transform_page(int outpage, int pos, int page);
+
+  void		pspdf_prepare_outpages();
+  void		pspdf_prepare_page(int page);
+  void		pspdf_prepare_heading(int page, int print_page, uchar **format,
+		                      int y, char *hdPageext, int page_len,
+				      int render_heading = 1);
+  void		ps_write_document(uchar *author, uchar *creator,
+		                  uchar *copyright, uchar *keywords,
+				  uchar *subject);
+  void		ps_write_outpage(FILE *out, int outpage);
+  void		ps_write_page(FILE *out, int page);
+  void		ps_write_background(FILE *out);
+  void		pdf_write_document(uchar *author, uchar *creator,
+		                   uchar *copyright, uchar *keywords,
+				   uchar *subject, hdTree *toc);
+  void		pdf_write_outpage(FILE *out, int outpage);
+  void		pdf_write_page(FILE *out, int page);
+  void		pdf_write_resources(FILE *out, int page);
+  void		pdf_write_contents(FILE *out, hdTree *toc, int parent,
+		                   int prev, int next, int *heading);
+  void		pdf_write_links(FILE *out);
+  void		pdf_write_names(FILE *out);
+  int		pdf_count_headings(hdTree *toc);
+
+  int		pdf_start_object(FILE *out, int array = 0);
+  void		pdf_start_stream(FILE *out);
+  void		pdf_end_object(FILE *out);
+
+  void		encrypt_init(void);
+  void		flate_open_stream(FILE *out);
+  void		flate_close_stream(FILE *out);
+  void		flate_puts(const char *s, FILE *out);
+  void		flate_printf(FILE *out, const char *format, ...);
+  void		flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
+
+  void		render_contents(hdTree *t, hdMargin *margins, float *y,
+  		                int *page, int heading,	hdTree *chap);
+  int		count_headings(hdTree *t);
+  void		parse_contents(hdTree *t, hdMargin *margins, float *y,
+		               int *page, int *heading, hdTree *chap);
+  void		parse_doc(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
+			  hdTree *cpara, int *needspace);
+  void		parse_heading(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
+			      int needspace);
+  void		parse_paragraph(hdTree *t, hdMargin *margins, float *x,
+		                float *y, int *page, int needspace);
+  void		parse_pre(hdTree *t, hdMargin *margins, float *x, float *y,
+		          int *page, int needspace);
+  void		parse_table(hdTree *t, hdMargin *margins, float *x, float *y,
+		            int *page, int needspace);
+  void		parse_list(hdTree *t, hdMargin *margins, float *x, float *y,
+		           int *page, int needspace);
+  void		init_list(hdTree *t);
+  void		parse_comment(hdTree *t, hdMargin *margins, float *x, float *y,
+		              int *page, hdTree *para, int needspace);
+
+  hdTree	*real_prev(hdTree *t);
+  hdTree	*real_next(hdTree *t);
+
+  void		check_pages(int page);
+
+  void		find_background(hdTree *t);
+  void		write_background(int page, FILE *out);
+
+  hdRender	*new_render(int page, int type, float x, float y,
+		            float width, float height, void *data,
+			    hdRender *insert = 0);
+  void		copy_tree(hdTree *parent, hdTree *t);
+  float		get_cell_size(hdTree *t, float left, float right,
+		              float *minwidth, float *prefwidth,
+			      float *minheight);
+  float		get_table_size(hdTree *t, float left, float right,
+		               float *minwidth, float *prefwidth,
+			       float *minheight);
+  hdTree	*flatten_tree(hdTree *t);
+  float		get_width(uchar *s, int typeface, int style, float size);
+  void		update_image_size(hdTree *t);
+  FILE		*pspdf_open_file(void);
+  void		set_color(FILE *out, float *rgb);
+  void		set_font(FILE *out, int typeface, int style, float size);
+  void		set_pos(FILE *out, float x, float y);
+  void		write_prolog(FILE *out, int pages, uchar *author,
+		             uchar *creator, uchar *copyright,
+			     uchar *keywords, uchar *subject);
+  void		ps_hex(FILE *out, uchar *data, int length);
+  void		ps_ascii85(FILE *out, uchar *data, int length);
+  static void	jpg_init(j_compress_ptr cinfo);
+  static boolean jpg_empty(j_compress_ptr cinfo);
+  static void	jpg_term(j_compress_ptr cinfo);
+  void		jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
+  static int	compare_rgb(unsigned *rgb1, unsigned *rgb2);
+  void		write_image(FILE *out, hdRender *r, int write_obj = 0);
+  void		write_imagemask(FILE *out, hdRender *r);
+  void		write_string(FILE *out, uchar *s, int compress);
+  void		write_text(FILE *out, hdRender *r);
+  void		write_trailer(FILE *out, int pages);
+  int		write_type1(FILE *out, hdFontFace typeface,
+			    hdFontInternal style);
+
   static int	image_compare(image_t **img1, image_t **img2);
   void		image_copy(const char *filename, const char *destpath);
   image_t	*image_find(const char *filename, int load_data = 0);
@@ -363,5 +626,5 @@ struct hdBook
 #endif // !HTMLDOC_BOOK_H
 
 //
-// End of "$Id: book.h,v 1.4 2004/04/05 01:39:34 mike Exp $".
+// End of "$Id: book.h,v 1.5 2004/04/11 19:38:58 mike Exp $".
 //
