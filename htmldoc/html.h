@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.9.2.4 2001/08/29 20:41:59 mike Exp $"
+ * "$Id: html.h,v 1.9.2.5 2001/10/15 15:30:22 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -33,7 +33,7 @@
 #  include <stdlib.h>
 
 #  include "file.h"
-#  include "string.h"
+#  include "hdstring.h"
 #  include "iso8859.h"
 
 #  ifdef __cplusplus
@@ -308,5 +308,5 @@ extern void	htmlSetTextColor(uchar *color);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.4 2001/08/29 20:41:59 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.5 2001/10/15 15:30:22 mike Exp $".
  */

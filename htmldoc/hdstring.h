@@ -1,7 +1,7 @@
 /*
- * "$Id: string.h,v 1.5.2.4 2001/05/30 19:38:29 mike Exp $"
+ * "$Id: hdstring.h,v 1.1.2.1 2001/10/15 15:30:22 mike Exp $"
  *
- *   HTML string definitions for HTMLDOC, a HTML document processing program.
+ *   String definitions for HTMLDOC, a HTML document processing program.
  *
  *   Copyright 1997-2001 by Easy Software Products.
  *
@@ -22,8 +22,8 @@
  *         WWW: http://www.easysw.com
  */
 
-#ifndef _HTMLDOC_STRING_H_
-#  define _HTMLDOC_STRING_H_
+#ifndef _HDSTRING_H_
+#  define _HDSTRING_H_
 
 /*
  * Include necessary headers...
@@ -86,8 +86,8 @@ extern int	vsnprintf(char *, size_t, const char *, va_list);
 }
 #  endif /* __cplusplus */
 
-#endif /* !_HTMLDOC_STRING_H_ */
+#endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: string.h,v 1.5.2.4 2001/05/30 19:38:29 mike Exp $".
+ * End of "$Id: hdstring.h,v 1.1.2.1 2001/10/15 15:30:22 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.111 2001/10/12 16:14:07 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.112 2001/10/15 15:30:24 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5544,11 +5544,24 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
   const char	*comment;	/* Comment text */
   char		*ptr,		/* Pointer into value string */
 		buffer[1024];	/* Buffer for strings */
-  int		pos;		/* Position (left, center, right) */
+  int		pos,		/* Position (left, center, right) */
+		tof;		/* Top of form */
 
 
   if (t->data == NULL)
     return;
+
+  if (para != NULL && para->child != NULL && para->child->next == NULL &&
+      para->child->child == NULL && para->child->markup == MARKUP_NONE &&
+      strcmp((const char *)para->child->data, " ") == 0)
+  {
+    // Remove paragraph consisting solely of whitespace...
+    htmlDeleteTree(para->child);
+    para->child = para->last_child = NULL;
+  }
+
+  // Mark if we are at the top of form...
+  tof = (*y >= *top);
 
   for (comment = (const char *)t->data; *comment;)
   {
@@ -5580,9 +5593,11 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	progress_show("Formatting page %d", *page);
       *x = *left;
       *y = *top;
+
+      tof = 1;
     }
     else if (strncasecmp(comment, "NEW PAGE", 8) == 0 &&
-	(!comment[8] || isspace(comment[8])))
+	     (!comment[8] || isspace(comment[8])))
     {
      /*
       * <!-- NEW PAGE --> generates a page break...
@@ -5602,9 +5617,11 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	progress_show("Formatting page %d", *page);
       *x = *left;
       *y = *top;
+
+      tof = 1;
     }
     else if (strncasecmp(comment, "NEW SHEET", 9) == 0 &&
-	(!comment[9] || isspace(comment[9])))
+	     (!comment[9] || isspace(comment[9])))
     {
      /*
       * <!-- NEW SHEET --> generate a page break to a new sheet...
@@ -5627,6 +5644,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	progress_show("Formatting page %d", *page);
       *x = *left;
       *y = *top;
+
+      tof = 1;
     }
     else if (strncasecmp(comment, "HALF PAGE", 9) == 0 &&
              (!comment[9] || isspace(comment[9])))
@@ -5655,11 +5674,15 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	  progress_show("Formatting page %d", *page);
 	*x = *left;
 	*y = *top;
+
+        tof = 1;
       }
       else
       {
 	*x = *left;
 	*y = halfway;
+
+        tof = 0;
       }
     }
     else if (strncasecmp(comment, "NEED ", 5) == 0)
@@ -5691,6 +5714,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = *top;
+        tof = 1;
       }
 
       *x = *left;
@@ -5717,7 +5741,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
@@ -5727,6 +5751,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = *top;
+        tof = 1;
       }
 
       *x = *left;
@@ -5776,7 +5801,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
@@ -5786,6 +5811,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = *top;
+        tof = 1;
       }
 
       *x = *left;
@@ -5816,7 +5842,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
@@ -5826,6 +5852,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = *top;
+        tof = 1;
       }
 
       *x = *left;
@@ -5875,17 +5902,19 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
-	if (PageDuplex && ((*page) & 1))
-	  (*page) ++;
-
-	if (Verbosity)
-	  progress_show("Formatting page %d", *page);
 	*y = *top;
+        tof = 1;
       }
+
+      if (PageDuplex && ((*page) & 1))
+	(*page) ++;
+
+      if (Verbosity)
+	progress_show("Formatting page %d", *page);
 
       *x = *left;
 
@@ -5926,13 +5955,14 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = *top;
+        tof = 1;
       }
 
       *x = *left;
@@ -5966,13 +5996,14 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = *top;
+        tof = 1;
       }
 
       *x = *left;
@@ -6006,12 +6037,13 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
+        tof = 1;
       }
 
       *x = *left;
@@ -6046,12 +6078,14 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
+
+        tof = 1;
       }
 
       *x = *left;
@@ -6086,16 +6120,18 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
-	if (PageDuplex && ((*page) & 1))
-	  (*page) ++;
-
-	if (Verbosity)
-	  progress_show("Formatting page %d", *page);
+        tof = 1;
       }
+
+      if (PageDuplex && ((*page) & 1))
+	(*page) ++;
+
+      if (Verbosity)
+	progress_show("Formatting page %d", *page);
 
       *x = *left;
 
@@ -6156,17 +6192,19 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
+      if (!tof)
       {
 	(*page) ++;
 
-	if (PageDuplex && ((*page) & 1))
-	  (*page) ++;
-
-	if (Verbosity)
-	  progress_show("Formatting page %d", *page);
 	*y = *top;
+        tof = 1;
       }
+
+      if (PageDuplex && ((*page) & 1))
+	(*page) ++;
+
+      if (Verbosity)
+	progress_show("Formatting page %d", *page);
 
       *x = *left;
 
@@ -6259,9 +6297,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         Header[pos] = NULL;
 
-      check_pages(*page);
+      if (tof)
+      {
+	check_pages(*page);
 
-      pages[*page].header[pos] = (uchar *)Header[pos];
+	pages[*page].header[pos] = (uchar *)Header[pos];
+      }
 
       // Adjust top margin as needed...
       for (pos = 0; pos < 3; pos ++)
@@ -6280,6 +6321,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	else
           *top -= 2 * HeadFootSize;
       }
+
+      if (tof)
+        *y = *top;
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
@@ -6347,9 +6391,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         Footer[pos] = NULL;
 
-      check_pages(*page);
+      if (tof)
+      {
+	check_pages(*page);
 
-      pages[*page].footer[pos] = (uchar *)Footer[pos];
+	pages[*page].footer[pos] = (uchar *)Footer[pos];
+      }
 
       // Adjust bottom margin as needed...
       for (pos = 0; pos < 3; pos ++)
@@ -10154,5 +10201,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.111 2001/10/12 16:14:07 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.112 2001/10/15 15:30:24 mike Exp $".
  */

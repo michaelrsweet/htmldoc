@@ -1,5 +1,5 @@
 /*
- * "$Id: file.h,v 1.6.2.2 2001/02/22 01:22:40 mike Exp $"
+ * "$Id: file.h,v 1.6.2.3 2001/10/15 15:30:22 mike Exp $"
  *
  *   Filename definitions for HTMLDOC, a HTML document processing program.
  *
@@ -29,7 +29,7 @@
  * Include necessary headers...
  */
 
-#  include "string.h"
+#  include "hdstring.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -58,5 +58,5 @@ extern FILE	*file_temp(char *name, int len);
 #endif /* !_FILE_H_ */
 
 /*
- * End of "$Id: file.h,v 1.6.2.2 2001/02/22 01:22:40 mike Exp $".
+ * End of "$Id: file.h,v 1.6.2.3 2001/10/15 15:30:22 mike Exp $".
  */
