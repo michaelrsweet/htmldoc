@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.14 2001/08/16 21:11:51 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.15 2001/10/20 21:49:22 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -544,11 +544,11 @@ static int			/* O - Result of comparison */
 image_compare(image_t **img1,	/* I - First image */
               image_t **img2)	/* I - Second image */
 {
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
   return (strcasecmp((*img1)->filename, (*img2)->filename));
 #else
   return (strcmp((*img1)->filename, (*img2)->filename));
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 }
 
 
@@ -1691,5 +1691,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.14 2001/08/16 21:11:51 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.15 2001/10/20 21:49:22 mike Exp $".
  */

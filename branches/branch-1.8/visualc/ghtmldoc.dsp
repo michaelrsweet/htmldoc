@@ -167,6 +167,10 @@ SOURCE=..\htmldoc\file.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\htmldoc\hdstring.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\htmldoc\html.h
 # End Source File
 # Begin Source File
@@ -184,10 +188,6 @@ SOURCE=..\htmldoc\image.h
 # Begin Source File
 
 SOURCE=..\htmldoc\iso8859.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\htmldoc\string.h
 # End Source File
 # Begin Source File
 

@@ -38,6 +38,7 @@ CHANGES IN HTMLDOC v1.8.15
 	  improvement when including images.
 	- Now hide all text inside SCRIPT, SELECT, and TEXTAREA
 	  elements.
+	- OS/2 port changes from Alexander Mai.
 
     BUG FIXES
 

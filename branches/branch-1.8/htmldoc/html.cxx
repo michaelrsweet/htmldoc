@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.19 2001/09/25 21:31:23 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.20 2001/10/20 21:49:16 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -111,7 +111,7 @@ html_export(tree_t *document,	/* I - Document to export */
     image_copy(LogoImage, OutputPath);
 
   if (OutputFiles && TitleImage[0] != '\0' && TitlePage &&
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
       stricmp(file_extension(TitleImage), "htm") != 0 &&
       stricmp(file_extension(TitleImage), "html") != 0 &&
       stricmp(file_extension(TitleImage), "shtml") != 0)
@@ -119,7 +119,7 @@ html_export(tree_t *document,	/* I - Document to export */
       strcmp(file_extension(TitleImage), "htm") != 0 &&
       strcmp(file_extension(TitleImage), "html") != 0 &&
       strcmp(file_extension(TitleImage), "shtml") != 0)
-#endif // WIN32 || __EMX__
+#endif // WIN32
     image_copy(TitleImage, OutputPath);
 
  /*
@@ -408,7 +408,7 @@ write_title(FILE  *out,		/* I - Output file */
   if (out == NULL)
     return;
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
   if (stricmp(file_extension(TitleImage), "htm") == 0 ||
       stricmp(file_extension(TitleImage), "html") == 0 ||
       stricmp(file_extension(TitleImage), "shtml") == 0)
@@ -416,7 +416,7 @@ write_title(FILE  *out,		/* I - Output file */
   if (strcmp(file_extension(TitleImage), "htm") == 0 ||
       strcmp(file_extension(TitleImage), "html") == 0 ||
       strcmp(file_extension(TitleImage), "shtml") == 0)
-#endif // WIN32 || __EMX__
+#endif // WIN32
   {
     // Write a title page from HTML source...
     if ((fp = fopen(TitleImage, "rb")) == NULL)
@@ -941,5 +941,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.19 2001/09/25 21:31:23 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.20 2001/10/20 21:49:16 mike Exp $".
  */
