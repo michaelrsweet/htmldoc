@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.51 2000/03/06 20:08:53 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.52 2000/03/06 21:11:39 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3958,30 +3958,33 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     if (col_widths[col] == 0.0f)
       pref_width += col_prefs[col];
 
-  if ((regular_width = (width - actual_width) / pref_width) < 0.0f)
-    regular_width = 0.0f;
-  else if (regular_width > 1.0f)
-    regular_width = 1.0f;
+  if (pref_width > 0.0f)
+  {
+    if ((regular_width = (width - actual_width) / pref_width) < 0.0f)
+      regular_width = 0.0f;
+    else if (regular_width > 1.0f)
+      regular_width = 1.0f;
 
-  for (col = 0; col < num_cols; col ++)
-    if (col_widths[col] == 0.0f)
-    {
-      pref_width = col_prefs[col] * regular_width;
-      if (pref_width < col_mins[col])
-        pref_width = col_mins[col];
-
-      if ((actual_width + pref_width) > width)
+    for (col = 0; col < num_cols; col ++)
+      if (col_widths[col] == 0.0f)
       {
-        if (col == (num_cols - 1) && (width - actual_width) >= col_mins[col])
-	  col_widths[col] = width - actual_width;
-	else
-	  col_widths[col] = col_mins[col];
-      }
-      else
-        col_widths[col] = pref_width;
+	pref_width = col_prefs[col] * regular_width;
+	if (pref_width < col_mins[col])
+          pref_width = col_mins[col];
 
-      actual_width += col_widths[col];
-    }
+	if ((actual_width + pref_width) > width)
+	{
+          if (col == (num_cols - 1) && (width - actual_width) >= col_mins[col])
+	    col_widths[col] = width - actual_width;
+	  else
+	    col_widths[col] = col_mins[col];
+	}
+	else
+          col_widths[col] = pref_width;
+
+	actual_width += col_widths[col];
+      }
+  }
 
  /*
   * Pass three enforces any hard or minimum widths for COLSPAN'd
@@ -6763,5 +6766,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.51 2000/03/06 20:08:53 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.52 2000/03/06 21:11:39 mike Exp $".
  */
