@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.3 2002/02/08 19:39:51 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.4 2002/02/17 22:44:55 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -207,6 +207,13 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
 hdStyleFont *				// O - Font record
 hdStyleSheet::find_font(hdStyle *s)	// I - Style record
 {
+  char	face[1024],			// Font face property
+	*start,				// Start of current font face
+	*ptr,				// End of current font face
+	filename[1024];			// Name of font file
+
+
+  
   return ((hdStyleFont *)0);
 }
 
@@ -809,9 +816,15 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
 
   // Allocate the charset array...
   if (line[0] == '8')
+  {
+    encoding   = HD_FONTENCODING_8BIT;
     num_glyphs = 256;
+  }
   else
+  {
+    encoding   = HD_FONTENCODING_UTF8;
     num_glyphs = 65536;
+  }
 
   charset = strdup(cs);
   glyphs  = new char *[num_glyphs];
@@ -994,5 +1007,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.3 2002/02/08 19:39:51 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.4 2002/02/17 22:44:55 mike Exp $".
 //
