@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.10 2001/03/08 17:58:30 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.11 2001/03/21 17:08:06 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -617,22 +617,29 @@ write_all(FILE   *out,		/* I - Output file */
 
       switch (t->markup)
       {
-	case MARKUP_AREA :
 	case MARKUP_BODY :
-	case MARKUP_BR :
-	case MARKUP_DOCTYPE :
-	case MARKUP_EMBED :
 	case MARKUP_ERROR :
 	case MARKUP_FILE :
 	case MARKUP_HEAD :
-	case MARKUP_HR :
 	case MARKUP_HTML :
-	case MARKUP_IMG :
-	case MARKUP_INPUT :
-	case MARKUP_META :
 	case MARKUP_NONE :
 	case MARKUP_TITLE :
+
+	case MARKUP_APPLET :
+	case MARKUP_AREA :
+	case MARKUP_BR :
         case MARKUP_COMMENT :
+	case MARKUP_DOCTYPE :
+	case MARKUP_EMBED :
+	case MARKUP_HR :
+	case MARKUP_IMG :
+	case MARKUP_INPUT :
+	case MARKUP_ISINDEX :
+	case MARKUP_LINK :
+	case MARKUP_META :
+	case MARKUP_NOBR :
+	case MARKUP_SPACER :
+	case MARKUP_WBR :
             break;
 
         case MARKUP_CENTER :
@@ -883,5 +890,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.10 2001/03/08 17:58:30 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.11 2001/03/21 17:08:06 mike Exp $".
  */
