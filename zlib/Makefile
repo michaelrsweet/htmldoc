@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.10 2002/12/17 19:00:29 swdev Exp $"
+# "$Id: Makefile,v 1.11 2004/03/31 06:32:27 mike Exp $"
 #
-#   ZIP library Makefile for the Common UNIX Printing System (CUPS).
+#   ZIP library Makefile for the HTMLDOC software.
 #
-#   Makefile copyright 1997-2003 by Easy Software Products, all rights
+#   Makefile copyright 1997-2001 by Easy Software Products, all rights
 #   reserved.
 #   ZIP library copyright 1995-1998 Jean-loup Gailly.
 #   For conditions of distribution and use, see copyright notice in zlib.h 
@@ -15,14 +15,14 @@
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
-#       Attn: CUPS Licensing Information
+#       Attn: HTMLDOC Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
 #       Hollywood, Maryland 20636-3111 USA
 #
 #       Voice: (301) 373-9603
-#       EMail: cups-info@cups.org
-#         WWW: http://www.cups.org
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
 #
 
 include ../Makedefs
@@ -35,13 +35,11 @@ OBJS	=	adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o \
 		trees.o zutil.o inflate.o infblock.o inftrees.o infcodes.o \
 		infutil.o inffast.o
 
-
 #
 # Make all targets...
 #
 
 all:	libz.a
-
 
 #
 # Clean all targets and object files...
@@ -50,15 +48,6 @@ all:	libz.a
 clean:
 	$(RM) $(OBJS)
 	$(RM) libz.a
-
-
-#
-# Update dependencies (without system header dependencies...)
-#
-
-depend:
-	makedepend -Y -I.. -fDependencies $(OBJS:.o=.c) >/dev/null 2>&1
-
 
 #
 # libz.a
@@ -70,14 +59,20 @@ libz.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
+$(OBJS):	zlib.h zconf.h ../Makedefs
+deflate.o:	deflate.h zutil.h
+gzio.o:		zutil.h
+infblock.o:	infblock.h inftrees.h infcodes.h infutil.h zutil.h
+infcodes.o:	zutil.h
+infcodes.o:	inftrees.h infblock.h infcodes.h infutil.h inffast.h
+inffast.o:	zutil.h inftrees.h
+inffast.o:	infblock.h infcodes.h infutil.h inffast.h
+inflate.o:	zutil.h infblock.h
+inftrees.o:	zutil.h inftrees.h
+infutil.o:	zutil.h infblock.h inftrees.h infcodes.h infutil.h
+trees.o:	deflate.h zutil.h trees.h
+zutil.o:	zutil.h
 
 #
-# Dependencies...
-#
-
-include Dependencies
-
-
-#
-# End of "$Id: Makefile,v 1.10 2002/12/17 19:00:29 swdev Exp $".
+# End of "$Id: Makefile,v 1.11 2004/03/31 06:32:27 mike Exp $".
 #
