@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.40 2001/12/17 01:11:17 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.41 2001/12/17 18:27:31 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1198,7 +1198,9 @@ GUI::progress(int        percent,	// I - Percent complete
   else if (percent == 0)
     progressBar->label("HTMLDOC " SVERSION " Ready.");
 
-  progressBar->value(percent);
+ if ((percent - (int)progressBar->value()) >= 5 ||
+     percent < (int)progressBar->value())
+    progressBar->value(percent);
 
   Fl::check();
 }
@@ -4215,5 +4217,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.40 2001/12/17 01:11:17 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.41 2001/12/17 18:27:31 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.34 2001/12/13 19:04:06 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.35 2001/12/17 18:27:33 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -249,12 +249,6 @@ main(int  argc,		/* I - Number of command-line arguments */
       OutputType   = OUTPUT_CONTINUOUS;
       PDFPageMode  = PDF_DOCUMENT;
       PDFFirstPage = PDF_PAGE_1;
-
-      if (exportfunc == (exportfunc_t)html_export)
-      {
-        exportfunc = (exportfunc_t)pspdf_export;
-	PSLevel    = 0;
-      }
     }
     else if (compare_strings(argv[i], "--datadir", 4) == 0)
     {
@@ -866,12 +860,6 @@ main(int  argc,		/* I - Number of command-line arguments */
       OutputType   = OUTPUT_WEBPAGES;
       PDFPageMode  = PDF_DOCUMENT;
       PDFFirstPage = PDF_PAGE_1;
-
-      if (exportfunc == (exportfunc_t)html_export)
-      {
-        exportfunc = (exportfunc_t)pspdf_export;
-	PSLevel    = 0;
-      }
     }
     else if (compare_strings(argv[i], "--xrxcomments", 3) == 0)
       XRXComments = 1;
@@ -1410,7 +1398,7 @@ load_book(const char   *filename,	// I  - Book file
   }
 
   // Open the file...
-  if ((fp = fopen(filename, "r")) == NULL)
+  if ((fp = fopen(filename, "rb")) == NULL)
   {
     fprintf(stderr, "htmldoc: Unable to open \"%s\": %s\n", filename,
             strerror(errno));
@@ -2186,5 +2174,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.34 2001/12/13 19:04:06 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.35 2001/12/17 18:27:33 mike Exp $".
  */
