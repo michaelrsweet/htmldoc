@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.25 2001/04/15 11:52:45 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.26 2001/04/18 17:37:45 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -368,6 +368,8 @@ FileBrowser::load(const char *directory)// I - Directory to load
   FileIcon	*icon;		// Icon to use
 
 
+//  printf("FileBrowser::load(\"%s\")\n", directory);
+
   clear();
   directory_ = directory;
 
@@ -442,6 +444,7 @@ FileBrowser::load(const char *directory)// I - Directory to load
         if (sscanf(line, "%*s%4095s", filename) != 1)
 	  continue;
 
+//        printf("FileBrowser::load() - adding \"%s\" to list...\n", filename);
         add(filename, icon);
 	num_files ++;
       }
@@ -519,5 +522,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.25 2001/04/15 11:52:45 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.26 2001/04/18 17:37:45 mike Exp $".
 //
