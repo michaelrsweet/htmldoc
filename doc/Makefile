@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.11 2000/01/04 13:52:22 mike Exp $"
+# "$Id: Makefile,v 1.11.2.9 2002/06/11 19:36:15 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
-#   Copyright 1997-2000 by Easy Software Products.
+#   Copyright 1997-2001 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -36,7 +36,7 @@ include ../Makedefs
 SOURCES	=	intro.html 1-install.html 2-starting.html \
 		3-books.html 4-cmdline.html 5-cgi.html \
 		6-htmlref.html 7-guiref.html 8-cmdref.html \
-		a-license.html
+		a-license.html b-book.html c-relnotes.html
 
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	help.html htmldoc.pdf
@@ -79,8 +79,8 @@ clean:
 #
 
 htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v -f htmldoc.html --titleimage htmldoc.png \
-		--datadir .. $(SOURCES)
+	echo Formatting htmldoc.html...
+	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.html --datadir ..
 
 
 #
@@ -88,8 +88,8 @@ htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc
 #
 
 htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v -f htmldoc.pdf --duplex --jpeg --compression=9 \
-		--titleimage htmldoc.png --datadir .. $(SOURCES)
+	echo Formatting htmldoc.pdf...
+	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.pdf --datadir ..
 
 
 #
@@ -97,10 +97,19 @@ htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc
 #
 
 htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v -f htmldoc.ps --duplex \
-		--titleimage htmldoc.png --datadir .. $(SOURCES)
+	echo Formatting htmldoc.ps...
+	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.ps --datadir ..
 
 
 #
-# End of "$Id: Makefile,v 1.11 2000/01/04 13:52:22 mike Exp $".
+# htmldoc.1
+#
+
+htmldoc.1:	htmldoc.man
+	echo Formatting htmldoc.1...
+	groff -T ascii -man htmldoc.man >htmldoc.1
+
+
+#
+# End of "$Id: Makefile,v 1.11.2.9 2002/06/11 19:36:15 mike Exp $".
 #
