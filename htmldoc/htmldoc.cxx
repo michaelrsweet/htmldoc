@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.14 2001/03/11 22:29:10 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.15 2001/05/20 13:05:16 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -24,9 +24,13 @@
  * Contents:
  *
  *   main()            - Main entry for HTMLDOC.
+ *   prefs_getrc()     - Get the rc file for preferences...
  *   prefs_load()      - Load HTMLDOC preferences...
  *   prefs_save()      - Save HTMLDOC preferences...
  *   compare_strings() - Compare two command-line strings.
+ *   load_book()       - Load a book file...
+ *   parse_options()   - Parse options from a book file...
+ *   read_file()       - Read a file into the current document.
  *   term_handler()    - Handle CTRL-C or kill signals...
  *   usage()           - Show program version and command-line options.
  */
@@ -328,6 +332,12 @@ main(int  argc,		/* I - Number of command-line arguments */
         {
 	  exportfunc = pspdf_export;
 	  PSLevel    = 3;
+	}
+        else if (strcasecmp(argv[i], "pdf14") == 0)
+	{
+          exportfunc = pspdf_export;
+	  PSLevel    = 0;
+	  PDFVersion = 1.4;
 	}
         else if (strcasecmp(argv[i], "pdf13") == 0 ||
 	         strcasecmp(argv[i], "pdf") == 0)
@@ -950,394 +960,241 @@ main(int  argc,		/* I - Number of command-line arguments */
 
 
 /*
+ * 'prefs_getrc()' - Get the rc file for preferences...
+ */
+
+const char *
+prefs_getrc(void)
+{
+#ifdef WIN32
+  HKEY		key;		// Registry key
+  DWORD		size;		// Size of string
+  char		home[1024];	// Home (profile) directory
+#else
+  const char	*home;		// Home directory
+#endif // WIN32
+  static char	htmldocrc[1024];// HTMLDOC RC file
+
+
+  // Find the home directory...
+#ifdef WIN32
+  // Open the registry...
+  if (RegOpenKeyEx(HKEY_CURRENT_USER,
+                   "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0,
+		   KEY_READ, &key))
+  {
+    // Use the install directory...
+    strcpy(home, _htmlData);
+  }
+  else
+  {
+    // Grab the current user's AppData directory...
+    size = sizeof(home);
+    if (RegQueryValueEx(key, "AppData", NULL, NULL, (unsigned char *)home, &size))
+      strcpy(home, _htmlData);
+
+    RegCloseKey(key);
+  }
+#else
+  if ((home = getenv("HOME")) == NULL)
+    home = _htmlData;
+#endif // WIN32
+
+  // Format the rc filename and return...
+  snprintf(htmldocrc, sizeof(htmldocrc), "%s/.htmldocrc", home);
+
+  return (htmldocrc);
+}
+
+
+/*
  * 'prefs_load()' - Load HTMLDOC preferences...
  */
 
 void
 prefs_load(void)
 {
+  char	line[2048];		// Line from RC file
+  FILE	*fp;			// File pointer
 #ifdef WIN32			//// Do registry magic...
   HKEY		key;		// Registry key
   DWORD		size;		// Size of string
-  char		value[2048];	// Attribute value
   static char	data[1024];	// Data directory
   static char	doc[1024];	// Documentation directory
+#endif // WIN32
 
 
-  // Figure out what the HTML editor is...
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   "SOFTWARE\\Easy Software Products\\HTMLDOC", 0,
-		   KEY_READ, &key))
-    return;
+  //
+  // Get the installed directories...
+  //
+
+#ifdef WIN32
+  // Open the registry...
+  if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                    "SOFTWARE\\Easy Software Products\\HTMLDOC", 0,
+                    KEY_READ, &key))
+  {
+    // Grab the installed directories...
+    size = sizeof(data);
+    if (!RegQueryValueEx(key, "data", NULL, NULL, (unsigned char *)data, &size))
+      _htmlData = data;
 
 #  ifdef HAVE_LIBFLTK
-  size = sizeof(HTMLEditor);
-  RegQueryValueEx(key, "editor", NULL, NULL, (unsigned char *)HTMLEditor, &size);
+    size = sizeof(doc);
+    if (!RegQueryValueEx(key, "doc", NULL, NULL, (unsigned char *)doc, &size))
+      GUI::help_dir = doc;
 #  endif // HAVE_LIBFLTK
 
-  // Now grab the installed directories...
-  size = sizeof(data);
-  if (!RegQueryValueEx(key, "data", NULL, NULL, (unsigned char *)data, &size))
-    _htmlData = data;
-
-#  ifdef HAVE_LIBFLTK
-  size = sizeof(doc);
-  if (!RegQueryValueEx(key, "doc", NULL, NULL, (unsigned char *)doc, &size))
-    GUI::help_dir = doc;
-#  endif // HAVE_LIBFLTK
-
-  // Then any other saved options...
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "textcolor", NULL, NULL, (unsigned char *)value, &size))
-    htmlSetTextColor((uchar *)value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "bodycolor", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(BodyColor, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "bodyimage", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(BodyImage, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "linkcolor", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(LinkColor, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "linkstyle", NULL, NULL, (unsigned char *)value, &size))
-    LinkStyle = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "browserwidth", NULL, NULL, (unsigned char *)value, &size))
-    _htmlBrowserWidth = atof(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pagewidth", NULL, NULL, (unsigned char *)value, &size))
-    PageWidth = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pagelength", NULL, NULL, (unsigned char *)value, &size))
-    PageLength = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pageleft", NULL, NULL, (unsigned char *)value, &size))
-    PageLeft = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pageright", NULL, NULL, (unsigned char *)value, &size))
-    PageRight = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pagetop", NULL, NULL, (unsigned char *)value, &size))
-    PageTop = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pagebottom", NULL, NULL, (unsigned char *)value, &size))
-    PageBottom = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pageduplex", NULL, NULL, (unsigned char *)value, &size))
-    PageDuplex = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "landscape", NULL, NULL, (unsigned char *)value, &size))
-    Landscape = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "compression", NULL, NULL, (unsigned char *)value, &size))
-    Compression = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "outputcolor", NULL, NULL, (unsigned char *)value, &size))
-    OutputColor = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "tocnumbers", NULL, NULL, (unsigned char *)value, &size))
-    TocNumbers = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "toclevels", NULL, NULL, (unsigned char *)value, &size))
-    TocLevels = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "jpeg", NULL, NULL, (unsigned char *)value, &size))
-    OutputJPEG = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pageheader", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(Header, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pagefooter", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(Footer, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "tocheader", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(TocHeader, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "tocfooter", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(TocFooter, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "toctitle", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(TocTitle, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "bodyfont", NULL, NULL, (unsigned char *)value, &size))
-    _htmlBodyFont = (typeface_t)atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "headingfont", NULL, NULL, (unsigned char *)value, &size))
-    _htmlHeadingFont = (typeface_t)atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "fontsize", NULL, NULL, (unsigned char *)value, &size))
-    htmlSetBaseSize(atof(value), _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "fontspacing", NULL, NULL, (unsigned char *)value, &size))
-    htmlSetBaseSize(_htmlSizes[SIZE_P], atof(value));
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "headfoottype", NULL, NULL, (unsigned char *)value, &size))
-    HeadFootType = (typeface_t)atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "headfootstyle", NULL, NULL, (unsigned char *)value, &size))
-    HeadFootStyle = (style_t)atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "headfootsize", NULL, NULL, (unsigned char *)value, &size))
-    HeadFootSize = atof(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pdfversion", NULL, NULL, (unsigned char *)value, &size))
-    PDFVersion = atof(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pslevel", NULL, NULL, (unsigned char *)value, &size))
-    PSLevel = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "charset", NULL, NULL, (unsigned char *)value, &size))
-    htmlSetCharSet(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pagemode", NULL, NULL, (unsigned char *)value, &size))
-    PDFPageMode = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pagelayout", NULL, NULL, (unsigned char *)value, &size))
-    PDFPageLayout = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "firstpage", NULL, NULL, (unsigned char *)value, &size))
-    PDFFirstPage = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pageeffect", NULL, NULL, (unsigned char *)value, &size))
-    PDFEffect = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "pageduration", NULL, NULL, (unsigned char *)value, &size))
-    PDFPageDuration = atof(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "effectduration", NULL, NULL, (unsigned char *)value, &size))
-    PDFEffectDuration = atof(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "encryption", NULL, NULL, (unsigned char *)value, &size))
-    Encryption = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "permissions", NULL, NULL, (unsigned char *)value, &size))
-    Permissions = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "ownerpassword", NULL, NULL, (unsigned char *)value, &size))
-  {
-    strncpy(OwnerPassword, value, sizeof(OwnerPassword) - 1);
-    OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
+    RegCloseKey(key);
   }
+#endif // WIN32
 
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "userpassword", NULL, NULL, (unsigned char *)value, &size))
-  {
-    strncpy(UserPassword, value, sizeof(UserPassword) - 1);
-    UserPassword[sizeof(UserPassword) - 1] = '\0';
-  }
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "links", NULL, NULL, (unsigned char *)value, &size))
-    Links = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "truetype", NULL, NULL, (unsigned char *)value, &size))
-    TrueType = atoi(value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "path", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(Path, value);
-
-  size = sizeof(value);
-  if (!RegQueryValueEx(key, "proxy", NULL, NULL, (unsigned char *)value, &size))
-  {
-    strncpy(Proxy, value, sizeof(Proxy) - 1);
-    Proxy[sizeof(Proxy) - 1] = '\0';
-  }
-
-  RegCloseKey(key);
-#else				//// Do .htmldocrc file in home dir...
-  char	line[2048],		// Line from RC file
-	htmldocrc[1024];	// HTMLDOC RC file
-  FILE	*fp;			// File pointer
-
+  //
+  // See if the installed directories have been overridden by
+  // environment variables...
+  //
 
   if (getenv("HTMLDOC_DATA") != NULL)
     _htmlData = getenv("HTMLDOC_DATA");
 
-  if (getenv("HOME") != NULL)
-  {
-    sprintf(htmldocrc, "%s/.htmldocrc", getenv("HOME"));
-
-    if ((fp = fopen(htmldocrc, "r")) != NULL)
-    {
-      while (fgets(line, sizeof(line), fp) != NULL)
-      {
-        if (line[strlen(line) - 1] == '\n')
-	  line[strlen(line) - 1] = '\0';
-
-        if (strncasecmp(line, "TEXTCOLOR=", 10) == 0)
-	  htmlSetTextColor((uchar *)(line + 10));
-        else if (strncasecmp(line, "BODYCOLOR=", 10) == 0)
-	  strcpy(BodyColor, line + 10);
-        else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
-	  strcpy(BodyImage, line + 10);
-        else if (strncasecmp(line, "LINKCOLOR=", 10) == 0)
-	  strcpy(LinkColor, line + 10);
-        else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
-	  LinkStyle = atoi(line + 10);
-        else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
-	  _htmlBrowserWidth = atof(line + 13);
-        else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
-	  PageWidth = atoi(line + 10);
-        else if (strncasecmp(line, "PAGELENGTH=", 11) == 0)
-	  PageLength = atoi(line + 11);
-        else if (strncasecmp(line, "PAGELEFT=", 9) == 0)
-	  PageLeft = atoi(line + 9);
-        else if (strncasecmp(line, "PAGERIGHT=", 10) == 0)
-	  PageRight = atoi(line + 10);
-        else if (strncasecmp(line, "PAGETOP=", 8) == 0)
-	  PageTop = atoi(line + 8);
-        else if (strncasecmp(line, "PAGEBOTTOM=", 11) == 0)
-	  PageBottom = atoi(line + 11);
-        else if (strncasecmp(line, "PAGEDUPLEX=", 11) == 0)
-	  PageDuplex = atoi(line + 11);
-        else if (strncasecmp(line, "LANDSCAPE=", 10) == 0)
-	  Landscape = atoi(line + 10);
-        else if (strncasecmp(line, "COMPRESSION=", 12) == 0)
-	  Compression = atoi(line + 12);
-        else if (strncasecmp(line, "OUTPUTCOLOR=", 12) == 0)
-	{
-	  OutputColor    = atoi(line + 12);
-	  _htmlGrayscale = !OutputColor;
-	}
-        else if (strncasecmp(line, "TOCNUMBERS=", 11) == 0)
-	  TocNumbers = atoi(line + 11);
-        else if (strncasecmp(line, "TOCLEVELS=", 10) == 0)
-	  TocLevels = atoi(line + 10);
-        else if (strncasecmp(line, "JPEG=", 5) == 0)
-	  OutputJPEG = atoi(line + 1);
-        else if (strncasecmp(line, "PAGEHEADER=", 11) == 0)
-	  strcpy(Header, line + 11);
-        else if (strncasecmp(line, "PAGEFOOTER=", 11) == 0)
-	  strcpy(Footer, line + 11);
-        else if (strncasecmp(line, "TOCHEADER=", 10) == 0)
-	  strcpy(TocHeader, line + 10);
-        else if (strncasecmp(line, "TOCFOOTER=", 10) == 0)
-	  strcpy(TocFooter, line + 10);
-        else if (strncasecmp(line, "TOCTITLE=", 9) == 0)
-	  strcpy(TocTitle, line + 9);
-        else if (strncasecmp(line, "BODYFONT=", 9) == 0)
-	  _htmlBodyFont = (typeface_t)atoi(line + 9);
-        else if (strncasecmp(line, "HEADINGFONT=", 12) == 0)
-	  _htmlHeadingFont = (typeface_t)atoi(line + 12);
-        else if (strncasecmp(line, "FONTSIZE=", 9) == 0)
-	  htmlSetBaseSize(atof(line + 9),
-	                  _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
-        else if (strncasecmp(line, "FONTSPACING=", 12) == 0)
-	  htmlSetBaseSize(_htmlSizes[SIZE_P], atof(line + 12));
-        else if (strncasecmp(line, "HEADFOOTTYPE=", 13) == 0)
-	  HeadFootType = (typeface_t)atoi(line + 13);
-        else if (strncasecmp(line, "HEADFOOTSTYLE=", 14) == 0)
-	  HeadFootStyle = (style_t)atoi(line + 14);
-        else if (strncasecmp(line, "HEADFOOTSIZE=", 13) == 0)
-	  HeadFootSize = atof(line + 13);
-        else if (strncasecmp(line, "PDFVERSION=", 11) == 0)
-	  PDFVersion = atof(line + 11);
-        else if (strncasecmp(line, "PSLEVEL=", 8) == 0)
-	  PSLevel = atoi(line + 8);
-        else if (strncasecmp(line, "PSCOMMANDS=", 11) == 0)
-	  PSCommands = atoi(line + 11);
-        else if (strncasecmp(line, "CHARSET=", 8) == 0)
-	  htmlSetCharSet(line + 8);
-        else if (strncasecmp(line, "PAGEMODE=", 9) == 0)
-	  PDFPageMode = atoi(line + 9);
-        else if (strncasecmp(line, "PAGELAYOUT=", 11) == 0)
-	  PDFPageLayout = atoi(line + 11);
-        else if (strncasecmp(line, "FIRSTPAGE=", 10) == 0)
-	  PDFFirstPage = atoi(line + 10);
-        else if (strncasecmp(line, "PAGEEFFECT=", 11) == 0)
-	  PDFEffect = atoi(line + 11);
-        else if (strncasecmp(line, "PAGEDURATION=", 14) == 0)
-	  PDFPageDuration = atof(line + 14);
-        else if (strncasecmp(line, "EFFECTDURATION=", 16) == 0)
-	  PDFEffectDuration = atof(line + 16);
-        else if (strncasecmp(line, "ENCRYPTION=", 11) == 0)
-	  Encryption = atoi(line + 11);
-        else if (strncasecmp(line, "PERMISSIONS=", 12) == 0)
-	  Permissions = atoi(line + 12);
-        else if (strncasecmp(line, "OWNERPASSWORD=", 14) == 0)
-	{
-	  strncpy(OwnerPassword, line + 14, sizeof(OwnerPassword) - 1);
-	  OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
-	}
-        else if (strncasecmp(line, "USERPASSWORD=", 13) == 0)
-        {
-	  strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
-	  UserPassword[sizeof(UserPassword) - 1] = '\0';
-	}
-        else if (strncasecmp(line, "LINKS=", 6) == 0)
-	  Links = atoi(line + 6);
-        else if (strncasecmp(line, "TRUETYPE=", 9) == 0)
-	  TrueType = atoi(line + 9);
-	else if (strncasecmp(line, "PATH=", 5) == 0)
-	{
-	  strncpy(Path, line + 5, sizeof(Path) - 1);
-	  Path[sizeof(Path) - 1] = '\0';
-	}
-	else if (strncasecmp(line, "PROXY=", 5) == 0)
-	{
-	  strncpy(Proxy, line + 5, sizeof(Proxy) - 1);
-	  Proxy[sizeof(Proxy) - 1] = '\0';
-	}
-#  ifdef HAVE_LIBFLTK
-        else if (strncasecmp(line, "EDITOR=", 7) == 0)
-	  strcpy(HTMLEditor, line + 7);
-#  endif // HAVE_LIBFLTK
-      }
-
-      fclose(fp);
-    }
-  }
-
-#  ifdef HAVE_LIBFLTK
+#ifdef HAVE_LIBFLTK
   if (getenv("HTMLDOC_HELP") != NULL)
     GUI::help_dir = getenv("HTMLDOC_HELP");
+#endif // HAVE_LIBFLTK
+
+  //
+  // Read the preferences file...
+  //
+
+  if ((fp = fopen(prefs_getrc(), "r")) != NULL)
+  {
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      if (line[strlen(line) - 1] == '\n')
+        line[strlen(line) - 1] = '\0';
+
+      if (strncasecmp(line, "TEXTCOLOR=", 10) == 0)
+	htmlSetTextColor((uchar *)(line + 10));
+      else if (strncasecmp(line, "BODYCOLOR=", 10) == 0)
+	strcpy(BodyColor, line + 10);
+      else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
+	strcpy(BodyImage, line + 10);
+      else if (strncasecmp(line, "LINKCOLOR=", 10) == 0)
+        strcpy(LinkColor, line + 10);
+      else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
+	LinkStyle = atoi(line + 10);
+      else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
+	_htmlBrowserWidth = atof(line + 13);
+      else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
+	PageWidth = atoi(line + 10);
+      else if (strncasecmp(line, "PAGELENGTH=", 11) == 0)
+	PageLength = atoi(line + 11);
+      else if (strncasecmp(line, "PAGELEFT=", 9) == 0)
+	PageLeft = atoi(line + 9);
+      else if (strncasecmp(line, "PAGERIGHT=", 10) == 0)
+	PageRight = atoi(line + 10);
+      else if (strncasecmp(line, "PAGETOP=", 8) == 0)
+	PageTop = atoi(line + 8);
+      else if (strncasecmp(line, "PAGEBOTTOM=", 11) == 0)
+	PageBottom = atoi(line + 11);
+      else if (strncasecmp(line, "PAGEDUPLEX=", 11) == 0)
+	PageDuplex = atoi(line + 11);
+      else if (strncasecmp(line, "LANDSCAPE=", 10) == 0)
+	Landscape = atoi(line + 10);
+      else if (strncasecmp(line, "COMPRESSION=", 12) == 0)
+	Compression = atoi(line + 12);
+      else if (strncasecmp(line, "OUTPUTCOLOR=", 12) == 0)
+      {
+	OutputColor    = atoi(line + 12);
+	_htmlGrayscale = !OutputColor;
+      }
+      else if (strncasecmp(line, "TOCNUMBERS=", 11) == 0)
+	TocNumbers = atoi(line + 11);
+      else if (strncasecmp(line, "TOCLEVELS=", 10) == 0)
+	TocLevels = atoi(line + 10);
+      else if (strncasecmp(line, "JPEG=", 5) == 0)
+	OutputJPEG = atoi(line + 1);
+      else if (strncasecmp(line, "PAGEHEADER=", 11) == 0)
+	strcpy(Header, line + 11);
+      else if (strncasecmp(line, "PAGEFOOTER=", 11) == 0)
+	strcpy(Footer, line + 11);
+      else if (strncasecmp(line, "TOCHEADER=", 10) == 0)
+	strcpy(TocHeader, line + 10);
+      else if (strncasecmp(line, "TOCFOOTER=", 10) == 0)
+	strcpy(TocFooter, line + 10);
+      else if (strncasecmp(line, "TOCTITLE=", 9) == 0)
+	strcpy(TocTitle, line + 9);
+      else if (strncasecmp(line, "BODYFONT=", 9) == 0)
+	_htmlBodyFont = (typeface_t)atoi(line + 9);
+      else if (strncasecmp(line, "HEADINGFONT=", 12) == 0)
+	_htmlHeadingFont = (typeface_t)atoi(line + 12);
+      else if (strncasecmp(line, "FONTSIZE=", 9) == 0)
+	htmlSetBaseSize(atof(line + 9),
+	                _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+      else if (strncasecmp(line, "FONTSPACING=", 12) == 0)
+	htmlSetBaseSize(_htmlSizes[SIZE_P], atof(line + 12));
+      else if (strncasecmp(line, "HEADFOOTTYPE=", 13) == 0)
+	HeadFootType = (typeface_t)atoi(line + 13);
+      else if (strncasecmp(line, "HEADFOOTSTYLE=", 14) == 0)
+        HeadFootStyle = (style_t)atoi(line + 14);
+      else if (strncasecmp(line, "HEADFOOTSIZE=", 13) == 0)
+	HeadFootSize = atof(line + 13);
+      else if (strncasecmp(line, "PDFVERSION=", 11) == 0)
+	PDFVersion = atof(line + 11);
+      else if (strncasecmp(line, "PSLEVEL=", 8) == 0)
+	PSLevel = atoi(line + 8);
+      else if (strncasecmp(line, "PSCOMMANDS=", 11) == 0)
+	PSCommands = atoi(line + 11);
+      else if (strncasecmp(line, "CHARSET=", 8) == 0)
+	htmlSetCharSet(line + 8);
+      else if (strncasecmp(line, "PAGEMODE=", 9) == 0)
+	PDFPageMode = atoi(line + 9);
+      else if (strncasecmp(line, "PAGELAYOUT=", 11) == 0)
+	PDFPageLayout = atoi(line + 11);
+      else if (strncasecmp(line, "FIRSTPAGE=", 10) == 0)
+	PDFFirstPage = atoi(line + 10);
+      else if (strncasecmp(line, "PAGEEFFECT=", 11) == 0)
+	PDFEffect = atoi(line + 11);
+      else if (strncasecmp(line, "PAGEDURATION=", 14) == 0)
+	PDFPageDuration = atof(line + 14);
+      else if (strncasecmp(line, "EFFECTDURATION=", 16) == 0)
+	PDFEffectDuration = atof(line + 16);
+      else if (strncasecmp(line, "ENCRYPTION=", 11) == 0)
+	Encryption = atoi(line + 11);
+      else if (strncasecmp(line, "PERMISSIONS=", 12) == 0)
+	Permissions = atoi(line + 12);
+      else if (strncasecmp(line, "OWNERPASSWORD=", 14) == 0)
+      {
+	strncpy(OwnerPassword, line + 14, sizeof(OwnerPassword) - 1);
+	OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
+      }
+      else if (strncasecmp(line, "USERPASSWORD=", 13) == 0)
+      {
+        strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
+        UserPassword[sizeof(UserPassword) - 1] = '\0';
+      }
+      else if (strncasecmp(line, "LINKS=", 6) == 0)
+        Links = atoi(line + 6);
+      else if (strncasecmp(line, "TRUETYPE=", 9) == 0)
+        TrueType = atoi(line + 9);
+      else if (strncasecmp(line, "PATH=", 5) == 0)
+      {
+	strncpy(Path, line + 5, sizeof(Path) - 1);
+	Path[sizeof(Path) - 1] = '\0';
+      }
+      else if (strncasecmp(line, "PROXY=", 6) == 0)
+      {
+	strncpy(Proxy, line + 6, sizeof(Proxy) - 1);
+	Proxy[sizeof(Proxy) - 1] = '\0';
+      }
+#  ifdef HAVE_LIBFLTK
+      else if (strncasecmp(line, "EDITOR=", 7) == 0)
+        strcpy(HTMLEditor, line + 7);
 #  endif // HAVE_LIBFLTK
-#endif // WIN32
+    }
+
+    fclose(fp);
+  }
 }
 
 
@@ -1348,278 +1205,68 @@ prefs_load(void)
 void
 prefs_save(void)
 {
-#ifdef HAVE_LIBFLTK
-#  ifdef WIN32			//// Do registry magic...
-  HKEY		key;		// Registry key
-  DWORD		size;		// Size of string
-  char		value[1024];	// Numeric value
-
-  if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,
-                     "SOFTWARE\\Easy Software Products\\HTMLDOC", 0, NULL,
-                     REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, NULL))
-    return;
-
-  // Save what the HTML editor is...
-  size = strlen(HTMLEditor) + 1;
-  RegSetValueEx(key, "editor", 0, REG_SZ, (unsigned char *)HTMLEditor, size);
-
-  // Now the rest of the options...
-  size = strlen((char *)_htmlTextColor) + 1;
-  RegSetValueEx(key, "textcolor", 0, REG_SZ, (unsigned char *)_htmlTextColor, size);
-
-  size = strlen(BodyColor) + 1;
-  RegSetValueEx(key, "bodycolor", 0, REG_SZ, (unsigned char *)BodyColor, size);
-
-  size = strlen(BodyImage) + 1;
-  RegSetValueEx(key, "bodyimage", 0, REG_SZ, (unsigned char *)BodyImage, size);
-
-  size = strlen(LinkColor) + 1;
-  RegSetValueEx(key, "linkcolor", 0, REG_SZ, (unsigned char *)LinkColor, size);
-
-  sprintf(value, "%d", LinkStyle);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "linkstyle", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%.0f", _htmlBrowserWidth);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "browserwidth", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PageWidth);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pagewidth", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PageLength);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pagelength", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PageLeft);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pageleft", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PageRight);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pageright", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PageTop);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pagetop", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PageBottom);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pagebottom", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PageDuplex);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pageduplex", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", Landscape);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "landscape", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", Compression);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "compression", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", OutputColor);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "outputcolor", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", TocNumbers);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "tocnumbers", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", TocLevels);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "toclevels", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", OutputJPEG);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "jpeg", 0, REG_SZ, (unsigned char *)value, size);
-
-  size = strlen(Header) + 1;
-  RegSetValueEx(key, "pageheader", 0, REG_SZ, (unsigned char *)Header, size);
-
-  size = strlen(Footer) + 1;
-  RegSetValueEx(key, "pagefooter", 0, REG_SZ, (unsigned char *)Footer, size);
-
-  size = strlen(TocHeader) + 1;
-  RegSetValueEx(key, "tocheader", 0, REG_SZ, (unsigned char *)TocHeader, size);
-
-  size = strlen(TocFooter) + 1;
-  RegSetValueEx(key, "tocfooter", 0, REG_SZ, (unsigned char *)TocFooter, size);
-
-  size = strlen(TocTitle) + 1;
-  RegSetValueEx(key, "toctitle", 0, REG_SZ, (unsigned char *)TocTitle, size);
-
-  sprintf(value, "%d", _htmlBodyFont);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "bodyfont", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", _htmlHeadingFont);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "headingfont", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%.1f", _htmlSizes[SIZE_P]);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "fontsize", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%.1f", _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "fontspacing", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", HeadFootType);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "headfoottype", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", HeadFootStyle);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "headfootstyle", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%.1f", HeadFootSize);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "headfootsize", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%.1f", PDFVersion);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pdfversion", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PSLevel);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pslevel", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PSCommands);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pscommands", 0, REG_SZ, (unsigned char *)value, size);
-
-  size = strlen(_htmlCharSet) + 1;
-  RegSetValueEx(key, "charset", 0, REG_SZ, (unsigned char *)_htmlCharSet, size);
-
-  sprintf(value, "%d", PDFPageMode);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pagemode", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PDFPageLayout);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pagelayout", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PDFFirstPage);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "firstpage", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", PDFEffect);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pageeffect", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%.1f", PDFPageDuration);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "pageduration", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%.1f", PDFEffectDuration);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "effectduration", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", Encryption);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "encryption", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", Permissions);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "permissions", 0, REG_SZ, (unsigned char *)value, size);
-
-  size = strlen(OwnerPassword) + 1;
-  RegSetValueEx(key, "ownerpassword", 0, REG_SZ,
-                (unsigned char *)OwnerPassword, size);
-
-  size = strlen(UserPassword) + 1;
-  RegSetValueEx(key, "userpassword", 0, REG_SZ,
-                (unsigned char *)UserPassword, size);
-
-  sprintf(value, "%d", Links);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "links", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", TrueType);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "truetype", 0, REG_SZ, (unsigned char *)value, size);
-
-  size = strlen(Path) + 1;
-  RegSetValueEx(key, "path", 0, REG_SZ, (unsigned char *)Path, size);
-
-  size = strlen(Proxy) + 1;
-  RegSetValueEx(key, "proxy", 0, REG_SZ, (unsigned char *)Proxy, size);
-
-  RegCloseKey(key);
-#  else				//// Do .htmldocrc file in home dir...
-  char	htmldocrc[1024];	// HTMLDOC RC file
   FILE	*fp;			// File pointer
 
 
-  if (getenv("HOME") != NULL)
+  if ((fp = fopen(prefs_getrc(), "w")) != NULL)
   {
-    sprintf(htmldocrc, "%s/.htmldocrc", getenv("HOME"));
+    fputs("#HTMLDOCRC " SVERSION "\n", fp);
 
-    if ((fp = fopen(htmldocrc, "w")) != NULL)
-    {
-      fputs("#HTMLDOCRC " SVERSION "\n", fp);
+    fprintf(fp, "TEXTCOLOR=%s\n", _htmlTextColor);
+    fprintf(fp, "BODYCOLOR=%s\n", BodyColor);
+    fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
+    fprintf(fp, "LINKCOLOR=%s\n", LinkColor);
+    fprintf(fp, "LINKSTYLE=%d\n", LinkStyle);
+    fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlBrowserWidth);
+    fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
+    fprintf(fp, "PAGELENGTH=%d\n", PageLength);
+    fprintf(fp, "PAGELEFT=%d\n", PageLeft);
+    fprintf(fp, "PAGERIGHT=%d\n", PageRight);
+    fprintf(fp, "PAGETOP=%d\n", PageTop);
+    fprintf(fp, "PAGEBOTTOM=%d\n", PageBottom);
+    fprintf(fp, "PAGEDUPLEX=%d\n", PageDuplex);
+    fprintf(fp, "LANDSCAPE=%d\n", Landscape);
+    fprintf(fp, "COMPRESSION=%d\n", Compression);
+    fprintf(fp, "OUTPUTCOLOR=%d\n", OutputColor);
+    fprintf(fp, "TOCNUMBERS=%d\n", TocNumbers);
+    fprintf(fp, "TOCLEVELS=%d\n", TocLevels);
+    fprintf(fp, "JPEG=%d\n", OutputJPEG);
+    fprintf(fp, "PAGEHEADER=%s\n", Header);
+    fprintf(fp, "PAGEFOOTER=%s\n", Footer);
+    fprintf(fp, "TOCHEADER=%s\n", TocHeader);
+    fprintf(fp, "TOCFOOTER=%s\n", TocFooter);
+    fprintf(fp, "TOCTITLE=%s\n", TocTitle);
+    fprintf(fp, "BODYFONT=%d\n", _htmlBodyFont);
+    fprintf(fp, "HEADINGFONT=%d\n", _htmlHeadingFont);
+    fprintf(fp, "FONTSIZE=%.2f\n", _htmlSizes[SIZE_P]);
+    fprintf(fp, "FONTSPACING=%.2f\n",
+            _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+    fprintf(fp, "HEADFOOTTYPE=%d\n", HeadFootType);
+    fprintf(fp, "HEADFOOTSTYLE=%d\n", HeadFootStyle);
+    fprintf(fp, "HEADFOOTSIZE=%.2f\n", HeadFootSize);
+    fprintf(fp, "PDFVERSION=%.1f\n", PDFVersion);
+    fprintf(fp, "PSLEVEL=%d\n", PSLevel);
+    fprintf(fp, "PSCOMMANDS=%d\n", PSCommands);
+    fprintf(fp, "CHARSET=%s\n", _htmlCharSet);
+    fprintf(fp, "PAGEMODE=%d\n", PDFPageMode);
+    fprintf(fp, "PAGELAYOUT=%d\n", PDFPageLayout);
+    fprintf(fp, "FIRSTPAGE=%d\n", PDFFirstPage);
+    fprintf(fp, "PAGEEFFECT=%d\n", PDFEffect);
+    fprintf(fp, "PAGEDURATION=%.0f\n", PDFPageDuration);
+    fprintf(fp, "EFFECTDURATION=%.1f\n", PDFEffectDuration);
+    fprintf(fp, "ENCRYPTION=%d\n", Encryption);
+    fprintf(fp, "PERMISSIONS=%d\n", Permissions);
+    fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
+    fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
+    fprintf(fp, "LINKS=%d\n", Links);
+    fprintf(fp, "TRUETYPE=%d\n", TrueType);
+    fprintf(fp, "PATH=%s\n", Path);
+    fprintf(fp, "PROXY=%s\n", Proxy);
 
-      fprintf(fp, "TEXTCOLOR=%s\n", _htmlTextColor);
-      fprintf(fp, "BODYCOLOR=%s\n", BodyColor);
-      fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
-      fprintf(fp, "LINKCOLOR=%s\n", LinkColor);
-      fprintf(fp, "LINKSTYLE=%d\n", LinkStyle);
-      fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlBrowserWidth);
-      fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
-      fprintf(fp, "PAGELENGTH=%d\n", PageLength);
-      fprintf(fp, "PAGELEFT=%d\n", PageLeft);
-      fprintf(fp, "PAGERIGHT=%d\n", PageRight);
-      fprintf(fp, "PAGETOP=%d\n", PageTop);
-      fprintf(fp, "PAGEBOTTOM=%d\n", PageBottom);
-      fprintf(fp, "PAGEDUPLEX=%d\n", PageDuplex);
-      fprintf(fp, "LANDSCAPE=%d\n", Landscape);
-      fprintf(fp, "COMPRESSION=%d\n", Compression);
-      fprintf(fp, "OUTPUTCOLOR=%d\n", OutputColor);
-      fprintf(fp, "TOCNUMBERS=%d\n", TocNumbers);
-      fprintf(fp, "TOCLEVELS=%d\n", TocLevels);
-      fprintf(fp, "JPEG=%d\n", OutputJPEG);
-      fprintf(fp, "PAGEHEADER=%s\n", Header);
-      fprintf(fp, "PAGEFOOTER=%s\n", Footer);
-      fprintf(fp, "TOCHEADER=%s\n", TocHeader);
-      fprintf(fp, "TOCFOOTER=%s\n", TocFooter);
-      fprintf(fp, "TOCTITLE=%s\n", TocTitle);
-      fprintf(fp, "BODYFONT=%d\n", _htmlBodyFont);
-      fprintf(fp, "HEADINGFONT=%d\n", _htmlHeadingFont);
-      fprintf(fp, "FONTSIZE=%.2f\n", _htmlSizes[SIZE_P]);
-      fprintf(fp, "FONTSPACING=%.2f\n",
-              _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
-      fprintf(fp, "HEADFOOTTYPE=%d\n", HeadFootType);
-      fprintf(fp, "HEADFOOTSTYLE=%d\n", HeadFootStyle);
-      fprintf(fp, "HEADFOOTSIZE=%.2f\n", HeadFootSize);
-      fprintf(fp, "PDFVERSION=%.1f\n", PDFVersion);
-      fprintf(fp, "PSLEVEL=%d\n", PSLevel);
-      fprintf(fp, "PSCOMMANDS=%d\n", PSCommands);
-      fprintf(fp, "CHARSET=%s\n", _htmlCharSet);
-      fprintf(fp, "PAGEMODE=%d\n", PDFPageMode);
-      fprintf(fp, "PAGELAYOUT=%d\n", PDFPageLayout);
-      fprintf(fp, "FIRSTPAGE=%d\n", PDFFirstPage);
-      fprintf(fp, "PAGEEFFECT=%d\n", PDFEffect);
-      fprintf(fp, "PAGEDURATION=%.0f\n", PDFPageDuration);
-      fprintf(fp, "EFFECTDURATION=%.1f\n", PDFEffectDuration);
-      fprintf(fp, "ENCRYPTION=%d\n", Encryption);
-      fprintf(fp, "PERMISSIONS=%d\n", Permissions);
-      fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
-      fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
-      fprintf(fp, "LINKS=%d\n", Links);
-      fprintf(fp, "TRUETYPE=%d\n", TrueType);
-      fprintf(fp, "PATH=%s\n", Path);
-      fprintf(fp, "PROXY=%s\n", Proxy);
+    fprintf(fp, "EDITOR=%s\n", HTMLEditor);
 
-      fprintf(fp, "EDITOR=%s\n", HTMLEditor);
-
-      fclose(fp);
-    }
+    fclose(fp);
   }
-#  endif // WIN32
-#endif // HAVE_LIBFLTK
 }
 
 
@@ -1644,7 +1291,7 @@ compare_strings(char *s,	/* I - Command-line string */
 
 
 //
-// 'load_book' - Load a book file...
+// 'load_book()' - Load a book file...
 //
 
 static int				// O  - 1 = success, 0 = failure
@@ -1689,18 +1336,24 @@ load_book(const char   *filename,	// I  - Book file
 
   // Read the second line from the book file; for older book files, this will
   // be the file count; for new files this will be the options...
-  fgets(line, sizeof(line), fp);
-  line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
+  do
+  {
+    fgets(line, sizeof(line), fp);
+    line[strlen(line) - 1] = '\0';	// Drop trailing newline
 
-  if (line[0] == '-')
-    parse_options(line, exportfunc);
+    if (line[0] == '-')
+      parse_options(line, exportfunc);
+  }
+  while (!line[0]);			// Skip blank lines
 
   // Get input files/options...
   while (fgets(line, sizeof(line), fp) != NULL)
   {
-    line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
+    line[strlen(line) - 1] = '\0';	// Drop trailing newline
 
-    if (line[0] == '-')
+    if (!line[0])
+      continue;				// Skip blank lines
+    else if (line[0] == '-')
       parse_options(line, exportfunc);
     else if (line[0] == '\\')
       read_file(line + 1, document);
@@ -1924,6 +1577,12 @@ parse_options(const char   *line,	// I - Options from book file
         *exportfunc = pspdf_export;
 	PSLevel     = 0;
 	PDFVersion  = 1.3f;
+      }
+      else if (strcmp(temp2, "pdf14") == 0)
+      {
+        *exportfunc = pspdf_export;
+	PSLevel     = 0;
+	PDFVersion  = 1.4f;
       }
     }
     else if (strcmp(temp, "--logo") == 0 ||
@@ -2340,7 +1999,7 @@ usage(void)
   puts("  --fontsize {6.0..24.0}");
   puts("  --fontspacing {1.0..3.0}");
   puts("  --footer fff");
-  puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,html}");
+  puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html}");
   puts("  --gray");
   puts("  --header fff");
   puts("  --headfootfont {courier{-bold,-oblique,-boldoblique},\n"
@@ -2423,5 +2082,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.14 2001/03/11 22:29:10 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.15 2001/05/20 13:05:16 mike Exp $".
  */

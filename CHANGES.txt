@@ -1,9 +1,12 @@
-CHANGES.txt - 04/27/2001
+CHANGES.txt - 05/20/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.13
 
     NEW FEATURES
+
+	- Added support for Acrobat 5.0.
+	- Added support for 64-bit encryption of PDF files.
 
     CHANGES
 
@@ -17,6 +20,14 @@ CHANGES IN HTMLDOC v1.8.13
 	- Now allow "<" followed by whitespace, "=", or "<". 
 	  This violates the HTML specification, but we're sick
 	  of people complaining about it.
+	- Preferences are now stored in a user-specific file
+	  under Windows, just like UNIX.  This provides
+	  user-specific preferences and allows preferences to
+	  be kept when upgrading to new versions of HTMLDOC.
+	- The book loading code now allows for blank lines,
+	  even though these are not a part of the format.
+	  (added to support some scripted apps that include
+	   extra newlines...)
 
     BUG FIXES
 

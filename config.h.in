@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.19.2.5 2001/02/23 13:47:12 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.6 2001/05/20 13:05:14 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -65,7 +65,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.12"
+#define SVERSION	"1.8.13"
 
 
 /*
@@ -82,6 +82,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h.in,v 1.19.2.5 2001/02/23 13:47:12 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.6 2001/05/20 13:05:14 mike Exp $".
  */
 
