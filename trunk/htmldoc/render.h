@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.9 2002/04/06 22:14:05 mike Exp $"
+// "$Id: render.h,v 1.10 2002/04/07 13:19:58 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -44,6 +44,7 @@ enum hdRenderType
   HD_RENDERTYPE_TEXT = 1,
   HD_RENDERTYPE_IMAGE = 2,
   HD_RENDERTYPE_BOX = 4,
+  HD_RENDERTYPE_BACKGROUND = 6,
   HD_RENDERTYPE_LINK = 8,
   HD_RENDERTYPE_FORM = 16
 };
@@ -77,6 +78,8 @@ struct hdRenderNode		//// Render node structure
     hdImage	*image;			// Image pointer
 
     float	box[3];			// Box color
+
+    hdStyle	*background;		// Background data
 
     struct
     {
@@ -187,6 +190,10 @@ class hdRender
 		alloc_headings;		// Allocated headings
   hdRenderHeading *headings;		// Headings
 
+  int		num_imgmaps,		// Number of image maps
+		alloc_imgmaps;		// Allocated image maps
+  hdTree	**imgmaps;		// Image maps
+
   int		num_links,		// Number of links
 		alloc_links;		// Allocated links
   hdRenderLink	*links;			// Links
@@ -248,6 +255,9 @@ class hdRender
   void		add_chapter();
 
   void		add_heading(hdTree *node, int page, int top);
+
+  void		add_imgmap(hdTree *t);
+  hdTree	*find_imgmap(const char *name);
 
   void		add_link(const char *name, int page, int top);
   hdRenderLink	*find_link(const char *name);
@@ -443,5 +453,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.9 2002/04/06 22:14:05 mike Exp $".
+// End of "$Id: render.h,v 1.10 2002/04/07 13:19:58 mike Exp $".
 //
