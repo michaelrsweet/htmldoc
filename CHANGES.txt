@@ -12,6 +12,7 @@ CHANGES IN HTMLDOC v1.8.17
 	  to local files for added security in web services.
 	- Long lines in book files can not be broken up using
 	  a trailing backslash.
+	- Added a modern "skin" to the GUI interface.
 
     CHANGES
 
@@ -22,7 +23,7 @@ CHANGES IN HTMLDOC v1.8.17
 	  line endings.
 	- Changed the TOC numbering to use 32-bit integers
 	  instead of 8-bit integers...
-	- Added a modern "skin" to the GUI interface.
+	- Now handle local links with quoted (%HH) characters.
 
     BUG FIXES
 
