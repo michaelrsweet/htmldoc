@@ -33,6 +33,8 @@ CHANGES IN HTMLDOC v1.8.14
 	  the command-line.
 	- Table cell widths could be computed incorrectly,
 	  causing unnecessary wrapping.
+	- The --path option disabled checking for the file
+	  with the original filename.
 
 
 CHANGES IN HTMLDOC v1.8.13
