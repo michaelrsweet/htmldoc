@@ -1,28 +1,44 @@
 //
-// "$Id: HelpView.cxx,v 1.5 1999/09/30 17:19:37 mike Exp $"
+// "$Id: HelpView.cxx,v 1.6 1999/10/12 16:25:30 mike Exp $"
 //
-//   Help Viewer routines for the Common UNIX Printing System (CUPS).
+//   Help Viewer widget routines.
 //
 //   Copyright 1997-1999 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
 //   copyright law.  Distribution and use rights are outblockd in the file
-//   "LICENSE.txt" which should have been included with this file.  If this
+//   "COPYING" which should have been included with this file.  If this
 //   file is missing or damaged please contact Easy Software Products
 //   at:
 //
-//       Attn: CUPS Licensing Information
+//       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
 //       Hollywood, Maryland 20636-3111 USA
 //
-//       Voice: (301) 373-9603
-//       EMail: cups-info@cups.org
-//         WWW: http://www.cups.org
+//       Voice: (301) 373-9600
+//       EMail: info@easysw.com
+//         WWW: http://www.easysw.com
 //
 // Contents:
 //
+//   HelpView::add_block()       - Add a text block to the list.
+//   HelpView::add_link()        - Add a new link to the list.
+//   HelpView::add_target()      - Add a new target to the list.
+//   HelpView::compare_targets() - Compare two targets.
+//   HelpView::draw()            - Draw the HelpView widget.
+//   HelpView::format()          - Format the help text.
+//   HelpView::get_attr()        - Get an attribute value from the string.
+//   HelpView::handle()          - Handle events in the widget.
+//   HelpView::HelpView()        - Build a HelpView widget.
+//   HelpView::~HelpView()       - Destroy a HelpView widget.
+//   HelpView::load()            - Load the specified file.
+//   HelpView::resize()          - Resize the help widget.
+//   HelpView::topline()         - Set the top line to the named target.
+//   HelpView::topline()         - Set the top line by number.
+//   HelpView::value()           - Set the help text directly.
+//   scrollbar_callback()        - A callback for the scrollbar.
 //
 
 //
@@ -33,25 +49,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <cups/string.h>
+#include <string.h>
+
+#if defined(WIN32) || defined(__EMX__)
+#  define strcasecmp(s,t)	stricmp((s), (t))
+#  define strncasecmp(s,t,n)	strnicmp((s), (t), (n))
+#endif // WIN32 || __EMX__
 
 
-static void
-scrollbar_callback(Fl_Widget *s, void *)
+//
+// Local functions...
+//
+
+static void	scrollbar_callback(Fl_Widget *s, void *);
+
+
+//
+// 'HelpView::add_block()' - Add a text block to the list.
+//
+
+HelpBlock *				// O - Pointer to new block
+HelpView::add_block(const char *s,	// I - Pointer to start of block text
+                    int        xx,	// I - X position of block
+		    int        yy,	// I - Y position of block
+		    int        ww,	// I - Right margin of block
+		    int        hh,	// I - Height of block
+		    int        a)	// I - Block alignment
 {
-  ((HelpView *)(s->parent()))->topline(int(((Fl_Scrollbar*)s)->value()));
-}
-
-
-HelpBlock *
-HelpView::add_block(const char *s,
-                    int        xx,
-		    int        yy,
-		    int        ww,
-		    int        hh,
-		    int        a)
-{
-  HelpBlock	*temp;
+  HelpBlock	*temp;			// New block
 
 
   if (nblocks_ >= ablocks_)
@@ -83,14 +108,14 @@ HelpView::add_block(const char *s,
 //
 
 void
-HelpView::add_link(const char *n,
-                   int        xx,
-		   int        yy,
-		   int        ww,
-		   int        hh)
+HelpView::add_link(const char *n,	// I - Name of link
+                   int        xx,	// I - X position of link
+		   int        yy,	// I - Y position of link
+		   int        ww,	// I - Width of link text
+		   int        hh)	// I - Height of link text
 {
-  HelpLink	*temp;
-  char		*target;
+  HelpLink	*temp;			// New link
+  char		*target;		// Pointer to target name
 
 
   if (nlinks_ >= alinks_)
@@ -131,10 +156,10 @@ HelpView::add_link(const char *n,
 //
 
 void
-HelpView::add_target(const char *n,
-                     int        yy)
+HelpView::add_target(const char *n,	// I - Name of target
+                     int        yy)	// I - Y position of target
 {
-  HelpTarget	*temp;
+  HelpTarget	*temp;			// New target
 
 
   if (ntargets_ >= atargets_)
@@ -169,22 +194,29 @@ HelpView::compare_targets(const HelpTarget *t0,	// I - First target
 }
 
 
+//
+// 'HelpView::draw()' - Draw the HelpView widget.
+//
+
 void
 HelpView::draw()
 {
-  int		i;
-  const HelpBlock *block;
-  const char	*ptr,
-		*attrs;
-  char		*s,
-		buf[1024],
-		attr[1024];
-  int		xx, yy, ww, hh;
-  uchar		font, size;
-  int		head, pre, needspace;
+  int		i;		// Looping var
+  const HelpBlock *block;	// Pointer to current block
+  const char	*ptr,		// Pointer to text in block
+		*attrs;		// Pointer to start of element attributes
+  char		*s,		// Pointer into buffer
+		buf[1024],	// Text buffer
+		attr[1024];	// Attribute buffer
+  int		xx, yy, ww, hh;	// Current positions and sizes
+  uchar		font, size;	// Current font and size
+  int		head, pre,	// Flags for text
+		needspace;	// Do we need whitespace?
   Fl_Boxtype	b = box() ? box() : FL_DOWN_BOX;
+				// Box to draw...
 
 
+  // Draw the scrollbar and box first...
   if (scrollbar_.visible())
   {
     draw_child(scrollbar_);
@@ -196,9 +228,11 @@ HelpView::draw()
   if (!value_)
     return;
 
+  // Clip the drawing to the inside of the box...
   fl_push_clip(x() + 4, y() + 4, w() - 28, h() - 8);
   fl_color(FL_BLACK);
 
+  // Draw all visible blocks...
   for (i = 0, block = blocks_; i < nblocks_ && (block->y - topline_) < h(); i ++, block ++)
     if ((block->y + block->h) >= topline_)
     {
@@ -525,24 +559,24 @@ HelpView::draw()
 void
 HelpView::format()
 {
-  HelpBlock	*block,
-		*cell;
-  int		row;
-  const char	*ptr,
-		*start,
-		*attrs;
-  char		*s,
-		buf[1024],
-		attr[1024],
-		link[1024];
-  int		xx, yy, ww, hh;
-  uchar		font, size;
-  int		align,
-		head,
-		pre,
-		needspace;
-  int		column,
-		columns[200];
+  HelpBlock	*block,		// Current block
+		*cell;		// Current table cell
+  int		row;		// Current table row (block number)
+  const char	*ptr,		// Pointer into block
+		*start,		// Pointer to start of element
+		*attrs;		// Pointer to start of element attributes
+  char		*s,		// Pointer into buffer
+		buf[1024],	// Text buffer
+		attr[1024],	// Attribute buffer
+		link[1024];	// Link destination
+  int		xx, yy, ww, hh;	// Size of current text fragment
+  uchar		font, size;	// Current font and size
+  int		align,		// Current alignment
+		head,		// In the <HEAD> section?
+		pre,		// <PRE> text?
+		needspace;	// Do we need whitespace?
+  int		column,		// Current table column number
+		columns[200];	// Column widths
 
 
   nblocks_  = 0;
@@ -1102,13 +1136,17 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
 }
 
 
-int
-HelpView::handle(int event)
+//
+// 'HelpView::handle()' - Handle events in the widget.
+//
+
+int				// O - 1 if we handled it, 0 otherwise
+HelpView::handle(int event)	// I - Event to handle
 {
-  int		i;
-  int		xx, yy;
-  HelpLink	*link;
-  char		target[32];
+  int		i;		// Looping var
+  int		xx, yy;		// Adjusted mouse position
+  HelpLink	*link;		// Current link
+  char		target[32];	// Current target
 
 
   switch (event)
@@ -1164,7 +1202,11 @@ HelpView::handle(int event)
 // 'HelpView::HelpView()' - Build a HelpView widget.
 //
 
-HelpView::HelpView(int xx, int yy, int ww, int hh, const char *l)
+HelpView::HelpView(int        xx,	// I - Left position
+                   int        yy,	// I - Top position
+		   int        ww,	// I - Width in pixels
+		   int        hh,	// I - Height in pixels
+		   const char *l)
     : Fl_Group(xx, yy, ww, hh, l),
       scrollbar_(xx + ww - 20, yy, 20, hh)
 {
@@ -1225,9 +1267,9 @@ HelpView::~HelpView()
 int				// O - 0 on success, -1 on error
 HelpView::load(const char *f)	// I - Filename to load (may also have target)
 {
-  FILE	*fp;		// File to read from
-  long	len;		// Length of file
-  char	*target;	// Target in file
+  FILE	*fp;			// File to read from
+  long	len;			// Length of file
+  char	*target;		// Target in file
 
 
   strcpy(filename_, f);
@@ -1264,10 +1306,13 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
 //
 
 void
-HelpView::resize(int x, int y, int w, int h)
+HelpView::resize(int xx,	// I - New left position
+                 int yy,	// I - New top position
+		 int ww,	// I - New width
+		 int hh)	// I - New height
 {
-  Fl_Widget::resize(x, y, w, h);
-  scrollbar_.resize(x + w - 20, y, 20, h);
+  Fl_Widget::resize(xx, yy, ww, hh);
+  scrollbar_.resize(xx + ww - 20, yy, 20, hh);
 
   format();
 }
@@ -1350,5 +1395,16 @@ HelpView::value(const char *v)	// I - Text to view
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.5 1999/09/30 17:19:37 mike Exp $".
+// 'scrollbar_callback()' - A callback for the scrollbar.
+//
+
+static void
+scrollbar_callback(Fl_Widget *s, void *)
+{
+  ((HelpView *)(s->parent()))->topline(int(((Fl_Scrollbar*)s)->value()));
+}
+
+
+//
+// End of "$Id: HelpView.cxx,v 1.6 1999/10/12 16:25:30 mike Exp $".
 //

@@ -1,25 +1,25 @@
 //
-// "$Id: HelpView.h,v 1.4 1999/09/30 17:19:37 mike Exp $"
+// "$Id: HelpView.h,v 1.5 1999/10/12 16:25:30 mike Exp $"
 //
-//   Help View definitions for the Common UNIX Printing System (CUPS).
+//   Help Viewer widget definitions.
 //
 //   Copyright 1997-1999 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
 //   copyright law.  Distribution and use rights are outblockd in the file
-//   "LICENSE.txt" which should have been included with this file.  If this
+//   "COPYING" which should have been included with this file.  If this
 //   file is missing or damaged please contact Easy Software Products
 //   at:
 //
-//       Attn: CUPS Licensing Information
+//       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
 //       Hollywood, Maryland 20636-3111 USA
 //
-//       Voice: (301) 373-9603
-//       EMail: cups-info@cups.org
-//         WWW: http://www.cups.org
+//       Voice: (301) 373-9600
+//       EMail: info@easysw.com
+//         WWW: http://www.easysw.com
 //
 
 #ifndef _GUI_HELPVIEW_H_
@@ -148,5 +148,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.4 1999/09/30 17:19:37 mike Exp $".
+// End of "$Id: HelpView.h,v 1.5 1999/10/12 16:25:30 mike Exp $".
 //

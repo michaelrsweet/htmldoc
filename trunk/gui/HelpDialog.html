@@ -1,0 +1,104 @@
+<HTML>
+<HEAD>
+	<TITLE>HelpDialog Widget for FLTK</TITLE>
+	<STYLE>H1 { font-family: sans-serif; font-size: 36pt }
+	H2 { font-family: sans-serif }
+	H3 { font-family: monospace }
+	P { margin-left: 2em }
+	UL { margin-left: 2em }
+	CODE { font-weight: bold }</STYLE>
+</HEAD>
+<BODY BGCOLOR="#ccccff">
+
+<H1 ALIGN=CENTER>HelpDialog Widget for FLTK</H1>
+
+<P ALIGN=CENTER>Version 1.0 - October 12, 1999 -
+<A HREF="mailto:mike@easysw.com">Michael Sweet</A>
+
+<H2>Introduction</H2>
+
+<P>The <CODE>HelpDialog</CODE> widget displays HTML files and allows the user
+to click on links to do navigation.
+
+<H2><A HREF="HelpDialog.gif">
+<IMG SRC="HelpDialog.gif" ALIGN="RIGHT" WIDTH="273" HEIGHT="214"></A>
+Source Code</H2>
+
+<P>The source code is provided under the terms of the GNU Library General
+Public License and is used to provide on-line help for the
+<A HREF="http://www.easysw.com/printpro">ESP Print Pro</A> software.
+
+<P>You can download the source for the current version (1.0) in several
+formats:
+
+<UL>
+	<LI><A HREF="HelpDialog-1.0.tar.gz">HelpDialog-1.0.tar.gz (34k)</A>
+	<LI><A HREF="HelpDialog-1.0.zip">HelpDialog-1.0.zip (35k)</A>
+</UL>
+
+<H2>Overview</H2>
+
+<P>The <code>HelpDialog</code> widget is based upon the <CODE>HelpView</CODE>
+widget which supports basic HTML elements including tables. Images and text
+alignment are not supported at this time, although the hooks are there for
+the alignment stuff.
+
+<P>To use the <CODE>HelpDialog</CODE> widget in your program do:
+
+<UL><PRE>
+#include "HelpDialog.h"
+
+...
+
+{
+  HelpView help();
+
+  help.load("filename.html");
+  help.show();
+  while (help.visible())
+    Fl::wait();
+}
+</PRE></UL>
+
+<H2>Methods</H2>
+
+<UL>
+
+	<LI><CODE><A HREF="#HelpDialog">HelpDialog</A></CODE>
+	<LI><CODE><A HREF="#hide">hide</A></CODE>
+	<LI><CODE><A HREF="#load">load</A></CODE>
+	<LI><CODE><A HREF="#show">show</A></CODE>
+	<LI><CODE><A HREF="#topline">topline</A></CODE>
+	<LI><CODE><A HREF="#visible">visible</A></CODE>
+
+</UL>
+
+<H3><A NAME="HelpDialog">HelpDialog::HelpDialog()</A></H3>
+
+<P>The constructor creates the dialog pictured above.
+
+<H3><A NAME="hide">void HelpDialog::hide()</A></H3>
+
+<P>Hides the <code>HelpDialog</code> window.
+
+<H3><A NAME="load">void HelpDialog::load(const char *f)</A></H3>
+
+<P>Loads the specified HTML file into the <CODE>HelpView</CODE> widget.
+The filename can also contain a target name ("filename.html#target").
+
+<H3><A NAME="show">void HelpDialog::show()</A></H3>
+
+<P>Shows the <code>HelpDialog</code> window.
+
+<H3><A NAME="topline">void HelpDialog::topline(const char *n)<BR>
+void HelpDialog::topline(int n)</A></H3>
+
+<P>Sets the top line in the <CODE>HelpView</CODE> widget to the named or
+numbered line.
+
+<H3><A NAME="visible">int HelpDialog::visible()</A></H3>
+
+<P>Returns 1 if the <code>HelpDialog</code> window is visible.
+
+</BODY>
+</HTML>
