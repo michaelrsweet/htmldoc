@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.5 1999/11/16 21:53:10 mike Exp $"
+# "$Id: Makefile,v 1.6 1999/11/17 22:03:05 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -92,7 +92,7 @@ htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc
 #
 
 htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v -f htmldoc.pdf --duplex --jpeg --compression=9 \
+	../htmldoc/htmldoc -v -f htmldoc.pdf --duplex --jpeg --compression=1 \
 		--titleimage htmldoc.png --datadir .. $(SOURCES)
 
 
@@ -106,5 +106,5 @@ htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
 
 
 #
-# End of "$Id: Makefile,v 1.5 1999/11/16 21:53:10 mike Exp $".
+# End of "$Id: Makefile,v 1.6 1999/11/17 22:03:05 mike Exp $".
 #
