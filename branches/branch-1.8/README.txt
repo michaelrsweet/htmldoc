@@ -1,4 +1,4 @@
-README.txt - 10/20/2001
+README.txt - 10/26/2001
 -----------------------
 
 INTRODUCTION
@@ -109,6 +109,14 @@ INSTALLING HTMLDOC UNDER UNIX
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
+
+
+INSTALLING HTMLDOC UNDER MacOS X
+
+    Type the following commands to install HTMLDOC under MacOS X:
+
+        tar xzf htmldoc-1.8.15-darwin-1.4-powerpc.tar.gz ENTER
+	sudo ./htmldoc.install ENTER
 
 
 RUNNING HTMLDOC FROM THE COMMAND-LINE
