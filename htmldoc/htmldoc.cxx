@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.12 1999/11/16 17:18:22 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.13 1999/11/16 18:42:15 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -685,6 +685,12 @@ main(int  argc,		/* I - Number of command-line arguments */
       TocLevels  = 0;
       TitlePage  = 0;
       OutputBook = 0;
+
+      if (exportfunc == html_export)
+      {
+        exportfunc = pspdf_export;
+	PSLevel    = 0;
+      }
     }
     else if (strcmp(argv[i], "-") == 0)
     {
@@ -1660,5 +1666,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.12 1999/11/16 17:18:22 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.13 1999/11/16 18:42:15 mike Exp $".
  */
