@@ -7,8 +7,6 @@ html.o: htmldoc.h html.h style.h file.h hdstring.h ../config.h types.h
 html.o: iso8859.h image.h debug.h progress.h gui.h
 htmldoc.o: htmldoc.h html.h style.h file.h hdstring.h ../config.h types.h
 htmldoc.o: iso8859.h image.h debug.h progress.h gui.h
-htmllib.o: htmldoc.h html.h style.h file.h hdstring.h ../config.h types.h
-htmllib.o: iso8859.h image.h debug.h progress.h gui.h
 htmlsep.o: htmldoc.h html.h style.h file.h hdstring.h ../config.h types.h
 htmlsep.o: iso8859.h image.h debug.h progress.h gui.h
 http-addr.o: hdstring.h ../config.h http.h md5.h

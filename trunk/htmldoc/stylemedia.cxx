@@ -1,5 +1,5 @@
 //
-// "$Id: stylemedia.cxx,v 1.4 2004/03/31 09:35:38 mike Exp $"
+// "$Id: stylemedia.cxx,v 1.5 2004/03/31 10:35:07 mike Exp $"
 //
 //   CSS media routines for HTMLDOC, a HTML document processing program.
 //
@@ -98,6 +98,7 @@ void
 hdStyleMedia::set_size(float w,		// I - Width in points
                        float l)		// I - Length in points
 {
+#if 0
   hdPageSize	*s;			// Current size record
 
 
@@ -113,6 +114,7 @@ hdStyleMedia::set_size(float w,		// I - Width in points
     // If the size wasn't found, use wNNNhNNN...
     sprintf(size_name, "w%dh%d", (int)w, (int)l);
   }
+#endif // 0
 
   // Now set the page size and update the printable area...
   page_width  = w;
@@ -129,6 +131,7 @@ hdStyleMedia::set_size(float w,		// I - Width in points
 void
 hdStyleMedia::set_size(const char *name)// I - Page size name
 {
+#if 0
   hdPageSize	*s;			// Current size record
   int		w, l;			// Width and length in points
 
@@ -160,6 +163,7 @@ hdStyleMedia::set_size(const char *name)// I - Page size name
       update_printable();
     }
   }
+#endif // 0
 }
 
 
@@ -188,5 +192,5 @@ hdStyleMedia::update_printable()
 
 
 //
-// End of "$Id: stylemedia.cxx,v 1.4 2004/03/31 09:35:38 mike Exp $".
+// End of "$Id: stylemedia.cxx,v 1.5 2004/03/31 10:35:07 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.14 2004/03/31 09:51:27 mike Exp $"
+// "$Id: style.cxx,v 1.15 2004/03/31 10:35:07 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -48,7 +48,7 @@
 // Include necessary headers.
 //
 
-#include "tree.h"
+#include "htmldoc.h"
 #include "hdstring.h"
 #include <stdlib.h>
 
@@ -623,6 +623,19 @@ hdStyle::get_width(const char *s)	// I - String
     return (font->get_width(s) * font_size);
 }
 
+#define hdElIsBlock(x)	((x) == HD_ELEMENT_CENTER || (x) == HD_ELEMENT_DIV ||\
+			 (x) == HD_ELEMENT_BLOCKQUOTE ||\
+			 (x) == HD_ELEMENT_ADDRESS || \
+			 (x) == HD_ELEMENT_P || (x) == HD_ELEMENT_PRE ||\
+			 ((x) >= HD_ELEMENT_H1 && (x) <= HD_ELEMENT_H15) ||\
+			 (x) == HD_ELEMENT_HR || (x) == HD_ELEMENT_TABLE)
+#define hdElIsList(x)	((x) == HD_ELEMENT_DL || (x) == HD_ELEMENT_OL ||\
+			 (x) == HD_ELEMENT_UL || (x) == HD_ELEMENT_DIR ||\
+			 (x) == HD_ELEMENT_MENU || (x) == HD_ELEMENT_LI ||\
+			 (x) == HD_ELEMENT_DD || (x) == HD_ELEMENT_DT)
+#define hdElIsTable(x)	((x) == HD_ELEMENT_TBODY || (x) == HD_ELEMENT_THEAD ||\
+			 (x) == HD_ELEMENT_TFOOT || (x) == HD_ELEMENT_TR ||\
+			 (x) == HD_ELEMENT_TD || (x) == HD_ELEMENT_TH)
 
 //
 // 'hdStyle::inherit()' - Inherit style properties from a parent style.
@@ -2925,5 +2938,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.14 2004/03/31 09:51:27 mike Exp $".
+// End of "$Id: style.cxx,v 1.15 2004/03/31 10:35:07 mike Exp $".
 //

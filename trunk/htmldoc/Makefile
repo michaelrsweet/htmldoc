@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.38 2004/03/31 09:35:38 mike Exp $"
+#   "$Id: Makefile,v 1.39 2004/03/31 10:35:07 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -38,7 +38,6 @@ LIBOBJS	=	\
 		gui.o \
 		html.o \
 		htmldoc.o \
-		htmllib.o \
 		htmlsep.o \
 		http.o \
 		http-addr.o \
@@ -57,6 +56,7 @@ LIBOBJS	=	\
 		stylemedia.o \
 		stylesheet.o \
 		toc.o \
+		tree.o \
 		util.o
 
 OBJS	=	\
@@ -174,5 +174,5 @@ include Dependencies
 
 
 #
-# End of "$Id: Makefile,v 1.38 2004/03/31 09:35:38 mike Exp $".
+# End of "$Id: Makefile,v 1.39 2004/03/31 10:35:07 mike Exp $".
 #

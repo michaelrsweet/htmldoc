@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.96 2004/03/31 09:56:37 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.97 2004/03/31 10:35:07 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2807,9 +2807,9 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     * Find and count the children (entries)...
     */
 
-    if (toc->markup == HD_ELEMENT_B || toc->markup == HD_ELEMENT_LI)
+    if (toc->element == HD_ELEMENT_B || toc->element == HD_ELEMENT_LI)
     {
-      if (toc->next != NULL && toc->next->markup == HD_ELEMENT_UL)
+      if (toc->next != NULL && toc->next->element == HD_ELEMENT_UL)
 	temp = toc->next->child;
       else
 	temp = NULL;
@@ -2835,11 +2835,11 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     }
 
     for (; temp != NULL && count <= num_headings; temp = temp->next)
-      if (temp->markup == HD_ELEMENT_B || temp->markup == HD_ELEMENT_LI)
+      if (temp->element == HD_ELEMENT_B || temp->element == HD_ELEMENT_LI)
       {
 	entries[count]       = temp;
 	entry_objects[count] = entry;
-	if (temp->next != NULL && temp->next->markup == HD_ELEMENT_UL)
+	if (temp->next != NULL && temp->next->element == HD_ELEMENT_UL)
           entry_counts[count] = pdf_count_headings(temp->next->child);
 	else
           entry_counts[count] = 0;
@@ -2865,7 +2865,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       fprintf(out, "/Last %d 0 R", entry_objects[count - 1]);
     }
 
-    if (toc->markup == HD_ELEMENT_B || toc->markup == HD_ELEMENT_LI)
+    if (toc->element == HD_ELEMENT_B || toc->element == HD_ELEMENT_LI)
     {
       if ((text = htmlGetText(toc->child)) != NULL)
       {
@@ -2917,9 +2917,9 @@ pdf_count_headings(hdTree *toc)	/* I - TOC entry */
 
 
   for (headings = 0; toc != NULL; toc = toc->next)
-    if (toc->markup == HD_ELEMENT_B || toc->markup == HD_ELEMENT_LI)
+    if (toc->element == HD_ELEMENT_B || toc->element == HD_ELEMENT_LI)
       headings ++;
-    else if (toc->markup == HD_ELEMENT_UL && toc->child != NULL)
+    else if (toc->element == HD_ELEMENT_UL && toc->child != NULL)
       headings += pdf_count_headings(toc->child);
 
   return (headings);
@@ -3528,7 +3528,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
       }
     }
 
-    switch (temp->markup)
+    switch (temp->element)
     {
       case HD_ELEMENT_A :
           if ((link = htmlGetVariable(temp, (uchar *)"NAME")) != NULL)
@@ -3621,7 +3621,7 @@ count_headings(hdTree *t)		// I - Tree to count
 
   while (t != NULL)
   {
-    switch (t->markup)
+    switch (t->element)
     {
       case HD_ELEMENT_B :
       case HD_ELEMENT_LI :
@@ -3659,7 +3659,7 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
   while (t != NULL)
   {
-    switch (t->markup)
+    switch (t->element)
     {
       case HD_ELEMENT_B :	/* Top-level TOC */
           if (t->prev != NULL)	/* Advance one line prior to margins->top()-levels... */
@@ -3688,14 +3688,14 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
 	    check_pages(*page);
 
-	    if (t->markup == HD_ELEMENT_B &&
+	    if (t->element == HD_ELEMENT_B &&
 		pages[*page].chapter == pages[*page - 1].chapter)
 	      pages[*page].chapter = htmlGetText(t->child);
 
 	    if (pages[*page].heading == pages[*page - 1].heading)
 	      pages[*page].heading = htmlGetText(t->child);
           }
-	  else if (t->next != NULL && t->next->markup == HD_ELEMENT_UL)
+	  else if (t->next != NULL && t->next->element == HD_ELEMENT_UL)
 	  {
 	   /*
 	    * Skip children of omitted heading...
@@ -3759,8 +3759,8 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
   while (t != NULL)
   {
-    if (((t->markup == HD_ELEMENT_H1 && OutputType == OUTPUT_BOOK) ||
-         (t->markup == HD_ELEMENT_FILE && OutputType == OUTPUT_WEBPAGES)) &&
+    if (((t->element == HD_ELEMENT_H1 && OutputType == OUTPUT_BOOK) ||
+         (t->element == HD_ELEMENT_FILE && OutputType == OUTPUT_WEBPAGES)) &&
 	!title_page)
     {
       // New page on H1 in book mode or file in webpage mode...
@@ -3815,7 +3815,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
       add_link(name, *page, (int)*y);
     }
-    else if (t->markup == HD_ELEMENT_FILE)
+    else if (t->element == HD_ELEMENT_FILE)
     {
      /*
       * Add a file link...
@@ -3839,7 +3839,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
     if (chapter == 0 && !title_page)
     {
       // Need to handle page comments before the first heading...
-      if (t->markup == HD_ELEMENT_COMMENT)
+      if (t->element == HD_ELEMENT_COMMENT)
         parse_comment(t, margins, x, y, page, para, *needspace);
 
       if (t->child != NULL)
@@ -3876,7 +3876,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
     }
 
     // Process the markup...
-    switch (t->markup)
+    switch (t->element)
     {
       case HD_ELEMENT_IMG :
           update_image_size(t);
@@ -3897,11 +3897,11 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
           }
 
 	  // Skip heading whitespace...
-          if (para->child == NULL && t->markup == HD_ELEMENT_NONE &&
+          if (para->child == NULL && t->element == HD_ELEMENT_NONE &&
 	      t->data != NULL && strcmp((char *)t->data, " ") == 0)
 	    break;
 
-          if ((temp = htmlAddTree(para, t->markup, t->data)) != NULL)
+          if ((temp = htmlAddTree(para, t->element, t->data)) != NULL)
           {
 	    temp->link          = t->link;
             temp->width         = t->width;
@@ -4092,9 +4092,9 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
           parse_list(t, margins, x, y, page, *needspace);
 
           *x         = margins->left();
-          *needspace = t->next && t->next->markup != HD_ELEMENT_LI &&
-	               t->next->markup != HD_ELEMENT_UL &&
-		       t->next->markup != HD_ELEMENT_OL;
+          *needspace = t->next && t->next->element != HD_ELEMENT_LI &&
+	               t->next->element != HD_ELEMENT_UL &&
+		       t->next->element != HD_ELEMENT_OL;
           break;
 
       case HD_ELEMENT_DT :
@@ -4247,7 +4247,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
               para->indent     = t->indent;
             }
 
-            if ((temp = htmlAddTree(para, t->markup, t->data)) != NULL)
+            if ((temp = htmlAddTree(para, t->element, t->data)) != NULL)
             {
 	      temp->link          = t->link;
               temp->width         = t->width;
@@ -4340,7 +4340,7 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
                 t, margins->left(), margins->right(), margins->bottom(),
 		margins->top(), *x, *y, *page, needspace));
 
-  if (((t->markup - HD_ELEMENT_H1) < TocLevels || TocLevels == 0) && !title_page)
+  if (((t->element - HD_ELEMENT_H1) < TocLevels || TocLevels == 0) && !title_page)
     current_heading = t->child;
 
   if (*y < (5 * _htmlSpacings[SIZE_P] + margins->bottom()))
@@ -4356,17 +4356,17 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
 
   check_pages(*page);
 
-  if (t->markup == HD_ELEMENT_H1 && !title_page)
+  if (t->element == HD_ELEMENT_H1 && !title_page)
     pages[*page].chapter = htmlGetText(current_heading);
 
-  if ((pages[*page].heading == NULL || t->markup == HD_ELEMENT_H1 ||
+  if ((pages[*page].heading == NULL || t->element == HD_ELEMENT_H1 ||
       (*page > 0 && pages[*page].heading == pages[*page - 1].heading)) &&
       !title_page)
     pages[*page].heading = htmlGetText(current_heading);
 
-  if ((t->markup - HD_ELEMENT_H1) < TocLevels && !title_page)
+  if ((t->element - HD_ELEMENT_H1) < TocLevels && !title_page)
   {
-    DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - HD_ELEMENT_H1 + 1,
+    DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->element - HD_ELEMENT_H1 + 1,
                   num_headings, *page - 1));
 
     // See if we need to resize the headings arrays...
@@ -4420,7 +4420,7 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
 
   parse_paragraph(t, margins, x, y, page, needspace);
 
-  if (t->halignment == HD_TEXTALIGN_RIGHT && t->markup == HD_ELEMENT_H1 &&
+  if (t->halignment == HD_TEXTALIGN_RIGHT && t->element == HD_ELEMENT_H1 &&
       OutputType == OUTPUT_BOOK && !title_page)
   {
    /*
@@ -4502,10 +4502,10 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
   for (temp = flat, prev = NULL; temp != NULL;)
   {
-    if (temp->markup == HD_ELEMENT_IMG)
+    if (temp->element == HD_ELEMENT_IMG)
       update_image_size(temp);
 
-    if (temp->markup == HD_ELEMENT_IMG &&
+    if (temp->element == HD_ELEMENT_IMG &&
         (align = htmlGetVariable(temp, (uchar *)"ALIGN")))
     {
       if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
@@ -4757,7 +4757,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
       while (temp != NULL && !whitespace)
       {
-        if (temp->markup == HD_ELEMENT_NONE && temp->data[0] == ' ')
+        if (temp->element == HD_ELEMENT_NONE && temp->data[0] == ' ')
 	{
           if (temp == start)
             temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
@@ -4771,7 +4771,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         if (whitespace)
 	  break;
 
-        if (temp->markup == HD_ELEMENT_IMG)
+        if (temp->element == HD_ELEMENT_IMG)
 	{
 	  if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
 	    borderspace = atof((char *)border);
@@ -4790,7 +4790,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         temp_width += prev->width;
 
         
-        if (prev->markup == HD_ELEMENT_BR)
+        if (prev->element == HD_ELEMENT_BR)
 	  break;
       }
 
@@ -4800,7 +4800,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         end  = temp;
         flat = temp;
 
-        if (prev->markup == HD_ELEMENT_BR)
+        if (prev->element == HD_ELEMENT_BR)
           break;
       }
       else if (width == 0.0)
@@ -4827,13 +4827,13 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     {
       prev = temp;
 
-      if (temp->markup == HD_ELEMENT_NONE)
+      if (temp->element == HD_ELEMENT_NONE)
         num_chars += strlen((char *)temp->data);
 
       if (temp->height > height &&
-          (temp->markup != HD_ELEMENT_IMG || temp->valignment != HD_VERTICALALIGN_MIDDLE))
+          (temp->element != HD_ELEMENT_IMG || temp->valignment != HD_VERTICALALIGN_MIDDLE))
         height = temp->height;
-      else if ((0.5 * temp->height) > height && temp->markup == HD_ELEMENT_IMG &&
+      else if ((0.5 * temp->height) > height && temp->element == HD_ELEMENT_IMG &&
                temp->valignment == HD_VERTICALALIGN_MIDDLE)
         height = 0.5 * temp->height;
 
@@ -4847,7 +4847,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     {
       prev = temp;
 
-      if (temp->markup != HD_ELEMENT_IMG)
+      if (temp->element != HD_ELEMENT_IMG)
         temp_height = temp->height * _htmlSpacings[0] / _htmlSizes[0];
       else
       {
@@ -4899,10 +4899,10 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       height = spacing;
 
     for (temp = start; temp != end; temp = temp->next)
-      if (temp->markup != HD_ELEMENT_A)
+      if (temp->element != HD_ELEMENT_A)
         break;
 
-    if (temp != NULL && temp->markup == HD_ELEMENT_NONE && temp->data[0] == ' ')
+    if (temp != NULL && temp->element == HD_ELEMENT_NONE && temp->data[0] == ' ')
     {
       // Drop leading space...
       for (dataptr = temp->data; *dataptr; dataptr ++)
@@ -4962,7 +4962,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
       case HD_TEXTALIGN_JUSTIFY :
           linex = margins->left();
-	  if (flat != NULL && flat->prev->markup != HD_ELEMENT_BR && num_chars > 1)
+	  if (flat != NULL && flat->prev->element != HD_ELEMENT_BR && num_chars > 1)
 	    char_spacing = (margins->width() - width) / (num_chars - 1);
 	  break;
     }
@@ -4970,7 +4970,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     while (temp != end)
     {
       if (temp->link != NULL && PSLevel == 0 && Links &&
-          temp->markup == HD_ELEMENT_NONE)
+          temp->element == HD_ELEMENT_NONE)
       {
 	temp->red   = (int)(link_color[0] * 255.0);
 	temp->green = (int)(link_color[1] * 255.0);
@@ -4983,7 +4983,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       */
 
       if (linetype != NULL &&
-	  (temp->markup != HD_ELEMENT_NONE ||
+	  (temp->element != HD_ELEMENT_NONE ||
 	   temp->typeface != linetype->typeface ||
 	   temp->style != linetype->style ||
 	   temp->size != linetype->size ||
@@ -5023,7 +5023,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       }
 
 
-      switch (temp->markup)
+      switch (temp->element)
       {
         case HD_ELEMENT_A :
             if ((link = htmlGetVariable(temp, (uchar *)"NAME")) != NULL)
@@ -5270,7 +5270,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
   if (flat == NULL)
     return;
 
-  if (flat->markup == HD_ELEMENT_NONE && flat->data != NULL)
+  if (flat->element == HD_ELEMENT_NONE && flat->data != NULL)
   {
     // Skip leading blank line, if present...
     for (dataptr = flat->data; isspace(*dataptr); dataptr ++);
@@ -5294,8 +5294,8 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
       if (flat->height > height)
         height = flat->height;
 
-      if (flat->markup == HD_ELEMENT_BR ||
-          (flat->markup == HD_ELEMENT_NONE && flat->data &&
+      if (flat->element == HD_ELEMENT_BR ||
+          (flat->element == HD_ELEMENT_NONE && flat->data &&
 	   flat->data[strlen((char *)flat->data) - 1] == '\n'))
         break;
     }
@@ -5354,7 +5354,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 	}
       }
 
-      switch (start->markup)
+      switch (start->element)
       {
 	case HD_ELEMENT_A :
             if ((link = htmlGetVariable(start, (uchar *)"NAME")) != NULL)
@@ -5622,7 +5622,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
   {
     tempnext = temprow->next;
 
-    if (temprow->markup == HD_ELEMENT_CAPTION)
+    if (temprow->element == HD_ELEMENT_CAPTION)
     {
       if ((var = htmlGetVariable(temprow, (uchar *)"ALIGN")) == NULL ||
           strcasecmp((char *)var, "bottom"))
@@ -5643,20 +5643,20 @@ parse_table(hdTree   *t,		// I - Tree to parse
         caption = temprow;
       }
     }
-    else if (temprow->markup == HD_ELEMENT_TR ||
-             ((temprow->markup == HD_ELEMENT_TBODY || temprow->markup == HD_ELEMENT_THEAD ||
-               temprow->markup == HD_ELEMENT_TFOOT) && temprow->child != NULL))
+    else if (temprow->element == HD_ELEMENT_TR ||
+             ((temprow->element == HD_ELEMENT_TBODY || temprow->element == HD_ELEMENT_THEAD ||
+               temprow->element == HD_ELEMENT_TFOOT) && temprow->child != NULL))
     {
       // Descend into table body as needed...
-      if (temprow->markup == HD_ELEMENT_TBODY || temprow->markup == HD_ELEMENT_THEAD ||
-          temprow->markup == HD_ELEMENT_TFOOT)
+      if (temprow->element == HD_ELEMENT_TBODY || temprow->element == HD_ELEMENT_THEAD ||
+          temprow->element == HD_ELEMENT_TFOOT)
         temprow = temprow->child;
 
       // Figure out the next row...
       if ((tempnext = temprow->next) == NULL)
-        if (temprow->parent->markup == HD_ELEMENT_TBODY ||
-            temprow->parent->markup == HD_ELEMENT_THEAD ||
-            temprow->parent->markup == HD_ELEMENT_TFOOT)
+        if (temprow->parent->element == HD_ELEMENT_TBODY ||
+            temprow->parent->element == HD_ELEMENT_THEAD ||
+            temprow->parent->element == HD_ELEMENT_TFOOT)
           tempnext = temprow->parent->next;
 
       // Allocate memory for the table as needed...
@@ -5711,7 +5711,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
       for (tempcol = temprow->child;
            tempcol != NULL && col < MAX_COLUMNS;
            tempcol = tempcol->next)
-        if (tempcol->markup == HD_ELEMENT_TD || tempcol->markup == HD_ELEMENT_TH)
+        if (tempcol->element == HD_ELEMENT_TD || tempcol->element == HD_ELEMENT_TH)
         {
 	  // Handle colspan and rowspan stuff...
           if ((var = htmlGetVariable(tempcol, (uchar *)"COLSPAN")) != NULL)
@@ -6154,7 +6154,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
       */
 
       if (cells[row][0]->parent->prev != NULL &&
-          cells[row][0]->parent->prev->markup == HD_ELEMENT_COMMENT)
+          cells[row][0]->parent->prev->element == HD_ELEMENT_COMMENT)
         parse_comment(cells[row][0]->parent->prev, margins, x, y,
 		      page, NULL, 0);
 
@@ -6943,9 +6943,9 @@ init_list(hdTree *t)			/* I - List entry */
     else
       list_types[t->indent] = symbols[2];
   }
-  else if (t->markup == HD_ELEMENT_UL)
+  else if (t->element == HD_ELEMENT_UL)
     list_types[t->indent] = symbols[t->indent & 3];
-  else if (t->markup == HD_ELEMENT_OL)
+  else if (t->element == HD_ELEMENT_OL)
     list_types[t->indent] = '1';
 
   if ((value = htmlGetVariable(t, (uchar *)"VALUE")) == NULL)
@@ -6960,7 +6960,7 @@ init_list(hdTree *t)			/* I - List entry */
     else
       list_values[t->indent] = value[0] - 'a' + 1;
   }
-  else if (t->markup == HD_ELEMENT_OL)
+  else if (t->element == HD_ELEMENT_OL)
     list_values[t->indent] = 1;
 }
 
@@ -7005,7 +7005,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
     return;
 
   if (para != NULL && para->child != NULL && para->child->next == NULL &&
-      para->child->child == NULL && para->child->markup == HD_ELEMENT_NONE &&
+      para->child->child == NULL && para->child->element == HD_ELEMENT_NONE &&
       strcmp((const char *)para->child->data, " ") == 0)
   {
     // Remove paragraph consisting solely of whitespace...
@@ -8066,7 +8066,7 @@ real_prev(hdTree *t)	/* I - Current markup */
     return (NULL);
 
   if (t->prev != NULL &&
-      (t->prev->markup == HD_ELEMENT_A || t->prev->markup == HD_ELEMENT_COMMENT))
+      (t->prev->element == HD_ELEMENT_A || t->prev->element == HD_ELEMENT_COMMENT))
     t = t->prev;
 
   if (t->prev != NULL)
@@ -8076,8 +8076,8 @@ real_prev(hdTree *t)	/* I - Current markup */
   if (t == NULL)
     return (NULL);
 
-  if (t->markup != HD_ELEMENT_A && t->markup != HD_ELEMENT_EMBED &&
-      t->markup != HD_ELEMENT_COMMENT)
+  if (t->element != HD_ELEMENT_A && t->element != HD_ELEMENT_EMBED &&
+      t->element != HD_ELEMENT_COMMENT)
     return (t);
   else
     return (real_prev(t));
@@ -8095,7 +8095,7 @@ real_next(hdTree *t)	/* I - Current markup */
     return (NULL);
 
   if (t->next != NULL &&
-      (t->next->markup == HD_ELEMENT_A || t->next->markup == HD_ELEMENT_COMMENT))
+      (t->next->element == HD_ELEMENT_A || t->next->element == HD_ELEMENT_COMMENT))
     t = t->next;
 
   if (t->next != NULL)
@@ -8139,7 +8139,7 @@ find_background(hdTree *t)	/* I - Document to search */
          background_color[0] == 1.0 && background_color[1] == 1.0 &&
 	 background_color[2] == 1.0)
   {
-    if (t->markup == HD_ELEMENT_BODY)
+    if (t->element == HD_ELEMENT_BODY)
     {
       if ((var = htmlGetVariable(t, (uchar *)"BACKGROUND")) != NULL)
         background_image = image_load((char *)var, !OutputColor);
@@ -8549,7 +8549,7 @@ copy_tree(hdTree *parent,	/* I - Source tree */
 
   while (t != NULL)
   {
-    if ((temp = htmlAddTree(parent, t->markup, t->data)) != NULL)
+    if ((temp = htmlAddTree(parent, t->element, t->data)) != NULL)
     {
       temp->link          = t->link;
       temp->typeface      = t->typeface;
@@ -8650,7 +8650,7 @@ get_cell_size(hdTree *t,		// I - Cell
     // Point to next markup, if any...
     next = temp->child;
 
-    switch (temp->markup)
+    switch (temp->element)
     {
       case HD_ELEMENT_TABLE :
           // For nested tables, compute the width of the table.
@@ -8675,16 +8675,16 @@ get_cell_size(hdTree *t,		// I - Cell
 
       case HD_ELEMENT_IMG :
           // Update the image width as needed...
-	  if (temp->markup == HD_ELEMENT_IMG)
+	  if (temp->element == HD_ELEMENT_IMG)
 	    update_image_size(temp);
       case HD_ELEMENT_NONE :
       case HD_ELEMENT_SPACER :
           frag_height = temp->height;
 
 #ifdef TABLE_DEBUG
-          if (temp->markup == HD_ELEMENT_NONE)
+          if (temp->element == HD_ELEMENT_NONE)
 	    printf("FRAG(%s) = %.1f\n", temp->data, temp->width);
-	  else if (temp->markup == HD_ELEMENT_SPACER)
+	  else if (temp->element == HD_ELEMENT_SPACER)
 	    printf("SPACER = %.1f\n", temp->width);
 	  else
 	    printf("IMG(%s) = %.1f\n", htmlGetVariable(temp, (uchar *)"SRC"),
@@ -8930,7 +8930,7 @@ get_table_size(hdTree *t,		// I - Table
     next = temp->child;
 
     // Start a new row or add the cell width as needed...
-    if (temp->markup == HD_ELEMENT_TR)
+    if (temp->element == HD_ELEMENT_TR)
     {
       minh += row_height;
 
@@ -8941,7 +8941,7 @@ get_table_size(hdTree *t,		// I - Table
       rows ++;
       columns = 0;
     }
-    else if (temp->markup == HD_ELEMENT_TD || temp->markup == HD_ELEMENT_TH)
+    else if (temp->element == HD_ELEMENT_TD || temp->element == HD_ELEMENT_TH)
     {
       // Update columns...
       columns ++;
@@ -9070,7 +9070,7 @@ flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
 
   while (t != NULL)
   {
-    switch (t->markup)
+    switch (t->element)
     {
       case HD_ELEMENT_NONE :
           if (t->data == NULL)
@@ -9088,7 +9088,7 @@ flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
             flat->next = temp;
           flat = temp;
 
-          if (temp->markup == HD_ELEMENT_IMG)
+          if (temp->element == HD_ELEMENT_IMG)
             update_image_size(temp);
           break;
 
@@ -9135,7 +9135,7 @@ flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
       case HD_ELEMENT_TR :
       case HD_ELEMENT_CAPTION :
 	  temp = (hdTree *)calloc(sizeof(hdTree), 1);
-	  temp->markup = HD_ELEMENT_BR;
+	  temp->element = HD_ELEMENT_BR;
 	  temp->parent = NULL;
 	  temp->child  = NULL;
 	  temp->prev   = flat;
@@ -9280,7 +9280,7 @@ get_title(hdTree *doc)	/* I - Document */
 
   while (doc != NULL)
   {
-    if (doc->markup == HD_ELEMENT_TITLE)
+    if (doc->element == HD_ELEMENT_TITLE)
       return (htmlGetText(doc->child));
     else if (doc->child != NULL)
       if ((temp = get_title(doc->child)) != NULL)
@@ -12348,5 +12348,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.96 2004/03/31 09:56:37 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.97 2004/03/31 10:35:07 mike Exp $".
  */
