@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.84 2001/06/27 01:22:33 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.85 2001/06/27 16:39:19 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4294,6 +4294,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	return;
       }
 
+#ifdef DEBUG
+      printf("BEFORE row %d: num_cols = %d\n", num_rows, num_cols);
+
+      if (num_rows)
+        for (col = 0; col < num_cols; col ++)
+	  printf("    col %d: row_spans[] = %d\n", col, row_spans[col]);
+#endif // DEBUG
+
       // Figure out the starting column...
       if (num_rows)
       {
@@ -4379,6 +4387,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       if (col > num_cols)
         num_cols = col;
+
+#ifdef DEBUG
+      printf("AFTER row %d: num_cols = %d\n", num_rows, num_cols);
+
+      for (col = 0; col < num_cols; col ++)
+        printf("    col %d: row_spans[] = %d\n", col, row_spans[col]);
+#endif // DEBUG
 
       num_rows ++;
 
@@ -4711,6 +4726,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       {
         if ((var = htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN")) != NULL)
           row_spans[col] = atoi((char *)var);
+
+        if (row_spans[col] > (num_rows - row))
+	  row_spans[col] = num_rows - row;
 
 	span_heights[col] = 0.0f;
       }
@@ -9045,5 +9063,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.84 2001/06/27 01:22:33 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.85 2001/06/27 16:39:19 mike Exp $".
  */

@@ -12,19 +12,33 @@
 	<H3>New Features</H3>
 
 	<LI>Added support for 128-bit encryption.
+	<LI>Added support for GET form request data in the PHP and
+	Java "portal" examples.
 
 	<H3>Changes</H3>
 
 	<LI>Most output generation limits have been removed;
 	HTMLDOC now dynamically allocates memory as needed for
-	pages, images, headings, and links. This has the
+	pages, images, headings, and links.  This has the
 	happy side-effect of reducing the initial memory
 	footprint significantly.
+	<LI>Now call setlocale() when it is available to localize
+	the date and time in the output.
+	<LI>The table parsing code now checks to see that a
+	ROWSPAN attribute fits in the table; e.g., a ROWSPAN
+	of 10 for a table that has only 6 rows remaining needs
+	to be reduced to 6...
 
 	<H3>Bug Fixes</H3>
 
 	<LI>Tables with a lot of COLSPANs could cause a divide-
 	by-zero error or bad pages (NAN instead of a number.)
+	<LI>Table cells with a single render element would not be
+	vertically aligned.
+	<LI>The --quiet option would enable progress messages on
+	the command-line.
+	<LI>Table cell widths could be computed incorrectly,
+	causing unnecessary wrapping.
 
 </UL>
 
