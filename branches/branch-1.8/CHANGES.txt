@@ -1,4 +1,4 @@
-CHANGES.txt - 04/17/2002
+CHANGES.txt - 05/01/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.20
@@ -13,9 +13,10 @@ CHANGES IN HTMLDOC v1.8.20
 
 	- HTMLDOC wouldn't compile using GCC under HP-UX due to
 	  a badly "fixed" system header file (vmtypes.h).
-
 	- Generating a book without a table-of-contents would
 	  produce a bad PDF file.
+	- The Xerox XRX comments used the wrong units for the
+	  media size, points instead of millimeters.
 
 
 CHANGES IN HTMLDOC v1.8.19
