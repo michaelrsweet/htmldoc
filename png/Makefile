@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.7 2001/01/22 15:03:52 mike Exp $"
+# "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:05 mike Exp $"
 #
 #   PNG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -61,5 +61,5 @@ libpng.a:	$(OBJS)
 $(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.7 2001/01/22 15:03:52 mike Exp $".
+# End of "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:05 mike Exp $".
 #

@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.2 2001/07/17 22:45:53 mike Exp $"
+ * "$Id: http.c,v 1.1.2.7 2001/06/04 12:12:30 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
  *
@@ -2075,5 +2075,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.2 2001/07/17 22:45:53 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.7 2001/06/04 12:12:30 mike Exp $".
  */

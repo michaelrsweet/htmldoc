@@ -1,9 +1,9 @@
 /*
- * "$Id: file.h,v 1.6 2000/09/11 01:19:25 mike Exp $"
+ * "$Id: file.h,v 1.6.2.2 2001/02/22 01:22:40 mike Exp $"
  *
  *   Filename definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -41,6 +41,7 @@ extern "C" {
  */
 
 extern char	*file_basename(const char *s);
+extern void	file_cleanup(void);
 extern char	*file_directory(const char *s);
 extern char	*file_extension(const char *s);
 extern char	*file_find(const char *path, const char *s);
@@ -48,6 +49,7 @@ extern char	*file_localize(const char *filename, const char *newcwd);
 extern char	*file_method(const char *s);
 extern void	file_proxy(const char *url);
 extern char	*file_target(const char *s);
+extern FILE	*file_temp(char *name, int len);
 
 #  ifdef __cplusplus
 }
@@ -56,5 +58,5 @@ extern char	*file_target(const char *s);
 #endif /* !_FILE_H_ */
 
 /*
- * End of "$Id: file.h,v 1.6 2000/09/11 01:19:25 mike Exp $".
+ * End of "$Id: file.h,v 1.6.2.2 2001/02/22 01:22:40 mike Exp $".
  */

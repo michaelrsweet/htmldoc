@@ -1,10 +1,10 @@
 /*
- * "$Id: progress.h,v 1.2 2000/10/16 03:25:08 mike Exp $"
+ * "$Id: progress.h,v 1.1.2.2 2001/08/16 21:11:52 mike Exp $"
  *
- *   Progress class definitions for HTMLDOC, a HTML document
+ *   Progress function definitions for HTMLDOC, a HTML document
  *   processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -20,48 +20,55 @@
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
- *         WWW: http: *www.easysw.com
+ *         WWW: http://www.easysw.com
  */
 
-#ifndef _HD_PROGRESS_H_
-#  define _HD_PROGRESS_H_
-
-/*
- * Include necessary headers...
- */
-
-#  include <stdarg.h>
-
+#ifndef _PROGRESS_H_
+#  define _PROGRESS_H_
 
 #  ifdef __cplusplus
-/*
- * Progress reporting class...
- */
-
-class HDprogress
-{
-  public:
-
-  virtual void	error(char *s);
-  virtual void	hide(void);
-  virtual void	show(char *s);
-  virtual void	update(int percent);
-};
-
 extern "C" {
 #  endif /* __cplusplus */
 
-void	progress_error(char *format, ...);
-void	progress_hide(void);
-void	progress_show(char *format, ...);
-void	progress_update(int percent);
+
+/*
+ * Error codes (in addition to the HTTP status codes...)
+ */
+
+typedef enum
+{
+  HD_ERROR_NONE = 0,
+  HD_ERROR_NO_FILES,
+  HD_ERROR_NO_PAGES,
+  HD_ERROR_TOO_MANY_CHAPTERS,
+  HD_ERROR_OUT_OF_MEMORY,
+  HD_ERROR_FILE_NOT_FOUND,
+  HD_ERROR_BAD_COMMENT,
+  HD_ERROR_BAD_FORMAT,
+  HD_ERROR_DELETE_ERROR,
+  HD_ERROR_INTERNAL_ERROR,
+  HD_ERROR_NETWORK_ERROR,
+  HD_ERROR_READ_ERROR,
+  HD_ERROR_WRITE_ERROR,
+  HD_ERROR_HTTPBASE = 100
+} HDerror;
+
+
+/*
+ * Prototypes...
+ */
+
+extern void	progress_error(HDerror error, char *format, ...);
+extern void	progress_hide(void);
+extern void	progress_show(char *format, ...);
+extern void	progress_update(int percent);
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !_HD_PROGRESS_H_ */
+#endif /* !_PROGRESS_H_ */
 
 /*
- * End of "$Id: progress.h,v 1.2 2000/10/16 03:25:08 mike Exp $".
+ * End of "$Id: progress.h,v 1.1.2.2 2001/08/16 21:11:52 mike Exp $".
  */

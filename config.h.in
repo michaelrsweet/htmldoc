@@ -1,9 +1,9 @@
 /*
- * "$Id: config.h.in,v 1.19 2000/10/14 13:59:13 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.11 2001/08/16 21:11:46 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -45,6 +45,20 @@
 
 
 /*
+ * Do we have the OpenSSL library?
+ */
+
+#undef HAVE_LIBSSL
+
+
+/*
+ * Do we need to use <strings.h>?
+ */
+
+#undef HAVE_STRINGS_H
+
+
+/*
  * Do we have some of the "standard" string functions?
  */
 
@@ -52,11 +66,20 @@
 #undef HAVE_STRCASECMP
 #undef HAVE_STRNCASECMP
 
+
+/*
+ * How about snprintf() and vsnprintf()?
+ */
+
+#undef HAVE_SNPRINTF
+#undef HAVE_VSNPRINTF
+
+
 /*
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9b1"
+#define SVERSION	"1.8.15b1"
 
 
 /*
@@ -65,14 +88,21 @@
 
 #define MAX_CHAPTERS	1000
 #define MAX_COLUMNS	200
-#define MAX_HEADINGS	10000
-#define MAX_IMAGES	1000
-#define MAX_LINKS	20000
-#define MAX_OBJECTS	(10 * MAX_PAGES)
-#define MAX_PAGES	10000
-#define MAX_ROWS	200
+
 
 /*
- * End of "$Id: config.h.in,v 1.19 2000/10/14 13:59:13 mike Exp $".
+ * Memory allocation units for other stuff...
+ */
+
+#define ALLOC_FILES	10	/* Temporary/image files */
+#define ALLOC_HEADINGS	50	/* Headings */
+#define ALLOC_LINKS	100	/* Web links */
+#define ALLOC_OBJECTS	100	/* PDF objects */
+#define ALLOC_PAGES	10	/* PS/PDF pages */
+#define ALLOC_ROWS	20	/* Table rows */
+
+
+/*
+ * End of "$Id: config.h.in,v 1.19.2.11 2001/08/16 21:11:46 mike Exp $".
  */
 
