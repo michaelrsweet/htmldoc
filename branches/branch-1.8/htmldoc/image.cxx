@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.24 2002/07/30 19:24:09 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.25 2002/10/03 17:43:18 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -1445,6 +1445,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   uchar		*inptr,	/* Input pixels */
 		*outptr;/* Output pixels */
   png_color_16	bg;	/* Background color */
+  int		bgmax;	/* Maximum color value for background */
   float		rgb[3];	/* RGB color of background */
 
 
@@ -1452,8 +1453,41 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Setup the PNG data structures...
   */
 
-  pp   = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  pp = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (!pp)
+  {
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for PNG file: %s",
+                   strerror(errno));
+    return (-1);
+  }
+
   info = png_create_info_struct(pp);
+  if (!info)
+  {
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for PNG info: %s",
+                   strerror(errno));
+
+    png_destroy_read_struct(&pp, NULL, NULL);
+
+    return (-1);
+  }
+
+  rows = NULL;
+
+  if (setjmp(pp->jmpbuf)) 
+  {
+    progress_error(HD_ERROR_BAD_FORMAT, "PNG file contains errors!");
+
+    png_destroy_read_struct(&pp, &info, NULL);
+
+    if (img != NULL && img->pixels != NULL)
+      free(img->pixels);
+
+    if (rows != NULL)
+      free(rows);
+
+    return (-1);
+  }
 
  /*
   * Initialize the PNG read "engine"...
@@ -1486,13 +1520,18 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   img->pixels = (uchar *)malloc(img->width * img->height * 3);
 
+  bgmax = 255;
+
   if (info->bit_depth < 8)
   {
     png_set_packing(pp);
     png_set_expand(pp);
   }
   else if (info->bit_depth == 16)
+  {
     png_set_strip_16(pp);
+    bgmax = 65535;
+  }
 
  /*
   * Handle transparency...
@@ -1509,9 +1548,9 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
     get_color((uchar *)BodyColor, rgb);
 
-    bg.red   = (png_uint_16)(rgb[0] * 65535.0f + 0.5f);
-    bg.green = (png_uint_16)(rgb[1] * 65535.0f + 0.5f);
-    bg.blue  = (png_uint_16)(rgb[2] * 65535.0f + 0.5f);
+    bg.red   = (png_uint_16)(rgb[0] * bgmax + 0.5f);
+    bg.green = (png_uint_16)(rgb[1] * bgmax + 0.5f);
+    bg.blue  = (png_uint_16)(rgb[2] * bgmax + 0.5f);
   }
   else
   {
@@ -1519,9 +1558,9 @@ image_load_png(image_t *img,	/* I - Image pointer */
     * Default to white...
     */
 
-    bg.red   = 65535;
-    bg.green = 65535;
-    bg.blue  = 65535;
+    bg.red   = bgmax;
+    bg.green = bgmax;
+    bg.blue  = bgmax;
   }
 
   png_set_background(pp, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
@@ -1715,5 +1754,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.24 2002/07/30 19:24:09 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.25 2002/10/03 17:43:18 mike Exp $".
  */
