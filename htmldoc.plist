@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="0.9">
+    <dict>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+
+	<key>CFBundleExecutable</key>
+	<string>htmldoc</string>
+
+	<key>CFBundleIdentifier</key>
+	<string>com.easysw.htmldoc</string>
+
+	<key>CFBundleVersion</key>
+	<string>1.8.23</string>
+
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright 1997-2002 by Easy Software Products (http://www.easysw.com/)</string>
+
+	<key>CFAppleHelpAnchor</key>
+	<string>help</string>
+
+
+	<key>CFBundleName</key>
+	<string>HTMLDOC</string>
+
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+
+	<key>CFBundleSignature</key>
+	<string>HTDC</string>
+
+	<key>CFBundleIconFile</key>
+	<string>htmldoc.icns</string>
+
+	<key>CFBundleShortVersionString</key>
+	<string>1.8.23</string>
+
+	<key>CFBundleGetInfoString</key>
+	<string>1.8.23, Copyright Easy Software Products 1997-2002</string>
+
+	<key>CFBundleDocumentTypes</key>
+	<array>
+            <dict>
+        	<key>CFBundleTypeExtensions</key>
+        	<array>
+                    <string>book</string>
+        	</array>
+
+        	<key>CFBundleTypeIconFile</key>
+        	<string>htmldoc.icns</string>
+
+        	<key>CFBundleTypeName</key>
+        	<string>HTMLDOC Book File</string>
+
+        	<key>CFBundleTypeOSTypes</key>
+        	<array>
+                    <string>htdc</string>
+        	</array>
+
+        	<key>CFBundleTypeRole</key>
+        	<string>Editor</string>
+            </dict>
+	</array>
+
+    </dict>
+</plist>

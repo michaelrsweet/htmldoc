@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.24 2004/03/31 07:44:26 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.35 2004/02/09 22:25:11 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636-3111 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -100,11 +100,8 @@
  * Do we have some of the "standard" string functions?
  */
 
-#undef HAVE_STRCASECMP
 #undef HAVE_STRDUP
-#undef HAVE_STRDUPF
-#undef HAVE_STRLCAT
-#undef HAVE_STRLCPY
+#undef HAVE_STRCASECMP
 #undef HAVE_STRNCASECMP
 
 
@@ -131,6 +128,6 @@
 
 
 /*
- * End of "$Id: config.h.in,v 1.24 2004/03/31 07:44:26 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.35 2004/02/09 22:25:11 mike Exp $".
  */
 

@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.java,v 1.2 2004/03/31 07:01:55 mike Exp $"
+// "$Id: htmldoc.java,v 1.1.2.3 2001/06/20 16:37:43 mike Exp $"
 //
 //   Java interface to HTMLDOC.
 //
@@ -112,5 +112,5 @@ class htmldoc
 
 
 //
-// End of "$Id: htmldoc.java,v 1.2 2004/03/31 07:01:55 mike Exp $".
+// End of "$Id: htmldoc.java,v 1.1.2.3 2001/06/20 16:37:43 mike Exp $".
 //

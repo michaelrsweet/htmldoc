@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.cxx,v 1.11 2004/04/05 01:39:34 mike Exp $"
+ * "$Id: progress.cxx,v 1.6.2.14 2004/02/06 03:51:09 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636-3111 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -23,11 +23,10 @@
  *
  * Contents:
  *
- *   hdBook::progress_debug()  - Display a debug message.
- *   hdBook::progress_error()  - Display an error message.
- *   hdBook::progress_hide()   - Hide the current run status.
- *   hdBook::progress_show()   - Show the current run status.
- *   hdBook::progress_update() - Update the current run status.
+ *   progress_error()  - Display an error message.
+ *   progress_hide()   - Hide the current run status.
+ *   progress_show()   - Show the current run status.
+ *   progress_update() - Update the current run status.
  */
 
 /*
@@ -43,56 +42,30 @@
 
 
 /*
- * 'hdBook::progress_debug()' - Display a debug message.
+ * Local globals...
  */
 
-void
-hdBook::progress_debug(const char *format,
-					// I - Printf-style format string
-                       ...)		// I - Additional args as needed
-{
-  va_list	ap;			// Argument pointer
-  char		text[2048];		// Formatted text string
-
-
-  va_start(ap, format);
-  vsnprintf(text, sizeof(text), format, ap);
-  va_end(ap);
-
-#ifdef HAVE_LIBFLTK
-  if (BookGUI != NULL)
-    return;
-#endif /* HAVE_LIBFLTK */
-
-  if (verbosity > 0)
-  {
-    if (progress_visible)
-      fprintf(stderr, "\r%-79.79s\r", "");
-
-    fprintf(stderr, "DEBUG: %s\n", text);
-  }
-}
+static int	progress_visible = 0;
 
 
 /*
- * 'hdBook::progress_error()' - Display an error message.
+ * 'progress_error()' - Display an error message.
  */
 
 void
-hdBook::progress_error(hdError    error,// I - Error number
-                       const char *format,
-					// I - Printf-style format string
-                       ...)		// I - Additional args as needed
+progress_error(HDerror    error,	/* I - Error number */
+               const char *format,	/* I - Printf-style format string */
+               ...)			/* I - Additional args as needed */
 {
-  va_list	ap;			// Argument pointer
-  char		text[2048];		// Formatted text string
+  va_list	ap;			/* Argument pointer */
+  char		text[2048];		/* Formatted text string */
 
 
-  if (error == HD_ERROR_HTML_ERROR && !strict_html)
+  if (error == HD_ERROR_HTML_ERROR && !StrictHTML)
     return;
 
   if (error)
-    error_count ++;
+    Errors ++;
 
   va_start(ap, format);
   vsnprintf(text, sizeof(text), format, ap);
@@ -108,7 +81,7 @@ hdBook::progress_error(hdError    error,// I - Error number
   }
 #endif /* HAVE_LIBFLTK */
 
-  if (verbosity >= 0)
+  if (Verbosity >= 0)
   {
     if (progress_visible)
       fprintf(stderr, "\r%-79.79s\r", "");
@@ -122,11 +95,11 @@ hdBook::progress_error(hdError    error,// I - Error number
 
 
 /*
- * 'hdBook::progress_hide()' - Hide the current run status.
+ * 'progress_hide()' - Hide the current run status.
  */
 
 void
-hdBook::progress_hide(void)
+progress_hide(void)
 {
 #ifdef HAVE_LIBFLTK
   if (BookGUI != NULL)
@@ -136,7 +109,7 @@ hdBook::progress_hide(void)
   }
 #endif /* HAVE_LIBFLTK */
 
-  if (verbosity > 0)
+  if (Verbosity > 0)
   {
     fprintf(stderr, "\r%-79.79s\r", "");
     fflush(stderr);
@@ -147,13 +120,12 @@ hdBook::progress_hide(void)
 
 
 /*
- * 'hdBook::progress_show()' - Show the current run status.
+ * 'progress_show()' - Show the current run status.
  */
 
 void
-hdBook::progress_show(const char *format,
-					/* I - Printf-style format string */
-                      ...)		/* I - Additional args as needed */
+progress_show(const char *format,	/* I - Printf-style format string */
+              ...)			/* I - Additional args as needed */
 {
   va_list	ap;			/* Argument pointer */
   static char	text[2048];		/* Formatted text string */
@@ -171,7 +143,7 @@ hdBook::progress_show(const char *format,
   }
 #endif /* HAVE_LIBFLTK */
 
-  if (verbosity > 0)
+  if (Verbosity > 0)
   {
     fprintf(stderr, "\r%-79.79s", text);
     fflush(stderr);
@@ -182,11 +154,11 @@ hdBook::progress_show(const char *format,
 
 
 /*
- * 'hdBook::progress_update()' - Update the current run status.
+ * 'progress_update()' - Update the current run status.
  */
 
 void
-hdBook::progress_update(int percent)	/* I - Percent complete */
+progress_update(int percent)	/* I - Percent complete */
 {
 #ifdef HAVE_LIBFLTK
   if (BookGUI != NULL)
@@ -199,5 +171,5 @@ hdBook::progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.11 2004/04/05 01:39:34 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.6.2.14 2004/02/06 03:51:09 mike Exp $".
  */

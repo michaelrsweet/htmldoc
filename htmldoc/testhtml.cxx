@@ -1,5 +1,5 @@
 /*
- * "$Id: testhtml.cxx,v 1.6 2004/03/31 09:51:27 mike Exp $"
+ * "$Id: testhtml.cxx,v 1.3.2.5 2004/02/06 03:51:09 mike Exp $"
  *
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
@@ -36,91 +36,91 @@ main(int  argc,			/* I - Number of command-line arguments */
 {
   int		i;		/* Looping var */
   FILE		*fp;		/* Input file */
-  hdTree	*t,		/* HTML markup tree */
+  tree_t	*t,		/* HTML markup tree */
 		*doc;		/* HTML document */
   char		base[1024];	/* Base directory */
 
 
 #ifdef DEBUG
-  printf("HD_ELEMENT_NONE=%d\n", HD_ELEMENT_NONE);
-  printf("HD_ELEMENT_COMMENT=%d\n", HD_ELEMENT_COMMENT);
-  printf("HD_ELEMENT_A=%d\n", HD_ELEMENT_A);
-  printf("HD_ELEMENT_ADDRESS=%d\n", HD_ELEMENT_ADDRESS);
-  printf("HD_ELEMENT_APPLET=%d\n", HD_ELEMENT_APPLET);
-  printf("HD_ELEMENT_AREA=%d\n", HD_ELEMENT_AREA);
-  printf("HD_ELEMENT_B=%d\n", HD_ELEMENT_B);
-  printf("HD_ELEMENT_BASE=%d\n", HD_ELEMENT_BASE);
-  printf("HD_ELEMENT_BASEFONT=%d\n", HD_ELEMENT_BASEFONT);
-  printf("HD_ELEMENT_BIG=%d\n", HD_ELEMENT_BIG);
-  printf("HD_ELEMENT_BLINK=%d\n", HD_ELEMENT_BLINK);
-  printf("HD_ELEMENT_BLOCKQUOTE=%d\n", HD_ELEMENT_BLOCKQUOTE);
-  printf("HD_ELEMENT_BODY=%d\n", HD_ELEMENT_BODY);
-  printf("HD_ELEMENT_BR=%d\n", HD_ELEMENT_BR);
-  printf("HD_ELEMENT_CAPTION=%d\n", HD_ELEMENT_CAPTION);
-  printf("HD_ELEMENT_CENTER=%d\n", HD_ELEMENT_CENTER);
-  printf("HD_ELEMENT_CITE=%d\n", HD_ELEMENT_CITE);
-  printf("HD_ELEMENT_CODE=%d\n", HD_ELEMENT_CODE);
-  printf("HD_ELEMENT_DD=%d\n", HD_ELEMENT_DD);
-  printf("HD_ELEMENT_DFN=%d\n", HD_ELEMENT_DFN);
-  printf("HD_ELEMENT_DIR=%d\n", HD_ELEMENT_DIR);
-  printf("HD_ELEMENT_DIV=%d\n", HD_ELEMENT_DIV);
-  printf("HD_ELEMENT_DL=%d\n", HD_ELEMENT_DL);
-  printf("HD_ELEMENT_DT=%d\n", HD_ELEMENT_DT);
-  printf("HD_ELEMENT_EM=%d\n", HD_ELEMENT_EM);
-  printf("HD_ELEMENT_EMBED=%d\n", HD_ELEMENT_EMBED);
-  printf("HD_ELEMENT_FONT=%d\n", HD_ELEMENT_FONT);
-  printf("HD_ELEMENT_FORM=%d\n", HD_ELEMENT_FORM);
-  printf("HD_ELEMENT_FRAME=%d\n", HD_ELEMENT_FRAME);
-  printf("HD_ELEMENT_FRAMESET=%d\n", HD_ELEMENT_FRAMESET);
-  printf("HD_ELEMENT_H1=%d\n", HD_ELEMENT_H1);
-  printf("HD_ELEMENT_H2=%d\n", HD_ELEMENT_H2);
-  printf("HD_ELEMENT_H3=%d\n", HD_ELEMENT_H3);
-  printf("HD_ELEMENT_H4=%d\n", HD_ELEMENT_H4);
-  printf("HD_ELEMENT_H5=%d\n", HD_ELEMENT_H5);
-  printf("HD_ELEMENT_H6=%d\n", HD_ELEMENT_H6);
-  printf("HD_ELEMENT_H7=%d\n", HD_ELEMENT_H7);
-  printf("HD_ELEMENT_HEAD=%d\n", HD_ELEMENT_HEAD);
-  printf("HD_ELEMENT_HR=%d\n", HD_ELEMENT_HR);
-  printf("HD_ELEMENT_HTML=%d\n", HD_ELEMENT_HTML);
-  printf("HD_ELEMENT_I=%d\n", HD_ELEMENT_I);
-  printf("HD_ELEMENT_IMG=%d\n", HD_ELEMENT_IMG);
-  printf("HD_ELEMENT_INPUT=%d\n", HD_ELEMENT_INPUT);
-  printf("HD_ELEMENT_ISINDEX=%d\n", HD_ELEMENT_ISINDEX);
-  printf("HD_ELEMENT_KBD=%d\n", HD_ELEMENT_KBD);
-  printf("HD_ELEMENT_LI=%d\n", HD_ELEMENT_LI);
-  printf("HD_ELEMENT_LINK=%d\n", HD_ELEMENT_LINK);
-  printf("HD_ELEMENT_MAP=%d\n", HD_ELEMENT_MAP);
-  printf("HD_ELEMENT_MENU=%d\n", HD_ELEMENT_MENU);
-  printf("HD_ELEMENT_META=%d\n", HD_ELEMENT_META);
-  printf("HD_ELEMENT_MULTICOL=%d\n", HD_ELEMENT_MULTICOL);
-  printf("HD_ELEMENT_NOBR=%d\n", HD_ELEMENT_NOBR);
-  printf("HD_ELEMENT_NOFRAMES=%d\n", HD_ELEMENT_NOFRAMES);
-  printf("HD_ELEMENT_OL=%d\n", HD_ELEMENT_OL);
-  printf("HD_ELEMENT_OPTION=%d\n", HD_ELEMENT_OPTION);
-  printf("HD_ELEMENT_P=%d\n", HD_ELEMENT_P);
-  printf("HD_ELEMENT_PRE=%d\n", HD_ELEMENT_PRE);
-  printf("HD_ELEMENT_S=%d\n", HD_ELEMENT_S);
-  printf("HD_ELEMENT_SAMP=%d\n", HD_ELEMENT_SAMP);
-  printf("HD_ELEMENT_SCRIPT=%d\n", HD_ELEMENT_SCRIPT);
-  printf("HD_ELEMENT_SELECT=%d\n", HD_ELEMENT_SELECT);
-  printf("HD_ELEMENT_SMALL=%d\n", HD_ELEMENT_SMALL);
-  printf("HD_ELEMENT_SPACER=%d\n", HD_ELEMENT_SPACER);
-  printf("HD_ELEMENT_STRIKE=%d\n", HD_ELEMENT_STRIKE);
-  printf("HD_ELEMENT_STRONG=%d\n", HD_ELEMENT_STRONG);
-  printf("HD_ELEMENT_STYLE=%d\n", HD_ELEMENT_STYLE);
-  printf("HD_ELEMENT_SUB=%d\n", HD_ELEMENT_SUB);
-  printf("HD_ELEMENT_SUP=%d\n", HD_ELEMENT_SUP);
-  printf("HD_ELEMENT_TABLE=%d\n", HD_ELEMENT_TABLE);
-  printf("HD_ELEMENT_TD=%d\n", HD_ELEMENT_TD);
-  printf("HD_ELEMENT_TEXTAREA=%d\n", HD_ELEMENT_TEXTAREA);
-  printf("HD_ELEMENT_TH=%d\n", HD_ELEMENT_TH);
-  printf("HD_ELEMENT_TITLE=%d\n", HD_ELEMENT_TITLE);
-  printf("HD_ELEMENT_TR=%d\n", HD_ELEMENT_TR);
-  printf("HD_ELEMENT_TT=%d\n", HD_ELEMENT_TT);
-  printf("HD_ELEMENT_U=%d\n", HD_ELEMENT_U);
-  printf("HD_ELEMENT_UL=%d\n", HD_ELEMENT_UL);
-  printf("HD_ELEMENT_VAR=%d\n", HD_ELEMENT_VAR);
-  printf("HD_ELEMENT_WBR=%d\n", HD_ELEMENT_WBR);
+  printf("MARKUP_NONE=%d\n", MARKUP_NONE);
+  printf("MARKUP_COMMENT=%d\n", MARKUP_COMMENT);
+  printf("MARKUP_A=%d\n", MARKUP_A);
+  printf("MARKUP_ADDRESS=%d\n", MARKUP_ADDRESS);
+  printf("MARKUP_APPLET=%d\n", MARKUP_APPLET);
+  printf("MARKUP_AREA=%d\n", MARKUP_AREA);
+  printf("MARKUP_B=%d\n", MARKUP_B);
+  printf("MARKUP_BASE=%d\n", MARKUP_BASE);
+  printf("MARKUP_BASEFONT=%d\n", MARKUP_BASEFONT);
+  printf("MARKUP_BIG=%d\n", MARKUP_BIG);
+  printf("MARKUP_BLINK=%d\n", MARKUP_BLINK);
+  printf("MARKUP_BLOCKQUOTE=%d\n", MARKUP_BLOCKQUOTE);
+  printf("MARKUP_BODY=%d\n", MARKUP_BODY);
+  printf("MARKUP_BR=%d\n", MARKUP_BR);
+  printf("MARKUP_CAPTION=%d\n", MARKUP_CAPTION);
+  printf("MARKUP_CENTER=%d\n", MARKUP_CENTER);
+  printf("MARKUP_CITE=%d\n", MARKUP_CITE);
+  printf("MARKUP_CODE=%d\n", MARKUP_CODE);
+  printf("MARKUP_DD=%d\n", MARKUP_DD);
+  printf("MARKUP_DFN=%d\n", MARKUP_DFN);
+  printf("MARKUP_DIR=%d\n", MARKUP_DIR);
+  printf("MARKUP_DIV=%d\n", MARKUP_DIV);
+  printf("MARKUP_DL=%d\n", MARKUP_DL);
+  printf("MARKUP_DT=%d\n", MARKUP_DT);
+  printf("MARKUP_EM=%d\n", MARKUP_EM);
+  printf("MARKUP_EMBED=%d\n", MARKUP_EMBED);
+  printf("MARKUP_FONT=%d\n", MARKUP_FONT);
+  printf("MARKUP_FORM=%d\n", MARKUP_FORM);
+  printf("MARKUP_FRAME=%d\n", MARKUP_FRAME);
+  printf("MARKUP_FRAMESET=%d\n", MARKUP_FRAMESET);
+  printf("MARKUP_H1=%d\n", MARKUP_H1);
+  printf("MARKUP_H2=%d\n", MARKUP_H2);
+  printf("MARKUP_H3=%d\n", MARKUP_H3);
+  printf("MARKUP_H4=%d\n", MARKUP_H4);
+  printf("MARKUP_H5=%d\n", MARKUP_H5);
+  printf("MARKUP_H6=%d\n", MARKUP_H6);
+  printf("MARKUP_H7=%d\n", MARKUP_H7);
+  printf("MARKUP_HEAD=%d\n", MARKUP_HEAD);
+  printf("MARKUP_HR=%d\n", MARKUP_HR);
+  printf("MARKUP_HTML=%d\n", MARKUP_HTML);
+  printf("MARKUP_I=%d\n", MARKUP_I);
+  printf("MARKUP_IMG=%d\n", MARKUP_IMG);
+  printf("MARKUP_INPUT=%d\n", MARKUP_INPUT);
+  printf("MARKUP_ISINDEX=%d\n", MARKUP_ISINDEX);
+  printf("MARKUP_KBD=%d\n", MARKUP_KBD);
+  printf("MARKUP_LI=%d\n", MARKUP_LI);
+  printf("MARKUP_LINK=%d\n", MARKUP_LINK);
+  printf("MARKUP_MAP=%d\n", MARKUP_MAP);
+  printf("MARKUP_MENU=%d\n", MARKUP_MENU);
+  printf("MARKUP_META=%d\n", MARKUP_META);
+  printf("MARKUP_MULTICOL=%d\n", MARKUP_MULTICOL);
+  printf("MARKUP_NOBR=%d\n", MARKUP_NOBR);
+  printf("MARKUP_NOFRAMES=%d\n", MARKUP_NOFRAMES);
+  printf("MARKUP_OL=%d\n", MARKUP_OL);
+  printf("MARKUP_OPTION=%d\n", MARKUP_OPTION);
+  printf("MARKUP_P=%d\n", MARKUP_P);
+  printf("MARKUP_PRE=%d\n", MARKUP_PRE);
+  printf("MARKUP_S=%d\n", MARKUP_S);
+  printf("MARKUP_SAMP=%d\n", MARKUP_SAMP);
+  printf("MARKUP_SCRIPT=%d\n", MARKUP_SCRIPT);
+  printf("MARKUP_SELECT=%d\n", MARKUP_SELECT);
+  printf("MARKUP_SMALL=%d\n", MARKUP_SMALL);
+  printf("MARKUP_SPACER=%d\n", MARKUP_SPACER);
+  printf("MARKUP_STRIKE=%d\n", MARKUP_STRIKE);
+  printf("MARKUP_STRONG=%d\n", MARKUP_STRONG);
+  printf("MARKUP_STYLE=%d\n", MARKUP_STYLE);
+  printf("MARKUP_SUB=%d\n", MARKUP_SUB);
+  printf("MARKUP_SUP=%d\n", MARKUP_SUP);
+  printf("MARKUP_TABLE=%d\n", MARKUP_TABLE);
+  printf("MARKUP_TD=%d\n", MARKUP_TD);
+  printf("MARKUP_TEXTAREA=%d\n", MARKUP_TEXTAREA);
+  printf("MARKUP_TH=%d\n", MARKUP_TH);
+  printf("MARKUP_TITLE=%d\n", MARKUP_TITLE);
+  printf("MARKUP_TR=%d\n", MARKUP_TR);
+  printf("MARKUP_TT=%d\n", MARKUP_TT);
+  printf("MARKUP_U=%d\n", MARKUP_U);
+  printf("MARKUP_UL=%d\n", MARKUP_UL);
+  printf("MARKUP_VAR=%d\n", MARKUP_VAR);
+  printf("MARKUP_WBR=%d\n", MARKUP_WBR);
 #endif /* DEBUG */
 
   if (argc < 2)
@@ -161,5 +161,5 @@ main(int  argc,			/* I - Number of command-line arguments */
 
 
 /*
- * End of "$Id: testhtml.cxx,v 1.6 2004/03/31 09:51:27 mike Exp $".
+ * End of "$Id: testhtml.cxx,v 1.3.2.5 2004/02/06 03:51:09 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.7 2004/03/31 08:39:12 mike Exp $"
+ * "$Id: http.c,v 1.1.2.19 2004/03/30 21:31:48 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS).
  *
@@ -15,9 +15,9 @@
  *       Attn: CUPS Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636-3111 USA
  *
- *       Voice: (301) 373-9600
+ *       Voice: (301) 373-9603
  *       EMail: cups-info@cups.org
  *         WWW: http://www.cups.org
  *
@@ -243,7 +243,7 @@ httpInitialize(void)
 #ifdef WIN32
 #else
   gettimeofday(&curtime, NULL);
-  srand((unsigned)(curtime.tv_sec + curtime.tv_usec));
+  srand(curtime.tv_sec + curtime.tv_usec);
 #endif /* WIN32 */
 
   for (i = 0; i < sizeof(data); i ++)
@@ -404,7 +404,7 @@ httpConnectEncrypt(const char *host,	/* I - Host to connect to */
 #ifdef WIN32
   http->hostaddr.sin_port   = htons((u_short)port);
 #else
-  http->hostaddr.sin_port   = htons((unsigned short)port);
+  http->hostaddr.sin_port   = htons(port);
 #endif /* WIN32 */
 
  /*
@@ -429,7 +429,7 @@ httpConnectEncrypt(const char *host,	/* I - Host to connect to */
     */
 
     memcpy((char *)&(http->hostaddr.sin_addr), hostaddr->h_addr_list[i],
-           (size_t)hostaddr->h_length);
+           hostaddr->h_length);
 
    /*
     * Connect to the remote system...
@@ -933,7 +933,7 @@ httpRead(http_t *http,			/* I - HTTP data */
       DEBUG_printf(("httpRead: reading %d bytes from socket into buffer...\n",
                     bytes));
 
-      bytes = recv(http->fd, http->buffer, (size_t)bytes, 0);
+      bytes = recv(http->fd, http->buffer, bytes, 0);
 
       DEBUG_printf(("httpRead: read %d bytes from socket into buffer...\n",
                     bytes));
@@ -970,11 +970,11 @@ httpRead(http_t *http,			/* I - HTTP data */
 
     DEBUG_printf(("httpRead: grabbing %d bytes from input buffer...\n", bytes));
 
-    memcpy(buffer, http->buffer, (size_t)length);
+    memcpy(buffer, http->buffer, length);
     http->used -= length;
 
     if (http->used > 0)
-      memmove(http->buffer, http->buffer + length, (size_t)http->used);
+      memmove(http->buffer, http->buffer + length, http->used);
   }
 #ifdef HAVE_SSL
   else if (http->tls)
@@ -991,7 +991,7 @@ httpRead(http_t *http,			/* I - HTTP data */
       return (0);
 
     DEBUG_printf(("httpRead: reading %d bytes from socket...\n", length));
-    bytes = recv(http->fd, buffer, (size_t)length, 0);
+    bytes = recv(http->fd, buffer, length, 0);
     DEBUG_printf(("httpRead: read %d bytes from socket...\n", bytes));
   }
 
@@ -1166,7 +1166,7 @@ httpWrite(http_t     *http,		/* I - HTTP data */
       bytes = http_write_ssl(http, buffer, length);
     else
 #endif /* HAVE_SSL */
-    bytes = send(http->fd, buffer, (size_t)length, 0);
+    bytes = send(http->fd, buffer, length, 0);
 
     if (bytes < 0)
     {
@@ -1309,7 +1309,7 @@ httpGets(char   *line,			/* I - Line to read into */
 	bytes = http_read_ssl(http, bufend, HTTP_MAX_BUFFER - http->used);
       else
 #endif /* HAVE_SSL */
-        bytes = recv(http->fd, bufend, (size_t)(HTTP_MAX_BUFFER - http->used), 0);
+        bytes = recv(http->fd, bufend, HTTP_MAX_BUFFER - http->used, 0);
 
       if (bytes < 0)
       {
@@ -1389,7 +1389,7 @@ httpGets(char   *line,			/* I - Line to read into */
 
     http->used -= bytes;
     if (http->used > 0)
-      memmove(http->buffer, bufptr, (size_t)http->used);
+      memmove(http->buffer, bufptr, http->used);
 
     DEBUG_printf(("httpGets(): Returning \"%s\"\n", line));
     return (line);
@@ -1431,7 +1431,7 @@ httpPrintf(http_t     *http,		/* I - HTTP data */
       nbytes = http_write_ssl(http, bufptr, bytes - tbytes);
     else
 #endif /* HAVE_SSL */
-    nbytes = send(http->fd, bufptr, (size_t)(bytes - tbytes), 0);
+    nbytes = send(http->fd, bufptr, bytes - tbytes, 0);
 
     if (nbytes < 0)
     {
@@ -2108,7 +2108,7 @@ http_upgrade(http_t *http)	/* I - HTTP data */
   http->used       = myhttp.used;
 
   if (http->used)
-    memcpy(http->buffer, myhttp.buffer, (size_t)http->used);
+    memcpy(http->buffer, myhttp.buffer, http->used);
 
   http->auth_type   = myhttp.auth_type;
   http->nonce_count = myhttp.nonce_count;
@@ -2420,5 +2420,5 @@ CDSAWriteFunc(SSLConnectionRef connection,	/* I  - SSL/TLS connection */
 
 
 /*
- * End of "$Id: http.c,v 1.7 2004/03/31 08:39:12 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.19 2004/03/30 21:31:48 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.43 2004/04/05 01:39:34 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.66 2004/04/15 19:58:20 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3142 USA
+//       Hollywood, Maryland 20636-3111 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -23,9 +23,9 @@
 //
 // Contents:
 //
-//   GUI::GUI()            - Build the HTMLDOC GUI and load the indicated book
+//   GUI()                 - Build the HTMLDOC GUI and load the indicated book
 //                           as necessary.
-//   GUI::~GUI()           - Destroy the HTMLDOC GUI.
+//   ~GUI()                - Destroy the HTMLDOC GUI.
 //   GUI::show()           - Display the window.
 //   GUI::progress()       - Update the progress bar on the GUI.
 //   GUI::title()          - Set the title bar of the window.
@@ -110,7 +110,7 @@ const char	*GUI::help_dir = DOCUMENTATION;
 
 
 //
-// 'GUI::GUI()' - Build the HTMLDOC GUI and load the indicated book as necessary.
+// 'GUI()' - Build the HTMLDOC GUI and load the indicated book as necessary.
 //
 
 GUI::GUI(const char *filename)		// Book file to load initially
@@ -261,10 +261,9 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
 
   // Enable/disable tooltips...
+#  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
   Fl_Tooltip::enable(Tooltips);
-
-  // Create the book...
-  book = new hdBook();
+#  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 
   //
   // Create a dialog window...
@@ -286,79 +285,79 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   group = new Fl_Group(140, 45, 250, 20, "Document Type: ");
   group->align(FL_ALIGN_LEFT);
-    typeBook = new Fl_Round_Button(140, 45, 60, 20, "Book");
+    typeBook = new RadioButton(140, 45, 60, 20, "Book");
     typeBook->type(FL_RADIO_BUTTON);
     typeBook->setonly();
     typeBook->callback((Fl_Callback *)docTypeCB, this);
-    typeBook->tooltip("Convert chapters into a book.");
+    _tooltip(typeBook, "Convert chapters into a book.");
 
-    typeContinuous = new Fl_Round_Button(200, 45, 100, 20, "Continuous");
+    typeContinuous = new RadioButton(200, 45, 100, 20, "Continuous");
     typeContinuous->type(FL_RADIO_BUTTON);
     typeContinuous->callback((Fl_Callback *)docTypeCB, this);
-    typeContinuous->tooltip("Convert web pages without page breaks.");
+    _tooltip(typeContinuous, "Convert web pages without page breaks.");
 
-    typeWebPage = new Fl_Round_Button(300, 45, 90, 20, "Web Page");
+    typeWebPage = new RadioButton(300, 45, 90, 20, "Web Page");
     typeWebPage->type(FL_RADIO_BUTTON);
     typeWebPage->callback((Fl_Callback *)docTypeCB, this);
-    typeWebPage->tooltip("Convert web pages with page breaks.");
+    _tooltip(typeWebPage, "Convert web pages with page breaks.");
   group->end();
 
   group = new Fl_Group(140, 70, 250, 20, "Input Files: ");
   group->align(FL_ALIGN_LEFT);
   group->end();
 
-  inputFiles = new Fl_File_Browser(140, 70, 250, 150);
+  inputFiles = new FileBrowser(140, 70, 250, 150);
   inputFiles->iconsize(20);
   inputFiles->type(FL_MULTI_BROWSER);
   inputFiles->callback((Fl_Callback *)inputFilesCB, this);
   inputFiles->when(FL_WHEN_RELEASE | FL_WHEN_NOT_CHANGED);
-  inputFiles->tooltip("This is the list of HTML files and URLs that will be converted.");
+  _tooltip(inputFiles, "This is the list of HTML files and URLs that will be converted.");
 
   addFile = new Fl_Button(390, 70, 95, 25, "Add Files...");
   addFile->callback((Fl_Callback *)addFileCB, this);
-  addFile->tooltip("Add HTML files to the list.");
+  _tooltip(addFile, "Add HTML files to the list.");
 
   addURL = new Fl_Button(390, 95, 95, 25, "Add URL...");
   addURL->callback((Fl_Callback *)addURLCB, this);
-  addURL->tooltip("Add a URL to the list.");
+  _tooltip(addURL, "Add a URL to the list.");
 
   editFile = new Fl_Button(390, 120, 95, 25, "Edit Files...");
   editFile->deactivate();
   editFile->callback((Fl_Callback *)editFilesCB, this);
-  editFile->tooltip("Edit HTML files in the list.");
+  _tooltip(editFile, "Edit HTML files in the list.");
 
   deleteFile = new Fl_Button(390, 145, 95, 25, "Delete Files");
   deleteFile->deactivate();
   deleteFile->callback((Fl_Callback *)deleteFilesCB, this);
-  deleteFile->tooltip("Remove HTML files and URLs from the list.");
+  _tooltip(deleteFile, "Remove HTML files and URLs from the list.");
 
   moveUpFile = new Fl_Button(390, 170, 95, 25, "Move Up");
   moveUpFile->deactivate();
   moveUpFile->callback((Fl_Callback *)moveUpFilesCB, this);
-  moveUpFile->tooltip("Move HTML files and URLs up in the list.");
+  _tooltip(moveUpFile, "Move HTML files and URLs up in the list.");
 
   moveDownFile = new Fl_Button(390, 195, 95, 25, "Move Down");
   moveDownFile->deactivate();
   moveDownFile->callback((Fl_Callback *)moveDownFilesCB, this);
-  moveDownFile->tooltip("Move HTML files and URLs down in the list.");
+  _tooltip(moveDownFile, "Move HTML files and URLs down in the list.");
 
   logoImage = new Fl_Input(140, 230, 250, 25, "Logo Image: ");
   logoImage->when(FL_WHEN_CHANGED);
   logoImage->callback((Fl_Callback *)logoImageCB, this);
-  logoImage->tooltip("The logo image for the navigation bar and header or footer.");
+  _tooltip(logoImage, "The logo image for the navigation bar and header or footer.");
 
   logoBrowse = new Fl_Button(390, 230, 95, 25, "Browse...");
   logoBrowse->callback((Fl_Callback *)logoImageCB, this);
-  logoBrowse->tooltip("Choose a logo image file.");
+  _tooltip(logoBrowse, "Choose a logo image file.");
 
   titleImage = new Fl_Input(140, 260, 250, 25, "Title File/Image: ");
   titleImage->when(FL_WHEN_CHANGED);
   titleImage->callback((Fl_Callback *)titleImageCB, this);
-  titleImage->tooltip("The title image or HTML file for the title page.");
+  _tooltip(titleImage, "The title image or HTML file for the title page.");
 
   titleBrowse = new Fl_Button(390, 260, 95, 25, "Browse...");
   titleBrowse->callback((Fl_Callback *)titleImageCB, this);
-  titleBrowse->tooltip("Choose a title file.");
+  _tooltip(titleBrowse, "Choose a title file.");
 
   inputTab->end();
   inputTab->resizable(inputFiles);
@@ -372,66 +371,66 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   group = new Fl_Group(140, 45, 265, 20, "Output To: ");
   group->align(FL_ALIGN_LEFT);
-    outputFile = new Fl_Round_Button(140, 45, 50, 20, "File");
+    outputFile = new RadioButton(140, 45, 50, 20, "File");
     outputFile->type(FL_RADIO_BUTTON);
     outputFile->setonly();
     outputFile->callback((Fl_Callback *)outputTypeCB, this);
-    outputFile->tooltip("Generate a single output file.");
+    _tooltip(outputFile, "Generate a single output file.");
 
-    outputDirectory = new Fl_Round_Button(190, 45, 105, 20, "Directory");
+    outputDirectory = new RadioButton(190, 45, 105, 20, "Directory");
     outputDirectory->type(FL_RADIO_BUTTON);
     outputDirectory->callback((Fl_Callback *)outputTypeCB, this);
-    outputDirectory->tooltip("Generate multiple output files in a directory.");
+    _tooltip(outputDirectory, "Generate multiple output files in a directory.");
   group->end();
 
   outputPath = new Fl_Input(140, 70, 250, 25, "Output Path: ");
   outputPath->when(FL_WHEN_CHANGED);
   outputPath->callback((Fl_Callback *)outputPathCB, this);
-  outputPath->tooltip("The name of the output file or directory.");
+  _tooltip(outputPath, "The name of the output file or directory.");
 
   outputBrowse = new Fl_Button(390, 70, 95, 25, "Browse...");
   outputBrowse->callback((Fl_Callback *)outputPathCB, this);
-  outputBrowse->tooltip("Choose an output file.");
+  _tooltip(outputBrowse, "Choose an output file.");
 
   group = new Fl_Group(140, 100, 255, 20, "Output Format: ");
   group->align(FL_ALIGN_LEFT);
-    typeHTML = new Fl_Round_Button(140, 100, 65, 20, "HTML");
+    typeHTML = new RadioButton(140, 100, 65, 20, "HTML");
     typeHTML->type(FL_RADIO_BUTTON);
     typeHTML->setonly();
     typeHTML->callback((Fl_Callback *)outputFormatCB, this);
-    typeHTML->tooltip("Generate HTML file(s).");
+    _tooltip(typeHTML, "Generate HTML file(s).");
 
-    typeHTMLSep = new Fl_Round_Button(205, 100, 135, 20, "Separated HTML");
+    typeHTMLSep = new RadioButton(205, 100, 135, 20, "Separated HTML");
     typeHTMLSep->type(FL_RADIO_BUTTON);
     typeHTMLSep->callback((Fl_Callback *)outputFormatCB, this);
-    typeHTMLSep->tooltip("Generate separate HTML files for each TOC heading.");
+    _tooltip(typeHTMLSep, "Generate separate HTML files for each TOC heading.");
 
-    typePS = new Fl_Round_Button(340, 100, 45, 20, "PS");
+    typePS = new RadioButton(340, 100, 45, 20, "PS");
     typePS->type(FL_RADIO_BUTTON);
     typePS->callback((Fl_Callback *)outputFormatCB, this);
-    typePS->tooltip("Generate Adobe PostScript(r) file(s).");
+    _tooltip(typePS, "Generate Adobe PostScript(r) file(s).");
 
-    typePDF = new Fl_Round_Button(385, 100, 55, 20, "PDF");
+    typePDF = new RadioButton(385, 100, 55, 20, "PDF");
     typePDF->type(FL_RADIO_BUTTON);
     typePDF->callback((Fl_Callback *)outputFormatCB, this);
-    typePDF->tooltip("Generate an Adobe Acrobat file.");
+    _tooltip(typePDF, "Generate an Adobe Acrobat file.");
   group->end();
 
   group = new Fl_Group(140, 125, 265, 20, "Output Options: ");
   group->align(FL_ALIGN_LEFT);
   group->end();
 
-  grayscale = new Fl_Check_Button(140, 125, 90, 20, "Grayscale");
+  grayscale = new CheckButton(140, 125, 90, 20, "Grayscale");
   grayscale->callback((Fl_Callback *)changeCB, this);
-  grayscale->tooltip("Check to produce grayscale output.");
+  _tooltip(grayscale, "Check to produce grayscale output.");
 
-  titlePage = new Fl_Check_Button(230, 125, 90, 20, "Title Page");
+  titlePage = new CheckButton(230, 125, 90, 20, "Title Page");
   titlePage->callback((Fl_Callback *)changeCB, this);
-  titlePage->tooltip("Check to generate a title page.");
+  _tooltip(titlePage, "Check to generate a title page.");
 
-  jpegCompress = new Fl_Check_Button(320, 125, 140, 20, "JPEG Big Images");
+  jpegCompress = new CheckButton(320, 125, 140, 20, "JPEG Big Images");
   jpegCompress->callback((Fl_Callback *)jpegCB, this);
-  jpegCompress->tooltip("Check to reduce the size of large images using the JPEG algorithm.");
+  _tooltip(jpegCompress, "Check to reduce the size of large images using the JPEG algorithm.");
 
   compGroup = new Fl_Group(140, 150, 345, 40, "Compression: \n ");
   compGroup->align(FL_ALIGN_LEFT);
@@ -443,7 +442,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
     compression->value(1.0);
     compression->step(1.0);
     compression->callback((Fl_Callback *)changeCB, this);
-    compression->tooltip("Reduce the size of output files.");
+    _tooltip(compression, "Reduce the size of output files.");
 
     label = new Fl_Box(140, 170, 30, 10, "None");
     label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
@@ -469,8 +468,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
     jpegQuality->value(90.0);
     jpegQuality->step(1.0);
     jpegQuality->callback((Fl_Callback *)changeCB, this);
-    jpegQuality->tooltip("Set the quality of images using JPEG compression.\n"
-                         "(lower quality produces smaller output)");
+    _tooltip(jpegQuality, "Set the quality of images using JPEG compression.\n"
+                          "(lower quality produces smaller output)");
 
     label = new Fl_Box(175, 205, 40, 10, "Good");
     label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
@@ -494,76 +493,76 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageSize = new Fl_Input(140, 45, 100, 25, "Page Size: ");
   pageSize->when(FL_WHEN_CHANGED);
   pageSize->callback((Fl_Callback *)changeCB, this);
-  pageSize->tooltip("Enter the page size.");
+  _tooltip(pageSize, "Enter the page size.");
 
   pageSizeMenu = new Fl_Menu_Button(240, 45, 25, 25, "");
   pageSizeMenu->menu(sizeMenu);
   pageSizeMenu->callback((Fl_Callback *)sizeCB, this);
-  pageSizeMenu->tooltip("Click to choose a standard size.");
+  _tooltip(pageSizeMenu, "Click to choose a standard size.");
 
-  pageDuplex = new Fl_Check_Button(270, 48, 70, 20, "2-Sided");
+  pageDuplex = new CheckButton(270, 48, 70, 20, "2-Sided");
   pageDuplex->callback((Fl_Callback *)changeCB, this);
-  pageDuplex->tooltip("Produce output suitable for double-sided printing.");
+  _tooltip(pageDuplex, "Produce output suitable for double-sided printing.");
 
-  landscape = new Fl_Check_Button(345, 48, 90, 20, "Landscape");
+  landscape = new CheckButton(345, 48, 90, 20, "Landscape");
   landscape->callback((Fl_Callback *)changeCB, this);
-  landscape->tooltip("Check to rotate the output to landscape orientation.");
+  _tooltip(landscape, "Check to rotate the output to landscape orientation.");
 
   pageTop = new Fl_Input(225, 75, 60, 25, "Top");
   pageTop->when(FL_WHEN_CHANGED);
   pageTop->callback((Fl_Callback *)changeCB, this);
-  pageTop->tooltip("Enter the top margin.");
+  _tooltip(pageTop, "Enter the top margin.");
 
   pageLeft = new Fl_Input(190, 105, 60, 25, "Left");
   pageLeft->when(FL_WHEN_CHANGED);
   pageLeft->callback((Fl_Callback *)changeCB, this);
-  pageLeft->tooltip("Enter the left margin.");
+  _tooltip(pageLeft, "Enter the left margin.");
 
   pageRight = new Fl_Input(255, 105, 60, 25, "Right");
   pageRight->when(FL_WHEN_CHANGED);
   pageRight->align(FL_ALIGN_RIGHT);
   pageRight->callback((Fl_Callback *)changeCB, this);
-  pageRight->tooltip("Enter the right margin.");
+  _tooltip(pageRight, "Enter the right margin.");
 
   pageBottom = new Fl_Input(225, 135, 60, 25, "Bottom");
   pageBottom->when(FL_WHEN_CHANGED);
   pageBottom->callback((Fl_Callback *)changeCB, this);
-  pageBottom->tooltip("Enter the bottom margin.");
+  _tooltip(pageBottom, "Enter the bottom margin.");
 
   pageHeaderLeft = new Fl_Choice(140, 165, 110, 25, "Header: ");
   pageHeaderLeft->menu(formatMenu);
   pageHeaderLeft->callback((Fl_Callback *)changeCB, this);
-  pageHeaderLeft->tooltip("Choose the left header.");
+  _tooltip(pageHeaderLeft, "Choose the left header.");
 
   pageHeaderCenter = new Fl_Choice(255, 165, 110, 25);
   pageHeaderCenter->menu(formatMenu);
   pageHeaderCenter->callback((Fl_Callback *)changeCB, this);
-  pageHeaderCenter->tooltip("Choose the center header.");
+  _tooltip(pageHeaderCenter, "Choose the center header.");
 
   pageHeaderRight = new Fl_Choice(370, 165, 110, 25);
   pageHeaderRight->menu(formatMenu);
   pageHeaderRight->callback((Fl_Callback *)changeCB, this);
-  pageHeaderRight->tooltip("Choose the right header.");
+  _tooltip(pageHeaderRight, "Choose the right header.");
 
   pageFooterLeft = new Fl_Choice(140, 195, 110, 25, "Footer: ");
   pageFooterLeft->menu(formatMenu);
   pageFooterLeft->callback((Fl_Callback *)changeCB, this);
-  pageFooterLeft->tooltip("Choose the left footer.");
+  _tooltip(pageFooterLeft, "Choose the left footer.");
 
   pageFooterCenter = new Fl_Choice(255, 195, 110, 25);
   pageFooterCenter->menu(formatMenu);
   pageFooterCenter->callback((Fl_Callback *)changeCB, this);
-  pageFooterCenter->tooltip("Choose the center header.");
+  _tooltip(pageFooterCenter, "Choose the center header.");
 
   pageFooterRight = new Fl_Choice(370, 195, 110, 25);
   pageFooterRight->menu(formatMenu);
   pageFooterRight->callback((Fl_Callback *)changeCB, this);
-  pageFooterRight->tooltip("Choose the right header.");
+  _tooltip(pageFooterRight, "Choose the right header.");
 
   numberUp = new Fl_Choice(140, 225, 50, 25, "Number Up: ");
   numberUp->menu(nupMenu);
   numberUp->callback((Fl_Callback *)changeCB, this);
-  numberUp->tooltip("Set the number of pages on each sheet.");
+  _tooltip(numberUp, "Set the number of pages on each sheet.");
 
   pageTab->end();
 
@@ -577,11 +576,11 @@ GUI::GUI(const char *filename)		// Book file to load initially
   tocLevels = new Fl_Choice(140, 45, 100, 25, "Table of Contents: ");
   tocLevels->menu(tocMenu);
   tocLevels->callback((Fl_Callback *)tocCB, this);
-  tocLevels->tooltip("Choose the number of table of contents levels.");
+  _tooltip(tocLevels, "Choose the number of table of contents levels.");
 
-  numberedToc = new Fl_Check_Button(245, 47, 160, 20, "Numbered Headings");
+  numberedToc = new CheckButton(245, 47, 160, 20, "Numbered Headings");
   numberedToc->callback((Fl_Callback *)changeCB, this);
-  numberedToc->tooltip("Check to number all of the headings in the document.");
+  _tooltip(numberedToc, "Check to number all of the headings in the document.");
 
   tocHeader = new Fl_Group(140, 75, 345, 25, "Header: ");
   tocHeader->align(FL_ALIGN_LEFT);
@@ -589,17 +588,17 @@ GUI::GUI(const char *filename)		// Book file to load initially
     tocHeaderLeft = new Fl_Choice(140, 75, 110, 25);
     tocHeaderLeft->menu(formatMenu);
     tocHeaderLeft->callback((Fl_Callback *)changeCB, this);
-    tocHeaderLeft->tooltip("Choose the left header.");
+    _tooltip(tocHeaderLeft, "Choose the left header.");
 
     tocHeaderCenter = new Fl_Choice(255, 75, 110, 25);
     tocHeaderCenter->menu(formatMenu);
     tocHeaderCenter->callback((Fl_Callback *)changeCB, this);
-    tocHeaderCenter->tooltip("Choose the center header.");
+    _tooltip(tocHeaderCenter, "Choose the center header.");
 
     tocHeaderRight = new Fl_Choice(370, 75, 110, 25);
     tocHeaderRight->menu(formatMenu);
     tocHeaderRight->callback((Fl_Callback *)changeCB, this);
-    tocHeaderRight->tooltip("Choose the right header.");
+    _tooltip(tocHeaderRight, "Choose the right header.");
 
   tocHeader->end();
 
@@ -609,24 +608,24 @@ GUI::GUI(const char *filename)		// Book file to load initially
     tocFooterLeft = new Fl_Choice(140, 105, 110, 25, "Footer: ");
     tocFooterLeft->menu(formatMenu);
     tocFooterLeft->callback((Fl_Callback *)changeCB, this);
-    tocFooterLeft->tooltip("Choose the left footer.");
+    _tooltip(tocFooterLeft, "Choose the left footer.");
 
     tocFooterCenter = new Fl_Choice(255, 105, 110, 25);
     tocFooterCenter->menu(formatMenu);
     tocFooterCenter->callback((Fl_Callback *)changeCB, this);
-    tocFooterCenter->tooltip("Choose the center footer.");
+    _tooltip(tocFooterCenter, "Choose the center footer.");
 
     tocFooterRight = new Fl_Choice(370, 105, 110, 25);
     tocFooterRight->menu(formatMenu);
     tocFooterRight->callback((Fl_Callback *)changeCB, this);
-    tocFooterRight->tooltip("Choose the right footer.");
+    _tooltip(tocFooterRight, "Choose the right footer.");
 
   tocFooter->end();
 
   tocTitle = new Fl_Input(140, 135, 345, 25, "Title: ");
   tocTitle->when(FL_WHEN_CHANGED);
   tocTitle->callback((Fl_Callback *)changeCB, this);
-  tocTitle->tooltip("Enter the title of the table of contents.");
+  _tooltip(tocTitle, "Enter the title of the table of contents.");
 
   tocTab->end();
 
@@ -640,44 +639,44 @@ GUI::GUI(const char *filename)		// Book file to load initially
   bodyColor = new Fl_Input(140, 45, 100, 25, "Body Color: ");
   bodyColor->when(FL_WHEN_CHANGED);
   bodyColor->callback((Fl_Callback *)bodyColorCB, this);
-  bodyColor->tooltip("Enter the HTML color for the body (background).");
+  _tooltip(bodyColor, "Enter the HTML color for the body (background).");
 
   bodyLookup = new Fl_Button(240, 45, 80, 25, "Lookup...");
   bodyLookup->callback((Fl_Callback *)bodyColorCB, this);
-  bodyLookup->tooltip("Click to choose the HTML color for the body (background).");
+  _tooltip(bodyLookup, "Click to choose the HTML color for the body (background).");
 
   bodyImage = new Fl_Input(140, 75, 250, 25, "Body Image: ");
   bodyImage->when(FL_WHEN_CHANGED);
   bodyImage->callback((Fl_Callback *)bodyImageCB, this);
-  bodyImage->tooltip("Enter the image file for the body (background).");
+  _tooltip(bodyImage, "Enter the image file for the body (background).");
 
   bodyBrowse = new Fl_Button(390, 75, 95, 25, "Browse...");
   bodyBrowse->callback((Fl_Callback *)bodyImageCB, this);
-  bodyBrowse->tooltip("Click to choose the image file for the body (background).");
+  _tooltip(bodyBrowse, "Click to choose the image file for the body (background).");
 
   textColor = new Fl_Input(140, 105, 100, 25, "Text Color: ");
   textColor->when(FL_WHEN_CHANGED);
   textColor->callback((Fl_Callback *)textColorCB, this);
-  textColor->tooltip("Enter the HTML color for the text.");
+  _tooltip(textColor, "Enter the HTML color for the text.");
 
   textLookup = new Fl_Button(240, 105, 80, 25, "Lookup...");
   textLookup->callback((Fl_Callback *)textColorCB, this);
-  textLookup->tooltip("Click to choose the HTML color for the text.");
+  _tooltip(textLookup, "Click to choose the HTML color for the text.");
 
   linkColor = new Fl_Input(140, 135, 100, 25, "Link Color: ");
   linkColor->when(FL_WHEN_CHANGED);
   linkColor->callback((Fl_Callback *)linkColorCB, this);
-  linkColor->tooltip("Enter the HTML color for links.");
+  _tooltip(linkColor, "Enter the HTML color for links.");
 
   linkLookup = new Fl_Button(240, 135, 80, 25, "Lookup...");
   linkLookup->callback((Fl_Callback *)linkColorCB, this);
-  linkLookup->tooltip("Click to choose the HTML color for links.");
+  _tooltip(linkLookup, "Click to choose the HTML color for links.");
 
   linkStyle = new Fl_Choice(140, 165, 100, 25, "Link Style: ");
   linkStyle->add("Plain");
   linkStyle->add("Underline");
   linkStyle->callback((Fl_Callback *)changeCB, this);
-  linkStyle->tooltip("Choose the appearance of links.");
+  _tooltip(linkStyle, "Choose the appearance of links.");
 
   colorsTab->end();
 
@@ -695,7 +694,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   fontBaseSize->step(0.1);
   fontBaseSize->value(11.0);
   fontBaseSize->align(FL_ALIGN_LEFT);
-  fontBaseSize->tooltip("Set the default size of text.");
+  _tooltip(fontBaseSize, "Set the default size of text.");
 
   fontSpacing = new Fl_Counter(200, 75, 150, 25, "Line Spacing: ");
   fontSpacing->callback((Fl_Callback *)changeCB, this);
@@ -704,17 +703,17 @@ GUI::GUI(const char *filename)		// Book file to load initially
   fontSpacing->step(0.1);
   fontSpacing->value(1.2);
   fontSpacing->align(FL_ALIGN_LEFT);
-  fontSpacing->tooltip("Set the spacing between lines of text.");
+  _tooltip(fontSpacing, "Set the spacing between lines of text.");
 
   bodyFont = new Fl_Choice(200, 105, 100, 25, "Body Typeface: ");
   bodyFont->menu(typefaceMenu);
   bodyFont->callback((Fl_Callback *)changeCB, this);
-  bodyFont->tooltip("Choose the default typeface (font) of text.");
+  _tooltip(bodyFont, "Choose the default typeface (font) of text.");
 
   headingFont = new Fl_Choice(200, 135, 100, 25, "Heading Typeface: ");
   headingFont->menu(typefaceMenu);
   headingFont->callback((Fl_Callback *)changeCB, this);
-  headingFont->tooltip("Choose the default typeface (font) of headings.");
+  _tooltip(headingFont, "Choose the default typeface (font) of headings.");
 
   headFootSize = new Fl_Counter(200, 165, 150, 25, "Header/Footer Size: ");
   headFootSize->callback((Fl_Callback *)changeCB, this);
@@ -723,24 +722,24 @@ GUI::GUI(const char *filename)		// Book file to load initially
   headFootSize->step(0.1);
   headFootSize->value(11.0);
   headFootSize->align(FL_ALIGN_LEFT);
-  headFootSize->tooltip("Set the size of header and footer text.");
+  _tooltip(headFootSize, "Set the size of header and footer text.");
 
   headFootFont = new Fl_Choice(200, 195, 220, 25, "Header/Footer Font: ");
   headFootFont->menu(fontMenu);
   headFootFont->callback((Fl_Callback *)changeCB, this);
-  headFootFont->tooltip("Choose the font for header and footer text.");
+  _tooltip(headFootFont, "Choose the font for header and footer text.");
 
   charset = new Fl_Choice(200, 225, 110, 25, "Character Set: ");
   charset->menu(charsetMenu);
   charset->callback((Fl_Callback *)changeCB, this);
-  charset->tooltip("Choose the encoding of text.");
+  _tooltip(charset, "Choose the encoding of text.");
 
   group = new Fl_Group(200, 255, 285, 25, "Options: ");
   group->align(FL_ALIGN_LEFT);
 
-    embedFonts = new Fl_Check_Button(200, 255, 110, 25, "Embed Fonts");
+    embedFonts = new CheckButton(200, 255, 110, 25, "Embed Fonts");
     embedFonts->callback((Fl_Callback *)changeCB, this);
-    embedFonts->tooltip("Check to embed fonts in the output file.");
+    _tooltip(embedFonts, "Check to embed fonts in the output file.");
 
   group->end();
 
@@ -756,31 +755,31 @@ GUI::GUI(const char *filename)		// Book file to load initially
   psLevel = new Fl_Group(140, 45, 310, 20, "PostScript: ");
   psLevel->align(FL_ALIGN_LEFT);
 
-    ps1 = new Fl_Round_Button(140, 45, 70, 20, "Level 1");
+    ps1 = new RadioButton(140, 45, 70, 20, "Level 1");
     ps1->type(FL_RADIO_BUTTON);
     ps1->callback((Fl_Callback *)psCB, this);
-    ps1->tooltip("Produce PostScript Level 1 output.");
+    _tooltip(ps1, "Produce PostScript Level 1 output.");
 
-    ps2 = new Fl_Round_Button(210, 45, 70, 20, "Level 2");
+    ps2 = new RadioButton(210, 45, 70, 20, "Level 2");
     ps2->type(FL_RADIO_BUTTON);
     ps2->callback((Fl_Callback *)psCB, this);
-    ps2->tooltip("Produce PostScript Level 2 output.\n"
-                 "(most common)");
+    _tooltip(ps2, "Produce PostScript Level 2 output.\n"
+                  "(most common)");
 
-    ps3 = new Fl_Round_Button(280, 45, 70, 20, "Level 3");
+    ps3 = new RadioButton(280, 45, 70, 20, "Level 3");
     ps3->type(FL_RADIO_BUTTON);
     ps3->callback((Fl_Callback *)psCB, this);
-    ps3->tooltip("Produce PostScript Level 3 output.");
+    _tooltip(ps3, "Produce PostScript Level 3 output.");
 
   psLevel->end();
 
-  psCommands = new Fl_Check_Button(140, 70, 310, 20, "Send Printer Commands");
+  psCommands = new CheckButton(140, 70, 310, 20, "Send Printer Commands");
   psCommands->callback((Fl_Callback *)changeCB, this);
-  psCommands->tooltip("Include PostScript commands to set the media size, etc.");
+  _tooltip(psCommands, "Include PostScript commands to set the media size, etc.");
 
-  xrxComments = new Fl_Check_Button(140, 95, 310, 20, "Include Xerox Job Comments");
+  xrxComments = new CheckButton(140, 95, 310, 20, "Include Xerox Job Comments");
   xrxComments->callback((Fl_Callback *)changeCB, this);
-  xrxComments->tooltip("Include Xerox job comments to set the media size, etc.");
+  _tooltip(xrxComments, "Include Xerox job comments to set the media size, etc.");
 
   psTab->end();
 
@@ -794,47 +793,47 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pdfVersion = new Fl_Group(140, 45, 310, 40, "PDF Version: \n ");
   pdfVersion->align(FL_ALIGN_LEFT);
 
-    pdf11 = new Fl_Round_Button(140, 45, 125, 20, "1.1 (Acrobat 2.x)");
+    pdf11 = new RadioButton(140, 45, 125, 20, "1.1 (Acrobat 2.x)");
     pdf11->type(FL_RADIO_BUTTON);
     pdf11->callback((Fl_Callback *)pdfCB, this);
-    pdf11->tooltip("Produce PDF files for Acrobat 2.x.");
+    _tooltip(pdf11, "Produce PDF files for Acrobat 2.x.");
 
-    pdf12 = new Fl_Round_Button(270, 45, 125, 20, "1.2 (Acrobat 3.0)");
+    pdf12 = new RadioButton(270, 45, 125, 20, "1.2 (Acrobat 3.0)");
     pdf12->type(FL_RADIO_BUTTON);
     pdf12->callback((Fl_Callback *)pdfCB, this);
-    pdf12->tooltip("Produce PDF files for Acrobat 3.0.");
+    _tooltip(pdf12, "Produce PDF files for Acrobat 3.0.");
 
-    pdf13 = new Fl_Round_Button(140, 65, 125, 20, "1.3 (Acrobat 4.0)");
+    pdf13 = new RadioButton(140, 65, 125, 20, "1.3 (Acrobat 4.0)");
     pdf13->type(FL_RADIO_BUTTON);
     pdf13->callback((Fl_Callback *)pdfCB, this);
-    pdf13->tooltip("Produce PDF files for Acrobat 4.0.");
+    _tooltip(pdf13, "Produce PDF files for Acrobat 4.0.");
 
-    pdf14 = new Fl_Round_Button(270, 65, 125, 20, "1.4 (Acrobat 5.0)");
+    pdf14 = new RadioButton(270, 65, 125, 20, "1.4 (Acrobat 5.0)");
     pdf14->type(FL_RADIO_BUTTON);
     pdf14->callback((Fl_Callback *)pdfCB, this);
-    pdf14->tooltip("Produce PDF files for Acrobat 5.0.");
+    _tooltip(pdf14, "Produce PDF files for Acrobat 5.0.");
 
   pdfVersion->end();
 
   pageMode = new Fl_Choice(140, 90, 120, 25, "Page Mode: ");
   pageMode->menu(modeMenu);
   pageMode->callback((Fl_Callback *)changeCB, this);
-  pageMode->tooltip("Choose the initial viewing mode for the file.");
+  _tooltip(pageMode, "Choose the initial viewing mode for the file.");
 
   pageLayout = new Fl_Choice(140, 120, 150, 25, "Page Layout: ");
   pageLayout->menu(layoutMenu);
   pageLayout->callback((Fl_Callback *)changeCB, this);
-  pageLayout->tooltip("Choose the initial page layout for the file.");
+  _tooltip(pageLayout, "Choose the initial page layout for the file.");
 
   firstPage = new Fl_Choice(140, 150, 100, 25, "First Page: ");
   firstPage->menu(firstMenu);
   firstPage->callback((Fl_Callback *)changeCB, this);
-  firstPage->tooltip("Choose the initial page that will be shown.");
+  _tooltip(firstPage, "Choose the initial page that will be shown.");
 
   pageEffect = new Fl_Choice(140, 180, 210, 25, "Page Effect: ");
   pageEffect->menu(effectMenu);
   pageEffect->callback((Fl_Callback *)effectCB, this);
-  pageEffect->tooltip("Choose the page transition effect.");
+  _tooltip(pageEffect, "Choose the page transition effect.");
 
   pageDuration = new Fl_Value_Slider(140, 210, 345, 20, "Page Duration: ");
   pageDuration->align(FL_ALIGN_LEFT);
@@ -844,7 +843,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageDuration->value(10.0);
   pageDuration->step(1.0);
   pageDuration->callback((Fl_Callback *)changeCB, this);
-  pageDuration->tooltip("Set the amount of time each page is visible.");
+  _tooltip(pageDuration, "Set the amount of time each page is visible.");
 
   effectDuration = new Fl_Value_Slider(140, 235, 345, 20, "Effect Duration: ");
   effectDuration->align(FL_ALIGN_LEFT);
@@ -854,14 +853,14 @@ GUI::GUI(const char *filename)		// Book file to load initially
   effectDuration->value(1.0);
   effectDuration->step(0.1);
   effectDuration->callback((Fl_Callback *)changeCB, this);
-  effectDuration->tooltip("Set the amount of time to use for the page transition effect.");
+  _tooltip(effectDuration, "Set the amount of time to use for the page transition effect.");
 
   group = new Fl_Group(140, 260, 350, 25, "Options: ");
   group->align(FL_ALIGN_LEFT);
 
-    links = new Fl_Check_Button(140, 260, 110, 25, "Include Links");
+    links = new CheckButton(140, 260, 110, 25, "Include Links");
     links->callback((Fl_Callback *)changeCB, this);
-    links->tooltip("Check to include hyperlinks in the output file.");
+    _tooltip(links, "Check to include hyperlinks in the output file.");
 
   group->end();
 
@@ -877,16 +876,16 @@ GUI::GUI(const char *filename)		// Book file to load initially
   encryption = new Fl_Group(140, 45, 310, 20, "Encryption: ");
   encryption->align(FL_ALIGN_LEFT);
 
-    encryptionNo = new Fl_Round_Button(140, 45, 40, 20, "No");
+    encryptionNo = new RadioButton(140, 45, 40, 20, "No");
     encryptionNo->type(FL_RADIO_BUTTON);
     encryptionNo->set();
     encryptionNo->callback((Fl_Callback *)encryptionCB, this);
-    encryptionNo->tooltip("Select to disable encryption (scrambling) of the output file.");
+    _tooltip(encryptionNo, "Select to disable encryption (scrambling) of the output file.");
 
-    encryptionYes = new Fl_Round_Button(180, 45, 45, 20, "Yes");
+    encryptionYes = new RadioButton(180, 45, 45, 20, "Yes");
     encryptionYes->type(FL_RADIO_BUTTON);
     encryptionYes->callback((Fl_Callback *)encryptionCB, this);
-    encryptionYes->tooltip("Select to enable encryption (scrambling) of the output file.\n"
+    _tooltip(encryptionYes, "Select to enable encryption (scrambling) of the output file.\n"
                             "(128-bit encryption for Acrobat 5.0, 40-bit for older versions.)");
 
   encryption->end();
@@ -894,26 +893,26 @@ GUI::GUI(const char *filename)		// Book file to load initially
   permissions = new Fl_Group(140, 70, 310, 40, "Permissions: ");
   permissions->align(FL_ALIGN_LEFT);
 
-    permPrint    = new Fl_Check_Button(140, 70, 80, 20, "Print");
-    permPrint->tooltip("Check to allow the user to print the output file.");
-    permModify   = new Fl_Check_Button(220, 70, 80, 20, "Modify");
-    permModify->tooltip("Check to allow the user to modify the output file.");
-    permCopy     = new Fl_Check_Button(140, 90, 80, 20, "Copy");
-    permCopy->tooltip("Check to allow the user to copy text and images from the output file.");
-    permAnnotate = new Fl_Check_Button(220, 90, 80, 20, "Annotate");
-    permAnnotate->tooltip("Check to allow the user to annotate the output file.");
+    permPrint    = new CheckButton(140, 70, 80, 20, "Print");
+    _tooltip(permPrint, "Check to allow the user to print the output file.");
+    permModify   = new CheckButton(220, 70, 80, 20, "Modify");
+    _tooltip(permModify, "Check to allow the user to modify the output file.");
+    permCopy     = new CheckButton(140, 90, 80, 20, "Copy");
+    _tooltip(permCopy, "Check to allow the user to copy text and images from the output file.");
+    permAnnotate = new CheckButton(220, 90, 80, 20, "Annotate");
+    _tooltip(permAnnotate, "Check to allow the user to annotate the output file.");
 
   permissions->end();
 
   ownerPassword = new Fl_Secret_Input(140, 115, 150, 25, "Owner Password: ");
   ownerPassword->maximum_size(32);
-  ownerPassword->tooltip("Enter the password required to modify the file.\n"
-                         "(leave blank for a random password)");
+  _tooltip(ownerPassword, "Enter the password required to modify the file.\n"
+                          "(leave blank for a random password)");
 
   userPassword = new Fl_Secret_Input(140, 145, 150, 25, "User Password: ");
   userPassword->maximum_size(32);
-  userPassword->tooltip("Enter the password required to open the file.\n"
-                        "(leave blank for no password)");
+  _tooltip(userPassword, "Enter the password required to open the file.\n"
+                         "(leave blank for no password)");
 
   securityTab->end();
 
@@ -928,12 +927,12 @@ GUI::GUI(const char *filename)		// Book file to load initially
   htmlEditor->value(HTMLEditor);
   htmlEditor->when(FL_WHEN_CHANGED);
   htmlEditor->callback((Fl_Callback *)htmlEditorCB, this);
-  htmlEditor->tooltip("Enter the command used to edit HTML files.\n"
-                      "(use \"%s\" to insert the filename)");
+  _tooltip(htmlEditor, "Enter the command used to edit HTML files.\n"
+                       "(use \"%s\" to insert the filename)");
 
   htmlBrowse = new Fl_Button(390, 45, 95, 25, "Browse...");
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
-  htmlBrowse->tooltip("Click to choose the HTML editor.");
+  _tooltip(htmlBrowse, "Click to choose the HTML editor.");
 
   browserWidth = new Fl_Value_Slider(140, 75, 345, 20, "Browser Width: ");
   browserWidth->align(FL_ALIGN_LEFT);
@@ -943,48 +942,53 @@ GUI::GUI(const char *filename)		// Book file to load initially
   browserWidth->value(_htmlBrowserWidth);
   browserWidth->step(5.0);
   browserWidth->callback((Fl_Callback *)changeCB, this);
-  browserWidth->tooltip("Set the target browser width in pixels.\n"
-                        "(this determines the page scaling of images)");
+  _tooltip(browserWidth, "Set the target browser width in pixels.\n"
+                         "(this determines the page scaling of images)");
 
   path = new Fl_Input(140, 100, 345, 25, "Search Path: ");
-  path->value(book->Path);
-  path->maximum_size(sizeof(book->Path) - 1);
+  path->value(Path);
+  path->maximum_size(sizeof(Path) - 1);
   path->when(FL_WHEN_CHANGED);
   path->callback((Fl_Callback *)changeCB, this);
-  path->tooltip("Enter one or more directories or URLs to search for files.\n"
-                "(separate each directory or URL with the ';' character)");
+  _tooltip(path, "Enter one or more directories or URLs to search for files.\n"
+                 "(separate each directory or URL with the ';' character)");
 
   proxy = new Fl_Input(140, 130, 345, 25, "HTTP Proxy URL: ");
-  proxy->value(book->Proxy);
-  proxy->maximum_size(sizeof(book->Proxy) - 1);
+  proxy->value(Proxy);
+  proxy->maximum_size(sizeof(Proxy) - 1);
   proxy->when(FL_WHEN_CHANGED);
   proxy->callback((Fl_Callback *)changeCB, this);
-  proxy->tooltip("Enter a URL for your HTTP proxy server.\n"
-                 "(http://server:port)");
+  _tooltip(proxy, "Enter a URL for your HTTP proxy server.\n"
+                  "(http://server:port)");
 
   group = new Fl_Group(140, 160, 350, 75, "GUI Options: \n\n\n\n");
   group->align(FL_ALIGN_LEFT);
 
-    tooltips = new Fl_Check_Button(140, 160, 80, 25, "Tooltips");
+    tooltips = new CheckButton(140, 160, 80, 25, "Tooltips");
     tooltips->callback((Fl_Callback *)tooltipCB, this);
     tooltips->value(Tooltips);
-    tooltips->tooltip("Check to show tooltips.");
+    _tooltip(tooltips, "Check to show tooltips.");
+#  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
     tooltips->deactivate();
+#  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 
-    modernSkin = new Fl_Check_Button(140, 185, 120, 25, "Modern Look");
-    modernSkin->callback((Fl_Callback *)skinCB, this);
-    modernSkin->value(ModernSkin);
-    modernSkin->tooltip("Check to show the more modern look-n-feel.");
+    modern_skin = new CheckButton(140, 185, 120, 25, "Modern Look");
+    modern_skin->callback((Fl_Callback *)skinCB, this);
+    modern_skin->value(ModernSkin);
+    _tooltip(modern_skin, "Check to show the more modern look-n-feel.");
+#  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
+    modern_skin->deactivate();
+#  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 
-    strictHTML = new Fl_Check_Button(140, 210, 120, 25, "Strict HTML");
-    strictHTML->value(book->strict_html);
-    strictHTML->tooltip("Check to require strict HTML conformance.");
+    strict_html = new CheckButton(140, 210, 120, 25, "Strict HTML");
+    strict_html->value(StrictHTML);
+    _tooltip(strict_html, "Check to require strict HTML conformance.");
 
   group->end();
 
   saveOptions = new Fl_Button(295, 260, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
-  saveOptions->tooltip("Click to save the current options.");
+  _tooltip(saveOptions, "Click to save the current options.");
 
   optionsTab->end();
 
@@ -1039,10 +1043,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   label->align(FL_ALIGN_TOP | FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 
   //
-  // Fl_Progress bar...
+  // Progress bar...
   //
 
-  progressBar = new Fl_Progress(10, 385, 485, 20, "HTMLDOC " SVERSION " Ready.");
+  progressBar = new Progress(10, 385, 485, 20, "HTMLDOC " SVERSION " Ready.");
 
   window->end();
 
@@ -1080,15 +1084,15 @@ GUI::GUI(const char *filename)		// Book file to load initially
   show();
 
   // File chooser, icons, help dialog, error window...
-  fc = new Fl_File_Chooser(".", "*", Fl_File_Chooser::SINGLE, "Title");
+  fc = new FileChooser(".", "*", FileChooser::SINGLE, "Title");
   fc->iconsize(20);
 
-  if (!Fl_File_Icon::first())
-    Fl_File_Icon::load_system_icons();
+  if (!FileIcon::first())
+    FileIcon::load_system_icons();
 
-  icon = Fl_File_Icon::find("file.html", Fl_File_Icon::PLAIN);
+  icon = FileIcon::find("file.html", FileIcon::PLAIN);
 
-  help = new Fl_Help_Dialog();
+  help = new HelpDialog();
 
   error_window = new Fl_Window(400, 300, "Errors");
   error_list   = new Fl_Browser(10, 10, 380, 245);
@@ -1099,11 +1103,61 @@ GUI::GUI(const char *filename)		// Book file to load initially
   error_window->resizable(error_list);
 
   // Use cheesy hardcoded "style" stuff until FLTK 2.0...
+#  if FL_MINOR_VERSION >= 1
   skinCB(0, this);
+#  endif // FL_MINOR_VERSION >= 1
 
 #  ifdef __sgi
   fc->color((Fl_Color)196);
   inputFiles->color((Fl_Color)196);
+#  elif defined(WIN32) && FL_MINOR_VERSION < 1
+  pageSizeMenu->down_box(FL_FLAT_BOX);
+  pageSizeMenu->selection_color((Fl_Color)137);
+  pageHeaderLeft->down_box(FL_FLAT_BOX);
+  pageHeaderLeft->selection_color((Fl_Color)137);
+  pageHeaderCenter->down_box(FL_FLAT_BOX);
+  pageHeaderCenter->selection_color((Fl_Color)137);
+  pageHeaderRight->down_box(FL_FLAT_BOX);
+  pageHeaderRight->selection_color((Fl_Color)137);
+  pageFooterLeft->down_box(FL_FLAT_BOX);
+  pageFooterLeft->selection_color((Fl_Color)137);
+  pageFooterCenter->down_box(FL_FLAT_BOX);
+  pageFooterCenter->selection_color((Fl_Color)137);
+  pageFooterRight->down_box(FL_FLAT_BOX);
+  pageFooterRight->selection_color((Fl_Color)137);
+
+  tocLevels->down_box(FL_FLAT_BOX);
+  tocLevels->selection_color((Fl_Color)137);
+  tocHeaderLeft->down_box(FL_FLAT_BOX);
+  tocHeaderLeft->selection_color((Fl_Color)137);
+  tocHeaderCenter->down_box(FL_FLAT_BOX);
+  tocHeaderCenter->selection_color((Fl_Color)137);
+  tocHeaderRight->down_box(FL_FLAT_BOX);
+  tocHeaderRight->selection_color((Fl_Color)137);
+  tocFooterLeft->down_box(FL_FLAT_BOX);
+  tocFooterLeft->selection_color((Fl_Color)137);
+  tocFooterCenter->down_box(FL_FLAT_BOX);
+  tocFooterCenter->selection_color((Fl_Color)137);
+  tocFooterRight->down_box(FL_FLAT_BOX);
+  tocFooterRight->selection_color((Fl_Color)137);
+
+  headingFont->down_box(FL_FLAT_BOX);
+  headingFont->selection_color((Fl_Color)137);
+  bodyFont->down_box(FL_FLAT_BOX);
+  bodyFont->selection_color((Fl_Color)137);
+  headFootFont->down_box(FL_FLAT_BOX);
+  headFootFont->selection_color((Fl_Color)137);
+  charset->down_box(FL_FLAT_BOX);
+  charset->selection_color((Fl_Color)137);
+
+  pageMode->down_box(FL_FLAT_BOX);
+  pageMode->selection_color((Fl_Color)137);
+  pageLayout->down_box(FL_FLAT_BOX);
+  pageLayout->selection_color((Fl_Color)137);
+  firstPage->down_box(FL_FLAT_BOX);
+  firstPage->selection_color((Fl_Color)137);
+  pageEffect->down_box(FL_FLAT_BOX);
+  pageEffect->selection_color((Fl_Color)137);
 #  endif // __sgi
 
   while (window->damage())
@@ -1124,17 +1178,19 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
 
 //
-// 'GUI::~GUI()' - Destroy the HTMLDOC GUI.
+// '~GUI()' - Destroy the HTMLDOC GUI.
 //
 
 GUI::~GUI(void)
 {
-  delete book;
-
   delete window;
+
   delete fc;
   delete help;
   delete error_window;
+
+  while (FileIcon::first())
+    delete FileIcon::first();
 }
 
 
@@ -1181,7 +1237,7 @@ void
 GUI::title(const char *filename,// Name of file being edited
            int        changed)	// Whether or not the file is modified
 {
-  static char	guititle[1024];	// Title string
+  static char	title[1024];	// Title string
 
 
   book_changed = changed;
@@ -1189,22 +1245,22 @@ GUI::title(const char *filename,// Name of file being edited
   if (filename == NULL || filename[0] == '\0')
   {
     book_filename[0] = '\0';
-    strcpy(guititle, "NewBook");
+    strcpy(title, "NewBook");
   }
   else
   {
     strcpy(book_filename, filename);
-    strcpy(guititle, file_basename(filename));
+    strcpy(title, file_basename(filename));
   }
 
   if (changed)
-    strcat(guititle, "(modified) - ");
+    strcat(title, "(modified) - ");
   else
-    strcat(guititle, " - ");
+    strcat(title, " - ");
 
-  strcat(guititle, "HTMLDOC " SVERSION);
+  strcat(title, "HTMLDOC " SVERSION);
 
-  window->label(guititle);
+  window->label(title);
   if (window->visible())
     Fl::check();
 }
@@ -1222,121 +1278,121 @@ GUI::loadSettings()
 					// Format characters
 
 
-  book->set_page_size((char *)pageSize->value());
+  set_page_size((char *)pageSize->value());
 
-  book->PageLeft     = book->get_measurement((char *)pageLeft->value());
-  book->PageRight    = book->get_measurement((char *)pageRight->value());
-  book->PageTop      = book->get_measurement((char *)pageTop->value());
-  book->PageBottom   = book->get_measurement((char *)pageBottom->value());
+  PageLeft     = get_measurement((char *)pageLeft->value());
+  PageRight    = get_measurement((char *)pageRight->value());
+  PageTop      = get_measurement((char *)pageTop->value());
+  PageBottom   = get_measurement((char *)pageBottom->value());
 
-  book->PageDuplex   = pageDuplex->value();
-  book->Landscape    = landscape->value();
-  book->Compression  = (int)compression->value();
-  book->OutputColor  = !grayscale->value();
-  book->TocNumbers   = numberedToc->value();
-  book->TocLevels    = tocLevels->value();
-  book->TitlePage    = titlePage->value();
+  PageDuplex   = pageDuplex->value();
+  Landscape    = landscape->value();
+  Compression  = (int)compression->value();
+  OutputColor  = !grayscale->value();
+  TocNumbers   = numberedToc->value();
+  TocLevels    = tocLevels->value();
+  TitlePage    = titlePage->value();
 
   if (jpegCompress->value())
-    book->OutputJPEG = (int)jpegQuality->value();
+    OutputJPEG = (int)jpegQuality->value();
   else
-    book->OutputJPEG = 0;
+    OutputJPEG = 0;
 
-  strcpy(book->TocTitle, tocTitle->value());
+  strcpy(TocTitle, tocTitle->value());
 
   temp[0] = formats[tocHeaderLeft->value()];
   temp[1] = formats[tocHeaderCenter->value()];
   temp[2] = formats[tocHeaderRight->value()];
   temp[3] = '\0';
 
-  book->get_format(temp, book->TocHeader);
+  get_format(temp, TocHeader);
 
   temp[0] = formats[tocFooterLeft->value()];
   temp[1] = formats[tocFooterCenter->value()];
   temp[2] = formats[tocFooterRight->value()];
 
-  book->get_format(temp, book->TocFooter);
+  get_format(temp, TocFooter);
 
   temp[0] = formats[pageHeaderLeft->value()];
   temp[1] = formats[pageHeaderCenter->value()];
   temp[2] = formats[pageHeaderRight->value()];
 
-  book->get_format(temp, book->Header);
+  get_format(temp, Header);
 
   temp[0] = formats[pageFooterLeft->value()];
   temp[1] = formats[pageFooterCenter->value()];
   temp[2] = formats[pageFooterRight->value()];
 
-  book->get_format(temp, book->Footer);
+  get_format(temp, Footer);
 
-  book->NumberUp = atoi(numberUp->text(numberUp->value()));
+  NumberUp = atoi(numberUp->text(numberUp->value()));
 
-  _htmlBodyFont    = (hdFontFace)bodyFont->value();
-  _htmlHeadingFont = (hdFontFace)headingFont->value();
+  _htmlBodyFont    = (typeface_t)bodyFont->value();
+  _htmlHeadingFont = (typeface_t)headingFont->value();
   htmlSetBaseSize(fontBaseSize->value(), fontSpacing->value());
 
-  book->HeadFootType  = (hdFontFace)(headFootFont->value() / 4);
-  book->HeadFootStyle = (hdFontInternal)(headFootFont->value() & 3);
-  book->HeadFootSize  = headFootSize->value();
+  HeadFootType  = (typeface_t)(headFootFont->value() / 4);
+  HeadFootStyle = (style_t)(headFootFont->value() & 3);
+  HeadFootSize  = headFootSize->value();
 
   if (pdf11->value())
-    book->PDFVersion = 11;
+    PDFVersion = 11;
   else if (pdf12->value())
-    book->PDFVersion = 12;
+    PDFVersion = 12;
   else if (pdf13->value())
-    book->PDFVersion = 13;
+    PDFVersion = 13;
   else
-    book->PDFVersion = 14;
+    PDFVersion = 14;
 
-  book->PDFPageMode       = pageMode->value();
-  book->PDFPageLayout     = pageLayout->value();
-  book->PDFFirstPage      = firstPage->value();
-  book->PDFEffect         = pageEffect->value();
-  book->PDFPageDuration   = pageDuration->value();
-  book->PDFEffectDuration = effectDuration->value();
-  book->Links             = links->value();
-  book->EmbedFonts        = embedFonts->value();
+  PDFPageMode       = pageMode->value();
+  PDFPageLayout     = pageLayout->value();
+  PDFFirstPage      = firstPage->value();
+  PDFEffect         = pageEffect->value();
+  PDFPageDuration   = pageDuration->value();
+  PDFEffectDuration = effectDuration->value();
+  Links             = links->value();
+  EmbedFonts        = embedFonts->value();
 
-  book->Encryption  = encryptionYes->value();
-  book->Permissions = -64;
+  Encryption  = encryptionYes->value();
+  Permissions = -64;
   if (permPrint->value())
-    book->Permissions |= HD_PDF_PERM_PRINT;
+    Permissions |= PDF_PERM_PRINT;
   if (permModify->value())
-    book->Permissions |= HD_PDF_PERM_MODIFY;
+    Permissions |= PDF_PERM_MODIFY;
   if (permCopy->value())
-    book->Permissions |= HD_PDF_PERM_COPY;
+    Permissions |= PDF_PERM_COPY;
   if (permAnnotate->value())
-    book->Permissions |= HD_PDF_PERM_ANNOTATE;
+    Permissions |= PDF_PERM_ANNOTATE;
 
-  strcpy(book->UserPassword, userPassword->value());
-  strcpy(book->OwnerPassword, ownerPassword->value());
+  strcpy(UserPassword, userPassword->value());
+  strcpy(OwnerPassword, ownerPassword->value());
 
   if (ps1->value())
-    book->PSLevel = 1;
+    PSLevel = 1;
   else if (ps2->value())
-    book->PSLevel = 2;
+    PSLevel = 2;
   else
-    book->PSLevel = 3;
+    PSLevel = 3;
 
-  book->PSCommands  = psCommands->value();
-  book->XRXComments = xrxComments->value();
+  PSCommands  = psCommands->value();
+  XRXComments = xrxComments->value();
 
-  strcpy(book->BodyColor, bodyColor->value());
-  strcpy(book->BodyImage, bodyImage->value());
+  strcpy(BodyColor, bodyColor->value());
+  strcpy(BodyImage, bodyImage->value());
 
   htmlSetTextColor((uchar *)textColor->value());
   htmlSetCharSet(charset->text(charset->value()));
 
-  strcpy(book->LinkColor, linkColor->value());
-  book->LinkStyle = linkStyle->value();
+  strcpy(LinkColor, linkColor->value());
+  LinkStyle = linkStyle->value();
 
   _htmlBrowserWidth = browserWidth->value();
 
-  strcpy(book->Path, path->value());
+  strcpy(Path, path->value());
 
-  strcpy(book->Proxy, proxy->value());
+  strcpy(Proxy, proxy->value());
 
-  book->strict_html = strictHTML->value();
+  StrictHTML = strict_html->value();
 }
 
 
@@ -1353,21 +1409,21 @@ GUI::newBook(void)
   const char	*fmt;		// Old format string
 
 
-  book->prefs_load();
+  prefs_load();
 
-  switch (book->OutputType)
+  switch (OutputType)
   {
-    case HD_OUTPUT_BOOK :
+    case OUTPUT_BOOK :
 	typeBook->setonly();
 	docTypeCB(typeBook, this);
 	break;
 
-    case HD_OUTPUT_CONTINUOUS :
+    case OUTPUT_CONTINUOUS :
 	typeContinuous->setonly();
 	docTypeCB(typeContinuous, this);
 	break;
 
-    case HD_OUTPUT_WEBPAGES :
+    case OUTPUT_WEBPAGES :
 	typeWebPage->setonly();
 	docTypeCB(typeWebPage, this);
 	break;
@@ -1387,42 +1443,42 @@ GUI::newBook(void)
   typeHTML->setonly();
   outputFormatCB(typeHTML, this);
 
-  grayscale->value(!book->OutputColor);
-  titlePage->value(book->TitlePage);
+  grayscale->value(!OutputColor);
+  titlePage->value(TitlePage);
 
-  bodyColor->value(book->BodyColor);
-  bodyImage->value(book->BodyImage);
+  bodyColor->value(BodyColor);
+  bodyImage->value(BodyImage);
   textColor->value((char *)_htmlTextColor);
-  linkColor->value(book->LinkColor);
-  linkStyle->value(book->LinkStyle);
+  linkColor->value(LinkColor);
+  linkStyle->value(LinkStyle);
 
-  if (book->PageWidth == 595 && book->PageLength == 842)
+  if (PageWidth == 595 && PageLength == 842)
     pageSize->value("A4");
-  else if (book->PageWidth == 595 && book->PageLength == 792)
+  else if (PageWidth == 595 && PageLength == 792)
     pageSize->value("Universal");
-  else if (book->PageWidth == 612 && book->PageLength == 792)
+  else if (PageWidth == 612 && PageLength == 792)
     pageSize->value("Letter");
   else
   {
-    sprintf(size, "%.2fx%.2fin", book->PageWidth / 72.0f, book->PageLength / 72.0f);
+    sprintf(size, "%.2fx%.2fin", PageWidth / 72.0f, PageLength / 72.0f);
     pageSize->value(size);
   }
 
-  sprintf(size, "%.2fin", book->PageLeft / 72.0f);
+  sprintf(size, "%.2fin", PageLeft / 72.0f);
   pageLeft->value(size);
 
-  sprintf(size, "%.2fin", book->PageRight / 72.0f);
+  sprintf(size, "%.2fin", PageRight / 72.0f);
   pageRight->value(size);
 
-  sprintf(size, "%.2fin", book->PageTop / 72.0f);
+  sprintf(size, "%.2fin", PageTop / 72.0f);
   pageTop->value(size);
 
-  sprintf(size, "%.2fin", book->PageBottom / 72.0f);
+  sprintf(size, "%.2fin", PageBottom / 72.0f);
   pageBottom->value(size);
 
-  pageDuplex->value(book->PageDuplex);
+  pageDuplex->value(PageDuplex);
 
-  landscape->value(book->Landscape);
+  landscape->value(Landscape);
 
   memset(formats, 0, sizeof(formats));
   formats['t'] = 1;
@@ -1441,51 +1497,51 @@ GUI::newBook(void)
   formats['T'] = 14;
   formats['D'] = 15;
 
-  fmt = book->get_fmt(book->Header);
+  fmt = get_fmt(Header);
   pageHeaderLeft->value(formats[fmt[0]]);
   pageHeaderCenter->value(formats[fmt[1]]);
   pageHeaderRight->value(formats[fmt[2]]);
 
-  fmt = book->get_fmt(book->Footer);
+  fmt = get_fmt(Footer);
   pageFooterLeft->value(formats[fmt[0]]);
   pageFooterCenter->value(formats[fmt[1]]);
   pageFooterRight->value(formats[fmt[2]]);
 
-  if (book->NumberUp == 1)
+  if (NumberUp == 1)
     numberUp->value(0);
-  else if (book->NumberUp == 2)
+  else if (NumberUp == 2)
     numberUp->value(1);
-  else if (book->NumberUp == 4)
+  else if (NumberUp == 4)
     numberUp->value(2);
-  else if (book->NumberUp == 6)
+  else if (NumberUp == 6)
     numberUp->value(3);
-  else if (book->NumberUp == 9)
+  else if (NumberUp == 9)
     numberUp->value(4);
-  else if (book->NumberUp == 16)
+  else if (NumberUp == 16)
     numberUp->value(5);
 
-  tocLevels->value(book->TocLevels);
-  numberedToc->value(book->TocNumbers);
+  tocLevels->value(TocLevels);
+  numberedToc->value(TocNumbers);
 
-  fmt = book->get_fmt(book->TocHeader);
+  fmt = get_fmt(TocHeader);
   tocHeaderLeft->value(formats[fmt[0]]);
   tocHeaderCenter->value(formats[fmt[1]]);
   tocHeaderRight->value(formats[fmt[2]]);
 
-  fmt = book->get_fmt(book->TocFooter);
+  fmt = get_fmt(TocFooter);
   tocFooterLeft->value(formats[fmt[0]]);
   tocFooterCenter->value(formats[fmt[1]]);
   tocFooterRight->value(formats[fmt[2]]);
 
-  tocTitle->value(book->TocTitle);
+  tocTitle->value(TocTitle);
 
   headingFont->value(_htmlHeadingFont);
   bodyFont->value(_htmlBodyFont);
-  headFootFont->value(book->HeadFootType * 4 + book->HeadFootStyle);
+  headFootFont->value(HeadFootType * 4 + HeadFootStyle);
 
   fontBaseSize->value(_htmlSizes[SIZE_P]);
   fontSpacing->value(_htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
-  headFootSize->value(book->HeadFootSize);
+  headFootSize->value(HeadFootSize);
 
   for (i = 0; i < (charset->size() - 1); i ++)
     if (strcasecmp(_htmlCharSet, charset->text(i)) == 0)
@@ -1494,26 +1550,26 @@ GUI::newBook(void)
       break;
     }
 
-  compression->value(book->Compression);
+  compression->value(Compression);
   compGroup->deactivate();
 
-  jpegCompress->value(book->OutputJPEG > 0);
-  jpegQuality->value(book->OutputJPEG > 0 ? book->OutputJPEG : 90);
+  jpegCompress->value(OutputJPEG > 0);
+  jpegQuality->value(OutputJPEG > 0 ? OutputJPEG : 90);
   jpegGroup->deactivate();
 
   pdfTab->deactivate();
 
-  if (book->PDFVersion < 12)
+  if (PDFVersion < 12)
   {
     pdf11->setonly();
     pdfCB(pdf11, this);
   }
-  else if (book->PDFVersion < 13)
+  else if (PDFVersion < 13)
   {
     pdf12->setonly();
     pdfCB(pdf12, this);
   }
-  else if (book->PDFVersion < 14)
+  else if (PDFVersion < 14)
   {
     pdf13->setonly();
     pdfCB(pdf13, this);
@@ -1524,25 +1580,25 @@ GUI::newBook(void)
     pdfCB(pdf14, this);
   }
 
-  pageMode->value(book->PDFPageMode);
+  pageMode->value(PDFPageMode);
 
-  pageLayout->value(book->PDFPageLayout);
+  pageLayout->value(PDFPageLayout);
 
-  firstPage->value(book->PDFFirstPage);
+  firstPage->value(PDFFirstPage);
 
-  pageEffect->value(book->PDFEffect);
+  pageEffect->value(PDFEffect);
   effectCB(pageEffect, this);
 
-  pageDuration->value(book->PDFPageDuration);
+  pageDuration->value(PDFPageDuration);
 
-  effectDuration->value(book->PDFEffectDuration);
+  effectDuration->value(PDFEffectDuration);
 
-  links->value(book->Links);
-  embedFonts->value(book->EmbedFonts);
+  links->value(Links);
+  embedFonts->value(EmbedFonts);
 
   securityTab->deactivate();
 
-  if (book->Encryption)
+  if (Encryption)
   {
     encryptionYes->setonly();
     encryptionCB(encryptionYes, this);
@@ -1553,49 +1609,49 @@ GUI::newBook(void)
     encryptionCB(encryptionNo, this);
   }
 
-  if (book->Permissions & HD_PDF_PERM_PRINT)
+  if (Permissions & PDF_PERM_PRINT)
     permPrint->set();
   else
     permPrint->clear();
 
-  if (book->Permissions & HD_PDF_PERM_MODIFY)
+  if (Permissions & PDF_PERM_MODIFY)
     permModify->set();
   else
     permModify->clear();
 
-  if (book->Permissions & HD_PDF_PERM_COPY)
+  if (Permissions & PDF_PERM_COPY)
     permCopy->set();
   else
     permCopy->clear();
 
-  if (book->Permissions & HD_PDF_PERM_ANNOTATE)
+  if (Permissions & PDF_PERM_ANNOTATE)
     permAnnotate->set();
   else
     permAnnotate->clear();
 
-  ownerPassword->value(book->OwnerPassword);
-  userPassword->value(book->UserPassword);
+  ownerPassword->value(OwnerPassword);
+  userPassword->value(UserPassword);
 
-  if (book->PSLevel == 1)
+  if (PSLevel == 1)
     ps1->setonly();
-  else if (book->PSLevel == 2)
+  else if (PSLevel == 2)
     ps2->setonly();
   else
     ps3->setonly();
 
-  if (book->PSLevel == 1)
+  if (PSLevel == 1)
     psCommands->deactivate();
   else
     psCommands->activate();
 
-  psCommands->value(book->PSCommands);
+  psCommands->value(PSCommands);
 
-  xrxComments->value(book->XRXComments);
+  xrxComments->value(XRXComments);
 
-  path->value(book->Path);
-  proxy->value(book->Proxy);
+  path->value(Path);
+  proxy->value(Proxy);
   browserWidth->value(_htmlBrowserWidth);
-  strictHTML->value(book->strict_html);
+  strict_html->value(StrictHTML);
 
   title(NULL, 0);
 
@@ -2132,8 +2188,8 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--pagemode") == 0)
     {
-      for (i = 0; i < (int)(sizeof(hdBook::PDFModes) / sizeof(hdBook::PDFModes[0])); i ++)
-        if (strcasecmp(temp2, hdBook::PDFModes[i]) == 0)
+      for (i = 0; i < (int)(sizeof(PDFModes) / sizeof(PDFModes[0])); i ++)
+        if (strcasecmp(temp2, PDFModes[i]) == 0)
 	{
 	  pageMode->value(i);
 	  break;
@@ -2141,8 +2197,8 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--pagelayout") == 0)
     {
-      for (i = 0; i < (int)(sizeof(hdBook::PDFLayouts) / sizeof(hdBook::PDFLayouts[0])); i ++)
-        if (strcasecmp(temp2, hdBook::PDFLayouts[i]) == 0)
+      for (i = 0; i < (int)(sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); i ++)
+        if (strcasecmp(temp2, PDFLayouts[i]) == 0)
 	{
 	  pageLayout->value(i);
 	  break;
@@ -2150,8 +2206,8 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--firstpage") == 0)
     {
-      for (i = 0; i < (int)(sizeof(hdBook::PDFPages) / sizeof(hdBook::PDFPages[0])); i ++)
-        if (strcasecmp(temp2, hdBook::PDFPages[i]) == 0)
+      for (i = 0; i < (int)(sizeof(PDFPages) / sizeof(PDFPages[0])); i ++)
+        if (strcasecmp(temp2, PDFPages[i]) == 0)
 	{
 	  firstPage->value(i);
 	  break;
@@ -2159,8 +2215,8 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--pageeffect") == 0)
     {
-      for (i = 0; i < (int)(sizeof(hdBook::PDFEffects) / sizeof(hdBook::PDFEffects[0])); i ++)
-        if (strcasecmp(temp2, hdBook::PDFEffects[i]) == 0)
+      for (i = 0; i < (int)(sizeof(PDFEffects) / sizeof(PDFEffects[0])); i ++)
+        if (strcasecmp(temp2, PDFEffects[i]) == 0)
 	{
 	  pageEffect->value(i);
 	  effectCB(pageEffect, this);
@@ -2423,10 +2479,10 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     else
       fputs(" --no-embedfonts", fp);
 
-    fprintf(fp, " --pagemode %s", hdBook::PDFModes[pageMode->value()]);
-    fprintf(fp, " --pagelayout %s", hdBook::PDFLayouts[pageLayout->value()]);
-    fprintf(fp, " --firstpage %s", hdBook::PDFPages[firstPage->value()]);
-    fprintf(fp, " --pageeffect %s", hdBook::PDFEffects[pageEffect->value()]);
+    fprintf(fp, " --pagemode %s", PDFModes[pageMode->value()]);
+    fprintf(fp, " --pagelayout %s", PDFLayouts[pageLayout->value()]);
+    fprintf(fp, " --firstpage %s", PDFPages[firstPage->value()]);
+    fprintf(fp, " --pageeffect %s", PDFEffects[pageEffect->value()]);
     fprintf(fp, " --pageduration %.0f", pageDuration->value());
     fprintf(fp, " --effectduration %.1f", effectDuration->value());
     fprintf(fp, " --%sencryption", encryptionYes->value() ? "" : "no-");
@@ -2645,7 +2701,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
   REF(w);
 
   gui->fc->filter("WWW Files (*.{htm,html,shtml,book})");
-  gui->fc->type(Fl_File_Chooser::MULTI);
+  gui->fc->type(FileChooser::MULTI);
   gui->fc->label("Add HTML Files?");
   gui->fc->show();
   while (gui->fc->shown())
@@ -2914,7 +2970,7 @@ GUI::logoImageCB(Fl_Widget *w,		// I - Widget
   {
     gui->fc->filter("Image Files (*.{bmp,gif,jpg,png})");
     gui->fc->label("Logo Image?");
-    gui->fc->type(Fl_File_Chooser::SINGLE);
+    gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
     while (gui->fc->shown())
       Fl::wait();
@@ -2942,7 +2998,7 @@ GUI::titleImageCB(Fl_Widget *w,		// I - Widget
   {
     gui->fc->filter("Image Files (*.{bmp,gif,jpg,png})\tWWW Files (*.{htm,html,shtml})");
     gui->fc->label("Title Image?");
-    gui->fc->type(Fl_File_Chooser::SINGLE);
+    gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
     while (gui->fc->shown())
       Fl::wait();
@@ -3001,7 +3057,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
 
     if (gui->outputFile->value())
     {
-      gui->fc->type(Fl_File_Chooser::CREATE);
+      gui->fc->type(FileChooser::CREATE);
 
       if (gui->typeHTML->value())
 	gui->fc->filter("WWW Files (*.htm*)");
@@ -3012,7 +3068,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
     }
     else
     {
-      gui->fc->type(Fl_File_Chooser::DIRECTORY | Fl_File_Chooser::CREATE);
+      gui->fc->type(FileChooser::DIRECTORY | FileChooser::CREATE);
       gui->fc->filter("*");
     }
 
@@ -3373,7 +3429,7 @@ GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
     gui->fc->filter("*");
 #  endif // WIN32 || __EMX__
     gui->fc->label("HTML Editor?");
-    gui->fc->type(Fl_File_Chooser::SINGLE);
+    gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
     while (gui->fc->shown())
       Fl::wait();
@@ -3412,7 +3468,9 @@ GUI::tooltipCB(Fl_Widget *w,	// I - Widget
 
   Tooltips = ((Fl_Button *)w)->value();
 
+#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
   Fl_Tooltip::enable(Tooltips);
+#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 }
 
 
@@ -3424,8 +3482,9 @@ void
 GUI::skinCB(Fl_Widget *w,	// I - Widget
             GUI       *gui)	// I - GUI interface
 {
-  ModernSkin = gui->modernSkin->value();
+  ModernSkin = gui->modern_skin->value();
 
+#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
   Fl::scheme(ModernSkin ? "plastic" : "");
 
   if (ModernSkin)
@@ -3446,8 +3505,8 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->permCopy->color2(FL_RED);
     gui->permAnnotate->color2(FL_RED);
     gui->tooltips->color2(FL_RED);
-    gui->modernSkin->color2(FL_RED);
-    gui->strictHTML->color2(FL_RED);
+    gui->modern_skin->color2(FL_RED);
+    gui->strict_html->color2(FL_RED);
 
     gui->progressBar->color2(FL_BLUE);
     gui->progressBar->box(FL_UP_BOX);
@@ -3470,12 +3529,13 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->permCopy->color2(FL_BLACK);
     gui->permAnnotate->color2(FL_BLACK);
     gui->tooltips->color2(FL_BLACK);
-    gui->modernSkin->color2(FL_BLACK);
-    gui->strictHTML->color2(FL_BLACK);
+    gui->modern_skin->color2(FL_BLACK);
+    gui->strict_html->color2(FL_BLACK);
 
     gui->progressBar->color2(FL_YELLOW);
     gui->progressBar->box(FL_DOWN_BOX);
   }
+#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 }
 
 
@@ -3489,7 +3549,7 @@ GUI::saveOptionsCB(Fl_Widget *w,
 {
   gui->loadSettings();
 
-  gui->book->prefs_save();
+  prefs_save();
 }
 
 
@@ -3545,7 +3605,7 @@ GUI::bodyImageCB(Fl_Widget *w,		// I - Widget
   {
     gui->fc->filter("Image Files (*.{bmp,gif,jpg,png})");
     gui->fc->label("Body Image?");
-    gui->fc->type(Fl_File_Chooser::SINGLE);
+    gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
     while (gui->fc->shown())
       Fl::wait();
@@ -3693,7 +3753,7 @@ GUI::openBookCB(Fl_Widget *w,	// I - Widget
 
   gui->fc->filter("Book Files (*.book)");
   gui->fc->label("Book File?");
-  gui->fc->type(Fl_File_Chooser::SINGLE);
+  gui->fc->type(FileChooser::SINGLE);
   gui->fc->show();
   while (gui->fc->shown())
     Fl::wait();
@@ -3737,7 +3797,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
 
   gui->fc->filter("Book Files (*.book)");
   gui->fc->label("Book File?");
-  gui->fc->type(Fl_File_Chooser::CREATE);
+  gui->fc->type(FileChooser::CREATE);
   gui->fc->show();
   while (gui->fc->shown())
     Fl::wait();
@@ -3829,7 +3889,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 	        count;		// Number of files
   char	  	temp[1024];	// Temporary string
   FILE		*docfile;	// Document file
-  hdTree	*document,	// Master HTML document
+  tree_t	*document,	// Master HTML document
 		*file,		// HTML document file
 		*toc;		// Table of contents
   const char	*filename;	// HTML filename
@@ -3858,41 +3918,40 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   // Set global vars used for converting the HTML files to XYZ format...
   strcpy(bookbase, file_directory(gui->book_filename));
 
-  gui->book->verbosity = 1;
+  Verbosity = 1;
 
   gui->loadSettings();
 
-  strcpy(gui->book->LogoImage, gui->logoImage->value());
-  strcpy(gui->book->TitleImage, gui->titleImage->value());
-  strcpy(gui->book->OutputPath, gui->outputPath->value());
+  strcpy(LogoImage, gui->logoImage->value());
+  strcpy(TitleImage, gui->titleImage->value());
+  strcpy(OutputPath, gui->outputPath->value());
 
-  gui->book->OutputFiles = gui->outputDirectory->value();
+  OutputFiles = gui->outputDirectory->value();
 
   if (gui->typeBook->value())
-    gui->book->OutputType = HD_OUTPUT_BOOK;
+    OutputType = OUTPUT_BOOK;
   else if (gui->typeContinuous->value())
-    gui->book->OutputType = HD_OUTPUT_CONTINUOUS;
+    OutputType = OUTPUT_CONTINUOUS;
   else
-    gui->book->OutputType = HD_OUTPUT_WEBPAGES;
+    OutputType = OUTPUT_WEBPAGES;
 
-  strcpy(gui->book->UserPassword, gui->userPassword->value());
-  strcpy(gui->book->OwnerPassword, gui->ownerPassword->value());
+  strcpy(UserPassword, gui->userPassword->value());
+  strcpy(OwnerPassword, gui->ownerPassword->value());
 
   if (gui->typePDF->value())
-    gui->book->PSLevel = 0;
+    PSLevel = 0;
   else if (gui->ps1->value())
-    gui->book->PSLevel = 1;
+    PSLevel = 1;
   else if (gui->ps2->value())
-    gui->book->PSLevel = 2;
+    PSLevel = 2;
   else
-    gui->book->PSLevel = 3;
+    PSLevel = 3;
 
-  _htmlPPI = 72.0f * _htmlBrowserWidth /
-             (gui->book->PageWidth - gui->book->PageLeft - gui->book->PageRight);
+  _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
   file_proxy(gui->proxy->value());
 
-  gui->book->error_count = 0;
+  Errors = 0;
   gui->error_list->clear();
 
  /*
@@ -3904,7 +3963,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   for (i = 1; i <= count; i ++)
   {
-    filename = file_find(gui->book->Path, gui->inputFiles->text(i));
+    filename = file_find(Path, gui->inputFiles->text(i));
 
     if (filename != NULL &&
         (docfile = fopen(filename, "rb")) != NULL)
@@ -3918,9 +3977,10 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
       strcpy(base, file_directory(gui->inputFiles->text(i)));
 
-      file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME",
+      file = htmlAddTree(NULL, MARKUP_FILE, NULL);
+      htmlSetVariable(file, (uchar *)"_HD_FILENAME",
                       (uchar *)file_basename(filename));
+      htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
       htmlReadFile(file, docfile, base);
 
@@ -3943,9 +4003,9 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
         htmlDeleteTree(file);
     }
     else
-      gui->book->progress_error(HD_ERROR_FILE_NOT_FOUND,
-                           "Unable to open \"%s\" for reading!",
-                           gui->inputFiles->text(i));
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open \"%s\" for reading!",
+                     gui->inputFiles->text(i));
   }
 
  /*
@@ -3953,8 +4013,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   */
 
   if (document == NULL)
-    gui->book->progress_error(HD_ERROR_NO_FILES,
-                         "No HTML files to format, cannot generate document!");
+    progress_error(HD_ERROR_NO_FILES,
+                   "No HTML files to format, cannot generate document!");
   else
   {
    /*
@@ -3964,12 +4024,18 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     while (document->prev != NULL)
       document = document->prev;
 
+    // Fix links...
+    htmlFixLinks(document, document);
+
+    // Show debug info...
+    htmlDebugStats("Document Tree", document);
+
    /*
     * Build a table of contents for the documents...
     */
 
-    if (gui->book->OutputType == HD_OUTPUT_BOOK && gui->book->TocLevels > 0)
-      toc = gui->book->toc_build(document);
+    if (OutputType == OUTPUT_BOOK && TocLevels > 0)
+      toc = toc_build(document);
     else
       toc = NULL;
 
@@ -3978,23 +4044,23 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     */
 
     if (gui->typeHTML->value())
-      gui->book->html_export(document, toc);
+      html_export(document, toc);
     else if (gui->typeHTMLSep->value())
-      gui->book->htmlsep_export(document, toc);
+      htmlsep_export(document, toc);
     else
-      gui->book->pspdf_export(document, toc);
+      pspdf_export(document, toc);
 
     htmlDeleteTree(document);
     htmlDeleteTree(toc);
 
     file_cleanup();
-    gui->book->image_flush_cache();
+    image_flush_cache();
   }
 
-  if (gui->book->error_count == 0)
+  if (Errors == 0)
     fl_message("Document generated successfully!");
   else if (fl_ask("%d error%s occurred while generating document.\nWould you like to see the list?",
-                  gui->book->error_count, gui->book->error_count == 1 ? "" : "s"))
+                  Errors, Errors == 1 ? "" : "s"))
   {
     gui->error_window->show();
 
@@ -4040,5 +4106,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.43 2004/04/05 01:39:34 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.66 2004/04/15 19:58:20 mike Exp $".
 //
