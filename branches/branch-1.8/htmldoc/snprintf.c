@@ -1,5 +1,5 @@
 /*
- * "$Id: snprintf.c,v 1.1.2.5 2002/07/02 19:10:54 mike Exp $"
+ * "$Id: snprintf.c,v 1.1.2.6 2002/07/31 14:58:26 mike Exp $"
  *
  *   snprintf functions for HTMLDOC.
  *
@@ -57,7 +57,6 @@ vsnprintf(char       *buffer,	/* O - Output buffer */
 		prec;		/* Number of characters of precision */
   char		tformat[100],	/* Temporary format string for sprintf() */
 		temp[1024];	/* Buffer for formatted numbers */
-  int		*chars;		/* Pointer to integer for %p */
   char		*s;		/* Pointer to string */
   int		slen;		/* Length of string */
 
@@ -300,6 +299,6 @@ snprintf(char       *buffer,	/* O - Output buffer */
 
 
 /*
- * End of "$Id: snprintf.c,v 1.1.2.5 2002/07/02 19:10:54 mike Exp $".
+ * End of "$Id: snprintf.c,v 1.1.2.6 2002/07/31 14:58:26 mike Exp $".
  */
 
