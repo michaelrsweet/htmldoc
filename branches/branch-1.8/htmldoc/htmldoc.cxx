@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.31 2001/10/20 21:49:17 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.32 2001/11/14 17:39:06 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1413,7 +1413,7 @@ load_book(const char   *filename,	// I  - Book file
   }
 
   // Get the header...
-  fgets(line, sizeof(line), fp);
+  file_gets(line, sizeof(line), fp);
   if (strncmp(line, "#HTMLDOC", 8) != 0)
   {
     fclose(fp);
@@ -1425,8 +1425,7 @@ load_book(const char   *filename,	// I  - Book file
   // be the file count; for new files this will be the options...
   do
   {
-    fgets(line, sizeof(line), fp);
-    line[strlen(line) - 1] = '\0';	// Drop trailing newline
+    file_gets(line, sizeof(line), fp);
 
     if (line[0] == '-')
       parse_options(line, exportfunc);
@@ -1434,10 +1433,8 @@ load_book(const char   *filename,	// I  - Book file
   while (!line[0]);			// Skip blank lines
 
   // Get input files/options...
-  while (fgets(line, sizeof(line), fp) != NULL)
+  while (file_gets(line, sizeof(line), fp) != NULL)
   {
-    line[strlen(line) - 1] = '\0';	// Drop trailing newline
-
     if (!line[0])
       continue;				// Skip blank lines
     else if (line[0] == '-')
@@ -2183,5 +2180,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.31 2001/10/20 21:49:17 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.32 2001/11/14 17:39:06 mike Exp $".
  */

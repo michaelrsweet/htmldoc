@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.25 2001/10/20 21:49:16 mike Exp $"
+ * "$Id: file.c,v 1.13.2.26 2001/11/14 17:38:59 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -24,10 +24,13 @@
  * Contents:
  *
  *   file_basename()    - Return the base filename without directory or target.
- *   file_cleanup()     - Close an open HTTP connection and remove temporary files...
+ *   file_cleanup()     - Close an open HTTP connection and remove
+ *                        temporary files...
  *   file_directory()   - Return the directory without filename or target.
  *   file_extension()   - Return the extension of a file without the target.
  *   file_find()        - Find a file in one of the path directories.
+ *   file_gets()        - Read a line from a file terminated with CR, LF,
+ *                        or CR LF.
  *   file_localize()    - Localize a filename for the new working directory.
  *   file_method()      - Return the method for a filename or URL.
  *   file_proxy()       - Set the proxy host for all HTTP requests.
@@ -568,6 +571,72 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
 
 /*
+ * 'file_gets()' - Read a line from a file terminated with CR, LF, or CR LF.
+ */
+
+char *				/* O - Line from file or NULL on EOF */
+file_gets(char  *buf,		/* I - Line buffer */
+	  int   buflen,		/* I - Length of buffer */
+	  FILE  *fp)		/* I - File to read from */
+{
+  int		ch;		/* Character from file */
+  char		*ptr,		/* Current position in line buffer */
+		*end;		/* End of line buffer */
+
+
+ /*
+  * Range check everything...
+  */
+
+  if (fp == NULL || buf == NULL || buflen < 2)
+    return (NULL);
+
+ /*
+  * Now loop until we have a valid line...
+  */
+
+  ptr = buf;
+  end = buf + buflen - 1;
+
+  for (;;)
+  {
+    if ((ch = getc(fp)) == EOF)
+      break;
+    else if (ch == '\r')
+    {
+     /*
+      * See if we have CR or CR LF...
+      */
+
+      int nextch = getc(fp);
+
+      if (nextch == EOF || nextch == '\n')
+        break;
+
+     /*
+      * No LF, so save the next char for later...
+      */
+
+      ungetc(nextch, fp);
+
+      break;
+    }
+    else if (ch == '\n')
+      break;
+    else if (ptr < end)
+      *ptr++ = ch;
+  }
+
+  *ptr = '\0';
+
+  if (ch != EOF || ptr > buf)
+    return (buf);
+  else
+    return (NULL);
+}
+
+
+/*
  * 'file_localize()' - Localize a filename for the new working directory.
  */
 
@@ -814,5 +883,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.25 2001/10/20 21:49:16 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.26 2001/11/14 17:38:59 mike Exp $".
  */

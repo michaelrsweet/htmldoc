@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.126 2001/11/14 16:30:29 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.127 2001/11/14 17:39:24 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6495,9 +6495,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       if (pos < 3)
       {
 	if (logo_height > HeadFootSize)
-          PageTop = logo_height + HeadFootSize;
+          PageTop = (int)(logo_height + HeadFootSize);
 	else
-          PageTop = 2 * HeadFootSize;
+          PageTop = (int)(2 * HeadFootSize);
       }
 
       if (tof)
@@ -6589,11 +6589,11 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	  break;
 
       if (pos == 3)
-        PageBottom = 0.0f;
+        PageBottom = 0;
       else if (logo_height > HeadFootSize)
-        PageBottom = logo_height + HeadFootSize;
+        PageBottom = (int)(logo_height + HeadFootSize);
       else
-        PageBottom = 2 * HeadFootSize;
+        PageBottom = (int)(2 * HeadFootSize);
 
       if (tof)
         *bottom = PageBottom;
@@ -10409,5 +10409,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.126 2001/11/14 16:30:29 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.127 2001/11/14 17:39:24 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.31 2001/11/01 16:21:48 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.32 2001/11/14 17:39:01 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1631,7 +1631,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   }
 
   // Get the header...
-  fgets(line, sizeof(line), fp);
+  file_gets(line, sizeof(line), fp);
   if (strncmp(line, "#HTMLDOC", 8) != 0)
   {
     fclose(fp);
@@ -1650,8 +1650,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   // be the file count; for new files this will be the options...
   do
   {
-    fgets(line, sizeof(line), fp);
-    line[strlen(line) - 1] = '\0';	// Drop trailing newline
+    file_gets(line, sizeof(line), fp);
 
     if (line[0] == '-')
       parseOptions(line);
@@ -1659,10 +1658,8 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   while (!line[0]);			// Skip blank lines...
 
   // Get input files/options...
-  while (fgets(line, sizeof(line), fp) != NULL)
+  while (file_gets(line, sizeof(line), fp) != NULL)
   {
-    line[strlen(line) - 1] = '\0';	// Drop trailing newline
-
     if (line[0] == '\0')
       continue;				// Skip blank lines
     else if (line[0] == '-')
@@ -4134,5 +4131,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.31 2001/11/01 16:21:48 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.32 2001/11/14 17:39:01 mike Exp $".
 //
