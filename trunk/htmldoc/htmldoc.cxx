@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.21 2000/03/06 20:08:53 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.22 2000/03/18 16:08:57 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -444,6 +444,29 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
         PageLeft = get_measurement(argv[i]);
+      else
+        usage();
+    }
+    else if (compare_strings(argv[i], "--linkcolor", 7) == 0)
+    {
+      i ++;
+      if (i < argc)
+        strcpy(LinkColor, argv[i]);
+      else
+        usage();
+    }
+    else if (compare_strings(argv[i], "--linkstyle", 7) == 0)
+    {
+      i ++;
+      if (i < argc)
+      {
+        if (strcmp(argv[i], "plain") == 0)
+	  LinkStyle = 0;
+        else if (strcmp(argv[i], "underline") == 0)
+	  LinkStyle = 1;
+	else
+	  usage();
+      }
       else
         usage();
     }
@@ -1030,6 +1053,14 @@ prefs_load(void)
     strcpy(BodyImage, value);
 
   size = sizeof(value);
+  if (!RegQueryValueEx(key, "linkcolor", NULL, NULL, (unsigned char *)value, &size))
+    strcpy(LinkColor, value);
+
+  size = sizeof(value);
+  if (!RegQueryValueEx(key, "linkstyle", NULL, NULL, (unsigned char *)value, &size))
+    LinkStyle = atoi(value);
+
+  size = sizeof(value);
   if (!RegQueryValueEx(key, "browserwidth", NULL, NULL, (unsigned char *)value, &size))
     _htmlBrowserWidth = atof(value);
 
@@ -1193,6 +1224,10 @@ prefs_load(void)
 	  strcpy(BodyColor, line + 10);
         else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
 	  strcpy(BodyImage, line + 10);
+        else if (strncasecmp(line, "LINKCOLOR=", 10) == 0)
+	  strcpy(LinkColor, line + 10);
+        else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
+	  LinkStyle = atoi(line + 10);
         else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
 	  _htmlBrowserWidth = atof(line + 13);
         else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
@@ -1321,6 +1356,13 @@ prefs_save(void)
 
   size = strlen(BodyImage) + 1;
   RegSetValueEx(key, "bodyimage", 0, REG_SZ, (unsigned char *)BodyImage, size);
+
+  size = strlen(LinkColor) + 1;
+  RegSetValueEx(key, "linkcolor", 0, REG_SZ, (unsigned char *)LinkColor, size);
+
+  sprintf(value, "%d", LinkStyle);
+  size = strlen(value) + 1;
+  RegSetValueEx(key, "linkstyle", 0, REG_SZ, (unsigned char *)value, size);
 
   sprintf(value, "%.0f", _htmlBrowserWidth);
   size = strlen(value) + 1;
@@ -1477,6 +1519,8 @@ prefs_save(void)
       fprintf(fp, "TEXTCOLOR=%s\n", _htmlTextColor);
       fprintf(fp, "BODYCOLOR=%s\n", BodyColor);
       fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
+      fprintf(fp, "LINKCOLOR=%s\n", LinkColor);
+      fprintf(fp, "LINKSTYLE=%d\n", LinkStyle);
       fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlBrowserWidth);
       fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
       fprintf(fp, "PAGELENGTH=%d\n", PageLength);
@@ -1595,6 +1639,8 @@ usage(void)
   puts("  --jpeg[=quality]");
   puts("  --landscape");
   puts("  --left margin{in,cm,mm}");
+  puts("  --linkcolor color");
+  puts("  --linkstyle {plain,underline}");
   puts("  --logoimage filename.{gif,jpg,png}");
   puts("  --no-compression");
   puts("  --no-pscommands");
@@ -1642,5 +1688,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.21 2000/03/06 20:08:53 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.22 2000/03/18 16:08:57 mike Exp $".
  */

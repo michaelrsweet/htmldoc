@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.25 2000/03/03 21:24:13 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.26 2000/03/18 16:08:57 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -479,7 +479,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       */
 
       ptr = s;
-      while (ch != '<' && ch != EOF)
+      while (ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
       {
         if (ch == '&')
         {
@@ -524,7 +524,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       if (have_whitespace)
         *ptr++ = ' ';
 
-      while (!isspace(ch) && ch != '<' && ch != EOF)
+      while (!isspace(ch) && ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
       {
         if (ch == '&')
         {
@@ -1798,7 +1798,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 
   mptr = markup;
 
-  while ((ch = getc(fp)) != EOF)
+  while ((ch = getc(fp)) != EOF && mptr < (markup + sizeof(markup) - 1))
     if (ch == '>' || isspace(ch))
       break;
     else
@@ -1837,7 +1837,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 
   if (t->markup == MARKUP_COMMENT)
   {
-    while (ch != EOF && ch != '>')
+    while (ch != EOF && ch != '>' && cptr < (comment + sizeof(comment) - 1))
     {
       *cptr++ = ch;
       ch = getc(fp);
@@ -2276,5 +2276,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.25 2000/03/03 21:24:13 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.26 2000/03/18 16:08:57 mike Exp $".
  */

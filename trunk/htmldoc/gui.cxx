@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.29 2000/03/06 20:08:52 mike Exp $"
+// "$Id: gui.cxx,v 1.30 2000/03/18 16:08:56 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -23,38 +23,48 @@
 //
 // Contents:
 //
-//   GUI()             - Build the HTMLDOC GUI and load the indicated book as
-//                       necessary.
-//   ~GUI()            - Destroy the HTMLDOC GUI.
-//   GUI::doGUI()      - Display the window and loop for events.
-//   GUI::progress()   - Update the progress bar on the GUI.
-//   GUI::title()      - Set the title bar of the window.
-//   GUI::newBook()    - Clear out the current GUI settings for a new book.
-//   GUI::loadBook()   - Load a book file from disk.
-//   GUI::saveBook()   - Save a book to disk.
-//   GUI::checkSave()  - Check to see if a save is needed.
-//   docTypeCB()       - Handle input on the document type buttons.
-//   inputFilesCB()    - Handle selections in the input files browser.
-//   addFileCB()       - Add a file to the input files list.
-//   editFilesCB()     - Edit one or more files in the input files list.
-//   deleteFileCB()    - Delete one or more files from the input files list.
-//   moveUpFileCB()    - Move one or more files up in the input files list.
-//   moveDownFileCB()  - Move one or more files down in the input files list.
-//   logoImageCB()     - Change the logo image file.
-//   outputTypeCB()    - Set the output file type.
-//   outputPathCB()    - Set the output path.
-//   outputFormatCB()  - Set the output format.
-//   changeCB()        - Mark the current book as changed.
-//   jpegCB()          - Handle JPEG changes.
-//   htmlEditorCB()    - Change the HTML editor.
-//   bodyColorCB()     - Set the body color.
-//   bodyImageCB()     - Set the body image.
-//   newBookCB()       - Create a new book.
-//   openBookCB()      - Open an existing book.
-//   saveBookCB()      - Save the current book to disk.
-//   saveAsBookCB()    - Save the current book to disk to a new file.
-//   generateBookCB()  - Generate the current book.
-//   closeBookCB()     - Close the current book.
+//   GUI()                 - Build the HTMLDOC GUI and load the indicated book
+//                           as necessary.
+//   ~GUI()                - Destroy the HTMLDOC GUI.
+//   GUI::show()           - Display the window.
+//   GUI::progress()       - Update the progress bar on the GUI.
+//   GUI::title()          - Set the title bar of the window.
+//   GUI::newBook()        - Clear out the current GUI settings for a new book.
+//   GUI::loadBook()       - Load a book file from disk.
+//   GUI::saveBook()       - Save a book to disk.
+//   GUI::checkSave()      - Check to see if a save is needed.
+//   GUI::changeCB()       - Mark the current book as changed.
+//   GUI::docTypeCB()      - Handle input on the document type buttons.
+//   GUI::inputFilesCB()   - Handle selections in the input files browser.
+//   GUI::addFileCB()      - Add a file to the input files list.
+//   GUI::editFilesCB()    - Edit one or more files in the input files list.
+//   GUI::deleteFileCB()   - Delete one or more files from the input files list.
+//   GUI::moveUpFileCB()   - Move one or more files up in the input files list.
+//   GUI::moveDownFileCB() - Move one or more files down in the input files list.
+//   GUI::logoImageCB()    - Change the logo image file.
+//   GUI::titleImageCB()   - Change the title image file.
+//   GUI::outputTypeCB()   - Set the output file type.
+//   GUI::outputPathCB()   - Set the output path.
+//   GUI::outputFormatCB() - Set the output format.
+//   GUI::jpegCB()         - Handle JPEG changes.
+//   GUI::sizeCB()         - Change the page size based on the menu selection.
+//   GUI::tocCB()          - Handle Table-of-Contents changes.
+//   GUI::pdfCB()          - Handle PDF version changes.
+//   GUI::effectCB()       - Handle PDF effect changes.
+//   GUI::psCB()           - Handle PS language level changes.
+//   GUI::htmlEditorCB()   - Change the HTML editor.
+//   GUI::saveOptionsCB()  - Save preferences...
+//   GUI::bodyColorCB()    - Set the body color.
+//   GUI::bodyImageCB()    - Set the body image.
+//   GUI::textColorCB()    - Set the text color.
+//   GUI::linkColorCB()    - Set the link color.
+//   GUI::helpCB()         - Show on-line help...
+//   GUI::newBookCB()      - Create a new book.
+//   GUI::openBookCB()     - Open an existing book.
+//   GUI::saveBookCB()     - Save the current book to disk.
+//   GUI::saveAsBookCB()   - Save the current book to disk to a new file.
+//   GUI::generateBookCB() - Generate the current book.
+//   GUI::closeBookCB()    - Close the current book.
 //
 
 #include "htmldoc.h"
@@ -270,7 +280,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   logoBrowse = new Fl_Button(370, 205, 80, 25, "Browse...");
   logoBrowse->callback((Fl_Callback *)logoImageCB, this);
 
-  titleImage = new Fl_Input(140, 235, 230, 25, "Title Image: ");
+  titleImage = new Fl_Input(140, 235, 230, 25, "Title File/Image: ");
   titleImage->when(FL_WHEN_CHANGED);
   titleImage->callback((Fl_Callback *)titleImageCB, this);
 
@@ -529,6 +539,18 @@ GUI::GUI(const char *filename)		// Book file to load initially
   textLookup = new Fl_Button(240, 105, 80, 25, "Lookup...");
   textLookup->callback((Fl_Callback *)textColorCB, this);
 
+  linkColor = new Fl_Input(140, 135, 100, 25, "Link Color: ");
+  linkColor->when(FL_WHEN_CHANGED);
+  linkColor->callback((Fl_Callback *)linkColorCB, this);
+
+  linkLookup = new Fl_Button(240, 135, 80, 25, "Lookup...");
+  linkLookup->callback((Fl_Callback *)linkColorCB, this);
+
+  linkStyle = new Fl_Choice(140, 165, 100, 25, "Link Style: ");
+  linkStyle->add("Plain");
+  linkStyle->add("Underline");
+  linkStyle->callback((Fl_Callback *)changeCB, this);
+
   colorsTab->end();
 
   //
@@ -752,18 +774,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Progress bar...
   //
 
-  progressText = new Fl_Group(10, 360, 250, 20, "HTMLDOC " SVERSION " Ready.");
-  progressText->box(FL_DOWN_BOX);
-  progressText->labelsize(12);
-  progressText->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  progressText->end();
-
-  progressBar = new Fl_Slider(260, 360, 200, 20);
-  progressBar->type(3);
-  progressBar->color(15);
-  progressBar->color2(10);
-  progressBar->maximum(100);
-  progressBar->value(0);
+  progressBar = new Progress(10, 360, 450, 20, "HTMLDOC " SVERSION " Ready.");
 
   window->end();
 
@@ -904,15 +915,9 @@ GUI::progress(int  percent,	// I - Percent complete
               char *text)	// I - Text prompt
 {
   if (text != NULL)
-  {
-    progressText->label(text);
-    progressText->redraw();
-  }
+    progressBar->label(text);
   else if (percent == 0)
-  {
-    progressText->label("HTMLDOC " SVERSION " Ready.");
-    progressText->redraw();
-  }
+    progressBar->label("HTMLDOC " SVERSION " Ready.");
 
   progressBar->value(percent);
 
@@ -1001,6 +1006,8 @@ GUI::newBook(void)
   bodyColor->value(BodyColor);
   bodyImage->value(BodyImage);
   textColor->value((char *)_htmlTextColor);
+  linkColor->value(LinkColor);
+  linkStyle->value(LinkStyle);
 
   if (PageWidth == 595 && PageLength == 842)
     pageSize->value("A4");
@@ -1463,6 +1470,15 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       bodyImage->value(temp2);
     else if (strcmp(temp, "--textcolor") == 0)
       textColor->value(temp2);
+    else if (strcmp(temp, "--linkcolor") == 0)
+      linkColor->value(temp2);
+    else if (strcmp(temp, "--linkstyle") == 0)
+    {
+      if (strcmp(temp2, "plain") == 0)
+        linkStyle->value(0);
+      else
+        linkStyle->value(1);
+    }
     else if (strcmp(temp, "--toclevels") == 0)
       tocLevels->value(atoi(temp2));
     else if (strcmp(temp, "--tocheader") == 0)
@@ -1665,6 +1681,14 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (textColor->size() > 0)
     fprintf(fp, " --textcolor %s", textColor->value());
+
+  if (linkColor->size() > 0)
+    fprintf(fp, " --linkcolor %s", linkColor->value());
+
+  if (linkStyle->value())
+    fputs(" --linkstyle underline", fp);
+  else
+    fputs(" --linkstyle plain", fp);
 
   if (bodyColor->size() > 0)
     fprintf(fp, " --bodycolor %s", bodyColor->value());
@@ -2671,6 +2695,9 @@ GUI::saveOptionsCB(Fl_Widget *w,
   htmlSetTextColor((uchar *)gui->textColor->value());
   htmlSetCharSet(gui->charset->text(gui->charset->value()));
 
+  strcpy(LinkColor, gui->linkColor->value());
+  LinkStyle = gui->linkStyle->value();
+
   _htmlBrowserWidth = gui->browserWidth->value();
 
   prefs_save();
@@ -2777,6 +2804,46 @@ GUI::textColorCB(Fl_Widget *w,		// I - Widget
     {
       sprintf(newcolor, "#%02x%02x%02x", r, g, b);
       gui->textColor->value(newcolor);
+      gui->title(gui->book_filename, 1);
+    }
+  }
+  else
+    gui->title(gui->book_filename, 1);
+}
+
+
+//
+// 'GUI::linkColorCB()' - Set the link color.
+//
+
+void
+GUI::linkColorCB(Fl_Widget *w,		// I - Widget
+                 GUI       *gui)	// I - GUI
+{
+  uchar	r, g, b;		// Color values
+  int	color;			// Color from bar color
+  char	newcolor[255];		// New color string
+
+
+  if (w == gui->linkLookup)
+  {
+    if (sscanf(gui->linkColor->value(), "#%x", &color) == 1)
+    {
+      r = color >> 16;
+      g = (color >> 8) & 255;
+      b = color & 255;
+    }
+    else
+    {
+      r = 0;
+      g = 0;
+      b = 255;
+    }
+
+    if (fl_color_chooser("Link Color?", r, g, b))
+    {
+      sprintf(newcolor, "#%02x%02x%02x", r, g, b);
+      gui->linkColor->value(newcolor);
       gui->title(gui->book_filename, 1);
     }
   }
@@ -3096,6 +3163,9 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   htmlSetTextColor((uchar *)gui->textColor->value());
   htmlSetCharSet(gui->charset->text(gui->charset->value()));
 
+  strcpy(LinkColor, gui->linkColor->value());
+  LinkStyle = gui->linkStyle->value();
+
   _htmlBrowserWidth = gui->browserWidth->value();
 
  /*
@@ -3219,5 +3289,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.29 2000/03/06 20:08:52 mike Exp $".
+// End of "$Id: gui.cxx,v 1.30 2000/03/18 16:08:56 mike Exp $".
 //

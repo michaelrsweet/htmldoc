@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.13 2000/03/13 20:52:44 mike Exp $"
+ * "$Id: html.cxx,v 1.14 2000/03/18 16:08:57 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -283,6 +283,20 @@ write_header(FILE   **out,	/* IO - Output file */
     fprintf(*out, "SUB { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
     fprintf(*out, "SUP { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
     fprintf(*out, "PRE { font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
+
+    if (LinkStyle)
+    {
+      fputs("A:link { text-decoration: underline }\n", *out);
+      fputs("A:visited { text-decoration: underline }\n", *out);
+      fputs("A:active { text-decoration: underline }\n", *out);
+    }
+    else
+    {
+      fputs("A:link { text-decoration: none }\n", *out);
+      fputs("A:visited { text-decoration: none }\n", *out);
+      fputs("A:active { text-decoration: none }\n", *out);
+    }
+
     fputs("</STYLE>\n", *out);
     fputs("</HEAD>\n", *out);
 
@@ -294,9 +308,13 @@ write_header(FILE   **out,	/* IO - Output file */
       fputs("<BODY", *out);
 
     if (_htmlTextColor[0] != '\0')
-      fprintf(*out, " TEXT=\"%s\">\n", _htmlTextColor);
-    else
-      fputs(">\n", *out);
+      fprintf(*out, " TEXT=\"%s\"", _htmlTextColor);
+
+    if (LinkColor[0] != '\0')
+      fprintf(*out, " LINK=\"%s\" VLINK=\"%s\" ALINK=\"%s\"", LinkColor,
+              LinkColor, LinkColor);
+
+    fputs(">\n", *out);
   }
   else
     fputs("<HR>\n", *out);
@@ -873,5 +891,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.13 2000/03/13 20:52:44 mike Exp $".
+ * End of "$Id: html.cxx,v 1.14 2000/03/18 16:08:57 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.11 2000/01/04 13:52:24 mike Exp $"
+ * "$Id: gui.h,v 1.12 2000/03/18 16:08:56 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -42,6 +42,7 @@
 #include <gui/CheckButton.h>
 #include <gui/FileChooser.h>
 #include <gui/HelpDialog.h>
+#include <gui/Progress.h>
 
 
 /*
@@ -122,6 +123,9 @@ class GUI
   Fl_Button	*bodyBrowse;
   Fl_Input	*textColor;
   Fl_Button	*textLookup;
+  Fl_Input	*linkColor;
+  Fl_Button	*linkLookup;
+  Fl_Choice	*linkStyle;
 
   Fl_Group	*fontsTab;
   Fl_Choice	*headingFont,
@@ -161,8 +165,7 @@ class GUI
 		*bookSaveAs,
 		*bookGenerate;
 
-  Fl_Group	*progressText;
-  Fl_Slider	*progressBar;
+  Progress	*progressBar;
 
   FileChooser	*fc;
   FileIcon	*icon;
@@ -197,6 +200,7 @@ class GUI
   static void	bodyColorCB(Fl_Widget *w, GUI *gui);
   static void	bodyImageCB(Fl_Widget *w, GUI *gui);
   static void	textColorCB(Fl_Widget *w, GUI *gui);
+  static void	linkColorCB(Fl_Widget *w, GUI *gui);
 
   static void	psCB(Fl_Widget *w, GUI *gui);
 
@@ -233,5 +237,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.11 2000/01/04 13:52:24 mike Exp $".
+ * End of "$Id: gui.h,v 1.12 2000/03/18 16:08:56 mike Exp $".
  */
