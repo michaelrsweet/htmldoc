@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.237.2.1 2004/03/20 03:57:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.237.2.2 2004/03/21 03:40:32 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -384,9 +384,8 @@ static void	flate_puts(const char *s, FILE *out);
 static void	flate_printf(FILE *out, const char *format, ...);
 static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
 
-static void	parse_contents(tree_t *t, float left, float width, float bottom,
-		               float length, float *y, int *page, int *heading,
-			       tree_t *chap);
+static void	parse_contents(tree_t *t, hdMargin *margins, float *y,
+		               int *page, int *heading, tree_t *chap);
 static void	parse_doc(tree_t *t, hdMargin *margins, float *x, float *y, int *page,
 			  tree_t *cpara, int *needspace);
 static void	parse_heading(tree_t *t, hdMargin *margins, float *x, float *y, int *page,
@@ -870,7 +869,11 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     chapter_starts[0] = num_pages;
     chapter           = 0;
 
-    parse_contents(toc, 0, PagePrintWidth, bottom, top, &y, &page, &heading, 0);
+    margins = new hdMargin(0, PagePrintWidth, bottom, top);
+
+    parse_contents(toc, margins, &y, &page, &heading, 0);
+
+    delete margins;
 
     if (PageDuplex && (num_pages & 1))
       check_pages(num_pages);
@@ -6802,34 +6805,34 @@ parse_table(tree_t   *t,		// I - Tree to parse
  */
 
 static void
-parse_list(tree_t *t,		/* I - Tree to parse */
-           float  *left,	/* I - Left margin */
-           float  *right,	/* I - Printable width */
-           float  *bottom,	/* I - Bottom margin */
-           float  *top,		/* I - Printable top */
-           float  *x,		/* IO - X position */
-           float  *y,		/* IO - Y position */
-           int    *page,	/* IO - Page # */
-           int    needspace)	/* I - Need whitespace? */
+parse_list(tree_t   *t,			/* I - Tree to parse */
+           hdMargin *margins,		/* I - Margins */
+           float    *x,			/* IO - X position */
+           float    *y,			/* IO - Y position */
+           int      *page,		/* IO - Page # */
+           int      needspace)		/* I - Need whitespace? */
 {
-  uchar		number[255];	/* List number (for numbered types) */
-  uchar		*value;		/* VALUE= variable */
-  int		typeface;	/* Typeface of list number */
-  float		width;		/* Width of list number */
-  render_t	*r;		/* Render primitive */
-  int		oldpage;	/* Old page value */
-  float		oldy;		/* Old Y value */
-  float		tempx;		/* Temporary X value */
+  uchar		number[255];		/* List number (for numbered types) */
+  uchar		*value;			/* VALUE= variable */
+  int		typeface;		/* Typeface of list number */
+  float		width;			/* Width of list number */
+  render_t	*r;			/* Render primitive */
+  int		oldpage;		/* Old page value */
+  float		oldy;			/* Old Y value */
+  float		tempx;			/* Temporary X value */
 
 
-  DEBUG_printf(("parse_list(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
-                t, *left, *right, *x, *y, *page));
+  DEBUG_printf(("parse_list(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d\n",
+                t, margins->left(), margins->right(), margins->bottom(),
+		margins->top(), *x, *y, *page));
 
-  if (needspace && *y < *top)
+  if (needspace && *y < margins->top())
   {
     *y        -= _htmlSpacings[t->size];
     needspace = 0;
   }
+
+  margins->clear(*y, *page);
 
   check_pages(*page);
 
@@ -6841,12 +6844,11 @@ parse_list(tree_t *t,		/* I - Tree to parse */
   if (t->indent == 0)
   {
     // Adjust left margin when no UL/OL/DL is being used...
-    *left += _htmlSizes[t->size];
+    margins->adjust_left(_htmlSizes[t->size]);
     tempx += _htmlSizes[t->size];
   }
 
-  parse_doc(t->child, left, right, bottom, top, &tempx, y, page, NULL,
-            &needspace);
+  parse_doc(t->child, margins, &tempx, y, page, NULL, &needspace);
 
   // Handle when paragraph wrapped to new page...
   if (*page != oldpage)
@@ -6856,7 +6858,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
     {
       // No, put the symbol on the next page...
       oldpage = *page;
-      oldy    = *top;
+      oldy    = margins->top();
     }
   }
     
@@ -6892,7 +6894,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
 
   width = get_width(number, typeface, t->style, t->size);
 
-  r = new_render(oldpage, RENDER_TEXT, *left - width, oldy - _htmlSizes[t->size],
+  r = new_render(oldpage, RENDER_TEXT, margins->left() - width, oldy - _htmlSizes[t->size],
                  width, _htmlSpacings[t->size], number);
   r->data.text.typeface = typeface;
   r->data.text.style    = t->style;
@@ -6906,7 +6908,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
   if (t->indent == 0)
   {
     // Adjust left margin when no UL/OL/DL is being used...
-    *left -= _htmlSizes[t->size];
+    margins->adjust_left(-_htmlSizes[t->size]);
   }
 }
 
@@ -6916,10 +6918,10 @@ parse_list(tree_t *t,		/* I - Tree to parse */
  */
 
 static void
-init_list(tree_t *t)		/* I - List entry */
+init_list(tree_t *t)			/* I - List entry */
 {
-  uchar		*type,		/* TYPE= variable */
-		*value;		/* VALUE= variable */
+  uchar		*type,			/* TYPE= variable */
+		*value;			/* VALUE= variable */
   static uchar	*symbols = (uchar *)"\327\267\250\340";
 
 
@@ -6968,28 +6970,28 @@ init_list(tree_t *t)		/* I - List entry */
 #endif /* COMMENT_DEBUG */
 
 static void
-parse_comment(tree_t *t,	/* I - Tree to parse */
-              float  *left,	/* I - Left margin */
-              float  *right,	/* I - Printable width */
-              float  *bottom,	/* I - Bottom margin */
-              float  *top,	/* I - Printable top */
-              float  *x,	/* IO - X position */
-              float  *y,	/* IO - Y position */
-              int    *page,	/* IO - Page # */
-	      tree_t *para,	/* I - Current paragraph */
-	      int    needspace)	/* I - Need whitespace? */
+parse_comment(tree_t   *t,		/* I - Tree to parse */
+              hdMargin *margins,	/* I - Margins */
+              float    *x,		/* IO - X position */
+              float    *y,		/* IO - Y position */
+              int      *page,		/* IO - Page # */
+	      tree_t   *para,		/* I - Current paragraph */
+	      int      needspace)	/* I - Need whitespace? */
 {
-  int		i;		/* Looping var */
-  const char	*comment;	/* Comment text */
-  char		*ptr,		/* Pointer into value string */
-		buffer[1024];	/* Buffer for strings */
-  int		pos,		/* Position (left, center, right) */
-		tof,		/* Top of form */
-		hfspace;	/* Space for header/footer */
+  int		i;			/* Looping var */
+  const char	*comment;		/* Comment text */
+  char		*ptr,			/* Pointer into value string */
+		buffer[1024];		/* Buffer for strings */
+  int		pos,			/* Position (left, center, right) */
+		tof,			/* Top of form */
+		hfspace;		/* Space for header/footer */
+  float		right,			// Right margin
+		top;			// Top margin
 
 
-  DEBUG_printf(("parse_comment(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d, para=%p, needspace=%d\n",
-                t, *left, *right, *x, *y, *page, para, needspace));
+  DEBUG_printf(("parse_comment(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, para=%p, needspace=%d\n",
+                t, margins->left(), margins->right(), margins->bottom(),
+		margins->top(), *x, *y, *page, para, needspace));
 
   if (t->data == NULL)
     return;
@@ -7004,10 +7006,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
   }
 
   // Mark if we are at the top of form...
-  tof = (*y >= *top);
+  tof = (*y >= margins->top());
 
-  DEBUG_printf(("BEFORE tof=%d, *y=%.1f, *top=%.1f, *page=%d, t->data=\"%s\"\n",
-        	tof, *y, *top, *page, t->data));
+  DEBUG_printf(("BEFORE tof=%d, *y=%.1f, margins->top()=%.1f, *page=%d, t->data=\"%s\"\n",
+        	tof, *y, margins->top(), *page, t->data));
   DEBUG_printf((" PagePrintWidth = %d\n", PagePrintWidth));
   DEBUG_printf(("PagePrintLength = %d\n", PagePrintLength));
   DEBUG_printf(("      PageWidth = %d\n", PageWidth));
@@ -7039,7 +7041,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
       }
@@ -7047,10 +7049,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       (*page) ++;
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
-      *x = *left;
-      *y = *top;
+      *x = margins->left();
+      *y = margins->top();
 
       tof = 1;
+
+      margins->clear(*y, *page);
     }
     else if (strncasecmp(comment, "NEW PAGE", 8) == 0 &&
 	     (!comment[8] || isspace(comment[8])))
@@ -7063,7 +7067,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
       }
@@ -7071,10 +7075,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       (*page) ++;
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
-      *x = *left;
-      *y = *top;
+      *x = margins->left();
+      *y = margins->top();
 
       tof = 1;
+
+      margins->clear(*y, *page);
     }
     else if (strncasecmp(comment, "NEW SHEET", 9) == 0 &&
 	     (!comment[9] || isspace(comment[9])))
@@ -7087,7 +7093,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
       }
@@ -7116,10 +7122,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
 
-      *x = *left;
-      *y = *top;
+      *x = margins->left();
+      *y = margins->top();
 
       tof = 1;
+
+      margins->clear(*y, *page);
     }
     else if (strncasecmp(comment, "HALF PAGE", 9) == 0 &&
              (!comment[9] || isspace(comment[9])))
@@ -7136,30 +7144,32 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
       }
 
-      halfway = 0.5f * (*top + *bottom);
+      halfway = 0.5f * (margins->top() + margins->bottom());
 
       if (*y <= halfway)
       {
 	(*page) ++;
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
-	*x = *left;
-	*y = *top;
+	*x = margins->left();
+	*y = margins->top();
 
         tof = 1;
       }
       else
       {
-	*x = *left;
+	*x = margins->left();
 	*y = halfway;
 
         tof = 0;
       }
+
+      margins->clear(*y, *page);
     }
     else if (strncasecmp(comment, "NEED ", 5) == 0)
     {
@@ -7178,25 +7188,27 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
-      if ((*y - get_measurement(comment, _htmlSpacings[SIZE_P])) < *bottom)
+      if ((*y - get_measurement(comment, _htmlSpacings[SIZE_P])) < margins->bottom())
       {
 	(*page) ++;
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
-	*y = *top;
+	*y = margins->top();
         tof = 1;
+
+	margins->clear(*y, *page);
       }
 
-      *x = *left;
+      *x = margins->left();
 
       // Skip amount...
       while (*comment && !isspace(*comment))
@@ -7215,12 +7227,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7232,11 +7244,13 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
-	*y = *top;
+	*y = margins->top();
         tof = 1;
+
+	margins->clear(*y, *page);
       }
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
       
@@ -7278,12 +7292,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7295,11 +7309,13 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
-	*y = *top;
+	*y = margins->top();
         tof = 1;
+
+	margins->clear(*y, *page);
       }
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
 
@@ -7322,12 +7338,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7339,11 +7355,13 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
-	*y = *top;
+	*y = margins->top();
         tof = 1;
+
+	margins->clear(*y, *page);
       }
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
       
@@ -7385,12 +7403,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7398,6 +7416,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	(*page) ++;
 
         tof = 1;
+
+	margins->clear(*y, *page);
       }
 
       if (PageDuplex && ((*page) & 1))
@@ -7408,8 +7428,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       check_pages(*page);
 
-      *right = PagePrintWidth - *right;
-      *top   = PagePrintLength - *top;
+      right = PagePrintWidth - margins->right();
+      top   = PagePrintLength - margins->top();
 
       set_page_size(comment);
 
@@ -7424,11 +7444,11 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	PagePrintLength = PageLength - PageTop - PageBottom;
       }
 
-      *right = PagePrintWidth - *right;
-      *top   = PagePrintLength - *top;
+      margins->adjust_right(PagePrintWidth - right - margins->right());
+      margins->adjust_top(PagePrintLength - top - margins->top());
 
-      *x = *left;
-      *y = *top;
+      *x = margins->left();
+      *y = margins->top();
 
       pages[*page].width  = PageWidth;
       pages[*page].length = PageLength;
@@ -7450,12 +7470,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7464,15 +7484,17 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
-	*y = *top;
+	*y = margins->top();
         tof = 1;
+
+	margins->clear(*y, *page);
       }
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
 
-      *right   = PagePrintWidth - *right;
+      right    = PagePrintWidth - margins->right();
       PageLeft = pages[*page].left = get_measurement(comment);
 
       if (Landscape)
@@ -7480,7 +7502,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
 	PagePrintWidth = PageWidth - PageRight - PageLeft;
 
-      *right = PagePrintWidth - *right;
+      margins->adjust_right(PagePrintWidth - right - margins->right());
 
       // Skip left...
       while (*comment && !isspace(*comment))
@@ -7499,12 +7521,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7513,15 +7535,17 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
-	*y = *top;
+	*y = margins->top();
         tof = 1;
+
+	margins->clear(*y, *page);
       }
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
 
-      *right    = PagePrintWidth - *right;
+      right     = PagePrintWidth - margins->right();
       PageRight = pages[*page].right = get_measurement(comment);
 
       if (Landscape)
@@ -7529,7 +7553,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
 	PagePrintWidth = PageWidth - PageRight - PageLeft;
 
-      *right = PagePrintWidth - *right;
+      margins->adjust_right(PagePrintWidth - right - margins->right());
 
       // Skip right...
       while (*comment && !isspace(*comment))
@@ -7548,12 +7572,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7565,11 +7589,11 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
         tof = 1;
       }
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
 
-      *top       = PagePrintLength - *top;
+      top        = PagePrintLength - margins->top();
       PageBottom = pages[*page].bottom = get_measurement(comment);
 
       if (Landscape)
@@ -7577,8 +7601,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         PagePrintLength = PageLength - PageTop - PageBottom;
 
-      *top = PagePrintLength - *top;
-      *y   = *top;
+      margins->adjust_top(PagePrintLength - top - margins->top());
+      *y   = margins->top();
+
+      margins->clear(*y, *page);
 
       // Skip bottom...
       while (*comment && !isspace(*comment))
@@ -7597,12 +7623,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7615,11 +7641,11 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
         tof = 1;
       }
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
 
-      *top    = PagePrintLength - *top;
+      top     = PagePrintLength - margins->top();
       PageTop = pages[*page].top = get_measurement(comment);
 
       if (Landscape)
@@ -7627,8 +7653,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         PagePrintLength = PageLength - PageTop - PageBottom;
 
-      *top = PagePrintLength - *top;
-      *y   = *top;
+      margins->adjust_top(PagePrintLength - top - margins->top());
+      *y   = margins->top();
+
+      margins->clear(*y, *page);
 
       // Skip top...
       while (*comment && !isspace(*comment))
@@ -7647,12 +7675,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
@@ -7668,7 +7696,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
 
@@ -7676,13 +7704,13 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       {
         if (Landscape)
 	{
-	  *right         = PageLength - PageRight - *right;
+	  right          = PageLength - PageRight - margins->right();
 	  PagePrintWidth = PageWidth - PageRight - PageLeft;
-	  *right         = PageWidth - PageRight - *right;
+	  margins->adjust_right(PageWidth - PageRight - right);
 
-	  *top            = PageWidth - PageTop - *top;
+	  top             = PageWidth - PageTop - margins->top();
 	  PagePrintLength = PageLength - PageTop - PageBottom;
-	  *top            = PageLength - PageTop - *top;
+	  margins->adjust_top(PageLength - PageTop - top);
         }
 
         Landscape = pages[*page].landscape = 0;
@@ -7691,19 +7719,21 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       {
         if (!Landscape)
 	{
-	  *top            = PageLength - PageTop - *top;
+	  top             = PageLength - PageTop - margins->top();
 	  PagePrintLength = PageWidth - PageTop - PageBottom;
-	  *top            = PageWidth - PageTop - *top;
+	  margins->adjust_top(PageWidth - PageTop - top);
 
-	  *right         = PageWidth - PageRight - *right;
+	  right          = PageWidth - PageRight - margins->right();
 	  PagePrintWidth = PageLength - PageRight - PageLeft;
-	  *right         = PageLength - PageRight - *right;
+	  margins->adjust_right(PageLength - PageRight - right);
         }
 
         Landscape = pages[*page].landscape = 1;
       }
 
-      *y = *top;
+      *y = margins->top();
+
+      margins->clear(*y, *page);
 
       // Skip landscape...
       while (*comment && !isspace(*comment))
@@ -7722,29 +7752,31 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (!tof)
       {
 	(*page) ++;
 
-	*y = *top;
+	*y = margins->top();
         tof = 1;
       }
 
       if (PageDuplex && ((*page) & 1))
 	(*page) ++;
 
+      margins->clear(*y, *page);
+
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
 
-      *x = *left;
+      *x = margins->left();
 
       check_pages(*page);
 
@@ -7779,12 +7811,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
@@ -7863,10 +7895,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         hfspace = 0;
 
-      *top = PagePrintLength - hfspace;
+      margins->adjust_top(PagePrintLength - hfspace - margins->top());
 
       if (tof)
-        *y = *top;
+        *y = margins->top();
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
@@ -7878,12 +7910,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
@@ -7957,7 +7989,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
         hfspace = (int)(2 * HeadFootSize);
 
       if (tof)
-        *bottom = hfspace;
+        margins->adjust_bottom(hfspace - margins->bottom());
     }
     else if (strncasecmp(comment, "NUMBER-UP ", 10) == 0)
     {
@@ -7974,12 +8006,12 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (para != NULL && para->child != NULL)
       {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	parse_paragraph(para, margins, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
 
 	// Mark if we are still at the top of form...
-	tof = (*y >= *top);
+	tof = (*y >= margins->top());
       }
 
       if (tof)
@@ -12308,5 +12340,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.237.2.1 2004/03/20 03:57:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.237.2.2 2004/03/21 03:40:32 mike Exp $".
  */
