@@ -48,7 +48,7 @@ window->hide();}
 fileList->redraw();}
         xywh {5 35 15 90} minimum 60 maximum 360 step 1 value 140
       }
-      Fl_Button {} {
+      Fl_Button upButton {
         label {up.xbm}
         callback {up();}
         xywh {5 5 15 15} labeltype image labelsize 8
@@ -62,7 +62,8 @@ fileList->redraw();}
       }
       Fl_Input fileName {
         label {Filename:}
-        xywh {75 190 215 25} when 0
+        callback {fileNameCB();} selected
+        xywh {75 190 215 25} when 1
       }
       Fl_Button {} {
         label {*}
@@ -91,6 +92,7 @@ else
   decl {char directory_[1024];} {}
   decl {int type_;} {}
   decl {void fileListCB();} {}
+  decl {void fileNameCB();} {}
   decl {void init_symbols();} {}
   decl {void rescan();} {public
   }
@@ -111,7 +113,7 @@ rescan();} {}
     code {fileList->filter(p);
 rescan();} {}
   }
-  Function {filter()} {selected return_type {const char *}
+  Function {filter()} {return_type {const char *}
   } {
     code {return (fileList->filter());} {}
   }

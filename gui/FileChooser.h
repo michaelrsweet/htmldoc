@@ -33,18 +33,24 @@ public:
 private:
   inline void cb_roller_i(Fl_Roller*, void*);
   static void cb_roller(Fl_Roller*, void*);
-  inline void cb_up_i(Fl_Button*, void*);
-  static void cb_up(Fl_Button*, void*);
+public:
+  Fl_Button *upButton;
+private:
+  inline void cb_upButton_i(Fl_Button*, void*);
+  static void cb_upButton(Fl_Button*, void*);
   inline void cb_reset_i(Fl_Button*, void*);
   static void cb_reset(Fl_Button*, void*);
 public:
   Fl_Input *fileName;
 private:
-  inline void cb_xbm_i(Fl_Button*, void*);
-  static void cb_xbm(Fl_Button*, void*);
+  inline void cb_fileName_i(Fl_Input*, void*);
+  static void cb_fileName(Fl_Input*, void*);
+  inline void cb_a_i(Fl_Button*, void*);
+  static void cb_a(Fl_Button*, void*);
   char directory_[1024];
   int type_;
   void fileListCB();
+  void fileNameCB();
   void init_symbols();
 public:
   void rescan();

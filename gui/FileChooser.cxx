@@ -32,11 +32,11 @@ void FileChooser::cb_roller(Fl_Roller* o, void* v) {
   ((FileChooser*)(o->parent()->user_data()))->cb_roller_i(o,v);
 }
 
-inline void FileChooser::cb_up_i(Fl_Button*, void*) {
+inline void FileChooser::cb_upButton_i(Fl_Button*, void*) {
   up();
 }
-void FileChooser::cb_up(Fl_Button* o, void* v) {
-  ((FileChooser*)(o->parent()->user_data()))->cb_up_i(o,v);
+void FileChooser::cb_upButton(Fl_Button* o, void* v) {
+  ((FileChooser*)(o->parent()->user_data()))->cb_upButton_i(o,v);
 }
 
 #include <FL/Fl_Bitmap.H>
@@ -59,12 +59,19 @@ static unsigned char bits_reset[] = {
 };
 static Fl_Bitmap bitmap_reset(bits_reset, 8, 8);
 
-inline void FileChooser::cb_xbm_i(Fl_Button*, void*) {
+inline void FileChooser::cb_fileName_i(Fl_Input*, void*) {
+  fileNameCB();
+}
+void FileChooser::cb_fileName(Fl_Input* o, void* v) {
+  ((FileChooser*)(o->parent()->user_data()))->cb_fileName_i(o,v);
+}
+
+inline void FileChooser::cb_a_i(Fl_Button*, void*) {
   fileList->filter("*");;
 rescan();
 }
-void FileChooser::cb_xbm(Fl_Button* o, void* v) {
-  ((FileChooser*)(o->parent()->user_data()))->cb_xbm_i(o,v);
+void FileChooser::cb_a(Fl_Button* o, void* v) {
+  ((FileChooser*)(o->parent()->user_data()))->cb_a_i(o,v);
 }
 
 FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
@@ -98,10 +105,10 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
       o->value(140);
       o->callback((Fl_Callback*)cb_roller);
     }
-    { Fl_Button* o = new Fl_Button(5, 5, 15, 15);
+    { Fl_Button* o = upButton = new Fl_Button(5, 5, 15, 15);
       bitmap_up.label(o);
       o->labelsize(8);
-      o->callback((Fl_Callback*)cb_up);
+      o->callback((Fl_Callback*)cb_upButton);
     }
     { Fl_Button* o = new Fl_Button(5, 125, 15, 15);
       bitmap_reset.label(o);
@@ -109,11 +116,12 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
       o->callback((Fl_Callback*)cb_reset);
     }
     { Fl_Input* o = fileName = new Fl_Input(75, 190, 215, 25, "Filename:");
-      o->when(0);
+      o->callback((Fl_Callback*)cb_fileName);
+      o->when(1);
     }
     { Fl_Button* o = new Fl_Button(5, 20, 15, 15, "*");
       o->labelcolor(4);
-      o->callback((Fl_Callback*)cb_xbm);
+      o->callback((Fl_Callback*)cb_a);
       o->align(17);
     }
     o->set_modal();
@@ -121,7 +129,7 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
     if (title) window->label(title);
   }
   if (d == NULL)
-  strcpy(directory_, "");
+  strcpy(directory_, ".");
 else
   strcpy(directory_, d);
 init_symbols();
@@ -139,8 +147,7 @@ else
 }
 
 void FileChooser::directory(const char *d) {
-  if (d == NULL) directory_[0] = '\0';
-  else strcpy(directory_, d);
+  strcpy(directory_, d);
 rescan();
 }
 

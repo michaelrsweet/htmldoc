@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.h,v 1.2 1999/02/02 21:55:06 mike Exp $"
+// "$Id: FileBrowser.h,v 1.3 1999/02/20 14:16:45 mike Exp $"
 //
 //   FileBrowser definitions for HTMLDOC, an HTML document processing program.
 //
@@ -48,13 +48,15 @@ public:
   void		icon(const char *pattern, void (*drawfunc)(Fl_Color));
   void		filter(const char *pattern);
   const char	*filter() const { return (pattern_); };
+  static void	draw_cdrom(Fl_Color c);
   static void	draw_drive(Fl_Color c);
-  static void	draw_folder(Fl_Color c);
+  static void	draw_floppy(Fl_Color c);
   static void	draw_file(Fl_Color c);
+  static void	draw_folder(Fl_Color c);
 };
 
 #endif // !_FILE_BROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.2 1999/02/02 21:55:06 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.3 1999/02/20 14:16:45 mike Exp $".
 //
