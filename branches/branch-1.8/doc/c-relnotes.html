@@ -16,6 +16,14 @@
 	headings at the top of new TOC pages and page numbers
 	based on the header/footer string.
 
+	<LI>Added new "--no-localfiles" option to disable access
+	to local files for added security in web services.
+
+	<LI>Long lines in book files can not be broken up using
+	a trailing backslash.
+
+	<LI>Added a modern "skin" to the GUI interface.
+
 	<H3>Changes</H3>
 
 	<LI>Made some changes in how COLSPAN and ROWSPAN are
@@ -25,6 +33,14 @@
 	line endings.
 	<LI>Changed the TOC numbering to use 32-bit integers
 	instead of 8-bit integers...
+	<LI>Now handle local links with quoted (%HH) characters.
+	<LI>The command-line interface no longer sets PDF output
+	mode when using --continuous or --webpage.
+	<LI>HTMLDOC now opens HTML output files in binary mode to
+	prevent extra CR's under Windows, and strips incoming
+	CR's from PRE text.
+	<LI>Now support inserting the current chapter and heading
+	in the table-of-contents headers and footers.
 
 	<H3>Bug Fixes</H3>
 
@@ -42,6 +58,10 @@
 	account for borders, padding, etc.
 	<LI>Fixed the table squeezing code to honor minimum widths
 	and properly resize the remaining space.
+	<LI>The MEDIA SIZE page comment did not reset the printable
+	width and length of the page.
+	<LI>Tables that used COLSPAN did not honor WIDTH values in
+	non-spanned cells.
 
 </UL>
 
