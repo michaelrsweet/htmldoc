@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.62 2002/08/26 18:04:50 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.63 2002/10/02 18:53:05 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -30,7 +30,6 @@
  *   htmlDeleteTree()    - Free all memory associated with a tree...
  *   htmlInsertTree()    - Insert a tree node to the parent.
  *   htmlNewTree()       - Create a new tree node for the parent.
- *   get_text()          - Get all text from the given tree.
  *   htmlGetText()       - Get all text from the given tree.
  *   htmlGetMeta()       - Get document "meta" data...
  *   htmlGetStyle()      - Get a style value from a node's STYLE attribute.
@@ -1756,49 +1755,60 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
 
 
 /*
- * 'get_text()' - Get all text from the given tree.
- */
-
-static uchar *		/* O - Pointer to last char set */
-get_text(tree_t *tree,	/* I - Tree to pick */
-         uchar  *buf)	/* I - Buffer to store text in */
-{
-  while (tree != NULL)
-  {
-    if (tree->child != NULL)
-      buf = get_text(tree->child, buf);
-    else if (tree->markup == MARKUP_NONE && tree->data != NULL)
-    {
-      strcpy((char *)buf, (char *)tree->data);
-      buf += strlen((char *)buf);
-    }
-    else if (tree->markup == MARKUP_BR)
-    {
-      strcat((char *)buf, " ");
-      buf ++;
-    }
-
-    tree = tree->next;
-  }
-
-  return (buf);
-}
-
-
-/*
  * 'htmlGetText()' - Get all text from the given tree.
  */
 
 uchar *				/* O - String containing text nodes */
-htmlGetText(tree_t *tree)	/* I - Tree to pick */
+htmlGetText(tree_t *t)		/* I - Tree to pick */
 {
-  uchar	buf[10240];		/* String buffer */
+  uchar		*s,		// String
+		*s2,		// New string
+		*tdata;		// Temporary string data
+  int		slen,		// Length of string
+		tlen;		// Length of node string
 
 
-  buf[0] = '\0';
-  get_text(tree, buf);
+  // Loop through all of the nodes in the tree and collect text...
+  slen = 0;
+  s    = NULL;
 
-  return ((uchar *)strdup((char *)buf));
+  while (t != NULL)
+  {
+    if (t->child)
+      tdata = htmlGetText(t->child);
+    else
+      tdata = t->data;
+
+    if (tdata != NULL)
+    {
+      // Add the text to this string...
+      tlen = strlen((char *)tdata);
+
+      if (slen)
+        s2 = (uchar *)realloc(s, 1 + slen + tlen);
+      else
+        s2 = (uchar *)malloc(1 + tlen);
+
+      if (!s2)
+        break;
+
+      s = s2;
+
+      memcpy((char *)s + slen, (char *)tdata, tlen);
+
+      slen += tlen;
+
+      if (t->child)
+	free(tdata);
+    }
+
+    t = t->next;
+  }
+
+  if (slen)
+    s[slen] = '\0';
+
+  return (s);
 }
 
 
@@ -2935,5 +2945,5 @@ htmlDebugStats(const char *title,	// I - Title
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.62 2002/08/26 18:04:50 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.63 2002/10/02 18:53:05 mike Exp $".
  */
