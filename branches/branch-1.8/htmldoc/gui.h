@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.2 2001/01/30 01:35:56 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.3 2001/02/16 16:57:17 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -128,7 +128,6 @@ class GUI
   Fl_Input	*linkColor;
   Fl_Button	*linkLookup;
   Fl_Choice	*linkStyle;
-  CheckButton	*links;
 
   Fl_Group	*fontsTab;
   Fl_Choice	*headingFont,
@@ -157,6 +156,8 @@ class GUI
 		*pageEffect;
   Fl_Value_Slider *pageDuration,
 		*effectDuration;
+  CheckButton	*links;
+  CheckButton	*truetype;
 
   Fl_Group	*securityTab;
   Fl_Group	*encryption;
@@ -257,5 +258,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.2 2001/01/30 01:35:56 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.3 2001/02/16 16:57:17 mike Exp $".
  */

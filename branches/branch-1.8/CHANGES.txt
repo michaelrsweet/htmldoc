@@ -1,4 +1,4 @@
-CHANGES.txt - 02/15/2001
+CHANGES.txt - 02/16/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.11
@@ -6,6 +6,9 @@ CHANGES IN HTMLDOC v1.8.11
     NEW FEATURES
 
 	- Added koi8-r character set.
+	- Added new "TrueType" font option for PDF output. This
+	  (hopefully) should improve support for non-latin
+	  languages.
 
     CHANGES
 

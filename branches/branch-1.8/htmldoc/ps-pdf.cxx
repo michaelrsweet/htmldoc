@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.18 2001/02/14 14:50:53 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.19 2001/02/16 16:57:22 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -94,6 +94,7 @@
  *   write_string()          - Write a text entity.
  *   write_text()            - Write a text entity.
  *   write_trailer()         - Write the file trailer.
+ *   write_truetype()        - Write a font descriptor for a TrueType font.
  *   encrypt_init()          - Initialize the RC4 encryption context for
  *                             the current object.
  *   flate_open_stream()     - Open a deflated output stream.
@@ -351,6 +352,8 @@ static void	write_image(FILE *out, render_t *r);
 static void	write_string(FILE *out, uchar *s, int compress);
 static void	write_text(FILE *out, render_t *r);
 static void	write_trailer(FILE *out, int pages);
+static int	write_truetype(FILE *out, typeface_t typeface,
+			       style_t style);
 
 
 /*
@@ -6866,8 +6869,8 @@ write_image(FILE     *out,	/* I - Output file */
  */
 
 static void
-write_prolog(FILE *out,		/* I - Output file */
-             int  page_count,	/* I - Number of pages (0 if not known) */
+write_prolog(FILE  *out,	/* I - Output file */
+             int   page_count,	/* I - Number of pages (0 if not known) */
              uchar *title,	/* I - Title of document */
              uchar *author,	/* I - Author of document */
              uchar *creator,	/* I - Application that generated the HTML file */
@@ -6880,6 +6883,7 @@ write_prolog(FILE *out,		/* I - Output file */
   int		page;		/* Current page */
   render_t	*r;		/* Current render data */
   int		fonts_used[4][4];/* Whether or not a font is used */
+  int		font_desc[4][4];/* Font descriptor objects */
   char		temp[255];	/* Temporary string */
   md5_state_t	md5;		/* MD5 state */
   md5_byte_t	digest[16];	/* MD5 digest value */
@@ -6896,6 +6900,20 @@ write_prolog(FILE *out,		/* I - Output file */
 		  0x64, 0x00, 0x4e, 0x56, 0xff, 0xfa, 0x01, 0x08,
 		  0x2e, 0x2e, 0x00, 0xb6, 0xd0, 0x68, 0x3e, 0x80,
 		  0x2f, 0x0c, 0xa9, 0xfe, 0x64, 0x53, 0x69, 0x7a
+		};
+  static const char *typefaces[] =
+		{		/* TrueType typefaces... */
+		  "Courier",
+		  "TimesNewRoman",
+		  "Arial",
+		  "Symbol"
+		};
+  static const char *styles[] =
+		{		/* TrueType styles... */
+		  "",
+		  ",Bold",
+		  ",Italic",
+		  ",BoldItalic"
 		};
 
 
@@ -7276,6 +7294,19 @@ write_prolog(FILE *out,		/* I - Output file */
     fputs("]>>", out);
     fputs("endobj\n", out);
 
+    memset(font_desc, 0, sizeof(font_desc));
+    if (TrueType)
+    {
+     /*
+      * Build font descriptors for the TrueType fonts...
+      */
+
+      for (i = 0; i < 4; i ++)
+	for (j = 0; j < 4; j ++)
+          if (fonts_used[i][j])
+	    font_desc[i][j] = write_truetype(out, (typeface_t )i, (style_t)j);
+    }
+
     for (i = 0; i < 4; i ++)
       for (j = 0; j < 4; j ++)
         if (fonts_used[i][j])
@@ -7287,8 +7318,23 @@ write_prolog(FILE *out,		/* I - Output file */
 	  fprintf(out, "%d 0 obj", font_objects[i * 4 + j]);
 	  fputs("<<", out);
 	  fputs("/Type/Font", out);
-	  fputs("/Subtype/Type1", out);
-	  fprintf(out, "/BaseFont/%s", _htmlFonts[i][j]);
+
+          if (font_desc[i][j])
+	  {
+	    // Use TrueType font...
+	    fputs("/Subtype/TrueType", out);
+	    fprintf(out, "/BaseFont/%s%s", typefaces[i], styles[j]);
+	    fputs("/FirstChar 0", out);
+	    fputs("/LastChar 255", out);
+	    fprintf(out, "/Widths %d 0 R", font_desc[i][j] + 1);
+	    fprintf(out, "/FontDescriptor %d 0 R", font_desc[i][j]);
+	  }
+	  else
+	  {
+	    // Use Type1 font...
+	    fputs("/Subtype/Type1", out);
+	    fprintf(out, "/BaseFont/%s", _htmlFonts[i][j]);
+          }
 	  if (i < 3) /* Use native encoding for symbols */
 	    fprintf(out, "/Encoding %d 0 R", encoding_object);
 	  fputs(">>", out);
@@ -7599,6 +7645,197 @@ write_trailer(FILE *out,	/* I - Output file */
 
 
 /*
+ * 'write_truetype()' - Write a font descriptor for a TrueType font.
+ */
+
+static int				/* O - Object number */
+write_truetype(FILE       *out,		/* I - File to write to */
+               typeface_t typeface,	/* I - Typeface */
+	       style_t    style)	/* I - Style */
+{
+  char	filename[1024];			/* AFM filename */
+  FILE	*fp;				/* AFM file */
+  int	ch;				/* Character value */
+  int	width;				/* Width value */
+  char	glyph[64];			/* Glyph name */
+  char	line[1024];			/* Line from AFM file */
+  int	ascent,				/* Ascent above baseline */
+	cap_height,			/* Ascent of CAPITALS */
+	x_height,			/* Ascent of lowercase */
+	descent,			/* Decent below baseline */
+	bbox[4],			/* Bounding box */
+	italic_angle;			/* Angle for italics */
+  int	widths[256];			/* Character widths */
+  static const char *typefaces[] =	/* TrueType typefaces... */
+  		{
+		  "Courier",
+		  "TimesNewRoman",
+		  "Arial",
+		  "Symbol"
+		};
+  static const char *styles[] =
+		{			/* TrueType styles... */
+		  "",
+		  "-Bold",
+		  "-Italic",
+		  "-BoldItalic"
+		};
+  static int	tflags[] =		/* Typeface flags */
+		{
+		  33,			/* Courier/CourierNew */
+		  34,			/* Times-Roman/TimesNewRoman */
+		  32,			/* Helvetica/Arial */
+		  4			/* Symbol */
+		};
+  static int	sflags[] =		/* Style flags */
+		{
+		  0,			/* Normal */
+		  0,			/* Bold */
+		  64,			/* Italic */
+		  64			/* Bold-Italic */
+		};
+
+
+ /*
+  * This function writes font descriptor and width objects so that a
+  * TrueType font can be used in place of a Type1 font.  This is useful
+  * because the Type1 fonts that Adobe ships typically do not include
+  * the full set of characters, but the TrueType fonts shipped with
+  * Windows do.
+  *
+  * Under UNIX a reasonable substitution is performed (usually back to
+  * the original Type1 fonts...
+  */
+
+ /*
+  * Try to open the AFM file for the Type1 font...
+  */
+
+  sprintf(filename, "%s/afm/%s", _htmlData, _htmlFonts[typeface][style]);
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
+#ifndef DEBUG
+    progress_error("Unable to open font width file %s!", _htmlFonts[typeface][style]);
+#endif /* !DEBUG */
+    return (0);
+  }
+
+ /*
+  * Set the default values (Courier)...
+  */
+
+  for (ch = 0; ch < 256; ch ++)
+    widths[ch] = 600;
+
+  ascent       = 629;
+  cap_height   = 562;
+  x_height     = 426;
+  descent      = -157;
+  bbox[0]      = -28;
+  bbox[1]      = -250;
+  bbox[2]      = 628;
+  bbox[3]      = 805;
+  italic_angle = 0;
+
+ /*
+  * Read the AFM file...
+  */
+
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    if (strncmp(line, "ItalicAngle ", 12) == 0)
+      italic_angle = atoi(line + 12);
+    else if (strncmp(line, "FontBBox ", 9) == 0)
+      sscanf(line + 9, "%d%d%d%d", bbox + 0, bbox + 1, bbox + 2, bbox + 3);
+    else if (strncmp(line, "CapHeight ", 10) == 0)
+      cap_height = atoi(line + 10);
+    else if (strncmp(line, "XHeight ", 8) == 0)
+      x_height = atoi(line + 8);
+    else if (strncmp(line, "Ascender ", 9) == 0)
+      ascent = atoi(line + 9);
+    else if (strncmp(line, "Descender ", 10) == 0)
+      descent = atoi(line + 10);
+    else if (strncmp(line, "C ", 2) == 0)
+    {
+      if (typeface < TYPE_SYMBOL)
+      {
+       /*
+	* Handle encoding of Courier, Times, and Helvetica using
+	* assigned charset...
+	*/
+
+	if (sscanf(line, "%*s%*s%*s%*s%d%*s%*s%s", &width, glyph) != 2)
+	  continue;
+
+	for (ch = 0; ch < 256; ch ++)
+	  if (_htmlGlyphs[ch] && strcmp(_htmlGlyphs[ch], glyph) == 0)
+	    break;
+
+	if (ch < 256)
+	  widths[ch] = width;
+      }
+      else
+      {
+       /*
+	* Symbol font uses its own encoding...
+	*/
+
+	if (sscanf(line, "%*s%d%*s%*s%d", &ch, &width) != 2)
+	  continue;
+
+	if (ch < 256)
+	  widths[ch] = width;
+      }
+    }
+  }
+
+  fclose(fp);
+
+ /*
+  * Write the font descriptor...
+  */
+
+  num_objects ++;
+  objects[num_objects] = ftell(out);
+
+  fprintf(out, "%d 0 obj", num_objects);
+  fputs("<<", out);
+  fputs("/Type/FontDescriptor", out);
+  fprintf(out, "/Ascent %d", ascent);
+  fprintf(out, "/Descent %d", descent);
+  fprintf(out, "/CapHeight %d", cap_height);
+  fprintf(out, "/XHeight %d", x_height);
+  fprintf(out, "/FontBBox[%d %d %d %d]", bbox[0], bbox[1], bbox[2], bbox[3]);
+  fprintf(out, "/ItalicAngle %d", italic_angle);
+  fprintf(out, "/StemV %d", widths['v']);
+  fprintf(out, "/Flags %d", tflags[typeface] | sflags[style]);
+  fprintf(out, "/FontName/%s%s", typefaces[typeface], styles[style]);
+  fputs(">>", out);
+  fputs("endobj\n", out);
+
+ /*
+  * Write the character widths...
+  */
+
+  num_objects ++;
+  objects[num_objects] = ftell(out);
+
+  fprintf(out, "%d 0 obj", num_objects);
+  fprintf(out, "[%d", widths[0]);
+  for (ch = 1; ch < 256; ch ++)
+    fprintf(out, " %d", widths[ch]);
+  fputs("]", out);
+  fputs("endobj\n", out);
+
+ /*
+  * Return the font descriptor...
+  */
+
+  return (num_objects - 1);
+}
+
+
+/*
  * 'encrypt_init()' - Initialize the RC4 encryption context for the current
  *                    object.
  */
@@ -7818,5 +8055,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.18 2001/02/14 14:50:53 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.19 2001/02/16 16:57:22 mike Exp $".
  */
