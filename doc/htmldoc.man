@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.11 2002/03/24 17:27:46 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.12 2002/03/29 17:58:03 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -415,6 +415,11 @@ Specifies the user password for encryption of PDF files.
 Provides verbose messages.
 
 .TP 5
+--version
+.br
+Displays the current version number.
+
+.TP 5
 --webpage
 .br
 Specifies that the HTML sources are unstructured (plain web pages.)
@@ -532,5 +537,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.11 2002/03/24 17:27:46 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.12 2002/03/29 17:58:03 mike Exp $".
 .\"

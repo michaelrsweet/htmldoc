@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.37 2002/01/29 18:39:46 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.38 2002/03/29 17:58:03 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -875,10 +875,15 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--truetype", 4) == 0)
       TrueType = 1;
-    else if (compare_strings(argv[i], "--verbose", 3) == 0 ||
+    else if (compare_strings(argv[i], "--verbose", 6) == 0 ||
              strcmp(argv[i], "-v") == 0)
     {
       Verbosity ++;
+    }
+    else if (compare_strings(argv[i], "--version", 6) == 0)
+    {
+      puts(SVERSION);
+      return (0);
     }
     else if (compare_strings(argv[i], "--webpage", 3) == 0)
     {
@@ -2175,6 +2180,7 @@ usage(void)
   puts("  --truetype");
   puts("  --user-password password");
   puts("  {--verbose, -v}");
+  puts("  --version");
   puts("  --webpage");
   puts("");
   puts("  fff = heading format string; each \'f\' can be one of:");
@@ -2201,5 +2207,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.37 2002/01/29 18:39:46 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.38 2002/03/29 17:58:03 mike Exp $".
  */
