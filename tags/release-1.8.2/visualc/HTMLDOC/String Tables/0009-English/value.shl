@@ -1,0 +1,24 @@
+[Data]
+TITLE_MAIN=HTMLDOC
+ERROR_COMPONENT=Component:
+COMPANY_NAME=Easy Software Products
+COMPANY_NAME16=Easy Software Products
+ERROR_FILEGROUP=File Group:
+ERROR_MOVEDATA=An error occurred during the move data process: %d
+PRODUCT_VERSION=1.8.2
+UNINST_KEY=HTMLDOC
+TITLE_CAPTIONBAR=HTMLDOC
+PRODUCT_NAME16=Product
+FOLDER_NAME=HTMLDOC
+ERROR_FILE=File:
+ERROR_VGARESOLUTION=This program requires VGA or better resolution.
+PRODUCT_KEY=htmldoc.exe
+UNINST_DISPLAY_NAME=HTMLDOC
+ERROR_UNINSTSETUP=unInstaller setup failed to initialize.  You may not be able to uninstall this product.
+PRODUCT_NAME=HTMLDOC
+
+[General]
+Language=0009
+Type=STRINGTABLESPECIFIC
+Version=1.00.000
+
