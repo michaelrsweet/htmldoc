@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.14 2001/05/27 11:39:44 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.15 2001/05/27 12:50:37 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1533,6 +1533,12 @@ GUI::parseOptions(const char *line)	// I - Line from file
     else if (strcmp(temp, "--no-compression") == 0)
     {
       compression->value(0.0);
+      continue;
+    }
+    else if (strcmp(temp, "--no-jpeg") == 0)
+    {
+      jpegCompress->clear();
+      jpegGroup->deactivate();
       continue;
     }
     else if (strcmp(temp, "--numbered") == 0)
@@ -3768,5 +3774,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.14 2001/05/27 11:39:44 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.15 2001/05/27 12:50:37 mike Exp $".
 //

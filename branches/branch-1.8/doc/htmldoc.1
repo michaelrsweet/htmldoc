@@ -104,8 +104,8 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
        --datadir _d_i_r_e_c_t_o_r_y
             Specifies  the  location  of  the _H_T_M_L_D_O_C data files,
-            usually     _/_u_s_r_/_s_h_a_r_e_/_h_t_m_l_d_o_c     or      _C_:_\_P_r_o_g_r_a_m
-            _F_i_l_e_s_\_H_T_M_L_D_O_C.
+            usually _/_u_s_r_/_s_h_a_r_e_/_h_t_m_l_d_o_c or _C_:_\_P_r_o_g_r_a_m  _F_i_l_e_s_\_H_T_M_L_-
+            _D_O_C.
 
 
        --duplex
@@ -243,6 +243,10 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
             Disables document encryption.
 
 
+       --no-jpeg
+            Disables JPEG compression of large images.
+
+
        --no-links
             Disables generation of links in a PDF document.
 
@@ -250,10 +254,6 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
        --no-numbered
             Disables automatic heading numbering.
 
-
-       --no-pscommands
-            Disables  generation of PostScript setpagedevice com-
-            mands.
 
 
 
@@ -266,6 +266,11 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
 htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       --no-pscommands
+            Disables  generation of PostScript setpagedevice com-
+            mands.
 
 
        --no-title
@@ -319,11 +324,6 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
             Specifies the initial viewing mode for a PDF file.
 
 
-       --path
-            Specifies a search path for files in a document.
-
-
-
 
 21 May 2001               HTMLDOC 1.8.13                        5
 
@@ -334,13 +334,17 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
+       --path
+            Specifies a search path for files in a document.
+
+
        --permissions _p_e_r_m_i_s_s_i_o_n
             Specifies  document  permissions  for  encrypted  PDF
             files. Multiple _-_-_p_e_r_m_i_s_s_i_o_n_s options are required to
             grant  or  deny  specific  permissions. The following
-            values  are  understood:  all,  none,  annotate,  no-
-            annotate,  copy,  no-copy,  modify, no-modify, print,
-            and no-print.
+            values are understood: all, none, annotate,  no-anno-
+            tate,  copy,  no-copy,  modify, no-modify, print, and
+            no-print.
 
 
        --pscommands
@@ -384,10 +388,6 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
             image.
 
 
-       --tocfooter _f_f_f
-            Sets  the  page  footer  to  use on table-of-contents
-            pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
-
 
 
 
@@ -398,6 +398,11 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
 htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       --tocfooter _f_f_f
+            Sets  the  page  footer  to  use on table-of-contents
+            pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
 
 
        --tocheader _f_f_f
@@ -448,11 +453,6 @@ HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
        Each character can be one of the following:
 
 
-       blank
-
-
-       /
-            n/N arabic page numbers (1/3, 2/3, 3/3)
 
 
 
@@ -464,6 +464,13 @@ HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
 
 
 htmldoc(1)            Easy Software Products           htmldoc(1)
+
+
+       blank
+
+
+       /
+            n/N arabic page numbers (1/3, 2/3, 3/3)
 
 
        :
@@ -515,13 +522,6 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
             logo image
 
 
-       t
-            title text
-
-
-       T
-
-
 
 21 May 2001               HTMLDOC 1.8.13                        8
 
@@ -532,6 +532,11 @@ htmldoc(1)            Easy Software Products           htmldoc(1)
 htmldoc(1)            Easy Software Products           htmldoc(1)
 
 
+       t
+            title text
+
+
+       T
             current time
 
 
@@ -568,11 +573,6 @@ NNOO WWAARRRRAANNTTYY
        warranty of MERCHANTABILITY or FITNESS  FOR  A  PARTICULAR
        PURPOSE.   See  the  GNU  General  Public License for more
        details.
-
-
-
-
-
 
 
 
