@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.36 2001/09/25 21:31:24 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.37 2001/10/01 20:57:05 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1724,7 +1724,8 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
 	key;			/* Search key */
 
 
-  DEBUG_printf(("%shtmlSetVariable(%08x, \"%s\", \"%s\")\n", indent, t, name, value));
+  DEBUG_printf(("%shtmlSetVariable(%08x, \"%s\", \"%s\")\n", indent, t, name,
+                value ? (const char *)value : "(null)"));
 
   if (t->nvars == 0)
     v = NULL;
@@ -2634,5 +2635,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.36 2001/09/25 21:31:24 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.37 2001/10/01 20:57:05 mike Exp $".
  */
