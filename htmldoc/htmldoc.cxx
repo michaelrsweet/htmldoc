@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.14 1999/11/17 22:03:07 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.15 1999/12/07 14:12:06 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -733,7 +733,7 @@ main(int  argc,		/* I - Number of command-line arguments */
         BookGUI->loadBook(argv[i]);
     }
 #endif /* HAVE_LIBFLTK */
-    else if ((docfile = fopen(argv[i], "r")) != NULL)
+    else if ((docfile = fopen(argv[i], "rb")) != NULL)
     {
      /*
       * Read from a file...
@@ -1668,5 +1668,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.14 1999/11/17 22:03:07 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.15 1999/12/07 14:12:06 mike Exp $".
  */

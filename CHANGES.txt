@@ -26,6 +26,8 @@ CHANGES IN HTMLDOC v1.8.2
 	  in the HTML code "one<I> two</I> three".
 	- Paragraph spacing was inconsistent.
 	- <TABLE WIDTH="xx"> wasn't formatted properly.
+	- The command-line code wasn't opening HTML files in binary
+	  mode. This caused problems under Microsoft Windows.
 
 
 CHANGES IN HTMLDOC v1.8.1
