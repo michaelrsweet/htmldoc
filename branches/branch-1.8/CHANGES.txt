@@ -34,6 +34,14 @@ CHANGES IN HTMLDOC v1.8.13
 	- Image links did not work.
 	- The JPEG image loading code did not correctly handle
 	  grayscale JPEG images.
+	- JPEG images were not encrypted when writing a document
+	  with encryption enabled.
+	- The colormap of indexed images were not encrypted when
+	  writing a document with encryption enabled.
+	- The temporary file creation and cleanup functions did
+	  not use the same template under Windows, causing
+	  multiple conversions to fail when temporary files
+	  were used.
 
 
 CHANGES IN HTMLDOC v1.8.12
