@@ -296,7 +296,7 @@ function SetupRegistry()
   RegDBCreateKeyEx("bookfile\\Shell\\Open\\command", "");
   szPath = TARGETDIR ^ "ghtmldoc.exe";
   LongPathToQuote(szPath, TRUE);
-  szValue = szPath + " \"%1\"";
+  szValue = szPath + " \"%L\"";
   RegDBSetKeyValueEx("bookfile\\Shell\\Open\\command", "", REGDB_STRING, szValue, -1);
 
   // Add the software installation information for installed
@@ -605,6 +605,7 @@ end;
  // --- include script file section ---
 
 #include "sddialog.rul"
+
 
 
 
