@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.10 2000/09/10 21:15:22 mike Exp $"
+ * "$Id: image.cxx,v 1.11 2000/10/12 00:20:35 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -123,6 +123,7 @@ image_load(const char *filename,/* I - Name of image file */
 		*keyptr,	/* Pointer to search key... */
 		**match;	/* Matching image */
   int		status;		/* Status of load... */
+  const char	*realname;	/* Real filename */
 
 
  /*
@@ -157,13 +158,13 @@ image_load(const char *filename,/* I - Name of image file */
   * Figure out the file type...
   */
 
-  if ((filename = file_find(Path, filename)) == NULL)
+  if ((realname = file_find(Path, filename)) == NULL)
   {
     progress_error("Unable to find image file \"%s\"!", filename);
     return (NULL);
   }
 
-  if ((fp = fopen(filename, "rb")) == NULL)
+  if ((fp = fopen(realname, "rb")) == NULL)
   {
     progress_error("Unable to read image file \"%s\"!", filename);
     return (NULL);
@@ -1498,5 +1499,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.10 2000/09/10 21:15:22 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11 2000/10/12 00:20:35 mike Exp $".
  */
