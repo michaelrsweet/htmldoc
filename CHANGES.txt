@@ -8,6 +8,9 @@ CHANGES IN HTMLDOC v1.8.10
 
     CHANGES
 
+	- If a heading already contains a link, the name assigned for
+	  the heading is stored in the existing link to avoid nested
+	  links.
 
     BUG FIXES
 
