@@ -28,6 +28,9 @@ CHANGES IN HTMLDOC v1.8.13
 	  would happen when the "--no-links" option was used.
 	- Several HTML elements were incorrectly written with
 	  closing tags.
+	- When piping PDF output, the temporary file that is
+	  created needed to be open for reading and writing,
+	  but HTMLDOC only opened the file for writing.
 
 
 CHANGES IN HTMLDOC v1.8.12
