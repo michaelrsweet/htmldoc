@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.39 2004/03/31 07:28:13 mike Exp $"
+// "$Id: gui.cxx,v 1.40 2004/03/31 08:39:12 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1237,7 +1237,7 @@ void
 GUI::title(const char *filename,// Name of file being edited
            int        changed)	// Whether or not the file is modified
 {
-  static char	title[1024];	// Title string
+  static char	guititle[1024];	// Title string
 
 
   book_changed = changed;
@@ -1245,22 +1245,22 @@ GUI::title(const char *filename,// Name of file being edited
   if (filename == NULL || filename[0] == '\0')
   {
     book_filename[0] = '\0';
-    strcpy(title, "NewBook");
+    strcpy(guititle, "NewBook");
   }
   else
   {
     strcpy(book_filename, filename);
-    strcpy(title, file_basename(filename));
+    strcpy(guititle, file_basename(filename));
   }
 
   if (changed)
-    strcat(title, "(modified) - ");
+    strcat(guititle, "(modified) - ");
   else
-    strcat(title, " - ");
+    strcat(guititle, " - ");
 
-  strcat(title, "HTMLDOC " SVERSION);
+  strcat(guititle, "HTMLDOC " SVERSION);
 
-  window->label(title);
+  window->label(guititle);
   if (window->visible())
     Fl::check();
 }
@@ -4099,5 +4099,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.39 2004/03/31 07:28:13 mike Exp $".
+// End of "$Id: gui.cxx,v 1.40 2004/03/31 08:39:12 mike Exp $".
 //

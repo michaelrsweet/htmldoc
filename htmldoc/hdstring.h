@@ -1,5 +1,5 @@
 /*
- * "$Id: hdstring.h,v 1.10 2004/03/31 07:44:26 mike Exp $"
+ * "$Id: hdstring.h,v 1.11 2004/03/31 08:39:12 mike Exp $"
  *
  *   String definitions for HTMLDOC, a HTML document processing program.
  *
@@ -67,7 +67,7 @@ extern int	hd_strcasecmp(const char *, const char *);
 #    define strcasecmp hd_strcasecmp
 #  endif /* !HAVE_STRCASECMP */
 
-extern int	hd_strcpy(char *, const char *);
+extern void	hd_strcpy(char *, const char *);
 
 #  ifndef HAVE_STRDUP
 extern char	*hd_strdup(const char *);
@@ -120,5 +120,5 @@ extern int	hd_vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: hdstring.h,v 1.10 2004/03/31 07:44:26 mike Exp $".
+ * End of "$Id: hdstring.h,v 1.11 2004/03/31 08:39:12 mike Exp $".
  */

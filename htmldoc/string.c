@@ -1,5 +1,5 @@
 /*
- * "$Id: string.c,v 1.8 2004/03/31 07:44:26 mike Exp $"
+ * "$Id: string.c,v 1.9 2004/03/31 08:39:12 mike Exp $"
  *
  *   String functions for HTMLDOC.
  *
@@ -112,11 +112,12 @@ hd_strdup(const char *s)	/* I - String to duplicate */
 
 char *					/* O - New string pointer */
 hd_strdupf(const char *format,		/* I - Printf-style format string */
-           va_list    ap)		/* I - Pointer to additional arguments */
+           ...)				/* I - Additional arguments */
 {
-  int	bytes;				/* Number of bytes required */
-  char	*buffer,			/* String buffer */
-	temp[256];			/* Small buffer for first vsnprintf */
+  va_list	ap;			/* Argument pointer */
+  int		bytes;			/* Number of bytes required */
+  char		*buffer,		/* String buffer */
+		temp[256];		/* Small buffer for first vsnprintf */
 
 
  /*
@@ -124,7 +125,9 @@ hd_strdupf(const char *format,		/* I - Printf-style format string */
   * needed...
   */
 
+  va_start(ap, format);
   bytes = vsnprintf(temp, sizeof(temp), format, ap);
+  va_end(ap);
 
   if (bytes < sizeof(temp))
   {
@@ -140,8 +143,12 @@ hd_strdupf(const char *format,		/* I - Printf-style format string */
   * buffer...
   */
 
-  if ((buffer = calloc(1, bytes + 1)) != NULL)
-    vsnprintf(buffer, bytes + 1, format, ap);
+  if ((buffer = calloc(1, (size_t)(bytes + 1))) != NULL)
+  {
+    va_start(ap, format);
+    vsnprintf(buffer, (size_t)(bytes + 1), format, ap);
+    va_end(ap);
+  }
 
  /*
   * Return the new string...
@@ -267,5 +274,5 @@ hd_strlcpy(char       *dst,	/* O - Destination string */
 
 
 /*
- * End of "$Id: string.c,v 1.8 2004/03/31 07:44:26 mike Exp $".
+ * End of "$Id: string.c,v 1.9 2004/03/31 08:39:12 mike Exp $".
  */
