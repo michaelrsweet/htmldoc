@@ -25,6 +25,8 @@ CHANGES IN HTMLDOC v1.8.12
 	- Updated book file format and added an appendix
 	  describing the format.
 	- Now default to PDF 1.3 (Acrobat 4.0) output format.
+	- Now output length of PDF streams with the stream
+	  object; this offers a modest reduction in file size.
 
     BUG FIXES
 
@@ -35,6 +37,8 @@ CHANGES IN HTMLDOC v1.8.12
 	  if you did not have FLTK installed.
 	- The fix_filename() function didn't handle relative
 	  URLs for images (e.g. SRC="../images/filename.gif")
+	- Comments in the source document were being closed by
+	  a </!--> tag in the HTML output.
 
 
 CHANGES IN HTMLDOC v1.8.11
