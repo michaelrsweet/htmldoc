@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.43 2004/03/02 03:35:30 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.44 2004/03/20 03:52:04 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -14,7 +14,7 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.8.24b12"
+SVERSION="1.89a1"
 AC_SUBST(SVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
 
@@ -305,7 +305,7 @@ if test -n "$GXX"; then
     fi
 
     # Show all standard warnings + unused variables when compiling...
-    OPTIM="-Wall -Wunused $OPTIM"
+    OPTIM="-Wall -Wunused -Wno-char-subscripts $OPTIM"
 
     # The following additional warnings are useful for tracking down problems...
     #OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
@@ -315,7 +315,7 @@ if test -n "$GXX"; then
     OLDCFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS -fno-rtti"
     AC_TRY_COMPILE(,,
-	OPTIM="$OPTIM -fno-rtti"
+	CXXFLAGS="$CXXFLAGS -fno-rtti"
 	AC_MSG_RESULT(yes),
 	AC_MSG_RESULT(no))
     CFLAGS="$OLDCFLAGS"
@@ -325,7 +325,7 @@ if test -n "$GXX"; then
     OLDCFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS -fno-exceptions"
     AC_TRY_COMPILE(,,
-	OPTIM="$OPTIM -fno-exceptions"
+	CXXFLAGS="$CXXFLAGS -fno-exceptions"
 	AC_MSG_RESULT(yes),
 	AC_MSG_RESULT(no))
     CFLAGS="$OLDCFLAGS"
@@ -337,7 +337,7 @@ if test -n "$GXX"; then
 	OLDCFLAGS="$CFLAGS"
 	CFLAGS="$CFLAGS -fpermissive"
 	AC_TRY_COMPILE(,,
-	    OPTIM="$OPTIM -fpermissive"
+	    CXXFLAGS="$CXXFLAGS -fpermissive"
 	    AC_MSG_RESULT(yes),
 	    AC_MSG_RESULT(no))
 	CFLAGS="$OLDCFLAGS"
@@ -371,5 +371,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.43 2004/03/02 03:35:30 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.44 2004/03/20 03:52:04 mike Exp $".
 dnl

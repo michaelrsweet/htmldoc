@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.237 2004/03/05 16:33:10 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.238 2004/03/20 03:52:04 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -132,6 +132,7 @@
 
 /*#define DEBUG*/
 #include "htmldoc.h"
+#include "margin.h"
 #include "md5.h"
 #include "rc4.h"
 #include <stdarg.h>
@@ -386,28 +387,21 @@ static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);
 static void	parse_contents(tree_t *t, float left, float width, float bottom,
 		               float length, float *y, int *page, int *heading,
 			       tree_t *chap);
-static void	parse_doc(tree_t *t, float *left, float *right, float *bottom,
-		          float *top, float *x, float *y, int *page,
+static void	parse_doc(tree_t *t, hdMargin *margins, float *x, float *y, int *page,
 			  tree_t *cpara, int *needspace);
-static void	parse_heading(tree_t *t, float left, float width, float bottom,
-		              float length, float *x, float *y, int *page,
+static void	parse_heading(tree_t *t, hdMargin *margins, float *x, float *y, int *page,
 			      int needspace);
-static void	parse_paragraph(tree_t *t, float left, float width, float bottom,
-		                float length, float *x, float *y, int *page,
-			        int needspace);
-static void	parse_pre(tree_t *t, float left, float width, float bottom,
-		          float length, float *x, float *y, int *page,
-			  int needspace);
-static void	parse_table(tree_t *t, float left, float width, float bottom,
-		            float length, float *x, float *y, int *page,
-			    int needspace);
-static void	parse_list(tree_t *t, float *left, float *width, float *bottom,
-		           float *length, float *x, float *y, int *page,
-			   int needspace);
+static void	parse_paragraph(tree_t *t, hdMargin *margins, float *x,
+		                float *y, int *page, int needspace);
+static void	parse_pre(tree_t *t, hdMargin *margins, float *x, float *y,
+		          int *page, int needspace);
+static void	parse_table(tree_t *t, hdMargin *margins, float *x, float *y,
+		            int *page, int needspace);
+static void	parse_list(tree_t *t, hdMargin *margins, float *x, float *y,
+		           int *page, int needspace);
 static void	init_list(tree_t *t);
-static void	parse_comment(tree_t *t, float *left, float *width, float *bottom,
-		              float *length, float *x, float *y, int *page,
-			      tree_t *para, int needspace);
+static void	parse_comment(tree_t *t, hdMargin *margins, float *x, float *y,
+		              int *page, tree_t *para, int needspace);
 
 static tree_t	*real_prev(tree_t *t);
 static tree_t	*real_next(tree_t *t);
@@ -477,10 +471,10 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   tree_t	*t;		/* Title page document tree */
   FILE		*fp;		/* Title page file */
   float		x, y,		/* Current page position */
-		left, right,	/* Left and right margins */
 		bottom, top,	/* Bottom and top margins */
 		width,		/* Width of , author, etc */
 		height;		/* Height of  area */
+  hdMargin	*margins;	/* Margins */
   int		pos,		/* Current header/footer position */
 		page,		/* Current page # */
 		heading,	/* Current heading # */
@@ -636,19 +630,17 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       t = htmlReadFile(NULL, fp, file_directory(TitleImage));
       fclose(fp);
 
-      page            = 0;
       title_page      = 1;
       current_heading = NULL;
-      x               = 0.0f;
-      bottom          = 0.0f;
-      top             = PagePrintLength;
-      y               = top;
       needspace       = 0;
-      left            = 0.0f;
-      right           = PagePrintWidth;
+      x               = 0.0f;
+      y               = top;
+      page            = 0;
+      margins         = new hdMargin(0.0f, PagePrintWidth, 0.0f, PagePrintLength);
 
-      parse_doc(t, &left, &right, &bottom, &top, &x, &y, &page, NULL,
-                &needspace);
+      parse_doc(t, margins, &x, &y, &page, NULL, &needspace);
+
+      delete margins;
 
       if (PageDuplex && (num_pages & 1))
 	check_pages(num_pages);
@@ -777,13 +769,6 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     chapter_starts[1] = num_pages;
   }
 
-  title_page      = 0;
-  current_heading = NULL;
-  x               = 0.0f;
-  needspace       = 0;
-  left            = 0.0f;
-  right           = PagePrintWidth;
-
   // Adjust top margin as needed...
   for (pos = 0; pos < 3; pos ++)
     if (Header[pos])
@@ -808,13 +793,20 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   else
     bottom = 2 * HeadFootSize;
 
-  y = top;
+  title_page      = 0;
+  current_heading = NULL;
+  needspace       = 0;
+  x               = 0.0f;
+  y               = top;
+  margins         = new hdMargin(0.0f, PagePrintWidth, bottom, top);
 
-  parse_doc(document, &left, &right, &bottom, &top, &x, &y, &page, NULL,
-            &needspace);
+  parse_doc(document, margins, &x, &y, &page, NULL, &needspace);
+
+  delete margins;
 
   if (PageDuplex && (num_pages & 1))
     check_pages(num_pages);
+
   chapter_ends[chapter] = num_pages - 1;
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
@@ -879,8 +871,10 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     chapter           = 0;
 
     parse_contents(toc, 0, PagePrintWidth, bottom, top, &y, &page, &heading, 0);
+
     if (PageDuplex && (num_pages & 1))
       check_pages(num_pages);
+
     chapter_ends[0] = num_pages - 1;
 
     for (page = chapter_starts[0]; page <= chapter_ends[0]; page ++)
@@ -3390,15 +3384,12 @@ pdf_write_names(FILE *out)		/* I - Output file */
  */
 
 static void
-render_contents(tree_t *t,		/* I - Tree to parse */
-                float  left,		/* I - Left margin */
-                float  right,		/* I - Printable width */
-                float  bottom,		/* I - Bottom margin */
-                float  top,		/* I - Printable top */
-                float  *y,		/* IO - Y position */
-                int    *page,		/* IO - Page # */
-	        int    heading,		/* I - Heading # */
-	        tree_t *chap)		/* I - Chapter heading */
+render_contents(tree_t   *t,		/* I  - Tree to parse */
+                hdMargin *margins,	/* I  - Margins */
+                float    *y,		/* IO - Y position */
+                int      *page,		/* IO - Page # */
+	        int      heading,	/* I  - Heading # */
+	        tree_t   *chap)		/* I  - Chapter heading */
 {
   float		x,
 		width,
@@ -3416,8 +3407,9 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 #define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
 
 
-  DEBUG_printf(("render_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
-                t, left, right, bottom, top, *y, *page, heading, chap));
+  DEBUG_printf(("render_contents(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), y=%.1f, page=%d, heading=%d, chap=%p)\n",
+                t, margins->left(), margins->right(), margins->bottom(),
+		margins->top(), *y, *page, heading, chap));
 
   if (!t)
     return;
@@ -3435,9 +3427,9 @@ render_contents(tree_t *t,		/* I - Tree to parse */
   height *= _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
 
   if (t->indent)
-    x = left + 18.0f + 18.0f * t->indent;
+    x = margins->left() + 18.0f + 18.0f * t->indent;
   else
-    x = left;
+    x = margins->left();
 
   *y -= height;
 
@@ -3464,25 +3456,25 @@ render_contents(tree_t *t,		/* I - Tree to parse */
     rgb[1] = temp->green / 255.0f;
     rgb[2] = temp->blue / 255.0f;
 
-    if ((x + temp->width) >= (right - numberwidth))
+    if ((x + temp->width) >= (margins->right() - numberwidth))
     {
      /*
       * Too wide to fit, continue on the next line
       */
 
       *y -= _htmlSpacings[SIZE_P];
-      x  = left + 36.0f * t->indent;
+      x  = margins->left() + 36.0f * t->indent;
     }
 
-    if (*y < bottom)
+    if (*y < margins->bottom())
     {
       (*page) ++;
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
 
       width = get_width((uchar *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
-      *y = top - _htmlSpacings[SIZE_H1];
-      x  = left + 0.5f * (right - left - width);
+      *y = margins->top() - _htmlSpacings[SIZE_H1];
+      x  = margins->left() + 0.5f * (margins->right() - margins->left() - width);
       r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
       r->data.text.typeface = TYPE_HELVETICA;
       r->data.text.style    = STYLE_BOLD;
@@ -3492,14 +3484,14 @@ render_contents(tree_t *t,		/* I - Tree to parse */
       *y -= _htmlSpacings[SIZE_H1];
 
       if (t->indent)
-	x = left + 18.0f + 18.0f * t->indent;
+	x = margins->left() + 18.0f + 18.0f * t->indent;
       else
-	x = left;
+	x = margins->left();
 
       if (chap != t)
       {
         *y += height;
-        render_contents(chap, left, right, bottom, top, y, page, -1, 0);
+        render_contents(chap, margins, y, page, -1, 0);
 	*y -= _htmlSpacings[SIZE_P];
       }
     }
@@ -3594,7 +3586,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
     width = numberwidth - 3.0 * dot_width + x;
 
     for (nptr = number;
-         nptr < (number + sizeof(number) - 1) && width < right;
+         nptr < (number + sizeof(number) - 1) && width < margins->right();
 	 width += dot_width)
       *nptr++ = '.';
     nptr --;
@@ -3603,7 +3595,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
             sizeof(number) - (nptr - number) - 1);
     number[sizeof(number) - 1] = '\0';
 
-    r = new_render(*page, RENDER_TEXT, right - width + x, *y, 0, 0, number);
+    r = new_render(*page, RENDER_TEXT, margins->right() - width + x, *y, 0, 0, number);
     r->data.text.typeface = t->typeface;
     r->data.text.style    = t->style;
     r->data.text.size     = _htmlSizes[t->size];
@@ -3651,28 +3643,26 @@ count_headings(tree_t *t)		// I - Tree to count
  */
 
 static void
-parse_contents(tree_t *t,		/* I - Tree to parse */
-               float  left,		/* I - Left margin */
-               float  right,		/* I - Printable width */
-               float  bottom,		/* I - Bottom margin */
-               float  top,		/* I - Printable top */
-               float  *y,		/* IO - Y position */
-               int    *page,		/* IO - Page # */
-               int    *heading,		/* IO - Heading # */
-	       tree_t *chap)		/* I - Chapter heading */
+parse_contents(tree_t   *t,		/* I - Tree to parse */
+               hdMargin *margins,	/* I - Margins */
+               float    *y,		/* IO - Y position */
+               int      *page,		/* IO - Page # */
+               int      *heading,	/* IO - Heading # */
+	       tree_t   *chap)		/* I - Chapter heading */
 {
-  DEBUG_printf(("parse_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
-                t, left, right, bottom, top, *y, *page, *heading, chap));
+  DEBUG_printf(("parse_contents(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), y=%.1f, page=%d, heading=%d, chap=%p)\n",
+                t, margins->left(), margins->right(), margins->bottom(),
+		margins->top(), *y, *page, *heading, chap));
 
   while (t != NULL)
   {
     switch (t->markup)
     {
       case MARKUP_B :	/* Top-level TOC */
-          if (t->prev != NULL)	/* Advance one line prior to top-levels... */
+          if (t->prev != NULL)	/* Advance one line prior to margins->top()-levels... */
             *y -= _htmlSpacings[SIZE_P];
 
-          if (*y < (bottom + _htmlSpacings[SIZE_P] * 3))
+          if (*y < (margins->bottom() + _htmlSpacings[SIZE_P] * 3))
 	    *y = 0; // Force page break
 
           chap = t;
@@ -3687,8 +3677,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
           if (htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
 	  {
-            render_contents(t, left, right, bottom, top, y, page,
-	                    *heading, chap);
+            render_contents(t, margins, y, page, *heading, chap);
 
            /*
 	    * Update current headings for header/footer strings in TOC.
@@ -3722,8 +3711,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
           break;
 
       default :
-          parse_contents(t->child, left, right, bottom, top, y, page, heading,
-	                 chap);
+          parse_contents(t->child, margins, y, page, heading, chap);
           break;
     }
 
@@ -3737,31 +3725,28 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
  */
 
 static void
-parse_doc(tree_t *t,		/* I - Tree to parse */
-          float  *left,		/* I - Left margin */
-          float  *right,	/* I - Printable width */
-          float  *bottom,	/* I - Bottom margin */
-          float  *top,		/* I - Printable top */
-          float  *x,		/* IO - X position */
-          float  *y,		/* IO - Y position */
-          int    *page,		/* IO - Page # */
-	  tree_t *cpara,	/* I - Current paragraph */
-	  int    *needspace)	/* I - Need whitespace before this element */
+parse_doc(tree_t   *t,			/* I - Tree to parse */
+          hdMargin *margins,		/* I - Left margin */
+          float    *x,			/* IO - X position */
+          float    *y,			/* IO - Y position */
+          int      *page,		/* IO - Page # */
+	  tree_t   *cpara,		/* I - Current paragraph */
+	  int      *needspace)		/* I - Need whitespace before this element */
 {
-  int		i;		/* Looping var */
-  tree_t	*para,		/* Phoney paragraph tree entry */
-		*temp;		/* Paragraph entry */
-  var_t		*var;		/* Variable entry */
-  uchar		*name;		/* ID name */
-  uchar		*style;		/* STYLE attribute */
-  float		width,		/* Width of horizontal rule */
-		height,		/* Height of rule */
-		rgb[3];		/* RGB color of rule */
+  int		i;			/* Looping var */
+  tree_t	*para,			/* Phoney paragraph tree entry */
+		*temp;			/* Paragraph entry */
+  var_t		*var;			/* Variable entry */
+  uchar		*name;			/* ID name */
+  uchar		*style;			/* STYLE attribute */
+  float		width,			/* Width of horizontal rule */
+		height,			/* Height of rule */
+		rgb[3];			/* RGB color of rule */
 
 
-  DEBUG_printf(("parse_doc(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, cpara=%p, needspace=%d\n",
-                t, *left, *right, *bottom, *top, *x, *y, *page, cpara,
-	        *needspace));
+  DEBUG_printf(("parse_doc(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, cpara=%p, needspace=%d\n",
+                t, margins->left(), margins->right(), margins->bottom(),
+		margins->top(), *x, *y, *page, cpara, *needspace));
   DEBUG_printf(("    title_page = %d, chapter = %d\n", title_page, chapter));
 
   if (cpara == NULL)
@@ -3778,19 +3763,21 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       // New page on H1 in book mode or file in webpage mode...
       if (para->child != NULL)
       {
-        parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+        parse_paragraph(para, margins, x, y, page, *needspace);
         htmlDeleteTree(para->child);
         para->child = para->last_child = NULL;
       }
 
       if ((chapter > 0 && OutputType == OUTPUT_BOOK) ||
-          ((*page > 1 || *y < *top) && OutputType == OUTPUT_WEBPAGES))
+          ((*page > 1 || *y < margins->top()) && OutputType == OUTPUT_WEBPAGES))
       {
-        if (*y < *top)
+        if (*y < margins->top())
           (*page) ++;
 
         if (PageDuplex && (*page & 1))
           (*page) ++;
+
+	margins->clear(margins->top(), *page);
 
         if (Verbosity)
           progress_show("Formatting page %d", *page);
@@ -3812,8 +3799,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       if (chapter > TocDocCount)
 	TocDocCount = chapter;
 
-      *y         = *top;
-      *x         = *left;
+      *y         = margins->top();
+      *x         = margins->left();
       *needspace = 0;
     }
 
@@ -3851,12 +3838,10 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
     {
       // Need to handle page comments before the first heading...
       if (t->markup == MARKUP_COMMENT)
-        parse_comment(t, left, right, bottom, top, x, y, page, para,
-	              *needspace);
+        parse_comment(t, margins, x, y, page, para, *needspace);
 
       if (t->child != NULL)
-        parse_doc(t->child, left, right, bottom, top, x, y, page, para,
-	          needspace);
+        parse_doc(t->child, margins, x, y, page, para, needspace);
 
       t = t->next;
       continue;
@@ -3868,8 +3853,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
     {
       // Advance to the next page...
       (*page) ++;
-      *x         = *left;
-      *y         = *top;
+
+      *x         = margins->left();
+      *y         = margins->top();
       *needspace = 0;
 
       // See if we need to go to the next left/righthand page...
@@ -3879,6 +3865,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       else if (PageDuplex && !((*page) & 1) &&
                strcasecmp((char *)style, "left") == 0)
 	(*page) ++;
+
+      margins->clear(margins->top(), *page);
 
       // Update the progress as necessary...
       if (Verbosity)
@@ -3936,12 +3924,12 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_TABLE :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
 
-          parse_table(t, *left, *right, *bottom, *top, x, y, page, *needspace);
+          parse_table(t, margins, x, y, page, *needspace);
 	  *needspace = 0;
           break;
 
@@ -3962,88 +3950,84 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_H15 :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
 
 	    *needspace = 1;
           }
 
-          parse_heading(t, *left, *right, *bottom, *top, x, y, page, *needspace);
+          parse_heading(t, margins, x, y, page, *needspace);
 	  *needspace = 1;
           break;
 
       case MARKUP_BLOCKQUOTE :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
 
 	    *needspace = 1;
           }
 
-          *left  += 36;
-	  *right -= 36;
+          margins->adjust_left(36.0f);
+	  margins->adjust_right(-36.0f);
 
-          parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
-	            needspace);
+          parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-          *left  -= 36;
-	  *right += 36;
+          margins->adjust_left(-36.0f);
+	  margins->adjust_right(36.0f);
 
-          *x         = *left;
+          *x         = margins->left();
           *needspace = 1;
           break;
 
       case MARKUP_CENTER :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
 
             *needspace = 1;
           }
 
-          parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
-	            needspace);
+          parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-          *x         = *left;
+          *x         = margins->left();
           *needspace = 1;
           break;
 
       case MARKUP_P :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
 
 	    *needspace = 1;
           }
 
-          parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
-	            needspace);
+          parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-          *x         = *left;
+          *x         = margins->left();
           *needspace = 1;
           break;
 
       case MARKUP_DIV :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
 
-          parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
-	            needspace);
+          parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
@@ -4052,16 +4036,16 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_PRE :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
 
 	    *needspace = 1;
           }
 
-          parse_pre(t, *left, *right, *bottom, *top, x, y, page, *needspace);
+          parse_pre(t, margins, x, y, page, *needspace);
 
-          *x         = *left;
+          *x         = margins->left();
           *needspace = 1;
           break;
 
@@ -4073,7 +4057,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_DL :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
@@ -4081,13 +4065,13 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           if (t->indent == 1)
 	    *needspace = 1;
 
-	  *left += 36.0f;
-          *x    = *left;
+	  margins->adjust_left(36.0f);
 
-          parse_doc(t->child, left, right, bottom, top, x, y, page, para,
-	            needspace);
+          *x = margins->left();
 
-          *left -= 36.0f;
+          parse_doc(t->child, margins, x, y, page, para, needspace);
+
+          margins->adjust_left(-36.0f);
 
           if (t->indent == 1)
 	    *needspace = 1;
@@ -4096,16 +4080,16 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_LI :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
 
 	    *needspace = 0;
           }
 
-          parse_list(t, left, right, bottom, top, x, y, page, *needspace);
+          parse_list(t, margins, x, y, page, *needspace);
 
-          *x         = *left;
+          *x         = margins->left();
           *needspace = t->next && t->next->markup != MARKUP_LI &&
 	               t->next->markup != MARKUP_UL &&
 		       t->next->markup != MARKUP_OL;
@@ -4114,45 +4098,43 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_DT :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
 
 	    *needspace = 0;
           }
 
-	  *left -= 36.0f;
-          *x    = *left;
+	  margins->adjust_left(-36.0f);
+          *x    = margins->left();
 
-          parse_doc(t->child, left, right, bottom, top, x, y, page,
-	            NULL, needspace);
+          parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-	  *left      += 36.0f;
-          *x         = *left;
+	  margins->adjust_left(36.0f);
+          *x         = margins->left();
           *needspace = 0;
           break;
 
       case MARKUP_DD :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
 
 	    *needspace = 0;
           }
 
-          parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
-	            needspace);
+          parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-          *x         = *left;
+          *x         = margins->left();
           *needspace = 0;
           break;
 
       case MARKUP_HR :
           if (para->child != NULL)
           {
-            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
@@ -4164,11 +4146,11 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	    */
 
             if ((name = htmlGetVariable(t, (uchar *)"WIDTH")) == NULL)
-	      width = *right - *left;
+	      width = margins->right() - margins->left();
 	    else
 	    {
 	      if (strchr((char *)name, '%') != NULL)
-	        width = atoi((char *)name) * (*right - *left) / 100;
+	        width = atoi((char *)name) * (margins->right() - margins->left()) / 100;
 	      else
                 width = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
             }
@@ -4181,26 +4163,30 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             switch (t->halignment)
 	    {
 	      case ALIGN_LEFT :
-	          *x = *left;
+	          *x = margins->left();
 		  break;
 	      case ALIGN_CENTER :
-	          *x = *left + (*right - *left - width) * 0.5f;
+	          *x = margins->left() + (margins->right() - margins->left() - width) * 0.5f;
 		  break;
 	      case ALIGN_RIGHT :
-	          *x = *right - width;
+	          *x = margins->right() - width;
 		  break;
 	    }
 
-            if (*y < (*bottom + height + _htmlSpacings[SIZE_P]))
+            if (*y < (margins->bottom() + height + _htmlSpacings[SIZE_P]))
 	    {
 	     /*
 	      * Won't fit on this page...
 	      */
 
               (*page) ++;
+
 	      if (Verbosity)
 	        progress_show("Formatting page %d", *page);
-              *y = *top;
+
+              margins->clear(margins->top(), *page);
+
+              *y = margins->top();
             }
 
             (*y)   -= height + _htmlSpacings[SIZE_P];
@@ -4218,19 +4204,22 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	    */
 
             (*page) ++;
+
 	    if (Verbosity)
 	      progress_show("Formatting page %d", *page);
-            *y = *top;
+
+            margins->clear(margins->top(), *page);
+
+            *y = margins->top();
 	  }
 
-          *x         = *left;
+          *x         = margins->left();
           *needspace = 0;
           break;
 
       case MARKUP_COMMENT :
           // Check comments for commands...
-          parse_comment(t, left, right, bottom, top, x, y, page, para,
-	                *needspace);
+          parse_comment(t, margins, x, y, page, para, *needspace);
           break;
 
       case MARKUP_HEAD : // Ignore document HEAD section
@@ -4280,8 +4269,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
       default :
 	  if (t->child != NULL)
-            parse_doc(t->child, left, right, bottom, top, x, y, page, para,
-	              needspace);
+            parse_doc(t->child, margins, x, y, page, para, needspace);
           break;
     }
 
@@ -4292,8 +4280,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
     {
       // Advance to the next page...
       (*page) ++;
-      *x         = *left;
-      *y         = *top;
+      *x         = margins->left();
+      *y         = margins->top();
       *needspace = 0;
 
       // See if we need to go to the next left/righthand page...
@@ -4303,6 +4291,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       else if (PageDuplex && !((*page) & 1) &&
                strcasecmp((char *)style, "left") == 0)
 	(*page) ++;
+
+      margins->clear(margins->top(), *page);
 
       // Update the progress as necessary...
       if (Verbosity)
@@ -4315,7 +4305,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
   if (para->child != NULL && cpara != para)
   {
-    parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+    parse_paragraph(para, margins, x, y, page, *needspace);
     htmlDeleteTree(para->child);
     para->child = para->last_child = NULL;
     *needspace  = 0;
@@ -4334,32 +4324,33 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
  */
 
 static void
-parse_heading(tree_t *t,	/* I - Tree to parse */
-              float  left,	/* I - Left margin */
-              float  right,	/* I - Printable width */
-              float  bottom,	/* I - Bottom margin */
-              float  top,	/* I - Printable top */
-              float  *x,	/* IO - X position */
-              float  *y,	/* IO - Y position */
-              int    *page,	/* IO - Page # */
-              int    needspace)	/* I - Need whitespace? */
+parse_heading(tree_t   *t,		/* I - Tree to parse */
+              hdMargin *margins,	/* I - Margins */
+              float    *x,		/* IO - X position */
+              float    *y,		/* IO - Y position */
+              int      *page,		/* IO - Page # */
+              int      needspace)	/* I - Need whitespace? */
 {
-  int	*temp;			// Temporary integer array pointer
+  int	*temp;				// Temporary integer array pointer
 
 
-  DEBUG_printf(("parse_heading(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
-                t, left, right, bottom, top, *x, *y, *page, needspace));
+  DEBUG_printf(("parse_heading(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, needspace=%d\n",
+                t, margins->left(), margins->right(), margins->bottom(),
+		margins->top(), *x, *y, *page, needspace));
 
   if (((t->markup - MARKUP_H1) < TocLevels || TocLevels == 0) && !title_page)
     current_heading = t->child;
 
-  if (*y < (5 * _htmlSpacings[SIZE_P] + bottom))
+  if (*y < (5 * _htmlSpacings[SIZE_P] + margins->bottom()))
   {
     (*page) ++;
-    *y = top;
+    *y = margins->top();
+
     if (Verbosity)
       progress_show("Formatting page %d", *page);
   }
+
+  margins->clear(*y, *page);
 
   check_pages(*page);
 
@@ -4425,7 +4416,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
     num_headings ++;
   }
 
-  parse_paragraph(t, left, right, bottom, top, x, y, page, needspace);
+  parse_paragraph(t, margins, x, y, page, needspace);
 
   if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 &&
       OutputType == OUTPUT_BOOK && !title_page)
@@ -4434,7 +4425,9 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
     * Special case - chapter heading for users manual...
     */
 
-    *y = bottom + 0.5f * (top - bottom);
+    *y = 0.5f * (margins->bottom() + margins->top());
+
+    margins->clear(*y, *page);
   }
 }
 
@@ -4445,17 +4438,14 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
  */
 
 static void
-parse_paragraph(tree_t *t,	/* I - Tree to parse */
-        	float  left,	/* I - Left margin */
-        	float  right,	/* I - Printable width */
-        	float  bottom,	/* I - Bottom margin */
-        	float  top,	/* I - Printable top */
-        	float  *x,	/* IO - X position */
-        	float  *y,	/* IO - Y position */
-        	int    *page,	/* IO - Page # */
-        	int    needspace)/* I - Need whitespace? */
+parse_paragraph(tree_t   *t,		/* I - Tree to parse */
+                hdMargin *margins,	/* I - Margins */
+        	float    *x,		/* IO - X position */
+        	float    *y,		/* IO - Y position */
+        	int      *page,		/* IO - Page # */
+        	int      needspace)	/* I - Need whitespace? */
 {
-  int		whitespace;	/* Non-zero if a fragment ends in whitespace */
+  int		whitespace;		/* Non-zero if a fragment ends in whitespace */
   tree_t	*flat,
 		*start,
 		*end,
@@ -4469,7 +4459,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		temp_y,
 		temp_width,
 		temp_height;
-  float		format_width, image_y, image_left, image_right;
+  float		format_width;
   float		char_spacing;
   int		num_chars;
   render_t	*r;
@@ -4488,20 +4478,20 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   int		firstline;
 
 
-  DEBUG_printf(("parse_paragraph(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
-                t, left, right, bottom, top, *x, *y, *page, needspace));
+  DEBUG_printf(("parse_paragraph(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, needspace=%d\n",
+                t, margins->left(), margins->right(), margins->bottom(),
+		margins->top(), *x, *y, *page, needspace));
 
-  flat        = flatten_tree(t->child);
-  image_left  = left;
-  image_right = right;
-  image_y     = 0;
+  flat = flatten_tree(t->child);
 
   if (flat == NULL)
     DEBUG_puts("parse_paragraph: flat == NULL!");
 
   // Add leading whitespace...
-  if (*y < top && needspace)
+  if (*y < margins->top() && needspace)
     *y -= _htmlSpacings[SIZE_P];
+
+  margins->clear(*y, *page);
 
  /*
   * First scan for images with left/right alignment tags...
@@ -4529,10 +4519,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
 	  *y -= atoi((char *)vspace);
 
-        if (*y < (bottom + temp->height + 2 * borderspace))
+        if (*y < (margins->bottom() + temp->height + 2 * borderspace))
         {
 	  (*page) ++;
-	  *y = top;
+	  *y = margins->top();
+
+          margins->clear(*y, *page);
 
 	  if (Verbosity)
 	    progress_show("Formatting page %d", *page);
@@ -4550,25 +4542,25 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  }
 
 	  // Top
-          new_render(*page, RENDER_BOX, image_left, *y - borderspace,
+          new_render(*page, RENDER_BOX, margins->left(), *y - borderspace,
 		     temp->width + 2 * borderspace, borderspace, rgb);
 	  // Left
-          new_render(*page, RENDER_BOX, image_left,
+          new_render(*page, RENDER_BOX, margins->left(),
 	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Right
-          new_render(*page, RENDER_BOX, image_left + temp->width + borderspace,
+          new_render(*page, RENDER_BOX, margins->left() + temp->width + borderspace,
 	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Bottom
-          new_render(*page, RENDER_BOX, image_left,
+          new_render(*page, RENDER_BOX, margins->left(),
 	             *y - temp->height - 2 * borderspace,
                      temp->width + 2 * borderspace, borderspace, rgb);
 	}
 
         *y -= borderspace;
 
-        new_render(*page, RENDER_IMAGE, image_left + borderspace,
+        new_render(*page, RENDER_IMAGE, margins->left() + borderspace,
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
@@ -4588,7 +4580,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      link = (uchar *)file_basename((char *)link);
 	  }
 
-	  new_render(*page, RENDER_LINK, image_left + borderspace,
+	  new_render(*page, RENDER_LINK, margins->left() + borderspace,
 	             *y - temp->height, temp->width, temp->height, link);
         }
 
@@ -4597,14 +4589,13 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         if (vspace != NULL)
 	  *y -= atoi((char *)vspace);
 
-        image_left += temp->width + 2 * borderspace;
-	temp_y     = *y - temp->height;
+	temp_y = *y - temp->height;
 
-	if (temp_y < image_y || image_y == 0)
-	  image_y = temp_y;
+        margins->push(margins->left() + temp->width + 2 * borderspace,
+	              margins->right(), temp_y);
 
         if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
-	  image_left += atoi((char *)hspace);
+	  margins->adjust_left(atoi((char *)hspace));
 
         if (prev != NULL)
           prev->next = temp->next;
@@ -4619,16 +4610,16 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
 	  *y -= atoi((char *)vspace);
 
-        if (*y < (bottom + temp->height + 2 * borderspace))
+        if (*y < (margins->bottom() + temp->height + 2 * borderspace))
         {
 	  (*page) ++;
-	  *y = top;
+	  *y = margins->top();
+
+          margins->clear(*y, *page);
 
 	  if (Verbosity)
 	    progress_show("Formatting page %d", *page);
         }
-
-        image_right -= temp->width + 2 * borderspace;
 
         if (borderspace > 0.0f)
 	{
@@ -4642,24 +4633,28 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  }
 
 	  // Top
-          new_render(*page, RENDER_BOX, image_right, *y - borderspace,
+          new_render(*page, RENDER_BOX,
+	             margins->right() - temp->width - 2 * borderspace,
+	             *y - borderspace,
 		     temp->width + 2 * borderspace, borderspace, rgb);
 	  // Left
-          new_render(*page, RENDER_BOX, image_right,
+          new_render(*page, RENDER_BOX, margins->right() - temp->width - borderspace,
 	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Right
-          new_render(*page, RENDER_BOX, image_right + temp->width + borderspace,
+          new_render(*page, RENDER_BOX, margins->right() - borderspace,
 	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Bottom
-          new_render(*page, RENDER_BOX, image_right, *y - temp->height - 2 * borderspace,
+          new_render(*page, RENDER_BOX,
+	             margins->right() - temp->width - 2 * borderspace,
+		     *y - temp->height - 2 * borderspace,
                      temp->width + 2 * borderspace, borderspace, rgb);
 	}
 
         *y -= borderspace;
 
-        new_render(*page, RENDER_IMAGE, image_right + borderspace,
+        new_render(*page, RENDER_IMAGE, margins->right() + borderspace,
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
@@ -4679,7 +4674,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      link = (uchar *)file_basename((char *)link);
 	  }
 
-	  new_render(*page, RENDER_LINK, image_right + borderspace,
+	  new_render(*page, RENDER_LINK, margins->right() + borderspace,
 	             *y - temp->height, temp->width, temp->height, link);
         }
 
@@ -4690,11 +4685,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
 	temp_y = *y - temp->height;
 
-	if (temp_y < image_y || image_y == 0)
-	  image_y = temp_y;
+        margins->push(margins->left(),
+	              margins->right() - temp->width - 2 * borderspace,
+		      temp_y);
 
         if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
-	  image_right -= atoi((char *)hspace);
+	  margins->adjust_right(-atoi((char *)hspace));
 
         if (prev != NULL)
           prev->next = temp->next;
@@ -4719,7 +4715,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   * Then format the text and inline images...
   */
 
-  format_width = image_right - image_left;
+  format_width = margins->right() - margins->left();
   firstline    = 1;
 
   DEBUG_printf(("format_width = %.1f\n", format_width));
@@ -4874,11 +4870,11 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         spacing = temp_height;
     }
 
-    if (firstline && end != NULL && *y < (bottom + 2.0f * height))
+    if (firstline && end != NULL && *y < (margins->bottom() + 2.0f * height))
     {
       // Go to next page since only 1 line will fit on this one...
       (*page) ++;
-      *y = top;
+      *y = margins->top();
 
       if (Verbosity)
         progress_show("Formatting page %d", *page);
@@ -4911,10 +4907,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     else
       temp = NULL;
 
-    if (*y < (spacing + bottom))
+    if (*y < (spacing + margins->bottom()))
     {
       (*page) ++;
-      *y = top;
+      *y = margins->top();
 
       if (Verbosity)
         progress_show("Formatting page %d", *page);
@@ -4940,19 +4936,19 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     switch (t->halignment)
     {
       case ALIGN_LEFT :
-          linex = image_left;
+          linex = margins->left();
 	  break;
 
       case ALIGN_CENTER :
-          linex = image_left + 0.5f * (format_width - width);
+          linex = margins->left() + 0.5f * (format_width - width);
 	  break;
 
       case ALIGN_RIGHT :
-          linex = image_right - width;
+          linex = margins->right() - width;
 	  break;
 
       case ALIGN_JUSTIFY :
-          linex = image_left;
+          linex = margins->left();
 	  if (flat != NULL && flat->prev->markup != MARKUP_BR && num_chars > 1)
 	    char_spacing = (format_width - width) / (num_chars - 1);
 	  break;
@@ -5034,8 +5030,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             if (temp->data == NULL)
               break;
 
-	    if ((temp->width - right + left) > 0.001 ||
-	        (temp->height - top + bottom) > 0.001)
+	    if ((temp->width - margins->right() + margins->left()) > 0.001 ||
+	        (temp->height - margins->top() + margins->bottom()) > 0.001)
 	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	                     "Text on page %d too large - "
 			     "truncation or overlapping may occur!", *page + 1);
@@ -5084,12 +5080,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    break;
 
 	case MARKUP_IMG :
-	    if ((temp->width - right + left) > 0.001 ||
-	        (temp->height - top + bottom) > 0.001)
+	    if ((temp->width - margins->right() + margins->left()) > 0.001 ||
+	        (temp->height - margins->top() + margins->bottom()) > 0.001)
 	    {
 	      DEBUG_printf(("IMAGE: %.3fx%.3f > %.3fx%.3f\n",
 	                    temp->width, temp->height,
-			    right - left, top - bottom));
+			    margins->right() - margins->left(), margins->top() - margins->bottom()));
 
 	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	                     "Image on page %d too large - "
@@ -5212,17 +5208,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     *y -= spacing - height;
 
-    if (*y < image_y)
-    {
-      image_left   = left;
-      image_right  = right;
-      format_width = image_right - image_left;
-    }
+    margins->clear(*y, *page);
+
+    format_width = margins->width();
   }
 
-  *x = left;
-  if (*y > image_y && image_y > 0.0f)
-    *y = image_y;
+  *x = margins->left();
 
   DEBUG_printf(("LEAVING parse_paragraph(), x = %.1f, y = %.1f, page = %d\n",
                 *x, *y, *page));
@@ -5234,15 +5225,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
  */
 
 static void
-parse_pre(tree_t *t,		/* I - Tree to parse */
-          float  left,		/* I - Left margin */
-          float  right,		/* I - Printable width */
-          float  bottom,	/* I - Bottom margin */
-          float  top,		/* I - Printable top */
-          float  *x,		/* IO - X position */
-          float  *y,		/* IO - Y position */
-          int    *page,		/* IO - Page # */
-          int    needspace)	/* I - Need whitespace? */
+parse_pre(tree_t   *t,			/* I - Tree to parse */
+          hdMargin *margins,		/* I - Margins */
+          float    *x,			/* IO - X position */
+          float    *y,			/* IO - Y position */
+          int      *page,		/* IO - Page # */
+          int      needspace)		/* I - Need whitespace? */
 {
   tree_t	*flat, *start, *next;
   uchar		*link,
@@ -5256,15 +5244,14 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
   render_t	*r;
 
 
-  REF(right);
-
-  DEBUG_printf(("parse_pre(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
-                t, left, right, *x, *y, *page));
+  DEBUG_printf(("parse_pre(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d\n",
+                t, margins->left(), margins->right(), margins->bottom(),
+		margins->top(), *x, *y, *page));
 
   if (t->child == NULL)
     return;
 
-  if (*y < top && needspace)
+  if (*y < margins->top() && needspace)
     *y -= _htmlSpacings[SIZE_P];
 
   flat = flatten_tree(t->child);
@@ -5305,16 +5292,16 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     if (flat)
       flat = flat->next;
 
-    if (*y < (height + bottom))
+    if (*y < (height + margins->bottom()))
     {
       (*page) ++;
-      *y = top;
+      *y = margins->top();
 
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
     }
 
-    *x = left;
+    *x = margins->left();
     *y -= height;
 
     if (Verbosity)
@@ -5427,7 +5414,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
     }
 
-    if ((*x - right) > 0.001)
+    if ((*x - margins->right()) > 0.001)
       progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	             "Preformatted text on page %d too long - "
 		     "truncation or overlapping may occur!", *page + 1);
@@ -5435,7 +5422,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     *y -= _htmlSpacings[t->size] - _htmlSizes[t->size];
   }
 
-  *x = left;
+  *x = margins->left();
 }
 
 
@@ -5452,15 +5439,12 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
  */
 
 static void
-parse_table(tree_t *t,			// I - Tree to parse
-            float  left,		// I - Left margin
-            float  right,		// I - Printable width
-            float  bottom,		// I - Bottom margin
-            float  top,			// I - Printable top
-            float  *x,			// IO - X position
-            float  *y,			// IO - Y position
-            int    *page,		// IO - Page #
-            int    needspace)		// I - Need whitespace?
+parse_table(tree_t   *t,		// I - Tree to parse
+            hdMargin *margins,		// I - Margins
+            float    *x,		// IO - X position
+            float    *y,		// IO - Y position
+            int      *page,		// IO - Page #
+            int      needspace)		// I - Need whitespace?
 {
   int		col,
 		row,
@@ -5501,9 +5485,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 		min_width,
 		temp_width,
 		table_y,
-		row_y, row_starty, temp_y,
-		temp_bottom,
-		temp_top;
+		row_y, row_starty, temp_y;
   int		row_page, temp_page, table_page;
   uchar		*var,
 		*height_var;		// Row HEIGHT variable
@@ -5515,6 +5497,7 @@ parse_table(tree_t *t,			// I - Tree to parse
   int		do_valign;		// True if we should do vertical alignment of cells
   float		row_height,		// Total height of the row
 		temp_height;		// Temporary holder
+  hdMargin	*cell_margins;		// Margins for cell
   int		cell_page[MAX_COLUMNS],	// Start page for cell
 		cell_endpage[MAX_COLUMNS];
 					// End page for cell
@@ -5559,12 +5542,12 @@ parse_table(tree_t *t,			// I - Tree to parse
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
-      table_width = atof((char *)var) * (right - left) / 100.0f;
+      table_width = atof((char *)var) * margins->width() / 100.0f;
     else
       table_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
   }
   else
-    table_width = right - left;
+    table_width = margins->width();
 
   DEBUG_printf(("table_width = %.1f\n", table_width));
 
@@ -5620,8 +5603,8 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   DEBUG_printf(("adjusted table_width = %.1f\n", table_width));
 
-  temp_bottom = bottom - cellpadding;
-  temp_top    = top + cellpadding;
+  margins->adjust_bottom(-cellpadding);
+  margins->adjust_top(cellpadding);
 
   memset(row_spans, 0, sizeof(row_spans));
   memset(span_heights, 0, sizeof(span_heights));
@@ -5641,7 +5624,7 @@ parse_table(tree_t *t,			// I - Tree to parse
         * Show caption at top...
 	*/
 
-        parse_paragraph(temprow, left, right, bottom, top, x, y, page, needspace);
+        parse_paragraph(temprow, margins, x, y, page, needspace);
         needspace = 1;
       }
       else
@@ -5835,7 +5818,7 @@ parse_table(tree_t *t,			// I - Tree to parse
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
-      width = atof((char *)var) * (right - left) / 100.0f;
+      width = atof((char *)var) * margins->width() / 100.0f;
     else
       width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
   }
@@ -5846,8 +5829,8 @@ parse_table(tree_t *t,			// I - Tree to parse
 
     width += (2 * cellpadding + cellspacing) * num_cols - cellspacing;
 
-    if (width > (right - left))
-      width = right - left;
+    if (width > (margins->width()))
+      width = margins->width();
   }
 
  /*
@@ -6095,10 +6078,10 @@ parse_table(tree_t *t,			// I - Tree to parse
       width += col_widths[col] + 2 * cellpadding + cellspacing;
 
     DEBUG_printf(("    new width = %.1f, max width = %.1f\n", width,
-                  right - left));
+                  margins->width()));
   }
 
-  if ((width - right + left) > 0.001f)
+  if ((width - margins->width()) > 0.001f)
     progress_error(HD_ERROR_CONTENT_TOO_LARGE,
                    "Table on page %d too wide - "
 		   "truncation or overlapping may occur!", *page + 1);
@@ -6111,13 +6094,13 @@ parse_table(tree_t *t,			// I - Tree to parse
   switch (t->halignment)
   {
     case ALIGN_LEFT :
-        *x = left + cellpadding;
+        *x = margins->left() + cellpadding;
         break;
     case ALIGN_CENTER :
-        *x = left + 0.5f * (right - left - width) + cellpadding;
+        *x = margins->left() + 0.5f * (margins->width() - width) + cellpadding;
         break;
     case ALIGN_RIGHT :
-        *x = right - width + cellpadding;
+        *x = margins->right() - width + cellpadding;
         break;
   }
 
@@ -6135,8 +6118,10 @@ parse_table(tree_t *t,			// I - Tree to parse
   * Now render the whole table...
   */
 
-  if (*y < top && needspace)
+  if (*y < margins->top() && needspace)
     *y -= _htmlSpacings[SIZE_P];
+
+  margins->clear(*y, *page);
 
   memset(row_spans, 0, sizeof(row_spans));
   memset(cell_start, 0, sizeof(cell_start));
@@ -6159,8 +6144,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 
       if (cells[row][0]->parent->prev != NULL &&
           cells[row][0]->parent->prev->markup == MARKUP_COMMENT)
-        parse_comment(cells[row][0]->parent->prev,
-                      &left, &right, &temp_bottom, &temp_top, x, y,
+        parse_comment(cells[row][0]->parent->prev, margins, x, y,
 		      page, NULL, 0);
 
      /*
@@ -6208,13 +6192,15 @@ parse_table(tree_t *t,			// I - Tree to parse
     DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f\n",
                   row, temp_height, *y));
 
-    if (*y < (bottom + 2 * cellpadding + temp_height) &&
-        temp_height <= (top - bottom - 2 * cellpadding))
+    if (*y < (margins->bottom() + 2 * cellpadding + temp_height) &&
+        temp_height <= (margins->length() - 2 * cellpadding))
     {
       DEBUG_puts("NEW PAGE");
 
-      *y = top;
+      *y = margins->top();
       (*page) ++;
+
+      margins->clear(*y, *page);
 
       if (Verbosity)
         progress_show("Formatting page %d", *page);
@@ -6306,16 +6292,14 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  DEBUG_printf(("    parsing cell %d,%d; width = %.1f\n", row, col,
 	                col_rights[col + colspan] - col_lefts[col]));
 
-          bottom += cellpadding;
-	  top    -= cellpadding;
+          cell_margins = new hdMargin(col_lefts[col], col_rights[col + colspan],
+	                              margins->bottom() + cellpadding,
+				      margins->top() - cellpadding);
 
-          parse_doc(cells[row][col]->child,
-                    col_lefts + col, col_rights + col + colspan,
-                    &bottom, &top,
+          parse_doc(cells[row][col]->child, cell_margins,
                     x, &temp_y, &temp_page, NULL, &tempspace);
 
-          bottom -= cellpadding;
-	  top    += cellpadding;
+          delete cell_margins;
         }
 
         cell_endpage[col] = temp_page;
@@ -6542,22 +6526,22 @@ parse_table(tree_t *t,			// I - Tree to parse
         // Draw background on multiple pages...
 
 	// Bottom of first page...
-        new_render(row_page, RENDER_BOX, border_left, bottom,
-	           width, row_starty - bottom + cellpadding, bgrgb,
+        new_render(row_page, RENDER_BOX, border_left, margins->bottom(),
+	           width, row_starty - margins->bottom() + cellpadding, bgrgb,
 		   pages[row_page].start);
 
         // Intervening pages...
         for (temp_page = row_page + 1; temp_page != *page; temp_page ++)
 	{
-          new_render(temp_page, RENDER_BOX, border_left, bottom,
-                     width, top - bottom, bgrgb, pages[temp_page].start);
+          new_render(temp_page, RENDER_BOX, border_left, margins->bottom(),
+                     width, margins->length(), bgrgb, pages[temp_page].start);
         }
 
         // Top of last page...
 	check_pages(*page);
 
         new_render(*page, RENDER_BOX, border_left, row_y,
-	           width, top - row_y, bgrgb,
+	           width, margins->top() - row_y, bgrgb,
 		   pages[*page].start);
       }
       else
@@ -6618,18 +6602,23 @@ parse_table(tree_t *t,			// I - Tree to parse
                      cell_y[col] + cellpadding,
 		     width + border, border, rgb);
 	  // Left
-          new_render(cell_page[col], RENDER_BOX, border_left, bottom,
-                     border, cell_y[col] - bottom + cellpadding + border, rgb);
+          new_render(cell_page[col], RENDER_BOX, border_left, margins->bottom(),
+                     border,
+		     cell_y[col] - margins->bottom() + cellpadding + border,
+		     rgb);
 	  // Right
           new_render(cell_page[col], RENDER_BOX,
-	             border_left + width, bottom,
-		     border, cell_y[col] - bottom + cellpadding + border, rgb);
+	             border_left + width, margins->bottom(),
+		     border,
+		     cell_y[col] - margins->bottom() + cellpadding + border,
+		     rgb);
         }
 
         if (bgcolor != NULL)
         {
-	  cell_bg[col]->y      = bottom;
-	  cell_bg[col]->height = cell_y[col] - bottom + cellpadding + border;
+	  cell_bg[col]->y      = margins->bottom();
+	  cell_bg[col]->height = cell_y[col] - margins->bottom() +
+	                         cellpadding + border;
 	}
 
         for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
@@ -6642,17 +6631,17 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  if (border > 0.0f)
 	  {
 	    // Left
-            new_render(temp_page, RENDER_BOX, border_left, bottom,
-                       border, top - bottom, rgb);
+            new_render(temp_page, RENDER_BOX, border_left, margins->bottom(),
+                       border, margins->length(), rgb);
 	    // Right
             new_render(temp_page, RENDER_BOX,
-	               border_left + width, bottom,
-		       border, top - bottom, rgb);
+	               border_left + width, margins->bottom(),
+		       border, margins->length(), rgb);
           }
 
 	  if (bgcolor != NULL)
-            new_render(temp_page, RENDER_BOX, border_left, bottom,
-                       width + border, top - bottom, bgrgb,
+            new_render(temp_page, RENDER_BOX, border_left, margins->bottom(),
+                       width + border, margins->length(), bgrgb,
 		       pages[temp_page].start);
         }
 
@@ -6665,11 +6654,11 @@ parse_table(tree_t *t,			// I - Tree to parse
 
 	  // Left
           new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
-                     border, top - row_y, rgb);
+                     border, margins->top() - row_y, rgb);
 	  // Right
           new_render(cell_endpage[col], RENDER_BOX,
 	             border_left + width, row_y,
-                     border, top - row_y, rgb);
+                     border, margins->top() - row_y, rgb);
 	  // Bottom
           new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
                      width + border, border, rgb);
@@ -6680,7 +6669,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  check_pages(cell_endpage[col]);
 
           new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
-	             width + border, top - row_y, bgrgb,
+	             width + border, margins->top() - row_y, bgrgb,
 		     pages[cell_endpage[col]].start);
 	}
       }
@@ -6745,22 +6734,22 @@ parse_table(tree_t *t,			// I - Tree to parse
       // Draw background on multiple pages...
 
       // Bottom of first page...
-      new_render(table_page, RENDER_BOX, border_left, bottom,
-	         width, table_y - bottom + cellpadding, bgrgb,
+      new_render(table_page, RENDER_BOX, border_left, margins->bottom(),
+	         width, table_y - margins->bottom() + cellpadding, bgrgb,
 		 pages[table_page].start);
 
       // Intervening pages...
       for (temp_page = table_page + 1; temp_page != *page; temp_page ++)
       {
-        new_render(temp_page, RENDER_BOX, border_left, bottom,
-                   width, top - bottom, bgrgb, pages[temp_page].start);
+        new_render(temp_page, RENDER_BOX, border_left, margins->bottom(),
+                   width, margins->length(), bgrgb, pages[temp_page].start);
       }
 
       // Top of last page...
       check_pages(*page);
 
       new_render(*page, RENDER_BOX, border_left, *y,
-	         width, top - *y, bgrgb, pages[*page].start);
+	         width, margins->top() - *y, bgrgb, pages[*page].start);
     }
     else
     {
@@ -6770,7 +6759,12 @@ parse_table(tree_t *t,			// I - Tree to parse
     }
   }
 
-  *x = left;
+  margins->adjust_bottom(cellpadding);
+  margins->adjust_top(-cellpadding);
+
+  *x = margins->left();
+
+  margins->clear(*y, *page);
 
   if (caption)
   {
@@ -6778,7 +6772,7 @@ parse_table(tree_t *t,			// I - Tree to parse
     * Show caption at bottom...
     */
 
-    parse_paragraph(caption, left, right, bottom, top, x, y, page, needspace);
+    parse_paragraph(caption, margins, x, y, page, needspace);
     needspace = 1;
   }
 
@@ -12314,5 +12308,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.237 2004/03/05 16:33:10 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.238 2004/03/20 03:52:04 mike Exp $".
  */
