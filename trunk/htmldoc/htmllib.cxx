@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.34 2000/06/29 01:15:57 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.35 2000/06/29 18:26:48 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -237,9 +237,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
              FILE   *fp,	/* I - File pointer */
 	     char   *base)	/* I - Base directory for file */
 {
-  int		ch,		/* Character from file */
-		have_whitespace;/* Non-zero if there was leading whitespace */
-  static uchar	s[10240];	/* String from file */
+  int		ch;		/* Character from file */
   uchar		*ptr,		/* Pointer in string */
 		glyph[16],	/* Glyph name (&#nnn; or &name;) */
 		*glyphptr;	/* Pointer in glyph string */
@@ -255,6 +253,9 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 		*color,		/* Color for FONT tag */
 		*size;		/* Size for FONT tag */
   int		sizeval;	/* Size value from FONT tag */
+  static uchar	s[10240];	/* String from file */
+  static int	have_whitespace = 0;
+  				/* Non-zero if there was leading whitespace */
 
 
 #ifdef DEBUG
@@ -277,8 +278,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
    /*
     * Ignore leading whitespace...
     */
-
-    have_whitespace = 0;
 
     if (parent == NULL || !parent->preformatted)
     {
@@ -553,7 +552,10 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
       ptr = s;
       if (have_whitespace)
+      {
         *ptr++ = ' ';
+	have_whitespace = 0;
+      }
 
       while (!isspace(ch) && ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
       {
@@ -2284,5 +2286,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.34 2000/06/29 01:15:57 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.35 2000/06/29 18:26:48 mike Exp $".
  */
