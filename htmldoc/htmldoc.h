@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.10 2000/01/04 13:52:25 mike Exp $"
+ * "$Id: htmldoc.h,v 1.11 2000/03/08 14:18:29 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -29,7 +29,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <string.h>
 
 #include "html.h"
 #include "image.h"
@@ -229,5 +228,5 @@ extern char	*format_number(int n, char f);
 #  endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.10 2000/01/04 13:52:25 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.11 2000/03/08 14:18:29 mike Exp $".
  */
