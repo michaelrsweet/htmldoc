@@ -5,7 +5,9 @@ basic.html
 color.html
 links.html
 list.html
+lt.html
 table-allspan.html
+table-cellpadding.html
 table-cellspacing.html
 table-colspan.html
 table-complex.html
@@ -16,3 +18,4 @@ table-rowspan.html
 table-simple.html
 table-valign.html
 whitespace.html
+wrap.html
