@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.73 2000/05/08 16:35:30 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.74 2000/05/10 14:43:30 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3390,7 +3390,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
       }
-    
+
       *x = left;
       *y -= _htmlSizes[t->size];
 
@@ -3454,11 +3454,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	       *dataptr != '\0' && lineptr < (line + sizeof(line) - 1);
 	       dataptr ++)
             if (*dataptr == '\n')
-            {
-              col = 0;
-              *y  -= _htmlSpacings[t->size] - _htmlSizes[t->size];
-              break;
-            }
+	      break;
             else if (*dataptr == '\t')
             {
               do
@@ -3491,6 +3487,12 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	               flat->width, 0, rgb);
 
           *x += flat->width;
+
+          if (*dataptr == '\n')
+          {
+            col = 0;
+            *y  -= _htmlSpacings[t->size] - _htmlSizes[t->size];
+          }
           break;
 
       case MARKUP_IMG :
@@ -6797,5 +6799,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.73 2000/05/08 16:35:30 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.74 2000/05/10 14:43:30 mike Exp $".
  */
