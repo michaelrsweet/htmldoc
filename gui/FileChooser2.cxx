@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.4 1999/02/24 02:04:09 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.5 1999/02/24 04:24:35 mike Exp $"
 //
 //   More FileChooser routines for HTMLDOC, an HTML document processing program.
 //
@@ -19,6 +19,7 @@
 #include "FileChooser.h"
 #include <FL/filename.H>
 #include <FL/fl_draw.H>
+#include <ctype.h>
 
 
 //
@@ -88,6 +89,7 @@ FileChooser::value(int f)	// I - File number
   int		count;		// Number of selected files
   const char	*name;		// Current filename
   static char	pathname[1024];	// Filename + directory
+
 
   if (!(type_ & TYPE_MULTI))
   {
@@ -221,16 +223,25 @@ FileChooser::fileNameCB()
 
 
   filename = (char *)fileName->value();
-#if 0
-  if (directory_[0] != '\0')
+
+#if defined(WIN32) || defined(__EMX__)
+  if (directory_[0] != '\0' &&
+      filename[0] != '/' &&
+      filename[0] != '\\' &&
+      !(isalpha(filename[0]) && filename[1] == ':'))
     sprintf(pathname, "%s/%s", directory_, filename);
   else
     strcpy(pathname, filename);
 
-#if defined(WIN32) || defined(__EMX__)
   if ((strlen(pathname) == 2 && pathname[1] == ':') ||
     filename_isdir(pathname))
 #else
+  if (directory_[0] != '\0' &&
+      filename[0] != '/')
+    sprintf(pathname, "%s/%s", directory_, filename);
+  else
+    strcpy(pathname, filename);
+
   if (filename_isdir(pathname))
 #endif /* WIN32 || __EMX__ */
   {
@@ -242,10 +253,6 @@ FileChooser::fileNameCB()
     type_ &= ~TYPE_MULTI;
     window->hide();
   }
-#else
-  strcpy(directory_, filename);
-  fileList->load(filename);
-#endif /* 0 */
 }
 
 
@@ -745,5 +752,5 @@ mix(int c)		// I - Color value
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.4 1999/02/24 02:04:09 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.5 1999/02/24 04:24:35 mike Exp $".
 //
