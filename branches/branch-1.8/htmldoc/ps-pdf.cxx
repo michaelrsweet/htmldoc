@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.105 2001/09/21 19:59:44 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.106 2001/09/25 13:16:24 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3362,8 +3362,17 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	                *needspace);
           break;
 
-      case MARKUP_TITLE :
+      case MARKUP_TITLE : // Ignore title and meta stuff
       case MARKUP_META :
+          break;
+
+      case MARKUP_SCRIPT : // Ignore script stuff
+          break;
+
+      case MARKUP_INPUT : // Ignore form stuff
+      case MARKUP_SELECT :
+      case MARKUP_OPTION :
+      case MARKUP_TEXTAREA :
           break;
 
       case MARKUP_A :
@@ -4697,7 +4706,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   actual_width  = (2 * cellpadding + cellspacing) * num_cols -
                   cellspacing;
-  regular_width = (width - actual_width) / num_cols;
+  regular_width = (table_width - actual_width) / num_cols;
 
   DEBUG_printf(("    width = %.1f, actual_width = %.1f, regular_width = %.1f\n\n",
                 width, actual_width, regular_width));
@@ -4747,7 +4756,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   if (pref_width > 0.0f)
   {
-    if ((regular_width = (width - actual_width) / pref_width) < 0.0f)
+    if ((regular_width = (table_width - actual_width) / pref_width) < 0.0f)
       regular_width = 0.0f;
     else if (regular_width > 1.0f)
       regular_width = 1.0f;
@@ -4763,8 +4772,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
 	if ((actual_width + pref_width) > width)
 	{
-          if (col == (num_cols - 1) && (width - actual_width) >= col_mins[col])
-	    col_widths[col] = width - actual_width;
+          if (col == (num_cols - 1) && (table_width - actual_width) >= col_mins[col])
+	    col_widths[col] = table_width - actual_width;
 	  else
 	    col_widths[col] = col_mins[col];
 	}
@@ -4795,12 +4804,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       for (colspan = 0, span_width = 0.0f; colspan < col_spans[col]; colspan ++)
         span_width += col_widths[col + colspan];
 
-      span_width += (2 * cellpadding + cellspacing) *
-                    (col_spans[col] - 1) - cellspacing;
       pref_width = 0.0f;
-
-      if (span_width < 1.0f)
-        span_width = 1.0f;
 
       if (span_width < col_swidths[col])
         pref_width = col_swidths[col];
@@ -4812,16 +4816,36 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       if (pref_width > 0.0f && pref_width > span_width)
       {
-        // Expand cells proportionately...
-	regular_width = pref_width / span_width;
-
-	for (colspan = 0; colspan < col_spans[col]; colspan ++)
+        if (span_width >= 1.0f)
 	{
-	  actual_width -= col_widths[col + colspan];
-	  col_widths[col + colspan] *= regular_width;
-	  actual_width += col_widths[col + colspan];
+          // Expand cells proportionately...
+	  regular_width = pref_width / span_width;
 
-          DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+	  for (colspan = 0; colspan < col_spans[col]; colspan ++)
+	  {
+	    actual_width -= col_widths[col + colspan];
+	    col_widths[col + colspan] *= regular_width;
+	    actual_width += col_widths[col + colspan];
+
+            DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+	  }
+        }
+	else
+	{
+	  // Divide the space up equally between columns, since the
+	  // colspan area is always by itself... (this hack brought
+	  // to you by Yahoo! and their single cell tables with
+	  // colspan=2 :)
+
+	  regular_width = pref_width / col_spans[col];
+
+	  for (colspan = 0; colspan < col_spans[col]; colspan ++)
+	  {
+	    actual_width += regular_width;
+	    col_widths[col + colspan] += regular_width;
+
+            DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+	  }
 	}
       }
     }
@@ -10050,5 +10074,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.105 2001/09/21 19:59:44 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.106 2001/09/25 13:16:24 mike Exp $".
  */

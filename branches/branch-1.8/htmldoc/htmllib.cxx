@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.34 2001/09/19 20:46:57 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.35 2001/09/25 13:16:23 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1185,13 +1185,10 @@ write_file(tree_t *t,		/* I - Tree entry */
 
 	if (t->vars[i].value == NULL)
           col += fprintf(fp, "%s", t->vars[i].name);
-	else if (strchr((char *)t->vars[i].value, ' ') != NULL ||
-        	 strchr((char *)t->vars[i].value, '\t') != NULL ||
-        	 strchr((char *)t->vars[i].value, '\n') != NULL ||
-        	 strchr((char *)t->vars[i].value, '\r') != NULL)
-          col += fprintf(fp, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
+	else if (strchr((char *)t->vars[i].value, '\"') != NULL)
+          col += fprintf(fp, "%s=\'%s\'", t->vars[i].name, t->vars[i].value);
 	else
-          col += fprintf(fp, "%s=%s", t->vars[i].name, t->vars[i].value);
+          col += fprintf(fp, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
       }
 
       putc('>', fp);
@@ -2637,5 +2634,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.34 2001/09/19 20:46:57 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.35 2001/09/25 13:16:23 mike Exp $".
  */
