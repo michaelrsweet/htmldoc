@@ -1,0 +1,104 @@
+COMPILE.txt - 06/28/2000
+------------------------
+
+REQUIREMENTS
+
+    To compile HTMLDOC you'll need ANSI-compliant C and C++ compilers
+    (gcc is fine, most vendor compilers work, too).  The JPEG, PNG, and
+    ZLIB libraries are provided with HTMLDOC.
+
+    For the GUI support you'll need FLTK 1.0 or higher.  FLTK is a
+    LGPL'd cross-platform GUI toolkit and can be downloaded from:
+
+        http://www.fltk.org
+
+
+COMPILING HTMLDOC UNDER WINDOWS
+
+    For the Windows version we have included Visual C++ workspace and
+    project files under the "visualc" directory.  You will probably
+    have to adjust the locations of the FLTK project file and include
+    directory for your system.  Dependencies are setup so you can just
+    build the HTMLDOC target and all of the support libraries will be
+    compiled as needed.
+
+
+INSTALLING HTMLDOC UNDER WINDOWS
+
+    We highly recommend installing the software using InstallShield.
+    Project files for InstallShield are included in the
+    "visualc/HTMLDOC" subdirectory.
+
+    If you want to install the software by hand, create a directory
+    for the software and copy the HTMLDOC executable, the "afm"
+    directory, the "data" directory, and the "doc" directory to it.
+
+    Then create the following registry entries with REGEDIT:
+
+        HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\doc
+	    = C:/install/dir/doc
+        HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\data
+	    = C:/install/dir	
+
+
+CONFIGURING HTMLDOC UNDER UNIX
+
+    To compile the software under UNIX you just need to run the
+    "configure" script in this directory.  If the FLTK library is in a
+    non-standard location you can specify it using:
+
+        CFLAGS="-I/some/directory"; export CFLAGS
+        CXXFLAGS="-I/some/directory"; export CXXFLAGS
+	LDFLAGS="-L/some/directory/lib"; export LDFLAGS
+
+    for Bourne and Korn shells, and:
+
+        setenv CFLAGS "-I/some/directory"
+        setenv CXXFLAGS "-I/some/directory"
+        setenv LDFLAGS "-L/some/directory/lib"
+
+    for C shell.
+
+    If you aren't using "cc" or "gcc" for your ANSI C compiler, you'll
+    need to set the CC environment variable:
+
+        CC=compiler; export CC
+
+    for Bourne and Korn shells, and:
+
+        setenv CC "compiler"
+
+    for C shell.
+
+    If you aren't using "gcc", "g++", "c++", or "CC" for your C++
+    compiler, you'll also need to set the CXX environment variable:
+
+        CXX=compiler; export CXX
+
+    for Bourne and Korn shells, and:
+
+        setenv CXX "compiler"
+
+    for C shell.
+
+    Once you have set any necessary environment variables, run
+    configure with:
+
+        ./configure
+
+    If you don't want to install HTMLDOC in the default directories
+    (/usr/bin, /usr/man/man1, etc.), use the "--prefix" option when
+    you run the configure script:
+
+        ./configure --prefix=/some/directory
+
+
+COMPILING HTMLDOC UNDER UNIX
+
+    Just run "make" to build the software and generate the
+    documentation.
+
+
+INSTALLING HTMLDOC UNDER UNIX
+
+    Run "make install" to install the software.
