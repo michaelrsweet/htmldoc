@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.182 2002/06/04 16:02:13 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.183 2002/06/05 03:59:36 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -103,7 +103,7 @@
  *   write_string()           - Write a text entity.
  *   write_text()             - Write a text entity.
  *   write_trailer()          - Write the file trailer.
- *   write_truetype()         - Write a font descriptor for a TrueType font.
+ *   write_type1()            - Write an embedded Type 1 font.
  *   encrypt_init()           - Initialize the RC4 encryption context for
  *                              the current object.
  *   flate_open_stream()      - Open a deflated output stream.
@@ -441,8 +441,8 @@ static void	write_imagemask(FILE *out, render_t *r);
 static void	write_string(FILE *out, uchar *s, int compress);
 static void	write_text(FILE *out, render_t *r);
 static void	write_trailer(FILE *out, int pages);
-static int	write_truetype(FILE *out, typeface_t typeface,
-			       style_t style);
+static int	write_type1(FILE *out, typeface_t typeface,
+			    style_t style);
 
 
 /*
@@ -10082,20 +10082,6 @@ write_prolog(FILE  *out,	/* I - Output file */
 		  0x2e, 0x2e, 0x00, 0xb6, 0xd0, 0x68, 0x3e, 0x80,
 		  0x2f, 0x0c, 0xa9, 0xfe, 0x64, 0x53, 0x69, 0x7a
 		};
-  static const char *typefaces[] =
-		{		/* TrueType typefaces... */
-		  "Courier",
-		  "TimesNewRoman",
-		  "Arial",
-		  "Symbol"
-		};
-  static const char *styles[] =
-		{		/* TrueType styles... */
-		  "",
-		  ",Bold",
-		  ",Italic",
-		  ",BoldItalic"
-		};
 
 
  /*
@@ -10314,7 +10300,12 @@ write_prolog(FILE  *out,	/* I - Output file */
       fprintf(out, "%%%%Pages: %d\n", page_count);
     else
       fputs("%%Pages: (atend)\n", out);
-    fputs("%%DocumentNeededResources:\n", out);
+
+    if (EmbedFonts)
+      fputs("%%DocumentProvidedResources:\n", out);
+    else
+      fputs("%%DocumentNeededResources:\n", out);
+
     for (i = 0; i < 4; i ++)
       for (j = 0; j < 4; j ++)
         if (fonts_used[i][j])
@@ -10323,6 +10314,18 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("%%EndComments\n", out);
 
     fputs("%%BeginProlog\n", out);
+
+   /*
+    * Embed fonts?
+    */
+
+    if (EmbedFonts)
+    {
+      for (i = 0; i < 4; i ++)
+	for (j = 0; j < 4; j ++)
+          if (fonts_used[i][j])
+	    write_type1(out, (typeface_t)i, (style_t)j);
+    }
 
    /*
     * Procedures used throughout the document...
@@ -10738,16 +10741,17 @@ write_prolog(FILE  *out,	/* I - Output file */
     pdf_end_object(out);
 
     memset(font_desc, 0, sizeof(font_desc));
-    if (TrueType)
+
+    if (EmbedFonts)
     {
      /*
-      * Build font descriptors for the TrueType fonts...
+      * Build font descriptors for the EmbedFonts fonts...
       */
 
       for (i = 0; i < 4; i ++)
 	for (j = 0; j < 4; j ++)
           if (fonts_used[i][j])
-	    font_desc[i][j] = write_truetype(out, (typeface_t )i, (style_t)j);
+	    font_desc[i][j] = write_type1(out, (typeface_t )i, (style_t)j);
     }
 
     for (i = 0; i < 4; i ++)
@@ -10757,25 +10761,21 @@ write_prolog(FILE  *out,	/* I - Output file */
 	  font_objects[i * 4 + j] = pdf_start_object(out);
 
 	  fputs("/Type/Font", out);
+	  fputs("/Subtype/Type1", out);
+	  fprintf(out, "/BaseFont/%s", _htmlFonts[i][j]);
 
           if (font_desc[i][j])
 	  {
-	    // Use TrueType font...
-	    fputs("/Subtype/TrueType", out);
-	    fprintf(out, "/BaseFont/%s%s", typefaces[i], styles[j]);
+	    // Embed Type1 font...
 	    fputs("/FirstChar 0", out);
 	    fputs("/LastChar 255", out);
 	    fprintf(out, "/Widths %d 0 R", font_desc[i][j] + 1);
 	    fprintf(out, "/FontDescriptor %d 0 R", font_desc[i][j]);
 	  }
-	  else
-	  {
-	    // Use Type1 font...
-	    fputs("/Subtype/Type1", out);
-	    fprintf(out, "/BaseFont/%s", _htmlFonts[i][j]);
-          }
+
 	  if (i < 3) /* Use native encoding for symbols */
 	    fprintf(out, "/Encoding %d 0 R", encoding_object);
+
           pdf_end_object(out);
         }
   }
@@ -11127,20 +11127,22 @@ write_trailer(FILE *out,	/* I - Output file */
 
 
 /*
- * 'write_truetype()' - Write a font descriptor for a TrueType font.
+ * 'write_type1()' - Write an embedded Type 1 font.
  */
 
 static int				/* O - Object number */
-write_truetype(FILE       *out,		/* I - File to write to */
-               typeface_t typeface,	/* I - Typeface */
-	       style_t    style)	/* I - Style */
+write_type1(FILE       *out,		/* I - File to write to */
+            typeface_t typeface,	/* I - Typeface */
+	    style_t    style)		/* I - Style */
 {
-  char	filename[1024];			/* AFM filename */
-  FILE	*fp;				/* AFM file */
+  char	filename[1024];			/* PFA filename */
+  FILE	*fp;				/* PFA file */
   int	ch;				/* Character value */
   int	width;				/* Width value */
   char	glyph[64];			/* Glyph name */
-  char	line[1024];			/* Line from AFM file */
+  char	line[1024],			/* Line from AFM file */
+	*lineptr,			/* Pointer into line */
+	*dataptr;			/* Pointer for data */
   int	ascent,				/* Ascent above baseline */
 	cap_height,			/* Ascent of CAPITALS */
 	x_height,			/* Ascent of lowercase */
@@ -11148,15 +11150,18 @@ write_truetype(FILE       *out,		/* I - File to write to */
 	bbox[4],			/* Bounding box */
 	italic_angle;			/* Angle for italics */
   int	widths[256];			/* Character widths */
-  static const char *typefaces[] =	/* TrueType typefaces... */
+  int	length1,			/* Length1 value for font */
+	length2,			/* Length2 value for font */
+	length3;			/* Length3 value for font */
+  static const char *typefaces[] =	/* Typeface names... */
   		{
 		  "Courier",
-		  "TimesNewRoman",
-		  "Arial",
+		  "Times",
+		  "Helvetica",
 		  "Symbol"
 		};
   static const char *styles[] =
-		{			/* TrueType styles... */
+		{			/* Style names... */
 		  "",
 		  "-Bold",
 		  "-Italic",
@@ -11164,9 +11169,9 @@ write_truetype(FILE       *out,		/* I - File to write to */
 		};
   static int	tflags[] =		/* Typeface flags */
 		{
-		  33,			/* Courier/CourierNew */
-		  34,			/* Times-Roman/TimesNewRoman */
-		  32,			/* Helvetica/Arial */
+		  33,			/* Courier */
+		  34,			/* Times-Roman */
+		  32,			/* Helvetica */
 		  4			/* Symbol */
 		};
   static int	sflags[] =		/* Style flags */
@@ -11179,128 +11184,247 @@ write_truetype(FILE       *out,		/* I - File to write to */
 
 
  /*
-  * This function writes font descriptor and width objects so that a
-  * TrueType font can be used in place of a Type1 font.  This is useful
+  * This function writes a Type1 font, either as an object for PDF
+  * output or as an in-line font in PostScript output.  This is useful
   * because the Type1 fonts that Adobe ships typically do not include
-  * the full set of characters, but the TrueType fonts shipped with
-  * Windows do.
-  *
-  * Under UNIX a reasonable substitution is performed (usually back to
-  * the original Type1 fonts...
+  * the full set of characters required by some of the ISO character
+  * sets.
   */
 
  /*
-  * Try to open the AFM file for the Type1 font...
+  * Try to open the PFA file for the Type1 font...
   */
 
-  snprintf(filename, sizeof(filename), "%s/afm/%s", _htmlData,
+  snprintf(filename, sizeof(filename), "%s/fonts/%s.pfa", _htmlData,
            _htmlFonts[typeface][style]);
   if ((fp = fopen(filename, "r")) == NULL)
   {
 #ifndef DEBUG
     progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to open font width file %s!", _htmlFonts[typeface][style]);
+                   "Unable to open font file %s!", filename);
 #endif /* !DEBUG */
     return (0);
   }
 
  /*
-  * Set the default values (Courier)...
+  * Write the font (object)...
   */
 
-  for (ch = 0; ch < 256; ch ++)
-    widths[ch] = 600;
-
-  ascent       = 629;
-  cap_height   = 562;
-  x_height     = 426;
-  descent      = -157;
-  bbox[0]      = -28;
-  bbox[1]      = -250;
-  bbox[2]      = 628;
-  bbox[3]      = 805;
-  italic_angle = 0;
-
- /*
-  * Read the AFM file...
-  */
-
-  while (fgets(line, sizeof(line), fp) != NULL)
+  if (PSLevel)
   {
-    if (strncmp(line, "ItalicAngle ", 12) == 0)
-      italic_angle = atoi(line + 12);
-    else if (strncmp(line, "FontBBox ", 9) == 0)
-      sscanf(line + 9, "%d%d%d%d", bbox + 0, bbox + 1, bbox + 2, bbox + 3);
-    else if (strncmp(line, "CapHeight ", 10) == 0)
-      cap_height = atoi(line + 10);
-    else if (strncmp(line, "XHeight ", 8) == 0)
-      x_height = atoi(line + 8);
-    else if (strncmp(line, "Ascender ", 9) == 0)
-      ascent = atoi(line + 9);
-    else if (strncmp(line, "Descender ", 10) == 0)
-      descent = atoi(line + 10);
-    else if (strncmp(line, "C ", 2) == 0)
+   /*
+    * Embed a Type1 font in the PostScript output...
+    */
+
+    fprintf(out, "%%%%BeginResource: font %s\n", _htmlFonts[typeface][style]);
+
+    line[0] = '\0';
+
+    while (fgets(line, sizeof(line), fp) != NULL)
+      fputs(line, out);
+
+    if (line[strlen(line) - 1] != '\n')
+      fputs("\n", out);
+
+    fputs("%%EndResource\n", out);
+
+    fclose(fp);
+  }
+  else
+  {
+   /*
+    * Embed a Type1 font object in the PDF output...
+    */
+
+    length1 = 0;
+    length2 = 0;
+    length3 = 0;
+
+    while (fgets(line, sizeof(line), fp) != NULL)
     {
-      if (typeface < TYPE_SYMBOL)
+      length1 += strlen(line);
+      if (strstr(line, "currentfile eexec") != NULL)
+        break;
+    }
+
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      if (strlen(line) == 65)
+        break;
+
+      length2 += (strlen(line) - 1) / 2;
+    }
+
+    length3 = strlen(line);
+    while (fgets(line, sizeof(line), fp) != NULL)
+      length3 += strlen(line);
+
+    rewind(fp);
+
+    pdf_start_object(out);
+    fprintf(out, "/Length1 %d", length1);
+    fprintf(out, "/Length2 %d", length2);
+    fprintf(out, "/Length3 %d", length3);
+    if (Compression)
+      fputs("/Filter/FlateDecode", out);
+    pdf_start_stream(out);
+    flate_open_stream(out);
+
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      flate_puts(line, out);
+
+      if (strstr(line, "currentfile eexec") != NULL)
+        break;
+    }
+
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      if (strlen(line) == 65)
+        break;
+
+      for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
       {
-       /*
-	* Handle encoding of Courier, Times, and Helvetica using
-	* assigned charset...
-	*/
+        if (isdigit(lineptr[0]))
+	  ch = (lineptr[0] - '0') << 4;
+	else
+	  ch = (lineptr[0] - 'a' + 10) << 4;
 
-	if (sscanf(line, "%*s%*s%*s%*s%d%*s%*s%s", &width, glyph) != 2)
-	  continue;
+        if (isdigit(lineptr[1]))
+	  ch |= lineptr[1] - '0';
+	else
+	  ch |= lineptr[1] - 'a' + 10;
 
-	for (ch = 0; ch < 256; ch ++)
-	  if (_htmlGlyphs[ch] && strcmp(_htmlGlyphs[ch], glyph) == 0)
-	    break;
-
-	if (ch < 256)
-	  widths[ch] = width;
+        *dataptr++ = ch;
       }
-      else
+
+      flate_write(out, (uchar *)line, dataptr - line);
+    }
+
+    flate_puts(line, out);
+    while (fgets(line, sizeof(line), fp) != NULL)
+      flate_puts(line, out);
+
+    flate_close_stream(out);
+
+    pdf_end_object(out);
+
+    fclose(fp);
+
+   /*
+    * Try to open the AFM file for the Type1 font...
+    */
+
+    snprintf(filename, sizeof(filename), "%s/fonts/%s.afm", _htmlData,
+             _htmlFonts[typeface][style]);
+    if ((fp = fopen(filename, "r")) == NULL)
+    {
+  #ifndef DEBUG
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open font width file %s!", filename);
+  #endif /* !DEBUG */
+      return (0);
+    }
+
+   /*
+    * Set the default values (Courier)...
+    */
+
+    for (ch = 0; ch < 256; ch ++)
+      widths[ch] = 600;
+
+    ascent       = 629;
+    cap_height   = 562;
+    x_height     = 426;
+    descent      = -157;
+    bbox[0]      = -28;
+    bbox[1]      = -250;
+    bbox[2]      = 628;
+    bbox[3]      = 805;
+    italic_angle = 0;
+
+   /*
+    * Read the AFM file...
+    */
+
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      if (strncmp(line, "ItalicAngle ", 12) == 0)
+	italic_angle = atoi(line + 12);
+      else if (strncmp(line, "FontBBox ", 9) == 0)
+	sscanf(line + 9, "%d%d%d%d", bbox + 0, bbox + 1, bbox + 2, bbox + 3);
+      else if (strncmp(line, "CapHeight ", 10) == 0)
+	cap_height = atoi(line + 10);
+      else if (strncmp(line, "XHeight ", 8) == 0)
+	x_height = atoi(line + 8);
+      else if (strncmp(line, "Ascender ", 9) == 0)
+	ascent = atoi(line + 9);
+      else if (strncmp(line, "Descender ", 10) == 0)
+	descent = atoi(line + 10);
+      else if (strncmp(line, "C ", 2) == 0)
       {
-       /*
-	* Symbol font uses its own encoding...
-	*/
+	if (typeface < TYPE_SYMBOL)
+	{
+	 /*
+	  * Handle encoding of Courier, Times, and Helvetica using
+	  * assigned charset...
+	  */
 
-	if (sscanf(line, "%*s%d%*s%*s%d", &ch, &width) != 2)
-	  continue;
+	  if (sscanf(line, "%*s%*s%*s%*s%d%*s%*s%s", &width, glyph) != 2)
+	    continue;
 
-	if (ch < 256)
-	  widths[ch] = width;
+	  for (ch = 0; ch < 256; ch ++)
+	    if (_htmlGlyphs[ch] && strcmp(_htmlGlyphs[ch], glyph) == 0)
+	      break;
+
+	  if (ch < 256)
+	    widths[ch] = width;
+	}
+	else
+	{
+	 /*
+	  * Symbol font uses its own encoding...
+	  */
+
+	  if (sscanf(line, "%*s%d%*s%*s%d", &ch, &width) != 2)
+	    continue;
+
+	  if (ch < 256)
+	    widths[ch] = width;
+	}
       }
     }
+
+    fclose(fp);
+
+   /*
+    * Write the font descriptor...
+    */
+
+    pdf_start_object(out);
+    fputs("/Type/FontDescriptor", out);
+    fprintf(out, "/Ascent %d", ascent);
+    fprintf(out, "/Descent %d", descent);
+    fprintf(out, "/CapHeight %d", cap_height);
+    fprintf(out, "/XHeight %d", x_height);
+    fprintf(out, "/FontBBox[%d %d %d %d]", bbox[0], bbox[1], bbox[2], bbox[3]);
+    fprintf(out, "/ItalicAngle %d", italic_angle);
+    fprintf(out, "/StemV %d", widths['v']);
+    fprintf(out, "/Flags %d", tflags[typeface] | sflags[style]);
+    fprintf(out, "/FontName/%s%s", typefaces[typeface], styles[style]);
+    fprintf(out, "/FontFile %d 0 R", num_objects - 1);
+    pdf_end_object(out);
+
+   /*
+    * Write the character widths...
+    */
+
+    pdf_start_object(out, 1);
+    fprintf(out, "%d", widths[0]);
+    for (ch = 1; ch < 256; ch ++)
+      fprintf(out, " %d", widths[ch]);
+    pdf_end_object(out);
   }
-
-  fclose(fp);
-
- /*
-  * Write the font descriptor...
-  */
-
-  pdf_start_object(out);
-  fputs("/Type/FontDescriptor", out);
-  fprintf(out, "/Ascent %d", ascent);
-  fprintf(out, "/Descent %d", descent);
-  fprintf(out, "/CapHeight %d", cap_height);
-  fprintf(out, "/XHeight %d", x_height);
-  fprintf(out, "/FontBBox[%d %d %d %d]", bbox[0], bbox[1], bbox[2], bbox[3]);
-  fprintf(out, "/ItalicAngle %d", italic_angle);
-  fprintf(out, "/StemV %d", widths['v']);
-  fprintf(out, "/Flags %d", tflags[typeface] | sflags[style]);
-  fprintf(out, "/FontName/%s%s", typefaces[typeface], styles[style]);
-  pdf_end_object(out);
-
- /*
-  * Write the character widths...
-  */
-
-  pdf_start_object(out, 1);
-  fprintf(out, "%d", widths[0]);
-  for (ch = 1; ch < 256; ch ++)
-    fprintf(out, " %d", widths[ch]);
-  pdf_end_object(out);
 
  /*
   * Return the font descriptor...
@@ -11533,5 +11657,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.182 2002/06/04 16:02:13 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.183 2002/06/05 03:59:36 mike Exp $".
  */

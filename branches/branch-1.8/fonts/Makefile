@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.1 2002/02/17 14:18:58 mike Exp $"
+# "$Id: Makefile,v 1.1.2.1 2002/06/05 03:59:28 mike Exp $"
 #
 #   Makefile for HTMLDOC font files.
 #
@@ -92,5 +92,5 @@ clean:
 
 
 #
-# End of "$Id: Makefile,v 1.1 2002/02/17 14:18:58 mike Exp $".
+# End of "$Id: Makefile,v 1.1.2.1 2002/06/05 03:59:28 mike Exp $".
 #

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.57 2002/05/31 20:41:43 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.58 2002/06/05 03:59:35 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2075,13 +2075,13 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
       for (ch = 0; ch < 256; ch ++)
         _htmlWidths[i][j][ch] = 0.6f;
 
-      snprintf(filename, sizeof(filename), "%s/afm/%s", _htmlData,
+      snprintf(filename, sizeof(filename), "%s/fonts/%s.afm", _htmlData,
                _htmlFonts[i][j]);
       if ((fp = fopen(filename, "r")) == NULL)
       {
 #ifndef DEBUG
         progress_error(HD_ERROR_FILE_NOT_FOUND,
-                       "Unable to open font width file %s!", _htmlFonts[i][j]);
+                       "Unable to open font width file %s!", filename);
 #endif /* !DEBUG */
         continue;
       }
@@ -2810,5 +2810,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.57 2002/05/31 20:41:43 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.58 2002/06/05 03:59:35 mike Exp $".
  */

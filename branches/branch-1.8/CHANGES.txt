@@ -1,4 +1,4 @@
-CHANGES.txt - 06/03/2002
+CHANGES.txt - 06/05/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.20
@@ -10,6 +10,8 @@ CHANGES IN HTMLDOC v1.8.20
 	- HTMLDOC now logs HTML errors.
 	- HTMLDOC now supports the A3, B, Legal, and Tabloid
 	  size names.
+	- HTMLDOC now supports embedding of the base Type1 fonts
+	  in PostScript and PDF output.
 
     CHANGES
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.44 2002/06/04 15:15:05 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.45 2002/06/05 03:59:31 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -300,6 +300,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+    else if (compare_strings(argv[i], "--embedfonts", 4) == 0)
+      EmbedFonts = 1;
     else if (compare_strings(argv[i], "--encryption", 4) == 0)
       Encryption = 1;
     else if (compare_strings(argv[i], "--firstpage", 4) == 0)
@@ -595,7 +597,9 @@ main(int  argc,		/* I - Number of command-line arguments */
       Compression = 0;
     else if (compare_strings(argv[i], "--no-duplex", 4) == 0)
       PageDuplex = 0;
-    else if (compare_strings(argv[i], "--no-encryption", 6) == 0)
+    else if (compare_strings(argv[i], "--no-embedfonts", 7) == 0)
+      EmbedFonts = 0;
+    else if (compare_strings(argv[i], "--no-encryption", 7) == 0)
       Encryption = 0;
     else if (compare_strings(argv[i], "--no-jpeg", 6) == 0)
       OutputJPEG = 0;
@@ -614,7 +618,10 @@ main(int  argc,		/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--no-toc", 7) == 0)
       TocLevels = 0;
     else if (compare_strings(argv[i], "--no-truetype", 7) == 0)
-      TrueType = 0;
+    {
+      fputs("htmldoc: Warning, --no-truetype option superceded by --no-embedfonts!\n", stderr);
+      EmbedFonts = 0;
+    }
     else if (compare_strings(argv[i], "--no-xrxcomments", 6) == 0)
       XRXComments = 0;
     else if (compare_strings(argv[i], "--numbered", 5) == 0)
@@ -890,7 +897,11 @@ main(int  argc,		/* I - Number of command-line arguments */
         usage();
     }
     else if (compare_strings(argv[i], "--truetype", 4) == 0)
-      TrueType = 1;
+    {
+      fputs("htmldoc: Warning, --truetype option superceded by --embedfonts!\n", stderr);
+
+      EmbedFonts = 1;
+    }
     else if (compare_strings(argv[i], "--verbose", 6) == 0 ||
              strcmp(argv[i], "-v") == 0)
     {
@@ -1273,7 +1284,9 @@ prefs_load(void)
       else if (strncasecmp(line, "LINKS=", 6) == 0)
         Links = atoi(line + 6);
       else if (strncasecmp(line, "TRUETYPE=", 9) == 0)
-        TrueType = atoi(line + 9);
+        EmbedFonts = atoi(line + 9);
+      else if (strncasecmp(line, "EMBEDFONTS=", 11) == 0)
+        EmbedFonts = atoi(line + 11);
       else if (strncasecmp(line, "PATH=", 5) == 0)
       {
 	strncpy(Path, line + 5, sizeof(Path) - 1);
@@ -1394,7 +1407,7 @@ prefs_save(void)
     fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
     fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
     fprintf(fp, "LINKS=%d\n", Links);
-    fprintf(fp, "TRUETYPE=%d\n", TrueType);
+    fprintf(fp, "EMBEDFONTS=%d\n", EmbedFonts);
     fprintf(fp, "PATH=%s\n", Path);
     fprintf(fp, "PROXY=%s\n", Proxy);
     fprintf(fp, "STRICTHTML=%d\n", StrictHTML);
@@ -1580,14 +1593,16 @@ parse_options(const char   *line,	// I - Options from book file
       Links = 0;
       continue;
     }
-    else if (strcmp(temp, "--truetype") == 0)
+    else if (strcmp(temp, "--embedfonts") == 0 ||
+             strcmp(temp, "--truetype") == 0)
     {
-      TrueType = 1;
+      EmbedFonts = 1;
       continue;
     }
-    else if (strcmp(temp, "--no-truetype") == 0)
+    else if (strcmp(temp, "--no-embedfonts") == 0 ||
+             strcmp(temp, "--no-truetype") == 0)
     {
-      TrueType = 0;
+      EmbedFonts = 0;
       continue;
     }
     else if (strcmp(temp, "--pscommands") == 0)
@@ -2238,5 +2253,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.44 2002/06/04 15:15:05 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.45 2002/06/05 03:59:31 mike Exp $".
  */

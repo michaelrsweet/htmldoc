@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.12 2002/03/29 17:58:03 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.13 2002/06/05 03:59:25 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.19" "14 March 2002" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.20" "5 June 2002" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -110,6 +110,11 @@ Specifies that the output should be formatted for double-sided printing.
 --effectduration \fI{ 0.1..10.0 }\fR
 .br
 Specifies the duration in seconds of PDF page transition effects.
+
+.TP 5
+--embedfonts
+.br
+Specifies that fonts should be embedded in PDF and PostScript output.
 
 .TP 5
 --encryption
@@ -225,6 +230,11 @@ Disables compression of PostScript or PDF files.
 Disables double-sided printing.
 
 .TP 5
+--no-embedfonts
+.br
+Specifies that fonts should not be embedded in PDF and PostScript output.
+
+.TP 5
 --no-encryption
 .br
 Disables document encryption.
@@ -258,11 +268,6 @@ Disables generation of a title page.
 --no-toc
 .br
 Disables generation of a table of contents.
-
-.TP 5
---no-truetype
-.br
-Disables use of TrueType fonts in PDF output.
 
 .TP 5
 --numbered
@@ -514,7 +519,7 @@ T
 current time
 
 .SH SEE ALSO
-HTMLDOC 1.8.19 Software Users Manual
+HTMLDOC 1.8.20 Software Users Manual
 .LP
 http://www.easysw.com/htmldoc
 .SH AUTHOR
@@ -537,5 +542,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.12 2002/03/29 17:58:03 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.13 2002/06/05 03:59:25 mike Exp $".
 .\"

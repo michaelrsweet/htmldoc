@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.51 2002/06/04 15:15:03 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.52 2002/06/05 03:59:29 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -717,6 +717,15 @@ GUI::GUI(const char *filename)		// Book file to load initially
   charset->callback((Fl_Callback *)changeCB, this);
   _tooltip(charset, "Choose the encoding of text.");
 
+  group = new Fl_Group(140, 260, 350, 25, "Options: ");
+  group->align(FL_ALIGN_LEFT);
+
+    embedFonts = new CheckButton(140, 260, 110, 25, "Embed Fonts");
+    embedFonts->callback((Fl_Callback *)changeCB, this);
+    _tooltip(embedFonts, "Check to embed fonts in the output file.");
+
+  group->end();
+
   fontsTab->end();
 
   //
@@ -835,10 +844,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
     links = new CheckButton(140, 260, 110, 25, "Include Links");
     links->callback((Fl_Callback *)changeCB, this);
     _tooltip(links, "Check to include hyperlinks in the output file.");
-
-    truetype = new CheckButton(250, 260, 210, 25, "Use TrueType Fonts");
-    truetype->callback((Fl_Callback *)changeCB, this);
-    _tooltip(truetype, "Check to use TrueType fonts in the output file instead of Type1 fonts.");
 
   group->end();
 
@@ -1329,7 +1334,7 @@ GUI::loadSettings()
   PDFPageDuration   = pageDuration->value();
   PDFEffectDuration = effectDuration->value();
   Links             = links->value();
-  TrueType          = truetype->value();
+  EmbedFonts        = embedFonts->value();
 
   Encryption  = encryptionYes->value();
   Permissions = -64;
@@ -1564,7 +1569,7 @@ GUI::newBook(void)
   effectDuration->value(PDFEffectDuration);
 
   links->value(Links);
-  truetype->value(TrueType);
+  embedFonts->value(EmbedFonts);
 
   securityTab->deactivate();
 
@@ -1827,14 +1832,16 @@ GUI::parseOptions(const char *line)	// I - Line from file
       links->clear();
       continue;
     }
-    else if (strcmp(temp, "--truetype") == 0)
+    else if (strcmp(temp, "--truetype") == 0 ||
+             strcmp(temp, "--embedfonts") == 0)
     {
-      truetype->set();
+      embedFonts->set();
       continue;
     }
-    else if (strcmp(temp, "--no-truetype") == 0)
+    else if (strcmp(temp, "--no-truetype") == 0 ||
+             strcmp(temp, "--no-embedfonts") == 0)
     {
-      truetype->clear();
+      embedFonts->clear();
       continue;
     }
     else if (strcmp(temp, "--pscommands") == 0)
@@ -2435,10 +2442,10 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     else
       fputs(" --no-links", fp);
 
-    if (truetype->value())
-      fputs(" --truetype", fp);
+    if (embedFonts->value())
+      fputs(" --embedfonts", fp);
     else
-      fputs(" --no-truetype", fp);
+      fputs(" --no-embedfonts", fp);
 
     fprintf(fp, " --pagemode %s", PDFModes[pageMode->value()]);
     fprintf(fp, " --pagelayout %s", PDFLayouts[pageLayout->value()]);
@@ -3440,7 +3447,7 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->psCommands->color2(FL_RED);
     gui->xrxComments->color2(FL_RED);
     gui->links->color2(FL_RED);
-    gui->truetype->color2(FL_RED);
+    gui->embedFonts->color2(FL_RED);
     gui->permPrint->color2(FL_RED);
     gui->permModify->color2(FL_RED);
     gui->permCopy->color2(FL_RED);
@@ -3463,7 +3470,7 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->psCommands->color2(FL_BLACK);
     gui->xrxComments->color2(FL_BLACK);
     gui->links->color2(FL_BLACK);
-    gui->truetype->color2(FL_BLACK);
+    gui->embedFonts->color2(FL_BLACK);
     gui->permPrint->color2(FL_BLACK);
     gui->permModify->color2(FL_BLACK);
     gui->permCopy->color2(FL_BLACK);
@@ -4036,5 +4043,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.51 2002/06/04 15:15:03 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.52 2002/06/05 03:59:29 mike Exp $".
 //
