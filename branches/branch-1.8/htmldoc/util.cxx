@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.10 2002/01/28 00:52:46 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.11 2002/05/07 23:30:49 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -27,6 +27,7 @@
  *                       or letters.
  *   get_color()       - Get a standard color value...
  *   get_format()      - Convert an old "fff" format string to the new format.
+ *   get_fmt()         - Convert a new format string to the old "fff" format.
  *   get_measurement() - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
  *   set_page_size()   - Set the output page size.
@@ -307,7 +308,7 @@ get_format(const char *fmt,		// I - Old "fff" format
 
 
 //
-// 'get_format()' - Convert an old "fff" format string to the new format.
+// 'get_fmt()' - Convert a new format string to the old "fff" format.
 //
 
 extern const char *			// O - Old format string
@@ -466,5 +467,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.10 2002/01/28 00:52:46 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.11 2002/05/07 23:30:49 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.19 2002/05/07 20:40:55 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.20 2002/05/07 23:30:45 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -226,6 +226,7 @@ class GUI
   Fl_Browser	*error_list;
   Fl_Button	*error_ok;
 
+  void		loadSettings();
   void		title(const char *filename = NULL, int changed = 0);
 
   static void	changeCB(Fl_Widget *w, GUI *gui);
@@ -298,5 +299,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.19 2002/05/07 20:40:55 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.20 2002/05/07 23:30:45 mike Exp $".
  */
