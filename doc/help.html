@@ -3,15 +3,8 @@
 	<TITLE>HTMLDOC On-Line Help</TITLE>
 	<STYLE>
 	BODY { font-family: serif }
-	H1 { font-family: sans-serif }
-	H2 { font-family: sans-serif }
-	H3 { font-family: sans-serif }
-	H4 { font-family: sans-serif }
-	H5 { font-family: sans-serif }
-	H6 { font-family: sans-serif }
-	SUP { font-size: smaller }
-	SUB { font-size: smaller }
-	PRE { font-size: smaller }
+	H1, H2, H3, H4, H5, H6 { font-family: sans-serif }
+	SUP, SUB, PRE { font-size: smaller }
 	</STYLE>
 </HEAD>
 <BODY>
@@ -105,9 +98,12 @@ or web page) and the title and logo images.
 
 <H2>Setting the Document Type</H2>
 
-Normally <I>HTMLDOC</I> generates indexed documents
-from your structured HTML files. To convert a single unstructured document
-(or "web page") click on the <I>Web Page</I> radio button.
+Normally <I>HTMLDOC</I> generates indexed documents from your
+structured HTML files. To convert a single unstructured document
+(or "web page") click on the <I>Continuous</I> or <I>Web
+Page</I> radio buttons. The <I>Web Page</I> type inserts page
+breaks between each file or URL, while the <I>Continuous</I>
+type does not.
 
 <P>Structured HTML files use heading elements (<CODE>H1</CODE>,
 <CODE>H2</CODE>, etc.) to delineate chapters and headings within a
@@ -180,7 +176,7 @@ to select an output file using the file chooser.
 
 Click on the corresponding <I>Output Type</I> radio button to
 select an output format. You can select the PostScript language level in
-the <A HREF="#PS">PS Tab</A> and the PDF version in the <A HREF="PDF">PDF
+the <A HREF="#PS">PS Tab</A> and the PDF version in the <A HREF="#PDF">PDF
 Tab</A>.
 
 <H2>Selecting Grayscale Output</H2>
@@ -217,9 +213,10 @@ higher provides excellent image quality with a high amount of compression.
 
 <H2>Compression</H2>
 
-PDF 1.2, PDF 1.3, and Level 3 PostScript files can be compressed using Flate
-(a.k.a. ZIP) compression to substantially reduce the size of files. Drag
-the <I>Compression</I> slider to set the amount of compression to use.
+PDF 1.2, PDF 1.3, PDF 1.4, and Level 3 PostScript files can be
+compressed using Flate (a.k.a. ZIP) compression to substantially
+reduce the size of files. Drag the <I>Compression</I> slider to
+set the amount of compression to use.
 
 <P>Unlike JPEG, the Flate algorithm is lossless and will not cause any
 loss of visual quality at any level of compression.
@@ -231,12 +228,12 @@ loss of visual quality at any level of compression.
 
 <H1>The Page Tab</H1>
 
-The page tab defines the page header, footer, size, and margins for
+<P>The page tab defines the page header, footer, size, and margins for
 PostScript and PDF output.
 
 <H2>Page Size</H2>
 
-The page size option is only available for PostScript and PDF output.
+<P>The page size option is only available for PostScript and PDF output.
 <I>HTMLDOC</I> supports the following standard page size names:
 
 <UL>
@@ -245,7 +242,7 @@ The page size option is only available for PostScript and PDF output.
 	<LI>Universal - 8.27x11in (210x279mm)
 </UL>
 
-Click on the <I>Page Size</I> arrow button to select a standard page
+<P>Click on the <I>Page Size</I> arrow button to select a standard page
 size. You can specify a custom page size by double-clicking on the page
 size text and entering the page width and length separated by the letter
 "x". Append the letters "in" for inches, "mm" for millimeters, or "cm"
@@ -257,7 +254,7 @@ Tab</A> to enable printer commands for PostScript printers.
 
 <H2>2-Sided</H2>
 
-Click in the <I>2-Sided</I> check box to select double-sided (duplexed)
+<P>Click in the <I>2-Sided</I> check box to select double-sided (duplexed)
 output.
 
 <P><B>Note:</B> This option does not select duplexing on the printer.
@@ -268,23 +265,29 @@ printer commands for PostScript printers.
 
 <H2>Landscape</H2>
 
-Click in the <I>Landscape</I> check box to select landscape output.
+<P>Click in the <I>Landscape</I> check box to select landscape output.
 
 <H2>Page Margins</H2>
 
-The left, right, top, and bottom margins can be changed by clicking in the
+<P>The left, right, top, and bottom margins can be changed by clicking in the
 appropriate text field and entering a new margin.  Append the letters "in"
 for inches, "mm" for millimeters, or "cm" for centimeters.
 
 <H2>Header and Footer</H2>
 
-Select the desired text from each of the option buttons to customize the
+<P>Select the desired text from each of the option buttons to customize the
 header and footer for the document/body pages. The left option buttons
 set the text that is left-justified, the middle buttons set the text
 that is centered, and the right buttons set the text that is right-justified.
 
 <P>The left and right header and footer are swapped automatically when
 generating duplexed output.
+
+<H2>Number Up</H2>
+
+<P>The <I>Number Up</I> chooser selects the number of document
+pages that will appear on each output page. Click on the chooser
+to select a different number of pages.
 
 <HR>
 
@@ -314,6 +317,11 @@ To customize the header and footer for the table-of-contents pages, select the
 desired text from each of the option buttons.  The leftmost option buttons
 set the text that is left-justified, while the middle buttons set the text that
 is centered and the right buttons set the text that is right-justified.
+
+<H3>Title</H3>
+
+Enter the desired title for the table-of-contents in the <I>Title</I>
+field.
 
 <HR>
 
@@ -402,6 +410,11 @@ The header/footer font is the font used for headers at the top of
 the page and footers at the bottom of the page.  Click on the
 <I>Header/Footer Font</I> option button to change the header/footer font.
 
+<H2>Character Set</H2>
+
+Click on the <I>Character Set</I> option button to change the encoding
+of text in the document.
+
 <HR>
 
 <P><A NAME="PS"><A HREF="#CONTENTS">Contents</A> |
@@ -419,11 +432,20 @@ printers manufactured in the last 6 years support Level 2.  Level 3 output
 supports Flate compression, however very few printers support Level 3
 PostScript at this time.
 
-<H2>PS Commands</H2>
+<H2>Send Printer Commands</H2>
 
-Click in the <I>PS Commands</I> check box to enable to disable printer
-commands in the PostScript output files.  Printer commands are not supported
-for PostScript Level 1 output.
+Click in the <I>Send Printer Commands</I> check box to enable to
+disable printer commands in the PostScript output files. 
+Printer commands are not supported for PostScript Level 1
+output.
+
+<H2>Include Xerox Job Comments</H2>
+
+<P>The <VAR>Include Xerox Job Comments</VAR> check box controls
+whether or not the output files contain Xerox job comments.
+Click in the check box to enable or disable the job comments.
+
+<P>Job comments are available with all levels of PostScript output.
 
 <HR>
 
@@ -437,7 +459,7 @@ The PDF tab contains settings specific to PDF output.
 <H2>PDF Version</H2>
 
 The <VAR>PDF Version</VAR> radio buttons control what version of PDF is
-generated. PDF 1.2 is the most commonly supported version. Click on the
+generated. PDF 1.3 is the most commonly supported version. Click on the
 corresponding radio button to set the version.
 
 <H2>Page Mode</H2>
@@ -486,6 +508,12 @@ The <VAR>Effect Duration</VAR> slider controls the number of seconds
 that the page effect will last when changing pages. Drag the slider to
 adjust the number of seconds.
 
+<H3>Options</H3>
+
+<P>The <VAR>Include Links</VAR> and <VAR>Use TrueType Fonts</VAR> check boxes
+control whether or not hyperlinks and TrueType fonts are included in PDF
+output.
+
 <HR>
 
 <P><A NAME="SECURITY"><A HREF="#CONTENTS">Contents</A> |
@@ -514,7 +542,7 @@ a string that is used by Adobe Acrobat to control who can change document
 permissions, etc.
 
 <P>If this field is left blank, a random 32-character password is generated
-so that noone can change the document using the Adobe tools.
+so that no one can change the document using the Adobe tools.
 
 <H2>User Password</H2>
 
@@ -551,6 +579,10 @@ pixels that is used to scale images and other pixel measurements to the
 printable page width. You can adjust this value to more closely match the
 formatting on the screen.
 
+<P>The default browser width is 680 pixels which corresponds
+roughly to a  96 DPI display. The browser width is only used
+when generating PostScript  or PDF files.
+
 <H2>Search Path</H2>
 
 Enter a list of directories in the <I>Search Path</I> field to specify
@@ -558,11 +590,25 @@ a search path for files that are loaded by HTMLDOC. This is usually used
 to get images that use absolute server paths to load.
 
 <P>Directories are separated by the semicolon (;) so that drive letters
-(and eventually URLs) can be specified.
+and URLs can be specified.
 
-<H2>Save Defaults and Options</H2>
+<H2>HTTP Proxy URL</H2>
 
-Click on the <I>Save Defaults and Options</I> button to save the current
+Enter the URL for the HTTP proxy in the <I>HTTP proxy URL</I> field to
+specify a proxy host for all HTTP requests.
+
+<H2>Tooltips</H2>
+
+<P>Check the <I>Tooltips</I> button to enable tooltips on GUI controls.
+
+<H2>Modern Look</H2>
+
+<P>Check the <I>Modern Look</I> button to enable GUI controls
+with a modern appearance.
+
+<H2>Save Options and Defaults</H2>
+
+Click on the <I>Save Options and Defaults</I> button to save the current
 HTML editor, page, table-of-contents, color, font, PDF, and PostScript
 options. Default options are used for new documents and when generating
 documents from the command-line.

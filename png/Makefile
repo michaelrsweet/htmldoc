@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.8 2002/03/08 21:53:03 mike Exp $"
+# "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:05 mike Exp $"
 #
 #   PNG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -34,13 +34,11 @@ OBJS	=	png.o pngset.o pngget.o pngrutil.o pngtrans.o pngwutil.o \
 		pngread.o pngrio.o pngwio.o pngwrite.o pngrtran.o \
 		pngwtran.o pngmem.o pngerror.o pngpread.o
 
-
 #
 # Make all of the targets...
 #
 
 all:	libpng.a
-
 
 #
 # Clean all of the targets and object files...
@@ -49,15 +47,6 @@ all:	libpng.a
 clean:
 	$(RM) $(OBJS)
 	$(RM) libpng.a
-
-
-#
-# Update dependencies (without system header dependencies...)
-#
-
-depend:
-	makedepend -Y -I.. -I../zlib -fDependencies $(OBJS:.o=.c) >/dev/null 2>&1
-
 
 #
 # libpng.a
@@ -69,14 +58,8 @@ libpng.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@  $(OBJS)
 	$(RANLIB) $@
 
+$(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# Dependencies...
-#
-
-include Dependencies
-
-
-#
-# End of "$Id: Makefile,v 1.8 2002/03/08 21:53:03 mike Exp $".
+# End of "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:05 mike Exp $".
 #
