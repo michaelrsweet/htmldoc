@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.15 2001/05/27 12:50:37 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.16 2001/07/21 23:54:31 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -79,6 +79,7 @@
 //
 
 #  include <ctype.h>
+#  include <math.h>
 #  include <FL/fl_ask.H>
 #  include <FL/Fl_Color_Chooser.H>
 #  include <FL/fl_draw.H>
@@ -106,6 +107,139 @@
 const char	*GUI::help_dir = DOCUMENTATION;
 
 
+// The following is experimental to make things look a little
+// like Aqua on the Mac...
+
+//#define AQUA
+
+#ifdef AQUA
+
+extern void	fl_down_box(int x, int y, int w, int h, Fl_Color c);
+extern void	fl_up_box(int x, int y, int w, int h, Fl_Color c);
+extern uchar	*fl_gray_ramp();
+
+
+//
+// 'aqua_draw()' - Draw an aqua button.
+//
+
+void
+aqua_draw(int      x,
+          int      y,
+	  int      w,
+	  int      h,
+	  Fl_Color c,
+	  char     *effect)
+{
+  uchar     *g = fl_gray_ramp();
+  int       i, j, k;
+  int       dx, dy;
+
+
+  if (w > h)
+  {
+    const int r = h / 2;
+
+#if 0
+    fl_color(c);
+    fl_pie(x, y, h, h, 90.0, 270.0);
+    fl_pie(x + w - h, y, h, h, 270.0, 90.0);
+    fl_rectf(x + h / 2, y, w - h, h);
+#endif /* 0 */
+
+    for (i = 0, y += h / 2 - 1, h -= 5, dy = -h / 2;
+         i <= h;
+	 i ++, dy ++)
+    {
+      dx = (int)sqrt(r * r - dy * dy);
+      k  = effect[i * 15 / h];
+
+      if (k == 'J')
+        k = fl_color_average(FL_BLACK, c, 0.1);
+      else
+        k  = fl_color_average((Fl_Color)(g[k]), c, 0.75);
+
+      fl_color(k);
+      fl_xyline(x + 4 + r - dx, y + dy, x + w - 4 - r + dx);
+
+      fl_color(fl_color_average((Fl_Color)k, FL_BLACK, 0.75));
+      fl_xyline(x + 2 + r - dx, y + dy, x + 3 + r - dx);
+      fl_xyline(x + w - 3 - r + dx, y + dy, x + w - 2 - r + dx);
+    }
+  }
+  else
+  {
+    const int r = w / 2;
+
+#if 0
+    fl_color(c);
+    fl_pie(x, y, w, w, 0.0, 180.0);
+    fl_pie(x, y + h - w, w, w, 180.0, 0.0);
+    fl_rectf(x, y + w / 2, w, h - w);
+#endif /* 0 */
+
+    for (i = 0, x += w / 2, w -= 5, dx = -w / 2;
+         i <= w;
+	 i ++, dx ++)
+    {
+      dy = (int)sqrt(r * r - dx * dx);
+      k  = effect[i * 15 / w];
+
+      if (k == 'J')
+        k = fl_color_average(FL_BLACK, c, 0.1);
+      else
+        k  = fl_color_average((Fl_Color)(g[k]), c, 0.75);
+
+      fl_color(k);
+      fl_yxline(x + dx, y + 4 + r - dy, y + h - 4 - r + dy);
+
+      fl_color(fl_color_average((Fl_Color)k, FL_BLACK, 0.75));
+      fl_yxline(x + dx, y + 2 + r - dy, y + 3 + r - dy);
+      fl_yxline(x + dx, y + h - 3 - r + dy, y + h - 2 - r + dy);
+    }
+  }
+}
+
+
+//
+// 'aqua_down_box()' - Draw buttons a la MacOS X Aqua...
+//
+
+void
+aqua_down_box(int      x,
+              int      y,
+	      int      w,
+	      int      h,
+	      Fl_Color c)
+{
+  if ((w > 30 && h <= 30) ||
+      (w <= 30 && h > 30))
+    aqua_draw(x, y, w, h, c, "JTRPNNNOOQRSUVUJ");
+  else
+    fl_down_box(x, y, w, h, c);
+}
+
+
+//
+// 'aqua_up_box()' - Draw buttons a la MacOS X Aqua...
+//
+
+void
+aqua_up_box(int      x,
+            int      y,
+	    int      w,
+	    int      h,
+	    Fl_Color c)
+{
+  if ((w > 30 && h <= 30) ||
+      (w <= 30 && h > 30))
+    aqua_draw(x, y, w, h, c, "JUVSOOOPQRSTUVVUJ");
+  else
+    fl_up_box(x, y, w, h, c);
+}
+#endif // AQUA
+
+
 //
 // 'GUI()' - Build the HTMLDOC GUI and load the indicated book as necessary.
 //
@@ -115,7 +249,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   Fl_Group		*group;		// Group
   Fl_Button		*button;	// Push button
   Fl_Box		*label;		// Label box
-  static char		*htmldoc[1] = { "htmldoc" };	// argv[] array
+  static char		*htmldoc[] =	// argv[] array
+			{
+			  "htmldoc"
+			};
   static Fl_Menu	sizeMenu[] =	// Menu items for page size button */
 			{
 			  {"A4", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
@@ -245,6 +382,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   controls = new Fl_Group(0, 0, 470, 385);
   tabs     = new Fl_Tabs(10, 10, 450, 285);
+
 
   //
   // Input tab...
@@ -818,30 +956,51 @@ GUI::GUI(const char *filename)		// Book file to load initially
   button = new Fl_Button(10, 355, 50, 25, "Help");
   button->shortcut(FL_F + 1);
   button->callback((Fl_Callback *)helpCB, this);
+#ifdef AQUA
+  button->color(FL_WHITE, FL_GREEN);
+#endif // AQUA
 
   button = new Fl_Button(65, 355, 45, 25, "New");
   button->shortcut(FL_CTRL | 'n');
   button->callback((Fl_Callback *)newBookCB, this);
+#ifdef AQUA
+  button->color(FL_WHITE, FL_GREEN);
+#endif // AQUA
 
   button = new Fl_Button(115, 355, 60, 25, "Open...");
   button->shortcut(FL_CTRL | 'o');
   button->callback((Fl_Callback *)openBookCB, this);
+#ifdef AQUA
+  button->color(FL_WHITE, FL_GREEN);
+#endif // AQUA
 
   bookSave = new Fl_Button(180, 355, 50, 25, "Save");
   bookSave->shortcut(FL_CTRL | 's');
   bookSave->callback((Fl_Callback *)saveBookCB, this);
+#ifdef AQUA
+  bookSave->color(FL_WHITE, FL_GREEN);
+#endif // AQUA
 
   bookSaveAs = new Fl_Button(235, 355, 80, 25, "Save As...");
   bookSaveAs->shortcut(FL_CTRL | FL_SHIFT | 's');
   bookSaveAs->callback((Fl_Callback *)saveAsBookCB, this);
+#ifdef AQUA
+  bookSaveAs->color(FL_WHITE, FL_GREEN);
+#endif // AQUA
 
   bookGenerate = new Fl_Button(320, 355, 80, 25, "Generate");
   bookGenerate->shortcut(FL_CTRL | 'g');
   bookGenerate->callback((Fl_Callback *)generateBookCB, this);
+#ifdef AQUA
+  bookGenerate->color(FL_WHITE, FL_GREEN);
+#endif // AQUA
 
   button = new Fl_Button(405, 355, 55, 25, "Close");
   button->shortcut(FL_CTRL | 'q');
   button->callback((Fl_Callback *)closeBookCB, this);
+#ifdef AQUA
+  button->color(FL_WHITE, FL_RED);
+#endif // AQUA
 
   controls->end();
 
@@ -894,9 +1053,16 @@ GUI::GUI(const char *filename)		// Book file to load initially
 	       htmldoc_width, htmldoc_height));
 #  endif // WIN32
 
+#ifdef AQUA
+  Fl::set_boxtype(FL_UP_BOX, aqua_up_box, 3, 3, 6, 6);
+  Fl::set_boxtype(FL_DOWN_BOX, aqua_down_box, 3, 3, 6, 6);
+  Fl::set_boxtype(_FL_ROUND_UP_BOX, aqua_up_box, 3, 3, 6, 6);
+  Fl::set_boxtype(_FL_ROUND_DOWN_BOX, aqua_down_box, 3, 3, 6, 6);
+#endif // AQUA
+
   window->resizable(tabs);
   window->size_range(470, 390);
-  window->show(1, htmldoc);
+  window->show(sizeof(htmldoc) / sizeof(htmldoc[0]), htmldoc);
 
   // File chooser, icons, help dialog, error window...
   fc = new FileChooser(".", "*", FileChooser::SINGLE, "Title");
@@ -3774,5 +3940,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.15 2001/05/27 12:50:37 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.16 2001/07/21 23:54:31 mike Exp $".
 //
