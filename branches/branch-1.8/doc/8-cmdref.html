@@ -1,6 +1,8 @@
 <HTML>
 <BODY>
 
+<DIV ALIGN="justify">
+
 <H1 ALIGN="RIGHT"><A NAME="CMDREF">Chapter 8 - Command-Line Reference</A></H1>
 
 This chapter describes all of the command-line options supported by
@@ -123,17 +125,18 @@ character set files:
 
 <CENTER><TABLE BORDER="1">
 <TR><TH>charset</TH><TH>Character Set</TH></TR>
-<TR><TD>8859-1</TD><TD>ISO-8859-1</TD></TR>
-<TR><TD>8859-2</TD><TD>ISO-8859-2</TD></TR>
-<TR><TD>8859-3</TD><TD>ISO-8859-3</TD></TR>
-<TR><TD>8859-4</TD><TD>ISO-8859-4</TD></TR>
-<TR><TD>8859-5</TD><TD>ISO-8859-5</TD></TR>
-<TR><TD>8859-6</TD><TD>ISO-8859-6</TD></TR>
-<TR><TD>8859-7</TD><TD>ISO-8859-7</TD></TR>
-<TR><TD>8859-8</TD><TD>ISO-8859-8</TD></TR>
-<TR><TD>8859-9</TD><TD>ISO-8859-9</TD></TR>
-<TR><TD>8859-14</TD><TD>ISO-8859-14</TD></TR>
-<TR><TD>8859-15</TD><TD>ISO-8859-15</TD></TR>
+<TR><TD>iso-8859-1</TD><TD>ISO-8859-1</TD></TR>
+<TR><TD>iso-8859-2</TD><TD>ISO-8859-2</TD></TR>
+<TR><TD>iso-8859-3</TD><TD>ISO-8859-3</TD></TR>
+<TR><TD>iso-8859-4</TD><TD>ISO-8859-4</TD></TR>
+<TR><TD>iso-8859-5</TD><TD>ISO-8859-5</TD></TR>
+<TR><TD>iso-8859-6</TD><TD>ISO-8859-6</TD></TR>
+<TR><TD>iso-8859-7</TD><TD>ISO-8859-7</TD></TR>
+<TR><TD>iso-8859-8</TD><TD>ISO-8859-8</TD></TR>
+<TR><TD>iso-8859-9</TD><TD>ISO-8859-9</TD></TR>
+<TR><TD>iso-8859-14</TD><TD>ISO-8859-14</TD></TR>
+<TR><TD>iso-8859-15</TD><TD>ISO-8859-15</TD></TR>
+<TR><TD>koi8-r</TD><TD>KOI8-R</TD></TR>
 </TABLE></CENTER>
 
 <H3>--color</H3>
@@ -208,7 +211,7 @@ entire document as a multiplier of the base font size. A <CODE>spacing</CODE>
 value of 1 makes each line of text the same height as the font.
 
 <!-- NEED 6in -->
-<H3>--footer lcr</H3>
+<H3><A NAME="footer">--footer lcr</A></H3>
 
 The <CODE>--footer</CODE> option specifies the contents of the page
 footer. The <CODE>lcr</CODE> parameter is a three-character string
@@ -237,8 +240,6 @@ total number of pages (n/N).</TD></TR>
 
 <P>Setting the footer to "<CODE>...</CODE>" disables the footer entirely.
 
-<P>This option is only available when generating PostScript or PDF files.
-
 <!-- NEED 4in -->
 <H3>--format format</H3>
 
@@ -264,37 +265,15 @@ The <CODE>--gray</CODE> option specifies that grayscale output is desired.
 
 <P>This option is only available when generating PostScript or PDF files.
 
-<!-- NEED 6in -->
 <H3>--header lcr</H3>
 
 The <CODE>--header</CODE> option specifies the contents of the page
 header. The <CODE>lcr</CODE> parameter is a three-character string
-representing the left, center, and right header fields. Each character
-can be one of the following:
-
-<CENTER><TABLE BORDER="1" WIDTH="80%">
-<TR><TH>lcr</TH><TH>Description</TH></TR>
-<TR><TD>.</TD><TD>A period indicates that the field should be blank.</TD></TR>
-<TR><TD>/</TD><TD>A slash indicates that the field should be contain the current and
-total number of pages (n/N).</TD></TR>
-<TR><TD>1</TD><TD>The number 1 indicates that the field should contain the current page number in decimal format (1, 2, 3, ...)</TD></TR>
-<TR><TD>a</TD><TD>A lowercase "a" indicates that the field should contain the current page number using lowercase letters.</TD></TR>
-<TR><TD>A</TD><TD>An uppercase "A" indicates that the field should contain the current page number using UPPERCASE letters.</TD></TR>
-<TR><TD>c</TD><TD>A lowercase "c" indicates that the field should contain the current chapter title.</TD></TR>
-<TR><TD>C</TD><TD>An uppercase "C" indicates that the field should contain the current chapter page number.</TD></TR>
-<TR><TD>d</TD><TD>A lowercase "d" indicates that the field should contain the current date.</TD></TR>
-<TR><TD>D</TD><TD>An uppercase "D" indicates that the field should contain the current date and time.</TD></TR>
-<TR><TD>h</TD><TD>An "h" indicates that the field should contain the current heading.</TD></TR>
-<TR><TD>i</TD><TD>A lowercase "i" indicates that the field should contain the current page number in lowercase roman numerals (i, ii, iii, ...)</TD></TR>
-<TR><TD>I</TD><TD>An uppercase "I" indicates that the field should contain the current page number in uppercase roman numerals (I, II, III, ...)</TD></TR>
-<TR><TD>l</TD><TD>A lowercase "l" indicates that the field should contain the logo image.</TD></TR>
-<TR><TD>t</TD><TD>A lowercase "t" indicates that the field should contain the document title.</TD></TR>
-<TR><TD>t</TD><TD>An uppercase "T" indicates that the field should contain the current time.</TD></TR>
-</TABLE></CENTER>
+representing the left, center, and right header fields. See the
+<A HREF="#footer"><CODE>--footer</CODE></A> option for the list of
+formatting characters.
 
 <P>Setting the header to "<CODE>...</CODE>" disables the header entirely.
-
-<P>This option is only available when generating PostScript or PDF files.
 
 <!-- NEED 4in -->
 <H3>--headfootfont font</H3>
@@ -490,7 +469,7 @@ each page will be displayed in the document.
 
 <P>This option is only available when generating PDF files.
 
-<!-- NEED 6in -->
+<!-- NEED 8in -->
 <H3>--pageeffect effect</H3>
 
 The <CODE>--pageeffect</CODE> option specifies the page effect to use in
@@ -519,6 +498,7 @@ PDF files. The <CODE>effect</CODE> parameter can be one of the following:
 
 <P>This option is only available when generating PDF files.
 
+<!-- NEED 4in -->
 <H3>--pagelayout layout</H3>
 
 The <CODE>--pagelayout</CODE> option specifies the initial page layout in
@@ -667,71 +647,29 @@ the title page.
 The <CODE>--titleimage</CODE> option specifies the title image for the
 title page. The supported formats are BMP, GIF, JPEG, and PNG.
 
-<!-- NEED 6in -->
 <H3>--tocfooter lcr</H3>
 
 The <CODE>--tocfooter</CODE> option specifies the contents of the
 table-of-contents footer. The <CODE>lcr</CODE> parameter is a
 three-character string representing the left, center, and right footer
-fields. Each character can be one of the following:
-
-<CENTER><TABLE BORDER="1" WIDTH="80%">
-<TR><TH>lcr</TH><TH>Description</TH></TR>
-<TR><TD>.</TD><TD>A period indicates that the field should be blank.</TD></TR>
-<TR><TD>/</TD><TD>A slash indicates that the field should be contain the current and
-total number of pages (n/N).</TD></TR>
-<TR><TD>1</TD><TD>The number 1 indicates that the field should contain the current page number in decimal format (1, 2, 3, ...)</TD></TR>
-<TR><TD>a</TD><TD>A lowercase "a" indicates that the field should contain the current page number using lowercase letters.</TD></TR>
-<TR><TD>A</TD><TD>An uppercase "A" indicates that the field should contain the current page number using UPPERCASE letters.</TD></TR>
-<TR><TD>c</TD><TD>A lowercase "c" indicates that the field should contain the current chapter title.</TD></TR>
-<TR><TD>C</TD><TD>An uppercase "C" indicates that the field should contain the current chapter page number.</TD></TR>
-<TR><TD>d</TD><TD>A lowercase "d" indicates that the field should contain the current date.</TD></TR>
-<TR><TD>D</TD><TD>An uppercase "D" indicates that the field should contain the current date and time.</TD></TR>
-<TR><TD>h</TD><TD>An "h" indicates that the field should contain the current heading.</TD></TR>
-<TR><TD>i</TD><TD>A lowercase "i" indicates that the field should contain the current page number in lowercase roman numerals (i, ii, iii, ...)</TD></TR>
-<TR><TD>I</TD><TD>An uppercase "I" indicates that the field should contain the current page number in uppercase roman numerals (I, II, III, ...)</TD></TR>
-<TR><TD>l</TD><TD>A lowercase "l" indicates that the field should contain the logo image.</TD></TR>
-<TR><TD>t</TD><TD>A lowercase "t" indicates that the field should contain the document title.</TD></TR>
-<TR><TD>t</TD><TD>An uppercase "T" indicates that the field should contain the current time.</TD></TR>
-</TABLE></CENTER>
+fields. See the
+<A HREF="#footer"><CODE>--footer</CODE></A> option for the list of
+formatting characters.
 
 <P>Setting the TOC footer to "<CODE>...</CODE>" disables the TOC footer
 entirely.
 
-<P>This option is only available when generating PostScript or PDF files.
-
-<!-- NEED 6in -->
 <H3>--tocheader lcr</H3>
 
 The <CODE>--tocheader</CODE> option specifies the contents of the
 table-of-contents header. The <CODE>lcr</CODE> parameter is a
 three-character string representing the left, center, and right header
-fields. Each character can be one of the following:
-
-<CENTER><TABLE BORDER="1" WIDTH="80%">
-<TR><TH>lcr</TH><TH>Description</TH></TR>
-<TR><TD>.</TD><TD>A period indicates that the field should be blank.</TD></TR>
-<TR><TD>/</TD><TD>A slash indicates that the field should be contain the current and
-total number of pages (n/N).</TD></TR>
-<TR><TD>1</TD><TD>The number 1 indicates that the field should contain the current page number in decimal format (1, 2, 3, ...)</TD></TR>
-<TR><TD>a</TD><TD>A lowercase "a" indicates that the field should contain the current page number using lowercase letters.</TD></TR>
-<TR><TD>A</TD><TD>An uppercase "A" indicates that the field should contain the current page number using UPPERCASE letters.</TD></TR>
-<TR><TD>c</TD><TD>A lowercase "c" indicates that the field should contain the current chapter title.</TD></TR>
-<TR><TD>C</TD><TD>An uppercase "C" indicates that the field should contain the current chapter page number.</TD></TR>
-<TR><TD>d</TD><TD>A lowercase "d" indicates that the field should contain the current date.</TD></TR>
-<TR><TD>D</TD><TD>An uppercase "D" indicates that the field should contain the current date and time.</TD></TR>
-<TR><TD>h</TD><TD>An "h" indicates that the field should contain the current heading.</TD></TR>
-<TR><TD>i</TD><TD>A lowercase "i" indicates that the field should contain the current page number in lowercase roman numerals (i, ii, iii, ...)</TD></TR>
-<TR><TD>I</TD><TD>An uppercase "I" indicates that the field should contain the current page number in uppercase roman numerals (I, II, III, ...)</TD></TR>
-<TR><TD>l</TD><TD>A lowercase "l" indicates that the field should contain the logo image.</TD></TR>
-<TR><TD>t</TD><TD>A lowercase "t" indicates that the field should contain the document title.</TD></TR>
-<TR><TD>t</TD><TD>An uppercase "T" indicates that the field should contain the current time.</TD></TR>
-</TABLE></CENTER>
+fields.  See the
+<A HREF="#footer"><CODE>--footer</CODE></A> option for the list of
+formatting characters.
 
 <P>Setting the TOC header to "<CODE>...</CODE>" disables the TOC header
 entirely.
-
-<P>This option is only available when generating PostScript or PDF files.
 
 <H3>--toclevels levels</H3>
 
@@ -779,6 +717,8 @@ table-of-contents should be generated.
 
 <P>This option is only available when generating PostScript or PDF
 files.
+
+</DIV>
 
 </BODY>
 </HTML>
