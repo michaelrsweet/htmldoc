@@ -1,4 +1,4 @@
-COMPILE.txt - 07/31/2000
+COMPILE.txt - 01/06/2003
 ------------------------
 
 REQUIREMENTS
@@ -11,6 +11,8 @@ REQUIREMENTS
     LGPL'd cross-platform GUI toolkit and can be downloaded from:
 
         http://www.fltk.org
+
+    FLTK 1.1.x is highly recommended.
 
 
 COMPILING HTMLDOC UNDER WINDOWS
@@ -44,23 +46,31 @@ INSTALLING HTMLDOC UNDER WINDOWS
 CONFIGURING HTMLDOC UNDER UNIX
 
     To compile the software under UNIX you just need to run the
-    "configure" script in this directory.  If the FLTK library is in a
-    non-standard location you can specify it using:
+    "configure" script in this directory.  Usually this is just:
 
-        CFLAGS="-I/some/directory"; export CFLAGS
-        CXXFLAGS="-I/some/directory"; export CXXFLAGS
-	LDFLAGS="-L/some/directory/lib"; export LDFLAGS
+        ./configure
 
-    for Bourne and Korn shells, and:
+    If you don't want to install HTMLDOC in the default
+    directories (/usr/bin, /usr/man/man1, etc.), use the
+    "--prefix" option when you run the configure script:
 
-        setenv CFLAGS "-I/some/directory"
-        setenv CXXFLAGS "-I/some/directory"
-        setenv LDFLAGS "-L/some/directory/lib"
+        ./configure --prefix=/some/directory
 
-    for C shell.
+    If the FLTK library is in a non-standard location you can
+    specify it using:
 
-    If you aren't using "cc" or "gcc" for your ANSI C compiler, you'll
-    need to set the CC environment variable:
+        ./configure --with-fltk-includes=/some/directory/include \
+	    --with-fltk-libs=/some/directory/lib
+
+    If the OpenSSL library is in a non-standard location you can
+    specify it using:
+
+        ./configure --with-openssl-includes=/some/directory/include \
+	    --with-openssl-libs=/some/directory/lib
+
+    If you aren't using "cc" or "gcc" for your ANSI C compiler,
+    you'll need to set the CC environment variable prior to
+    running the configure script:
 
         CC=compiler; export CC
 
@@ -70,8 +80,9 @@ CONFIGURING HTMLDOC UNDER UNIX
 
     for C shell.
 
-    If you aren't using "gcc", "g++", "c++", or "CC" for your C++
-    compiler, you'll also need to set the CXX environment variable:
+    If you aren't using "gcc", "g++", "c++", or "CC" for your
+    C++ compiler, you'll also need to set the CXX environment
+    variable:
 
         CXX=compiler; export CXX
 
@@ -80,17 +91,6 @@ CONFIGURING HTMLDOC UNDER UNIX
         setenv CXX "compiler"
 
     for C shell.
-
-    Once you have set any necessary environment variables, run
-    configure with:
-
-        ./configure
-
-    If you don't want to install HTMLDOC in the default directories
-    (/usr/bin, /usr/man/man1, etc.), use the "--prefix" option when
-    you run the configure script:
-
-        ./configure --prefix=/some/directory
 
 
 COMPILING HTMLDOC UNDER UNIX

@@ -1,25 +1,25 @@
 #
-# "$Id: Makefile,v 1.34 2002/07/24 12:55:54 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.12 2003/03/17 15:12:03 mike Exp $"
 #
-# Makefile for HTMLDOC library.
+#   Makefile for HTMLDOC, an HTML document processing program.
 #
-# Copyright 1997-2002 by Easy Software Products.
+#   Copyright 1997-2003 by Easy Software Products.
 #
-# These coded instructions, statements, and computer programs are the
-# property of Easy Software Products and are protected by Federal
-# copyright law.  Distribution and use rights are outlined in the file
-# "COPYING.txt" which should have been included with this file.  If this
-# file is missing or damaged please contact Easy Software Products
-# at:
+#   These coded instructions, statements, and computer programs are the
+#   property of Easy Software Products and are protected by Federal
+#   copyright law.  Distribution and use rights are outlined in the file
+#   "COPYING.txt" which should have been included with this file.  If this
+#   file is missing or damaged please contact Easy Software Products
+#   at:
 #
-#     Attn: ESP Licensing Information
-#     Easy Software Products
-#     44141 Airport View Drive, Suite 204
-#     Hollywood, Maryland 20636-3111 USA
+#       Attn: ESP Licensing Information
+#       Easy Software Products
+#       44141 Airport View Drive, Suite 204
+#       Hollywood, Maryland 20636-3111 USA
 #
-#     Voice: (301) 373-9600
-#     EMail: info@easysw.com
-#       WWW: http://www.easysw.com
+#       Voice: (301) 373-9600
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
 #
 
 #
@@ -30,35 +30,19 @@ include ../Makedefs
 
 
 #
-# Targets...
-#
-
-TARGETS	=	libhtmldoc.a testsuite
-
-
-#
 # Object files...
 #
 
-LIBOBJS	=	common.o \
-		file.o file-common.o file-mem.o file-open.o file-std.o \
-		file-ascii.o file-flate.o file-jpeg.o file-rc4.o \
-		http.o http-md5.o md5.o \
-		image.o image-bmp.o image-gif.o image-jpeg.o image-png.o \
-		image-reduce.o index.o list.o margin.o \
-		render.o render-support.o render-table.o \
-		style.o stylefont.o stylemedia.o stylesheet.o toc.o \
-		tree.o tree-format.o tree-table.o
-
-OBJS	=	$(LIBOBJS) testsuite.o
+OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o http.o \
+		image.o iso8859.o md5.o progress.o ps-pdf.o rc4.o \
+		snprintf.o string.o toc.o util.o
 
 
 #
 # Make everything...
 #
 
-all:	$(TARGETS)
-
+all:	htmldoc$(EXEEXT)
 
 #
 # Install everything...
@@ -68,8 +52,8 @@ install:	all
 	if [ ! -d $(bindir) ]; then\
 		$(MKDIR) $(bindir);\
 	fi
-	cp htmldoc $(bindir)
-	chmod ugo+rx $(bindir)/htmldoc
+	cp htmldoc$(EXEEXT) $(bindir)
+	chmod ugo+rx $(bindir)/htmldoc$(EXEEXT)
 
 
 #
@@ -77,43 +61,59 @@ install:	all
 #
 
 clean:
-	rm -f $(OBJS) $(TARGETS)
-
-
-#
-# libhtmldoc.a
-#
-
-libhtmldoc.a:	$(LIBOBJS) ../Makedefs
-	echo Archiving $@...
-	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
-	$(RANLIB) $@
-
+	rm -f $(OBJS) htmldoc$(EXEEXT)
 
 #
-# testsuite
+# htmldoc
 #
 
-testsuite:	testsuite.o libhtmldoc.a ../Makedefs
+htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	echo Linking $@...
-	$(RM) $@
-	$(CXX) $(LDFLAGS) -o testsuite testsuite.o libhtmldoc.a $(LIBS)
+	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
+	$(POST) htmldoc$(EXEEXT)
 
+htmldoc.purify$(EXEEXT):	$(OBJS) ../Makedefs
+	echo Linking $@...
+	purify $(CXX) $(LDFLAGS) -o htmldoc.purify$(EXEEXT) $(OBJS) $(LIBS)
 
-$(OBJS):	../Makedefs
+file.o:		file.h http.h md5.h progress.h hdstring.h
+gui.o:		gui.h html.h htmldoc.h image.h iso8859.h progress.h \
+		types.h htmldoc.xbm htmldoc.xpm
+html.o:		html.h htmldoc.h image.h iso8859.h progress.h types.h
+htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
+htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h progress.h types.h
+htmlsep.o:	html.h htmldoc.h image.h iso8859.h progress.h types.h
+http.o:		http.h hdstring.h
+image.o:	debug.h htmldoc.h image.h progress.h types.h
+iso8859.o:	iso8859.h types.h
+md5.o:		md5.h
+ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h md5.h progress.h \
+		rc4.h types.h
+rc4.o:		rc4.h
+string.o:	hdstring.h
+toc.o:		html.h htmldoc.h image.h iso8859.h types.h
+util.o:		htmldoc.h types.h
+
+#
+# testhtml
+#
+
+testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o image.o iso8859.o \
+		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o htmlsep.o ../Makedefs
+	echo Linking $@...
+	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o gui.o htmllibd.o \
+		http.o image.o iso8859.o progress.o ps-pdf.o toc.o util.o \
+		md5.o rc4.o html.o htmlsep.o $(LIBS)
+
+testhtml.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
+htmllibd.o:	htmllib.cxx ../config.h ../Makedefs debug.h html.h htmldoc.h \
+		image.h iso8859.h types.h
+	echo Compiling $<...
+	$(CXX) $(CXXFLAGS) -DDEBUG -o htmllibd.o -c htmllib.cxx
+
+$(OBJS):	../Makedefs ../config.h
 
 
 #
-# depend
-#
-
-depend:
-	makedepend -Y -I.. -f Dependencies $(LIBOBJS:.o=.cxx) testsuite.cxx
-
-include Dependencies
-
-
-#
-# End of "$Id: Makefile,v 1.34 2002/07/24 12:55:54 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.12 2003/03/17 15:12:03 mike Exp $".
 #
