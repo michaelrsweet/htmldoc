@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.59 2000/03/30 16:47:27 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.60 2000/04/12 02:35:30 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2459,8 +2459,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       * Add a file link...
       */
 
-      add_link(htmlGetVariable(t, (uchar *)"FILENAME"), *page,
-               (int)(*y + 3 * t->height));
+      add_link(htmlGetVariable(t, (uchar *)"FILENAME"), *page + OutputBook,
+               (int)top);
     }
 
     if (chapter == 0 && !title_page)
@@ -3640,7 +3640,8 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
-
+#undef DEBUG_printf
+#define DEBUG_printf(x) printf x
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
  */
@@ -4106,9 +4107,15 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     }
 
     do_valign  = 1;
-    row_y      = *y;
+    row_y      = *y - (border + cellspacing);
     row_page   = *page;
     row_height = 0.0f;
+
+    memset(cell_start, 0, sizeof(cell_start));
+    memset(cell_end, 0, sizeof(cell_end));
+    memset(cell_height, 0, sizeof(cell_height));
+
+    DEBUG_printf(("BEFORE row = %d, row_y = %.1f, *y = %.1f\n", row, row_y, *y));
 
     for (col = 0; col < num_cols; col += colspan + 1)
     {
@@ -4117,8 +4124,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           break;
       colspan --;
 
-      DEBUG_printf(("row = %d, col = %d, colspan = %d, left = %.1f, right = %.1f\n",
-                    row, col, colspan, col_lefts[col], col_rights[col + colspan]));
+      DEBUG_printf(("    col = %d, colspan = %d, left = %.1f, right = %.1f\n",
+                    col, colspan, col_lefts[col], col_rights[col + colspan]));
 
       if (cells[row][col] == NULL)
         continue;
@@ -4156,6 +4163,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       else if (temp_y < row_y && temp_page == row_page)
         row_y = temp_y;
     }
+
+    DEBUG_printf(("AFTER row = %d, row_y = %.1f, *y = %.1f, do_valign = %d\n",
+                  row, row_y, *y, do_valign));
 
    /*
     * Do the vertical alignment
@@ -4211,6 +4221,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         if (delta_y > 0.0f)
 	{
+	  DEBUG_printf(("row = %d, col = %d, delta_y = %.1f\n", row, col,
+	                delta_y));
+
           for (p = cell_start[col]->next; p != NULL; p = p->next)
 	  {
             p->y -= delta_y;
@@ -4343,6 +4356,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   free(cells[0]);
 }
+#undef DEBUG_printf
+#define DEBUG_printf(x)
 
 
 /*
@@ -6827,5 +6842,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.59 2000/03/30 16:47:27 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.60 2000/04/12 02:35:30 mike Exp $".
  */
