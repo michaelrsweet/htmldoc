@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.24 1999/12/11 14:33:20 mike Exp $"
+// "$Id: gui.cxx,v 1.25 1999/12/16 14:00:58 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -504,7 +504,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Colors tab...
   //
 
-  colorsTab = new Fl_Group(10, 35, 395, 220, "Colors");
+  colorsTab = new Fl_Group(10, 35, 450, 220, "Colors");
   colorsTab->hide();
 
   bodyColor = new Fl_Input(140, 45, 100, 25, "Body Color: ");
@@ -534,7 +534,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Fonts tab...
   //
 
-  fontsTab = new Fl_Group(10, 35, 395, 220, "Fonts");
+  fontsTab = new Fl_Group(10, 35, 450, 220, "Fonts");
   fontsTab->hide();
 
   fontBaseSize = new Fl_Counter(200, 45, 150, 25, "Base Font Size: ");
@@ -3149,5 +3149,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.24 1999/12/11 14:33:20 mike Exp $".
+// End of "$Id: gui.cxx,v 1.25 1999/12/16 14:00:58 mike Exp $".
 //
