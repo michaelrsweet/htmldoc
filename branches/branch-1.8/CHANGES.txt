@@ -14,6 +14,9 @@ CHANGES IN HTMLDOC v1.8.17
 	- The table cell border and background were offset by
 	  the cellpadding when they should only be offset by the
 	  cellspacing.
+	- The buffer used for periods that lead up to the page
+	  number in the table-of-contents was not large enough
+	  for a legal-size document in landscape format.
 
 
 CHANGES IN HTMLDOC v1.8.16
