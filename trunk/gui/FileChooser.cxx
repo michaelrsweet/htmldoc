@@ -91,7 +91,7 @@ static unsigned char bits_allfiles[] = {
 };
 static Fl_Bitmap bitmap_allfiles(bits_allfiles, 16, 16);
 
-FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
+FileChooser::FileChooser(const char *d, const char *p, int t, const char *title) {
   Fl_Window* w;
   { Fl_Window* o = window = new Fl_Window(375, 315, "Pick a File");
     w = o;
