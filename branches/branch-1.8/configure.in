@@ -1,5 +1,5 @@
 #
-# "$Id: configure.in,v 1.23.2.59 2004/10/25 14:24:51 mike Exp $"
+# "$Id: configure.in,v 1.23.2.60 2004/10/29 20:05:07 mike Exp $"
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
@@ -271,11 +271,11 @@ LIBS="$NEWLIBS $LIBS"
 
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
-    prefix=/usr
+    prefix="/usr"
 fi
 
 if test "$exec_prefix" = "NONE"; then
-    exec_prefix=/usr
+    exec_prefix="$prefix"
 fi
 
 if test "$bindir" = "\${exec_prefix}/bin"; then
@@ -394,5 +394,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
 
 #
-# End of "$Id: configure.in,v 1.23.2.59 2004/10/25 14:24:51 mike Exp $".
+# End of "$Id: configure.in,v 1.23.2.60 2004/10/29 20:05:07 mike Exp $".
 #
