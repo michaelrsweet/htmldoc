@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.13 1999/11/14 13:28:07 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.14 1999/11/16 21:46:21 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -98,7 +98,6 @@ char		*_htmlMarkups[] =
 		  "H4",
 		  "H5",
 		  "H6",
-		  "H7",
 		  "HEAD",
 		  "HR",
 		  "HTML",
@@ -2203,5 +2202,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.13 1999/11/14 13:28:07 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.14 1999/11/16 21:46:21 mike Exp $".
  */
