@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.30 2002/04/01 22:45:30 mike Exp $"
+// "$Id: htmldoc.h,v 1.31 2002/07/18 01:14:58 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -52,6 +52,8 @@ typedef enum
   HD_ERROR_NETWORK_ERROR,
   HD_ERROR_READ_ERROR,
   HD_ERROR_WRITE_ERROR,
+  HD_ERROR_HTML_ERROR,
+  HD_ERROR_CSS_ERROR,
   HD_ERROR_HTTPBASE = 100
 } hdError;
 
@@ -138,5 +140,5 @@ extern hdCommon	hdGlobal;
 #endif // !_HTMLDOC_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.30 2002/04/01 22:45:30 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.31 2002/07/18 01:14:58 mike Exp $".
 //
