@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.15 2000/04/16 17:31:38 mike Exp $"
+dnl "$Id: configure.in,v 1.16 2000/04/26 12:58:59 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -144,7 +144,31 @@ if test -n "$GXX"; then
 	        	OPTIM="-O2"
 		fi
 	fi
-	OPTIM="$OPTIM -fno-rtti -fno-exceptions -fomit-frame-pointer"
+
+	OPTIM="-fno-rtti -fomit-frame-pointer $OPTIM"
+
+	# See if GCC supports -fno-exceptions...
+	echo "Testing if GCC supports -fno-exceptions..."
+	OLDCFLAGS="$CFLAGS"
+	CFLAGS="$CFLAGS -fno-exceptions"
+	AC_TRY_COMPILE(,,
+		OPTIM="$OPTIM -fno-exceptions"
+		echo "Congratulations - your GCC supports exceptions; disabling them...",
+		echo "GCC does not support exceptions...")
+	CFLAGS="$OLDCFLAGS"
+
+	# See if we are running Solaris; if so, try the -fpermissive option...
+	if test $uname = SunOS; then
+		echo "Testing if GCC supports -fpermissive..."
+
+		OLDCFLAGS="$CFLAGS"
+		CFLAGS="$CFLAGS -fpermissive"
+		AC_TRY_COMPILE(,,
+			OPTIM="$OPTIM -fpermissive"
+			echo "Enabling -fpermissive to work around X header bugs...",
+			echo "The -fpermissive option is not required by your GCC...")
+		CFLAGS="$OLDCFLAGS"
+	fi
 else
 	case `uname` in
         	IRIX*)
@@ -174,5 +198,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.15 2000/04/16 17:31:38 mike Exp $".
+dnl End of "$Id: configure.in,v 1.16 2000/04/26 12:58:59 mike Exp $".
 dnl
