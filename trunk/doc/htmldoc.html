@@ -1,1664 +1,0 @@
-<HTML>
-<HEAD>
-<TITLE>HTMLDOC 1.8 User's Guide</TITLE>
-<META NAME="AUTHOR" CONTENT="Michael R. Sweet">
-<META NAME="COPYRIGHT" CONTENT="Copyright 1997-1999, See the GNU General Public License for Details.">
-<STYLE>
-</STYLE>
-</HEAD>
-<BODY>
-<CENTER><A HREF="#CONTENTS"><H1>HTMLDOC 1.8 User's Guide</H1></A><BR>
-Michael R. Sweet<BR>
-Copyright 1997-1999, See the GNU General Public License for Details.<BR>
-</CENTER>
-<HR>
-<H1 ALIGN=CENTER><A NAME=CONTENTS>Contents of Table</A></H1>
-<BR>
-<BR><B><A HREF=#1>Introduction</A></B>
-<UL>
-<LI><A HREF=#1_1>About This Software</A></LI>
-<LI><A HREF=#1_2>History</A></LI>
-<LI><A HREF=#1_3>Why Just HTML?</A></LI>
-<LI><A HREF=#1_4>Organization of This Manual</A></LI>
-<LI><A HREF=#1_5>If You Have Problems</A></LI>
-<LI><A HREF=#1_6>Copyright and Trademark Information</A></LI>
-</UL>
-<B><A HREF=#2>1 - Compiling HTMLDOC</A></B>
-<UL>
-<LI><A HREF=#2_1>Getting a Precompiled Executable</A></LI>
-<LI><A HREF=#2_2>Requirements</A></LI>
-<LI><A HREF=#2_3>Compiling under UNIX</A></LI>
-<UL>
-<LI><A HREF=#2_3_1>Installing the Software</A></LI>
-</UL>
-<LI><A HREF=#VISUALC>Compiling with the Visual C++ Project File</A></LI>
-</UL>
-<B><A HREF=#3>2 - Guidelines for HTML Source Files</A></B>
-<UL>
-<LI><A HREF=#3_1>General Requirements</A></LI>
-<LI><A HREF=#3_2>Page Breaks</A></LI>
-<LI><A HREF=#3_3>Chapters</A></LI>
-<LI><A HREF=#3_4>Headings</A></LI>
-<LI><A HREF=#3_5>Unsupported or Restricted HTML Features</A></LI>
-<UL>
-<LI><A HREF=#3_5_1>Embedded Objects</A></LI>
-<LI><A HREF=#3_5_2>Fonts</A></LI>
-<LI><A HREF=#3_5_3>Forms</A></LI>
-<LI><A HREF=#3_5_4>Frames</A></LI>
-<LI><A HREF=#3_5_5>Image Maps</A></LI>
-<LI><A HREF=#3_5_6>Links</A></LI>
-<LI><A HREF=#3_5_7>Scripts and Applets</A></LI>
-<LI><A HREF=#3_5_8>Style Sheets</A></LI>
-<LI><A HREF=#3_5_9>Tables</A></LI>
-</UL>
-</UL>
-<B><A HREF=#4>3 - Generating Documents from the GUI</A></B>
-<UL>
-<LI><A HREF=#4_1>Starting the HTMLDOC GUI</A></LI>
-<LI><A HREF=#4_2>The HTMLDOC GUI</A></LI>
-<LI><A HREF=#4_3>Document File Operations</A></LI>
-<UL>
-<LI><A HREF=#4_3_1>Starting a New Document</A></LI>
-<LI><A HREF=#4_3_2>Opening an Existing Document</A></LI>
-<LI><A HREF=#4_3_3>Saving the Current Document</A></LI>
-</UL>
-<LI><A HREF=#4_4>Generating Your Document</A></LI>
-<LI><A HREF=#4_5>Exiting from the HTMLDOC GUI</A></LI>
-<LI><A HREF=#4_6>The Input Tab</A></LI>
-<UL>
-<LI><A HREF=#4_6_1>Setting the Document Type</A></LI>
-<LI><A HREF=#4_6_2>Adding HTML Input Files</A></LI>
-<LI><A HREF=#4_6_3>Deleting HTML Input Files</A></LI>
-<LI><A HREF=#4_6_4>Editing HTML Input Files</A></LI>
-<LI><A HREF=#4_6_5>Moving HTML Input Files</A></LI>
-<LI><A HREF=#4_6_6>Selecting a Logo Image</A></LI>
-</UL>
-<LI><A HREF=#4_7>The Output Tab </A></LI>
-<UL>
-<LI><A HREF=#4_7_1>Selecting File or Directory Generation</A></LI>
-<LI><A HREF=#4_7_2>Selecting an Output File or Directory</A></LI>
-<LI><A HREF=#4_7_3>Selecting the Output Format</A></LI>
-<LI><A HREF=#4_7_4>Selecting Grayscale Output</A></LI>
-<LI><A HREF=#4_7_5>Selecting Compressed Output</A></LI>
-<LI><A HREF=#4_7_6>Disabling the Title Page</A></LI>
-<LI><A HREF=#4_7_7>Using JPEG Compression</A></LI>
-<LI><A HREF=#4_7_8>Changing the Navigation Bar Color</A></LI>
-</UL>
-<LI><A HREF=#4_8>The Page Tab</A></LI>
-<UL>
-<LI><A HREF=#4_8_1>Selecting a Page Size</A></LI>
-<LI><A HREF=#4_8_2>Selecting Double-Sided Output</A></LI>
-<LI><A HREF=#4_8_3>Setting the Page Margins</A></LI>
-<LI><A HREF=#4_8_4>Customizing the Header and Footer</A></LI>
-</UL>
-<LI><A HREF=#4_9>The Table-Of-Contents Tab</A></LI>
-<UL>
-<LI><A HREF=#4_9_1>Customizing the Table of Contents</A></LI>
-<LI><A HREF=#4_9_2>Numbering Table of Contents Headings</A></LI>
-<LI><A HREF=#4_9_3>Customizing the Header and Footer</A></LI>
-</UL>
-<LI><A HREF=#4_10>The Fonts Tab </A></LI>
-<UL>
-<LI><A HREF=#4_10_1>Changing the Base Font Size</A></LI>
-<LI><A HREF=#4_10_2>Changing the Line Spacing</A></LI>
-<LI><A HREF=#4_10_3>Changing the Body Typeface</A></LI>
-<LI><A HREF=#4_10_4>Changing the Heading Typeface</A></LI>
-<LI><A HREF=#4_10_5>Changing the Header/Footer Size</A></LI>
-<LI><A HREF=#4_10_6>Changing the Header/Footer Typeface</A></LI>
-</UL>
-<LI><A HREF=#4_11>The Options Tab </A></LI>
-<UL>
-<LI><A HREF=#4_11_1>Changing the HTML Editor Command</A></LI>
-<LI><A HREF=#4_11_2>Changing the JPEG Quality</A></LI>
-<LI><A HREF=#4_11_3>Changing the Compression Setting</A></LI>
-<LI><A HREF=#pdfversion>Changing the PDF Version</A></LI>
-</UL>
-</UL>
-<B><A HREF=#5>4 - Generating Documents from the Command-Line</A></B>
-<UL>
-<LI><A HREF=#5_1>Generating a Single File</A></LI>
-<LI><A HREF=#5_2>Generating Multiple Files</A></LI>
-<LI><A HREF=#5_3>General Options</A></LI>
-<UL>
-<LI><A HREF=#5_3_1>Numbering the Headings</A></LI>
-<LI><A HREF=#5_3_2>Adding a Logo Image</A></LI>
-<LI><A HREF=#5_3_3>Adding a Title Image</A></LI>
-<LI><A HREF=#5_3_4>Converting Web Pages</A></LI>
-<LI><A HREF=#5_3_5>Setting the Table of Contents Depth</A></LI>
-<LI><A HREF=#5_3_6>Disabling the Title Page</A></LI>
-<LI><A HREF=#5_3_7>Changing the Body (Background) Color</A></LI>
-<LI><A HREF=#5_3_8>Changing the Body (Background) Image</A></LI>
-</UL>
-<LI><A HREF=#5_4>HTML-Specific Options</A></LI>
-<UL>
-<LI><A HREF=#5_4_1>Changing the Navigation Bar Color</A></LI>
-</UL>
-<LI><A HREF=#5_5>PostScript-Specific Options</A></LI>
-<UL>
-<LI><A HREF=#5_5_1>Forcing Grayscale Output</A></LI>
-<LI><A HREF=#5_5_2>Using JPEG Compression</A></LI>
-<LI><A HREF=#LEVEL1>Forcing Level 1 Output</A></LI>
-<LI><A HREF=#5_5_4>Requesting Double-Sided Output</A></LI>
-<LI><A HREF=#5_5_5>Setting the Page Size</A></LI>
-<LI><A HREF=#5_5_6>Setting the Page Margins</A></LI>
-<LI><A HREF=#5_5_7>Setting the Default Font Typeface and Size</A></LI>
-<LI><A HREF=#5_5_8>Customizing the Page Headers and Footers</A></LI>
-<LI><A HREF=#5_5_9>Setting the Header and Footer Font</A></LI>
-</UL>
-<LI><A HREF=#5_6>PDF-Specific Options</A></LI>
-<UL>
-<LI><A HREF=#5_6_1>Forcing Grayscale Output</A></LI>
-<LI><A HREF=#5_6_2>Using JPEG Compression</A></LI>
-<LI><A HREF=#5_6_3>Requesting Double-Sided Output</A></LI>
-<LI><A HREF=#5_6_4>Setting the Page Size</A></LI>
-<LI><A HREF=#5_6_5>Setting the Page Margins</A></LI>
-<LI><A HREF=#5_6_6>Setting the Default Font Typeface and Size</A></LI>
-<LI><A HREF=#5_6_7>Customizing the Page Headers and Footers</A></LI>
-<LI><A HREF=#5_6_8>Setting the Header and Footer Font</A></LI>
-<LI><A HREF=#5_6_9>Disabling Document Compression</A></LI>
-</UL>
-</UL>
-<B><A HREF=#6>A - Implementation Limits</A></B>
-<BR>
-<BR><B><A HREF=#7>B - GNU General Public License</A></B><HR>
-GIF89a&agrave;&nbsp;&ccedil;&nbsp;ÑÇÑ{BD&Aring;&Acirc;&Auml;&sup2;BD&yen;&cent;&curren;&ordf;fd&Agrave;ÇÑ&ordm; 
-ebd&uml;ÇÑ&Euml;&ordf;&not;&Oslash;bd~ÇFD&shy;rtîíî&Ocirc;&Ograve;&Ocirc;&Ecirc;íî&cent;íîñ&Uacute;*,ãRTíÇÑ&Oacute;Z\&Icirc;rt&agrave;&Acirc;&Auml;&Ucirc;ÇÑ&sup3;íî&iquest;bd&Iuml;&sup2;&acute;&AElig;RT&agrave;24è\Z\&ograve;&ograve;&ocirc;&frac12;&ordm;&frac14;ñ&gt;
-
-<!--r:< rtÃ Ã≠™¨ÓBDòBDºßäå¥z|›‹‹⁄ûú∞[\}{|ñvtÅcd∑≠¨ÈutÓ¥¥rVTçãåƒãåûfdùõú£ùúìéå¥&$ˆÏ$$¿jlßŒ∆ƒØ•§´mlmll‡klÏÏÏﬁLLæ∂¥”îî¶RT‚äå∫ùúË<<¢LLx[\∂äÜÑºJLÜ.,¥ttõïîzvt‰TT’{| æº˝˝¸√Ωºå64∞ãåπ]\À‡§§énl⁄÷‘ü.,√•§â~|îZ\¶64¬‚ﬁ‹û~|™ûúöéåÚ+, ≈ƒ™•§∆ÜÑ∫ÇÑ∫µ¥áNLœ=<˛ÌïîjNLÊ÷ŒÃæ^\ﬁººøùúæ~|ö^\ÚÓ||∞"$Ø-->
-
-<!--ÙJL¶nlÍZ\í-->
-
-<!--“Úöú∏cd∆™¨ŸªºŒZ\÷öúívt†z|Æíî≥VTûÇÑÕçå»llû*,ñ"$¶jlä24í:<“
-Æ:<¶jfdﬁfdÍÊ‰⁄FDæ¢§íVTÊ∆ƒ∫íî÷∂¥ŒVTÊ64˙ˆÙz-->
-
-<!--“ŒÃ≤≠¨ûFD¬∫||Ç~|vVT˙ÆrnlÊnlÚÓÏ‚NLÊçåÓ-->
-
-<!--¶NL~^\¬KL⁄~|ˆ.,Å*,âjlÉJLö*,í"$öz|¢jl∂*,Ü24é:<Œ
-ërt¢24™:<¢ÜÜÑ~FD∆∆ƒ∂FD¶¶§øÜÑffd©ÜÑÃÆ¨⁄fdÊÊ‰÷FD∂∂¥Ævtññî÷÷‘¢ñî¨VTvvt‹.,ìÜÑ’^\–vtﬁÜÑ≥ñî¡fd VT‚64^^\ˆˆÙææºŒŒÃÆÆ¨ÚFDöFDæ™éå∂~|!˛Made with GIMP-->
-&iacute;&ordm;7&Ugrave;&THORN;&laquo;[ên&ordm;x&ccedil;&aacute;&auml;|û&acirc;`9&ograve;ê&Aacute;?;h&iexcl;&frac12;&uacute;k&yen;&ETH;&sect;&thorn;ã&Otilde;&not;]&szlig;é&shy;ò&para;&iacute;&Oacute;ls&iuml;&frac34;&times;[&auml;&iuml;&agrave;'á&sect;/ 
-&ugrave;H&euml;&Iacute;&frac12;&ouml;\s&Ograve;ÅVp&Ecirc;aáív&Uuml;9&agrave;`q&agrave;5'&THORN;h&yen;&Aacute;&Ccedil;z&ecirc;&shy;wíl&Igrave;&Otilde;v[|&ordm;&aring;Güo&frac12;&aacute;G_y&Aring;&otilde;&sect;&Uuml;&Igrave;u&Ograve;&middot;&nbsp;É 
-&gt;&oslash;&Yacute;lÇ6^Ö&aelig;a&uml;l&para;ó&Ucirc;{&cedil;Öhc}'&ccedil;s&eacute;&otilde;Vp&shy;!î}&iquest;QiZ.&aelig;6$h&gt;Wâ1&Ccedil;eu&Ucirc;ô6Pg4&times;ô;-&middot;!l&AElig;E'Zu&Oacute;)&ccedil;&agrave;ÅUV&nbsp;s&shy;&iexcl;&nbsp;ïÉùh&Uuml;Ä\&frac34;f[q`&Acirc;&Egrave;ücdFg&aelig;åiN&plusmn;&nbsp;&eacute;&ugrave;&nbsp;r&Euml;&ugrave;&Eacute;&nbsp;&Ntilde;uvbï&thorn;&AElig;:gùq&agrave;&shy;ö&aelig;ôí&ordf;9&ETH;R&sup1;&sup1;iú&plusmn;&Ntilde;&ordf;t&pound;&aelig;&Yacute;&copy;}6&middot;&ecirc;ã&shy;&reg;6h&not;]&Iacute;&ordf;eh]&acirc;Zö&reg;né&eacute;&euml;&curren;h2áK&Acirc;t&Ugrave;C&divide;&Oslash;&brvbar;\h&eacute;&igrave;&ordf;üI&Auml;UHeäo&brvbar;&Oacute;è 
-&uuml;&ouml;&euml;&macr; &eth;0Ñ&cedil;`Åv&curren;É'ó&frac12;hG&not;&oacute;&iuml;&Auml;Ç|Ñ&gt;&cedil;&agrave;Çw&igrave;&ntilde;&Ccedil; 
-&oacute;+&deg;|HÄÜ&Auml;!&yuml;ã@H!&gt;&Uuml;&Uuml;&uml;É9&curren;&oacute;ô)&yuml;&Ucirc;/-&Iuml;&agrave;&Acirc;5?úÉ%!&oacute;&agrave;Ö&gt; É&Acirc;hé&auml;ùw&uuml;&iacute;Ü&ordf;ã&eacute;X 
-&Uacute;9g&yacute;1HQ&Agrave; X&eth;&deg;&Iacute;û1&not;&eacute;&Acirc;&Agrave;qs&Ccedil;Z&middot;&yacute;BF&Igrave;`&gt;2X O&Egrave;-Z&thorn;:L&oacute;&iacute;&Ecirc;&frac34;mgMM&Euml;%&Atilde;&frac14;&acute;}&cent;ï&yacute;õ&reg; 
-$&Igrave;D#&acirc;]ök5&ccedil;&eth;g&otilde;&Otilde;ó`&Atilde;9&auml;#C&Egrave;`p&nbsp;ç&uacute;&uuml;,C&Iacute;õööxkù&euml;r&cent;&pound;SÄ&gt;&oslash;&Auml;&plusmn;&AElig;:&sup3;E 
-5&frac14;`&Ecirc;&iuml;&Agrave;õíF&copy;Ñ&frac14;&Igrave;2`ÄQJ)&Atilde;&iuml;&uuml;+&Egrave;&thorn;h&Oslash;&eth;q&Atilde;&Icirc;&sup2;&Uuml;&sect;è&AElig;&yen;&Acirc;&pound;&aring;&Atilde;&ouml;&iquest;+Ä 
-&AElig;C&nbsp;&pound;u[&yacute;&deg;&otilde;&times;&Ccedil;&Icirc;&Ccedil;2&frac14;A&para;ã&oslash;&gt;&ccedil;]å&cent;&Aacute;&brvbar;&Auml;Ä&oacute;&Oslash;2T &eth;&Acirc; HH&nbsp;&ETH;!Ü  &Aacute; 
-/@@&Ucirc;&cedil;&Ugrave;&yacute;L4ï&Atilde;`:ê56` Dá&times;éPÄ&eth;ÅG0Ç&sup3;&AElig;ã!Å&aelig;&agrave;F&gt;0X3&Oacute;Hg|!xÄ!T@ &thorn;+&iexcl;&Auml; 
-ä&not;MÉ8&Acirc; r&agrave;uâjCZóC&thorn;&sup3;0&eacute;&Igrave;$PL&Icirc;Ét&ocirc;4 Z èô&cent; &deg;&cedil;&sup1;L &Otilde;ã&eth;îé,ÑL
-<!--Äg®öV›É¨p◊yDì6Ä,@
-C‹"o¯LÂÏ–Ç⁄8»2p»`êÄÏ±Cê≥£õd¯0úÇb©PE˘<ÊÅ¬Mê°t“ëà7¢œÿC›¥c/Èt	:ì£ö)7~¨îe§›“h»¨Ì–b˘-->
-&acute; 
-cKK&Ccedil;-&ordf;&ntilde;Ftn&Ucirc;&Atilde;-&Ograve;A:@7&ETH;IW:&ouml;&deg;LèÄ&Uacute;@ö &ouml;&Eacute;H&brvbar;&Igrave;&cent;&ucirc;&iexcl;&Iuml;`f3;&igrave;&eacute;N&thorn;ç0&Ograve;Å2fc 
-&deg;ç}&oslash;É )&igrave;9ÑaO&ouml;Ñ&nbsp;&egrave;&frac14;6&uacute;/6p&nbsp;Öbê&Agrave;f&Egrave;&Auml;&ucirc;THj&ocirc; BKyVt&THORN;êG|å Q&deg;&aelig; 'vI rÉo_ 
-&nbsp;&iquest;&Oslash;&eth;Oh&ocirc;_&Iuml;à'\&Agrave;  à-aIôG1&ugrave;&sup3;|H&Ccedil;j$&Eacute;ÅKáZ4F&frac12;&aacute;õ&Iacute;&sup2;&uacute;&plusmn;&uml;é&reg;ê!MôX&Ccedil;&yen;&Auml;&Egrave;v&cedil;EAV 
-&pound;!M&aelig;&eth;&eacute;/ 8Ñ#x &ugrave;@&ecirc;Ya&ocirc;&reg;[&copy;14h&Ugrave; ô&Auml;ó&aacute;&atilde;&copy;&yuml;&brvbar;6*0É&ordf;ç:g&Uacute;S&reg;&oslash;ì&reg;gï&Otilde;ûBCjb&ucirc;á*-&THORN; 
-&ccedil;&eacute;&thorn;Là$&cent;î&aring;`P=&shy;EïsX&auml;&quot;ç&pound;&Agrave;&yacute;&times;4.I:TUQ&divide;õ&Otilde;(ã&deg;Ä&ugrave;&gt;&ecirc;&Atilde;&iexcl;&thorn;&euml;íÉ&curren;ù9&Oslash;öY&Auml;q/0x&brvbar;&gt;Éq&Oacute;o&ETH;&reg;&ugrave;\&ordf;&Auml;&ordf;íá&gt;&Ouml;IPj&raquo;CQ'
-
-<!--Èa„¶44ââ%òCX’ú˚±æÙ|ÿB»»®çã·É¶vÿWcò∆,7];^Í\¸°ú#£¡FR”÷iV.Y
-™†6£€'F4Sÿ≥Jäﬂ·àSQN:n“";µ¶¶eMu∫î›|08{lYLÄTÖÒ≠r6≥Y-->
-&uacute;&eacute;&plusmn;&otilde;2&reg;&Uuml;&auml;i&Auml;&ordf;?1&shy;f&ograve;&yacute;&Oslash;&thorn;4&ETH; &Oacute;ëûNTù&sup3;Js0&Ecirc;eä9X $Dq&iquest;&copy; t&Agrave;&iexcl;c&igrave;C:&frac12;&brvbar;gu&aacute;íH 
-&curren;}&aelig;Ä5&Oslash;hFà&eacute;Li&Eacute;&agrave;4&brvbar;&iquest;h* &Atilde;
-<!--Sµ¸÷c⁄+¨∆éZR≠&±@™0ÎØR"1nÊ@É@7ÜË‚c˛ÕHÚ(-*9’9éÉdàéã¿†5ÀJÜ´L…πd]ïVk’/zÓ‹ê¡Úëè™ûŸ@P“°5»ÒÔNìΩæsíªï&¿ÊcGüiGÂaÍ-&Kyÿì)Ü-->
-Ç î&otilde;&iacute;ú&gt;&icirc;&ecirc;&Ocirc;4^&sup3;Ä&acirc;;fã`R&Otilde;s(üX3YV&uacute;qÉ&uml;,&Iuml;&thorn;]&middot;t&Oslash;&macr;ï&Aacute; 
-\ îx&uacute;ô&Ecirc;#&divide;Ö]ü &brvbar;&oacute;+&szlig;&Eacute;&Ecirc;&eacute;Pf&agrave;
-<!--Ä
-Hœ‡¬\r§!pﬂ¨p‰’1lG≤ÉJ√TRÈpÚ,p-->
-2P?jóHda2`O&Ograve;ë 
-|)CÇ_s}2êÉ:&oslash;/&copy;&agrave;=Ñ0%.&ETH;=&frac12;As/&copy;í#9P7&middot;&nbsp;|A&Egrave;/&copy;B&gt;7&egrave;&gt;&ugrave;î8&yen;ÖE&szlig;í0&middot;ê&aacute;|P 
-&frac14;&nbsp; ]&pound;ys3S`&quot;&agrave;&aelig;Ñ&ccedil;q&Ouml;D(5/&gt;Çë_L&Ntilde;áeW&ccedil;! &ntilde;e{oPàU&oacute;E&thorn;&cent;&ntilde;&szlig;4#ÄP&curren;eá0xex&Auml; 
-v&quot;4_dU2á&shy;&Ntilde;c&ugrave;&ccedil;o`&eacute;bÉâdÖHC&pound;qvEF&ograve;6e&not;0&not;&eth;rxÖWwã&nbsp;ëaSãâhU&otilde;&oacute;&middot;&nbsp;à&Ograve;a&ugrave;&eth;_eW3&uacute;DÜ@SVu 
-&plusmn;&cedil;&not;&Agrave;&copy;f{&raquo;òäo`&middot;_ÜÖáI&Uacute;4âàTàc5Ö_Ve3&middot;PãõbS0ã&szlig;î]à&acute;ã&Atilde;&Egrave;ãx%é&cent;!6Ñå&pound;aÉ&Oacute;,&Euml;Å*&eth;.g`'êò!ë'&iuml;bf/XUû#K&Eacute;Ñ&oslash;&ETH;m&Ugrave;Ü}&iacute;&Atilde;m&eacute;b7*Es7FP&sup1;&plusmn;áfE3àd&middot;&agrave;920&copy;îm262&deg;Z&para;xOö&ouml;&thorn;è&shy;ê&yen;1ê&yacute;&atilde;b9=&Aacute;&acute;9&eacute;QSe);&ntilde; 
-&Uacute;bWN&ocirc;_&ccedil;Q&Oacute;qv7v&quot;Q&acirc;&ordm;ED&eacute;#tu]&Oacute;&aacute;P2Ü&brvbar;&Aring;pè 
-&quot;ùë99bu&quot;ff`j&Ograve;.&brvbar;R&quot;2&para;*&Ograve;&uml;4&para;î&Ograve;î&eacute;&Ograve;ct&times;kgÄ0&sup1;Ñ:wÇxfV&acute;(&oacute;&divide;_2^&copy;_6$ñ&sup1;&ograve;c
-<!--∑a`"î(µ'wÿñ“Ú-!qO∞˝R-®4€ò@–/d∞{‡ßìH(3†ASÃ¬7≈¥)ÃÇOAì0à öN∞ÜäÌ.'"yâE2VS-êŸ ÜWm¿/æ`öı√M\“ v–˚@‘Y÷©ÿ©≈˛ h‡V59}")yπdöñ(92÷[˝S<YDÒmµ?liçı4∑aL≤}∫•)ÀQˇûñ#mÇRLîVí("st7+ÇAÛ“"U"©¶)129™q%·ä˙_R,qRôí"†FÒ*eb)“&ayÓg+3û≠¢-8∂û!°‹Òä*üﬂrè4–/LÄx*–/·p@j£FZ-->
-
-2ãâtçÜP&yacute;r?&eth;&thorn;YZIxP&eth;q&ucirc;iC&iuml;Ç1P&ugrave;&Ntilde;P.&cent;&nbsp;E+&ordm;&micro;ié&Eacute;X&ucirc;AP&micro;UPû&ntilde;&quot;#î&copy;l&not;&sup3;%OC&shy;&Ograve;&ecirc;4ÉP&aelig;î&pound;EhBüù&acirc;&frac34;&Aacute;d&ugrave;&quot;ï&micro;KfRRü!&ordf;ñ&acirc;?&not;&reg;Z6&eacute;7 
-&nbsp;&acirc;'&frac14;A&micro;ö F&ouml;!&cedil;&nbsp;&para;&curren;K&Ntilde;Qã&Otilde;/*&Agrave;&uuml;Ç 
-HÄe:&yacute;Ç&icirc;&agrave;!&eth;zy&agrave;yê&auml;ö&reg;e*k&eth;`äá&thorn;&sup2;&eacute;J&reg;FÄ@&reg;Gê&ecirc;Ägj&ETH;/Äb&ETH;&yacute;&Ograve;&deg;F@&uml;&acute;&ETH;/3&eth;éá&sect;&eacute;òà{bö&Eacute;/&raquo;&brvbar;&Oacute;ÉíÖHí&Iacute;(=*&thorn;J 
-Ñ&uacute;U0&Ucirc;òGH9&not;&ordf;r5u 3dAPc+&ecirc;bWábrc&ecirc;$uV&Igrave;Qi&cent;?&laquo;ä&nbsp;&sect;1*&Aacute; 
-n&deg;&otilde;)tP&sup1;*tb&iexcl;&agrave;&oacute;E&para;:&Otilde;*&Ucirc;&ntilde;&acute;&eacute;V&acirc;ëEY&quot;r'Ä&Egrave;O&ucirc;-Q +-&deg;&sup3;&aacute;ë(u&ocirc;ü 
-&ecirc;'uà9è&acirc;õër$ûaP&Yacute;y 
-&Euml;ò&not;`ÉpJ=íãf`ö&curren;i2`h&deg;f&deg;å&Otilde;V7'&eacute;.P&Oacute;&Atilde;&sup1;&pound;&laquo;&ordm;N&raquo;{&ETH;ù&brvbar;&eacute;ã-à-&uml;1?Söú;N&agrave;&raquo;Ü&deg;åo&eth;&raquo;&frac34;[ö&THORN;Yàs$&Acirc;p&sup1;&iexcl;Xé&brvbar;&frac14;}jU&Aacute;+&frac14;Öòõ&Otilde;&thorn;{ 
-/&uml;à&sup1;&ntilde;ëò&pound;%e[t&Euml;c&gt;I%&Ecirc;J&micro;í&Acirc;Eä&Ntilde;öü&nbsp;cN&Ugrave;$l&quot;&iquest;IP&sup1;&quot;+)é&ograve;&nbsp;1&ugrave;*&Oslash;!wBáÅ&ugrave;!qõn$&ouml;Qv&eacute;õ&quot;g&Aacute;&frac34;&iquest;Å$sÇ)p 
-ñ&Uacute;&iexcl;&quot;yñ&aelig;&ugrave; 
-&deg;ñKI#&yuml;i)gê8&Uuml;1&Agrave;\&quot;èx'&Iacute;Åe&ccedil;D&cedil;u%`&Aacute;#r&frac34;L^yOÇ&quot;`&Ucirc;&not;&oslash;k-&iuml;á&acute;w&micro;~O&ucirc;&iquest;#åS&ucirc;8$X&Ograve;#&iexcl;A!&igrave;&Ugrave;.-ú7ÖRÖc&Uacute;&Auml;&ordm;&para;!P&Ograve;$&AElig;f|&AElig;hú&AElig;j&frac14;&AElig;l&Uuml;&AElig;n&uuml;&AElig;p&Ccedil;r
-
-<!--«Ï‚ÑxƒòcC‹+⁄ÇRË“%˛ÿq ^9$qáéNÚ8"˙—ëÎ8#’rR2:ü335:-Xâ«-Ú_RÃ«Y‚«á∂@˚èˇ°KÖligê.“rälåd¬ìBOsK™|(îºc`Ç¯s«Hõ«ú<øå ©»£lòÑ‹H®\À˘’ wÛ ˛’≤|óíú%]2∂»û~+òf#£√°O¿‹«SÒÖô#»•å#»,¬ Ï$N‚ìÌ…·ñ˙…›;'ı!g]b(7(´ÜQ…·P≠ò,^È∑/gAôi∞"¿äÑü±™´‡˘ŒMÙ-Ú‹¥ÙL˘qœ0F%ëó)˙†"Òœ<+<¡8v*’L)P9˛µ}…–t†∑œM).2œ<b—Ør#˚L$ÕTD#˚Ö $MÅ<{–cõ_T ÇŸ–.- 0≠†V%]”IÒ~¯<˙ú)Yq-->
-&shy;w&ccedil;+2ü?
-<!--$ÚÇ?õ2π0∞1#55*Æ· ”&6∫yJuU∏Q6†¶∑&KJï2[†÷¿Néâôzü“–6[p}¡Hõ#v˝16P2ÎdUíÕ+n´9ÈÈ(q]3ï›◊l‡E0˙-->
-l=&agrave;&nbsp;c^]&oacute;&aelig; ?p&Oslash;T%K$)K/&ordm;2&deg;W-&Icirc;ñTAá&Oslash;~&Acirc;MN&THORN;/ 
-Ä=&nbsp;F\é6&thorn;^&Auml;&aelig;-&thorn;QH0e&laquo;&otilde;òÇ&ugrave;VYK@âAo&Agrave;AÑ%;&aelig;&nbsp;&macr;7&eacute;&ccedil;h&raquo;.&eth;&deg;;8:&THORN;&Agrave;&Uuml;&ETH;èU&Atilde; &middot;-BH.&auml; 
-&uml;Ñ&raquo;5ìH&ordf;zêÑ&curren;)&egrave;ö&times;r&auml;&ETH;&Ucirc;&eacute;&eth;)&atilde;B&Agrave;-Tl{&reg;sû&atilde;9&ordf;&para;Pê2&frac12;0rÄ&eth;AJé*Iùi&otilde;&uuml;&uml;üíû' 
-&uuml;&yen;#Tõ&Ccedil;õb&euml; CD&sect;DH&Oslash;Ç&aring;ç&igrave;&oacute;&Agrave;&Ouml;&macr;W&cedil;&deg;nUá&agrave;`&ucirc;.Z&times;vp&Uuml;K&aring;.ë&Atilde;y&Eacute;Åx&eacute;&brvbar;ãj&middot;Q 
-&Ugrave;&Atilde;f&THORN;@e&yen;&acirc; &szlig;@z&ordf;  #S:K&sup3;Z&eacute;&nbsp;&icirc;Ç&AElig;&icirc;&ocirc;É&uml;&Ocirc;&not;.&ntilde;&uuml;PK&frac12;à&middot;-U&ecirc;Ih&Eacute;ô&Atilde;&thorn;iñR -ÄQu&gt;1&pound;P}pÖ 
-#bÇda4&Aring;M0+&aring;1&Uuml;&atilde; 2pu9W&THORN;&Uuml; }Ç&Agrave;x_FU&Uuml;&Auml;4&atilde;&AElig;â|&Atilde;&Ugrave;ï&aring;&oslash;`&aelig;03`&sup2;?&deg;&brvbar;&cent;c&eacute;Ä_;:*&yen;íP 
-ï&Yacute;&Aacute;&nbsp;%èdI&ugrave;&Ecirc;X4&Oslash;,&THORN;`&Icirc;D:&middot;f3tU&ordf;6&Otilde;Doíf:p~&uml;Tã'&sup2;d&Igrave;&acirc;h 
-&AElig;g&THORN;&aring;/&agrave;&Aring;Ü&aring;&yacute;{C}q&oslash;:&sup3;tö&ccedil;&sup3;&Auml;+&yuml;/&aelig; 
-&egrave;W6É&plusmn;&Atilde;Mc?,2&THORN;Ü&aring;&brvbar;é}&ocirc;&copy;k&ecirc;âftü=Å&Ocirc;3Å%F&igrave;ÄN0&ocirc;Çc&reg;a&shy;&yuml;&Oacute;&Iacute;&uuml;4a&Aacute;î1&ucirc;LQ&reg;41&sup3;&Oslash;&atilde;6w&cedil;c:&micro;J&Agrave;Fû&oslash;&quot;&Otilde;à[L3&Iacute;u&thorn;
-
-<!--9˝i/(Æ˛iUì∆£
-–vb`$T-->
-&Ouml;â-ë&iuml;/Vb&ouml;ë&cent;&ntilde;&ograve;&thorn;(òrÑDÅ@&ETH;@Ç&Ugrave;&ntilde;&uml;`&curren;@ÅÇüç&aacute;5$aCä&Oacute;&AElig; 1&quot;_&gt;n&auml;&brvbar;&auml;&Egrave;&iexcl;ãb&Atilde;.&Agrave;x 
-&aacute;#ÅõÖ&Uuml;kA&Icirc;ÅÉ35m&Ecirc;LGd õ0?&brvbar;{#r$&Aacute;i&igrave;&acute;U(`NF&gt;vLë&eacute;Äú&Ccedil;&uml;vZZH2&acute;&nbsp;Im&egrave; 
-HpaC&euml;&Agrave;.&igrave;&frac14;&nbsp;;Ç&Iuml;Çr-&brvbar;&frac14;&not;yo&Ecirc;&Uuml;&sup1;:&sect;&THORN;{*5üc&agrave;`H&AElig;â&uuml; 
-&ecirc;ü?2X&aelig;pê&Atilde;&atilde;&Oacute;&copy;PùVñ)&curren;&Ocirc;&Egrave;&eacute;ûB&thorn;ñ:u&ecirc;L&Ograve;sCKÖ&Uacute;&acirc;&sup1;3&ordf;&iuml;&Ugrave;Ñ[v&Iacute;n&Oacute;I-s 
-&Iuml;&times;g&nbsp;í{-&divide;w[;õr&Auml;õR&middot;Å&laquo;N-|f&ordm;&Atilde;&Oacute;x@&sect;o&Agrave;&THORN;tSz&Euml;&otilde;&middot;ÉtÑj-+q&AElig;v 
-&ugrave;ú&yuml;ûíO2&icirc;&laquo;~-=V&igrave;Hx&ocirc;&yen;àê&eth;F4&eth;&Euml;&iquest;&Aacute;f0g&yen;&Ucirc;rê&iexcl;:&acute;1b&cedil;I';D&pound;&Ecirc;;&oslash;&frac14;;&brvbar;?i*ê,8å^0&Ograve;GÜúÇJ&ordf;&Uacute;&Auml;ì&laquo;%n&sup2;&ograve;k&acute;Qç=&ouml;X&euml;0ÄY1)n&Uuml;kKôz&Ntilde;;&Ntilde;&not;JG6Çó 
-é&ETH;ád&Agrave;ï&Atilde;J Ä0&para;&not;&Icirc;&sect;&Ucirc;r &micro;t&Ocirc; #&ocirc;&Aacute;&Aring;&iexcl;Ç&thorn;&copy;-ò&Uuml;r&laquo;&reg;
-<!--≠zäßŸ˛åK∏ò»È.ßè"ÀÃ£∫FÓåÛÜB¿,tºë`<É“Ç7,àv¨.¢√ã
-Õ¡á[mÀÀ«∏ëßü_yÜù-->
-
-!P&Iuml;&laquo;L&oacute;BTì&Yacute;@&Iacute;L&Ntilde;sãNÜ&pound;ôàG2árãM4&Aring;ö&Ntilde;&Egrave;0g&Acirc;h+Ñ&ouml;î&times;M*GãId4üôXE2&Ograve;úL5&eacute;Ra&Iacute;hyR&Iacute;åj&pound;ìMP3è{B*&Ucirc;Ñ^Sû2ókz&aelig;h&Uacute;|ã&Ucirc;&Egrave;&aacute;îy&curren;ûA&laquo;Qì&agrave;&not;&ccedil;&egrave;&ecirc;Y&Iuml;{Ät&uuml;L&eacute;Ü&gt;P?&Iacute;N-=&eacute;&nbsp;&THORN;ôP&Ocirc;t&Icirc;ô(IIú&igrave;df 
-s*&uacute;LaC &Ntilde;Pf&Auml;Ü&Ocirc;~íJü1&Eacute;A?C&Ouml;e&uacute;*&Acirc;&eth;I7ct*Ö.TVTyë&Ouml;&frac14;z&ordm;$&not;oç 
-4W&oacute;&thorn;&Ccedil;^ûú&ugrave;ù1&otilde;&Ugrave;&ntilde;2O-Z&ugrave;&curren;&raquo;&deg;ÖP&raquo;&curren; 
-e&ETH;&ecirc;ì&Iacute;&ocirc;&Ograve;-NQí&aring;5&iquest;&sup1;&Oacute;&not;&cent;&divide;&frac14;|(*&Oacute;&laquo;&brvbar;p&Otilde;ö`&Ouml;E.rI'jãìf&uacute;,:-x&ordf;&uml;ZÉMM&ouml;&ograve;õ 
-.E&Atilde;L&Iacute;îà3&iexcl;&Ucirc;i&iuml;2#&Ntilde;ljP&shy;Öûh&Ocirc; ;&Ugrave;öo&cedil;y:Zx&ograve;&ocirc;&sup3;&Yacute;&auml;c&cent;&ograve;ADAé&deg;A &nbsp;aY&Acirc;&yuml;&eth;á*H&nbsp; &iacute;&raquo;&iexcl;úp. 
-qK&acirc;&raquo;&pound;d`  &aacute;ü `'&Acirc; N0 
-&ordf;PCTXHt&THORN;dÄA&sup1;H\ki&szlig;&ETH;0b:&brvbar;ùtQ&THORN;Pv&ntilde;Ñ&ordm;&Agrave;RÜ&eth;JÄÖ&thorn;x$C?xÇ:&aelig;Aêy&not;&divide; ?Äe 
-&Iacute;óì9&not;l&Ograve;&ordm;]Y&middot;&macr;ö&Ecirc;x&ordm;&oacute;ëyÇ5DÉ&ocirc;&Auml;Fxj*ü&oacute;&Iacute;wsö&middot;j7ùK&ograve;M 
-2+&shy;&AElig;3&ETH;%Uà&oslash;(g&Oacute;.*2&Iuml;UTAk&aring;:er&Iacute;&Agrave;&frac12;H&pound;ûúmä&Iacute;ùöïõxíñC293&Ocirc;v&oacute;&ccedil;@;&eacute;&sup3;h 
-ûàWgü9&middot;&sect;ö=ü&Aacute;&Ecirc;&ETH;*&szlig;Y&Ograve;év|Ä&Ouml;å &Egrave;&Uuml;qÇ@ y&Agrave;&Agrave;&laquo;&ntilde;0íx&quot;^&Agrave;&Ocirc; A) &Egrave;.0Ä#&agrave;;&Egrave;
-<!--ƒÄ¯™#äG à
-‰«á÷Ut»SÿAh·l˛J¿	,aÖ‚ﬁ‡îT)c z¿ﬁ⁄$ê–õ2ôÑ	òusN%Ÿw¯fm‰¨®‡Ïfô‡Å î´;áÎiûã™Ó†-4’à&h-»	ë7’-áî—QT4=ƒôÕÃDhö$˘3≥YßQçËxDûJwfÂë∞Ú‰‚WÌ¶pÀ—}˛≤6Ü¬≤¢àfÚùì|µÄù†:ß˙rM~º ¥›e√èg3-j8S›GA -->
-
-&gt;&iquest;ù&Yacute;@&laquo;&Igrave;öå\&Agrave;&Uacute;ööê&Ograve; &egrave;q)&ETH;)ö&ecirc;ö çq &agrave;Rín&Ograve;-&macr;&middot;&cedil;'? 
-$&ouml;C+&Uacute;Ä&aring;ë&times;Ä&iquest;&egrave;2+ã&raquo;ì&Agrave;28ö&copy;&sup3;&Otilde;+&frac34;@&ucirc;&ucirc;&atilde;&ugrave;9ã.4ì&agrave;q &szlig;&Ugrave;4&macr;&times;&agrave;=%&frac14;ì&otilde;&sup3;.ö&eacute;&Aacute;&quot; 
-&agrave;&oacute;*%&Igrave;&shy;&ucirc;ù8&raquo;&shy;@2ûáõ&Aacute;&not;-&ETH;i&Acirc;-ì&Acirc;é;&gt;9&ocirc;BöIB&auml;?4ö1&uuml;&Acirc;8&euml;â&shy;&ograve;CR&plusmn;'Ç 
-&acirc;ë3$&ocirc;4$4û7&igrave;&Agrave;ü&Atilde;&frac34;&ccedil;&aacute;2;&frac14;&Atilde;&icirc;&Ograve;&Atilde;&Otilde;r 
-tÇC0&frac14;&Atilde;û&cedil;8t&Auml;2&curren;-F&ocirc;B&szlig;p&cent;A&Oslash;c&Aring;Vt&Aring;WÑ&Aring;Xî&Aring;Y&curren;&Aring;Z&acute;&Aring;[&Auml;&Aring;\&Ocirc;&Aring;]&auml;&Aring;^&ocirc;&Aring;_&AElig;`&AElig;a$&AElig;b4&AElig;cD&AElig;dT&AElig;ed&AElig;ft&AElig;gÑ&AElig;hî&AElig;^&not;&frac34;&ordf;+&Aacute;Tåï&gt;&acute;â&sup3;ùã&Uacute;&Aacute;&ograve;&raquo;@&iexcl;.&ucirc;&laquo;&sup3;&Eacute;&acirc;&ordf;&Igrave;2 
--õ N&not; &quot;&igrave;'&yacute;&curren;R)&iuml;&oslash;+B1U $u&Uuml;DÖ&Atilde;)&iacute;KA&aelig;&thorn;B&sect;ñ&acirc;*&ecirc;&Ucirc;&Ccedil;*Éâ&Eacute;&Ecirc;'1G&aacute;AG{
-<!--©rHolGpåøÉ$GÖ$DÜ$öå§vå»ÚK¨€´»—i©‡”≤úTØª8§¬FdnTì$»{2»q|DñÃI·Y(mlE$ƒ?]ö –Btº©vT…1‘ Ã¢I¥¢«jbB‹¬õb(~¬ßÏ#Iîõ8⁄€Ad $˘Î)∞‰H©B©∞J·¿ Ï¿…jB◊ ~ÀñK‚A'(4KôÈπASπµƒå∂§†∑¥ô∏è<;¡©ºÀ∞ìuT:æÙ*ø√ñ ¡º-a(L≤‘ß˛Ëé˘ËßÑ§äö?üâL≠úÃß”™-->
-
-Ñ&sup1;n&cent;J&frac14;å&Icirc;&Ocirc;ìAT&Ecirc;&iquest;$&Auml;&Ntilde;&macr;&Ograve;
-<!--Mú¬ì¥ƒ®§ì?r4A≥≥€øåCÑ4GlçBlŸ≤	·!≠EL√…ùÊ ¸É∆íøw∫-->
-&oslash;&laquo;ì&ccedil;&Egrave;ç&middot;&uacute;ê&ntilde;êN&Agrave;&cent;&Icirc;&ograve;&sup3;&Icirc;Nl&agrave;&ordf;9-d&iuml;å &eth;\D&ntilde; /&copy;k 
-&oacute;8&Yacute;&uml;&gt;&otilde;|LlOòxO&egrave;*9 4@&acute;&Aacute;&Ocirc;44&uuml;å3&yacute;&thorn;&igrave;&Icirc;&cent;ã-&aring;!D&aring;PN*P
-<!--P¸çÕDõÆ}Lé\®	≠OmM!ÃŒ˝îÓ/®dE<ú8"´ˇº2ﬂ≥AJπ2îΩ≠¯dƒ¡î’¬≠Ä2˛®‹î˘ê“H9R¡ô2ÎêÈ)ß“jR˙,“‹òR©Mhb“„qRÁãRüªP≈˘ã ∏Œ-=9•*ïŒÃª”!S$4”ES%ßÈ,+‚È-(u88u¬Òò”+À;Õ./Â”f¬çº-->
-õÅO&ntilde;Ç&macr;&cedil;êä&sup3;&ntilde;ê&Otilde;&middot; 
-&euml;&eth;&iuml;&ntilde;ë3ó[80 &cedil;1&igrave;y\&ETH;&iexcl;&oslash;uQ&egrave;/x#b1&ugrave;zf 
-&oslash;û&uacute;BW&iquest;hÄ&iexcl;(ã&ugrave;ä\ç+&reg;&aacute;òë`Éqã&Agrave;&Agrave;b&iacute;Yê&cedil;èyì&iacute;&thorn;xêù&cent;ï&sup1;&Yacute;h&eacute;ùa&Ouml;äi1äÑxë&Aacute;&Ouml;nm_oXài&thorn;&iquest;i&ordf;J&Ouml;K&Uacute;&Atilde;&eth;ÄRÄHZà&ordf;$!&acirc;ñkïÄk&Oslash;ólà8&aelig;&sup1;&Ecirc;&pound;&Aacute;&ugrave;&egrave;Ö1&cedil;éÑp&iexcl;f9&Atilde;Ö&Egrave;ÖïÜg#&nbsp;å_~&shy;&micro;Q'q&Aring;'%&cent;&eacute;ù&Atilde;&cedil;P)&not;z 
-&divide;&deg;Ä2&ouml; àà  #}èd&cent;&THORN;&eth;&auml;ë &igrave;&plusmn;#.Vhä&sup1;`ëzÉ(1&frac34;A#àeúxÉQç&Yacute;&deg;&ugrave;xÉ&Ecirc; 
-&deg;H&Ugrave;ë&brvbar;&Aring;&ccedil;ôi&Ugrave;&iexcl;Bx&ecirc; a&szlig;xYã
-<!--≤úë†w)ñï†7ud` ¿åØy'îNá≈¶[`1-ëa˛Qb+»HˆÉ_±ÄA‡ÊxòD.¿∞,v1n∏Ö»∞äîj*‡rÄ|ÿÉÛïÄŸœÿñ√=iïÔ…í‡Ö°»êèØŒê†`ä-->
-âH&eacute;&szlig;Ö&Ugrave;É[&agrave;&times;i9&Egrave;&egrave; &Acirc;&Uacute;@&Atilde;&eth; Swpr&Ecirc;&ntilde; XH&Oacute;ô\ Lí&Iacute; 
-&iexcl;Aë&iuml;&euml;?&ugrave;&Euml;G0õeÉRHÉ&uml;~&Oslash;Ç-&Egrave;Ö\&ocirc;@7ÜB'&ocirc;\ÄÉ&Atilde;&egrave;ã&Eacute;é^&ouml;&uml;&ETH;@&Icirc;&sup1;&nbsp;7&cedil;&iexcl;rAXïHáì!(+N&Ecirc;?&eth; 
-BÜ1&ETH; &ograve;&Otilde;l&iexcl;&ograve;`&aacute;àHÖ&plusmn;ñ&quot;&Aacute;&Ouml;;ës&nbsp;íí&Ouml;á&AElig;&uml;&uml;Gõ&cedil;&egrave;&euml;&curren;Cy 
-ñ&ETH;uZ'&curren;&eth;&Iuml;&egrave;*&reg;iA&Ograve;`r&eacute;É&Agrave;Äp148å&laquo;YëÖ&Eacute;&Ugrave;S#&sup3;&ccedil;-&uml;&para;ó/ê#àn@&laquo;1 
-4ñì&euml;É&cedil;|B+&reg;Å&laquo;&thorn;&ordm;&ordf;Åçón&plusmn;&yen;[&deg;N3&Eacute;?&brvbar;&frac12;U4&brvbar;&Ucirc;r&iquest;3Y&laquo;&Ucirc;P&Ugrave;&THORN;ìë&sup2;&acirc;&icirc;&atilde;&AElig;YG&yuml;  Å&ordf;N&aring;`&laquo;&Acirc; 
-ï&ntilde;èM&szlig;àñ&ucirc;&pound;&otilde;$!&nbsp;&ograve;8u^p&egrave;Ü8&acirc;@^äx&acirc;Ç&nbsp;&icirc;&iquest;h&ocirc;&Aacute;`ù&ETH;êõ&iquest;t9 o&Agrave;&Ouml;&Egrave;ë&divide; 
-.hç&agrave;é&sup1;&gt;H5&cent;&raquo;.&acirc;Ü&cedil;&iuml;&macr;ò&macr;Uôp&para;&ugrave;;&raquo;&brvbar;&middot;&cedil;å:&auml;`&reg;g&iquest;Yù8I&divide;&plusmn;{mn|pÄ&sect;&macr;&atilde;J%/&Ntilde;xè&aacute;P&Icirc;HÉN-\&oacute;$&euml;I&Ocirc;&Uuml;îkãk 
-&shy;&thorn;&sup3;&szlig;áwú&Auml;&egrave;&szlig;å&Agrave;áìQü&Uacute;&quot;&aring; &Uacute;cO &gt;êì&macr;ûû3Å&ordf;S1u9u&thorn;/Çì/à ôç&Agrave;&Ouml;_o^ 
-&plusmn;óqç0&ograve;&deg;É&uml;'à&Auml;@J9&egrave;R9
-<!--‰≤º0”õ—c"{‡ª—í¡µ¬&.€àˆÜ(
-Ï∞ŸUIy»L˙4^⁄$ÌÛ∏Å}≤-->
-&Ocirc;v&curren;&Iuml;|bÖ&igrave;7|&copy;à&frac14;&sup1;êa&Aacute;&Icirc;&frac12;{&Acirc;Ni1%&Ccedil;î)&divide;&Egrave; 
-#g&Aacute;Ç&nbsp;å7f&Atilde;âÇ&ugrave;r&Oslash;q@&Icirc;&Aacute;&Auml;)&auml;rêõ&acirc;bét&euml;8&Ograve;&AElig;&Atilde;ãò6hf&auml;&iexcl; 
-]}.&cent;&ntilde;&Ocirc;ãÉú!H&Iacute;&Oslash;Öù6#&thorn;pÉ&Oslash;&Ograve;&Aacute;ö&brvbar;m1&thorn;b&szlig;&Aacute;tL&ordf;lq&aelig;Lã{#ûma&sup2;&Aring;Zó&Oacute;&iacute;&ETH;*&uml; ^H 
-ò&Ucirc;ì\&Uacute;{g&Iuml;&Uuml;&laquo;&ograve;d&Igrave;7v&AElig;&laquo;kÅ;&micro;&sup2;&Eacute;ã&Auml;&frac34;ë&sect;=õ&eth;^&Auml;áõC[ê&sup1;òC$&egrave;f&uuml;q&plusmn;&cedil;ãcê&uacute;&Igrave;ç&Igrave;&Aacute;2b&Ecirc;&Iuml;Ç 
-ìk&eacute;&raquo;&middot;&Ecirc;à&Ograve;mv&egrave;;&Ccedil;&Oslash;t&para;&Ccedil;éE&Icirc;ú&Uuml;g&cedil;&raquo;S&macr;^=!Z&egrave;'Mr?&Ugrave;&cent;7\&atilde;)Wí&acute;0&Oacute;nî1&ordm;z3&ccedil;&Acirc;Ö{|&Uuml;&auml;&atilde; 
-?_&gt;n&reg;&iacute;zr&Auml;7&eacute;&ocirc;&aelig;@hk&shy;&ocirc;&Ograve;Å9X&nbsp;ã]O&ntilde;PA Äüsjù&iexcl;&Ograve;Dc&Ugrave;aõ 
-&uuml;&plusmn;&oacute;ò|LF;hS&Aacute;#n&Auml;ÜM^&nbsp;sD.vqu.&oslash;&igrave;&ntilde;w&thorn;9,6Mâö3@:b&Eacute;&Otilde;õ`S&eth;fd û4`ov&not;ÖëåzE&Egrave;ç 
-/5&Ccedil;&Ograve;IbYd:q,&para;jH1É,Fò3&cedil;&nbsp;ôY&Oslash;&shy;&aring;êÅ&Egrave;&plusmn;$&sect;èú&AElig;d&cedil;`&Igrave;ô&uml;A(A&gt;&deg;&Ocirc;Ç0egRñ/&Ugrave;$9vXêèr&auml;â&Uuml;U1!&ordm;]KÉ%$ùJÖ&Acirc;e&uml;&Ouml;&copy;&otilde;íÄ&cent;ñím4X 
-&Icirc;&otilde;fQáFUÄ|2 &times;jñAé&otilde;j: j&otilde;T&egrave;&acute;7Ä&ordf;&Acirc;a&sup1;&laquo;I&para;&Aring;D&times;b&plusmn;E&cedil;*nd/&Igrave;U&Ecirc;Mbz&Atilde;á]
-<!--À-->
-
-)&Ucirc;kÉaUê&nbsp;&iexcl;Å&aelig;[CjÖ&Ccedil;P&yen;*+É&middot;4ÅL&thorn;&deg;&not;&copy;&agrave;rKvrÇZê&Auml;bB&eth;ÄT&uacute;HP&szlig;bp&eth;A{&curren;c&Ccedil;&laquo;&ugrave;&ordm;d&sup2;&Atilde;&Aring;tã&Oslash;U/&thorn;1Ä 
- 
-<!--Üã|‘àFiBﬁCÈÄo%îœ%;Ï∞é∆lqÙ∆Ìh@:Öíñ'Qhæño®YüäÎ≤*!J‡fª	ñVg.ÿ ¡{˝©…n˙9¨‰‡I≥<t•OÄ g$a[á6‹-g˙tÑ-->
-Noûnâ&yen;&nbsp;Ä/YPóVñ&micro;&divide;&Ccedil;2 &sup2;å*&eth;&auml;A^C&oslash;àÜ&aring;N&aring;&otilde;g&raquo;&ugrave;&frac14;&ntilde;Üy&sect;I)&Icirc;Rá 
-`e9Ññt-E&Auml;í4X&cent;Z&agrave;ùDg&oslash;í[@lW6ñ&yacute;'Ér&para;-&micro;Ç*&Ucirc;%&Agrave;M&egrave;&egrave;&sup1;á&nbsp;2ú&aring;&THORN;H(&nbsp;n 
-&iacute;&aelig;&micro;&curren;&ugrave;Tc^@&uml;&aelig;&Igrave;&brvbar;ñ&ouml;dO-Z&Egrave;&Igrave;&cent;&micro;PÅ&brvbar;x&Igrave;&Ugrave;ïplá&copy;&agrave;&copy;PS8_S:7&macr;@)GI+!ágZ`át@I+&ecirc;&quot;&Yacute;&Ccedil;&ouml;WógS&ntilde;USû&ograve;&gt;dNX&Acirc;í&times;öcá|&Icirc;Éc&eth;èö&eth;Q&Euml;-&pound;(&pound;(H$`é?&eth;I+3 
-ïuã=ú&Eacute;1*&Egrave;&Ccedil;&micro;&uml;òL&ntilde;k&Iuml;&sup1;&Yacute;rÇ+#&Uacute;MX*&Iacute;&shy;t&Egrave; &iexcl;&Ucirc;H&ograve;É\&cedil;`2xÉ0Ñ&aacute;
-<!--Oc'äåÚG©Ü h%\J«¸Œïπ†z,qÄò¯<<˛ÜpÖtW‚ÄÊCwvÒ¿Ù2&-->
-&plusmn;&gt;&Uuml;0á9&quot;&Aacute;Üâ{ 
-9  &Euml;fJ&euml; 
-&egrave;Ö&Eacute;&Ugrave;é&THORN;b&ccedil;&Ecirc;&ETH;&atilde;v&plusmn;c&uacute;&uml;B&sup2;NX&igrave;&uml;V8&divide;o&agrave;MPk&Aacute;&aring;&nbsp;TWNù&Ograve;õ#\L&nbsp;&ugrave;0(M&Agrave;&raquo;&Ocirc;&sect;å&ugrave;&eth;jSí'&curren;F&euml;Qv&ograve;(fõí#N&nbsp;Å&Iacute;,h&Ucirc;&Eacute;5bf$bN&iexcl;*&ograve;ê7&igrave;a&uml;&iexcl;}&iacute;]&uuml;!z&igrave; 
-&Euml;&yen;K&THORN;pY&Oslash;b/zY U~óñ&Ntilde;4:&Aring; 
-&Icirc;&yen;&uml;úOM&otilde;:E:&Atilde;Xídí3&deg;o;`&Atilde;&ETH;a&frac34;pI&Ocirc;HeB&Yacute;&Igrave;Öl''Dfa1&Ucirc;x&Igrave;@&eth;aÉÑ,C'yàm&sup2;&auml;&Uacute;&Egrave;B%àT:&iacute;f|#&egrave;,&sect;&frac14;&thorn;Za&curren;6g&nbsp;7&Uuml;&plusmn;-H&Euml;ç[&Oslash;&aacute;&raquo;&Yacute;úü&Euml;
-
-<!--eÂ ºÌ4n2R4P…ø~^x`∑#§z1ÃDlg;ÃE9@√|?ÃìQÄ$l@ıÚQíã∞8π^„† +cé<≈•b)g⁄(8ÖóöÔçØ.qCª)–t:Õ˝$_AÛóÂ∂“%z%(√å
-‰5†ñHÚABW&K¢EÖ∆Ùá˚§C3∫ºäx'ôé¨l9)Ï‚öß¨Ü.‰êÅõiíúDàXÕ[Á êpd2qcC»Ï2ÊëÊQP∑q@¢á‹H˙|¯áπÍ≥!Ä»¶‚=…ßÇ˛B“Ô⁄Åí2pÅ?V
-€T4#-->
-Ä&brvbar;ï)èÜ&frac12;o&gt;a&Oslash;Ü&Agrave;&ocirc;&ocirc;2î&eacute;QU '&Eacute;&cent;.&ograve;&iuml;
-<!--‡?pOƒﬂ£ıûæGá.®Ç√[ÛÄÔ<!InA`Wahÿ˛√-->
-&nbsp;&brvbar;&aelig;Éé@&acirc;&agrave;B&shy;1;F &deg;&aacute; &Iacute; 
-[&iexcl;]GêY&Agrave;ê&middot;&cedil;&gt;p!ÅTû&oacute;3&agrave;&Atilde;4_yoà&Oacute;&curren;d$&ugrave;rP&macr;I&plusmn;$Ö&ordf;&auml;&Euml;t&laquo;2x&iacute;nãY&Ouml; 
-^á&frac14;&Yacute;&macr;Ç&copy;6&Auml;ú^oP&Uacute;&ouml;&uacute; 
-\&brvbar;&copy;&uuml;&acirc;jo&ocirc;ÑäNE^R|)&igrave;&frac12;Lí&Euml;&Ccedil;RI&uml;)&deg;&quot;nraE&Otilde;m&Uuml;q'&uuml;B&times;eãF&iexcl;,&Eacute;sâãÜ&frac14;ÅFô&thorn;1Uo&ETH;&Ocirc;_
-<!--+¨\|Ü∞Ja|á˙Ås@›X‡»$ïƒ$˛YÑ•PYh∞˛]ä¬∆ ^‚±B-∞Ç÷ﬂ‘ÇK$‹aúDIê`‚M !Ωä…ëEK§ÿ‘DähàˆËZÜ$m¡Ÿ÷E(ïßE[Òâﬂ¸Ω…Vm’˛]HaPΩÖ∆ÖÿÅ0x`Ø%ó_:êé\ÇÏQæ‘®’|áˆ-->
-
-&quot;á[&acirc;&aacute;Ü&frac14;hÄ]@AJ&macr;ë&Atilde;LÅ(&Atilde;bÑ&Acirc;&cedil;&Agrave;`&Acirc;d&igrave; o&ETH;$ Y&Ugrave;ï&Yacute; 
-&Eacute;ånDá&frac14;5Lhà%&thorn;\&acirc;KMa&Eacute;U&curren;a&not;%_&Ugrave;&Icirc;(&cent;*6&otilde;&ntilde;&AElig;@pH&acirc;DT&Auml;&Ecirc;&iexcl;ô'&Acirc; SO+rá&times;l&iexcl;nP_Ü 
-&Ecirc;r&para;sì&igrave;&igrave;&iexcl;&Aring;WxR&ccedil;&Icirc;&nbsp;ûVôûY&Oacute;rÅ&AElig;Ü x&sup2;c`&agrave;ayñ&curren;P`&frac14;E&Otilde;&agrave;&yuml;&sect; 
-%&Auml;1}&thorn;(AF(&Aacute;&agrave;&Aacute;ÄÇàr&Auml;;&uuml;Ä&igrave;ÅXÅFî
-<!--hD†@$O,A"&ÑYF¨¬X]TÅƒHT¬éä¡^<”ÿ †Ÿ÷<§‹˝¿ä™-->
-Ñ\&copy;#&cent;&not;&Uuml;íL%ÜXh &ouml; &ucirc;)&iexcl;ú 
-Jb&eth;eT^ü+Y&pound;v~Gûnã&ntilde;ë4çv&quot;&sect;YY &iexcl;&gt;U&uuml;(*n&Yacute; 
-&Uuml;&ordf;ë&igrave;&times;&reg;&micro;S&Eacute;&Aring;&gt;&uml;&ucirc;&acute;ù^ü&sup1;&Ntilde;&Ocirc;&sup3;&Iacute;õ&sect;6sî&Aring;s&agrave;&micro;&Ntilde;Ä&thorn;FÑ&Acirc;&uml;hÑöÜÅFPÅàA&cedil;&Atilde;h&Auml;ú)#h#@A`Ä:&Aacute;&middot; 
-#\k&para;&quot;C;&acute;+Ä&egrave;ä.&Aacute;â&ordf;C!h&Auml;.î&egrave;&sup3;f&Auml;!îh+hÑ &uml;`@&acute;ÉF&auml;&euml;L&eacute;fÜ&ordf;[&nbsp; hD8&Auml;ôö 
-]&Eacute;ZÄ$å&uml;&Otilde;i@ùX&curren;*Gy&Oslash;gw&ograve;&iexcl;&ouml;òê6&Ccedil;6aqa&ETH;&eacute;&yacute;&Iuml;&otilde;dùÜ&Ccedil;íã&iexcl;ú&Aacute;ûñT\&micro;hï5h$~ç&Acirc;ì&acute;tG&cent;.#w&Uacute;&Eacute;nè&Acirc;L&Euml;&Ecirc;í 
-Sû|NMT&Acirc;%AG^&egrave;{&aacute;i&Icirc;'qp&iexcl;&Acirc;%&Iuml;$ã&plusmn;&gt;Kâ&frac14;&iexcl;&sect;&Ograve;û &Oacute; &iacute;J
-<!---ÌÙ˛Ü‘jm4m»Ü»¿rÇF@πæk(,F;ÑÄ;lFT¿ôb
- hD;‰Å¿ñ(–ÇF®ÉÇFXöñh‡fD(‡¡¨u,‘µ
-Å√≤¿-->
-p2 A`VA&not;:D&reg;ú&laquo; 
-ò&uml;&egrave;&cent;&icirc;&raquo;&thorn;&Agrave; &Igrave;&Agrave; &Oacute;&deg;&Agrave;&quot;A&frac12;fD &Aacute;  &Acirc; `@&aelig;m&Auml; &uml;C&aelig;ùÄF,&sup1;^nF&Auml;&deg;:&frac14;&laquo;hD=&frac14;&euml;TÅA&ocirc;Zp``thF&Atilde; 
-&uuml;&aring;TÅåf &igrave;õ&igrave;&Ucirc;ëf(TA 
-&iuml;Å!(&agrave;u&eacute;ó2v&iuml;&ouml;&uml;$v&eth;!aãèç&AElig;%^&ordf;.9&uml;YUç&Ucirc;&igrave;&times;&Ocirc;H&yacute;6pq9/&laquo;`&ETH;M&aelig;a*!à&Ucirc;
-<!--"wNÑÍ/w∂"rZí\È≠E˚
-eˆBË•VD˛¢d4°ô·-W1´êÅ62tµÏ≈I{~a&ª¨¶ÚpM™°Aç'ÎG&0˛wBËFFYz¶ûpÿ¡≤BC1hXÎƒùf Ä,<¨F–Ç	¸•ã˛¡4k¡*T¡òÅTAfÄÓã¿¿_˛-‘Û;îâíæá,ÅF(A+ò-->
-&igrave;$8Å4çI3 
-&ETH;å&AElig;ù(t1xt:õTÉ 3+&sup2;&AElig;&sup2;&iexcl;&aacute;2[&egrave;&ntilde;&middot;`&Otilde;`&atilde;&eth;&micro;&ordf;&Oslash;&cedil;Y%mx&frac14; +s'Z
-<!--UäA”Ns‚’i&ÎÙz‚rù[KZó∏Ìxä[~UrM#v<eñU“∫2_ô’ ¬Ô(Üá!nÁ!+-R;†ıu5~äµu±2Y±˛§+Sµ˙Ã“[/'-/:–≠∆—¸—JD*M ™Ñ¶ ˛âe1—Ï{±ï≈—VJ˙i»rU°$nÌ#$VÇM-xm“MU#_œ_~}bxÃ™£¶Ñ-->
-
-&sup1;p&iquest;&Eacute;f&eth;5&cent;&agrave;&Oslash;p&auml;t&uuml;&iuml;&ucirc;e7U&cent;&nbsp;K&agrave;-&ugrave;W&iexcl;å 
-&middot;û&Ccedil;ñ/aw&ouml;&sup2;&ograve;v&Atilde;&acute;&Ouml;,mä&sect;8&uml;\u&szlig;\z&Ouml;(&macr;&raquo;i&Ecirc;Grz&uml;{F&sect;_õ&Ucirc;õ&uml;É&uacute;&copy;&ocirc;ç&brvbar;ó&uacute;'ô&ordm;&uml;&pound;&uacute;&brvbar;'&not;_:&copy;&raquo;&uacute;&Eacute;&Ouml;&ordm;&Ucirc;&ordm;&ordm;&not;&Iuml;&ordm;s&sup1;-&thorn;&laquo;&Oacute;&uacute;&copy;[&uacute;&frac12;&uacute;&ograve;^&micro;&ograve;&THORN;&cedil;&uml;({&brvbar;ã 
-&not;g:&sup2;o&ordm;&Oslash;&raquo;&micro;_;&para;g&raquo;&para;o;&middot;w&raquo;&middot;;&cedil;á&raquo;&cedil;è;&sup1;ó&raquo;&sup1;ü;&ordm;&sect;&raquo;&ordm;&macr;;&raquo;&middot;&raquo;&raquo;&iquest;;&frac14;&Ccedil;&raquo;&frac14;&Iuml;;&frac12;&times;&raquo;&frac12;&szlig;;&frac34;&ccedil;&raquo;&frac34;&iuml;;&iquest;&divide;&raquo;&iquest;&yuml;;&Agrave;&frac14;&Agrave;
-
-<!--¡º¡<¬'º¬/<√7º√∫Ä«—hk¯˛ox|RjQ%o£ﬂ`Ô4Y	√uiÎ˜úá"E††ßäd/6Cà¸c{º^ß∞2Pi[∂ƒø<_SY≈Î<seÄG«îÁµ«∑2»ã¸`ì¸Oõ|j°†ÄØ<‘∂¸hø¸N«ºB»≥∂ÕC∂—[ºÛº-->
-&Oslash;î |&raquo;&Ograve;&Ntilde;[&thorn;^c&pound;P&Ecirc;q~ 
-&yen;&eth;&uuml;pc&macr;&Ucirc;&macr;&icirc;K&ccedil;Gìa&curren;&yacute;&ecirc;;&thorn;&Uacute;J&auml;óR&igrave;s&ograve;s5&aelig;Cm&Ograve;n&thorn;à&ucirc;1&laquo;Ç&frac34;Ä&euml;&ugrave;ã&Ccedil;eyö~&ntilde;&Ccedil;&Ecirc;~&atilde;ó&THORN;&ograve;&Oacute;&aelig;&euml;ãç&ocirc;&plusmn;&quot;&ugrave;ü&ouml;&ocirc;&middot;9&icirc;k&ugrave;&sup3;&iexcl;&middot;&oacute;ç&ordm;&Otilde;&iquest;&pound;f&Ugrave;Ñ&ograve;&euml;uw_?@;&Oacute;bJ&Aacute;Ç-&icirc;ë+ò&pound;&Aring;á&divide; 
- #(å&sup1;{&divide;Zd$&ccedil;&thorn;&Agrave;&quot;&Auml;É[õíqäBéKrIp&Ecirc;EëS&igrave;&nbsp;&aelig;&Agrave;A1J,&uml;&deg;&cent;Jñ&quot;ú&copy;&deg;dCà/b&frac14;à&Ntilde;&agrave;Å, 
-&quot;$&Ecirc;&ETH;&aacute;è:)v&Igrave;&Oslash;bc&Ccedil;&uml; 
-Eí4Yë&sect;&Iuml;ü&divide;^&AElig;T8&sup3;&aelig;&Iacute;Ç9Y&ograve;&igrave;:&ograve;m&Eacute;ëhU&micro;&ecirc;&ocirc;&pound;RêMü6&frac12;;&micro;&aacute;&Atilde;à+Ç&Ocirc;&Egrave;&ntilde;&acirc;&times;ú+&iacute;û,&ocirc;lZô4m&acirc; 
-&middot;&auml;&Uuml;üvÖ&aelig;%gî&iuml;]&iquest;L 
-n*ua&aacute;&frac12;N&atilde;:XZïvm&Ucirc;Ü7&aelig;&deg;ce&Ntilde;&raquo;vì&sup3;s&oacute;&acirc;ôñ&iuml;YÜ&Uuml;*&Ntilde;&middot;ä&sect;X&yen;9öúCÇK&oacute;5n'&Ccedil;&szlig;É&Yacute;v&THORN;&Oacute;&middot;&oacute;&acirc;&divide;h&ordm;&shy;8úx&Ocirc;û&ordm;y&yacute;[a&eth;&aacute;&Ccedil;ç7n&copy;úy&thorn;&Acirc;&brvbar;KIíé#&reg;&not;&ucirc;&iacute;%&iacute;`&ecirc;5&ordm;&brvbar;è,&micro;nö&Iuml;&frac14;&auml;&ETH;&pound;i'&aacute;,&ocirc;h&curren;&divide;vìk&sect;&euml;Ä:&reg;&curren;&ucirc;äq?&acute;&uacute;s&icirc;8åê&ordm;&plusmn;;P&curren;&iacute;Ñä%&times;#OBú(L&iuml;B&ouml;Zr/&middot;;&ucirc;ê&gt;1&Auml;&Iuml;D 
-ó{&laquo;&sup1;&yuml;&nbsp;së&Agrave;ÅZÇ&Ecirc;&acute;&Ucirc;&deg;&acute;ç+î&cedil;T&Eacute;&iquest; 7&Uacute;M
-<!--ßí{»™≠{°åŒÉ®∞∫$0®∂VÏnEÉzí,•ìT‚iMàr»°"AÂ2o ≤äúÎK†—Â™¢Õ4ïbìB7Ç3)åÊÃl);ó¬s#=GÌâß¢îö"–AπÏmø-=Tî(Fï©L´Œ$â“5ì≤
-S„Çå§NâªT˝:˛õÆK-->
-
-O-&Otilde;U&Eacute;!tL'aM&Ocirc;&Euml;YS&ordf;u&shy;[%&Otilde;U&deg;J{m&igrave;&Iacute;`7&aring;j&Atilde;&Ntilde;&sup2;Ló&copy;SU&micro;â&Otilde;&Egrave;ä&quot;&laquo;&ETH;ë^&Ucirc;èAWW 
-N&Auml;&shy;åsV?å&uacute;&uuml;&copy;&ordf;&Ntilde;&para;&quot;h&ETH;ö&Ograve;&Eacute;a'e&Iuml;&cent;Ç&Ograve;&aacute;&uml;&Ntilde;&divide;nZO&raquo;=IPx&copy;CQ&Ograve;ú&frac14;WEKÅs3&pound;~7U3`'&quot;&Iacute;ÉsHx&aacute;ìñ&times;&pound;à&Atilde;&curren;&oslash;.&uml;N&Iacute;&oslash;]ì&acirc;&otilde;%ê&iacute;çk&auml;&curren;J^&copy;!T&yuml;ma&aring;&yacute;Z.&Oslash;&agrave;hVxOî&quot;$&euml;fâ!&Igrave;&Igrave;&acirc;ù0v7&Uacute;S#Ñu^&cent;ìy5&curren;&euml;3yi5&Ntilde;:.&uml;[&Oacute;&frac12;&iacute;&macr;&THORN;&Auml;P2&ograve;û&Atilde;&otilde;I&agrave;&quot;&otilde;&Icirc;&AElig;s:4\&yacute;&cedil;&plusmn;&acirc;&divide;&ograve;&Ouml;`â&oacute;&ordm;0&Uacute;&aacute;&thorn;6&quot; 
-&cent;ö|n&Euml;Y&igrave;.åO&ouml;&auml;&Yacute;àG&iquest;&iquest;&not;/p&Ocirc;&macr;&Ouml;&eth;6=J&frac14;&Aring;g39&ordf;îJmä,&Yacute;$&para;&frac14;&Aacute;@&Yacute;&Otilde;&uuml;OQ=&szlig; 
-ty&Atilde;;&iuml;!&ugrave;&nbsp;&ouml;&otilde;&Ugrave;U&ccedil;&ecirc;&eth;&Ouml;&sect;+v&Egrave;&frac34;&euml;j:&Ucirc;&yen;
-<!--qÇ.Á]bwÔ<;ΩC/û¬„¡ÊVpÊ]˝“÷Ks≠Ó⁄@“∑æîú˝¶˝ï6∏ Óà¬=‰`«c#ŸJË¶<„D(Hí≤◊w.§,ÁlÃ\ÖäK˛j"◊u‰r¿¡üƒ∆øÇŸ%A\πd@%p65k‡ô»†dÈi!AiVE.¯=,TdCÿ∞ÄﬂiPRÿÇöé6-Ù·â∏,Ê	Q5‹˛P|ÊS.åáçybÂ@»øäΩÏìﬁ-->
-,êé|0t&divide;&auml;&ccedil;r&Ograve;èét&curren;&uuml; 
-&eacute;IC&Ecirc;&Iuml;îû47.*É&Oslash;&Oacute;ûWê&egrave;I&ugrave;iåNT4&middot;HXzL&micro;Ñ&brvbar;&Atilde;&ouml;\áåaå+h &curren;+ï&uml;
-<!--d∞á[X`#«78äœ+ê4¿«ñ<K´f≤≠t4ÿ®ÜdQ˚X8‚ﬁ–á9æ å˛t$â´H «ië3ÏœM≥Qg‡å:NV
-öQû˛ƒëZ»Œ·3@ÉEGõÉæ&4=90é†ﬁpZÂ
-¢	ñÖ-Lw∞]Òéóº‹=$`Qh∑ºÇ®Åeˇ €ﬁ	
-®™I-->
-
-<!--–^«2wk$ÇXˆ¶ˆÁMÔ™"ÙàŒ_‹õ⁄d%›ÎóºÄC,˚Z|» a6âÿO	R›CëP∫—ÕA(¨\@√ª‹¿á|Ü4vb-èºm-->
-
-&ograve;!ç&pound;&Ouml;s&Egrave;&deg;W-&Uacute;&times;)DP&THORN;f &ugrave;&yacute;V_&ETH;ö&Ouml;Ö&auml;HÇgH/Ä1\6&not;&atilde;TS(B êÉ&atilde;eFéÄã*&cedil; 
-&yacute;&Oslash;&ntilde;õS à!à&Aacute;&micro;8Gä3&agrave;Ö 
-&eth;&Aacute;&yen;{&nbsp;&ecirc;@&laquo;&thorn;&euml;Äà&aring;&Agrave;&Iacute;&uacute;eÉÜpÑXT7&eacute;Ä&Eacute;7&AElig;&ucirc;$&aacute;&micro;&egrave;k&Auml;*vÜåëpò&times;Aâ+s&deg; 
-8S&egrave;h&reg;&gt;&frac34;&uacute;SA&ordf;J-&eacute;J:2&acirc;&iquest;! 
-&ordm;&otilde;v'ao@.&agrave;&laquo;MIX&micro;Eb&pound;&micro;äoç&Uacute;IT&THORN;&eth;*L&Aring;z&pound;í|1&middot;MõH&ugrave;[3&aacute;&ordf;:4B&Icirc;PëÅXÇTt&Acirc;,ê&szlig;&iacute;&reg;Ä^0&Acirc; 
-&thorn;&ugrave;&times;`ûÉ}&Otilde;&ntilde;v&Ugrave;0w&oacute;&Aacute;h@C&sup2;o&iacute;Å1`&Euml;O&Agrave;&sup2;&otilde;&Ucirc;Ö &aacute;&Yacute;h@0&iuml; a 
-Ñó&Acirc;&pound;&agrave;&Aring;&curren;&otilde;&aacute;&plusmn;&Ccedil;&iuml;=&agrave;å:óõKû&deg;}Ü_T=&divide;&nbsp;&micro;x&thorn;&Ucirc;h&Eacute;v 0/&ccedil;íe&AElig;&curren;ù 
-&Ouml;@bsö&Igrave;ü&ordf;(`m71&Uuml;&Ocirc;&copy;#eb&ccedil;4e$,&times;&Eacute;&nbsp;,ÄÉ&ntilde;ra 
-3&Ccedil;&Ccedil;Ü&ucirc;&shy;de}&ordf;LO&iacute;3:Äw&yuml;&Aacute;h&uacute;éG&Aacute;Éô&oacute;&Yacute;&icirc;&aring;&iacute;Poò&Uacute;&reg;&not;n:&sup2;&deg;c!&deg;c&Iuml;.&Oslash;É&Acirc;&Egrave;1&egrave;&Acirc;K&ouml;c&ETH;&AElig;&raquo;&ntilde;ë&macr;%$=&ordm;ld5M&aring;ç&curren;&ucirc;&iuml;&atilde;&otilde;@ñ&Iuml;ké.#û&ordf;J&Oslash;-(&THORN;&uacute;&Ocirc;6A(@fe&Euml;Yûh&ordm;,5â&Atilde;&aelig;u/à
-
-<!--£É◊`ﬂN0øFïÑ"K˛mêµ« ÈÇ«ôö†3˙r‘≤Å<@ØCø*Ñ-->
-|&iuml;&ugrave;m&frac14;gT0#&eth;é@&cedil;!ê$&Ccedil;ë,&deg;ä&egrave;$!b&ETH;&igrave; &thorn;&aacute;&thorn;&para;&euml;&otilde;.&atilde;&cedil;&plusmn;&AElig;&copy;A&gt;&eth;&yacute;D0&micro;&Oslash;Ä|&Otilde;&Acirc;*&pound;=&cedil;&cent;&macr;,&Agrave; 
-&shy;!&laquo;f&para;&auml;&acirc;&quot;&Oslash;oû-ù&para;.T\-t&Ograve;âIÜd&ordf;'Z,`&AElig;  &Oslash;A&Icirc;/&macr;8&Igrave;ä&macr;L&Euml;.&Euml;&laquo;&Acirc;P&sup2;&Oslash;@ 
-&macr;&Ugrave;dO&ocirc;&igrave;k#F+
-<!--≤ﬁpª¨P∂å˛¯är∞%´ÿ!Òú≠+¸CP∂Çx‰≈ﬂB‚Ï#ãÿ¡Ìƒä?˛¨ƒﬂJÅ-->
-0&Ccedil;( &micro;V@&frac14;&Egrave;p&Icirc;&oslash;`&Atilde;8Q&Egrave;&Ntilde;&Yacute;&ocirc; .&ordf;&macr;&Uacute;èflhûä èTp&frac14;&oslash;&plusmn;&uuml;ê&Agrave;&Ocirc;Ä&plusmn;ÄQvç 
-&shy;!&Euml;k.&Icirc;&acirc;-aå &pound;&acirc;&nbsp;&frac12;V&nbsp;&uuml;&thorn;M /&Euml;&Igrave;&macr;&eth;&Aacute;par&iexcl;&frac12;&brvbar;a&Igrave;ë&ntilde;8&igrave;&Ograve;&nbsp;ë&Ecirc;&Euml;&nbsp;&uuml;&ocirc;o.&euml;&sup2;&Igrave;&aacute;&Agrave;&sup2;&Ecirc; 
-x&nbsp;&divide;åÄ#@&aring;=8&euml;ò&para;ì&plusmn;$dF&gt;F&atilde;&igrave;&auml;&Acirc;c-&auml;&reg;I&nbsp; \&Euml;&igrave;@&Egrave;&Ecirc;rI&pound;rO&sup1;&cent; 
-q&aacute;&ETH;-&yen;k&agrave;&sup1;&nbsp;2&Ntilde;&Agrave;&thorn;&agrave;f`&frac14;ñ
-<!--o“
-‡~@f-->
-0na&gt;e`&ordf;`&macr;,_&euml;&cent;&Auml; a&cedil;Åy 
-1è&ograve;&curren;*$Üi&Acirc;i&AElig;h&euml;îG&ETH;v&quot;åe&Otilde;&ouml;Üv+2&Uuml;/&cedil;a&frac14;&brvbar;!-&Iacute;1&ocirc;.&Iacute;&Atilde;&frac14;qT%&nbsp;&micro;&iuml;&frac12;&Aacute;&times;*&sup2;n8tîwna&egrave;&Agrave;&iuml;&Auml;+ 
-&Iacute;&ocirc;!&frac12;&Ograve;Å&ETH; &yuml;l8Ü.&nbsp;Ü.F#&laquo; &igrave;!&micro;@&szlig;ò/&ocirc;d
-<!--@•Tº¨M–ﬁ f“J£Ù
-Å–•DœëßˆLÖ-GC∫h"êÃ≤æ¥(ÕpåL5j¥“#d-->
-
-&ETH;R&Euml;T&Aacute;7ï&Euml;[(qo&frac14;O&thorn;|&Iacute;$%&atilde;&Aacute;n_&pound;&oslash;&ocirc;&ouml;7è&otilde;L&pound;9&ocirc; ÜP kk&THORN;J&Ograve;&reg;&not;1?èp&Aacute;&iquest; 
-j-
-<!--gï¢0ã5≤‡
-ﬂÌü$S¸P-->
-&nbsp;ë;&Eacute;ëN&auml; 
-é&laquo;íf&quot;:&deg;ó)&nbsp;&plusmn;7&Uacute;4ê&Ocirc;Y&thorn;,ná;&Uuml;&oslash;&reg;#&euml;Ñ&plusmn;s&curren;_iA&icirc;Å&not;5xÜ&middot;&not;'7&Egrave;&aelig;&frac34;&frac14;&Ocirc;:&sup2;&Ecirc;q&ntilde;*J&para;v&raquo;Öô^@&frac14;f&cedil;&acirc;k&ntilde;&Ugrave;D&sup1;&Otilde;&Auml;&ecirc;úzBW&gt;IO4&Acirc;&frac34;F&laquo;D52&ntilde;&curren;u&curren;&iexcl;Ö(R&Ouml;E&Iuml;TQ&euml;q&Oacute;&Igrave;Ñö1?ô&Euml;8ãÑ&iacute;íO&Igrave;â{T&Acirc;&AElig;KJ&frac12;&ecirc;&iuml;X5&sect;éÇ&AElig;$Äé 
-&plusmn;&thorn;&acute;.k&sect;(&Icirc;ÇQà&sect;;Håcç-&iexcl;e@f&brvbar;#\ej&igrave;@ü[z&para;DGÖ&curren;&uuml;z:éá`f#+&Agrave;3n&Atilde;&deg;!&micro;57&ntilde;TW&ordm;V5&deg;&Eacute;P&thorn;zç&Atilde;&sup2;] 
-Cì&frac12;H&oslash;=ì St&curren;+IEeô&thorn;&ucirc;+&otilde;&Aacute;}&raquo;&micro;&brvbar;&ucirc;73&cent;&Atilde;m&Iacute;BEh&quot;&Acirc;9
-<!--iX.Ü'Ê´æÜb÷ZX?ÿ∫Aú1èÆßÇ@Cñ»a&tcŸ€¿ñ;ı?-->
-x&gt;]&Aacute;%ê&ugrave;J*&ccedil;&auml;&cedil;c&acute;(]Äsê&Agrave;&Iacute;! 
-Eù&iacute;&laquo;&quot;&micro;` D&Ntilde; &frac14;T&szlig;|&Iuml;ü1&Ccedil;&ordf;&Yacute;&Uacute;9`&auml;pâë&frac14;W&ouml;b2pà&Aacute;`&iacute;M&frac14;&Uacute;&Yacute;%\7ë#H&Eacute;\&Auml;;ó 
-wHõ&laquo;3&Eacute;w&aelig;&uuml;Y&otilde;*&copy;.FC$&deg;&AElig;&THORN;`&Yacute;g&Ocirc;&divide;pAåÅ&otilde;é_9,êlUñ.$ö&Uacute;&brvbar;è&Auml;&atilde;&deg;&iquest;&Ocirc;X-&Ecirc;&frac34;&frac14;ìêëú
-<!--∂∫rä)%∆Ü]≤\v˛üÕ— d6åÇJÜ√≥°Õ˛`O≠6QBÏ’rÄ
-)XN€MÛê/ÿAá ¡îkkÙÂ¡ı›¸rÿ“v8/îº	ƒ¨c¨-->
-
-&gt;&middot;Z&sup1;&deg;Që9ñ&auml;l&Yacute;Ö&frac34;&Ccedil;&Auml;/âë&ucirc;f&middot;&agrave;31á&ccedil;W'òHÅ&Icirc;&Ccedil;&auml;&igrave;Äp&Aring; &Ccedil;&otilde;L&Ocirc;&otilde;yA&Ccedil;&brvbar;.^&curren;8_HOTJ&yen;,~ 
-sÑo:åF6&Uuml;ôS0&uml;Z&aelig;&Egrave;UT&oslash;ñ&iacute;&Agrave;&gt;&sup2;Ä&shy;ìMë&Ugrave;&ETH;&Aacute;ë&nbsp;&ouml;ë`Ü&Agrave; 2&agrave;c&shy;&uacute;&divide;&ograve;a7 
-OòBâju(&yuml;&Eacute;3&oslash;&Acirc;i&cedil;G&aring;=6&micro;@v=+@ &nbsp;&THORN;&plusmn;z&iquest;HÅW&ograve;--&micro; &iuml; B&oacute; 
-&thorn;&Ccedil;&igrave;&cent;&gt;â&Oacute;&sup3;&Iuml;Ü&Igrave;&curren;&para;&uacute;5hE7&igrave;ug&THORN;&ouml;4&AElig;
-<!--ËS;∞Zdœk
-ÍL∫3,‰òroJã3gÓùi!qä∆{[‰∞ì√πt∫öd√ÅWÖ˛∏0i≤á-->
-&eacute;@&Eacute;M&gt;G&brvbar;3%&gt;&ograve;(ÄJdóOTï&otilde;&Ocirc;&Oacute;TE&divide;ZlàY&sect; 
-&egrave;#y!IîUD
-<!--MÖe«%ßçFëõI3-gL•å1ú]◊tÊA˛J5πPZ-->
- &plusmn;&quot;óã1&ccedil;BïE5QOID&Icirc;j-&uuml;&egrave;&Oacute;ã;Aà&Oslash;g&Ecirc;&Ugrave;&acute;á&curren;42&yen;ëCG&Ugrave;Å&yen;I&icirc;9F]GàÄ` 
-&uacute;&gt;2ê#L&plusmn;Ed'ô&divide;H5Uú&sup2;&szlig;&nbsp;bx&atilde;W&oslash;&ordm;&aacute;UÜ8&Ugrave;ZEäIé|&auml;Ät&curren;C&aring;&Ecirc;p&aring;ëQMu&middot;?ëQEìE&Ocirc;Ç09&THORN;KÇxJûO#&micro;&icirc;Q&auml;X&ecirc;Oo&Egrave;&nbsp;å^w.&Uuml;&Oslash;&iexcl;&Ntilde;v@bT&Ocirc;H&Uuml;&aring;ó&frac14;P&egrave;ç&egrave;V&otilde;oXjîo&sup3;&Atilde;&otilde;Ymw&Iacute;&uml;ALjS0uÅ&uml;&gt;&aacute;&oacute;ö&times;&Ugrave;Ñ&Oacute;GQ&Yacute;ö&ecirc;\&para;&ntilde;a&Icirc;&Ecirc;-&Ograve; 
-&ograve;&raquo;&aacute;U4&thorn;&ordf;N-ä7&uml;T7&iexcl;M&yen;m&frac14;[&iexcl;n&middot;ùi88&iexcl;&Iuml;Å&ugrave;&Ecirc;éb&eth;_U&ccedil;U4&ccedil;YGÖv&Aring;r&iexcl;&Ograve;m&frac14;&reg;&atilde;k&reg;&eth;17&egrave;n'&deg;
-
-<!--µ»jÂZ¿Õ-->
-I &icirc;(bñ&not;/&acirc;CL&yacute;ñSÄå&icirc;';&cent;V&brvbar;&sect;h&ntilde; }&sup1;&Eacute;éÉ&thorn;Ä&pound;&Yacute;&Auml;!SÜeT&Agrave;&sup2;0&aring;5;&ETH; î&Atilde;A|&Egrave; 
-%Q&THORN;l&Oacute;ó&oslash;ê&sect;Sk&plusmn;àPÑÅë|Hc?&cedil;pIï~íMÜÇTëYV&Ccedil;&ordm;&macr;&cedil;.D'KQ&curren;à%&Aring;C&igrave; 
-phé|o^=ÅUD&cent;&ograve;&THORN;)G &uacute;&Agrave;I&shy;R&atilde;&Atilde;=% Tûp2&Egrave;â*sbJQ,&deg;&para;&Icirc;&ocirc;Ç.&middot;ëÄ 
-jh0cp&Ugrave;Ü&iuml;&Uuml;dé?8&Acirc;ã)&iexcl;Å&ouml;&agrave;ê&iacute;&sup2;3&otilde;CÇö#%w&plusmn;&AElig;F
-<!--±—±x‰î®-->
-&Auml;%îw&Ugrave;)TëA 
-&divide;8FP&sup2;ÄåìAé&sup3;&Ccedil;Nî&not;\-+I&acirc;é&Oacute;Ö&Aring;&not;&curren; hï 
-û&Ugrave;&thorn;ô&Ocirc;Ü4ê&plusmn;&agrave;wPó1u@nC2tô&Euml;$&acirc;&macr;&laquo;ù!âK&aacute;&sup2;iz#nXí&Icirc;HB8F&yen;ãàaC.=â 
- r-&quot;&aacute;&Ecirc;àÑ1&Yacute;&copy;q&Atilde;LZ=&sup2;ñ&iacute;&frac12;&Icirc;2H%&frac12;Ñ7n &Ograve; `P&Aring;? &sup2;0&iexcl;}â/5H@ií2&Agrave;è&curren;í&Otilde;:&Acirc;a
-<!--D:=ü4I"n¯m^v™Ã~Y?ˇ¡g:2mh09⁄F+¨ÖºÀ’0Ä.QÑ`d:KÓwúf–dòhxLò.‚-->
-
-TUYDY~ôX&shy;&thorn;ZbäSÑO9âc&Oslash;&acirc;(&atilde;F~23&Icirc;S 
-l&iexcl;ôKf&ordf;-&iexcl;hY\F&Ccedil;*&Atilde;&aring;&iexcl;p&sup3;&Ograve;Cñbp&Iuml;äé[àç)Ñãë&auml;&Ntilde;C%ç`&ccedil;&ocirc;&ordf;3&Oacute;&uml; 
-0IR1j:&Egrave;elso&Igrave;&thorn;Ä&Aacute;&Ccedil;&ccedil;&gt;&sect;&frac12;&uuml;&Aacute;%3&Uuml;É&atilde;&yacute; H&frac14;&Uuml;Yõ&Ccedil;H&Eacute; ê&iexcl; 
-&deg;&agrave;ì8m!&Acirc;ä&sup3;t-É&cent;&Egrave;&gt;hS&egrave;\&Euml;&nbsp;&deg;&sup1;A&agrave;&uml;/y(â&laquo;Gw&copy;O&ntilde;&Otilde;j,â&divide;jã\&frac14;îm@&Ntilde;&reg;ê 
-$(&sup1;&Ocirc;&micro;3*&acute;í&Yacute;&iuml; ãk&aacute;&copy;&Igrave; 
-1G&ntilde;É&Igrave;&aring;&Aacute;*+&sup2;&sect;&not;&Acirc;&acirc;&cent;&laquo;&middot;ã&sup1;&Euml;47Ä}#FõC8'&agrave;jÉ&curren;&reg;êí&sup3;&Ucirc;&Ugrave;çy&Auml;&uuml;&Acirc;êxÖ&Icirc;&Ugrave;3&uacute;&ntilde;&ntilde;&nbsp;púWWy&Ocirc;cÅDd&frac34; 
- @B&copy;&otilde;!Å&Ccedil;&raquo; ì&Auml;&frac14;r&Ocirc;&uml;&frac12;Ak&thorn;@&times;&sup3;&Ugrave;&iacute;gX&atilde;=&times;&Ccedil; &egrave;&nbsp;&ograve;ï&sect;&Auml; _ä&Ucirc;&Igrave;Ñ&sup2;&deg;x];*&Euml;d&acute;k&eth;ú&uml;Y&quot;* 
-V&icirc;i&cent;}#uÄ&aelig;ÑR&AElig;ço&ucirc;&euml;åI&aacute;N:&quot;o`&Uuml;&deg;1&shy;&Aacute;&ccedil;G2&aring;5&Auml;&deg;pwx&ograve;!&Aacute;&brvbar;5&divide;&ugrave;&aacute;4Ñ&Aring;K2êw&Ntilde;(&curren;&Ccedil;q$%j!&iquest;&ETH;Å%(&icirc;S8&para;S&ocirc;&plusmn;&quot;&Ograve;a&ccedil;`Ç%&Oslash;&Acirc;Q^ôR%êÉ&ecirc;as1&auml;&oacute;o&ccedil;OFk0&AElig;Z'14#-Ç}&Ugrave;O&plusmn;)Sê 
-5:H&Ntilde;O&not;% 2 
-<!--¿ˇS g’/ ¶ıBÂóM)¡•-->
-&thorn;Zsó1&quot;&ecirc;!û 
-QpC&egrave;0&Acirc;1db;&pound;&Acirc;c&ograve;QÅ&aelig;&ouml;&gt;&yen;ä@j&Ugrave;a.&middot;!&laquo;íÅv@+&eth;Ä&gt;X`?&divide;f%ìHâûQ?C&Ouml;d!D%4JÅv&deg;õ&oslash;hå&ccedil;$D&sect;?0&uacute;l=&Aacute;&micro;ñEZ&Auml;8&sup2;keTPA@Qd&not;!vS0ísúìWP4OPâZ&Oslash;$,&plusmn;2-&nbsp;_&yen;BY:ë&euml;vÜA&oslash;9h1ñ&yen;m&times;[óà.&brvbar;aà7'P&oslash;&Atilde;-X&Agrave;@[8&ntilde;dv 
-^&uml;hGB&Atilde;á&ccedil;ó&Ccedil;è&copy;r mryë4&Auml;Ç;Zó&aacute;22&eth;á&uml;M&Atilde;&plusmn;&thorn;&ntilde;ñ&cent;&atilde;2-&oslash;.Kvë&gt;&egrave;Ñ3]&ograve;|:&AElig; 
-&ucirc;E|8{T#Å&Acirc;ã&Acirc;àu&cedil;3=#&Ntilde;u&Iacute;íÑ&szlig;&Ouml;=?aÜã&divide;SÜ4,8X&curren;&ntilde;
-<!--ïcdGH,:÷»Qo≤2∞cékÅX„Be«A¢"8ÔHl.px2ú5ê«ÀÅ7{∞ïs)`•@É¡ÇWôA+V≥v~Ñmt‰
-…áäi<ÛY&%~l∑]dÆ ã†ó
-¬·zÁ4-->
-
-&ecirc;&pound;/&ETH;&Acirc;Y&brvbar;q$v&ETH;CõR*&curren;5~&deg;&euml;Ä&pound;:&Uacute;&pound;&gt;:&thorn;&aelig;&Ocirc;ñRÄZ#0k&aacute;}a ;&nbsp;[&deg;5P?&Ecirc;&pound;=&eth;'&yuml;8o 
-â&ordm;&sup3;bZ&sect;=&Ecirc;&pound;/0||&ETH;ñè&ntilde;S&Agrave; ó&uml;&AElig;&agrave;&curren;v&yen;/P&egrave;@]&uacute;&agrave;ú&pound;Cq&ordm;ëZ&uml;Rj iê&nbsp;&ordf;&pound;&ecirc;&pound;&brvbar;J&ordf;&copy;j 
-ì07&aelig;0V&frac14;&Auml;&curren;&copy;v&uacute;&pound;&copy;ä&ordf;&sect;ö&laquo;&Igrave;0&reg;'A&Ecirc;&times;!&Aacute;&Atilde;)D&aacute;)fn&aacute;p 
-:lê&otilde;iüo&sup2;&Ugrave;&otilde;.-IO&ouml;NígR&quot;` 
-à&copy;$&copy;&eth;^&agrave;z&iuml;{êÇë!!v&acute;v#&AElig;ì&curren;D&quot;u]7&sup3;&macr;+Jäe$\aé2 *f&cent;4'&eacute;&Iuml;&uacute;?&eth;&cedil;&eth;&thorn;&deg;&cedil;`H&Uuml;p 
-&Auml;&Ecirc;-&brvbar;tF&reg;ê&cedil;&deg;8 &cedil;&Agrave;OPOêqh0F&ntilde;1i1Aí&plusmn;p&cedil;&deg;U&sup2;&ucirc;,aD&iexcl;îjB$&otilde;N&divide; 
- 6s+x&ntilde;U&deg;D'%;g3&ccedil; ;x&Ntilde;94V!rLJu Ñ&shy;&cedil; 
-&plusmn;w&Oslash;qh&ETH;*&ugrave;qfãä`?&Agrave;8&uacute;&Agrave;&Agrave;GPo;k&Euml;|0&sup2;$;&sup2;O;ãU&deg;p~&laquo;&micro;$&laquo;&micro;m&ucirc;&para;7&sup2;&Euml;pè&middot;S&divide;+&acirc;&shy;&euml;ä@&quot;h&reg;&yen;És&brvbar;9. 
-5&Ucirc;&para;G&ETH;î&uacute;nÄ&micro;&egrave;z&agrave;'&Aacute;&uacute;&ordf;ö&atilde;F&Iacute;&aelig;N&iexcl; õ:[EL&thorn;!q&ecirc;Ah&nbsp;$k;&uacute;&macr;0^0&frac12;Zv&ntilde;r}&ntilde;&not;&sup3;K&raquo; 
-Téjë&plusmn;J#9êí&agrave;&AElig;v&Yacute;&sup2;&cent;&Ecirc;*vqü&sup2;#&Uuml;&euml;&quot;gW+áó&cedil;x 
-oPé,NgR&aelig;&Oacute;&iexcl;Jjx&Ugrave;y&sup2;&cent;u&iacute;+Y' &quot;áã&ugrave;%F&ccedil;oêÉ&Ntilde;K@6R#&Icirc;&nbsp; &egrave;&Aacute;x&acirc;l:aB9 
-D&Ntilde;Uö&frac34;&sup1;&Aacute;Xê&sup3;Üo`&Agrave;&ugrave;&raquo;h0V&Otilde;&acute;{ê&middot;`Pr&Atilde;&shy;Ç&Atilde;rì&frac34; &uml;&Atilde; 
-&para;9&deg;{&Ccedil;ï.S&Aacute;&brvbar;Å.2&eth;Üê&igrave;ãã&aelig;KR&frac14;&acute;ö&sup3;Sv&aelig;2&oslash;&ccedil;W&Aring;õ&Ograve;&ntilde;}&ocirc;&cent;B&thorn;ü&sup2;ESÇÅ1s&oslash;&nbsp;&frac34;õC&cent;&ucirc;9&Ccedil; 
-&shy;[@n&aacute;D&Ugrave;&Agrave;W(&eacute;R&sup2;9o,&Egrave;ü&Atilde;pxab}j&aacute;&Aring;&aacute;d&szlig;w,*å.&aelig;]&Ucirc;&euml;í&aelig;ò&curren;û&Ograve;r$P7.&auml;&nbsp;&Agrave;&divide;&euml;ê&AElig;îQ 
-b;q&szlig;&Ouml;be&cent;É&nbsp;&quot;?&euml;&Ecirc;~L+K4ÄÅ&Igrave;$/&micro;jF L#ubÑ.?4.&Aring;rí&curren;EZê&cedil;.(&quot;ÖHëè 
-&middot;ÄD&Euml;u&middot;)&acute;&cent;&acute;&cent;&Agrave;D&Aacute;&not;â!ëI&ecirc;&ntilde;m&raquo;&frac14;&Acirc;&frac12;
-<!--°E!˚wå«2õbÊ  ‰:˚ß5¨Uì)öhÚ≠%ÑQöå–X=*∆2#J∆ôa;ı≥ƒ+{«»8+˚Ï‘ª,ÏÁkcM+	3∏ÛíZΩÉ8ÿêÑy}<÷S ¿§uÑ{òQ7ô;Ä9*=qí—Aæ32¬~D°Â»⁄e7uë‘VÕ/±¥_Ä]@I¶ÃÄG1Èê#¡v–—íE˛¬NCb÷ó!Ûtdò/™Ã¥¬Œ„¸#üÕ9òW˝Sò:KA/4*≠Uk€ÀöIÿ)–M'¬Ï)Æ%h¨¡€÷ß≤«R@˝$€R«C32≠Ñe}£7Páös‘«âOûB B·7ê8¢ï ≠îﬁ8yª·2=4ﬁU1"í›◊∑+~,Ã.Ôî]Ìkﬂ∫åªà,˚ÖQ˘
-Ÿﬂ’<k§Z+.Ç"°¨¿êàQ,#$,–ﬂD—-;-->
- &iexcl;&quot;]&Ccedil; &plusmn;{õ&quot;&uacute;&frac12;=@&Aacute;J&Oacute;-&not;5&quot;u'ù`Wä,LF}mu
-<!--À€≈0Åπ¡ûâ&Fåj‹≤— !2ÊÌc0##S„Ñ˛-->
-
-&Auml;öB&reg;ã&agrave;z&Uacute;&oacute; 
-L&Icirc;=&cedil;cï&frac12;&cent;eRJsVî&ETH;&Otilde;ó&Aacute;}v&gt;&szlig;X&yacute;M&not;&aacute;Zo&gt;5&laquo;ï&Aring;&acirc;Cãç^e~ï}uMkm&reg;Ç&reg;&sup2;&cent;&uml; 
-VgÄ&ograve;]YL;s&sup2;&Uuml;{^EG=&Igrave;7&ograve;Xô&plusmn;,&sup3;&macr;&yen;ö&Oslash;&ccedil;&sup3;-I$Z&curren;&plusmn;$&Icirc;ô&Ntilde;&Auml;Ä%`7&nbsp;q&Auml;0%Px&Aring;K&icirc;k[&Igrave;&curren;&Ccedil;&igrave;2ôd1h&Atilde;5-3ê@4Ü`GúYqd&Ecirc;&sect;&aacute;dÖ$&para;Lk&ntilde;.&Ecirc;ú`&Euml;&THORN;l&agrave;ÜmARÜ&eth;&not;ù&sup3;.&agrave;Ü0N 
-)pf&Yacute;&iuml;&quot;&ccedil;`&sect;&frac12;&ordf;9KwF&frac12;5&iexcl;í&curren;&ordf;qÖq.&Ucirc;,#öGï&thorn;&Eacute;*&Ocirc;-{&sup3;&ccedil;Ä&Atilde;.&Igrave;$&aelig;&gt;ÄV&aelig;&sup1;:ë&plusmn; 
-&frac34;UE&eth;B&micro;ëû&Eacute;&Yacute;Sé*_&deg;{H9A=b/íÉ&iuml;r&Otilde;u&times;&quot;&quot;&iuml;ä&cent;BJ0#29&aacute; &plusmn;&divide;xNÄã&Ecirc;@&nbsp;Ph`&ugrave; 
-&Igrave;&euml;&acirc;l&deg;&sup3;&not;&atilde;&euml;&ograve;&deg;&oacute;&sect;E&Aacute; &Auml;@&Eacute;&agrave;m&yuml;&atilde;u&Igrave;ZPâQ gWt#ê}Tp&otilde;&ograve;&frac34;&ntilde;&nbsp;&quot;; _&uacute;&ocirc;&Oacute;&agrave;&Ouml;&oslash;d 
-&reg;&sup2;&Aring;:&raquo;&ugrave;&Oslash;+v&icirc;a&uml;#&Otilde;&ETH;&sup3;}&macr;N&Oacute;çFQÑ;eA/&Oslash;gF-ùY&thorn;7&Uacute;+t&oacute;&iacute;&auml;&Ntilde;&otilde;R&ugrave; &Oacute;]&szlig;&Uacute;} 
-e&sup1;#&eth;Eüü&icirc;Ä.&uacute;&ograve;&frac12;&oacute;ed&uacute;R15YÅ&deg;&macr;r&deg;&macr;è&Ccedil;L&auml;&ograve;ì5&uml;&Icirc;Na},&Oacute;&macr;&ucirc;L9@&eth;hÄX&iuml;{Äã&Ocirc;nL&Ecirc;ú:&Uuml;Ä`&yen;S&Aring;7 
-2n&Yacute;&sup2;`&aacute;ñ!;:àï(&aacute;&auml;Oï*Üd&frac14;&plusmn;ê&Atilde;&Acirc;õ79&Ograve;Y&Egrave;ó&iuml;M&gt;&eacute;n 
-<!--h®†¡äo¨ú2ÂﬁΩSr‰√¢L–MA°¯Hê∞«âù‰Ï»ÃÅ”ËQAªû¸p1¿eæñ‰êk9•≈ΩYß∂ºz∆ÎW∞aøﬁõBé\ã≤gÀæºÁ5Î€≤ FÕëCÓ˛g»•3[µÂ‘≥h£R={&π{Ä≠∫$;’ZªÄﬂ∂mô∞ªQ[ûôr&kU©©¢m!s⁄™é£-->
-
-.{&micro;&shy;ga&curren;&atilde;&Icirc;-[&divide;n^r&uacute;&Ecirc;ñLvpk&Atilde;àWévâ&Ouml;1d&Igrave;&raquo;]û&sup1;ó&reg;&icirc;&aring;&Igrave;R&Ntilde;r&ouml;,x6^&sup3;oM&Ccedil; 
-&Yacute;&Ograve;.U&Iacute;\_&ordm;m!&Igrave;&ordf;&Ugrave;ò&nbsp;1&szlig;&micro;s&AElig;A&gt;;ç)P&agrave;&Ccedil;8E
-<!--y≤°
-û?J(F-äπ¿'@Ü∞à'é*@)¶òúÿ√DÇ)∞¿d ˙'Ã(#ôd4˘√ÕÿcÅUä°°òa‚@£B¥¢Ñx¨@c)$√3®∞¢ÙÑa.§nRÁà•$@„ñÄ˛∫«,≤ ƒ?ûPß‘¡√-->
-
-d&deg;*&cedil;&Auml;î&Atilde;J&sup3;&iuml;Ç*&shy;&sup3;&para;\&Uacute;&igrave;rb&Igrave;&acute;&frac34;LìK-&AElig;&Uacute;z&copy;4&Acirc;Ç&iuml; 
-&uacute;&Acirc;&sup3;&ordf;&ocirc;&Ograve;iA&macr;&acute;&icirc;Z&icirc;L&frac14;&para;&cent;+;&szlig;Z&Ecirc;N&micro;&aelig;&macr;&frac34;&Igrave;&Uacute; &laquo;&Ecirc;Äö*&brvbar;Eô&atilde;&igrave;L&macr;&ograve;î&Eacute;,&gt; 
-3&shy;5&ntilde;(&Atilde;&ordf;OC&Euml;B&ocirc;&Oacute;&frac34;&ETH;ú&Acirc;Q&Icirc;`ï -A?ìä&cedil;
-<!--1=Ô¨?oÕ
-œ9≠
-ª‚*[/ŸTÎdU/=a5Ù≤ı2Úßû¿cÜpö≈K&CIÚ¶]¯AÇp'Z~¯aúwiEﬂ' ∞W_ˇhÈ7î$¯√ú®P)%ŒÖJªÓfJ,	'˛ê†oﬁ=†\	N†r0dèäπI	é0‚		™xí∞]©Z‘ªñÄÌ™MûÃOXœÇâÿ≈Ïrî∂¥Çœ*◊|U.RÕÇˆ.ªZpÏ1Q{e∫+<Ãµ¨æ€Û[^eÇ˙÷·Œí’1¬∆Lè¨¨¯JgÈ†aùã¥¶;ÓñãVŒ´—J<¶ó#‘f¡ÿ*Ø.ÏNùÎSπ˜9ÌüŸNÎ—òÆ*⁄U§ÉŸ"p
-≈Â-oÇ@xb	u1¿`£\?B§⁄	èVpRÚ('<T7¯¶‘QGúî∏˝àyåR‡uöÁ8è<Ó0jûû¯PÁ2#-->
-
- J&Agrave;i$&sup2;ó`Ä&thorn;[2{%&nbsp;,êe\AÜ&Ntilde;wÜ&ordf;&Ograve;â&oslash;vIm&iuml;ò5&iacute;Yû&eth;VO&ucirc;&Ocirc;gà&cent;&Eacute;äPA&copy;ç&aring;j&yen;9&frac14;Ak-&Yacute;Å&Otilde;&brvbar;&para;&copy;XmOië&agrave;y\s9&yen;f/{q&Agrave;&cent;B3U1&ccedil;*Y9Gcû&shy;&eacute;&aring;Lç&plusmn;z 
-52&Acirc;Åçop&ntilde; AóhÖFÉvõ&nbsp;u&Egrave;q&plusmn; *-sK&Ouml;fÉ&Acirc;&times;`%j{&cent;\&THORN;&quot;C&cent;k&deg;U0c&nbsp;&Auml;'&atilde;s#n&Ograve;é#&iuml; 
-T&Agrave;&Eacute;&uml;áÑ|'&icirc;&nbsp;û&oacute;&Auml;ê1Fiê&agrave;@&aelig;&ecirc;0&Ccedil;åú@ 
-^Rá&curren;'àèv7QÄ0`&Eacute;v&agrave;$è;@E,eï&frac14;!t&thorn;7Ic&ouml;f4&ouml;&Otilde;&yen;dohN&nbsp;&macr;&uacute;-&egrave;{ôYM&szlig;cABU&aring;5tìW&egrave;&Acirc;&Iuml;å&eacute; 
-G&Euml;z&ccedil;ó&curren;&Ugrave; .&Ugrave;yã&agrave;î&copy;&frac14;$Vk&acirc;p&egrave;b&sup1;&Euml;k4pã&Uuml;w&ordf;o&Ograve;J8&ordm;$ïUó5&Aring;&deg;PòéU&times;&igrave;í&acirc;$ì+&AElig;B&Igrave;
-<!--¡†`Gör	…¨Œìú?iSiöKQ2ó¶π—<„©ûıídZSùè&Z“·Œc∂ÜüK8ÜÑﬂ	¢ÉTcøå“Å<Ï-->
-
-&Aacute;~BÑe  ê'd&oslash;&thorn;&yacute;~`&sup2;J 
-&Igrave;&curren;&sup3;w3&uml;&raquo;)&Ccedil;ç&not;o&Icirc;&ocirc;ô&para;&ocirc;&ecirc;Xâ&eacute;&ccedil;&thorn;$&divide;bY&Iacute;S&iexcl;&Iacute;&igrave;&Ecirc;p&plusmn;r&times;&pound;&copy;4gM&yen;Ç&Egrave;&Ugrave;&igrave;&uml;&ouml;&reg;&Auml;rs&Ucirc;D/3ç&middot;H.\&cedil;G3n 
-3&divide;4ë}újùy7&acute;\&Igrave;3P&reg;g&frac14;3&ccedil;'dz&Ntilde;âI[ñu&not;&aelig;4&Auml;&auml;â/z 
-Ow&not;&oacute;&aelig;&cedil;&ordf;&Ucirc;&agrave;&micro;Ñâm&ograve;&yen;&uuml;&Uacute;(5%&auml;&Acirc;&ETH;&pound;B&plusmn;&frac34;â&Ocirc;&plusmn;Åw&agrave;d&ocirc;ì&Agrave;Ä&Aring;w_à`'&agrave;y â 
-WÅê&igrave;&Yacute;yHoó) ëL*&Agrave;&Ntilde;&deg;l`&Agrave;NP&laquo;y:&Igrave; ;&Agrave;b&Ugrave;ÜH2ñ-&sup3;É&igrave;A+&laquo;&Acirc;&icirc;&atilde;Çê&aring;&ordf;]Vm&szlig;
-<!--cÁèo&€⁄"]˛·∂6Ejz)a@Uã¿Æmçáó≥‚™¿”¨d]*ﬂ4ñv„ˆ§ú:;Æ5ÔÑfö4s÷3Ú‡V<9Z≈–
-\9xM`ó[µMOÈ©ôı÷˘»|-->
-
-ûÅô&Ecirc;&brvbar;òïp~R&Iacute;^&reg;&ccedil;&frac14; 
-gb&copy;&acute;&ordf;ÑJ&Oacute;&uml;\&igrave;&deg;`ú&Auml;&cent;&Aacute;2&Ucirc;&Atilde;&plusmn;&Aring;1&egrave;&euml;&copy;é?2UÇ}&ordf;&agrave;&nbsp;anüi8â&ograve;&oacute;g)?H4RIs&yacute;@&auml;Z&Ecirc; &ETH;&deg; 
-ú&egrave;}&sup2;z`Vhú&deg;3ò'0ï&sup1; 
-&sup1;ü&pound;Ñ20Éá0ÉK&deg;í&sup3;=&oacute;Ä(h&ntilde;&middot;&AElig;0&plusmn;&Aacute;&oacute;&yen;.&oacute;3&cent;&iexcl;&times;Pïy[!#&middot;Éî&nbsp;&reg;òAÇ&ordf;é|&Euml;&thorn;ì=!î?aú&uml; 
-ñ&Aacute;&ETH;,&frac14;ö+e&acirc;&egrave;ö&sect;o! &copy;Q&frac12;&macr;A&Aacute;B67éc #&quot;&sup3;\&shy;Ö&ograve;&sup3;&micro;) &ccedil;êâ+çâB@&Uacute; &copy; 
-&frac34;&agrave;&raquo;%|&micro;&Egrave;&shy;&macr;&aacute;öâö`&cent;ç&Oslash;ê &uml; 4Ä&ucirc;y&Agrave;Çà 
-84@ÉáòÅÖ&ugrave;à&Oslash;yàB$;C&cedil;'ê&Auml;&cent;ì&iacute;&Ntilde;ó?(&ordm;=@&iquest;&ocirc;É3'ÄB&not;Ç&cent; 
-+\à&ocirc;É&uml;üO4Éë4&oslash;&Auml;=&Oslash;É&sup1;à&sup2;0è&ograve;ê 0&cent;ìë=&cedil;àAT'Ä&deg;^4c&not;êI&uuml;û&Acirc;&copy;7fí&quot;&Iuml;&egrave;&Aacute;ë
-<!--ÀQ¨:	!:9∏…“Ä(æ´ï&˛T†x+¶YC-bâ‡3Rå€:GQ!ç≥çæÄ°jƒ∏æêîld._Z.⁄õßŒ
-G;«Ω*Gà‚B?ôo˙ìbw‹†Â⁄çE1ö‰ÿº{¨õk‰
-Œ8®mt¶|ããÅ!≥Ä°®jÅZ®*VÛ®Ö{Ä™Zà8J∞‰"÷à*rÄ™ã)èÿ∞úV-->
-
-&copy;ï&thorn;&Aring;Xâ&Ograve;ê&cedil;&sup3;&frac14;iöâ&Ograve;ög &brvbar;&Aacute;&curren;&Aacute;&para;&iexcl;!í&plusmn;:&Euml;&Acirc;&icirc;&egrave;ïá&Oacute;&Ecirc;&plusmn;Dkú+p&frac14;&shy;&Aring;4'ã&ugrave;ã&cedil;å&quot;&Agrave;ö&Igrave;A!&Eacute;\B&Iacute;&pound;
-<!--J!ÚôïL…J…åá√≈®“úîÑ∏¬Y ﬂ∞1;-
-çOyâÿ∞MÅL
-Œíî"û¨A¬¡ÀØA∞âß÷ú∆lî"À/ÛÃ≤ƒx±ok5åøÛã’¢±¯G©p®yC ’r®/Kö?Ÿ
-˙†∆ÈKÜú<œœª©∆9Ÿ≥-->
-
-&Oacute;ä;&ocirc;&Oacute;&iexcl;&oslash;&deg;&quot;&Oacute;+&Oacute;2m&ntilde;6D&iacute;õ4M&Otilde;ok&Ocirc;&igrave;p&frac12;&iquest;É(äç]&acirc;&Ograve;&Atilde;&iexcl;k&ordm;ôjî6L U&iacute;&iexcl;&aacute;&thorn;ö 
-&para;&egrave;&AElig;g&times;[&plusmn;ärîã*éL&ntilde;0ù&plusmn;&shy;&agrave;&not;&plusmn;&acute; &sup2;&ntilde;&frac12;:q&Ccedil;l&Uacute;ü/s&Icirc;&curren;&Ugrave;U&ugrave;&para;mçfÇ&Acirc;o 
-á:'sm&cent;&brvbar;IW)Rèë&copy;&frac12;&aelig;&auml;&cedil;&uml;&ntilde;&sup3;y%úzï&Acirc;&egrave;&quot;|M&Atilde;&ETH;$&sup3;]&Uacute;K&euml;&eth;ãÇÖB&cedil;1T;ë&Ouml;+sâ&frac34;b 
-Ö&Otilde;ú&Otilde;&Agrave;&iexcl;||&times;v&Ocirc;&acute;ô&Oslash;#2&frac12;Wh&acute;P&Ucirc;&ordf;&Ccedil;é&iacute;V&ugrave;&Auml;&Acirc;á2.&middot;p \4&Oslash;&frac12;&acirc;&Ograve;Å&ucirc;X{%&micro;)&sup2;&ocirc;&raquo;&sup3;&uuml;;î&frac14;Ai&uml;j 
-&Aring;&ETH;&micro;0&sect;&macr;PWJ&iexcl;1ZB &thorn;Y&uml;3y&Oslash;}&iacute;&not;èçã&Euml;&ETH;å&brvbar;&yacute;&middot;\&Uacute;3&reg;&Yacute;ö&raquo;aEE&Ucirc;&reg;&Agrave;&Uacute;&cedil;Zî&aacute;öî&ETH;&Acirc;&Icirc;&curren;â  
-8X)[aYç&Agrave;xK&thorn;&iquest;xH|#Bà&Ucirc;&cedil;&sup1;[&ordm;ù&iexcl;õ&copy;&sect;&acute;\&not;&not;&yen;&yen;!&cedil;&Iuml;&Oacute;1&times;òRé&raquo;&Euml;O&iexcl;&uml;X&frac14;Ñ8pÖ&Iuml;&Ecirc;}îZ&Eacute;&Ntilde;ru+&curren; 
-W&Uuml;&Iacute;]&Yacute;Ö&cent;&micro; 
-W&deg;à&quot;&szlig;&Uuml;]&Euml;&acirc;-ëeã&acirc;5^&atilde;&Aring;]&divide;d&THORN;&nbsp;&Oslash;ê&otilde;&Yacute;&THORN;&Yacute;]r&Yacute;]ì^_ö^AY^(&Uacute;^&agrave;^&auml;ùV&THORN;&acirc;&THORN;&not;&yen;^&Yacute;&aring;&shy;&ecirc;&Yacute;R&eth;&Yacute;&Yacute;Aa^&igrave;&Otilde;&THORN;i&otilde;&THORN;&aacute;&Iacute;&Yacute;&ntilde;M&THORN;&eth;&yen;_n]&szlig;p}&THORN;&yacute; 
-&THORN;3&shy;^&THORN;e_RqP&Aring;y_&ograve;&yacute;]&oslash;%_&eth;u&uuml;EZ~`é` û` &reg;` &frac34;` &Icirc;` 
-&THORN;`&icirc;`&thorn;`aa.a&gt;aNa^ana~aéaûa&reg;a&frac34;a&Icirc;a&THORN;a&icirc;a&thorn;a b ;<HR>
-<DIV ALIGN=right>
-<H1><A NAME=1>Introduction</A></H1>
-</DIV>
-<H2><A NAME=1_1>About This Software</A></H2>
- This document describes how to use the <I>HTMLDOC</I> software, 
-version 1.8. <I>HTMLDOC</I> is a HTML document processing program that 
-generates indexed HTML, Adobe&reg; PostScript<SUP>TM</SUP>, and Adobe 
-Portable Document Format (PDF 1.2) files suitable for printing or 
-online viewing. 
-<P>No restrictions are placed upon the output produced by <I>HTMLDOC</I>
-. </P>
-<H2><A NAME=1_2>History</A></H2>
- Like many programs <I>HTMLDOC</I> was developed in response to a need 
-my company had for generating high-quality documentation in printed and 
-electronic forms. For a while we used FrameMaker&reg; and a package from 
-Silicon Graphics that generated &quot;compiled&quot; SGML files that could be 
-used by the Electronic Book Technologies documentation products (EBT is 
-now owned by <A HREF=http://www.inso.com>INSO</A>.) When SGI stopped 
-supporting these tools we were stuck. INSO laughed in our faces when we 
-said we could afford up to $10,000 US for an updated book generation 
-product that would work with the IRIX, Solaris, and HP-UX documentation 
-systems. Other solutions were nearly as expensive, or simply not 
-capable of doing the things we needed. 
-<P>Because of these things I decided to write my own program to 
-generate our documentation. HTML seemed to be the source format of 
-choice since WYSIWYG HTML editors are widely (and freely) available and 
-at worst you can use a plain text editor. We needed HTML output for 
-documentation on our web server, PDF for customers to read and/or print 
-from their computers, and PostScript for our own printing needs. </P>
-<P>The result of my efforts is the <I>HTMLDOC</I> software which is now 
-available for UNIX&reg; and Microsoft&reg; Windows&reg;. Among other things, this 
-user's guide was produced by <I>HTMLDOC</I>. </P>
-<H2><A NAME=1_3>Why Just HTML?</A></H2>
- Some people have asked why this program only deals with HTML input 
-files and is not able to read any Standard Generalized Markup Language 
-(SGML) file. The reasons are numerous but basically boil down to: 
-<OL>
-<LI>SGML is a moving target since all SGML documents use Document Type 
-Definition (DTD) files to define what markups are actually supported. 
-Formatting and processing can become a nightmare if the DTD file 
-contains even a single typographic error. Also, this would make the 
-front-end parsing code that generates the document markup tree 
-considerably larger than it already is, not to mention complicating the 
-output code.</LI>
-<LI>Tools for SGML file generation cost considerably more than software 
-that generates HTML files. Also, the number of HTML tools is at least 
-an order of magnitude greater than the number of SGML tools!</LI>
-</OL>
- In the future I may add support for XML files, but at present XML has 
-very little in the way of tools. Time will tell... 
-<H2><A NAME=1_4>Organization of This Manual</A></H2>
- This manual is organized into the following chapters and appendices: 
-<UL>
-<LI><A HREF=#2>Chapter 1</A> - Compiling HTMLDOC</LI>
-<LI><A HREF=#3>Chapter 2</A> - Guidelines for HTML Source Files</LI>
-<LI><A HREF=#4>Chapter 3</A> - Generating Documents from the GUI</LI>
-<LI><A HREF=#5>Chapter 4</A> - Generating Documents from the 
-Command-Line</LI>
-<LI><A HREF=#6>Appendix A</A> - Implementation Limits</LI>
-<LI><A HREF=#7>Appendix B</A> - GNU General Public License</LI>
-</UL>
- If you have downloaded one of the many precompiled binaries from our <A HREF=ftp://ftp.easysw.com/pub/htmldoc>
-FTP server</A> then you can skip chapter 1. 
-<H2><A NAME=1_5>If You Have Problems</A></H2>
- If you have difficulty using or compiling <I>HTMLDOC</I> please send 
-EMail to <A HREF=mailto:mike@easysw.com>&quot;mike@easysw.com&quot;</A>. 
-Additional information can also be found at the <I>HTMLDOC</I> web page 
-at <A HREF=http://www.easysw.com/~mike/htmldoc>
-&quot;http://www.easysw.com/~mike/htmldoc&quot;</A>. 
-<H2><A NAME=1_6>Copyright and Trademark Information</A></H2>
- The Adobe Portable Document Format is Copyright 1993, 1996 by Adobe 
-Systems Incorporated. PostScript is a trademark that may be registered 
-in some countries and Adobe and FrameMaker are registered trademarks of 
-Adobe Systems, Incorporated. 
-<P>The Graphics Interchange Format is the copyright and GIF<SUP>SM</SUP>
- is a a service mark property of CompuServe Incorporated. </P>
-<P>Microsoft, Windows, Windows 95, and Windows NT are registered 
-trademarks of Microsoft Corporation. </P>
-<P>SPARC is a registered trademark of SPARC International, Inc. </P>
-<P>Solaris is a trademark of Sun Microsystems, Inc. </P>
-<P>IRIX is a trademark of Silicon Graphics, Inc. </P>
-<P>Digital is a trademark of Digital Equipment Corporation. </P>
-<P>UNIX is a registered trademark of the X/Open Company, Ltd. </P>
-<P><I>HTMLDOC</I> is copyright 1997-1999 by Michael Sweet. This program 
-is free software; you can redistribute it and/or modify it under the 
-terms of the GNU General Public License as published by the Free 
-Software Foundation; either version 2 of the License, or (at your 
-option) any later version. </P>
-<P>This program is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of 
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <A HREF=#7>
-GNU General Public License</A> for more details. </P>
-<P>A copy of the GNU General Public License is included in <A HREF=#7>
-Appendix B</A> of this manual. If this appendix is missing from your 
-copy of HTMLDOC, write to the Free Software Foundation, Inc., 59 Temple 
-Place - Suite 330, Boston, MA 02111-1307, USA. </P>
-<P>This software is based in part on the work of the Independent JPEG 
-Group. </P>
-<HR>
-<DIV ALIGN=right>
-<H1><A NAME=2>1 - Compiling HTMLDOC</A></H1>
-</DIV> This chapter describes the steps needed to compile <I>HTMLDOC</I>
- on your system. 
-<H2><A NAME=2_1>Getting a Precompiled Executable</A></H2>
- If you don't think you're up to compiling <I>HTMLDOC</I>, or you don't 
-have the compiler and libraries listed below, consider downloading a 
-precompiled version of <I>HTMLDOC</I>. Precompiled binaries are 
-currently available for the following systems: 
-<UL>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-dunix.tar.gz>
-Digital<SUP>TM</SUP> UNIX&reg; 4.0 or higher</A></LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-hpux.tar.gz>
-HP-UX 10.20 or higher</A></LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-irix.tar.gz>
-IRIX<SUP>TM</SUP> 5.2 or higher</A></LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-linux-x86.tar.gz>
-Linux x86 2.0 or higher</A></LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-solaris-sparc.tar.gz>
-Solaris&reg; SPARC&reg; 2.5 or higher</A></LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-solaris-x86.tar.gz>
-Solaris x86 2.5 or higher</A></LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/1.8/htmldoc-1.8-windows.exe>
-Windows 95&reg; or Windows NT&reg; 4.0 or higher</A></LI>
-</UL>
-<H2><A NAME=2_2>Requirements</A></H2>
-<I>HTMLDOC</I> requires the following software and libraries: 
-<UL>
-<LI>C++ compiler (GCC will work)</LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/jpeg>JPEG library</A>, 
-version  6 or higher</LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/png>PNG library</A>, 
-version  1.0.1 or higher</LI>
-<LI><A HREF=ftp://ftp.easysw.com/pub/htmldoc/zlib>GZIP library (zlib)</A>
-,  version 1.0.4 or higher</LI>
-<LI><A HREF=http://fltk.easysw.com>Fast Light Tool Kit (FLTK)</A>, 
- version 19990107 or newer</LI>
-<LI><A HREF=ftp://ftp.x.org>X11 libraries</A>, R5 or higher (UNIX 
- only).</LI>
-</UL>
- The GZIP library is used for reading PNG image files as well as 
-writing compressed PDF files. GIF reading support is provided by <I>
-HTMLDOC</I> source code. 
-<P>The JPEG library is used for reading JPEG image files as well as 
-writing JPEG-compressed images in Level 2 PostScript and PDF output. </P>
-<P>For the Microsoft Windows version of <I>HTMLDOC</I> you'll probably 
-need Microsoft Visual C++ 5.0 or higher (other PC compilers <I>may</I>
- work; I didn't have much luck with Borland C++ 5.02). </P>
-<H2><A NAME=2_3>Compiling under UNIX</A></H2>
-<I>If you are compiling for Windows, see <A HREF=#VISUALC>&quot;Compiling 
-with the Visual C++ Project File&quot;</A>.</I>
-<P><I>HTMLDOC</I> is built from a single Makefile in the distribution's 
-main directory (<I>htmldoc-1.8</I>). To configure the Makefile for your 
-system you must run the <I>configure</I> script: </P>
-<UL>
-<PRE>
-% <B>./configure <I>Enter</I></B>
-</PRE>
-</UL>
- To compile <I>HTMLDOC</I> simply run the &quot;make&quot; command in the <I>
-HTMLDOC</I> directory. If you get any fatal errors please send a copy 
-of the make/compiler output to <A HREF=mailto:mike@easysw.com>
-&quot;mike@easysw.com&quot;</A> for assistance. Please note the version of <I>
-HTMLDOC</I> that you are using as well as any pertinent system 
-information (operating system, OS version, compiler, etc.) 
-<H3><A NAME=2_3_1>Installing the Software</A></H3>
- The Makefile built by the <I>configure</I> script supports 
-installation of the program and man pages under <I>/usr/local</I> or a 
-directory provided to the <I>configure</I> script using the 
-&quot;--prefix=directory&quot; option. 
-<P>To install <I>HTMLDOC</I> simply run the &quot;make install&quot; command as 
-root. </P>
-<H2><A NAME=VISUALC>Compiling with the Visual C++ Project File</A></H2>
- A sample project file for Visual C++ 5.0 is included in the source 
-distribution in the file <I>htmldoc.dsp</I>. You will need to change 
-the include directories and libraries to point to the directories 
-containing the JPEG, PNG, ZLIB, and FLTK libraries. <HR>
-<H1 ALIGN=RIGHT><A NAME=3>2 - Guidelines for HTML Source Files</A></H1>
-<I>HTMLDOC</I> is capable of processing most HTML files. This chapter 
-discusses the requirements for HTML files to be correctly processed by <I>
-HTMLDOC</I>
-<H2><A NAME=3_1>General Requirements</A></H2>
- Since <I>HTMLDOC</I> is designed as a documentation generation 
-program, it expects to have chapters and headers. 
-<P><B>Note:</B> If you are converting a generic web page you must 
-select the &quot;--webpage&quot; option on the command-line or choose &quot;Web Page&quot; 
-as the document type in the GUI. </P>
-<H2><A NAME=3_2>Page Breaks</A></H2>
- To force a page break use the HR markup with the option &quot;BREAK&quot;: 
-<UL>
-<PRE>
-&lt;HR BREAK&gt;
-</PRE>
-</UL>
-<H2><A NAME=3_3>Chapters</A></H2>
- All chapters start with a top-level heading (H1) markup. Any headings 
-within a chapter must be of a lower level (H2 to H7). Each chapter 
-starts a new page (the next odd-numbered page if duplexing is 
-selected.) 
-<H2><A NAME=3_4>Headings</A></H2>
- The headings you use within a chapter must start at level 2 (H2). If 
-you skip levels the heading will be shown under the last level that was 
-known. For example, if you use the following hierarchy of headings: 
-<UL>
-<PRE>
-&lt;H1&gt;Chapter Heading&lt;/H1&gt;
-...
-&lt;H2&gt;Section Heading 1&lt;/H2&gt;
-...
-&lt;H2&gt;Section Heading 2&lt;/H2&gt;
-...
-&lt;H3&gt;Sub-Section Heading 1&lt;/H3&gt;
-...
-&lt;H4&gt;Sub-Sub-Section Heading 1&lt;/H4&gt;
-...
-&lt;H4&gt;Sub-Sub-Section Heading 2&lt;/H4&gt;
-...
-&lt;H3&gt;Sub-Section Heading 2&lt;/H3&gt;
-...
-&lt;H2&gt;Section Heading 3&lt;/H2&gt;
-...
-&lt;H4&gt;Sub-Sub-Section Heading 3&lt;/H4&gt;
-...
-</PRE>
-</UL>
- the table-of-contents that is generated will show: 
-<UL><B>Chapter Heading</B>
-<UL>
-<LI>Section Heading 1</LI>
-<LI>Section Heading 2</LI>
-<UL>
-<LI>Sub-Section Heading 1</LI>
-<UL>
-<LI>Sub-Sub-Section Heading 1</LI>
-<LI>Sub-Sub-Section Heading 2</LI>
-</UL>
-<LI>Sub-Section Heading 2</LI>
-<UL>
-<LI>Sub-Sub-Section Heading 3</LI>
-</UL>
-</UL>
-<LI>Section Heading 3</LI>
-</UL>
-</UL>
-<H2><A NAME=3_5>Unsupported or Restricted HTML Features</A></H2>
- The following HTML features are either not supported or have limited 
-support in this release of <I>HTMLDOC</I>. 
-<H3><A NAME=3_5_1>Embedded Objects</A></H3>
- Only embedded HTML files are supported using the EMBED tag. 
-<H3><A NAME=3_5_2>Fonts</A></H3>
- Limited typeface specification is currently supported. The &quot;Arial&quot; 
-typeface is mapped to &quot;Helvetica&quot; to ensure portability across 
-platforms and for older PostScript printers. All other unrecognized 
-typefaces are silently ignored. 
-<H3><A NAME=3_5_3>Forms</A></H3>
- Forms are not yet supported when generating PostScript and PDF files. 
-<H3><A NAME=3_5_4>Frames</A></H3>
- HTMLDOC does not support frames. 
-<H3><A NAME=3_5_5>Image Maps</A></H3>
- Image maps are not exported to HTML or PDF files. 
-<H3><A NAME=3_5_6>Links</A></H3>
- External URL links are fully supported for HTML and PDF output. 
-Internal links are supported in HTML and PDF output. 
-<P>When generating PDF files, local file links will be converted to 
-external file links for the PDF viewer instead of URL links. That is, 
-you can directly link to another local PDF file from your HTML 
-document. </P>
-<H3><A NAME=3_5_7>Scripts and Applets</A></H3>
- All scripts and applets are silently stripped from the output. 
-<H3><A NAME=3_5_8>Style Sheets</A></H3>
- Style sheets are not yet supported. 
-<H3><A NAME=3_5_9>Tables</A></H3>
- Currently only the HTML 3.2 varient of tables is supported. The 
-CAPTION, THEAD, TFOOT, and TBODY tags are silently ignored, and 
-vertical alignment and spanning (ROWSPAN and VALIGN) are not supported. <HR>
-<H1 ALIGN=RIGHT><A NAME=4>3 - Generating Documents from the GUI</A></H1>
- This chapter describes how to generate document files from a given set 
-of HTML &quot;source&quot; files using the <I>HTMLDOC</I> GUI. 
-<H2><A NAME=4_1>Starting the HTMLDOC GUI</A></H2>
-<TABLE CELLPADDING=0 CELLSPACING=0 WIDTH=100%>
-<TR VALIGN=TOP><TD>To start the <I>HTMLDOC</I> GUI under UNIX, type: 
-<UL>
-<PRE>
-# <B>htmldoc <I>Enter</I></B>
-</PRE>
-</UL>
- To start the <I>HTMLDOC</I> GUI under Windows, choose <I>HTMLDOC</I>
- from the <I>Start</I> menu (Figure 1.) </TD><TD ALIGN=CENTER><IMG HEIGHT=219
-SRC=./htmldoc-startmenu.gif WIDTH=172>
-<BR> Figure 1 - Starting HTMLDOC under Windows </TD></TR>
-</TABLE>
-<H2><A NAME=4_2>The HTMLDOC GUI</A></H2>
- The <I>HTMLDOC</I> GUI (Figures 2 through 7) is contained in a single 
-window showing the input, output, and generation options. At the bottom 
-are buttons to load, save, and generate documents. 
-<H2><A NAME=4_3>Document File Operations</A></H2>
-<I>HTMLDOC</I> stores the HTML files, settings, and options in &quot;book&quot; 
-files. The buttons on the bottom of the <I>HTMLDOC</I> window allow you 
-manage these files and generate formatted documents. 
-<H3><A NAME=4_3_1>Starting a New Document</A></H3>
- To start a new document, click on the <I>New</I> button. 
-<H3><A NAME=4_3_2>Opening an Existing Document</A></H3>
- To open a document you've saved previously, click on the <I>Open...</I>
- button. 
-<H3><A NAME=4_3_3>Saving the Current Document</A></H3>
- To save the current document, click on the <I>Save</I> button. If you 
-have never saved the document before or would like to save it with a 
-new filename, click on the <I>Save As...</I> button instead. 
-<P><B>Note:</B> Saving a document is not the same as <I>generating</I>
- a document. The book files saved to disk by the <I>Save</I> and <I>
-Save As...</I> buttons are <I>not</I> the final HTML, PDF, or 
-PostScript output files.  You generate those files by clicking on the <I>
-Generate</I> button described below. </P>
-<H2><A NAME=4_4>Generating Your Document</A></H2>
- To generate your document, click on the <I>Generate</I> button. The 
-progress meter at the bottom of the window will show the progress as 
-each page is formatted and written. 
-<P><B>Note:</B> Generating a document is not the same as <I>saving</I>
- a document. To save the current HTML files and settings in the <I>
-HTMLDOC</I> GUI, click on the <I>Save</I> or <I>Save As...</I> buttons 
-instead. </P>
-<H2><A NAME=4_5>Exiting from the HTMLDOC GUI</A></H2>
- To exit from the <I>HTMLDOC</I> GUI, click on the <I>Close</I> button. 
-<P ALIGN=CENTER><IMG SRC=./htmldoc-input.gif>
-<BR> Figure 2 - HTMLDOC Window and Input Tab</P>
-<H2><A NAME=4_6>The Input Tab</A></H2>
- The input tab lists all of the HTML source files that are used to 
-generate the document. You also specify the type of document (book or 
-web page) and the title and logo images in this tab. 
-<H3><A NAME=4_6_1>Setting the Document Type</A></H3>
- Normally <I>HTMLDOC</I> generates indexed documents from your 
-structured HTML files.  To convert a single unstructured document (or 
-&quot;web page&quot;) click on the <I>Web Page</I> radio button. 
-<H3><A NAME=4_6_2>Adding HTML Input Files</A></H3>
- Click on the <I>Add...</I> button to add an HTML file to your 
-document. 
-<H3><A NAME=4_6_3>Deleting HTML Input Files</A></H3>
- To remove one or more HTML files from your document, click on the file 
-(or drag for multiple files) in the input file list and then click on 
-the <I>Delete</I> button. The files are removed from your document but 
-are <I>not</I> deleted from your disk. 
-<H3><A NAME=4_6_4>Editing HTML Input Files</A></H3>
- To edit one or more HTML files in your document, click on the file (or 
-drag for multiple files) in the input file list and then click on the <I>
-Edit...</I> button. By default this starts the <I>nedit</I> editor 
-under UNIX and the <I>Notepad</I> editor under Windows. See <A HREF=#OPTIONS>
-&quot;The Options Tab&quot;</A> later in this chapter for details on how to 
-change the editor that is used. 
-<H3><A NAME=4_6_5>Moving HTML Input Files</A></H3>
- To change the order of the input files, click on a file to move (or 
-drag multiple files) in the input file list and then click on the <I>
-Move Up</I> or <I>Move Down</I> button. 
-<H3><A NAME=4_6_6>Selecting a Logo Image</A></H3>
- The logo image is shown on the title page of PostScript and PDF output 
-files and in the navigation bar of HTML files. To select a logo image 
-file, click on the <I>Browse</I> button. After the standard file 
-selection dialog appears, double-click on the desired image file. 
-<P ALIGN=CENTER><IMG SRC=./htmldoc-output.gif>
-<BR> Figure 3 - HTMLDOC Output Tab</P>
-<H2><A NAME=4_7>The Output Tab </A></H2>
- The output tab specifies where your document will be generated, the 
-output format, and some of the output options that apply to all 
-formats. 
-<H3><A NAME=4_7_1>Selecting File or Directory Generation</A></H3>
-<I>HTMLDOC</I> can generate a single HTML or PostScript file or a 
-series of files, one per chapter plus the table of contents (index) 
-file. To select single file output click on the <I>File</I> radio 
-button. To generate multiple files to a directory click on the <I>
-Directory</I> radio button. 
-<H3><A NAME=4_7_2>Selecting an Output File or Directory</A></H3>
- The output file is the HTML, PostScript, or PDF file you wish to 
-generate from your HTML files. To select an output file, click on the <I>
-Browse</I> button. After the file selection dialog appears, type the 
-name of the file you would like to create. 
-<H3><A NAME=4_7_3>Selecting the Output Format</A></H3>
- To select an output format, click on the corresponding <I>Output Type</I>
- button. Be careful when generating Level 2 PostScript output, as Level 
-1 PostScript printers do not support the Level 2 image commands 
-generated by <I>HTMLDOC</I> (most printers manufactured in the last 4 
-years are Level 2). 
-<P><B>Note:</B> Choose Level 2 PostScript output for Level 3 PostScript 
-printers. </P>
-<H3><A NAME=4_7_4>Selecting Grayscale Output</A></H3>
- When generating PostScript or PDF files you can choose to convert all 
-images to grayscale.  This is necessary for many Level 1 printers that 
-do not support color images and can reduce the size of output files 
-considerably. 
-<P>To select grayscale output, click on the <I>Grayscale</I> button. </P>
-<H3><A NAME=4_7_5>Selecting Compressed Output</A></H3>
- PDF files are compressed using Flate (a.k.a. ZIP) compression by 
-default. If you need to view the PDF files produced by <I>HTMLDOC</I>
- with a PDF viewer that does not support this compression, click on the <I>
-Compression</I> toggle button to turn compression off.  You may also 
-want to change the <A HREF=#pdfversion>PDF Version</A> option. 
-<H3><A NAME=4_7_6>Disabling the Title Page</A></H3>
- A title page is generated for your document by default. To turn the 
-title page off, click on the <I>Title Page</I> toggle button. 
-<H3><A NAME=4_7_7>Using JPEG Compression</A></H3>
-<I>HTMLDOC</I> supports JPEG compression of large images when 
-generating Level 2 PostScript and PDF files.  To enable JPEG 
-compression, click on the <I>JPEG Big Images</I> toggle button.  The 
-output quality can be controlled by dragging the <I>JPEG Quality</I>
- slider in the options tab. 
-<P>Once you have enabled JPEG compression, any color image that cannot 
-be converted to an 8-bit (or less) colormapped image will be JPEG'd. 
- Similarly, any grayscale image that cannot be represented by 16 (or 
-less) shades will be JPEG'd. </P>
-<P>JPEG compression can dramatically reduce the size of output files, 
-however with low quality settings the images can look blotchy. </P>
-<H3><A NAME=4_7_8>Changing the Navigation Bar Color</A></H3>
- To change the color of the navigation bar used in HTML output, type in 
-a color name in the <I>Bar Color</I> field or click on the <I>Lookup...</I>
- button to graphically pick a color. 
-<P ALIGN=CENTER><IMG SRC=./htmldoc-page.gif>
-<BR> Figure 4 - HTMLDOC Window and Page Tab</P>
-<H2><A NAME=4_8>The Page Tab</A></H2>
- The page tab defines the page header, footer, size, and margins for 
-PostScript and PDF output. 
-<H3><A NAME=4_8_1>Selecting a Page Size</A></H3>
- The page size option is only available for PostScript and PDF output. <I>
-HTMLDOC</I> supports the following standard page size names: 
-<UL>
-<LI>Letter - 8.5x11in (216x279mm) </LI>
-<LI>A4 - 8.27x11.69in (210x297mm) </LI>
-<LI>Universal - 8.27x11in (210x279mm) </LI>
-</UL>
- To select a custom page size, double-click on the page size text and 
-enter the page width and length separated by the letter &quot;x&quot;. Append the 
-letters &quot;in&quot; for inches, &quot;mm&quot; for millimeters, or &quot;cm&quot; for centimeters. 
-<P><B>Note:</B> This option does not set the page size on the printer. 
-It only generates pages using the specified size. You must still select 
-the correct page size from your application or printer options. </P>
-<H3><A NAME=4_8_2>Selecting Double-Sided Output</A></H3>
- To select double-sided (duplexed) output click on the <I>Double-Sided</I>
- toggle button. 
-<P><B>Note:</B> This option does not select duplexing on the printer. 
-It only generates pages with the left/right margins swapped on even 
-numbered pages and forces all chapters (and the table-of-contents) to 
-start on an odd-numbered page.  You must still select duplexing from 
-your application or printer options. </P>
-<H3><A NAME=4_8_3>Setting the Page Margins</A></H3>
- The left, right, top, and bottom margins can be changed by clicking in 
-the appropriate text field and entering a new margin.  Append the 
-letters &quot;in&quot; for inches, &quot;mm&quot; for millimeters, or &quot;cm&quot; for centimeters. 
-<H3><A NAME=4_8_4>Customizing the Header and Footer</A></H3>
- To customize the header and footer for the document/body pages, select 
-the desired text from each of the option buttons.  The leftmost option 
-buttons set the text that is left-justified, while the middle buttons 
-set the text that is centered and the right buttons set the text that 
-is right-justified. 
-<P ALIGN=CENTER><IMG SRC=./htmldoc-toc.gif>
-<BR> Figure 5 - HTMLDOC Window and TOC Tab</P>
-<H2><A NAME=4_9>The Table-Of-Contents Tab</A></H2>
- The table-of-contents tab defines the number of levels in the 
-table-of-contents and the page header and footer that are used when 
-generating PostScript and PDF files. 
-<H3><A NAME=4_9_1>Customizing the Table of Contents</A></H3>
- To change the number of header levels listed in the table of contents, 
-or to turn off table-of-contents generation entirely, click on <I>Table 
-of Contents</I> chooser and select the number of levels desired. 
-<H3><A NAME=4_9_2>Numbering Table of Contents Headings</A></H3>
- To number the headings in your document, click on the <I>Numbered 
-Headings</I> toggle button. 
-<H3><A NAME=4_9_3>Customizing the Header and Footer</A></H3>
- To customize the header and footer for the table-of-contents pages, 
-select the desired text from each of the option buttons.  The leftmost 
-option buttons set the text that is left-justified, while the middle 
-buttons set the text that is centered and the right buttons set the 
-text that is right-justified. 
-<P ALIGN=CENTER><IMG SRC=./htmldoc-fonts.gif>
-<BR> Figure 6 - HTMLDOC Fonts Tab</P>
-<H2><A NAME=4_10>The Fonts Tab </A></H2>
- The fonts tab contains all of the document font options. The default 
-options roughly correspond to those used by most browsers. 
-<H3><A NAME=4_10_1>Changing the Base Font Size</A></H3>
- To change the base font size, click on the left arrow buttons to 
-decrease the font size and the right arrow buttons to increase the font 
-size. The font size value is in points (there are 72 points per inch). 
-<H3><A NAME=4_10_2>Changing the Line Spacing</A></H3>
- To change the line spacing, click on the left arrow buttons to 
-decrease the line spacing and the right arrow buttons to increase the 
-line spacing. 
-<H3><A NAME=4_10_3>Changing the Body Typeface</A></H3>
- The body typeface is the font used for paragraphs and most other text 
-in a document. To change the body typeface click on the chooser and 
-pick the desired typeface. 
-<H3><A NAME=4_10_4>Changing the Heading Typeface</A></H3>
- The heading typeface is the font used for headings. To change the 
-headings typeface click on the chooser and pick the desired typeface. 
-<H3><A NAME=4_10_5>Changing the Header/Footer Size</A></H3>
- To change the header and footer font size, click on the left arrow 
-buttons to decrease the font size and the right arrow buttons to 
-increase the font size. The font size value is in points (there are 72 
-points per inch). 
-<H3><A NAME=4_10_6>Changing the Header/Footer Typeface</A></H3>
- The header/footer typeface is the font used for headers at the top of 
-the page and footers at the bottom of the page.  To change the 
-header/footer typeface click on the chooser and pick the desired 
-typeface. 
-<P ALIGN=CENTER><IMG SRC=./htmldoc-options.gif>
-<BR> Figure 7 - HTMLDOC Options Tab</P>
-<H2><A NAME=4_11>The Options Tab </A></H2>
- The options tab contains options specific to PostScript and PDF output 
-as well as the current HTML editor. 
-<H3><A NAME=4_11_1>Changing the HTML Editor Command</A></H3>
- To change the HTML editor that is used, type in the program name in 
-the <I>HTML Editor</I> field or click on the <I>Browse...</I> button. 
- The &quot;%s&quot; is required and is replaced by the file to edit. 
-<P><B>NOTE:</B> To use Netscape Communicator as your HTML editor you 
-need to add the &quot;-edit&quot; option before the &quot;%s&quot;. </P>
-<H3><A NAME=4_11_2>Changing the JPEG Quality</A></H3>
- To change the JPEG quality setting, move the mouse pointer over the 
-slider knob and drag the slider using the left mouse button. Release 
-the mouse button when the desired quality is shown. 
-<H3><A NAME=4_11_3>Changing the Compression Setting</A></H3>
- To change the compression setting, move the mouse pointer over the 
-slider knob and drag the slider using the left mouse button. Release 
-the mouse button when the desired level is shown. 
-<H3><A NAME=pdfversion>Changing the PDF Version</A></H3>
- Older versions of Adobe Acrobat Reader cannot handle the Flate 
-compression and named links present in the normal output of HTMLDOC. 
- To change the PDF version, click on the radio button that corresponds 
-to the version of Acrobat you or your users will be using. If you have 
-Acrobat Reader 4.0, choose version 1.2. <HR>
-<H1 ALIGN=RIGHT><A NAME=5>4 - Generating Documents from the Command-Line</A>
-</H1>
- This chapter describes how to generate one or more document files from 
-a given set of HTML &quot;source&quot; files using the <I>HTMLDOC</I> software 
-from the command-line.  If you are converting web pages from HTML to 
-PostScript or PDF format, be sure to look at the <A HREF=#WEB>
-Converting Web Pages</A> section. 
-<H2><A NAME=5_1>Generating a Single File</A></H2>
- To generate a single file containing the entire document, type the 
-following: 
-<UL>
-<PRE>
-% <B>htmldoc -f outfile.html infile1.html infile2.html ...</B>
-% <B>htmldoc -f outfile.pdf infile1.html infile2.html ...</B>
-% <B>htmldoc -f outfile.ps infile1.html infile2.html ...</B>
-</PRE>
-</UL>
- The &quot;outfile.html&quot;, &quot;outfile.pdf&quot;, and &quot;outfile.ps&quot; arguments are the 
-desired output file. &quot;infile1.html&quot;, &quot;infile2.html&quot;, etc. are your HTML 
-source files. 
-<P>By default <I>HTMLDOC</I> looks at the extension of the output file 
-to determine the output format. Files ending in &quot;.ps&quot; select Level 2 
-Adobe&reg; PostScript<SUP>TM</SUP> output. For Level 1 PostScript see <A HREF=#LEVEL1>
-&quot;Forcing Level 1 Output&quot;</A> below. </P>
-<H2><A NAME=5_2>Generating Multiple Files</A></H2>
- To generate multiple files for the document, type the following: 
-<UL>
-<PRE>
-% <B>htmldoc -d outdir -t html infile1.html infile2.html ...</B>
-% <B>htmldoc -d outdir -t ps1 infile1.html infile2.html ...</B>
-% <B>htmldoc -d outdir -t ps2 infile1.html infile2.html ...</B>
-</PRE>
-</UL>
- The &quot;outdir&quot; argument is the desired output directory. The &quot;-t html&quot;, 
-&quot;-t ps1&quot;, and &quot;-t ps2&quot; arguments select HTML and PostScript output, 
-respectively. &quot;infile1.html&quot;, &quot;infile2.html&quot;, etc. are your HTML source 
-files. A separate HTML or PostScript file (doc####.html or doc####.ps) 
-will be created for each chapter (H1 heading) in the document as well 
-as a table of contents file (index.html or index.ps). For HTML output, 
-all local image files that are referenced in the document will be 
-copied to the output directory as well. 
-<P><B>Multiple output files are currently not supported for PDF output.</B>
-</P>
-<H2><A NAME=5_3>General Options</A></H2>
- The following options apply to all output formats. 
-<H3><A NAME=5_3_1>Numbering the Headings</A></H3>
- Some types of documents require paragraph/heading numbers. To enable 
-automatic heading numbering use the &quot;--numbered&quot; option: 
-<UL>
-<PRE>
-% <B>htmldoc --numbered -f outfile.html ...</B>
-</PRE>
-</UL>
-<H3><A NAME=5_3_2>Adding a Logo Image</A></H3>
- The logo image is optionally displayed in the page heading of 
-PostScript and PDF output and at the top of the navigation bar along 
-the left side of the page of HTML output. To include a document &quot;logo&quot; 
-use the &quot;--logo&quot; option to <I>HTMLDOC</I>: 
-<UL>
-<PRE>
-% <B>htmldoc --logo logo.gif ...</B>
-</PRE>
-</UL>
- The logo file can be of any supported image file type (GIF, JPEG, 
-PNG). 
-<H3><A NAME=5_3_3>Adding a Title Image</A></H3>
- The title image is displayed on the title page. To include a title 
-page image use the &quot;--title&quot; option to <I>HTMLDOC</I>: 
-<UL>
-<PRE>
-% <B>htmldoc --title title.gif ...</B>
-</PRE>
-</UL>
- The logo file can be of any supported image file type (GIF, JPEG, 
-PNG). 
-<H3 ID=WEB><A NAME=5_3_4>Converting Web Pages</A></H3>
- To convert unstructured HTML documents such as web pages, use the 
-&quot;--webpage&quot; option to <I>HTMLDOC</I>: 
-<UL>
-<PRE>
-% <B>htmldoc --webpage ...</B>
-</PRE>
-</UL>
- This is equivalent to using the &quot;--no-title&quot; and &quot;--no-toc&quot; options. 
-<H3><A NAME=5_3_5>Setting the Table of Contents Depth</A></H3>
- To set the number of heading levels to show in the table-of-contents 
-use the &quot;--toclevels&quot; option to <I>HTMLDOC</I>: 
-<UL>
-<PRE>
-% <B>htmldoc --toclevels # ...</B>
-</PRE>
-</UL>
- The default depth is three levels (H1 to H3). To turn the table of 
-contents off, use the &quot;--no-toc&quot; option: 
-<UL>
-<PRE>
-% <B>htmldoc --no-toc ...</B>
-</PRE>
-</UL>
-<H3><A NAME=5_3_6>Disabling the Title Page</A></H3>
- The title page is normally generated for all HTML, PostScript, and PDF 
-output. To turn the title page off use the &quot;--no-title&quot; option: 
-<UL>
-<PRE>
-% <B>htmldoc --no-title ...</B>
-</PRE>
-</UL>
-<H3><A NAME=5_3_7>Changing the Body (Background) Color</A></H3>
- Use the &quot;--bodycolor&quot; option to change the background color: 
-<UL>
-<PRE>
-% <B>htmldoc --bodycolor #RRGGBB ...</B>
-</PRE>
-</UL>
- The color can be any primary color (black, red, green, yellow, blue, 
-magenta, cyan, or white) or a specific red-green-blue value. 
-<H3><A NAME=5_3_8>Changing the Body (Background) Image</A></H3>
- Use the &quot;--bodyimage&quot; option to change the background image: 
-<UL>
-<PRE>
-% <B>htmldoc --bodyimage filename ...</B>
-</PRE>
-</UL>
- The image file can be any PNG, GIF, or JPEG image. 
-<H2><A NAME=5_4>HTML-Specific Options</A></H2>
- The following options apply to HTML output. 
-<H3><A NAME=5_4_1>Changing the Navigation Bar Color</A></H3>
- Use the &quot;--barcolor&quot; option to match the navigation bar color to your 
-logo image: 
-<UL>
-<PRE>
-% <B>htmldoc --logo logo.gif --barcolor #RRGGBB ...</B>
-</PRE>
-</UL>
- The color can be any primary color (black, red, green, yellow, blue, 
-magenta, cyan, or white) or a specific red-green-blue value. 
-<H2><A NAME=5_5>PostScript-Specific Options</A></H2>
- The following options apply to PostScript output. 
-<H3><A NAME=5_5_1>Forcing Grayscale Output</A></H3>
- To force all output to be in grayscale use the &quot;--gray&quot; option: 
-<UL>
-<PRE>
-% <B>htmldoc --gray -f outfile.ps ...</B>
-</PRE>
-</UL>
- This option is necessary for all B&amp;W Level 1 PostScript printers. 
-<H3><A NAME=5_5_2>Using JPEG Compression</A></H3>
- To use JPEG compression for large images use the &quot;--jpeg&quot; option: 
-<UL>
-<PRE>
-% <B>htmldoc --jpeg -f outfile.ps ...</B>
-</PRE>
-</UL>
- The default JPEG quality is 90; to set a different quality use: 
-<UL>
-<PRE>
-% <B>htmldoc --jpeg=<I>quality</I> -f outfile.ps ...</B>
-</PRE>
-</UL>
- where <I>quality</I> is the standard JPEG quality level from 1 to 100. 
-<P>JPEG compression is not available on Level 1 PostScript printers. </P>
-<H3><A NAME=LEVEL1>Forcing Level 1 Output</H3>
- To force Level 1 PostScript output use the &quot;-t ps1&quot; option: 
-<UL>
-<PRE>
-% <B>htmldoc -f outfile.ps -t ps1 ...</B>
-</PRE>
-</UL>
- This option is necessary for all Level 1 PostScript printers. 
-<H3><A NAME=5_5_4>Requesting Double-Sided Output</A></H3>
- The &quot;--duplex&quot; option specifies double-sided output: 
-<UL>
-<PRE>
-% <B>htmldoc --duplex -f outfile.ps ...</B>
-</PRE>
-</UL>
- Note that this does not select duplexing on the printer but merely 
-adjusts the formatting so that the left &amp; right margins are swapped on 
-the back side and chapters start on an odd-numbered page. You must 
-still select duplexing in your printer driver or on the printer itself. 
-<H3><A NAME=5_5_5>Setting the Page Size</A></H3>
- The &quot;--size&quot; option specifies the output page size: 
-<UL>
-<PRE>
-% <B>htmldoc --size letter ...</B>
-% <B>htmldoc --size a4 ...</B>
-% <B>htmldoc --size universal ...</B>
-% <B>htmldoc --size WIDTHxHEIGHT ...</B>
-% <B>htmldoc --size WIDTHxHEIGHTin ...</B>
-% <B>htmldoc --size WIDTHxHEIGHTcm ...</B>
-% <B>htmldoc --size WIDTHxHEIGHTmm ...</B>
-</PRE>
-</UL>
- The &quot;WIDTH&quot; and &quot;HEIGHT&quot; arguments can be in points (no units 
-specified), inches, centimeters, or millimeters. The default page size 
-is Universal (8.27x11in or 210x279mm) which is the minimum of the US 
-and European standard sizes (Letter and A4, respectively). 
-<P>Note that this does not select a media size on the printer but 
-merely adjusts the formatting so that the text and images appear within 
-the given page area. You must still select the appropriate media size 
-in your printer driver or on the printer itself. </P>
-<H3><A NAME=5_5_6>Setting the Page Margins</A></H3>
- The &quot;--left&quot;, &quot;--right&quot;, &quot;--top&quot;, and &quot;--bottom&quot; options control the 
-page margins of the output. The defaults are 1 inch (25mm) for the left 
-and 0.5 inches (12mm) for the right, top, and bottom margins. 
-<H3><A NAME=5_5_7>Setting the Default Font Typeface and Size</A></H3>
- The default font size, spacing, and typefaces are controlled by the 
-&quot;--fontsize&quot;, &quot;--fontspacing&quot;, &quot;--bodyfont&quot;, and &quot;--headingfont&quot; 
-options: 
-<UL>
-<PRE>
-% <B>htmldoc --fontsize 9.0 --fontspacing 2.0 ...</B>
-% <B>htmldoc --bodyfont helvetica ...</B>
-% <B>htmldoc --headingfont times ...</B>
-</PRE>
-</UL>
- The typefaces for &quot;--bodyfont&quot; and &quot;--headingfont&quot; can be &quot;courier&quot;, 
-&quot;times&quot;, or &quot;helvetica&quot;. 
-<H3><A NAME=5_5_8>Customizing the Page Headers and Footers</A></H3>
- The &quot;--header&quot; and &quot;--footer&quot; options allow you to customize the 
-headers and footers used for the document body.  Each option requires a 
-three character string that specifies the left, middle, and right 
-fields: 
-<CENTER>
-<TABLE BORDER=1 WIDTH=50%>
-<TR><TH WIDTH=60>Char</TH><TH>Description</TH></TR>
-<TR><TD>.</TD><TD>A period indicates that the field should be blank.</TD>
-</TR>
-<TR><TD>t</TD><TD>A &quot;t&quot; indicates that the field should contain the 
-document title.</TD></TR>
-<TR><TD>h</TD><TD>An &quot;h&quot; indicates that the field should contain the 
-current heading.</TD></TR>
-<TR><TD>l</TD><TD>A lowercase L indicates that the field should contain 
-the logo  image.</TD></TR>
-<TR><TD>1</TD><TD>The number 1 indicates that the field should contain 
-the current  page number in decimal format (1, 2, 3, ...)</TD></TR>
-<TR><TD>i</TD><TD>A lowercase I indicates that the field should contain 
-the current  page number in lowercase roman numerals (i, ii, iii, ...)</TD>
-</TR>
-<TR><TD>I</TD><TD>An uppercase I indicates that the field should 
-contain the current  page number in uppercase roman numerals (I, II, 
-III, ...)</TD></TR>
-</TABLE>
-</CENTER>
- The &quot;--tocheader&quot; and &quot;--tocfooter&quot; options control the header and 
-footer on table-of-contents pages. 
-<H3><A NAME=5_5_9>Setting the Header and Footer Font</A></H3>
- The &quot;--headfootsize&quot; and &quot;--headfootfont&quot; options set the size and 
-typeface of the font used for the page headers and footers: 
-<UL>
-<PRE>
-% <B>htmldoc --headfootsize 9.0 --headfootfont courier ...</B>
-</PRE>
-</UL>
-<H2><A NAME=5_6>PDF-Specific Options</A></H2>
- The following options apply to PDF output. 
-<H3><A NAME=5_6_1>Forcing Grayscale Output</A></H3>
- To force all output to be in grayscale use the &quot;--gray&quot; option: 
-<UL>
-<PRE>
-% <B>htmldoc --gray -f outfile.pdf ...</B>
-</PRE>
-</UL>
-<H3><A NAME=5_6_2>Using JPEG Compression</A></H3>
- To use JPEG compression for large images use the &quot;--jpeg&quot; option: 
-<UL>
-<PRE>
-% <B>htmldoc --jpeg -f outfile.pdf ...</B>
-</PRE>
-</UL>
- The default JPEG quality is 90; to set a different quality use: 
-<UL>
-<PRE>
-% <B>htmldoc --jpeg=<I>quality</I> -f outfile.pdf ...</B>
-</PRE>
-</UL>
- where <I>quality</I> is the standard JPEG quality level from 1 to 100. 
-<H3><A NAME=5_6_3>Requesting Double-Sided Output</A></H3>
- The &quot;--duplex&quot; option specifies double-sided output: 
-<UL>
-<PRE>
-% <B>htmldoc --duplex -f outfile.pdf ...</B>
-</PRE>
-</UL>
- Note that this does not select duplexing on the printer but merely 
-adjusts the formatting so that the left &amp; right margins are swapped on 
-the back side and chapters start on an odd-numbered page. You must 
-still select duplexing in your printer driver or on the printer itself. 
-<H3><A NAME=5_6_4>Setting the Page Size</A></H3>
- The &quot;--size&quot; option specifies the output page size: 
-<UL>
-<PRE>
-% <B>htmldoc --size letter ...</B>
-% <B>htmldoc --size a4 ...</B>
-% <B>htmldoc --size universal ...</B>
-% <B>htmldoc --size WIDTHxHEIGHT ...</B>
-% <B>htmldoc --size WIDTHxHEIGHTin ...</B>
-% <B>htmldoc --size WIDTHxHEIGHTcm ...</B>
-% <B>htmldoc --size WIDTHxHEIGHTmm ...</B>
-</PRE>
-</UL>
- The &quot;WIDTH&quot; and &quot;HEIGHT&quot; arguments can be in points (no units 
-specified), inches, centimeters, or millimeters. The default page size 
-is Universal (8.27x11in or 210x279mm) which is the minimum of the US 
-and European standard sizes (Letter and A4, respectively). 
-<P>Note that this does not select a media size on the printer but 
-merely adjusts the formatting so that the text and images appear within 
-the given page area. You must still select the appropriate media size 
-in your printer driver or on the printer itself. </P>
-<H3><A NAME=5_6_5>Setting the Page Margins</A></H3>
- The &quot;--left&quot;, &quot;--right&quot;, &quot;--top&quot;, and &quot;--bottom&quot; options control the 
-page margins of the output. The defaults are 1 inch (25mm) for the left 
-and 0.5 inches (12mm) for the right, top, and bottom margins. 
-<H3><A NAME=5_6_6>Setting the Default Font Typeface and Size</A></H3>
- The default font size, spacing, and typefaces are controlled by the 
-&quot;--fontsize&quot;, &quot;--fontspacing&quot;, &quot;--bodyfont&quot;, and &quot;--headingfont&quot; 
-options: 
-<UL>
-<PRE>
-% <B>htmldoc --fontsize 9.0 --fontspacing 2.0 ...</B>
-% <B>htmldoc --bodyfont helvetica ...</B>
-% <B>htmldoc --headingfont times ...</B>
-</PRE>
-</UL>
- The typefaces for &quot;--bodyfont&quot; and &quot;--headingfont&quot; can be &quot;courier&quot;, 
-&quot;times&quot;, or &quot;helvetica&quot;. 
-<H3><A NAME=5_6_7>Customizing the Page Headers and Footers</A></H3>
- The &quot;--header&quot; and &quot;--footer&quot; options allow you to customize the 
-headers and footers used for the document body.  Each option requires a 
-three character string that specifies the left, middle, and right 
-fields: 
-<CENTER>
-<TABLE BORDER=1 WIDTH=50%>
-<TR><TH WIDTH=60>Char</TH><TH>Description</TH></TR>
-<TR><TD>.</TD><TD>A period indicates that the field should be blank.</TD>
-</TR>
-<TR><TD>t</TD><TD>A &quot;t&quot; indicates that the field should contain the 
-document title.</TD></TR>
-<TR><TD>h</TD><TD>An &quot;h&quot; indicates that the field should contain the 
-current heading.</TD></TR>
-<TR><TD>l</TD><TD>A lowercase L indicates that the field should contain 
-the logo  image.</TD></TR>
-<TR><TD>1</TD><TD>The number 1 indicates that the field should contain 
-the current  page number in decimal format (1, 2, 3, ...)</TD></TR>
-<TR><TD>i</TD><TD>A lowercase I indicates that the field should contain 
-the current  page number in lowercase roman numerals (i, ii, iii, ...)</TD>
-</TR>
-<TR><TD>I</TD><TD>An uppercase I indicates that the field should 
-contain the current  page number in uppercase roman numerals (I, II, 
-III, ...)</TD></TR>
-</TABLE>
-</CENTER>
- The &quot;--tocheader&quot; and &quot;--tocfooter&quot; options control the header and 
-footer on table-of-contents pages. 
-<H3><A NAME=5_6_8>Setting the Header and Footer Font</A></H3>
- The &quot;--headfootsize&quot; and &quot;--headfootfont&quot; options set the size and 
-typeface of the font used for the page headers and footers: 
-<UL>
-<PRE>
-% <B>htmldoc --headfootsize 9.0 --headfootfont courier ...</B>
-</PRE>
-</UL>
-<H3><A NAME=5_6_9>Disabling Document Compression</A></H3>
- Normally each page in a PDF file is compressed using the Flate method 
-(GZIP). Versions of Acrobat Reader prior to 3.0 do not understand Flate 
-compression. To disable compression use the &quot;--no-compression&quot; option. <HR>
-<H1 ALIGN=RIGHT><A NAME=6>A - Implementation Limits</A></H1>
-<I>HTMLDOC</I> current has the following implementation limits: 
-<UL>
-<LI>Generated PostScript/PDF pages: 5000</LI>
-<LI>Chapters: 100</LI>
-<LI>Headings: 10000</LI>
-<LI>Links: 20000</LI>
-<LI>Table columns: 20</LI>
-<LI>Table rows: 1000</LI>
-</UL>
- This limits can be increased by changing the appropriate constant 
-definition in the <I>config.h</I> header file. <HR>
-<H1 ALIGN=RIGHT><A NAME=7>B - GNU General Public License</A></H1>
-<P ALIGN=CENTER>GNU GENERAL PUBLIC LICENSE
-<BR> Version 2, June 1991</P>
-<P ALIGN=CENTER>Copyright (C) 1989, 1991 Free Software Foundation, Inc.
-<BR> 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
-<BR> Everyone is permitted to copy and distribute verbatim copies of 
-this license document, but changing it is not allowed.</P>
-<P ALIGN=CENTER><B>GNU GENERAL PUBLIC LICENSE
-<BR> TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION</B></P>
-<P>0. This License applies to any program or other work which contains 
-a notice placed by the copyright holder saying it may be distributed 
-under the terms of this General Public License.  The &quot;Program&quot;, below, 
-refers to any such program or work, and a &quot;work based on the Program&quot; 
-means either the Program or any derivative work under copyright law: 
-that is to say, a work containing the Program or a portion of it, 
-either verbatim or with modifications and/or translated into another 
-language.  (Hereinafter, translation is included without limitation in 
-the term &quot;modification&quot;.)  Each licensee is addressed as &quot;you&quot;.</P>
-<P>Activities other than copying, distribution and modification are not 
-covered by this License; they are outside its scope.  The act of 
-running the Program is not restricted, and the output from the Program 
-is covered only if its contents constitute a work based on the Program 
-(independent of having been made by running the Program). Whether that 
-is true depends on what the Program does.</P>
-<P>1. You may copy and distribute verbatim copies of the Program's 
-source code as you receive it, in any medium, provided that you 
-conspicuously and appropriately publish on each copy an appropriate 
-copyright notice and disclaimer of warranty; keep intact all the 
-notices that refer to this License and to the absence of any warranty; 
-and give any other recipients of the Program a copy of this License 
-along with the Program.</P>
-<P>You may charge a fee for the physical act of transferring a copy, 
-and you may at your option offer warranty protection in exchange for a 
-fee.</P>
-<P>2. You may modify your copy or copies of the Program or any portion 
-of it, thus forming a work based on the Program, and copy and 
-distribute such modifications or work under the terms of Section 1 
-above, provided that you also meet all of these conditions:</P>
-<UL>
-<P>a. You must cause the modified files to carry prominent  notices 
-stating that you changed the files and the date of any  change.</P>
-<P>b. You must cause any work that you distribute or publish,  that in 
-whole or in part contains or is derived from the  Program or any part 
-thereof, to be licensed as a whole at no  charge to all third parties 
-under the terms of this  License.</P>
-<P>c. If the modified program normally reads commands  interactively 
-when run, you must cause it, when started running  for such interactive 
-use in the most ordinary way, to print or  display an announcement 
-including an appropriate copyright  notice and a notice that there is 
-no warranty (or else, saying  that you provide a warranty) and that 
-users may redistribute  the program under these conditions, and telling 
-the user how to  view a copy of this License.  (Exception: if the 
-Program itself  is interactive but does not normally print such an 
- announcement, your work based on the Program is not required to  print 
-an announcement.)</P>
-</UL>
-<P>These requirements apply to the modified work as a whole.  If 
-identifiable sections of that work are not derived from the Program, 
-and can be reasonably considered independent and separate works in 
-themselves, then this License, and its terms, do not apply to those 
-sections when you distribute them as separate works.  But when you 
-distribute the same sections as part of a whole which is a work based 
-on the Program, the distribution of the whole must be on the terms of 
-this License, whose permissions for other licensees extend to the 
-entire whole, and thus to each and every part regardless of who wrote 
-it.</P>
-<P>Thus, it is not the intent of this section to claim rights or 
-contest your rights to work written entirely by you; rather, the intent 
-is to exercise the right to control the distribution of derivative or 
-collective works based on the Program.</P>
-<P>In addition, mere aggregation of another work not based on the 
-Program with the Program (or with a work based on the Program) on a 
-volume of a storage or distribution medium does not bring the other 
-work under the scope of this License.</P>
-<P>3. You may copy and distribute the Program (or a work based on it, 
-under Section 2) in object code or executable form under the terms of 
-Sections 1 and 2 above provided that you also do one of the following:</P>
-<UL>
-<P>a. Accompany it with the complete corresponding  machine-readable 
-source code, which must be distributed under  the terms of Sections 1 
-and 2 above on a medium customarily  used for software interchange; or,</P>
-<P>b. Accompany it with a written offer, valid for at least three 
- years, to give any third party, for a charge no more than your  cost 
-of physically performing source distribution, a complete 
- machine-readable copy of the corresponding source code, to be 
- distributed under the terms of Sections 1 and 2 above on a  medium 
-customarily used for software interchange; or,</P>
-<P>c. Accompany it with the information you received as to the  offer 
-to distribute corresponding source code.  (This  alternative is allowed 
-only for noncommercial distribution and  only if you received the 
-program in object code or executable  form with such an offer, in 
-accord with Subsection b above.)</P>
-</UL>
-<P>The source code for a work means the preferred form of the work for 
-making modifications to it.  For an executable work, complete source 
-code means all the source code for all modules it contains, plus any 
-associated interface definition files, plus the scripts used to control 
-compilation and installation of the executable.  However, as a special 
-exception, the source code distributed need not include anything that 
-is normally distributed (in either source or binary form) with the 
-major components (compiler, kernel, and so on) of the operating system 
-on which the executable runs, unless that component itself accompanies 
-the executable.</P>
-<P>If distribution of executable or object code is made by offering 
-access to copy from a designated place, then offering equivalent access 
-to copy the source code from the same place counts as distribution of 
-the source code, even though third parties are not compelled to copy 
-the source along with the object code.</P>
-<P>4. You may not copy, modify, sublicense, or distribute the Program 
-except as expressly provided under this License.  Any attempt otherwise 
-to copy, modify, sublicense or distribute the Program is void, and will 
-automatically terminate your rights under this License. However, 
-parties who have received copies, or rights, from you under this 
-License will not have their licenses terminated so long as such parties 
-remain in full compliance.</P>
-<P>5. You are not required to accept this License, since you have not 
-signed it.  However, nothing else grants you permission to modify or 
-distribute the Program or its derivative works.  These actions are 
-prohibited by law if you do not accept this License.  Therefore, by 
-modifying or distributing the Program (or any work based on the 
-Program), you indicate your acceptance of this License to do so, and 
-all its terms and conditions for copying, distributing or modifying the 
-Program or works based on it.</P>
-<P>6. Each time you redistribute the Program (or any work based on the 
-Program), the recipient automatically receives a license from the 
-original licensor to copy, distribute or modify the Program subject to 
-these terms and conditions.  You may not impose any further 
-restrictions on the recipients' exercise of the rights granted herein. 
-You are not responsible for enforcing compliance by third parties to 
-this License.</P>
-<P>7. If, as a consequence of a court judgment or allegation of patent 
-infringement or for any other reason (not limited to patent issues), 
-conditions are imposed on you (whether by court order, agreement or 
-otherwise) that contradict the conditions of this License, they do not 
-excuse you from the conditions of this License.  If you cannot 
-distribute so as to satisfy simultaneously your obligations under this 
-License and any other pertinent obligations, then as a consequence you 
-may not distribute the Program at all.  For example, if a patent 
-license would not permit royalty-free redistribution of the Program by 
-all those who receive copies directly or indirectly through you, then 
-the only way you could satisfy both it and this License would be to 
-refrain entirely from distribution of the Program.</P>
-<P>If any portion of this section is held invalid or unenforceable 
-under any particular circumstance, the balance of the section is 
-intended to apply and the section as a whole is intended to apply in 
-other circumstances.</P>
-<P>It is not the purpose of this section to induce you to infringe any 
-patents or other property right claims or to contest validity of any 
-such claims; this section has the sole purpose of protecting the 
-integrity of the free software distribution system, which is 
-implemented by public license practices.  Many people have made 
-generous contributions to the wide range of software distributed 
-through that system in reliance on consistent application of that 
-system; it is up to the author/donor to decide if he or she is willing 
-to distribute software through any other system and a licensee cannot 
-impose that choice.</P>
-<P>This section is intended to make thoroughly clear what is believed 
-to be a consequence of the rest of this License.</P>
-<P>8. If the distribution and/or use of the Program is restricted in 
-certain countries either by patents or by copyrighted interfaces, the 
-original copyright holder who places the Program under this License may 
-add an explicit geographical distribution limitation excluding those 
-countries, so that distribution is permitted only in or among countries 
-not thus excluded.  In such case, this License incorporates the 
-limitation as if written in the body of this License.</P>
-<P>9. The Free Software Foundation may publish revised and/or new 
-versions of the General Public License from time to time.  Such new 
-versions will be similar in spirit to the present version, but may 
-differ in detail to address new problems or concerns.</P>
-<P>Each version is given a distinguishing version number.  If the 
-Program specifies a version number of this License which applies to it 
-and &quot;any later version&quot;, you have the option of following the terms and 
-conditions either of that version or of any later version published by 
-the Free Software Foundation.  If the Program does not specify a 
-version number of this License, you may choose any version ever 
-published by the Free Software Foundation.</P>
-<P>10. If you wish to incorporate parts of the Program into other free 
-programs whose distribution conditions are different, write to the 
-author to ask for permission.  For software which is copyrighted by the 
-Free Software Foundation, write to the Free Software Foundation; we 
-sometimes make exceptions for this.  Our decision will be guided by the 
-two goals of preserving the free status of all derivatives of our free 
-software and of promoting the sharing and reuse of software generally.</P>
-<P ALIGN=CENTER><B>NO WARRANTY</B></P>
-<P>11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO 
-WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. 
- EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR 
-OTHER PARTIES PROVIDE THE PROGRAM &quot;AS IS&quot; WITHOUT WARRANTY OF ANY KIND, 
-EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. 
- THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS 
-WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF 
-ALL NECESSARY SERVICING, REPAIR OR CORRECTION.</P>
-<P>12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN 
-WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY 
-AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU 
-FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR 
-CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE 
-PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING 
-RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A 
-FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF 
-SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
-DAMAGES.</P>
-<P ALIGN=CENTER><B>END OF TERMS AND CONDITIONS</B></P>
-</BODY>
-</HTML>
