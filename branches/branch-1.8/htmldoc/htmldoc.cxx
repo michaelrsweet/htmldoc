@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.53 2002/08/16 20:27:47 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.54 2002/08/26 18:04:46 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -2225,7 +2225,7 @@ usage(void)
   puts("  --book");
   puts("  --bottom margin{in,cm,mm}");
   puts("  --browserwidth pixels");
-  puts("  --charset {8859-1...8859-15}");
+  puts("  --charset {cp-874...1258,iso-8859-1...8859-15,koi8-r}");
   puts("  --color");
   puts("  --compression[=level]");
   puts("  --datadir directory");
@@ -2324,5 +2324,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.53 2002/08/16 20:27:47 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.54 2002/08/26 18:04:46 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.57 2002/06/27 14:50:06 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.58 2002/08/26 18:04:44 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -191,18 +191,28 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			};
   static Fl_Menu	charsetMenu[] =	// Menu items for charset chooser
 			{
-			  {"8859-1",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-2",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-3",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-4",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-5",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-6",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-7",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-8",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-9",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-14", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-15", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"koi8-r",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-874",      0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1250",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1251",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1252",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1253",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1254",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1255",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1256",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1257",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"cp-1258",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-1",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-2",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-3",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-4",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-5",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-6",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-7",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-8",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-9",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-14", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"iso-8859-15", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"koi8-r",      0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	modeMenu[] =	// Menu items for mode chooser
@@ -712,7 +722,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   headFootFont->callback((Fl_Callback *)changeCB, this);
   _tooltip(headFootFont, "Choose the font for header and footer text.");
 
-  charset = new Fl_Choice(200, 225, 90, 25, "Character Set: ");
+  charset = new Fl_Choice(200, 225, 110, 25, "Character Set: ");
   charset->menu(charsetMenu);
   charset->callback((Fl_Callback *)changeCB, this);
   _tooltip(charset, "Choose the encoding of text.");
@@ -1386,6 +1396,7 @@ GUI::loadSettings()
 int				// O - 1 on success, 0 on failure
 GUI::newBook(void)
 {
+  int		i;		// Looping var
   char		size[255];	// Page size string
   char		formats[256];	// Format characters
   const char	*fmt;		// Old format string
@@ -1524,6 +1535,13 @@ GUI::newBook(void)
   fontBaseSize->value(_htmlSizes[SIZE_P]);
   fontSpacing->value(_htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
   headFootSize->value(HeadFootSize);
+
+  for (i = 0; i < (charset->size() - 1); i ++)
+    if (strcasecmp(_htmlCharSet, charset->text(i)) == 0)
+    {
+      charset->value(i);
+      break;
+    }
 
   compression->value(Compression);
   compGroup->deactivate();
@@ -4045,5 +4063,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.57 2002/06/27 14:50:06 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.58 2002/08/26 18:04:44 mike Exp $".
 //

@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.4.2.4 2001/07/26 20:38:26 mike Exp $"
+# "$Id: Makefile,v 1.4.2.5 2002/08/26 18:04:41 mike Exp $"
 #
 #   Makefile for HTMLDOC data files.
 #
@@ -33,9 +33,12 @@ include ../Makedefs
 # Character set/glyph files...
 #
 
-FILES	=	iso-8859-1 iso-8859-14 iso-8859-15 iso-8859-2 iso-8859-3 \
+FILES	=	cp-1250 cp-1251 cp-1252 cp-1253 cp-1254 cp-1255 \
+		cp-1256 cp-1257 cp-1258 cp-874 \
+		iso-8859-1 iso-8859-14 iso-8859-15 iso-8859-2 iso-8859-3 \
 		iso-8859-4 iso-8859-5 iso-8859-6 iso-8859-7 iso-8859-8 \
-		iso-8859-9 koi8-r prolog.ps psglyphs
+		iso-8859-9 \
+		koi8-r prolog.ps psglyphs
 
 
 #
@@ -64,5 +67,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.4.2.4 2001/07/26 20:38:26 mike Exp $".
+# End of "$Id: Makefile,v 1.4.2.5 2002/08/26 18:04:41 mike Exp $".
 #
