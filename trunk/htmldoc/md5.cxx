@@ -1,5 +1,5 @@
 //
-// "$Id: md5.cxx,v 1.2 2002/01/02 00:39:28 mike Exp $"
+// "$Id: md5.cxx,v 1.3 2002/09/24 23:26:50 mike Exp $"
 //
 // MD5 support code for HTMLDOC.
 //
@@ -135,20 +135,20 @@
 //
 
 void
-hdMD5::process(const hdMD5Byte *data)	// I - 64-bytes of data
+hdMD5::process(const hdByte *data)	// I - 64-bytes of data
 {
-  hdMD5Word	a = abcd[0],
+  hdWord	a = abcd[0],
 		b = abcd[1],
 		c = abcd[2],
 		d = abcd[3];
-  hdMD5Word	t;
-  hdMD5Word	X[16];
+  hdWord	t;
+  hdWord	X[16];
 
 
 #if ARCH_IS_BIG_ENDIAN
   // On big-endian machines, we must arrange the bytes in the right
   // order.  (This also works on machines of unknown byte order.)
-  const hdMD5Byte *xp = data;
+  const hdByte *xp = data;
   int		i;
 
 
@@ -157,13 +157,13 @@ hdMD5::process(const hdMD5Byte *data)	// I - 64-bytes of data
 #else  // !ARCH_IS_BIG_ENDIAN
   // On little-endian machines, we can process properly aligned data
   // without copying it.
-  const hdMD5Word *X;
+  const hdWord *X;
 
 
-  if (!((data - (const hdMD5Byte *)0) & 3))
+  if (!((data - (const hdByte *)0) & 3))
   {
     // data are properly aligned
-    X = (const hdMD5Word *)data;
+    X = (const hdWord *)data;
   }
   else
   {
@@ -314,13 +314,13 @@ hdMD5::init()
 //
 
 void
-hdMD5::append(const hdMD5Byte *data,	// I - Data to sum
+hdMD5::append(const hdByte *data,	// I - Data to sum
               int             nbytes)	// I - Number of bytes
 {
-  const hdMD5Byte *p = data;
+  const hdByte *p = data;
   int		left = nbytes;
   int		offset = (count[0] >> 3) & 63;
-  hdMD5Word	nbits = (hdMD5Word)(nbytes << 3);
+  hdWord	nbits = (hdWord)(nbytes << 3);
 
 
   if (!data || nbytes <= 0)
@@ -361,11 +361,11 @@ hdMD5::append(const hdMD5Byte *data,	// I - Data to sum
 //
 
 void
-hdMD5::finish(hdMD5Byte *digest)	// O - Final sum
+hdMD5::finish(hdByte *digest)	// O - Final sum
 {
-  hdMD5Byte	data[8];
+  hdByte	data[8];
   int		i;
-  static const hdMD5Byte pad[64] =
+  static const hdByte pad[64] =
   {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -376,7 +376,7 @@ hdMD5::finish(hdMD5Byte *digest)	// O - Final sum
 
   // Save the length before padding.
   for (i = 0; i < 8; ++i)
-    data[i] = (hdMD5Byte)(count[i >> 2] >> ((i & 3) << 3));
+    data[i] = (hdByte)(count[i >> 2] >> ((i & 3) << 3));
 
   // Pad to 56 bytes mod 64.
   append(pad, ((55 - (count[0] >> 3)) & 63) + 1);
@@ -384,10 +384,10 @@ hdMD5::finish(hdMD5Byte *digest)	// O - Final sum
   append(data, 8);
 
   for (i = 0; i < 16; i ++)
-    digest[i] = (hdMD5Byte)(abcd[i >> 2] >> ((i & 3) << 3));
+    digest[i] = (hdByte)(abcd[i >> 2] >> ((i & 3) << 3));
 }
 
 
 //
-// End of "$Id: md5.cxx,v 1.2 2002/01/02 00:39:28 mike Exp $".
+// End of "$Id: md5.cxx,v 1.3 2002/09/24 23:26:50 mike Exp $".
 //

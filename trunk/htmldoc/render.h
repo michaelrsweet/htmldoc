@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.15 2002/09/02 23:04:11 mike Exp $"
+// "$Id: render.h,v 1.16 2002/09/24 23:26:50 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -339,7 +339,7 @@ class hdPDFRender : public hdRender
 
   char		encrypt_key[16];
   int		encrypt_len;
-  hdMD5Byte	file_id[16];
+  hdByte	file_id[16];
 
   hdPDFRender();
   virtual	~hdPDFRender();
@@ -464,5 +464,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.15 2002/09/02 23:04:11 mike Exp $".
+// End of "$Id: render.h,v 1.16 2002/09/24 23:26:50 mike Exp $".
 //
