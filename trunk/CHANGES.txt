@@ -6,6 +6,10 @@ CHANGES IN HTMLDOC v1.8.8
     NEW FEATURES
 
 	- Added support for PDF security/encryption!
+	- Now support TABLE height attribute.
+	- Now generate an error message if no pages are
+	  generated (with a suggestion to use the webpage
+	  option.)
 
     CHANGES
 
