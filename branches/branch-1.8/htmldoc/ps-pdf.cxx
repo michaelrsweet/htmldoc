@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.150 2002/02/12 20:38:47 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.151 2002/03/08 20:58:40 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5316,7 +5316,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
                                     width + border, 0.0, bgrgb);
 	}
 	else
+	{
 	  cell_bg[col] = NULL;
+
+	  if (pages[*page].end == NULL)
+	    new_render(*page, RENDER_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
+	}
 
 	cell_start[col] = pages[*page].end;
 	cell_page[col]  = temp_page;
@@ -9575,30 +9580,33 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("/T{translate}BD\n", out);
     fputs("%%EndResource\n", out);
 
-    snprintf(temp, sizeof(temp), "%s/data/prolog.ps", _htmlData);
-    if ((prolog = fopen(temp, "rb")) != NULL)
+    if (PSCommands)
     {
-      while (fgets(temp, sizeof(temp), prolog) != NULL)
-        fputs(temp, out);
+      snprintf(temp, sizeof(temp), "%s/data/prolog.ps", _htmlData);
+      if ((prolog = fopen(temp, "rb")) != NULL)
+      {
+	while (fgets(temp, sizeof(temp), prolog) != NULL)
+          fputs(temp, out);
 
-      fclose(prolog);
-    }
-    else
-    {
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open data file \"%s\" - %s", temp,
-                     strerror(errno));
+	fclose(prolog);
+      }
+      else
+      {
+	progress_error(HD_ERROR_FILE_NOT_FOUND,
+                       "Unable to open data file \"%s\" - %s", temp,
+                       strerror(errno));
 
-      fputs("%%BeginResource: procset htmldoc-device 1.8 15\n", out);
-      fputs("languagelevel 1 eq{/setpagedevice{pop}BD}if\n", out);
-      fputs("/SetDuplexMode{<</Duplex 3 index/Tumble 5 index>>setpagedevice "
-            "pop pop}BD\n", out);
-      fputs("/SetMediaColor{pop}BD\n", out);
-      fputs("/SetMediaType{pop}BD\n", out);
-      fputs("/SetMediaPosition{pop}BD\n", out);
-      fputs("/SetPageSize{2 array astore<</PageSize 2 index/ImageableArea "
-            "null>>setpagedevice pop}BD\n", out);
-      fputs("%%EndResource\n", out);
+	fputs("%%BeginResource: procset htmldoc-device 1.8 15\n", out);
+	fputs("languagelevel 1 eq{/setpagedevice{pop}BD}if\n", out);
+	fputs("/SetDuplexMode{<</Duplex 3 index/Tumble 5 index>>setpagedevice "
+              "pop pop}BD\n", out);
+	fputs("/SetMediaColor{pop}BD\n", out);
+	fputs("/SetMediaType{pop}BD\n", out);
+	fputs("/SetMediaPosition{pop}BD\n", out);
+	fputs("/SetPageSize{2 array astore<</PageSize 2 index/ImageableArea "
+              "null>>setpagedevice pop}BD\n", out);
+	fputs("%%EndResource\n", out);
+      }
     }
 
     if (background_image != NULL)
@@ -9838,10 +9846,23 @@ write_prolog(FILE  *out,	/* I - Output file */
       write_string(out, doc_title, 0);
     }
 
-    if (author != NULL)
+    if (author != NULL || copyright != NULL)
     {
+      if (author && copyright)
+        snprintf(temp, sizeof(temp), "%s, %s", author, copyright);
+      else if (author)
+      {
+        strncpy(temp, (const char *)author, sizeof(temp) - 1);
+	temp[sizeof(temp) - 1] = '\0';
+      }
+      else
+      {
+        strncpy(temp, (const char *)copyright, sizeof(temp) - 1);
+	temp[sizeof(temp) - 1] = '\0';
+      }
+
       fputs("/Author", out);
-      write_string(out, author, 0);
+      write_string(out, (uchar *)temp, 0);
     }
 
     if (creator != NULL)
@@ -10682,5 +10703,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.150 2002/02/12 20:38:47 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.151 2002/03/08 20:58:40 mike Exp $".
  */

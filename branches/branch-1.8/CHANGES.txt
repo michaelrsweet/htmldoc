@@ -1,4 +1,4 @@
-CHANGES.txt - 03/07/2002
+CHANGES.txt - 03/08/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.19
@@ -9,11 +9,18 @@ CHANGES IN HTMLDOC v1.8.19
 	  embedding elements inside a LI.
 	- Now check for a TYPE attribute on EMBED elements, so
 	  that embedded Flash files do not get treated as HTML.
+	- Now put the COPYRIGHT meta data in the Author field in
+	  a PDF file along with the AUTHOR meta data (if any).
+	- No longer embed the prolog.ps command header when
+	  PostScript commands are not being embedded in the
+	  output.
 
     BUG FIXES
 
 	- Squeezed tables were not centered or right-aligned
 	  properly.
+	- Cells didn't align properly if they were the first
+	  things on the page.
 
 
 CHANGES IN HTMLDOC v1.8.18
