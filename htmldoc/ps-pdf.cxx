@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.209 2002/10/23 15:37:32 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.210 2002/10/23 15:57:43 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6751,6 +6751,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	      tree_t *para,	/* I - Current paragraph */
 	      int    needspace)	/* I - Need whitespace? */
 {
+  int		i;		/* Looping var */
   const char	*comment;	/* Comment text */
   char		*ptr,		/* Pointer into value string */
 		buffer[1024];	/* Buffer for strings */
@@ -6863,12 +6864,30 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      (*page) ++;
-      if (PageDuplex && ((*page) & 1))
-	(*page) ++;
+      if (NumberUp == 1)
+      {
+        // NEW SHEET breaks to the next sheet of paper...
+        (*page) ++;
+
+	if (PageDuplex && ((*page) & 1))
+	  (*page) ++;
+      }
+      else
+      {
+        // NEW SHEET breaks to the next side/sheet...
+        (*page) ++;
+
+	for (i = *page - 1; i >= 0; i --)
+	  if (pages[i].nup != NumberUp)
+	    break;
+
+        i ++;
+	for (i = *page - i; (i % NumberUp) != 0; i ++, (*page) ++);
+      }
 
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
+
       *x = *left;
       *y = *top;
 
@@ -7733,7 +7752,11 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       }
 
       if (tof)
+      {
+	check_pages(*page);
+
         pages[*page].nup = NumberUp;
+      }
     }
     else
       break;
@@ -11899,5 +11922,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.209 2002/10/23 15:37:32 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.210 2002/10/23 15:57:43 mike Exp $".
  */
