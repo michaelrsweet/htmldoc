@@ -1,5 +1,5 @@
 /*
- * "$Id: render.h,v 1.21.2.1 2004/03/22 03:15:03 mike Exp $"
+ * "$Id: render.h,v 1.21.2.2 2004/03/22 15:31:42 mike Exp $"
  *
  *   Render class definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -318,8 +318,10 @@ class hdRender
 {
   public:
 
-  hdRender(tree_t *document, tree_t *toc);
+  hdRender();
   ~hdRender();
+
+  int export_doc(tree_t *document, tree_t *toc);
 
   protected:
 
@@ -522,5 +524,5 @@ class hdRender
 
 
 /*
- * End of "$Id: render.h,v 1.21.2.1 2004/03/22 03:15:03 mike Exp $".
+ * End of "$Id: render.h,v 1.21.2.2 2004/03/22 15:31:42 mike Exp $".
  */

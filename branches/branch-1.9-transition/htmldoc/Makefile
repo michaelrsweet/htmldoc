@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.13.2.15.2.2 2004/03/22 03:15:03 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.15.2.3 2004/03/22 15:31:42 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -35,7 +35,7 @@ include ../Makedefs
 
 OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o http.o \
 		http-addr.o http-support.o image.o iso8859.o margin.o md5.o \
-		progress.o ps-pdf.o rc4.o render.o snprintf.o string.o \
+		progress.o rc4.o render.o snprintf.o string.o \
 		toc.o util.o
 
 
@@ -122,5 +122,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.13.2.15.2.2 2004/03/22 03:15:03 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.15.2.3 2004/03/22 15:31:42 mike Exp $".
 #
