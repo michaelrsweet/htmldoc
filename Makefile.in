@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.10.2.13 2004/02/06 16:54:19 mike Exp $"
+# "$Id: Makefile.in,v 1.10.2.14 2004/02/10 19:03:08 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -27,6 +27,13 @@
 #
 
 include Makedefs
+
+
+#
+# Software packaging...
+#
+
+EPM	=	epm -v --output-dir dist
 
 
 #
@@ -134,7 +141,7 @@ htmldoc.list:	htmldoc.list.in configure
 #
 
 epm:
-	epm -v -s setup.xpm htmldoc
+	$(EPM) -s setup.xpm htmldoc
 
 
 #
@@ -142,7 +149,7 @@ epm:
 #
 
 rpm:
-	epm -v -f rpm htmldoc
+	$(EPM) -f rpm htmldoc
 
 
 #
@@ -150,7 +157,7 @@ rpm:
 #
 
 deb:
-	epm -v -f deb htmldoc
+	$(EPM) -f deb htmldoc
 
 
 #
@@ -158,30 +165,30 @@ deb:
 #
 
 tardist:
-	epm -v -f tardist htmldoc
+	$(EPM) -f tardist htmldoc
 
 #
 # Make a MacOS X distribution using EPM.
 #
 
 osx:
-	epm -v -f osx htmldoc
+	$(EPM) -f osx htmldoc
 
 #
 # Make a Solaris distribution using EPM.
 #
 
 pkg:
-	epm -v -f pkg htmldoc
+	$(EPM) -f pkg htmldoc
 
 #
 # Make an HP-UX distribution using EPM.
 #
 
 depot:
-	epm -v -f depot htmldoc
+	$(EPM) -f depot htmldoc
 
 
 #
-# End of "$Id: Makefile.in,v 1.10.2.13 2004/02/06 16:54:19 mike Exp $".
+# End of "$Id: Makefile.in,v 1.10.2.14 2004/02/10 19:03:08 mike Exp $".
 #
