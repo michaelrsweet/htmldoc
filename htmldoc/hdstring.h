@@ -1,5 +1,5 @@
 /*
- * "$Id: hdstring.h,v 1.6 2004/02/03 02:55:28 mike Exp $"
+ * "$Id: hdstring.h,v 1.1.2.5 2004/01/13 02:51:27 mike Exp $"
  *
  *   String definitions for HTMLDOC, a HTML document processing program.
  *
@@ -29,7 +29,7 @@
  * Include necessary headers...
  */
 
-#  include <config.h>
+#  include "config.h"
 
 #  include <stdio.h>
 #  include <stdlib.h>
@@ -66,23 +66,42 @@ extern "C" {
  */
 
 #  ifndef HAVE_STRDUP
-extern char	*strdup(const char *s);
+extern char	*hd_strdup(const char *);
+#    define strdup hd_strdup
 #  endif /* !HAVE_STRDUP */
 
 #  ifndef HAVE_STRCASECMP
-extern int	strcasecmp(const char *s, const char *t);
+extern int	hd_strcasecmp(const char *, const char *);
+#    define strcasecmp hd_strcasecmp
 #  endif /* !HAVE_STRCASECMP */
 
 #  ifndef HAVE_STRNCASECMP
-extern int	strncasecmp(const char *s, const char *t, size_t n);
+extern int	hd_strncasecmp(const char *, const char *, size_t n);
+#    define strncasecmp hd_strncasecmp
 #  endif /* !HAVE_STRNCASECMP */
 
+#  ifndef HAVE_STRLCAT
+extern size_t hd_strlcat(char *, const char *, size_t);
+#    define strlcat hd_strlcat
+#  endif /* !HAVE_STRLCAT */
+
+#  ifndef HAVE_STRLCPY
+extern size_t hd_strlcpy(char *, const char *, size_t);
+#    define strlcpy hd_strlcpy
+#  endif /* !HAVE_STRLCPY */
+
 #  ifndef HAVE_SNPRINTF
-extern int	snprintf(char *, size_t, const char *, ...);
+extern int	hd_snprintf(char *, size_t, const char *, ...)
+#    ifdef __GNUC__
+__attribute__ ((__format__ (__printf__, 3, 4)))
+#    endif /* __GNUC__ */
+;
+#    define snprintf hd_snprintf
 #  endif /* !HAVE_SNPRINTF */
 
 #  ifndef HAVE_VSNPRINTF
-extern int	vsnprintf(char *, size_t, const char *, va_list);
+extern int	hd_vsnprintf(char *, size_t, const char *, va_list);
+#    define vsnprintf hd_vsnprintf
 #  endif /* !HAVE_VSNPRINTF */
 
 
@@ -93,5 +112,5 @@ extern int	vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: hdstring.h,v 1.6 2004/02/03 02:55:28 mike Exp $".
+ * End of "$Id: hdstring.h,v 1.1.2.5 2004/01/13 02:51:27 mike Exp $".
  */
