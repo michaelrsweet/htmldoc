@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.75 2001/06/01 18:17:58 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.76 2001/06/01 19:23:19 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2357,6 +2357,9 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
       case MARKUP_B :	/* Top-level TOC */
           if (t->prev != NULL)	/* Advance one line prior to top-levels... */
             *y -= _htmlSpacings[SIZE_P];
+
+          if (*y < (bottom + _htmlSpacings[SIZE_P] * 3))
+	    *y = 0; // Force page break
 
       case MARKUP_LI :	/* Lower-level TOC */
           DEBUG_printf(("parse_contents: heading=%d, page = %d\n", *heading,
@@ -8681,5 +8684,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.75 2001/06/01 18:17:58 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.76 2001/06/01 19:23:19 mike Exp $".
  */
