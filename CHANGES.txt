@@ -1,6 +1,25 @@
 CHANGES.txt - 12/13/1999
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.4
+
+    NEW FEATURES
+
+    CHANGES
+
+	- More configure script changes for FLTK DSOs.
+	- FileIcon.cxx was still using NULL for outline (an
+	  integer), which caused some ANSI C++ compilers to
+	  complain.
+
+    BUG FIXES
+
+	- The Fonts and Colors tab groups did not extend to
+	  the full width of the tab area, which prevented the
+	  Browse button from working when clicked on the right
+	  side.
+
+
 CHANGES IN HTMLDOC v1.8.3
 
     NEW FEATURES
