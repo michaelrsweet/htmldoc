@@ -27,6 +27,8 @@ CHANGES IN HTMLDOC v1.8.12
 	- Now default to PDF 1.3 (Acrobat 4.0) output format.
 	- Now output length of PDF streams with the stream
 	  object; this offers a modest reduction in file size.
+	- The HTTP file cache now keeps track of previous files
+	  that were downloaded.
 
     BUG FIXES
 
