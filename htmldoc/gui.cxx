@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.74 2004/06/10 20:58:00 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.75 2004/06/14 20:24:57 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -267,7 +267,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Create a dialog window...
   //
 
-  window = new Fl_Window(505, 415, "HTMLDOC " SVERSION);
+  window = new Fl_Double_Window(505, 415, "HTMLDOC " SVERSION);
   window->callback((Fl_Callback *)closeBookCB, this);
 
   controls = new Fl_Group(0, 0, 505, 385);
@@ -977,6 +977,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
     strict_html->tooltip("Check to require strict HTML conformance.");
 
   group->end();
+
+  showLicense = new Fl_Button(215, 260, 70, 25, "License");
+  showLicense->callback((Fl_Callback *)showLicenseCB);
+  showLicense->tooltip("Click to show the software license.");
 
   saveOptions = new Fl_Button(295, 260, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
@@ -4039,5 +4043,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.74 2004/06/10 20:58:00 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.75 2004/06/14 20:24:57 mike Exp $".
 //

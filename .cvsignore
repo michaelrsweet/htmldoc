@@ -4,4 +4,5 @@ autom4te*
 config.h
 config.log
 config.status
+dist
 htmldoc.list
