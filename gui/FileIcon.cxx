@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.14 1999/11/18 01:57:41 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.15 1999/12/13 14:53:11 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -494,7 +494,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
   char	command[255],		// Command string ("vertex", etc.)
 	params[255],		// Parameter string ("10.0,20.0", etc.)
 	*ptr;			// Pointer into strings
-  short	*outline;		// Outline polygon
+  int	outline;		// Outline polygon
 
 
   // Try to open the file...
@@ -609,18 +609,18 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     else if (strcmp(command, "bgnoutlinepolygon") == 0)
     {
       add(OUTLINEPOLYGON);
-      outline = add(0);
+      outline = add(0) - data_;
     }
     else if (strcmp(command, "endoutlinepolygon") == 0 &&
              outline != NULL)
     {
       // Set the outline color; see above for valid values...
       if (strcmp(params, "iconcolor") == 0)
-        *outline = 256;
+        data_[outline] = 256;
       else if (strcmp(params, "shadowcolor") == 0)
-        *outline = FL_DARK3;
+        data_[outline] = FL_DARK3;
       else if (strcmp(params, "outlinecolor") == 0)
-        *outline = FL_BLACK;
+        data_[outline] = FL_BLACK;
       else
       {
         short c = atoi(params);	// Color value
@@ -630,10 +630,10 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
 	{
 	  // Composite color; compute average...
 	  c = -c;
-	  *outline = fl_color_average((Fl_Color)(c >> 4), (Fl_Color)(c & 15), 0.5);
+	  data_[outline] = fl_color_average((Fl_Color)(c >> 4), (Fl_Color)(c & 15), 0.5);
 	}
 	else
-	  *outline = c;
+	  data_[outline] = c;
       }
 
       outline = NULL;
@@ -1179,5 +1179,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.14 1999/11/18 01:57:41 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.15 1999/12/13 14:53:11 mike Exp $".
 //
