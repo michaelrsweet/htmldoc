@@ -1,0 +1,13 @@
+This is the FREE version of HTMLDOC for Windows and
+comes with ABSOLUTELY NO SUPPORT OR WARRANTY
+OF ANY KIND.  If you would like to use a supported version
+of HTMLDOC, please contact us at +1.301.373.9600 or see
+our web pages at:
+
+    http://www.easysw.com/htmldoc
+
+for commercial support prices.  The HTMLDOC mailing list
+and newsgroups provide limited free support by other
+HTMLDOC users.
+
+Thank you for choosing HTMLDOC!
