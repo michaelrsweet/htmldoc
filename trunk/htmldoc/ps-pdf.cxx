@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.66 2000/04/28 19:01:49 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.67 2000/04/28 21:37:56 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -59,7 +59,6 @@
  *   init_list()             - Initialize the list type and value as necessary.
  *   real_prev()             - Return the previous non-link markup in the tree.
  *   real_next()             - Return the next non-link markup in the tree.
- *   get_color()             - Get a standard color value...
  *   find_background()       - Find the background image/color for the given
  *                             document.
  *   write_background()      - Write the background image/color for to the
@@ -294,7 +293,6 @@ static void	add_link(uchar *name, int page, int top);
 static link_t	*find_link(uchar *name);
 static int	compare_links(link_t *n1, link_t *n2);
 
-static void	get_color(uchar *color, float *rgb, int defblack = 1);
 static void	find_background(tree_t *t);
 static void	write_background(FILE *out);
 
@@ -2223,7 +2221,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	    if (temp->height > height)
               height = temp->height;
 
-          height *= 1.2f;
+          height *= _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
 
           if (*y < (bottom + height))
           {
@@ -2984,20 +2982,10 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
   if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
   {
-    if (PageDuplex)
-    {
-      DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
-                    num_headings, *page - 1));
-      heading_pages[num_headings] = *page - 1;
-    }
-    else
-    {
-      DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
-                    num_headings, *page - 1));
-      heading_pages[num_headings] = *page;
-    }
-
-    heading_tops[num_headings] = (int)(*y + 2 * _htmlSpacings[SIZE_P]);
+    DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
+                  num_headings, *page - 1));
+    heading_pages[num_headings] = *page - chapter_starts[1] + 1;
+    heading_tops[num_headings]  = (int)(*y + 2 * _htmlSpacings[SIZE_P]);
     num_headings ++;
   }
 
@@ -3229,7 +3217,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       if (temp->markup == MARKUP_IMG)
         temp_height = temp->height;
       else
-        temp_height = temp->height * 1.2f;
+        temp_height = temp->height * _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
 
       if (temp_height > height)
         height = temp_height;
@@ -4526,80 +4514,6 @@ real_next(tree_t *t)	/* I - Current markup */
     return (t->next);
 
   return (real_next(t->parent));
-}
-
-
-/*
- * 'get_color()' - Get a standard color value...
- */
-
-static void
-get_color(uchar *color,
-          float *rgb,
-	  int   defblack)
-{
-  int		i;		/* Looping vars */
-  static struct
-  {
-    char	*name;		/* Color name */
-    uchar	red,		/* Red value */
-		green,		/* Green value */
-		blue;		/* Blue value */
-  }		colors[] =	/* Color "database" */
-  {
-    { "aqua",		0,   255, 255 }, /* AKA Cyan */
-    { "black",		0,   0,   0 },
-    { "blue",		0,   0,   255 },
-    { "cyan",		0,   255, 255 },
-    { "fuchsia",	255, 0,   255 }, /* AKA Magenta */
-    { "gray",		128, 128, 128 },
-    { "green",		0,   128, 0 },
-    { "grey",		128, 128, 128 },
-    { "lime",		0,   255, 0 },
-    { "magenta",	255, 0,   255 },
-    { "maroon",		128, 0,   0 },
-    { "navy",		0,   0,   128 },
-    { "olive",		128, 128, 0 },
-    { "purple",		128, 0,   128 },
-    { "red",		255, 0,   0 },
-    { "silver",		192, 192, 192 },
-    { "teal",		0,   128, 128 },
-    { "white",		255, 255, 255 },
-    { "yellow",		255, 255, 0 }
-  };
-
-
-  if (!color[0])
-  {
-    if (defblack)
-    {
-      rgb[0] = 0.0f;
-      rgb[1] = 0.0f;
-      rgb[2] = 0.0f;
-    }
-    return;
-  }
-  else if (color[0] == '#')
-  {
-   /*
-    * RGB value in hex...
-    */
-
-    i = strtol((char *)color + 1, NULL, 16);
-    rgb[0] = (i >> 16) / 255.0f;
-    rgb[1] = ((i >> 8) & 255) / 255.0f;
-    rgb[2] = (i & 255) / 255.0f;
-  }
-  else
-  {
-    for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
-      if (strcasecmp(colors[i].name, (char *)color) == 0)
-      {
-        rgb[0] = colors[i].red / 255.0f;
-        rgb[1] = colors[i].green / 255.0f;
-        rgb[2] = colors[i].blue / 255.0f;
-      }
-  }
 }
 
 
@@ -6841,5 +6755,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.66 2000/04/28 19:01:49 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.67 2000/04/28 21:37:56 mike Exp $".
  */

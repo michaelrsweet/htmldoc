@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.5 2000/04/24 20:52:36 mike Exp $"
+ * "$Id: image.cxx,v 1.6 2000/04/28 21:37:56 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -558,12 +558,26 @@ image_load_gif(image_t *img,	/* I - Image pointer */
           if (transparent >= 0)
           {
            /*
-            * Make transparent color white...
+            * Map transparent color to background color...
             */
 
-            cmap[transparent][0] = 255;
-            cmap[transparent][1] = 255;
-            cmap[transparent][2] = 255;
+            if (BodyColor[0])
+	    {
+	      float rgb[3]; /* RGB color */
+
+
+	      get_color((uchar *)BodyColor, rgb);
+
+	      cmap[transparent][0] = rgb[0] * 255.0;
+	      cmap[transparent][1] = rgb[1] * 255.0;
+	      cmap[transparent][2] = rgb[2] * 255.0;
+	    }
+	    else
+	    {
+	      cmap[transparent][0] = 255;
+              cmap[transparent][1] = 255;
+              cmap[transparent][2] = 255;
+	    }
           }
 
           img->width  = (buf[5] << 8) | buf[4];
@@ -985,5 +999,5 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
 
 /*
- * End of "$Id: image.cxx,v 1.5 2000/04/24 20:52:36 mike Exp $".
+ * End of "$Id: image.cxx,v 1.6 2000/04/28 21:37:56 mike Exp $".
  */

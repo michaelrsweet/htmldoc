@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.23 2000/04/18 20:36:49 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.24 2000/04/28 21:37:55 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -26,6 +26,7 @@
  *   main()            - Main entry for HTMLDOC.
  *   format_number()   - Format a number into arabic numerals, roman numerals,
  *                       or letters.
+ *   get_color()       - Get a standard color value...
  *   get_measurement() - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
  *   set_page_size()   - Set the output page size.
@@ -906,6 +907,80 @@ format_number(int  n,		/* I - Number */
 
 
 /*
+ * 'get_color()' - Get a standard color value...
+ */
+
+void
+get_color(uchar *color,		/* I - Color attribute */
+          float *rgb,		/* O - RGB value */
+	  int   defblack)	/* I - Default color is black? */
+{
+  int		i;		/* Looping vars */
+  static struct
+  {
+    char	*name;		/* Color name */
+    uchar	red,		/* Red value */
+		green,		/* Green value */
+		blue;		/* Blue value */
+  }		colors[] =	/* Color "database" */
+  {
+    { "aqua",		0,   255, 255 }, /* AKA Cyan */
+    { "black",		0,   0,   0 },
+    { "blue",		0,   0,   255 },
+    { "cyan",		0,   255, 255 },
+    { "fuchsia",	255, 0,   255 }, /* AKA Magenta */
+    { "gray",		128, 128, 128 },
+    { "green",		0,   128, 0 },
+    { "grey",		128, 128, 128 },
+    { "lime",		0,   255, 0 },
+    { "magenta",	255, 0,   255 },
+    { "maroon",		128, 0,   0 },
+    { "navy",		0,   0,   128 },
+    { "olive",		128, 128, 0 },
+    { "purple",		128, 0,   128 },
+    { "red",		255, 0,   0 },
+    { "silver",		192, 192, 192 },
+    { "teal",		0,   128, 128 },
+    { "white",		255, 255, 255 },
+    { "yellow",		255, 255, 0 }
+  };
+
+
+  if (!color[0])
+  {
+    if (defblack)
+    {
+      rgb[0] = 0.0f;
+      rgb[1] = 0.0f;
+      rgb[2] = 0.0f;
+    }
+    return;
+  }
+  else if (color[0] == '#')
+  {
+   /*
+    * RGB value in hex...
+    */
+
+    i = strtol((char *)color + 1, NULL, 16);
+    rgb[0] = (i >> 16) / 255.0f;
+    rgb[1] = ((i >> 8) & 255) / 255.0f;
+    rgb[2] = (i & 255) / 255.0f;
+  }
+  else
+  {
+    for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
+      if (strcasecmp(colors[i].name, (char *)color) == 0)
+      {
+        rgb[0] = colors[i].red / 255.0f;
+        rgb[1] = colors[i].green / 255.0f;
+        rgb[2] = colors[i].blue / 255.0f;
+      }
+  }
+}
+
+
+/*
  * 'get_measurement()' - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
  */
@@ -1700,5 +1775,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.23 2000/04/18 20:36:49 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.24 2000/04/28 21:37:55 mike Exp $".
  */
