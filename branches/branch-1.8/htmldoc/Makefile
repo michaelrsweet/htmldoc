@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.13 2000/10/12 21:18:42 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.1 2001/02/01 21:59:42 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -27,6 +27,8 @@
 #
 
 include ../Makedefs
+
+OPTIM	=	-g
 
 
 #
@@ -113,5 +115,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.13 2000/10/12 21:18:42 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.1 2001/02/01 21:59:42 mike Exp $".
 #

@@ -1,4 +1,4 @@
-CHANGES.txt - 01/31/2001
+CHANGES.txt - 02/01/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.10
@@ -27,7 +27,7 @@ CHANGES IN HTMLDOC v1.8.10
 	- Embedded files and images did not use path or HTTP
 	  support.
 	- Table cell borders could be drawn on the wrong page
-	  if the cell spans more than one page.
+	  if not all cells in a row span more than one page.
 	- Large images could end up covering the footer at the
 	  bottom of the page (wasn't accounting for the line
 	  spacing.)
