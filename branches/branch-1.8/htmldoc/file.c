@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.13 2001/03/04 03:05:05 mike Exp $"
+ * "$Id: file.c,v 1.13.2.14 2001/05/17 13:26:50 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -700,7 +700,7 @@ file_temp(char *name,			/* O - Filename */
 
   snprintf(name, len, "%s/%08x.%06d.dat", tmpdir, GetCurrentProcessId(), web_files);
 
-  fd = _open(name, _O_CREAT | _O_WRONLY | _O_EXCL | _O_TRUNC | _O_SHORT_LIVED |
+  fd = _open(name, _O_CREAT | _O_RDWR | _O_EXCL | _O_TRUNC | _O_SHORT_LIVED |
                    _O_BINARY, _S_IREAD | _S_IWRITE);
 #else
   if ((tmpdir = getenv("TMPDIR")) == NULL)
@@ -708,11 +708,11 @@ file_temp(char *name,			/* O - Filename */
 
   snprintf(name, len, "%s/%06d.%06d", tmpdir, getpid(), web_files);
 
-  fd = open(name, O_CREAT | O_WRONLY | O_EXCL | O_TRUNC, 0600);
+  fd = open(name, O_CREAT | O_RDWR | O_EXCL | O_TRUNC, 0600);
 #endif /* WIN32 */
 
   if (fd >= 0)
-    fp = fdopen(fd, "wb");
+    fp = fdopen(fd, "w+b");
   else
     fp = NULL;
 
@@ -727,5 +727,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.13 2001/03/04 03:05:05 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.14 2001/05/17 13:26:50 mike Exp $".
  */
