@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.7 1999/11/18 20:22:15 mike Exp $"
+# "$Id: Makefile,v 1.8 1999/11/18 22:05:13 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -75,7 +75,7 @@ clean:
 #
 
 htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v -f htmldoc.html --titleimage htmldoc.gif \
+	../htmldoc/htmldoc -v -f htmldoc.html --titleimage htmldoc.png \
 		--datadir .. $(SOURCES)
 
 
@@ -98,5 +98,5 @@ htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
 
 
 #
-# End of "$Id: Makefile,v 1.7 1999/11/18 20:22:15 mike Exp $".
+# End of "$Id: Makefile,v 1.8 1999/11/18 22:05:13 mike Exp $".
 #
