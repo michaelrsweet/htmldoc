@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.14 1999/04/29 19:26:48 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.15 1999/05/06 17:28:31 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -579,12 +579,18 @@ FileChooser::fileNameCB()
       fileList->select(first_line);
     else if (max_match > min_match && max_match != 100000)
     {
+      // Add the matching portion...
       fileName->replace(0, min_match, pathname);
 
+      // Highlight it; if the user just pressed the backspace
+      // key, position the cursor at the start of the selection.
+      // Otherwise, put the cursor at the end of the selection so
+      // s/he can press the right arrow to accept the selection
+      // (Tab and End also do this for both cases.)
       if (Fl::event_key() == FL_BackSpace)
         fileName->position(min_match - 1, max_match);
       else
-        fileName->position(min_match, max_match);
+        fileName->position(max_match, min_match);
     }
 
     // See if we need to enable the OK button...
@@ -600,5 +606,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.14 1999/04/29 19:26:48 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.15 1999/05/06 17:28:31 mike Exp $".
 //

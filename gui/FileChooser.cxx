@@ -24,10 +24,10 @@ void FileChooser::cb_okButton(Fl_Return_Button* o, void* v) {
   ((FileChooser*)(o->parent()->user_data()))->cb_okButton_i(o,v);
 }
 
-inline void FileChooser::cb_fileName_i(Fl_Input*, void*) {
+inline void FileChooser::cb_fileName_i(FileInput*, void*) {
   fileNameCB();
 }
-void FileChooser::cb_fileName(Fl_Input* o, void* v) {
+void FileChooser::cb_fileName(FileInput* o, void* v) {
   ((FileChooser*)(o->parent()->user_data()))->cb_fileName_i(o,v);
 }
 
@@ -99,7 +99,7 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
     { Fl_Return_Button* o = okButton = new Fl_Return_Button(240, 280, 55, 25, "OK");
       o->callback((Fl_Callback*)cb_okButton);
     }
-    { Fl_Input* o = fileName = new Fl_Input(10, 245, 355, 25, "Filename:");
+    { FileInput* o = fileName = new FileInput(10, 245, 355, 25, "Filename:");
       o->callback((Fl_Callback*)cb_fileName);
       o->align(FL_ALIGN_TOP_LEFT);
       o->when(FL_WHEN_ENTER_KEY);

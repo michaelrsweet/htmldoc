@@ -3,10 +3,10 @@
 #ifndef FileChooser_h
 #define FileChooser_h
 #include "FileBrowser.h"
+#include "FileInput.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Choice.H>
-#include <FL/Fl_Input.H>
 #include <FL/Fl_Return_Button.H>
 #include <FL/Fl_Window.H>
 #include <stdio.h>
@@ -27,9 +27,9 @@ private:
   Fl_Return_Button *okButton;
   inline void cb_okButton_i(Fl_Return_Button*, void*);
   static void cb_okButton(Fl_Return_Button*, void*);
-  Fl_Input *fileName;
-  inline void cb_fileName_i(Fl_Input*, void*);
-  static void cb_fileName(Fl_Input*, void*);
+  FileInput *fileName;
+  inline void cb_fileName_i(FileInput*, void*);
+  static void cb_fileName(FileInput*, void*);
   Fl_Button *upButton;
   inline void cb_upButton_i(Fl_Button*, void*);
   static void cb_upButton(Fl_Button*, void*);
