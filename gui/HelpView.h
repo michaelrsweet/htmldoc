@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h,v 1.3 1999/09/24 20:41:02 mike Exp $"
+// "$Id: HelpView.h,v 1.4 1999/09/30 17:19:37 mike Exp $"
 //
 //   Help View definitions for the Common UNIX Printing System (CUPS).
 //
@@ -118,7 +118,7 @@ class HelpView : public Fl_Group	//// Help viewer widget
   void		initfont(uchar &f, uchar &s) { nfonts_ = 0;
 			fl_font(f = fonts_[0][0] = textfont_,
 			        s = fonts_[0][1] = textsize_); }
-  void		pushfont(uchar f, uchar s) { nfonts_ ++;
+  void		pushfont(uchar f, uchar s) { if (nfonts_ < 99) nfonts_ ++;
 			fl_font(fonts_[nfonts_][0] = f,
 			        fonts_[nfonts_][1] = s); }
   void		popfont(uchar &f, uchar &s) { if (nfonts_ > 0) nfonts_ --;
@@ -128,6 +128,7 @@ class HelpView : public Fl_Group	//// Help viewer widget
   public:
 
   HelpView(int xx, int yy, int ww, int hh, const char *l = 0);
+  ~HelpView();
   const char	*filename() const { if (filename_[0]) return (filename_);
   					else return ((const char *)0); }
   int		load(const char *f);
@@ -147,5 +148,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.3 1999/09/24 20:41:02 mike Exp $".
+// End of "$Id: HelpView.h,v 1.4 1999/09/30 17:19:37 mike Exp $".
 //
