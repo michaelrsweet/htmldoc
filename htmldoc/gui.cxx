@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.1 2000/11/30 18:33:45 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.2 2000/12/01 21:46:43 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -136,7 +136,13 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"1,2,3,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"i,ii,iii,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"I,II,III,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Ch Page", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"a,b,c,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"A,B,C,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Chapter Page", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1/N,2/N,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Date", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Date + Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	typefaceMenu[] = // Menu items for typeface choosers
@@ -775,7 +781,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   proxy->when(FL_WHEN_CHANGED);
   proxy->callback((Fl_Callback *)changeCB, this);
 
-  saveOptions = new Fl_Button(260, 235, 190, 25, "Save Options and Defaults");
+  saveOptions = new Fl_Button(260, 260, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
 
   optionsTab->end();
@@ -1117,7 +1123,13 @@ GUI::newBook(void)
   formats['1'] = 5;
   formats['i'] = 6;
   formats['I'] = 7;
-  formats['C'] = 8;
+  formats['a'] = 8;
+  formats['A'] = 9;
+  formats['C'] = 10;
+  formats['/'] = 11;
+  formats['d'] = 12;
+  formats['T'] = 13;
+  formats['D'] = 14;
 
   pageHeaderLeft->value(formats[Header[0]]);
   pageHeaderCenter->value(formats[Header[1]]);
@@ -1285,7 +1297,13 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   formats['1'] = 5;
   formats['i'] = 6;
   formats['I'] = 7;
-  formats['C'] = 8;
+  formats['a'] = 8;
+  formats['A'] = 9;
+  formats['C'] = 10;
+  formats['/'] = 11;
+  formats['d'] = 12;
+  formats['T'] = 13;
+  formats['D'] = 14;
 
   //
   // If the filename contains a path, chdir to it first...
@@ -1331,10 +1349,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 
   fgets(line, sizeof(line), fp);  /* Skip input file count... */
 
- /*
-  * Get input files...
-  */
-
+  // Get input files...
   while (fgets(line, sizeof(line), fp) != NULL)
   {
     line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
@@ -1773,7 +1788,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   int		i,			// Looping var
 		count;			// Number of files
   FILE		*fp;			// Book file pointer
-  static char	*formats = ".tchl1iIC";	// Format characters
+  static char	*formats = ".tchl1iIaAC/dTD";
+					// Format characters
   static char	*types[] =		// Typeface names...
 		{ "Courier", "Times", "Helvetica" };
   static char	*fonts[] =		// Font names...
@@ -2879,7 +2895,8 @@ void
 GUI::saveOptionsCB(Fl_Widget *w,
                    GUI       *gui)
 {
-  static char	*formats = ".tchl1iIC";	// Format characters
+  static char	*formats = ".tchl1iIaAC/dTD";
+					// Format characters
 
 
   set_page_size((char *)gui->pageSize->value());
@@ -3223,6 +3240,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
   const char	*newfile;	// New filename
   char		*dir;		// Book directory
 
+
   REF(w);
 
   gui->fc->filter("*.book");
@@ -3315,25 +3333,23 @@ void
 GUI::generateBookCB(Fl_Widget *w,	// I - Widget
                     GUI       *gui)	// I - GUI
 {
-  int		i,		/* Looping var */
-	        count;		/* Number of files */
-  char	  	temp[1024];	/* Temporary string */
-  FILE		*docfile;	/* Document file */
-  tree_t	*document,	/* Master HTML document */
-		*file,		/* HTML document file */
-		*toc;		/* Table of contents */
-  char		*filename,	/* HTML filename */
-		base[1024],	/* Base directory of HTML file */
-		bookbase[1024];	/* Base directory of book file */
-  static char	*formats = ".tchl1iIC";	// Format characters
+  int		i,		// Looping var
+	        count;		// Number of files
+  char	  	temp[1024];	// Temporary string
+  FILE		*docfile;	// Document file
+  tree_t	*document,	// Master HTML document
+		*file,		// HTML document file
+		*toc;		// Table of contents
+  char		*filename,	// HTML filename
+		base[1024],	// Base directory of HTML file
+		bookbase[1024];	// Base directory of book file
+  static char	*formats = ".tchl1iIaAC/dTD";
+				// Format characters
 
 
   REF(w);
 
- /*
-  * Do we have an output filename?
-  */
-
+  // Do we have an output filename?
   if (gui->outputPath->size() == 0)
   {
     gui->tabs->value(gui->outputTab);
@@ -3345,17 +3361,11 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     return;
   }
 
- /*
-  * Disable the GUI while we generate...
-  */
-
+  // Disable the GUI while we generate...
   gui->controls->deactivate();
   gui->window->cursor(FL_CURSOR_WAIT);
 
- /*
-  * Set global vars used for converting the HTML files to XYZ format...
-  */
-
+  // Set global vars used for converting the HTML files to XYZ format...
   strcpy(bookbase, file_directory(gui->book_filename));
 
   Verbosity = 1;
@@ -3590,5 +3600,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.1 2000/11/30 18:33:45 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.2 2000/12/01 21:46:43 mike Exp $".
 //

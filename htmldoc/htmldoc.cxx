@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.1 2000/11/30 18:33:46 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.2 2000/12/01 21:46:44 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1677,21 +1677,24 @@ usage(void)
   puts("  fff = heading format string; each \'f\' can be one of:");
   puts("");
   puts("        . = blank");
-  puts("        t = title text");
-  puts("        h = current heading");
-  puts("        c = current chapter heading");
-  puts("        C = current chapter page number (arabic)");
-  puts("        l = logo image");
-  puts("        i = lowercase roman numerals");
-  puts("        I = uppercase roman numerals");
   puts("        1 = arabic numbers (1, 2, 3, ...)");
   puts("        a = lowercase letters");
   puts("        A = uppercase letters");
+  puts("        c = current chapter heading");
+  puts("        C = current chapter page number (arabic)");
+  puts("        d = current date");
+  puts("        D = current date and time");
+  puts("        h = current heading");
+  puts("        i = lowercase roman numerals");
+  puts("        I = uppercase roman numerals");
+  puts("        l = logo image");
+  puts("        t = title text");
+  puts("        T = current time");
 
   exit(1);
 }
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.1 2000/11/30 18:33:46 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.2 2000/12/01 21:46:44 mike Exp $".
  */

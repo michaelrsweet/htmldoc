@@ -21,43 +21,43 @@ PostScript, or PDF file as needed.
 
 Shell scripts are probably the easiest to work with, but are normally
 limited to GET type requests. Here is a script called
-<VAR>topdf.cgi</VAR> that will convert the named HTML file to PDF:
+<VAR>topdf</VAR> that will convert the named HTML file to PDF:
 
 <UL><PRE>
 #!/bin/sh
+#
+# Sample CGI shell script to convert the named HTML file to PDF on-the-fly.
+#
+# Usage: http://www.domain.com/path/topdf/path/filename.html
+#
 
-docroot=/insert/directory/here
-cd $docroot
+#
+# The "options" variable contains any options you want to pass to HTMLDOC.
+#
+
+options="-t pdf --webpage --header ... --footer ..."
+
+#
+# Tell the browser to expect a PDF file...
+#
 
 echo "Content-Type: application/pdf"
 echo ""
 
-htmldoc -t pdf --webpage $1
+#
+# Run HTMLDOC to generate the PDF file...
+#
+
+htmldoc $options http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO
 </PRE></UL>
 
-Users of this CGI would reference the URL
-"http://www.domain.com/topdf.cgi?index.html" to generate a PDF file of the
+<P>Users of this CGI would reference the URL
+"http://www.domain.com/topdf.cgi/index.html" to generate a PDF file of the
 site's home page.
-
-<P>You can update the script to use the <CODE>PATH_TRANSLATED</CODE>
-environment variable so that URLs like
-"http://www.domain.com/cgi-bin/topdf/index.html" work as well:
-
-<UL><PRE>
-#!/bin/sh
-
-docroot=`dirname $PATH_TRANSLATED`
-cd $docroot
-
-echo "Content-Type: application/pdf"
-echo ""
-
-htmldoc -t pdf --webpage $PATH_TRANSLATED
-</PRE></UL>
 
 <H2>Calling HTMLDOC from Perl</H2>
 
-Perl scripts offer the ability to generate more complex reports, pull
+<P>Perl scripts offer the ability to generate more complex reports, pull
 data from databases, etc. The easiest way to interface Perl scripts
 with <I>HTMLDOC</I> is to write a report to a temporary file and then
 execute <I>HTMLDOC</I> to generate the PDF file.
@@ -78,7 +78,7 @@ sub topdf {
 
 <H2>Calling HTMLDOC from C</H2>
 
-C programs offer the best flexibility and easily support on-the-fly
+<P>C programs offer the best flexibility and easily support on-the-fly
 report generation without the need for temporary files.
 
 <P>Here are some simple C functions that can be used to generate a PDF
