@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.5 2000/01/04 13:52:26 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.1 2001/01/20 14:18:53 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -313,14 +313,25 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
               if (existing == NULL)
 	      {
-        	target = htmlNewTree(t, MARKUP_A, NULL);
+	       /*
+	        * Add NAME to existing A element, if present.
+		*/
 
-        	htmlSetVariable(target, (uchar *)"NAME", baselink);
-        	for (temp = t->child; temp != NULL; temp = temp->next)
-                  temp->parent = target;
+                if (t->parent != NULL && t->parent->markup == MARKUP_A)
+	          htmlSetVariable(t->parent, (uchar *)"NAME", baselink);
+		else if (t->child != NULL && t->child->markup == MARKUP_A)
+	          htmlSetVariable(t->child, (uchar *)"NAME", baselink);
+		else
+		{
+        	  target = htmlNewTree(t, MARKUP_A, NULL);
 
-        	target->child = t->child;
-        	t->child      = target;
+        	  htmlSetVariable(target, (uchar *)"NAME", baselink);
+        	  for (temp = t->child; temp != NULL; temp = temp->next)
+                    temp->parent = target;
+
+        	  target->child = t->child;
+        	  t->child      = target;
+	        }
 	      }
             }
 
@@ -342,5 +353,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5 2000/01/04 13:52:26 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.1 2001/01/20 14:18:53 mike Exp $".
  */
