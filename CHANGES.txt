@@ -1,4 +1,4 @@
-CHANGES.txt - 03/02/2004
+CHANGES.txt - 04/02/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -45,6 +45,11 @@ CHANGES IN HTMLDOC v1.8.24
 	  Acrobat 6 which tries to decrypt the colormap of in-line
 	  images twice, causing some very strange colors!
 	- Table captions can now be bottom aligned.
+	- Blocks now break at the bottom of a page if the
+	  current line height + standard line height goes below
+	  the bottom of the page; this prevents images with
+	  captions from getting erroneously moved to the top of
+	  the next page.
 
     BUG FIXES
 
