@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.3 1999/11/11 21:36:44 mike Exp $"
+ * "$Id: file.c,v 1.4 1999/11/23 17:35:22 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -156,7 +156,7 @@ file_extension(const char *s)	/* I - Filename or URL */
 
 char *					/* O - New filename */
 file_localize(const char *filename,	/* I - Filename */
-                   const char *newcwd)	/* I - New directory */
+              const char *newcwd)	/* I - New directory */
 {
   const char	*newslash;		/* Directory separator */
   char		*slash;			/* Directory separator */
@@ -195,7 +195,13 @@ file_localize(const char *filename,	/* I - Filename */
   while (*slash != '/' && *slash != '\\' && slash > temp)
     slash --;
 
-  slash ++;
+  if (*slash == '/' || *slash == '\\')
+    slash ++;
+
+#if defined(WIN32) || defined(__EMX__)
+  if (isalpha(slash[0]) && slash[1] == ':')
+    return (filename); /* Different drive letter... */
+#endif /* WIN32 || __EMX__ */
 
   if (*newslash != '\0')
     while (*newslash != '/' && *newslash != '\\' && newslash > newcwd)
@@ -271,5 +277,5 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * End of "$Id: file.c,v 1.3 1999/11/11 21:36:44 mike Exp $".
+ * End of "$Id: file.c,v 1.4 1999/11/23 17:35:22 mike Exp $".
  */
