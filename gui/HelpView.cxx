@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.19 2000/01/24 03:28:53 mike Exp $"
+// "$Id: HelpView.cxx,v 1.20 2000/03/06 21:23:59 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -57,6 +57,7 @@
 
 #if defined(WIN32) || defined(__EMX__)
 #  include <io.h>
+#  include <direct.h>
 #  define strcasecmp(s,t)	stricmp((s), (t))
 #  define strncasecmp(s,t,n)	strnicmp((s), (t), (n))
 #else
@@ -1729,5 +1730,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.19 2000/01/24 03:28:53 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.20 2000/03/06 21:23:59 mike Exp $".
 //
