@@ -454,20 +454,31 @@ The <CODE>--linkstyle</CODE> option specifies the style of links in HTML
 and PDF output. The style can be "plain" for no decoration or "underline"
 to underline links.
 
+<!-- NEED 5in -->
 <H3>--logoimage filename</H3>
 
-The <CODE>--logoimage</CODE> option specifies the logo image for the
-HTML navigation bar and page headers and footers for PostScript and PDF
-files. The supported formats are BMP, GIF, JPEG, and PNG.
-Note that you would need to include either the <CODE>--header</CODE> and/or the
-<CODE>--footer</CODE> option with the use of the <VAR>l</VAR> parameter.
-Here is an example with use of the header option:
+<P>The <CODE>--logoimage</CODE> option specifies the logo image
+for the HTML navigation bar and page headers and footers for
+PostScript and PDF files. The supported formats are BMP, GIF,
+JPEG, and PNG.
 
-<P>
+<CENTER><TABLE WIDTH="80%" BORDER="1" BGCOLOR="#cccccc" CELLPADDING="5" CELLSPACING="0">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>You need to use the <CODE>--header</CODE> and/or
+	<CODE>--footer</CODE> options with the <CODE>l</CODE>
+	parameter or use the corresponding HTML page comments to
+	display the logo image in the header or footer.
+
+	<P>The following example uses the <CODE>--header</CODE> option:
+
 <PRE>
---logoimage image.png --header lt.
+    htmldoc --logoimage image.png --header lt. -f file.pdf file.html
 </PRE>
-</P>
+	</TD>
+</TR>
+</TABLE></CENTER>
 
 <H3>--no-compression</H3>
 
