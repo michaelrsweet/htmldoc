@@ -5,6 +5,45 @@
 
 <P>This appendix provides the release notes for each version of HTMLDOC.
 
+<H2>Changes in HTMLDOC v1.8.17</H2>
+
+<UL>
+
+	<H3>New Features</H3>
+
+	<LI>Improved table-of-contents generation, with chapter
+	headings at the top of new TOC pages and page numbers
+	based on the header/footer string.
+
+	<H3>Changes</H3>
+
+	<LI>Made some changes in how COLSPAN and ROWSPAN are
+	handled to better match how Netscape and MSIE format
+	things.
+	<LI>HTMLDOC now handles .book files with CR, LF, or CR LF
+	line endings.
+	<LI>Changed the TOC numbering to use 32-bit integers
+	instead of 8-bit integers...
+
+	<H3>Bug Fixes</H3>
+
+	<LI>The table cell border and background were offset by
+	the cellpadding when they should only be offset by the
+	cellspacing.
+	<LI>The buffer used for periods that lead up to the page
+	number in the table-of-contents was not large enough
+	for a legal-size document in landscape format.
+	<LI>If a book only contained chapter headings, the PDF
+	bookmarks would be missing the last chapter heading.
+	<LI>Table cells that ended with a break would render
+	incorrectly.
+	<LI>Fixed the table pre-format sizing code to properly
+	account for borders, padding, etc.
+	<LI>Fixed the table squeezing code to honor minimum widths
+	and properly resize the remaining space.
+
+</UL>
+
 <H2>Changes in HTMLDOC v1.8.16</H2>
 
 <UL>

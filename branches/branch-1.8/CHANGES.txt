@@ -5,6 +5,9 @@ CHANGES IN HTMLDOC v1.8.17
 
     NEW FEATURES
 
+	- Improved table-of-contents generation, with chapter
+	  headings at the top of new TOC pages and page numbers
+	  based on the header/footer string.
 
     CHANGES
 
