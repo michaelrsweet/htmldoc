@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.210 2002/10/23 15:57:43 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.211 2002/10/31 16:07:03 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -10596,7 +10596,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     * Procedures used throughout the document...
     */
 
-    fputs("%%BeginResource: procset htmldoc-page 1.8 22\n", out);
+    fputs("%%BeginResource: procset htmldoc-page 1.8 24\n", out);
     fputs("/BD{bind def}bind def", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
           "closepath stroke}BD", out);
@@ -11922,5 +11922,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.210 2002/10/23 15:57:43 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.211 2002/10/31 16:07:03 mike Exp $".
  */

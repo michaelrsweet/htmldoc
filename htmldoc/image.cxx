@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.26 2002/10/04 15:43:50 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.27 2002/10/31 16:07:02 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -1499,6 +1499,16 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   png_read_info(pp, info);
 
+  if (info->color_type & PNG_COLOR_MASK_PALETTE)
+    png_set_expand(pp);
+  else if (info->bit_depth < 8)
+  {
+    png_set_packing(pp);
+    png_set_expand(pp);
+  }
+  else if (info->bit_depth == 16)
+    png_set_strip_16(pp);
+
   if (info->color_type & PNG_COLOR_MASK_COLOR)
   {
     depth      = 3;
@@ -1513,7 +1523,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   img->width  = info->width;
   img->height = info->height;
 
-  if (info->color_type & PNG_COLOR_MASK_ALPHA)
+  if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
   {
     image_need_mask(img, PSLevel == 0 && PDFVersion >= 13 ? 4 : 2);
 
@@ -1527,7 +1537,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
     puts("    COLOR");
   else
     puts("    GRAYSCALE");
-  if (info->color_type & PNG_COLOR_MASK_ALPHA)
+  if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
     puts("    ALPHA");
   if (info->color_type & PNG_COLOR_MASK_PALETTE)
     puts("    PALETTE");
@@ -1540,14 +1550,6 @@ image_load_png(image_t *img,	/* I - Image pointer */
   }
 
   img->pixels = (uchar *)malloc(img->width * img->height * depth);
-
-  if ((info->color_type & PNG_COLOR_MASK_PALETTE) || info->bit_depth < 8)
-  {
-    png_set_packing(pp);
-    png_set_expand(pp);
-  }
-  else if (info->bit_depth == 16)
-    png_set_strip_16(pp);
 
  /*
   * Allocate pointers...
@@ -1569,7 +1571,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Generate the alpha mask as necessary...
   */
 
-  if (info->color_type & PNG_COLOR_MASK_ALPHA)
+  if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
   {
 #ifdef DEBUG
     for (inptr = img->pixels, i = 0; i < img->height; i ++)
@@ -1836,5 +1838,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.26 2002/10/04 15:43:50 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.27 2002/10/31 16:07:02 mike Exp $".
  */

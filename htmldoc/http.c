@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.1.2.14 2002/09/11 19:24:39 swdev Exp $"
+ * "$Id: http.c,v 1.1.2.15 2002/10/31 16:07:02 mike Exp $"
  *
  *   HTTP routines for the HTMLDOC software.
  *
@@ -1071,7 +1071,7 @@ httpRead(http_t *http,			/* I - HTTP data */
   char		len[32];		/* Length string */
 
 
-  DEBUG_printf(("httpRead(%08x, %08x, %d)\n", http, buffer, length));
+  DEBUG_printf(("httpRead(%p, %p, %d)\n", http, buffer, length));
 
   if (http == NULL || buffer == NULL)
     return (-1);
@@ -1117,6 +1117,51 @@ httpRead(http_t *http,			/* I - HTTP data */
   else if (length > http->data_remaining)
     length = http->data_remaining;
 
+  if (http->used == 0 && length <= 256)
+  {
+   /*
+    * Buffer small reads for better performance...
+    */
+
+    if (http->data_remaining > sizeof(http->buffer))
+      bytes = sizeof(http->buffer);
+    else
+      bytes = http->data_remaining;
+
+#ifdef HAVE_LIBSSL
+    if (http->tls)
+      bytes = SSL_read((SSL *)(http->tls), http->buffer, bytes);
+    else
+#endif /* HAVE_LIBSSL */
+    {
+      DEBUG_printf(("httpRead: reading %d bytes from socket into buffer...\n",
+                    bytes));
+
+      bytes = recv(http->fd, http->buffer, bytes, 0);
+
+      DEBUG_printf(("httpRead: read %d bytes from socket into buffer...\n",
+                    bytes));
+    }
+
+    if (bytes > 0)
+      http->used = bytes;
+    else if (bytes < 0)
+    {
+#ifdef WIN32
+      http->error = WSAGetLastError();
+      return (-1);
+#else
+      if (errno != EINTR)
+      {
+        http->error = errno;
+        return (-1);
+      }
+#endif /* WIN32 */
+    }
+    else
+      return (0);
+  }
+
   if (http->used > 0)
   {
     if (length > http->used)
@@ -1130,7 +1175,7 @@ httpRead(http_t *http,			/* I - HTTP data */
     http->used -= length;
 
     if (http->used > 0)
-      memcpy(http->buffer, http->buffer + length, http->used);
+      memmove(http->buffer, http->buffer + length, http->used);
   }
 #ifdef HAVE_LIBSSL
   else if (http->tls)
@@ -1146,11 +1191,16 @@ httpRead(http_t *http,			/* I - HTTP data */
   if (bytes > 0)
     http->data_remaining -= bytes;
   else if (bytes < 0)
+  {
 #ifdef WIN32
     http->error = WSAGetLastError();
 #else
-    http->error = errno;
+    if (errno == EINTR)
+      bytes = 0;
+    else
+      http->error = errno;
 #endif /* WIN32 */
+  }
 
   if (http->data_remaining == 0)
   {
@@ -1165,6 +1215,38 @@ httpRead(http_t *http,			/* I - HTTP data */
 	http->state = HTTP_WAITING;
     }
   }
+
+#ifdef DEBUG
+  {
+    int i, j, ch;
+    printf("httpRead: Read %d bytes:\n", bytes);
+    for (i = 0; i < bytes; i += 16)
+    {
+      printf("   ");
+
+      for (j = 0; j < 16 && (i + j) < bytes; j ++)
+        printf(" %02X", buffer[i + j] & 255);
+
+      while (j < 16)
+      {
+        printf("   ");
+	j ++;
+      }
+
+      printf("    ");
+      for (j = 0; j < 16 && (i + j) < bytes; j ++)
+      {
+        ch = buffer[i + j] & 255;
+
+	if (ch < ' ' || ch == 127)
+	  ch = '.';
+
+        putchar(ch);
+      }
+      putchar('\n');
+    }
+  }
+#endif /* DEBUG */
 
   return (bytes);
 }
@@ -1204,6 +1286,8 @@ httpWrite(http_t     *http,		/* I - HTTP data */
 
       if (http->state == HTTP_POST_RECV)
 	http->state ++;
+      else if (http->state == HTTP_PUT_RECV)
+        http->state = HTTP_STATUS;
       else
 	http->state = HTTP_WAITING;
 
@@ -1227,6 +1311,22 @@ httpWrite(http_t     *http,		/* I - HTTP data */
 
     if (bytes < 0)
     {
+#ifdef WIN32
+      if (WSAGetLastError() != http->error)
+      {
+        http->error = WSAGetLastError();
+	continue;
+      }
+#else
+      if (errno == EINTR)
+        continue;
+      else if (errno != http->error)
+      {
+        http->error = errno;
+	continue;
+      }
+#endif /* WIN32 */
+
       DEBUG_puts("httpWrite: error writing data...\n");
 
       return (-1);
@@ -1257,8 +1357,37 @@ httpWrite(http_t     *http,		/* I - HTTP data */
       http->state = HTTP_WAITING;
   }
 
-  DEBUG_printf(("httpWrite: wrote %d bytes...\n", tbytes));
+#ifdef DEBUG
+  {
+    int i, j, ch;
+    printf("httpWrite: wrote %d bytes: \n", tbytes);
+    for (i = 0, buffer -= tbytes; i < tbytes; i += 16)
+    {
+      printf("   ");
 
+      for (j = 0; j < 16 && (i + j) < tbytes; j ++)
+        printf(" %02X", buffer[i + j] & 255);
+
+      while (j < 16)
+      {
+        printf("   ");
+	j ++;
+      }
+
+      printf("    ");
+      for (j = 0; j < 16 && (i + j) < tbytes; j ++)
+      {
+        ch = buffer[i + j] & 255;
+
+	if (ch < ' ' || ch == 127)
+	  ch = '.';
+
+        putchar(ch);
+      }
+      putchar('\n');
+    }
+  }
+#endif /* DEBUG */
   return (tbytes);
 }
 
@@ -1278,7 +1407,7 @@ httpGets(char   *line,			/* I - Line to read into */
   int	bytes;				/* Number of bytes read */
 
 
-  DEBUG_printf(("httpGets(%08x, %d, %08x)\n", line, length, http));
+  DEBUG_printf(("httpGets(%p, %d, %p)\n", line, length, http));
 
   if (http == NULL || line == NULL)
     return (NULL);
@@ -1287,7 +1416,7 @@ httpGets(char   *line,			/* I - Line to read into */
   * Pre-scan the buffer and see if there is a newline in there...
   */
 
-#if defined(WIN32)
+#ifdef WIN32
   WSASetLastError(0);
 #else
   errno = 0;
@@ -1333,7 +1462,9 @@ httpGets(char   *line,			/* I - Line to read into */
 
         DEBUG_printf(("httpGets(): recv() error %d!\n", WSAGetLastError()));
 #else
-        if (errno != http->error)
+        if (errno == EINTR)
+	  continue;
+	else if (errno != http->error)
 	{
 	  http->error = errno;
 	  continue;
@@ -1358,11 +1489,44 @@ httpGets(char   *line,			/* I - Line to read into */
 
       http->used += bytes;
       bufend     += bytes;
+      bufptr     = bufend;
     }
   }
   while (bufptr >= bufend && http->used < HTTP_MAX_BUFFER);
 
   http->activity = time(NULL);
+
+#ifdef DEBUG
+  {
+    int i, j, ch;
+    printf("httpGets: %d bytes in buffer:\n", bytes);
+    for (i = 0; i < http->used; i += 16)
+    {
+      printf("   ");
+
+      for (j = 0; j < 16 && (i + j) < http->used; j ++)
+        printf(" %02X", http->buffer[i + j] & 255);
+
+      while (j < 16)
+      {
+        printf("   ");
+	j ++;
+      }
+
+      printf("    ");
+      for (j = 0; j < 16 && (i + j) < http->used; j ++)
+      {
+        ch = http->buffer[i + j] & 255;
+
+	if (ch < ' ' || ch == 127)
+	  ch = '.';
+
+        putchar(ch);
+      }
+      putchar('\n');
+    }
+  }
+#endif /* DEBUG */
 
  /*
   * Read a line from the buffer...
@@ -1394,7 +1558,7 @@ httpGets(char   *line,			/* I - Line to read into */
 
     http->used -= bytes;
     if (http->used > 0)
-      memcpy(http->buffer, bufptr, http->used);
+      memmove(http->buffer, bufptr, http->used);
 
     DEBUG_printf(("httpGets(): Returning \"%s\"\n", line));
     return (line);
@@ -1439,7 +1603,27 @@ httpPrintf(http_t     *http,		/* I - HTTP data */
     nbytes = send(http->fd, bufptr, bytes - tbytes, 0);
 
     if (nbytes < 0)
+    {
+      nbytes = 0;
+
+#ifdef WIN32
+      if (WSAGetLastError() != http->error)
+      {
+        http->error = WSAGetLastError();
+	continue;
+      }
+#else
+      if (errno == EINTR)
+	continue;
+      else if (errno != http->error)
+      {
+        http->error = errno;
+	continue;
+      }
+#endif /* WIN32 */
+
       return (-1);
+    }
   }
 
   return (bytes);
@@ -1567,7 +1751,7 @@ httpUpdate(http_t *http)		/* I - HTTP data */
 #endif /* HAVE_LIBSSL */
 
 
-  DEBUG_printf(("httpUpdate(%08x)\n", http));
+  DEBUG_printf(("httpUpdate(%p)\n", http));
 
  /*
   * If we haven't issued any commands, then there is nothing to "update"...
@@ -1845,7 +2029,7 @@ httpEncode64(char       *out,	/* I - String to write to */
 int				/* O - Content length */
 httpGetLength(http_t *http)	/* I - HTTP data */
 {
-  DEBUG_printf(("httpGetLength(%08x)\n", http));
+  DEBUG_printf(("httpGetLength(%p)\n", http));
 
   if (strcasecmp(http->fields[HTTP_FIELD_TRANSFER_ENCODING], "chunked") == 0)
   {
@@ -2098,5 +2282,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.1.2.14 2002/09/11 19:24:39 swdev Exp $".
+ * End of "$Id: http.c,v 1.1.2.15 2002/10/31 16:07:02 mike Exp $".
  */

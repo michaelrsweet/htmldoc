@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.40 2002/10/03 17:43:17 mike Exp $"
+ * "$Id: file.c,v 1.13.2.41 2002/10/31 16:07:01 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -69,11 +69,11 @@
 
 #ifdef WIN32
 #  define getpid	GetCurrentProcessId
-#  define TEMPLATE	"%s%08x.%06d.tmp"
+#  define TEMPLATE	"%s%08lx.%06d.tmp"
 #  define OPENMODE	(_O_CREAT | _O_RDWR | _O_TRUNC | _O_BINARY)
 #  define OPENPERM	(_S_IREAD | _S_IWRITE)
 #else
-#  define TEMPLATE	"%s/%06d.%06d.tmp"
+#  define TEMPLATE	"%s/%06ld.%06d.tmp"
 #  define OPENMODE	(O_CREAT | O_RDWR | O_EXCL | O_TRUNC)
 #  define OPENPERM	0600
 #endif /* WIN32 */
@@ -192,7 +192,7 @@ file_cleanup(void)
     for (i = 0; i < web_files; i ++)
     {
       snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
-               getpid(), i + 1);
+               (long)getpid(), i + 1);
       progress_error(HD_ERROR_NONE, "DEBUG: %-31.31s %s\n",
                      web_cache[i].url ? web_cache[i].url : "none", filename);
     }
@@ -205,7 +205,7 @@ file_cleanup(void)
   while (web_files > 0)
   {
     snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
-             getpid(), web_files);
+             (long)getpid(), web_files);
 
     if (unlink(filename))
       progress_error(HD_ERROR_DELETE_ERROR,
@@ -1034,7 +1034,7 @@ file_temp(char *name,			/* O - Filename */
     tmpdir = "/var/tmp";
 #endif /* WIN32 */
 
-  snprintf(name, len, TEMPLATE, tmpdir, getpid(), web_files);
+  snprintf(name, len, TEMPLATE, tmpdir, (long)getpid(), web_files);
 
   if ((fd = open(name, OPENMODE, OPENPERM)) >= 0)
     fp = fdopen(fd, "w+b");
@@ -1051,5 +1051,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.40 2002/10/03 17:43:17 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.41 2002/10/31 16:07:01 mike Exp $".
  */
