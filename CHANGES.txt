@@ -1,4 +1,4 @@
-CHANGES.txt - 07/08/2002
+CHANGES.txt - 07/15/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -16,6 +16,8 @@ CHANGES IN HTMLDOC v1.8.21
 	  width.
 	- HTMLDOC should now compile out-of-the-box using the
 	  Cygwin tools.
+	- HTMLDOC no longer inserts whitespace between text
+	  inside DIV elements.
 
     BUG FIXES
 
