@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.19 2000/10/16 03:25:07 mike Exp $"
+// "$Id: htmldoc.h,v 1.20 2000/10/19 00:41:42 mike Exp $"
 //
 //   Header file for HTMLDOC, a HTML document processing program.
 //
@@ -216,7 +216,8 @@ struct HDlink			//// Named link position structure
 {
   short		page,		// Page #
 		top;		// Top position
-  uchar		name[124];	// Reference name
+  uchar		*filename,	// File for link
+		name[124];	// Reference name
 };
 
 
@@ -278,8 +279,9 @@ class HTMLDOC
   HDimage	*logo_image_;		// Logo image
   float		logo_width_,		// Printed logo width
 		logo_height_;		// Printed logo height
-  HDimage	*background_image_;	// Background image
-  float		background_rgb_[3],	// Background color
+  HDimage	*title_image_,		// Title image
+		*body_image_;		// Background image
+  float		body_rgb_[3],		// Background color
 		link_rgb_[3];		// Link color
 
   int		render_typeface_,	// Current text typeface
@@ -356,7 +358,9 @@ class HTMLDOC
   int		browser_width_;		// Browser width
 
 
-  void		add_link(uchar *name, int page, int top);
+  void		add_link(uchar *name, int page, int top,
+		         uchar *filename = (uchar *)0);
+  void		add_link(uchar *name, uchar *filename) { add_link(name, 0, 0, filename); }
   static int	compare_links(HDlink *n1, HDlink *n2);
   int		compare_rgb(uchar *rgb1, uchar *rgb2);
   void		encrypt_init(void);
@@ -369,8 +373,15 @@ class HTMLDOC
   void		flate_write(uchar *inbuf, int length, int flush=0);	
   uchar		*get_title(HDtree *t);
   float		get_width(uchar *s, int typeface, int style, int size);
+  int		html_write_all(HDtree *t, int col);
   void		html_write_document(uchar *title, uchar *author, uchar *creator,
 		                    uchar *copyright, uchar *keywords);
+  void		html_write_footer(HDtree *t);
+  void		html_write_header(uchar *filename, uchar *title,
+		                  uchar *author, uchar *copyright,
+				  uchar *docnumber, HDtree *t);
+  void		html_write_title(uchar *title, uchar *author,
+			         uchar *copyright, uchar *docnumber);
   void		init_list(HDtree *t);
   boolean	jpg_empty(j_compress_ptr cinfo);
   void		jpg_init(j_compress_ptr cinfo);
@@ -436,9 +447,11 @@ class HTMLDOC
   void		ps_write_prolog(int pages, uchar *title,
 		                uchar *author, uchar *creator,
 			        uchar *copyright, uchar *keywords);
+  void		scan_links(HDtree *t, uchar *filename);
   void		set_color(float *rgb);
   void		set_font(int typeface, int style, float size);
   void		set_pos(float x, float y);
+  void		update_links(HDtree *t, uchar *filename);
   void		write_image(HDrender *r);
   void		write_string(uchar *s, int compress);
   void		write_text(HDrender *r);
@@ -548,5 +561,5 @@ class HTMLDOC
 #endif // !_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.19 2000/10/16 03:25:07 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.20 2000/10/19 00:41:42 mike Exp $".
 //
