@@ -146,7 +146,6 @@ HelpDialog::HelpDialog() {
       Fl_Group::current()->resizable(o);
     }
     { Fl_Pack* o = new Fl_Pack(0, 25, 535, 55);
-      o->box(FL_FLAT_BOX);
       { Fl_Button* o = back_ = new Fl_Button(0, 25, 60, 55, _("Back"));
         o->box(FL_FLAT_BOX);
         o->down_box(FL_DOWN_BOX);
