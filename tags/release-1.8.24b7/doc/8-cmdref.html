@@ -1,0 +1,942 @@
+<HTML>
+<BODY>
+
+<!-- FOOTER RIGHT "8-$CHAPTERPAGE" -->
+<DIV ALIGN="justify">
+
+<H1 ALIGN="RIGHT"><A NAME="CMDREF">Chapter 8 - Command-Line Reference</A></H1>
+
+<P>This chapter describes all of the command-line options supported by
+<I>HTMLDOC</I>.
+
+<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>The free version of <I>HTMLDOC</I> for Windows does
+	not include the command-line program.
+
+	</TD>
+</TR>
+</TABLE></CENTER>
+
+<H2>Basic Usage</H2>
+
+The basic command-line usage for <I>HTMLDOC</I> is:
+
+<UL><PRE>
+% <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
+% <KBD>htmldoc <I>options</I> filename.book <I>ENTER</I></KBD>
+</PRE></UL>
+
+The first form converts the named HTML files to the specified output format
+immediately. The second form loads the specified <CODE>.book</CODE> file and
+displays the <I>HTMLDOC</I> window, allowing a user to make changes and/or
+generate the document interactively.
+
+<P>If no output file or directory is specified, then all output is sent to the
+standard output file.
+
+<H2>Options</H2>
+
+The following command-line options are recognized by <I>HTMLDOC</I>.
+
+<H3>-d directory</H3>
+
+The <CODE>-d</CODE> option specifies an output directory for the document files.
+
+<P>This option is not compatible with the PDF output format.
+
+<H3>-f filename</H3>
+
+The <CODE>-f</CODE> option specifies an output file for the document.
+
+<H3>-t format</H3>
+
+<P>The <CODE>-t</CODE> option specifies the output format for the document and
+can be one of the following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>Format</TH><TH>Description</TH></TR>
+<TR><TD>html</TD><TD>Generate one or more indexed HTML files.</TD></TR>
+<TR><TD>htmlsep</TD><TD>Generate separate HTML files for each heading in
+the table-of-contents.</TD></TR>
+<TR><TD>pdf</TD><TD>Generate a PDF file (default version - 1.3).</TD></TR>
+<TR><TD>pdf11</TD><TD>Generate a PDF 1.1 file for Acrobat Reader 2.0.</TD></TR>
+<TR><TD>pdf12</TD><TD>Generate a PDF 1.2 file for Acrobat Reader 3.0.</TD></TR>
+<TR><TD>pdf13</TD><TD>Generate a PDF 1.3 file for Acrobat Reader 4.0.</TD></TR>
+<TR><TD>pdf14</TD><TD>Generate a PDF 1.4 file for Acrobat Reader 5.0.</TD></TR>
+<TR><TD>ps</TD><TD>Generate one or more PostScript files (default level).</TD></TR>
+<TR><TD>ps1</TD><TD>Generate one or more Level 1 PostScript files.</TD></TR>
+<TR><TD>ps2</TD><TD>Generate one or more Level 2 PostScript files.</TD></TR>
+<TR><TD>ps3</TD><TD>Generate one or more Level 3 PostScript files.</TD></TR>
+</TABLE></CENTER>
+
+<H3>-v</H3>
+
+The <CODE>-v</CODE> option specifies that progress information should be
+sent/displayed to the standard error file.
+
+<H3>--batch filename.book</H3>
+
+The <CODE>--batch</CODE> option specifies a book file that you would like to
+generate without the GUI popping up. This option can be combined with other
+options to generate the same book in different formats and sizes:
+
+<UL><PRE>
+% <KBD>htmldoc --batch filename.book -f filename.ps <I>ENTER</I></KBD>
+% <KBD>htmldoc --batch filename.book -f filename.pdf <I>ENTER</I></KBD>
+</PRE></UL>
+
+<H3>--bodycolor color</H3>
+
+The <CODE>--bodycolor</CODE> option specifies the background color for all
+pages in the document. The color can be specified by a standard HTML color
+name or as a 6-digit hexadecimal number of the form <CODE>#RRGGBB</CODE>.
+
+<!-- NEED 6in -->
+<H3>--bodyfont typeface</H3>
+
+<P>The <CODE>--bodyfont</CODE> option specifies the default text font used for
+text in the document body. The <CODE>typeface</CODE> parameter can be one of
+the following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>typeface</TH><TH>Actual Font</TH></TR>
+<TR><TD>Arial</TD><TD>Helvetica</TD></TR>
+<TR><TD>Courier</TD><TD>Courier</TD></TR>
+<TR><TD>Helvetica</TD><TD>Helvetica</TD></TR>
+<TR><TD>Monospace</TD><TD>Courier</TD></TR>
+<TR><TD>Sans-Serif</TD><TD>Helvetica</TD></TR>
+<TR><TD>Serif</TD><TD>Times</TD></TR>
+<TR><TD>Symbol</TD><TD>Symbol</TD></TR>
+<TR><TD>Times</TD><TD>Times</TD></TR>
+</TABLE></CENTER>
+
+<H3>--bodyimage filename</H3>
+
+<P>The <CODE>--bodyimage</CODE> option specifies the background
+image for all pages in the document. The supported formats are
+BMP, GIF, JPEG, and PNG.
+
+<H3>--book</H3>
+
+<P>The <CODE>--book</CODE> option specifies that the input files
+comprise a book with chapters and headings.
+
+<H3>--bottom margin</H3>
+
+<P>The <CODE>--bottom</CODE> option specifies the bottom margin.
+The default units are points (1 point = 1/72nd inch); the
+suffixes "in", "cm", and "mm" specify inches, centimeters, and
+millimeters, respectively.
+
+<P>This option is only available when generating PostScript or
+PDF files.
+
+<H3>--browserwidth pixels</H3>
+
+<P>The <CODE>--browserwidth</CODE> option specifies the browser
+width in pixels. The browser width is used to scale images and
+pixel measurements when generating PostScript and PDF files. It
+does not affect the font size of text.
+
+<P>The default browser width is 680 pixels which corresponds
+roughly to a 96 DPI display.  Please note that your images and
+table sizes are equal to or smaller than the browser width, or
+your output will overlap or truncate in places.
+
+<!-- NEED 6in -->
+<H3>--charset charset</H3>
+
+<P>The <CODE>--charset</CODE> option specifies the 8-bit
+character set encoding to use for the entire document.
+<I>HTMLDOC</I> comes with the following character set files:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>charset</TH><TH>Character Set</TH></TR>
+<TR><TD>cp-874</TD><TD>Windows code page 874</TD></TR>
+<TR><TD>cp-1250</TD><TD>Windows code page 1250</TD></TR>
+<TR><TD>cp-1251</TD><TD>Windows code page 1251</TD></TR>
+<TR><TD>cp-1252</TD><TD>Windows code page 1252</TD></TR>
+<TR><TD>cp-1253</TD><TD>Windows code page 1253</TD></TR>
+<TR><TD>cp-1254</TD><TD>Windows code page 1254</TD></TR>
+<TR><TD>cp-1255</TD><TD>Windows code page 1255</TD></TR>
+<TR><TD>cp-1256</TD><TD>Windows code page 1256</TD></TR>
+<TR><TD>cp-1257</TD><TD>Windows code page 1257</TD></TR>
+<TR><TD>cp-1258</TD><TD>Windows code page 1258</TD></TR>
+<TR><TD>iso-8859-1</TD><TD>ISO-8859-1</TD></TR>
+<TR><TD>iso-8859-2</TD><TD>ISO-8859-2</TD></TR>
+<TR><TD>iso-8859-3</TD><TD>ISO-8859-3</TD></TR>
+<TR><TD>iso-8859-4</TD><TD>ISO-8859-4</TD></TR>
+<TR><TD>iso-8859-5</TD><TD>ISO-8859-5</TD></TR>
+<TR><TD>iso-8859-6</TD><TD>ISO-8859-6</TD></TR>
+<TR><TD>iso-8859-7</TD><TD>ISO-8859-7</TD></TR>
+<TR><TD>iso-8859-8</TD><TD>ISO-8859-8</TD></TR>
+<TR><TD>iso-8859-9</TD><TD>ISO-8859-9</TD></TR>
+<TR><TD>iso-8859-14</TD><TD>ISO-8859-14</TD></TR>
+<TR><TD>iso-8859-15</TD><TD>ISO-8859-15</TD></TR>
+<TR><TD>koi8-r</TD><TD>KOI8-R</TD></TR>
+</TABLE></CENTER>
+
+<H3>--color</H3>
+
+The <CODE>--color</CODE> option specifies that color output is desired.
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<H3>--compression[=level]</H3>
+
+The <CODE>--compression</CODE> option specifies that Flate compression
+should be performed on the output file(s). The optional
+<CODE>level</CODE> parameter is a number from 1 (fastest and least
+amount of compression) to 9 (slowest and most amount of compression).
+
+<P>This option is only available when generating Level 3 PostScript or
+PDF files.
+
+<H3>--continuous</H3>
+
+The <CODE>--continuous</CODE> option specifies that the input files
+comprise a web page (or site) and that no title page or
+table-of-contents should be generated. Unlike the <CODE>--webpage</CODE>
+option described later in this chapter, page breaks are not inserted
+between each input file.
+
+<P>This option is only available when generating PostScript or PDF
+files.
+
+<H3>--datadir directory</H3>
+
+The <CODE>--datadir</CODE> option specifies the location of data files used
+by <I>HTMLDOC</I>.
+
+<H3>--duplex</H3>
+
+The <CODE>--duplex</CODE> option specifies that the output should be formatted
+for two sided printing.
+
+<P>This option is only available when generating PostScript or PDF files.
+Use the <CODE>--pscommands</CODE> option to generate PostScript duplex mode
+commands.
+
+<H3>--effectduration seconds</H3>
+
+The <CODE>--effectduration</CODE> option specifies the duration of a page
+transition effect in seconds.
+
+<P>This option is only available when generating PDF files.
+
+<H3>--embedfonts</H3>
+
+<P>The <CODE>--embedfonts</CODE> option specifies that fonts
+should be embedded in PostScript and PDF output.  This is
+especially useful when generating documents in character sets
+other than ISO-8859-1.
+
+<H3>--encryption</H3>
+
+<P>The <CODE>--encryption</CODE> option enables encryption and security
+features for PDF output.
+
+<P>This option is only available when generating PDF files.
+
+<!-- NEED 4in -->
+<H3>--firstpage page</H3>
+
+<P>The <CODE>--firstpage</CODE> option specifies the first page that will be
+displayed in a PDF file. The <CODE>page</CODE> parameter can be one of the
+following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>page</TH><TH>Description</TH></TR>
+<TR><TD>p1</TD><TD>The first page of the document.</TD></TR>
+<TR><TD>toc</TD><TD>The first page of the table-of-contents.</TD></TR>
+<TR><TD>c1</TD><TD>The first page of chapter 1.</TD></TR>
+</TABLE></CENTER>
+
+<P>This option is only available when generating PDF files.
+
+<H3>--fontsize size</H3>
+
+The <CODE>--fontsize</CODE> option specifies the base font size for the
+entire document in points (1 point = 1/72nd inch).
+
+<H3>--fontspacing spacing</H3>
+
+The <CODE>--fontspacing</CODE> option specifies the line spacing for the
+entire document as a multiplier of the base font size. A <CODE>spacing</CODE>
+value of 1 makes each line of text the same height as the font.
+
+<!-- NEED 6in -->
+<H3><A NAME="footer">--footer lcr</A></H3>
+
+<P>The <CODE>--footer</CODE> option specifies the contents of the page
+footer. The <CODE>lcr</CODE> parameter is a three-character string
+representing the left, center, and right footer fields. Each character
+can be one of the following:</P>
+
+<CENTER><TABLE BORDER="1" WIDTH="80%" CELLPADDING="5">
+<TR><TH>lcr</TH><TH>Description</TH></TR>
+<TR><TD ALIGN="CENTER">.</TD><TD>A period indicates that the field should be blank.</TD></TR>
+<TR><TD ALIGN="CENTER">:</TD><TD>A colon indicates that the field should contain the current and
+total number of pages in the chapter (n/N).</TD></TR>
+<TR><TD ALIGN="CENTER">/</TD><TD>A slash indicates that the field should contain the current and
+total number of pages (n/N).</TD></TR>
+<TR><TD ALIGN="CENTER">1</TD><TD>The number 1 indicates that the field should contain the current page number in decimal format (1, 2, 3, ...)</TD></TR>
+<TR><TD ALIGN="CENTER">a</TD><TD>A lowercase "a" indicates that the field should contain the current page number using lowercase letters.</TD></TR>
+<TR><TD ALIGN="CENTER">A</TD><TD>An uppercase "A" indicates that the field should contain the current page number using UPPERCASE letters.</TD></TR>
+<TR><TD ALIGN="CENTER">c</TD><TD>A lowercase "c" indicates that the field should contain the current chapter title.</TD></TR>
+<TR><TD ALIGN="CENTER">C</TD><TD>An uppercase "C" indicates that the field should contain the current chapter page number.</TD></TR>
+<TR><TD ALIGN="CENTER">d</TD><TD>A lowercase "d" indicates that the field should contain the current date.</TD></TR>
+<TR><TD ALIGN="CENTER">D</TD><TD>An uppercase "D" indicates that the field should contain the current date and time.</TD></TR>
+<TR><TD ALIGN="CENTER">h</TD><TD>An "h" indicates that the field should contain the current heading.</TD></TR>
+<TR><TD ALIGN="CENTER">i</TD><TD>A lowercase "i" indicates that the field should contain the current page number in lowercase roman numerals (i, ii, iii, ...)</TD></TR>
+<TR><TD ALIGN="CENTER">I</TD><TD>An uppercase "I" indicates that the field should contain the current page number in uppercase roman numerals (I, II, III, ...)</TD></TR>
+<TR><TD ALIGN="CENTER">l</TD><TD>A lowercase "l" indicates that the field should contain the logo image.</TD></TR>
+<TR><TD ALIGN="CENTER">t</TD><TD>A lowercase "t" indicates that the field should contain the document title.</TD></TR>
+<TR><TD ALIGN="CENTER">T</TD><TD>An uppercase "T" indicates that the field should contain the current time.</TD></TR>
+</TABLE></CENTER>
+
+<P>Setting the footer to "<CODE>...</CODE>" disables the footer entirely.
+
+<!-- NEED 4in -->
+<H3>--format format</H3>
+
+<P>The <CODE>--format</CODE> option specifies the output format for the document and
+can be one of the following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>Format</TH><TH>Description</TH></TR>
+<TR><TD>html</TD><TD>Generate one or more indexed HTML files.</TD></TR>
+<TR><TD>htmlsep</TD><TD>Generate separate HTML files for each heading in
+the table-of-contents.</TD></TR>
+<TR><TD>pdf</TD><TD>Generate a PDF file (default version - 1.3).</TD></TR>
+<TR><TD>pdf11</TD><TD>Generate a PDF 1.1 file for Acrobat Reader 2.0.</TD></TR>
+<TR><TD>pdf12</TD><TD>Generate a PDF 1.2 file for Acrobat Reader 3.0.</TD></TR>
+<TR><TD>pdf13</TD><TD>Generate a PDF 1.3 file for Acrobat Reader 4.0.</TD></TR>
+<TR><TD>pdf14</TD><TD>Generate a PDF 1.4 file for Acrobat Reader 5.0.</TD></TR>
+<TR><TD>ps</TD><TD>Generate one or more PostScript files (default level).</TD></TR>
+<TR><TD>ps1</TD><TD>Generate one or more Level 1 PostScript files.</TD></TR>
+<TR><TD>ps2</TD><TD>Generate one or more Level 2 PostScript files.</TD></TR>
+<TR><TD>ps3</TD><TD>Generate one or more Level 3 PostScript files.</TD></TR>
+</TABLE></CENTER>
+
+<H3>--gray</H3>
+
+The <CODE>--gray</CODE> option specifies that grayscale output is desired.
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<H3>--header lcr</H3>
+
+The <CODE>--header</CODE> option specifies the contents of the page
+header. The <CODE>lcr</CODE> parameter is a three-character string
+representing the left, center, and right header fields. See the
+<A HREF="#footer"><CODE>--footer</CODE></A> option for the list of
+formatting characters.
+
+<P>Setting the header to "<CODE>...</CODE>" disables the header entirely.
+
+<!-- NEED 4in -->
+<H3>--headfootfont font</H3>
+
+The <CODE>--headfootfont</CODE> option specifies the font that is used for
+the header and footer text. The <CODE>font</CODE> parameter can be one of the
+following:
+
+<UL>
+
+	<LI>Courier
+
+	<LI>Courier-Bold
+
+	<LI>Courier-Oblique
+
+	<LI>Courier-BoldOblique
+
+	<LI>Times
+
+	<LI>Times-Roman
+
+	<LI>Times-Bold
+
+	<LI>Times-Italic
+
+	<LI>Times-BoldItalic
+
+	<LI>Helvetica
+
+	<LI>Helvetica-Bold
+
+	<LI>Helvetica-Oblique
+
+	<LI>Helvetica-BoldOblique
+
+</UL>
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<H3>--headfootsize size</H3>
+
+The <CODE>--headfootsize</CODE> option sets the size of the header and footer
+text in points (1 point = 1/72nd inch).
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<!-- NEED 4in -->
+<H3>--headingfont typeface</H3>
+
+<P>The <CODE>--headingfont</CODE> options sets the typeface that is used
+for headings in the document. The <CODE>typeface</CODE> parameter can
+be one of the following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>typeface</TH><TH>Actual Font</TH></TR>
+<TR><TD>Arial</TD><TD>Helvetica</TD></TR>
+<TR><TD>Courier</TD><TD>Courier</TD></TR>
+<TR><TD>Helvetica</TD><TD>Helvetica</TD></TR>
+<TR><TD>Monospace</TD><TD>Courier</TD></TR>
+<TR><TD>Sans-Serif</TD><TD>Helvetica</TD></TR>
+<TR><TD>Serif</TD><TD>Times</TD></TR>
+<TR><TD>Symbol</TD><TD>Symbol</TD></TR>
+<TR><TD>Times</TD><TD>Times</TD></TR>
+</TABLE></CENTER>
+
+<H3>--help</H3>
+
+The <CODE>--help</CODE> option displays all of the available options to the
+standard output file.
+
+<H3>--helpdir directory</H3>
+
+The <CODE>--helpdir</CODE> option specifies the location of the on-line help
+files.
+
+<H3>--jpeg[=quality]</H3>
+
+The <CODE>--jpeg</CODE> option enables JPEG compression of continuous-tone
+images. The optional <CODE>quality</CODE> parameter specifies the output
+quality from 0 (worst) to 100 (best).
+
+<P>This option is only available when generating Level 2 and Level 3
+PostScript or PDF files.
+
+<H3>--landscape</H3>
+
+The <CODE>--landscape</CODE> option specifies that the output should be
+in landscape orientation (long edge on top).
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<H3>--left margin</H3>
+
+The <CODE>--left</CODE> option specifies the left margin. The default
+units are points (1 point = 1/72nd inch); the suffixes "in", "cm", and "mm"
+specify inches, centimeters, and millimeters, respectively.
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<H3>--linkcolor color</H3>
+
+The <CODE>--linkcolor</CODE> option specifies the color of links in HTML
+and PDF output. The color can be specified by name or as a 6-digit
+hexadecimal number of the form <CODE>#RRGGBB</CODE>.
+
+<H3>--links</H3>
+
+<P>The <CODE>--links</CODE> option specifies that PDF output should contain
+hyperlinks.
+
+<H3>--linkstyle style</H3>
+
+The <CODE>--linkstyle</CODE> option specifies the style of links in HTML
+and PDF output. The style can be "plain" for no decoration or "underline"
+to underline links.
+
+<!-- NEED 5in -->
+<H3>--logoimage filename</H3>
+
+<P>The <CODE>--logoimage</CODE> option specifies the logo image
+for the HTML navigation bar and page headers and footers for
+PostScript and PDF files. The supported formats are BMP, GIF,
+JPEG, and PNG.
+
+<CENTER><TABLE WIDTH="80%" BORDER="1" BGCOLOR="#cccccc" CELLPADDING="5" CELLSPACING="0">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>You need to use the <CODE>--header</CODE> and/or
+	<CODE>--footer</CODE> options with the <CODE>l</CODE>
+	parameter or use the corresponding HTML page comments to
+	display the logo image in the header or footer.
+
+	<P>The following example uses the <CODE>--header</CODE> option:
+
+<PRE>
+    htmldoc --logoimage image.png --header lt. -f file.pdf file.html
+</PRE>
+	</TD>
+</TR>
+</TABLE></CENTER>
+
+<H3>--no-compression</H3>
+
+The <CODE>--no-compression</CODE> option specifies that Flate compression
+should not be performed on the output files.
+
+<H3>--no-duplex</H3>
+
+The <CODE>--no-duplex</CODE> option specifies that the output should be formatted
+for one sided printing.
+
+<P>This option is only available when generating PostScript or PDF files.
+Use the <CODE>--pscommands</CODE> option to generate PostScript duplex mode
+commands.
+
+<H3>--no-embedfonts</H3>
+
+The <CODE>--no-embedfonts</CODE> option specifies that fonts should
+not be embedded in PostScript and PDF output.
+
+<H3>--no-encryption</H3>
+
+<P>The <CODE>--no-encryption</CODE> option specifies that no encryption/security
+features should be enabled in PDF output.
+
+<P>This option is only available when generating PDF files.
+
+<H3>--no-jpeg</H3>
+
+The <CODE>--no-jpeg</CODE> option specifies that JPEG compression
+should not be performed on large images.
+
+<H3>--no-links</H3>
+
+<P>The <CODE>--no-links</CODE> option specifies that PDF output should not contain
+hyperlinks.
+
+<H3>--no-localfiles</H3>
+
+The <CODE>--no-localfiles</CODE> option disables access to local files on
+the system. This option should be used when providing remote document
+conversion services.
+
+<H3>--no-numbered</H3>
+
+The <CODE>--no-numbered</CODE> option specifies that headings
+should not be numbered.
+
+<H3>--no-pscommands</H3>
+
+The <CODE>--no-pscommands</CODE> option specifies that PostScript device
+commands should not be written to the output files.
+
+<H3>--no-strict</H3>
+
+<P>The <CODE>--no-strict</CODE> option turns off strict HTML
+conformance checking.
+
+<H3>--no-title</H3>
+
+The <CODE>--no-title</CODE> option specifies that the title page should not
+be generated.
+
+<H3>--no-toc</H3>
+
+The <CODE>--no-toc</CODE> option specifies that the table-of-contents pages
+should not be generated.
+
+<H3>--no-xrxcomments</H3>
+
+The <CODE>--no-xrxcomments</CODE> option specifies that Xerox PostScript
+job comments should not be written to the output files.
+
+<P>This option is only available when generating PostScript files.
+
+<H3>--numbered</H3>
+
+The <CODE>--numbered</CODE> option specifies that headings should be numbered.
+
+<H3>--nup pages</H3>
+
+The <CODE>--nup</CODE> option sets the number of pages that are placed on each output page. 
+Valid values for the <CODE>pages</CODE> parameter are 1, 2, 4, 6, 9, and 16.
+
+<H3>--outdir directory</H3>
+
+The <CODE>--outdir</CODE> option specifies an output directory for the
+document files.
+
+<P>This option is not compatible with the PDF output format.
+
+<H3>--outfile filename</H3>
+
+The <CODE>--outfile</CODE> option specifies an output file for the document.
+
+<H3>--owner-password password</H3>
+
+<P>The <CODE>--owner-password</CODE> option specifies the owner password for
+a PDF file. If not specified or the empty string (""), a random password is
+generated.
+
+<P>This option is only available when generating PDF files.
+
+<H3>--pageduration seconds</H3>
+
+The <CODE>--pageduration</CODE> option specifies the number of seconds that
+each page will be displayed in the document.
+
+<P>This option is only available when generating PDF files.
+
+<!-- NEED 8in -->
+<H3>--pageeffect effect</H3>
+
+<P>The <CODE>--pageeffect</CODE> option specifies the page effect to use in
+PDF files. The <CODE>effect</CODE> parameter can be one of the following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>effect</TH><TH>Description</TH></TR>
+<TR><TD>none</TD><TD>No effect is generated.</TD></TR>
+<TR><TD>bi</TD><TD>Box Inward</TD></TR>
+<TR><TD>bo</TD><TD>Box Outward</TD></TR>
+<TR><TD>d</TD><TD>Dissolve</TD></TR>
+<TR><TD>gd</TD><TD>Glitter Down</TD></TR>
+<TR><TD>gdr</TD><TD>Glitter Down and Right</TD></TR>
+<TR><TD>gr</TD><TD>Glitter Right</TD></TR>
+<TR><TD>hb</TD><TD>Horizontal Blinds</TD></TR>
+<TR><TD>hsi</TD><TD>Horizontal Sweet Inward</TD></TR>
+<TR><TD>hso</TD><TD>Horizontal Sweep Outward</TD></TR>
+<TR><TD>vb</TD><TD>Vertical Blinds</TD></TR>
+<TR><TD>vsi</TD><TD>Vertical Sweep Inward</TD></TR>
+<TR><TD>vso</TD><TD>Vertical Sweep Outward</TD></TR>
+<TR><TD>wd</TD><TD>Wipe Down</TD></TR>
+<TR><TD>wl</TD><TD>Wipe Left</TD></TR>
+<TR><TD>wr</TD><TD>Wipe Right</TD></TR>
+<TR><TD>wu</TD><TD>Wipe Up</TD></TR>
+</TABLE></CENTER>
+
+<P>This option is only available when generating PDF files.
+
+<!-- NEED 4in -->
+<H3>--pagelayout layout</H3>
+
+<P>The <CODE>--pagelayout</CODE> option specifies the initial page layout in
+the PDF viewer. The <CODE>layout</CODE> parameter can be one of the following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>layout</TH><TH>Description</TH></TR>
+<TR><TD>single</TD><TD>A single page is displayed.</TD></TR>
+<TR><TD>one</TD><TD>A single column is displayed.</TD></TR>
+<TR><TD>twoleft</TD><TD>Two columns are displayed with the first page on the left.</TD></TR>
+<TR><TD>tworight</TD><TD>Two columns are displayed with the first page on the right.</TD></TR>
+</TABLE></CENTER>
+
+<P>This option is only available when generating PDF files.
+
+<!-- NEED 4in -->
+<H3>--pagemode mode</H3>
+
+<P>The <CODE>--pagemode</CODE> option specifies the initial viewing mode in the
+PDF viewer. The <CODE>mode</CODE> parameter can be one of the following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>mode</TH><TH>Description</TH></TR>
+<TR><TD>document</TD><TD>The document pages are displayed in a normal window.</TD></TR>
+<TR><TD>outline</TD><TD>The document outline and pages are displayed.</TD></TR>
+<TR><TD>fullscreen</TD><TD>The document pages are displayed on the entire screen in "slideshow" mode.</TD></TR>
+</TABLE></CENTER>
+
+<P>This option is only available when generating PDF files.
+
+<H3>--path dir1;dir2;dir3;...;dirN</H3>
+
+<P>The <CODE>--path</CODE> option specifies a search path for files that
+are loaded by HTMLDOC. It is usually used to get images that use absolute
+server paths to load.
+
+<P>Directories are separated by the semicolon (;) so that drive letters
+and URLs can be specified.  Quotes around the directory parameter are
+optional.  They are usually used when the directory string contains spaces.
+
+<UL><PRE>
+<KBD>--path "dir1;dir2;dir3;...;dirN"</KBD>
+</PRE></UL>
+
+<!-- NEED 5in -->
+<H3>--permissions permission</H3>
+
+<P>The <CODE>--permissions</CODE> option specifies the document permissions.
+The available permission parameters are listed below:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>Permission</TH><TH>Description</TH></TR>
+<TR><TD>all</TD><TD>All permissions</TD></TR>
+<TR><TD>annotate</TD><TD>User can annotate document</TD></TR>
+<TR><TD>copy</TD><TD>User can copy text and images from document</TD></TR>
+<TR><TD>modify</TD><TD>User can modify document</TD></TR>
+<TR><TD>print</TD><TD>User can print document</TD></TR>
+<TR><TD>no-annotate</TD><TD>User cannot annotate document</TD></TR>
+<TR><TD>no-copy</TD><TD>User cannot copy text and images from document</TD></TR>
+<TR><TD>no-modify</TD><TD>User cannot modify document</TD></TR>
+<TR><TD>no-print</TD><TD>User cannot print document</TD></TR>
+<TR><TD>none</TD><TD>No permissions</TD></TR>
+</TABLE></CENTER>
+
+<P>The <CODE>--encryption</CODE> option must be used in conjunction with the <CODE>--permissions</CODE> parameter.
+
+<UL><PRE>
+<KBD>--permissions no-print --encryption</KBD>
+</PRE></UL>
+
+<P>Multiple options can be specified with multiple <CODE>--permissions</CODE> entries as needed. 
+
+<UL><PRE>
+<KBD>--permissions no-print --permissions no-copy --encryption</KBD>
+</PRE></UL>
+
+<P>This option is only available when generating PDF files.</P>
+
+<H3>--portrait</H3>
+
+The <CODE>--portrait</CODE> option specifies that the output should be
+in portrait orientation (short edge on top).
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<H3>--pscommands</H3>
+
+The <CODE>--pscommands</CODE> option specifies that PostScript device
+commands should be written to the output files.
+
+<P>This option is only available when generating Level 2 and Level 3
+PostScript files.
+
+<H3>--quiet</H3>
+
+<P>The <CODE>--quiet</CODE> option prevents error messages from being
+sent to stderr.
+
+<H3>--right margin</H3>
+
+The <CODE>--right</CODE> option specifies the right margin. The default
+units are points (1 point = 1/72nd inch); the suffixes "in", "cm", and "mm"
+specify inches, centimeters, and millimeters, respectively.
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<H3>--size size</H3>
+
+<P>The <CODE>--size</CODE> option specifies the page size. The
+<CODE>size</CODE> parameter can be one of the following standard sizes:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>size</TH><TH>Description</TH></TR>
+<TR><TD>Letter</TD><TD>8.5x11in (216x279mm)</TD></TR>
+<TR><TD>A4</TD><TD>8.27x11.69in (210x297mm)</TD></TR>
+<TR><TD>Universal</TD><TD>8.27x11in (210x279mm)</TD></TR>
+</TABLE></CENTER>
+
+<P>Custom sizes are specified by the page width and length separated by
+the letter "x" to select a custom page size. Append the letters "in"
+for inches, "mm" for millimeters, or "cm" for centimeters.
+
+<P>This option is only available when generating PostScript or PDF files.
+Use the <CODE>--pscommands</CODE> option to generate PostScript page size
+commands.
+
+<H3>--strict</H3>
+
+<P>The <CODE>--strict</CODE> option turns on strict HTML
+conformance checking. When enabled, HTML elements that are
+improperly nested and dangling close elements will produce error
+messages.
+
+<H3>--textcolor color</H3>
+
+The <CODE>--textcolor</CODE> option specifies the default text color
+for all pages in the document. The color can be specified by a standard
+HTML color name or as a 6-digit hexadecimal number of the form
+<CODE>#RRGGBB</CODE>.
+
+<!-- NEED 4in -->
+<H3>--textfont typeface</H3>
+
+<P>The <CODE>--textfont</CODE> options sets the typeface that is used for
+text in the document. The <CODE>typeface</CODE> parameter can be one of
+the following:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>typeface</TH><TH>Actual Font</TH></TR>
+<TR><TD>Arial</TD><TD>Helvetica</TD></TR>
+<TR><TD>Courier</TD><TD>Courier</TD></TR>
+<TR><TD>Helvetica</TD><TD>Helvetica</TD></TR>
+<TR><TD>Monospace</TD><TD>Courier</TD></TR>
+<TR><TD>Sans-Serif</TD><TD>Helvetica</TD></TR>
+<TR><TD>Serif</TD><TD>Times</TD></TR>
+<TR><TD>Symbol</TD><TD>Symbol</TD></TR>
+<TR><TD>Times</TD><TD>Times</TD></TR>
+</TABLE></CENTER>
+
+<H3>--title</H3>
+
+The <CODE>--title</CODE> option specifies that a title page should be
+generated.
+
+<H3>--titlefile filename</H3>
+
+The <CODE>--titlefile</CODE> option specifies a HTML file to use for
+the title page.
+
+<H3>--titleimage filename</H3>
+
+The <CODE>--titleimage</CODE> option specifies the title image for the
+title page. The supported formats are BMP, GIF, JPEG, and PNG.
+
+<H3>--tocfooter lcr</H3>
+
+The <CODE>--tocfooter</CODE> option specifies the contents of the
+table-of-contents footer. The <CODE>lcr</CODE> parameter is a
+three-character string representing the left, center, and right footer
+fields. See the
+<A HREF="#footer"><CODE>--footer</CODE></A> option for the list of
+formatting characters.
+
+<P>Setting the TOC footer to "<CODE>...</CODE>" disables the TOC footer
+entirely.
+
+<H3>--tocheader lcr</H3>
+
+The <CODE>--tocheader</CODE> option specifies the contents of the
+table-of-contents header. The <CODE>lcr</CODE> parameter is a
+three-character string representing the left, center, and right header
+fields.  See the
+<A HREF="#footer"><CODE>--footer</CODE></A> option for the list of
+formatting characters.
+
+<P>Setting the TOC header to "<CODE>...</CODE>" disables the TOC header
+entirely.
+
+<H3>--toclevels levels</H3>
+
+The <CODE>--toclevels</CODE> options specifies the number of heading
+levels to include in the table-of-contents pages. The
+<CODE>levels</CODE> parameter is a number from 1 to 6.
+
+<H3>--toctitle string</H3>
+
+The <CODE>--toctitle</CODE> options specifies the string to display at
+the top of the table-of-contents; the default string is "Table of
+Contents".
+
+<H3>--top margin</H3>
+
+The <CODE>--top</CODE> option specifies the top margin. The default
+units are points (1 point = 1/72nd inch); the suffixes "in", "cm", and "mm"
+specify inches, centimeters, and millimeters, respectively.
+
+<P>This option is only available when generating PostScript or PDF files.
+
+<H3>--user-password password</H3>
+
+<P>The <CODE>--user-password</CODE> option specifies the user password for
+a PDF file. If not specified or the empty string (""), no password will be
+required to view the document.
+
+<P>This option is only available when generating PDF files.
+
+<H3>--verbose</H3>
+
+<P>The <CODE>--verbose</CODE> option specifies that progress
+information should be sent/displayed to the standard error file.
+
+<H3>--version</H3>
+
+<P>The <CODE>--version</CODE> option displays the HTMLDOC version
+number.
+
+<H3>--webpage</H3>
+
+<P>The <CODE>--webpage</CODE> option specifies that the input files
+comprise a web page (or site) and that no title page or
+table-of-contents should be generated. <I>HTMLDOC</I> will insert
+a page break between each input file.
+
+<P>This option is only available when generating PostScript or PDF
+files.
+
+<H3>--xrxcomments</H3>
+
+The <CODE>--xrxcomments</CODE> option specifies that Xerox PostScript
+job comments should be written to the output files.
+
+<P>This option is only available when generating PostScript files.
+
+<H2>Messages</H2>
+
+<P><I>HTMLDOC</I> sends error and status messages to stderr unless the
+<CODE>--quiet</CODE> option is provided on the command-line.
+Applications can capture these messages to relay errors or
+statistics to the user.
+
+<H3>BYTES: Message</H3>
+
+<P>The <CODE>BYTES:</CODE> message specifies the number of bytes
+that were written to an output file. If the output is directed
+at a directory then multiple <CODE>BYTES:</CODE> messages will
+be sent.
+
+<H3>PAGES: Message</H3>
+
+<P>The <CODE>PAGES:</CODE> message specifies the number of pages
+that were written to an output file. If the output is directed
+at a directory then multiple <CODE>PAGES:</CODE> messages will
+be sent. No <CODE>PAGES:</CODE> messages are sent when
+generating HTML output.
+
+<H3>ERRnnn: Messages</H3>
+
+<P>The <CODE>ERRnnn:</CODE> messages specify an error condition.
+Error numbers 1 to 14 map to the following errors:
+
+<OL>
+
+	<LI>No files were found or loadable.</LI>
+
+	<LI>No pages were generated.</LI>
+
+	<LI>The document contains too many files or chapters.</LI>
+
+	<LI><I>HTMLDOC</I> ran out of memory.</LI>
+
+	<LI>The specified file could not be found.</LI>
+
+	<LI>The comment contains a bad <I>HTMLDOC</I> formatting command.</LI>
+
+	<LI>The image file is not in a known format.</LI>
+
+	<LI><I>HTMLDOC</I> was unable to remove a temporary file.</LI>
+
+	<LI><I>HTMLDOC</I> had an unspecified internal error.</LI>
+
+	<LI><I>HTMLDOC</I> encountered a networking error when retrieving a
+	file via a URL.</LI>
+
+	<LI><I>HTMLDOC</I> was unable to read a file.</LI>
+
+	<LI><I>HTMLDOC</I> was unable to write a file.</LI>
+
+	<LI>A HTML error was found in a source file.</LI>
+
+	<LI>A table, image, or text fragment was too large to
+	fit in the space provided.</LI>
+
+</OL>
+
+<P>Error numbers 100 to 505 correspond directly to a HTTP status
+code.
+
+</DIV>
+
+</BODY>
+</HTML>

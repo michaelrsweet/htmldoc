@@ -1,0 +1,670 @@
+<HTML>
+<BODY>
+
+<!-- FOOTER RIGHT "7-$CHAPTERPAGE" -->
+<DIV ALIGN="justify">
+
+<H1 ALIGN="RIGHT"><A NAME="GUIREF">Chapter 7 - GUI Reference</A></H1>
+
+This chapter describes all of the GUI controls in <I>HTMLDOC</I>.
+
+<H2>The HTMLDOC GUI</H2>
+
+The <I>HTMLDOC</I> GUI (Figures 7-1 through 7-11) is contained in
+a single window showing the input, output, and generation
+options. At the bottom are buttons to load, save, and generate
+documents.
+
+<H3>Document File Operations</H3>
+
+<I>HTMLDOC</I> stores the HTML files, settings, and options in
+<CODE>.BOOK</CODE> files. The buttons on the bottom of the
+<I>HTMLDOC</I> window allow you to manage these files and generate
+formatted documents.
+
+<H3>New</H3>
+
+The <VAR>New</VAR> button starts a new document. A confirmation dialog will
+appear if you have not saved the changes to the existing document.
+
+<H3>Open...</H3>
+
+The <VAR>Open...</VAR> button retrieves a document that you have saved
+previously. A <A HREF="#FILECHOOSER">file chooser</A> dialog is
+displayed that allows you to pick an existing book file.
+
+<H3>Save</H3>
+
+The <VAR>Save</VAR> button saves the current document. A
+<A HREF="#FILECHOOSER">file chooser</A> dialog is displayed if there is
+no filename assigned to the current document.
+
+<P><B>Note:</B> Saving a document is not the same as <I>generating</I>
+a document. The book files saved to disk by the <VAR>Save</VAR> and
+<VAR>Save As...</VAR> buttons are <STRONG>not</STRONG> the final HTML,
+PDF, or PostScript output files.  You generate those files by clicking
+on the <VAR>Generate</VAR> button.
+
+<H3>Save As...</H3>
+
+The <VAR>Save As...</VAR> button saves the current document to a new
+file. A <A HREF="#FILECHOOSER">file chooser</A> dialog is displayed to
+allow you to specify the new document filename.
+
+<P><B>Note:</B> Saving a document is not the same as <I>generating</I>
+a document. The book files saved to disk by the <VAR>Save</VAR> and
+<VAR>Save As...</VAR> buttons are <STRONG>not</STRONG> the final HTML,
+PDF, or PostScript output files.  You generate those files by clicking
+on the <VAR>Generate</VAR> button.
+
+<H3>Generate</H3>
+
+The <VAR>Generate</VAR> button generates the current document, creating
+the specified HTML, PDF, or PostScript file(s) as needed.  The progress
+meter at the bottom of the window will show the progress as each page or
+file is formatted and written.
+
+<P><B>Note:</B> Generating a document is not the same as
+<STRONG>saving</STRONG> a document. To save the current HTML files and
+settings in the <I>HTMLDOC</I> GUI, click on the <VAR>Save</VAR> or
+<VAR>Save As...</VAR> buttons instead.
+
+<H3>Close</H3>
+
+The <VAR>Close</VAR> button closes the <I>HTMLDOC</I> window.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig71.png">
+<BR>Figure 7-1 - The Input Tab</P>
+
+<H2>The Input Tab</H2>
+
+The input tab (Figure 7-1) lists all of the HTML source files that are
+used to generate the document. You also specify the type of document
+(book or web page) and the title and logo images in this tab.
+
+<H3>Document Type</H3>
+
+The <VAR>Book</VAR> radio button specifies that the input files
+are structured with headings. The <VAR>Continuous</VAR> radio
+button specifies unstructured files without page breaks between
+each file. The <VAR>Web Page</VAR> radio button specifies
+unstructured files with page breaks between each file.
+
+<H3>Input Files</H3>
+
+The <VAR>Input Files</VAR> list shows all of the HTML input files that will
+be used to produce the document. Double-click on files to edit them.
+
+<H3>Add Files...</H3>
+
+The <VAR>Add Files...</VAR> button displays the <A HREF="#FILECHOOSER">file
+chooser</A> dialog, allowing you to select one or more HTML files to include
+in the document.
+
+<H3>Edit Files...</H3>
+
+The <VAR>Edit Files...</VAR> button starts the specified editor program
+to edit the files selected in the <VAR>Input Files</VAR> list. Select
+one or more files in the <VAR>Input Files</VAR> list to enable the
+<VAR>Edit Files...</VAR> button.
+
+<H3>Delete Files</H3>
+
+The <VAR>Delete Files</VAR> button removes the selected files from the
+<VAR>Input Files</VAR> list. Select one or more files in the <VAR>Input
+Files</VAR> list to enable the <VAR>Delete Files</VAR> button.
+
+<P>The <VAR>Delete Files</VAR> button only removes the files from the
+<VAR>Input Files</VAR> list. The files are <STRONG>not</STRONG> removed
+from disk.
+
+<H3>Move Up</H3>
+
+The <VAR>Move Up</VAR> button moves the selected files in the <VAR>Input
+Files</VAR> list up one line in the list. To enable the <VAR>Move Up</VAR>
+button select one or more files in the <VAR>Input Files</VAR> list.
+
+<H3>Move Down</H3>
+
+The <VAR>Move Down</VAR> button moves the selected files in the <VAR>Input
+Files</VAR> list down one line in the list. To enable the <VAR>Move Down</VAR>
+button select one or more files in the <VAR>Input Files</VAR> list.
+
+<H3>Logo Image</H3>
+
+The <VAR>Logo Image</VAR> field contains the filename for an image to be
+shown in the header or footer of pages, and in the navigation bar of HTML
+files.
+
+<P>Click on the <VAR>Browse...</VAR> button to select a logo image file using
+the <A HREF="#FILECHOOSER">file chooser</A> dialog.
+
+<H3>Title File/Image</H3>
+
+The <VAR>Title File/Image</VAR> field contains the filename for an image to be
+shown on the title page, or for a HTML file to be used for the title page(s).
+
+<P>Click on the <VAR>Browse...</VAR> button to select a title file using
+the <A HREF="#FILECHOOSER">file chooser</A> dialog.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig72.png">
+<BR>Figure 7-2 - The Output Tab</P>
+
+<H2>The Output Tab</H2>
+
+The output tab (Figure 7-2) specifies where your document will be
+generated, the output format, and some of the generic output options.
+
+<H3>Output To</H3>
+
+The <VAR>File</VAR> radio button selects output to a single file. The
+<VAR>Directory</VAR> radio button selects output to multiple files in the
+named directory.
+
+<P><VAR>Directory</VAR> output is not available when generating PDF files.
+
+<H3>Output Path</H3>
+
+The <VAR>Output Path</VAR> field contains the output directory or filename.
+Click on the <VAR>Browse...</VAR> button to choose an output file using the
+<A HREF="#FILECHOOSER">file chooser</A> dialog.
+
+<H3>Output Format</H3>
+
+The <VAR>HTML</VAR> radio button selects HTML output, the
+<VAR>Separated HTML</VAR> radio button selects HTML output that
+is separated into a separate file for each heading in the
+table-of-contents, the <VAR>PS</VAR> radio button selects
+PostScript output, and the <VAR>PDF</VAR> radio button selects
+PDF output.
+
+<H3>Output Options</H3>
+
+The <VAR>Grayscale</VAR> check box selects grayscale output for
+PostScript and PDF files. The <VAR>Title Page</VAR> check box specifies
+that a title page should be generated for the document. The <VAR>JPEG
+Big Images</VAR> check box specifies that JPEG compression should be
+applied to continuous-tone images.
+
+<H3>Compression</H3>
+
+The <VAR>Compression</VAR> slider controls the amount of
+compression that is used when writing PDF or Level 3 PostScript
+output.
+
+<P><B>Note:</B> <I>HTMLDOC</I> uses Flate compression, which is
+not encumbered by patents and is also used by the popular PKZIP
+and gzip programs. Flate is a lossless compression algorithm
+(that is, you get back exactly what you put in) that performs
+very well on indexed images and text.
+
+<H3>JPEG Quality</H3>
+
+The <VAR>JPEG Quality</VAR> slider controls the quality level used
+when writing continuous-tone images with JPEG compression.
+
+<!-- NEW PAGE -->
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig73.png">
+<BR>Figure 7-3 - The Page Tab</P>
+
+<H2>The Page Tab</H2>
+
+The page tab (Figure 7-3) defines the page header, footer, size, and
+margins for PostScript and PDF output.
+
+<!-- NEED 3in -->
+
+<H3>Page Size</H3>
+
+The <VAR>Page Size</VAR> field contains the current page size. Click on the
+arrow button to choose a standard page size.
+
+<P><I>HTMLDOC</I> supports the following standard page size names:
+
+<UL>
+	<LI>Letter - 8.5x11in (216x279mm)
+	<LI>A4 - 8.27x11.69in (210x297mm)
+	<LI>Universal - 8.27x11in (210x279mm)
+</UL>
+
+<P>Click in the <VAR>Page Size</VAR> field and enter the page width
+and length separated by the letter "x" to select a custom page size.
+Append the letters "in" for inches, "mm" for millimeters, or "cm" for
+centimeters.
+
+<H3>2-Sided</H3>
+
+Click in the <VAR>2-Sided</VAR> check box to select 2-sided (duplexed)
+output.
+
+<H3>Landscape</H3>
+
+Click in the <VAR>Landscape</VAR> check box to select landscape output.
+
+<H3>Top, Left, Right, and Bottom</H3>
+
+Click in the <VAR>Top</VAR>, <VAR>Left</VAR>, <VAR>Right</VAR>, and
+<VAR>Bottom</VAR> fields and enter the new margin values to change
+them. Append the letters "in" for inches, "mm" for millimeters, or "cm"
+for centimeters.
+
+<H3>Header and Footer</H3>
+
+<P>Select the desired text in each of the option buttons to customize the
+header and footer for the document/body pages.  The left-most option
+buttons set the text that is left-justified, while the middle buttons
+set the text that is centered and the right buttons set the text that
+is right-justified. Each choice corresponds to the following text:</P>
+
+<CENTER><TABLE BORDER="1" WIDTH="90%" CELLPADDING="5">
+<TR><TH>Choice</TH><TH>Description</TH></TR>
+<TR><TD ALIGN="CENTER">Blank</TD><TD>The field should be blank.</TD></TR>
+<TR><TD ALIGN="CENTER">Title</TD><TD>The field should contain the document title.</TD></TR>
+<TR><TD ALIGN="CENTER">Chapter Title</TD><TD>The field should contain the current chapter title.</TD></TR>
+<TR><TD ALIGN="CENTER">Heading</TD><TD>The field should contain the current heading.</TD></TR>
+<TR><TD ALIGN="CENTER">Logo</TD><TD>The field should contain the logo image.</TD></TR>
+<TR><TD ALIGN="CENTER">1,2,3,...</TD><TD>The field should contain the current page number in decimal format (1, 2, 3, ...)</TD></TR>
+<TR><TD ALIGN="CENTER">i,ii,iii,...</TD><TD>The field should contain the current page number in lowercase roman numerals (i, ii, iii, ...)</TD></TR>
+<TR><TD ALIGN="CENTER">I,II,III,...</TD><TD>The field should contain the current page number in uppercase roman numerals (I, II, III, ...)</TD></TR>
+<TR><TD ALIGN="CENTER">a,b,c,...</TD><TD>The field should contain the current page number using lowercase letters.</TD></TR>
+<TR><TD ALIGN="CENTER">A,B,C,...</TD><TD>The field should contain the current page number using UPPERCASE letters.</TD></TR>
+<TR><TD ALIGN="CENTER">Chapter Page</TD><TD>The field should contain the current chapter page number.</TD></TR>
+<TR><TD ALIGN="CENTER">1/N,2/N,...</TD><TD>The field should contain the current and
+total number of pages (n/N).</TD></TR>
+<TR><TD ALIGN="CENTER">1/C,2/C,...</TD><TD>The field should contain the current and
+total number of pages in the chapter (n/N).</TD></TR>
+<TR><TD ALIGN="CENTER">Date</TD><TD>The field should contain the current date (formatted for the current locale).</TD></TR>
+<TR><TD ALIGN="CENTER">Time</TD><TD>The field should contain the current time (formatted for the current locale).</TD></TR>
+<TR><TD ALIGN="CENTER">Date + Time</TD><TD>The field should contain the current date and time (formatted for the current locale).</TD></TR>
+</TABLE></CENTER>
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig74.png">
+<BR>Figure 7-4 - The TOC Tab</P>
+
+<H2>The TOC Tab</H2>
+
+The TOC tab (Figure 7-4) defines the table-of-contents options.
+
+<H3>Table of Contents</H3>
+
+Select the desired number of levels from the <VAR>Table of Contents</VAR>
+option button.
+
+<H3>Numbered Headings</H3>
+
+Click in the <VAR>Numbered Headings</VAR> check box to automatically number
+the headings in the document.
+
+<H3>Header and Footer</H3>
+
+Select the desired text in each of the option buttons to customize the
+header and footer for the tables-of-contents pages.  The left-most option
+buttons set the text that is left-justified, while the middle buttons
+set the text that is centered and the right buttons set the text that
+is right-justified.
+
+<H3>Title</H3>
+
+Enter the desired title for the table-of-contents in the <VAR>Title</VAR>
+field.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig75.png">
+<BR>Figure 7-5 - The Colors Tab</P>
+
+<H2>The Colors Tab</H2>
+
+The colors tab (Figure 7-5) defines the color and image information that is
+used for the entire document.
+
+<H3>Body Color</H3>
+
+The <VAR>Body Color</VAR> field specifies the default background color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<H3>Body Image</H3>
+
+The <VAR>Body Image</VAR> field specifies the default background image.
+Click on the <VAR>Browse...</VAR> button to pick the background image using
+the <A HREF="#FILECHOOSER">file chooser</A>.
+
+<H3>Text Color</H3>
+
+The <VAR>Text Color</VAR> field specifies the default text color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<H3>Link Color</H3>
+
+The <VAR>Link Color</VAR> field specifies the default link color. It
+can be a standard HTML color name or a hexadecimal RGB color of the
+form <CODE>#RRGGBB</CODE>. Click on the <VAR>Lookup...</VAR> button to
+pick the color graphically.
+
+<H3>Link Style</H3>
+
+The <VAR>Link Style</VAR> chooser specifies the default link decoration.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig76.png">
+<BR>Figure 7-6 - The Fonts Tab</P>
+
+<H2>The Fonts Tab</H2>
+
+The fonts tab (Figure 7-6) defines the fonts and character set used by the
+document.
+
+<H3>Base Font Size</H3>
+
+The <VAR>Base Font Size</VAR> field specifies the size of normal text
+in the document in points (1 point = 1/72nd inch). Click on the single
+arrow buttons to decrease or increase the size by 1/10th point or on
+the double arrow buttons to decrease or increase the size by whole
+points.
+
+<H3>Line Spacing</H3>
+
+The <VAR>Line Spacing</VAR> field specifies the spacing between lines
+as a multiple of the base font size. Click on the single arrow buttons
+to decrease or increase the size by 10ths or on the double arrow
+buttons to decrease or increase the size by whole numbers.
+
+<H3>Body Typeface</H3>
+
+The <VAR>Body Typeface</VAR> option button specifies the typeface to
+use for normal text. Click on the option button to select a typeface.
+
+<H3>Heading Typeface</H3>
+
+The <VAR>Heading Typeface</VAR> option button specifies the typeface to
+use for headings. Click on the option button to select a typeface.
+
+<H3>Header/Footer Size</H3>
+
+The <VAR>Header/Footer Size</VAR> field specifies the size of header
+and footer text in the document in points (1 point = 1/72nd inch).
+Click on the single arrow buttons to decrease or increase the size by
+1/10th point or on the double arrow buttons to decrease or increase the
+size by whole points.
+
+<H3>Header/Footer Font</H3>
+
+The <VAR>Header/Footer Font</VAR> option button specifies the typeface
+and style to use for header and footer text. Click on the option button
+to select a typeface and style.
+
+<H3>Character Set</H3>
+
+The <VAR>Character Set</VAR> option button specifies the encoding of
+characters in the document. Click on the option button to select a
+character set.
+
+<H3>Options</H3>
+
+<P>The <VAR>Embed Fonts</VAR> check box controls whether or not
+fonts are embedded in PostScript and PDF output.
+
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig77.png">
+<BR>Figure 7-7 - The PS Tab</P>
+
+<H2>The PS Tab</H2>
+
+The PS tab (Figure 7-7) contains options specific to PostScript output.
+
+<H3>PostScript Level</H3>
+
+Click on one of the <VAR>Level</VAR> radio buttons to select the language
+level to generate. PostScript Level 1 is compatible with all PostScript
+printers and will produce the largest output files.
+
+<P>PostScript Level 2 is compatible with most PostScript printers and
+supports printer commands and JPEG image compression.
+
+<P>PostScript Level 3 is compatible with only the newest PostScript
+printers and supports Flate image compression in addition to the Level
+2 features.
+
+<H3>Send Printer Commands</H3>
+
+The <VAR>Send Printer Commands</VAR> check box controls whether or not
+the output files contain PostScript <CODE>setpagedevice</CODE> commands
+for the page size and duplex settings. Click in the check box to enable
+or disable printer commands.
+
+<P>Printer commands are only available with Level 2 and 3 output and
+may not work with some printers.
+
+<H3>Include Xerox Job Comments</H3>
+
+<P>The <VAR>Include Xerox Job Comments</VAR> check box controls
+whether or not the output files contain Xerox job comments.
+Click in the check box to enable or disable the job comments.
+
+<P>Job comments are available with all levels of PostScript output.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig78.png">
+<BR>Figure 7-8 - The PDF Tab</P>
+
+<H2>The PDF Tab</H2>
+
+The PDF tab (Figure 7-8) contains settings specific to PDF output.
+
+<H3>PDF Version</H3>
+
+The <VAR>PDF Version</VAR> radio buttons control what version of PDF is
+generated. PDF 1.3 is the most commonly supported version. Click on the
+corresponding radio button to set the version.
+
+<H3>Page Mode</H3>
+
+The <VAR>Page Mode</VAR> option button controls the initial viewing mode
+for the document. Click on the option button to set the page mode.
+
+<P>The <VAR>Document</VAR> page mode displays only the document pages.
+The <VAR>Outline</VAR> page mode displays the table-of-contents outline
+as well as the document pages. The <VAR>Full-Screen</VAR> page mode
+displays the document pages on the whole screen; this mode is used
+primarily for presentations.
+
+<H3>Page Layout</H3>
+
+The <VAR>Page Layout</VAR> option button controls the initial layout of
+document pages on the screen. Click on the option button to set the page
+layout.
+
+<P>The <VAR>Single</VAR> page layout displays a single page at a time.
+The <VAR>One Column</VAR> page layout displays a single column of pages
+at a time. The <VAR>Two Column Left</VAR> and <VAR>Two Column
+Right</VAR> page layouts display two columns of pages at a time; the
+first page is displayed in the left or right column as selected.
+
+<H3>First Page</H3>
+
+The <VAR>First Page</VAR> option button controls the initial page that is
+displayed. Click on the option button to choose the first page.
+
+<H3>Page Effect</H3>
+
+The <VAR>Page Effect</VAR> option button controls the page effect that is
+displayed in <VAR>Full-Screen</VAR> mode. Click on the option button to
+select a page effect.
+
+<H3>Page Duration</H3>
+
+The <VAR>Page Duration</VAR> slider controls the number of seconds that
+each page will be visible in <VAR>Full-Screen</VAR> mode. Drag the slider
+to adjust the number of seconds.
+
+<H3>Effect Duration</H3>
+
+The <VAR>Effect Duration</VAR> slider controls the number of seconds
+that the page effect will last when changing pages. Drag the slider to
+adjust the number of seconds.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig79.png">
+<BR>Figure 7-9 - The Security Tab</P>
+
+<H2>The Security Tab</H2>
+
+<P>The security tab (Figure 7-9) allows you to enable PDF document encryption
+and security features.
+
+<H3>Encryption</H3>
+
+<P>The <VAR>Encryption</VAR> buttons control whether or not encryption is
+performed on the PDF file. Encrypted documents can be password protected and
+also provide user permissions.
+
+<H3>Permissions</H3>
+
+<P>The <VAR>Permissions</VAR> buttons control what operations are allowed by
+the PDF viewer.
+
+<H3>Owner Password</H3>
+
+<P>The <VAR>Owner Password</VAR> field contains the document owner password,
+a string that is used by Adobe Acrobat to control who can change document
+permissions, etc.
+
+<P>If this field is left blank, a random 32-character password is generated
+so that no one can change the document using the Adobe tools.
+
+<H3>Options</H3>
+
+<P>The <VAR>Include Links</VAR> option controls whether or not the internal
+links in a document are included in the PDF output. The document outline
+(shown to the left of the document in Acrobat Reader) is unaffected by this
+setting.
+
+<!-- NEED 2i -->
+<H3>User Password</H3>
+
+<P>The <VAR>User Password</VAR> field contains the document user password,
+a string that is used by Adobe Acrobat to restrict viewing permissions on
+the file.
+
+<P>If this field is left blank, any user may view the document without entering
+a password.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig7a.png">
+<BR>Figure 7-10 - The Options Tab</P>
+
+<H2>The Options Tab</H2>
+
+<P>The options tab (Figure 7-10) contains the HTML file editor
+of your choice and allows you to save the settings and options
+that will be used in new documents.
+
+<H3>HTML Editor</H3>
+
+<P>The <VAR>HTML Editor</VAR> field contains the name of the
+HTML editor to run when you double-click on an input file or
+click on the <VAR>Edit Files...</VAR> button. Enter the program
+name in the field or click on the <VAR>Browse...</VAR> button to
+select the editor using the <A HREF="#FILECHOOSER">file
+chooser</A>.
+
+<P>The <CODE>%s</CODE> is added automatically to the end of the
+command name to insert the name of the file to be edited. If you
+are using Netscape Composer to edit your HTML files you should
+put "-edit" before the <CODE>%s</CODE> to tell Netscape to edit
+the file and not display it.
+
+<H3>Browser Width</H3>
+
+<P>The <VAR>Browser Width</VAR> slider specifies the width of
+the browser in pixels that is used to scale images and other
+pixel measurements to the printable page width. You can adjust
+this value to more closely match the formatting on the screen.
+
+<P>The default browser width is 680 pixels which corresponds
+roughly to a 96 DPI display. The browser width is only used when
+generating PostScript or PDF files.
+
+<H3>Search Path</H3>
+
+<P>The <VAR>Search Path</VAR> field specifies a search path for
+files that are loaded by HTMLDOC. It is usually used to get
+images that use absolute server paths to load.
+
+<P>Directories are separated by the semicolon (;) so that drive
+letters (and eventually URLs) can be specified.
+
+<H3>Proxy URL</H3>
+
+<P>The <VAR>Proxy URL</VAR> field specifies a URL for a HTTP
+proxy server.
+
+<H3>Tooltips</H3>
+
+<P>The <VAR>Tooltips</VAR> check button controls the appearance
+of tooltip windows over GUI controls.
+
+<H3>Modern Look</H3>
+
+<P>The <VAR>Modern Look</VAR> check button controls the
+appearance of the GUI controls.
+
+<H3>Strict HTML</H3>
+
+<P>The <VAR>Strict HTML</VAR> check button controls strict HTML
+conformance checking. When checked, HTML elements that are
+improperly nested and dangling close elements will produce error
+messages.
+
+<H3>Save Options and Defaults</H3>
+
+<P>The <VAR>Save Options and Defaults</VAR> button saves the
+HTML editor and all of the document settings on the other tabs
+for use in new documents. These settings are also used by the
+command-line version of <I>HTMLDOC</I>.
+
+<P ALIGN=CENTER><IMG SRC="htmldoc-fig7b.png">
+<BR>Figure 7-11 - The File Chooser</P>
+
+<H2><A NAME="FILECHOOSER">The File Chooser</A></H2>
+
+<P>The file chooser (Figure 7-11) allows you to select one or
+more files and create files and directories.
+
+<H3>Directory</H3>
+
+<P>The <VAR>Directory</VAR> option button (1) shows the current
+directory or folder that is displayed in the file list (3).
+Click on the option button to navigate to other directories or
+folders.
+
+<H3>Directory Buttons</H3>
+
+<P>The directory buttons (2) allow you to go up one level in the
+directory hierarchy, create a new directory, and change the
+filename filter settings, respectively.
+
+<H3>File List</H3>
+
+<P>The file list (3) lists the files and directories in the
+current directory or folder. Double-click on a file or directory
+to select that file or directory. Drag the mouse or hold the
+<KBD>CTRL</KBD> key down while clicking to select multiple
+files.
+
+<H3>Filename</H3>
+
+<P>The <VAR>Filename</VAR> field contains the currently selected
+filename. Type a name in the field to select a file or
+directory. As you type, any matching filenames will be
+highlighted; press the <KBD>TAB</KBD> key to accept the matches.
+
+<H3>Dialog Buttons</H3>
+
+<P>The dialog buttons (5) close the file chooser dialog window.
+Click on the <VAR>OK</VAR> button to accept your selections or
+the <VAR>Cancel</VAR> button to reject your selections and
+cancel the file operation.
+
+</DIV>
+
+</BODY>
+</HTML>
