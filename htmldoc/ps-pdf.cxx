@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.108 2001/10/01 20:57:07 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.109 2001/10/03 19:36:27 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6254,18 +6254,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      if (*y < *top)
-      {
-	(*page) ++;
-
-	if (Verbosity)
-	  progress_show("Formatting page %d", *page);
-      }
-
-      *x = *left;
-
-      check_pages(*page);
-
       if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
       {
         pos     = 0;
@@ -6313,16 +6301,23 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       *ptr = '\0';
 
       if (ptr > buffer)
-        pages[*page].header[pos] = (uchar *)strdup(buffer);
+        Header[pos] = strdup(buffer);
       else
-        pages[*page].header[pos] = NULL;
+        Header[pos] = NULL;
+
+      if (*y >= *top)
+      {
+	check_pages(*page);
+
+        pages[*page].header[pos] = (uchar *)Header[pos];
+      }
 
       // Adjust top margin as needed...
       for (pos = 0; pos < 3; pos ++)
-        if (pages[*page].header[pos])
+        if (Header[pos])
 	  break;
 
-      if (pages[*page].landscape)
+      if (Landscape)
         *top = PagePrintWidth;
       else
         *top = PagePrintLength;
@@ -6334,8 +6329,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	else
           *top -= 2 * HeadFootSize;
       }
-
-      *y = *top;
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
@@ -6351,20 +6344,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
       }
-
-      if (*y < *top)
-      {
-	(*page) ++;
-
-	if (Verbosity)
-	  progress_show("Formatting page %d", *page);
-
-        *y = *top;
-      }
-
-      *x = *left;
-
-      check_pages(*page);
 
       if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
       {
@@ -6413,13 +6392,20 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       *ptr = '\0';
 
       if (ptr > buffer)
-        pages[*page].footer[pos] = (uchar *)strdup(buffer);
+        Footer[pos] = strdup(buffer);
       else
-        pages[*page].footer[pos] = NULL;
+        Footer[pos] = NULL;
+
+      if (*y >= *top)
+      {
+	check_pages(*page);
+
+        pages[*page].footer[pos] = (uchar *)Footer[pos];
+      }
 
       // Adjust bottom margin as needed...
       for (pos = 0; pos < 3; pos ++)
-        if (pages[*page].footer[pos])
+        if (Footer[pos])
 	  break;
 
       if (pos == 3)
@@ -6779,23 +6765,23 @@ check_pages(int page)	// I - Current page
 	temp->bottom    = PageBottom;
 	temp->duplex    = PageDuplex;
 	temp->landscape = Landscape;
-
-        if (chapter == 0)
-	{
-	  memcpy(temp->header, TocHeader, sizeof(temp->header));
-	  memcpy(temp->footer, TocFooter, sizeof(temp->footer));
-	}
-	else
-	{
-	  memcpy(temp->header, Header, sizeof(temp->header));
-	  memcpy(temp->footer, Footer, sizeof(temp->footer));
-	}
       }
       else
       {
 	memcpy(temp, temp - 1, sizeof(page_t));
 	temp->start = NULL;
 	temp->end   = NULL;
+      }
+
+      if (chapter == 0)
+      {
+	memcpy(temp->header, TocHeader, sizeof(temp->header));
+	memcpy(temp->footer, TocFooter, sizeof(temp->footer));
+      }
+      else
+      {
+	memcpy(temp->header, Header, sizeof(temp->header));
+	memcpy(temp->footer, Footer, sizeof(temp->footer));
       }
     }
 }
@@ -10075,5 +10061,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.108 2001/10/01 20:57:07 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.109 2001/10/03 19:36:27 mike Exp $".
  */
