@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.33 2001/05/31 19:33:10 mike Exp $"
+// "$Id: HelpView.cxx,v 1.30.2.3 2001/07/09 15:44:51 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -67,7 +67,7 @@
 #include <string.h>
 #ifdef HAVE_STRINGS_H
 #  include <strings.h>
-#endif // HAVE_STRINGS_H
+#endif /* HAVE_STRINGS_H */
 #include <errno.h>
 
 #include <FL/Fl_Image.H>
@@ -3131,5 +3131,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.33 2001/05/31 19:33:10 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.30.2.3 2001/07/09 15:44:51 mike Exp $".
 //

@@ -1,10 +1,10 @@
 /*
- * "$Id: toc.cxx,v 1.5 2000/01/04 13:52:26 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.3 2001/08/29 20:57:57 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -129,7 +129,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
 		*existing;	/* Existing link string */
   int		i, level;	/* Header level */
   uchar		*var;		/* Starting value/type for this level */
-  static char	*ones[10] =
+  static const char *ones[10] =
 		{
 		  "",	"i",	"ii",	"iii",	"iv",
 		  "v",	"vi",	"vii",	"viii",	"ix"
@@ -313,14 +313,25 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
               if (existing == NULL)
 	      {
-        	target = htmlNewTree(t, MARKUP_A, NULL);
+	       /*
+	        * Add NAME to existing A element, if present.
+		*/
 
-        	htmlSetVariable(target, (uchar *)"NAME", baselink);
-        	for (temp = t->child; temp != NULL; temp = temp->next)
-                  temp->parent = target;
+                if (t->parent != NULL && t->parent->markup == MARKUP_A)
+	          htmlSetVariable(t->parent, (uchar *)"NAME", baselink);
+		else if (t->child != NULL && t->child->markup == MARKUP_A)
+	          htmlSetVariable(t->child, (uchar *)"NAME", baselink);
+		else
+		{
+        	  target = htmlNewTree(t, MARKUP_A, NULL);
 
-        	target->child = t->child;
-        	t->child      = target;
+        	  htmlSetVariable(target, (uchar *)"NAME", baselink);
+        	  for (temp = t->child; temp != NULL; temp = temp->next)
+                    temp->parent = target;
+
+        	  target->child = t->child;
+        	  t->child      = target;
+	        }
 	      }
             }
 
@@ -342,5 +353,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5 2000/01/04 13:52:26 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.3 2001/08/29 20:57:57 mike Exp $".
  */
