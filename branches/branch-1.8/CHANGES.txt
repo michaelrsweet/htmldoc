@@ -1,7 +1,11 @@
-CHANGES.txt - 02/14/2001
+CHANGES.txt - 02/15/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.11
+
+    NEW FEATURES
+
+	- Added koi8-r character set.
 
     CHANGES
 
