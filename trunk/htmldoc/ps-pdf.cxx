@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.24 1999/11/17 15:53:47 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.25 1999/11/19 17:38:10 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -615,7 +615,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     page_text  = format_number(print_page, 'i');
   }
   else if (chapter < 0)
-    page_text = page ? "eltit" : "title";
+    page_text = page ? (char *)"eltit" : (char *)"title";
   else
   {
     print_page = page - chapter_starts[1] + 1;
@@ -6249,5 +6249,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.24 1999/11/17 15:53:47 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.25 1999/11/19 17:38:10 mike Exp $".
  */

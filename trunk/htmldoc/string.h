@@ -1,5 +1,5 @@
 /*
- * "$Id: string.h,v 1.3 1999/11/09 22:16:43 mike Exp $"
+ * "$Id: string.h,v 1.4 1999/11/19 17:38:10 mike Exp $"
  *
  *   HTML string definitions for HTMLDOC, a HTML document processing program.
  *
@@ -22,8 +22,8 @@
  *         WWW: http://www.easysw.com
  */
 
-#ifndef _STRING_H_
-#  define _STRING_H_
+#ifndef _HTMLDOC_STRING_H_
+#  define _HTMLDOC_STRING_H_
 
 /*
  * Include necessary headers...
@@ -70,8 +70,8 @@ extern int	strncasecmp(const char *s, const char *t, size_t n);
 }
 #  endif /* __cplusplus */
 
-#endif /* !_STRING_H_ */
+#endif /* !_HTMLDOC_STRING_H_ */
 
 /*
- * End of "$Id: string.h,v 1.3 1999/11/09 22:16:43 mike Exp $".
+ * End of "$Id: string.h,v 1.4 1999/11/19 17:38:10 mike Exp $".
  */
