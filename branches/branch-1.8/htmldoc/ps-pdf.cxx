@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.163 2002/05/01 17:34:15 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.164 2002/05/06 13:22:07 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -32,11 +32,13 @@
  *   pspdf_prepare_page()    - Add headers/footers to page before writing...
  *   pspdf_prepare_heading() - Add headers/footers to page before writing...
  *   ps_write_document()     - Write all render entities to PostScript file(s).
+ *   ps_write_outpage()      - Write an output page.
  *   ps_write_page()         - Write all render entities on a page to a
  *                             PostScript file.
  *   ps_write_background()   - Write a background image...
  *   pdf_write_document()    - Write all render entities to a PDF file.
  *   pdf_write_resources()   - Write the resources dictionary for a page.
+ *   pdf_write_outpage()     - Write an output page.
  *   pdf_write_page()        - Write a page to a PDF file.
  *   pdf_write_contents()    - Write the table of contents as outline records
  *                             to a PDF file.
@@ -226,7 +228,16 @@ typedef struct			//// Page information
   char		page_text[64];		// Page number for TOC
   image_t	*background_image;	// Background image
   float		background_color[3];	// Background color
+
+  // Number-up support
+  int		nup;			// Number up pages
 } page_t;
+
+typedef struct			//// Output page info
+{
+  int		nup;			// Number up pages
+  int		pages[16];		// Pages on this output page
+} outpage_t;
 
 
 /*
@@ -247,6 +258,8 @@ static struct tm *doc_date;	/* Current date */
 
 static int	title_page;
 static int	chapter,
+		chapter_outstarts[MAX_CHAPTERS],
+		chapter_outends[MAX_CHAPTERS],
 		chapter_starts[MAX_CHAPTERS],
 		chapter_ends[MAX_CHAPTERS];
 
@@ -259,6 +272,9 @@ static int	num_pages = 0,
 		alloc_pages = 0;
 static page_t	*pages = NULL;
 static tree_t	*current_heading;
+
+static int	num_outpages = 0;
+static outpage_t *outpages = NULL;
 
 static int	num_links = 0,
 		alloc_links = 0;
@@ -313,17 +329,20 @@ extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
 }
 
+static void	pspdf_prepare_outpages();
 static void	pspdf_prepare_page(int page);
 static void	pspdf_prepare_heading(int page, int print_page, uchar **format,
 		                      int y, char *page_text, int page_len);
 static void	ps_write_document(uchar *author, uchar *creator,
 		                  uchar *copyright, uchar *keywords,
 				  uchar *subject);
+static void	ps_write_outpage(FILE *out, int outpage);
 static void	ps_write_page(FILE *out, int page);
 static void	ps_write_background(FILE *out);
 static void	pdf_write_document(uchar *author, uchar *creator,
 		                   uchar *copyright, uchar *keywords,
 				   uchar *subject, tree_t *toc);
+static void	pdf_write_outpage(FILE *out, int outpage);
 static void	pdf_write_page(FILE *out, int page);
 static void	pdf_write_resources(FILE *out, int page);
 static void	pdf_write_contents(FILE *out, tree_t *toc, int parent,
@@ -827,7 +846,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     * Yes, write the document to disk...
     */
 
-    progress_error(HD_ERROR_NONE, "PAGES: %d", num_pages);
+    pspdf_prepare_outpages();
+
+    progress_error(HD_ERROR_NONE, "PAGES: %d", num_outpages);
 
     if (PSLevel > 0)
       ps_write_document(author, creator, copyright, keywords, subject);
@@ -892,6 +913,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   if (alloc_pages)
   {
     free(pages);
+    free(outpages);
 
     num_pages   = 0;
     alloc_pages = 0;
@@ -914,10 +936,139 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
 
 /*
+ * 'pspdf_prepare_outpages()' - Prepare output pages...
+ */
+
+static void
+pspdf_prepare_outpages()
+{
+  int		c, i, j;	/* Looping vars */
+  int		nup;		/* Current number-up value */
+  page_t	*page;		/* Current page */
+  outpage_t	*outpage;	/* Current output page */
+
+
+  // Allocate an output page array...
+  outpages = (outpage_t *)malloc(sizeof(outpage_t) * num_pages);
+
+  memset(outpages, -1, sizeof(outpage_t) * num_pages);
+
+  num_outpages = 0;
+  outpage      = outpages;
+
+  // Handle the title page, as needed...
+  if (TitlePage)
+  {
+    for (i = 0, j = 0, nup = -1, page = pages;
+         i < chapter_starts[1];
+	 i ++, page ++)
+    {
+      if (nup != page->nup)
+      {
+        if (j)
+	{
+	  // Break the current output page...
+	  outpage ++;
+	  num_outpages ++;
+	}
+
+	nup          = page->nup;
+	outpage->nup = nup;
+	j            = 0;
+      }
+
+      outpage->pages[j] = i;
+      j ++;
+
+      if (j >= nup)
+      {
+        j = 0;
+	outpage ++;
+	num_outpages ++;
+
+	outpage->nup = nup;
+      }
+    }
+
+    if (j)
+    {
+      // Break the current output page...
+      outpage ++;
+      num_outpages ++;
+    }
+  }
+
+  // Loop through each chapter, adding pages as needed...
+  for (c = 0; c <= TocDocCount; c ++)
+  {
+    if (chapter_starts[c] < 0)
+      continue;
+
+    chapter_outstarts[c] = num_outpages;
+
+    for (i = chapter_starts[c], j = 0, nup = -1, page = pages + i;
+         i <= chapter_ends[c];
+	 i ++, page ++)
+    {
+      if (nup != page->nup)
+      {
+        if (j)
+	{
+	  // Break the current output page...
+	  outpage ++;
+	  num_outpages ++;
+	}
+
+	nup          = page->nup;
+	outpage->nup = nup;
+	j            = 0;
+      }
+
+      outpage->pages[j] = i;
+      j ++;
+
+      if (j >= nup)
+      {
+        j = 0;
+	outpage ++;
+	num_outpages ++;
+
+	outpage->nup = nup;
+      }
+    }
+
+    if (j)
+    {
+      // Break the current output page...
+      outpage ++;
+      num_outpages ++;
+    }
+
+    chapter_outends[c] = num_outpages;
+  }
+
+#ifdef DEBUG
+  printf("num_outpages = %d\n", num_outpages);
+  for (i = 0, outpage = outpages; i < num_outpages; i ++, outpage ++)
+  {
+    printf("outpage[%d]: nup=%d, pages=[", i, outpage->nup);
+    for (j = 0; j < outpage->nup; j ++)
+      printf(" %d", outpage->pages[j]);
+    puts(" ]");
+  }
+
+  for (c = 0; c <= TocDocCount; c ++)
+    printf("chapter_outstarts[%d] = %d, chapter_outends[%d] = %d\n",
+           c, chapter_outstarts[c], c, chapter_outends[c]);
+#endif // DEBUG
+}
+
+
+/*
  * 'pspdf_prepare_page()' - Add headers/footers to page before writing...
  */
 
-void
+static void
 pspdf_prepare_page(int page)		/* I - Page number */
 {
   int	print_page;			/* Printed page # */
@@ -1294,6 +1445,11 @@ ps_write_document(uchar *author,	/* I - Author of document */
     write_prolog(out, num_pages, author, creator, copyright, keywords, subject);
   }
 
+  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
+    chapter = 0;
+  else
+    chapter = 1;
+
   if (TitlePage)
   {
     if (OutputFiles)
@@ -1303,8 +1459,8 @@ ps_write_document(uchar *author,	/* I - Author of document */
                    subject);
     }
 
-    for (page = 0; page < chapter_starts[1]; page ++)
-      ps_write_page(out, page);
+    for (page = 0; page < chapter_outstarts[chapter]; page ++)
+      ps_write_outpage(out, page);
 
     if (OutputFiles)
     {
@@ -1315,11 +1471,6 @@ ps_write_document(uchar *author,	/* I - Author of document */
       fclose(out);
     }
   }
-
-  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
-    chapter = 0;
-  else
-    chapter = 1;
 
   for (; chapter <= TocDocCount; chapter ++)
   {
@@ -1336,14 +1487,14 @@ ps_write_document(uchar *author,	/* I - Author of document */
         return;
       }
 
-      write_prolog(out, chapter_ends[chapter] - chapter_starts[chapter] + 1,
+      write_prolog(out, chapter_outends[chapter] - chapter_outstarts[chapter],
                    author, creator, copyright, keywords, subject);
     }
 
-    for (page = chapter_starts[chapter];
-         page <= chapter_ends[chapter];
+    for (page = chapter_outstarts[chapter];
+         page < chapter_outends[chapter];
          page ++)
-      ps_write_page(out, page);
+      ps_write_outpage(out, page);
 
    /*
     * Close the output file as necessary...
@@ -1379,25 +1530,29 @@ ps_write_document(uchar *author,	/* I - Author of document */
 
 
 /*
- * 'ps_write_page()' - Write all render entities on a page to a PostScript file.
+ * 'ps_write_outpage()' - Write an output page.
  */
 
 static void
-ps_write_page(FILE  *out,	/* I - Output file */
-              int   page)	/* I - Page number */
+ps_write_outpage(FILE *out,	/* I - Output file */
+                 int  outpage)	/* I - Output page number */
 {
   int		file_page;	/* Current page # in document */
-  render_t	*r,		/* Render pointer */
-		*next;		/* Next render */
   page_t	*p;		/* Current page */
+  outpage_t	*op;		/* Current output page */
+  int		i, x, y;	/* Looping vars */
+  float		w, l,		/* Width and length of subpage */
+		tx, ty;		/* Translation values for subpage */
+  float		pw, pl;		/* Printable width and length of full page */
 
 
-  if (page < 0 || page >= alloc_pages)
+  if (outpage < 0 || outpage >= num_outpages)
     return;
 
-  p = pages + page;
+  op = outpages + outpage;
+  p  = pages + op->pages[0];
 
-  DEBUG_printf(("ps_write_page(%p, %d)\n", out, page));
+  DEBUG_printf(("ps_write_outpage(%p, %d)\n", out, outpage));
 
  /*
   * Let the user know which page we are writing...
@@ -1406,7 +1561,7 @@ ps_write_page(FILE  *out,	/* I - Output file */
   if (Verbosity)
   {
     progress_show("Writing page %s...", p->page_text);
-    progress_update(100 * page / num_pages);
+    progress_update(100 * outpage / num_outpages);
   }
 
  /*
@@ -1414,25 +1569,25 @@ ps_write_page(FILE  *out,	/* I - Output file */
   */
 
   if (OutputFiles && chapter >= 0)
-    file_page = page - chapter_starts[chapter] + 1;
+    file_page = outpage - chapter_outstarts[chapter] + 1;
   else if (chapter < 0)
-    file_page = page + 1;
+    file_page = outpage + 1;
   else if (chapter == 0)
   {
-    file_page = page - chapter_starts[0] + 1;
+    file_page = outpage - chapter_outstarts[0] + 1;
 
     if (TitlePage)
-      file_page += chapter_starts[1];
+      file_page += chapter_outstarts[1];
   }
   else
   {
-    file_page = page - chapter_starts[1] + 1;
+    file_page = outpage - chapter_outstarts[1] + 1;
 
     if (TocLevels > 0)
-      file_page += chapter_ends[0] - chapter_starts[0] + 1;
+      file_page += chapter_outends[0] - chapter_outstarts[0];
 
     if (TitlePage)
-      file_page += chapter_starts[1];
+      file_page += chapter_outstarts[1];
   }
 
  /*
@@ -1454,11 +1609,11 @@ ps_write_page(FILE  *out,	/* I - Output file */
   */
 
   fprintf(out, "%%%%Page: %s %d\n", p->page_text, file_page);
-  fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
-          p->left,
-	  p->bottom,
-	  p->width - p->right,
-	  p->length - p->top);
+  if (op->nup == 1)
+    fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
+            p->left, p->bottom, p->width - p->right, p->length - p->top);
+  else
+    fprintf(out, "%%%%PageBoundingBox: 0 0 %d %d\n", p->width, p->length);
 
   if (PSLevel > 1 && PSCommands)
   {
@@ -1524,14 +1679,218 @@ ps_write_page(FILE  *out,	/* I - Output file */
     fputs("%%EndPageSetup\n", out);
   }
 
+  pw = p->width;
+  pl = p->length;
+
+  switch (op->nup)
+  {
+    default :
+        ps_write_page(out, op->pages[0]);
+	break;
+    case 2 :
+	for (x = 0, i = 0; i < 2; i ++, x ++, p ++)
+	{
+	  if (op->pages[i] < 0)
+	    break;
+
+          l = pw;
+          w = l * p->width / p->length;
+
+          if (w > (pl * 0.5f))
+          {
+            w = pl * 0.5f;
+            l = w * p->length / p->width;
+          }
+
+          tx = pl * 0.5 - w;
+          ty = (pw - l) * 0.5;
+
+          fprintf(out, "GS %.1f 0.0 T 90 RO %.1f %.1f T %.3f SC\n",
+	          pw, tx + w * x, ty, w / p->width);
+
+          ps_write_page(out, op->pages[i]);
+	  fputs("GR\n", out);
+	}
+	break;
+    case 4 :
+	for (x = 0, y = 1, i = 0; i < 4; i ++, x ++, p ++)
+	{
+	  if (x > 1)
+	  {
+	    x = 0;
+	    y --;
+	  }
+
+	  if (y < 0)
+	    y = 1;
+
+	  if (op->pages[i] < 0)
+	    break;
+
+          w = pw * 0.5;
+	  l = w * p->length / p->width;
+
+	  if (l > (pl * 0.5))
+	  {
+	    l = pl * 0.5;
+	    w = l * p->width / p->length;
+	  }
+
+          tx = pw * 0.5 - w;
+          ty = pl * 0.5 - l;
+
+          fprintf(out, "GS %.1f %.1f T %.3f SC\n",
+	          tx + w * x, ty + l * y, w / p->width);
+
+          ps_write_page(out, op->pages[i]);
+	  fputs("GR\n", out);
+	}
+	break;
+    case 6 :
+	for (x = 0, y = 1, i = 0; i < 6; i ++, x ++, p ++)
+	{
+	  if (x > 2)
+	  {
+	    x = 0;
+	    y --;
+	  }
+
+	  if (y < 0)
+	    y = 1;
+
+	  if (op->pages[i] < 0)
+	    break;
+
+          l = pw * 0.5;
+	  w = l * p->width / p->length;
+
+	  if (w > (pl * 0.333))
+	  {
+	    w = pl * 0.333;
+	    l = w * p->length / p->width;
+	  }
+
+          tx = pl * 0.333 - w;
+          ty = pw * 0.5 - l;
+
+          fprintf(out, "GS %.1f 0.0 T 90 RO %.1f %.1f T %.3f SC\n",
+	          pw, tx + w * x, ty + l * y, w / p->width);
+
+          ps_write_page(out, op->pages[i]);
+	  fputs("GR\n", out);
+	}
+	break;
+    case 9 :
+	for (x = 0, y = 2, i = 0; i < 9; i ++, x ++, p ++)
+	{
+	  if (x > 2)
+	  {
+	    x = 0;
+	    y --;
+	  }
+
+	  if (y < 0)
+	    y = 2;
+
+	  if (op->pages[i] < 0)
+	    break;
+
+          w = pw * 0.333;
+	  l = w * p->length / p->width;
+
+	  if (l > (pl * 0.333))
+	  {
+	    l = pl * 0.333;
+	    w = l * p->width / p->length;
+	  }
+
+          tx = pw * 0.333 - w;
+          ty = pl * 0.333 - l;
+
+          fprintf(out, "GS %.1f %.1f T %.3f SC\n",
+	          tx + w * x, ty + l * y, w / p->width);
+
+          ps_write_page(out, op->pages[i]);
+	  fputs("GR\n", out);
+	}
+	break;
+    case 16 :
+	for (x = 0, y = 3, i = 0; i < 16; i ++, x ++, p ++)
+	{
+	  if (x > 3)
+	  {
+	    x = 0;
+	    y --;
+	  }
+
+	  if (y < 0)
+	    y = 3;
+
+	  if (op->pages[i] < 0)
+	    break;
+
+          w = pw * 0.25;
+	  l = w * p->length / p->width;
+
+	  if (l > (pl * 0.25))
+	  {
+	    l = pl * 0.25;
+	    w = l * p->width / p->length;
+	  }
+
+          tx = pw * 0.25 - w;
+          ty = pl * 0.25 - l;
+
+          fprintf(out, "GS %.1f %.1f T %.3f SC\n",
+	          tx + w * x, ty + l * y, w / p->width);
+
+          ps_write_page(out, op->pages[i]);
+	  fputs("GR\n", out);
+	}
+	break;
+  }
+
+ /*
+  * Output the page trailer...
+  */
+
+  fputs("SP\n", out);
+  fflush(out);
+}
+
+
+/*
+ * 'ps_write_page()' - Write all render entities on a page to a PostScript file.
+ */
+
+static void
+ps_write_page(FILE  *out,	/* I - Output file */
+              int   page)	/* I - Page number */
+{
+  render_t	*r,		/* Render pointer */
+		*next;		/* Next render */
+  page_t	*p;		/* Current page */
+
+
+  if (page < 0 || page >= alloc_pages)
+    return;
+
+  p = pages + page;
+
+  DEBUG_printf(("ps_write_page(%p, %d)\n", out, page));
+
+ /*
+  * Setup the page...
+  */
+
   fputs("GS\n", out);
 
   if (p->landscape)
   {
     if (p->duplex && (page & 1))
-      fprintf(out, "0 %d T -90 rotate\n", p->length);
+      fprintf(out, "0 %d T -90 RO\n", p->length);
     else
-      fprintf(out, "%d 0 T 90 rotate\n", p->width);
+      fprintf(out, "%d 0 T 90 RO\n", p->width);
   }
 
   write_background(page, out);
@@ -1578,13 +1937,13 @@ ps_write_page(FILE  *out,	/* I - Output file */
     free(r);
   }
 
+  p->start = NULL;
+
  /*
   * Output the page trailer...
   */
 
   fputs("GR\n", out);
-  fputs("SP\n", out);
-  fflush(out);
 }
 
 
@@ -1912,12 +2271,23 @@ pdf_write_resources(FILE *out,	/* I - Output file */
 
 
 /*
+ * 'pdf_write_outpage()' - Write an output page.
+ */
+
+static void
+pdf_write_outpage(FILE *out,	/* I - Output file */
+                  int  outpage)	/* I - Output page number */
+{
+}
+
+
+/*
  * 'pdf_write_page()' - Write a page to a PDF file.
  */
 
 static void
-pdf_write_page(FILE  *out,		/* I - Output file */
-               int   page)		/* I - Page number */
+pdf_write_page(FILE  *out,	/* I - Output file */
+               int   page)	/* I - Page number */
 {
   render_t	*r,		/* Render pointer */
 		*next;		/* Next render */
@@ -7203,6 +7573,7 @@ check_pages(int page)	// I - Current page
 	temp->bottom    = PageBottom;
 	temp->duplex    = PageDuplex;
 	temp->landscape = Landscape;
+	temp->nup       = NumberUp;
       }
       else
       {
@@ -9048,11 +9419,15 @@ write_image(FILE     *out,	/* I - Output file */
 	    if (ncolors <= 2)
 	      ncolors = 2; /* Adobe doesn't like 1 color images... */
 
-	    fprintf(out, "[/Indexed/DeviceRGB %d<", ncolors - 1);
+	    fprintf(out, "[/Indexed/DeviceRGB %d\n<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
+	    {
 	      fprintf(out, "%02X%02X%02X", colors[i] >> 16,
 	              (colors[i] >> 8) & 255, colors[i] & 255);
-	    fputs(">]setcolorspace", out);
+	      if ((i % 13) == 12)
+	        putc('\n', out);
+            }
+	    fputs(">]setcolorspace\n", out);
 
 	    fprintf(out, "<<"
 	                 "/ImageType 1"
@@ -9115,11 +9490,16 @@ write_image(FILE     *out,	/* I - Output file */
 
         if (ncolors > 0)
         {
-	  fprintf(out, "[/Indexed/DeviceRGB %d<", ncolors - 1);
+	  fprintf(out, "[/Indexed/DeviceRGB %d\n<", ncolors - 1);
 	  for (i = 0; i < ncolors; i ++)
-	      fprintf(out, "%02X%02X%02X", colors[i] >> 16,
-	              (colors[i] >> 8) & 255, colors[i] & 255);
-	  fputs(">]setcolorspace", out);
+	  {
+	    fprintf(out, "%02X%02X%02X", colors[i] >> 16,
+	            (colors[i] >> 8) & 255, colors[i] & 255);
+	    if ((i % 13) == 12)
+	      putc('\n', out);
+          }
+
+	  fputs(">]setcolorspace\n", out);
 
 	  fprintf(out, "<<"
 	               "/ImageType 1"
@@ -9441,12 +9821,12 @@ write_prolog(FILE  *out,	/* I - Output file */
 	if (chapter < 0)
 	{
 	  start = 0;
-	  end   = chapter_starts[1] - 1;
+	  end   = chapter_outstarts[1] - 1;
 	}
 	else
 	{
-	  start = chapter_starts[chapter];
-	  end = chapter_ends[chapter];
+	  start = chapter_outstarts[chapter];
+	  end   = chapter_outends[chapter];
 	}
       }
       else
@@ -9455,9 +9835,9 @@ write_prolog(FILE  *out,	/* I - Output file */
 	end   = 0;
       }
 
-      if (pages[start].duplex)
+      if (pages[outpages[start].pages[0]].duplex)
       {
-	if (pages[start].landscape)
+	if (pages[outpages[start].pages[0]].landscape)
 	  fputs("%XRXrequirements: duplex(tumble)\n", out);
 	else
 	  fputs("%XRXrequirements: duplex\n", out);
@@ -9468,12 +9848,12 @@ write_prolog(FILE  *out,	/* I - Output file */
       fputs("%XRXdisposition: PRINT\n", out);
       fputs("%XRXsignature: False\n", out);
       fprintf(out, "%%XRXpaperType-size: %.0f %.0f\n",
-              pages[start].width * 25.4f / 72.0f,
-              pages[start].length * 25.4f / 72.0f);
-      if (pages[start].media_type[0])
+              pages[outpages[start].pages[0]].width * 25.4f / 72.0f,
+              pages[outpages[start].pages[0]].length * 25.4f / 72.0f);
+      if (pages[outpages[start].pages[0]].media_type[0])
 	fprintf(out, "%%XRXpaperType-preFinish: %s 0 0\n",
         	pages[start].media_type);
-      if (pages[start].media_color[0])
+      if (pages[outpages[start].pages[0]].media_color[0])
 	fprintf(out, "%%XRXdocumentPaperColors: %c%s\n",
         	tolower(pages[start].media_color[0]),
 		pages[start].media_color + 1);
@@ -9481,34 +9861,34 @@ write_prolog(FILE  *out,	/* I - Output file */
       if (OutputFiles)
       {
         // Handle document settings per-chapter...
-	for (i = start + 1; i <= end; i += count)
+	for (i = start + 1; i < end; i += count)
 	{
-	  if (pages[i].width != pages[start].width ||
-	      pages[i].length != pages[start].length ||
-	      strcmp(pages[i].media_type, pages[start].media_type) != 0 ||
-	      strcmp(pages[i].media_color, pages[start].media_color) != 0 ||
-	      pages[i].duplex != pages[start].duplex)
+	  if (pages[outpages[i].pages[0]].width != pages[outpages[start].pages[0]].width ||
+	      pages[outpages[i].pages[0]].length != pages[outpages[start].pages[0]].length ||
+	      strcmp(pages[outpages[i].pages[0]].media_type, pages[outpages[start].pages[0]].media_type) != 0 ||
+	      strcmp(pages[outpages[i].pages[0]].media_color, pages[outpages[start].pages[0]].media_color) != 0 ||
+	      pages[outpages[i].pages[0]].duplex != pages[outpages[start].pages[0]].duplex)
 	  {
 	    for (count = 1; (i + count) <= end; count ++)
-	      if (pages[i].width != pages[i + count].width ||
-		  pages[i].length != pages[i + count].length ||
-		  strcmp(pages[i].media_type, pages[i + count].media_type) != 0 ||
-		  strcmp(pages[i].media_color, pages[i + count].media_color) != 0 ||
-		  pages[i].duplex != pages[i + count].duplex)
+	      if (pages[outpages[i].pages[0]].width != pages[outpages[i + count].pages[0]].width ||
+		  pages[outpages[i].pages[0]].length != pages[outpages[i + count].pages[0]].length ||
+		  strcmp(pages[outpages[i].pages[0]].media_type, pages[outpages[i + count].pages[0]].media_type) != 0 ||
+		  strcmp(pages[outpages[i].pages[0]].media_color, pages[outpages[i + count].pages[0]].media_color) != 0 ||
+		  pages[outpages[i].pages[0]].duplex != pages[outpages[i + count].pages[0]].duplex)
 		break;
 
 	    fprintf(out, "%%XRXpageExceptions: %d %d %.0f %.0f %c%s opaque %s 0 0\n",
 	            i + 1, i + count,
-		    pages[i].width * 25.4f / 72.0f,
-		    pages[i].length * 25.4f / 72.0f,
-		    tolower(pages[i].media_color[0]),
-		    pages[i].media_color + 1,
-		    pages[i].media_type[0] ? pages[i].media_type : "Plain");
+		    pages[outpages[i].pages[0]].width * 25.4f / 72.0f,
+		    pages[outpages[i].pages[0]].length * 25.4f / 72.0f,
+		    tolower(pages[outpages[i].pages[0]].media_color[0]),
+		    pages[outpages[i].pages[0]].media_color + 1,
+		    pages[outpages[i].pages[0]].media_type[0] ? pages[outpages[i].pages[0]].media_type : "Plain");
 
-	    if (pages[i].duplex && pages[i].landscape)
+	    if (pages[outpages[i].pages[0]].duplex && pages[outpages[i].pages[0]].landscape)
 	      fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
 	              i + 1, i + count);
-	    else if (pages[i].duplex)
+	    else if (pages[outpages[i].pages[0]].duplex)
 	      fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex\n",
 	              i + 1, i + count);
             else
@@ -9529,30 +9909,30 @@ write_prolog(FILE  *out,	/* I - Output file */
 
 	  for (i = start + 1; i <= end; i += count)
 	  {
-	    if (pages[i].width != pages[0].width ||
-		pages[i].length != pages[0].length ||
-		strcmp(pages[i].media_type, pages[0].media_type) != 0 ||
-		strcmp(pages[i].media_color, pages[0].media_color) != 0 ||
-		pages[i].duplex != pages[0].duplex)
+	    if (pages[outpages[i].pages[0]].width != pages[0].width ||
+		pages[outpages[i].pages[0]].length != pages[0].length ||
+		strcmp(pages[outpages[i].pages[0]].media_type, pages[0].media_type) != 0 ||
+		strcmp(pages[outpages[i].pages[0]].media_color, pages[0].media_color) != 0 ||
+		pages[outpages[i].pages[0]].duplex != pages[0].duplex)
 	    {
 	      for (count = 1; (i + count) <= end; count ++)
-		if (pages[i].width != pages[i + count].width ||
-		    pages[i].length != pages[i + count].length ||
-		    strcmp(pages[i].media_type, pages[i + count].media_type) != 0 ||
-		    strcmp(pages[i].media_color, pages[i + count].media_color) != 0 ||
-		    pages[i].duplex != pages[i + count].duplex)
+		if (pages[outpages[i].pages[0]].width != pages[outpages[i + count].pages[0]].width ||
+		    pages[outpages[i].pages[0]].length != pages[outpages[i + count].pages[0]].length ||
+		    strcmp(pages[outpages[i].pages[0]].media_type, pages[outpages[i + count].pages[0]].media_type) != 0 ||
+		    strcmp(pages[outpages[i].pages[0]].media_color, pages[outpages[i + count].pages[0]].media_color) != 0 ||
+		    pages[outpages[i].pages[0]].duplex != pages[outpages[i + count].pages[0]].duplex)
 		  break;
 
 	      fprintf(out, "%%XRXpageExceptions: %d %d %d %d %c%s opaque %s 0 0\n",
-	              i + 1, i + count, pages[i].width, pages[i].length,
-		      tolower(pages[i].media_color[0]),
-		      pages[i].media_color + 1,
-		      pages[i].media_type[0] ? pages[i].media_type : "Plain");
+	              i + 1, i + count, pages[outpages[i].pages[0]].width, pages[outpages[i].pages[0]].length,
+		      tolower(pages[outpages[i].pages[0]].media_color[0]),
+		      pages[outpages[i].pages[0]].media_color + 1,
+		      pages[outpages[i].pages[0]].media_type[0] ? pages[outpages[i].pages[0]].media_type : "Plain");
 
-	      if (pages[i].duplex && pages[i].landscape)
+	      if (pages[outpages[i].pages[0]].duplex && pages[outpages[i].pages[0]].landscape)
 		fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
 	        	i + 1, i + count);
-	      else if (pages[i].duplex)
+	      else if (pages[outpages[i].pages[0]].duplex)
 		fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex\n",
 	        	i + 1, i + count);
               else
@@ -9607,25 +9987,69 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("%%BeginProlog\n", out);
 
    /*
+    * Procedures used throughout the document...
+    */
+
+    fputs("%%BeginResource: procset htmldoc-page 1.8 15\n", out);
+    fputs("/BD{bind def}bind def", out);
+    fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
+          "closepath stroke}BD", out);
+    if (!OutputColor)
+      fputs("/C{0.08 mul exch 0.61 mul add exch 0.31 mul add setgray}BD\n", out);
+    else
+      fputs("/C{setrgbcolor}BD\n", out);
+    fputs("/CM{concat}BD", out);
+    fputs("/DF{findfont dup length dict begin{1 index/FID ne{def}{pop pop}\n"
+          "ifelse}forall/Encoding fontencoding def currentdict end definefont pop}BD\n", out);
+    fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n", out);
+    fputs("/FS{/hdFontSize exch def}BD", out);
+    fputs("/GS{gsave}BD", out);
+    fputs("/GR{grestore}BD", out);
+    fputs("/J{0 exch ashow}BD\n", out);
+    fputs("/L{0 rlineto stroke}BD", out);
+    fputs("/M{moveto}BD", out);
+    if (PSLevel == 1)
+      fputs("/re{4 2 roll moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath}BD\n", out);
+    fputs("/RO{rotate}BD", out);
+    fputs("/S{show}BD", out);
+    fputs("/SC{dup scale}BD\n", out);
+    fputs("/SF{findfont hdFontSize scalefont setfont}BD", out);
+    fputs("/SP{showpage}BD", out);
+    fputs("/T{translate}BD\n", out);
+    fputs("%%EndResource\n", out);
+
+   /*
     * Output the font encoding for the current character set...  For now we
     * just support 8-bit fonts since true Unicode support needs a very large
     * number of extra fonts that aren't normally available on a PS printer.
     */
 
     fputs("/fontencoding[\n", out);
-    for (i = 0; i < 256; i ++)
+    for (i = 0, j = 0; i < 256; i ++)
     {
+      if (_htmlGlyphs[i])
+        j += strlen(_htmlGlyphs[i]) + 1;
+      else
+        j += 8;
+
+      if (j > 80)
+      {
+	if (_htmlGlyphs[i])
+          j = strlen(_htmlGlyphs[i]) + 1;
+	else
+          j = 8;
+
+        putc('\n', out);
+      }
+	
       putc('/', out);
       if (_htmlGlyphs[i])
         fputs(_htmlGlyphs[i], out);
       else
         fputs(".notdef", out);
-
-      if ((i & 7) == 7)
-        putc('\n', out);
     }
 
-    fputs("]def", out);
+    fputs("]def\n", out);
 
    /*
     * Fonts...
@@ -9635,41 +10059,12 @@ write_prolog(FILE  *out,	/* I - Output file */
       for (j = 0; j < 4; j ++)
         if (fonts_used[i][j])
         {
-	  fprintf(out, "/%s findfont\n", _htmlFonts[i][j]);
 	  if (i < 3)
-	    fputs("dup length dict begin"
-        	  "{1 index/FID ne{def}{pop pop}ifelse}forall"
-        	  "/Encoding fontencoding def"
-        	  " currentdict end\n", out);
-	  fprintf(out, "/F%x exch definefont pop\n", i * 4 + j);
+	    fprintf(out, "/F%x/%s DF\n", i * 4 + j, _htmlFonts[i][j]);
+	  else
+	    fprintf(out, "/F%x/%s findfont definefont pop\n", i * 4 + j,
+	            _htmlFonts[i][j]);
         }
-
-   /*
-    * Now for the macros...
-    */
-
-    fputs("%%BeginResource: procset htmldoc-page 1.8 15\n", out);
-    fputs("/BD{bind def}bind def\n", out);
-    fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath stroke}BD\n", out);
-    if (!OutputColor)
-      fputs("/C{0.08 mul exch 0.61 mul add exch 0.31 mul add setgray}BD\n", out);
-    else
-      fputs("/C{setrgbcolor}BD\n", out);
-    fputs("/CM{concat}BD", out);
-    fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n", out);
-    fputs("/FS{/hdFontSize exch def}BD", out);
-    fputs("/GS{gsave}BD", out);
-    fputs("/GR{grestore}BD", out);
-    fputs("/J{0 exch ashow}BD", out);
-    fputs("/L{0 rlineto stroke}BD", out);
-    fputs("/M{moveto}BD\n", out);
-    if (PSLevel == 1)
-      fputs("/re{4 2 roll moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath}BD\n", out);
-    fputs("/S{show}BD", out);
-    fputs("/SF{findfont hdFontSize scalefont setfont}BD", out);
-    fputs("/SP{showpage}BD", out);
-    fputs("/T{translate}BD\n", out);
-    fputs("%%EndResource\n", out);
 
     if (PSCommands)
     {
@@ -10800,5 +11195,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.163 2002/05/01 17:34:15 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.164 2002/05/06 13:22:07 mike Exp $".
  */

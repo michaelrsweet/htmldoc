@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.39 2002/04/10 17:26:59 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.40 2002/05/06 13:22:02 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -615,8 +615,16 @@ main(int  argc,		/* I - Number of command-line arguments */
       TrueType = 0;
     else if (compare_strings(argv[i], "--no-xrxcomments", 6) == 0)
       XRXComments = 0;
-    else if (compare_strings(argv[i], "--numbered", 4) == 0)
+    else if (compare_strings(argv[i], "--numbered", 5) == 0)
       TocNumbers = 1;
+    else if (compare_strings(argv[i], "--nup", 5) == 0)
+    {
+      i ++;
+      if (i >= argc)
+        usage();
+
+      NumberUp = atoi(argv[i]);
+    }
     else if (compare_strings(argv[i], "--outdir", 6) == 0 ||
              strcmp(argv[i], "-d") == 0)
     {
@@ -1744,6 +1752,8 @@ parse_options(const char   *line,	// I - Options from book file
     }
     else if (strcmp(temp, "--browserwidth") == 0)
       _htmlBrowserWidth = atof(temp2);
+    else if (strcmp(temp, "--nup") == 0)
+      NumberUp = atoi(temp2);
     else if (strcmp(temp, "--size") == 0)
       set_page_size(temp2);
     else if (strcmp(temp, "--left") == 0)
@@ -2153,6 +2163,7 @@ usage(void)
   puts("  --no-toc");
   puts("  --no-truetype");
   puts("  --numbered");
+  puts("  --nup {1,2,4,6,9,16}");
   puts("  {--outdir, -d} dirname");
   puts("  {--outfile, -f} filename.{ps,pdf,html}");
   puts("  --pageduration {1.0..60.0}");
@@ -2207,5 +2218,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.39 2002/04/10 17:26:59 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.40 2002/05/06 13:22:02 mike Exp $".
  */
