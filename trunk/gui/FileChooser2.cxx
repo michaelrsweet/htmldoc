@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.10 1999/04/28 20:43:06 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.11 1999/04/28 21:28:35 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -444,7 +444,7 @@ FileChooser::fileListCB()
     else
       window->hide();
   }
-  else if (fileList->size() == 1)
+  else
     fileName->value(filename);
 }
 
@@ -603,5 +603,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.10 1999/04/28 20:43:06 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.11 1999/04/28 21:28:35 mike Exp $".
 //
