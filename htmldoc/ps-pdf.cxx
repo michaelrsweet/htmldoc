@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.37 2001/03/08 19:09:22 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.38 2001/03/09 16:14:12 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2617,8 +2617,16 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_BR :
           if (para->child == NULL)
           {
-            para->halignment = t->halignment;
-            para->indent     = t->indent;
+	    if (t->parent == NULL)
+	    {
+              para->halignment = ALIGN_LEFT;
+              para->indent     = 0;
+	    }
+	    else
+	    {
+              para->halignment = t->parent->halignment;
+              para->indent     = t->parent->indent;
+	    }
           }
 
           if ((temp = htmlAddTree(para, t->markup, t->data)) != NULL)
@@ -3040,6 +3048,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   render_t	*r;
   uchar		*align,
 		*hspace,
+		*vspace,
 		*link;
   float		rgb[3];
   uchar		line[10240],
@@ -3081,6 +3090,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     {
       if (strcasecmp((char *)align, "LEFT") == 0)
       {
+        if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
+	  *y -= atoi((char *)vspace);
+
         if (*y < (bottom + temp->height))
         {
 	  (*page) ++;
@@ -3093,6 +3105,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         new_render(*page, RENDER_IMAGE, image_left, *y - temp->height,
 	           temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
+
+        if (vspace != NULL)
+	  *y -= atoi((char *)vspace);
 
         image_left += temp->width;
 	temp_y     = *y - temp->height;
@@ -3113,6 +3128,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       }
       else if (strcasecmp((char *)align, "RIGHT") == 0)
       {
+        if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
+	  *y -= atoi((char *)vspace);
+
         if (*y < (bottom + temp->height))
         {
 	  (*page) ++;
@@ -3127,6 +3145,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         new_render(*page, RENDER_IMAGE, image_right, *y - temp->height,
                    temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
+
+        if (vspace != NULL)
+	  *y -= atoi((char *)vspace);
 
 	temp_y = *y - temp->height;
 
@@ -3951,10 +3972,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       }
 
       // Figure out the starting column...
+      width = table_width;
       if (num_rows)
       {
 	for (col = 0; row_spans[col] && col < num_cols; col ++)
+	{
           cells[num_rows][col] = cells[num_rows - 1][col];
+	  width -= col_mins[col];
+	}
       }
       else
         col = 0;
@@ -3974,11 +3999,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
             row_spans[col] = atoi((char *)var);
 
           // Compute the cell size...
-          col_width = get_cell_size(tempcol, 0.0f, table_width, &col_min,
+          col_width = get_cell_size(tempcol, 0.0f, width, &col_min,
 	                            &col_pref, &col_height);
           if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL &&
-	      colspan == 1 && var[strlen((char *)var) - 1] == '%')
-            col_width -= 2.0 * (cellpadding + border) - cellspacing;
+	      colspan == 1)
+	  {
+	    if (var[strlen((char *)var) - 1] == '%')
+              col_width -= 2.0 * (cellpadding + border) - cellspacing;
+	  }
 	  else
 	    col_width = 0.0f;
 
@@ -4014,6 +4042,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
 	  while (colspan > 0 && col < MAX_COLUMNS)
 	  {
+            width -= col_mins[col];
             cells[num_rows][col] = tempcol;
             col ++;
             colspan --;
@@ -5445,8 +5474,7 @@ get_cell_size(tree_t *t,		// I - Cell
       // For nested tables, compute the width of the table.
       if (temp->markup == MARKUP_TABLE)
       {
-        // Adjust left and right for nested percentages...
-        frag_width = get_table_size(temp, 0.0f, 0.0f, &frag_min, &frag_pref,
+        frag_width = get_table_size(temp, left, right, &frag_min, &frag_pref,
 	                            &frag_height);
 
 	if (frag_width > width)
@@ -5674,8 +5702,8 @@ get_table_size(tree_t *t,		// I - Table
 	  max_columns = columns;
 
         // Get widths of cell...
-        cell_width = get_cell_size(temp, left, right, &cell_min, &cell_pref,
-	                           &cell_height);
+        cell_width = get_cell_size(temp, 0.0f, right - left - row_pref,
+	                           &cell_min, &cell_pref, &cell_height);
 
         // Update row widths...
         row_width += cell_width;
@@ -8249,5 +8277,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.37 2001/03/08 19:09:22 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.38 2001/03/09 16:14:12 mike Exp $".
  */
