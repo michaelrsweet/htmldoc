@@ -1,5 +1,5 @@
 //
-// "$Id: html.cxx,v 1.25 2004/04/01 03:26:43 mike Exp $"
+// "$Id: html.cxx,v 1.26 2004/10/23 04:45:54 mike Exp $"
 //
 //   HTML exporting functions for HTMLDOC, a HTML document processing program.
 //
@@ -106,7 +106,7 @@ hdBook::html_export(hdTree *document,	// I - Document to export
   // Then write each output file...
   while (document != NULL)
   {
-    html_header(&out, htmlGetVariable(document, (uchar *)"FILENAME"),
+    html_header(&out, htmlGetVariable(document, (uchar *)"_HD_FILENAME"),
                 title, author, copyright, docnumber, document);
     if (out != NULL)
       html_write(out, document->child, 0);
@@ -189,7 +189,7 @@ hdBook::html_header(FILE   **out,	// IO - Output file
   if (*out == NULL)
   {
     progress_error(HD_ERROR_WRITE_ERROR,
-                   "Unable to create output file '%s' - %s.\n",
+                   "Unable to create output file \"%s\" - %s.\n",
                    OutputFiles ? realname : OutputPath,
 		   strerror(errno));
     return;
@@ -225,24 +225,19 @@ hdBook::html_header(FILE   **out,	// IO - Output file
       {
 	if (t->prev != NULL)
 	  fprintf(*out, "<link rel='Prev' href='%s'>\n",
-        	  file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
+        	  file_basename((char *)htmlGetVariable(t->prev, (uchar *)"_HD_FILENAME")));
 
 	if (t->next != NULL)
 	  fprintf(*out, "<link rel='Next' href='%s'>\n",
-        	  file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
+        	  file_basename((char *)htmlGetVariable(t->next, (uchar *)"_HD_FILENAME")));
       }
     }
 
     fputs("<style type='text/css'><!--\n", *out);
     fprintf(*out, "BODY { font-family: %s }\n", families[_htmlBodyFont]);
-    fprintf(*out, "H1 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H2 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H3 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H4 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H5 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H6 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fputs("SUB { font-size: smaller }\n", *out);
-    fputs("SUP { font-size: smaller }\n", *out);
+    fprintf(*out, "H1, H2, H3, H4, H5, H6 { font-family: %s }\n",
+            families[_htmlHeadingFont]);
+    fputs("SUB, SUP { font-size: 50% }\n", *out);
     fputs("PRE { font-family: monospace }\n", *out);
 
     if (!LinkStyle)
@@ -266,7 +261,7 @@ hdBook::html_header(FILE   **out,	// IO - Output file
     fputs(">\n", *out);
   }
   else
-    fputs("<hr>\n", *out);
+    fputs("<hr noshade>\n", *out);
 
   if (OutputFiles && t != NULL && (t->prev != NULL || t->next != NULL))
   {
@@ -284,13 +279,13 @@ hdBook::html_header(FILE   **out,	// IO - Output file
 
     if (t->prev != NULL)
       fprintf(*out, "<a href='%s'>Previous</a>\n",
-              file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
+              file_basename((char *)htmlGetVariable(t->prev, (uchar *)"_HD_FILENAME")));
 
     if (t->next != NULL)
       fprintf(*out, "<a href='%s'>Next</a>\n",
-              file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
+              file_basename((char *)htmlGetVariable(t->next, (uchar *)"_HD_FILENAME")));
 
-    fputs("<hr>\n", *out);
+    fputs("<hr noshade>\n", *out);
   }
 }
 
@@ -308,7 +303,7 @@ hdBook::html_footer(FILE   **out,	// IO - Output file pointer
 
   if (OutputFiles && t != NULL && (t->prev != NULL || t->next != NULL))
   {
-    fputs("<hr>\n", *out);
+    fputs("<hr noshade>\n", *out);
 
     if (LogoImage[0])
       fprintf(*out, "<img src='%s'>\n", file_basename(LogoImage));
@@ -325,11 +320,11 @@ hdBook::html_footer(FILE   **out,	// IO - Output file pointer
 
     if (t->prev != NULL)
       fprintf(*out, "<a href='%s'>Previous</a>\n",
-              file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
+              file_basename((char *)htmlGetVariable(t->prev, (uchar *)"_HD_FILENAME")));
 
     if (t->next != NULL)
       fprintf(*out, "<a href='%s'>Next</a>\n",
-              file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
+              file_basename((char *)htmlGetVariable(t->next, (uchar *)"_HD_FILENAME")));
   }
 
   if (OutputFiles)
@@ -374,7 +369,7 @@ hdBook::html_title(FILE  *out,		// I - Output file
     if ((title_file = file_find(Path, TitleImage)) == NULL)
     {
       progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to find title file '%s'!", TitleImage);
+                     "Unable to find title file \"%s\"!", TitleImage);
       return;
     }
 
@@ -382,12 +377,13 @@ hdBook::html_title(FILE  *out,		// I - Output file
     if ((fp = fopen(title_file, "rb")) == NULL)
     {
       progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open title file '%s' - %s!",
+                     "Unable to open title file \"%s\" - %s!",
                      TitleImage, strerror(errno));
       return;
     }
 
     t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+    htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
     fclose(fp);
 
     html_write(out, t, 0);
@@ -406,11 +402,15 @@ hdBook::html_title(FILE  *out,		// I - Output file
       image_t *img = image_load(TitleImage, !OutputColor);
 
       if (OutputFiles)
-	fprintf(out, "<img src='%s' border='0' width='%d' height='%d'><br>\n",
-        	file_basename((char *)TitleImage), img->width, img->height);
+	fprintf(out, "<img src='%s' border='0' width='%d' height='%d' "
+	             "alt='%s'><br>\n",
+        	file_basename((char *)TitleImage), img->width, img->height,
+		title ? (char *)title : "");
       else
-	fprintf(out, "<img src='%s' border='0' width='%d' height='%d'><br>\n",
-        	TitleImage, img->width, img->height);
+	fprintf(out, "<img src='%s' border='0' width='%d' height='%d' "
+	             "alt='%s'><br>\n",
+        	TitleImage, img->width, img->height,
+		title ? (char *)title : "");
     }
 
     if (title != NULL)
@@ -444,7 +444,8 @@ hdBook::html_write(FILE   *out,		// I - Output file
   int		i;			// Looping var
   uchar		*ptr,			// Pointer to output string
 		*src,			// Source image
-		newsrc[1024];		// New source image filename
+		newsrc[1024],		// New source image filename
+		*entity;		// Entity string
 
 
   if (out == NULL)
@@ -491,7 +492,11 @@ hdBook::html_write(FILE   *out,		// I - Output file
 
       case HD_ELEMENT_COMMENT :
       case HD_ELEMENT_UNKNOWN :
-          fprintf(out, "\n<!--%s-->\n", t->data);
+          fputs("\n<!--", out);
+	  for (ptr = t->data; *ptr; ptr ++)
+            fputs((char *)iso8859(*ptr), out);
+	  fputs("-->\n", out);
+	  col = 0;
 	  break;
 
       case HD_ELEMENT_AREA :
@@ -553,7 +558,7 @@ hdBook::html_write(FILE   *out,		// I - Output file
 		(!isalpha(src[0]) || src[1] != ':'))
             {
               image_copy((char *)src, OutputPath);
-              strcpy((char *)newsrc, file_basename((char *)src));
+              strlcpy((char *)newsrc, file_basename((char *)src), sizeof(newsrc));
               htmlSetVariable(t, (uchar *)"SRC", newsrc);
             }
 	  }
@@ -588,10 +593,19 @@ hdBook::html_write(FILE   *out,		// I - Output file
 
 	      if (t->vars[i].value == NULL)
         	col += fprintf(out, "%s", t->vars[i].name);
-	      else if (strchr((char *)t->vars[i].value, '\'') != NULL)
-        	col += fprintf(out, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
 	      else
-        	col += fprintf(out, "%s='%s'", t->vars[i].name, t->vars[i].value);
+	      {
+		col += fprintf(out, "%s=\"", t->vars[i].name);
+		for (ptr = t->vars[i].value; *ptr; ptr ++)
+		{
+		  entity = iso8859(*ptr);
+		  fputs((char *)entity, out);
+		  col += strlen((char *)entity);
+		}
+
+		putc('\"', out);
+		col ++;
+	      }
 	    }
 
 	    putc('>', out);
@@ -705,7 +719,7 @@ hdBook::html_scan_links(hdTree *t,	// I - Document tree
     if (t->element == HD_ELEMENT_FILE)
       html_scan_links(t->child, (uchar *)file_basename(
                                         (char *)htmlGetVariable(t, 
-		                                    (uchar *)"FILENAME")));
+		                                    (uchar *)"_HD_FILENAME")));
     else if (t->element == HD_ELEMENT_A &&
              (name = htmlGetVariable(t, (uchar *)"NAME")) != NULL)
     {
@@ -766,7 +780,7 @@ hdBook::html_update_links(hdTree *t,	// I - Document tree
       if (t->child != NULL)
       {
         if (t->element == HD_ELEMENT_FILE)
-          html_update_links(t->child, htmlGetVariable(t, (uchar *)"FILENAME"));
+          html_update_links(t->child, htmlGetVariable(t, (uchar *)"_HD_FILENAME"));
 	else
           html_update_links(t->child, filename);
       }
@@ -832,5 +846,5 @@ hdBook::get_title(hdTree *doc)		// I - Document tree
 
 
 /*
- * End of "$Id: html.cxx,v 1.25 2004/04/01 03:26:43 mike Exp $".
+ * End of "$Id: html.cxx,v 1.26 2004/10/23 04:45:54 mike Exp $".
  */
