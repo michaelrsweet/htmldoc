@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.11.2.10 2002/07/08 17:11:10 mike Exp $"
+# "$Id: Makefile,v 1.11.2.11 2002/07/31 19:14:54 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -41,6 +41,8 @@ SOURCES	=	intro.html 1-install.html 2-starting.html \
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	help.html htmldoc.pdf
 
+HTMLDOC	=	../htmldoc/htmldoc$(EXEEXT) --strict --datadir .. --verbose
+
 
 #
 # Make everything...
@@ -80,7 +82,7 @@ clean:
 
 htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.html...
-	../htmldoc/htmldoc$(EXEEXT) --datadir .. --batch htmldoc.book -f htmldoc.html --datadir ..
+	$(HTMLDOC) --batch htmldoc.book -f htmldoc.html
 
 
 #
@@ -89,7 +91,7 @@ htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.pdf...
-	../htmldoc/htmldoc$(EXEEXT) --datadir .. --batch htmldoc.book -f htmldoc.pdf --datadir ..
+	$(HTMLDOC) --batch htmldoc.book -f htmldoc.pdf
 
 
 #
@@ -98,7 +100,7 @@ htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.ps...
-	../htmldoc/htmldoc$(EXEEXT) --datadir .. --batch htmldoc.book -f htmldoc.ps --datadir ..
+	$(HTMLDOC) --batch htmldoc.book -f htmldoc.ps
 
 
 #
@@ -111,5 +113,5 @@ htmldoc.1:	htmldoc.man
 
 
 #
-# End of "$Id: Makefile,v 1.11.2.10 2002/07/08 17:11:10 mike Exp $".
+# End of "$Id: Makefile,v 1.11.2.11 2002/07/31 19:14:54 mike Exp $".
 #
