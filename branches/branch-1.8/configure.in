@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.19 2001/10/01 20:57:05 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.20 2001/10/05 12:02:56 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -115,11 +115,11 @@ for libcrypto in \
     "-lcrypto -lRSAglue -lrsaref"
 do
     AC_CHECK_LIB(ssl,SSL_new,
-	[SSLLIBS="-lssl $libcrypto"
-	 AC_DEFINE(HAVE_LIBSSL)],,
+	[SSLLIBS="-lssl $libcrypto"],,
 	$libcrypto)
 
     if test "x${SSLLIBS}" != "x"; then
+	AC_CHECK_HEADER(openssl/ssl.h,AC_DEFINE(HAVE_LIBSSL))
 	break
     fi
 done
@@ -312,5 +312,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.19 2001/10/01 20:57:05 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.20 2001/10/05 12:02:56 mike Exp $".
 dnl
