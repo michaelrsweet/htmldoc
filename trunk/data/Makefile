@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.1 1999/11/10 15:59:25 mike Exp $"
+# "$Id: Makefile,v 1.2 1999/11/11 17:10:37 mike Exp $"
 #
 #   Makefile for HTMLDOC data files.
 #
@@ -49,9 +49,9 @@ all:
 #
 
 install:
-	$(MKDIR) $(datadir)/htmldoc
-	$(CP) $(FILES) $(datadir)/htmldoc
-	$(CHMOD) ugo+r $(datadir)/htmldoc/*
+	$(MKDIR) $(datadir)/htmldoc/data
+	$(CP) $(FILES) $(datadir)/htmldoc/data
+	$(CHMOD) ugo+r $(datadir)/htmldoc/data/*
 
 
 #
@@ -61,5 +61,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.1 1999/11/10 15:59:25 mike Exp $".
+# End of "$Id: Makefile,v 1.2 1999/11/11 17:10:37 mike Exp $".
 #
