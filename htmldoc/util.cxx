@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.12 2002/06/04 14:52:13 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.13 2002/07/29 21:28:14 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -230,7 +230,7 @@ get_color(const uchar *color,	/* I - Color attribute */
 // 'get_format()' - Convert an old "fff" format string to the new format.
 //
 
-extern void
+void
 get_format(const char *fmt,		// I - Old "fff" format
            char       **formats)	// O - New format strings
 {
@@ -238,6 +238,13 @@ get_format(const char *fmt,		// I - Old "fff" format
 
 
   for (i = 0; i < 3; i ++)
+  {
+    if (formats[i])
+    {
+      free(formats[i]);
+      formats[i] = NULL;
+    }
+
     switch (fmt[i])
     {
       case '/' :
@@ -304,6 +311,7 @@ get_format(const char *fmt,		// I - Old "fff" format
           formats[i] = NULL;
           break;
     }
+  }
 }
 
 
@@ -311,7 +319,7 @@ get_format(const char *fmt,		// I - Old "fff" format
 // 'get_fmt()' - Convert a new format string to the old "fff" format.
 //
 
-extern const char *			// O - Old format string
+const char *				// O - Old format string
 get_fmt(char **formats)			// I - New format strings
 {
   int		i, j;			// Looping vars
@@ -495,5 +503,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.12 2002/06/04 14:52:13 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.13 2002/07/29 21:28:14 mike Exp $".
  */
