@@ -6,29 +6,31 @@
 
 <H1 ALIGN="RIGHT"><A NAME="BOOKS">Chapter 3 - Generating Books</A></H1>
 
-This chapter describes how to generate whole books from HTML files.
+<p>This chapter describes how to create a book using HTML
+files.</p>
 
 <H2>Overview</H2>
 
-While HTMLDOC can convert web pages into PostScript and PDF files,
-its real strength is generating indexed HTML, PostScript, or PDF books.
+<p>While HTMLDOC can convert web pages into PostScript and PDF
+files, its real strength is generating indexed HTML, PostScript,
+or PDF books.</p>
 
 <P>HTMLDOC uses HTML heading elements to delineate chapters and
 headings in a book.  The <CODE>H1</CODE> element is used for chapters:
 
-<UL><PRE>
-&lt;HTML&gt;
-&lt;HEAD&gt;
-    &lt;TITLE&gt;The Little Computer that Could&lt;/TITLE&gt;
-&lt;/HEAD&gt;
-&lt;BODY&gt;
-&lt;H1&gt;Chapter 1 - The Little Computer is Born&lt;/H1&gt;
-...
-&lt;H1&gt;Chapter 2 - Little Computer's First Task&lt;/H1&gt;
-...
-&lt;/BODY&gt;
-&lt;/HTML&gt;
-</PRE></UL>
+<PRE>
+    &lt;HTML&gt;
+    &lt;HEAD&gt;
+	&lt;TITLE&gt;The Little Computer that Could&lt;/TITLE&gt;
+    &lt;/HEAD&gt;
+    &lt;BODY&gt;
+    &lt;H1&gt;Chapter 1 - The Little Computer is Born&lt;/H1&gt;
+    ...
+    &lt;H1&gt;Chapter 2 - Little Computer's First Task&lt;/H1&gt;
+    ...
+    &lt;/BODY&gt;
+    &lt;/HTML&gt;
+</PRE>
 
 <P>Sub-headings are marked using the <CODE>H2</CODE> through <CODE>H6</CODE>
 elements.</P>
@@ -51,29 +53,29 @@ elements.</P>
 
 <H2>Choosing HTML Files</H2>
 
-<P>Start by clicking on the <VAR>Book</VAR> radio button (1) to specify you'll
-be converting one or more HTML files into a book.
+<P>Start by clicking on the <VAR>Book</VAR> radio button (1) to
+specify you'll be converting one or more HTML files into a book.</p>
 
-<P>Then choose one or more files for conversion by clicking on the
-<VAR>Add Files...</VAR> button (2). When the file chooser dialog appears,
-pick the file(s) you wish to convert from the list of files and then
-click on the <VAR>OK</VAR> button.
+<P>Your next step is to choose one or more files for conversion
+by clicking on the <VAR>Add Files...</VAR> button (2). When the
+file chooser dialog appears, pick the file(s) you wish to
+convert and then click on the <VAR>OK</VAR> button. As discussed
+in Chapter 2, if you don't see the file that you want, double
+click on the folder with <var>../</var> after it.</p>
+
+<p>Also, having all files and images in one folder will make
+file retrieval much easier.</p>
 
 <P ALIGN="CENTER"><IMG SRC="htmldoc-fig31.png">
-<BR>Figure 3-1: The Input Tab
+<BR>Figure 3-1: The Input Tab</p>
 
 <H2>Selecting a Title File</H2>
 
-<P>HTMLDOC supports automatic generation of a title page
-using an image file, the title text, and other <CODE>META</CODE>
-information on it. Type the title image filename into the
-<VAR>Title File</VAR> field or click on the <VAR>Browse...</VAR>
-button (3) to select a title image for your book. HTMLDOC
-can also use a HTML file that you have generated for the title
-page(s). To use a HTML title page, type the title filename into
-the <VAR>Title File</VAR> field or click on the
-<VAR>Browse...</VAR> button (3) to select a HTML file for your
-book.
+<P>HTMLDOC can automatically create a title page for you. Fill
+in the <var>Title File/Image</var> field (3) or click the
+<var>Browse...</var> button (4) to locate the file you want to
+use. If you don't see the file you want, double click on the
+folder with <var>../</var> after it.</p>
 
 <p>When you click on the <VAR>Page</VAR> tab, it brings up the
 screen below. The Header and Footer rows allow you to move the
@@ -81,39 +83,40 @@ header to six different locations: top right, top middle, top
 left. bottom right, bottom middle, and bottom left. The default
 setting is the top middle. Simply click on the arrow tabs to
 change location of the title. This is also where you can place
-your logo, heading, page numbers, chapter headings and titles,
-date and time.</p>
+your logo, page numbers, chapter headings, date, and time.</p>
 
 <P ALIGN="CENTER"><IMG SRC="htmldoc-fig32.png">
-<BR>Figure 3-2: The Output Tab
+<BR>Figure 3-2: The Output Tab</p>
 
 <H2>Setting the Output Format</H2>
 
-<P>The output format is set in the <VAR>Output</VAR> tab (4). Click on the
-<VAR>Output</VAR> tab and then click on the <VAR>HTML</VAR>, <VAR>PS</VAR>,
-or <VAR>PDF</VAR> radio buttons to set the output format.
+<P>The output format is set in the <VAR>Output</VAR> tab (4).
+Click on the <VAR>Output</VAR> tab and then click on the
+<VAR>HTML</VAR>, <VAR>PS</VAR>, or <VAR>PDF</VAR> radio buttons
+to set the output format.</p>
 
 <H2>Setting the Output File</H2>
 
-<P>Now that you've chosen an output format, type the name of the output
-file into the <VAR>Output Path</VAR> field or click on the
-<VAR>Browse...</VAR> button (5) to select the output file using the file
-chooser.
+<P>Now that you've chosen an output format, type the name of the
+output file into the <VAR>Output Path</VAR> field or click on
+the <VAR>Browse...</VAR> button (5) to select the output file
+using the file chooser.</p>
 
 <H2>Generating the Document</H2>
 
-<P>Once you have chosen the output file you can generate it by clicking on the
-<VAR>Generate</VAR> button (6) at the bottom of the HTMLDOC window.
+<P>Once you have chosen the output file you can generate it by
+clicking on the <VAR>Generate</VAR> button (6) at the bottom of
+the HTMLDOC window.</p>
 
 <H2>Saving Your Book</H2>
 
 <P>HTMLDOC can save the list of HTML files, the title
 file, and all other options to a special <CODE>.BOOK</CODE> file
 so you can regenerate your book when you make changes to your
-HTML files.
+HTML files.</p>
 
 <P>Click on the <VAR>Save</VAR> button (7) to save the current
-book to a file.
+book to a file.</p>
 
 </DIV>
 
