@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.2 2000/12/06 18:59:58 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.3 2000/12/08 22:28:47 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -74,6 +74,18 @@ LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
 AC_CHECK_LIB(m,pow)
+AC_CHECK_LIB(socket,socket,
+if test "$uname" != "IRIX"; then
+	LIBS="$LIBS -lsocket"
+else
+	echo "Not using -lsocket since you are running IRIX."
+fi)
+AC_CHECK_LIB(nsl,gethostbyaddr,
+if test "$uname" != "IRIX"; then
+	LIBS="$LIBS -lnsl"
+else
+	echo "Not using -lnsl since you are running IRIX."
+fi)
 
 OLDLIBS="$LIBS"
 
@@ -232,5 +244,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.2 2000/12/06 18:59:58 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.3 2000/12/08 22:28:47 mike Exp $".
 dnl
