@@ -1,4 +1,4 @@
-CHANGES.txt - 07/31/2002
+CHANGES.txt - 08/12/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -24,6 +24,10 @@ CHANGES IN HTMLDOC v1.8.21
 	  inside DIV elements.
 	- HTMLDOC now supports quoted usernames and passwords in
 	  URLs.
+	- HTMLDOC now defaults unknown colors to white for
+	  background colors and black for foreground colors. 
+	  This should make documents that use non-standard color
+	  names still appear readable.
 
     BUG FIXES
 

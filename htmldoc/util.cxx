@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.13 2002/07/29 21:28:14 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.14 2002/08/12 18:08:36 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -197,6 +197,12 @@ get_color(const uchar *color,	/* I - Color attribute */
       rgb[1] = 0.0f;
       rgb[2] = 0.0f;
     }
+    else
+    {
+      rgb[0] = 1.0f;
+      rgb[1] = 1.0f;
+      rgb[2] = 1.0f;
+    }
     return;
   }
   else if (color[0] == '#')
@@ -217,7 +223,12 @@ get_color(const uchar *color,	/* I - Color attribute */
 	break;
 
     if (i >= (int)(sizeof(colors) / sizeof(colors[0])))
-      i = 1; /* Black */
+    {
+      if (defblack)
+        i = 1; /* Black */
+      else
+        i = 17; /* White */
+    }
 
     rgb[0] = colors[i].red / 255.0f;
     rgb[1] = colors[i].green / 255.0f;
@@ -503,5 +514,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.13 2002/07/29 21:28:14 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.14 2002/08/12 18:08:36 mike Exp $".
  */
