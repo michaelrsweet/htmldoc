@@ -1,7 +1,12 @@
-CHANGES.txt - 02/12/2002
+CHANGES.txt - 02/20/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.19
+
+    CHANGES
+
+	- Updated the HTML parser to use HTML 4.0 rules for
+	  embedding elements inside a LI.
 
     BUG FIXES
 
