@@ -1,25 +1,24 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0104 
-i18n_type 1 
-i18n_include "gui.h" 
-i18n_function _ 
+version 1.0011 
 header_name {.h} 
-code_name {.cxx}
+code_name {.cxx} 
+gridx 5 
+gridy 5 
+snap 3
 class HelpDialog {open
 } {
   decl {int index_;} {}
   decl {int max_;} {}
   decl {int line_[100];} {}
   decl {char file_[100][256];} {}
-  decl {int find_pos_;} {}
   Function {HelpDialog()} {open
   } {
     Fl_Window window_ {
       label {Help Dialog} open
-      private xywh {464 372 535 430} resizable
+      private xywh {470 402 530 385} resizable
       code0 {\#include <string.h>} visible
     } {
-      Fl_Help_View view_ {
+      Fl_Group view_ {
         callback {if (view_->changed())
 {
   index_ ++;
@@ -42,7 +41,6 @@ class HelpDialog {open
     back_->deactivate();
 
   forward_->deactivate();
-
   window_->label(view_->title());
 }
 else if (view_->filename())
@@ -50,19 +48,19 @@ else if (view_->filename())
   strncpy(file_[index_], view_->filename(), 255);
   file_[index_][255] = '\\0';
   line_[index_] = view_->topline();
-}}
-        private xywh {0 125 535 305} box DOWN_BOX resizable
+}} open
+        private xywh {10 10 510 330} box DOWN_BOX resizable
+        code0 {\#include "HelpView.h"}
+        class HelpView
+      } {}
+      Fl_Button {} {
+        label Close
+        callback {window_->hide();} selected
+        xywh {425 350 95 25}
       }
-      Fl_Group {} {
-        xywh {0 25 535 55}
-      } {
-        Fl_Pack {} {open
-          xywh {0 25 535 55}
-          code0 {o->type(Fl_Pack::HORIZONTAL);}
-        } {
-          Fl_Button back_ {
-            label Back
-            callback {if (index_ > 0)
+      Fl_Button back_ {
+        label {@<-}
+        callback {if (index_ > 0)
   index_ --;
 
 if (index_ == 0)
@@ -74,11 +72,11 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-            private image {icons/back.xpm} deimage {icons/dback.xpm} xywh {0 25 60 55} box NO_BOX align 17
-          }
-          Fl_Button forward_ {
-            label Forward
-            callback {if (index_ < max_)
+        private xywh {365 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
+      }
+      Fl_Button forward_ {
+        label {@->}
+        callback {if (index_ < max_)
   index_ ++;
 
 if (index_ >= max_)
@@ -90,64 +88,34 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-            private image {icons/forward.xpm} deimage {icons/dforward.xpm} xywh {60 25 60 55} box NO_BOX align 17
-          }
-          Fl_Button smaller_ {
-            label F
-            callback {if (view_->textsize() > 8)
+        private xywh {395 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
+      }
+      Fl_Button smaller_ {
+        label F
+        callback {if (view_->textsize() > 8)
   view_->textsize(view_->textsize() - 2);
 
 if (view_->textsize() <= 8)
   smaller_->deactivate();
 larger_->activate();}
-            private xywh {120 25 55 55} box NO_BOX labelfont 1
-          }
-          Fl_Button larger_ {
-            label F
-            callback {if (view_->textsize() < 18)
+        private xywh {305 350 25 25} labelfont 1 labelsize 10
+      }
+      Fl_Button larger_ {
+        label F
+        callback {if (view_->textsize() < 18)
   view_->textsize(view_->textsize() + 2);
 
 if (view_->textsize() >= 18)
   larger_->deactivate();
 smaller_->activate();}
-            private xywh {175 25 55 55} box NO_BOX labelfont 1 labelsize 40
-          }
-        }
-      }
-      Fl_Group {} {open
-        xywh {0 80 535 45} box THIN_UP_BOX
-      } {
-        Fl_Input find_ {
-          label {Find: }
-          callback {find_pos_ = view_->find(find_->value(), find_pos_);
-
-if (find_pos_ < 0) {
-  fl_beep();
-}} selected
-          private xywh {75 90 450 25} labelfont 1 when 10
-        }
-      }
-      Fl_Menu_Bar {} {open
-        xywh {0 0 535 25}
-      } {
-        submenu {} {
-          label {&File} open
-          xywh {0 0 100 20}
-        } {
-          menuitem {} {
-            label {&Close}
-            callback {window_->hide();}
-            xywh {0 0 100 20} shortcut 0x40077
-          }
-        }
+        private xywh {335 350 25 25} labelfont 1 labelsize 16
       }
     }
     code {back_->deactivate();
 forward_->deactivate();
 
-index_    = -1;
-max_      = 0;
-find_pos_ = 0;} {}
+index_ = -1;
+max_  = 0;} {}
   }
   Function {h()} {return_type int
   } {
@@ -171,11 +139,9 @@ window_->label(view_->title());} {}
   } {
     code {window_->resize(xx, yy, ww, hh);} {}
   }
-  Function {show()} {open return_type void
+  Function {show()} {return_type void
   } {
-    code {char *name = (char *)"HelpDialog";
-
-window_->show(1, &name);} {}
+    code {window_->show();} {}
   }
   Function {textsize(uchar s)} {return_type void
   } {

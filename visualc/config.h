@@ -1,9 +1,9 @@
 /*
- * "$Id: config.h,v 1.20 2000/10/12 23:07:35 mike Exp $"
+ * "$Id: config.h,v 1.20.2.31 2003/01/06 22:09:45 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2003 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -23,18 +23,61 @@
  */
 
 /*
+ * What is the version number for this software?
+ */
+
+#define SVERSION	"1.8.24"
+
+
+/*
+ * Limits for the output "engines"...
+ */
+
+#define MAX_CHAPTERS	1000
+#define MAX_COLUMNS	200
+
+
+/*
+ * Memory allocation units for other stuff...
+ */
+
+#define ALLOC_FILES	10	/* Temporary/image files */
+#define ALLOC_HEADINGS	50	/* Headings */
+#define ALLOC_LINKS	100	/* Web links */
+#define ALLOC_OBJECTS	100	/* PDF objects */
+#define ALLOC_PAGES	10	/* PS/PDF pages */
+#define ALLOC_ROWS	20	/* Table rows */
+
+
+/*
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"C:/mike/htmldoc1/doc"
-#define HTML_DATA	"C:/mike/htmldoc1"
+#define DOCUMENTATION	"C:/Program Files/HTMLDOC/doc"
+#define HTML_DATA	"C:/Program Files/HTMLDOC"
 
 
 /*
  * Do we have the FLTK library?
  */
 
-#define HAVE_LIBFLTK
+#ifndef _CONSOLE
+#  define HAVE_LIBFLTK
+#endif /* !_CONSOLE */
+
+
+/*
+ * Do we have the Xpm library?
+ */
+
+#undef HAVE_LIBXPM
+
+
+/*
+ * Do we have the OpenSSL library?
+ */
+
+#define HAVE_LIBSSL
 
 
 /*
@@ -47,6 +90,20 @@
 
 
 /*
+ * Do we need to use <strings.h>?
+ */
+
+#undef HAVE_STRINGS_H
+
+
+/*
+ * Do we have the <locale.h> header file?
+ */
+
+#define HAVE_LOCALE_H
+
+
+/*
  * Do we have some of the "standard" string functions?
  */
 
@@ -54,27 +111,23 @@
 #define HAVE_STRCASECMP
 #define HAVE_STRNCASECMP
 
+
 /*
- * What is the version number for this software?
+ * How about snprintf() and vsnprintf()?
  */
 
-#define SVERSION	"1.9"
+#define HAVE_SNPRINTF
+#define HAVE_VSNPRINTF
 
 
 /*
- * Limits for the output "engines"...
+ * Does the "tm" structure contain the "tm_gmtoff" member?
  */
 
-#define MAX_CHAPTERS	1000
-#define MAX_COLUMNS	200
-#define MAX_HEADINGS	10000
-#define MAX_IMAGES	1000
-#define MAX_LINKS	20000
-#define MAX_OBJECTS	(10 * MAX_PAGES)
-#define MAX_PAGES	10000
-#define MAX_ROWS	200
+#undef HAVE_TM_GMTOFF
+
 
 /*
- * End of "$Id: config.h,v 1.20 2000/10/12 23:07:35 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.31 2003/01/06 22:09:45 mike Exp $".
  */
 
