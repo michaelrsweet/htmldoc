@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.17 2001/10/17 21:13:41 mike Exp $"
+ * "$Id: config.h,v 1.20.2.18 2001/10/21 19:26:36 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -56,6 +56,13 @@
 
 
 /*
+ * Do we have the <locale.h> header file?
+ *
+
+#define HAVE_LOCALE_H
+
+
+/*
  * Do we have some of the "standard" string functions?
  */
 
@@ -100,6 +107,6 @@
 
 
 /*
- * End of "$Id: config.h,v 1.20.2.17 2001/10/17 21:13:41 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.18 2001/10/21 19:26:36 mike Exp $".
  */
 
