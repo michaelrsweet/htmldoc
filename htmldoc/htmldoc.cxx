@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.57 2003/01/07 03:29:14 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.58 2003/02/28 17:13:05 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -336,8 +336,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         fontsize = atof(argv[i]);
 
-	if (fontsize < 6.0f)
-	  fontsize = 6.0f;
+	if (fontsize < 4.0f)
+	  fontsize = 4.0f;
 	else if (fontsize > 24.0f)
 	  fontsize = 24.0f;
 
@@ -1888,8 +1888,8 @@ parse_options(const char   *line,	// I - Options from book file
       fontsize    = atof(temp2);
       fontspacing = _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
 
-      if (fontsize < 6.0f)
-        fontsize = 6.0f;
+      if (fontsize < 4.0f)
+        fontsize = 4.0f;
       else if (fontsize > 24.0f)
         fontsize = 24.0f;
 
@@ -2209,7 +2209,7 @@ usage(void)
   puts("  --embedfonts");
   puts("  --encryption");
   puts("  --firstpage {p1,toc,c1}");
-  puts("  --fontsize {6.0..24.0}");
+  puts("  --fontsize {4.0..24.0}");
   puts("  --fontspacing {1.0..3.0}");
   puts("  --footer fff");
   puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html,htmlsep}");
@@ -2299,5 +2299,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.57 2003/01/07 03:29:14 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.58 2003/02/28 17:13:05 mike Exp $".
  */
