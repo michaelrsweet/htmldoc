@@ -9,7 +9,7 @@ class FileChooser {open
 } {
   decl {enum { SINGLE, MULTI, CREATE };} {public
   }
-  Function {FileChooser(const char *d, char *p, int t, const char *title)} {open selected
+  Function {FileChooser(const char *d, char *p, int t, const char *title)} {open
   } {
     Fl_Window window {
       label {Pick a File} open
@@ -80,15 +80,18 @@ value(d);} {}
   decl {void fileListCB();} {}
   decl {void fileNameCB();} {}
   decl {void newdir();} {}
-  decl {void rescan();} {public
-  }
   decl {void up();} {}
   Function {color(Fl_Color c)} {} {
     code {fileList->color(c);} {}
   }
+  Function {color()} {return_type Fl_Color
+  } {
+    code {return (fileList->color());} {}
+  }
   decl {int count();} {public
   }
-  decl {void directory(const char *d);} {}
+  decl {void directory(const char *d);} {public
+  }
   Function {directory()} {return_type {char *}
   } {
     code {return directory_;} {}
@@ -117,6 +120,12 @@ rescan();} {}
   Function {label(const char *l)} {return_type void
   } {
     code {window->label(l);} {}
+  }
+  Function {label()} {selected return_type {const char *}
+  } {
+    code {return (window->label());} {}
+  }
+  decl {void rescan();} {public
   }
   Function {show()} {return_type void
   } {

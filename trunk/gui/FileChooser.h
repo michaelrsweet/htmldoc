@@ -46,16 +46,12 @@ private:
   void fileListCB();
   void fileNameCB();
   void newdir();
-public:
-  void rescan();
-private:
   void up();
 public:
   void color(Fl_Color c);
+  Fl_Color color();
   int count();
-private:
   void directory(const char *d);
-public:
   char * directory();
   void filter(const char *p);
   const char * filter();
@@ -63,6 +59,8 @@ public:
   void iconsize(uchar s);
   uchar iconsize();
   void label(const char *l);
+  const char * label();
+  void rescan();
   void show();
   void textcolor(Fl_Color c);
   Fl_Color textcolor();

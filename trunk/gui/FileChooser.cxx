@@ -139,6 +139,10 @@ void FileChooser::color(Fl_Color c) {
   fileList->color(c);
 }
 
+Fl_Color FileChooser::color() {
+  return (fileList->color());
+}
+
 char * FileChooser::directory() {
   return directory_;
 }
@@ -166,6 +170,10 @@ uchar FileChooser::iconsize() {
 
 void FileChooser::label(const char *l) {
   window->label(l);
+}
+
+const char * FileChooser::label() {
+  return (window->label());
 }
 
 void FileChooser::show() {
