@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.43 2002/05/31 12:57:24 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.44 2002/06/04 15:15:05 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -607,6 +607,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       TocNumbers = 0;
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
       PSCommands = 0;
+    else if (compare_strings(argv[i], "--no-strict", 6) == 0)
+      StrictHTML = 0;
     else if (compare_strings(argv[i], "--no-title", 7) == 0)
       TitlePage = 0;
     else if (compare_strings(argv[i], "--no-toc", 7) == 0)
@@ -802,7 +804,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
-    else if (compare_strings(argv[i], "--size", 3) == 0)
+    else if (compare_strings(argv[i], "--size", 4) == 0)
     {
       i ++;
       if (i < argc)
@@ -810,6 +812,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+    else if (compare_strings(argv[i], "--strict", 4) == 0)
+      StrictHTML = 1;
     else if (compare_strings(argv[i], "--textcolor", 7) == 0)
     {
       i ++;
@@ -1280,6 +1284,9 @@ prefs_load(void)
 	strncpy(Proxy, line + 6, sizeof(Proxy) - 1);
 	Proxy[sizeof(Proxy) - 1] = '\0';
       }
+      else if (strncasecmp(line, "STRICTHTML=", 11) == 0)
+        StrictHTML = atoi(line + 11);
+
 #  ifdef HAVE_LIBFLTK
       else if (strncasecmp(line, "EDITOR=", 7) == 0)
         strcpy(HTMLEditor, line + 7);
@@ -1390,6 +1397,7 @@ prefs_save(void)
     fprintf(fp, "TRUETYPE=%d\n", TrueType);
     fprintf(fp, "PATH=%s\n", Path);
     fprintf(fp, "PROXY=%s\n", Proxy);
+    fprintf(fp, "STRICTHTML=%d\n", StrictHTML);
 
 #ifdef HAVE_LIBFLTK
     fprintf(fp, "EDITOR=%s\n", HTMLEditor);
@@ -2230,5 +2238,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.43 2002/05/31 12:57:24 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.44 2002/06/04 15:15:05 mike Exp $".
  */
