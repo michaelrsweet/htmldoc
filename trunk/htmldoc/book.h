@@ -1,5 +1,5 @@
 //
-// "$Id: book.h,v 1.5 2004/04/11 19:38:58 mike Exp $"
+// "$Id: book.h,v 1.6 2004/04/11 21:20:28 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -370,6 +370,11 @@ struct hdBook
   jpeg_destination_mgr	jpg_dest;	/* JPEG destination manager */
   struct jpeg_error_mgr	jerr;		/* JPEG error handler */
 
+  int		heading_numbers[15];
+  uchar		heading_types[15];
+  int		last_level;
+  hdTree	*heading_parents[15];
+
   int		Compression;		// Non-zero means compress PDFs
   bool		TitlePage,		// Need a title page
 		TocLinks,		// Generate links
@@ -462,7 +467,9 @@ struct hdBook
 
   int		htmlsep_export(hdTree *document, hdTree *toc);
 
+  void		toc_add_heading(hdTree *toc, hdTree *heading);
   hdTree	*toc_build(hdTree *tree);
+  void		toc_parse_tree(hdTree *t);
 
   void		get_color(const uchar *c, float *rgb, int defblack = 1);
   const char	*get_fmt(char **formats);
@@ -626,5 +633,5 @@ struct hdBook
 #endif // !HTMLDOC_BOOK_H
 
 //
-// End of "$Id: book.h,v 1.5 2004/04/11 19:38:58 mike Exp $".
+// End of "$Id: book.h,v 1.6 2004/04/11 21:20:28 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: tree.cxx,v 1.25 2004/03/31 10:45:01 mike Exp $"
+ * "$Id: tree.cxx,v 1.26 2004/04/11 21:20:28 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -335,8 +335,8 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
     if (t == NULL)
     {
 #ifndef DEBUG
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
-                     "Unable to allocate memory for HTML tree node!");
+//      progress_error(HD_ERROR_OUT_OF_MEMORY,
+//                     "Unable to allocate memory for HTML tree node!");
 #endif /* !DEBUG */
       break;
     }
@@ -393,7 +393,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	* be supported that we have added this hack...
 	*/
 
-	progress_error(HD_ERROR_HTML_ERROR, "Unquoted < on line %d.", linenum);
+//	progress_error(HD_ERROR_HTML_ERROR, "Unquoted < on line %d.", linenum);
 
 	if (ch == '\n')
 	  linenum ++;
@@ -430,8 +430,8 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	if (parse_markup(t, fp, &linenum) == HD_ELEMENT_ERROR)
 	{
 #ifndef DEBUG
-          progress_error(HD_ERROR_READ_ERROR,
-                         "Unable to parse HTML element on line %d!", linenum);
+//          progress_error(HD_ERROR_READ_ERROR,
+//                         "Unable to parse HTML element on line %d!", linenum);
 #endif /* !DEBUG */
 
           delete_node(t);
@@ -592,10 +592,10 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	      temp->element != HD_ELEMENT_TR)
 	  {
 	    // Log this condition as an error...
-	    progress_error(HD_ERROR_HTML_ERROR,
-	                   "No /%s element before %s element on line %d.",
-	                   _htmlMarkups[temp->element],
-			   _htmlMarkups[t->element], linenum);
+//	    progress_error(HD_ERROR_HTML_ERROR,
+//	                   "No /%s element before %s element on line %d.",
+//	                   _htmlMarkups[temp->element],
+//			   _htmlMarkups[t->element], linenum);
 	    DEBUG_printf(("%sNo /%s element before %s element on line %d.\n",
 	                  indent, _htmlMarkups[temp->element],
 			  _htmlMarkups[t->element], linenum));
@@ -670,9 +670,9 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	  if (t->element != HD_ELEMENT_UNKNOWN &&
 	      t->element != HD_ELEMENT_COMMENT)
 	  {
-	    progress_error(HD_ERROR_HTML_ERROR,
-	                   "Dangling /%s element on line %d.",
-			   _htmlMarkups[t->element], linenum);
+//	    progress_error(HD_ERROR_HTML_ERROR,
+//	                   "Dangling /%s element on line %d.",
+//			   _htmlMarkups[t->element], linenum);
 	    DEBUG_printf(("%sDangling /%s element on line %d.\n",
 			  indent, _htmlMarkups[t->element], linenum));
           }
@@ -708,8 +708,8 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 
           if (glyphptr == glyph)
 	  {
-	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
-	                   linenum);
+//	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+//	                   linenum);
             ch = '&';
 	  }
 	  else
@@ -768,8 +768,8 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 
           if (glyphptr == glyph)
 	  {
-	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
-	                   linenum);
+//	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+//	                   linenum);
             ch = '&';
 	  }
 	  else
@@ -845,9 +845,9 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	  else
             compute_color(t, _htmlTextColor);
 
-          if ((color = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL &&
-	      !BodyColor[0])
-	    strcpy(BodyColor, (char *)color);
+//          if ((color = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL &&
+//	      !BodyColor[0])
+//	    strcpy(BodyColor, (char *)color);
 
           // Update the background image as necessary...
           if ((filename = htmlGetVariable(t, (uchar *)"BACKGROUND")) != NULL)
@@ -1001,10 +1001,10 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
               fclose(embed);
             }
 #ifndef DEBUG
-	    else
-	      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                             "Unable to embed \"%s\" - %s", filename,
-	                     strerror(errno));
+//	    else
+//	      progress_error(HD_ERROR_FILE_NOT_FOUND,
+//                             "Unable to embed \"%s\" - %s", filename,
+//	                     strerror(errno));
 #endif /* !DEBUG */
 	  }
           break;
@@ -2060,9 +2060,9 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
       _htmlInitialized = 1;
     }
 #ifndef DEBUG
-    else
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open psglyphs data file!");
+//    else
+//      progress_error(HD_ERROR_FILE_NOT_FOUND,
+//                     "Unable to open psglyphs data file!");
 #endif /* !DEBUG */
   }
 
@@ -2080,8 +2080,8 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
     */
 
 #ifndef DEBUG
-    progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to open character set file %s!", cs);
+//    progress_error(HD_ERROR_FILE_NOT_FOUND,
+//                   "Unable to open character set file %s!", cs);
 #endif /* !DEBUG */
 
     for (i = 0; i < 256; i ++)
@@ -2156,8 +2156,8 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
       if ((fp = fopen(filename, "r")) == NULL)
       {
 #ifndef DEBUG
-        progress_error(HD_ERROR_FILE_NOT_FOUND,
-                       "Unable to open font width file %s!", filename);
+//        progress_error(HD_ERROR_FILE_NOT_FOUND,
+//                       "Unable to open font width file %s!", filename);
 #endif /* !DEBUG */
         continue;
       }
@@ -2292,8 +2292,8 @@ insert_space(hdTree *parent,	// I - Parent node
   if (space == NULL)
   {
 #ifndef DEBUG
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory for HTML tree node!");
+//    progress_error(HD_ERROR_OUT_OF_MEMORY,
+//                   "Unable to allocate memory for HTML tree node!");
 #endif /* !DEBUG */
     return;
   }
@@ -2598,8 +2598,12 @@ compute_size(hdTree *t)		/* I - Tree entry */
     width_ptr  = htmlGetVariable(t, (uchar *)"WIDTH");
     height_ptr = htmlGetVariable(t, (uchar *)"HEIGHT");
 
+#if 0 // NEED TO FIX THIS
     img = image_load((char *)htmlGetVariable(t, (uchar *)"REALSRC"),
                      _htmlGrayscale);
+#else
+    img = NULL;
+#endif // 0
 
     if (width_ptr != NULL && height_ptr != NULL)
     {
@@ -2730,7 +2734,7 @@ compute_color(hdTree *t,	/* I - Tree entry */
   float	rgb[3];			/* RGB color */
 
 
-  get_color(color, rgb);
+//  get_color(color, rgb);
 
   t->red   = (uchar)(rgb[0] * 255.0f + 0.5f);
   t->green = (uchar)(rgb[1] * 255.0f + 0.5f);
@@ -2805,23 +2809,8 @@ fix_filename(char *filename,		/* I - Original filename */
   if (filename == NULL)
     return (NULL);
 
-  if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
-    return (file_find(Path, filename));
-
-#ifdef MAC
-  //
-  // Convert UNIX/DOS/WINDOWS slashes to colons for MacOS...
-  //
-  // Question: WHY doesn't the Mac standard C library do this for
-  // you???
-  //
-
-  for (slash = strchr(filename, '/'); slash != NULL; slash = strchr(slash + 1, '/'))
-    *slash = ':';
-
-  for (slash = strchr(filename, '\\'); slash != NULL; slash = strchr(slash + 1, '\\'))
-    *slash = ':';
-#endif // MAC
+//  if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
+//    return (file_find(Path, filename));
 
   if (strncmp(filename, "./", 2) == 0 ||
       strncmp(filename, ".\\", 2) == 0)
@@ -2846,9 +2835,9 @@ fix_filename(char *filename,		/* I - Original filename */
   }
   else
   {
-    if (filename[0] == '/' || filename[0] == '\\' || base == NULL ||
-	base[0] == '\0' || (isalpha(filename[0]) && filename[1] == ':'))
-      return (file_find(Path, filename)); /* No change needed for absolute path */
+//    if (filename[0] == '/' || filename[0] == '\\' || base == NULL ||
+//	base[0] == '\0' || (isalpha(filename[0]) && filename[1] == ':'))
+//      return (file_find(Path, filename)); /* No change needed for absolute path */
 
     strcpy(newfilename, base);
     base = newfilename;
@@ -2907,7 +2896,8 @@ fix_filename(char *filename,		/* I - Original filename */
 
   strcat(newfilename, filename);
 
-  return (file_find(Path, newfilename));
+  return (newfilename);
+//  return (file_find(Path, newfilename));
 }
 
 
@@ -2967,11 +2957,11 @@ htmlDebugStats(const char *title,	// I - Title
       (strstr(debug, "all") == NULL && strstr(debug, "memory") == NULL))
     return;
 
-  progress_error(HD_ERROR_NONE, "DEBUG: %s = %d kbytes", title,
-                 (html_memory_used(t) + 1023) / 1024);
+//  progress_error(HD_ERROR_NONE, "DEBUG: %s = %d kbytes", title,
+//                 (html_memory_used(t) + 1023) / 1024);
 }
 
 
 /*
- * End of "$Id: tree.cxx,v 1.25 2004/03/31 10:45:01 mike Exp $".
+ * End of "$Id: tree.cxx,v 1.26 2004/04/11 21:20:28 mike Exp $".
  */

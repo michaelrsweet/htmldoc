@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.20 2004/03/31 08:39:12 mike Exp $"
+ * "$Id: file.c,v 1.21 2004/04/11 21:20:28 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -46,7 +46,6 @@
 
 #include "file.h"
 #include "http.h"
-#include "progress.h"
 #include "debug.h"
 
 #if defined(WIN32)
@@ -187,6 +186,7 @@ file_cleanup(void)
     * Yes, leave the files, but show the mapping from filename to URL...
     */
 
+#if 0
     progress_error(HD_ERROR_NONE, "DEBUG: Temporary File Summary");
     progress_error(HD_ERROR_NONE, "DEBUG:");
     progress_error(HD_ERROR_NONE, "DEBUG: URL                             Filename");
@@ -201,6 +201,7 @@ file_cleanup(void)
     }
 
     progress_error(HD_ERROR_NONE, "DEBUG:");
+#endif /* 0 */
 
     return;
   }
@@ -210,11 +211,14 @@ file_cleanup(void)
     snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
              (long)getpid(), web_files);
 
+#if 0
     if (unlink(filename))
       progress_error(HD_ERROR_DELETE_ERROR,
                      "Unable to delete temporary file \"%s\": %s",
                      filename, strerror(errno));
-
+#else
+    unlink(filename);
+#endif /* 0 */
     web_files --;
 
     if (web_cache[web_files].name)
@@ -452,7 +456,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
       if (http == NULL)
       {
-        progress_show("Connecting to %s...", connhost);
+/*        progress_show("Connecting to %s...", connhost);*/
         atexit(file_cleanup);
 
 #ifdef HAVE_LIBSSL
@@ -466,14 +470,14 @@ file_find_check(const char *filename)	/* I - File or URL */
 
         if (http == NULL)
 	{
-          progress_hide();
+/*          progress_hide();
           progress_error(HD_ERROR_NETWORK_ERROR,
 	                 "Unable to connect to %s!", connhost);
-          return (NULL);
+*/          return (NULL);
         }
       }
 
-      progress_show("Getting %s...", connpath);
+/*      progress_show("Getting %s...", connpath);*/
 
       httpClearFields(http);
       httpSetField(http, HTTP_FIELD_HOST, hostname);
@@ -514,18 +518,18 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     if (status != HTTP_OK)
     {
-      progress_hide();
-      progress_error((HDerror)status, "%s", httpStatus(status));
+/*      progress_hide();
+      progress_error((HDerror)status, "%s", httpStatus(status));*/
       httpFlush(http);
       return (NULL);
     }
 
     if ((fp = file_temp(tempname, sizeof(tempname))) == NULL)
     {
-      progress_hide();
+/*      progress_hide();
       progress_error(HD_ERROR_WRITE_ERROR,
                      "Unable to create temporary file \"%s\": %s", tempname,
-                     strerror(errno));
+                     strerror(errno));*/
       httpFlush(http);
       return (NULL);
     }
@@ -537,11 +541,11 @@ file_find_check(const char *filename)	/* I - File or URL */
     while ((bytes = httpRead(http, resource, sizeof(resource))) > 0)
     {
       count += bytes;
-      progress_update((100 * count / total) % 101);
+/*      progress_update((100 * count / total) % 101);*/
       fwrite(resource, 1, (size_t)bytes, fp);
     }
 
-    progress_hide();
+/*    progress_hide();*/
 
     fclose(fp);
 
@@ -1009,9 +1013,9 @@ file_temp(char   *name,			/* O - Filename */
 
     if (temp == NULL)
     {
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
+/*      progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d file entries - %s",
-                     web_alloc, strerror(errno));
+                     web_alloc, strerror(errno));*/
       web_alloc -= ALLOC_FILES;
       return (NULL);
     }
@@ -1057,5 +1061,5 @@ file_temp(char   *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.20 2004/03/31 08:39:12 mike Exp $".
+ * End of "$Id: file.c,v 1.21 2004/04/11 21:20:28 mike Exp $".
  */

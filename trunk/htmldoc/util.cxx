@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.4 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: util.cxx,v 1.5 2004/04/11 21:20:28 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -23,14 +23,14 @@
  *
  * Contents:
  *
- *   format_number()   - Format a number into arabic numerals, roman numerals,
+ *   hdBook::format_number()   - Format a number into arabic numerals, roman numerals,
  *                       or letters.
- *   get_color()       - Get a standard color value...
- *   get_format()      - Convert an old "fff" format string to the new format.
- *   get_fmt()         - Convert a new format string to the old "fff" format.
- *   get_measurement() - Get a size measurement in inches, points, centimeters,
+ *   hdBook::get_color()       - Get a standard color value...
+ *   hdBook::get_format()      - Convert an old "fff" format string to the new format.
+ *   hdBook::get_fmt()         - Convert a new format string to the old "fff" format.
+ *   hdBook::get_measurement() - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
- *   set_page_size()   - Set the output page size.
+ *   hdBook::set_page_size()   - Set the output page size.
  */
 
 /*
@@ -42,12 +42,12 @@
 
 
 /*
- * 'format_number()' - Format a number into arabic numerals, roman numerals,
+ * 'hdBook::format_number()' - Format a number into arabic numerals, roman numerals,
  *                     or letters.
  */
 
 char *				/* O - String */
-format_number(int  n,		/* I - Number */
+hdBook::format_number(int  n,		/* I - Number */
               char f)		/* I - Format */
 {
   static const char *ones[10] =	/* Roman numerals, 0-9 */
@@ -133,11 +133,11 @@ format_number(int  n,		/* I - Number */
 
 
 /*
- * 'get_color()' - Get a standard color value...
+ * 'hdBook::get_color()' - Get a standard color value...
  */
 
 void
-get_color(const uchar *color,	/* I - Color attribute */
+hdBook::get_color(const uchar *color,	/* I - Color attribute */
           float       *rgb,	/* O - RGB value */
 	  int         defblack)	/* I - Default color is black? */
 {
@@ -238,11 +238,11 @@ get_color(const uchar *color,	/* I - Color attribute */
 
 
 //
-// 'get_format()' - Convert an old "fff" format string to the new format.
+// 'hdBook::get_format()' - Convert an old "fff" format string to the new format.
 //
 
 void
-get_format(const char *fmt,		// I - Old "fff" format
+hdBook::get_format(const char *fmt,		// I - Old "fff" format
            char       **formats)	// O - New format strings
 {
   int	i;				// Looping var
@@ -327,11 +327,11 @@ get_format(const char *fmt,		// I - Old "fff" format
 
 
 //
-// 'get_fmt()' - Convert a new format string to the old "fff" format.
+// 'hdBook::get_fmt()' - Convert a new format string to the old "fff" format.
 //
 
 const char *				// O - Old format string
-get_fmt(char **formats)			// I - New format strings
+hdBook::get_fmt(char **formats)			// I - New format strings
 {
   int		i, j;			// Looping vars
   static char	fmt[4];			// Old format string
@@ -375,12 +375,12 @@ get_fmt(char **formats)			// I - New format strings
 
 
 /*
- * 'get_measurement()' - Get a size measurement in inches, points, centimeters,
+ * 'hdBook::get_measurement()' - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
  */
 
 int				/* O - Measurement in points */
-get_measurement(const char *s,	/* I - Measurement string */
+hdBook::get_measurement(const char *s,	/* I - Measurement string */
                 float      mul)	/* I - Multiplier */
 {
   float	val;			/* Measurement value */
@@ -412,11 +412,11 @@ get_measurement(const char *s,	/* I - Measurement string */
 
 
 /*
- * 'set_page_size()' - Set the output page size.
+ * 'hdBook::set_page_size()' - Set the output page size.
  */
 
 void
-set_page_size(const char *size)	/* I - Page size string */
+hdBook::set_page_size(const char *size)	/* I - Page size string */
 {
   float	width,			/* Width in points */
 	length;			/* Length in points */
@@ -514,5 +514,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.4 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: util.cxx,v 1.5 2004/04/11 21:20:28 mike Exp $".
  */
