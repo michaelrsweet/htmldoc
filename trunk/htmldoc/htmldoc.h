@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.20 2000/10/19 00:41:42 mike Exp $"
+// "$Id: htmldoc.h,v 1.21 2000/11/06 19:53:03 mike Exp $"
 //
 //   Header file for HTMLDOC, a HTML document processing program.
 //
@@ -118,25 +118,33 @@ enum			//// PDF document permissions
 
 enum HDparam		//// HTMLDOC parameters...
 {
+  HD_BASE_SIZE,
   HD_BODY_COLOR,
+  HD_BODY_FONT,
   HD_BODY_IMAGE,
   HD_BROWSER_WIDTH,
+  HD_CHARSET,
   HD_COMPRESSION,
+  HD_DATADIR,
   HD_ENCRYPTION,
   HD_ERRORS,
   HD_FOOTER,
   HD_HEADER,
+  HD_HEADING_FONT,
   HD_HEAD_FOOT_SIZE,
   HD_HEAD_FOOT_STYLE,
   HD_HEAD_FOOT_TYPE,
+  HD_HELPDIR,
   HD_HTML_EDITOR,
   HD_LANDSCAPE,
+  HD_LINE_SPACING,
   HD_LINK_COLOR,
   HD_LINK_STYLE,
   HD_LOGO_IMAGE,
   HD_OUTPUT_BOOK,
   HD_OUTPUT_COLOR,
   HD_OUTPUT_FILES,
+  HD_OUTPUT_FORMAT,
   HD_OUTPUT_JPEG,
   HD_OUTPUT_PATH,
   HD_OWNER_PASSWORD,
@@ -160,7 +168,8 @@ enum HDparam		//// HTMLDOC parameters...
   HD_PERMISSIONS,
   HD_PS_COMMANDS,
   HD_PS_LEVEL,
-  HD_TITLE_IMAGE,
+  HD_TEXT_COLOR,
+  HD_TITLE_FILE,
   HD_TITLE_PAGE,
   HD_TOC_DOC_COUNT,
   HD_TOC_FOOTER,
@@ -180,6 +189,13 @@ enum			//// Render types
   RENDER_BOX,
   RENDER_FBOX,
   RENDER_LINK
+};
+
+enum			//// Output types
+{
+  OUTPUT_HTML,
+  OUTPUT_PS,
+  OUTPUT_PDF
 };
 
 
@@ -232,7 +248,8 @@ class HTMLDOC
   HDtree	*doc_,			// Document tree
 		*toc_;			// Table of contents tree
 
-  int		num_files_;		// Number of files in document
+  int		num_files_,		// Number of files in document
+		alloc_files_;		// Allocated files
   char		**files_;		// Filenames
 
   int		in_title_page_;		// Formatting title page?
@@ -254,7 +271,7 @@ class HTMLDOC
 		**endpages_;		// End of page data
   uchar		**page_chapters_,	// Current chapter heading
 		**page_headings_;	// Current heading for each page
-  HDtree	*current_heading;	// Current heading this page
+  HDtree	*current_heading_;	// Current heading this page
 
   int		num_links_,		// Number of links
 		alloc_links_;		// Allocated links
@@ -273,7 +290,7 @@ class HTMLDOC
 		pages_object_,		// Root page object in PDF file
 		names_object_,		// Names object in PDF file
 		encrypt_object_,	// Encryption object in PDF file
-		**annots_objects_,	// Annotation objects in PDF file
+		*annots_objects_,	// Annotation objects in PDF file
 		background_object_,	// Background image object
 		font_objects_[16];	// Font objects
   HDimage	*logo_image_;		// Logo image
@@ -282,6 +299,7 @@ class HTMLDOC
   HDimage	*title_image_,		// Title image
 		*body_image_;		// Background image
   float		body_rgb_[3],		// Background color
+		text_rgb_[3],		// Text color
 		link_rgb_[3];		// Link color
 
   int		render_typeface_,	// Current text typeface
@@ -298,10 +316,9 @@ class HTMLDOC
   rc4_context_t	encrypt_state_;		// Encryption context
   md5_byte_t	file_id_[16];		// File ID
 
-  FILE		*jpg_file;		// JPEG file
-  uchar		jpg_buf[8192];		// JPEG buffer
-  jpeg_destination_mgr	jpg_dest;	// JPEG destination manager
-  struct jpeg_error_mgr	jerr;		// JPEG error handler
+  uchar		jpeg_buffer_[8192];	// JPEG buffer
+  jpeg_destination_mgr	jpeg_dest_;	// JPEG destination manager
+  struct jpeg_error_mgr	jpeg_err_;	// JPEG error handler
 
   int		verbosity_;		// Verbosity
   int		errors_;		// Number of errors
@@ -312,13 +329,14 @@ class HTMLDOC
 		toc_numbers_;		// Generate heading numbers
   int		output_book_;		// Output a "book"
   char		output_path_[1024];	// Output directory/name
-  int		output_files_,		// Generate multiple files?
+  int		output_format_,		// Output format (HTML/PS/PDF)
+		output_files_,		// Generate multiple files?
 		output_color_;		// Output color images
   int		output_jpeg_;		// JPEG compress images?
   float		pdf_version_;		// Version of PDF to support
   int		pdf_page_mode_,		// PageMode attribute
 		pdf_page_layout_,	// PageLayout attribute
-		pdf_first_page_,		// First page
+		pdf_first_page_,	// First page
 		pdf_effect_;		// Page transition effect
   float		pdf_effect_duration_,	// Page effect duration
 		pdf_page_duration_;	// Page duration
@@ -339,6 +357,11 @@ class HTMLDOC
 		page_duplex_,		// Adjust margins/pages for duplexing?
 		landscape_;		// Landscape orientation?
 
+  char		char_set_[128];		// Character set
+  HDtypeface	body_font_,		// Body typeface
+		heading_font_;		// Heading typeface
+  float		base_size_,		// Base font size
+		line_spacing_;		// Line spacing
   HDtypeface	head_foot_type_;	// Typeface for header & footer
   HDstyle	head_foot_style_;	// Type style
   float		head_foot_size_;	// Size of header & footer
@@ -353,6 +376,7 @@ class HTMLDOC
 		logo_file_[1024],	// Logo image file
 		body_color_[255],	// Body color
 		body_file_[1024],	// Body image file
+		text_color_[255],	// Text color
 		link_color_[255];	// Link color
   int		link_style_;		// 1 = underline_, 0 = plain
   int		browser_width_;		// Browser width
@@ -493,8 +517,9 @@ class HTMLDOC
   static void	get_color(const uchar *c, float *rgb, int defblack = 1);
   static int	get_measurement(const char *s);
 
-  static char		path[2048];		// Search path
+  static char		help_dir[1024];		// Directory for help files
   static char		html_editor[1024];	// HTML editor
+  static char		path[2048];		// Search path
   static HDprogress	*progress;		// Progress reporting class
 };
 
@@ -561,5 +586,5 @@ class HTMLDOC
 #endif // !_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.20 2000/10/19 00:41:42 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.21 2000/11/06 19:53:03 mike Exp $".
 //

@@ -1,208 +1,264 @@
-/*
- * "$Id: htmldoc.cxx,v 1.37 2000/10/16 03:25:07 mike Exp $"
- *
- *   HTMLDOC class routines for HTMLDOC, a HTML document processing program.
- *
- *   Copyright 1997-2000 by Easy Software Products.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: ESP Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
- *
- *       Voice: (301) 373-9600
- *       EMail: info@easysw.com
- *         WWW: http://www.easysw.com
- *
- * Contents:
- */
+//
+// "$Id: htmldoc.cxx,v 1.38 2000/11/06 19:53:03 mike Exp $"
+//
+//   HTMLDOC class routines for HTMLDOC, a HTML document processing program.
+//
+//   Copyright 1997-2000 by Easy Software Products.
+//
+//   These coded instructions, statements, and computer programs are the
+//   property of Easy Software Products and are protected by Federal
+//   copyright law.  Distribution and use rights are outlined in the file
+//   "COPYING.txt" which should have been included with this file.  If this
+//   file is missing or damaged please contact Easy Software Products
+//   at:
+//
+//       Attn: ESP Licensing Information
+//       Easy Software Products
+//       44141 Airport View Drive, Suite 204
+//       Hollywood, Maryland 20636-3111 USA
+//
+//       Voice: (301) 373-9600
+//       EMail: info@easysw.com
+//         WWW: http://www.easysw.com
+//
+// Contents:
+//
+//
 
-float		HDtree:browser_width = 680.0f;
-					/* Browser width for pixel scaling */
-
-VAR int		Verbosity	VALUE(0);	/* Verbosity */
-VAR int		Errors		VALUE(0);	/* Number of errors */
-VAR int		Compression	VALUE(1);	/* Non-zero means compress PDFs */
-VAR int		TitlePage	VALUE(1),	/* Need a title page */
-		TocLevels	VALUE(3),	/* Number of table-of-contents levels */
-		TocLinks	VALUE(1),	/* Generate links */
-		TocNumbers	VALUE(0),	/* Generate heading numbers */
-		TocDocCount	VALUE(0);	/* Number of chapters */
-VAR int		OutputBook	VALUE(1);	/* Output a "book" */
-VAR char	OutputPath[255]	VALUE("");	/* Output directory/name */
-VAR int		OutputFiles	VALUE(0),	/* Generate multiple files? */
-		OutputColor	VALUE(1);	/* Output color images */
-VAR int		OutputJPEG	VALUE(0);	/* JPEG compress images? */
-VAR float	PDFVersion	VALUE(1.2);	/* Version of PDF to support */
-VAR int		PDFPageMode	VALUE(PDF_OUTLINE),
-						/* PageMode attribute */
-		PDFPageLayout	VALUE(PDF_SINGLE),
-						/* PageLayout attribute */
-		PDFFirstPage	VALUE(PDF_CHAPTER_1),
-						/* First page */
-		PDFEffect	VALUE(PDF_NONE);/* Page transition effect */
-VAR float	PDFEffectDuration VALUE(1.0),	/* Page effect duration */
-		PDFPageDuration	VALUE(10.0);	/* Page duration */
-VAR int		Encryption	VALUE(0),	/* Encrypt the PDF file? */
-		Permissions	VALUE(-4);	/* File permissions? */
-VAR char	OwnerPassword[33] VALUE(""),	/* Owner password */
-		UserPassword[33] VALUE("");	/* User password */
-VAR int		PSLevel		VALUE(2),	/* Language level (0 for PDF) */
-		PSCommands	VALUE(0);	/* Output PostScript commands? */
-VAR int		PageWidth	VALUE(595),	/* Page width in points */
-		PageLength	VALUE(792),	/* Page length in points */
-		PageLeft	VALUE(72),	/* Left margin */
-		PageRight	VALUE(36),	/* Right margin */
-		PageTop		VALUE(36),	/* Top margin */
-		PageBottom	VALUE(36),	/* Bottom margin */
-		PagePrintWidth,			/* Printable width */
-		PagePrintLength,		/* Printable length */
-		PageDuplex	VALUE(0),	/* Adjust margins/pages for duplexing? */
-		Landscape	VALUE(0);	/* Landscape orientation? */
-
-VAR typeface_t	HeadFootType	VALUE(TYPE_HELVETICA);
-						/* Typeface for header & footer */
-VAR style_t	HeadFootStyle	VALUE(STYLE_NORMAL);
-						/* Type style */
-VAR float	HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
-
-VAR char	Header[4]	VALUE(".t."),	/* Header for regular pages */
-		TocHeader[4]	VALUE(".t."),	/* Header for TOC pages */
-		Footer[4] 	VALUE("h.1"),	/* Regular page footer */
-		TocFooter[4]	VALUE("..i"),	/* Footer for TOC pages */
-		TocTitle[1024]	VALUE("Table of Contents");
-						/* TOC title string */
-
-VAR char	TitleImage[255]	VALUE(""),	/* Title page image */
-		LogoImage[255]	VALUE(""),	/* Logo image */
-		BodyColor[255]	VALUE(""),	/* Body color */
-		BodyImage[255]	VALUE(""),	/* Body image */
-		LinkColor[255]	VALUE("");	/* Link color */
-VAR int		LinkStyle	VALUE(1);	/* 1 = underline, 0 = plain */
-VAR char	Path[2048]	VALUE("");	/* Search path */
-
-VAR char	*PDFModes[3]			/* Mode strings */
-#  ifdef _HTMLDOC_C_
-= { "document", "outline", "fullscreen" }
-#  endif /* _HTMLDOC_C_ */
-;
-VAR char	*PDFLayouts[4]			/* Layout strings */
-#  ifdef _HTMLDOC_C_
-= { "single", "one", "twoleft", "tworight" }
-#  endif /* _HTMLDOC_C_ */
-;
-VAR char	*PDFPages[3]			/* First page strings */
-#  ifdef _HTMLDOC_C_
-= { "p1", "toc", "c1" }
-#  endif /* _HTMLDOC_C_ */
-;
-VAR char	*PDFEffects[17]			/* Effect strings */
-#  ifdef _HTMLDOC_C_
-= { "none", "bi", "bo", "d", "gd", "gdr", "gr", "hb", "hsi", "hso",
-    "vb", "vsi", "vso", "wd", "wl", "wr", "wu" }
-#  endif /* _HTMLDOC_C_ */
-;
-
-#ifdef HAVE_LIBFLTK
-VAR GUI		*BookGUI	VALUE(NULL);	/* GUI for book files */
-#  ifdef WIN32					/* Editor for HTML files */
-VAR char	HTMLEditor[1024] VALUE("notepad.exe %s");
-#  else
-VAR char	HTMLEditor[1024] VALUE("nedit %s");
-#  endif /* WIN32 */
-#endif /* HAVE_LIBFLTK */
-
-/*
- * Include necessary headers.
- */
-
-#define _HTMLDOC_C_
 #include "htmldoc.h"
-#include <ctype.h>
-
-#if defined(WIN32) || defined(__EMX__)
-#  include <io.h>
-#endif // WIN32 || __EMX__
-#include <fcntl.h>
 
 
-/*
- * Local functions...
- */
+//
+// Globals...
+//
 
-static void	usage(void);
-static int	compare_strings(char *s, char *t, int tmin);
+char		HTMLDOC::path[2048] = "";	// Search path
+#ifdef WIN32					// Editor for HTML files
+char		HTMLDOC::html_editor[1024] = "notepad.exe %s";
+#else
+char		HTMLDOC::html_editor[1024] = "nedit %s";
+#endif // WIN32
+HDprogress	*HTMLDOC::progress = NULL;	// Progress class
+
+//
+// Local globals...
+//
+
+static char	*pdf_modes[] =			// Mode strings
+		{
+		  "document",
+		  "outline",
+		  "fullscreen"
+		};
+static char	*pdf_layouts[] = 		// Layout strings
+		{
+		  "single",
+		  "one",
+		  "twoleft",
+		  "tworight"
+		};
+static char	*pdf_pages[] =			// First page strings
+		{
+		  "p1",
+		  "toc",
+		  "c1"
+		};
+static char	*pdf_effects[] =		// Effect strings
+		{
+		  "none",
+		  "bi",
+		  "bo",
+		  "d",
+		  "gd",
+		  "gdr",
+		  "gr",
+		  "hb",
+		  "hsi",
+		  "hso",
+		  "vb",
+		  "vsi",
+		  "vso",
+		  "wd",
+		  "wl",
+		  "wr",
+		  "wu"
+		};
 
 
-/*
- * 'main()' - Main entry for HTMLDOC.
- */
+//
+// Local functions...
+//
 
-#ifdef MAC		// MacOS subverts ANSI C...
-int
-main(void)
+static int	compare_strings(const char *s, const char *t, int tmin);
+
+
+//
+// 'HTMLDOC::HTMLDOC()' - Create an HTMLDOC document.
+//
+
+HTMLDOC::HTMLDOC()
 {
-  int		argc;	// Number of command-line arguments
-  char		**argv;	// Command-line arguments
+  out_                 = NULL;
+  doc_                 = NULL;
+  toc_                 = NULL;
+  num_files_           = 0;
+  alloc_files_         = 0;
+  files_               = NULL;
+  in_title_page_       = 0;
+  chapter_             = 0;
+  num_chapters_        = 0;
+  memset(chapter_starts_, 0, sizeof(chapter_starts_));
+  memset(chapter_ends_, 0, sizeof(chapter_ends_));
+
+  num_headings_        = 0;
+  alloc_headings_      = 0;
+  heading_pages_       = NULL;
+  heading_tops_        = NULL;
+
+  num_pages_           = 0;
+  alloc_pages_         = 0;
+  pages_               = NULL;
+  endpages_            = NULL;
+  page_chapters_       = NULL;
+  page_headings_       = NULL;
+  current_heading_     = NULL;
+
+  num_links_           = 0;
+  alloc_links_         = 0;
+  links_               = NULL;
+
+  memset(list_types_, 0, sizeof(list_types_));
+  memset(list_values_, 0, sizeof(list_values_));
+
+  memset(tempfile_, 0, sizeof(tempfile_));
+
+  num_objects_         = 0;
+  alloc_objects_       = 0;
+  objects_             = 0;
+  root_object_         = 0;
+  info_object_         = 0;
+  outline_object_      = 0;
+  pages_object_        = 0;
+  names_object_        = 0;
+  encrypt_object_      = 0;
+  annots_objects_      = NULL;
+  background_object_   = 0;
+  memset(font_objects_, 0, sizeof(font_objects_));
+
+  logo_image_          = NULL;
+  logo_width_          = 0.0f;
+  logo_height_         = 0.0f;
+  title_image_         = NULL;
+  body_image_          = NULL;
+  body_rgb_[0]         = 1.0f;
+  body_rgb_[1]         = 1.0f;
+  body_rgb_[2]         = 1.0f;
+  link_rgb_[0]         = 0.0f;
+  link_rgb_[1]         = 0.0f;
+  link_rgb_[2]         = 1.0f;
+
+  render_typeface_     = -1;
+  render_style_        = -1;
+  render_size_         = 0.0f;
+  render_rgb_[0]       = -1.0f;
+  render_rgb_[1]       = -1.0f;
+  render_rgb_[2]       = -1.0f;
+  render_x_            = -1.0f;
+  render_y_            = -1.0f;
+  render_startx_       = -1.0f;
+
+  verbosity_           = 0;
+  errors_              = 0;
+  compression_         = 0;
+  title_page_          = 1;
+  toc_levels_          = 3;
+  toc_links_           = 1;
+  toc_numbers_         = 0;
+  output_book_         = 1;
+
+  memset(output_path_, 0, sizeof(output_path_));
+
+  output_files_        = 1;
+  output_format_       = OUTPUT_HTML;
+  output_color_        = 1;
+  output_jpeg_         = 75;
+  pdf_version_         = 1.2f;
+  pdf_page_mode_       = PDF_OUTLINE;
+  pdf_page_layout_     = PDF_SINGLE;
+  pdf_first_page_      = PDF_CHAPTER_1;
+  pdf_effect_          = PDF_NONE;
+  pdf_effect_duration_ = 1.0f;
+  pdf_page_duration_   = 10.0f;
+  encryption_          = 0;
+  permissions_         = -3;
+
+  memset(owner_password_, 0, sizeof(owner_password_));
+  memset(user_password_, 0, sizeof(user_password_));
+
+  ps_level_            = 2;
+  ps_commands_         = 0;
+  page_width_          = 595;
+  page_length_         = 792;
+  page_left_           = 72;
+  page_right_          = 36;
+  page_top_            = 36;
+  page_bottom_         = 36;
+  page_duplex_         = 0;
+  landscape_           = 0;
+
+  strcpy(char_set_, "iso-8859-1");
+
+  body_font_           = TYPE_TIMES;
+  heading_font_        = TYPE_HELVETICA;
+  base_size_           = 11.0f;
+  line_spacing_        = 1.2f;
+  head_foot_type_      = TYPE_HELVETICA;
+  head_foot_style_     = STYLE_NORMAL;
+  head_foot_size_      = 11.0f;
+
+  strcpy(header_, ".t.");
+  strcpy(toc_header_, ".t.");
+  strcpy(footer_, "h.1");
+  strcpy(toc_footer_, "..i");
+  strcpy(toc_title_, "Table of Contents");
+  memset(title_file_, 0, sizeof(title_file_));
+  memset(logo_file_, 0, sizeof(logo_file_));
+  memset(body_color_, 0, sizeof(body_color_));
+  memset(body_file_, 0, sizeof(body_file_));
+  memset(link_color_, 0, sizeof(link_color_));
+
+  link_style_          = 1;
+  browser_width_       = 680;
+
+  load_prefs();
+}
 
 
-  argc = ccommand(&argv);
-#else			// All other operating systems...
-int
-main(int  argc,		/* I - Number of command-line arguments */
-     char *argv[])	/* I - Command-line arguments */
+//
+// 'HTMLDOC::main()' - Process standard command-line options...
+//
+
+int				// O - 1 on error, 0 on success
+HTMLDOC::main(int  argc,	// I - Number of command-line arguments
+              char *argv[])	// I - Command-line arguments
 {
-#endif // MAC
-
-  int		i, j;		/* Looping vars */
-  FILE		*docfile;	/* Document file */
-  tree_t	*document,	/* Master HTML document */
-		*file,		/* HTML document file */
-		*toc;		/* Table of contents */
-  int		(*exportfunc)(tree_t *, tree_t *);
-				/* Export function */
-  char		*extension,	/* Extension of output filename */
-		*filename;	/* Current filename */
-  char		base[1024];	/* Base directory name of file */
-  float		fontsize,	/* Base font size */
-		fontspacing;	/* Base font spacing */
+  int		i, j;		// Looping vars
+  FILE		*docfile;	// Document file
+  HDtree	*file;		// HTML document file
+  char		*extension,	// Extension of output filename
+		*filename;	// Current filename
+  char		base[1024];	// Base directory name of file
 
 
- /*
-  * Load preferences...
-  */
-
-  prefs_load();
-
- /*
-  * Default to producing HTML files.
-  */
-
-  document   = NULL;
-  exportfunc = html_export;
-
- /*
-  * Parse command-line options...
-  */
-
-  fontsize    = 11.0f;
-  fontspacing = 1.2f;
-
+  // Parse command-line options...
   for (i = 1; i < argc; i ++)
     if (compare_strings(argv[i], "--bodycolor", 7) == 0)
     {
       i ++;
       if (i < argc)
-        strcpy((char *)BodyColor, argv[i]);
+        set_string(HD_BODY_COLOR, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--bodyfont", 7) == 0 ||
              compare_strings(argv[i], "--textfont", 7) == 0)
@@ -212,95 +268,92 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         if (strcasecmp(argv[i], "courier") == 0 ||
 	    strcasecmp(argv[i], "monospace") == 0)
-	  _htmlBodyFont = TYPE_COURIER;
+	  set_integer(HD_BODY_FONT, TYPE_COURIER);
         else if (strcasecmp(argv[i], "times") == 0 ||
 	         strcasecmp(argv[i], "serif") == 0)
-	  _htmlBodyFont = TYPE_TIMES;
+	  set_integer(HD_BODY_FONT, TYPE_TIMES);
         else if (strcasecmp(argv[i], "helvetica") == 0 ||
 	         strcasecmp(argv[i], "arial") == 0 ||
 		 strcasecmp(argv[i], "sans-serif") == 0)
-	  _htmlBodyFont = TYPE_HELVETICA;
+	  set_integer(HD_BODY_FONT, TYPE_HELVETICA);
       }
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--bodyimage", 7) == 0)
     {
       i ++;
       if (i < argc)
-        strcpy((char *)BodyImage, argv[i]);
+        set_string(HD_BODY_IMAGE, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--book", 5) == 0)
-      OutputBook = 1;
+      set_integer(HD_OUTPUT_BOOK, 1);
     else if (compare_strings(argv[i], "--bottom", 5) == 0)
     {
       i ++;
       if (i < argc)
-        PageBottom = get_measurement(argv[i]);
+        set_integer(HD_PAGE_BOTTOM, get_measurement(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--browserwidth", 4) == 0)
     {
       i ++;
       if (i < argc)
-        _htmlBrowserWidth = atof(argv[i]);
+        set_integer(HD_BROWSER_WIDTH, atoi(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--charset", 4) == 0)
     {
       i ++;
       if (i < argc)
-        htmlSetCharSet(argv[i]);
+        set_string(HD_CHARSET, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--color", 5) == 0)
-    {
-      OutputColor    = 1;
-      _htmlGrayscale = 0;
-    }
+      set_integer(HD_OUTPUT_COLOR, 1);
     else if (compare_strings(argv[i], "--compression", 5) == 0 ||
              strncmp(argv[i], "--compression=", 14) == 0)
     {
-      if (strlen(argv[i]) > 14 && PDFVersion >= 1.2)
-        Compression = atoi(argv[i] + 14);
-      else if (PDFVersion >= 1.2)
-        Compression = 1;
+      if (strlen(argv[i]) > 14)
+        set_integer(HD_COMPRESSION, atoi(argv[i] + 14));
+      else
+        set_integer(HD_COMPRESSION, 1);
     }
     else if (compare_strings(argv[i], "--datadir", 4) == 0)
     {
       i ++;
       if (i < argc)
-        _htmlData = argv[i];
+        set_string(HD_DATADIR, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--duplex", 4) == 0)
-      PageDuplex = 1;
+      set_integer(HD_PAGE_DUPLEX, 1);
     else if (compare_strings(argv[i], "--effectduration", 4) == 0)
     {
       i ++;
       if (i < argc)
-        PDFEffectDuration = atof(argv[i]);
+        set_float(HD_PDF_EFFECT_DURATION, atof(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--encryption", 4) == 0)
-      Encryption = 1;
+      set_integer(HD_ENCRYPTION, 1);
     else if (compare_strings(argv[i], "--firstpage", 4) == 0)
     {
       i ++;
       if (i >= argc)
-        usage();
+        return (i);
 
-      for (j = 0; j < (sizeof(PDFPages) / sizeof(PDFPages[0])); j ++)
-        if (strcasecmp(argv[i], PDFPages[j]) == 0)
+      for (j = 0; j < (sizeof(pdf_pages) / sizeof(pdf_pages[0])); j ++)
+        if (strcasecmp(argv[i], pdf_pages[j]) == 0)
 	{
-	  PDFFirstPage = j;
+	  set_integer(HD_PDF_FIRST_PAGE, j);
 	  break;
 	}
     }
@@ -308,43 +361,25 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-      {
-        fontsize = atof(argv[i]);
-
-	if (fontsize < 6.0f)
-	  fontsize = 6.0f;
-	else if (fontsize > 24.0f)
-	  fontsize = 24.0f;
-
-        htmlSetBaseSize(fontsize, fontspacing);
-      }
+        set_float(HD_BASE_SIZE, atof(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--fontspacing", 8) == 0)
     {
       i ++;
       if (i < argc)
-      {
-        fontspacing = atof(argv[i]);
-
-	if (fontspacing < 1.0f)
-	  fontspacing = 1.0f;
-	else if (fontspacing > 3.0f)
-	  fontspacing = 3.0f;
-
-        htmlSetBaseSize(fontsize, fontspacing);
-      }
+        set_float(HD_LINE_SPACING, atof(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--footer", 5) == 0)
     {
       i ++;
       if (i < argc)
-        strncpy(Footer, argv[i], 3);
+        set_string(HD_FOOTER, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--format", 5) == 0 ||
              strcmp(argv[i], "-t") == 0)
@@ -354,58 +389,52 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         if (strcasecmp(argv[i], "ps1") == 0)
         {
-	  exportfunc = pspdf_export;
-	  PSLevel    = 1;
+	  set_integer(HD_OUTPUT_FORMAT, OUTPUT_PS);
+	  set_integer(HD_PS_LEVEL, 1);
 	}
         else if (strcasecmp(argv[i], "ps2") == 0 ||
                  strcasecmp(argv[i], "ps") == 0)
         {
-	  exportfunc = pspdf_export;
-	  PSLevel    = 2;
+	  set_integer(HD_OUTPUT_FORMAT, OUTPUT_PS);
+	  set_integer(HD_PS_LEVEL, 2);
 	}
         else if (strcasecmp(argv[i], "ps3") == 0)
         {
-	  exportfunc = pspdf_export;
-	  PSLevel    = 3;
+	  set_integer(HD_OUTPUT_FORMAT, OUTPUT_PS);
+	  set_integer(HD_PS_LEVEL, 3);
 	}
         else if (strcasecmp(argv[i], "pdf13") == 0)
 	{
-          exportfunc = pspdf_export;
-	  PSLevel    = 0;
-	  PDFVersion = 1.3;
+	  set_integer(HD_OUTPUT_FORMAT, OUTPUT_PDF);
+	  set_float(HD_PDF_VERSION, 1.3f);
 	}
         else if (strcasecmp(argv[i], "pdf12") == 0 ||
 	         strcasecmp(argv[i], "pdf") == 0)
 	{
-          exportfunc = pspdf_export;
-	  PSLevel    = 0;
-	  PDFVersion = 1.2;
+	  set_integer(HD_OUTPUT_FORMAT, OUTPUT_PDF);
+	  set_float(HD_PDF_VERSION, 1.2f);
 	}
         else if (strcasecmp(argv[i], "pdf11") == 0)
 	{
-          exportfunc  = pspdf_export;
-	  PSLevel     = 0;
-	  PDFVersion  = 1.1;
-	  Compression = 0;
+	  set_integer(HD_OUTPUT_FORMAT, OUTPUT_PDF);
+	  set_float(HD_PDF_VERSION, 1.1f);
+	  set_integer(HD_COMPRESSION, 0);
 	}
         else if (strcasecmp(argv[i], "html") == 0)
-          exportfunc = html_export;
+	  set_integer(HD_OUTPUT_FORMAT, OUTPUT_HTML);
       }
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--grayscale", 3) == 0)
-    {
-      OutputColor    = 0;
-      _htmlGrayscale = 1;
-    }
+      set_integer(HD_OUTPUT_COLOR, 0);
     else if (compare_strings(argv[i], "--header", 7) == 0)
     {
       i ++;
       if (i < argc)
-        strncpy(Header, argv[i], 3);
+        set_string(HD_HEADER, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--headfootfont", 11) == 0)
     {
@@ -414,83 +443,76 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         if (strcasecmp(argv[i], "courier") == 0)
 	{
-	  HeadFootType  = TYPE_COURIER;
-	  HeadFootStyle = STYLE_NORMAL;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_COURIER);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_NORMAL);
 	}
         else if (strcasecmp(argv[i], "courier-bold") == 0)
 	{
-	  HeadFootType  = TYPE_COURIER;
-	  HeadFootStyle = STYLE_BOLD;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_COURIER);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_BOLD);
 	}
         else if (strcasecmp(argv[i], "courier-oblique") == 0)
 	{
-	  HeadFootType  = TYPE_COURIER;
-	  HeadFootStyle = STYLE_ITALIC;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_COURIER);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_ITALIC);
 	}
         else if (strcasecmp(argv[i], "courier-boldoblique") == 0)
 	{
-	  HeadFootType  = TYPE_COURIER;
-	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_COURIER);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_BOLD_ITALIC);
 	}
         else if (strcasecmp(argv[i], "times") == 0 ||
 	         strcasecmp(argv[i], "times-roman") == 0)
 	{
-	  HeadFootType  = TYPE_TIMES;
-	  HeadFootStyle = STYLE_NORMAL;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_TIMES);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_NORMAL);
 	}
         else if (strcasecmp(argv[i], "times-bold") == 0)
 	{
-	  HeadFootType  = TYPE_TIMES;
-	  HeadFootStyle = STYLE_BOLD;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_TIMES);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_BOLD);
 	}
         else if (strcasecmp(argv[i], "times-italic") == 0)
 	{
-	  HeadFootType  = TYPE_TIMES;
-	  HeadFootStyle = STYLE_ITALIC;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_TIMES);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_ITALIC);
 	}
         else if (strcasecmp(argv[i], "times-bolditalic") == 0)
 	{
-	  HeadFootType  = TYPE_TIMES;
-	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_TIMES);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_BOLD_ITALIC);
 	}
         else if (strcasecmp(argv[i], "helvetica") == 0)
 	{
-	  HeadFootType  = TYPE_HELVETICA;
-	  HeadFootStyle = STYLE_NORMAL;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_HELVETICA);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_NORMAL);
 	}
         else if (strcasecmp(argv[i], "helvetica-bold") == 0)
 	{
-	  HeadFootType  = TYPE_HELVETICA;
-	  HeadFootStyle = STYLE_BOLD;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_HELVETICA);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_BOLD);
 	}
         else if (strcasecmp(argv[i], "helvetica-oblique") == 0)
 	{
-	  HeadFootType  = TYPE_HELVETICA;
-	  HeadFootStyle = STYLE_ITALIC;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_HELVETICA);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_ITALIC);
 	}
         else if (strcasecmp(argv[i], "helvetica-boldoblique") == 0)
 	{
-	  HeadFootType  = TYPE_HELVETICA;
-	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	  set_integer(HD_HEAD_FOOT_TYPE, TYPE_HELVETICA);
+	  set_integer(HD_HEAD_FOOT_STYLE, STYLE_BOLD_ITALIC);
 	}
       }
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--headfootsize", 11) == 0)
     {
       i ++;
       if (i < argc)
-      {
-        HeadFootSize = atof(argv[i]);
-
-	if (HeadFootSize < 6.0f)
-	  HeadFootSize = 6.0f;
-	else if (HeadFootSize > 24.0f)
-	  HeadFootSize = 24.0f;
-      }
+        set_float(HD_HEAD_FOOT_SIZE, atof(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--headingfont", 7) == 0)
     {
@@ -499,55 +521,53 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         if (strcasecmp(argv[i], "courier") == 0 ||
 	    strcasecmp(argv[i], "monospace") == 0)
-	  _htmlHeadingFont = TYPE_COURIER;
+	  set_integer(HD_HEADING_FONT, TYPE_COURIER);
         else if (strcasecmp(argv[i], "times") == 0 ||
 	         strcasecmp(argv[i], "serif") == 0)
-	  _htmlHeadingFont = TYPE_TIMES;
+	  set_integer(HD_HEADING_FONT, TYPE_TIMES);
         else if (strcasecmp(argv[i], "helvetica") == 0 ||
 	         strcasecmp(argv[i], "arial") == 0 ||
 	         strcasecmp(argv[i], "sans-serif") == 0)
-	  _htmlHeadingFont = TYPE_HELVETICA;
+	  set_integer(HD_HEADING_FONT, TYPE_HELVETICA);
       }
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--help", 6) == 0)
-      usage();
-#ifdef HAVE_LIBFLTK
+      return (i);
     else if (compare_strings(argv[i], "--helpdir", 7) == 0)
     {
       i ++;
       if (i < argc)
-        GUI::help_dir = argv[i];
+        set_string(HD_HELPDIR, argv[i]);
       else
-        usage();
+        return (i);
     }
-#endif // HAVE_LIBFLTK
     else if (compare_strings(argv[i], "--jpeg", 3) == 0 ||
              strncmp(argv[i], "--jpeg=", 7) == 0)
     {
       if (strlen(argv[i]) > 7)
-        OutputJPEG = atoi(argv[i] + 7);
+        set_integer(HD_OUTPUT_JPEG, atoi(argv[i] + 7));
       else
-        OutputJPEG = 90;
+        set_integer(HD_OUTPUT_JPEG, 90);
     }
     else if (compare_strings(argv[i], "--landscape", 4) == 0)
-      Landscape = 1;
+      set_integer(HD_LANDSCAPE, 1);
     else if (compare_strings(argv[i], "--left", 4) == 0)
     {
       i ++;
       if (i < argc)
-        PageLeft = get_measurement(argv[i]);
+        set_integer(HD_PAGE_LEFT, get_measurement(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--linkcolor", 7) == 0)
     {
       i ++;
       if (i < argc)
-        strcpy(LinkColor, argv[i]);
+        set_string(HD_LINK_COLOR, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--linkstyle", 7) == 0)
     {
@@ -555,50 +575,50 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
       {
         if (strcmp(argv[i], "plain") == 0)
-	  LinkStyle = 0;
+	  set_integer(HD_LINK_STYLE, 0);
         else if (strcmp(argv[i], "underline") == 0)
-	  LinkStyle = 1;
+	  set_integer(HD_LINK_STYLE, 1);
 	else
-	  usage();
+	  return (i);
       }
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--logoimage", 5) == 0)
     {
       i ++;
       if (i < argc)
-        strcpy(LogoImage, argv[i]);
+        set_string(HD_LOGO_IMAGE, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--no-compression", 6) == 0)
-      Compression = 0;
+      set_integer(HD_COMPRESSION, 0);
     else if (compare_strings(argv[i], "--no-duplex", 4) == 0)
-      PageDuplex = 0;
+      set_integer(HD_PAGE_DUPLEX, 0);
     else if (compare_strings(argv[i], "--no-encryption", 6) == 0)
-      Encryption = 0;
+      set_integer(HD_ENCRYPTION, 0);
     else if (compare_strings(argv[i], "--no-numbered", 6) == 0)
-      TocNumbers = 0;
+      set_integer(HD_TOC_NUMBERS, 0);
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
-      PSCommands = 0;
+      set_integer(HD_PS_COMMANDS, 0);
     else if (compare_strings(argv[i], "--no-toc", 7) == 0)
-      TocLevels = 0;
+      set_integer(HD_TOC_LEVELS, 0);
     else if (compare_strings(argv[i], "--no-title", 7) == 0)
-      TitlePage = 0;
+      set_integer(HD_TITLE_PAGE, 0);
     else if (compare_strings(argv[i], "--numbered", 4) == 0)
-      TocNumbers = 1;
+      set_integer(HD_TOC_NUMBERS, 1);
     else if (compare_strings(argv[i], "--outdir", 6) == 0 ||
              strcmp(argv[i], "-d") == 0)
     {
       i ++;
       if (i < argc)
       {
-        strcpy(OutputPath, argv[i]);
-        OutputFiles = 1;
+        set_string(HD_OUTPUT_PATH, argv[i]);
+        set_integer(HD_OUTPUT_FILES, 1);
       }
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--outfile", 6) == 0 ||
              strcmp(argv[i], "-f") == 0)
@@ -606,59 +626,48 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        strcpy(OutputPath, argv[i]);
-        OutputFiles = 0;
+        set_string(HD_OUTPUT_PATH, argv[i]);
+        set_integer(HD_OUTPUT_FILES, 0);
 
         if ((extension = file_extension(argv[i])) != NULL)
         {
           if (strcasecmp(extension, "ps") == 0)
-          {
-	    exportfunc = pspdf_export;
-
-	    if (PSLevel == 0)
-	      PSLevel = 2;
-	  }
+	    set_integer(HD_OUTPUT_FORMAT, OUTPUT_PS);
           else if (strcasecmp(extension, "pdf") == 0)
-	  {
-            exportfunc = pspdf_export;
-	    PSLevel    = 0;
-          }
+            set_integer(HD_OUTPUT_FORMAT, OUTPUT_PDF);
 	  else if (strcasecmp(extension, "html") == 0)
-            exportfunc = html_export;
+            set_integer(HD_OUTPUT_FORMAT, OUTPUT_HTML);
         }
       }
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--owner-password", 4) == 0)
     {
       i ++;
       if (i < argc)
-      {
-        strncpy(OwnerPassword, argv[i], sizeof(OwnerPassword) - 1);
-	OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
-      }
+        set_string(HD_OWNER_PASSWORD, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--pageduration", 7) == 0)
     {
       i ++;
       if (i < argc)
-        PDFPageDuration = atof(argv[i]);
+        set_float(HD_PDF_PAGE_DURATION, atof(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--pageeffect", 7) == 0)
     {
       i ++;
       if (i >= argc)
-        usage();
+        return (i);
 
-      for (j = 0; j < (sizeof(PDFEffects) / sizeof(PDFEffects[0])); j ++)
-        if (strcasecmp(argv[i], PDFEffects[j]) == 0)
+      for (j = 0; j < (sizeof(pdf_effects) / sizeof(pdf_effects[0])); j ++)
+        if (strcasecmp(argv[i], pdf_effects[j]) == 0)
 	{
-	  PDFEffect = j;
+	  set_integer(HD_PDF_EFFECT, j);
 	  break;
 	}
     }
@@ -666,12 +675,12 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i >= argc)
-        usage();
+        return (i);
 
-      for (j = 0; j < (sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); j ++)
-        if (strcasecmp(argv[i], PDFLayouts[j]) == 0)
+      for (j = 0; j < (sizeof(pdf_layouts) / sizeof(pdf_layouts[0])); j ++)
+        if (strcasecmp(argv[i], pdf_layouts[j]) == 0)
 	{
-	  PDFPageLayout = j;
+	  set_integer(HD_PDF_PAGE_LAYOUT, j);
 	  break;
 	}
     }
@@ -679,12 +688,12 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i >= argc)
-        usage();
+        return (i);
 
-      for (j = 0; j < (sizeof(PDFModes) / sizeof(PDFModes[0])); j ++)
-        if (strcasecmp(argv[i], PDFModes[j]) == 0)
+      for (j = 0; j < (sizeof(pdf_modes) / sizeof(pdf_modes[0])); j ++)
+        if (strcasecmp(argv[i], pdf_modes[j]) == 0)
 	{
-	  PDFPageMode = j;
+	  set_integer(HD_PDF_PAGE_MODE, j);
 	  break;
 	}
     }
@@ -692,51 +701,48 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-      {
-        strncpy(Path, argv[i], sizeof(Path) - 1);
-	Path[sizeof(Path) - 1] = '\0';
-      }
+        set_string(HD_PATH, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--permissions", 4) == 0)
     {
       i ++;
       if (i >= argc)
-        usage();
+        return (i);
 
       if (strcasecmp(argv[i], "all") == 0)
-        Permissions = -4;
+        set_integer(HD_PERMISSIONS, -4);
       else if (strcasecmp(argv[i], "none") == 0)
-        Permissions = -64;
+        set_integer(HD_PERMISSIONS, -64);
       else if (strcasecmp(argv[i], "print") == 0)
-        Permissions |= PDF_PERM_PRINT;
+        set_integer(HD_PERMISSIONS, permissions_ | PDF_PERM_PRINT);
       else if (strcasecmp(argv[i], "no-print") == 0)
-        Permissions &= ~PDF_PERM_PRINT;
+        set_integer(HD_PERMISSIONS, permissions_ & ~PDF_PERM_PRINT);
       else if (strcasecmp(argv[i], "modify") == 0)
-        Permissions |= PDF_PERM_MODIFY;
+        set_integer(HD_PERMISSIONS, permissions_ | PDF_PERM_MODIFY);
       else if (strcasecmp(argv[i], "no-modify") == 0)
-        Permissions &= ~PDF_PERM_MODIFY;
+        set_integer(HD_PERMISSIONS, permissions_ & ~PDF_PERM_MODIFY);
       else if (strcasecmp(argv[i], "copy") == 0)
-        Permissions |= PDF_PERM_COPY;
+        set_integer(HD_PERMISSIONS, permissions_ | PDF_PERM_COPY);
       else if (strcasecmp(argv[i], "no-copy") == 0)
-        Permissions &= ~PDF_PERM_COPY;
+        set_integer(HD_PERMISSIONS, permissions_ & ~PDF_PERM_COPY);
       else if (strcasecmp(argv[i], "annotate") == 0)
-        Permissions |= PDF_PERM_ANNOTATE;
+        set_integer(HD_PERMISSIONS, permissions_ | PDF_PERM_ANNOTATE);
       else if (strcasecmp(argv[i], "no-annotate") == 0)
-        Permissions &= ~PDF_PERM_ANNOTATE;
+        set_integer(HD_PERMISSIONS, permissions_ & ~PDF_PERM_ANNOTATE);
     }
     else if (compare_strings(argv[i], "--portrait", 4) == 0)
-      Landscape = 0;
+      set_integer(HD_LANDSCAPE, 0);
     else if (compare_strings(argv[i], "--pscommands", 3) == 0)
-      PSCommands = 1;
+      set_integer(HD_PS_COMMANDS, 1);
     else if (compare_strings(argv[i], "--right", 3) == 0)
     {
       i ++;
       if (i < argc)
-        PageRight = get_measurement(argv[i]);
+        set_integer(HD_PAGE_RIGHT, get_measurement(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--size", 3) == 0)
     {
@@ -744,110 +750,100 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i < argc)
         set_page_size(argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--textcolor", 7) == 0)
     {
       i ++;
       if (i < argc)
-        htmlSetTextColor((uchar *)argv[i]);
+        set_string(HD_TEXT_COLOR, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--title", 7) == 0)
-      TitlePage = 1;
+      set_integer(HD_TITLE_PAGE, 1);
     else if (compare_strings(argv[i], "--titlefile", 8) == 0 ||
              compare_strings(argv[i], "--titleimage", 8) == 0)
     {
       i ++;
       if (i < argc)
-        strcpy(TitleImage, argv[i]);
+      {
+        set_string(HD_TITLE_FILE, argv[i]);
+	set_integer(HD_TITLE_PAGE, 1);
+      }
       else
-        usage();
-
-      TitlePage = 1;
+        return (i);
     }
     else if (compare_strings(argv[i], "--tocfooter", 6) == 0)
     {
       i ++;
       if (i < argc)
-        strncpy(TocFooter, argv[i], 3);
+        set_string(HD_TOC_FOOTER, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--tocheader", 6) == 0)
     {
       i ++;
       if (i < argc)
-        strncpy(TocHeader, argv[i], 3);
+        set_string(HD_TOC_HEADER, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--toclevels", 6) == 0)
     {
       i ++;
       if (i < argc)
-        TocLevels = atoi(argv[i]);
+        set_integer(HD_TOC_LEVELS, atoi(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--toctitle", 6) == 0)
     {
       i ++;
       if (i < argc)
-      {
-        strncpy(TocTitle, argv[i], sizeof(TocTitle) - 1);
-	TocTitle[sizeof(TocTitle) - 1] = '\0';
-      }
+        set_string(HD_TOC_TITLE, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--top", 5) == 0)
     {
       i ++;
       if (i < argc)
-        PageTop = get_measurement(argv[i]);
+        set_integer(HD_PAGE_TOP, get_measurement(argv[i]));
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--user-password", 4) == 0)
     {
       i ++;
       if (i < argc)
-      {
-        strncpy(UserPassword, argv[i], sizeof(UserPassword) - 1);
-	UserPassword[sizeof(UserPassword) - 1] = '\0';
-      }
+        set_string(HD_USER_PASSWORD, argv[i]);
       else
-        usage();
+        return (i);
     }
     else if (compare_strings(argv[i], "--verbose", 3) == 0 ||
              strcmp(argv[i], "-v") == 0)
-    {
-      Verbosity ++;
-    }
+      verbosity_ ++;
     else if (compare_strings(argv[i], "--webpage", 3) == 0)
     {
-      TocLevels    = 0;
-      TitlePage    = 0;
-      OutputBook   = 0;
-      PDFPageMode  = PDF_DOCUMENT;
-      PDFFirstPage = PDF_PAGE_1;
+      toc_levels_     = 0;
+      title_page_     = 0;
+      output_book_    = 0;
+      pdf_page_mode_  = PDF_DOCUMENT;
+      pdf_first_page_ = PDF_PAGE_1;
 
-      if (exportfunc == html_export)
+      if (output_format_ == OUTPUT_HTML)
       {
-        exportfunc = pspdf_export;
-	PSLevel    = 0;
+        output_format_ = OUTPUT_PDF;
+	ps_level_      = 0;
       }
     }
     else if (strcmp(argv[i], "-") == 0)
     {
-     /*
-      * Read from stdin...
-      */
-
-      file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME", (uchar *)"");
+      // Read from stdin...
+      file = new HDtree(NULL, MARKUP_FILE, NULL);
+      file->var((uchar *)"FILENAME", (uchar *)"");
 
 #if defined(WIN32) || defined(__EMX__)
       // Make sure stdin is in binary mode.
@@ -855,76 +851,69 @@ main(int  argc,		/* I - Number of command-line arguments */
       setmode(0, O_BINARY);
 #endif // WIN32 || __EMX__
 
-      htmlReadFile(file, stdin, "");
+      file->read(stdin, "");
 
       if (file->child != NULL)
       {
-        if (document == NULL)
-          document = file;
+        if (doc_ == NULL)
+          doc_ = file;
         else
         {
-          while (document->next != NULL)
-            document = document->next;
+          while (doc_->next != NULL)
+            doc_ = doc_->next;
 
-          document->next = file;
-          file->prev     = document;
+          doc_->next = file;
+          file->prev = doc_;
         }
       }
       else
-        htmlDeleteTree(file);
+        delete file;
     }
     else if (argv[i][0] == '-')
-      usage();
-#ifdef HAVE_LIBFLTK
+      return (i);
     else if (strlen(argv[i]) > 5 &&
              strcmp(argv[i] + strlen(argv[i]) - 5, ".book") == 0)
     {
-     /*
-      * GUI mode...
-      */
+      // Read book...
 
+#if 0
       if (BookGUI == NULL)
         BookGUI = new GUI(argv[i]);
       else
         BookGUI->loadBook(argv[i]);
+#endif // 0
     }
-#endif /* HAVE_LIBFLTK */
-    else if ((filename = file_find(Path, argv[i])) != NULL)
+    else if ((filename = file_find(path, argv[i])) != NULL)
     {
       if ((docfile = fopen(filename, "rb")) != NULL)
       {
-       /*
-	* Read from a file...
-	*/
-
-	if (Verbosity)
+        // Read from a file...
+	if (verbosity_)
           fprintf(stderr, "htmldoc: Reading %s...\n", argv[i]);
 
 	strcpy(base, file_directory(argv[i]));
 
-	file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-	htmlSetVariable(file, (uchar *)"FILENAME",
-                	(uchar *)file_basename(argv[i]));
-
-	htmlReadFile(file, docfile, base);
+	file = new HDtree(NULL, MARKUP_FILE, NULL);
+	file->var((uchar *)"FILENAME", (uchar *)file_basename(argv[i]));
+        file->read(docfile, base);
 
 	fclose(docfile);
 
 	if (file->child != NULL)
 	{
-          if (document == NULL)
-            document = file;
+          if (doc_ == NULL)
+            doc_ = file;
           else
           {
-            while (document->next != NULL)
-              document = document->next;
+            while (doc_->next != NULL)
+              doc_ = doc_->next;
 
-            document->next = file;
-            file->prev     = document;
+            doc_->next = file;
+            file->prev = doc_;
           }
 	}
 	else
-          htmlDeleteTree(file);
+          delete file;
       }
       else
         progress_error("Unable to read file \"%s\"...", filename);
@@ -932,69 +921,20 @@ main(int  argc,		/* I - Number of command-line arguments */
     else
       progress_error("Unable to find file \"%s\"...", argv[i]);
 
- /*
-  * Display the GUI if necessary...
-  */
+  // Find the first file in the document...
+  while (doc_ && doc_->prev != NULL)
+    doc_ = doc_->prev;
 
-#ifdef HAVE_LIBFLTK
-  if (document == NULL && BookGUI == NULL)
-    BookGUI = new GUI();
-
-  FileIcon::load_system_icons();
-
-  if (BookGUI != NULL)
-  {
-    BookGUI->show();
-
-    i = Fl::run();
-
-    delete BookGUI;
-
-    return (i);
-  }
-#endif /* HAVE_LIBFLTK */
-    
- /*
-  * We *must* have a document to process...
-  */
-
-  if (document == NULL)
-    usage();
-
- /*
-  * Find the first one in the list...
-  */
-
-  while (document->prev != NULL)
-    document = document->prev;
-
- /*
-  * Build a table of contents for the documents if necessary...
-  */
-
-  if (OutputBook && TocLevels > 0)
-    toc = toc_build(document);
-  else
-    toc = NULL;
-
- /*
-  * Generate the output file(s).
-  */
-
-  Errors = 0;
-
-  (*exportfunc)(document, toc);
-
-  return (Errors);
+  return (0);
 }
 
 
-/*
- * 'prefs_load()' - Load HTMLDOC preferences...
- */
+//
+// 'HTMLDOC::load_prefs()' - Load HTMLDOC preferences...
+//
 
 void
-prefs_load(void)
+HTMLDOC::load_prefs(void)
 {
 #ifdef WIN32			//// Do registry magic...
   HKEY		key;		// Registry key
@@ -1010,21 +950,17 @@ prefs_load(void)
 		   KEY_READ, &key))
     return;
 
-#  ifdef HAVE_LIBFLTK
-  size = sizeof(HTMLEditor);
-  RegQueryValueEx(key, "editor", NULL, NULL, (unsigned char *)HTMLEditor, &size);
-#  endif // HAVE_LIBFLTK
+  size = sizeof(html_editor);
+  RegQueryValueEx(key, "editor", NULL, NULL, (unsigned char *)html_editor, &size);
 
   // Now grab the installed directories...
   size = sizeof(data);
   if (!RegQueryValueEx(key, "data", NULL, NULL, (unsigned char *)data, &size))
-    _htmlData = data;
+    HDtree::datadir = data;
 
-#  ifdef HAVE_LIBFLTK
   size = sizeof(doc);
   if (!RegQueryValueEx(key, "doc", NULL, NULL, (unsigned char *)doc, &size))
     GUI::help_dir = doc;
-#  endif // HAVE_LIBFLTK
 
   // Then any other saved options...
   size = sizeof(value);
@@ -1033,179 +969,179 @@ prefs_load(void)
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "bodycolor", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(BodyColor, value);
+    strcpy(body_color_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "bodyimage", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(BodyImage, value);
+    strcpy(body_file_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "linkcolor", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(LinkColor, value);
+    strcpy(link_color_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "linkstyle", NULL, NULL, (unsigned char *)value, &size))
-    LinkStyle = atoi(value);
+    link_style_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "browserwidth", NULL, NULL, (unsigned char *)value, &size))
-    _htmlBrowserWidth = atof(value);
+    browser_width_ = atof(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pagewidth", NULL, NULL, (unsigned char *)value, &size))
-    PageWidth = atoi(value);
+    page_width_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pagelength", NULL, NULL, (unsigned char *)value, &size))
-    PageLength = atoi(value);
+    page_length_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pageleft", NULL, NULL, (unsigned char *)value, &size))
-    PageLeft = atoi(value);
+    page_left_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pageright", NULL, NULL, (unsigned char *)value, &size))
-    PageRight = atoi(value);
+    page_right_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pagetop", NULL, NULL, (unsigned char *)value, &size))
-    PageTop = atoi(value);
+    page_top_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pagebottom", NULL, NULL, (unsigned char *)value, &size))
-    PageBottom = atoi(value);
+    page_bottom_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pageduplex", NULL, NULL, (unsigned char *)value, &size))
-    PageDuplex = atoi(value);
+    page_duplex_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "landscape", NULL, NULL, (unsigned char *)value, &size))
-    Landscape = atoi(value);
+    landscape_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "compression", NULL, NULL, (unsigned char *)value, &size))
-    Compression = atoi(value);
+    compression_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "outputcolor", NULL, NULL, (unsigned char *)value, &size))
-    OutputColor = atoi(value);
+    output_color_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "tocnumbers", NULL, NULL, (unsigned char *)value, &size))
-    TocNumbers = atoi(value);
+    toc_numbers_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "toclevels", NULL, NULL, (unsigned char *)value, &size))
-    TocLevels = atoi(value);
+    toc_levels_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "jpeg", NULL, NULL, (unsigned char *)value, &size))
-    OutputJPEG = atoi(value);
+    output_jpeg_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pageheader", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(Header, value);
+    strcpy(header_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pagefooter", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(Footer, value);
+    strcpy(footer_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "tocheader", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(TocHeader, value);
+    strcpy(toc_header_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "tocfooter", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(TocFooter, value);
+    strcpy(toc_footer_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "toctitle", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(TocTitle, value);
+    strcpy(toc_title_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "bodyfont", NULL, NULL, (unsigned char *)value, &size))
-    _htmlBodyFont = (typeface_t)atoi(value);
+    body_font_ = (HDtypeface)atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "headingfont", NULL, NULL, (unsigned char *)value, &size))
-    _htmlHeadingFont = (typeface_t)atoi(value);
+    heading_font_ = (HDtypeface)atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "fontsize", NULL, NULL, (unsigned char *)value, &size))
-    htmlSetBaseSize(atof(value), _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+    htmlSetBaseSize(atof(value), HDtree::spacings[SIZE_P] / HDtree::sizes[SIZE_P]);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "fontspacing", NULL, NULL, (unsigned char *)value, &size))
-    htmlSetBaseSize(_htmlSizes[SIZE_P], atof(value));
+    htmlSetBaseSize(HDtree::sizes[SIZE_P], atof(value));
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "headfoottype", NULL, NULL, (unsigned char *)value, &size))
-    HeadFootType = (typeface_t)atoi(value);
+    head_foot_type_ = (HDtypeface)atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "headfootstyle", NULL, NULL, (unsigned char *)value, &size))
-    HeadFootStyle = (style_t)atoi(value);
+    head_foot_style_ = (HDstyle)atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "headfootsize", NULL, NULL, (unsigned char *)value, &size))
-    HeadFootSize = atof(value);
+    head_foot_size_ = atof(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pdfversion", NULL, NULL, (unsigned char *)value, &size))
-    PDFVersion = atof(value);
+    pdf_version_ = atof(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pslevel", NULL, NULL, (unsigned char *)value, &size))
-    PSLevel = atoi(value);
+    ps_level_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "charset", NULL, NULL, (unsigned char *)value, &size))
-    htmlSetCharSet(value);
+    strcpy(char_set_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pagemode", NULL, NULL, (unsigned char *)value, &size))
-    PDFPageMode = atoi(value);
+    pdf_page_mode_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pagelayout", NULL, NULL, (unsigned char *)value, &size))
-    PDFPageLayout = atoi(value);
+    pdf_page_layout_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "firstpage", NULL, NULL, (unsigned char *)value, &size))
-    PDFFirstPage = atoi(value);
+    pdf_first_page_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pageeffect", NULL, NULL, (unsigned char *)value, &size))
-    PDFEffect = atoi(value);
+    pdf_effect_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "pageduration", NULL, NULL, (unsigned char *)value, &size))
-    PDFPageDuration = atof(value);
+    pdf_page_duration_ = atof(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "effectduration", NULL, NULL, (unsigned char *)value, &size))
-    PDFEffectDuration = atof(value);
+    pdf_effect_duration_ = atof(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "encryption", NULL, NULL, (unsigned char *)value, &size))
-    Encryption = atoi(value);
+    encryption_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "permissions", NULL, NULL, (unsigned char *)value, &size))
-    Permissions = atoi(value);
+    permissions_ = atoi(value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "ownerpassword", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(OwnerPassword, value);
+    strcpy(owner_password_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "userpassword", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(UserPassword, value);
+    strcpy(user_password_, value);
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "path", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(Path, value);
+    strcpy(path, value);
 
   RegCloseKey(key);
 #else				//// Do .htmldocrc file in home dir...
@@ -1226,114 +1162,111 @@ prefs_load(void)
 	  line[strlen(line) - 1] = '\0';
 
         if (strncasecmp(line, "TEXTCOLOR=", 10) == 0)
-	  htmlSetTextColor((uchar *)(line + 10));
+	  strcpy(text_color_, line + 10);
         else if (strncasecmp(line, "BODYCOLOR=", 10) == 0)
-	  strcpy(BodyColor, line + 10);
+	  strcpy(body_color_, line + 10);
         else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
-	  strcpy(BodyImage, line + 10);
+	  strcpy(body_file_, line + 10);
         else if (strncasecmp(line, "LINKCOLOR=", 10) == 0)
-	  strcpy(LinkColor, line + 10);
+	  strcpy(link_color_, line + 10);
         else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
-	  LinkStyle = atoi(line + 10);
+	  link_style_ = atoi(line + 10);
         else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
-	  _htmlBrowserWidth = atof(line + 13);
+	  browser_width_ = atoi(line + 13);
         else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
-	  PageWidth = atoi(line + 10);
+	  page_width_ = atoi(line + 10);
         else if (strncasecmp(line, "PAGELENGTH=", 11) == 0)
-	  PageLength = atoi(line + 11);
+	  page_length_ = atoi(line + 11);
         else if (strncasecmp(line, "PAGELEFT=", 9) == 0)
-	  PageLeft = atoi(line + 9);
+	  page_left_ = atoi(line + 9);
         else if (strncasecmp(line, "PAGERIGHT=", 10) == 0)
-	  PageRight = atoi(line + 10);
+	  page_right_ = atoi(line + 10);
         else if (strncasecmp(line, "PAGETOP=", 8) == 0)
-	  PageTop = atoi(line + 8);
+	  page_top_ = atoi(line + 8);
         else if (strncasecmp(line, "PAGEBOTTOM=", 11) == 0)
-	  PageBottom = atoi(line + 11);
+	  page_bottom_ = atoi(line + 11);
         else if (strncasecmp(line, "PAGEDUPLEX=", 11) == 0)
-	  PageDuplex = atoi(line + 11);
+	  page_duplex_ = atoi(line + 11);
         else if (strncasecmp(line, "LANDSCAPE=", 10) == 0)
-	  Landscape = atoi(line + 10);
+	  landscape_ = atoi(line + 10);
         else if (strncasecmp(line, "COMPRESSION=", 12) == 0)
-	  Compression = atoi(line + 12);
+	  compression_ = atoi(line + 12);
         else if (strncasecmp(line, "OUTPUTCOLOR=", 12) == 0)
 	{
-	  OutputColor    = atoi(line + 12);
-	  _htmlGrayscale = !OutputColor;
+	  output_color_     = atoi(line + 12);
+	  HDtree::grayscale = !output_color_;
 	}
         else if (strncasecmp(line, "TOCNUMBERS=", 11) == 0)
-	  TocNumbers = atoi(line + 11);
+	  toc_numbers_ = atoi(line + 11);
         else if (strncasecmp(line, "TOCLEVELS=", 10) == 0)
-	  TocLevels = atoi(line + 10);
+	  toc_levels_ = atoi(line + 10);
         else if (strncasecmp(line, "JPEG=", 5) == 0)
-	  OutputJPEG = atoi(line + 1);
+	  output_jpeg_ = atoi(line + 1);
         else if (strncasecmp(line, "PAGEHEADER=", 11) == 0)
-	  strcpy(Header, line + 11);
+	  strcpy(header_, line + 11);
         else if (strncasecmp(line, "PAGEFOOTER=", 11) == 0)
-	  strcpy(Footer, line + 11);
+	  strcpy(footer_, line + 11);
         else if (strncasecmp(line, "TOCHEADER=", 10) == 0)
-	  strcpy(TocHeader, line + 10);
+	  strcpy(toc_header_, line + 10);
         else if (strncasecmp(line, "TOCFOOTER=", 10) == 0)
-	  strcpy(TocFooter, line + 10);
+	  strcpy(toc_footer_, line + 10);
         else if (strncasecmp(line, "TOCTITLE=", 9) == 0)
-	  strcpy(TocTitle, line + 9);
+	  strcpy(toc_title_, line + 9);
         else if (strncasecmp(line, "BODYFONT=", 9) == 0)
-	  _htmlBodyFont = (typeface_t)atoi(line + 9);
+	  body_font_ = (HDtypeface)atoi(line + 9);
         else if (strncasecmp(line, "HEADINGFONT=", 12) == 0)
-	  _htmlHeadingFont = (typeface_t)atoi(line + 12);
+	  heading_font_ = (HDtypeface)atoi(line + 12);
         else if (strncasecmp(line, "FONTSIZE=", 9) == 0)
-	  htmlSetBaseSize(atof(line + 9),
-	                  _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+	  base_size_ = atof(line + 9);
         else if (strncasecmp(line, "FONTSPACING=", 12) == 0)
-	  htmlSetBaseSize(_htmlSizes[SIZE_P], atof(line + 12));
+	  line_spacing_ = atof(line + 12);
         else if (strncasecmp(line, "HEADFOOTTYPE=", 13) == 0)
-	  HeadFootType = (typeface_t)atoi(line + 13);
+	  head_foot_type_ = (HDtypeface)atoi(line + 13);
         else if (strncasecmp(line, "HEADFOOTSTYLE=", 14) == 0)
-	  HeadFootStyle = (style_t)atoi(line + 14);
+	  head_foot_style_ = (HDstyle)atoi(line + 14);
         else if (strncasecmp(line, "HEADFOOTSIZE=", 13) == 0)
-	  HeadFootSize = atof(line + 13);
+	  head_foot_size_ = atof(line + 13);
         else if (strncasecmp(line, "PDFVERSION=", 11) == 0)
-	  PDFVersion = atof(line + 11);
+	  pdf_version_ = atof(line + 11);
         else if (strncasecmp(line, "PSLEVEL=", 8) == 0)
-	  PSLevel = atoi(line + 8);
+	  ps_level_ = atoi(line + 8);
         else if (strncasecmp(line, "PSCOMMANDS=", 11) == 0)
-	  PSCommands = atoi(line + 11);
+	  ps_commands_ = atoi(line + 11);
         else if (strncasecmp(line, "CHARSET=", 8) == 0)
-	  htmlSetCharSet(line + 8);
+	  strcpy(char_set_, line + 8);
         else if (strncasecmp(line, "PAGEMODE=", 9) == 0)
-	  PDFPageMode = atoi(line + 9);
+	  pdf_page_mode_ = atoi(line + 9);
         else if (strncasecmp(line, "PAGELAYOUT=", 11) == 0)
-	  PDFPageLayout = atoi(line + 11);
+	  pdf_page_layout_ = atoi(line + 11);
         else if (strncasecmp(line, "FIRSTPAGE=", 10) == 0)
-	  PDFFirstPage = atoi(line + 10);
+	  pdf_first_page_ = atoi(line + 10);
         else if (strncasecmp(line, "PAGEEFFECT=", 11) == 0)
-	  PDFEffect = atoi(line + 11);
+	  pdf_effect_ = atoi(line + 11);
         else if (strncasecmp(line, "PAGEDURATION=", 14) == 0)
-	  PDFPageDuration = atof(line + 14);
+	  pdf_page_duration_ = atof(line + 14);
         else if (strncasecmp(line, "EFFECTDURATION=", 16) == 0)
-	  PDFEffectDuration = atof(line + 16);
+	  pdf_effect_duration_ = atof(line + 16);
         else if (strncasecmp(line, "ENCRYPTION=", 11) == 0)
-	  Encryption = atoi(line + 11);
+	  encryption_ = atoi(line + 11);
         else if (strncasecmp(line, "PERMISSIONS=", 12) == 0)
-	  Permissions = atoi(line + 12);
+	  permissions_ = atoi(line + 12);
         else if (strncasecmp(line, "OWNERPASSWORD=", 14) == 0)
 	{
-	  strncpy(OwnerPassword, line + 14, sizeof(OwnerPassword) - 1);
-	  OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
+	  strncpy(owner_password_, line + 14, sizeof(owner_password_) - 1);
+	  owner_password_[sizeof(owner_password_) - 1] = '\0';
 	}
         else if (strncasecmp(line, "USERPASSWORD=", 13) == 0)
         {
-	  strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
-	  UserPassword[sizeof(UserPassword) - 1] = '\0';
+	  strncpy(user_password_, line + 13, sizeof(user_password_) - 1);
+	  user_password_[sizeof(user_password_) - 1] = '\0';
 	}
 	else if (strncasecmp(line, "PATH=", 5) == 0)
 	{
-	  strncpy(Path, line + 5, sizeof(Path) - 1);
-	  Path[sizeof(Path) - 1] = '\0';
+	  strncpy(path, line + 5, sizeof(path) - 1);
+	  path[sizeof(path) - 1] = '\0';
 	}
-#  ifdef HAVE_LIBFLTK
         else if (strncasecmp(line, "EDITOR=", 7) == 0)
-	  strcpy(HTMLEditor, line + 7);
-#  endif // HAVE_LIBFLTK
+	  strcpy(html_editor, line + 7);
       }
 
       fclose(fp);
@@ -1341,25 +1274,22 @@ prefs_load(void)
   }
 
   if (getenv("HTMLDOC_DATA") != NULL)
-    _htmlData = getenv("HTMLDOC_DATA");
+    HDtree::datadir = getenv("HTMLDOC_DATA");
 
-#  ifdef HAVE_LIBFLTK
   if (getenv("HTMLDOC_HELP") != NULL)
     GUI::help_dir = getenv("HTMLDOC_HELP");
-#  endif // HAVE_LIBFLTK
 #endif // WIN32
 }
 
 
-/*
- * 'prefs_save()' - Save HTMLDOC preferences...
- */
+//
+// 'HTMLDOC::save_prefs()' - Save HTMLDOC preferences...
+
 
 void
-prefs_save(void)
+HTMLDOC::save_prefs(void)
 {
-#ifdef HAVE_LIBFLTK
-#  ifdef WIN32			//// Do registry magic...
+#ifdef WIN32			//// Do registry magic...
   HKEY		key;		// Registry key
   DWORD		size;		// Size of string
   char		value[1024];	// Numeric value
@@ -1370,185 +1300,185 @@ prefs_save(void)
     return;
 
   // Save what the HTML editor is...
-  size = strlen(HTMLEditor) + 1;
-  RegSetValueEx(key, "editor", 0, REG_SZ, (unsigned char *)HTMLEditor, size);
+  size = strlen(html_editor) + 1;
+  RegSetValueEx(key, "editor", 0, REG_SZ, (unsigned char *)html_editor, size);
 
   // Now the rest of the options...
   size = strlen((char *)_htmlTextColor) + 1;
   RegSetValueEx(key, "textcolor", 0, REG_SZ, (unsigned char *)_htmlTextColor, size);
 
-  size = strlen(BodyColor) + 1;
-  RegSetValueEx(key, "bodycolor", 0, REG_SZ, (unsigned char *)BodyColor, size);
+  size = strlen(body_color_) + 1;
+  RegSetValueEx(key, "bodycolor", 0, REG_SZ, (unsigned char *)body_color_, size);
 
-  size = strlen(BodyImage) + 1;
-  RegSetValueEx(key, "bodyimage", 0, REG_SZ, (unsigned char *)BodyImage, size);
+  size = strlen(body_file_) + 1;
+  RegSetValueEx(key, "bodyimage", 0, REG_SZ, (unsigned char *)body_file_, size);
 
-  size = strlen(LinkColor) + 1;
-  RegSetValueEx(key, "linkcolor", 0, REG_SZ, (unsigned char *)LinkColor, size);
+  size = strlen(link_color_) + 1;
+  RegSetValueEx(key, "linkcolor", 0, REG_SZ, (unsigned char *)link_color_, size);
 
-  sprintf(value, "%d", LinkStyle);
+  sprintf(value, "%d", link_style_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "linkstyle", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%.0f", _htmlBrowserWidth);
+  sprintf(value, "%.0f", browser_width_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "browserwidth", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PageWidth);
+  sprintf(value, "%d", page_width_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pagewidth", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PageLength);
+  sprintf(value, "%d", page_length_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pagelength", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PageLeft);
+  sprintf(value, "%d", page_left_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pageleft", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PageRight);
+  sprintf(value, "%d", page_right_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pageright", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PageTop);
+  sprintf(value, "%d", page_top_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pagetop", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PageBottom);
+  sprintf(value, "%d", page_bottom_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pagebottom", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PageDuplex);
+  sprintf(value, "%d", page_duplex_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pageduplex", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", Landscape);
+  sprintf(value, "%d", landscape_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "landscape", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", Compression);
+  sprintf(value, "%d", compression_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "compression", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", OutputColor);
+  sprintf(value, "%d", output_color_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "outputcolor", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", TocNumbers);
+  sprintf(value, "%d", toc_numbers_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "tocnumbers", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", TocLevels);
+  sprintf(value, "%d", toc_levels_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "toclevels", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", OutputJPEG);
+  sprintf(value, "%d", output_jpeg_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "jpeg", 0, REG_SZ, (unsigned char *)value, size);
 
-  size = strlen(Header) + 1;
-  RegSetValueEx(key, "pageheader", 0, REG_SZ, (unsigned char *)Header, size);
+  size = strlen(header_) + 1;
+  RegSetValueEx(key, "pageheader", 0, REG_SZ, (unsigned char *)header_, size);
 
-  size = strlen(Footer) + 1;
-  RegSetValueEx(key, "pagefooter", 0, REG_SZ, (unsigned char *)Footer, size);
+  size = strlen(footer_) + 1;
+  RegSetValueEx(key, "pagefooter", 0, REG_SZ, (unsigned char *)footer_, size);
 
-  size = strlen(TocHeader) + 1;
-  RegSetValueEx(key, "tocheader", 0, REG_SZ, (unsigned char *)TocHeader, size);
+  size = strlen(toc_header_) + 1;
+  RegSetValueEx(key, "tocheader", 0, REG_SZ, (unsigned char *)toc_header_, size);
 
-  size = strlen(TocFooter) + 1;
-  RegSetValueEx(key, "tocfooter", 0, REG_SZ, (unsigned char *)TocFooter, size);
+  size = strlen(toc_footer_) + 1;
+  RegSetValueEx(key, "tocfooter", 0, REG_SZ, (unsigned char *)toc_footer_, size);
 
-  size = strlen(TocTitle) + 1;
-  RegSetValueEx(key, "toctitle", 0, REG_SZ, (unsigned char *)TocTitle, size);
+  size = strlen(toc_title_) + 1;
+  RegSetValueEx(key, "toctitle", 0, REG_SZ, (unsigned char *)toc_title_, size);
 
-  sprintf(value, "%d", _htmlBodyFont);
+  sprintf(value, "%d", body_font_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "bodyfont", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", _htmlHeadingFont);
+  sprintf(value, "%d", heading_font_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "headingfont", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%.1f", _htmlSizes[SIZE_P]);
+  sprintf(value, "%.1f", HDtree::sizes[SIZE_P]);
   size = strlen(value) + 1;
   RegSetValueEx(key, "fontsize", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%.1f", _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+  sprintf(value, "%.1f", HDtree::spacings[SIZE_P] / HDtree::sizes[SIZE_P]);
   size = strlen(value) + 1;
   RegSetValueEx(key, "fontspacing", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", HeadFootType);
+  sprintf(value, "%d", head_foot_type_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "headfoottype", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", HeadFootStyle);
+  sprintf(value, "%d", head_foot_style_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "headfootstyle", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%.1f", HeadFootSize);
+  sprintf(value, "%.1f", head_foot_size_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "headfootsize", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%.1f", PDFVersion);
+  sprintf(value, "%.1f", pdf_version_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pdfversion", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PSLevel);
+  sprintf(value, "%d", ps_level_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pslevel", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PSCommands);
+  sprintf(value, "%d", ps_commands_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pscommands", 0, REG_SZ, (unsigned char *)value, size);
 
   size = strlen(_htmlCharSet) + 1;
   RegSetValueEx(key, "charset", 0, REG_SZ, (unsigned char *)_htmlCharSet, size);
 
-  sprintf(value, "%d", PDFPageMode);
+  sprintf(value, "%d", pdf_page_mode_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pagemode", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PDFPageLayout);
+  sprintf(value, "%d", pdf_page_layout_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pagelayout", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PDFFirstPage);
+  sprintf(value, "%d", pdf_first_page_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "firstpage", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", PDFEffect);
+  sprintf(value, "%d", pdf_effect_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pageeffect", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%.1f", PDFPageDuration);
+  sprintf(value, "%.1f", pdf_page_duration_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "pageduration", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%.1f", PDFEffectDuration);
+  sprintf(value, "%.1f", pdf_effect_duration_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "effectduration", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", Encryption);
+  sprintf(value, "%d", encryption_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "encryption", 0, REG_SZ, (unsigned char *)value, size);
 
-  sprintf(value, "%d", Permissions);
+  sprintf(value, "%d", permissions_);
   size = strlen(value) + 1;
   RegSetValueEx(key, "permissions", 0, REG_SZ, (unsigned char *)value, size);
 
-  size = strlen(OwnerPassword) + 1;
+  size = strlen(owner_password_) + 1;
   RegSetValueEx(key, "ownerpassword", 0, REG_SZ,
-                (unsigned char *)OwnerPassword, size);
+                (unsigned char *)owner_password_, size);
 
-  size = strlen(UserPassword) + 1;
+  size = strlen(user_password_) + 1;
   RegSetValueEx(key, "userpassword", 0, REG_SZ,
-                (unsigned char *)UserPassword, size);
+                (unsigned char *)user_password_, size);
 
-  size = strlen(Path) + 1;
-  RegSetValueEx(key, "path", 0, REG_SZ, (unsigned char *)Path, size);
+  size = strlen(path) + 1;
+  RegSetValueEx(key, "path", 0, REG_SZ, (unsigned char *)path, size);
 
   RegCloseKey(key);
-#  else				//// Do .htmldocrc file in home dir...
+#else				//// Do .htmldocrc file in home dir...
   char	htmldocrc[1024];	// HTMLDOC RC file
   FILE	*fp;			// File pointer
 
@@ -1562,73 +1492,72 @@ prefs_save(void)
       fputs("#HTMLDOCRC " SVERSION "\n", fp);
 
       fprintf(fp, "TEXTCOLOR=%s\n", _htmlTextColor);
-      fprintf(fp, "BODYCOLOR=%s\n", BodyColor);
-      fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
-      fprintf(fp, "LINKCOLOR=%s\n", LinkColor);
-      fprintf(fp, "LINKSTYLE=%d\n", LinkStyle);
-      fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlBrowserWidth);
-      fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
-      fprintf(fp, "PAGELENGTH=%d\n", PageLength);
-      fprintf(fp, "PAGELEFT=%d\n", PageLeft);
-      fprintf(fp, "PAGERIGHT=%d\n", PageRight);
-      fprintf(fp, "PAGETOP=%d\n", PageTop);
-      fprintf(fp, "PAGEBOTTOM=%d\n", PageBottom);
-      fprintf(fp, "PAGEDUPLEX=%d\n", PageDuplex);
-      fprintf(fp, "LANDSCAPE=%d\n", Landscape);
-      fprintf(fp, "COMPRESSION=%d\n", Compression);
-      fprintf(fp, "OUTPUTCOLOR=%d\n", OutputColor);
-      fprintf(fp, "TOCNUMBERS=%d\n", TocNumbers);
-      fprintf(fp, "TOCLEVELS=%d\n", TocLevels);
-      fprintf(fp, "JPEG=%d\n", OutputJPEG);
-      fprintf(fp, "PAGEHEADER=%s\n", Header);
-      fprintf(fp, "PAGEFOOTER=%s\n", Footer);
-      fprintf(fp, "TOCHEADER=%s\n", TocHeader);
-      fprintf(fp, "TOCFOOTER=%s\n", TocFooter);
-      fprintf(fp, "TOCTITLE=%s\n", TocTitle);
-      fprintf(fp, "BODYFONT=%d\n", _htmlBodyFont);
-      fprintf(fp, "HEADINGFONT=%d\n", _htmlHeadingFont);
-      fprintf(fp, "FONTSIZE=%.2f\n", _htmlSizes[SIZE_P]);
+      fprintf(fp, "BODYCOLOR=%s\n", body_color_);
+      fprintf(fp, "BODYIMAGE=%s\n", body_file_);
+      fprintf(fp, "LINKCOLOR=%s\n", link_color_);
+      fprintf(fp, "LINKSTYLE=%d\n", link_style_);
+      fprintf(fp, "BROWSERWIDTH=%.0f\n", browser_width_);
+      fprintf(fp, "PAGEWIDTH=%d\n", page_width_);
+      fprintf(fp, "PAGELENGTH=%d\n", page_length_);
+      fprintf(fp, "PAGELEFT=%d\n", page_left_);
+      fprintf(fp, "PAGERIGHT=%d\n", page_right_);
+      fprintf(fp, "PAGETOP=%d\n", page_top_);
+      fprintf(fp, "PAGEBOTTOM=%d\n", page_bottom_);
+      fprintf(fp, "PAGEDUPLEX=%d\n", page_duplex_);
+      fprintf(fp, "LANDSCAPE=%d\n", landscape_);
+      fprintf(fp, "COMPRESSION=%d\n", compression_);
+      fprintf(fp, "OUTPUTCOLOR=%d\n", output_color_);
+      fprintf(fp, "TOCNUMBERS=%d\n", toc_numbers_);
+      fprintf(fp, "TOCLEVELS=%d\n", toc_levels_);
+      fprintf(fp, "JPEG=%d\n", output_jpeg_);
+      fprintf(fp, "PAGEHEADER=%s\n", header_);
+      fprintf(fp, "PAGEFOOTER=%s\n", footer_);
+      fprintf(fp, "TOCHEADER=%s\n", toc_header_);
+      fprintf(fp, "TOCFOOTER=%s\n", toc_footer_);
+      fprintf(fp, "TOCTITLE=%s\n", toc_title_);
+      fprintf(fp, "BODYFONT=%d\n", body_font_);
+      fprintf(fp, "HEADINGFONT=%d\n", heading_font_);
+      fprintf(fp, "FONTSIZE=%.2f\n", HDtree::sizes[SIZE_P]);
       fprintf(fp, "FONTSPACING=%.2f\n",
-              _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
-      fprintf(fp, "HEADFOOTTYPE=%d\n", HeadFootType);
-      fprintf(fp, "HEADFOOTSTYLE=%d\n", HeadFootStyle);
-      fprintf(fp, "HEADFOOTSIZE=%.2f\n", HeadFootSize);
-      fprintf(fp, "PDFVERSION=%.1f\n", PDFVersion);
-      fprintf(fp, "PSLEVEL=%d\n", PSLevel);
-      fprintf(fp, "PSCOMMANDS=%d\n", PSCommands);
+              HDtree::spacings[SIZE_P] / HDtree::sizes[SIZE_P]);
+      fprintf(fp, "HEADFOOTTYPE=%d\n", head_foot_type_);
+      fprintf(fp, "HEADFOOTSTYLE=%d\n", head_foot_style_);
+      fprintf(fp, "HEADFOOTSIZE=%.2f\n", head_foot_size_);
+      fprintf(fp, "PDFVERSION=%.1f\n", pdf_version_);
+      fprintf(fp, "PSLEVEL=%d\n", ps_level_);
+      fprintf(fp, "PSCOMMANDS=%d\n", ps_commands_);
       fprintf(fp, "CHARSET=%s\n", _htmlCharSet);
-      fprintf(fp, "PAGEMODE=%d\n", PDFPageMode);
-      fprintf(fp, "PAGELAYOUT=%d\n", PDFPageLayout);
-      fprintf(fp, "FIRSTPAGE=%d\n", PDFFirstPage);
-      fprintf(fp, "PAGEEFFECT=%d\n", PDFEffect);
-      fprintf(fp, "PAGEDURATION=%.0f\n", PDFPageDuration);
-      fprintf(fp, "EFFECTDURATION=%.1f\n", PDFEffectDuration);
-      fprintf(fp, "ENCRYPTION=%d\n", Encryption);
-      fprintf(fp, "PERMISSIONS=%d\n", Permissions);
-      fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
-      fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
-      fprintf(fp, "PATH=%s\n", Path);
+      fprintf(fp, "PAGEMODE=%d\n", pdf_page_mode_);
+      fprintf(fp, "PAGELAYOUT=%d\n", pdf_page_layout_);
+      fprintf(fp, "FIRSTPAGE=%d\n", pdf_first_page_);
+      fprintf(fp, "PAGEEFFECT=%d\n", pdf_effect_);
+      fprintf(fp, "PAGEDURATION=%.0f\n", pdf_page_duration_);
+      fprintf(fp, "EFFECTDURATION=%.1f\n", pdf_effect_duration_);
+      fprintf(fp, "ENCRYPTION=%d\n", encryption_);
+      fprintf(fp, "PERMISSIONS=%d\n", permissions_);
+      fprintf(fp, "OWNERPASSWORD=%s\n", owner_password_);
+      fprintf(fp, "USERPASSWORD=%s\n", user_password_);
+      fprintf(fp, "PATH=%s\n", path);
 
-      fprintf(fp, "EDITOR=%s\n", HTMLEditor);
+      fprintf(fp, "EDITOR=%s\n", html_editor);
 
       fclose(fp);
     }
   }
-#  endif // WIN32
-#endif // HAVE_LIBFLTK
+#endif // WIN32
 }
 
 
-/*
- * 'compare_strings()' - Compare two command-line strings.
- */
+//
+// 'compare_strings()' - Compare two command-line strings.
+//
 
-static int			/* O - -1 or 1 = no match, 0 = match */
-compare_strings(char *s,	/* I - Command-line string */
-                char *t,	/* I - Option string */
-                int  tmin)	/* I - Minimum number of unique chars in option */
+static int			// O - -1 or 1 = no match, 0 = match
+compare_strings(const char *s,	// I - Command-line string
+                const char *t,	// I - Option string
+                int        tmin)// I - Minimum number of unique chars in option
 {
-  int	slen;			/* Length of command-line string */
+  int	slen;			// Length of command-line string
 
 
   slen = strlen(s);
@@ -1639,118 +1568,17 @@ compare_strings(char *s,	/* I - Command-line string */
 }
 
 
-/*
- * 'usage()' - Show program version and command-line options.
- */
-
-static void
-usage(void)
-{
-  puts("HTMLDOC Version " SVERSION " Copyright 1997-2000 Easy Software Products, All Rights Reserved.");
-  puts("This software is governed by the GNU General Public License, Version 2, and");
-  puts("is based in part on the work of the Independent JPEG Group.");
-  puts("");
-  puts("Usage:");
-  puts("  htmldoc [options] filename1.html [ ... filenameN.html ]");
-#ifdef HAVE_LIBFLTK
-  puts("  htmldoc filename.book");
-#endif // HAVE_LIBFLTK
-  puts("");
-  puts("Options:");
-  puts("");
-  puts("  --bodycolor color");
-  puts("  --bodyfont {courier,times,helvetica}");
-  puts("  --bodyimage filename.{gif,jpg,png}");
-  puts("  --book");
-  puts("  --bottom margin{in,cm,mm}");
-  puts("  --browserwidth pixels");
-  puts("  --charset {8859-1...8859-15}");
-  puts("  --color");
-  puts("  --compression[=level]");
-  puts("  --datadir directory");
-  puts("  --duplex");
-  puts("  --effectduration {0.1..10.0}");
-  puts("  --encryption");
-  puts("  --firstpage {p1,toc,c1}");
-  puts("  --fontsize {6.0..24.0}");
-  puts("  --fontspacing {1.0..3.0}");
-  puts("  --footer fff");
-  puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,html}");
-  puts("  --gray");
-  puts("  --header fff");
-  puts("  --headfootfont {courier{-bold,-oblique,-boldoblique},\n"
-       "                  times{-roman,-bold,-italic,-bolditalic},\n"
-       "                  helvetica{-bold,-oblique,-boldoblique}}");
-  puts("  --headfootsize {6.0..24.0}");
-  puts("  --headingfont {courier,times,helvetica}");
-  puts("  --help");
-#ifdef HAVE_LIBFLTK
-  puts("  --helpdir directory");
-#endif // HAVE_LIBFLTK
-  puts("  --jpeg[=quality]");
-  puts("  --landscape");
-  puts("  --left margin{in,cm,mm}");
-  puts("  --linkcolor color");
-  puts("  --linkstyle {plain,underline}");
-  puts("  --logoimage filename.{gif,jpg,png}");
-  puts("  --owner-password password");
-  puts("  --no-compression");
-  puts("  --no-duplex");
-  puts("  --no-encryption");
-  puts("  --no-numbered");
-  puts("  --no-pscommands");
-  puts("  --no-title");
-  puts("  --no-toc");
-  puts("  --numbered");
-  puts("  {--outdir, -d} dirname");
-  puts("  {--outfile, -f} filename.{ps,pdf,html}");
-  puts("  --pageduration {1.0..60.0}");
-  puts("  --pageeffect {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}");
-  puts("  --pagelayout {single,one,twoleft,tworight}");
-  puts("  --pagemode {document,outline,fullscreen}");
-  puts("  --path \"dir1;dir2;dir3;...;dirN\"");
-  puts("  --permissions {all,annotate,copy,modify,print,no-annotate,no-copy,no-modify,no-print,none}");
-  puts("  --portrait");
-  puts("  --pscommands");
-  puts("  --right margin{in,cm,mm}");
-  puts("  --size {letter,a4,WxH{in,cm,mm},etc}");
-  puts("  --textcolor color");
-  puts("  --textfont {courier,times,helvetica}");
-  puts("  --title");
-  puts("  --titlefile filename.{htm,html,shtml}");
-  puts("  --titleimage filename.{gif,jpg,png}");
-  puts("  --tocfooter fff");
-  puts("  --tocheader fff");
-  puts("  --toclevels levels");
-  puts("  --toctitle string");
-  puts("  --top margin{in,cm,mm}");
-  puts("  --user-password password");
-  puts("  {--verbose, -v}");
-  puts("  --webpage");
-  puts("");
-  puts("  fff = heading format string; each \'f\' can be one of:");
-  puts("");
-  puts("        . = blank");
-  puts("        t = title text");
-  puts("        h = current heading");
-  puts("        c = current chapter heading");
-  puts("        C = current chapter page number (arabic)");
-  puts("        l = logo image");
-  puts("        i = lowercase roman numerals");
-  puts("        I = uppercase roman numerals");
-  puts("        1 = arabic numbers (1, 2, 3, ...)");
-  puts("        a = lowercase letters");
-  puts("        A = uppercase letters");
-
-  exit(1);
-}
-
-
-/*
- * End of "$Id: htmldoc.cxx,v 1.37 2000/10/16 03:25:07 mike Exp $".
- */
 //
-// "$Id: htmldoc.cxx,v 1.37 2000/10/16 03:25:07 mike Exp $"
+// End of "$Id: htmldoc.cxx,v 1.38 2000/11/06 19:53:03 mike Exp $".
+//
+
+
+
+
+
+
+//
+// "$Id: htmldoc.cxx,v 1.38 2000/11/06 19:53:03 mike Exp $"
 //
 //   PostScript + PDF output routines for HTMLDOC, a HTML document processing
 //   program.
@@ -1838,15 +1666,15 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
 
 
   // Figure out the printable area of the output page...
-  if (Landscape)
+  if (landscape_)
   {
-    PagePrintWidth  = PageLength - PageLeft - PageRight;
-    PagePrintLength = PageWidth - PageTop - PageBottom;
+    PagePrintWidth  = page_length_ - page_left_ - page_right_;
+    PagePrintLength = page_width_ - page_top_ - page_bottom_;
   }
   else
   {
-    PagePrintWidth  = PageWidth - PageLeft - PageRight;
-    PagePrintLength = PageLength - PageTop - PageBottom;
+    PagePrintWidth  = page_width_ - page_left_ - page_right_;
+    PagePrintLength = page_length_ - page_top_ - page_bottom_;
   }
 
   // Get the document title, author, etc...
@@ -1856,18 +1684,18 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
   copyright  = htmlGetMeta(document, (uchar *)"copyright");
   docnumber  = htmlGetMeta(document, (uchar *)"docnumber");
   keywords   = htmlGetMeta(document, (uchar *)"keywords");
-  logo_image = image_load(LogoImage, !OutputColor);
+  logo_image = image_load(LogoImage, !output_color_);
 
   if (logo_image != NULL)
   {
-    logo_width  = logo_image->width * PagePrintWidth / _htmlBrowserWidth;
+    logo_width  = logo_image->width * PagePrintWidth / browser_width_;
     logo_height = logo_width * logo_image->height / logo_image->width;
   }
   else
     logo_width = logo_height = 0.0f;
 
   find_background(document);
-  get_color((uchar *)LinkColor, link_color, 0);
+  get_color((uchar *)link_color_, link_color, 0);
 
   // Initialize page rendering variables...
   memset(pages, 0, sizeof(pages));
@@ -1882,7 +1710,7 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
   num_headings = 0;
   num_links    = 0;
 
-  if (TitlePage)
+  if (title_page_)
   {
 #if defined(WIN32) || defined(__EMX__)
     if (stricmp(file_extension(TitleImage), "htm") == 0 ||
@@ -1918,7 +1746,7 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
       parse_doc(t, 0, PagePrintWidth, bottom, top, &x, &y, &page, NULL,
                 &needspace);
 
-      if (PageDuplex && (num_pages & 1))
+      if (page_duplex_ && (num_pages & 1))
 	num_pages ++;
 
       htmlDeleteTree(t);
@@ -1926,26 +1754,26 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
     else
     {
       // Create a standard title page...
-      if ((timage = image_load(TitleImage, !OutputColor)) != NULL)
+      if ((timage = image_load(TitleImage, !output_color_)) != NULL)
       {
-	timage_width  = timage->width * PagePrintWidth / _htmlBrowserWidth;
+	timage_width  = timage->width * PagePrintWidth / browser_width_;
 	timage_height = timage_width * timage->height / timage->width;
       }
 
-      num_pages = PageDuplex ? 2 : 1;
+      num_pages = page_duplex_ ? 2 : 1;
 
       height = 0.0;
 
       if (timage != NULL)
-	height += timage_height + _htmlSpacings[SIZE_P];
+	height += timage_height + HDtree::spacings[SIZE_P];
       if (title != NULL)
-	height += _htmlSpacings[SIZE_H1] + _htmlSpacings[SIZE_P];
+	height += HDtree::spacings[SIZE_H1] + HDtree::spacings[SIZE_P];
       if (author != NULL)
-	height += _htmlSpacings[SIZE_P];
+	height += HDtree::spacings[SIZE_P];
       if (docnumber != NULL)
-	height += _htmlSpacings[SIZE_P];
+	height += HDtree::spacings[SIZE_P];
       if (copyright != NULL)
-	height += _htmlSpacings[SIZE_P];
+	height += HDtree::spacings[SIZE_P];
 
       y = 0.5f * (PagePrintLength + height);
 
@@ -1953,68 +1781,68 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
       {
 	new_render(0, RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
                    y - timage_height, timage_width, timage_height, timage);
-	y -= timage_height + _htmlSpacings[SIZE_P];
+	y -= timage_height + HDtree::spacings[SIZE_P];
       }
 
       get_color(_htmlTextColor, rgb);
 
       if (title != NULL)
       {
-	width = get_width(title, _htmlHeadingFont, STYLE_BOLD, SIZE_H1);
+	width = get_width(title, heading_font_, STYLE_BOLD, SIZE_H1);
 	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	   y - _htmlSpacings[SIZE_H1], width,
-			   _htmlSizes[SIZE_H1], title);
+                	   y - HDtree::spacings[SIZE_H1], width,
+			   HDtree::sizes[SIZE_H1], title);
 
-	r->data.text.typeface = _htmlHeadingFont;
+	r->data.text.typeface = heading_font_;
 	r->data.text.style    = STYLE_BOLD;
-	r->data.text.size     = _htmlSizes[SIZE_H1];
+	r->data.text.size     = HDtree::sizes[SIZE_H1];
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
-	y -= _htmlSpacings[SIZE_H1];
+	y -= HDtree::spacings[SIZE_H1];
 
 	if (docnumber != NULL)
 	{
-	  width = get_width(docnumber, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
+	  width = get_width(docnumber, body_font_, STYLE_NORMAL, SIZE_P);
 	  r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                             y - _htmlSpacings[SIZE_P], width,
-			     _htmlSizes[SIZE_P], docnumber);
+                             y - HDtree::spacings[SIZE_P], width,
+			     HDtree::sizes[SIZE_P], docnumber);
 
-	  r->data.text.typeface = _htmlBodyFont;
+	  r->data.text.typeface = body_font_;
 	  r->data.text.style    = STYLE_NORMAL;
-	  r->data.text.size     = _htmlSizes[SIZE_P];
+	  r->data.text.size     = HDtree::sizes[SIZE_P];
           memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
-	  y -= _htmlSpacings[SIZE_P];
+	  y -= HDtree::spacings[SIZE_P];
 	}
 
-	y -= _htmlSpacings[SIZE_P];
+	y -= HDtree::spacings[SIZE_P];
       }
 
       if (author != NULL)
       {
-	width = get_width(author, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
+	width = get_width(author, body_font_, STYLE_NORMAL, SIZE_P);
 	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	   y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
+                	   y - HDtree::spacings[SIZE_P], width, HDtree::sizes[SIZE_P],
 			   author);
 
-	r->data.text.typeface = _htmlBodyFont;
+	r->data.text.typeface = body_font_;
 	r->data.text.style    = STYLE_NORMAL;
-	r->data.text.size     = _htmlSizes[SIZE_P];
+	r->data.text.size     = HDtree::sizes[SIZE_P];
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
-	y -= _htmlSpacings[SIZE_P];
+	y -= HDtree::spacings[SIZE_P];
       }
 
       if (copyright != NULL)
       {
-	width = get_width(copyright, _htmlBodyFont, STYLE_NORMAL, SIZE_P);
+	width = get_width(copyright, body_font_, STYLE_NORMAL, SIZE_P);
 	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	   y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
+                	   y - HDtree::spacings[SIZE_P], width, HDtree::sizes[SIZE_P],
 			   copyright);
 
-	r->data.text.typeface = _htmlBodyFont;
+	r->data.text.typeface = body_font_;
 	r->data.text.style    = STYLE_NORMAL;
-	r->data.text.size     = _htmlSizes[SIZE_P];
+	r->data.text.size     = HDtree::sizes[SIZE_P];
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
       }
     }
@@ -2023,7 +1851,7 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
     num_pages = 0;
 
   // Parse the document...
-  if (OutputBook)
+  if (output_book_)
     chapter = 0;
   else
   {
@@ -2040,20 +1868,20 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
   top             = PagePrintLength;
   needspace       = 0;
 
-  if (strncmp(Header, "...", 3) != 0)
+  if (strncmp(header_, "...", 3) != 0)
   {
-    if (strchr(Header, 'l') != NULL && logo_height > HeadFootSize)
-      top -= logo_height + HeadFootSize;
+    if (strchr(header_, 'l') != NULL && logo_height > head_foot_size_)
+      top -= logo_height + head_foot_size_;
     else
-      top -= 2.0f * HeadFootSize;
+      top -= 2.0f * head_foot_size_;
   }
 
-  if (strncmp(Footer, "...", 3) != 0)
+  if (strncmp(footer_, "...", 3) != 0)
   {
-    if (strchr(Footer, 'l') != NULL && logo_height > HeadFootSize)
-      bottom += logo_height + HeadFootSize;
+    if (strchr(footer_, 'l') != NULL && logo_height > head_foot_size_)
+      bottom += logo_height + head_foot_size_;
     else
-      bottom += 2.0f * HeadFootSize;
+      bottom += 2.0f * head_foot_size_;
   }
 
   y = top;
@@ -2061,12 +1889,12 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
   parse_doc(document, 0, PagePrintWidth, bottom, top, &x, &y, &page, NULL,
             &needspace);
 
-  if (PageDuplex && (num_pages & 1))
+  if (page_duplex_ && (num_pages & 1))
     num_pages ++;
   chapter_ends[chapter] = num_pages - 1;
 
   // Parse the table-of-contents if necessary...
-  if (TocLevels > 0)
+  if (toc_levels_ > 0)
   {
     y                 = 0.0;
     page              = num_pages - 1;
@@ -2075,24 +1903,24 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
     bottom            = 0;
     top               = PagePrintLength;
 
-    if (strncmp(TocHeader, "...", 3) != 0)
+    if (strncmp(toc_header_, "...", 3) != 0)
     {
-      if (strchr(TocHeader, 'l') != NULL && logo_height > HeadFootSize)
-	top -= logo_height + HeadFootSize;
+      if (strchr(toc_header_, 'l') != NULL && logo_height > head_foot_size_)
+	top -= logo_height + head_foot_size_;
       else
-	top -= 2.0f * HeadFootSize;
+	top -= 2.0f * head_foot_size_;
     }
 
-    if (strncmp(TocFooter, "...", 3) != 0)
+    if (strncmp(toc_footer_, "...", 3) != 0)
     {
-      if (strchr(TocFooter, 'l') != NULL && logo_height > HeadFootSize)
-	bottom += logo_height + HeadFootSize;
+      if (strchr(toc_footer_, 'l') != NULL && logo_height > head_foot_size_)
+	bottom += logo_height + head_foot_size_;
       else
-	bottom += 2.0f * HeadFootSize;
+	bottom += 2.0f * head_foot_size_;
     }
 
     parse_contents(toc, 0, PagePrintWidth, bottom, top, &y, &page, &heading);
-    if (PageDuplex && (num_pages & 1))
+    if (page_duplex_ && (num_pages & 1))
       num_pages ++;
     chapter_ends[0] = num_pages - 1;
   }
@@ -2104,7 +1932,7 @@ HTMLDOC::pspdf_export(HDtree *document,	// I - Document to export
   if (num_pages > 0)
   {
     // Yes, write the document to disk...
-    if (PSLevel > 0)
+    if (ps_level_ > 0)
       ps_write_document(title, author, creator, copyright, keywords);
     else
       pdf_write_document(title, author, creator, copyright, keywords, toc);
@@ -2159,17 +1987,17 @@ HTMLDOC::pspdf_prepare_page(int   page,			// I - Page number
   {
     *file_page = page - chapter_starts[0] + 1;
 
-    if (TitlePage)
+    if (title_page_)
       *file_page += chapter_starts[1];
   }
   else
   {
     *file_page = page - chapter_starts[1] + 1;
 
-    if (TocLevels > 0)
+    if (toc_levels_ > 0)
       *file_page += chapter_ends[0] - chapter_starts[0] + 1;
 
-    if (TitlePage)
+    if (title_page_)
       *file_page += chapter_starts[1];
   }
 
@@ -2194,36 +2022,36 @@ HTMLDOC::pspdf_prepare_page(int   page,			// I - Page number
     page_text  = format_number(print_page, '1');
   }
 
-  if (Verbosity)
+  if (verbosity_)
   {
     progress_show("Writing page %s...", page_text);
     progress_update(100 * page / num_pages);
   }
 
   // Add page headings...
-  chapter_width = get_width(*page_chapter, HeadFootType, HeadFootStyle, SIZE_P) *
-                  HeadFootSize / _htmlSizes[SIZE_P];
-  heading_width = get_width(*page_heading, HeadFootType, HeadFootStyle, SIZE_P) *
-                  HeadFootSize / _htmlSizes[SIZE_P];
+  chapter_width = get_width(*page_chapter, head_foot_type_, head_foot_style_, SIZE_P) *
+                  head_foot_size_ / HDtree::sizes[SIZE_P];
+  heading_width = get_width(*page_heading, head_foot_type_, head_foot_style_, SIZE_P) *
+                  head_foot_size_ / HDtree::sizes[SIZE_P];
 
   if (chapter == 0)
   {
     // Add table-of-contents header & footer...
     pspdf_prepare_heading(page, print_page, title, title_width, *page_chapter,
-                          chapter_width, *page_heading, heading_width, TocHeader,
+                          chapter_width, *page_heading, heading_width, toc_header_,
 			  PagePrintLength);
     pspdf_prepare_heading(page, print_page, title, title_width, *page_chapter,
-                          chapter_width, *page_heading,  heading_width, TocFooter, 0);
+                          chapter_width, *page_heading,  heading_width, toc_footer_, 0);
   }
   else if (chapter > 0)
   {
     // Add chapter header & footer...
-    if (page > chapter_starts[chapter] || !OutputBook)
+    if (page > chapter_starts[chapter] || !output_book_)
       pspdf_prepare_heading(page, print_page, title, title_width, *page_chapter,
-                            chapter_width, *page_heading, heading_width, Header,
+                            chapter_width, *page_heading, heading_width, header_,
 			    PagePrintLength);
     pspdf_prepare_heading(page, print_page, title, title_width, *page_chapter,
-                          chapter_width, *page_heading, heading_width, Footer, 0);
+                          chapter_width, *page_heading, heading_width, footer_, 0);
   }
 
   return (page_text);
@@ -2261,7 +2089,7 @@ HTMLDOC::pspdf_prepare_heading(int   page,		// I - Page number
     return;
 
   // Add page headings...
-  if (PageDuplex && (page & 1))
+  if (page_duplex_ && (page & 1))
   {
     dir    = -1;
     format += 2;
@@ -2286,16 +2114,16 @@ HTMLDOC::pspdf_prepare_heading(int   page,		// I - Page number
       case 'A' :
           number = format_number(print_page, *format);
 	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)number, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, number);
+                              head_foot_size_ / HDtree::sizes[SIZE_P] *
+			      get_width((uchar *)number, head_foot_type_,
+			                head_foot_style_, SIZE_P),
+			      head_foot_size_, number);
           break;
 
       case 't' :
           if (title != NULL)
 	    temp = new_render(page, RENDER_TEXT, 0, y, title_width,
-	                      HeadFootSize, title);
+	                      head_foot_size_, title);
           else
 	    temp = NULL;
           break;
@@ -2303,7 +2131,7 @@ HTMLDOC::pspdf_prepare_heading(int   page,		// I - Page number
       case 'c' :
           if (chapter != NULL)
 	    temp = new_render(page, RENDER_TEXT, 0, y, chapter_width,
-	                      HeadFootSize, chapter);
+	                      head_foot_size_, chapter);
           else
 	    temp = NULL;
           break;
@@ -2311,16 +2139,16 @@ HTMLDOC::pspdf_prepare_heading(int   page,		// I - Page number
       case 'C' :
           number = format_number(print_page - chapter_starts[::chapter] + 2, '1');
 	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)number, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, number);
+                              head_foot_size_ / HDtree::sizes[SIZE_P] *
+			      get_width((uchar *)number, head_foot_type_,
+			                head_foot_style_, SIZE_P),
+			      head_foot_size_, number);
           break;
 
       case 'h' :
           if (heading != NULL)
 	    temp = new_render(page, RENDER_TEXT, 0, y, heading_width,
-	                      HeadFootSize, heading);
+	                      head_foot_size_, heading);
           else
 	    temp = NULL;
           break;
@@ -2333,7 +2161,7 @@ HTMLDOC::pspdf_prepare_heading(int   page,		// I - Page number
 	                        logo_height, logo_image);
             else // Offset from top
 	      temp = new_render(page, RENDER_IMAGE, 0,
-	                        y + HeadFootSize - logo_height,
+	                        y + head_foot_size_ - logo_height,
 	                	logo_width, logo_height, logo_image);
           }
 	  else
@@ -2360,9 +2188,9 @@ HTMLDOC::pspdf_prepare_heading(int   page,		// I - Page number
     // Set the text font and color...
     if (temp->type == RENDER_TEXT)
     {
-      temp->data.text.typeface = HeadFootType;
-      temp->data.text.style    = HeadFootStyle;
-      temp->data.text.size     = HeadFootSize;
+      temp->data.text.typeface = head_foot_type_;
+      temp->data.text.style    = head_foot_style_;
+      temp->data.text.size     = head_foot_size_;
 
       get_color(_htmlTextColor, temp->data.text.rgb);
     }
@@ -2390,8 +2218,8 @@ HTMLDOC::ps_write_document(uchar *title,		// I - Title on all pages
 
   // Get the document title width...
   if (title != NULL)
-    title_width = HeadFootSize / _htmlSizes[SIZE_P] *
-                  get_width(title, HeadFootType, HeadFootStyle, SIZE_P);
+    title_width = head_foot_size_ / HDtree::sizes[SIZE_P] *
+                  get_width(title, head_foot_type_, head_foot_style_, SIZE_P);
 
   // Write the title page(s)...
   chapter      = -1;
@@ -2411,12 +2239,12 @@ HTMLDOC::ps_write_document(uchar *title,		// I - Title on all pages
     write_prolog(out, num_pages, title, author, creator, copyright, keywords);
   }
 
-  if (TitlePage)
+  if (title_page_)
   {
     if (OutputFiles)
     {
       out = open_file();
-      write_prolog(out, PageDuplex + 1, title, author, creator, copyright,
+      write_prolog(out, page_duplex_ + 1, title, author, creator, copyright,
                    keywords);
     }
 
@@ -2430,7 +2258,7 @@ HTMLDOC::ps_write_document(uchar *title,		// I - Title on all pages
     }
   }
 
-  if (TocLevels > 0)
+  if (toc_levels_ > 0)
     chapter = 0;
   else
     chapter = 1;
@@ -2474,7 +2302,7 @@ HTMLDOC::ps_write_document(uchar *title,		// I - Title on all pages
       fclose(out);
   }
 
-  if (Verbosity)
+  if (verbosity_)
     progress_hide();
 }
 
@@ -2523,20 +2351,20 @@ HTMLDOC::ps_write_page(FILE  *out,		// I - Output file
 
   fputs("GS\n", out);
 
-  if (Landscape && !PSCommands)
+  if (landscape_ && !ps_commands_)
   {
-    if (PageDuplex && (page & 1))
-      fprintf(out, "0 %d T -90 rotate\n", PageLength);
+    if (page_duplex_ && (page & 1))
+      fprintf(out, "0 %d T -90 rotate\n", page_length_);
     else
-      fprintf(out, "%d 0 T 90 rotate\n", PageWidth);
+      fprintf(out, "%d 0 T 90 rotate\n", page_width_);
   }
 
   write_background(out);
 
-  if (PageDuplex && (page & 1))
-    fprintf(out, "%d %d T\n", PageRight, PageBottom);
+  if (page_duplex_ && (page & 1))
+    fprintf(out, "%d %d T\n", page_right_, page_bottom_);
   else
-    fprintf(out, "%d %d T\n", PageLeft, PageBottom);
+    fprintf(out, "%d %d T\n", page_left_, page_bottom_);
 
   // Render all page elements, freeing used memory as we go...
   for (r = pages[page], next = NULL; r != NULL; r = next)
@@ -2626,8 +2454,8 @@ HTMLDOC::pdf_write_document(uchar  *title,	// I - Title for all pages
 
 
   if (title != NULL)
-    title_width = HeadFootSize / _htmlSizes[SIZE_P] *
-                  get_width(title, HeadFootType, HeadFootStyle, SIZE_P);
+    title_width = head_foot_size_ / HDtree::sizes[SIZE_P] *
+                  get_width(title, head_foot_type_, head_foot_style_, SIZE_P);
 
   out = open_file();
   if (out == NULL)
@@ -2639,7 +2467,7 @@ HTMLDOC::pdf_write_document(uchar  *title,	// I - Title for all pages
   write_prolog(out, num_pages, title, author, creator, copyright, keywords);
 
   pdf_write_links(out);
-  if (PDFVersion >= 1.2)
+  if (pdf_version_ >= 1.2)
     pdf_write_names(out);
 
   num_objects ++;
@@ -2650,19 +2478,19 @@ HTMLDOC::pdf_write_document(uchar  *title,	// I - Title for all pages
   fprintf(out, "%d 0 obj", num_objects);
   fputs("<<", out);
   fputs("/Type/Pages", out);
-  if (Landscape)
-    fprintf(out, "/MediaBox[0 0 %d %d]", PageLength, PageWidth);
+  if (landscape_)
+    fprintf(out, "/MediaBox[0 0 %d %d]", page_length_, page_width_);
   else
-    fprintf(out, "/MediaBox[0 0 %d %d]", PageWidth, PageLength);
+    fprintf(out, "/MediaBox[0 0 %d %d]", page_width_, page_length_);
 
   fprintf(out, "/Count %d", num_pages);
   fputs("/Kids[", out);
 
-  if (TitlePage)
+  if (title_page_)
     for (page = 0; page < chapter_starts[1]; page ++)
       fprintf(out, "%d 0 R\n", pages_object + 1 + page * 3);
 
-  if (TocLevels > 0)
+  if (toc_levels_ > 0)
     chapter = 0;
   else
     chapter = 1;
@@ -2679,7 +2507,7 @@ HTMLDOC::pdf_write_document(uchar  *title,	// I - Title for all pages
   page_heading = NULL;
   chapter      = -1;
 
-  if (TitlePage)
+  if (title_page_)
     for (page = 0; page < chapter_starts[1]; page ++)
       pdf_write_page(out, page, NULL, 0.0, &page_chapter, &page_heading);
 
@@ -2694,7 +2522,7 @@ HTMLDOC::pdf_write_document(uchar  *title,	// I - Title for all pages
       pdf_write_page(out, page, title, title_width, &page_chapter, &page_heading);
   }
 
-  if (TocLevels > 0)
+  if (toc_levels_ > 0)
   {
     for (chapter = 0, page = chapter_starts[0], page_heading = NULL;
 	 page <= chapter_ends[0];
@@ -2767,7 +2595,7 @@ HTMLDOC::pdf_write_document(uchar  *title,	// I - Title for all pages
     unlink(stdout_filename);
   }
 
-  if (Verbosity)
+  if (verbosity_)
     progress_hide();
 }
 
@@ -2808,7 +2636,7 @@ HTMLDOC::pdf_write_resources(FILE *out,	// I - Output file
 
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  fonts_used[HeadFootType * 4 + HeadFootStyle] = 1;
+  fonts_used[head_foot_type_ * 4 + head_foot_style_] = 1;
   images_used = background_object > 0;
   text_used   = 0;
 
@@ -2825,16 +2653,16 @@ HTMLDOC::pdf_write_resources(FILE *out,	// I - Output file
 
   if (!images_used)
     fputs("/ProcSet[/PDF/Text]", out);
-  else if (PDFVersion >= 1.2)
+  else if (pdf_version_ >= 1.2)
   {
-    if (OutputColor)
+    if (output_color_)
       fputs("/ProcSet[/PDF/Text/ImageB/ImageC/ImageI]", out);
     else
       fputs("/ProcSet[/PDF/Text/ImageB/ImageI]", out);
   }
   else
   {
-    if (OutputColor)
+    if (output_color_)
       fputs("/ProcSet[/PDF/Text/ImageB/ImageC]", out);
     else
       fputs("/ProcSet[/PDF/Text/ImageB]", out);
@@ -2852,9 +2680,9 @@ HTMLDOC::pdf_write_resources(FILE *out,	// I - Output file
   if (background_object > 0)
     fprintf(out, "/XObject<</BG %d 0 R>>", background_object);
 
-  if (PDFEffect)
-    fprintf(out, "/Dur %.0f/Trans<</D %.1f%s>>", PDFPageDuration,
-            PDFEffectDuration, effects[PDFEffect]);
+  if (pdf_effect_)
+    fprintf(out, "/Dur %.0f/Trans<</D %.1f%s>>", pdf_page_duration_,
+            pdf_effect_duration_, effects[pdf_effect_]);
 
   fputs(">>", out);
 }
@@ -2920,7 +2748,7 @@ HTMLDOC::pdf_write_page(FILE  *out,		// I - Output file
   fprintf(out, "%d 0 obj", num_objects);
   fputs("<<", out);
   fprintf(out, "/Length %d 0 R", num_objects + 1);
-  if (Compression)
+  if (compression_)
     fputs("/Filter/FlateDecode", out);
   fputs(">>", out);
   fputs("stream\n", out);
@@ -2932,10 +2760,10 @@ HTMLDOC::pdf_write_page(FILE  *out,		// I - Output file
   flate_puts("q\n", out);
   write_background(out);
 
-  if (PageDuplex && (page & 1))
-    flate_printf(out, "1 0 0 1 %d %d cm\n", PageRight, PageBottom);
+  if (page_duplex_ && (page & 1))
+    flate_printf(out, "1 0 0 1 %d %d cm\n", page_right_, page_bottom_);
   else
-    flate_printf(out, "1 0 0 1 %d %d cm\n", PageLeft, PageBottom);
+    flate_printf(out, "1 0 0 1 %d %d cm\n", page_left_, page_bottom_);
 
   flate_puts("BT\n", out);
   last_render = RENDER_TEXT;
@@ -3049,11 +2877,11 @@ HTMLDOC::pdf_write_contents(FILE   *out,			// I - Output file
     fprintf(out, "/Parent %d 0 R", parent);
 
     fputs("/Title", out);
-    write_string(out, (uchar *)TocTitle, 0);
+    write_string(out, (uchar *)toc_title_, 0);
 
     fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
             pages_object + 3 * chapter_starts[0] + 1,
-            PagePrintLength + PageBottom);
+            PagePrintLength + page_bottom_);
 
     if (prev > 0)
       fprintf(out, "/Prev %d 0 R", prev);
@@ -3077,7 +2905,7 @@ HTMLDOC::pdf_write_contents(FILE   *out,			// I - Output file
     else
       temp = toc->child;
 
-    if (parent == 0 && TocLevels > 0)
+    if (parent == 0 && toc_levels_ > 0)
     {
       // Add the table of contents to the top-level contents...
       entries[0]       = NULL;
@@ -3131,7 +2959,7 @@ HTMLDOC::pdf_write_contents(FILE   *out,			// I - Output file
 
       if (heading_pages[*heading] > 0)
 	fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
-        	pages_object + 3 * heading_pages[*heading] + ((PageDuplex && TitlePage) ? 4 : 1),
+        	pages_object + 3 * heading_pages[*heading] + ((page_duplex_ && title_page_) ? 4 : 1),
         	heading_tops[*heading]);
 
       (*heading) ++;
@@ -3202,7 +3030,7 @@ HTMLDOC::pdf_write_background(FILE *out)		// I - Output file
   fprintf(out, "/Width %d/Height %d/BitsPerComponent 8",
       	  background_image->width, background_image->height); 
   fprintf(out, "/Length %d 0 R", num_objects + 1);
-  if (Compression)
+  if (compression_)
     fputs("/Filter/FlateDecode", out);
   fputs(">>", out);
   fputs("stream\n", out);
@@ -3298,7 +3126,7 @@ HTMLDOC::pdf_write_links(FILE *out)		// I - Output file
   }
 
   // Add space for named links for PDF 1.2 output...
-  if (PDFVersion >= 1.2)
+  if (pdf_version_ >= 1.2)
     pages_object += num_links + 3;
 
   // Then generate annotation objects for all the links...
@@ -3321,14 +3149,14 @@ HTMLDOC::pdf_write_links(FILE *out)		// I - Output file
           fprintf(out, "%d 0 obj", num_objects);
           fputs("<<", out);
           fputs("/Subtype/Link", out);
-          if (PageDuplex && (page & 1))
+          if (page_duplex_ && (page & 1))
             fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                    r->x + PageRight, r->y + PageBottom - 2,
-                    r->x + r->width + PageRight, r->y + r->height + PageBottom);
+                    r->x + page_right_, r->y + page_bottom_ - 2,
+                    r->x + r->width + page_right_, r->y + r->height + page_bottom_);
           else
             fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                    r->x + PageLeft, r->y + PageBottom - 2,
-                    r->x + r->width + PageLeft, r->y + r->height + PageBottom);
+                    r->x + page_left_, r->y + page_bottom_ - 2,
+                    r->x + r->width + page_left_, r->y + r->height + page_bottom_);
           fputs("/Border[0 0 0]", out);
 	  fprintf(out, "/Dest[%d 0 R/XYZ null %d 0]",
         	  pages_object + 3 * link->page + 4,
@@ -3344,7 +3172,7 @@ HTMLDOC::pdf_write_links(FILE *out)		// I - Output file
 
           fprintf(out, "%d 0 obj", num_objects);
           fputs("<<", out);
-	  if (PDFVersion >= 1.2 &&
+	  if (pdf_version_ >= 1.2 &&
               file_method((char *)r->data.link) == NULL &&
 #if defined(WIN32) || defined(__EMX__)
               strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
@@ -3376,14 +3204,14 @@ HTMLDOC::pdf_write_links(FILE *out)		// I - Output file
           fprintf(out, "%d 0 obj", num_objects);
           fputs("<<", out);
           fputs("/Subtype/Link", out);
-          if (PageDuplex && (page & 1))
+          if (page_duplex_ && (page & 1))
             fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                    r->x + PageRight, r->y + PageBottom,
-                    r->x + r->width + PageRight, r->y + r->height + PageBottom);
+                    r->x + page_right_, r->y + page_bottom_,
+                    r->x + r->width + page_right_, r->y + r->height + page_bottom_);
           else
             fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                    r->x + PageLeft, r->y + PageBottom - 2,
-                    r->x + r->width + PageLeft, r->y + r->height + PageBottom);
+                    r->x + page_left_, r->y + page_bottom_ - 2,
+                    r->x + r->width + page_left_, r->y + r->height + page_bottom_);
           fputs("/Border[0 0 0]", out);
 	  fprintf(out, "/A %d 0 R", num_objects - 1);
           fputs(">>", out);
@@ -3477,7 +3305,7 @@ HTMLDOC::pdf_write_names(FILE *out)		// I - Output file
     fprintf(out, "%d 0 obj", num_objects);
     fputs("<<", out);
     fprintf(out, "/D[%d 0 R/XYZ null %d null]", 
-            pages_object + 3 * link->page + ((TocLevels > 0 && PageDuplex) ? 4 : 1),
+            pages_object + 3 * link->page + ((toc_levels_ > 0 && page_duplex_) ? 4 : 1),
             link->top);
     fputs(">>", out);
     fputs("endobj\n", out);
@@ -3513,7 +3341,7 @@ HTMLDOC::parse_contents(HDtree *t,		// I - Tree to parse
 		*temp,
 		*next;
   HDrender	*r;
-#define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
+#define dot_width  (HDtree::sizes[SIZE_P] * HDtree::widths[t->typeface][t->style]['.'])
 
 
   DEBUG_printf(("parse_contents(t=%08x, y=%.1f, page=%d, heading=%d)\n",
@@ -3525,7 +3353,7 @@ HTMLDOC::parse_contents(HDtree *t,		// I - Tree to parse
     {
       case MARKUP_B :	// Top-level TOC
           if (t->prev != NULL)	// Advance one line prior to top-levels...
-            *y -= _htmlSpacings[SIZE_P];
+            *y -= HDtree::spacings[SIZE_P];
 
       case MARKUP_LI :	// Lower-level TOC
           DEBUG_printf(("parse_contents: heading=%d, page = %d\n", *heading,
@@ -3538,7 +3366,7 @@ HTMLDOC::parse_contents(HDtree *t,		// I - Tree to parse
 	    if (temp->height > height)
               height = temp->height;
 
-          height *= _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
+          height *= HDtree::spacings[SIZE_P] / HDtree::sizes[SIZE_P];
 
           x  = left + 36.0f * t->indent;
 	  *y -= height;
@@ -3557,25 +3385,25 @@ HTMLDOC::parse_contents(HDtree *t,		// I - Tree to parse
 	    if ((x + temp->width) >= (right - numberwidth))
 	    {
 	      // Too wide to fit, continue on the next line
-	      *y -= _htmlSpacings[SIZE_P];
+	      *y -= HDtree::spacings[SIZE_P];
 	      x  = left + 36.0f * t->indent;
 	    }
 
             if (*y < bottom)
             {
               (*page) ++;
-	      if (Verbosity)
+	      if (verbosity_)
 		progress_show("Formatting page %d", *page);
-              width = get_width((uchar *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
-              *y = top - _htmlSpacings[SIZE_H1];
+              width = get_width((uchar *)toc_title_, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
+              *y = top - HDtree::spacings[SIZE_H1];
               x  = left + 0.5f * (right - left - width);
-              r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
+              r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, toc_title_);
               r->data.text.typeface = TYPE_HELVETICA;
               r->data.text.style    = STYLE_BOLD;
-              r->data.text.size     = _htmlSizes[SIZE_H1];
+              r->data.text.size     = HDtree::sizes[SIZE_H1];
 	      get_color(_htmlTextColor, r->data.text.rgb);
 
-              *y -= _htmlSpacings[SIZE_H1];
+              *y -= HDtree::spacings[SIZE_H1];
 	      x  = left + 36.0f * t->indent;
             }
 
@@ -3591,7 +3419,7 @@ HTMLDOC::parse_contents(HDtree *t,		// I - Tree to parse
 	      new_render(*page, RENDER_LINK, x, *y, temp->width,
 	                 temp->height, link);
 
-	      if (PSLevel == 0)
+	      if (ps_level_ == 0)
 	      {
                 memcpy(rgb, link_color, sizeof(rgb));
 
@@ -3599,7 +3427,7 @@ HTMLDOC::parse_contents(HDtree *t,		// I - Tree to parse
 		temp->green = (int)(link_color[1] * 255.0);
 		temp->blue  = (int)(link_color[2] * 255.0);
 
-                if (LinkStyle)
+                if (link_style_)
 		  new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0,
 	                     link_color);
 	      }
@@ -3629,13 +3457,13 @@ HTMLDOC::parse_contents(HDtree *t,		// I - Tree to parse
         	  r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
         	  r->data.text.typeface = temp->typeface;
         	  r->data.text.style    = temp->style;
-        	  r->data.text.size     = _htmlSizes[temp->size];
+        	  r->data.text.size     = HDtree::sizes[temp->size];
         	  memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
         	  if (temp->superscript)
         	    r->y += height - temp->height;
         	  else if (temp->subscript)
-        	    r->y -= height * _htmlSizes[0] / _htmlSpacings[0] -
+        	    r->y -= height * HDtree::sizes[0] / HDtree::spacings[0] -
 		            temp->height;
 		  break;
 
@@ -3663,7 +3491,7 @@ HTMLDOC::parse_contents(HDtree *t,		// I - Tree to parse
           r = new_render(*page, RENDER_TEXT, right - width + x, *y, 0, 0, number);
           r->data.text.typeface = t->typeface;
           r->data.text.style    = t->style;
-          r->data.text.size     = _htmlSizes[t->size];
+          r->data.text.size     = HDtree::sizes[t->size];
           memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
           // Next heading...
@@ -3716,8 +3544,8 @@ HTMLDOC::parse_doc(HDtree *t,		// I - Tree to parse
 
   while (t != NULL)
   {
-    if (((t->markup == MARKUP_H1 && OutputBook) ||
-         (t->markup == MARKUP_FILE && !OutputBook)) && !title_page)
+    if (((t->markup == MARKUP_H1 && output_book_) ||
+         (t->markup == MARKUP_FILE && !output_book_)) && !title_page)
     {
       // New page on H1 in book mode or file in webpage mode...
       if (para->child != NULL)
@@ -3727,21 +3555,21 @@ HTMLDOC::parse_doc(HDtree *t,		// I - Tree to parse
         para->child = para->last_child = NULL;
       }
 
-      if ((chapter > 0 && OutputBook) ||
-          ((*page > 1 || *y < top) && !OutputBook))
+      if ((chapter > 0 && output_book_) ||
+          ((*page > 1 || *y < top) && !output_book_))
       {
         (*page) ++;
-        if (PageDuplex && (*page & 1))
+        if (page_duplex_ && (*page & 1))
           (*page) ++;
 
-        if (Verbosity)
+        if (verbosity_)
           progress_show("Formatting page %d", *page);
 
-        if (OutputBook)
+        if (output_book_)
           chapter_ends[chapter] = *page - 1;
       }
 
-      if (OutputBook)
+      if (output_book_)
       {
         chapter ++;
 	if (chapter >= MAX_CHAPTERS)
@@ -3770,7 +3598,7 @@ HTMLDOC::parse_doc(HDtree *t,		// I - Tree to parse
     else if (t->markup == MARKUP_FILE)
     {
       // Add a file link...
-      add_link(htmlGetVariable(t, (uchar *)"FILENAME"), *page + OutputBook,
+      add_link(htmlGetVariable(t, (uchar *)"FILENAME"), *page + output_book_,
                (int)top);
     }
 
@@ -3994,13 +3822,13 @@ HTMLDOC::parse_doc(HDtree *t,		// I - Tree to parse
 	      if (strchr((char *)name, '%') != NULL)
 	        width = atoi((char *)name) * (right - left) / 100;
 	      else
-                width = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
+                width = atoi((char *)name) * PagePrintWidth / browser_width_;
             }
 
             if ((name = htmlGetVariable(t, (uchar *)"SIZE")) == NULL)
 	      height = 2;
 	    else
-	      height = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
+	      height = atoi((char *)name) * PagePrintWidth / browser_width_;
 
             switch (t->halignment)
 	    {
@@ -4015,28 +3843,28 @@ HTMLDOC::parse_doc(HDtree *t,		// I - Tree to parse
 		  break;
 	    }
 
-            if (*y < (bottom + height + _htmlSpacings[SIZE_P]))
+            if (*y < (bottom + height + HDtree::spacings[SIZE_P]))
 	    {
 	      // Won't fit on this page...
               (*page) ++;
-	      if (Verbosity)
+	      if (verbosity_)
 	        progress_show("Formatting page %d", *page);
               *y = top;
             }
 
-            (*y)   -= height + _htmlSpacings[SIZE_P];
+            (*y)   -= height + HDtree::spacings[SIZE_P];
             rgb[0] = t->red / 255.0f;
             rgb[1] = t->green / 255.0f;
             rgb[2] = t->blue / 255.0f;
 
-            new_render(*page, RENDER_FBOX, *x, *y + _htmlSpacings[SIZE_P] * 0.5,
+            new_render(*page, RENDER_FBOX, *x, *y + HDtree::spacings[SIZE_P] * 0.5,
 	               width, height, rgb);
 	  }
 	  else
 	  {
 	    // <HR BREAK> generates a page break...
             (*page) ++;
-	    if (Verbosity)
+	    if (verbosity_)
 	      progress_show("Formatting page %d", *page);
             *y = top;
 	  }
@@ -4127,14 +3955,14 @@ HTMLDOC::parse_heading(HDtree *t,	// I - Tree to parse
   DEBUG_printf(("parse_heading(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
                 t, left, right, *x, *y, *page));
 
-  if (((t->markup - MARKUP_H1) < TocLevels || TocLevels == 0) && !title_page)
+  if (((t->markup - MARKUP_H1) < toc_levels_ || toc_levels_ == 0) && !title_page)
     current_heading = t->child;
 
-  if (*y < (5 * _htmlSpacings[SIZE_P] + bottom))
+  if (*y < (5 * HDtree::spacings[SIZE_P] + bottom))
   {
     (*page) ++;
     *y = top;
-    if (Verbosity)
+    if (verbosity_)
       progress_show("Formatting page %d", *page);
   }
 
@@ -4144,18 +3972,18 @@ HTMLDOC::parse_heading(HDtree *t,	// I - Tree to parse
   if ((page_headings[*page] == NULL || t->markup == MARKUP_H1) && !title_page)
     page_headings[*page] = htmlGetText(current_heading);
 
-  if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
+  if ((t->markup - MARKUP_H1) < toc_levels_ && !title_page)
   {
     DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
                   num_headings, *page - 1));
     heading_pages[num_headings] = *page - chapter_starts[1] + 1;
-    heading_tops[num_headings]  = (int)(*y + 2 * _htmlSpacings[SIZE_P]);
+    heading_tops[num_headings]  = (int)(*y + 2 * HDtree::spacings[SIZE_P]);
     num_headings ++;
   }
 
   parse_paragraph(t, left, right, bottom, top, x, y, page, needspace);
 
-  if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 && OutputBook &&
+  if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 && output_book_ &&
       !title_page)
   {
     // Special case - chapter heading for users manual...
@@ -4221,7 +4049,7 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
     DEBUG_puts("parse_paragraph: flat == NULL!");
 
   if (*y < top && needspace)
-    *y -= _htmlSpacings[SIZE_P];
+    *y -= HDtree::spacings[SIZE_P];
 
   // First scan for images with left/right alignment tags...
   for (temp = flat, prev = NULL; temp != NULL;)
@@ -4239,7 +4067,7 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
 	  (*page) ++;
 	  *y = top;
 
-	  if (Verbosity)
+	  if (verbosity_)
 	    progress_show("Formatting page %d", *page);
         }
 
@@ -4268,7 +4096,7 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
 	  (*page) ++;
 	  *y = top;
 
-	  if (Verbosity)
+	  if (verbosity_)
 	    progress_show("Formatting page %d", *page);
         }
 
@@ -4322,8 +4150,8 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
       {
         if ((temp_width == 0.0 || whitespace) &&
             temp->markup == MARKUP_NONE && temp->data[0] == ' ')
-          temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
-                        _htmlSizes[temp->size];
+          temp_width -= HDtree::widths[temp->typeface][temp->style][' '] *
+                        HDtree::sizes[temp->size];
 
         if (temp->markup == MARKUP_NONE && temp->data[strlen((char *)temp->data) - 1] == ' ')
           whitespace = 1;
@@ -4377,7 +4205,7 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
         height = 0.5f * temp->height;
 
       if (temp->markup != MARKUP_IMG)
-        temp_height = temp->height * _htmlSpacings[0] / _htmlSizes[0];
+        temp_height = temp->height * HDtree::spacings[0] / HDtree::sizes[0];
       else
       {
         switch (temp->valignment)
@@ -4386,13 +4214,13 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
               temp_height = temp->height;
 	      break;
 	  case ALIGN_MIDDLE :
-	      if ((0.5f * temp->height) > _htmlSizes[t->size])
+	      if ((0.5f * temp->height) > HDtree::sizes[t->size])
 	        temp_height = temp->height;
 	      else
-	        temp_height = 0.5f * temp->height + _htmlSizes[t->size];
+	        temp_height = 0.5f * temp->height + HDtree::sizes[t->size];
               break;
 	  case ALIGN_BOTTOM :
-	      temp_height = temp->height + _htmlSizes[t->size];
+	      temp_height = temp->height + HDtree::sizes[t->size];
               break;
 	}
       }
@@ -4407,7 +4235,7 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
       (*page) ++;
       *y = top;
 
-      if (Verbosity)
+      if (verbosity_)
         progress_show("Formatting page %d", *page);
     }
 
@@ -4420,8 +4248,8 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
     {
       // Remove leading space...
       strcpy((char *)start->data, (char *)start->data + 1);
-      temp_width = _htmlWidths[start->typeface][start->style][' '] *
-                   _htmlSizes[start->size];
+      temp_width = HDtree::widths[start->typeface][start->style][' '] *
+                   HDtree::sizes[start->size];
       start->width -= temp_width;
       width        -= temp_width;
     }
@@ -4431,8 +4259,8 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
     {
       // Remove trailing space...
       prev->data[strlen((char *)prev->data) - 1] = '\0';
-      temp_width = _htmlWidths[prev->typeface][prev->style][' '] *
-                   _htmlSizes[prev->size];
+      temp_width = HDtree::widths[prev->typeface][prev->style][' '] *
+                   HDtree::sizes[prev->size];
       prev->width -= temp_width;
       width       -= temp_width;
     }
@@ -4442,13 +4270,13 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
       (*page) ++;
       *y = top;
 
-      if (Verbosity)
+      if (verbosity_)
         progress_show("Formatting page %d", *page);
     }
 
     *y -= height;
 
-    if (Verbosity)
+    if (verbosity_)
       progress_update(100 - (int)(100 * (*y) / PagePrintLength));
 
     if (t->halignment == ALIGN_LEFT)
@@ -4488,13 +4316,13 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
 	new_render(*page, RENDER_LINK, *x, *y, temp->width,
 	           temp->height, link);
 
-	if (PSLevel == 0)
+	if (ps_level_ == 0)
 	{
 	  temp->red   = (int)(link_color[0] * 255.0);
 	  temp->green = (int)(link_color[1] * 255.0);
 	  temp->blue  = (int)(link_color[2] * 255.0);
 
-          if (LinkStyle)
+          if (link_style_)
 	    new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0,
 	               link_color);
 	}
@@ -4529,7 +4357,7 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
 	               linewidth, linetype->height, line);
 	r->data.text.typeface = linetype->typeface;
 	r->data.text.style    = linetype->style;
-	r->data.text.size     = _htmlSizes[linetype->size];
+	r->data.text.size     = HDtree::sizes[linetype->size];
         memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	if (linetype->superscript)
@@ -4652,7 +4480,7 @@ HTMLDOC::parse_paragraph(HDtree *t,	// I - Tree to parse
                      linewidth, linetype->height, line);
       r->data.text.typeface = linetype->typeface;
       r->data.text.style    = linetype->style;
-      r->data.text.size     = _htmlSizes[linetype->size];
+      r->data.text.size     = HDtree::sizes[linetype->size];
       memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
       if (linetype->superscript)
@@ -4715,7 +4543,7 @@ HTMLDOC::parse_pre(HDtree *t,		// I - Tree to parse
     return;
 
   if (*y < top && needspace)
-    *y -= _htmlSpacings[SIZE_P];
+    *y -= HDtree::spacings[SIZE_P];
 
   col  = 0;
   flat = flatten_tree(t->child);
@@ -4741,19 +4569,19 @@ HTMLDOC::parse_pre(HDtree *t,		// I - Tree to parse
 
     if (col == 0)
     {
-      if (*y < (_htmlSpacings[t->size] + bottom))
+      if (*y < (HDtree::spacings[t->size] + bottom))
       {
         (*page) ++;
         *y = top;
 
-	if (Verbosity)
+	if (verbosity_)
 	  progress_show("Formatting page %d", *page);
       }
 
       *x = left;
-      *y -= _htmlSizes[t->size];
+      *y -= HDtree::sizes[t->size];
 
-      if (Verbosity)
+      if (verbosity_)
         progress_update(100 - (int)(100 * (*y) / PagePrintLength));
     }
 
@@ -4773,7 +4601,7 @@ HTMLDOC::parse_pre(HDtree *t,		// I - Tree to parse
       new_render(*page, RENDER_LINK, *x, *y, flat->width,
 	         flat->height, link);
 
-      if (PSLevel == 0)
+      if (ps_level_ == 0)
       {
         memcpy(rgb, link_color, sizeof(rgb));
 
@@ -4781,7 +4609,7 @@ HTMLDOC::parse_pre(HDtree *t,		// I - Tree to parse
 	flat->green = (int)(link_color[1] * 255.0);
 	flat->blue  = (int)(link_color[2] * 255.0);
 
-        if (LinkStyle)
+        if (link_style_)
 	  new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0,
 	             link_color);
       }
@@ -4799,7 +4627,7 @@ HTMLDOC::parse_pre(HDtree *t,		// I - Tree to parse
 
       case MARKUP_BR :
           col = 0;
-          *y  -= _htmlSpacings[t->size] - _htmlSizes[t->size];
+          *y  -= HDtree::spacings[t->size] - HDtree::sizes[t->size];
           break;
 
       case MARKUP_NONE :
@@ -4829,7 +4657,7 @@ HTMLDOC::parse_pre(HDtree *t,		// I - Tree to parse
           r = new_render(*page, RENDER_TEXT, *x, *y, width, 0, line);
           r->data.text.typeface = flat->typeface;
           r->data.text.style    = flat->style;
-          r->data.text.size     = _htmlSizes[flat->size];
+          r->data.text.size     = HDtree::sizes[flat->size];
           memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	  if (flat->underline)
@@ -4844,7 +4672,7 @@ HTMLDOC::parse_pre(HDtree *t,		// I - Tree to parse
           if (*dataptr == '\n')
           {
             col = 0;
-            *y  -= _htmlSpacings[t->size] - _htmlSizes[t->size];
+            *y  -= HDtree::spacings[t->size] - HDtree::sizes[t->size];
           }
           break;
 
@@ -4963,7 +4791,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
     if (var[strlen((char *)var) - 1] == '%')
       table_width = atof((char *)var) * (right - left) / 100.0f;
     else
-      table_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      table_width = atoi((char *)var) * PagePrintWidth / browser_width_;
   }
   else
     table_width = right - left;
@@ -5053,7 +4881,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
               col_width = atof((char *)var) * table_width / 100.0f -
 	                  2.0 * (cellpadding + cellspacing + border);
             else
-              col_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+              col_width = atoi((char *)var) * PagePrintWidth / browser_width_;
 
             col_min  = col_width;
 	    col_pref = col_width;
@@ -5196,7 +5024,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
     if (var[strlen((char *)var) - 1] == '%')
       width = atof((char *)var) * (right - left) / 100.0f;
     else
-      width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      width = atoi((char *)var) * PagePrintWidth / browser_width_;
   }
   else
   {
@@ -5325,7 +5153,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
 
   // Now render the whole table...
   if (*y < top && needspace)
-    *y -= _htmlSpacings[SIZE_P];
+    *y -= HDtree::spacings[SIZE_P];
 
   memset(row_spans, 0, sizeof(row_spans));
   memset(cell_start, 0, sizeof(cell_start));
@@ -5359,7 +5187,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
       if (var[strlen((char *)var) - 1] == '%')
 	temp_height = atof((char *)var) * 0.01f * PagePrintLength;
       else
-        temp_height = atof((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+        temp_height = atof((char *)var) * PagePrintWidth / browser_width_;
 
       if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
         temp_height /= num_rows;
@@ -5367,7 +5195,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
       temp_height -= 2 * (border + cellpadding);
     }
     else
-      temp_height = _htmlSpacings[SIZE_P];
+      temp_height = HDtree::spacings[SIZE_P];
 
     if (*y < (bottom + 2 * (border + cellpadding) + temp_height) &&
         temp_height < (top - bottom - 2 * (border + cellpadding)))
@@ -5375,7 +5203,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
       *y = top;
       (*page) ++;
 
-      if (Verbosity)
+      if (verbosity_)
         progress_show("Formatting page %d", *page);
     }
 
@@ -5499,7 +5327,7 @@ HTMLDOC::parse_table(HDtree *t,		// I - Tree to parse
         if (var[strlen((char *)var) - 1] == '%')
 	  temp_height = atof((char *)var) * 0.01f * PagePrintLength;
 	else
-          temp_height = atof((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+          temp_height = atof((char *)var) * PagePrintWidth / browser_width_;
 
 	if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
           temp_height /= num_rows;
@@ -5719,7 +5547,7 @@ HTMLDOC::parse_list(HDtree *t,		// I - Tree to parse
 
   if (needspace && *y < top)
   {
-    *y        -= _htmlSpacings[t->size];
+    *y        -= HDtree::spacings[t->size];
     needspace = 0;
   }
 
@@ -5731,8 +5559,8 @@ HTMLDOC::parse_list(HDtree *t,		// I - Tree to parse
   if (t->indent == 0)
   {
     // Adjust left margin when no UL/OL/DL is being used...
-    left  += _htmlSizes[t->size];
-    tempx += _htmlSizes[t->size];
+    left  += HDtree::sizes[t->size];
+    tempx += HDtree::sizes[t->size];
   }
 
   parse_doc(t->child, left, right, bottom, top, &tempx, y, page, NULL,
@@ -5781,11 +5609,11 @@ HTMLDOC::parse_list(HDtree *t,		// I - Tree to parse
 
   width = get_width(number, typeface, t->style, t->size);
 
-  r = new_render(oldpage, RENDER_TEXT, left - width, oldy - _htmlSizes[t->size],
-                 width, _htmlSpacings[t->size], number);
+  r = new_render(oldpage, RENDER_TEXT, left - width, oldy - HDtree::sizes[t->size],
+                 width, HDtree::spacings[t->size], number);
   r->data.text.typeface = typeface;
   r->data.text.style    = t->style;
-  r->data.text.size     = _htmlSizes[t->size];
+  r->data.text.size     = HDtree::sizes[t->size];
   r->data.text.rgb[0]   = t->red / 255.0f;
   r->data.text.rgb[1]   = t->green / 255.0f;
   r->data.text.rgb[2]   = t->blue / 255.0f;
@@ -5877,7 +5705,7 @@ HTMLDOC::parse_comment(HDtree *t,	// I - Tree to parse
     }
 
     (*page) ++;
-    if (Verbosity)
+    if (verbosity_)
       progress_show("Formatting page %d", *page);
     *x = left;
     *y = top;
@@ -5893,10 +5721,10 @@ HTMLDOC::parse_comment(HDtree *t,	// I - Tree to parse
     }
 
     (*page) ++;
-    if (PageDuplex && ((*page) & 1))
+    if (page_duplex_ && ((*page) & 1))
       (*page) ++;
 
-    if (Verbosity)
+    if (verbosity_)
       progress_show("Formatting page %d", *page);
     *x = left;
     *y = top;
@@ -5921,7 +5749,7 @@ HTMLDOC::parse_comment(HDtree *t,	// I - Tree to parse
     if (*y <= halfway)
     {
       (*page) ++;
-      if (Verbosity)
+      if (verbosity_)
 	progress_show("Formatting page %d", *page);
       *x = left;
       *y = top;
@@ -5947,7 +5775,7 @@ HTMLDOC::parse_comment(HDtree *t,	// I - Tree to parse
     {
       (*page) ++;
 
-      if (Verbosity)
+      if (verbosity_)
 	progress_show("Formatting page %d", *page);
       *y = top;
     }
@@ -5969,14 +5797,14 @@ HTMLDOC::find_background(HDtree *t)	// I - Document to search
 
   // First see if the --bodycolor or --bodyimage options have been
   // specified...
-  if (BodyImage[0] != '\0')
+  if (body_file_[0] != '\0')
   {
-    background_image = image_load(BodyImage, !OutputColor);
+    background_image = image_load(body_file_, !output_color_);
     return;
   }
-  else if (BodyColor[0] != '\0')
+  else if (body_color_[0] != '\0')
   {
-    get_color((uchar *)BodyColor, background_color);
+    get_color((uchar *)body_color_, background_color);
     return;
   }
 
@@ -5988,7 +5816,7 @@ HTMLDOC::find_background(HDtree *t)	// I - Document to search
     if (t->markup == MARKUP_BODY)
     {
       if ((var = htmlGetVariable(t, (uchar *)"BACKGROUND")) != NULL)
-        background_image = image_load((char *)var, !OutputColor);
+        background_image = image_load((char *)var, !output_color_);
 
       if ((var = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL)
         get_color(var, background_color);
@@ -6015,23 +5843,23 @@ HTMLDOC::write_background(FILE *out)	// I - File to write to
   int	page_width, page_length;
 
 
-  if (Landscape)
+  if (landscape_)
   {
-    page_length = PageWidth;
-    page_width  = PageLength;
+    page_length = page_width_;
+    page_width  = page_length_;
   }
   else
   {
-    page_width  = PageWidth;
-    page_length = PageLength;
+    page_width  = page_width_;
+    page_length = page_length_;
   }
 
   if (background_image != NULL)
   {
-    width  = background_image->width * PagePrintWidth / _htmlBrowserWidth;
-    height = background_image->height * PagePrintWidth / _htmlBrowserWidth;
+    width  = background_image->width * PagePrintWidth / browser_width_;
+    height = background_image->height * PagePrintWidth / browser_width_;
 
-    switch (PSLevel)
+    switch (ps_level_)
     {
       case 0 :
           for (x = 0.0; x < page_width; x += width)
@@ -6065,7 +5893,7 @@ HTMLDOC::write_background(FILE *out)	// I - File to write to
            background_color[1] != 1.0 ||
            background_color[2] != 1.0)
   {
-    if (PSLevel > 0)
+    if (ps_level_ > 0)
     {
       render_x = -1.0;
       render_y = -1.0;
@@ -6280,9 +6108,9 @@ HTMLDOC::get_width(uchar *s,		// I - String to scan
     return (0.0);
 
   for (width = 0.0, ptr = s; *ptr != '\0'; ptr ++)
-    width += _htmlWidths[typeface][style][*ptr];
+    width += HDtree::widths[typeface][style][*ptr];
 
-  return (width * _htmlSizes[size]);
+  return (width * HDtree::sizes[size]);
 }
 
 
@@ -6320,7 +6148,7 @@ HTMLDOC::open_file(void)
   char	filename[255];	// Filename
 
 
-  if (OutputFiles && PSLevel > 0)
+  if (OutputFiles && ps_level_ > 0)
   {
     if (chapter == -1)
       sprintf(filename, "%s/cover.ps", OutputPath);
@@ -6341,7 +6169,7 @@ HTMLDOC::open_file(void)
     return (fopen(OutputPath, "wb"));
   else
   {
-    if (PSLevel == 0)
+    if (ps_level_ == 0)
     {
 #if defined(WIN32) || defined(__EMX__)
       if (getenv("TMP") != NULL)
@@ -6380,7 +6208,7 @@ HTMLDOC::set_color(FILE  *out,	// I - File to write to
   render_rgb[1] = rgb[1];
   render_rgb[2] = rgb[2];
 
-  if (PSLevel > 0)
+  if (ps_level_ > 0)
     fprintf(out, "%.2f %.2f %.2f C ", rgb[0], rgb[1], rgb[2]);
   else
     flate_printf(out, "%.2f %.2f %.2f rg ", rgb[0], rgb[1], rgb[2]);
@@ -6420,7 +6248,7 @@ HTMLDOC::set_font(FILE  *out,		// I - File to write to
   render_style    = style;
   render_size     = size;
 
-  if (PSLevel > 0)
+  if (ps_level_ > 0)
     fprintf(out, "%s/F%x SF ", sizes, typeface * 4 + style);
   else
     flate_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
@@ -6445,7 +6273,7 @@ HTMLDOC::set_pos(FILE  *out,	// I - File to write to
     return;
 
   // Format X and Y...
-  if (PSLevel > 0 || render_x == -1.0)
+  if (ps_level_ > 0 || render_x == -1.0)
   {
     sprintf(xs, "%.1f", x);
     sprintf(ys, "%.1f", y);
@@ -6469,7 +6297,7 @@ HTMLDOC::set_pos(FILE  *out,	// I - File to write to
   if (*s == '.')
     *s = '\0';
 
-  if (PSLevel > 0)
+  if (ps_level_ > 0)
     fprintf(out, "%s %s M", xs, ys);
   else
     flate_printf(out, "%s %s Td", xs, ys);
@@ -6617,7 +6445,7 @@ HTMLDOC::jpg_empty(j_compress_ptr cinfo)	// I - Compressor info
 {
   (void)cinfo;
 
-  if (PSLevel > 0)
+  if (ps_level_ > 0)
     ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
   else
     flate_write(jpg_file, jpg_buf, sizeof(jpg_buf));
@@ -6643,7 +6471,7 @@ HTMLDOC::jpg_term(j_compress_ptr cinfo)	// I - Compressor info
 
   nbytes = sizeof(jpg_buf) - jpg_dest.free_in_buffer;
 
-  if (PSLevel > 0)
+  if (ps_level_ > 0)
     ps_ascii85(jpg_file, jpg_buf, nbytes);
   else
     flate_write(jpg_file, jpg_buf, nbytes);
@@ -6678,10 +6506,10 @@ HTMLDOC::jpg_setup(FILE           *out,	// I - Output file
   cinfo->in_color_space   = img->depth == 1 ? JCS_GRAYSCALE : JCS_RGB;
 
   jpeg_set_defaults(cinfo);
-  jpeg_set_linear_quality(cinfo, OutputJPEG, TRUE);
+  jpeg_set_linear_quality(cinfo, output_jpeg_, TRUE);
 
   // Update things when writing to PS files...
-  if (PSLevel)
+  if (ps_level_)
   {
     // Adobe uses sampling == 1
     for (i = 0; i < img->depth; i ++)
@@ -6756,7 +6584,7 @@ HTMLDOC::write_image(FILE     *out,	// I - Output file
   DEBUG_printf(("img->width = %d, ->height = %d, ->depth = %d\n", img->width,
                 img->height, img->depth));
 
-  if (PSLevel != 1 && PDFVersion >= 1.2)
+  if (ps_level_ != 1 && pdf_version_ >= 1.2)
   {
     if (img->depth == 1)
     {
@@ -7016,7 +6844,7 @@ HTMLDOC::write_image(FILE     *out,	// I - Output file
   }
 
   // Now write the image...
-  switch (PSLevel)
+  switch (ps_level_)
   {
     case 0 : // PDF
 	flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width, r->height,
@@ -7047,7 +6875,7 @@ HTMLDOC::write_image(FILE     *out,	// I - Output file
 
   	  flate_write(out, indices, indwidth * img->height, 1);
 	}
-	else if (OutputJPEG)
+	else if (output_jpeg_)
 	{
   	  flate_printf(out, "/W %d/H %d/BPC 8/F/DCT ID\n",
                        img->width, img->height); 
@@ -7098,7 +6926,7 @@ HTMLDOC::write_image(FILE     *out,	// I - Output file
         break;
     case 3 : // PostScript, Level 3
         // Fallthrough to Level 2 output if compression is disabled...
-        if (Compression && (!OutputJPEG || ncolors > 0))
+        if (compression_ && (!output_jpeg_ || ncolors > 0))
 	{
           fputs("GS", out);
 	  fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
@@ -7194,7 +7022,7 @@ HTMLDOC::write_image(FILE     *out,	// I - Output file
 	  ps_ascii85(out, indices, indwidth * img->height);
           fputs("~>\n", out);
         }
-	else if (OutputJPEG)
+	else if (output_jpeg_)
 	{
 	  if (img->depth == 1)
 	    fputs("/DeviceGray setcolorspace", out);
@@ -7306,7 +7134,7 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
 
   // See what fonts are used...
   memset(fonts_used, 0, sizeof(fonts_used));
-  fonts_used[HeadFootType][HeadFootStyle] = 1;
+  fonts_used[head_foot_type_][head_foot_style_] = 1;
 
   for (page = 0; page < num_pages; page ++)
     for (r = pages[page]; r != NULL; r = r->next)
@@ -7314,15 +7142,15 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
 	fonts_used[r->data.text.typeface][r->data.text.style] = 1;
 
   // Generate the heading...
-  if (PSLevel > 0)
+  if (ps_level_ > 0)
   {
     // Write PostScript prolog stuff...
     fputs("%!PS-Adobe-3.0\n", out);
-    if (Landscape)
-      fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageLength, PageWidth);
+    if (landscape_)
+      fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", page_length_, page_width_);
     else
-      fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
-    fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
+      fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", page_width_, page_length_);
+    fprintf(out,"%%%%LanguageLevel: %d\n", ps_level_);
     fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2000 Easy Software Products, All Rights Reserved.\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02dZ\n",
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
@@ -7386,7 +7214,7 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
     // Now for the macros...
     fputs("/BD{bind def}bind def\n", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath stroke}BD\n", out);
-    if (!OutputColor)
+    if (!output_color_)
       fputs("/C{0.08 mul exch 0.61 mul add exch 0.31 mul add setgray}BD\n", out);
     else
       fputs("/C{setrgbcolor}BD\n", out);
@@ -7406,27 +7234,27 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
 
     fputs("%%EndProlog\n", out);
 
-    if (PSLevel > 1 && PSCommands)
+    if (ps_level_ > 1 && ps_commands_)
     {
       fputs("%%BeginSetup\n", out);
 
-      if (Landscape)
+      if (landscape_)
       {
-        if (PageWidth == 612 && PageLength == 792)
+        if (page_width_ == 612 && page_length_ == 792)
 	  fputs("%%BeginFeature: PageSize Letter.Transverse\n", out);
-        if (PageWidth == 612 && PageLength == 1008)
+        if (page_width_ == 612 && page_length_ == 1008)
 	  fputs("%%BeginFeature: PageSize Legal.Transverse\n", out);
-        if (PageWidth == 595 && PageLength == 842)
+        if (page_width_ == 595 && page_length_ == 842)
 	  fputs("%%BeginFeature: PageSize A4.Transverse\n", out);
         else
-	  fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageLength,
-	          PageWidth);
+	  fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", page_length_,
+	          page_width_);
 
-	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageLength,
-	        PageWidth);
+	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", page_length_,
+	        page_width_);
         fputs("%%EndFeature\n", out);
 
-        if (PageDuplex)
+        if (page_duplex_)
 	{
 	  fputs("%%BeginFeature: Duplex DuplexTumble\n", out);
 	  fputs("<</Duplex true/Tumble true>>setpagedevice\n", out);
@@ -7435,21 +7263,21 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
       }
       else
       {
-        if (PageWidth == 612 && PageLength == 792)
+        if (page_width_ == 612 && page_length_ == 792)
 	  fputs("%%BeginFeature: PageSize Letter\n", out);
-        if (PageWidth == 612 && PageLength == 1008)
+        if (page_width_ == 612 && page_length_ == 1008)
 	  fputs("%%BeginFeature: PageSize Legal\n", out);
-        if (PageWidth == 595 && PageLength == 842)
+        if (page_width_ == 595 && page_length_ == 842)
 	  fputs("%%BeginFeature: PageSize A4\n", out);
         else
-	  fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageWidth,
-	          PageLength);
+	  fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", page_width_,
+	          page_length_);
 
-	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageWidth,
-	        PageLength);
+	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", page_width_,
+	        page_length_);
         fputs("%%EndFeature\n", out);
 
-        if (PageDuplex)
+        if (page_duplex_)
 	{
 	  fputs("%%BeginFeature: Duplex DuplexNoTumble\n", out);
 	  fputs("<</Duplex true/Tumble false>>setpagedevice\n", out);
@@ -7457,7 +7285,7 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
 	}
       }
 
-      if (!PageDuplex)
+      if (!page_duplex_)
       {
 	fputs("%%BeginFeature: Duplex None\n", out);
 	fputs("<</Duplex false>>setpagedevice\n", out);
@@ -7470,7 +7298,7 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
   else
   {
     // Write PDF prolog stuff...
-    fprintf(out, "%%PDF-%.1f\n", PDFVersion);
+    fprintf(out, "%%PDF-%.1f\n", pdf_version_);
     fputs("%\342\343\317\323\n", out);
     num_objects = 0;
 
@@ -7481,20 +7309,20 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
     md5_finish(&md5, file_id);
 
     // Setup encryption stuff as necessary...
-    if (Encryption)
+    if (encryption_)
     {
       // Copy and pad the user password...
-      strncpy((char *)user_pad, UserPassword, sizeof(user_pad));
+      strncpy((char *)user_pad, user_password_, sizeof(user_pad));
 
-      if ((i = strlen(UserPassword)) < 32)
+      if ((i = strlen(user_password_)) < 32)
 	memcpy(user_pad + i, pad, 32 - i);
 
-      if (OwnerPassword[0])
+      if (owner_password_[0])
       {
         // Copy and pad the owner password...
-        strncpy((char *)owner_pad, OwnerPassword, sizeof(owner_pad));
+        strncpy((char *)owner_pad, owner_password_, sizeof(owner_pad));
 
-	if ((i = strlen(OwnerPassword)) < 32)
+	if ((i = strlen(owner_password_)) < 32)
 	  memcpy(owner_pad + i, pad, 32 - i);
       }
       else
@@ -7519,7 +7347,7 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
       md5_append(&md5, user_pad, 32);
       md5_append(&md5, owner_key, 32);
 
-      perm_value = (unsigned)Permissions;
+      perm_value = (unsigned)permissions_;
       perm_bytes[0] = perm_value;
       perm_bytes[1] = perm_value >> 8;
       perm_bytes[2] = perm_value >> 16;
@@ -7546,7 +7374,7 @@ HTMLDOC::write_prolog(FILE *out,		// I - Output file
       fputs(">/U<", out);
       for (i = 0; i < 32; i ++)
         fprintf(out, "%02x", user_key[i]);
-      fprintf(out, ">/P %d/V 1", Permissions);
+      fprintf(out, ">/P %d/V 1", permissions_);
       fputs(">>", out);
       fputs("endobj\n", out);
     }
@@ -7658,7 +7486,7 @@ HTMLDOC::write_string(FILE  *out,	// I - Output file
   int	i;			// Looping var
 
 
-  if (Encryption && !compress && PSLevel == 0)
+  if (encryption_ && !compress && ps_level_ == 0)
   {
     int		len;		// Length of string
     uchar	news[1024];	// New string
@@ -7745,9 +7573,9 @@ HTMLDOC::write_text(FILE     *out,	// I - Output file
   set_font(out, r->data.text.typeface, r->data.text.style, r->data.text.size);
   set_pos(out, r->x, r->y);
 
-  write_string(out, r->data.text.buffer, PSLevel == 0);
+  write_string(out, r->data.text.buffer, ps_level_ == 0);
 
-  if (PSLevel > 0)
+  if (ps_level_ > 0)
     fputs("S\n", out);
   else
     flate_puts("Tj\n", out);
@@ -7782,7 +7610,7 @@ HTMLDOC::write_trailer(FILE *out,	// I - Output file
 		};
 
 
-  if (PSLevel > 0)
+  if (ps_level_ > 0)
   {
     // PostScript...
     fputs("%%Trailer\n", out);
@@ -7802,19 +7630,19 @@ HTMLDOC::write_trailer(FILE *out,	// I - Output file
     fputs("/Type/Catalog", out);
     fprintf(out, "/Pages %d 0 R", pages_object);
 
-    if (PDFVersion >= 1.2)
+    if (pdf_version_ >= 1.2)
     {
       fprintf(out, "/Names %d 0 R", names_object);
-      fprintf(out, "/PageLayout/%s", layouts[PDFPageLayout]);
+      fprintf(out, "/PageLayout/%s", layouts[pdf_page_layout_]);
     }
 
     if (outline_object > 0)
       fprintf(out, "/Outlines %d 0 R", outline_object);
 
-    switch (PDFFirstPage)
+    switch (pdf_first_page_)
     {
       case PDF_PAGE_1 :
-          if (TitlePage)
+          if (title_page_)
 	  {
             fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
                     pages_object + 1);
@@ -7822,7 +7650,7 @@ HTMLDOC::write_trailer(FILE *out,	// I - Output file
 	  }
           break;
       case PDF_TOC :
-          if (TocLevels > 0)
+          if (toc_levels_ > 0)
 	  {
             fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
                     pages_object + 3 * chapter_starts[0] + 1);
@@ -7835,44 +7663,44 @@ HTMLDOC::write_trailer(FILE *out,	// I - Output file
           break;
     }
 
-    fprintf(out, "/PageMode/%s", modes[PDFPageMode]);
+    fprintf(out, "/PageMode/%s", modes[pdf_page_mode_]);
 
-    if (PDFVersion > 1.2)
+    if (pdf_version_ > 1.2)
     {
       // Output the PageLabels tree...
       fputs("/PageLabels<</Nums[", out);
 
       i = 0;
 
-      if (TitlePage)
+      if (title_page_)
       {
         fputs("0<</P", out);
 	write_string(out, (uchar *)"title", 0);
 	fputs(">>", out);
-	if (PageDuplex)
+	if (page_duplex_)
 	{
 	  fputs("1<</P", out);
 	  write_string(out, (uchar *)"eltit", 0);
 	  fputs(">>", out);
 	}
-	i += PageDuplex + 1;
+	i += page_duplex_ + 1;
       }
 
-      if (TocLevels > 0)
+      if (toc_levels_ > 0)
       {
         type = 'v';
         for (j = 0; j < 3; j ++)
-	  if (TocHeader[j] == '1')
+	  if (toc_header_[j] == '1')
 	    type = 'D';
-	  else if (TocHeader[j] == 'i')
+	  else if (toc_header_[j] == 'i')
 	    type = 'r';
-	  else if (TocHeader[j] == 'I')
+	  else if (toc_header_[j] == 'I')
 	    type = 'R';
-	  else if (TocFooter[j] == '1')
+	  else if (toc_footer_[j] == '1')
 	    type = 'D';
-	  else if (TocFooter[j] == 'i')
+	  else if (toc_footer_[j] == 'i')
 	    type = 'r';
-	  else if (TocFooter[j] == 'I')
+	  else if (toc_footer_[j] == 'I')
 	    type = 'R';
 
         fprintf(out, "%d<</S/%c>>", i, type);
@@ -7882,17 +7710,17 @@ HTMLDOC::write_trailer(FILE *out,	// I - Output file
 
       type = 'D';
       for (j = 0; j < 3; j ++)
-	if (Header[j] == '1')
+	if (header_[j] == '1')
 	  type = 'D';
-	else if (Header[j] == 'i')
+	else if (header_[j] == 'i')
 	  type = 'r';
-	else if (Header[j] == 'I')
+	else if (header_[j] == 'I')
 	  type = 'R';
-	else if (Footer[j] == '1')
+	else if (footer_[j] == '1')
 	  type = 'D';
-	else if (Footer[j] == 'i')
+	else if (footer_[j] == 'i')
 	  type = 'r';
-	else if (Footer[j] == 'I')
+	else if (footer_[j] == 'I')
 	  type = 'R';
 
       fprintf(out, "%d<</S/%c>>", i, type);
@@ -7923,7 +7751,7 @@ HTMLDOC::write_trailer(FILE *out,	// I - Output file
       fprintf(out, "%02x", file_id[i]);
     fputs(">]", out);
 
-    if (Encryption)
+    if (encryption_)
       fprintf(out, "/Encrypt %d 0 R", encrypt_object);
 
     fputs(">>\n", out);
@@ -7976,17 +7804,17 @@ HTMLDOC::encrypt_init(void)
 void
 HTMLDOC::flate_open_stream(FILE *out)	// I - Output file
 {
-  if (Encryption && !PSLevel)
+  if (encryption_ && !ps_level_)
     encrypt_init();
 
-  if (!Compression)
+  if (!compression_)
     return;
 
   compressor.zalloc = (alloc_func)0;
   compressor.zfree  = (free_func)0;
   compressor.opaque = (voidpf)0;
 
-  deflateInit(&compressor, Compression);
+  deflateInit(&compressor, compression_);
 
   compressor.next_out  = (Bytef *)comp_buffer;
   compressor.avail_out = sizeof(comp_buffer);
@@ -8000,17 +7828,17 @@ HTMLDOC::flate_open_stream(FILE *out)	// I - Output file
 void
 HTMLDOC::flate_close_stream(FILE *out)	// I - Output file
 {
-  if (!Compression)
+  if (!compression_)
     return;
 
   while (deflate(&compressor, Z_FINISH) != Z_STREAM_END)
   {
-    if (PSLevel)
+    if (ps_level_)
       ps_ascii85(out, comp_buffer,
                  (uchar *)compressor.next_out - (uchar *)comp_buffer);
     else
     {
-      if (Encryption)
+      if (encryption_)
         rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	            (uchar *)compressor.next_out - (uchar *)comp_buffer);
 
@@ -8024,12 +7852,12 @@ HTMLDOC::flate_close_stream(FILE *out)	// I - Output file
 
   if ((uchar *)compressor.next_out > (uchar *)comp_buffer)
   {
-    if (PSLevel)
+    if (ps_level_)
       ps_ascii85(out, comp_buffer,
                  (uchar *)compressor.next_out - (uchar *)comp_buffer);
     else
     {
-      if (Encryption)
+      if (encryption_)
         rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	            (uchar *)compressor.next_out - (uchar *)comp_buffer);
 
@@ -8041,7 +7869,7 @@ HTMLDOC::flate_close_stream(FILE *out)	// I - Output file
 
   deflateEnd(&compressor);
 
-  if (PSLevel)
+  if (ps_level_)
     fputs("~>\n", out);
 }
 
@@ -8090,7 +7918,7 @@ HTMLDOC::flate_write(FILE  *out,		// I - Output file
             int   length,	// I - Number of bytes to write
 	    int   flush)	// I - Flush when writing data?
 {
-  if (Compression)
+  if (compression_)
   {
     compressor.next_in  = buf;
     compressor.avail_in = length;
@@ -8099,12 +7927,12 @@ HTMLDOC::flate_write(FILE  *out,		// I - Output file
     {
       if (compressor.avail_out < (sizeof(comp_buffer) / 8))
       {
-	if (PSLevel)
+	if (ps_level_)
 	  ps_ascii85(out, comp_buffer,
                      (uchar *)compressor.next_out - (uchar *)comp_buffer);
 	else
 	{
-	  if (Encryption)
+	  if (encryption_)
             rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	        	(uchar *)compressor.next_out - (uchar *)comp_buffer);
 
@@ -8122,7 +7950,7 @@ HTMLDOC::flate_write(FILE  *out,		// I - Output file
   }
   else
   {
-    if (Encryption && !PSLevel)
+    if (encryption_ && !ps_level_)
     {
       int	i,		// Looping var
 		bytes;		// Number of bytes to encrypt/write
@@ -8145,5 +7973,5 @@ HTMLDOC::flate_write(FILE  *out,		// I - Output file
 
 
 //
-// End of "$Id: htmldoc.cxx,v 1.37 2000/10/16 03:25:07 mike Exp $".
+// End of "$Id: htmldoc.cxx,v 1.38 2000/11/06 19:53:03 mike Exp $".
 //
