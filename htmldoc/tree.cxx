@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.9 2002/03/11 02:33:07 mike Exp $"
+// "$Id: tree.cxx,v 1.10 2002/04/01 11:56:14 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -27,6 +27,7 @@
 //   hdTree::~hdTree()         - Destroy a tree node.
 //   hdTree::add()             - Add a node to the end of a parent.
 //   hdTree::compute_size()    - Compute the width and height of a node.
+//   hdTree::copy_text()       - Copy all text nodes to a new parent.
 //   hdTree::fix_url()         - Fix a URL so that the path is resolved
 //                               directly.
 //   hdTree::get_attr()        - Get an attribute.
@@ -271,6 +272,7 @@ hdTree::hdTree(hdElement  e,		// I - Element type
   if (p)
   {
     style = p->style;
+    link  = p->link;
 
     add(p);
   }
@@ -461,6 +463,43 @@ hdTree::compute_size(hdStyleSheet *css)	// I - Stylesheet
 	height = 0.0f;
         break;
   }
+}
+
+
+//
+// 'hdTree::copy_text()' - Copy all text nodes to a new parent.
+//
+
+void
+hdTree::copy_text(hdTree *p)		// I - New parent
+{
+  hdTree	*t;			// Current node
+
+
+  // Collect the current node and all that follow
+  for (t = child; t && t != real_next(); t = t->real_next())
+    if (t->element == HD_ELEMENT_NONE)
+      new hdTree(HD_ELEMENT_NONE, t->data, p);
+}
+
+
+//
+// 'hdTree::find()' - Find an element...
+//
+
+hdTree *				// O - Matching node or NULL
+hdTree::find(hdElement e)		// I - Element to find
+{
+  hdTree	*t;			// Current node
+
+
+  // Scan the tree for the element...
+  for (t = child; t && t != real_next(); t = t->real_next())
+    if (t->element == e)
+      break;
+
+  // Return the match, if any...
+  return (t);
 }
 
 
@@ -1761,5 +1800,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.9 2002/03/11 02:33:07 mike Exp $".
+// End of "$Id: tree.cxx,v 1.10 2002/04/01 11:56:14 mike Exp $".
 //
