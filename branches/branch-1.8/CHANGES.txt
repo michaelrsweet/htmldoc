@@ -1,6 +1,29 @@
 CHANGES.txt - 12/21/2001
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.17+
+
+    CHANGES
+
+	- Now accept all JPEG files, even if they don't start
+	  with an APPn marker.
+	- Now only start a new page for a chapter/filter if we
+	  aren't already at the top of a page.
+
+    BUG FIXES
+
+	- ROWSPAN handling in tables has been updated to match
+	  the MSIE behavior, where the current rowspan is
+	  reduced by the minimum rowspan in the table; that is,
+	  if you use "ROWSPAN=17" for all cells in a row,
+	  HTMLDOC now treats this as if you did not use ROWSPAN
+	  at all.  It is unclear if this is what the W3C
+	  intends.
+	- The "--webpage" option didn't force toc levels to 0,
+	  which caused a bad page object reference to be
+	  inserted in the PDF output file.
+
+
 CHANGES IN HTMLDOC v1.8.17
 
     NEW FEATURES
