@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.260 2004/10/04 20:59:51 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.261 2004/10/20 18:24:17 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2659,8 +2659,17 @@ pdf_write_page(FILE  *out,	/* I - Output file */
             if (box[0] != r->data.box[0] ||
 		box[1] != r->data.box[1] ||
 		box[2] != r->data.box[2])
-              flate_printf(out, "%.2f %.2f %.2f RG\n", box[0] = r->data.box[0],
-	        	   box[1] = r->data.box[1], box[2] = r->data.box[2]);
+            {
+              box[0] = r->data.box[0];
+	      box[1] = r->data.box[1];
+	      box[2] = r->data.box[2];
+
+	      if (OutputColor)
+        	flate_printf(out, "%.2f %.2f %.2f RG\n", box[0], box[1], box[2]);
+              else
+        	flate_printf(out, "%.2f G\n",
+		             box[0] * 0.31f + box[1] * 0.61f + box[2] * 0.08f);
+            }
 
             flate_printf(out, "%.1f %.1f m %.1f %.1f l S\n",
                 	 r->x, r->y, r->x + r->width, r->y);
@@ -9382,10 +9391,24 @@ set_color(FILE  *out,	/* I - File to write to */
   render_rgb[1] = rgb[1];
   render_rgb[2] = rgb[2];
 
-  if (PSLevel > 0)
-    fprintf(out, "%.2f %.2f %.2f C ", rgb[0], rgb[1], rgb[2]);
+  if (OutputColor)
+  {
+    // Output RGB color...
+    if (PSLevel > 0)
+      fprintf(out, "%.2f %.2f %.2f C ", rgb[0], rgb[1], rgb[2]);
+    else
+      flate_printf(out, "%.2f %.2f %.2f rg ", rgb[0], rgb[1], rgb[2]);
+  }
   else
-    flate_printf(out, "%.2f %.2f %.2f rg ", rgb[0], rgb[1], rgb[2]);
+  {
+    // Output grayscale...
+    if (PSLevel > 0)
+      fprintf(out, "%.2f G ",
+              rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
+    else
+      flate_printf(out, "%.2f g ",
+                   rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
+  }
 }
 
 
@@ -11070,15 +11093,13 @@ write_prolog(FILE  *out,		/* I - Output file */
     fputs("/BD{bind def}bind def", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
           "closepath stroke}BD", out);
-    if (!OutputColor)
-      fputs("/C{0.08 mul exch 0.61 mul add exch 0.31 mul add setgray}BD\n", out);
-    else
-      fputs("/C{setrgbcolor}BD\n", out);
+    fputs("/C{setrgbcolor}BD\n", out);
     fputs("/CM{concat}BD", out);
     fputs("/DF{findfont dup length dict begin{1 index/FID ne{def}{pop pop}\n"
           "ifelse}forall/Encoding fontencoding def currentdict end definefont pop}BD\n", out);
     fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n", out);
     fputs("/FS{/hdFontSize exch def}BD", out);
+    fputs("/G{setgray}BD\n", out);
     fputs("/GS{gsave}BD", out);
     fputs("/GR{grestore}BD", out);
     fputs("/J{0 exch ashow}BD\n", out);
@@ -12392,5 +12413,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.260 2004/10/04 20:59:51 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.261 2004/10/20 18:24:17 mike Exp $".
  */
