@@ -1,11 +1,11 @@
 
 /* pngwtran.c - transforms the data in a row for PNG writers
  *
- * libpng 1.0.3 - January 14, 1999
+ * libpng 1.0.6 - March 21, 2000
  * For conditions of distribution and use, see copyright notice in png.h
  * Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.
  * Copyright (c) 1996, 1997 Andreas Dilger
- * Copyright (c) 1998, 1999 Glenn Randers-Pehrson
+ * Copyright (c) 1998, 1999, 2000 Glenn Randers-Pehrson
  */
 
 #define PNG_INTERNAL
@@ -18,6 +18,9 @@ void
 png_do_write_transformations(png_structp png_ptr)
 {
    png_debug(1, "in png_do_write_transformations\n");
+
+   if (png_ptr == NULL)
+      return;
 
 #if defined(PNG_WRITE_USER_TRANSFORM_SUPPORTED)
    if (png_ptr->transformations & PNG_USER_TRANSFORM)
@@ -137,7 +140,7 @@ png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_depth)
             {
                png_byte value;
 
-               value = (png_byte)(*sp & 0x3);
+               value = (png_byte)(*sp & 0x03);
                v |= (value << shift);
                if (shift == 0)
                {
@@ -169,7 +172,7 @@ png_do_pack(png_row_infop row_info, png_bytep row, png_uint_32 bit_depth)
             {
                png_byte value;
 
-               value = (png_byte)(*sp & 0xf);
+               value = (png_byte)(*sp & 0x0f);
                v |= (value << shift);
 
                if (shift == 0)
@@ -311,7 +314,7 @@ png_do_shift(png_row_infop row_info, png_bytep row, png_color_8p bit_depth)
             png_uint_16 value, v;
             int j;
 
-            v = ((png_uint_16)(*bp) << 8) + *(bp + 1);
+            v = (png_uint_16)(((png_uint_16)(*bp) << 8) + *(bp + 1));
             value = 0;
             for (j = shift_start[c]; j > -shift_dec[c]; j -= shift_dec[c])
             {
@@ -438,7 +441,7 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
                *(dp++) = *(sp++);
                *(dp++) = *(sp++);
                *(dp++) = *(sp++);
-               *(dp++) = 255 - *(sp++);
+               *(dp++) = (png_byte)(255 - *(sp++));
             }
          }
          /* This inverts the alpha channel in RRGGBBAA */
@@ -456,8 +459,8 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
                *(dp++) = *(sp++);
                *(dp++) = *(sp++);
                *(dp++) = *(sp++);
-               *(dp++) = 255 - *(sp++);
-               *(dp++) = 255 - *(sp++);
+               *(dp++) = (png_byte)(255 - *(sp++));
+               *(dp++) = (png_byte)(255 - *(sp++));
             }
          }
       }
@@ -473,7 +476,7 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
             for (i = 0, sp = dp = row; i < row_width; i++)
             {
                *(dp++) = *(sp++);
-               *(dp++) = 255 - *(sp++);
+               *(dp++) = (png_byte)(255 - *(sp++));
             }
          }
          /* This inverts the alpha channel in GGAA */
@@ -487,8 +490,8 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
             {
                *(dp++) = *(sp++);
                *(dp++) = *(sp++);
-               *(dp++) = 255 - *(sp++);
-               *(dp++) = 255 - *(sp++);
+               *(dp++) = (png_byte)(255 - *(sp++));
+               *(dp++) = (png_byte)(255 - *(sp++));
             }
          }
       }

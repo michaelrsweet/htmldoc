@@ -1,11 +1,11 @@
 
 /* pngmem.c - stub functions for memory allocation
  *
- * libpng 1.0.3 - January 14, 1999
+ * libpng 1.0.6 - March 21, 2000
  * For conditions of distribution and use, see copyright notice in png.h
  * Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.
  * Copyright (c) 1996, 1997 Andreas Dilger
- * Copyright (c) 1998, 1999 Glenn Randers-Pehrson
+ * Copyright (c) 1998, 1999, 2000 Glenn Randers-Pehrson
  *
  * This file provides a location for all memory allocation.  Users who
  * need special memory handling are expected to supply replacement
@@ -82,12 +82,10 @@ png_destroy_struct_2(png_voidp struct_ptr, png_free_ptr free_fn)
          png_struct dummy_struct;
          png_structp png_ptr = &dummy_struct;
          (*(free_fn))(png_ptr, struct_ptr);
-         struct_ptr = NULL;
          return;
       }
 #endif /* PNG_USER_MEM_SUPPORTED */
       farfree (struct_ptr);
-      struct_ptr = NULL;
    }
 }
 
@@ -157,8 +155,9 @@ png_malloc_default(png_structp png_ptr, png_uint_32 size)
                ret = NULL;
             }
 
-            num_blocks = (int)(1 << (png_ptr->zlib_window_bits - 14));
-            if (num_blocks < 1)
+            if(png_ptr->zlib_window_bits > 14)
+               num_blocks = (int)(1 << (png_ptr->zlib_window_bits - 14));
+            else
                num_blocks = 1;
             if (png_ptr->zlib_mem_level >= 7)
                num_blocks += (int)(1 << (png_ptr->zlib_mem_level - 7));
@@ -192,12 +191,12 @@ png_malloc_default(png_structp png_ptr, png_uint_32 size)
             if ((png_size_t)hptr & 0xf)
             {
                hptr = (png_byte huge *)((long)(hptr) & 0xfffffff0L);
-               hptr += 16L;
+               hptr = hptr + 16L;  /* "hptr += 16L" fails on Turbo C++ 3.0 */
             }
             for (i = 0; i < num_blocks; i++)
             {
                png_ptr->offset_table_ptr[i] = (png_bytep)hptr;
-               hptr += (png_uint_32)65536L;
+               hptr = hptr + (png_uint_32)65536L;  /* "+=" fails on TC++3.0 */
             }
 
             png_ptr->offset_table_number = num_blocks;
@@ -235,7 +234,6 @@ png_free(png_structp png_ptr, png_voidp ptr)
    if (png_ptr->free_fn != NULL)
    {
       (*(png_ptr->free_fn))(png_ptr, ptr);
-      ptr = NULL;
       return;
    }
    else png_free_default(png_ptr, ptr);
@@ -271,7 +269,6 @@ png_free_default(png_structp png_ptr, png_voidp ptr)
    if (ptr != NULL)
    {
       farfree(ptr);
-      ptr = NULL;
    }
 }
 
@@ -351,20 +348,16 @@ png_destroy_struct_2(png_voidp struct_ptr, png_free_ptr free_fn)
          png_struct dummy_struct;
          png_structp png_ptr = &dummy_struct;
          (*(free_fn))(png_ptr, struct_ptr);
-         struct_ptr = NULL;
          return;
       }
 #endif /* PNG_USER_MEM_SUPPORTED */
 #if defined(__TURBOC__) && !defined(__FLAT__)
       farfree(struct_ptr);
-      struct_ptr = NULL;
 #else
 # if defined(_MSC_VER) && defined(MAXSEG_64K)
       hfree(struct_ptr);
-      struct_ptr = NULL;
 # else
       free(struct_ptr);
-      struct_ptr = NULL;
 # endif
 #endif
    }
@@ -433,7 +426,6 @@ png_free(png_structp png_ptr, png_voidp ptr)
    if (png_ptr->free_fn != NULL)
    {
       (*(png_ptr->free_fn))(png_ptr, ptr);
-      ptr = NULL;
       return;
    }
    else png_free_default(png_ptr, ptr);
@@ -441,18 +433,18 @@ png_free(png_structp png_ptr, png_voidp ptr)
 void
 png_free_default(png_structp png_ptr, png_voidp ptr)
 {
+   if (png_ptr == NULL || ptr == NULL)
+      return;
+
 #endif /* PNG_USER_MEM_SUPPORTED */
 
 #if defined(__TURBOC__) && !defined(__FLAT__)
    farfree(ptr);
-   ptr = NULL;
 #else
 # if defined(_MSC_VER) && defined(MAXSEG_64K)
    hfree(ptr);
-   ptr = NULL;
 # else
    free(ptr);
-   ptr = NULL;
 # endif
 #endif
 }
