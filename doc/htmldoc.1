@@ -259,17 +259,25 @@ OOPPTTIIOONNSS
             Numbers all headings in a document.
 
 
+
+       --nup _p_a_g_e_s
+
+       -d _p_a_g_e_s
+            Sets the number of pages that are placed on each out-
+            put page. Valid values are 1, 2, 4, 6, 9, and 16.
+
+
        --outdir _d_i_r_e_c_t_o_r_y
 
        -d _d_i_r_e_c_t_o_r_y
-            Specifies that output should be sent to  a  directory
+            Specifies  that  output should be sent to a directory
             in multiple files.  (Not compatible with PDF output)
 
 
        --outfile _f_i_l_e_n_a_m_e
 
        -f _f_i_l_e_n_a_m_e
-            Specifies  that  output  should  be  sent to a single
+            Specifies that output should  be  sent  to  a  single
             file.
 
 
@@ -282,7 +290,7 @@ OOPPTTIIOONNSS
 
 
        --pageeffect _e_f_f_e_c_t
-            Specifies the page transition effect for  all  pages;
+            Specifies  the  page transition effect for all pages;
             this attribute is ignored by all Adobe PDF viewers...
 
 
@@ -301,14 +309,14 @@ OOPPTTIIOONNSS
        --permissions _p_e_r_m_i_s_s_i_o_n
             Specifies  document  permissions  for  encrypted  PDF
             files. Multiple _-_-_p_e_r_m_i_s_s_i_o_n_s options are required to
-            grant  or  deny  specific  permissions. The following
-            values are understood: all, none, annotate,  no-anno-
-            tate,  copy,  no-copy,  modify, no-modify, print, and
+            grant or deny  specific  permissions.  The  following
+            values  are understood: all, none, annotate, no-anno-
+            tate, copy, no-copy, modify,  no-modify,  print,  and
             no-print.
 
 
        --pscommands
-            Specifies  that  PostScript  setpagedevice   commands
+            Specifies   that  PostScript  setpagedevice  commands
             should be included in the output.
 
 
@@ -317,16 +325,16 @@ OOPPTTIIOONNSS
 
 
        --right _m_a_r_g_i_n
-            Specifies  the  right  margin in points (no suffix or
+            Specifies the right margin in points  (no  suffix  or
             ##pt), inches (##in), centimeters (##cm), or millime-
             ters (##mm).
 
 
        --size _p_a_g_e_s_i_z_e
-            Specifies  the  page size using a standard name or in
+            Specifies the page size using a standard name  or  in
             points (no suffix or ##x##pt), inches (##x##in), cen-
-            timeters  (##x##cm),  or  millimeters  (##x##mm). The
-            standard sizes  that  are  currently  recognized  are
+            timeters (##x##cm),  or  millimeters  (##x##mm).  The
+            standard  sizes  that  are  currently  recognized are
             "letter"   (8.5x11in),   "legal"   (8.5x14in),   "a4"
             (210x297mm), and "universal" (8.27x11in).
 
@@ -346,19 +354,19 @@ OOPPTTIIOONNSS
        --titlefile _f_i_l_e_n_a_m_e
 
        --titleimage _f_i_l_e_n_a_m_e
-            Specifies the file to use for the title page. If  the
+            Specifies  the file to use for the title page. If the
             file is an image then the title page is automatically
-            generated using the  document  meta  data  and  title
+            generated  using  the  document  meta  data and title
             image.
 
 
        --tocfooter _f_f_f
-            Sets  the  page  footer  to  use on table-of-contents
+            Sets the page  footer  to  use  on  table-of-contents
             pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
 
 
        --tocheader _f_f_f
-            Sets  the  page  header  to  use on table-of-contents
+            Sets the page  header  to  use  on  table-of-contents
             pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
 
 
@@ -371,13 +379,13 @@ OOPPTTIIOONNSS
 
 
        --top _m_a_r_g_i_n
-            Specifies  the  top  margin  in  points (no suffix or
+            Specifies the top margin  in  points  (no  suffix  or
             ##pt), inches (##in), centimeters (##cm), or millime-
             ters (##mm).
 
 
        --user-password _p_a_s_s_w_o_r_d
-            Specifies  the  user  password  for encryption of PDF
+            Specifies the user password  for  encryption  of  PDF
             files.
 
 
@@ -392,15 +400,15 @@ OOPPTTIIOONNSS
 
 
        --webpage
-            Specifies that  the  HTML  sources  are  unstructured
-            (plain  web pages.)  A page break is inserted between
+            Specifies  that  the  HTML  sources  are unstructured
+            (plain web pages.)  A page break is inserted  between
             each file or URL in the output.
 
 
 HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
        The header and footer of each page can contain up to three
-       preformatted  values.  These  values are specified using a
-       single character for the left, middle, and  right  of  the
+       preformatted values. These values are  specified  using  a
+       single  character  for  the left, middle, and right of the
        page, resulting in the _f_f_f notation shown previously.
 
        Each character can be one of the following:
@@ -414,7 +422,7 @@ HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
 
 
        :
-            c/C  arabic chapter page numbers (1/2, 2/2, 1/4, 2/4,
+            c/C arabic chapter page numbers (1/2, 2/2, 1/4,  2/4,
             ...)
 
 
@@ -479,29 +487,29 @@ AAUUTTHHOORR
        Michael Sweet (mike@easysw.com), Easy Software Products
 
 TTRRAADDEEMMAARRKKSS
-       PostScript is a trademark that may be registered  in  some
-       countries  and  Adobe  is  a registered trademark of Adobe
+       PostScript  is  a trademark that may be registered in some
+       countries and Adobe is a  registered  trademark  of  Adobe
        Systems Incorporated.
 
 CCOOPPYYRRIIGGHHTTSS
        Portable Document Format Copyright 1993-1999 by Adobe Sys-
        tems Incorporated.
 
-       HTMLDOC  is copyright 1997-2002 by Easy Software Products.
-       This program is free software;  you  can  redistribute  it
+       HTMLDOC is copyright 1997-2002 by Easy Software  Products.
+       This  program  is  free  software; you can redistribute it
        and/or modify it under the terms of the GNU General Public
-       License as published  by  the  Free  Software  Foundation;
-       either  version  2 of the License, or (at your option) any
+       License  as  published  by  the  Free Software Foundation;
+       either version 2 of the License, or (at your  option)  any
        later version.
 
-       This program is based in part on the work of the  Indepen-
+       This  program is based in part on the work of the Indepen-
        dent JPEG Group.
 
 NNOO WWAARRRRAANNTTYY
-       This  program  is  distributed in the hope that it will be
+       This program is distributed in the hope that  it  will  be
        useful, but WITHOUT ANY WARRANTY; without even the implied
-       warranty  of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
-       PURPOSE.  See the GNU  General  Public  License  for  more
+       warranty of MERCHANTABILITY or FITNESS  FOR  A  PARTICULAR
+       PURPOSE.   See  the  GNU  General  Public License for more
        details.
 
 
