@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.18 2003/01/02 03:10:12 mike Exp $"
+// "$Id: render.h,v 1.19 2003/12/06 04:01:35 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -159,7 +159,7 @@ struct hdRenderPage
   hdRenderNode	*last;
 
   //* Bitwise OR of all nodes
-  int		types;
+  unsigned	types;
   //* Width of page in points
   int		width;
   //* Length of page in points
@@ -362,24 +362,22 @@ class hdRender
   void		finish_document(const char *author, const char *creator,
 		                const char *copyright, const char *keywords);
 
-  void		parse_block(hdTree *t, hdMargin *m, float *x, float *y,
-		            int *page);
-  int		parse_comment(hdTree *t, hdMargin *m, float *x, float *y,
-		              int *page);
-  void		parse_contents(hdTree *t, hdMargin *m, int *page,
-		               const char *label);
-  void		parse_doc(hdTree *t, hdMargin *m, float *x, float *y,
-		          int *page);
-  void		parse_image(hdTree *t, hdMargin *m, float *x, float *y,
-		            int *page);
-  void		parse_index(hdTree *t, hdMargin *m, int *page,
-		            const char *label);
-  void		parse_line(hdTree *line, hdMargin *m, float *x, float *y,
-		           int *page, int lastline);
-  void		parse_list(hdTree *t, hdMargin *m,  float *x, float *y,
-		           int *page);
-  void		parse_table(hdTree *t, hdMargin *m, float *x, float *y,
-		            int *page);
+  int		render_comment(hdTree *t, hdMargin &m, float &x, float &y,
+		               int &page);
+  void		render_contents(hdTree *t, hdMargin &m, int &page,
+		                const char *label);
+  void		render_doc(hdTree *t, hdMargin &m, float &x, float &y,
+		           int &page);
+  void		render_image(hdTree *t, hdMargin &m, float &x, float &y,
+		             int &page, float ascent, float descent);
+  void		render_index(hdTree *t, hdMargin &m, int &page,
+		             const char *label);
+  void		render_list(hdTree *t, hdMargin &m,  float &x, float &y,
+		            int &page, float ascent, float descent);
+  void		render_table(hdTree *t, hdMargin &m, float &x, float &y,
+		             int &page);
+  void		render_text(hdTree *t, hdMargin &m, float &x, float &y,
+		            int &page, float ascent, float descent);
 
   void		prepare_page(int page);
   void		prepare_heading(int page, int print_page, char **format,
@@ -608,5 +606,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.18 2003/01/02 03:10:12 mike Exp $".
+// End of "$Id: render.h,v 1.19 2003/12/06 04:01:35 mike Exp $".
 //
