@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.19 2001/05/30 19:38:20 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.20 2001/06/21 17:10:57 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -43,6 +43,10 @@
 #include "htmldoc.h"
 #include <ctype.h>
 #include <fcntl.h>
+
+#ifdef HAVE_LOCALE_H
+#  include <locale.h>
+#endif // HAVE_LOCALE_H
 
 #ifdef WIN32
 #  include <direct.h>
@@ -105,6 +109,14 @@ main(int  argc,		/* I - Number of command-line arguments */
   int		display_set;	/* True if display set */
 #endif // HAVE_LIBFLTK
 
+
+ /*
+  * Localize as needed...
+  */
+
+#ifdef HAVE_LOCALE_H
+  setlocale(LC_ALL, "");
+#endif // HAVE_LOCALE_H
 
  /*
   * Catch CTRL-C and term signals...
@@ -2091,5 +2103,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.19 2001/05/30 19:38:20 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.20 2001/06/21 17:10:57 mike Exp $".
  */
