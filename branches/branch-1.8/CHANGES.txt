@@ -103,6 +103,12 @@ CHANGES IN HTMLDOC v1.8.24
 	  HTML comments.
 	- The current heading was not always correctly
 	  substituted when used in the page header or footer.
+	- When converting web pages from the GUI, the
+	  table-of-contents page number preferences were
+	  incorrectly used.
+	- PDF page effects/transitions were not put in the right
+	  part of the page dictionary, causing them not to be
+	  used by the PDF reader application.
 
 
 CHANGES IN HTMLDOC v1.8.23

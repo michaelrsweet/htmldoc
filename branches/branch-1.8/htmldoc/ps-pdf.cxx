@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.253 2004/05/15 21:24:23 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.254 2004/06/16 14:56:48 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2378,16 +2378,16 @@ pdf_write_document(uchar  *author,	// I - Author of document
  */
 
 static void
-pdf_write_resources(FILE *out,	/* I - Output file */
-                    int  outpage)/* I - Output page for resources */
+pdf_write_resources(FILE *out,		/* I - Output file */
+                    int  outpage)	/* I - Output page for resources */
 {
-  int		i;		/* Looping var */
-  outpage_t	*op;		/* Current output page */
-  page_t	*p;		/* Current page */
-  render_t	*r;		/* Render pointer */
-  int		fonts_used[16];	/* Non-zero if the page uses a font */
-  int		images_used;	/* Non-zero if the page uses an image */
-  int		text_used;	/* Non-zero if the page uses text */
+  int		i;			/* Looping var */
+  outpage_t	*op;			/* Current output page */
+  page_t	*p;			/* Current page */
+  render_t	*r;			/* Render pointer */
+  int		fonts_used[16];		/* Non-zero if the page uses a font */
+  int		images_used;		/* Non-zero if the page uses an image */
+  int		text_used;		/* Non-zero if the page uses text */
   static const char *effects[] =	/* Effects and their commands */
 		{
 		  "",
@@ -2479,13 +2479,11 @@ pdf_write_resources(FILE *out,	/* I - Output file */
     fprintf(out, "/I%d %d 0 R", background_image->obj,
             background_image->obj);
 
-  fputs(">>", out);
+  fputs(">>>>", out);
 
   if (PDFEffect)
-    fprintf(out, "/Dur %.0f/Trans<</D %.1f%s>>", PDFPageDuration,
+    fprintf(out, "/Dur %.0f/Trans<</Type/Trans/D %.1f%s>>", PDFPageDuration,
             PDFEffectDuration, effects[PDFEffect]);
-
-  fputs(">>", out);
 }
 
 
@@ -11709,7 +11707,7 @@ write_trailer(FILE *out,		/* I - Output file */
 	i += PageDuplex + 1;
       }
 
-      if (TocLevels > 0)
+      if (TocLevels > 0 && OutputType == OUTPUT_BOOK)
       {
         type = 'r';
 
@@ -12360,5 +12358,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.253 2004/05/15 21:24:23 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.254 2004/06/16 14:56:48 mike Exp $".
  */
