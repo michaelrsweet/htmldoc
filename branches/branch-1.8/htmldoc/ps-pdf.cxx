@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.36 2001/03/08 13:33:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.37 2001/03/08 19:09:22 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1357,7 +1357,8 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
   for (i = 0; i < num_images; i ++)
     if (images[i]->use > 1 || images[i]->mask ||
         (images[i]->width * images[i]->height * images[i]->depth) > 32768 ||
-	images[i] == background_image)
+	images[i] == background_image ||
+	images[i] == logo_image)
     {
       progress_show("Writing image %d (%s)...", i + 1, images[i]->filename);
       temp.data.image = images[i];
@@ -8248,5 +8249,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.36 2001/03/08 13:33:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.37 2001/03/08 19:09:22 mike Exp $".
  */
