@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.3 1999/11/09 01:08:45 mike Exp $"
+ * "$Id: gui.h,v 1.4 1999/11/09 21:36:23 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -36,151 +36,170 @@
 
 class GUI
 {
+  private:
+
+  Fl_Window	*window;
+  Fl_Group	*controls;
+
+  Fl_Group	*inputTab;
+  CheckButton	*typeBook,
+		*typeWebPage;
+  FileBrowser	*inputFiles;
+  Fl_Button	*addFile,
+		*editFile,
+		*deleteFile,
+		*moveUpFile,
+		*moveDownFile;
+  Fl_Input	*logoImage;
+  Fl_Button	*logoBrowse;
+  Fl_Input	*titleImage;
+  Fl_Button	*titleBrowse;
+
+  Fl_Group	*outputTab;
+  CheckButton	*outputFile,
+		*outputDirectory;
+  Fl_Input	*outputPath;
+  Fl_Button	*outputBrowse;
+  CheckButton	*typeHTML,
+		*typePS,
+		*typePDF;
+  CheckButton	*grayscale,
+		*titlePage,
+		*jpegCompress;
+  Fl_Slider	*compression;
+  Fl_Value_Slider *jpegQuality;
+
+  Fl_Group	*pageTab;
+  Fl_Input	*pageSize;
+  CheckButton	*pageDuplex;
+  Fl_Input	*pageTop,
+		*pageLeft,
+		*pageRight,
+		*pageBottom;
+  Fl_Choice	*pageHeaderLeft,
+      		*pageHeaderCenter,
+      		*pageHeaderRight,
+      		*pageFooterLeft,
+      		*pageFooterCenter,
+      		*pageFooterRight;
+
+  Fl_Group	*tocTab;
+  Fl_Choice	*tocLevels;
+  CheckButton	*numberedToc;
+  Fl_Group	*tocHeader;
+  Fl_Choice	*tocHeaderLeft,
+      		*tocHeaderCenter,
+      		*tocHeaderRight;
+  Fl_Group	*tocFooter;
+  Fl_Choice	*tocFooterLeft,
+      		*tocFooterCenter,
+      		*tocFooterRight;
+  Fl_Input	*tocTitle;
+
+  Fl_Group	*colorsTab;
+  Fl_Input	*bodyColor;
+  Fl_Button	*bodyLookup;
+  Fl_Input	*bodyImage;
+  Fl_Button	*bodyBrowse;
+  Fl_Input	*textColor;
+  Fl_Button	*textLookup;
+
+
+  Fl_Group	*fontsTab;
+  Fl_Choice	*headingFont,
+		*bodyFont,
+		*headFootFont;
+  Fl_Counter	*fontBaseSize,
+		*fontSpacing,
+		*headFootSize;
+
+  Fl_Group	*htmlTab;
+
+
+  Fl_Group	*optionsTab;
+  Fl_Input	*htmlEditor;
+  Fl_Button	*htmlBrowse;
+  Fl_Group	*psLevel;
+  Fl_Button	*ps1,
+		*ps2,
+		*ps3;
+  CheckButton	*psCommands;
+  Fl_Group	*pdfVersion;
+  Fl_Button	*pdf11,
+		*pdf12,
+		*pdf13;
+
+  Fl_Button	*bookSave,
+		*bookSaveAs,
+		*bookGenerate;
+
+  Fl_Group	*progressText;
+  Fl_Slider	*progressBar;
+
+  FileChooser	*fc;
+  FileIcon	*icon;
+  HelpDialog	*help;
+
+  char		book_filename[1024];
+  int		book_changed;
+
+  void		title(const char *filename = NULL, int changed = 0);
+
+  static char	*file_localize(char *filename, char *newcwd);
+
+  static void	changeCB(Fl_Widget *w, GUI *gui);
+
+  static void	docTypeCB(Fl_Widget *w, GUI *gui);
+  static void	inputFilesCB(Fl_Widget *w, GUI *gui);
+  static void	addFileCB(Fl_Widget *w, GUI *gui);
+  static void	editFilesCB(Fl_Widget *w, GUI *gui);
+  static void	deleteFilesCB(Fl_Widget *w, GUI *gui);
+  static void	moveUpFilesCB(Fl_Widget *w, GUI *gui);
+  static void	moveDownFilesCB(Fl_Widget *w, GUI *gui);
+  static void	logoImageCB(Fl_Widget *w, GUI *gui);
+  static void	titleImageCB(Fl_Widget *w, GUI *gui);
+
+  static void	outputTypeCB(Fl_Widget *w, GUI *gui);
+  static void	outputPathCB(Fl_Widget *w, GUI *gui);
+  static void	outputFormatCB(Fl_Widget *w, GUI *gui);
+  static void	jpegCB(Fl_Widget *w, GUI *gui);
+
+  static void	tocCB(Fl_Widget *w, GUI *gui);
+
+  static void	bodyColorCB(Fl_Widget *w, GUI *gui);
+  static void	bodyImageCB(Fl_Widget *w, GUI *gui);
+  static void	textColorCB(Fl_Widget *w, GUI *gui);
+
+  static void	psCB(Fl_Widget *w, GUI *gui);
+  static void	pdfCB(Fl_Widget *w, GUI *gui);
+  static void	htmlEditorCB(Fl_Widget *w, GUI *gui);
+
+  static void	helpCB(Fl_Widget *w, GUI *gui);
+  static void	newBookCB(Fl_Widget *w, GUI *gui);
+  static void	openBookCB(Fl_Widget *w, GUI *gui);
+  static void	saveBookCB(Fl_Widget *w, GUI *gui);
+  static void	saveAsBookCB(Fl_Widget *w, GUI *gui);
+  static void	generateBookCB(Fl_Widget *w, GUI *gui);
+  static void	closeBookCB(Fl_Widget *w, GUI *gui);
+
   public:
-      Fl_Window		*window;
-      Fl_Group		*controls;
 
-      Fl_Group		*inputTab;
-      CheckButton	*typeBook,
-			*typeWebPage;
-      Fl_Multi_Browser	*inputFiles;
-      Fl_Button		*addFile,
-			*editFile,
-			*deleteFile,
-			*moveUpFile,
-			*moveDownFile;
-      Fl_Input		*logoImage;
-      Fl_Button		*logoBrowse;
-      Fl_Input		*titleImage;
-      Fl_Button		*titleBrowse;
+  static const char	*help_dir;
 
-      Fl_Group		*outputTab;
-      CheckButton	*outputFile,
-			*outputDirectory;
-      Fl_Input		*outputPath;
-      Fl_Button		*outputBrowse;
-      CheckButton	*typeHTML,
-			*typePS,
-			*typePDF;
-      CheckButton	*grayscale,
-			*titlePage,
-			*jpegCompress;
+  GUI(const char *filename = NULL);
+  ~GUI(void);
 
-      Fl_Input		*bodyColor;
-      Fl_Button		*bodyLookup;
-      Fl_Input		*bodyImage;
-      Fl_Button		*bodyBrowse;
-
-      Fl_Group		*pageTab;
-      Fl_Input		*pageSize;
-      CheckButton	*pageDuplex;
-      Fl_Input		*pageTop,
-			*pageLeft,
-			*pageRight,
-			*pageBottom;
-      Fl_Choice		*pageHeaderLeft,
-      			*pageHeaderCenter,
-      			*pageHeaderRight,
-      			*pageFooterLeft,
-      			*pageFooterCenter,
-      			*pageFooterRight;
-
-      Fl_Group		*tocTab;
-      Fl_Choice		*tocLevels;
-      CheckButton	*numberedToc;
-      Fl_Choice		*tocHeaderLeft,
-      			*tocHeaderCenter,
-      			*tocHeaderRight,
-      			*tocFooterLeft,
-      			*tocFooterCenter,
-      			*tocFooterRight;
-
-      Fl_Group		*fontsTab;
-      Fl_Choice		*headingFont,
-			*bodyFont,
-			*headFootFont;
-      Fl_Counter	*fontBaseSize,
-			*fontSpacing,
-			*headFootSize;
-
-      Fl_Group		*htmlTab;
-
-      Fl_Group		*psTab;
-
-      Fl_Group		*psLevel;
-      Fl_Button		*ps1,
-			*ps2,
-			*ps3;
-
-      Fl_Group		*pdfTab;
-
-      Fl_Group		*pdfVersion;
-      Fl_Button		*pdf11,
-			*pdf12,
-			*pdf13;
-      Fl_Slider		*compression;
-
-      Fl_Group		*optionsTab;
-      Fl_Input		*htmlEditor;
-      Fl_Button		*htmlBrowse;
-      Fl_Value_Slider	*jpegQuality;
-
-      Fl_Button		*bookSave,
-			*bookSaveAs,
-			*bookGenerate;
-
-      Fl_Group		*progressText;
-      Fl_Slider		*progressBar;
-
-      FileChooser	*fc;
-
-      char		book_filename[1024];
-      int		book_changed;
-
-      GUI(const char *filename = NULL);
-      ~GUI(void);
-
-      int  doGUI(void);
-
-      void progress(int percent, char *text = NULL);
-      void title(const char *filename = NULL, int changed = 0);
-
-      int  newBook(void);
-      int  loadBook(const char *bookfile);
-      int  saveBook(const char *bookfile);
-      int  checkSave(void);
+  int	checkSave();
+  void	hide() { window->hide(); help->hide(); fc->hide(); };
+  int	loadBook(const char *bookfile);
+  int	newBook();
+  void	progress(int percent, char *text = NULL);
+  int	saveBook(const char *bookfile);
+  void	show();
+  int	visible() { return (window->visible()); }
 };
 
 
-extern void docTypeCB(Fl_Widget *w, GUI *gui);
-extern void inputFilesCB(Fl_Widget *w, GUI *gui);
-extern void addFileCB(Fl_Widget *w, GUI *gui);
-extern void editFilesCB(Fl_Widget *w, GUI *gui);
-extern void deleteFilesCB(Fl_Widget *w, GUI *gui);
-extern void moveUpFilesCB(Fl_Widget *w, GUI *gui);
-extern void moveDownFilesCB(Fl_Widget *w, GUI *gui);
-extern void logoImageCB(Fl_Widget *w, GUI *gui);
-extern void titleImageCB(Fl_Widget *w, GUI *gui);
-
-extern void outputTypeCB(Fl_Widget *w, GUI *gui);
-extern void outputPathCB(Fl_Widget *w, GUI *gui);
-extern void outputFormatCB(Fl_Widget *w, GUI *gui);
-
-extern void changeCB(Fl_Widget *w, GUI *gui);
-extern void jpegCB(Fl_Widget *w, GUI *gui);
-extern void pdfCB(Fl_Widget *w, GUI *gui);
-extern void bodyColorCB(Fl_Widget *w, GUI *gui);
-extern void bodyImageCB(Fl_Widget *w, GUI *gui);
-extern void htmlEditorCB(Fl_Widget *w, GUI *gui);
-
-extern void helpCB(Fl_Widget *w, GUI *gui);
-extern void newBookCB(Fl_Widget *w, GUI *gui);
-extern void openBookCB(Fl_Widget *w, GUI *gui);
-extern void saveBookCB(Fl_Widget *w, GUI *gui);
-extern void saveAsBookCB(Fl_Widget *w, GUI *gui);
-extern void generateBookCB(Fl_Widget *w, GUI *gui);
-extern void closeBookCB(Fl_Widget *w, GUI *gui);
-
 /*
- * End of "$Id: gui.h,v 1.3 1999/11/09 01:08:45 mike Exp $".
+ * End of "$Id: gui.h,v 1.4 1999/11/09 21:36:23 mike Exp $".
  */

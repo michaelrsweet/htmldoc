@@ -11,7 +11,7 @@ the requirements for HTML files to be correctly processed by <I>HTMLDOC</I>
 Since <I>HTMLDOC</I> is designed as a documentation generation program,
 it expects to have chapters and headers.
 
-<P><B>NOTE:</B> If you are converting a generic web page you must
+<P><B>Note:</B> If you are converting a generic web page you must
 select the "--webpage" option on the command-line or choose "Web Page"
 as the document type in the GUI.
 
@@ -111,14 +111,9 @@ Image maps are not exported to HTML or PDF files.
 External URL links are fully supported for HTML and PDF output. Internal
 links are supported in HTML and PDF output.
 
-<P>When generating PDF files, links of the form:
-
-<UL><PRE>
-&lt;A HREF="file:filename.pdf">Link Text&lt;/A>
-</PRE></UL>
-
-will be converted to external file links for the PDF viewer instead of
-URL links.
+<P>When generating PDF files, local file links will be converted to
+external file links for the PDF viewer instead of URL links. That is, you
+can directly link to another local PDF file from your HTML document.
 
 <H3>Scripts and Applets</H3>
 
@@ -131,7 +126,8 @@ Style sheets are not yet supported.
 <H3>Tables</H3>
 
 Currently only the HTML 3.2 varient of tables is supported. The CAPTION,
-THEAD, TFOOT, and TBODY tags are ignored.
+THEAD, TFOOT, and TBODY tags are silently ignored, and vertical alignment and
+spanning (ROWSPAN and VALIGN) are not supported.
 
 </BODY>
 </HTML>

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.2 1999/11/08 22:11:35 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.3 1999/11/09 21:36:23 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -137,6 +137,8 @@ char		*_htmlMarkups[] =
 const char	*_htmlData = "..";	/* Data directory */
 float		_htmlPPI = 80.0f;	/* Image resolution */
 int		_htmlGrayscale = 0;	/* Grayscale output? */
+uchar		_htmlTextColor[255] =	/* Default text color */
+		{ 0 };
 float		_htmlSizes[8] =		/* Point size for each HTML size */
 		{ 6.0f, 8.0f, 9.0f, 11.0f, 14.0f, 17.0f, 20.0f, 24.0f };
 float		_htmlSpacings[8] =	/* Line height for each HTML size */
@@ -292,6 +294,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       t->valignment   = ALIGN_MIDDLE;
       t->typeface     = _htmlBodyFont;
       t->size         = SIZE_P;
+
+      compute_color(t, _htmlTextColor);
     }
     else
     {
@@ -576,6 +580,15 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
     switch (t->markup)
     {
+      case MARKUP_BODY :
+         /*
+	  * Update the text color as necessary...
+	  */
+
+          if ((color = htmlGetVariable(t, (uchar *)"TEXT")) != NULL)
+            compute_color(t, color);
+          break;
+
       case MARKUP_IMG :
          /*
 	  * Update the image source as necessary...
@@ -684,13 +697,15 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_TH :
+          t->halignment = ALIGN_CENTER;
           get_alignment(t);
           t->style = STYLE_BOLD;
           t->child = htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_TD :
-          get_alignment(t);
+          t->halignment = ALIGN_LEFT;
+	  get_alignment(t);
           t->style = STYLE_NORMAL;
           t->child = htmlReadFile(t, fp, base);
           break;
@@ -769,7 +784,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       case MARKUP_TT :
       case MARKUP_CODE :
       case MARKUP_SAMP :
-          t->size --;
           t->typeface = TYPE_COURIER;
           t->child    = htmlReadFile(t, fp, base);
           break;
@@ -1434,7 +1448,7 @@ htmlGetVariable(tree_t *t,	/* I - Tree entry */
 	key;			/* Search key */
 
 
-  if (t->nvars == 0)
+  if (t == NULL || name == NULL || t->nvars == 0)
     return (NULL);
 
   key.name = name;
@@ -1676,6 +1690,18 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
 
 /*
+ * 'htmlSetTextColor()' - Set the default text color.
+ */
+
+void
+htmlSetTextColor(uchar *color)	/* I - Text color */
+{
+  strncpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
+  _htmlTextColor[sizeof(_htmlTextColor) - 1] = '\0';
+}
+
+
+/*
  * 'compare_variables()' - Compare two markup variables.
  */
 
@@ -1811,12 +1837,12 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
 
   switch (ch)
   {
-    case '>' :
+    default :
         ungetc(ch, fp);
         return (htmlSetVariable(t, name, NULL));
     case EOF :
         return (-1);
-    default : /* '=' */
+    case '=' :
         ptr = value;
         ch  = getc(fp);
 
@@ -1920,7 +1946,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
 
     return (0);
   }
-  else if (t->preformatted)
+  else if (t->preformatted && t->data)
   {
     for (max_width = 0.0, width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
       if (*ptr == '\n')
@@ -1936,12 +1962,17 @@ compute_size(tree_t *t)		/* I - Tree entry */
    if (width < max_width)
      width = max_width;
   }
-  else
+  else if (t->data)
     for (width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
       width += _htmlWidths[t->typeface][t->style][*ptr];
+  else
+    width = 0.0f;
 
   t->width  = width * _htmlSizes[t->size];
   t->height = _htmlSizes[t->size];
+
+  DEBUG_printf(("%swidth = %.1f, height = %.1f\n",
+                indent, t->width, t->height));
 
   return (0);
 }
@@ -2125,5 +2156,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.2 1999/11/08 22:11:35 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.3 1999/11/09 21:36:23 mike Exp $".
  */
