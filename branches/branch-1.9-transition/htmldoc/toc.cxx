@@ -1,5 +1,5 @@
 //
-// "$Id: toc.cxx,v 1.5.2.11.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: toc.cxx,v 1.5.2.11.2.2 2004/03/30 03:49:16 mike Exp $"
 //
 //   Table-of-contents methods for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -223,5 +223,5 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: toc.cxx,v 1.5.2.11.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: toc.cxx,v 1.5.2.11.2.2 2004/03/30 03:49:16 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: image-bmp.cxx,v 1.8.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: image-bmp.cxx,v 1.8.2.2 2004/03/30 03:49:15 mike Exp $"
 //
 // BMP image handling routines for HTMLDOC.
 //
@@ -15,7 +15,7 @@
 //     Attn: ESP Licensing Information
 //     Easy Software Products
 //     44141 Airport View Drive, Suite 204
-//     Hollywood, Maryland 20636-3111 USA
+//     Hollywood, Maryland 20636-3142 USA
 //
 //     Voice: (301) 373-9600
 //     EMail: info@easysw.com
@@ -483,5 +483,5 @@ read_long(hdFile *fp)		// I - File to read from
 
 
 //
-// End of "$Id: image-bmp.cxx,v 1.8.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: image-bmp.cxx,v 1.8.2.2 2004/03/30 03:49:15 mike Exp $".
 //

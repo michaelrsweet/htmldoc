@@ -1,5 +1,5 @@
 //
-// "$Id: file-jpeg.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: file-jpeg.cxx,v 1.3.2.2 2004/03/30 03:49:15 mike Exp $"
 //
 //   JPEG filter functions for HTMLDOC.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -272,5 +272,5 @@ hdJPEGFilter::term(j_compress_ptr cinfo)// I - Compressor info
 
 
 //
-// End of "$Id: file-jpeg.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: file-jpeg.cxx,v 1.3.2.2 2004/03/30 03:49:15 mike Exp $".
 //

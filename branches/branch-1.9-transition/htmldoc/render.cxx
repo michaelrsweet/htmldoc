@@ -1,5 +1,5 @@
 /*
- * "$Id: render.cxx,v 1.14.2.8 2004/03/25 02:01:37 mike Exp $"
+ * "$Id: render.cxx,v 1.14.2.9 2004/03/30 03:49:15 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -20,7 +20,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -8093,9 +8093,12 @@ hdRender::check_pages(int page)	// I - Current page
 	memcpy(temp->footer, Footer, sizeof(temp->footer));
       }
 
+#if 0
+      temp->background = ???;
       memcpy(temp->background_color, background_color,
              sizeof(temp->background_color));
       temp->background_image = background_image;
+#endif // 0
     }
   }
 }
@@ -8211,28 +8214,18 @@ hdRender::copy_tree(hdTree *parent,	/* I - Source tree */
 {
   int		i;			/* I - Looping var */
   hdTree	*temp;			/* I - New tree entry */
-  var_t		*var;			/* I - Current markup variable */
+  hdTreeAttr	*attr;			/* I - Current markup attribute */
 
 
   while (t != NULL)
   {
     if ((temp = new hdTree(t->element, t->data, parent)) != NULL)
     {
-      temp->link          = t->link;
-      temp->typeface      = t->typeface;
-      temp->style         = t->style;
-      temp->size          = t->size;
-      temp->style->text_align    = t->style->text_align;
-      temp->style->vertical_align    = t->style->vertical_align;
-      temp->red           = t->red;
-      temp->green         = t->green;
-      temp->blue          = t->blue;
-      temp->underline     = t->underline;
-      temp->strikethrough = t->strikethrough;
-      temp->superscript   = t->superscript;
-      temp->subscript     = t->subscript;
-      for (i = 0, var = t->vars; i < t->nvars; i ++, var ++)
-        temp->set_attr(var->name, var->value);
+      temp->link  = t->link;
+      temp->style = t->style;
+
+      for (i = 0, attr = t->attrs; i < t->nattrs; i ++, attr ++)
+        temp->set_attr(attr->name, attr->value);
 
       copy_tree(temp, t->child);
     }
@@ -8263,7 +8256,7 @@ hdRender::get_cell_size(hdTree *t,		// I - Cell
 {
   hdTree	*temp,			// Current tree entry
 		*next;			// Next tree entry
-  char		*var;			// Attribute value
+  const char	*var;			// Attribute value
   int		nowrap;			// NOWRAP attribute?
   float		width,			// Width of cell
 		frag_width,		// Fragment required width
@@ -8366,7 +8359,7 @@ hdRender::get_cell_size(hdTree *t,		// I - Cell
 	    minw = temp->width;
 	  }
 
-          if (temp->preformatted && temp->data != NULL &&
+          if (temp->style->white_space == HD_WHITESPACE_PRE && temp->data != NULL &&
               temp->data[strlen(temp->data) - 1] == '\n')
           {
 	    // End of a line - check preferred width...
@@ -8375,7 +8368,7 @@ hdRender::get_cell_size(hdTree *t,		// I - Cell
             if (frag_pref > prefw)
               prefw = frag_pref;
 
-            if (temp->preformatted && frag_pref > minw)
+            if (temp->style->white_space == HD_WHITESPACE_PRE && frag_pref > minw)
 	    {
 	      DEBUG_printf(("Setting minw to %.1f (was %.1f) for preformatted...\n",
 	                    frag_pref, minw));
@@ -8389,7 +8382,7 @@ hdRender::get_cell_size(hdTree *t,		// I - Cell
 	  else
 	    frag_pref += temp->width;
 
-          if (temp->preformatted && temp->data != NULL &&
+          if (temp->style->white_space == HD_WHITESPACE_PRE && temp->data != NULL &&
               temp->data[strlen(temp->data) - 1] == '\n')
 	  {
 	    // Check required width...
@@ -8404,7 +8397,7 @@ hdRender::get_cell_size(hdTree *t,		// I - Cell
 
             frag_width = 0.0f;
 	  }
-          else if (!temp->preformatted && temp->data != NULL &&
+          else if (!temp->style->white_space == HD_WHITESPACE_PRE && temp->data != NULL &&
 	           (isspace(temp->data[0]) ||
 	 	    isspace(temp->data[strlen(temp->data) - 1])))
 	  {
@@ -8535,7 +8528,7 @@ hdRender::get_table_size(hdTree *t,		// I - Table
 {
   hdTree	*temp,			// Current tree entry
 		*next;			// Next tree entry
-  char		*var;			// Attribute value
+  const char	*var;			// Attribute value
   float		width,			// Required width of table
 		minw,			// Minimum width of table
 		minh,			// Minimum height of table
@@ -8853,9 +8846,9 @@ hdRender::flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
 void
 hdRender::update_image_size(hdTree *t)	/* I - Tree entry */
 {
-  hdImage	*img;		/* Image file */
-  char		*width,		/* Width string */
-		*height;	/* Height string */
+  hdImage	*img;			/* Image file */
+  const char	*width,			/* Width string */
+		*height;		/* Height string */
 
 
   width  = t->get_attr("WIDTH");
@@ -8888,7 +8881,7 @@ hdRender::update_image_size(hdTree *t)	/* I - Tree entry */
     else
       t->width = atoi(width) * PagePrintWidth / _htmlBrowserWidth;
 
-    t->height = t->width * img->height / img->width;
+    t->height = t->width * img->height() / img->width();
   }
   else if (height != NULL)
   {
@@ -8897,41 +8890,13 @@ hdRender::update_image_size(hdTree *t)	/* I - Tree entry */
     else
       t->height = atoi(height) * PagePrintWidth / _htmlBrowserWidth;
 
-    t->width = t->height * img->width / img->height;
+    t->width = t->height * img->width() / img->height();
   }
   else
   {
-    t->width  = img->width * PagePrintWidth / _htmlBrowserWidth;
-    t->height = img->height * PagePrintWidth / _htmlBrowserWidth;
+    t->width  = img->width() * PagePrintWidth / _htmlBrowserWidth;
+    t->height = img->height() * PagePrintWidth / _htmlBrowserWidth;
   }
-}
-
-
-/*
- * 'hdRender::get_width()' - Get the width of a string in points.
- */
-
-float			/* O - Width in points */
-hdRender::get_width(char *s,		/* I - String to scan */
-          int   typeface,	/* I - Typeface code */
-          int   style,		/* I - Style code */
-          int   size)		/* I - Size */
-{
-  char	*ptr;			/* Current character */
-  float	width;			/* Current width */
-
-
-  DEBUG_printf(("get_width(\"%s\", %d, %d, %d)\n",
-                s == NULL ? "(null)" : (const char *)s,
-                typeface, style, size));
-
-  if (s == NULL)
-    return (0.0);
-
-  for (width = 0.0, ptr = s; *ptr != '\0'; ptr ++)
-    width += _htmlWidths[typeface][style][*ptr];
-
-  return (width * _htmlSizes[size]);
 }
 
 
@@ -8939,7 +8904,7 @@ hdRender::get_width(char *s,		/* I - String to scan */
  * 'hdRender::get_title()' - Get the title string for a document.
  */
 
-char *		/* O - Title string */
+char *					/* O - Title string */
 hdRender::get_title(hdTree *doc)	/* I - Document */
 {
   char	*temp;
@@ -8988,8 +8953,10 @@ hdRender::open_file(void)
   }
   else if (OutputPath[0] != '\0')
     return (fopen(OutputPath, "wb+"));
+#if 0
   else if (PSLevel == 0)
     return (file_temp(stdout_filename, sizeof(stdout_filename)));
+#endif // 0
   else
     return (stdout);
 }
@@ -9000,8 +8967,8 @@ hdRender::open_file(void)
  */
 
 void
-hdRender::set_color(FILE  *out,	/* I - File to write to */
-          float *rgb)	/* I - RGB color */
+hdRender::set_color(FILE  *out,		/* I - File to write to */
+                    float *rgb)		/* I - RGB color */
 {
   if (rgb[0] == render_rgb[0] &&
       rgb[1] == render_rgb[1] &&
@@ -12015,5 +11982,5 @@ hdRender::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: render.cxx,v 1.14.2.8 2004/03/25 02:01:37 mike Exp $".
+ * End of "$Id: render.cxx,v 1.14.2.9 2004/03/30 03:49:15 mike Exp $".
  */

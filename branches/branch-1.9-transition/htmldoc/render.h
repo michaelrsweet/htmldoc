@@ -1,5 +1,5 @@
 /*
- * "$Id: render.h,v 1.21.2.7 2004/03/25 02:01:38 mike Exp $"
+ * "$Id: render.h,v 1.21.2.8 2004/03/30 03:49:15 mike Exp $"
  *
  *   Render class definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -16,7 +16,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -44,21 +44,6 @@ extern "C" {				// Workaround for JPEG header probs...
 
 typedef int	(*hdCompareFunc)(const void *, const void *);
 }
-
-
-/**
- * Document types...
- */
-
-enum hdDocType
-{
-  //* Book with chapters
-  HD_DOCTYPE_BOOK,
-  //* Continuous web pages
-  HD_DOCTYPE_CONTINUOUS,
-  //* Separated web pages
-  HD_DOCTYPE_WEBPAGES
-};
 
 
 /**
@@ -175,19 +160,19 @@ struct hdRenderPage
   //* Landscape orientation?
   int		landscape;
   //* Title text
-  char		*title;
+  const char	*title;
   //* Chapter text
-  char		*chapter;
+  const char	*chapter;
   //* Heading text
-  char		*heading;
+  const char	*heading;
   //* Headers
-  char		*header[3];
+  const char	*header[3];
   //* Footers
-  char		*footer[3];
+  const char	*footer[3];
   //* Media color
-  char		media_color[64];
+  const char	*media_color;
   //* Media type
-  char		media_type[64];
+  const char	*media_type;
   //* Media position
   int		media_position;
   //* Page number for TOC
@@ -202,9 +187,9 @@ struct hdRenderPage
   //* Transform matrix
   float		outmatrix[2][3];
   //* Formatted headers
-  char		*formatted_header[3];
+  const char	*formatted_header[3];
   //* Formatted footers
-  char		*formatted_footer[3];
+  const char	*formatted_footer[3];
 };
 
 
@@ -281,7 +266,7 @@ class hdRender
   public:
 
   hdRender();
-  ~hdRender();
+  virtual ~hdRender();
 
  /**
   * The <tt>compression_level()</tt> method returns the current compression
@@ -324,9 +309,8 @@ class hdRender
   * @param document tree_t The document tree to render.
   * @param toc tree_t The table-of-contents to render, if any.
   */
-//  virtual int	export_doc(const char *path, bool multiple, hdDocType type,
-//		           tree_t *document, tree_t *toc = 0) = 0;
-  int export_doc(hdTree *document, hdTree *toc, hdStyleSheet *css);
+  virtual int	export_doc(const char *path, bool multiple, hdDocType type,
+		           tree_t *document, tree_t *toc = 0) = 0;
 
  /**
   * The <tt>jpeg_quality</tt> method returns the current JPEG quality
@@ -342,9 +326,6 @@ class hdRender
   * @param q int The JPEG quality from 0 (disabled) to 100 (best)
   */
   void		jpeg_quality(int q);
-
-#define VALUE(x)
-#define NULL3
 
   int		StrictHTML	VALUE(0);	/* Do strict HTML checking */
   int		TitlePage	VALUE(1),	/* Need a title page */
@@ -651,5 +632,5 @@ class hdRender
 
 
 /*
- * End of "$Id: render.h,v 1.21.2.7 2004/03/25 02:01:38 mike Exp $".
+ * End of "$Id: render.h,v 1.21.2.8 2004/03/30 03:49:15 mike Exp $".
  */

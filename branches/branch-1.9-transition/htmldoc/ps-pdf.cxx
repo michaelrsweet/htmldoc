@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.237.2.3 2004/03/21 21:55:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.237.2.4 2004/03/30 03:49:15 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -20,7 +20,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -12349,5 +12349,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.237.2.3 2004/03/21 21:55:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.237.2.4 2004/03/30 03:49:15 mike Exp $".
  */

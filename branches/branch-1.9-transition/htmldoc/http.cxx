@@ -1,5 +1,5 @@
 //
-// "$Id: http.cxx,v 1.7.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: http.cxx,v 1.7.2.2 2004/03/30 03:49:15 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class routines for HTMLDOC.
 //
@@ -15,9 +15,9 @@
 //       Attn: CUPS Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
-//       Voice: (301) 373-9603
+//       Voice: (301) 373-9600
 //       EMail: cups-info@cups.org
 //         WWW: http://www.cups.org
 //
@@ -1842,5 +1842,5 @@ hdHTTP::upgrade()
 
 
 //
-// End of "$Id: http.cxx,v 1.7.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: http.cxx,v 1.7.2.2 2004/03/30 03:49:15 mike Exp $".
 //

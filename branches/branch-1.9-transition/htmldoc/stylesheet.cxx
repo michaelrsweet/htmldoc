@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.11.2.2 2004/03/23 21:54:38 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.11.2.3 2004/03/30 03:49:16 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -1210,5 +1210,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.11.2.2 2004/03/23 21:54:38 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.11.2.3 2004/03/30 03:49:16 mike Exp $".
 //
