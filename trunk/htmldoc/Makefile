@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.4 2000/01/04 13:52:23 mike Exp $"
+#   "$Id: Makefile,v 1.5 2000/01/06 21:58:47 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -75,6 +75,7 @@ htmldoc.purify:	$(OBJS) ../Makedefs ../jpeg/libjpeg.a \
 	echo Linking $@...
 	purify $(CXX) $(LDFLAGS) -o htmldoc.purify $(OBJS) $(LIBS)
 
+file.o:		file.h string.h
 gui.o:		gui.h html.h htmldoc.h image.h iso8859.h types.h htmldoc.xbm
 html.o:		html.h htmldoc.h image.h iso8859.h types.h
 htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h types.h
@@ -84,11 +85,24 @@ iso8859.o:	iso8859.h types.h
 ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h types.h
 toc.o:		html.h htmldoc.h image.h iso8859.h types.h
 string.o:	string.h
-file.o:		file.h string.h
+
+#
+# testhtml
+#
+
+testhtml:	testhtml.o file.o htmllibd.o image.o iso8859.o Makefile
+	echo Linking $@...
+	$(CXX) $(LDFLAGS) -o testhtml testhtml.o file.o htmllibd.o image.o \
+		iso8859.o $(LIBS)
+
+htmllibd.o:	htmllib.cxx ../config.h ../Makedefs html.h debug.h image.h \
+		iso8859.h types.h
+	echo Compiling $<...
+	$(CXX) $(CXXFLAGS) -DDEBUG -o htmllibd.o -c htmllib.cxx
 
 $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.4 2000/01/04 13:52:23 mike Exp $".
+# End of "$Id: Makefile,v 1.5 2000/01/06 21:58:47 mike Exp $".
 #

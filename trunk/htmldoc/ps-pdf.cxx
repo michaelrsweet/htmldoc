@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.47 2000/01/04 16:33:40 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.48 2000/01/06 21:58:47 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -392,15 +392,15 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (TitlePage)
   {
-  #if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32) || defined(__EMX__)
     if (stricmp(file_extension(TitleImage), "htm") == 0 ||
 	stricmp(file_extension(TitleImage), "html") == 0 ||
 	stricmp(file_extension(TitleImage), "shtml") == 0)
-  #else
+#else
     if (strcmp(file_extension(TitleImage), "htm") == 0 ||
 	strcmp(file_extension(TitleImage), "html") == 0 ||
 	strcmp(file_extension(TitleImage), "shtml") == 0)
-  #endif // WIN32 || __EMX__
+#endif // WIN32 || __EMX__
     {
       // Write a title page from HTML source...
       if ((fp = fopen(TitleImage, "rb")) == NULL)
@@ -832,9 +832,16 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 
       case 'l' :
           if (logo_image != NULL)
-	    temp = new_render(page, RENDER_IMAGE, 0, y,
-	                      HeadFootSize * logo_image->width / logo_image->height,
-	                      HeadFootSize, logo_image);
+	  {
+	    if (logo_image->height < HeadFootSize)
+	      temp = new_render(page, RENDER_IMAGE, 0, y,
+	                	logo_image->width, logo_image->height,
+	                	logo_image);
+            else
+	      temp = new_render(page, RENDER_IMAGE, 0, y,
+	                	HeadFootSize * logo_image->width / logo_image->height,
+	                	HeadFootSize, logo_image);
+	  }
 	  else
 	    temp = NULL;
 	  break;
@@ -3574,7 +3581,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		bgrgb[3];
 
 
-  DEBUG_printf(("parse_table(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
+  DEBUG_printf(("parse_table(t=%08x, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
                 t, left, right, *x, *y, *page));
 
   if (t->child == NULL)
@@ -3931,7 +3938,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     col_rights[col] = *x + col_widths[col];
     *x = col_rights[col] + 2 * (border + cellpadding + cellspacing);
 
-    DEBUG_printf(("left[%d] = %d, right[%d] = %d\n", col, col_lefts[col], col,
+    DEBUG_printf(("left[%d] = %.1f, right[%d] = %.1f\n", col, col_lefts[col], col,
                   col_rights[col]));
   }
 
@@ -3956,7 +3963,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           break;
       colspan --;
 
-      DEBUG_printf(("row = %d, col = %d, colspan = %d, left = %d, right = %d\n",
+      DEBUG_printf(("row = %d, col = %d, colspan = %d, left = %.1f, right = %.1f\n",
                     row, col, colspan, col_lefts[col], col_rights[col + colspan]));
 
       if (cells[row][col] == NULL)
@@ -6519,5 +6526,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.47 2000/01/04 16:33:40 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.48 2000/01/06 21:58:47 mike Exp $".
  */

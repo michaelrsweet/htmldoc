@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.21 2000/01/04 13:52:25 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.22 2000/01/06 21:58:47 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -217,6 +217,8 @@ static char	*fix_filename(char *path, char *base);
 #define islist(x)	((x) == MARKUP_DL || (x) == MARKUP_OL ||\
 			 (x) == MARKUP_UL || (x) == MARKUP_DIR ||\
 			 (x) == MARKUP_MENU)
+#define islentry(x)	((x) == MARKUP_LI || (x) == MARKUP_DD ||\
+			 (x) == MARKUP_DT)
 #define istable(x)	((x) == MARKUP_TBODY || (x) == MARKUP_THEAD ||\
 			 (x) == MARKUP_TFOOT || (x) == MARKUP_TR)
 #define istentry(x)	((x) == MARKUP_TD || (x) == MARKUP_TH)
@@ -378,13 +380,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           if (temp->markup == t->markup)
             break;
       }
-      else if (t->markup == MARKUP_DT ||
-               t->markup == MARKUP_DD)
-      {
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (temp->markup == MARKUP_DT || temp->markup == MARKUP_DD)
-            break;
-      }
       else if (issuper(t->markup))
       {
         for (temp = parent; temp != NULL; temp = temp->parent)
@@ -408,10 +403,21 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	  }
 
       }
+      else if (islentry(t->markup))
+      {
+        for (temp = parent; temp != NULL; temp = temp->parent)
+          if (islentry(temp->markup) || isblock(temp->markup))
+            break;
+	  else if (islist(temp->markup) || issuper(temp->markup))
+          {
+	    temp = NULL;
+	    break;
+	  }
+      }
       else if (isblock(t->markup))
       {
         for (temp = parent; temp != NULL; temp = temp->parent)
-          if (isblock(temp->markup))
+          if (isblock(temp->markup) || islentry(temp->markup))
             break;
 	  else if (istentry(temp->markup) || islist(temp->markup) ||
 	           issuper(temp->markup))
@@ -440,17 +446,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	  {
 	    temp = NULL;
             break;
-	  }
-      }
-      else if (t->markup == MARKUP_LI)
-      {
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (temp->markup == MARKUP_LI)
-	    break;
-	  else if (islist(temp->markup) || issuper(temp->markup))
-          {
-	    temp = NULL;
-	    break;
 	  }
       }
       else
@@ -2272,5 +2267,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.21 2000/01/04 13:52:25 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.22 2000/01/06 21:58:47 mike Exp $".
  */
