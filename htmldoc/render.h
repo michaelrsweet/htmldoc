@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.16 2002/09/24 23:26:50 mike Exp $"
+// "$Id: render.h,v 1.17 2002/09/25 01:16:38 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -55,41 +55,72 @@ enum hdRenderType
 //
 
 /**
+ * The hdRenderText structure 
+ */
+struct hdRenderText
+{
+  //* Font for text
+  hdStyleFont	*font;
+  //* Size of text in points
+  float		font_size;
+  //* Inter-character spacing
+  float		char_spacing;
+  //* Color of text
+  float		rgb[3];
+  //* Did we allocate the string?
+  int		alloc_string;
+  //* String pointer
+  char		*string;
+};
+
+
+/**
+ * The hdRenderURL structure describes a single link on a page.
+ */
+struct hdRenderURL
+{
+  //* Did we allocate the URL?
+  int		alloc_url;
+  //* Link URL
+  char		*url;
+};
+
+
+/**
  * The hdRenderNode structure describes rendering primitives used when
  * producing PostScript and PDF output.
  */
 struct hdRenderNode
 {
-  hdRenderNode	*next;			// Next rendering node
-  hdRenderType	type;			// Type of node
-  float		x,			// Position in points
-		y,			// ...
-		width,			// Size in points
-		height;			// ...
+  //* Next rendering node
+  hdRenderNode	*next;
+  //* Type of node
+  hdRenderType	type;
+  //* X position in points
+  float		x;
+  //* Y position in points
+  float		y;
+  //* Width in points
+  float		width;
+  //* Height in points
+  float		height;
 
   union
   {
-    struct
-    {
-      hdStyleFont *font;		// Font for text
-      float	font_size;		// Size of text in points
-      float	char_spacing;		// Inter-character spacing
-      float	rgb[3];			// Color of text
-      int	alloc_string;		// Did we allocate the string?
-      char	*string;		// String pointer
-    }   	text;
+    //* Text data
+    hdRenderText text;
 
-    hdImage	*image;			// Image pointer
+    //* Image pointer
+    hdImage	*image;
 
-    float	box[3];			// Box color
+    //* Box color
+    float	box[3];
 
-    hdStyle	*background;		// Background data
+    //* Background data
+    hdStyle	*background;
 
-    struct
-    {
-      int	alloc_url;		// Did we allocate the URL?
-      char 	*url;			// Link URL
-    }		link;
+    //* Link data
+    hdRenderURL	link;
   }	data;
 
  /**
@@ -115,58 +146,110 @@ struct hdRenderNode
   ~hdRenderNode();
 };
 
-struct hdRenderPage		//// Page render information
-{
-  hdRenderNode	*first,			// First node on page
-		*last;			// Last node on page
 
-  int		types;			// Bitwise OR of all nodes
-  
-  int		width,			// Width of page in points
-		length,			// Length of page in points
-		left,			// Left margin in points
-		right,			// Right margin in points
-		top,			// Top margin in points
-		bottom,			// Bottom margin in points
-		duplex,			// Duplex this page?
-		landscape;		// Landscape orientation?
-  char		*title,			// Title tree
-		*chapter,		// Chapter tree
-		*heading,		// Heading tree
-		*header[3],		// Headers
-		*footer[3],		// Footers
-		media_color[64],	// Media color
-		media_type[64];		// Media type
-  int		media_position;		// Media position
-  int		page_object,		// Page object
-		annot_object;		// Annotation object
-  char		page_text[64];		// Page number for TOC
-  float		background_color[3];	// Background color
-  hdImage	*background_image;	// Background image
-  float		background_position[2];	// Background start position
-  hdBackgroundRepeat background_repeat;	// Background repeat mode
+/**
+ * The hdRenderPage structure holds all of the rendering data for a
+ * page.
+ */
+struct hdRenderPage
+{
+  //* First node on page
+  hdRenderNode	*first;
+  //* Last node on page
+  hdRenderNode	*last;
+
+  //* Bitwise OR of all nodes
+  int		types;
+  //* Width of page in points
+  int		width;
+  //* Length of page in points
+  int		length;
+  //* Left margin in points
+  int		left;
+  //* Right margin in points
+  int		right;
+  //* Top margin in points
+  int		top;
+  //* Bottom margin in points
+  int		bottom;
+  //* Duplex this page?
+  int		duplex;
+  //* Landscape orientation?
+  int		landscape;
+  //* Title tree
+  char		*title;
+  //* Chapter tree
+  char		*chapter;
+  //* Heading tree
+  char		*heading;
+  //* Headers
+  char		*header[3];
+  //* Footers
+  char		*footer[3];
+  //* Media color
+  char		media_color[64];
+  //* Media type
+  char		media_type[64];
+  //* Media position
+  int		media_position;
+  //* Page object
+  int		page_object;
+  //* Annotation object
+  int		annot_object;
+  //* Page number for TOC
+  char		page_text[64];
+  //* Background color
+  float		background_color[3];
+  //* Background image
+  hdImage	*background_image;
+  //* Background start position
+  float		background_position[2];
+  //* Background repeat mode
+  hdBackgroundRepeat background_repeat;
 };
 
 
-struct hdRenderLink		//// Named link position structure
+/**
+ * The hdRenderLink structure holds the positions and pages of
+ * named links.
+ */
+struct hdRenderLink
 {
-  short		page,			// Page #
-		top;			// Top position
-  char		*name;			// Reference name
+  //* Page number
+  short		page;
+  //* Top position
+  short		top;
+  //* Reference name
+  char		*name;
 };
 
-struct hdRenderChapter		//// Chapter data
+
+/**
+ * The hdRenderChapter structure holds the start and end pages for
+ * a chapter.
+ */
+struct hdRenderChapter
 {
-  int		first,			// First page in chapter
-		last;			// Last page in chapter
+  //* First page in chapter
+  int		first;
+  //* Last page in chapter
+  int		last;
 };
 
 
-struct hdRenderHeading		//// Header data
+/**
+ * The hdRenderHeading structure holds the page and position of each
+ * heading in a document.
+ */
+
+struct hdRenderHeading
 {
-  int		page,			// Page #
-		top;			// Top position
-  hdTree	*node;			// HTML tree node with heading
+  //* Page number
+  int		page;
+  //* Top position
+  int		top;
+  //* HTML tree node with heading
+  hdTree	*node;
 };
 
 
@@ -464,5 +547,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.16 2002/09/24 23:26:50 mike Exp $".
+// End of "$Id: render.h,v 1.17 2002/09/25 01:16:38 mike Exp $".
 //

@@ -19,7 +19,13 @@ provided in the HTMLDOC library.
 
 	<LI><A HREF="#hdFontKernPair">struct hdFontKernPair</A></LI>
 
+	<LI><A HREF="#hdRenderLink">struct hdRenderLink</A></LI>
+
 	<LI><A HREF="#hdRenderNode">struct hdRenderNode</A></LI>
+
+	<LI><A HREF="#hdRenderPage">struct hdRenderPage</A></LI>
+
+	<LI><A HREF="#hdRenderText">struct hdRenderText</A></LI>
 
 	<LI><A HREF="#hdStyle">struct hdStyle</A></LI>
 
@@ -339,6 +345,31 @@ information for a pair of characters...</P>
 <P>This class does not provide any public methods.
 
 <!-- NEW PAGE -->
+<H2><A NAME="hdRenderLink">struct hdRenderLink</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRenderLink structure describes a single link on a page.</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderLink.alloc_url"><TT>alloc_url</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Did we allocate the URL?</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderLink.url"><TT>url</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Link URL</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
 <H2><A NAME="hdRenderNode">struct hdRenderNode</A></H2>
 <HR>
 <H3>Description</H3>
@@ -352,7 +383,38 @@ producing PostScript and PDF output.</P>
 
 <H3>Members</H3>
 
-<P>This class does not provide any public members.
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderNode.height"><TT>height</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Height in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderNode.next"><TT>next</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdRenderNode	*</TT></TD>
+<TD VALIGN="TOP">Next rendering node</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderNode.type"><TT>type</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdRenderType	</TT></TD>
+<TD VALIGN="TOP">Type of node</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderNode.union"><TT>union</TT></A></TD>
+<TD VALIGN="TOP"><TT>  </TT></TD>
+<TD VALIGN="TOP">Union of render data</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderNode.width"><TT>width</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Width in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderNode.x"><TT>x</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">X position in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderNode.y"><TT>y</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Y position in points</TD></TR>
+
+</TABLE></DIV>
 
 <H3>Methods</H3>
 
@@ -410,6 +472,169 @@ HD_RENDERTYPE_LINK, or HD_RENDERTYPE_FORM.
 the data if it was allocated.
 
 </DIV>
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdRenderPage">struct hdRenderPage</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRenderPage structure holds all of the rendering data for a
+page.</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.annot_object"><TT>annot_object</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Annotation object</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.background_color"><TT>background_color</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		[3]</TT></TD>
+<TD VALIGN="TOP">Background color</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.background_image"><TT>background_image</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdImage	*</TT></TD>
+<TD VALIGN="TOP">Background image</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.background_position"><TT>background_position</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		[2]</TT></TD>
+<TD VALIGN="TOP">Background start position</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.background_repeat"><TT>background_repeat</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdBackgroundRepeat </TT></TD>
+<TD VALIGN="TOP">Background repeat mode</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.bottom"><TT>bottom</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Bottom margin in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.chapter"><TT>chapter</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Chapter tree</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.duplex"><TT>duplex</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Duplex this page?</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.first"><TT>first</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdRenderNode	*</TT></TD>
+<TD VALIGN="TOP">First node on page</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.footer"><TT>footer</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*[3]</TT></TD>
+<TD VALIGN="TOP">Footers</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.header"><TT>header</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*[3]</TT></TD>
+<TD VALIGN="TOP">Headers</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.heading"><TT>heading</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Heading tree</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.landscape"><TT>landscape</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Landscape orientation?</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.last"><TT>last</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdRenderNode	*</TT></TD>
+<TD VALIGN="TOP">Last node on page</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.left"><TT>left</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Left margin in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.length"><TT>length</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Length of page in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.media_color"><TT>media_color</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		[64]</TT></TD>
+<TD VALIGN="TOP">Media color</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.media_position"><TT>media_position</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Media position</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.media_type"><TT>media_type</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		[64]</TT></TD>
+<TD VALIGN="TOP">Media type</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.page_object"><TT>page_object</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Page object</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.page_text"><TT>page_text</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		[64]</TT></TD>
+<TD VALIGN="TOP">Page number for TOC</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.right"><TT>right</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Right margin in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.title"><TT>title</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Title tree</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.top"><TT>top</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Top margin in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.types"><TT>types</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Bitwise OR of all nodes</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderPage.width"><TT>width</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Width of page in points</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdRenderText">struct hdRenderText</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRenderText structure</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderText.alloc_string"><TT>alloc_string</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Did we allocate the string?</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderText.char_spacing"><TT>char_spacing</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Inter-character spacing</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderText.font"><TT>font</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdStyleFont	*</TT></TD>
+<TD VALIGN="TOP">Font for text</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderText.font_size"><TT>font_size</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Size of text in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderText.rgb"><TT>rgb</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		[3]</TT></TD>
+<TD VALIGN="TOP">Color of text</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderText.string"><TT>string</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">String pointer</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
 
 <!-- NEW PAGE -->
 <H2><A NAME="hdStyle">struct hdStyle</A></H2>
