@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.202 2002/08/20 15:22:20 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.203 2002/08/23 19:55:17 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -10535,7 +10535,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     * Procedures used throughout the document...
     */
 
-    fputs("%%BeginResource: procset htmldoc-page 1.8 20\n", out);
+    fputs("%%BeginResource: procset htmldoc-page 1.8 22\n", out);
     fputs("/BD{bind def}bind def", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
           "closepath stroke}BD", out);
@@ -10627,7 +10627,7 @@ write_prolog(FILE  *out,	/* I - Output file */
                        "Unable to open data file \"%s\" - %s", temp,
                        strerror(errno));
 
-	fputs("%%BeginResource: procset htmldoc-device 1.8 15\n", out);
+	fputs("%%BeginResource: procset htmldoc-device 1.8 22\n", out);
 	fputs("languagelevel 1 eq{/setpagedevice{pop}BD}if\n", out);
 	fputs("/SetDuplexMode{<</Duplex 3 index/Tumble 5 index>>setpagedevice "
               "pop pop}BD\n", out);
@@ -11861,5 +11861,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.202 2002/08/20 15:22:20 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.203 2002/08/23 19:55:17 mike Exp $".
  */
