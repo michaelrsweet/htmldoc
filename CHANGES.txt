@@ -1,4 +1,4 @@
-CHANGES.txt - 07/31/2000
+CHANGES.txt - 09/14/2000
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.9
@@ -24,6 +24,8 @@ CHANGES IN HTMLDOC v1.8.9
 	  following page.
 	- DSC comments in PostScript output were not 100%
 	  conformant with the DSC spec.
+	- Long table-of-contents entries are now wrapped
+	  (original patch supplied by ???)
 
     BUG FIXES
 
