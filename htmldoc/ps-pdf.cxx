@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.76 2000/05/24 20:47:44 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.77 2000/05/31 15:46:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -309,7 +309,7 @@ static void	write_background(FILE *out);
 static render_t	*new_render(int page, int type, float x, float y,
 		            float width, float height, void *data, int insert = 0);
 static void	copy_tree(tree_t *parent, tree_t *t);
-static tree_t	*flatten_tree(tree_t *t);
+static tree_t	*flatten_tree(tree_t *t, float padding = 0.0f);
 static float	get_width(uchar *s, int typeface, int style, int size);
 static void	update_image_size(tree_t *t);
 static uchar	*get_title(tree_t *doc);
@@ -4928,16 +4928,21 @@ copy_tree(tree_t *parent,	/* I - Source tree */
  */
 
 static tree_t *			/* O - Flattened markup tree */
-flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
+flatten_tree(tree_t *t,		/* I - Markup tree to flatten */
+             float  padding)	/* I - Padding for table cells */
 {
-  tree_t	*temp,
-		*flat;
+  tree_t	*temp,		/* New tree node */
+		*flat;		/* Flattened tree */
+  float		newpadding;	/* New padding for table cells */
+  uchar		*var;		/* Attribute value */
 
 
   flat = NULL;
 
   while (t != NULL)
   {
+    newpadding = padding;
+
     switch (t->markup)
     {
       case MARKUP_NONE :
@@ -4975,6 +4980,49 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
           }
 	  break;
 
+      case MARKUP_TD :
+      case MARKUP_TH :
+	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
+	  temp->markup = MARKUP_SPACER;
+	  temp->parent = NULL;
+	  temp->child  = NULL;
+	  temp->prev   = flat;
+	  temp->next   = NULL;
+	  temp->width  = padding;
+	  if (flat != NULL)
+            flat->next = temp;
+          flat = temp;
+          break;
+
+      case MARKUP_TABLE :
+	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
+	  temp->markup = MARKUP_SPACER;
+	  temp->parent = NULL;
+	  temp->child  = NULL;
+	  temp->prev   = flat;
+	  temp->next   = NULL;
+
+	  if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
+	    newpadding = 2.0f * atof((char *)var);
+	  else
+	    newpadding = 2.0f;
+
+	  if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
+	    newpadding += 2.0f * atof((char *)var);
+
+	  if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
+	  {
+	    if (!isdigit(var[0]))
+	      temp->width = 2.0f;
+	    else
+	      temp->width = 2.0f * atof((char *)var);
+	  }
+
+	  if (flat != NULL)
+            flat->next = temp;
+          flat = temp;
+	  break;
+
       case MARKUP_P :
       case MARKUP_PRE :
       case MARKUP_H1 :
@@ -5007,7 +5055,7 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
 
     if (t->child != NULL)
     {
-      temp = flatten_tree(t->child);
+      temp = flatten_tree(t->child, newpadding);
 
       if (temp != NULL)
         temp->prev = flat;
@@ -6811,5 +6859,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.76 2000/05/24 20:47:44 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.77 2000/05/31 15:46:29 mike Exp $".
  */
