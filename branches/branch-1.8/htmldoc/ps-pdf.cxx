@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.24 2001/02/22 01:22:45 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.25 2001/02/23 20:47:00 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3218,7 +3218,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       width = start->width;
     }
 
-    for (height = 0.0, spacing = 0.0, num_chars = 0, temp = prev = start;
+    for (height = 0.0, num_chars = 0, temp = prev = start;
          temp != end;
 	 temp = temp->next)
     {
@@ -3227,12 +3227,18 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       if (temp->markup == MARKUP_NONE)
         num_chars += strlen((char *)temp->data);
 
-      if (temp->height > height &&
-          (temp->markup != MARKUP_IMG || temp->valignment == ALIGN_TOP))
+      if (temp->height > height && temp->markup != MARKUP_IMG)
         height = temp->height;
-      else if (temp->markup == MARKUP_IMG && temp->valignment == ALIGN_MIDDLE &&
-               (0.5f * temp->height) > height)
-        height = 0.5f * temp->height;
+      else if ((0.5 * temp->height) > height && temp->markup == MARKUP_IMG &&
+               temp->valignment == ALIGN_MIDDLE)
+        height = 0.5 * temp->height;
+    }
+
+    for (spacing = 0.0, temp = prev = start;
+         temp != end;
+	 temp = temp->next)
+    {
+      prev = temp;
 
       if (temp->markup != MARKUP_IMG)
         temp_height = temp->height * _htmlSpacings[0] / _htmlSizes[0];
@@ -3244,13 +3250,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
               temp_height = temp->height;
 	      break;
 	  case ALIGN_MIDDLE :
-	      if ((0.5f * temp->height) > _htmlSizes[t->size])
-	        temp_height = temp->height;
-	      else
-	        temp_height = 0.5f * temp->height + _htmlSizes[t->size];
+              temp_height = 0.5f * temp->height + height;
               break;
 	  case ALIGN_BOTTOM :
-	      temp_height = temp->height + _htmlSizes[t->size];
+	      temp_height = temp->height + height;
               break;
 	}
       }
@@ -8096,5 +8099,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.24 2001/02/22 01:22:45 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.25 2001/02/23 20:47:00 mike Exp $".
  */
