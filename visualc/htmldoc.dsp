@@ -111,6 +111,10 @@ SOURCE=..\htmldoc\htmllib.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\htmldoc\htmlsep.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\htmldoc\http.c
 # End Source File
 # Begin Source File
