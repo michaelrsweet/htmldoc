@@ -1,5 +1,5 @@
 /*
- * "$Id: hdstring.h,v 1.5 2002/09/04 05:32:12 mike Exp $"
+ * "$Id: hdstring.h,v 1.1.2.3 2002/01/28 00:52:12 mike Exp $"
  *
  *   String definitions for HTMLDOC, a HTML document processing program.
  *
@@ -29,13 +29,12 @@
  * Include necessary headers...
  */
 
-#  include <config.h>
+#  include "config.h"
 
 #  include <stdio.h>
 #  include <stdlib.h>
 #  include <stdarg.h>
 #  include <string.h>
-#  include <ctype.h>
 
 #  ifdef HAVE_STRINGS_H
 #    include <strings.h>
@@ -93,5 +92,5 @@ extern int	vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: hdstring.h,v 1.5 2002/09/04 05:32:12 mike Exp $".
+ * End of "$Id: hdstring.h,v 1.1.2.3 2002/01/28 00:52:12 mike Exp $".
  */
