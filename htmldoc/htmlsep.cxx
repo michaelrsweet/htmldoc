@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.15 2004/06/18 14:22:05 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.16 2004/09/23 20:16:14 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -458,8 +458,10 @@ write_title(FILE  *out,		/* I - Output file */
     {
       image_t *img = image_load(TitleImage, !OutputColor);
 
-      fprintf(out, "<IMG SRC=\"%s\" WIDTH=\"%d\" HEIGHT=\"%d\"><BR>\n",
-              file_basename((char *)TitleImage), img->width, img->height);
+      fprintf(out, "<IMG SRC=\"%s\" WIDTH=\"%d\" HEIGHT=\"%d\" "
+	           "ALT=\"%s\"><BR>\n",
+              file_basename((char *)TitleImage), img->width, img->height,
+	      title ? (char *)title : "");
     }
 
     if (title != NULL)
@@ -1158,5 +1160,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.15 2004/06/18 14:22:05 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.16 2004/09/23 20:16:14 mike Exp $".
 //

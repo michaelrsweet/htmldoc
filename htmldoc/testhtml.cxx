@@ -1,5 +1,5 @@
 /*
- * "$Id: testhtml.cxx,v 1.3.2.6 2004/05/09 15:04:39 mike Exp $"
+ * "$Id: testhtml.cxx,v 1.3.2.7 2004/09/23 20:16:14 mike Exp $"
  *
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
@@ -37,7 +37,8 @@ main(int  argc,			/* I - Number of command-line arguments */
   int		i;		/* Looping var */
   FILE		*fp;		/* Input file */
   tree_t	*t,		/* HTML markup tree */
-		*doc;		/* HTML document */
+		*doc,		/* HTML document */
+		*toc;		/* Table of contents */
   char		base[1024];	/* Base directory */
 
 
@@ -154,12 +155,17 @@ main(int  argc,			/* I - Number of command-line arguments */
       fprintf(stderr, "testhtml: Unable to open input file \'%s\'!\n", argv[i]);
 
   if (doc != NULL)
+  {
     htmlWriteFile(doc, stdout);
+    toc = toc_build(doc);
+    puts("---- TABLE OF CONTENTS ----");
+    htmlWriteFile(toc, stdout);
+  }
 
   return (doc == NULL);
 }
 
 
 /*
- * End of "$Id: testhtml.cxx,v 1.3.2.6 2004/05/09 15:04:39 mike Exp $".
+ * End of "$Id: testhtml.cxx,v 1.3.2.7 2004/09/23 20:16:14 mike Exp $".
  */

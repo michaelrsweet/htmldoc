@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.40 2004/06/18 14:22:05 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.41 2004/09/23 20:16:14 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -505,11 +505,15 @@ write_title(FILE  *out,		/* I - Output file */
       image_t *img = image_load(TitleImage, !OutputColor);
 
       if (OutputFiles)
-	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\"><BR>\n",
-        	file_basename((char *)TitleImage), img->width, img->height);
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\" "
+	             "ALT=\"%s\"><BR>\n",
+        	file_basename((char *)TitleImage), img->width, img->height,
+		title ? (char *)title : "");
       else
-	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\"><BR>\n",
-        	TitleImage, img->width, img->height);
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\" "
+	             "ALT=\"%s\"><BR>\n",
+        	TitleImage, img->width, img->height,
+		title ? (char *)title : "");
     }
 
     if (title != NULL)
@@ -1104,5 +1108,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.40 2004/06/18 14:22:05 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.41 2004/09/23 20:16:14 mike Exp $".
  */
