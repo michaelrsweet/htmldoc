@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.6 1999/11/10 21:49:48 mike Exp $"
+dnl "$Id: configure.in,v 1.7 1999/11/19 18:04:55 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -48,7 +48,7 @@ if test "$x_libraries" = "/usr/lib"; then
 fi
 if test ! "$x_libraries" = "NONE" -a ! "$x_libraries" = ""; then
 	LDFLAGS="$LDFLAGS -L$x_libraries"
-	if test "$uname" = "SunOS"; then
+	if test "`uname`" = "SunOS"; then
 		LDFLAGS="$LDFLAGS -R$x_libraries"
 	fi
 fi
@@ -88,5 +88,5 @@ dnl Generate the Makedefs file...
 AC_OUTPUT(Makedefs)
 
 dnl
-dnl End of "$Id: configure.in,v 1.6 1999/11/10 21:49:48 mike Exp $".
+dnl End of "$Id: configure.in,v 1.7 1999/11/19 18:04:55 mike Exp $".
 dnl
