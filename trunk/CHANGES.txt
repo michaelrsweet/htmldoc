@@ -1,5 +1,13 @@
-CHANGES.txt - 11/23/1999
+CHANGES.txt - 12/06/1999
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.2
+
+    CHANGES
+
+
+    BUG FIXES
+
 
 CHANGES IN HTMLDOC v1.8.1
 

@@ -1,4 +1,4 @@
-README.txt - 11/23/1999
+README.txt - 12/06/1999
 -----------------------
 
 INTRODUCTION
@@ -80,7 +80,7 @@ INSTALLING HTMLDOC UNDER UNIX
 
         gunzip htmldoc-1.8.1-platform.tar.gz ENTER
 	tar xf htmldoc-1.8.1-platform.tar ENTER
-	./htmldoc.install ENTER
+	./setup ENTER
 
     (replace "platform" with the appropriate platform name)
 
