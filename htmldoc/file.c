@@ -1,9 +1,9 @@
 /*
- * "$Id: file.c,v 1.13 2000/10/12 23:07:34 mike Exp $"
+ * "$Id: file.c,v 1.13.2.19 2001/06/04 12:12:30 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -23,14 +23,16 @@
  *
  * Contents:
  *
- *   file_basename()  - Return the base filename without directory or target.
- *   file_directory() - Return the directory without filename or target.
- *   file_extension() - Return the extension of a file without the target.
- *   file_find()      - Find a file in one of the path directories.
- *   file_localize()  - Localize a filename for the new working directory.
- *   file_method()    - Return the method for a filename or URL.
- *   file_proxy()     - Set the proxy host for all HTTP requests.
- *   file_target()    - Return the target of a link.
+ *   file_basename()    - Return the base filename without directory or target.
+ *   file_cleanup()     - Close an open HTTP connection and remove temporary files...
+ *   file_directory()   - Return the directory without filename or target.
+ *   file_extension()   - Return the extension of a file without the target.
+ *   file_find()        - Find a file in one of the path directories.
+ *   file_localize()    - Localize a filename for the new working directory.
+ *   file_method()      - Return the method for a filename or URL.
+ *   file_proxy()       - Set the proxy host for all HTTP requests.
+ *   file_target()      - Return the target of a link.
+ *   file_temp()        - Create and open a temporary file.
  */
 
 /*
@@ -41,25 +43,50 @@
 #include "http.h"
 #include "progress.h"
 
-#include <unistd.h>
+#if defined(WIN32)
+#  include <io.h>
+#else
+#  include <unistd.h>
+#endif /* WIN32 || __EMX__ */
+
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <ctype.h>
+
+
+
+/*
+ * Temporary file definitions...
+ */
+
+#ifdef WIN32
+#  define getpid	GetCurrentProcessId
+#  define TEMPLATE	"%s%08x.%06d.tmp"
+#  define OPENMODE	(_O_CREAT | _O_RDWR | _O_EXCL | \
+			 _O_TRUNC | _O_BINARY | _O_SHORT_LIVED)
+#  define OPENPERM	(_S_IREAD | _S_IWRITE)
+#else
+#  define TEMPLATE	"%s/%06d.%06d.tmp"
+#  define OPENMODE	(O_CREAT | O_RDWR | O_EXCL | O_TRUNC)
+#  define OPENPERM	0600
+#endif /* WIN32 */
+
 
 /*
  * Local globals...
  */
 
-char	proxy_host[HTTP_MAX_URI] = "";
-int	proxy_port = 0;
-http_t	*http = NULL;
-int	web_files = 0;
-
-
-/*
- * Local functions...
- */
-
-static void	close_connection(void);
+char	proxy_host[HTTP_MAX_URI] = "";	/* Proxy hostname */
+int	proxy_port = 0;			/* Proxy port */
+http_t	*http = NULL;			/* Connection to remote server */
+int	web_files = 0;			/* Number of temporary files */
+struct					/* Cache for all temporary files */
+{
+  char	*name;				/* Temporary filename */
+  char	*url;				/* URL */
+}	web_cache[2 * MAX_IMAGES];
 
 
 /*
@@ -94,9 +121,56 @@ file_basename(const char *s)	/* I - Filename or URL */
     return (basename);
 
   strcpy(buf, basename);
-  *strchr(buf, '#') = '\0';
+  *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
+}
+
+
+/*
+ * 'file_cleanup()' - Close an open HTTP connection and remove temporary files...
+ */
+
+void
+file_cleanup(void)
+{
+  char		filename[1024];		/* Temporary file */
+#ifdef WIN32
+  char		tmpdir[1024];		/* Temporary directory */
+#else
+  const char	*tmpdir;		/* Temporary directory */
+#endif /* WIN32 */
+
+
+  if (http)
+  {
+    httpClose(http);
+    http = NULL;
+  }
+
+#ifdef WIN32
+  GetTempPath(sizeof(tmpdir), tmpdir);
+#else
+  if ((tmpdir = getenv("TMPDIR")) == NULL)
+    tmpdir = "/var/tmp";
+#endif /* WIN32 */
+
+  while (web_files > 0)
+  {
+    snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
+             getpid(), web_files);
+
+    if (unlink(filename))
+      progress_error("Unable to delete temporary file \"%s\": %s",
+                     filename, strerror(errno));
+
+    web_files --;
+
+    if (web_cache[web_files].name)
+      free(web_cache[web_files].name);
+    if (web_cache[web_files].url)
+      free(web_cache[web_files].url);
+  }
 }
 
 
@@ -114,21 +188,52 @@ file_directory(const char *s)	/* I - Filename or URL */
   if (s == NULL)
     return (NULL);
 
-  strcpy(buf, s);
+  if (strncmp(s, "http://", 7) == 0 || strncmp(s, "https://", 8) == 0)
+  {
+   /*
+    * Handle URLs...
+    */
 
-  if ((dir = strrchr(buf, '/')) != NULL)
-    *dir = '\0';
-  else if ((dir = strrchr(buf, '\\')) != NULL)
-    *dir = '\0';
-#ifdef MAC
-  else if ((dir = strrchr(buf, ':')) != NULL)
-    *dir = '\0';
-#endif /* MAC */
+    char	method[HTTP_MAX_URI],
+		username[HTTP_MAX_URI],
+		hostname[HTTP_MAX_URI],
+		resource[HTTP_MAX_URI];
+    int		port;
+
+
+    httpSeparate(s, method, username, hostname, &port, resource);
+    if ((dir = strrchr(resource, '/')) != NULL)
+      *dir = '\0';
+
+    if (username[0])
+      snprintf(buf, sizeof(buf), "%s://%s@%s:%d%s", method, username, hostname,
+               port, resource);
+    else
+      snprintf(buf, sizeof(buf), "%s://%s:%d%s", method, hostname, port,
+               resource);
+  }
   else
-    return (".");
+  {
+   /*
+    * Normal stuff...
+    */
 
-  if (strncmp(buf, "file:", 5) == 0)
-    strcpy(buf, buf + 5);
+    strcpy(buf, s);
+
+    if ((dir = strrchr(buf, '/')) != NULL)
+      *dir = '\0';
+    else if ((dir = strrchr(buf, '\\')) != NULL)
+      *dir = '\0';
+#ifdef MAC
+    else if ((dir = strrchr(buf, ':')) != NULL)
+      *dir = '\0';
+#endif /* MAC */
+    else
+      return (".");
+
+    if (strncmp(buf, "file:", 5) == 0)
+      strcpy(buf, buf + 5);
+  }
 
   return (buf);
 }
@@ -168,7 +273,7 @@ file_extension(const char *s)	/* I - Filename or URL */
     return (extension);
 
   strcpy(buf, extension);
-  *strchr(buf, '#') = '\0';
+  *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
 }
@@ -182,6 +287,7 @@ char *					/* O - Pathname or NULL */
 file_find(const char *path,		/* I - Path "dir;dir;dir" */
           const char *s)		/* I - File to find */
 {
+  int		i;			/* Looping var */
   int		retry;			/* Current retry */
   char		*temp,			/* Current position in filename */
 		method[HTTP_MAX_URI],	/* Method/scheme */
@@ -198,8 +304,6 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   int		bytes,			/* Bytes read */
 		count,			/* Number of bytes so far */
 		total;			/* Total bytes in file */
-  const char	*tmpdir;		/* Temporary directory */
-  int		fd;			/* File descriptor */
   static char	filename[HTTP_MAX_URI];	/* Current filename */
 
 
@@ -213,6 +317,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   if (strncmp(s, "http:", 5) == 0 ||
       (path != NULL && strncmp(path, "http:", 5) == 0))
     strcpy(method, "http");
+#ifdef HAVE_LIBSSL
+  else if (strncmp(s, "https:", 6) == 0 ||
+           (path != NULL && strncmp(path, "https:", 6) == 0))
+    strcpy(method, "https");
+#endif /* HAVE_LIBSSL */
   else
     strcpy(method, "file");
 
@@ -237,7 +346,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
       temp = filename;
 
-      while (*path != ';' && !*path && temp < (filename + sizeof(filename) - 1))
+      while (*path != ';' && *path && temp < (filename + sizeof(filename) - 1))
 	*temp++ = *path++;
 
       if (*path == ';')
@@ -248,14 +357,14 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       */
 
       if (temp > filename && temp < (filename + sizeof(filename) - 1) &&
-          resource[0] != '/')
+          s[0] != '/')
 	*temp++ = '/';
 
      /*
       * Append the filename...
       */
 
-      strncpy(temp, resource, sizeof(filename) - (temp - filename));
+      strncpy(temp, s, sizeof(filename) - (temp - filename));
       filename[sizeof(filename) - 1] = '\0';
 
      /*
@@ -269,10 +378,19 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   else
   {
    /*
-    * Remote file; try getting it from the remote system...
+    * Remote file; look it up in the web cache, and then try getting it
+    * from the remote system...
     */
 
+    for (i = 0; i < web_files; i ++)
+      if (web_cache[i].url && strcmp(web_cache[i].url, s) == 0)
+        return (web_cache[i].name);
+
+#ifdef HAVE_LIBSSL
+    if (strncmp(s, "http:", 5) == 0 || strncmp(s, "https:", 6) == 0)
+#else
     if (strncmp(s, "http:", 5) == 0)
+#endif /* HAVE_LIBSSL */
       httpSeparate(s, method, username, hostname, &port, resource);
     else if (s[0] == '/')
     {
@@ -289,135 +407,131 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       httpSeparate(filename, method, username, hostname, &port, resource);
     }
 
-    if (resource[strlen(resource) - 1] == '/' &&
-        s[strlen(s) - 1] != '/')
-    {
-     /*
-      * This is a questionable hack, but necessary until we make the
-      * interface smarter...
-      */
-
-      strcat((char *)s, "/");
-    }
-
-    if (proxy_port)
-    {
-     /*
-      * Send request to proxy host...
-      */
-
-      connhost = proxy_host;
-      connport = proxy_port;
-      snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", method,
-               hostname, port, resource);
-    }
-    else
-    {
-     /*
-      * Send request to host directly...
-      */
-
-      connhost = hostname;
-      connport = port;
-      strcpy(connpath, resource);
-    }
-
-    if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
-    {
-      httpClose(http);
-      http = NULL;
-    }
-
-    if (http == NULL)
-    {
-      progress_show("Connecting to %s...", connhost);
-      atexit(close_connection);
-      if ((http = httpConnect(connhost, connport)) == NULL)
-      {
-        progress_hide();
-        progress_error("Unable to connect to %s!", connhost);
-        return (NULL);
-      }
-    }
-
-    httpClearFields(http);
-    httpSetField(http, HTTP_FIELD_HOST, hostname);
-    httpSetField(http, HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
-    httpSetField(http, HTTP_FIELD_CONNECTION, "Keep-Alive");
-
-    if (username[0])
-    {
-      strcpy(connauth, "Basic ");
-      httpEncode64(connauth + 6, username);
-      httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
-    }
-
-    progress_show("Getting %s...", connpath);
-
     for (status = HTTP_ERROR, retry = 0;
          status == HTTP_ERROR && retry < 5;
          retry ++)
     {
+      if (proxy_port)
+      {
+       /*
+        * Send request to proxy host...
+        */
+
+        connhost = proxy_host;
+        connport = proxy_port;
+        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", method,
+                 hostname, port, resource);
+      }
+      else
+      {
+       /*
+        * Send request to host directly...
+        */
+
+        connhost = hostname;
+        connport = port;
+        strcpy(connpath, resource);
+      }
+
+      if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
+      {
+        httpClose(http);
+        http = NULL;
+      }
+
+      if (http == NULL)
+      {
+        progress_show("Connecting to %s...", connhost);
+        atexit(file_cleanup);
+
+#ifdef HAVE_LIBSSL
+        if (strcmp(method, "http") == 0)
+          http = httpConnect(connhost, connport);
+	else
+          http = httpConnectEncrypt(connhost, connport, HTTP_ENCRYPT_ALWAYS);
+#else
+        http = httpConnect(connhost, connport);
+#endif /* HAVE_LIBSSL */
+
+        if (http == NULL)
+	{
+          progress_hide();
+          progress_error("Unable to connect to %s!", connhost);
+          return (NULL);
+        }
+      }
+
+      progress_show("Getting %s...", connpath);
+
+      httpClearFields(http);
+      httpSetField(http, HTTP_FIELD_HOST, hostname);
+      httpSetField(http, HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
+      httpSetField(http, HTTP_FIELD_CONNECTION, "Keep-Alive");
+
+      if (username[0])
+      {
+        strcpy(connauth, "Basic ");
+        httpEncode64(connauth + 6, username);
+        httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
+      }
+
       if (!httpGet(http, connpath))
 	while ((status = httpUpdate(http)) == HTTP_CONTINUE);
       else
 	status = HTTP_ERROR;
+
+      if (status >= HTTP_MOVED_PERMANENTLY && status <= HTTP_SEE_OTHER)
+      {
+       /*
+        * Flush text...
+	*/
+
+	httpFlush(http);
+
+       /*
+        * Grab new location from HTTP data...
+	*/
+
+        httpSeparate(httpGetField(http, HTTP_FIELD_LOCATION), method, username,
+	             hostname, &port, resource);
+        status = HTTP_ERROR;
+      }
     }
 
     if (status != HTTP_OK)
     {
       progress_hide();
-      progress_error("HTTP error %d!", status);
+      progress_error("HTTP error %d: %s!", status, httpStatus(status));
       httpFlush(http);
       return (NULL);
     }
 
-    web_files ++;
-
-#if defined(WIN32) || defined(__EMX__)
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "C:/WINDOWS/TEMP";
-
-    snprintf(filename, sizeof(filename), "%s/%06d.dat", tmpdir, web_files);
-#else
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "/var/tmp";
-
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, web_files,
-             getpid());
-    if ((fd = open(filename, O_CREAT | O_EXCL | O_TRUNC, 0600)) >= 0)
-      close(fd);
-    else
+    if ((fp = file_temp(filename, sizeof(filename))) == NULL)
     {
       progress_hide();
-      progress_error("Unable to create temp file - %s!", strerror(errno));
+      progress_error("Unable to create temporary file \"%s\": %s", filename,
+                     strerror(errno));
       httpFlush(http);
       return (NULL);
     }
-#endif /* WIN32 || __EMX__ */
 
     if ((total = atoi(httpGetField(http, HTTP_FIELD_CONTENT_LENGTH))) == 0)
-      total = 1024 * 1024;
-
-    if ((fp = fopen(filename, "wb")) == NULL)
-    {
-      progress_hide();
-      progress_error("Unable to create temporary file \"%s\"!", filename);
-      httpFlush(http);
-      return (NULL);
-    }
+      total = 8192;
 
     count = 0;
     while ((bytes = httpRead(http, resource, sizeof(resource))) > 0)
     {
       count += bytes;
-      progress_update(100 * count / total);
+      progress_update((100 * count / total) % 101);
       fwrite(resource, 1, bytes, fp);
     }
 
     progress_hide();
 
     fclose(fp);
+
+    web_cache[web_files - 1].name = strdup(filename);
+    web_cache[web_files - 1].url  = strdup(s);
 
     return (filename);
   }
@@ -600,45 +714,47 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * 'close_connection()' - Close an open HTTP connection on exit...
+ * 'file_temp()' - Create and open a temporary file.
  */
 
-static void
-close_connection(void)
+FILE *					/* O - Temporary file */
+file_temp(char *name,			/* O - Filename */
+          int  len)			/* I - Length of filename buffer */
 {
-  char		filename[1024];
-  const char	*tmpdir;
-
-
-  if (http)
-  {
-    httpClose(http);
-    http = NULL;
-  }
-
-#if defined(WIN32) || defined(__EMX__)
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "C:/WINDOWS/TEMP";
+  FILE		*fp;			/* File pointer */
+  int		fd;			/* File descriptor */
+#ifdef WIN32
+  char		tmpdir[1024];		/* Buffer for temp dir */
 #else
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "/var/tmp";
-#endif /* WIN32 || __EMX__ */
+  const char	*tmpdir;		/* Temporary directory */
+#endif /* WIN32 */
 
-  while (web_files > 0)
-  {
-#if defined(WIN32) || defined(__EMX__)
-    snprintf(filename, sizeof(filename), "%s/%06d.dat", tmpdir, web_files);
+
+  web_cache[web_files].name = NULL;
+  web_cache[web_files].url  = NULL;
+  web_files ++;
+
+#ifdef WIN32
+  GetTempPath(sizeof(tmpdir), tmpdir);
 #else
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, web_files,
-             getpid());
-#endif /* WIN32 || __EMX__ */
+  if ((tmpdir = getenv("TMPDIR")) == NULL)
+    tmpdir = "/var/tmp";
+#endif /* WIN32 */
 
-    unlink(filename);
+  snprintf(name, len, TEMPLATE, tmpdir, getpid(), web_files);
+
+  if ((fd = open(name, OPENMODE, OPENPERM)) >= 0)
+    fp = fdopen(fd, "w+b");
+  else
+    fp = NULL;
+
+  if (!fp)
     web_files --;
-  }
+
+  return (fp);
 }
 
 
 /*
- * End of "$Id: file.c,v 1.13 2000/10/12 23:07:34 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.19 2001/06/04 12:12:30 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.h,v 1.12 2001/04/18 18:13:35 mike Exp $"
+// "$Id: FileBrowser.h,v 1.10.2.3 2001/04/18 23:24:09 mike Exp $"
 //
 //   FileBrowser definitions.
 //
@@ -68,5 +68,5 @@ public:
 #endif // !_GUI_FILEBROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.12 2001/04/18 18:13:35 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.10.2.3 2001/04/18 23:24:09 mike Exp $".
 //

@@ -1,9 +1,9 @@
 /*
- * "$Id: config.h,v 1.20 2000/10/12 23:07:35 mike Exp $"
+ * "$Id: config.h,v 1.20.2.10 2001/06/04 00:23:30 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -34,7 +34,16 @@
  * Do we have the FLTK library?
  */
 
-#define HAVE_LIBFLTK
+#ifndef _CONSOLE
+#  define HAVE_LIBFLTK
+#endif /* !_CONSOLE */
+
+
+/*
+ * Do we have the OpenSSL library?
+ */
+
+#define HAVE_LIBSSL
 
 
 /*
@@ -54,11 +63,20 @@
 #define HAVE_STRCASECMP
 #define HAVE_STRNCASECMP
 
+
+/*
+ * How about snprintf() and vsnprintf()?
+ */
+
+#define HAVE_SNPRINTF
+#define HAVE_VSNPRINTF
+
+
 /*
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9"
+#define SVERSION	"1.8.13"
 
 
 /*
@@ -75,6 +93,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h,v 1.20 2000/10/12 23:07:35 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.10 2001/06/04 00:23:30 mike Exp $".
  */
 
