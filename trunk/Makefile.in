@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.6 2000/03/13 20:52:42 mike Exp $"
+# "$Id: Makefile.in,v 1.7 2000/04/16 17:31:38 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -33,7 +33,7 @@ include Makedefs
 # Subdirectories...
 #
 
-DIRS	=	@GUI@ jpeg png zlib htmldoc doc
+DIRS	=	@GUI@ @JPEG@ @ZLIB@ @PNG@ htmldoc doc
 
 
 #
@@ -117,5 +117,5 @@ tardist:
 
 
 #
-# End of "$Id: Makefile.in,v 1.6 2000/03/13 20:52:42 mike Exp $".
+# End of "$Id: Makefile.in,v 1.7 2000/04/16 17:31:38 mike Exp $".
 #
