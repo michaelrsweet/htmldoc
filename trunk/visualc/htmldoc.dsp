@@ -180,78 +180,277 @@ SOURCE=..\htmldoc\types.h
 # Begin Source File
 
 SOURCE=..\gui\CheckButton.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\CheckButton.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileBrowser.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileBrowser.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileChooser.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileChooser.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileChooser2.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileIcon.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileIcon.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileInput.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\FileInput.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\htmldoc\gui.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\htmldoc\gui.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\HelpDialog.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\HelpDialog.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\HelpView.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\gui\HelpView.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\htmldoc.ico
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\icons.rc
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\gui\Progress.cxx
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\gui\Progress.h
+
+!IF  "$(CFG)" == "htmldoc - Win32 Release"
+
+# PROP Intermediate_Dir "..\GUI\Release"
+
+!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # End Group
 # End Target
