@@ -1,4 +1,4 @@
-CHANGES.txt - 02/21/2003
+CHANGES.txt - 02/28/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -14,6 +14,8 @@ CHANGES IN HTMLDOC v1.8.24
 
     CHANGES
 
+	- The command-line now allows --fontsize values from 4
+	  to 26 to match the GUI.
 	- Now use a 0.001 point tolerance when checking for
 	  content that overflows the page/cell.
 	- HTMLDOC no longer enables interpolation of 2-color
