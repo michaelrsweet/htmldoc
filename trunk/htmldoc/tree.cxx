@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.15 2002/04/03 21:04:31 mike Exp $"
+// "$Id: tree.cxx,v 1.16 2002/04/11 01:41:11 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -173,8 +173,7 @@ unsigned char	hdTree::elgroup[HD_ELEMENT_MAX] =
 		  HD_ELGROUP_GROUP,	// CENTER
 		  HD_ELGROUP_INLINE,	// CITE
 		  HD_ELGROUP_INLINE,	// CODE
-		  HD_ELGROUP_TABLE | HD_ELGROUP_ROWCOL,
-					// COL
+		  HD_ELGROUP_NONE,	// COL
 		  HD_ELGROUP_TABLE,	// COLGROUP
 		  HD_ELGROUP_ITEM,	// DD
 		  HD_ELGROUP_INLINE,	// DEL
@@ -1820,5 +1819,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.15 2002/04/03 21:04:31 mike Exp $".
+// End of "$Id: tree.cxx,v 1.16 2002/04/11 01:41:11 mike Exp $".
 //

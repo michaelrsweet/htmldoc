@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.7 2002/03/11 02:33:06 mike Exp $"
+// "$Id: style.cxx,v 1.8 2002/04/11 01:41:11 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -136,11 +136,18 @@ hdStyle::hdStyle(int        nsels,	// I - Number of selectors
   // Note: memset() is safe for structs like hdStyle...
   memset(this, 0, sizeof(hdStyle));
 
+  width  = HD_WIDTH_AUTO;
+  height = HD_WIDTH_AUTO;
+
   background_position[0] = HD_MARGIN_AUTO;
   background_position[1] = HD_MARGIN_AUTO;
 
   for (i = 0; i < 4; i ++)
+  {
     border[i].width = HD_WIDTH_AUTO;
+    margin[i]       = HD_WIDTH_AUTO;
+    padding[i]      = HD_WIDTH_AUTO;
+  }
 
   display   = HD_DISPLAY_INLINE;
   font_size = 11.0f;
@@ -2882,5 +2889,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.7 2002/03/11 02:33:06 mike Exp $".
+// End of "$Id: style.cxx,v 1.8 2002/04/11 01:41:11 mike Exp $".
 //
