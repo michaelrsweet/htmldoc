@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.8 1999/11/14 14:58:32 mike Exp $"
+// "$Id: HelpView.cxx,v 1.9 1999/11/18 01:57:41 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -351,6 +351,14 @@ HelpView::draw()
             yy       += hh;
 	    hh       = 0;
 	  }
+	  else if (strcasecmp(buf, "HR") == 0)
+	  {
+	    fl_line(block->x, yy + 2 * hh, block->w, yy + 2 * hh);
+
+            xx       = block->x;
+            yy       += 2 * hh;
+	    hh       = 0;
+	  }
 	  else if (strcasecmp(buf, "P") == 0 ||
         	   strcasecmp(buf, "H1") == 0 ||
 		   strcasecmp(buf, "H2") == 0 ||
@@ -358,7 +366,6 @@ HelpView::draw()
 		   strcasecmp(buf, "H4") == 0 ||
 		   strcasecmp(buf, "H5") == 0 ||
 		   strcasecmp(buf, "H6") == 0 ||
-		   strcasecmp(buf, "BR") == 0 ||
 		   strcasecmp(buf, "UL") == 0 ||
 		   strcasecmp(buf, "OL") == 0 ||
 		   strcasecmp(buf, "DL") == 0 ||
@@ -382,11 +389,6 @@ HelpView::draw()
 	      font = FL_COURIER;
 	      size = textsize_;
 	      pre  = 1;
-	    }
-	    else if (strcasecmp(buf, "BR") != 0)
-	    {
-	      font = textfont_;
-	      size = textsize_;
 	    }
 
             if (strcasecmp(buf, "LI") == 0)
@@ -720,6 +722,7 @@ HelpView::format()
 	       strcasecmp(buf, "LI") == 0 ||
 	       strcasecmp(buf, "DD") == 0 ||
 	       strcasecmp(buf, "DT") == 0 ||
+	       strcasecmp(buf, "HR") == 0 ||
 	       strcasecmp(buf, "PRE") == 0 ||
 	       strcasecmp(buf, "TABLE") == 0)
       {
@@ -751,7 +754,7 @@ HelpView::format()
 	  column = 0;
 	}
 
-        if (tolower(buf[0]) == 'h')
+        if (tolower(buf[0]) == 'h' && isdigit(buf[1]))
 	{
 	  font = FL_HELVETICA_BOLD;
 	  size = textsize_ + '7' - buf[1];
@@ -767,7 +770,7 @@ HelpView::format()
 	  size = textsize_;
 	  pre  = 1;
 	}
-	else if (strcasecmp(buf, "BR") != 0)
+	else
 	{
 	  font = textfont_;
 	  size = textsize_;
@@ -776,18 +779,23 @@ HelpView::format()
 	pushfont(font, size);
 
         yy = block->y + block->h;
+        hh = 0;
 
-        if (tolower(buf[0]) == 'h' ||
+        if ((tolower(buf[0]) == 'h' && isdigit(buf[1])) ||
 	    strcasecmp(buf, "DD") == 0 ||
 	    strcasecmp(buf, "DT") == 0 ||
 	    strcasecmp(buf, "UL") == 0 ||
 	    strcasecmp(buf, "OL") == 0 ||
 	    strcasecmp(buf, "P") == 0)
           yy += size + 2;
+	else if (strcasecmp(buf, "HR") == 0)
+	{
+	  yy += size;
+	  hh = size;
+	}
 
         block     = add_block(start, xx, yy, w() - 24, 0, align);
 	needspace = 0;
-        hh        = 0;
       }
       else if (strcasecmp(buf, "/P") == 0 ||
 	       strcasecmp(buf, "/H1") == 0 ||
@@ -1417,5 +1425,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.8 1999/11/14 14:58:32 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.9 1999/11/18 01:57:41 mike Exp $".
 //
