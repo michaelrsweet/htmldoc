@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.19.2.19 2001/10/21 19:26:35 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.20 2001/10/22 17:59:35 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -60,7 +60,7 @@
 
 /*
  * Do we have the <locale.h> header file?
- *
+ */
 
 #undef HAVE_LOCALE_H
 
@@ -110,6 +110,6 @@
 
 
 /*
- * End of "$Id: config.h.in,v 1.19.2.19 2001/10/21 19:26:35 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.20 2001/10/22 17:59:35 mike Exp $".
  */
 
