@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.41 2002/05/07 20:40:56 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.42 2002/05/07 23:30:45 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1202,6 +1202,8 @@ prefs_load(void)
 	get_format(line + 11, Header);
       else if (strncasecmp(line, "PAGEFOOTER=", 11) == 0)
 	get_format(line + 11, Footer);
+      else if (strncasecmp(line, "NUMBERUP=", 9) == 0)
+        NumberUp = atoi(line + 9);
       else if (strncasecmp(line, "TOCHEADER=", 10) == 0)
 	get_format(line + 10, TocHeader);
       else if (strncasecmp(line, "TOCFOOTER=", 10) == 0)
@@ -1352,6 +1354,7 @@ prefs_save(void)
     fprintf(fp, "JPEG=%d\n", OutputJPEG);
     fprintf(fp, "PAGEHEADER=%s\n", get_fmt(Header));
     fprintf(fp, "PAGEFOOTER=%s\n", get_fmt(Footer));
+    fprintf(fp, "NUMBERUP=%d\n", NumberUp);
     fprintf(fp, "TOCHEADER=%s\n", get_fmt(TocHeader));
     fprintf(fp, "TOCFOOTER=%s\n", get_fmt(TocFooter));
     fprintf(fp, "TOCTITLE=%s\n", TocTitle);
@@ -2222,5 +2225,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.41 2002/05/07 20:40:56 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.42 2002/05/07 23:30:45 mike Exp $".
  */

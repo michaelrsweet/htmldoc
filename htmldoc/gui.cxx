@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.47 2002/05/07 20:40:54 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.48 2002/05/07 23:30:43 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -29,6 +29,7 @@
 //   GUI::show()           - Display the window.
 //   GUI::progress()       - Update the progress bar on the GUI.
 //   GUI::title()          - Set the title bar of the window.
+//   GUI::loadSettings()   - Load the current settings into the HTMLDOC globals.
 //   GUI::newBook()        - Clear out the current GUI settings for a new book.
 //   GUI::loadBook()       - Load a book file from disk.
 //   GUI::parseOptions()   - Parse options in a book file...
@@ -1237,14 +1238,143 @@ GUI::title(const char *filename,// Name of file being edited
 
 
 //
+// 'GUI::loadSettings()' - Load the current settings into the HTMLDOC globals.
+//
+
+void
+GUI::loadSettings()
+{
+  char		temp[4];		// Format string
+  static const char *formats = ".tchl1iIaAC/:dTD";
+					// Format characters
+
+
+  set_page_size((char *)pageSize->value());
+
+  PageLeft     = get_measurement((char *)pageLeft->value());
+  PageRight    = get_measurement((char *)pageRight->value());
+  PageTop      = get_measurement((char *)pageTop->value());
+  PageBottom   = get_measurement((char *)pageBottom->value());
+
+  PageDuplex   = pageDuplex->value();
+  Landscape    = landscape->value();
+  Compression  = (int)compression->value();
+  OutputColor  = !grayscale->value();
+  TocNumbers   = numberedToc->value();
+  TocLevels    = tocLevels->value();
+  TitlePage    = titlePage->value();
+
+  if (jpegCompress->value())
+    OutputJPEG = (int)jpegQuality->value();
+  else
+    OutputJPEG = 0;
+
+  strcpy(TocTitle, tocTitle->value());
+
+  temp[0] = formats[tocHeaderLeft->value()];
+  temp[1] = formats[tocHeaderCenter->value()];
+  temp[2] = formats[tocHeaderRight->value()];
+  temp[3] = '\0';
+
+  get_format(temp, TocHeader);
+
+  temp[0] = formats[tocFooterLeft->value()];
+  temp[1] = formats[tocFooterCenter->value()];
+  temp[2] = formats[tocFooterRight->value()];
+
+  get_format(temp, TocFooter);
+
+  temp[0]    = formats[pageHeaderLeft->value()];
+  temp[1]    = formats[pageHeaderCenter->value()];
+  temp[2]    = formats[pageHeaderRight->value()];
+
+  get_format(temp, Header);
+
+  temp[0]    = formats[pageFooterLeft->value()];
+  temp[1]    = formats[pageFooterCenter->value()];
+  temp[2]    = formats[pageFooterRight->value()];
+
+  get_format(temp, Footer);
+
+  NumberUp = atoi(numberUp->text(numberUp->value()));
+
+  _htmlBodyFont    = (typeface_t)bodyFont->value();
+  _htmlHeadingFont = (typeface_t)headingFont->value();
+  htmlSetBaseSize(fontBaseSize->value(), fontSpacing->value());
+
+  HeadFootType  = (typeface_t)(headFootFont->value() / 4);
+  HeadFootStyle = (style_t)(headFootFont->value() & 3);
+  HeadFootSize  = headFootSize->value();
+
+  if (pdf11->value())
+    PDFVersion = 1.1;
+  else if (pdf12->value())
+    PDFVersion = 1.2;
+  else if (pdf13->value())
+    PDFVersion = 1.3;
+  else
+    PDFVersion = 1.4;
+
+  PDFPageMode       = pageMode->value();
+  PDFPageLayout     = pageLayout->value();
+  PDFFirstPage      = firstPage->value();
+  PDFEffect         = pageEffect->value();
+  PDFPageDuration   = pageDuration->value();
+  PDFEffectDuration = effectDuration->value();
+  Links             = links->value();
+  TrueType          = truetype->value();
+
+  Encryption  = encryptionYes->value();
+  Permissions = -64;
+  if (permPrint->value())
+    Permissions |= PDF_PERM_PRINT;
+  if (permModify->value())
+    Permissions |= PDF_PERM_MODIFY;
+  if (permCopy->value())
+    Permissions |= PDF_PERM_COPY;
+  if (permAnnotate->value())
+    Permissions |= PDF_PERM_ANNOTATE;
+
+  strcpy(UserPassword, userPassword->value());
+  strcpy(OwnerPassword, ownerPassword->value());
+
+  if (ps1->value())
+    PSLevel = 1;
+  else if (ps2->value())
+    PSLevel = 2;
+  else
+    PSLevel = 3;
+
+  PSCommands  = psCommands->value();
+  XRXComments = xrxComments->value();
+
+  strcpy(BodyColor, bodyColor->value());
+  strcpy(BodyImage, bodyImage->value());
+
+  htmlSetTextColor((uchar *)textColor->value());
+  htmlSetCharSet(charset->text(charset->value()));
+
+  strcpy(LinkColor, linkColor->value());
+  LinkStyle = linkStyle->value();
+
+  _htmlBrowserWidth = browserWidth->value();
+
+  strcpy(Path, path->value());
+
+  strcpy(Proxy, proxy->value());
+}
+
+
+//
 // 'GUI::newBook()' - Clear out the current GUI settings for a new book.
 //
 
-int			// O - 1 on success, 0 on failure
+int				// O - 1 on success, 0 on failure
 GUI::newBook(void)
 {
-  char	size[255];	// Page size string
-  char	formats[256];	// Format characters
+  char		size[255];	// Page size string
+  char		formats[256];	// Format characters
+  const char	*fmt;		// Old format string
 
 
   prefs_load();
@@ -1335,24 +1465,41 @@ GUI::newBook(void)
   formats['T'] = 14;
   formats['D'] = 15;
 
-//  pageHeaderLeft->value(formats[Header[0]]);
-//  pageHeaderCenter->value(formats[Header[1]]);
-//  pageHeaderRight->value(formats[Header[2]]);
+  fmt = get_fmt(Header);
+  pageHeaderLeft->value(formats[fmt[0]]);
+  pageHeaderCenter->value(formats[fmt[1]]);
+  pageHeaderRight->value(formats[fmt[2]]);
 
-//  pageFooterLeft->value(formats[Footer[0]]);
-//  pageFooterCenter->value(formats[Footer[1]]);
-//  pageFooterRight->value(formats[Footer[2]]);
+  fmt = get_fmt(Footer);
+  pageFooterLeft->value(formats[fmt[0]]);
+  pageFooterCenter->value(formats[fmt[1]]);
+  pageFooterRight->value(formats[fmt[2]]);
+
+  if (NumberUp == 1)
+    numberUp->value(0);
+  else if (NumberUp == 2)
+    numberUp->value(1);
+  else if (NumberUp == 4)
+    numberUp->value(2);
+  else if (NumberUp == 6)
+    numberUp->value(3);
+  else if (NumberUp == 9)
+    numberUp->value(4);
+  else if (NumberUp == 16)
+    numberUp->value(5);
 
   tocLevels->value(TocLevels);
   numberedToc->value(TocNumbers);
 
-//  tocHeaderLeft->value(formats[TocHeader[0]]);
-//  tocHeaderCenter->value(formats[TocHeader[1]]);
-//  tocHeaderRight->value(formats[TocHeader[2]]);
+  fmt = get_fmt(TocHeader);
+  tocHeaderLeft->value(formats[fmt[0]]);
+  tocHeaderCenter->value(formats[fmt[1]]);
+  tocHeaderRight->value(formats[fmt[2]]);
 
-//  tocFooterLeft->value(formats[TocFooter[0]]);
-//  tocFooterCenter->value(formats[TocFooter[1]]);
-//  tocFooterRight->value(formats[TocFooter[2]]);
+  fmt = get_fmt(TocFooter);
+  tocFooterLeft->value(formats[fmt[0]]);
+  tocFooterCenter->value(formats[fmt[1]]);
+  tocFooterRight->value(formats[fmt[2]]);
 
   tocTitle->value(TocTitle);
 
@@ -1902,6 +2049,23 @@ GUI::parseOptions(const char *line)	// I - Line from file
       pageFooterCenter->value(formats[temp2[1]]);
       pageFooterRight->value(formats[temp2[2]]);
     }
+    else if (strcmp(temp, "--nup") == 0)
+    {
+      i = atoi(temp2);
+
+      if (i == 1)
+        numberUp->value(0);
+      else if (i == 2)
+        numberUp->value(1);
+      else if (i == 4)
+        numberUp->value(2);
+      else if (i == 6)
+        numberUp->value(3);
+      else if (i == 9)
+        numberUp->value(4);
+      else if (i == 16)
+        numberUp->value(5);
+    }
     else if (strcmp(temp, "--bodycolor") == 0)
       bodyColor->value(temp2);
     else if (strcmp(temp, "--bodyimage") == 0)
@@ -2199,6 +2363,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
             formats[pageFooterLeft->value()],
 	    formats[pageFooterCenter->value()],
 	    formats[pageFooterRight->value()]);
+
+    fprintf(fp, " --nup %s", numberUp->text(numberUp->value()));
 
     fprintf(fp, " --tocheader %c%c%c",
             formats[tocHeaderLeft->value()],
@@ -3310,122 +3476,7 @@ void
 GUI::saveOptionsCB(Fl_Widget *w,
                    GUI       *gui)
 {
-  char		temp[4];		// Format string
-  static const char *formats = ".tchl1iIaAC/:dTD";
-					// Format characters
-
-
-  set_page_size((char *)gui->pageSize->value());
-
-  PageLeft     = get_measurement((char *)gui->pageLeft->value());
-  PageRight    = get_measurement((char *)gui->pageRight->value());
-  PageTop      = get_measurement((char *)gui->pageTop->value());
-  PageBottom   = get_measurement((char *)gui->pageBottom->value());
-
-  PageDuplex   = gui->pageDuplex->value();
-  Landscape    = gui->landscape->value();
-  Compression  = (int)gui->compression->value();
-  OutputColor  = !gui->grayscale->value();
-  TocNumbers   = gui->numberedToc->value();
-  TocLevels    = gui->tocLevels->value();
-  TitlePage    = gui->titlePage->value();
-
-  if (gui->jpegCompress->value())
-    OutputJPEG = (int)gui->jpegQuality->value();
-  else
-    OutputJPEG = 0;
-
-  strcpy(TocTitle, gui->tocTitle->value());
-
-  temp[0] = formats[gui->tocHeaderLeft->value()];
-  temp[1] = formats[gui->tocHeaderCenter->value()];
-  temp[2] = formats[gui->tocHeaderRight->value()];
-  temp[3] = '\0';
-
-  get_format(temp, TocHeader);
-
-  temp[0] = formats[gui->tocFooterLeft->value()];
-  temp[1] = formats[gui->tocFooterCenter->value()];
-  temp[2] = formats[gui->tocFooterRight->value()];
-
-  get_format(temp, TocFooter);
-
-  temp[0]    = formats[gui->pageHeaderLeft->value()];
-  temp[1]    = formats[gui->pageHeaderCenter->value()];
-  temp[2]    = formats[gui->pageHeaderRight->value()];
-
-  get_format(temp, Header);
-
-  temp[0]    = formats[gui->pageFooterLeft->value()];
-  temp[1]    = formats[gui->pageFooterCenter->value()];
-  temp[2]    = formats[gui->pageFooterRight->value()];
-
-  get_format(temp, Footer);
-
-  _htmlBodyFont    = (typeface_t)gui->bodyFont->value();
-  _htmlHeadingFont = (typeface_t)gui->headingFont->value();
-  htmlSetBaseSize(gui->fontBaseSize->value(), gui->fontSpacing->value());
-
-  HeadFootType  = (typeface_t)(gui->headFootFont->value() / 4);
-  HeadFootStyle = (style_t)(gui->headFootFont->value() & 3);
-  HeadFootSize  = gui->headFootSize->value();
-
-  if (gui->pdf11->value())
-    PDFVersion = 1.1;
-  else if (gui->pdf12->value())
-    PDFVersion = 1.2;
-  else if (gui->pdf13->value())
-    PDFVersion = 1.3;
-  else
-    PDFVersion = 1.4;
-
-  PDFPageMode       = gui->pageMode->value();
-  PDFPageLayout     = gui->pageLayout->value();
-  PDFFirstPage      = gui->firstPage->value();
-  PDFEffect         = gui->pageEffect->value();
-  PDFPageDuration   = gui->pageDuration->value();
-  PDFEffectDuration = gui->effectDuration->value();
-  Links             = gui->links->value();
-  TrueType          = gui->truetype->value();
-
-  Encryption  = gui->encryptionYes->value();
-  Permissions = -64;
-  if (gui->permPrint->value())
-    Permissions |= PDF_PERM_PRINT;
-  if (gui->permModify->value())
-    Permissions |= PDF_PERM_MODIFY;
-  if (gui->permCopy->value())
-    Permissions |= PDF_PERM_COPY;
-  if (gui->permAnnotate->value())
-    Permissions |= PDF_PERM_ANNOTATE;
-
-  strcpy(UserPassword, gui->userPassword->value());
-  strcpy(OwnerPassword, gui->ownerPassword->value());
-
-  if (gui->ps1->value())
-    PSLevel = 1;
-  else if (gui->ps2->value())
-    PSLevel = 2;
-  else
-    PSLevel = 3;
-
-  PSCommands  = gui->psCommands->value();
-  XRXComments = gui->xrxComments->value();
-
-  strcpy(BodyColor, gui->bodyColor->value());
-  strcpy(BodyImage, gui->bodyImage->value());
-
-  htmlSetTextColor((uchar *)gui->textColor->value());
-  htmlSetCharSet(gui->charset->text(gui->charset->value()));
-
-  strcpy(LinkColor, gui->linkColor->value());
-  LinkStyle = gui->linkStyle->value();
-
-  _htmlBrowserWidth = gui->browserWidth->value();
-
-  strcpy(Path, gui->path->value());
-
-  strcpy(Proxy, gui->proxy->value());
+  gui->loadSettings();
 
   prefs_save();
 }
@@ -3773,8 +3824,6 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   const char	*filename;	// HTML filename
   char		base[1024],	// Base directory of HTML file
 		bookbase[1024];	// Base directory of book file
-  static const char *formats = ".tchl1iIaAC/:dTD";
-				// Format characters
 
 
   REF(w);
@@ -3800,6 +3849,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   Verbosity = 1;
 
+  gui->loadSettings();
+
   strcpy(LogoImage, gui->logoImage->value());
   strcpy(TitleImage, gui->titleImage->value());
   strcpy(OutputPath, gui->outputPath->value());
@@ -3813,93 +3864,6 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   else
     OutputType = OUTPUT_WEBPAGES;
 
-  set_page_size((char *)gui->pageSize->value());
-
-  PageLeft       = get_measurement((char *)gui->pageLeft->value());
-  PageRight      = get_measurement((char *)gui->pageRight->value());
-  PageTop        = get_measurement((char *)gui->pageTop->value());
-  PageBottom     = get_measurement((char *)gui->pageBottom->value());
-  PageDuplex     = gui->pageDuplex->value();
-  Landscape      = gui->landscape->value();
-  Compression    = (int)gui->compression->value();
-  OutputColor    = !gui->grayscale->value();
-  _htmlGrayscale = gui->grayscale->value();
-  TocNumbers     = gui->numberedToc->value();
-  TocLevels      = gui->tocLevels->value();
-  TitlePage      = gui->titlePage->value();
-
-  if (gui->jpegCompress->value())
-    OutputJPEG = (int)gui->jpegQuality->value();
-  else
-    OutputJPEG = 0;
-
-  strcpy(TocTitle, gui->tocTitle->value());
-
-  temp[0] = formats[gui->tocHeaderLeft->value()];
-  temp[1] = formats[gui->tocHeaderCenter->value()];
-  temp[2] = formats[gui->tocHeaderRight->value()];
-  temp[3] = '\0';
-
-  get_format(temp, TocHeader);
-
-  temp[0] = formats[gui->tocFooterLeft->value()];
-  temp[1] = formats[gui->tocFooterCenter->value()];
-  temp[2] = formats[gui->tocFooterRight->value()];
-
-  get_format(temp, TocFooter);
-
-  temp[0]    = formats[gui->pageHeaderLeft->value()];
-  temp[1]    = formats[gui->pageHeaderCenter->value()];
-  temp[2]    = formats[gui->pageHeaderRight->value()];
-
-  get_format(temp, Header);
-
-  temp[0]    = formats[gui->pageFooterLeft->value()];
-  temp[1]    = formats[gui->pageFooterCenter->value()];
-  temp[2]    = formats[gui->pageFooterRight->value()];
-
-  get_format(temp, Footer);
-
-  NumberUp = atoi(gui->numberUp->text(gui->numberUp->value()));
-
-  _htmlBodyFont    = (typeface_t)gui->bodyFont->value();
-  _htmlHeadingFont = (typeface_t)gui->headingFont->value();
-  htmlSetBaseSize(gui->fontBaseSize->value(), gui->fontSpacing->value());
-
-  HeadFootType  = (typeface_t)(gui->headFootFont->value() / 4);
-  HeadFootStyle = (style_t)(gui->headFootFont->value() & 3);
-  HeadFootSize  = gui->headFootSize->value();
-
-  if (gui->pdf11->value())
-    PDFVersion = 1.1;
-  else if (gui->pdf12->value())
-    PDFVersion = 1.2;
-  else if (gui->pdf13->value())
-    PDFVersion = 1.3;
-  else
-    PDFVersion = 1.4;
-
-  PDFPageMode       = gui->pageMode->value();
-  PDFPageLayout     = gui->pageLayout->value();
-  PDFFirstPage      = gui->firstPage->value();
-  PDFEffect         = gui->pageEffect->value();
-  PDFPageDuration   = gui->pageDuration->value();
-  PDFEffectDuration = gui->effectDuration->value();
-  Links             = gui->links->value();
-  TrueType          = gui->truetype->value();
-
-  Encryption  = gui->encryptionYes->value();
-  Permissions = -64;
-
-  if (gui->permPrint->value())
-    Permissions |= PDF_PERM_PRINT;
-  if (gui->permModify->value())
-    Permissions |= PDF_PERM_MODIFY;
-  if (gui->permCopy->value())
-    Permissions |= PDF_PERM_COPY;
-  if (gui->permAnnotate->value())
-    Permissions |= PDF_PERM_ANNOTATE;
-
   strcpy(UserPassword, gui->userPassword->value());
   strcpy(OwnerPassword, gui->ownerPassword->value());
 
@@ -3912,22 +3876,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   else
     PSLevel = 3;
 
-  PSCommands  = gui->psCommands->value();
-  XRXComments = gui->xrxComments->value();
-
-  strcpy(BodyColor, gui->bodyColor->value());
-  strcpy(BodyImage, gui->bodyImage->value());
-
-  htmlSetTextColor((uchar *)gui->textColor->value());
-  htmlSetCharSet(gui->charset->text(gui->charset->value()));
-
-  strcpy(LinkColor, gui->linkColor->value());
-  LinkStyle = gui->linkStyle->value();
-
-  _htmlBrowserWidth = gui->browserWidth->value();
-  _htmlPPI          = _htmlBrowserWidth / PageWidth * 72.0f;
-
-  strcpy(Path, gui->path->value());
+  _htmlPPI = _htmlBrowserWidth / PageWidth * 72.0f;
 
   file_proxy(gui->proxy->value());
 
@@ -4077,5 +4026,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.47 2002/05/07 20:40:54 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.48 2002/05/07 23:30:43 mike Exp $".
 //
