@@ -7,9 +7,18 @@
 <H1 ALIGN="RIGHT"><A NAME="CGI">Chapter 5 - Using HTMLDOC on a Web Server</A></H1>
 
 <P>This chapter describes how to interface HTMLDOC to your web
-server using CGI scripts and programs.  <BLOCKQUOTE><B>
-Note:</B> The free version of<I> HTMLDOC</I> for Windows does not
- include web server functionality.</BLOCKQUOTE></P>
+server using CGI scripts and programs.
+
+<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>The free version of <I>HTMLDOC</I> for Windows does
+	not support use from a web server.
+
+	</TD>
+</TR>
+</TABLE></CENTER>
 
 <H2>The Basics</H2>
 
@@ -30,6 +39,7 @@ file as needed.
 report from your server and passes a PDF version to the web
 browser. See the next sections for more information.
 
+<!-- NEED 3in -->
 <CENTER><TABLE WIDTH="80%" CELLPADDING="5" BORDER="1" BGCOLOR="#cccccc">
 <TR>
 	<TD>
@@ -116,7 +126,6 @@ sub topdf {
 }
 </PRE></UL>
 
-<!-- NEED 7in -->
 <H2>Calling HTMLDOC from PHP</H2>
 
 <P>PHP is quickly becoming the most popular server-side
@@ -148,6 +157,7 @@ characters into this function, the following function can be
 used to verify that the URL/filename does not contain any
 characters that might be interpreted by the shell:</P>
 
+<!-- NEED 5in -->
 <UL><PRE>
 function bad_url($url) {
     // See if the URL starts with http: or https:...
@@ -201,7 +211,7 @@ if (bad_url($url)) {
 <!-- NEED 5in -->
 <H2>Calling HTMLDOC from C</H2>
 
-<P>C programs offer the best flexibility and easily support on-the-fly
+<P>C programs offer the best flexibility and easily supports on-the-fly
 report generation without the need for temporary files.
 
 <P>Here are some simple C functions that can be used to generate a PDF

@@ -9,15 +9,19 @@ Command-Line</A></H1>
 
 <P>This chapter describes how to use <I>HTMLDOC</I> from the
 command-line to convert web pages and generate books.
-If you don't sepcify an input type (webpage, continous or book), HTMLDOC
-will default to the book input type.
 
-<BLOCKQUOTE><B>Note:</B> The free version of <I>HTMLDOC</I> for Windows does
-not include the command-line program.</BLOCKQUOTE>
+<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>The free version of <I>HTMLDOC</I> for Windows does
+	not include the command-line program.
+
+	</TD>
+</TR>
+</TABLE></CENTER>
 
 <H2>Converting Web Pages</H2>
-
-<H3>Converting a Single Web Page</H3>
 
 <P>To convert a single web page type:
 
@@ -26,50 +30,44 @@ not include the command-line program.</BLOCKQUOTE>
 % <KBD>htmldoc --webpage -f output.ps filename.html <I>ENTER</I></KBD>
 </PRE></UL>
 
-where <CODE>output.pdf</CODE> and <CODE>output.ps</CODE> are the names
-of the files you want to generate, and <CODE>filename.html</CODE> is
-the HTML file you are converting.
-
-<P>The <CODE>--webpage</CODE> option tells <I>HTMLDOC</I> that
-you want to convert a web page or other unstructured document.
-The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
-generate. If you don't specify an output file then a PDF file is
-send to the standard output.
-
-<H3>Converting Multiple Web Pages</H3>
-
-<P>To convert more than one web page with page breaks between each HTML file, type:
+<P>To convert more than one web page with page breaks between
+each HTML file, type:
 
 <UL><PRE>
 % <KBD>htmldoc --webpage -f output.pdf file1.html ... fileN.html <I>ENTER</I></KBD>
 % <KBD>htmldoc --webpage -f output.ps file1.html ... fileN.html <I>ENTER</I></KBD>
 </PRE></UL>
 
-where <CODE>output.html</CODE>, <CODE>output.pdf</CODE>, and <CODE>output.ps</CODE>
-are the names of the files you want to generate, and <CODE>file1.html</CODE>
-to <CODE>fileN.html</CODE> are the HTML files you want to convert.
+<P>The <CODE>--webpage</CODE> option tells <I>HTMLDOC</I> that
+you want to convert web pages or other unstructured HTML files.
+You can also use <CODE>--continuous</CODE> to convert multiple
+HTML files without page breaks between files and
+<CODE>--book</CODE> to convert structured HTML files with
+headings into a book with a table of contents. The default
+document type is <CODE>--book</CODE>.
 
-<P>The <CODE>--webpage</CODE> option tells <I>HTMLDOC</I> that you want to
-convert more than one HTML file but with no page breaks between each HTML file.
-The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
-generate. If you don't specify an output file then a PDF file is
-send to the standard output.
+<P>The <CODE>-f</CODE> option tells <I>HTMLDOC</I> the file to
+generate. If you don't specify an output file, a PDF file is
+sent to the standard output. The <CODE>output.pdf</CODE> and
+<CODE>output.ps</CODE> arguments are the names of the output
+files you want to generate. The <CODE>.pdf</CODE> extension
+specifies that you want to generate a PDF file, while the
+<CODE>.ps</CODE> extension specifies PostScript output.
 
-<P>To convert more than one web page with no page breaks between each HTML file, type:
+<P>The <CODE>filename.html</CODE>, <CODE>file1.html</CODE>, and
+<CODE>fileN.html</CODE> arguments are the input HTML files you
+want to convert. The HTML files can also be URLs, for example:
 
 <UL><PRE>
-% <KBD>htmldoc --continuous -f output.pdf file1.html ... fileN.html <I>ENTER</I></KBD>
-% <KBD>htmldoc --continuous -f output.ps file1.html ... fileN.html <I>ENTER</I></KBD>
+% <KBD>htmldoc --webpage -f output.pdf http://slashdot.org/ <I>ENTER</I></KBD>
+% <KBD>htmldoc --webpage -f output.ps http://freshmeat.net/ http://www.easysw.com/<I>ENTER</I></KBD>
 </PRE></UL>
-
-<P>The arguments are pretty much the same except for the first one.
-The <CODE>--continous</CODE> option tells <I>HTMLDOC</I> that you want to
-convert more than one HTML file but with no page breaks between each HTML file.
 
 <!-- NEED 4in -->
 <H2>Generating Books</H2>
 
-To generate a book from one or more HTML files type:
+<P>Type one of the following commands to generate a book from
+one or more HTML files:
 
 <UL><PRE>
 % <KBD>htmldoc --book -f output.html file1.html ... fileN.html <I>ENTER</I></KBD>
@@ -77,30 +75,44 @@ To generate a book from one or more HTML files type:
 % <KBD>htmldoc --book -f output.ps file1.html ... fileN.html <I>ENTER</I></KBD>
 </PRE></UL>
 
-where <CODE>output.html</CODE>, <CODE>output.pdf</CODE>, and <CODE>output.ps</CODE>
-are the names of the files you want to generate, and <CODE>file1.html</CODE>
-to <CODE>fileN.html</CODE> are the HTML files you want to use for the book.
+<P>where <CODE>output.html</CODE>, <CODE>output.pdf</CODE>, and
+<CODE>output.ps</CODE> are the names of the files you want to
+generate, and <CODE>file1.html</CODE> to <CODE>fileN.html</CODE>
+are the HTML files you want to use for the book.
 
-<P>The <CODE>--book</CODE> option tells <I>HTMLDOC</I> that you want to
-generate a book from the HTML file(s) you specified.
-The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
+<P>The <CODE>--book</CODE> option tells <I>HTMLDOC</I> that you
+want to generate a book from the HTML file(s) you specified.
+
+<P>The <CODE>-f</CODE> option tells <I>HTMLDOC</I> what file to
 generate. If you don't specify an output file then a PDF file is
-send to the standard output.
+sent to the standard output.
 
-<P><I>HTMLDOC</I> will build a table of contents for the book using
-the heading elements (<CODE>H1</CODE>, <CODE>H2</CODE>, etc.) in
-your HTML files. It will also add a title page using the
-document <CODE>TITLE</CODE> text and other <CODE>META</CODE>
-information you supply in your HTML files.
+<P><I>HTMLDOC</I> will build a table of contents for the book
+using the heading elements (<CODE>H1</CODE>, <CODE>H2</CODE>,
+etc.) in your HTML files. It will also add a title page using
+the document <CODE>TITLE</CODE> text and other <CODE>META</CODE>
+information you supply in your HTML files. See <A
+HREF="#HTMLREF">Chapter 6 - HTML Reference</A> for more
+information on the <CODE>META</CODE> variables that are
+supported.
 
-<BLOCKQUOTE><B>Note:</B> HTMLDOC will start rendering from the first <CODE>H1</CODE> element.
-What this means is that any text, images, table and other viewable elements
-that proceed the first <CODE>H1</CODE> element will be ignored.</BLOCKQUOTE>
+<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>When using book mode, HTMLDOC starts rendering with
+	the first <CODE>H1</CODE> element.  Any text, images,
+	tables, and other viewable elements that precede the
+	first <CODE>H1</CODE> element are silently ignored.
+
+	</TD>
+</TR>
+</TABLE></CENTER>
 
 <H2>Setting the Title File</H2>
 
-The <CODE>--titlefile</CODE> option sets the HTML file or image
-to use on the title page:
+<P>The <CODE>--titlefile</CODE> option sets the HTML file or
+image to use on the title page:
 
 <UL><PRE>
 % <KBD>htmldoc --titlefile filename.bmp ... <I>ENTER</I></KBD>
@@ -110,8 +122,8 @@ to use on the title page:
 % <KBD>htmldoc --titlefile filename.html ... <I>ENTER</I></KBD>
 </PRE></UL>
 
-<I>HTMLDOC</I> supports BMP, GIF, JPEG, and PNG images, as well as generic
-HTML text you supply for the title page(s).
+<P><I>HTMLDOC</I> supports BMP, GIF, JPEG, and PNG images, as
+well as generic HTML text you supply for the title page(s).
 
 </DIV>
 

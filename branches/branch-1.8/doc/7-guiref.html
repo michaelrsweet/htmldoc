@@ -10,7 +10,7 @@ This chapter describes all of the GUI controls in <I>HTMLDOC</I>.
 
 <H2>The HTMLDOC GUI</H2>
 
-The <I>HTMLDOC</I> GUI (Figures 7-1 through 7-10) is contained in
+The <I>HTMLDOC</I> GUI (Figures 7-1 through 7-11) is contained in
 a single window showing the input, output, and generation
 options. At the bottom are buttons to load, save, and generate
 documents.
@@ -588,100 +588,109 @@ a password.
 
 <H2>The Options Tab</H2>
 
-The options tab (Figure 7-10) contains the HTML file editor of your
-choice and allows you to save the settings and options that will be
-used in new documents.
+<P>The options tab (Figure 7-10) contains the HTML file editor
+of your choice and allows you to save the settings and options
+that will be used in new documents.
 
 <H3>HTML Editor</H3>
 
-The <VAR>HTML Editor</VAR> field contains the name of the HTML editor
-to run when you double-click on an input file or click on the <VAR>Edit
-Files...</VAR> button. Enter the program name in the field or click on
-the <VAR>Browse...</VAR> button to select the editor using the
-<A HREF="#FILECHOOSER">file chooser</A>.
+<P>The <VAR>HTML Editor</VAR> field contains the name of the
+HTML editor to run when you double-click on an input file or
+click on the <VAR>Edit Files...</VAR> button. Enter the program
+name in the field or click on the <VAR>Browse...</VAR> button to
+select the editor using the <A HREF="#FILECHOOSER">file
+chooser</A>.
 
-<P>The <CODE>%s</CODE> is added automatically to the end of the command
-name to insert the name of the file to be edited. If you are using
-Netscape Composer to edit your HTML files you should put "-edit" before
-the <CODE>%s</CODE> to tell Netscape to edit the file and not display
-it.
+<P>The <CODE>%s</CODE> is added automatically to the end of the
+command name to insert the name of the file to be edited. If you
+are using Netscape Composer to edit your HTML files you should
+put "-edit" before the <CODE>%s</CODE> to tell Netscape to edit
+the file and not display it.
 
 <H3>Browser Width</H3>
 
-The <VAR>Browser Width</VAR> slider specifies the width of the browser in
-pixels that is used to scale images and other pixel measurements to the
-printable page width. You can adjust this value to more closely match the
-formatting on the screen.
+<P>The <VAR>Browser Width</VAR> slider specifies the width of
+the browser in pixels that is used to scale images and other
+pixel measurements to the printable page width. You can adjust
+this value to more closely match the formatting on the screen.
 
-<P>The default browser width is 680 pixels which corresponds roughly to a 
-96 DPI display.  This option is only available when generating PostScript 
-or PDF files.
+<P>The default browser width is 680 pixels which corresponds
+roughly to a 96 DPI display. The browser width is only used when
+generating PostScript or PDF files.
 
 <H3>Search Path</H3>
 
-The <VAR>Search Path</VAR> field specifies a search path for files that
-are loaded by HTMLDOC. It is usually used to get images that use absolute
-server paths to load.
+<P>The <VAR>Search Path</VAR> field specifies a search path for
+files that are loaded by HTMLDOC. It is usually used to get
+images that use absolute server paths to load.
 
-<P>Directories are separated by the semicolon (;) so that drive letters
-(and eventually URLs) can be specified.
+<P>Directories are separated by the semicolon (;) so that drive
+letters (and eventually URLs) can be specified.
 
 <H3>Proxy URL</H3>
 
-The <VAR>Proxy URL</VAR> field specifies a URL for a HTTP proxy server.
+<P>The <VAR>Proxy URL</VAR> field specifies a URL for a HTTP
+proxy server.
 
 <H3>Tooltips</H3>
 
-The <VAR>Tooltips</VAR> check button controls the appearance of tooltip
-windows over GUI controls.
+<P>The <VAR>Tooltips</VAR> check button controls the appearance
+of tooltip windows over GUI controls.
+
+<H3>Modern Look</H3>
+
+<P>The <VAR>Modern Look</VAR> check button controls the
+appearance of the GUI controls.
 
 <H3>Save Options and Defaults</H3>
 
-The <VAR>Save Options and Defaults</VAR> button saves the HTML editor
-and all of the document settings on the other tabs for use in new
-documents. These settings are also used by the command-line version of
-<I>HTMLDOC</I>.
+<P>The <VAR>Save Options and Defaults</VAR> button saves the
+HTML editor and all of the document settings on the other tabs
+for use in new documents. These settings are also used by the
+command-line version of <I>HTMLDOC</I>.
 
 <P ALIGN=CENTER><IMG SRC="htmldoc-fig7b.png">
 <BR>Figure 7-11 - The File Chooser</P>
 
 <H2><A NAME="FILECHOOSER">The File Chooser</A></H2>
 
-The file chooser (Figure 7-11) allows you to select one or more files and
-create files and directories.
+<P>The file chooser (Figure 7-11) allows you to select one or
+more files and create files and directories.
 
 <H3>Directory</H3>
 
-The <VAR>Directory</VAR> option button (1) shows the current directory
-or folder that is displayed in the file list (3). Click on the option
-button to navigate to other directories or folders.
+<P>The <VAR>Directory</VAR> option button (1) shows the current
+directory or folder that is displayed in the file list (3).
+Click on the option button to navigate to other directories or
+folders.
 
 <H3>Directory Buttons</H3>
 
-The directory buttons (2) allow you to go up one level in the directory
-hierarchy, create a new directory, and show all files in the directory,
-respectively.
+<P>The directory buttons (2) allow you to go up one level in the
+directory hierarchy, create a new directory, and change the
+filename filter settings, respectively.
 
 <H3>File List</H3>
 
-The file list (3) lists the files and directories in the current
-directory or folder. Double-click on a file or directory to select that
-file or directory. Drag the mouse or hold the <KBD>CTRL</KBD> key down
-while clicking to select multiple files.
+<P>The file list (3) lists the files and directories in the
+current directory or folder. Double-click on a file or directory
+to select that file or directory. Drag the mouse or hold the
+<KBD>CTRL</KBD> key down while clicking to select multiple
+files.
 
 <H3>Filename</H3>
 
-The <VAR>Filename</VAR> field contains the currently selected filename.
-Type a name in the field to select a file or directory. As you type, any
-matching filenames will be highlighted; press the <KBD>TAB</KBD> key to
-accept the matches.
+<P>The <VAR>Filename</VAR> field contains the currently selected
+filename. Type a name in the field to select a file or
+directory. As you type, any matching filenames will be
+highlighted; press the <KBD>TAB</KBD> key to accept the matches.
 
 <H3>Dialog Buttons</H3>
 
-The dialog buttons (5) close the file chooser dialog window. Click on
-the <VAR>OK</VAR> button to accept your selections or the
-<VAR>Cancel</VAR> button to reject your selections and cancel the file
-operation.
+<P>The dialog buttons (5) close the file chooser dialog window.
+Click on the <VAR>OK</VAR> button to accept your selections or
+the <VAR>Cancel</VAR> button to reject your selections and
+cancel the file operation.
 
 </DIV>
 
