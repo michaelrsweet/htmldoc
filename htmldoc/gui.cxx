@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.35 2001/12/13 19:04:04 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.36 2001/12/13 20:11:09 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1090,18 +1090,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
     tabs->box(FL_PLASTIC_UP_BOX);
 
-    Fl::background(0xe1, 0xe1, 0xe1);
-
-//  inputTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  outputTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  pageTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  fontsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  colorsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  tocTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  psTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  pdfTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  securityTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-//  optionsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+    Fl::background(0xd8, 0xd8, 0xd8);
 
     typeBook->down_box(FL_ROUND_UP_BOX);
     typeContinuous->down_box(FL_ROUND_UP_BOX);
@@ -3343,7 +3332,7 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
 
     gui->tabs->box(FL_PLASTIC_UP_BOX);
 
-    Fl::background(0xe1, 0xe1, 0xe1);
+    Fl::background(0xd8, 0xd8, 0xd8);
 
     gui->typeBook->down_box(FL_ROUND_UP_BOX);
     gui->typeContinuous->down_box(FL_ROUND_UP_BOX);
@@ -4216,5 +4205,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.35 2001/12/13 19:04:04 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.36 2001/12/13 20:11:09 mike Exp $".
 //
