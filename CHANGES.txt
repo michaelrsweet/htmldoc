@@ -1,9 +1,7 @@
-CHANGES.txt - 12/13/1999
+CHANGES.txt - 12/30/1999
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.4
-
-    NEW FEATURES
 
     CHANGES
 
@@ -18,6 +16,15 @@ CHANGES IN HTMLDOC v1.8.4
 	  the full width of the tab area, which prevented the
 	  Browse button from working when clicked on the right
 	  side.
+	- The help dialog window did not scroll all the way to
+	  the bottom of the text.
+	- The chapter ("c") header/footer string did not work.
+	- The heading ("h") header/footer string did not always
+	  match the first heading on a page.
+	- The header and footer fonts were not used when computing the
+	  widths of the header and footer strings.
+	- The Windows distribution did not create the right shortcut
+	  for the Users Manual in the Start menu.
 
 
 CHANGES IN HTMLDOC v1.8.3

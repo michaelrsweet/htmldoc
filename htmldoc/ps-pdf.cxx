@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.40 1999/12/13 16:12:04 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.41 1999/12/30 00:50:11 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -190,7 +190,8 @@ static int	num_headings,
 static int	num_pages;
 static render_t	*pages[MAX_PAGES],
 		*endpages[MAX_PAGES];
-static uchar	*page_headings[MAX_PAGES];
+static uchar	*page_chapters[MAX_PAGES],
+		*page_headings[MAX_PAGES];
 static tree_t	*current_heading;
 
 static int	num_links;
@@ -232,19 +233,23 @@ static uchar	comp_buffer[64 * 1024];
  */
 
 static char	*pspdf_prepare_page(int page, int *file_page, uchar *title,
-		                    float title_width, uchar **page_heading);
+		                    float title_width, uchar **page_chapter,
+				    uchar **page_heading);
 static void	pspdf_prepare_heading(int page, int print_page, uchar *title,
-		        	      float title_width, uchar *heading,
+		        	      float title_width, uchar *chapter,
+				      float chapter_width, uchar *heading,
 				      float heading_width, char *format, int y);
 static void	ps_write_document(uchar *title, uchar *author, uchar *creator,
 		                  uchar *copyright);
 static void	ps_write_page(FILE *out, int page, uchar *title,
-		              float title_width, uchar **page_heading);
+		              float title_width, uchar **page_chapter,
+			      uchar **page_heading);
 static void	ps_write_background(FILE *out);
 static void	pdf_write_document(uchar *title, uchar *author, uchar *creator,
 		                   uchar *copyright, tree_t *toc);
 static void	pdf_write_page(FILE *out, int page, uchar *title,
-		               float title_width, uchar **page_heading);
+		               float title_width, uchar **page_chapter,
+			       uchar **page_heading);
 static void	pdf_write_resources(FILE *out, int page);
 static void	pdf_write_contents(FILE *out, tree_t *toc, int parent,
 		                   int prev, int next, int *heading);
@@ -378,6 +383,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   */
 
   memset(pages, 0, sizeof(pages));
+  memset(page_chapters, 0, sizeof(page_chapters));
   memset(page_headings, 0, sizeof(page_headings));
   memset(endpages, 0, sizeof(pages));
   memset(list_types, 0267, sizeof(list_types));
@@ -578,11 +584,13 @@ pspdf_prepare_page(int   page,			/* I - Page number */
                    int   *file_page,		/* O - File page number */
         	   uchar *title,		/* I - Title string */
         	   float title_width,		/* I - Width of title string */
-        	   uchar **page_heading)	/* IO - Page heading string */
+                   uchar **page_heading,	/* IO - Page heading string */
+	           uchar **page_chapter)	/* IO - Page chapter string */
 {
-  int		print_page;	/* Printed page # */
-  float		width;		/* Width of page heading */
-  char		*page_text;	/* Page number text */
+  int		print_page;			/* Printed page # */
+  float		chapter_width,			/* Width of page chapter */
+		heading_width;			/* Width of page heading */
+  char		*page_text;			/* Page number text */
 
 
   DEBUG_printf(("pspdf_prepare_page(%d, %08x, \"%s\", %.1f, \"%s\")\n",
@@ -615,6 +623,8 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   * Get the new heading if necessary...
   */
 
+  if (page_chapters[page] != NULL)
+    *page_chapter = page_chapters[page];
   if (page_headings[page] != NULL)
     *page_heading = page_headings[page];
 
@@ -646,7 +656,10 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   * Add page headings...
   */
 
-  width = get_width(*page_heading, TYPE_HELVETICA, STYLE_NORMAL, SIZE_P);
+  chapter_width = get_width(*page_chapter, HeadFootType, HeadFootStyle, SIZE_P) *
+                  HeadFootSize / _htmlSizes[SIZE_P];
+  heading_width = get_width(*page_heading, HeadFootType, HeadFootStyle, SIZE_P) *
+                  HeadFootSize / _htmlSizes[SIZE_P];
 
   if (chapter == 0)
   {
@@ -654,10 +667,11 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     * Add table-of-contents header & footer...
     */
 
-    pspdf_prepare_heading(page, print_page, title, title_width, *page_heading,
-                          width, TocHeader, PagePrintLength);
-    pspdf_prepare_heading(page, print_page, title, title_width, *page_heading,
-                          width, TocFooter, 0);
+    pspdf_prepare_heading(page, print_page, title, title_width, *page_chapter,
+                          chapter_width, *page_heading, heading_width, TocHeader,
+			  PagePrintLength);
+    pspdf_prepare_heading(page, print_page, title, title_width, *page_chapter,
+                          chapter_width, *page_heading,  heading_width, TocFooter, 0);
   }
   else if (chapter > 0)
   {
@@ -666,10 +680,11 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     */
 
     if (page > chapter_starts[chapter] || !OutputBook)
-      pspdf_prepare_heading(page, print_page, title, title_width, *page_heading,
-                            width, Header, PagePrintLength);
-    pspdf_prepare_heading(page, print_page, title, title_width, *page_heading,
-                          width, Footer, 0);
+      pspdf_prepare_heading(page, print_page, title, title_width, *page_chapter,
+                            chapter_width, *page_heading, heading_width, Header,
+			    PagePrintLength);
+    pspdf_prepare_heading(page, print_page, title, title_width, *page_chapter,
+                          chapter_width, *page_heading, heading_width, Footer, 0);
   }
 
   return (page_text);
@@ -685,6 +700,8 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
                       int   print_page,         /* I - Printed page number */
         	      uchar *title,		/* I - Title string */
         	      float title_width,	/* I - Width of title string */
+        	      uchar *chapter,		/* I - Page chapter string */
+		      float chapter_width,	/* I - Width of chapter */
         	      uchar *heading,		/* I - Page heading string */
 		      float heading_width,	/* I - Width of heading */
 		      char  *format,		/* I - Format of heading */
@@ -753,6 +770,14 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 	    temp = NULL;
           break;
 
+      case 'c' :
+          if (chapter != NULL)
+	    temp = new_render(page, RENDER_TEXT, 0, y, chapter_width,
+	                      HeadFootSize, chapter);
+          else
+	    temp = NULL;
+          break;
+
       case 'h' :
           if (heading != NULL)
 	    temp = new_render(page, RENDER_TEXT, 0, y, heading_width,
@@ -812,11 +837,12 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 
 static void
 ps_write_document(uchar *title,		/* I - Title on all pages */
-        	  uchar *author,		/* I - Author of document */
+        	  uchar *author,	/* I - Author of document */
         	  uchar *creator,	/* I - Application that generated the HTML file */
         	  uchar *copyright)	/* I - Copyright (if any) on the document */
 {
-  uchar		*page_heading;	/* Current heading text */
+  uchar		*page_chapter,	/* Current chapter text */
+		*page_heading;	/* Current heading text */
   FILE		*out;		/* Output file */
   int		page;		/* Current page # */
   float		title_width;	/* Width of title string */
@@ -858,9 +884,9 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
       write_prolog(out, PageDuplex + 1, title, author, creator, copyright);
     }
 
-    ps_write_page(out, 0, NULL, 0.0, &page_heading);
+    ps_write_page(out, 0, NULL, 0.0, &page_chapter, &page_heading);
     if (PageDuplex)
-      ps_write_page(out, 1, NULL, 0.0, &page_heading);
+      ps_write_page(out, 1, NULL, 0.0, &page_chapter, &page_heading);
 
     if (OutputFiles)
     {
@@ -894,7 +920,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     for (page = chapter_starts[chapter], page_heading = NULL;
          page <= chapter_ends[chapter];
          page ++)
-      ps_write_page(out, page, title, title_width, &page_heading);
+      ps_write_page(out, page, title, title_width, &page_chapter, &page_heading);
 
    /*
     * Close the output file as necessary...
@@ -932,7 +958,8 @@ ps_write_page(FILE  *out,		/* I - Output file */
               int   page,		/* I - Page number */
               uchar *title,		/* I - Title string */
               float title_width,	/* I - Width of title string */
-              uchar **page_heading)	/* IO - Page heading string */
+              uchar **page_heading,	/* IO - Page heading string */
+	      uchar **page_chapter)	/* IO - Page chapter string */
 {
   int		file_page;	/* Current page # in document */
   char		*page_text;	/* Page number text */
@@ -952,7 +979,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
   */
 
   page_text = pspdf_prepare_page(page, &file_page, title, title_width,
-                                 page_heading);
+                                 page_chapter, page_heading);
 
  /*
   * Clear the render cache...
@@ -1073,7 +1100,8 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
         	   uchar   *copyright,	/* I - Copyright (if any) on the document */
                    tree_t *toc)		/* I - Table of contents tree */
 {
-  uchar		*page_heading;	/* Current heading text */
+  uchar		*page_chapter,	/* Current chapter text */
+		*page_heading;	/* Current heading text */
   FILE		*out;		/* Output file */
   int		page,		/* Current page # */
 		heading;	/* Current heading # */
@@ -1138,9 +1166,9 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
 
   if (TitlePage)
   {
-    pdf_write_page(out, 0, NULL, 0.0, &page_heading);
+    pdf_write_page(out, 0, NULL, 0.0, &page_chapter, &page_heading);
     if (PageDuplex)
-      pdf_write_page(out, 1, NULL, 0.0, &page_heading);
+      pdf_write_page(out, 1, NULL, 0.0, &page_chapter, &page_heading);
   }
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
@@ -1151,7 +1179,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
     for (page = chapter_starts[chapter], page_heading = NULL;
          page <= chapter_ends[chapter];
          page ++)
-      pdf_write_page(out, page, title, title_width, &page_heading);
+      pdf_write_page(out, page, title, title_width, &page_chapter, &page_heading);
   }
 
   if (TocLevels > 0)
@@ -1159,7 +1187,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
     for (chapter = 0, page = chapter_starts[0], page_heading = NULL;
 	 page <= chapter_ends[0];
 	 page ++)
-      pdf_write_page(out, page, title, title_width, &page_heading);
+      pdf_write_page(out, page, title, title_width, &page_chapter, &page_heading);
 
    /*
     * Write the outline tree...
@@ -1317,7 +1345,8 @@ pdf_write_page(FILE  *out,		/* I - Output file */
                int   page,		/* I - Page number */
                uchar  *title,		/* I - Title string */
                float title_width,	/* I - Width of title string */
-               uchar  **page_heading)	/* IO - Page heading string */
+               uchar  **page_heading,	/* IO - Page heading string */
+	       uchar  **page_chapter)	/* IO - Page chapter string */
 {
   int		file_page,	/* Current page # in file */
 		length,		/* Stream length */
@@ -1333,7 +1362,7 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   * Add headers/footers as needed...
   */
 
-  pspdf_prepare_page(page, &file_page, title, title_width, page_heading);
+  pspdf_prepare_page(page, &file_page, title, title_width, page_heading, page_chapter);
 
  /*
   * Clear the render cache...
@@ -2290,9 +2319,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
       *y = (float)top;
       *x = (float)left;
-
-      if (page_headings[*page] == NULL)
-        page_headings[*page] = htmlGetText(current_heading);
     }
 
     if (chapter == 0)
@@ -2612,9 +2638,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      if (Verbosity)
 	        progress_show("Formatting page %d", *page);
               *y = (float)top;
-
-              if (page_headings[*page] == NULL)
-        	page_headings[*page] = htmlGetText(current_heading);
             }
 
             (*y)   -= height + _htmlSpacings[SIZE_P];
@@ -2635,9 +2658,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	    if (Verbosity)
 	      progress_show("Formatting page %d", *page);
             *y = (float)top;
-
-            if (page_headings[*page] == NULL)
-              page_headings[*page] = htmlGetText(current_heading);
 	  }
 
           *x = (float)left;
@@ -2669,9 +2689,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      progress_show("Formatting page %d", *page);
             *x = (float)left;
             *y = (float)top;
-
-            if (page_headings[*page] == NULL)
-              page_headings[*page] = htmlGetText(current_heading);
 	  }
 	  else if (strncasecmp(comment, "NEW SHEET", 9) == 0)
 	  {
@@ -2694,9 +2711,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      progress_show("Formatting page %d", *page);
             *x = (float)left;
             *y = (float)top;
-
-            if (page_headings[*page] == NULL)
-              page_headings[*page] = htmlGetText(current_heading);
 	  }
           break;
 
@@ -2787,6 +2801,9 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
     if (Verbosity)
       progress_show("Formatting page %d", *page);
   }
+
+  if (t->markup == MARKUP_H1)
+    page_chapters[*page] = htmlGetText(current_heading);
 
   if (page_headings[*page] == NULL || t->markup == MARKUP_H1)
     page_headings[*page] = htmlGetText(current_heading);
@@ -2907,9 +2924,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
 	  if (Verbosity)
 	    progress_show("Formatting page %d", *page);
-
-          if (page_headings[*page] == NULL)
-            page_headings[*page] = htmlGetText(current_heading);
         }
 
         new_render(*page, RENDER_IMAGE, (float)left, *y - temp->height, temp->width,
@@ -2935,9 +2949,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
 	  if (Verbosity)
 	    progress_show("Formatting page %d", *page);
-
-          if (page_headings[*page] == NULL)
-            page_headings[*page] = htmlGetText(current_heading);
         }
 
         new_render(*page, RENDER_IMAGE, right - temp->width, *y - temp->height,
@@ -3061,9 +3072,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
       if (Verbosity)
         progress_show("Formatting page %d", *page);
-
-      if (page_headings[*page] == NULL)
-        page_headings[*page] = htmlGetText(current_heading);
     }
 
     *y -= height;
@@ -3317,9 +3325,6 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
-
-	if (page_headings[*page] == NULL)
-          page_headings[*page] = htmlGetText(current_heading);
       }
     
       *x = (float)left;
@@ -3866,9 +3871,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       if (Verbosity)
         progress_show("Formatting page %d", *page);
-
-      if (page_headings[*page] == NULL)
-        page_headings[*page] = htmlGetText(current_heading);
     }
 
     row_y    = *y;
@@ -3997,9 +3999,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     if (Verbosity)
       progress_show("Formatting page %d", *page);
-
-    if (page_headings[*page] == NULL)
-      page_headings[*page] = htmlGetText(current_heading);
   }
 
  /*
@@ -4041,9 +4040,6 @@ parse_list(tree_t *t,		/* I - Tree to parse */
 
     if (Verbosity)
       progress_show("Formatting page %d", *page);
-
-    if (page_headings[*page] == NULL)
-      page_headings[*page] = htmlGetText(current_heading);
   }
 
   if ((value = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
@@ -6459,5 +6455,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.40 1999/12/13 16:12:04 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.41 1999/12/30 00:50:11 mike Exp $".
  */
