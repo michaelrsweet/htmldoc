@@ -10,6 +10,8 @@ CHANGES IN HTMLDOC v1.8.5
 
     CHANGES
 
+	- Now optimize link objects in PDF files (provides a 40k
+	  reduction in file size for the HTMLDOC manual alone)
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.46 2000/01/04 15:52:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.47 2000/01/04 16:33:40 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1789,13 +1789,48 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		lobj,			/* Current link */
 		num_lobjs,		/* Number of links on this page */
 		lobjs[2 * MAX_LINKS];	/* Link objects */
+  float		x, y;			/* Position of last link */
   uchar		*filename;		/* Filename */
-  render_t	*r;			/* Current render primitive */
+  render_t	*r,			/* Current render primitive */
+		*rlast,			/* Last render link primitive */
+		*rprev;			/* Previous render primitive */
   link_t	*link;			/* Local link */
 
 
  /*
-  * First figure out how many link objects we'll have...
+  * First combine adjacent, identical links...
+  */
+
+  for (page = 0; page < num_pages; page ++)
+    for (r = pages[page], x = 0.0f, y = 0.0f, rlast = NULL, rprev = NULL;
+         r != NULL;
+	 rprev = r, r = r->next)
+      if (r->type == RENDER_LINK)
+      {
+        if (fabs(r->x - x) < 0.1f && fabs(r->y - y) < 0.1f &&
+	    rlast != NULL && strcmp((const char *)rlast->data.link,
+	                            (const char *)r->data.link) == 0)
+	{
+	  // Combine this primitive with the previous one in rlast...
+	  rlast->width = r->x + r->width - rlast->x;
+	  x            = rlast->x + rlast->width;
+
+	  // Delete this render primitive...
+	  rprev->next = r->next;
+	  free(r);
+	  r = rprev;
+	}
+	else
+	{
+	  // Can't combine; just save this info for later use...
+	  rlast = r;
+	  x     = r->x + r->width;
+	  y     = r->y;
+	}
+      }
+
+ /*
+  * Figure out how many link objects we'll have...
   */
 
   pages_object = num_objects + 1;
@@ -6484,5 +6519,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.46 2000/01/04 15:52:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.47 2000/01/04 16:33:40 mike Exp $".
  */
