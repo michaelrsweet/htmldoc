@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.71 2004/05/09 21:31:38 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.72 2004/05/09 21:40:57 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1836,7 +1836,7 @@ parse_options(const char   *line,	// I - Options from book file
 
     *tempptr = '\0';
 
-    if (strcmp(temp, "-t") == 0)
+    if (strcmp(temp, "-t") == 0 && !CGIMode)
     {
       if (strcmp(temp2, "html") == 0)
         *exportfunc = (exportfunc_t)html_export;
@@ -1892,12 +1892,12 @@ parse_options(const char   *line,	// I - Options from book file
       TitlePage = 1;
       strlcpy(TitleImage, temp2, sizeof(TitleImage));
     }
-    else if (strcmp(temp, "-f") == 0)
+    else if (strcmp(temp, "-f") == 0 && !CGIMode)
     {
       OutputFiles = 0;
       strlcpy(OutputPath, temp2, sizeof(OutputPath));
     }
-    else if (strcmp(temp, "-d") == 0)
+    else if (strcmp(temp, "-d") == 0 && !CGIMode)
     {
       OutputFiles = 1;
       strlcpy(OutputPath, temp2, sizeof(OutputPath));
@@ -2405,5 +2405,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.71 2004/05/09 21:31:38 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.72 2004/05/09 21:40:57 mike Exp $".
  */
