@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h,v 1.7 2000/01/04 13:45:52 mike Exp $"
+// "$Id: HelpView.h,v 1.8 2000/01/22 06:30:49 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
@@ -36,20 +36,28 @@
 
 
 //
+// HelpFunc type - link callback function for files...
+//
+
+
+typedef const char *(HelpFunc)(const char *);
+
+
+//
 // HelpBlock structure...
 //
 
 struct HelpBlock
 {
-  const char	*start,	// Start of text
-		*end;	// End of text
-  uchar		font,	// Text font
-		size,	// Text size
-		align;	// Alignment: -1 = right, 0 = center, 1 = left
-  int		x,	// Indentation/starting X coordinate
-		y,	// Starting Y coordinate
-		w,	// Width
-		h;	// Height
+  const char	*start,		// Start of text
+		*end;		// End of text
+  uchar		font,		// Text font
+		size;		// Text size
+  short		x,		// Indentation/starting X coordinate
+		y,		// Starting Y coordinate
+		w,		// Width
+		h;		// Height
+  short		line[32];	// Left starting position for each line
 };
 
 //
@@ -82,6 +90,8 @@ struct HelpTarget
 
 class HelpView : public Fl_Group	//// Help viewer widget
 {
+  enum { RIGHT = -1, CENTER, LEFT };	// Alignments
+
   char		title_[1024];		// Title string
 
   uchar		textfont_,		// Default font for text
@@ -95,6 +105,8 @@ class HelpView : public Fl_Group	//// Help viewer widget
   int		nfonts_;		// Number of fonts in stack
   uchar		fonts_[100][2];		// Font stack
 
+  HelpFunc	*link_;			// Link transform function
+
   int		nlinks_,		// Number of links
 		alinks_;		// Allocated links
   HelpLink	*links_;		// Links
@@ -103,17 +115,20 @@ class HelpView : public Fl_Group	//// Help viewer widget
 		atargets_;		// Allocated targets
   HelpTarget	*targets_;		// Targets
 
-  char		filename_[256];		// Current filename
+  char		directory_[1024];	// Directory for current file
+  char		filename_[1024];	// Current filename
   int		topline_,		// Top line in document
 		size_;			// Total document length
   Fl_Scrollbar	scrollbar_;		// Scrollbar for document
 
-  HelpBlock	*add_block(const char *s, int xx, int yy, int ww, int hh, int a);
+  HelpBlock	*add_block(const char *s, int xx, int yy, int ww, int hh);
   void		add_link(const char *n, int xx, int yy, int ww, int hh);
   void		add_target(const char *n, int yy);
   static int	compare_targets(const HelpTarget *t0, const HelpTarget *t1);
+  int		do_align(HelpBlock *block, int line, int xx, int a, int &l);
   void		draw();
   void		format();
+  int		get_align(const char *p, int a);
   const char	*get_attr(const char *p, const char *n, char *buf, int bufsize);
   int		handle(int);
 
@@ -131,8 +146,11 @@ class HelpView : public Fl_Group	//// Help viewer widget
 
   HelpView(int xx, int yy, int ww, int hh, const char *l = 0);
   ~HelpView();
+  const char	*directory() const { if (directory_[0]) return (directory_);
+  					else return ((const char *)0); }
   const char	*filename() const { if (filename_[0]) return (filename_);
   					else return ((const char *)0); }
+  void		link(HelpFunc *fn) { link_ = fn; }
   int		load(const char *f);
   void		resize(int,int,int,int);
   int		size() const { return (size_); }
@@ -151,5 +169,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.7 2000/01/04 13:45:52 mike Exp $".
+// End of "$Id: HelpView.h,v 1.8 2000/01/22 06:30:49 mike Exp $".
 //
