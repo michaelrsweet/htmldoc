@@ -37,6 +37,8 @@ CHANGES IN HTMLDOC v1.8.17
 	  account for borders, padding, etc.
 	- Fixed the table squeezing code to honor minimum widths
 	  and properly resize the remaining space.
+	- The MEDIA SIZE page comment did not reset the printable
+	  width and length of the page.
 
 
 CHANGES IN HTMLDOC v1.8.16
