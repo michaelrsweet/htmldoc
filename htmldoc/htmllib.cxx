@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.22 2000/01/06 21:58:47 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.23 2000/01/25 15:42:28 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1627,6 +1627,36 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
     for (i = 0; i < 256; i ++)
       chars[i] = i;
+
+   /*
+    * Hardcode characters 128 to 159 for Microsoft's version of ISO 8859-1...
+    */
+
+    chars[0x80] = 0x20ac; /* Euro */
+    chars[0x82] = 0x201a;
+    chars[0x83] = 0x0192;
+    chars[0x84] = 0x201e;
+    chars[0x85] = 0x2026;
+    chars[0x86] = 0x2020;
+    chars[0x87] = 0x2021;
+    chars[0x88] = 0x02c6;
+    chars[0x89] = 0x2030;
+    chars[0x8a] = 0x0160;
+    chars[0x8b] = 0x2039;
+    chars[0x8c] = 0x0152;
+    chars[0x91] = 0x2018;
+    chars[0x92] = 0x2019;
+    chars[0x93] = 0x201c;
+    chars[0x94] = 0x201d;
+    chars[0x95] = 0x2022;
+    chars[0x96] = 0x2013;
+    chars[0x97] = 0x2014;
+    chars[0x98] = 0x02dc;
+    chars[0x99] = 0x2122;
+    chars[0x9a] = 0x0161;
+    chars[0x9b] = 0x203a;
+    chars[0x9c] = 0x0153;
+    chars[0x9f] = 0x0178;
   }
   else
   {
@@ -1641,36 +1671,6 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
     fclose(fp);
   }
-
- /*
-  * Hardcode characters 128 to 159 for Microsoft's version of the ISO
-  * standard character sets...
-  */
-
-  chars[0x82] = 0x201a;
-  chars[0x83] = 0x0192;
-  chars[0x84] = 0x201e;
-  chars[0x85] = 0x2026;
-  chars[0x86] = 0x2020;
-  chars[0x87] = 0x2021;
-  chars[0x88] = 0x02c6;
-  chars[0x89] = 0x2030;
-  chars[0x8a] = 0x0160;
-  chars[0x8b] = 0x2039;
-  chars[0x8c] = 0x0152;
-  chars[0x91] = 0x2018;
-  chars[0x92] = 0x2019;
-  chars[0x93] = 0x201c;
-  chars[0x94] = 0x201d;
-  chars[0x95] = 0x2022;
-  chars[0x96] = 0x2013;
-  chars[0x97] = 0x2014;
-  chars[0x98] = 0x02dc;
-  chars[0x99] = 0x2122;
-  chars[0x9a] = 0x0161;
-  chars[0x9b] = 0x203a;
-  chars[0x9c] = 0x0153;
-  chars[0x9f] = 0x0178;
 
  /*
   * Build the glyph array...
@@ -2267,5 +2267,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.22 2000/01/06 21:58:47 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.23 2000/01/25 15:42:28 mike Exp $".
  */
