@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.20.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: tree.h,v 1.20.2.2 2004/03/23 03:31:28 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -32,21 +32,6 @@
 #  include "file.h"
 #  include "style.h"
 #  include "margin.h"
-
-
-//
-// Nodebreak values...
-//
-
-enum hdNodeBreak
-{
-  HD_NODEBREAK_NONE = 0,
-  HD_NODEBREAK_LEFT = 1,
-  HD_NODEBREAK_RIGHT = 2,
-  HD_NODEBREAK_LINE = 3,
-  HD_NODEBREAK_PAGE = 4,
-  HD_NODEBREAK_SHEET = 5
-};
 
 
 /**
@@ -92,8 +77,6 @@ struct hdTree
   float		height;
   //* Whitespace before this node?
   bool		whitespace;
-  //* Line/left/right break before this node?
-  char		nodebreak;
   //* Number of attributes...
   short		nattrs;
   //* Attributes...
@@ -210,80 +193,6 @@ struct hdTree
 			         const char *path, char *s, int slen);
 
  /**
-  * The <TT>format_comment()</TT> method processes HTML comments.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The margins to use.
-  * @param x float&amp; The current X position in points.
-  * @param y float&amp; The current Y position in points.
-  * @param page int&amp; The current page.
-  */
-  void			format_comment(hdStyleSheet *css, hdMargin *m,
-			               float &x, float &y);
-
- /**
-  * The <TT>format_contents()</TT> method formats a table-of-contents.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The margins to use.
-  * @param x float&amp; The current X position in points.
-  * @param y float&amp; The current Y position in points.
-  * @param page int&amp; The current page.
-  */
-  void			format_contents(hdStyleSheet *css, hdMargin *m,
-			                float &x, float &y);
-
- /**
-  * The <TT>format_doc()</TT> method formats this node and all child nodes,
-  * updating the width, height, and nodebreak members.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The margins to use.
-  * @param x float&amp; The current X position in points.
-  * @param y float&amp; The current Y position in points.
-  * @param page int&amp; The current page.
-  */
-  void			format_doc(hdStyleSheet *css, hdMargin *m,
-			           float &x, float &y);
-
- /**
-  * The <TT>format_index()</TT> method formats an index.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The margins to use.
-  * @param x float&amp; The current X position in points.
-  * @param y float&amp; The current Y position in points.
-  * @param page int&amp; The current page.
-  */
-  void			format_index(hdStyleSheet *css, hdMargin *m,
-			             float &x, float &y);
-
- /**
-  * The <TT>format_list()</TT> method formats a list of whatever.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The margins to use.
-  * @param x float&amp; The current X position in points.
-  * @param y float&amp; The current Y position in points.
-  * @param page int&amp; The current page.
-  */
-  void			format_list(hdStyleSheet *css, hdMargin *m,
-			            float &x, float &y);
-
- /**
-  * The <TT>format_table()</TT> method formats a table, updating the width,
-  * height, and nodebreak members.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The margins to use.
-  * @param x float&amp; The current X position in points.
-  * @param y float&amp; The current Y position in points.
-  * @param page int&amp; The current page.
-  */
-  void			format_table(hdStyleSheet *css, hdMargin *m,
-			             float &x, float &y);
-
- /**
   * The <TT>get_attr()</TT> method retrieves the value of a node attribute.
   * The attribute name is case-insensitive.
   *
@@ -292,20 +201,6 @@ struct hdTree
   * defined without a value, then an empty string is returned.
   */
   const char		*get_attr(const char *name);
-
- /**
-  * The <TT>get_cell_size()</TT> method determines the size of the table cell.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The current margins.
-  * @param minwidth float&amp; The minimum width of the cell.
-  * @param prefwidth float&amp; The preferred width of the cell.
-  * @param minheight float&amp; The minimum height of the cell.
-  * @return The required width of the cell or 0 if none is specified.
-  */
-  float			get_cell_size(hdStyleSheet *css, hdMargin *m,
-			              float &minwidth, float &prefwidth,
-				      float &minheight);
 
  /**
   * The <TT>get_element()</TT> method gets the hdElement constant associated with
@@ -325,20 +220,6 @@ struct hdTree
   * @return The associated string value or NULL if none is count.
   */
   const char		*get_meta(const char *name);
-
- /**
-  * The <TT>get_table_size()</TT> method determines the size of a table.
-  *
-  * @param css hdStyleSheet* The stylesheet to use.
-  * @param m hdMargin* The current margins.
-  * @param minwidth float&amp; The minimum width of the table.
-  * @param prefwidth float&amp; The preferred width of the table.
-  * @param minheight float&amp; The minimum height of the table.
-  * @return The required width of the table or 0 if none is specified.
-  */
-  float			get_table_size(hdStyleSheet *css, hdMargin *m,
-			               float &minwidth, float &prefwidth,
-				       float &minheight);
 
  /**
   * The <TT>get_text()</TT> method returns the text associated with the current
@@ -453,5 +334,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.20.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: tree.h,v 1.20.2.2 2004/03/23 03:31:28 mike Exp $".
 //

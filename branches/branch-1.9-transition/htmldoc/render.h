@@ -1,5 +1,5 @@
 /*
- * "$Id: render.h,v 1.21.2.4 2004/03/22 21:56:29 mike Exp $"
+ * "$Id: render.h,v 1.21.2.5 2004/03/23 03:31:27 mike Exp $"
  *
  *   Render class definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -301,11 +301,18 @@ class hdRender
   hdRender();
   ~hdRender();
 
-  int export_doc(hdTree *document, hdTree *toc);
+  int export_doc(hdTree *document, hdTree *toc, hdStyleSheet *css);
 
 #define VALUE(x)
 #define NULL3
 
+  int		TitlePage	VALUE(1),	/* Need a title page */
+		TocLevels	VALUE(3),	/* Number of table-of-contents levels */
+		TocLinks	VALUE(1),	/* Generate links */
+		TocNumbers	VALUE(0),	/* Generate heading numbers */
+		TocDocCount	VALUE(0);	/* Number of chapters */
+  int		OutputType	VALUE(OUTPUT_BOOK);
+						/* Output a "book", etc. */
   char		OutputPath[255]	VALUE("");	/* Output directory/name */
   int		OutputFiles	VALUE(0),	/* Generate multiple files? */
 		OutputColor	VALUE(1);	/* Output color images */
@@ -566,5 +573,5 @@ class hdRender
 
 
 /*
- * End of "$Id: render.h,v 1.21.2.4 2004/03/22 21:56:29 mike Exp $".
+ * End of "$Id: render.h,v 1.21.2.5 2004/03/23 03:31:27 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.13.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: testsuite.cxx,v 1.13.2.2 2004/03/23 03:31:28 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -144,12 +144,6 @@ main(int  argc,				// I - Number of command-line arguments
 
       if (html != NULL)
       {
-        hdMargin *m = new hdMargin(72.0, 576.0, 36.0, 756.0);
-	float x = 0.0, y = 0.0;
-	int page = 0;
-
-        html->format_doc(css, m, x, y, page);
-
         print_tree(html, 0);
 
         toc     = html->build_toc(css, 3, 1);
@@ -296,15 +290,6 @@ print_tree(hdTree *t,				// I - Tree node
            int    indent)			// I - Indentation
 {
   int			i;			// Looping var
-  static const char	*nodebreaks[] =		// Nodebreak strings
-			{
-			  "none",
-			  "left",
-			  "right",
-			  "line",
-			  "page",
-			  "sheet"
-			};
 
 
   while (t)
@@ -315,14 +300,13 @@ print_tree(hdTree *t,				// I - Tree node
     switch (t->element)
     {
       case HD_ELEMENT_NONE :
-          printf("(none) \"%s\" %.1fx%.1f (whitespace=%s, nodebreak=%s)\n",
+          printf("(none) \"%s\" %.1fx%.1f (whitespace=%s)\n",
 	         t->data ? t->data : "(null)", t->width, t->height,
-		 t->whitespace ? "true" : "false", nodebreaks[t->nodebreak]);
+		 t->whitespace ? "true" : "false");
 	  break;
 
       case HD_ELEMENT_UNKNOWN :
-          printf("(unknown) \"%s\" (nodebreak=%s)\n", t->data,
-	         nodebreaks[t->nodebreak]);
+          printf("(unknown) \"%s\"\n", t->data);
 	  break;
 
       case HD_ELEMENT_FILE :
@@ -330,23 +314,22 @@ print_tree(hdTree *t,				// I - Tree node
 	  break;
 
       case HD_ELEMENT_COMMENT :
-          printf("(comment) \"%s\" (nodebreak=%s)\n", t->data,
-	         nodebreaks[t->nodebreak]);
+          printf("(comment) \"%s\"\n", t->data);
 	  break;
 
       case HD_ELEMENT_IMG :
       case HD_ELEMENT_HR :
       case HD_ELEMENT_BR :
       case HD_ELEMENT_SPACER :
-          printf("%s %.1fx%.1f (whitespace=%s, nodebreak=%s)\n",
+          printf("%s %.1fx%.1f (whitespace=%s)\n",
 	         hdTree::elements[t->element], t->width, t->height,
-		 t->whitespace ? "true" : "false", nodebreaks[t->nodebreak]);
+		 t->whitespace ? "true" : "false");
 	  break;
 
       default :
-          printf("%s (whitespace=%s, nodebreak=%s)\n",
+          printf("%s (whitespace=%s)\n",
 	         hdTree::elements[t->element],
-		 t->whitespace ? "true" : "false", nodebreaks[t->nodebreak]);
+		 t->whitespace ? "true" : "false");
 	  break;
     }
 
@@ -720,5 +703,5 @@ write_test(hdFile *fp)	// I - File to write to...
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.13.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.13.2.2 2004/03/23 03:31:28 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.11.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: style.cxx,v 1.11.2.2 2004/03/23 03:31:27 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -30,7 +30,8 @@
 //   hdStyle::~hdStyle()                 - Destroy a style record.
 //   hdStyle::get_border_style()         - Get a border style value.
 //   hdStyle::get_border_width()         - Get a border width value.
-//   hdStyle::get_color()                - Get a color value.
+//   hdStyle::get_color()                - Get a 24-bit color value.
+//   hdStyle::get_color()                - Get a floating point color value.
 //   hdStyle::get_length()               - Get a length/measurement value...
 //   hdStyle::get_list_style_type()      - Get a list style type value.
 //   hdStyle::get_page_break()           - Get a page break value.
@@ -282,21 +283,21 @@ hdStyle::get_border_width(const char   *value,	// I - String value
 
 
 //
-// 'hdStyle::get_color()' - Get a color value.
+// 'hdStyle::get_color()' - Get a 24-bit color value.
 //
 
 int					// O - 0 on success, -1 on error
-hdStyle::get_color(const char    *color,// I - Color string
-                   unsigned char *rgb)	// O - RGB color
+hdStyle::get_color(const char *color,	// I - Color string
+                   hdByte     *rgb)	// O - RGB color
 {
   int		i, j;			// Temp/looping vars
   char		tempcolor[8];		// Temporary hex color
   static struct
   {
-    const char		*name;		// Color name
-    unsigned char	red,		// Red value
-			green,		// Green value
-			blue;		// Blue value
+    const char	*name;			// Color name
+    hdByte	red,			// Red value
+		green,			// Green value
+		blue;			// Blue value
   }		colors[] =		// Color "database"
 		{
 		  { "aqua",	0,   255, 255 }, // AKA Cyan
@@ -400,6 +401,27 @@ hdStyle::get_color(const char    *color,// I - Color string
 
     return (-1);
   }
+}
+
+
+//
+// 'hdStyle::get_color()' - Get a floating point color value.
+//
+
+int					// O - 0 on success, -1 on error
+hdStyle::get_color(const char *color,	// I - Color string
+                   float      *rgb)	// O - RGB color
+{
+  hdByte	temp[3];		// 24-bit RGB color
+  int		status;			// Conversion status
+
+
+  status = get_color(color, temp);
+  rgb[0] = (float)temp[0] / 255.0f;
+  rgb[1] = (float)temp[1] / 255.0f;
+  rgb[2] = (float)temp[2] / 255.0f;
+
+  return (status);
 }
 
 
@@ -2889,5 +2911,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.11.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: style.cxx,v 1.11.2.2 2004/03/23 03:31:27 mike Exp $".
 //
