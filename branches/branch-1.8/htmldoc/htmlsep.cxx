@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.14 2004/06/16 16:15:01 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.15 2004/06/18 14:22:05 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -81,6 +81,7 @@ static int	write_doc(FILE **out, tree_t *t, int col, int *heading,
 			  uchar *docnumber);
 static int	write_node(FILE *out, tree_t *t, int col);
 static int	write_nodeclose(FILE *out, tree_t *t, int col);
+static int	write_toc(FILE *out, tree_t *t, int col);
 static uchar	*get_title(tree_t *doc);
 
 static void	add_heading(tree_t *t);
@@ -180,7 +181,7 @@ htmlsep_export(tree_t *document,	// I - Document to export
                  docnumber, -1);
 
   if (out != NULL)
-    write_all(out, toc, 0);
+    write_toc(out, toc, 0);
 
   write_footer(&out, -1);
 
@@ -839,6 +840,37 @@ write_nodeclose(FILE   *out,	/* I - Output file */
 
 
 /*
+ * 'write_toc()' - Write all markup text for the given table-of-contents.
+ */
+
+static int			/* O - Current column */
+write_toc(FILE   *out,		/* I - Output file */
+          tree_t *t,		/* I - Document tree */
+          int    col)		/* I - Current column */
+{
+  if (out == NULL)
+    return (0);
+
+  while (t != NULL)
+  {
+    if (htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
+    {
+      col = write_node(out, t, col);
+
+      if (t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
+	col = write_toc(out, t->child, col);
+
+      col = write_nodeclose(out, t, col);
+    }
+
+    t = t->next;
+  }
+
+  return (col);
+}
+
+
+/*
  * 'get_title()' - Get the title string for the given document...
  */
 
@@ -1126,5 +1158,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.14 2004/06/16 16:15:01 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.15 2004/06/18 14:22:05 mike Exp $".
 //
