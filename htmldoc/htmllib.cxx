@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.51 2002/04/09 15:58:08 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.52 2002/04/09 21:03:07 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1980,10 +1980,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
           for (ch = 0; ch < 256; ch ++)
 	    if (_htmlGlyphs[ch] && strcmp(_htmlGlyphs[ch], glyph) == 0)
-	      break;
-
-          if (ch < 256)
-	    _htmlWidths[i][j][ch] = width * 0.001f;
+	      _htmlWidths[i][j][ch] = width * 0.001f;
 	}
 	else
 	{
@@ -1994,12 +1991,16 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
           if (sscanf(line, "%*s%d%*s%*s%f", &ch, &width) != 2)
 	    continue;
 
-          if (ch < 256)
+          if (ch < 256 && ch >= 0)
 	    _htmlWidths[i][j][ch] = width * 0.001f;
 	}
       }
 
       fclose(fp);
+
+      // Make sure that non-breaking space has the same width as
+      // a breaking space...
+      _htmlWidths[i][j][160] = _htmlWidths[i][j][32];
     }
 }
 
@@ -2448,14 +2449,14 @@ compute_size(tree_t *t)		/* I - Tree entry */
       else if (*ptr == '\t')
         width = (float)(((int)width + 7) & ~7);
       else
-        width += _htmlWidths[t->typeface][t->style][*ptr];
+        width += _htmlWidths[t->typeface][t->style][(int)*ptr & 255];
 
    if (width < max_width)
      width = max_width;
   }
   else if (t->data)
     for (width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
-      width += _htmlWidths[t->typeface][t->style][*ptr];
+      width += _htmlWidths[t->typeface][t->style][(int)*ptr & 255];
   else
     width = 0.0f;
 
@@ -2663,5 +2664,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.51 2002/04/09 15:58:08 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.52 2002/04/09 21:03:07 mike Exp $".
  */

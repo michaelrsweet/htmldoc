@@ -32,6 +32,9 @@ CHANGES IN HTMLDOC v1.8.19
 	  to become too large.
 	- Remote URLs didn't always resolve properly (like the
 	  images from the Google web page...)
+	- The font width loading code didn't force the
+	  non-breaking space to have the same width as a regular
+	  space.
 
 
 CHANGES IN HTMLDOC v1.8.18
