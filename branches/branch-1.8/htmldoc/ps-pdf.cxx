@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.211 2002/10/31 16:07:03 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.212 2002/10/31 20:13:28 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -9239,14 +9239,30 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
   int		col;		/* Column */
   unsigned	b;
   uchar		c[5];
-  uchar		temp[4];
+  static uchar	leftdata[4];
+  static int	leftcount = 0;
 
 
-  col = 0;
+  col    = 0;
+  length += leftcount;
 
   while (length > 3)
   {
-    b = (((((data[0] << 8) | data[1]) << 8) | data[2]) << 8) | data[3];
+    switch (leftcount)
+    {
+      case 0 :
+          b = (((((data[0] << 8) | data[1]) << 8) | data[2]) << 8) | data[3];
+	  break;
+      case 1 :
+          b = (((((leftdata[0] << 8) | data[0]) << 8) | data[1]) << 8) | data[2];
+	  break;
+      case 2 :
+          b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | data[0]) << 8) | data[1];
+	  break;
+      case 3 :
+          b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) | data[0];
+	  break;
+    }
 
     if (b == 0)
     {
@@ -9281,34 +9297,41 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
       col += 5;
     }
 
-    data += 4;
-    length -= 4;
+    data      += 4 - leftcount;
+    length    -= 4 - leftcount;
+    leftcount = 0;
   }
 
   if (length > 0)
   {
-    if (col >= 75)
+    if (leftcount)
     {
-      col = 0;
-      putc('\n', out);
+      if (col >= 75)
+      {
+	col = 0;
+	putc('\n', out);
+      }
+
+      b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) | leftdata[3];
+
+      c[4] = (b % 85) + '!';
+      b /= 85;
+      c[3] = (b % 85) + '!';
+      b /= 85;
+      c[2] = (b % 85) + '!';
+      b /= 85;
+      c[1] = (b % 85) + '!';
+      b /= 85;
+      c[0] = b + '!';
+
+      fwrite(c, length + 1, 1, out);
     }
-
-    memcpy(temp, data, length);
-    memset(temp + length, 0, 4 - length);
-
-    b = (((((temp[0] << 8) | temp[1]) << 8) | temp[2]) << 8) | temp[3];
-
-    c[4] = (b % 85) + '!';
-    b /= 85;
-    c[3] = (b % 85) + '!';
-    b /= 85;
-    c[2] = (b % 85) + '!';
-    b /= 85;
-    c[1] = (b % 85) + '!';
-    b /= 85;
-    c[0] = b + '!';
-
-    fwrite(c, length + 1, 1, out);
+    else
+    {
+      memcpy(leftdata, data, length);
+      memset(leftdata + length, 0, 4 - length);
+      leftcount = length;
+    }
   }
 }
 
@@ -9463,7 +9486,11 @@ write_image(FILE     *out,	/* I - Output file */
   uchar		grays[256],	/* Grayscale usage */
 		cmap[256][3];	/* Colormap */
   image_t 	*img;		/* Image */
-  struct jpeg_compress_struct cinfo;	/* JPEG compressor */
+  struct jpeg_compress_struct cinfo;
+  				/* JPEG compressor */
+  uchar		*data,		/* PS Level 3 image data */
+		*dataptr,	/* Pointer into image data */
+		*maskptr;	/* Pointer into mask data */
 
 
  /*
@@ -9478,6 +9505,9 @@ write_image(FILE     *out,	/* I - Output file */
   if (!img->pixels && !img->obj)
     image_load(img->filename, !OutputColor, 1);
 
+//  if (PSLevel == 3 && img->mask && img->maskscale == 8)
+//    ncolors = 0;
+//  else
   if (PSLevel != 1 && PDFVersion >= 12 && img->obj == 0)
   {
     if (img->depth == 1)
@@ -9560,7 +9590,9 @@ write_image(FILE     *out,	/* I - Output file */
 
   if (ncolors > 0)
   {
-    if (ncolors <= 2)
+    if (PSLevel == 3 && img->mask)
+      indbits = 8;
+    else if (ncolors <= 2)
       indbits = 1;
     else if (ncolors <= 4)
       indbits = 2;
@@ -9819,14 +9851,23 @@ write_image(FILE     *out,	/* I - Output file */
 	  // We have a mask image, write it!
           pdf_start_object(out);
 	  fputs("/Type/XObject/Subtype/Image", out);
-	  fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
-	          img->width * img->maskscale, img->height * img->maskscale);
+          fputs("/ColorSpace/DeviceGray", out);
+	  if (img->maskscale == 8)
+	    fprintf(out, "/Width %d/Height %d/BitsPerComponent 8",
+	            img->width, img->height);
+          else
+	    fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
+	            img->width * img->maskscale, img->height * img->maskscale);
           if (Compression)
             fputs("/Filter/FlateDecode", out);
 
           pdf_start_stream(out);
           flate_open_stream(out);
-  	  flate_write(out, img->mask, img->maskwidth * img->height * img->maskscale);
+	  if (img->maskscale == 8)
+  	    flate_write(out, img->mask, img->width * img->height);
+	  else
+  	    flate_write(out, img->mask,
+	                img->maskwidth * img->height * img->maskscale);
 	  flate_close_stream(out);
 
           pdf_end_object(out);
@@ -9839,7 +9880,12 @@ write_image(FILE     *out,	/* I - Output file */
 
 	  fputs("/Type/XObject/Subtype/Image", out);
 	  if (img->mask && PDFVersion >= 13)
-	    fprintf(out, "/Mask %d 0 R", img->obj - 1);
+	  {
+	    if (img->maskscale == 8)
+	      fprintf(out, "/SMask %d 0 R", img->obj - 1);
+	    else
+	      fprintf(out, "/Mask %d 0 R", img->obj - 1);
+	  }
 
 	  if (ncolors > 0)
 	  {
@@ -9986,14 +10032,16 @@ write_image(FILE     *out,	/* I - Output file */
 	fputs("GR\n", out);
         break;
     case 3 : /* PostScript, Level 3 */
-        // Fallthrough to Level 2 output if compression is disabled...
-        if (Compression && (!OutputJPEG || ncolors > 0))
+        // Fallthrough to Level 2 output if compression is disabled and
+	// we aren't doing transparency...
+        if ((Compression && (!OutputJPEG || ncolors > 0)) ||
+	    (img->mask && img->maskscale == 8))
 	{
           fputs("GS", out);
 	  fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	          r->x, r->y);
 
-	  if (img->mask)
+	  if (img->mask && img->maskscale != 8)
 	    write_imagemask(out, r);
 
           if (ncolors > 0)
@@ -10011,6 +10059,22 @@ write_image(FILE     *out,	/* I - Output file */
             }
 	    fputs(">]setcolorspace\n", out);
 
+	    if (img->mask && img->maskscale == 8)
+	      fprintf(out, "<<"
+	                   "/ImageType 3"
+			   "/InterleaveType 1"
+			   "/MaskDict<<"
+	                   "/ImageType 1"
+	                   "/Width %d"
+	                   "/Height %d"
+	                   "/BitsPerComponent 8"
+	                   "/ImageMatrix[%d 0 0 %d 0 %d]"
+			   "/Decode[0 1]"
+	                   ">>\n"
+			   "/DataDict",
+	            img->width, img->height,
+        	    img->width, -img->height, img->height);
+
 	    fprintf(out, "<<"
 	                 "/ImageType 1"
 	                 "/Width %d"
@@ -10019,15 +10083,45 @@ write_image(FILE     *out,	/* I - Output file */
 	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
 	                 "/Decode[0 %d]"
 		         "/Interpolate true"
-	                 "/DataSource currentfile/ASCII85Decode filter"
-		         "/FlateDecode filter"
-	                 ">>image\n",
+	                 "/DataSource currentfile/ASCII85Decode filter",
 	            img->width, img->height, indbits,
         	    img->width, -img->height, img->height,
         	    (1 << indbits) - 1);
 
+            if (Compression)
+	      fputs("/FlateDecode filter", out);
+
+	    fputs(">>\n", out);
+
+	    if (img->mask && img->maskscale == 8)
+	      fputs(">>\n", out);
+
+	    fputs("image\n", out);
+
             flate_open_stream(out);
-	    flate_write(out, indices, indwidth * img->height);
+
+	    if (img->mask && img->maskscale == 8)
+	    {
+	      data = (uchar *)malloc(img->width * 2);
+
+	      for (i = 0, maskptr = img->mask, indptr = indices;
+	           i < img->height;
+		   i ++)
+	      {
+	        for (j = img->width, dataptr = data; j > 0; j --)
+		{
+		  *dataptr++ = *maskptr++;
+		  *dataptr++ = *indptr++;
+		}
+
+		flate_write(out, data, img->width * 2);
+	      }
+
+	      free(data);
+	    }
+	    else
+	      flate_write(out, indices, indwidth * img->height);
+
 	    flate_close_stream(out);
           }
           else
@@ -10037,6 +10131,22 @@ write_image(FILE     *out,	/* I - Output file */
 	    else
 	      fputs("/DeviceRGB setcolorspace", out);
 
+	    if (img->mask && img->maskscale == 8)
+	      fprintf(out, "<<"
+	                   "/ImageType 3"
+			   "/InterleaveType 1"
+			   "/MaskDict<<"
+	                   "/ImageType 1"
+	                   "/Width %d"
+	                   "/Height %d"
+	                   "/BitsPerComponent 8"
+	                   "/ImageMatrix[%d 0 0 %d 0 %d]"
+			   "/Decode[0 1]"
+	                   ">>\n"
+			   "/DataDict",
+	            img->width, img->height,
+        	    img->width, -img->height, img->height);
+
 	    fprintf(out, "<<"
 	                 "/ImageType 1"
 	                 "/Width %d"
@@ -10045,16 +10155,59 @@ write_image(FILE     *out,	/* I - Output file */
 	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
 	                 "/Decode[%s]"
 		         "/Interpolate true"
-	                 "/DataSource currentfile/ASCII85Decode filter"
-		         "/FlateDecode filter"
-	                 ">>image\n",
+	                 "/DataSource currentfile/ASCII85Decode filter",
 	            img->width, img->height,
         	    img->width, -img->height, img->height,
         	    img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
 
+            if (Compression)
+	      fputs("/FlateDecode filter", out);
+
+	    fputs(">>\n", out);
+
+	    if (img->mask && img->maskscale == 8)
+	      fputs(">>\n", out);
+
+	    fputs("image\n", out);
+
             flate_open_stream(out);
-	    flate_write(out, img->pixels,
-	                img->width * img->height * img->depth);
+
+	    if (img->mask && img->maskscale == 8)
+	    {
+	      data = (uchar *)malloc(img->width * (img->depth + 1));
+
+	      for (i = 0, maskptr = img->mask, pixel = img->pixels;
+	           i < img->height;
+		   i ++)
+	      {
+	        if (img->depth == 1)
+		{
+	          for (j = img->width, dataptr = data; j > 0; j --)
+		  {
+		    *dataptr++ = *maskptr++;
+		    *dataptr++ = *pixel++;
+		  }
+		}
+		else
+		{
+	          for (j = img->width, dataptr = data; j > 0; j --)
+		  {
+		    *dataptr++ = *maskptr++;
+		    *dataptr++ = *pixel++;
+		    *dataptr++ = *pixel++;
+		    *dataptr++ = *pixel++;
+		  }
+		}
+
+		flate_write(out, data, img->width * (img->depth + 1));
+	      }
+
+	      free(data);
+	    }
+	    else
+	      flate_write(out, img->pixels,
+	                  img->width * img->height * img->depth);
+
 	    flate_close_stream(out);
           }
 
@@ -10098,6 +10251,7 @@ write_image(FILE     *out,	/* I - Output file */
         	  (1 << indbits) - 1);
 
 	  ps_ascii85(out, indices, indwidth * img->height);
+          ps_ascii85(out, (uchar *)"", 0);
           fputs("~>\n", out);
         }
 	else if (OutputJPEG)
@@ -10131,6 +10285,7 @@ write_image(FILE     *out,	/* I - Output file */
 	  jpeg_finish_compress(&cinfo);
 	  jpeg_destroy_compress(&cinfo);
 
+          ps_ascii85(out, (uchar *)"", 0);
           fputs("~>\n", out);
         }
         else
@@ -10155,6 +10310,7 @@ write_image(FILE     *out,	/* I - Output file */
         	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
 
 	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth);
+          ps_ascii85(out, (uchar *)"", 0);
           fputs("~>\n", out);
         }
 
@@ -10198,12 +10354,8 @@ write_imagemask(FILE     *out,	/* I - Output file */
     case 0 : // PDF
         break;
 
-    case 1 : // PostScript Level 1
+    default : // PostScript
         fputs("\nnewpath\n", out);
-        break;
-
-    default : // PostScript Level 2/3
-        fputs("[\n", out);
         break;
   }
 
@@ -10233,16 +10385,8 @@ write_imagemask(FILE     *out,	/* I - Output file */
 			   1.0f * scaley);
               break;
 
-	  case 1 : // PostScript Level 1
+	  default : // PostScript
 	      fprintf(out, "%.6f %.6f %.6f %.6f re\n",
-		      (float)startx * scalex,
-		      (float)y * scaley,
-		      (float)count * scalex,
-		      1.0f * scaley);
-              break;
-
-	  default : // PostScript Level 2/3
-	      fprintf(out, "%.6f %.6f %.6f %.6f\n",
 		      (float)startx * scalex,
 		      (float)y * scaley,
 		      (float)count * scalex,
@@ -10274,16 +10418,8 @@ write_imagemask(FILE     *out,	/* I - Output file */
 			 1.0f * scaley);
             break;
 
-	case 1 : // PostScript Level 1
+	default : // PostScript
 	    fprintf(out, "%.6f %.6f %.6f %.6f re\n",
-		    (float)startx * scalex,
-		    (float)y * scaley,
-		    (float)count * scalex,
-		    1.0f * scaley);
-            break;
-
-	default : // PostScript Level 2/3
-	    fprintf(out, "%.6f %.6f %.6f %.6f\n",
 		    (float)startx * scalex,
 		    (float)y * scaley,
 		    (float)count * scalex,
@@ -10299,12 +10435,8 @@ write_imagemask(FILE     *out,	/* I - Output file */
         flate_puts("W n\n", out);
         break;
 
-    case 1 : // PostScript Level 1
+    default : // PostScript
         fputs("clip\n", out);
-        break;
-
-    default : // PostScript Level 2/3
-        fputs("]rectclip\n", out);
         break;
   }
 }
@@ -10614,8 +10746,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("/J{0 exch ashow}BD\n", out);
     fputs("/L{0 rlineto stroke}BD", out);
     fputs("/M{moveto}BD", out);
-    if (PSLevel == 1)
-      fputs("/re{4 2 roll moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath}BD\n", out);
+    fputs("/re{4 2 roll moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath}BD\n", out);
     fputs("/RO{rotate}BD", out);
     fputs("/S{show}BD", out);
     fputs("/SC{dup scale}BD\n", out);
@@ -11779,7 +11910,15 @@ static void
 flate_close_stream(FILE *out)	/* I - Output file */
 {
   if (!Compression)
+  {
+    if (PSLevel)
+    {
+      ps_ascii85(out, (uchar *)"", 0);
+      fputs("~>\n", out);
+    }
+
     return;
+  }
 
   while (deflate(&compressor, Z_FINISH) != Z_STREAM_END)
   {
@@ -11822,7 +11961,10 @@ flate_close_stream(FILE *out)	/* I - Output file */
   compressor_active = 0;
 
   if (PSLevel)
+  {
+    ps_ascii85(out, (uchar *)"", 0);
     fputs("~>\n", out);
+  }
 }
 
 
@@ -11916,11 +12058,13 @@ flate_write(FILE  *out,		/* I - Output file */
       fwrite(newbuf, bytes, 1, out);
     }
   }
+  else if (PSLevel)
+    ps_ascii85(out, buf, length);
   else
     fwrite(buf, length, 1, out);
 }
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.211 2002/10/31 16:07:03 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.212 2002/10/31 20:13:28 mike Exp $".
  */
