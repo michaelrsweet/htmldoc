@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.51 2001/05/18 15:41:32 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.52 2001/05/18 21:16:20 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3393,6 +3393,14 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     while (temp != end)
     {
+      if (temp->link != NULL && PSLevel == 0 && Links &&
+          temp->markup == MARKUP_NONE)
+      {
+	temp->red   = (int)(link_color[0] * 255.0);
+	temp->green = (int)(link_color[1] * 255.0);
+	temp->blue  = (int)(link_color[2] * 255.0);
+      }
+
      /*
       * See if we are doing a run of characters in a line and need to
       * output this run...
@@ -3485,7 +3493,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
             temp_width = temp->width + char_spacing * strlen((char *)lineptr);
 
-	    if (temp->underline && (!temp->link || !LinkStyle))
+	    if (temp->underline || (temp->link && LinkStyle && PSLevel == 0))
 	      new_render(*page, RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
 
 	    if (temp->strikethrough)
@@ -3539,18 +3547,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
 	new_render(*page, RENDER_LINK, linex, *y + offset, temp->width,
 	           temp->height, link);
-
-	if (PSLevel == 0 && Links && temp->markup == MARKUP_NONE)
-	{
-	  temp->red   = (int)(link_color[0] * 255.0);
-	  temp->green = (int)(link_color[1] * 255.0);
-	  temp->blue  = (int)(link_color[2] * 255.0);
-
-          if (LinkStyle)
-	    new_render(*page, RENDER_BOX, linex, *y - 1, 
-	               temp->width + char_spacing * strlen((char *)temp->data), 0,
-	               link_color);
-	}
       }
 
       linex += temp_width;
@@ -3806,11 +3802,11 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
-//#undef DEBUG_puts
-//#define DEBUG_puts(x) puts(x)
-//#define DEBUG
-//#undef DEBUG_printf
-//#define DEBUG_printf(x) printf x
+#undef DEBUG_puts
+#define DEBUG_puts(x) puts(x)
+#define DEBUG
+#undef DEBUG_printf
+#define DEBUG_printf(x) printf x
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
  */
@@ -4768,11 +4764,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     free(cells);
   }
 }
-//#undef DEBUG
-//#undef DEBUG_puts
-//#define DEBUG_puts(x)
-//#undef DEBUG_printf
-//#define DEBUG_printf(x)
+#undef DEBUG
+#undef DEBUG_puts
+#define DEBUG_puts(x)
+#undef DEBUG_printf
+#define DEBUG_printf(x)
 
 
 /*
@@ -8332,5 +8328,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.51 2001/05/18 15:41:32 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.52 2001/05/18 21:16:20 mike Exp $".
  */
