@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.13.2.9 2002/01/28 00:52:09 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.10 2002/07/08 17:11:10 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -42,7 +42,7 @@ OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o http.o \
 # Make everything...
 #
 
-all:	htmldoc
+all:	htmldoc$(EXEEXT)
 
 #
 # Install everything...
@@ -52,8 +52,8 @@ install:	all
 	if [ ! -d $(bindir) ]; then\
 		$(MKDIR) $(bindir);\
 	fi
-	cp htmldoc $(bindir)
-	chmod ugo+rx $(bindir)/htmldoc
+	cp htmldoc$(EXEEXT) $(bindir)
+	chmod ugo+rx $(bindir)/htmldoc$(EXEEXT)
 
 
 #
@@ -61,20 +61,20 @@ install:	all
 #
 
 clean:
-	rm -f $(OBJS) htmldoc
+	rm -f $(OBJS) htmldoc$(EXEEXT)
 
 #
 # htmldoc
 #
 
-htmldoc:	$(OBJS) ../Makedefs
+htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o htmldoc $(OBJS) $(LIBS)
-	$(POST) htmldoc
+	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
+	$(POST) htmldoc$(EXEEXT)
 
-htmldoc.purify:	$(OBJS) ../Makedefs
+htmldoc.purify$(EXEEXT):	$(OBJS) ../Makedefs
 	echo Linking $@...
-	purify $(CXX) $(LDFLAGS) -o htmldoc.purify $(OBJS) $(LIBS)
+	purify $(CXX) $(LDFLAGS) -o htmldoc.purify$(EXEEXT) $(OBJS) $(LIBS)
 
 file.o:		file.h http.h md5.h progress.h hdstring.h
 gui.o:		gui.h html.h htmldoc.h image.h iso8859.h progress.h \
@@ -97,10 +97,10 @@ util.o:		htmldoc.h types.h
 # testhtml
 #
 
-testhtml:	testhtml.o file.o gui.o htmllibd.o http.o image.o iso8859.o \
+testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o image.o iso8859.o \
 		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o testhtml testhtml.o file.o gui.o htmllibd.o \
+	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o gui.o htmllibd.o \
 		http.o image.o iso8859.o progress.o ps-pdf.o toc.o util.o \
 		md5.o rc4.o html.o $(LIBS)
 
@@ -114,5 +114,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.13.2.9 2002/01/28 00:52:09 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.10 2002/07/08 17:11:10 mike Exp $".
 #

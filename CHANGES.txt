@@ -1,4 +1,4 @@
-CHANGES.txt - 07/02/2002
+CHANGES.txt - 07/08/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -14,6 +14,8 @@ CHANGES IN HTMLDOC v1.8.21
 	- HTMLDOC now calculates the resolution of the body
 	  image using the printable width instead of the page
 	  width.
+	- HTMLDOC should now compile out-of-the-box using the
+	  Cygwin tools.
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.33 2002/07/01 12:00:56 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.34 2002/07/08 17:11:09 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -269,6 +269,9 @@ AC_SUBST(POST)
 
 LIBS="$NEWLIBS $LIBS"
 
+dnl See if we need a .exe extension on executables...
+AC_EXEEXT
+
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
     prefix=/usr
@@ -381,5 +384,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.33 2002/07/01 12:00:56 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.34 2002/07/08 17:11:09 mike Exp $".
 dnl
