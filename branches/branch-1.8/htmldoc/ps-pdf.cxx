@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.135 2001/11/29 14:01:18 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.136 2001/12/10 19:31:21 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6172,7 +6172,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       {
 	(*page) ++;
 
-	*y = *top;
         tof = 1;
       }
 
@@ -6182,8 +6181,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
 
-      *x = *left;
-
       check_pages(*page);
 
       *right = PagePrintWidth - *right;
@@ -6191,8 +6188,22 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       set_page_size(comment);
 
+      if (Landscape)
+      {
+	PagePrintWidth  = PageLength - PageLeft - PageRight;
+	PagePrintLength = PageWidth - PageTop - PageBottom;
+      }
+      else
+      {
+	PagePrintWidth  = PageWidth - PageLeft - PageRight;
+	PagePrintLength = PageLength - PageTop - PageBottom;
+      }
+
       *right = PagePrintWidth - *right;
       *top   = PagePrintLength - *top;
+
+      *x = *left;
+      *y = *top;
 
       pages[*page].width  = PageWidth;
       pages[*page].length = PageLength;
@@ -10587,5 +10598,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.135 2001/11/29 14:01:18 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.136 2001/12/10 19:31:21 mike Exp $".
  */
