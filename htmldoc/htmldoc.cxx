@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.15 2001/05/20 13:05:16 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.16 2001/05/24 17:24:47 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -120,6 +120,8 @@ main(int  argc,		/* I - Number of command-line arguments */
   */
 
   prefs_load();
+
+  Errors = 0;
 
  /*
   * Default to producing HTML files.
@@ -944,8 +946,6 @@ main(int  argc,		/* I - Number of command-line arguments */
  /*
   * Generate the output file(s).
   */
-
-  Errors = 0;
 
   (*exportfunc)(document, toc);
 
@@ -2082,5 +2082,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.15 2001/05/20 13:05:16 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.16 2001/05/24 17:24:47 mike Exp $".
  */

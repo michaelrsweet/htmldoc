@@ -1,4 +1,4 @@
-CHANGES.txt - 05/23/2001
+CHANGES.txt - 05/24/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.13
@@ -63,6 +63,11 @@ CHANGES IN HTMLDOC v1.8.13
 	  used.
 	- Paragraphs could end up with one extra text fragment,
 	  causing the line to be too long.
+	- The command-line program would clear the error count
+	  after reading all the files/URLs on the command-line,
+	  but before generating the document. If there were
+	  problems reading the files/URLs, HTMLDOC would return
+	  a 0 exit status instead of 1.
 
 
 CHANGES IN HTMLDOC v1.8.12

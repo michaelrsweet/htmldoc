@@ -69,6 +69,11 @@
 	used.
 	<LI>Paragraphs could end up with one extra text fragment,
 	causing the line to be too long.
+	<LI>The command-line program would clear the error count
+	after reading all the files/URLs on the command-line,
+	but before generating the document. If there were
+	problems reading the files/URLs, HTMLDOC would return a
+	0 exit status instead of 1.
 
 </UL>
 
