@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.65 2004/05/08 01:58:51 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.66 2004/05/08 15:29:42 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -143,6 +143,14 @@ main(int  argc,				/* I - Number of command-line arguments */
   exportfunc = (exportfunc_t)html_export;
 
  /*
+  * Load preferences...
+  */
+
+  prefs_load();
+
+  Errors = 0;
+
+ /*
   * Check if we are being executed as a CGI program...
   */
 
@@ -171,15 +179,10 @@ main(int  argc,				/* I - Number of command-line arguments */
     PDFFirstPage  = PDF_PAGE_1;
 
     file_nolocal();
+
+    progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
+    progress_error(HD_ERROR_NONE, "INFO: TMPDIR is \"%s\"\n", getenv("TMPDIR"));
   }
-
- /*
-  * Load preferences...
-  */
-
-  prefs_load();
-
-  Errors = 0;
 
  /*
   * Parse command-line options...
@@ -1042,6 +1045,10 @@ main(int  argc,				/* I - Number of command-line arguments */
       snprintf(url, sizeof(url), "http://%s:%s%s", getenv("SERVER_NAME"),
                getenv("SERVER_PORT"), getenv("PATH_INFO"));
 
+    progress_error(HD_ERROR_NONE, "INFO: HTMLDOC converting \"%s\".", url);
+
+    num_files ++;
+
     read_file(url, &document, Path);
   }
 
@@ -1541,8 +1548,8 @@ load_book(const char   *filename,	// I  - Book file
 
   if ((fp = fopen(local, "rb")) == NULL)
   {
-    fprintf(stderr, "htmldoc: Unable to open \"%s\": %s\n", local,
-            strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR, "Unable to open book file \"%s\": %s",
+                   local, strerror(errno));
     return (0);
   }
 
@@ -1552,7 +1559,7 @@ load_book(const char   *filename,	// I  - Book file
   {
     fclose(fp);
     progress_error(HD_ERROR_BAD_FORMAT,
-                   "htmldoc: Bad or missing #HTMLDOC header in %s.", filename);
+                   "Bad or missing #HTMLDOC header in \"%s\".", filename);
     return (0);
   }
 
@@ -2141,7 +2148,7 @@ read_file(const char *filename,		// I  - File/URL to read
       */
 
       if (Verbosity > 0)
-        fprintf(stderr, "htmldoc: Reading %s...\n", filename);
+        progress_error(HD_ERROR_NONE, "INFO: Reading %s...", filename);
 
       _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
@@ -2399,5 +2406,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.65 2004/05/08 01:58:51 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.66 2004/05/08 15:29:42 mike Exp $".
  */

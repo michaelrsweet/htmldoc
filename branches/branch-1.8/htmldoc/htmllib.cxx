@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.75 2004/05/08 01:27:32 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.76 2004/05/08 15:29:42 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -3240,6 +3240,12 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
 	  strlcat(full_href, (char *)href, sizeof(full_href));
 	}
+	else if (!strncmp((char *)href, "./", 2))
+	{
+	  // Relative URL of the form "./foo/bar", append href sans
+	  // "./" to base to form full href...
+	  snprintf(full_href, sizeof(full_href), "%s/%s", base, href + 2);
+	}
 	else
 	{
 	  // Relative URL, append href to base to form full href...
@@ -3270,5 +3276,5 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.75 2004/05/08 01:27:32 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.76 2004/05/08 15:29:42 mike Exp $".
  */

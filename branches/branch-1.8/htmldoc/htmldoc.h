@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.23 2004/05/08 01:27:32 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.24 2004/05/08 15:29:42 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -149,7 +149,7 @@ VAR int		TitlePage	VALUE(1),	/* Need a title page */
 		TocDocCount	VALUE(0);	/* Number of chapters */
 VAR int		OutputType	VALUE(OUTPUT_BOOK);
 						/* Output a "book", etc. */
-VAR char	OutputPath[255]	VALUE("");	/* Output directory/name */
+VAR char	OutputPath[1024] VALUE("");	/* Output directory/name */
 VAR int		OutputFiles	VALUE(0),	/* Generate multiple files? */
 		OutputColor	VALUE(1);	/* Output color images */
 VAR int		OutputJPEG	VALUE(0);	/* JPEG compress images? */
@@ -275,5 +275,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.23 2004/05/08 01:27:32 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.24 2004/05/08 15:29:42 mike Exp $".
  */

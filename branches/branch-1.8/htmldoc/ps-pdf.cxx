@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.250 2004/05/08 01:54:18 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.251 2004/05/08 15:29:42 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2329,7 +2329,6 @@ pdf_write_document(uchar  *author,	// I - Author of document
     printf("Content-Type: application/pdf\r\n"
 	   "Content-Length: %ld\r\n"
 	   "Content-Disposition: inline; filename=\"htmldoc.pdf\"\r\n"
-	   "Cache-Control: no-cache\r\n"
 	   "Accept-Ranges: none\r\n"
 	   "X-Creator: HTMLDOC " SVERSION "\r\n"
 	   "\r\n", ftell(out));
@@ -12361,5 +12360,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.250 2004/05/08 01:54:18 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.251 2004/05/08 15:29:42 mike Exp $".
  */

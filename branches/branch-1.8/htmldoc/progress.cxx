@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.cxx,v 1.6.2.15 2004/05/05 18:58:40 mike Exp $"
+ * "$Id: progress.cxx,v 1.6.2.16 2004/05/08 15:29:42 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
@@ -39,6 +39,12 @@
 #ifdef HAVE_LIBFLTK
 #  include <FL/fl_ask.H>
 #endif // HAVE_LIBFLTK
+
+#ifdef WIN32
+#  define getpid	GetCurrentProcessId
+#else
+#  include <unistd.h>
+#endif // WIN32
 
 
 /*
@@ -86,10 +92,15 @@ progress_error(HDerror    error,	/* I - Error number */
     if (progress_visible)
       fprintf(stderr, "\r%-79.79s\r", "");
 
+    if (CGIMode)
+      fprintf(stderr, "HTMLDOC(%d) ", getpid());
+
     if (error)
       fprintf(stderr, "ERR%03d: %s\n", error, text);
     else
       fprintf(stderr, "%s\n", text);
+
+    fflush(stderr);
   }
 }
 
@@ -108,6 +119,9 @@ progress_hide(void)
     return;
   }
 #endif /* HAVE_LIBFLTK */
+
+  if (CGIMode)
+    return;
 
   if (Verbosity > 0)
   {
@@ -143,6 +157,17 @@ progress_show(const char *format,	/* I - Printf-style format string */
   }
 #endif /* HAVE_LIBFLTK */
 
+  if (CGIMode)
+  {
+    if (Verbosity > 0)
+    {
+      fprintf(stderr, "HTMLDOC(%d) INFO: %s\n", getpid(), text);
+      fflush(stderr);
+    }
+
+    return;
+  }
+
   if (Verbosity > 0)
   {
     fprintf(stderr, "\r%-79.79s", text);
@@ -171,5 +196,5 @@ progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.6.2.15 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.6.2.16 2004/05/08 15:29:42 mike Exp $".
  */
