@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.14 1999/11/13 14:24:06 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.15 1999/11/13 14:34:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2178,6 +2178,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 		*temp;		/* Paragraph entry */
   var_t		*var;		/* Variable entry */
   uchar		*name;		/* ID name */
+  char		*comment;	/* Comment text */
   float		width,		/* Width of horizontal rule */
 		height,		/* Height of rule */
 		rgb[3];		/* RGB color of rule */
@@ -2523,6 +2524,49 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	  }
 
           *x = (float)left;
+          break;
+
+      case MARKUP_COMMENT :
+          // Check comments for commands...
+          for (comment = (char *)t->data;
+	       *comment && isspace(*comment);
+	       comment ++); // Skip leading whitespace...
+
+          if (strncasecmp(comment, "PAGE BREAK", 10) == 0 ||
+	      strncasecmp(comment, "NEW PAGE", 8) == 0)
+	  {
+	   /*
+	    * <!-- PAGE BREAK --> and <!-- NEW PAGE --> generate a page
+	    * break...
+	    */
+
+            (*page) ++;
+	    if (Verbosity)
+	      progress_show("Formatting page %d", *page);
+            *x = (float)left;
+            *y = (float)top;
+
+            if (page_headings[*page] == NULL)
+              page_headings[*page] = htmlGetText(current_heading);
+	  }
+	  else if (strncasecmp(comment, "NEW SHEET", 9) == 0)
+	  {
+	   /*
+	    * <!-- NEW SHEET --> generate a page break to a new sheet...
+	    */
+
+            (*page) ++;
+	    if (PageDuplex && ((*page) & 1))
+	      (*page) ++;
+
+	    if (Verbosity)
+	      progress_show("Formatting page %d", *page);
+            *x = (float)left;
+            *y = (float)top;
+
+            if (page_headings[*page] == NULL)
+              page_headings[*page] = htmlGetText(current_heading);
+	  }
           break;
 
       case MARKUP_TITLE :
@@ -6038,5 +6082,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.14 1999/11/13 14:24:06 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.15 1999/11/13 14:34:29 mike Exp $".
  */
