@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.29 2001/10/27 16:58:09 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.30 2001/10/29 16:15:02 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -109,25 +109,6 @@ const char	*GUI::help_dir = DOCUMENTATION;
 
 extern uchar *fl_gray_ramp();
 
-void shade_frame(int x, int y, int w, int h, const char *c)
-{
-  uchar *g = fl_gray_ramp();
-  int b = strlen(c) / 4 + 1;
-
-  for (x += b, y += b, w -= 2 * b, h -= 2 * b; b > 1; b --)
-  {
-    fl_color(g[*c++]);
-    fl_line(x, y + h + b, x + w - 1, y + h + b, x + w + b - 1, y + h);
-    fl_color(g[*c++]);
-    fl_line(x + w + b - 1, y + h, x + w + b - 1, y, x + w - 1, y - b);
-    fl_color(g[*c++]);
-    fl_line(x + w - 1, y - b, x, y - b, x - b, y);
-    fl_color(g[*c++]);
-    fl_line(x - b, y, x - b, y + h, x, y + h + b);
-  }
-}
-
-
 /*
 **** JUST DOCS FOR MY REFERENCE, IN CASE I WANT TO MAKE THE ENDS OF THE
      BUTTONS ROUND... ****
@@ -158,6 +139,29 @@ midpoint_circle ( int radius, colour )
 }
 */
 
+inline Fl_Color shade_color(uchar gc, Fl_Color bc) {
+  return fl_color_average((Fl_Color)gc, bc, 0.67f);
+}
+
+void shade_frame(int x, int y, int w, int h, const char *c, Fl_Color bc)
+{
+  uchar *g = fl_gray_ramp();
+  int b = strlen(c) / 4 + 1;
+
+  for (x += b, y += b, w -= 2 * b, h -= 2 * b; b > 1; b --)
+  {
+    fl_color(shade_color(g[*c++], bc));
+    fl_line(x, y + h + b, x + w - 1, y + h + b, x + w + b - 1, y + h);
+    fl_color(shade_color(g[*c++], bc));
+    fl_line(x + w + b - 1, y + h, x + w + b - 1, y, x + w - 1, y - b);
+    fl_color(shade_color(g[*c++], bc));
+    fl_line(x + w - 1, y - b, x, y - b, x - b, y);
+    fl_color(shade_color(g[*c++], bc));
+    fl_line(x - b, y, x - b, y + h, x, y + h + b);
+  }
+}
+
+
 void shade_rect(int x, int y, int w, int h, const char *c, Fl_Color bc)
 {
   uchar		*g = fl_gray_ramp();
@@ -168,10 +172,11 @@ void shade_rect(int x, int y, int w, int h, const char *c, Fl_Color bc)
 
   if (w >= h)
   {
+    h ++;
     cmod = clen % h;
     cerr = 0;
 
-    fl_color(fl_color_average((Fl_Color)g[*c], bc, 0.67f));
+    fl_color(shade_color(g[*c], bc));
 
     for (yoff = 0; yoff < h; yoff ++)
     {
@@ -183,16 +188,17 @@ void shade_rect(int x, int y, int w, int h, const char *c, Fl_Color bc)
         cerr -= h;
 	c ++;
 
-        fl_color(fl_color_average((Fl_Color)g[*c], bc, 0.67f));
+        fl_color(shade_color(g[*c], bc));
       }
     }
   }
   else
   {
+    w ++;
     cmod = clen % w;
     cerr = 0;
 
-    fl_color(fl_color_average((Fl_Color)g[*c], bc, 0.67f));
+    fl_color(shade_color(g[*c], bc));
 
     for (xoff = 0; xoff < w; xoff ++)
     {
@@ -204,7 +210,7 @@ void shade_rect(int x, int y, int w, int h, const char *c, Fl_Color bc)
         cerr -= w;
 	c ++;
 
-        fl_color(fl_color_average((Fl_Color)g[*c], bc, 0.67f));
+        fl_color(shade_color(g[*c], bc));
       }
     }
   }
@@ -219,7 +225,7 @@ void up_box(int x, int y, int w, int h, Fl_Color c) {
   else
     shade_rect(x + 2, y + 2, w - 4, h - 4, "VUTSSTUVWW", c);
 
-  shade_frame(x, y, w, h, "PPRRCLMM");
+  shade_frame(x, y, w, h, "RRSSDLNN", c);
 }
 
 void down_box(int x, int y, int w, int h, Fl_Color c) {
@@ -231,7 +237,9 @@ void down_box(int x, int y, int w, int h, Fl_Color c) {
   else
     shade_rect(x + 2, y + 2, w - 4, h - 4, "STUVWWWWVT", c);
 
-  shade_frame(x, y, w, h, "RRPPMMLC");
+  shade_frame(x, y, w, h, "LLRRTTLL", c);
+//  shade_frame(x, y, w, h, "PPRRCLMM", c);
+//  shade_frame(x, y, w, h, "RRPPMMLC");
 }
 
 
@@ -1106,7 +1114,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   bookClose = new Fl_Button(435, 355, 60, 25, "Close");
   bookClose->shortcut(FL_CTRL | 'q');
   bookClose->callback((Fl_Callback *)closeBookCB, this);
-//  bookClose->color(FL_WHITE, FL_RED);
+  bookClose->color(FL_RED, FL_RED);
 
   controls->end();
 
@@ -4120,5 +4128,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.29 2001/10/27 16:58:09 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.30 2001/10/29 16:15:02 mike Exp $".
 //
