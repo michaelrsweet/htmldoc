@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.37 2001/10/01 20:57:05 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.38 2001/10/15 15:30:22 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -57,7 +57,6 @@
  */
 
 #include "htmldoc.h"
-#include "string.h"
 #include <ctype.h>
 
 
@@ -2635,5 +2634,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.37 2001/10/01 20:57:05 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.38 2001/10/15 15:30:22 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: string.c,v 1.4.2.1 2001/02/02 15:11:03 mike Exp $"
+ * "$Id: string.c,v 1.4.2.2 2001/10/15 15:30:32 mike Exp $"
  *
  *   String functions for HTMLDOC, a HTML document processing program.
  *
@@ -32,7 +32,7 @@
  * Include necessary headers.
  */
 
-#include "string.h"
+#include "hdstring.h"
 #include <ctype.h>
 
 
@@ -120,5 +120,5 @@ strncasecmp(const char *s,	/* I - First string */
 
 
 /*
- * End of "$Id: string.c,v 1.4.2.1 2001/02/02 15:11:03 mike Exp $".
+ * End of "$Id: string.c,v 1.4.2.2 2001/10/15 15:30:32 mike Exp $".
  */

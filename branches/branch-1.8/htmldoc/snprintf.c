@@ -1,5 +1,5 @@
 /*
- * "$Id: snprintf.c,v 1.1.2.2 2001/02/02 15:11:03 mike Exp $"
+ * "$Id: snprintf.c,v 1.1.2.3 2001/10/15 15:30:32 mike Exp $"
  *
  *   snprintf functions for HTMLDOC.
  *
@@ -33,7 +33,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
-#include "string.h"
+#include "hdstring.h"
 
 
 #ifndef HAVE_VSNPRINTF
@@ -282,6 +282,6 @@ snprintf(char       *buffer,	/* O - Output buffer */
 
 
 /*
- * End of "$Id: snprintf.c,v 1.1.2.2 2001/02/02 15:11:03 mike Exp $".
+ * End of "$Id: snprintf.c,v 1.1.2.3 2001/10/15 15:30:32 mike Exp $".
  */
 
