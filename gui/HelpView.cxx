@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.25 2000/05/16 02:41:29 mike Exp $"
+// "$Id: HelpView.cxx,v 1.26 2000/05/16 18:56:05 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -205,8 +205,6 @@ HelpView::add_image(const char *name)	// I - Path of image
   char		temp[1024];		// Temporary filename
 
 
-  printf("add_image(\"%s\")\n", name);
-
   // See if the image has already been loaded...
   if ((img = find_image(name)) != (HelpImage *)0)
     return (img);
@@ -243,25 +241,17 @@ HelpView::add_image(const char *name)	// I - Path of image
     localname = name;
 
   if (!localname)
-  {
-    printf("\"%s\" could not be found...\n", name);
     return ((HelpImage *)0);
-  }
 
-  puts(localname);
+  if (strncmp(localname, "file:", 5) == 0)
+    localname += 5;
 
   // Figure out the file type...
   if ((fp = fopen(localname, "rb")) == NULL)
-  {
-    perror("fopen");
     return ((HelpImage *)0);
-  }
 
   if (fread(header, 1, sizeof(header), fp) == 0)
-  {
-    perror("fread");
     return ((HelpImage *)0);
-  }
 
   rewind(fp);
 
@@ -894,8 +884,6 @@ HelpView::find_image(const char *name)	// I - Path and name of image
   int		i;			// Looping var
   HelpImage	*img;			// Current image
 
-
-  printf("find_image(\"%s\")\n", name);
 
   for (i = nimage_, img = image_; i > 0; i --, img ++) 
     if (strcmp(img->name, name) == 0)
@@ -1988,8 +1976,6 @@ HelpView::load_gif(HelpImage *img,	// I - Image pointer
 		transparent;		// Transparent color index
 
 
-  printf("::load_gif(%p, %p)\n", img, fp);
-
   // Read the header; we already know it is a GIF file...
   fread(buf, 13, 1, fp);
 
@@ -2067,8 +2053,6 @@ HelpView::load_jpeg(HelpImage *img,	// I - Image pointer
   JSAMPROW			row;	// Sample row pointer
 
 
-  printf("::load_jpeg(%p, %p)\n", img, fp);
-
   cinfo.err = jpeg_std_error(&jerr);
   jpeg_create_decompress(&cinfo);
   jpeg_stdio_src(&cinfo, fp);
@@ -2123,8 +2107,6 @@ HelpView::load_png(HelpImage *img,	// I - Image pointer
   png_bytep	*rows;			// PNG row pointers
   png_color_16	bg;			// Background color
 
-
-  printf("::load_png(%p, %p)\n", img, fp);
 
   // Setup the PNG data structures...
   pp   = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -2640,5 +2622,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.25 2000/05/16 02:41:29 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.26 2000/05/16 18:56:05 mike Exp $".
 //
