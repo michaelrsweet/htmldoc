@@ -1,10 +1,10 @@
 /*
- * "$Id: iso8859.cxx,v 1.3.2.4 2001/10/15 15:30:24 mike Exp $"
+ * "$Id: iso8859.cxx,v 1.3.2.5 2002/01/28 00:52:26 mike Exp $"
  *
  *   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  *   processing program.
  *
- *   Copyright 1997-2001 by Easy Software Products.
+ *   Copyright 1997-2002 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -241,5 +241,5 @@ compare_lut(lut_t *a,	/* I - First glyph */
 
 
 /*
- * End of "$Id: iso8859.cxx,v 1.3.2.4 2001/10/15 15:30:24 mike Exp $".
+ * End of "$Id: iso8859.cxx,v 1.3.2.5 2002/01/28 00:52:26 mike Exp $".
  */

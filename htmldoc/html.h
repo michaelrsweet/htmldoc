@@ -1,9 +1,9 @@
 /*
- * "$Id: html.h,v 1.9.2.6 2001/10/31 17:15:54 mike Exp $"
+ * "$Id: html.h,v 1.9.2.7 2002/01/28 00:52:13 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2001 by Easy Software Products.
+ *   Copyright 1997-2002 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -308,5 +308,5 @@ extern void	htmlSetTextColor(uchar *color);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.6 2001/10/31 17:15:54 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.7 2002/01/28 00:52:13 mike Exp $".
  */

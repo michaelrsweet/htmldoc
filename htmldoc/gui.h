@@ -1,9 +1,9 @@
 /*
- * "$Id: gui.h,v 1.14.2.17 2001/12/20 15:55:22 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.18 2002/01/28 00:52:12 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2001 by Easy Software Products.
+ *   Copyright 1997-2002 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -297,5 +297,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.17 2001/12/20 15:55:22 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.18 2002/01/28 00:52:12 mike Exp $".
  */
