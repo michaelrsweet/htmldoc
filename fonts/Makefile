@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.1.2.1 2002/06/05 03:59:28 mike Exp $"
+# "$Id: Makefile,v 1.1.2.2 2002/06/06 12:10:24 mike Exp $"
 #
 #   Makefile for HTMLDOC font files.
 #
@@ -64,11 +64,14 @@ all:
 
 install:
 	echo "Installing font files in $(datadir)/htmldoc/fonts..."
-	$(INSTALL_DIR) $(datadir)/htmldoc/fonts;
+	if [ ! -d $(datadir)/htmldoc/fonts ]; then\
+		$(MKDIR) $(datadir)/htmldoc/fonts;\
+	fi
 	for font in $(FONTS); do \
-		$(INSTALL_DATA) $$font.afm $(datadir)/htmldoc/fonts; \
-		$(INSTALL_DATA) $$font.pfa $(datadir)/htmldoc/fonts; \
+		$(CP) $$font.afm $(datadir)/htmldoc/fonts; \
+		$(CP) $$font.pfa $(datadir)/htmldoc/fonts; \
 	done
+	$(CHMOD) ugo+r $(datadir)/htmldoc/fonts/*
 
 
 #
@@ -92,5 +95,5 @@ clean:
 
 
 #
-# End of "$Id: Makefile,v 1.1.2.1 2002/06/05 03:59:28 mike Exp $".
+# End of "$Id: Makefile,v 1.1.2.2 2002/06/06 12:10:24 mike Exp $".
 #
