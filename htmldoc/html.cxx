@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.29 2003/01/06 22:09:26 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.30 2003/01/08 20:16:55 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -289,6 +289,27 @@ write_header(FILE   **out,	/* IO - Output file */
       fprintf(*out, "<META NAME=\"docnumber\" CONTENT=\"%s\">\n", docnumber);
     fprintf(*out, "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; CHARSET=iso-%s\">\n",
             _htmlCharSet);
+
+    if (OutputFiles)
+    {
+      fputs("<LINK REL=\"Start\" HREF=\"index.html\">\n", *out);
+
+      if (TitlePage)
+	fputs("<LINK REL=\"Contents\" HREF=\"toc.html\">\n", *out);
+      else
+	fputs("<LINK REL=\"Contents\" HREF=\"index.html\">\n", *out);
+
+      if (t)
+      {
+	if (t->prev != NULL)
+	  fprintf(*out, "<LINK REL=\"Prev\" HREF=\"%s\">\n",
+        	  file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
+
+	if (t->next != NULL)
+	  fprintf(*out, "<LINK REL=\"Next\" HREF=\"%s\">\n",
+        	  file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
+      }
+    }
 
     fputs("<STYLE TYPE=\"text/css\"><!--\n", *out);
     fprintf(*out, "BODY { font-family: %s }\n", families[_htmlBodyFont]);
@@ -984,5 +1005,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.29 2003/01/06 22:09:26 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.30 2003/01/08 20:16:55 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.1 2003/01/06 22:09:32 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.2 2003/01/08 20:16:56 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -263,6 +263,22 @@ write_header(FILE   **out,	/* IO - Output file */
     fprintf(*out, "<META NAME=\"docnumber\" CONTENT=\"%s\">\n", docnumber);
   fprintf(*out, "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; CHARSET=iso-%s\">\n",
           _htmlCharSet);
+
+  fputs("<LINK REL=\"Start\" HREF=\"index.html\">\n", *out);
+
+  if (TitlePage)
+    fputs("<LINK REL=\"Contents\" HREF=\"toc.html\">\n", *out);
+  else
+    fputs("<LINK REL=\"Contents\" HREF=\"index.html\">\n", *out);
+
+  if (heading >= 0)
+  {
+    if (heading > 0)
+      fprintf(*out, "<LINK REL=\"Prev\" HREF=\"%s.html\">\n", headings[heading - 1]);
+
+    if (heading < (num_headings - 1))
+      fprintf(*out, "<LINK REL=\"Next\" HREF=\"%s.html\">\n", headings[heading + 1]);
+  }
 
   fputs("<STYLE TYPE=\"text/css\"><!--\n", *out);
   fprintf(*out, "BODY { font-family: %s }\n", families[_htmlBodyFont]);
@@ -1075,5 +1091,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.1 2003/01/06 22:09:32 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.2 2003/01/08 20:16:56 mike Exp $".
 //
