@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.20 2001/06/21 17:10:57 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.21 2001/06/26 23:04:22 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -115,7 +115,7 @@ main(int  argc,		/* I - Number of command-line arguments */
   */
 
 #ifdef HAVE_LOCALE_H
-  setlocale(LC_ALL, "");
+  setlocale(LC_TIME, "");
 #endif // HAVE_LOCALE_H
 
  /*
@@ -939,7 +939,10 @@ main(int  argc,		/* I - Number of command-line arguments */
   */
 
   if (document == NULL)
+  {
+    puts("ERROR: No HTML files!");
     usage();
+  }
 
  /*
   * Find the first one in the list...
@@ -2103,5 +2106,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.20 2001/06/21 17:10:57 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.21 2001/06/26 23:04:22 mike Exp $".
  */
