@@ -1,12 +1,25 @@
 //
-// "$Id: FileBrowser.h,v 1.4 1999/04/21 01:22:21 mike Exp $"
+// "$Id: FileBrowser.h,v 1.5 1999/04/27 12:43:35 mike Exp $"
 //
-//   FileBrowser definitions for HTMLDOC, an HTML document processing program.
+//   FileBrowser definitions for the Common UNIX Printing System (CUPS).
 //
-//   Copyright 1997-1999 by Michael Sweet.
+//   Copyright 1997-1999 by Easy Software Products.
 //
-//   HTMLDOC is distributed under the terms of the Aladdin Free Public License
-//   which is described in the file "LICENSE.txt".
+//   These coded instructions, statements, and computer programs are the
+//   property of Easy Software Products and are protected by Federal
+//   copyright law.  Distribution and use rights are outlined in the file
+//   "LICENSE.txt" which should have been included with this file.  If this
+//   file is missing or damaged please contact Easy Software Products
+//   at:
+//
+//       Attn: CUPS Licensing Information
+//       Easy Software Products
+//       44141 Airport View Drive, Suite 204
+//       Hollywood, Maryland 20636-3111 USA
+//
+//       Voice: (301) 373-9603
+//       EMail: cups-info@cups.org
+//         WWW: http://www.cups.org
 //
 
 //
@@ -45,5 +58,5 @@ public:
 #endif // !_GUI_FILEBROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.4 1999/04/21 01:22:21 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.5 1999/04/27 12:43:35 mike Exp $".
 //

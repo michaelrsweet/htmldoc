@@ -24,26 +24,21 @@ void FileChooser::cb_OK(Fl_Return_Button* o, void* v) {
   ((FileChooser*)(o->parent()->user_data()))->cb_OK_i(o,v);
 }
 
-inline void FileChooser::cb_roller_i(Fl_Roller* o, void*) {
+inline void FileChooser::cb_roller_i(Fl_Button*, void*) {
+  fileList->filter("*");;
+rescan();
+}
+void FileChooser::cb_roller(Fl_Button* o, void* v) {
+  ((FileChooser*)(o->parent()->parent()->user_data()))->cb_roller_i(o,v);
+}
+
+inline void FileChooser::cb_roller1_i(Fl_Roller* o, void*) {
   fileList->textsize(o->value() * 0.1);
 fileList->redraw();
 }
-void FileChooser::cb_roller(Fl_Roller* o, void* v) {
-  ((FileChooser*)(o->parent()->user_data()))->cb_roller_i(o,v);
+void FileChooser::cb_roller1(Fl_Roller* o, void* v) {
+  ((FileChooser*)(o->parent()->parent()->user_data()))->cb_roller1_i(o,v);
 }
-
-inline void FileChooser::cb_upButton_i(Fl_Button*, void*) {
-  up();
-}
-void FileChooser::cb_upButton(Fl_Button* o, void* v) {
-  ((FileChooser*)(o->parent()->user_data()))->cb_upButton_i(o,v);
-}
-
-#include <FL/Fl_Bitmap.H>
-static unsigned char bits_up[] = {  
-4, 14, 31, 4, 4, 4, 4, 252
-};
-static Fl_Bitmap bitmap_up(bits_up, 8, 8);
 
 inline void FileChooser::cb_reset_i(Fl_Button*, void*) {
   roller->value(140.0);
@@ -51,9 +46,10 @@ fileList->textsize(14.0);
 fileList->redraw();
 }
 void FileChooser::cb_reset(Fl_Button* o, void* v) {
-  ((FileChooser*)(o->parent()->user_data()))->cb_reset_i(o,v);
+  ((FileChooser*)(o->parent()->parent()->user_data()))->cb_reset_i(o,v);
 }
 
+#include <FL/Fl_Bitmap.H>
 static unsigned char bits_reset[] = {  
 255, 129, 189, 189, 189, 189, 129, 255
 };
@@ -66,90 +62,118 @@ void FileChooser::cb_fileName(Fl_Input* o, void* v) {
   ((FileChooser*)(o->parent()->user_data()))->cb_fileName_i(o,v);
 }
 
-inline void FileChooser::cb_j_i(Fl_Button*, void*) {
-  fileList->filter("*");;
-rescan();
+inline void FileChooser::cb_dirName_i(Fl_Input*, void*) {
+  directory(dirName->value());
 }
-void FileChooser::cb_j(Fl_Button* o, void* v) {
-  ((FileChooser*)(o->parent()->user_data()))->cb_j_i(o,v);
+void FileChooser::cb_dirName(Fl_Input* o, void* v) {
+  ((FileChooser*)(o->parent()->user_data()))->cb_dirName_i(o,v);
 }
 
-FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
+inline void FileChooser::cb_upButton_i(Fl_Button*, void*) {
+  up();
+}
+void FileChooser::cb_upButton(Fl_Button* o, void* v) {
+  ((FileChooser*)(o->parent()->user_data()))->cb_upButton_i(o,v);
+}
+
+static unsigned char bits_up[] = {  
+0, 0, 120, 0, 132, 0, 2, 1, 49, 254, 121, 128, 253, 128, 49, 128, 49, 128, 49, 128, 49, 128, 49, 128, 1, 128, 1, 128, 255, 255, 0, 0
+};
+static Fl_Bitmap bitmap_up(bits_up, 16, 16);
+
+inline void FileChooser::cb_dirMenu_i(Fl_Menu_Button*, void*) {
+  directory(dirMenu->text());
+}
+void FileChooser::cb_dirMenu(Fl_Menu_Button* o, void* v) {
+  ((FileChooser*)(o->parent()->user_data()))->cb_dirMenu_i(o,v);
+}
+
+inline void FileChooser::cb_new_i(Fl_Button*, void*) {
+  newdir();
+}
+void FileChooser::cb_new(Fl_Button* o, void* v) {
+  ((FileChooser*)(o->parent()->user_data()))->cb_new_i(o,v);
+}
+
+static unsigned char bits_new[] = {  
+0, 0, 120, 0, 132, 0, 2, 1, 1, 254, 1, 128, 49, 128, 49, 128, 253, 128, 253, 128, 49, 128, 49, 128, 1, 128, 1, 128, 255, 255, 0, 0
+};
+static Fl_Bitmap bitmap_new(bits_new, 16, 16);
+
+FileChooser::FileChooser(const char *d, char *p, int m, const char *title) {
   Fl_Window* w;
-  { Fl_Window* o = window = new Fl_Window(296, 257, "Pick a File");
+  { Fl_Window* o = window = new Fl_Window(345, 270, "Pick a File");
     w = o;
     o->user_data((void*)(this));
     w->hotspot(o);
-    { FileBrowser* o = fileList = new FileBrowser(20, 5, 270, 180);
+    { FileBrowser* o = fileList = new FileBrowser(25, 45, 310, 180);
       o->type(2);
-      o->color(196);
       o->callback((Fl_Callback*)cb_fileList);
+      Fl_Group::current()->resizable(o);
     }
-    { CheckButton* o = followLinks = new CheckButton(5, 225, 140, 25, "Follow Local Links");
-      o->down_box(FL_DOWN_BOX);
-      o->color(7);
-      o->selection_color(0);
-      o->hide();
-      if (!(t & TYPE_FOLLOW))
-  followLinks->hide();
-    }
-    { Fl_Button* o = new Fl_Button(222, 225, 65, 25, "Cancel");
+    { Fl_Button* o = new Fl_Button(270, 235, 65, 25, "Cancel");
       o->callback((Fl_Callback*)cb_Cancel);
     }
-    { Fl_Return_Button* o = new Fl_Return_Button(162, 225, 55, 25, "OK");
+    { Fl_Return_Button* o = new Fl_Return_Button(210, 235, 55, 25, "OK");
       o->callback((Fl_Callback*)cb_OK);
     }
-    { Fl_Roller* o = roller = new Fl_Roller(5, 35, 15, 90);
-      o->minimum(60);
-      o->maximum(360);
-      o->step(1);
-      o->value(140);
-      o->callback((Fl_Callback*)cb_roller);
+    { Fl_Pack* o = new Fl_Pack(10, 45, 15, 180);
+      { Fl_Button* o = new Fl_Button(10, 45, 15, 15, "*");
+        o->labelcolor(4);
+        o->callback((Fl_Callback*)cb_roller);
+        o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
+      }
+      { Fl_Roller* o = roller = new Fl_Roller(10, 60, 15, 100);
+        o->minimum(60);
+        o->maximum(640);
+        o->step(1);
+        o->value(140);
+        o->callback((Fl_Callback*)cb_roller1);
+      }
+      { Fl_Button* o = new Fl_Button(10, 160, 15, 15);
+        bitmap_reset.label(o);
+        o->labelsize(11);
+        o->callback((Fl_Callback*)cb_reset);
+      }
+      o->end();
     }
-    { Fl_Button* o = upButton = new Fl_Button(5, 5, 15, 15);
+    { Fl_Input* o = fileName = new Fl_Input(75, 235, 130, 25, "Filename:");
+      o->callback((Fl_Callback*)cb_fileName);
+      o->when(FL_WHEN_ENTER_KEY);
+    }
+    { Fl_Input* o = dirName = new Fl_Input(75, 10, 175, 25, "Directory:");
+      o->callback((Fl_Callback*)cb_dirName);
+    }
+    { Fl_Button* o = upButton = new Fl_Button(280, 10, 25, 25);
       bitmap_up.label(o);
       o->labelsize(8);
       o->callback((Fl_Callback*)cb_upButton);
     }
-    { Fl_Button* o = new Fl_Button(5, 125, 15, 15);
-      bitmap_reset.label(o);
-      o->labelsize(11);
-      o->callback((Fl_Callback*)cb_reset);
+    { Fl_Menu_Button* o = dirMenu = new Fl_Menu_Button(250, 10, 25, 25);
+      o->callback((Fl_Callback*)cb_dirMenu);
     }
-    { Fl_Input* o = fileName = new Fl_Input(75, 190, 215, 25, "Filename:");
-      o->callback((Fl_Callback*)cb_fileName);
-      o->when(8);
+    { Fl_Button* o = new Fl_Button(310, 10, 25, 25);
+      bitmap_new.label(o);
+      o->labelsize(8);
+      o->callback((Fl_Callback*)cb_new);
     }
-    { Fl_Button* o = new Fl_Button(5, 20, 15, 15, "*");
-      o->labelcolor(4);
-      o->callback((Fl_Callback*)cb_j);
-      o->align(17);
-    }
+    if (title) window->label(title);
     o->set_modal();
     o->end();
-    if (title) window->label(title);
   }
-  if (d == NULL)
-  strcpy(directory_, ".");
-else
-  strcpy(directory_, d);
-init_symbols();
+  window->size_range(345, 270, 345);
+init_icons();
 fileList->filter(p);
-rescan();
-type_ = t;
-if (t & TYPE_FOLLOW)
-  followLinks->show();
-else
-  followLinks->hide();
-if (t & TYPE_MULTI)
+directory(d);
+multi_ = m;
+if (m)
   fileList->type(FL_MULTI_BROWSER);
 else
   fileList->type(FL_HOLD_BROWSER);
 }
 
-void FileChooser::directory(const char *d) {
-  strcpy(directory_, d);
-rescan();
+void FileChooser::color(Fl_Color c) {
+  fileList->color(c);
 }
 
 char * FileChooser::directory() {
@@ -165,43 +189,20 @@ const char * FileChooser::filter() {
   return (fileList->filter());
 }
 
-void FileChooser::follow_links(int f) {
-  followLinks->value(f);
-if (f)
-{
-  followLinks->show();
-  type_ |= TYPE_FOLLOW;
-}
-else
-{
-  followLinks->hide();
-  type_ &= ~TYPE_FOLLOW;
-}
-}
-
-int FileChooser::follow_links() {
-  return (followLinks->value());
-}
-
 void FileChooser::hide() {
   window->hide();
 }
 
 void FileChooser::multi(int m) {
-  if (m)
-{
-  type_ |= TYPE_MULTI;
+  multi_ = m;
+if (m)
   fileList->type(FL_MULTI_BROWSER);
-}
 else
-{
-  type_ &= ~TYPE_MULTI;
   fileList->type(FL_HOLD_BROWSER);
-}
 }
 
 int FileChooser::multi() {
-  return (type_ & TYPE_MULTI);
+  return (multi_);
 }
 
 void FileChooser::show() {
