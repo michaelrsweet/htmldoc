@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.95 2001/08/17 01:55:37 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.96 2001/08/17 14:30:46 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5717,12 +5717,27 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       check_pages(*page);
       
       // Get color...
-      for (ptr = pages[*page].media_color;
-           *comment && !isspace(*comment);
-	   comment ++)
-        if (ptr < (pages[*page].media_color +
-	           sizeof(pages[*page].media_color) - 1))
-	  *ptr++ = *comment;
+      if (*comment == '\"')
+      {
+	for (ptr = pages[*page].media_color, comment ++;
+             *comment && *comment != '\"';
+	     comment ++)
+          if (ptr < (pages[*page].media_color +
+	             sizeof(pages[*page].media_color) - 1))
+	    *ptr++ = *comment;
+
+        if (*comment == '\"')
+	  comment ++;
+      }
+      else
+      {
+	for (ptr = pages[*page].media_color;
+             *comment && !isspace(*comment);
+	     comment ++)
+          if (ptr < (pages[*page].media_color +
+	             sizeof(pages[*page].media_color) - 1))
+	    *ptr++ = *comment;
+      }
 
       *ptr = '\0';
     }
@@ -5801,12 +5816,27 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       check_pages(*page);
       
       // Get type...
-      for (ptr = pages[*page].media_type;
-           *comment && !isspace(*comment);
-	   comment ++)
-        if (ptr < (pages[*page].media_type +
-	           sizeof(pages[*page].media_type) - 1))
-	  *ptr++ = *comment;
+      if (*comment == '\"')
+      {
+	for (ptr = pages[*page].media_type, comment ++;
+             *comment && *comment != '\"';
+	     comment ++)
+          if (ptr < (pages[*page].media_type +
+	             sizeof(pages[*page].media_type) - 1))
+	    *ptr++ = *comment;
+
+        if (*comment == '\"')
+	  comment ++;
+      }
+      else
+      {
+	for (ptr = pages[*page].media_type;
+             *comment && !isspace(*comment);
+	     comment ++)
+          if (ptr < (pages[*page].media_type +
+	             sizeof(pages[*page].media_type) - 1))
+	    *ptr++ = *comment;
+      }
 
       *ptr = '\0';
     }
@@ -9943,5 +9973,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.95 2001/08/17 01:55:37 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.96 2001/08/17 14:30:46 mike Exp $".
  */
