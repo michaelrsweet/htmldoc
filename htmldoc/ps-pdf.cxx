@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.10 2001/02/02 15:11:00 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.11 2001/02/02 20:28:48 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3888,11 +3888,16 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	return;
       }
 
+      // Figure out the starting column...
       if (num_rows)
+      {
 	for (col = 0; row_spans[col] && col < num_cols; col ++)
           cells[num_rows][col] = cells[num_rows - 1][col];
+      }
+      else
+        col = 0;
 
-      for (tempcol = temprow->child, col = 0;
+      for (tempcol = temprow->child;
            tempcol != NULL && col < MAX_COLUMNS;
            tempcol = tempcol->next)
         if (tempcol->markup == MARKUP_TD || tempcol->markup == MARKUP_TH)
@@ -3915,9 +3920,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
           tempcol->height = col_height;
 
-	  DEBUG_printf(("%d,%d: colsp=%d, rowsp=%d, width=%.1f, minw=%.1f, prefw=%.1f\n",
+	  DEBUG_printf(("%d,%d: colsp=%d, rowsp=%d, width=%.1f, minw=%.1f, prefw=%.1f, minh=%.1f\n",
 	                col, row, colspan, row_spans[col], col_width,
-			col_min, col_pref));
+			col_min, col_pref, col_height));
 
           // Add widths to columns...
           if (colspan > 1)
@@ -4424,7 +4429,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
               2 * cellpadding + 2 * border;
 
       if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
-          ((row + 1) < num_rows && cells[row][col] == cells[row + 1][col]))
+          row_spans[col] > 0)
         continue;
 
       if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
@@ -7747,5 +7752,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.10 2001/02/02 15:11:00 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.11 2001/02/02 20:28:48 mike Exp $".
  */
