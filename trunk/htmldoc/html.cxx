@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.4 1999/11/11 21:36:44 mike Exp $"
+ * "$Id: html.cxx,v 1.5 1999/11/12 17:48:24 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -389,6 +389,9 @@ write_all(FILE   *out,		/* I - Output file */
     switch (t->markup)
     {
       case MARKUP_NONE :
+          if (t->data == NULL)
+	    break;
+
 	  if (t->preformatted)
 	  {
             for (ptr = t->data; *ptr != '\0'; ptr ++)
@@ -797,5 +800,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.4 1999/11/11 21:36:44 mike Exp $".
+ * End of "$Id: html.cxx,v 1.5 1999/11/12 17:48:24 mike Exp $".
  */

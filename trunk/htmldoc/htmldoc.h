@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.6 1999/11/12 14:24:27 mike Exp $"
+ * "$Id: htmldoc.h,v 1.7 1999/11/12 17:48:25 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -90,7 +90,8 @@ VAR int		PageWidth	VALUE(595),	/* Page width in points */
 		PageBottom	VALUE(36),	/* Bottom margin */
 		PagePrintWidth,			/* Printable width */
 		PagePrintLength,		/* Printable length */
-		PageDuplex	VALUE(0);	/* Adjust margins/pages for duplexing? */
+		PageDuplex	VALUE(0),	/* Adjust margins/pages for duplexing? */
+		Landscape	VALUE(0);	/* Landscape orientation? */
 
 VAR typeface_t	HeadFootType	VALUE(TYPE_HELVETICA);
 						/* Typeface for header & footer */
@@ -148,5 +149,5 @@ extern char	*format_number(int n, char f);
 #  endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.6 1999/11/12 14:24:27 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.7 1999/11/12 17:48:25 mike Exp $".
  */

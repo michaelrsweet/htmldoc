@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.7 1999/11/12 14:24:27 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.8 1999/11/12 17:48:25 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -199,6 +199,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+    else if (compare_strings(argv[i], "--book", 5) == 0)
+      OutputBook = 1;
     else if (compare_strings(argv[i], "--bottom", 5) == 0)
     {
       i ++;
@@ -467,21 +469,13 @@ main(int  argc,		/* I - Number of command-line arguments */
         usage();
     }
     else if (compare_strings(argv[i], "--no-compression", 5) == 0)
-    {
       Compression = 0;
-    }
     else if (compare_strings(argv[i], "--no-toc", 6) == 0)
-    {
       TocLevels = 0;
-    }
     else if (compare_strings(argv[i], "--no-title", 6) == 0)
-    {
       TitlePage = 0;
-    }
     else if (compare_strings(argv[i], "--numbered", 4) == 0)
-    {
       TocNumbers = 1;
-    }
     else if (compare_strings(argv[i], "--outdir", 6) == 0 ||
              strcmp(argv[i], "-d") == 0)
     {
@@ -550,13 +544,17 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
-    else if (compare_strings(argv[i], "--title", 4) == 0)
+    else if (compare_strings(argv[i], "--title", 7) == 0)
+      TitlePage = 1;
+    else if (compare_strings(argv[i], "--titleimage", 8) == 0)
     {
       i ++;
       if (i < argc)
         strcpy(TitleImage, argv[i]);
       else
         usage();
+
+      TitlePage = 1;
     }
     else if (compare_strings(argv[i], "--tocfooter", 6) == 0)
     {
@@ -723,13 +721,6 @@ main(int  argc,		/* I - Number of command-line arguments */
     toc = toc_build(document);
   else
     toc = NULL;
-
- /*
-  * Figure out the printable area of the output page...
-  */
-
-  PagePrintWidth  = PageWidth - PageLeft - PageRight;
-  PagePrintLength = PageLength - PageTop - PageBottom;
 
  /*
   * Generate the output file(s).
@@ -955,7 +946,9 @@ prefs_load(void)
 
 
   // Figure out what the HTML editor is...
-  if (RegOpenKeyEx(HKEY_CLASSES_ROOT, "htmldoc", 0, KEY_READ, &key))
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                   "SOFTWARE\\Easy Software Products\\HTMLDOC", 0,
+		   KEY_READ, &key))
     return;
 
 #  ifdef HAVE_LIBFLTK
@@ -994,8 +987,73 @@ prefs_load(void)
         if (line[strlen(line) - 1] == '\n')
 	  line[strlen(line) - 1] = '\0';
 
+        if (strncasecmp(line, "TEXTCOLOR=", 10) == 0)
+	  htmlSetTextColor((uchar *)(line + 10));
+        else if (strncasecmp(line, "BODYCOLOR=", 10) == 0)
+	  strcpy(BodyColor, line + 10);
+        else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
+	  strcpy(BodyImage, line + 10);
+        else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
+	  PageWidth = atoi(line + 10);
+        else if (strncasecmp(line, "PAGELENGTH=", 11) == 0)
+	  PageLength = atoi(line + 11);
+        else if (strncasecmp(line, "PAGELEFT=", 9) == 0)
+	  PageLeft = atoi(line + 9);
+        else if (strncasecmp(line, "PAGERIGHT=", 10) == 0)
+	  PageRight = atoi(line + 10);
+        else if (strncasecmp(line, "PAGETOP=", 8) == 0)
+	  PageTop = atoi(line + 8);
+        else if (strncasecmp(line, "PAGEBOTTOM=", 11) == 0)
+	  PageBottom = atoi(line + 11);
+        else if (strncasecmp(line, "PAGEDUPLEX=", 11) == 0)
+	  PageDuplex = atoi(line + 11);
+        else if (strncasecmp(line, "LANDSCAPE=", 10) == 0)
+	  Landscape = atoi(line + 10);
+        else if (strncasecmp(line, "COMPRESSION=", 12) == 0)
+	  Compression = atoi(line + 12);
+        else if (strncasecmp(line, "OUTPUTCOLOR=", 12) == 0)
+	  OutputColor = atoi(line + 12);
+        else if (strncasecmp(line, "TOCNUMBERS=", 11) == 0)
+	  TocNumbers = atoi(line + 11);
+        else if (strncasecmp(line, "TOCLEVELS=", 10) == 0)
+	  TocLevels = atoi(line + 10);
+        else if (strncasecmp(line, "JPEG=", 5) == 0)
+	  OutputJPEG = atoi(line + 1);
+        else if (strncasecmp(line, "PAGEHEADER=", 11) == 0)
+	  strcpy(Header, line + 11);
+        else if (strncasecmp(line, "PAGEFOOTER=", 11) == 0)
+	  strcpy(Footer, line + 11);
+        else if (strncasecmp(line, "TOCHEADER=", 10) == 0)
+	  strcpy(TocHeader, line + 10);
+        else if (strncasecmp(line, "TOCFOOTER=", 10) == 0)
+	  strcpy(TocFooter, line + 10);
+        else if (strncasecmp(line, "TOCTITLE=", 9) == 0)
+	  strcpy(TocTitle, line + 9);
+        else if (strncasecmp(line, "BODYFONT=", 9) == 0)
+	  _htmlBodyFont = (typeface_t)atoi(line + 9);
+        else if (strncasecmp(line, "HEADINGFONT=", 12) == 0)
+	  _htmlHeadingFont = (typeface_t)atoi(line + 12);
+        else if (strncasecmp(line, "FONTSIZE=", 9) == 0)
+	  htmlSetBaseSize(atof(line + 9),
+	                  _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+        else if (strncasecmp(line, "FONTSPACING=", 12) == 0)
+	  htmlSetBaseSize(_htmlSizes[SIZE_P], atof(line + 12));
+        else if (strncasecmp(line, "HEADFOOTTYPE=", 13) == 0)
+	  HeadFootType = (typeface_t)atoi(line + 13);
+        else if (strncasecmp(line, "HEADFOOTSTYLE=", 14) == 0)
+	  HeadFootStyle = (style_t)atoi(line + 14);
+        else if (strncasecmp(line, "HEADFOOTSIZE=", 13) == 0)
+	  HeadFootSize = atof(line + 13);
+        else if (strncasecmp(line, "PDFVERSION=", 11) == 0)
+	  PDFVersion = atof(line + 11);
+        else if (strncasecmp(line, "PSLEVEL=", 8) == 0)
+	  PSLevel = atoi(line + 8);
+        else if (strncasecmp(line, "PSCOMMANDS=", 11) == 0)
+	  PSCommands = atoi(line + 11);
+        else if (strncasecmp(line, "CHARSET=", 8) == 0)
+	  htmlSetCharSet(line + 8);
 #  ifdef HAVE_FLTK
-        if (strncasecmp(line, "EDITOR=", 7) == 0)
+        else if (strncasecmp(line, "EDITOR=", 7) == 0)
 	  strcpy(HTMLEditor, line + 7);
 #  endif // HAVE_FLTK
       }
@@ -1023,7 +1081,8 @@ prefs_save(void)
   // Save what the HTML editor is...
   size = sizeof(HTMLEditor);
 
-  if (RegCreateKeyEx(HKEY_CLASSES_ROOT, "htmldoc", 0, "htmldoc",
+  if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,
+                     "SOFTWARE\\Easy Software Products\\HTMLDOC", 0, NULL,
                      REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, NULL))
     return;
 
@@ -1041,6 +1100,40 @@ prefs_save(void)
     if ((fp = fopen(htmldocrc, "w")) != NULL)
     {
       fputs("#HTMLDOCRC " SVERSION "\n", fp);
+
+      fprintf(fp, "TEXTCOLOR=%s\n", _htmlTextColor);
+      fprintf(fp, "BODYCOLOR=%s\n", BodyColor);
+      fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
+      fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
+      fprintf(fp, "PAGELENGTH=%d\n", PageLength);
+      fprintf(fp, "PAGELEFT=%d\n", PageLeft);
+      fprintf(fp, "PAGERIGHT=%d\n", PageRight);
+      fprintf(fp, "PAGETOP=%d\n", PageTop);
+      fprintf(fp, "PAGEBOTTOM=%d\n", PageBottom);
+      fprintf(fp, "PAGEDUPLEX=%d\n", PageDuplex);
+      fprintf(fp, "LANDSCAPE=%d\n", Landscape);
+      fprintf(fp, "COMPRESSION=%d\n", Compression);
+      fprintf(fp, "OUTPUTCOLOR=%d\n", OutputColor);
+      fprintf(fp, "TOCNUMBERS=%d\n", TocNumbers);
+      fprintf(fp, "TOCLEVELS=%d\n", TocLevels);
+      fprintf(fp, "JPEG=%d\n", OutputJPEG);
+      fprintf(fp, "PAGEHEADER=%s\n", Header);
+      fprintf(fp, "PAGEFOOTER=%s\n", Footer);
+      fprintf(fp, "TOCHEADER=%s\n", TocHeader);
+      fprintf(fp, "TOCFOOTER=%s\n", TocFooter);
+      fprintf(fp, "TOCTITLE=%s\n", TocTitle);
+      fprintf(fp, "BODYFONT=%d\n", _htmlBodyFont);
+      fprintf(fp, "HEADINGFONT=%d\n", _htmlHeadingFont);
+      fprintf(fp, "FONTSIZE=%.2f\n", _htmlSizes[SIZE_P]);
+      fprintf(fp, "FONTSPACING=%.2f\n",
+              _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+      fprintf(fp, "HEADFOOTTYPE=%d\n", HeadFootType);
+      fprintf(fp, "HEADFOOTSTYLE=%d\n", HeadFootStyle);
+      fprintf(fp, "HEADFOOTSIZE=%.2f\n", HeadFootSize);
+      fprintf(fp, "PDFVERSION=%.1f\n", PDFVersion);
+      fprintf(fp, "PSLEVEL=%d\n", PSLevel);
+      fprintf(fp, "PSCOMMANDS=%d\n", PSCommands);
+      fprintf(fp, "CHARSET=%s\n", _htmlCharSet);
 
       fprintf(fp, "EDITOR=%s\n", HTMLEditor);
 
@@ -1143,5 +1236,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.7 1999/11/12 14:24:27 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.8 1999/11/12 17:48:25 mike Exp $".
  */
