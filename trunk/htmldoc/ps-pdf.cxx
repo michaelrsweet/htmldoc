@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.95 2004/03/31 09:51:27 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.96 2004/03/31 09:56:37 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -425,7 +425,7 @@ static float	get_table_size(hdTree *t, float left, float right,
 		               float *minwidth, float *prefwidth,
 			       float *minheight);
 static hdTree	*flatten_tree(hdTree *t);
-static float	get_width(uchar *s, int typeface, int style, int size);
+static float	get_width(uchar *s, int typeface, int style, float size);
 static void	update_image_size(hdTree *t);
 static uchar	*get_title(hdTree *doc);
 static FILE	*open_file(void);
@@ -3555,7 +3555,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
           r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
           r->data.text.typeface = temp->typeface;
           r->data.text.style    = temp->style;
-          r->data.text.size     = _htmlSizes[temp->size];
+          r->data.text.size     = temp->size;
           memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
           if (temp->superscript)
@@ -3601,7 +3601,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
     r = new_render(*page, RENDER_TEXT, margins->right() - width + x, *y, 0, 0, number);
     r->data.text.typeface = t->typeface;
     r->data.text.style    = t->style;
-    r->data.text.size     = _htmlSizes[t->size];
+    r->data.text.size     = t->size;
     memcpy(r->data.text.rgb, rgb, sizeof(rgb));
   }
 }
@@ -4761,7 +4761,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	{
           if (temp == start)
             temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
-                          _htmlSizes[temp->size];
+                          temp->size;
           else if (temp_width > 0.0f)
 	    whitespace = 1;
 	}
@@ -4910,7 +4910,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       *dataptr = '\0';
 
       temp_width = _htmlWidths[temp->typeface][temp->style][' '] *
-                   _htmlSizes[temp->size];
+                   temp->size;
       temp->width -= temp_width;
       num_chars --;
     }
@@ -5009,7 +5009,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	               linewidth, linetype->height, line);
 	r->data.text.typeface = linetype->typeface;
 	r->data.text.style    = linetype->style;
-	r->data.text.size     = _htmlSizes[linetype->size];
+	r->data.text.size     = linetype->size;
 	r->data.text.spacing  = char_spacing;
         memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
@@ -5204,7 +5204,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       r->data.text.typeface = linetype->typeface;
       r->data.text.style    = linetype->style;
       r->data.text.spacing  = char_spacing;
-      r->data.text.size     = _htmlSizes[linetype->size];
+      r->data.text.size     = linetype->size;
       memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
       if (linetype->superscript)
@@ -5394,7 +5394,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
             r = new_render(*page, RENDER_TEXT, *x, *y, width, 0, line);
             r->data.text.typeface = start->typeface;
             r->data.text.style    = start->style;
-            r->data.text.size     = _htmlSizes[start->size];
+            r->data.text.size     = start->size;
             memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	    if (start->underline)
@@ -5430,7 +5430,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 	             "Preformatted text on page %d too long - "
 		     "truncation or overlapping may occur!", *page + 1);
 
-    *y -= _htmlSpacings[t->size] - _htmlSizes[t->size];
+    *y -= 0.2 * t->size;
   }
 
   *x = margins->left();
@@ -6836,7 +6836,7 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
 
   if (needspace && *y < margins->top())
   {
-    *y        -= _htmlSpacings[t->size];
+    *y        -= t->size; // TODO: use css->line_height or margin?
     needspace = 0;
   }
 
@@ -6852,8 +6852,8 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
   if (t->indent == 0)
   {
     // Adjust left margin when no UL/OL/DL is being used...
-    margins->adjust_left(_htmlSizes[t->size]);
-    tempx += _htmlSizes[t->size];
+    margins->adjust_left(t->size);
+    tempx += t->size;
   }
 
   parse_doc(t->child, margins, &tempx, y, page, NULL, &needspace);
@@ -6902,11 +6902,11 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
 
   width = get_width(number, typeface, t->style, t->size);
 
-  r = new_render(oldpage, RENDER_TEXT, margins->left() - width, oldy - _htmlSizes[t->size],
-                 width, _htmlSpacings[t->size], number);
+  r = new_render(oldpage, RENDER_TEXT, margins->left() - width, oldy - t->size,
+                 width, t->size, number);
   r->data.text.typeface = typeface;
   r->data.text.style    = t->style;
-  r->data.text.size     = _htmlSizes[t->size];
+  r->data.text.size     = t->size;
   r->data.text.rgb[0]   = t->red / 255.0f;
   r->data.text.rgb[1]   = t->green / 255.0f;
   r->data.text.rgb[2]   = t->blue / 255.0f;
@@ -6916,7 +6916,7 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
   if (t->indent == 0)
   {
     // Adjust left margin when no UL/OL/DL is being used...
-    margins->adjust_left(-_htmlSizes[t->size]);
+    margins->adjust_left(-t->size);
   }
 }
 
@@ -9248,13 +9248,13 @@ static float			/* O - Width in points */
 get_width(uchar *s,		/* I - String to scan */
           int   typeface,	/* I - Typeface code */
           int   style,		/* I - Style code */
-          int   size)		/* I - Size */
+          float size)		/* I - Size */
 {
   uchar	*ptr;			/* Current character */
   float	width;			/* Current width */
 
 
-  DEBUG_printf(("get_width(\"%s\", %d, %d, %d)\n",
+  DEBUG_printf(("get_width(\"%s\", %d, %d, %.1f)\n",
                 s == NULL ? "(null)" : (const char *)s,
                 typeface, style, size));
 
@@ -9264,7 +9264,7 @@ get_width(uchar *s,		/* I - String to scan */
   for (width = 0.0, ptr = s; *ptr != '\0'; ptr ++)
     width += _htmlWidths[typeface][style][*ptr];
 
-  return (width * _htmlSizes[size]);
+  return (width * size);
 }
 
 
@@ -12348,5 +12348,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.95 2004/03/31 09:51:27 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.96 2004/03/31 09:56:37 mike Exp $".
  */
