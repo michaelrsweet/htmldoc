@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.4 1999/11/09 22:16:41 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.5 1999/11/11 17:10:38 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -223,10 +223,16 @@ main(int  argc,		/* I - Number of command-line arguments */
       else if (PDFVersion >= 1.2)
         Compression = 1;
     }
-    else if (compare_strings(argv[i], "--duplex", 3) == 0)
+    else if (compare_strings(argv[i], "--datadir", 4) == 0)
     {
-      PageDuplex = 1;
+      i ++;
+      if (i < argc)
+        _htmlData = argv[i];
+      else
+        usage();
     }
+    else if (compare_strings(argv[i], "--duplex", 4) == 0)
+      PageDuplex = 1;
     else if (compare_strings(argv[i], "--footer", 5) == 0)
     {
       i ++;
@@ -1200,5 +1206,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.4 1999/11/09 22:16:41 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.5 1999/11/11 17:10:38 mike Exp $".
  */
