@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.84 2000/07/25 15:08:02 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.85 2000/08/29 15:02:14 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3085,16 +3085,37 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	 temp = temp->next)
     {
       prev = temp;
-      if (temp->markup == MARKUP_IMG)
-        temp_height = temp->height;
+
+      if (temp->height > height &&
+          (temp->markup != MARKUP_IMG || temp->valignment == ALIGN_TOP))
+        height = temp->height;
+      else if (temp->markup == MARKUP_IMG && temp->valignment == ALIGN_MIDDLE)
+        height = 0.5f * temp->height;
+
+      if (temp->markup != MARKUP_IMG)
+        temp_height = temp->height * _htmlSpacings[0] / _htmlSizes[0];
       else
-        temp_height = temp->height * _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
+      {
+        switch (temp->valignment)
+	{
+	  case ALIGN_TOP :
+              temp_height = temp->height;
+	      break;
+	  case ALIGN_MIDDLE :
+	      temp_height = 0.5 * temp->height + _htmlSizes[t->size];
+              break;
+	  case ALIGN_BOTTOM :
+	      temp_height = temp->height + _htmlSizes[t->size];
+              break;
+	}
+      }
 
       if (temp_height > spacing)
         spacing = temp_height;
-      if (temp->height > height)
-        height = temp->height;
     }
+
+    if (height == 0.0)
+      height = spacing;
 
     if (prev != NULL && prev->markup == MARKUP_NONE &&
         prev->data[strlen((char *)prev->data) - 1] == ' ')
@@ -3290,15 +3311,13 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    switch (temp->valignment)
 	    {
 	      case ALIGN_TOP :
-		  offset = _htmlSizes[0] / _htmlSpacings[0] * height -
-		           temp->height;
+		  offset = height - temp->height;
 		  break;
 	      case ALIGN_MIDDLE :
-		  offset = 0.5f * (_htmlSizes[0] / _htmlSpacings[0] * height -
-		                   temp->height);
+		  offset = -0.5f * temp->height;
 		  break;
 	      case ALIGN_BOTTOM :
-		  offset = 0.0f;
+		  offset = -temp->height;
 	    }
 
 	    new_render(*page, RENDER_IMAGE, *x, *y + offset, temp->width, temp->height,
@@ -7176,5 +7195,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.84 2000/07/25 15:08:02 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.85 2000/08/29 15:02:14 mike Exp $".
  */
