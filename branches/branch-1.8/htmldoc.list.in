@@ -1,9 +1,9 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.21 2004/05/12 12:01:31 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.22 2004/05/26 19:48:22 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
-#   EPM can be found at "http://www.easysw.com/epm".
+#   EPM can be found at "http://www.easysw.com/epm/".
 #
 
 %product HTMLDOC
@@ -71,5 +71,5 @@ f 0444 root sys $datadir/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
 f 0444 root sys $datadir/doc/htmldoc/help.html doc/help.html
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.21 2004/05/12 12:01:31 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.22 2004/05/26 19:48:22 mike Exp $".
 #

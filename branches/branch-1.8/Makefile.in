@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.10.2.15 2004/05/10 01:14:53 mike Exp $"
+# "$Id: Makefile.in,v 1.10.2.16 2004/05/26 19:48:21 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -137,58 +137,14 @@ htmldoc.list:	htmldoc.list.in configure
 #
 # Make a portable binary distribution using EPM.
 #
-# EPM = ESP Package Manager, available at "http://www.easysw.com/epm".
+# EPM = ESP Package Manager, available at "http://www.easysw.com/epm/".
 #
 
 epm:
-	$(EPM) -s setup.xpm htmldoc
+	$(RM) -r dist
+	$(EPM) htmldoc
 
 
 #
-# Make a RPM distribution using EPM.
-#
-
-rpm:
-	$(EPM) -f rpm htmldoc
-
-
-#
-# Make a Debian distribution using EPM.
-#
-
-deb:
-	$(EPM) -f deb htmldoc
-
-
-#
-# Make an IRIX distribution using EPM.
-#
-
-tardist:
-	$(EPM) -f tardist htmldoc
-
-#
-# Make a MacOS X distribution using EPM.
-#
-
-osx:
-	$(EPM) -f osx htmldoc
-
-#
-# Make a Solaris distribution using EPM.
-#
-
-pkg:
-	$(EPM) -f pkg htmldoc
-
-#
-# Make an HP-UX distribution using EPM.
-#
-
-depot:
-	$(EPM) -f depot htmldoc
-
-
-#
-# End of "$Id: Makefile.in,v 1.10.2.15 2004/05/10 01:14:53 mike Exp $".
+# End of "$Id: Makefile.in,v 1.10.2.16 2004/05/26 19:48:21 mike Exp $".
 #
