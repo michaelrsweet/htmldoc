@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.9 2001/02/25 23:01:43 mike Exp $"
+ * "$Id: file.c,v 1.13.2.10 2001/02/28 20:22:50 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -58,10 +58,15 @@
  * Local globals...
  */
 
-char	proxy_host[HTTP_MAX_URI] = "";
-int	proxy_port = 0;
-http_t	*http = NULL;
-int	web_files = 0;
+char	proxy_host[HTTP_MAX_URI] = "";	/* Proxy hostname */
+int	proxy_port = 0;			/* Proxy port */
+http_t	*http = NULL;			/* Connection to remote server */
+int	web_files = 0;			/* Number of temporary files */
+struct					/* Cache for all temporary files */
+{
+  char	*name;				/* Temporary filename */
+  char	*url;				/* URL */
+}	web_cache[2 * MAX_IMAGES];
 
 
 /*
@@ -141,6 +146,11 @@ file_cleanup(void)
 
     unlink(filename);
     web_files --;
+
+    if (web_cache[web_files].name)
+      free(web_cache[web_files].name);
+    if (web_cache[web_files].url)
+      free(web_cache[web_files].url);
   }
 }
 
@@ -258,6 +268,7 @@ char *					/* O - Pathname or NULL */
 file_find(const char *path,		/* I - Path "dir;dir;dir" */
           const char *s)		/* I - File to find */
 {
+  int		i;			/* Looping var */
   int		retry;			/* Current retry */
   char		*temp,			/* Current position in filename */
 		method[HTTP_MAX_URI],	/* Method/scheme */
@@ -343,8 +354,13 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   else
   {
    /*
-    * Remote file; try getting it from the remote system...
+    * Remote file; look it up in the web cache, and then try getting it
+    * from the remote system...
     */
+
+    for (i = 0; i < web_files; i ++)
+      if (web_cache[i].url && strcmp(web_cache[i].url, s) == 0)
+        return (web_cache[i].name);
 
     if (strncmp(s, "http:", 5) == 0)
       httpSeparate(s, method, username, hostname, &port, resource);
@@ -444,19 +460,22 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     }
 
     if ((total = atoi(httpGetField(http, HTTP_FIELD_CONTENT_LENGTH))) == 0)
-      total = 1024 * 1024;
+      total = 8192;
 
     count = 0;
     while ((bytes = httpRead(http, resource, sizeof(resource))) > 0)
     {
       count += bytes;
-      progress_update(100 * count / total);
+      progress_update((100 * count / total) % 101);
       fwrite(resource, 1, bytes, fp);
     }
 
     progress_hide();
 
     fclose(fp);
+
+    web_cache[web_files - 1].name = strdup(filename);
+    web_cache[web_files - 1].url  = strdup(s);
 
     return (filename);
   }
@@ -655,6 +674,8 @@ file_temp(char *name,			/* O - Filename */
 #endif /* WIN32 */
 
 
+  web_cache[web_files].name = NULL;
+  web_cache[web_files].url  = NULL;
   web_files ++;
 
 #ifdef WIN32
@@ -679,12 +700,15 @@ file_temp(char *name,			/* O - Filename */
     fp = NULL;
 
   if (!fp)
+  {
     web_files --;
+    name[0] = '\0';
+  }
 
   return (fp);
 }
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.9 2001/02/25 23:01:43 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.10 2001/02/28 20:22:50 mike Exp $".
  */
