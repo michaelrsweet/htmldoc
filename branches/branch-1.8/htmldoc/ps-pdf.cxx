@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.167 2002/05/08 04:21:50 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.168 2002/05/08 12:47:53 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1655,7 +1655,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
       return;
     }
 
-    write_prolog(out, num_pages, author, creator, copyright, keywords, subject);
+    write_prolog(out, num_outpages, author, creator, copyright, keywords, subject);
   }
 
   if (OutputType == OUTPUT_BOOK && TocLevels > 0)
@@ -1668,8 +1668,8 @@ ps_write_document(uchar *author,	/* I - Author of document */
     if (OutputFiles)
     {
       out = open_file();
-      write_prolog(out, PageDuplex + 1, author, creator, copyright, keywords,
-                   subject);
+      write_prolog(out, chapter_outpages[chapter], author, creator, copyright,
+                   keywords, subject);
     }
 
     for (page = 0; page < chapter_outstarts[chapter]; page ++)
@@ -11426,5 +11426,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.167 2002/05/08 04:21:50 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.168 2002/05/08 12:47:53 mike Exp $".
  */
