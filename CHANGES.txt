@@ -1,4 +1,4 @@
-CHANGES.txt - 12/30/1999
+CHANGES.txt - 12/31/1999
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.4
@@ -30,6 +30,8 @@ CHANGES IN HTMLDOC v1.8.4
 	- Multi-file HTML output did not use the right link for
 	  the table-of-contents file if no title page was being
 	  generated.
+	- Extra whitespace before and after tables has been
+	  eliminated.
 
 
 CHANGES IN HTMLDOC v1.8.3
