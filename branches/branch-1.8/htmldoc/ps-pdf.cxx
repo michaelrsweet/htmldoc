@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.155 2002/04/04 17:20:12 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.156 2002/04/10 17:27:04 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4372,13 +4372,14 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
           int    *page,		/* IO - Page # */
           int    needspace)	/* I - Need whitespace? */
 {
-  tree_t	*flat, *next;
+  tree_t	*flat, *start, *next;
   uchar		*link,
 		line[10240],
 		*lineptr,
 		*dataptr;
   int		col;
   float		width,
+		height,
 		rgb[3];
   render_t	*r;
 
@@ -4394,7 +4395,6 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
   if (*y < top && needspace)
     *y -= _htmlSpacings[SIZE_P];
 
-  col  = 0;
   flat = flatten_tree(t->child);
 
   if (flat->markup == MARKUP_NONE && flat->data != NULL)
@@ -4416,136 +4416,143 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     rgb[1] = flat->green / 255.0f;
     rgb[2] = flat->blue / 255.0f;
 
-    if (col == 0)
+    for (height = 0.0f, start = flat; flat != NULL; flat = flat->next)
     {
-      if (*y < (_htmlSpacings[t->size] + bottom))
-      {
-        (*page) ++;
-        *y = top;
+      if (flat->height > height)
+        height = flat->height;
 
-	if (Verbosity)
-	  progress_show("Formatting page %d", *page);
-      }
+      if (flat->markup == MARKUP_BR ||
+          (flat->markup == MARKUP_NONE && flat->data &&
+	   flat->data[strlen((char *)flat->data) - 1] == '\n'))
+        break;
 
-      *x = left;
-      *y -= _htmlSizes[t->size];
+    }
+
+    if (flat)
+      flat = flat->next;
+
+    if (*y < (height + bottom))
+    {
+      (*page) ++;
+      *y = top;
 
       if (Verbosity)
-        progress_update(100 - (int)(100 * (*y) / PagePrintLength));
+	progress_show("Formatting page %d", *page);
     }
 
-    if (flat->link != NULL)
+    *x = left;
+    *y -= height;
+
+    if (Verbosity)
+      progress_update(100 - (int)(100 * (*y) / PagePrintLength));
+
+    col = 0;
+    while (start != flat)
     {
-      link = htmlGetVariable(flat->link, (uchar *)"HREF");
-
-     /*
-      * Add a page link...
-      */
-
-      if (file_method((char *)link) == NULL)
+      if (start->link != NULL)
       {
-	if (file_target((char *)link) != NULL)
-	  link = (uchar *)file_target((char *)link) - 1; // Include # sign
-	else
-	  link = (uchar *)file_basename((char *)link);
+	link = htmlGetVariable(start->link, (uchar *)"HREF");
+
+       /*
+	* Add a page link...
+	*/
+
+	if (file_method((char *)link) == NULL)
+	{
+	  if (file_target((char *)link) != NULL)
+	    link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	  else
+	    link = (uchar *)file_basename((char *)link);
+	}
+
+	new_render(*page, RENDER_LINK, *x, *y, start->width,
+	           start->height, link);
+
+	if (PSLevel == 0 && Links)
+	{
+          memcpy(rgb, link_color, sizeof(rgb));
+
+	  start->red   = (int)(link_color[0] * 255.0);
+	  start->green = (int)(link_color[1] * 255.0);
+	  start->blue  = (int)(link_color[2] * 255.0);
+
+          if (LinkStyle)
+	    new_render(*page, RENDER_BOX, *x, *y - 1, start->width, 0,
+	               link_color);
+	}
       }
 
-      new_render(*page, RENDER_LINK, *x, *y, flat->width,
-	         flat->height, link);
-
-      if (PSLevel == 0 && Links)
+      switch (start->markup)
       {
-        memcpy(rgb, link_color, sizeof(rgb));
-
-	flat->red   = (int)(link_color[0] * 255.0);
-	flat->green = (int)(link_color[1] * 255.0);
-	flat->blue  = (int)(link_color[2] * 255.0);
-
-        if (LinkStyle)
-	  new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0,
-	             link_color);
-      }
-    }
-
-    switch (flat->markup)
-    {
-      case MARKUP_A :
-          if ((link = htmlGetVariable(flat, (uchar *)"NAME")) != NULL)
-          {
-           /*
-            * Add a target link...
-            */
-
-            add_link(link, *page, (int)(*y + 6 * t->height));
-          }
-          break;
-
-      case MARKUP_BR :
-          col = 0;
-          *y  -= _htmlSpacings[t->size] - _htmlSizes[t->size];
-          break;
-
-      case MARKUP_NONE :
-          for (lineptr = line, dataptr = flat->data;
-	       *dataptr != '\0' && lineptr < (line + sizeof(line) - 1);
-	       dataptr ++)
-            if (*dataptr == '\n')
-	      break;
-            else if (*dataptr == '\t')
+	case MARKUP_A :
+            if ((link = htmlGetVariable(start, (uchar *)"NAME")) != NULL)
             {
-              do
+             /*
+              * Add a target link...
+              */
+
+              add_link(link, *page, (int)(*y + 6 * t->height));
+            }
+            break;
+
+	case MARKUP_NONE :
+            for (lineptr = line, dataptr = start->data;
+		 *dataptr != '\0' && lineptr < (line + sizeof(line) - 1);
+		 dataptr ++)
+              if (*dataptr == '\n')
+		break;
+              else if (*dataptr == '\t')
               {
-                *lineptr++ = ' ';
-                col ++;
+        	do
+        	{
+                  *lineptr++ = ' ';
+                  col ++;
+        	}
+        	while (col & 7);
               }
-              while (col & 7);
-            }
-            else if (*dataptr != '\r')
-            {
-              *lineptr++ = *dataptr;
-              col ++;
-            }
+              else if (*dataptr != '\r')
+              {
+        	*lineptr++ = *dataptr;
+        	col ++;
+              }
 
-          *lineptr = '\0';
+            *lineptr = '\0';
 
-          width = get_width(line, flat->typeface, flat->style, flat->size);
-          r = new_render(*page, RENDER_TEXT, *x, *y, width, 0, line);
-          r->data.text.typeface = flat->typeface;
-          r->data.text.style    = flat->style;
-          r->data.text.size     = _htmlSizes[flat->size];
-          memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+            width = get_width(line, start->typeface, start->style, start->size);
+            r = new_render(*page, RENDER_TEXT, *x, *y, width, 0, line);
+            r->data.text.typeface = start->typeface;
+            r->data.text.style    = start->style;
+            r->data.text.size     = _htmlSizes[start->size];
+            memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
-	  if (flat->underline)
-	    new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0, rgb);
+	    if (start->underline)
+	      new_render(*page, RENDER_BOX, *x, *y - 1, start->width, 0, rgb);
 
-	  if (flat->strikethrough)
-	    new_render(*page, RENDER_BOX, *x, *y + flat->height * 0.25f,
-	               flat->width, 0, rgb);
+	    if (start->strikethrough)
+	      new_render(*page, RENDER_BOX, *x, *y + start->height * 0.25f,
+	        	 start->width, 0, rgb);
 
-          *x += flat->width;
+            *x += start->width;
+            break;
 
-          if (*dataptr == '\n')
-          {
-            col = 0;
-            *y  -= _htmlSpacings[t->size] - _htmlSizes[t->size];
-          }
-          break;
+	case MARKUP_IMG :
+	    new_render(*page, RENDER_IMAGE, *x, *y, start->width, start->height,
+		       image_find((char *)htmlGetVariable(start, (uchar *)"REALSRC")));
 
-      case MARKUP_IMG :
-	  new_render(*page, RENDER_IMAGE, *x, *y, flat->width, flat->height,
-		     image_find((char *)htmlGetVariable(flat, (uchar *)"REALSRC")));
+            *x += start->width;
+            col ++;
+	    break;
 
-          *x += flat->width;
-          col ++;
-	  break;
+	default :
+            break;
+      }
 
-      default :
-          break;
+      next = start->next;
+      free(start);
+      start = next;
     }
 
-    next = flat->next;
-    free(flat);
-    flat = next;
+    *y -= _htmlSpacings[t->size] - _htmlSizes[t->size];
   }
 
   *x = left;
@@ -10753,5 +10760,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.155 2002/04/04 17:20:12 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.156 2002/04/10 17:27:04 mike Exp $".
  */
