@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.22 2001/02/20 17:21:41 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.23 2001/02/21 22:09:56 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2567,25 +2567,21 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         if (Verbosity)
           progress_show("Formatting page %d", *page);
 
-        if (OutputBook)
-          chapter_ends[chapter] = *page - 1;
+        chapter_ends[chapter] = *page - 1;
       }
 
-      if (OutputBook)
+      chapter ++;
+      if (chapter >= MAX_CHAPTERS)
       {
-        chapter ++;
-	if (chapter >= MAX_CHAPTERS)
-	{
-	  progress_error("Too many chapters in document (%d > %d)!",
-	                 chapter, MAX_CHAPTERS);
-          chapter = MAX_CHAPTERS - 1;
-	}
-	else
-          chapter_starts[chapter] = *page;
-
-	if (chapter > TocDocCount)
-	  TocDocCount = chapter;
+	progress_error("Too many chapters/files in document (%d > %d)!",
+	               chapter, MAX_CHAPTERS);
+        chapter = MAX_CHAPTERS - 1;
       }
+      else
+        chapter_starts[chapter] = *page;
+
+      if (chapter > TocDocCount)
+	TocDocCount = chapter;
 
       *y         = top;
       *x         = left;
@@ -8128,5 +8124,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.22 2001/02/20 17:21:41 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.23 2001/02/21 22:09:56 mike Exp $".
  */
