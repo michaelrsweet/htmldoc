@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.2 2002/02/08 19:39:52 mike Exp $"
+// "$Id: testsuite.cxx,v 1.3 2002/02/09 23:54:39 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -167,7 +167,8 @@ print_tree(hdTree *t,		// I - Tree node
     switch (t->element)
     {
       case HD_ELEMENT_NONE :
-          printf("(none) \"%s\"\n", t->data ? t->data : "(null)");
+          printf("(none) \"%s\" %.1fx%.1f\n", t->data ? t->data : "(null)",
+	         t->width, t->height);
 	  break;
 
       case HD_ELEMENT_UNKNOWN :
@@ -180,6 +181,14 @@ print_tree(hdTree *t,		// I - Tree node
 
       case HD_ELEMENT_COMMENT :
           printf("(comment) \"%s\"\n", t->data);
+	  break;
+
+      case HD_ELEMENT_IMG :
+      case HD_ELEMENT_HR :
+      case HD_ELEMENT_BR :
+      case HD_ELEMENT_SPACER :
+          printf("%s %.1fx%.1f\n", hdTree::elements[t->element],
+	         t->width, t->height);
 	  break;
 
       default :
@@ -292,5 +301,5 @@ print_style(hdStyle *s)		// I - Style
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.2 2002/02/08 19:39:52 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.3 2002/02/09 23:54:39 mike Exp $".
 //

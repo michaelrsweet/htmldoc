@@ -1,5 +1,5 @@
 //
-// "$Id: common.cxx,v 1.1 2002/02/08 19:40:38 mike Exp $"
+// "$Id: common.cxx,v 1.2 2002/02/09 23:54:39 mike Exp $"
 //
 //   Common routines for HTMLDOC, a HTML document processing program.
 //
@@ -74,10 +74,178 @@ hdCommon::~hdCommon()
     delete[] sizes;
   }
 
+  // Free the entitie table, if loaded...
+  if (num_entities)
+  {
+    for (i = 0; i < num_entities; i ++)
+      entities[i].clear();
+
+    delete[] entities;
+  }
+
   // Cleanup the image and file caches...
   hdImage::flush();
   hdFile::cleanup();
+}
 
+
+//
+// 'hdCommon::find_entity()' - Find the HTML entity associated with a glyph.
+//
+
+const char *				// O - HTML entity name
+hdCommon::find_entity(const char *g)	// I - PostScript glyph name
+{
+  int		i;			// Looping var
+  hdEntity	*e;			// Current entity
+
+
+  // Lookup the glyph name...
+  load_entities();
+
+  for (i = num_entities, e = entities; i > 0; i --, e ++)
+    if (strcmp(e->glyph, g) == 0)
+      return (e->html);
+
+  // If not found, then use the glyph name for the entity name...
+  return (g);
+}
+
+
+//
+// 'hdCommon::find_glyph()' - Find the glyph associated with an HTML entity.
+//
+
+const char *				// O - PostScript glyph name
+hdCommon::find_glyph(const char *h)	// I - HTML entity name
+{
+  int		i;			// Looping var
+  hdEntity	*e;			// Current entity
+
+
+  // Lookup the entity name...
+  load_entities();
+
+  for (i = num_entities, e = entities; i > 0; i --, e ++)
+    if (strcmp(e->html, h) == 0)
+      return (e->glyph);
+
+  // If not found, then use the entity name for the glyph name...
+  return (h);
+}
+
+
+//
+// 'hdCommon::find_size()' - Get the page size by numbers.
+//
+
+hdPageSize *				// O - Matching size
+hdCommon::find_size(float w,		// I - Width in points
+                    float l)		// I - Length in points
+{
+  int		i;			// Looping var
+  hdPageSize	*s;			// Current size record
+
+
+  // Lookup the size in the size table...
+  load_sizes();
+
+  for (i = num_sizes, s = sizes; i > 0; i --, s ++)
+    if (fabs(s->width - w) < 0.1f && fabs(s->length - l) < 0.1f)
+      return (s);
+
+  return (NULL);
+}
+
+
+//
+// 'hdCommon::find_size()' - Set the page size by name.
+//
+
+hdPageSize *				// O - Matching page size
+hdCommon::find_size(const char *name)	// I - Page size name
+{
+  int		i;			// Looping var
+  hdPageSize	*s;			// Current size record
+
+
+  // Lookup the name in the size table...
+  load_sizes();
+
+  for (i = num_sizes, s = sizes; i > 0; i --, s ++)
+    if (strcasecmp(name, s->name) == 0)
+      return (s);
+
+  return (NULL);
+}
+
+
+//
+// 'hdCommon::load_entities()' - Load the entity table.
+//
+
+void
+hdCommon::load_entities()
+{
+  hdFile	*fp;			// Page size file pointer
+  char		filename[1024],		// Page size filename
+		line[255],		// Line from file
+		html[64],		// HTML entity name
+		glyph[64];		// PostScript glyph name
+  hdEntity	*temp;			// Temporary array pointer
+  int		alloc_entities;		// Number of entities allocated
+
+
+  // See if we need to load the entity table...
+  if (num_entities)
+    return;
+
+  // Open the entities.dat file...
+  snprintf(filename, sizeof(filename), "%s/data/entities.dat", datadir);
+  if ((fp = hdFile::open(filename, HD_FILE_READ)) == NULL)
+  {
+    fprintf(stderr, "Unable to open entity file \"%s\"!\n", filename);
+    return;
+  }
+
+  // Read all of the entities from the file...
+  alloc_entities = 32;
+  entities       = new hdEntity[32];
+  num_entities   = 0;
+
+  while (fp->gets(line, sizeof(line)) != NULL)
+  {
+    // Skip blank and comment lines...
+    if (line[0] == '#' || !line[0])
+      continue;
+
+    // Scan the line for the entitie info...
+    if (sscanf(line, "%63s%63s", html, glyph) != 2)
+    {
+      fprintf(stderr, "Bad entity line \"%s\" in \"%s\"!\n", line,
+              filename);
+      continue;
+    }
+
+    // Reallocate memory as needed...
+    if (num_entities >= alloc_entities)
+    {
+      temp = new hdEntity[alloc_entities + 32];
+
+      memcpy(temp, entities, alloc_entities * sizeof(hdEntity));
+
+      delete[] entities;
+
+      entities       = temp;
+      alloc_entities += 32;
+    }
+
+    // Set the next entitie in the array...
+    entities[num_entities].set(html, glyph);
+    num_entities ++;
+  }
+
+  delete fp;
 }
 
 
@@ -151,48 +319,39 @@ hdCommon::load_sizes()
 }
 
 
+
+
 //
-// 'hdCommon::find_size()' - Get the page size by numbers.
+// 'hdEntity::set()' - Initialize a page size.
 //
 
-hdPageSize *				// O - Matching size
-hdCommon::find_size(float w,		// I - Width in points
-                    float l)		// I - Length in points
+void
+hdEntity::set(const char *h,	// I - HTML entity name
+              const char *g)	// I - PostScript glyph name
 {
-  int		i;			// Looping var
-  hdPageSize	*s;			// Current size record
-
-
-  // Lookup the size in the size table...
-  load_sizes();
-
-  for (i = num_sizes, s = sizes; i > 0; i --, s ++)
-    if (fabs(s->width - w) < 0.1f && fabs(s->length - l) < 0.1f)
-      return (s);
-
-  return (NULL);
+  html  = strdup(h);
+  glyph = strdup(g);
 }
 
 
 //
-// 'hdCommon::find_size()' - Set the page size by name.
+// 'hdEntity::clear()' - Clear a page size.
 //
 
-hdPageSize *				// O - Matching page size
-hdCommon::find_size(const char *name)	// I - Page size name
+void
+hdEntity::clear()
 {
-  int		i;			// Looping var
-  hdPageSize	*s;			// Current size record
+  if (html)
+  {
+    free(html);
+    html = NULL;
+  }
 
-
-  // Lookup the name in the size table...
-  load_sizes();
-
-  for (i = num_sizes, s = sizes; i > 0; i --, s ++)
-    if (strcasecmp(name, s->name) == 0)
-      return (s);
-
-  return (NULL);
+  if (glyph)
+  {
+    free(glyph);
+    glyph = NULL;
+  }
 }
 
 
@@ -227,5 +386,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: common.cxx,v 1.1 2002/02/08 19:40:38 mike Exp $".
+// End of "$Id: common.cxx,v 1.2 2002/02/09 23:54:39 mike Exp $".
 //

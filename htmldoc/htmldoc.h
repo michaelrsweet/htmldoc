@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.25 2002/02/08 19:39:51 mike Exp $"
+// "$Id: htmldoc.h,v 1.26 2002/02/09 23:54:39 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -50,6 +50,20 @@ struct hdPageSize
 
 
 //
+// Entity information...
+//
+
+struct hdEntity
+{
+  char	*html;			// HTML entity name
+  char	*glyph;			// PostScript glyph name
+
+  void	set(const char *h, const char *g);
+  void	clear();
+};
+
+
+//
 // The hdCommon structure contains common global data and structures...
 //
 // This is a single instance of this structure, which allows us to
@@ -64,12 +78,18 @@ struct hdCommon
   int		num_sizes;	// Number of sizes in table
   hdPageSize	*sizes;		// Size table
 
+  int		num_entities;	// Number of entities in table
+  hdEntity	*entities;	// Entity table
+
   // Global functions...
   hdCommon();
   ~hdCommon();
 
+  const char	*find_entity(const char *g);
+  const char	*find_glyph(const char *h);
   hdPageSize	*find_size(const char *n);
   hdPageSize	*find_size(float w, float l);
+  void		load_entities();
   void		load_sizes();
 };
 
@@ -79,5 +99,5 @@ extern hdCommon	hdGlobal;
 #endif // !_HTMLDOC_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.25 2002/02/08 19:39:51 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.26 2002/02/09 23:54:39 mike Exp $".
 //

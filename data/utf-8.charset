@@ -656,6 +656,9 @@ unicode
 1e85 wdieresis
 1ef2 Ygrave
 1ef3 ygrave
+2002 uni2002
+2003 uni2003
+2009 uni2009
 200c afii61664
 200d afii301
 200e afii299
@@ -687,6 +690,7 @@ unicode
 2039 guilsinglleft
 203a guilsinglright
 203c exclamdbl
+203e uni203E
 2044 fraction
 2070 zerosuperior
 2074 foursuperior
@@ -790,6 +794,10 @@ unicode
 22a5 perpendicular
 22c5 dotmath
 2302 house
+2308 uni2308
+2309 uni2309
+230a uni230A
+230b uni230B
 2310 revlogicalnot
 2320 integraltp
 2321 integralbt
