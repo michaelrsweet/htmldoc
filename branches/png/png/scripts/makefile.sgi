@@ -14,6 +14,7 @@ ZLIBINC=../zlib
 CC=cc
 
 WARNMORE=-fullwarn
+# You can add the -n32 option; then zlib must also be compiled with -n32
 CFLAGS=-I$(ZLIBINC) -O $(WARNMORE) # -g -DPNG_DEBUG=5
 LDFLAGS=-L. -L$(ZLIBLIB) -lpng -lz -lm
 
@@ -48,6 +49,10 @@ install: libpng.a
 
 clean:
 	rm -f *.o libpng.a pngtest pngout.png
+
+DOCS = ANNOUNCE CHANGES INSTALL KNOWNBUG LICENSE README TODO Y2KINFO
+writelock:
+	chmod a-w *.[ch35] $(DOCS) scripts/*
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
