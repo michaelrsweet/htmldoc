@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.5 1999/11/10 15:59:26 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.6 1999/11/10 21:49:50 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -309,6 +309,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       t->size         = SIZE_P;
 
       compute_color(t, _htmlTextColor);
+
+      printf("root color = %d, %d, %d...\n", t->red, t->green, t->blue);
     }
     else
     {
@@ -600,6 +602,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
           if ((color = htmlGetVariable(t, (uchar *)"TEXT")) != NULL)
             compute_color(t, color);
+	  else
+            compute_color(t, _htmlTextColor);
           break;
 
       case MARKUP_IMG :
@@ -1711,6 +1715,8 @@ htmlSetTextColor(uchar *color)	/* I - Text color */
 {
   strncpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
   _htmlTextColor[sizeof(_htmlTextColor) - 1] = '\0';
+
+  printf("Text color now \"%s\"\n", _htmlTextColor);
 }
 
 
@@ -2020,6 +2026,8 @@ compute_color(tree_t *t,	/* I - Tree entry */
   };
 
 
+  printf("compute_color(%08x, \"%s\")\n", t, color);
+
   if (color[0] == '#')
   {
    /*
@@ -2169,5 +2177,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.5 1999/11/10 15:59:26 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.6 1999/11/10 21:49:50 mike Exp $".
  */

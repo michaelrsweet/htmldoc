@@ -110,6 +110,7 @@ Copyright 1997-1999, See the GNU General Public License for Details.<BR>
 <LI><A HREF=#4_11_1>Changing the HTML Editor Command</A></LI>
 <LI><A HREF=#4_11_2>Changing the JPEG Quality</A></LI>
 <LI><A HREF=#4_11_3>Changing the Compression Setting</A></LI>
+<LI><A HREF=#pdfversion>Changing the PDF Version</A></LI>
 </UL>
 </UL>
 <B><A HREF=#5>4 - Generating Documents from the Command-Line</A></B>
@@ -178,7 +179,7 @@ Silicon Graphics that generated &quot;compiled&quot; SGML files that could be
 used by the Electronic Book Technologies documentation products (EBT is 
 now owned by <A HREF=http://www.inso.com>INSO</A>.) When SGI stopped 
 supporting these tools we were stuck. INSO laughed in our faces when we 
-said we could afford up to $10k (!) for an updated book generation 
+said we could afford up to $10,000 US for an updated book generation 
 product that would work with the IRIX, Solaris, and HP-UX documentation 
 systems. Other solutions were nearly as expensive, or simply not 
 capable of doing the things we needed. 
@@ -342,7 +343,7 @@ HTMLDOC</I>
 <H2><A NAME=3_1>General Requirements</A></H2>
  Since <I>HTMLDOC</I> is designed as a documentation generation 
 program, it expects to have chapters and headers. 
-<P><B>NOTE:</B> If you are converting a generic web page you must 
+<P><B>Note:</B> If you are converting a generic web page you must 
 select the &quot;--webpage&quot; option on the command-line or choose &quot;Web Page&quot; 
 as the document type in the GUI. </P>
 <H2><A NAME=3_2>Page Breaks</A></H2>
@@ -421,21 +422,18 @@ typefaces are silently ignored.
 <H3><A NAME=3_5_6>Links</A></H3>
  External URL links are fully supported for HTML and PDF output. 
 Internal links are supported in HTML and PDF output. 
-<P>When generating PDF files, links of the form: </P>
-<UL>
-<PRE>
-&lt;A HREF=&quot;file:filename.pdf&quot;&gt;Link Text&lt;/A&gt;
-</PRE>
-</UL>
- will be converted to external file links for the PDF viewer instead of 
-URL links. 
+<P>When generating PDF files, local file links will be converted to 
+external file links for the PDF viewer instead of URL links. That is, 
+you can directly link to another local PDF file from your HTML 
+document. </P>
 <H3><A NAME=3_5_7>Scripts and Applets</A></H3>
  All scripts and applets are silently stripped from the output. 
 <H3><A NAME=3_5_8>Style Sheets</A></H3>
  Style sheets are not yet supported. 
 <H3><A NAME=3_5_9>Tables</A></H3>
  Currently only the HTML 3.2 varient of tables is supported. The 
-CAPTION, THEAD, TFOOT, and TBODY tags are ignored. <HR>
+CAPTION, THEAD, TFOOT, and TBODY tags are silently ignored, and 
+vertical alignment and spanning (ROWSPAN and VALIGN) are not supported. <HR>
 <H1 ALIGN=RIGHT><A NAME=4>3 - Generating Documents from the GUI</A></H1>
  This chapter describes how to generate document files from a given set 
 of HTML &quot;source&quot; files using the <I>HTMLDOC</I> GUI. 
@@ -457,6 +455,9 @@ SRC=./htmldoc-startmenu.gif WIDTH=172>
 window showing the input, output, and generation options. At the bottom 
 are buttons to load, save, and generate documents. 
 <H2><A NAME=4_3>Document File Operations</A></H2>
+<I>HTMLDOC</I> stores the HTML files, settings, and options in &quot;book&quot; 
+files. The buttons on the bottom of the <I>HTMLDOC</I> window allow you 
+manage these files and generate formatted documents. 
 <H3><A NAME=4_3_1>Starting a New Document</A></H3>
  To start a new document, click on the <I>New</I> button. 
 <H3><A NAME=4_3_2>Opening an Existing Document</A></H3>
@@ -466,31 +467,42 @@ are buttons to load, save, and generate documents.
  To save the current document, click on the <I>Save</I> button. If you 
 have never saved the document before or would like to save it with a 
 new filename, click on the <I>Save As...</I> button instead. 
+<P><B>Note:</B> Saving a document is not the same as <I>generating</I>
+ a document. The book files saved to disk by the <I>Save</I> and <I>
+Save As...</I> buttons are <I>not</I> the final HTML, PDF, or 
+PostScript output files.  You generate those files by clicking on the <I>
+Generate</I> button described below. </P>
 <H2><A NAME=4_4>Generating Your Document</A></H2>
  To generate your document, click on the <I>Generate</I> button. The 
 progress meter at the bottom of the window will show the progress as 
-each page is written. 
+each page is formatted and written. 
+<P><B>Note:</B> Generating a document is not the same as <I>saving</I>
+ a document. To save the current HTML files and settings in the <I>
+HTMLDOC</I> GUI, click on the <I>Save</I> or <I>Save As...</I> buttons 
+instead. </P>
 <H2><A NAME=4_5>Exiting from the HTMLDOC GUI</A></H2>
  To exit from the <I>HTMLDOC</I> GUI, click on the <I>Close</I> button. 
-<HR BREAK>
 <P ALIGN=CENTER><IMG SRC=./htmldoc-input.gif>
 <BR> Figure 2 - HTMLDOC Window and Input Tab</P>
 <H2><A NAME=4_6>The Input Tab</A></H2>
+ The input tab lists all of the HTML source files that are used to 
+generate the document. You also specify the type of document (book or 
+web page) and the title and logo images in this tab. 
 <H3><A NAME=4_6_1>Setting the Document Type</A></H3>
- Normally <I>HTMLDOC</I> generates indexed documents from your HTML 
-files.  To convert a single &quot;web page&quot; click on the <I>Web Page</I>
- radio button. 
+ Normally <I>HTMLDOC</I> generates indexed documents from your 
+structured HTML files.  To convert a single unstructured document (or 
+&quot;web page&quot;) click on the <I>Web Page</I> radio button. 
 <H3><A NAME=4_6_2>Adding HTML Input Files</A></H3>
  Click on the <I>Add...</I> button to add an HTML file to your 
 document. 
 <H3><A NAME=4_6_3>Deleting HTML Input Files</A></H3>
  To remove one or more HTML files from your document, click on the file 
-(or drag multiple files) in the input file list and then click on the <I>
-Delete</I> button. The files are removed from your document but are <I>
-not</I> deleted from your disk. 
+(or drag for multiple files) in the input file list and then click on 
+the <I>Delete</I> button. The files are removed from your document but 
+are <I>not</I> deleted from your disk. 
 <H3><A NAME=4_6_4>Editing HTML Input Files</A></H3>
  To edit one or more HTML files in your document, click on the file (or 
-drag multiple files) in the input file list and then click on the <I>
+drag for multiple files) in the input file list and then click on the <I>
 Edit...</I> button. By default this starts the <I>nedit</I> editor 
 under UNIX and the <I>Notepad</I> editor under Windows. See <A HREF=#OPTIONS>
 &quot;The Options Tab&quot;</A> later in this chapter for details on how to 
@@ -504,10 +516,12 @@ Move Up</I> or <I>Move Down</I> button.
 files and in the navigation bar of HTML files. To select a logo image 
 file, click on the <I>Browse</I> button. After the standard file 
 selection dialog appears, double-click on the desired image file. 
-<HR BREAK>
 <P ALIGN=CENTER><IMG SRC=./htmldoc-output.gif>
 <BR> Figure 3 - HTMLDOC Output Tab</P>
 <H2><A NAME=4_7>The Output Tab </A></H2>
+ The output tab specifies where your document will be generated, the 
+output format, and some of the output options that apply to all 
+formats. 
 <H3><A NAME=4_7_1>Selecting File or Directory Generation</A></H3>
 <I>HTMLDOC</I> can generate a single HTML or PostScript file or a 
 series of files, one per chapter plus the table of contents (index) 
@@ -525,7 +539,7 @@ name of the file you would like to create.
 1 PostScript printers do not support the Level 2 image commands 
 generated by <I>HTMLDOC</I> (most printers manufactured in the last 4 
 years are Level 2). 
-<P><B>NOTE:</B> Choose Level 2 PostScript output for Level 3 PostScript 
+<P><B>Note:</B> Choose Level 2 PostScript output for Level 3 PostScript 
 printers. </P>
 <H3><A NAME=4_7_4>Selecting Grayscale Output</A></H3>
  When generating PostScript or PDF files you can choose to convert all 
@@ -536,8 +550,9 @@ considerably.
 <H3><A NAME=4_7_5>Selecting Compressed Output</A></H3>
  PDF files are compressed using Flate (a.k.a. ZIP) compression by 
 default. If you need to view the PDF files produced by <I>HTMLDOC</I>
- with an older version of Acrobat Reader (2.x or earlier) click on the <I>
-Compression</I> toggle button to turn compression off. 
+ with a PDF viewer that does not support this compression, click on the <I>
+Compression</I> toggle button to turn compression off.  You may also 
+want to change the <A HREF=#pdfversion>PDF Version</A> option. 
 <H3><A NAME=4_7_6>Disabling the Title Page</A></H3>
  A title page is generated for your document by default. To turn the 
 title page off, click on the <I>Title Page</I> toggle button. 
@@ -557,10 +572,11 @@ however with low quality settings the images can look blotchy. </P>
  To change the color of the navigation bar used in HTML output, type in 
 a color name in the <I>Bar Color</I> field or click on the <I>Lookup...</I>
  button to graphically pick a color. 
-<HR BREAK>
 <P ALIGN=CENTER><IMG SRC=./htmldoc-page.gif>
 <BR> Figure 4 - HTMLDOC Window and Page Tab</P>
 <H2><A NAME=4_8>The Page Tab</A></H2>
+ The page tab defines the page header, footer, size, and margins for 
+PostScript and PDF output. 
 <H3><A NAME=4_8_1>Selecting a Page Size</A></H3>
  The page size option is only available for PostScript and PDF output. <I>
 HTMLDOC</I> supports the following standard page size names: 
@@ -569,14 +585,17 @@ HTMLDOC</I> supports the following standard page size names:
 <LI>A4 - 8.27x11.69in (210x297mm) </LI>
 <LI>Universal - 8.27x11in (210x279mm) </LI>
 </UL>
-<P>To select a custom page size, double-click on the page size text and 
+ To select a custom page size, double-click on the page size text and 
 enter the page width and length separated by the letter &quot;x&quot;. Append the 
-letters &quot;in&quot; for inches, &quot;mm&quot; for millimeters, or &quot;cm&quot; for centimeters. </P>
+letters &quot;in&quot; for inches, &quot;mm&quot; for millimeters, or &quot;cm&quot; for centimeters. 
+<P><B>Note:</B> This option does not set the page size on the printer. 
+It only generates pages using the specified size. You must still select 
+the correct page size from your application or printer options. </P>
 <H3><A NAME=4_8_2>Selecting Double-Sided Output</A></H3>
  To select double-sided (duplexed) output click on the <I>Double-Sided</I>
  toggle button. 
-<P><B>NOTE:</B> This option does not select duplexing on the printer, 
-it only generates pages with the left/right margins swapped on even 
+<P><B>Note:</B> This option does not select duplexing on the printer. 
+It only generates pages with the left/right margins swapped on even 
 numbered pages and forces all chapters (and the table-of-contents) to 
 start on an odd-numbered page.  You must still select duplexing from 
 your application or printer options. </P>
@@ -590,10 +609,12 @@ the desired text from each of the option buttons.  The leftmost option
 buttons set the text that is left-justified, while the middle buttons 
 set the text that is centered and the right buttons set the text that 
 is right-justified. 
-<HR BREAK>
 <P ALIGN=CENTER><IMG SRC=./htmldoc-toc.gif>
 <BR> Figure 5 - HTMLDOC Window and TOC Tab</P>
 <H2><A NAME=4_9>The Table-Of-Contents Tab</A></H2>
+ The table-of-contents tab defines the number of levels in the 
+table-of-contents and the page header and footer that are used when 
+generating PostScript and PDF files. 
 <H3><A NAME=4_9_1>Customizing the Table of Contents</A></H3>
  To change the number of header levels listed in the table of contents, 
 or to turn off table-of-contents generation entirely, click on <I>Table 
@@ -607,7 +628,6 @@ select the desired text from each of the option buttons.  The leftmost
 option buttons set the text that is left-justified, while the middle 
 buttons set the text that is centered and the right buttons set the 
 text that is right-justified. 
-<HR BREAK>
 <P ALIGN=CENTER><IMG SRC=./htmldoc-fonts.gif>
 <BR> Figure 6 - HTMLDOC Fonts Tab</P>
 <H2><A NAME=4_10>The Fonts Tab </A></H2>
@@ -638,10 +658,11 @@ points per inch).
 the page and footers at the bottom of the page.  To change the 
 header/footer typeface click on the chooser and pick the desired 
 typeface. 
-<HR BREAK>
 <P ALIGN=CENTER><IMG SRC=./htmldoc-options.gif>
 <BR> Figure 7 - HTMLDOC Options Tab</P>
 <H2><A NAME=4_11>The Options Tab </A></H2>
+ The options tab contains options specific to PostScript and PDF output 
+as well as the current HTML editor. 
 <H3><A NAME=4_11_1>Changing the HTML Editor Command</A></H3>
  To change the HTML editor that is used, type in the program name in 
 the <I>HTML Editor</I> field or click on the <I>Browse...</I> button. 
@@ -655,7 +676,13 @@ the mouse button when the desired quality is shown.
 <H3><A NAME=4_11_3>Changing the Compression Setting</A></H3>
  To change the compression setting, move the mouse pointer over the 
 slider knob and drag the slider using the left mouse button. Release 
-the mouse button when the desired level is shown. <HR>
+the mouse button when the desired level is shown. 
+<H3><A NAME=pdfversion>Changing the PDF Version</A></H3>
+ Older versions of Adobe Acrobat Reader cannot handle the Flate 
+compression and named links present in the normal output of HTMLDOC. 
+ To change the PDF version, click on the radio button that corresponds 
+to the version of Acrobat you or your users will be using. If you have 
+Acrobat Reader 4.0, choose version 1.2. <HR>
 <H1 ALIGN=RIGHT><A NAME=5>4 - Generating Documents from the Command-Line</A>
 </H1>
  This chapter describes how to generate one or more document files from 

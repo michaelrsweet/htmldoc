@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.7 1999/11/10 15:59:25 mike Exp $"
+// "$Id: gui.cxx,v 1.8 1999/11/10 21:49:50 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1272,6 +1272,9 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (titleImage->size() > 0)
     fprintf(fp, " --title %s", titleImage->value());
+
+  if (textColor->size() > 0)
+    fprintf(fp, " --textcolor %s", textColor->value());
 
   if (bodyColor->size() > 0)
     fprintf(fp, " --bodycolor %s", bodyColor->value());
@@ -2556,5 +2559,5 @@ GUI::file_localize(const char *filename,// I - Filename
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.7 1999/11/10 15:59:25 mike Exp $".
+// End of "$Id: gui.cxx,v 1.8 1999/11/10 21:49:50 mike Exp $".
 //
