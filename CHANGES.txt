@@ -1,4 +1,4 @@
-CHANGES.txt - 07/27/2002
+CHANGES.txt - 07/31/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -42,6 +42,8 @@ CHANGES IN HTMLDOC v1.8.21
 	- The MEDIA SIZE comment didn't adjust the printable
 	  size for the current landscape setting.
 	- HTMLDOC placed the header one line too high.
+	- When continuing a chapter onto the next page, H3 and
+	  higher headings would be indented the wrong amount.
 
 
 CHANGES IN HTMLDOC v1.8.20
