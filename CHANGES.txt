@@ -32,6 +32,11 @@ CHANGES IN HTMLDOC v1.8.7
 	- Updated the default cellpadding to be 1 pixel to match
 	  Netscape output.
 	- Updated line and block spacing to match Netscape.
+	- DL/DT/DD output now matches browsers (was indented from
+	  browser output.)
+	- Now only output link (A) style if it is set to "none".
+	  Otherwise Netscape would underline all targets as well
+	  as links.
 
     BUG FIXES
 
