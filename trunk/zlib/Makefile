@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.13 2004/03/31 08:39:12 mike Exp $"
+# "$Id: Makefile,v 1.14 2004/10/23 08:28:43 mike Exp $"
 #
 #   ZIP library Makefile for the HTMLDOC software.
 #
-#   Makefile copyright 1997-2004 by Easy Software Products, all rights
+#   Makefile copyright 1997-2001 by Easy Software Products, all rights
 #   reserved.
 #   ZIP library copyright 1995-1998 Jean-loup Gailly.
 #   For conditions of distribution and use, see copyright notice in zlib.h 
@@ -27,26 +27,12 @@
 
 include ../Makedefs
 
-
 #
 # Object files...
 #
 
-OBJS	=	\
-		adler32.o \
-		compress.o \
-		crc32.o \
-		deflate.o \
-		gzio.o \
-		infback.o \
-		inffast.o \
-		inflate.o \
-		inftrees.o \
-		trees.o \
-		uncompr.o \
-		zutil.o
-
-
+OBJS	=	adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o \
+		trees.o zutil.o inflate.o inftrees.o inffast.o
 
 #
 # Make all targets...
@@ -54,17 +40,13 @@ OBJS	=	\
 
 all:	libz.a
 
-
 #
 # Clean all targets and object files...
 #
 
 clean:
-	$(RM) *.bak
-	$(RM) *.bck
 	$(RM) $(OBJS)
 	$(RM) libz.a
-
 
 #
 # libz.a
@@ -76,24 +58,16 @@ libz.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
+$(OBJS):	zlib.h zconf.h ../Makedefs
+crc32.o:	zutil.h crc32.h
+gzio.o:		zutil.h
+deflate.o:	deflate.h zutil.h
+trees.o:	deflate.h zutil.h trees.h
+zutil.o:	zutil.h
+inflate.o:	zutil.h inftrees.h inflate.h inffast.h inffixed.h
+inftrees.o:	zutil.h inftrees.h
+inffast.o:	zutil.h inftrees.h inflate.h inffast.h
 
 #
-# Update dependencies...
-#
-
-depend:
-	makedepend -Y -I.. -f Dependencies $(OBJS:.o=.c)
-
-
-#
-# Dependencies...
-#
-	
-$(OBJS):	../Makedefs
-
-include Dependencies
-
-
-#
-# End of "$Id: Makefile,v 1.13 2004/03/31 08:39:12 mike Exp $".
+# End of "$Id: Makefile,v 1.14 2004/10/23 08:28:43 mike Exp $".
 #
