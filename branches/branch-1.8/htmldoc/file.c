@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.29 2001/12/13 19:04:04 mike Exp $"
+ * "$Id: file.c,v 1.13.2.30 2001/12/14 23:36:11 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -320,6 +320,8 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 		username[HTTP_MAX_URI],	/* Username:password */
 		hostname[HTTP_MAX_URI],	/* Hostname */
 		resource[HTTP_MAX_URI];	/* Resource */
+  const char	*sptr;			/* Pointer into "s" */
+  int		ch;			/* Quoted character */
   int		port;			/* Port number */
   const char	*connhost;		/* Host to connect to */
   int		connport;		/* Port to connect to */
@@ -371,7 +373,39 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     */
 
     if (path == NULL || !path[0])
-      return (s);
+    {
+      if (strchr(s, '%') == NULL)
+        return (s);
+
+      for (sptr = s, temp = filename;
+           *sptr && temp < (filename + sizeof(filename) - 1);)
+        if (*sptr == '%' && isxdigit(sptr[1]) && isxdigit(sptr[2]))
+	{
+	 /*
+	  * Dequote %HH...
+	  */
+
+          if (isalpha(sptr[1]))
+	    ch = (tolower(sptr[1]) - 'a' + 10) << 4;
+	  else
+	    ch = (sptr[1] - '0') << 4;
+
+          if (isalpha(sptr[2]))
+	    ch |= tolower(sptr[2]) - 'a' + 10;
+	  else
+	    ch |= sptr[2] - '0';
+
+          *temp++ = ch;
+
+	  sptr += 3;
+	}
+	else
+	  *temp++ = *sptr++;
+
+      *temp = '\0';
+
+      return (filename);
+    }
 
    /*
     * Else loop through the path string until we reach the end...
@@ -400,11 +434,34 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 	*temp++ = '/';
 
      /*
-      * Append the filename...
+      * Append the filename, dequoting %HH as needed...
       */
 
-      strncpy(temp, s, sizeof(filename) - (temp - filename));
-      filename[sizeof(filename) - 1] = '\0';
+      for (sptr = s; *sptr && temp < (filename + sizeof(filename) - 1);)
+        if (*sptr == '%' && isxdigit(sptr[1]) && isxdigit(sptr[2]))
+	{
+	 /*
+	  * Dequote %HH...
+	  */
+
+          if (isalpha(sptr[1]))
+	    ch = (tolower(sptr[1]) - 'a' + 10) << 4;
+	  else
+	    ch = (sptr[1] - '0') << 4;
+
+          if (isalpha(sptr[2]))
+	    ch |= tolower(sptr[2]) - 'a' + 10;
+	  else
+	    ch |= sptr[2] - '0';
+
+          *temp++ = ch;
+
+	  sptr += 3;
+	}
+	else
+	  *temp++ = *sptr++;
+
+      *temp = '\0';
 
      /*
       * See if the file exists...
@@ -941,5 +998,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.29 2001/12/13 19:04:04 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.30 2001/12/14 23:36:11 mike Exp $".
  */
