@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.115 2001/10/18 20:51:26 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.116 2001/10/20 21:49:24 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -126,11 +126,11 @@
 #  include <Files.h>
 #endif // MAC
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
 #  include <io.h>
 #else
 #  include <unistd.h>
-#endif // WIN32 || __EMX__
+#endif // WIN32
 
 #include <fcntl.h>
 
@@ -10341,5 +10341,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.115 2001/10/18 20:51:26 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.116 2001/10/20 21:49:24 mike Exp $".
  */

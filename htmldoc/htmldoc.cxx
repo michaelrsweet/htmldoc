@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.30 2001/10/18 23:19:22 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.31 2001/10/20 21:49:17 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -56,6 +56,12 @@
 #  include <unistd.h>
 #endif // WIN32
 
+#ifdef __EMX__
+extern "C" {
+const char *__XOS2RedirRoot(const char *);
+}
+#endif
+ 
 
 /*
  * Local types...
@@ -1084,6 +1090,14 @@ prefs_load(void)
     RegCloseKey(key);
   }
 #endif // WIN32
+
+#if defined(__EMX__) && defined(HAVE_LIBFLTK)
+  // If being installed within XFree86 OS/2 Environment
+  // we can use those values which are overwritten by
+  // the according environment variables.
+  _htmlData = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc"));
+  GUI::help_dir = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc/doc"));
+#endif // __EMX__ && HAVE_LIBFLTK
 
   //
   // See if the installed directories have been overridden by
@@ -2169,5 +2183,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.30 2001/10/18 23:19:22 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.31 2001/10/20 21:49:17 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: hdstring.h,v 1.1.2.1 2001/10/15 15:30:22 mike Exp $"
+ * "$Id: hdstring.h,v 1.1.2.2 2001/10/20 21:49:16 mike Exp $"
  *
  *   String definitions for HTMLDOC, a HTML document processing program.
  *
@@ -49,11 +49,14 @@ extern "C" {
  * Define some compatibility macros for Microsoft Windows...
  */
 
-#  if defined(WIN32) || defined(__EMX__)
+#  ifdef WIN32
 #    define strcasecmp(s,t)	stricmp(s,t)
 #    define strncasecmp(s,t,n)	strnicmp(s,t,n)
 #    define snprintf		_snprintf
 #    define vsnprintf		_vsnprintf
+#  elif defined(__EMX__)
+#    define strcasecmp(s,t)	stricmp(s,t)
+#    define strncasecmp(s,t,n)	strnicmp(s,t,n)
 #  endif /* WIN32 || __EMX__ */
 
 
@@ -89,5 +92,5 @@ extern int	vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: hdstring.h,v 1.1.2.1 2001/10/15 15:30:22 mike Exp $".
+ * End of "$Id: hdstring.h,v 1.1.2.2 2001/10/20 21:49:16 mike Exp $".
  */
