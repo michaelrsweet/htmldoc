@@ -1,5 +1,5 @@
 /*
- * "$Id: render.cxx,v 1.14.2.6 2004/03/23 21:54:38 mike Exp $"
+ * "$Id: render.cxx,v 1.14.2.7 2004/03/24 03:02:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3805,6 +3805,7 @@ hdRender::parse_doc(hdTree   *t,			/* I - Tree to parse */
 		  break;
 	      case HD_TEXTALIGN_RIGHT :
 	          *x = margins->right() - width;
+	      default :
 		  break;
 	    }
 
@@ -4088,8 +4089,7 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 		*link,
 		*border;
   char		line[10240],
-		*lineptr,
-		*dataptr;
+		*lineptr;
   hdTree	*linetype;
   float		linex,
 		linewidth;
@@ -4439,8 +4439,8 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
                temp->style->vertical_align == HD_VERTICALALIGN_MIDDLE)
         height = 0.5 * temp->height;
 
-      if (temp->superscript && height)
-        temp_height += height - temp_height;
+//      if (temp->superscript && height)
+//        temp_height += height - temp_height;
     }
 
     for (spacing = 0.0, temp = prev = start;
@@ -4450,7 +4450,7 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       prev = temp;
 
       if (temp->element != HD_ELEMENT_IMG)
-        temp_height = temp->height * _htmlSpacings[0] / _htmlSizes[0];
+        temp_height = temp->style->line_height;
       else
       {
         switch (temp->style->vertical_align)
@@ -4463,6 +4463,7 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
               break;
 	  case HD_VERTICALALIGN_BOTTOM :
 	      temp_height = temp->height;
+	  default :
               break;
 	}
 
@@ -4478,8 +4479,8 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         temp_height += 2 * borderspace;
       }
 
-      if (temp->subscript)
-        temp_height += height - temp_height;
+//      if (temp->subscript)
+//        temp_height += height - temp_height;
 
       if (temp_height > spacing)
         spacing = temp_height;
@@ -4504,6 +4505,7 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       if (temp->element != HD_ELEMENT_A)
         break;
 
+#if 0
     if (temp != NULL && temp->element == HD_ELEMENT_NONE && temp->data[0] == ' ')
     {
       // Drop leading space...
@@ -4516,6 +4518,7 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       temp->width -= temp_width;
       num_chars --;
     }
+#endif // 0
 
     if (end != NULL)
       temp = end->prev;
@@ -4544,10 +4547,6 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     temp         = start;
     linetype     = NULL;
 
-    rgb[0] = temp->red / 255.0f;
-    rgb[1] = temp->green / 255.0f;
-    rgb[2] = temp->blue / 255.0f;
-
     switch (t->style->text_align)
     {
       case HD_TEXTALIGN_LEFT :
@@ -4571,14 +4570,6 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
     while (temp != end)
     {
-      if (temp->link != NULL && PSLevel == 0 && Links &&
-          temp->element == HD_ELEMENT_NONE)
-      {
-	temp->red   = (int)(link_color[0] * 255.0);
-	temp->green = (int)(link_color[1] * 255.0);
-	temp->blue  = (int)(link_color[2] * 255.0);
-      }
-
      /*
       * See if we are doing a run of characters in a line and need to
       * output this run...
@@ -4586,14 +4577,7 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
       if (linetype != NULL &&
 	  (temp->element != HD_ELEMENT_NONE ||
-	   temp->typeface != linetype->typeface ||
-	   temp->style != linetype->style ||
-	   temp->size != linetype->size ||
-	   temp->superscript != linetype->superscript ||
-	   temp->subscript != linetype->subscript ||
-	   temp->red != linetype->red ||
-	   temp->green != linetype->green ||
-	   temp->blue != linetype->blue))
+	   temp->style != linetype->style))
       {
         switch (linetype->style->vertical_align)
 	{
@@ -4604,21 +4588,20 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	      offset = 0.5f * (height - linetype->height);
 	      break;
 	  case HD_VERTICALALIGN_BOTTOM :
+	  default :
 	      offset = 0.0f;
 	}
 
-        r = new_render(*page, HD_RENDERTYPE_TEXT, linex - linewidth, *y + offset,
-	               linewidth, linetype->height, line);
-	r->data.text.typeface = linetype->typeface;
-	r->data.text.style    = linetype->style;
-	r->data.text.size     = _htmlSizes[linetype->size];
-	r->data.text.spacing  = char_spacing;
-        memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+        new_render(*page, HD_RENDERTYPE_TEXT, linetype->style,
+	           linex - linewidth, *y + offset,
+	           linewidth, linetype->height, line);
 
+#if 0
 	if (linetype->superscript)
           r->y += height - linetype->height;
         else if (linetype->subscript)
           r->y -= height - linetype->height;
+#endif // 0
 
         free(linetype);
         linetype = NULL;
@@ -4660,6 +4643,7 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 		  offset = 0.5f * (height - temp->height);
 		  break;
 	      case HD_VERTICALALIGN_BOTTOM :
+	      default :
 		  offset = 0.0f;
 	    }
 
@@ -4668,22 +4652,20 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	      linetype  = temp;
 	      lineptr   = line;
 	      linewidth = 0.0;
-
-	      rgb[0] = temp->red / 255.0f;
-	      rgb[1] = temp->green / 255.0f;
-	      rgb[2] = temp->blue / 255.0f;
 	    }
 
             strcpy(lineptr, temp->data);
 
             temp_width = temp->width + char_spacing * strlen(lineptr);
 
+#if 0
 	    if (temp->underline || (temp->link && LinkStyle && PSLevel == 0))
 	      new_render(*page, HD_RENDERTYPE_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
 
 	    if (temp->strikethrough)
 	      new_render(*page, HD_RENDERTYPE_BOX, linex, *y + offset + temp->height * 0.25f,
 	                 temp_width, 0, rgb);
+#endif // 0
 
             linewidth  += temp_width;
             lineptr    += strlen(lineptr);
@@ -4727,28 +4709,33 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 		  offset = -0.5f * temp->height - borderspace;
 		  break;
 	      case HD_VERTICALALIGN_BOTTOM :
+	      default :
 		  offset = 0.0f;
 	    }
 
             if (borderspace > 0.0f)
 	    {
 	      // Top
-              new_render(*page, HD_RENDERTYPE_BOX, linex,
+              new_render(*page, HD_RENDERTYPE_BOX, temp->style, linex,
 	                 *y + offset + temp->height + borderspace,
-			 temp->width + 2 * borderspace, borderspace, rgb);
+			 temp->width + 2 * borderspace, borderspace,
+			 temp->style->color);
 	      // Left
-              new_render(*page, HD_RENDERTYPE_BOX, linex, *y + offset,
-                	 borderspace, temp->height + 2 * borderspace, rgb);
+              new_render(*page, HD_RENDERTYPE_BOX, temp->style, linex, *y + offset,
+                	 borderspace, temp->height + 2 * borderspace,
+			 temp->style->color);
 	      // Right
-              new_render(*page, HD_RENDERTYPE_BOX, linex + temp->width + borderspace,
+              new_render(*page, HD_RENDERTYPE_BOX, temp->style, linex + temp->width + borderspace,
 	                 *y + offset, borderspace,
-			 temp->height + 2 * borderspace, rgb);
+			 temp->height + 2 * borderspace,
+			 temp->style->color);
 	      // Bottom
-              new_render(*page, HD_RENDERTYPE_BOX, linex, *y + offset,
-                	 temp->width + 2 * borderspace, borderspace, rgb);
+              new_render(*page, HD_RENDERTYPE_BOX, temp->style, linex, *y + offset,
+                	 temp->width + 2 * borderspace, borderspace,
+			 temp->style->color);
 	    }
 
-	    new_render(*page, HD_RENDERTYPE_IMAGE, linex + borderspace,
+	    new_render(*page, HD_RENDERTYPE_IMAGE, temp->style, linex + borderspace,
 	               *y + offset + borderspace, temp->width, temp->height,
 		       hdImage::find(temp->get_attr("REALSRC"), !OutputColor));
             whitespace = 0;
@@ -4758,7 +4745,7 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
       if (temp->link != NULL)
       {
-        link = htmlGetVariable(temp->link, "HREF");
+        link = temp->link->get_attr("HREF");
 
        /*
 	* Add a page link...
@@ -4769,10 +4756,10 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	  if (hdFile::target(link) != NULL)
 	    link = hdFile::target(link) - 1; // Include # sign
 	  else
-	    link = file_basename(link);
+	    link = hdFile::basename(link, basename, sizeof(basename));
 	}
 
-	new_render(*page, HD_RENDERTYPE_LINK, linex, *y + offset, temp->width,
+	new_render(*page, HD_RENDERTYPE_LINK, temp->style, linex, *y + offset, temp->width,
 	           temp->height, link);
       }
 
@@ -4798,21 +4785,20 @@ hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	    offset = 0.5f * (height - linetype->height);
 	    break;
 	case HD_VERTICALALIGN_BOTTOM :
+	default :
 	    offset = 0.0f;
       }
 
-      r = new_render(*page, HD_RENDERTYPE_TEXT, linex - linewidth, *y + offset,
+      r = new_render(*page, HD_RENDERTYPE_TEXT, linetype->style,
+                     linex - linewidth, *y + offset,
                      linewidth, linetype->height, line);
-      r->data.text.typeface = linetype->typeface;
-      r->data.text.style    = linetype->style;
-      r->data.text.spacing  = char_spacing;
-      r->data.text.size     = _htmlSizes[linetype->size];
-      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
+#if 0
       if (linetype->superscript)
         r->y += height - linetype->height;
       else if (linetype->subscript)
         r->y -= height - linetype->height;
+#endif // 0
 
       free(linetype);
     }
@@ -4846,15 +4832,14 @@ hdRender::parse_pre(hdTree   *t,			/* I - Tree to parse */
           int      needspace)		/* I - Need whitespace? */
 {
   hdTree	*flat, *start, *next;
-  char		*link,
-		line[10240],
+  const char	*link;
+  char		line[10240],
 		*lineptr,
-		*dataptr;
+		*dataptr,
+		basename[1024];
   int		col;
   float		width,
-		height,
-		rgb[3];
-  hdRenderNode	*r;
+		height;
 
 
   DEBUG_printf(("parse_pre(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d\n",
@@ -4887,10 +4872,6 @@ hdRender::parse_pre(hdTree   *t,			/* I - Tree to parse */
 
   while (flat != NULL)
   {
-    rgb[0] = flat->red / 255.0f;
-    rgb[1] = flat->green / 255.0f;
-    rgb[2] = flat->blue / 255.0f;
-
     for (height = 0.0f, start = flat; flat != NULL; flat = flat->next)
     {
       if (flat->height > height)
@@ -4925,7 +4906,7 @@ hdRender::parse_pre(hdTree   *t,			/* I - Tree to parse */
     {
       if (start->link != NULL)
       {
-	link = htmlGetVariable(start->link, "HREF");
+	link = start->link->get_attr("HREF");
 
        /*
 	* Add a page link...
@@ -4936,12 +4917,13 @@ hdRender::parse_pre(hdTree   *t,			/* I - Tree to parse */
 	  if (hdFile::target(link) != NULL)
 	    link = hdFile::target(link) - 1; // Include # sign
 	  else
-	    link = file_basename(link);
+	    link = hdFile::basename(link, basename, sizeof(basename));
 	}
 
-	new_render(*page, HD_RENDERTYPE_LINK, *x, *y, start->width,
+	new_render(*page, HD_RENDERTYPE_LINK, start->style, *x, *y, start->width,
 	           start->height, link);
 
+#if 0
 	if (PSLevel == 0 && Links)
 	{
           memcpy(rgb, link_color, sizeof(rgb));
@@ -4954,6 +4936,7 @@ hdRender::parse_pre(hdTree   *t,			/* I - Tree to parse */
 	    new_render(*page, HD_RENDERTYPE_BOX, *x, *y - 1, start->width, 0,
 	               link_color);
 	}
+#endif // 0
       }
 
       switch (start->element)
@@ -4992,25 +4975,26 @@ hdRender::parse_pre(hdTree   *t,			/* I - Tree to parse */
 
             *lineptr = '\0';
 
-            width = get_width(line, start->typeface, start->style, start->size);
-            r = new_render(*page, HD_RENDERTYPE_TEXT, *x, *y, width, 0, line);
-            r->data.text.typeface = start->typeface;
-            r->data.text.style    = start->style;
-            r->data.text.size     = _htmlSizes[start->size];
-            memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+	    // MRS: need to properly allocate this!
+            width = start->style->get_width(line);
+            new_render(*page, HD_RENDERTYPE_TEXT, start->style,
+	               *x, *y, width, 0, line);
 
+#if 0
 	    if (start->underline)
 	      new_render(*page, HD_RENDERTYPE_BOX, *x, *y - 1, start->width, 0, rgb);
 
 	    if (start->strikethrough)
 	      new_render(*page, HD_RENDERTYPE_BOX, *x, *y + start->height * 0.25f,
 	        	 start->width, 0, rgb);
+#endif // 0
 
             *x += start->width;
             break;
 
 	case HD_ELEMENT_IMG :
-	    new_render(*page, HD_RENDERTYPE_IMAGE, *x, *y, start->width, start->height,
+	    new_render(*page, HD_RENDERTYPE_IMAGE, start->style,
+	               *x, *y, start->width, start->height,
 		       hdImage::find(start->get_attr("REALSRC"), !OutputColor));
 
             *x += start->width;
@@ -5032,7 +5016,7 @@ hdRender::parse_pre(hdTree   *t,			/* I - Tree to parse */
 	             "Preformatted text on page %d too long - "
 		     "truncation or overlapping may occur!", *page + 1);
 
-    *y -= _htmlSpacings[t->size] - _htmlSizes[t->size];
+    *y -= t->style->line_height - t->style->font_size;
   }
 
   *x = margins->left();
@@ -5100,7 +5084,7 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
 		table_y,
 		row_y, row_starty, temp_y;
   int		row_page, temp_page, table_page;
-  char		*var,
+  const char	*var,
 		*height_var;		// Row HEIGHT variable
   hdTree	*temprow,
 		*tempcol,
@@ -5124,9 +5108,8 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
   hdRenderNode	*cell_start[HD_MAX_COLUMNS];
 					// Start of the content for a cell in the row
   hdRenderNode	*cell_end[HD_MAX_COLUMNS];	// End of the content for a cell in a row
-  char		*bgcolor;
-  float		rgb[3],
-		bgrgb[3];
+  const char	*bgcolor;
+  float		rgb[3];
 
 
   DEBUG_puts("\n\nTABLE");
@@ -5184,12 +5167,8 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
   else
     border = 0.0f;
 
-  rgb[0] = t->red / 255.0f;
-  rgb[1] = t->green / 255.0f;
-  rgb[2] = t->blue / 255.0f;
-
-  if ((var = t->get_attr("BORDERCOLOR")) != NULL)
-    hdStyle::get_color(var, rgb, 0);
+//  if ((var = t->get_attr("BORDERCOLOR")) != NULL)
+//    hdStyle::get_color(var, rgb, 0);
 
   if (border == 0.0f && cellpadding > 0.0f)
   {
@@ -5714,6 +5693,7 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
         break;
     case HD_TEXTALIGN_RIGHT :
         *x = margins->right() - width + cellpadding;
+    default :
         break;
   }
 
@@ -5765,12 +5745,10 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
       */
 
       if ((height_var = t->get_attr("HEIGHT")) == NULL)
-	if ((height_var = htmlGetVariable(cells[row][0]->parent,
-                           	          "HEIGHT")) == NULL)
+	if ((height_var = cells[row][0]->parent->get_attr("HEIGHT")) == NULL)
 	  for (col = 0; col < num_cols; col ++)
-	    if (htmlGetVariable(cells[row][col], "ROWSPAN") == NULL)
-	      if ((height_var = htmlGetVariable(cells[row][col],
-                                                "HEIGHT")) != NULL)
+	    if (cells[row][col]->get_attr("ROWSPAN") == NULL)
+	      if ((height_var = cells[row][col]->get_attr("HEIGHT")) != NULL)
 	        break;
     }
 
@@ -5831,7 +5809,7 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
     {
       if (row_spans[col] == 0)
       {
-        if ((var = htmlGetVariable(cells[row][col], "ROWSPAN")) != NULL)
+        if ((var = cells[row][col]->get_attr("ROWSPAN")) != NULL)
           row_spans[col] = atoi(var);
 
         if (row_spans[col] > (num_rows - row))
@@ -5872,25 +5850,29 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
 
         if (cells[row][col] == NULL)
 	  bgcolor = NULL;
-	else if ((bgcolor = htmlGetVariable(cells[row][col],
-                                            "BGCOLOR")) != NULL)
+	else if ((bgcolor = cells[row][col]->get_attr("BGCOLOR")) != NULL)
 	{
+#if 0
 	  memcpy(bgrgb, background_color, sizeof(bgrgb));
 
           hdStyle::get_color(bgcolor, bgrgb, 0);
+#endif // 0
 
 	  width       = col_rights[col + colspan] - col_lefts[col] +
         	        2 * cellpadding;
 	  border_left = col_lefts[col] - cellpadding;
 
-          cell_bg[col] = new_render(*page, HD_RENDERTYPE_BOX, border_left, row_y,
-                                    width + border, 0.0, bgrgb);
+          cell_bg[col] = new_render(*page, HD_RENDERTYPE_BOX,
+	                            cells[row][col]->style, border_left, row_y,
+                                    width + border, 0.0,
+				    cells[row][col]->style->color);
 	}
 	else
 	{
 	  cell_bg[col] = NULL;
 
-          new_render(*page, HD_RENDERTYPE_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
+          new_render(*page, HD_RENDERTYPE_TEXT, t->style,
+	             -1.0f, -1.0f, 0.0, 0.0, (void *)"");
 	}
 
         DEBUG_printf(("cell_bg[%d] = %p, pages[%d].last = %p\n",
@@ -6127,41 +6109,50 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
     border_left = col_lefts[0] - cellpadding;
     width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
 
-    if ((bgcolor = htmlGetVariable(cells[row][0]->parent,
-                                         "BGCOLOR")) != NULL)
+    if ((bgcolor = cells[row][0]->parent->get_attr("BGCOLOR")) != NULL)
     {
+#if 0
       memcpy(bgrgb, background_color, sizeof(bgrgb));
 
       hdStyle::get_color(bgcolor, bgrgb, 0);
+#endif // 0
 
       if (row_page != *page)
       {
         // Draw background on multiple pages...
 
 	// Bottom of first page...
-        new_render(row_page, HD_RENDERTYPE_BOX, border_left, margins->bottom(),
-	           width, row_starty - margins->bottom() + cellpadding, bgrgb,
+        new_render(row_page, HD_RENDERTYPE_BOX, cells[row][0]->parent->style,
+	           border_left, margins->bottom(),
+	           width, row_starty - margins->bottom() + cellpadding,
+		   cells[row][0]->parent->style->color,
 		   pages[row_page].first);
 
         // Intervening pages...
         for (temp_page = row_page + 1; temp_page != *page; temp_page ++)
 	{
-          new_render(temp_page, HD_RENDERTYPE_BOX, border_left, margins->bottom(),
-                     width, margins->length(), bgrgb, pages[temp_page].first);
+          new_render(temp_page, HD_RENDERTYPE_BOX, cells[row][0]->parent->style,
+	             border_left, margins->bottom(),
+                     width, margins->length(),
+		     cells[row][0]->parent->style->color, pages[temp_page].first);
         }
 
         // Top of last page...
 	check_pages(*page);
 
-        new_render(*page, HD_RENDERTYPE_BOX, border_left, row_y,
-	           width, margins->top() - row_y, bgrgb,
+        new_render(*page, HD_RENDERTYPE_BOX, cells[row][0]->parent->style,
+	           border_left, row_y,
+	           width, margins->top() - row_y,
+		   cells[row][0]->parent->style->color,
 		   pages[*page].first);
       }
       else
       {
         // Draw background in row...
-        new_render(row_page, HD_RENDERTYPE_BOX, border_left, row_y,
-	           width, row_height + 2 * cellpadding, bgrgb,
+        new_render(row_page, HD_RENDERTYPE_BOX, cells[row][0]->parent->style,
+	           border_left, row_y,
+	           width, row_height + 2 * cellpadding,
+		   cells[row][0]->parent->style->color,
 		   pages[temp_page].first);
       }
     }
@@ -6187,13 +6178,14 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
           row_spans[col] > 0)
         continue;
 
-      if ((bgcolor = htmlGetVariable(cells[row][col],
-                                     "BGCOLOR")) != NULL)
+#if 0
+      if ((bgcolor = cells[row][col]->get_attr("BGCOLOR")) != NULL)
       {
         memcpy(bgrgb, background_color, sizeof(bgrgb));
 
         hdStyle::get_color(bgcolor, bgrgb, 0);
       }
+#endif // 0
 
       border_left = col_lefts[col] - cellpadding;
 
@@ -6211,16 +6203,16 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
 	  */
 
 	  // Top
-          new_render(cell_page[col], HD_RENDERTYPE_BOX, border_left,
+          new_render(cell_page[col], HD_RENDERTYPE_BOX, t->style, border_left,
                      cell_y[col] + cellpadding,
-		     width + border, border, rgb);
+		     width + border, border, t->style->color);
 	  // Left
-          new_render(cell_page[col], HD_RENDERTYPE_BOX, border_left, margins->bottom(),
+          new_render(cell_page[col], HD_RENDERTYPE_BOX, t->style, border_left, margins->bottom(),
                      border,
 		     cell_y[col] - margins->bottom() + cellpadding + border,
 		     rgb);
 	  // Right
-          new_render(cell_page[col], HD_RENDERTYPE_BOX,
+          new_render(cell_page[col], HD_RENDERTYPE_BOX, t->style,
 	             border_left + width, margins->bottom(),
 		     border,
 		     cell_y[col] - margins->bottom() + cellpadding + border,
@@ -6244,17 +6236,17 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
 	  if (border > 0.0f)
 	  {
 	    // Left
-            new_render(temp_page, HD_RENDERTYPE_BOX, border_left, margins->bottom(),
-                       border, margins->length(), rgb);
+            new_render(temp_page, HD_RENDERTYPE_BOX, t->style, border_left, margins->bottom(),
+                       border, margins->length(), t->style->color);
 	    // Right
-            new_render(temp_page, HD_RENDERTYPE_BOX,
+            new_render(temp_page, HD_RENDERTYPE_BOX, t->style,
 	               border_left + width, margins->bottom(),
-		       border, margins->length(), rgb);
+		       border, margins->length(), t->style->color);
           }
 
 	  if (bgcolor != NULL)
-            new_render(temp_page, HD_RENDERTYPE_BOX, border_left, margins->bottom(),
-                       width + border, margins->length(), bgrgb,
+            new_render(temp_page, HD_RENDERTYPE_BOX, t->style, border_left, margins->bottom(),
+                       width + border, margins->length(), t->style->background_color,
 		       pages[temp_page].first);
         }
 
@@ -6266,23 +6258,23 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
 	  */
 
 	  // Left
-          new_render(cell_endpage[col], HD_RENDERTYPE_BOX, border_left, row_y,
-                     border, margins->top() - row_y, rgb);
+          new_render(cell_endpage[col], HD_RENDERTYPE_BOX, t->style, border_left, row_y,
+                     border, margins->top() - row_y, t->style->color);
 	  // Right
-          new_render(cell_endpage[col], HD_RENDERTYPE_BOX,
+          new_render(cell_endpage[col], HD_RENDERTYPE_BOX, t->style,
 	             border_left + width, row_y,
-                     border, margins->top() - row_y, rgb);
+                     border, margins->top() - row_y, t->style->color);
 	  // Bottom
-          new_render(cell_endpage[col], HD_RENDERTYPE_BOX, border_left, row_y,
-                     width + border, border, rgb);
+          new_render(cell_endpage[col], HD_RENDERTYPE_BOX, t->style, border_left, row_y,
+                     width + border, border, t->style->color);
         }
 
         if (bgcolor != NULL)
 	{
 	  check_pages(cell_endpage[col]);
 
-          new_render(cell_endpage[col], HD_RENDERTYPE_BOX, border_left, row_y,
-	             width + border, margins->top() - row_y, bgrgb,
+          new_render(cell_endpage[col], HD_RENDERTYPE_BOX, t->style, border_left, row_y,
+	             width + border, margins->top() - row_y, t->style->background_color,
 		     pages[cell_endpage[col]].first);
 	}
       }
@@ -6297,19 +6289,19 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
         if (border > 0.0f)
 	{
 	  // Top
-          new_render(cell_page[col], HD_RENDERTYPE_BOX, border_left,
+          new_render(cell_page[col], HD_RENDERTYPE_BOX, t->style, border_left,
                      cell_y[col] + cellpadding,
-		     width + border, border, rgb);
+		     width + border, border, t->style->color);
 	  // Left
-          new_render(cell_page[col], HD_RENDERTYPE_BOX, border_left, row_y,
-                     border, cell_y[col] - row_y + cellpadding + border, rgb);
+          new_render(cell_page[col], HD_RENDERTYPE_BOX, t->style, border_left, row_y,
+                     border, cell_y[col] - row_y + cellpadding + border, t->style->color);
 	  // Right
-          new_render(cell_page[col], HD_RENDERTYPE_BOX,
+          new_render(cell_page[col], HD_RENDERTYPE_BOX, t->style,
 	             border_left + width, row_y,
-                     border, cell_y[col] - row_y + cellpadding + border, rgb);
+                     border, cell_y[col] - row_y + cellpadding + border, t->style->color);
 	  // Bottom
-          new_render(cell_page[col], HD_RENDERTYPE_BOX, border_left, row_y,
-                     width + border, border, rgb);
+          new_render(cell_page[col], HD_RENDERTYPE_BOX, t->style, border_left, row_y,
+                     width + border, border, t->style->color);
 	}
 
         if (bgcolor != NULL)
@@ -6335,9 +6327,11 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
 
   if ((bgcolor = t->get_attr("BGCOLOR")) != NULL)
   {
+#if 0
     memcpy(bgrgb, background_color, sizeof(bgrgb));
 
     hdStyle::get_color(bgcolor, bgrgb, 0);
+#endif // 0
 
     border_left = col_lefts[0] - cellpadding;
     width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
@@ -6347,28 +6341,28 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
       // Draw background on multiple pages...
 
       // Bottom of first page...
-      new_render(table_page, HD_RENDERTYPE_BOX, border_left, margins->bottom(),
-	         width, table_y - margins->bottom() + cellpadding, bgrgb,
+      new_render(table_page, HD_RENDERTYPE_BOX, t->style, border_left, margins->bottom(),
+	         width, table_y - margins->bottom() + cellpadding, t->style->background_color,
 		 pages[table_page].first);
 
       // Intervening pages...
       for (temp_page = table_page + 1; temp_page != *page; temp_page ++)
       {
-        new_render(temp_page, HD_RENDERTYPE_BOX, border_left, margins->bottom(),
-                   width, margins->length(), bgrgb, pages[temp_page].first);
+        new_render(temp_page, HD_RENDERTYPE_BOX, t->style, border_left, margins->bottom(),
+                   width, margins->length(), t->style->background_color, pages[temp_page].first);
       }
 
       // Top of last page...
       check_pages(*page);
 
-      new_render(*page, HD_RENDERTYPE_BOX, border_left, *y,
-	         width, margins->top() - *y, bgrgb, pages[*page].first);
+      new_render(*page, HD_RENDERTYPE_BOX, t->style, border_left, *y,
+	         width, margins->top() - *y, t->style->background_color, pages[*page].first);
     }
     else
     {
       // Draw background in row...
-      new_render(table_page, HD_RENDERTYPE_BOX, border_left, *y,
-	         width, table_y - *y, bgrgb, pages[temp_page].first);
+      new_render(table_page, HD_RENDERTYPE_BOX, t->style, border_left, *y,
+	         width, table_y - *y, t->style->background_color, pages[temp_page].first);
     }
   }
 
@@ -6424,12 +6418,11 @@ hdRender::parse_list(hdTree   *t,			/* I - Tree to parse */
 {
   char		number[255];		/* List number (for numbered types) */
   char		*value;			/* VALUE= variable */
-  int		typeface;		/* Typeface of list number */
   float		width;			/* Width of list number */
-  hdRenderNode	*r;			/* Render primitive */
   int		oldpage;		/* Old page value */
   float		oldy;			/* Old Y value */
   float		tempx;			/* Temporary X value */
+  hdRenderNode	*r;			// Render node
 
 
   DEBUG_printf(("parse_list(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d\n",
@@ -6438,7 +6431,7 @@ hdRender::parse_list(hdTree   *t,			/* I - Tree to parse */
 
   if (needspace && *y < margins->top())
   {
-    *y        -= _htmlSpacings[t->size];
+    *y        -= t->style->line_height;
     needspace = 0;
   }
 
@@ -6450,13 +6443,6 @@ hdRender::parse_list(hdTree   *t,			/* I - Tree to parse */
   oldpage = *page;
   r       = pages[*page].last;
   tempx   = *x;
-
-  if (t->indent == 0)
-  {
-    // Adjust left margin when no UL/OL/DL is being used...
-    margins->adjust_left(_htmlSizes[t->size]);
-    tempx += _htmlSizes[t->size];
-  }
 
   parse_doc(t->child, margins, &tempx, y, page, NULL, &needspace);
 
@@ -6475,51 +6461,38 @@ hdRender::parse_list(hdTree   *t,			/* I - Tree to parse */
   if ((value = t->get_attr("VALUE")) != NULL)
   {
     if (isdigit(value[0]))
-      list_values[t->indent] = atoi(value);
+      list_values[0] = atoi(value);
     else if (isupper(value[0]))
-      list_values[t->indent] = value[0] - 'A' + 1;
+      list_values[0] = value[0] - 'A' + 1;
     else
-      list_values[t->indent] = value[0] - 'a' + 1;
+      list_values[0] = value[0] - 'a' + 1;
   }
 
-  switch (list_types[t->indent])
+  switch (list_types[0])
   {
     case 'a' :
     case 'A' :
     case '1' :
     case 'i' :
     case 'I' :
-        strlcpy(number, format_number(list_values[t->indent],
-	                                      list_types[t->indent]),
+        strlcpy(number, format_number(list_values[0],
+	                                      list_types[0]),
 		sizeof(number));
         strlcat(number, ". ", sizeof(number));
-        typeface = t->typeface;
         break;
 
     default :
-        sprintf(number, "%c ", list_types[t->indent]);
-        typeface = TYPE_SYMBOL;
+        sprintf(number, "%c ", list_types[0]);
         break;
   }
 
-  width = get_width(number, typeface, t->style, t->size);
+  width = t->style->get_width(number);
 
-  r = new_render(oldpage, HD_RENDERTYPE_TEXT, margins->left() - width, oldy - _htmlSizes[t->size],
-                 width, _htmlSpacings[t->size], number);
-  r->data.text.typeface = typeface;
-  r->data.text.style    = t->style;
-  r->data.text.size     = _htmlSizes[t->size];
-  r->data.text.rgb[0]   = t->red / 255.0f;
-  r->data.text.rgb[1]   = t->green / 255.0f;
-  r->data.text.rgb[2]   = t->blue / 255.0f;
+  new_render(oldpage, HD_RENDERTYPE_TEXT, t->style,
+             margins->left() - width, oldy - t->style->font_size,
+             width, t->style->line_height, number);
 
-  list_values[t->indent] ++;
-
-  if (t->indent == 0)
-  {
-    // Adjust left margin when no UL/OL/DL is being used...
-    margins->adjust_left(-_htmlSizes[t->size]);
-  }
+  list_values[0] ++;
 }
 
 
@@ -6528,9 +6501,9 @@ hdRender::parse_list(hdTree   *t,			/* I - Tree to parse */
  */
 
 void
-hdRender::init_list(hdTree *t)			/* I - List entry */
+hdRender::init_list(hdTree *t)		/* I - List entry */
 {
-  char		*type,			/* TYPE= variable */
+  const char	*type,			/* TYPE= variable */
 		*value;			/* VALUE= variable */
   static char	*symbols = "\327\267\250\340";
 
@@ -6538,17 +6511,17 @@ hdRender::init_list(hdTree *t)			/* I - List entry */
   if ((type = t->get_attr("TYPE")) != NULL)
   {
     if (strlen(type) == 1)
-      list_types[t->indent] = type[0];
+      list_types[0] = type[0];
     else if (strcasecmp(type, "disc") == 0 ||
              strcasecmp(type, "circle") == 0)
-      list_types[t->indent] = symbols[1];
+      list_types[0] = symbols[1];
     else
-      list_types[t->indent] = symbols[2];
+      list_types[0] = symbols[2];
   }
   else if (t->element == HD_ELEMENT_UL)
-    list_types[t->indent] = symbols[t->indent & 3];
+    list_types[0] = symbols[0 & 3];
   else if (t->element == HD_ELEMENT_OL)
-    list_types[t->indent] = '1';
+    list_types[0] = '1';
 
   if ((value = t->get_attr("VALUE")) == NULL)
     value = t->get_attr("START");
@@ -6556,14 +6529,14 @@ hdRender::init_list(hdTree *t)			/* I - List entry */
   if (value != NULL)
   {
     if (isdigit(value[0]))
-      list_values[t->indent] = atoi(value);
+      list_values[0] = atoi(value);
     else if (isupper(value[0]))
-      list_values[t->indent] = value[0] - 'A' + 1;
+      list_values[0] = value[0] - 'A' + 1;
     else
-      list_values[t->indent] = value[0] - 'a' + 1;
+      list_values[0] = value[0] - 'a' + 1;
   }
   else if (t->element == HD_ELEMENT_OL)
-    list_values[t->indent] = 1;
+    list_values[0] = 1;
 }
 
 
@@ -12043,5 +12016,5 @@ hdRender::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: render.cxx,v 1.14.2.6 2004/03/23 21:54:38 mike Exp $".
+ * End of "$Id: render.cxx,v 1.14.2.7 2004/03/24 03:02:09 mike Exp $".
  */
