@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.11.2.7 2002/03/24 17:27:45 mike Exp $"
+# "$Id: Makefile,v 1.11.2.8 2002/06/08 10:44:54 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -79,7 +79,7 @@ clean:
 #
 
 htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v --datadir .. --batch htmldoc.book -f htmldoc.html --datadir ..
+	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.html --datadir ..
 
 
 #
@@ -87,7 +87,7 @@ htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc
 #
 
 htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v --datadir .. --batch htmldoc.book -f htmldoc.pdf --datadir ..
+	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.pdf --datadir ..
 
 
 #
@@ -95,7 +95,7 @@ htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc
 #
 
 htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v --datadir .. --batch htmldoc.book -f htmldoc.ps --datadir ..
+	../htmldoc/htmldoc --datadir .. --batch htmldoc.book -f htmldoc.ps --datadir ..
 
 
 #
@@ -107,5 +107,5 @@ htmldoc.1:	htmldoc.man
 
 
 #
-# End of "$Id: Makefile,v 1.11.2.7 2002/03/24 17:27:45 mike Exp $".
+# End of "$Id: Makefile,v 1.11.2.8 2002/06/08 10:44:54 mike Exp $".
 #
