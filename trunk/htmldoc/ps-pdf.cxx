@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.81 2000/06/06 01:06:11 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.82 2000/06/30 13:00:06 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3805,6 +3805,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       num_rows ++;
     }
 
+
  /*
   * Now figure out the width of the table...
   */
@@ -4258,10 +4259,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   * Free memory for the table...
   */
 
-  for (row = 0; row < num_rows; row ++)
-    free(cells[row]);
+  if (num_rows > 0)
+  {
+    for (row = 0; row < num_rows; row ++)
+      free(cells[row]);
 
-  free(cells);
+    free(cells);
+  }
 }
 //#undef DEBUG_printf
 //#define DEBUG_printf(x)
@@ -7120,5 +7124,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.81 2000/06/06 01:06:11 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.82 2000/06/30 13:00:06 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.35 2000/06/29 18:26:48 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.36 2000/06/30 13:00:05 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -370,6 +370,15 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
         free(t);
         break;
       }
+
+     /*
+      * Eliminate extra whitespace...
+      */
+
+      if (issuper(t->markup) || isblock(t->markup) ||
+          islist(t->markup) || islentry(t->markup) ||
+          istable(t->markup) || istentry(t->markup))
+        have_whitespace = 0;
 
      /*
       * If this is the matching close mark, or if we are starting the same
@@ -2286,5 +2295,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.35 2000/06/29 18:26:48 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.36 2000/06/30 13:00:05 mike Exp $".
  */
