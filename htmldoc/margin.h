@@ -1,5 +1,5 @@
 //
-// "$Id: margin.h,v 1.8 2004/02/03 02:55:28 mike Exp $"
+// "$Id: margin.h,v 1.8.2.1 2004/03/20 03:57:25 mike Exp $"
 //
 // Margin class definitions for HTMLDOC, a HTML document processing
 // program.
@@ -16,7 +16,7 @@
 //     Attn: HTMLDOC Licensing Information
 //     Easy Software Products
 //     44141 Airport View Drive, Suite 204
-//     Hollywood, Maryland 20636-3111 USA
+//     Hollywood, Maryland 20636-3142 USA
 //
 //     Voice: (301) 373-9600
 //     EMail: info@easysw.com
@@ -65,7 +65,7 @@ class hdMargin
     * @param r float Initial right margin in points.
     * @param t float Top margin in points.
     */
-    hdMargin(float l, float r, float b, float t = 0.0);
+    hdMargin(float l, float r, float b, float t);
 
    /**
     * The <TT>left()</TT> method returns the current left margin.
@@ -160,11 +160,39 @@ class hdMargin
     * @return The stack depth.
     */
     int		level() { return (_level); }
+
+   /**
+    * The <tt>adjust_bottom()</tt> method adds the specified value
+    * to the bottom margins in the stack.
+    */
+    void	adjust_bottom(float b)
+		{ for (int i = 0; i <= _level; i ++) _bottom[i] += b; }
+
+   /**
+    * The <tt>adjust_left()</tt> method adds the specified value
+    * to the left margins in the stack.
+    */
+    void	adjust_left(float l)
+		{ for (int i = 0; i <= _level; i ++) _left[i] += l; }
+
+   /**
+    * The <tt>adjust_right()</tt> method adds the specified value
+    * to the right margins in the stack.
+    */
+    void	adjust_right(float r)
+		{ for (int i = 0; i <= _level; i ++) _right[i] += r; }
+
+   /**
+    * The <tt>adjust_top()</tt> method adds the specified value
+    * to the top margin.
+    */
+    void	adjust_top(float t)
+		{ _top += t; }
 };
 
 #endif // !HTMLDOC_MARGIN_H
 
 
 //
-// End of "$Id: margin.h,v 1.8 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: margin.h,v 1.8.2.1 2004/03/20 03:57:25 mike Exp $".
 //

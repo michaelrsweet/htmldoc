@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.13.2.15 2004/02/06 03:51:08 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.15.2.1 2004/03/20 03:57:25 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -34,7 +34,7 @@ include ../Makedefs
 #
 
 OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o http.o \
-		http-addr.o http-support.o image.o iso8859.o md5.o \
+		http-addr.o http-support.o image.o iso8859.o margin.o md5.o \
 		progress.o ps-pdf.o rc4.o snprintf.o string.o toc.o util.o
 
 
@@ -43,6 +43,7 @@ OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o http.o \
 #
 
 all:	htmldoc$(EXEEXT)
+
 
 #
 # Install everything...
@@ -73,10 +74,6 @@ htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
 	$(POST) htmldoc$(EXEEXT)
 
-htmldoc.purify$(EXEEXT):	$(OBJS) ../Makedefs
-	echo Linking $@...
-	purify $(CXX) $(LDFLAGS) -o htmldoc.purify$(EXEEXT) $(OBJS) $(LIBS)
-
 file.o:		file.h http.h md5.h progress.h hdstring.h
 gui.o:		gui.h html.h htmldoc.h image.h iso8859.h progress.h \
 		types.h htmldoc.xbm htmldoc.xpm
@@ -89,6 +86,7 @@ http-addr.o:	http.h http-private.h hdstring.h
 http-support.o:	http.h http-private.h hdstring.h
 image.o:	debug.h htmldoc.h image.h progress.h types.h
 iso8859.o:	iso8859.h types.h
+margin.o:	margin.h
 md5.o:		md5.h
 ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h md5.h progress.h \
 		rc4.h types.h
@@ -122,5 +120,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.13.2.15 2004/02/06 03:51:08 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.15.2.1 2004/03/20 03:57:25 mike Exp $".
 #

@@ -1,5 +1,5 @@
 //
-// "$Id: margin.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $"
+// "$Id: margin.cxx,v 1.4.2.1 2004/03/20 03:57:25 mike Exp $"
 //
 // Margin class routines for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //     Attn: HTMLDOC Licensing Information
 //     Easy Software Products
 //     44141 Airport View Drive, Suite 204
-//     Hollywood, Maryland 20636-3111 USA
+//     Hollywood, Maryland 20636-3142 USA
 //
 //     Voice: (301) 373-9600
 //     EMail: info@easysw.com
@@ -55,7 +55,7 @@ void
 hdMargin::clear(float y,	// I - Current Y position
                 int   p)	// I - Current page number
 {
-  while (level() > 0 && (y >= bottom() || p >= page()))
+  while (level() > 0 && ((y <= bottom() && p == page()) || p > page()))
     pop();
 }
 
@@ -70,7 +70,7 @@ hdMargin::push(float l,		// I - New left margin
 	       float b,		// I - New bottom margin
 	       int   p)		// I - Page number for margin
 {
-  if (b > bottom() || p > page() || _level == 0)
+  if (b < bottom() || p > page() || _level == 0)
   {
     //
     // This new set of margins finishes before the current one;
@@ -128,5 +128,5 @@ hdMargin::push(float l,		// I - New left margin
 
 
 //
-// End of "$Id: margin.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: margin.cxx,v 1.4.2.1 2004/03/20 03:57:25 mike Exp $".
 //
