@@ -1,4 +1,4 @@
-CHANGES.txt - 02/28/2001
+CHANGES.txt - 03/02/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.12
@@ -37,6 +37,9 @@ CHANGES IN HTMLDOC v1.8.12
 	  page length; this seems to provide fairly consistent
 	  wrapping of tables without leaving huge expanses of
 	  blank space at the bottom of pages.
+	- The HTML output now also includes a font-family style
+	  for PRE text; otherwise the body font would override
+	  the PRE font with some browsers.
 
     BUG FIXES
 

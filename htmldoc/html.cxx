@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.7 2001/02/28 19:33:29 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.8 2001/03/02 17:17:40 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -282,7 +282,7 @@ write_header(FILE   **out,	/* IO - Output file */
             families[_htmlHeadingFont], _htmlSizes[SIZE_H6]);
     fprintf(*out, "SUB { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
     fprintf(*out, "SUP { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
-    fprintf(*out, "PRE { font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
+    fprintf(*out, "PRE { font-family: monospace; font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
 
     if (!LinkStyle)
       fputs("A { text-decoration: none }\n", *out);
@@ -890,5 +890,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.7 2001/02/28 19:33:29 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.8 2001/03/02 17:17:40 mike Exp $".
  */
