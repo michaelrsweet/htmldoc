@@ -36,7 +36,7 @@ window->hide();}
       }
       Fl_Input fileName {
         label {Filename:}
-        callback {fileNameCB();} selected
+        callback {fileNameCB();}
         xywh {75 235 160 25} when 8
         code0 {fileName->when(FL_WHEN_CHANGED | FL_WHEN_ENTER_KEY_ALWAYS);}
       }
@@ -71,12 +71,18 @@ rescan();}
     code {window->size_range(345, 270, 345);
 init_icons();
 fileList->filter(p);
-directory(d);
 multi_ = m;
 if (m)
+{
+  directory(d);
   fileList->type(FL_MULTI_BROWSER);
+}
 else
-  fileList->type(FL_HOLD_BROWSER);} {}
+{
+  value(d);
+  fileList->type(FL_HOLD_BROWSER);
+}} {selected
+    }
   }
   decl {char directory_[1024];} {}
   decl {int multi_;} {}
@@ -127,7 +133,9 @@ else
     code {window->show();
 fileList->deselect();} {}
   }
-  decl {const char *value(int f);} {public
+  decl {const char *value(int f = 1);} {public
+  }
+  decl {void value(const char *filename);} {public
   }
   Function {visible()} {return_type int
   } {
