@@ -1,13 +1,12 @@
-htmldoc(1)            Easy Software Products           htmldoc(1)
+htmldoc(1)                  Easy Software Products                  htmldoc(1)
 
 
 
-NNAAMMEE
-       htmldoc - convert html source files into html, postscript,
-       or pdf.
+[1mNAME[0m
+       htmldoc - convert html source files into html, postscript, or pdf.
 
 
-SSYYNNOOPPSSIISS
+[1mSYNOPSIS[0m
        htmldoc [options] filename1.html [ ... filenameN.html ]
 
        htmldoc [options] -
@@ -15,158 +14,142 @@ SSYYNNOOPPSSIISS
        htmldoc [filename.book]
 
 
-DDEESSCCRRIIPPTTIIOONN
-       _H_T_M_L_D_O_C converts HTML  source  files  into  indexed  HTML,
-       PostScript,  or  Portable Document Format (PDF) files that
-       can be viewed online or printed.  With no  options  a  PDF
-       document is produced on stdout.
+[1mDESCRIPTION[0m
+       [4mHTMLDOC[24m  converts  HTML  source files into indexed HTML, PostScript, or
+       Portable Document Format (PDF) files  that  can  be  viewed  online  or
+       printed.  With no options a PDF document is produced on stdout.
 
-       The  second  form of _H_T_M_L_D_O_C reads HTML source from stdin,
-       which allows you to use _H_T_M_L_D_O_C as a filter.
+       The  second  form of [4mHTMLDOC[24m reads HTML source from stdin, which allows
+       you to use [4mHTMLDOC[24m as a filter.
 
-       The third form of _H_T_M_L_D_O_C launches a  graphical  interface
-       that  allows  you to change options and generate documents
-       interactively.
+       The third form of [4mHTMLDOC[24m launches a graphical  interface  that  allows
+       you to change options and generate documents interactively.
 
-CCOOMMMMOONN MMIISSTTAAKKEESS
-       There are two types of HTML files -  structured  documents
-       using headings (H1, H2, etc.) which _H_T_M_L_D_O_C calls "books",
-       and unstructured documents that do not use headings  which
-       _H_T_M_L_D_O_C calls "web pages".
+[1mCOMMON MISTAKES[0m
+       There are two types of HTML files - structured documents using headings
+       (H1, H2, etc.) which [4mHTMLDOC[24m calls "books", and unstructured  documents
+       that do not use headings which [4mHTMLDOC[24m calls "web pages".
 
-       A  very  common  mistake  is  to try converting a web page
-       using:
+       A very common mistake is to try converting a web page using:
 
        htmldoc -f filename.pdf filename.html
 
-       which will likely produce a PDF file  with  no  pages.  To
-       convert  web  page  files  you  mmuusstt  use the _-_-_w_e_b_p_a_g_e or
-       _-_-_c_o_n_t_i_n_u_o_u_s options at the  command-line  or  choose  _W_e_b
-       _P_a_g_e or _C_o_n_t_i_n_u_o_u_s in the input tab of the GUI.
+       which will likely produce a PDF file with no pages. To convert web page
+       files you [1mmust [22muse the [4m--webpage[24m or [4m--continuous[24m options  at  the  com-
+       mand-line or choose [4mWeb[24m [4mPage[24m or [4mContinuous[24m in the input tab of the GUI.
 
-OOPPTTIIOONNSS
-       The  following command-line options are supported by _H_T_M_L_-
-       _D_O_C:
+[1mOPTIONS[0m
+       The following command-line options are supported by [4mHTMLDOC[24m:
 
 
-       --batch _f_i_l_e_n_a_m_e_._b_o_o_k
-            Generates the specified book file without opening the
-            GUI.
+       --batch [4mfilename.book[0m
+            Generates the specified book file without opening the GUI.
 
 
-       --bodycolor _c_o_l_o_r
+       --bodycolor [4mcolor[0m
             Specifies the background color for all pages.
 
 
-       --bodyfont _{_c_o_u_r_i_e_r_,_t_i_m_e_s_,_h_e_l_v_e_t_i_c_a_}
+       --bodyfont [4m{courier,times,helvetica}[0m
 
-       --textfont _{_c_o_u_r_i_e_r_,_t_i_m_e_s_,_h_e_l_v_e_t_i_c_a_}
+       --textfont [4m{courier,times,helvetica}[0m
             Specifies the default typeface for all normal text.
 
 
-       --bodyimage _f_i_l_e_n_a_m_e
-            Specifies  the  background image that is tiled on all
-            pages.
+       --bodyimage [4mfilename[0m
+            Specifies the background image that is tiled on all pages.
 
 
        --book
-            Specifies that the HTML sources are structured (head-
-            ings, chapters, etc.)
+            Specifies that the HTML sources are  structured  (headings,  chap-
+            ters, etc.)
 
 
-       --bottom _m_a_r_g_i_n
-            Specifies  the  bottom margin in points (no suffix or
-            ##pt), inches (##in), centimeters (##cm), or millime-
-            ters (##mm).
+       --bottom [4mmargin[0m
+            Specifies  the bottom margin in points (no suffix or ##pt), inches
+            (##in), centimeters (##cm), or millimeters (##mm).
 
 
-       --charset _{_8_8_5_9_-_1_._._._8_8_5_9_-_1_5_}
-            Specifies  the  ISO character set to use for the out-
-            put.
+       --charset [4m{8859-1...8859-15}[0m
+            Specifies the ISO character set to use for the output.
 
 
        --color
-            Specifies that PostScript or PDF output should be  in
-            color.
+            Specifies that PostScript or PDF output should be in color.
 
 
        --continuous
-            Specifies  that  the  HTML  sources  are unstructured
-            (plain web  pages.)   No  page  breaks  are  inserted
-            between each file or URL in the output.
+            Specifies that  the  HTML  sources  are  unstructured  (plain  web
+            pages.)   No  page breaks are inserted between each file or URL in
+            the output.
 
 
-       --datadir _d_i_r_e_c_t_o_r_y
-            Specifies  the  location  of  the _H_T_M_L_D_O_C data files,
-            usually _/_u_s_r_/_s_h_a_r_e_/_h_t_m_l_d_o_c or _C_:_\_P_r_o_g_r_a_m  _F_i_l_e_s_\_H_T_M_L_-
-            _D_O_C.
+       --datadir [4mdirectory[0m
+            Specifies  the  location  of  the  [4mHTMLDOC[24m  data  files,   usually
+            [4m/usr/share/htmldoc[24m or [4mC:\Program[24m [4mFiles\HTMLDOC[24m.
 
 
        --duplex
-            Specifies  that  the  output  should be formatted for
-            double-sided printing.
+            Specifies  that  the  output  should be formatted for double-sided
+            printing.
 
 
-       --effectduration _{ _0_._1_._._1_0_._0 _}
-            Specifies the duration in seconds of PDF page transi-
-            tion effects.
+       --effectduration [4m{[24m [4m0.1..10.0[24m [4m}[0m
+            Specifies the duration in seconds of PDF page transition  effects.
 
 
        --embedfonts
-            Specifies  that  fonts  should be embedded in PDF and
-            PostScript output.
+            Specifies that fonts should be embedded in PDF and PostScript out-
+            put.
 
 
        --encryption
             Enables encryption of PDF files.
 
 
-       --fontsize _s_i_z_e
+       --fontsize [4msize[0m
             Specifies the default font size for body text.
 
 
-       --fontspacing _s_p_a_c_i_n_g
-            Specifies the default line spacing for body text. The
-            line  spacing is a multiplier for the font size, so a
-            value of 1.2 will provide an additional 20% of  space
-            between the lines.
+       --fontspacing [4mspacing[0m
+            Specifies the default line spacing for body text. The line spacing
+            is  a multiplier for the font size, so a value of 1.2 will provide
+            an additional 20% of space between the lines.
 
 
-       --footer _f_f_f
-            Sets  the  page  footer to use on body pages. See the
-            _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
+       --footer [4mfff[0m
+            Sets the page footer to use on body pages. See the [4mHEADERS/FOOTERS[0m
+            [4mFORMATS[24m section below.
 
 
-       --format _f_o_r_m_a_t
+       --format [4mformat[0m
 
-       -t _f_o_r_m_a_t
-            Specifies  the  output  format:  html,  ps   or   ps2
-            (PostScript  Level  2), ps1 (PostScript Level 1), ps3
-            (PostScript Level 3), pdf11  (PDF  1.1/Acrobat  2.0),
-            pdf12  (PDF  1.2/Acrobat  3.0),  pdf  or  pdf13  (PDF
-            1.3/Acrobat 4.0), or pdf14 (PDF 1.4/Acrobat 5.0).
+       -t [4mformat[0m
+            Specifies  the  output  format: html, htmlsep (separate HTML files
+            for each heading in the table-of-contents), ps or ps2  (PostScript
+            Level  2),  ps1  (PostScript  Level  1), ps3 (PostScript Level 3),
+            pdf11 (PDF 1.1/Acrobat 2.0), pdf12 (PDF 1.2/Acrobat 3.0),  pdf  or
+            pdf13 (PDF 1.3/Acrobat 4.0), or pdf14 (PDF 1.4/Acrobat 5.0).
 
 
        --gray
-            Specifies that PostScript or  PDF  output  should  be
-            grayscale.
+            Specifies that PostScript or PDF output should be grayscale.
 
 
-       --header _f_f_f
-            Sets  the  page  header to use on body pages. See the
-            _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
+       --header [4mfff[0m
+            Sets the page header to use on body pages. See the [4mHEADERS/FOOTERS[0m
+            [4mFORMATS[24m section below.
 
 
-       --headfootfont _f_o_n_t
+       --headfootfont [4mfont[0m
             Sets the font to use on headers and footers.
 
 
-       --headfootsize _s_i_z_e
-            Sets the size of the font to use on headers and foot-
-            ers.
+       --headfootsize [4msize[0m
+            Sets the size of the font to use on headers and footers.
 
 
-       --headingfont _t_y_p_e_f_a_c_e
+       --headingfont [4mtypeface[0m
             Sets the typeface to use for headings.
 
 
@@ -174,24 +157,22 @@ OOPPTTIIOONNSS
             Displays a summary of command-line options.
 
 
-       --helpdir _d_i_r_e_c_t_o_r_y
-            Specifies  the  location  of the _H_T_M_L_D_O_C on-line help
-            files, usually _/_u_s_r_/_s_h_a_r_e_/_d_o_c_/_h_t_m_l_d_o_c  or  _C_:_\_P_r_o_g_r_a_m
-            _F_i_l_e_s_\_H_T_M_L_D_O_C_\_D_O_C.
+       --helpdir [4mdirectory[0m
+            Specifies the location of the [4mHTMLDOC[24m on-line help files,  usually
+            [4m/usr/share/doc/htmldoc[24m or [4mC:\Program[24m [4mFiles\HTMLDOC\DOC[24m.
 
 
-       --jpeg_[_=_q_u_a_l_i_t_y_]
-            Sets  the  JPEG  compression  level  to use for large
-            images. A value of 0 disables JPEG compression.
+       --jpeg[4m[=quality][0m
+            Sets  the  JPEG compression level to use for large images. A value
+            of 0 disables JPEG compression.
 
 
-       --left _m_a_r_g_i_n
-            Specifies the left margin in  points  (no  suffix  or
-            ##pt), inches (##in), centimeters (##cm), or millime-
-            ters (##mm).
+       --left [4mmargin[0m
+            Specifies the left margin in points (no suffix  or  ##pt),  inches
+            (##in), centimeters (##cm), or millimeters (##mm).
 
 
-       --linkcolor _c_o_l_o_r
+       --linkcolor [4mcolor[0m
             Sets the color of links.
 
 
@@ -199,14 +180,17 @@ OOPPTTIIOONNSS
             Enables generation of links in PDF files (default).
 
 
-       --linkstyle _{_p_l_a_i_n_,_u_n_d_e_r_l_i_n_e_}
+       --linkstyle [4m{plain,underline}[0m
             Sets the style of links.
 
 
-       --logoimage _f_i_l_e_n_a_m_e
-            Specifies an image to be used as a logo in the header
-            or footer in a PostScript or PDF document, and in the
-            navigation bar of a HTML document.
+       --logoimage [4mfilename[0m
+            Specifies an image to be used as a logo in the header or footer in
+            a PostScript or PDF document, and in the navigation bar of a  HTML
+            document.
+
+            Note that you would need to include either the [4m--header[24m and/or the
+            [4m--footer[24m option with the use of the [4ml[24m parameter.
 
 
        --no-compression
@@ -218,8 +202,8 @@ OOPPTTIIOONNSS
 
 
        --no-embedfonts
-            Specifies that fonts should not be  embedded  in  PDF
-            and PostScript output.
+            Specifies that fonts should not be embedded in PDF and  PostScript
+            output.
 
 
        --no-encryption
@@ -239,8 +223,7 @@ OOPPTTIIOONNSS
 
 
        --no-pscommands
-            Disables  generation of PostScript setpagedevice com-
-            mands.
+            Disables generation of PostScript setpagedevice commands.
 
 
        --no-strict
@@ -259,43 +242,42 @@ OOPPTTIIOONNSS
             Numbers all headings in a document.
 
 
-       --nup _p_a_g_e_s
-            Sets the number of pages that are placed on each out-
-            put page.  Valid values are 1, 2, 4, 6, 9, and 16.
+       --nup [4mpages[0m
+            Sets  the  number  of  pages  that are placed on each output page.
+            Valid values are 1, 2, 4, 6, 9, and 16.
 
 
-       --outdir _d_i_r_e_c_t_o_r_y
+       --outdir [4mdirectory[0m
 
-       -d _d_i_r_e_c_t_o_r_y
-            Specifies  that  output should be sent to a directory
-            in multiple files.  (Not compatible with PDF output)
-
-
-       --outfile _f_i_l_e_n_a_m_e
-
-       -f _f_i_l_e_n_a_m_e
-            Specifies that output should  be  sent  to  a  single
-            file.
+       -d [4mdirectory[0m
+            Specifies that output should be sent to a  directory  in  multiple
+            files.  (Not compatible with PDF output)
 
 
-       --owner-password _p_a_s_s_w_o_r_d
+       --outfile [4mfilename[0m
+
+       -f [4mfilename[0m
+            Specifies that output should be sent to a single file.
+
+
+       --owner-password [4mpassword[0m
             Sets the owner password for encrypted PDF files.
 
 
-       --pageduration _{_1_._0_._._6_0_._0_}
+       --pageduration [4m{1.0..60.0}[0m
             Sets the view duration of a page in a PDF document.
 
 
-       --pageeffect _e_f_f_e_c_t
-            Specifies  the  page transition effect for all pages;
-            this attribute is ignored by all Adobe PDF viewers...
+       --pageeffect [4meffect[0m
+            Specifies the page transition effect for all pages; this attribute
+            is ignored by all Adobe PDF viewers...
 
 
-       --pagelayout _{_s_i_n_g_l_e_,_o_n_e_,_t_w_o_l_e_f_t_,_t_w_o_r_i_g_h_t_}
+       --pagelayout [4m{single,one,twoleft,tworight}[0m
             Specifies the initial layout of pages for a PDF file.
 
 
-       --pagemode _{_d_o_c_u_m_e_n_t_,_o_u_t_l_i_n_e_s_,_f_u_l_l_s_c_r_e_e_n_}
+       --pagemode [4m{document,outlines,fullscreen}[0m
             Specifies the initial viewing mode for a PDF file.
 
 
@@ -303,36 +285,33 @@ OOPPTTIIOONNSS
             Specifies a search path for files in a document.
 
 
-       --permissions _p_e_r_m_i_s_s_i_o_n
-            Specifies  document  permissions  for  encrypted  PDF
-            files. Multiple _-_-_p_e_r_m_i_s_s_i_o_n_s options are required to
-            grant or deny  specific  permissions.  The  following
-            values  are understood: all, none, annotate, no-anno-
-            tate, copy, no-copy, modify,  no-modify,  print,  and
+       --permissions [4mpermission[0m
+            Specifies document permissions for encrypted PDF  files.  Multiple
+            [4m--permissions[24m  options are required to grant or deny specific per-
+            missions. The following values are understood:  all,  none,  anno-
+            tate,  no-annotate,  copy,  no-copy, modify, no-modify, print, and
             no-print.
 
 
        --pscommands
-            Specifies   that  PostScript  setpagedevice  commands
-            should be included in the output.
+            Specifies  that  PostScript  setpagedevice  commands   should   be
+            included in the output.
 
 
        --quiet
             Suppresses all messages, even error messages.
 
 
-       --right _m_a_r_g_i_n
-            Specifies the right margin in points  (no  suffix  or
-            ##pt), inches (##in), centimeters (##cm), or millime-
-            ters (##mm).
+       --right [4mmargin[0m
+            Specifies  the  right margin in points (no suffix or ##pt), inches
+            (##in), centimeters (##cm), or millimeters (##mm).
 
 
-       --size _p_a_g_e_s_i_z_e
-            Specifies the page size using a standard name  or  in
-            points (no suffix or ##x##pt), inches (##x##in), cen-
-            timeters (##x##cm),  or  millimeters  (##x##mm).  The
-            standard  sizes  that  are  currently  recognized are
-            "letter"   (8.5x11in),   "legal"   (8.5x14in),   "a4"
+       --size [4mpagesize[0m
+            Specifies the page size using a standard name  or  in  points  (no
+            suffix  or  ##x##pt),  inches (##x##in), centimeters (##x##cm), or
+            millimeters (##x##mm). The standard sizes that are currently  rec-
+            ognized   are   "letter"   (8.5x11in),  "legal"  (8.5x14in),  "a4"
             (210x297mm), and "universal" (8.27x11in).
 
 
@@ -340,7 +319,7 @@ OOPPTTIIOONNSS
             Enables strict HTML input checking.
 
 
-       --textcolor _c_o_l_o_r
+       --textcolor [4mcolor[0m
             Specifies the default color of all text.
 
 
@@ -348,42 +327,39 @@ OOPPTTIIOONNSS
             Enables the generation of a title page.
 
 
-       --titlefile _f_i_l_e_n_a_m_e
+       --titlefile [4mfilename[0m
 
-       --titleimage _f_i_l_e_n_a_m_e
-            Specifies  the file to use for the title page. If the
-            file is an image then the title page is automatically
-            generated  using  the  document  meta  data and title
-            image.
-
-
-       --tocfooter _f_f_f
-            Sets the page  footer  to  use  on  table-of-contents
-            pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
+       --titleimage [4mfilename[0m
+            Specifies the file to use for the title page. If the  file  is  an
+            image  then  the  title  page is automatically generated using the
+            document meta data and title image.
 
 
-       --tocheader _f_f_f
-            Sets the page  header  to  use  on  table-of-contents
-            pages. See the _H_E_A_D_E_R_S_/_F_O_O_T_E_R_S _F_O_R_M_A_T_S section below.
+       --tocfooter [4mfff[0m
+            Sets the page footer to use on table-of-contents  pages.  See  the
+            [4mHEADERS/FOOTERS[24m [4mFORMATS[24m section below.
 
 
-       --toclevels _l_e_v_e_l_s
+       --tocheader [4mfff[0m
+            Sets  the  page  header to use on table-of-contents pages. See the
+            [4mHEADERS/FOOTERS[24m [4mFORMATS[24m section below.
+
+
+       --toclevels [4mlevels[0m
             Sets the number of levels in the table-of-contents.
 
 
-       --toctitle _s_t_r_i_n_g
+       --toctitle [4mstring[0m
             Sets the title for the table-of-contents.
 
 
-       --top _m_a_r_g_i_n
-            Specifies the top margin  in  points  (no  suffix  or
-            ##pt), inches (##in), centimeters (##cm), or millime-
-            ters (##mm).
+       --top [4mmargin[0m
+            Specifies the top margin in points (no  suffix  or  ##pt),  inches
+            (##in), centimeters (##cm), or millimeters (##mm).
 
 
-       --user-password _p_a_s_s_w_o_r_d
-            Specifies the user password  for  encryption  of  PDF
-            files.
+       --user-password [4mpassword[0m
+            Specifies the user password for encryption of PDF files.
 
 
        --verbose
@@ -397,16 +373,16 @@ OOPPTTIIOONNSS
 
 
        --webpage
-            Specifies  that  the  HTML  sources  are unstructured
-            (plain web pages.)  A page break is inserted  between
-            each file or URL in the output.
+            Specifies  that  the  HTML  sources  are  unstructured  (plain web
+            pages.)  A page break is inserted between each file or URL in  the
+            output.
 
 
-HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
-       The header and footer of each page can contain up to three
-       preformatted values. These values are  specified  using  a
-       single  character  for  the left, middle, and right of the
-       page, resulting in the _f_f_f notation shown previously.
+[1mHEADER/FOOTER FORMATS[0m
+       The header and footer of each page can contain up to three preformatted
+       values. These values are specified using a  single  character  for  the
+       left,  middle,  and  right  of  the page, resulting in the [4mfff[24m notation
+       shown previously.
 
        Each character can be one of the following:
 
@@ -419,8 +395,7 @@ HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
 
 
        :
-            c/C arabic chapter page numbers (1/2, 2/2, 1/4,  2/4,
-            ...)
+            c/C arabic chapter page numbers (1/2, 2/2, 1/4, 2/4, ...)
 
 
        1
@@ -475,40 +450,37 @@ HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
             current time
 
 
-SSEEEE AALLSSOO
+[1mSEE ALSO[0m
        HTMLDOC Software Users Manual
 
        http://www.easysw.com/htmldoc
 
-AAUUTTHHOORR
+[1mAUTHOR[0m
        Michael Sweet (mike@easysw.com), Easy Software Products
 
-TTRRAADDEEMMAARRKKSS
-       PostScript  is  a trademark that may be registered in some
-       countries and Adobe is a  registered  trademark  of  Adobe
-       Systems Incorporated.
+[1mTRADEMARKS[0m
+       PostScript is a trademark that may be registered in some countries  and
+       Adobe is a registered trademark of Adobe Systems Incorporated.
 
-CCOOPPYYRRIIGGHHTTSS
-       Portable Document Format Copyright 1993-1999 by Adobe Sys-
-       tems Incorporated.
+[1mCOPYRIGHTS[0m
+       Portable  Document Format Copyright 1993-1999 by Adobe Systems Incorpo-
+       rated.
 
-       HTMLDOC is copyright 1997-2002 by Easy Software  Products.
-       This  program  is  free  software; you can redistribute it
-       and/or modify it under the terms of the GNU General Public
-       License  as  published  by  the  Free Software Foundation;
-       either version 2 of the License, or (at your  option)  any
-       later version.
+       HTMLDOC is copyright 1997-2003 by Easy Software Products. This  program
+       is  free  software;  you can redistribute it and/or modify it under the
+       terms of the GNU General Public License as published by the Free  Soft-
+       ware  Foundation;  either version 2 of the License, or (at your option)
+       any later version.
 
-       This  program is based in part on the work of the Indepen-
-       dent JPEG Group.
+       This program is based in part on  the  work  of  the  Independent  JPEG
+       Group.
 
-NNOO WWAARRRRAANNTTYY
-       This program is distributed in the hope that  it  will  be
-       useful, but WITHOUT ANY WARRANTY; without even the implied
-       warranty of MERCHANTABILITY or FITNESS  FOR  A  PARTICULAR
-       PURPOSE.   See  the  GNU  General  Public License for more
-       details.
+[1mNO WARRANTY[0m
+       This  program  is  distributed  in the hope that it will be useful, but
+       WITHOUT ANY  WARRANTY;  without  even  the  implied  warranty  of  MER-
+       CHANTABILITY  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+       Public License for more details.
 
 
 
-8 August 2002             HTMLDOC 1.8.21               htmldoc(1)
+6 January 2003                  HTMLDOC 1.8.24                      htmldoc(1)
