@@ -1,5 +1,5 @@
 //
-// "$Id: stylefont.cxx,v 1.11 2004/03/31 09:51:27 mike Exp $"
+// "$Id: stylefont.cxx,v 1.12 2004/03/31 10:35:07 mike Exp $"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
@@ -45,7 +45,7 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
 {
   int			i, j;			// Looping vars...
   char			filename[1024];		// Filename
-  FILE		*fp;			// File pointer
+  FILE			*fp;			// File pointer
   static const char	*styles[][2] =		// PostScript style suffixes
 			{
 			  { "-Roman",		"-Regular" },
@@ -85,8 +85,8 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
     {
       // Try a variation of the font name...
       snprintf(filename, sizeof(filename), "%s/fonts/%s%s.afm",
-               hdGlobal.datadir, n, styles[i][j]);
-      if ((fp = FILE::open(filename, HD_FILE_READ)) != NULL)
+               _htmlData, n, styles[i][j]);
+      if ((fp = fopen(filename, "r")) != NULL)
         break;
     }
 
@@ -98,8 +98,8 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
   {
     // Use the font name without a suffix...
     snprintf(filename, sizeof(filename), "%s/fonts/%s.afm",
-             hdGlobal.datadir, n);
-    fp = FILE::open(filename, HD_FILE_READ);
+             _htmlData, n);
+    fp = fopen(filename, "r");
   }
 
   if (fp != NULL)
@@ -357,7 +357,7 @@ hdStyleFont::get_width(const char *s)	// I - String to measure
 //
 
 int					// O - 0 on success, -1 on error
-hdStyleFont::read_afm(FILE       *fp,	// I - File to read from
+hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
                       hdStyleSheet *css)// I - Stylesheet
 {
   char		line[255],		// Line from file
@@ -374,7 +374,7 @@ hdStyleFont::read_afm(FILE       *fp,	// I - File to read from
   // Loop through the AFM file...
   alloc_kerns = num_kerns;
 
-  while (fp->gets(line, sizeof(line)) != NULL)
+  while (fgets(line, sizeof(line), fp) != NULL)
   {
     // Get the initial keyword...
     if ((lineptr = strchr(line, ' ')) != NULL)
@@ -514,5 +514,5 @@ hdStyleFont::read_ttf(FILE       *fp,	// I - File to read from
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.11 2004/03/31 09:51:27 mike Exp $".
+// End of "$Id: stylefont.cxx,v 1.12 2004/03/31 10:35:07 mike Exp $".
 //

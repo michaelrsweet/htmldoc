@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.4 2004/03/31 09:51:27 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.5 2004/03/31 10:35:07 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -490,7 +490,7 @@ write_all(FILE   *out,		/* I - Output file */
   {
     col = write_node(out, t, col);
 
-    if (t->markup != HD_ELEMENT_HEAD && t->markup != HD_ELEMENT_TITLE)
+    if (t->element != HD_ELEMENT_HEAD && t->element != HD_ELEMENT_TITLE)
       col = write_all(out, t->child, col);
 
     col = write_nodeclose(out, t, col);
@@ -521,7 +521,7 @@ write_doc(FILE   **out,			// I - Output file
 
   while (t != NULL)
   {
-    if (t->markup >= HD_ELEMENT_H1 && t->markup < (HD_ELEMENT_H1 + TocLevels) &&
+    if (t->element >= HD_ELEMENT_H1 && t->element < (HD_ELEMENT_H1 + TocLevels) &&
         htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
     {
       if (heading >= 0)
@@ -540,7 +540,7 @@ write_doc(FILE   **out,			// I - Output file
 
     col = write_node(*out, t, col);
 
-    if (t->markup != HD_ELEMENT_HEAD && t->markup != HD_ELEMENT_TITLE)
+    if (t->element != HD_ELEMENT_HEAD && t->element != HD_ELEMENT_TITLE)
       col = write_doc(out, t->child, col, heading,
                       title, author, copyright, docnumber);
 
@@ -571,7 +571,7 @@ write_node(FILE   *out,		/* I - Output file */
   if (out == NULL)
     return (0);
 
-  switch (t->markup)
+  switch (t->element)
   {
     case HD_ELEMENT_NONE :
         if (t->data == NULL)
@@ -660,7 +660,7 @@ write_node(FILE   *out,		/* I - Output file */
         }
 
     default :
-	if (t->markup == HD_ELEMENT_IMG &&
+	if (t->element == HD_ELEMENT_IMG &&
             (src = htmlGetVariable(t, (uchar *)"REALSRC")) != NULL)
 	{
 	 /*
@@ -677,17 +677,17 @@ write_node(FILE   *out,		/* I - Output file */
           }
 	}
 
-        if (t->markup != HD_ELEMENT_EMBED)
+        if (t->element != HD_ELEMENT_EMBED)
 	{
-	  col += fprintf(out, "<%s", _htmlMarkups[t->markup]);
+	  col += fprintf(out, "<%s", _htmlMarkups[t->element]);
 	  for (i = 0; i < t->nvars; i ++)
 	  {
 	    if (strcasecmp((char *)t->vars[i].name, "BREAK") == 0 &&
-	        t->markup == HD_ELEMENT_HR)
+	        t->element == HD_ELEMENT_HR)
 	      continue;
 
 	    if (strcasecmp((char *)t->vars[i].name, "REALSRC") == 0 &&
-	        t->markup == HD_ELEMENT_IMG)
+	        t->element == HD_ELEMENT_IMG)
 	      continue;
 
             if (strncasecmp((char *)t->vars[i].name, "_HD_", 4) == 0)
@@ -741,7 +741,7 @@ write_nodeclose(FILE   *out,	/* I - Output file */
   if (out == NULL)
     return (0);
 
-  if (t->markup != HD_ELEMENT_HEAD && t->markup != HD_ELEMENT_TITLE)
+  if (t->element != HD_ELEMENT_HEAD && t->element != HD_ELEMENT_TITLE)
   {
     if (col > 72 && !t->preformatted)
     {
@@ -749,7 +749,7 @@ write_nodeclose(FILE   *out,	/* I - Output file */
       col = 0;
     }
 
-    switch (t->markup)
+    switch (t->element)
     {
       case HD_ELEMENT_BODY :
       case HD_ELEMENT_ERROR :
@@ -803,12 +803,12 @@ write_nodeclose(FILE   *out,	/* I - Output file */
       case HD_ELEMENT_TABLE :
       case HD_ELEMENT_TR :
       case HD_ELEMENT_UL :
-          fprintf(out, "</%s>\n", _htmlMarkups[t->markup]);
+          fprintf(out, "</%s>\n", _htmlMarkups[t->element]);
           col = 0;
           break;
 
       default :
-          col += fprintf(out, "</%s>", _htmlMarkups[t->markup]);
+          col += fprintf(out, "</%s>", _htmlMarkups[t->element]);
 	  break;
     }
   }
@@ -829,7 +829,7 @@ get_title(hdTree *doc)	/* I - Document tree */
 
   while (doc != NULL)
   {
-    if (doc->markup == HD_ELEMENT_TITLE)
+    if (doc->element == HD_ELEMENT_TITLE)
       return (htmlGetText(doc->child));
     else if (doc->child != NULL)
       if ((temp = get_title(doc->child)) != NULL)
@@ -1034,11 +1034,11 @@ scan_links(hdTree *t)		/* I - Document tree */
 
   while (t != NULL)
   {
-    if (t->markup >= HD_ELEMENT_H1 && t->markup < (HD_ELEMENT_H1 + TocLevels) &&
+    if (t->element >= HD_ELEMENT_H1 && t->element < (HD_ELEMENT_H1 + TocLevels) &&
         htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
       add_heading(t);
 
-    if (t->markup == HD_ELEMENT_A &&
+    if (t->element == HD_ELEMENT_A &&
         (name = htmlGetVariable(t, (uchar *)"NAME")) != NULL)
       add_link(name);
 
@@ -1067,7 +1067,7 @@ update_links(hdTree *t,		/* I - Document tree */
   // Scan the document, rewriting HREF's as needed...
   while (t != NULL)
   {
-    if (t->markup >= HD_ELEMENT_H1 && t->markup < (HD_ELEMENT_H1 + TocLevels) &&
+    if (t->element >= HD_ELEMENT_H1 && t->element < (HD_ELEMENT_H1 + TocLevels) &&
         htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL && heading)
       (*heading) ++;
 
@@ -1077,7 +1077,7 @@ update_links(hdTree *t,		/* I - Document tree */
     else
       filename = headings[*heading];
 
-    if (t->markup == HD_ELEMENT_A &&
+    if (t->element == HD_ELEMENT_A &&
         (href = htmlGetVariable(t, (uchar *)"HREF")) != NULL)
     {
       // Update this link as needed...
@@ -1106,5 +1106,5 @@ update_links(hdTree *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.4 2004/03/31 09:51:27 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.5 2004/03/31 10:35:07 mike Exp $".
 //

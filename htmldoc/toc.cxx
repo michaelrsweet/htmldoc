@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.19 2004/03/31 09:51:27 mike Exp $"
+ * "$Id: toc.cxx,v 1.20 2004/03/31 10:35:07 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -115,7 +115,7 @@ add_heading(hdTree *toc,	/* I - Table of contents */
   {
     if (heading->child != NULL)
       add_heading(toc, heading->child);
-    else if (heading->markup == HD_ELEMENT_NONE && heading->data != NULL)
+    else if (heading->element == HD_ELEMENT_NONE && heading->data != NULL)
       htmlAddTree(toc, HD_ELEMENT_NONE, heading->data);
 
     heading = heading->next;
@@ -175,7 +175,7 @@ parse_tree(hdTree *t)		/* I - Document tree */
 
   while (t != NULL)
   {
-    switch (t->markup)
+    switch (t->element)
     {
       case HD_ELEMENT_H1 :
       case HD_ELEMENT_H2 :
@@ -192,7 +192,7 @@ parse_tree(hdTree *t)		/* I - Document tree */
       case HD_ELEMENT_H13 :
       case HD_ELEMENT_H14 :
       case HD_ELEMENT_H15 :
-          level = t->markup - HD_ELEMENT_H1;
+          level = t->element - HD_ELEMENT_H1;
 
 	  if ((level - last_level) > 1)
 	  {
@@ -201,7 +201,7 @@ parse_tree(hdTree *t)		/* I - Document tree */
 	    */
 
 	    level     = last_level + 1;
-	    t->markup = (hdElement)(HD_ELEMENT_H1 + level);
+	    t->element = (hdElement)(HD_ELEMENT_H1 + level);
 	  }
 
           if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
@@ -278,11 +278,11 @@ parse_tree(hdTree *t)		/* I - Document tree */
 
           existing = NULL;
 
-          if (t->parent != NULL && t->parent->markup == HD_ELEMENT_A)
+          if (t->parent != NULL && t->parent->element == HD_ELEMENT_A)
 	    existing = htmlGetVariable(t->parent, (uchar *)"NAME");
 
 	  if (existing == NULL &&
-              t->child != NULL && t->child->markup == HD_ELEMENT_A)
+              t->child != NULL && t->child->element == HD_ELEMENT_A)
 	    existing = htmlGetVariable(t->child, (uchar *)"NAME");
 
           if (existing != NULL &&
@@ -351,9 +351,9 @@ parse_tree(hdTree *t)		/* I - Document tree */
 	        * Add NAME to existing A element, if present.
 		*/
 
-                if (t->parent != NULL && t->parent->markup == HD_ELEMENT_A)
+                if (t->parent != NULL && t->parent->element == HD_ELEMENT_A)
 	          htmlSetVariable(t->parent, (uchar *)"NAME", baselink);
-		else if (t->child != NULL && t->child->markup == HD_ELEMENT_A)
+		else if (t->child != NULL && t->child->element == HD_ELEMENT_A)
 	          htmlSetVariable(t->child, (uchar *)"NAME", baselink);
 		else
 		{
@@ -387,5 +387,5 @@ parse_tree(hdTree *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.19 2004/03/31 09:51:27 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.20 2004/03/31 10:35:07 mike Exp $".
  */

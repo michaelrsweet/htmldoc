@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.23 2004/03/31 09:51:27 mike Exp $"
+ * "$Id: html.cxx,v 1.24 2004/03/31 10:35:07 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -547,7 +547,7 @@ write_all(FILE   *out,		/* I - Output file */
 
   while (t != NULL)
   {
-    switch (t->markup)
+    switch (t->element)
     {
       case HD_ELEMENT_NONE :
           if (t->data == NULL)
@@ -636,7 +636,7 @@ write_all(FILE   *out,		/* I - Output file */
           }
 
       default :
-	  if (t->markup == HD_ELEMENT_IMG && OutputFiles &&
+	  if (t->element == HD_ELEMENT_IMG && OutputFiles &&
               (src = htmlGetVariable(t, (uchar *)"REALSRC")) != NULL)
 	  {
 	   /*
@@ -653,17 +653,17 @@ write_all(FILE   *out,		/* I - Output file */
             }
 	  }
 
-          if (t->markup != HD_ELEMENT_EMBED)
+          if (t->element != HD_ELEMENT_EMBED)
 	  {
-	    col += fprintf(out, "<%s", _htmlMarkups[t->markup]);
+	    col += fprintf(out, "<%s", _htmlMarkups[t->element]);
 	    for (i = 0; i < t->nvars; i ++)
 	    {
 	      if (strcasecmp((char *)t->vars[i].name, "BREAK") == 0 &&
-	          t->markup == HD_ELEMENT_HR)
+	          t->element == HD_ELEMENT_HR)
 		continue;
 
 	      if (strcasecmp((char *)t->vars[i].name, "REALSRC") == 0 &&
-	          t->markup == HD_ELEMENT_IMG)
+	          t->element == HD_ELEMENT_IMG)
 		continue;
 
               if (strncasecmp((char *)t->vars[i].name, "_HD_", 4) == 0)
@@ -701,7 +701,7 @@ write_all(FILE   *out,		/* I - Output file */
 	  break;
     }
 
-    if (t->markup != HD_ELEMENT_HEAD && t->markup != HD_ELEMENT_TITLE)
+    if (t->element != HD_ELEMENT_HEAD && t->element != HD_ELEMENT_TITLE)
     {
       col = write_all(out, t->child, col);
 
@@ -711,7 +711,7 @@ write_all(FILE   *out,		/* I - Output file */
 	col = 0;
       }
 
-      switch (t->markup)
+      switch (t->element)
       {
 	case HD_ELEMENT_BODY :
 	case HD_ELEMENT_ERROR :
@@ -765,12 +765,12 @@ write_all(FILE   *out,		/* I - Output file */
         case HD_ELEMENT_TABLE :
         case HD_ELEMENT_TR :
         case HD_ELEMENT_UL :
-            fprintf(out, "</%s>\n", _htmlMarkups[t->markup]);
+            fprintf(out, "</%s>\n", _htmlMarkups[t->element]);
             col = 0;
             break;
 
 	default :
-            col += fprintf(out, "</%s>", _htmlMarkups[t->markup]);
+            col += fprintf(out, "</%s>", _htmlMarkups[t->element]);
 	    break;
       }
     }
@@ -794,7 +794,7 @@ get_title(hdTree *doc)	/* I - Document tree */
 
   while (doc != NULL)
   {
-    if (doc->markup == HD_ELEMENT_TITLE)
+    if (doc->element == HD_ELEMENT_TITLE)
       return (htmlGetText(doc->child));
     else if (doc->child != NULL)
       if ((temp = get_title(doc->child)) != NULL)
@@ -912,9 +912,9 @@ scan_links(hdTree *t,		/* I - Document tree */
 
   while (t != NULL)
   {
-    if (t->markup == HD_ELEMENT_FILE)
+    if (t->element == HD_ELEMENT_FILE)
       scan_links(t->child, (uchar *)file_basename((char *)htmlGetVariable(t, (uchar *)"FILENAME")));
-    else if (t->markup == HD_ELEMENT_A &&
+    else if (t->element == HD_ELEMENT_A &&
              (name = htmlGetVariable(t, (uchar *)"NAME")) != NULL)
     {
       add_link(name, filename);
@@ -951,7 +951,7 @@ update_links(hdTree *t,		/* I - Document tree */
 
     while (t != NULL)
     {
-      if (t->markup == HD_ELEMENT_A &&
+      if (t->element == HD_ELEMENT_A &&
           (href = htmlGetVariable(t, (uchar *)"HREF")) != NULL)
       {
        /*
@@ -978,7 +978,7 @@ update_links(hdTree *t,		/* I - Document tree */
 
       if (t->child != NULL)
       {
-        if (t->markup == HD_ELEMENT_FILE)
+        if (t->element == HD_ELEMENT_FILE)
           update_links(t->child, htmlGetVariable(t, (uchar *)"FILENAME"));
 	else
           update_links(t->child, filename);
@@ -995,7 +995,7 @@ update_links(hdTree *t,		/* I - Document tree */
 
     while (t != NULL)
     {
-      if (t->markup == HD_ELEMENT_A &&
+      if (t->element == HD_ELEMENT_A &&
           (href = htmlGetVariable(t, (uchar *)"HREF")) != NULL)
       {
        /*
@@ -1020,5 +1020,5 @@ update_links(hdTree *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.23 2004/03/31 09:51:27 mike Exp $".
+ * End of "$Id: html.cxx,v 1.24 2004/03/31 10:35:07 mike Exp $".
  */

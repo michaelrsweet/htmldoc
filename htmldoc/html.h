@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.15 2004/03/31 09:51:27 mike Exp $"
+ * "$Id: html.h,v 1.16 2004/03/31 10:35:07 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -59,74 +59,10 @@ extern "C" {
 
 
 /*
- * Markup variables...
- */
-
-struct hdAttr
-{
-  uchar			*name,		/* Variable name */
-			*value;		/* Variable value */
-};
-
-/*
- * Parsing tree...
- */
-
-struct hdTree
-{
-  hdTree	*parent,		/* Parent tree entry */
-		*child,			/* First child entry */
-		*last_child,		/* Last child entry */
-		*prev,			/* Previous entry on this level */
-		*next,			/* Next entry on this level */
-		*link;			/* Linked-to */
-  hdElement	markup;			/* Markup code */
-  uchar		*data;			/* Text (HD_ELEMENT_NONE or HD_ELEMENT_COMMENT) */
-  hdStyle	*css;			/* Stylesheet data */
-  unsigned	halignment:2,		/* Horizontal alignment */
-		valignment:3,		/* Vertical alignment */
-		typeface:4,		/* Typeface code */
-		style:2,		/* Style of text */
-		underline:1,		/* Text is underlined? */
-		strikethrough:1,	/* Text is struck-through? */
-		subscript:1,		/* Text is subscripted? */
-		superscript:1,		/* Text is superscripted? */
-		preformatted:2,		/* Preformatted text? */
-		indent:4;		/* Indentation level 0-15 */
-  uchar		red,			/* Color of this fragment */
-		green,
-		blue;
-  float		width,			/* Width of this fragment in points */
-		height,			/* Height of this fragment in points */
-		size;			/* Point size of text */
-  int		nvars;			/* Number of variables... */
-  hdAttr	*vars;			/* Variables... */
-};
-
-
-/*
- * Globals...
- */
-
-extern const char	*_htmlMarkups[];
-extern const char	*_htmlData;
-extern float		_htmlPPI;
-extern int		_htmlGrayscale;
-extern uchar		_htmlTextColor[];
-extern float		_htmlBrowserWidth;
-extern float		_htmlSizes[],
-			_htmlSpacings[];
-extern hdFontFace	_htmlBodyFont,
-			_htmlHeadingFont;
-extern char		_htmlCharSet[];
-extern float		_htmlWidths[4][4][256];
-extern const char	*_htmlGlyphs[];
-extern const char	*_htmlFonts[4][4];
-
-
-/*
  * Prototypes...
  */
+
+struct hdTree;
 
 extern hdTree	*htmlReadFile(hdTree *parent, FILE *fp, const char *base);
 extern int	htmlWriteFile(hdTree *parent, FILE *fp);
@@ -150,6 +86,76 @@ extern void	htmlSetTextColor(uchar *color);
 
 extern void	htmlDebugStats(const char *title, hdTree *t);
 
+
+/*
+ * Markup variables...
+ */
+
+struct hdAttr
+{
+  uchar			*name,		/* Variable name */
+			*value;		/* Variable value */
+};
+
+/*
+ * Parsing tree...
+ */
+
+struct hdTree
+{
+  hdTree	*parent,		/* Parent tree entry */
+		*child,			/* First child entry */
+		*last_child,		/* Last child entry */
+		*prev,			/* Previous entry on this level */
+		*next,			/* Next entry on this level */
+		*link;			/* Linked-to */
+  hdElement	element;		/* Element */
+  uchar		*data;			/* Text (HD_ELEMENT_NONE or HD_ELEMENT_COMMENT) */
+  hdStyle	*css;			/* Stylesheet data */
+  unsigned	halignment:2,		/* Horizontal alignment */
+		valignment:3,		/* Vertical alignment */
+		typeface:4,		/* Typeface code */
+		style:2,		/* Style of text */
+		underline:1,		/* Text is underlined? */
+		strikethrough:1,	/* Text is struck-through? */
+		subscript:1,		/* Text is subscripted? */
+		superscript:1,		/* Text is superscripted? */
+		preformatted:2,		/* Preformatted text? */
+		indent:4;		/* Indentation level 0-15 */
+  uchar		red,			/* Color of this fragment */
+		green,
+		blue;
+  float		width,			/* Width of this fragment in points */
+		height,			/* Height of this fragment in points */
+		size;			/* Point size of text */
+  int		nvars;			/* Number of variables... */
+  hdAttr	*vars;			/* Variables... */
+
+  const char	*get_attr(const char *n) { return ((const char *)htmlGetVariable(this, (uchar *)n)); }
+  static hdElement get_element(const char *n);
+};
+
+
+/*
+ * Globals...
+ */
+
+extern const char	*_htmlMarkups[];
+extern const char	*_htmlData;
+extern float		_htmlPPI;
+extern int		_htmlGrayscale;
+extern uchar		_htmlTextColor[];
+extern float		_htmlBrowserWidth;
+extern float		_htmlSizes[],
+			_htmlSpacings[];
+extern hdFontFace	_htmlBodyFont,
+			_htmlHeadingFont;
+extern char		_htmlCharSet[];
+extern float		_htmlWidths[4][4][256];
+extern const char	*_htmlGlyphs[];
+extern const char	*_htmlFonts[4][4];
+
+
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
@@ -157,5 +163,5 @@ extern void	htmlDebugStats(const char *title, hdTree *t);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.15 2004/03/31 09:51:27 mike Exp $".
+ * End of "$Id: html.h,v 1.16 2004/03/31 10:35:07 mike Exp $".
  */

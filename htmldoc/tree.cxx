@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.47 2004/03/31 09:51:27 mike Exp $"
+ * "$Id: tree.cxx,v 1.24 2004/03/31 10:35:07 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -415,7 +415,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 
 	*ptr++ = '\0';
 
-	t->markup = HD_ELEMENT_NONE;
+	t->element = HD_ELEMENT_NONE;
 	t->data   = (uchar *)strdup((char *)s);
       }
       else
@@ -442,10 +442,10 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	* Eliminate extra whitespace...
 	*/
 
-	if (issuper(t->markup) || isblock(t->markup) ||
-            islist(t->markup) || islentry(t->markup) ||
-            istable(t->markup) || istentry(t->markup) ||
-	    t->markup == HD_ELEMENT_TITLE)
+	if (issuper(t->element) || isblock(t->element) ||
+            islist(t->element) || islentry(t->element) ||
+            istable(t->element) || istentry(t->element) ||
+	    t->element == HD_ELEMENT_TITLE)
           have_whitespace = 0;
 
        /*
@@ -460,109 +460,109 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
           */
 
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (temp->markup == t->markup)
+            if (temp->element == t->element)
               break;
-	    else if (temp->markup == HD_ELEMENT_EMBED)
+	    else if (temp->element == HD_ELEMENT_EMBED)
 	    {
 	      temp = NULL;
               break;
 	    }
 	}
-	else if (t->markup == HD_ELEMENT_BODY || t->markup == HD_ELEMENT_HEAD)
+	else if (t->element == HD_ELEMENT_BODY || t->element == HD_ELEMENT_HEAD)
 	{
 	 /*
           * Make sure we aren't inside an existing HEAD or BODY...
 	  */
 
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (temp->markup == HD_ELEMENT_BODY || temp->markup == HD_ELEMENT_HEAD)
+            if (temp->element == HD_ELEMENT_BODY || temp->element == HD_ELEMENT_HEAD)
               break;
-	    else if (temp->markup == HD_ELEMENT_EMBED)
+	    else if (temp->element == HD_ELEMENT_EMBED)
 	    {
 	      temp = NULL;
 	      break;
 	    }
 	}
-	else if (t->markup == HD_ELEMENT_EMBED)
+	else if (t->element == HD_ELEMENT_EMBED)
 	{
 	 /*
           * Close any text blocks...
 	  */
 
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (isblock(temp->markup) || islentry(temp->markup))
+            if (isblock(temp->element) || islentry(temp->element))
               break;
-	    else if (istentry(temp->markup) || islist(temp->markup) ||
-	             issuper(temp->markup) || temp->markup == HD_ELEMENT_EMBED)
+	    else if (istentry(temp->element) || islist(temp->element) ||
+	             issuper(temp->element) || temp->element == HD_ELEMENT_EMBED)
 	    {
 	      temp = NULL;
 	      break;
 	    }
 	}
-	else if (issuper(t->markup))
+	else if (issuper(t->element))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-	    if (istentry(temp->markup) || temp->markup == HD_ELEMENT_EMBED)
+	    if (istentry(temp->element) || temp->element == HD_ELEMENT_EMBED)
 	    {
 	      temp = NULL;
               break;
 	    }
 	}
-	else if (islist(t->markup))
+	else if (islist(t->element))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (isblock(temp->markup))
+            if (isblock(temp->element))
 	      break;
-	    else if (islentry(temp->markup) || istentry(temp->markup) ||
-	             issuper(temp->markup) || temp->markup == HD_ELEMENT_EMBED)
+	    else if (islentry(temp->element) || istentry(temp->element) ||
+	             issuper(temp->element) || temp->element == HD_ELEMENT_EMBED)
 	    {
 	      temp = NULL;
               break;
 	    }
 	}
-	else if (islentry(t->markup))
+	else if (islentry(t->element))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (islentry(temp->markup))
+            if (islentry(temp->element))
               break;
-	    else if (islist(temp->markup) || issuper(temp->markup) ||
-	             istentry(temp->markup) || temp->markup == HD_ELEMENT_EMBED)
+	    else if (islist(temp->element) || issuper(temp->element) ||
+	             istentry(temp->element) || temp->element == HD_ELEMENT_EMBED)
             {
 	      temp = NULL;
 	      break;
 	    }
 	}
-	else if (isblock(t->markup))
+	else if (isblock(t->element))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (isblock(temp->markup))
+            if (isblock(temp->element))
               break;
-	    else if (istentry(temp->markup) || islist(temp->markup) ||
-	             islentry(temp->markup) ||
-	             issuper(temp->markup) || temp->markup == HD_ELEMENT_EMBED)
+	    else if (istentry(temp->element) || islist(temp->element) ||
+	             islentry(temp->element) ||
+	             issuper(temp->element) || temp->element == HD_ELEMENT_EMBED)
 	    {
 	      temp = NULL;
 	      break;
 	    }
 	}
-	else if (istable(t->markup))
+	else if (istable(t->element))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (istable(temp->markup))
+            if (istable(temp->element))
 	      break;
-	    else if (temp->markup == HD_ELEMENT_TABLE || temp->markup == HD_ELEMENT_EMBED)
+	    else if (temp->element == HD_ELEMENT_TABLE || temp->element == HD_ELEMENT_EMBED)
 	    {
 	      temp = NULL;
               break;
 	    }
 	}
-	else if (istentry(t->markup))
+	else if (istentry(t->element))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (istentry(temp->markup))
+            if (istentry(temp->element))
               break;
-	    else if (temp->markup == HD_ELEMENT_TABLE || istable(temp->markup) ||
-	             temp->markup == HD_ELEMENT_EMBED)
+	    else if (temp->element == HD_ELEMENT_TABLE || istable(temp->element) ||
+	             temp->element == HD_ELEMENT_EMBED)
 	    {
 	      temp = NULL;
               break;
@@ -576,29 +576,29 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
           DEBUG_printf(("%s>>>> Auto-ascend <<<\n", indent));
 
           if (temp && ch != '/' &&
-	      temp->markup != HD_ELEMENT_BODY &&
-	      temp->markup != HD_ELEMENT_DD &&
-	      temp->markup != HD_ELEMENT_DT &&
-	      temp->markup != HD_ELEMENT_HEAD &&
-	      temp->markup != HD_ELEMENT_HTML &&
-	      temp->markup != HD_ELEMENT_LI &&
-	      temp->markup != HD_ELEMENT_OPTION &&
-	      temp->markup != HD_ELEMENT_P &&
-	      temp->markup != HD_ELEMENT_TBODY &&
-	      temp->markup != HD_ELEMENT_TD &&
-	      temp->markup != HD_ELEMENT_TFOOT &&
-	      temp->markup != HD_ELEMENT_TH &&
-	      temp->markup != HD_ELEMENT_THEAD &&
-	      temp->markup != HD_ELEMENT_TR)
+	      temp->element != HD_ELEMENT_BODY &&
+	      temp->element != HD_ELEMENT_DD &&
+	      temp->element != HD_ELEMENT_DT &&
+	      temp->element != HD_ELEMENT_HEAD &&
+	      temp->element != HD_ELEMENT_HTML &&
+	      temp->element != HD_ELEMENT_LI &&
+	      temp->element != HD_ELEMENT_OPTION &&
+	      temp->element != HD_ELEMENT_P &&
+	      temp->element != HD_ELEMENT_TBODY &&
+	      temp->element != HD_ELEMENT_TD &&
+	      temp->element != HD_ELEMENT_TFOOT &&
+	      temp->element != HD_ELEMENT_TH &&
+	      temp->element != HD_ELEMENT_THEAD &&
+	      temp->element != HD_ELEMENT_TR)
 	  {
 	    // Log this condition as an error...
 	    progress_error(HD_ERROR_HTML_ERROR,
 	                   "No /%s element before %s element on line %d.",
-	                   _htmlMarkups[temp->markup],
-			   _htmlMarkups[t->markup], linenum);
+	                   _htmlMarkups[temp->element],
+			   _htmlMarkups[t->element], linenum);
 	    DEBUG_printf(("%sNo /%s element before %s element on line %d.\n",
-	                  indent, _htmlMarkups[temp->markup],
-			  _htmlMarkups[t->markup], linenum));
+	                  indent, _htmlMarkups[temp->element],
+			  _htmlMarkups[t->element], linenum));
 	  }
 
 #ifdef DEBUG
@@ -667,14 +667,14 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	else if (ch == '/')
 	{
 	  // Log this condition as an error...
-	  if (t->markup != HD_ELEMENT_UNKNOWN &&
-	      t->markup != HD_ELEMENT_COMMENT)
+	  if (t->element != HD_ELEMENT_UNKNOWN &&
+	      t->element != HD_ELEMENT_COMMENT)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR,
 	                   "Dangling /%s element on line %d.",
-			   _htmlMarkups[t->markup], linenum);
+			   _htmlMarkups[t->element], linenum);
 	    DEBUG_printf(("%sDangling /%s element on line %d.\n",
-			  indent, _htmlMarkups[t->markup], linenum));
+			  indent, _htmlMarkups[t->element], linenum));
           }
 
 	  delete_node(t);
@@ -736,7 +736,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
       if (ch == '<')
         ungetc(ch, fp);
 
-      t->markup = HD_ELEMENT_NONE;
+      t->element = HD_ELEMENT_NONE;
       t->data   = (uchar *)strdup((char *)s);
 
       DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
@@ -796,7 +796,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
       if (ch == '<')
         ungetc(ch, fp);
 
-      t->markup = HD_ELEMENT_NONE;
+      t->element = HD_ELEMENT_NONE;
       t->data   = (uchar *)strdup((char *)s);
 
       DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
@@ -833,7 +833,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 
     descend = 0;
 
-    switch (t->markup)
+    switch (t->element)
     {
       case HD_ELEMENT_BODY :
          /*
@@ -910,14 +910,14 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
           t->strikethrough = 0;
           t->preformatted  = 0;
 
-	  if (t->markup > HD_ELEMENT_H6)
+	  if (t->element > HD_ELEMENT_H6)
           {
 	    t->size  = SIZE_H7;
             t->style = HD_FONTINTERNAL_ITALIC;
 	  }
 	  else
 	  {
-            t->size  = SIZE_H1 - t->markup + HD_ELEMENT_H1;
+            t->size  = SIZE_H1 - t->element + HD_ELEMENT_H1;
             t->style = HD_FONTINTERNAL_BOLD;
 	  }
 
@@ -1310,7 +1310,7 @@ write_file(hdTree *t,		/* I - Tree entry */
 
   while (t != NULL)
   {
-    if (t->markup == HD_ELEMENT_NONE)
+    if (t->element == HD_ELEMENT_NONE)
     {
       if (t->preformatted)
       {
@@ -1342,11 +1342,11 @@ write_file(hdTree *t,		/* I - Tree entry */
 	}
       }
     }
-    else if (t->markup == HD_ELEMENT_COMMENT)
+    else if (t->element == HD_ELEMENT_COMMENT)
       fprintf(fp, "\n<!--%s-->\n", t->data);
-    else if (t->markup > 0)
+    else if (t->element > 0)
     {
-      switch (t->markup)
+      switch (t->element)
       {
         case HD_ELEMENT_AREA :
         case HD_ELEMENT_BR :
@@ -1383,7 +1383,7 @@ write_file(hdTree *t,		/* I - Tree entry */
             break;
       }
 
-      col += fprintf(fp, "<%s", _htmlMarkups[t->markup]);
+      col += fprintf(fp, "<%s", _htmlMarkups[t->element]);
       for (i = 0; i < t->nvars; i ++)
       {
 	if (col > 72 && !t->preformatted)
@@ -1425,8 +1425,8 @@ write_file(hdTree *t,		/* I - Tree entry */
 	  col = 0;
 	}
 	
-        col += fprintf(fp, "</%s>", _htmlMarkups[t->markup]);
-        switch (t->markup)
+        col += fprintf(fp, "</%s>", _htmlMarkups[t->element]);
+        switch (t->element)
         {
           case HD_ELEMENT_AREA :
           case HD_ELEMENT_BR :
@@ -1610,7 +1610,7 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
   * Set the markup code and copy the data if necessary...
   */
 
-  t->markup = markup;
+  t->element = markup;
   if (data != NULL)
     t->data = (uchar *)strdup((char *)data);
 
@@ -1644,7 +1644,7 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
     t->strikethrough = parent->strikethrough;
   }
 
-  switch (t->markup)
+  switch (t->element)
   {
     case HD_ELEMENT_NONE :
     case HD_ELEMENT_IMG :
@@ -1664,7 +1664,7 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
         get_alignment(t);
 
         t->typeface      = _htmlHeadingFont;
-        t->size          = SIZE_H1 - t->markup + HD_ELEMENT_H1;
+        t->size          = SIZE_H1 - t->element + HD_ELEMENT_H1;
         t->subscript     = 0;
         t->superscript   = 0;
         t->strikethrough = 0;
@@ -1844,7 +1844,7 @@ htmlGetMeta(hdTree *tree,	/* I - Document tree */
     * Check this tree entry...
     */
 
-    if (tree->markup == HD_ELEMENT_META &&
+    if (tree->element == HD_ELEMENT_META &&
         (tname = htmlGetVariable(tree, (uchar *)"NAME")) != NULL &&
         (tcontent = htmlGetVariable(tree, (uchar *)"CONTENT")) != NULL)
       if (strcasecmp((char *)name, (char *)tname) == 0)
@@ -2320,7 +2320,7 @@ insert_space(hdTree *parent,	// I - Parent node
   }
 
   // Initialize element data...
-  space->markup = HD_ELEMENT_NONE;
+  space->element = HD_ELEMENT_NONE;
   space->data   = (uchar *)strdup(" ");
 
   // Set tree pointers...
@@ -2336,6 +2336,28 @@ insert_space(hdTree *parent,	// I - Parent node
   t->prev = space;
 
   compute_size(space);
+}
+
+
+//
+// 'hdTree:get_element()' - Get the element constant corresponding to a string.
+//
+
+hdElement				// O - Element constant
+hdTree::get_element(const char *n)	// I - Name of element
+{
+  const char	**temp;			// Element entry
+
+
+  temp = (const char **)bsearch(&n, _htmlMarkups,
+                                sizeof(_htmlMarkups) / sizeof(_htmlMarkups[0]),
+                                sizeof(_htmlMarkups[0]),
+                                (hdCompareFunc)compare_markups);
+
+  if (temp == NULL)
+    return (HD_ELEMENT_UNKNOWN);
+  else
+    return ((hdElement)(temp - _htmlMarkups));
 }
 
 
@@ -2390,7 +2412,7 @@ parse_markup(hdTree *t,		/* I - Current tree entry */
     * Unrecognized markup stuff...
     */
 
-    t->markup = HD_ELEMENT_UNKNOWN;
+    t->element = HD_ELEMENT_UNKNOWN;
     strcpy((char *)comment, (char *)markup);
     cptr = comment + strlen((char *)comment);
 
@@ -2398,13 +2420,13 @@ parse_markup(hdTree *t,		/* I - Current tree entry */
   }
   else
   {
-    t->markup = (hdElement)((const char **)temp - _htmlMarkups);
+    t->element = (hdElement)((const char **)temp - _htmlMarkups);
     cptr      = comment;
 
     DEBUG_printf(("%s%s, line %d\n", indent, markup, *linenum));
   }
 
-  if (t->markup == HD_ELEMENT_COMMENT || t->markup == HD_ELEMENT_UNKNOWN)
+  if (t->element == HD_ELEMENT_COMMENT || t->element == HD_ELEMENT_UNKNOWN)
   {
     while (ch != EOF && cptr < (comment + sizeof(comment) - 1))
     {
@@ -2454,7 +2476,7 @@ parse_markup(hdTree *t,		/* I - Current tree entry */
     }
   }
 
-  return (t->markup);
+  return (t->element);
 }
 
 
@@ -2579,7 +2601,7 @@ compute_size(hdTree *t)		/* I - Tree entry */
   if (!_htmlInitialized)
     htmlSetCharSet("8859-1");
 
-  if (t->markup == HD_ELEMENT_IMG)
+  if (t->element == HD_ELEMENT_IMG)
   {
     width_ptr  = htmlGetVariable(t, (uchar *)"WIDTH");
     height_ptr = htmlGetVariable(t, (uchar *)"HEIGHT");
@@ -2634,7 +2656,7 @@ compute_size(hdTree *t)		/* I - Tree entry */
 
     return (0);
   }
-  else if (t->markup == HD_ELEMENT_SPACER)
+  else if (t->element == HD_ELEMENT_SPACER)
   {
     width_ptr  = htmlGetVariable(t, (uchar *)"WIDTH");
     height_ptr = htmlGetVariable(t, (uchar *)"HEIGHT");
@@ -2665,7 +2687,7 @@ compute_size(hdTree *t)		/* I - Tree entry */
 
     return (0);
   }
-  else if (t->markup == HD_ELEMENT_BR)
+  else if (t->element == HD_ELEMENT_BR)
   {
     t->width  = 0.0;
     t->height = t->size;
@@ -2959,5 +2981,5 @@ htmlDebugStats(const char *title,	// I - Title
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.47 2004/03/31 09:51:27 mike Exp $".
+ * End of "$Id: tree.cxx,v 1.24 2004/03/31 10:35:07 mike Exp $".
  */
