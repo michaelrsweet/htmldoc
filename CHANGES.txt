@@ -49,6 +49,7 @@ CHANGES IN HTMLDOC v1.9
 	  line height.
 	- The compression slider was enabled in the GUI even
 	  though HTML output was selected.
+	- The Perl example code was incorrect.
 
 
 CHANGES IN HTMLDOC v1.8.8
