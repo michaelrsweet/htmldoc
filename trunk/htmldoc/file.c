@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.19 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: file.c,v 1.20 2004/03/31 08:39:12 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -538,7 +538,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     {
       count += bytes;
       progress_update((100 * count / total) % 101);
-      fwrite(resource, 1, bytes, fp);
+      fwrite(resource, 1, (size_t)bytes, fp);
     }
 
     progress_hide();
@@ -983,8 +983,8 @@ file_target(const char *s)	/* I - Filename or URL */
  */
 
 FILE *					/* O - Temporary file */
-file_temp(char *name,			/* O - Filename */
-          int  len)			/* I - Length of filename buffer */
+file_temp(char   *name,			/* O - Filename */
+          size_t len)			/* I - Length of filename buffer */
 {
   cache_t	*temp;			/* Pointer to cache entry */
   FILE		*fp;			/* File pointer */
@@ -1057,5 +1057,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.19 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: file.c,v 1.20 2004/03/31 08:39:12 mike Exp $".
  */

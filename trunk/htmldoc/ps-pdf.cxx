@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.93 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.94 2004/03/31 08:39:12 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3821,20 +3821,19 @@ parse_doc(tree_t   *t,			/* I - Tree to parse */
       * Add a file link...
       */
 
-      uchar	name[256],	/* New filename */
+      uchar	newname[256],	/* New filename */
 		*sep;		/* "?" separator in links */
 
 
       // Strip any trailing HTTP GET data stuff...
-      strncpy((char *)name, (char *)htmlGetVariable(t, (uchar *)"FILENAME"),
-              sizeof(name) - 1);
-      name[sizeof(name) - 1] = '\0';
+      strlcpy((char *)newname, (char *)htmlGetVariable(t, (uchar *)"FILENAME"),
+              sizeof(newname));
 
-      if ((sep = (uchar *)strchr((char *)name, '?')) != NULL)
+      if ((sep = (uchar *)strchr((char *)newname, '?')) != NULL)
         *sep = '\0';
 
       // Add the link
-      add_link(name, *page, (int)*y);
+      add_link(newname, *page, (int)*y);
     }
 
     if (chapter == 0 && !title_page)
@@ -11593,7 +11592,7 @@ write_text(FILE     *out,	/* I - Output file */
 
 static void
 write_trailer(FILE *out,	/* I - Output file */
-              int  num_pages)	/* I - Number of pages in file */
+              int  file_pages)	/* I - Number of pages in file */
 {
   int		i, j, k,	/* Looping vars */
 		type,		/* Type of number */
@@ -11624,8 +11623,8 @@ write_trailer(FILE *out,	/* I - Output file */
     */
 
     fputs("%%Trailer\n", out);
-    if (num_pages > 0)
-      fprintf(out, "%%%%Pages: %d\n", num_pages);
+    if (file_pages > 0)
+      fprintf(out, "%%%%Pages: %d\n", file_pages);
 
     fputs("%%EOF\n", out);
   }
@@ -12349,5 +12348,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.93 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.94 2004/03/31 08:39:12 mike Exp $".
  */

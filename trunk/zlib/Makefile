@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.12 2004/03/31 07:28:13 mike Exp $"
+# "$Id: Makefile,v 1.13 2004/03/31 08:39:12 mike Exp $"
 #
 #   ZIP library Makefile for the HTMLDOC software.
 #
@@ -32,9 +32,20 @@ include ../Makedefs
 # Object files...
 #
 
-OBJS	=	adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o \
-		trees.o zutil.o inflate.o infblock.o inftrees.o infcodes.o \
-		infutil.o inffast.o
+OBJS	=	\
+		adler32.o \
+		compress.o \
+		crc32.o \
+		deflate.o \
+		gzio.o \
+		infback.o \
+		inffast.o \
+		inflate.o \
+		inftrees.o \
+		trees.o \
+		uncompr.o \
+		zutil.o
+
 
 
 #
@@ -84,5 +95,5 @@ include Dependencies
 
 
 #
-# End of "$Id: Makefile,v 1.12 2004/03/31 07:28:13 mike Exp $".
+# End of "$Id: Makefile,v 1.13 2004/03/31 08:39:12 mike Exp $".
 #
