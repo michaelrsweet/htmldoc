@@ -1,0 +1,270 @@
+<HTML>
+<BODY>
+
+<!-- FOOTER RIGHT "1-$CHAPTERPAGE" -->
+<DIV ALIGN="justify">
+
+<H1 ALIGN="RIGHT"><A NAME="INSTALL">Chapter 1 - Installing HTMLDOC</A></H1>
+
+This chapter describes the steps needed to install <I>HTMLDOC</I> on
+your system from any of the source or binary distributions.
+
+<H2>Installing a Binary Distribution</H2>
+
+<I>HTMLDOC</I> binary distributions are available for a number of UNIX and
+Windows platforms.
+
+<H3>Requirements</H3>
+
+<I>HTMLDOC</I> requires approximately 2MB of disk space and one of the
+following environments:
+
+<UL>
+
+	<LI>AIX 4.3 or higher
+
+	<LI>Compaq Tru64 UNIX 4.0 or higher
+
+	<LI>FreeBSD 4.5 or higher
+
+	<LI>HP-UX 10.20 or higher
+
+	<LI>IRIX 5.3 or higher
+
+	<LI>Linux 2.0 or higher
+
+	<LI>MacOS X 10.2 or higher
+
+	<LI>Microsoft Windows 95/98/Me/NT 4.0/2000/XP
+
+	<LI>Solaris 2.5 or higher
+
+</UL>
+
+<P><I>HTMLDOC</I> may compile and run on other platforms,
+however we have not tested nor do we provide support for
+platforms other than those listed previously.
+
+<H3>Installing HTMLDOC under Debian GNU/Linux</H3>
+
+Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
+
+<UL><PRE>
+% <KBD>dselect install htmldoc-<I>version</I>-linux-2.0-intel.deb ENTER</KBD>
+</PRE></UL>
+
+<H3>Uninstalling HTMLDOC under Debian GNU/Linux</H3>
+
+Run the following command to remove <I>HTMLDOC</I> under Debian GNU/Linux:
+
+<UL><PRE>
+% <KBD>dselect remove htmldoc ENTER</KBD>
+</PRE></UL>
+
+<H3>Installing HTMLDOC under Red Hat Linux</H3>
+
+Run the following command to install <I>HTMLDOC</I> under Red Hat Linux:
+
+<UL><PRE>
+% <KBD>rpm -i htmldoc-<I>version</I>-linux-2.0-intel.rpm ENTER</KBD>
+</PRE></UL>
+
+<H3>Uninstalling HTMLDOC under Red Hat Linux</H3>
+
+Run the following command to remove <I>HTMLDOC</I> from your Red Hat Linux
+system:
+
+<UL><PRE>
+% <KBD>rpm -e htmldoc ENTER</KBD>
+</PRE></UL>
+
+<H3>Installing HTMLDOC under UNIX</H3>
+
+Run the following commands to install <I>HTMLDOC</I> under UNIX:
+
+<UL><PRE>
+% <KBD>gunzip htmldoc-<I>version</I>-<I>platform</I>.tar.gz ENTER</KBD>
+% <KBD>tar xf htmldoc-<I>version</I>-<I>platform</I>.tar ENTER</KBD>
+% <KBD>./setup ENTER</KBD>
+</PRE></UL>
+
+Substitute the correct version and platform strings as appropriate.
+
+<H3>Uninstalling HTMLDOC under UNIX</H3>
+
+Run the following command to remove <I>HTMLDOC</I> from your UNIX system:
+
+<UL><PRE>
+% <KBD>/etc/software/htmldoc.remove ENTER</KBD>
+</PRE></UL>
+
+<H3>Installing HTMLDOC under MacOS X</H3>
+
+<P>Double-click on the <I>HTMLDOC</I> package in the finder and
+follow the installer prompts.
+
+<H3>Installing HTMLDOC under Windows</H3>
+
+<I>HTMLDOC</I> is provided in a self-extracting installation file under
+Windows. Double-click on the setup icon to install <I>HTMLDOC</I> under Windows.
+
+<H3>Uninstalling HTMLDOC under Windows</H3>
+
+Open the Control Panel window and double-click on the <VAR>Add/Remove Software</VAR>
+icon. When the available software list is displayed, select <I>HTMLDOC</I> and
+click on the <VAR>Remove</VAR> button.
+
+<H2>Installing HTMLDOC from the Source Distribution</H2>
+
+The complete source to <I>HTMLDOC</I> is available to build <I>HTMLDOC</I> for
+different directories, architectures, or operating systems.
+
+<H3>Requirements</H3>
+
+<I>HTMLDOC</I> requires ANSI C and C++ compilers - recent versions of GCC/EGCS
+work fine. To build the GUI you'll also need:
+
+<UL>
+
+	<LI><A HREF="http://www.fltk.org">Fast Light Tool Kit ("FLTK")</A>,
+	version 1.0 or newer (version 1.1.x preferred).
+
+	<LI><A HREF="ftp://ftp.x.org">X11 libraries</A>, R5 or higher (needed
+	to build under UNIX and OS/2 only.)
+
+</UL>
+
+<P>Secure (https) URL support can be enabled via the
+<A HREF="http://www.openssl.org">OpenSSL</A> library. You should use at
+least version 0.9.6.
+
+<H3>Configuring the UNIX Source</H3>
+
+<I>HTMLDOC</I> uses a configuration script produced by GNU autoconf to
+configure itself for your system. If your ANSI C compiler is not called
+<VAR>cc</VAR> or <VAR>gcc</VAR>, set the <CODE>CC</CODE> environment
+variable to the name and path of your ANSI C compiler:
+
+<UL><PRE>
+% <KBD>setenv CC /path/to/compiler <I>ENTER</I></KBD>         [C Shell]
+% <KBD>CC=/path/to/compiler; export CC <I>ENTER</I></KBD>     [Bourne/Korn Shell]
+</PRE></UL>
+
+Similarly, if your C++ compiler is not called <VAR>CC</VAR>, <VAR>gcc</VAR>,
+<VAR>c++</VAR>, or <VAR>g++</VAR>, set the <CODE>CXX</CODE> environment
+variable to the name and path of your C++ compiler:
+
+<UL><PRE>
+% <KBD>setenv CXX /path/to/compiler <I>ENTER</I></KBD>        [C Shell]
+% <KBD>CXX=/path/to/compiler; export CXX <I>ENTER</I></KBD>   [Bourne/Korn Shell]
+</PRE></UL>
+
+<P>Then run the following command to configure <I>HTMLDOC</I> for
+installation in the default directories:
+
+<UL><PRE>
+% <KBD>./configure <I>ENTER</I></KBD>
+</PRE></UL>
+
+<P>The default configuration will install <I>HTMLDOC</I> in the
+<VAR>/usr/bin</VAR> directory with the data files under
+<VAR>/usr/share/htmldoc</VAR> and the documentation and on-line help
+under <VAR>/usr/share/doc/htmldoc</VAR>. Use the <CODE>--prefix</CODE>
+option to change the installation prefix to <VAR>/usr/local</VAR>:
+
+<UL><PRE>
+% <KBD>./configure --prefix=/usr/local <I>ENTER</I></KBD>
+</PRE></UL>
+
+<P>If the FLTK library is not installed in a standard location for
+your compilers, use the <CODE>--with-fltk-includes</CODE> and
+<CODE>--with-fltk-libs</CODE> options to point to the FLTK library:
+
+<UL><PRE>
+% <KBD>./configure --with-fltk-libs=/path/to/fltk/lib \
+        --with-fltk-includes=/path/to/fltk <I>ENTER</I></KBD>
+</PRE></UL>
+
+<P>Finally, if the OpenSSL library is not installed in a standard location for
+your compilers, use the <CODE>--with-openssl-includes</CODE> and
+<CODE>--with-openssl-libs</CODE> options to point to the OpenSSL library:
+
+<UL><PRE>
+% <KBD>./configure --with-openssl-libs=/path/to/openssl/lib \
+        --with-openssl-includes=/path/to/openssl <I>ENTER</I></KBD>
+</PRE></UL>
+
+<!-- NEED 3in -->
+<H3>Compiling under UNIX</H3>
+
+<I>HTMLDOC</I> is built from a Makefile in the distribution's main
+directory. Simply run the "make" command to build <I>HTMLDOC</I>:
+
+<UL><PRE>
+% <KBD>make <I>ENTER</I></KBD>
+</PRE></UL>
+
+If you get any fatal errors, please subscribe to the <I>HTMLDOC</I>
+mailing list and send a copy of the make/compiler output to
+"<A HREF="mailto:htmldoc@easysw.com">htmldoc@easysw.com</A>" for
+assistance. Please note the version of <I>HTMLDOC</I> that you
+are using as well as any pertinent system information (operating
+system, OS version, compiler, etc.)
+
+<P>To subscribe to the <I>HTMLDOC</I> mailing list, send a message to
+"<A HREF="mailto:majordomo@easysw.com">majordomo@easysw.com</A>"
+with the text:
+
+<UL><PRE>
+subscribe htmldoc
+</PRE></UL>
+
+in the message body. <I>You must subscribe to the list to post
+questions and comments.</I>
+
+<H3>Installing under UNIX</H3>
+
+To install <I>HTMLDOC</I> simply run the "make install" command:
+
+<UL><PRE>
+% <KBD>make install <I>ENTER</I></KBD>
+</PRE></UL>
+
+<P>If you are installing in a restricted directory like <VAR>/usr</VAR>
+then you'll need to be logged in as root.
+
+<H3>Compiling with Visual C++</H3>
+
+A Visual C++ 6.0 workspace file and associated project files are
+included in the source distribution under the "visualc" directory. Open
+the workspace file "htmldoc.dsw", adjust the FLTK include and project
+file locations, and then build the <I>HTMLDOC</I> target.
+
+<H3>Installing with Visual C++</H3>
+
+The Windows installation package is created using InstallShield for Visual C++
+6. The "visualc/HTMLDOC" directory contains the installation information
+for <I>HTMLDOC</I> needed to build a binary distribution with InstallShield.
+
+<P>To install <I>HTMLDOC</I> without InstallShield, create an
+installation directory and copy the <VAR>htmldoc.exe</VAR> executable,
+the <VAR>afm</VAR> directory, the <VAR>data</VAR> directory, and the
+<VAR>doc</VAR> directory to it.
+
+<P>Then use the <VAR>regedit</VAR> program to create the following two string
+entries:
+
+<DL>
+
+	<DT><CODE>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\data</CODE>
+	<DD>C:\installation\directory
+
+	<DT><CODE>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\doc</CODE>
+	<DD>C:\installation\directory\doc
+
+</DL>
+
+</DIV>
+
+</BODY>
+</HTML>

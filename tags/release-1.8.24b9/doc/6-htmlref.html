@@ -1,0 +1,555 @@
+<HTML>
+<BODY>
+
+<!-- FOOTER RIGHT "6-$CHAPTERPAGE" -->
+<DIV ALIGN="justify">
+
+<H1 ALIGN="RIGHT"><A NAME="HTMLREF">Chapter 6 - HTML Reference</A></H1>
+
+This chapter defines all of the HTML elements and attributes that are
+recognized and supported by <I>HTMLDOC</I>.
+
+<H2>General Usage</H2>
+
+<P>There are two types of HTML files - structured documents using
+headings (H1, H2, etc.) which <I>HTMLDOC</I> calls "books", and
+unstructured documents that do not use headings which <I>HTMLDOC</I>
+calls "web pages".
+
+<P>A very common mistake is to try converting a web page using:
+
+<UL><PRE>
+htmldoc -f filename.pdf filename.html
+</PRE></UL>
+
+<P>which will likely produce a PDF file with no pages. To convert web
+page files you <B>must</B> use the <CODE>--webpage</CODE> option at the
+command-line or choose <VAR>Web Page</VAR> in the input tab of the GUI.
+
+<P><B><I>HTMLDOC</I> does not support HTML 4.0 elements, attributes,
+stylesheets, or scripting.</B>
+
+<!-- NEED 5in -->
+<H2>Elements</H2>
+
+<P>The following HTML elements are recognized by <I>HTMLDOC</I>:</P>
+
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
+<TR><TD>!DOCTYPE</TD><TD ALIGN="CENTER">3.0</TD><TD ALIGN="CENTER">Yes</TD><TD>DTD is ignored</TD></TR>
+<TR><TD>A</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#LINKS">See Below</A></TD></TR>
+<TR><TD>ACRONYM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>No font change</TD></TR>
+<TR><TD>ADDRESS</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>AREA</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>B</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>BASE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>BASEFONT</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>BIG</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>BLINK</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>BLOCKQUOTE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>BODY</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>BR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>CAPTION</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#TABLE">See Below</A></TD></TR>
+<TR><TD>CENTER</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>CITE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Italic/Oblique</TD></TR>
+<TR><TD>CODE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
+<TR><TD>DD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>DEL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Strikethrough</TD></TR>
+<TR><TD>DFN</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Helvetica</TD></TR>
+<TR><TD>DIR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>DIV</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>DL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>DT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Italic/Oblique</TD></TR>
+<TR><TD>EM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Italic/Oblique</TD></TR>
+<TR><TD>EMBED</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>HTML Only</TD></TR>
+<TR><TD>FONT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#FONT">See Below</A></TD></TR>
+<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
+<TR><TD>FORM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>FRAME</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>FRAMESET</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>H1</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H2</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H3</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H4</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H5</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H6</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>HEAD</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>HR</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#BREAKS">See Below</A></TD></TR>
+<TR><TD>HTML</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>I</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>IMG</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#IMAGES">See Below</A></TD></TR>
+<TR><TD>INPUT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>INS</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Underline</TD></TR>
+<TR><TD>ISINDEX</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>KBD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier Bold</TD></TR>
+<TR><TD>LI</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>LINK</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>MAP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>MENU</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>META</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#META">See Below</A></TD></TR>
+<TR><TD>MULTICOL</TD><TD ALIGN="CENTER">N3.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>NOBR</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>NOFRAMES</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>OL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>OPTION</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>P</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>PRE</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
+<TR><TD>S</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Strikethrough</TD></TR>
+<TR><TD>SAMP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
+<TR><TD>SCRIPT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>SELECT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>SMALL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>SPACER</TD><TD ALIGN="CENTER">N3.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>STRIKE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>STRONG</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface Italic/Oblique</TD></TR>
+<TR><TD>SUB</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Reduced Fontsize</TD></TR>
+<TR><TD>SUP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Reduced Fontsize</TD></TR>
+<TR><TD>TABLE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#TABLE">See Below</A></TD></TR>
+<TR><TD>TD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>TEXTAREA</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TD>TH</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface Center</TD></TR>
+<TR><TD>TITLE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>TR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>TT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
+<TR><TD>U</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>UL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
+<TR><TD>VAR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Helvetica Oblique</TD></TR>
+<TR><TD>WBR</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+</TABLE>
+</CENTER>
+
+<H2><A NAME="COMMENTS">Comments</A></H2>
+
+<P><I>HTMLDOC</I> supports many special HTML comments to
+initiate page breaks, set the header and footer text, and
+control the current media options:</P>
+
+<DL>
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- FOOTER LEFT "foo" --&gt;</CODE>
+	<DD>Sets the left footer text; the test is applied to
+	the current page if empty, or the next page otherwise.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- FOOTER CENTER "foo" --&gt;</CODE>
+	<DD>Sets the center footer text; the test is applied to
+	the current page if empty, or the next page otherwise.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- FOOTER RIGHT "foo" --&gt;</CODE>
+	<DD>Sets the right footer text; the test is applied to
+	the current page if empty, or the next page otherwise.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- HALF PAGE --&gt;</CODE>
+	<DD>Break to the next half page.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- HEADER LEFT "foo" --&gt;</CODE>
+	<DD>Sets the left header text; the test is applied to
+	the current page if empty, or the next page otherwise.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- HEADER CENTER "foo" --&gt;</CODE>
+	<DD>Sets the center header text; the test is applied to
+	the current page if empty, or the next page otherwise.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- HEADER RIGHT "foo" --&gt;</CODE>
+	<DD>Sets the right header text; the test is applied to
+	the current page if empty, or the next page otherwise.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA BOTTOM nnn --&gt;</CODE>
+	<DD>Sets the bottom margin of the page. The "nnn" string can
+	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
+	Breaks to a new page if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA COLOR "foo" --&gt;</CODE>
+	<DD>Sets the media color attribute for the page. The
+	"foo" string is any color name that is supported by the
+	printer, e.g. "Blue", "White", etc.  Breaks to a new
+	page or sheet if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA DUPLEX NO --&gt;</CODE>
+	<DD>Chooses single-sided printing for the page; breaks to a
+	new page or sheet if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA DUPLEX YES --&gt;</CODE>
+	<DD>Chooses double-sided printing for the page; breaks to a
+	new sheet if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA LANDSCAPE NO --&gt;</CODE>
+	<DD>Chooses portrait orientation for the page; breaks to a
+	new page if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA LANDSCAPE YES --&gt;</CODE>
+	<DD>Chooses landscape orientation for the page; breaks to a
+	new page if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA LEFT nnn --&gt;</CODE>
+	<DD>Sets the left margin of the page. The "nnn" string can
+	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
+	Breaks to a new page if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA POSITION nnn --&gt;</CODE>
+	<DD>Sets the media position attribute (input tray) for
+	the page. The "nnn" string is an integer that usually
+	specifies the tray number. Breaks to a new page or sheet
+	if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA RIGHT nnn --&gt;</CODE>
+	<DD>Sets the right margin of the page. The "nnn" string can
+	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
+	Breaks to a new page if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA SIZE foo --&gt;</CODE>
+	<DD>Sets the media size to the specified size. The "foo"
+	string can be "Letter", "Legal", "Universal", or "A4"
+	for standard sizes or "WIDTHxHEIGHTunits" for custom
+	sizes, e.g. "8.5x11in"; breaks to a new page or sheet if
+	the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA TOP nnn --&gt;</CODE>
+	<DD>Sets the top margin of the page. The "nnn" string can
+	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
+	Breaks to a new page if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- MEDIA TYPE "foo" --&gt;</CODE>
+	<DD>Sets the media type attribute for the page. The
+	"foo" string is any type name that is supported by the
+	printer, e.g. "Plain", "Glossy", etc.  Breaks to a new
+	page or sheet if the current page is already marked.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- NEED length --&gt;</CODE>
+	<DD>Break if there is less than <CODE>length</CODE>
+	units left on the current page. The <CODE>length</CODE>
+	value defaults to lines of text but can be suffixed by
+	<CODE>in</CODE>, <CODE>mm</CODE>, or <CODE>cm</CODE> to
+	convert from the corresponding units.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- NEW PAGE --&gt;</CODE>
+	<DD>Break to the next page.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- NEW SHEET --&gt;</CODE>
+	<DD>Break to the next sheet.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- NUMBER-UP nn --&gt;</CODE>
+	<DD>Sets the number of pages that are placed on each
+	output page. Valid values are 1, 2, 4, 6, 9, and 16.
+
+	<!-- NEED 1in -->
+	<DT><CODE>&lt;!-- PAGE BREAK --&gt;</CODE>
+	<DD>Break to the next page.
+
+</DL>
+
+<H3>Header/Footer Strings</H3>
+
+<P>The <CODE>HEADER</CODE> and <CODE>FOOTER</CODE> comments
+allow you to set an arbitrary string of text for the left,
+center, and right headers and footers. Each string consists of
+plain text; special values or strings can be inserted using the
+dollar sign (<CODE>$</CODE>):</P>
+
+<DL>
+
+	<!-- NEED 1in -->
+	<DT><CODE>$$</CODE>
+	<DD>Inserts a single dollar sign in the header.
+
+	<!-- NEED 1in -->
+	<DT><CODE>$CHAPTER</CODE>
+	<DD>Inserts the current chapter heading.
+
+	<!-- NEED 1.5in -->
+	<DT><CODE>$CHAPTERPAGE</CODE>
+	<DT><CODE>$CHAPTERPAGE(format)</CODE>
+	<DD>Inserts the current page number within a chapter or
+	file. When a format is specified, uses that numeric
+	format (1 = decimal, i = lowercase roman numerals, I =
+	uppercase roman numerals, a = lowercase ascii, A =
+	uppercase ascii) for the page numbers.
+
+	<!-- NEED 1.5in -->
+	<DT><CODE>$CHAPTERPAGES</CODE>
+	<DT><CODE>$CHAPTERPAGES(format)</CODE>
+	<DD>Inserts the total page count within a chapter or
+	file. When a format is specified, uses that numeric
+	format (1 = decimal, i = lowercase roman numerals, I =
+	uppercase roman numerals, a = lowercase ascii, A =
+	uppercase ascii) for the page count.
+
+	<!-- NEED 1in -->
+	<DT><CODE>$DATE</CODE>
+	<DD>Inserts the current date.
+
+	<!-- NEED 1in -->
+	<DT><CODE>$HEADING</CODE>
+	<DD>Inserts the current heading.
+
+	<!-- NEED 1in -->
+	<DT><CODE>$LOGOIMAGE</CODE>
+	<DD>Inserts the logo image; all other text in the string
+	will be ignored.
+
+	<!-- NEED 1in -->
+	<DT><CODE>$PAGE</CODE>
+	<DT><CODE>$PAGE(format)</CODE>
+	<DD>Inserts the current page number. When a format is
+	specified, uses that numeric format (1 = decimal, i =
+	lowercase roman numerals, I = uppercase roman numerals,
+	a = lowercase ascii, A = uppercase ascii) for the page
+	numbers.
+
+	<!-- NEED 1.5in -->
+	<DT><CODE>$PAGES</CODE>
+	<DT><CODE>$PAGES(format)</CODE>
+	<DD>Inserts the total page count. When a format is
+	specified, uses that numeric format (1 = decimal, i =
+	lowercase roman numerals, I = uppercase roman numerals,
+	a = lowercase ascii, A = uppercase ascii) for the page
+	count.
+
+	<!-- NEED 1in -->
+	<DT><CODE>$TIME</CODE>
+	<DD>Inserts the current time.
+
+	<!-- NEED 1in -->
+	<DT><CODE>$TITLE</CODE>
+	<DD>Inserts the document title.
+
+</DL>
+
+<!-- NEED 5in -->
+<H2><A NAME="FONT">FONT Attributes</A></H2>
+
+<P>Limited typeface specification is currently supported to ensure
+portability across platforms and for older PostScript printers:</P>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>Requested Font</TH><TH>Actual Font</TH></TR>
+<TR><TD>Arial</TD><TD>Helvetica</TD></TR>
+<TR><TD>Courier</TD><TD>Courier</TD></TR>
+<TR><TD>Helvetica</TD><TD>Helvetica</TD></TR>
+<TR><TD>Monospace</TD><TD>Courier</TD></TR>
+<TR><TD>Sans-Serif</TD><TD>Helvetica</TD></TR>
+<TR><TD>Serif</TD><TD>Times</TD></TR>
+<TR><TD>Symbol</TD><TD>Symbol</TD></TR>
+<TR><TD>Times</TD><TD>Times</TD></TR>
+</TABLE></CENTER>
+
+<P>All other unrecognized typefaces are silently ignored.</P>
+
+<H2><A NAME="HEADING">Headings</A></H2>
+
+<P>Currently <I>HTMLDOC</I> supports a maximum of 1000 chapters
+(H1 headings). This limit can be increased by changing the
+<CODE>MAX_CHAPTERS</CODE> constant in the <VAR>config.h</VAR>
+file included with the source code.
+
+<P>All chapters start with a top-level heading (H1) markup. Any
+headings within a chapter must be of a lower level (H2 to H15). Each
+chapter starts a new page or the next odd-numbered page if duplexing is
+selected.
+
+<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" BGCOLOR="#cccccc">
+<TR>
+	<TD><B>Note:</B>
+
+	<P>Heading levels 7 to 15 are not standard HTML and will
+	not likely be recognized by most web browsers.
+
+	</TD>
+</TR>
+</TABLE></CENTER>
+
+<P>The headings you use within a chapter must start at level 2 (H2). If
+you skip levels the heading will be shown under the last level that was
+known. For example, if you use the following hierarchy of headings:
+
+<UL><PRE>
+&lt;H1&gt;Chapter Heading&lt;/H1&gt;
+...
+&lt;H2&gt;Section Heading 1&lt;/H2&gt;
+...
+&lt;H2&gt;Section Heading 2&lt;/H2&gt;
+...
+&lt;H3&gt;Sub-Section Heading 1&lt;/H3&gt;
+...
+&lt;H4&gt;Sub-Sub-Section Heading 1&lt;/H4&gt;
+...
+&lt;H4&gt;Sub-Sub-Section Heading 2&lt;/H4&gt;
+...
+&lt;H3&gt;Sub-Section Heading 2&lt;/H3&gt;
+...
+&lt;H2&gt;Section Heading 3&lt;/H2&gt;
+...
+&lt;H4&gt;Sub-Sub-Section Heading 3&lt;/H4&gt;
+...
+</PRE></UL>
+
+the table-of-contents that is generated will show:
+
+<UL>
+	<B>Chapter Heading</B>
+	<UL>
+		<LI>Section Heading 1</LI>
+		<LI>Section Heading 2</LI>
+		<UL>
+			<LI>Sub-Section Heading 1</LI>
+			<UL>
+				<LI>Sub-Sub-Section Heading 1</LI>
+				<LI>Sub-Sub-Section Heading 2</LI>
+			</UL>
+			<LI>Sub-Section Heading 2</LI>
+			<UL>
+				<LI>Sub-Sub-Section Heading 3</LI>
+			</UL>
+		</UL>
+		<LI>Section Heading 3</LI>
+	</UL>
+</UL>
+
+<!-- NEED 4in -->
+<H3>Numbered Headings</H3>
+
+When the numbered headings option is enabled, <I>HTMLDOC</I> recognizes the
+following additional attributes for all heading elements:
+
+<DL>
+
+	<DT><CODE>VALUE="#"</CODE>
+	<DD>Specifies the starting value for this heading level
+	(default is "1" for all new levels).
+
+	<DT><CODE>TYPE="1"</CODE>
+	<DD>Specifies that decimal numbers should be generated for this
+	heading level.
+
+	<DT><CODE>TYPE="a"</CODE>
+	<DD>Specifies that lowercase letters should be generated for
+	this heading level.
+
+	<DT><CODE>TYPE="A"</CODE>
+	<DD>Specifies that uppercase letters should be generated for
+	this heading level.
+
+	<DT><CODE>TYPE="i"</CODE>
+	<DD>Specifies that lowercase roman numerals should be generated
+	for this heading level.
+
+	<DT><CODE>TYPE="I"</CODE>
+	<DD>Specifies that uppercase roman numerals should be generated
+	for this heading level.
+
+</DL>
+
+<!-- NEED 2in -->
+
+<H2><A NAME="IMAGES">Images</A></H2>
+
+<I>HTMLDOC</I> supports loading of BMP, GIF, JPEG, and PNG image files.
+EPS and other types of image files are not supported at this
+time.
+
+<!-- NEED 2in -->
+
+<H2><A NAME="LINKS">Links</A></H2>
+
+<P>External URL and internal (<CODE>#target</CODE> and
+<CODE>filename.html</CODE>) links are fully supported for HTML
+and PDF output.
+
+<P>When generating PDF files, local PDF file links will be
+converted to external file links for the PDF viewer instead of
+URL links. That is, you can directly link to another local PDF
+file from your HTML document with:
+
+<UL><PRE>
+&lt;A HREF="filename.pdf"&gt;...&lt;/A&gt;
+</PRE></UL>
+
+<!-- NEED 5in -->
+<H2><A NAME="META">META Attributes</A></H2>
+
+<P><I>HTMLDOC</I> supports the following <CODE>META</CODE>
+attributes for the title page and document information:
+
+<DL>
+
+	<DT><CODE>&lt;META NAME="AUTHOR" CONTENT="..."</CODE>
+	<DD>Specifies the document author.
+
+	<DT><CODE>&lt;META NAME="COPYRIGHT" CONTENT="..."</CODE>
+	<DD>Specifies the document copyright.
+
+	<DT><CODE>&lt;META NAME="DOCNUMBER" CONTENT="..."</CODE>
+	<DD>Specifies the document number.
+
+	<DT><CODE>&lt;META NAME="GENERATOR" CONTENT="..."</CODE>
+	<DD>Specifies the application that generated the HTML file.
+
+	<DT><CODE>&lt;META NAME="KEYWORDS" CONTENT="..."</CODE>
+	<DD>Specifies document search keywords.
+
+	<DT><CODE>&lt;META NAME="SUBJECT" CONTENT="..."</CODE>
+	<DD>Specifies document subject.
+
+</DL>
+
+<H2><A NAME="BREAKS">Page Breaks</A></H2>
+
+<I>HTMLDOC</I> supports four new <A HREF="#COMMENTS">page comments</A>
+to specify page breaks. In addition, the older <CODE>BREAK</CODE> attribute
+is still supported by the <CODE>HR</CODE> element:
+
+<UL><PRE>
+&lt;HR BREAK&gt;
+</PRE></UL>
+
+Support for the <CODE>BREAK</CODE> attribute is deprecated and will be
+removed in a future release of <I>HTMLDOC</I>.
+
+<H2><A NAME="TABLE">Tables</A></H2>
+
+Currently <I>HTMLDOC</I> supports a maximum of 200 columns within a
+single table.  This limit can be increased by changing the
+<CODE>MAX_COLUMNS</CODE> constant in the <VAR>config.h</VAR> file
+included with the source code.
+
+<I>HTMLDOC</I> supports HTML 3.0 tables with the following exceptions:
+
+<UL>
+
+	<LI>The <CODE>CAPTION</CODE> element is always shown at the top
+	of the table.
+
+</UL>
+
+<P><B><I>HTMLDOC</I> does not support HTML 4.0 table elements or
+attributes, such as <CODE>TBODY</CODE>, <CODE>THEAD</CODE>,
+<CODE>TFOOT</CODE>, or <CODE>RULES</CODE>.</B>
+
+</DIV>
+
+</BODY>
+</HTML>
