@@ -15,7 +15,7 @@ class FileChooser {open
       label {Pick a File}
       callback {fileList->deselect();
 fileName->value("");
-window->hide();} open selected
+window->hide();} open
       private xywh {173 142 375 315} resizable hotspot
       code0 {if (title) window->label(title);}
       code1 {\#include <stdio.h>}
@@ -23,8 +23,8 @@ window->hide();} open selected
       code3 {\#include <string.h>} modal visible
     } {
       Fl_Browser fileList {
-        callback {fileListCB();}
-        private xywh {10 45 355 180} type Hold resizable
+        callback {fileListCB();} selected
+        private xywh {10 45 355 180} type Hold resizable hotspot
         code1 {\#include "FileBrowser.h"}
         class FileBrowser
       }

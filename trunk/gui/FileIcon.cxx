@@ -1,7 +1,9 @@
 //
-// "$Id: FileIcon.cxx,v 1.11 1999/11/12 19:21:20 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.12 1999/11/12 21:18:17 mike Exp $"
 //
 //   FileIcon routines.
+//
+//   KDE icon code donated by Maarten De Boer.
 //
 //   Copyright 1997-1999 by Easy Software Products.
 //
@@ -78,6 +80,16 @@
 //
 
 FileIcon	*FileIcon::first_ = (FileIcon *)0;
+
+
+//
+// Local functions...
+//
+
+static void	load_kde_icons(const char *directory);
+static void	load_kde_mimelnk(const char *filename);
+static char	*kde_to_fltk_pattern(const char *kdepattern);
+static char	*get_kde_val(char *str, const char *key);
 
 
 //
@@ -900,13 +912,17 @@ FileIcon::load_system_icons(void)
     {
       // Load GNOME icons from PNG files in /usr/share/pixmaps...
     }
-    else if (!access("/usr/share/icons", F_OK))
+    else 
+#endif /* 0 */
+    if (!access("/usr/share/icons", F_OK))
     {
       // Load KDE icons...
+      icon = new FileIcon("*", FileIcon::PLAIN);
+      icon->load_xpm("/usr/share/icons/unknown.xpm");
+
+      load_kde_icons("/usr/share/mimelnk");
     }
-    else
-#endif /* 0 */
-    if (!access("/usr/dt/appconfig/icons", F_OK))
+    else if (!access("/usr/dt/appconfig/icons", F_OK))
     {
       // Load CDE icons...
       icon = new FileIcon("*", FileIcon::PLAIN);
@@ -983,5 +999,143 @@ FileIcon::load_system_icons(void)
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.11 1999/11/12 19:21:20 mike Exp $".
+// 'load_kde_icons()' - Load KDE icon files.
+//
+
+static void
+load_kde_icons(const char *directory)	// I - Directory to load
+{
+  int		i;			// Looping var
+  int		n;			// Number of entries in directory
+  dirent	**entries;		// Entries in directory
+  char		full[1024];		// Full name of file
+
+
+  entries = (dirent **)0;
+  n       = filename_list(directory, &entries);
+
+  for (i = 0; i < n; i ++)
+  {
+    if (entries[i]->d_name[0] != '.')
+    {
+      strcpy(full, directory);
+      strcat(full,"/");
+      strcat(full, entries[i]->d_name);
+
+      if (filename_isdir(full))
+	load_kde_icons(full);
+      else
+	load_kde_mimelnk(full);				
+    }
+  }
+
+  for (i = 0; i < n; i ++)
+    free((void *)entries[i]);
+
+  free((void*)entries);
+}
+
+
+//
+// 'load_kde_mimelnk()' - Load a KDE "mimelnk" file.
+//
+
+static void
+load_kde_mimelnk(const char *filename)
+{
+  FILE		*fp;
+  char		tmp[256];
+  char		iconfilename[1024];
+  char		pattern[1024];
+  char		mimetype[1024];
+  char		*val;
+  char		full_iconfilename[1024];
+  FileIcon	*icon;
+
+
+  if ((fp = fopen(filename, "r")) == NULL)
+  {
+    while (fgets(tmp, sizeof(tmp), fp))
+    {
+      if ((val = get_kde_val(tmp, "Icon")) != NULL)
+	strcpy(iconfilename, val);
+      else if ((val = get_kde_val(tmp, "MimeType")) != NULL)
+	strcpy(mimetype, val);
+      else if ((val = get_kde_val(tmp, "Patterns")) != NULL)
+	strcpy(pattern, val);
+    }
+
+    if (iconfilename && pattern)
+    {
+      sprintf(full_iconfilename, "/usr/share/icons/%s", iconfilename);
+
+      if (mimetype && strcmp(mimetype, "inode/directory") == 0)
+	icon = new FileIcon("*", FileIcon::DIRECTORY);
+      else
+        icon = new FileIcon(kde_to_fltk_pattern(pattern), FileIcon::PLAIN);
+
+      icon->load_xpm(full_iconfilename);
+    }
+
+    fclose(fp);
+  }
+}
+
+
+//
+// 'kde_to_fltk_pattern()' - Convert a KDE pattern to a FLTK pattern.
+//
+
+static char *
+kde_to_fltk_pattern(const char *kdepattern)
+{
+  char	*pattern,
+	*patptr;
+
+
+  pattern = (char *)malloc(strlen(kdepattern) + 3);
+  strcpy(pattern, "{");
+  strcat(pattern, kdepattern);
+
+  if (pattern[strlen(pattern) - 1] == ';')
+    pattern[strlen(pattern) - 1] = '\0';
+
+  strcat(pattern, "}");
+
+  for (patptr = pattern; *patptr; patptr ++)
+    if (*patptr == ';')
+      *patptr = '|';
+
+  return (pattern);
+}
+
+
+//
+// 'get_kde_val()' - Get a KDE value.
+//
+
+static char *
+get_kde_val(char       *str,
+            const char *key)
+{
+  while (*str == *key)
+  {
+    str ++;
+    key ++;
+  }
+
+  if (*key == '\0' && *str == '=')
+  {
+    if (str[strlen(str) - 1] == '\n')
+      str[strlen(str) - 1] = '\0';
+
+    return (str + 1);
+  }
+
+  return ((char *)0);
+}
+
+
+//
+// End of "$Id: FileIcon.cxx,v 1.12 1999/11/12 21:18:17 mike Exp $".
 //
