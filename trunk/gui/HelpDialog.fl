@@ -73,7 +73,7 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-          private image {/home/mike/c/espPrint/gui/icons/back.xpm} deimage {/home/mike/c/espPrint/gui/icons/dback.xpm} xywh {0 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
+          private image {icons/back.xpm} deimage {icons/dback.xpm} xywh {0 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
         }
         Fl_Button forward_ {
           label Forward
@@ -89,7 +89,7 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-          private image {/home/mike/c/espPrint/gui/icons/forward.xpm} deimage {/home/mike/c/espPrint/gui/icons/dforward.xpm} xywh {60 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
+          private image {icons/forward.xpm} deimage {icons/dforward.xpm} xywh {60 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
         }
         Fl_Button smaller_ {
           label F
