@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.8 1999/04/28 15:53:04 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.9 1999/04/28 19:51:06 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -43,12 +43,19 @@
 #include "FileChooser.h"
 #include <FL/filename.H>
 #include <FL/fl_ask.H>
+#include <FL/x.H>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#if defined(WIN32) || defined(__EMX__)
+#  include <io.h>
+#else
+#  include <unistd.h>
+#endif /* WIN32 || __EMX__ */
 
 
 //
@@ -195,7 +202,7 @@ FileChooser::count()
   int	count;			// Number of selected files
 
 
-  if (!multi_)
+  if (type_ != MULTI)
   {
     const char *filename;	// Filename in input field
 
@@ -229,7 +236,7 @@ FileChooser::value(int f)	// I - File number
   static char	pathname[1024];	// Filename + directory
 
 
-  if (!multi_)
+  if (type_ != MULTI)
   {
     name = fileName->value();
     if (name[0] == '\0')
@@ -278,8 +285,8 @@ FileChooser::value(const char *filename)	// I - Filename + directory
   }
 
   // Switch to single-selection mode as needed
-  if (multi_)
-    multi(0);
+  if (type_ != MULTI)
+    type(SINGLE);
 
   // See if there is a directory in there...
   strcpy(pathname, filename);
@@ -323,6 +330,9 @@ FileChooser::up()
 
   if ((slash = strrchr(directory_, '/')) == NULL)
     slash = strrchr(directory_, '\\');
+
+  if (directory_[0] != '\0')
+    dirMenu->value(dirMenu->value() - 1);
 
   if (slash != NULL)
     *slash = '\0';
@@ -433,6 +443,7 @@ void
 FileChooser::fileNameCB()
 {
   char		*filename,	// New filename
+		*slash,		// Pointer to trailing slash
 		pathname[1024];	// Full pathname to file
   int		i,		// Looping var
 		min_match,	// Minimum number of matching chars
@@ -444,42 +455,90 @@ FileChooser::fileNameCB()
   // Get the filename from the text field...
   filename = (char *)fileName->value();
 
+  if (filename == NULL || filename[0] == '\0')
+    return;
+
+#if defined(WIN32) || defined(__EMX__)
+  if (directory_[0] != '\0' &&
+      filename[0] != '/' &&
+      filename[0] != '\\' &&
+      !(isalpha(filename[0]) && filename[1] == ':'))
+    sprintf(pathname, "%s/%s", directory_, filename);
+  else
+    strcpy(pathname, filename);
+#else
+  if (directory_[0] != '\0' &&
+      filename[0] != '/')
+    sprintf(pathname, "%s/%s", directory_, filename);
+  else
+    strcpy(pathname, filename);
+#endif /* WIN32 || __EMX__ */
+
   if (Fl::event_key() == FL_Enter)
   {
     // Enter pressed - select or change directory...
 
 #if defined(WIN32) || defined(__EMX__)
-    if (directory_[0] != '\0' &&
-	filename[0] != '/' &&
-	filename[0] != '\\' &&
-	!(isalpha(filename[0]) && filename[1] == ':'))
-      sprintf(pathname, "%s/%s", directory_, filename);
-    else
-      strcpy(pathname, filename);
-
     if ((strlen(pathname) == 2 && pathname[1] == ':') ||
-      filename_isdir(pathname))
+        filename_isdir(pathname))
 #else
-    if (directory_[0] != '\0' &&
-	filename[0] != '/')
-      sprintf(pathname, "%s/%s", directory_, filename);
-    else
-      strcpy(pathname, filename);
-
     if (filename_isdir(pathname))
 #endif /* WIN32 || __EMX__ */
-    {
       directory(pathname);
-      upButton->activate();
+    else if (type_ == CREATE || access(pathname, 0) == 0)
+    {
+      // New file or file exists...  If we are in multiple selection mode,
+      // switch to single selection mode...
+      if (type_ == MULTI)
+        type(SINGLE);
+
+      // Hide the window to signal things are done...
+      window->hide();
     }
     else
     {
-      multi_ = 0;
-      window->hide();
+      // File doesn't exist, so beep at the user...
+      // NOTE: NEED TO ADD fl_beep() function to 2.0!
+#ifdef WIN32
+      // Add code to beep the console under Windows
+#else
+      XBell(fl_display, 100);
+#endif // WIN32
     }
   }
   else if (Fl::event_key() != FL_Delete)
   {
+    // Check to see if the user has entered a directory...
+
+    if ((slash = strrchr(filename, '/')) == NULL)
+      slash = strrchr(filename, '\\');
+
+    if (slash != NULL)
+    {
+      // Yes, change directories and update the file name field...
+      if ((slash = strrchr(pathname, '/')) == NULL)
+	slash = strrchr(pathname, '\\');
+
+      if (slash > pathname)		// Special case for "/"
+        *slash++ = '\0';
+      else
+        slash++;
+
+      if (strcmp(filename, "../") == 0)	// Special case for "../"
+        up();
+      else
+        directory(pathname);
+
+      // If the string ended after the slash, we're done for now...
+      if (*slash == '\0')
+        return;
+
+      // Otherwise copy the remainder and proceed...
+      fileName->value(slash);
+      fileName->position(strlen(slash));
+      filename = slash;
+    }
+
     // Other key pressed - do filename completion as possible...
 
     num_files = fileList->size();
@@ -530,5 +589,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.8 1999/04/28 15:53:04 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.9 1999/04/28 19:51:06 mike Exp $".
 //

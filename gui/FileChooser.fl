@@ -7,15 +7,17 @@ gridy 5
 snap 3
 class FileChooser {open
 } {
-  Function {FileChooser(const char *d, char *p, int m, const char *title)} {open
+  decl {enum { SINGLE, MULTI, CREATE };} {public
+  }
+  Function {FileChooser(const char *d, char *p, int t, const char *title)} {open
   } {
     Fl_Window window {
       label {Pick a File} open
-      private xywh {173 142 374 270} resizable hotspot
+      private xywh {173 142 375 315} hide resizable hotspot
       code0 {if (title) window->label(title);}
       code1 {\#include <stdio.h>}
       code2 {\#include <stdlib.h>}
-      code3 {\#include <string.h>} modal visible
+      code3 {\#include <string.h>} modal
     } {
       Fl_Browser fileList {
         callback {fileListCB();}
@@ -27,17 +29,17 @@ class FileChooser {open
         label Cancel
         callback {fileList->deselect();
 window->hide();}
-        private xywh {300 235 65 25}
+        private xywh {300 280 65 25}
       }
       Fl_Return_Button {} {
         label OK
         callback {window->hide();}
-        private xywh {240 235 55 25}
+        private xywh {240 280 55 25}
       }
       Fl_Input fileName {
         label {Filename:}
         callback {fileNameCB();}
-        xywh {75 235 160 25} when 8
+        xywh {10 245 355 25} align 5 when 8
         code0 {fileName->when(FL_WHEN_CHANGED | FL_WHEN_ENTER_KEY_ALWAYS);}
       }
       Fl_Button upButton {
@@ -71,8 +73,8 @@ rescan();}
     code {window->size_range(345, 270, 345);
 init_icons();
 fileList->filter(p);
-multi_ = m;
-if (m)
+type_ = t;
+if (t == MULTI)
 {
   directory(d);
   fileList->type(FL_MULTI_BROWSER);
@@ -81,11 +83,11 @@ else
 {
   value(d);
   fileList->type(FL_HOLD_BROWSER);
-}} {selected
-    }
+}} {}
   }
   decl {char directory_[1024];} {}
-  decl {int multi_;} {}
+  decl {int type_;} {selected
+  }
   decl {void fileListCB();} {}
   decl {void fileNameCB();} {}
   decl {void init_icons();} {}
@@ -116,17 +118,17 @@ rescan();} {}
   } {
     code {window->hide();} {}
   }
-  Function {multi(int m)} {return_type void
+  Function {type(int t)} {return_type void
   } {
-    code {multi_ = m;
-if (m)
+    code {type_ = t;
+if (t == MULTI)
   fileList->type(FL_MULTI_BROWSER);
 else
   fileList->type(FL_HOLD_BROWSER);} {}
   }
-  Function {multi()} {return_type int
+  Function {type()} {return_type int
   } {
-    code {return (multi_);} {}
+    code {return (type_);} {}
   }
   Function {show()} {return_type void
   } {
