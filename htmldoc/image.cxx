@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.23 2002/07/29 21:28:01 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.24 2002/07/30 19:24:09 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -709,7 +709,9 @@ image_load(const char *filename,/* I - Name of image file */
            int        gray,	/* I - 0 = color, 1 = grayscale */
            int        load_data)/* I - 1 = load image data, 0 = just info */
 {
+#ifdef DEBUG
   int		i;		/* Looping var */
+#endif // DEBUG
   FILE		*fp;		/* File pointer */
   uchar		header[16];	/* First 16 bytes of file */
   image_t	*img,		/* New image buffer */
@@ -1713,5 +1715,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.23 2002/07/29 21:28:01 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.24 2002/07/30 19:24:09 mike Exp $".
  */
