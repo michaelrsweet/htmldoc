@@ -87,7 +87,82 @@ build the GUI you'll also need:
 
 </UL>
 
-<H3><A NAME="VISUALC">Compiling with Visual C++</A></H3>
+<H3>Configuring the UNIX Source</H3>
+
+<I>HTMLDOC</I> uses a configuration script produced by GNU autoconf to
+configure itself for your system. If your ANSI C compiler is not called
+<VAR>cc</VAR> or <VAR>gcc</VAR>, set the <CODE>CC</CODE> environment
+variable to the name and path of your ANSI C compiler:
+
+<UL><PRE>
+% <KBD>setenv CC /path/to/compiler</KBD>			[C Shell]
+% <KBD>CC=/path/to/compiler; export CC</KBD>		[Born/Korn Shell]
+</PRE></UL>
+
+Similarly, if your C++ compiler is not called <VAR>CC</VAR>, <VAR>gcc</VAR>,
+<VAR>c++</VAR>, or <VAR>g++</VAR>, set the <CODE>CXX</CODE> environment
+variable to the name and path of your C++ compiler:
+
+<UL><PRE>
+% <KBD>setenv CXX /path/to/compiler</KBD>			[C Shell]
+% <KBD>CXX=/path/to/compiler; export CXX</KBD>		[Born/Korn Shell]
+</PRE></UL>
+
+Finally, if the FLTK library is not installed in a standard location for
+your compilers, set the <CODE>CFLAGS</CODE>, <CODE>CXXFLAGS</CODE>, and
+<CODE>LDFLAGS</CODE> environment variables to point to the FLTK library:
+
+<UL><PRE>
+% <KBD>setenv CFLAGS -I/path/to/fltk</KBD>			[C Shell]
+% <KBD>setenv CXXFLAGS -I/path/to/fltk</KBD>
+% <KBD>setenv LDFLAGS -L/path/to/fltk/lib</KBD>
+
+% <KBD>CFLAGS=-I/path/to/fltk; export CFLAGS</KBD>		[Born/Korn Shell]
+% <KBD>CXXFLAGS=-I/path/to/fltk; export CXXFLAGS</KBD>
+% <KBD>LDFLAGS=-L/path/to/fltk/lib; export LDFLAGS</KBD>
+</PRE></UL>
+
+Then run the following command to configure <I>HTMLDOC</I> for
+installation in the default directories:
+
+<UL><PRE>
+% <KBD>./configure ENTER</KBD>
+</PRE></UL>
+
+The default configuration will install <I>HTMLDOC</I> in the
+<VAR>/usr/bin</VAR> directory with the data files under
+<VAR>/usr/share/htmldoc</VAR> and the documentation and on-line help
+under <VAR>/usr/share/doc/htmldoc</VAR>. Use the <CODE>--prefix</CODE>
+option to change the installation prefix to <VAR>/usr/local</VAR>:
+
+<UL><PRE>
+% <KBD>./configure --prefix=/usr/local ENTER</KBD>
+</PRE></UL>
+
+<H3>Compiling under UNIX</H3>
+
+<I>HTMLDOC</I> is built from a Makefile in the distribution's main
+directory. Simply run the "make" command to build <I>HTMLDOC</I>:
+
+<UL><PRE>
+% <KBD>make ENTER</KBD>
+</PRE></UL>
+
+If you get any fatal errors please send a copy of the make/compiler
+output to "<A HREF="mailto:htmldoc-support@easysw.com">htmldoc-support@easysw.com</A>"
+for assistance. Please note the version of <I>HTMLDOC</I> that you are
+using as well as any pertinent system information (operating system, OS
+version, compiler, etc.)
+
+<H3>Installing under UNIX</H3>
+
+To install <I>HTMLDOC</I> simply run the "make install" command as root:
+
+<UL><PRE>
+% <KBD>make install ENTER</KBD>
+</PRE></UL>
+
+<H3>Compiling with Visual C++</H3>
 
 A Visual C++ 6.0 workspace file and associated project files are
 included in the source distribution under the "visualc" directory. Open
@@ -100,21 +175,23 @@ The Windows installation package is created using InstallShield for Visual C++
 6. The "visualc/HTMLDOC" directory contains the installation information
 for <I>HTMLDOC</I> needed to build a binary distribution with InstallShield.
 
-<H3>Compiling under UNIX</H3>
+<P>To install <I>HTMLDOC</I> without InstallShield, create an
+installation directory and copy the <VAR>htmldoc.exe</VAR> executable,
+the <VAR>afm</VAR> directory, the <VAR>data</VAR> directory, and the
+<VAR>doc</VAR> directory to it.
 
-<P><I>HTMLDOC</I> is built from a Makefile in the distribution's main
-directory. Simply run the "make" command to configure and build
-<I>HTMLDOC</I>.
+<P>Then use the <VAR>regedit</VAR> program to create the following two string
+entries:
 
-<P>If you get any fatal errors please send a copy of the make/compiler
-output to "<A HREF="mailto:htmldoc-support@easysw.com">htmldoc-support@easysw.com</A>"
-for assistance. Please note the version of <I>HTMLDOC</I> that you are
-using as well as any pertinent system information (operating system, OS
-version, compiler, etc.)
+<DL>
 
-<H3>Installing under UNIX</H3>
+	<DT><CODE>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\data</CODE>
+	<DD>C:\installation\directory
 
-To install <I>HTMLDOC</I> simply run the "make install" command as root.
+	<DT><CODE>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\doc</CODE>
+	<DD>C:\installation\directory\doc
+
+</DL>
 
 </BODY>
 </HTML>

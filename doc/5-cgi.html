@@ -8,15 +8,106 @@ scripts and programs.
 
 <H2>The Basics</H2>
 
+<I>HTMLDOC</I> can be used in a variety of ways to generate formatted reports
+on a web server. The most common way is to combine <I>HTMLDOC</I> with a CGI
+script or program and send the output to the HTTP client.
+
+<P>To make this work the CGI script or program must send the appropriate HTTP
+attributes, the required empty line to signify the beginning of the
+document, and then execute the <I>HTMLDOC</I> program to generate the HTML,
+PostScript, or PDF file as needed.
 
 <H2>Calling HTMLDOC from a Shell Script</H2>
 
+Shell scripts are probably the easiest to work with, but are normally
+limited to GET type requests. Here is a script called
+<VAR>topdf.cgi</VAR> that will convert the named HTML file to PDF:
+
+<UL><PRE>
+#!/bin/sh
+
+docroot=/insert/directory/here
+cd $docroot
+
+echo "Content-Type: application/pdf"
+echo ""
+
+htmldoc -t pdf --webpage $1
+</PRE></UL>
+
+Users of this CGI would reference the URL
+"http://www.domain.com/topdf.cgi?index.html" to generate a PDF file of the
+site's home page.
+
+<P>You can update the script to use the <CODE>PATH_TRANSLATED</CODE>
+environment variable so that URLs like
+"http://www.domain.com/cgi-bin/topdf/index.html" work as well:
+
+<UL><PRE>
+#!/bin/sh
+
+docroot=`dirname $PATH_TRANSLATED`
+cd $docroot
+
+echo "Content-Type: application/pdf"
+echo ""
+
+htmldoc -t pdf --webpage $PATH_TRANSLATED
+</PRE></UL>
 
 <H2>Calling HTMLDOC from Perl</H2>
 
+Perl scripts offer the ability to generate more complex reports, pull
+data from databases, etc. The easiest way to interface Perl scripts
+with <I>HTMLDOC</I> is to write a report to a temporary file and then
+execute <I>HTMLDOC</I> to generate the PDF file.
+
+<P>Here is a simple Perl subroutine that can be used to write a PDF report
+to the HTTP client:
+
+<UL><PRE>
+sub topdf(filename);
+
+sub topdf {
+    print "Content-Type: application/pdf\n\n"
+    system htmldoc -t pdf --webpage $filename
+}
+</PRE></UL>
 
 <H2>Calling HTMLDOC from C</H2>
 
+C programs offer the best flexibility and easily support on-the-fly
+report generation without the need for temporary files.
+
+<P>Here are some simple C functions that can be used to generate a PDF
+report to the HTTP client from a temporary file or pipe:
+
+<UL><PRE>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+
+/* topdf() - convert a HTML file to PDF */
+FILE *topdf(const char *filename)	/* HTML file to convert */
+{
+  char	command[1024];			/* Command to execute */
+
+
+  puts("Content-Type: application/pdf\n");
+
+  sprintf(command, "htmldoc -t pdf --webpage %s", filename);
+
+  return (popen(command, "w"));
+}
+
+
+/* topdf2() - pipe HTML output to HTMLDOC for conversion to PDF */
+FILE *topdf2(void)
+{
+  puts("Content-Type: application/pdf\n");
+  return (popen("htmldoc -t pdf --webpage -", "w"));
+}
+</PRE></UL>
 
 </BODY>
 </HTML>
