@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.56 2002/06/13 20:10:48 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.57 2002/06/27 14:50:06 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -868,8 +868,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
     encryptionYes = new RadioButton(180, 45, 45, 20, "Yes");
     encryptionYes->type(FL_RADIO_BUTTON);
     encryptionYes->callback((Fl_Callback *)encryptionCB, this);
-    _tooltip(encryptionNo, "Select to enable encryption (scrambling) of the output file.\n"
-                           "(128-bit encryption for Acrobat 5.0, 40-bit for older versions.)");
+    _tooltip(encryptionYes, "Select to enable encryption (scrambling) of the output file.\n"
+                            "(128-bit encryption for Acrobat 5.0, 40-bit for older versions.)");
 
   encryption->end();
 
@@ -4045,5 +4045,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.56 2002/06/13 20:10:48 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.57 2002/06/27 14:50:06 mike Exp $".
 //
