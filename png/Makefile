@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.13 2004/10/23 08:28:43 mike Exp $"
+# "$Id: Makefile,v 1.6.2.4 2004/05/10 01:14:53 mike Exp $"
 #
 #   PNG library Makefile for the HTMLDOC software.
 #
@@ -61,5 +61,5 @@ libpng.a:	$(OBJS)
 $(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.13 2004/10/23 08:28:43 mike Exp $".
+# End of "$Id: Makefile,v 1.6.2.4 2004/05/10 01:14:53 mike Exp $".
 #

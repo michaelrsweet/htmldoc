@@ -1,5 +1,5 @@
 /*
- * "$Id: http-addr.c,v 1.3 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: http-addr.c,v 1.1.2.3 2004/05/05 18:58:40 mike Exp $"
  *
  *   HTTP host/address routines for the Common UNIX Printing System (CUPS).
  *
@@ -115,5 +115,5 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
 
 
 /*
- * End of "$Id: http-addr.c,v 1.3 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: http-addr.c,v 1.1.2.3 2004/05/05 18:58:40 mike Exp $".
  */

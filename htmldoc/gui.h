@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.19 2004/10/23 07:06:19 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.31 2004/07/21 19:32:23 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -39,6 +39,7 @@
 #include <FL/Fl_Tabs.H>
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Double_Window.H>
+
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_File_Chooser.H>
@@ -202,7 +203,6 @@ class GUI
 
   Fl_Progress		*progressBar;
 
-  hdBook		*book;
   char			book_filename[1024];
   int			book_changed;
 
@@ -290,11 +290,10 @@ class GUI
   void	progress(int percent, const char *text = NULL);
   int	saveBook(const char *bookfile);
   void	show();
-  int	shown() { return (window->shown()); }
   int	visible() { return (window->visible()); }
 };
 
 
 /*
- * End of "$Id: gui.h,v 1.19 2004/10/23 07:06:19 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.31 2004/07/21 19:32:23 mike Exp $".
  */

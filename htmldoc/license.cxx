@@ -1,5 +1,5 @@
 //
-// "$Id: license.cxx,v 1.2 2004/10/23 07:52:57 mike Exp $"
+// "$Id: license.cxx,v 1.1.2.3 2004/10/23 06:16:41 mike Exp $"
 //
 //   GUI license dialog routines for HTMLDOC, an HTML document processing
 //   program.
@@ -364,5 +364,5 @@ closeLicenseCB(Fl_Widget *w)		// I - Close button
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: license.cxx,v 1.2 2004/10/23 07:52:57 mike Exp $".
+// End of "$Id: license.cxx,v 1.1.2.3 2004/10/23 06:16:41 mike Exp $".
 //

@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.3 2004/10/23 07:52:57 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.30 2004/06/16 14:00:17 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -111,5 +111,5 @@ EOF
 %system all
 
 #
-# End of "$Id: htmldoc.list.in,v 1.3 2004/10/23 07:52:57 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.30 2004/06/16 14:00:17 mike Exp $".
 #
