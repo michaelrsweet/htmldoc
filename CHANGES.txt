@@ -29,6 +29,9 @@ CHANGES IN HTMLDOC v1.8.15
 	  printers.
 	- HTMLDOC now strips any trailing GET query information
 	  when saving the start of files (target) in a document.
+	- Unqualified URLs (no leading scheme name, e.g. http:)
+	  now default to the HTTP port (80) instead of the IPP
+	  port (631).
 
     BUG FIXES
 
@@ -38,6 +41,9 @@ CHANGES IN HTMLDOC v1.8.15
 	  text ending with a break.
 	- Images using ALIGN="MIDDLE" were not centered properly
 	  on the baseline.
+	- Table cells that used both ROWSPAN and COLSPAN did not
+	  format properly (the colspan was lost after the first
+	  row.)
 
 
 CHANGES IN HTMLDOC v1.8.14

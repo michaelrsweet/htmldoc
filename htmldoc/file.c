@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.23 2001/08/16 21:11:46 mike Exp $"
+ * "$Id: file.c,v 1.13.2.24 2001/09/19 20:46:56 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -331,7 +331,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   if (s == NULL)
     return (NULL);
 
-  if (strncmp(s, "http:", 5) == 0 ||
+  if (strncmp(s, "http:", 5) == 0 || strncmp(s, "//", 2) == 0 ||
       (path != NULL && strncmp(path, "http:", 5) == 0))
     strcpy(method, "http");
 #ifdef HAVE_LIBSSL
@@ -411,9 +411,10 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
         return (web_cache[i].name);
 
 #ifdef HAVE_LIBSSL
-    if (strncmp(s, "http:", 5) == 0 || strncmp(s, "https:", 6) == 0)
+    if (strncmp(s, "http:", 5) == 0 || strncmp(s, "//", 2) == 0 ||
+        strncmp(s, "https:", 6) == 0)
 #else
-    if (strncmp(s, "http:", 5) == 0)
+    if (strncmp(s, "http:", 5) == 0 || strncmp(s, "//", 2) == 0)
 #endif /* HAVE_LIBSSL */
       httpSeparate(s, method, username, hostname, &port, resource);
     else if (s[0] == '/')
@@ -813,5 +814,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.23 2001/08/16 21:11:46 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.24 2001/09/19 20:46:56 mike Exp $".
  */

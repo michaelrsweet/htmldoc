@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.103 2001/09/17 16:59:55 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.104 2001/09/19 20:47:00 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4581,7 +4581,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
             colspan = 1;
 
           if ((var = htmlGetVariable(tempcol, (uchar *)"ROWSPAN")) != NULL)
+	  {
             row_spans[col] = atoi((char *)var);
+
+	    for (tcol = 1; tcol < colspan; tcol ++)
+              row_spans[col + tcol] = row_spans[col];
+          }
 
           // Compute the cell size...
           col_width = get_cell_size(tempcol, 0.0f, table_width, &col_min,
@@ -10013,5 +10018,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.103 2001/09/17 16:59:55 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.104 2001/09/19 20:47:00 mike Exp $".
  */

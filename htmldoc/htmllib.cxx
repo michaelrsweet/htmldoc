@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.33 2001/08/30 18:11:42 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.34 2001/09/19 20:46:57 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2532,7 +2532,7 @@ fix_filename(char *filename,		/* I - Original filename */
   if (filename == NULL)
     return (NULL);
 
-  if (strcmp(base, ".") == 0 || strncmp(filename, "http://", 7) == 0)
+  if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
     return (file_find(Path, filename));
 
 #ifdef MAC
@@ -2637,5 +2637,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.33 2001/08/30 18:11:42 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.34 2001/09/19 20:46:57 mike Exp $".
  */
