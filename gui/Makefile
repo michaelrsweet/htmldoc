@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.2 2000/01/04 13:52:23 mike Exp $"
+# "$Id: Makefile,v 1.3 2000/03/18 16:08:55 mike Exp $"
 #
 #   Makefile for HTMLDOC GUI library.
 #
@@ -34,7 +34,8 @@ include ../Makedefs
 #
 
 OBJS	=	CheckButton.o FileBrowser.o FileChooser.o \
-		FileChooser2.o FileIcon.o FileInput.o HelpDialog.o HelpView.o
+		FileChooser2.o FileIcon.o FileInput.o HelpDialog.o HelpView.o \
+		Progress.o
 
 #
 # Make everything...
@@ -73,9 +74,10 @@ FileIcon.o:	FileIcon.h
 FileInput.o:	FileInput.h
 HelpDialog.o:	HelpDialog.h HelpView.h
 HelpView.o:	HelpView.h
+Progress.o:	Progress.h
 
 $(OBJS):	../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.2 2000/01/04 13:52:23 mike Exp $".
+# End of "$Id: Makefile,v 1.3 2000/03/18 16:08:55 mike Exp $".
 #

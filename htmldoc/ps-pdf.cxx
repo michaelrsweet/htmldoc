@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.57 2000/03/17 23:26:33 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.58 2000/03/18 16:08:57 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -220,7 +220,8 @@ static image_t	*logo_image = NULL;
 static float	logo_width,
 		logo_height;
 static image_t	*background_image = NULL;
-static float	background_color[3] = { 1.0, 1.0, 1.0 };
+static float	background_color[3] = { 1.0, 1.0, 1.0 },
+		link_color[3] = { 0.0, 0.0, 1.0 };
 
 static int	render_typeface,
 		render_style;
@@ -293,7 +294,7 @@ static void	add_link(uchar *name, int page, int top);
 static link_t	*find_link(uchar *name);
 static int	compare_links(link_t *n1, link_t *n2);
 
-static void	get_color(uchar *color, float *rgb);
+static void	get_color(uchar *color, float *rgb, int defblack = 1);
 static void	find_background(tree_t *t);
 static void	write_background(FILE *out);
 
@@ -386,6 +387,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     logo_width = logo_height = 0.0f;
 
   find_background(document);
+  get_color((uchar *)LinkColor, link_color, 0);
 
  /*
   * Initialize page rendering variables...
@@ -473,8 +475,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
       if (timage != NULL)
       {
-	r = new_render(0, RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
-                       y - timage_height, timage_width, timage_height, timage);
+	new_render(0, RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
+                   y - timage_height, timage_width, timage_height, timage);
 	y -= timage_height + _htmlSpacings[SIZE_P];
       }
 
@@ -2261,19 +2263,20 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	          file_target((char *)link) != NULL)
 	        link = (uchar *)file_target((char *)link) - 1; // Include # sign
 
-	      r = new_render(*page, RENDER_LINK, x, *y, temp->width,
-	        	     temp->height, link);
+	      new_render(*page, RENDER_LINK, x, *y, temp->width,
+	                 temp->height, link);
 
 	      if (PSLevel == 0)
 	      {
-		temp->red   = 0;
-		temp->green = 0;
-		temp->blue  = 255;
+                memcpy(rgb, link_color, sizeof(rgb));
 
-		rgb[0] = 0.0f;
-		rgb[1] = 0.0f;
-		rgb[2] = 1.0f;
-		r = new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
+		temp->red   = (int)(link_color[0] * 255.0);
+		temp->green = (int)(link_color[1] * 255.0);
+		temp->blue  = (int)(link_color[2] * 255.0);
+
+                if (LinkStyle)
+		  new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0,
+	                     link_color);
 	      }
 	    }
 
@@ -2295,10 +2298,11 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
         	    break;
 
 		  if (temp->underline)
-		    r = new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
+		    new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
 
 		  if (temp->strikethrough)
-		    r = new_render(*page, RENDER_BOX, x, *y + t->height * 0.5f, temp->width, 0, rgb);
+		    new_render(*page, RENDER_BOX, x, *y + t->height * 0.5f,
+		               temp->width, 0, rgb);
 
         	  r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
         	  r->data.text.typeface = temp->typeface;
@@ -2315,9 +2319,8 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
 	      case MARKUP_IMG :
 	          update_image_size(temp);
-		  r = new_render(*page, RENDER_IMAGE, x, *y, temp->width,
-	                	 temp->height,
-				 image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
+		  new_render(*page, RENDER_IMAGE, x, *y, temp->width, temp->height,
+			     image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
 		  break;
 	    }
 
@@ -3296,15 +3299,18 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    link = (uchar *)file_basename((char *)link);
 	}
 
-	r = new_render(*page, RENDER_LINK, *x, *y, temp->width,
-	               temp->height, link);
+	new_render(*page, RENDER_LINK, *x, *y, temp->width,
+	           temp->height, link);
 
 	if (PSLevel == 0)
 	{
-	  temp->red   = 0;
-	  temp->green = 0;
-	  temp->blue  = 255;
-	  r = new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, blue);
+	  temp->red   = (int)(link_color[0] * 255.0);
+	  temp->green = (int)(link_color[1] * 255.0);
+	  temp->blue  = (int)(link_color[2] * 255.0);
+
+          if (LinkStyle)
+	    new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0,
+	               link_color);
 	}
       }
 
@@ -3371,10 +3377,11 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    }
 
 	    if (temp->underline)
-	      r = new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, rgb);
+	      new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, rgb);
 
 	    if (temp->strikethrough)
-	      r = new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f, temp->width, 0, rgb);
+	      new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f,
+	                 temp->width, 0, rgb);
 
             if ((temp == start || whitespace) && temp->data[0] == ' ')
 	    {
@@ -3396,9 +3403,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    break;
 
 	case MARKUP_IMG :
-	    r = new_render(*page, RENDER_IMAGE, *x, *y, temp->width,
-	                   temp->height,
-			   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
+	    new_render(*page, RENDER_IMAGE, *x, *y, temp->width, temp->height,
+		       image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
             whitespace = 0;
 	    break;
       }
@@ -3539,19 +3545,20 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	  link = (uchar *)file_basename((char *)link);
       }
 
-      r = new_render(*page, RENDER_LINK, *x, *y, flat->width,
-	             flat->height, link);
+      new_render(*page, RENDER_LINK, *x, *y, flat->width,
+	         flat->height, link);
 
       if (PSLevel == 0)
       {
-	flat->red   = 0;
-	flat->green = 0;
-	flat->blue  = 255;
+        memcpy(rgb, link_color, sizeof(rgb));
 
-	rgb[0] = 0.0f;
-	rgb[1] = 0.0f;
-	rgb[2] = 1.0f;
-	r = new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0, rgb);
+	flat->red   = (int)(link_color[0] * 255.0);
+	flat->green = (int)(link_color[1] * 255.0);
+	flat->blue  = (int)(link_color[2] * 255.0);
+
+        if (LinkStyle)
+	  new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0,
+	             link_color);
       }
     }
 
@@ -3606,18 +3613,18 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
           memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	  if (flat->underline)
-	    r = new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0, rgb);
+	    new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0, rgb);
 
 	  if (flat->strikethrough)
-	    r = new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f, flat->width, 0, rgb);
+	    new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f,
+	               flat->width, 0, rgb);
 
           *x += flat->width;
           break;
 
       case MARKUP_IMG :
-	  r = new_render(*page, RENDER_IMAGE, *x, *y, flat->width,
-	                 flat->height,
-			 image_find((char *)htmlGetVariable(flat, (uchar *)"SRC")));
+	  new_render(*page, RENDER_IMAGE, *x, *y, flat->width, flat->height,
+		     image_find((char *)htmlGetVariable(flat, (uchar *)"SRC")));
 
           *x += flat->width;
           col ++;
@@ -4064,7 +4071,25 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   for (row = 0; row < num_rows; row ++)
   {
-    if (*y < (bottom + 2 * (border + cellpadding + cellspacing) + _htmlSpacings[SIZE_P]))
+    if ((var = htmlGetVariable(cells[row][0]->parent,
+                               (uchar *)"HEIGHT")) == NULL)
+      for (col = 0; col < num_cols; col ++)
+	if ((var = htmlGetVariable(cells[row][col],
+                                   (uchar *)"HEIGHT")) != NULL)
+	  break;
+
+    if (var != NULL)
+    {
+      // Row height specified; make sure it'll fit...
+      if (var[strlen((char *)var) - 1] == '%')
+	temp_height = atof((char *)var) * 0.01f * PagePrintLength;
+      else
+        temp_height = atof((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+    }
+    else
+      temp_height = _htmlSpacings[SIZE_P];
+
+    if (*y < (bottom + 2 * (border + cellpadding + cellspacing) + temp_height))
     {
       *y = top;
       (*page) ++;
@@ -4131,13 +4156,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     if (do_valign)
     {
-      if ((var = htmlGetVariable(cells[row][0]->parent,
-                                 (uchar *)"HEIGHT")) == NULL)
-        for (col = 0; col < num_cols; col ++)
-	  if ((var = htmlGetVariable(cells[row][col],
-                                     (uchar *)"HEIGHT")) != NULL)
-	    break;
-
       if (var != NULL)
       {
         // Hardcode the row height...
@@ -4496,7 +4514,8 @@ real_next(tree_t *t)	/* I - Current markup */
 
 static void
 get_color(uchar *color,
-          float *rgb)
+          float *rgb,
+	  int   defblack)
 {
   int		i;		/* Looping vars */
   static struct
@@ -4531,9 +4550,12 @@ get_color(uchar *color,
 
   if (!color[0])
   {
-    rgb[0] = 0.0f;
-    rgb[1] = 0.0f;
-    rgb[2] = 0.0f;
+    if (defblack)
+    {
+      rgb[0] = 0.0f;
+      rgb[1] = 0.0f;
+      rgb[2] = 0.0f;
+    }
     return;
   }
   else if (color[0] == '#')
@@ -6798,5 +6820,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.57 2000/03/17 23:26:33 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.58 2000/03/18 16:08:57 mike Exp $".
  */
