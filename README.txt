@@ -222,7 +222,7 @@ ENCRYPTION SUPPORT
 
 LEGAL STUFF
 
-    The Adobe Portable Document Format is Copyright 1985-2003 by
+    The Adobe Portable Document Format is Copyright 1985-2004 by
     Adobe Systems Incorporated. Adobe, FrameMaker, and
     PostScript are registered trademarks of Adobe Systems,
     Incorporated.

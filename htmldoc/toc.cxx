@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.17 2004/03/31 07:01:57 mike Exp $"
+ * "$Id: toc.cxx,v 1.18 2004/03/31 07:28:13 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -16,7 +16,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -387,5 +387,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.17 2004/03/31 07:01:57 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.18 2004/03/31 07:28:13 mike Exp $".
  */

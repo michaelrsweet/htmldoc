@@ -1,5 +1,5 @@
 /*
- * "$Id: types.h,v 1.11 2004/03/31 07:01:57 mike Exp $"
+ * "$Id: types.h,v 1.12 2004/03/31 07:28:13 mike Exp $"
  *
  *   Common data types for HTMLDOC, an HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -32,5 +32,5 @@ typedef unsigned char uchar;
 #endif /* !_TYPES_H_ */
 
 /*
- * End of "$Id: types.h,v 1.11 2004/03/31 07:01:57 mike Exp $".
+ * End of "$Id: types.h,v 1.12 2004/03/31 07:28:13 mike Exp $".
  */

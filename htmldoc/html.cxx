@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.21 2004/03/31 06:32:26 mike Exp $"
+ * "$Id: html.cxx,v 1.22 2004/03/31 07:28:13 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -1020,5 +1020,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.21 2004/03/31 06:32:26 mike Exp $".
+ * End of "$Id: html.cxx,v 1.22 2004/03/31 07:28:13 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.34 2004/03/31 07:01:57 mike Exp $"
+ * "$Id: htmldoc.h,v 1.35 2004/03/31 07:28:13 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -274,5 +274,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.34 2004/03/31 07:01:57 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.35 2004/03/31 07:28:13 mike Exp $".
  */

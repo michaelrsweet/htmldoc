@@ -11,13 +11,13 @@
 	<string>com.easysw.htmldoc</string>
 
 	<key>CFBundleVersion</key>
-	<string>1.8.23</string>
+	<string>@SVERSION@</string>
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 1997-2002 by Easy Software Products (http://www.easysw.com/)</string>
+	<string>Copyright 1997-2004 by Easy Software Products (http://www.easysw.com/)</string>
 
 	<key>CFAppleHelpAnchor</key>
 	<string>help</string>
@@ -36,10 +36,10 @@
 	<string>htmldoc.icns</string>
 
 	<key>CFBundleShortVersionString</key>
-	<string>1.8.23</string>
+	<string>@SVERSION@</string>
 
 	<key>CFBundleGetInfoString</key>
-	<string>1.8.23, Copyright Easy Software Products 1997-2002</string>
+	<string>@SVERSION, Copyright Easy Software Products 1997-2004</string>
 
 	<key>CFBundleDocumentTypes</key>
 	<array>

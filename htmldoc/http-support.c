@@ -1,5 +1,5 @@
 /*
- * "$Id: http-support.c,v 1.2 2004/03/31 06:32:26 mike Exp $"
+ * "$Id: http-support.c,v 1.3 2004/03/31 07:28:13 mike Exp $"
  *
  *   HTTP support routines for the Common UNIX Printing System (CUPS).
  *
@@ -15,9 +15,9 @@
  *       Attn: CUPS Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
- *       Voice: (301) 373-9603
+ *       Voice: (301) 373-9600
  *       EMail: cups-info@cups.org
  *         WWW: http://www.cups.org
  *
@@ -340,5 +340,5 @@ hd_hstrerror(int error)			/* I - Error number */
 
 
 /*
- * End of "$Id: http-support.c,v 1.2 2004/03/31 06:32:26 mike Exp $".
+ * End of "$Id: http-support.c,v 1.3 2004/03/31 07:28:13 mike Exp $".
  */
