@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.9 1999/11/12 19:19:57 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.10 1999/11/12 19:34:47 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3820,15 +3820,27 @@ get_color(uchar *color,
 		blue;		/* Blue value */
   }		colors[] =	/* Color "database" */
   {
+    { "aqua",		0,   255, 255 }, /* AKA Cyan */
     { "black",		0,   0,   0 },
-    { "red",		255, 0,   0 },
-    { "green",		0,   255, 0 },
-    { "yellow",		255, 255, 0 },
     { "blue",		0,   0,   255 },
-    { "magenta",	255, 0,   255 },
     { "cyan",		0,   255, 255 },
-    { "white",		255, 255, 255 }
+    { "fuchsia",	255, 0,   255 }, /* AKA Magenta */
+    { "gray",		128, 128, 128 },
+    { "green",		0,   128, 0 },
+    { "grey",		128, 128, 128 },
+    { "lime",		0,   255, 0 },
+    { "magenta",	255, 0,   255 },
+    { "maroon",		128, 0,   0 },
+    { "navy",		0,   0,   128 },
+    { "olive",		128, 128, 0 },
+    { "purple",		128, 0,   128 },
+    { "red",		255, 0,   0 },
+    { "silver",		192, 192, 192 },
+    { "teal",		0,   128, 128 },
+    { "white",		255, 255, 255 },
+    { "yellow",		255, 255, 0 }
   };
+
 
   if (color[0] == '#')
   {
@@ -5880,5 +5892,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.9 1999/11/12 19:19:57 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.10 1999/11/12 19:34:47 mike Exp $".
  */
