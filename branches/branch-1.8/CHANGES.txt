@@ -1,4 +1,4 @@
-CHANGES.txt - 03/25/2003
+CHANGES.txt - 04/30/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -31,6 +31,8 @@ CHANGES IN HTMLDOC v1.8.24
 
     BUG FIXES
 
+	- Images did not default to align=bottom, and the
+	  align=bottom line spacing calculation was incorrect.
 	- Whitespace before a link was underlined.
 	- Fixed a table column sizing bug.
 	- HTMLDOC didn't read back the HTTP response properly in
