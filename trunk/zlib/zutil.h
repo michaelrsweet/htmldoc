@@ -8,7 +8,7 @@
    subject to change. Applications should only use zlib.h.
  */
 
-/* @(#) $Id: zutil.h,v 1.5 2004/04/05 16:37:30 mike Exp $ */
+/* @(#) $Id: zutil.h,v 1.6 2004/04/05 16:47:46 swdev Exp $ */
 
 #ifndef ZUTIL_H
 #define ZUTIL_H
@@ -17,6 +17,14 @@
 #include "zlib.h"
 
 #include <config.h>
+
+#ifndef HAVE_VSNPRINTF
+#  define NO_vsnprintf
+#endif /* !HAVE_VSNPRINTF */
+
+#ifndef HAVE_SNPRINTF
+#  define NO_snprintf
+#endif /* !HAVE_SNPRINTF */
 
 #ifdef STDC
 #  include <stddef.h>
