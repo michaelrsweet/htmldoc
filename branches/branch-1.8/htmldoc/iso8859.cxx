@@ -1,5 +1,5 @@
 /*
- * "$Id: iso8859.cxx,v 1.3.2.1 2001/02/02 15:10:59 mike Exp $"
+ * "$Id: iso8859.cxx,v 1.3.2.2 2001/02/07 15:04:00 mike Exp $"
  *
  *   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  *   processing program.
@@ -106,6 +106,7 @@ static lut_t	iso8859_numbers[] =
 		  { "eacute",	233 },
 		  { "ecirc",	234 },
 		  { "egrave",	232 },
+		  { "euro",	128 },
 		  { "eth",	240 },
 		  { "euml",	235 },
 		  { "frac12",	189 },
@@ -240,5 +241,5 @@ compare_lut(lut_t *a,	/* I - First glyph */
 
 
 /*
- * End of "$Id: iso8859.cxx,v 1.3.2.1 2001/02/02 15:10:59 mike Exp $".
+ * End of "$Id: iso8859.cxx,v 1.3.2.2 2001/02/07 15:04:00 mike Exp $".
  */
