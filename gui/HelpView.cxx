@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.18 2000/01/24 01:59:47 mike Exp $"
+// "$Id: HelpView.cxx,v 1.19 2000/01/24 03:28:53 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -264,6 +264,7 @@ HelpView::draw()
 		needspace;	// Do we need whitespace?
   Fl_Boxtype	b = box() ? box() : FL_DOWN_BOX;
 				// Box to draw...
+  Fl_Color	tc, c;		// Table/cell background color
 
 
   // Draw the scrollbar and box first...
@@ -281,6 +282,8 @@ HelpView::draw()
   // Clip the drawing to the inside of the box...
   fl_push_clip(x() + 4, y() + 4, w() - 28, h() - 8);
   fl_color(textcolor_);
+
+  tc = c = bgcolor_;
 
   // Draw all visible blocks...
   for (i = 0, block = blocks_; i < nblocks_ && (block->y - topline_) < h(); i ++, block ++)
@@ -410,8 +413,8 @@ HelpView::draw()
 	  }
 	  else if (strcasecmp(buf, "HR") == 0)
 	  {
-	    fl_line(block->x + x(), yy + 2 * hh + y(), block->w + x(),
-	            yy + 2 * hh + y());
+	    fl_line(block->x + x(), yy + hh + y(), block->w + x(),
+	            yy + hh + y());
 
 	    if (line < 31)
 	      line ++;
@@ -459,6 +462,15 @@ HelpView::draw()
 	    }
 
 	    pushfont(font, size);
+
+            if (c != bgcolor_)
+	    {
+	      fl_color(c);
+              fl_rectf(block->x + x() - 4,
+	               block->y - topline_ + y() - size - 3,
+		       block->w - block->x + 7, block->h + size - 5);
+              fl_color(textcolor_);
+	    }
 	  }
 	  else if (strcasecmp(buf, "A") == 0 &&
 	           get_attr(attrs, "HREF", attr, sizeof(attr)) != NULL)
@@ -467,6 +479,8 @@ HelpView::draw()
 	    fl_color(textcolor_);
 	  else if (strcasecmp(buf, "B") == 0)
 	    pushfont(font |= FL_BOLD, size);
+	  else if (strcasecmp(buf, "TABLE") == 0)
+            tc = get_color(get_attr(attrs, "BGCOLOR", attr, sizeof(attr)), bgcolor_);
 	  else if (strcasecmp(buf, "TD") == 0 ||
 	           strcasecmp(buf, "TH") == 0)
           {
@@ -474,6 +488,17 @@ HelpView::draw()
 	      pushfont(font |= FL_BOLD, size);
 	    else
 	      pushfont(font = textfont_, size);
+
+            c = get_color(get_attr(attrs, "BGCOLOR", attr, sizeof(attr)), tc);
+
+            if (c != bgcolor_)
+	    {
+	      fl_color(c);
+              fl_rectf(block->x + x() - 4,
+	               block->y - topline_ + y() - size - 3,
+		       block->w - block->x + 7, block->h + size - 5);
+              fl_color(textcolor_);
+	    }
 
             if (block->border)
               fl_rect(block->x + x() - 4,
@@ -502,6 +527,11 @@ HelpView::draw()
 		   strcasecmp(buf, "/KBD") == 0 ||
 		   strcasecmp(buf, "/VAR") == 0)
 	    popfont(font, size);
+	  else if (strcasecmp(buf, "/TABLE") == 0)
+	    tc = c = bgcolor_;
+	  else if (strcasecmp(buf, "/TD") == 0 ||
+	           strcasecmp(buf, "/TH") == 0)
+	    c = tc;
 	  else if (strcasecmp(buf, "/PRE") == 0)
 	  {
 	    popfont(font, size);
@@ -846,7 +876,11 @@ HelpView::format()
 	}
         else if (strcasecmp(buf, "TABLE") == 0)
 	{
-	  border = get_attr(attrs, "BORDER", attr, sizeof(attr)) != NULL;
+	  if (get_attr(attrs, "BORDER", attr, sizeof(attr)))
+	    border = atoi(attr);
+	  else
+	    border = 0;
+
 	  block->h += size + 2;
 
           if (get_attr(attrs, "WIDTH", attr, sizeof(attr)))
@@ -860,7 +894,7 @@ HelpView::format()
 	    table_width = w();
 
           for (column = 0; column < 200; column ++)
-	    columns[column] = table_width / 5;
+	    columns[column] = table_width / 3;
 
 	  column = 0;
 	}
@@ -905,7 +939,11 @@ HelpView::format()
 	  hh = size;
 	}
 
-        block     = add_block(start, xx, yy, w() - 24, 0);
+        if (row)
+	  block = add_block(start, block->x, yy, block->w, 0);
+	else
+	  block = add_block(start, xx, yy, w() - 24, 0);
+
 	needspace = 0;
 	line      = 0;
 
@@ -969,12 +1007,6 @@ HelpView::format()
         line       = do_align(block, line, xx, align, links);
         xx         = block->x;
         block->h   += hh;
-
-        if (!block->h && nblocks_ > 1)
-	{
-	  nblocks_ --;
-	  block --;
-	}
 
         if (row)
 	{
@@ -1697,5 +1729,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.18 2000/01/24 01:59:47 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.19 2000/01/24 03:28:53 mike Exp $".
 //
