@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.7 2004/03/31 08:39:12 mike Exp $"
+ * "$Id: http.c,v 1.1.2.21 2004/05/07 22:04:57 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS).
  *
@@ -404,7 +404,7 @@ httpConnectEncrypt(const char *host,	/* I - Host to connect to */
 #ifdef WIN32
   http->hostaddr.sin_port   = htons((u_short)port);
 #else
-  http->hostaddr.sin_port   = htons((unsigned short)port);
+  http->hostaddr.sin_port   = htons(port);
 #endif /* WIN32 */
 
  /*
@@ -2420,5 +2420,5 @@ CDSAWriteFunc(SSLConnectionRef connection,	/* I  - SSL/TLS connection */
 
 
 /*
- * End of "$Id: http.c,v 1.7 2004/03/31 08:39:12 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.21 2004/05/07 22:04:57 mike Exp $".
  */

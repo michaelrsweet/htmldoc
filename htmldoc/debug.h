@@ -1,5 +1,5 @@
 /*
- * "$Id: debug.h,v 1.12 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: debug.h,v 1.3.2.5 2004/05/05 18:58:40 mike Exp $"
  *
  *   Debugging macros for HTMLDOC, a HTML document processing program.
  *
@@ -42,5 +42,5 @@
 #endif /* !_DEBUG_H_ */
 
 /*
- * End of "$Id: debug.h,v 1.12 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: debug.h,v 1.3.2.5 2004/05/05 18:58:40 mike Exp $".
  */

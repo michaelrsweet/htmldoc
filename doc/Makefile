@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.16 2004/10/23 20:23:19 mike Exp $"
+# "$Id: Makefile,v 1.11.2.14 2004/10/24 22:32:32 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -122,5 +122,5 @@ htmldoc.1:	htmldoc.man
 
 
 #
-# End of "$Id: Makefile,v 1.16 2004/10/23 20:23:19 mike Exp $".
+# End of "$Id: Makefile,v 1.11.2.14 2004/10/24 22:32:32 mike Exp $".
 #
