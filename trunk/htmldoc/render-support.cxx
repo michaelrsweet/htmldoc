@@ -1,5 +1,5 @@
 //
-// "$Id: render-support.cxx,v 1.1 2002/04/07 13:39:46 mike Exp $"
+// "$Id: render-support.cxx,v 1.2 2002/05/06 13:23:41 mike Exp $"
 //
 //   Rendering support methods for HTMLDOC, a HTML document processing
 //   program.
@@ -57,19 +57,21 @@ hdRender::hdRender(hdStyleSheet *s)	// I - Stylesheet
   // Initialize class members...
   css = s;
 
-  page_width             = css->page_width;
-  page_length            = css->page_length;
-  page_left              = css->page_left;
-  page_right             = css->page_right;
-  page_bottom            = css->page_bottom;
-  page_top               = css->page_top;
-  page_print_width       = css->page_print_width;
-  page_print_length      = css->page_print_length;
-  orientation            = css->orientation;
-  sides                  = css->sides;
-  media_color[0]         = '\0';
-  media_type[0]          = '\0';
-  media_position         = 0;
+  media.page_width        = css->media.page_width;
+  media.page_length       = css->media.page_length;
+  media.page_left         = css->media.page_left;
+  media.page_right        = css->media.page_right;
+  media.page_bottom       = css->media.page_bottom;
+  media.page_top          = css->media.page_top;
+  media.page_print_width  = css->media.page_print_width;
+  media.page_print_length = css->media.page_print_length;
+  media.orientation       = css->media.orientation;
+  media.sides             = css->media.sides;
+  media.media_position    = css->media.media_position;
+
+  strcpy(media.media_color, css->media.media_color);
+  strcpy(media.media_type, css->media.media_type);
+
   background_color[0]    = 0.0f;
   background_color[1]    = 0.0f;
   background_color[2]    = 0.0f;
@@ -495,5 +497,5 @@ hdRenderNode::~hdRenderNode()
 
 
 //
-// End of "$Id: render-support.cxx,v 1.1 2002/04/07 13:39:46 mike Exp $".
+// End of "$Id: render-support.cxx,v 1.2 2002/05/06 13:23:41 mike Exp $".
 //

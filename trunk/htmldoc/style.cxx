@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.8 2002/04/11 01:41:11 mike Exp $"
+// "$Id: style.cxx,v 1.9 2002/05/06 13:23:41 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -2154,7 +2154,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "height") == 0)
     {
-      height = get_length(value, css->page_print_length, css, &relative);
+      height = get_length(value, css->media.page_print_length, css, &relative);
 
       if (relative)
       {
@@ -2675,7 +2675,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "text-indent") == 0)
     {
-      text_indent = get_length(value, css->page_print_width, css, &relative);
+      text_indent = get_length(value, css->media.page_print_width, css, &relative);
 
       if (relative)
       {
@@ -2761,7 +2761,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "width") == 0)
     {
-      width = get_length(value, css->page_print_width, css, &relative);
+      width = get_length(value, css->media.page_print_width, css, &relative);
 
       if (relative)
       {
@@ -2837,13 +2837,13 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
   // Then do all of the other relative properties...
   if (background_position_rel[0])
     background_position[0] = get_length(background_position_rel[0],
-                                        css->page_print_width, css);
+                                        css->media.page_print_width, css);
   if (background_position_rel[1])
     background_position[1] = get_length(background_position_rel[1],
-                                        css->page_print_length, css);
+                                        css->media.page_print_length, css);
 
   if (height_rel)
-    height = get_length(height_rel, css->page_print_length, css);
+    height = get_length(height_rel, css->media.page_print_length, css);
 
   if (line_height_rel)
   {
@@ -2854,40 +2854,40 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
   }
 
   if (margin_rel[0])
-    margin[0] = get_length(margin_rel[0], css->page_print_length, css);
+    margin[0] = get_length(margin_rel[0], css->media.page_print_length, css);
   if (margin_rel[1])
-    margin[1] = get_length(margin_rel[1], css->page_print_width, css);
+    margin[1] = get_length(margin_rel[1], css->media.page_print_width, css);
   if (margin_rel[2])
-    margin[2] = get_length(margin_rel[2], css->page_print_width, css);
+    margin[2] = get_length(margin_rel[2], css->media.page_print_width, css);
   if (margin_rel[3])
-    margin[3] = get_length(margin_rel[3], css->page_print_length, css);
+    margin[3] = get_length(margin_rel[3], css->media.page_print_length, css);
 
   if (padding_rel[0])
-    padding[0] = get_length(padding_rel[0], css->page_print_length, css);
+    padding[0] = get_length(padding_rel[0], css->media.page_print_length, css);
   if (padding_rel[1])
-    padding[1] = get_length(padding_rel[1], css->page_print_width, css);
+    padding[1] = get_length(padding_rel[1], css->media.page_print_width, css);
   if (padding_rel[2])
-    padding[2] = get_length(padding_rel[2], css->page_print_width, css);
+    padding[2] = get_length(padding_rel[2], css->media.page_print_width, css);
   if (padding_rel[3])
-    padding[3] = get_length(padding_rel[3], css->page_print_length, css);
+    padding[3] = get_length(padding_rel[3], css->media.page_print_length, css);
 
   if (position_rel[0])
-    position[0] = get_length(position_rel[0], css->page_print_length, css);
+    position[0] = get_length(position_rel[0], css->media.page_print_length, css);
   if (position_rel[1])
-    position[1] = get_length(position_rel[1], css->page_print_width, css);
+    position[1] = get_length(position_rel[1], css->media.page_print_width, css);
   if (position_rel[2])
-    position[2] = get_length(position_rel[2], css->page_print_width, css);
+    position[2] = get_length(position_rel[2], css->media.page_print_width, css);
   if (position_rel[3])
-    position[3] = get_length(position_rel[3], css->page_print_length, css);
+    position[3] = get_length(position_rel[3], css->media.page_print_length, css);
 
   if (text_indent_rel)
-    text_indent = get_length(text_indent_rel, css->page_print_width, css);
+    text_indent = get_length(text_indent_rel, css->media.page_print_width, css);
 
   if (width_rel)
-    width = get_length(width_rel, css->page_print_width, css);
+    width = get_length(width_rel, css->media.page_print_width, css);
 }
 
 
 //
-// End of "$Id: style.cxx,v 1.8 2002/04/11 01:41:11 mike Exp $".
+// End of "$Id: style.cxx,v 1.9 2002/05/06 13:23:41 mike Exp $".
 //

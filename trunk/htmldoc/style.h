@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.14 2002/04/11 01:41:11 mike Exp $"
+// "$Id: style.h,v 1.15 2002/05/06 13:23:41 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -550,6 +550,34 @@ enum hdSides
 
 struct hdTree;
 
+struct hdStyleMedia
+{
+  char		size_name[64];	// Page size name
+  float		page_width,	// Page width, points
+		page_length,	// Page length, points
+		page_left,	// Left position, points
+		page_bottom,	// Bottom position, points
+		page_right,	// Right position, points
+		page_top,	// Top position, points
+		page_print_width,
+				// Printable width, points
+		page_print_length;
+				// Printable length, points
+  char		media_color[64],// Current media color
+		media_type[64];	// Current media type
+  int		media_position;	// Current media position
+  hdOrientation	orientation;	// Orientation of the page
+  hdSides	sides;		// Format single or double-sided?
+
+  hdStyleMedia();
+
+  void		set_margins(float l, float b, float r, float t);
+  void		set_orientation(hdOrientation o);
+  void		set_size(float w, float l);
+  void		set_size(const char *name); 
+  void		update_printable();
+};
+
 struct hdStyleSheet
 {
   int		num_styles,	// Number of styles
@@ -570,20 +598,9 @@ struct hdStyleSheet
   int		num_glyphs;	// Number of glyphs in charset
   char		**glyphs;	// Glyphs in charset
 
-  char		size_name[64];	// Page size name
-  float		page_width,	// Page width, points
-		page_length,	// Page length, points
-		page_left,	// Left position, points
-		page_bottom,	// Bottom position, points
-		page_right,	// Right position, points
-		page_top,	// Top position, points
-		page_print_width,
-				// Printable width, points
-		page_print_length;
-				// Printable length, points
+  hdStyleMedia	default_media,	// Default media attributes from stylesheet
+		media;		// Current media attributes
 
-  hdOrientation	orientation;	// Orientation of the page
-  hdSides	sides;		// Format single or double-sided?
   int		grayscale;	// Grayscale output?
   float		ppi;		// Pixel resolution
   unsigned	private_id;	// Private style ID
@@ -602,12 +619,7 @@ struct hdStyleSheet
   void		pattern(const char *r, char p[256]);
   char		*read(hdFile *f, const char *p, char *s, int slen);
   void		set_charset(const char *cs);
-  void		set_margins(float l, float b, float r, float t);
-  void		set_orientation(hdOrientation o);
-  void		set_size(float w, float l);
-  void		set_size(const char *name); 
  
-  void		update_printable();
   void		update_styles();
 };
 
@@ -615,5 +627,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.14 2002/04/11 01:41:11 mike Exp $".
+// End of "$Id: style.h,v 1.15 2002/05/06 13:23:41 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.6 2002/03/11 02:33:07 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.7 2002/05/06 13:23:41 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -35,11 +35,6 @@
 //   hdStyleSheet::pattern()           - Initialize a regex pattern buffer...
 //   hdStyleSheet::read()              - Read a string from the given file.
 //   hdStyleSheet::set_charset()       - Set the document character set.
-//   hdStyleSheet::set_margins()       - Set the page margins.
-//   hdStyleSheet::set_orientation()   - Set the page orientation.
-//   hdStyleSheet::set_size()          - Set the page size by numbers.
-//   hdStyleSheet::set_size()          - Set the page size by name.
-//   hdStyleSheet::update_printable()  - Update the printable page area.
 //   hdStyleSheet::update_styles()     - Update all relative style data.
 //
 
@@ -69,12 +64,6 @@ hdStyleSheet::hdStyleSheet()
 
   // Set the default character set to "iso-8859-1"...
   set_charset("iso-8859-1");
-
-  // Set the default page to "Universal" with half-inch margins all the
-  // way around...
-
-  set_size(595.0f, 792.0f);
-  set_margins(36.0f, 36.0f, 36.0f, 36.0f);
 }
 
 
@@ -1008,135 +997,6 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
 
 
 //
-// 'hdStyleSheet::set_margins()' - Set the page margins.
-//
-
-void
-hdStyleSheet::set_margins(float l,	// I - Left margin in points
-                          float b,	// I - Bottom margin in points
-			  float r,	// I - Right margin in points
-			  float t)	// I - Top margin in points
-{
-  page_left   = l;
-  page_bottom = b;
-  page_right  = r;
-  page_top    = t;
-
-  update_printable();
-}
-
-
-//
-// 'hdStyleSheet::set_orientation()' - Set the page orientation.
-//
-
-void
-hdStyleSheet::set_orientation(hdOrientation o)	// I - Orientation
-{
-  orientation = o;
-
-  update_printable();
-}
-
-
-//
-// 'hdStyleSheet::set_size()' - Set the page size by numbers.
-//
-
-void
-hdStyleSheet::set_size(float w,		// I - Width in points
-                       float l)		// I - Length in points
-{
-  hdPageSize	*s;			// Current size record
-
-
-  // Lookup the size in the size table...
-  if ((s = hdGlobal.find_size(w, l)) != NULL)
-  {
-    // Use the standard size name...
-    strncpy(size_name, s->name, sizeof(size_name) - 1);
-    size_name[sizeof(size_name) - 1] = '\0';
-  }
-  else
-  {
-    // If the size wasn't found, use wNNNhNNN...
-    sprintf(size_name, "w%dh%d", (int)w, (int)l);
-  }
-
-  // Now set the page size and update the printable area...
-  page_width  = w;
-  page_length = l;
-
-  update_printable();
-}
-
-
-//
-// 'hdStyleSheet::set_size()' - Set the page size by name.
-//
-
-void
-hdStyleSheet::set_size(const char *name)// I - Page size name
-{
-  hdPageSize	*s;			// Current size record
-  int		w, l;			// Width and length in points
-
-
-  // Lookup the size in the size table...
-  if ((s = hdGlobal.find_size(name)) != NULL)
-  {
-    // Use the standard size...
-    strncpy(size_name, s->name, sizeof(size_name) - 1);
-    size_name[sizeof(size_name) - 1] = '\0';
-
-    page_width  = s->width;
-    page_length = s->length;
-
-    update_printable();
-  }
-  else
-  {
-    // OK, that didn't work; see if the name is of the form "wNNNhNNN"...
-    if (sscanf(name, "w%dh%d", &w, &l) == 2)
-    {
-      // Yes, it is a custom page size; set it...
-      strncpy(size_name, name, sizeof(size_name) - 1);
-      size_name[sizeof(size_name) - 1] = '\0';
-
-      page_width  = w;
-      page_length = l;
-
-      update_printable();
-    }
-  }
-}
-
-
-//
-// 'hdStyleSheet::update_printable()' - Update the printable page area.
-//
-
-void
-hdStyleSheet::update_printable()
-{
-  switch (orientation)
-  {
-    case HD_ORIENTATION_PORTRAIT :
-    case HD_ORIENTATION_REVERSE_PORTRAIT :
-        page_print_width  = page_width - page_left - page_right;
-	page_print_length = page_length - page_top - page_bottom;
-	break;
-
-    case HD_ORIENTATION_LANDSCAPE :
-    case HD_ORIENTATION_REVERSE_LANDSCAPE :
-	page_print_width  = page_length - page_left - page_right;
-        page_print_length = page_width - page_top - page_bottom;
-	break;
-  }
-}
-
-
-//
 // 'hdStyleSheet::update_styles()' - Update all relative style data.
 //
 
@@ -1158,5 +1018,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.6 2002/03/11 02:33:07 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.7 2002/05/06 13:23:41 mike Exp $".
 //

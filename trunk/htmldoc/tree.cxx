@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.16 2002/04/11 01:41:11 mike Exp $"
+// "$Id: tree.cxx,v 1.17 2002/05/06 13:23:41 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -360,15 +360,15 @@ hdTree::compute_size(hdStyleSheet *css)	// I - Stylesheet
 
 	if (width_ptr != NULL && height_ptr != NULL)
 	{
-	  width  = style->get_length(width_ptr, css->page_print_width, css);
-	  height = style->get_length(height_ptr, css->page_print_length, css);
+	  width  = style->get_length(width_ptr, css->media.page_print_width, css);
+	  height = style->get_length(height_ptr, css->media.page_print_length, css);
 	}
 	else if (img == NULL || img->width() == 0 || img->height() == 0)
 	  return;
 	else if (width_ptr != NULL)
 	{
 	  // Scale the height so that the aspect ratio is preserved...
-	  width  = style->get_length(width_ptr, css->page_print_width, css);
+	  width  = style->get_length(width_ptr, css->media.page_print_width, css);
 	  height = width * img->height() / img->width();
 
 	  // Set the HEIGHT attribute appropriately...
@@ -383,7 +383,7 @@ hdTree::compute_size(hdStyleSheet *css)	// I - Stylesheet
 	else if (height_ptr != NULL)
 	{
 	  // Scale the width so that the aspect ratio is preserved...
-	  height = style->get_length(height_ptr, css->page_print_length, css);
+	  height = style->get_length(height_ptr, css->media.page_print_length, css);
 	  width  = height * img->width() / img->height();
 
 	  // Set the WIDTH attribute appropriately...
@@ -417,16 +417,16 @@ hdTree::compute_size(hdStyleSheet *css)	// I - Stylesheet
 	type_ptr   = get_attr("TYPE");
 
 	if (width_ptr != NULL)
-	  width = style->get_length(width_ptr, css->page_print_width, css);
+	  width = style->get_length(width_ptr, css->media.page_print_width, css);
 	else if (size_ptr != NULL)
-	  width = style->get_length(size_ptr, css->page_print_width, css);
+	  width = style->get_length(size_ptr, css->media.page_print_width, css);
 	else
 	  width = 1.0f;
 
 	if (height_ptr != NULL)
-	  height = style->get_length(height_ptr, css->page_print_length, css);
+	  height = style->get_length(height_ptr, css->media.page_print_length, css);
 	else if (size_ptr != NULL)
-	  height = style->get_length(size_ptr, css->page_print_length, css);
+	  height = style->get_length(size_ptr, css->media.page_print_length, css);
 	else
 	  height = 1.0f;
 
@@ -1819,5 +1819,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.16 2002/04/11 01:41:11 mike Exp $".
+// End of "$Id: tree.cxx,v 1.17 2002/05/06 13:23:41 mike Exp $".
 //
