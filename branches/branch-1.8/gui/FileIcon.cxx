@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.21.2.2 2001/04/18 23:24:09 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.21.2.3 2001/05/27 11:39:43 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -557,7 +557,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     {
       if (ch == '(')
         break;
-      else if ((ptr - command) < (sizeof(command) - 1))
+      else if (ptr < (command + sizeof(command) - 1))
         *ptr++ = ch;
     }
 
@@ -578,7 +578,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     {
       if (ch == ')')
         break;
-      else if ((ptr - params) < (sizeof(params) - 1))
+      else if (ptr < (params + sizeof(params) - 1))
         *ptr++ = ch;
     }
 
@@ -1217,5 +1217,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.21.2.2 2001/04/18 23:24:09 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.21.2.3 2001/05/27 11:39:43 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.7 2001/05/18 15:41:31 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.8 2001/05/27 11:39:50 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -873,6 +873,8 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   color = 0;
   count = 0;
   align = 0;
+  byte  = 0;
+  temp  = 0;
 
   for (y = img->height - 1; y >= 0; y --)
   {
@@ -1576,5 +1578,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.7 2001/05/18 15:41:31 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.8 2001/05/27 11:39:50 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.63 2001/05/26 19:38:33 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.64 2001/05/27 11:39:51 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -514,6 +514,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 	timage_width  = timage->width * PagePrintWidth / _htmlBrowserWidth;
 	timage_height = timage_width * timage->height / timage->width;
       }
+      else
+        timage_width = timage_height = 0.0f;
 
       num_pages = PageDuplex ? 2 : 1;
 
@@ -795,7 +797,10 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     page_text  = format_number(print_page, 'i');
   }
   else if (chapter < 0)
-    page_text = (page & 1) ? (char *)"eltit" : (char *)"title";
+  {
+    print_page = 0;
+    page_text  = (page & 1) ? (char *)"eltit" : (char *)"title";
+  }
   else
   {
     print_page = page - chapter_starts[1] + 1;
@@ -1085,6 +1090,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
   if (title != NULL)
     title_width = HeadFootSize / _htmlSizes[SIZE_P] *
                   get_width(title, HeadFootType, HeadFootStyle, SIZE_P);
+  else
+    title_width = 0.0f;
 
  /*
   * Write the title page(s)...
@@ -1093,6 +1100,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
   chapter      = -1;
   page_chapter = NULL;
   page_heading = NULL;
+  out          = NULL;
 
   if (!OutputFiles)
   {
@@ -1354,6 +1362,8 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
   if (title != NULL)
     title_width = HeadFootSize / _htmlSizes[SIZE_P] *
                   get_width(title, HeadFootType, HeadFootStyle, SIZE_P);
+  else
+    title_width = 0.0f;
 
   // Open the output file...
   out = open_file();
@@ -2480,6 +2490,9 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 		  new_render(*page, RENDER_IMAGE, x, *y, temp->width, temp->height,
 			     image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
 		  break;
+
+              default :
+	          break;
 	    }
 
 	    x += temp->width;
@@ -3204,6 +3217,15 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
   DEBUG_printf(("format_width = %.1f\n", format_width));
 
+  // Make stupid compiler warnings go away (if you can't put
+  // enough smarts in the compiler, don't add the warning!)
+  offset      = 0.0f;
+  temp_width  = 0.0f;
+  temp_height = 0.0f;
+  lineptr     = NULL;
+  linex       = 0.0f;
+  linewidth   = 0.0f;
+
   while (flat != NULL)
   {
     start = flat;
@@ -3802,6 +3824,9 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
           *x += flat->width;
           col ++;
 	  break;
+
+      default :
+          break;
     }
 
     next = flat->next;
@@ -3912,6 +3937,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   memset(col_mins, 0, sizeof(col_mins));
   memset(col_smins, 0, sizeof(col_smins));
   memset(col_prefs, 0, sizeof(col_prefs));
+
+  cells = NULL;
 
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
@@ -5902,6 +5929,9 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
             flat->next = temp;
           flat = temp;
           break;
+
+      default :
+          break;
     }
 
     if (t->child != NULL)
@@ -6506,8 +6536,10 @@ write_image(FILE     *out,	/* I - Output file */
   * See if we can optimize the image as indexed without color loss...
   */
 
-  img     = r->data.image;
-  ncolors = 0;
+  img      = r->data.image;
+  ncolors  = 0;
+  indices  = NULL;
+  indwidth = 0;
 
   if (PSLevel != 1 && PDFVersion >= 1.2f && img->obj == 0)
   {
@@ -7378,7 +7410,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d+%03d%02d\n",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    timezone / 3600, abs((timezone / 60) % 60));
+	    (int)(-timezone / 3600), (int)abs((timezone / 60) % 60));
     if (title != NULL)
       fprintf(out, "%%%%Title: %s\n", title);
     if (author != NULL)
@@ -7760,7 +7792,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    -timezone / 3600, abs((timezone / 60) % 60));
+	    (int)(-timezone / 3600), (int)abs((timezone / 60) % 60));
     write_string(out, (uchar *)temp, 0);
 
     if (title != NULL)
@@ -8531,7 +8563,7 @@ flate_write(FILE  *out,		/* I - Output file */
 
     while (compressor.avail_in > 0)
     {
-      if (compressor.avail_out < (sizeof(comp_buffer) / 8))
+      if (compressor.avail_out < (int)(sizeof(comp_buffer) / 8))
       {
 	if (PSLevel)
 	  ps_ascii85(out, comp_buffer,
@@ -8554,30 +8586,27 @@ flate_write(FILE  *out,		/* I - Output file */
       flush = 0;
     }
   }
-  else
+  else if (Encryption && !PSLevel)
   {
-    if (Encryption && !PSLevel)
-    {
-      int	i,		// Looping var
+    int		i,		// Looping var
 		bytes;		// Number of bytes to encrypt/write
-      uchar	newbuf[1024];	// New encrypted data buffer
+    uchar	newbuf[1024];	// New encrypted data buffer
 
 
-      for (i = 0; i < length; i += sizeof(newbuf))
-      {
-        if ((bytes = length - i) > sizeof(newbuf))
-	  bytes = sizeof(newbuf);
+    for (i = 0; i < length; i += sizeof(newbuf))
+    {
+      if ((bytes = length - i) > sizeof(newbuf))
+        bytes = sizeof(newbuf);
 
-        rc4_encrypt(&encrypt_state, buf + i, newbuf, bytes);
-        fwrite(newbuf, bytes, 1, out);
-      }
+      rc4_encrypt(&encrypt_state, buf + i, newbuf, bytes);
+      fwrite(newbuf, bytes, 1, out);
     }
-    else
-      fwrite(buf, length, 1, out);
   }
+  else
+    fwrite(buf, length, 1, out);
 }
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.63 2001/05/26 19:38:33 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.64 2001/05/27 11:39:51 mike Exp $".
  */

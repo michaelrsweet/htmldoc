@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.16 2001/05/24 17:24:47 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.17 2001/05/27 11:39:45 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -264,7 +264,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i >= argc)
         usage();
 
-      for (j = 0; j < (sizeof(PDFPages) / sizeof(PDFPages[0])); j ++)
+      for (j = 0; j < (int)(sizeof(PDFPages) / sizeof(PDFPages[0])); j ++)
         if (strcasecmp(argv[i], PDFPages[j]) == 0)
 	{
 	  PDFFirstPage = j;
@@ -634,7 +634,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i >= argc)
         usage();
 
-      for (j = 0; j < (sizeof(PDFEffects) / sizeof(PDFEffects[0])); j ++)
+      for (j = 0; j < (int)(sizeof(PDFEffects) / sizeof(PDFEffects[0])); j ++)
         if (strcasecmp(argv[i], PDFEffects[j]) == 0)
 	{
 	  PDFEffect = j;
@@ -647,7 +647,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i >= argc)
         usage();
 
-      for (j = 0; j < (sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); j ++)
+      for (j = 0; j < (int)(sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); j ++)
         if (strcasecmp(argv[i], PDFLayouts[j]) == 0)
 	{
 	  PDFPageLayout = j;
@@ -660,7 +660,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       if (i >= argc)
         usage();
 
-      for (j = 0; j < (sizeof(PDFModes) / sizeof(PDFModes[0])); j ++)
+      for (j = 0; j < (int)(sizeof(PDFModes) / sizeof(PDFModes[0])); j ++)
         if (strcasecmp(argv[i], PDFModes[j]) == 0)
 	{
 	  PDFPageMode = j;
@@ -1792,7 +1792,7 @@ parse_options(const char   *line,	// I - Options from book file
       htmlSetCharSet(temp2);
     else if (strcmp(temp, "--pagemode") == 0)
     {
-      for (i = 0; i < (sizeof(PDFModes) / sizeof(PDFModes[0])); i ++)
+      for (i = 0; i < (int)(sizeof(PDFModes) / sizeof(PDFModes[0])); i ++)
         if (strcasecmp(temp2, PDFModes[i]) == 0)
 	{
 	  PDFPageMode = i;
@@ -1801,7 +1801,7 @@ parse_options(const char   *line,	// I - Options from book file
     }
     else if (strcmp(temp, "--pagelayout") == 0)
     {
-      for (i = 0; i < (sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); i ++)
+      for (i = 0; i < (int)(sizeof(PDFLayouts) / sizeof(PDFLayouts[0])); i ++)
         if (strcasecmp(temp2, PDFLayouts[i]) == 0)
 	{
 	  PDFPageLayout = i;
@@ -1810,7 +1810,7 @@ parse_options(const char   *line,	// I - Options from book file
     }
     else if (strcmp(temp, "--firstpage") == 0)
     {
-      for (i = 0; i < (sizeof(PDFPages) / sizeof(PDFPages[0])); i ++)
+      for (i = 0; i < (int)(sizeof(PDFPages) / sizeof(PDFPages[0])); i ++)
         if (strcasecmp(temp2, PDFPages[i]) == 0)
 	{
 	  PDFFirstPage = i;
@@ -1819,7 +1819,7 @@ parse_options(const char   *line,	// I - Options from book file
     }
     else if (strcmp(temp, "--pageeffect") == 0)
     {
-      for (i = 0; i < (sizeof(PDFEffects) / sizeof(PDFEffects[0])); i ++)
+      for (i = 0; i < (int)(sizeof(PDFEffects) / sizeof(PDFEffects[0])); i ++)
         if (strcasecmp(temp2, PDFEffects[i]) == 0)
 	{
 	  PDFEffect = i;
@@ -2082,5 +2082,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.16 2001/05/24 17:24:47 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.17 2001/05/27 11:39:45 mike Exp $".
  */
