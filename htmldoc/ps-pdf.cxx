@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.173 2002/05/17 02:37:41 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.174 2002/05/22 20:40:21 swdev Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1164,10 +1164,12 @@ pspdf_prepare_outpages()
 	  num_outpages ++;
 	}
 
-	nup          = page->nup;
-	outpage->nup = nup;
-	j            = 0;
+	nup = page->nup;
+	j   = 0;
       }
+
+      if (!j)
+	outpage->nup = nup;
 
       pspdf_transform_page(num_outpages, j, i);
       j ++;
@@ -1177,8 +1179,6 @@ pspdf_prepare_outpages()
         j = 0;
 	outpage ++;
 	num_outpages ++;
-
-	outpage->nup = nup;
       }
     }
 
@@ -1216,10 +1216,12 @@ pspdf_prepare_outpages()
 	  num_outpages ++;
 	}
 
-	nup          = page->nup;
-	outpage->nup = nup;
-	j            = 0;
+	nup = page->nup;
+	j   = 0;
       }
+
+      if (!j)
+	outpage->nup = nup;
 
       pspdf_transform_page(num_outpages, j, i);
       j ++;
@@ -1229,8 +1231,6 @@ pspdf_prepare_outpages()
         j = 0;
 	outpage ++;
 	num_outpages ++;
-
-	outpage->nup = nup;
       }
     }
 
@@ -11451,5 +11451,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.173 2002/05/17 02:37:41 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.174 2002/05/22 20:40:21 swdev Exp $".
  */
