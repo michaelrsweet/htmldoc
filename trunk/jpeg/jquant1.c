@@ -251,6 +251,8 @@ output_value (j_decompress_ptr cinfo, int ci, int j, int maxj)
    * (Forcing the upper and lower values to the limits ensures that
    * dithering can't produce a color outside the selected gamut.)
    */
+  (void)cinfo;
+  (void)ci;
   return (int) (((INT32) j * MAXJSAMPLE + maxj/2) / maxj);
 }
 
@@ -261,6 +263,8 @@ largest_input_value (j_decompress_ptr cinfo, int ci, int j, int maxj)
 /* Must have largest(j=0) >= 0, and largest(j=maxj) >= MAXJSAMPLE */
 {
   /* Breakpoints are halfway between values returned by output_value */
+  (void)cinfo;
+  (void)ci;
   return (int) (((INT32) (2*j + 1) * MAXJSAMPLE + maxj) / (2*maxj));
 }
 
@@ -744,6 +748,8 @@ start_pass_1_quant (j_decompress_ptr cinfo, boolean is_pre_scan)
   size_t arraysize;
   int i;
 
+  (void)is_pre_scan;
+
   /* Install my colormap. */
   cinfo->colormap = cquantize->sv_colormap;
   cinfo->actual_number_of_colors = cquantize->sv_actual;
@@ -797,6 +803,7 @@ start_pass_1_quant (j_decompress_ptr cinfo, boolean is_pre_scan)
 METHODDEF(void)
 finish_pass_1_quant (j_decompress_ptr cinfo)
 {
+  (void)cinfo;
   /* no work in 1-pass case */
 }
 

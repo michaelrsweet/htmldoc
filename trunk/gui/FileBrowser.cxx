@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.24 2001/01/22 15:03:43 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.25 2001/04/15 11:52:45 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -233,6 +233,8 @@ FileBrowser::item_draw(void *p,		// I - List item data
   int		column;			// Current column
   const int	*columns;		// Columns
 
+
+  (void)h;
 
   // Draw the list item text...
   line = (FL_BLINE *)p;
@@ -517,5 +519,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.24 2001/01/22 15:03:43 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.25 2001/04/15 11:52:45 mike Exp $".
 //
