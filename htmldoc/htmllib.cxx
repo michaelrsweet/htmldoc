@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.25 2001/05/30 23:35:53 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.26 2001/05/31 02:02:12 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -703,6 +703,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
 	    if (parent == NULL)
 	    {
+              space->link     = parent->link;
 	      space->typeface = _htmlBodyFont;
 	      space->size     = SIZE_P;
 	    }
@@ -721,13 +722,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
             if (space->prev == NULL && parent != NULL)
 	      parent->child = space;
+            else if (space->prev)
+	      space->prev->next = space;
 
 	    t->prev = space;
 
 	    have_whitespace = 0;
 
             compute_size(space);
-	    printf("inserted SPACE %p width = %.1f\n", space, space->width);
 	  }
 
           // Get the image alignment...
@@ -956,6 +958,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
 	    if (parent == NULL)
 	    {
+              space->link     = parent->link;
 	      space->typeface = _htmlBodyFont;
 	      space->size     = SIZE_P;
 	    }
@@ -974,13 +977,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
             if (space->prev == NULL && parent != NULL)
 	      parent->child = space;
+            else if (space->prev)
+	      space->prev->next = space;
 
 	    t->prev = space;
 
 	    have_whitespace = 0;
 
             compute_size(space);
-	    printf("inserted SPACE %p width = %.1f\n", space, space->width);
 	  }
 
           t->typeface = TYPE_COURIER;
@@ -2550,5 +2554,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.25 2001/05/30 23:35:53 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.26 2001/05/31 02:02:12 mike Exp $".
  */
