@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.2 1999/09/24 13:04:18 mike Exp $"
+// "$Id: HelpView.cxx,v 1.3 1999/09/24 16:06:52 mike Exp $"
 //
 //   Help Viewer routines for the Common UNIX Printing System (CUPS).
 //
@@ -7,7 +7,7 @@
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
+//   copyright law.  Distribution and use rights are outblockd in the file
 //   "LICENSE.txt" which should have been included with this file.  If this
 //   file is missing or damaged please contact Easy Software Products
 //   at:
@@ -30,7 +30,6 @@
 //
 
 #include "HelpView.h"
-#include <FL/fl_draw.H>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -44,23 +43,23 @@ scrollbar_callback(Fl_Widget *s, void *)
 }
 
 
-HelpLine *
-HelpView::add_line(const char *s, int x, int y, int w, int h, int a)
+HelpBlock *
+HelpView::add_block(const char *s, int x, int y, int w, int h, int a)
 {
-  HelpLine	*temp;
+  HelpBlock	*temp;
 
 
-  if (nlines_ >= alines_)
+  if (nblocks_ >= ablocks_)
   {
-    alines_ += 16;
+    ablocks_ += 16;
 
-    if (alines_ == 16)
-      lines_ = (HelpLine *)malloc(sizeof(HelpLine) * alines_);
+    if (ablocks_ == 16)
+      blocks_ = (HelpBlock *)malloc(sizeof(HelpBlock) * ablocks_);
     else
-      lines_ = (HelpLine *)realloc(lines_, sizeof(HelpLine) * alines_);
+      blocks_ = (HelpBlock *)realloc(blocks_, sizeof(HelpBlock) * ablocks_);
   }
 
-  temp = lines_ + nlines_;
+  temp = blocks_ + nblocks_;
   temp->start = s;
   temp->x     = x;
   temp->y     = y;
@@ -68,21 +67,41 @@ HelpView::add_line(const char *s, int x, int y, int w, int h, int a)
   temp->h     = h;
   temp->align = a;
 
-  nlines_ ++;
+  nblocks_ ++;
 
   return (temp);
 }
 
 
+//
+// 'HelpView::add_link()' - Add a new link to the list.
+//
+
 void
-HelpView::add_link(const char *n, int x, int y, int w, int h)
+HelpView::add_link(const char *n, int xx, int yy, int ww, int hh)
 {
 }
 
 
+//
+// 'HelpView::add_target()' - Add a new target to the list.
+//
+
 void
-HelpView::add_target(const char *n, int y)
+HelpView::add_target(const char *n, int yy)
 {
+}
+
+
+//
+// 'HelpView::compare_targets()' - Compare two targets.
+//
+
+int						// O - Result of comparison
+HelpView::compare_targets(const HelpTarget *t0,	// I - First target
+                          const HelpTarget *t1)	// I - Second target
+{
+  return (strcasecmp(t0->name, t1->name));
 }
 
 
@@ -90,13 +109,13 @@ void
 HelpView::draw()
 {
   int		i;
-  const HelpLine *line;
+  const HelpBlock *block;
   const char	*ptr,
 		*attrs;
   char		*s,
 		buf[1024],
 		attr[1024];
-  int		xx, yy, ww;
+  int		xx, yy, ww, hh;
   uchar		font, size;
   int		align, head, pre, needspace;
   Fl_Boxtype	b = box() ? box() : FL_DOWN_BOX;
@@ -115,19 +134,21 @@ HelpView::draw()
 
   fl_push_clip(x() + 4, y() + 4, w() - 28, h() - 8);
   fl_color(FL_BLACK);
-  fl_font(font = textfont_, size = textsize_);
 
-  for (i = 0, line = lines_; i < nlines_ && (line->y - top_) < h(); i ++, line ++)
-    if ((line->y + line->h) >= top_)
+  for (i = 0, block = blocks_; i < nblocks_ && (block->y - topline_) < h(); i ++, block ++)
+    if ((block->y + block->h) >= topline_)
     {
-      xx        = line->x;
-      yy        = line->y - top_;
+      xx        = block->x;
+      yy        = block->y - topline_;
+      hh        = 0;
       pre       = 0;
       head      = 0;
-      align     = line->align;
+      align     = block->align;
       needspace = 0;
 
-      for (ptr = line->start, s = buf; ptr < line->end;)
+      initfont(font, size);
+
+      for (ptr = block->start, s = buf; ptr < block->end;)
       {
 	if ((*ptr == '<' || isspace(*ptr)) && s > buf)
 	{
@@ -138,18 +159,22 @@ HelpView::draw()
             s  = buf;
             ww = fl_width(buf);
 
-            if (needspace && xx > line->x)
+            if (needspace && xx > block->x)
 	      xx += fl_width(' ');
 
-            if ((xx + ww) > line->w)
+            if ((xx + ww) > block->w)
 	    {
-	      xx = line->x;
-	      yy += size + 2;
+	      xx = block->x;
+	      yy += hh;
+	      hh = 0;
 	    }
 
             fl_draw(buf, xx + x(), yy + y());
 
             xx += ww;
+	    if ((size + 2) > hh)
+	      hh = size + 2;
+
 	    needspace = 0;
 	  }
 	  else if (pre)
@@ -163,11 +188,21 @@ HelpView::draw()
 
                 fl_draw(buf, xx + x(), yy + y());
 
-        	xx = line->x;
-		yy += size + 2;
+        	xx = block->x;
+		yy += hh;
+		hh = size + 2;
+	      }
+	      else if (*ptr == '\t')
+	      {
+		// Do tabs every 8 columns...
+		while (((s - buf) & 7))
+	          *s++ = ' ';
 	      }
 	      else
 	        *s++ = ' ';
+
+              if ((size + 2) > hh)
+	        hh = size + 2;
 
               ptr ++;
 	    }
@@ -210,6 +245,12 @@ HelpView::draw()
 
 	  if (strcasecmp(buf, "HEAD") == 0)
             head = 1;
+	  else if (strcasecmp(buf, "BR") == 0)
+	  {
+            xx       = block->x;
+            yy       += hh;
+	    hh       = 0;
+	  }
 	  else if (strcasecmp(buf, "P") == 0 ||
         	   strcasecmp(buf, "H1") == 0 ||
 		   strcasecmp(buf, "H2") == 0 ||
@@ -254,23 +295,34 @@ HelpView::draw()
 	      fl_draw("\267", xx - size + x(), yy + y());
 	    }
 
-	    fl_font(font, size);
+	    pushfont(font, size);
 	  }
 	  else if (strcasecmp(buf, "A") == 0)
 	    fl_color(FL_BLUE);
 	  else if (strcasecmp(buf, "/A") == 0)
 	    fl_color(FL_BLACK);
-	  else if (strcasecmp(buf, "B") == 0 ||
+	  else if (strcasecmp(buf, "B") == 0)
+	    pushfont(font |= FL_BOLD, size);
+	  else if (strcasecmp(buf, "TD") == 0 ||
 	           strcasecmp(buf, "TH") == 0)
-	    fl_font(font |= FL_BOLD, size);
+          {
+	    if (tolower(buf[1]) == 'h')
+	      pushfont(font |= FL_BOLD, size);
+	    else
+	      pushfont(font = textfont_, size);
+
+            fl_rect(block->x + x() - 4,
+	            block->y - topline_ + y() - size - 3,
+		    block->w - block->x + 7, block->h + 7);
+	  }
 	  else if (strcasecmp(buf, "I") == 0)
-	    fl_font(font |= FL_ITALIC, size);
+	    pushfont(font |= FL_ITALIC, size);
 	  else if (strcasecmp(buf, "CODE") == 0)
-	    fl_font(font = FL_COURIER, size);
+	    pushfont(font = FL_COURIER, size);
 	  else if (strcasecmp(buf, "KBD") == 0)
-	    fl_font(font = FL_COURIER_BOLD, size);
+	    pushfont(font = FL_COURIER_BOLD, size);
 	  else if (strcasecmp(buf, "VAR") == 0)
-	    fl_font(font = FL_COURIER_ITALIC, size);
+	    pushfont(font = FL_COURIER_ITALIC, size);
 	  else if (strcasecmp(buf, "/HEAD") == 0)
             head = 0;
 	  else if (strcasecmp(buf, "/H1") == 0 ||
@@ -278,31 +330,17 @@ HelpView::draw()
 		   strcasecmp(buf, "/H3") == 0 ||
 		   strcasecmp(buf, "/H4") == 0 ||
 		   strcasecmp(buf, "/H5") == 0 ||
-		   strcasecmp(buf, "/H6") == 0)
-	  {
-	    font = textfont_;
-	    size = textsize_;
-
-	    fl_font(font, size);
-	  }
-	  else if (strcasecmp(buf, "/PRE") == 0)
-	  {
-	    font = textfont_;
-	    size = textsize_;
-
-	    fl_font(font, size);
-	    pre = 0;
-	  }
-	  else if (strcasecmp(buf, "/B") == 0 ||
+		   strcasecmp(buf, "/H6") == 0 ||
+		   strcasecmp(buf, "/B") == 0 ||
 		   strcasecmp(buf, "/I") == 0 ||
 		   strcasecmp(buf, "/CODE") == 0 ||
 		   strcasecmp(buf, "/KBD") == 0 ||
 		   strcasecmp(buf, "/VAR") == 0)
+	    popfont(font, size);
+	  else if (strcasecmp(buf, "/PRE") == 0)
 	  {
-	    font = textfont_;
-	    size = textsize_;
-
-	    fl_font(font, size);
+	    popfont(font, size);
+	    pre = 0;
 	  }
 	}
 	else if (*ptr == '\n' && pre)
@@ -311,10 +349,13 @@ HelpView::draw()
 	  s = buf;
 
           fl_draw(buf, xx + x(), yy + y());
-	  xx = line->x;
-	  yy += size + 2;
-	  ptr ++;
+
+	  xx        = block->x;
+	  yy        += hh;
+	  hh        = size + 2;
 	  needspace = 0;
+
+	  ptr ++;
 	}
 	else if (isspace(*ptr))
 	{
@@ -372,9 +413,17 @@ HelpView::draw()
             *s++ = '\"';
 	    ptr += 5;
 	  }
+
+          if ((size + 2) > hh)
+	    hh = size + 2;
 	}
 	else
+	{
 	  *s++ = *ptr++;
+
+          if ((size + 2) > hh)
+	    hh = size + 2;
+        }
       }
 
       *s = '\0';
@@ -383,13 +432,14 @@ HelpView::draw()
       {
 	ww = fl_width(buf);
 
-        if (needspace && xx > line->x)
+        if (needspace && xx > block->x)
 	  xx += fl_width(' ');
 
-	if ((xx + ww) > line->w)
+	if ((xx + ww) > block->w)
 	{
-	  xx = line->x;
-	  yy += size + 2;
+	  xx = block->x;
+	  yy += hh;
+	  hh = 0;
 	}
       }
 
@@ -401,33 +451,44 @@ HelpView::draw()
 }
 
 
+//
+// 'HelpView::format()' - Format the help text.
+//
+
 void
 HelpView::format()
 {
-  HelpLine	*line,
-		*row;
+  HelpBlock	*block,
+		*row,
+		*cell;
   const char	*ptr,
 		*start,
 		*attrs;
   char		*s,
 		buf[1024],
 		attr[1024];
-  int		xx, yy, ww;
+  int		xx, yy, ww, hh;
   uchar		font, size;
-  int		align, head, pre, needspace;
+  int		align,
+		head,
+		pre,
+		needspace;
 
 
-  nlines_ = 0;
-  size_   = 0;
+  nblocks_  = 0;
+  nlinks_   = 0;
+  ntargets_ = 0;
+  size_     = 0;
 
   if (!value_)
     return;
 
-  fl_font(font = textfont_, size = textsize_);
+  initfont(font, size);
 
   xx        = 4;
   yy        = size + 2;
-  line      = add_line(value_, xx, yy, w() - 24, size + 2, 1);
+  hh        = 0;
+  block     = add_block(value_, xx, yy, w() - 24, 0, 1);
   row       = NULL;
   head      = 0;
   pre       = 0;
@@ -444,29 +505,38 @@ HelpView::format()
         *s = '\0';
         ww = fl_width(buf);
 
-        if (needspace && xx > line->x)
+        if (needspace && xx > block->x)
 	  xx += fl_width(' ');
 
-        if ((xx + ww) > line->w)
+        if ((xx + ww) > block->w)
 	{
-	  xx = line->x;
-	  yy += size + 2;
-	  line->h += size + 2;
+	  xx       = block->x;
+	  yy       += hh;
+	  block->h += hh;
+	  hh       = 0;
 	}
 
 	xx += ww;
+	if ((size + 2) > hh)
+	  hh = size + 2;
+
 	needspace = 0;
       }
       else if (pre)
       {
+        // Handle preformatted text...
 	while (isspace(*ptr))
 	{
 	  if (*ptr == '\n')
 	  {
-            xx = line->x;
-	    yy += size + 2;
-	    line->h += size + 2;
+            xx = block->x;
+	    yy += hh;
+	    block->h += hh;
+	    hh = size + 2;
 	  }
+
+          if ((size + 2) > hh)
+	    hh = size + 2;
 
           ptr ++;
 	}
@@ -475,6 +545,7 @@ HelpView::format()
       }
       else
       {
+        // Handle normal text or stuff in the <HEAD> section...
 	while (isspace(*ptr))
           ptr ++;
       }
@@ -501,6 +572,13 @@ HelpView::format()
 
       if (strcasecmp(buf, "HEAD") == 0)
         head = 1;
+      else if (strcasecmp(buf, "BR") == 0)
+      {
+        xx       = block->x;
+	block->h += hh;
+        yy       += hh;
+	hh       = 0;
+      }
       else if (strcasecmp(buf, "P") == 0 ||
                strcasecmp(buf, "H1") == 0 ||
 	       strcasecmp(buf, "H2") == 0 ||
@@ -508,44 +586,35 @@ HelpView::format()
 	       strcasecmp(buf, "H4") == 0 ||
 	       strcasecmp(buf, "H5") == 0 ||
 	       strcasecmp(buf, "H6") == 0 ||
-	       strcasecmp(buf, "BR") == 0 ||
 	       strcasecmp(buf, "UL") == 0 ||
 	       strcasecmp(buf, "OL") == 0 ||
 	       strcasecmp(buf, "DL") == 0 ||
 	       strcasecmp(buf, "LI") == 0 ||
 	       strcasecmp(buf, "DD") == 0 ||
 	       strcasecmp(buf, "DT") == 0 ||
-	       strcasecmp(buf, "PRE") == 0)
+	       strcasecmp(buf, "PRE") == 0 ||
+	       strcasecmp(buf, "TABLE") == 0)
       {
-        line->end = start;
+        block->end = start;
 
-        xx = line->x;
+        xx       = block->x;
+        block->h += hh;
 
-        if (nlines_ > 0)
+        if (!block->h)
 	{
-#if 0
-          if (tolower(buf[0]) == 'h' ||
-	      strcasecmp(buf, "P") == 0)
-#else
-          if (strcasecmp(buf, "LI") != 0 &&
-	      strcasecmp(buf, "PRE") != 0 &&
-	      tolower(buf[1]) != 'l')
-#endif /* 0 */
-	    yy = line->y + line->h + size + 2;
-          else
-	    yy = line->y + line->h;
-	}
-
-        if (line->end == line->start)
-	{
-	  nlines_ --;
-	  line --;
+	  nblocks_ --;
+	  block --;
 	}
 
         if (strcasecmp(buf, "UL") == 0 ||
 	    strcasecmp(buf, "OL") == 0 ||
 	    strcasecmp(buf, "DL") == 0)
+	{
 	  xx += 4 * size;
+	  block->h += size + 2;
+	}
+        else if (strcasecmp(buf, "TABLE") == 0)
+	  block->h += size + 2;
 
         if (tolower(buf[0]) == 'h')
 	{
@@ -569,114 +638,127 @@ HelpView::format()
 	  size = textsize_;
 	}
 
-	fl_font(font, size);
+	pushfont(font, size);
 
-        line = add_line(start, xx, yy, w() - 24, size + 2, align);
+        yy = block->y + block->h;
 
-        yy += size + 2;
+        if (tolower(buf[0]) == 'h' ||
+	    strcasecmp(buf, "DD") == 0 ||
+	    strcasecmp(buf, "DT") == 0 ||
+	    strcasecmp(buf, "UL") == 0 ||
+	    strcasecmp(buf, "OL") == 0 ||
+	    strcasecmp(buf, "P") == 0)
+          yy += size + 2;
+
+        block     = add_block(start, xx, yy, w() - 24, 0, align);
 	needspace = 0;
+        hh        = 0;
       }
       else if (strcasecmp(buf, "TR") == 0)
       {
-        line->end = start;
+        block->end = start;
 
-        xx = line->x;
+        xx       = block->x;
+        block->h += hh;
 
-        if (line->end == line->start)
+        if (!block->h)
 	{
-	  nlines_ --;
-	  line --;
+	  nblocks_ --;
+	  block --;
 	}
 
         if (row)
 	{
           yy = row->y + row->h;
-	  row ++;
-          while (row < line)
-	  {
-	    if ((row->y + row->h) > yy)
-	      yy = row->y + row->h;
-	    row ++;
-	  }
 
-          yy += size + 2;
+	  for (cell = row + 1; cell <= block; cell ++)
+	    if ((cell->y + cell->h) > yy)
+	      yy = cell->y + cell->h;
 
-          row->h = yy - row->y;
+          block->h = yy - block->y + 2;
+
+	  for (cell = row + 1; cell < block; cell ++)
+	    cell->h = block->h;
 	}
 
-	yy   = line->y + line->h + size + 2;
-        line = row = add_line(start, xx, yy, w() - 24, size + 2, align);
-
-        yy += size + 2;
+	yy        = block->y + block->h - 4;
+	hh        = 0;
+        block     = row = add_block(start, xx, yy, w() - 24, 0, align);
 	needspace = 0;
       }
       else if ((strcasecmp(buf, "TD") == 0 ||
                 strcasecmp(buf, "TH") == 0) && row)
       {
-        line->end = start;
+        block->end = start;
+	block->h   += hh;
 
         if (strcasecmp(buf, "TH") == 0)
 	  font = textfont_ | FL_BOLD;
+	else
+	  font = textfont_;
 
         size = textsize_;
 
-        if (strncasecmp(line->start, "<TR", 3) == 0)
-          xx = line->x + size;
+        if (strncasecmp(block->start, "<TR", 3) == 0)
+          xx = block->x + size + 3;
 	else
-          xx = line->x + 15 * size;
+          xx = block->x + 14 * size + 6;
 
-        if (line->end == line->start)
+        if (block->end == block->start)
 	{
-	  nlines_ --;
-	  line --;
+	  nblocks_ --;
+	  block --;
 	}
 
-	fl_font(font, size);
+	pushfont(font, size);
 
-	yy   = row->y;
-        line = add_line(start, xx, yy, xx + 14 * size, size + 2, align);
-
-        yy += size + 2;
+	yy        = row->y;
+	hh        = 0;
+        block     = add_block(start, xx, yy, xx + 14 * size, 0, align);
 	needspace = 0;
       }
+      else if ((strcasecmp(buf, "/TD") == 0 ||
+                strcasecmp(buf, "/TH") == 0) && row)
+        popfont(font, size);
       else if (strcasecmp(buf, "/TR") == 0 && row != NULL)
       {
-        line->end = start;
+        block->end = start;
+	block->h   += hh;
 
         xx = row->x;
 
-        if (line->end == line->start)
+        if (block->end == block->start)
 	{
-	  nlines_ --;
-	  line --;
+	  nblocks_ --;
+	  block --;
 	}
 
         yy = row->y + row->h;
-	row ++;
-        while (row < line)
-	{
-	  if ((row->y + row->h) > yy)
-	    yy = row->y + row->h;
-	  row ++;
-	}
 
-        yy += size + 2;
-        row->h = yy - row->y;
-        line   = add_line(start, xx, yy, w() - 24, size + 2, align);
+	for (cell = row + 1; cell <= block; cell ++)
+	  if ((cell->y + cell->h) > yy)
+	    yy = cell->y + cell->h;
 
+        block->h = yy - block->y + 2;
+
+	for (cell = row + 1; cell < block; cell ++)
+	  cell->h = block->h;
+
+	yy        = block->y + block->h - 4;
+        block     = add_block(start, xx, yy, w() - 24, 0, align);
 	needspace = 0;
-	row = NULL;
+	row       = NULL;
       }
       else if (strcasecmp(buf, "B") == 0)
-	fl_font(font |= FL_BOLD, size);
+	pushfont(font |= FL_BOLD, size);
       else if (strcasecmp(buf, "I") == 0)
-	fl_font(font |= FL_ITALIC, size);
+	pushfont(font |= FL_ITALIC, size);
       else if (strcasecmp(buf, "CODE") == 0)
-	fl_font(font = FL_COURIER, size);
+	pushfont(font = FL_COURIER, size);
       else if (strcasecmp(buf, "KBD") == 0)
-	fl_font(font = FL_COURIER_BOLD, size);
+	pushfont(font = FL_COURIER_BOLD, size);
       else if (strcasecmp(buf, "VAR") == 0)
-	fl_font(font = FL_COURIER_ITALIC, size);
+	pushfont(font = FL_COURIER_ITALIC, size);
       else if (strcasecmp(buf, "/HEAD") == 0)
         head = 0;
       else if (strcasecmp(buf, "/P") == 0 ||
@@ -689,56 +771,57 @@ HelpView::format()
 	       strcasecmp(buf, "/PRE") == 0 ||
 	       strcasecmp(buf, "/UL") == 0 ||
 	       strcasecmp(buf, "/OL") == 0 ||
-	       strcasecmp(buf, "/DL") == 0)
+	       strcasecmp(buf, "/DL") == 0 ||
+	       strcasecmp(buf, "/TABLE") == 0)
       {
-        xx = line->x;
+        xx = block->x;
 
-        line->end = ptr;
+        block->end = ptr;
 
         if (strcasecmp(buf, "/UL") == 0 ||
 	    strcasecmp(buf, "/OL") == 0 ||
 	    strcasecmp(buf, "/DL") == 0)
-	  xx -= 4 * size;
-	else
 	{
-	  if (strcasecmp(buf, "/PRE") == 0)
-	    pre = 0;
+	  xx       -= 4 * size;
+	  block->h += size + 2;
+	}
+	else if (strcasecmp(buf, "/TABLE") == 0)
+	  block->h += size + 2;
+	else if (strcasecmp(buf, "/PRE") == 0)
+	{
+	  pre = 0;
+	  hh  = 0;
 	}
 
-	font = textfont_;
-	size = textsize_;
-
-	fl_font(font, size);
+        initfont(font, size);
 
         while (isspace(*ptr))
 	  ptr ++;
 
-        yy = line->y + line->h;
-	if (tolower(buf[2]) == 'l')
-	  yy += size + 2;
+        block->h += hh;
+        yy       += hh;
 
-        line = add_line(ptr, xx, yy, w() - 24, size + 2, align);
+        if (tolower(buf[2]) == 'l')
+          yy += size + 2;
+
+        block     = add_block(ptr, xx, yy, w() - 24, 0, align);
 	needspace = 0;
+	hh        = 0;
       }
       else if (strcasecmp(buf, "/B") == 0 ||
 	       strcasecmp(buf, "/I") == 0 ||
 	       strcasecmp(buf, "/CODE") == 0 ||
 	       strcasecmp(buf, "/KBD") == 0 ||
 	       strcasecmp(buf, "/VAR") == 0)
-      {
-	font = textfont_;
-	size = textsize_;
-
-	fl_font(font, size);
-      }
+	popfont(font, size);
     }
     else if (*ptr == '\n' && pre)
     {
-      xx = line->x;
-      yy += size + 2;
-      line->h += size + 2;
-      ptr ++;
+      xx        = block->x;
+      yy        += hh;
+      block->h  += hh;
       needspace = 0;
+      ptr ++;
     }
     else if (isspace(*ptr))
     {
@@ -785,9 +868,17 @@ HelpView::format()
         *s++ = '\"';
 	ptr += 5;
       }
+
+      if ((size + 2) > hh)
+        hh = size + 2;
     }
     else
+    {
       *s++ = *ptr++;
+
+      if ((size + 2) > hh)
+        hh = size + 2;
+    }
   }
 
   if (s > buf && !pre && !head)
@@ -795,31 +886,40 @@ HelpView::format()
     *s = '\0';
     ww = fl_width(buf);
 
-    if (needspace && xx > line->x)
+    if (needspace && xx > block->x)
       xx += fl_width(' ');
 
-    if ((xx + ww) > line->w)
+    if ((xx + ww) > block->w)
     {
-      yy += size + 2;
-      line->h += size + 2;
+      yy       += hh;
+      block->h += hh;
+      hh       = 0;
     }
   }
 
-  line->end = ptr;
-  size_     = yy;
+  block->end = ptr;
+  size_      = yy + hh;
 
   if (size_ < (h() - 8))
     scrollbar_.hide();
   else
     scrollbar_.show();
 
-  topline(top_);
+  topline(topline_);
 }
 
 
-const char *
-HelpView::get_attr(const char *p, const char *n, char *buf, int bufsize)
+//
+// 'HelpView::get_attr()' - Get an attribute value from the string.
+//
+
+const char *				// O - Pointer to buf or NULL
+HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
+                   const char *n,	// I - Name of attribute
+		   char       *buf,	// O - Buffer for attribute value
+		   int        bufsize)	// I - Size of buffer
 {
+  return (NULL);
 }
 
 
@@ -846,15 +946,15 @@ HelpView::handle(int event)
 // 'HelpView::HelpView()' - Build a HelpView widget.
 //
 
-HelpView::HelpView(int x, int y, int w, int h, const char *l)
-    : Fl_Group(x, y, w, h, l),
-      scrollbar_(x + w - 20, y, 20, h)
+HelpView::HelpView(int xx, int yy, int ww, int hh, const char *l)
+    : Fl_Group(xx, yy, ww, hh, l),
+      scrollbar_(xx + ww - 20, yy, 20, hh)
 {
   value_     = NULL;
 
-  alines_    = 0;
-  nlines_    = 0;
-  lines_     = (HelpLine *)0;
+  ablocks_    = 0;
+  nblocks_    = 0;
+  blocks_     = (HelpBlock *)0;
 
   alinks_    = 0;
   nlinks_    = 0;
@@ -869,10 +969,10 @@ HelpView::HelpView(int x, int y, int w, int h, const char *l)
   textfont_ = FL_TIMES;
   textsize_ = 12;
 
-  top_  = 0;
+  topline_  = 0;
   size_ = 0;
 
-  scrollbar_.value(0, h, 0, 1);
+  scrollbar_.value(0, hh, 0, 1);
   scrollbar_.step(8.0);
   scrollbar_.show();
   scrollbar_.callback(scrollbar_callback);
@@ -881,15 +981,24 @@ HelpView::HelpView(int x, int y, int w, int h, const char *l)
 }
 
 
-int
-HelpView::load(const char *f)
+//
+// 'HelpView::load()' - Load the specified file.
+//
+
+int				// O - 0 on success, -1 on error
+HelpView::load(const char *f)	// I - Filename to load (may also have target)
 {
-  FILE *fp;
-  long len;
+  FILE	*fp;		// File to read from
+  long	len;		// Length of file
+  char	*target;	// Target in file
 
 
   if ((fp = fopen(f, "r")) == NULL)
     return (-1);
+
+  strcpy(filename_, f);
+  if ((target = strrchr(filename_, '#')) != NULL)
+    *target++ = '\0';
 
   fseek(fp, 0, SEEK_END);
   len = ftell(fp);
@@ -903,11 +1012,19 @@ HelpView::load(const char *f)
   fclose(fp);
 
   format();
-  redraw();
+
+  if (target)
+    topline(target);
+  else
+    topline(0);
 
   return (0);
 }
 
+
+//
+// 'HelpView::resize()' - Resize the help widget.
+//
 
 void
 HelpView::resize(int x, int y, int w, int h)
@@ -916,20 +1033,27 @@ HelpView::resize(int x, int y, int w, int h)
   scrollbar_.resize(x + w - 20, y, 20, h);
 
   format();
-  redraw();
 }
 
 
+//
+// 'HelpView::topline()' - Set the top line to the named target.
+//
+
 void
-topline(const char *n)
+HelpView::topline(const char *n)	// I - Target name
 {
 }
 
 
+//
+// 'HelpView::topline()' - Set the top line by number.
+//
+
 void
-HelpView::topline(int t)
+HelpView::topline(int t)	// I - Top line number
 {
-  int	hh;
+  int	hh;			// Height of scroller
 
 
   if (!value_)
@@ -940,31 +1064,38 @@ HelpView::topline(int t)
   else if (t > (size_ - h() - 8))
     t = size_ - h() - 8;
 
-  top_ = t;
+  topline_ = t;
 
   hh = h() - size_ / h();
   if (hh < 20)
     hh = 20;
 
-  scrollbar_.value(top_, hh, 0, size_ - h());
+  scrollbar_.value(topline_, hh, 0, size_ - h());
 
-  redraw();
-}
-
-
-void
-HelpView::value(const char *v)
-{
-  if (value_ != NULL)
-    free((void *)value_);
-
-  value_ = strdup(v);
-
-  format();
   redraw();
 }
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.2 1999/09/24 13:04:18 mike Exp $".
+// 'HelpView::value()' - Set the help text directly.
+//
+
+void
+HelpView::value(const char *v)	// I - Text to view
+{
+  if (!v)
+    return;
+
+  if (value_ != NULL)
+    free((void *)value_);
+
+  value_   = strdup(v);
+  topline_ = 0;
+
+  format();
+}
+
+
+//
+// End of "$Id: HelpView.cxx,v 1.3 1999/09/24 16:06:52 mike Exp $".
 //
