@@ -1,13 +1,19 @@
-CHANGES.txt - 03/31/2004
+CHANGES.txt - 09/30/2004
 ------------------------
 
-CHANGES IN HTMLDOC v1.9b1
+CHANGES IN HTMLDOC v1.8.24
 
     NEW FEATURES
 
-	- HTMLDOC now provides much better support for
-	  "wrapping" of text around images and new support for
-	  tables via the ALIGN attribute.
+	- HTMLDOC now provides limited cookie support via the
+	  "--cookies" command-line option and via the cookies
+	  passed by a browser in CGI mode.
+	- HTMLDOC now features a CGI mode which provides PDF
+	  conversion functionality for web servers.
+	- HTMLDOC now generates a document outline for each
+	  input file or URL in webpage mode; the outline shows
+	  the title for the file and links to the first page
+	  containing that file.
 	- HTMLDOC now offers an "htmlsep" output type which
 	  generates HTML output with a separate file for each
 	  heading in the table of contents.
@@ -21,6 +27,8 @@ CHANGES IN HTMLDOC v1.9b1
 	- Added support for HP LaserJet 5000 and Xerox DocuPrint
 	  2000/100 printer commands.
 	- Added multiple header/footer image support.
+	- Links to external URLs are now resolved so that the
+	  output file can be moved without affecting them.
 
     CHANGES
 
@@ -43,11 +51,31 @@ CHANGES IN HTMLDOC v1.9b1
 	- The default vertical alignment is now "bottom" inside
 	  paragraphs to correctly align different sized text and
 	  images to the baseline.
-	- Indexed images are now written as PDF image objects when
-	  encryption is enabled; this works around a serious bug in
-	  Acrobat 6 which tries to decrypt the colormap of in-line
-	  images twice, causing some very strange colors!
+	- Indexed images are now written as PDF image objects
+	  when encryption is enabled; this works around a
+	  serious bug in Acrobat 6 which tries to decrypt the
+	  colormap of in-line images twice, causing some very
+	  strange colors!
 	- Table captions can now be bottom aligned.
+	- Blocks now break at the bottom of a page if the
+	  current line height + standard line height goes below
+	  the bottom of the page; this prevents images with
+	  captions from getting erroneously moved to the top of
+	  the next page.
+	- Character entities are now supported in HTML
+	  attributes and unknown or invalid character entities
+	  are left as plain text.
+	- Changed handling of NOWRAP for some tables.
+	- The --permissions option now supports multiple
+	  permission keywords in a single invocation.
+	- Dropped support for MacOS 9 and earlier.
+	- HTMLDOC now breaks between images that are too large
+	  to fit on a single line, to match the behavior of
+	  Mozilla/Netscape (STR #7).
+	- HTMLDOC now handles XHTML input more cleanly.
+	- HTMLDOC no longer specifies an interpolation
+	  preference for images in PostScript or PDF output (STR
+	  #8)
 
     BUG FIXES
 
@@ -78,6 +106,28 @@ CHANGES IN HTMLDOC v1.9b1
 	- Fixed some calls to strcpy with overlapping arguments.
 	- The names object was never set when the name objects
 	  were written.
+	- Character entities were not decoded/encoded inside
+	  HTML comments.
+	- The current heading was not always correctly
+	  substituted when used in the page header or footer.
+	- When converting web pages from the GUI, the
+	  table-of-contents page number preferences were
+	  incorrectly used.
+	- PDF page effects/transitions were not put in the right
+	  part of the page dictionary, causing them not to be
+	  used by the PDF reader application.
+	- The _HD_OMIT_TOC attribute was not being honored for
+	  HTML output.
+	- HTMLDOC now handles "open" messages from the MacOS X
+	  Finder (STR #3)
+	- The GUI did not load or save the "strict HTML" setting
+	  (STR #6)
+	- The HTML version of the title page did not set the ALT
+	  attribute for the title image (STR #10)
+	- The HTML version of the table of contents did not
+	  correctly nest the lists in the parent items (STR #10)
+	- Borders around left and right-aligned images were not
+	  drawn properly (PR #5112)
 
 
 CHANGES IN HTMLDOC v1.8.23

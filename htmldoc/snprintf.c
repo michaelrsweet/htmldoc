@@ -1,5 +1,5 @@
 /*
- * "$Id: snprintf.c,v 1.4 2004/03/31 07:44:26 mike Exp $"
+ * "$Id: snprintf.c,v 1.1.2.10 2004/05/09 15:04:39 mike Exp $"
  *
  *   (v)snprintf functions for HTMLDOC.
  *
@@ -335,6 +335,6 @@ hd_snprintf(char       *buffer,		/* O - Output buffer */
 
 
 /*
- * End of "$Id: snprintf.c,v 1.4 2004/03/31 07:44:26 mike Exp $".
+ * End of "$Id: snprintf.c,v 1.1.2.10 2004/05/09 15:04:39 mike Exp $".
  */
 

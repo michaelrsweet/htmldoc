@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.21 2004/03/31 06:32:27 mike Exp $"
+ * "$Id: config.h,v 1.20.2.40 2004/09/24 20:42:31 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.24b12"
+#define SVERSION	"1.8.24rc1 Open Source"
 
 
 /*
@@ -130,6 +130,6 @@
 
 
 /*
- * End of "$Id: config.h,v 1.21 2004/03/31 06:32:27 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.40 2004/09/24 20:42:31 mike Exp $".
  */
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.21 2004/04/11 21:20:28 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.14 2004/09/23 20:16:14 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -24,9 +24,9 @@
  *
  * Contents:
  *
- *   hdBook::toc_build()   - Build a table of contents of the given HTML tree.
- *   hdBook::add_heading() - Add heading records to the given toc entry...
- *   hdBook::parse_tree()  - Parse headings from the given tree...
+ *   toc_build()   - Build a table of contents of the given HTML tree.
+ *   add_heading() - Add heading records to the given toc entry...
+ *   parse_tree()  - Parse headings from the given tree...
  */
 
 /*
@@ -37,31 +37,49 @@
 
 
 /*
- * 'hdBook::toc_build()' - Build a table of contents of the given HTML tree.
+ * Local functions...
  */
 
-hdTree *				/* O - Table of contents tree */
-hdBook::toc_build(hdTree *tree)		/* I - Document tree */
+static void	parse_tree(tree_t *t);
+
+
+/*
+ * Local globals...
+ */
+
+static int	heading_numbers[15];
+static uchar	heading_types[15] =
+		{
+		  '1', '1', '1', '1', '1', '1', '1', '1',
+		  '1', '1', '1', '1', '1', '1', '1'
+		};
+static int	last_level;
+static tree_t	*heading_parents[15];
+
+
+/*
+ * 'toc_build()' - Build a table of contents of the given HTML tree.
+ */
+
+tree_t *			/* O - Table of contents tree */
+toc_build(tree_t *tree)		/* I - Document tree */
 {
-  hdTree	*toc,			/* TOC tree pointer */
-		*title,			/* Title entry */
-		*link;			/* Link entry */
+  tree_t	*toc,		/* TOC tree pointer */
+		*title,		/* Title entry */
+		*link;		/* Link entry */
 
 
+  TocDocCount        = 0;
+  last_level         = 0;	/* Currently at the "top" level */
+  heading_numbers[0] = 0;	/* Start at 1 (see below) */
 
-  toc = htmlAddTree(NULL, HD_ELEMENT_BODY, NULL);
+  toc = htmlAddTree(NULL, MARKUP_BODY, NULL);
 
-  title = htmlAddTree(toc, HD_ELEMENT_H1, NULL);
+  title = htmlAddTree(toc, MARKUP_H1, NULL);
   htmlSetVariable(title, (uchar *)"ALIGN", (uchar *)"CENTER");
-  link = htmlAddTree(title, HD_ELEMENT_A, NULL);
+  link = htmlAddTree(title, MARKUP_A, NULL);
   htmlSetVariable(link, (uchar *)"NAME", (uchar *)"CONTENTS");
-  htmlAddTree(link, HD_ELEMENT_NONE, (uchar *)TocTitle);
-
-  TocDocCount = 0;
-  last_level  = 0;			/* Currently at the "top" level */
-
-  memset(heading_numbers, 0, sizeof(heading_numbers));
-  memset(heading_types, '1', sizeof(heading_types));
+  htmlAddTree(link, MARKUP_NONE, (uchar *)TocTitle);
 
   heading_parents[0]  = toc;
   heading_parents[1]  = toc;
@@ -79,26 +97,26 @@ hdBook::toc_build(hdTree *tree)		/* I - Document tree */
   heading_parents[13] = toc;
   heading_parents[14] = toc;
 
-  toc_parse_tree(tree);
+  parse_tree(tree);
 
   return (toc);
 }
 
 
 /*
- * 'hdBook::toc_add_heading()' - Add heading records to the given toc entry...
+ * 'add_heading()' - Add heading records to the given toc entry...
  */
 
 void
-hdBook::toc_add_heading(hdTree *toc,	/* I - Table of contents */
-                        hdTree *heading)/* I - Heading entry */
+add_heading(tree_t *toc,	/* I - Table of contents */
+            tree_t *heading)	/* I - Heading entry */
 {
   while (heading != NULL)
   {
     if (heading->child != NULL)
-      toc_add_heading(toc, heading->child);
-    else if (heading->element == HD_ELEMENT_NONE && heading->data != NULL)
-      htmlAddTree(toc, HD_ELEMENT_NONE, heading->data);
+      add_heading(toc, heading->child);
+    else if (heading->markup == MARKUP_NONE && heading->data != NULL)
+      htmlAddTree(toc, MARKUP_NONE, heading->data);
 
     heading = heading->next;
   }
@@ -106,23 +124,23 @@ hdBook::toc_add_heading(hdTree *toc,	/* I - Table of contents */
 
 
 /*
- * 'hdBook::toc_parse_tree()' - Parse headings from the given tree...
+ * 'parse_tree()' - Parse headings from the given tree...
  *
  * Note: We also add anchor points and numbers as necessary...
  */
 
-void
-hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
+static void			/* O - Tree of TOC entries */
+parse_tree(tree_t *t)		/* I - Document tree */
 {
-  hdTree	*parent;		/* Parent of toc entry (DD or LI) */
-  hdTree	*target,		/* Link target */
-		*temp;			/* Looping var */
-  uchar		heading[255],		/* Heading numbers */
-		link[255],		/* Actual link */
-		baselink[255],		/* Base link (numbered) */
-		*existing;		/* Existing link string */
-  int		i, level;		/* Header level */
-  uchar		*var;			/* Starting value/type for this level */
+  tree_t	*parent;	/* Parent of toc entry (DD or LI) */
+  tree_t	*target,	/* Link target */
+		*temp;		/* Looping var */
+  uchar		heading[255],	/* Heading numbers */
+		link[255],	/* Actual link */
+		baselink[255],	/* Base link (numbered) */
+		*existing;	/* Existing link string */
+  int		i, level;	/* Header level */
+  uchar		*var;		/* Starting value/type for this level */
   static const char *ones[10] =
 		{
 		  "",	"i",	"ii",	"iii",	"iv",
@@ -157,24 +175,24 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
   while (t != NULL)
   {
-    switch (t->element)
+    switch (t->markup)
     {
-      case HD_ELEMENT_H1 :
-      case HD_ELEMENT_H2 :
-      case HD_ELEMENT_H3 :
-      case HD_ELEMENT_H4 :
-      case HD_ELEMENT_H5 :
-      case HD_ELEMENT_H6 :
-      case HD_ELEMENT_H7 :
-      case HD_ELEMENT_H8 :
-      case HD_ELEMENT_H9 :
-      case HD_ELEMENT_H10 :
-      case HD_ELEMENT_H11 :
-      case HD_ELEMENT_H12 :
-      case HD_ELEMENT_H13 :
-      case HD_ELEMENT_H14 :
-      case HD_ELEMENT_H15 :
-          level = t->element - HD_ELEMENT_H1;
+      case MARKUP_H1 :
+      case MARKUP_H2 :
+      case MARKUP_H3 :
+      case MARKUP_H4 :
+      case MARKUP_H5 :
+      case MARKUP_H6 :
+      case MARKUP_H7 :
+      case MARKUP_H8 :
+      case MARKUP_H9 :
+      case MARKUP_H10 :
+      case MARKUP_H11 :
+      case MARKUP_H12 :
+      case MARKUP_H13 :
+      case MARKUP_H14 :
+      case MARKUP_H15 :
+          level = t->markup - MARKUP_H1;
 
 	  if ((level - last_level) > 1)
 	  {
@@ -183,7 +201,7 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 	    */
 
 	    level     = last_level + 1;
-	    t->element = (hdElement)(HD_ELEMENT_H1 + level);
+	    t->markup = (markup_t)(MARKUP_H1 + level);
 	  }
 
           if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
@@ -249,8 +267,8 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
             if (i < level)
             {
-              strcat((char *)heading, ".");
-              strcat((char *)baselink, "_");
+              strlcat((char *)heading, ".", sizeof(heading));
+              strlcat((char *)baselink, "_", sizeof(baselink));
             }
           }
 
@@ -260,11 +278,11 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
           existing = NULL;
 
-          if (t->parent != NULL && t->parent->element == HD_ELEMENT_A)
+          if (t->parent != NULL && t->parent->markup == MARKUP_A)
 	    existing = htmlGetVariable(t->parent, (uchar *)"NAME");
 
 	  if (existing == NULL &&
-              t->child != NULL && t->child->element == HD_ELEMENT_A)
+              t->child != NULL && t->child->markup == MARKUP_A)
 	    existing = htmlGetVariable(t->child, (uchar *)"NAME");
 
           if (existing != NULL &&
@@ -282,9 +300,9 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
           if (TocNumbers)
 	  {
-            strcat((char *)heading, " ");
+            strlcat((char *)heading, " ", sizeof(heading));
 
-            htmlInsertTree(t, HD_ELEMENT_NONE, heading);
+            htmlInsertTree(t, MARKUP_NONE, heading);
 	  }
 
          /*
@@ -294,21 +312,33 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
           if (level < TocLevels)
           {
             if (level > last_level)
-              heading_parents[level] = htmlAddTree(heading_parents[level - 1],
-                                                   HD_ELEMENT_UL, NULL);
+	    {
+	      if (heading_parents[last_level]->last_child)
+        	heading_parents[level] =
+		    htmlAddTree(heading_parents[last_level]->last_child,
+                                MARKUP_UL, NULL);
+             else
+        	heading_parents[level] =
+		    htmlAddTree(heading_parents[last_level], MARKUP_UL, NULL);
+
+              DEBUG_printf(("level=%d, last_level=%d, created new UL parent %p\n",
+	                    level, last_level, heading_parents[level]));
+	    }
 
             if (level == 0)
             {
               if (last_level == 0)
               {
-                htmlAddTree(heading_parents[level], HD_ELEMENT_BR, NULL);
-                htmlAddTree(heading_parents[level], HD_ELEMENT_BR, NULL);
+                htmlAddTree(heading_parents[level], MARKUP_BR, NULL);
+                htmlAddTree(heading_parents[level], MARKUP_BR, NULL);
               }
 
-              parent = htmlAddTree(heading_parents[level], HD_ELEMENT_B, NULL);
+              parent = htmlAddTree(heading_parents[level], MARKUP_B, NULL);
             }
             else
-              parent = htmlAddTree(heading_parents[level], HD_ELEMENT_LI, NULL);
+              parent = htmlAddTree(heading_parents[level], MARKUP_LI, NULL);
+
+            DEBUG_printf(("parent=%p\n", parent));
 
             if ((var = htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC")) != NULL)
 	      htmlSetVariable(parent, (uchar *)"_HD_OMIT_TOC", var);
@@ -319,7 +349,7 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
               * Add a link for the toc...
               */
 
-              parent = htmlAddTree(parent, HD_ELEMENT_A, NULL);
+              parent = htmlAddTree(parent, MARKUP_A, NULL);
               htmlSetVariable(parent, (uchar *)"HREF", link);
 
              /*
@@ -333,13 +363,13 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 	        * Add NAME to existing A element, if present.
 		*/
 
-                if (t->parent != NULL && t->parent->element == HD_ELEMENT_A)
+                if (t->parent != NULL && t->parent->markup == MARKUP_A)
 	          htmlSetVariable(t->parent, (uchar *)"NAME", baselink);
-		else if (t->child != NULL && t->child->element == HD_ELEMENT_A)
+		else if (t->child != NULL && t->child->markup == MARKUP_A)
 	          htmlSetVariable(t->child, (uchar *)"NAME", baselink);
 		else
 		{
-        	  target = htmlNewTree(t, HD_ELEMENT_A, NULL);
+        	  target = htmlNewTree(t, MARKUP_A, NULL);
 
         	  htmlSetVariable(target, (uchar *)"NAME", baselink);
         	  for (temp = t->child; temp != NULL; temp = temp->next)
@@ -351,7 +381,7 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 	      }
             }
 
-            toc_add_heading(parent, t->child);
+            add_heading(parent, t->child);
           }
 
           last_level = level;
@@ -359,7 +389,7 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
       default :
           if (t->child != NULL)
-            toc_parse_tree(t->child);
+            parse_tree(t->child);
           break;
     }
 
@@ -369,5 +399,5 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.21 2004/04/11 21:20:28 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.14 2004/09/23 20:16:14 mike Exp $".
  */

@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.41 2004/04/01 03:26:43 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.21 2004/07/21 19:32:23 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -33,77 +33,16 @@ include ../Makedefs
 # Object files...
 #
 
-LIBOBJS	=	\
-		book.o \
-		file.o \
-		gui.o \
-		html.o \
-		htmldoc.o \
-		htmlsep.o \
-		http.o \
-		http-addr.o \
-		http-support.o \
-		image.o \
-		iso8859.o \
-		link.o \
-		margin.o \
-		md5.o \
-		progress.o \
-		ps-pdf.o \
-		rc4.o \
-		snprintf.o \
-		string.o \
-		style.o \
-		stylefont.o \
-		stylemedia.o \
-		stylesheet.o \
-		toc.o \
-		tree.o \
-		util.o
-
-OBJS	=	\
-		$(LIBOBJS) \
-		htmldoc.o \
-		htmllibd.o \
-		testhtml.o
-
-SRCS	=	\
-		book.cxx \
-		file.c \
-		gui.cxx \
-		html.cxx \
-		htmldoc.cxx \
-		htmllib.cxx \
-		htmlsep.cxx \
-		http-addr.c \
-		http.c \
-		http-support.c \
-		image.cxx \
-		iso8859.cxx \
-		link.cxx \
-		margin.cxx \
-		md5.c \
-		progress.cxx \
-		ps-pdf.cxx \
-		rc4.c \
-		snprintf.c \
-		string.c \
-		testhtml.cxx \
-		toc.cxx \
-		util.cxx
-
-TARGETS	=	\
-		libhtmldoc.a \
-		htmldoc$(EXEEXT) \
-		testhtml$(EXEEXT)
+OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o http.o \
+		http-addr.o http-support.o image.o iso8859.o license.o md5.o \
+		progress.o ps-pdf.o rc4.o snprintf.o string.o toc.o util.o
 
 
 #
 # Make everything...
 #
 
-all:		$(TARGETS)
-
+all:	htmldoc$(EXEEXT)
 
 #
 # Install everything...
@@ -122,61 +61,67 @@ install:	all
 #
 
 clean:
-	$(RM) *.bak
-	$(RM) *.bck
-	$(RM) core
-	$(RM) core.* 
-	$(RM) $(OBJS)
-	$(RM) $(TARGETS)
-
-
-#
-# Update dependencies...
-#
-
-depend:
-	makedepend -Y -I.. -f Dependencies $(SRCS) testhtml.cxx
-
-
-#
-# libhtmldoc.a
-#
-
-libhtmldoc.a:	$(LIBOBJS) ../Makedefs
-	echo Archiving $@...
-	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
-	$(RANLIB) $@
+	rm -f $(OBJS) htmldoc$(EXEEXT)
 
 
 #
 # htmldoc
 #
 
-htmldoc$(EXEEXT):	htmldoc.o libhtmldoc.a ../Makedefs
+htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) htmldoc.o libhtmldoc.a $(LIBS)
+	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
 	$(POST) htmldoc$(EXEEXT)
+
+htmldoc.purify$(EXEEXT):	$(OBJS) ../Makedefs
+	echo Linking $@...
+	purify $(CXX) $(LDFLAGS) -o htmldoc.purify$(EXEEXT) $(OBJS) $(LIBS)
+
+file.o:		file.h http.h md5.h progress.h hdstring.h
+gui.o:		gui.h html.h htmldoc.h image.h iso8859.h progress.h \
+		types.h ../desktop/htmldoc.xbm ../desktop/htmldoc.xpm
+html.o:		html.h htmldoc.h image.h iso8859.h progress.h types.h
+htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
+htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h progress.h types.h
+htmlsep.o:	html.h htmldoc.h image.h iso8859.h progress.h types.h
+http.o:		http.h http-private.h hdstring.h
+http-addr.o:	http.h http-private.h hdstring.h
+http-support.o:	http.h http-private.h hdstring.h
+image.o:	debug.h htmldoc.h image.h progress.h types.h
+iso8859.o:	iso8859.h types.h
+license.o:	gui.h
+md5.o:		md5.h
+ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h md5.h progress.h \
+		rc4.h types.h
+rc4.o:		rc4.h
+string.o:	hdstring.h
+toc.o:		html.h htmldoc.h image.h iso8859.h types.h
+util.o:		htmldoc.h types.h
 
 
 #
 # testhtml
 #
 
-testhtml$(EXEEXT):	testhtml.o libhtmldoc.a ../Makedefs
+testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o \
+		http-addr.o http-support.o image.o iso8859.o license.o \
+		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o \
+		htmlsep.o string.o ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o libhtmldoc.a $(LIBS)
+	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o gui.o htmllibd.o \
+		http.o http-addr.o http-support.o image.o iso8859.o license.o \
+		progress.o ps-pdf.o toc.o util.o string.o \
+		md5.o rc4.o html.o htmlsep.o $(LIBS)
 
-
-#
-# Dependencies...
-#
+testhtml.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
+htmllibd.o:	htmllib.cxx ../config.h ../Makedefs debug.h html.h htmldoc.h \
+		image.h iso8859.h types.h
+	echo Compiling $<...
+	$(CXX) $(CXXFLAGS) -DDEBUG -o htmllibd.o -c htmllib.cxx
 
 $(OBJS):	../Makedefs ../config.h
 
-include Dependencies
-
 
 #
-# End of "$Id: Makefile,v 1.41 2004/04/01 03:26:43 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.21 2004/07/21 19:32:23 mike Exp $".
 #

@@ -1,5 +1,5 @@
 /*
- * "$Id: types.h,v 1.14 2004/03/31 10:35:07 mike Exp $"
+ * "$Id: types.h,v 1.3.2.5 2004/05/05 18:58:41 mike Exp $"
  *
  *   Common data types for HTMLDOC, an HTML document processing program.
  *
@@ -22,31 +22,15 @@
  *         WWW: http://www.easysw.com
  */
 
-#ifndef HTMLDOC_TYPES_H
-#  define HTMLDOC_TYPES_H
+#ifndef _TYPES_H_
+#  define _TYPES_H_
 
 #  include "config.h"
 
-
-//
-// Basic data types...
-//
-
 typedef unsigned char uchar;
-typedef unsigned char hdByte;
 
-//
-// C library comparison function type...
-//
-
-extern "C"
-{
-  typedef int (*hdCompareFunc)(const void *, const void *);
-}
-
-
-#endif /* !HTMLDOC_TYPES_H */
+#endif /* !_TYPES_H_ */
 
 /*
- * End of "$Id: types.h,v 1.14 2004/03/31 10:35:07 mike Exp $".
+ * End of "$Id: types.h,v 1.3.2.5 2004/05/05 18:58:41 mike Exp $".
  */

@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.12 2004/03/31 07:28:13 mike Exp $"
+# "$Id: Makefile,v 1.6.2.4 2004/05/10 01:14:53 mike Exp $"
 #
 #   PNG library Makefile for the HTMLDOC software.
 #
-#   Makefile copyright 1997-2004 by Easy Software Products, all rights reserved.
+#   Makefile copyright 1997-2001 by Easy Software Products, all rights reserved.
 #   PNG library copyright 1995 Guy Eric Schalnat, Group 42, Inc.
 #   For conditions of distribution and use, see copyright notice in png.h
 #
@@ -26,7 +26,6 @@
 
 include ../Makedefs
 
-
 #
 # Object files...
 #
@@ -35,24 +34,19 @@ OBJS	=	png.o pngset.o pngget.o pngrutil.o pngtrans.o pngwutil.o \
 		pngread.o pngrio.o pngwio.o pngwrite.o pngrtran.o \
 		pngwtran.o pngmem.o pngerror.o pngpread.o
 
-
 #
 # Make all of the targets...
 #
 
 all:	libpng.a
 
-
 #
 # Clean all of the targets and object files...
 #
 
 clean:
-	$(RM) *.bak
-	$(RM) *.bck
 	$(RM) $(OBJS)
 	$(RM) libpng.a
-
 
 #
 # libpng.a
@@ -64,24 +58,8 @@ libpng.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@  $(OBJS)
 	$(RANLIB) $@
 
+$(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# Update dependencies...
-#
-
-depend:
-	makedepend -Y -I.. -I../zlib -f Dependencies $(OBJS:.o=.c)
-
-
-#
-# Dependencies...
-#
-	
-$(OBJS):	../Makedefs
-
-include Dependencies
-
-
-#
-# End of "$Id: Makefile,v 1.12 2004/03/31 07:28:13 mike Exp $".
+# End of "$Id: Makefile,v 1.6.2.4 2004/05/10 01:14:53 mike Exp $".
 #

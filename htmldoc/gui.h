@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.18 2004/03/31 20:56:56 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.31 2004/07/21 19:32:23 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -38,7 +38,8 @@
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Tabs.H>
 #include <FL/Fl_Value_Slider.H>
-#include <FL/Fl_Window.H>
+#include <FL/Fl_Double_Window.H>
+
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_File_Chooser.H>
@@ -55,7 +56,7 @@ class GUI
 {
   private:
 
-  Fl_Window		*window;
+  Fl_Double_Window	*window;
 
   Fl_Group		*controls;
   Fl_Tabs		*tabs;
@@ -185,10 +186,12 @@ class GUI
   Fl_Input		*path;
   Fl_Input		*proxy;
   Fl_Check_Button	*tooltips;
-  Fl_Check_Button	*modernSkin;
-  Fl_Check_Button	*strictHTML;
+  Fl_Check_Button	*modern_skin;
+  Fl_Check_Button	*strict_html;
 
-  Fl_Button		*saveOptions;
+  Fl_Button		*showAbout,
+			*showLicense,
+  			*saveOptions;
 
   Fl_Button		*bookHelp,
 			*bookNew,
@@ -200,9 +203,10 @@ class GUI
 
   Fl_Progress		*progressBar;
 
-  hdBook		*book;
   char			book_filename[1024];
   int			book_changed;
+
+  char			title_string[1024];
 
   Fl_File_Chooser	*fc;
   Fl_File_Icon		*icon;
@@ -211,79 +215,85 @@ class GUI
   Fl_Browser		*error_list;
   Fl_Button		*error_ok;
 
-  void			loadSettings();
-  void			title(const char *filename = NULL, int changed = 0);
+  void		loadSettings();
+  void		title(const char *filename = NULL, int changed = 0);
 
-  static void		changeCB(Fl_Widget *w, GUI *gui);
+  static void	changeCB(Fl_Widget *w, GUI *gui);
 
-  static void		docTypeCB(Fl_Widget *w, GUI *gui);
-  static void		inputFilesCB(Fl_Widget *w, GUI *gui);
-  static void		addFileCB(Fl_Widget *w, GUI *gui);
-  static void		addURLCB(Fl_Widget *w, GUI *gui);
-  static void		editFilesCB(Fl_Widget *w, GUI *gui);
-  static void		deleteFilesCB(Fl_Widget *w, GUI *gui);
-  static void		moveUpFilesCB(Fl_Widget *w, GUI *gui);
-  static void		moveDownFilesCB(Fl_Widget *w, GUI *gui);
-  static void		logoImageCB(Fl_Widget *w, GUI *gui);
-  static void		titleImageCB(Fl_Widget *w, GUI *gui);
+  static void	docTypeCB(Fl_Widget *w, GUI *gui);
+  static void	inputFilesCB(Fl_Widget *w, GUI *gui);
+  static void	addFileCB(Fl_Widget *w, GUI *gui);
+  static void	addURLCB(Fl_Widget *w, GUI *gui);
+  static void	editFilesCB(Fl_Widget *w, GUI *gui);
+  static void	deleteFilesCB(Fl_Widget *w, GUI *gui);
+  static void	moveUpFilesCB(Fl_Widget *w, GUI *gui);
+  static void	moveDownFilesCB(Fl_Widget *w, GUI *gui);
+  static void	logoImageCB(Fl_Widget *w, GUI *gui);
+  static void	titleImageCB(Fl_Widget *w, GUI *gui);
 
-  static void		outputTypeCB(Fl_Widget *w, GUI *gui);
-  static void		outputPathCB(Fl_Widget *w, GUI *gui);
-  static void		outputFormatCB(Fl_Widget *w, GUI *gui);
-  static void		jpegCB(Fl_Widget *w, GUI *gui);
+  static void	outputTypeCB(Fl_Widget *w, GUI *gui);
+  static void	outputPathCB(Fl_Widget *w, GUI *gui);
+  static void	outputFormatCB(Fl_Widget *w, GUI *gui);
+  static void	jpegCB(Fl_Widget *w, GUI *gui);
 
-  static void		sizeCB(Fl_Widget *w, GUI *gui);
+  static void	sizeCB(Fl_Widget *w, GUI *gui);
 
-  static void		tocCB(Fl_Widget *w, GUI *gui);
+  static void	tocCB(Fl_Widget *w, GUI *gui);
 
-  static void		bodyColorCB(Fl_Widget *w, GUI *gui);
-  static void		bodyImageCB(Fl_Widget *w, GUI *gui);
-  static void		textColorCB(Fl_Widget *w, GUI *gui);
-  static void		linkColorCB(Fl_Widget *w, GUI *gui);
+  static void	bodyColorCB(Fl_Widget *w, GUI *gui);
+  static void	bodyImageCB(Fl_Widget *w, GUI *gui);
+  static void	textColorCB(Fl_Widget *w, GUI *gui);
+  static void	linkColorCB(Fl_Widget *w, GUI *gui);
 
-  static void		psCB(Fl_Widget *w, GUI *gui);
+  static void	psCB(Fl_Widget *w, GUI *gui);
 
-  static void		pdfCB(Fl_Widget *w, GUI *gui);
-  static void		effectCB(Fl_Widget *w, GUI *gui);
+  static void	pdfCB(Fl_Widget *w, GUI *gui);
+  static void	effectCB(Fl_Widget *w, GUI *gui);
 
-  static void		encryptionCB(Fl_Widget *w, GUI *gui);
+  static void	encryptionCB(Fl_Widget *w, GUI *gui);
 
-  static void		htmlEditorCB(Fl_Widget *w, GUI *gui);
-  static void		tooltipCB(Fl_Widget *w, GUI *gui);
-  static void		skinCB(Fl_Widget *w, GUI *gui);
-  static void		saveOptionsCB(Fl_Widget *w, GUI *gui);
+  static void	htmlEditorCB(Fl_Widget *w, GUI *gui);
+  static void	tooltipCB(Fl_Widget *w, GUI *gui);
+  static void	skinCB(Fl_Widget *w, GUI *gui);
+  static void	saveOptionsCB(Fl_Widget *w, GUI *gui);
 
-  static void		helpCB(Fl_Widget *w, GUI *gui);
-  static void		newBookCB(Fl_Widget *w, GUI *gui);
-  static void		openBookCB(Fl_Widget *w, GUI *gui);
-  static void		saveBookCB(Fl_Widget *w, GUI *gui);
-  static void		saveAsBookCB(Fl_Widget *w, GUI *gui);
-  static void		generateBookCB(Fl_Widget *w, GUI *gui);
-  static void		closeBookCB(Fl_Widget *w, GUI *gui);
+  static void	helpCB(Fl_Widget *w, GUI *gui);
+  static void	newBookCB(Fl_Widget *w, GUI *gui);
+  static void	openBookCB(Fl_Widget *w, GUI *gui);
+  static void	saveBookCB(Fl_Widget *w, GUI *gui);
+  static void	saveAsBookCB(Fl_Widget *w, GUI *gui);
+  static void	generateBookCB(Fl_Widget *w, GUI *gui);
+  static void	closeBookCB(Fl_Widget *w, GUI *gui);
 
-  static void		errorCB(Fl_Widget *w, GUI *gui);
+  static void	errorCB(Fl_Widget *w, GUI *gui);
+
+#ifdef __APPLE__
+  static void	appleOpenCB(const char *f);
+#endif // __APPLE__
 
   public:
 
   static const char	*help_dir;
+  static void		showAboutCB(void);
+  static void		showLicenseCB(void);
 
-			GUI(const char *filename = NULL);
-			~GUI(void);
 
-  void			add_error(const char *s) { error_list->add(s); }
-  int			checkSave();
-  void			hide() { window->hide(); help->hide(); fc->hide(); };
-  int			loadBook(const char *bookfile);
-  int			newBook();
-  void			parseOptions(const char *line);
-  void			progress(int percent, const char *text = NULL);
-  int			saveBook(const char *bookfile);
-  void			show();
-  int			shown() { return (window->shown()); }
-  int			visible() { return (window->visible()); }
+  GUI(const char *filename = NULL);
+  ~GUI(void);
+
+  void	add_error(const char *s) { error_list->add(s); }
+  int	checkSave();
+  void	hide() { window->hide(); help->hide(); fc->hide(); };
+  int	loadBook(const char *bookfile);
+  int	newBook();
+  void	parseOptions(const char *line);
+  void	progress(int percent, const char *text = NULL);
+  int	saveBook(const char *bookfile);
+  void	show();
+  int	visible() { return (window->visible()); }
 };
 
 
 /*
- * End of "$Id: gui.h,v 1.18 2004/03/31 20:56:56 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.31 2004/07/21 19:32:23 mike Exp $".
  */

@@ -7,22 +7,11 @@
 <H1 ALIGN="RIGHT"><A NAME="CMDREF">Chapter 8 - Command-Line Reference</A></H1>
 
 <P>This chapter describes all of the command-line options supported by
-<I>HTMLDOC</I>.
-
-<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
-<TR>
-	<TD><B>Note:</B>
-
-	<P>The free version of <I>HTMLDOC</I> for Windows does
-	not include the command-line program.
-
-	</TD>
-</TR>
-</TABLE></CENTER>
+HTMLDOC.
 
 <H2>Basic Usage</H2>
 
-The basic command-line usage for <I>HTMLDOC</I> is:
+The basic command-line usage for HTMLDOC is:
 
 <UL><PRE>
 % <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
@@ -31,18 +20,18 @@ The basic command-line usage for <I>HTMLDOC</I> is:
 
 The first form converts the named HTML files to the specified output format
 immediately. The second form loads the specified <CODE>.book</CODE> file and
-displays the <I>HTMLDOC</I> window, allowing a user to make changes and/or
+displays the HTMLDOC window, allowing a user to make changes and/or
 generate the document interactively.
 
 <P>If no output file or directory is specified, then all output is sent to the
 standard output file.
 
-<p>On return, <I>HTMLDOC</I> returns and exit code of 0 if it
+<p>On return, HTMLDOC returns and exit code of 0 if it
 was successful and non-zero if there were errors.</p>
 
 <H2>Options</H2>
 
-The following command-line options are recognized by <I>HTMLDOC</I>.
+The following command-line options are recognized by HTMLDOC.
 
 <H3>-d directory</H3>
 
@@ -154,7 +143,7 @@ your output will overlap or truncate in places.
 
 <P>The <CODE>--charset</CODE> option specifies the 8-bit
 character set encoding to use for the entire document.
-<I>HTMLDOC</I> comes with the following character set files:</P>
+HTMLDOC comes with the following character set files:</P>
 
 <CENTER><TABLE BORDER="1" CELLPADDING="5">
 <TR><TH>charset</TH><TH>Character Set</TH></TR>
@@ -209,10 +198,20 @@ between each input file.
 <P>This option is only available when generating PostScript or PDF
 files.
 
+<h3>--cookies 'name=\"value with space\"; name=value'</h3>
+
+<p>The <code>--cookies</code> option specifies one or more HTTP
+cookies that should be sent when converting remote URLs. Each
+cookie must be separated from the others by a semicolon and a
+space, and values containing whitespace or the semicolon must be
+placed inside double-quotes. When specifying multiple cookies,
+the entire cookie string must be surrounded by single quotes in
+order for the string to be processed correctly.</p>
+
 <H3>--datadir directory</H3>
 
 The <CODE>--datadir</CODE> option specifies the location of data files used
-by <I>HTMLDOC</I>.
+by HTMLDOC.
 
 <H3>--duplex</H3>
 
@@ -862,7 +861,7 @@ number.
 
 <P>The <CODE>--webpage</CODE> option specifies that the input files
 comprise a web page (or site) and that no title page or
-table-of-contents should be generated. <I>HTMLDOC</I> will insert
+table-of-contents should be generated. HTMLDOC will insert
 a page break between each input file.
 
 <P>This option is only available when generating PostScript or PDF
@@ -877,7 +876,7 @@ job comments should be written to the output files.
 
 <H2>Messages</H2>
 
-<P><I>HTMLDOC</I> sends error and status messages to stderr unless the
+<P>HTMLDOC sends error and status messages to stderr unless the
 <CODE>--quiet</CODE> option is provided on the command-line.
 Applications can capture these messages to relay errors or
 statistics to the user.
@@ -910,24 +909,24 @@ Error numbers 1 to 14 map to the following errors:
 
 	<LI>The document contains too many files or chapters.</LI>
 
-	<LI><I>HTMLDOC</I> ran out of memory.</LI>
+	<LI>HTMLDOC ran out of memory.</LI>
 
 	<LI>The specified file could not be found.</LI>
 
-	<LI>The comment contains a bad <I>HTMLDOC</I> formatting command.</LI>
+	<LI>The comment contains a bad HTMLDOC formatting command.</LI>
 
 	<LI>The image file is not in a known format.</LI>
 
-	<LI><I>HTMLDOC</I> was unable to remove a temporary file.</LI>
+	<LI>HTMLDOC was unable to remove a temporary file.</LI>
 
-	<LI><I>HTMLDOC</I> had an unspecified internal error.</LI>
+	<LI>HTMLDOC had an unspecified internal error.</LI>
 
-	<LI><I>HTMLDOC</I> encountered a networking error when retrieving a
+	<LI>HTMLDOC encountered a networking error when retrieving a
 	file via a URL.</LI>
 
-	<LI><I>HTMLDOC</I> was unable to read a file.</LI>
+	<LI>HTMLDOC was unable to read a file.</LI>
 
-	<LI><I>HTMLDOC</I> was unable to write a file.</LI>
+	<LI>HTMLDOC was unable to write a file.</LI>
 
 	<LI>A HTML error was found in a source file.</LI>
 

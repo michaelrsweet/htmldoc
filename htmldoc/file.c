@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.21 2004/04/11 21:20:28 mike Exp $"
+ * "$Id: file.c,v 1.13.2.50 2004/07/21 19:32:23 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -26,6 +26,7 @@
  *   file_basename()    - Return the base filename without directory or target.
  *   file_cleanup()     - Close an open HTTP connection and remove
  *                        temporary files...
+ *   file_cookies()     - Set the HTTP cookies for remote accesses.
  *   file_directory()   - Return the directory without filename or target.
  *   file_extension()   - Return the extension of a file without the target.
  *   file_find_check()  - Check to see if the specified file or URL exists...
@@ -46,6 +47,7 @@
 
 #include "file.h"
 #include "http.h"
+#include "progress.h"
 #include "debug.h"
 
 #if defined(WIN32)
@@ -68,7 +70,7 @@
 
 #ifdef WIN32
 #  define getpid	GetCurrentProcessId
-#  define TEMPLATE	"%s%08lx.%06d.tmp"
+#  define TEMPLATE	"%s/%08lx.%06d.tmp"
 #  define OPENMODE	(_O_CREAT | _O_RDWR | _O_TRUNC | _O_BINARY)
 #  define OPENPERM	(_S_IREAD | _S_IWRITE)
 #else
@@ -100,6 +102,7 @@ int	web_files = 0,			/* Number of temporary files */
 	web_alloc = 0;			/* Number of allocated files */
 cache_t	*web_cache = NULL;		/* Cache array */
 int	no_local = 0;			/* Non-zero to disable local files */
+char	cookies[1024] = "";		/* HTTP cookies, if any */
 
 
 /*
@@ -120,10 +123,6 @@ file_basename(const char *s)	/* I - Filename or URL */
     basename ++;
   else if ((basename = strrchr(s, '\\')) != NULL)
     basename ++;
-#ifdef MAC
-  else if ((basename = strrchr(s, ':')) != NULL)
-    basename ++;
-#endif /* MAC */
   else
     basename = (char *)s;
 
@@ -133,8 +132,7 @@ file_basename(const char *s)	/* I - Filename or URL */
   if (strchr(basename, '#') == NULL)
     return (basename);
 
-  strncpy(buf, basename, sizeof(buf) - 1);
-  buf[sizeof(buf) - 1] = '\0';
+  strlcpy(buf, basename, sizeof(buf));
   *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
@@ -186,7 +184,6 @@ file_cleanup(void)
     * Yes, leave the files, but show the mapping from filename to URL...
     */
 
-#if 0
     progress_error(HD_ERROR_NONE, "DEBUG: Temporary File Summary");
     progress_error(HD_ERROR_NONE, "DEBUG:");
     progress_error(HD_ERROR_NONE, "DEBUG: URL                             Filename");
@@ -201,7 +198,6 @@ file_cleanup(void)
     }
 
     progress_error(HD_ERROR_NONE, "DEBUG:");
-#endif /* 0 */
 
     return;
   }
@@ -211,14 +207,11 @@ file_cleanup(void)
     snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
              (long)getpid(), web_files);
 
-#if 0
     if (unlink(filename))
       progress_error(HD_ERROR_DELETE_ERROR,
                      "Unable to delete temporary file \"%s\": %s",
                      filename, strerror(errno));
-#else
-    unlink(filename);
-#endif /* 0 */
+
     web_files --;
 
     if (web_cache[web_files].name)
@@ -234,6 +227,20 @@ file_cleanup(void)
     web_alloc = 0;
     web_cache = NULL;
   }
+}
+
+
+/*
+ * 'file_cookies()' - Set the HTTP cookies for remote accesses.
+ */
+
+void
+file_cookies(const char *s)		/* I - Cookie string or NULL */
+{
+  if (s)
+    strlcpy(cookies, s, sizeof(cookies));
+  else
+    cookies[0] = '\0';
 }
 
 
@@ -281,24 +288,20 @@ file_directory(const char *s)	/* I - Filename or URL */
     * Normal stuff...
     */
 
-    strncpy(buf, s, sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = '\0';
+    strlcpy(buf, s, sizeof(buf));
 
     if ((dir = strrchr(buf, '/')) != NULL)
       *dir = '\0';
     else if ((dir = strrchr(buf, '\\')) != NULL)
       *dir = '\0';
-#ifdef MAC
-    else if ((dir = strrchr(buf, ':')) != NULL)
-      *dir = '\0';
-#endif /* MAC */
     else
       return (".");
 
     if (strncmp(buf, "file:", 5) == 0)
-      strcpy(buf, buf + 5);
+      hd_strcpy(buf, buf + 5);
 
     if (!buf[0])
+      /* Safe because buf is more than 2 chars long */
       strcpy(buf, "/");
   }
 
@@ -324,10 +327,6 @@ file_extension(const char *s)	/* I - Filename or URL */
     extension ++;
   else if ((extension = strrchr(s, '\\')) != NULL)
     extension ++;
-#ifdef MAC
-  else if ((extension = strrchr(s, ':')) != NULL)
-    extension ++;
-#endif /* MAC */
   else
     extension = s;
 
@@ -339,8 +338,7 @@ file_extension(const char *s)	/* I - Filename or URL */
   if (strchr(extension, '#') == NULL)
     return (extension);
 
-  strncpy(buf, extension, sizeof(buf) - 1);
-  buf[sizeof(buf) - 1] = '\0';
+  strlcpy(buf, extension, sizeof(buf));
 
   *(char *)strchr(buf, '#') = '\0';
 
@@ -444,8 +442,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
         connhost = hostname;
         connport = port;
-        strncpy(connpath, resource, sizeof(connpath) - 1);
-	connpath[sizeof(connpath) - 1] = '\0';
+        strlcpy(connpath, resource, sizeof(connpath));
       }
 
       if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
@@ -456,8 +453,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
       if (http == NULL)
       {
-/*        progress_show("Connecting to %s...", connhost);*/
-        atexit(file_cleanup);
+        progress_show("Connecting to %s...", connhost);
 
 #ifdef HAVE_LIBSSL
         if (strcmp(method, "http") == 0)
@@ -470,14 +466,14 @@ file_find_check(const char *filename)	/* I - File or URL */
 
         if (http == NULL)
 	{
-/*          progress_hide();
+          progress_hide();
           progress_error(HD_ERROR_NETWORK_ERROR,
 	                 "Unable to connect to %s!", connhost);
-*/          return (NULL);
+          return (NULL);
         }
       }
 
-/*      progress_show("Getting %s...", connpath);*/
+      progress_show("Getting %s...", connpath);
 
       httpClearFields(http);
       httpSetField(http, HTTP_FIELD_HOST, hostname);
@@ -490,6 +486,8 @@ file_find_check(const char *filename)	/* I - File or URL */
         httpEncode64(connauth + 6, username);
         httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
       }
+
+      httpSetCookie(http, cookies);
 
       if (!httpGet(http, connpath))
       {
@@ -518,18 +516,18 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     if (status != HTTP_OK)
     {
-/*      progress_hide();
-      progress_error((HDerror)status, "%s", httpStatus(status));*/
+      progress_hide();
+      progress_error((HDerror)status, "%s", httpStatus(status));
       httpFlush(http);
       return (NULL);
     }
 
     if ((fp = file_temp(tempname, sizeof(tempname))) == NULL)
     {
-/*      progress_hide();
+      progress_hide();
       progress_error(HD_ERROR_WRITE_ERROR,
                      "Unable to create temporary file \"%s\": %s", tempname,
-                     strerror(errno));*/
+                     strerror(errno));
       httpFlush(http);
       return (NULL);
     }
@@ -541,11 +539,11 @@ file_find_check(const char *filename)	/* I - File or URL */
     while ((bytes = httpRead(http, resource, sizeof(resource))) > 0)
     {
       count += bytes;
-/*      progress_update((100 * count / total) % 101);*/
+      progress_update((100 * count / total) % 101);
       fwrite(resource, 1, (size_t)bytes, fp);
     }
 
-/*    progress_hide();*/
+    progress_hide();
 
     fclose(fp);
 
@@ -606,10 +604,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   */
 
   if (strchr(s, '%') == NULL)
-  {
-    strncpy(basename, s, sizeof(basename) - 1);
-    basename[sizeof(basename) - 1] = '\0';
-  }
+    strlcpy(basename, s, sizeof(basename));
   else
   {
     for (sptr = s, temp = basename;
@@ -688,7 +683,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
           basename[0] != '/')
 	*temp++ = '/';
 
-      strncpy(temp, basename, sizeof(filename) - (temp - filename) - 1);
+      strlcpy(temp, basename, sizeof(filename) - (temp - filename));
 
      /*
       * See if the file or URL exists...
@@ -840,10 +835,7 @@ file_localize(const char *filename,	/* I - Filename */
     sprintf(temp, "%s/%s", cwd, newslash);
   }
   else
-  {
-    strncpy(temp, filename, sizeof(temp) - 1);
-    temp[sizeof(temp) - 1] = '\0';
-  }
+    strlcpy(temp, filename, sizeof(temp));
 
   for (slash = temp, newslash = newcwd;
        *slash != '\0' && *newslash != '\0';
@@ -874,11 +866,11 @@ file_localize(const char *filename,	/* I - Filename */
   while (*newslash != '\0')
   {
     if (*newslash == '/' || *newslash == '\\')
-      strcat(newfilename, "../");
+      strlcat(newfilename, "../", sizeof(newfilename));
     newslash ++;
   }
 
-  strcat(newfilename, slash);
+  strlcat(newfilename, slash, sizeof(newfilename));
 
   return (newfilename);
 }
@@ -942,8 +934,7 @@ file_proxy(const char *url)	/* I - URL of proxy server */
 
     if (strcmp(method, "http") == 0)
     {
-      strncpy(proxy_host, hostname, sizeof(proxy_host) - 1);
-      proxy_host[sizeof(proxy_host) - 1] = '\0';
+      strlcpy(proxy_host, hostname, sizeof(proxy_host));
       proxy_port = port;
     }
   }
@@ -968,10 +959,6 @@ file_target(const char *s)	/* I - Filename or URL */
     basename ++;
   else if ((basename = strrchr(s, '\\')) != NULL)
     basename ++;
-#ifdef MAC
-  else if ((basename = strrchr(s, ':')) != NULL)
-    basename ++;
-#endif /* MAC */
   else
     basename = s;
 
@@ -987,8 +974,8 @@ file_target(const char *s)	/* I - Filename or URL */
  */
 
 FILE *					/* O - Temporary file */
-file_temp(char   *name,			/* O - Filename */
-          size_t len)			/* I - Length of filename buffer */
+file_temp(char *name,			/* O - Filename */
+          int  len)			/* I - Length of filename buffer */
 {
   cache_t	*temp;			/* Pointer to cache entry */
   FILE		*fp;			/* File pointer */
@@ -1013,9 +1000,9 @@ file_temp(char   *name,			/* O - Filename */
 
     if (temp == NULL)
     {
-/*      progress_error(HD_ERROR_OUT_OF_MEMORY,
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d file entries - %s",
-                     web_alloc, strerror(errno));*/
+                     web_alloc, strerror(errno));
       web_alloc -= ALLOC_FILES;
       return (NULL);
     }
@@ -1044,7 +1031,7 @@ file_temp(char   *name,			/* O - Filename */
     tmpdir = "/var/tmp";
 #endif /* WIN32 */
 
-  snprintf(name, len, TEMPLATE, tmpdir, (long)getpid(), web_files);
+  snprintf(name, (size_t)len, TEMPLATE, tmpdir, (long)getpid(), web_files);
 
   if ((fd = open(name, OPENMODE, OPENPERM)) >= 0)
     fp = fdopen(fd, "w+b");
@@ -1061,5 +1048,5 @@ file_temp(char   *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.21 2004/04/11 21:20:28 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.50 2004/07/21 19:32:23 mike Exp $".
  */
