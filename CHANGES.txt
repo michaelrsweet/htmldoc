@@ -1,10 +1,12 @@
-CHANGES.txt - 05/01/2002
+CHANGES.txt - 05/06/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.20
 
     NEW FEATURES
 
+	- New --nup and NUMBER-UP options for PostScript and PDF
+	  output.
 
     CHANGES
 
