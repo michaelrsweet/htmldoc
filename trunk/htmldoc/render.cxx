@@ -1,5 +1,5 @@
 //
-// "$Id: render.cxx,v 1.6 2002/03/17 19:24:52 mike Exp $"
+// "$Id: render.cxx,v 1.7 2002/03/18 00:03:23 mike Exp $"
 //
 //   Core rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -31,6 +31,7 @@
 //
 
 //#define DEBUG*/
+#include "debug.h"
 #include "htmldoc.h"
 #include "hdstring.h"
 
@@ -176,14 +177,14 @@ hdRender::parse_block(hdTree   *t,
 // 'hdRender::parse_comment()' -
 //
 
-void
-hdRender::parse_comment(hdTree   *t,
-                        hdMargin *m,
-			float    *x,
-			float    *y,
-                        int      *page,
-			hdTree   *para)
+int						// O  - Non-zero for page break
+hdRender::parse_comment(hdTree   *t,		// I  - Comment node
+                        hdMargin *m,		// I  - Current margins
+			float    *x,		// IO - Current X position
+			float    *y,		// IO - Current Y position
+                        int      *page)		// IO - Current page
 {
+  return (0);
 }
 
 
@@ -278,25 +279,81 @@ hdRender::add_heading(hdTree *node,
 
 
 //
-// 'hdRender::add_link()' -
+// 'hdRender::add_link()' - Add a link destination.
 //
 
 void
-hdRender::add_link(char *name,
-        	   int  page,
-		   int  top)
+hdRender::add_link(const char *name,	// I - Name of link
+        	   int        page,	// I - Link page
+		   int        top)	// I - Link Y position
 {
+  hdRenderLink	*temp;			// New link
+
+
+  if (name == NULL)
+    return;
+
+  if ((temp = find_link(name)) != NULL)
+  {
+    temp->page = page;
+    temp->top  = top;
+  }
+  else
+  {
+    // See if we need to allocate memory for links...
+    if (num_links >= alloc_links)
+    {
+      // Allocate more links...
+      temp = new hdRenderLink[alloc_links + HD_ALLOC_LINKS];
+
+      if (alloc_links)
+      {
+        memcpy(temp, links, alloc_links * sizeof(hdRenderLink));
+	delete[] links;
+      }
+
+      links       = temp;
+      alloc_links += HD_ALLOC_LINKS;
+    }
+
+    // Add a new link...
+    temp = links + num_links;
+    num_links ++;
+
+    temp->name = strdup(name);
+    temp->page = page;
+    temp->top  = top;
+
+    if (num_links > 1)
+      qsort(links, num_links, sizeof(hdRenderLink),
+            (hdCompareFunc)compare_links);
+  }
 }
 
 
 //
-// 'hdRender::find_link()' -
+// 'hdRender::find_link()' - Find a link...
 //
 
-hdRenderLink *
-hdRender::find_link(char *name)
+hdRenderLink *				// O - Matching link
+hdRender::find_link(const char *name)	// I - Name of link
 {
-  return (NULL);
+  hdRenderLink	key,			// Search key
+		*match;			// Matching name entry
+
+
+  if (name == NULL || num_links == 0)
+    return (NULL);
+
+  if (name[0] == '#')
+    name ++;
+
+  key.name = (char *)name;
+
+  match = (hdRenderLink *)bsearch(&key, links, num_links, sizeof(hdRenderLink),
+                                  (hdCompareFunc)compare_links);
+
+  return (match);
 }
 
 
@@ -304,11 +361,11 @@ hdRender::find_link(char *name)
 // 'hdRender::compare_links()' -
 //
 
-int
-hdRender::compare_links(hdRenderLink *n1,
-                        hdRenderLink *n2)
+int						// O - Result of comparison
+hdRender::compare_links(hdRenderLink *n1,	// I - First link
+                        hdRenderLink *n2)	// I - Second link
 {
-  return (0);
+  return (strcasecmp(n1->name, n2->name));
 }
 
 
@@ -323,20 +380,67 @@ hdRender::check_pages(int page)
 
 
 //
-// 'hdRender::add_render()' -
+// 'hdRender::add_render()' - Add a render node.
 //
 
-hdRenderNode *
-hdRender::add_render(int   page,
-        	     int   type,
-		     float x,
-		     float y,
-        	     float width,
-		     float height,
-		     void  *data,
-        	     int   insert)
+hdRenderNode *				// O - New render node
+hdRender::add_render(int          page,	// I - Page to add to
+        	     hdRenderType type,	// I - Render type
+		     float        x,	// I - X position of node
+		     float        y,	// I - Y position of node
+        	     float        width,// I - Width of node
+		     float        height,// I - Height of node
+		     const void   *data,// I - Data
+		     int          alloc_data,
+		     			// I - Did we allocate the data?
+        	     int          insert)// I - Insert at beginning of page?
 {
-  return (NULL);
+  hdRenderNode		*r;		// New render primitive
+
+
+  DEBUG_printf(("add_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%d)\n",
+                page, type, x, y, width, height, data, insert));
+
+  // Make sure the page node is allocated...
+  check_pages(page);
+
+  if (page < 0 || page >= alloc_pages)
+  {
+    hdGlobal.progress_error(HD_ERROR_INTERNAL_ERROR,
+                            "Page number (%d) out of range (1...%d)\n", page + 1,
+                            alloc_pages);
+
+    return ((hdRenderNode *)0);
+  }
+
+  // Keep track of the type of render nodes on this page...
+  pages[page].types |= type;
+
+  // Create the new render node...
+  r = new hdRenderNode(type, x, y, width, height, data, alloc_data);
+
+  if (insert)
+  {
+    r->next           = pages[page].first;
+    pages[page].first = r;
+
+    if (pages[page].last == NULL)
+      pages[page].last = r;
+  }
+  else
+  {
+    if (pages[page].last != NULL)
+      pages[page].last->next = r;
+    else
+      pages[page].first = r;
+
+    r->next         = NULL;
+    pages[page].last = r;
+  }
+
+  DEBUG_printf(("    returning r = %p\n", r));
+
+  return (r);
 }
 
 
@@ -363,6 +467,80 @@ hdRender::get_color(const char *c,	// I - Color name
 }
 
 
+//
+// 'hdRenderNode::hdRenderNode()' - Create a new render node.
+//
+
+hdRenderNode::hdRenderNode(hdRenderType t,	// I - Type of node
+                           float        xx,	// I - X position of node
+			   float        yy,	// I - Y position of node
+			   float        w,	// I - Width of node
+			   float        h,	// I - Height of node
+                           const void   *d,	// I - Pointer to data
+			   int          alloc_d)// I - Was data allocated?
+{
+  next   = (hdRenderNode *)0;
+  type   = t;
+  x      = xx;
+  y      = yy;
+  width  = w;
+  height = h;
+
+  switch (t)
+  {
+    case HD_RENDERTYPE_TEXT :
+        data.text.font         = NULL;
+	data.text.font_size    = h;
+	data.text.char_spacing = 0.0f;
+	data.text.rgb[0]       = 0.0f;
+	data.text.rgb[1]       = 0.0f;
+	data.text.rgb[2]       = 0.0f;
+	data.text.alloc_string = alloc_d;
+	data.text.string       = (char *)d;
+        break;
+
+    case HD_RENDERTYPE_IMAGE :
+        data.image = (hdImage *)d;
+        break;
+
+    case HD_RENDERTYPE_BOX :
+        memcpy(data.box, d, sizeof(data.box));
+        break;
+
+    case HD_RENDERTYPE_LINK :
+        data.link.alloc_url = alloc_d;
+	data.link.url       = (char *)d;
+        break;
+
+    case HD_RENDERTYPE_FORM :
+        break;
+  }
+}
+
+
+//
+// 'hdRenderNode::~hdRenderNode()' - Destroy a render node.
+//
+
+hdRenderNode::~hdRenderNode()
+{
+  switch (type)
+  {
+    case HD_RENDERTYPE_TEXT :
+        if (data.text.alloc_string)
+	  free(data.text.string);
+	break;
+
+    case HD_RENDERTYPE_LINK :
+        if (data.link.alloc_url)
+	  free(data.link.url);
+	break;
+  }
+}
+
+
+
+
 #if 0
 
 //
@@ -370,8 +548,8 @@ hdRender::get_color(const char *c,	// I - Color name
 
 
 int
-pspdf_export(tree_t *document,	// I - Document to export
-             tree_t *toc)	// I - Table of contents for document
+pspdf_export(hdTree *document,	// I - Document to export
+             hdTree *toc)	// I - Table of contents for document
 {
   const char	*title_file;	// Location of title image/file
   uchar		*author,	// Author of document
@@ -379,7 +557,7 @@ pspdf_export(tree_t *document,	// I - Document to export
 		*copyright,	// File copyright
 		*docnumber,	// Document number
 		*keywords;	// Search keywords
-  tree_t	*t;		// Title page document tree
+  hdTree	*t;		// Title page document tree
   FILE		*fp;		// Title page file
   float		x, y,		// Current page position
 		left, right,	// Left and right margins
@@ -400,7 +578,7 @@ pspdf_export(tree_t *document,	// I - Document to export
   image_t	*timage;	// Title image
   float		timage_width,	// Title image width
 		timage_height;	// Title image height
-  render_t	*r;		// Rendering structure...
+  hdRenderNode	*r;		// Rendering structure...
   float		rgb[3];		// Text color
   int		needspace;	// Need whitespace
 
@@ -961,7 +1139,7 @@ pspdf_prepare_heading(int   page,		// I - Page number
 		*bufptr,	// Pointer into buffer
 		*formatptr;	// Pointer into format string
   int		formatlen;	// Length of format command string
-  render_t	*temp;		// Render structure for titles, etc.
+  hdRenderNode	*temp;		// Render structure for titles, etc.
 
 
   DEBUG_printf(("pspdf_prepare_heading(%d, %d, %p, %d, %p, %d)\n",
@@ -1208,7 +1386,7 @@ pspdf_prepare_heading(int   page,		// I - Page number
 
 
 static void
-render_contents(tree_t *t,		// I - Tree to parse
+render_contents(hdTree *t,		// I - Tree to parse
                 float  left,		// I - Left margin
                 float  right,		// I - Printable width
                 float  bottom,		// I - Bottom margin
@@ -1216,7 +1394,7 @@ render_contents(tree_t *t,		// I - Tree to parse
                 float  *y,		// IO - Y position
                 int    *page,		// IO - Page #
 	        int    heading,		// I - Heading #
-	        tree_t *chap)		// I - Chapter heading
+	        hdTree *chap)		// I - Chapter heading
 {
   float		x,
 		width,
@@ -1227,10 +1405,10 @@ render_contents(tree_t *t,		// I - Tree to parse
   uchar		number[1024],
 		*nptr,
 		*link;
-  tree_t	*flat,
+  hdTree	*flat,
 		*temp,
 		*next;
-  render_t	*r;
+  hdRenderNode	*r;
 #define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
 
 
@@ -1421,7 +1599,7 @@ render_contents(tree_t *t,		// I - Tree to parse
 
 
 static void
-parse_contents(tree_t *t,		// I - Tree to parse
+parse_contents(hdTree *t,		// I - Tree to parse
                float  left,		// I - Left margin
                float  right,		// I - Printable width
                float  bottom,		// I - Bottom margin
@@ -1429,7 +1607,7 @@ parse_contents(tree_t *t,		// I - Tree to parse
                float  *y,		// IO - Y position
                int    *page,		// IO - Page #
                int    *heading,		// IO - Heading #
-	       tree_t *chap)		// I - Chapter heading
+	       hdTree *chap)		// I - Chapter heading
 {
   DEBUG_printf(("parse_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
                 t, left, right, bottom, top, *y, *page, *heading, chap));
@@ -1493,7 +1671,7 @@ parse_contents(tree_t *t,		// I - Tree to parse
 
 
 static void
-parse_doc(tree_t *t,		// I - Tree to parse
+parse_doc(hdTree *t,		// I - Tree to parse
           float  *left,		// I - Left margin
           float  *right,	// I - Printable width
           float  *bottom,	// I - Bottom margin
@@ -1501,11 +1679,11 @@ parse_doc(tree_t *t,		// I - Tree to parse
           float  *x,		// IO - X position
           float  *y,		// IO - Y position
           int    *page,		// IO - Page #
-	  tree_t *cpara,	// I - Current paragraph
+	  hdTree *cpara,	// I - Current paragraph
 	  int    *needspace)	// I - Need whitespace before this element
 {
   int		i;		// Looping var
-  tree_t	*para,		// Phoney paragraph tree entry
+  hdTree	*para,		// Phoney paragraph tree entry
 		*temp;		// Paragraph entry
   var_t		*var;		// Variable entry
   uchar		*name;		// ID name
@@ -2074,7 +2252,7 @@ parse_doc(tree_t *t,		// I - Tree to parse
 
 
 static void
-parse_heading(tree_t *t,	// I - Tree to parse
+parse_heading(hdTree *t,	// I - Tree to parse
               float  left,	// I - Left margin
               float  right,	// I - Printable width
               float  bottom,	// I - Bottom margin
@@ -2185,7 +2363,7 @@ parse_heading(tree_t *t,	// I - Tree to parse
 
 
 static void
-parse_paragraph(tree_t *t,	// I - Tree to parse
+parse_paragraph(hdTree *t,	// I - Tree to parse
         	float  left,	// I - Left margin
         	float  right,	// I - Printable width
         	float  bottom,	// I - Bottom margin
@@ -2196,7 +2374,7 @@ parse_paragraph(tree_t *t,	// I - Tree to parse
         	int    needspace)// I - Need whitespace?
 {
   int		whitespace;	// Non-zero if a fragment ends in whitespace
-  tree_t	*flat,
+  hdTree	*flat,
 		*start,
 		*end,
 		*prev,
@@ -2212,7 +2390,7 @@ parse_paragraph(tree_t *t,	// I - Tree to parse
   float		format_width, image_y, image_left, image_right;
   float		char_spacing;
   int		num_chars;
-  render_t	*r;
+  hdRenderNode	*r;
   uchar		*align,
 		*hspace,
 		*vspace,
@@ -2221,7 +2399,7 @@ parse_paragraph(tree_t *t,	// I - Tree to parse
   float		rgb[3];
   uchar		line[10240],
 		*lineptr;
-  tree_t	*linetype;
+  hdTree	*linetype;
   float		linex,
 		linewidth;
   int		firstline;
@@ -2903,7 +3081,7 @@ parse_paragraph(tree_t *t,	// I - Tree to parse
 
 
 static void
-parse_pre(tree_t *t,		// I - Tree to parse
+parse_pre(hdTree *t,		// I - Tree to parse
           float  left,		// I - Left margin
           float  right,		// I - Printable width
           float  bottom,	// I - Bottom margin
@@ -2913,7 +3091,7 @@ parse_pre(tree_t *t,		// I - Tree to parse
           int    *page,		// IO - Page #
           int    needspace)	// I - Need whitespace?
 {
-  tree_t	*flat, *next;
+  hdTree	*flat, *next;
   uchar		*link,
 		line[10240],
 		*lineptr,
@@ -2921,7 +3099,7 @@ parse_pre(tree_t *t,		// I - Tree to parse
   int		col;
   float		width,
 		rgb[3];
-  render_t	*r;
+  hdRenderNode	*r;
 
 
   REF(right);
@@ -3106,7 +3284,7 @@ parse_pre(tree_t *t,		// I - Tree to parse
 
 
 static void
-parse_table(tree_t *t,		// I - Tree to parse
+parse_table(hdTree *t,		// I - Tree to parse
             float  left,	// I - Left margin
             float  right,	// I - Printable width
             float  bottom,	// I - Bottom margin
@@ -3159,7 +3337,7 @@ parse_table(tree_t *t,		// I - Tree to parse
   int		row_page, temp_page;
   uchar		*var,
 		*height_var;			// Row HEIGHT variable
-  tree_t	*temprow,
+  hdTree	*temprow,
 		*tempcol,
 		*tempnext,
 		***cells;
@@ -3172,9 +3350,9 @@ parse_table(tree_t *t,		// I - Tree to parse
 		cell_endy[MAX_COLUMNS],		// Row or each cell
 		cell_height[MAX_COLUMNS],	// Height of each cell in a row
 		span_heights[MAX_COLUMNS];	// Height of spans
-  render_t	*cell_bg[MAX_COLUMNS];		// Background rectangles
-  render_t	*cell_start[MAX_COLUMNS];	// Start of the content for a cell in the row
-  render_t	*cell_end[MAX_COLUMNS];		// End of the content for a cell in a row
+  hdRenderNode	*cell_bg[MAX_COLUMNS];		// Background rectangles
+  hdRenderNode	*cell_start[MAX_COLUMNS];	// Start of the content for a cell in the row
+  hdRenderNode	*cell_end[MAX_COLUMNS];		// End of the content for a cell in a row
   uchar		*bgcolor;
   float		rgb[3],
 		bgrgb[3];
@@ -3295,11 +3473,11 @@ parse_table(tree_t *t,		// I - Tree to parse
         alloc_rows += ALLOC_ROWS;
 
         if (alloc_rows == ALLOC_ROWS)
-	  cells = (tree_t ***)malloc(sizeof(tree_t **) * alloc_rows);
+	  cells = (hdTree ***)malloc(sizeof(hdTree **) * alloc_rows);
 	else
-	  cells = (tree_t ***)realloc(cells, sizeof(tree_t **) * alloc_rows);
+	  cells = (hdTree ***)realloc(cells, sizeof(hdTree **) * alloc_rows);
 
-        if (cells == (tree_t ***)0)
+        if (cells == (hdTree ***)0)
 	{
 	  progress_error(HD_ERROR_OUT_OF_MEMORY,
                          "Unable to allocate memory for table!");
@@ -3307,7 +3485,7 @@ parse_table(tree_t *t,		// I - Tree to parse
 	}
       }	
 
-      if ((cells[num_rows] = (tree_t **)calloc(sizeof(tree_t *), MAX_COLUMNS)) == NULL)
+      if ((cells[num_rows] = (hdTree **)calloc(sizeof(hdTree *), MAX_COLUMNS)) == NULL)
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
                        "Unable to allocate memory for table!");
@@ -3863,7 +4041,7 @@ parse_table(tree_t *t,		// I - Tree to parse
 	else
 	  cell_bg[col] = NULL;
 
-	cell_start[col] = pages[*page].end;
+	cell_start[col] = pages[*page].last;
 	cell_page[col]  = temp_page;
 	cell_y[col]     = temp_y;
 
@@ -3887,10 +4065,10 @@ parse_table(tree_t *t,		// I - Tree to parse
         cell_endpage[col] = temp_page;
         cell_endy[col]    = temp_y;
         cell_height[col]  = *y - cellpadding - temp_y;
-        cell_end[col]     = pages[*page].end;
+        cell_end[col]     = pages[*page].last;
 
         if (cell_start[col] == NULL)
-	  cell_start[col] = pages[*page].start;
+	  cell_start[col] = pages[*page].first;
 
         DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n",
 	              row, col, *y - cellpadding, temp_y, cell_height[col]));
@@ -3991,7 +4169,7 @@ parse_table(tree_t *t,		// I - Tree to parse
 
       for (col = 0; col < num_cols; col += colspan + 1)
       {
-        render_t	*p;
+        hdRenderNode	*p;
         float		delta_y;
 
 
@@ -4174,7 +4352,7 @@ parse_table(tree_t *t,		// I - Tree to parse
 	  if (bgcolor != NULL)
             add_render(temp_page, RENDER_BOX, border_left, bottom,
                        width + border, top - bottom, bgrgb,
-		       pages[temp_page].start);
+		       pages[temp_page].first);
         }
 
         if (border > 0.0f)
@@ -4199,7 +4377,7 @@ parse_table(tree_t *t,		// I - Tree to parse
         if (bgcolor != NULL)
           add_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
 	             width + border, top - row_y, bgrgb,
-		     pages[cell_endpage[col]].start);
+		     pages[cell_endpage[col]].first);
       }
       else
       {
@@ -4272,7 +4450,7 @@ parse_table(tree_t *t,		// I - Tree to parse
 
 
 static void
-parse_list(tree_t *t,		// I - Tree to parse
+parse_list(hdTree *t,		// I - Tree to parse
            float  *left,	// I - Left margin
            float  *right,	// I - Printable width
            float  *bottom,	// I - Bottom margin
@@ -4286,7 +4464,7 @@ parse_list(tree_t *t,		// I - Tree to parse
   uchar		*value;		// VALUE= variable
   int		typeface;	// Typeface of list number
   float		width;		// Width of list number
-  render_t	*r;		// Render primitive
+  hdRenderNode	*r;		// Render primitive
   int		oldpage;	// Old page value
   float		oldy;		// Old Y value
   float		tempx;		// Temporary X value
@@ -4305,7 +4483,7 @@ parse_list(tree_t *t,		// I - Tree to parse
 
   oldy    = *y;
   oldpage = *page;
-  r       = pages[*page].end;
+  r       = pages[*page].last;
   tempx   = *x;
 
   if (t->indent == 0)
@@ -4322,7 +4500,7 @@ parse_list(tree_t *t,		// I - Tree to parse
   if (*page != oldpage)
   {
     // First see if anything was added to the old page...
-    if ((r != NULL && r->next == NULL) || pages[oldpage].end == NULL)
+    if ((r != NULL && r->next == NULL) || pages[oldpage].last == NULL)
     {
       // No, put the symbol on the next page...
       oldpage = *page;
@@ -4385,7 +4563,7 @@ parse_list(tree_t *t,		// I - Tree to parse
 
 
 static void
-init_list(tree_t *t)		// I - List entry
+init_list(hdTree *t)		// I - List entry
 {
   uchar		*type,		// TYPE= variable
 		*value;		// VALUE= variable
@@ -4429,7 +4607,7 @@ init_list(tree_t *t)		// I - List entry
 
 
 static void
-parse_comment(tree_t *t,	// I - Tree to parse
+parse_comment(hdTree *t,	// I - Tree to parse
               float  *left,	// I - Left margin
               float  *right,	// I - Printable width
               float  *bottom,	// I - Bottom margin
@@ -4437,7 +4615,7 @@ parse_comment(tree_t *t,	// I - Tree to parse
               float  *x,	// IO - X position
               float  *y,	// IO - Y position
               int    *page,	// IO - Page #
-	      tree_t *para,	// I - Current paragraph
+	      hdTree *para,	// I - Current paragraph
 	      int    needspace)	// I - Need whitespace?
 {
   const char	*comment;	// Comment text
@@ -5323,117 +5501,6 @@ parse_comment(tree_t *t,	// I - Tree to parse
 }
 
 
-//
- * 'add_render()' - Allocate memory for a new rendering structure.
-
-
-static render_t *		// O - New render structure
-add_render(int      page,	// I - Page number (0-n)
-           int      type,	// I - Type of render primitive
-           float    x,		// I - Horizontal position
-           float    y,		// I - Vertical position
-           float    width,	// I - Width
-           float    height,	// I - Height
-           void     *data,	// I - Data
-	   render_t *insert)	// I - Insert before here...
-{
-  render_t		*r;	// New render primitive
-  static render_t	dummy;	// Dummy var for errors...
-
-
-  DEBUG_printf(("add_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%d)\n",
-                page, type, x, y, width, height, data, insert));
-
-  check_pages(page);
-
-  if (page < 0 || page >= alloc_pages)
-  {
-    progress_error(HD_ERROR_INTERNAL_ERROR,
-                   "Page number (%d) out of range (1...%d)\n", page + 1,
-                   alloc_pages);
-    memset(&dummy, 0, sizeof(dummy));
-    return (&dummy);
-  }
-
-  if ((type != RENDER_TEXT && type != RENDER_LINK) || data == NULL)
-    r = (render_t *)calloc(sizeof(render_t), 1);
-  else
-    r = (render_t *)calloc(sizeof(render_t) + strlen(data), 1);
-
-  if (r == NULL)
-  {
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory on page %s\n", page + 1);
-    memset(&dummy, 0, sizeof(dummy));
-    return (&dummy);
-  }
-
-  r->type   = type;
-  r->x      = x;
-  r->y      = y;
-  r->width  = width;
-  r->height = height;
-
-  switch (type)
-  {
-    case RENDER_TEXT :
-        if (data == NULL)
-        {
-          free(r);
-          return (NULL);
-        }
-        strcpy(r->data.text.buffer, data);
-        get_color(_htmlTextColor, r->data.text.rgb);
-        break;
-    case RENDER_IMAGE :
-        if (data == NULL)
-        {
-          free(r);
-          return (NULL);
-        }
-        r->data.image = (image_t *)data;
-        break;
-    case RENDER_BOX :
-        memcpy(r->data.box, data, sizeof(r->data.box));
-        break;
-    case RENDER_LINK :
-        if (data == NULL)
-        {
-          free(r);
-          return (NULL);
-        }
-        strcpy(r->data.link, data);
-        break;
-  }
-
-  if (insert)
-  {
-    if (insert->prev)
-      insert->prev->next = r;
-    else
-      pages[page].start = r;
-
-    r->prev      = insert->prev;
-    r->next      = insert;
-    insert->prev = r;
-  }
-  else
-  {
-    if (pages[page].end != NULL)
-      pages[page].end->next = r;
-    else
-      pages[page].start = r;
-
-    r->next         = NULL;
-    r->prev         = pages[page].end;
-    pages[page].end = r;
-  }
-
-  DEBUG_printf(("    returning r = %p\n", r));
-
-  return (r);
-}
-
 
 //
  * 'check_pages()' - Allocate memory for more pages as needed...
@@ -5514,114 +5581,15 @@ check_pages(int page)	// I - Current page
 
 
 //
- * 'add_link()' - Add a named link...
-
-
-static void
-add_link(uchar *name,		// I - Name of link
-         int   page,		// I - Page #
-         int   top)		// I - Y position
-{
-  hdRenderLink	*temp;		// New name
-
-
-  if (name == NULL)
-    return;
-
-  if ((temp = find_link(name)) != NULL)
-  {
-    temp->page = page - 1;
-    temp->top  = top;
-  }
-  else
-  {
-    // See if we need to allocate memory for links...
-    if (num_links >= alloc_links)
-    {
-      // Allocate more links...
-      alloc_links += ALLOC_LINKS;
-
-      if (num_links == 0)
-        temp = (hdRenderLink *)malloc(sizeof(hdRenderLink) * alloc_links);
-      else
-        temp = (hdRenderLink *)realloc(links, sizeof(hdRenderLink) * alloc_links);
-
-      if (temp == NULL)
-      {
-	progress_error(HD_ERROR_OUT_OF_MEMORY,
-                       "Unable to allocate memory for %d links - %s",
-	               alloc_links, strerror(errno));
-        alloc_links -= ALLOC_LINKS;
-	return;
-      }
-
-      links = temp;
-    }
-
-    // Add a new link...
-    temp = links + num_links;
-    num_links ++;
-
-    strncpy(temp->name, name, sizeof(temp->name) - 1);
-    temp->name[sizeof(temp->name) - 1] = '\0';
-    temp->page = page - 1;
-    temp->top  = top;
-
-    if (num_links > 1)
-      qsort(links, num_links, sizeof(hdRenderLink),
-            (compare_func_t)compare_links);
-  }
-}
-
-
-//
- * 'find_link()' - Find a named link...
-
-
-static hdRenderLink *
-find_link(uchar *name)	// I - Name to find
-{
-  hdRenderLink	key,	// Search key
-		*match;	// Matching name entry
-
-
-  if (name == NULL || num_links == 0)
-    return (NULL);
-
-  if (name[0] == '#')
-    name ++;
-
-  strncpy(key.name, name, sizeof(key.name) - 1);
-  key.name[sizeof(key.name) - 1] = '\0';
-  match = (hdRenderLink *)bsearch(&key, links, num_links, sizeof(hdRenderLink),
-                            (compare_func_t)compare_links);
-
-  return (match);
-}
-
-
-//
- * 'compare_links()' - Compare two named links.
-
-
-static int			// O - 0 = equal, -1 or 1 = not equal
-compare_links(hdRenderLink *n1,	// I - First name
-              hdRenderLink *n2)	// I - Second name
-{
-  return (strcasecmp(n1->name, n2->name));
-}
-
-
-//
  * 'copy_tree()' - Copy a markup tree...
 
 
 static void
-copy_tree(tree_t *parent,	// I - Source tree
-          tree_t *t)		// I - Destination tree
+copy_tree(hdTree *parent,	// I - Source tree
+          hdTree *t)		// I - Destination tree
 {
   int		i;		// I - Looping var
-  tree_t	*temp;		// I - New tree entry
+  hdTree	*temp;		// I - New tree entry
   var_t		*var;		// I - Current markup variable
 
 
@@ -5653,468 +5621,15 @@ copy_tree(tree_t *parent,	// I - Source tree
 }
 
 
-#ifdef TABLE_DEBUG
-#  undef DEBUG_printf
-#  undef DEBUG_puts
-#  define DEBUG_printf(x) printf x
-#  define DEBUG_puts(x) puts(x)
-#endif // TABLE_DEBUG
-
-//
-// 'get_cell_size()' - Compute the minimum width of a cell.
-//
-
-static float				// O - Required width of cell
-get_cell_size(tree_t *t,		// I - Cell
-              float  left,		// I - Left margin
-	      float  right,		// I - Right margin
-	      float  *minwidth,		// O - Minimum width
-	      float  *prefwidth,	// O - Preferred width
-	      float  *minheight)	// O - Minimum height
-{
-  tree_t	*temp,			// Current tree entry
-		*next;			// Next tree entry
-  uchar		*var;			// Attribute value
-  int		nowrap;			// NOWRAP attribute?
-  float		width,			// Width of cell
-		frag_width,		// Fragment required width
-		frag_height,		// Fragment height
-		frag_pref,		// Fragment preferred width
-		frag_min,		// Fragment minimum width
-		minh,			// Local minimum height
-		minw,			// Local minimum width
-		prefw;			// Local preferred width
-
-
-  DEBUG_printf(("get_cell_size(%p, %.1f, %.1f, %p, %p, %p)\n",
-                t, left, right, minwidth, prefwidth, minheight));
-
-  // First see if the width has been specified for this cell...
-  if ((var = htmlGetVariable(t, "WIDTH")) != NULL &&
-      (var[strlen(var) - 1] != '%' || (right - left) > 0.0f))
-  {
-    // Yes, use it!
-    if (var[strlen(var) - 1] == '%')
-      width = (right - left) * atoi(var) * 0.01f;
-    else
-      width = atoi(var) * css->print_width / _htmlBrowserWidth;
-  }
-  else
-    width = 0.0f;
-
-  minw  = 0.0f;
-  prefw = 0.0f;
-
-  // Then the height...
-  if ((var = htmlGetVariable(t, "HEIGHT")) != NULL)
-  {
-    // Yes, use it!
-    if (var[strlen(var) - 1] == '%')
-      minh = css->print_length * atoi(var) * 0.01f;
-    else
-      minh = atoi(var) * css->print_width / _htmlBrowserWidth;
-  }
-  else
-    minh = 0.0f;
-
-  nowrap = (htmlGetVariable(t, "NOWRAP") != NULL);
-
-  DEBUG_printf(("nowrap = %d\n", nowrap));
-
-  for (temp = t->child, frag_width = 0.0f, frag_pref = 0.0f;
-       temp != NULL;
-       temp = next)
-  {
-    // Point to next markup, if any...
-    next = temp->child;
-
-    switch (temp->element)
-    {
-      case HD_ELEMENT_TABLE :
-          // For nested tables, compute the width of the table.
-          frag_width = get_table_size(temp, left, right, &frag_min,
-	                              &frag_pref, &frag_height);
-
-	  if (frag_pref > prefw)
-	    prefw = frag_pref;
-
-	  if (frag_min > minw)
-	  {
-	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for nested table...\n",
-	                  frag_min, minw));
-	    minw = frag_min;
-	  }
-
-	  frag_width = 0.0f;
-	  frag_pref  = 0.0f;
-	  frag_min   = 0.0f;
-	  next       = NULL;
-	  break;
-
-      case HD_ELEMENT_IMG :
-          // Update the image width as needed...
-	  if (temp->element == HD_ELEMENT_IMG)
-	    update_image_size(temp);
-      case HD_ELEMENT_NONE :
-      case HD_ELEMENT_SPACER :
-          frag_height = temp->height;
-
-#ifdef TABLE_DEBUG
-          if (temp->element == HD_ELEMENT_NONE)
-	    printf("FRAG(%s) = %.1f\n", temp->data, temp->width);
-	  else if (temp->element == HD_ELEMENT_SPACER)
-	    printf("SPACER = %.1f\n", temp->width);
-	  else
-	    printf("IMG(%s) = %.1f\n", htmlGetVariable(temp, "SRC"),
-	           temp->width);
-#endif // TABLE_DEBUG
-
-          // Handle min/preferred widths separately...
-          if (temp->width > minw)
-	  {
-	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for fragment...\n",
-	                  temp->width, minw));
-	    minw = temp->width;
-	  }
-
-          if (temp->preformatted && temp->data != NULL &&
-              temp->data[strlen(temp->data) - 1] == '\n')
-          {
-	    // End of a line - check preferred width...
-	    frag_pref += temp->width + 1;
-
-            if (frag_pref > prefw)
-              prefw = frag_pref;
-
-            if (temp->preformatted && frag_pref > minw)
-	    {
-	      DEBUG_printf(("Setting minw to %.1f (was %.1f) for preformatted...\n",
-	                    frag_pref, minw));
-              minw = frag_pref;
-	    }
-
-	    frag_pref = 0.0f;
-          }
-          else if (temp->data != NULL)
-	    frag_pref += temp->width + 1;
-	  else
-	    frag_pref += temp->width;
-
-          if ((temp->preformatted && temp->data != NULL &&
-               temp->data[strlen(temp->data) - 1] == '\n') ||
-	      (!temp->preformatted && temp->data != NULL &&
-	       (isspace(temp->data[0]) ||
-		isspace(temp->data[strlen(temp->data) - 1]))))
-	  {
-	    // Check required width...
-            frag_width += temp->width + 1;
-
-            if (frag_width > minw)
-	    {
-	      DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
-	                    frag_width, minw));
-              minw = frag_width;
-	    }
-
-            frag_width = 0.0f;
-	  }
-	  else if (temp->data != NULL)
-            frag_width += temp->width + 1;
-	  else
-	    frag_width += temp->width;
-	  break;
-
-      case HD_ELEMENT_ADDRESS :
-      case HD_ELEMENT_BLOCKQUOTE :
-      case HD_ELEMENT_BR :
-      case HD_ELEMENT_CENTER :
-      case HD_ELEMENT_DD :
-      case HD_ELEMENT_DIV :
-      case HD_ELEMENT_DT :
-      case HD_ELEMENT_H1 :
-      case HD_ELEMENT_H2 :
-      case HD_ELEMENT_H3 :
-      case HD_ELEMENT_H4 :
-      case HD_ELEMENT_H5 :
-      case HD_ELEMENT_H6 :
-      case HD_ELEMENT_HR :
-      case HD_ELEMENT_LI :
-      case HD_ELEMENT_P :
-      case HD_ELEMENT_PRE :
-          DEBUG_printf(("BREAK at %.1f\n", frag_pref));
-
-	  if (frag_pref > prefw)
-	    prefw = frag_pref;
-
-	  if (nowrap && frag_pref > minw)
-	  {
-	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for break...\n",
-	                  frag_pref, minw));
-	    minw = frag_pref;
-	  }
-
-          frag_pref   = 0.0f;
-	  frag_width  = 0.0f;
-          frag_height = 0.0f;
-
-      default :
-	  break;
-    }
-
-    // Update minimum height...
-    if (frag_height > minh)
-      minh = frag_height;
-
-    // Update next pointer as needed...
-    if (next == NULL)
-      next = temp->next;
-
-    if (next == NULL)
-    {
-      // This code is almost funny if you say it fast... :)
-      for (next = temp->parent; next != NULL && next != t; next = next->parent)
-	if (next->next != NULL)
-	  break;
-
-      if (next == t)
-	next = NULL;
-      else if (next)
-	next = next->next;
-    }
-  }
-
-  // Check the last fragment's width...
-  if (frag_pref > prefw)
-    prefw = frag_pref;
-
-  // Handle the "NOWRAP" option...
-  if (nowrap && prefw > minw)
-  {
-    DEBUG_printf(("Setting minw to %.1f (was %.1f) for NOWRAP...\n",
-	          prefw, minw));
-    minw = prefw;
-  }
-
-  // Return the required, minimum, and preferred size of the cell...
-  *minwidth  = minw;
-  *prefwidth = prefw;
-  *minheight = minh;
-
-  DEBUG_printf(("get_cell_size(): width=%.1f, minw=%.1f, prefw=%.1f, minh=%.1f\n",
-                width, minw, prefw, minh));
-
-  return (width);
-}
-
-
-//
-// 'get_table_size()' - Compute the minimum width of a table.
-//
-
-static float				// O - Minimum width of table
-get_table_size(tree_t *t,		// I - Table
-               float  left,		// I - Left margin
-	       float  right,		// I - Right margin
-	       float  *minwidth,	// O - Minimum width
-	       float  *prefwidth,	// O - Preferred width
-	       float  *minheight)	// O - Minimum height
-{
-  tree_t	*temp,			// Current tree entry
-		*next;			// Next tree entry
-  uchar		*var;			// Attribute value
-  float		width,			// Required width of table
-		minw,			// Minimum width of table
-		minh,			// Minimum height of table
-		prefw,			// Preferred width of table
-		cell_width,		// Cell required width
-		cell_pref,		// Cell preferred width
-		cell_min,		// Cell minimum width
-		cell_height,		// Cell minimum height
-		row_width,		// Row required width
-		row_pref,		// Row preferred width
-		row_min,		// Row minimum width
-		row_height,		// Row minimum height
-		border,			// Border around cells
-		cellpadding,		// Padding inside cells
-		cellspacing;		// Spacing around cells
-  int		columns,		// Current number of columns
-		max_columns,		// Maximum columns
-		rows;			// Number of rows
-
-
-  DEBUG_printf(("get_table_size(%p, %.1f, %.1f, %p, %p, %p)\n",
-                t, left, right, minwidth, prefwidth, minheight));
-
-  // First see if the width has been specified for this table...
-  if ((var = htmlGetVariable(t, "WIDTH")) != NULL &&
-      (var[strlen(var) - 1] != '%' || (right - left) > 0.0f))
-  {
-    // Yes, use it!
-    if (var[strlen(var) - 1] == '%')
-      width = (right - left) * atoi(var) * 0.01f;
-    else
-      width = atoi(var) * css->print_width / _htmlBrowserWidth;
-  }
-  else
-    width = 0.0f;
-
-  minw  = 0.0f;
-  prefw = 0.0f;
-
-  // Then the height...
-  if ((var = htmlGetVariable(t, "HEIGHT")) != NULL)
-  {
-    // Yes, use it!
-    if (var[strlen(var) - 1] == '%')
-      minh = css->print_length * atoi(var) * 0.01f;
-    else
-      minh = atoi(var) * css->print_width / _htmlBrowserWidth;
-  }
-  else
-    minh = 0.0f;
-
-  // Update the size as needed...
-  for (temp = t->child, row_width = 0.0f, row_min = 0.0f, row_pref = 0.0f,
-	   row_height = 0.0f, columns = 0, rows = 0, max_columns = 0;
-       temp != NULL;
-       temp = next)
-  {
-    // Point to next markup, if any...
-    next = temp->child;
-
-    // Start a new row or add the cell width as needed...
-    if (temp->element == HD_ELEMENT_TR)
-    {
-      minh += row_height;
-
-      row_width  = 0.0f;
-      row_pref   = 0.0f;
-      row_min    = 0.0f;
-      row_height = 0.0f;
-      rows ++;
-      columns = 0;
-    }
-    else if (temp->element == HD_ELEMENT_TD || temp->element == HD_ELEMENT_TH)
-    {
-      // Update columns...
-      columns ++;
-      if (columns > max_columns)
-	max_columns = columns;
-
-      // Get widths of cell...
-      cell_width = get_cell_size(temp, left, right, &cell_min, &cell_pref,
-                                 &cell_height);
-
-      // Update row widths...
-      row_width += cell_width;
-      row_pref  += cell_pref;
-      row_min   += cell_min;
-
-      if (cell_height > row_height)
-	row_height = cell_height;
-
-      // Check current row widths against table...
-      if (row_pref > prefw)
-	prefw = row_pref;
-
-      if (row_min > minw)
-	minw = row_min;
-    }
-
-    // Update next pointer as needed...
-    if (next == NULL)
-      next = temp->next;
-
-    if (next == NULL)
-    {
-      // This code is almost funny if you say it fast... :)
-      for (next = temp->parent; next != NULL && next != t; next = next->parent)
-	if (next->next != NULL)
-	  break;
-
-      if (next == t)
-	next = NULL;
-      else if (next)
-	next = next->next;
-    }
-  }
-
-  // Make sure last row is counted in min height calcs.
-  minh += row_height;
-
-  // Add room for spacing and padding...
-  if ((var = htmlGetVariable(t, "CELLPADDING")) != NULL)
-    cellpadding = atoi(var);
-  else
-    cellpadding = 1.0f;
-
-  if ((var = htmlGetVariable(t, "CELLSPACING")) != NULL)
-    cellspacing = atoi(var);
-  else
-    cellspacing = 0.0f;
-
-  if ((var = htmlGetVariable(t, "BORDER")) != NULL)
-  {
-    if ((border = atof(var)) == 0.0 && var[0] != '0')
-      border = 1.0f;
-
-    cellpadding += border;
-  }
-  else
-    border = 0.0f;
-
-  if (border == 0.0f && cellpadding > 0.0f)
-  {
-   //
-    * Ah, the strange table formatting nightmare that is HTML.
-    * Netscape and MSIE assign an invisible border width of 1
-    * pixel if no border is specified...
-   
-
-    cellpadding += 1.0f;
-  }
-
-  cellspacing *= css->print_width / _htmlBrowserWidth;
-  cellpadding *= css->print_width / _htmlBrowserWidth;
-
-  DEBUG_printf(("ADDING %.1f for table space...\n",
-                max_columns * (2 * cellpadding + cellspacing) - cellspacing));
-
-  if (width > 0.0f)
-    width += max_columns * (2 * cellpadding + cellspacing) - cellspacing;
-
-  minw  += max_columns * (2 * cellpadding + cellspacing) - cellspacing;
-  prefw += max_columns * (2 * cellpadding + cellspacing) - cellspacing;
-  minh  += rows * (2 * cellpadding + cellspacing) - cellspacing;
-
-  // Return the required, minimum, and preferred size of the table...
-  *minwidth  = minw;
-  *prefwidth = prefw;
-  *minheight = minh;
-
-  DEBUG_printf(("get_table_size(): width=%.1f, minw=%.1f, prefw=%.1f, minh=%.1f\n",
-                width, minw, prefw, minh));
-
-  return (width);
-}
-
-#ifdef TABLE_DEBUG
-#  undef DEBUG_printf
-#  undef DEBUG_puts
-#  define DEBUG_printf(x)
-#  define DEBUG_puts(x)
-#endif // TABLE_DEBUG
-
-
 //
  * 'flatten_tree()' - Flatten an HTML tree to only include the text, image,
  *                    link, and break markups.
 
 
-static tree_t *			// O - Flattened markup tree
-flatten_tree(tree_t *t)		// I - Markup tree to flatten
+static hdTree *			// O - Flattened markup tree
+flatten_tree(hdTree *t)		// I - Markup tree to flatten
 {
-  tree_t	*temp,		// New tree node
+  hdTree	*temp,		// New tree node
 		*flat;		// Flattened tree
 
 
@@ -6130,8 +5645,8 @@ flatten_tree(tree_t *t)		// I - Markup tree to flatten
       case HD_ELEMENT_BR :
       case HD_ELEMENT_SPACER :
       case HD_ELEMENT_IMG :
-	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
-	  memcpy(temp, t, sizeof(tree_t));
+	  temp = (hdTree *)calloc(sizeof(hdTree), 1);
+	  memcpy(temp, t, sizeof(hdTree));
 	  temp->parent = NULL;
 	  temp->child  = NULL;
 	  temp->prev   = flat;
@@ -6147,8 +5662,8 @@ flatten_tree(tree_t *t)		// I - Markup tree to flatten
       case HD_ELEMENT_A :
           if (htmlGetVariable(t, "NAME") != NULL)
           {
-	    temp = (tree_t *)calloc(sizeof(tree_t), 1);
-	    memcpy(temp, t, sizeof(tree_t));
+	    temp = (hdTree *)calloc(sizeof(hdTree), 1);
+	    memcpy(temp, t, sizeof(hdTree));
 	    temp->parent = NULL;
 	    temp->child  = NULL;
 	    temp->prev   = flat;
@@ -6177,7 +5692,7 @@ flatten_tree(tree_t *t)		// I - Markup tree to flatten
       case HD_ELEMENT_DT :
       case HD_ELEMENT_TR :
       case HD_ELEMENT_CAPTION :
-	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
+	  temp = (hdTree *)calloc(sizeof(hdTree), 1);
 	  temp->element = HD_ELEMENT_BR;
 	  temp->parent = NULL;
 	  temp->child  = NULL;
@@ -6227,7 +5742,7 @@ flatten_tree(tree_t *t)		// I - Markup tree to flatten
 
 
 static void
-update_image_size(tree_t *t)	// I - Tree entry
+update_image_size(hdTree *t)	// I - Tree entry
 {
   image_t	*img;		// Image file
   uchar		*width,		// Width string
@@ -6316,7 +5831,7 @@ get_width(uchar *s,		// I - String to scan
 
 
 static uchar *		// O - Title string
-get_title(tree_t *doc)	// I - Document
+get_title(hdTree *doc)	// I - Document
 {
   uchar	*temp;
 
@@ -6337,5 +5852,5 @@ get_title(tree_t *doc)	// I - Document
 
 
 //
-// End of "$Id: render.cxx,v 1.6 2002/03/17 19:24:52 mike Exp $".
+// End of "$Id: render.cxx,v 1.7 2002/03/18 00:03:23 mike Exp $".
 //

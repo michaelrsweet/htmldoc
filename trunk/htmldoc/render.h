@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.6 2002/03/17 19:24:53 mike Exp $"
+// "$Id: render.h,v 1.7 2002/03/18 00:03:23 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -86,7 +86,7 @@ struct hdRenderNode		//// Render node structure
   }	data;
 
   hdRenderNode(hdRenderType t, float xx, float yy, float w, float h,
-               const char *s = (const char *)0, int alloc_s = 0);
+               const void *d = (const void *)0, int alloc_d = 0);
   ~hdRenderNode();
 };
 
@@ -94,6 +94,8 @@ struct hdRenderPage		//// Page render information
 {
   hdRenderNode	*first,			// First node on page
 		*last;			// Last node on page
+
+  int		types;			// Bitwise OR of all nodes
   
   int		width,			// Width of page in points
 		length,			// Length of page in points
@@ -219,8 +221,8 @@ class hdRender
 
   void		parse_block(hdTree *t, hdMargin *m, float *x, float *y,
 		            int *page);
-  void		parse_comment(hdTree *t, hdMargin *m, float *x, float *y,
-		              int *page, hdTree *para);
+  int		parse_comment(hdTree *t, hdMargin *m, float *x, float *y,
+		              int *page);
   void		parse_contents(hdTree *t, hdMargin *m, float *y, int *page,
 		               int *heading, hdTree *chap);
   void		parse_doc(hdTree *t, hdMargin *m, float *x, float *y, int *page);
@@ -237,15 +239,15 @@ class hdRender
 
   void		add_heading(hdTree *node, int page, int top);
 
-  void		add_link(char *name, int page, int top);
-  hdRenderLink	*find_link(char *name);
+  void		add_link(const char *name, int page, int top);
+  hdRenderLink	*find_link(const char *name);
   static int	compare_links(hdRenderLink *n1, hdRenderLink *n2);
 
   void		check_pages(int page);
 
-  hdRenderNode	*add_render(int page, int type, float x, float y,
-		            float width, float height, void *data,
-			    int insert = 0);
+  hdRenderNode	*add_render(int page, hdRenderType type, float x, float y,
+		            float width, float height, const void *data,
+			    int alloc_data = 0, int insert = 0);
 
   void		get_color(const char *c, float *rgb, int defblack = 0);
   float		get_cell_size(hdTree *t, float left, float right,
@@ -431,5 +433,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.6 2002/03/17 19:24:53 mike Exp $".
+// End of "$Id: render.h,v 1.7 2002/03/18 00:03:23 mike Exp $".
 //
