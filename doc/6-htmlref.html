@@ -35,7 +35,7 @@ stylesheets, or scripting.</B>
 The following HTML elements are recognized by <I>HTMLDOC</I>:
 
 <CENTER>
-<TABLE BORDER="1">
+<TABLE BORDER="1" CELLPADDING="5">
 <TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
 <TR><TD>!DOCTYPE</TD><TD ALIGN="CENTER">3.0</TD><TD ALIGN="CENTER">Yes</TD><TD>DTD is ignored</TD></TR>
 <TR><TD>A</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#LINKS">See Below</A></TD></TR>
@@ -126,93 +126,93 @@ control the current media options:</P>
 
 <DL>
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- FOOTER LEFT "foo" --&gt;</CODE>
 	<DD>Sets the left footer text; the test is applied to
 	the current page if empty, or the next page otherwise.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- FOOTER CENTER "foo" --&gt;</CODE>
 	<DD>Sets the center footer text; the test is applied to
 	the current page if empty, or the next page otherwise.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- FOOTER RIGHT "foo" --&gt;</CODE>
 	<DD>Sets the right footer text; the test is applied to
 	the current page if empty, or the next page otherwise.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- HALF PAGE --&gt;</CODE>
 	<DD>Break to the next half page.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- HEADER LEFT "foo" --&gt;</CODE>
 	<DD>Sets the left header text; the test is applied to
 	the current page if empty, or the next page otherwise.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- HEADER CENTER "foo" --&gt;</CODE>
 	<DD>Sets the center header text; the test is applied to
 	the current page if empty, or the next page otherwise.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- HEADER RIGHT "foo" --&gt;</CODE>
 	<DD>Sets the right header text; the test is applied to
 	the current page if empty, or the next page otherwise.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA BOTTOM nnn --&gt;</CODE>
 	<DD>Sets the bottom margin of the page. The "nnn" string can
 	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
 	Breaks to a new page if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA COLOR "foo" --&gt;</CODE>
 	<DD>Sets the media color attribute for the page. The
 	"foo" string is any color name that is supported by the
 	printer, e.g. "Blue", "White", etc.  Breaks to a new
 	page or sheet if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA DUPLEX NO --&gt;</CODE>
 	<DD>Chooses single-sided printing for the page; breaks to a
 	new page or sheet if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA DUPLEX YES --&gt;</CODE>
 	<DD>Chooses double-sided printing for the page; breaks to a
 	new sheet if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA LANDSCAPE NO --&gt;</CODE>
 	<DD>Chooses portrait orientation for the page; breaks to a
 	new page if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA LANDSCAPE YES --&gt;</CODE>
 	<DD>Chooses landscape orientation for the page; breaks to a
 	new page if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA LEFT nnn --&gt;</CODE>
 	<DD>Sets the left margin of the page. The "nnn" string can
 	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
 	Breaks to a new page if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA POSITION nnn --&gt;</CODE>
 	<DD>Sets the media position attribute (input tray) for
 	the page. The "nnn" string is an integer that usually
 	specifies the tray number. Breaks to a new page or sheet
 	if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA RIGHT nnn --&gt;</CODE>
 	<DD>Sets the right margin of the page. The "nnn" string can
 	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
 	Breaks to a new page if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA SIZE foo --&gt;</CODE>
 	<DD>Sets the media size to the specified size. The "foo"
 	string can be "Letter", "Legal", "Universal", or "A4"
@@ -220,20 +220,20 @@ control the current media options:</P>
 	sizes, e.g. "8.5x11in"; breaks to a new page or sheet if
 	the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA TOP nnn --&gt;</CODE>
 	<DD>Sets the top margin of the page. The "nnn" string can
 	be any standard measurement value, e.g. 0.5in, 36, 12mm, etc.
 	Breaks to a new page if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- MEDIA TYPE "foo" --&gt;</CODE>
 	<DD>Sets the media type attribute for the page. The
 	"foo" string is any type name that is supported by the
 	printer, e.g. "Plain", "Glossy", etc.  Breaks to a new
 	page or sheet if the current page is already marked.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>&lt;!-- NEED length --&gt;</CODE>
 	<DD>Break if there is less than <CODE>length</CODE>
 	units left on the current page. The <CODE>length</CODE>
@@ -273,7 +273,7 @@ dollar sign (<CODE>$</CODE>):</P>
 	<DT><CODE>CHAPTER</CODE>
 	<DD>Inserts the current chapter heading.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1.5in -->
 	<DT><CODE>$CHAPTERPAGE</CODE>
 	<DT><CODE>$CHAPTERPAGE(format)</CODE>
 	<DD>Inserts the current page number within a chapter or
@@ -282,7 +282,7 @@ dollar sign (<CODE>$</CODE>):</P>
 	uppercase roman numerals, a = lowercase ascii, A =
 	uppercase ascii) for the page numbers.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1.5in -->
 	<DT><CODE>$CHAPTERPAGES</CODE>
 	<DT><CODE>$CHAPTERPAGES(format)</CODE>
 	<DD>Inserts the total page count within a chapter or
@@ -304,7 +304,7 @@ dollar sign (<CODE>$</CODE>):</P>
 	<DD>Inserts the logo image; all other text in the string
 	will be ignored.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1in -->
 	<DT><CODE>$PAGE</CODE>
 	<DT><CODE>$PAGE(format)</CODE>
 	<DD>Inserts the current page number. When a format is
@@ -313,7 +313,7 @@ dollar sign (<CODE>$</CODE>):</P>
 	a = lowercase ascii, A = uppercase ascii) for the page
 	numbers.
 
-	<!-- NEED 2in -->
+	<!-- NEED 1.5in -->
 	<DT><CODE>$PAGES</CODE>
 	<DT><CODE>$PAGES(format)</CODE>
 	<DD>Inserts the total page count. When a format is
@@ -338,7 +338,7 @@ dollar sign (<CODE>$</CODE>):</P>
 Limited typeface specification is currently supported to ensure
 portability across platforms and for older PostScript printers:
 
-<CENTER><TABLE BORDER="1">
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
 <TR><TH>Requested Font</TH><TH>Actual Font</TH></TR>
 <TR><TD>Arial</TD><TD>Helvetica</TD></TR>
 <TR><TD>Courier</TD><TD>Courier</TD></TR>
@@ -410,7 +410,7 @@ the table-of-contents that is generated will show:
 	</UL>
 </UL>
 
-<!-- NEED 6in -->
+<!-- NEED 4in -->
 <H3>Numbered Headings</H3>
 
 When the numbered headings option is enabled, <I>HTMLDOC</I> recognizes the
@@ -450,19 +450,18 @@ following additional attributes for all heading elements:
 EPS and other types of image files are not supported at this
 time.
 
-<H2><A NAME="LINKS">Links</A></H2>
+<!-- NEED 2in -->
 
-<P>Currently <I>HTMLDOC</I> supports a maximum of 20000 links within a
-document. This limit can be increased by changing the constant in
-the <VAR>config.h</VAR> file included with the source code.
+<H2><A NAME="LINKS">Links</A></H2>
 
 <P>External URL and internal (<CODE>#target</CODE> and
 <CODE>filename.html</CODE>) links are fully supported for HTML
 and PDF output.
 
-<P>When generating PDF files, local PDF file links will be converted to
-external file links for the PDF viewer instead of URL links. That is, you
-can directly link to another local PDF file from your HTML document with:
+<P>When generating PDF files, local PDF file links will be
+converted to external file links for the PDF viewer instead of
+URL links. That is, you can directly link to another local PDF
+file from your HTML document with:
 
 <UL><PRE>
 &lt;A HREF="filename.pdf"&gt;...&lt;/A&gt;
@@ -471,8 +470,8 @@ can directly link to another local PDF file from your HTML document with:
 <!-- NEED 5in -->
 <H2><A NAME="META">META Attributes</A></H2>
 
-<I>HTMLDOC</I> supports the following <CODE>META</CODE> attributes for the
-title page and document information:
+<P><I>HTMLDOC</I> supports the following <CODE>META</CODE>
+attributes for the title page and document information:
 
 <DL>
 
