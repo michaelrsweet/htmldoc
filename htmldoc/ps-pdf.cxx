@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.40 2001/03/11 15:51:37 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.41 2001/03/11 22:29:14 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -737,8 +737,9 @@ pspdf_prepare_page(int   page,			/* I - Page number */
 
 
   DEBUG_printf(("pspdf_prepare_page(%d, %p, \"%s\", %.1f, \"%s\")\n",
-                page, file_page, title ? title : "(null)", title_width,
-		*page_heading ? *page_heading : "(null)"));
+                page, file_page, title ? (const char *)title : "(null)",
+	        title_width,
+		*page_heading ? (const char *)*page_heading : "(null)"));
 
   if (OutputFiles && chapter >= 0)
     *file_page = page - chapter_starts[chapter] + 1;
@@ -1283,6 +1284,7 @@ ps_write_page(FILE  *out,		/* I - Output file */
 
   fputs("GR\n", out);
   fputs("SP\n", out);
+  fflush(out);
 }
 
 
@@ -6084,14 +6086,19 @@ set_font(FILE  *out,		/* I - File to write to */
   * Set the new typeface, style, and size.
   */
 
+  if (PSLevel > 0)
+  {
+    if (size != render_size)
+      fprintf(out, "%s FS", sizes);
+
+    fprintf(out, "/F%x SF ", typeface * 4 + style);
+  }
+  else
+    flate_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
+
   render_typeface = typeface;
   render_style    = style;
   render_size     = size;
-
-  if (PSLevel > 0)
-    fprintf(out, "%s/F%x SF ", sizes, typeface * 4 + style);
-  else
-    flate_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
 }
 
 
@@ -6213,11 +6220,23 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
 
     if (b == 0)
     {
+      if (col >= 80)
+      {
+	col = 0;
+	putc('\n', out);
+      }
+
       putc('z', out);
       col ++;
     }
     else
     {
+      if (col >= 75)
+      {
+	col = 0;
+	putc('\n', out);
+      }
+
       c[4] = (b % 85) + '!';
       b /= 85;
       c[3] = (b % 85) + '!';
@@ -6234,16 +6253,16 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
 
     data += 4;
     length -= 4;
-
-    if (col >= 80)
-    {
-      col = 0;
-      putc('\n', out);
-    }
   }
 
   if (length > 0)
   {
+    if (col >= 75)
+    {
+      col = 0;
+      putc('\n', out);
+    }
+
     memcpy(temp, data, length);
     memset(temp + length, 0, 4 - length);
 
@@ -6435,11 +6454,7 @@ write_image(FILE     *out,	/* I - Output file */
   img     = r->data.image;
   ncolors = 0;
 
-  DEBUG_printf(("img->filename = %s\n", img->filename));
-  DEBUG_printf(("img->width = %d, ->height = %d, ->depth = %d\n", img->width,
-                img->height, img->depth));
-
-  if (PSLevel != 1 && PDFVersion >= 1.2f)
+  if (PSLevel != 1 && PDFVersion >= 1.2f && img->obj == 0)
   {
     if (img->depth == 1)
     {
@@ -7243,13 +7258,14 @@ write_prolog(FILE  *out,	/* I - Output file */
       fputs("/C{setrgbcolor}BD\n", out);
     fputs("/CM{concat}BD", out);
     fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n", out);
+    fputs("/FS{/hdFontSize exch def}BD", out);
     fputs("/GS{gsave}BD", out);
     fputs("/GR{grestore}BD", out);
     fputs("/J{0 exch ashow}BD", out);
     fputs("/L{0 rlineto stroke}BD", out);
     fputs("/M{moveto}BD\n", out);
     fputs("/S{show}BD", out);
-    fputs("/SF{findfont exch scalefont setfont}BD", out);
+    fputs("/SF{findfont /hdFontSize scalefont setfont}BD", out);
     fputs("/SP{showpage}BD", out);
     fputs("/T{translate}BD\n", out);
 
@@ -8257,5 +8273,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.40 2001/03/11 15:51:37 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.41 2001/03/11 22:29:14 mike Exp $".
  */

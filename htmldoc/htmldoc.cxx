@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.13 2001/03/08 19:13:19 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.14 2001/03/11 22:29:10 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -27,6 +27,7 @@
  *   prefs_load()      - Load HTMLDOC preferences...
  *   prefs_save()      - Save HTMLDOC preferences...
  *   compare_strings() - Compare two command-line strings.
+ *   term_handler()    - Handle CTRL-C or kill signals...
  *   usage()           - Show program version and command-line options.
  */
 
@@ -43,6 +44,7 @@
 #  include <direct.h>
 #  include <io.h>
 #else
+#  include <signal.h>
 #  include <unistd.h>
 #endif // WIN32
 
@@ -63,6 +65,7 @@ static int	load_book(const char *filename, tree_t **document,
 		          exportfunc_t *exportfunc);
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
 static int	read_file(const char *filename, tree_t **document);
+static void	term_handler(int signum);
 static void	usage(void);
 
 
@@ -98,6 +101,15 @@ main(int  argc,		/* I - Number of command-line arguments */
   int		display_set;	/* True if display set */
 #endif // HAVE_LIBFLTK
 
+
+ /*
+  * Catch CTRL-C and term signals...
+  */
+
+#ifdef WIN32
+#else
+  signal(SIGTERM, term_handler);
+#endif // WIN32
 
  /*
   * Load preferences...
@@ -2275,6 +2287,22 @@ read_file(const char *filename,		// I  - File/URL to read
   return (file != NULL);
 }
 
+
+//
+// 'term_handler()' - Handle CTRL-C or kill signals...
+//
+
+static void
+term_handler(int signum)	// I - Signal number
+{
+  REF(signum);
+
+  file_cleanup();
+  image_flush_cache();
+  exit(1);
+}
+
+
 /*
  * 'usage()' - Show program version and command-line options.
  */
@@ -2395,5 +2423,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.13 2001/03/08 19:13:19 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.14 2001/03/11 22:29:10 mike Exp $".
  */
