@@ -25,7 +25,7 @@ file "c-classes.html";
 <HEAD>
 	<STYLE><!--
 	H1, H2, H3, H4, H5, H6 { font-family: sans-serif; }
-	P.indent { margin-left: 3em; }
+	DIV.indent { margin-left: 3em; }
 	--></STYLE>
 </HEAD>
 <BODY>
@@ -66,6 +66,21 @@ foreach $c ($p->classes()) {
 <H3>Description</H3>
 <P>$(c.description)</P>
 <<
+
+  if ($c->memberfuncs()) {
+>>
+<P>Methods:
+<<
+    $prefix="";
+    foreach $m ($c->memberfuncs()) {
+      print($prefix . "<A HREF=\"#" . $c->name() . "." .
+            $m->name() . "\">" . $m->name() . "</A>");
+      $prefix=",\n";
+    }
+>>
+</P>
+<<
+  }
 
   # Output "see also" information
   if ($c->seealso()) {
@@ -130,12 +145,12 @@ foreach $c ($p->classes()) {
 <<
   if ($c->membervars()) {
 >>
-<P CLASS="indent"><TABLE BORDER="1">
-<TR><TH>Member</TH><TH>Data Type</TH><TH>Description</TH></TR>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
 <<
-    foreach $m ($c->membervars()) { &variable( $m ); }
+    foreach $m ($c->membervars()) { &variable( $c->name() . ".", $m ); }
 >>
-</TABLE>
+</TABLE></DIV>
 <<
   } else {
 >>
@@ -148,7 +163,7 @@ foreach $c ($p->classes()) {
 <H3>Methods</H3>
 <<
   if ($c->memberfuncs()) {
-    foreach $m ($c->memberfuncs()) { &function( $m ); }
+    foreach $m ($c->memberfuncs()) { &function( $c->name() . ".", $m ); }
   } else {
 >>
 <P>This class does not provide any public methods.
@@ -160,13 +175,13 @@ foreach $c ($p->classes()) {
 if ($p->globalvars()) {
 >>
 <H3>Global Variables:</H3>
-<P CLASS="indent"><TABLE BORDER="1">
-<TR><TH>Variable</TH><TH>Data Type</TH><TH>Description</TH></TR>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Variable</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
 <<
-  foreach $m ($p->globalvars()) { &variable( $m ); }
+  foreach $m ($p->globalvars()) { &variable( "", $m ); }
 }
 >>
-</TABLE>
+</TABLE></DIV>
 <<
 
 # Output global functions
@@ -174,7 +189,7 @@ if ($p->globalfuncs()) {
 >>
 <H3>Global Functions:</H3>
 <<
-  foreach $m ($p->globalfuncs()) { &function( $m ); }
+  foreach $m ($p->globalfuncs()) { &function( "", $m ); }
 }
 
 >>
@@ -188,18 +203,20 @@ if ($p->globalfuncs()) {
 ## Subroutine to generate documentation for a member function or global function
 
 sub function {
-  local ($f) = @_;
-  
+  local ($prefix) = shift;
+  local ($f) = shift;
+
 >>
-<H4><A NAME="$(f.name)">$(f.fullname)</A></H4>
+<H4><A NAME="$prefix$(f.name)">$(f.fullname)</A></H4>
+<DIV CLASS="indent">
 <P>$(f.description)
 <<
 
   if ($f->params()) {
 >>
 <P><B>Parameters</B>
-<P CLASS="indent"><TABLE BORDER="1">
-<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
 <<
     foreach $a ($f->params()) {
 >>
@@ -209,7 +226,7 @@ sub function {
 <<
     }
 >>
-</TABLE>
+</TABLE></DIV>
 <<
   }
 	
@@ -237,6 +254,9 @@ sub function {
     }
     print join( ', ', @r );
   }
+>>
+</DIV>
+<<
 }
 
 ######################################################################
@@ -244,13 +264,14 @@ sub function {
 ## Subroutine to generate documentation for a member variable or global variable.
 
 sub variable {
-  local ($v) = @_;
+  local ($prefix) = shift;
+  local ($v) = shift;
   $_ = $v->fullname();
   s/\[.*\]$//;
   $t = substr($v->fullname(), 0, length($_) - length($v->name())) .
        substr($v->fullname(), length($_));
 >>
-<TR><TD VALIGN="TOP"><A NAME="$(v.name)"><TT>$(v.name)</TT></A></TD>
+<TR><TD VALIGN="TOP"><A NAME="$prefix$(v.name)"><TT>$(v.name)</TT></A></TD>
 <TD VALIGN="TOP"><TT>$t</TT></TD>
 <TD VALIGN="TOP">$(v.description)</TD></TR>
 <<
