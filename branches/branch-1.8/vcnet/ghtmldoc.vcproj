@@ -166,6 +166,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\htmldoc\gui.cxx">
+			</File>
+			<File
 				RelativePath="..\htmldoc\html.cxx">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -504,56 +507,9 @@
 				RelativePath="..\htmldoc\types.h">
 			</File>
 		</Filter>
-		<Filter
-			Name="GUI"
-			Filter="">
-			<File
-				RelativePath="..\htmldoc\gui.cxx">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						ObjectFile=".\../gui/Debug/"
-						ProgramDataBaseFileName="../gui/Debug/"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						FavorSizeOrSpeed="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						ObjectFile=".\..\GUI\Release/"
-						ProgramDataBaseFileName="..\GUI\Release/"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\htmldoc\gui.h">
-			</File>
-			<File
-				RelativePath="htmldoc.ico">
-			</File>
-			<File
-				RelativePath="icons.rc">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
-						ResourceOutputFileName=".\../gui/Debug/"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
-						ResourceOutputFileName=".\..\GUI\Release/"/>
-				</FileConfiguration>
-			</File>
-		</Filter>
+		<File
+			RelativePath=".\icons.rc">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
