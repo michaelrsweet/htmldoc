@@ -1,5 +1,5 @@
 /*
- * "$Id: testhtml.cxx,v 1.3.2.5 2004/02/06 03:51:09 mike Exp $"
+ * "$Id: testhtml.cxx,v 1.3.2.6 2004/05/09 15:04:39 mike Exp $"
  *
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
@@ -132,7 +132,7 @@ main(int  argc,			/* I - Number of command-line arguments */
   for (i = 1, doc = NULL; i < argc; i ++)
     if ((fp = fopen(file_find("", argv[i]), "r")) != NULL)
     {
-      strcpy(base, argv[i]);
+      strlcpy(base, argv[i], sizeof(base));
       if (strrchr(base, '/') != NULL)
         *strrchr(base, '/') = '\0';
       else
@@ -161,5 +161,5 @@ main(int  argc,			/* I - Number of command-line arguments */
 
 
 /*
- * End of "$Id: testhtml.cxx,v 1.3.2.5 2004/02/06 03:51:09 mike Exp $".
+ * End of "$Id: testhtml.cxx,v 1.3.2.6 2004/05/09 15:04:39 mike Exp $".
  */

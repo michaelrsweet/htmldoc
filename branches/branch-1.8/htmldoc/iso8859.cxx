@@ -1,5 +1,5 @@
 /*
- * "$Id: iso8859.cxx,v 1.3.2.10 2004/05/05 18:58:40 mike Exp $"
+ * "$Id: iso8859.cxx,v 1.3.2.11 2004/05/09 15:04:38 mike Exp $"
  *
  *   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  *   processing program.
@@ -195,7 +195,7 @@ iso8859(uchar *name)		/* I - Glyph name */
     return (ch);
   }
 
-  strcpy((char *)key.name, (char *)name);
+  strlcpy((char *)key.name, (char *)name, sizeof(key.name));
   match = (lut_t *)bsearch(&key, iso8859_numbers,
                            sizeof(iso8859_numbers) / sizeof(iso8859_numbers[0]),
                            sizeof(iso8859_numbers[0]),
@@ -254,5 +254,5 @@ compare_lut(lut_t *a,	/* I - First glyph */
 
 
 /*
- * End of "$Id: iso8859.cxx,v 1.3.2.10 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id: iso8859.cxx,v 1.3.2.11 2004/05/09 15:04:38 mike Exp $".
  */

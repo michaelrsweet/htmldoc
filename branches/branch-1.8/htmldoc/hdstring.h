@@ -1,5 +1,5 @@
 /*
- * "$Id: hdstring.h,v 1.1.2.7 2004/05/05 18:58:40 mike Exp $"
+ * "$Id: hdstring.h,v 1.1.2.8 2004/05/09 15:04:38 mike Exp $"
  *
  *   String definitions for HTMLDOC, a HTML document processing program.
  *
@@ -57,6 +57,12 @@ extern "C" {
 #    define vsnprintf		_vsnprintf
 #  endif /* WIN32 */
 
+/*
+ * Implementation of strcpy() that allows for overlapping buffers.
+ */
+
+extern void	hd_strcpy(char *dst, const char *src);
+
 
 /*
  * Standard string functions that might not be available...
@@ -109,5 +115,5 @@ extern int	hd_vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: hdstring.h,v 1.1.2.7 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id: hdstring.h,v 1.1.2.8 2004/05/09 15:04:38 mike Exp $".
  */

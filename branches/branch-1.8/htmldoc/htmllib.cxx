@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.76 2004/05/08 15:29:42 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.77 2004/05/09 15:04:38 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -883,7 +883,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
           if ((color = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL &&
 	      !BodyColor[0])
-	    strcpy(BodyColor, (char *)color);
+	    strlcpy(BodyColor, (char *)color, sizeof(BodyColor));
 
           // Update the background image as necessary...
           if ((filename = htmlGetVariable(t, (uchar *)"BACKGROUND")) != NULL)
@@ -1031,7 +1031,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
             if ((embed = fopen((char *)filename, "r")) != NULL)
             {
-	      strcpy(newbase, file_directory((char *)filename));
+	      strlcpy(newbase, file_directory((char *)filename), sizeof(newbase));
 
               htmlReadFile(t, embed, newbase);
               fclose(embed);
@@ -1325,7 +1325,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
     if (descend)
     {
 #ifdef DEBUG
-      strcat((char *)indent, "    ");
+      strlcat((char *)indent, "    ", sizeof(indent));
 #endif // DEBUG
 
       parent = t;
@@ -2089,7 +2089,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
   int		chars[256];	/* Character encoding array */
 
 
-  strcpy(_htmlCharSet, cs);
+  strlcpy(_htmlCharSet, cs, sizeof(_htmlCharSet));
 
   if (!_htmlInitialized)
   {
@@ -2261,8 +2261,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 void
 htmlSetTextColor(uchar *color)	/* I - Text color */
 {
-  strncpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
-  _htmlTextColor[sizeof(_htmlTextColor) - 1] = '\0';
+  strlcpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
 }
 
 
@@ -2433,7 +2432,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     */
 
     t->markup = MARKUP_UNKNOWN;
-    strcpy((char *)comment, (char *)markup);
+    strlcpy((char *)comment, (char *)markup, sizeof(comment));
     cptr = comment + strlen((char *)comment);
 
     DEBUG_printf(("%s%s (unrecognized!)\n", indent, markup));
@@ -2849,7 +2848,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
       sprintf(number, "%d",
               atoi((char *)width_ptr) * img->height / img->width);
       if (strchr((char *)width_ptr, '%') != NULL)
-        strcat(number, "%");
+        strlcat(number, "%", sizeof(number));
       htmlSetVariable(t, (uchar *)"HEIGHT", (uchar *)number);
     }
     else if (height_ptr != NULL)
@@ -2860,7 +2859,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
       sprintf(number, "%d",
               atoi((char *)height_ptr) * img->width / img->height);
       if (strchr((char *)height_ptr, '%') != NULL)
-        strcat(number, "%");
+        strlcat(number, "%", sizeof(number));
       htmlSetVariable(t, (uchar *)"WIDTH", (uchar *)number);
     }
     else
@@ -3043,20 +3042,20 @@ fix_filename(char *filename,		/* I - Original filename */
 
   if (strncmp(base, "http://", 7) == 0 || strncmp(base, "https://", 8) == 0)
   {
-    strcpy(newfilename, base);
+    strlcpy(newfilename, base, sizeof(newfilename));
     base = strchr(newfilename, ':') + 3;
 
     if (filename[0] == '/')
     {
       if ((slash = strchr(base, '/')) != NULL)
-        strcpy(slash, filename);
+        strlcpy(slash, filename, sizeof(newfilename) - (slash - newfilename));
       else
-        strcat(newfilename, filename);
+        strlcat(newfilename, filename, sizeof(newfilename));
 
       return (newfilename);
     }
     else if ((slash = strchr(base, '/')) == NULL)
-      strcat(newfilename, "/");
+      strlcat(newfilename, "/", sizeof(newfilename));
   }
   else
   {
@@ -3064,7 +3063,7 @@ fix_filename(char *filename,		/* I - Original filename */
 	base[0] == '\0' || (isalpha(filename[0]) && filename[1] == ':'))
       return (file_find(Path, filename)); /* No change needed for absolute path */
 
-    strcpy(newfilename, base);
+    strlcpy(newfilename, base, sizeof(newfilename));
     base = newfilename;
   }
 
@@ -3093,9 +3092,9 @@ fix_filename(char *filename,		/* I - Original filename */
   }
 
   if (filename[0] != '/' && *base && base[strlen(base) - 1] != '/')
-    strcat(newfilename, "/");
+    strlcat(newfilename, "/", sizeof(newfilename));
 
-  strcat(newfilename, filename);
+  strlcat(newfilename, filename, sizeof(newfilename));
 
   return (file_find(Path, newfilename));
 }
@@ -3276,5 +3275,5 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.76 2004/05/08 15:29:42 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.77 2004/05/09 15:04:38 mike Exp $".
  */

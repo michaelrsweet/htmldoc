@@ -1,10 +1,13 @@
-CHANGES.txt - 05/07/2004
+CHANGES.txt - 05/09/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
 
     NEW FEATURES
 
+	- HTMLDOC now provides limited cookie support via the
+	  "--cookies" command-line option and via the cookies
+	  passed by a browser in CGI mode.
 	- HTMLDOC now features a CGI mode which provides PDF
 	  conversion functionality for web servers.
 	- HTMLDOC now generates a document outline for each

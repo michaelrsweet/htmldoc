@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.66 2004/05/08 15:29:42 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.67 2004/05/09 15:04:38 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -178,6 +178,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     PDFPageMode   = PDF_DOCUMENT;
     PDFFirstPage  = PDF_PAGE_1;
 
+    file_cookies(getenv("HTTP_COOKIE"));
     file_nolocal();
 
     progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
@@ -300,6 +301,14 @@ main(int  argc,				/* I - Number of command-line arguments */
       OutputType   = OUTPUT_CONTINUOUS;
       PDFPageMode  = PDF_DOCUMENT;
       PDFFirstPage = PDF_PAGE_1;
+    }
+    else if (compare_strings(argv[i], "--cookies", 5) == 0)
+    {
+      i ++;
+      if (i < argc && !CGIMode)
+        file_cookies(argv[i]);
+      else
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--datadir", 4) == 0)
     {
@@ -752,10 +761,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-      {
-        strncpy(OwnerPassword, argv[i], sizeof(OwnerPassword) - 1);
-	OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
-      }
+        strlcpy(OwnerPassword, argv[i], sizeof(OwnerPassword));
       else
         usage(argv[i - 1]);
     }
@@ -819,10 +825,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-      {
-        strncpy(Path, argv[i], sizeof(Path) - 1);
-	Path[sizeof(Path) - 1] = '\0';
-      }
+        strlcpy(Path, argv[i], sizeof(Path));
       else
         usage(argv[i - 1]);
     }
@@ -841,8 +844,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       i ++;
       if (i < argc && !CGIMode)
       {
-        strncpy(Proxy, argv[i], sizeof(Proxy) - 1);
-	Proxy[sizeof(Proxy) - 1] = '\0';
+        strlcpy(Proxy, argv[i], sizeof(Proxy));
 	file_proxy(Proxy);
       }
       else
@@ -919,10 +921,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-      {
-        strncpy(TocTitle, argv[i], sizeof(TocTitle) - 1);
-	TocTitle[sizeof(TocTitle) - 1] = '\0';
-      }
+        strlcpy(TocTitle, argv[i], sizeof(TocTitle));
       else
         usage(argv[i - 1]);
     }
@@ -938,10 +937,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-      {
-        strncpy(UserPassword, argv[i], sizeof(UserPassword) - 1);
-	UserPassword[sizeof(UserPassword) - 1] = '\0';
-      }
+        strlcpy(UserPassword, argv[i], sizeof(UserPassword));
       else
         usage(argv[i - 1]);
     }
@@ -1344,15 +1340,9 @@ prefs_load(void)
       else if (strncasecmp(line, "PERMISSIONS=", 12) == 0)
 	Permissions = atoi(line + 12);
       else if (strncasecmp(line, "OWNERPASSWORD=", 14) == 0)
-      {
-	strncpy(OwnerPassword, line + 14, sizeof(OwnerPassword) - 1);
-	OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
-      }
+	strlcpy(OwnerPassword, line + 14, sizeof(OwnerPassword));
       else if (strncasecmp(line, "USERPASSWORD=", 13) == 0)
-      {
-        strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
-        UserPassword[sizeof(UserPassword) - 1] = '\0';
-      }
+        strlcpy(UserPassword, line + 13, sizeof(UserPassword));
       else if (strncasecmp(line, "LINKS=", 6) == 0)
         Links = atoi(line + 6);
       else if (strncasecmp(line, "TRUETYPE=", 9) == 0)
@@ -1360,15 +1350,9 @@ prefs_load(void)
       else if (strncasecmp(line, "EMBEDFONTS=", 11) == 0)
         EmbedFonts = atoi(line + 11);
       else if (strncasecmp(line, "PATH=", 5) == 0)
-      {
-	strncpy(Path, line + 5, sizeof(Path) - 1);
-	Path[sizeof(Path) - 1] = '\0';
-      }
+	strlcpy(Path, line + 5, sizeof(Path));
       else if (strncasecmp(line, "PROXY=", 6) == 0)
-      {
-	strncpy(Proxy, line + 6, sizeof(Proxy) - 1);
-	Proxy[sizeof(Proxy) - 1] = '\0';
-      }
+	strlcpy(Proxy, line + 6, sizeof(Proxy));
       else if (strncasecmp(line, "STRICTHTML=", 11) == 0)
         StrictHTML = atoi(line + 11);
 
@@ -1537,10 +1521,7 @@ load_book(const char   *filename,	// I  - Book file
   if (dir != NULL)
     snprintf(path, sizeof(path), "%s;%s", dir, Path);
   else
-  {
-    strncpy(path, Path, sizeof(path) - 1);
-    path[sizeof(path) - 1] = '\0';
-  }
+    strlcpy(path, Path, sizeof(path));
 
   // Open the file...
   if ((local = file_find(Path, filename)) == NULL)
@@ -1576,10 +1557,7 @@ load_book(const char   *filename,	// I  - Book file
       if (dir != NULL)
 	snprintf(path, sizeof(path), "%s;%s", dir, Path);
       else
-      {
-	strncpy(path, Path, sizeof(path) - 1);
-	path[sizeof(path) - 1] = '\0';
-      }
+	strlcpy(path, Path, sizeof(path));
     }
   }
   while (!line[0]);			// Skip blank lines
@@ -1596,10 +1574,7 @@ load_book(const char   *filename,	// I  - Book file
       if (dir != NULL)
 	snprintf(path, sizeof(path), "%s;%s", dir, Path);
       else
-      {
-	strncpy(path, Path, sizeof(path) - 1);
-	path[sizeof(path) - 1] = '\0';
-      }
+	strlcpy(path, Path, sizeof(path));
     }
     else if (line[0] == '\\')
       read_file(line + 1, document, path);
@@ -1861,27 +1836,21 @@ parse_options(const char   *line,	// I - Options from book file
     }
     else if (strcmp(temp, "--logo") == 0 ||
              strcmp(temp, "--logoimage") == 0)
-    {
-      strncpy(LogoImage, temp2, sizeof(LogoImage) - 1);
-      LogoImage[sizeof(LogoImage) - 1] = '\0';
-    }
+      strlcpy(LogoImage, temp2, sizeof(LogoImage));
     else if (strcmp(temp, "--titleimage") == 0)
     {
       TitlePage = 1;
-      strncpy(TitleImage, temp2, sizeof(TitleImage) - 1);
-      TitleImage[sizeof(TitleImage) - 1] = '\0';
+      strlcpy(TitleImage, temp2, sizeof(TitleImage));
     }
     else if (strcmp(temp, "-f") == 0 && !CGIMode)
     {
       OutputFiles = 0;
-      strncpy(OutputPath, temp2, sizeof(OutputPath) - 1);
-      OutputPath[sizeof(OutputPath) - 1] = '\0';
+      strlcpy(OutputPath, temp2, sizeof(OutputPath));
     }
     else if (strcmp(temp, "-d") == 0 && !CGIMode)
     {
       OutputFiles = 1;
-      strncpy(OutputPath, temp2, sizeof(OutputPath) - 1);
-      OutputPath[sizeof(OutputPath) - 1] = '\0';
+      strlcpy(OutputPath, temp2, sizeof(OutputPath));
     }
     else if (strcmp(temp, "--browserwidth") == 0)
       _htmlBrowserWidth = atof(temp2);
@@ -1902,22 +1871,13 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--footer") == 0)
       get_format(temp2, Footer);
     else if (strcmp(temp, "--bodycolor") == 0)
-    {
-      strncpy(BodyColor, temp2, sizeof(BodyColor) - 1);
-      BodyColor[sizeof(BodyColor) - 1] = '\0';
-    }
+      strlcpy(BodyColor, temp2, sizeof(BodyColor));
     else if (strcmp(temp, "--bodyimage") == 0)
-    {
-      strncpy(BodyImage, temp2, sizeof(BodyImage) - 1);
-      BodyImage[sizeof(BodyImage) - 1] = '\0';
-    }
+      strlcpy(BodyImage, temp2, sizeof(BodyImage));
     else if (strcmp(temp, "--textcolor") == 0)
       htmlSetTextColor((uchar *)temp2);
     else if (strcmp(temp, "--linkcolor") == 0)
-    {
-      strncpy(LinkColor, temp2, sizeof(LinkColor) - 1);
-      LinkColor[sizeof(LinkColor) - 1] = '\0';
-    }
+      strlcpy(LinkColor, temp2, sizeof(LinkColor));
     else if (strcmp(temp, "--linkstyle") == 0)
     {
       if (strcmp(temp2, "plain") == 0)
@@ -1932,10 +1892,7 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--tocfooter") == 0)
       get_format(temp2, TocFooter);
     else if (strcmp(temp, "--toctitle") == 0)
-    {
-      strncpy(TocTitle, temp2, sizeof(TocTitle) - 1);
-      TocTitle[sizeof(TocTitle) - 1] = '\0';
-    }
+      strlcpy(TocTitle, temp2, sizeof(TocTitle));
     else if (strcmp(temp, "--fontsize") == 0)
     {
       fontsize    = atof(temp2);
@@ -2097,26 +2054,18 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--permissions") == 0)
       set_permissions(temp2);
     else if (strcmp(temp, "--user-password") == 0)
-    {
-      strncpy(UserPassword, temp2, sizeof(UserPassword) - 1);
-      UserPassword[sizeof(UserPassword) - 1] = '\0';
-    }
+      strlcpy(UserPassword, temp2, sizeof(UserPassword));
     else if (strcmp(temp, "--owner-password") == 0)
-    {
-      strncpy(OwnerPassword, temp2, sizeof(OwnerPassword) - 1);
-      OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
-    }
+      strlcpy(OwnerPassword, temp2, sizeof(OwnerPassword));
     else if (strcmp(temp, "--path") == 0)
-    {
-      strncpy(Path, temp2, sizeof(Path) - 1);
-      Path[sizeof(Path) - 1] = '\0';
-    }
+      strlcpy(Path, temp2, sizeof(Path) - 1);
     else if (strcmp(temp, "--proxy") == 0 && !CGIMode)
     {
-      strncpy(Proxy, temp2, sizeof(Proxy) - 1);
-      Proxy[sizeof(Proxy) - 1] = '\0';
+      strlcpy(Proxy, temp2, sizeof(Proxy));
       file_proxy(Proxy);
     }
+    else if (strcmp(temp, "--cookies") == 0 && !CGIMode)
+      file_cookies(temp2);
   }
 }
 
@@ -2301,8 +2250,12 @@ usage(const char *arg)			// I - Bad argument string
   puts("  --charset {cp-874...1258,iso-8859-1...8859-15,koi8-r}");
   puts("  --color");
   puts("  --compression[=level]");
+  puts("  --continuous");
   if (!CGIMode)
+  {
+    puts("  --cookies 'name=\"value with space\"; name=value'");
     puts("  --datadir directory");
+  }
   puts("  --duplex");
   puts("  --effectduration {0.1..10.0}");
   puts("  --embedfonts");
@@ -2406,5 +2359,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.66 2004/05/08 15:29:42 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.67 2004/05/09 15:04:38 mike Exp $".
  */

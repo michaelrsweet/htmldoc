@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.10 2004/05/07 22:04:57 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.11 2004/05/09 15:04:38 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -677,7 +677,7 @@ write_node(FILE   *out,		/* I - Output file */
 	      (!isalpha(src[0]) || src[1] != ':'))
           {
             image_copy((char *)src, OutputPath);
-            strcpy((char *)newsrc, file_basename((char *)src));
+            strlcpy((char *)newsrc, file_basename((char *)src), sizeof(newsrc));
             htmlSetVariable(t, (uchar *)"SRC", newsrc);
           }
 	}
@@ -986,8 +986,7 @@ add_link(uchar *name)		/* I - Name of link */
     temp = links + num_links;
     num_links ++;
 
-    strncpy((char *)temp->name, (char *)name, sizeof(temp->name) - 1);
-    temp->name[sizeof(temp->name) - 1] = '\0';
+    strlcpy((char *)temp->name, (char *)name, sizeof(temp->name));
     temp->filename = filename;
 
     if (num_links > 1)
@@ -1014,7 +1013,7 @@ find_link(uchar *name)		/* I - Name to find */
   if ((target = (uchar *)file_target((char *)name)) == NULL)
     return (NULL);
 
-  strncpy((char *)key.name, (char *)target, sizeof(key.name) - 1);
+  strlcpy((char *)key.name, (char *)target, sizeof(key.name));
   key.name[sizeof(key.name) - 1] = '\0';
   match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t),
                             (compare_func_t)compare_links);
@@ -1120,5 +1119,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.10 2004/05/07 22:04:57 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.11 2004/05/09 15:04:38 mike Exp $".
 //

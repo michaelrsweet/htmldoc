@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.68 2004/05/07 22:04:57 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.69 2004/05/09 15:04:38 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1295,7 +1295,7 @@ GUI::loadSettings()
   else
     OutputJPEG = 0;
 
-  strcpy(TocTitle, tocTitle->value());
+  strlcpy(TocTitle, tocTitle->value(), sizeof(TocTitle));
 
   temp[0] = formats[tocHeaderLeft->value()];
   temp[1] = formats[tocHeaderCenter->value()];
@@ -1361,8 +1361,8 @@ GUI::loadSettings()
   if (permAnnotate->value())
     Permissions |= PDF_PERM_ANNOTATE;
 
-  strcpy(UserPassword, userPassword->value());
-  strcpy(OwnerPassword, ownerPassword->value());
+  strlcpy(UserPassword, userPassword->value(), sizeof(UserPassword));
+  strlcpy(OwnerPassword, ownerPassword->value(), sizeof(OwnerPassword));
 
   if (ps1->value())
     PSLevel = 1;
@@ -1374,20 +1374,20 @@ GUI::loadSettings()
   PSCommands  = psCommands->value();
   XRXComments = xrxComments->value();
 
-  strcpy(BodyColor, bodyColor->value());
-  strcpy(BodyImage, bodyImage->value());
+  strlcpy(BodyColor, bodyColor->value(), sizeof(BodyColor));
+  strlcpy(BodyImage, bodyImage->value(), sizeof(BodyImage));
 
   htmlSetTextColor((uchar *)textColor->value());
   htmlSetCharSet(charset->text(charset->value()));
 
-  strcpy(LinkColor, linkColor->value());
+  strlcpy(LinkColor, linkColor->value(), sizeof(LinkColor));
   LinkStyle = linkStyle->value();
 
   _htmlBrowserWidth = browserWidth->value();
 
-  strcpy(Path, path->value());
+  strlcpy(Path, path->value(), sizeof(Path));
 
-  strcpy(Proxy, proxy->value());
+  strlcpy(Proxy, proxy->value(), sizeof(Proxy));
 
   StrictHTML = strict_html->value();
 }
@@ -1677,8 +1677,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     * a chdir()...
     */
 
-    strncpy(basename, file_basename(filename), sizeof(basename) - 1);
-    basename[sizeof(basename) - 1] = '\0';
+    strlcpy(basename, file_basename(filename), sizeof(basename));
     filename = basename;
 
     chdir(dir);
@@ -2837,7 +2836,7 @@ GUI::editFilesCB(Fl_Widget *w,		// I - Widget
                          NORMAL_PRIORITY_CLASS, NULL, NULL, &suInfo, &prInfo))
         fl_alert("Unable to start editor!");
 #else
-      strcat(command, "&");
+      strlcat(command, "&", sizeof(command));
       if (system(command))
         fl_alert("Unable to start editor!");
 #endif // !WIN32
@@ -3076,7 +3075,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
     if (gui->fc->count())
     {
       // Get the selected file...
-      strcpy(filename, file_localize(gui->fc->value(), NULL));
+      strlcpy(filename, file_localize(gui->fc->value(), NULL), sizeof(filename));
       extension = file_extension(filename);
 
       if (extension[0])
@@ -3097,11 +3096,11 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
       {
         // No extension - add one!
 	if (gui->typeHTML->value())
-	  strcat(filename, ".html");
+	  strlcat(filename, ".html", sizeof(filename));
 	else if (gui->typePS->value())
-	  strcat(filename, ".ps");
+	  strlcat(filename, ".ps", sizeof(filename));
 	else
-	  strcat(filename, ".pdf");
+	  strlcat(filename, ".pdf", sizeof(filename));
       }
 
       gui->outputPath->value(filename);
@@ -3221,16 +3220,15 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
   // and the output filename is not blank...
   if (gui->outputFile->value() && gui->outputPath->value()[0])
   {
-    strncpy(filename, gui->outputPath->value(), sizeof(filename) - 1);
-    filename[sizeof(filename) - 1] = '\0';
+    strlcpy(filename, gui->outputPath->value(), sizeof(filename));
 
     if ((ptr = strrchr(filename, '/')) == NULL)
       ptr = filename;
 
     if ((ptr = strrchr(ptr, '.')) == NULL)
-      strncat(filename, ext, sizeof(filename) - 1);
+      strlcat(filename, ext, sizeof(filename));
     else
-      strncpy(ptr, ext, sizeof(filename) - 1 - (ptr - filename));
+      strlcpy(ptr, ext, sizeof(filename) - (ptr - filename));
 
     gui->outputPath->value(filename);
   }
@@ -3449,7 +3447,7 @@ GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
     }
   }
 
-  strcpy(HTMLEditor, gui->htmlEditor->value());
+  strlcpy(HTMLEditor, gui->htmlEditor->value(), sizeof(HTMLEditor));
 }
 
 
@@ -3913,15 +3911,15 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   gui->window->cursor(FL_CURSOR_WAIT);
 
   // Set global vars used for converting the HTML files to XYZ format...
-  strcpy(bookbase, file_directory(gui->book_filename));
+  strlcpy(bookbase, file_directory(gui->book_filename), sizeof(bookbase));
 
   Verbosity = 1;
 
   gui->loadSettings();
 
-  strcpy(LogoImage, gui->logoImage->value());
-  strcpy(TitleImage, gui->titleImage->value());
-  strcpy(OutputPath, gui->outputPath->value());
+  strlcpy(LogoImage, gui->logoImage->value(), sizeof(LogoImage));
+  strlcpy(TitleImage, gui->titleImage->value(), sizeof(TitleImage));
+  strlcpy(OutputPath, gui->outputPath->value(), sizeof(OutputPath));
 
   OutputFiles = gui->outputDirectory->value();
 
@@ -3932,8 +3930,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   else
     OutputType = OUTPUT_WEBPAGES;
 
-  strcpy(UserPassword, gui->userPassword->value());
-  strcpy(OwnerPassword, gui->ownerPassword->value());
+  strlcpy(UserPassword, gui->userPassword->value(), sizeof(UserPassword));
+  strlcpy(OwnerPassword, gui->ownerPassword->value(), sizeof(OwnerPassword));
 
   if (gui->typePDF->value())
     PSLevel = 0;
@@ -3972,7 +3970,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       snprintf(temp, sizeof(temp), "Loading \"%s\"...", filename);
       gui->progress(100 * i / count, temp);
 
-      strcpy(base, file_directory(gui->inputFiles->text(i)));
+      strlcpy(base, file_directory(gui->inputFiles->text(i)), sizeof(base));
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
       htmlSetVariable(file, (uchar *)"_HD_FILENAME",
@@ -4103,5 +4101,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.68 2004/05/07 22:04:57 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.69 2004/05/09 15:04:38 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: file.h,v 1.6.2.10 2004/05/05 18:58:40 mike Exp $"
+ * "$Id: file.h,v 1.6.2.11 2004/05/09 15:04:38 mike Exp $"
  *
  *   Filename definitions for HTMLDOC, a HTML document processing program.
  *
@@ -42,6 +42,7 @@ extern "C" {
 
 extern const char	*file_basename(const char *s);
 extern void		file_cleanup(void);
+extern void		file_cookies(const char *s);
 extern const char	*file_directory(const char *s);
 extern const char	*file_extension(const char *s);
 extern const char	*file_find(const char *path, const char *s);
@@ -60,5 +61,5 @@ extern FILE		*file_temp(char *name, int len);
 #endif /* !_FILE_H_ */
 
 /*
- * End of "$Id: file.h,v 1.6.2.10 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id: file.h,v 1.6.2.11 2004/05/09 15:04:38 mike Exp $".
  */
