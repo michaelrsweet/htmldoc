@@ -1,5 +1,5 @@
 //
-// "$Id: viewfti.cxx,v 1.1.2.2 2004/06/14 12:16:56 mike Exp $"
+// "$Id: viewfti.cxx,v 1.1.2.3 2004/06/14 16:03:10 mike Exp $"
 //
 // FTI file viewer.
 //
@@ -65,14 +65,14 @@ main(int  argc,				// I - Number of command-line arguments
   // Make the main window...
   window = new Fl_Window(200, 200, "FTI Viewer");
 
-
   box = new Fl_Box(10, 10, 180, 180);
   box->box(FL_UP_BOX);
+  box->labelcolor(fl_color_cube(FL_NUM_RED - 1, FL_NUM_GREEN - 1,
+                                FL_NUM_BLUE - 3));
 
   icon = new Fl_File_Icon("", 0);
   for (i = 1; i < argc; i ++)
     icon->load_fti(argv[i]);
-  box->labelcolor(FL_WHITE);
   icon->label(box);
 
   window->resizable(box);
@@ -86,5 +86,5 @@ main(int  argc,				// I - Number of command-line arguments
 
 
 //
-// End of "$Id: viewfti.cxx,v 1.1.2.2 2004/06/14 12:16:56 mike Exp $".
+// End of "$Id: viewfti.cxx,v 1.1.2.3 2004/06/14 16:03:10 mike Exp $".
 //

@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.26 2004/06/14 02:23:46 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.27 2004/06/14 16:03:10 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -94,8 +94,8 @@ f 0444 root sys /usr/share/icons/hicolor/128x128/apps/htmldoc.png desktop/htmldo
 
 %system irix
 f 0444 root sys /usr/lib/images/htmldoc.icon desktop/htmldoc.icon
-f 0444 root sys /usr/lib/filetype/install/esp.htmldoc.ftr desktop/htmldoc.ftr
-f 0444 root sys /usr/lib/filetype/install/iconlib/esp.htmldoc.fti desktop/htmldoc.fti
+f 0444 root sys /usr/lib/filetype/install/htmldoc.ftr desktop/htmldoc.ftr
+f 0444 root sys /usr/lib/filetype/install/iconlib/ desktop/*.fti
 l 0555 root sys /usr/lib/desktop/iconcatalog/C/Applications/HTMLDOC $bindir/htmldoc
 %postinstall <<EOF
 tag 0x00FE2000 $bindir/htmldoc
@@ -105,5 +105,5 @@ EOF
 %system all
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.26 2004/06/14 02:23:46 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.27 2004/06/14 16:03:10 mike Exp $".
 #

@@ -11,13 +11,13 @@ TYPE htmldocExecutable
           if (opened)
           {
 	    include("/usr/lib/filetype/iconlib/generic.exec.open.fti");
+	    include("/usr/lib/filetype/install/iconlib/htmldoc.open.fti");
 	  }
 	  else
 	  {
 	    include("/usr/lib/filetype/iconlib/generic.exec.closed.fti");
+	    include("/usr/lib/filetype/install/iconlib/htmldoc.closed.fti");
 	  }
-
-	  include("/usr/lib/filetype/install/iconlib/esp.htmldoc.fti");
 	}	
 
 TYPE htmldocBook
@@ -29,5 +29,6 @@ TYPE htmldocBook
 	CMD PRINT	for book in $LEADER $REST; do @bindir@/htmldoc --batch \$book -t ps -f - | lp; done
 	ICON
 	{
-	  include("/usr/lib/filetype/install/iconlib/esp.htmldoc.fti");
+	  include("/usr/lib/filetype/iconlib/generic.doc.fti");
+	  include("/usr/lib/filetype/install/iconlib/htmldoc.book.fti");
 	}	
