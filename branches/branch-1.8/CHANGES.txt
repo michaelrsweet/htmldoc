@@ -5,8 +5,10 @@ CHANGES IN HTMLDOC v1.8.13
 
     NEW FEATURES
 
-	- Added support for Acrobat 5.0.
+	- Added support for Acrobat 5.0 (PDF 1.4).
 	- Added support for 64-bit encryption of PDF files.
+	- Added support for transparency in PostScript and
+	  PDF 1.1 and 1.2 output.
 
     CHANGES
 
