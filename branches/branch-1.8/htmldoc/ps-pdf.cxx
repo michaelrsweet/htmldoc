@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.98 2001/08/29 20:57:50 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.99 2001/08/30 18:11:44 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -291,6 +291,10 @@ static md5_byte_t	file_id[16];
  * Local functions...
  */
 
+extern "C" {
+typedef int	(*compare_func_t)(const void *, const void *);
+}
+
 static char	*pspdf_prepare_page(int page, int *file_page, uchar *title);
 static void	pspdf_prepare_heading(int page, int print_page, uchar *title,
 		        	      uchar **format, int y);
@@ -378,14 +382,11 @@ static void	write_prolog(FILE *out, int pages, uchar *title, uchar *author,
 		             uchar *creator, uchar *copyright, uchar *keywords);
 static void	ps_hex(FILE *out, uchar *data, int length);
 static void	ps_ascii85(FILE *out, uchar *data, int length);
-extern "C" {
 static void	jpg_init(j_compress_ptr cinfo);
 static boolean	jpg_empty(j_compress_ptr cinfo);
 static void	jpg_term(j_compress_ptr cinfo);
 static void	jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
 static int	compare_rgb(uchar *rgb1, uchar *rgb2);
-typedef int	(*compare_func_t)(const void *, const void *);
-}
 static void	write_image(FILE *out, render_t *r, int write_obj = 0);
 static void	write_imagemask(FILE *out, render_t *r);
 static void	write_string(FILE *out, uchar *s, int compress);
@@ -9999,5 +10000,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.98 2001/08/29 20:57:50 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.99 2001/08/30 18:11:44 mike Exp $".
  */
