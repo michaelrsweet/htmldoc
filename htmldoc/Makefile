@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.13.2.12 2003/03/17 15:12:03 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.13 2004/01/13 02:51:27 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -34,8 +34,8 @@ include ../Makedefs
 #
 
 OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o http.o \
-		image.o iso8859.o md5.o progress.o ps-pdf.o rc4.o \
-		snprintf.o string.o toc.o util.o
+		http-addr.o http-support.o image.o iso8859.o md5.o \
+		progress.o ps-pdf.o rc4.o snprintf.o string.o toc.o util.o
 
 
 #
@@ -63,6 +63,7 @@ install:	all
 clean:
 	rm -f $(OBJS) htmldoc$(EXEEXT)
 
+
 #
 # htmldoc
 #
@@ -83,7 +84,9 @@ html.o:		html.h htmldoc.h image.h iso8859.h progress.h types.h
 htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
 htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h progress.h types.h
 htmlsep.o:	html.h htmldoc.h image.h iso8859.h progress.h types.h
-http.o:		http.h hdstring.h
+http.o:		http.h http-private.h hdstring.h
+http-addr.o:	http.h http-private.h hdstring.h
+http-support.o:	http.h http-private.h hdstring.h
 image.o:	debug.h htmldoc.h image.h progress.h types.h
 iso8859.o:	iso8859.h types.h
 md5.o:		md5.h
@@ -94,15 +97,18 @@ string.o:	hdstring.h
 toc.o:		html.h htmldoc.h image.h iso8859.h types.h
 util.o:		htmldoc.h types.h
 
+
 #
 # testhtml
 #
 
-testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o image.o iso8859.o \
+testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o \
+		http-addr.o http-support.o image.o iso8859.o \
 		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o htmlsep.o ../Makedefs
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o gui.o htmllibd.o \
-		http.o image.o iso8859.o progress.o ps-pdf.o toc.o util.o \
+		http.o http-addr.o http-support.o image.o iso8859.o \
+		progress.o ps-pdf.o toc.o util.o \
 		md5.o rc4.o html.o htmlsep.o $(LIBS)
 
 testhtml.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
@@ -115,5 +121,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.13.2.12 2003/03/17 15:12:03 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.13 2004/01/13 02:51:27 mike Exp $".
 #

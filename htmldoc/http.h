@@ -1,7 +1,8 @@
 /*
- * "$Id: http.h,v 1.2.2.11 2003/01/06 22:09:32 mike Exp $"
+ * "$Id: http.h,v 1.2.2.12 2004/01/13 02:51:27 mike Exp $"
  *
- *   Hyper-Text Transport Protocol definitions for the HTMLDOC software.
+ *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
+ *   System (CUPS).
  *
  *   Copyright 1997-2003 by Easy Software Products, all rights reserved.
  *
@@ -12,14 +13,16 @@
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: HTMLDOC Licensing Information
+ *       Attn: CUPS Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
  *       Hollywood, Maryland 20636-3111 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: info@easysw.com
- *         WWW: http://www.easysw.com
+ *       Voice: (301) 373-9603
+ *       EMail: cups-info@cups.org
+ *         WWW: http://www.cups.org
+ *
+ *   This file is subject to the Apple OS-Developed Software exception.
  */
 
 #ifndef _CUPS_HTTP_H_
@@ -29,21 +32,23 @@
  * Include necessary headers...
  */
 
-#  include "hdstring.h"
+#  include <string.h>
 #  include <time.h>
-#  if defined(WIN32)
+#  ifdef WIN32
 #    include <winsock.h>
 #  else
 #    include <unistd.h>
-#    include <sys/types.h>
 #    include <sys/time.h>
+#    include <sys/types.h>
 #    include <sys/socket.h>
 #    include <netdb.h>
 #    include <netinet/in.h>
 #    include <arpa/inet.h>
 #    include <netinet/in_systm.h>
 #    include <netinet/ip.h>
-#    include <netinet/tcp.h>
+#    if !defined(__APPLE__) || !defined(TCP_NODELAY)
+#      include <netinet/tcp.h>
+#    endif /* !__APPLE__ || !TCP_NODELAY */
 #  endif /* WIN32 */
 
 #  include "md5.h"
@@ -276,6 +281,16 @@ typedef struct
   int			nonce_count;	/* Nonce count */
   void			*tls;		/* TLS state information */
   http_encryption_t	encryption;	/* Encryption requirements */
+  /**** New in CUPS 1.1.19 ****/
+  fd_set		*input_set;	/* select() set for httpWait() */
+  http_status_t		expect;		/* Expect: header */
+  char			*cookie;	/* Cookie value(s) */
+  /**** New in CUPS 1.1.20 ****/
+  char			authstring[HTTP_MAX_VALUE],
+					/* Current Authentication value */
+			userpass[HTTP_MAX_VALUE];
+					/* Username:password string */
+  int			digest_tries;	/* Number of tries for digest auth */
 } http_t;
 
 
@@ -300,13 +315,18 @@ extern char		*httpGets(char *line, int length, http_t *http);
 extern const char	*httpGetDateString(time_t t);
 extern time_t		httpGetDateTime(const char *s);
 #  define		httpGetField(http,field)	(http)->fields[field]
+extern struct hostent	*httpGetHostByName(const char *name);
 extern char		*httpGetSubField(http_t *http, http_field_t field,
 			                 const char *name, char *value);
 extern int		httpHead(http_t *http, const char *uri);
 extern void		httpInitialize(void);
 extern int		httpOptions(http_t *http, const char *uri);
 extern int		httpPost(http_t *http, const char *uri);
-extern int		httpPrintf(http_t *http, const char *format, ...);
+extern int		httpPrintf(http_t *http, const char *format, ...)
+#  ifdef __GNUC__
+__attribute__ ((__format__ (__printf__, 2, 3)))
+#  endif /* __GNUC__ */
+;
 extern int		httpPut(http_t *http, const char *uri);
 extern int		httpRead(http_t *http, char *buffer, int length);
 extern int		httpReconnect(http_t *http);
@@ -328,6 +348,12 @@ extern char		*httpMD5Final(const char *, const char *, const char *,
 			              char [33]);
 extern char		*httpMD5String(const md5_byte_t *, char [33]);
 
+/**** New in CUPS 1.1.19 ****/
+extern void		httpClearCookie(http_t *http);
+#define httpGetCookie(http) ((http)->cookie)
+extern void		httpSetCookie(http_t *http, const char *cookie);
+extern int		httpWait(http_t *http, int msec);
+
 
 /*
  * C++ magic...
@@ -339,5 +365,5 @@ extern char		*httpMD5String(const md5_byte_t *, char [33]);
 #endif /* !_CUPS_HTTP_H_ */
 
 /*
- * End of "$Id: http.h,v 1.2.2.11 2003/01/06 22:09:32 mike Exp $".
+ * End of "$Id: http.h,v 1.2.2.12 2004/01/13 02:51:27 mike Exp $".
  */
