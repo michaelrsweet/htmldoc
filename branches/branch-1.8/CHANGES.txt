@@ -56,6 +56,8 @@ CHANGES IN HTMLDOC v1.8.9
 	- The Perl example code was incorrect.
 	- Fixed the check for whether or not pages were
 	  generated.
+	- htmlSetCharSet() wasn't reloading the character set
+	  data if the data directory changed.
 
 
 CHANGES IN HTMLDOC v1.8.8

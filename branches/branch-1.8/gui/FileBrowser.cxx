@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.22 2000/05/15 20:59:33 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.22.2.1 2000/12/08 15:55:08 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -336,6 +336,59 @@ FileBrowser::item_draw(void *p,		// I - List item data
 
 
 //
+// 'FileBrowser::lineposition()' - Update the browser to show the line.
+//
+
+void
+FileBrowser::lineposition(int              line,	// I - Line to show
+                          Fl_Line_Position pos)		// I - TOP, etc.
+{
+  int		p;					// Position
+  int		final,					// Final position
+		X, Y, W, H;				// Bounding box
+  FL_BLINE	*l;					// Pointer to line
+
+
+  // This code blatantly stolen from FLTK sources due to non-virtual
+  // methods used...
+  if (line < 1)
+    line = 1;
+  else if (line > size())
+    line = size();
+
+  for (p = 0, l = (FL_BLINE *)item_first(); l && line > 1; l = l->next)
+  {
+    line --;
+    p += item_height(l);
+  }
+
+  if (l && pos == BOTTOM)
+    p += item_height(l);
+
+  final = p;
+
+  bbox(X, Y, W, H);
+
+  switch(pos)
+  {
+    case TOP :
+        break;
+    case BOTTOM :
+        final -= H;
+	break;
+    case MIDDLE :
+        final -= H/2;
+	break;
+  }
+  
+  if (final > (full_height() - H))
+    final = full_height() - H;
+
+  position(final);
+}
+
+
+//
 // 'FileBrowser::FileBrowser()' - Create a FileBrowser widget.
 //
 
@@ -516,5 +569,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.22 2000/05/15 20:59:33 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.22.2.1 2000/12/08 15:55:08 mike Exp $".
 //
