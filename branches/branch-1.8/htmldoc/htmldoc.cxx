@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.51 2002/07/27 03:41:32 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.52 2002/07/31 19:11:08 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1488,7 +1488,8 @@ load_book(const char   *filename,	// I  - Book file
   if (strncmp(line, "#HTMLDOC", 8) != 0)
   {
     fclose(fp);
-    fprintf(stderr, "htmldoc: Bad or missing #HTMLDOC header in %s.", filename);
+    progress_error(HD_ERROR_BAD_FORMAT,
+                   "htmldoc: Bad or missing #HTMLDOC header in %s.", filename);
     return (0);
   }
 
@@ -1499,7 +1500,17 @@ load_book(const char   *filename,	// I  - Book file
     file_gets(line, sizeof(line), fp);
 
     if (line[0] == '-')
+    {
       parse_options(line, exportfunc);
+
+      if (dir != NULL)
+	snprintf(path, sizeof(path), "%s;%s", dir, Path);
+      else
+      {
+	strncpy(path, Path, sizeof(path) - 1);
+	path[sizeof(path) - 1] = '\0';
+      }
+    }
   }
   while (!line[0]);			// Skip blank lines
 
@@ -1509,7 +1520,17 @@ load_book(const char   *filename,	// I  - Book file
     if (!line[0])
       continue;				// Skip blank lines
     else if (line[0] == '-')
+    {
       parse_options(line, exportfunc);
+
+      if (dir != NULL)
+	snprintf(path, sizeof(path), "%s;%s", dir, Path);
+      else
+      {
+	strncpy(path, Path, sizeof(path) - 1);
+	path[sizeof(path) - 1] = '\0';
+      }
+    }
     else if (line[0] == '\\')
       read_file(line + 1, document, path);
     else
@@ -2200,6 +2221,7 @@ usage(void)
   puts("  --no-localfiles");
   puts("  --no-numbered");
   puts("  --no-pscommands");
+  puts("  --no-strict");
   puts("  --no-title");
   puts("  --no-toc");
   puts("  --numbered");
@@ -2218,6 +2240,7 @@ usage(void)
   puts("  --quiet");
   puts("  --right margin{in,cm,mm}");
   puts("  --size {letter,a4,WxH{in,cm,mm},etc}");
+  puts("  --strict");
   puts("  --textcolor color");
   puts("  --textfont {courier,times,helvetica}");
   puts("  --title");
@@ -2257,5 +2280,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.51 2002/07/27 03:41:32 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.52 2002/07/31 19:11:08 mike Exp $".
  */
