@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.17 2002/09/25 01:16:38 mike Exp $"
+// "$Id: render.h,v 1.18 2003/01/02 03:10:12 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -257,51 +257,90 @@ struct hdRenderHeading
 // Main rendering classes...
 //
 
+/**
+ * The hdRender class converts hdTree nodes into pages which can be written
+ * to files or displays.
+ */
+
 class hdRender
 {
   public:
 
-  hdStyleSheet	*css;			// Stylesheet data
-  hdStyleMedia	media;			// Media attributes
-  float		background_color[3];	// Current background color
-  hdImage	*background_image;	// Current background image
-  float		background_position[2];	// Current background start position
-  hdBackgroundRepeat background_repeat;	// Current background repeat mode
+  //* Stylesheet data
+  hdStyleSheet	*css;
+  //* Media attributes
+  hdStyleMedia	media;
+  //* Current background color
+  float		background_color[3];
+  //* Current background image
+  hdImage	*background_image;
+  //* Current background start position
+  float		background_position[2];
+  //* Current background repeat mode
+  hdBackgroundRepeat background_repeat;
 
-  char		doc_date[64];		// Document creation date
-  time_t	doc_time;		// Document creation time
-  char		*doc_title;		// Document title
+  //* Document creation date
+  char		doc_date[64];
+  //* Document creation time
+  time_t	doc_time;
+  //* Document title
+  char		*doc_title;
 
-  int		title_page;		// Non-zero when processing title page
-  int		current_chapter,	// Current chapter
-		num_chapters,		// Number of chapters
-		alloc_chapters;		// Allocated chapters
-  hdRenderChapter *chapters;		// Chapters
+  //* Non-zero when processing title page
+  int		title_page;
+  //* Current chapter
+  int		current_chapter;
+  //* Number of chapters
+  int		num_chapters;
+  //* Allocated chapters
+  int		alloc_chapters;
+  //* Chapters
+  hdRenderChapter *chapters;
 
-  char		*current_heading;	// Current heading
-  int		num_headings,		// Number of headings
-		alloc_headings;		// Allocated headings
-  hdRenderHeading *headings;		// Headings
+  //* Current heading
+  char		*current_heading;
+  //* Number of headings
+  int		num_headings;
+  //* Allocated headings
+  int		alloc_headings;
+  //* Headings
+  hdRenderHeading *headings;
 
-  int		num_imgmaps,		// Number of image maps
-		alloc_imgmaps;		// Allocated image maps
-  hdTree	**imgmaps;		// Image maps
+  //* Number of image maps
+  int		num_imgmaps;
+  //* Allocated image maps
+  int		alloc_imgmaps;
+  //* Image maps
+  hdTree	**imgmaps;
 
-  int		num_links,		// Number of links
-		alloc_links;		// Allocated links
-  hdRenderLink	*links;			// Links
+  //* Number of links
+  int		num_links;
+  //* Allocated links
+  int		alloc_links;
+  //* Links
+  hdRenderLink	*links;
 
-  int		num_pages,		// Number of pages
-		alloc_pages;		// Allocated pages
-  hdRenderPage	*pages;			// Pages
+  //* Number of pages
+  int		num_pages;
+  //* Allocated pages
+  int		alloc_pages;
+  //* Pages
+  hdRenderPage	*pages;
 
-  hdStyleFont	*render_font;		// Current font
-  float		render_size,		// Current font size
-		render_rgb[3],		// Current drawing color
-		render_x,		// Current X position
-		render_y,		// Current Y position
-		render_startx,		// Current text X margin
-		render_spacing;		// Current text spacing
+  //* Current font
+  hdStyleFont	*render_font;
+  //* Current font size
+  float		render_size;
+  //* Current drawing color
+  float		render_rgb[3];
+  //* Current X position
+  float		render_x;
+  //* Current Y position
+  float		render_y;
+  //* Current text X margin
+  float		render_startx;
+  //* Current text spacing
+  float		render_spacing;
 
   hdRender(hdStyleSheet *s);
   virtual	~hdRender();
@@ -381,6 +420,10 @@ class hdRender
 };
 
 
+/**
+ * The hdPSRender class writes PostScript files.
+ */
+
 class hdPSRender : public hdRender
 {
   public:
@@ -404,24 +447,42 @@ class hdPSRender : public hdRender
 };
 
 
+/**
+ * The hdPDFRender class writes PDF files.
+ */
+
 class hdPDFRender : public hdRender
 {
   public:
 
+  //*
   char		stdout_filename[256];
-  int		num_objects,
-		alloc_objects,
-		*objects,
-		root_object,
-		info_object,
-		outline_object,
-		pages_object,
-		names_object,
-		encrypt_object,
-		font_objects[16];
+  //*
+  int		num_objects;
+  //*
+  int		alloc_objects;
+  //*
+  int		*objects;
+  //*
+  int		root_object;
+  //*
+  int		info_object;
+  //*
+  int		outline_object;
+  //*
+  int		pages_object;
+  //*
+  int		names_object;
+  //*
+  int		encrypt_object;
+  //*
+  int		font_objects[16];
 
+  //*
   char		encrypt_key[16];
+  //*
   int		encrypt_len;
+  //*
   hdByte	file_id[16];
 
   hdPDFRender();
@@ -547,5 +608,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.17 2002/09/25 01:16:38 mike Exp $".
+// End of "$Id: render.h,v 1.18 2003/01/02 03:10:12 mike Exp $".
 //

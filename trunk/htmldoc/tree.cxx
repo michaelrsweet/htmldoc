@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.19 2002/09/02 23:04:12 mike Exp $"
+// "$Id: tree.cxx,v 1.20 2003/01/02 03:10:12 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -703,7 +703,7 @@ hdTree::get_meta(const char *name)	// I - Name of meta data
 //
 
 char *					// O - Text under the node.
-hdTree::get_text(int comments)		// I - Include comments, too?
+hdTree::get_text(bool comments)		// I - Include comments, too?
 {
   char		*s;			// String
   int		slen,			// Length of string
@@ -805,7 +805,7 @@ hdTree::insert(hdTree *p)		// I - Parent node
 // 'hdTree::parse_attribute()' - Parse an attribute.
 //
 
-int					// O - 0 on success, -1 on error
+bool					// O - True on success, false on error
 hdTree::parse_attribute(hdFile *fp)	// I - File to read from
 {
   char	name[1024],			// Name of variable
@@ -831,10 +831,10 @@ hdTree::parse_attribute(hdFile *fp)	// I - File to read from
     default :
         fp->unget(ch);
 	set_attr(name, NULL);
-        return (0);
+        return (true);
 
     case EOF :
-        return (-1);
+        return (false);
 
     case '=' :
         ptr = value;
@@ -883,7 +883,7 @@ hdTree::parse_attribute(hdFile *fp)	// I - File to read from
         }
 
 	set_attr(name, value);
-        return (0);
+        return (true);
   }
 }
 
@@ -1655,7 +1655,7 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 //
 
 hdTree *				// O - Next logical node
-hdTree::real_next(int descend)		// I - Descend into children?
+hdTree::real_next(bool descend)		// I - Descend into children?
 {
   hdTree	*t;			// Current node
 
@@ -1818,5 +1818,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.19 2002/09/02 23:04:12 mike Exp $".
+// End of "$Id: tree.cxx,v 1.20 2003/01/02 03:10:12 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: toc.cxx,v 1.13 2002/04/03 21:53:21 mike Exp $"
+// "$Id: toc.cxx,v 1.14 2003/01/02 03:10:12 mike Exp $"
 //
 //   Table-of-contents methods for HTMLDOC, a HTML document processing program.
 //
@@ -41,7 +41,7 @@
 hdTree *				// O - Table of contents tree
 hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
                   int          levels,	// I - Number of levels
-		  int          numbered)// I - Number the headings?
+		  bool         numbered)// I - Number the headings?
 {
   int		i;			// Looping var
   int		chapter;		// Chapter number
@@ -223,5 +223,5 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: toc.cxx,v 1.13 2002/04/03 21:53:21 mike Exp $".
+// End of "$Id: toc.cxx,v 1.14 2003/01/02 03:10:12 mike Exp $".
 //
