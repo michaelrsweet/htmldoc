@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.5 2000/01/04 13:46:05 mike Exp $"
+# "$Id: Makefile,v 1.6 2000/03/06 20:42:51 mike Exp $"
 #
 #   PNG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -53,7 +53,7 @@ clean:
 #
 
 libpng.a:	$(OBJS)
-	echo Archiving $<...
+	echo Archiving $@...
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@  $(OBJS)
 	$(RANLIB) $@
@@ -61,5 +61,5 @@ libpng.a:	$(OBJS)
 $(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.5 2000/01/04 13:46:05 mike Exp $".
+# End of "$Id: Makefile,v 1.6 2000/03/06 20:42:51 mike Exp $".
 #
