@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.36 1999/12/05 13:32:43 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.37 1999/12/08 17:03:36 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2611,6 +2611,13 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	    * break...
 	    */
 
+            if (para->child != NULL)
+            {
+              parse_paragraph(para, left, right, bottom, top, x, y, page);
+              htmlDeleteTree(para->child);
+              para->child = para->last_child = NULL;
+            }
+
             (*page) ++;
 	    if (Verbosity)
 	      progress_show("Formatting page %d", *page);
@@ -2625,6 +2632,13 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	   /*
 	    * <!-- NEW SHEET --> generate a page break to a new sheet...
 	    */
+
+            if (para->child != NULL)
+            {
+              parse_paragraph(para, left, right, bottom, top, x, y, page);
+              htmlDeleteTree(para->child);
+              para->child = para->last_child = NULL;
+            }
 
             (*page) ++;
 	    if (PageDuplex && ((*page) & 1))
@@ -6391,5 +6405,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.36 1999/12/05 13:32:43 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.37 1999/12/08 17:03:36 mike Exp $".
  */
