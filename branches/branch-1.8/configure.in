@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.31 2002/03/24 17:27:44 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.32 2002/06/24 17:19:49 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -45,12 +45,20 @@ AC_ARG_WITH(fltk-includes, [  --with-fltk-includes    set directory for FLTK inc
 AC_ARG_WITH(gui, [  --with-gui              compile the GUI version of HTMLDOC [default=yes]])
 
 AC_ARG_WITH(openssl-libs, [  --with-openssl-libs     set directory for OpenSSL library],
-    LDFLAGS="-L$withval $LDFLAGS",)
+    if test "$withval" = "no"; then
+        USE_SSL=no
+    else
+        LDFLAGS="-L$withval $LDFLAGS"
+    fi,)
 
 AC_ARG_WITH(openssl-includes, [  --with-openssl-includes set directory for OpenSSL includes],
-    CFLAGS="-I$withval $CFLAGS"
-    CXXFLAGS="-I$withval $CXXFLAGS"
-    CPPFLAGS="-I$withval $CPPFLAGS",)
+    if test "$withval" = "no"; then
+        USE_SSL=no
+    else
+        CFLAGS="-I$withval $CFLAGS"
+        CXXFLAGS="-I$withval $CXXFLAGS"
+        CPPFLAGS="-I$withval $CPPFLAGS"
+    fi,)
 
 dnl Checks for programs...
 AC_PROG_AWK
@@ -122,20 +130,22 @@ dnl test program correctly, even though a correct installation
 dnl of OpenSSL exists.  So we test the linking three times in
 dnl case the RSAREF libraries are needed.
 
-for libcrypto in \
-    "-lcrypto" \
-    "-lcrypto -lrsaref" \
-    "-lcrypto -lRSAglue -lrsaref"
-do
-    AC_CHECK_LIB(ssl,SSL_new,
-	[SSLLIBS="-lssl $libcrypto"],,
-	$libcrypto)
+if test "$USE_SSL" != "no"; then
+    for libcrypto in \
+        "-lcrypto" \
+        "-lcrypto -lrsaref" \
+        "-lcrypto -lRSAglue -lrsaref"
+    do
+        AC_CHECK_LIB(ssl,SSL_new,
+	    [SSLLIBS="-lssl $libcrypto"],,
+	    $libcrypto)
 
-    if test "x${SSLLIBS}" != "x"; then
-	AC_CHECK_HEADER(openssl/ssl.h,AC_DEFINE(HAVE_LIBSSL))
-	break
-    fi
-done
+        if test "x${SSLLIBS}" != "x"; then
+            AC_CHECK_HEADER(openssl/ssl.h,AC_DEFINE(HAVE_LIBSSL))
+            break
+        fi
+    done
+fi
 
 LIBS="$SAVELIBS $SSLLIBS"
 
@@ -371,5 +381,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.31 2002/03/24 17:27:44 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.32 2002/06/24 17:19:49 mike Exp $".
 dnl
