@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.233 2004/02/10 16:19:38 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.234 2004/02/10 19:03:08 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5501,7 +5501,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 		min_width,
 		temp_width,
 		table_y,
-		row_y, temp_y,
+		row_y, row_starty, temp_y,
 		temp_bottom,
 		temp_top;
   int		row_page, temp_page, table_page;
@@ -6205,6 +6205,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 
     do_valign  = 1;
     row_y      = *y - cellpadding;
+    row_starty = row_y;
     row_page   = *page;
     row_height = 0.0f;
 
@@ -6509,6 +6510,9 @@ parse_table(tree_t *t,			// I - Tree to parse
 
     row_y -= cellpadding;
 
+    border_left = col_lefts[0] - cellpadding;
+    width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
+
     if ((bgcolor = htmlGetVariable(cells[row][0]->parent,
                                          (uchar *)"BGCOLOR")) != NULL)
     {
@@ -6518,6 +6522,31 @@ parse_table(tree_t *t,			// I - Tree to parse
 
       if (row_page != *page)
       {
+        // Draw background on multiple pages...
+
+	// Bottom of first page...
+        new_render(row_page, RENDER_BOX, border_left, bottom,
+	           width, row_starty - bottom + cellpadding, bgrgb);
+
+        // Intervening pages...
+        for (temp_page = row_page + 1; temp_page != *page; temp_page ++)
+	{
+          new_render(temp_page, RENDER_BOX, border_left, bottom,
+                     width, top - bottom, bgrgb, pages[temp_page].start);
+        }
+
+        // Top of last page...
+	check_pages(*page);
+
+        new_render(*page, RENDER_BOX, border_left, row_y,
+	           width, top - row_y, bgrgb,
+		   pages[*page].start);
+      }
+      else
+      {
+        // Draw background in row...
+        new_render(row_page, RENDER_BOX, border_left, row_y,
+	           width, row_height, bgrgb, pages[temp_page].start);
       }
     }
 
@@ -6685,6 +6714,40 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   if ((bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL)
   {
+    memcpy(bgrgb, background_color, sizeof(bgrgb));
+
+    get_color(bgcolor, bgrgb, 0);
+
+    border_left = col_lefts[0] - cellpadding;
+    width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
+
+    if (table_page != *page)
+    {
+      // Draw background on multiple pages...
+
+      // Bottom of first page...
+      new_render(table_page, RENDER_BOX, border_left, bottom,
+	         width, table_y - bottom + cellpadding, bgrgb);
+
+      // Intervening pages...
+      for (temp_page = table_page + 1; temp_page != *page; temp_page ++)
+      {
+        new_render(temp_page, RENDER_BOX, border_left, bottom,
+                   width, top - bottom, bgrgb, pages[temp_page].start);
+      }
+
+      // Top of last page...
+      check_pages(*page);
+
+      new_render(*page, RENDER_BOX, border_left, *y,
+	         width, top - *y, bgrgb, pages[*page].start);
+    }
+    else
+    {
+      // Draw background in row...
+      new_render(table_page, RENDER_BOX, border_left, *y,
+	         width, table_y - *y, bgrgb, pages[temp_page].start);
+    }
   }
 
   *x = left;
@@ -12221,5 +12284,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.233 2004/02/10 16:19:38 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.234 2004/02/10 19:03:08 mike Exp $".
  */

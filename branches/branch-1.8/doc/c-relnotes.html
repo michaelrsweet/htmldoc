@@ -29,6 +29,8 @@
 	<LI>Added support for HP LaserJet 5000 and Xerox DocuPrint
 	2000/100 printer commands.
 
+	<LI>Added multiple header/footer image support.
+
 	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>The command-line now allows --fontsize values from 4
@@ -52,6 +54,17 @@
 	<LI>The table formatter now subtracts the outside border
 	and padding widths for percentage-based widths.  This
 	helps to eliminate "truncation or overlapping" errors.
+
+	<LI>Dropped support for FLTK 1.0.x when building the GUI.
+
+	<LI>The default vertical alignment is now "bottom" inside
+	paragraphs to correctly align different sized text and
+	images to the baseline.
+
+	<LI>Indexed images are now written as PDF image objects when
+	encryption is enabled; this works around a serious bug in
+	Acrobat 6 which tries to decrypt the colormap of in-line
+	images twice, causing some very strange colors!
 
 	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
@@ -92,6 +105,9 @@
 	a cell without a border that cross a page boundary.
 
 	<LI>Fixed some calls to strcpy with overlapping arguments.
+
+	<LI>The names object was never set when the name objects
+	were written.
 
 </UL>
 
