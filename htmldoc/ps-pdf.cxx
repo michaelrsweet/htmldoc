@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.162 2002/04/17 20:03:32 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.163 2002/05/01 17:34:15 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -9467,13 +9467,14 @@ write_prolog(FILE  *out,	/* I - Output file */
 
       fputs("%XRXdisposition: PRINT\n", out);
       fputs("%XRXsignature: False\n", out);
-      fprintf(out, "%%XRXpaperType-size: %d %d\n", pages[start].width,
-              pages[start].length);
+      fprintf(out, "%%XRXpaperType-size: %.0f %.0f\n",
+              pages[start].width * 25.4f / 72.0f,
+              pages[start].length * 25.4f / 72.0f);
       if (pages[start].media_type[0])
 	fprintf(out, "%%XRXpaperType-preFinish: %s 0 0\n",
         	pages[start].media_type);
       if (pages[start].media_color[0])
-	fprintf(out, "%%XRXdocumentPaperColors: %c%s 0 0\n",
+	fprintf(out, "%%XRXdocumentPaperColors: %c%s\n",
         	tolower(pages[start].media_color[0]),
 		pages[start].media_color + 1);
 
@@ -9496,8 +9497,10 @@ write_prolog(FILE  *out,	/* I - Output file */
 		  pages[i].duplex != pages[i + count].duplex)
 		break;
 
-	    fprintf(out, "%%XRXpageExceptions: %d %d %d %d %c%s opaque %s 0 0\n",
-	            i + 1, i + count, pages[i].width, pages[i].length,
+	    fprintf(out, "%%XRXpageExceptions: %d %d %.0f %.0f %c%s opaque %s 0 0\n",
+	            i + 1, i + count,
+		    pages[i].width * 25.4f / 72.0f,
+		    pages[i].length * 25.4f / 72.0f,
 		    tolower(pages[i].media_color[0]),
 		    pages[i].media_color + 1,
 		    pages[i].media_type[0] ? pages[i].media_type : "Plain");
@@ -10797,5 +10800,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.162 2002/04/17 20:03:32 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.163 2002/05/01 17:34:15 mike Exp $".
  */
