@@ -1,6 +1,21 @@
 CHANGES.txt - 10/31/2001
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.17
+
+    NEW FEATURES
+
+
+    CHANGES
+
+
+    BUG FIXES
+
+	- The table cell border and background were offset by
+	  the cellpadding when they should only be offset by the
+	  cellspacing.
+
+
 CHANGES IN HTMLDOC v1.8.16
 
     CHANGES
