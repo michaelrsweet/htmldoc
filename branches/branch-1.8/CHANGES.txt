@@ -1,4 +1,4 @@
-CHANGES.txt - 02/20/2003
+CHANGES.txt - 02/21/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -11,6 +11,11 @@ CHANGES IN HTMLDOC v1.8.24
 	- HTMLDOC now includes LINK elements in generated HTML
 	  so that intelligent browsers like Mozilla can show
 	  next/prev/contents/top buttons.
+
+    CHANGES
+
+	- HTMLDOC no longer enables interpolation of 2-color
+	  images.
 
     BUG FIXES
 
