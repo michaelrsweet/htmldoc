@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.50 2002/04/04 18:43:22 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.51 2002/04/09 15:58:08 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -804,6 +804,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       case MARKUP_LINK :
       case MARKUP_META :
       case MARKUP_WBR :
+      case MARKUP_COL :
           break;
 
       case MARKUP_EMBED :
@@ -2662,5 +2663,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.50 2002/04/04 18:43:22 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.51 2002/04/09 15:58:08 mike Exp $".
  */
