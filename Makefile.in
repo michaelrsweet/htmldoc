@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.12 2004/03/31 07:28:13 mike Exp $"
+# "$Id: Makefile.in,v 1.13 2004/10/23 07:52:56 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -48,7 +48,7 @@ INSTALLDIRS =	fonts data doc htmldoc
 # Make all targets...
 #
 
-all:	Makedefs Makefile config.h htmldoc.list htmldoc.plist
+all:	Makedefs Makefile config.h htmldoc.list
 	for dir in $(DIRS); do\
 		echo Making all in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
@@ -141,74 +141,16 @@ htmldoc.list:	htmldoc.list.in configure
 
 
 #
-# htmldoc.plist
-#
-
-htmldoc.plist:	htmldoc.plist.in configure
-	if test -f config.status; then \
-		./config.status --recheck; \
-		./config.status; \
-	else \
-		./configure; \
-	fi
-	touch config.h
-
-
-#
 # Make a portable binary distribution using EPM.
 #
-# EPM = ESP Package Manager, available at "http://www.easysw.com/epm".
+# EPM = ESP Package Manager, available at "http://www.easysw.com/epm/".
 #
 
 epm:
-	$(EPM) -s setup.xpm htmldoc
+	$(RM) -r dist
+	$(EPM) htmldoc
 
 
 #
-# Make a RPM distribution using EPM.
-#
-
-rpm:
-	$(EPM) -f rpm htmldoc
-
-
-#
-# Make a Debian distribution using EPM.
-#
-
-deb:
-	$(EPM) -f deb htmldoc
-
-
-#
-# Make an IRIX distribution using EPM.
-#
-
-tardist:
-	$(EPM) -f tardist htmldoc
-
-#
-# Make a MacOS X distribution using EPM.
-#
-
-osx:
-	$(EPM) -f osx htmldoc
-
-#
-# Make a Solaris distribution using EPM.
-#
-
-pkg:
-	$(EPM) -f pkg htmldoc
-
-#
-# Make an HP-UX distribution using EPM.
-#
-
-depot:
-	$(EPM) -f depot htmldoc
-
-
-#
-# End of "$Id: Makefile.in,v 1.12 2004/03/31 07:28:13 mike Exp $".
+# End of "$Id: Makefile.in,v 1.13 2004/10/23 07:52:56 mike Exp $".
 #
