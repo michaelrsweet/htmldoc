@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.5 2004/04/11 21:20:28 mike Exp $"
+ * "$Id: util.cxx,v 1.6 2004/10/23 07:06:19 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -184,7 +184,7 @@ hdBook::get_color(const uchar *color,	/* I - Color attribute */
     {
       // Update the color name to be #RRGGBB instead of RRGGBB...
       tempcolor[0] = '#';
-      strcpy((char *)tempcolor + 1, (char *)color);
+      strlcpy((char *)tempcolor + 1, (char *)color, sizeof(tempcolor) - 1);
       color = tempcolor;
     }
   }
@@ -359,6 +359,7 @@ hdBook::get_fmt(char **formats)			// I - New format strings
   };
 
 
+  // Safe because fmt is 4 chars long
   strcpy(fmt, "...");
 
   for (i = 0; i < 3; i ++)
@@ -514,5 +515,5 @@ hdBook::set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.5 2004/04/11 21:20:28 mike Exp $".
+ * End of "$Id: util.cxx,v 1.6 2004/10/23 07:06:19 mike Exp $".
  */

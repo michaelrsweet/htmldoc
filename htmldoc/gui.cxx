@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.43 2004/04/05 01:39:34 mike Exp $"
+// "$Id: gui.cxx,v 1.44 2004/10/23 07:06:19 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3142 USA
+//       Hollywood, Maryland 20636 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -33,6 +33,7 @@
 //   GUI::newBook()        - Clear out the current GUI settings for a new book.
 //   GUI::loadBook()       - Load a book file from disk.
 //   GUI::parseOptions()   - Parse options in a book file...
+//   GUI::appleOpenCB()    - Handle open file events from Finder.
 //   GUI::saveBook()       - Save a book to disk.
 //   GUI::checkSave()      - Check to see if a save is needed.
 //   GUI::changeCB()       - Mark the current book as changed.
@@ -69,6 +70,8 @@
 //   GUI::generateBookCB() - Generate the current book.
 //   GUI::closeBookCB()    - Close the current book.
 //   GUI::errorCB()        - Close the error window.
+//   aboutCloseCB()        - Close the about window.
+//   GUI::showAboutCB()    - Show the about window.
 //
 
 #include "htmldoc.h"
@@ -87,6 +90,9 @@
 #  include <FL/fl_draw.H>
 #  include <FL/x.H>
 
+#  include <FL/Fl_Pixmap.H>
+#  include "../desktop/htmldoc.xpm"
+
 #  ifdef WIN32
 #    include <direct.h>
 #    include <io.h>
@@ -95,9 +101,8 @@
 #    include <unistd.h>
 #    ifdef HAVE_LIBXPM
 #      include <X11/xpm.h>
-#      include "htmldoc.xpm"
-#    else
-#      include "htmldoc.xbm"
+#    elif !defined(__APPLE__)
+#      include "../desktop/htmldoc.xbm"
 #    endif // HAVE_LIBXPM
 #  endif // WIN32
 
@@ -260,6 +265,11 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			};
 
 
+  // Support opening of books via the finder...
+#ifdef __APPLE__
+  fl_open_callback(appleOpenCB);
+#endif // __APPLE__
+
   // Enable/disable tooltips...
   Fl_Tooltip::enable(Tooltips);
 
@@ -270,10 +280,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Create a dialog window...
   //
 
-  window = new Fl_Window(505, 415, "HTMLDOC " SVERSION);
+  window = new Fl_Double_Window(505, 370, "HTMLDOC " SVERSION);
   window->callback((Fl_Callback *)closeBookCB, this);
 
-  controls = new Fl_Group(0, 0, 505, 385);
+  controls = new Fl_Group(0, 0, 505, 330);
   tabs     = new Fl_Tabs(10, 10, 485, 285);
 
   tabs->selection_color(FL_WHITE);
@@ -969,18 +979,25 @@ GUI::GUI(const char *filename)		// Book file to load initially
     tooltips->callback((Fl_Callback *)tooltipCB, this);
     tooltips->value(Tooltips);
     tooltips->tooltip("Check to show tooltips.");
-    tooltips->deactivate();
 
-    modernSkin = new Fl_Check_Button(140, 185, 120, 25, "Modern Look");
-    modernSkin->callback((Fl_Callback *)skinCB, this);
-    modernSkin->value(ModernSkin);
-    modernSkin->tooltip("Check to show the more modern look-n-feel.");
+    modern_skin = new Fl_Check_Button(140, 185, 120, 25, "Modern Look");
+    modern_skin->callback((Fl_Callback *)skinCB, this);
+    modern_skin->value(ModernSkin);
+    modern_skin->tooltip("Check to show the more modern look-n-feel.");
 
-    strictHTML = new Fl_Check_Button(140, 210, 120, 25, "Strict HTML");
-    strictHTML->value(book->strict_html);
-    strictHTML->tooltip("Check to require strict HTML conformance.");
+    strict_html = new Fl_Check_Button(140, 210, 120, 25, "Strict HTML");
+    strict_html->value(book->strict_html);
+    strict_html->tooltip("Check to require strict HTML conformance.");
 
   group->end();
+
+  showAbout = new Fl_Button(75, 260, 130, 25, "About HTMLDOC");
+  showAbout->callback((Fl_Callback *)showAboutCB);
+  showAbout->tooltip("Click to show information about HTMLDOC.");
+
+  showLicense = new Fl_Button(215, 260, 70, 25, "License");
+  showLicense->callback((Fl_Callback *)showLicenseCB);
+  showLicense->tooltip("Click to show the software license.");
 
   saveOptions = new Fl_Button(295, 260, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
@@ -994,55 +1011,41 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Button bar...
   //
 
-  bookHelp = new Fl_Button(10, 355, 55, 25, "Help");
+  bookHelp = new Fl_Button(10, 305, 55, 25, "Help");
   bookHelp->shortcut(FL_F + 1);
   bookHelp->callback((Fl_Callback *)helpCB, this);
 
-  bookNew = new Fl_Button(70, 355, 50, 25, "New");
+  bookNew = new Fl_Button(70, 305, 50, 25, "New");
   bookNew->shortcut(FL_CTRL | 'n');
   bookNew->callback((Fl_Callback *)newBookCB, this);
 
-  bookOpen = new Fl_Button(125, 355, 65, 25, "Open...");
+  bookOpen = new Fl_Button(125, 305, 65, 25, "Open...");
   bookOpen->shortcut(FL_CTRL | 'o');
   bookOpen->callback((Fl_Callback *)openBookCB, this);
 
-  bookSave = new Fl_Button(195, 355, 55, 25, "Save");
+  bookSave = new Fl_Button(195, 305, 55, 25, "Save");
   bookSave->shortcut(FL_CTRL | 's');
   bookSave->callback((Fl_Callback *)saveBookCB, this);
 
-  bookSaveAs = new Fl_Button(255, 355, 85, 25, "Save As...");
+  bookSaveAs = new Fl_Button(255, 305, 85, 25, "Save As...");
   bookSaveAs->shortcut(FL_CTRL | FL_SHIFT | 's');
   bookSaveAs->callback((Fl_Callback *)saveAsBookCB, this);
 
-  bookGenerate = new Fl_Button(345, 355, 85, 25, "Generate");
+  bookGenerate = new Fl_Button(345, 305, 85, 25, "Generate");
   bookGenerate->shortcut(FL_CTRL | 'g');
   bookGenerate->callback((Fl_Callback *)generateBookCB, this);
 
-  bookClose = new Fl_Button(435, 355, 60, 25, "Close");
+  bookClose = new Fl_Button(435, 305, 60, 25, "Close");
   bookClose->shortcut(FL_CTRL | 'q');
   bookClose->callback((Fl_Callback *)closeBookCB, this);
 
   controls->end();
 
   //
-  // Copyright notice...
+  // Progress bar...
   //
 
-  label = new Fl_Box(10, 300, 485, 50,
-          "HTMLDOC " SVERSION " Copyright 1997-2004 by Easy Software Products "
-	  "(http://www.easysw.com). This program is free software; you can "
-	  "redistribute it and/or modify it under the terms of the GNU General "
-	  "Public License as published by the Free Software Foundation. This "
-	  "software is based in part on the work of the Independent JPEG Group."
-	  );
-  label->labelsize(10);
-  label->align(FL_ALIGN_TOP | FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
-
-  //
-  // Fl_Progress bar...
-  //
-
-  progressBar = new Fl_Progress(10, 385, 485, 20, "HTMLDOC " SVERSION " Ready.");
+  progressBar = new Fl_Progress(10, 340, 485, 20, "HTMLDOC " SVERSION " Ready.");
 
   window->end();
 
@@ -1054,7 +1057,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   window->icon((char *)LoadImage(fl_display, MAKEINTRESOURCE(IDI_ICON),
                                  IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
 #  elif defined(__APPLE__)
-  // NEED TO DO MacOS stuff here...
+  // MacOS X gets the icon from the application bundle...
 #  elif defined(HAVE_LIBXPM) // X11 w/Xpm library
   Pixmap	pixmap, mask;	// Icon pixmaps
   XpmAttributes	attrs;		// Attributes of icon
@@ -1071,12 +1074,12 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Open the X display and load the HTMLDOC icon image...
   fl_open_display();
   window->icon((char *)XCreateBitmapFromData(fl_display,
-               DefaultRootWindow(fl_display), htmldoc_bits,
+               DefaultRootWindow(fl_display), (char *)htmldoc_bits,
 	       htmldoc_width, htmldoc_height));
 #  endif // WIN32
 
   window->resizable(tabs);
-  window->size_range(470, 390);
+  window->size_range(470, 360);
   show();
 
   // File chooser, icons, help dialog, error window...
@@ -1130,11 +1133,14 @@ GUI::GUI(const char *filename)		// Book file to load initially
 GUI::~GUI(void)
 {
   delete book;
-
   delete window;
+
   delete fc;
   delete help;
   delete error_window;
+
+  while (Fl_File_Icon::first())
+    delete Fl_File_Icon::first();
 }
 
 
@@ -1181,30 +1187,27 @@ void
 GUI::title(const char *filename,// Name of file being edited
            int        changed)	// Whether or not the file is modified
 {
-  static char	guititle[1024];	// Title string
-
-
   book_changed = changed;
 
   if (filename == NULL || filename[0] == '\0')
   {
     book_filename[0] = '\0';
-    strcpy(guititle, "NewBook");
+    strlcpy(title_string, "NewBook", sizeof(title_string));
   }
   else
   {
-    strcpy(book_filename, filename);
-    strcpy(guititle, file_basename(filename));
+    strlcpy(book_filename, filename, sizeof(book_filename));
+    strlcpy(title_string, file_basename(filename), sizeof(title_string));
   }
 
   if (changed)
-    strcat(guititle, "(modified) - ");
+    strlcat(title_string, "(modified) - ", sizeof(title_string));
   else
-    strcat(guititle, " - ");
+    strlcat(title_string, " - ", sizeof(title_string));
 
-  strcat(guititle, "HTMLDOC " SVERSION);
+  strlcat(title_string, "HTMLDOC " SVERSION, sizeof(title_string));
 
-  window->label(guititle);
+  window->label(title_string);
   if (window->visible())
     Fl::check();
 }
@@ -1242,7 +1245,7 @@ GUI::loadSettings()
   else
     book->OutputJPEG = 0;
 
-  strcpy(book->TocTitle, tocTitle->value());
+  strlcpy(book->TocTitle, tocTitle->value(), sizeof(book->TocTitle));
 
   temp[0] = formats[tocHeaderLeft->value()];
   temp[1] = formats[tocHeaderCenter->value()];
@@ -1308,8 +1311,8 @@ GUI::loadSettings()
   if (permAnnotate->value())
     book->Permissions |= HD_PDF_PERM_ANNOTATE;
 
-  strcpy(book->UserPassword, userPassword->value());
-  strcpy(book->OwnerPassword, ownerPassword->value());
+  strlcpy(book->UserPassword, userPassword->value(), sizeof(book->UserPassword));
+  strlcpy(book->OwnerPassword, ownerPassword->value(), sizeof(book->OwnerPassword));
 
   if (ps1->value())
     book->PSLevel = 1;
@@ -1321,22 +1324,22 @@ GUI::loadSettings()
   book->PSCommands  = psCommands->value();
   book->XRXComments = xrxComments->value();
 
-  strcpy(book->BodyColor, bodyColor->value());
-  strcpy(book->BodyImage, bodyImage->value());
+  strlcpy(book->BodyColor, bodyColor->value(), sizeof(book->BodyColor));
+  strlcpy(book->BodyImage, bodyImage->value(), sizeof(book->BodyImage));
 
   htmlSetTextColor((uchar *)textColor->value());
   htmlSetCharSet(charset->text(charset->value()));
 
-  strcpy(book->LinkColor, linkColor->value());
+  strlcpy(book->LinkColor, linkColor->value(), sizeof(book->LinkColor));
   book->LinkStyle = linkStyle->value();
 
   _htmlBrowserWidth = browserWidth->value();
 
-  strcpy(book->Path, path->value());
+  strlcpy(book->Path, path->value(), sizeof(book->Path));
 
-  strcpy(book->Proxy, proxy->value());
+  strlcpy(book->Proxy, proxy->value(), sizeof(book->Proxy));
 
-  book->strict_html = strictHTML->value();
+  book->strict_html = strict_html->value();
 }
 
 
@@ -1425,21 +1428,21 @@ GUI::newBook(void)
   landscape->value(book->Landscape);
 
   memset(formats, 0, sizeof(formats));
-  formats['t'] = 1;
-  formats['c'] = 2;
-  formats['h'] = 3;
-  formats['l'] = 4;
-  formats['1'] = 5;
-  formats['i'] = 6;
-  formats['I'] = 7;
-  formats['a'] = 8;
-  formats['A'] = 9;
-  formats['C'] = 10;
-  formats['/'] = 11;
-  formats[':'] = 12;
-  formats['d'] = 13;
-  formats['T'] = 14;
-  formats['D'] = 15;
+  formats[(int)'t'] = 1;
+  formats[(int)'c'] = 2;
+  formats[(int)'h'] = 3;
+  formats[(int)'l'] = 4;
+  formats[(int)'1'] = 5;
+  formats[(int)'i'] = 6;
+  formats[(int)'I'] = 7;
+  formats[(int)'a'] = 8;
+  formats[(int)'A'] = 9;
+  formats[(int)'C'] = 10;
+  formats[(int)'/'] = 11;
+  formats[(int)':'] = 12;
+  formats[(int)'d'] = 13;
+  formats[(int)'T'] = 14;
+  formats[(int)'D'] = 15;
 
   fmt = book->get_fmt(book->Header);
   pageHeaderLeft->value(formats[fmt[0]]);
@@ -1595,7 +1598,7 @@ GUI::newBook(void)
   path->value(book->Path);
   proxy->value(book->Proxy);
   browserWidth->value(_htmlBrowserWidth);
-  strictHTML->value(book->strict_html);
+  strict_html->value(book->strict_html);
 
   title(NULL, 0);
 
@@ -1624,8 +1627,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     * a chdir()...
     */
 
-    strncpy(basename, file_basename(filename), sizeof(basename) - 1);
-    basename[sizeof(basename) - 1] = '\0';
+    strlcpy(basename, file_basename(filename), sizeof(basename));
     filename = basename;
 
     chdir(dir);
@@ -1718,21 +1720,21 @@ GUI::parseOptions(const char *line)	// I - Line from file
 
   // Initialize the format character lookup table...
   memset(formats, 0, sizeof(formats));
-  formats['t'] = 1;
-  formats['c'] = 2;
-  formats['h'] = 3;
-  formats['l'] = 4;
-  formats['1'] = 5;
-  formats['i'] = 6;
-  formats['I'] = 7;
-  formats['a'] = 8;
-  formats['A'] = 9;
-  formats['C'] = 10;
-  formats['/'] = 11;
-  formats[':'] = 12;
-  formats['d'] = 13;
-  formats['T'] = 14;
-  formats['D'] = 15;
+  formats[(int)'t'] = 1;
+  formats[(int)'c'] = 2;
+  formats[(int)'h'] = 3;
+  formats[(int)'l'] = 4;
+  formats[(int)'1'] = 5;
+  formats[(int)'i'] = 6;
+  formats[(int)'I'] = 7;
+  formats[(int)'a'] = 8;
+  formats[(int)'A'] = 9;
+  formats[(int)'C'] = 10;
+  formats[(int)'/'] = 11;
+  formats[(int)':'] = 12;
+  formats[(int)'d'] = 13;
+  formats[(int)'T'] = 14;
+  formats[(int)'D'] = 15;
 
   // Parse the input line...
   for (lineptr = line; *lineptr != '\0';)
@@ -1867,8 +1869,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
       tocLevels->value(0);
       continue;
     }
-    else if (strcmp(temp, "--title") == 0 &&
-             (*lineptr == '-' || !*lineptr))
+    else if (strcmp(temp, "--title") == 0)
     {
       titlePage->set();
       continue;
@@ -1876,6 +1877,16 @@ GUI::parseOptions(const char *line)	// I - Line from file
     else if (strcmp(temp, "--no-title") == 0)
     {
       titlePage->clear();
+      continue;
+    }
+    else if (strcmp(temp, "--strict") == 0)
+    {
+      strict_html->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-strict") == 0)
+    {
+      strict_html->clear();
       continue;
     }
     else if (strcmp(temp, "--book") == 0)
@@ -1999,7 +2010,8 @@ GUI::parseOptions(const char *line)	// I - Line from file
     else if (strcmp(temp, "--logo") == 0 ||
              strcmp(temp, "--logoimage") == 0)
       logoImage->value(temp2);
-    else if (strcmp(temp, "--titleimage") == 0)
+    else if (strcmp(temp, "--titlefile") == 0 ||
+             strcmp(temp, "--titleimage") == 0)
     {
       titlePage->set();
       titleImage->value(temp2);
@@ -2214,6 +2226,24 @@ GUI::parseOptions(const char *line)	// I - Line from file
       proxy->value(temp2);
   }
 }
+
+
+#ifdef __APPLE__
+//
+// 'GUI::appleOpenCB()' - Handle open file events from Finder.
+//
+
+void
+GUI::appleOpenCB(const char *f)		// I - Book file to open
+{
+  // See if the user wants to save the current book...
+  if (!BookGUI->checkSave())
+    return;
+
+  // Load the new book...
+  BookGUI->loadBook(f);
+}
+#endif // __APPLE__
 
 
 //
@@ -2471,6 +2501,11 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (proxy->value()[0])
     fprintf(fp, " --proxy \"%s\"", proxy->value());
+
+  if (strict_html->value())
+    fputs(" --strict", fp);
+  else
+    fputs(" --no-strict", fp);
 
   fputs("\n", fp);
 
@@ -2784,7 +2819,7 @@ GUI::editFilesCB(Fl_Widget *w,		// I - Widget
                          NORMAL_PRIORITY_CLASS, NULL, NULL, &suInfo, &prInfo))
         fl_alert("Unable to start editor!");
 #else
-      strcat(command, "&");
+      strlcat(command, "&", sizeof(command));
       if (system(command))
         fl_alert("Unable to start editor!");
 #endif // !WIN32
@@ -3023,7 +3058,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
     if (gui->fc->count())
     {
       // Get the selected file...
-      strcpy(filename, file_localize(gui->fc->value(), NULL));
+      strlcpy(filename, file_localize(gui->fc->value(), NULL), sizeof(filename));
       extension = file_extension(filename);
 
       if (extension[0])
@@ -3044,11 +3079,11 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
       {
         // No extension - add one!
 	if (gui->typeHTML->value())
-	  strcat(filename, ".html");
+	  strlcat(filename, ".html", sizeof(filename));
 	else if (gui->typePS->value())
-	  strcat(filename, ".ps");
+	  strlcat(filename, ".ps", sizeof(filename));
 	else
-	  strcat(filename, ".pdf");
+	  strlcat(filename, ".pdf", sizeof(filename));
       }
 
       gui->outputPath->value(filename);
@@ -3168,16 +3203,15 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
   // and the output filename is not blank...
   if (gui->outputFile->value() && gui->outputPath->value()[0])
   {
-    strncpy(filename, gui->outputPath->value(), sizeof(filename) - 1);
-    filename[sizeof(filename) - 1] = '\0';
+    strlcpy(filename, gui->outputPath->value(), sizeof(filename));
 
     if ((ptr = strrchr(filename, '/')) == NULL)
       ptr = filename;
 
     if ((ptr = strrchr(ptr, '.')) == NULL)
-      strncat(filename, ext, sizeof(filename) - 1);
+      strlcat(filename, ext, sizeof(filename));
     else
-      strncpy(ptr, ext, sizeof(filename) - 1 - (ptr - filename));
+      strlcpy(ptr, ext, sizeof(filename) - (ptr - filename));
 
     gui->outputPath->value(filename);
   }
@@ -3396,7 +3430,7 @@ GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
     }
   }
 
-  strcpy(HTMLEditor, gui->htmlEditor->value());
+  strlcpy(HTMLEditor, gui->htmlEditor->value(), sizeof(HTMLEditor));
 }
 
 
@@ -3424,7 +3458,7 @@ void
 GUI::skinCB(Fl_Widget *w,	// I - Widget
             GUI       *gui)	// I - GUI interface
 {
-  ModernSkin = gui->modernSkin->value();
+  ModernSkin = gui->modern_skin->value();
 
   Fl::scheme(ModernSkin ? "plastic" : "");
 
@@ -3446,8 +3480,8 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->permCopy->color2(FL_RED);
     gui->permAnnotate->color2(FL_RED);
     gui->tooltips->color2(FL_RED);
-    gui->modernSkin->color2(FL_RED);
-    gui->strictHTML->color2(FL_RED);
+    gui->modern_skin->color2(FL_RED);
+    gui->strict_html->color2(FL_RED);
 
     gui->progressBar->color2(FL_BLUE);
     gui->progressBar->box(FL_UP_BOX);
@@ -3470,8 +3504,8 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->permCopy->color2(FL_BLACK);
     gui->permAnnotate->color2(FL_BLACK);
     gui->tooltips->color2(FL_BLACK);
-    gui->modernSkin->color2(FL_BLACK);
-    gui->strictHTML->color2(FL_BLACK);
+    gui->modern_skin->color2(FL_BLACK);
+    gui->strict_html->color2(FL_BLACK);
 
     gui->progressBar->color2(FL_YELLOW);
     gui->progressBar->box(FL_DOWN_BOX);
@@ -3856,15 +3890,15 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   gui->window->cursor(FL_CURSOR_WAIT);
 
   // Set global vars used for converting the HTML files to XYZ format...
-  strcpy(bookbase, file_directory(gui->book_filename));
+  strlcpy(bookbase, file_directory(gui->book_filename), sizeof(bookbase));
 
   gui->book->verbosity = 1;
 
   gui->loadSettings();
 
-  strcpy(gui->book->LogoImage, gui->logoImage->value());
-  strcpy(gui->book->TitleImage, gui->titleImage->value());
-  strcpy(gui->book->OutputPath, gui->outputPath->value());
+  strlcpy(gui->book->LogoImage, gui->logoImage->value(), sizeof(gui->book->LogoImage));
+  strlcpy(gui->book->TitleImage, gui->titleImage->value(), sizeof(gui->book->TitleImage));
+  strlcpy(gui->book->OutputPath, gui->outputPath->value(), sizeof(gui->book->OutputPath));
 
   gui->book->OutputFiles = gui->outputDirectory->value();
 
@@ -3875,8 +3909,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   else
     gui->book->OutputType = HD_OUTPUT_WEBPAGES;
 
-  strcpy(gui->book->UserPassword, gui->userPassword->value());
-  strcpy(gui->book->OwnerPassword, gui->ownerPassword->value());
+  strlcpy(gui->book->UserPassword, gui->userPassword->value(), sizeof(gui->book->UserPassword));
+  strlcpy(gui->book->OwnerPassword, gui->ownerPassword->value(), sizeof(gui->book->OwnerPassword));
 
   if (gui->typePDF->value())
     gui->book->PSLevel = 0;
@@ -3916,11 +3950,12 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       snprintf(temp, sizeof(temp), "Loading \"%s\"...", filename);
       gui->progress(100 * i / count, temp);
 
-      strcpy(base, file_directory(gui->inputFiles->text(i)));
+      strlcpy(base, file_directory(gui->inputFiles->text(i)), sizeof(base));
 
       file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME",
+      htmlSetVariable(file, (uchar *)"_HD_FILENAME",
                       (uchar *)file_basename(filename));
+      htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
       htmlReadFile(file, docfile, base);
 
@@ -3944,8 +3979,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     }
     else
       gui->book->progress_error(HD_ERROR_FILE_NOT_FOUND,
-                           "Unable to open \"%s\" for reading!",
-                           gui->inputFiles->text(i));
+                                "Unable to open \"%s\" for reading!",
+                                gui->inputFiles->text(i));
   }
 
  /*
@@ -3954,7 +3989,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   if (document == NULL)
     gui->book->progress_error(HD_ERROR_NO_FILES,
-                         "No HTML files to format, cannot generate document!");
+                              "No HTML files to format, cannot generate document!");
   else
   {
    /*
@@ -3964,19 +3999,19 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     while (document->prev != NULL)
       document = document->prev;
 
-   /*
-    * Build a table of contents for the documents...
-    */
+    // Fix links...
+    htmlFixLinks(document, document);
 
+    // Show debug info...
+    htmlDebugStats("Document Tree", document);
+
+    // Build a table of contents for the documents...
     if (gui->book->OutputType == HD_OUTPUT_BOOK && gui->book->TocLevels > 0)
       toc = gui->book->toc_build(document);
     else
       toc = NULL;
 
-   /*
-    * Generate the output file(s).
-    */
-
+    // Generate the output file(s).
     if (gui->typeHTML->value())
       gui->book->html_export(document, toc);
     else if (gui->typeHTMLSep->value())
@@ -4037,8 +4072,90 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 }
 
 
+//
+// 'aboutCloseCB()' - Close the about window.
+//
+
+static void
+aboutCloseCB(Fl_Widget *w)		// I - Widget
+{
+  if (w && w->window())
+    w->window()->hide();
+}
+
+
+//
+// 'GUI::showAboutCB()' - Show the about window.
+//
+
+void
+GUI::showAboutCB(void)
+{
+  Fl_Window	*about;			// About window
+  Fl_Group	*group;			// Group
+  Fl_Box	*label;			// Labels
+  Fl_Help_View	*text;			// Help text
+  Fl_Button	*button;		// Close button
+  Fl_Pixmap	logo(htmldoc_xpm);	// Logo image
+
+
+  about = new Fl_Window(410, 300, "About HTMLDOC");
+  about->modal();
+  about->hotspot(about);
+
+  group = new Fl_Group(10, 10, 390, 245, "About HTMLDOC");
+  group->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE);
+  group->labelcolor(FL_BLUE);
+  group->labelfont(FL_HELVETICA_BOLD);
+  group->labelsize(18);
+  group->box(FL_THIN_UP_BOX);
+
+  label = new Fl_Box(20, 45, 35, 35);
+  label->image(&logo);
+
+  label = new Fl_Box(60, 45, 330, 35,
+          "HTMLDOC " SVERSION " Copyright 1997-2004 by Easy Software Products "
+	  "(http://www.easysw.com)."
+	  );
+  label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
+
+  text = new Fl_Help_View(20, 90, 370, 155);
+  text->value(
+    "HTMLDOC converts HTML files and web pages to PDF and PostScript.\n\n"
+    "<p>HTMLDOC is available both as free software under the terms of "
+    "the GNU General Public License and as commercial software via "
+    "the HTMLDOC membership options. "
+    "The HTMLDOC Basic membership provides the HTMLDOC software in "
+    "convenient, installable packages for your operating system of "
+    "choice. "
+    "The HTMLDOC Professional membership adds one year of commercial "
+    "telephone and on-line support. "
+    "Both membership options provide financial support for the "
+    "continued development of HTMLDOC as an open source product.\n\n"
+    "<p>For more information, please visit us on the web at the following "
+    "URL:\n"
+    "<pre>\n\n"
+    "    http://www.easysw.com/htmldoc/\n"
+    "</pre>\n"
+    );
+  text->textsize(FL_NORMAL_SIZE);
+
+  group->end();
+
+  button = new Fl_Button(340, 265, 60, 25, "Close");
+  button->callback((Fl_Callback *)aboutCloseCB);
+
+  about->end();
+  about->show();
+  while (about->shown())
+    Fl::wait();
+
+  delete about;
+}
+
+
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.43 2004/04/05 01:39:34 mike Exp $".
+// End of "$Id: gui.cxx,v 1.44 2004/10/23 07:06:19 mike Exp $".
 //

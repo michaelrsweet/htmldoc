@@ -4,7 +4,8 @@ book.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h types.h
 book.o: iso8859.h image.h margin.h md5.h rc4.h debug.h gui.h
 file.o: file.h hdstring.h ../config.h http.h md5.h debug.h
 gui.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h types.h
-gui.o: iso8859.h image.h margin.h md5.h rc4.h debug.h gui.h htmldoc.xpm
+gui.o: iso8859.h image.h margin.h md5.h rc4.h debug.h gui.h
+gui.o: ../desktop/htmldoc.xpm
 html.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h types.h
 html.o: iso8859.h image.h margin.h md5.h rc4.h debug.h gui.h
 htmldoc.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h
@@ -17,6 +18,8 @@ http-support.o: hdstring.h ../config.h http.h md5.h
 image.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h
 image.o: types.h iso8859.h image.h margin.h md5.h rc4.h debug.h gui.h
 iso8859.o: hdstring.h ../config.h iso8859.h types.h
+license.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h
+license.o: types.h iso8859.h image.h margin.h md5.h rc4.h debug.h gui.h
 link.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h types.h
 link.o: iso8859.h image.h margin.h md5.h rc4.h debug.h gui.h
 margin.o: margin.h

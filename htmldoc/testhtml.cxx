@@ -1,5 +1,5 @@
 /*
- * "$Id: testhtml.cxx,v 1.6 2004/03/31 09:51:27 mike Exp $"
+ * "$Id: testhtml.cxx,v 1.7 2004/10/23 07:06:19 mike Exp $"
  *
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
@@ -30,15 +30,17 @@ void	prefs_save(void) { }
  * 'main()' - Main entry for test program.
  */
 
-int				/* O - Exit status */
-main(int  argc,			/* I - Number of command-line arguments */
-     char *argv[])		/* I - Command-line arguments */
+int					// O - Exit status
+main(int  argc,				// I - Number of command-line arguments
+     char *argv[])			// I - Command-line arguments
 {
-  int		i;		/* Looping var */
-  FILE		*fp;		/* Input file */
-  hdTree	*t,		/* HTML markup tree */
-		*doc;		/* HTML document */
-  char		base[1024];	/* Base directory */
+  int		i;			// Looping var
+  FILE		*fp;			// Input file
+  hdTree	*t,			// HTML markup tree
+		*doc,			// HTML document
+		*toc;			// Table-of-contents
+  hdBook	*book;			// Book
+  char		base[1024];		// Base directory
 
 
 #ifdef DEBUG
@@ -132,7 +134,7 @@ main(int  argc,			/* I - Number of command-line arguments */
   for (i = 1, doc = NULL; i < argc; i ++)
     if ((fp = fopen(file_find("", argv[i]), "r")) != NULL)
     {
-      strcpy(base, argv[i]);
+      strlcpy(base, argv[i], sizeof(base));
       if (strrchr(base, '/') != NULL)
         *strrchr(base, '/') = '\0';
       else
@@ -154,12 +156,18 @@ main(int  argc,			/* I - Number of command-line arguments */
       fprintf(stderr, "testhtml: Unable to open input file \'%s\'!\n", argv[i]);
 
   if (doc != NULL)
+  {
     htmlWriteFile(doc, stdout);
+    book = new hdBook();
+    toc = book->toc_build(doc);
+    puts("---- TABLE OF CONTENTS ----");
+    htmlWriteFile(toc, stdout);
+  }
 
   return (doc == NULL);
 }
 
 
 /*
- * End of "$Id: testhtml.cxx,v 1.6 2004/03/31 09:51:27 mike Exp $".
+ * End of "$Id: testhtml.cxx,v 1.7 2004/10/23 07:06:19 mike Exp $".
  */

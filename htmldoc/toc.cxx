@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.21 2004/04/11 21:20:28 mike Exp $"
+ * "$Id: toc.cxx,v 1.22 2004/10/23 07:06:19 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -249,8 +249,8 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
             if (i < level)
             {
-              strcat((char *)heading, ".");
-              strcat((char *)baselink, "_");
+              strlcat((char *)heading, ".", sizeof(heading));
+              strlcat((char *)baselink, "_", sizeof(baselink));
             }
           }
 
@@ -282,7 +282,7 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
           if (TocNumbers)
 	  {
-            strcat((char *)heading, " ");
+            strlcat((char *)heading, " ", sizeof(heading));
 
             htmlInsertTree(t, HD_ELEMENT_NONE, heading);
 	  }
@@ -294,8 +294,18 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
           if (level < TocLevels)
           {
             if (level > last_level)
-              heading_parents[level] = htmlAddTree(heading_parents[level - 1],
-                                                   HD_ELEMENT_UL, NULL);
+	    {
+	      if (heading_parents[last_level]->last_child)
+        	heading_parents[level] =
+		    htmlAddTree(heading_parents[last_level]->last_child,
+                                HD_ELEMENT_UL, NULL);
+             else
+        	heading_parents[level] =
+		    htmlAddTree(heading_parents[last_level], HD_ELEMENT_UL, NULL);
+
+              DEBUG_printf(("level=%d, last_level=%d, created new UL parent %p\n",
+	                    level, last_level, heading_parents[level]));
+	    }
 
             if (level == 0)
             {
@@ -309,6 +319,8 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
             }
             else
               parent = htmlAddTree(heading_parents[level], HD_ELEMENT_LI, NULL);
+
+            DEBUG_printf(("parent=%p\n", parent));
 
             if ((var = htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC")) != NULL)
 	      htmlSetVariable(parent, (uchar *)"_HD_OMIT_TOC", var);
@@ -369,5 +381,5 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.21 2004/04/11 21:20:28 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.22 2004/10/23 07:06:19 mike Exp $".
  */

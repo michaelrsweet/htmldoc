@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.27 2004/10/18 03:11:41 mike Exp $"
+ * "$Id: image.cxx,v 1.28 2004/10/23 07:06:19 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -572,10 +572,7 @@ hdBook::image_copy(const char *filename,// I - Source file
   */
 
   if (strcmp(destpath, ".") == 0)
-  {
-    strncpy(dest, file_basename(filename), sizeof(dest) - 1);
-    dest[sizeof(dest) - 1] = '\0';
-  }
+    strlcpy(dest, file_basename(filename), sizeof(dest));
   else
     snprintf(dest, sizeof(dest), "%s/%s", destpath, file_basename(filename));
 
@@ -638,7 +635,7 @@ hdBook::image_find(const char *filename,// I - Name of image file
 
   if (num_images > 0)
   {
-    strcpy(key.filename, filename);
+    strlcpy(key.filename, filename, sizeof(key.filename));
     keyptr = &key;
 
     match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
@@ -652,7 +649,7 @@ hdBook::image_find(const char *filename,// I - Name of image file
     }
   }
 
-  return (image_load(filename, 0 /* !OutputColor */, load_data));
+  return (image_load(filename, !OutputColor, load_data));
 }
 
 
@@ -750,8 +747,7 @@ hdBook::image_load(const char *filename,// I - Name of image file
 
   if (num_images > 0)
   {
-    strncpy(key.filename, filename, sizeof(key.filename) - 1);
-    key.filename[sizeof(key.filename) - 1] = '\0';
+    strlcpy(key.filename, filename, sizeof(key.filename));
     keyptr = &key;
 
     match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
@@ -846,7 +842,7 @@ hdBook::image_load(const char *filename,// I - Name of image file
 
     images[num_images] = img;
 
-    strncpy(img->filename, filename, sizeof(img->filename) - 1);
+    strlcpy(img->filename, filename, sizeof(img->filename));
     img->use = 1;
   }
   else
@@ -1876,5 +1872,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.27 2004/10/18 03:11:41 mike Exp $".
+ * End of "$Id: image.cxx,v 1.28 2004/10/23 07:06:19 mike Exp $".
  */

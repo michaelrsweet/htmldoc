@@ -1,5 +1,5 @@
 //
-// "$Id: book.cxx,v 1.6 2004/10/22 05:43:14 mike Exp $"
+// "$Id: book.cxx,v 1.7 2004/10/23 07:06:19 mike Exp $"
 //
 //   Book routines for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3142 USA
+//       Hollywood, Maryland 20636 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -198,7 +198,8 @@ hdBook::hdBook()
   Path[0]           = '\0';
   Proxy[0]          = '\0';
 
-  prefs_load();
+// MRS: can't load preferences when run as CGI...
+//  prefs_load();
 }
 
 
@@ -629,6 +630,7 @@ hdBook::prefs_load(void)
   DWORD		size;			// Size of string
   static char	data[1024];		// Data directory
   static char	doc[1024];		// Documentation directory
+  static char	path[4096];		// PATH environment variable
 #endif // WIN32
 
 
@@ -658,6 +660,23 @@ hdBook::prefs_load(void)
 #  endif // HAVE_LIBFLTK
 
       RegCloseKey(key);
+    }
+
+    // See if the HTMLDOC program folder is in the system execution path...
+    if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                      "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
+                      0, KEY_READ | KEY_WRITE, &key))
+    {
+      // Grab the current path...
+      size = sizeof(path);
+      if (!RegQueryValueEx(key, "Path", NULL, NULL, (unsigned char *)path, &size))
+        if (strstr(path, _htmlData) == NULL)
+        {
+          // The data directory is not in the path, so add it...
+          strlcat(path, ";", sizeof(path));
+          strlcat(path, _htmlData, sizeof(path));
+          RegSetValueEx(key, "Path", 0, REG_EXPAND_SZ, (unsigned char *)path, strlen(path) + 1);
+        }
     }
 #endif // WIN32
 
@@ -796,15 +815,9 @@ hdBook::prefs_load(void)
       else if (strncasecmp(line, "PERMISSIONS=", 12) == 0)
 	Permissions = atoi(line + 12);
       else if (strncasecmp(line, "OWNERPASSWORD=", 14) == 0)
-      {
-	strncpy(OwnerPassword, line + 14, sizeof(OwnerPassword) - 1);
-	OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
-      }
+	strlcpy(OwnerPassword, line + 14, sizeof(OwnerPassword));
       else if (strncasecmp(line, "USERPASSWORD=", 13) == 0)
-      {
-        strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
-        UserPassword[sizeof(UserPassword) - 1] = '\0';
-      }
+        strlcpy(UserPassword, line + 13, sizeof(UserPassword));
       else if (strncasecmp(line, "LINKS=", 6) == 0)
         Links = atoi(line + 6);
       else if (strncasecmp(line, "TRUETYPE=", 9) == 0)
@@ -812,15 +825,9 @@ hdBook::prefs_load(void)
       else if (strncasecmp(line, "EMBEDFONTS=", 11) == 0)
         EmbedFonts = atoi(line + 11);
       else if (strncasecmp(line, "PATH=", 5) == 0)
-      {
-	strncpy(Path, line + 5, sizeof(Path) - 1);
-	Path[sizeof(Path) - 1] = '\0';
-      }
+	strlcpy(Path, line + 5, sizeof(Path));
       else if (strncasecmp(line, "PROXY=", 6) == 0)
-      {
-	strncpy(Proxy, line + 6, sizeof(Proxy) - 1);
-	Proxy[sizeof(Proxy) - 1] = '\0';
-      }
+	strlcpy(Proxy, line + 6, sizeof(Proxy));
       else if (strncasecmp(line, "STRICTHTML=", 11) == 0)
         strict_html = atoi(line + 11);
 
@@ -949,7 +956,7 @@ hdBook::prefs_save(void)
 
 
 //
-// 'hdEntity::set()' - Initialize a page size.
+// 'hdEntity::set()' - Initialize an entity.
 //
 
 void
@@ -962,7 +969,7 @@ hdEntity::set(const char *h,	// I - HTML entity name
 
 
 //
-// 'hdEntity::clear()' - Clear a page size.
+// 'hdEntity::clear()' - Clear an entity.
 //
 
 void
@@ -1013,5 +1020,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: book.cxx,v 1.6 2004/10/22 05:43:14 mike Exp $".
+// End of "$Id: book.cxx,v 1.7 2004/10/23 07:06:19 mike Exp $".
 //
