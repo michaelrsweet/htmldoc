@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.22 1999/11/17 12:50:38 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.23 1999/11/17 14:27:21 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3350,7 +3350,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		col_rights[MAX_COLUMNS];
   float		col_widths[MAX_COLUMNS],
 		col_mins[MAX_COLUMNS],
+		col_prefs[MAX_COLUMNS],
 		width,
+		pref_width,
 		table_width,
 		regular_width,
 		actual_width,
@@ -3383,6 +3385,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   memset(col_widths, 0, sizeof(col_widths));
   memset(col_mins, 0, sizeof(col_mins));
+  memset(col_prefs, 0, sizeof(col_prefs));
   memset(cells, 0, sizeof(cells));
 
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
@@ -3428,8 +3431,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	    }
 	    else
 	    {
-              flat  = flatten_tree(tempcol->child);
-              width = 0.0;
+              flat       = flatten_tree(tempcol->child);
+              width      = 0.0f;
+	      pref_width = 0.0f;
+
               while (flat != NULL)
               {
         	if (flat->markup == MARKUP_BR ||
@@ -3441,12 +3446,17 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		     (isspace(flat->data[0]) ||
 		      isspace(flat->data[strlen((char *)flat->data) - 1]))))
         	{
-                  width += flat->width + 1;
+                  width      += flat->width + 1;
+		  pref_width += flat->width + 1;
 
                   if (width > col_mins[col])
                     col_mins[col] = width;
 
-                  width = 0.0;
+                  if (pref_width > col_prefs[col])
+                    col_prefs[col] = pref_width;
+
+                  width      = 0.0f;
+		  pref_width = 0.0f;
         	}
         	else if (flat->data != NULL)
                   width += flat->width + 1;
@@ -3463,6 +3473,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
               if (width > col_mins[col])
         	col_mins[col] = width;
+
+              if (pref_width > col_prefs[col])
+        	col_prefs[col] = pref_width;
+
+	      if (htmlGetVariable(tempcol, (uchar *)"NOWRAP") != NULL &&
+	          col_prefs[col] > col_widths[col])
+		col_widths[col] = col_prefs[col];
 	    }
 
             cells[num_rows][col] = tempcol;
@@ -3531,8 +3548,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   actual_width  = (float)(2 * (border + cellpadding + cellspacing) * num_cols);
   regular_width = (width - actual_width) / num_cols;
 
-  for (col = 0, regular_cols = 0; col < num_cols; col ++)
-  {
+ /*
+  * The first pass just handles columns with a specified width...
+  */
+
+  for (col = 0; col < num_cols; col ++)
     if (col_widths[col] > 0.0)
     {
       if (col_mins[col] > col_widths[col])
@@ -3540,15 +3560,34 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       actual_width += col_widths[col];
     }
-    else if ((actual_width + col_mins[col]) < width &&
-             col_mins[col] > regular_width)
+
+ /*
+  * Pass two uses the "preferred" width whenever possible, and the
+  * minimum otherwise...
+  */
+
+  regular_width = (width - actual_width) / num_cols;
+
+  for (col = 0, regular_cols = 0; col < num_cols; col ++)
+  {
+    if (col_widths[col] == 0.0f)
     {
-      actual_width    += col_mins[col];
-      col_widths[col] = col_mins[col];
+      if ((actual_width + col_prefs[col]) < width)
+        col_widths[col] = col_prefs[col];
+      else if ((actual_width + col_mins[col]) < width &&
+               col_mins[col] > regular_width)
+	col_widths[col] = col_mins[col];
+
+      actual_width += col_widths[col];
     }
     else
       regular_cols ++;
   }
+
+ /*
+  * The final pass divides up the remaining space amongst the unassigned
+  * columns so far...
+  */
 
   if (regular_cols > 0)
   {
@@ -4349,6 +4388,7 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
           if (t->data == NULL)
 	    break;
       case MARKUP_BR :
+      case MARKUP_SPACER :
       case MARKUP_IMG :
 	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
 	  memcpy(temp, t, sizeof(tree_t));
@@ -6181,5 +6221,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.22 1999/11/17 12:50:38 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.23 1999/11/17 14:27:21 mike Exp $".
  */

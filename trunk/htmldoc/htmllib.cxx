@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.15 1999/11/17 12:50:38 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.16 1999/11/17 14:27:21 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -613,6 +613,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	                    (uchar *)fix_filename((char *)filename, base));
 
       case MARKUP_NONE :
+      case MARKUP_SPACER :
 	 /*
 	  * Figure out the width & height of this markup...
 	  */
@@ -833,6 +834,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_STRIKE :
+      case MARKUP_S :
       case MARKUP_DEL :
           t->strikethrough = 1;
           t->child         = htmlReadFile(t, fp, base);
@@ -1912,7 +1914,9 @@ compute_size(tree_t *t)		/* I - Tree entry */
   float		width,		/* Current width */
 		max_width;	/* Maximum width */
   uchar		*width_ptr,	/* Pointer to width string */
-		*height_ptr;	/* Pointer to height string */
+		*height_ptr,	/* Pointer to height string */
+		*size_ptr,	/* Pointer to size string */
+		*type_ptr;	/* Pointer to spacer type string */
   image_t	*img;		/* Image */
   char		number[255];	/* Width or height value */
 
@@ -1972,6 +1976,37 @@ compute_size(tree_t *t)		/* I - Tree entry */
       sprintf(number, "%d", img->height);
       htmlSetVariable(t, (uchar *)"HEIGHT", (uchar *)number);
     }
+
+    return (0);
+  }
+  else if (t->markup == MARKUP_SPACER)
+  {
+    width_ptr  = htmlGetVariable(t, (uchar *)"WIDTH");
+    height_ptr = htmlGetVariable(t, (uchar *)"HEIGHT");
+    size_ptr   = htmlGetVariable(t, (uchar *)"SIZE");
+    type_ptr   = htmlGetVariable(t, (uchar *)"TYPE");
+
+    if (width_ptr != NULL)
+      t->width = atoi((char *)width_ptr) / _htmlPPI * 72.0f;
+    else if (size_ptr != NULL)
+      t->width = atoi((char *)size_ptr) / _htmlPPI * 72.0f;
+    else
+      t->width = 1.0f;
+
+    if (height_ptr != NULL)
+      t->height = atoi((char *)height_ptr) / _htmlPPI * 72.0f;
+    else if (size_ptr != NULL)
+      t->height = atoi((char *)size_ptr) / _htmlPPI * 72.0f;
+    else
+      t->height = 1.0f;
+
+    if (type_ptr == NULL)
+      return (0);
+
+    if (strcasecmp((char *)type_ptr, "horizontal") == 0)
+      t->height = 0.0;
+    else if (strcasecmp((char *)type_ptr, "vertical") == 0)
+      t->width = 0.0;
 
     return (0);
   }
@@ -2196,5 +2231,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.15 1999/11/17 12:50:38 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.16 1999/11/17 14:27:21 mike Exp $".
  */
