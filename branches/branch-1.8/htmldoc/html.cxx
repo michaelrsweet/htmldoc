@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.5 2001/02/02 15:10:57 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.6 2001/02/09 22:12:43 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -265,7 +265,7 @@ write_header(FILE   **out,	/* IO - Output file */
     fprintf(*out, "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; CHARSET=iso-%s\">\n",
             _htmlCharSet);
 
-    fputs("<STYLE><!--\n", *out);
+    fputs("<STYLE TYPE=\"text/css\"><!--\n", *out);
     fprintf(*out, "BODY { font-family: %s; font-size: %.1fpt }\n",
             families[_htmlBodyFont], _htmlSizes[SIZE_P]);
     fprintf(*out, "H1 { font-family: %s; font-size: %.1fpt }\n",
@@ -890,5 +890,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.5 2001/02/02 15:10:57 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.6 2001/02/09 22:12:43 mike Exp $".
  */
