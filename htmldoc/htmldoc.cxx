@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.46 2002/06/13 20:10:50 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.47 2002/06/29 12:43:56 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -111,9 +111,6 @@ main(int  argc,		/* I - Number of command-line arguments */
   const char	*extension;	/* Extension of output filename */
   float		fontsize,	/* Base font size */
 		fontspacing;	/* Base font spacing */
-#ifdef HAVE_LIBFLTK
-  int		display_set;	/* True if display set */
-#endif // HAVE_LIBFLTK
 
 
  /*
@@ -154,9 +151,6 @@ main(int  argc,		/* I - Number of command-line arguments */
 
   fontsize    = 11.0f;
   fontspacing = 1.2f;
-#ifdef HAVE_LIBFLTK
-  display_set = 1;
-#endif // HAVE_LIBFLTK
 
   for (i = 1; i < argc; i ++)
     if (compare_strings(argv[i], "--batch", 4) == 0)
@@ -274,7 +268,6 @@ main(int  argc,		/* I - Number of command-line arguments */
       // The X standard requires support for the -display option, but
       // we also support the GNU standard --display...
       i ++;
-      display_set = 3;
       if (i < argc)
         Fl::display(argv[i]);
       else
@@ -945,21 +938,16 @@ main(int  argc,		/* I - Number of command-line arguments */
 
       htmlReadFile(file, stdin, ".");
 
-      if (file->child != NULL)
-      {
-        if (document == NULL)
-          document = file;
-        else
-        {
-          while (document->next != NULL)
-            document = document->next;
-
-          document->next = file;
-          file->prev     = document;
-        }
-      }
+      if (document == NULL)
+        document = file;
       else
-        htmlDeleteTree(file);
+      {
+        while (document->next != NULL)
+          document = document->next;
+
+        document->next = file;
+        file->prev     = document;
+      }
     }
     else if (argv[i][0] == '-')
       usage();
@@ -986,12 +974,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 
 #ifdef HAVE_LIBFLTK
   if (document == NULL && BookGUI == NULL)
-  {
-    if (argc == display_set)
-      BookGUI = new GUI();
-    else
-      usage();
-  }
+    BookGUI = new GUI();
 
   if (BookGUI != NULL)
   {
@@ -2081,21 +2064,16 @@ read_file(const char *filename,		// I  - File/URL to read
 
       fclose(docfile);
 
-      if (file->child != NULL)
-      {
-        if (*document == NULL)
-          *document = file;
-        else
-        {
-          while ((*document)->next != NULL)
-            *document = (*document)->next;
-
-          (*document)->next = file;
-          file->prev        = *document;
-        }
-      }
+      if (*document == NULL)
+        *document = file;
       else
-        htmlDeleteTree(file);
+      {
+        while ((*document)->next != NULL)
+          *document = (*document)->next;
+
+        (*document)->next = file;
+        file->prev        = *document;
+      }
     }
     else
     {
@@ -2253,5 +2231,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.46 2002/06/13 20:10:50 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.47 2002/06/29 12:43:56 mike Exp $".
  */
