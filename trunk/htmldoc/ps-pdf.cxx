@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.26 1999/11/22 14:55:29 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.27 1999/11/22 15:13:46 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1499,7 +1499,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     fprintf(out, "/Parent %d 0 R", parent);
 
     fputs("/Title", out);
-    write_string(out, TocTitle, 0);
+    write_string(out, (uchar *)TocTitle, 0);
 
     fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
             pages_object + 3 * chapter_starts[0] + 1,
@@ -6276,5 +6276,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.26 1999/11/22 14:55:29 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.27 1999/11/22 15:13:46 mike Exp $".
  */
