@@ -27,6 +27,7 @@ CHANGES IN HTMLDOC v1.9
 	  conformant with the DSC spec.
 	- Long table-of-contents entries are now wrapped
 	  (original patch supplied by ???)
+	- New color icon under UNIX when Xpm library available.
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.35 2000/09/10 21:15:20 mike Exp $"
+// "$Id: gui.cxx,v 1.36 2000/10/14 13:59:13 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -87,7 +87,12 @@
 #    include "icons.h"
 #  else
 #    include <unistd.h>
-#    include "htmldoc.xbm"
+#    ifdef HAVE_LIBXPM
+#      include <X11/xpm.h>
+#      include "htmldoc.xpm"
+#    else
+#      include "htmldoc.xbm"
+#    endif // HAVE_LIBXPM
 #  endif // WIN32
 
 
@@ -830,7 +835,19 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Load the HTMLDOC icon image...
   window->icon((char *)LoadImage(fl_display, MAKEINTRESOURCE(IDI_ICON),
                                  IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
-#  else // X11
+#  elif defined(HAVE_LIBXPM) // X11 w/Xpm library
+  Pixmap	pixmap, mask;	// Icon pixmaps
+  XpmAttributes	attrs;		// Attributes of icon
+
+  // Open the X display and load the HTMLDOC icon image...
+  fl_open_display();
+
+  memset(&attrs, 0, sizeof(attrs));
+
+  XpmCreatePixmapFromData(fl_display, DefaultRootWindow(fl_display),
+                          htmldoc_xpm, &pixmap, &mask, &attrs);
+  window->icon((char *)pixmap);
+#  else // X11 w/o Xpm library
   // Open the X display and load the HTMLDOC icon image...
   fl_open_display();
   window->icon((char *)XCreateBitmapFromData(fl_display,
@@ -3533,5 +3550,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.35 2000/09/10 21:15:20 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36 2000/10/14 13:59:13 mike Exp $".
 //
