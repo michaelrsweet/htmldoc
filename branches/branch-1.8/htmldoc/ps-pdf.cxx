@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.20 2001/02/20 02:15:57 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.21 2001/02/20 15:06:56 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3327,26 +3327,35 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     if (Verbosity)
       progress_update(100 - (int)(100 * (*y) / PagePrintLength));
 
-    if (t->halignment == ALIGN_LEFT || t->halignment == ALIGN_JUSTIFY)
-      *x = image_left;
-    else if (t->halignment == ALIGN_CENTER)
-      *x = image_left + 0.5f * (format_width - width);
-    else
-      *x = image_right - width;
-
-    if (t->halignment == ALIGN_JUSTIFY && flat != NULL && num_chars > 0)
-      char_spacing = (format_width - width) / num_chars;
-    else
-      char_spacing = 0.0f;
-
-    whitespace = 0;
-    temp       = start;
-    linetype   = NULL;
-    linex      = 0.0;
+    char_spacing = 0.0f;
+    whitespace   = 0;
+    temp         = start;
+    linetype     = NULL;
 
     rgb[0] = temp->red / 255.0f;
     rgb[1] = temp->green / 255.0f;
     rgb[2] = temp->blue / 255.0f;
+
+    switch (t->halignment)
+    {
+      case ALIGN_LEFT :
+          linex = image_left;
+	  break;
+
+      case ALIGN_CENTER :
+          linex = image_left + 0.5f * (format_width - width);
+	  break;
+
+      case ALIGN_RIGHT :
+          linex = image_right - width;
+	  break;
+
+      case ALIGN_JUSTIFY :
+          linex = image_left;
+	  if (flat != NULL && num_chars > 1)
+	    char_spacing = (format_width - width) / (num_chars - 1);
+	  break;
+    }
 
     while (temp != end)
     {
@@ -3366,7 +3375,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    link = (uchar *)file_basename((char *)link);
 	}
 
-	new_render(*page, RENDER_LINK, *x, *y, temp->width,
+	new_render(*page, RENDER_LINK, linex, *y, temp->width,
 	           temp->height, link);
 
 	if (PSLevel == 0 && Links)
@@ -3387,12 +3396,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       */
 
       if (linetype != NULL &&
-	  fabs(linex - *x) > 0.1 &&
 	  (temp->markup != MARKUP_NONE ||
 	   temp->typeface != linetype->typeface ||
 	   temp->style != linetype->style ||
 	   temp->size != linetype->size ||
 	   temp->superscript != linetype->superscript ||
+	   temp->subscript != linetype->subscript ||
 	   temp->red != linetype->red ||
 	   temp->green != linetype->green ||
 	   temp->blue != linetype->blue))
@@ -3462,14 +3471,11 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             {
 	      linetype  = temp;
 	      lineptr   = line;
-	      linex     = *x;
 	      linewidth = 0.0;
 
 	      rgb[0] = temp->red / 255.0f;
 	      rgb[1] = temp->green / 255.0f;
 	      rgb[2] = temp->blue / 255.0f;
-
-	      linetype->valignment = ALIGN_MIDDLE;
 	    }
 
             strcpy((char *)lineptr, (char *)temp->data);
@@ -3484,7 +3490,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	                 temp_width, 0, rgb);
 
             linewidth  += temp_width;
-	    linex      += temp_width;
             lineptr    += strlen((char *)lineptr);
 
             if (lineptr[-1] == ' ')
@@ -3506,14 +3511,14 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		  offset = 0.0f;
 	    }
 
-	    new_render(*page, RENDER_IMAGE, *x, *y + offset, temp->width, temp->height,
+	    new_render(*page, RENDER_IMAGE, linex, *y + offset, temp->width, temp->height,
 		       image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
             whitespace = 0;
 	    temp_width = temp->width;
 	    break;
       }
 
-      *x += temp_width;
+      linex += temp_width;
       prev = temp;
       temp = temp->next;
       if (prev != linetype)
@@ -7084,7 +7089,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n", out);
     fputs("/GS{gsave}BD", out);
     fputs("/GR{grestore}BD", out);
-    fputs("/J{ashow}BD", out);
+    fputs("/J{0 exch ashow}BD", out);
     fputs("/L{0 rlineto stroke}BD", out);
     fputs("/M{moveto}BD\n", out);
     fputs("/S{show}BD", out);
@@ -7506,7 +7511,7 @@ write_text(FILE     *out,	/* I - Output file */
   if (PSLevel > 0)
   {
     if (r->data.text.spacing > 0.0f)
-      fprintf(out, "%.3f 0.0 ", r->data.text.spacing);
+      fprintf(out, " %.3f", r->data.text.spacing);
   }
   else if (r->data.text.spacing != render_spacing)
     flate_printf(out, " %.3f Tc", render_spacing = r->data.text.spacing);
@@ -8122,5 +8127,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.20 2001/02/20 02:15:57 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.21 2001/02/20 15:06:56 mike Exp $".
  */
