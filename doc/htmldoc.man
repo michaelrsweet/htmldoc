@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.25 2004/10/29 20:41:28 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.26 2004/11/16 15:21:33 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.24" "29 October 2004" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.24" "16 November 2004" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -338,13 +338,12 @@ Specifies the initial viewing mode for a PDF file.
 Specifies a search path for files in a document.
 
 .TP 5
---permissions \fIpermission\fR
+--permissions \fIpermission[,permission,...]\fR
 .br
-Specifies document permissions for encrypted PDF files. Multiple
-\fI--permissions\fR options are required to grant or deny
-specific permissions. The following values are understood: all,
-none, annotate, no-annotate, copy, no-copy, modify, no-modify,
-print, and no-print.
+Specifies document permissions for encrypted PDF files. The
+following permissions are understood: all, none, annotate,
+no-annotate, copy, no-copy, modify, no-modify, print, and
+no-print. Separate multiple permissions with commas.
 
 .TP 5
 --pscommands
@@ -559,5 +558,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.25 2004/10/29 20:41:28 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.26 2004/11/16 15:21:33 mike Exp $".
 .\"
