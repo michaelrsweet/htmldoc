@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.10 1999/11/15 01:53:08 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.11 1999/11/15 21:38:05 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -468,6 +468,16 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+#ifdef HAVE_LIBFLTK
+    else if (compare_strings(argv[i], "--helpdir", 7) == 0)
+    {
+      i ++;
+      if (i < argc)
+        GUI::help_dir = argv[i];
+      else
+        usage();
+    }
+#endif // HAVE_LIBFLTK
     else if (compare_strings(argv[i], "--jpeg", 3) == 0 ||
              strncmp(argv[i], "--jpeg=", 7) == 0)
     {
@@ -1292,10 +1302,10 @@ prefs_load(void)
 	  PDFPageDuration = atof(line + 14);
         else if (strncasecmp(line, "EFFECTDURATION=", 16) == 0)
 	  PDFEffectDuration = atof(line + 16);
-#  ifdef HAVE_FLTK
+#  ifdef HAVE_LIBFLTK
         else if (strncasecmp(line, "EDITOR=", 7) == 0)
 	  strcpy(HTMLEditor, line + 7);
-#  endif // HAVE_FLTK
+#  endif // HAVE_LIBFLTK
       }
 
       fclose(fp);
@@ -1598,6 +1608,9 @@ usage(void)
   puts("  --headfootsize {6.0..24.0}");
   puts("  --headingfont {courier,times,helvetica}");
   puts("  --help");
+#ifdef HAVE_LIBFLTK
+  puts("  --helpdir directory");
+#endif // HAVE_LIBFLTK
   puts("  --jpeg[=quality]");
   puts("  --landscape");
   puts("  --left margin{in,cm,mm}");
@@ -1646,5 +1659,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.10 1999/11/15 01:53:08 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.11 1999/11/15 21:38:05 mike Exp $".
  */

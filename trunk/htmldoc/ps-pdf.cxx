@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.17 1999/11/15 01:53:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.18 1999/11/15 21:38:05 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4215,6 +4215,9 @@ add_link(uchar *name,	/* I - Name of link */
   link_t	*temp;	/* New name */
 
 
+  if (name == NULL)
+    return;
+
   if ((temp = find_link(name)) != NULL)
   {
     temp->page = page - 1;
@@ -6107,5 +6110,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.17 1999/11/15 01:53:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.18 1999/11/15 21:38:05 mike Exp $".
  */
