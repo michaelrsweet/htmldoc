@@ -9,18 +9,30 @@
 languagelevel 1 eq { /setpagedevice {pop} BD } if
 
 %
-% trayOffset
+% trayMap
 %
-% The trayOffset variable defines a number that is added to the position
-% number specified by the "MEDIA POSITION nnn" page comment.  The tray
-% numbers in the page comment start at 1, so the following code sets
-% the offset to -1 if the printer numbers the tray positions at 0.
+% The trayMap variable defines an array of tray positions that are
+% used when looking up the "MEDIA POSITION nnn" page comment.  The
+% array should be exactly 8 elements long.  Unavailable trays should
+% be set to -1.
 %
 
-/trayOffset 0 def
+/trayMap [-1 -1 -1 -1 -1 -1 -1 -1] def
+
 product (Xerox DocuPrint N4025 PS3) eq
-%product (Insert ModelName string here) eq or
-  { /trayOffset -1 def } if
+  { /trayMap [0 1 2 3 4 -1 -1 -1] def } if
+
+product (Xerox DocuPrint N2025 PS) eq
+  { /trayMap [0 1 2 3 -1 -1 -1 -1] def } if
+
+product (HP LaserJet 5Si/5Si MX PS) eq
+  { /trayMap [3 0 1 4 -1 -1 -1 -1] def } if
+
+product (HP LaserJet 2100 Series) eq
+  { /trayMap [3 0 1 -1 -1 -1 -1 -1] def } if
+
+%product (Insert ModelName string here) eq
+%  { /trayMap [-1 -1 -1 -1 -1 -1 -1 -1] def } if
 
 %
 % haveMediaColor
@@ -42,8 +54,11 @@ def
 %
 
 /haveMediaPosition
-  product (Xerox DocuPrint N4025 PS3) eq
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
   product (Xerox Document Centre 332/340) eq or
+  product (HP LaserJet 5Si/5Si MX PS) eq or
+  product (HP LaserJet 2100 Series) eq or
 %  product (Insert ModelName string here) eq or
 def
 
@@ -55,8 +70,10 @@ def
 %
 
 /haveMediaType
-  product (Xerox DocuPrint N4025 PS3) eq
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
   product (Xerox Document Centre 332/340) eq or
+  product (HP LaserJet 5Si/5Si MX PS) eq or
 %  product (Insert ModelName string here) eq or
 def
 
@@ -68,7 +85,9 @@ def
 %
 
 /haveDeferredMediaSelection
-  product (Xerox DocuPrint N4025 PS3) eq
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
+  product (HP LaserJet 5Si/5Si MX PS) eq or
 %  product (Insert ModelName string here) eq or
   not
 def
@@ -81,7 +100,10 @@ def
 %
 
 /haveManualFeed
-  product (Xerox DocuPrint N4025 PS3) eq
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
+  product (HP LaserJet 5Si/5Si MX PS) eq or
+  product (HP LaserJet 2100 Series) eq or
 %  product (Insert ModelName string here) eq or
   not
 def
@@ -94,7 +116,8 @@ def
 %
 
 /haveTraySwitch
-  product (Xerox DocuPrint N4025 PS3) eq
+  product (Xerox DocuPrint N2025 PS) eq
+  product (Xerox DocuPrint N4025 PS3) eq or
 %  product (Insert ModelName string here) eq or
   not
 def
@@ -178,19 +201,22 @@ def
 /SetMediaPosition {
   haveMediaPosition {
     % Add any tray position offset to the tray number.
-    trayOffset add
+    trayMap exch 1 sub get dup 0 ge
+    {
+      % Build a page device dictionary with the MediaPosition,
+      % DeferredMediaSelection, ManualFeed, and TraySwitch attributes...
+      <<
+	/MediaPosition 2 index
+	haveDeferredMediaSelection { /DeferredMediaSelection true } if
+	haveTraySwitch { /TraySwitch false } if
+	haveManualFeed { /ManualFeed false } if
+      >>
 
-    % Build a page device dictionary with the MediaPosition,
-    % DeferredMediaSelection, ManualFeed, and TraySwitch attributes...
-    <<
-      /MediaPosition 2 index
-      haveDeferredMediaSelection { /DeferredMediaSelection true } if
-      haveTraySwitch { /TraySwitch false } if
-      haveManualFeed { /ManualFeed false } if
-    >>
-
-    % Register the new attributes...
-    setpagedevice
+      % Register the new attributes...
+      setpagedevice
+    }
+    { pop }
+    ifelse
   } if
 
   % Discard the media position on the stack...
