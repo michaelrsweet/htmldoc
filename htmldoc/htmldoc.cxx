@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.70 2004/05/09 20:16:29 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.71 2004/05/09 21:31:38 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -142,6 +142,10 @@ main(int  argc,				/* I - Number of command-line arguments */
   if (getenv("GATEWAY_INTERFACE") && getenv("SERVER_NAME") &&
       getenv("SERVER_SOFTWARE") && !getenv("HTMLDOC_NOCGI"))
   {
+    const char	*path_translated;	// PATH_TRANSLATED env var
+    char	bookfile[1024];		// Book filename
+
+	
     // CGI mode implies the following options:
     //
     // --no-localfiles
@@ -173,9 +177,31 @@ main(int  argc,				/* I - Number of command-line arguments */
 
     argc = 1;
 
-    // If there is a .book file in the current directory, use it...
-    if (!access(".book", 0))
-      load_book(".book", &document, &exportfunc);
+    // Look for a book file in the following order:
+    //
+    // $PATH_TRANSLATED.book
+    // `dirname $PATH_TRANSLATED`/.book
+    // .book
+    //
+    // If we find one, use it...
+    if ((path_translated = getenv("PATH_TRANSLATED")) != NULL)
+    {
+      // Try $PATH_TRANSLATED.book...
+      snprintf(bookfile, sizeof(bookfile), "%s.book", path_translated);
+      if (access(bookfile, 0))
+      {
+        // Not found, try `dirname $PATH_TRANSLATED`/.book
+        snprintf(bookfile, sizeof(bookfile), "%s/.book",
+	         file_directory(path_translated));
+        if (access(bookfile, 0))
+	  strlcpy(bookfile, ".book", sizeof(bookfile));
+      }
+    }
+    else
+      strlcpy(bookfile, ".book", sizeof(bookfile));
+
+    if (!access(bookfile, 0))
+      load_book(bookfile, &document, &exportfunc);
   }
   else
   {
@@ -2379,5 +2405,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.70 2004/05/09 20:16:29 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.71 2004/05/09 21:31:38 mike Exp $".
  */
