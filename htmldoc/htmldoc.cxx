@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.45 2002/06/05 03:59:31 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.46 2002/06/13 20:10:50 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -928,7 +928,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       * Read from stdin...
       */
 
-      _htmlPPI = _htmlBrowserWidth / PageWidth * 72.0f;
+      _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
       htmlSetVariable(file, (uchar *)"FILENAME", (uchar *)"");
@@ -2069,7 +2069,7 @@ read_file(const char *filename,		// I  - File/URL to read
       if (Verbosity > 0)
         fprintf(stderr, "htmldoc: Reading %s...\n", filename);
 
-      _htmlPPI = _htmlBrowserWidth / PageWidth * 72.0f;
+      _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
       strcpy(base, file_directory(filename));
 
@@ -2253,5 +2253,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.45 2002/06/05 03:59:31 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.46 2002/06/13 20:10:50 mike Exp $".
  */
