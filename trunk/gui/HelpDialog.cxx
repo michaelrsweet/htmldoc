@@ -408,7 +408,7 @@ HelpDialog::HelpDialog() {
     { Fl_Group* o = new Fl_Group(0, 25, 535, 55);
       { Fl_Pack* o = new Fl_Pack(0, 25, 535, 55);
         { Fl_Button* o = back_ = new Fl_Button(0, 25, 60, 55, _("Back"));
-          o->box(FL_FLAT_BOX);
+          o->box(FL_NO_BOX);
           o->down_box(FL_DOWN_BOX);
           o->image(image_back);
           o->deimage(image_dback);
@@ -416,7 +416,7 @@ HelpDialog::HelpDialog() {
           o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
         }
         { Fl_Button* o = forward_ = new Fl_Button(60, 25, 60, 55, _("Forward"));
-          o->box(FL_FLAT_BOX);
+          o->box(FL_NO_BOX);
           o->down_box(FL_DOWN_BOX);
           o->image(image_forward);
           o->deimage(image_dforward);
@@ -424,13 +424,13 @@ HelpDialog::HelpDialog() {
           o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
         }
         { Fl_Button* o = smaller_ = new Fl_Button(120, 25, 55, 55, _("F"));
-          o->box(FL_FLAT_BOX);
+          o->box(FL_NO_BOX);
           o->down_box(FL_DOWN_BOX);
           o->labelfont(1);
           o->callback((Fl_Callback*)cb_smaller_);
         }
         { Fl_Button* o = larger_ = new Fl_Button(175, 25, 55, 55, _("F"));
-          o->box(FL_FLAT_BOX);
+          o->box(FL_NO_BOX);
           o->down_box(FL_DOWN_BOX);
           o->labelfont(1);
           o->labelsize(40);

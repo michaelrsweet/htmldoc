@@ -52,7 +52,7 @@ else if (view_->filename())
 }}
         private xywh {0 80 535 305} box DOWN_BOX resizable
       }
-      Fl_Group {} {open selected
+      Fl_Group {} {open
         xywh {0 25 535 55}
       } {
         Fl_Pack {} {open
@@ -72,8 +72,8 @@ forward_->activate();
 if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
-view_->topline(line_[index_]);}
-            private image {icons/back.xpm} deimage {icons/dback.xpm} xywh {0 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
+view_->topline(line_[index_]);} selected
+            private image {icons/back.xpm} deimage {icons/dback.xpm} xywh {0 25 60 55} box NO_BOX down_box DOWN_BOX align 17
           }
           Fl_Button forward_ {
             label Forward
@@ -88,8 +88,8 @@ back_->activate();
 if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
-view_->topline(line_[index_]);}
-            private image {icons/forward.xpm} deimage {icons/dforward.xpm} xywh {60 25 60 55} box FLAT_BOX down_box DOWN_BOX align 17
+view_->topline(line_[index_]);} selected
+            private image {icons/forward.xpm} deimage {icons/dforward.xpm} xywh {60 25 60 55} box NO_BOX down_box DOWN_BOX align 17
           }
           Fl_Button smaller_ {
             label F
@@ -98,8 +98,8 @@ view_->topline(line_[index_]);}
 
 if (view_->textsize() <= 8)
   smaller_->deactivate();
-larger_->activate();}
-            private xywh {120 25 55 55} box FLAT_BOX down_box DOWN_BOX labelfont 1
+larger_->activate();} selected
+            private xywh {120 25 55 55} box NO_BOX down_box DOWN_BOX labelfont 1
           }
           Fl_Button larger_ {
             label F
@@ -108,8 +108,8 @@ larger_->activate();}
 
 if (view_->textsize() >= 18)
   larger_->deactivate();
-smaller_->activate();}
-            private xywh {175 25 55 55} box FLAT_BOX down_box DOWN_BOX labelfont 1 labelsize 40
+smaller_->activate();} selected
+            private xywh {175 25 55 55} box NO_BOX down_box DOWN_BOX labelfont 1 labelsize 40
           }
         }
       }
