@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.9 2004/05/05 18:58:40 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.10 2004/05/07 22:04:57 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -611,7 +611,11 @@ write_node(FILE   *out,		/* I - Output file */
 
     case MARKUP_COMMENT :
     case MARKUP_UNKNOWN :
-        fprintf(out, "\n<!--%s-->\n", t->data);
+        fputs("\n<!--", out);
+	for (ptr = t->data; *ptr; ptr ++)
+	  fputs((char *)iso8859(*ptr), out);
+	fputs("-->\n", out);
+	col = 0;
 	break;
 
     case MARKUP_AREA :
@@ -1116,5 +1120,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.9 2004/05/05 18:58:40 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.10 2004/05/07 22:04:57 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.73 2004/05/05 18:58:40 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.74 2004/05/07 22:04:57 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2453,13 +2453,13 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
       if (ch == '>' && temp == NULL)
         break;
 
-      *cptr++ = ch;
-
       if (ch == '\n')
         (*linenum) ++;
 
       if (ch == '-')
       {
+        *cptr++ = ch;
+
         if ((ch2 = getc(fp)) == '>')
 	{
 	  // Erase trailing -->
@@ -2473,7 +2473,61 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 	  ch = ch2;
       }
       else
+      {
+        if (ch == '&')
+	{
+          // Handle character entities...
+	  uchar	entity[16],		// Character entity name
+		*eptr;			// Pointer into name
+
+
+	  eptr = entity;
+	  while (eptr < (entity + sizeof(entity) - 1) &&
+		 (ch = getc(fp)) != EOF)
+	    if (!isalnum(ch) && ch != '#')
+	      break;
+	    else
+	      *eptr++ = ch;
+
+	  if (ch != ';')
+	  {
+	    ungetc(ch, fp);
+	    ch = 0;
+	  }
+
+	  *eptr = '\0';
+	  if (!ch)
+	  {
+	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+	                   *linenum);
+
+            if (cptr < (comment + sizeof(comment) - 1))
+	      *cptr++ = '&';
+            strlcpy((char *)cptr, (char *)entity,
+	            sizeof(comment) - (cptr - comment));
+	    cptr += strlen((char *)cptr);
+	  }
+	  else if ((ch = iso8859(entity)) == 0)
+	  {
+	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
+	                   entity, *linenum);
+
+            if (cptr < (comment + sizeof(comment) - 1))
+	      *cptr++ = '&';
+            strlcpy((char *)cptr, (char *)entity,
+	            sizeof(comment) - (cptr - comment));
+	    cptr += strlen((char *)cptr);
+            if (cptr < (comment + sizeof(comment) - 1))
+	      *cptr++ = ';';
+	  }
+	  else if (cptr < (comment + sizeof(comment) - 1))
+	    *cptr++ = ch;
+	}
+	else
+	  *cptr++ = ch;
+
         ch = getc(fp);
+      }
     }
 
     *cptr = '\0';
@@ -3159,6 +3213,9 @@ htmlFindFile(tree_t *doc,		// I - Document pointer
   uchar		*treename;		// Filename from node
 
 
+  if (!filename || !doc)
+    return (NULL);
+
   for (tree = doc; tree; tree = tree->next)
     if ((treename = htmlGetVariable(tree, (uchar *)"_HD_FILENAME")) != NULL &&
         !strcmp((char *)treename, (char *)filename))
@@ -3177,9 +3234,20 @@ htmlFixLinks(tree_t *doc,		// I - Top node
              tree_t *tree,		// I - Current node
 	     uchar  *base)		// I - Base directory/path
 {
-  uchar	*href;				// HREF attribute
-  char	full_href[1024];		// Full HREF value
+  uchar		*href;			// HREF attribute
+  char		full_href[1024];	// Full HREF value
+  const char	*debug;			// HTMLDOC_DEBUG environment variable
+  static int	show_debug = -1;	// Show debug messages?
 
+
+  if (show_debug < 0)
+  {
+    if ((debug = getenv("HTMLDOC_DEBUG")) == NULL ||
+	(strstr(debug, "all") == NULL && strstr(debug, "links") == NULL))
+      show_debug = 0;
+    else
+      show_debug = 1;
+  }
 
   while (tree)
   {
@@ -3217,7 +3285,9 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 	  snprintf(full_href, sizeof(full_href), "%s/%s", base, href);
 	}
 
-        fprintf(stderr, "DEBUG: Mapping \"%s\" to \"%s\"...\n", href, full_href);
+        if (show_debug)
+          progress_error(HD_ERROR_NONE, "DEBUG: Mapping \"%s\" to \"%s\"...\n",
+	        	 href, full_href);
 
 	htmlSetVariable(tree, (uchar *)"_HD_FULL_HREF", (uchar *)full_href);
       }
@@ -3239,5 +3309,5 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.73 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.74 2004/05/07 22:04:57 mike Exp $".
  */

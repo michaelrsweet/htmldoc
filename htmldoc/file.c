@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.45 2004/05/05 18:58:40 mike Exp $"
+ * "$Id: file.c,v 1.13.2.46 2004/05/07 22:04:57 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -134,8 +134,7 @@ file_basename(const char *s)	/* I - Filename or URL */
   if (strchr(basename, '#') == NULL)
     return (basename);
 
-  strncpy(buf, basename, sizeof(buf) - 1);
-  buf[sizeof(buf) - 1] = '\0';
+  strlcpy(buf, basename, sizeof(buf));
   *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
@@ -538,7 +537,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     {
       count += bytes;
       progress_update((100 * count / total) % 101);
-      fwrite(resource, 1, bytes, fp);
+      fwrite(resource, 1, (size_t)bytes, fp);
     }
 
     progress_hide();
@@ -1040,7 +1039,7 @@ file_temp(char *name,			/* O - Filename */
     tmpdir = "/var/tmp";
 #endif /* WIN32 */
 
-  snprintf(name, len, TEMPLATE, tmpdir, (long)getpid(), web_files);
+  snprintf(name, (size_t)len, TEMPLATE, tmpdir, (long)getpid(), web_files);
 
   if ((fd = open(name, OPENMODE, OPENPERM)) >= 0)
     fp = fdopen(fd, "w+b");
@@ -1057,5 +1056,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.45 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.46 2004/05/07 22:04:57 mike Exp $".
  */
