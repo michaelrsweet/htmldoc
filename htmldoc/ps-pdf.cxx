@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.34 2001/03/04 12:29:59 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.35 2001/03/06 15:40:34 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3763,6 +3763,9 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
+//#undef DEBUG_puts
+//#define DEBUG_puts(x) puts(x)
+//#define DEBUG
 //#undef DEBUG_printf
 //#define DEBUG_printf(x) printf x
 /*
@@ -3968,6 +3971,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL &&
 	      colspan == 1 && var[strlen((char *)var) - 1] == '%')
             col_width -= 2.0 * (cellpadding + border) - cellspacing;
+	  else
+	    col_width = 0.0f;
 
           tempcol->height = col_height;
 
@@ -4040,7 +4045,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     for (col = 0, width = 0.0; col < num_cols; col ++)
       width += col_prefs[col];
 
-    width += (2 * (border + cellpadding) + cellspacing) * num_cols;
+    width += (2 * (border + cellpadding) + cellspacing) * num_cols -
+             cellspacing;
 
     if (width > (right - left))
       width = right - left;
@@ -4050,12 +4056,30 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   * Compute the width of each column based on the printable width.
   */
 
-  actual_width  = (2 * (border + cellpadding) + cellspacing) * num_cols;
+  DEBUG_printf(("\nTABLE: %dx%d\n\n", num_cols, num_rows));
+
+  actual_width  = (2 * (border + cellpadding) + cellspacing) * num_cols -
+                  cellspacing;
   regular_width = (width - actual_width) / num_cols;
+
+  DEBUG_printf(("    width = %.1f, actual_width = %.1f, regular_width = %.1f\n\n",
+                width, actual_width, regular_width));
+  DEBUG_puts("    Col  Width   Min     Pref");
+  DEBUG_puts("    ---  ------  ------  ------");
+
+#ifdef DEBUG
+  for (col = 0; col < num_cols; col ++)
+    printf("    %-3d  %-6.1f  %-6.1f  %.1f\n", col, col_widths[col],
+           col_mins[col], col_prefs[col]);
+
+  puts("");
+#endif /* DEBUG */
 
  /*
   * The first pass just handles columns with a specified width...
   */
+
+  DEBUG_puts("PASS 1: fixed width handling\n");
 
   for (col = 0, regular_cols = 0; col < num_cols; col ++)
     if (col_widths[col] > 0.0f)
@@ -4068,14 +4092,21 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     else
       regular_cols ++;
 
+  DEBUG_printf(("    actual_width = %.1f, regular_cols = %d\n\n", actual_width,
+                regular_cols));
+
  /*
   * Pass two uses the "preferred" width whenever possible, and the
   * minimum otherwise...
   */
 
+  DEBUG_puts("PASS 2: preferred width handling\n");
+
   for (col = 0, pref_width = 0.0f; col < num_cols; col ++)
     if (col_widths[col] == 0.0f)
       pref_width += col_prefs[col];
+
+  DEBUG_printf(("    pref_width = %.1f\n", pref_width));
 
   if (pref_width > 0.0f)
   {
@@ -4083,6 +4114,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       regular_width = 0.0f;
     else if (regular_width > 1.0f)
       regular_width = 1.0f;
+
+    DEBUG_printf(("    regular_width = %.1f\n", regular_width));
 
     for (col = 0; col < num_cols; col ++)
       if (col_widths[col] == 0.0f)
@@ -4102,14 +4135,20 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	else
           col_widths[col] = pref_width;
 
+        DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+
 	actual_width += col_widths[col];
       }
   }
+
+  DEBUG_printf(("    actual_width = %.1f\n\n", actual_width));
 
  /*
   * Pass three enforces any hard or minimum widths for COLSPAN'd
   * columns...
   */
+
+  DEBUG_puts("PASS 3: colspan handling\n\n");
 
   for (col = 0; col < num_cols; col ++)
     if (col_spans[col] > 1)
@@ -4136,27 +4175,40 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  actual_width -= col_widths[col + colspan];
 	  col_widths[col + colspan] *= regular_width;
 	  actual_width += col_widths[col + colspan];
+
+          DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
 	}
       }
     }
 
+  DEBUG_printf(("    actual_width = %.1f\n\n", actual_width));
+
  /*
   * Pass four divides up the remaining space amongst the columns...
   */
+
+  DEBUG_puts("PASS 4: divide remaining space, if any...\n");
 
   if (width > actual_width)
   {
     regular_width = (width - actual_width) / num_cols;
 
     for (col = 0; col < num_cols; col ++)
+    {
       col_widths[col] += regular_width;
+      DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+    }
   }
   else
     width = actual_width;
 
+  DEBUG_puts("");
+
  /*
   * The final pass is only run if the width > table_width...
   */
+
+  DEBUG_puts("PASS 5: Squeeze table as needed...");
 
   if (width > table_width)
   {
@@ -4166,10 +4218,15 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     */
 
     for (col = 0; col < num_cols; col ++)
+    {
       col_widths[col] = table_width * col_widths[col] / width;
+      DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+    }
 
     width = table_width;
   }
+
+  DEBUG_puts("");
 
   switch (t->halignment)
   {
@@ -4620,6 +4677,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     free(cells);
   }
 }
+//#undef DEBUG
+//#undef DEBUG_puts
+//#define DEBUG_puts(x)
 //#undef DEBUG_printf
 //#define DEBUG_printf(x)
 
@@ -8181,5 +8241,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.34 2001/03/04 12:29:59 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.35 2001/03/06 15:40:34 mike Exp $".
  */

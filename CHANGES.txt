@@ -56,6 +56,11 @@ CHANGES IN HTMLDOC v1.8.12
 	  a </!--> tag in the HTML output.
 	- The alignment attribute in TR elements was not inherited
 	  by the TD and TH elements.
+	- The HTML parser added whitespace before the title of a
+	  document (missing check for TITLE element.)
+	- The table formatter did not reset the column width when
+	  a width was not specified explicitly.  This caused the
+	  columns to be formatted with equal widths...
 
 
 CHANGES IN HTMLDOC v1.8.11
