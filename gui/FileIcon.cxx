@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.21.2.1 2001/02/02 15:10:55 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.21.2.2 2001/04/18 23:24:09 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -455,6 +455,8 @@ FileIcon::labeltype(const Fl_Label *o,	// I - Label data
 {
   FileIcon *icon;			// Pointer to icon data
 
+
+  (void)a;
 
   icon = (FileIcon *)(o->value);
 
@@ -1215,5 +1217,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.21.2.1 2001/02/02 15:10:55 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.21.2.2 2001/04/18 23:24:09 mike Exp $".
 //

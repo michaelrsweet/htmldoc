@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.h,v 1.8.2.1 2001/02/02 15:10:56 mike Exp $"
+// "$Id: FileIcon.h,v 1.8.2.2 2001/04/18 23:24:10 mike Exp $"
 //
 //   FileIcon definitions.
 //
@@ -102,5 +102,5 @@ class FileIcon			//// Icon data
 #endif // !_GUI_FILEICON_H_
 
 //
-// End of "$Id: FileIcon.h,v 1.8.2.1 2001/02/02 15:10:56 mike Exp $".
+// End of "$Id: FileIcon.h,v 1.8.2.2 2001/04/18 23:24:10 mike Exp $".
 //
