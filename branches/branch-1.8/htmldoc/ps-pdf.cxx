@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.170 2002/05/13 18:46:39 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.171 2002/05/13 18:58:44 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6550,8 +6550,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
   // Mark if we are at the top of form...
   tof = (*y >= *top);
 
-  printf("BEFORE tof=%d, *y=%.1f, *top=%.1f, t->data=\"%s\"\n",
-         tof, *y, *top, t->data);
+//  printf("BEFORE tof=%d, *y=%.1f, *top=%.1f, t->data=\"%s\"\n",
+//         tof, *y, *top, t->data);
 
   for (comment = (const char *)t->data; *comment;)
   {
@@ -7433,11 +7433,27 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       if (tof)
         *bottom = hfspace;
     }
+    else if (strncasecmp(comment, "NUMBER-UP ", 10) == 0)
+    {
+      // N-up printing...
+      comment += 10;
+
+      while (isspace(*comment))
+	comment ++;
+
+      if (!*comment)
+	break;
+
+      NumberUp = strtol(comment, (char **)&comment, 10);
+
+      if (tof)
+        pages[*page].nup = NumberUp;
+    }
     else
       break;
   }
 
-  printf("AFTER tof=%d, *y=%.1f, *top=%.1f\n", tof, *y, *top);
+//  printf("AFTER tof=%d, *y=%.1f, *top=%.1f\n", tof, *y, *top);
 }
 
 
@@ -11433,5 +11449,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.170 2002/05/13 18:46:39 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.171 2002/05/13 18:58:44 mike Exp $".
  */
