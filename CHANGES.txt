@@ -26,6 +26,8 @@ CHANGES IN HTMLDOC v1.8.7
 
 	- Now ignore illegal HTML in tables.
 	- The VALIGN code didn't handle empty cells properly.
+	- Wasn't offsetting the start of each row by the cell
+	  padding.
 
 
 CHANGES IN HTMLDOC v1.8.6
