@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.8 2001/05/27 11:39:50 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.9 2001/05/27 12:50:41 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -1494,8 +1494,8 @@ image_need_mask(image_t *img)	/* I - Image to add mask to */
 
 static void
 image_set_mask(image_t *img,	/* I - Image to operate on */
-                 int     x,	/* I - X coordinate */
-	         int     y)	/* I - Y coordinate */
+               int     x,	/* I - X coordinate */
+               int     y)	/* I - Y coordinate */
 {
   uchar		*maskptr;	/* Pointer into mask image */
   static uchar	masks[8] =	/* Masks for each bit */
@@ -1578,5 +1578,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.8 2001/05/27 11:39:50 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.9 2001/05/27 12:50:41 mike Exp $".
  */
