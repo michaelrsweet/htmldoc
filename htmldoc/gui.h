@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.13 2001/10/18 23:19:22 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.14 2001/10/18 23:49:33 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -199,8 +199,7 @@ class GUI
   Fl_Value_Slider *browserWidth;
   Fl_Input	*path;
   Fl_Input	*proxy;
-  CheckButton	*tooltips,
-		*aquamode;
+  CheckButton	*tooltips;
 
   Fl_Button	*saveOptions;
 
@@ -262,7 +261,6 @@ class GUI
 
   static void	htmlEditorCB(Fl_Widget *w, GUI *gui);
   static void	tooltipCB(Fl_Widget *w, GUI *gui);
-  static void	aquaCB(Fl_Widget *w, GUI *gui);
   static void	saveOptionsCB(Fl_Widget *w, GUI *gui);
 
   static void	helpCB(Fl_Widget *w, GUI *gui);
@@ -296,5 +294,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.13 2001/10/18 23:19:22 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.14 2001/10/18 23:49:33 mike Exp $".
  */
