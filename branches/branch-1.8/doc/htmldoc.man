@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.22 2003/02/05 17:14:33 swdev Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.23 2003/02/05 19:19:37 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.24" "6 January 2003" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.24" "5 February 2003" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -220,8 +220,10 @@ Sets the style of links.
 Specifies an image to be used as a logo in the header or footer in a
 PostScript or PDF document, and in the navigation bar of a HTML document.
 
-Note that you would need to include either the \fI--header\fR and/or the
-\fI--footer\fR option with the use of the \fIl\fR parameter.
+Note that you need to use the \fI--header\fR and/or
+\fI--footer\fR options with the \fIl\fR parameter or use the
+corresponding HTML page comments to display the logo image in
+the header or footer.
 
 .TP 5
 --no-compression
@@ -557,5 +559,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.22 2003/02/05 17:14:33 swdev Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.23 2003/02/05 19:19:37 mike Exp $".
 .\"
