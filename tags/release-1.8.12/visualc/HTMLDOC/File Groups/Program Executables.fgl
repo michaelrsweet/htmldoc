@@ -1,0 +1,11 @@
+[TopDir]
+file0=C:\mike\htmldoc1\visualc\htmldoc.exe
+file1=C:\mike\htmldoc1\README.txt
+file2=C:\mike\htmldoc1\COPYING.txt
+file3=C:\mike\htmldoc1\CHANGES.txt
+file4=C:\mike\htmldoc1\visualc\ghtmldoc.exe
+
+[General]
+Type=FILELIST
+Version=1.00.000
+
