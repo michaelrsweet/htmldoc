@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.22 1999/11/17 22:03:07 mike Exp $"
+// "$Id: gui.cxx,v 1.23 1999/11/18 16:12:24 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -238,6 +238,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   group->end();
 
   inputFiles = new FileBrowser(140, 70, 215, 125);
+  inputFiles->iconsize(20);
   inputFiles->type(FL_MULTI_BROWSER);
   inputFiles->callback((Fl_Callback *)inputFilesCB, this);
   inputFiles->when(FL_WHEN_RELEASE | FL_WHEN_NOT_CHANGED);
@@ -776,6 +777,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   window->show(1, htmldoc);
 
   fc = new FileChooser(".", "*", FileChooser::SINGLE, "Title");
+  fc->iconsize(20);
 
   help = new HelpDialog();
 
@@ -783,6 +785,62 @@ GUI::GUI(const char *filename)		// Book file to load initially
     FileIcon::load_system_icons();
 
   icon = FileIcon::find("file.html", FileIcon::PLAIN);
+
+  // Use cheesy hardcoded "style" stuff until FLTK 2.0...
+#  if FL_MAJOR_VERSION < 2
+#    ifdef __sgi
+  fc->color((Fl_Color)196);
+  inputFiles->color((Fl_Color)196);
+#    elif defined(WIN32)
+  pageSizeMenu->down_box(FL_FLAT_BOX);
+  pageSizeMenu->selection_color((Fl_Color)137);
+  pageHeaderLeft->down_box(FL_FLAT_BOX);
+  pageHeaderLeft->selection_color((Fl_Color)137);
+  pageHeaderCenter->down_box(FL_FLAT_BOX);
+  pageHeaderCenter->selection_color((Fl_Color)137);
+  pageHeaderRight->down_box(FL_FLAT_BOX);
+  pageHeaderRight->selection_color((Fl_Color)137);
+  pageFooterLeft->down_box(FL_FLAT_BOX);
+  pageFooterLeft->selection_color((Fl_Color)137);
+  pageFooterCenter->down_box(FL_FLAT_BOX);
+  pageFooterCenter->selection_color((Fl_Color)137);
+  pageFooterRight->down_box(FL_FLAT_BOX);
+  pageFooterRight->selection_color((Fl_Color)137);
+
+  tocLevels->down_box(FL_FLAT_BOX);
+  tocLevels->selection_color((Fl_Color)137);
+  tocHeaderLeft->down_box(FL_FLAT_BOX);
+  tocHeaderLeft->selection_color((Fl_Color)137);
+  tocHeaderCenter->down_box(FL_FLAT_BOX);
+  tocHeaderCenter->selection_color((Fl_Color)137);
+  tocHeaderRight->down_box(FL_FLAT_BOX);
+  tocHeaderRight->selection_color((Fl_Color)137);
+  tocFooterLeft->down_box(FL_FLAT_BOX);
+  tocFooterLeft->selection_color((Fl_Color)137);
+  tocFooterCenter->down_box(FL_FLAT_BOX);
+  tocFooterCenter->selection_color((Fl_Color)137);
+  tocFooterRight->down_box(FL_FLAT_BOX);
+  tocFooterRight->selection_color((Fl_Color)137);
+
+  headingFont->down_box(FL_FLAT_BOX);
+  headingFont->selection_color((Fl_Color)137);
+  bodyFont->down_box(FL_FLAT_BOX);
+  bodyFont->selection_color((Fl_Color)137);
+  headFootFont->down_box(FL_FLAT_BOX);
+  headFootFont->selection_color((Fl_Color)137);
+  charset->down_box(FL_FLAT_BOX);
+  charset->selection_color((Fl_Color)137);
+
+  pageMode->down_box(FL_FLAT_BOX);
+  pageMode->selection_color((Fl_Color)137);
+  pageLayout->down_box(FL_FLAT_BOX);
+  pageLayout->selection_color((Fl_Color)137);
+  firstPage->down_box(FL_FLAT_BOX);
+  firstPage->selection_color((Fl_Color)137);
+  pageEffect->down_box(FL_FLAT_BOX);
+  pageEffect->selection_color((Fl_Color)137);
+#    endif // __sgi
+#  endif // FL_MAJOR_VERSION < 2
 
   while (window->damage())
     Fl::check();
@@ -3072,5 +3130,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.22 1999/11/17 22:03:07 mike Exp $".
+// End of "$Id: gui.cxx,v 1.23 1999/11/18 16:12:24 mike Exp $".
 //
