@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.4 2001/02/02 15:10:59 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.5 2001/02/26 01:14:19 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -23,19 +23,22 @@
  *
  * Contents:
  *
- *   image_load()        - Load an image file from disk...
- *   image_flush_cache() - Flush the image cache...
- *   image_copy()        - Copy image files to the destination directory...
- *   image_compare()     - Compare two image filenames...
- *   image_load_gif()    - Load a GIF image file...
- *   image_load_jpeg()   - Load a JPEG image file.
- *   image_load_png()    - Load a PNG image file.
  *   gif_read_cmap()     - Read the colormap from a GIF file...
  *   gif_get_block()     - Read a GIF data block...
  *   gif_get_code()      - Get a LZW code from the file...
- *   gif_read_lzw()      - Read a byte from the LZW stream...
  *   gif_read_image()    - Read a GIF image stream...
+ *   gif_read_lzw()      - Read a byte from the LZW stream...
+ *   image_clear_mask()  - Clear a bit in the image mask.
+ *   image_compare()     - Compare two image filenames...
+ *   image_copy()        - Copy image files to the destination directory...
+ *   image_flush_cache() - Flush the image cache...
+ *   image_getlist()     - Get the list of images that are loaded.
+ *   image_load()        - Load an image file from disk...
  *   image_load_bmp()    - Read a BMP image file.
+ *   image_load_gif()    - Load a GIF image file...
+ *   image_load_jpeg()   - Load a JPEG image file.
+ *   image_load_png()    - Load a PNG image file.
+ *   image_need_mask()   - Allocate memory for the image mask...
  *   read_word()         - Read a 16-bit unsigned integer.
  *   read_dword()        - Read a 32-bit unsigned integer.
  *   read_long()         - Read a 32-bit signed integer.
@@ -89,611 +92,38 @@ static int	gif_eof = 0;		/* Did we hit EOF? */
  * Local functions...
  */
 
-static int	image_compare(image_t **img1, image_t **img2);
-
-static int	image_load_jpeg(image_t *img, FILE *fp, int gray);
-
-static int	image_load_png(image_t *img, FILE *fp, int gray);
-
-static int	image_load_gif(image_t *img, FILE *fp, int gray);
 static int	gif_read_cmap(FILE *fp, int ncolors, gif_cmap_t cmap,
 		              int *gray);
 static int	gif_get_block(FILE *fp, uchar *buffer);
 static int	gif_get_code (FILE *fp, int code_size, int first_time);
-static int	gif_read_lzw(FILE *fp, int first_time, int input_code_size);
 static int	gif_read_image(FILE *fp, image_t *img, gif_cmap_t cmap,
-		               int interlace);
+		               int interlace, int transparent);
+static int	gif_read_lzw(FILE *fp, int first_time, int input_code_size);
 
+static void	image_clear_mask(image_t *img, int x, int y);
+static int	image_compare(image_t **img1, image_t **img2);
 static int	image_load_bmp(image_t *img, FILE *fp, int gray);
+static int	image_load_gif(image_t *img, FILE *fp, int gray);
+static int	image_load_jpeg(image_t *img, FILE *fp, int gray);
+static int	image_load_png(image_t *img, FILE *fp, int gray);
+static void	image_need_mask(image_t *img);
+
+static int		read_long(FILE *fp);
 static unsigned short	read_word(FILE *fp);
 static unsigned int	read_dword(FILE *fp);
-static int	read_long(FILE *fp);
-
-
-/*
- * 'image_load()' - Load an image file from disk...
- */
-
-image_t *			/* O - Pointer to image */
-image_load(const char *filename,/* I - Name of image file */
-           int        gray)	/* I - 0 = color, 1 = grayscale */
-{
-  FILE		*fp;		/* File pointer */
-  uchar		header[16];	/* First 16 bytes of file */
-  image_t	*img,		/* New image buffer */
-		key,		/* Search key... */
-		*keyptr,	/* Pointer to search key... */
-		**match;	/* Matching image */
-  int		status;		/* Status of load... */
-  const char	*realname;	/* Real filename */
-
-
- /*
-  * Range check...
-  */
-
-  if (filename == NULL)
-    return (NULL);
-
-  if (filename[0] == '\0')	/* Microsoft VC++ runtime bug workaround... */
-    return (NULL);
-
- /*
-  * See if we've already loaded it...
-  */
-
-  if (num_images > 0)
-  {
-    strcpy(key.filename, filename);
-    keyptr = &key;
-
-    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
-                                (int (*)(const void *, const void *))image_compare);
-    if (match != NULL)
-    {
-      (*match)->use ++;
-      return (*match);
-    }
-  }
-
- /*
-  * Figure out the file type...
-  */
-
-  if ((realname = file_find(Path, filename)) == NULL)
-  {
-    progress_error("Unable to find image file \"%s\"!", filename);
-    return (NULL);
-  }
-
-  if ((fp = fopen(realname, "rb")) == NULL)
-  {
-    progress_error("Unable to read image file \"%s\"!", filename);
-    return (NULL);
-  }
-
-  if (fread(header, 1, sizeof(header), fp) == 0)
-  {
-    progress_error("Unable to read image file \"%s\"!", filename);
-    fclose(fp);
-    return (NULL);
-  }
-
-  rewind(fp);
-
- /*
-  * Allocate memory...
-  */
-
-  img = (image_t *)calloc(sizeof(image_t), 1);
-
-  if (img == NULL)
-  {
-    progress_error("Unable to allocate memory for \"%s\"!", filename);
-    fclose(fp);
-    return (NULL);
-  }
-
-  images[num_images] = img;
-
-  strcpy(img->filename, filename);
-  img->use = 1;
-
- /*
-  * Load the image as appropriate...
-  */
-
-  if (memcmp(header, "GIF87a", 6) == 0 ||
-      memcmp(header, "GIF89a", 6) == 0)
-    status = image_load_gif(img,  fp, gray);
-  else if (memcmp(header, "BM", 2) == 0)
-    status = image_load_bmp(img, fp, gray);
-  else if (memcmp(header, "\211PNG", 4) == 0)
-    status = image_load_png(img, fp, gray);
-  else if (memcmp(header, "\377\330\377", 3) == 0 &&	/* Start-of-Image */
-	   header[3] >= 0xe0 && header[3] <= 0xef)	/* APPn */
-    status = image_load_jpeg(img, fp, gray);
-  else
-  {
-    progress_error("Unknown image file format for \"%s\"!", filename);
-    fclose(fp);
-    free(img);
-    return (NULL);
-  }
-
-  fclose(fp);
-
-  if (status)
-  {
-    progress_error("Unable to load image file \"%s\"!", filename);
-    free(img);
-    return (NULL);
-  }
-
-  num_images ++;
-  if (num_images > 1)
-    qsort(images, num_images, sizeof(image_t *),
-          (int (*)(const void *, const void *))image_compare);
-
-  return (img);
-}
-
-
-/*
- * 'image_find()' - Find an image file in memory...
- */
-
-image_t *			/* O - Pointer to image */
-image_find(const char *filename)/* I - Name of image file */
-{
-  image_t	key,		/* Search key... */
-		*keyptr,	/* Pointer to search key... */
-		**match;	/* Matching image */
-
-
- /*
-  * Range check...
-  */
-
-  if (filename == NULL)
-    return (NULL);
-
-  if (filename[0] == '\0')	/* Microsoft VC++ runtime bug workaround... */
-    return (NULL);
-
- /*
-  * See if we've already loaded it...
-  */
-
-  if (num_images > 0)
-  {
-    strcpy(key.filename, filename);
-    keyptr = &key;
-
-    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
-                                (int (*)(const void *, const void *))image_compare);
-    if (match != NULL)
-      return (*match);
-  }
-
-  return (NULL);
-}
-
-
-/*
- * 'image_flush_cache()' - Flush the image cache...
- */
-
-void
-image_flush_cache(void)
-{
-  int	i;			/* Looping var */
-
-
- /*
-  * Free the memory used by each image...
-  */
-
-  for (i = 0; i < num_images; i ++)
-  {
-    free(images[i]->pixels);
-    free(images[i]);
-  }
-
-  num_images = 0;
-}
-
-
-/*
- * 'image_copy()' - Copy image files to the destination directory...
- */
-
-void
-image_copy(const char *filename,/* I - Source file */
-           const char *destpath)/* I - Destination path */
-{
-  char	dest[255];		/* Destination file */
-  FILE	*in, *out;		/* Input/output files */
-  uchar	buffer[8192];		/* Data buffer */
-  int	nbytes;			/* Number of bytes in buffer */
-
-
- /*
-  * Figure out the destination filename...
-  */
-
-  if (strcmp(destpath, ".") == 0)
-    strcpy(dest, file_basename(filename));
-  else
-    sprintf(dest, "%s/%s", destpath, file_basename(filename));
-
-  if (strcmp(dest, filename) == 0)
-    return;
-
- /*
-  * Open files and copy...
-  */
-
-  if ((filename = file_find(Path, filename)) == NULL)
-    return;
-
-  if ((in = fopen(filename, "rb")) == NULL)
-    return;
-
-  if ((out = fopen(dest, "wb")) == NULL)
-  {
-    fclose(in);
-    return;
-  }
-
-  while ((nbytes = fread(buffer, 1, sizeof(buffer), in)) > 0)
-    fwrite(buffer, 1, nbytes, out);
-
-  fclose(in);
-  fclose(out);
-}
-
-
-/*
- * 'image_compare()' - Compare two image filenames...
- */
-
-static int			/* O - Result of comparison */
-image_compare(image_t **img1,	/* I - First image */
-              image_t **img2)	/* I - Second image */
-{
-#if defined(WIN32) || defined(__EMX__)
-  return (strcasecmp((*img1)->filename, (*img2)->filename));
-#else
-  return (strcmp((*img1)->filename, (*img2)->filename));
-#endif /* WIN32 || __EMX__ */
-}
-
-
-/*
- * 'image_getlist()' - Get the list of images that are loaded.
- */
-
-int				/* O - Number of images in array */
-image_getlist(image_t ***ptrs)	/* O - Pointer to images array */
-{
-  *ptrs = images;
-  return (num_images);
-}
-
-
-/*
- * 'image_load_jpeg()' - Load a JPEG image file.
- */
-
-static int			/* O - 0 = success, -1 = fail */
-image_load_jpeg(image_t *img,	/* I - Image pointer */
-                FILE    *fp,	/* I - File to load from */
-                int     gray)	/* I - 0 = color, 1 = grayscale */
-{
-  struct jpeg_decompress_struct	cinfo;		/* Decompressor info */
-  struct jpeg_error_mgr		jerr;		/* Error handler info */
-  JSAMPROW			row;		/* Sample row pointer */
-
-
-  cinfo.err = jpeg_std_error(&jerr);
-  jpeg_create_decompress(&cinfo);
-  jpeg_stdio_src(&cinfo, fp);
-  jpeg_read_header(&cinfo, 1);
-
-  cinfo.quantize_colors = 0;
-
-  if (gray)
-  {
-    cinfo.out_color_space      = JCS_GRAYSCALE;
-    cinfo.out_color_components = 1;
-    cinfo.output_components    = 1;
-  }
-  else
-  {
-    cinfo.out_color_space      = JCS_RGB;
-    cinfo.out_color_components = 3;
-    cinfo.output_components    = 3;
-  }
-
-  jpeg_calc_output_dimensions(&cinfo);
-
-  img->width  = cinfo.output_width;
-  img->height = cinfo.output_height;
-  img->depth  = cinfo.output_components;
-  img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
-
-  if (img->pixels == NULL)
-  {
-    jpeg_destroy_decompress(&cinfo);
-    return (-1);
-  }
-
-  jpeg_start_decompress(&cinfo);
-
-  while (cinfo.output_scanline < cinfo.output_height)
-  {
-    row = (JSAMPROW)(img->pixels +
-                     cinfo.output_scanline * cinfo.output_width *
-                     cinfo.output_components);
-    jpeg_read_scanlines(&cinfo, &row, (JDIMENSION)1);
-  }
-
-  jpeg_finish_decompress(&cinfo);
-  jpeg_destroy_decompress(&cinfo);
-
-  return (0);
-}
-
-
-/*
- * 'image_load_png()' - Load a PNG image file.
- */
-
-static int			/* O - 0 = success, -1 = fail */
-image_load_png(image_t *img,	/* I - Image pointer */
-               FILE    *fp,	/* I - File to read from */
-               int     gray)	/* I - 0 = color, 1 = grayscale */
-{
-  int		i;	/* Looping var */
-  png_structp	pp;	/* PNG read pointer */
-  png_infop	info;	/* PNG info pointers */
-  png_bytep	*rows;	/* PNG row pointers */
-  uchar		*inptr,	/* Input pixels */
-		*outptr;/* Output pixels */
-  png_color_16	bg;	/* Background color */
-  float		rgb[3];	/* RGB color of background */
-
-
- /*
-  * Setup the PNG data structures...
-  */
-
-  pp   = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  info = png_create_info_struct(pp);
-
- /*
-  * Initialize the PNG read "engine"...
-  */
-
-  png_init_io(pp, fp);
-
- /*
-  * Get the image dimensions and convert to grayscale or RGB...
-  */
-
-  png_read_info(pp, info);
-
-  if (info->color_type == PNG_COLOR_TYPE_PALETTE)
-    png_set_expand(pp);
-
-  if (info->color_type == PNG_COLOR_TYPE_GRAY)
-    img->depth = 1;
-  else
-    img->depth = gray ? 1 : 3;
-
-  img->width  = info->width;
-  img->height = info->height;
-  img->pixels = (uchar *)malloc(img->width * img->height * 3);
-
-  if (info->bit_depth < 8)
-  {
-    png_set_packing(pp);
-    png_set_expand(pp);
-  }
-  else if (info->bit_depth == 16)
-    png_set_strip_16(pp);
-
- /*
-  * Handle transparency...
-  */
-
-  if (png_get_valid(pp, info, PNG_INFO_tRNS))
-    png_set_tRNS_to_alpha(pp);
-
-  if (BodyColor[0])
-  {
-   /*
-    * User-defined color...
-    */
-
-    get_color((uchar *)BodyColor, rgb);
-
-    bg.red   = (png_uint_16)(rgb[0] * 65535.0f + 0.5f);
-    bg.green = (png_uint_16)(rgb[1] * 65535.0f + 0.5f);
-    bg.blue  = (png_uint_16)(rgb[2] * 65535.0f + 0.5f);
-  }
-  else
-  {
-   /*
-    * Default to white...
-    */
-
-    bg.red   = 65535;
-    bg.green = 65535;
-    bg.blue  = 65535;
-  }
-
-  png_set_background(pp, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
-
- /*
-  * Allocate pointers...
-  */
-
-  rows = (png_bytep *)calloc(info->height, sizeof(png_bytep));
-
-  for (i = 0; i < (int)info->height; i ++)
-    if (info->color_type == PNG_COLOR_TYPE_GRAY)
-      rows[i] = img->pixels + i * img->width;
-    else
-      rows[i] = img->pixels + i * img->width * 3;
-
- /*
-  * Read the image, handling interlacing as needed...
-  */
-
-  for (i = png_set_interlace_handling(pp); i > 0; i --)
-    png_read_rows(pp, rows, NULL, img->height);
-
- /*
-  * Reformat the data as necessary for the reader...
-  */
-
-  if (gray && info->color_type != PNG_COLOR_TYPE_GRAY)
-  {
-   /*
-    * Greyscale output needed...
-    */
-
-    for (inptr = img->pixels, outptr = img->pixels, i = img->width * img->height;
-         i > 0;
-         inptr += 3, outptr ++, i --)
-      *outptr = (31 * inptr[0] + 61 * inptr[1] + 8 * inptr[2]) / 100;
-  }
-
- /*
-  * Free memory and return...
-  */
-
-  free(rows);
-
-  png_read_end(pp, info);
-  png_read_destroy(pp, info, NULL);
-
-  return (0);
-}
-
-
-/*
- * 'image_load_gif()' - Load a GIF image file...
- */
-
-static int			/* O - 0 = success, -1 = fail */
-image_load_gif(image_t *img,	/* I - Image pointer */
-               FILE    *fp,	/* I - File to load from */
-               int     gray)	/* I - 0 = color, 1 = grayscale */
-{
-  uchar		buf[1024];	/* Input buffer */
-  gif_cmap_t	cmap;		/* Colormap */
-  int		ncolors,	/* Bits per pixel */
-		transparent;	/* Transparent color index */
-
-
- /*
-  * Read the header; we already know it is a GIF file...
-  */
-
-  fread(buf, 13, 1, fp);
-
-  img->width  = (buf[7] << 8) | buf[6];
-  img->height = (buf[9] << 8) | buf[8];
-  ncolors     = 2 << (buf[10] & 0x07);
-
-  if (buf[10] & GIF_COLORMAP)
-    if (gif_read_cmap(fp, ncolors, cmap, &gray))
-      return (-1);
-
-  transparent = -1;
-
-  while (1)
-  {
-    switch (getc(fp))
-    {
-      case ';' :	/* End of image */
-          return (-1);		/* Early end of file */
-
-      case '!' :	/* Extension record */
-          buf[0] = getc(fp);
-          if (buf[0] == 0xf9)	/* Graphic Control Extension */
-          {
-            gif_get_block(fp, buf);
-            if (buf[0] & 1)	/* Get transparent color index */
-              transparent = buf[3];
-          }
-
-          while (gif_get_block(fp, buf) != 0);
-          break;
-
-      case ',' :	/* Image data */
-          fread(buf, 9, 1, fp);
-
-          if (buf[8] & GIF_COLORMAP)
-          {
-            ncolors = 2 << (buf[8] & 0x07);
-
-	    if (gif_read_cmap(fp, ncolors, cmap, &gray))
-	      return (-1);
-	  }
-
-          if (transparent >= 0)
-          {
-           /*
-            * Map transparent color to background color...
-            */
-
-            if (BodyColor[0])
-	    {
-	      float rgb[3]; /* RGB color */
-
-
-	      get_color((uchar *)BodyColor, rgb);
-
-	      cmap[transparent][0] = (uchar)(rgb[0] * 255.0f + 0.5f);
-	      cmap[transparent][1] = (uchar)(rgb[1] * 255.0f + 0.5f);
-	      cmap[transparent][2] = (uchar)(rgb[2] * 255.0f + 0.5f);
-	    }
-	    else
-	    {
-	      cmap[transparent][0] = 255;
-              cmap[transparent][1] = 255;
-              cmap[transparent][2] = 255;
-	    }
-          }
-
-          img->width  = (buf[5] << 8) | buf[4];
-          img->height = (buf[7] << 8) | buf[6];
-          img->depth  = gray ? 1 : 3;
-          img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
-          if (img->pixels == NULL)
-            return (-1);
-
-	  return (gif_read_image(fp, img, cmap, buf[8] & GIF_INTERLACE));
-    }
-  }
-}
 
 
 /*
  * 'gif_read_cmap()' - Read the colormap from a GIF file...
  */
 
-static int
-gif_read_cmap(FILE       *fp,
-  	      int        ncolors,
-	      gif_cmap_t cmap,
-	      int        *gray)
+static int				/* O  - 0 on success, -1 on error */
+gif_read_cmap(FILE       *fp,		/* I  - File to read from */
+  	      int        ncolors,	/* I  - Number of colors */
+	      gif_cmap_t cmap,		/* IO - Colormap array */
+	      int        *gray)		/* IO - 1 = grayscale */
 {
-  int	i;
+  int	i;				/* Looping var */
 
 
  /*
@@ -863,6 +293,81 @@ gif_get_code(FILE *fp,		/* I - File to read from */
 
 
 /*
+ * 'gif_read_image()' - Read a GIF image stream...
+ */
+
+static int				/* I - 0 = success, -1 = failure */
+gif_read_image(FILE       *fp,		/* I - Input file */
+	       image_t    *img,		/* I - Image pointer */
+	       gif_cmap_t cmap,		/* I - Colormap */
+	       int        interlace,	/* I - Non-zero = interlaced image */
+	       int        transparent)	/* I - Transparent color */
+{
+  uchar		code_size,		/* Code size */
+		*temp;			/* Current pixel */
+  int		xpos,			/* Current X position */
+		ypos,			/* Current Y position */
+		pass;			/* Current pass */
+  int		pixel;			/* Current pixel */
+  static int	xpasses[4] = { 8, 8, 4, 2 },
+		ypasses[5] = { 0, 4, 2, 1, 999999 };
+
+
+  xpos      = 0;
+  ypos      = 0;
+  pass      = 0;
+  code_size = getc(fp);
+
+  if (gif_read_lzw(fp, 1, code_size) < 0)
+    return (-1);
+
+  temp = img->pixels;
+
+  while ((pixel = gif_read_lzw(fp, 0, code_size)) >= 0)
+  {
+    temp[0] = cmap[pixel][0];
+
+    if (img->depth > 1)
+    {
+      temp[1] = cmap[pixel][1];
+      temp[2] = cmap[pixel][2];
+    }
+
+    if (pixel == transparent)
+      image_clear_mask(img, xpos, ypos);
+
+    xpos ++;
+    temp += img->depth;
+    if (xpos == img->width)
+    {
+      xpos = 0;
+
+      if (interlace)
+      {
+        ypos += xpasses[pass];
+        temp += (xpasses[pass] - 1) * img->width * img->depth;
+
+        if (ypos >= img->height)
+	{
+	  pass ++;
+
+          ypos = ypasses[pass];
+          temp = img->pixels + ypos * img->width * img->depth;
+	}
+      }
+      else
+	ypos ++;
+    }
+
+    if (ypos >= img->height)
+      break;
+  }
+
+  return (0);
+}
+
+
+/*
  * 'gif_read_lzw()' - Read a byte from the LZW stream...
  */
 
@@ -1018,73 +523,303 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
 
 
 /*
- * 'gif_read_image()' - Read a GIF image stream...
+ * 'image_clear_mask()' - Clear a bit in the image mask.
  */
 
-static int				/* I - 0 = success, -1 = failure */
-gif_read_image(FILE       *fp,		/* I - Input file */
-	       image_t    *img,		/* I - Image pointer */
-	       gif_cmap_t cmap,		/* I - Colormap */
-	       int        interlace)	/* I - Non-zero = interlaced image */
+static void
+image_clear_mask(image_t *img,	/* I - Image to operate on */
+                 int     x,	/* I - X coordinate */
+	         int     y)	/* I - Y coordinate */
 {
-  uchar		code_size,		/* Code size */
-		*temp;			/* Current pixel */
-  int		xpos,			/* Current X position */
-		ypos,			/* Current Y position */
-		pass;			/* Current pass */
-  int		pixel;			/* Current pixel */
-  static int	xpasses[4] = { 8, 8, 4, 2 },
-		ypasses[5] = { 0, 4, 2, 1, 999999 };
+  uchar		*maskptr;	/* Pointer into mask image */
+  static uchar	masks[8] =	/* Masks for each bit */
+		{
+		  0x7f, 0xbf, 0xdf, 0xef,
+		  0xf7, 0xfb, 0xfd, 0xfe
+		};
 
 
-  xpos      = 0;
-  ypos      = 0;
-  pass      = 0;
-  code_size = getc(fp);
+  if (img == NULL || img->mask == NULL || x < 0 || x >= img->width ||
+      y < 0 || y > img->height)
+    return;
 
-  if (gif_read_lzw(fp, 1, code_size) < 0)
-    return (-1);
+  maskptr  = img->mask + y * img->maskwidth + x / 8;
+  *maskptr &= masks[x & 7];
+}
 
-  temp = img->pixels;
 
-  while ((pixel = gif_read_lzw(fp, 0, code_size)) >= 0)
+/*
+ * 'image_compare()' - Compare two image filenames...
+ */
+
+static int			/* O - Result of comparison */
+image_compare(image_t **img1,	/* I - First image */
+              image_t **img2)	/* I - Second image */
+{
+#if defined(WIN32) || defined(__EMX__)
+  return (strcasecmp((*img1)->filename, (*img2)->filename));
+#else
+  return (strcmp((*img1)->filename, (*img2)->filename));
+#endif /* WIN32 || __EMX__ */
+}
+
+
+/*
+ * 'image_copy()' - Copy image files to the destination directory...
+ */
+
+void
+image_copy(const char *filename,/* I - Source file */
+           const char *destpath)/* I - Destination path */
+{
+  char	dest[255];		/* Destination file */
+  FILE	*in, *out;		/* Input/output files */
+  uchar	buffer[8192];		/* Data buffer */
+  int	nbytes;			/* Number of bytes in buffer */
+
+
+ /*
+  * Figure out the destination filename...
+  */
+
+  if (strcmp(destpath, ".") == 0)
+    strcpy(dest, file_basename(filename));
+  else
+    sprintf(dest, "%s/%s", destpath, file_basename(filename));
+
+  if (strcmp(dest, filename) == 0)
+    return;
+
+ /*
+  * Open files and copy...
+  */
+
+  if ((filename = file_find(Path, filename)) == NULL)
+    return;
+
+  if ((in = fopen(filename, "rb")) == NULL)
+    return;
+
+  if ((out = fopen(dest, "wb")) == NULL)
   {
-    temp[0] = cmap[pixel][0];
-
-    if (img->depth > 1)
-    {
-      temp[1] = cmap[pixel][1];
-      temp[2] = cmap[pixel][2];
-    }
-
-    xpos ++;
-    temp += img->depth;
-    if (xpos == img->width)
-    {
-      xpos = 0;
-
-      if (interlace)
-      {
-        ypos += xpasses[pass];
-        temp += (xpasses[pass] - 1) * img->width * img->depth;
-
-        if (ypos >= img->height)
-	{
-	  pass ++;
-
-          ypos = ypasses[pass];
-          temp = img->pixels + ypos * img->width * img->depth;
-	}
-      }
-      else
-	ypos ++;
-    }
-
-    if (ypos >= img->height)
-      break;
+    fclose(in);
+    return;
   }
 
-  return (0);
+  while ((nbytes = fread(buffer, 1, sizeof(buffer), in)) > 0)
+    fwrite(buffer, 1, nbytes, out);
+
+  fclose(in);
+  fclose(out);
+}
+
+
+/*
+ * 'image_find()' - Find an image file in memory...
+ */
+
+image_t *			/* O - Pointer to image */
+image_find(const char *filename)/* I - Name of image file */
+{
+  image_t	key,		/* Search key... */
+		*keyptr,	/* Pointer to search key... */
+		**match;	/* Matching image */
+
+
+ /*
+  * Range check...
+  */
+
+  if (filename == NULL)
+    return (NULL);
+
+  if (filename[0] == '\0')	/* Microsoft VC++ runtime bug workaround... */
+    return (NULL);
+
+ /*
+  * See if we've already loaded it...
+  */
+
+  if (num_images > 0)
+  {
+    strcpy(key.filename, filename);
+    keyptr = &key;
+
+    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
+                                (int (*)(const void *, const void *))image_compare);
+    if (match != NULL)
+      return (*match);
+  }
+
+  return (NULL);
+}
+
+
+/*
+ * 'image_flush_cache()' - Flush the image cache...
+ */
+
+void
+image_flush_cache(void)
+{
+  int	i;			/* Looping var */
+
+
+ /*
+  * Free the memory used by each image...
+  */
+
+  for (i = 0; i < num_images; i ++)
+  {
+    if (images[i]->mask)
+      free(images[i]->mask);
+
+    free(images[i]->pixels);
+    free(images[i]);
+  }
+
+  num_images = 0;
+}
+
+
+/*
+ * 'image_getlist()' - Get the list of images that are loaded.
+ */
+
+int				/* O - Number of images in array */
+image_getlist(image_t ***ptrs)	/* O - Pointer to images array */
+{
+  *ptrs = images;
+  return (num_images);
+}
+
+
+/*
+ * 'image_load()' - Load an image file from disk...
+ */
+
+image_t *			/* O - Pointer to image */
+image_load(const char *filename,/* I - Name of image file */
+           int        gray)	/* I - 0 = color, 1 = grayscale */
+{
+  FILE		*fp;		/* File pointer */
+  uchar		header[16];	/* First 16 bytes of file */
+  image_t	*img,		/* New image buffer */
+		key,		/* Search key... */
+		*keyptr,	/* Pointer to search key... */
+		**match;	/* Matching image */
+  int		status;		/* Status of load... */
+  const char	*realname;	/* Real filename */
+
+
+ /*
+  * Range check...
+  */
+
+  if (filename == NULL)
+    return (NULL);
+
+  if (filename[0] == '\0')	/* Microsoft VC++ runtime bug workaround... */
+    return (NULL);
+
+ /*
+  * See if we've already loaded it...
+  */
+
+  if (num_images > 0)
+  {
+    strcpy(key.filename, filename);
+    keyptr = &key;
+
+    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
+                                (int (*)(const void *, const void *))image_compare);
+    if (match != NULL)
+    {
+      (*match)->use ++;
+      return (*match);
+    }
+  }
+
+ /*
+  * Figure out the file type...
+  */
+
+  if ((realname = file_find(Path, filename)) == NULL)
+  {
+    progress_error("Unable to find image file \"%s\"!", filename);
+    return (NULL);
+  }
+
+  if ((fp = fopen(realname, "rb")) == NULL)
+  {
+    progress_error("Unable to read image file \"%s\"!", filename);
+    return (NULL);
+  }
+
+  if (fread(header, 1, sizeof(header), fp) == 0)
+  {
+    progress_error("Unable to read image file \"%s\"!", filename);
+    fclose(fp);
+    return (NULL);
+  }
+
+  rewind(fp);
+
+ /*
+  * Allocate memory...
+  */
+
+  img = (image_t *)calloc(sizeof(image_t), 1);
+
+  if (img == NULL)
+  {
+    progress_error("Unable to allocate memory for \"%s\"!", filename);
+    fclose(fp);
+    return (NULL);
+  }
+
+  images[num_images] = img;
+
+  strcpy(img->filename, filename);
+  img->use = 1;
+
+ /*
+  * Load the image as appropriate...
+  */
+
+  if (memcmp(header, "GIF87a", 6) == 0 ||
+      memcmp(header, "GIF89a", 6) == 0)
+    status = image_load_gif(img,  fp, gray);
+  else if (memcmp(header, "BM", 2) == 0)
+    status = image_load_bmp(img, fp, gray);
+  else if (memcmp(header, "\211PNG", 4) == 0)
+    status = image_load_png(img, fp, gray);
+  else if (memcmp(header, "\377\330\377", 3) == 0 &&	/* Start-of-Image */
+	   header[3] >= 0xe0 && header[3] <= 0xef)	/* APPn */
+    status = image_load_jpeg(img, fp, gray);
+  else
+  {
+    progress_error("Unknown image file format for \"%s\"!", filename);
+    fclose(fp);
+    free(img);
+    return (NULL);
+  }
+
+  fclose(fp);
+
+  if (status)
+  {
+    progress_error("Unable to load image file \"%s\"!", filename);
+    free(img);
+    return (NULL);
+  }
+
+  num_images ++;
+  if (num_images > 1)
+    qsort(images, num_images, sizeof(image_t *),
+          (int (*)(const void *, const void *))image_compare);
+
+  return (img);
 }
 
 
@@ -1441,6 +1176,339 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
 
 
 /*
+ * 'image_load_gif()' - Load a GIF image file...
+ */
+
+static int			/* O - 0 = success, -1 = fail */
+image_load_gif(image_t *img,	/* I - Image pointer */
+               FILE    *fp,	/* I - File to load from */
+               int     gray)	/* I - 0 = color, 1 = grayscale */
+{
+  uchar		buf[1024];	/* Input buffer */
+  gif_cmap_t	cmap;		/* Colormap */
+  int		ncolors,	/* Bits per pixel */
+		transparent;	/* Transparent color index */
+
+
+ /*
+  * Read the header; we already know it is a GIF file...
+  */
+
+  fread(buf, 13, 1, fp);
+
+  img->width  = (buf[7] << 8) | buf[6];
+  img->height = (buf[9] << 8) | buf[8];
+  ncolors     = 2 << (buf[10] & 0x07);
+
+  if (buf[10] & GIF_COLORMAP)
+    if (gif_read_cmap(fp, ncolors, cmap, &gray))
+      return (-1);
+
+  transparent = -1;
+
+  while (1)
+  {
+    switch (getc(fp))
+    {
+      case ';' :	/* End of image */
+          return (-1);		/* Early end of file */
+
+      case '!' :	/* Extension record */
+          buf[0] = getc(fp);
+          if (buf[0] == 0xf9)	/* Graphic Control Extension */
+          {
+            gif_get_block(fp, buf);
+            if (buf[0] & 1)	/* Get transparent color index */
+              transparent = buf[3];
+          }
+
+          while (gif_get_block(fp, buf) != 0);
+          break;
+
+      case ',' :	/* Image data */
+          fread(buf, 9, 1, fp);
+
+          if (buf[8] & GIF_COLORMAP)
+          {
+            ncolors = 2 << (buf[8] & 0x07);
+
+	    if (gif_read_cmap(fp, ncolors, cmap, &gray))
+	      return (-1);
+	  }
+
+          if (transparent >= 0)
+          {
+           /*
+            * Map transparent color to background color...
+            */
+
+            if (BodyColor[0])
+	    {
+	      float rgb[3]; /* RGB color */
+
+
+	      get_color((uchar *)BodyColor, rgb);
+
+	      cmap[transparent][0] = (uchar)(rgb[0] * 255.0f + 0.5f);
+	      cmap[transparent][1] = (uchar)(rgb[1] * 255.0f + 0.5f);
+	      cmap[transparent][2] = (uchar)(rgb[2] * 255.0f + 0.5f);
+	    }
+	    else
+	    {
+	      cmap[transparent][0] = 255;
+              cmap[transparent][1] = 255;
+              cmap[transparent][2] = 255;
+	    }
+
+           /*
+	    * Allocate a mask image...
+	    */
+
+            image_need_mask(img);
+	  }
+
+          img->width  = (buf[5] << 8) | buf[4];
+          img->height = (buf[7] << 8) | buf[6];
+          img->depth  = gray ? 1 : 3;
+          img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
+          if (img->pixels == NULL)
+            return (-1);
+
+	  return (gif_read_image(fp, img, cmap, buf[8] & GIF_INTERLACE, transparent));
+    }
+  }
+}
+
+
+/*
+ * 'image_load_jpeg()' - Load a JPEG image file.
+ */
+
+static int			/* O - 0 = success, -1 = fail */
+image_load_jpeg(image_t *img,	/* I - Image pointer */
+                FILE    *fp,	/* I - File to load from */
+                int     gray)	/* I - 0 = color, 1 = grayscale */
+{
+  struct jpeg_decompress_struct	cinfo;		/* Decompressor info */
+  struct jpeg_error_mgr		jerr;		/* Error handler info */
+  JSAMPROW			row;		/* Sample row pointer */
+
+
+  cinfo.err = jpeg_std_error(&jerr);
+  jpeg_create_decompress(&cinfo);
+  jpeg_stdio_src(&cinfo, fp);
+  jpeg_read_header(&cinfo, 1);
+
+  cinfo.quantize_colors = 0;
+
+  if (gray)
+  {
+    cinfo.out_color_space      = JCS_GRAYSCALE;
+    cinfo.out_color_components = 1;
+    cinfo.output_components    = 1;
+  }
+  else
+  {
+    cinfo.out_color_space      = JCS_RGB;
+    cinfo.out_color_components = 3;
+    cinfo.output_components    = 3;
+  }
+
+  jpeg_calc_output_dimensions(&cinfo);
+
+  img->width  = cinfo.output_width;
+  img->height = cinfo.output_height;
+  img->depth  = cinfo.output_components;
+  img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
+
+  if (img->pixels == NULL)
+  {
+    jpeg_destroy_decompress(&cinfo);
+    return (-1);
+  }
+
+  jpeg_start_decompress(&cinfo);
+
+  while (cinfo.output_scanline < cinfo.output_height)
+  {
+    row = (JSAMPROW)(img->pixels +
+                     cinfo.output_scanline * cinfo.output_width *
+                     cinfo.output_components);
+    jpeg_read_scanlines(&cinfo, &row, (JDIMENSION)1);
+  }
+
+  jpeg_finish_decompress(&cinfo);
+  jpeg_destroy_decompress(&cinfo);
+
+  return (0);
+}
+
+
+/*
+ * 'image_load_png()' - Load a PNG image file.
+ */
+
+static int			/* O - 0 = success, -1 = fail */
+image_load_png(image_t *img,	/* I - Image pointer */
+               FILE    *fp,	/* I - File to read from */
+               int     gray)	/* I - 0 = color, 1 = grayscale */
+{
+  int		i;	/* Looping var */
+  png_structp	pp;	/* PNG read pointer */
+  png_infop	info;	/* PNG info pointers */
+  png_bytep	*rows;	/* PNG row pointers */
+  uchar		*inptr,	/* Input pixels */
+		*outptr;/* Output pixels */
+  png_color_16	bg;	/* Background color */
+  float		rgb[3];	/* RGB color of background */
+
+
+ /*
+  * Setup the PNG data structures...
+  */
+
+  pp   = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  info = png_create_info_struct(pp);
+
+ /*
+  * Initialize the PNG read "engine"...
+  */
+
+  png_init_io(pp, fp);
+
+ /*
+  * Get the image dimensions and convert to grayscale or RGB...
+  */
+
+  png_read_info(pp, info);
+
+  if (info->color_type == PNG_COLOR_TYPE_PALETTE)
+    png_set_expand(pp);
+
+  if (info->color_type == PNG_COLOR_TYPE_GRAY)
+    img->depth = 1;
+  else
+    img->depth = gray ? 1 : 3;
+
+  img->width  = info->width;
+  img->height = info->height;
+  img->pixels = (uchar *)malloc(img->width * img->height * 3);
+
+  if (info->bit_depth < 8)
+  {
+    png_set_packing(pp);
+    png_set_expand(pp);
+  }
+  else if (info->bit_depth == 16)
+    png_set_strip_16(pp);
+
+ /*
+  * Handle transparency...
+  */
+
+  if (png_get_valid(pp, info, PNG_INFO_tRNS))
+    png_set_tRNS_to_alpha(pp);
+
+  if (BodyColor[0])
+  {
+   /*
+    * User-defined color...
+    */
+
+    get_color((uchar *)BodyColor, rgb);
+
+    bg.red   = (png_uint_16)(rgb[0] * 65535.0f + 0.5f);
+    bg.green = (png_uint_16)(rgb[1] * 65535.0f + 0.5f);
+    bg.blue  = (png_uint_16)(rgb[2] * 65535.0f + 0.5f);
+  }
+  else
+  {
+   /*
+    * Default to white...
+    */
+
+    bg.red   = 65535;
+    bg.green = 65535;
+    bg.blue  = 65535;
+  }
+
+  png_set_background(pp, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
+
+ /*
+  * Allocate pointers...
+  */
+
+  rows = (png_bytep *)calloc(info->height, sizeof(png_bytep));
+
+  for (i = 0; i < (int)info->height; i ++)
+    if (info->color_type == PNG_COLOR_TYPE_GRAY)
+      rows[i] = img->pixels + i * img->width;
+    else
+      rows[i] = img->pixels + i * img->width * 3;
+
+ /*
+  * Read the image, handling interlacing as needed...
+  */
+
+  for (i = png_set_interlace_handling(pp); i > 0; i --)
+    png_read_rows(pp, rows, NULL, img->height);
+
+ /*
+  * Reformat the data as necessary for the reader...
+  */
+
+  if (gray && info->color_type != PNG_COLOR_TYPE_GRAY)
+  {
+   /*
+    * Greyscale output needed...
+    */
+
+    for (inptr = img->pixels, outptr = img->pixels, i = img->width * img->height;
+         i > 0;
+         inptr += 3, outptr ++, i --)
+      *outptr = (31 * inptr[0] + 61 * inptr[1] + 8 * inptr[2]) / 100;
+  }
+
+ /*
+  * Free memory and return...
+  */
+
+  free(rows);
+
+  png_read_end(pp, info);
+  png_read_destroy(pp, info, NULL);
+
+  return (0);
+}
+
+
+/*
+ * 'image_need_mask()' - Allocate memory for the image mask...
+ */
+
+static void
+image_need_mask(image_t *img)	/* I - Image to add mask to */
+{
+  int	size;			/* Byte size of mask image */
+
+
+  if (img == NULL || img->mask != NULL)
+    return;
+
+ /* 
+  * Figure out the size of the mask image, and then allocate and set all the
+  * bits needed...
+  */
+
+  img->maskwidth = (img->width + 7) / 8;
+  size           = img->maskwidth * img->height;
+  
+  if ((img->mask = (uchar *)malloc(size)) != NULL)
+    memset(img->mask, -1, size);
+}
+
+
+/*
  * 'read_word()' - Read a 16-bit unsigned integer.
  */
 
@@ -1493,5 +1561,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.4 2001/02/02 15:10:59 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.5 2001/02/26 01:14:19 mike Exp $".
  */
