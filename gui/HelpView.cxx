@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.27 2000/05/20 13:03:53 mike Exp $"
+// "$Id: HelpView.cxx,v 1.28 2000/06/16 02:10:51 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -25,11 +25,13 @@
 // Contents:
 //
 //   HelpView::add_block()       - Add a text block to the list.
+//   HelpView::add_image()       - Add an image to the image cache.
 //   HelpView::add_link()        - Add a new link to the list.
 //   HelpView::add_target()      - Add a new target to the list.
 //   HelpView::compare_targets() - Compare two targets.
 //   HelpView::do_align()        - Compute the alignment for a line in a block.
 //   HelpView::draw()            - Draw the HelpView widget.
+//   HelpView::find_image()      - Find an image by name 
 //   HelpView::format()          - Format the help text.
 //   HelpView::get_align()       - Get an alignment attribute.
 //   HelpView::get_attr()        - Get an attribute value from the string.
@@ -38,10 +40,18 @@
 //   HelpView::HelpView()        - Build a HelpView widget.
 //   HelpView::~HelpView()       - Destroy a HelpView widget.
 //   HelpView::load()            - Load the specified file.
+//   HelpView::load_gif()        - Load a GIF image file...
+//   HelpView::load_jpeg()       - Load a JPEG image file.
+//   HelpView::load_png()        - Load a PNG image file.
 //   HelpView::resize()          - Resize the help widget.
 //   HelpView::topline()         - Set the top line to the named target.
 //   HelpView::topline()         - Set the top line by number.
 //   HelpView::value()           - Set the help text directly.
+//   gif_read_cmap()             - Read the colormap from a GIF file...
+//   gif_get_block()             - Read a GIF data block...
+//   gif_get_code()              - Get a LZW code from the file...
+//   gif_read_lzw()              - Read a byte from the LZW stream...
+//   gif_read_image()            - Read a GIF image stream...
 //   scrollbar_callback()        - A callback for the scrollbar.
 //
 
@@ -136,6 +146,265 @@ static char	*broken_xpm[] =
 
 static Fl_Pixmap *broken_image = (Fl_Pixmap *)0;
 static int	gif_eof = 0;		// Did we hit EOF?
+static unsigned	fltk_colors[] =
+		{
+		  0x00000000,
+		  0xff000000,
+		  0x00ff0000,
+		  0xffff0000,
+		  0x0000ff00,
+		  0xff00ff00,
+		  0x00ffff00,
+		  0xffffff00,
+		  0x55555500,
+		  0xc6717100,
+		  0x71c67100,
+		  0x8e8e3800,
+		  0x7171c600,
+		  0x8e388e00,
+		  0x388e8e00,
+		  0xaaaaaa00,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x55555500,
+		  0x00000000,
+		  0x0d0d0d00,
+		  0x1a1a1a00,
+		  0x26262600,
+		  0x31313100,
+		  0x3d3d3d00,
+		  0x48484800,
+		  0x55555500,
+		  0x5f5f5f00,
+		  0x6a6a6a00,
+		  0x75757500,
+		  0x80808000,
+		  0x8a8a8a00,
+		  0x95959500,
+		  0xa0a0a000,
+		  0xaaaaaa00,
+		  0xb5b5b500,
+		  0xc0c0c000,
+		  0xcbcbcb00,
+		  0xd5d5d500,
+		  0xe0e0e000,
+		  0xeaeaea00,
+		  0xf5f5f500,
+		  0xffffff00,
+		  0x00000000,
+		  0x00240000,
+		  0x00480000,
+		  0x006d0000,
+		  0x00910000,
+		  0x00b60000,
+		  0x00da0000,
+		  0x00ff0000,
+		  0x3f000000,
+		  0x3f240000,
+		  0x3f480000,
+		  0x3f6d0000,
+		  0x3f910000,
+		  0x3fb60000,
+		  0x3fda0000,
+		  0x3fff0000,
+		  0x7f000000,
+		  0x7f240000,
+		  0x7f480000,
+		  0x7f6d0000,
+		  0x7f910000,
+		  0x7fb60000,
+		  0x7fda0000,
+		  0x7fff0000,
+		  0xbf000000,
+		  0xbf240000,
+		  0xbf480000,
+		  0xbf6d0000,
+		  0xbf910000,
+		  0xbfb60000,
+		  0xbfda0000,
+		  0xbfff0000,
+		  0xff000000,
+		  0xff240000,
+		  0xff480000,
+		  0xff6d0000,
+		  0xff910000,
+		  0xffb60000,
+		  0xffda0000,
+		  0xffff0000,
+		  0x00003f00,
+		  0x00243f00,
+		  0x00483f00,
+		  0x006d3f00,
+		  0x00913f00,
+		  0x00b63f00,
+		  0x00da3f00,
+		  0x00ff3f00,
+		  0x3f003f00,
+		  0x3f243f00,
+		  0x3f483f00,
+		  0x3f6d3f00,
+		  0x3f913f00,
+		  0x3fb63f00,
+		  0x3fda3f00,
+		  0x3fff3f00,
+		  0x7f003f00,
+		  0x7f243f00,
+		  0x7f483f00,
+		  0x7f6d3f00,
+		  0x7f913f00,
+		  0x7fb63f00,
+		  0x7fda3f00,
+		  0x7fff3f00,
+		  0xbf003f00,
+		  0xbf243f00,
+		  0xbf483f00,
+		  0xbf6d3f00,
+		  0xbf913f00,
+		  0xbfb63f00,
+		  0xbfda3f00,
+		  0xbfff3f00,
+		  0xff003f00,
+		  0xff243f00,
+		  0xff483f00,
+		  0xff6d3f00,
+		  0xff913f00,
+		  0xffb63f00,
+		  0xffda3f00,
+		  0xffff3f00,
+		  0x00007f00,
+		  0x00247f00,
+		  0x00487f00,
+		  0x006d7f00,
+		  0x00917f00,
+		  0x00b67f00,
+		  0x00da7f00,
+		  0x00ff7f00,
+		  0x3f007f00,
+		  0x3f247f00,
+		  0x3f487f00,
+		  0x3f6d7f00,
+		  0x3f917f00,
+		  0x3fb67f00,
+		  0x3fda7f00,
+		  0x3fff7f00,
+		  0x7f007f00,
+		  0x7f247f00,
+		  0x7f487f00,
+		  0x7f6d7f00,
+		  0x7f917f00,
+		  0x7fb67f00,
+		  0x7fda7f00,
+		  0x7fff7f00,
+		  0xbf007f00,
+		  0xbf247f00,
+		  0xbf487f00,
+		  0xbf6d7f00,
+		  0xbf917f00,
+		  0xbfb67f00,
+		  0xbfda7f00,
+		  0xbfff7f00,
+		  0xff007f00,
+		  0xff247f00,
+		  0xff487f00,
+		  0xff6d7f00,
+		  0xff917f00,
+		  0xffb67f00,
+		  0xffda7f00,
+		  0xffff7f00,
+		  0x0000bf00,
+		  0x0024bf00,
+		  0x0048bf00,
+		  0x006dbf00,
+		  0x0091bf00,
+		  0x00b6bf00,
+		  0x00dabf00,
+		  0x00ffbf00,
+		  0x3f00bf00,
+		  0x3f24bf00,
+		  0x3f48bf00,
+		  0x3f6dbf00,
+		  0x3f91bf00,
+		  0x3fb6bf00,
+		  0x3fdabf00,
+		  0x3fffbf00,
+		  0x7f00bf00,
+		  0x7f24bf00,
+		  0x7f48bf00,
+		  0x7f6dbf00,
+		  0x7f91bf00,
+		  0x7fb6bf00,
+		  0x7fdabf00,
+		  0x7fffbf00,
+		  0xbf00bf00,
+		  0xbf24bf00,
+		  0xbf48bf00,
+		  0xbf6dbf00,
+		  0xbf91bf00,
+		  0xbfb6bf00,
+		  0xbfdabf00,
+		  0xbfffbf00,
+		  0xff00bf00,
+		  0xff24bf00,
+		  0xff48bf00,
+		  0xff6dbf00,
+		  0xff91bf00,
+		  0xffb6bf00,
+		  0xffdabf00,
+		  0xffffbf00,
+		  0x0000ff00,
+		  0x0024ff00,
+		  0x0048ff00,
+		  0x006dff00,
+		  0x0091ff00,
+		  0x00b6ff00,
+		  0x00daff00,
+		  0x00ffff00,
+		  0x3f00ff00,
+		  0x3f24ff00,
+		  0x3f48ff00,
+		  0x3f6dff00,
+		  0x3f91ff00,
+		  0x3fb6ff00,
+		  0x3fdaff00,
+		  0x3fffff00,
+		  0x7f00ff00,
+		  0x7f24ff00,
+		  0x7f48ff00,
+		  0x7f6dff00,
+		  0x7f91ff00,
+		  0x7fb6ff00,
+		  0x7fdaff00,
+		  0x7fffff00,
+		  0xbf00ff00,
+		  0xbf24ff00,
+		  0xbf48ff00,
+		  0xbf6dff00,
+		  0xbf91ff00,
+		  0xbfb6ff00,
+		  0xbfdaff00,
+		  0xbfffff00,
+		  0xff00ff00,
+		  0xff24ff00,
+		  0xff48ff00,
+		  0xff6dff00,
+		  0xff91ff00,
+		  0xffb6ff00,
+		  0xffdaff00,
+		  0xffffff00
+		};
 
 
 //
@@ -190,11 +459,13 @@ HelpView::add_block(const char *s,	// I - Pointer to start of block text
 
 
 //
-// 'HelpView::add_image() - Add an image to the image cache.
+// 'HelpView::add_image()' - Add an image to the image cache.
 //
 
 HelpImage *				// O - Image or NULL if not found
-HelpView::add_image(const char *name)	// I - Path of image
+HelpView::add_image(const char *name,	// I - Path of image
+                    const char *wattr,	// I - Width attribute
+		    const char *hattr)	// I - Height attribute
 {
   HelpImage	*img;			// New image
   FILE		*fp;			// File pointer
@@ -203,6 +474,8 @@ HelpView::add_image(const char *name)	// I - Path of image
   const char	*localname;		// Local filename
   char		dir[1024];		// Current directory
   char		temp[1024];		// Temporary filename
+  int		width,			// Desired width of image
+		height;			// Desired height of image
 
 
   // See if the image has already been loaded...
@@ -277,6 +550,102 @@ HelpView::add_image(const char *name)	// I - Path of image
   {
     free(img->name);
     return ((HelpImage *)0);
+  }
+
+  // Figure out the size of the image...
+  if (wattr[0])
+  {
+    if (wattr[strlen(wattr) - 1] == '%')
+      width = atoi(wattr) * (w() - 24) / 100;
+    else
+      width = atoi(wattr);
+  }
+  else
+    width = 0;
+
+  if (hattr[0])
+  {
+    if (hattr[strlen(hattr) - 1] == '%')
+      height = atoi(hattr) * h() / 100;
+    else
+      height = atoi(hattr);
+  }
+  else
+    height = 0;
+
+  if (width == 0 && height == 0)
+  {
+    // Use image size...
+    width  = img->w;
+    height = img->h;
+  }
+  else if (width == 0)
+    // Scale width to height
+    width = img->w * height / img->h;
+  else if (height == 0)
+    // Scale height to width
+    height = img->h * width / img->w;
+
+  // Scale the image as needed...
+  if (width != img->w && height != img->h)
+  {
+    unsigned char	*scaled,	// Scaled image data
+			*sptr,		// Source image data pointer
+			*dptr;		// Destination image data pointer
+    int			sy,		// Source coordinates
+			dx, dy,		// Destination coordinates
+			xerr, yerr,	// X & Y errors
+			xmod, ymod,	// X & Y moduli
+			xstep, ystep;	// X & Y step increments
+
+
+     xmod   = img->w % width;
+     xstep  = (img->w / width) * img->d;
+     ymod   = img->h % height;
+     ystep  = img->h / height;
+
+     if ((scaled = (unsigned char *)malloc(width * height * img->d)) != NULL)
+     {
+       // Scale the image...
+       for (dy = height, sy = 0, yerr = height / 2, dptr = scaled; dy > 0; dy --)
+       {
+         for (dx = width, xerr = width / 2,
+	          sptr = img->data + sy * img->w * img->d;
+	      dx > 0;
+	      dx --)
+         {
+	   *dptr++ = sptr[0];
+	   if (img->d > 1)
+	   {
+	     *dptr++ = sptr[1];
+	     *dptr++ = sptr[2];
+	   }
+
+           sptr += xstep;
+	   xerr -= xmod;
+	   if (xerr <= 0)
+	   {
+	     xerr += width;
+	     sptr += img->d;
+	   }
+	 }
+
+         sy   += ystep;
+	 yerr -= ymod;
+	 if (yerr <= 0)
+	 {
+	   yerr += height;
+	   sy ++;
+	 }
+       }
+
+       // Finally, copy the new size and data to the image structure...
+       free(img->data);
+
+       img->w    = width;
+       img->h    = height;
+       img->data = scaled;
+     }
   }
 
   img->image = new Fl_Image(img->data, img->w, img->h, img->d);
@@ -909,6 +1278,8 @@ HelpView::format()
   char		*s,		// Pointer into buffer
 		buf[1024],	// Text buffer
 		attr[1024],	// Attribute buffer
+		wattr[1024],	// Width attribute buffer
+		hattr[1024],	// Height attribute buffer
 		link[1024];	// Link destination
   int		xx, yy, ww, hh;	// Size of current text fragment
   int		line;		// Current line in block
@@ -916,6 +1287,7 @@ HelpView::format()
   unsigned char	font, size;	// Current font and size
   unsigned char	border;		// Draw border?
   int		align,		// Current alignment
+		newalign,	// New alignment
 		head,		// In the <HEAD> section?
 		pre,		// <PRE> text?
 		needspace;	// Do we need whitespace?
@@ -952,6 +1324,7 @@ HelpView::format()
   head      = 0;
   pre       = 0;
   align     = LEFT;
+  newalign  = LEFT;
   needspace = 0;
   link[0]   = '\0';
 
@@ -970,7 +1343,7 @@ HelpView::format()
 
         if ((xx + ww) > block->w)
 	{
-          line     = do_align(block, line, xx, align, links);
+          line     = do_align(block, line, xx, newalign, links);
 	  xx       = block->x;
 	  yy       += hh;
 	  block->h += hh;
@@ -996,7 +1369,7 @@ HelpView::format()
             if (link[0])
 	      add_link(link, xx, yy - hh, ww, hh);
 
-            line     = do_align(block, line, xx, align, links);
+            line     = do_align(block, line, xx, newalign, links);
             xx       = block->x;
 	    yy       += hh;
 	    block->h += hh;
@@ -1078,7 +1451,7 @@ HelpView::format()
       }
       else if (strcasecmp(buf, "BR") == 0)
       {
-        line     = do_align(block, line, xx, align, links);
+        line     = do_align(block, line, xx, newalign, links);
         xx       = block->x;
 	block->h += hh;
         yy       += hh;
@@ -1103,7 +1476,7 @@ HelpView::format()
 	       strcasecmp(buf, "TABLE") == 0)
       {
         block->end = start;
-        line       = do_align(block, line, xx, align, links);
+        line       = do_align(block, line, xx, newalign, links);
         xx         = block->x;
         block->h   += hh;
 
@@ -1194,11 +1567,12 @@ HelpView::format()
 	line      = 0;
 
 	if (strcasecmp(buf, "CENTER") == 0)
-	  align = CENTER;
+	  newalign = align = CENTER;
 	else
-	  align = get_align(attrs, LEFT);
+	  newalign = get_align(attrs, align);
       }
-      else if (strcasecmp(buf, "/P") == 0 ||
+      else if (strcasecmp(buf, "/CENTER") == 0 ||
+	       strcasecmp(buf, "/P") == 0 ||
 	       strcasecmp(buf, "/H1") == 0 ||
 	       strcasecmp(buf, "/H2") == 0 ||
 	       strcasecmp(buf, "/H3") == 0 ||
@@ -1211,7 +1585,7 @@ HelpView::format()
 	       strcasecmp(buf, "/DL") == 0 ||
 	       strcasecmp(buf, "/TABLE") == 0)
       {
-        line       = do_align(block, line, xx, align, links);
+        line       = do_align(block, line, xx, newalign, links);
         xx         = block->x;
         block->end = ptr;
 
@@ -1229,6 +1603,8 @@ HelpView::format()
 	  pre = 0;
 	  hh  = 0;
 	}
+	else if (strcasecmp(buf, "/CENTER") == 0)
+	  align = LEFT;
 
         initfont(font, size);
 
@@ -1245,12 +1621,12 @@ HelpView::format()
 	needspace = 0;
 	hh        = 0;
 	line      = 0;
-	align     = LEFT;
+	newalign  = align;
       }
       else if (strcasecmp(buf, "TR") == 0)
       {
         block->end = start;
-        line       = do_align(block, line, xx, align, links);
+        line       = do_align(block, line, xx, newalign, links);
         xx         = block->x;
         block->h   += hh;
 
@@ -1278,7 +1654,7 @@ HelpView::format()
       }
       else if (strcasecmp(buf, "/TR") == 0 && row)
       {
-        line       = do_align(block, line, xx, align, links);
+        line       = do_align(block, line, xx, newalign, links);
         block->end = start;
 	block->h   += hh;
 
@@ -1310,7 +1686,7 @@ HelpView::format()
       else if ((strcasecmp(buf, "TD") == 0 ||
                 strcasecmp(buf, "TH") == 0) && row)
       {
-        line       = do_align(block, line, xx, align, links);
+        line       = do_align(block, line, xx, newalign, links);
         block->end = start;
 	block->h   += hh;
 
@@ -1351,8 +1727,7 @@ HelpView::format()
         block     = add_block(start, xx, yy, xx + ww, 0, border);
 	needspace = 0;
 	line      = 0;
-
-	align = get_align(attrs, tolower(buf[1]) == 'h' ? CENTER : LEFT);
+	newalign  = get_align(attrs, tolower(buf[1]) == 'h' ? CENTER : LEFT);
 
 	column ++;
       }
@@ -1382,8 +1757,11 @@ HelpView::format()
 	int		height = 24;
 
 
+        get_attr(attrs, "WIDTH", wattr, sizeof(wattr));
+        get_attr(attrs, "HEIGHT", hattr, sizeof(hattr));
+
 	if (get_attr(attrs, "SRC", attr, sizeof(attr))) 
-	  if ((img = add_image(attr)) != (HelpImage *)0 &&
+	  if ((img = add_image(attr, wattr, hattr)) != (HelpImage *)0 &&
 	      img->image == NULL)
 	    img = (HelpImage *)0;
 
@@ -1402,7 +1780,7 @@ HelpView::format()
 
 	if ((xx + ww) > block->w)
 	{
-	  line     = do_align(block, line, xx, align, links);
+	  line     = do_align(block, line, xx, newalign, links);
 	  xx       = block->x;
 	  yy       += hh;
 	  block->h += hh;
@@ -1424,7 +1802,7 @@ HelpView::format()
       if (link[0])
 	add_link(link, xx, yy - hh, ww, hh);
 
-      line      = do_align(block, line, xx, align, links);
+      line      = do_align(block, line, xx, newalign, links);
       xx        = block->x;
       yy        += hh;
       block->h  += hh;
@@ -1502,7 +1880,7 @@ HelpView::format()
 
     if ((xx + ww) > block->w)
     {
-      line     = do_align(block, line, xx, align, links);
+      line     = do_align(block, line, xx, newalign, links);
       xx       = block->x;
       yy       += hh;
       block->h += hh;
@@ -1573,6 +1951,8 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
 	quote;				// Quote
 
 
+  buf[0] = '\0';
+
   while (*p && *p != '>')
   {
     while (isspace(*p))
@@ -1620,6 +2000,8 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
 
     if (strcasecmp(n, name) == 0)
       return (buf);
+    else
+      buf[0] = '\0';
 
     if (*p == '>')
       return (NULL);
@@ -1980,8 +2362,8 @@ HelpView::load_gif(HelpImage *img,	// I - Image pointer
   fread(buf, 13, 1, fp);
 
   img->w  = (buf[7] << 8) | buf[6];
-  img->h = (buf[9] << 8) | buf[8];
-  ncolors     = 2 << (buf[10] & 0x07);
+  img->h  = (buf[9] << 8) | buf[8];
+  ncolors = 2 << (buf[10] & 0x07);
 
   if (buf[10] & GIF_COLORMAP)
     if (!gif_read_cmap(fp, ncolors, cmap))
@@ -2021,10 +2403,13 @@ HelpView::load_gif(HelpImage *img,	// I - Image pointer
 
           if (transparent >= 0)
           {
+	    unsigned	rgba = fltk_colors[bgcolor_];
+
+
             // Map transparent color to background color...
-	    cmap[transparent][0] = 255;
-            cmap[transparent][1] = 255;
-            cmap[transparent][2] = 255;
+	    cmap[transparent][0] = rgba >> 24;
+            cmap[transparent][1] = rgba >> 16;
+            cmap[transparent][2] = rgba >> 8;
           }
 
           img->w    = (buf[5] << 8) | buf[4];
@@ -2148,10 +2533,12 @@ HelpView::load_png(HelpImage *img,	// I - Image pointer
   if (png_get_valid(pp, info, PNG_INFO_tRNS))
     png_set_tRNS_to_alpha(pp);
 
-  // Default to white...
-  bg.red   = 65535;
-  bg.green = 65535;
-  bg.blue  = 65535;
+  // Background color...
+  unsigned	rgba = fltk_colors[bgcolor_];
+
+  bg.red   = 65535 * (rgba >> 24) / 255;
+  bg.green = 65535 * ((rgba >> 16) & 255) / 255;
+  bg.blue  = 65535 * ((rgba >> 8) & 255) / 255;
 
   png_set_background(pp, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
 
@@ -2626,5 +3013,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.27 2000/05/20 13:03:53 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.28 2000/06/16 02:10:51 mike Exp $".
 //
