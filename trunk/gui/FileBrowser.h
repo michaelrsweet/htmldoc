@@ -1,7 +1,7 @@
 //
-// "$Id: FileBrowser.h,v 1.8 1999/10/13 15:34:46 mike Exp $"
+// "$Id: FileBrowser.h,v 1.9 1999/10/14 15:24:35 mike Exp $"
 //
-//   FileBrowser definitions for the Common UNIX Printing System (CUPS).
+//   FileBrowser definitions.
 //
 //   Copyright 1997-1999 by Easy Software Products.
 //
@@ -67,5 +67,5 @@ public:
 #endif // !_GUI_FILEBROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.8 1999/10/13 15:34:46 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.9 1999/10/14 15:24:35 mike Exp $".
 //

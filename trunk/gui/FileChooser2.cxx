@@ -1,7 +1,7 @@
 //
-// "$Id: FileChooser2.cxx,v 1.17 1999/10/13 15:34:47 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.18 1999/10/14 15:24:36 mike Exp $"
 //
-//   More FileChooser routines for the Common UNIX Printing System (CUPS).
+//   More FileChooser routines.
 //
 //   Copyright 1997-1999 by Easy Software Products.
 //
@@ -606,5 +606,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.17 1999/10/13 15:34:47 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.18 1999/10/14 15:24:36 mike Exp $".
 //
