@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.3 1999/11/08 18:35:15 mike Exp $"
+dnl "$Id: configure.in,v 1.4 1999/11/09 22:16:40 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -11,6 +11,7 @@ dnl
 
 AC_INIT(htmldoc/htmldoc.h)
 AC_CONFIG_HEADER(config.h)
+AC_PREFIX_DEFAULT(/usr)
 
 dnl Clear the debugging options unless the user asks for them...
 OPTIM=""
@@ -64,7 +65,7 @@ AC_CHECK_LIB(fltk,numericsort)
 if test "$ac_cv_lib_fltk_numericsort" = yes -a "$ac_cv_prog_CXX" != ""; then
 	LIBS="$LIBS -lXext -lX11 -lm"
 else
-	AC_MSG_WARN(C++ compiler or FLTK not available so GUI will not be built.)
+	AC_MSG_WARN(C++ compiler or FLTK not available so no GUI will be built.)
 fi
 
 dnl Checks for header files.
@@ -79,5 +80,5 @@ dnl Generate the Makedefs file...
 AC_OUTPUT(Makedefs)
 
 dnl
-dnl End of "$Id: configure.in,v 1.3 1999/11/08 18:35:15 mike Exp $".
+dnl End of "$Id: configure.in,v 1.4 1999/11/09 22:16:40 mike Exp $".
 dnl

@@ -1,32 +1,49 @@
 /*
- * "$Id: config.h,v 1.2 1999/11/07 15:59:49 mike Exp $"
+ * "$Id: config.h,v 1.3 1999/11/09 22:16:43 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-1999 by Michael Sweet.
+ *   Copyright 1997-1999 by Easy Software Products.
  *
- *   HTMLDOC is distributed under the terms of the GNU General Public License
- *   which is described in the file "COPYING-2.0".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Easy Software Products and are protected by Federal
+ *   copyright law.  Distribution and use rights are outlined in the file
+ *   "COPYING.txt" which should have been included with this file.  If this
+ *   file is missing or damaged please contact Easy Software Products
+ *   at:
+ *
+ *       Attn: ESP Licensing Information
+ *       Easy Software Products
+ *       44141 Airport View Drive, Suite 204
+ *       Hollywood, Maryland 20636-3111 USA
+ *
+ *       Voice: (301) 373-9600
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
  */
 
 /*
- * Do we have various libraries?
+ * Locations of files (overridden by the registry...)
  */
 
-#define HAVE_LIBFLTK
-#define HAVE_LIBJPEG
-#define HAVE_LIBPNG
-#define HAVE_LIBZ
+#define DOCUMENTATION	"C:/Program Files/HTMLDOC/doc"
+#define HTML_DATA	"C:/Program Files/HTMLDOC"
+
+
+/*
+ * Do we have the FLTK library?
+ */
+
+#undef HAVE_LIBFLTK
+
 
 /*
  * Do we have some of the "standard" string functions?
  */
 
-#ifndef MAC
-#  define HAVE_STRDUP
-#  define HAVE_STRCASECMP
-#  define HAVE_STRNCASECMP
-#endif /* MAC */
+#undef HAVE_STRDUP
+#undef HAVE_STRCASECMP
+#undef HAVE_STRNCASECMP
 
 /*
  * What is the version number for this software?
@@ -49,6 +66,6 @@
 #define MAX_ROWS	1000
 
 /*
- * End of "$Id: config.h,v 1.2 1999/11/07 15:59:49 mike Exp $".
+ * End of "$Id: config.h,v 1.3 1999/11/09 22:16:43 mike Exp $".
  */
 
