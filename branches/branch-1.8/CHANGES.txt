@@ -32,6 +32,9 @@ CHANGES IN HTMLDOC v1.8.15
 	- Unqualified URLs (no leading scheme name, e.g. http:)
 	  now default to the HTTP port (80) instead of the IPP
 	  port (631).
+	- Optimized the image writing code to do more efficient
+	  color searching.  This provides a significant speed
+	  improvement when including images.
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.104 2001/09/19 20:47:00 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.105 2001/09/21 19:59:44 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -386,7 +386,7 @@ static void	jpg_init(j_compress_ptr cinfo);
 static boolean	jpg_empty(j_compress_ptr cinfo);
 static void	jpg_term(j_compress_ptr cinfo);
 static void	jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
-static int	compare_rgb(uchar *rgb1, uchar *rgb2);
+static int	compare_rgb(unsigned *rgb1, unsigned *rgb2);
 static void	write_image(FILE *out, render_t *r, int write_obj = 0);
 static void	write_imagemask(FILE *out, render_t *r);
 static void	write_string(FILE *out, uchar *s, int compress);
@@ -765,8 +765,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     page              = num_pages - 1;
     heading           = 0;
     chapter_starts[0] = num_pages;
+    chapter           = 0;
 
-    parse_contents(toc, 0, toc_width, bottom, top, &y, &page, &heading);
+    parse_contents(toc, 0, PagePrintWidth, bottom, top, &y, &page, &heading);
     if (PageDuplex && (num_pages & 1))
       num_pages ++;
     chapter_ends[0] = num_pages - 1;
@@ -785,7 +786,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     * Yes, write the document to disk...
     */
 
-    progress_error(HD_ERROR_NONE, "PAGES: %d\n", num_pages);
+    progress_error(HD_ERROR_NONE, "PAGES: %d", num_pages);
 
     if (PSLevel > 0)
       ps_write_document(title, author, creator, copyright, keywords);
@@ -1278,7 +1279,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     {
       write_trailer(out, 0);
 
-      progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
+      progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
       fclose(out);
     }
@@ -1321,7 +1322,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     {
       write_trailer(out, 0);
 
-      progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
+      progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
       fclose(out);
     }
@@ -1335,7 +1336,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
   {
     write_trailer(out, 0);
 
-    progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
+    progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
     if (out != stdout)
       fclose(out);
@@ -1762,7 +1763,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
     }
 #endif // MAC
 
-  progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
+  progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
   fclose(out);
 
@@ -2712,8 +2713,8 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 #define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
 
 
-  DEBUG_printf(("parse_contents(t=%p, y=%.1f, page=%d, heading=%d)\n",
-                t, *y, *page, *heading));
+  DEBUG_printf(("parse_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d)\n",
+         t, left, right, bottom, top, *y, *page, *heading));
 
   while (t != NULL)
   {
@@ -6743,7 +6744,7 @@ check_pages(int page)	// I - Current page
   for (temp = pages + num_pages; num_pages <= page; num_pages ++, temp ++)
     if (!temp->width)
     {
-      if (num_pages == 0)
+      if (num_pages == 0 || !temp[-1].width || !temp[-1].length)
       {
 	temp->width     = PageWidth;
 	temp->length    = PageLength;
@@ -6754,8 +6755,16 @@ check_pages(int page)	// I - Current page
 	temp->duplex    = PageDuplex;
 	temp->landscape = Landscape;
 
-	memcpy(temp->header, Header, sizeof(temp->header));
-	memcpy(temp->footer, Footer, sizeof(temp->footer));
+        if (chapter == 0)
+	{
+	  memcpy(temp->header, TocHeader, sizeof(temp->header));
+	  memcpy(temp->footer, TocFooter, sizeof(temp->footer));
+	}
+	else
+	{
+	  memcpy(temp->header, Header, sizeof(temp->header));
+	  memcpy(temp->footer, Footer, sizeof(temp->footer));
+	}
       }
       else
       {
@@ -7926,23 +7935,10 @@ jpg_setup(FILE           *out,	/* I - Output file */
  */
 
 static int			/* O - -1 if rgb1<rgb2, etc. */
-compare_rgb(uchar *rgb1,	/* I - First color */
-            uchar *rgb2)	/* I - Second color */
+compare_rgb(unsigned *rgb1,	/* I - First color */
+            unsigned *rgb2)	/* I - Second color */
 {
-  if (rgb1[0] < rgb2[0])
-    return (-1);
-  else if (rgb1[0] > rgb2[0])
-    return (1);
-  else if (rgb1[1] < rgb2[1])
-    return (-1);
-  else if (rgb1[1] > rgb2[1])
-    return (1);
-  else if (rgb1[2] < rgb2[2])
-    return (-1);
-  else if (rgb1[2] > rgb2[2])
-    return (1);
-  else
-    return (0);
+  return (*rgb1 - *rgb2);
 }
 
 
@@ -7963,9 +7959,11 @@ write_image(FILE     *out,	/* I - Output file */
   int		indwidth,	/* Width of indexed line */
 		indbits;	/* Bits per index */
   int		max_colors;	/* Max colors to use */
-  uchar		colors[256][3],	/* Colormap values */
-		grays[256],	/* Grayscale usage */
+  unsigned	colors[256],	/* Colormap values */
+		key,		/* Color key */
 		*match;		/* Matching color value */
+  uchar		grays[256],	/* Grayscale usage */
+		cmap[256][3];	/* Colormap */
   image_t 	*img;		/* Image */
   struct jpeg_compress_struct cinfo;	/* JPEG compressor */
 
@@ -8009,10 +8007,8 @@ write_image(FILE     *out,	/* I - Output file */
 	for (i = 0, j = 0; i < 256; i ++)
 	  if (grays[i])
 	  {
-	    colors[j][0] = i;
-	    colors[j][1] = i;
-	    colors[j][2] = i;
-	    grays[i]     = j;
+	    colors[j] = (((i << 8) | i) << 8) | i;
+	    grays[i]  = j;
 	    j ++;
 	  }
       }
@@ -8030,28 +8026,31 @@ write_image(FILE     *out,	/* I - Output file */
       else
         max_colors = 256;
 
-      for (i = img->width * img->height, pixel = img->pixels;
+      for (i = img->width * img->height, pixel = img->pixels, match = NULL;
 	   i > 0;
 	   i --, pixel += 3)
       {
-        if (ncolors > 0)
-          match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                                   (compare_func_t)compare_rgb);
-        else
-          match = NULL;
+        key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+
+	if (!match || *match != key)
+	{
+          if (ncolors > 0)
+            match = (unsigned *)bsearch(&key, colors, ncolors, sizeof(unsigned),
+                                        (compare_func_t)compare_rgb);
+          else
+            match = NULL;
+        }
 
         if (match == NULL)
         {
           if (ncolors >= max_colors)
             break;
 
-          colors[ncolors][0] = pixel[0];
-          colors[ncolors][1] = pixel[1];
-          colors[ncolors][2] = pixel[2];
+          colors[ncolors] = key;
           ncolors ++;
 
           if (ncolors > 1)
-            qsort(colors[0], ncolors, 3,
+            qsort(colors, ncolors, sizeof(unsigned),
                   (compare_func_t)compare_rgb);
         }
       }
@@ -8160,15 +8159,22 @@ write_image(FILE     *out,	/* I - Output file */
       switch (indbits)
       {
         case 1 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 7; j > 0; j --, k = (k + 7) & 7, pixel += 3)
+	      for (j = img->width, k = 7;
+	           j > 0;
+		   j --, k = (k + 7) & 7, pixel += 3)
 	      {
-        	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                            	         (compare_func_t)compare_rgb);
-	        m = (match - colors[0]) / 3;
+                key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+
+		if (*match != key)
+        	  match = (unsigned *)bsearch(&key, colors, ncolors,
+		                              sizeof(unsigned),
+                            	              (compare_func_t)compare_rgb);
+	        m = match - colors;
 
 		switch (k)
 		{
@@ -8190,15 +8196,22 @@ write_image(FILE     *out,	/* I - Output file */
 	    break;
 
         case 2 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0; j > 0; j --, k = (k + 1) & 3, pixel += 3)
+	      for (j = img->width, k = 0;
+	           j > 0;
+		   j --, k = (k + 1) & 3, pixel += 3)
 	      {
-        	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                           	         (compare_func_t)compare_rgb);
-	        m = (match - colors[0]) / 3;
+                key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+
+		if (*match != key)
+        	  match = (unsigned *)bsearch(&key, colors, ncolors,
+		                              sizeof(unsigned),
+                            	              (compare_func_t)compare_rgb);
+	        m = match - colors;
 
 		switch (k)
 		{
@@ -8223,15 +8236,20 @@ write_image(FILE     *out,	/* I - Output file */
 	    break;
 
         case 4 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	             match = colors;
 		 i > 0;
 		 i --)
 	    {
 	      for (j = img->width, k = 0; j > 0; j --, k ^= 1, pixel += 3)
 	      {
-        	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                        	         (compare_func_t)compare_rgb);
-	        m = (match - colors[0]) / 3;
+                key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+
+		if (*match != key)
+        	  match = (unsigned *)bsearch(&key, colors, ncolors,
+		                              sizeof(unsigned),
+                            	              (compare_func_t)compare_rgb);
+	        m = match - colors;
 
 		if (k)
 		  *indptr++ |= m;
@@ -8245,15 +8263,20 @@ write_image(FILE     *out,	/* I - Output file */
 	    break;
 
         case 8 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	             match = colors;
 		 i > 0;
 		 i --)
 	    {
 	      for (j = img->width; j > 0; j --, pixel += 3, indptr ++)
 	      {
-        	match = (uchar *)bsearch(pixel, colors[0], ncolors, 3,
-                        	         (compare_func_t)compare_rgb);
-	        *indptr = (match - colors[0]) / 3;
+                key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+
+		if (*match != key)
+        	  match = (unsigned *)bsearch(&key, colors, ncolors,
+		                              sizeof(unsigned),
+                            	              (compare_func_t)compare_rgb);
+	        *indptr = match - colors;
 	      }
 	    }
 	    break;
@@ -8269,10 +8292,8 @@ write_image(FILE     *out,	/* I - Output file */
     * Adobe doesn't like 1 color images...
     */
 
-    ncolors      = 2;
-    colors[1][0] = 0;
-    colors[1][1] = 0;
-    colors[1][2] = 0;
+    ncolors   = 2;
+    colors[1] = 0;
   }
 
  /*
@@ -8324,16 +8345,24 @@ write_image(FILE     *out,	/* I - Output file */
 
 	  if (ncolors > 0)
 	  {
+	    for (i = 0; i < ncolors; i ++)
+	    {
+	      cmap[i][0] = colors[i] >> 16;
+	      cmap[i][1] = colors[i] >> 8;
+	      cmap[i][2] = colors[i];
+	    }
+
 	    if (Encryption)
 	    {
 	      // Encrypt the colormap...
 	      encrypt_init();
-	      rc4_encrypt(&encrypt_state, colors[0], colors[0], ncolors * 3);
+	      rc4_encrypt(&encrypt_state, cmap[0], cmap[0], ncolors * 3);
 	    }
 
 	    fprintf(out, "/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
-	      fprintf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
+	      fprintf(out, "%02X%02X%02X", cmap[i][0], cmap[i][1],
+	              cmap[i][2]);
 	    fputs(">]", out);
           }
 	  else if (img->depth == 1)
@@ -8391,7 +8420,8 @@ write_image(FILE     *out,	/* I - Output file */
 	  {
 	    flate_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
-	      flate_printf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
+	      flate_printf(out, "%02X%02X%02X", colors[i] >> 16,
+	        	   (colors[i] >> 8) & 255, colors[i] & 255);
 	    flate_puts(">]", out);
           }
 	  else if (img->depth == 1)
@@ -8475,7 +8505,8 @@ write_image(FILE     *out,	/* I - Output file */
 
 	    fprintf(out, "[/Indexed/DeviceRGB %d<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
-	      fprintf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
+	      fprintf(out, "%02X%02X%02X", colors[i] >> 16,
+	              (colors[i] >> 8) & 255, colors[i] & 255);
 	    fputs(">]setcolorspace", out);
 
 	    fprintf(out, "<<"
@@ -8541,7 +8572,8 @@ write_image(FILE     *out,	/* I - Output file */
         {
 	  fprintf(out, "[/Indexed/DeviceRGB %d<", ncolors - 1);
 	  for (i = 0; i < ncolors; i ++)
-	    fprintf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
+	      fprintf(out, "%02X%02X%02X", colors[i] >> 16,
+	              (colors[i] >> 8) & 255, colors[i] & 255);
 	  fputs(">]setcolorspace", out);
 
 	  fprintf(out, "<<"
@@ -10018,5 +10050,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.104 2001/09/19 20:47:00 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.105 2001/09/21 19:59:44 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.16 2001/08/30 18:11:38 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.17 2001/09/21 19:59:43 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -184,7 +184,7 @@ html_export(tree_t *document,	/* I - Document to export */
     fputs("</BODY>\n", out);
     fputs("</HTML>\n", out);
 
-    progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
+    progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
     fclose(out);
   }
@@ -382,7 +382,7 @@ write_footer(FILE **out,	/* IO - Output file pointer */
     fputs("</BODY>\n", *out);
     fputs("</HTML>\n", *out);
 
-    progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(*out));
+    progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(*out));
 
     fclose(*out);
     *out = NULL;
@@ -935,5 +935,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.16 2001/08/30 18:11:38 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.17 2001/09/21 19:59:43 mike Exp $".
  */
