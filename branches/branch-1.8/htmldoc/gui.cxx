@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.30 2001/10/29 16:15:02 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.31 2001/11/01 16:21:48 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -107,6 +107,14 @@
 
 const char	*GUI::help_dir = DOCUMENTATION;
 
+
+//
+// The following button types are just things we are playing with.
+// Uncomment the NEW_BUTTON_TYPES define below to see them...
+//
+
+//#define NEW_BUTTON_TYPES
+#ifdef NEW_BUTTON_TYPES
 extern uchar *fl_gray_ramp();
 
 /*
@@ -238,9 +246,8 @@ void down_box(int x, int y, int w, int h, Fl_Color c) {
     shade_rect(x + 2, y + 2, w - 4, h - 4, "STUVWWWWVT", c);
 
   shade_frame(x, y, w, h, "LLRRTTLL", c);
-//  shade_frame(x, y, w, h, "PPRRCLMM", c);
-//  shade_frame(x, y, w, h, "RRPPMMLC");
 }
+#endif // NEW_BUTTON_TYPES
 
 
 //
@@ -371,6 +378,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			};
 
 
+#ifdef NEW_BUTTON_TYPES
   //
   // Pseudo-Aqua buttons...
   //
@@ -379,6 +387,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   Fl::set_boxtype(FL_DOWN_BOX, down_box, 3, 3, 5, 5);
   Fl::set_boxtype(_FL_ROUND_UP_BOX, up_box, 3, 3, 5, 5);
   Fl::set_boxtype(_FL_ROUND_DOWN_BOX, down_box, 3, 3, 5, 5);
+#endif // NEW_BUTTON_TYPES
 
   //
   // Create a dialog window...
@@ -1104,17 +1113,14 @@ GUI::GUI(const char *filename)		// Book file to load initially
   bookSaveAs = new Fl_Button(255, 355, 85, 25, "Save As...");
   bookSaveAs->shortcut(FL_CTRL | FL_SHIFT | 's');
   bookSaveAs->callback((Fl_Callback *)saveAsBookCB, this);
-//  bookSaveAs->color(FL_WHITE, FL_GREEN);
 
   bookGenerate = new Fl_Button(345, 355, 85, 25, "Generate");
   bookGenerate->shortcut(FL_CTRL | 'g');
   bookGenerate->callback((Fl_Callback *)generateBookCB, this);
-//  bookGenerate->color(FL_WHITE, FL_BLUE);
 
   bookClose = new Fl_Button(435, 355, 60, 25, "Close");
   bookClose->shortcut(FL_CTRL | 'q');
   bookClose->callback((Fl_Callback *)closeBookCB, this);
-  bookClose->color(FL_RED, FL_RED);
 
   controls->end();
 
@@ -4128,5 +4134,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.30 2001/10/29 16:15:02 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.31 2001/11/01 16:21:48 mike Exp $".
 //
