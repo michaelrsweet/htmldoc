@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.73 2004/05/27 20:13:13 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.74 2004/06/10 20:58:00 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -95,9 +95,9 @@
 #    include <unistd.h>
 #    ifdef HAVE_LIBXPM
 #      include <X11/xpm.h>
-#      include "htmldoc.xpm"
+#      include "../desktop/htmldoc.xpm"
 #    elif !defined(__APPLE__)
-#      include "htmldoc.xbm"
+#      include "../desktop/htmldoc.xbm"
 #    endif // HAVE_LIBXPM
 #  endif // WIN32
 
@@ -4039,5 +4039,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.73 2004/05/27 20:13:13 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.74 2004/06/10 20:58:00 mike Exp $".
 //
