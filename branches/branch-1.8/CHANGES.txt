@@ -78,6 +78,9 @@ CHANGES IN HTMLDOC v1.8.24
 	  #8)
 	- The DT element no longer applies an italic style (PR
 	  #5178)
+	- HTMLDOC now ignores content inside a STYLE element
+	  (PR #5183)
+
 
     BUG FIXES
 
