@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.8 2001/08/29 20:42:10 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.9 2001/10/17 21:13:41 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -306,6 +306,54 @@ get_format(const char *fmt,		// I - Old "fff" format
 }
 
 
+//
+// 'get_format()' - Convert an old "fff" format string to the new format.
+//
+
+extern const char *			// O - Old format string
+get_fmt(char **formats)			// I - New format strings
+{
+  int		i, j;			// Looping vars
+  static char	fmt[4];			// Old format string
+  static struct				// Format string conversions...
+  {
+    char	f;			// Format character
+    const char	*format;		// Format string
+  }		table[] =
+  {
+    { '/', "$PAGE(1)/$PAGES" },
+    { ':', "$CHAPTERPAGE(1)/$CHAPTERPAGES" },
+    { '1', "$PAGE(1)" },
+    { 'a', "$PAGE(a)" },
+    { 'A', "$PAGE(A)" },
+    { 'c', "$CHAPTER" },
+    { 'C', "$CHAPTERPAGE(1)" },
+    { 'd', "$DATE" },
+    { 'D', "$DATE $TIME" },
+    { 'h', "$HEADING" },
+    { 'i', "$PAGE(i)" },
+    { 'I', "$PAGE(I)" },
+    { 'l', "$LOGOIMAGE" },
+    { 't', "$TITLE" },
+    { 'T', "$TIME" }
+  };
+
+
+  strcpy(fmt, "...");
+
+  for (i = 0; i < 3; i ++)
+    if (formats[i])
+      for (j = 0; j < (int)(sizeof(table) / sizeof(table[0])); j ++)
+        if (strcmp(formats[i], table[j].format) == 0)
+	{
+	  fmt[i] = table[j].f;
+	  break;
+	}
+
+  return (fmt);
+}
+
+
 /*
  * 'get_measurement()' - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
@@ -418,5 +466,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.8 2001/08/29 20:42:10 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.9 2001/10/17 21:13:41 mike Exp $".
  */

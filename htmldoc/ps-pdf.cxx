@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.112 2001/10/15 15:30:24 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.113 2001/10/17 21:13:33 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -882,7 +882,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
         	   uchar *title)		/* I - Title string */
 {
   int		print_page;			/* Printed page # */
-  char		*page_text;			/* Page number text */
+  static char	page_text[255];			/* Page number text */
 
 
   DEBUG_printf(("pspdf_prepare_page(%d, %p, \"%s\")\n",
@@ -918,17 +918,19 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   if (chapter == 0 && OutputType == OUTPUT_BOOK)
   {
     print_page = page - chapter_starts[0] + 1;
-    page_text  = format_number(print_page, 'i');
+    strncpy(page_text, format_number(print_page, 'i'), sizeof(page_text) - 1);
+    page_text[sizeof(page_text) - 1] = '\0';
   }
   else if (chapter < 0)
   {
     print_page = 0;
-    page_text  = (page & 1) ? (char *)"eltit" : (char *)"title";
+    strcpy(page_text, (page & 1) ? (char *)"eltit" : (char *)"title");
   }
   else
   {
     print_page = page - chapter_starts[1] + 1;
-    page_text  = format_number(print_page, '1');
+    strncpy(page_text, format_number(print_page, '1'), sizeof(page_text) - 1);
+    page_text[sizeof(page_text) - 1] = '\0';
   }
 
   if (Verbosity)
@@ -3549,6 +3551,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		height,
 		offset,
 		spacing,
+		borderspace,
 		temp_y,
 		temp_width,
 		temp_height;
@@ -3559,7 +3562,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   uchar		*align,
 		*hspace,
 		*vspace,
-		*link;
+		*link,
+		*border;
   float		rgb[3];
   uchar		line[10240],
 		*lineptr;
@@ -3596,12 +3600,19 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     if (temp->markup == MARKUP_IMG &&
         (align = htmlGetVariable(temp, (uchar *)"ALIGN")))
     {
+      if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
+	borderspace = atof((char *)border);
+      else if (temp->link)
+	borderspace = 1;
+      else
+	borderspace = 0;
+
       if (strcasecmp((char *)align, "LEFT") == 0)
       {
         if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
 	  *y -= atoi((char *)vspace);
 
-        if (*y < (bottom + temp->height))
+        if (*y < (bottom + temp->height + 2 * borderspace))
         {
 	  (*page) ++;
 	  *y = top;
@@ -3610,14 +3621,43 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    progress_show("Formatting page %d", *page);
         }
 
-        new_render(*page, RENDER_IMAGE, image_left, *y - temp->height,
-	           temp->width, temp->height,
+        if (borderspace > 0.0f)
+	{
+	  if (temp->link && PSLevel == 0)
+	    memcpy(rgb, link_color, sizeof(rgb));
+	  else
+	  {
+	    rgb[0] = temp->red / 255.0f;
+	    rgb[1] = temp->green / 255.0f;
+	    rgb[2] = temp->blue / 255.0f;
+	  }
+
+	  // Top
+          new_render(*page, RENDER_FBOX, image_left, *y,
+		     temp->width + 2 * borderspace, borderspace, rgb);
+	  // Left
+          new_render(*page, RENDER_FBOX, image_left, *y,
+                     borderspace, temp->height + 2 * borderspace, rgb);
+	  // Right
+          new_render(*page, RENDER_FBOX, image_left + temp->width + borderspace, *y,
+                     borderspace, temp->height + 2 * borderspace, rgb);
+	  // Bottom
+          new_render(*page, RENDER_FBOX, image_left, *y + temp->height + borderspace,
+                     temp->width + 2 * borderspace, borderspace, rgb);
+	}
+
+        *y -= borderspace;
+
+        new_render(*page, RENDER_IMAGE, image_left + borderspace,
+	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
+
+        *y -= borderspace;
 
         if (vspace != NULL)
 	  *y -= atoi((char *)vspace);
 
-        image_left += temp->width;
+        image_left += temp->width + 2 * borderspace;
 	temp_y     = *y - temp->height;
 
 	if (temp_y < image_y || image_y == 0)
@@ -3639,7 +3679,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
 	  *y -= atoi((char *)vspace);
 
-        if (*y < (bottom + temp->height))
+        if (*y < (bottom + temp->height + 2 * borderspace))
         {
 	  (*page) ++;
 	  *y = top;
@@ -3648,11 +3688,40 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    progress_show("Formatting page %d", *page);
         }
 
-        image_right -= temp->width;
+        image_right -= temp->width + 2 * borderspace;
 
-        new_render(*page, RENDER_IMAGE, image_right, *y - temp->height,
-                   temp->width, temp->height,
+        if (borderspace > 0.0f)
+	{
+	  if (temp->link && PSLevel == 0)
+	    memcpy(rgb, link_color, sizeof(rgb));
+	  else
+	  {
+	    rgb[0] = temp->red / 255.0f;
+	    rgb[1] = temp->green / 255.0f;
+	    rgb[2] = temp->blue / 255.0f;
+	  }
+
+	  // Top
+          new_render(*page, RENDER_FBOX, image_right, *y,
+		     temp->width + 2 * borderspace, borderspace, rgb);
+	  // Left
+          new_render(*page, RENDER_FBOX, image_right, *y,
+                     borderspace, temp->height + 2 * borderspace, rgb);
+	  // Right
+          new_render(*page, RENDER_FBOX, image_right + temp->width + borderspace, *y,
+                     borderspace, temp->height + 2 * borderspace, rgb);
+	  // Bottom
+          new_render(*page, RENDER_FBOX, image_right, *y + temp->height + borderspace,
+                     temp->width + 2 * borderspace, borderspace, rgb);
+	}
+
+        *y -= borderspace;
+
+        new_render(*page, RENDER_IMAGE, image_right + borderspace,
+	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
+
+        *y -= borderspace;
 
         if (vspace != NULL)
 	  *y -= atoi((char *)vspace);
@@ -3731,10 +3800,23 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         if (whitespace)
 	  break;
 
+        if (temp->markup == MARKUP_IMG)
+	{
+	  if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
+	    borderspace = atof((char *)border);
+	  else if (temp->link)
+	    borderspace = 1;
+	  else
+	    borderspace = 0;
+
+          temp_width += 2 * borderspace;
+	}
+
         prev       = temp;
         temp       = temp->next;
         temp_width += prev->width;
 
+        
         if (prev->markup == MARKUP_BR)
 	  break;
       }
@@ -3804,6 +3886,15 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      temp_height = temp->height + height;
               break;
 	}
+
+	if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
+	  borderspace = atof((char *)border);
+	else if (temp->link)
+	  borderspace = 1;
+	else
+	  borderspace = 0;
+
+        temp_height += 2 * borderspace;
       }
 
       if (temp_height > spacing)
@@ -4009,22 +4100,48 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    break;
 
 	case MARKUP_IMG :
+	    if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
+	      borderspace = atof((char *)border);
+	    else if (temp->link)
+	      borderspace = 1;
+	    else
+	      borderspace = 0;
+
+            temp_width += 2 * borderspace;
+
 	    switch (temp->valignment)
 	    {
 	      case ALIGN_TOP :
-		  offset = height - temp->height;
+		  offset = height - temp->height - 2 * borderspace;
 		  break;
 	      case ALIGN_MIDDLE :
-		  offset = -0.5f * temp->height;
+		  offset = -0.5f * temp->height - borderspace;
 		  break;
 	      case ALIGN_BOTTOM :
 		  offset = 0.0f;
 	    }
 
-	    new_render(*page, RENDER_IMAGE, linex, *y + offset, temp->width, temp->height,
+            if (borderspace > 0.0f)
+	    {
+	      // Top
+              new_render(*page, RENDER_FBOX, linex, *y + offset,
+			 temp->width + 2 * borderspace, borderspace, rgb);
+	      // Left
+              new_render(*page, RENDER_FBOX, linex, *y + offset,
+                	 borderspace, temp->height + 2 * borderspace, rgb);
+	      // Right
+              new_render(*page, RENDER_FBOX, linex + temp->width + borderspace, *y + offset,
+                	 borderspace, temp->height + 2 * borderspace, rgb);
+	      // Bottom
+              new_render(*page, RENDER_FBOX, linex, *y + offset + temp->height + borderspace,
+                	 temp->width + 2 * borderspace, borderspace, rgb);
+	    }
+
+	    new_render(*page, RENDER_IMAGE, linex + borderspace,
+	               *y + offset + borderspace, temp->width, temp->height,
 		       image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
             whitespace = 0;
-	    temp_width = temp->width;
+	    temp_width = temp->width + 2 * borderspace;
 	    break;
       }
 
@@ -5312,11 +5429,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       }
       else
       {
-	 /*
-	  * +---+---+---+
-	  * |   |   |   |
-	  * +---+---+---+
-	  */
+       /*
+	* +---+---+---+
+	* |   |   |   |
+	* +---+---+---+
+	*/
 
         if (border > 0.0f)
 	{
@@ -10201,5 +10318,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.112 2001/10/15 15:30:24 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.113 2001/10/17 21:13:33 mike Exp $".
  */

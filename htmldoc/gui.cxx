@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.22 2001/09/30 22:41:30 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.23 2001/10/17 21:13:28 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -790,6 +790,9 @@ GUI::GUI(const char *filename)		// Book file to load initially
   psCommands = new CheckButton(140, 70, 310, 20, "Send Printer Commands");
   psCommands->callback((Fl_Callback *)changeCB, this);
 
+  xrxComments = new CheckButton(140, 95, 310, 20, "Include Xerox Job Comments");
+  xrxComments->callback((Fl_Callback *)changeCB, this);
+
   psTab->end();
 
   //
@@ -1467,6 +1470,8 @@ GUI::newBook(void)
 
   psCommands->value(PSCommands);
 
+  xrxComments->value(XRXComments);
+
   path->value(Path);
   proxy->value(Proxy);
   browserWidth->value(_htmlBrowserWidth);
@@ -1693,6 +1698,16 @@ GUI::parseOptions(const char *line)	// I - Line from file
     else if (strcmp(temp, "--no-pscommands") == 0)
     {
       psCommands->clear();
+      continue;
+    }
+    else if (strcmp(temp, "--xrxcomments") == 0)
+    {
+      xrxComments->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-xrxcomments") == 0)
+    {
+      xrxComments->clear();
       continue;
     }
     else if (strncmp(temp, "--compression", 13) == 0)
@@ -2222,6 +2237,11 @@ GUI::saveBook(const char *filename)	// I - Name of book file
       fputs(" --pscommands", fp);
     else
       fputs(" --no-pscommands", fp);
+
+    if (xrxComments->value())
+      fputs(" --xrxcomments", fp);
+    else
+      fputs(" --no-xrxcomments", fp);
 
     if (compression->value() == 0.0f)
       fputs(" --no-compression", fp);
@@ -3317,7 +3337,8 @@ GUI::saveOptionsCB(Fl_Widget *w,
   else
     PSLevel = 3;
 
-  PSCommands = gui->psCommands->value();
+  PSCommands  = gui->psCommands->value();
+  XRXComments = gui->xrxComments->value();
 
   strcpy(BodyColor, gui->bodyColor->value());
   strcpy(BodyImage, gui->bodyImage->value());
@@ -3816,7 +3837,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   else
     PSLevel = 3;
 
-  PSCommands = gui->psCommands->value();
+  PSCommands  = gui->psCommands->value();
+  XRXComments = gui->xrxComments->value();
 
   strcpy(BodyColor, gui->bodyColor->value());
   strcpy(BodyImage, gui->bodyImage->value());
@@ -3980,5 +4002,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.22 2001/09/30 22:41:30 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.23 2001/10/17 21:13:28 mike Exp $".
 //
