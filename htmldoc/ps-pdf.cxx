@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.44 2001/04/12 21:20:20 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.45 2001/04/18 16:12:50 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7760,7 +7760,9 @@ write_trailer(FILE *out,	/* I - Output file */
 
     if (PDFVersion >= 1.2)
     {
-      fprintf(out, "/Names %d 0 R", names_object);
+      if (names_object)
+        fprintf(out, "/Names %d 0 R", names_object);
+
       fprintf(out, "/PageLayout/%s", layouts[PDFPageLayout]);
     }
 
@@ -8298,5 +8300,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.44 2001/04/12 21:20:20 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.45 2001/04/18 16:12:50 mike Exp $".
  */
