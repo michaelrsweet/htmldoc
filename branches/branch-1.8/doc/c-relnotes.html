@@ -50,6 +50,14 @@
 	<LI>Fixed-width columns in tables could be resized by
 	HTMLDOC.
 
+	<LI>When writing PostScript commands, some printers reset
+	their duplexing state when a new setpagedevice command
+	is received; we now cache the current duplex state and
+	change it only as needed.
+
+	<LI>The MEDIA SIZE comment didn't adjust the printable
+	size for the current landscape setting.
+
 </UL>
 
 <H2>Changes in HTMLDOC v1.8.20</H2>

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.195 2002/07/27 03:41:37 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.196 2002/07/27 04:15:08 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6717,8 +6717,18 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
   // Mark if we are at the top of form...
   tof = (*y >= *top);
 
-//  printf("BEFORE tof=%d, *y=%.1f, *top=%.1f, t->data=\"%s\"\n",
-//         tof, *y, *top, t->data);
+  DEBUG_printf(("BEFORE tof=%d, *y=%.1f, *top=%.1f, *page=%d, t->data=\"%s\"\n",
+        	tof, *y, *top, *page, t->data));
+  DEBUG_printf((" PagePrintWidth = %d\n", PagePrintWidth));
+  DEBUG_printf(("PagePrintLength = %d\n", PagePrintLength));
+  DEBUG_printf(("      PageWidth = %d\n", PageWidth));
+  DEBUG_printf(("     PageLength = %d\n", PageLength));
+  DEBUG_printf(("       PageLeft = %d\n", PageLeft));
+  DEBUG_printf(("     PageBottom = %d\n", PageBottom));
+  DEBUG_printf(("      PageRight = %d\n", PageRight));
+  DEBUG_printf(("        PageTop = %d\n", PageTop));
+  DEBUG_printf(("      Landscape = %d\n", Landscape));
+
 
   for (comment = (const char *)t->data; *comment;)
   {
@@ -7115,8 +7125,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       pages[*page].width  = PageWidth;
       pages[*page].length = PageLength;
-      PagePrintWidth      = PageWidth - PageRight - PageLeft;
-      PagePrintLength     = PageLength - PageTop - PageBottom;
 
       // Skip width...
       while (*comment && !isspace(*comment))
@@ -7671,6 +7679,15 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
   DEBUG_printf(("LEAVING parse_comment() x=%.1f, y=%.1f, page=%d\n",
                 *x, *y, *page));
+  DEBUG_printf((" PagePrintWidth = %d\n", PagePrintWidth));
+  DEBUG_printf(("PagePrintLength = %d\n", PagePrintLength));
+  DEBUG_printf(("      PageWidth = %d\n", PageWidth));
+  DEBUG_printf(("     PageLength = %d\n", PageLength));
+  DEBUG_printf(("       PageLeft = %d\n", PageLeft));
+  DEBUG_printf(("     PageBottom = %d\n", PageBottom));
+  DEBUG_printf(("      PageRight = %d\n", PageRight));
+  DEBUG_printf(("        PageTop = %d\n", PageTop));
+  DEBUG_printf(("      Landscape = %d\n", Landscape));
 }
 
 
@@ -11809,5 +11826,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.195 2002/07/27 03:41:37 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.196 2002/07/27 04:15:08 mike Exp $".
  */

@@ -1,4 +1,4 @@
-CHANGES.txt - 07/19/2002
+CHANGES.txt - 07/27/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -37,6 +37,8 @@ CHANGES IN HTMLDOC v1.8.21
 	  their duplexing state when a new setpagedevice command
 	  is received; we now cache the current duplex state and
 	  change it only as needed.
+	- The MEDIA SIZE comment didn't adjust the printable
+	  size for the current landscape setting.
 
 
 CHANGES IN HTMLDOC v1.8.20
