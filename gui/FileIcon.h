@@ -1,9 +1,9 @@
 //
-// "$Id: FileIcon.h,v 1.7 1999/11/12 19:21:20 mike Exp $"
+// "$Id: FileIcon.h,v 1.8 2000/01/04 13:45:51 mike Exp $"
 //
 //   FileIcon definitions.
 //
-//   Copyright 1997-1999 by Easy Software Products.
+//   Copyright 1997-2000 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -102,5 +102,5 @@ class FileIcon			//// Icon data
 #endif // !_GUI_FILEICON_H_
 
 //
-// End of "$Id: FileIcon.h,v 1.7 1999/11/12 19:21:20 mike Exp $".
+// End of "$Id: FileIcon.h,v 1.8 2000/01/04 13:45:51 mike Exp $".
 //
