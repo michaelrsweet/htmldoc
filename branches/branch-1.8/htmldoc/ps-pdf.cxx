@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.186 2002/06/13 18:44:11 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.187 2002/06/13 19:11:32 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1828,6 +1828,10 @@ ps_write_outpage(FILE *out,	/* I - Output file */
       fputs("%%BeginFeature: *PageSize Letter\n", out);
     else if (p->width == 612 && p->length == 1008)
       fputs("%%BeginFeature: *PageSize Legal\n", out);
+    else if (p->width == 792 && p->length == 1224)
+      fputs("%%BeginFeature: *PageSize Tabloid\n", out);
+    else if (p->width == 842 && p->length == 1190)
+      fputs("%%BeginFeature: *PageSize A3\n", out);
     else if (p->width == 595 && p->length == 842)
       fputs("%%BeginFeature: *PageSize A4\n", out);
     else
@@ -11738,5 +11742,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.186 2002/06/13 18:44:11 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.187 2002/06/13 19:11:32 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.54 2002/06/13 18:44:07 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.55 2002/06/13 19:11:30 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -811,7 +811,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   firstPage = new Fl_Choice(140, 150, 100, 25, "First Page: ");
   firstPage->menu(firstMenu);
   firstPage->callback((Fl_Callback *)changeCB, this);
-  _tooltip(pageMode, "Choose the initial page that will be shown.");
+  _tooltip(firstPage, "Choose the initial page that will be shown.");
 
   pageEffect = new Fl_Choice(140, 180, 210, 25, "Page Effect: ");
   pageEffect->menu(effectMenu);
@@ -894,8 +894,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   userPassword = new Fl_Secret_Input(140, 145, 150, 25, "User Password: ");
   userPassword->maximum_size(32);
-  _tooltip(ownerPassword, "Enter the password required to open the file.\n"
-                          "(leave blank for no password)");
+  _tooltip(userPassword, "Enter the password required to open the file.\n"
+                         "(leave blank for no password)");
 
   securityTab->end();
 
@@ -4045,5 +4045,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.54 2002/06/13 18:44:07 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.55 2002/06/13 19:11:30 mike Exp $".
 //
