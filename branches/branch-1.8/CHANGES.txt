@@ -19,8 +19,8 @@ CHANGES IN HTMLDOC v1.8.12
 	  output filename as needed.
 	- The GUI now collects all error messages and shows them
 	  once after the document is generated.
-	- Added support for HSPACE attribute for images with
-	  ALIGN="LEFT" or ALIGN="RIGHT".
+	- Added support for HSPACE and VSPACE attributes for images
+	  with ALIGN="LEFT" or ALIGN="RIGHT".
 	- Added new Java interface to HTMLDOC.
 
     CHANGES
@@ -75,6 +75,9 @@ CHANGES IN HTMLDOC v1.8.12
 	- The table formatter did not reset the column width when
 	  a width was not specified explicitly.  This caused the
 	  columns to be formatted with equal widths...
+	- Paragraphs that didn't use the P element would use the
+	  alignment attribute of the first fragment instead of the
+	  parent.
 
 
 CHANGES IN HTMLDOC v1.8.11
