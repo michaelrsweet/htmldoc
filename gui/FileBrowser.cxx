@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.7 1999/04/29 19:26:47 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.8 1999/05/17 00:21:35 mike Exp $"
 //
 //   FileBrowser routines for the Common UNIX Printing System (CUPS).
 //
@@ -138,6 +138,7 @@ FileBrowser::item_width(void *p) const	// I - List item data
     // More than 1 line or have columns; find the maximum width...
     width     = 0;
     tempwidth = 0;
+    column    = 0;
 
     for (text = line->txt, ptr = fragment; *text != '\0'; text ++)
       if (*text == '\n')
@@ -399,5 +400,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.7 1999/04/29 19:26:47 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.8 1999/05/17 00:21:35 mike Exp $".
 //
