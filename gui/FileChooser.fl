@@ -12,12 +12,14 @@ class FileChooser {open
   Function {FileChooser(const char *d, char *p, int t, const char *title)} {open
   } {
     Fl_Window window {
-      label {Pick a File} open
-      private xywh {173 142 375 315} hide resizable hotspot
+      label {Pick a File}
+      callback {fileList->deselect();
+fileName->value("");} open selected
+      private xywh {173 142 375 315} resizable hotspot
       code0 {if (title) window->label(title);}
       code1 {\#include <stdio.h>}
       code2 {\#include <stdlib.h>}
-      code3 {\#include <string.h>} modal
+      code3 {\#include <string.h>} modal visible
     } {
       Fl_Browser fileList {
         callback {fileListCB();}
@@ -28,6 +30,7 @@ class FileChooser {open
       Fl_Button {} {
         label Cancel
         callback {fileList->deselect();
+fileName->value("");
 window->hide();}
         private xywh {300 280 65 25}
       }
@@ -38,7 +41,7 @@ window->hide();}
       }
       Fl_Input fileName {
         label {Filename:}
-        callback {fileNameCB();} selected
+        callback {fileNameCB();}
         private xywh {10 245 355 25} align 5 when 8
         code0 {fileName->when(FL_WHEN_CHANGED | FL_WHEN_ENTER_KEY_ALWAYS);}
         code1 {\#include "FileInput.h"}

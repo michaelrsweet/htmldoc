@@ -2,6 +2,14 @@
 
 #include "FileChooser.h"
 
+inline void FileChooser::cb_window_i(Fl_Window*, void*) {
+  fileList->deselect();
+fileName->value("");
+}
+void FileChooser::cb_window(Fl_Window* o, void* v) {
+  ((FileChooser*)(o->user_data()))->cb_window_i(o,v);
+}
+
 inline void FileChooser::cb_fileList_i(FileBrowser*, void*) {
   fileListCB();
 }
@@ -11,6 +19,7 @@ void FileChooser::cb_fileList(FileBrowser* o, void* v) {
 
 inline void FileChooser::cb_Cancel_i(Fl_Button*, void*) {
   fileList->deselect();
+fileName->value("");
 window->hide();
 }
 void FileChooser::cb_Cancel(Fl_Button* o, void* v) {
@@ -86,7 +95,7 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
   Fl_Window* w;
   { Fl_Window* o = window = new Fl_Window(375, 315, "Pick a File");
     w = o;
-    o->user_data((void*)(this));
+    o->callback((Fl_Callback*)cb_window, (void*)(this));
     w->hotspot(o);
     { FileBrowser* o = fileList = new FileBrowser(10, 45, 355, 180);
       o->type(2);
