@@ -1,4 +1,4 @@
-CHANGES.txt - 05/13/2002
+CHANGES.txt - 05/29/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.20
@@ -7,9 +7,12 @@ CHANGES IN HTMLDOC v1.8.20
 
 	- New --nup and NUMBER-UP options for PostScript and PDF
 	  output.
+	- Now log HTML errors.
 
     CHANGES
 
+	- The HTML parser now allows BODY to auto-close HEAD and
+	  visa-versa.
 
     BUG FIXES
 
