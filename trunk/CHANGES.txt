@@ -28,6 +28,7 @@ CHANGES IN HTMLDOC v1.8.6
 	- 1 color images didn't come out right; the "fix" to work around
 	  an Acrobat Reader bug was being done too soon, so the color
 	  lookups were wrong.
+	- HTML file links now work properly.
 
 
 CHANGES IN HTMLDOC v1.8.5
