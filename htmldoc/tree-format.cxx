@@ -1,5 +1,5 @@
 //
-// "$Id: tree-format.cxx,v 1.2 2002/07/29 02:10:28 mike Exp $"
+// "$Id: tree-format.cxx,v 1.3 2002/08/01 01:24:26 mike Exp $"
 //
 //   HTML formatting routines for HTMLDOC, a HTML document processing program.
 //
@@ -74,13 +74,14 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
   fragwidth  = 0.0;
   ascender   = 0.0;
   descender  = 0.0;
+  block      = NULL;
 
   while (temp != NULL)
   {
     // If there is whitespace here, process the fragment...
     temp->nodebreak = HD_NODEBREAK_NONE;
 
-    if (temp->whitespace && frag != temp)
+    if ((temp->whitespace || hdElIsGroup(temp->element)) && frag != temp)
     {
       if ((fragwidth + x) > m->width())
       {
@@ -249,6 +250,27 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
 	  break;
 
       default :
+          if (hdElIsGroup(temp->element))
+	  {
+	    x = 0.0;
+
+	    if (block)
+	      y += block->style->get_margin(HD_POS_BOTTOM) +
+	           block->style->get_padding(HD_POS_BOTTOM);
+
+            block = temp;
+
+	    y += block->style->get_margin(HD_POS_TOP) +
+	         block->style->get_padding(HD_POS_TOP);
+
+            if (y >= m->length())
+	    {
+	      y = 0.0;
+	      page ++;
+	    }
+
+	    m->clear(y, page);
+	  }
           break;
     }
 
@@ -368,5 +390,5 @@ hdTree::format_list(hdStyleSheet *css,		// I  - Style sheet
 
 
 //
-// End of "$Id: tree-format.cxx,v 1.2 2002/07/29 02:10:28 mike Exp $".
+// End of "$Id: tree-format.cxx,v 1.3 2002/08/01 01:24:26 mike Exp $".
 //
