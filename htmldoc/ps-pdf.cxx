@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.67 2001/05/27 20:32:03 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.68 2001/05/29 21:05:26 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2556,6 +2556,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 		*temp;		/* Paragraph entry */
   var_t		*var;		/* Variable entry */
   uchar		*name;		/* ID name */
+  uchar		*style;		/* STYLE attribute */
   float		width,		/* Width of horizontal rule */
 		height,		/* Height of rule */
 		rgb[3];		/* RGB color of rule */
@@ -2641,6 +2642,30 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       continue;
     }
 
+    // Check for some basic stylesheet stuff...
+    if ((style = htmlGetStyle(t, "page-break-before:")) != NULL &&
+	strcasecmp((char *)style, "avoid") != 0)
+    {
+      // Advance to the next page...
+      (*page) ++;
+      *x         = left;
+      *y         = top;
+      *needspace = 0;
+
+      // See if we need to go to the next left/righthand page...
+      if (PageDuplex && ((*page) & 1) &&
+          strcasecmp((char *)style, "right") == 0)
+	(*page) ++;
+      else if (PageDuplex && !((*page) & 1) &&
+               strcasecmp((char *)style, "left") == 0)
+	(*page) ++;
+
+      // Update the progress as necessary...
+      if (Verbosity)
+	progress_show("Formatting page %d", *page);
+    }
+
+    // Process the markup...
     switch (t->markup)
     {
       case MARKUP_IMG :
@@ -2971,6 +2996,31 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           break;
     }
 
+
+    // Check for some basic stylesheet stuff...
+    if ((style = htmlGetStyle(t, "page-break-after:")) != NULL &&
+	strcasecmp((char *)style, "avoid") != 0)
+    {
+      // Advance to the next page...
+      (*page) ++;
+      *x         = left;
+      *y         = top;
+      *needspace = 0;
+
+      // See if we need to go to the next left/righthand page...
+      if (PageDuplex && ((*page) & 1) &&
+          strcasecmp((char *)style, "right") == 0)
+	(*page) ++;
+      else if (PageDuplex && !((*page) & 1) &&
+               strcasecmp((char *)style, "left") == 0)
+	(*page) ++;
+
+      // Update the progress as necessary...
+      if (Verbosity)
+	progress_show("Formatting page %d", *page);
+    }
+
+    // Move to the next node...
     t = t->next;
   }
 
@@ -3105,6 +3155,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   if (flat == NULL)
     DEBUG_puts("parse_paragraph: flat == NULL!");
 
+  // Add leading whitespace...
   if (*y < top && needspace)
     *y -= _htmlSpacings[SIZE_P];
 
@@ -8594,5 +8645,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.67 2001/05/27 20:32:03 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.68 2001/05/29 21:05:26 mike Exp $".
  */

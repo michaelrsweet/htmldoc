@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.22 2001/05/27 20:32:02 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.23 2001/05/29 21:05:26 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -33,6 +33,7 @@
  *   get_text()          - Get all text from the given tree.
  *   htmlGetText()       - Get all text from the given tree.
  *   htmlGetMeta()       - Get document "meta" data...
+ *   htmlGetStyle()      - Get a style value from a node's STYLE attribute.
  *   htmlGetVariable()   - Get a variable value from a markup entry.
  *   htmlSetVariable()   - Set a variable for a markup entry.
  *   htmlSetBaseSize()   - Set the font sizes and spacings...
@@ -1565,6 +1566,46 @@ htmlGetMeta(tree_t *tree,	/* I - Document tree */
 
 
 /*
+ * 'htmlGetStyle()' - Get a style value from a node's STYLE attribute.
+ */
+
+uchar *				// O - Value or NULL
+htmlGetStyle(tree_t *t,		// I - Node
+             uchar  *name)	// I - Name (including ":")
+{
+  uchar		*ptr,		// Pointer in STYLE attribute
+		*bufptr;	// Pointer in buffer
+  int		ptrlen,		// Length of STYLE attribute
+		namelen;	// Length of name
+  static uchar	buffer[1024];	// Buffer for value
+
+
+  // See if we have a STYLE attribute...
+  if ((ptr = htmlGetVariable(t, (uchar *)"STYLE")) == NULL)
+    return (NULL);
+
+  // Loop through the STYLE attribute looking for the name...
+  for (namelen = strlen((char *)name), ptrlen = strlen((char *)ptr);
+       ptrlen > namelen;
+       ptr ++, ptrlen --)
+    if (strncasecmp((char *)name, (char *)ptr, namelen) == 0)
+    {
+      for (ptr += namelen; isspace(*ptr); ptr ++);
+
+      for (bufptr = buffer;
+           *ptr && *ptr != ';' && bufptr < (buffer + sizeof(buffer) - 1);
+	   *bufptr++ = *ptr++);
+
+      *bufptr = '\0';
+
+      return (buffer);
+    }
+
+  return (NULL);
+}
+
+
+/*
  * 'htmlGetVariable()' - Get a variable value from a markup entry.
  */
 
@@ -2456,5 +2497,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.22 2001/05/27 20:32:02 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.23 2001/05/29 21:05:26 mike Exp $".
  */
