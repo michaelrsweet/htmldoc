@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.166 2002/05/07 20:41:00 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.167 2002/05/08 04:21:50 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4324,6 +4324,26 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
+        if (temp->link)
+	{
+          link = htmlGetVariable(temp->link, (uchar *)"HREF");
+
+	 /*
+	  * Add a page link...
+	  */
+
+	  if (file_method((char *)link) == NULL)
+	  {
+	    if (file_target((char *)link) != NULL)
+	      link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	    else
+	      link = (uchar *)file_basename((char *)link);
+	  }
+
+	  new_render(*page, RENDER_LINK, image_left + borderspace,
+	             *y - temp->height, temp->width, temp->height, link);
+        }
+
         *y -= borderspace;
 
         if (vspace != NULL)
@@ -4394,6 +4414,26 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         new_render(*page, RENDER_IMAGE, image_right + borderspace,
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
+
+        if (temp->link)
+	{
+          link = htmlGetVariable(temp->link, (uchar *)"HREF");
+
+	 /*
+	  * Add a page link...
+	  */
+
+	  if (file_method((char *)link) == NULL)
+	  {
+	    if (file_target((char *)link) != NULL)
+	      link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	    else
+	      link = (uchar *)file_basename((char *)link);
+	  }
+
+	  new_render(*page, RENDER_LINK, image_right + borderspace,
+	             *y - temp->height, temp->width, temp->height, link);
+        }
 
         *y -= borderspace;
 
@@ -11386,5 +11426,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.166 2002/05/07 20:41:00 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.167 2002/05/08 04:21:50 mike Exp $".
  */
