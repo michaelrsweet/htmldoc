@@ -1,5 +1,5 @@
 /*
- * "$Id: render.h,v 1.21.2.5 2004/03/23 03:31:27 mike Exp $"
+ * "$Id: render.h,v 1.21.2.6 2004/03/23 21:54:38 mike Exp $"
  *
  *   Render class definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -36,14 +36,29 @@
 #  include "md5.h"
 #  include "rc4.h"
 #  include <zlib.h>
-#  include <stdio.h>
-#  include <sys/types.h>
+#  include <string.h>
+//#  include <sys/types.h>
 
 extern "C" {				// Workaround for JPEG header probs...
 #  include <jpeglib.h>			// JPEG/JFIF image definitions
 
 typedef int	(*hdCompareFunc)(const void *, const void *);
 }
+
+
+/**
+ * Document types...
+ */
+
+enum hdDocType
+{
+  //* Book with chapters
+  HD_DOCTYPE_BOOK,
+  //* Continuous web pages
+  HD_DOCTYPE_CONTINUOUS,
+  //* Separated web pages
+  HD_DOCTYPE_WEBPAGES
+};
 
 
 /**
@@ -72,37 +87,6 @@ enum hdRenderType
 //
 
 /**
- * The hdRenderText structure 
- */
-struct hdRenderText
-{
-  //* Font for text
-  hdStyleFont	*font;
-  //* Size of text in points
-  float		font_size;
-  //* Inter-character spacing
-  float		char_spacing;
-  //* Color of text
-  float		rgb[3];
-  //* Did we allocate the string?
-  int		alloc_string;
-  //* String pointer
-  char		*string;
-};
-
-
-/**
- * The hdRenderURL structure describes a single link on a page.
- */
-struct hdRenderURL
-{
-  //* Did we allocate the URL?
-  int		alloc_url;
-  //* Link URL
-  char		*url;
-};
-
-/**
  * The hdRenderNode structure describes rendering primitives used when
  * producing PostScript and PDF output.
  */
@@ -122,11 +106,13 @@ struct hdRenderNode
   float		width;
   //* Height in points
   float		height;
+  //* Style for node
+  hdStyle	*style;
 
   union
   {
     //* Text data
-    hdRenderText text;
+    const char	*text;
 
     //* Image pointer
     hdImage	*image;
@@ -134,36 +120,28 @@ struct hdRenderNode
     //* Box color
     float	box[3];
 
-    //* Background data
-    hdStyle	*background;
-
     //* Link data
-    hdRenderURL	link;
-  }	data;
+    const char	*link;
+  }		data;
 
-#if 0
  /**
   * The constructor creates a new render node with the specified data.
   *
-  * @param t The type of render primitive, HD_RENDERTYPE_TEXT,
+  * @param t hdRenderType The type of render primitive, HD_RENDERTYPE_TEXT,
   * HD_RENDERTYPE_IMAGE, HD_RENDERTYPE_BOX, HD_RENDERTYPE_BACKGROUND,
   * HD_RENDERTYPE_LINK, or HD_RENDERTYPE_FORM.
-  * @param xx The X position in points.
-  * @param yy The Y position in points.
-  * @param w The width in points.
-  * @param h The height in points.
-  * @param d The data associated with the node, if any.
-  * @param alloc_d Whether the data was allocated (1) or not (0).
+  * @param xx float The X position in points.
+  * @param yy float The Y position in points.
+  * @param w float The width in points.
+  * @param h float The height in points.
+  * @param s hdStyle* The style associated with the element.
+  * @param d const&nbsp;void* The data associated with the node, if any.
+  * @param copy_d bool Whether the data should be copied (true) or not (false).
   */
   hdRenderNode(hdRenderType t, float xx, float yy, float w, float h,
-               const void *d = (const void *)0, int alloc_d = 0);
+               hdStyle *s, const void *d = (const void *)0);
 
- /**
-  * The destructor frees all memory associated with the node, including
-  * the data if it was allocated.
-  */
-  ~hdRenderNode();
-#endif // 0
+  hdRenderNode();
 };
 
 
@@ -223,6 +201,10 @@ struct hdRenderPage
   int		outpage;
   //* Transform matrix
   float		outmatrix[2][3];
+  //* Formatted headers
+  char		*formatted_header[3];
+  //* Formatted footers
+  char		*formatted_footer[3];
 };
 
 
@@ -255,9 +237,9 @@ struct hdRenderLink
   //* Top position
   short		top;
   //* Filename
-  char		*filename;
+  const char	*filename;
   //* Reference name
-  char		*name;
+  const char	*name;
 };
 
 
@@ -301,11 +283,70 @@ class hdRender
   hdRender();
   ~hdRender();
 
+ /**
+  * The <tt>compression_level()</tt> method returns the current compression
+  * level for the renderer.
+  *
+  * @return The compression level from 0 (none) to 9 (maximum).
+  */
+  int		compression_level(void) const { return (compression_level_); }
+
+ /**
+  * The <tt>compression_level()</tt> method sets the current compression
+  * level for the renderer.
+  *
+  * @param c int The compression level from 0 (none) to 9 (maximum).
+  */
+  void		compression_level(int c);
+
+ /**
+  * The <tt>doc_time()</tt> method returns the current document time value.
+  *
+  * @return The UTC time value in seconds.
+  */
+  time_t	doc_time(void) const { return (doc_time_); }
+
+ /**
+  * The <tt>doc_time()</tt> method sets the current document time value.
+  * If 0, the current time value is used.
+  *
+  * @param t time_t The UTC time value in seconds.
+  */
+  void		doc_time(time_t t = 0);
+
+ /**
+  * The <tt>export_doc</tt> method exports the given document to the
+  * specified file or directory.
+  *
+  * @param path const&nbsp;char* The output path.
+  * @param multiple bool Whether to output multiple files.
+  * @param type hdDocType The type of document.
+  * @param document tree_t The document tree to render.
+  * @param toc tree_t The table-of-contents to render, if any.
+  */
+//  virtual int	export_doc(const char *path, bool multiple, hdDocType type,
+//		           tree_t *document, tree_t *toc = 0) = 0;
   int export_doc(hdTree *document, hdTree *toc, hdStyleSheet *css);
+
+ /**
+  * The <tt>jpeg_quality</tt> method returns the current JPEG quality
+  * level.
+  *
+  * @return The JPEG quality from 0 (disabled) to 100 (best)
+  */
+  int		jpeg_quality(void) const { return (jpeg_quality_); }
+
+ /**
+  * The <tt>jpeg_quality</tt> method sets the current JPEG quality level.
+  *
+  * @param q int The JPEG quality from 0 (disabled) to 100 (best)
+  */
+  void		jpeg_quality(int q);
 
 #define VALUE(x)
 #define NULL3
 
+  int		StrictHTML	VALUE(0);	/* Do strict HTML checking */
   int		TitlePage	VALUE(1),	/* Need a title page */
 		TocLevels	VALUE(3),	/* Number of table-of-contents levels */
 		TocLinks	VALUE(1),	/* Generate links */
@@ -375,8 +416,37 @@ class hdRender
 
   protected:
 
-  time_t	doc_time;		// Current time
-  struct tm	*doc_date;		// Current date
+  //* Current stylesheet
+  hdStyleSheet	*stylesheet;
+  //* H1 heading style
+  hdStyle	*h1_style;
+  //* P paragraph style
+  hdStyle	*p_style;
+  //* IMG image style
+  hdStyle	*img_style;
+  //* P.htmldoc_hf paragraph style
+  hdStyle	*p_hf_style;
+  //* IMG.htmldoc_hf image style
+  hdStyle	*img_hf_style;
+
+  //* Output path
+  char		path_[1024];
+  //* Output multiple files?
+  bool		multiple_;
+  //* Document type
+  hdDocType	type_;
+
+  //* Current date
+  struct tm	*doc_date_;
+  //* Current date/time string
+  char		doc_datetime_[255];
+  //* Current time
+  time_t	doc_time_;
+
+  //* Flate compression level
+  int		compression_level_;
+  //* JPEG compression quality
+  int		jpeg_quality_;
 
   int		title_page;
   int		chapter,
@@ -415,7 +485,10 @@ class hdRender
 		pages_object,
 		names_object,
 		encrypt_object,
-		font_objects[16];
+		font_objects[100],
+		font_desc[100];
+  int		num_fonts;
+  hdStyleFont	*fonts[100];
 
   char		*doc_title;
   hdImage	*logo_image;
@@ -470,15 +543,15 @@ class hdRender
 			        int y, char *page_text, int page_len,
 				int render_heading = 1);
 
-  void		ps_write_document(char *author, char *creator,
-			          char *copyright, char *keywords,
-				  char *subject);
+  void		ps_write_document(const char *author, const char *creator,
+			          const char *copyright, const char *keywords,
+				  const char *subject);
   void		ps_write_outpage(FILE *out, int outpage);
   void		ps_write_page(FILE *out, int page);
   void		ps_write_background(FILE *out);
-  void		pdf_write_document(char *author, char *creator,
-			           char *copyright, char *keywords,
-				   char *subject, hdTree *toc);
+  void		pdf_write_document(const char *author, const char *creator,
+			           const char *copyright, const char *keywords,
+				   const char *subject, hdTree *toc);
   void		pdf_write_outpage(FILE *out, int outpage);
   void		pdf_write_page(FILE *out, int page);
   void		pdf_write_resources(FILE *out, int page);
@@ -497,7 +570,8 @@ class hdRender
   void		flate_close_stream(FILE *out);
   void		flate_puts(const char *s, FILE *out);
   void		flate_printf(FILE *out, const char *format, ...);
-  void		flate_write(FILE *out, char *inbuf, int length, int flush=0);	
+  void		flate_write(FILE *out, const char *inbuf, int length,
+		            int flush=0);	
 
   void		render_contents(hdTree *t, hdMargin *margins, float *y,
 		                int *page, int heading, hdTree *chap);
@@ -520,21 +594,24 @@ class hdRender
   void		parse_comment(hdTree *t, hdMargin *margins, float *x, float *y,
 			      int *page, hdTree *para, int needspace);
 
+  char		format_number_[1024];
+  const char	*format_number(int n, char f);
+
   hdTree	*real_prev(hdTree *t);
   hdTree	*real_next(hdTree *t);
 
   void		check_pages(int page);
 
-  void		add_link(char *name, int page, int top);
-  hdRenderLink	*find_link(char *name);
+  void		add_link(const char *name, int page, int top);
+  hdRenderLink	*find_link(const char *name);
   static int	compare_links(hdRenderLink *n1, hdRenderLink *n2);
 
   void		find_background(hdTree *t);
   void		write_background(int page, FILE *out);
 
-  hdRenderNode	*new_render(int page, hdRenderType type, float x, float y,
-		            float width, float height, void *data,
-			    hdRenderNode *insert = 0);
+  hdRenderNode	*new_render(int page, hdRenderType type, hdStyle *s,
+		            float x, float y, float width, float height,
+			    const void *data, hdRenderNode *insert = 0);
   void		copy_tree(hdTree *parent, hdTree *t);
   float		get_cell_size(hdTree *t, float left, float right,
 		              float *minwidth, float *prefwidth,
@@ -550,11 +627,11 @@ class hdRender
   void		set_color(FILE *out, float *rgb);
   void		set_font(FILE *out, int typeface, int style, float size);
   void		set_pos(FILE *out, float x, float y);
-  void		write_prolog(FILE *out, int pages, char *author,
-		             char *creator, char *copyright,
-			     char *keywords, char *subject);
-  void		ps_hex(FILE *out, char *data, int length);
-  void		ps_ascii85(FILE *out, char *data, int length);
+  void		write_prolog(FILE *out, int pages, const char *author,
+		             const char *creator, const char *copyright,
+			     const char *keywords, const char *subject);
+  void		ps_hex(FILE *out, const hdByte *data, int length);
+  void		ps_ascii85(FILE *out, const hdByte *data, int length);
   static void	jpg_init(j_compress_ptr cinfo);
   static boolean jpg_empty(j_compress_ptr cinfo);
   static void	jpg_term(j_compress_ptr cinfo);
@@ -562,7 +639,7 @@ class hdRender
   static int	compare_rgb(unsigned *rgb1, unsigned *rgb2);
   void		write_image(FILE *out, hdRenderNode *r, int write_obj = 0);
   void		write_imagemask(FILE *out, hdRenderNode *r);
-  void		write_string(FILE *out, char *s, int compress);
+  void		write_string(FILE *out, const char *s, int compress);
   void		write_text(FILE *out, hdRenderNode *r);
   void		write_trailer(FILE *out, int pages);
   int		write_type1(FILE *out, hdStyleFont *font);
@@ -573,5 +650,5 @@ class hdRender
 
 
 /*
- * End of "$Id: render.h,v 1.21.2.5 2004/03/23 03:31:27 mike Exp $".
+ * End of "$Id: render.h,v 1.21.2.6 2004/03/23 21:54:38 mike Exp $".
  */

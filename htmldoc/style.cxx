@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.11.2.2 2004/03/23 03:31:27 mike Exp $"
+// "$Id: style.cxx,v 1.11.2.3 2004/03/23 21:54:38 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -103,19 +103,19 @@ hdStyleSelector::clear()
 {
   if (class_)
   {
-    free(class_);
+    free((char *)class_);
     class_  = NULL;
   }
 
   if (pseudo)
   {
-    free(pseudo);
+    free((char *)pseudo);
     pseudo  = NULL;
   }
 
   if (id)
   {
-    free(id);
+    free((char *)id);
     id  = NULL;
   }
 }
@@ -182,13 +182,13 @@ hdStyle::~hdStyle()
       // Free selector strings as needed; these are allocated using
       // the strdup() function, so free() must be used...
       if (selectors[i].class_)
-        free(selectors[i].class_);
+        free((char *)selectors[i].class_);
 
       if (selectors[i].pseudo)
-        free(selectors[i].pseudo);
+        free((char *)selectors[i].pseudo);
 
       if (selectors[i].id)
-        free(selectors[i].id);
+        free((char *)selectors[i].id);
     }
 
     delete[] selectors;
@@ -607,6 +607,20 @@ hdStyle::get_subvalue(char *valueptr)	// I - Value pointer
     *valueptr++ = '\0';
 
   return (valueptr);
+}
+
+
+//
+// 'hdStyle::get_width()' - Get width of string in points.
+//
+
+float
+hdStyle::get_width(const char *s)	// I - String
+{
+  if (!font)
+    return (0.0f);
+  else
+    return (font->get_width(s) * font_size);
 }
 
 
@@ -2911,5 +2925,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.11.2.2 2004/03/23 03:31:27 mike Exp $".
+// End of "$Id: style.cxx,v 1.11.2.3 2004/03/23 21:54:38 mike Exp $".
 //
