@@ -10,6 +10,7 @@ CHANGES IN HTMLDOC v1.8.9
 	- Added support for "keywords" META data.
 	- Added support for BMP images.
 	- Added support for ROWSPAN attribute in tables.
+	- Added support for HTTP file references.
 
     CHANGES
 

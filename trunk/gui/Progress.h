@@ -1,5 +1,5 @@
 //
-// "$Id: Progress.h,v 1.1 2000/03/18 16:08:56 mike Exp $"
+// "$Id: Progress.h,v 1.2 2000/09/15 02:42:40 mike Exp $"
 //
 //   Progress bar widget definitions.
 //
@@ -22,8 +22,8 @@
 //         WWW: http://www.easysw.com
 //
 
-#ifndef _PROGRESS_H_
-#  define _PROGRESS_H_
+#ifndef _GUI_PROGRESS_H_
+#  define _GUI_PROGRESS_H_
 
 //
 // Include necessary headers.
@@ -58,8 +58,8 @@ public:
     float	value() const { return (value_); }
 };
 
-#endif // !_PROGRESS_H_
+#endif // !_GUI_PROGRESS_H_
 
 //
-// End of "$Id: Progress.h,v 1.1 2000/03/18 16:08:56 mike Exp $".
+// End of "$Id: Progress.h,v 1.2 2000/09/15 02:42:40 mike Exp $".
 //

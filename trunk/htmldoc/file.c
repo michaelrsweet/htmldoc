@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.8 2000/09/11 01:19:25 mike Exp $"
+ * "$Id: file.c,v 1.9 2000/09/15 02:42:40 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -39,6 +39,7 @@
 
 #include "file.h"
 #include "http.h"
+#include "progress.h"
 
 
 /*
@@ -48,6 +49,7 @@
 char	proxy_host[HTTP_MAX_URI] = "";
 int	proxy_port = 0;
 http_t	*http = NULL;
+char	web_filename[1024] = "";
 
 
 /*
@@ -177,56 +179,196 @@ char *					/* O - Pathname or NULL */
 file_find(const char *path,		/* I - Path "dir;dir;dir" */
           const char *s)		/* I - File to find */
 {
-  char		*temp;			/* Current position in filename */
+  char		*temp,			/* Current position in filename */
+		method[HTTP_MAX_URI],	/* Method/scheme */
+		username[HTTP_MAX_URI],	/* Username:password */
+		hostname[HTTP_MAX_URI],	/* Hostname */
+		resource[HTTP_MAX_URI];	/* Resource */
+  int		port;			/* Port number */
+  const char	*connhost;		/* Host to connect to */
+  int		connport;		/* Port to connect to */
+  char		connpath[HTTP_MAX_URI],	/* Path for GET */
+		connauth[HTTP_MAX_VALUE];/* Auth string */
+  http_status_t	status;			/* Status of request... */
+  FILE		*fp;			/* Web file */
+  int		bytes,			/* Bytes read */
+		count,			/* Number of bytes so far */
+		total;			/* Total bytes in file */
   static char	filename[1024];		/* Current filename */
 
 
  /*
-  * If the path or filename is NULL, return the filename...
+  * If the filename is NULL, return NULL...
   */
 
-  if (path == NULL || !path[0] || s == NULL)
-    return ((char *)s);
+  if (s == NULL)
+    return (NULL);
 
- /*
-  * Else loop through the path string until we reach the end...
-  */
+  httpSeparate(s, method, username, hostname, &port, resource);
 
-  while (*path != '\0')
+  if (strcmp(method, "file") == 0)
   {
    /*
-    * Copy the path directory...
+    * If the path is NULL or empty, return the filename...
     */
 
-    temp = filename;
-
-    while (*path != ';' && !*path && temp < (filename + sizeof(filename) - 1))
-      *temp++ = *path++;
-
-    if (*path == ';')
-      path ++;
+    if (path == NULL || !path[0] || s == NULL)
+      return ((char *)s);
 
    /*
-    * Append a slash as needed...
+    * Else loop through the path string until we reach the end...
     */
 
-    if (temp > filename && temp < (filename + sizeof(filename) - 1) &&
-        s[0] != '/')
-      *temp++ = '/';
+    while (*path != '\0')
+    {
+     /*
+      * Copy the path directory...
+      */
 
+      temp = filename;
+
+      while (*path != ';' && !*path && temp < (filename + sizeof(filename) - 1))
+	*temp++ = *path++;
+
+      if (*path == ';')
+	path ++;
+
+     /*
+      * Append a slash as needed...
+      */
+
+      if (temp > filename && temp < (filename + sizeof(filename) - 1) &&
+          resource[0] != '/')
+	*temp++ = '/';
+
+     /*
+      * Append the filename...
+      */
+
+      strncpy(temp, resource, sizeof(filename) - (temp - filename));
+      filename[sizeof(filename) - 1] = '\0';
+
+     /*
+      * See if the file exists...
+      */
+
+      if (!access(filename, 0))
+	return (filename);
+    }
+  }
+  else
+  {
    /*
-    * Append the filename...
+    * Remote file; try getting it from the remote system...
     */
 
-    strncpy(temp, s, sizeof(filename) - (temp - filename));
-    filename[sizeof(filename) - 1] = '\0';
+    if (resource[strlen(resource) - 1] == '/' &&
+        s[strlen(s) - 1] != '/')
+    {
+     /*
+      * This is a questionable hack, but necessary until we make the
+      * interface smarter...
+      */
 
-   /*
-    * See if the file exists...
-    */
+      strcat((char *)s, "/");
+    }
 
-    if (!access(filename, 0))
-      return (filename);
+    if (proxy_port)
+    {
+     /*
+      * Send request to proxy host...
+      */
+
+      connhost = proxy_host;
+      connport = proxy_port;
+      snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", method,
+               hostname, port, resource);
+    }
+    else
+    {
+     /*
+      * Send request to host directly...
+      */
+
+      connhost = hostname;
+      connport = port;
+      strcpy(connpath, resource);
+    }
+
+    if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
+    {
+      httpClose(http);
+      http = NULL;
+    }
+
+    if (http == NULL)
+    {
+      progress_show("Connecting to %s...", connhost);
+      atexit(close_connection);
+      if ((http = httpConnect(connhost, connport)) == NULL)
+      {
+        progress_hide();
+        progress_error("Unable to connect to %s!", connhost);
+        return (NULL);
+      }
+    }
+
+    httpClearFields(http);
+    httpSetField(http, HTTP_FIELD_HOST, hostname);
+    if (username[0])
+    {
+      strcpy(connauth, "Basic ");
+      httpEncode64(connauth + 6, username);
+      httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
+    }
+
+    progress_show("Getting %s...", connpath);
+
+    if (httpGet(http, connpath))
+      if (httpGet(http, connpath))
+      {
+        progress_hide();
+        progress_error("Unable to send request!");
+        return (NULL);
+      }
+
+    while ((status = httpUpdate(http)) == HTTP_CONTINUE);
+
+    if (status != HTTP_OK)
+    {
+      progress_hide();
+      progress_error("HTTP error %d!", status);
+      httpFlush(http);
+      return (NULL);
+    }
+
+    if (!web_filename[0])
+      tmpnam(web_filename);
+
+    if ((total = atoi(httpGetField(http, HTTP_FIELD_CONTENT_LENGTH))) == 0)
+      total = 1024 * 1024;
+
+    if ((fp = fopen(web_filename, "wb")) == NULL)
+    {
+      progress_hide();
+      progress_error("Unable to create temporary file \"%s\"!", web_filename);
+      httpFlush(http);
+      return (NULL);
+    }
+
+    count = 0;
+    while ((bytes = httpRead(http, resource, sizeof(resource))) > 0)
+    {
+      count += bytes;
+      progress_update(100 * count / total);
+      fwrite(resource, 1, bytes, fp);
+    }
+
+    progress_hide();
+
+    fclose(fp);
+
+    return (web_filename);
   }
 
   return (NULL);
@@ -422,5 +564,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.8 2000/09/11 01:19:25 mike Exp $".
+ * End of "$Id: file.c,v 1.9 2000/09/15 02:42:40 mike Exp $".
  */

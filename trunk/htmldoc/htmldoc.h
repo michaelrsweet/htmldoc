@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.17 2000/09/10 21:15:21 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18 2000/09/15 02:42:41 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -33,6 +33,7 @@
 #include "html.h"
 #include "image.h"
 #include "debug.h"
+#include "progress.h"
 
 #ifdef HAVE_LIBFLTK
 #  include "gui.h"
@@ -229,20 +230,15 @@ extern void	get_color(const uchar *c, float *rgb, int defblack = 1);
 extern int	get_measurement(const char *s);
 extern void	set_page_size(const char *size);
 
-extern void	progress_error(char *format, ...);
-extern void	progress_hide(void);
-extern void	progress_show(char *format, ...);
-extern void	progress_update(int percent);
-
 extern void	prefs_load(void);
 extern void	prefs_save(void);
 
 extern char	*format_number(int n, char f);
 
-#  ifdef __cplusplus
+#ifdef __cplusplus
 }
-#  endif /* __cplusplus */
+#endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.17 2000/09/10 21:15:21 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18 2000/09/15 02:42:41 mike Exp $".
  */

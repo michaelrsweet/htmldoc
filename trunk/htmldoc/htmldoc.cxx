@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.34 2000/09/10 21:15:21 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.35 2000/09/15 02:42:40 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -784,6 +784,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         htmlDeleteTree(file);
     }
+    else if (argv[i][0] == '-')
+      usage();
 #ifdef HAVE_LIBFLTK
     else if (strlen(argv[i]) > 5 &&
              strcmp(argv[i] + strlen(argv[i]) - 5, ".book") == 0)
@@ -800,7 +802,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 #endif /* HAVE_LIBFLTK */
     else if ((filename = file_find(Path, argv[i])) != NULL)
     {
-      if ((docfile = fopen(argv[i], "rb")) != NULL)
+      if ((docfile = fopen(filename, "rb")) != NULL)
       {
        /*
 	* Read from a file...
@@ -815,6 +817,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 	htmlSetVariable(file, (uchar *)"FILENAME",
                 	(uchar *)file_basename(argv[i]));
 
+        printf("base = \"%s\"\n", base);
 	htmlReadFile(file, docfile, base);
 
 	fclose(docfile);
@@ -839,7 +842,7 @@ main(int  argc,		/* I - Number of command-line arguments */
         progress_error("Unable to read file \"%s\"...", filename);
     }
     else
-      usage();
+      progress_error("Unable to find file \"%s\"...", argv[i]);
 
  /*
   * Display the GUI if necessary...
@@ -1656,5 +1659,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.34 2000/09/10 21:15:21 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.35 2000/09/15 02:42:40 mike Exp $".
  */

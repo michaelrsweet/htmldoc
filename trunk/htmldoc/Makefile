@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.11 2000/09/11 01:19:25 mike Exp $"
+#   "$Id: Makefile,v 1.12 2000/09/15 02:42:40 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -75,16 +75,18 @@ htmldoc.purify:	$(OBJS) ../Makedefs
 	echo Linking $@...
 	purify $(CXX) $(LDFLAGS) -o htmldoc.purify $(OBJS) $(LIBS)
 
-file.o:		file.h http.h string.h
-gui.o:		gui.h html.h htmldoc.h image.h iso8859.h types.h htmldoc.xbm
-html.o:		html.h htmldoc.h image.h iso8859.h types.h
-htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h types.h
-htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h types.h
+file.o:		file.h http.h md5.h progress.h string.h
+gui.o:		gui.h html.h htmldoc.h image.h iso8859.h progress.h \
+		types.h htmldoc.xbm
+html.o:		html.h htmldoc.h image.h iso8859.h progress.h types.h
+htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
+htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h progress.h types.h
 http.o:		http.h string.h
-image.o:	debug.h htmldoc.h image.h types.h
+image.o:	debug.h htmldoc.h image.h progress.h types.h
 iso8859.o:	iso8859.h types.h
 md5.o:		md5.h
-ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h md5.h rc4.h types.h
+ps-pdf.o:	debug.h html.h htmldoc.h image.h iso8859.h md5.h progress.h \
+		rc4.h types.h
 rc4.o:		rc4.h
 string.o:	string.h
 toc.o:		html.h htmldoc.h image.h iso8859.h types.h
@@ -109,5 +111,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.11 2000/09/11 01:19:25 mike Exp $".
+# End of "$Id: Makefile,v 1.12 2000/09/15 02:42:40 mike Exp $".
 #
