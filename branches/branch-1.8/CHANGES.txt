@@ -1,4 +1,4 @@
-CHANGES.txt - 02/10/2004
+CHANGES.txt - 03/02/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -44,6 +44,7 @@ CHANGES IN HTMLDOC v1.8.24
 	  encryption is enabled; this works around a serious bug in
 	  Acrobat 6 which tries to decrypt the colormap of in-line
 	  images twice, causing some very strange colors!
+	- Table captions can now be bottom aligned.
 
     BUG FIXES
 
