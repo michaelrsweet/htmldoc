@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.64 2000/04/23 13:58:55 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.65 2000/04/25 13:53:03 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2301,7 +2301,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 		    new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
 
 		  if (temp->strikethrough)
-		    new_render(*page, RENDER_BOX, x, *y + t->height * 0.5f,
+		    new_render(*page, RENDER_BOX, x, *y + temp->height * 0.25f,
 		               temp->width, 0, rgb);
 
         	  r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
@@ -3378,7 +3378,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, rgb);
 
 	    if (temp->strikethrough)
-	      new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f,
+	      new_render(*page, RENDER_BOX, *x, *y + temp->height * 0.25f,
 	                 temp->width, 0, rgb);
 
             if ((temp == start || whitespace) && temp->data[0] == ' ')
@@ -3614,7 +3614,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	    new_render(*page, RENDER_BOX, *x, *y - 1, flat->width, 0, rgb);
 
 	  if (flat->strikethrough)
-	    new_render(*page, RENDER_BOX, *x, *y + t->height * 0.5f,
+	    new_render(*page, RENDER_BOX, *x, *y + flat->height * 0.25f,
 	               flat->width, 0, rgb);
 
           *x += flat->width;
@@ -6840,5 +6840,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.64 2000/04/23 13:58:55 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.65 2000/04/25 13:53:03 mike Exp $".
  */

@@ -31,6 +31,8 @@ CHANGES IN HTMLDOC v1.8.7
 	- The JPEG image loading code didn't work for some JPEG
 	  images, particularly those from digital cameras (JPEG
 	  but not JFIF format.)
+	- The strikethrough line was not being drawn in the
+	  correct position.
 
 
 CHANGES IN HTMLDOC v1.8.6
