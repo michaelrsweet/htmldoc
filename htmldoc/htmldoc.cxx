@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.32 2001/11/14 17:39:06 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.33 2001/12/07 15:46:00 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -587,8 +587,10 @@ main(int  argc,		/* I - Number of command-line arguments */
       Encryption = 0;
     else if (compare_strings(argv[i], "--no-jpeg", 6) == 0)
       OutputJPEG = 0;
-    else if (compare_strings(argv[i], "--no-links", 6) == 0)
+    else if (compare_strings(argv[i], "--no-links", 7) == 0)
       Links = 0;
+    else if (compare_strings(argv[i], "--no-localfiles", 7) == 0)
+      file_nolocal();
     else if (compare_strings(argv[i], "--no-numbered", 6) == 0)
       TocNumbers = 0;
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
@@ -2121,6 +2123,7 @@ usage(void)
   puts("  --no-duplex");
   puts("  --no-encryption");
   puts("  --no-links");
+  puts("  --no-localfiles");
   puts("  --no-numbered");
   puts("  --no-pscommands");
   puts("  --no-title");
@@ -2180,5 +2183,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.32 2001/11/14 17:39:06 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.33 2001/12/07 15:46:00 mike Exp $".
  */
