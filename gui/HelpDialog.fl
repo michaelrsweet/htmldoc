@@ -47,7 +47,7 @@ else if (view_->filename())
   strncpy(file_[index_], view_->filename(), 255);
   file_[index_][255] = '\\0';
   line_[index_] = view_->topline();
-}} open
+}}
         private xywh {10 10 510 330} box DOWN_BOX resizable
         code0 {\#include "HelpView.h"}
         class HelpView
@@ -58,7 +58,7 @@ else if (view_->filename())
         xywh {465 350 55 25}
       }
       Fl_Button back_ {
-        label {@<}
+        label {@<-}
         callback {if (index_ > 0)
   index_ --;
 
@@ -71,10 +71,10 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {395 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL
+        private xywh {405 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
       }
       Fl_Button forward_ {
-        label {@>}
+        label {@->}
         callback {if (index_ < max_)
   index_ ++;
 
@@ -87,34 +87,65 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {430 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL
+        private xywh {435 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
       }
       Fl_Button smaller_ {
         label F
-        private xywh {325 350 25 25} labelfont 1 labelsize 10
+        callback {if (view_->textsize() > 8)
+  view_->textsize(view_->textsize() - 2);
+
+if (view_->textsize() <= 8)
+  smaller_->deactivate();
+larger_->activate();} selected
+        private xywh {345 350 25 25} labelfont 1 labelsize 10
       }
       Fl_Button larger_ {
         label F
-        private xywh {360 350 25 25} labelfont 1 labelsize 16
+        callback {if (view_->textsize() < 18)
+  view_->textsize(view_->textsize() + 2);
+
+if (view_->textsize() >= 18)
+  larger_->deactivate();
+smaller_->activate();}
+        private xywh {375 350 25 25} labelfont 1 labelsize 16
       }
     }
     code {back_->deactivate();
 forward_->deactivate();
 
-index_ = 0;
+index_ = -1;
 max_  = 0;} {}
   }
   Function {hide()} {return_type void
   } {
     code {window_->hide();} {}
   }
-  Function {load(const char *f)} {return_type void
+  Function {load(const char *f)} {open return_type void
   } {
-    code {view_->load(f);} {}
+    code {view_->load(f);
+window_->label(view_->title());} {}
   }
   Function {show()} {return_type void
   } {
     code {window_->show();} {}
+  }
+  Function {textsize(uchar s)} {return_type void
+  } {
+    code {view_->textsize(s);
+
+if (s <= 8)
+  smaller_->deactivate();
+else
+  smaller_->activate();
+
+if (s >= 18)
+  larger_->deactivate();
+else
+  larger_->activate();} {}
+  }
+  Function {textsize()} {return_type uchar
+  } {
+    code {return (view_->textsize());} {}
   }
   Function {topline(const char *n)} {return_type void
   } {

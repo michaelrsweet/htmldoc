@@ -80,6 +80,30 @@ void HelpDialog::cb_forward_(Fl_Button* o, void* v) {
   ((HelpDialog*)(o->parent()->user_data()))->cb_forward__i(o,v);
 }
 
+inline void HelpDialog::cb_smaller__i(Fl_Button*, void*) {
+  if (view_->textsize() > 8)
+  view_->textsize(view_->textsize() - 2);
+
+if (view_->textsize() <= 8)
+  smaller_->deactivate();
+larger_->activate();
+}
+void HelpDialog::cb_smaller_(Fl_Button* o, void* v) {
+  ((HelpDialog*)(o->parent()->user_data()))->cb_smaller__i(o,v);
+}
+
+inline void HelpDialog::cb_larger__i(Fl_Button*, void*) {
+  if (view_->textsize() < 18)
+  view_->textsize(view_->textsize() + 2);
+
+if (view_->textsize() >= 18)
+  larger_->deactivate();
+smaller_->activate();
+}
+void HelpDialog::cb_larger_(Fl_Button* o, void* v) {
+  ((HelpDialog*)(o->parent()->user_data()))->cb_larger__i(o,v);
+}
+
 HelpDialog::HelpDialog() {
   Fl_Window* w;
   { Fl_Window* o = window_ = new Fl_Window(530, 385, "Help Dialog");
@@ -94,22 +118,34 @@ HelpDialog::HelpDialog() {
     { Fl_Button* o = new Fl_Button(465, 350, 55, 25, "Close");
       o->callback((Fl_Callback*)cb_Close);
     }
-    { Fl_Button* o = back_ = new Fl_Button(395, 350, 25, 25, "@<");
+    { Fl_Button* o = back_ = new Fl_Button(405, 350, 25, 25, "@<-");
       o->shortcut(0xff51);
       o->labeltype(FL_SYMBOL_LABEL);
+      o->labelcolor(2);
       o->callback((Fl_Callback*)cb_back_);
     }
-    { Fl_Button* o = forward_ = new Fl_Button(430, 350, 25, 25, "@>");
+    { Fl_Button* o = forward_ = new Fl_Button(435, 350, 25, 25, "@->");
       o->shortcut(0xff53);
       o->labeltype(FL_SYMBOL_LABEL);
+      o->labelcolor(2);
       o->callback((Fl_Callback*)cb_forward_);
+    }
+    { Fl_Button* o = smaller_ = new Fl_Button(345, 350, 25, 25, "F");
+      o->labelfont(1);
+      o->labelsize(10);
+      o->callback((Fl_Callback*)cb_smaller_);
+    }
+    { Fl_Button* o = larger_ = new Fl_Button(375, 350, 25, 25, "F");
+      o->labelfont(1);
+      o->labelsize(16);
+      o->callback((Fl_Callback*)cb_larger_);
     }
     o->end();
   }
   back_->deactivate();
 forward_->deactivate();
 
-index_ = 0;
+index_ = -1;
 max_  = 0;
 }
 
@@ -119,10 +155,29 @@ void HelpDialog::hide() {
 
 void HelpDialog::load(const char *f) {
   view_->load(f);
+window_->label(view_->title());
 }
 
 void HelpDialog::show() {
   window_->show();
+}
+
+void HelpDialog::textsize(uchar s) {
+  view_->textsize(s);
+
+if (s <= 8)
+  smaller_->deactivate();
+else
+  smaller_->activate();
+
+if (s >= 18)
+  larger_->deactivate();
+else
+  larger_->activate();
+}
+
+uchar HelpDialog::textsize() {
+  return (view_->textsize());
 }
 
 void HelpDialog::topline(const char *n) {

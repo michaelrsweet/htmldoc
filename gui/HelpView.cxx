@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.9 1999/11/18 01:57:41 mike Exp $"
+// "$Id: HelpView.cxx,v 1.10 1999/11/18 16:08:12 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -586,6 +586,8 @@ HelpView::format()
   ntargets_ = 0;
   size_     = 0;
 
+  strcpy(title_, "Untitled");
+
   if (!value_)
     return;
 
@@ -690,6 +692,16 @@ HelpView::format()
         head = 1;
       else if (strcasecmp(buf, "/HEAD") == 0)
         head = 0;
+      else if (strcasecmp(buf, "TITLE") == 0)
+      {
+        // Copy the title in the document...
+        for (s = title_;
+	     *ptr != '<' && *ptr && s < (title_ + sizeof(title_) - 1);
+	     *s++ = *ptr++);
+
+	*s = '\0';
+	s = buf;
+      }
       else if (strcasecmp(buf, "A") == 0)
       {
         if (get_attr(attrs, "NAME", attr, sizeof(attr)) != NULL)
@@ -1309,6 +1321,8 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
 
   format();
 
+  set_changed();
+
   if (target)
     topline(target);
   else
@@ -1406,10 +1420,12 @@ HelpView::value(const char *v)	// I - Text to view
   if (value_ != NULL)
     free((void *)value_);
 
-  value_   = strdup(v);
-  topline_ = 0;
+  value_ = strdup(v);
 
   format();
+
+  set_changed();
+  topline(0);
 }
 
 
@@ -1425,5 +1441,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.9 1999/11/18 01:57:41 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.10 1999/11/18 16:08:12 mike Exp $".
 //
