@@ -68,8 +68,8 @@ else if (view_->filename())
         code0 {\#include "HelpView.h"}
         class HelpView
       } {}
-      Fl_Pack {} {open
-        xywh {0 25 535 55} box FLAT_BOX
+      Fl_Pack {} {open selected
+        xywh {0 25 535 55}
         code0 {o->type(Fl_Pack::HORIZONTAL);}
       } {
         Fl_Button back_ {
@@ -195,8 +195,7 @@ window_->label(view_->title());} {}
   } {
     code {char *name = (char *)"HelpDialog";
 
-window_->show(1, &name);} {selected
-    }
+window_->show(1, &name);} {}
   }
   Function {textsize(uchar s)} {return_type void
   } {
