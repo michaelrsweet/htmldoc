@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.16 2003/01/02 03:10:12 mike Exp $"
+// "$Id: tree.h,v 1.17 2003/01/02 04:36:07 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -120,7 +120,7 @@ struct hdTree
   ~hdTree();
 
  /**
-  * The add() method adds the current node as the last child of
+  * The <TT>add()</TT> method adds the current node as the last child of
   * the specified parent. If the node is a child of another parent, it
   * is first removed from the old parent.
   *
@@ -129,7 +129,7 @@ struct hdTree
   void			add(hdTree *p);
 
  /**
-  * The build_index() method creates an index of words from a file.
+  * The <TT>build_index()</TT> method creates an index of words from a file.
   *
   * @param css hdStyleSheet* The stylesheet to use.
   * @param wordfile hdFile* The file containing the list of words.
@@ -138,7 +138,7 @@ struct hdTree
   hdTree		*build_index(hdStyleSheet *css, hdFile *wordfile);
 
  /**
-  * The build_index() method creates an index of words from an array of
+  * The <TT>build_index()</TT> method creates an index of words from an array of
   * phrases.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -150,7 +150,7 @@ struct hdTree
 			             const char **phrases);
 
  /**
-  * The build_list() method creates a list of figures, tables, etc. based
+  * The <TT>build_list()</TT> method creates a list of figures, tables, etc. based
   * on the named HTML class.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -162,7 +162,7 @@ struct hdTree
 			            const char *prefix);
 
  /**
-  * The build_toc() method creates a table of contents with the given
+  * The <TT>build_toc()</TT> method creates a table of contents with the given
   * parameters.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -173,14 +173,14 @@ struct hdTree
   hdTree		*build_toc(hdStyleSheet *css, int levels, bool numbered);
 
  /**
-  * The compute_size() method computes the width and height of the node.
+  * The <TT>compute_size()</TT> method computes the width and height of the node.
   *
   * @param css hdStyleSheet* The stylesheet to use.
   */
   void			compute_size(hdStyleSheet *css);
 
  /**
-  * The copy_text() method copies all text nodes from the current node
+  * The <TT>copy_text()</TT> method copies all text nodes from the current node
   * to the new parent node.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -189,7 +189,7 @@ struct hdTree
   void			copy_text(hdStyleSheet *css, hdTree *p);
 
  /**
-  * The find() method finds the first child node matching the given element.
+  * The <TT>find()</TT> method finds the first child node matching the given element.
   *
   * @param e hdElement The element to find.
   * @return A pointer to the child node or NULL if none is found.
@@ -197,7 +197,7 @@ struct hdTree
   hdTree		*find(hdElement e);
 
  /**
-  * The fix_url() method converts a relative URL into an absolute URL.
+  * The <TT>fix_url()</TT> method converts a relative URL into an absolute URL.
   *
   * @param url const&nbsp;char* The URL to convert.
   * @param base const&nbsp;char* The base path for the document.
@@ -210,7 +210,7 @@ struct hdTree
 			         const char *path, char *s, int slen);
 
  /**
-  * The format() method formats this node and all child nodes, updating
+  * The <TT>format()</TT> method formats this node and all child nodes, updating
   * the width, height, and nodebreak members.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -223,7 +223,7 @@ struct hdTree
 			       float &x, float &y, int &page);
 
  /**
-  * The format_block() method formats a block node and its children, updating
+  * The <TT>format_block()</TT> method formats a block node and its children, updating
   * the width, height, and nodebreak members.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -236,7 +236,7 @@ struct hdTree
 			             float &x, float &y, int &page);
 
  /**
-  * The format_comment() method processes HTML comments.
+  * The <TT>format_comment()</TT> method processes HTML comments.
   *
   * @param css hdStyleSheet* The stylesheet to use.
   * @param m hdMargin* The margins to use.
@@ -248,7 +248,7 @@ struct hdTree
 			               float &x, float &y, int &page);
 
  /**
-  * The format_contents() method formats a table-of-contents.
+  * The <TT>format_contents()</TT> method formats a table-of-contents.
   *
   * @param css hdStyleSheet* The stylesheet to use.
   * @param m hdMargin* The margins to use.
@@ -260,7 +260,7 @@ struct hdTree
 			                float &x, float &y, int &page);
 
  /**
-  * The format_image() method formats an image, updating the width,
+  * The <TT>format_image()</TT> method formats an image, updating the width,
   * height, and nodebreak members.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -273,7 +273,7 @@ struct hdTree
 			             float &x, float &y, int &page);
 
  /**
-  * The format_index() method formats an index.
+  * The <TT>format_index()</TT> method formats an index.
   *
   * @param css hdStyleSheet* The stylesheet to use.
   * @param m hdMargin* The margins to use.
@@ -285,7 +285,7 @@ struct hdTree
 			             float &x, float &y, int &page);
 
  /**
-  * The format_list() method formats a list of whatever.
+  * The <TT>format_list()</TT> method formats a list of whatever.
   *
   * @param css hdStyleSheet* The stylesheet to use.
   * @param m hdMargin* The margins to use.
@@ -297,7 +297,7 @@ struct hdTree
 			            float &x, float &y, int &page);
 
  /**
-  * The format_table() method formats a table, updating the width,
+  * The <TT>format_table()</TT> method formats a table, updating the width,
   * height, and nodebreak members.
   *
   * @param css hdStyleSheet* The stylesheet to use.
@@ -310,7 +310,7 @@ struct hdTree
 			             float &x, float &y, int &page);
 
  /**
-  * The get_attr() method retrieves the value of a node attribute.
+  * The <TT>get_attr()</TT> method retrieves the value of a node attribute.
   * The attribute name is case-insensitive.
   *
   * @param name const&nbsp;char* The attribute name.
@@ -320,7 +320,7 @@ struct hdTree
   const char		*get_attr(const char *name);
 
  /**
-  * The get_cell_size() method determines the size of the table cell.
+  * The <TT>get_cell_size()</TT> method determines the size of the table cell.
   *
   * @param css hdStyleSheet* The stylesheet to use.
   * @param m hdMargin* The current margins.
@@ -334,7 +334,7 @@ struct hdTree
 				      float &minheight);
 
  /**
-  * The get_element() method gets the hdElement constant associated with
+  * The <TT>get_element()</TT> method gets the hdElement constant associated with
   * the given string.
   *
   * @param name const&nbsp;char* The element name.
@@ -343,7 +343,7 @@ struct hdTree
   static hdElement	get_element(const char *name);
 
  /**
-  * The get_meta() method gets the META data associated with the given name.
+  * The <TT>get_meta()</TT> method gets the META data associated with the given name.
   * If the current node is not a META element then get_meta() recursively
   * searches the tree for META elements.
   *
@@ -353,7 +353,7 @@ struct hdTree
   const char		*get_meta(const char *name);
 
  /**
-  * The get_table_size() method determines the size of a table.
+  * The <TT>get_table_size()</TT> method determines the size of a table.
   *
   * @param css hdStyleSheet* The stylesheet to use.
   * @param m hdMargin* The current margins.
@@ -367,7 +367,7 @@ struct hdTree
 				       float &minheight);
 
  /**
-  * The get_text() method returns the text associated with the current
+  * The <TT>get_text()</TT> method returns the text associated with the current
   * node. If the current node is not HD_ELEMENT_NONE or
   * HD_ELEMENT_COMMENT, then get_text() recursively combines text
   * fragments of child nodes as needed.
@@ -379,7 +379,7 @@ struct hdTree
   char			*get_text(bool comments = false);
 
  /**
-  * The get_title() method returns the text associated with the title
+  * The <TT>get_title()</TT> method returns the text associated with the title
   * node in the current tree. If the current node is not a
   * HD_ELEMENT_TITLE element, then get_title() recursively searches the
   * tree.
@@ -389,7 +389,7 @@ struct hdTree
   char			*get_title();
 
  /**
-  * The insert() method inserts the current node as the first child of
+  * The <TT>insert()</TT> method inserts the current node as the first child of
   * the specified parent. If the node is a child of another parent, it
   * is first removed from the old parent.
   *
@@ -398,7 +398,7 @@ struct hdTree
   void			insert(hdTree *p);
 
  /**
-  * The parse_attribute() method parses a single attribute from a file
+  * The <TT>parse_attribute()</TT> method parses a single attribute from a file
   * and adds it to the current node.
   *
   * @param fp hdFile* File to read from.
@@ -408,7 +408,7 @@ struct hdTree
   bool			parse_attribute(hdFile *fp);
 
  /**
-  * The parse_element() method parses an element from a file and
+  * The <TT>parse_element()</TT> method parses an element from a file and
   * initializes the current node.
   *
   * @param fp hdFile* File to read from.
@@ -418,7 +418,7 @@ struct hdTree
   hdElement		parse_element(hdFile *fp);
 
  /**
-  * The parse_entity() method parses a HTML entity (&amp;lt;, etc.)
+  * The <TT>parse_entity()</TT> method parses a HTML entity (&amp;lt;, etc.)
   * from a file and puts the corresponding string representation in
   * the supplied string buffer.  If the entity is invalid, the
   * original text is returned.
@@ -432,7 +432,7 @@ struct hdTree
 			             char *s, int slen);
 
  /**
-  * The read() method reads a HTML document tree from the specified
+  * The <TT>read()</TT> method reads a HTML document tree from the specified
   * file.
   *
   * @param fp hdFile* File to read from.
@@ -445,7 +445,7 @@ struct hdTree
 			      const char *path, hdStyleSheet *css);
 
  /**
-  * The real_next() method returns the next logical node in the
+  * The <TT>real_next()</TT> method returns the next logical node in the
   * tree.
   *
   * @param descend bool Whether to descend into child nodes.
@@ -454,7 +454,7 @@ struct hdTree
   hdTree		*real_next(bool descend = true);
 
  /**
-  * The real_prev() method returns the previous logical node in
+  * The <TT>real_prev()</TT> method returns the previous logical node in
   * the tree.
   *
   * @return The previous logical node.
@@ -462,12 +462,12 @@ struct hdTree
   hdTree		*real_prev();
 
  /**
-  * The remove() method removes the current node from its parent.
+  * The <TT>remove()</TT> method removes the current node from its parent.
   */
   void			remove();
 
  /**
-  * The set_attr() method adds or changes a node attribute.
+  * The <TT>set_attr()</TT> method adds or changes a node attribute.
   * The attribute name is case-insensitive.
   *
   * @param name const&nbsp;char* The name of the attribute.
@@ -479,5 +479,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.16 2003/01/02 03:10:12 mike Exp $".
+// End of "$Id: tree.h,v 1.17 2003/01/02 04:36:07 mike Exp $".
 //
