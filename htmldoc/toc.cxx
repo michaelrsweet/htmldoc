@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.18 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: toc.cxx,v 1.19 2004/03/31 09:51:27 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -40,7 +40,7 @@
  * Local functions...
  */
 
-static void	parse_tree(tree_t *t);
+static void	parse_tree(hdTree *t);
 
 
 /*
@@ -54,17 +54,17 @@ static uchar	heading_types[15] =
 		  '1', '1', '1', '1', '1', '1', '1'
 		};
 static int	last_level;
-static tree_t	*heading_parents[15];
+static hdTree	*heading_parents[15];
 
 
 /*
  * 'toc_build()' - Build a table of contents of the given HTML tree.
  */
 
-tree_t *			/* O - Table of contents tree */
-toc_build(tree_t *tree)		/* I - Document tree */
+hdTree *			/* O - Table of contents tree */
+toc_build(hdTree *tree)		/* I - Document tree */
 {
-  tree_t	*toc,		/* TOC tree pointer */
+  hdTree	*toc,		/* TOC tree pointer */
 		*title,		/* Title entry */
 		*link;		/* Link entry */
 
@@ -73,13 +73,13 @@ toc_build(tree_t *tree)		/* I - Document tree */
   last_level         = 0;	/* Currently at the "top" level */
   heading_numbers[0] = 0;	/* Start at 1 (see below) */
 
-  toc = htmlAddTree(NULL, MARKUP_BODY, NULL);
+  toc = htmlAddTree(NULL, HD_ELEMENT_BODY, NULL);
 
-  title = htmlAddTree(toc, MARKUP_H1, NULL);
+  title = htmlAddTree(toc, HD_ELEMENT_H1, NULL);
   htmlSetVariable(title, (uchar *)"ALIGN", (uchar *)"CENTER");
-  link = htmlAddTree(title, MARKUP_A, NULL);
+  link = htmlAddTree(title, HD_ELEMENT_A, NULL);
   htmlSetVariable(link, (uchar *)"NAME", (uchar *)"CONTENTS");
-  htmlAddTree(link, MARKUP_NONE, (uchar *)TocTitle);
+  htmlAddTree(link, HD_ELEMENT_NONE, (uchar *)TocTitle);
 
   heading_parents[0]  = toc;
   heading_parents[1]  = toc;
@@ -108,15 +108,15 @@ toc_build(tree_t *tree)		/* I - Document tree */
  */
 
 void
-add_heading(tree_t *toc,	/* I - Table of contents */
-            tree_t *heading)	/* I - Heading entry */
+add_heading(hdTree *toc,	/* I - Table of contents */
+            hdTree *heading)	/* I - Heading entry */
 {
   while (heading != NULL)
   {
     if (heading->child != NULL)
       add_heading(toc, heading->child);
-    else if (heading->markup == MARKUP_NONE && heading->data != NULL)
-      htmlAddTree(toc, MARKUP_NONE, heading->data);
+    else if (heading->markup == HD_ELEMENT_NONE && heading->data != NULL)
+      htmlAddTree(toc, HD_ELEMENT_NONE, heading->data);
 
     heading = heading->next;
   }
@@ -130,10 +130,10 @@ add_heading(tree_t *toc,	/* I - Table of contents */
  */
 
 static void			/* O - Tree of TOC entries */
-parse_tree(tree_t *t)		/* I - Document tree */
+parse_tree(hdTree *t)		/* I - Document tree */
 {
-  tree_t	*parent;	/* Parent of toc entry (DD or LI) */
-  tree_t	*target,	/* Link target */
+  hdTree	*parent;	/* Parent of toc entry (DD or LI) */
+  hdTree	*target,	/* Link target */
 		*temp;		/* Looping var */
   uchar		heading[255],	/* Heading numbers */
 		link[255],	/* Actual link */
@@ -177,22 +177,22 @@ parse_tree(tree_t *t)		/* I - Document tree */
   {
     switch (t->markup)
     {
-      case MARKUP_H1 :
-      case MARKUP_H2 :
-      case MARKUP_H3 :
-      case MARKUP_H4 :
-      case MARKUP_H5 :
-      case MARKUP_H6 :
-      case MARKUP_H7 :
-      case MARKUP_H8 :
-      case MARKUP_H9 :
-      case MARKUP_H10 :
-      case MARKUP_H11 :
-      case MARKUP_H12 :
-      case MARKUP_H13 :
-      case MARKUP_H14 :
-      case MARKUP_H15 :
-          level = t->markup - MARKUP_H1;
+      case HD_ELEMENT_H1 :
+      case HD_ELEMENT_H2 :
+      case HD_ELEMENT_H3 :
+      case HD_ELEMENT_H4 :
+      case HD_ELEMENT_H5 :
+      case HD_ELEMENT_H6 :
+      case HD_ELEMENT_H7 :
+      case HD_ELEMENT_H8 :
+      case HD_ELEMENT_H9 :
+      case HD_ELEMENT_H10 :
+      case HD_ELEMENT_H11 :
+      case HD_ELEMENT_H12 :
+      case HD_ELEMENT_H13 :
+      case HD_ELEMENT_H14 :
+      case HD_ELEMENT_H15 :
+          level = t->markup - HD_ELEMENT_H1;
 
 	  if ((level - last_level) > 1)
 	  {
@@ -201,7 +201,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
 	    */
 
 	    level     = last_level + 1;
-	    t->markup = (markup_t)(MARKUP_H1 + level);
+	    t->markup = (hdElement)(HD_ELEMENT_H1 + level);
 	  }
 
           if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
@@ -278,11 +278,11 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
           existing = NULL;
 
-          if (t->parent != NULL && t->parent->markup == MARKUP_A)
+          if (t->parent != NULL && t->parent->markup == HD_ELEMENT_A)
 	    existing = htmlGetVariable(t->parent, (uchar *)"NAME");
 
 	  if (existing == NULL &&
-              t->child != NULL && t->child->markup == MARKUP_A)
+              t->child != NULL && t->child->markup == HD_ELEMENT_A)
 	    existing = htmlGetVariable(t->child, (uchar *)"NAME");
 
           if (existing != NULL &&
@@ -302,7 +302,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
 	  {
             strcat((char *)heading, " ");
 
-            htmlInsertTree(t, MARKUP_NONE, heading);
+            htmlInsertTree(t, HD_ELEMENT_NONE, heading);
 	  }
 
          /*
@@ -313,20 +313,20 @@ parse_tree(tree_t *t)		/* I - Document tree */
           {
             if (level > last_level)
               heading_parents[level] = htmlAddTree(heading_parents[level - 1],
-                                                   MARKUP_UL, NULL);
+                                                   HD_ELEMENT_UL, NULL);
 
             if (level == 0)
             {
               if (last_level == 0)
               {
-                htmlAddTree(heading_parents[level], MARKUP_BR, NULL);
-                htmlAddTree(heading_parents[level], MARKUP_BR, NULL);
+                htmlAddTree(heading_parents[level], HD_ELEMENT_BR, NULL);
+                htmlAddTree(heading_parents[level], HD_ELEMENT_BR, NULL);
               }
 
-              parent = htmlAddTree(heading_parents[level], MARKUP_B, NULL);
+              parent = htmlAddTree(heading_parents[level], HD_ELEMENT_B, NULL);
             }
             else
-              parent = htmlAddTree(heading_parents[level], MARKUP_LI, NULL);
+              parent = htmlAddTree(heading_parents[level], HD_ELEMENT_LI, NULL);
 
             if ((var = htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC")) != NULL)
 	      htmlSetVariable(parent, (uchar *)"_HD_OMIT_TOC", var);
@@ -337,7 +337,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
               * Add a link for the toc...
               */
 
-              parent = htmlAddTree(parent, MARKUP_A, NULL);
+              parent = htmlAddTree(parent, HD_ELEMENT_A, NULL);
               htmlSetVariable(parent, (uchar *)"HREF", link);
 
              /*
@@ -351,13 +351,13 @@ parse_tree(tree_t *t)		/* I - Document tree */
 	        * Add NAME to existing A element, if present.
 		*/
 
-                if (t->parent != NULL && t->parent->markup == MARKUP_A)
+                if (t->parent != NULL && t->parent->markup == HD_ELEMENT_A)
 	          htmlSetVariable(t->parent, (uchar *)"NAME", baselink);
-		else if (t->child != NULL && t->child->markup == MARKUP_A)
+		else if (t->child != NULL && t->child->markup == HD_ELEMENT_A)
 	          htmlSetVariable(t->child, (uchar *)"NAME", baselink);
 		else
 		{
-        	  target = htmlNewTree(t, MARKUP_A, NULL);
+        	  target = htmlNewTree(t, HD_ELEMENT_A, NULL);
 
         	  htmlSetVariable(target, (uchar *)"NAME", baselink);
         	  for (temp = t->child; temp != NULL; temp = temp->next)
@@ -387,5 +387,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.18 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.19 2004/03/31 09:51:27 mike Exp $".
  */

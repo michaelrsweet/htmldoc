@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.3 2004/03/31 07:28:13 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.4 2004/03/31 09:51:27 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -75,20 +75,20 @@ static void	write_header(FILE **out, uchar *filename, uchar *title,
 static void	write_footer(FILE **out, int heading);
 static void	write_title(FILE *out, uchar *title, uchar *author,
 		            uchar *copyright, uchar *docnumber);
-static int	write_all(FILE *out, tree_t *t, int col);
-static int	write_doc(FILE **out, tree_t *t, int col, int *heading,
+static int	write_all(FILE *out, hdTree *t, int col);
+static int	write_doc(FILE **out, hdTree *t, int col, int *heading,
 		          uchar *title, uchar *author, uchar *copyright,
 			  uchar *docnumber);
-static int	write_node(FILE *out, tree_t *t, int col);
-static int	write_nodeclose(FILE *out, tree_t *t, int col);
-static uchar	*get_title(tree_t *doc);
+static int	write_node(FILE *out, hdTree *t, int col);
+static int	write_nodeclose(FILE *out, hdTree *t, int col);
+static uchar	*get_title(hdTree *doc);
 
-static void	add_heading(tree_t *t);
+static void	add_heading(hdTree *t);
 static void	add_link(uchar *name);
 static link_t	*find_link(uchar *name);
 static int	compare_links(link_t *n1, link_t *n2);
-static void	scan_links(tree_t *t);
-static void	update_links(tree_t *t, int *heading);
+static void	scan_links(hdTree *t);
+static void	update_links(hdTree *t, int *heading);
 
 
 //
@@ -96,8 +96,8 @@ static void	update_links(tree_t *t, int *heading);
 //
 
 int					// O - 0 = success, -1 = failure
-htmlsep_export(tree_t *document,	// I - Document to export
-               tree_t *toc)		// I - Table of contents for document
+htmlsep_export(hdTree *document,	// I - Document to export
+               hdTree *toc)		// I - Table of contents for document
 {
   int	i;				// Looping var
   int	heading;			// Current heading number
@@ -399,7 +399,7 @@ write_title(FILE  *out,		/* I - Output file */
 {
   FILE		*fp;		/* Title file */
   const char	*title_file;	/* Location of title file */
-  tree_t	*t;		/* Title file document tree */
+  hdTree	*t;		/* Title file document tree */
 
 
   if (out == NULL)
@@ -480,7 +480,7 @@ write_title(FILE  *out,		/* I - Output file */
 
 static int			/* O - Current column */
 write_all(FILE   *out,		/* I - Output file */
-          tree_t *t,		/* I - Document tree */
+          hdTree *t,		/* I - Document tree */
           int    col)		/* I - Current column */
 {
   if (out == NULL)
@@ -490,7 +490,7 @@ write_all(FILE   *out,		/* I - Output file */
   {
     col = write_node(out, t, col);
 
-    if (t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
+    if (t->markup != HD_ELEMENT_HEAD && t->markup != HD_ELEMENT_TITLE)
       col = write_all(out, t->child, col);
 
     col = write_nodeclose(out, t, col);
@@ -508,7 +508,7 @@ write_all(FILE   *out,		/* I - Output file */
 
 static int				// O - Current column
 write_doc(FILE   **out,			// I - Output file
-          tree_t *t,			// I - Document tree
+          hdTree *t,			// I - Document tree
           int    col,			// I - Current column
           int    *heading,		// IO - Current heading
 	  uchar  *title,		// I  - Title
@@ -521,7 +521,7 @@ write_doc(FILE   **out,			// I - Output file
 
   while (t != NULL)
   {
-    if (t->markup >= MARKUP_H1 && t->markup < (MARKUP_H1 + TocLevels) &&
+    if (t->markup >= HD_ELEMENT_H1 && t->markup < (HD_ELEMENT_H1 + TocLevels) &&
         htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
     {
       if (heading >= 0)
@@ -540,7 +540,7 @@ write_doc(FILE   **out,			// I - Output file
 
     col = write_node(*out, t, col);
 
-    if (t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
+    if (t->markup != HD_ELEMENT_HEAD && t->markup != HD_ELEMENT_TITLE)
       col = write_doc(out, t->child, col, heading,
                       title, author, copyright, docnumber);
 
@@ -559,7 +559,7 @@ write_doc(FILE   **out,			// I - Output file
 
 static int			/* O - Current column */
 write_node(FILE   *out,		/* I - Output file */
-           tree_t *t,		/* I - Document tree node */
+           hdTree *t,		/* I - Document tree node */
            int    col)		/* I - Current column */
 {
   int		i;		/* Looping var */
@@ -573,7 +573,7 @@ write_node(FILE   *out,		/* I - Output file */
 
   switch (t->markup)
   {
-    case MARKUP_NONE :
+    case HD_ELEMENT_NONE :
         if (t->data == NULL)
 	  break;
 
@@ -608,51 +608,51 @@ write_node(FILE   *out,		/* I - Output file */
 	}
 	break;
 
-    case MARKUP_COMMENT :
-    case MARKUP_UNKNOWN :
+    case HD_ELEMENT_COMMENT :
+    case HD_ELEMENT_UNKNOWN :
         fprintf(out, "\n<!--%s-->\n", t->data);
 	break;
 
-    case MARKUP_AREA :
-    case MARKUP_BODY :
-    case MARKUP_DOCTYPE :
-    case MARKUP_ERROR :
-    case MARKUP_FILE :
-    case MARKUP_HEAD :
-    case MARKUP_HTML :
-    case MARKUP_MAP :
-    case MARKUP_META :
-    case MARKUP_TITLE :
+    case HD_ELEMENT_AREA :
+    case HD_ELEMENT_BODY :
+    case HD_ELEMENT_DOCTYPE :
+    case HD_ELEMENT_ERROR :
+    case HD_ELEMENT_FILE :
+    case HD_ELEMENT_HEAD :
+    case HD_ELEMENT_HTML :
+    case HD_ELEMENT_MAP :
+    case HD_ELEMENT_META :
+    case HD_ELEMENT_TITLE :
         break;
 
-    case MARKUP_BR :
-    case MARKUP_CENTER :
-    case MARKUP_DD :
-    case MARKUP_DL :
-    case MARKUP_DT :
-    case MARKUP_H1 :
-    case MARKUP_H2 :
-    case MARKUP_H3 :
-    case MARKUP_H4 :
-    case MARKUP_H5 :
-    case MARKUP_H6 :
-    case MARKUP_H7 :
-    case MARKUP_H8 :
-    case MARKUP_H9 :
-    case MARKUP_H10 :
-    case MARKUP_H11 :
-    case MARKUP_H12 :
-    case MARKUP_H13 :
-    case MARKUP_H14 :
-    case MARKUP_H15 :
-    case MARKUP_HR :
-    case MARKUP_LI :
-    case MARKUP_OL :
-    case MARKUP_P :
-    case MARKUP_PRE :
-    case MARKUP_TABLE :
-    case MARKUP_TR :
-    case MARKUP_UL :
+    case HD_ELEMENT_BR :
+    case HD_ELEMENT_CENTER :
+    case HD_ELEMENT_DD :
+    case HD_ELEMENT_DL :
+    case HD_ELEMENT_DT :
+    case HD_ELEMENT_H1 :
+    case HD_ELEMENT_H2 :
+    case HD_ELEMENT_H3 :
+    case HD_ELEMENT_H4 :
+    case HD_ELEMENT_H5 :
+    case HD_ELEMENT_H6 :
+    case HD_ELEMENT_H7 :
+    case HD_ELEMENT_H8 :
+    case HD_ELEMENT_H9 :
+    case HD_ELEMENT_H10 :
+    case HD_ELEMENT_H11 :
+    case HD_ELEMENT_H12 :
+    case HD_ELEMENT_H13 :
+    case HD_ELEMENT_H14 :
+    case HD_ELEMENT_H15 :
+    case HD_ELEMENT_HR :
+    case HD_ELEMENT_LI :
+    case HD_ELEMENT_OL :
+    case HD_ELEMENT_P :
+    case HD_ELEMENT_PRE :
+    case HD_ELEMENT_TABLE :
+    case HD_ELEMENT_TR :
+    case HD_ELEMENT_UL :
         if (col > 0)
         {
           putc('\n', out);
@@ -660,7 +660,7 @@ write_node(FILE   *out,		/* I - Output file */
         }
 
     default :
-	if (t->markup == MARKUP_IMG &&
+	if (t->markup == HD_ELEMENT_IMG &&
             (src = htmlGetVariable(t, (uchar *)"REALSRC")) != NULL)
 	{
 	 /*
@@ -677,17 +677,17 @@ write_node(FILE   *out,		/* I - Output file */
           }
 	}
 
-        if (t->markup != MARKUP_EMBED)
+        if (t->markup != HD_ELEMENT_EMBED)
 	{
 	  col += fprintf(out, "<%s", _htmlMarkups[t->markup]);
 	  for (i = 0; i < t->nvars; i ++)
 	  {
 	    if (strcasecmp((char *)t->vars[i].name, "BREAK") == 0 &&
-	        t->markup == MARKUP_HR)
+	        t->markup == HD_ELEMENT_HR)
 	      continue;
 
 	    if (strcasecmp((char *)t->vars[i].name, "REALSRC") == 0 &&
-	        t->markup == MARKUP_IMG)
+	        t->markup == HD_ELEMENT_IMG)
 	      continue;
 
             if (strncasecmp((char *)t->vars[i].name, "_HD_", 4) == 0)
@@ -735,13 +735,13 @@ write_node(FILE   *out,		/* I - Output file */
 
 static int			/* O - Current column */
 write_nodeclose(FILE   *out,	/* I - Output file */
-                tree_t *t,	/* I - Document tree node */
+                hdTree *t,	/* I - Document tree node */
                 int    col)	/* I - Current column */
 {
   if (out == NULL)
     return (0);
 
-  if (t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
+  if (t->markup != HD_ELEMENT_HEAD && t->markup != HD_ELEMENT_TITLE)
   {
     if (col > 72 && !t->preformatted)
     {
@@ -751,58 +751,58 @@ write_nodeclose(FILE   *out,	/* I - Output file */
 
     switch (t->markup)
     {
-      case MARKUP_BODY :
-      case MARKUP_ERROR :
-      case MARKUP_FILE :
-      case MARKUP_HEAD :
-      case MARKUP_HTML :
-      case MARKUP_NONE :
-      case MARKUP_TITLE :
+      case HD_ELEMENT_BODY :
+      case HD_ELEMENT_ERROR :
+      case HD_ELEMENT_FILE :
+      case HD_ELEMENT_HEAD :
+      case HD_ELEMENT_HTML :
+      case HD_ELEMENT_NONE :
+      case HD_ELEMENT_TITLE :
 
-      case MARKUP_APPLET :
-      case MARKUP_AREA :
-      case MARKUP_BR :
-      case MARKUP_COMMENT :
-      case MARKUP_DOCTYPE :
-      case MARKUP_EMBED :
-      case MARKUP_HR :
-      case MARKUP_IMG :
-      case MARKUP_INPUT :
-      case MARKUP_ISINDEX :
-      case MARKUP_LINK :
-      case MARKUP_META :
-      case MARKUP_NOBR :
-      case MARKUP_SPACER :
-      case MARKUP_WBR :
-      case MARKUP_UNKNOWN :
+      case HD_ELEMENT_APPLET :
+      case HD_ELEMENT_AREA :
+      case HD_ELEMENT_BR :
+      case HD_ELEMENT_COMMENT :
+      case HD_ELEMENT_DOCTYPE :
+      case HD_ELEMENT_EMBED :
+      case HD_ELEMENT_HR :
+      case HD_ELEMENT_IMG :
+      case HD_ELEMENT_INPUT :
+      case HD_ELEMENT_ISINDEX :
+      case HD_ELEMENT_LINK :
+      case HD_ELEMENT_META :
+      case HD_ELEMENT_NOBR :
+      case HD_ELEMENT_SPACER :
+      case HD_ELEMENT_WBR :
+      case HD_ELEMENT_UNKNOWN :
           break;
 
-      case MARKUP_CENTER :
-      case MARKUP_DD :
-      case MARKUP_DL :
-      case MARKUP_DT :
-      case MARKUP_H1 :
-      case MARKUP_H2 :
-      case MARKUP_H3 :
-      case MARKUP_H4 :
-      case MARKUP_H5 :
-      case MARKUP_H6 :
-      case MARKUP_H7 :
-      case MARKUP_H8 :
-      case MARKUP_H9 :
-      case MARKUP_H10 :
-      case MARKUP_H11 :
-      case MARKUP_H12 :
-      case MARKUP_H13 :
-      case MARKUP_H14 :
-      case MARKUP_H15 :
-      case MARKUP_LI :
-      case MARKUP_OL :
-      case MARKUP_P :
-      case MARKUP_PRE :
-      case MARKUP_TABLE :
-      case MARKUP_TR :
-      case MARKUP_UL :
+      case HD_ELEMENT_CENTER :
+      case HD_ELEMENT_DD :
+      case HD_ELEMENT_DL :
+      case HD_ELEMENT_DT :
+      case HD_ELEMENT_H1 :
+      case HD_ELEMENT_H2 :
+      case HD_ELEMENT_H3 :
+      case HD_ELEMENT_H4 :
+      case HD_ELEMENT_H5 :
+      case HD_ELEMENT_H6 :
+      case HD_ELEMENT_H7 :
+      case HD_ELEMENT_H8 :
+      case HD_ELEMENT_H9 :
+      case HD_ELEMENT_H10 :
+      case HD_ELEMENT_H11 :
+      case HD_ELEMENT_H12 :
+      case HD_ELEMENT_H13 :
+      case HD_ELEMENT_H14 :
+      case HD_ELEMENT_H15 :
+      case HD_ELEMENT_LI :
+      case HD_ELEMENT_OL :
+      case HD_ELEMENT_P :
+      case HD_ELEMENT_PRE :
+      case HD_ELEMENT_TABLE :
+      case HD_ELEMENT_TR :
+      case HD_ELEMENT_UL :
           fprintf(out, "</%s>\n", _htmlMarkups[t->markup]);
           col = 0;
           break;
@@ -822,14 +822,14 @@ write_nodeclose(FILE   *out,	/* I - Output file */
  */
 
 static uchar *		/* O - Title string */
-get_title(tree_t *doc)	/* I - Document tree */
+get_title(hdTree *doc)	/* I - Document tree */
 {
   uchar	*temp;		/* Temporary pointer to title */
 
 
   while (doc != NULL)
   {
-    if (doc->markup == MARKUP_TITLE)
+    if (doc->markup == HD_ELEMENT_TITLE)
       return (htmlGetText(doc->child));
     else if (doc->child != NULL)
       if ((temp = get_title(doc->child)) != NULL)
@@ -847,7 +847,7 @@ get_title(tree_t *doc)	/* I - Document tree */
 //
 
 static void
-add_heading(tree_t *t)			// I - Heading node
+add_heading(hdTree *t)			// I - Heading node
 {
   int	i,				// Looping var
 	count;				// Count of headings with this name
@@ -1027,18 +1027,18 @@ compare_links(link_t *n1,	/* I - First name */
  */
 
 static void
-scan_links(tree_t *t)		/* I - Document tree */
+scan_links(hdTree *t)		/* I - Document tree */
 {
   uchar	*name;			/* Name of link */
 
 
   while (t != NULL)
   {
-    if (t->markup >= MARKUP_H1 && t->markup < (MARKUP_H1 + TocLevels) &&
+    if (t->markup >= HD_ELEMENT_H1 && t->markup < (HD_ELEMENT_H1 + TocLevels) &&
         htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
       add_heading(t);
 
-    if (t->markup == MARKUP_A &&
+    if (t->markup == HD_ELEMENT_A &&
         (name = htmlGetVariable(t, (uchar *)"NAME")) != NULL)
       add_link(name);
 
@@ -1055,7 +1055,7 @@ scan_links(tree_t *t)		/* I - Document tree */
  */
 
 static void
-update_links(tree_t *t,		/* I - Document tree */
+update_links(hdTree *t,		/* I - Document tree */
              int    *heading)	/* I - Current heading */
 {
   link_t	*link;		/* Link */
@@ -1067,7 +1067,7 @@ update_links(tree_t *t,		/* I - Document tree */
   // Scan the document, rewriting HREF's as needed...
   while (t != NULL)
   {
-    if (t->markup >= MARKUP_H1 && t->markup < (MARKUP_H1 + TocLevels) &&
+    if (t->markup >= HD_ELEMENT_H1 && t->markup < (HD_ELEMENT_H1 + TocLevels) &&
         htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL && heading)
       (*heading) ++;
 
@@ -1077,7 +1077,7 @@ update_links(tree_t *t,		/* I - Document tree */
     else
       filename = headings[*heading];
 
-    if (t->markup == MARKUP_A &&
+    if (t->markup == HD_ELEMENT_A &&
         (href = htmlGetVariable(t, (uchar *)"HREF")) != NULL)
     {
       // Update this link as needed...
@@ -1106,5 +1106,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.3 2004/03/31 07:28:13 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.4 2004/03/31 09:51:27 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.41 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.42 2004/03/31 09:51:27 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -67,7 +67,7 @@ const char *__XOS2RedirRoot(const char *);
  * Local types...
  */
 
-typedef int (*exportfunc_t)(tree_t *, tree_t *);
+typedef int (*exportfunc_t)(hdTree *, hdTree *);
 
 
 /*
@@ -75,10 +75,10 @@ typedef int (*exportfunc_t)(tree_t *, tree_t *);
  */
 
 static int	compare_strings(const char *s, const char *t, int tmin);
-static int	load_book(const char *filename, tree_t **document,
+static int	load_book(const char *filename, hdTree **document,
 		          exportfunc_t *exportfunc);
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
-static int	read_file(const char *filename, tree_t **document,
+static int	read_file(const char *filename, hdTree **document,
 		          const char *path);
 static void	term_handler(int signum);
 static void	usage(const char *arg = NULL);
@@ -105,7 +105,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 #endif // MAC
 
   int		i, j;		/* Looping vars */
-  tree_t	*document,	/* Master HTML document */
+  hdTree	*document,	/* Master HTML document */
 		*file,		/* HTML document file */
 		*toc;		/* Table of contents */
   exportfunc_t	exportfunc;	/* Export function */
@@ -201,14 +201,14 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         if (strcasecmp(argv[i], "courier") == 0 ||
 	    strcasecmp(argv[i], "monospace") == 0)
-	  _htmlBodyFont = TYPE_COURIER;
+	  _htmlBodyFont = HD_FONTFACE_MONOSPACE;
         else if (strcasecmp(argv[i], "times") == 0 ||
 	         strcasecmp(argv[i], "serif") == 0)
-	  _htmlBodyFont = TYPE_TIMES;
+	  _htmlBodyFont = HD_FONTFACE_SERIF;
         else if (strcasecmp(argv[i], "helvetica") == 0 ||
 	         strcasecmp(argv[i], "arial") == 0 ||
 		 strcasecmp(argv[i], "sans-serif") == 0)
-	  _htmlBodyFont = TYPE_HELVETICA;
+	  _htmlBodyFont = HD_FONTFACE_SANS_SERIF;
       }
       else
         usage(argv[i - 1]);
@@ -454,64 +454,64 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         if (strcasecmp(argv[i], "courier") == 0)
 	{
-	  HeadFootType  = TYPE_COURIER;
-	  HeadFootStyle = STYLE_NORMAL;
+	  HeadFootType  = HD_FONTFACE_MONOSPACE;
+	  HeadFootStyle = HD_FONTINTERNAL_NORMAL;
 	}
         else if (strcasecmp(argv[i], "courier-bold") == 0)
 	{
-	  HeadFootType  = TYPE_COURIER;
-	  HeadFootStyle = STYLE_BOLD;
+	  HeadFootType  = HD_FONTFACE_MONOSPACE;
+	  HeadFootStyle = HD_FONTINTERNAL_BOLD;
 	}
         else if (strcasecmp(argv[i], "courier-oblique") == 0)
 	{
-	  HeadFootType  = TYPE_COURIER;
-	  HeadFootStyle = STYLE_ITALIC;
+	  HeadFootType  = HD_FONTFACE_MONOSPACE;
+	  HeadFootStyle = HD_FONTINTERNAL_ITALIC;
 	}
         else if (strcasecmp(argv[i], "courier-boldoblique") == 0)
 	{
-	  HeadFootType  = TYPE_COURIER;
-	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	  HeadFootType  = HD_FONTFACE_MONOSPACE;
+	  HeadFootStyle = HD_FONTINTERNAL_BOLD_ITALIC;
 	}
         else if (strcasecmp(argv[i], "times") == 0 ||
 	         strcasecmp(argv[i], "times-roman") == 0)
 	{
-	  HeadFootType  = TYPE_TIMES;
-	  HeadFootStyle = STYLE_NORMAL;
+	  HeadFootType  = HD_FONTFACE_SERIF;
+	  HeadFootStyle = HD_FONTINTERNAL_NORMAL;
 	}
         else if (strcasecmp(argv[i], "times-bold") == 0)
 	{
-	  HeadFootType  = TYPE_TIMES;
-	  HeadFootStyle = STYLE_BOLD;
+	  HeadFootType  = HD_FONTFACE_SERIF;
+	  HeadFootStyle = HD_FONTINTERNAL_BOLD;
 	}
         else if (strcasecmp(argv[i], "times-italic") == 0)
 	{
-	  HeadFootType  = TYPE_TIMES;
-	  HeadFootStyle = STYLE_ITALIC;
+	  HeadFootType  = HD_FONTFACE_SERIF;
+	  HeadFootStyle = HD_FONTINTERNAL_ITALIC;
 	}
         else if (strcasecmp(argv[i], "times-bolditalic") == 0)
 	{
-	  HeadFootType  = TYPE_TIMES;
-	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	  HeadFootType  = HD_FONTFACE_SERIF;
+	  HeadFootStyle = HD_FONTINTERNAL_BOLD_ITALIC;
 	}
         else if (strcasecmp(argv[i], "helvetica") == 0)
 	{
-	  HeadFootType  = TYPE_HELVETICA;
-	  HeadFootStyle = STYLE_NORMAL;
+	  HeadFootType  = HD_FONTFACE_SANS_SERIF;
+	  HeadFootStyle = HD_FONTINTERNAL_NORMAL;
 	}
         else if (strcasecmp(argv[i], "helvetica-bold") == 0)
 	{
-	  HeadFootType  = TYPE_HELVETICA;
-	  HeadFootStyle = STYLE_BOLD;
+	  HeadFootType  = HD_FONTFACE_SANS_SERIF;
+	  HeadFootStyle = HD_FONTINTERNAL_BOLD;
 	}
         else if (strcasecmp(argv[i], "helvetica-oblique") == 0)
 	{
-	  HeadFootType  = TYPE_HELVETICA;
-	  HeadFootStyle = STYLE_ITALIC;
+	  HeadFootType  = HD_FONTFACE_SANS_SERIF;
+	  HeadFootStyle = HD_FONTINTERNAL_ITALIC;
 	}
         else if (strcasecmp(argv[i], "helvetica-boldoblique") == 0)
 	{
-	  HeadFootType  = TYPE_HELVETICA;
-	  HeadFootStyle = STYLE_BOLD_ITALIC;
+	  HeadFootType  = HD_FONTFACE_SANS_SERIF;
+	  HeadFootStyle = HD_FONTINTERNAL_BOLD_ITALIC;
 	}
       }
       else
@@ -539,14 +539,14 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         if (strcasecmp(argv[i], "courier") == 0 ||
 	    strcasecmp(argv[i], "monospace") == 0)
-	  _htmlHeadingFont = TYPE_COURIER;
+	  _htmlHeadingFont = HD_FONTFACE_MONOSPACE;
         else if (strcasecmp(argv[i], "times") == 0 ||
 	         strcasecmp(argv[i], "serif") == 0)
-	  _htmlHeadingFont = TYPE_TIMES;
+	  _htmlHeadingFont = HD_FONTFACE_SERIF;
         else if (strcasecmp(argv[i], "helvetica") == 0 ||
 	         strcasecmp(argv[i], "arial") == 0 ||
 	         strcasecmp(argv[i], "sans-serif") == 0)
-	  _htmlHeadingFont = TYPE_HELVETICA;
+	  _htmlHeadingFont = HD_FONTFACE_SANS_SERIF;
       }
       else
         usage(argv[i - 1]);
@@ -979,7 +979,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 
       _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
-      file = htmlAddTree(NULL, MARKUP_FILE, NULL);
+      file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
       htmlSetVariable(file, (uchar *)"FILENAME", (uchar *)"");
 
 #ifdef WIN32
@@ -1274,18 +1274,18 @@ prefs_load(void)
       else if (strncasecmp(line, "TOCTITLE=", 9) == 0)
 	strlcpy(TocTitle, line + 9, sizeof(TocTitle));
       else if (strncasecmp(line, "BODYFONT=", 9) == 0)
-	_htmlBodyFont = (typeface_t)atoi(line + 9);
+	_htmlBodyFont = (hdFontFace)atoi(line + 9);
       else if (strncasecmp(line, "HEADINGFONT=", 12) == 0)
-	_htmlHeadingFont = (typeface_t)atoi(line + 12);
+	_htmlHeadingFont = (hdFontFace)atoi(line + 12);
       else if (strncasecmp(line, "FONTSIZE=", 9) == 0)
 	htmlSetBaseSize(atof(line + 9),
 	                _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
       else if (strncasecmp(line, "FONTSPACING=", 12) == 0)
 	htmlSetBaseSize(_htmlSizes[SIZE_P], atof(line + 12));
       else if (strncasecmp(line, "HEADFOOTTYPE=", 13) == 0)
-	HeadFootType = (typeface_t)atoi(line + 13);
+	HeadFootType = (hdFontFace)atoi(line + 13);
       else if (strncasecmp(line, "HEADFOOTSTYLE=", 14) == 0)
-        HeadFootStyle = (style_t)atoi(line + 14);
+        HeadFootStyle = (hdFontInternal)atoi(line + 14);
       else if (strncasecmp(line, "HEADFOOTSIZE=", 13) == 0)
 	HeadFootSize = atof(line + 13);
       else if (strncasecmp(line, "PDFVERSION=", 11) == 0)
@@ -1497,7 +1497,7 @@ compare_strings(const char *s,	/* I - Command-line string */
 
 static int				// O  - 1 = success, 0 = failure
 load_book(const char   *filename,	// I  - Book file
-          tree_t       **document,	// IO - Document tree
+          hdTree       **document,	// IO - Document tree
           exportfunc_t *exportfunc)	// O  - Export function
 {
   FILE		*fp;			// File to read from
@@ -1940,27 +1940,27 @@ parse_options(const char   *line,	// I - Options from book file
     {
       if (strcasecmp(temp2, "courier") == 0 ||
           strcasecmp(temp2, "monospace") == 0)
-        _htmlHeadingFont = TYPE_COURIER;
+        _htmlHeadingFont = HD_FONTFACE_MONOSPACE;
       else if (strcasecmp(temp2, "times") == 0 ||
                strcasecmp(temp2, "serif") == 0)
-        _htmlHeadingFont = TYPE_TIMES;
+        _htmlHeadingFont = HD_FONTFACE_SERIF;
       else if (strcasecmp(temp2, "helvetica") == 0 ||
                strcasecmp(temp2, "arial") == 0 ||
                strcasecmp(temp2, "sans-serif") == 0)
-        _htmlHeadingFont = TYPE_HELVETICA;
+        _htmlHeadingFont = HD_FONTFACE_SANS_SERIF;
     }
     else if (strcmp(temp, "--bodyfont") == 0)
     {
       if (strcasecmp(temp2, "courier") == 0 ||
           strcasecmp(temp2, "monospace") == 0)
-        _htmlBodyFont = TYPE_COURIER;
+        _htmlBodyFont = HD_FONTFACE_MONOSPACE;
       else if (strcasecmp(temp2, "times") == 0 ||
                strcasecmp(temp2, "serif") == 0)
-        _htmlBodyFont = TYPE_TIMES;
+        _htmlBodyFont = HD_FONTFACE_SERIF;
       else if (strcasecmp(temp2, "helvetica") == 0 ||
                strcasecmp(temp2, "arial") == 0 ||
                strcasecmp(temp2, "sans-serif") == 0)
-        _htmlBodyFont = TYPE_HELVETICA;
+        _htmlBodyFont = HD_FONTFACE_SANS_SERIF;
     }
     else if (strcmp(temp, "--headfootsize") == 0)
       HeadFootSize = atof(temp2);
@@ -1968,64 +1968,64 @@ parse_options(const char   *line,	// I - Options from book file
     {
       if (strcasecmp(temp2, "courier") == 0)
       {
-	HeadFootType  = TYPE_COURIER;
-	HeadFootStyle = STYLE_NORMAL;
+	HeadFootType  = HD_FONTFACE_MONOSPACE;
+	HeadFootStyle = HD_FONTINTERNAL_NORMAL;
       }
       else if (strcasecmp(temp2, "courier-bold") == 0)
       {
-	HeadFootType  = TYPE_COURIER;
-	HeadFootStyle = STYLE_BOLD;
+	HeadFootType  = HD_FONTFACE_MONOSPACE;
+	HeadFootStyle = HD_FONTINTERNAL_BOLD;
       }
       else if (strcasecmp(temp2, "courier-oblique") == 0)
       {
-	HeadFootType  = TYPE_COURIER;
-	HeadFootStyle = STYLE_ITALIC;
+	HeadFootType  = HD_FONTFACE_MONOSPACE;
+	HeadFootStyle = HD_FONTINTERNAL_ITALIC;
       }
       else if (strcasecmp(temp2, "courier-boldoblique") == 0)
       {
-	HeadFootType  = TYPE_COURIER;
-	HeadFootStyle = STYLE_BOLD_ITALIC;
+	HeadFootType  = HD_FONTFACE_MONOSPACE;
+	HeadFootStyle = HD_FONTINTERNAL_BOLD_ITALIC;
       }
       else if (strcasecmp(temp2, "times") == 0 ||
 	         strcasecmp(temp2, "times-roman") == 0)
       {
-	HeadFootType  = TYPE_TIMES;
-	HeadFootStyle = STYLE_NORMAL;
+	HeadFootType  = HD_FONTFACE_SERIF;
+	HeadFootStyle = HD_FONTINTERNAL_NORMAL;
       }
       else if (strcasecmp(temp2, "times-bold") == 0)
       {
-	HeadFootType  = TYPE_TIMES;
-	HeadFootStyle = STYLE_BOLD;
+	HeadFootType  = HD_FONTFACE_SERIF;
+	HeadFootStyle = HD_FONTINTERNAL_BOLD;
       }
       else if (strcasecmp(temp2, "times-italic") == 0)
       {
-	HeadFootType  = TYPE_TIMES;
-	HeadFootStyle = STYLE_ITALIC;
+	HeadFootType  = HD_FONTFACE_SERIF;
+	HeadFootStyle = HD_FONTINTERNAL_ITALIC;
       }
       else if (strcasecmp(temp2, "times-bolditalic") == 0)
       {
-	HeadFootType  = TYPE_TIMES;
-	HeadFootStyle = STYLE_BOLD_ITALIC;
+	HeadFootType  = HD_FONTFACE_SERIF;
+	HeadFootStyle = HD_FONTINTERNAL_BOLD_ITALIC;
       }
       else if (strcasecmp(temp2, "helvetica") == 0)
       {
-	HeadFootType  = TYPE_HELVETICA;
-	HeadFootStyle = STYLE_NORMAL;
+	HeadFootType  = HD_FONTFACE_SANS_SERIF;
+	HeadFootStyle = HD_FONTINTERNAL_NORMAL;
       }
       else if (strcasecmp(temp2, "helvetica-bold") == 0)
       {
-	HeadFootType  = TYPE_HELVETICA;
-	HeadFootStyle = STYLE_BOLD;
+	HeadFootType  = HD_FONTFACE_SANS_SERIF;
+	HeadFootStyle = HD_FONTINTERNAL_BOLD;
       }
       else if (strcasecmp(temp2, "helvetica-oblique") == 0)
       {
-	HeadFootType  = TYPE_HELVETICA;
-	HeadFootStyle = STYLE_ITALIC;
+	HeadFootType  = HD_FONTFACE_SANS_SERIF;
+	HeadFootStyle = HD_FONTINTERNAL_ITALIC;
       }
       else if (strcasecmp(temp2, "helvetica-boldoblique") == 0)
       {
-	HeadFootType  = TYPE_HELVETICA;
-        HeadFootStyle = STYLE_BOLD_ITALIC;
+	HeadFootType  = HD_FONTFACE_SANS_SERIF;
+        HeadFootStyle = HD_FONTINTERNAL_BOLD_ITALIC;
       }
     }
     else if (strcmp(temp, "--charset") == 0)
@@ -2124,11 +2124,11 @@ parse_options(const char   *line,	// I - Options from book file
 
 static int				// O  - 1 on success, 0 on failure
 read_file(const char *filename,		// I  - File/URL to read
-          tree_t     **document,	// IO - Current document
+          hdTree     **document,	// IO - Current document
 	  const char *path)		// I  - Search path
 {
   FILE		*docfile;		// Document file
-  tree_t	*file;			// HTML document file
+  hdTree	*file;			// HTML document file
   const char	*realname;		// Real name of file
   char		base[1024];		// Base directory name of file
 
@@ -2151,7 +2151,7 @@ read_file(const char *filename,		// I  - File/URL to read
 
       strlcpy(base, file_directory(filename), sizeof(base));
 
-      file = htmlAddTree(NULL, MARKUP_FILE, NULL);
+      file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
       htmlSetVariable(file, (uchar *)"FILENAME",
                       (uchar *)file_basename(filename));
 
@@ -2333,5 +2333,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.41 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.42 2004/03/31 09:51:27 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.40 2004/03/31 08:39:12 mike Exp $"
+// "$Id: gui.cxx,v 1.41 2004/03/31 09:51:27 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1327,12 +1327,12 @@ GUI::loadSettings()
 
   NumberUp = atoi(numberUp->text(numberUp->value()));
 
-  _htmlBodyFont    = (typeface_t)bodyFont->value();
-  _htmlHeadingFont = (typeface_t)headingFont->value();
+  _htmlBodyFont    = (hdFontFace)bodyFont->value();
+  _htmlHeadingFont = (hdFontFace)headingFont->value();
   htmlSetBaseSize(fontBaseSize->value(), fontSpacing->value());
 
-  HeadFootType  = (typeface_t)(headFootFont->value() / 4);
-  HeadFootStyle = (style_t)(headFootFont->value() & 3);
+  HeadFootType  = (hdFontFace)(headFootFont->value() / 4);
+  HeadFootStyle = (hdFontInternal)(headFootFont->value() & 3);
   HeadFootSize  = headFootSize->value();
 
   if (pdf11->value())
@@ -3889,7 +3889,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 	        count;		// Number of files
   char	  	temp[1024];	// Temporary string
   FILE		*docfile;	// Document file
-  tree_t	*document,	// Master HTML document
+  hdTree	*document,	// Master HTML document
 		*file,		// HTML document file
 		*toc;		// Table of contents
   const char	*filename;	// HTML filename
@@ -3977,7 +3977,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
       strcpy(base, file_directory(gui->inputFiles->text(i)));
 
-      file = htmlAddTree(NULL, MARKUP_FILE, NULL);
+      file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
       htmlSetVariable(file, (uchar *)"FILENAME",
                       (uchar *)file_basename(filename));
 
@@ -4099,5 +4099,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.40 2004/03/31 08:39:12 mike Exp $".
+// End of "$Id: gui.cxx,v 1.41 2004/03/31 09:51:27 mike Exp $".
 //
