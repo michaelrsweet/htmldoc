@@ -12,6 +12,11 @@ CHANGES IN HTMLDOC v1.8.16
     BUG FIXES
 
 	- HR elements didn't render properly.
+	- Background images didn't render properly and could
+	  lock up HTMLDOC.
+	- The "HALF PAGE" comment would lock up HTMLDOC -
+	  HTMLDOC would keep adding pages until it ran out of
+	  memory.
 
 
 CHANGES IN HTMLDOC v1.8.15
