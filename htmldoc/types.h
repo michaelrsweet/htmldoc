@@ -1,5 +1,5 @@
 //
-// "$Id: types.h,v 1.7 2002/09/04 05:32:12 mike Exp $"
+// "$Id: types.h,v 1.8 2002/09/24 23:26:50 mike Exp $"
 //
 //   Common data types for HTMLDOC, an HTML document processing program.
 //
@@ -26,9 +26,10 @@
 #  define _HTMLDOC_TYPES_H_
 
 typedef unsigned char hdByte;
+typedef unsigned int hdWord;
 
 #endif // !_HTMLDOC_TYPES_H_
 
 //
-// End of "$Id: types.h,v 1.7 2002/09/04 05:32:12 mike Exp $".
+// End of "$Id: types.h,v 1.8 2002/09/24 23:26:50 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: md5.h,v 1.4 2002/01/02 00:39:28 mike Exp $"
+// "$Id: md5.h,v 1.5 2002/09/24 23:26:50 mike Exp $"
 //
 // MD5 support code for HTMLDOC.
 //
@@ -47,6 +47,8 @@
 #ifndef _HTMLDOC_MD5_H_
 #  define _HTMLDOC_MD5_H_
 
+#  include "types.h"
+
 //
 // This code has some adaptations for the Ghostscript environment, but it
 // will compile and run correctly in any environment with 8-bit chars and
@@ -55,25 +57,22 @@
 // ARCH_IS_BIG_ENDIAN.
 //
 
-typedef unsigned char hdMD5Byte;	// 8-bit byte
-typedef unsigned int hdMD5Word;		// 32-bit word
-
 // Define the state of the MD5 Algorithm.
 struct hdMD5
 {
-  hdMD5Word count[2];			// message length in bits, lsw first
-  hdMD5Word abcd[4];			// digest buffer
-  hdMD5Byte buf[64];			// accumulate block
+  hdWord count[2];			// message length in bits, lsw first
+  hdWord abcd[4];			// digest buffer
+  hdByte buf[64];			// accumulate block
 
-  void	append(const hdMD5Byte *data, int nbytes);
-  void	finish(hdMD5Byte *digest);
+  void	append(const hdByte *data, int nbytes);
+  void	finish(hdByte *digest);
   void	init();
-  void	process(const hdMD5Byte *data);
+  void	process(const hdByte *data);
 };
 
 #endif // !_HTMLDOC_MD5_H_
 
 
 //
-// End of "$Id: md5.h,v 1.4 2002/01/02 00:39:28 mike Exp $".
+// End of "$Id: md5.h,v 1.5 2002/09/24 23:26:50 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: http-md5.cxx,v 1.2 2002/01/04 21:50:51 mike Exp $"
+// "$Id: http-md5.cxx,v 1.3 2002/09/24 23:26:49 mike Exp $"
 //
 //   MD5 password support for HTMLDOC.
 //
@@ -49,7 +49,7 @@ hdHTTP::md5(const char *username,	/* I - User name */
 	    int        md5len)		/* I - Size of MD5 string */
 {
   hdMD5		state;			/* MD5 state info */
-  hdMD5Byte	sum[16];		/* Sum data */
+  hdByte	sum[16];		/* Sum data */
   char		line[256];		/* Line to sum */
 
 
@@ -59,7 +59,7 @@ hdHTTP::md5(const char *username,	/* I - User name */
 
   snprintf(line, sizeof(line), "%s:%s:%s", username, realm, passwd);
   state.init();
-  state.append((hdMD5Byte *)line, strlen(line));
+  state.append((hdByte *)line, strlen(line));
   state.finish(sum);
 
  /*
@@ -84,7 +84,7 @@ hdHTTP::md5_final(const char *nonce,	/* I - Server nonce value */
 	          int        md5len)	/* I - Size of MD5 string */
 {
   hdMD5		state;			/* MD5 state info */
-  hdMD5Byte	sum[16];		/* Sum data */
+  hdByte	sum[16];		/* Sum data */
   char		line[1024];		/* Line of data */
   char		a2[33];			/* Hash of method and resource */
 
@@ -95,7 +95,7 @@ hdHTTP::md5_final(const char *nonce,	/* I - Server nonce value */
 
   snprintf(line, sizeof(line), "%s:%s", method, resource);
   state.init();
-  state.append((hdMD5Byte *)line, strlen(line));
+  state.append((hdByte *)line, strlen(line));
   state.finish(sum);
   hdHTTP::md5_string(sum, a2, sizeof(a2));
 
@@ -108,7 +108,7 @@ hdHTTP::md5_final(const char *nonce,	/* I - Server nonce value */
   snprintf(line, sizeof(line), "%s%s:%s", md5, nonce, a2);
 
   state.init();
-  state.append((hdMD5Byte *)line, strlen(line));
+  state.append((hdByte *)line, strlen(line));
   state.finish(sum);
 
   return (md5_string(sum, md5, md5len));
@@ -120,9 +120,9 @@ hdHTTP::md5_final(const char *nonce,	/* I - Server nonce value */
  */
 
 char *						/* O - MD5 sum in hex */
-hdHTTP::md5_string(const hdMD5Byte *sum,	/* I - MD5 sum data */
-	           char            *md5,	/* O - MD5 sun in hex */
-	           int             md5len)	/* I - Size of MD5 string */
+hdHTTP::md5_string(const hdByte *sum,		/* I - MD5 sum data */
+	           char         *md5,		/* O - MD5 sun in hex */
+	           int          md5len)		/* I - Size of MD5 string */
 {
   int		i;				/* Looping var */
   char		*md5ptr;			/* Pointer into MD5 string */
@@ -146,5 +146,5 @@ hdHTTP::md5_string(const hdMD5Byte *sum,	/* I - MD5 sum data */
 
 
 /*
- * End of "$Id: http-md5.cxx,v 1.2 2002/01/04 21:50:51 mike Exp $".
+ * End of "$Id: http-md5.cxx,v 1.3 2002/09/24 23:26:49 mike Exp $".
  */
