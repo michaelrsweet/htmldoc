@@ -1,4 +1,4 @@
-CHANGES.txt - 06/05/2001
+CHANGES.txt - 06/06/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.14
@@ -10,6 +10,9 @@ CHANGES IN HTMLDOC v1.8.14
     CHANGES
 
     BUG FIXES
+
+	- Tables with a lot of COLSPANs could cause a divide-
+	  by-zero error or bad pages (NAN instead of a number.)
 
 
 CHANGES IN HTMLDOC v1.8.13
