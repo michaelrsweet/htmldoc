@@ -1,5 +1,5 @@
 //
-// "$Id: file.h,v 1.10 2001/12/07 18:26:58 mike Exp $"
+// "$Id: file.h,v 1.11 2001/12/17 00:45:53 mike Exp $"
 //
 //   File class definitions for HTMLDOC, a HTML document processing program.
 //
@@ -38,9 +38,9 @@
 
 enum hdMode				// Open modes...
 {
-  HD_MODE_READ,
-  HD_MODE_WRITE,
-  HD_MODE_UPDATE
+  HD_FILE_READ,
+  HD_FILE_WRITE,
+  HD_FILE_UPDATE
 };
 
 
@@ -122,7 +122,7 @@ class hdFile
 // STDIO-based files...
 //
 
-class hdStdFile public hdFile
+class hdStdFile : public hdFile
 {
   FILE	*fp_;
 
@@ -135,18 +135,18 @@ class hdStdFile public hdFile
   virtual int	get();
   virtual int	put(int c);
   virtual int	read(void *b, int len);
-  virtual int	seek(long pos, hdWhence whence);
+  virtual int	seek(long pos, int whence);
   virtual int	size();
   virtual int	write(void *b, int len);
   virtual int	unget(int c);
-}
+};
 
 
 //
 // File filter...
 //
 
-class hdFlateFilter public hdFile
+class hdFlateFilter : public hdFile
 {
   hdFile	*chain_;
   char		buffer_[16384];
@@ -160,13 +160,13 @@ class hdFlateFilter public hdFile
   virtual int	get();
   virtual int	put(int c);
   virtual int	read(void *b, int len);
-  virtual int	seek(long pos, hdWhence whence);
+  virtual int	seek(long pos, int whence);
   virtual int	size();
   virtual int	write(void *b, int len);
   virtual int	unget(int c);
 };
 
-class hdJPEGFilter public hdFile
+class hdJPEGFilter : public hdFile
 {
   hdFile	*chain_;
   char		*buffer_;
@@ -182,13 +182,13 @@ class hdJPEGFilter public hdFile
   virtual int	get();
   virtual int	put(int c);
   virtual int	read(void *b, int len);
-  virtual int	seek(long pos, hdWhence whence);
+  virtual int	seek(long pos, int whence);
   virtual int	size();
   virtual int	write(void *b, int len);
   virtual int	unget(int c);
 };
 
-class hdRC4Filter public hdFile
+class hdRC4Filter : public hdFile
 {
   hdFile	*chain_;
   void		*state_;
@@ -210,5 +210,5 @@ class hdRC4Filter public hdFile
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h,v 1.10 2001/12/07 18:26:58 mike Exp $".
+// End of "$Id: file.h,v 1.11 2001/12/17 00:45:53 mike Exp $".
 //

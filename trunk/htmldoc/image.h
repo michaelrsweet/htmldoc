@@ -1,5 +1,5 @@
 //
-// "$Id: image.h,v 1.9 2001/12/07 18:26:58 mike Exp $"
+// "$Id: image.h,v 1.10 2001/12/17 00:45:54 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
@@ -52,9 +52,13 @@
 
 enum hdImageType
 {
-  RASTER,
-  VECTOR
+  HD_IMAGE_RASTER,
+  HD_IMAGE_VECTOR
 };
+
+class hdImage;
+
+typedef hdImage *(*hdImageCheck)(const char *uri);
 
 class hdImage			//// Image class
 {
@@ -68,28 +72,34 @@ class hdImage			//// Image class
 		obj_;		// Object number
   hdImageType	type_;		// Type of image
   uchar		*pixels_;	// 8-bit pixel data
-  uchar		*mask_;		// 1-bit mask data, if any
+  uchar		*mask_;		// 1-bit mask data, if any (1 = transparent)
   int		maskwidth_;	// Byte width of mask data
+
+  static int	num_formats_,	// Number of registered formats
+  		alloc_formats_;	// Allocated formats
+  static hdImageCheck *formats_;// Registered formats
 
   protected:
 
   void			alloc_mask();
   void			alloc_pixels();
-  int			copy(char *dest, int destlen);
-  void			uri(const char *p);
-  int			save_as_png(char *dest, int destlen);
+  int			copy(const char *path, char *d, int dlen);
+  int			save_as_png(const char *path, char *d, int dlen);
   void			set_mask(int x, int y, uchar a = 0);
   void			set_size(int w, int h, int d);
+  void			uri(const char *p);
+  void			type(hdImageType t) { type_ = t; }
 
   static int		num_images_,	// Number of images in cache
 			alloc_images_;	// Allocated images
   static hdImage	**images_;	// Pointers to images
 
-  static int		compare(hdImage **, hdiImage **);
+  static int		compare(hdImage **, hdImage **);
 
   public:
 
-  ~hdImage();
+  hdImage();
+  virtual ~hdImage();
 
   int			depth() { return depth_; }
   void			free();
@@ -98,20 +108,22 @@ class hdImage			//// Image class
   virtual int		load();
   uchar			*mask() { return mask_; }
   int			maskwidth() { return maskwidth_; }
-  int			obj() { return obj; }
+  int			obj() { return obj_; }
   void			obj(int o) { obj_ = o; }
   uchar			*pixels() { return pixels_; }
   int			release() { return -- use_; }
-  virtual int		save(char *dest, int destlen);
-  virtual hdImageType	type();
-  int			width() { return width_; }
+  virtual int		save(const char *path, char *d, int dlen);
+  hdImageType		type() { return type_; }
   const char		*uri() { return uri_; }
+  int			width() { return width_; }
 
   // Global methods for caching of image files...
   static hdImage	*find(const char *uri);
   static hdImage	**images() { return images_; }
   static int		num_images() { return num_images_; }
   static void		flush();
+  static void		register_standard();
+  static void		register_format(hdImageCheck check);
 };
 
 
@@ -119,27 +131,31 @@ class hdImage			//// Image class
 // Image classes for various formats...
 //
 
-class hdBMPImage public hdImage
+class hdBMPImage : public hdImage
 {
   public:
 
   hdBMPImage(const char *uri, int grayscale);
 
   virtual int	load();
-}
 
-class hdEPSImage public hdImage
+  static hdImage	*check(const char *uri);
+};
+
+class hdEPSImage : public hdImage
 {
   public:
 
   hdEPSImage(const char *uri, int grayscale);
 
   virtual int		load();
-  virtual int		save(const char *dest);
+  virtual int		save(char *path, char *d, int dlen);
   virtual hdImageType	type();
-}
 
-class hdGIFImage public hdImage
+  static hdImage	*check(const char *uri);
+};
+
+class hdGIFImage : public hdImage
 {
   private:
 
@@ -158,56 +174,67 @@ class hdGIFImage public hdImage
   hdGIFImage(const char *uri, int grayscale);
 
   virtual int	load();
-}
 
-class hdJPEGImage public hdImage
+  static hdImage	*check(const char *uri);
+};
+
+class hdJPEGImage : public hdImage
 {
   public:
 
   hdJPEGImage(const char *uri, int grayscale);
 
   virtual int	load();
-}
 
-class hdPNGImage public hdImage
+  static hdImage	*check(const char *uri);
+};
+
+class hdPNGImage : public hdImage
 {
   public:
 
   hdPNGImage(const char *uri, int grayscale);
 
   virtual int	load();
-}
 
-class hdPNMImage public hdImage
+  static hdImage	*check(const char *uri);
+};
+
+class hdPNMImage : public hdImage
 {
   public:
 
   hdPNMImage(const char *uri, int grayscale);
 
   virtual int	load();
-}
 
-class hdXBMImage public hdImage
+  static hdImage	*check(const char *uri);
+};
+
+class hdXBMImage : public hdImage
 {
   public:
 
   hdXBMImage(const char *uri, int grayscale);
 
   virtual int	load();
-}
 
-class hdXPMImage public hdImage
+  static hdImage	*check(const char *uri);
+};
+
+class hdXPMImage : public hdImage
 {
   public:
 
   hdXPMImage(const char *uri, int grayscale);
 
   virtual int	load();
-}
 
+  static hdImage	*check(const char *uri);
+};
 
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.9 2001/12/07 18:26:58 mike Exp $".
+// End of "$Id: image.h,v 1.10 2001/12/17 00:45:54 mike Exp $".
 //
