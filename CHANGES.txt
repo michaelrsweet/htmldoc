@@ -31,6 +31,10 @@ CHANGES IN HTMLDOC v1.8.12
 	  object; this offers a modest reduction in file size.
 	- The HTTP file cache now keeps track of previous files
 	  that were downloaded.
+	- Limit the height check for table rows to 1/8th of the
+	  page length; this seems to provide fairly consistent
+	  wrapping of tables without leaving huge expanses of
+	  blank space at the bottom of pages.
 
     BUG FIXES
 
