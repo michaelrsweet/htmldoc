@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.26 2000/05/08 16:13:36 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.27 2000/05/18 12:14:06 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -681,6 +681,12 @@ main(int  argc,		/* I - Number of command-line arguments */
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
       htmlSetVariable(file, (uchar *)"FILENAME", (uchar *)"");
+
+#if defined(WIN32) || defined(__EMX__)
+      // Make sure stdin is in binary mode.
+      // (I hate Microsoft... I hate Microsoft... Everybody join in!)
+      setmode(0, O_BINARY);
+#endif // WIN32 || __EMX__
 
       htmlReadFile(file, stdin, NULL);
 
@@ -1496,5 +1502,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.26 2000/05/08 16:13:36 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.27 2000/05/18 12:14:06 mike Exp $".
  */
