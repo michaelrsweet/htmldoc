@@ -1,7 +1,7 @@
 //
-// "$Id: http.h,v 1.7 2001/12/31 16:39:54 mike Exp $"
+// "$Id: http.h,v 1.8 2002/01/01 18:27:30 mike Exp $"
 //
-//   Hyper-Text Transport Protocol definitions for HTMLDOC.
+//   Hyper-Text Transport Protocol class definitions for HTMLDOC.
 //
 //   Copyright 1997-2001 by Easy Software Products, all rights reserved.
 //
@@ -262,13 +262,16 @@ class hdHTTP
   int			used;		// Number of bytes used in buffer
   char			buffer[HD_MAX_BUFFER];
 					// Buffer for messages
-  int			authype;	// Authentication in use
+  int			authtype;	// Authentication in use
   hdMD5State		md5_state;	// MD5 state
   char			nonce[HD_MAX_VALUE];
 					// Nonce value
   int			nonce_count;	// Nonce count
   void			*tls;		// TLS state information
   hdHTTPEncryption	encryption;	// Encryption requirements
+
+  int			send(hdHTTPState request, const char *uri);
+  int			upgrade();
 
   static void		initialize();
 
@@ -289,7 +292,8 @@ class hdHTTP
   void			flush();
   int			get_blocking() { return blocking; }
   hdHTTPEncryption	get_encryption() { return encryption; }
-  int			get_error() { return error; };
+  int			get_error() { return error; }
+  int			get_fd() { return fd; }
   const char		*get_field(hdHTTPField field) { return fields[field]; }
   int			get_content_length();
   const char		*get_hostname() { return hostname; }
@@ -299,7 +303,7 @@ class hdHTTP
 			               char *value, int length);
   char			*gets(char *line, int length);
   int			printf(const char *format, ...);
-  int			read(hdHTTP *http, char *buffer, int length);
+  int			read(char *buffer, int length);
   int			reconnect();
   void			set_blocking(int b) { blocking = b; }
   int			set_encryption(hdHTTPEncryption e);
@@ -309,6 +313,7 @@ class hdHTTP
 
   static char		*decode64(char *out, int outlen, const char *in);
   static char		*encode64(char *out, int outlen, const char *in);
+  static hdHTTPField	field_number(const char *name);
   static const char	*get_date_string(time_t t);
   static time_t		get_date_time(const char *s);
   static char		*md5(const char *username, const char *realm,
@@ -328,5 +333,5 @@ class hdHTTP
 #endif // !_HTMLDOC_HTTP_H_
 
 //
-// End of "$Id: http.h,v 1.7 2001/12/31 16:39:54 mike Exp $".
+// End of "$Id: http.h,v 1.8 2002/01/01 18:27:30 mike Exp $".
 //
