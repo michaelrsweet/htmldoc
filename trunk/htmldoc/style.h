@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.9 2002/02/24 02:57:27 mike Exp $"
+// "$Id: style.h,v 1.10 2002/03/05 12:47:28 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -380,6 +380,7 @@ struct hdStyleSheet;
 
 struct hdStyleFont
 {
+  int		object;		// Object number for PDF files...
   hdFontFace	typeface;	// Typeface identifier
   hdFontInternal style;		// Internal font style
   hdFontEncoding encoding;	// Character encoding
@@ -590,5 +591,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.9 2002/02/24 02:57:27 mike Exp $".
+// End of "$Id: style.h,v 1.10 2002/03/05 12:47:28 mike Exp $".
 //
