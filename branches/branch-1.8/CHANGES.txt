@@ -35,7 +35,9 @@ CHANGES IN HTMLDOC v1.8.24
 	- The table formatter now subtracts the outside border
 	  and padding widths for percentage-based widths.  This
 	  helps to eliminate "truncation or overlapping" errors.
-
+	- The default vertical alignment is now "bottom" inside
+	  paragraphs to correctly align different sized text and
+	  images to the baseline.
 
     BUG FIXES
 
