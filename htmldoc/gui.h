@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.1 1999/11/08 18:35:16 mike Exp $"
+ * "$Id: gui.h,v 1.2 1999/11/08 22:11:35 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -15,7 +15,6 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Counter.H>
 #include <FL/Fl_Group.H>
@@ -25,6 +24,11 @@
 #include <FL/Fl_Tabs.H>
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Window.H>
+
+#include <gui/CheckButton.h>
+#include <gui/FileChooser.h>
+#include <gui/HelpDialog.h>
+
 
 /*
  * Class definition for HTMLDOC dialog...
@@ -37,7 +41,7 @@ class GUI
       Fl_Group		*controls;
 
       Fl_Group		*inputTab;
-      Fl_Check_Button	*typeBook,
+      CheckButton	*typeBook,
 			*typeWebPage;
       Fl_Multi_Browser	*inputFiles;
       Fl_Button		*addFile,
@@ -51,18 +55,18 @@ class GUI
       Fl_Button		*titleBrowse;
 
       Fl_Group		*outputTab;
-      Fl_Check_Button	*outputFile,
+      CheckButton	*outputFile,
 			*outputDirectory;
       Fl_Input		*outputPath;
       Fl_Button		*outputBrowse;
-      Fl_Check_Button	*typeHTML,
+      CheckButton	*typeHTML,
 			*typePS1,
 			*typePS2,
 			*typePDF;
-      Fl_Check_Button	*grayscale,
+      CheckButton	*grayscale,
 			*compression,
-			*titlePage;
-      Fl_Check_Button	*jpegCompress;
+			*titlePage,
+			*jpegCompress;
 
       Fl_Input		*bodyColor;
       Fl_Button		*bodyLookup;
@@ -71,7 +75,7 @@ class GUI
 
       Fl_Group		*pageTab;
       Fl_Input		*pageSize;
-      Fl_Check_Button	*pageDuplex;
+      CheckButton	*pageDuplex;
       Fl_Input		*pageTop,
 			*pageLeft,
 			*pageRight,
@@ -85,7 +89,7 @@ class GUI
 
       Fl_Group		*tocTab;
       Fl_Choice		*tocLevels;
-      Fl_Check_Button	*numberedToc;
+      CheckButton	*numberedToc;
       Fl_Choice		*tocHeaderLeft,
       			*tocHeaderCenter,
       			*tocHeaderRight,
@@ -123,20 +127,22 @@ class GUI
       Fl_Group		*progressText;
       Fl_Slider		*progressBar;
 
+      FileChooser	*fc;
+
       char		book_filename[1024];
       int		book_changed;
 
-      GUI(char *filename = NULL);
+      GUI(const char *filename = NULL);
       ~GUI(void);
 
       int  doGUI(void);
 
       void progress(int percent, char *text = NULL);
-      void title(char *filename = NULL, int changed = 0);
+      void title(const char *filename = NULL, int changed = 0);
 
       int  newBook(void);
-      int  loadBook(char *bookfile);
-      int  saveBook(char *bookfile);
+      int  loadBook(const char *bookfile);
+      int  saveBook(const char *bookfile);
       int  checkSave(void);
 };
 
@@ -171,5 +177,5 @@ extern void generateBookCB(Fl_Widget *w, GUI *gui);
 extern void closeBookCB(Fl_Widget *w, GUI *gui);
 
 /*
- * End of "$Id: gui.h,v 1.1 1999/11/08 18:35:16 mike Exp $".
+ * End of "$Id: gui.h,v 1.2 1999/11/08 22:11:35 mike Exp $".
  */
