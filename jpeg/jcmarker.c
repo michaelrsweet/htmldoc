@@ -257,6 +257,8 @@ emit_dac (j_compress_ptr cinfo)
       emit_byte(cinfo, cinfo->arith_ac_K[i]);
     }
   }
+#else
+  (void)cinfo;
 #endif /* C_ARITH_CODING_SUPPORTED */
 }
 
