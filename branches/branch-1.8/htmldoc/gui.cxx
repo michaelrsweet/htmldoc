@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.28 2001/10/27 03:20:10 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.29 2001/10/27 16:58:09 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -129,6 +129,8 @@ void shade_frame(int x, int y, int w, int h, const char *c)
 
 
 /*
+**** JUST DOCS FOR MY REFERENCE, IN CASE I WANT TO MAKE THE ENDS OF THE
+     BUTTONS ROUND... ****
 points to obtain the complete circle. At each stage through the loop in the code sample
 below the point (x,y) is calculated. The WRITE_CIRCLE function then takes this
 point and can plot the following list of points: 
@@ -227,7 +229,7 @@ void down_box(int x, int y, int w, int h, Fl_Color c) {
     fl_rectf(x + 2, y + 2, w - 4, h - 4);
   }
   else
-    shade_rect(x + 2, y + 2, w - 4, h - 4, "SSTUVWWVUT", c);
+    shade_rect(x + 2, y + 2, w - 4, h - 4, "STUVWWWWVT", c);
 
   shade_frame(x, y, w, h, "RRPPMMLC");
 }
@@ -943,7 +945,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   group = new Fl_Group(140, 260, 350, 25, "Options: ");
   group->align(FL_ALIGN_LEFT);
 
-    links = new CheckButton(140, 260, 105, 25, "Include Links");
+    links = new CheckButton(140, 260, 110, 25, "Include Links");
     links->callback((Fl_Callback *)changeCB, this);
     _tooltip(links, "Check to include hyperlinks in the output file.");
 
@@ -4118,5 +4120,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.28 2001/10/27 03:20:10 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.29 2001/10/27 16:58:09 mike Exp $".
 //
