@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.8 2002/02/23 04:03:30 mike Exp $"
+// "$Id: style.h,v 1.9 2002/02/24 02:57:27 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -402,7 +402,9 @@ struct hdStyleFont
   ~hdStyleFont();
 
   static int	compare_kerns(hdFontKernPair *a, hdFontKernPair *b);
+  int		get_char(const char *&s);
   int		get_kerning(const char *s, float *tk, float **kl);
+  int		get_num_chars(const char *s);
   float		get_width(const char *s);
 
   int		read_afm(hdFile *fp, hdStyleSheet *css);
@@ -588,5 +590,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.8 2002/02/23 04:03:30 mike Exp $".
+// End of "$Id: style.h,v 1.9 2002/02/24 02:57:27 mike Exp $".
 //
