@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.28 2004/05/22 21:04:59 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.29 2004/06/14 20:24:57 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -38,7 +38,7 @@
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Tabs.H>
 #include <FL/Fl_Value_Slider.H>
-#include <FL/Fl_Window.H>
+#include <FL/Fl_Double_Window.H>
 
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Round_Button.H>
@@ -56,7 +56,7 @@ class GUI
 {
   private:
 
-  Fl_Window		*window;
+  Fl_Double_Window	*window;
 
   Fl_Group		*controls;
   Fl_Tabs		*tabs;
@@ -189,7 +189,8 @@ class GUI
   Fl_Check_Button	*modern_skin;
   Fl_Check_Button	*strict_html;
 
-  Fl_Button		*saveOptions;
+  Fl_Button		*showLicense,
+  			*saveOptions;
 
   Fl_Button		*bookHelp,
 			*bookNew,
@@ -268,6 +269,8 @@ class GUI
   public:
 
   static const char	*help_dir;
+  static void		showLicenseCB(void);
+
 
   GUI(const char *filename = NULL);
   ~GUI(void);
@@ -286,5 +289,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.28 2004/05/22 21:04:59 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.29 2004/06/14 20:24:57 mike Exp $".
  */
