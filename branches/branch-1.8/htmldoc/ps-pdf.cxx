@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.35 2001/03/06 15:40:34 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.36 2001/03/08 13:33:25 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3038,6 +3038,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   int		num_chars;
   render_t	*r;
   uchar		*align,
+		*hspace,
 		*link;
   float		rgb[3];
   uchar		line[10240],
@@ -3098,6 +3099,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	if (temp_y < image_y || image_y == 0)
 	  image_y = temp_y;
 
+        if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
+	  image_left += atoi((char *)hspace);
+
         if (prev != NULL)
           prev->next = temp->next;
         else
@@ -3127,6 +3131,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
 	if (temp_y < image_y || image_y == 0)
 	  image_y = temp_y;
+
+        if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
+	  image_right -= atoi((char *)hspace);
 
         if (prev != NULL)
           prev->next = temp->next;
@@ -8241,5 +8248,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.35 2001/03/06 15:40:34 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.36 2001/03/08 13:33:25 mike Exp $".
  */

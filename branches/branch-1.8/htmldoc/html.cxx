@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.8 2001/03/02 17:17:40 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.9 2001/03/08 13:33:24 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -266,23 +266,16 @@ write_header(FILE   **out,	/* IO - Output file */
             _htmlCharSet);
 
     fputs("<STYLE TYPE=\"text/css\"><!--\n", *out);
-    fprintf(*out, "BODY { font-family: %s; font-size: %.1fpt }\n",
-            families[_htmlBodyFont], _htmlSizes[SIZE_P]);
-    fprintf(*out, "H1 { font-family: %s; font-size: %.1fpt }\n",
-            families[_htmlHeadingFont], _htmlSizes[SIZE_H1]);
-    fprintf(*out, "H2 { font-family: %s; font-size: %.1fpt }\n",
-            families[_htmlHeadingFont], _htmlSizes[SIZE_H2]);
-    fprintf(*out, "H3 { font-family: %s; font-size: %.1fpt }\n",
-            families[_htmlHeadingFont], _htmlSizes[SIZE_H3]);
-    fprintf(*out, "H4 { font-family: %s; font-size: %.1fpt }\n",
-            families[_htmlHeadingFont], _htmlSizes[SIZE_H4]);
-    fprintf(*out, "H5 { font-family: %s; font-size: %.1fpt }\n",
-            families[_htmlHeadingFont], _htmlSizes[SIZE_H5]);
-    fprintf(*out, "H6 { font-family: %s; font-size: %.1fpt }\n",
-            families[_htmlHeadingFont], _htmlSizes[SIZE_H6]);
-    fprintf(*out, "SUB { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
-    fprintf(*out, "SUP { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
-    fprintf(*out, "PRE { font-family: monospace; font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
+    fprintf(*out, "BODY { font-family: %s }\n", families[_htmlBodyFont]);
+    fprintf(*out, "H1 { font-family: %s }\n", families[_htmlHeadingFont]);
+    fprintf(*out, "H2 { font-family: %s }\n", families[_htmlHeadingFont]);
+    fprintf(*out, "H3 { font-family: %s }\n", families[_htmlHeadingFont]);
+    fprintf(*out, "H4 { font-family: %s }\n", families[_htmlHeadingFont]);
+    fprintf(*out, "H5 { font-family: %s }\n", families[_htmlHeadingFont]);
+    fprintf(*out, "H6 { font-family: %s }\n", families[_htmlHeadingFont]);
+    fputs("SUB { font-size: smaller }\n", *out);
+    fputs("SUP { font-size: smaller }\n", *out);
+    fputs("PRE { font-family: monospace }\n", *out);
 
     if (!LinkStyle)
       fputs("A { text-decoration: none }\n", *out);
@@ -431,11 +424,11 @@ write_title(FILE  *out,		/* I - Output file */
       image_t *img = image_find(TitleImage);
 
       if (OutputFiles)
-	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"100%%\"><BR>\n",
-        	file_basename((char *)TitleImage));
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\"><BR>\n",
+        	file_basename((char *)TitleImage), img->width, img->height);
       else
-	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"100%%\"><BR>\n",
-        	TitleImage);
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\"><BR>\n",
+        	TitleImage, img->width, img->height);
     }
 
     if (title != NULL)
@@ -890,5 +883,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.8 2001/03/02 17:17:40 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.9 2001/03/08 13:33:24 mike Exp $".
  */

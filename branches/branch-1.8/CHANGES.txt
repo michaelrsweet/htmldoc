@@ -1,4 +1,4 @@
-CHANGES.txt - 03/02/2001
+CHANGES.txt - 03/08/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.12
@@ -19,6 +19,8 @@ CHANGES IN HTMLDOC v1.8.12
 	  output filename as needed.
 	- The GUI now collects all error messages and shows them
 	  once after the document is generated.
+	- Added support for HSPACE attribute for images with
+	  ALIGN="LEFT" or ALIGN="RIGHT".
 
     CHANGES
 
@@ -48,6 +50,11 @@ CHANGES IN HTMLDOC v1.8.12
 	  leading #.  This breaks HTML standards compliance but
 	  should reduce the number of problem reports from buggy
 	  HTML.
+	- The stylesheet generated with the HTML output no longer
+	  contains absolute font sizes, just the typefaces and
+	  a relative size for SUB/SUP.
+	- The title image is no longer scaled to 100% in the
+	  HTML output.
 
     BUG FIXES
 
