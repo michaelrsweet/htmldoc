@@ -1,21 +1,27 @@
-CHANGES.txt - 02/23/2001
+CHANGES.txt - 02/26/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.12
 
     NEW FEATURES
 
-	- Added new "--batch" option to convert HTMLDOC book files
-	  from the command-line.
+	- Added new "--batch" option to convert HTMLDOC book
+	  files from the command-line.
+	- Added support for the "-display" option on systems
+	  that use X11.
+	- Now use image objects in PDF output for images when
+	  the image width * height >= 1024.
+	- Now use JPEG compression when the number of colors
+	  would be > 32 colors or 16 gray shades.
 
     CHANGES
 
-	- Consolidated temporary file management into new file_temp()
-	  function.  The new function also makes use of the Windows
-	  "short lived" open option which may improve performance with
-	  small temporary files.
-	- Updated book file format and added an appendix describing
-	  the format.
+	- Consolidated temporary file management into new
+	  file_temp() function.  The new function also makes use
+	  of the Windows "short lived" open option which may
+	  improve performance with small temporary files.
+	- Updated book file format and added an appendix
+	  describing the format.
 
     BUG FIXES
 
@@ -24,8 +30,8 @@ CHANGES IN HTMLDOC v1.8.12
 	- The "make install" target did a clean.
 	- The configure script would remove the image libraries
 	  if you did not have FLTK installed.
-	- The fix_filename() function didn't handle relative URLs
-	  for images (e.g. SRC="../images/filename.gif")
+	- The fix_filename() function didn't handle relative
+	  URLs for images (e.g. SRC="../images/filename.gif")
 
 
 CHANGES IN HTMLDOC v1.8.11
@@ -36,9 +42,9 @@ CHANGES IN HTMLDOC v1.8.11
 	- Added new "TrueType" font option for PDF output. This
 	  (hopefully) should improve support for non-latin
 	  languages.
-	- Added support for "justify" alignment; this is currently
-	  implemented by adding additional space between characters
-	  (no automatic hyphenation...)
+	- Added support for "justify" alignment; this is
+	  currently implemented by adding additional space
+	  between characters (no automatic hyphenation...)
 
     CHANGES
 

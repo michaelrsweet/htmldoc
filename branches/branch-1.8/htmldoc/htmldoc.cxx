@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.10 2001/02/23 19:46:11 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.11 2001/02/26 23:43:57 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -94,6 +94,9 @@ main(int  argc,		/* I - Number of command-line arguments */
   char		*extension;	/* Extension of output filename */
   float		fontsize,	/* Base font size */
 		fontspacing;	/* Base font spacing */
+#ifdef HAVE_LIBFLTK
+  int		display_set;	/* True if display set */
+#endif // HAVE_LIBFLTK
 
 
  /*
@@ -115,6 +118,9 @@ main(int  argc,		/* I - Number of command-line arguments */
 
   fontsize    = 11.0f;
   fontspacing = 1.2f;
+#ifdef HAVE_LIBFLTK
+  display_set = 1;
+#endif // HAVE_LIBFLTK
 
   for (i = 1; i < argc; i ++)
     if (compare_strings(argv[i], "--batch", 4) == 0)
@@ -208,6 +214,20 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+#if defined(HAVE_LIBFLTK) && !WIN32
+    else if (compare_strings(argv[i], "-display", 3) == 0 ||
+             compare_strings(argv[i], "--display", 4) == 0)
+    {
+      // The X standard requires support for the -display option, but
+      // we also support the GNU standard --display...
+      i ++;
+      display_set = 3;
+      if (i < argc)
+        Fl::display(argv[i]);
+      else
+        usage();
+    }
+#endif // HAVE_LIBFLTK && !WIN32
     else if (compare_strings(argv[i], "--duplex", 4) == 0)
       PageDuplex = 1;
     else if (compare_strings(argv[i], "--effectduration", 4) == 0)
@@ -802,10 +822,14 @@ main(int  argc,		/* I - Number of command-line arguments */
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
       htmlSetVariable(file, (uchar *)"FILENAME", (uchar *)"");
 
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
       // Make sure stdin is in binary mode.
       // (I hate Microsoft... I hate Microsoft... Everybody join in!)
       setmode(0, O_BINARY);
+#elif defined(__EMX__)
+      // OS/2 has a setmode for FILE's...
+      fflush(stdin);
+      _fsetmode(stdin, "b");
 #endif // WIN32 || __EMX__
 
       htmlReadFile(file, stdin, "");
@@ -852,7 +876,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 #ifdef HAVE_LIBFLTK
   if (document == NULL && BookGUI == NULL)
   {
-    if (argc == 1)
+    if (argc == display_set)
       BookGUI = new GUI();
     else
       usage();
@@ -2371,5 +2395,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.10 2001/02/23 19:46:11 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.11 2001/02/26 23:43:57 mike Exp $".
  */
