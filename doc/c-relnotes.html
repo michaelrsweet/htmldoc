@@ -6,6 +6,38 @@
 
 <P>This appendix provides the release notes for each version of HTMLDOC.
 
+<H2>Changes in HTMLDOC v1.8.19</H2>
+
+<UL>
+
+	<H3>Changes</H3>
+
+	<LI>Updated the HTML parser to use HTML 4.0 rules for
+	embedding elements inside a LI.
+
+	<LI>Now check for a TYPE attribute on EMBED elements, so
+	that embedded Flash files do not get treated as HTML.
+
+	<LI>Now put the COPYRIGHT meta data in the Author field in
+	a PDF file along with the AUTHOR meta data (if any).
+
+	<LI>No longer embed the prolog.ps command header when
+	PostScript commands are not being embedded in the
+	output.
+
+	<H3>Bug Fixes</H3>
+
+	<LI>Squeezed tables were not centered or right-aligned
+	properly.
+
+	<LI>Cells didn't align properly if they were the first
+	things on the page.
+
+	<LI>Remote URLs didn't always resolve properly (like the
+	images from the Google web page...)
+
+</UL>
+
 <H2>Changes in HTMLDOC v1.8.18</H2>
 
 <UL>

@@ -1,4 +1,4 @@
-COMPILE.txt - 01/27/2002
+COMPILE.txt - 03/14/2002
 ------------------------
 
 REQUIREMENTS
@@ -11,6 +11,8 @@ REQUIREMENTS
     LGPL'd cross-platform GUI toolkit and can be downloaded from:
 
         http://www.fltk.org
+
+    FLTK 1.1.x is highly recommended.
 
 
 COMPILING HTMLDOC UNDER WINDOWS

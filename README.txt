@@ -1,10 +1,14 @@
-README.txt - 01/31/2002
+README.txt - 03/14/2002
 -----------------------
 
 INTRODUCTION
 
     This README file describes HTMLDOC, a HTML processing program that
     generates HTML, PostScript, and PDF files with a table of contents.
+
+    **** HTMLDOC CURRENTLY ONLY SUPPORTS HTML 3.2 AND DOES NOT ****
+    **** SUPPORT STYLE SHEETS!  PLEASE READ THE DOCUMENTATION  ****
+    **** BEFORE ASKING QUESTIONS.                              ****
 
     Commercial support for HTMLDOC is available from Easy Software
     Products for $495 US.  Besides giving you priority bug fixes and
@@ -15,8 +19,6 @@ INTRODUCTION
     HTMLDOC is copyright 1997-2002 by Easy Software Products and is
     currently available under the GNU General Public License, version
     2.  See the LEGAL STUFF section below for details.
-
-    **** PLEASE READ THE DOCUMENTATION BEFORE ASKING QUESTIONS. ****
 
     Documentation for HTMLDOC is available in the "doc" subdirectory
     and is been generated from HTML "source" files into HTML,
@@ -59,7 +61,7 @@ REQUIREMENTS
 	- HP-UX 10.20 or higher
 	- IRIX 5.3 or higher
 	- Linux 2.0 or higher (Intel only)
-	- MacOS X 10.1 or higher (no GUI)
+	- MacOS X 10.1 or higher
 	- Microsoft Windows 95
 	- Microsoft Windows 98
 	- Microsoft Windows Me
@@ -78,7 +80,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.18-windows.exe" or "htmldoc-1.8.18-winfree.exe" files
+    the "htmldoc-1.8.19-windows.exe" or "htmldoc-1.8.19-winfree.exe" files
     to start the installation wizard.
 
     (the -windows file is the supported version, while the -winfree file
@@ -89,23 +91,23 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.18-linux-2.0-intel.rpm ENTER
+        rpm -i htmldoc-1.8.19-linux-2.0-intel.rpm ENTER
 
     or:
 
-        rpm -i htmldoc-1.8.18-linux-2.2-intel.rpm ENTER
+        rpm -i htmldoc-1.8.19-linux-2.2-intel.rpm ENTER
 
     or:
 
-        rpm -i htmldoc-1.8.18-linux-2.4-intel.rpm ENTER
+        rpm -i htmldoc-1.8.19-linux-2.4-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.18-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.18-platform.tar ENTER
+        gunzip htmldoc-1.8.19-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.19-platform.tar ENTER
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
@@ -115,7 +117,7 @@ INSTALLING HTMLDOC UNDER MacOS X
 
     Type the following commands to install HTMLDOC under MacOS X:
 
-        tar xzf htmldoc-1.8.18-darwin-5.2-powerpc.tar.gz ENTER
+        tar xzf htmldoc-1.8.19-darwin-5.3-powerpc.tar.gz ENTER
 	sudo ./htmldoc.install ENTER
 
 

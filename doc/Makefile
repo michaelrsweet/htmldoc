@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.11.2.6 2001/10/26 21:21:46 mike Exp $"
+# "$Id: Makefile,v 1.11.2.7 2002/03/24 17:27:45 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -99,5 +99,13 @@ htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
 
 
 #
-# End of "$Id: Makefile,v 1.11.2.6 2001/10/26 21:21:46 mike Exp $".
+# htmldoc.1
+#
+
+htmldoc.1:	htmldoc.man
+	groff -T ascii -man htmldoc.man >htmldoc.1
+
+
+#
+# End of "$Id: Makefile,v 1.11.2.7 2002/03/24 17:27:45 mike Exp $".
 #

@@ -1,4 +1,4 @@
-CHANGES.txt - 03/08/2002
+CHANGES.txt - 03/14/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.19
@@ -21,6 +21,8 @@ CHANGES IN HTMLDOC v1.8.19
 	  properly.
 	- Cells didn't align properly if they were the first
 	  things on the page.
+	- Remote URLs didn't always resolve properly (like the
+	  images from the Google web page...)
 
 
 CHANGES IN HTMLDOC v1.8.18
