@@ -1,4 +1,4 @@
-CHANGES.txt - 08/01/2003
+CHANGES.txt - 11/07/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -32,6 +32,10 @@ CHANGES IN HTMLDOC v1.8.24
 	  after a paragraph.
 	- The tabloid media size was 10 points too short in
 	  length.
+	- The table formatter now subtracts the outside border
+	  and padding widths for percentage-based widths.  This
+	  helps to eliminate "truncation or overlapping" errors.
+
 
     BUG FIXES
 
