@@ -11,6 +11,8 @@ CHANGES IN HTMLDOC v1.8.17
 	- Made some changes in how COLSPAN and ROWSPAN are
 	  handled to better match how Netscape and MSIE format
 	  things.
+	- HTMLDOC now handles .book files with CR, LF, or CR LF
+	  line endings.
 
     BUG FIXES
 
