@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.33 1999/12/04 13:30:59 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.34 1999/12/04 14:13:40 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2344,7 +2344,16 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          if (real_prev(t) != NULL && *y < top)
+          temp = real_prev(t);
+          if (temp != NULL &&
+	      temp->markup != MARKUP_UL &&
+	      temp->markup != MARKUP_DIR &&
+	      temp->markup != MARKUP_MENU &&
+	      temp->markup != MARKUP_OL &&
+	      temp->markup != MARKUP_DL &&
+	      temp->markup != MARKUP_HR &&
+	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
+	      *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           parse_doc(t->child, left + 36, right - 36, bottom, top, x, y, page, NULL);
@@ -2363,7 +2372,16 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          if (real_prev(t) && *y < top)
+          temp = real_prev(t);
+          if (temp != NULL &&
+	      temp->markup != MARKUP_UL &&
+	      temp->markup != MARKUP_DIR &&
+	      temp->markup != MARKUP_MENU &&
+	      temp->markup != MARKUP_OL &&
+	      temp->markup != MARKUP_DL &&
+	      temp->markup != MARKUP_HR &&
+	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
+	      *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL);
@@ -2382,7 +2400,16 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          if (real_prev(t) != NULL && *y < top)
+          temp = real_prev(t);
+          if (temp != NULL &&
+	      temp->markup != MARKUP_UL &&
+	      temp->markup != MARKUP_DIR &&
+	      temp->markup != MARKUP_MENU &&
+	      temp->markup != MARKUP_OL &&
+	      temp->markup != MARKUP_DL &&
+	      temp->markup != MARKUP_HR &&
+	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
+	      *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL);
@@ -2395,6 +2422,18 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
+
+          temp = real_prev(t);
+          if (temp != NULL &&
+	      temp->markup != MARKUP_UL &&
+	      temp->markup != MARKUP_DIR &&
+	      temp->markup != MARKUP_MENU &&
+	      temp->markup != MARKUP_OL &&
+	      temp->markup != MARKUP_DL &&
+	      temp->markup != MARKUP_HR &&
+	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
+	      *y < top)
+	    *y -= _htmlSpacings[t->size];
 
           parse_pre(t, left, right, bottom, top, x, y, page);
           break;
@@ -2415,13 +2454,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           *x = (float)(left + 36);
 
           temp = real_prev(t);
-          if (temp != NULL && *y < top &&
-	      temp->markup != MARKUP_LI &&
-	      temp->markup != MARKUP_UL &&
-	      temp->markup != MARKUP_DIR &&
-	      temp->markup != MARKUP_MENU &&
-	      temp->markup != MARKUP_DL &&
-	      temp->markup != MARKUP_OL)
+          if (temp != NULL &&
+	      temp->markup >= MARKUP_H1 && temp->markup <= MARKUP_H6 &&
+	      *y < top)
 	    *y -= _htmlSpacings[t->size];
 
           parse_doc(t->child, left + 36, right, bottom, top, x, y, page, para);
@@ -3193,7 +3228,14 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
   col  = 0;
   flat = flatten_tree(t->child);
 
-  *y += _htmlSpacings[t->size];
+  if (flat->markup == MARKUP_NONE && flat->data != NULL &&
+      flat->data[0] == '\n')
+  {
+    // Skip leading blank line, if present...
+    next = flat->next;
+    free(flat);
+    flat = next;
+  }
 
   while (flat != NULL)
   {
@@ -3326,6 +3368,14 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     next = flat->next;
     free(flat);
     flat = next;
+
+    if (flat != NULL && flat->markup == MARKUP_NONE && flat->data != NULL &&
+        flat->data[0] == '\n' && flat->next == NULL)
+    {
+      // Skip trailing blank line, if present...
+      free(flat);
+      break;
+    }
   }
 
   *x = (float)left;
@@ -6321,5 +6371,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.33 1999/12/04 13:30:59 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.34 1999/12/04 14:13:40 mike Exp $".
  */
