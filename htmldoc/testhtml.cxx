@@ -1,5 +1,5 @@
 /*
- * "$Id: testhtml.cxx,v 1.2 2000/05/08 16:13:37 mike Exp $"
+ * "$Id: testhtml.cxx,v 1.3 2000/10/12 21:18:43 mike Exp $"
  *
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
@@ -20,6 +20,10 @@
 
 #define _HTMLDOC_C_
 #include "htmldoc.h"
+
+
+void	prefs_load(void) { }
+void	prefs_save(void) { }
 
 
 /*
@@ -157,5 +161,5 @@ main(int  argc,			/* I - Number of command-line arguments */
 
 
 /*
- * End of "$Id: testhtml.cxx,v 1.2 2000/05/08 16:13:37 mike Exp $".
+ * End of "$Id: testhtml.cxx,v 1.3 2000/10/12 21:18:43 mike Exp $".
  */
