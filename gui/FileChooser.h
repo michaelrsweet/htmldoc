@@ -76,5 +76,6 @@ public:
   const char *value(int f = 1);
   void value(const char *filename);
   int visible();
+  int shown() { return window->shown(); }
 };
 #endif
