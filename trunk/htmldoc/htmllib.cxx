@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.19 1999/12/01 02:04:27 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.20 1999/12/11 14:33:21 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -151,6 +151,8 @@ float		_htmlPPI = 80.0f;	/* Image resolution */
 int		_htmlGrayscale = 0;	/* Grayscale output? */
 uchar		_htmlTextColor[255] =	/* Default text color */
 		{ 0 };
+float		_htmlBrowserWidth = 680.0f;
+					/* Browser width for pixel scaling */
 float		_htmlSizes[8] =		/* Point size for each HTML size */
 		{ 6.0f, 8.0f, 9.0f, 11.0f, 14.0f, 17.0f, 20.0f, 24.0f };
 float		_htmlSpacings[8] =	/* Line height for each HTML size */
@@ -2270,5 +2272,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.19 1999/12/01 02:04:27 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.20 1999/12/11 14:33:21 mike Exp $".
  */

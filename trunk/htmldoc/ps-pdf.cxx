@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.37 1999/12/08 17:03:36 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.38 1999/12/11 14:33:21 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -367,7 +367,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (timage != NULL)
   {
-    timage_width  = timage->width * PagePrintWidth / 680.0f;
+    timage_width  = timage->width * PagePrintWidth / _htmlBrowserWidth;
     timage_height = timage_width * timage->height / timage->width;
   }
 
@@ -573,7 +573,8 @@ pspdf_prepare_page(int   page,			/* I - Page number */
 
 
   DEBUG_printf(("pspdf_prepare_page(%d, %08x, \"%s\", %.1f, \"%s\")\n",
-                page, file_page, title, title_width, *page_heading));
+                page, file_page, title ? title : "(null)", title_width,
+		*page_heading ? *page_heading : "(null)"));
 
   if (OutputFiles && chapter >= 0)
     *file_page = page - chapter_starts[chapter] + 1;
@@ -588,8 +589,10 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   }
   else
   {
-    *file_page = page - chapter_starts[1] + 1 +
-                 chapter_ends[0] - chapter_starts[0] + 1;
+    *file_page = page - chapter_starts[1] + 1;
+
+    if (TocLevels > 0)
+      *file_page += chapter_ends[0] - chapter_starts[0] + 1;
 
     if (TitlePage)
       *file_page += PageDuplex + 1;
@@ -679,6 +682,10 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
   char		*number;	/* Page number */
   render_t	*temp;		/* Render structure for titles, etc. */
 
+
+  DEBUG_printf(("pspdf_prepare_heading(%d, %d, \"%s\", %.1f, \"%s\", %.1f, \"%s\", %d)\n",
+                page, print_page, title ? title : "(null)", title_width,
+		heading ? heading : "(null)", heading_width, format, y));
 
  /*
   * Return right away if there is nothing to do...
@@ -924,7 +931,8 @@ ps_write_page(FILE  *out,		/* I - Output file */
     return;
 
   DEBUG_printf(("ps_write_page(%08x, %d, \"%s\", %.1f, \"%s\")\n",
-                out, page, title, title_width, *page_heading));
+                out, page, title ? title : "(null)", title_width,
+		*page_heading ? *page_heading : "(null)"));
 
  /*
   * Add headers/footers as needed...
@@ -2255,6 +2263,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       {
         chapter ++;
         chapter_starts[chapter] = *page;
+
+	if (chapter > TocDocCount)
+	  TocDocCount = chapter;
       }
 
       *y = (float)top;
@@ -2535,13 +2546,13 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      if (strchr((char *)name, '%') != NULL)
 	        width = atoi((char *)name) * (right - left) / 100;
 	      else
-                width = atoi((char *)name) * PagePrintWidth / 680.0f;
+                width = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
             }
 
             if ((name = htmlGetVariable(t, (uchar *)"SIZE")) == NULL)
 	      height = 2;
 	    else
-	      height = atoi((char *)name) * PagePrintWidth / 680.0f;
+	      height = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
 
             switch (t->halignment)
 	    {
@@ -3492,7 +3503,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     if (var[strlen((char *)var) - 1] == '%')
       table_width = atof((char *)var) * (right - left) / 100.0f;
     else
-      table_width = atoi((char *)var) * PagePrintWidth / 680.0f;
+      table_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
   }
   else
     table_width = (float)(right - left);
@@ -3522,7 +3533,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
             if (var[strlen((char *)var) - 1] == '%')
               col_width = atof((char *)var) * table_width / 100.0f;
             else
-              col_width = atoi((char *)var) * PagePrintWidth / 680.0f;
+              col_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
 
             col_min  = col_width;
 	    col_pref = col_width;
@@ -3675,7 +3686,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     if (var[strlen((char *)var) - 1] == '%')
       width = atof((char *)var) * (right - left) / 100.0f;
     else
-      width = atoi((char *)var) * PagePrintWidth / 680.0f;
+      width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
   }
   else
   {
@@ -4288,8 +4299,8 @@ write_background(FILE *out)	/* I - File to write to */
 
   if (background_image != NULL)
   {
-    width  = background_image->width * PagePrintWidth / 680.0f;
-    height = background_image->height * PagePrintWidth / 680.0f;
+    width  = background_image->width * PagePrintWidth / _htmlBrowserWidth;
+    height = background_image->height * PagePrintWidth / _htmlBrowserWidth;
 
     switch (PSLevel)
     {
@@ -4679,12 +4690,12 @@ update_image_size(tree_t *t)	/* I - Tree entry */
     if (width[strlen((char *)width) - 1] == '%')
       t->width = atof((char *)width) * PagePrintWidth / 100.0f;
     else
-      t->width = atoi((char *)width) * PagePrintWidth / 680.0f;
+      t->width = atoi((char *)width) * PagePrintWidth / _htmlBrowserWidth;
 
     if (height[strlen((char *)height) - 1] == '%')
       t->height = atof((char *)height) * PagePrintWidth / 100.0f;
     else
-      t->height = atoi((char *)height) * PagePrintWidth / 680.0f;
+      t->height = atoi((char *)height) * PagePrintWidth / _htmlBrowserWidth;
 
     return;
   }
@@ -4699,7 +4710,7 @@ update_image_size(tree_t *t)	/* I - Tree entry */
     if (width[strlen((char *)width) - 1] == '%')
       t->width = atof((char *)width) * PagePrintWidth / 100.0f;
     else
-      t->width = atoi((char *)width) * PagePrintWidth / 680.0f;
+      t->width = atoi((char *)width) * PagePrintWidth / _htmlBrowserWidth;
 
     t->height = t->width * img->height / img->width;
   }
@@ -4708,14 +4719,14 @@ update_image_size(tree_t *t)	/* I - Tree entry */
     if (height[strlen((char *)height) - 1] == '%')
       t->height = atof((char *)height) * PagePrintWidth / 100.0f;
     else
-      t->height = atoi((char *)height) * PagePrintWidth / 680.0f;
+      t->height = atoi((char *)height) * PagePrintWidth / _htmlBrowserWidth;
 
     t->width = t->height * img->width / img->height;
   }
   else
   {
-    t->width  = img->width * PagePrintWidth / 680.0f;
-    t->height = img->height * PagePrintWidth / 680.0f;
+    t->width  = img->width * PagePrintWidth / _htmlBrowserWidth;
+    t->height = img->height * PagePrintWidth / _htmlBrowserWidth;
   }
 }
 
@@ -4733,6 +4744,9 @@ get_width(uchar *s,		/* I - String to scan */
   uchar	*ptr;			/* Current character */
   float	width;			/* Current width */
 
+
+  DEBUG_printf(("get_width(\"%s\", %d, %d, %d)\n", s == NULL ? "(null)" : s,
+                typeface, style, size));
 
   if (s == NULL)
     return (0.0);
@@ -6405,5 +6419,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.37 1999/12/08 17:03:36 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.38 1999/12/11 14:33:21 mike Exp $".
  */
