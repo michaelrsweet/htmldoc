@@ -1,4 +1,4 @@
-CHANGES.txt - 03/21/2003
+CHANGES.txt - 03/23/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -22,6 +22,8 @@ CHANGES IN HTMLDOC v1.8.24
 	  content that overflows the page/cell.
 	- HTMLDOC no longer enables interpolation of 2-color
 	  images.
+	- The default vertical alignment of images is "BOTTOM"
+	  to match the HTML specification.
 
     BUG FIXES
 

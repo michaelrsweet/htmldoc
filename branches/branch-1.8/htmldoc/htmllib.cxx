@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.66 2003/03/21 21:09:26 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.67 2003/03/24 01:15:21 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -868,7 +868,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	  }
 
           // Get the image alignment...
-          t->valignment = ALIGN_TOP;
+          t->valignment = ALIGN_BOTTOM;
           get_alignment(t);
 
           // Update the image source as necessary...
@@ -2955,5 +2955,5 @@ htmlDebugStats(const char *title,	// I - Title
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.66 2003/03/21 21:09:26 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.67 2003/03/24 01:15:21 mike Exp $".
  */
