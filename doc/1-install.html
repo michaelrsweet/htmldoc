@@ -25,6 +25,8 @@ following environments:
 
 	<LI>Compaq Tru64 UNIX 4.0 or higher
 
+	<LI>FreeBSD 4.5 or higher
+
 	<LI>HP-UX 10.20 or higher
 
 	<LI>IRIX 5.3 or higher
@@ -38,6 +40,10 @@ following environments:
 	<LI>Solaris 2.5 or higher
 
 </UL>
+
+<P><I>HTMLDOC</I> may compile and run on other platforms,
+however we have not tested nor do we provide support for
+platforms other than those listed previously.
 
 <H3>Installing HTMLDOC under Debian GNU/Linux</H3>
 
@@ -92,20 +98,39 @@ Run the following command to remove <I>HTMLDOC</I> from your UNIX system:
 % <KBD>/etc/software/htmldoc.remove ENTER</KBD>
 </PRE></UL>
 
+<H3>Installing HTMLDOC under MacOS X</H3>
+
+<P>Run the following commands to install <I>HTMLDOC</I> under MacOS X:
+
+<UL><PRE>
+% <KBD>tar xzf htmldoc-<I>version</I>-darwin-5.3-powerpc.tar.gz ENTER</KBD>
+% <KBD>sudo ./htmldoc.install ENTER</KBD>
+</PRE></UL>
+
+<P>Substitute the correct version and platform strings as appropriate.
+
+<H3>Uninstalling HTMLDOC under MacOS X</H3>
+
+<P>Run the following command to remove <I>HTMLDOC</I> from your MacOS X system:
+
+<UL><PRE>
+% <KBD>sudo /etc/software/htmldoc.remove ENTER</KBD>
+</PRE></UL>
+
 <H3>Installing HTMLDOC under Windows</H3>
 
 <I>HTMLDOC</I> is provided in a self-extracting installation file under
-Windows. Double-click on the setup icon to install HTMLDOC under Windows.
+Windows. Double-click on the setup icon to install <I>HTMLDOC</I> under Windows.
 
 <H3>Uninstalling HTMLDOC under Windows</H3>
 
 Open the Control Panel window and double-click on the <VAR>Add/Remove Software</VAR>
-icon. When the available software list is displayed, select HTMLDOC and
+icon. When the available software list is displayed, select <I>HTMLDOC</I> and
 click on the <VAR>Remove</VAR> button.
 
 <H2>Installing HTMLDOC from the Source Distribution</H2>
 
-The complete source to <I>HTMLDOC</I> is available to build HTMLDOC for
+The complete source to <I>HTMLDOC</I> is available to build <I>HTMLDOC</I> for
 different directories, architectures, or operating systems.
 
 <H3>Requirements</H3>
@@ -116,7 +141,7 @@ work fine. To build the GUI you'll also need:
 <UL>
 
 	<LI><A HREF="http://www.fltk.org">Fast Light Tool Kit ("FLTK")</A>,
-	version 1.0 or newer (version 1.0.11 preferred).
+	version 1.0 or newer (version 1.1.x preferred).
 
 	<LI><A HREF="ftp://ftp.x.org">X11 libraries</A>, R5 or higher (needed
 	to build under UNIX and OS/2 only.)
@@ -193,14 +218,14 @@ directory. Simply run the "make" command to build <I>HTMLDOC</I>:
 % <KBD>make <I>ENTER</I></KBD>
 </PRE></UL>
 
-If you get any fatal errors, please subscribe to the HTMLDOC
+If you get any fatal errors, please subscribe to the <I>HTMLDOC</I>
 mailing list and send a copy of the make/compiler output to
 "<A HREF="mailto:htmldoc@easysw.com">htmldoc@easysw.com</A>" for
 assistance. Please note the version of <I>HTMLDOC</I> that you
 are using as well as any pertinent system information (operating
 system, OS version, compiler, etc.)
 
-<P>To subscribe to the HTMLDOC mailing list, send a message to
+<P>To subscribe to the <I>HTMLDOC</I> mailing list, send a message to
 "<A HREF="mailto:majordomo@easysw.com">majordomo@easysw.com</A>"
 with the text:
 
@@ -227,7 +252,7 @@ then you'll need to be logged in as root.
 A Visual C++ 6.0 workspace file and associated project files are
 included in the source distribution under the "visualc" directory. Open
 the workspace file "htmldoc.dsw", adjust the FLTK include and project
-file locations, and then build the HTMLDOC target.
+file locations, and then build the <I>HTMLDOC</I> target.
 
 <H3>Installing with Visual C++</H3>
 

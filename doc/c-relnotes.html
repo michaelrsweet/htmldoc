@@ -4,7 +4,7 @@
 <!-- FOOTER RIGHT "C-$CHAPTERPAGE" -->
 <H1 ALIGN="RIGHT"><A NAME="RELNOTES">Appendix C - Release Notes</A></H1>
 
-<P>This appendix provides the release notes for each version of HTMLDOC.
+<P>This appendix provides the release notes for each version of <I>HTMLDOC</I>.
 
 <H2>Changes in HTMLDOC v1.8.19</H2>
 
@@ -29,7 +29,7 @@
 	PostScript commands are not being embedded in the
 	output.</LI>
 
-	<LI>HTMLDOC now properly ignores the HTML 4.0 COL element.</LI>
+	<LI><I>HTMLDOC</I> now properly ignores the HTML 4.0 COL element.</LI>
 
 	<H3>Bug Fixes</H3>
 
@@ -54,7 +54,7 @@
 	<LI>PRE text didn't adjust the line height for the tallest
 	fragment in the line.</LI>
 
-	<LI>HTMLDOC tried to seek backwards when reading HTML
+	<LI><I>HTMLDOC</I> tried to seek backwards when reading HTML
 	from the standard input.</LI>
 
 	<LI>The media margin comments did not work properly when
@@ -84,7 +84,7 @@
 	the MSIE behavior, where the current rowspan is
 	reduced by the minimum rowspan in the table; that is,
 	if you use "ROWSPAN=17" for all cells in a row,
-	HTMLDOC now treats this as if you did not use ROWSPAN
+	<I>HTMLDOC</I> now treats this as if you did not use ROWSPAN
 	at all.  It is unclear if this is what the W3C
 	intends.</LI>
 
@@ -124,14 +124,14 @@
 	<LI>Made some changes in how COLSPAN and ROWSPAN are
 	handled to better match how Netscape and MSIE format
 	things.</LI>
-	<LI>HTMLDOC now handles .book files with CR, LF, or CR LF
+	<LI><I>HTMLDOC</I> now handles .book files with CR, LF, or CR LF
 	line endings.</LI>
 	<LI>Changed the TOC numbering to use 32-bit integers
 	instead of 8-bit integers...</LI>
 	<LI>Now handle local links with quoted (%HH) characters.</LI>
 	<LI>The command-line interface no longer sets PDF output
 	mode when using --continuous or --webpage.</LI>
-	<LI>HTMLDOC now opens HTML output files in binary mode to
+	<LI><I>HTMLDOC</I> now opens HTML output files in binary mode to
 	prevent extra CR's under Windows, and strips incoming
 	CR's from PRE text.</LI>
 	<LI>Now support inserting the current chapter and heading
@@ -173,9 +173,9 @@
 
 	<LI>HR elements didn't render properly.</LI>
 	<LI>Background images didn't render properly and could
-	lock up HTMLDOC.</LI>
-	<LI>The "HALF PAGE" comment would lock up HTMLDOC -
-	HTMLDOC would keep adding pages until it ran out of
+	lock up <I>HTMLDOC</I>.</LI>
+	<LI>The "HALF PAGE" comment would lock up <I>HTMLDOC</I> -
+	<I>HTMLDOC</I> would keep adding pages until it ran out of
 	memory.</LI>
 	<LI>SUP and SUB used a fixed (reduced) size instead of
 	using a smaller size from the current one.</LI>
@@ -218,7 +218,7 @@
 	in all non-inline PDF streams.  This avoids a stupid
 	bug in Acrobat Reader when printing to PostScript
 	printers.</LI>
-	<LI>HTMLDOC now strips any trailing GET query information
+	<LI><I>HTMLDOC</I> now strips any trailing GET query information
 	when saving the start of files (target) in a document.</LI>
 	<LI>Unqualified URLs (no leading scheme name, e.g. http:)
 	now default to the HTTP port (80) instead of the IPP
@@ -233,7 +233,7 @@
 	<H3>Bug Fixes</H3>
 
 	<LI>If a document started with a heading greater than H1,
-	HTMLDOC would crash.</LI>
+	<I>HTMLDOC</I> would crash.</LI>
 	<LI>Full justification would incorrectly be applied to
 	text ending with a break.</LI>
 	<LI>Images using ALIGN="MIDDLE" were not centered properly
@@ -268,7 +268,7 @@
 	<H3>Changes</H3>
 
 	<LI>Most output generation limits have been removed;
-	HTMLDOC now dynamically allocates memory as needed for
+	<I>HTMLDOC</I> now dynamically allocates memory as needed for
 	pages, images, headings, and links.  This has the
 	happy side-effect of reducing the initial memory
 	footprint significantly.</LI>
@@ -323,7 +323,7 @@
 	<LI>Preferences are now stored in a user-specific file
 	under Windows, just like UNIX.  This provides
 	user-specific preferences and allows preferences to
-	be kept when upgrading to new versions of HTMLDOC.</LI>
+	be kept when upgrading to new versions of <I>HTMLDOC</I>.</LI>
 	<LI>The book loading code now allows for blank lines, even
 	though these are not a part of the format. (added to
 	support some scripted apps that include extra
@@ -349,7 +349,7 @@
 	closing tags.</LI>
 	<LI>When piping PDF output, the temporary file that is
 	created needed to be open for reading and writing,
-	but HTMLDOC only opened the file for writing.</LI>
+	but <I>HTMLDOC</I> only opened the file for writing.</LI>
 	<LI>Image links did not work.</LI>
 	<LI>The JPEG image loading code did not correctly handle
 	grayscale JPEG images.</LI>
@@ -367,7 +367,7 @@
 	<LI>The command-line program would clear the error count
 	after reading all the files/URLs on the command-line,
 	but before generating the document. If there were
-	problems reading the files/URLs, HTMLDOC would return a
+	problems reading the files/URLs, <I>HTMLDOC</I> would return a
 	0 exit status instead of 1.</LI>
 	<LI>Image objects that were both JPEG and Flate compressed
 	would not display (filters specified in the wrong
@@ -385,79 +385,79 @@
 
 	<H3>New Features</H3>
 
-	<LI>Added new "--batch" option to convert HTMLDOC book
-	files from the command-line.
+	<LI>Added new "--batch" option to convert <I>HTMLDOC</I> book
+	files from the command-line.</LI>
 	<LI>Added support for the "-display" option on systems
-	that use X11.
+	that use X11.</LI>
 	<LI>Now use image objects in PDF output for images when
-	the image width * height * depth > 32k.
+	the image width * height * depth > 32k.</LI>
 	<LI>Now use JPEG compression when the number of colors
-	would be > 32 colors or 16 gray shades.
+	would be > 32 colors or 16 gray shades.</LI>
 	<LI>True transparency support for GIF files in PDF 1.3
-	output!
+	output!</LI>
 	<LI>The GUI now automatically changes the extension of the
-	output filename as needed.
+	output filename as needed.</LI>
 	<LI>The GUI now collects all error messages and shows them
-	once after the document is generated.
+	once after the document is generated.</LI>
 	<LI>Added support for HSPACE and VSPACE attributes for images
-	with ALIGN="LEFT" or ALIGN="RIGHT".
-	<LI>Added new Java interface to HTMLDOC.
+	with ALIGN="LEFT" or ALIGN="RIGHT".</LI>
+	<LI>Added new Java interface to <I>HTMLDOC</I>.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>Consolidated temporary file management into new
 	file_temp() function.  The new function also makes use
 	of the Windows "short lived" open option which may
-	improve performance with small temporary files.
+	improve performance with small temporary files.</LI>
 	<LI>Updated book file format and added an appendix
-	describing the format.
-	<LI>Now default to PDF 1.3 (Acrobat 4.0) output format.
+	describing the format.</LI>
+	<LI>Now default to PDF 1.3 (Acrobat 4.0) output format.</LI>
 	<LI>Now output length of PDF streams with the stream
-	object; this offers a modest reduction in file size.
+	object; this offers a modest reduction in file size.</LI>
 	<LI>The HTTP file cache now keeps track of previous URLs
-	that were downloaded.
+	that were downloaded.</LI>
 	<LI>The HTTP code now supports redirections (status codes
-	301 to 303) to alternate URLs.
+	301 to 303) to alternate URLs.</LI>
 	<LI>Limit the height check for table rows to 1/8th of the
 	page length; this seems to provide fairly consistent
 	wrapping of tables without leaving huge expanses of
-	blank space at the bottom of pages.
+	blank space at the bottom of pages.</LI>
 	<LI>The HTML output now also includes a font-family style
 	for PRE text; otherwise the body font would override
-	the PRE font with some browsers.
+	the PRE font with some browsers.</LI>
 	<LI>The snprintf/vsnprintf emulation functions were not
-	included in the HTMLDOC makefile.
+	included in the <I>HTMLDOC</I> makefile.</LI>
 	<LI>RGB hex colors are now recognized with or without the
-	leading #.  This breaks HTML standards compliance but
+	leading #. This breaks HTML standards compliance but
 	should reduce the number of problem reports from buggy
-	HTML.
+	HTML.</LI>
 	<LI>The stylesheet generated with the HTML output no longer
 	contains absolute font sizes, just the typefaces and
-	a relative size for SUB/SUP.
+	a relative size for SUB/SUP.</LI>
 	<LI>The title image is no longer scaled to 100% in the
-	HTML output.
+	HTML output.</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>The web page output was not divided into chapters for
-	each input file.
-	<LI>The "make install" target did a clean.
+	each input file.</LI>
+	<LI>The "make install" target did a clean.</LI>
 	<LI>The configure script would remove the image libraries
-	if you did not have FLTK installed.
+	if you did not have FLTK installed.</LI>
 	<LI>The fix_filename() function didn't handle relative
-	URLs for images (e.g. SRC="../images/filename.gif")
+	URLs for images (e.g. SRC="../images/filename.gif")</LI>
 	<LI>Comments in the source document were being closed by
-	a </!--> tag in the HTML output.
+	a </!--> tag in the HTML output.</LI>
 	<LI>The alignment attribute in TR elements was not inherited
-	by the TD and TH elements.
+	by the TD and TH elements.</LI>
 	<LI>The HTML parser added whitespace before the title of a
-	document (missing check for TITLE element.)
+	document (missing check for TITLE element.)</LI>
 	<LI>The table formatter did not reset the column width when
 	a width was not specified explicitly.  This caused the
-	columns to be formatted with equal widths...
+	columns to be formatted with equal widths...</LI>
 	<LI>Paragraphs that didn't use the P element would use the
 	alignment attribute of the first fragment instead of the
-	parent.
+	parent.</LI>
 
 </UL>
 
@@ -467,43 +467,43 @@
 
 	<H3>New Features</H3>
 
-	<LI>Added koi8-r character set.
+	<LI>Added koi8-r character set.</LI>
 	<LI>Added new "TrueType" font option for PDF output. This
 	(hopefully) should improve support for non-latin
-	languages.
+	languages.</LI>
 	<LI>Added support for "justify" alignment; this is
 	currently implemented by adding additional space
-	between characters (no automatic hyphenation...)
+	between characters (no automatic hyphenation...)</LI>
 
 	<H3>Changes</H3>
 
 	<LI>The "make install" target does a "make all" to ensure
 	that the software is built before installing it.  This
 	should help users that don't read the documentation
-	build the software.
+	build the software.</LI>
 	<LI>Incorporated several OS/2 compile fixes from Alexander
-	Mai.
+	Mai.</LI>
 	<LI>Tables that exceed the printable width of the page are
-	now squeezed to fit.
+	now squeezed to fit.</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>The temporary file created for PDF output to stdout
-	was not unique.
+	was not unique.</LI>
 	<LI>The temporary file created for PDF output to stdout
-	did not use the GetTempPath() function under Windows.
+	did not use the GetTempPath() function under Windows.</LI>
 	<LI>The temporary file cleanup code did not use the
-	GetTempPath() function under Windows.
+	GetTempPath() function under Windows.</LI>
 	<LI>The prefs_load() function did not check the
 	HTMLDOC_DATA environment variable until after loading
 	the preferences file.  This could cause any saved
 	settings to generate error messages about missing
 	files (these were reloaded when the document data was
-	read, however.)
+	read, however.)</LI>
 	<LI>The first border for a table cell that spanned
 	multiple pages did not account for the cellpadding or
-	border width.
-	<LI>Leading whitespace was not eliminated in all cases.
+	border width.</LI>
+	<LI>Leading whitespace was not eliminated in all cases.</LI>
 
 </UL>
 
@@ -514,39 +514,39 @@
 	<H3>New Features</H3>
 
 	<LI>New "--quiet" option to suppress all messages sent to
-	stderr.
-	<LI>New chapter n/N page number format (:)
-	<LI>New "--links" and "--no-links" options for PDF output.
-	<LI>Added "&euro;" character name support.
+	stderr.</LI>
+	<LI>New chapter n/N page number format (:)</LI>
+	<LI>New "--links" and "--no-links" options for PDF output.</LI>
+	<LI>Added "&euro;" character name support.</LI>
 
 	<H3>Changes</H3>
 
-	<LI>Documentation updates.
+	<LI>Documentation updates.</LI>
 	<LI>If a heading already contains a link, the name assigned for
 	the heading is stored in the existing link to avoid nested
-	links.
+	links.</LI>
 	<LI>The table parsing code now also traverses THEAD and TFOOT
 	sections and handles multiple TBODY, THEAD, and TFOOT
 	sections.  The THEAD and TFOOT rows are treated as ordinary
-	rows.
-	<LI>Image alignment should now match W3C recommendations.
+	rows.</LI>
+	<LI>Image alignment should now match W3C recommendations.</LI>
 	<LI>Newlines inside quoted values (e.g. SRC="filename\r\n")
-	are now ignored.
+	are now ignored.</LI>
 	<LI>The STYLE data generated in HTML output now includes the
-	TYPE="text/css" attribute.
+	TYPE="text/css" attribute.</LI>
 
 	<H3>Bug Fixes</H3>
 
-	<LI>The path support was still broken.
+	<LI>The path support was still broken.</LI>
 	<LI>Embedded files and images did not use path or HTTP
-	support.
+	support.</LI>
 	<LI>Table cell borders could be drawn on the wrong page
-	if not all cells in a row span more than one page.
+	if not all cells in a row span more than one page.</LI>
 	<LI>Large images could end up covering the footer at the
 	bottom of the page (wasn't accounting for the line
-	spacing.)
+	spacing.)</LI>
 	<LI>Fixed some memory leaks that would affect Windows
-	95/98/Me users.
+	95/98/Me users.</LI>
 
 </UL>
 
@@ -557,63 +557,63 @@
 	<H3>New Features</H3>
 
 	<LI>Added a "--no-numbered" option to turn heading numbers
-	off.
-	<LI>Added support for "keywords" META data.
-	<LI>Added support for BMP images.
-	<LI>Added support for ROWSPAN attribute in tables.
-	<LI>Added support for HTTP file references.
+	off.</LI>
+	<LI>Added support for "keywords" META data.</LI>
+	<LI>Added support for BMP images.</LI>
+	<LI>Added support for ROWSPAN attribute in tables.</LI>
+	<LI>Added support for HTTP file references.</LI>
 	<LI>Added new sample CGI program that can produce a PDF
-	file for any page on a server.
+	file for any page on a server.</LI>
 	<LI>Added new n/N, date, and time formats for the header
-	and footer.
+	and footer.</LI>
 
 	<H3>Changes</H3>
 
-	<LI>Configuration script changes.
+	<LI>Configuration script changes.</LI>
 	<LI>Now ignore file count in book files; instead, we now
 	look at the first character of the third and
 	subsequent lines - a dash (-) indicates the start of
 	the options. (use a backslash to quote filenames
-	starting with a dash)
+	starting with a dash)</LI>
 	<LI>Multiple-line paragraphs that have only 1 line on the
 	bottom of the current page are now started on the
-	following page.
+	following page.</LI>
 	<LI>DSC comments in PostScript output were not 100%
-	conformant with the DSC spec.
+	conformant with the DSC spec.</LI>
 	<LI>Long table-of-contents entries are now wrapped
-	(original patch supplied by Richard Pennington)
-	<LI>New color icon under UNIX when Xpm library available.
+	(original patch supplied by Richard Pennington)</LI>
+	<LI>New color icon under UNIX when Xpm library available.</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>Didn't allow &amp;#nnn; character escapes inside
-	preformatted text.
+	preformatted text.</LI>
 	<LI>Empty TBODY groups would cause parse_table() to
-	crash.
+	crash.</LI>
 	<LI>Comments were incorrectly terminated by ">" instead of
-	"-->".
+	"-->".</LI>
 	<LI>The command-line and GUI interfaces looked for
-	"outlines" instead of "outline" for the page mode.
+	"outlines" instead of "outline" for the page mode.</LI>
 	<LI>The HTML output code didn't output closing tags for
-	empty elements.
+	empty elements.</LI>
 	<LI>The GUI interface started with the compression
-	slider enabled, even for HTML output.
+	slider enabled, even for HTML output.</LI>
 	<LI>The beginnings of some lines could start with
-	whitespace.
+	whitespace.</LI>
 	<LI>Wasn't aligning images and text on lines based on the
-	line height.
+	line height.</LI>
 	<LI>The compression slider was enabled in the GUI even
-	though HTML output was selected.
-	<LI>The Perl example code was incorrect.
+	though HTML output was selected.</LI>
+	<LI>The Perl example code was incorrect.</LI>
 	<LI>Fixed the check for whether or not pages were
-	generated.
+	generated.</LI>
 	<LI>htmlSetCharSet() wasn't reloading the character set
-	data if the data directory changed.
-	<LI>The GUI did not reset the default background color.
+	data if the data directory changed.</LI>
+	<LI>The GUI did not reset the default background color.</LI>
 	<LI>The 'C' page number style (chapter page numbers) started
-	at 3 instead of 1.
+	at 3 instead of 1.</LI>
 	<LI>The chapter links were off by 1 or 2 pages when no title
-	page was included.
+	page was included.</LI>
 
 </UL>
 
@@ -623,34 +623,34 @@
 
 	<H3>New Features</H3>
 
-	<LI>Added support for PDF security/encryption!
-	<LI>Now support TABLE height attribute.
+	<LI>Added support for PDF security/encryption!</LI>
+	<LI>Now support TABLE height attribute.</LI>
 	<LI>Now generate an error message if no pages are
 	generated (with a suggestion to use the webpage
-	option.)
+	option.)</LI>
 	<LI>New "paths" option to specify additional directories
 	to search for files.  This is useful when the source
-	files use absolute server paths.
+	files use absolute server paths.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>Added missing casts in htmllib.cxx that were causing a
-	compile warning with some compilers.
-	<LI>No longer draw borders around empty cells in tables..
-	<LI>Now disable the TOC tab when using webpage mode.
-	<LI>Now scale title image to 100% in HTML output.
+	compile warning with some compilers.</LI>
+	<LI>No longer draw borders around empty cells in tables...</LI>
+	<LI>Now disable the TOC tab when using webpage mode.</LI>
+	<LI>Now scale title image to 100% in HTML output.</LI>
 	<LI>Now handle comments with missing whitespace after the
-	"&lt;!--".
+	"&lt;!--".</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>Nested tables didn't take into account the table
-	border width, spacing, or padding values.
-	<LI>HTMLDOC crashed under Solaris when reading HTML files
-	from the standard input.
+	border width, spacing, or padding values.</LI>
+	<LI><I>HTMLDOC</I> crashed under Solaris when reading HTML files
+	from the standard input.</LI>
 	<LI>&lt;ELEM&gt;text&lt;/ELEM&gt;
 	&lt;MELE&gt;text&lt;/MELE&gt; was rendered without an
-	intervening space.
+	intervening space.</LI>
 
 </UL>
 
@@ -661,70 +661,70 @@
 	<H3>New Features</H3>
 
 	<LI>The configure script now uses the local PNG, ZLIB,
-	and/or JPEG libraries when they are new enough.
+	and/or JPEG libraries when they are new enough.</LI>
 	<LI>The configure script now uses the -fno-rtti,
 	-fno-exceptions, and -fpermissive options as needed
 	with GCC (smaller, faster executables, works around X
-	header bugs in Solaris.)
+	header bugs in Solaris.)</LI>
 	<LI>Added a --toctitle option to set the table-of-contents
 	title from the command-line (was only available in the
-	GUI in previous releases...)
+	GUI in previous releases...)</LI>
 	<LI>New "&lt;!-- NEED amount -->" comment to force a page
 	feed if there is not sufficient room on the page for
-	the following text.
-	<LI>Page comments are now supported in tables.
+	the following text.</LI>
+	<LI>Page comments are now supported in tables.</LI>
 	<LI>Table rows are now allocated dynamically, MAX_ROWS at
-	a time.
+	a time.</LI>
 
 	<H3>Changes</H3>
 
-	<LI>Increased default MAX_PAGES to 10000 (was 5000.)
+	<LI>Increased default MAX_PAGES to 10000 (was 5000.)</LI>
 	<LI>File links in book files now point to the top of the
-	next page.
+	next page.</LI>
 	<LI>&lt;TABLE ALIGN=xyz> now aligns the table (previously it
-	just set the default alignment of cells.)
+	just set the default alignment of cells.)</LI>
 	<LI>Transparent GIFs now use the body color instead of white
-	for the transparent color.
-	<LI>Updated to LIBPNG 1.0.6 in source distribution.
+	for the transparent color.</LI>
+	<LI>Updated to LIBPNG 1.0.6 in source distribution.</LI>
 	<LI>Updated the default cellpadding to be 1 pixel to match
-	Netscape output.
-	<LI>Updated line and block spacing to match Netscape.
+	Netscape output.</LI>
+	<LI>Updated line and block spacing to match Netscape.</LI>
 	<LI>DL/DT/DD output now matches browsers (was indented from
-	browser output.)
+	browser output.)</LI>
 	<LI>Now only output link (A) style if it is set to "none".
 	Otherwise Netscape would underline all targets as well
-	as links.
+	as links.</LI>
 	<LI>Increased the MAX_COLUMNS constant to 200, and dropped
 	MAX_ROWS to 200. Note that the new table code now
 	allocates rows in increments of MAX_ROWS rows, so the
 	actual maximum number of rows depends on available
-	memory.
+	memory.</LI>
 
 	<H3>Bug Fixes</H3>
 
-	<LI>Now ignore illegal HTML in tables.
+	<LI>Now ignore illegal HTML in tables.</LI>
 	<LI>The VALIGN code didn't handle empty cells properly.
 	<LI>Wasn't offsetting the start of each row by the cell
-	padding.
+	padding.</LI>
 	<LI>The JPEG image loading code didn't work for some JPEG
 	images, particularly those from digital cameras (JPEG
-	but not JFIF format.)
+	but not JFIF format.)</LI>
 	<LI>The strikethrough line was not being drawn in the
-	correct position.
+	correct position.</LI>
 	<LI>Wasn't setting the height of BR elements, so &lt;BR>&lt;BR>
-	didn't insert a blank line.
+	didn't insert a blank line.</LI>
 	<LI>The table of contents would show the wrong page numbers
-	if no title page was generated.
+	if no title page was generated.</LI>
 	<LI>Cell widths did not subtract any border, padding, or
 	spacing from the "preferred" width, causing formatting
-	differences between web browsers and HTMLDOC.
+	differences between web browsers and <I>HTMLDOC</I>.</LI>
 	<LI>The PNG loading code did not handle interlacing or
-	transparency.
+	transparency.</LI>
 	<LI>The HTML parsing code did not prevent elements in
 	embedded files from completing elements in the parent
-	file.
+	file.</LI>
 	<LI>The table CELLSPACING amount was being applied twice in
-	the table sizing calculations.
+	the table sizing calculations.</LI>
 
 </UL>
 
@@ -734,45 +734,45 @@
 
 	<H3>New Features</H3>
 
-	<LI>New linkcolor and linkstyle options.
+	<LI>New linkcolor and linkstyle options.</LI>
 
 	<H3>Changes</H3>
 
-	<LI>Minor source changes for OS/2 compilation.
+	<LI>Minor source changes for OS/2 compilation.</LI>
 	<LI>SUP and SUB now raise/lower text more to be consistent with
-	browser look-n-feel.
+	browser look-n-feel.</LI>
 	<LI>Non-breaking space by itself was being output.  Now check for
-	that and ignore strings that consist entirely of whitespace.
-	<LI>New progress bar.
+	that and ignore strings that consist entirely of whitespace.</LI>
+	<LI>New progress bar.</LI>
 
 	<H3>Bug Fixes</H3>
 
-	<LI>Didn't add whitespace after a table caption.
+	<LI>Didn't add whitespace after a table caption.</LI>
 	<LI>Nested tables caused formatting problems (flatten_tree()
-	didn't insert breaks for new rows)
+	didn't insert breaks for new rows)</LI>
 	<LI>A cell whose minimum width exceeded the available width
-	for the table would cause the table to go off the page.
+	for the table would cause the table to go off the page.</LI>
 	<LI>Cells that spanned more than two pages were drawn with boxes
-	around them rather than just the sides.
+	around them rather than just the sides.</LI>
 	<LI>The stylesheet info in the HTML output specified the H1 size
-	for all headings.
+	for all headings.</LI>
 	<LI>The title page was incorrectly formatted when an image was
 	specified - the text start position was computed using the
-	pixel height of the title image and not the formatted height.
+	pixel height of the title image and not the formatted height.</LI>
 	<LI>1 color images didn't come out right; the "fix" to work around
 	an Acrobat Reader bug was being done too soon, so the color
-	lookups were wrong.
-	<LI>HTML file links now work properly.
+	lookups were wrong.</LI>
+	<LI>HTML file links now work properly.</LI>
 	<LI>Now limit all HTML input to the maximum size of input buffers
-	to avoid potential buffer overflow problems in CGIs.
-	<LI>If a row had a predefined height, HTMLDOC wasn't making sure
-	that the row would fit on the current page.
+	to avoid potential buffer overflow problems in CGIs.</LI>
+	<LI>If a row had a predefined height, <I>HTMLDOC</I> wasn't making sure
+	that the row would fit on the current page.</LI>
 	<LI>THEAD, TFOOT, and TBODY caused problems when formatting tables.
 	Note: THEAD and TFOOT are *still* not supported, however the
 	code now properly ignores them and parses the rows in the
-	TBODY group.
+	TBODY group.</LI>
 	<LI>The VALIGN code introduced in the 1.8.5 release didn't check
-	for NULL pointers in all cases.
+	for NULL pointers in all cases.</LI>
 
 </UL>
 
@@ -783,44 +783,44 @@
 	<H3>New Features</H3>
 
 	<LI>New "--titlefile" option to include an HTML file for
-	the title page(s).
+	the title page(s).</LI>
 	<LI>New 'C' header/footer option to show current page
-	number within chapter or HTML file.
+	number within chapter or HTML file.</LI>
 	<LI>Allow adding of .book files to import all HTML files
-	in the book.
-	<LI>New "HALF PAGE" page comment to feed 1/2 page.
-	<LI>Added VALIGN and HEIGHT support in tables.
+	in the book.</LI>
+	<LI>New "HALF PAGE" page comment to feed 1/2 page.</LI>
+	<LI>Added VALIGN and HEIGHT support in tables.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>Now optimize link objects in PDF files (provides a 40k
-	reduction in file size for the HTMLDOC manual alone)
+	reduction in file size for the <I>HTMLDOC</I> manual alone)</LI>
 	<LI>Table rows that cross page boundaries are now rendered
-	more like Netscape and MSIE.
+	more like Netscape and MSIE.</LI>
 	<LI>Now support HTMLDOC_DATA and HTMLDOC_HELP environment
-	variables under UNIX (for alternate install directory)
-	<LI>Now show error messages when HTMLDOC can't open the
-	AFM, character set, or PostScript glyph files.
+	variables under UNIX (for alternate install directory)</LI>
+	<LI>Now show error messages when <I>HTMLDOC</I> can't open the
+	AFM, character set, or PostScript glyph files.</LI>
 	<LI>The logo image is now scaled to its "natural" size (as
-	it would appear in a web browser)
-	<LI>Now recognize VALIGN="MIDDLE" or VALIGN="CENTER".
+	it would appear in a web browser)</LI>
+	<LI>Now recognize VALIGN="MIDDLE" or VALIGN="CENTER".</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>Generation of PDF files to the standard output (i.e.
 	to the web server + browser) didn't work on some
-	versions of UNIX.  HTMLDOC now writes the PDF output
+	versions of UNIX.  <I>HTMLDOC</I> now writes the PDF output
 	to a temporary file and then copies it to the standard
-	output as needed.
+	output as needed.</LI>
 	<LI>PDF links were missing the first 5 characters in the
 	filename; the code was trying to skip over the "file:"
-	prefix, but that prefix was already skipped elsewhere.
+	prefix, but that prefix was already skipped elsewhere.</LI>
 	<LI>Nested descriptive lists (DL) did not get rendered
-	properly.
-	<LI>Tables had extra whitespace before and after them.
+	properly.</LI>
+	<LI>Tables had extra whitespace before and after them.</LI>
 	<LI>Multiple aligned images confused parse_paragraph();
 	the images would overlap instead of stack on the
-	sides.
+	sides.</LI>
 
 </UL>
 
@@ -830,33 +830,33 @@
 
 	<H3>Changes</H3>
 
-	<LI>More configure script changes for FLTK DSOs.
+	<LI>More configure script changes for FLTK DSOs.</LI>
 	<LI>FileIcon.cxx was still using NULL for outline (an
 	integer), which caused some ANSI C++ compilers to
-	complain.
+	complain.</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>The Fonts and Colors tab groups did not extend to
 	the full width of the tab area, which prevented the
 	Browse button from working when clicked on the right
-	side.
+	side.</LI>
 	<LI>The help dialog window did not scroll all the way to
-	the bottom of the text.
-	<LI>The chapter ("c") header/footer string did not work.
+	the bottom of the text.</LI>
+	<LI>The chapter ("c") header/footer string did not work.</LI>
 	<LI>The heading ("h") header/footer string did not always
-	match the first heading on a page.
+	match the first heading on a page.</LI>
 	<LI>The header and footer fonts were not used when
-	computing the widths of the header and footer strings.
+	computing the widths of the header and footer strings.</LI>
 	<LI>The Windows distribution did not create the right
-	shortcut for the Users Manual in the Start menu.
+	shortcut for the Users Manual in the Start menu.</LI>
 	<LI>The command-line code did not accept "--grayscale",
-	only "--gray"
+	only "--gray"</LI>
 	<LI>Multi-file HTML output did not use the right link for
 	the table-of-contents file if no title page was being
-	generated.
+	generated.</LI>
 	<LI>Extra whitespace before and after tables has been
-	eliminated.
+	eliminated.</LI>
 
 </UL>
 
@@ -867,28 +867,28 @@
 	<H3>New Features</H3>
 
 	<LI>New "--browserwidth" option to control scaling of images and
-	tables that use fixed pixel widths.
+	tables that use fixed pixel widths.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>The configure script now looks for the OpenGL library
 	(required if you use a shared FLTK library with OpenGL
-	support.)
-	<LI>Increased the max number of chapters to 1000.
+	support.)</LI>
+	<LI>Increased the max number of chapters to 1000.</LI>
 
 	<H3>Bug Fixes</H3>
 
-	<LI>Page break comments didn't force a paragraph break.
+	<LI>Page break comments didn't force a paragraph break.</LI>
 	<LI>--no-toc prevented chapters from being output in PS
-	and PDF files.
+	and PDF files.</LI>
 	<LI>Filenames didn't always get updated properly when doing a
-	"save as"...
-	<LI>Fixed some more leading/trailing whitespace problems.
+	"save as"...</LI>
+	<LI>Fixed some more leading/trailing whitespace problems.</LI>
 	<LI>Wasn't freeing page headings after the document was
-	generated.
+	generated.</LI>
 	<LI>Wasn't range checking the current chapter number; now
 	limits the number of chapters to MAX_CHAPTERS and
-	issues an error message whenever the limit is exceeded.
+	issues an error message whenever the limit is exceeded.</LI>
 
 </UL>
 
@@ -898,29 +898,29 @@
 
 	<H3>New Features</H3>
 
-	<LI>New "setup" program for UNIX software installation.
+	<LI>New "setup" program for UNIX software installation.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>Documentation updated for new UNIX "setup" program and
-	"..." usage for headers and footers.
+	"..." usage for headers and footers.</LI>
 	<LI>Changed margins to floating point (instead of integer) to
-	improve table column accuracy.
+	improve table column accuracy.</LI>
 
 	<H3>Bug Fixes</H3>
 
-	<LI>HTMLDOC could crash under Microsoft Windows with some
+	<LI><I>HTMLDOC</I> could crash under Microsoft Windows with some
 	types of HTML files.  This was caused by a stack overflow,
-	usually when processing nested tables.
+	usually when processing nested tables.</LI>
 	<LI>Multiple HTML files weren't being converted properly in
 	web page mode - only the last file would be generated for
-	PostScript output, and no file for PDF output.
+	PostScript output, and no file for PDF output.</LI>
 	<LI>Wasn't preserving the whitespace between "one" and "two"
-	in the HTML code "one&lt;I> two&lt;/I> three".
-	<LI>Paragraph spacing was inconsistent.
-	<LI>&lt;TABLE WIDTH="xx"> wasn't formatted properly.
+	in the HTML code "one&lt;I> two&lt;/I> three".</LI>
+	<LI>Paragraph spacing was inconsistent.</LI>
+	<LI>&lt;TABLE WIDTH="xx"> wasn't formatted properly.</LI>
 	<LI>The command-line code wasn't opening HTML files in binary
-	mode. This caused problems under Microsoft Windows.
+	mode. This caused problems under Microsoft Windows.</LI>
 
 </UL>
 
@@ -932,37 +932,37 @@
 
 	<LI>The configure script didn't update the ARFLAGS
 	variable for *BSD operating systems (no "s" option to
-	build the symbol table...)
+	build the symbol table...)</LI>
 	<LI>Changed the installation commands to only create the
 	installation directory if it does not exist.  This
 	prevents installation errors on some platforms the
-	second time around.
+	second time around.</LI>
 	<LI>Now use the Microsoft definitions for characters 128
 	through 159 that are otherwise unused by the
-	ISO-8859-x character sets.
-	<LI>Now set optimization settings when we know the compiler.	
+	ISO-8859-x character sets.</LI>
+	<LI>Now set optimization settings when we know the compiler.</LI>
 	<LI>Now always quote attribute values in HTML output to make
-	HTML lint programs happy.
+	HTML lint programs happy.</LI>
 
 	<H3>Bug Fixes</H3>
 
-	<LI>Wasn't using TOC title string in PDF document outline.
+	<LI>Wasn't using TOC title string in PDF document outline.</LI>
 	<LI>Preformatted text in tables didn't force the column
-	width.
+	width.</LI>
 	<LI>Cells using COLSPAN > 1 didn't contribute to the width
-	of columns.
+	of columns.</LI>
 	<LI>The table code didn't enforce the per-column minimums
 	under certain circumstances, causing "scrambled"
-	columns.
+	columns.</LI>
 	<LI>The configure script and makefiles didn't work when
 	FLTK was not available.  They now only build the "gui"
-	library when it is available.
+	library when it is available.</LI>
 	<LI>The Windows distribution was installing files under
 	PROGRAMDIR instead of TARGETDIR.  This prevented users
-	from customizing the installation directory.
+	from customizing the installation directory.</LI>
 	<LI>The configure script overrode the LDFLAGS environment
 	variable, preventing FLTK from being located in a non-
-	default directory.
+	default directory.</LI>
 
 </UL>
 
@@ -972,290 +972,91 @@
 
 	<H3>New Features</H3>
 
-	<LI>Now support PDF 1.1 (Acrobat 2.x) and PDF 1.3 (Acrobat 4.0).
+	<LI>Now support PDF 1.1 (Acrobat 2.x) and PDF 1.3 (Acrobat 4.0).</LI>
 	<LI>Now support PDF page modes, layouts, and effects, and the
-	first page that is displayed in Acrobat Reader.
+	first page that is displayed in Acrobat Reader.</LI>
 	<LI>Now support PostScript Level 3 output with Flate image
-	compression.
+	compression.</LI>
 	<LI>Now support PostScript commands for page size and duplexing.
-	<LI>Now add filenames as needed to HTML links.
+	<LI>Now add filenames as needed to HTML links.</LI>
 	<LI>Added optimizations to output code to further reduce PDF and
-	PostScript file size.
+	PostScript file size.</LI>
 	<LI>Now support alternate 8-bit character sets. Currently we
-	supply data files for the ISO-8859-N character sets.
+	supply data files for the ISO-8859-N character sets.</LI>
 	<LI>Added chapter headings to the available header/footer
-	formats.
+	formats.</LI>
 	<LI>The GUI file chooser is significantly improved and supports
-	selection of multiple HTML files.
-	<LI>The GUI now provides on-line help.
-	<LI>Many other GUI improvements.
-	<LI>Added support for DIR and MENU block elements.
+	selection of multiple HTML files.</LI>
+	<LI>The GUI now provides on-line help.</LI>
+	<LI>Many other GUI improvements.</LI>
+	<LI>Added support for DIR and MENU block elements.</LI>
 	<LI>The header and footer text can now be made boldface, italic,
-	etc.
+	etc.</LI>
 	<LI>Font settings are now exported to HTML files in a style
-	sheet.
-	<LI>Now support page breaks using HTML comments.
-	<LI>The image dimensions are now exported to HTML files.
-	<LI>Added landscape printing option.
-	<LI>Added CAPTION support for tables.
+	sheet.</LI>
+	<LI>Now support page breaks using HTML comments.</LI>
+	<LI>The image dimensions are now exported to HTML files.</LI>
+	<LI>Added landscape printing option.</LI>
+	<LI>Added CAPTION support for tables.</LI>
 	<LI>Filename links now work for HTML files included in a
-	document.
-	<LI>Now support BGCOLOR in tables.
+	document.</LI>
+	<LI>Now support BGCOLOR in tables.</LI>
 
 	<H3>Changes</H3>
 
-	<LI>Lots of documentation changes.
-	<LI>Much better table formatting.
+	<LI>Lots of documentation changes.</LI>
+	<LI>Much better table formatting.</LI>
 	<LI>Changed HTML output to use less invasive navigation bars at
 	the top and bottom of each file.  This also means that the
-	"--barcolor" option is no longer supported!
+	"--barcolor" option is no longer supported!</LI>
 	<LI>Updated to use existing filenames in HTML (directory) output.
 	<LI>Now recognize any local PDF file as a local file link (i.e.
 	you just need "HREF=filename.pdf" and not
-	"HREF=file:filename.pdf")
-	<LI>&lt;TT>, &lt;CODE>, and &lt;SAMP> no longer reduce the font size.
+	"HREF=file:filename.pdf")</LI>
+	<LI>&lt;TT>, &lt;CODE>, and &lt;SAMP> no longer reduce the font size.</LI>
 	<LI>Now put whitespace after image data in PDF files.  This
-	change was needed to work around a bug in Acrobat Reader 4.0.
+	change was needed to work around a bug in Acrobat Reader 4.0.</LI>
 	<LI>Now generate a complete encoding vector for fonts in PDF
 	files.  This change was needed to work around a bug in all
 	versions of Acrobat Exchange that did not recognize the
-	WinANSI encoding defined in the PDF specifications.
-	<LI>Now filter out the BREAK attribute from HR elements.
-	<LI>Now only load images once.
+	WinANSI encoding defined in the PDF specifications.</LI>
+	<LI>Now filter out the BREAK attribute from HR elements.</LI>
+	<LI>Now only load images once.</LI>
 
 	<H3>Bug Fixes</H3>
 
-	<LI>Wasn't escaping &amp;,&lt;, or > in HTML output
-	<LI>Wasn't preserving &amp;nbsp;
-	<LI>Links in multi-file HTML output were off-by-one.
-	<LI>BLOCKQUOTE needed to be like CENTER and DIV.
+	<LI>Wasn't escaping &amp;,&lt;, or > in HTML output</LI>
+	<LI>Wasn't preserving &amp;nbsp;</LI>
+	<LI>Links in multi-file HTML output were off-by-one.</LI>
+	<LI>BLOCKQUOTE needed to be like CENTER and DIV.</LI>
 	<LI>Needed to use existing link name if present for headings to
-	avoid nested link name bug in Netscape and MSIE.
+	avoid nested link name bug in Netscape and MSIE.</LI>
 	<LI>Extremely long link names could cause TOC generation to fail
-	and HTMLDOC to crash.
+	and <I>HTMLDOC</I> to crash.</LI>
 	<LI>PDF output was not compatible with Ghostscript/Ghostview
 	because Ghostscript does not support inherited page resources
 	or the "Fl" abbreviation for the "FlateDecode" compression
-	filter.
+	filter.</LI>
 	<LI>PostScript DSC comments didn't have unique page numbers. This
-	caused Ghostview (among others) to get confused.
-	<LI>Some functions didn't handle empty text fragments.
-	<LI>Images couldn't be scaled both horizontally and vertically.
-	<LI><LI> didn't support the VALUE attribute (but <OL> did...)
+	caused Ghostview (among others) to get confused.</LI>
+	<LI>Some functions didn't handle empty text fragments.</LI>
+	<LI>Images couldn't be scaled both horizontally and vertically.</LI>
+	<LI>&lt;LI> didn't support the VALUE attribute (but &lt;OL> did...)</LI>
 	<LI>Fixed whitespace problems before and after some markups that
-	was caused by intervening links.
+	was caused by intervening links.</LI>
 	<LI>The indexed image output code could generate an image with only
-	1 color index used, which upset Acrobat Reader.
-	<LI>Fixed a bug in table-of-contents handling <LI>HTMLDOC would crash
-	on some systems if you converted a web page on the command-line.
+	1 color index used, which upset Acrobat Reader.</LI>
+	<LI>Fixed a bug in table-of-contents handling - <I>HTMLDOC</I> would crash
+	on some systems if you converted a web page on the command-line.</LI>
 	<LI>Wasn't setting the font size and spacing soon enough when
-	generating files on the command-line.
-	<LI>Didn't hide EMBED elements when generating indexed HTML files.
+	generating files on the command-line.</LI>
+	<LI>Didn't hide EMBED elements when generating indexed HTML files.</LI>
 	<LI>Didn't always set the current drawing position before drawing
-	a box or line.
-	<LI>Base85 encoding of image data was broken for PostScript output.
-	<LI>JPEG compression was broken for PostScript output.
+	a box or line.</LI>
+	<LI>Base85 encoding of image data was broken for PostScript output.</LI>
+	<LI>JPEG compression was broken for PostScript output.</LI>
 	<LI>Didn't set binary mode for the standard output under Windows
-	and OS/2 needed.
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.7</H2>
-
-<UL>
-
-	<LI>Added option for overriding the background color or image.
-	<LI>Added default font typeface and size options.
-	<LI>Added progress indicator for page formatting.
-	<LI>The HTMLDOC window is now resizeable.
-	<LI>The &lt;TABLE> and &lt;CENTER> markups didn't start a new block.
-	<LI>strcasecmp and friends are not available on all platforms.
-	<LI>Added support for MacOS (command-line only).
-	<LI>The width of table cells could be off by 1 point causing
-	unnecessary text wrapping.
-	<LI>The GUI's default center footer wasn't "blank".
-	<LI>Images could be "lost" if they reside in the current
-	directory or use an absolute path.
-	<LI>Documents without titles or headings could crash HTMLDOC.
-	<LI>The image loading code could crash due to a MSVC++ runtime
-	library bug.
-	<LI>Spacing before &lt;HR>'s wasn't consistent.
-	<LI>Buffer overflow problems causing crashes.
-	<LI>Didn't accept whitespace in variables, e.g. "&lt;TAG NAME = VALUE>"
-	<LI>Links didn't always get propagated.
-	<LI>The Flate compressor data was not getting freed, so HTMLDOC
-	could use a lot of memory when compression was enabled.
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.6</H2>
-
-<UL>
-
-	<LI>Now support JPEG compression of images.
-	<LI>Now have selectable Flate (ZIP) compression level.
-	<LI>Now only adjust top and bottom margins if headers and
-	footers are used.
-	<LI>Better HTML output support (now remember files for
-	links in multi-file output).
-	<LI>Increased maximum page count to 5000.
-	<LI>Needed to show headers on all pages in web page mode.
-	<LI>Now recognize both "in" and "inch" for measurements.
-	<LI>&lt;BR> was not handled properly.
-	<LI>Selecting "web page" in the GUI clears the title toggle.
-	<LI>TABLE row spacing was not right...
-	<LI>&lt;TD COLSPAN=n> now draws multi-column borders.
-	<LI>Column widths were computed wrong when COLSPAN was used.
-	<LI>Nested lists were not handled right.
-	<LI>Internal links didn't work for PDF output.
-	<LI>Block spacing should now be more consistent.
-	<LI>Image scaling was off <LI>now only use page width so that
-	images are not warped.
-	<LI>The footer was always one line too low.
-	<LI>Couldn't double-click on input filename to edit.
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.5</H2>
-
-<UL>
-
-	<LI>Added customization of headers and footers.
-	<LI>Added new "--title" image option.
-	<LI>Can now put logo image in header or footer.
-	<LI>&lt;MARKUP ID="name"> now works for link destinations.
-	<LI>The table of contents now appears as part of the document
-	outline in PDF output.
-	<LI>Links to local PDF files are now treated as file links in PDF
-	output instead of web links.
-	<LI>You can now turn the title page on/off as desired.
-	<LI>PostScript and PDF output to stdout now works.
-	<LI>Nested tables now format properly.
-	<LI>&lt;HR> now provides horizontal rule; to get a page break use
-	"&lt;HR BREAK>".
-	<LI>Fixed &lt;TABLE BORDER=0> bug.
-	<LI>Fixed GIF loader bug (caused problems on Alpha machines)
-	<LI>No longer get extra line after list items.
-	<LI>&lt;FONT> markup nesting now works.
-	<LI>"&amp;" by itself would cause loss of 15 characters.
-	<LI>The current directory was not tracked properly under Windows.
-	<LI>The right, top, and bottom margins were not being saved properly.
-	<LI>The htmlReadFile() function could consume too much stack space,
-	causing a program failure.
-	<LI>PostScript and PDF files were corrupt when generating a web
-	page with a title page.
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.4</H2>
-
-<UL>
-
-	<LI>Now use autoconf "configure" script to build UNIX makefile.
-	<LI>Now handle relative filenames a lot better when loading images
-	and files.
-	<LI>Added "--webpage" option to support printing of plain HTML
-	files (i.e. not documents with chapters)
-	<LI>Added support for document backgrounds in PostScript and PDF
-	output
-	<LI>Added "--no-toc" and "--no-title" options to disable the
-	table-of-contents and title pages, respectively
-	<LI>PDF files now store all named links for use from a web page
-	(HREF="filename.pdf#name")
-	<LI>Converted to C++
-	<LI>Now using FLTK for the GUI under UNIX and Windows (yeah, one
-	set of code!)
-	<LI>Merged GUI and command-line versions
-	<LI>Greatly enhanced GUI now supports nearly all command-line
-	options.
-	<LI>Miscellaneous fixes to HTML parsing code
-	<LI>PDF links should now go to the right page all the time
-	<LI>Fixed DSC comments in PostScript output to conform to the
-	standard
-	<LI>Fixed dumb bug in Windows version <LI>didn't handle HTML files
-	with only a LF at the end of each line (this is a BUG in the
-	MSVC++ runtime libraries!)
-	<LI>&lt;PRE> inside a list didn't work
-	<LI>parse_table() and friends didn't check for a NULL parent
-	pointer.
-	<LI>Paragraph text that wasn't enclosed by P markups was
-	located on the wrong page when followed by a H1 markup.
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.3.1</H2>
-
-<UL>
-
-	<LI>Fixed font encoding vector in PostScript output (minus instead
-	of hyphen for '-' character).
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.3</H2>
-
-<UL>
-
-	<LI>New GUI for managing documents (Windows + X11/Motif)
-	<LI>Better table printing with support for user-specified column
-	widths and better automatic-sizing
-	<LI>PNG loading now works when grayscale output is requested
-	<LI>No image optimization was performed in PDF or Level 2 PostScript
-	files.  HTMLDOC now converts images to indexed (1,2,4,8 bits) if
-	there is an advantage (fewer bits per pixel) and no loss of color
-	would occur
-	<LI>The filenames in links were getting lost when writing indexed
-	HTML to a directory
-	<LI>The logo image filename wasn't being localized when writing
-	indexed HTML to a directory
-	<LI>Fonts, images, and links weren't supported inside a PRE tag
-	<LI>Added support for the &lt;!DOCTYPE> markup
-	<LI>No longer assume that chars are unsigned by default
-	<LI>Invalid or missing links no longer generate bad PDF files
-	<LI>External links (http:, ftp:, etc) now work
-	<LI>Escaped characters are now decoded correctly in the table of
-	contents in PDF files
-	<LI>Image scaling is now more intelligent
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.2</H2>
-
-<UL>
-
-	<LI>Now support "internal" links in a document (PDF &amp; HTML).
-	<LI>Added "no compression" option for PDF files; this is needed for
-	older PDF readers like Acroread 2.x.
-	<LI>Much better parsing of HTML; should now work very well with the
-	HTML output by Netscape Composer.
-	<LI>Wasn't opening image files in "binary" mode (Windows).
-	<LI>The htmlReadString() and htmlWriteString() functions were removed
-	because of portability problems to HP-UX and Windows, among others.
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.1</H2>
-
-<UL>
-
-	<LI>Ordered (numbered) lists are now supported, as are the TYPE=, START=,
-	and VALUE= option variables.
-	<LI>Now support coverpages for PS and PDF output with optional logo image.
-	<LI>Running headings (at the bottom of PS/PDF pages) are now tracked
-	correctly.
-	<LI>Fixed parsing of lists so lists generated by Netscape Composer work
-	right...
-	<LI>Fixed HTML links when generating a single HTML file.
-	<LI>The --numbered option didn't number all headings (only those in the
-	table-of-contents).
-
-</UL>
-
-<H2>Changes in HTMLDOC v1.0</H2>
-
-<UL>
-
-	<LI>Initial version.
+	and OS/2 needed.</LI>
 
 </UL>
 
