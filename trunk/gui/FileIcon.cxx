@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.9 1999/10/14 15:24:37 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.10 1999/11/07 15:59:47 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -48,6 +48,7 @@
 #include <sys/stat.h>
 #if defined(WIN32) || defined(__EMX__)
 #  include <io.h>
+#  define F_OK	0
 #else
 #  include <unistd.h>
 #endif /* WIN32 || __EMX__ */
@@ -951,5 +952,5 @@ FileIcon::load_system_icons(void)
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.9 1999/10/14 15:24:37 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.10 1999/11/07 15:59:47 mike Exp $".
 //

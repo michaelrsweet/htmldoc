@@ -1,5 +1,5 @@
 # Microsoft Developer Studio Project File - Name="htmldoc" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 5.00
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
@@ -22,6 +22,7 @@ CFG=htmldoc - Win32 Debug
 !MESSAGE 
 
 # Begin Project
+# PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
@@ -42,9 +43,9 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /GX /Os /Ob1 /I "c:\development\fltk" /I "..\libpng-1.0.2" /I "..\zlib-1.1.3" /I "..\jpeg-6b" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
+# ADD CPP /nologo /MT /GX /O2 /Ob2 /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -52,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 c:\development\fltk\lib\fltk.lib ..\libpng-1.0.2\png.lib ..\zlib-1.1.3\z.lib ..\jpeg-6b\jpeg.lib wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /machine:I386 /out:"htmldoc.exe"
+# ADD LINK32 wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /machine:I386 /out:"htmldoc.exe"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
@@ -69,9 +70,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MTd /Gm /GX /Zi /Od /I "c:\development\fltk" /I "..\libpng-1.0.2" /I "..\zlib-1.1.3" /I "..\jpeg-6b" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
+# ADD CPP /nologo /MTd /Gm /GX /Zi /Od /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -79,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 c:\development\fltk\lib\fltkd.lib ..\libpng-1.0.2\pngd.lib ..\zlib-1.1.3\zd.lib ..\jpeg-6b\jpegd.lib wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"libcmt" /out:"htmldocd.exe" /pdbtype:sept
+# ADD LINK32 wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /nodefaultlib:"libcmt" /out:"htmldocd.exe" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -90,50 +91,103 @@ LINK32=link.exe
 # Name "htmldoc - Win32 Debug"
 # Begin Source File
 
-SOURCE=.\gui.cpp
+SOURCE=..\debug.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\html.cpp
+SOURCE=..\FileBrowser.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\htmldoc.cpp
+SOURCE=..\FileBrowser.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\htmldoc.ico
+SOURCE=..\FileChooser.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\htmllib.cpp
+SOURCE=..\FileChooser.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\icons.rc
-
-!IF  "$(CFG)" == "htmldoc - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
-
-!ENDIF 
-
+SOURCE=..\FileChooser2.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\image.cpp
+SOURCE=..\FileIcon.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\iso8859.cpp
+SOURCE=..\FileIcon.h
 # End Source File
 # Begin Source File
 
-SOURCE=".\ps-pdf.cpp"
+SOURCE=..\FileInput.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=.\toc.cpp
+SOURCE=..\FileInput.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\gui.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\gui.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\html.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\html.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\htmllib.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\image.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\image.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\iso8859.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\iso8859.h
+# End Source File
+# Begin Source File
+
+SOURCE="..\ps-pdf.cxx"
+# End Source File
+# Begin Source File
+
+SOURCE=..\toc.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\types.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\widths.h
 # End Source File
 # End Target
 # End Project

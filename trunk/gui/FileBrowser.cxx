@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.14 1999/10/26 17:34:26 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.15 1999/11/07 15:59:46 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -39,7 +39,7 @@
 #include <FL/filename.H>
 #include <stdio.h>
 #include <stdlib.h>
-#include <cups/string.h>
+#include <string.h>
 
 #if defined(WIN32) || defined(__EMX__)
 #  include <windows.h>
@@ -366,8 +366,7 @@ FileBrowser::load(const char *directory)// I - Directory to load
           strcmp(files[i]->d_name, "..") == 0)
 	continue;
 
-      snprintf(filename, sizeof(filename), "%s/%s", directory_,
-               files[i]->d_name);
+      sprintf(filename, "%s/%s", directory_, files[i]->d_name);
 
       if (filename_isdir(filename) ||
           filename_match(files[i]->d_name, pattern_))
@@ -402,5 +401,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.14 1999/10/26 17:34:26 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.15 1999/11/07 15:59:46 mike Exp $".
 //

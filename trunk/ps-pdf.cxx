@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.1 1999/11/07 13:33:10 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.2 1999/11/07 15:59:47 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5458,7 +5458,7 @@ write_string(FILE  *out,	/* I - Output file */
     if (*s == 160) /* &nbsp; */
     {
       if (compress)
-        pdf_write(out, " ", 1);
+        pdf_write(out, (uchar *)" ", 1);
       else
         putc(' ', out);
     }
@@ -5718,5 +5718,5 @@ pdf_write(FILE *out,	/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.1 1999/11/07 13:33:10 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.2 1999/11/07 15:59:47 mike Exp $".
  */
