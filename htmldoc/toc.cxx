@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.22 2004/10/23 07:06:19 mike Exp $"
+ * "$Id: toc.cxx,v 1.23 2004/10/24 22:44:54 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -295,7 +295,7 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
           {
             if (level > last_level)
 	    {
-	      if (heading_parents[last_level]->last_child)
+	      if (heading_parents[last_level]->last_child && level > 1)
         	heading_parents[level] =
 		    htmlAddTree(heading_parents[last_level]->last_child,
                                 HD_ELEMENT_UL, NULL);
@@ -381,5 +381,5 @@ hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.22 2004/10/23 07:06:19 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.23 2004/10/24 22:44:54 mike Exp $".
  */
