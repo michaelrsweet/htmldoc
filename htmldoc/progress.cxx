@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.cxx,v 1.6.2.16 2004/05/08 15:29:42 mike Exp $"
+ * "$Id: progress.cxx,v 1.6.2.17 2004/05/25 18:40:35 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
@@ -86,6 +86,13 @@ progress_error(HDerror    error,	/* I - Error number */
     return;
   }
 #endif /* HAVE_LIBFLTK */
+
+#ifdef WIN32
+  // IIS doesn't separate stderr from stdout, so we cannot output any CGI error messages
+  // on Windows...
+  if (CGIMode)
+    return;
+#endif // WIN32
 
   if (Verbosity >= 0)
   {
@@ -196,5 +203,5 @@ progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.6.2.16 2004/05/08 15:29:42 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.6.2.17 2004/05/25 18:40:35 mike Exp $".
  */
