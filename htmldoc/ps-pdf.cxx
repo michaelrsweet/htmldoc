@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.254 2004/06/16 14:56:48 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.255 2004/06/16 16:15:01 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -633,6 +633,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       }
 
       t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+      htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
       fclose(fp);
 
       page            = 0;
@@ -12358,5 +12359,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.254 2004/06/16 14:56:48 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.255 2004/06/16 16:15:01 mike Exp $".
  */
