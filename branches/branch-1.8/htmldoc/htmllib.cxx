@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.11 2001/02/11 12:53:13 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.12 2001/02/12 17:06:08 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -40,6 +40,7 @@
  *   htmlSetTextColor()  - Set the default text color.
  *   compare_variables() - Compare two markup variables.
  *   compare_markups()   - Compare two markup strings...
+ *   delete_node()       - Free all memory associated with a node...
  *   parse_markup()      - Parse a markup string.
  *   parse_variable()    - Parse a markup variable string.
  *   compute_size()      - Compute the width and height of a tree entry.
@@ -206,6 +207,7 @@ const char	*_htmlFonts[4][4] =
 static int	write_file(tree_t *t, FILE *fp, int col);
 static int	compare_variables(var_t *v0, var_t *v1);
 static int	compare_markups(uchar **m0, uchar **m1);
+static void	delete_node(tree_t *t);
 static int	parse_markup(tree_t *t, FILE *fp);
 static int	parse_variable(tree_t *t, FILE *fp);
 static int	compute_size(tree_t *t);
@@ -360,7 +362,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
         * Illegal lone "<"!  Ignore it...
 	*/
 
-	free(t);
+	delete_node(t);
 	continue;
       }
       
@@ -372,7 +374,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 #ifndef DEBUG
         progress_error("Unable to parse HTML element at %d!", pos);
 #endif /* !DEBUG */
-        free(t);
+
+        delete_node(t);
         break;
       }
 
@@ -498,7 +501,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       if (temp != NULL)
       {
         DEBUG_printf(("%s>>>> Auto-ascend <<<\n", indent));
-        free(t);
+
+        delete_node(t);
 
        /*
         * If the markup doesn't start with a slash, or if it does but
@@ -512,7 +516,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       }
       else if (ch == '/')
       {
-        free(t);
+        delete_node(t);
 	continue;
       }
     }
@@ -1156,8 +1160,6 @@ htmlAddTree(tree_t   *parent,	/* I - Parent entry */
 int				/* O - 0 for success, -1 for failure */
 htmlDeleteTree(tree_t *parent)	/* I - Parent to delete */
 {
-  int		i;		/* Looping var */
-  var_t		*var;		/* Current variable */
   tree_t	*next;		/* Next tree entry */
 
 
@@ -1172,20 +1174,7 @@ htmlDeleteTree(tree_t *parent)	/* I - Parent to delete */
       if (htmlDeleteTree(parent->child))
         return (-1);
 
-    if (parent->data != NULL)
-      free(parent->data);
-
-    for (i = 0, var = parent->vars; i < parent->nvars; i ++, var ++)
-    {
-      free(var->name);
-      if (var->value != NULL)
-        free(var->value);
-    }
-
-    if (parent->vars != NULL)
-      free(parent->vars);
-
-    free(parent);
+    delete_node(parent);
 
     parent = next;
   }
@@ -1555,19 +1544,19 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
   if (v == NULL)
   {
     if (t->nvars == 0)
-      t->vars = (var_t *)malloc(sizeof(var_t));
+      v = (var_t *)malloc(sizeof(var_t));
     else
-      t->vars = (var_t *)realloc(t->vars, sizeof(var_t) * (t->nvars + 1));
+      v = (var_t *)realloc(t->vars, sizeof(var_t) * (t->nvars + 1));
 
-    if (t->vars == NULL)
+    if (v == NULL)
     {
       DEBUG_printf(("%s==== MALLOC/REALLOC FAILED! ====\n", indent));
 
-      t->nvars = 0;
       return (-1);
     }
 
-    v        = t->vars + t->nvars;
+    t->vars  = v;
+    v        += t->nvars;
     t->nvars ++;
     v->name  = (uchar *)strdup((char *)name);
     if (value != NULL)
@@ -1825,6 +1814,37 @@ compare_markups(uchar **m0,	/* I - First markup */
                 uchar **m1)	/* I - Second markup */
 {
   return (strcasecmp((char *)*m0, (char *)*m1));
+}
+
+
+/*
+ * 'delete_node()' - Free all memory associated with a node...
+ */
+
+static void
+delete_node(tree_t *t)		/* I - Node to delete */
+{
+  int		i;		/* Looping var */
+  var_t		*var;		/* Current variable */
+
+
+  if (t == NULL)
+    return;
+
+  if (t->data != NULL)
+    free(t->data);
+
+  for (i = t->nvars, var = t->vars; i > 0; i --, var ++)
+  {
+    free(var->name);
+    if (var->value != NULL)
+      free(var->value);
+  }
+
+  if (t->vars != NULL)
+    free(t->vars);
+
+  free(t);
 }
 
 
@@ -2286,6 +2306,13 @@ fix_filename(char *filename,		/* I - Original filename */
 
       return (newfilename);
     }
+    else if ((slash = strchr(newfilename + 7, '/')) != NULL)
+      strcpy(slash + 1, filename);
+    else
+    {
+      strcat(newfilename, "/");
+      strcat(newfilename, filename);
+    }
   }
   else
   {
@@ -2352,5 +2379,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.11 2001/02/11 12:53:13 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.12 2001/02/12 17:06:08 mike Exp $".
  */
