@@ -1,9 +1,6 @@
 [TopDir]
 file0=C:\mike\htmldoc1\doc\htmldoc.pdf
 file1=C:\mike\htmldoc1\doc\help.html
-file2=C:\mike\htmldoc1\CHANGES.txt
-file3=C:\mike\htmldoc1\COPYING.txt
-file4=C:\mike\htmldoc1\README.txt
 
 [General]
 Type=FILELIST

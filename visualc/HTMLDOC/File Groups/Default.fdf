@@ -1,7 +1,22 @@
 [FileGroups]
-group0=Program Executables
-group1=Documentation
+group0=AFM Files
+group1=Program Executables
 group2=Data Files
+group3=Documentation
+
+[AFM Files]
+SELFREGISTERING=No
+HTTPLOCATION=
+LANGUAGE=
+OPERATINGSYSTEM=
+FTPLOCATION=
+FILETYPE=No
+INFOTYPE=Standard
+COMMENT=
+COMPRESS=Yes
+COMPRESSDLL=
+POTENTIALLY=No
+MISC=
 
 [Program Executables]
 SELFREGISTERING=No
@@ -22,7 +37,7 @@ Type=FileGrp
 Version=1.00.000
 Name=
 
-[Data Files]
+[Documentation]
 SELFREGISTERING=No
 HTTPLOCATION=
 LANGUAGE=
@@ -36,7 +51,7 @@ COMPRESSDLL=
 POTENTIALLY=No
 MISC=
 
-[Documentation]
+[Data Files]
 SELFREGISTERING=No
 HTTPLOCATION=
 LANGUAGE=
