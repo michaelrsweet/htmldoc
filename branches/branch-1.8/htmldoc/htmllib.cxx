@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.27 2001/06/01 19:23:19 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.28 2001/06/01 19:49:13 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -42,6 +42,8 @@
  *   compare_variables() - Compare two markup variables.
  *   compare_markups()   - Compare two markup strings...
  *   delete_node()       - Free all memory associated with a node...
+ *   insert_space()      - Insert a whitespace character before the
+ *                         specified node.
  *   parse_markup()      - Parse a markup string.
  *   parse_variable()    - Parse a markup variable string.
  *   compute_size()      - Compute the width and height of a tree entry.
@@ -210,6 +212,7 @@ static int	write_file(tree_t *t, FILE *fp, int col);
 static int	compare_variables(var_t *v0, var_t *v1);
 static int	compare_markups(uchar **m0, uchar **m1);
 static void	delete_node(tree_t *t);
+static void	insert_space(tree_t *parent, tree_t *t);
 static int	parse_markup(tree_t *t, FILE *fp);
 static int	parse_variable(tree_t *t, FILE *fp);
 static int	compute_size(tree_t *t);
@@ -686,50 +689,9 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           if (have_whitespace)
 	  {
 	    // Insert a space before this image...
-	    tree_t *space;
-
-	    space = (tree_t *)calloc(sizeof(tree_t), 1);
-	    if (space == NULL)
-	    {
-#ifndef DEBUG
-	      progress_error("Unable to allocate memory for HTML tree node!");
-#endif /* !DEBUG */
-	      break;
-	    }
-
-	   /*
-	    * Set/copy font characteristics...
-	    */
-
-	    if (parent == NULL)
-	    {
-	      space->typeface = _htmlBodyFont;
-	      space->size     = SIZE_P;
-	    }
-	    else
-	    {
-              space->link     = parent->link;
-	      space->typeface = parent->typeface;
-	      space->size     = parent->size;
-	      space->style    = parent->style;
-            }
-
-            space->markup   = MARKUP_NONE;
-	    space->data     = (uchar *)strdup(" ");
-            space->parent   = parent;
-            space->prev     = t->prev;
-            space->next     = t;
-
-            if (space->prev)
-	      space->prev->next = space;
-            else if (parent)
-	      parent->child = space;
-
-	    t->prev = space;
+	    insert_space(parent, t);
 
 	    have_whitespace = 0;
-
-            compute_size(space);
 	  }
 
           // Get the image alignment...
@@ -953,50 +915,9 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           if (have_whitespace)
 	  {
 	    // Insert a space before monospaced text...
-	    tree_t *space;
-
-	    space = (tree_t *)calloc(sizeof(tree_t), 1);
-	    if (space == NULL)
-	    {
-#ifndef DEBUG
-	      progress_error("Unable to allocate memory for HTML tree node!");
-#endif /* !DEBUG */
-	      break;
-	    }
-
-	   /*
-	    * Set/copy font characteristics...
-	    */
-
-	    if (parent == NULL)
-	    {
-	      space->typeface = _htmlBodyFont;
-	      space->size     = SIZE_P;
-	    }
-	    else
-	    {
-              space->link     = parent->link;
-	      space->typeface = parent->typeface;
-	      space->size     = parent->size;
-	      space->style    = parent->style;
-            }
-
-            space->markup   = MARKUP_NONE;
-	    space->data     = (uchar *)strdup(" ");
-            space->parent   = parent;
-            space->prev     = t->prev;
-            space->next     = t;
-
-            if (space->prev)
-	      space->prev->next = space;
-            else if (parent)
-	      parent->child = space;
-
-	    t->prev = space;
+	    insert_space(parent, t);
 
 	    have_whitespace = 0;
-
-            compute_size(space);
 	  }
 
           t->typeface = TYPE_COURIER;
@@ -2046,6 +1967,61 @@ delete_node(tree_t *t)		/* I - Node to delete */
 }
 
 
+//
+// 'insert_space()' - Insert a whitespace character before the
+//                    specified node.
+//
+
+static void
+insert_space(tree_t *parent,	// I - Parent node
+             tree_t *t)		// I - Node to insert before
+{
+  tree_t	*space;		// Space node
+
+
+  // Allocate memory for the whitespace...
+  space = (tree_t *)calloc(sizeof(tree_t), 1);
+  if (space == NULL)
+  {
+#ifndef DEBUG
+    progress_error("Unable to allocate memory for HTML tree node!");
+#endif /* !DEBUG */
+    return;
+  }
+
+  // Set/copy font characteristics...
+  if (parent)
+  {
+    space->typeface = parent->typeface;
+    space->size     = parent->size;
+    space->style    = parent->style;
+  }
+  else
+  {
+    space->typeface = _htmlBodyFont;
+    space->size     = SIZE_P;
+  }
+
+  // Initialize element data...
+  space->markup = MARKUP_NONE;
+  space->data   = (uchar *)strdup(" ");
+
+  // Set tree pointers...
+  space->parent = parent;
+  space->prev   = t->prev;
+  space->next   = t;
+
+  if (space->prev)
+    space->prev->next = space;
+  else if (parent)
+    parent->child = space;
+
+  t->prev = space;
+
+  compute_size(space);
+}
+
+
 /*
  * 'parse_markup()' - Parse a markup string.
  */
@@ -2574,5 +2550,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.27 2001/06/01 19:23:19 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.28 2001/06/01 19:49:13 mike Exp $".
  */
