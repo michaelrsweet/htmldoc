@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.223 2003/08/01 12:57:35 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.224 2003/09/03 15:29:19 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -10012,7 +10012,8 @@ write_image(FILE     *out,	/* I - Output file */
           else
             flate_puts("/CS/RGB", out);
 
-          flate_puts("/I true", out);
+          if (ncolors != 2)
+            flate_puts("/I true", out);
 
   	  flate_printf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits); 
 
@@ -12110,5 +12111,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.223 2003/08/01 12:57:35 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.224 2003/09/03 15:29:19 mike Exp $".
  */
