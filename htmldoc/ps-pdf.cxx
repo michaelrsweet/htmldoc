@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.85 2000/08/29 15:02:14 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.86 2000/09/10 21:15:22 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -255,13 +255,14 @@ static void	pspdf_prepare_heading(int page, int print_page, uchar *title,
 				      float chapter_width, uchar *heading,
 				      float heading_width, char *format, int y);
 static void	ps_write_document(uchar *title, uchar *author, uchar *creator,
-		                  uchar *copyright);
+		                  uchar *copyright, uchar *keywords);
 static void	ps_write_page(FILE *out, int page, uchar *title,
 		              float title_width, uchar **page_chapter,
 			      uchar **page_heading);
 static void	ps_write_background(FILE *out);
 static void	pdf_write_document(uchar *title, uchar *author, uchar *creator,
-		                   uchar *copyright, tree_t *toc);
+		                   uchar *copyright, uchar *keywords,
+				   tree_t *toc);
 static void	pdf_write_page(FILE *out, int page, uchar *title,
 		               float title_width, uchar **page_chapter,
 			       uchar **page_heading);
@@ -327,7 +328,7 @@ static void	set_color(FILE *out, float *rgb);
 static void	set_font(FILE *out, int typeface, int style, float size);
 static void	set_pos(FILE *out, float x, float y);
 static void	write_prolog(FILE *out, int pages, uchar *title, uchar *author,
-		             uchar *creator, uchar *copyright);
+		             uchar *creator, uchar *copyright, uchar *keywords);
 static void	ps_hex(FILE *out, uchar *data, int length);
 static void	ps_ascii85(FILE *out, uchar *data, int length);
 static void	jpg_init(j_compress_ptr cinfo);
@@ -353,7 +354,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 		*author,	/* Author of document */
 		*creator,	/* HTML file creator (Netscape, etc) */
 		*copyright,	/* File copyright */
-		*docnumber;	/* Document number */
+		*docnumber,	/* Document number */
+		*keywords;	/* Search keywords */
   tree_t	*t;		/* Title page document tree */
   FILE		*fp;		/* Title page file */
   float		x, y,		/* Current page position */
@@ -394,6 +396,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   creator    = htmlGetMeta(document, (uchar *)"generator");
   copyright  = htmlGetMeta(document, (uchar *)"copyright");
   docnumber  = htmlGetMeta(document, (uchar *)"docnumber");
+  keywords   = htmlGetMeta(document, (uchar *)"keywords");
   logo_image = image_load(LogoImage, !OutputColor);
 
   if (logo_image != NULL)
@@ -661,9 +664,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     */
 
     if (PSLevel > 0)
-      ps_write_document(title, author, creator, copyright);
+      ps_write_document(title, author, creator, copyright, keywords);
     else
-      pdf_write_document(title, author, creator, copyright, toc);
+      pdf_write_document(title, author, creator, copyright, keywords, toc);
   }
   else
   {
@@ -970,7 +973,8 @@ static void
 ps_write_document(uchar *title,		/* I - Title on all pages */
         	  uchar *author,	/* I - Author of document */
         	  uchar *creator,	/* I - Application that generated the HTML file */
-        	  uchar *copyright)	/* I - Copyright (if any) on the document */
+        	  uchar *copyright,	/* I - Copyright (if any) on the document */
+                  uchar *keywords)	/* I - Search keywords */
 {
   uchar		*page_chapter,	/* Current chapter text */
 		*page_heading;	/* Current heading text */
@@ -1005,7 +1009,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
       return;
     }
 
-    write_prolog(out, num_pages, title, author, creator, copyright);
+    write_prolog(out, num_pages, title, author, creator, copyright, keywords);
   }
 
   if (TitlePage)
@@ -1013,7 +1017,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     if (OutputFiles)
     {
       out = open_file();
-      write_prolog(out, PageDuplex + 1, title, author, creator, copyright);
+      write_prolog(out, PageDuplex + 1, title, author, creator, copyright,
+                   keywords);
     }
 
     for (page = 0; page < chapter_starts[1]; page ++)
@@ -1045,7 +1050,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
         return;
       }
 
-      write_prolog(out, chapter_ends[chapter] - chapter_starts[chapter] + 1, title, author, creator, copyright);
+      write_prolog(out, chapter_ends[chapter] - chapter_starts[chapter] + 1,
+                   title, author, creator, copyright, keywords);
     }
 
     for (page = chapter_starts[chapter], page_heading = NULL;
@@ -1192,7 +1198,6 @@ ps_write_page(FILE  *out,		/* I - Output file */
 
   fputs("GR\n", out);
   fputs("SP\n", out);
-  fputs("%%EndPage\n", out);
 }
 
 
@@ -1225,10 +1230,11 @@ ps_write_background(FILE *out)		/* I - Output file */
  */
 
 static void
-pdf_write_document(uchar   *title,	/* I - Title for all pages */
-        	   uchar   *author,	/* I - Author of document */
-        	   uchar   *creator,	/* I - Application that generated the HTML file */
-        	   uchar   *copyright,	/* I - Copyright (if any) on the document */
+pdf_write_document(uchar  *title,	/* I - Title for all pages */
+        	   uchar  *author,	/* I - Author of document */
+        	   uchar  *creator,	/* I - Application that generated the HTML file */
+        	   uchar  *copyright,	/* I - Copyright (if any) on the document */
+                   uchar  *keywords,	/* I - Search keywords */
                    tree_t *toc)		/* I - Table of contents tree */
 {
   uchar		*page_chapter,	/* Current chapter text */
@@ -1252,7 +1258,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
     return;
   }
 
-  write_prolog(out, num_pages, title, author, creator, copyright);
+  write_prolog(out, num_pages, title, author, creator, copyright, keywords);
 
   pdf_write_links(out);
   if (PDFVersion >= 1.2)
@@ -2916,6 +2922,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   tree_t	*linetype;
   float		linex,
 		linewidth;
+  int		firstline;
 
 
   if (*page > MAX_PAGES)
@@ -3022,6 +3029,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   */
 
   format_width = image_right - image_left;
+  firstline    = 1;
 
   while (flat != NULL)
   {
@@ -3089,7 +3097,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       if (temp->height > height &&
           (temp->markup != MARKUP_IMG || temp->valignment == ALIGN_TOP))
         height = temp->height;
-      else if (temp->markup == MARKUP_IMG && temp->valignment == ALIGN_MIDDLE)
+      else if (temp->markup == MARKUP_IMG && temp->valignment == ALIGN_MIDDLE &&
+               (0.5f * temp->height) > height)
         height = 0.5f * temp->height;
 
       if (temp->markup != MARKUP_IMG)
@@ -3102,7 +3111,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
               temp_height = temp->height;
 	      break;
 	  case ALIGN_MIDDLE :
-	      temp_height = 0.5 * temp->height + _htmlSizes[t->size];
+	      if ((0.5f * temp->height) > _htmlSizes[t->size])
+	        temp_height = temp->height;
+	      else
+	        temp_height = 0.5f * temp->height + _htmlSizes[t->size];
               break;
 	  case ALIGN_BOTTOM :
 	      temp_height = temp->height + _htmlSizes[t->size];
@@ -3114,8 +3126,33 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         spacing = temp_height;
     }
 
+    if (firstline && end != NULL && *y < (bottom + 2.0f * height))
+    {
+      // Go to next page since only 1 line will fit on this one...
+      (*page) ++;
+      *y = top;
+
+      if (Verbosity)
+        progress_show("Formatting page %d", *page);
+    }
+
+    firstline = 0;
+
     if (height == 0.0)
       height = spacing;
+
+    if (start != NULL && start->markup == MARKUP_NONE && start->data[0] == ' ')
+    {
+     /*
+      * Remove leading space...
+      */
+
+      strcpy((char *)start->data, (char *)start->data + 1);
+      temp_width = _htmlWidths[start->typeface][start->style][' '] *
+                   _htmlSizes[start->size];
+      start->width -= temp_width;
+      width        -= temp_width;
+    }
 
     if (prev != NULL && prev->markup == MARKUP_NONE &&
         prev->data[strlen((char *)prev->data) - 1] == ' ')
@@ -3597,6 +3634,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 {
   int		col,
 		row,
+		tcol,
 		colspan,
 		num_cols,
 		num_rows,
@@ -3604,7 +3642,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		regular_cols,
 		preformatted,
 		tempspace,
-		col_spans[MAX_COLUMNS];
+		col_spans[MAX_COLUMNS],
+		row_spans[MAX_COLUMNS];
   float		col_lefts[MAX_COLUMNS],
 		col_rights[MAX_COLUMNS],
 		col_width,
@@ -3635,13 +3674,20 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   int		do_valign;			// True if we should do vertical alignment of cells
   float		row_height,			// Total height of the row
 		temp_height;			// Temporary holder
-  float		cell_height[MAX_COLUMNS];	// Height of each cell in a row
+  int		cell_page[MAX_COLUMNS],		// Start page for cell
+		cell_endpage[MAX_COLUMNS];	// End page for cell
+  float		cell_y[MAX_COLUMNS],		// Row or each cell
+		cell_endy[MAX_COLUMNS],		// Row or each cell
+		cell_height[MAX_COLUMNS],	// Height of each cell in a row
+		span_heights[MAX_COLUMNS];	// Height of spans
   render_t	*cell_start[MAX_COLUMNS];	// Start of the content for a cell in the row
   render_t	*cell_end[MAX_COLUMNS];		// End of the content for a cell in a row
   uchar		*bgcolor;
   float		rgb[3],
 		bgrgb[3];
 
+
+  DEBUG_puts("\n\nTABLE");
 
   DEBUG_printf(("parse_table(t=%08x, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
                 t, left, right, *x, *y, *page));
@@ -3692,6 +3738,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   else
     border = 0.0f;
 
+  memset(row_spans, 0, sizeof(row_spans));
+  memset(span_heights, 0, sizeof(span_heights));
+
   for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0;
        temprow != NULL;
        temprow = temprow->next)
@@ -3730,7 +3779,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	return;
       }
 
-      for (tempcol = temprow->child, col = 0;
+      for (col = 0; row_spans[col] && col < num_cols; col ++)
+        cells[num_rows][col] = cells[num_rows - 1][col];
+
+      for (tempcol = temprow->child;
            tempcol != NULL && col < MAX_COLUMNS;
            tempcol = tempcol->next)
         if (tempcol->markup == MARKUP_TD || tempcol->markup == MARKUP_TH)
@@ -3739,6 +3791,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
             colspan = atoi((char *)var);
           else
             colspan = 1;
+
+          if ((var = htmlGetVariable(tempcol, (uchar *)"ROWSPAN")) != NULL)
+            row_spans[col] = atoi((char *)var);
 
           DEBUG_printf(("num_rows = %d, col = %d, colspan = %d (%s)\n",
 	                num_rows, col, colspan, var));
@@ -3868,12 +3923,22 @@ parse_table(tree_t *t,		/* I - Tree to parse */
             col ++;
             colspan --;
           }
+
+          while (row_spans[col] && col < num_cols)
+	  {
+            cells[num_rows][col] = cells[num_rows - 1][col];
+	    col ++;
+	  }
         }
 
       if (col > num_cols)
         num_cols = col;
 
       num_rows ++;
+
+      for (col = 0; col < num_cols; col ++)
+        if (row_spans[col])
+	  row_spans[col] --;
     }
 
 
@@ -4035,6 +4100,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   if (*y < top && needspace)
     *y -= _htmlSpacings[SIZE_P];
 
+  memset(row_spans, 0, sizeof(row_spans));
+  memset(cell_start, 0, sizeof(cell_start));
+  memset(cell_end, 0, sizeof(cell_end));
+  memset(cell_height, 0, sizeof(cell_height));
+
   for (row = 0; row < num_rows; row ++)
   {
     if (cells[row][0] != NULL)
@@ -4092,14 +4162,18 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     row_page   = *page;
     row_height = 0.0f;
 
-    memset(cell_start, 0, sizeof(cell_start));
-    memset(cell_end, 0, sizeof(cell_end));
-    memset(cell_height, 0, sizeof(cell_height));
-
     DEBUG_printf(("BEFORE row = %d, row_y = %.1f, *y = %.1f\n", row, row_y, *y));
 
     for (col = 0; col < num_cols; col += colspan + 1)
     {
+      if (row_spans[col] == 0)
+      {
+        if ((var = htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN")) != NULL)
+          row_spans[col] = atoi((char *)var);
+
+	span_heights[col] = 0.0f;
+      }
+
       for (colspan = 1; (col + colspan) < num_cols; colspan ++)
         if (cells[row][col] != cells[row][col + colspan])
           break;
@@ -4108,42 +4182,87 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       DEBUG_printf(("    col = %d, colspan = %d, left = %.1f, right = %.1f, cell = %p\n",
                     col, colspan, col_lefts[col], col_rights[col + colspan], cells[row][col]));
 
-      if (cells[row][col] == NULL || cells[row][col]->child == NULL)
-        continue;
-
       *x        = col_lefts[col];
       temp_y    = *y - (border + cellpadding);
       temp_page = *page;
       tempspace = 0;
 
-      cell_start[col] = endpages[*page];
-      parse_doc(cells[row][col]->child,
-                col_lefts[col], col_rights[col + colspan],
-                bottom + border + cellpadding,
-                top - border - cellpadding,
-                x, &temp_y, &temp_page, NULL, &tempspace);
-
-      if (temp_page == row_page)
+      if (cells[row][col] != NULL && cells[row][col]->child != NULL &&
+          (row == 0 || cells[row][col] != cells[row - 1][col]))
       {
+	cell_start[col] = endpages[*page];
+	cell_page[col]  = temp_page;
+	cell_y[col]     = temp_y;
+
+	parse_doc(cells[row][col]->child,
+                  col_lefts[col], col_rights[col + colspan],
+                  bottom + border + cellpadding,
+                  top - border - cellpadding,
+                  x, &temp_y, &temp_page, NULL, &tempspace);
+
+        cell_endpage[col] = temp_page;
+        cell_endy[col]    = temp_y;
+        cell_height[col]  = *y - (border + cellpadding) - temp_y;
+        cell_end[col]     = endpages[*page];
+
         if (cell_start[col] == NULL)
 	  cell_start[col] = pages[*page];
 
-        cell_end[col]    = endpages[*page];
-        cell_height[col] = *y - (border + cellpadding) - temp_y;
-        if (cell_height[col] > row_height)
-          row_height = cell_height[col];
+        DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n",
+	              row, col, *y - (border + cellpadding), temp_y, cell_height[col]));
       }
-      else
-        // Don't do vertical alignment if content spans more than one page
-	do_valign = 0;
 
-      if (temp_page > row_page)
+      if (row_spans[col] == 0 &&
+          cell_page[col] == cell_endpage[col] &&
+	  cell_height[col] > row_height)
+        row_height = cell_height[col];
+
+      if (row_spans[col] < 2)
       {
-        row_page = temp_page;
-        row_y    = temp_y;
+	if (cell_page[col] != cell_endpage[col])
+	  do_valign = 0;
+
+        if (cell_endpage[col] > row_page)
+	{
+	  row_page = cell_endpage[col];
+	  row_y    = cell_endy[col];
+	}
+	else if (cell_endy[col] < row_y && cell_endpage[col] == row_page)
+	  row_y = cell_endy[col];
       }
-      else if (temp_y < row_y && temp_page == row_page)
-        row_y = temp_y;
+    }
+
+    DEBUG_printf(("row = %d, row_y = %.1f, row_height = %.1f\n", row, row_y, row_height));
+
+    for (col = 0; col < num_cols; col += colspan)
+    {
+      for (colspan = 1; (col + colspan) < num_cols; colspan ++)
+        if (cells[row][col] != cells[row][col + colspan])
+          break;
+
+      if (row_spans[col])
+        span_heights[col] += row_height;
+
+      DEBUG_printf(("col = %d, row_spans = %d, span_heights = %.1f, cell_height = %.1f\n",
+                    col, row_spans[col], span_heights[col], cell_height[col]));
+
+      if (row_spans[col] == 1 &&
+          cell_page[col] == cell_endpage[col] &&
+	  cell_height[col] > span_heights[col])
+      {
+        temp_height = cell_height[col] - span_heights[col];
+	row_height  += temp_height;
+	row_y       -= temp_height;
+	DEBUG_printf(("Adjusting row-span height by %.1f, row_height = %.1f, row_y = %.1f\n",
+	              temp_height, row_height, row_y));
+
+	for (tcol = 0; tcol < num_cols; tcol ++)
+	  if (row_spans[tcol])
+	  {
+	    span_heights[tcol] += temp_height;
+	    DEBUG_printf(("col = %d, span_heights = %.1f\n", tcol, span_heights[tcol]));
+	  }
+      }
     }
 
     DEBUG_printf(("AFTER row = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n",
@@ -4186,27 +4305,43 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         colspan --;
 
-        if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
-	    cell_start[col] == NULL || cell_start[col] == cell_end[col])
+        if (cell_start[col] == NULL || cell_start[col] == cell_end[col] ||
+	    row_spans[col] > 1)
 	  continue;
 
-        switch (cells[row][col]->valignment)
-	{
-          case ALIGN_MIDDLE :
-              delta_y = (row_height - cell_height[col]) * 0.5f;
-              break;
+        if (row_spans[col])
+          switch (cells[row][col]->valignment)
+	  {
+            case ALIGN_MIDDLE :
+        	delta_y = (span_heights[col] - cell_height[col]) * 0.5f;
+        	break;
 
-          case ALIGN_BOTTOM :
-              delta_y = row_height - cell_height[col];
-              break;
+            case ALIGN_BOTTOM :
+        	delta_y = span_heights[col] - cell_height[col];
+        	break;
 
-          default :
-              delta_y = 0.0f;
-              break;
-        }
+            default :
+        	delta_y = 0.0f;
+        	break;
+          }
+	else
+          switch (cells[row][col]->valignment)
+	  {
+            case ALIGN_MIDDLE :
+        	delta_y = (row_height - cell_height[col]) * 0.5f;
+        	break;
 
-	DEBUG_printf(("row = %d, col = %d, cell_height = %.1f, delta_y = %.1f\n",
-	              row, col, cell_height[col], delta_y));
+            case ALIGN_BOTTOM :
+        	delta_y = row_height - cell_height[col];
+        	break;
+
+            default :
+        	delta_y = 0.0f;
+        	break;
+          }
+
+	DEBUG_printf(("row = %d, col = %d, cell_height = %.1f, span_heights = %.1f, delta_y = %.1f\n",
+	              row, col, cell_height[col], span_heights[col], delta_y));
 
         if (delta_y > 0.0f)
 	{
@@ -4224,6 +4359,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     for (col = 0; col < num_cols; col += colspan + 1)
     {
+      if (row_spans[col] > 0)
+      {
+        DEBUG_printf(("row = %d, col = %d, decrementing row_spans (%d) to %d...\n", row,
+	              col, row_spans[col], row_spans[col] - 1));
+        row_spans[col] --;
+      }
+
       for (colspan = 1; (col + colspan) < num_cols; colspan ++)
         if (cells[row][col] != cells[row][col + colspan])
           break;
@@ -4232,7 +4374,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       width = col_rights[col + colspan] - col_lefts[col] +
               2 * cellpadding + 2 * border;
 
-      if (cells[row][col] == NULL || cells[row][col]->child == NULL)
+      if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
+          ((row + 1) < num_rows && cells[row][col] == cells[row + 1][col]))
         continue;
 
       if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
@@ -4242,7 +4385,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       if (bgcolor != NULL)
         get_color(bgcolor, bgrgb);
 
-      if (row_page != *page)
+      if (cell_page[col] != cell_endpage[col])
       {
        /*
         * Crossing a page boundary...
@@ -4257,19 +4400,19 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
           new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
                      bottom, 0.0f,
-                     *y - bottom, rgb);
+                     cell_y[col] - bottom, rgb);
           new_render(*page, RENDER_BOX, col_rights[col] + cellpadding + border,
                      bottom, 0.0f,
-                     *y - bottom, rgb);
+                     cell_y[col] - bottom, rgb);
           new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
-                     *y, width, 0.0f, rgb);
+                     cell_y[col], width, 0.0f, rgb);
         }
 
         if (bgcolor != NULL)
           new_render(*page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
-                     bottom, width, *y - bottom, bgrgb, 1);
+                     bottom, width, cell_y[col] - bottom, bgrgb, 1);
 
-        for (temp_page = *page + 1; temp_page != row_page; temp_page ++)
+        for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
 	{
 	 /*
 	  * |   |   |   |
@@ -4312,11 +4455,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       {
         if (border > 0)
           new_render(*page, RENDER_BOX, col_lefts[col] - cellpadding - border,
-                     row_y, width, *y - row_y, rgb);
+                     row_y, width, cell_y[col] - row_y + border + cellpadding, rgb);
 
         if (bgcolor != NULL)
           new_render(*page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
-                     row_y, width, *y - row_y, bgrgb, 1);
+                     row_y, width, cell_y[col] - row_y + border + cellpadding, bgrgb, 1);
       }
     }
 
@@ -4338,8 +4481,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     free(cells);
   }
 }
-//#undef DEBUG_printf
-//#define DEBUG_printf(x)
+#undef DEBUG_printf
+#define DEBUG_printf(x)
 
 
 /*
@@ -4357,29 +4500,43 @@ parse_list(tree_t *t,		/* I - Tree to parse */
            int    *page,	/* IO - Page # */
            int    needspace)	/* I - Need whitespace? */
 {
-  int		tempspace;	/* Temporary whitespace */
   uchar		number[255];	/* List number (for numbered types) */
   uchar		*value;		/* VALUE= variable */
   int		typeface;	/* Typeface of list number */
   float		width;		/* Width of list number */
   render_t	*r;		/* Render primitive */
+  int		oldpage;	/* Old page value */
+  float		oldy;		/* Old Y value */
 
 
   DEBUG_printf(("parse_list(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
                 t, left, right, *x, *y, *page));
 
-  if (*y < top && needspace)
-    *y -= _htmlSpacings[SIZE_P];
-
-  if (*y < (_htmlSpacings[t->size] + bottom))
+  if (needspace && *y < top)
   {
-    (*page) ++;
-    *y = top;
-
-    if (Verbosity)
-      progress_show("Formatting page %d", *page);
+    *y        -= _htmlSpacings[t->size];
+    needspace = 0;
   }
 
+  oldy    = *y;
+  oldpage = *page;
+  r       = endpages[*page];
+
+  parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
+            &needspace);
+
+  // Handle when paragraph wrapped to new page...
+  if (*page != oldpage)
+  {
+    // First see if anything was added to the old page...
+    if ((r != NULL && r->next == NULL) || endpages[oldpage] == NULL)
+    {
+      // No, put the symbol on the next page...
+      oldpage = *page;
+      oldy    = top;
+    }
+  }
+    
   if ((value = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
   {
     if (isdigit(value[0]))
@@ -4411,7 +4568,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
 
   width = get_width(number, typeface, t->style, t->size);
 
-  r = new_render(*page, RENDER_TEXT, left - width, *y - _htmlSizes[t->size],
+  r = new_render(oldpage, RENDER_TEXT, left - width, oldy - _htmlSizes[t->size],
                  width, _htmlSpacings[t->size], number);
   r->data.text.typeface = typeface;
   r->data.text.style    = t->style;
@@ -4419,10 +4576,6 @@ parse_list(tree_t *t,		/* I - Tree to parse */
   r->data.text.rgb[0]   = t->red / 255.0f;
   r->data.text.rgb[1]   = t->green / 255.0f;
   r->data.text.rgb[2]   = t->blue / 255.0f;
-
-  tempspace = 0;
-  parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
-            &tempspace);
 
   list_values[t->indent] ++;
 }
@@ -6269,7 +6422,8 @@ write_prolog(FILE *out,		/* I - Output file */
              uchar *title,	/* I - Title of document */
              uchar *author,	/* I - Author of document */
              uchar *creator,	/* I - Application that generated the HTML file */
-             uchar *copyright)	/* I - Copyright (if any) on the document */
+             uchar *copyright,	/* I - Copyright (if any) on the document */
+             uchar *keywords)	/* I - Search keywords */
 {
   int		i, j,		/* Looping vars */
 		encoding_object;/* Font encoding object */
@@ -6337,13 +6491,15 @@ write_prolog(FILE *out,		/* I - Output file */
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
             curdate->tm_hour, curdate->tm_min, curdate->tm_sec);
     if (title != NULL)
-      fprintf(out, "%%%%docTitle: %s\n", title);
+      fprintf(out, "%%%%Title: %s\n", title);
     if (author != NULL)
-      fprintf(out, "%%%%docAuthor: %s\n", author);
+      fprintf(out, "%%%%Author: %s\n", author);
     if (creator != NULL)
-      fprintf(out, "%%%%docGenerator: %s\n", creator);
+      fprintf(out, "%%%%Generator: %s\n", creator);
     if (copyright != NULL)
-      fprintf(out, "%%%%docCopyright: %s\n", copyright);
+      fprintf(out, "%%%%Copyright: %s\n", copyright);
+    if (keywords != NULL)
+      fprintf(out, "%%%%Keywords: %s\n", keywords);
     if (page_count > 0)
       fprintf(out, "%%%%Pages: %d\n", page_count);
     else
@@ -6400,18 +6556,18 @@ write_prolog(FILE *out,		/* I - Output file */
     * Now for the macros...
     */
 
-    fputs("/BD{bind def}bind def", out);
-    fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath stroke}BD", out);
+    fputs("/BD{bind def}bind def\n", out);
+    fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath stroke}BD\n", out);
     if (!OutputColor)
-      fputs("/C{0.08 mul exch 0.61 mul add exch 0.31 mul add setgray}BD", out);
+      fputs("/C{0.08 mul exch 0.61 mul add exch 0.31 mul add setgray}BD\n", out);
     else
-      fputs("/C{setrgbcolor}BD", out);
-    fputs("/CM{concat}BD", out);
-    fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD", out);
+      fputs("/C{setrgbcolor}BD\n", out);
+    fputs("/CM{concat}BD\n", out);
+    fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n", out);
     fputs("/GS{gsave}BD", out);
     fputs("/GR{grestore}BD", out);
     fputs("/L{0 rlineto stroke}BD", out);
-    fputs("/M{moveto}BD", out);
+    fputs("/M{moveto}BD\n", out);
     fputs("/S{show}BD", out);
     fputs("/SF{findfont exch scalefont setfont}BD", out);
     fputs("/SP{showpage}BD", out);
@@ -6428,8 +6584,16 @@ write_prolog(FILE *out,		/* I - Output file */
 
       if (Landscape)
       {
-	fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageLength,
-	        PageWidth);
+        if (PageWidth == 612 && PageLength == 792)
+	  fputs("%%BeginFeature: PageSize Letter.Transverse\n", out);
+        if (PageWidth == 612 && PageLength == 1008)
+	  fputs("%%BeginFeature: PageSize Legal.Transverse\n", out);
+        if (PageWidth == 595 && PageLength == 842)
+	  fputs("%%BeginFeature: PageSize A4.Transverse\n", out);
+        else
+	  fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageLength,
+	          PageWidth);
+
 	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageLength,
 	        PageWidth);
         fputs("%%EndFeature\n", out);
@@ -6443,8 +6607,16 @@ write_prolog(FILE *out,		/* I - Output file */
       }
       else
       {
-	fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageWidth,
-	        PageLength);
+        if (PageWidth == 612 && PageLength == 792)
+	  fputs("%%BeginFeature: PageSize Letter\n", out);
+        if (PageWidth == 612 && PageLength == 1008)
+	  fputs("%%BeginFeature: PageSize Legal\n", out);
+        if (PageWidth == 595 && PageLength == 842)
+	  fputs("%%BeginFeature: PageSize A4\n", out);
+        else
+	  fprintf(out, "%%%%BeginFeature: PageSize w%dh%d\n", PageWidth,
+	          PageLength);
+
 	fprintf(out, "<</PageSize[%d %d]>>setpagedevice\n", PageWidth,
 	        PageLength);
         fputs("%%EndFeature\n", out);
@@ -6614,6 +6786,12 @@ write_prolog(FILE *out,		/* I - Output file */
     {
       fputs("/Creator", out);
       write_string(out, creator, 0);
+    }
+
+    if (keywords != NULL)
+    {
+      fputs("/Keywords", out);
+      write_string(out, keywords, 0);
     }
 
     fputs(">>", out);
@@ -6821,11 +6999,9 @@ write_trailer(FILE *out,	/* I - Output file */
     * PostScript...
     */
 
+    fputs("%%Trailer\n", out);
     if (pages > 0)
-    {
-      fputs("%%Trailer\n", out);
       fprintf(out, "%%%%Pages: %d\n", pages);
-    }
 
     fputs("%%EOF\n", out);
   }
@@ -7195,5 +7371,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.85 2000/08/29 15:02:14 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.86 2000/09/10 21:15:22 mike Exp $".
  */

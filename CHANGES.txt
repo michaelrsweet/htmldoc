@@ -1,14 +1,29 @@
-CHANGES.txt - 06/29/2000
+CHANGES.txt - 07/31/2000
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.9
 
     NEW FEATURES
 
+	- Added a "--no-numbered" option to turn heading numbers
+	  off.
+	- Added support for "keywords" META data.
+	- Added support for BMP images.
+	- Added support for ROWSPAN attribute in tables.
+
     CHANGES
 
-	- Wasn't aligning images and text on lines based on the
-	  line height.
+	- Configuration script changes.
+	- Now ignore file count in book files; instead, we now
+	  look at the first character of the third and
+	  subsequent lines - a dash (-) indicates the start of
+	  the options. (use a backslash to quote filenames
+	  starting with a dash)
+	- Multiple-line paragraphs that have only 1 line on the
+	  bottom of the current page are not started on the
+	  following page.
+	- DSC comments in PostScript output were not 100%
+	  conformant with the DSC spec.
 
     BUG FIXES
 
@@ -16,9 +31,20 @@ CHANGES IN HTMLDOC v1.8.9
 	  preformatted text.
 	- Empty TBODY groups would cause parse_table() to
 	  crash.
-	- Comments were incorrectly terminated by ">" instead
-	  of "-->".
-	- The "--help" option didn't work.
+	- Comments were incorrectly terminated by ">" instead of
+	  "-->".
+	- The command-line and GUI interfaces looked for
+	  "outlines" instead of "outline" for the page mode.
+	- The HTML output code didn't output closing tags for
+	  empty elements.
+	- The GUI interface started with the compression
+	  slider enabled, even for HTML output.
+	- The beginnings of some lines could start with
+	  whitespace.
+	- Wasn't aligning images and text on lines based on the
+	  line height.
+	- The compression slider was enabled in the GUI even
+	  though HTML output was selected.
 
 
 CHANGES IN HTMLDOC v1.8.8
