@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.8 2002/04/04 01:48:58 mike Exp $"
+// "$Id: render.h,v 1.9 2002/04/06 22:14:05 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -195,6 +195,7 @@ class hdRender
 		alloc_pages;		// Allocated pages
   hdRenderPage	*pages;			// Pages
 
+  int		render_disable;		// Don't actually create render data
   hdStyleFont	*render_font;		// Current font
   float		render_size,		// Current font size
 		render_rgb[3],		// Current drawing color
@@ -223,12 +224,17 @@ class hdRender
   void		finish_document(const char *author, const char *creator,
 		                const char *copyright, const char *keywords);
 
+  void		parse_block(hdTree *t, hdMargin *m, float *x, float *y,
+		            int *page);
   int		parse_comment(hdTree *t, hdMargin *m, float *x, float *y,
 		              int *page);
-  void		parse_contents(hdTree *t, hdMargin *m, float *y, int *page,
-		               int *heading, hdTree *chap);
-  void		parse_doc(hdTree *t, hdMargin *m, float *x, float *y, int *page);
-  void		parse_line(hdTree *t, hdMargin *m, float *x, float *y,
+  void		parse_contents(hdTree *t, hdMargin *m, int *page,
+		               const char *label);
+  void		parse_doc(hdTree *t, hdMargin *m, float *x, float *y,
+		          int *page);
+  void		parse_index(hdTree *t, hdMargin *m, int *page,
+		            const char *label);
+  void		parse_line(hdTree *line, hdMargin *m, float *x, float *y,
 		           int *page, int lastline);
   void		parse_list(hdTree *t, hdMargin *m,  float *x, float *y,
 		           int *page);
@@ -437,5 +443,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.8 2002/04/04 01:48:58 mike Exp $".
+// End of "$Id: render.h,v 1.9 2002/04/06 22:14:05 mike Exp $".
 //

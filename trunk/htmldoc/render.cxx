@@ -1,5 +1,5 @@
 //
-// "$Id: render.cxx,v 1.8 2002/04/04 01:48:58 mike Exp $"
+// "$Id: render.cxx,v 1.9 2002/04/06 22:14:05 mike Exp $"
 //
 //   Core rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -163,6 +163,20 @@ hdRender::finish_document(const char *author,
 
 
 //
+// 'hdRender::parse_block()' - Parse a block of text.
+//
+
+void
+parse_block(hdTree   *t,
+            hdMargin *m,
+	    float    *x,
+	    float    *y,
+            int      *page)
+{
+}
+
+
+//
 // 'hdRender::parse_comment()' -
 //
 
@@ -182,12 +196,10 @@ hdRender::parse_comment(hdTree   *t,		// I  - Comment node
 //
 
 void
-hdRender::parse_contents(hdTree   *t,
-                         hdMargin *m,
-			 float    *y,
-			 int      *page,
-                         int      *heading,
-			 hdTree   *chap)
+hdRender::parse_contents(hdTree     *t,
+                         hdMargin   *m,
+			 int        *page,
+			 const char *label)
 {
 }
 
@@ -207,17 +219,240 @@ hdRender::parse_doc(hdTree   *t,
 
 
 //
+// 'hdRender::parse_index()' -
+//
+
+void
+hdRender::parse_index(hdTree     *t,
+                      hdMargin   *m,
+		      int        *page,
+		      const char *label)
+{
+}
+
+
+//
 // 'hdRender::parse_line()' - Render a single line of text.
 //
 
 void
-hdRender::parse_line(hdTree   *t,
-                     hdMargin *m,
-		     float    *x,
-		     float    *y,
-		     int      *page,
-		     int      lastline)
+hdRender::parse_line(hdTree   *line,		// I  - First node
+                     hdMargin *m,		// I  - Current margins
+		     float    *x,		// IO - Current X position
+		     float    *y,		// IO - Current Y position
+		     int      *page,		// IO - Current page
+		     int      lastline)		// I  - 1 = last line
 {
+  hdTree	*t;				// Current node
+  float		tx,				// Temporary X position
+		ty,				// Temporary Y position
+		width,				// Width
+		format_width,			// Formatted width
+		above,				// Maximum height above baseline
+		below,				// Maximum height below baseline
+		height,				// Maximum height
+		line_height,			// Line height
+		letter_spacing,			// Additional letter spacing
+		word_spacing,			// Additional word spacing
+		temp_width,			// Temporary width value
+		temp_height;			// Temporary height value
+  int		num_chars,			// Number of characters
+		num_words;			// Number of words
+  hdRenderNode	*r;				// New render node
+
+
+  // First loop to figure out the total width and height of the line...
+  width          = 0.0f;
+  above          = 0.0f;
+  below          = 0.0f;
+  letter_spacing = t->style->letter_spacing;
+  word_spacing   = t->style->word_spacing;
+  num_chars      = 0;
+  num_words      = 1;
+
+  for (t = line; t != NULL; t = t->next)
+  {
+    width += t->width;
+
+    switch (t->style->vertical_align)
+    {
+      case HD_VERTICALALIGN_BASELINE :
+	  if (t->height > height)
+	    height = t->height;
+          break;
+
+      case HD_VERTICALALIGN_SUB :
+	  if (t->height > below)
+	    below = t->height;
+          break;
+      case HD_VERTICALALIGN_SUPER :
+	  if (t->height > above)
+	    above = t->height;
+          break;
+
+      default :
+          break;
+    }
+
+    if (t->whitespace && t != line)
+    {
+      num_words ++;
+      width += t->style->font->get_width(" ") * t->style->font_size;
+    }
+
+    if (t->element == HD_ELEMENT_NONE && t->style->font != NULL)
+      num_chars += t->style->font->get_num_chars(t->data);
+  }
+
+  // Adjust the number of characters for the number of words - we don't
+  // want the letter spacing after the last character in each word...
+  num_chars -= num_words;
+  if (num_chars < 0)
+    num_chars = 0;
+
+  // Add in the word and letter spacing...
+  format_width = width + num_words * word_spacing + num_chars * letter_spacing;
+
+  // Then figure out the right line height
+  if (lastline)
+    line_height = 0.0f;
+  else
+    line_height = height * t->style->line_height - height;
+
+  if (line_height < below)
+    line_height = below;
+
+  line_height += height + above;
+
+  // Then decide if we need more space for other types of alignment...
+  for (t = line; t != NULL; t = t->next)
+  {
+    switch (t->style->vertical_align)
+    {
+      case HD_VERTICALALIGN_TOP :
+	  if (t->height > line_height)
+	    line_height = t->height;
+          break;
+
+      case HD_VERTICALALIGN_TEXT_TOP :
+	  if (t->height > (line_height - above))
+	    line_height = t->height + above;
+          break;
+
+      case HD_VERTICALALIGN_MIDDLE :
+          temp_height = line_height - above - height +
+	                0.5f * t->style->font->x_height * t->style->font_size;
+
+	  if ((0.5f * t->height + temp_height) > line_height)
+	    line_height = 0.5f * t->height + temp_height;
+
+          if ((0.5f * t->height) > temp_height)
+	  {
+	    line_height += 0.5f * t->height - temp_height;
+	    below       += 0.5f * t->height - temp_height;
+	  }
+          break;
+
+      case HD_VERTICALALIGN_BOTTOM :
+	  if (t->height > below)
+	    below = t->height;
+          break;
+
+      case HD_VERTICALALIGN_TEXT_BOTTOM :
+	  if (t->height > (height * t->style->line_height + above))
+	  {
+	    line_height = t->height + below;
+	    height      = t->height - above;
+	  }
+          break;
+
+      default :
+          break;
+    }
+  }
+
+  // Next see if we need to skip to the next page...
+  if ((*y + line_height) > m->bottom0())
+  {
+    // Move to the next page...
+    (*page) ++;
+    *y = 0;
+
+    m->clear();
+  }
+
+  // Align the line...
+  switch (t->style->text_align)
+  {
+    case HD_TEXTALIGN_LEFT :
+        tx = m->left();
+	break;
+
+    case HD_TEXTALIGN_CENTER :
+        tx = m->left() + 0.5f * (m->width() - format_width);
+	break;
+
+    case HD_TEXTALIGN_RIGHT :
+        tx = m->right() - format_width;
+	break;
+
+    case HD_TEXTALIGN_JUSTIFY :
+        tx = m->left();
+	break;
+  }
+
+  // Loop again to render the stuff...
+  for (t = line; t != NULL; t = t->next)
+  {
+    // Figure out the vertical position...
+    switch (t->style->vertical_align)
+    {
+      case HD_VERTICALALIGN_BASELINE :
+          ty = *y + above + height;
+          break;
+
+      case HD_VERTICALALIGN_SUB :
+          ty = *y + line_height - above + t->height;
+          break;
+
+      case HD_VERTICALALIGN_SUPER :
+	  ty = *y + above + t->height;
+          break;
+
+      case HD_VERTICALALIGN_TOP :
+          ty = *y + t->height;
+          break;
+
+      case HD_VERTICALALIGN_TEXT_TOP :
+	  ty = *y + above;
+          break;
+
+      case HD_VERTICALALIGN_MIDDLE :
+          ty = *y + above + height -
+	       0.5f * t->style->font->x_height * t->style->font_size +
+	       0.5f * t->height;
+          break;
+
+      case HD_VERTICALALIGN_BOTTOM :
+          ty = *y + line_height;
+          break;
+
+      case HD_VERTICALALIGN_TEXT_BOTTOM :
+          ty = *y + above + height + t->height;
+          break;
+    }
+
+    // Then render it...
+    // Finally, update the X position...
+  }
+
+  // Update current position and margins...
+  *x = m->left();
+  *y -= line_height;
+
+  while (*y < m->bottom() && m->level() > 0)
+    m->pop();
+
 #if 0
   int		whitespace;	// Non-zero if a fragment ends in whitespace
   hdTree	*flat,
@@ -6558,5 +6793,5 @@ get_title(hdTree *doc)	// I - Document
 
 
 //
-// End of "$Id: render.cxx,v 1.8 2002/04/04 01:48:58 mike Exp $".
+// End of "$Id: render.cxx,v 1.9 2002/04/06 22:14:05 mike Exp $".
 //
