@@ -1,5 +1,5 @@
 //
-// "$Id: http.h,v 1.2.2.13.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: http.h,v 1.2.2.13.2.2 2004/03/23 03:31:27 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class definitions for HTMLDOC.
 //
@@ -52,32 +52,32 @@
 // Limits...
 //
 
-#  define HD_MAX_URI	1024	// Max length of URI string
-#  define HD_MAX_HOST	256	// Max length of hostname string
-#  define HD_MAX_BUFFER	2048	// Max length of data buffer
-#  define HD_MAX_VALUE	256	// Max header field value length
+#  define HD_MAX_URI	1024		// Max length of URI string
+#  define HD_MAX_HOST	256		// Max length of hostname string
+#  define HD_MAX_BUFFER	2048		// Max length of data buffer
+#  define HD_MAX_VALUE	256		// Max header field value length
 
 
 //
 // HTTP state values...
 //
 
-typedef enum			// States are server-oriented
+typedef enum				// States are server-oriented
 {
-  HD_HTTP_WAITING,		// Waiting for command
-  HD_HTTP_OPTIONS,		// OPTIONS command, waiting for blank line
-  HD_HTTP_GET,			// GET command, waiting for blank line
-  HD_HTTP_GET_SEND,		// GET command, sending data
-  HD_HTTP_HEAD,			// HEAD command, waiting for blank line
-  HD_HTTP_POST,			// POST command, waiting for blank line
-  HD_HTTP_POST_RECV,		// POST command, receiving data
-  HD_HTTP_POST_SEND,		// POST command, sending data
-  HD_HTTP_PUT,			// PUT command, waiting for blank line
-  HD_HTTP_PUT_RECV,		// PUT command, receiving data
-  HD_HTTP_DELETE,		// DELETE command, waiting for blank line
-  HD_HTTP_TRACE,		// TRACE command, waiting for blank line
-  HD_HTTP_CLOSE,		// CLOSE command, waiting for blank line
-  HD_HTTP_STATUS		// Command complete, sending status
+  HD_HTTP_WAITING,			// Waiting for command
+  HD_HTTP_OPTIONS,			// OPTIONS command, waiting for blank line
+  HD_HTTP_GET,				// GET command, waiting for blank line
+  HD_HTTP_GET_SEND,			// GET command, sending data
+  HD_HTTP_HEAD,				// HEAD command, waiting for blank line
+  HD_HTTP_POST,				// POST command, waiting for blank line
+  HD_HTTP_POST_RECV,			// POST command, receiving data
+  HD_HTTP_POST_SEND,			// POST command, sending data
+  HD_HTTP_PUT,				// PUT command, waiting for blank line
+  HD_HTTP_PUT_RECV,			// PUT command, receiving data
+  HD_HTTP_DELETE,			// DELETE command, waiting for blank line
+  HD_HTTP_TRACE,			// TRACE command, waiting for blank line
+  HD_HTTP_CLOSE,			// CLOSE command, waiting for blank line
+  HD_HTTP_STATUS			// Command complete, sending status
 } hdHTTPState;
 
 
@@ -87,9 +87,12 @@ typedef enum			// States are server-oriented
 
 typedef enum
 {
-  HD_HTTP_0_9 = 9,		// HTTP/0.9
-  HD_HTTP_1_0 = 100,		// HTTP/1.0
-  HD_HTTP_1_1 = 101		// HTTP/1.1
+  //* HTTP/0.9
+  HD_HTTP_0_9 = 9,
+  //* HTTP/1.0
+  HD_HTTP_1_0 = 100,
+  //* HTTP/1.1
+  HD_HTTP_1_1 = 101
 } hdHTTPVersion;
 
 
@@ -99,7 +102,9 @@ typedef enum
 
 typedef enum
 {
+  //* No keep-alive
   HD_HTTP_KEEPALIVE_OFF = 0,
+  //* Keep-alive
   HD_HTTP_KEEPALIVE_ON
 } hdHTTPKeepAlive;
 
@@ -333,5 +338,5 @@ class hdHTTP
 #endif // !_HTMLDOC_HTTP_H_
 
 //
-// End of "$Id: http.h,v 1.2.2.13.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: http.h,v 1.2.2.13.2.2 2004/03/23 03:31:27 mike Exp $".
 //

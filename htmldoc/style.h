@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.20.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: style.h,v 1.20.2.2 2004/03/23 03:31:27 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -764,6 +764,16 @@ struct hdStyle
   static int	get_color(const char *color, hdByte *rgb);
 
  /**
+  * The <TT>get_color()</TT> method converts the string color to a floating
+  * point RGB value.
+  *
+  * @param value const&nbsp;char* The color value string.
+  * @param rgb float* The RGB color array.
+  * @return 1 if the color was converted, 0 otherwise.
+  */
+  static int	get_color(const char *color, float *rgb);
+
+ /**
   * The <TT>get_format_spacing()</TT> method returns the
   * sum of the border, margin, and padding values.
   *
@@ -1148,5 +1158,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.20.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: style.h,v 1.20.2.2 2004/03/23 03:31:27 mike Exp $".
 //

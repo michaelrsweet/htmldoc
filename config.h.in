@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.19.2.35.2.1 2004/03/22 21:56:28 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.35.2.2 2004/03/23 03:31:27 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define HD_SVERSION	"1.9a1"
+#define HD_SVERSION	""
 
 
 /*
@@ -34,9 +34,8 @@
  */
 
 #define HD_MAX_COLUMNS		200	/* Max columns in table */
-/*#define MAX_CHAPTERS	1000*/	/* Maximum number of chapters or files */
-/*#define MAX_COLUMNS	200*/	/* Maximum number of columns in a table */
-/*#define MAX_HF_IMAGES	10*/	/* Maximum number of header/footer images */
+#define HD_MAX_CHAPTERS		1000	/* Maximum number of chapters or files */
+#define HD_MAX_HF_IMAGES	10	/* Maximum number of header/footer images */
 
 
 /*
@@ -129,6 +128,6 @@
 
 
 /*
- * End of "$Id: config.h.in,v 1.19.2.35.2.1 2004/03/22 21:56:28 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.35.2.2 2004/03/23 03:31:27 mike Exp $".
  */
 
