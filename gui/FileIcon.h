@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.h,v 1.3 1999/04/27 12:43:37 mike Exp $"
+// "$Id: FileIcon.h,v 1.4 1999/04/29 19:26:49 mike Exp $"
 //
 //   FileIcon definitions for the Common UNIX Printing System (CUPS).
 //
@@ -35,13 +35,13 @@
 
 class FileIcon			//// Icon data
 {
-  static FileIcon *_first;	// Pointer to first icon/filetype
-  FileIcon	*_next;		// Pointer to next icon/filetype
-  const char	*_pattern;	// Pattern string
-  int		_type;		// Match only if directory or file?
-  int		_num_data;	// Number of data elements
-  int		_alloc_data;	// Number of allocated elements
-  short		*_data;		// Icon data
+  static FileIcon *first_;	// Pointer to first icon/filetype
+  FileIcon	*next_;		// Pointer to next icon/filetype
+  const char	*pattern_;	// Pattern string
+  int		type_;		// Match only if directory or file?
+  int		num_data_;	// Number of data elements
+  int		alloc_data_;	// Number of allocated elements
+  short		*data_;		// Icon data
 
   public:
 
@@ -77,21 +77,21 @@ class FileIcon			//// Icon data
   short		*add_vertex(float x, float y)
 		{ short *d = add(VERTEX); add((int)(x * 10000.0));
 		  add((int)(y * 10000.0)); return (d); }
-  void		clear() { _num_data = 0; }
-  void		draw(Fl_Color ic) { draw(ic, _data); }
+  void		clear() { num_data_ = 0; }
+  void		draw(int x, int y, int w, int h, Fl_Color ic);
   void		load(const char *fti);
-  const char	*pattern() { return (_pattern); }
-  int		size() { return (_num_data); }
-  int		type() { return (_type); }
-  short		*value() { return (_data); }
+  const char	*pattern() { return (pattern_); }
+  int		size() { return (num_data_); }
+  int		type() { return (type_); }
+  short		*value() { return (data_); }
 
   static FileIcon *find(const char *filename, int filetype  = ANY);
-  static FileIcon *first() { return (_first); }
-  static void	draw(Fl_Color ic, short *d);
+  static FileIcon *first() { return (first_); }
+  static void	load_system_icons(void);
 };
 
 #endif // !_GUI_FILEICON_H_
 
 //
-// End of "$Id: FileIcon.h,v 1.3 1999/04/27 12:43:37 mike Exp $".
+// End of "$Id: FileIcon.h,v 1.4 1999/04/29 19:26:49 mike Exp $".
 //
