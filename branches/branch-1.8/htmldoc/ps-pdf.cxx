@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.68 2001/05/29 21:05:26 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.69 2001/05/30 19:38:25 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2643,7 +2643,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
     }
 
     // Check for some basic stylesheet stuff...
-    if ((style = htmlGetStyle(t, "page-break-before:")) != NULL &&
+    if ((style = htmlGetStyle(t, (uchar *)"page-break-before:")) != NULL &&
 	strcasecmp((char *)style, "avoid") != 0)
     {
       // Advance to the next page...
@@ -2998,7 +2998,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
 
     // Check for some basic stylesheet stuff...
-    if ((style = htmlGetStyle(t, "page-break-after:")) != NULL &&
+    if ((style = htmlGetStyle(t, (uchar *)"page-break-after:")) != NULL &&
 	strcasecmp((char *)style, "avoid") != 0)
     {
       // Advance to the next page...
@@ -7447,7 +7447,8 @@ write_prolog(FILE  *out,	/* I - Output file */
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d+%03d%02d\n",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    (int)(-timezone / 3600), (int)abs((timezone / 60) % 60));
+	    (int)(-timezone / 3600),
+	    ((timezone < 0 ? -timezone : timezone) / 60) % 60);
     if (title != NULL)
       fprintf(out, "%%%%Title: %s\n", title);
     if (author != NULL)
@@ -7829,7 +7830,8 @@ write_prolog(FILE  *out,	/* I - Output file */
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    (int)(-timezone / 3600), (int)abs((timezone / 60) % 60));
+	    (int)(-timezone / 3600),
+	    ((timezone < 0 ? -timezone : timezone) / 60) % 60);
     write_string(out, (uchar *)temp, 0);
 
     if (title != NULL)
@@ -8645,5 +8647,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.68 2001/05/29 21:05:26 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.69 2001/05/30 19:38:25 mike Exp $".
  */
