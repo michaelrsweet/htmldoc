@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.6 2002/04/02 04:22:37 mike Exp $"
+// "$Id: testsuite.cxx,v 1.7 2002/04/02 22:01:57 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -457,6 +457,7 @@ write_html(hdFile *fp,
 {
   int i, len, col = 0;
 
+
   while (t)
   {
     switch (t->element)
@@ -489,7 +490,7 @@ write_html(hdFile *fp,
       default :
 	  len = strlen(hdTree::elements[t->element]) + 1;
 
-	  if ((col + len) > 80)
+	  if ((col + len) > 80 || hdElIsBlock(t->element))
 	  {
             col = 0;
 	    fp->puts("\n");
@@ -509,6 +510,11 @@ write_html(hdFile *fp,
 	      fp->printf(" %s=\"%s\"", t->attrs[i].name, t->attrs[i].value);
 	      col += len;
 	    }
+	  }
+	  if (t->child == NULL)
+	  {
+	    fp->puts("/");
+	    col ++;
 	  }
 	  fp->puts(">");
 	  col ++;
@@ -531,9 +537,11 @@ write_html(hdFile *fp,
 	fp->printf("</%s>", hdTree::elements[t->element]);
 	col += len;
       }
-    }
 
-    t = t->real_next();
+      t = t->next;
+    }
+    else
+      t = t->real_next();
   }
 
   if (col)
@@ -560,5 +568,5 @@ write_test(hdFile *fp)	// I - File to write to...
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.6 2002/04/02 04:22:37 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.7 2002/04/02 22:01:57 mike Exp $".
 //
