@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.5 2001/05/27 11:39:54 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.6 2001/08/16 03:12:51 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -230,7 +230,8 @@ get_color(const uchar *color,	/* I - Color attribute */
  */
 
 int				/* O - Measurement in points */
-get_measurement(const char *s)	/* I - Measurement string */
+get_measurement(const char *s,	/* I - Measurement string */
+                float      mul)	/* I - Multiplier */
 {
   float	val;			/* Measurement value */
 
@@ -253,6 +254,8 @@ get_measurement(const char *s)	/* I - Measurement string */
     val *= 72.0f / 2.54f;
   else if (strncasecmp(s, "in", 2) == 0)
     val *= 72.0f;
+  else
+    val *= mul;
 
   return ((int)val);
 }
@@ -333,5 +336,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.5 2001/05/27 11:39:54 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.6 2001/08/16 03:12:51 mike Exp $".
  */
