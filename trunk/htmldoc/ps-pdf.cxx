@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.25 1999/11/19 17:38:10 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.26 1999/11/22 14:55:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -130,8 +130,6 @@ extern "C" {		/* Workaround for JPEG header problems... */
 /*
  * Constants...
  */
-
-#define CONTENTS	"Table of Contents"	/* Change as necessary */
 
 #define RENDER_TEXT	0
 #define RENDER_IMAGE	1
@@ -1500,7 +1498,9 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     fputs("<<", out);
     fprintf(out, "/Parent %d 0 R", parent);
 
-    fputs("/Title(Table of Contents)", out);
+    fputs("/Title", out);
+    write_string(out, TocTitle, 0);
+
     fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
             pages_object + 3 * chapter_starts[0] + 1,
             PagePrintLength + PageBottom);
@@ -3354,10 +3354,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		num_cols,
 		num_rows,
 		regular_cols,
+		preformatted,
 		col_lefts[MAX_COLUMNS],
 		col_rights[MAX_COLUMNS];
-  float		col_widths[MAX_COLUMNS],
+  float		col_width,
+		col_widths[MAX_COLUMNS],
+		col_min,
 		col_mins[MAX_COLUMNS],
+		col_pref,
 		col_prefs[MAX_COLUMNS],
 		width,
 		pref_width,
@@ -3426,94 +3430,117 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           DEBUG_printf(("num_rows = %d, col = %d, colspan = %d (%s)\n",
 	                num_rows, col, colspan, var));
 
-          if (colspan == 1)
+          if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
 	  {
-            if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
-	    {
-              if (var[strlen((char *)var) - 1] == '%')
-        	col_widths[col] = atof((char *)var) * table_width / 100.0f;
-              else
-        	col_widths[col] = atoi((char *)var) * PagePrintWidth / 680.0f;
+            if (var[strlen((char *)var) - 1] == '%')
+              col_width = atof((char *)var) * table_width / 100.0f;
+            else
+              col_width = atoi((char *)var) * PagePrintWidth / 680.0f;
 
-              col_mins[col] = col_widths[col];
-	    }
-	    else
-	    {
-              flat       = flatten_tree(tempcol->child);
-              width      = 0.0f;
-	      pref_width = 0.0f;
-
-              while (flat != NULL)
-              {
-        	if (flat->markup == MARKUP_BR ||
-                    (flat->preformatted &&
-                     flat->data != NULL &&
-                     flat->data[strlen((char *)flat->data) - 1] == '\n'))
-        	{
-		  pref_width += flat->width + 1;
-
-                  if (pref_width > col_prefs[col])
-                    col_prefs[col] = pref_width;
-
-		  pref_width = 0.0f;
-        	}
-        	else if (flat->data != NULL)
-		  pref_width += flat->width + 1;
-		else
-		  pref_width += flat->width;
-
-        	if (flat->markup == MARKUP_BR ||
-                    (flat->preformatted &&
-                     flat->data != NULL &&
-                     flat->data[strlen((char *)flat->data) - 1] == '\n') ||
-		    (!flat->preformatted &&
-		     flat->data != NULL &&
-		     (isspace(flat->data[0]) ||
-		      isspace(flat->data[strlen((char *)flat->data) - 1]))))
-        	{
-                  width += flat->width + 1;
-
-                  if (width > col_mins[col])
-                    col_mins[col] = width;
-
-                  width = 0.0f;
-        	}
-        	else if (flat->data != NULL)
-                  width += flat->width + 1;
-		else
-		  width += flat->width;
-
-        	if (flat->width > col_mins[col])
-	          col_mins[col] = flat->width;
-
-        	next = flat->next;
-        	free(flat);
-        	flat = next;
-              }
-
-              if (width > col_mins[col])
-        	col_mins[col] = width;
-
-              if (pref_width > col_prefs[col])
-        	col_prefs[col] = pref_width;
-
-	      if (htmlGetVariable(tempcol, (uchar *)"NOWRAP") != NULL &&
-	          col_prefs[col] > col_widths[col])
-		col_widths[col] = col_prefs[col];
-	    }
-
-            cells[num_rows][col] = tempcol;
-            col ++;
+            col_min  = col_width;
+	    col_pref = col_width;
 	  }
 	  else
 	  {
-            while (colspan > 0 && col < MAX_COLUMNS)
+            flat       = flatten_tree(tempcol->child);
+            width      = 0.0f;
+	    pref_width = 0.0f;
+
+	    col_width  = 0.0f;
+	    col_pref   = 0.0f;
+	    col_min    = 0.0f;
+
+            while (flat != NULL)
             {
-              cells[num_rows][col] = tempcol;
-              col ++;
-              colspan --;
+              if (flat->markup == MARKUP_BR ||
+                  (flat->preformatted &&
+                   flat->data != NULL &&
+                   flat->data[strlen((char *)flat->data) - 1] == '\n'))
+              {
+		pref_width += flat->width + 1;
+
+                if (pref_width > col_pref)
+                  col_pref = pref_width;
+
+                if (flat->preformatted && pref_width > col_width)
+                  col_width = pref_width;
+
+		pref_width = 0.0f;
+              }
+              else if (flat->data != NULL)
+		pref_width += flat->width + 1;
+	      else
+		pref_width += flat->width;
+
+              if (flat->markup == MARKUP_BR ||
+                  (flat->preformatted &&
+                   flat->data != NULL &&
+                   flat->data[strlen((char *)flat->data) - 1] == '\n') ||
+		  (!flat->preformatted &&
+		   flat->data != NULL &&
+		   (isspace(flat->data[0]) ||
+		    isspace(flat->data[strlen((char *)flat->data) - 1]))))
+              {
+                width += flat->width + 1;
+
+                if (width > col_min)
+                  col_min = width;
+
+                if (flat->preformatted && width > col_width)
+                  col_width = width;
+
+                width = 0.0f;
+              }
+              else if (flat->data != NULL)
+                width += flat->width + 1;
+	      else
+		width += flat->width;
+
+              if (flat->width > col_min)
+	        col_min = flat->width;
+
+              preformatted = flat->preformatted;
+
+              next = flat->next;
+              free(flat);
+              flat = next;
             }
+
+            if (width > col_min)
+              col_min = width;
+
+            if (pref_width > col_pref)
+              col_pref = pref_width;
+
+            if (preformatted && width > col_width)
+              col_width = width;
+
+            if (preformatted && width > col_width)
+              col_width = width;
+
+	    if (htmlGetVariable(tempcol, (uchar *)"NOWRAP") != NULL &&
+	        col_pref > col_width)
+	      col_width = col_pref;
 	  }
+
+          // Add widths to columns...
+          col_width /= colspan;
+
+          while (colspan > 0 && col < MAX_COLUMNS)
+          {
+	    if (col_width > col_widths[col])
+	      col_widths[col] = col_width;
+
+	    if (col_pref > col_prefs[col])
+	      col_prefs[col] = col_pref;
+
+	    if (col_min > col_mins[col])
+	      col_mins[col] = col_min;
+
+            cells[num_rows][col] = tempcol;
+            col ++;
+            colspan --;
+          }
         }
 
       if (col > num_cols)
@@ -6249,5 +6276,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.25 1999/11/19 17:38:10 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.26 1999/11/22 14:55:29 mike Exp $".
  */
