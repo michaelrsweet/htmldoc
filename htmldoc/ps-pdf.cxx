@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.21 1999/11/16 18:53:38 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.22 1999/11/17 12:50:38 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2324,7 +2324,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
-      case MARKUP_H7 :
           if (para->child != NULL)
           {
             parse_paragraph(para, left, right, bottom, top, x, y, page);
@@ -2428,7 +2427,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      temp->markup != MARKUP_OL &&
 	      temp->markup != MARKUP_DL &&
 	      temp->markup != MARKUP_HR &&
-	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H7) &&
+	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
 	      *y < top)
 	    *y -= _htmlSpacings[t->size];
           break;
@@ -4388,7 +4387,6 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
-      case MARKUP_H7 :
       case MARKUP_UL :
       case MARKUP_OL :
       case MARKUP_DL :
@@ -5890,7 +5888,8 @@ static void
 write_trailer(FILE *out,	/* I - Output file */
               int  pages)	/* I - Number of pages in file */
 {
-  int		i,		/* Looping var */
+  int		i, j,		/* Looping vars */
+		type,		/* Type of number */
 		offset;		/* Offset to xref table in PDF file */
   static char	*modes[] =	/* Page modes */
 		{
@@ -5966,6 +5965,62 @@ write_trailer(FILE *out,	/* I - Output file */
     }
 
     fprintf(out, "/PageMode/%s", modes[PDFPageMode]);
+
+    if (PDFVersion > 1.2)
+    {
+      // Output the PageLabels tree...
+      fputs("/PageLabels<</Nums[", out);
+
+      i = 0;
+
+      if (TitlePage)
+      {
+        fputs("0<</P(title)>>", out);
+	if (PageDuplex)
+	  fputs("1<</P(eltit)>>", out);
+	i += PageDuplex + 1;
+      }
+
+      if (TocLevels > 0)
+      {
+        type = 'v';
+        for (j = 0; j < 3; j ++)
+	  if (TocHeader[j] == '1')
+	    type = 'D';
+	  else if (TocHeader[j] == 'i')
+	    type = 'r';
+	  else if (TocHeader[j] == 'I')
+	    type = 'R';
+	  else if (TocFooter[j] == '1')
+	    type = 'D';
+	  else if (TocFooter[j] == 'i')
+	    type = 'r';
+	  else if (TocFooter[j] == 'I')
+	    type = 'R';
+
+        fprintf(out, "%d<</S/%c>>", i, type);
+
+        i += chapter_ends[0] - chapter_starts[0] + 1;
+      }
+
+      type = 'D';
+      for (j = 0; j < 3; j ++)
+	if (Header[j] == '1')
+	  type = 'D';
+	else if (Header[j] == 'i')
+	  type = 'r';
+	else if (Header[j] == 'I')
+	  type = 'R';
+	else if (Footer[j] == '1')
+	  type = 'D';
+	else if (Footer[j] == 'i')
+	  type = 'r';
+	else if (Footer[j] == 'I')
+	  type = 'R';
+
+      fprintf(out, "%d<</S/%c>>", i, type);
+      fputs("]>>", out);
+    }
 
     fputs(">>", out);
     fputs("endobj\n", out);
@@ -6126,5 +6181,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.21 1999/11/16 18:53:38 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.22 1999/11/17 12:50:38 mike Exp $".
  */

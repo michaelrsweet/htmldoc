@@ -13,162 +13,105 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 <CENTER>
 <TABLE WIDTH="80%" BORDER="1">
 <TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
-<TR><TD>!DOCTYPE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>A</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>ACRONYM</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>ADDRESS</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>APPLET</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>AREA</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>B</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>BASE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>BASEFONT</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>BIG</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>BLINK</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>BLOCKQUOTE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>BODY</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>BR</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>CAPTION</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>CENTER</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>CITE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>CODE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>COL</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>COLGROUP</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>DD</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>DEL</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>DFN</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>DIR</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>!DOCTYPE</TD><TD ALIGN="CENTER">3.0</TD><TD ALIGN="CENTER">Yes</TD><TD>DTD specification is ignored</TD></TR>
+<TR><TD>A</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#LINKS">See Below</A></TD></TR>
+<TR><TD>ACRONYM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>No font change</TD></TR>
+<TR><TD>ADDRESS</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>APPLET</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>AREA</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>B</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>BASE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>BASEFONT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>BIG</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>BLINK</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>BLOCKQUOTE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>BODY</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>BR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>CAPTION</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>CENTER</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>CITE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Italic/Oblique</TD></TR>
+<TR><TD>CODE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
+<TR><TD>COL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>COLGROUP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>DD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>DEL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Strikethrough</TD></TR>
+<TR><TD>DFN</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Helvetica</TD></TR>
+<TR><TD>DIR</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
 <TR><TD>DIV</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>DL</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>DT</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>EM</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>EMBED</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>FONT</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>FORM</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>FRAME</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>FRAMESET</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>H1</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>H2</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>H3</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>H4</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>H5</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>H6</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>HEAD</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>HR</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>HTML</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>I</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>IMG</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>INPUT</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>INS</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>ISINDEX</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>KBD</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>LI</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>LINK</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>MAP</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>MENU</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>META</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>MULTICOL</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>NOBR</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>NOFRAMES</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>OL</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>OPTION</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>P</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>PRE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>S</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>SAMP</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>SCRIPT</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>SELECT</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>SMALL</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>SPACER</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>STRIKE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>STRONG</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>STYLE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>SUB</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>SUP</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TABLE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TBODY</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TD</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TEXTAREA</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TFOOT</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TH</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>THEAD</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TITLE</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TR</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>TT</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>U</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>UL</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>VAR</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
-<TR><TD>WBR</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>DL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>DT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Italic/Oblique</TD></TR>
+<TR><TD>EM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Italic/Oblique</TD></TR>
+<TR><TD>EMBED</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>HTML Only</TD></TR>
+<TR><TD>FONT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#FONT">See Below</A></TD></TR>
+<TR><TD>FORM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>FRAME</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>FRAMESET</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>H1</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H2</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H3</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H4</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H5</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>H6</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
+<TR><TD>HEAD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>HR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="BREAKS">See Below</A></TD></TR>
+<TR><TD>HTML</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>I</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>IMG</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>GIF, JPEG, PNG</TD></TR>
+<TR><TD>INPUT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>INS</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Underline</TD></TR>
+<TR><TD>ISINDEX</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>KBD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier Bold</TD></TR>
+<TR><TD>LI</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>LINK</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>MAP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>MENU</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>META</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#META">See Below</A></TD></TR>
+<TR><TD>MULTICOL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>NOBR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>NOFRAMES</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>OL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>OPTION</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>P</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>PRE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>S</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>SAMP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
+<TR><TD>SCRIPT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>SELECT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>SMALL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>SPACER</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>STRIKE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>STRONG</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface Italic/Oblique</TD></TR>
+<TR><TD>STYLE</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>SUB</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Reduced Fontsize</TD></TR>
+<TR><TD>SUP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Reduced Fontsize</TD></TR>
+<TR><TD>TABLE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#TABLE">See Below</A></TD></TR>
+<TR><TD>TBODY</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>TD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>TEXTAREA</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>TFOOT</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>TH</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface Center</TD></TR>
+<TR><TD>THEAD</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>TITLE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>TR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>TT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
+<TR><TD>U</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>UL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
+<TR><TD>VAR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Helvetica Oblique</TD></TR>
+<TR><TD>WBR</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
 </TABLE>
 </CENTER>
 
+<H2><A NAME="FONT">FONT Attributes</A></H2>
 
+Limited typeface specification is currently supported. The "Arial" typeface
+is mapped to "Helvetica" to ensure portability across platforms and for
+older PostScript printers. All other unrecognized typefaces are silently
+ignored.
 
+<H2><A NAME="HEADING">Headings</A></H2>
 
-
-
-
-
-
-
-
-
-
-<I>HTMLDOC</I> current has the following implementation limits:
-
-<UL>
-	<LI>Generated PostScript/PDF pages: 5000</LI>
 	<LI>Chapters: 100</LI>
 	<LI>Headings: 10000</LI>
-	<LI>Links: 20000</LI>
-	<LI>Table columns: 20</LI>
-	<LI>Table rows: 1000</LI>
-</UL>
-
-This limits can be increased by changing the appropriate constant
-definition in the <I>config.h</I> header file.
-
-<I>HTMLDOC</I> is capable of processing most HTML files. This chapter discusses
-the requirements for HTML files to be correctly processed by <I>HTMLDOC</I>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<H2>General Requirements</H2>
-
-Since <I>HTMLDOC</I> is designed as a documentation generation program,
-it expects to have chapters and headers.
-
-<P><B>Note:</B> If you are converting a generic web page you must
-select the "--webpage" option on the command-line or choose "Web Page"
-as the document type in the GUI.
-
-<H2>Page Breaks</H2>
-
-To force a page break use the HR markup with the option "BREAK":
-
-<UL><PRE>
-&lt;HR BREAK&gt;
-</PRE></UL>
-
-<H2>Chapters</H2>
 
 All chapters start with a top-level heading (H1) markup. Any headings within
 a chapter must be of a lower level (H2 to H7). Each chapter starts a new
@@ -223,35 +166,9 @@ the table-of-contents that is generated will show:
 	</UL>
 </UL>
 
-<H2>Unsupported or Restricted HTML Features</H2>
+<H2><A NAME="LINKS">Links</A></H2>
 
-The following HTML features are either not supported or have limited support
-in this release of <I>HTMLDOC</I>.
-
-<H3>Embedded Objects</H3>
-
-Only embedded HTML files are supported using the EMBED tag.
-
-<H3>Fonts</H3>
-
-Limited typeface specification is currently supported. The "Arial" typeface
-is mapped to "Helvetica" to ensure portability across platforms and for
-older PostScript printers. All other unrecognized typefaces are silently
-ignored.
-
-<H3>Forms</H3>
-
-Forms are not yet supported when generating PostScript and PDF files.
-
-<H3>Frames</H3>
-
-HTMLDOC does not support frames.
-
-<H3>Image Maps</H3>
-
-Image maps are not exported to HTML or PDF files.
-
-<H3>Links</H3>
+	<LI>Links: 20000</LI>
 
 External URL links are fully supported for HTML and PDF output. Internal
 links are supported in HTML and PDF output.
@@ -260,19 +177,24 @@ links are supported in HTML and PDF output.
 external file links for the PDF viewer instead of URL links. That is, you
 can directly link to another local PDF file from your HTML document.
 
-<H3>Scripts and Applets</H3>
+<H2><A NAME="META">META Attributes</A></H2>
 
-All scripts and applets are silently stripped from the output.
+<H2><A NAME="BREAKS">Page Breaks</A></H2>
 
-<H3>Style Sheets</H3>
+To force a page break use the HR markup with the option "BREAK":
 
-Style sheets are not yet supported.
+<UL><PRE>
+&lt;HR BREAK&gt;
+</PRE></UL>
 
-<H3>Tables</H3>
+<H2><A NAME="TABLE">Tables</A></H2>
 
-Currently only the HTML 3.2 varient of tables is supported. The CAPTION,
+Currently only the HTML 2.0 varient of tables is supported. The CAPTION,
 THEAD, TFOOT, and TBODY tags are silently ignored, and vertical alignment and
 spanning (ROWSPAN and VALIGN) are not supported.
+
+	<LI>Table columns: 20</LI>
+	<LI>Table rows: 1000</LI>
 
 </BODY>
 </HTML>

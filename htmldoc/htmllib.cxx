@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.14 1999/11/16 21:46:21 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.15 1999/11/17 12:50:38 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -210,7 +210,7 @@ static char	*fix_filename(char *path, char *base);
 			 (x) == MARKUP_BLOCKQUOTE)
 #define isblock(x)	((x) == MARKUP_ADDRESS || \
 			 (x) == MARKUP_P || (x) == MARKUP_PRE ||\
-			 ((x) >= MARKUP_H1 && (x) <= MARKUP_H7) ||\
+			 ((x) >= MARKUP_H1 && (x) <= MARKUP_H6) ||\
 			 (x) == MARKUP_HR || (x) == MARKUP_TABLE)
 #define islist(x)	((x) == MARKUP_DL || (x) == MARKUP_OL ||\
 			 (x) == MARKUP_UL)
@@ -626,7 +626,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
-      case MARKUP_H7 :
           get_alignment(t);
 
           t->typeface      = _htmlHeadingFont;
@@ -664,8 +663,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_BLOCKQUOTE :
-          t->style = STYLE_ITALIC;
-
       case MARKUP_UL :
       case MARKUP_OL :
       case MARKUP_DL :
@@ -945,7 +942,6 @@ write_file(tree_t *t,		/* I - Tree entry */
         case MARKUP_H4 :
         case MARKUP_H5 :
         case MARKUP_H6 :
-        case MARKUP_H7 :
         case MARKUP_HEAD :
         case MARKUP_HR :
         case MARKUP_LI :
@@ -1026,7 +1022,6 @@ write_file(tree_t *t,		/* I - Tree entry */
           case MARKUP_H4 :
           case MARKUP_H5 :
           case MARKUP_H6 :
-          case MARKUP_H7 :
           case MARKUP_HEAD :
           case MARKUP_HR :
           case MARKUP_LI :
@@ -1259,7 +1254,6 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
     case MARKUP_H4 :
     case MARKUP_H5 :
     case MARKUP_H6 :
-    case MARKUP_H7 :
         get_alignment(t);
 
         t->typeface      = _htmlHeadingFont;
@@ -2202,5 +2196,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.14 1999/11/16 21:46:21 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.15 1999/11/17 12:50:38 mike Exp $".
  */

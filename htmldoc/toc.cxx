@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.3 1999/11/11 21:36:46 mike Exp $"
+ * "$Id: toc.cxx,v 1.4 1999/11/17 12:50:39 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -171,7 +171,6 @@ parse_tree(tree_t *t)		/* I - Document tree */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
-      case MARKUP_H7 :
           level = t->markup - MARKUP_H1;
 
           if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
@@ -343,5 +342,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.3 1999/11/11 21:36:46 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.4 1999/11/17 12:50:39 mike Exp $".
  */
