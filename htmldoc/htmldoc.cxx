@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.18 2000/01/04 13:52:24 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.19 2000/01/04 15:50:51 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -584,7 +584,8 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--title", 7) == 0)
       TitlePage = 1;
-    else if (compare_strings(argv[i], "--titleimage", 8) == 0)
+    else if (compare_strings(argv[i], "--titlefile", 8) == 0 ||
+             compare_strings(argv[i], "--titleimage", 8) == 0)
     {
       i ++;
       if (i < argc)
@@ -1605,6 +1606,7 @@ usage(void)
   puts("  --textcolor color");
   puts("  --textfont {courier,times,helvetica}");
   puts("  --title");
+  puts("  --titlefile filename.{htm,html,shtml}");
   puts("  --titleimage filename.{gif,jpg,png}");
   puts("  --tocfooter fff");
   puts("  --tocheader fff");
@@ -1631,5 +1633,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.18 2000/01/04 13:52:24 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.19 2000/01/04 15:50:51 mike Exp $".
  */

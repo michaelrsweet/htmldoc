@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.11 2000/01/04 13:52:24 mike Exp $"
+ * "$Id: html.cxx,v 1.12 2000/01/04 15:50:51 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -105,7 +105,16 @@ html_export(tree_t *document,	/* I - Document to export */
   if (OutputFiles && LogoImage[0] != '\0')
     image_copy(LogoImage, OutputPath);
 
-  if (OutputFiles && TitleImage[0] != '\0' && TitlePage)
+  if (OutputFiles && TitleImage[0] != '\0' && TitlePage &&
+#if defined(WIN32) || defined(__EMX__)
+      stricmp(file_extension(TitleImage), "htm") != 0 &&
+      stricmp(file_extension(TitleImage), "html") != 0 &&
+      stricmp(file_extension(TitleImage), "shtml") != 0)
+#else
+      strcmp(file_extension(TitleImage), "htm") != 0 &&
+      strcmp(file_extension(TitleImage), "html") != 0 &&
+      strcmp(file_extension(TitleImage), "shtml") != 0)
+#endif // WIN32 || __EMX__
     image_copy(TitleImage, OutputPath);
 
  /*
@@ -364,44 +373,76 @@ write_footer(FILE **out,	/* IO - Output file pointer */
  */
 
 static void
-write_title(FILE *out,		/* I - Output file */
-            uchar  *title,	/* I - Title for document */
-            uchar  *author,	/* I - Author for document */
-            uchar  *copyright,	/* I - Copyright for document */
-            uchar  *docnumber)	/* I - ID number for document */
+write_title(FILE  *out,		/* I - Output file */
+            uchar *title,	/* I - Title for document */
+            uchar *author,	/* I - Author for document */
+            uchar *copyright,	/* I - Copyright for document */
+            uchar *docnumber)	/* I - ID number for document */
 {
+  FILE		*fp;		/* Title file */
+  tree_t	*t;		/* Title file document tree */
+
+
   if (out == NULL)
     return;
 
-  if (OutputFiles)
-    fputs("<CENTER><A HREF=\"toc.html\">", out);
-  else
-    fputs("<CENTER><A HREF=\"#CONTENTS\">", out);
-
-  if (TitleImage[0] != '\0')
+#if defined(WIN32) || defined(__EMX__)
+  if (stricmp(file_extension(TitleImage), "htm") == 0 ||
+      stricmp(file_extension(TitleImage), "html") == 0 ||
+      stricmp(file_extension(TitleImage), "shtml") == 0)
+#else
+  if (strcmp(file_extension(TitleImage), "htm") == 0 ||
+      strcmp(file_extension(TitleImage), "html") == 0 ||
+      strcmp(file_extension(TitleImage), "shtml") == 0)
+#endif // WIN32 || __EMX__
   {
-    if (OutputFiles)
-      fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\"><BR>\n",
-              file_basename((char *)TitleImage));
-    else
-      fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\"><BR>\n", TitleImage);
+    // Write a title page from HTML source...
+    if ((fp = fopen(TitleImage, "rb")) == NULL)
+    {
+      progress_error("Unable to open title file \"%s\" - %s!",
+                     TitleImage, strerror(errno));
+      return;
+    }
+
+    t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+    fclose(fp);
+
+    write_all(out, t, 0);
+    htmlDeleteTree(t);
   }
-
-  if (title != NULL)
-    fprintf(out, "<H1>%s</H1></A><BR>\n", title);
   else
-    fputs("</A>\n", out);
+  {
+    // Write a "standard" title page with image...
+    if (OutputFiles)
+      fputs("<CENTER><A HREF=\"toc.html\">", out);
+    else
+      fputs("<CENTER><A HREF=\"#CONTENTS\">", out);
 
-  if (docnumber != NULL)
-    fprintf(out, "%s<BR>\n", docnumber);
+    if (TitleImage[0] != '\0')
+    {
+      if (OutputFiles)
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\"><BR>\n",
+        	file_basename((char *)TitleImage));
+      else
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\"><BR>\n", TitleImage);
+    }
 
-  if (author != NULL)
-    fprintf(out, "%s<BR>\n", author);
+    if (title != NULL)
+      fprintf(out, "<H1>%s</H1></A><BR>\n", title);
+    else
+      fputs("</A>\n", out);
 
-  if (copyright != NULL)
-    fprintf(out, "%s<BR>\n", copyright);
+    if (docnumber != NULL)
+      fprintf(out, "%s<BR>\n", docnumber);
 
-  fputs("</CENTER>\n", out);
+    if (author != NULL)
+      fprintf(out, "%s<BR>\n", author);
+
+    if (copyright != NULL)
+      fprintf(out, "%s<BR>\n", copyright);
+
+    fputs("</CENTER>\n", out);
+  }
 }
 
 
@@ -832,5 +873,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.11 2000/01/04 13:52:24 mike Exp $".
+ * End of "$Id: html.cxx,v 1.12 2000/01/04 15:50:51 mike Exp $".
  */
