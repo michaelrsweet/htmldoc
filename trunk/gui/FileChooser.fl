@@ -1,0 +1,148 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.00 
+header_name {.h} 
+code_name {.cpp} 
+gridx 5 
+gridy 5 
+snap 3
+class FileChooser {open
+} {
+  decl {enum { TYPE_HTML, TYPE_IMAGE };} {public
+  }
+  Function {FileChooser(const char *d, int t, int m, const char *title)} {open
+  } {
+    Fl_Window window {
+      label {Pick a File} open
+      private xywh {3000 3000 296 257} hide resizable
+      code0 {if (title) window->label(title);}
+      code1 {\#include <stdio.h>}
+      code2 {\#include <stdlib.h>}
+      code3 {\#include <string.h>} modal
+    } {
+      Fl_Choice dirHistory {
+        label {Directory:} open
+        private xywh {70 5 160 25}
+      } {}
+      Fl_Browser fileList {
+        callback {fileListCB(o, NULL);}
+        private xywh {5 35 285 155} type Hold resizable
+        code0 {if (m) fileList->type(FL_MULTI_BROWSER);}
+        code1 {\#include "FileBrowser.h"}
+        class FileBrowser
+      }
+      Fl_Button prevDir {
+        label {@PrevFolder}
+        callback {char *slash;
+if ((slash = strrchr(directory_, '/')) == NULL)
+  slash = strrchr(directory_, '\\\\');
+if (slash != NULL)
+  *slash = '\\0';
+else
+  directory_[0] = '\\0';}
+        private xywh {235 5 25 25} labeltype SYMBOL_LABEL labelcolor 3
+      }
+      Fl_Button newDir {
+        label {@NewFolder}
+        callback {new_directory();}
+        private xywh {265 5 25 25} labeltype SYMBOL_LABEL labelcolor 3
+      }
+      Fl_Input fileName {
+        label {File:}
+        private xywh {35 195 255 25}
+      }
+      Fl_Check_Button followLinks {
+        label {Follow Local Links}
+        private xywh {5 225 140 25} down_box DOWN_BOX color 7 selection_color 0
+        code0 {if (t) followLinks->deactivate();}
+        code1 {\#include "CheckButton.h"}
+        class CheckButton
+      }
+      Fl_Button {} {
+        label Cancel
+        callback {window->hide();}
+        private xywh {225 225 65 25}
+      }
+      Fl_Return_Button {} {
+        label OK
+        callback {window->hide();}
+        private xywh {165 225 55 25}
+      }
+    }
+    code {if (d == NULL) strcpy(directory_, ".");
+else strcpy(directory_, d);
+init_symbols();
+rescan();
+ok_ = 0;} {}
+  }
+  decl {char directory_[1024];} {}
+  Function {directory(const char *d)} {return_type void
+  } {
+    code {strcpy(directory_, d);
+rescan();} {}
+  }
+  Function {directory()} {return_type {char *}
+  } {
+    code {return directory_;} {}
+  }
+  decl {int multi_;} {}
+  Function {multi(int m)} {return_type void
+  } {
+    code {multi_ = m;
+if (m) fileList->type(FL_MULTI_BROWSER);
+else fileList->type(FL_HOLD_BROWSER);} {}
+  }
+  Function {multi()} {return_type int
+  } {
+    code {return multi_;} {}
+  }
+  decl {int ok_;} {}
+  Function {ok()} {return_type int
+  } {
+    code {return (ok_);} {}
+  }
+  decl {int type_;} {}
+  Function {type(int t)} {return_type void
+  } {
+    code {type_ = t;
+if (t) followLinks->deactivate();
+else followLinks->activate();
+rescan();} {}
+  }
+  Function {type()} {return_type int
+  } {
+    code {return type_;} {}
+  }
+  Function {value(const char *v)} {return_type void
+  } {
+    code {char *slash;
+fileName->value(v);
+strcpy(directory_, v);
+if ((slash = strrchr(directory_, '/')) == NULL)
+  slash = strrchr(directory_, '\\\\');
+if (slash == NULL) directory_[0] = '\\0';
+else *slash = '\\0';
+rescan();} {}
+  }
+  Function {value()} {return_type {const char *}
+  } {
+    code {return fileName->value();} {}
+  }
+  Function {show()} {return_type void
+  } {
+    code {window->show();} {}
+  }
+  Function {hide()} {return_type void
+  } {
+    code {window->hide();} {}
+  }
+  Function {visible()} {return_type int
+  } {
+    code {return window->visible();} {}
+  }
+  decl {void init_symbols();} {}
+  decl {void new_directory();} {}
+  decl {void rescan();} {public
+  }
+  decl {void fileListCB(Fl_Widget *, void *);} {selected
+  }
+} 
