@@ -1,5 +1,5 @@
 //
-// "$Id: image-bmp.cxx,v 1.5 2002/01/06 17:50:29 mike Exp $"
+// "$Id: image-bmp.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $"
 //
 // BMP image handling routines for HTMLDOC.
 //
@@ -36,6 +36,7 @@
 //
 
 #include "image.h"
+#include "hdstring.h"
 
 
 //
@@ -67,6 +68,22 @@ hdBMPImage::hdBMPImage(const char *p,	// I - URI for image
   uri(p);
 
   real_load(0, gs);
+}
+
+
+//
+// 'hdBMPImage::check()' - Try to load an image file as a BMP.
+//
+
+hdImage *
+hdBMPImage::check(const char *p,	// I - URI for image file
+                  int        gs,	// I - 1 = grayscale, 0 = color
+		  const char *header)	// I - First 16 bytes of file
+{
+  if (memcmp(header, "BM", 2) == 0)	// BMP file
+    return (new hdBMPImage(p, gs));
+  else
+    return (NULL);
 }
 
 
@@ -466,5 +483,5 @@ read_long(hdFile *fp)		// I - File to read from
 
 
 //
-// End of "$Id: image-bmp.cxx,v 1.5 2002/01/06 17:50:29 mike Exp $".
+// End of "$Id: image-bmp.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $".
 //

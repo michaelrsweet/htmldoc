@@ -1,5 +1,5 @@
 //
-// "$Id: image.cxx,v 1.18 2002/01/05 23:14:41 mike Exp $"
+// "$Id: image.cxx,v 1.19 2002/01/06 20:04:48 mike Exp $"
 //
 //   Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -228,7 +228,9 @@ hdImage::copy(const char *path,	// I - Destination path
 //
 
 hdImage *			// O - Pointer to image
-hdImage::find(const char *p)	// I - Name of image file
+hdImage::find(const char *p,	// I - Name of image file
+              int        gs,	// I - 1 = grayscale, 0 = color
+              const char *path)	// I - Search path for files
 {
   int		i;		// Looping var...
   hdImage	key,		// Search key...
@@ -236,6 +238,10 @@ hdImage::find(const char *p)	// I - Name of image file
 		*img,		// Pointer to image...
 		**match;	// Matching image
   hdImageCheck	*f;		// Pointer to check functions...
+  char		filename[HD_MAX_URI];
+				// Actual filename
+  hdFile	*fp;		// File pointer
+  char		header[16];	// File header
 
 
   // Range check...
@@ -245,10 +251,14 @@ hdImage::find(const char *p)	// I - Name of image file
   if (p[0] == '\0')	// Microsoft VC++ runtime bug workaround...
     return (NULL);
 
+  // Find the file...
+  if (hdFile::find(path, p, filename, sizeof(filename)) == NULL)
+    return (NULL);
+
   // See if we've already loaded it...
   if (num_images_ > 0)
   {
-    key.uri(p);
+    key.uri(filename);
 
     keyptr = &key;
 
@@ -264,8 +274,24 @@ hdImage::find(const char *p)	// I - Name of image file
   }
 
   // Nope, see if we can load it...
+  if ((fp = hdFile::open(filename, HD_FILE_READ)) == NULL)
+  {
+    perror(filename);
+    return (NULL);
+  }
+
+  // Read the first 16 bytes of the file...
+  fp->read(header, sizeof(header));
+  delete fp;
+
+  printf("First 16 bytes of \"%s\" are:\n   ", filename);
+  for (i = 0; i < 16; i ++)
+    printf(" %02X", (uchar)header[i]);
+  putchar('\n');
+
+  // See if any of the registered image classes can load it...
   for (i = 0, img = (hdImage *)0, f = formats_; i < num_formats_; i ++, f ++)
-    if ((img = (*f)(p)) != NULL)
+    if ((img = (*f)(filename, gs, header)) != NULL)
       break;
 
   if (!img)
@@ -357,166 +383,6 @@ hdImage::load()
 }
 
 
-#if 0
-//
-// 'image_load()' - Load an image file from disk...
-//
-
-hdImage *			// O - Pointer to image
-image_load(const char *uri_,// I - Name of image file
-           int        gray,	// I - 0 = color, 1 = grayscale
-           int        load_data)// I - 1 = load image data, 0 = just info
-{
-  FILE		*fp;		// File pointer
-  uchar		header[16];	// First 16 bytes of file
-  hdImage	*img,		// New image buffer
-		key,		// Search key...
-		*keyptr,	// Pointer to search key...
-		**match,	// Matching image
-		**temp;		// Temporary array pointer
-  int		status;		// Status of load...
-  const char	*realname;	// Real uri_
-
-
-  // Range check...
-  if (uri_ == NULL)
-    return (NULL);
-
-  if (uri_[0] == '\0')	// Microsoft VC++ runtime bug workaround...
-    return (NULL);
-
-  // See if we've already loaded it...
-  if (num_images > 0)
-  {
-    strcpy(key.uri_, uri_);
-    keyptr = &key;
-
-    match = (hdImage **)bsearch(&keyptr, images, num_images, sizeof(hdImage *),
-                                (int (*)(const void *, const void *))image_compare);
-    if (match != NULL && (!load_data || (*match)->pixels))
-    {
-      (*match)->use ++;
-      return (*match);
-    }
-  }
-  else
-    match = NULL;
-
- //
-  * Figure out the file type...
- 
-
-  if ((realname = hdFile::find(Path, uri_)) == NULL)
-  {
-    progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to find image file \"%s\"!", uri_);
-    return (NULL);
-  }
-
-  if ((fp = fopen(realname, "rb")) == NULL)
-  {
-    progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to open image file \"%s\" (%s) for reading!",
-		   uri_, realname);
-    return (NULL);
-  }
-
-  if (fread(header, 1, sizeof(header), fp) == 0)
-  {
-    progress_error(HD_ERROR_READ_ERROR,
-                   "Unable to read image file \"%s\"!", uri_);
-    fclose(fp);
-    return (NULL);
-  }
-
-  rewind(fp);
-
-  // See if the images array needs to be resized...
-  if (!match)
-  {
-    if (num_images >= alloc_images)
-    {
-      // Yes...
-      alloc_images += ALLOC_FILES;
-
-      if (num_images == 0)
-	temp = (hdImage **)malloc(sizeof(hdImage *) * alloc_images);
-      else
-	temp = (hdImage **)realloc(images, sizeof(hdImage *) * alloc_images);
-
-      if (temp == NULL)
-      {
-	progress_error(HD_ERROR_OUT_OF_MEMORY,
-	               "Unable to allocate memory for %d images - %s",
-                       alloc_images, strerror(errno));
-	fclose(fp);
-	return (NULL);
-      }
-
-      images = temp;
-    }
-
-    // Allocate memory...
-    img = (hdImage *)calloc(sizeof(hdImage), 1);
-
-    if (img == NULL)
-    {
-      progress_error(HD_ERROR_READ_ERROR, "Unable to allocate memory for \"%s\"",
-                     uri_);
-      fclose(fp);
-      return (NULL);
-    }
-
-    images[num_images] = img;
-
-    strcpy(img->uri_, uri_);
-    img->use = 1;
-  }
-  else
-    img = *match;
-
-  // Load the image as appropriate...
-  if (memcmp(header, "GIF87a", 6) == 0 ||
-      memcmp(header, "GIF89a", 6) == 0)
-    status = image_load_gif(img,  fp, gray, load_data);
-  else if (memcmp(header, "BM", 2) == 0)
-    status = image_load_bmp(img, fp, gray, load_data);
-  else if (memcmp(header, "\211PNG", 4) == 0)
-    status = image_load_png(img, fp, gray, load_data);
-  else if (memcmp(header, "\377\330\377", 3) == 0 &&	// Start-of-Image
-	   header[3] >= 0xe0 && header[3] <= 0xef)	// APPn
-    status = image_load_jpeg(img, fp, gray, load_data);
-  else
-  {
-    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", uri_);
-    fclose(fp);
-    free(img);
-    return (NULL);
-  }
-
-  fclose(fp);
-
-  if (status)
-  {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!", uri_);
-    if (!match)
-      free(img);
-    return (NULL);
-  }
-
-  if (!match)
-  {
-    num_images ++;
-    if (num_images > 1)
-      qsort(images, num_images, sizeof(hdImage *),
-            (int (*)(const void *, const void *))image_compare);
-  }
-
-  return (img);
-}
-#endif // 0
-
-
 //
 // 'hdImage::register_standard()' - Register all of the standard image formats.
 //
@@ -525,13 +391,13 @@ void
 hdImage::register_standard()
 {
   register_format(hdBMPImage::check);
-  register_format(hdEPSImage::check);
+//  register_format(hdEPSImage::check);
   register_format(hdGIFImage::check);
   register_format(hdJPEGImage::check);
   register_format(hdPNGImage::check);
-  register_format(hdPNMImage::check);
-  register_format(hdXBMImage::check);
-  register_format(hdXPMImage::check);
+//  register_format(hdPNMImage::check);
+//  register_format(hdXBMImage::check);
+//  register_format(hdXPMImage::check);
 }
 
 
@@ -558,9 +424,9 @@ hdImage::register_format(hdImageCheck check)	// I - Check function
     {
       memcpy(temp, formats_, sizeof(hdImageCheck) * num_formats_);
       delete[] formats_;
-      formats_ = temp;
     }
 
+    formats_       = temp;
     alloc_formats_ += ALLOC_FILES;
   }
 
@@ -706,5 +572,5 @@ hdImage::uri(const char *p)		// I - New URI
 
 
 //
-// End of "$Id: image.cxx,v 1.18 2002/01/05 23:14:41 mike Exp $".
+// End of "$Id: image.cxx,v 1.19 2002/01/06 20:04:48 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: image-png.cxx,v 1.3 2002/01/05 23:14:41 mike Exp $"
+// "$Id: image-png.cxx,v 1.4 2002/01/06 20:04:48 mike Exp $"
 //
 // PNG image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -51,6 +51,22 @@ hdPNGImage::hdPNGImage(const char *p,	// I - URI for image file
   uri(p);
 
   real_load(0, gs);
+}
+
+
+//
+// 'hdPNGImage::check()' - Try to load an image file as a PNG.
+//
+
+hdImage *
+hdPNGImage::check(const char *p,	// I - URI for image file
+                  int        gs,	// I - 1 = grayscale, 0 = color
+		  const char *header)	// I - First 16 bytes of file
+{
+  if (memcmp(header, "\211PNG", 4) == 0)
+    return (new hdPNGImage(p, gs));
+  else
+    return (NULL);
 }
 
 
@@ -235,5 +251,5 @@ png_read(png_structp pp,		// I - PNG image
 
 
 //
-// End of "$Id: image-png.cxx,v 1.3 2002/01/05 23:14:41 mike Exp $".
+// End of "$Id: image-png.cxx,v 1.4 2002/01/06 20:04:48 mike Exp $".
 //

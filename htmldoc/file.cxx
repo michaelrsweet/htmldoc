@@ -1,5 +1,5 @@
 //
-// "$Id: file.cxx,v 1.5 2002/01/05 23:14:39 mike Exp $"
+// "$Id: file.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $"
 //
 //   Filename routines for HTMLDOC, a HTML document processing program.
 //
@@ -78,12 +78,13 @@
 // Class globals...
 //
 
-char	hdFile::proxy_host_[HD_MAX_URI] = "";	// Proxy hostname
-int	hdFile::proxy_port_ = 0;			// Proxy port
-int	hdFile::temp_files_ = 0,		// Number of temporary files
-	hdFile::temp_alloc_ = 0;		// Number of allocated files
-hdCache	*hdFile::temp_cache_ = NULL;		// Cache array
-int	hdFile::no_local_ = 0;			// Non-zero to disable local files
+const char	*hdFile::proxy_ = NULL;			// Proxy URL
+char		hdFile::proxy_host_[HD_MAX_URI] = "";	// Proxy hostname
+int		hdFile::proxy_port_ = 0;		// Proxy port
+int		hdFile::temp_files_ = 0,		// Number of temporary files
+		hdFile::temp_alloc_ = 0;		// Number of allocated files
+hdCache		*hdFile::temp_cache_ = NULL;		// Cache array
+int		hdFile::no_local_ = 0;			// Non-zero to disable local files
 
 
 //
@@ -449,6 +450,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
       }
 
 //      progress_show("Connecting to %s...", connhost);
+      ::printf("Connecting to %s...\n", connhost);
       atexit(hdFile::cleanup);
 
 #ifdef HAVE_LIBSSL
@@ -465,11 +467,13 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
 //        progress_hide();
 //        progress_error(HD_ERROR_NETWORK_ERROR,
 //	                 "Unable to connect to %s!", connhost);
+        ::printf("Unable to connect to %s - %s!\n", connhost, strerror(errno));
         delete http;
         return (NULL);
       }
 
 //      progress_show("Getting %s...", connpath);
+      ::printf("Getting %s...\n", connpath);
 
       http->clear_fields();
       http->set_field(HD_HTTP_FIELD_HOST, hostname);
@@ -506,6 +510,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
     {
 //      progress_hide();
 //      progress_error((HDerror)status, "%s", httpStatus(status));
+      ::printf("%d %s\n", status, hdHTTP::status_string(status));
       http->flush();
       delete http;
       return (NULL);
@@ -517,6 +522,8 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
 //      progress_error(HD_ERROR_WRITE_ERROR,
 //                     "Unable to create temporary file \"%s\": %s", name,
 //                     strerror(errno));
+      ::printf("Unable to create temporary file \"%s\": %s\n", name,
+               strerror(errno));
       http->flush();
       delete http;
       return (NULL);
@@ -792,5 +799,5 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
 
 
 //
-// End of "$Id: file.cxx,v 1.5 2002/01/05 23:14:39 mike Exp $".
+// End of "$Id: file.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $".
 //
