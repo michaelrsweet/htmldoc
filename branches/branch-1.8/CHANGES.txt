@@ -25,6 +25,8 @@ CHANGES IN HTMLDOC v1.8.18
 	- Background colors in nested tables didn't always get
 	  drawn in the right order, resulting in the wrong
 	  colors showing through.
+	- The HEADER page comment didn't set the correct top
+	  position in landscape orientation.
 
 
 CHANGES IN HTMLDOC v1.8.17

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.146 2002/01/28 00:52:27 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.147 2002/01/28 16:25:28 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6671,14 +6671,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       }
 
       if (tof)
-      {
-	if (Landscape)
-          *top = PagePrintWidth - PageTop;
-	else
-          *top = PagePrintLength - PageTop;
-
-        *y = *top;
-      }
+        *y = *top = PagePrintLength - PageTop;
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
@@ -10675,5 +10668,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.146 2002/01/28 00:52:27 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.147 2002/01/28 16:25:28 mike Exp $".
  */
