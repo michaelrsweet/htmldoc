@@ -1,9 +1,9 @@
 /*
- * "$Id: config.h,v 1.12 1999/12/30 00:50:12 mike Exp $"
+ * "$Id: config.h,v 1.13 2000/03/06 21:24:00 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-1999 by Easy Software Products.
+ *   Copyright 1997-2000 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -49,7 +49,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.4"
+#define SVERSION	"1.8.5"
 
 
 /*
@@ -66,6 +66,6 @@
 #define MAX_ROWS	1000
 
 /*
- * End of "$Id: config.h,v 1.12 1999/12/30 00:50:12 mike Exp $".
+ * End of "$Id: config.h,v 1.13 2000/03/06 21:24:00 mike Exp $".
  */
 
