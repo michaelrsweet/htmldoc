@@ -1,4 +1,4 @@
-README.txt - 05/19/2000
+README.txt - 05/31/2000
 -----------------------
 
 INTRODUCTION
@@ -66,7 +66,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.7-windows.exe" file to start the installation
+    the "htmldoc-1.8.8-windows.exe" file to start the installation
     wizard.
 
 
@@ -74,15 +74,15 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.7-linux-2.0.36-intel.rpm ENTER
+        rpm -i htmldoc-1.8.8-linux-2.0.36-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.7-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.7-platform.tar ENTER
+        gunzip htmldoc-1.8.8-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.8-platform.tar ENTER
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
