@@ -1,179 +1,335 @@
-/*
- * "$Id: tree.cxx,v 1.1 2002/01/14 02:55:21 mike Exp $"
- *
- *   HTML parsing routines for HTMLDOC, a HTML document processing program.
- *
- *   Copyright 1997-2002 by Easy Software Products.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: ESP Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
- *
- *       Voice: (301) 373-9600
- *       EMail: info@easysw.com
- *         WWW: http://www.easysw.com
- *
- * Contents:
- *
- *   htmlReadFile()      - Read a file for HTML element codes.
- *   write_file()        - Write a tree entry to a file...
- *   htmlWriteFile()     - Write an HTML element tree to a file.
- *   htmlAddTree()       - Add a tree node to the parent.
- *   htmlDeleteTree()    - Free all memory associated with a tree...
- *   htmlInsertTree()    - Insert a tree node to the parent.
- *   htmlNewTree()       - Create a new tree node for the parent.
- *   get_text()          - Get all text from the given tree.
- *   htmlGetText()       - Get all text from the given tree.
- *   htmlGetMeta()       - Get document "meta" data...
- *   htmlGetStyle()      - Get a style value from a node's STYLE attribute.
- *   htmlGetVariable()   - Get a variable value from a element entry.
- *   htmlSetVariable()   - Set a variable for a element entry.
- *   htmlSetBaseSize()   - Set the font sizes and spacings...
- *   htmlSetCharSet()    - Set the character set for output.
- *   htmlSetTextColor()  - Set the default text color.
- *   compare_variables() - Compare two element variables.
- *   compare_elements()   - Compare two element strings...
- *   delete_node()       - Free all memory associated with a node...
- *   insert_space()      - Insert a whitespace character before the
- *                         specified node.
- *   parse_element()      - Parse a element string.
- *   parse_variable()    - Parse a element variable string.
- *   compute_size()      - Compute the width and height of a tree entry.
- *   compute_color()     - Compute the red, green, blue color from the given
- *   get_alignment()     - Get horizontal & vertical alignment values.
- *   fix_filename()      - Fix a filename to be relative to the base directory.
- */
+//
+// "$Id: tree.cxx,v 1.2 2002/02/05 17:47:59 mike Exp $"
+//
+//   HTML parsing routines for HTMLDOC, a HTML document processing program.
+//
+//   Copyright 1997-2002 by Easy Software Products.
+//
+//   These coded instructions, statements, and computer programs are the
+//   property of Easy Software Products and are protected by Federal
+//   copyright law.  Distribution and use rights are outlined in the file
+//   "COPYING.txt" which should have been included with this file.  If this
+//   file is missing or damaged please contact Easy Software Products
+//   at:
+//
+//       Attn: ESP Licensing Information
+//       Easy Software Products
+//       44141 Airport View Drive, Suite 204
+//       Hollywood, Maryland 20636-3111 USA
+//
+//       Voice: (301) 373-9600
+//       EMail: info@easysw.com
+//         WWW: http://www.easysw.com
+//
+// Contents:
+//
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
-#include "htmldoc.h"
+#include "tree.h"
 #include <ctype.h>
 
 
-/*
- * Markup strings...
- */
+//
+// Class globals...
+//
 
-const char	*elements[] =
-		{
-		  "",		/* HD_ELEMENT_NONE */
-		  "!--",	/* HD_ELEMENT_COMMENT */
-		  "!DOCTYPE",
-		  "A",
-		  "ACRONYM",
-		  "ADDRESS",
-		  "APPLET",
-		  "AREA",
-		  "B",
-		  "BASE",
-		  "BASEFONT",
-		  "BIG",
-		  "BLINK",
-		  "BLOCKQUOTE",
-		  "BODY",
-		  "BR",
-		  "CAPTION",
-		  "CENTER",
-		  "CITE",
-		  "CODE",
-		  "COL",
-		  "COLGROUP",
-		  "DD",
-		  "DEL",
-		  "DFN",
-		  "DIR",
-		  "DIV",
-		  "DL",
-		  "DT",
-		  "EM",
-		  "EMBED",
-		  "FONT",
-		  "FORM",
-		  "FRAME",
-		  "FRAMESET",
-		  "H1",
-		  "H2",
-		  "H3",
-		  "H4",
-		  "H5",
-		  "H6",
-		  "HEAD",
-		  "HR",
-		  "HTML",
-		  "I",
-		  "IMG",
-		  "INPUT",
-		  "INS",
-		  "ISINDEX",
-		  "KBD",
-		  "LI",
-		  "LINK",
-		  "MAP",
-		  "MENU",
-		  "META",
-		  "MULTICOL",
-		  "NOBR",
-		  "NOFRAMES",
-		  "OL",
-		  "OPTION",
-		  "P",
-		  "PRE",
-		  "S",
-		  "SAMP",
-		  "SCRIPT",
-		  "SELECT",
-		  "SMALL",
-		  "SPACER",
-		  "STRIKE",
-		  "STRONG",
-		  "STYLE",
-		  "SUB",
-		  "SUP",
-		  "TABLE",
-		  "TBODY",
-		  "TD",
-		  "TEXTAREA",
-		  "TFOOT",
-		  "TH",
-		  "THEAD",
-		  "TITLE",
-		  "TR",
-		  "TT",
-		  "U",
-		  "UL",
-		  "VAR",
-		  "WBR"
+const char	*hdTree::elements[HD_ELEMENT_MAX] =
+		{				// Element strings...
+		  "",				// HD_ELEMENT_NONE
+		  "",				// HD_ELEMENT_FILE
+		  "",				// HD_ELEMENT_ERROR
+		  "",				// HD_ELEMENT_UNKNOWN
+		  "!--",			// HD_ELEMENT_COMMENT
+		  "!doctype",
+		  "a",
+		  "acronym",
+		  "address",
+		  "area",
+		  "b",
+		  "base",
+		  "basefont",
+		  "big",
+		  "blockquote",
+		  "body",
+		  "br",
+		  "caption",
+		  "center",
+		  "cite",
+		  "code",
+		  "col",
+		  "colgroup",
+		  "dd",
+		  "del",
+		  "dfn",
+		  "dir",
+		  "div",
+		  "dl",
+		  "dt",
+		  "em",
+		  "embed",
+		  "font",
+		  "form",
+		  "h1",
+		  "h2",
+		  "h3",
+		  "h4",
+		  "h5",
+		  "h6",
+		  "head",
+		  "hr",
+		  "html",
+		  "i",
+		  "img",
+		  "input",
+		  "ins",
+		  "isindex",
+		  "kbd",
+		  "li",
+		  "link",
+		  "map",
+		  "menu",
+		  "meta",
+		  "ol",
+		  "option",
+		  "p",
+		  "pre",
+		  "s",
+		  "samp",
+		  "select",
+		  "small",
+		  "spacer",
+		  "span",
+		  "strike",
+		  "strong",
+		  "style",
+		  "sub",
+		  "sup",
+		  "table",
+		  "tbody",
+		  "td",
+		  "textarea",
+		  "tfoot",
+		  "th",
+		  "thead",
+		  "title",
+		  "tr",
+		  "tt",
+		  "u",
+		  "ul",
+		  "var",
+		  "wbr"
 		};
 
-const char	*data_dir = HTML_DATA;	/* Data directory */
-float		ppi = 80.0f;	/* Image resolution */
-int		grayscale = 0;	/* Grayscale output? */
-char		text_color[255] =	/* Default text color */
+unsigned char	hdTree::elgroup[HD_ELEMENT_MAX] =
+		{				// Element group bits
+			HD_ELGROUP_NONE,	// "NONE"
+			HD_ELGROUP_NONE,	// "FILE"
+			HD_ELGROUP_NONE,	// "ERROR"
+			HD_ELGROUP_NONE,	// "UNKNOWN"
+			HD_ELGROUP_NONE,	// !--
+			HD_ELGROUP_NONE,	// !DOCTYPE
+			HD_ELGROUP_INLINE,	// A
+			HD_ELGROUP_INLINE,	// ACRONYM
+			HD_ELGROUP_INLINE,	// ADDRESS
+			HD_ELGROUP_NONE,	// AREA
+			HD_ELGROUP_INLINE,	// B
+			HD_ELGROUP_NONE,	// BASE
+			HD_ELGROUP_NONE,	// BASEFONT
+			HD_ELGROUP_INLINE,	// BIG
+			HD_ELGROUP_BLOCK,	// BLOCKQUOTE
+			HD_ELGROUP_GROUP,	// BODY
+			HD_ELGROUP_NONE,	// BR
+			HD_ELGROUP_INLINE | HD_ELGROUP_TABLE,
+						// CAPTION
+			HD_ELGROUP_GROUP,	// CENTER
+			HD_ELGROUP_INLINE,	// CITE
+			HD_ELGROUP_INLINE,	// CODE
+			HD_ELGROUP_TABLE | HD_ELGROUP_ROWCOL,
+						// COL
+			HD_ELGROUP_TABLE,	// COLGROUP
+			HD_ELGROUP_ITEM,	// DD
+			HD_ELGROUP_INLINE,	// DEL
+			HD_ELGROUP_INLINE,	// DFN
+			HD_ELGROUP_INLINE,	// DIR
+			HD_ELGROUP_INLINE | HD_ELGROUP_GROUP,
+						// DIV
+			HD_ELGROUP_LIST,	// DL
+			HD_ELGROUP_ITEM,	// DT
+			HD_ELGROUP_INLINE,	// EM
+			HD_ELGROUP_NONE,	// EMBED
+			HD_ELGROUP_INLINE,	// FONT
+			HD_ELGROUP_GROUP,	// FORM
+			HD_ELGROUP_BLOCK,	// H1
+			HD_ELGROUP_BLOCK,	// H2
+			HD_ELGROUP_BLOCK,	// H3
+			HD_ELGROUP_BLOCK,	// H4
+			HD_ELGROUP_BLOCK,	// H5
+			HD_ELGROUP_BLOCK,	// H6
+			HD_ELGROUP_GROUP,	// HEAD
+			HD_ELGROUP_NONE,	// HR
+			HD_ELGROUP_GROUP,	// HTML
+			HD_ELGROUP_INLINE,	// I
+			HD_ELGROUP_NONE,	// IMG
+			HD_ELGROUP_NONE,	// INPUT
+			HD_ELGROUP_INLINE,	// INS
+			HD_ELGROUP_NONE,	// ISINDEX
+			HD_ELGROUP_INLINE,	// KBD
+			HD_ELGROUP_ITEM,	// LI
+			HD_ELGROUP_NONE,	// LINK
+			HD_ELGROUP_BLOCK,	// MAP
+			HD_ELGROUP_INLINE,	// MENU
+			HD_ELGROUP_NONE,	// META
+			HD_ELGROUP_LIST,	// OL
+			HD_ELGROUP_GROUP,	// OPTION
+			HD_ELGROUP_BLOCK,	// P
+			HD_ELGROUP_BLOCK,	// PRE
+			HD_ELGROUP_INLINE,	// S
+			HD_ELGROUP_INLINE,	// SAMP
+			HD_ELGROUP_GROUP,	// SELECT
+			HD_ELGROUP_INLINE,	// SMALL
+			HD_ELGROUP_NONE,	// SPACER
+			HD_ELGROUP_INLINE,	// SPAN
+			HD_ELGROUP_INLINE,	// STRIKE
+			HD_ELGROUP_INLINE,	// STRONG
+			HD_ELGROUP_INLINE,	// STYLE
+			HD_ELGROUP_INLINE,	// SUB
+			HD_ELGROUP_INLINE,	// SUP
+			HD_ELGROUP_INLINE | HD_ELGROUP_TABLE,
+						// TABLE
+			HD_ELGROUP_TABLE,	// TBODY
+			HD_ELGROUP_CELL,	// TD
+			HD_ELGROUP_INLINE,	// TEXTAREA
+			HD_ELGROUP_TABLE,	// TFOOT
+			HD_ELGROUP_CELL,	// TH
+			HD_ELGROUP_TABLE,	// THEAD
+			HD_ELGROUP_INLINE,	// TITLE
+			HD_ELGROUP_TABLE | HD_ELGROUP_ROWCOL,
+						// TR
+			HD_ELGROUP_INLINE,	// TT
+			HD_ELGROUP_INLINE,	// U
+			HD_ELGROUP_LIST,	// UL
+			HD_ELGROUP_INLINE,	// VAR
+			HD_ELGROUP_NONE		// WBR
+		};
+
+
+hdElement	hdTree::elparent[HD_ELEMENT_MAX] =
+		{				// "Parent" element for inheritance
+			HD_ELEMENT_NONE,	// "NONE"
+			HD_ELEMENT_NONE,	// "FILE"
+			HD_ELEMENT_NONE,	// "ERROR"
+			HD_ELEMENT_NONE,	// "UNKNOWN"
+			HD_ELEMENT_NONE,	// !--
+			HD_ELEMENT_NONE,	// !DOCTYPE
+			HD_ELEMENT_NONE,	// A
+			HD_ELEMENT_NONE,	// ACRONYM
+			HD_ELEMENT_NONE,	// ADDRESS
+			HD_ELEMENT_NONE,	// AREA
+			HD_ELEMENT_NONE,	// B
+			HD_ELEMENT_NONE,	// BASE
+			HD_ELEMENT_NONE,	// BASEFONT
+			HD_ELEMENT_NONE,	// BIG
+			HD_ELEMENT_NONE,	// BLOCKQUOTE
+			HD_ELEMENT_NONE,	// BODY
+			HD_ELEMENT_NONE,	// BR
+			HD_ELEMENT_NONE,	// CAPTION
+			HD_ELEMENT_NONE,	// CENTER
+			HD_ELEMENT_NONE,	// CITE
+			HD_ELEMENT_NONE,	// CODE
+			HD_ELEMENT_NONE,	// COL
+			HD_ELEMENT_NONE,	// COLGROUP
+			HD_ELEMENT_NONE,	// DD
+			HD_ELEMENT_NONE,	// DEL
+			HD_ELEMENT_NONE,	// DFN
+			HD_ELEMENT_NONE,	// DIR
+			HD_ELEMENT_NONE,	// DIV
+			HD_ELEMENT_NONE,	// DL
+			HD_ELEMENT_NONE,	// DT
+			HD_ELEMENT_NONE,	// EM
+			HD_ELEMENT_NONE,	// EMBED
+			HD_ELEMENT_NONE,	// FONT
+			HD_ELEMENT_NONE,	// FORM
+			HD_ELEMENT_NONE,	// H1
+			HD_ELEMENT_NONE,	// H2
+			HD_ELEMENT_NONE,	// H3
+			HD_ELEMENT_NONE,	// H4
+			HD_ELEMENT_NONE,	// H5
+			HD_ELEMENT_NONE,	// H6
+			HD_ELEMENT_NONE,	// HEAD
+			HD_ELEMENT_NONE,	// HR
+			HD_ELEMENT_NONE,	// HTML
+			HD_ELEMENT_NONE,	// I
+			HD_ELEMENT_NONE,	// IMG
+			HD_ELEMENT_NONE,	// INPUT
+			HD_ELEMENT_NONE,	// INS
+			HD_ELEMENT_NONE,	// ISINDEX
+			HD_ELEMENT_NONE,	// KBD
+			HD_ELEMENT_NONE,	// LI
+			HD_ELEMENT_NONE,	// LINK
+			HD_ELEMENT_NONE,	// MAP
+			HD_ELEMENT_NONE,	// MENU
+			HD_ELEMENT_NONE,	// META
+			HD_ELEMENT_NONE,	// OL
+			HD_ELEMENT_NONE,	// OPTION
+			HD_ELEMENT_NONE,	// P
+			HD_ELEMENT_NONE,	// PRE
+			HD_ELEMENT_NONE,	// S
+			HD_ELEMENT_NONE,	// SAMP
+			HD_ELEMENT_NONE,	// SELECT
+			HD_ELEMENT_NONE,	// SMALL
+			HD_ELEMENT_NONE,	// SPACER
+			HD_ELEMENT_NONE,	// SPAN
+			HD_ELEMENT_NONE,	// STRIKE
+			HD_ELEMENT_NONE,	// STRONG
+			HD_ELEMENT_NONE,	// STYLE
+			HD_ELEMENT_NONE,	// SUB
+			HD_ELEMENT_NONE,	// SUP
+			HD_ELEMENT_NONE,	// TABLE
+			HD_ELEMENT_NONE,	// TBODY
+			HD_ELEMENT_NONE,	// TD
+			HD_ELEMENT_NONE,	// TEXTAREA
+			HD_ELEMENT_NONE,	// TFOOT
+			HD_ELEMENT_NONE,	// TH
+			HD_ELEMENT_NONE,	// THEAD
+			HD_ELEMENT_NONE,	// TITLE
+			HD_ELEMENT_NONE,	// TR
+			HD_ELEMENT_NONE,	// TT
+			HD_ELEMENT_NONE,	// U
+			HD_ELEMENT_NONE,	// UL
+			HD_ELEMENT_NONE,	// VAR
+			HD_ELEMENT_NONE		// WBR
+		};
+
+
+
+
+
+
+
+#if 0
+const char	*data_dir = HTML_DATA;	// Data directory
+float		ppi = 80.0f;	// Image resolution
+int		grayscale = 0;	// Grayscale output?
+char		text_color[255] =	// Default text color
 		{ 0 };
 float		browser_width = 680.0f;
-					/* Browser width for pixel scaling */
-float		font_sizes[8] =		/* Point size for each HTML size */
+					// Browser width for pixel scaling
+float		font_sizes[8] =		// Point size for each HTML size
 		{ 6.0f, 8.0f, 9.0f, 11.0f, 14.0f, 17.0f, 20.0f, 24.0f };
-float		line_spacings[8] =	/* Line height for each HTML size */
+float		line_spacings[8] =	// Line height for each HTML size
 		{ 7.2f, 9.6f, 10.8f, 13.2f, 16.8f, 20.4f, 24.0f, 28.8f };
 typeface_t	body_font = HD_FONTFACE_TIMES,
 		heading_font = HD_FONTFACE_HELVETICA;
 
-int		initialized = 0;	/* Initialized glyphs yet? */
-char		font_charset[256] = "";	/* Character set name */
-float		font_widths[4][4][256];	/* Character widths of fonts */
-const char	*font_glyphs_unicode[65536];	/* Character glyphs for Unicode */
-const char	*font_glyphs[256];	/* Character glyphs for charset */
+int		initialized = 0;	// Initialized glyphs yet?
+char		font_charset[256] = "";	// Character set name
+float		font_widths[4][4][256];	// Character widths of fonts
+const char	*font_glyphs_unicode[65536];	// Character glyphs for Unicode
+const char	*font_glyphs[256];	// Character glyphs for charset
 const char	*fonts[16][4] =
 		{
 		  {
@@ -2651,8 +2807,9 @@ fix_filename(char *filename,		/* I - Original filename */
 
   return (file_find(Path, newfilename));
 }
+#endif // 0
 
 
-/*
- * End of "$Id: tree.cxx,v 1.1 2002/01/14 02:55:21 mike Exp $".
- */
+//
+// End of "$Id: tree.cxx,v 1.2 2002/02/05 17:47:59 mike Exp $".
+//
