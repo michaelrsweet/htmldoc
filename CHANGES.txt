@@ -5,13 +5,14 @@ CHANGES IN HTMLDOC v1.8.5
 
     NEW FEATURES
 
-	- New "--titlefile" option to include an HTML file for the
-	  title page(s).
-	- Allow VALIGN=MIDDLE or VALIGN=CENTER.
-	- Allow adding of .book files to import all HTML files in
-	  the book.
-	- HALF PAGE patch.
-	- Added VALIGN and HEIGHT support (patch from 
+	- New "--titlefile" option to include an HTML file for
+	  the title page(s).
+	- New 'C' header/footer option to show current page
+	  number within chapter or HTML file.
+	- Allow adding of .book files to import all HTML files
+	  in the book.
+	- New "HALF PAGE" page comment to feed 1/2 page.
+	- Added VALIGN and HEIGHT support in tables.
 
     CHANGES
 
@@ -21,23 +22,28 @@ CHANGES IN HTMLDOC v1.8.5
 	  more like Netscape and MSIE.
 	- Now support HTMLDOC_DATA and HTMLDOC_HELP environment
 	  variables under UNIX (for alternate install directory)
-	- Now show error messages when HTMLDOC can't open the AFM,
-	  character set, or PostScript glyph files.
+	- Now show error messages when HTMLDOC can't open the
+	  AFM, character set, or PostScript glyph files.
 	- The logo image is now scaled to its "natural" size (as
 	  it would appear in a web browser)
+	- Now recognize VALIGN="MIDDLE" or VALIGN="CENTER".
 
     BUG FIXES
 
-	- Generation of PDF files to the standard output (i.e. to
-	  the web server + browser) didn't work on some versions of
-	  UNIX.  HTMLDOC now writes the PDF output to a temporary
-	  file and then copies it to the standard output as needed.
+	- Generation of PDF files to the standard output (i.e.
+	  to the web server + browser) didn't work on some
+	  versions of UNIX.  HTMLDOC now writes the PDF output
+	  to a temporary file and then copies it to the standard
+	  output as needed.
 	- PDF links were missing the first 5 characters in the
 	  filename; the code was trying to skip over the "file:"
 	  prefix, but that prefix was already skipped elsewhere.
 	- Nested descriptive lists (DL) did not get rendered
 	  properly.
 	- Tables had extra whitespace before and after them.
+	- Multiple aligned images confused parse_paragraph();
+	  the images would overlap instead of stack on the
+	  sides.
 
 
 CHANGES IN HTMLDOC v1.8.4

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.28 2000/03/03 21:24:11 mike Exp $"
+// "$Id: gui.cxx,v 1.29 2000/03/06 20:08:52 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -114,12 +114,13 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			{
 			  {"Blank", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Title", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Chapter", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Chapter Title", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Heading", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Logo", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"1,2,3,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"i,ii,iii,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"I,II,III,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Ch Page", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	typefaceMenu[] = // Menu items for typeface choosers
@@ -1037,6 +1038,7 @@ GUI::newBook(void)
   formats['1'] = 5;
   formats['i'] = 6;
   formats['I'] = 7;
+  formats['C'] = 8;
 
   pageHeaderLeft->value(formats[Header[0]]);
   pageHeaderCenter->value(formats[Header[1]]);
@@ -1163,6 +1165,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   formats['1'] = 5;
   formats['i'] = 6;
   formats['I'] = 7;
+  formats['C'] = 8;
 
   //
   // If the filename contains a path, chdir to it first...
@@ -1579,7 +1582,7 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   int		i,			// Looping var
 		count;			// Number of files
   FILE		*fp;			// Book file pointer
-  static char	*formats = ".tchl1iI";	// Format characters
+  static char	*formats = ".tchl1iIC";	// Format characters
   static char	*types[] =		// Typeface names...
 		{ "Courier", "Times", "Helvetica" };
   static char	*fonts[] =		// Font names...
@@ -2590,7 +2593,7 @@ void
 GUI::saveOptionsCB(Fl_Widget *w,
                    GUI       *gui)
 {
-  static char	*formats = ".tchl1iI";	// Format characters
+  static char	*formats = ".tchl1iIC";	// Format characters
 
 
   set_page_size((char *)gui->pageSize->value());
@@ -2974,7 +2977,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   char		*filename,	/* HTML filename */
 		base[1024],	/* Base directory of HTML file */
 		bookbase[1024];	/* Base directory of book file */
-  static char	*formats = ".tchl1iI";	// Format characters
+  static char	*formats = ".tchl1iIC";	// Format characters
 
 
   REF(w);
@@ -3216,5 +3219,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.28 2000/03/03 21:24:11 mike Exp $".
+// End of "$Id: gui.cxx,v 1.29 2000/03/06 20:08:52 mike Exp $".
 //

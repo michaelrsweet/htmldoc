@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.50 2000/03/06 17:21:33 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.51 2000/03/06 20:08:53 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -853,6 +853,15 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 	                      HeadFootSize, chapter);
           else
 	    temp = NULL;
+          break;
+
+      case 'C' :
+          number = format_number(print_page - chapter_starts[::chapter] + 2, '1');
+	  temp   = new_render(page, RENDER_TEXT, 0, y,
+                              HeadFootSize / _htmlSizes[SIZE_P] *
+			      get_width((uchar *)number, HeadFootType,
+			                HeadFootStyle, SIZE_P),
+			      HeadFootSize, number);
           break;
 
       case 'h' :
@@ -3038,6 +3047,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		*temp;
   float		width,
 		height,
+		temp_y,
 		temp_width,
 		temp_height;
   float		format_width, image_y, image_left, image_right;
@@ -3093,11 +3103,15 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    progress_show("Formatting page %d", *page);
         }
 
-        new_render(*page, RENDER_IMAGE, left, *y - temp->height, temp->width,
-                   temp->height,
+        new_render(*page, RENDER_IMAGE, image_left, *y - temp->height,
+	           temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
-        image_left = left + temp->width;
-        image_y    = *y - temp->height;
+
+        image_left += temp->width;
+	temp_y     = *y - temp->height;
+
+	if (temp_y < image_y || image_y == 0)
+	  image_y = temp_y;
 
         if (prev != NULL)
           prev->next = temp->next;
@@ -3118,11 +3132,16 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	    progress_show("Formatting page %d", *page);
         }
 
-        new_render(*page, RENDER_IMAGE, right - temp->width, *y - temp->height,
+        image_right -= temp->width;
+
+        new_render(*page, RENDER_IMAGE, image_right, *y - temp->height,
                    temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"SRC")));
-        image_right = right - temp->width;
-        image_y     = *y - temp->height;
+
+	temp_y = *y - temp->height;
+
+	if (temp_y < image_y || image_y == 0)
+	  image_y = temp_y;
 
         if (prev != NULL)
           prev->next = temp->next;
@@ -3423,7 +3442,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   }
 
   *x = left;
-  if (*y > image_y && image_y > 0.0)
+  if (*y > image_y && image_y > 0.0f)
     *y = image_y;
 }
 
@@ -6744,5 +6763,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.50 2000/03/06 17:21:33 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.51 2000/03/06 20:08:53 mike Exp $".
  */
