@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.34 1999/12/04 14:13:40 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.35 1999/12/05 13:03:37 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3431,7 +3431,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		*tempcol,
 		*flat,
 		*next,
-		*cells[MAX_ROWS][MAX_COLUMNS];
+		**cells[MAX_ROWS];
   uchar		*bgcolor;
   float		rgb[3],
 		bgrgb[3];
@@ -3448,6 +3448,20 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   rgb[2] = t->blue / 255.0f;
 
  /*
+  * Allocate memory for the table...
+  */
+
+  if ((cells[0] = (tree_t **)calloc(sizeof(tree_t *),
+                                    MAX_COLUMNS * MAX_ROWS)) == NULL)
+  {
+    progress_error("Unable to allocate memory for table!");
+    return;
+  }
+
+  for (row = 1; row < MAX_ROWS; row ++)
+    cells[row] = cells[0] + row * MAX_COLUMNS;
+
+ /*
   * Figure out the # of rows, columns, and the desired widths...
   */
 
@@ -3457,7 +3471,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   memset(col_mins, 0, sizeof(col_mins));
   memset(col_smins, 0, sizeof(col_smins));
   memset(col_prefs, 0, sizeof(col_prefs));
-  memset(cells, 0, sizeof(cells));
 
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
@@ -3931,6 +3944,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     if (page_headings[*page] == NULL)
       page_headings[*page] = htmlGetText(current_heading);
   }
+
+ /*
+  * Free memory for the table...
+  */
+
+  free(cells[0]);
 }
 
 
@@ -6371,5 +6390,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.34 1999/12/04 14:13:40 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.35 1999/12/05 13:03:37 mike Exp $".
  */
