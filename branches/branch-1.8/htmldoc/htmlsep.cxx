@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.13 2004/05/19 15:40:27 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.14 2004/06/16 16:15:01 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -442,6 +442,7 @@ write_title(FILE  *out,		/* I - Output file */
     }
 
     t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+    htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
     fclose(fp);
 
     write_all(out, t, 0);
@@ -1125,5 +1126,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.13 2004/05/19 15:40:27 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.14 2004/06/16 16:15:01 mike Exp $".
 //
