@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.22 2001/08/16 20:34:38 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.23 2001/08/16 21:11:48 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1976,13 +1976,15 @@ read_file(const char *filename,		// I  - File/URL to read
     else
     {
       file = NULL;
-      progress_error("Unable to read \"%s\"...", filename);
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open \"%s\" for reading...", filename);
     }
   }
   else
   {
     file = NULL;
-    progress_error("Unable to find \"%s\"...", filename);
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find \"%s\"...",
+                   filename);
   }
 
   return (file != NULL);
@@ -2124,5 +2126,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.22 2001/08/16 20:34:38 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.23 2001/08/16 21:11:48 mike Exp $".
  */

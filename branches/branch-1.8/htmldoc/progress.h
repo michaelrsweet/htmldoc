@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.h,v 1.1.2.1 2001/02/02 15:10:59 mike Exp $"
+ * "$Id: progress.h,v 1.1.2.2 2001/08/16 21:11:52 mike Exp $"
  *
  *   Progress function definitions for HTMLDOC, a HTML document
  *   processing program.
@@ -32,10 +32,33 @@ extern "C" {
 
 
 /*
+ * Error codes (in addition to the HTTP status codes...)
+ */
+
+typedef enum
+{
+  HD_ERROR_NONE = 0,
+  HD_ERROR_NO_FILES,
+  HD_ERROR_NO_PAGES,
+  HD_ERROR_TOO_MANY_CHAPTERS,
+  HD_ERROR_OUT_OF_MEMORY,
+  HD_ERROR_FILE_NOT_FOUND,
+  HD_ERROR_BAD_COMMENT,
+  HD_ERROR_BAD_FORMAT,
+  HD_ERROR_DELETE_ERROR,
+  HD_ERROR_INTERNAL_ERROR,
+  HD_ERROR_NETWORK_ERROR,
+  HD_ERROR_READ_ERROR,
+  HD_ERROR_WRITE_ERROR,
+  HD_ERROR_HTTPBASE = 100
+} HDerror;
+
+
+/*
  * Prototypes...
  */
 
-extern void	progress_error(char *format, ...);
+extern void	progress_error(HDerror error, char *format, ...);
 extern void	progress_hide(void);
 extern void	progress_show(char *format, ...);
 extern void	progress_update(int percent);
@@ -47,5 +70,5 @@ extern void	progress_update(int percent);
 #endif /* !_PROGRESS_H_ */
 
 /*
- * End of "$Id: progress.h,v 1.1.2.1 2001/02/02 15:10:59 mike Exp $".
+ * End of "$Id: progress.h,v 1.1.2.2 2001/08/16 21:11:52 mike Exp $".
  */

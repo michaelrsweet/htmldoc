@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.29 2001/06/04 13:22:30 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.30 2001/08/16 21:11:51 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -311,7 +311,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
     if (t == NULL)
     {
 #ifndef DEBUG
-      progress_error("Unable to allocate memory for HTML tree node!");
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
+                     "Unable to allocate memory for HTML tree node!");
 #endif /* !DEBUG */
       break;
     }
@@ -401,7 +402,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	if (parse_markup(t, fp) == MARKUP_ERROR)
 	{
   #ifndef DEBUG
-          progress_error("Unable to parse HTML element at %d!", pos);
+          progress_error(HD_ERROR_READ_ERROR,
+                         "Unable to parse HTML element at %d!", pos);
   #endif /* !DEBUG */
 
           delete_node(t);
@@ -811,7 +813,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
             }
 #ifndef DEBUG
 	    else
-	      progress_error("Unable to embed \"%s\" - %s", filename,
+	      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                             "Unable to embed \"%s\" - %s", filename,
 	                     strerror(errno));
 #endif /* !DEBUG */
 	  }
@@ -1835,7 +1838,8 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
     }
 #ifndef DEBUG
     else
-      progress_error("Unable to open psglyphs data file!");
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open psglyphs data file!");
 #endif /* !DEBUG */
   }
 
@@ -1853,7 +1857,8 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
     */
 
 #ifndef DEBUG
-    progress_error("Unable to open character set file %s!", cs);
+    progress_error(HD_ERROR_FILE_NOT_FOUND,
+                   "Unable to open character set file %s!", cs);
 #endif /* !DEBUG */
 
     for (i = 0; i < 256; i ++)
@@ -1927,7 +1932,8 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
       if ((fp = fopen(filename, "r")) == NULL)
       {
 #ifndef DEBUG
-        progress_error("Unable to open font width file %s!", _htmlFonts[i][j]);
+        progress_error(HD_ERROR_FILE_NOT_FOUND,
+                       "Unable to open font width file %s!", _htmlFonts[i][j]);
 #endif /* !DEBUG */
         continue;
       }
@@ -2057,7 +2063,8 @@ insert_space(tree_t *parent,	// I - Parent node
   if (space == NULL)
   {
 #ifndef DEBUG
-    progress_error("Unable to allocate memory for HTML tree node!");
+    progress_error(HD_ERROR_OUT_OF_MEMORY,
+                   "Unable to allocate memory for HTML tree node!");
 #endif /* !DEBUG */
     return;
   }
@@ -2623,5 +2630,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.29 2001/06/04 13:22:30 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.30 2001/08/16 21:11:51 mike Exp $".
  */

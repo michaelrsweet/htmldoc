@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.22 2001/07/09 16:13:13 mike Exp $"
+ * "$Id: file.c,v 1.13.2.23 2001/08/16 21:11:46 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -169,7 +169,8 @@ file_cleanup(void)
              getpid(), web_files);
 
     if (unlink(filename))
-      progress_error("Unable to delete temporary file \"%s\": %s",
+      progress_error(HD_ERROR_DELETE_ERROR,
+                     "Unable to delete temporary file \"%s\": %s",
                      filename, strerror(errno));
 
     web_files --;
@@ -479,7 +480,8 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
         if (http == NULL)
 	{
           progress_hide();
-          progress_error("Unable to connect to %s!", connhost);
+          progress_error(HD_ERROR_NETWORK_ERROR,
+	                 "Unable to connect to %s!", connhost);
           return (NULL);
         }
       }
@@ -524,7 +526,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     if (status != HTTP_OK)
     {
       progress_hide();
-      progress_error("HTTP error %d: %s!", status, httpStatus(status));
+      progress_error((HDerror)status, "%s", httpStatus(status));
       httpFlush(http);
       return (NULL);
     }
@@ -532,7 +534,8 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     if ((fp = file_temp(filename, sizeof(filename))) == NULL)
     {
       progress_hide();
-      progress_error("Unable to create temporary file \"%s\": %s", filename,
+      progress_error(HD_ERROR_WRITE_ERROR,
+                     "Unable to create temporary file \"%s\": %s", filename,
                      strerror(errno));
       httpFlush(http);
       return (NULL);
@@ -768,7 +771,8 @@ file_temp(char *name,			/* O - Filename */
 
     if (temp == NULL)
     {
-      progress_error("Unable to allocate memory for %d file entries - %s",
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
+                     "Unable to allocate memory for %d file entries - %s",
                      web_alloc, strerror(errno));
       web_alloc -= ALLOC_FILES;
       return (NULL);
@@ -809,5 +813,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.22 2001/07/09 16:13:13 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.23 2001/08/16 21:11:46 mike Exp $".
  */

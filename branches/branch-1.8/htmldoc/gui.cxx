@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.18 2001/08/16 20:34:37 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.19 2001/08/16 21:11:47 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -3866,7 +3866,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
         htmlDeleteTree(file);
     }
     else
-      progress_error("Unable to open \"%s\" for reading!",
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open \"%s\" for reading!",
                      gui->inputFiles->text(i));
   }
 
@@ -3875,7 +3876,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   */
 
   if (document == NULL)
-    progress_error("No HTML files to format, cannot generate document!");
+    progress_error(HD_ERROR_NO_FILES,
+                   "No HTML files to format, cannot generate document!");
   else
   {
    /*
@@ -3959,5 +3961,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.18 2001/08/16 20:34:37 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.19 2001/08/16 21:11:47 mike Exp $".
 //

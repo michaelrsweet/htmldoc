@@ -1,4 +1,4 @@
-CHANGES.txt - 07/31/2001
+CHANGES.txt - 08/16/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.15
@@ -7,6 +7,12 @@ CHANGES IN HTMLDOC v1.8.15
 
 	- Now support media source, type, and color attributes
 	  in PS output.
+	- Now support per-page size, margins, headers, footers,
+	  orientation, and duplexing.
+	- Now support plain text for headers and footers, with $
+	  variables to include page numbers and so forth.
+	- New device control prolog file for printer-specific
+	  option commands.
 
     CHANGES
 

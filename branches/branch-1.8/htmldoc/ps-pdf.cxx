@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.93 2001/08/16 20:34:41 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.94 2001/08/16 21:11:52 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -517,7 +517,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       // Write a title page from HTML source...
       if ((fp = fopen(TitleImage, "rb")) == NULL)
       {
-	progress_error("Unable to open title file \"%s\" - %s!",
+	progress_error(HD_ERROR_FILE_NOT_FOUND,
+	               "Unable to open title file \"%s\" - %s!",
                        TitleImage, strerror(errno));
 	return (1);
       }
@@ -789,7 +790,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     * No, show an error...
     */
 
-    progress_error("Error: no pages generated! (did you remember to use webpage mode?");
+    progress_error(HD_ERROR_NO_PAGES,
+                   "Error: no pages generated! (did you remember to use webpage mode?");
   }
 
  /*
@@ -1250,7 +1252,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
 
     if (out == NULL)
     {
-      progress_error("Unable to open output file - %s\n", strerror(errno));
+      progress_error(HD_ERROR_WRITE_ERROR,
+                     "Unable to open output file - %s\n", strerror(errno));
       return;
     }
 
@@ -1291,7 +1294,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
       out = open_file();
       if (out == NULL)
       {
-        progress_error("Unable to create output file - %s\n", strerror(errno));
+        progress_error(HD_ERROR_WRITE_ERROR,
+	               "Unable to create output file - %s\n", strerror(errno));
         return;
       }
 
@@ -1613,7 +1617,8 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
   out = open_file();
   if (out == NULL)
   {
-    progress_error("Unable to write document file - %s\n", strerror(errno));
+    progress_error(HD_ERROR_WRITE_ERROR,
+                   "Unable to write document file - %s\n", strerror(errno));
     return;
   }
 
@@ -1647,7 +1652,8 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
   pdf_start_object(out);
 
   if (pages_object != num_objects)
-    progress_error("Internal error: pages_object != num_objects");
+    progress_error(HD_ERROR_INTERNAL_ERROR,
+                   "Internal error: pages_object != num_objects");
 
   fputs("/Type/Pages", out);
   fprintf(out, "/Count %d", num_pages);
@@ -2110,14 +2116,16 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
     if ((entry_counts = (int *)calloc(sizeof(int), num_headings)) == NULL)
     {
-      progress_error("Unable to allocate memory for %d headings - %s",
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
+                     "Unable to allocate memory for %d headings - %s",
                      num_headings, strerror(errno));
       return;
     }
 
     if ((entry_objects = (int *)calloc(sizeof(int), num_headings)) == NULL)
     {
-      progress_error("Unable to allocate memory for %d headings - %s",
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
+                     "Unable to allocate memory for %d headings - %s",
                      num_headings, strerror(errno));
       free(entry_counts);
       return;
@@ -2125,7 +2133,8 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
     if ((entries = (tree_t **)calloc(sizeof(tree_t *), num_headings)) == NULL)
     {
-      progress_error("Unable to allocate memory for %d headings - %s",
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
+                     "Unable to allocate memory for %d headings - %s",
                      num_headings, strerror(errno));
       free(entry_objects);
       free(entry_counts);
@@ -2287,7 +2296,8 @@ pdf_start_object(FILE *out,	// I - File to write to
 
     if (temp == NULL)
     {
-      progress_error("Unable to allocate memory for %d objects - %s",
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
+                     "Unable to allocate memory for %d objects - %s",
                      alloc_objects, strerror(errno));
       alloc_objects -= ALLOC_OBJECTS;
       return (0);
@@ -2460,7 +2470,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
   if ((lobjs = (int *)malloc(sizeof(int) * alloc_lobjs)) == NULL)
   {
-    progress_error("Unable to allocate memory for %d link objects - %s",
+    progress_error(HD_ERROR_OUT_OF_MEMORY,
+                   "Unable to allocate memory for %d link objects - %s",
                    alloc_lobjs, strerror(errno));
     return;
   }
@@ -2935,7 +2946,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       chapter ++;
       if (chapter >= MAX_CHAPTERS)
       {
-	progress_error("Too many chapters/files in document (%d > %d)!",
+	progress_error(HD_ERROR_TOO_MANY_CHAPTERS,
+	               "Too many chapters/files in document (%d > %d)!",
 	               chapter, MAX_CHAPTERS);
         chapter = MAX_CHAPTERS - 1;
       }
@@ -3454,7 +3466,8 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
       if (temp == NULL)
       {
-        progress_error("Unable to allocate memory for %d headings - %s",
+        progress_error(HD_ERROR_OUT_OF_MEMORY,
+                       "Unable to allocate memory for %d headings - %s",
 	               alloc_headings, strerror(errno));
 	alloc_headings -= ALLOC_HEADINGS;
 	return;
@@ -3472,7 +3485,8 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
       if (temp == NULL)
       {
-        progress_error("Unable to allocate memory for %d headings - %s",
+        progress_error(HD_ERROR_OUT_OF_MEMORY,
+                       "Unable to allocate memory for %d headings - %s",
 	               alloc_headings, strerror(errno));
 	alloc_headings -= ALLOC_HEADINGS;
 	return;
@@ -4483,14 +4497,16 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         if (cells == (tree_t ***)0)
 	{
-	  progress_error("Unable to allocate memory for table!");
+	  progress_error(HD_ERROR_OUT_OF_MEMORY,
+                         "Unable to allocate memory for table!");
 	  return;
 	}
       }	
 
       if ((cells[num_rows] = (tree_t **)calloc(sizeof(tree_t *), MAX_COLUMNS)) == NULL)
       {
-	progress_error("Unable to allocate memory for table!");
+	progress_error(HD_ERROR_OUT_OF_MEMORY,
+                       "Unable to allocate memory for table!");
 	return;
       }
 
@@ -5366,8 +5382,8 @@ parse_list(tree_t *t,		/* I - Tree to parse */
   if (t->indent == 0)
   {
     // Adjust left margin when no UL/OL/DL is being used...
-    *left  += _htmlSizes[t->size];
-    tempx  += _htmlSizes[t->size];
+    *left += _htmlSizes[t->size];
+    tempx += _htmlSizes[t->size];
   }
 
   parse_doc(t->child, left, right, bottom, top, &tempx, y, page, NULL,
@@ -5426,6 +5442,12 @@ parse_list(tree_t *t,		/* I - Tree to parse */
   r->data.text.rgb[2]   = t->blue / 255.0f;
 
   list_values[t->indent] ++;
+
+  if (t->indent == 0)
+  {
+    // Adjust left margin when no UL/OL/DL is being used...
+    *left -= _htmlSizes[t->size];
+  }
 }
 
 
@@ -6155,7 +6177,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       }
       else
       {
-        progress_error("Bad HEADER position: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT,
+                       "Bad HEADER position: \"%s\"", comment);
 	break;
       }
 
@@ -6164,7 +6187,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (*comment != '\"')
       {
-        progress_error("Bad HEADER string: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT,
+                       "Bad HEADER string: \"%s\"", comment);
 	break;
       }
 
@@ -6253,7 +6277,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       }
       else
       {
-        progress_error("Bad FOOTER position: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT,
+                       "Bad FOOTER position: \"%s\"", comment);
 	break;
       }
 
@@ -6262,7 +6287,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (*comment != '\"')
       {
-        progress_error("Bad FOOTER string: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT,
+                       "Bad FOOTER string: \"%s\"", comment);
 	break;
       }
 
@@ -6504,7 +6530,8 @@ new_render(int   page,		/* I - Page number (0-n) */
 
   if (page < 0 || page >= alloc_pages)
   {
-    progress_error("Page number (%d) out of range (1...%d)\n", page + 1,
+    progress_error(HD_ERROR_INTERNAL_ERROR,
+                   "Page number (%d) out of range (1...%d)\n", page + 1,
                    alloc_pages);
     memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
@@ -6517,7 +6544,8 @@ new_render(int   page,		/* I - Page number (0-n) */
 
   if (r == NULL)
   {
-    progress_error("Unable to allocate memory on page %s\n", page + 1);
+    progress_error(HD_ERROR_OUT_OF_MEMORY,
+                   "Unable to allocate memory on page %s\n", page + 1);
     memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
   }
@@ -6612,7 +6640,8 @@ check_pages(int page)	// I - Current page
 
     if (temp == NULL)
     {
-      progress_error("Unable to allocate memory for %d pages - %s",
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
+                     "Unable to allocate memory for %d pages - %s",
 	             alloc_pages, strerror(errno));
       alloc_pages -= ALLOC_PAGES;
       return;
@@ -6686,7 +6715,8 @@ add_link(uchar *name,	/* I - Name of link */
 
       if (temp == NULL)
       {
-	progress_error("Unable to allocate memory for %d links - %s",
+	progress_error(HD_ERROR_OUT_OF_MEMORY,
+                       "Unable to allocate memory for %d links - %s",
 	               alloc_links, strerror(errno));
         alloc_links -= ALLOC_LINKS;
 	return;
@@ -8836,7 +8866,8 @@ write_prolog(FILE  *out,	/* I - Output file */
     }
     else
     {
-      progress_error("Unable to open data file \"%s\" - %s", temp,
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open data file \"%s\" - %s", temp,
                      strerror(errno));
 
       fputs("%%BeginResource: procset htmldoc-device 1.8 15\n", out);
@@ -9564,7 +9595,8 @@ write_truetype(FILE       *out,		/* I - File to write to */
   if ((fp = fopen(filename, "r")) == NULL)
   {
 #ifndef DEBUG
-    progress_error("Unable to open font width file %s!", _htmlFonts[typeface][style]);
+    progress_error(HD_ERROR_FILE_NOT_FOUND,
+                   "Unable to open font width file %s!", _htmlFonts[typeface][style]);
 #endif /* !DEBUG */
     return (0);
   }
@@ -9898,5 +9930,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.93 2001/08/16 20:34:41 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.94 2001/08/16 21:11:52 mike Exp $".
  */

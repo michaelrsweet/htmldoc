@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.12 2001/06/19 15:30:29 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.13 2001/08/16 21:11:47 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -255,7 +255,8 @@ write_header(FILE   **out,	/* IO - Output file */
 
   if (*out == NULL)
   {
-    progress_error("Unable to create output file \"%s\" - %s.\n",
+    progress_error(HD_ERROR_WRITE_ERROR,
+                   "Unable to create output file \"%s\" - %s.\n",
                    OutputFiles ? realname : OutputPath,
 		   strerror(errno));
     return;
@@ -412,7 +413,8 @@ write_title(FILE  *out,		/* I - Output file */
     // Write a title page from HTML source...
     if ((fp = fopen(TitleImage, "rb")) == NULL)
     {
-      progress_error("Unable to open title file \"%s\" - %s!",
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open title file \"%s\" - %s!",
                      TitleImage, strerror(errno));
       return;
     }
@@ -741,7 +743,8 @@ add_link(uchar *name,		/* I - Name of link */
 
       if (temp == NULL)
       {
-	progress_error("Unable to allocate memory for %d links - %s",
+	progress_error(HD_ERROR_OUT_OF_MEMORY,
+	               "Unable to allocate memory for %d links - %s",
 	               alloc_links, strerror(errno));
         alloc_links -= ALLOC_LINKS;
 	return;
@@ -925,5 +928,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.12 2001/06/19 15:30:29 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.13 2001/08/16 21:11:47 mike Exp $".
  */
