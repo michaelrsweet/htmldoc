@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.26 2001/02/26 01:14:20 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.27 2001/02/26 23:44:01 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -41,7 +41,6 @@
  *   pdf_write_contents()    - Write the table of contents as outline records
  *                             to a PDF file.
  *   pdf_count_headings()    - Count the number of headings under this TOC
- *   pdf_write_background()  - Write a background image...
  *   pdf_write_links()       - Write annotation link objects for each page in
  *                             the document.
  *   pdf_write_names()       - Write named destinations for each link.
@@ -278,7 +277,6 @@ static void	pdf_write_page(FILE *out, int page, uchar *title,
 static void	pdf_write_resources(FILE *out, int page);
 static void	pdf_write_contents(FILE *out, tree_t *toc, int parent,
 		                   int prev, int next, int *heading);
-static void	pdf_write_background(FILE *out);
 static void	pdf_write_links(FILE *out);
 static void	pdf_write_names(FILE *out);
 static int	pdf_count_headings(tree_t *toc);
@@ -1358,7 +1356,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
       temp.data.image = images[i];
       write_image(out, &temp, 1);
     }
-        
+
   // Write links and target names...
   pdf_write_links(out);
   if (PDFVersion >= 1.2)
@@ -1480,9 +1478,13 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
 
   if (!OutputPath[0])
   {
-#if defined(WIN32) || defined(__EMX__)
+#ifdef WIN32
     // Make sure we are in binary mode...  stupid Microsoft!
     setmode(1, O_BINARY);
+#elif defined(__EMX__)
+   // OS/2 has a setmode for FILE's...
+   fflush(stdout);
+   _fsetmode(stdout, "b");
 #endif // WIN32 || __EMX__
 
     // Open the temporary file and copy it to stdout...
@@ -1956,60 +1958,6 @@ pdf_count_headings(tree_t *toc)	/* I - TOC entry */
       headings += pdf_count_headings(toc->child);
 
   return (headings);
-}
-
-
-/*
- * 'pdf_write_background()' - Write a background image...
- */
-
-static void
-pdf_write_background(FILE *out)		/* I - Output file */
-{
-  int	length;				/* Length of image */
-
-
-  num_objects ++;
-  background_object = num_objects;
-  objects[num_objects] = ftell(out);
-
-  fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
-  fputs("/Type/XObject", out);
-  fputs("/Subtype/Image", out);
-  fputs("/Name/BG", out);
-  if (background_image->depth == 1)
-    fputs("/ColorSpace/DeviceGray", out);
-  else
-    fputs("/ColorSpace/DeviceRGB", out);
-  fputs("/Interpolate true", out);
-  fprintf(out, "/Width %d/Height %d/BitsPerComponent 8",
-      	  background_image->width, background_image->height); 
-  fprintf(out, "/Length %d 0 R", num_objects + 1);
-  if (Compression)
-    fputs("/Filter/FlateDecode", out);
-  fputs(">>", out);
-  fputs("stream\n", out);
-
-  length = ftell(out);
-
-  flate_open_stream(out);
-  flate_write(out, background_image->pixels,
-              background_image->width * background_image->height *
-	      background_image->depth);
-  flate_close_stream(out);
-
-  length = ftell(out) - length;
-  fputs("endstream\n", out);
-  fputs("endobj\n", out);
-
-  num_objects ++;
-  objects[num_objects] = ftell(out);
-
-  fprintf(out, "%d 0 obj\n", num_objects);
-  fprintf(out, "%d\n", length);
-  fputs("endobj\n", out);
-
 }
 
 
@@ -6313,7 +6261,7 @@ jpg_setup(FILE           *out,	/* I - Output file */
   cinfo->in_color_space   = img->depth == 1 ? JCS_GRAYSCALE : JCS_RGB;
 
   jpeg_set_defaults(cinfo);
-  jpeg_set_linear_quality(cinfo, OutputJPEG, TRUE);
+  jpeg_set_quality(cinfo, OutputJPEG, TRUE);
 
   // Update things when writing to PS files...
   if (PSLevel)
@@ -6374,6 +6322,7 @@ write_image(FILE     *out,	/* I - Output file */
 		*indptr;	/* Current index */
   int		indwidth,	/* Width of indexed line */
 		indbits;	/* Bits per index */
+  int		max_colors;	/* Max colors to use */
   uchar		colors[256][3],	/* Colormap values */
 		grays[256],	/* Grayscale usage */
 		*match;		/* Matching color value */
@@ -6401,6 +6350,7 @@ write_image(FILE     *out,	/* I - Output file */
       * Greyscale image...
       */
 
+      max_colors = 16;
       memset(grays, 0, sizeof(grays));
 
       for (i = img->width * img->height, pixel = img->pixels;
@@ -6410,9 +6360,12 @@ write_image(FILE     *out,	/* I - Output file */
 	{
 	  grays[*pixel] = 1;
 	  ncolors ++;
+
+          if (ncolors > max_colors)
+	    break;
 	}
 
-      if (ncolors <= 16)
+      if (ncolors <= max_colors)
       {
 	for (i = 0, j = 0; i < 256; i ++)
 	  if (grays[i])
@@ -6433,6 +6386,11 @@ write_image(FILE     *out,	/* I - Output file */
       * Color image...
       */
 
+      if (OutputJPEG && PSLevel != 1)
+	max_colors = 32;
+      else
+	max_colors = 256;
+
       for (i = img->width * img->height, pixel = img->pixels;
 	   i > 0;
 	   i --, pixel += 3)
@@ -6445,7 +6403,7 @@ write_image(FILE     *out,	/* I - Output file */
 
         if (match == NULL)
         {
-          if (ncolors >= 256)
+          if (ncolors > max_colors)
             break;
 
           colors[ncolors][0] = pixel[0];
@@ -6689,8 +6647,8 @@ write_image(FILE     *out,	/* I - Output file */
 	  num_objects ++;
 	  objects[num_objects] = ftell(out);
 	  fprintf(out, "%d 0 obj<<", num_objects);
-	  fputs("/Type/XObject/SubType/Image", out);
-	  fprintf(out, "/W %d/H %d/BPC 1/ImageMask true/Length %d 0 R",
+	  fputs("/Type/XObject/Subtype/Image", out);
+	  fprintf(out, "/W %d/H %d/BPC 1/IM true/Length %d 0 R",
 	          img->width, img->height, num_objects + 1);
           if (Compression)
             fputs("/Filter/FlateDecode", out);
@@ -6718,47 +6676,43 @@ write_image(FILE     *out,	/* I - Output file */
 
         if (write_obj)
 	{
+	  // Write an image object...
 	  num_objects ++;
 	  img->obj = num_objects;
 	  objects[num_objects] = ftell(out);
 	  fprintf(out, "%d 0 obj<<", num_objects);
-	  fputs("/Type/XObject/SubType/Image", out);
+	  fputs("/Type/XObject/Subtype/Image", out);
 	  fprintf(out, "/Length %d 0 R", num_objects + 1);
 	  if (img->mask)
 	    fprintf(out, "/Mask %d 0 R", num_objects - 2);
-        }
-	else
-          flate_puts("BI", out);
 
-	if (ncolors > 0)
-	{
-	  if (ncolors < 2)
+	  if (ncolors > 0)
 	  {
-	   /*
-	    * Adobe doesn't like 1 color images...
-	    */
+	    if (ncolors < 2)
+	    {
+	     /*
+	      * Adobe doesn't like 1 color images...
+	      */
 
-	    ncolors      = 2;
-	    colors[1][0] = 0;
-	    colors[1][1] = 0;
-	    colors[1][2] = 0;
-	  }
+	      ncolors      = 2;
+	      colors[1][0] = 0;
+	      colors[1][1] = 0;
+	      colors[1][2] = 0;
+	    }
 
-	  flate_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
-	  for (i = 0; i < ncolors; i ++)
-	    flate_printf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
-	  flate_puts(">]", out);
-        }
-	else if (img->depth == 1)
-          flate_puts("/CS/G", out);
-        else
-          flate_puts("/CS/RGB", out);
+	    fprintf(out, "/CS[/I/RGB %d<", ncolors - 1);
+	    for (i = 0; i < ncolors; i ++)
+	      fprintf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
+	    fputs(">]", out);
+          }
+	  else if (img->depth == 1)
+            fputs("/CS/Gray", out);
+          else
+            fputs("/CS/RGB", out);
 
-        flate_puts("/I true", out);
+          fputs("/I true", out);
 
-        if (write_obj)
-	{
-          if (Compression && ncolors || !OutputJPEG)
+          if (Compression && (ncolors || !OutputJPEG))
             fputs("/Filter/FlateDecode", out);
 	  else if (OutputJPEG && ncolors == 0)
 	    fputs("/Filter/DCTDecode", out);
@@ -6810,6 +6764,35 @@ write_image(FILE     *out,	/* I - Output file */
 	}
 	else
 	{
+	  // Put the image in-line...
+          flate_puts("BI", out);
+
+	  if (ncolors > 0)
+	  {
+	    if (ncolors < 2)
+	    {
+	     /*
+	      * Adobe doesn't like 1 color images...
+	      */
+
+	      ncolors      = 2;
+	      colors[1][0] = 0;
+	      colors[1][1] = 0;
+	      colors[1][2] = 0;
+	    }
+
+	    flate_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
+	    for (i = 0; i < ncolors; i ++)
+	      flate_printf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
+	    flate_puts(">]", out);
+          }
+	  else if (img->depth == 1)
+            flate_puts("/CS/G", out);
+          else
+            flate_puts("/CS/RGB", out);
+
+          flate_puts("/I true", out);
+
   	  flate_printf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits); 
 
 	  if (ncolors > 0)
@@ -7505,9 +7488,6 @@ write_prolog(FILE  *out,	/* I - Output file */
 	  fputs(">>", out);
 	  fputs("endobj\n", out);
         }
-
-    if (background_image != NULL)
-      pdf_write_background(out);
   }
 }
 
@@ -8236,5 +8216,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.26 2001/02/26 01:14:20 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.27 2001/02/26 23:44:01 mike Exp $".
  */
