@@ -1,14 +1,15 @@
-CHANGES.txt - 05/19/2000
+CHANGES.txt - 05/24/2000
 ------------------------
 
-CHANGES IN HTMLDOC v1.9
+CHANGES IN HTMLDOC v1.8.8
 
     NEW FEATURES
 
     CHANGES
 
-	- Added missing casts in htmllib.cxx that were causing a compile
-	  warning with some compilers.
+	- Added missing casts in htmllib.cxx that were causing a
+	  compile warning with some compilers.
+	- No longer draw borders around empty cells in tables..
 
     BUG FIXES
 

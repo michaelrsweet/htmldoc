@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.75 2000/05/17 20:19:06 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.76 2000/05/24 20:47:44 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4146,7 +4146,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     row_y -= 2 * (border + cellpadding);
 
-    for (col = 0; col < num_cols; col ++)
+    for (col = 0; col < num_cols; col += colspan + 1)
     {
       for (colspan = 1; (col + colspan) < num_cols; colspan ++)
         if (cells[row][col] != cells[row][col + colspan])
@@ -4156,9 +4156,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       width = col_rights[col + colspan] - col_lefts[col] +
               2 * cellpadding + 2 * border;
 
-      if (cells[row][col] == NULL)
-        bgcolor = NULL;
-      else if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
+      if (cells[row][col] == NULL || cells[row][col]->child == NULL)
+        continue;
+
+      if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
         if ((bgcolor = htmlGetVariable(cells[row][col]->parent, (uchar *)"BGCOLOR")) == NULL)
 	  bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR");
 
@@ -4241,8 +4242,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           new_render(*page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
                      row_y, width, *y - row_y, bgrgb, 1);
       }
-
-      col += colspan;
     }
 
     *page = row_page;
@@ -6812,5 +6811,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.75 2000/05/17 20:19:06 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.76 2000/05/24 20:47:44 mike Exp $".
  */
