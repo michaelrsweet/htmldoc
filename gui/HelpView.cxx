@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.15 2000/01/22 16:20:26 mike Exp $"
+// "$Id: HelpView.cxx,v 1.16 2000/01/23 19:17:11 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -1418,7 +1418,27 @@ HelpView::handle(int event)	// I - Event to handle
     set_changed();
 
     if (strcmp(link->filename, filename_) != 0 && link->filename[0])
-      load(link->filename);
+    {
+      char 	*slash;		// Directory separator
+      char	dir[1024];	// Current directory
+      char	temp[1024];	// Temporary filename
+
+
+      if ((slash = strrchr(link->filename, '/')) == NULL)
+      {
+	if (directory_[0])
+	  sprintf(temp, "%s/%s", directory_, link->filename);
+	else
+	{
+	  getcwd(dir, sizeof(dir));
+	  sprintf(temp, "file:%s/%s", dir, link->filename);
+	}
+
+        load(temp);
+      }
+      else
+        load(link->filename);
+    }
     else if (target[0])
       topline(target);
     else
@@ -1508,19 +1528,7 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
   char		error[1024];	// Error buffer
 
 
-  if ((slash = strrchr(f, '/')) == NULL)
-  {
-    if (directory_[0])
-      sprintf(filename_, "%s/%s", directory_, f);
-    else
-    {
-      getcwd(error, sizeof(error));
-      sprintf(filename_, "file:%s/%s", error, f);
-    }
-  }
-  else
-    strcpy(filename_, f);
-
+  strcpy(filename_, f);
   strcpy(directory_, filename_);
 
   if ((slash = strrchr(directory_, '/')) == NULL)
@@ -1536,13 +1544,16 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
   else
     localname = filename_;
 
-  if (strncmp(localname, "ftp:", 4) == 0 ||
-      strncmp(localname, "http:", 5) == 0 ||
-      strncmp(localname, "https:", 6) == 0 ||
-      strncmp(localname, "mailto:", 7) == 0 ||
-      strncmp(localname, "news:", 5) == 0)
+  if (localname != NULL &&
+      (strncmp(localname, "ftp:", 4) == 0 ||
+       strncmp(localname, "http:", 5) == 0 ||
+       strncmp(localname, "https:", 6) == 0 ||
+       strncmp(localname, "ipp:", 4) == 0 ||
+       strncmp(localname, "mailto:", 7) == 0 ||
+       strncmp(localname, "news:", 5) == 0))
     localname = NULL;	// Remote link wasn't resolved...
-  else if (strncmp(localname, "file:", 5) == 0)
+  else if (localname != NULL &&
+           strncmp(localname, "file:", 5) == 0)
     localname += 5;	// Adjust for local filename...
       
   if (value_ != NULL)
@@ -1685,5 +1696,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.15 2000/01/22 16:20:26 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.16 2000/01/23 19:17:11 mike Exp $".
 //
