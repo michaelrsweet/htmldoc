@@ -1,5 +1,5 @@
 //
-// "$Id: book.cxx,v 1.1 2004/03/31 20:56:56 mike Exp $"
+// "$Id: book.cxx,v 1.2 2004/04/01 03:26:43 mike Exp $"
 //
 //   Book routines for HTMLDOC, a HTML document processing program.
 //
@@ -82,7 +82,7 @@ const char * const	hdBook::PDFEffects[] =
 // 'hdBook::hdBook()' - Initialize global data...
 //
 
-hdBook::hdBook()		// I - Data directory
+hdBook::hdBook()
 {
   int	i;				// Looping var
 
@@ -93,14 +93,17 @@ hdBook::hdBook()		// I - Data directory
       datadir = HTML_DATA;
   }
 
-  verbosity        = 0;
-  error_count      = 0;
-  strict_html      = false;
-  progress_visible = false;
-  num_sizes        = 0;
-  sizes            = (hdPageSize *)0;
-  num_entities     = 0;
-  entities         = (hdEntity *)0;
+  verbosity         = 0;
+  error_count       = 0;
+  strict_html       = false;
+  progress_visible  = false;
+  num_sizes         = 0;
+  sizes             = (hdPageSize *)0;
+  num_entities      = 0;
+  entities          = (hdEntity *)0;
+  num_links         = 0;
+  alloc_links       = 0;
+  links             = (hdLink *)0;
 
   Compression       = 1;
   TitlePage         = true;
@@ -108,6 +111,7 @@ hdBook::hdBook()		// I - Data directory
   TocNumbers        = false;
   TocLevels         = 3;
   TocDocCount       = 0;
+  OutputFormat      = HD_OUTPUT_HTML;
   OutputType        = HD_OUTPUT_BOOK;
   OutputPath[0]     = '\0';
   OutputFiles       = false;
@@ -168,6 +172,8 @@ hdBook::hdBook()		// I - Data directory
   Links             = true;
   Path[0]           = '\0';
   Proxy[0]          = '\0';
+
+  prefs_load();
 }
 
 
@@ -197,6 +203,9 @@ hdBook::~hdBook()
 
     delete[] entities;
   }
+
+  if (alloc_links)
+    free(links);
 
   // Cleanup the image and file caches...
 //  hdImage::flush();
@@ -528,6 +537,388 @@ hdBook::load_sizes()
 
 
 //
+// 'hdBook::prefs_getrc()' - Get the rc file for preferences...
+//
+
+const char *				// O - RC filename
+hdBook::prefs_getrc(char *s,		// I - Buffer
+                    int  slen)		// I - Size of buffer
+{
+#ifdef WIN32
+  HKEY		key;			// Registry key
+  DWORD		size;			// Size of string
+  char		home[1024];		// Home (profile) directory
+#else
+  const char	*home;			// Home directory
+#endif // WIN32
+
+
+  // Find the home directory...
+#ifdef WIN32
+  // Open the registry...
+  if (RegOpenKeyEx(HKEY_CURRENT_USER,
+                   "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0,
+		   KEY_READ, &key))
+  {
+    // Use the install directory...
+    strlcpy(home, datadir, sizeof(home));
+  }
+  else
+  {
+    // Grab the current user's AppData directory...
+    size = sizeof(home);
+    if (RegQueryValueEx(key, "AppData", NULL, NULL, (unsigned char *)home, &size))
+      strlcpy(home, datadir, sizeof(home));
+
+    RegCloseKey(key);
+  }
+#else
+  if ((home = getenv("HOME")) == NULL)
+    home = datadir;
+#endif // WIN32
+
+  // Format the rc filename and return...
+  snprintf(s, slen, "%s/.htmldocrc", home);
+
+  return (s);
+}
+
+
+//
+// 'hdBook::prefs_load()' - Load HTMLDOC preferences...
+//
+
+void
+hdBook::prefs_load(void)
+{
+  int	pos;				// Header/footer position
+  char	line[2048];			// Line from RC file
+  FILE	*fp;				// File pointer
+#ifdef WIN32
+  HKEY		key;			// Registry key
+  DWORD		size;			// Size of string
+  static char	data[1024];		// Data directory
+  static char	doc[1024];		// Documentation directory
+#endif // WIN32
+
+
+  //
+  // Get the installed directories...
+  //
+
+  if (!datadir)
+  {
+#ifdef WIN32
+    // Open the registry...
+    if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                      "SOFTWARE\\Easy Software Products\\HTMLDOC", 0,
+                      KEY_READ, &key))
+    {
+      // Grab the installed directories...
+      size = sizeof(data);
+      if (!RegQueryValueEx(key, "data", NULL, NULL, (unsigned char *)data, &size))
+	datadir = data;
+      else
+        datadir = HTML_DATA;
+
+#  ifdef HAVE_LIBFLTK
+      size = sizeof(doc);
+      if (!RegQueryValueEx(key, "doc", NULL, NULL, (unsigned char *)doc, &size))
+	GUI::help_dir = doc;
+#  endif // HAVE_LIBFLTK
+
+      RegCloseKey(key);
+    }
+#endif // WIN32
+
+#if defined(__EMX__) && defined(HAVE_LIBFLTK)
+    // If being installed within XFree86 OS/2 Environment
+    // we can use those values which are overwritten by
+    // the according environment variables.
+    datadir = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc"));
+    GUI::help_dir = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc/doc"));
+#endif // __EMX__ && HAVE_LIBFLTK
+
+    //
+    // See if the installed directories have been overridden by
+    // environment variables...
+    //
+
+    if (getenv("HTMLDOC_DATA") != NULL)
+      datadir = getenv("HTMLDOC_DATA");
+    else
+      datadir = HTML_DATA;
+
+#ifdef HAVE_LIBFLTK
+    if (getenv("HTMLDOC_HELP") != NULL)
+      GUI::help_dir = getenv("HTMLDOC_HELP");
+#endif // HAVE_LIBFLTK
+  }
+
+  //
+  // Read the preferences file...
+  //
+
+  if ((fp = fopen(prefs_getrc(line, sizeof(line)), "r")) != NULL)
+  {
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      if (line[strlen(line) - 1] == '\n')
+        line[strlen(line) - 1] = '\0';
+
+      if (strncasecmp(line, "TEXTCOLOR=", 10) == 0)
+	htmlSetTextColor((uchar *)(line + 10));
+      else if (strncasecmp(line, "BODYCOLOR=", 10) == 0)
+	strlcpy(BodyColor, line + 10, sizeof(BodyColor));
+      else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
+	strlcpy(BodyImage, line + 10, sizeof(BodyImage));
+      else if (strncasecmp(line, "LINKCOLOR=", 10) == 0)
+        strlcpy(LinkColor, line + 10, sizeof(LinkColor));
+      else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
+	LinkStyle = atoi(line + 10);
+      else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
+	_htmlBrowserWidth = atof(line + 13);
+      else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
+	PageWidth = atoi(line + 10);
+      else if (strncasecmp(line, "PAGELENGTH=", 11) == 0)
+	PageLength = atoi(line + 11);
+      else if (strncasecmp(line, "PAGELEFT=", 9) == 0)
+	PageLeft = atoi(line + 9);
+      else if (strncasecmp(line, "PAGERIGHT=", 10) == 0)
+	PageRight = atoi(line + 10);
+      else if (strncasecmp(line, "PAGETOP=", 8) == 0)
+	PageTop = atoi(line + 8);
+      else if (strncasecmp(line, "PAGEBOTTOM=", 11) == 0)
+	PageBottom = atoi(line + 11);
+      else if (strncasecmp(line, "PAGEDUPLEX=", 11) == 0)
+	PageDuplex = atoi(line + 11);
+      else if (strncasecmp(line, "LANDSCAPE=", 10) == 0)
+	Landscape = atoi(line + 10);
+      else if (strncasecmp(line, "COMPRESSION=", 12) == 0)
+	Compression = atoi(line + 12);
+      else if (strncasecmp(line, "OUTPUTCOLOR=", 12) == 0)
+      {
+	OutputColor    = atoi(line + 12);
+	_htmlGrayscale = !OutputColor;
+      }
+      else if (strncasecmp(line, "TOCNUMBERS=", 11) == 0)
+	TocNumbers = atoi(line + 11);
+      else if (strncasecmp(line, "TOCLEVELS=", 10) == 0)
+	TocLevels = atoi(line + 10);
+      else if (strncasecmp(line, "JPEG=", 5) == 0)
+	OutputJPEG = atoi(line + 1);
+      else if (strncasecmp(line, "PAGEHEADER=", 11) == 0)
+	get_format(line + 11, Header);
+      else if (strncasecmp(line, "PAGEFOOTER=", 11) == 0)
+	get_format(line + 11, Footer);
+      else if (strncasecmp(line, "NUMBERUP=", 9) == 0)
+        NumberUp = atoi(line + 9);
+      else if (strncasecmp(line, "TOCHEADER=", 10) == 0)
+	get_format(line + 10, TocHeader);
+      else if (strncasecmp(line, "TOCFOOTER=", 10) == 0)
+	get_format(line + 10, TocFooter);
+      else if (strncasecmp(line, "TOCTITLE=", 9) == 0)
+	strlcpy(TocTitle, line + 9, sizeof(TocTitle));
+      else if (strncasecmp(line, "BODYFONT=", 9) == 0)
+	_htmlBodyFont = (hdFontFace)atoi(line + 9);
+      else if (strncasecmp(line, "HEADINGFONT=", 12) == 0)
+	_htmlHeadingFont = (hdFontFace)atoi(line + 12);
+      else if (strncasecmp(line, "FONTSIZE=", 9) == 0)
+	htmlSetBaseSize(atof(line + 9),
+	                _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+      else if (strncasecmp(line, "FONTSPACING=", 12) == 0)
+	htmlSetBaseSize(_htmlSizes[SIZE_P], atof(line + 12));
+      else if (strncasecmp(line, "HEADFOOTTYPE=", 13) == 0)
+	HeadFootType = (hdFontFace)atoi(line + 13);
+      else if (strncasecmp(line, "HEADFOOTSTYLE=", 14) == 0)
+        HeadFootStyle = (hdFontInternal)atoi(line + 14);
+      else if (strncasecmp(line, "HEADFOOTSIZE=", 13) == 0)
+	HeadFootSize = atof(line + 13);
+      else if (strncasecmp(line, "PDFVERSION=", 11) == 0)
+      {
+        if (strchr(line + 11, '.') != NULL)
+	  PDFVersion = (int)(atof(line + 11) * 10.0 + 0.5);
+	else
+	  PDFVersion = atoi(line + 11);
+      }
+      else if (strncasecmp(line, "PSLEVEL=", 8) == 0)
+	PSLevel = atoi(line + 8);
+      else if (strncasecmp(line, "PSCOMMANDS=", 11) == 0)
+	PSCommands = atoi(line + 11);
+      else if (strncasecmp(line, "XRXCOMMENTS=", 12) == 0)
+	XRXComments = atoi(line + 12);
+      else if (strncasecmp(line, "CHARSET=", 8) == 0)
+	htmlSetCharSet(line + 8);
+      else if (strncasecmp(line, "PAGEMODE=", 9) == 0)
+	PDFPageMode = atoi(line + 9);
+      else if (strncasecmp(line, "PAGELAYOUT=", 11) == 0)
+	PDFPageLayout = atoi(line + 11);
+      else if (strncasecmp(line, "FIRSTPAGE=", 10) == 0)
+	PDFFirstPage = atoi(line + 10);
+      else if (strncasecmp(line, "PAGEEFFECT=", 11) == 0)
+	PDFEffect = atoi(line + 11);
+      else if (strncasecmp(line, "PAGEDURATION=", 14) == 0)
+	PDFPageDuration = atof(line + 14);
+      else if (strncasecmp(line, "EFFECTDURATION=", 16) == 0)
+	PDFEffectDuration = atof(line + 16);
+      else if (strncasecmp(line, "ENCRYPTION=", 11) == 0)
+	Encryption = atoi(line + 11);
+      else if (strncasecmp(line, "PERMISSIONS=", 12) == 0)
+	Permissions = atoi(line + 12);
+      else if (strncasecmp(line, "OWNERPASSWORD=", 14) == 0)
+      {
+	strncpy(OwnerPassword, line + 14, sizeof(OwnerPassword) - 1);
+	OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
+      }
+      else if (strncasecmp(line, "USERPASSWORD=", 13) == 0)
+      {
+        strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
+        UserPassword[sizeof(UserPassword) - 1] = '\0';
+      }
+      else if (strncasecmp(line, "LINKS=", 6) == 0)
+        Links = atoi(line + 6);
+      else if (strncasecmp(line, "TRUETYPE=", 9) == 0)
+        EmbedFonts = atoi(line + 9);
+      else if (strncasecmp(line, "EMBEDFONTS=", 11) == 0)
+        EmbedFonts = atoi(line + 11);
+      else if (strncasecmp(line, "PATH=", 5) == 0)
+      {
+	strncpy(Path, line + 5, sizeof(Path) - 1);
+	Path[sizeof(Path) - 1] = '\0';
+      }
+      else if (strncasecmp(line, "PROXY=", 6) == 0)
+      {
+	strncpy(Proxy, line + 6, sizeof(Proxy) - 1);
+	Proxy[sizeof(Proxy) - 1] = '\0';
+      }
+      else if (strncasecmp(line, "STRICTHTML=", 11) == 0)
+        strict_html = atoi(line + 11);
+
+#  ifdef HAVE_LIBFLTK
+      else if (strncasecmp(line, "EDITOR=", 7) == 0)
+        strlcpy(HTMLEditor, line + 7, sizeof(HTMLEditor));
+      else if (strncasecmp(line, "TOOLTIPS=", 9) == 0)
+        Tooltips = atoi(line + 9);
+      else if (strncasecmp(line, "MODERN=", 7) == 0)
+        ModernSkin = atoi(line + 7);
+#  endif // HAVE_LIBFLTK
+    }
+
+    fclose(fp);
+  }
+
+  // Check header/footer formats...
+  for (pos = 0; pos < 3; pos ++)
+    if (Header[pos])
+      break;
+
+  if (pos == 3)
+    get_format(".t.", Header);
+
+  for (pos = 0; pos < 3; pos ++)
+    if (Footer[pos])
+      break;
+
+  if (pos == 3)
+    get_format("h.1", Footer);
+
+  for (pos = 0; pos < 3; pos ++)
+    if (TocHeader[pos])
+      break;
+
+  if (pos == 3)
+    get_format(".t.", TocHeader);
+
+  for (pos = 0; pos < 3; pos ++)
+    if (TocFooter[pos])
+      break;
+
+  if (pos == 3)
+    get_format("..i", TocFooter);
+}
+
+
+//
+// 'hdBook::prefs_save()' - Save HTMLDOC preferences...
+//
+
+void
+hdBook::prefs_save(void)
+{
+  FILE	*fp;				// File pointer
+  char	rcfile[1024];			// RC filename
+
+
+  if ((fp = fopen(prefs_getrc(rcfile, sizeof(rcfile)), "w")) != NULL)
+  {
+    fputs("#HTMLDOCRC " SVERSION "\n", fp);
+
+    fprintf(fp, "TEXTCOLOR=%s\n", _htmlTextColor);
+    fprintf(fp, "BODYCOLOR=%s\n", BodyColor);
+    fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
+    fprintf(fp, "LINKCOLOR=%s\n", LinkColor);
+    fprintf(fp, "LINKSTYLE=%d\n", LinkStyle);
+    fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlBrowserWidth);
+    fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
+    fprintf(fp, "PAGELENGTH=%d\n", PageLength);
+    fprintf(fp, "PAGELEFT=%d\n", PageLeft);
+    fprintf(fp, "PAGERIGHT=%d\n", PageRight);
+    fprintf(fp, "PAGETOP=%d\n", PageTop);
+    fprintf(fp, "PAGEBOTTOM=%d\n", PageBottom);
+    fprintf(fp, "PAGEDUPLEX=%d\n", PageDuplex);
+    fprintf(fp, "LANDSCAPE=%d\n", Landscape);
+    fprintf(fp, "COMPRESSION=%d\n", Compression);
+    fprintf(fp, "OUTPUTCOLOR=%d\n", OutputColor);
+    fprintf(fp, "TOCNUMBERS=%d\n", TocNumbers);
+    fprintf(fp, "TOCLEVELS=%d\n", TocLevels);
+    fprintf(fp, "JPEG=%d\n", OutputJPEG);
+    fprintf(fp, "PAGEHEADER=%s\n", get_fmt(Header));
+    fprintf(fp, "PAGEFOOTER=%s\n", get_fmt(Footer));
+    fprintf(fp, "NUMBERUP=%d\n", NumberUp);
+    fprintf(fp, "TOCHEADER=%s\n", get_fmt(TocHeader));
+    fprintf(fp, "TOCFOOTER=%s\n", get_fmt(TocFooter));
+    fprintf(fp, "TOCTITLE=%s\n", TocTitle);
+    fprintf(fp, "BODYFONT=%d\n", _htmlBodyFont);
+    fprintf(fp, "HEADINGFONT=%d\n", _htmlHeadingFont);
+    fprintf(fp, "FONTSIZE=%.2f\n", _htmlSizes[SIZE_P]);
+    fprintf(fp, "FONTSPACING=%.2f\n",
+            _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P]);
+    fprintf(fp, "HEADFOOTTYPE=%d\n", HeadFootType);
+    fprintf(fp, "HEADFOOTSTYLE=%d\n", HeadFootStyle);
+    fprintf(fp, "HEADFOOTSIZE=%.2f\n", HeadFootSize);
+    fprintf(fp, "PDFVERSION=%d\n", PDFVersion);
+    fprintf(fp, "PSLEVEL=%d\n", PSLevel);
+    fprintf(fp, "PSCOMMANDS=%d\n", PSCommands);
+    fprintf(fp, "XRXCOMMENTS=%d\n", XRXComments);
+    fprintf(fp, "CHARSET=%s\n", _htmlCharSet);
+    fprintf(fp, "PAGEMODE=%d\n", PDFPageMode);
+    fprintf(fp, "PAGELAYOUT=%d\n", PDFPageLayout);
+    fprintf(fp, "FIRSTPAGE=%d\n", PDFFirstPage);
+    fprintf(fp, "PAGEEFFECT=%d\n", PDFEffect);
+    fprintf(fp, "PAGEDURATION=%.0f\n", PDFPageDuration);
+    fprintf(fp, "EFFECTDURATION=%.1f\n", PDFEffectDuration);
+    fprintf(fp, "ENCRYPTION=%d\n", Encryption);
+    fprintf(fp, "PERMISSIONS=%d\n", Permissions);
+    fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
+    fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
+    fprintf(fp, "LINKS=%d\n", Links);
+    fprintf(fp, "EMBEDFONTS=%d\n", EmbedFonts);
+    fprintf(fp, "PATH=%s\n", Path);
+    fprintf(fp, "PROXY=%s\n", Proxy);
+    fprintf(fp, "STRICTHTML=%d\n", strict_html);
+
+#ifdef HAVE_LIBFLTK
+    fprintf(fp, "EDITOR=%s\n", HTMLEditor);
+    fprintf(fp, "TOOLTIPS=%d\n", Tooltips);
+    fprintf(fp, "MODERN=%d\n", ModernSkin);
+#endif // HAVE_LIBFLTK
+
+    fclose(fp);
+  }
+}
+
+
+//
 // 'hdEntity::set()' - Initialize a page size.
 //
 
@@ -592,5 +983,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: book.cxx,v 1.1 2004/03/31 20:56:56 mike Exp $".
+// End of "$Id: book.cxx,v 1.2 2004/04/01 03:26:43 mike Exp $".
 //

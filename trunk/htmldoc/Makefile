@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.40 2004/03/31 20:56:56 mike Exp $"
+#   "$Id: Makefile,v 1.41 2004/04/01 03:26:43 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -45,6 +45,7 @@ LIBOBJS	=	\
 		http-support.o \
 		image.o \
 		iso8859.o \
+		link.o \
 		margin.o \
 		md5.o \
 		progress.o \
@@ -79,6 +80,7 @@ SRCS	=	\
 		http-support.c \
 		image.cxx \
 		iso8859.cxx \
+		link.cxx \
 		margin.cxx \
 		md5.c \
 		progress.cxx \
@@ -176,5 +178,5 @@ include Dependencies
 
 
 #
-# End of "$Id: Makefile,v 1.40 2004/03/31 20:56:56 mike Exp $".
+# End of "$Id: Makefile,v 1.41 2004/04/01 03:26:43 mike Exp $".
 #
