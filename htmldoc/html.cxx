@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.39 2004/06/16 16:15:01 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.40 2004/06/18 14:22:05 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -79,6 +79,9 @@ static void	write_footer(FILE **out, tree_t *t);
 static void	write_title(FILE *out, uchar *title, uchar *author,
 		            uchar *copyright, uchar *docnumber);
 static int	write_all(FILE *out, tree_t *t, int col);
+static int	write_node(FILE *out, tree_t *t, int col);
+static int	write_nodeclose(FILE *out, tree_t *t, int col);
+static int	write_toc(FILE *out, tree_t *t, int col);
 static uchar	*get_title(tree_t *doc);
 
 static void	add_link(uchar *name, uchar *filename);
@@ -173,7 +176,7 @@ html_export(tree_t *document,	/* I - Document to export */
                  docnumber, NULL);
 
   if (out != NULL)
-    write_all(out, toc, 0);
+    write_toc(out, toc, 0);
   write_footer(&out, NULL);
 
  /*
@@ -537,6 +540,34 @@ write_all(FILE   *out,		/* I - Output file */
           tree_t *t,		/* I - Document tree */
           int    col)		/* I - Current column */
 {
+  if (out == NULL)
+    return (0);
+
+  while (t != NULL)
+  {
+    col = write_node(out, t, col);
+
+    if (t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
+      col = write_all(out, t->child, col);
+
+    col = write_nodeclose(out, t, col);
+
+    t = t->next;
+  }
+
+  return (col);
+}
+
+
+/*
+ * 'write_node()' - Write a single tree node.
+ */
+
+static int			/* O - Current column */
+write_node(FILE   *out,		/* I - Output file */
+           tree_t *t,		/* I - Document tree node */
+           int    col)		/* I - Current column */
+{
   int		i;		/* Looping var */
   uchar		*ptr,		/* Pointer to output string */
 		*entity,	/* Entity string */
@@ -547,67 +578,225 @@ write_all(FILE   *out,		/* I - Output file */
   if (out == NULL)
     return (0);
 
-  while (t != NULL)
+  switch (t->markup)
   {
+    case MARKUP_NONE :
+        if (t->data == NULL)
+	  break;
+
+	if (t->preformatted)
+	{
+          for (ptr = t->data; *ptr; ptr ++)
+            fputs((char *)iso8859(*ptr), out);
+
+	  if (t->data[strlen((char *)t->data) - 1] == '\n')
+            col = 0;
+	  else
+            col += strlen((char *)t->data);
+	}
+	else
+	{
+	  if ((col + strlen((char *)t->data)) > 72 && col > 0)
+	  {
+            putc('\n', out);
+            col = 0;
+	  }
+
+          for (ptr = t->data; *ptr; ptr ++)
+            fputs((char *)iso8859(*ptr), out);
+
+	  col += strlen((char *)t->data);
+
+	  if (col > 72)
+	  {
+            putc('\n', out);
+            col = 0;
+	  }
+	}
+	break;
+
+    case MARKUP_COMMENT :
+    case MARKUP_UNKNOWN :
+        fputs("\n<!--", out);
+	for (ptr = t->data; *ptr; ptr ++)
+	  fputs((char *)iso8859(*ptr), out);
+	fputs("-->\n", out);
+	col = 0;
+	break;
+
+    case MARKUP_AREA :
+    case MARKUP_BODY :
+    case MARKUP_DOCTYPE :
+    case MARKUP_ERROR :
+    case MARKUP_FILE :
+    case MARKUP_HEAD :
+    case MARKUP_HTML :
+    case MARKUP_MAP :
+    case MARKUP_META :
+    case MARKUP_TITLE :
+        break;
+
+    case MARKUP_BR :
+    case MARKUP_CENTER :
+    case MARKUP_DD :
+    case MARKUP_DL :
+    case MARKUP_DT :
+    case MARKUP_H1 :
+    case MARKUP_H2 :
+    case MARKUP_H3 :
+    case MARKUP_H4 :
+    case MARKUP_H5 :
+    case MARKUP_H6 :
+    case MARKUP_H7 :
+    case MARKUP_H8 :
+    case MARKUP_H9 :
+    case MARKUP_H10 :
+    case MARKUP_H11 :
+    case MARKUP_H12 :
+    case MARKUP_H13 :
+    case MARKUP_H14 :
+    case MARKUP_H15 :
+    case MARKUP_HR :
+    case MARKUP_LI :
+    case MARKUP_OL :
+    case MARKUP_P :
+    case MARKUP_PRE :
+    case MARKUP_TABLE :
+    case MARKUP_TR :
+    case MARKUP_UL :
+        if (col > 0)
+        {
+          putc('\n', out);
+          col = 0;
+        }
+
+    default :
+	if (t->markup == MARKUP_IMG &&
+            (src = htmlGetVariable(t, (uchar *)"REALSRC")) != NULL)
+	{
+	 /*
+          * Update local images...
+          */
+
+          if (file_method((char *)src) == NULL &&
+              src[0] != '/' && src[0] != '\\' &&
+	      (!isalpha(src[0]) || src[1] != ':'))
+          {
+            image_copy((char *)src, OutputPath);
+            strlcpy((char *)newsrc, file_basename((char *)src), sizeof(newsrc));
+            htmlSetVariable(t, (uchar *)"SRC", newsrc);
+          }
+	}
+
+        if (t->markup != MARKUP_EMBED)
+	{
+	  col += fprintf(out, "<%s", _htmlMarkups[t->markup]);
+	  for (i = 0; i < t->nvars; i ++)
+	  {
+	    if (strcasecmp((char *)t->vars[i].name, "BREAK") == 0 &&
+	        t->markup == MARKUP_HR)
+	      continue;
+
+	    if (strcasecmp((char *)t->vars[i].name, "REALSRC") == 0 &&
+	        t->markup == MARKUP_IMG)
+	      continue;
+
+            if (strncasecmp((char *)t->vars[i].name, "_HD_", 4) == 0)
+	      continue;
+
+	    if (col > 72 && !t->preformatted)
+	    {
+              putc('\n', out);
+              col = 0;
+	    }
+
+            if (col > 0)
+            {
+              putc(' ', out);
+              col ++;
+            }
+
+	    if (t->vars[i].value == NULL)
+              col += fprintf(out, "%s", t->vars[i].name);
+	    else
+	    {
+	      col += fprintf(out, "%s=\"", t->vars[i].name);
+	      for (ptr = t->vars[i].value; *ptr; ptr ++)
+	      {
+		entity = iso8859(*ptr);
+		fputs((char *)entity, out);
+		col += strlen((char *)entity);
+	      }
+
+	      putc('\"', out);
+	      col ++;
+	    }
+	  }
+
+	  putc('>', out);
+	  col ++;
+
+	  if (col > 72 && !t->preformatted)
+	  {
+	    putc('\n', out);
+	    col = 0;
+	  }
+	}
+	break;
+  }
+
+  return (col);
+}
+
+
+/*
+ * 'write_nodeclose()' - Close a single tree node.
+ */
+
+static int			/* O - Current column */
+write_nodeclose(FILE   *out,	/* I - Output file */
+                tree_t *t,	/* I - Document tree node */
+                int    col)	/* I - Current column */
+{
+  if (out == NULL)
+    return (0);
+
+  if (t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
+  {
+    if (col > 72 && !t->preformatted)
+    {
+      putc('\n', out);
+      col = 0;
+    }
+
     switch (t->markup)
     {
-      case MARKUP_NONE :
-          if (t->data == NULL)
-	    break;
-
-	  if (t->preformatted)
-	  {
-            for (ptr = t->data; *ptr; ptr ++)
-              fputs((char *)iso8859(*ptr), out);
-
-	    if (t->data[strlen((char *)t->data) - 1] == '\n')
-              col = 0;
-	    else
-              col += strlen((char *)t->data);
-	  }
-	  else
-	  {
-	    if ((col + strlen((char *)t->data)) > 72 && col > 0)
-	    {
-              putc('\n', out);
-              col = 0;
-	    }
-
-            for (ptr = t->data; *ptr; ptr ++)
-              fputs((char *)iso8859(*ptr), out);
-
-	    col += strlen((char *)t->data);
-
-	    if (col > 72)
-	    {
-              putc('\n', out);
-              col = 0;
-	    }
-	  }
-	  break;
-
-      case MARKUP_COMMENT :
-      case MARKUP_UNKNOWN :
-          fputs("\n<!--", out);
-	  for (ptr = t->data; *ptr; ptr ++)
-	    fputs((char *)iso8859(*ptr), out);
-	  fputs("-->\n", out);
-	  col = 0;
-	  break;
-
-      case MARKUP_AREA :
       case MARKUP_BODY :
-      case MARKUP_DOCTYPE :
       case MARKUP_ERROR :
       case MARKUP_FILE :
       case MARKUP_HEAD :
       case MARKUP_HTML :
-      case MARKUP_MAP :
-      case MARKUP_META :
+      case MARKUP_NONE :
       case MARKUP_TITLE :
+
+      case MARKUP_APPLET :
+      case MARKUP_AREA :
+      case MARKUP_BR :
+      case MARKUP_COMMENT :
+      case MARKUP_DOCTYPE :
+      case MARKUP_EMBED :
+      case MARKUP_HR :
+      case MARKUP_IMG :
+      case MARKUP_INPUT :
+      case MARKUP_ISINDEX :
+      case MARKUP_LINK :
+      case MARKUP_META :
+      case MARKUP_NOBR :
+      case MARKUP_SPACER :
+      case MARKUP_WBR :
+      case MARKUP_UNKNOWN :
           break;
 
-      case MARKUP_BR :
       case MARKUP_CENTER :
       case MARKUP_DD :
       case MARKUP_DL :
@@ -627,7 +816,6 @@ write_all(FILE   *out,		/* I - Output file */
       case MARKUP_H13 :
       case MARKUP_H14 :
       case MARKUP_H15 :
-      case MARKUP_HR :
       case MARKUP_LI :
       case MARKUP_OL :
       case MARKUP_P :
@@ -635,159 +823,42 @@ write_all(FILE   *out,		/* I - Output file */
       case MARKUP_TABLE :
       case MARKUP_TR :
       case MARKUP_UL :
-          if (col > 0)
-          {
-            putc('\n', out);
-            col = 0;
-          }
+          fprintf(out, "</%s>\n", _htmlMarkups[t->markup]);
+          col = 0;
+          break;
 
       default :
-	  if (t->markup == MARKUP_IMG && OutputFiles &&
-              (src = htmlGetVariable(t, (uchar *)"REALSRC")) != NULL)
-	  {
-	   /*
-            * Update local images...
-            */
-
-            if (file_method((char *)src) == NULL &&
-        	src[0] != '/' && src[0] != '\\' &&
-		(!isalpha(src[0]) || src[1] != ':'))
-            {
-              image_copy((char *)src, OutputPath);
-              strlcpy((char *)newsrc, file_basename((char *)src), sizeof(newsrc));
-              htmlSetVariable(t, (uchar *)"SRC", newsrc);
-            }
-	  }
-
-          if (t->markup != MARKUP_EMBED)
-	  {
-	    col += fprintf(out, "<%s", _htmlMarkups[t->markup]);
-	    for (i = 0; i < t->nvars; i ++)
-	    {
-	      if (strcasecmp((char *)t->vars[i].name, "BREAK") == 0 &&
-	          t->markup == MARKUP_HR)
-		continue;
-
-	      if (strcasecmp((char *)t->vars[i].name, "REALSRC") == 0 &&
-	          t->markup == MARKUP_IMG)
-		continue;
-
-              if (strncasecmp((char *)t->vars[i].name, "_HD_", 4) == 0)
-	        continue;
-
-	      if (col > 72 && !t->preformatted)
-	      {
-        	putc('\n', out);
-        	col = 0;
-	      }
-
-              if (col > 0)
-              {
-        	putc(' ', out);
-        	col ++;
-              }
-
-	      if (t->vars[i].value == NULL)
-        	col += fprintf(out, "%s", t->vars[i].name);
-	      else
-	      {
-	        col += fprintf(out, "%s=\"", t->vars[i].name);
-		for (ptr = t->vars[i].value; *ptr; ptr ++)
-		{
-		  entity = iso8859(*ptr);
-		  fputs((char *)entity, out);
-		  col += strlen((char *)entity);
-		}
-
-		putc('\"', out);
-		col ++;
-	      }
-	    }
-
-	    putc('>', out);
-	    col ++;
-
-	    if (col > 72 && !t->preformatted)
-	    {
-	      putc('\n', out);
-	      col = 0;
-	    }
-	  }
+          col += fprintf(out, "</%s>", _htmlMarkups[t->markup]);
 	  break;
     }
+  }
 
-    if (t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
+  return (col);
+}
+
+
+/*
+ * 'write_toc()' - Write all markup text for the given table-of-contents.
+ */
+
+static int			/* O - Current column */
+write_toc(FILE   *out,		/* I - Output file */
+          tree_t *t,		/* I - Document tree */
+          int    col)		/* I - Current column */
+{
+  if (out == NULL)
+    return (0);
+
+  while (t != NULL)
+  {
+    if (htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
     {
-      col = write_all(out, t->child, col);
+      col = write_node(out, t, col);
 
-      if (col > 72 && !t->preformatted)
-      {
-	putc('\n', out);
-	col = 0;
-      }
+      if (t->markup != MARKUP_HEAD && t->markup != MARKUP_TITLE)
+	col = write_toc(out, t->child, col);
 
-      switch (t->markup)
-      {
-	case MARKUP_BODY :
-	case MARKUP_ERROR :
-	case MARKUP_FILE :
-	case MARKUP_HEAD :
-	case MARKUP_HTML :
-	case MARKUP_NONE :
-	case MARKUP_TITLE :
-
-	case MARKUP_APPLET :
-	case MARKUP_AREA :
-	case MARKUP_BR :
-        case MARKUP_COMMENT :
-	case MARKUP_DOCTYPE :
-	case MARKUP_EMBED :
-	case MARKUP_HR :
-	case MARKUP_IMG :
-	case MARKUP_INPUT :
-	case MARKUP_ISINDEX :
-	case MARKUP_LINK :
-	case MARKUP_META :
-	case MARKUP_NOBR :
-	case MARKUP_SPACER :
-	case MARKUP_WBR :
-	case MARKUP_UNKNOWN :
-            break;
-
-        case MARKUP_CENTER :
-        case MARKUP_DD :
-        case MARKUP_DL :
-        case MARKUP_DT :
-        case MARKUP_H1 :
-        case MARKUP_H2 :
-        case MARKUP_H3 :
-        case MARKUP_H4 :
-        case MARKUP_H5 :
-        case MARKUP_H6 :
-	case MARKUP_H7 :
-	case MARKUP_H8 :
-	case MARKUP_H9 :
-	case MARKUP_H10 :
-	case MARKUP_H11 :
-	case MARKUP_H12 :
-	case MARKUP_H13 :
-	case MARKUP_H14 :
-	case MARKUP_H15 :
-        case MARKUP_LI :
-        case MARKUP_OL :
-        case MARKUP_P :
-        case MARKUP_PRE :
-        case MARKUP_TABLE :
-        case MARKUP_TR :
-        case MARKUP_UL :
-            fprintf(out, "</%s>\n", _htmlMarkups[t->markup]);
-            col = 0;
-            break;
-
-	default :
-            col += fprintf(out, "</%s>", _htmlMarkups[t->markup]);
-	    break;
-      }
+      col = write_nodeclose(out, t, col);
     }
 
     t = t->next;
@@ -1033,5 +1104,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.39 2004/06/16 16:15:01 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.40 2004/06/18 14:22:05 mike Exp $".
  */

@@ -109,6 +109,8 @@ CHANGES IN HTMLDOC v1.8.24
 	- PDF page effects/transitions were not put in the right
 	  part of the page dictionary, causing them not to be
 	  used by the PDF reader application.
+	- The _HD_OMIT_TOC attribute was not being honored for
+	  HTML output.
 
 
 CHANGES IN HTMLDOC v1.8.23
