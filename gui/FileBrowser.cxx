@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.1 1999/02/02 03:55:35 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.2 1999/02/02 21:55:06 mike Exp $"
 //
 //   FileBrowser routines for HTMLDOC, an HTML document processing program.
 //
@@ -21,6 +21,11 @@
 #include <FL/filename.H>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#if defined(WIN32) || defined(__EMX__)
+#  include <direct.h>
+#endif /* WIN32 || __EMX__ */
 
 
 //
@@ -49,7 +54,7 @@ int
 FileBrowser::item_width(void *p) const
 {
   fl_font(textfont(), textsize());
-  return ((int)(fl_width(((FL_BLINE *)p)->txt) + textsize() + 4.5));
+  return ((int)(fl_width(((FL_BLINE *)p)->txt) + 2 * textsize() + 4.5));
 }
 
 
@@ -68,14 +73,15 @@ FileBrowser::item_draw(void *p, int x, int y, int w, int h) const
   else
     fl_color(textcolor());
 
-  fl_draw(line->txt, x + textsize() + 2, y, w - textsize() - 2, h, FL_ALIGN_LEFT);
+  fl_draw(line->txt, x + 2 * textsize() + 2, y, w - 2 * textsize() - 2, h,
+          FL_ALIGN_LEFT);
 
   if (line->data)
   {
     drawfunc = (void (*)(Fl_Color))line->data;
     fl_push_matrix();
-      fl_translate((float)x, (float)(y + h - 2));
-      fl_scale((textsize() - 1) / 100.0, -(textsize() - 1) / 100.0);
+      fl_translate((float)x, (float)y + 0.5 * (h + textsize() * 1.5));
+      fl_scale(1.5 * textsize() / 100.0, -1.5 * textsize() / 100.0);
       (*drawfunc)((line->flags & SELECTED) ? FL_YELLOW : FL_LIGHT2);
     fl_pop_matrix();
   }
@@ -93,43 +99,109 @@ Fl_Browser(x, y, w, h, l)
 int
 FileBrowser::load(const char *directory)
 {
-  int		i;		// Looping var
-  char		filename[1024];	// Current file
-  int		num_files;	// Number of files in directory
-  dirent	**files;	// Files in in directory
-  FBIcon	*ic;		// Icon pointer
+  int	i;		// Looping var
+  int	num_files;	// Number of files in directory
+  char	filename[1024];	// Current file
 
-
-  //
-  // Build the file list...
-  //
-
-  directory_ = directory;
-  num_files  = filename_list(directory_, &files);
 
   clear();
-  for (i = 0; i < num_files; i ++)
+
+  if (directory_[0] == '\0')
   {
-    sprintf(filename, "%s/%s", directory_, files[i]->d_name);
+    //
+    // No directory specified; for UNIX list all mount points.  For DOS
+    // list all valid drive letters...
+    //
 
-    if (filename_isdir(filename))
-      add(files[i]->d_name, (void *)draw_folder);
-    else if (filename_match(files[i]->d_name, pattern_))
+    num_files = 0;
+
+#if defined(WIN32) || defined(__EMX__)
+    DWORD	drives;		// Drive available bits
+
+
+    drives = GetLogicalDrives();
+    for (i = 'A'; i <= 'Z'; i ++, drives >>= 1)
+      if (drives & 1)
+      {
+        sprintf(filename, "%c:/", i);
+	add(filename, (void *)draw_drive);
+	num_files ++;
+      }
+#else
+    FILE	*mtab;		// /etc/mtab or /etc/mnttab file
+    char	line[1024];	// Input line
+
+
+    //
+    // Open the file that contains a list of mounted filesystems...
+    //
+#  if defined(hpux) || defined(__sun)
+    mtab = fopen("/etc/mnttab", "r");	// Fairly standard
+#  elif defined(__sgi) || defined(linux)
+    mtab = fopen("/etc/mtab", "r");	// More standard
+#  else
+    mtab = fopen("/etc/fstab", "r");	// Otherwise fallback to full list
+    if (mtab == NULL)
+      mtab = fopen("/etc/vfstab", "r");
+#  endif
+
+    if (mtab != NULL)
     {
-      for (ic = icons_; ic != NULL; ic = ic->next)
-        if (filename_match(files[i]->d_name, ic->pattern))
-	  break;
+      while (fgets(line, sizeof(line), mtab) != NULL)
+      {
+        if (line[0] == '#' || line[0] == '\n')
+	  continue;
+        if (sscanf(line, "%*s%s", filename) != 1)
+	  continue;
 
-      if (ic)
-        add(files[i]->d_name, (void *)ic->drawfunc);
-      else
-        add(files[i]->d_name, (void *)draw_file);
+        add(filename, (void *)draw_drive);
+	num_files ++;
+      }
+
+      fclose(mtab);
+    }
+#endif // WIN32 || __EMX__
+  }
+  else
+  {
+    dirent	**files;	// Files in in directory
+    FBIcon	*ic;		// Icon pointer
+
+
+    //
+    // Build the file list...
+    //
+
+    directory_ = directory;
+    num_files  = filename_list(directory_, &files);
+
+    for (i = 0; i < num_files; i ++)
+    {
+      if (strcmp(files[i]->d_name, ".") == 0 ||
+          strcmp(files[i]->d_name, "..") == 0)
+	continue;
+
+      sprintf(filename, "%s/%s", directory_, files[i]->d_name);
+
+      if (filename_isdir(filename))
+	add(files[i]->d_name, (void *)draw_folder);
+      else if (filename_match(files[i]->d_name, pattern_))
+      {
+	for (ic = icons_; ic != NULL; ic = ic->next)
+          if (filename_match(files[i]->d_name, ic->pattern))
+	    break;
+
+	if (ic)
+          add(files[i]->d_name, (void *)ic->drawfunc);
+	else
+          add(files[i]->d_name, (void *)draw_file);
+      }
+
+      free(files[i]);
     }
 
-    free(files[i]);
+    free(files);
   }
-
-  free(files);
 
   return (num_files);
 }
@@ -164,18 +236,123 @@ FileBrowser::filter(const char *pattern)
 
 
 //
+// 'FileBrowser::draw_drive()' - Draw a "drive" icon.
+//
+
+void
+FileBrowser::draw_drive(Fl_Color c)	// I - Selection color
+{
+  fl_color(c);
+  fl_begin_polygon();
+    fl_vertex(16.97, 45.89);
+    fl_vertex(72.05, 73.44);
+    fl_vertex(72.05, 41.30);
+    fl_vertex(16.97, 13.76);
+  fl_end_polygon();
+
+  fl_color(FL_BLACK);
+  fl_begin_loop();
+    fl_vertex(16.97, 45.89);
+    fl_vertex(72.05, 73.44);
+    fl_vertex(72.05, 41.30);
+    fl_vertex(16.97, 13.76);
+  fl_end_loop();
+
+  fl_color(FL_DARK3);
+  fl_begin_polygon();
+    fl_vertex(30.74, 39.01);
+    fl_vertex(21.56, 34.42);
+    fl_vertex(21.56, 29.83);
+    fl_vertex(35.33, 36.71);
+  fl_end_polygon();
+
+  fl_begin_polygon();
+    fl_vertex(49.10, 52.78);
+    fl_vertex(35.33, 45.89);
+    fl_vertex(35.33, 41.30);
+    fl_vertex(49.10, 48.19);
+  fl_end_polygon();
+
+  fl_begin_polygon();
+    fl_vertex(53.69, 50.48);
+    fl_vertex(49.10, 52.78);
+    fl_vertex(49.10, 48.19);
+    fl_vertex(53.69, 45.89);
+  fl_end_polygon();
+
+  fl_begin_polygon();
+    fl_vertex(67.46, 57.37);
+    fl_vertex(53.69, 50.48);
+    fl_vertex(53.69, 45.89);
+    fl_vertex(67.46, 52.78);
+  fl_end_polygon();
+
+  fl_begin_polygon();
+    fl_vertex(26.15, -0.01);
+    fl_vertex(12.38, 6.89);
+    fl_vertex(67.46, 34.43);
+    fl_vertex(81.24, 27.53);
+  fl_end_polygon();
+
+  fl_color(FL_BLACK);
+  fl_begin_loop();
+    fl_vertex(21.56, 34.42);
+    fl_vertex(35.33, 41.30);
+    fl_vertex(35.33, 45.89);
+    fl_vertex(53.69, 55.08);
+    fl_vertex(53.69, 50.48);
+    fl_vertex(67.46, 57.37);
+    fl_vertex(67.46, 52.78);
+    fl_vertex(53.69, 45.89);
+    fl_vertex(53.69, 36.71);
+    fl_vertex(35.33, 27.53);
+    fl_vertex(35.33, 36.71);
+    fl_vertex(21.56, 29.83);
+  fl_end_loop();
+
+  fl_begin_line();
+    fl_vertex(53.69, 36.71);
+    fl_vertex(49.10, 48.19);
+    fl_vertex(53.69, 45.89);
+  fl_end_line();
+
+  fl_begin_line();
+    fl_vertex(35.33, 36.71);
+    fl_vertex(30.74, 39.01);
+    fl_vertex(49.10, 48.19);
+  fl_end_line();
+
+  fl_begin_line();
+    fl_vertex(49.10, 52.78);
+    fl_vertex(53.69, 50.48);
+  fl_end_line();
+
+  fl_color(FL_DARK3);
+  fl_begin_polygon();
+    fl_vertex(60.76, 44.83);
+    fl_vertex(60.68, 42.11);
+    fl_vertex(62.88, 43.39);
+    fl_vertex(62.87, 45.89);
+  fl_end_polygon();
+
+  fl_color(FL_BLACK);
+  fl_begin_loop();
+    fl_vertex(60.76, 44.83);
+    fl_vertex(60.68, 42.11);
+    fl_vertex(62.88, 43.39);
+    fl_vertex(62.87, 45.89);
+  fl_end_loop();
+}
+
+
+//
 // 'FileBrowser::draw_file()' - Draw a "generic file" icon.
 //
 
 void
 FileBrowser::draw_file(Fl_Color c)	// I - Selection color
 {
-  Fl_Color	oc;			// Outline color...
-
-
-  oc = fl_color_average(c, FL_BLACK, 0.5);
-
-  fl_color(FL_GRAY);
+  fl_color(FL_DARK3);
   fl_begin_polygon();
     fl_vertex(38.83, 0.22);
     fl_vertex(22.00, 9.12);
@@ -191,7 +368,7 @@ FileBrowser::draw_file(Fl_Color c)	// I - Selection color
     fl_vertex(60.01, 39.20);
   fl_end_polygon();
 
-  fl_color(oc);
+  fl_color(FL_BLACK);
   fl_begin_loop();
     fl_vertex(22.00, 19.87);
     fl_vertex(22.00, 79.50);
@@ -207,7 +384,7 @@ FileBrowser::draw_file(Fl_Color c)	// I - Selection color
     fl_vertex(68.70, 34.97);
   fl_end_polygon();
 
-  fl_color(oc);
+  fl_color(FL_BLACK);
   fl_begin_loop();
     fl_vertex(30.69, 15.53);
     fl_vertex(30.69, 74.83);
@@ -223,7 +400,7 @@ FileBrowser::draw_file(Fl_Color c)	// I - Selection color
     fl_vertex(77.39, 30.84);
   fl_end_polygon();
 
-  fl_color(oc);
+  fl_color(FL_BLACK);
   fl_begin_loop();
     fl_vertex(39.59, 11.51);
     fl_vertex(39.59, 70.48);
@@ -240,12 +417,7 @@ FileBrowser::draw_file(Fl_Color c)	// I - Selection color
 void
 FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
 {
-  Fl_Color	oc;			// Outline color...
-
-
-  oc = fl_color_average(c, FL_BLACK, 0.5);
-
-  fl_color(FL_GRAY);
+  fl_color(FL_DARK3);
   fl_begin_polygon();
     fl_vertex(26.37, 0.00);
     fl_vertex(15.00, 5.69);
@@ -254,7 +426,7 @@ FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
   fl_end_polygon();
 
   fl_color(c);
-  fl_begin_polygon();
+  fl_begin_complex_polygon();
     fl_vertex(21.14, 13.87);
     fl_vertex(17.27, 15.81);
     fl_vertex(17.27, 63.22);
@@ -263,7 +435,7 @@ FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
     fl_vertex(73.22, 91.65);
     fl_vertex(73.22, 44.01);
     fl_vertex(76.97, 41.85);
-  fl_end_polygon();
+  fl_end_complex_polygon();
 
   fl_begin_polygon();
     fl_vertex(26.83, 68.23);
@@ -272,7 +444,7 @@ FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
     fl_vertex(45.25, 77.67);
   fl_end_polygon();
 
-  fl_color(oc);
+  fl_color(FL_BLACK);
   fl_begin_line();
     fl_vertex(21.14, 13.87);
     fl_vertex(17.27, 15.81);
@@ -288,7 +460,7 @@ FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
   fl_end_line();
 
   fl_color(c);
-  fl_begin_polygon();
+  fl_begin_complex_polygon();
     fl_vertex(21.14, 13.87);
     fl_vertex(21.14, 60.50);
     fl_vertex(29.44, 64.82);
@@ -297,9 +469,9 @@ FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
     fl_vertex(47.64, 73.91);
     fl_vertex(76.97, 88.47);
     fl_vertex(76.97, 41.85);
-  fl_end_polygon();
+  fl_end_complex_polygon();
 
-  fl_color(oc);
+  fl_color(FL_BLACK);
   fl_begin_loop();
     fl_vertex(21.14, 13.87);
     fl_vertex(21.14, 60.50);
@@ -314,5 +486,5 @@ FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.1 1999/02/02 03:55:35 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.2 1999/02/02 21:55:06 mike Exp $".
 //
