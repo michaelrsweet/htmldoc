@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.41 2001/11/01 16:15:15 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.42 2001/11/04 15:58:24 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -986,6 +986,11 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       case MARKUP_TT :
       case MARKUP_CODE :
       case MARKUP_SAMP :
+          if (isspace(ch = getc(fp)))
+	    have_whitespace = 1;
+	  else
+	    ungetc(ch, fp);
+
           if (have_whitespace)
 	  {
 	    // Insert a space before monospaced text...
@@ -2648,5 +2653,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.41 2001/11/01 16:15:15 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.42 2001/11/04 15:58:24 mike Exp $".
  */
