@@ -35,6 +35,8 @@ CHANGES IN HTMLDOC v1.8.15
 	- Optimized the image writing code to do more efficient
 	  color searching.  This provides a significant speed
 	  improvement when including images.
+	- Now hide all text inside SCRIPT, SELECT, and TEXTAREA
+	  elements.
 
     BUG FIXES
 
@@ -47,6 +49,8 @@ CHANGES IN HTMLDOC v1.8.15
 	- Table cells that used both ROWSPAN and COLSPAN did not
 	  format properly (the colspan was lost after the first
 	  row.)
+	- Tables that used cells that exclusively used COLSPAN
+	  did not format properly.
 
 
 CHANGES IN HTMLDOC v1.8.14
