@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.9 1999/11/23 13:38:49 mike Exp $"
+dnl "$Id: configure.in,v 1.10 1999/11/23 13:53:13 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -112,7 +112,7 @@ else
         	IRIX*)
 			if test -z "$OPTIM"; then
 				if test `uname -r | sed -e '1,$s/\.//g'` -ge 62; then
-					OPTIM="-O3 -OPT:Olimit=4000 -IPA"
+					OPTIM="-O3 -OPT:Olimit=4000"
         			else
 					OPTIM="-O2"
 				fi
@@ -136,5 +136,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.9 1999/11/23 13:38:49 mike Exp $".
+dnl End of "$Id: configure.in,v 1.10 1999/11/23 13:53:13 mike Exp $".
 dnl
