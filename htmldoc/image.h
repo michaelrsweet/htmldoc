@@ -1,5 +1,5 @@
 //
-// "$Id: image.h,v 1.8 2001/10/30 14:26:04 mike Exp $"
+// "$Id: image.h,v 1.9 2001/12/07 18:26:58 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
@@ -21,7 +21,7 @@
 //     Voice: (301) 373-9600
 //     EMail: info@easysw.com
 //       WWW: http://www.easysw.com
-///
+//
 
 #ifndef HTMLDOC_IMAGE_H
 #  define HTMLDOC_IMAGE_H
@@ -31,6 +31,7 @@
 // Include necessary headers.
 //
 
+#  include "file.h"
 #  include "types.h"
 
 
@@ -59,7 +60,7 @@ class hdImage			//// Image class
 {
   private:
 
-  char		*path_;		// Name of image file (for caching of images)
+  char		*uri_;		// Name of image file (for caching of images)
   int		width_,		// Width of image in pixels
 		height_,	// Height of image in pixels
 		depth_,		// 1 for grayscale, 3 for RGB
@@ -74,11 +75,17 @@ class hdImage			//// Image class
 
   void			alloc_mask();
   void			alloc_pixels();
-  bool			copy(char *dest, int destlen);
-  void			path(const char *p);
-  bool			save_as_png(char *dest, int destlen);
+  int			copy(char *dest, int destlen);
+  void			uri(const char *p);
+  int			save_as_png(char *dest, int destlen);
   void			set_mask(int x, int y, uchar a = 0);
   void			set_size(int w, int h, int d);
+
+  static int		num_images_,	// Number of images in cache
+			alloc_images_;	// Allocated images
+  static hdImage	**images_;	// Pointers to images
+
+  static int		compare(hdImage **, hdiImage **);
 
   public:
 
@@ -88,17 +95,23 @@ class hdImage			//// Image class
   void			free();
   int			height() { return height_; }
   int			hold() { return ++ use_; }
-  virtual bool		load();
+  virtual int		load();
   uchar			*mask() { return mask_; }
   int			maskwidth() { return maskwidth_; }
   int			obj() { return obj; }
   void			obj(int o) { obj_ = o; }
-  const char		*path() { return path_; }
   uchar			*pixels() { return pixels_; }
   int			release() { return -- use_; }
-  virtual bool		save(char *dest, int destlen);
+  virtual int		save(char *dest, int destlen);
   virtual hdImageType	type();
   int			width() { return width_; }
+  const char		*uri() { return uri_; }
+
+  // Global methods for caching of image files...
+  static hdImage	*find(const char *uri);
+  static hdImage	**images() { return images_; }
+  static int		num_images() { return num_images_; }
+  static void		flush();
 };
 
 
@@ -110,19 +123,19 @@ class hdBMPImage public hdImage
 {
   public:
 
-  hdBMPImage(const char *path, bool grayscale);
+  hdBMPImage(const char *uri, int grayscale);
 
-  virtual bool	load();
+  virtual int	load();
 }
 
 class hdEPSImage public hdImage
 {
   public:
 
-  hdEPSImage(const char *path, bool grayscale);
+  hdEPSImage(const char *uri, int grayscale);
 
-  virtual bool		load();
-  virtual bool		save(const char *dest);
+  virtual int		load();
+  virtual int		save(const char *dest);
   virtual hdImageType	type();
 }
 
@@ -134,67 +147,67 @@ class hdGIFImage public hdImage
 
   int	eof;		// Did we hit EOF?
 
-  int	read_cmap(FILE *fp, int ncolors, cmap_t cmap, int *gray);
-  int	get_block(FILE *fp, uchar *buffer);
-  int	get_code(FILE *fp, int code_size, int first_time);
-  int	read_image(FILE *fp, cmap_t cmap, int interlace, int transparent);
-  int	read_lzw(FILE *fp, int first_time, int input_code_size);
+  int	read_cmap(hdFile *fp, int ncolors, cmap_t cmap, int *gray);
+  int	get_block(hdFile *fp, uchar *buffer);
+  int	get_code(hdFile *fp, int code_size, int first_time);
+  int	read_image(hdFile *fp, cmap_t cmap, int interlace, int transparent);
+  int	read_lzw(hdFile *fp, int first_time, int input_code_size);
 
   public:
 
-  hdGIFImage(const char *path, bool grayscale);
+  hdGIFImage(const char *uri, int grayscale);
 
-  virtual bool	load();
+  virtual int	load();
 }
 
 class hdJPEGImage public hdImage
 {
   public:
 
-  hdJPEGImage(const char *path, bool grayscale);
+  hdJPEGImage(const char *uri, int grayscale);
 
-  virtual bool	load();
+  virtual int	load();
 }
 
 class hdPNGImage public hdImage
 {
   public:
 
-  hdPNGImage(const char *path, bool grayscale);
+  hdPNGImage(const char *uri, int grayscale);
 
-  virtual bool	load();
+  virtual int	load();
 }
 
 class hdPNMImage public hdImage
 {
   public:
 
-  hdPNMImage(const char *path, bool grayscale);
+  hdPNMImage(const char *uri, int grayscale);
 
-  virtual bool	load();
+  virtual int	load();
 }
 
 class hdXBMImage public hdImage
 {
   public:
 
-  hdXBMImage(const char *path, bool grayscale);
+  hdXBMImage(const char *uri, int grayscale);
 
-  virtual bool	load();
+  virtual int	load();
 }
 
 class hdXPMImage public hdImage
 {
   public:
 
-  hdXPMImage(const char *path, bool grayscale);
+  hdXPMImage(const char *uri, int grayscale);
 
-  virtual bool	load();
+  virtual int	load();
 }
 
 
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.8 2001/10/30 14:26:04 mike Exp $".
+// End of "$Id: image.h,v 1.9 2001/12/07 18:26:58 mike Exp $".
 //

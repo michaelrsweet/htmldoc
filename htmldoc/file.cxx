@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.16 2001/11/29 01:57:38 mike Exp $"
+ * "$Id: file.cxx,v 1.1 2001/12/07 18:26:58 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -814,5 +814,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.16 2001/11/29 01:57:38 mike Exp $".
+ * End of "$Id: file.cxx,v 1.1 2001/12/07 18:26:58 mike Exp $".
  */
