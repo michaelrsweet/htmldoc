@@ -1,7 +1,7 @@
 /*
- * "$Id: progress.h,v 1.1 2000/09/15 02:42:41 mike Exp $"
+ * "$Id: progress.h,v 1.2 2000/10/16 03:25:08 mike Exp $"
  *
- *   Progress function definitions for HTMLDOC, a HTML document
+ *   Progress class definitions for HTMLDOC, a HTML document
  *   processing program.
  *
  *   Copyright 1997-2000 by Easy Software Products.
@@ -20,32 +20,48 @@
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
- *         WWW: http://www.easysw.com
+ *         WWW: http: *www.easysw.com
  */
 
-#ifndef _PROGRESS_H_
-#  define _PROGRESS_H_
+#ifndef _HD_PROGRESS_H_
+#  define _HD_PROGRESS_H_
+
+/*
+ * Include necessary headers...
+ */
+
+#  include <stdarg.h>
+
 
 #  ifdef __cplusplus
+/*
+ * Progress reporting class...
+ */
+
+class HDprogress
+{
+  public:
+
+  virtual void	error(char *s);
+  virtual void	hide(void);
+  virtual void	show(char *s);
+  virtual void	update(int percent);
+};
+
 extern "C" {
 #  endif /* __cplusplus */
 
-
-/*
- * Prototypes...
- */
-
-extern void	progress_error(char *format, ...);
-extern void	progress_hide(void);
-extern void	progress_show(char *format, ...);
-extern void	progress_update(int percent);
+void	progress_error(char *format, ...);
+void	progress_hide(void);
+void	progress_show(char *format, ...);
+void	progress_update(int percent);
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !_PROGRESS_H_ */
+#endif /* !_HD_PROGRESS_H_ */
 
 /*
- * End of "$Id: progress.h,v 1.1 2000/09/15 02:42:41 mike Exp $".
+ * End of "$Id: progress.h,v 1.2 2000/10/16 03:25:08 mike Exp $".
  */
