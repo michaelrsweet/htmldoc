@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.201 2002/08/12 18:08:23 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.202 2002/08/20 15:22:20 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6696,6 +6696,14 @@ init_list(tree_t *t)		/* I - List entry */
  * 'parse_comment()' - Parse a comment for HTMLDOC comments.
  */
 
+#ifdef COMMENT_DEBUG
+#  undef DEBUG_puts
+#  define DEBUG_puts(x) puts(x)
+#  define DEBUG
+#  undef DEBUG_printf
+#  define DEBUG_printf(x) printf x
+#endif /* COMMENT_DEBUG */
+
 static void
 parse_comment(tree_t *t,	/* I - Tree to parse */
               float  *left,	/* I - Left margin */
@@ -7570,8 +7578,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         hfspace = 0;
 
+      *top = PagePrintLength - hfspace;
+
       if (tof)
-        *y = *top = PagePrintLength - hfspace;
+        *y = *top;
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
@@ -7706,6 +7716,14 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
   DEBUG_printf(("        PageTop = %d\n", PageTop));
   DEBUG_printf(("      Landscape = %d\n", Landscape));
 }
+
+#ifdef COMMENT_DEBUG
+#  undef DEBUG
+#  undef DEBUG_puts
+#  define DEBUG_puts(x)
+#  undef DEBUG_printf
+#  define DEBUG_printf(x)
+#endif /* COMMENT_DEBUG */
 
 
 /*
@@ -11843,5 +11861,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.201 2002/08/12 18:08:23 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.202 2002/08/20 15:22:20 mike Exp $".
  */
