@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.3 2002/03/08 20:39:26 mike Exp $"
+// "$Id: render.h,v 1.4 2002/03/10 03:17:28 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -103,11 +103,12 @@ struct hdRenderPage		//// Page render information
 		bottom,			// Bottom margin in points
 		duplex,			// Duplex this page?
 		landscape;		// Landscape orientation?
-  char		*chapter,		// Chapter text
-		*heading,		// Heading text
+  char		*title,			// Title tree
+		*chapter,		// Chapter tree
+		*heading,		// Heading tree
 		*header[3],		// Headers
-		*footer[3];		// Footers
-  char		media_color[64],	// Media color
+		*footer[3],		// Footers
+		media_color[64],	// Media color
 		media_type[64];		// Media type
   int		media_position;		// Media position
   int		page_object,		// Page object
@@ -180,13 +181,13 @@ class hdRender
 		alloc_headings;		// Allocated headings
   hdRenderHeading *headings;		// Headings
 
-  int		num_pages,		// Number of pages
-		alloc_pages;		// Allocated pages
-  hdRenderPage	*pages;			// Pages
-
   int		num_links,		// Number of links
 		alloc_links;		// Allocated links
   hdRenderLink	*links;			// Links
+
+  int		num_pages,		// Number of pages
+		alloc_pages;		// Allocated pages
+  hdRenderPage	*pages;			// Pages
 
   hdStyleFont	*render_font;		// Current font
   float		render_size,		// Current font size
@@ -201,17 +202,17 @@ class hdRender
 
   virtual int	write_chapter(hdFile *out,
 		              const char *author, const char *creator,
-		              const char *copyright, const char *keywords);
+		              const char *copyright, const char *keywords) = 0;
   virtual int	write_document(hdFile *out,
 		               const char *author, const char *creator,
-		               const char *copyright, const char *keywords);
-  virtual int	write_page(hdFile *out, int page);
+		               const char *copyright, const char *keywords) = 0;
+  virtual int	write_page(hdFile *out, int page) = 0;
   virtual int	write_prolog(hdFile *out, int num_pages,
 		             const char *author, const char *creator,
-		             const char *copyright, const char *keywords);
+		             const char *copyright, const char *keywords) = 0;
   virtual int	write_trailer(hdFile *out,
 		              const char *author, const char *creator,
-		              const char *copyright, const char *keywords);
+		              const char *copyright, const char *keywords) = 0;
 
   void		finish_document(const char *author, const char *creator,
 		                const char *copyright, const char *keywords);
@@ -232,7 +233,7 @@ class hdRender
   void		prepare_heading(int page, int print_page, char **format,
 			        int y, char *page_text, int page_len);
 
-  void		check_pages(int page);
+  void		add_chapter();
 
   void		add_heading(hdTree *node, int page, int top);
 
@@ -240,33 +241,26 @@ class hdRender
   hdRenderLink	*find_link(char *name);
   static int	compare_links(hdRenderLink *n1, hdRenderLink *n2);
 
-  hdRenderNode	*new_render(int page, int type, float x, float y,
+  void		check_pages(int page);
+
+  hdRenderNode	*add_render(int page, int type, float x, float y,
 		            float width, float height, void *data,
 			    int insert = 0);
-  void		copy_tree(hdTree *parent, hdTree *t);
+
   float		get_cell_size(hdTree *t, float left, float right,
 		              float *minwidth, float *prefwidth,
 			      float *minheight);
   float		get_table_size(hdTree *t, float left, float right,
 		               float *minwidth, float *prefwidth,
 			       float *minheight);
-  hdTree	*flatten_tree(hdTree *t);
   float		get_width(char *s, int typeface, int style, int size);
-  void		update_image_size(hdTree *t);
-  char		*get_title(hdTree *doc);
+  void		update_size(hdTree *t);
   hdFile	*open_file(void);
   void		set_color(hdFile *out, float *rgb);
   void		set_font(hdFile *out, int typeface, int style, float size);
   void		set_pos(hdFile *out, float x, float y);
   void		write_prolog(hdFile *out, int pages, char *author,
 		             char *creator, char *copyright, char *keywords);
-  int		compare_rgb(unsigned *rgb1, unsigned *rgb2);
-  void		write_image(hdFile *out, hdRenderNode *r, int write_obj = 0);
-  void		write_imagemask(hdFile *out, hdRenderNode *r);
-  void		write_string(hdFile *out, char *s, int compress);
-  void		write_text(hdFile *out, hdRenderNode *r);
-  void		write_trailer(hdFile *out, int pages);
-  int		write_truetype(hdFile *out, hdStyleFont *f);
 };
 
 
@@ -436,5 +430,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.3 2002/03/08 20:39:26 mike Exp $".
+// End of "$Id: render.h,v 1.4 2002/03/10 03:17:28 mike Exp $".
 //

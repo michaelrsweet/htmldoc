@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.10 2002/03/05 12:47:28 mike Exp $"
+// "$Id: style.h,v 1.11 2002/03/10 03:17:28 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -92,6 +92,7 @@ enum hdElement
   HD_ELEMENT_MAP,
   HD_ELEMENT_MENU,
   HD_ELEMENT_META,
+  HD_ELEMENT_OBJECT,
   HD_ELEMENT_OL,
   HD_ELEMENT_OPTION,
   HD_ELEMENT_P,
@@ -556,7 +557,9 @@ struct hdStyleSheet
 		right,		// Right position, points
 		top,		// Top position, points
 		print_width,	// Printable width, points
-		print_length;	// Printable length, points
+		print_length,	// Printable length, points
+		current_width,	// Current printable width, points
+		current_length;	// Current printable length, points
 
   hdOrientation	orientation;	// Orientation of the page
   hdSides	sides;		// Format single or double-sided?
@@ -591,5 +594,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.10 2002/03/05 12:47:28 mike Exp $".
+// End of "$Id: style.h,v 1.11 2002/03/10 03:17:28 mike Exp $".
 //

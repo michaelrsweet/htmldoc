@@ -1,5 +1,5 @@
 //
-// "$Id: image.h,v 1.14 2002/01/06 20:04:48 mike Exp $"
+// "$Id: image.h,v 1.15 2002/03/10 03:17:24 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
@@ -111,6 +111,8 @@ class hdImage			//// Image class
   int			obj() { return obj_; }
   void			obj(int o) { obj_ = o; }
   uchar			*pixels() { return pixels_; }
+  unsigned char		*reduce(int max_colors, int &bytes_per_line,
+			        int &num_colors, unsigned *colors);
   int			release() { return -- use_; }
   virtual int		save(const char *path, char *d, int dlen);
   hdImageType		type() { return type_; }
@@ -249,5 +251,5 @@ class hdXPMImage : public hdImage
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.14 2002/01/06 20:04:48 mike Exp $".
+// End of "$Id: image.h,v 1.15 2002/03/10 03:17:24 mike Exp $".
 //

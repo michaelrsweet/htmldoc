@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.7 2002/02/23 04:03:31 mike Exp $"
+// "$Id: tree.cxx,v 1.8 2002/03/10 03:17:28 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -23,6 +23,28 @@
 //
 // Contents:
 //
+//   hdTree::hdTree()          - Create a new tree node.
+//   hdTree::~hdTree()         - Destroy a tree node.
+//   hdTree::add()             - Add a node to the end of a parent.
+//   hdTree::compute_size()    - Compute the width and height of a node.
+//   hdTree::fix_url()         - Fix a URL so that the path is resolved
+//                               directly.
+//   hdTree::get_attr()        - Get an attribute.
+//   hdTree::get_element()     - Get the element index for the named element.
+//   hdTree::get_meta()        - Find meta data in the document tree.
+//   hdTree::get_text()        - Get a copy of the text fragments under a node.
+//   hdTree::get_title()       - Get the first title node...
+//   hdTree::insert()          - Insert a node at the beginning of a parent.
+//   hdTree::parse_attribute() - Parse an attribute.
+//   hdTree::parse_element()   - Parse an element.
+//   hdTree::parse_entity()    - Parse a HTML entity and return the text for it.
+//   hdTree::read()            - Read a HTML file into a document tree.
+//   hdTree::real_next()       - Find next logical node in the tree.
+//   hdTree::real_next()       - Find previous logical node in the tree.
+//   hdTree::remove()          - Remove a node from its parent.
+//   hdTree::set_attr()        - Set an attribute value.
+//   compare_elements()        - Compare two element strings...
+//   compare_variables()       - Compare two element variables.
 //
 
 //
@@ -94,6 +116,7 @@ const char	*hdTree::elements[HD_ELEMENT_MAX] =
 		  "map",
 		  "menu",
 		  "meta",
+		  "object",
 		  "ol",
 		  "option",
 		  "p",
@@ -184,6 +207,7 @@ unsigned char	hdTree::elgroup[HD_ELEMENT_MAX] =
 		  HD_ELGROUP_BLOCK,	// MAP
 		  HD_ELGROUP_INLINE,	// MENU
 		  HD_ELGROUP_NONE,	// META
+		  HD_ELGROUP_NONE,	// OBJECT
 		  HD_ELGROUP_LIST,	// OL
 		  HD_ELGROUP_GROUP,	// OPTION
 		  HD_ELGROUP_BLOCK,	// P
@@ -218,101 +242,9 @@ unsigned char	hdTree::elgroup[HD_ELEMENT_MAX] =
 		};
 
 
-hdElement	hdTree::elparent[HD_ELEMENT_MAX] =
-		{			// "Parent" element for inheritance
-		  HD_ELEMENT_NONE,	// "NONE"
-		  HD_ELEMENT_NONE,	// "FILE"
-		  HD_ELEMENT_NONE,	// "ERROR"
-		  HD_ELEMENT_NONE,	// "UNKNOWN"
-		  HD_ELEMENT_NONE,	// !--
-		  HD_ELEMENT_NONE,	// !DOCTYPE
-		  HD_ELEMENT_NONE,	// A
-		  HD_ELEMENT_NONE,	// ACRONYM
-		  HD_ELEMENT_NONE,	// ADDRESS
-		  HD_ELEMENT_NONE,	// AREA
-		  HD_ELEMENT_NONE,	// B
-		  HD_ELEMENT_NONE,	// BASE
-		  HD_ELEMENT_NONE,	// BASEFONT
-		  HD_ELEMENT_NONE,	// BIG
-		  HD_ELEMENT_NONE,	// BLOCKQUOTE
-		  HD_ELEMENT_NONE,	// BODY
-		  HD_ELEMENT_NONE,	// BR
-		  HD_ELEMENT_NONE,	// CAPTION
-		  HD_ELEMENT_NONE,	// CENTER
-		  HD_ELEMENT_NONE,	// CITE
-		  HD_ELEMENT_NONE,	// CODE
-		  HD_ELEMENT_NONE,	// COL
-		  HD_ELEMENT_NONE,	// COLGROUP
-		  HD_ELEMENT_NONE,	// DD
-		  HD_ELEMENT_NONE,	// DEL
-		  HD_ELEMENT_NONE,	// DFN
-		  HD_ELEMENT_NONE,	// DIR
-		  HD_ELEMENT_NONE,	// DIV
-		  HD_ELEMENT_NONE,	// DL
-		  HD_ELEMENT_NONE,	// DT
-		  HD_ELEMENT_NONE,	// EM
-		  HD_ELEMENT_NONE,	// EMBED
-		  HD_ELEMENT_NONE,	// FONT
-		  HD_ELEMENT_NONE,	// FORM
-		  HD_ELEMENT_NONE,	// H1
-		  HD_ELEMENT_NONE,	// H2
-		  HD_ELEMENT_NONE,	// H3
-		  HD_ELEMENT_NONE,	// H4
-		  HD_ELEMENT_NONE,	// H5
-		  HD_ELEMENT_NONE,	// H6
-		  HD_ELEMENT_NONE,	// HEAD
-		  HD_ELEMENT_NONE,	// HR
-		  HD_ELEMENT_NONE,	// HTML
-		  HD_ELEMENT_NONE,	// I
-		  HD_ELEMENT_NONE,	// IMG
-		  HD_ELEMENT_NONE,	// INPUT
-		  HD_ELEMENT_NONE,	// INS
-		  HD_ELEMENT_NONE,	// ISINDEX
-		  HD_ELEMENT_NONE,	// KBD
-		  HD_ELEMENT_NONE,	// LI
-		  HD_ELEMENT_NONE,	// LINK
-		  HD_ELEMENT_NONE,	// MAP
-		  HD_ELEMENT_NONE,	// MENU
-		  HD_ELEMENT_NONE,	// META
-		  HD_ELEMENT_NONE,	// OL
-		  HD_ELEMENT_NONE,	// OPTION
-		  HD_ELEMENT_NONE,	// P
-		  HD_ELEMENT_NONE,	// PRE
-		  HD_ELEMENT_NONE,	// S
-		  HD_ELEMENT_NONE,	// SAMP
-		  HD_ELEMENT_NONE,	// SELECT
-		  HD_ELEMENT_NONE,	// SMALL
-		  HD_ELEMENT_NONE,	// SPACER
-		  HD_ELEMENT_NONE,	// SPAN
-		  HD_ELEMENT_NONE,	// STRIKE
-		  HD_ELEMENT_NONE,	// STRONG
-		  HD_ELEMENT_NONE,	// STYLE
-		  HD_ELEMENT_NONE,	// SUB
-		  HD_ELEMENT_NONE,	// SUP
-		  HD_ELEMENT_NONE,	// TABLE
-		  HD_ELEMENT_NONE,	// TBODY
-		  HD_ELEMENT_NONE,	// TD
-		  HD_ELEMENT_NONE,	// TEXTAREA
-		  HD_ELEMENT_NONE,	// TFOOT
-		  HD_ELEMENT_NONE,	// TH
-		  HD_ELEMENT_NONE,	// THEAD
-		  HD_ELEMENT_NONE,	// TITLE
-		  HD_ELEMENT_NONE,	// TR
-		  HD_ELEMENT_NONE,	// TT
-		  HD_ELEMENT_NONE,	// U
-		  HD_ELEMENT_NONE,	// UL
-		  HD_ELEMENT_NONE,	// VAR
-		  HD_ELEMENT_NONE	// WBR
-		};
-
-
 //
 // Local functions.
 //
-
-extern "C" {
-typedef int	(*compare_func_t)(const void *, const void *);
-}
 
 static int	compare_elements(char **m0, char **m1);
 static int	compare_variables(hdTreeAttr *v0, hdTreeAttr *v1);
@@ -638,7 +570,7 @@ hdTree::get_attr(const char *name)	// I - Attribute name
   // search key and see if the attribute exists...
   key.name = (char *)name;
   match    = (hdTreeAttr *)bsearch(&key, attrs, nattrs, sizeof(hdTreeAttr),
-                                   (compare_func_t)compare_variables);
+                                   (hdCompareFunc)compare_variables);
 
   // Return the match, if any.  If the attribute is defined but has no
   // value associated with it, then return an empty string.
@@ -671,7 +603,7 @@ hdTree::get_element(const char *name)	// I - Element name
   temp = (char **)bsearch(&name, elements,
                           sizeof(elements) / sizeof(elements[0]),
                           sizeof(elements[0]),
-                          (compare_func_t)compare_elements);
+                          (hdCompareFunc)compare_elements);
 
   if (temp)
     return ((hdElement)(temp - (char **)elements));
@@ -687,6 +619,39 @@ hdTree::get_element(const char *name)	// I - Element name
 const char *				// O - Meta data or NULL
 hdTree::get_meta(const char *name)	// I - Name of meta data
 {
+#if 0
+  char	*tname,			/* Name value from tree node */
+	*tcontent;		/* Content value from tree node */
+
+
+  while (tree != NULL)
+  {
+   /*
+    * Check this tree node...
+    */
+
+    if (tree->element == HD_ELEMENT_META &&
+        (tname = htmlGetVariable(tree, "NAME")) != NULL &&
+        (tcontent = htmlGetVariable(tree, "CONTENT")) != NULL)
+      if (strcasecmp(name, (char *)tname) == 0)
+        return (tcontent);
+
+   /*
+    * Check child entries...
+    */
+
+    if (tree->child != NULL)
+      if ((tcontent = htmlGetMeta(tree->child, name)) != NULL)
+        return (tcontent);
+
+   /*
+    * Next tree node...
+    */
+
+    tree = tree->next;
+  }
+#endif // 0
+
   return (NULL);
 }
 
@@ -698,7 +663,65 @@ hdTree::get_meta(const char *name)	// I - Name of meta data
 char *					// O - Text under the node.
 hdTree::get_text()
 {
-  return (NULL);
+  char		*s;			// String
+  int		slen,			// Length of string
+		tlen;			// Length of node string
+  hdTree	*t;			// Current node
+
+
+  // See if we already have the text for this node...
+  if (data)
+    return (data);
+  else if (elgroup[element] == HD_ELGROUP_NONE)
+    return (NULL);
+
+  slen = 0;
+  s    = NULL;
+
+  for (t = child; t; t = t->next)
+    if (t->get_text())
+    {
+      // Add the text to this string...
+      tlen = strlen(t->data);
+      if (t->whitespace && slen)
+        tlen ++;
+
+      if (slen)
+        s = (char *)realloc(data, 1 + slen + tlen);
+      else
+        s = (char *)malloc(1 + tlen);
+
+      if (!s)
+        break;
+
+      strcpy(s + slen, t->data);
+      slen += tlen;
+
+      data = s;
+    }
+
+  return (data);
+}
+
+
+//
+// 'hdTree::get_title()' - Get the first title node...
+//
+
+char *					// O - Text for the title...
+hdTree::get_title()
+{
+  char	*title;				// Title text...
+
+
+  if (element == HD_ELEMENT_TITLE)
+    return (get_text());
+  else if (child && (title = child->get_title()) != NULL)
+    return (title);
+  else if (next)
+    return (next->get_title());
+  else
+    return (NULL);
 }
 
 
@@ -1659,7 +1682,7 @@ hdTree::set_attr(const char *name,	// I - Name of attribute
     // Search for it...
     key.name = (char *)name;
     match    = (hdTreeAttr *)bsearch(&key, attrs, nattrs, sizeof(hdTreeAttr),
-        	                     (compare_func_t)compare_variables);
+        	                     (hdCompareFunc)compare_variables);
   }
 
   if (match == NULL)
@@ -1697,7 +1720,7 @@ hdTree::set_attr(const char *name,	// I - Name of attribute
     // Sort the attribute array as needed...
     if (nattrs > 1)
       qsort(attrs, nattrs, sizeof(hdTreeAttr),
-            (compare_func_t)compare_variables);
+            (hdCompareFunc)compare_variables);
   }
   else if (match->value != value)
   {
@@ -1737,101 +1760,6 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 }
 
 
-
-
-
-#if 0
-/*
- * 'get_text()' - Get all text from the given tree.
- */
-
-static char *		/* O - Pointer to last char set */
-get_text(hdTree *tree,	/* I - Tree to pick */
-         char  *buf)	/* I - Buffer to store text in */
-{
-  while (tree != NULL)
-  {
-    if (tree->child != NULL)
-      buf = get_text(tree->child, buf);
-    else if (tree->element == HD_ELEMENT_NONE && tree->data != NULL)
-    {
-      strcpy((char *)buf, (char *)tree->data);
-      buf += strlen((char *)buf);
-    }
-    else if (tree->element == HD_ELEMENT_BR)
-    {
-      strcat((char *)buf, " ");
-      buf ++;
-    }
-
-    tree = tree->next;
-  }
-
-  return (buf);
-}
-
-
-/*
- * 'htmlGetText()' - Get all text from the given tree.
- */
-
-char *				/* O - String containing text nodes */
-htmlGetText(hdTree *tree)	/* I - Tree to pick */
-{
-  char	buf[10240];		/* String buffer */
-
-
-  buf[0] = '\0';
-  get_text(tree, buf);
-
-  return ((char *)strdup((char *)buf));
-}
-
-
-/*
- * 'htmlGetMeta()' - Get document "meta" data...
- */
-
-char *				/* O - Content string */
-htmlGetMeta(hdTree *tree,	/* I - Document tree */
-            char  *name)	/* I - Metadata name */
-{
-  char	*tname,			/* Name value from tree node */
-	*tcontent;		/* Content value from tree node */
-
-
-  while (tree != NULL)
-  {
-   /*
-    * Check this tree node...
-    */
-
-    if (tree->element == HD_ELEMENT_META &&
-        (tname = htmlGetVariable(tree, "NAME")) != NULL &&
-        (tcontent = htmlGetVariable(tree, "CONTENT")) != NULL)
-      if (strcasecmp(name, (char *)tname) == 0)
-        return (tcontent);
-
-   /*
-    * Check child entries...
-    */
-
-    if (tree->child != NULL)
-      if ((tcontent = htmlGetMeta(tree->child, name)) != NULL)
-        return (tcontent);
-
-   /*
-    * Next tree node...
-    */
-
-    tree = tree->next;
-  }
-
-  return (NULL);
-}
-#endif // 0
-
-
 //
-// End of "$Id: tree.cxx,v 1.7 2002/02/23 04:03:31 mike Exp $".
+// End of "$Id: tree.cxx,v 1.8 2002/03/10 03:17:28 mike Exp $".
 //
