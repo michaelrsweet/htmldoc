@@ -17,6 +17,8 @@ http-support.o: hdstring.h ../config.h http.h md5.h
 image.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h
 image.o: types.h iso8859.h image.h debug.h gui.h
 iso8859.o: hdstring.h ../config.h iso8859.h types.h
+link.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h types.h
+link.o: iso8859.h image.h debug.h gui.h
 margin.o: margin.h
 md5.o: md5.h hdstring.h ../config.h
 progress.o: htmldoc.h book.h html.h style.h file.h hdstring.h ../config.h

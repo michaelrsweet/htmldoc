@@ -1,5 +1,5 @@
 //
-// "$Id: book.h,v 1.3 2004/04/03 03:18:32 mike Exp $"
+// "$Id: book.h,v 1.4 2004/04/05 01:39:34 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -31,6 +31,7 @@
 //
 
 #  include "html.h"
+#  include "image.h"
 
 
 //
@@ -201,6 +202,10 @@ struct hdBook
 		alloc_headings;		// Allocated headings
   uchar		**headings;		// Heading strings
 
+  int		num_images,		// Number of images in cache
+		alloc_images;		// Allocated images
+  image_t	**images;		// Images in cache
+
   int		num_links,		// Number of links
 		alloc_links;		// Allocated links
   hdLink	*links;			// Links
@@ -346,10 +351,17 @@ struct hdBook
   static int	compare_links(hdLink *n1, hdLink *n2);
   hdLink	*find_link(uchar *name, uchar *filename = 0);
 
+  static int	image_compare(image_t **img1, image_t **img2);
+  void		image_copy(const char *filename, const char *destpath);
+  image_t	*image_find(const char *filename, int load_data = 0);
+  void		image_flush_cache(void);
+  int		image_getlist(image_t ***ptrs);
+  image_t	*image_load(const char *filename, int gray, int load_data = 0);
+  void		image_unload(image_t *img);
 };
 
 #endif // !HTMLDOC_BOOK_H
 
 //
-// End of "$Id: book.h,v 1.3 2004/04/03 03:18:32 mike Exp $".
+// End of "$Id: book.h,v 1.4 2004/04/05 01:39:34 mike Exp $".
 //

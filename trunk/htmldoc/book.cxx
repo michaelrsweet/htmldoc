@@ -1,5 +1,5 @@
 //
-// "$Id: book.cxx,v 1.3 2004/04/03 03:18:32 mike Exp $"
+// "$Id: book.cxx,v 1.4 2004/04/05 01:39:34 mike Exp $"
 //
 //   Book routines for HTMLDOC, a HTML document processing program.
 //
@@ -104,6 +104,9 @@ hdBook::hdBook()
   num_headings      = 0;
   alloc_headings    = 0;
   headings          = (uchar **)0;
+  num_images        = 0;
+  alloc_images      = 0;
+  images            = (image_t **)0;
   num_links         = 0;
   alloc_links       = 0;
   links             = (hdLink *)0;
@@ -212,6 +215,8 @@ hdBook::~hdBook()
 
   if (alloc_links)
     free(links);
+
+  image_flush_cache();
 
   // Cleanup the image and file caches...
 //  hdImage::flush();
@@ -989,5 +994,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: book.cxx,v 1.3 2004/04/03 03:18:32 mike Exp $".
+// End of "$Id: book.cxx,v 1.4 2004/04/05 01:39:34 mike Exp $".
 //
