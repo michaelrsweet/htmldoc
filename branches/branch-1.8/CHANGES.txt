@@ -32,6 +32,8 @@ CHANGES IN HTMLDOC v1.8.9
 	- Long table-of-contents entries are now wrapped
 	  (original patch supplied by Richard Pennington)
 	- New color icon under UNIX when Xpm library available.
+	- HTML output now generates HTML elements in lowercase
+	  to follow the W3C guidelines.
 
     BUG FIXES
 
