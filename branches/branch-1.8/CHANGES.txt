@@ -16,6 +16,8 @@ CHANGES IN HTMLDOC v1.8.14
 	  pages, images, headings, and links.  This has the
 	  happy side-effect of reducing the initial memory
 	  footprint significantly.
+	- Now call setlocale() when it is available to localize
+	  the date and time in the output.
 
     BUG FIXES
 
