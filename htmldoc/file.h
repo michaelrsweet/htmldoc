@@ -1,5 +1,5 @@
 //
-// "$Id: file.h,v 1.12 2001/12/31 16:39:54 mike Exp $"
+// "$Id: file.h,v 1.13 2002/01/01 18:27:30 mike Exp $"
 //
 //   File class definitions for HTMLDOC, a HTML document processing program.
 //
@@ -110,7 +110,7 @@ class hdFile
   static char	*extension(const char *uri, char *t, int tlen);
   static char	*find(const char *path, char *uri, int urilen, char *name, int namelen);
   static char	*localize(char *name, int namelen, const char *newcwd);
-  static char	*method(const char *uri, char *meth, int methlen);
+  static const char *method(const char *uri);
   static void	no_local() { no_local_ = 1; }
   static hdFile	*open(const char *uri, hdMode m);
   static void	proxy(const char *url);
@@ -213,5 +213,5 @@ class hdRC4Filter : public hdFile
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h,v 1.12 2001/12/31 16:39:54 mike Exp $".
+// End of "$Id: file.h,v 1.13 2002/01/01 18:27:30 mike Exp $".
 //

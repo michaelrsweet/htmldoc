@@ -1,5 +1,5 @@
 //
-// "$Id: file.cxx,v 1.2 2001/12/31 16:39:54 mike Exp $"
+// "$Id: file.cxx,v 1.3 2002/01/01 18:27:29 mike Exp $"
 //
 //   Filename routines for HTMLDOC, a HTML document processing program.
 //
@@ -420,9 +420,9 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
     else
     {
       if (strncmp(uri, "./", 2) == 0)
-        snprintf(name, namelen, "%s/%s", path, s + 2);
+        snprintf(name, namelen, "%s/%s", path, uri + 2);
       else
-        snprintf(name, namelen, "%s/%s", path, s);
+        snprintf(name, namelen, "%s/%s", path, uri);
 
       hdHTTP::separate(name, method, sizeof(method), username,
                        sizeof(username), hostname, sizeof(hostname), &port,
@@ -512,7 +512,7 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
       return (NULL);
     }
 
-    if ((fp = hdFile::temp(name, namelen)) == NULL)
+    if ((fp = hdFile::temp(uri, name, namelen)) == NULL)
     {
 //      progress_hide();
 //      progress_error(HD_ERROR_WRITE_ERROR,
@@ -536,10 +536,7 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
 
 //    progress_hide();
 
-    fclose(fp);
-
-    temp_cache_[temp_files_ - 1].name = strdup(name);
-    temp_cache_[temp_files_ - 1].url  = strdup(uri);
+    delete fp;
 
     delete http;
 
@@ -554,18 +551,18 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
 // 'hdFile::localize()' - Localize a filename for the new working directory.
 //
 
-char *					// O - New filename
-hdFile::localize(const char *filename,	// I - Filename
-                 const char *newcwd)	// I - New directory
+char *					// O  - New filename
+hdFile::localize(char       *name,	// IO - Name of file
+                 int        namelen,	// I  - Size of name buffer
+                 const char *newcwd)	// I  - New directory
 {
   const char	*newslash;		// Directory separator
   char		*slash;			// Directory separator
   char		cwd[1024];		// Current directory
   char		temp[1024];		// Temporary pathname
-  static char	newfilename[1024];	// New filename
 
 
-  if (filename[0] == '\0')
+  if (!name || !name[0])
     return ("");
 
   getcwd(cwd, sizeof(cwd));
@@ -573,14 +570,14 @@ hdFile::localize(const char *filename,	// I - Filename
     newcwd = cwd;
 
 #if defined(WIN32) || defined(__EMX__)
-  if (filename[0] != '/' &&
-      filename[0] != '\\' &&
-      !(isalpha(filename[0]) && filename[1] == ':'))
+  if (name[0] != '/' &&
+      name[0] != '\\' &&
+      !(isalpha(name[0]) && name[1] == ':'))
 #else
-  if (filename[0] != '/')
+  if (name[0] != '/')
 #endif // WIN32 || __EMX__
   {
-    for (newslash = filename; strncmp(newslash, "../", 3) == 0; newslash += 3)
+    for (newslash = name; strncmp(newslash, "../", 3) == 0; newslash += 3)
 #if defined(WIN32) || defined(__EMX__)
     {
       if ((slash = strrchr(cwd, '/')) == NULL)
@@ -593,10 +590,13 @@ hdFile::localize(const char *filename,	// I - Filename
         *slash = '\0';
 #endif // WIN32 || __EMX__
 
-    sprintf(temp, "%s/%s", cwd, newslash);
+    snprintf(temp, sizeof(temp), "%s/%s", cwd, newslash);
   }
   else
-    strcpy(temp, filename);
+  {
+    strncpy(temp, name, sizeof(temp) - 1);
+    temp[sizeof(temp) - 1] = '\0';
+  }
 
   for (slash = temp, newslash = newcwd;
        *slash != '\0' && *newslash != '\0';
@@ -615,25 +615,27 @@ hdFile::localize(const char *filename,	// I - Filename
 
 #if defined(WIN32) || defined(__EMX__)
   if (isalpha(slash[0]) && slash[1] == ':')
-    return ((char *)filename); // Different drive letter...
+    return (name); // Different drive letter...
 #endif // WIN32 || __EMX__
 
   if (*newslash != '\0')
     while (*newslash != '/' && *newslash != '\\' && newslash > newcwd)
       newslash --;
 
-  newfilename[0] = '\0';
+  name[0]           = '\0';
+  name[namelen - 1] = '\0';
 
   while (*newslash != '\0')
   {
     if (*newslash == '/' || *newslash == '\\')
-      strcat(newfilename, "../");
+      strncat(name, "../", sizeof(name) - 1);
+
     newslash ++;
   }
 
-  strcat(newfilename, slash);
+  strncat(name, slash, sizeof(name) - 1);
 
-  return (newfilename);
+  return (name);
 }
 
 
@@ -643,7 +645,7 @@ hdFile::localize(const char *filename,	// I - Filename
 // Returns NULL if the URL is a local file.
 //
 
-char *				// O - Method string ("http", "ftp", etc.)
+const char *			// O - Method string ("http", "ftp", etc.)
 hdFile::method(const char *s)	// I - Filename or URL
 {
   if (strncmp(s, "http:", 5) == 0)
@@ -666,7 +668,7 @@ hdFile::method(const char *s)	// I - Filename or URL
 void
 hdFile::proxy(const char *url)	// I - URL of proxy_ server
 {
-   char	method[HD_MAX_URI],	// Method name (must be HTTP)
+  char	method[HD_MAX_URI],	// Method name (must be http)
 	username[HD_MAX_URI],	// Username:password information
 	hostname[HD_MAX_URI],	// Hostname
 	resource[HD_MAX_URI];	// Resource name
@@ -686,7 +688,8 @@ hdFile::proxy(const char *url)	// I - URL of proxy_ server
 
     if (strcmp(method, "http") == 0)
     {
-      strcpy(proxy_host_, hostname);
+      strncpy(proxy_host_, hostname, sizeof(proxy_host_) - 1);
+      proxy_host_[sizeof(proxy_host_) - 1] = '\0';
       proxy_port_ = port;
     }
   }
@@ -697,7 +700,7 @@ hdFile::proxy(const char *url)	// I - URL of proxy_ server
 // 'hdFile::target()' - Return the target of a link.
 //
 
-char *				// O - Target name
+const char *			// O - Target name
 hdFile::target(const char *s)	// I - Filename or URL
 {
   char		*basename;	// Pointer to directory separator
@@ -775,7 +778,7 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
 
   snprintf(name, len, TEMPLATE, tmpdir, getpid(), temp_files_);
 
-  if ((fd = open(name, OPENMODE, OPENPERM)) >= 0)
+  if ((fd = ::open(name, OPENMODE, OPENPERM)) >= 0)
   {
     temp->url = uri ? strdup(uri) : NULL;
 
@@ -790,5 +793,5 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
 
 
 //
-// End of "$Id: file.cxx,v 1.2 2001/12/31 16:39:54 mike Exp $".
+// End of "$Id: file.cxx,v 1.3 2002/01/01 18:27:29 mike Exp $".
 //
