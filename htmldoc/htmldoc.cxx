@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.40 2002/05/06 13:22:02 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.41 2002/05/07 20:40:56 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -624,6 +624,10 @@ main(int  argc,		/* I - Number of command-line arguments */
         usage();
 
       NumberUp = atoi(argv[i]);
+
+      if (NumberUp != 1 && NumberUp != 2 && NumberUp != 4 &&
+          NumberUp != 6 && NumberUp != 9 && NumberUp != 16)
+	usage();
     }
     else if (compare_strings(argv[i], "--outdir", 6) == 0 ||
              strcmp(argv[i], "-d") == 0)
@@ -2218,5 +2222,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.40 2002/05/06 13:22:02 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.41 2002/05/07 20:40:56 mike Exp $".
  */
