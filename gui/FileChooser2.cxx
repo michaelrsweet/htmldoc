@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.22 2000/01/04 13:45:51 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.23 2000/04/11 00:24:08 mike Exp $"
 //
 //   More FileChooser routines.
 //
@@ -45,17 +45,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
 
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
 #  include <direct.h>
 #  include <io.h>
 #else
 #  include <unistd.h>
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
 
 //
@@ -355,11 +356,11 @@ FileChooser::newdir()
   }
 
   // Create the directory; ignore EEXIST errors...
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
   if (mkdir(pathname))
 #else
   if (mkdir(pathname, 0777))
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
     if (errno != EEXIST)
     {
       fl_alert("Unable to create directory!");
@@ -631,5 +632,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.22 2000/01/04 13:45:51 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.23 2000/04/11 00:24:08 mike Exp $".
 //
