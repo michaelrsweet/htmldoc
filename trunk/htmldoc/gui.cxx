@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.17 1999/11/14 14:58:33 mike Exp $"
+// "$Id: gui.cxx,v 1.18 1999/11/15 01:53:07 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -790,7 +790,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Load the given book or create a new one...
   //
 
-  book_changed = 0;
+  book_changed     = 0;
+  book_filename[0] = '\0';
 
   if (filename == NULL)
     newBookCB(NULL, this);
@@ -882,8 +883,8 @@ GUI::title(const char *filename,// Name of file being edited
   strcat(title, "HTMLDOC " SVERSION);
 
   window->label(title);
-  if (window->visible())
-    Fl::check();
+//  if (window->visible())
+//    Fl::check();
 }
 
 
@@ -1009,12 +1010,13 @@ GUI::newBook(void)
   jpegGroup->deactivate();
 
   pdfTab->deactivate();
-  if (PDFVersion == 1.1)
+
+  if (PDFVersion < 1.2)
   {
     pdf11->setonly();
     pdfCB(pdf11, this);
   }
-  else if (PDFVersion == 1.2)
+  else if (PDFVersion < 1.3)
   {
     pdf12->setonly();
     pdfCB(pdf12, this);
@@ -1162,6 +1164,9 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       *tempptr++ = *lineptr++;
     *tempptr = '\0';
 
+    while (*lineptr == ' ')
+      lineptr ++;
+
     if (strcmp(temp, "--duplex") == 0)
     {
       pageDuplex->set();
@@ -1172,14 +1177,28 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       landscape->set();
       continue;
     }
+    else if (strcmp(temp, "--portrait") == 0)
+    {
+      landscape->clear();
+      continue;
+    }
     else if (strncmp(temp, "--jpeg", 6) == 0)
     {
-      jpegCompress->set();
-      jpegGroup->activate();
       if (strlen(temp) > 7)
         jpegQuality->value(atof(temp + 7));
       else
         jpegQuality->value(90.0);
+
+      if (jpegQuality->value() > 0.0)
+      {
+        jpegCompress->set();
+        jpegGroup->activate();
+      }
+      else
+      {
+        jpegCompress->clear();
+        jpegGroup->deactivate();
+      }
       continue;
     }
     else if (strcmp(temp, "--grayscale") == 0)
@@ -1187,9 +1206,19 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       grayscale->set();
       continue;
     }
+    else if (strcmp(temp, "--color") == 0)
+    {
+      grayscale->clear();
+      continue;
+    }
     else if (strcmp(temp, "--pscommands") == 0)
     {
       psCommands->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-pscommands") == 0)
+    {
+      psCommands->clear();
       continue;
     }
     else if (strncmp(temp, "--compression", 13) == 0)
@@ -1215,7 +1244,8 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       tocLevels->value(0);
       continue;
     }
-    else if (strcmp(temp, "--title") == 0)
+    else if (strcmp(temp, "--title") == 0 &&
+             (*lineptr == '-' || !*lineptr))
     {
       titlePage->set();
       continue;
@@ -1242,9 +1272,6 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       inputFiles->add(temp, icon);
       continue;
     }
-
-    while (*lineptr == ' ')
-      lineptr ++;
 
     if (*lineptr == '\"')
     {
@@ -1316,10 +1343,14 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 	pdfCB(pdf13, this);
       }
     }
-    else if (strcmp(temp, "--logo") == 0)
+    else if (strcmp(temp, "--logo") == 0 ||
+             strcmp(temp, "--logoimage") == 0)
       logoImage->value(temp2);
     else if (strcmp(temp, "--titleimage") == 0)
+    {
+      titlePage->set();
       titleImage->value(temp2);
+    }
     else if (strcmp(temp, "-f") == 0)
     {
       outputPath->value(temp2);
@@ -1548,15 +1579,17 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   }
 
   if (titlePage->value())
+  {
     fputs(" --title", fp);
+
+    if (titleImage->size() > 0)
+      fprintf(fp, " --titleimage %s", titleImage->value());
+  }
   else
     fputs(" --no-title", fp);
 
   if (logoImage->size() > 0)
-    fprintf(fp, " --logo %s", logoImage->value());
-
-  if (titleImage->size() > 0)
-    fprintf(fp, " --titleimage %s", titleImage->value());
+    fprintf(fp, " --logoimage %s", logoImage->value());
 
   if (textColor->size() > 0)
     fprintf(fp, " --textcolor %s", textColor->value());
@@ -1609,12 +1642,18 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
     if (landscape->value())
       fputs(" --landscape", fp);
+    else
+      fputs(" --portrait", fp);
 
     if (grayscale->value())
       fputs(" --grayscale", fp);
+    else
+      fputs(" --color", fp);
 
     if (psCommands->value())
       fputs(" --pscommands", fp);
+    else
+      fputs(" --no-pscommands", fp);
 
     if (compression->value() == 0.0f)
       fputs(" --no-compression", fp);
@@ -1623,6 +1662,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
     if (jpegCompress->value())
       fprintf(fp, " --jpeg=%.0f", jpegQuality->value());
+    else
+      fputs(" --jpeg=0", fp);
   }
 
   fprintf(fp, " --fontsize %.1f", fontBaseSize->value());
@@ -2975,5 +3016,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.17 1999/11/14 14:58:33 mike Exp $".
+// End of "$Id: gui.cxx,v 1.18 1999/11/15 01:53:07 mike Exp $".
 //

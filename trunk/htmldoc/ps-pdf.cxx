@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.16 1999/11/14 13:15:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.17 1999/11/15 01:53:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -951,6 +951,14 @@ ps_write_page(FILE  *out,		/* I - Output file */
   fputs("GS\n", out);
 
   write_background(out);
+
+  if (Landscape && !PSCommands)
+  {
+    if (PageDuplex && (page & 1))
+      fprintf(out, "-90 rotate 0 %d T\n", PageLength);
+    else
+      fprintf(out, "90 rotate %d 0 T\n", PageWidth);
+  }
 
   if (PageDuplex && (page & 1))
     fprintf(out, "%d %d T\n", PageRight, PageBottom);
@@ -2202,6 +2210,14 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
       add_link(name, *page, (int)(*y + 3 * t->height));
     }
+    else if (t->markup == MARKUP_FILE)
+    {
+     /*
+      * Add a file link...
+      */
+
+      add_link(t->data, *page, (int)(*y + 3 * t->height));
+    }
 
     if ((t->markup == MARKUP_H1 && OutputBook) ||
         (t->markup == MARKUP_FILE && !OutputBook))
@@ -2966,9 +2982,13 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	* Add a page link...
 	*/
 
-	if (file_method((char *)link) == NULL &&
-	    file_target((char *)link) != NULL)
-          link = (uchar *)file_target((char *)link) - 1;
+	if (file_method((char *)link) == NULL)
+	{
+	  if (file_target((char *)link) != NULL)
+	    link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	  else
+	    link = (uchar *)file_basename((char *)link);
+	}
 
 	r = new_render(*page, RENDER_LINK, *x, *y, temp->width,
 	               temp->height, link);
@@ -3191,9 +3211,13 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
       * Add a page link...
       */
 
-      if (file_method((char *)link) == NULL &&
-          file_target((char *)link) != NULL)
-        link = (uchar *)file_target((char *)link) - 1;
+      if (file_method((char *)link) == NULL)
+      {
+	if (file_target((char *)link) != NULL)
+	  link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	else
+	  link = (uchar *)file_basename((char *)link);
+      }
 
       r = new_render(*page, RENDER_LINK, *x, *y, flat->width,
 	             flat->height, link);
@@ -6083,5 +6107,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.16 1999/11/14 13:15:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.17 1999/11/15 01:53:09 mike Exp $".
  */
