@@ -30,6 +30,8 @@ CHANGES IN HTMLDOC v1.8.24
 	  to match the HTML specification.
 	- Paragraph spacing is only applied to the first table
 	  after a paragraph.
+	- The tabloid media size was 10 points too short in
+	  length.
 
     BUG FIXES
 

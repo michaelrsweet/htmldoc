@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.15 2003/01/06 22:09:45 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.16 2003/08/11 18:57:36 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -454,7 +454,7 @@ set_page_size(const char *size)	/* I - Page size string */
     */
 
     PageWidth  = 792;
-    PageLength = 1214;
+    PageLength = 1224;
   }
   else if (strcasecmp(size, "a4") == 0)
   {
@@ -514,5 +514,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.15 2003/01/06 22:09:45 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.16 2003/08/11 18:57:36 mike Exp $".
  */
