@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.11 2001/02/28 20:34:54 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.12 2001/03/04 03:05:05 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -67,6 +67,7 @@
 //   GUI::saveAsBookCB()   - Save the current book to disk to a new file.
 //   GUI::generateBookCB() - Generate the current book.
 //   GUI::closeBookCB()    - Close the current book.
+//   GUI::errorCB()        - Close the error window.
 //
 
 #include "htmldoc.h"
@@ -97,6 +98,10 @@
 #    endif // HAVE_LIBXPM
 #  endif // WIN32
 
+
+//
+// Class globals...
+//
 
 const char	*GUI::help_dir = DOCUMENTATION;
 
@@ -889,15 +894,24 @@ GUI::GUI(const char *filename)		// Book file to load initially
   window->size_range(470, 390);
   window->show(1, htmldoc);
 
+  // File chooser, icons, help dialog, error window...
   fc = new FileChooser(".", "*", FileChooser::SINGLE, "Title");
   fc->iconsize(20);
-
-  help = new HelpDialog();
 
   if (!FileIcon::first())
     FileIcon::load_system_icons();
 
   icon = FileIcon::find("file.html", FileIcon::PLAIN);
+
+  help = new HelpDialog();
+
+  error_window = new Fl_Window(400, 300, "Errors");
+  error_list   = new Fl_Browser(10, 10, 380, 245);
+  error_ok     = new Fl_Button(335, 265, 55, 25, "Close");
+
+  error_ok->callback((Fl_Callback *)errorCB, this);
+  error_window->end();
+  error_window->resizable(error_list);
 
   // Use cheesy hardcoded "style" stuff until FLTK 2.0...
 #  if FL_MAJOR_VERSION < 2
@@ -979,8 +993,13 @@ GUI::GUI(const char *filename)		// Book file to load initially
 GUI::~GUI(void)
 {
   delete window;
+
   delete fc;
   delete help;
+  delete error_window;
+
+  while (FileIcon::first())
+    delete FileIcon::first();
 }
 
 
@@ -3575,6 +3594,9 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   file_proxy(gui->proxy->value());
 
+  Errors = 0;
+  gui->error_list->clear();
+
  /*
   * Load the input files...
   */
@@ -3623,8 +3645,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
         htmlDeleteTree(file);
     }
     else
-      fl_alert("Unable to open \"%s\" for reading!",
-               gui->inputFiles->text(i));
+      progress_error("Unable to open \"%s\" for reading!",
+                     gui->inputFiles->text(i));
   }
 
  /*
@@ -3632,53 +3654,55 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   */
 
   if (document == NULL)
+    progress_error("No HTML files to format, cannot generate document!");
+  else
   {
-    gui->controls->activate();
-    gui->window->cursor(FL_CURSOR_DEFAULT);
-    gui->progress(0);
-    fl_alert("No HTML files to format, cannot generate!");
-    return;
+   /*
+    * Find the first one in the list...
+    */
+
+    while (document->prev != NULL)
+      document = document->prev;
+
+   /*
+    * Build a table of contents for the documents...
+    */
+
+    if (OutputBook && TocLevels > 0)
+      toc = toc_build(document);
+    else
+      toc = NULL;
+
+   /*
+    * Generate the output file(s).
+    */
+
+    if (gui->typeHTML->value())
+      html_export(document, toc);
+    else
+      pspdf_export(document, toc);
+
+    htmlDeleteTree(document);
+    htmlDeleteTree(toc);
+
+    file_cleanup();
+    image_flush_cache();
   }
 
- /*
-  * Find the first one in the list...
-  */
+  if (Errors == 0)
+    fl_message("Document generated successfully!");
+  else if (fl_ask("%d error%s occurred while generating document.\nWould you like to see the list?",
+                  Errors, Errors == 1 ? "" : "s"))
+  {
+    gui->error_window->show();
 
-  while (document->prev != NULL)
-    document = document->prev;
-
- /*
-  * Build a table of contents for the documents...
-  */
-
-  if (OutputBook && TocLevels > 0)
-    toc = toc_build(document);
-  else
-    toc = NULL;
-
- /*
-  * Generate the output file(s).
-  */
-
-  Errors = 0;
-
-  if (gui->typeHTML->value())
-    html_export(document, toc);
-  else
-    pspdf_export(document, toc);
-
-  htmlDeleteTree(document);
-  htmlDeleteTree(toc);
-
-  file_cleanup();
-  image_flush_cache();
+    while (gui->error_window->visible())
+      Fl::wait();
+  }
 
   gui->controls->activate();
   gui->window->cursor(FL_CURSOR_DEFAULT);
   gui->progress(0);
-
-  if (Errors == 0)
-    fl_message("Document Generated!");
 }
 
 
@@ -3697,8 +3721,22 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 }
 
 
+//
+// 'GUI::errorCB()' - Close the error window.
+//
+
+void
+GUI::errorCB(Fl_Widget *w,		// I - Widget
+             GUI       *gui)		// I - GUI
+{
+  REF(w);
+
+  gui->error_window->hide();
+}
+
+
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.11 2001/02/28 20:34:54 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.12 2001/03/04 03:05:05 mike Exp $".
 //

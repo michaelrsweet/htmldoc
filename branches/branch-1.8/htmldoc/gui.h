@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.4 2001/02/23 13:47:14 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.5 2001/03/04 03:05:06 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -185,12 +185,15 @@ class GUI
 
   Progress	*progressBar;
 
+  char		book_filename[1024];
+  int		book_changed;
+
   FileChooser	*fc;
   FileIcon	*icon;
   HelpDialog	*help;
-
-  char		book_filename[1024];
-  int		book_changed;
+  Fl_Window	*error_window;
+  Fl_Browser	*error_list;
+  Fl_Button	*error_ok;
 
   void		title(const char *filename = NULL, int changed = 0);
 
@@ -239,6 +242,8 @@ class GUI
   static void	generateBookCB(Fl_Widget *w, GUI *gui);
   static void	closeBookCB(Fl_Widget *w, GUI *gui);
 
+  static void	errorCB(Fl_Widget *w, GUI *gui);
+
   public:
 
   static const char	*help_dir;
@@ -246,6 +251,7 @@ class GUI
   GUI(const char *filename = NULL);
   ~GUI(void);
 
+  void	add_error(const char *s) { error_list->add(s); }
   int	checkSave();
   void	hide() { window->hide(); help->hide(); fc->hide(); };
   int	loadBook(const char *bookfile);
@@ -259,5 +265,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.4 2001/02/23 13:47:14 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.5 2001/03/04 03:05:06 mike Exp $".
  */
