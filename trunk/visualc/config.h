@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.5 1999/11/10 21:30:06 mike Exp $"
+ * "$Id: config.h,v 1.6 1999/11/11 01:55:05 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -26,8 +26,8 @@
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"../doc"
-#define HTML_DATA	"../data"
+#define DOCUMENTATION	"C:/mike/htmldoc1/doc"
+#define HTML_DATA	"C:/mike/htmldoc1"
 
 
 /*
@@ -66,6 +66,6 @@
 #define MAX_ROWS	1000
 
 /*
- * End of "$Id: config.h,v 1.5 1999/11/10 21:30:06 mike Exp $".
+ * End of "$Id: config.h,v 1.6 1999/11/11 01:55:05 mike Exp $".
  */
 
