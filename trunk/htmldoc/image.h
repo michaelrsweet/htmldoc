@@ -1,5 +1,5 @@
 //
-// "$Id: image.h,v 1.11 2001/12/17 01:46:18 mike Exp $"
+// "$Id: image.h,v 1.12 2001/12/17 03:03:56 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
@@ -161,19 +161,16 @@ class hdEPSImage : public hdImage
 
 class hdGIFImage : public hdImage
 {
-  int		real_load(int img, int gs);
-
-  private:
-
   typedef uchar	cmap_t[256][3];
 
   int	eof;		// Did we hit EOF?
 
-  int	read_cmap(hdFile *fp, int ncolors, cmap_t cmap, int *gray);
   int	get_block(hdFile *fp, uchar *buffer);
   int	get_code(hdFile *fp, int code_size, int first_time);
+  int	read_cmap(hdFile *fp, int ncolors, cmap_t cmap, int *gray);
   int	read_image(hdFile *fp, cmap_t cmap, int interlace, int transparent);
   int	read_lzw(hdFile *fp, int first_time, int input_code_size);
+  int	real_load(int img, int gs);
 
   public:
 
@@ -252,5 +249,5 @@ class hdXPMImage : public hdImage
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.11 2001/12/17 01:46:18 mike Exp $".
+// End of "$Id: image.h,v 1.12 2001/12/17 03:03:56 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: image.cxx,v 1.16 2001/12/17 00:45:54 mike Exp $"
+// "$Id: image.cxx,v 1.17 2001/12/17 03:03:56 mike Exp $"
 //
 //   Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -23,6 +23,25 @@
 //
 // Contents:
 //
+//   hdImage::hdImage()           - Create a new empty image...
+//   hdImage::~hdImage()          - Delete an image...
+//   hdImage::need_mask()         - Allocate memory for the image mask...
+//   hdImage::need_pixels()       - Allocate memory for the image pixels...
+//   hdImage::compare()           - Compare two images...
+//   hdImage::copy()              - Copy image files to the destination
+//                                  directory...
+//   hdImage::find()              - Find an image file in memory...
+//   hdImage::flush()             - Flush the image cache...
+//   hdImage::free()              - Free an image from memory.
+//   hdImage::load()              - Load an image into memory...
+//   image_load()                 - Load an image file from disk...
+//   hdImage::register_standard() - Register all of the standard image formats.
+//   hdImage::register_format()   - Register an image file format.
+//   hdImage::save()              - Save the image to the named destination.
+//   hdImage::save_as_png()       - Save a PNG image to the named destination.
+//   hdImage::set_mask()          - Clear a bit in the image mask.
+//   hdImage::set_size()          - Set the size of the image...
+//   hdImage::uri()               - Set the name of an image...
 //
 
 //
@@ -687,5 +706,5 @@ hdImage::uri(const char *p)		// I - New URI
 
 
 //
-// End of "$Id: image.cxx,v 1.16 2001/12/17 00:45:54 mike Exp $".
+// End of "$Id: image.cxx,v 1.17 2001/12/17 03:03:56 mike Exp $".
 //
