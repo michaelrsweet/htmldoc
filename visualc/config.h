@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.22 2001/12/17 15:51:44 mike Exp $"
+ * "$Id: config.h,v 1.20.2.23 2002/01/26 02:23:58 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.17"
+#define SVERSION	"1.8.18"
 
 
 /*
@@ -128,6 +128,6 @@
 
 
 /*
- * End of "$Id: config.h,v 1.20.2.22 2001/12/17 15:51:44 mike Exp $".
+ * End of "$Id: config.h,v 1.20.2.23 2002/01/26 02:23:58 mike Exp $".
  */
 
