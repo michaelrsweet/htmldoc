@@ -1,5 +1,5 @@
 //
-// "$Id: list.cxx,v 1.1 2002/04/02 04:22:37 mike Exp $"
+// "$Id: list.cxx,v 1.2 2002/04/02 22:01:56 mike Exp $"
 //
 //   List generation methods for HTMLDOC, a HTML document processing program.
 //
@@ -123,7 +123,7 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
 
         for (i = 0, sptr = s; i < 2; i ++)
 	{
-	  sptr += strlen(s);
+	  sptr += strlen(sptr);
 
 	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
 	                         formats[i], numbers[i]);
@@ -164,7 +164,7 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
 
         for (i = 0, sptr = s; i < 2; i ++)
 	{
-	  sptr += strlen(s);
+	  sptr += strlen(sptr);
 
 	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
 	                         formats[i], numbers[i]);
@@ -204,5 +204,5 @@ hdTree::build_list(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: list.cxx,v 1.1 2002/04/02 04:22:37 mike Exp $".
+// End of "$Id: list.cxx,v 1.2 2002/04/02 22:01:56 mike Exp $".
 //

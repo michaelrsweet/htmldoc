@@ -1,5 +1,5 @@
 //
-// "$Id: toc.cxx,v 1.9 2002/04/02 04:22:37 mike Exp $"
+// "$Id: toc.cxx,v 1.10 2002/04/02 22:01:57 mike Exp $"
 //
 //   Table-of-contents methods for HTMLDOC, a HTML document processing program.
 //
@@ -131,7 +131,7 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
         s[0]             = '\0';
 	s[sizeof(s) - 1] = '\0';
 
-        for (i = 0, sptr = s; i <= level; i ++, sptr += strlen(s))
+        for (i = 0, sptr = s; i <= level; i ++, sptr += strlen(sptr))
 	{
 	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
 	                         formats[i], numbers[i]);
@@ -170,7 +170,7 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 	strcpy(s, "HD_");
 	s[sizeof(s) - 1] = '\0';
 
-        for (i = 0, sptr = s + 3; i <= level; i ++, sptr += strlen(s))
+        for (i = 0, sptr = s + 3; i <= level; i ++, sptr += strlen(sptr))
 	{
 	  hdGlobal.format_number(sptr, sizeof(s) - (sptr - s),
 	                         formats[i], numbers[i]);
@@ -210,5 +210,5 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: toc.cxx,v 1.9 2002/04/02 04:22:37 mike Exp $".
+// End of "$Id: toc.cxx,v 1.10 2002/04/02 22:01:57 mike Exp $".
 //
