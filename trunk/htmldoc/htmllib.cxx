@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.9 1999/11/12 17:48:25 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.10 1999/11/12 19:34:47 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2013,14 +2013,25 @@ compute_color(tree_t *t,	/* I - Tree entry */
 			blue;	/* Blue value */
   }		colors[] =	/* Color "database" */
   {
+    { "aqua",		0,   255, 255 }, /* AKA Cyan */
     { "black",		0,   0,   0 },
-    { "red",		255, 0,   0 },
-    { "green",		0,   255, 0 },
-    { "yellow",		255, 255, 0 },
     { "blue",		0,   0,   255 },
-    { "magenta",	255, 0,   255 },
     { "cyan",		0,   255, 255 },
-    { "white",		255, 255, 255 }
+    { "fuchsia",	255, 0,   255 }, /* AKA Magenta */
+    { "gray",		128, 128, 128 },
+    { "green",		0,   128, 0 },
+    { "grey",		128, 128, 128 },
+    { "lime",		0,   255, 0 },
+    { "magenta",	255, 0,   255 },
+    { "maroon",		128, 0,   0 },
+    { "navy",		0,   0,   128 },
+    { "olive",		128, 128, 0 },
+    { "purple",		128, 0,   128 },
+    { "red",		255, 0,   0 },
+    { "silver",		192, 192, 192 },
+    { "teal",		0,   128, 128 },
+    { "white",		255, 255, 255 },
+    { "yellow",		255, 255, 0 }
   };
 
 
@@ -2173,5 +2184,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.9 1999/11/12 17:48:25 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.10 1999/11/12 19:34:47 mike Exp $".
  */
