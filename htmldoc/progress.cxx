@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.cxx,v 1.10 2004/03/31 20:56:56 mike Exp $"
+ * "$Id: progress.cxx,v 1.11 2004/04/05 01:39:34 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
@@ -61,12 +61,7 @@ hdBook::progress_debug(const char *format,
 
 #ifdef HAVE_LIBFLTK
   if (BookGUI != NULL)
-  {
-    if (error)
-      BookGUI->add_error(text);
-
     return;
-  }
 #endif /* HAVE_LIBFLTK */
 
   if (verbosity > 0)
@@ -74,7 +69,7 @@ hdBook::progress_debug(const char *format,
     if (progress_visible)
       fprintf(stderr, "\r%-79.79s\r", "");
 
-    fprintf(stderr, "DEBUG: %s\n", error, text);
+    fprintf(stderr, "DEBUG: %s\n", text);
   }
 }
 
@@ -204,5 +199,5 @@ hdBook::progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.10 2004/03/31 20:56:56 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.11 2004/04/05 01:39:34 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.43 2004/04/01 03:26:43 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.44 2004/04/05 01:39:34 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1030,7 +1030,7 @@ main(int  argc,				// I - Number of command-line arguments
   htmlDeleteTree(toc);
 
   file_cleanup();
-  image_flush_cache();
+  book->image_flush_cache();
 
   return (book->error_count);
 }
@@ -1732,7 +1732,7 @@ term_handler(int signum)		// I - Signal number
   REF(signum);
 
   file_cleanup();
-  image_flush_cache();
+//  image_flush_cache();
   exit(1);
 }
 
@@ -1867,5 +1867,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 //
-// End of "$Id: htmldoc.cxx,v 1.43 2004/04/01 03:26:43 mike Exp $".
+// End of "$Id: htmldoc.cxx,v 1.44 2004/04/05 01:39:34 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.42 2004/03/31 20:56:56 mike Exp $"
+// "$Id: gui.cxx,v 1.43 2004/04/05 01:39:34 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -3988,7 +3988,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     htmlDeleteTree(toc);
 
     file_cleanup();
-    image_flush_cache();
+    gui->book->image_flush_cache();
   }
 
   if (gui->book->error_count == 0)
@@ -4040,5 +4040,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.42 2004/03/31 20:56:56 mike Exp $".
+// End of "$Id: gui.cxx,v 1.43 2004/04/05 01:39:34 mike Exp $".
 //
