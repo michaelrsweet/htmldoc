@@ -1,4 +1,4 @@
-CHANGES.txt - 06/05/2000
+CHANGES.txt - 06/28/2000
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.8
@@ -10,6 +10,9 @@ CHANGES IN HTMLDOC v1.8.8
 	- Now generate an error message if no pages are
 	  generated (with a suggestion to use the webpage
 	  option.)
+	- New "paths" option to specify additional directories
+	  to search for files.  This is useful when the source
+	  files use absolute server paths.
 
     CHANGES
 
@@ -18,11 +21,15 @@ CHANGES IN HTMLDOC v1.8.8
 	- No longer draw borders around empty cells in tables..
 	- Now disable the TOC tab when using webpage mode.
 	- Now scale title image to 100% in HTML output.
+	- Now handle comments with missing whitespace after the
+	  "<!--".
 
     BUG FIXES
 
 	- Nested tables didn't take into account the table border
 	  width, spacing, or padding values.
+	- HTMLDOC crashed under Solaris when reading HTML files
+	  from the standard input.
 
 
 CHANGES IN HTMLDOC v1.8.7

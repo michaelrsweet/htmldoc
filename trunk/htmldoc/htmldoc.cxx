@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.31 2000/06/05 17:55:44 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.32 2000/06/29 01:15:57 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -79,7 +79,8 @@ main(int  argc,		/* I - Number of command-line arguments */
 		*toc;		/* Table of contents */
   int		(*exportfunc)(tree_t *, tree_t *);
 				/* Export function */
-  char		*extension;	/* Extension of output filename */
+  char		*extension,	/* Extension of output filename */
+		*filename;	/* Current filename */
   char		base[1024];	/* Base directory name of file */
   float		fontsize,	/* Base font size */
 		fontspacing;	/* Base font spacing */
@@ -594,6 +595,17 @@ main(int  argc,		/* I - Number of command-line arguments */
 	  break;
 	}
     }
+    else if (compare_strings(argv[i], "--path", 5) == 0)
+    {
+      i ++;
+      if (i < argc)
+      {
+        strncpy(Path, argv[i], sizeof(Path) - 1);
+	Path[sizeof(Path) - 1] = '\0';
+      }
+      else
+        usage();
+    }
     else if (compare_strings(argv[i], "--permissions", 4) == 0)
     {
       i ++;
@@ -723,9 +735,11 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--webpage", 3) == 0)
     {
-      TocLevels  = 0;
-      TitlePage  = 0;
-      OutputBook = 0;
+      TocLevels    = 0;
+      TitlePage    = 0;
+      OutputBook   = 0;
+      PDFPageMode  = PDF_DOCUMENT;
+      PDFFirstPage = PDF_PAGE_1;
 
       if (exportfunc == html_export)
       {
@@ -748,7 +762,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       setmode(0, O_BINARY);
 #endif // WIN32 || __EMX__
 
-      htmlReadFile(file, stdin, NULL);
+      htmlReadFile(file, stdin, "");
 
       if (file->child != NULL)
       {
@@ -780,40 +794,45 @@ main(int  argc,		/* I - Number of command-line arguments */
         BookGUI->loadBook(argv[i]);
     }
 #endif /* HAVE_LIBFLTK */
-    else if ((docfile = fopen(argv[i], "rb")) != NULL)
+    else if ((filename = file_find(Path, argv[i])) != NULL)
     {
-     /*
-      * Read from a file...
-      */
-
-      if (Verbosity)
-        fprintf(stderr, "htmldoc: Reading %s...\n", argv[i]);
-
-      strcpy(base, file_directory(argv[i]));
-
-      file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME",
-                      (uchar *)file_basename(argv[i]));
-
-      htmlReadFile(file, docfile, base);
-
-      fclose(docfile);
-
-      if (file->child != NULL)
+      if ((docfile = fopen(argv[i], "rb")) != NULL)
       {
-        if (document == NULL)
-          document = file;
-        else
-        {
-          while (document->next != NULL)
-            document = document->next;
+       /*
+	* Read from a file...
+	*/
 
-          document->next = file;
-          file->prev     = document;
-        }
+	if (Verbosity)
+          fprintf(stderr, "htmldoc: Reading %s...\n", argv[i]);
+
+	strcpy(base, file_directory(argv[i]));
+
+	file = htmlAddTree(NULL, MARKUP_FILE, NULL);
+	htmlSetVariable(file, (uchar *)"FILENAME",
+                	(uchar *)file_basename(argv[i]));
+
+	htmlReadFile(file, docfile, base);
+
+	fclose(docfile);
+
+	if (file->child != NULL)
+	{
+          if (document == NULL)
+            document = file;
+          else
+          {
+            while (document->next != NULL)
+              document = document->next;
+
+            document->next = file;
+            file->prev     = document;
+          }
+	}
+	else
+          htmlDeleteTree(file);
       }
       else
-        htmlDeleteTree(file);
+        progress_error("Unable to read file \"%s\"...", filename);
     }
     else
       usage();
@@ -885,7 +904,7 @@ prefs_load(void)
 #ifdef WIN32			//// Do registry magic...
   HKEY		key;		// Registry key
   DWORD		size;		// Size of string
-  char		value[1024];	// Attribute value
+  char		value[2048];	// Attribute value
   static char	data[1024];	// Data directory
   static char	doc[1024];	// Documentation directory
 
@@ -1089,9 +1108,13 @@ prefs_load(void)
   if (!RegQueryValueEx(key, "userpassword", NULL, NULL, (unsigned char *)value, &size))
     strcpy(UserPassword, value);
 
+  size = sizeof(value);
+  if (!RegQueryValueEx(key, "path", NULL, NULL, (unsigned char *)value, &size))
+    strcpy(Path, value);
+
   RegCloseKey(key);
 #else				//// Do .htmldocrc file in home dir...
-  char	line[1024],		// Line from RC file
+  char	line[2048],		// Line from RC file
 	htmldocrc[1024];	// HTMLDOC RC file
   FILE	*fp;			// File pointer
 
@@ -1206,6 +1229,11 @@ prefs_load(void)
         {
 	  strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
 	  UserPassword[sizeof(UserPassword) - 1] = '\0';
+	}
+	else if (strncasecmp(line, "PATH=", 5) == 0)
+	{
+	  strncpy(Path, line + 5, sizeof(Path) - 1);
+	  Path[sizeof(Path) - 1] = '\0';
 	}
 #  ifdef HAVE_LIBFLTK
         else if (strncasecmp(line, "EDITOR=", 7) == 0)
@@ -1421,6 +1449,9 @@ prefs_save(void)
   RegSetValueEx(key, "userpassword", 0, REG_SZ,
                 (unsigned char *)UserPassword, size);
 
+  size = strlen(Path) + 1;
+  RegSetValueEx(key, "path", 0, REG_SZ, (unsigned char *)Path, size);
+
   RegCloseKey(key);
 #  else				//// Do .htmldocrc file in home dir...
   char	htmldocrc[1024];	// HTMLDOC RC file
@@ -1481,6 +1512,7 @@ prefs_save(void)
       fprintf(fp, "PERMISSIONS=%d\n", Permissions);
       fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
       fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
+      fprintf(fp, "PATH=%s\n", Path);
 
       fprintf(fp, "EDITOR=%s\n", HTMLEditor);
 
@@ -1580,6 +1612,7 @@ usage(void)
   puts("  --pageeffect {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}");
   puts("  --pagelayout {single,one,twoleft,tworight}");
   puts("  --pagemode {document,outlines,fullscreen}");
+  puts("  --path \"dir1;dir2;dir3;...;dirN\"");
   puts("  --permissions {all,annotate,copy,modify,print,no-annotate,no-copy,no-modify,no-print,none}");
   puts("  --portrait");
   puts("  --pscommands");
@@ -1618,5 +1651,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.31 2000/06/05 17:55:44 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.32 2000/06/29 01:15:57 mike Exp $".
  */

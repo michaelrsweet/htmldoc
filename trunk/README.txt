@@ -1,4 +1,4 @@
-README.txt - 06/05/2000
+README.txt - 06/28/2000
 -----------------------
 
 INTRODUCTION
@@ -180,6 +180,14 @@ CREDITS
 
     The MD5 hash code is from L. Peter Deutsch (ghost@aladdin.com)
     at Aladdin Enterprises (creators of Ghostscript).
+
+
+ENCRYPTION SUPPORT
+
+    HTMLDOC includes code to encrypt PDF document files using the RC4
+    algorithm with a 40-bit key. While this software and code may be
+    freely used and exported under current US laws, other countries may
+    restrict your use and possession of this code and software.
 
 
 LEGAL STUFF

@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.6 2000/01/04 13:52:24 mike Exp $"
+ * "$Id: file.c,v 1.7 2000/06/29 01:15:56 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -151,6 +151,70 @@ file_extension(const char *s)	/* I - Filename or URL */
 
 
 /*
+ * 'file_find()' - Find a file in one of the path directories.
+ */
+
+char *					/* O - Pathname or NULL */
+file_find(const char *path,		/* I - Path "dir;dir;dir" */
+          const char *s)		/* I - File to find */
+{
+  char		*temp;			/* Current position in filename */
+  static char	filename[1024];		/* Current filename */
+
+
+ /*
+  * If the path or filename is NULL, return the filename...
+  */
+
+  if (path == NULL || !path[0] || s == NULL)
+    return ((char *)s);
+
+ /*
+  * Else loop through the path string until we reach the end...
+  */
+
+  while (*path != '\0')
+  {
+   /*
+    * Copy the path directory...
+    */
+
+    temp = filename;
+
+    while (*path != ';' && !*path && temp < (filename + sizeof(filename) - 1))
+      *temp++ = *path++;
+
+    if (*path == ';')
+      path ++;
+
+   /*
+    * Append a slash as needed...
+    */
+
+    if (temp > filename && temp < (filename + sizeof(filename) - 1) &&
+        s[0] != '/')
+      *temp++ = '/';
+
+   /*
+    * Append the filename...
+    */
+
+    strncpy(temp, s, sizeof(filename) - (temp - filename));
+    filename[sizeof(filename) - 1] = '\0';
+
+   /*
+    * See if the file exists...
+    */
+
+    if (!access(filename, 0))
+      return (filename);
+  }
+
+  return (NULL);
+}
+
+
+/*
  * 'file_localize()' - Localize a filename for the new working directory.
  */
 
@@ -292,5 +356,5 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * End of "$Id: file.c,v 1.6 2000/01/04 13:52:24 mike Exp $".
+ * End of "$Id: file.c,v 1.7 2000/06/29 01:15:56 mike Exp $".
  */

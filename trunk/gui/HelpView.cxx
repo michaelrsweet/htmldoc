@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.29 2000/06/21 22:33:23 mike Exp $"
+// "$Id: HelpView.cxx,v 1.30 2000/06/29 01:15:55 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -475,7 +475,8 @@ HelpView::add_image(const char *name,	// I - Path of image
   int		status;			// Status of load...
   const char	*localname;		// Local filename
   char		dir[1024];		// Current directory
-  char		temp[1024];		// Temporary filename
+  char		temp[1024],		// Temporary filename
+		*tempptr;		// Pointer into temporary name
   int		width,			// Desired width of image
 		height;			// Desired height of image
 
@@ -506,7 +507,25 @@ HelpView::add_image(const char *name,	// I - Path of image
   if (!orig)
   {
     // See if the image can be found...
-    if (name[0] != '/' && strchr(name, ':') == NULL)
+    if (strchr(directory_, ':') != NULL && strchr(name, ':') == NULL)
+    {
+      if (name[0] == '/')
+      {
+        strcpy(temp, directory_);
+        if ((tempptr = strrchr(strchr(directory_, ':') + 3, '/')) != NULL)
+	  strcpy(tempptr, name);
+	else
+	  strcat(temp, name);
+      }
+      else
+	sprintf(temp, "%s/%s", directory_, name);
+
+      if (link_)
+	localname = (*link_)(temp);
+      else
+	localname = temp;
+    }
+    else if (name[0] != '/' && strchr(name, ':') == NULL)
     {
       if (directory_[0])
 	sprintf(temp, "%s/%s", directory_, name);
@@ -1860,7 +1879,7 @@ HelpView::format()
 	}
 
 	if (link[0])
-	  add_link(link, xx, yy - size, ww, size);
+	  add_link(link, xx, yy - height, ww, height);
 
 	xx += ww;
 	if ((height + 2) > hh)
@@ -2218,10 +2237,26 @@ HelpView::handle(int event)	// I - Event to handle
     if (strcmp(link->filename, filename_) != 0 && link->filename[0])
     {
       char	dir[1024];	// Current directory
-      char	temp[1024];	// Temporary filename
+      char	temp[1024],	// Temporary filename
+		*tempptr;	// Pointer into temporary filename
 
 
-      if (link->filename[0] != '/' && strchr(link->filename, ':') == NULL)
+      if (strchr(directory_, ':') != NULL && strchr(link->filename, ':') == NULL)
+      {
+	if (link->filename[0] == '/')
+	{
+          strcpy(temp, directory_);
+          if ((tempptr = strrchr(strchr(directory_, ':') + 3, '/')) != NULL)
+	    strcpy(tempptr, link->filename);
+	  else
+	    strcat(temp, link->filename);
+	}
+	else
+	  sprintf(temp, "%s/%s", directory_, link->filename);
+
+	load(temp);
+      }
+      else if (link->filename[0] != '/' && strchr(link->filename, ':') == NULL)
       {
 	if (directory_[0])
 	  sprintf(temp, "%s/%s", directory_, link->filename);
@@ -3085,5 +3120,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.29 2000/06/21 22:33:23 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.30 2000/06/29 01:15:55 mike Exp $".
 //

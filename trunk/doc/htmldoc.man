@@ -1,14 +1,14 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.6 2000/06/05 17:55:43 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7 2000/06/29 01:15:55 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
-.\"   Copyright 1997-1999 by Easy Software Products.
+.\"   Copyright 1997-2000 by Easy Software Products.
 .\"
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.8" "5 June 2000" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.8" "28 June 2000" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -79,6 +79,8 @@ htmldoc [filename.book]
 .I {single,one,twoleft,tworight}
 ] [ --pagemode
 .I {document,outlines,fullscreen}
+] [ --path
+.I \"dir1;dir2;dir3;...;dirN\"
 ] [ --permissions
 .I permission
 ] [ --pscommands ] [ --right
@@ -116,6 +118,19 @@ you to use \fIHTMLDOC\fR as a filter.
 .LP
 The third form of \fIHTMLDOC\fR launches a graphical interface that allows you
 to change options and generate documents interactively.
+.SH COMMON MISTAKES
+There are two types of HTML files - structured documents using
+headings (H1, H2, etc.) which \fIHTMLDOC\fR calls "books", and
+unstructured documents that do not use headings which \fIHTMLDOC\fR
+calls "web pages".
+.LP
+A very common mistake is to try converting a web page using:
+.TP 5
+htmldoc -f filename.pdf filename.html
+.LP
+which will likely produce a PDF file with no pages. To convert web
+page files you \fBmust\fR use the \fI--webpage\fR option at the
+command-line or choose \fIWeb Page\fR in the input tab of the GUI.
 .SH SEE ALSO
 HTMLDOC 1.8.8 Software Users Manual
 .LP
@@ -128,15 +143,17 @@ a registered trademark of Adobe Systems Incorporated.
 .SH COPYRIGHTS
 Portable Document Format Copyright 1993-1999 by Adobe Systems Incorporated.
 .LP
-HTMLDOC is copyright 1997-2000 by Easy Software. This program is free
+HTMLDOC is copyright 1997-2000 by Easy Software Products. This program is free
 software; you can redistribute it and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation; either
 version 2 of the License, or (at your option) any later version.
+.LP
+This program is based in part on the work of the Independent JPEG Group.
 .SH NO WARRANTY
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.6 2000/06/05 17:55:43 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7 2000/06/29 01:15:55 mike Exp $".
 .\"

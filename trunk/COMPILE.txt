@@ -1,11 +1,11 @@
-COMPILE.txt - 11/18/1999
+COMPILE.txt - 06/28/2000
 ------------------------
 
 REQUIREMENTS
 
-    To compile HTMLDOC you'll need ANSI C and C++ compilers (gcc is
-    fine, most vendor compilers work, too).  The JPEG, PNG, and ZLIB
-    libraries are provided with HTMLDOC.
+    To compile HTMLDOC you'll need ANSI-compliant C and C++ compilers
+    (gcc is fine, most vendor compilers work, too).  The JPEG, PNG, and
+    ZLIB libraries are provided with HTMLDOC.
 
     For the GUI support you'll need FLTK 1.0 or higher.  FLTK is a
     LGPL'd cross-platform GUI toolkit and can be downloaded from:
