@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.13 1999/10/25 18:40:11 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.14 1999/10/26 17:34:26 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -39,7 +39,7 @@
 #include <FL/filename.H>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cups/string.h>
 
 #if defined(WIN32) || defined(__EMX__)
 #  include <windows.h>
@@ -402,5 +402,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.13 1999/10/25 18:40:11 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.14 1999/10/26 17:34:26 mike Exp $".
 //

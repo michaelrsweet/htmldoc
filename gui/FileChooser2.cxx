@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.19 1999/10/25 18:40:11 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.20 1999/10/26 17:34:26 mike Exp $"
 //
 //   More FileChooser routines.
 //
@@ -48,6 +48,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <cups/string.h>
 
 #if defined(WIN32) || defined(__EMX__)
 #  include <direct.h>
@@ -630,5 +631,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.19 1999/10/25 18:40:11 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.20 1999/10/26 17:34:26 mike Exp $".
 //
