@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.172 2002/05/15 16:28:28 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.173 2002/05/17 02:37:41 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -10051,7 +10051,6 @@ write_prolog(FILE  *out,	/* I - Output file */
       fputs("%XRXPDLformat: PS-Adobe\n", out);
       if (doc_title)
 	fprintf(out, "%%XRXtitle: %s\n", doc_title);
-      fputs("%XRXcopyCount: 1\n", out);
 
       if (OutputFiles)
       {
@@ -11452,5 +11451,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.172 2002/05/15 16:28:28 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.173 2002/05/17 02:37:41 mike Exp $".
  */
