@@ -1,5 +1,5 @@
 //
-// "$Id: book.h,v 1.1 2004/03/31 20:56:56 mike Exp $"
+// "$Id: book.h,v 1.2 2004/04/01 03:26:43 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -71,6 +71,14 @@ enum
   HD_OUTPUT_WEBPAGES
 };
 
+enum
+{
+  HD_OUTPUT_HTML,
+  HD_OUTPUT_HTMLSEP,
+  HD_OUTPUT_PDF,
+  HD_OUTPUT_PS
+};
+
 
 /*
  * PDF constants...
@@ -128,6 +136,19 @@ enum	/* PDF document permissions */
 };
 
 //
+// Named link structure...
+//
+
+struct hdLink
+{
+  int		page,			// Page link appears on
+		top;			// Y position of link
+  uchar		*filename;		// File for link
+  uchar		name[124];		// Reference name
+};
+
+
+//
 // Named page size information...
 //
 
@@ -175,12 +196,17 @@ struct hdBook
   int		num_entities;		// Number of entities in table
   hdEntity	*entities;		// Entity table
 
+  int		num_links,
+		alloc_links;
+  hdLink	*links;
+
   int		Compression;		// Non-zero means compress PDFs
   bool		TitlePage,		// Need a title page
 		TocLinks,		// Generate links
 		TocNumbers;		// Generate heading numbers
   int		TocLevels,		// Number of table-of-contents levels
 		TocDocCount;		// Number of chapters
+  int		OutputFormat;		// HTML, PDF, etc.
   int		OutputType;		// Output a "book", etc.
   char		OutputPath[1024];	// Output directory/name
   bool		OutputFiles,		// Generate multiple files?
@@ -274,14 +300,32 @@ struct hdBook
   int		get_measurement(const char *s, float mul = 1.0f);
   void		set_page_size(const char *size);
 
+  const char	*prefs_getrc(char *s, int slen);
   void		prefs_load(void);
   void		prefs_save(void);
 
   char		*format_number(int n, char f);
+
+  void		html_scan_links(hdTree *t, uchar *filename);
+  void		html_update_links(hdTree *t, uchar *filename);
+
+  void		html_header(FILE **out, uchar *filename, uchar *title,
+		     	    uchar *author, uchar *copyright,
+			    uchar *docnumber, hdTree *t);
+  void		html_footer(FILE **out, hdTree *t);
+  void		html_title(FILE *out, uchar *title, uchar *author,
+		           uchar *copyright, uchar *docnumber);
+  int		html_write(FILE *out, hdTree *t, int col);
+  uchar		*get_title(hdTree *doc);
+
+  void		add_link(uchar *name, uchar *filename, int page = 0, int top = 0);
+  static int	compare_links(hdLink *n1, hdLink *n2);
+  hdLink	*find_link(uchar *name, uchar *filename = 0);
+
 };
 
 #endif // !HTMLDOC_BOOK_H
 
 //
-// End of "$Id: book.h,v 1.1 2004/03/31 20:56:56 mike Exp $".
+// End of "$Id: book.h,v 1.2 2004/04/01 03:26:43 mike Exp $".
 //
