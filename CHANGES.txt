@@ -21,6 +21,7 @@ CHANGES IN HTMLDOC v1.8.12
 	  once after the document is generated.
 	- Added support for HSPACE attribute for images with
 	  ALIGN="LEFT" or ALIGN="RIGHT".
+	- Added new Java interface to HTMLDOC.
 
     CHANGES
 
