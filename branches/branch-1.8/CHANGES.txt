@@ -1,4 +1,4 @@
-CHANGES.txt - 05/07/2002
+CHANGES.txt - 05/13/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.20
@@ -21,6 +21,8 @@ CHANGES IN HTMLDOC v1.8.20
 	  media size, points instead of millimeters.
 	- IMG elements with links that use the ALIGN attribute
 	  didn't get the links.
+	- Header and footer comments would interfere with the
+	  top and bottom margin settings.
 
 
 CHANGES IN HTMLDOC v1.8.19

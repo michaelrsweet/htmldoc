@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.169 2002/05/08 17:53:43 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.170 2002/05/13 18:46:39 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5022,7 +5022,6 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
           (flat->markup == MARKUP_NONE && flat->data &&
 	   flat->data[strlen((char *)flat->data) - 1] == '\n'))
         break;
-
     }
 
     if (flat)
@@ -6532,7 +6531,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
   char		*ptr,		/* Pointer into value string */
 		buffer[1024];	/* Buffer for strings */
   int		pos,		/* Position (left, center, right) */
-		tof;		/* Top of form */
+		tof,		/* Top of form */
+		hfspace;	/* Space for header/footer */
 
 
   if (t->data == NULL)
@@ -6549,6 +6549,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
   // Mark if we are at the top of form...
   tof = (*y >= *top);
+
+  printf("BEFORE tof=%d, *y=%.1f, *top=%.1f, t->data=\"%s\"\n",
+         tof, *y, *top, t->data);
 
   for (comment = (const char *)t->data; *comment;)
   {
@@ -7176,13 +7179,13 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       {
         if (!Landscape)
 	{
-	  *top           = PageLength - PageTop - *top;
-	  PagePrintWidth = PageWidth - PageTop - PageLeft;
-	  *top           = PageWidth - PageTop - *top;
+	  *top            = PageLength - PageTop - *top;
+	  PagePrintLength = PageWidth - PageTop - PageLeft;
+	  *top            = PageWidth - PageTop - *top;
 
-	  *right          = PageWidth - PageRight - *right;
-	  PagePrintLength = PageLength - PageRight - PageBottom;
-	  *right          = PageLength - PageRight - *right;
+	  *right         = PageWidth - PageRight - *right;
+	  PagePrintWidth = PageLength - PageRight - PageBottom;
+	  *right         = PageLength - PageRight - *right;
         }
 
         Landscape = pages[*page].landscape = 1;
@@ -7332,13 +7335,15 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       if (pos < 3)
       {
 	if (logo_height > HeadFootSize)
-          PageTop = (int)(logo_height + HeadFootSize);
+          hfspace = (int)(logo_height + HeadFootSize);
 	else
-          PageTop = (int)(2 * HeadFootSize);
+          hfspace = (int)(2 * HeadFootSize);
       }
+      else
+        hfspace = 0;
 
       if (tof)
-        *y = *top = PagePrintLength - PageTop;
+        *y = *top = PagePrintLength - hfspace;
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
@@ -7419,18 +7424,20 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	  break;
 
       if (pos == 3)
-        PageBottom = 0;
+        hfspace = 0;
       else if (logo_height > HeadFootSize)
-        PageBottom = (int)(logo_height + HeadFootSize);
+        hfspace = (int)(logo_height + HeadFootSize);
       else
-        PageBottom = (int)(2 * HeadFootSize);
+        hfspace = (int)(2 * HeadFootSize);
 
       if (tof)
-        *bottom = PageBottom;
+        *bottom = hfspace;
     }
     else
       break;
   }
+
+  printf("AFTER tof=%d, *y=%.1f, *top=%.1f\n", tof, *y, *top);
 }
 
 
@@ -11426,5 +11433,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.169 2002/05/08 17:53:43 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.170 2002/05/13 18:46:39 mike Exp $".
  */
