@@ -1,4 +1,4 @@
-CHANGES.txt - 11/14/2001
+CHANGES.txt - 11/16/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.17
@@ -13,6 +13,8 @@ CHANGES IN HTMLDOC v1.8.17
 	  things.
 	- HTMLDOC now handles .book files with CR, LF, or CR LF
 	  line endings.
+	- Changed the TOC numbering to use 32-bit integers
+	  instead of 8-bit integers...
 
     BUG FIXES
 
