@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.3 1999/02/05 02:15:59 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.4 1999/02/20 14:16:39 mike Exp $"
 //
 //   FileBrowser routines for HTMLDOC, an HTML document processing program.
 //
@@ -125,8 +125,13 @@ FileBrowser::load(const char *directory)
     for (i = 'A'; i <= 'Z'; i ++, drives >>= 1)
       if (drives & 1)
       {
-        sprintf(filename, "%c:/", i);
-	add(filename, (void *)draw_drive);
+        sprintf(filename, "%c:", i);
+
+	if (i < 'C')
+	  add(filename, (void *)draw_floppy);
+	else
+	  add(filename, (void *)draw_drive);
+
 	num_files ++;
       }
 #else
@@ -166,6 +171,7 @@ FileBrowser::load(const char *directory)
   }
   else
   {
+    int		dirlen;		// Length of directory string
     dirent	**files;	// Files in in directory
     FBIcon	*ic;		// Icon pointer
 
@@ -174,8 +180,22 @@ FileBrowser::load(const char *directory)
     // Build the file list...
     //
 
-    sprintf(filename, "%s/", directory);
-    num_files  = filename_list(filename, &files);
+#if defined(WIN32) || defined(__EMX__)
+    strcpy(filename, directory_);
+    i = strlen(filename) - 1;
+
+    if (i == 2 && filename[1] == ':' &&
+        (filename[2] == '/' || filename[2] == '\\'))
+      filename[2] = '/';
+    else if (filename[i] != '/' && filename[i] != '\\')
+      strcat(filename, "/");
+
+    num_files = filename_list(filename, &files);
+#else
+    num_files = filename_list(directory_, &files);
+#endif /* WIN32 || __EMX__ */
+
+    dirlen = strlen(directory_) - 1;
 
     for (i = 0; i < num_files; i ++)
     {
@@ -183,8 +203,10 @@ FileBrowser::load(const char *directory)
           strcmp(files[i]->d_name, "..") == 0)
 	continue;
 
-      puts(files[i]->d_name);
-      sprintf(filename, "%s/%s", directory_, files[i]->d_name);
+//      if (directory_[dirlen] != '/' && directory_[dirlen] != '\\')
+        sprintf(filename, "%s/%s", directory_, files[i]->d_name);
+//      else
+//        sprintf(filename, "%s%s", directory_, files[i]->d_name);
 
       if (filename_isdir(filename))
 	add(files[i]->d_name, (void *)draw_folder);
@@ -239,11 +261,146 @@ FileBrowser::filter(const char *pattern)
 
 
 //
+// 'FileBrowser::draw_cdrom()' - Draw a "CD-ROM" icon.
+//
+
+void
+FileBrowser::draw_cdrom(Fl_Color c)	// I - Selection color
+{
+  fl_color(c);
+  fl_begin_polygon();
+    fl_vertex(16.97, 45.89);
+    fl_vertex(72.05, 73.44);
+    fl_vertex(72.05, 41.30);
+    fl_vertex(16.97, 13.76);
+  fl_end_polygon();
+
+  fl_color(FL_BLACK);
+  fl_begin_loop();
+    fl_vertex(16.97, 45.89);
+    fl_vertex(72.05, 73.44);
+    fl_vertex(72.05, 41.30);
+    fl_vertex(16.97, 13.76);
+  fl_end_loop();
+
+  fl_color(FL_DARK3);
+  fl_begin_polygon();
+    fl_vertex(30.74, 39.01);
+    fl_vertex(21.56, 34.42);
+    fl_vertex(21.56, 29.83);
+    fl_vertex(35.33, 36.71);
+  fl_end_polygon();
+
+  fl_begin_polygon();
+    fl_vertex(49.10, 52.78);
+    fl_vertex(35.33, 45.89);
+    fl_vertex(35.33, 41.30);
+    fl_vertex(49.10, 48.19);
+  fl_end_polygon();
+
+  fl_begin_polygon();
+    fl_vertex(53.69, 50.48);
+    fl_vertex(49.10, 52.78);
+    fl_vertex(49.10, 48.19);
+    fl_vertex(53.69, 45.89);
+  fl_end_polygon();
+
+  fl_begin_polygon();
+    fl_vertex(67.46, 57.37);
+    fl_vertex(53.69, 50.48);
+    fl_vertex(53.69, 45.89);
+    fl_vertex(67.46, 52.78);
+  fl_end_polygon();
+
+  fl_begin_polygon();
+    fl_vertex(26.15, -0.01);
+    fl_vertex(12.38, 6.89);
+    fl_vertex(67.46, 34.43);
+    fl_vertex(81.24, 27.53);
+  fl_end_polygon();
+
+  fl_color(FL_BLACK);
+  fl_begin_loop();
+    fl_vertex(21.56, 34.42);
+    fl_vertex(35.33, 41.30);
+    fl_vertex(35.33, 45.89);
+    fl_vertex(53.69, 55.08);
+    fl_vertex(53.69, 50.48);
+    fl_vertex(67.46, 57.37);
+    fl_vertex(67.46, 52.78);
+    fl_vertex(53.69, 45.89);
+    fl_vertex(53.69, 36.71);
+    fl_vertex(35.33, 27.53);
+    fl_vertex(35.33, 36.71);
+    fl_vertex(21.56, 29.83);
+  fl_end_loop();
+
+  fl_begin_line();
+    fl_vertex(53.69, 36.71);
+    fl_vertex(49.10, 48.19);
+    fl_vertex(53.69, 45.89);
+  fl_end_line();
+
+  fl_begin_line();
+    fl_vertex(35.33, 36.71);
+    fl_vertex(30.74, 39.01);
+    fl_vertex(49.10, 48.19);
+  fl_end_line();
+
+  fl_begin_line();
+    fl_vertex(49.10, 52.78);
+    fl_vertex(53.69, 50.48);
+  fl_end_line();
+
+  fl_color(FL_DARK3);
+  fl_begin_polygon();
+    fl_vertex(60.76, 44.83);
+    fl_vertex(60.68, 42.11);
+    fl_vertex(62.88, 43.39);
+    fl_vertex(62.87, 45.89);
+  fl_end_polygon();
+
+  fl_color(FL_BLACK);
+  fl_begin_loop();
+    fl_vertex(60.76, 44.83);
+    fl_vertex(60.68, 42.11);
+    fl_vertex(62.88, 43.39);
+    fl_vertex(62.87, 45.89);
+  fl_end_loop();
+}
+
+
+//
 // 'FileBrowser::draw_drive()' - Draw a "drive" icon.
 //
 
 void
 FileBrowser::draw_drive(Fl_Color c)	// I - Selection color
+{
+  fl_color(c);
+  fl_begin_polygon();
+    fl_vertex(16.97, 45.89);
+    fl_vertex(72.05, 73.44);
+    fl_vertex(72.05, 41.30);
+    fl_vertex(16.97, 13.76);
+  fl_end_polygon();
+
+  fl_color(FL_BLACK);
+  fl_begin_loop();
+    fl_vertex(16.97, 45.89);
+    fl_vertex(72.05, 73.44);
+    fl_vertex(72.05, 41.30);
+    fl_vertex(16.97, 13.76);
+  fl_end_loop();
+}
+
+
+//
+// 'FileBrowser::draw_floppy()' - Draw a "floppy drive" icon.
+//
+
+void
+FileBrowser::draw_floppy(Fl_Color c)	// I - Selection color
 {
   fl_color(c);
   fl_begin_polygon();
@@ -489,5 +646,5 @@ FileBrowser::draw_folder(Fl_Color c)	// I - Selection color
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.3 1999/02/05 02:15:59 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.4 1999/02/20 14:16:39 mike Exp $".
 //

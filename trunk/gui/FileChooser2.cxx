@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.2 1999/02/02 21:55:07 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.3 1999/02/20 14:16:49 mike Exp $"
 //
 //   More FileChooser routines for HTMLDOC, an HTML document processing program.
 //
@@ -89,7 +89,7 @@ FileChooser::value(int f)
 
 
   if (!(type_ & TYPE_MULTI))
-    return (fileList->text(fileList->value()));
+    return (fileName->value());
 
   for (i = 1, count = 0; i <= fileList->size(); i ++)
     if (fileList->selected(i))
@@ -118,6 +118,11 @@ FileChooser::up()
 
   if (slash != NULL)
     *slash = '\0';
+  else
+  {
+    upButton->deactivate();
+    directory_[0] = '\0';
+  }
 
   rescan();
 }
@@ -147,7 +152,6 @@ FileChooser::rescan()
         (strcmp(slash, "/.") == 0 || strcmp(slash, "\\.") == 0))
       *slash = '\0';
   }
-  puts(directory_);
 
   fileName->value("");
   fileList->load(directory_);
@@ -174,13 +178,61 @@ FileChooser::fileListCB()
 
   if (Fl::event_clicks())
   {
+#if defined(WIN32) || defined(__EMX__)
+    if ((strlen(pathname) == 2 && pathname[1] == ':') ||
+        filename_isdir(pathname))
+#else
     if (filename_isdir(pathname))
+#endif /* WIN32 || __EMX__ */
+    {
       directory(pathname);
+      upButton->activate();
+    }
     else
       window->hide();
   }
   else
     fileName->value(filename);
+}
+
+
+//
+// 'FileChooser::fileNameCB()' - Handle text entry in the FileBrowser.
+//
+
+void
+FileChooser::fileNameCB()
+{
+  char	*filename,		// New filename
+	pathname[1024];		// Full pathname to file
+
+
+  filename = (char *)fileName->value();
+#if 0
+  if (directory_[0] != '\0')
+    sprintf(pathname, "%s/%s", directory_, filename);
+  else
+    strcpy(pathname, filename);
+
+#if defined(WIN32) || defined(__EMX__)
+  if ((strlen(pathname) == 2 && pathname[1] == ':') ||
+    filename_isdir(pathname))
+#else
+  if (filename_isdir(pathname))
+#endif /* WIN32 || __EMX__ */
+  {
+    directory(pathname);
+    upButton->activate();
+  }
+  else
+  {
+    type_ &= ~TYPE_MULTI;
+    window->hide();
+  }
+#else
+  strcpy(directory_, filename);
+  fileList->load(filename);
+#endif /* 0 */
 }
 
 
@@ -297,6 +349,7 @@ draw_htmlfile(Fl_Color c)	// I - Color to use
     fl_vertex(70.80, 42.10);
   fl_end_line();
 
+#if 0
   fl_color(164);
   fl_begin_polygon();
     fl_vertex(68.18, 46.63);
@@ -420,6 +473,7 @@ draw_htmlfile(Fl_Color c)	// I - Color to use
     fl_vertex(80.61, 46.48);
     fl_vertex(74.40, 45.00);
   fl_end_loop();
+#endif /* 0 */
 
   fl_color(FL_DARK3);
   fl_begin_line();
@@ -678,5 +732,5 @@ mix(int c)		// I - Color value
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.2 1999/02/02 21:55:07 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.3 1999/02/20 14:16:49 mike Exp $".
 //
