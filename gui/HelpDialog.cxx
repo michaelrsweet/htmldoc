@@ -381,6 +381,17 @@ void HelpDialog::cb_larger_(Fl_Button* o, void* v) {
   ((HelpDialog*)(o->parent()->parent()->parent()->user_data()))->cb_larger__i(o,v);
 }
 
+inline void HelpDialog::cb_find__i(Fl_Input*, void*) {
+  find_pos_ = view_->find(find_->value(), find_pos_);
+
+if (find_pos_ < 0) {
+  fl_beep();
+};
+}
+void HelpDialog::cb_find_(Fl_Input* o, void* v) {
+  ((HelpDialog*)(o->parent()->parent()->user_data()))->cb_find__i(o,v);
+}
+
 inline void HelpDialog::cb_Close_i(Fl_Menu_*, void*) {
   window_->hide();
 }
@@ -397,10 +408,10 @@ Fl_Menu_Item HelpDialog::menu_[] = {
 
 HelpDialog::HelpDialog() {
   Fl_Window* w;
-  { Fl_Window* o = window_ = new Fl_Window(535, 385, _("Help Dialog"));
+  { Fl_Window* o = window_ = new Fl_Window(535, 430, _("Help Dialog"));
     w = o;
     o->user_data((void*)(this));
-    { Fl_Help_View* o = view_ = new Fl_Help_View(0, 80, 535, 305);
+    { Fl_Help_View* o = view_ = new Fl_Help_View(0, 125, 535, 305);
       o->box(FL_DOWN_BOX);
       o->callback((Fl_Callback*)cb_view_);
       Fl_Group::current()->resizable(o);
@@ -409,7 +420,6 @@ HelpDialog::HelpDialog() {
       { Fl_Pack* o = new Fl_Pack(0, 25, 535, 55);
         { Fl_Button* o = back_ = new Fl_Button(0, 25, 60, 55, _("Back"));
           o->box(FL_NO_BOX);
-          o->down_box(FL_DOWN_BOX);
           o->image(image_back);
           o->deimage(image_dback);
           o->callback((Fl_Callback*)cb_back_);
@@ -417,7 +427,6 @@ HelpDialog::HelpDialog() {
         }
         { Fl_Button* o = forward_ = new Fl_Button(60, 25, 60, 55, _("Forward"));
           o->box(FL_NO_BOX);
-          o->down_box(FL_DOWN_BOX);
           o->image(image_forward);
           o->deimage(image_dforward);
           o->callback((Fl_Callback*)cb_forward_);
@@ -425,19 +434,26 @@ HelpDialog::HelpDialog() {
         }
         { Fl_Button* o = smaller_ = new Fl_Button(120, 25, 55, 55, _("F"));
           o->box(FL_NO_BOX);
-          o->down_box(FL_DOWN_BOX);
           o->labelfont(1);
           o->callback((Fl_Callback*)cb_smaller_);
         }
         { Fl_Button* o = larger_ = new Fl_Button(175, 25, 55, 55, _("F"));
           o->box(FL_NO_BOX);
-          o->down_box(FL_DOWN_BOX);
           o->labelfont(1);
           o->labelsize(40);
           o->callback((Fl_Callback*)cb_larger_);
         }
         o->type(Fl_Pack::HORIZONTAL);
         o->end();
+      }
+      o->end();
+    }
+    { Fl_Group* o = new Fl_Group(0, 80, 535, 45);
+      o->box(FL_THIN_UP_BOX);
+      { Fl_Input* o = find_ = new Fl_Input(75, 90, 450, 25, _("Find: "));
+        o->labelfont(1);
+        o->callback((Fl_Callback*)cb_find_);
+        o->when(FL_WHEN_ENTER_KEY_ALWAYS);
       }
       o->end();
     }
@@ -449,8 +465,9 @@ HelpDialog::HelpDialog() {
   back_->deactivate();
 forward_->deactivate();
 
-index_ = -1;
-max_  = 0;
+index_    = -1;
+max_      = 0;
+find_pos_ = 0;
 }
 
 int HelpDialog::h() {

@@ -9,6 +9,7 @@
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Input.H>
 #include <FL/Fl_Menu_Bar.H>
 
 class HelpDialog {
@@ -16,6 +17,7 @@ class HelpDialog {
   int max_;
   int line_[100];
   char file_[100][256];
+  int find_pos_;
 public:
   HelpDialog();
 private:
@@ -35,6 +37,9 @@ private:
   Fl_Button *larger_;
   inline void cb_larger__i(Fl_Button*, void*);
   static void cb_larger_(Fl_Button*, void*);
+  Fl_Input *find_;
+  inline void cb_find__i(Fl_Input*, void*);
+  static void cb_find_(Fl_Input*, void*);
   static Fl_Menu_Item menu_[];
   inline void cb_Close_i(Fl_Menu_*, void*);
   static void cb_Close(Fl_Menu_*, void*);
