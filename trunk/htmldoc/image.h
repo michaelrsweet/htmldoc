@@ -1,5 +1,5 @@
 //
-// "$Id: image.h,v 1.10 2001/12/17 00:45:54 mike Exp $"
+// "$Id: image.h,v 1.11 2001/12/17 01:46:18 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
@@ -133,6 +133,8 @@ class hdImage			//// Image class
 
 class hdBMPImage : public hdImage
 {
+  int		real_load(int img, int gs);
+
   public:
 
   hdBMPImage(const char *uri, int grayscale);
@@ -144,6 +146,8 @@ class hdBMPImage : public hdImage
 
 class hdEPSImage : public hdImage
 {
+  int		real_load(int img, int gs);
+
   public:
 
   hdEPSImage(const char *uri, int grayscale);
@@ -157,6 +161,8 @@ class hdEPSImage : public hdImage
 
 class hdGIFImage : public hdImage
 {
+  int		real_load(int img, int gs);
+
   private:
 
   typedef uchar	cmap_t[256][3];
@@ -180,6 +186,8 @@ class hdGIFImage : public hdImage
 
 class hdJPEGImage : public hdImage
 {
+  int		real_load(int img, int gs);
+
   public:
 
   hdJPEGImage(const char *uri, int grayscale);
@@ -191,6 +199,8 @@ class hdJPEGImage : public hdImage
 
 class hdPNGImage : public hdImage
 {
+  int		real_load(int img, int gs);
+
   public:
 
   hdPNGImage(const char *uri, int grayscale);
@@ -202,6 +212,8 @@ class hdPNGImage : public hdImage
 
 class hdPNMImage : public hdImage
 {
+  int		real_load(int img, int gs);
+
   public:
 
   hdPNMImage(const char *uri, int grayscale);
@@ -213,6 +225,8 @@ class hdPNMImage : public hdImage
 
 class hdXBMImage : public hdImage
 {
+  int		real_load(int img, int gs);
+
   public:
 
   hdXBMImage(const char *uri, int grayscale);
@@ -224,6 +238,8 @@ class hdXBMImage : public hdImage
 
 class hdXPMImage : public hdImage
 {
+  int		real_load(int img, int gs);
+
   public:
 
   hdXPMImage(const char *uri, int grayscale);
@@ -236,5 +252,5 @@ class hdXPMImage : public hdImage
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.10 2001/12/17 00:45:54 mike Exp $".
+// End of "$Id: image.h,v 1.11 2001/12/17 01:46:18 mike Exp $".
 //
