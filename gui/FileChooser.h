@@ -45,8 +45,8 @@ public:
 private:
   inline void cb_fileName_i(Fl_Input*, void*);
   static void cb_fileName(Fl_Input*, void*);
-  inline void cb_a_i(Fl_Button*, void*);
-  static void cb_a(Fl_Button*, void*);
+  inline void cb_j_i(Fl_Button*, void*);
+  static void cb_j(Fl_Button*, void*);
   char directory_[1024];
   int type_;
   void fileListCB();
@@ -70,5 +70,6 @@ public:
   void show();
   const char *value(int f);
   int visible();
+  void label(const char *l);
 };
 #endif

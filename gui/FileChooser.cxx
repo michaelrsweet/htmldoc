@@ -41,7 +41,7 @@ void FileChooser::cb_upButton(Fl_Button* o, void* v) {
 
 #include <FL/Fl_Bitmap.H>
 static unsigned char bits_up[] = {  
-4, 14, 31, 4, 4, 4, 4, 252
+32, 0, 112, 0, 248, 0, 32, 0
 };
 static Fl_Bitmap bitmap_up(bits_up, 8, 8);
 
@@ -55,7 +55,7 @@ void FileChooser::cb_reset(Fl_Button* o, void* v) {
 }
 
 static unsigned char bits_reset[] = {  
-255, 129, 189, 189, 189, 189, 129, 255
+255, 0, 129, 0, 189, 0, 189, 0
 };
 static Fl_Bitmap bitmap_reset(bits_reset, 8, 8);
 
@@ -66,12 +66,12 @@ void FileChooser::cb_fileName(Fl_Input* o, void* v) {
   ((FileChooser*)(o->parent()->user_data()))->cb_fileName_i(o,v);
 }
 
-inline void FileChooser::cb_a_i(Fl_Button*, void*) {
+inline void FileChooser::cb_j_i(Fl_Button*, void*) {
   fileList->filter("*");;
 rescan();
 }
-void FileChooser::cb_a(Fl_Button* o, void* v) {
-  ((FileChooser*)(o->parent()->user_data()))->cb_a_i(o,v);
+void FileChooser::cb_j(Fl_Button* o, void* v) {
+  ((FileChooser*)(o->parent()->user_data()))->cb_j_i(o,v);
 }
 
 FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
@@ -90,7 +90,8 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
       o->color(7);
       o->selection_color(0);
       o->hide();
-      if (t) followLinks->deactivate();
+      if (!(t & TYPE_FOLLOW))
+  followLinks->hide();
     }
     { Fl_Button* o = new Fl_Button(222, 225, 65, 25, "Cancel");
       o->callback((Fl_Callback*)cb_Cancel);
@@ -121,7 +122,7 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
     }
     { Fl_Button* o = new Fl_Button(5, 20, 15, 15, "*");
       o->labelcolor(4);
-      o->callback((Fl_Callback*)cb_a);
+      o->callback((Fl_Callback*)cb_j);
       o->align(17);
     }
     o->set_modal();
@@ -167,9 +168,15 @@ const char * FileChooser::filter() {
 void FileChooser::follow_links(int f) {
   followLinks->value(f);
 if (f)
+{
+  followLinks->show();
   type_ |= TYPE_FOLLOW;
+}
 else
+{
+  followLinks->hide();
   type_ &= ~TYPE_FOLLOW;
+}
 }
 
 int FileChooser::follow_links() {
@@ -204,4 +211,8 @@ fileList->deselect();
 
 int FileChooser::visible() {
   return window->visible();
+}
+
+void FileChooser::label(const char *l) {
+  window->label(l);
 }
