@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.54 2002/04/11 19:44:56 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.55 2002/05/29 19:51:42 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -216,8 +216,8 @@ static int	compare_variables(var_t *v0, var_t *v1);
 static int	compare_markups(uchar **m0, uchar **m1);
 static void	delete_node(tree_t *t);
 static void	insert_space(tree_t *parent, tree_t *t);
-static int	parse_markup(tree_t *t, FILE *fp);
-static int	parse_variable(tree_t *t, FILE *fp);
+static int	parse_markup(tree_t *t, FILE *fp, int *linenum);
+static int	parse_variable(tree_t *t, FILE *fp, int *linenum);
 static int	compute_size(tree_t *t);
 static int	compute_color(tree_t *t, uchar *color);
 static int	get_alignment(tree_t *t);
@@ -269,6 +269,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 		*size,		/* Size for FONT tag */
 		*type;		/* Type for EMBED tag */
   int		sizeval;	/* Size value from FONT tag */
+  int		linenum;	/* Line number in file */
   static uchar	s[10240];	/* String from file */
   static int	have_whitespace = 0;
   				/* Non-zero if there was leading whitespace */
@@ -289,6 +290,8 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
   * Parse data until we hit end-of-file...
   */
 
+  linenum = 1;
+
   while ((ch = getc(fp)) != EOF)
   {
    /*
@@ -299,6 +302,9 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
     {
       while (isspace(ch))
       {
+	if (ch == '\n')
+	  linenum ++;
+
         have_whitespace = 1;
         ch              = getc(fp);
       }
@@ -364,6 +370,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       */
 
       ch = getc(fp);
+
       if (isspace(ch) || ch == '=' || ch == '<')
       {
        /*
@@ -371,6 +378,9 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	* invalid HTML, but so many people have asked for this to
 	* be supported that we have added this hack...
 	*/
+
+	if (ch == '\n')
+	  linenum ++;
 
 	ptr = s;
 	if (have_whitespace)
@@ -401,11 +411,11 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	if (ch != '/')
           ungetc(ch, fp);
 
-	if (parse_markup(t, fp) == MARKUP_ERROR)
+	if (parse_markup(t, fp, &linenum) == MARKUP_ERROR)
 	{
 #ifndef DEBUG
           progress_error(HD_ERROR_READ_ERROR,
-                         "Unable to parse HTML element at %d!", (int)ftell(fp));
+                         "Unable to parse HTML element on line %d!", linenum);
 #endif /* !DEBUG */
 
           delete_node(t);
@@ -440,6 +450,21 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	    {
 	      temp = NULL;
               break;
+	    }
+	}
+	else if (t->markup == MARKUP_BODY || t->markup == MARKUP_HEAD)
+	{
+	 /*
+          * Make sure we aren't inside an existing HEAD or BODY...
+	  */
+
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (temp->markup == MARKUP_BODY || temp->markup == MARKUP_HEAD)
+              break;
+	    else if (temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+	      break;
 	    }
 	}
 	else if (t->markup == MARKUP_EMBED)
@@ -535,6 +560,29 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	{
           DEBUG_printf(("%s>>>> Auto-ascend <<<\n", indent));
 
+          if (temp && ch != '/' &&
+	      temp->markup != MARKUP_BODY &&
+	      temp->markup != MARKUP_DD &&
+	      temp->markup != MARKUP_DT &&
+	      temp->markup != MARKUP_HEAD &&
+	      temp->markup != MARKUP_HTML &&
+	      temp->markup != MARKUP_LI &&
+	      temp->markup != MARKUP_OPTION &&
+	      temp->markup != MARKUP_P &&
+	      temp->markup != MARKUP_TBODY &&
+	      temp->markup != MARKUP_TD &&
+	      temp->markup != MARKUP_TFOOT &&
+	      temp->markup != MARKUP_TH &&
+	      temp->markup != MARKUP_THEAD &&
+	      temp->markup != MARKUP_TR)
+	  {
+	    // Log this condition as an error...
+	    progress_error(HD_ERROR_HTML_ERROR,
+	                   "No /%s element before %s element on line %d.",
+	                   _htmlMarkups[temp->markup],
+			   _htmlMarkups[t->markup], linenum);
+	  }
+
           // Safety check; should never happen, since MARKUP_FILE is
 	  // the root node created by the caller...
           if (temp->parent)
@@ -585,6 +633,11 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	}
 	else if (ch == '/')
 	{
+	  // Log this condition as an error...
+	  if (t->markup != MARKUP_UNKNOWN)
+	    progress_error(HD_ERROR_HTML_ERROR,
+	                   "Dangling /%s element on line %d.",
+			   _htmlMarkups[t->markup], linenum);
           delete_node(t);
 	  continue;
 	}
@@ -605,7 +658,12 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
                (ch = getc(fp)) != EOF && (glyphptr - glyph) < 15;
                glyphptr ++)
             if (ch == ';' || isspace(ch))
+	    {
+	      if (ch == '\n')
+	        linenum ++;
+
               break;
+	    }
             else
               *glyphptr = ch;
 
@@ -617,7 +675,10 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           *ptr++ = ch;
 
         if (ch == '\n')
+	{
+	  linenum ++;
           break;
+	}
 
         ch = getc(fp);
       }
@@ -630,7 +691,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       t->markup = MARKUP_NONE;
       t->data   = (uchar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment \"%s\"\n", indent, s));
+      DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
     }
     else
     {
@@ -667,6 +728,9 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
         ch = getc(fp);
       }
 
+      if (ch == '\n')
+	linenum ++;
+
       if (isspace(ch))
         have_whitespace = 1;
 
@@ -678,7 +742,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       t->markup = MARKUP_NONE;
       t->data   = (uchar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment \"%s\"\n", indent, s));
+      DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
     }
 
    /*
@@ -1786,7 +1850,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
 	key;			/* Search key */
 
 
-  DEBUG_printf(("%shtmlSetVariable(%08x, \"%s\", \"%s\")\n", indent, t, name,
+  DEBUG_printf(("%shtmlSetVariable(%p, \"%s\", \"%s\")\n", indent, t, name,
                 value ? (const char *)value : "(null)"));
 
   if (t->nvars == 0)
@@ -2177,7 +2241,8 @@ insert_space(tree_t *parent,	// I - Parent node
 
 static int			/* O - -1 on error, MARKUP_nnnn otherwise */
 parse_markup(tree_t *t,		/* I - Current tree entry */
-             FILE   *fp)	/* I - Input file */
+             FILE   *fp,	/* I - Input file */
+	     int    *linenum)	/* O - Current line number */
 {
   int	ch, ch2;		/* Characters from file */
   uchar	markup[255],		/* Markup string... */
@@ -2221,7 +2286,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     * Unrecognized markup stuff...
     */
 
-    t->markup = MARKUP_COMMENT;
+    t->markup = MARKUP_UNKNOWN;
     strcpy((char *)comment, (char *)markup);
     cptr = comment + strlen((char *)comment);
 
@@ -2232,10 +2297,10 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     t->markup = (markup_t)((const char **)temp - _htmlMarkups);
     cptr      = comment;
 
-    DEBUG_printf(("%s%s\n", indent, markup));
+    DEBUG_printf(("%s%s, line %d\n", indent, markup, *linenum));
   }
 
-  if (t->markup == MARKUP_COMMENT)
+  if (t->markup == MARKUP_COMMENT || t->markup == MARKUP_UNKNOWN)
   {
     while (ch != EOF && cptr < (comment + sizeof(comment) - 1))
     {
@@ -2243,6 +2308,9 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
         break;
 
       *cptr++ = ch;
+
+      if (ch == '\n')
+        (*linenum) ++;
 
       if (ch == '-')
       {
@@ -2269,10 +2337,13 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
   {
     while (ch != EOF && ch != '>')
     {
+      if (ch == '\n')
+        (*linenum) ++;
+
       if (!isspace(ch))
       {
         ungetc(ch, fp);
-        parse_variable(t, fp);
+        parse_variable(t, fp, linenum);
       }
 
       ch = getc(fp);
@@ -2289,7 +2360,8 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 
 static int			/* O - -1 on error, 0 on success */
 parse_variable(tree_t *t,	/* I - Current tree entry */
-               FILE   *fp)	/* I - Input file */
+               FILE   *fp,	/* I - Input file */
+	       int    *linenum)	/* I - Current line number */
 {
   uchar	name[1024],		/* Name of variable */
 	value[10240],		/* Value of variable */
@@ -2306,8 +2378,16 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
 
   *ptr = '\0';
 
+  if (ch == '\n')
+    (*linenum) ++;
+
   while (isspace(ch) || ch == '\r')
+  {
     ch = getc(fp);
+
+    if (ch == '\n')
+      (*linenum) ++;
+  }
 
   switch (ch)
   {
@@ -2334,6 +2414,8 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
               *ptr++ = ch;
+	    else if (ch == '\n')
+	      (*linenum) ++;
 
           *ptr = '\0';
         }
@@ -2345,6 +2427,8 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
               *ptr++ = ch;
+	    else if (ch == '\n')
+	      (*linenum) ++;
 
           *ptr = '\0';
         }
@@ -2356,6 +2440,9 @@ parse_variable(tree_t *t,	/* I - Current tree entry */
               break;
             else if (ptr < (value + sizeof(value) - 1))
               *ptr++ = ch;
+
+	  if (ch == '\n')
+	    (*linenum) ++;
 
           *ptr = '\0';
           if (ch == '>')
@@ -2707,5 +2794,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.54 2002/04/11 19:44:56 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.55 2002/05/29 19:51:42 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.9.2.7 2002/01/28 00:52:13 mike Exp $"
+ * "$Id: html.h,v 1.9.2.8 2002/05/29 19:51:42 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -57,8 +57,9 @@ extern "C" {
 
 typedef enum
 {
-	MARKUP_FILE = -2,	/* File Delimiter */
-	MARKUP_ERROR = -1,
+	MARKUP_FILE = -3,	/* File Delimiter */
+	MARKUP_UNKNOWN = -2,	/* Unknown element */
+	MARKUP_ERROR = -1,	
 	MARKUP_NONE = 0,
 	MARKUP_COMMENT,
 	MARKUP_DOCTYPE,
@@ -308,5 +309,5 @@ extern void	htmlSetTextColor(uchar *color);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.7 2002/01/28 00:52:13 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.8 2002/05/29 19:51:42 mike Exp $".
  */
