@@ -1,4 +1,4 @@
-CHANGES.txt - 07/31/2003
+CHANGES.txt - 08/01/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -28,6 +28,8 @@ CHANGES IN HTMLDOC v1.8.24
 	  images.
 	- The default vertical alignment of images is "BOTTOM"
 	  to match the HTML specification.
+	- Paragraph spacing is only applied to the first table
+	  after a paragraph.
 
     BUG FIXES
 
