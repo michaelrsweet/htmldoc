@@ -1,9 +1,9 @@
 //
-// "$Id: HelpView.h,v 1.13 2000/06/21 22:33:24 mike Exp $"
+// "$Id: HelpView.h,v 1.14 2001/01/22 15:03:45 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
-//   Copyright 1997-2000 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //   Image support donated by Matthias Melcher, Copyright 2000.
 //
 //   These coded instructions, statements, and computer programs are the
@@ -207,5 +207,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.13 2000/06/21 22:33:24 mike Exp $".
+// End of "$Id: HelpView.h,v 1.14 2001/01/22 15:03:45 mike Exp $".
 //
