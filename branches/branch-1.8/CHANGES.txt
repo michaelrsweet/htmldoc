@@ -25,6 +25,10 @@ CHANGES IN HTMLDOC v1.8.14
 	  by-zero error or bad pages (NAN instead of a number.)
 	- Table cells with a single render element would not be
 	  vertically aligned.
+	- The --quiet option would enable progress messages on
+	  the command-line.
+	- Table cell widths could be computed incorrectly,
+	  causing unnecessary wrapping.
 
 
 CHANGES IN HTMLDOC v1.8.13
