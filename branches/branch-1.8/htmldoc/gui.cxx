@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.8 2001/02/22 01:22:41 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.9 2001/02/23 13:47:13 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -31,6 +31,7 @@
 //   GUI::title()          - Set the title bar of the window.
 //   GUI::newBook()        - Clear out the current GUI settings for a new book.
 //   GUI::loadBook()       - Load a book file from disk.
+//   GUI::parseOptions()   - Parse options in a book file...
 //   GUI::saveBook()       - Save a book to disk.
 //   GUI::checkSave()      - Check to see if a save is needed.
 //   GUI::changeCB()       - Mark the current book as changed.
@@ -1282,14 +1283,94 @@ GUI::newBook(void)
 int					// O - 1 = success, 0 = fail
 GUI::loadBook(const char *filename)	// I - Name of book file
 {
-  int		i;
-  FILE		*fp;
-  char		line[10240],
-		*lineptr,
-		temp[1024],
-		temp2[1024],
-		*tempptr;
-  char		formats[256];
+  FILE		*fp;			// File to read from
+  char		line[10240],		// Line from file
+		*dir;			// Directory
+
+
+  // If the filename contains a path, chdir to it first...
+  if ((dir = file_directory(filename)) != NULL)
+  {
+   /*
+    * Filename contains a complete path - get the directory portion and do
+    * a chdir()...
+    */
+
+    chdir(dir);
+    fc->directory(".");
+
+    filename = file_basename(filename);
+  }
+
+  // Open the file...
+  fp = fopen(filename, "r");
+  if (fp == NULL)
+  {
+    fl_alert("Unable to open \"%s\"!", filename);
+    return (0);
+  }
+
+  // Get the header...
+  fgets(line, sizeof(line), fp);
+  if (strncmp(line, "#HTMLDOC", 8) != 0)
+  {
+    fclose(fp);
+    fl_alert("Bad or missing #HTMLDOC header:\n%-80.80s", line);
+    return (0);
+  }
+
+  // Reset the GUI...
+  if (!newBook())
+  {
+    fclose(fp);
+    return (0);
+  }
+
+  // Read the second line from the book file; for older book files, this will
+  // be the file count; for new files this will be the options...
+  fgets(line, sizeof(line), fp);
+  line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
+
+  if (line[0] == '-')
+    parseOptions(line);
+
+  // Get input files/options...
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
+
+    if (line[0] == '-')
+      parseOptions(line);
+    else if (line[0] == '\\')
+      inputFiles->add(line + 1, icon);
+    else
+      inputFiles->add(line, icon);
+  }
+
+  // Close the book file and update the GUI...
+  fclose(fp);
+
+  inputFiles->topline(1);
+
+  title(filename, 0);
+
+  return (1);
+}
+
+
+//
+// 'GUI::parseOptions()' - Parse options in a book file...
+//
+
+void
+GUI::parseOptions(const char *line)	// I - Line from file
+{
+  int		i;			// Looping var
+  const char	*lineptr;		// Pointer into line
+  char		temp[1024],		// Option name
+		temp2[1024],		// Option value
+		*tempptr,		// Pointer into option
+		formats[256];		// Header/footer formats
   static char	*types[] =		// Typeface names...
 		{ "Courier", "Times", "Helvetica" };
   static char	*fonts[] =		// Font names...
@@ -1302,10 +1383,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 		};
 
 
-  //
   // Initialize the format character lookup table...
-  //
-
   memset(formats, 0, sizeof(formats));
   formats['t'] = 1;
   formats['c'] = 2;
@@ -1323,65 +1401,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   formats['T'] = 14;
   formats['D'] = 15;
 
-  //
-  // If the filename contains a path, chdir to it first...
-  //
-
-  if ((tempptr = file_directory(filename)) != NULL)
-  {
-   /*
-    * Filename contains a complete path - get the directory portion and do
-    * a chdir()...
-    */
-
-    chdir(tempptr);
-    fc->directory(".");
-
-    filename = file_basename(filename);
-  }
-
-  //
-  // Open the file...
-  //
-
-  fp = fopen(filename, "r");
-  if (fp == NULL)
-  {
-    fl_alert("Unable to open \"%s\"!", filename);
-    return (0);
-  }
-
-  fgets(line, sizeof(line), fp);  /* Get header... */
-  if (strncmp(line, "#HTMLDOC", 8) != 0)
-  {
-    fclose(fp);
-    fl_alert("Bad or missing #HTMLDOC header:\n%-80.80s", line);
-    return (0);
-  }
-
-  if (!newBook())
-  {
-    fclose(fp);
-    return (0);
-  }
-
-  fgets(line, sizeof(line), fp);  /* Skip input file count... */
-
-  // Get input files...
-  while (fgets(line, sizeof(line), fp) != NULL)
-  {
-    line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
-
-    if (line[0] == '-')
-      break; /* Found options */
-    else if (line[0] == '\\')
-      inputFiles->add(line + 1, icon);
-    else
-      inputFiles->add(line, icon);
-  }
-
-  inputFiles->topline(1);
-
+  // Parse the input line...
   for (lineptr = line; *lineptr != '\0';)
   {
     while (*lineptr == ' ')
@@ -1807,12 +1827,6 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     else if (strcmp(temp, "--proxy") == 0)
       proxy->value(temp2);
   }
-
-  fclose(fp);
-
-  title(filename, 0);
-
-  return (1);
 }
 
 
@@ -1840,6 +1854,7 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 		};
 
 
+  // Open the book file...
   fp = fopen(filename, "w");
   if (fp == NULL)
   {
@@ -1847,17 +1862,10 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     return (0);
   }
 
+  // Write the standard header...
   fputs("#HTMLDOC " SVERSION "\n", fp);
 
-  count = inputFiles->size();
-  fprintf(fp, "%d\n", count);
-
-  for (i = 1; i <= count; i ++)
-    if (inputFiles->text(i)[0] == '-')
-      fprintf(fp, "\\%s\n", inputFiles->text(i));
-    else
-      fprintf(fp, "%s\n", inputFiles->text(i));
-
+  // Write the options...
   if (typeHTML->value())
     fputs("-t html", fp);
   else if (typePS->value())
@@ -2066,6 +2074,17 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fprintf(fp, " --proxy \"%s\"", proxy->value());
 
   fputs("\n", fp);
+
+  // Output the files...
+  count = inputFiles->size();
+
+  for (i = 1; i <= count; i ++)
+    if (inputFiles->text(i)[0] == '-')
+      fprintf(fp, "\\%s\n", inputFiles->text(i));
+    else
+      fprintf(fp, "%s\n", inputFiles->text(i));
+
+  // Close the file and update the GUI...
   fclose(fp);
 
   title(filename, 0);
@@ -3653,5 +3672,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.8 2001/02/22 01:22:41 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.9 2001/02/23 13:47:13 mike Exp $".
 //

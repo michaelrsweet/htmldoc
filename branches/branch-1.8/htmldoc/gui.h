@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.3 2001/02/16 16:57:17 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.4 2001/02/23 13:47:14 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -250,6 +250,7 @@ class GUI
   void	hide() { window->hide(); help->hide(); fc->hide(); };
   int	loadBook(const char *bookfile);
   int	newBook();
+  void	parseOptions(const char *line);
   void	progress(int percent, char *text = NULL);
   int	saveBook(const char *bookfile);
   void	show();
@@ -258,5 +259,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.3 2001/02/16 16:57:17 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.4 2001/02/23 13:47:14 mike Exp $".
  */
