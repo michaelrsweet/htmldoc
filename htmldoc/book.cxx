@@ -1,5 +1,5 @@
 //
-// "$Id: book.cxx,v 1.5 2004/04/11 19:38:58 mike Exp $"
+// "$Id: book.cxx,v 1.6 2004/10/22 05:43:14 mike Exp $"
 //
 //   Book routines for HTMLDOC, a HTML document processing program.
 //
@@ -128,7 +128,8 @@ hdBook::hdBook()
   link_color[1]       = 0.0f;
   link_color[2]       = 1.0f;
   compressor_active   = 0;
-  
+
+  CGIMode             = false;
   Compression         = 1;
   TitlePage           = true;
   TocLinks            = true;
@@ -1012,5 +1013,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: book.cxx,v 1.5 2004/04/11 19:38:58 mike Exp $".
+// End of "$Id: book.cxx,v 1.6 2004/10/22 05:43:14 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: link.cxx,v 1.1 2004/04/01 03:26:43 mike Exp $"
+// "$Id: link.cxx,v 1.2 2004/10/22 05:43:14 mike Exp $"
 //
 //   Link functions for HTMLDOC, a HTML document processing program.
 //
@@ -122,7 +122,10 @@ hdBook::find_link(uchar *name,		// I - Name to find
   if (!name || !num_links)
     return (NULL);
 
-  strlcpy((char *)key.name, (char *)target, sizeof(key.name));
+  if ((target = (uchar *)file_target((char *)name)) == NULL)
+    key.name[0] = '\0';
+  else
+    strlcpy((char *)key.name, (char *)target, sizeof(key.name));
   key.filename = filename;
 
   return ((hdLink *)bsearch(&key, links, num_links, sizeof(hdLink),
@@ -131,5 +134,5 @@ hdBook::find_link(uchar *name,		// I - Name to find
 
 
 //
-// End of "$Id: link.cxx,v 1.1 2004/04/01 03:26:43 mike Exp $".
+// End of "$Id: link.cxx,v 1.2 2004/10/22 05:43:14 mike Exp $".
 //
