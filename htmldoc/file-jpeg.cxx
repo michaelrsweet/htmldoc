@@ -1,5 +1,5 @@
 //
-// "$Id: file-jpeg.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file-jpeg.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $"
 //
 //   JPEG filter functions for HTMLDOC.
 //
@@ -48,13 +48,15 @@
 // 'hdJPEGFilter::hdJPEGFilter()' - Construct a JPEG filter.
 //
 
-hdJPEGFilter::hdJPEGFilter(hdFile *f,		// I - File or filter
-                           int    width,	// I - Width of data
-			   int    height,	// I - Height of data
-			   int    depth,	// I - Color depth of data
-			   int    quality)	// I - Output quality
+hdJPEGFilter::hdJPEGFilter(hdFile *f,	// I - File or filter
+                           int    width,// I - Width of data
+			   int    height,
+					// I - Height of data
+			   int    depth,// I - Color depth of data
+			   int    quality)
+					// I - Output quality
 {
-  int	i;					// Looping var...
+  int	i;				// Looping var...
 
 
   // Chain to the next file/filter...
@@ -111,7 +113,7 @@ hdJPEGFilter::~hdJPEGFilter()
 // 'hdJPEGFilter::get()' - Get a character (not implemented)
 //
 
-int			// O - -1 for error/not implemented
+int					// O - -1 for error/not implemented
 hdJPEGFilter::get()
 {
   return (-1);
@@ -122,8 +124,8 @@ hdJPEGFilter::get()
 // 'hdJPEGFilter::put()' - Put a single character (not implemented)
 //
 
-int			// O - -1 on error (not implemented)
-hdJPEGFilter::put(int c)// I - Character to put
+int					// O - -1 on error (not implemented)
+hdJPEGFilter::put(int c)		// I - Character to put
 {
   return (-1);
 }
@@ -133,9 +135,9 @@ hdJPEGFilter::put(int c)// I - Character to put
 // 'hdJPEGFilter::read()' - Read bytes (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdJPEGFilter::read(void *,	// I - Bytes to read
-                  int)		// I - Number of bytes to read
+int					// O - -1 for error (not implemented)
+hdJPEGFilter::read(void *,		// I - Bytes to read
+                  int)			// I - Number of bytes to read
 {
   return (-1);
 }
@@ -145,9 +147,9 @@ hdJPEGFilter::read(void *,	// I - Bytes to read
 // 'hdJPEGFilter::seek()' - See in the file (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
+int					// O - -1 for error (not implemented)
 hdJPEGFilter::seek(long,		// I - Position or offset
-                  int)		// I - Whence to seek from
+                  int)			// I - Whence to seek from
 {
   return (-1);
 }
@@ -157,7 +159,7 @@ hdJPEGFilter::seek(long,		// I - Position or offset
 // 'hdJPEGFilter::size()' - Return the size of the file.
 //
 
-long				// O - Size of file in bytes
+long					// O - Size of file in bytes
 hdJPEGFilter::size()
 {
   return (chain_->size());
@@ -196,8 +198,8 @@ hdJPEGFilter::write(const void *b,	// I - Buffer to write
 // 'hdJPEGFilter::unget()' - Un-get a character (not supported)
 //
 
-int				// O - -1 on error (not supported)
-hdJPEGFilter::unget(int c)	// I - Character to unget
+int					// O - -1 on error (not supported)
+hdJPEGFilter::unget(int c)		// I - Character to unget
 {
   return (-1);
 }
@@ -227,7 +229,8 @@ hdJPEGFilter::init(j_compress_ptr cinfo)// I - Compressor info
 //
 
 boolean					// O - TRUE if buffer written OK
-hdJPEGFilter::empty(j_compress_ptr cinfo)// I - Compressor info
+hdJPEGFilter::empty(j_compress_ptr cinfo)
+					// I - Compressor info
 {
   hdJPEGFilter	*jf;			// JPEG filter
 
@@ -269,5 +272,5 @@ hdJPEGFilter::term(j_compress_ptr cinfo)// I - Compressor info
 
 
 //
-// End of "$Id: file-jpeg.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file-jpeg.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: file.cxx,v 1.8 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file.cxx,v 1.9 2004/03/08 01:01:41 mike Exp $"
 //
 //   Filename routines for HTMLDOC, a HTML document processing program.
 //
@@ -78,26 +78,28 @@
 // Class globals...
 //
 
-const char	*hdFile::proxy_ = NULL;			// Proxy URL
-char		hdFile::proxy_host_[HD_MAX_URI] = "";	// Proxy hostname
-int		hdFile::proxy_port_ = 0;		// Proxy port
-int		hdFile::temp_files_ = 0,		// Number of temporary files
-		hdFile::temp_alloc_ = 0;		// Number of allocated files
-hdCache		*hdFile::temp_cache_ = NULL;		// Cache array
-int		hdFile::no_local_ = 0;			// Non-zero to disable local files
+const char	*hdFile::proxy_ = NULL;	// Proxy URL
+char		hdFile::proxy_host_[HD_MAX_URI] = "";
+					// Proxy hostname
+int		hdFile::proxy_port_ = 0;// Proxy port
+int		hdFile::temp_files_ = 0,// Number of temporary files
+		hdFile::temp_alloc_ = 0;// Number of allocated files
+hdCache		*hdFile::temp_cache_ = NULL;
+					// Cache array
+int		hdFile::no_local_ = 0;	// Non-zero to disable local files
 
 
 //
 // 'hdFile::basename()' - Return the base filename without directory or target.
 //
 
-char *				// O - Base filename
-hdFile::basename(const char *s,	// I - Filename or URL
-                 char       *t,	// O - Base filename
-		 int        tlen)// I - Size of filename buffer
+char *					// O - Base filename
+hdFile::basename(const char *s,		// I - Filename or URL
+                 char       *t,		// O - Base filename
+		 int        tlen)	// I - Size of filename buffer
 {
-  char		*basename;	// Pointer to directory separator
-  char		*target;	// Pointer to target separator
+  char		*basename;		// Pointer to directory separator
+  char		*target;		// Pointer to target separator
 
 
   if (s == NULL || t == NULL)
@@ -182,12 +184,12 @@ hdFile::cleanup(void)
 // 'hdFile::directory()' - Return the directory without filename or target.
 //
 
-char *				// O - Directory for file
-hdFile::directory(const char *s,// I - Filename or URL
-                  char       *t,// O - Base filename
-		  int        tlen)// I - Size of filename buffer
+char *					// O - Directory for file
+hdFile::directory(const char *s,	// I - Filename or URL
+                  char       *t,	// O - Base filename
+		  int        tlen)	// I - Size of filename buffer
 {
-  char		*dir;		// Pointer to directory separator
+  char		*dir;			// Pointer to directory separator
 
 
   if (s == NULL || t == NULL)
@@ -245,13 +247,13 @@ hdFile::directory(const char *s,// I - Filename or URL
 // 'hdFile::extension()' - Return the extension of a file without the target.
 //
 
-char *				// O - File extension
-hdFile::extension(const char *s,// I - Filename or URL
-                  char       *t,// O - Base filename
-		  int        tlen)// I - Size of filename buffer
+char *					// O - File extension
+hdFile::extension(const char *s,	// I - Filename or URL
+                  char       *t,	// O - Base filename
+		  int        tlen)	// I - Size of filename buffer
 {
-  char		*extension;	// Pointer to directory separator
-  char		*target;	// Pointer to target separator
+  char		*extension;		// Pointer to directory separator
+  char		*target;		// Pointer to target separator
 
 
   if (s == NULL || t == NULL)
@@ -651,8 +653,8 @@ hdFile::localize(char       *name,	// IO - Name of file
 // Returns NULL if the URL is a local file.
 //
 
-const char *			// O - Method string ("http", "ftp", etc.)
-hdFile::scheme(const char *s)	// I - Filename or URL
+const char *				// O - Method string ("http", "ftp", etc.)
+hdFile::scheme(const char *s)		// I - Filename or URL
 {
   if (strncmp(s, "http:", 5) == 0)
     return ("http");
@@ -672,13 +674,13 @@ hdFile::scheme(const char *s)	// I - Filename or URL
 //
 
 void
-hdFile::proxy(const char *url)	// I - URL of proxy_ server
+hdFile::proxy(const char *url)		// I - URL of proxy_ server
 {
-  char	scheme[HD_MAX_URI],	// Method name (must be http)
-	username[HD_MAX_URI],	// Username:password information
-	hostname[HD_MAX_URI],	// Hostname
-	resource[HD_MAX_URI];	// Resource name
-  int	port;			// Port number
+  char	scheme[HD_MAX_URI],		// Method name (must be http)
+	username[HD_MAX_URI],		// Username:password information
+	hostname[HD_MAX_URI],		// Hostname
+	resource[HD_MAX_URI];		// Resource name
+  int	port;				// Port number
 
 
   if (url == NULL || url[0] == '\0')
@@ -706,11 +708,11 @@ hdFile::proxy(const char *url)	// I - URL of proxy_ server
 // 'hdFile::target()' - Return the target of a link.
 //
 
-const char *			// O - Target name
-hdFile::target(const char *s)	// I - Filename or URL
+const char *				// O - Target name
+hdFile::target(const char *s)		// I - Filename or URL
 {
-  char		*basename;	// Pointer to directory separator
-  char		*target;	// Pointer to target
+  char		*basename;		// Pointer to directory separator
+  char		*target;		// Pointer to target
 
 
   if (s == NULL)
@@ -799,5 +801,5 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
 
 
 //
-// End of "$Id: file.cxx,v 1.8 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file.cxx,v 1.9 2004/03/08 01:01:41 mike Exp $".
 //

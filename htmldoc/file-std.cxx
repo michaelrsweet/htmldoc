@@ -1,5 +1,5 @@
 //
-// "$Id: file-std.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file-std.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $"
 //
 //   Stdio file routines for HTMLDOC, a HTML document processing program.
 //
@@ -165,8 +165,8 @@ hdStdFile::get()
 // 'hdStdFile::put()' - Put a single character to a file.
 //
 
-int				// O - 0 on success, -1 on error
-hdStdFile::put(int c)		// I - Character to put
+int					// O - 0 on success, -1 on error
+hdStdFile::put(int c)			// I - Character to put
 {
   if (!fp_)
     return (-1);
@@ -299,5 +299,5 @@ hdStdFile::unget(int c)			// I - Character to push back
 
 
 //
-// End of "$Id: file-std.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file-std.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $".
 //

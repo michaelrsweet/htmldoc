@@ -1,5 +1,5 @@
 //
-// "$Id: file-flate.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file-flate.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $"
 //
 //   Flate filter functions for HTMLDOC.
 //
@@ -45,8 +45,9 @@
 // 'hdFlateFilter::hdFlateFilter()' - Construct a Flate filter.
 //
 
-hdFlateFilter::hdFlateFilter(hdFile *f,		// I - File or filter
-                             int    level)	// I - Compression level
+hdFlateFilter::hdFlateFilter(hdFile *f,	// I - File or filter
+                             int    level)
+					// I - Compression level
 {
   // Chain to the next file/filter...
   chain_ = f;
@@ -92,7 +93,7 @@ hdFlateFilter::~hdFlateFilter()
 // 'hdFlateFilter::get()' - Get a character (not implemented)
 //
 
-int			// O - -1 for error/not implemented
+int					// O - -1 for error/not implemented
 hdFlateFilter::get()
 {
   return (-1);
@@ -103,10 +104,10 @@ hdFlateFilter::get()
 // 'hdFlateFilter::put()' - Put a single character to the filter.
 //
 
-int				// O - -1 on error, 0 on success
-hdFlateFilter::put(int c)	// I - Character to put
+int					// O - -1 on error, 0 on success
+hdFlateFilter::put(int c)		// I - Character to put
 {
-  char	in[1];			// Input array for compression...
+  char	in[1];				// Input array for compression...
 
 
   in[0] = c;
@@ -122,9 +123,9 @@ hdFlateFilter::put(int c)	// I - Character to put
 // 'hdFlateFilter::read()' - Read bytes (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdFlateFilter::read(void *,	// I - Bytes to read
-                    int)	// I - Number of bytes to read
+int					// O - -1 for error (not implemented)
+hdFlateFilter::read(void *,		// I - Bytes to read
+                    int)		// I - Number of bytes to read
 {
   return (-1);
 }
@@ -134,9 +135,9 @@ hdFlateFilter::read(void *,	// I - Bytes to read
 // 'hdFlateFilter::seek()' - See in the file (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdFlateFilter::seek(long,	// I - Position or offset
-                    int)	// I - Whence to seek from
+int					// O - -1 for error (not implemented)
+hdFlateFilter::seek(long,		// I - Position or offset
+                    int)		// I - Whence to seek from
 {
   return (-1);
 }
@@ -146,7 +147,7 @@ hdFlateFilter::seek(long,	// I - Position or offset
 // 'hdFlateFilter::size()' - Return the size of the file.
 //
 
-long				// O - Size of file in bytes
+long					// O - Size of file in bytes
 hdFlateFilter::size()
 {
   return (chain_->size());
@@ -187,13 +188,13 @@ hdFlateFilter::write(const void *b,	// I - Buffer to write
 // 'hdFlateFilter::unget()' - Un-get a character (not supported)
 //
 
-int				// O - -1 on error (not supported)
-hdFlateFilter::unget(int c)	// I - Character to unget
+int					// O - -1 on error (not supported)
+hdFlateFilter::unget(int c)		// I - Character to unget
 {
   return (-1);
 }
 
 
 //
-// End of "$Id: file-flate.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file-flate.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: file-ascii.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file-ascii.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $"
 //
 //   ASCII filter functions for HTMLDOC.
 //
@@ -23,6 +23,24 @@
 //
 // Contents:
 //
+//   hdASCII85Filter::hdASCII85Filter()    - Construct a ASCII85 filter.
+//   hdASCII85Filter::~hdASCII85Filter()   - Destroy a ASCII85 filter.
+//   hdASCII85Filter::get()                - Get a character (not implemented)
+//   hdASCII85Filter::put()                - Put a single character to the filter.
+//   hdASCII85Filter::read()               - Read bytes (not implemented)
+//   hdASCII85Filter::seek()               - See in the file (not implemented)
+//   hdASCII85Filter::size()               - Return the size of the file.
+//   hdASCII85Filter::write()              - Write bytes.
+//   hdASCII85Filter::unget()              - Un-get a character (not supported)
+//   hdASCIIHexFilter::hdASCIIHexFilter()  - Construct a ASCIIHex filter.
+//   hdASCIIHexFilter::~hdASCIIHexFilter() - Destroy a ASCIIHex filter.
+//   hdASCIIHexFilter::get()               - Get a character (not implemented)
+//   hdASCIIHexFilter::put()               - Put a single character to the filter.
+//   hdASCIIHexFilter::read()              - Read bytes (not implemented)
+//   hdASCIIHexFilter::seek()              - See in the file (not implemented)
+//   hdASCIIHexFilter::size()              - Return the size of the file.
+//   hdASCIIHexFilter::write()             - Write bytes.
+//   hdASCIIHexFilter::unget()             - Un-get a character (not supported)
 //
 
 //
@@ -46,7 +64,8 @@
 // 'hdASCII85Filter::hdASCII85Filter()' - Construct a ASCII85 filter.
 //
 
-hdASCII85Filter::hdASCII85Filter(hdFile *f)	// I - File or filter
+hdASCII85Filter::hdASCII85Filter(hdFile *f)
+					// I - File or filter
 {
   // Chain to the next file/filter...
   chain_ = f;
@@ -107,7 +126,7 @@ hdASCII85Filter::~hdASCII85Filter()
 // 'hdASCII85Filter::get()' - Get a character (not implemented)
 //
 
-int			// O - -1 for error/not implemented
+int					// O - -1 for error/not implemented
 hdASCII85Filter::get()
 {
   return (-1);
@@ -118,10 +137,10 @@ hdASCII85Filter::get()
 // 'hdASCII85Filter::put()' - Put a single character to the filter.
 //
 
-int				// O - -1 on error, 0 on success
-hdASCII85Filter::put(int c)	// I - Character to put
+int					// O - -1 on error, 0 on success
+hdASCII85Filter::put(int c)		// I - Character to put
 {
-  char	in[1];			// Input array for output...
+  char	in[1];				// Input array for output...
 
 
   in[0] = c;
@@ -137,9 +156,9 @@ hdASCII85Filter::put(int c)	// I - Character to put
 // 'hdASCII85Filter::read()' - Read bytes (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdASCII85Filter::read(void *,	// I - Bytes to read
-                      int)	// I - Number of bytes to read
+int					// O - -1 for error (not implemented)
+hdASCII85Filter::read(void *,		// I - Bytes to read
+                      int)		// I - Number of bytes to read
 {
   return (-1);
 }
@@ -149,9 +168,9 @@ hdASCII85Filter::read(void *,	// I - Bytes to read
 // 'hdASCII85Filter::seek()' - See in the file (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdASCII85Filter::seek(long,	// I - Position or offset
-                      int)	// I - Whence to seek from
+int					// O - -1 for error (not implemented)
+hdASCII85Filter::seek(long,		// I - Position or offset
+                      int)		// I - Whence to seek from
 {
   return (-1);
 }
@@ -161,7 +180,7 @@ hdASCII85Filter::seek(long,	// I - Position or offset
 // 'hdASCII85Filter::size()' - Return the size of the file.
 //
 
-long				// O - Size of file in bytes
+long					// O - Size of file in bytes
 hdASCII85Filter::size()
 {
   return (chain_->size());
@@ -255,8 +274,8 @@ hdASCII85Filter::write(const void *b,	// I - Buffer to write
 // 'hdASCII85Filter::unget()' - Un-get a character (not supported)
 //
 
-int				// O - -1 on error (not supported)
-hdASCII85Filter::unget(int c)	// I - Character to unget
+int					// O - -1 on error (not supported)
+hdASCII85Filter::unget(int c)		// I - Character to unget
 {
   return (-1);
 }
@@ -266,7 +285,8 @@ hdASCII85Filter::unget(int c)	// I - Character to unget
 // 'hdASCIIHexFilter::hdASCIIHexFilter()' - Construct a ASCIIHex filter.
 //
 
-hdASCIIHexFilter::hdASCIIHexFilter(hdFile *f)	// I - File or filter
+hdASCIIHexFilter::hdASCIIHexFilter(hdFile *f)
+					// I - File or filter
 {
   // Chain to the next file/filter...
   chain_  = f;
@@ -290,7 +310,7 @@ hdASCIIHexFilter::~hdASCIIHexFilter()
 // 'hdASCIIHexFilter::get()' - Get a character (not implemented)
 //
 
-int			// O - -1 for error/not implemented
+int					// O - -1 for error/not implemented
 hdASCIIHexFilter::get()
 {
   return (-1);
@@ -301,8 +321,8 @@ hdASCIIHexFilter::get()
 // 'hdASCIIHexFilter::put()' - Put a single character to the filter.
 //
 
-int				// O - -1 on error, 0 on success
-hdASCIIHexFilter::put(int c)	// I - Character to put
+int					// O - -1 on error, 0 on success
+hdASCIIHexFilter::put(int c)		// I - Character to put
 {
   // Write a single hex number, and add a newline as needed...
   if (column_ >= (HD_MAX_ASCII - 1))
@@ -322,9 +342,9 @@ hdASCIIHexFilter::put(int c)	// I - Character to put
 // 'hdASCIIHexFilter::read()' - Read bytes (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdASCIIHexFilter::read(void *,	// I - Bytes to read
-                       int)	// I - Number of bytes to read
+int					// O - -1 for error (not implemented)
+hdASCIIHexFilter::read(void *,		// I - Bytes to read
+                       int)		// I - Number of bytes to read
 {
   return (-1);
 }
@@ -334,9 +354,9 @@ hdASCIIHexFilter::read(void *,	// I - Bytes to read
 // 'hdASCIIHexFilter::seek()' - See in the file (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdASCIIHexFilter::seek(long,	// I - Position or offset
-                       int)	// I - Whence to seek from
+int					// O - -1 for error (not implemented)
+hdASCIIHexFilter::seek(long,		// I - Position or offset
+                       int)		// I - Whence to seek from
 {
   return (-1);
 }
@@ -346,7 +366,7 @@ hdASCIIHexFilter::seek(long,	// I - Position or offset
 // 'hdASCIIHexFilter::size()' - Return the size of the file.
 //
 
-long				// O - Size of file in bytes
+long					// O - Size of file in bytes
 hdASCIIHexFilter::size()
 {
   return (chain_->size());
@@ -393,13 +413,13 @@ hdASCIIHexFilter::write(const void *b,	// I - Buffer to write
 // 'hdASCIIHexFilter::unget()' - Un-get a character (not supported)
 //
 
-int				// O - -1 on error (not supported)
-hdASCIIHexFilter::unget(int c)	// I - Character to unget
+int					// O - -1 on error (not supported)
+hdASCIIHexFilter::unget(int c)		// I - Character to unget
 {
   return (-1);
 }
 
 
 //
-// End of "$Id: file-ascii.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file-ascii.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $".
 //

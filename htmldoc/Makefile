@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.34 2002/07/24 12:55:54 mike Exp $"
+# "$Id: Makefile,v 1.35 2004/03/08 01:01:41 mike Exp $"
 #
 # Makefile for HTMLDOC library.
 #
-# Copyright 1997-2002 by Easy Software Products.
+# Copyright 1997-2004 by Easy Software Products.
 #
 # These coded instructions, statements, and computer programs are the
 # property of Easy Software Products and are protected by Federal
@@ -40,7 +40,21 @@ TARGETS	=	libhtmldoc.a testsuite
 # Object files...
 #
 
-LIBOBJS	=	common.o \
+HEADERS	=	\
+		file.h \
+		htmldoc.h \
+		http.h \
+		image.h \
+		margin.h \
+		md5.h \
+		render.h \
+		style.h \
+		tree.h \
+		types.h
+
+
+LIBOBJS	=	\
+		common.o \
 		file.o file-common.o file-mem.o file-open.o file-std.o \
 		file-ascii.o file-flate.o file-jpeg.o file-rc4.o \
 		http.o http-md5.o md5.o \
@@ -48,7 +62,7 @@ LIBOBJS	=	common.o \
 		image-reduce.o index.o list.o margin.o \
 		render.o render-support.o render-table.o \
 		style.o stylefont.o stylemedia.o stylesheet.o toc.o \
-		tree.o tree-format.o tree-table.o
+		tree.o
 
 OBJS	=	$(LIBOBJS) testsuite.o
 
@@ -105,6 +119,15 @@ $(OBJS):	../Makedefs
 
 
 #
+# reference.html/xml
+#
+
+reference.html:	$(LIBOBJS:.o=.cxx) $(HEADERS)
+	$(RM) reference.xml
+	mxmldoc reference.xml $(LIBOBJS:.o=.cxx) $(HEADERS) >reference.html
+
+
+#
 # depend
 #
 
@@ -115,5 +138,5 @@ include Dependencies
 
 
 #
-# End of "$Id: Makefile,v 1.34 2002/07/24 12:55:54 mike Exp $".
+# End of "$Id: Makefile,v 1.35 2004/03/08 01:01:41 mike Exp $".
 #

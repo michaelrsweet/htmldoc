@@ -1,5 +1,5 @@
 //
-// "$Id: file-common.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file-common.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $"
 //
 //   Common file routines for HTMLDOC, a HTML document processing program.
 //
@@ -50,13 +50,13 @@ hdFile::~hdFile()
 // 'hdFile::gets()' - Read a line from a file.
 //
 
-char *				// O - String buffer or NULL on EOF
-hdFile::gets(char *s,		// O - String buffer
-             int  slen)		// I - Size of string buffer
+char *					// O - String buffer or NULL on EOF
+hdFile::gets(char *s,			// O - String buffer
+             int  slen)			// I - Size of string buffer
 {
-  int		ch;		/* Character from file */
-  char		*ptr,		/* Current position in line sfer */
-		*end;		/* End of line sfer */
+  int		ch;			// Character from file
+  char		*ptr,			// Current position in line sfer
+		*end;			// End of line sfer
 
 
  /*
@@ -137,23 +137,23 @@ hdFile::gets(char *s,		// O - String buffer
 // 'hdFile::printf()' - Write formatted text.
 //
 
-int				// O - Number of bytes written or -1 on error
-hdFile::printf(const char *f,	// I - Printf-style format string
-               ...)		// I - Additional args as needed...
+int					// O - Number of bytes written or -1 on error
+hdFile::printf(const char *f,		// I - Printf-style format string
+               ...)			// I - Additional args as needed...
 {
-  int		bytes;		// Number of bytes written
-  char		sign,		// Sign of format width
-		size,		// Size character (h, l, L)
-		type;		// Format type character
-  const char	*fptr;	// Start of format
-  int		width,		// Width of field
-		prec;		// Number of characters of precision
-  char		tf[100],	// Temporary format string for sprintf()
-		temp[1024],	// Buffer for formatted numbers
-		*tempptr;	// Pointer into number buffer
-  const char	*s;		// Pointer to string
-  int		slen;		// Length of string
-  va_list 	ap;		// Pointer to additional arguments
+  int		bytes;			// Number of bytes written
+  char		sign,			// Sign of format width
+		size,			// Size character (h, l, L)
+		type;			// Format type character
+  const char	*fptr;			// Start of format
+  int		width,			// Width of field
+		prec;			// Number of characters of precision
+  char		tf[100],		// Temporary format string for sprintf()
+		temp[1024],		// Buffer for formatted numbers
+		*tempptr;		// Pointer into number buffer
+  const char	*s;			// Pointer to string
+  int		slen;			// Length of string
+  va_list 	ap;			// Pointer to additional arguments
 
 
   // Return immediately if format is NULL...
@@ -318,8 +318,8 @@ hdFile::printf(const char *f,	// I - Printf-style format string
 // 'hdFile::puts()' - Write a string to a file.
 //
 
-int				// O - Number of bytes written
-hdFile::puts(const char *s)	// I - String to write
+int					// O - Number of bytes written
+hdFile::puts(const char *s)		// I - String to write
 {
   if (s)
     return (write(s, strlen(s)));
@@ -329,5 +329,5 @@ hdFile::puts(const char *s)	// I - String to write
 
 
 //
-// End of "$Id: file-common.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file-common.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $".
 //
