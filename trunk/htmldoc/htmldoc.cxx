@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.28 2000/05/19 14:59:40 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.29 2000/06/03 23:03:36 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -803,7 +803,7 @@ main(int  argc,		/* I - Number of command-line arguments */
   * Build a table of contents for the documents if necessary...
   */
 
-  if (TocLevels > 0)
+  if (OutputBook && TocLevels > 0)
     toc = toc_build(document);
   else
     toc = NULL;
@@ -1507,5 +1507,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.28 2000/05/19 14:59:40 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.29 2000/06/03 23:03:36 mike Exp $".
  */
