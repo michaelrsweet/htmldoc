@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.47 2002/06/29 12:43:56 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.48 2002/07/01 16:56:32 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -111,6 +111,7 @@ main(int  argc,		/* I - Number of command-line arguments */
   const char	*extension;	/* Extension of output filename */
   float		fontsize,	/* Base font size */
 		fontspacing;	/* Base font spacing */
+  int		num_files;	/* Number of files provided on the command-line */
 
 
  /*
@@ -151,13 +152,17 @@ main(int  argc,		/* I - Number of command-line arguments */
 
   fontsize    = 11.0f;
   fontspacing = 1.2f;
+  num_files   = 0;
 
   for (i = 1; i < argc; i ++)
     if (compare_strings(argv[i], "--batch", 4) == 0)
     {
       i ++;
       if (i < argc)
+      {
+        num_files ++;
         load_book(argv[i], &document, &exportfunc);
+      }
       else
         usage();
     }
@@ -777,6 +782,9 @@ main(int  argc,		/* I - Number of command-line arguments */
         Permissions |= PDF_PERM_ANNOTATE;
       else if (strcasecmp(argv[i], "no-annotate") == 0)
         Permissions &= ~PDF_PERM_ANNOTATE;
+
+      if (Permissions != -4)
+        Encryption = 1;
     }
     else if (compare_strings(argv[i], "--portrait", 4) == 0)
       Landscape = 0;
@@ -921,6 +929,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       * Read from stdin...
       */
 
+      num_files ++;
+
       _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
@@ -966,14 +976,18 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
 #endif /* HAVE_LIBFLTK */
     else
+    {
+      num_files ++;
+
       read_file(argv[i], &document);
+    }
 
  /*
   * Display the GUI if necessary...
   */
 
 #ifdef HAVE_LIBFLTK
-  if (document == NULL && BookGUI == NULL)
+  if (num_files == 0 && BookGUI == NULL)
     BookGUI = new GUI();
 
   if (BookGUI != NULL)
@@ -994,7 +1008,7 @@ main(int  argc,		/* I - Number of command-line arguments */
   * We *must* have a document to process...
   */
 
-  if (document == NULL)
+  if (num_files == 0 || document == NULL)
   {
     puts("ERROR: No HTML files!");
     usage();
@@ -2140,6 +2154,7 @@ usage(void)
   puts("  --datadir directory");
   puts("  --duplex");
   puts("  --effectduration {0.1..10.0}");
+  puts("  --embedfonts");
   puts("  --encryption");
   puts("  --firstpage {p1,toc,c1}");
   puts("  --fontsize {6.0..24.0}");
@@ -2167,6 +2182,7 @@ usage(void)
   puts("  --owner-password password");
   puts("  --no-compression");
   puts("  --no-duplex");
+  puts("  --no-embedfonts");
   puts("  --no-encryption");
   puts("  --no-links");
   puts("  --no-localfiles");
@@ -2174,7 +2190,6 @@ usage(void)
   puts("  --no-pscommands");
   puts("  --no-title");
   puts("  --no-toc");
-  puts("  --no-truetype");
   puts("  --numbered");
   puts("  --nup {1,2,4,6,9,16}");
   puts("  {--outdir, -d} dirname");
@@ -2201,7 +2216,6 @@ usage(void)
   puts("  --toclevels levels");
   puts("  --toctitle string");
   puts("  --top margin{in,cm,mm}");
-  puts("  --truetype");
   puts("  --user-password password");
   puts("  {--verbose, -v}");
   puts("  --version");
@@ -2231,5 +2245,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.47 2002/06/29 12:43:56 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.48 2002/07/01 16:56:32 mike Exp $".
  */
