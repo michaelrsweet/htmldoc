@@ -3,8 +3,8 @@ unit pngdef;
 interface
 
 const
-  PNG_LIBPNG_VER_STRING = '1.0.3';
-  PNG_LIBPNG_VER        =  10001;
+  PNG_LIBPNG_VER_STRING = '1.0.6';
+  PNG_LIBPNG_VER        =  10006;
 
 type
   png_uint_32 = Cardinal;
@@ -55,6 +55,9 @@ type
              stdcall;
   png_write_status_ptr = procedure(png_ptr: Pointer;
                            row_number: png_uint_32; pass: int);
+             stdcall;
+  png_user_chunk_ptr = procedure(png_ptr: Pointer;
+                             data: png_unknown_chunkp);
              stdcall;
   png_user_transform_ptr = procedure(png_ptr: Pointer;
                              row_info: Pointer; data: png_bytep);
@@ -179,10 +182,10 @@ const
   PNG_RESOLUTION_METER   = 1;   // pixels/meter
 
 // These are for the sRGB chunk.  These values should NOT be changed.
-  PNG_sRGB_INTENT_SATURATION = 0;
-  PNG_sRGB_INTENT_PERCEPTUAL = 1;
-  PNG_sRGB_INTENT_ABSOLUTE   = 2;
-  PNG_sRGB_INTENT_RELATIVE   = 3;
+ PNG_sRGB_INTENT_PERCEPTUAL = 0;
+ PNG_sRGB_INTENT_RELATIVE   = 1;
+ PNG_sRGB_INTENT_SATURATION = 2;
+ PNG_sRGB_INTENT_ABSOLUTE   = 3;
 
 // Handle alpha and tRNS by replacing with a background color.
   PNG_BACKGROUND_GAMMA_UNKNOWN = 0;
@@ -261,7 +264,11 @@ function png_create_read_struct(user_png_ver: png_charp;
              stdcall;
 function png_get_copyright(png_ptr: png_structp): png_charp;
              stdcall;
+function png_get_header_ver(png_ptr: png_structp): png_charp;
+             stdcall;
 function png_get_header_version(png_ptr: png_structp): png_charp;
+             stdcall;
+function png_get_libpng_ver(png_ptr: png_structp): png_charp;
              stdcall;
 function png_create_write_struct(user_png_ver: png_charp;
              error_ptr: user_error_ptr; error_fn: png_error_ptr;
@@ -330,6 +337,10 @@ function png_get_oFFs(png_ptr: png_structp; info_ptr: png_infop;
              var offset_x, offset_y: png_uint_32;
              var unit_type: int): png_uint_32;
              stdcall;
+function png_get_sCAL(png_ptr: png_structp; info_ptr: png_infop;
+             var unit:int; var width: png_uint_32; height: png_uint_32): 
+             png_uint_32;
+             stdcall
 function png_get_pCAL(png_ptr: png_structp; info_ptr: png_infop;
              var purpose: png_charp; var X0, X1: png_int_32;
              var typ, nparams: int; var units: png_charp;
@@ -352,6 +363,9 @@ function png_get_rgb_to_gray_status(png_ptr: png_structp);
 function png_get_rowbytes(png_ptr: png_structp; info_ptr: png_infop):
              png_uint_32;
              stdcall;
+function png_get_rows(png_ptr: png_structp; info_ptr: png_infop):
+             png_bytepp;
+             stdcall;
 function png_get_sBIT(png_ptr: png_structp; info_ptr: png_infop;
              var sig_bits: png_color_8p): png_uint_32;
              stdcall;
@@ -371,6 +385,9 @@ function png_get_tRNS(png_ptr: png_structp; info_ptr: png_infop;
 function png_get_text(png_ptr: png_structp; info_ptr: png_infop;
              var text_ptr: png_textp; var num_text: int):
              png_uint_32;
+             stdcall;
+function png_get_user_chunk_ptr(png_ptr: png_structp):
+             png_voidp;
              stdcall;
 function png_get_valid(png_ptr: png_structp; info_ptr: png_infop;
              flag: png_uint_32): png_uint_32;
@@ -433,6 +450,10 @@ procedure png_set_cHRM(png_ptr: png_structp; info_ptr: png_infop;
              white_x, white_y, red_x, red_y, green_x, green_y,
              blue_x, blue_y: double);
              stdcall;
+procedure png_set_cHRM_fixed(png_ptr: png_structp; info_ptr: png_infop;
+             white_x, white_y, red_x, red_y, green_x, green_y,
+             blue_x, blue_y: png_fixed_point);
+             stdcall;
 procedure png_set_compression_level(png_ptr: png_structp; level: int);
              stdcall;
 procedure png_set_compression_mem_level(png_ptr: png_structp;
@@ -472,8 +493,13 @@ procedure png_set_flush(png_ptr: png_structp; nrows: int);
 procedure png_set_gAMA(png_ptr: png_structp; info_ptr: png_infop;
              file_gamma: double);
              stdcall;
+procedure png_set_gAMA_fixed(png_ptr: png_structp; info_ptr: png_infop;
+             file_gamma: png_fixed_point);
+             stdcall;
 procedure png_set_gamma(png_ptr: png_structp; screen_gamma,
              default_file_gamma: double);
+             stdcall;
+procedure png_set_gray_1_2_4_to_8(png_ptr: png_structp);
              stdcall;
 procedure png_set_gray_to_rgb(png_ptr: png_structp);
              stdcall;
@@ -488,6 +514,8 @@ procedure png_set_invert_mono(png_ptr: png_structp);
              stdcall;
 procedure png_set_oFFs(png_ptr: png_structp; info_ptr: png_infop;
              offset_x, offset_y: png_uint_32; unit_type: int);
+             stdcall;
+procedure png_set_palette_to_rgb(png_ptr: png_structp);
              stdcall;
 procedure png_set_pCAL(png_ptr: png_structp; info_ptr: png_infop;
              purpose: png_charp; X0, X1: png_int_32;
@@ -513,10 +541,20 @@ procedure png_set_read_fn(png_ptr: png_structp;
 procedure png_set_read_status_fn(png_ptr: png_structp;
              read_row_fn: png_read_status_ptr);
              stdcall;
+procedure png_set_read_user_chunk_fn(png_ptr: png_structp;
+             read_user_chunk_fn: png_user_chunk_ptr);
+             stdcall;
 procedure png_set_read_user_transform_fn(png_ptr: png_structp;
              read_user_transform_fn: png_user_transform_ptr);
              stdcall;
-procedure png_set_rgb_to_gray(png_ptr: png_structp; int: error_action);
+procedure png_set_rgb_to_gray(png_ptr: png_structp; int: error_action;
+             red_weight, green_weight: double);
+             stdcall;
+procedure png_set_rgb_to_gray_fixed(png_ptr: png_structp; int: error_action;
+             red_weight, green_weight: png_fixed_point);
+             stdcall;
+procedure png_set_rows(png_ptr: png_structp; info_ptr: png_infop;
+             row_pointers: png_bytepp);
              stdcall;
 procedure png_set_sBIT(png_ptr: png_structp; info_ptr: png_infop;
              sig_bits: png_color_8p);
@@ -545,6 +583,8 @@ procedure png_set_tIME(png_ptr: png_structp; info_ptr: png_infop;
 procedure png_set_tRNS(png_ptr: png_structp; info_ptr: png_infop;
              trans: png_bytep; num_trans: int;
              trans_values: png_color_16p);
+             stdcall;
+procedure png_set_tRNS_to_alpha(png_ptr: png_structp);
              stdcall;
 procedure png_set_text(png_ptr: png_structp; info_ptr: png_infop;
              text_ptr: png_textp; num_text: int);
@@ -583,10 +623,28 @@ procedure png_write_image(png_ptr: png_structp; image: png_bytepp);
              stdcall;
 procedure png_write_info(png_ptr: png_structp; info_ptr: png_infop);
              stdcall;
+procedure png_write_info_before_PLTE(png_ptr: png_structp; info_ptr: png_infop);
+             stdcall;
 procedure png_write_row(png_ptr: png_structp; row: png_bytep);
              stdcall;
 procedure png_write_rows(png_ptr: png_structp; row: png_bytepp;
              num_rows: png_uint_32);
+             stdcall;
+procedure png_get_iCCP(png_ptr: png_structp; info_ptr: png_infop;
+             name: png_charpp; compression_type: int *; profile: png_charpp;
+             proflen: png_int_32): png_bytep;
+             stdcall;
+procedure png_get_sPLT(png_ptr: png_structp;
+             info_ptr: png_infop;  entries: png_spalette_pp): png_uint_32;
+             stdcall;
+procedure png_set_iCCP(png_ptr: png_structp; info_ptr: png_infop;
+             name: png_charp; compression_type: int; profile: png_charp;
+             proflen: int);
+             stdcall;
+procedure png_free_data(png_ptr: png_structp; info_ptr: png_infop; num: int);
+             stdcall;
+procedure png_set_sPLT(png_ptr: png_structp; info_ptr: png_infop;
+             entries: png_spalette_p; nentries: int);
              stdcall;
 
 implementation
@@ -629,12 +687,14 @@ function png_get_pixel_aspect_ratio; external pngDLL;
 function png_get_pixels_per_meter; external pngDLL;
 function png_get_progressive_ptr; external pngDLL;
 function png_get_rowbytes; external pngDLL;
+function png_get_rows; external pngDLL;
 function png_get_sBIT; external pngDLL;
 function png_get_sRGB; external pngDLL;
 function png_get_signature; external pngDLL;
 function png_get_tIME; external pngDLL;
 function png_get_tRNS; external pngDLL;
 function png_get_text; external pngDLL;
+function png_get_user_chunk_ptr; external pngDLL;
 function png_get_valid; external pngDLL;
 function png_get_x_offset_microns; external pngDLL;
 function png_get_x_offset_pixels; external pngDLL;
@@ -656,6 +716,7 @@ procedure png_set_bKGD; external pngDLL;
 procedure png_set_background; external pngDLL;
 procedure png_set_bgr; external pngDLL;
 procedure png_set_cHRM; external pngDLL;
+procedure png_set_cHRM_fixed; external pngDLL;
 procedure png_set_compression_level; external pngDLL;
 procedure png_set_compression_mem_level; external pngDLL;
 procedure png_set_compression_method; external pngDLL;
@@ -670,6 +731,7 @@ procedure png_set_filter; external pngDLL;
 procedure png_set_filter_heuristics; external pngDLL;
 procedure png_set_flush; external pngDLL;
 procedure png_set_gAMA; external pngDLL;
+procedure png_set_gAMA_fixed; external pngDLL;
 procedure png_set_gamma; external pngDLL;
 procedure png_set_gray_to_rgb; external pngDLL;
 procedure png_set_hIST; external pngDLL;
@@ -685,6 +747,9 @@ procedure png_set_progressive_read_fn; external pngDLL;
 procedure png_set_read_fn; external pngDLL;
 procedure png_set_read_status_fn; external pngDLL;
 procedure png_set_read_user_transform_fn; external pngDLL;
+procedure png_set_rgb_to_gray; external pngDLL;
+procedure png_set_rgb_to_gray_fixed; external pngDLL;
+procedure png_set_rows; external pngDLL;
 procedure png_set_sBIT; external pngDLL;
 procedure png_set_sRGB; external pngDLL;
 procedure png_set_sRGB_gAMA_and_cHRM; external pngDLL;
@@ -697,6 +762,7 @@ procedure png_set_swap_alpha; external pngDLL;
 procedure png_set_tIME; external pngDLL;
 procedure png_set_tRNS; external pngDLL;
 procedure png_set_text; external pngDLL;
+procedure png_set_user_chunk_fn; external pngDLL;
 procedure png_set_write_fn; external pngDLL;
 procedure png_set_write_status_fn; external pngDLL;
 procedure png_set_write_user_transform_fn; external pngDLL;
@@ -710,7 +776,13 @@ procedure png_write_end; external pngDLL;
 procedure png_write_flush; external pngDLL;
 procedure png_write_image; external pngDLL;
 procedure png_write_info; external pngDLL;
+procedure png_write_info_before_PLTE; external pngDLL;
 procedure png_write_row; external pngDLL;
 procedure png_write_rows; external pngDLL;
+procedure png_get_iCCP; external pngDLL;
+procedure png_get_sPLT; external pngDLL;
+procedure png_set_iCCP; external pngDLL;
+procedure png_set_sPLT; external pngDLL;
+procedure png_free_data; external pngDLL;
 
 end.
