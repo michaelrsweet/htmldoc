@@ -1,8 +1,7 @@
 /*
- * "$Id: http.h,v 1.2.2.9 2002/09/11 19:13:56 swdev Exp $"
+ * "$Id: http.h,v 1.2.2.10 2002/09/11 19:24:40 swdev Exp $"
  *
- *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
- *   System (CUPS).
+ *   Hyper-Text Transport Protocol definitions for the HTMLDOC software.
  *
  *   Copyright 1997-2002 by Easy Software Products, all rights reserved.
  *
@@ -13,12 +12,12 @@
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: CUPS Licensing Information
+ *       Attn: HTMLDOC Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
  *       Hollywood, Maryland 20636-3111 USA
  *
- *       Voice: (301) 373-9603
+ *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
  *         WWW: http://www.easysw.com
  */
@@ -340,5 +339,5 @@ extern char		*httpMD5String(const md5_byte_t *, char [33]);
 #endif /* !_CUPS_HTTP_H_ */
 
 /*
- * End of "$Id: http.h,v 1.2.2.9 2002/09/11 19:13:56 swdev Exp $".
+ * End of "$Id: http.h,v 1.2.2.10 2002/09/11 19:24:40 swdev Exp $".
  */

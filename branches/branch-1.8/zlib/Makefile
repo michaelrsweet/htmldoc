@@ -1,7 +1,7 @@
 #
-# "$Id: Makefile,v 1.6.2.2 2002/09/11 19:13:59 swdev Exp $"
+# "$Id: Makefile,v 1.6.2.3 2002/09/11 19:24:42 swdev Exp $"
 #
-#   ZIP library Makefile for the Common UNIX Printing System (CUPS).
+#   ZIP library Makefile for the HTMLDOC software.
 #
 #   Makefile copyright 1997-2001 by Easy Software Products, all rights
 #   reserved.
@@ -15,7 +15,7 @@
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
-#       Attn: CUPS Licensing Information
+#       Attn: HTMLDOC Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
 #       Hollywood, Maryland 20636-3111 USA
@@ -74,5 +74,5 @@ trees.o:	deflate.h zutil.h trees.h
 zutil.o:	zutil.h
 
 #
-# End of "$Id: Makefile,v 1.6.2.2 2002/09/11 19:13:59 swdev Exp $".
+# End of "$Id: Makefile,v 1.6.2.3 2002/09/11 19:24:42 swdev Exp $".
 #

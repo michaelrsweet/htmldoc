@@ -1,7 +1,7 @@
 /*
- * "$Id: http.c,v 1.1.2.13 2002/09/11 19:13:55 swdev Exp $"
+ * "$Id: http.c,v 1.1.2.14 2002/09/11 19:24:39 swdev Exp $"
  *
- *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
+ *   HTTP routines for the HTMLDOC software.
  *
  *   Copyright 1997-2002 by Easy Software Products, all rights reserved.
  *
@@ -12,7 +12,7 @@
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: CUPS Licensing Information
+ *       Attn: HTMLDOC Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
  *       Hollywood, Maryland 20636-3111 USA
@@ -2098,5 +2098,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.1.2.13 2002/09/11 19:13:55 swdev Exp $".
+ * End of "$Id: http.c,v 1.1.2.14 2002/09/11 19:24:39 swdev Exp $".
  */

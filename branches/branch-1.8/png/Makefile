@@ -1,7 +1,7 @@
 #
-# "$Id: Makefile,v 1.6.2.2 2002/09/11 19:13:58 swdev Exp $"
+# "$Id: Makefile,v 1.6.2.3 2002/09/11 19:24:41 swdev Exp $"
 #
-#   PNG library Makefile for the Common UNIX Printing System (CUPS).
+#   PNG library Makefile for the HTMLDOC software.
 #
 #   Makefile copyright 1997-2001 by Easy Software Products, all rights reserved.
 #   PNG library copyright 1995 Guy Eric Schalnat, Group 42, Inc.
@@ -14,7 +14,7 @@
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
-#       Attn: CUPS Licensing Information
+#       Attn: HTMLDOC Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
 #       Hollywood, Maryland 20636-3111 USA
@@ -61,5 +61,5 @@ libpng.a:	$(OBJS)
 $(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.6.2.2 2002/09/11 19:13:58 swdev Exp $".
+# End of "$Id: Makefile,v 1.6.2.3 2002/09/11 19:24:41 swdev Exp $".
 #
