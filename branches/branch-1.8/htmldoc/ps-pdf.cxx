@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.7 2001/02/01 21:59:50 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.8 2001/02/02 01:59:16 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3213,7 +3213,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       {
         switch (temp->valignment)
 	{
-	  case ALIGN_TOP :
+	  case ALIGN_BOTTOM :
               temp_height = temp->height;
 	      break;
 	  case ALIGN_MIDDLE :
@@ -3222,7 +3222,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      else
 	        temp_height = 0.5f * temp->height + _htmlSizes[t->size];
               break;
-	  case ALIGN_BOTTOM :
+	  case ALIGN_TOP :
 	      temp_height = temp->height + _htmlSizes[t->size];
               break;
 	}
@@ -3244,7 +3244,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     firstline = 0;
 
-    if (height == 0.0)
+    if (height == 0.0f)
       height = spacing;
 
     if (start != NULL && start->markup == MARKUP_NONE && start->data[0] == ' ')
@@ -3453,13 +3453,13 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	case MARKUP_IMG :
 	    switch (temp->valignment)
 	    {
-	      case ALIGN_TOP :
-		  offset = height - temp->height;
+	      case ALIGN_BOTTOM :
+		  offset = 0.0f;
 		  break;
 	      case ALIGN_MIDDLE :
 		  offset = -0.5f * temp->height;
 		  break;
-	      case ALIGN_BOTTOM :
+	      case ALIGN_TOP :
 		  offset = -temp->height;
 	    }
 
@@ -3770,7 +3770,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		actual_width,
 		row_y, temp_y;
   int		row_page, temp_page;
-  uchar		*var;
+  uchar		*var,
+		*height_var;			// Row HEIGHT variable
   tree_t	*temprow,
 		*tempcol,
 		*tempnext,
@@ -4147,6 +4148,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   for (row = 0; row < num_rows; row ++)
   {
+    height_var = NULL;
+
     if (cells[row][0] != NULL)
     {
      /*
@@ -4163,22 +4166,22 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       * Get height...
       */
 
-      if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) == NULL)
-	if ((var = htmlGetVariable(cells[row][0]->parent,
-                        	   (uchar *)"HEIGHT")) == NULL)
+      if ((height_var = htmlGetVariable(t, (uchar *)"HEIGHT")) == NULL)
+	if ((height_var = htmlGetVariable(cells[row][0]->parent,
+                           	          (uchar *)"HEIGHT")) == NULL)
 	  for (col = 0; col < num_cols; col ++)
-	    if ((var = htmlGetVariable(cells[row][col],
-                                       (uchar *)"HEIGHT")) != NULL)
+	    if ((height_var = htmlGetVariable(cells[row][col],
+                                              (uchar *)"HEIGHT")) != NULL)
 	      break;
     }
 
-    if (cells[row][0] != NULL && var != NULL)
+    if (cells[row][0] != NULL && height_var != NULL)
     {
       // Row height specified; make sure it'll fit...
-      if (var[strlen((char *)var) - 1] == '%')
-	temp_height = atof((char *)var) * 0.01f * PagePrintLength;
+      if (height_var[strlen((char *)height_var) - 1] == '%')
+	temp_height = atof((char *)height_var) * 0.01f * PagePrintLength;
       else
-        temp_height = atof((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+        temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
 
       if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
         temp_height /= num_rows;
@@ -4228,18 +4231,18 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       temp_page = *page;
       tempspace = 0;
 
-      if (cells[row][col] != NULL && cells[row][col]->child != NULL &&
-          (row == 0 || cells[row][col] != cells[row - 1][col]))
+      if (row == 0 || cells[row][col] != cells[row - 1][col])
       {
 	cell_start[col] = endpages[*page];
 	cell_page[col]  = temp_page;
 	cell_y[col]     = temp_y;
 
-	parse_doc(cells[row][col]->child,
-                  col_lefts[col], col_rights[col + colspan],
-                  bottom + border + cellpadding,
-                  top - border - cellpadding,
-                  x, &temp_y, &temp_page, NULL, &tempspace);
+        if (cells[row][col] != NULL && cells[row][col]->child != NULL)
+	  parse_doc(cells[row][col]->child,
+                    col_lefts[col], col_rights[col + colspan],
+                    bottom + border + cellpadding,
+                    top - border - cellpadding,
+                    x, &temp_y, &temp_page, NULL, &tempspace);
 
         cell_endpage[col] = temp_page;
         cell_endy[col]    = temp_y;
@@ -4315,15 +4318,15 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     if (do_valign)
     {
-      if (var != NULL)
+      if (height_var != NULL)
       {
         // Hardcode the row height...
-        if (var[strlen((char *)var) - 1] == '%')
-	  temp_height = atof((char *)var) * 0.01f * PagePrintLength;
+        if (height_var[strlen((char *)height_var) - 1] == '%')
+	  temp_height = atof((char *)height_var) * 0.01f * PagePrintLength;
 	else
-          temp_height = atof((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+          temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
 
-	if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
+        if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
           temp_height /= num_rows;
 
         if (temp_height > row_height)
@@ -4399,11 +4402,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     // Update all current columns with ROWSPAN <= 1 to use the same
     // end page...
     for (col = 1, temp_page = cell_endpage[0]; col < num_cols; col ++)
-      if (cell_endpage[col] > temp_page && row_spans[col] <= 1)
+      if (cell_endpage[col] > temp_page && row_spans[col] <= 1 &&
+          cells[col][row] != NULL && cells[col][row]->child != NULL)
         temp_page = cell_endpage[col];
 
     for (col = 0; col < num_cols; col ++)
-      if (row_spans[col] <= 1)
+      if (row_spans[col] <= 1 &&
+          cells[col][row] != NULL && cells[col][row]->child != NULL)
         cell_endpage[col] = temp_page;
 
     row_y -= 2 * (border + cellpadding);
@@ -7684,5 +7689,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.7 2001/02/01 21:59:50 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.8 2001/02/02 01:59:16 mike Exp $".
  */
