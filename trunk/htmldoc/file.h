@@ -1,5 +1,5 @@
 //
-// "$Id: file.h,v 1.15 2002/02/08 19:39:50 mike Exp $"
+// "$Id: file.h,v 1.16 2002/02/26 05:16:01 mike Exp $"
 //
 //   File class definitions for HTMLDOC, a HTML document processing program.
 //
@@ -32,6 +32,12 @@
 #  include <stdio.h>
 #  include <errno.h>
 #  include "http.h"
+#  include <zlib.h>
+
+extern "C"
+{
+#  include <jpeglib.h>
+}
 
 
 //
@@ -181,14 +187,54 @@ class hdMemFile : public hdFile
 
 
 //
-// File filter...
+// File filters...
 //
+
+class hdASCII85Filter : public hdFile
+{
+  hdFile	*chain_;	// Pointer to next file/filter
+  unsigned char	buffer_[4];	// Buffer of up to 4 chars
+  int		bufused_;	// Used bytes in buffer
+  int		column_;	// Column in output
+
+  public:
+
+  hdASCII85Filter(hdFile *f);
+  virtual ~hdASCII85Filter();
+
+  virtual int	get();
+  virtual int	put(int c);
+  virtual int	read(void *b, int len);
+  virtual int	seek(long p, int w);
+  virtual long	size();
+  virtual int	write(const void *b, int len);
+  virtual int	unget(int c);
+};
+
+class hdASCIIHexFilter : public hdFile
+{
+  hdFile	*chain_;	// Pointer to next file/filter
+  int		column_;	// Column in output
+
+  public:
+
+  hdASCIIHexFilter(hdFile *f);
+  virtual ~hdASCIIHexFilter();
+
+  virtual int	get();
+  virtual int	put(int c);
+  virtual int	read(void *b, int len);
+  virtual int	seek(long p, int w);
+  virtual long	size();
+  virtual int	write(const void *b, int len);
+  virtual int	unget(int c);
+};
 
 class hdFlateFilter : public hdFile
 {
-  hdFile	*chain_;
-  char		buffer_[16384];
-  void		*state_;
+  hdFile	*chain_;	// Pointer to next file/filter
+  char		buffer_[16384];	// Compression buffer
+  z_stream	stream_;	// Compression state
 
   public:
 
@@ -206,11 +252,19 @@ class hdFlateFilter : public hdFile
 
 class hdJPEGFilter : public hdFile
 {
-  hdFile	*chain_;
-  char		*buffer_;
-  int		bufsize_,
-		bufused_;
-  void		*state_;
+  hdFile		*chain_;	// Pointer to next file or filter
+  JOCTET		buffer_[16384];	// Compression buffer
+  jpeg_compress_struct	cinfo_;		// Compression information
+  struct hdJPEGDest
+  {
+    jpeg_destination_mgr pub_;           // Public JPEG destination manager data
+    hdJPEGFilter	*jpeg_filter_;	// JPEG filter pointer
+  }			dest_mgr_;	// Destination manager
+  jpeg_error_mgr	error_mgr_;	// Error manager
+
+  static void		init(j_compress_ptr cinfo);
+  static boolean	empty(j_compress_ptr cinfo);
+  static void		term(j_compress_ptr cinfo);
 
   public:
 
@@ -228,12 +282,18 @@ class hdJPEGFilter : public hdFile
 
 class hdRC4Filter : public hdFile
 {
-  hdFile	*chain_;
-  void		*state_;
+  hdFile	*chain_;	// Pointer to next filter or file in chain
+  unsigned char	sbox_[256];	// S boxes for encryption
+  int		si_, sj_;	// Current indices into S boxes
+  unsigned char	buffer_[16384];	// Encryption buffer
+
+  void		init(const unsigned char *key, unsigned keylen);
+  void		encrypt(const unsigned char *input, unsigned char *output,
+		        unsigned len);
 
   public:
 
-  hdRC4Filter(hdFile *f, unsigned char *key, int keylen);
+  hdRC4Filter(hdFile *f, const unsigned char *key, unsigned keylen);
   virtual ~hdRC4Filter();
 
   virtual int	get();
@@ -248,5 +308,5 @@ class hdRC4Filter : public hdFile
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h,v 1.15 2002/02/08 19:39:50 mike Exp $".
+// End of "$Id: file.h,v 1.16 2002/02/26 05:16:01 mike Exp $".
 //
