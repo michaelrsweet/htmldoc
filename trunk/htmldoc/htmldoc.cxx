@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.20 2000/03/03 21:24:12 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.21 2000/03/06 20:08:53 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1629,6 +1629,7 @@ usage(void)
   puts("        t = title text");
   puts("        h = current heading");
   puts("        c = current chapter heading");
+  puts("        C = current chapter page number (arabic)");
   puts("        l = logo image");
   puts("        i = lowercase roman numerals");
   puts("        I = uppercase roman numerals");
@@ -1641,5 +1642,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.20 2000/03/03 21:24:12 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.21 2000/03/06 20:08:53 mike Exp $".
  */
