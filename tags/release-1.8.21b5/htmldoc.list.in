@@ -1,0 +1,56 @@
+#
+# "$Id: htmldoc.list.in,v 1.1.2.4 2002/06/07 20:10:55 mike Exp $"
+#
+#   ESP Package Manager (EPM) file list for HTMLDOC.
+#
+#   EPM can be found at "http://www.easysw.com/epm".
+#
+
+%product HTMLDOC
+%copyright 1997-2002 by Easy Software Products, All Rights Reserved.
+%vendor Easy Software Products
+%license COPYING.txt
+%readme README.txt
+%version 1.8.21
+
+# Directories...
+$prefix=@prefix@
+$exec_prefix=@exec_prefix@
+$bindir=@bindir@
+$mandir=@mandir@
+$datadir=@datadir@
+
+# Program
+f 0555 root sys $bindir/htmldoc htmldoc/htmldoc
+
+# Font files
+f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.afm
+f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.pfa
+
+# Data files
+f 0444 root sys $datadir/htmldoc/data/iso-8859-1 data/iso-8859-1
+f 0444 root sys $datadir/htmldoc/data/iso-8859-14 data/iso-8859-14
+f 0444 root sys $datadir/htmldoc/data/iso-8859-15 data/iso-8859-15
+f 0444 root sys $datadir/htmldoc/data/iso-8859-2 data/iso-8859-2
+f 0444 root sys $datadir/htmldoc/data/iso-8859-3 data/iso-8859-3
+f 0444 root sys $datadir/htmldoc/data/iso-8859-4 data/iso-8859-4
+f 0444 root sys $datadir/htmldoc/data/iso-8859-5 data/iso-8859-5
+f 0444 root sys $datadir/htmldoc/data/iso-8859-6 data/iso-8859-6
+f 0444 root sys $datadir/htmldoc/data/iso-8859-7 data/iso-8859-7
+f 0444 root sys $datadir/htmldoc/data/iso-8859-8 data/iso-8859-8
+f 0444 root sys $datadir/htmldoc/data/iso-8859-9 data/iso-8859-9
+f 0444 root sys $datadir/htmldoc/data/koi8-r data/koi8-r
+f 0444 root sys $datadir/htmldoc/data/prolog.ps data/prolog.ps
+f 0444 root sys $datadir/htmldoc/data/psglyphs data/psglyphs
+
+# Documentation
+f 0444 root sys $mandir/cat1/htmldoc.1 doc/htmldoc.1
+f 0444 root sys $mandir/man1/htmldoc.1 doc/htmldoc.man
+%system all
+
+f 0444 root sys $datadir/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
+f 0444 root sys $datadir/doc/htmldoc/help.html doc/help.html
+
+#
+# End of "$Id: htmldoc.list.in,v 1.1.2.4 2002/06/07 20:10:55 mike Exp $".
+#
