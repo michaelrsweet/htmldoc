@@ -1,4 +1,4 @@
-CHANGES.txt - 06/20/2001
+CHANGES.txt - 06/27/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.14
@@ -18,6 +18,10 @@ CHANGES IN HTMLDOC v1.8.14
 	  footprint significantly.
 	- Now call setlocale() when it is available to localize
 	  the date and time in the output.
+	- The table parsing code now checks to see that a
+	  ROWSPAN attribute fits in the table; e.g., a ROWSPAN
+	  of 10 for a table that has only 6 rows remaining needs
+	  to be reduced to 6...
 
     BUG FIXES
 
