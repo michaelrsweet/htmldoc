@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.60 2004/02/06 16:54:19 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.61 2004/02/09 22:25:11 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -189,7 +189,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strcpy((char *)BodyColor, argv[i]);
+        strlcpy((char *)BodyColor, argv[i], sizeof(BodyColor));
       else
         usage(argv[i - 1]);
     }
@@ -217,7 +217,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strcpy((char *)BodyImage, argv[i]);
+        strlcpy((char *)BodyImage, argv[i], sizeof(BodyImage));
       else
         usage(argv[i - 1]);
     }
@@ -563,6 +563,29 @@ main(int  argc,		/* I - Number of command-line arguments */
         usage(argv[i - 1]);
     }
 #endif // HAVE_LIBFLTK
+    else if (strncmp(argv[i], "--hfimage", 9) == 0)
+    {
+      int	hfimgnum;		// Image number
+      char	*hfptr;			// Pointer into option
+
+
+      if (strlen(argv[i]) > 9)
+      {
+        hfimgnum = strtol(argv[i] + 9, &hfptr, 10);
+
+	if (hfimgnum < 0 || hfimgnum >= MAX_HF_IMAGES || *hfptr)
+	  usage(argv[i]);
+      }
+      else
+        hfimgnum = 0;
+
+      i ++;
+
+      if (i >= argc)
+        usage(argv[i - 1]);
+
+      strlcpy(HFImage[hfimgnum], argv[i], sizeof(HFImage[0]));
+    }
     else if (compare_strings(argv[i], "--jpeg", 3) == 0 ||
              strncmp(argv[i], "--jpeg=", 7) == 0)
     {
@@ -585,7 +608,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strcpy(LinkColor, argv[i]);
+        strlcpy(LinkColor, argv[i], sizeof(LinkColor));
       else
         usage(argv[i - 1]);
     }
@@ -610,7 +633,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strcpy(LogoImage, argv[i]);
+        strlcpy(LogoImage, argv[i], sizeof(LogoImage));
       else
         usage(argv[i - 1]);
     }
@@ -665,7 +688,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        strcpy(OutputPath, argv[i]);
+        strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 1;
       }
       else
@@ -677,7 +700,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        strcpy(OutputPath, argv[i]);
+        strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 0;
 
         if ((extension = file_extension(argv[i])) != NULL)
@@ -860,7 +883,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strcpy(TitleImage, argv[i]);
+        strlcpy(TitleImage, argv[i], sizeof(TitleImage));
       else
         usage(argv[i - 1]);
 
@@ -1099,14 +1122,14 @@ prefs_getrc(void)
 		   KEY_READ, &key))
   {
     // Use the install directory...
-    strcpy(home, _htmlData);
+    strlcpy(home, _htmlData, sizeof(home));
   }
   else
   {
     // Grab the current user's AppData directory...
     size = sizeof(home);
     if (RegQueryValueEx(key, "AppData", NULL, NULL, (unsigned char *)home, &size))
-      strcpy(home, _htmlData);
+      strlcpy(home, _htmlData, sizeof(home));
 
     RegCloseKey(key);
   }
@@ -1200,11 +1223,11 @@ prefs_load(void)
       if (strncasecmp(line, "TEXTCOLOR=", 10) == 0)
 	htmlSetTextColor((uchar *)(line + 10));
       else if (strncasecmp(line, "BODYCOLOR=", 10) == 0)
-	strcpy(BodyColor, line + 10);
+	strlcpy(BodyColor, line + 10, sizeof(BodyColor));
       else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
-	strcpy(BodyImage, line + 10);
+	strlcpy(BodyImage, line + 10, sizeof(BodyImage));
       else if (strncasecmp(line, "LINKCOLOR=", 10) == 0)
-        strcpy(LinkColor, line + 10);
+        strlcpy(LinkColor, line + 10, sizeof(LinkColor));
       else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
 	LinkStyle = atoi(line + 10);
       else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
@@ -1249,7 +1272,7 @@ prefs_load(void)
       else if (strncasecmp(line, "TOCFOOTER=", 10) == 0)
 	get_format(line + 10, TocFooter);
       else if (strncasecmp(line, "TOCTITLE=", 9) == 0)
-	strcpy(TocTitle, line + 9);
+	strlcpy(TocTitle, line + 9, sizeof(TocTitle));
       else if (strncasecmp(line, "BODYFONT=", 9) == 0)
 	_htmlBodyFont = (typeface_t)atoi(line + 9);
       else if (strncasecmp(line, "HEADINGFONT=", 12) == 0)
@@ -1327,7 +1350,7 @@ prefs_load(void)
 
 #  ifdef HAVE_LIBFLTK
       else if (strncasecmp(line, "EDITOR=", 7) == 0)
-        strcpy(HTMLEditor, line + 7);
+        strlcpy(HTMLEditor, line + 7, sizeof(HTMLEditor));
       else if (strncasecmp(line, "TOOLTIPS=", 9) == 0)
         Tooltips = atoi(line + 9);
       else if (strncasecmp(line, "MODERN=", 7) == 0)
@@ -2126,7 +2149,7 @@ read_file(const char *filename,		// I  - File/URL to read
 
       _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
-      strcpy(base, file_directory(filename));
+      strlcpy(base, file_directory(filename), sizeof(base));
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
       htmlSetVariable(file, (uchar *)"FILENAME",
@@ -2205,7 +2228,7 @@ usage(const char *arg)			// I - Bad argument string
   puts("  --batch filename.book");
   puts("  --bodycolor color");
   puts("  --bodyfont {courier,times,helvetica}");
-  puts("  --bodyimage filename.{gif,jpg,png}");
+  puts("  --bodyimage filename.{bmp,gif,jpg,png}");
   puts("  --book");
   puts("  --bottom margin{in,cm,mm}");
   puts("  --browserwidth pixels");
@@ -2233,13 +2256,15 @@ usage(const char *arg)			// I - Bad argument string
 #ifdef HAVE_LIBFLTK
   puts("  --helpdir directory");
 #endif // HAVE_LIBFLTK
+  for (int i = 0; i < MAX_HF_IMAGES; i ++)
+    printf("  --hfimage%d filename.{bmp,gif,jpg,png}\n", i);
   puts("  --jpeg[=quality]");
   puts("  --landscape");
   puts("  --left margin{in,cm,mm}");
   puts("  --linkcolor color");
   puts("  --links");
   puts("  --linkstyle {plain,underline}");
-  puts("  --logoimage filename.{gif,jpg,png}");
+  puts("  --logoimage filename.{bmp,gif,jpg,png}");
   puts("  --owner-password password");
   puts("  --no-compression");
   puts("  --no-duplex");
@@ -2273,7 +2298,7 @@ usage(const char *arg)			// I - Bad argument string
   puts("  --textfont {courier,times,helvetica}");
   puts("  --title");
   puts("  --titlefile filename.{htm,html,shtml}");
-  puts("  --titleimage filename.{gif,jpg,png}");
+  puts("  --titleimage filename.{bmp,gif,jpg,png}");
   puts("  --tocfooter fff");
   puts("  --tocheader fff");
   puts("  --toclevels levels");
@@ -2308,5 +2333,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.60 2004/02/06 16:54:19 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.61 2004/02/09 22:25:11 mike Exp $".
  */

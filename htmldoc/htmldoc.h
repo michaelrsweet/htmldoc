@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.20 2004/02/06 03:51:08 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.21 2004/02/09 22:25:11 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -195,11 +195,18 @@ VAR char	*Header[3]	NULL3,		/* Header for regular pages */
 		TocTitle[1024]	VALUE("Table of Contents");
 						/* TOC title string */
 
-VAR char	TitleImage[255]	VALUE(""),	/* Title page image */
-		LogoImage[255]	VALUE(""),	/* Logo image */
+VAR char	TitleImage[1024] VALUE(""),	/* Title page image */
+		LogoImage[1024]	VALUE(""),	/* Logo image */
 		BodyColor[255]	VALUE(""),	/* Body color */
-		BodyImage[255]	VALUE(""),	/* Body image */
+		BodyImage[1024]	VALUE(""),	/* Body image */
 		LinkColor[255]	VALUE("");	/* Link color */
+
+VAR char	HFImage[MAX_HF_IMAGES][1024]	/* Header/footer images */
+#  ifdef _HTMLDOC_CXX_
+= { "" }
+#  endif /* _HTMLDOC_CXX_ */
+;
+
 VAR int		LinkStyle	VALUE(1);	/* 1 = underline, 0 = plain */
 VAR int		Links		VALUE(1);	/* 1 = generate links, 0 = no links */
 VAR char	Path[2048]	VALUE(""),	/* Search path */
@@ -267,5 +274,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.20 2004/02/06 03:51:08 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.21 2004/02/09 22:25:11 mike Exp $".
  */

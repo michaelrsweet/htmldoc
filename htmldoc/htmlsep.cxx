@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.6 2004/02/06 03:51:09 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.7 2004/02/09 22:25:11 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -116,10 +116,17 @@ htmlsep_export(tree_t *document,	// I - Document to export
   }
 
   // Copy logo and title images...
-  if (LogoImage[0] != '\0')
-    image_copy(LogoImage, OutputPath);
+  if (LogoImage[0])
+  {
+    if (LogoImage[0])
+      image_copy(LogoImage, OutputPath);
 
-  if (TitleImage[0] != '\0' && TitlePage &&
+    for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
+      if (HFImage[hfi][0])
+        image_copy(HFImage[hfi], OutputPath);
+  }
+
+  if (TitleImage[0] && TitlePage &&
 #ifdef WIN32
       stricmp(file_extension(TitleImage), "bmp") == 0 ||
       stricmp(file_extension(TitleImage), "gif") == 0 ||
@@ -294,17 +301,17 @@ write_header(FILE   **out,	/* IO - Output file */
   fputs("--></STYLE>\n", *out);
   fputs("</HEAD>\n", *out);
 
-  if (BodyImage[0] != '\0')
+  if (BodyImage[0])
     fprintf(*out, "<BODY BACKGROUND=\"%s\"", file_basename(BodyImage));
-  else if (BodyColor[0] != '\0')
+  else if (BodyColor[0])
     fprintf(*out, "<BODY BGCOLOR=\"%s\"", BodyColor);
   else
     fputs("<BODY", *out);
 
-  if (_htmlTextColor[0] != '\0')
+  if (_htmlTextColor[0])
     fprintf(*out, " TEXT=\"%s\"", _htmlTextColor);
 
-  if (LinkColor[0] != '\0')
+  if (LinkColor[0])
     fprintf(*out, " LINK=\"%s\" VLINK=\"%s\" ALINK=\"%s\"", LinkColor,
             LinkColor, LinkColor);
 
@@ -312,8 +319,12 @@ write_header(FILE   **out,	/* IO - Output file */
 
   if (heading >= 0)
   {
-    if (LogoImage[0] != '\0')
+    if (LogoImage[0])
       fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
+
+    for (int hfi = 0; hfi < MAX_HF_IMAGES; ++hfi)
+      if (HFImage[hfi][0])
+        fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(HFImage[hfi]));
 
     if (TitlePage)
       fputs("<A HREF=\"toc.html\">Contents</A>\n", *out);
@@ -346,8 +357,12 @@ write_footer(FILE **out,	/* IO - Output file pointer */
 
   if (heading >= 0)
   {
-    if (LogoImage[0] != '\0')
+    if (LogoImage[0])
       fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
+
+    for (int hfi = 0; hfi < MAX_HF_IMAGES; ++hfi)
+      if (HFImage[hfi][0])
+        fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(HFImage[hfi]));
 
     if (TitlePage)
       fputs("<A HREF=\"toc.html\">Contents</A>\n", *out);
@@ -432,7 +447,7 @@ write_title(FILE  *out,		/* I - Output file */
     // Write a "standard" title page with image...
     fputs("<CENTER>", out);
 
-    if (TitleImage[0] != '\0')
+    if (TitleImage[0])
     {
       image_t *img = image_load(TitleImage, !OutputColor);
 
@@ -564,7 +579,7 @@ write_node(FILE   *out,		/* I - Output file */
 
 	if (t->preformatted)
 	{
-          for (ptr = t->data; *ptr != '\0'; ptr ++)
+          for (ptr = t->data; *ptr; ptr ++)
             fputs((char *)iso8859(*ptr), out);
 
 	  if (t->data[strlen((char *)t->data) - 1] == '\n')
@@ -580,7 +595,7 @@ write_node(FILE   *out,		/* I - Output file */
             col = 0;
 	  }
 
-          for (ptr = t->data; *ptr != '\0'; ptr ++)
+          for (ptr = t->data; *ptr; ptr ++)
             fputs((char *)iso8859(*ptr), out);
 
 	  col += strlen((char *)t->data);
@@ -1091,5 +1106,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.6 2004/02/06 03:51:09 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.7 2004/02/09 22:25:11 mike Exp $".
 //
