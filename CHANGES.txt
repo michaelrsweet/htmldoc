@@ -21,12 +21,14 @@ CHANGES IN HTMLDOC v1.8.15
 	  reduction in memory usage with files that contain a
 	  lot of in-line images.
 
-    BUGS FIXES
+    BUG FIXES
 
 	- If a document started with a heading greater than H1,
 	  HTMLDOC would crash.
 	- Full justification would incorrectly be applied to
 	  text ending with a break.
+	- Images using ALIGN="MIDDLE" were not centered properly
+	  on the baseline.
 
 
 CHANGES IN HTMLDOC v1.8.14
