@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.44 2004/10/23 07:06:19 mike Exp $"
+// "$Id: gui.cxx,v 1.45 2004/10/23 20:23:19 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1197,7 +1197,7 @@ GUI::title(const char *filename,// Name of file being edited
   else
   {
     strlcpy(book_filename, filename, sizeof(book_filename));
-    strlcpy(title_string, file_basename(filename), sizeof(title_string));
+    strlcpy(title_string, hdBook::file_basename(filename), sizeof(title_string));
   }
 
   if (changed)
@@ -1620,14 +1620,14 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 
 
   // If the filename contains a path, chdir to it first...
-  if ((dir = file_directory(filename)) != NULL)
+  if ((dir = hdBook::file_directory(filename)) != NULL)
   {
    /*
     * Filename contains a complete path - get the directory portion and do
     * a chdir()...
     */
 
-    strlcpy(basename, file_basename(filename), sizeof(basename));
+    strlcpy(basename, hdBook::file_basename(filename), sizeof(basename));
     filename = basename;
 
     chdir(dir);
@@ -1643,7 +1643,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   }
 
   // Get the header...
-  file_gets(line, sizeof(line), fp);
+  hdBook::file_gets(line, sizeof(line), fp);
   if (strncmp(line, "#HTMLDOC", 8) != 0)
   {
     fclose(fp);
@@ -1662,7 +1662,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   // be the file count; for new files this will be the options...
   do
   {
-    file_gets(line, sizeof(line), fp);
+    hdBook::file_gets(line, sizeof(line), fp);
 
     if (line[0] == '-')
       parseOptions(line);
@@ -1670,7 +1670,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   while (!line[0]);			// Skip blank lines...
 
   // Get input files/options...
-  while (file_gets(line, sizeof(line), fp) != NULL)
+  while (hdBook::file_gets(line, sizeof(line), fp) != NULL)
   {
     if (line[0] == '\0')
       continue;				// Skip blank lines
@@ -2690,7 +2690,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
   {
     for (i = 1; i <= gui->fc->count(); i ++)
     {
-      if (strcasecmp(file_extension(gui->fc->value(i)), "book") == 0)
+      if (strcasecmp(hdBook::file_extension(gui->fc->value(i)), "book") == 0)
       {
         // Import files from the book...
 	FILE	*fp;
@@ -2700,7 +2700,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 
 
         getcwd(directory, sizeof(directory));
-	chdir(file_directory(gui->fc->value(i)));
+	chdir(hdBook::file_directory(gui->fc->value(i)));
 
 	if ((fp = fopen(gui->fc->value(i), "rb")) == NULL)
 	{
@@ -2710,7 +2710,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 	  continue;
 	}
 
-        if (fgets(line, sizeof(line), fp) == NULL)
+        if (hdBook::file_gets(line, sizeof(line), fp) == NULL)
 	{
 	  fl_alert("Unable to import %s:\nShort file.", gui->fc->value(i));
 	  fclose(fp);
@@ -2726,7 +2726,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 	  continue;
 	}
 
-        if (fgets(line, sizeof(line), fp) == NULL)
+        if (hdBook::file_gets(line, sizeof(line), fp) == NULL)
 	{
 	  fl_alert("Unable to import %s:\nNo file count.", gui->fc->value(i));
 	  fclose(fp);
@@ -2739,7 +2739,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 	{
 	  count --;
 
-          if (fgets(line, sizeof(line), fp) == NULL)
+          if (hdBook::file_gets(line, sizeof(line), fp) == NULL)
 	  {
 	    fl_alert("Unable to import %s:\nMissing file.", gui->fc->value(i));
 	    fclose(fp);
@@ -2748,14 +2748,14 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 	  }
 
           line[strlen(line) - 1] = '\0'; // strip newline
-          gui->inputFiles->add(file_localize(line, directory), gui->icon);
+          gui->inputFiles->add(hdBook::file_localize(line, directory), gui->icon);
 	}
 
         fclose(fp);
 	chdir(directory);
       }
       else
-        gui->inputFiles->add(file_localize(gui->fc->value(i), NULL), gui->icon);
+        gui->inputFiles->add(hdBook::file_localize(gui->fc->value(i), NULL), gui->icon);
     }
 
     gui->title(gui->book_filename, 1);
@@ -2956,7 +2956,7 @@ GUI::logoImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->logoImage->value(file_localize(gui->fc->value(), NULL));
+      gui->logoImage->value(hdBook::file_localize(gui->fc->value(), NULL));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -2984,7 +2984,7 @@ GUI::titleImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->titleImage->value(file_localize(gui->fc->value(), NULL));
+      gui->titleImage->value(hdBook::file_localize(gui->fc->value(), NULL));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -3058,8 +3058,8 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
     if (gui->fc->count())
     {
       // Get the selected file...
-      strlcpy(filename, file_localize(gui->fc->value(), NULL), sizeof(filename));
-      extension = file_extension(filename);
+      strlcpy(filename, hdBook::file_localize(gui->fc->value(), NULL), sizeof(filename));
+      extension = hdBook::file_extension(filename);
 
       if (extension[0])
       {
@@ -3586,7 +3586,7 @@ GUI::bodyImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->bodyImage->value(file_localize(gui->fc->value(), NULL));
+      gui->bodyImage->value(hdBook::file_localize(gui->fc->value(), NULL));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -3784,7 +3784,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
       if (!fl_ask("File already exists!  OK to overwrite?"))
 	return;
 
-    extension = file_extension(filename);
+    extension = hdBook::file_extension(filename);
     if (!extension[0])
     {
       // No extension!  Add .book to the name...
@@ -3797,7 +3797,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
     {
       gui->tabs->value(gui->outputTab);
 
-      gui->outputPath->value(file_localize(filename, NULL));
+      gui->outputPath->value(hdBook::file_localize(filename, NULL));
       gui->outputFile->setonly();
       outputTypeCB(gui->outputFile, gui);
 
@@ -3824,24 +3824,24 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
       return;
     }
 
-    dir = file_directory(filename);
+    dir = hdBook::file_directory(filename);
 
     for (int i = 1; i <= gui->inputFiles->size(); i ++)
     {
-      newfile = file_localize(gui->inputFiles->text(i), dir);
+      newfile = hdBook::file_localize(gui->inputFiles->text(i), dir);
       gui->inputFiles->text(i, newfile);
     }
 
-    newfile = file_localize(gui->logoImage->value(), dir);
+    newfile = hdBook::file_localize(gui->logoImage->value(), dir);
     gui->logoImage->value(newfile);
 
-    newfile = file_localize(gui->titleImage->value(), dir);
+    newfile = hdBook::file_localize(gui->titleImage->value(), dir);
     gui->titleImage->value(newfile);
 
-    newfile = file_localize(gui->bodyImage->value(), dir);
+    newfile = hdBook::file_localize(gui->bodyImage->value(), dir);
     gui->bodyImage->value(newfile);
 
-    newfile = file_localize(gui->outputPath->value(), dir);
+    newfile = hdBook::file_localize(gui->outputPath->value(), dir);
     gui->outputPath->value(newfile);
 
     chdir(dir);
@@ -3890,7 +3890,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   gui->window->cursor(FL_CURSOR_WAIT);
 
   // Set global vars used for converting the HTML files to XYZ format...
-  strlcpy(bookbase, file_directory(gui->book_filename), sizeof(bookbase));
+  strlcpy(bookbase, hdBook::file_directory(gui->book_filename), sizeof(bookbase));
 
   gui->book->verbosity = 1;
 
@@ -3924,7 +3924,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   _htmlPPI = 72.0f * _htmlBrowserWidth /
              (gui->book->PageWidth - gui->book->PageLeft - gui->book->PageRight);
 
-  file_proxy(gui->proxy->value());
+  gui->book->file_proxy(gui->proxy->value());
 
   gui->book->error_count = 0;
   gui->error_list->clear();
@@ -3938,7 +3938,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   for (i = 1; i <= count; i ++)
   {
-    filename = file_find(gui->book->Path, gui->inputFiles->text(i));
+    filename = gui->book->file_find(gui->book->Path, gui->inputFiles->text(i));
 
     if (filename != NULL &&
         (docfile = fopen(filename, "rb")) != NULL)
@@ -3950,11 +3950,11 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       snprintf(temp, sizeof(temp), "Loading \"%s\"...", filename);
       gui->progress(100 * i / count, temp);
 
-      strlcpy(base, file_directory(gui->inputFiles->text(i)), sizeof(base));
+      strlcpy(base, hdBook::file_directory(gui->inputFiles->text(i)), sizeof(base));
 
       file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
       htmlSetVariable(file, (uchar *)"_HD_FILENAME",
-                      (uchar *)file_basename(filename));
+                      (uchar *)hdBook::file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
       htmlReadFile(file, docfile, base);
@@ -4022,7 +4022,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     htmlDeleteTree(document);
     htmlDeleteTree(toc);
 
-    file_cleanup();
+    gui->book->file_cleanup();
     gui->book->image_flush_cache();
   }
 
@@ -4157,5 +4157,5 @@ GUI::showAboutCB(void)
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.44 2004/10/23 07:06:19 mike Exp $".
+// End of "$Id: gui.cxx,v 1.45 2004/10/23 20:23:19 mike Exp $".
 //

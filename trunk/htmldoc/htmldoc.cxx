@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.45 2004/10/22 05:43:14 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.46 2004/10/23 20:23:19 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -153,8 +153,8 @@ main(int  argc,				// I - Number of command-line arguments
     book->PDFPageMode   = HD_PDF_DOCUMENT;
     book->PDFFirstPage  = HD_PDF_PAGE_1;
 
-    file_cookies(getenv("HTTP_COOKIE"));
-    file_nolocal();
+    book->file_cookies(getenv("HTTP_COOKIE"));
+    book->file_nolocal();
 
     book->progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
     book->progress_error(HD_ERROR_NONE, "INFO: TMPDIR is \"%s\"", getenv("TMPDIR"));
@@ -176,7 +176,7 @@ main(int  argc,				// I - Number of command-line arguments
       {
         // Not found, try `dirname $PATH_TRANSLATED`/.book
         snprintf(bookfile, sizeof(bookfile), "%s/.book",
-	         file_directory(path_translated));
+	         hdBook::file_directory(path_translated));
         if (access(bookfile, 0))
 	  strlcpy(bookfile, ".book", sizeof(bookfile));
       }
@@ -314,7 +314,7 @@ main(int  argc,				// I - Number of command-line arguments
     {
       i ++;
       if (i < argc)
-        file_cookies(argv[i]);
+        book->file_cookies(argv[i]);
       else
         usage(book, argv[i - 1]);
     }
@@ -692,7 +692,7 @@ main(int  argc,				// I - Number of command-line arguments
     else if (compare_strings(argv[i], "--no-links", 7) == 0)
       book->Links = false;
     else if (compare_strings(argv[i], "--no-localfiles", 7) == 0)
-      file_nolocal();
+      book->file_nolocal();
     else if (compare_strings(argv[i], "--no-numbered", 6) == 0)
       book->TocNumbers = false;
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
@@ -745,7 +745,7 @@ main(int  argc,				// I - Number of command-line arguments
         strlcpy(book->OutputPath, argv[i], sizeof(book->OutputPath));
         book->OutputFiles = false;
 
-        if ((extension = file_extension(argv[i])) != NULL)
+        if ((extension = hdBook::file_extension(argv[i])) != NULL)
         {
           if (strcasecmp(extension, "ps") == 0)
           {
@@ -857,7 +857,7 @@ main(int  argc,				// I - Number of command-line arguments
       if (i < argc)
       {
         strlcpy(book->Proxy, argv[i], sizeof(book->Proxy) - 1);
-	file_proxy(book->Proxy);
+	book->file_proxy(book->Proxy);
       }
       else
         usage(book, argv[i - 1]);
@@ -1134,7 +1134,7 @@ main(int  argc,				// I - Number of command-line arguments
   htmlDeleteTree(document);
   htmlDeleteTree(toc);
 
-  file_cleanup();
+  book->file_cleanup();
   book->image_flush_cache();
 
   return (book->error_count);
@@ -1178,7 +1178,7 @@ load_book(hdBook       *book,		// I  - Book
 
 
   // See if the filename contains a path...
-  dir = file_directory(filename);
+  dir = hdBook::file_directory(filename);
 
   if (dir != NULL)
     snprintf(path, sizeof(path), "%s;%s", dir, book->Path);
@@ -1186,7 +1186,7 @@ load_book(hdBook       *book,		// I  - Book
     strlcpy(path, book->Path, sizeof(path));
 
   // Open the file...
-  if ((local = file_find(book->Path, filename)) == NULL)
+  if ((local = book->file_find(book->Path, filename)) == NULL)
     return (0);
 
   if ((fp = fopen(local, "rb")) == NULL)
@@ -1197,7 +1197,7 @@ load_book(hdBook       *book,		// I  - Book
   }
 
   // Get the header...
-  file_gets(line, sizeof(line), fp);
+  hdBook::file_gets(line, sizeof(line), fp);
   if (strncmp(line, "#HTMLDOC", 8) != 0)
   {
     fclose(fp);
@@ -1210,7 +1210,7 @@ load_book(hdBook       *book,		// I  - Book
   // be the file count; for new files this will be the options...
   do
   {
-    file_gets(line, sizeof(line), fp);
+    hdBook::file_gets(line, sizeof(line), fp);
 
     if (line[0] == '-')
     {
@@ -1225,7 +1225,7 @@ load_book(hdBook       *book,		// I  - Book
   while (!line[0]);			// Skip blank lines
 
   // Get input files/options...
-  while (file_gets(line, sizeof(line), fp) != NULL)
+  while (hdBook::file_gets(line, sizeof(line), fp) != NULL)
   {
     if (!line[0])
       continue;				// Skip blank lines
@@ -1728,10 +1728,10 @@ parse_options(hdBook       *book,	// I  - Book
     else if (strcmp(temp, "--proxy") == 0)
     {
       strlcpy(book->Proxy, temp2, sizeof(book->Proxy));
-      file_proxy(book->Proxy);
+      book->file_proxy(book->Proxy);
     }
     else if (strcmp(temp, "--cookies") == 0)
-      file_cookies(temp2);
+      book->file_cookies(temp2);
   }
 }
 
@@ -1755,7 +1755,7 @@ read_file(hdBook     *book,		// I  - Book
   DEBUG_printf(("read_file(filename=\"%s\", document=%p, path=\"%s\")\n",
                 filename, document, path));
 
-  if ((realname = file_find(path, filename)) != NULL)
+  if ((realname = book->file_find(path, filename)) != NULL)
   {
     if ((docfile = fopen(realname, "rb")) != NULL)
     {
@@ -1769,11 +1769,11 @@ read_file(hdBook     *book,		// I  - Book
       _htmlPPI = 72.0f * _htmlBrowserWidth /
                  (book->PageWidth - book->PageLeft - book->PageRight);
 
-      strlcpy(base, file_directory(filename), sizeof(base));
+      strlcpy(base, hdBook::file_directory(filename), sizeof(base));
 
       file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
       htmlSetVariable(file, (uchar *)"_HD_FILENAME",
-                      (uchar *)file_basename(filename));
+                      (uchar *)hdBook::file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
       htmlReadFile(file, docfile, base);
@@ -1876,7 +1876,7 @@ term_handler(int signum)		// I - Signal number
 {
   REF(signum);
 
-  file_cleanup();
+//  file_cleanup();
 //  image_flush_cache();
   exit(1);
 }
@@ -2026,5 +2026,5 @@ usage(hdBook     *book,			// I - Book
 
 
 //
-// End of "$Id: htmldoc.cxx,v 1.45 2004/10/22 05:43:14 mike Exp $".
+// End of "$Id: htmldoc.cxx,v 1.46 2004/10/23 20:23:19 mike Exp $".
 //

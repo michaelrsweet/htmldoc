@@ -1,5 +1,5 @@
 //
-// "$Id: book.cxx,v 1.7 2004/10/23 07:06:19 mike Exp $"
+// "$Id: book.cxx,v 1.8 2004/10/23 20:23:19 mike Exp $"
 //
 //   Book routines for HTMLDOC, a HTML document processing program.
 //
@@ -198,6 +198,15 @@ hdBook::hdBook()
   Path[0]           = '\0';
   Proxy[0]          = '\0';
 
+  proxy_host[0]     = '\0';
+  proxy_port        = 0;
+  http              = NULL;
+  web_files         = 0;
+  web_alloc         = 0;
+  web_cache         = NULL;
+  no_local          = 0;
+  cookies[0]        = '\0';
+
 // MRS: can't load preferences when run as CGI...
 //  prefs_load();
 }
@@ -236,11 +245,9 @@ hdBook::~hdBook()
   if (alloc_links)
     free(links);
 
-  image_flush_cache();
-
   // Cleanup the image and file caches...
-//  hdImage::flush();
-//  file_cleanup();
+  image_flush_cache();
+  file_cleanup();
 }
 
 
@@ -1020,5 +1027,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: book.cxx,v 1.7 2004/10/23 07:06:19 mike Exp $".
+// End of "$Id: book.cxx,v 1.8 2004/10/23 20:23:19 mike Exp $".
 //
