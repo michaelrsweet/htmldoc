@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.49 2002/05/31 12:57:22 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.50 2002/06/04 14:52:02 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -119,130 +119,133 @@ GUI::GUI(const char *filename)		// Book file to load initially
   Fl_Box		*label;		// Label box
   static Fl_Menu	sizeMenu[] =	// Menu items for page size button */
 			{
-			  {"A4", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Letter", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Universal", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"A3",        0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"A4",        0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Legal",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Letter",    0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Tabloid",   0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Universal", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	tocMenu[] =	// Menu items for TOC chooser
 			{
-			  {"None", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"1 level", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"2 levels", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"3 levels", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"4 Levels", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"None",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1 level",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"2 levels", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"3 levels", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"4 Levels", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	formatMenu[] =	// Menu items for header/footer choosers
 			{
-			  {"Blank", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Title", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Chapter Title", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Heading", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Logo", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"1,2,3,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"i,ii,iii,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"I,II,III,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"a,b,c,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"A,B,C,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Chapter Page", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"1/N,2/N,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"1/C,2/C,...", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Date", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Date + Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Blank",         0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Title",         0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Chapter Title", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Heading",       0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Logo",          0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1,2,3,...",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"i,ii,iii,...",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"I,II,III,...",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"a,b,c,...",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"A,B,C,...",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Chapter Page",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1/N,2/N,...",   0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1/C,2/C,...",   0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Date",          0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Time",          0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Date + Time",   0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	nupMenu[] =	// Menu items for number-up chooser
 			{
-			  {"1", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"2", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"4", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"6", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"9", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"16", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"1",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"2",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"4",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"6",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"9",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"16", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	typefaceMenu[] = // Menu items for typeface choosers
 			{
-			  {"Courier", 0,  0, 0, 0, 0, FL_COURIER, 14, 0},
-			  {"Times", 0,  0, 0, 0, 0, FL_TIMES, 14, 0},
-			  {"Helvetica", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Courier",   0, 0, 0, 0, 0, FL_COURIER, 14, 0},
+			  {"Times",     0, 0, 0, 0, 0, FL_TIMES, 14, 0},
+			  {"Helvetica", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	fontMenu[] =	// Menu items for font choosers
 			{
-			  {"Courier", 0,  0, 0, 0, 0, FL_COURIER, 14, 0},
-			  {"Courier-Bold", 0,  0, 0, 0, 0, FL_COURIER_BOLD, 14, 0},
-			  {"Courier-Oblique", 0,  0, 0, 0, 0, FL_COURIER_ITALIC, 14, 0},
-			  {"Courier-BoldOblique", 0,  0, 0, 0, 0, FL_COURIER_BOLD_ITALIC, 14, 0},
-			  {"Times-Roman", 0,  0, 0, 0, 0, FL_TIMES, 14, 0},
-			  {"Times-Bold", 0,  0, 0, 0, 0, FL_TIMES_BOLD, 14, 0},
-			  {"Times-Italic", 0,  0, 0, 0, 0, FL_TIMES_ITALIC, 14, 0},
-			  {"Times-BoldItalic", 0,  0, 0, 0, 0, FL_TIMES_BOLD_ITALIC, 14, 0},
-			  {"Helvetica", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Helvetica-Bold", 0,  0, 0, 0, 0, FL_HELVETICA_BOLD, 14, 0},
-			  {"Helvetica-Oblique", 0,  0, 0, 0, 0, FL_HELVETICA_ITALIC, 14, 0},
-			  {"Helvetica-BoldOblique", 0,  0, 0, 0, 0, FL_HELVETICA_BOLD_ITALIC, 14, 0},
+			  {"Courier",               0, 0, 0, 0, 0, FL_COURIER, 14, 0},
+			  {"Courier-Bold",          0, 0, 0, 0, 0, FL_COURIER_BOLD, 14, 0},
+			  {"Courier-Oblique",       0, 0, 0, 0, 0, FL_COURIER_ITALIC, 14, 0},
+			  {"Courier-BoldOblique",   0, 0, 0, 0, 0, FL_COURIER_BOLD_ITALIC, 14, 0},
+			  {"Times-Roman",           0, 0, 0, 0, 0, FL_TIMES, 14, 0},
+			  {"Times-Bold",            0, 0, 0, 0, 0, FL_TIMES_BOLD, 14, 0},
+			  {"Times-Italic",          0, 0, 0, 0, 0, FL_TIMES_ITALIC, 14, 0},
+			  {"Times-BoldItalic",      0, 0, 0, 0, 0, FL_TIMES_BOLD_ITALIC, 14, 0},
+			  {"Helvetica",             0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Helvetica-Bold",        0, 0, 0, 0, 0, FL_HELVETICA_BOLD, 14, 0},
+			  {"Helvetica-Oblique",     0, 0, 0, 0, 0, FL_HELVETICA_ITALIC, 14, 0},
+			  {"Helvetica-BoldOblique", 0, 0, 0, 0, 0, FL_HELVETICA_BOLD_ITALIC, 14, 0},
 			  {0}
 			};
   static Fl_Menu	charsetMenu[] =	// Menu items for charset chooser
 			{
-			  {"8859-1", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-2", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-3", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-4", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-5", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-6", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-7", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-8", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-9", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-14", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"8859-15", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"koi8-r", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-1",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-2",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-3",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-4",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-5",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-6",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-7",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-8",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-9",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-14", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-15", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"koi8-r",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	modeMenu[] =	// Menu items for mode chooser
 			{
-			  {"Document", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Outline", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Full-Screen", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Document",    0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Outline",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Full-Screen", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	layoutMenu[] =	// Menu items for layout chooser
 			{
-			  {"Single", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"One Column", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Two Column Left", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Two Column Right", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Single",           0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"One Column",       0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Two Column Left",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Two Column Right", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	firstMenu[] =	// Menu items for first chooser
 			{
-			  {"Page 1", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"TOC", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Chapter 1", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Page 1",    0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"TOC",       0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Chapter 1", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	effectMenu[] =	// Menu items for effect chooser
 			{
-			  {"None", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Box Inward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Box Outward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Dissolve", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Glitter Down", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Glitter Down+Right", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Glitter Right", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Horizontal Blinds", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Horizontal Sweep Inward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Horizontal Sweep Outward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Vertical Blinds", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Vertical Sweep Inward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Vertical Sweep Outward ", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Wipe Down", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Wipe Left", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Wipe Right", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Wipe Up", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"None",                     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Box Inward",               0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Box Outward",              0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Dissolve",                 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Glitter Down",             0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Glitter Down+Right",       0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Glitter Right",            0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Horizontal Blinds",        0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Horizontal Sweep Inward",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Horizontal Sweep Outward", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Vertical Blinds",          0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Vertical Sweep Inward",    0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Vertical Sweep Outward ",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Wipe Down",                0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Wipe Left",                0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Wipe Right",               0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Wipe Up",                  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
 
@@ -4026,5 +4029,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.49 2002/05/31 12:57:22 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.50 2002/06/04 14:52:02 mike Exp $".
 //
