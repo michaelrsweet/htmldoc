@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.3 2001/02/16 16:57:16 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.4 2001/02/28 01:46:12 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.11" "16 February 2001" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.12" "27 February 2001" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -84,6 +84,12 @@ Specifies the ISO character set to use for the output.
 Specifies that PostScript or PDF output should be in color.
 
 .TP 5
+--datadir \fIdirectory\fR
+.br
+Specifies the location of the \fIHTMLDOC\fR data files, usually
+\fI/usr/share/htmldoc\fR or \fIC:\\Program Files\\HTMLDOC\fR.
+
+.TP 5
 --duplex
 .br
 Specifies that the output should be formatted for double-sided printing.
@@ -156,6 +162,12 @@ Sets the typeface to use for headings.
 --help
 .br
 Displays a summary of command-line options.
+
+.TP 5
+--helpdir \fIdirectory\fR
+.br
+Specifies the location of the \fIHTMLDOC\fR on-line help files, usually
+\fI/usr/share/doc/htmldoc\fR or \fIC:\\Program Files\\HTMLDOC\\DOC\fR.
 
 .TP 5
 --jpeg\fI[=quality]\fR
@@ -502,5 +514,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.3 2001/02/16 16:57:16 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.4 2001/02/28 01:46:12 mike Exp $".
 .\"

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.11 2001/02/26 23:43:57 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.12 2001/02/28 01:46:14 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -317,14 +317,14 @@ main(int  argc,		/* I - Number of command-line arguments */
 	  exportfunc = pspdf_export;
 	  PSLevel    = 3;
 	}
-        else if (strcasecmp(argv[i], "pdf13") == 0)
+        else if (strcasecmp(argv[i], "pdf13") == 0 ||
+	         strcasecmp(argv[i], "pdf") == 0)
 	{
           exportfunc = pspdf_export;
 	  PSLevel    = 0;
 	  PDFVersion = 1.3;
 	}
-        else if (strcasecmp(argv[i], "pdf12") == 0 ||
-	         strcasecmp(argv[i], "pdf") == 0)
+        else if (strcasecmp(argv[i], "pdf12") == 0)
 	{
           exportfunc = pspdf_export;
 	  PSLevel    = 0;
@@ -1900,14 +1900,14 @@ parse_options(const char   *line,	// I - Options from book file
 	PSLevel     = 0;
 	PDFVersion  = 1.1f;
       }
-      else if (strcmp(temp2, "pdf") == 0 ||
-               strcmp(temp2, "pdf12") == 0)
+      else if (strcmp(temp2, "pdf12") == 0)
       {
         *exportfunc = pspdf_export;
 	PSLevel     = 0;
 	PDFVersion  = 1.2f;
       }
-      else if (strcmp(temp2, "pdf13") == 0)
+      else if (strcmp(temp2, "pdf") == 0 ||
+               strcmp(temp2, "pdf13") == 0)
       {
         *exportfunc = pspdf_export;
 	PSLevel     = 0;
@@ -2395,5 +2395,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.11 2001/02/26 23:43:57 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.12 2001/02/28 01:46:14 mike Exp $".
  */
