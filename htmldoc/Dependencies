@@ -37,6 +37,8 @@ tree.o: htmldoc.h render.h style.h file.h http.h md5.h image.h types.h
 tree.o: ../config.h tree.h margin.h hdstring.h
 render.o: debug.h htmldoc.h render.h style.h file.h http.h md5.h image.h
 render.o: types.h ../config.h tree.h margin.h hdstring.h
+render-support.o: debug.h htmldoc.h render.h style.h file.h http.h md5.h
+render-support.o: image.h types.h ../config.h tree.h margin.h hdstring.h
 render-table.o: debug.h htmldoc.h render.h style.h file.h http.h md5.h
 render-table.o: image.h types.h ../config.h tree.h margin.h hdstring.h
 testsuite.o: htmldoc.h render.h style.h file.h http.h md5.h image.h types.h
