@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.27 2001/10/18 23:49:32 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.28 2001/10/27 03:20:10 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -81,6 +81,7 @@
 #  include <ctype.h>
 #  include <math.h>
 #  include <FL/fl_ask.H>
+#  include <FL/Fl_Double_Window.H>
 #  include <FL/Fl_Color_Chooser.H>
 #  include <FL/fl_draw.H>
 #  include <FL/x.H>
@@ -106,6 +107,131 @@
 
 const char	*GUI::help_dir = DOCUMENTATION;
 
+extern uchar *fl_gray_ramp();
+
+void shade_frame(int x, int y, int w, int h, const char *c)
+{
+  uchar *g = fl_gray_ramp();
+  int b = strlen(c) / 4 + 1;
+
+  for (x += b, y += b, w -= 2 * b, h -= 2 * b; b > 1; b --)
+  {
+    fl_color(g[*c++]);
+    fl_line(x, y + h + b, x + w - 1, y + h + b, x + w + b - 1, y + h);
+    fl_color(g[*c++]);
+    fl_line(x + w + b - 1, y + h, x + w + b - 1, y, x + w - 1, y - b);
+    fl_color(g[*c++]);
+    fl_line(x + w - 1, y - b, x, y - b, x - b, y);
+    fl_color(g[*c++]);
+    fl_line(x - b, y, x - b, y + h, x, y + h + b);
+  }
+}
+
+
+/*
+points to obtain the complete circle. At each stage through the loop in the code sample
+below the point (x,y) is calculated. The WRITE_CIRCLE function then takes this
+point and can plot the following list of points: 
+       (x,y), (y,x), (y,-x), (x,-y), (-x,-y), (-y,-x), (-y,x), (-x,y)
+
+midpoint_circle ( int radius, colour )
+{  int x = 0;
+  int y = radius;
+  int d = 1-radius;
+
+  WRITE_CIRCLE(x, y, colour);
+
+  while (x < y)
+  {
+    if (d<0)
+      d = d + 2*x + 3;
+    else
+    {
+      d = d + 2*(x-y) + 5;
+      y = y - 1;
+    }
+    x = x - 1;
+    WRITE_CIRCLE( x, y, colour);
+   }
+}
+*/
+
+void shade_rect(int x, int y, int w, int h, const char *c, Fl_Color bc)
+{
+  uchar		*g = fl_gray_ramp();
+  int		xoff, yoff;
+  int		cmod, cerr;
+  int		clen = strlen(c);
+
+
+  if (w >= h)
+  {
+    cmod = clen % h;
+    cerr = 0;
+
+    fl_color(fl_color_average((Fl_Color)g[*c], bc, 0.67f));
+
+    for (yoff = 0; yoff < h; yoff ++)
+    {
+      fl_xyline(x, y + yoff, x + w - 1);
+
+      cerr += cmod;
+      if (cerr >= h)
+      {
+        cerr -= h;
+	c ++;
+
+        fl_color(fl_color_average((Fl_Color)g[*c], bc, 0.67f));
+      }
+    }
+  }
+  else
+  {
+    cmod = clen % w;
+    cerr = 0;
+
+    fl_color(fl_color_average((Fl_Color)g[*c], bc, 0.67f));
+
+    for (xoff = 0; xoff < w; xoff ++)
+    {
+      fl_yxline(x + xoff, y, y + h - 1);
+
+      cerr += cmod;
+      if (cerr >= w)
+      {
+        cerr -= w;
+	c ++;
+
+        fl_color(fl_color_average((Fl_Color)g[*c], bc, 0.67f));
+      }
+    }
+  }
+}
+
+void up_box(int x, int y, int w, int h, Fl_Color c) {
+  if (w > 30 && h > 30)
+  {
+    fl_color(c);
+    fl_rectf(x + 2, y + 2, w - 4, h - 4);
+  }
+  else
+    shade_rect(x + 2, y + 2, w - 4, h - 4, "VUTSSTUVWW", c);
+
+  shade_frame(x, y, w, h, "PPRRCLMM");
+}
+
+void down_box(int x, int y, int w, int h, Fl_Color c) {
+  if (w > 30 && h > 30)
+  {
+    fl_color(c);
+    fl_rectf(x + 2, y + 2, w - 4, h - 4);
+  }
+  else
+    shade_rect(x + 2, y + 2, w - 4, h - 4, "SSTUVWWVUT", c);
+
+  shade_frame(x, y, w, h, "RRPPMMLC");
+}
+
 
 //
 // 'GUI()' - Build the HTMLDOC GUI and load the indicated book as necessary.
@@ -114,7 +240,6 @@ const char	*GUI::help_dir = DOCUMENTATION;
 GUI::GUI(const char *filename)		// Book file to load initially
 {
   Fl_Group		*group;		// Group
-  Fl_Button		*button;	// Push button
   Fl_Box		*label;		// Label box
   static Fl_Menu	sizeMenu[] =	// Menu items for page size button */
 			{
@@ -237,10 +362,19 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
 
   //
+  // Pseudo-Aqua buttons...
+  //
+
+  Fl::set_boxtype(FL_UP_BOX, up_box, 3, 3, 5, 5);
+  Fl::set_boxtype(FL_DOWN_BOX, down_box, 3, 3, 5, 5);
+  Fl::set_boxtype(_FL_ROUND_UP_BOX, up_box, 3, 3, 5, 5);
+  Fl::set_boxtype(_FL_ROUND_DOWN_BOX, down_box, 3, 3, 5, 5);
+
+  //
   // Create a dialog window...
   //
 
-  window = new Fl_Window(505, 415, "HTMLDOC " SVERSION);
+  window = new Fl_Double_Window(505, 415, "HTMLDOC " SVERSION);
   window->callback((Fl_Callback *)closeBookCB, this);
 
   controls = new Fl_Group(0, 0, 505, 385);
@@ -960,14 +1094,17 @@ GUI::GUI(const char *filename)		// Book file to load initially
   bookSaveAs = new Fl_Button(255, 355, 85, 25, "Save As...");
   bookSaveAs->shortcut(FL_CTRL | FL_SHIFT | 's');
   bookSaveAs->callback((Fl_Callback *)saveAsBookCB, this);
+//  bookSaveAs->color(FL_WHITE, FL_GREEN);
 
   bookGenerate = new Fl_Button(345, 355, 85, 25, "Generate");
   bookGenerate->shortcut(FL_CTRL | 'g');
   bookGenerate->callback((Fl_Callback *)generateBookCB, this);
+//  bookGenerate->color(FL_WHITE, FL_BLUE);
 
   bookClose = new Fl_Button(435, 355, 60, 25, "Close");
   bookClose->shortcut(FL_CTRL | 'q');
   bookClose->callback((Fl_Callback *)closeBookCB, this);
+//  bookClose->color(FL_WHITE, FL_RED);
 
   controls->end();
 
@@ -3981,5 +4118,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.27 2001/10/18 23:49:32 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.28 2001/10/27 03:20:10 mike Exp $".
 //
