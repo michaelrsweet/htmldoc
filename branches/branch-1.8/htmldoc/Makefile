@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.13.2.13 2004/01/13 02:51:27 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.14 2004/02/05 13:31:38 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -104,11 +104,12 @@ util.o:		htmldoc.h types.h
 
 testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o \
 		http-addr.o http-support.o image.o iso8859.o \
-		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o htmlsep.o ../Makedefs
+		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o \
+		htmlsep.o string.o ../Makedefs
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o gui.o htmllibd.o \
 		http.o http-addr.o http-support.o image.o iso8859.o \
-		progress.o ps-pdf.o toc.o util.o \
+		progress.o ps-pdf.o toc.o util.o string.o \
 		md5.o rc4.o html.o htmlsep.o $(LIBS)
 
 testhtml.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
@@ -121,5 +122,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.13.2.13 2004/01/13 02:51:27 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.14 2004/02/05 13:31:38 mike Exp $".
 #
