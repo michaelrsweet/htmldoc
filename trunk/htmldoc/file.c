@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.9 2000/09/15 02:42:40 mike Exp $"
+ * "$Id: file.c,v 1.10 2000/09/24 16:04:21 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -204,7 +204,10 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   if (s == NULL)
     return (NULL);
 
-  httpSeparate(s, method, username, hostname, &port, resource);
+  if (strncmp(s, "http:", 5) == 0)
+    httpSeparate(s, method, username, hostname, &port, resource);
+  else
+    strcpy(method, "file");
 
   if (strcmp(method, "file") == 0)
   {
@@ -212,7 +215,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     * If the path is NULL or empty, return the filename...
     */
 
-    if (path == NULL || !path[0] || s == NULL)
+    if (path == NULL || !path[0])
       return ((char *)s);
 
    /*
@@ -564,5 +567,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.9 2000/09/15 02:42:40 mike Exp $".
+ * End of "$Id: file.c,v 1.10 2000/09/24 16:04:21 mike Exp $".
  */
