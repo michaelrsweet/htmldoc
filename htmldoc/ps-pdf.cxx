@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.28 1999/11/22 18:07:40 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.29 1999/11/22 20:42:11 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3620,46 +3620,35 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     if (col_widths[col] == 0.0f)
       pref_width += col_prefs[col];
 
-  if (pref_width > 0.0f)
-  {
-    regular_width = (width - actual_width) / pref_width;
+  if ((regular_width = (width - actual_width) / pref_width) < 0.0f)
+    regular_width = 0.0f;
+  else if (regular_width > 1.0f)
+    regular_width = 1.0f;
 
-    for (col = 0; col < num_cols; col ++)
-      if (col_widths[col] == 0.0f)
+  for (col = 0; col < num_cols; col ++)
+    if (col_widths[col] == 0.0f)
+    {
+      pref_width = (col_prefs[col] - col_mins[col]) * regular_width +
+                   col_mins[col];
+
+      if ((actual_width + pref_width) > width)
       {
-        pref_width = col_prefs[col] * regular_width;
-	if (pref_width > col_mins[col])
-	{
-	  col_widths[col] = pref_width;
-	  actual_width    += pref_width;
-	  regular_cols --;
-	}
+        if (col == (num_cols - 1))
+	  col_widths[col] = width - actual_width;
+	else
+	  col_widths[col] = col_mins[col];
       }
-  }
+      else
+        col_widths[col] = pref_width;
+
+      actual_width += col_widths[col];
+    }
 
  /*
-  * The final pass divides up the remaining space amongst the unassigned
-  * columns so far...
+  * The final pass divides up the remaining space amongst the columns...
   */
 
-  if (regular_cols > 0)
-  {
-    if (actual_width > width)
-    {
-      for (col = 0; col < num_cols; col ++)
-	if (col_widths[col] == 0.0)
-	  col_widths[col] = col_mins[col];
-    }
-    else
-    {
-      regular_width = (width - actual_width) / regular_cols;
-
-      for (col = 0; col < num_cols; col ++)
-	if (col_widths[col] == 0.0)
-	  col_widths[col] = regular_width;
-    }
-  }
-  else if (width > actual_width)
+  if (width > actual_width)
   {
     regular_width = (width - actual_width) / num_cols;
 
@@ -6276,5 +6265,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.28 1999/11/22 18:07:40 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.29 1999/11/22 20:42:11 mike Exp $".
  */
