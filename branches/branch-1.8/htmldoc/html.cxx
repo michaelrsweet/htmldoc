@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.14 2001/08/17 01:55:36 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.15 2001/08/29 20:41:58 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -79,7 +79,10 @@ static uchar	*get_title(tree_t *doc);
 
 static void	add_link(uchar *name, uchar *filename);
 static link_t	*find_link(uchar *name);
+extern "C" {
 static int	compare_links(link_t *n1, link_t *n2);
+typedef int	(*compare_func_t)(const void *, const void *);
+}
 static void	scan_links(tree_t *t, uchar *filename);
 static void	update_links(tree_t *t, uchar *filename);
 
@@ -217,7 +220,7 @@ write_header(FILE   **out,	/* IO - Output file */
   char	realname[1024];		/* Real filename */
   char	*basename;		/* Filename without directory */
   int	newfile;		/* Non-zero if this is a new file */
-  static char	*families[] =	/* Typeface names */
+  static const char *families[] =/* Typeface names */
 		{
 		  "monospace",
 		  "serif",
@@ -766,8 +769,7 @@ add_link(uchar *name,		/* I - Name of link */
     temp->filename = filename;
 
     if (num_links > 1)
-      qsort(links, num_links, sizeof(link_t),
-            (int (*)(const void *, const void *))compare_links);
+      qsort(links, num_links, sizeof(link_t), (compare_func_t)compare_links);
   }
 }
 
@@ -793,7 +795,7 @@ find_link(uchar *name)		/* I - Name to find */
   strncpy((char *)key.name, (char *)target, sizeof(key.name) - 1);
   key.name[sizeof(key.name) - 1] = '\0';
   match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t),
-                            (int (*)(const void *, const void *))compare_links);
+                            (compare_func_t)compare_links);
 
   return (match);
 }
@@ -932,5 +934,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.14 2001/08/17 01:55:36 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.15 2001/08/29 20:41:58 mike Exp $".
  */

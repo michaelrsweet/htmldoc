@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.19 2001/08/16 21:11:47 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.20 2001/08/29 20:41:57 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -249,10 +249,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   Fl_Group		*group;		// Group
   Fl_Button		*button;	// Push button
   Fl_Box		*label;		// Label box
-  static char		*htmldoc[] =	// argv[] array
-			{
-			  "htmldoc"
-			};
   static Fl_Menu	sizeMenu[] =	// Menu items for page size button */
 			{
 			  {"A4", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
@@ -1043,7 +1039,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   memset(&attrs, 0, sizeof(attrs));
 
   XpmCreatePixmapFromData(fl_display, DefaultRootWindow(fl_display),
-                          htmldoc_xpm, &pixmap, &mask, &attrs);
+                          (char **)htmldoc_xpm, &pixmap, &mask, &attrs);
   window->icon((char *)pixmap);
 #  else // X11 w/o Xpm library
   // Open the X display and load the HTMLDOC icon image...
@@ -1062,7 +1058,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   window->resizable(tabs);
   window->size_range(470, 390);
-  window->show(sizeof(htmldoc) / sizeof(htmldoc[0]), htmldoc);
+  show();
 
   // File chooser, icons, help dialog, error window...
   fc = new FileChooser(".", "*", FileChooser::SINGLE, "Title");
@@ -1180,7 +1176,7 @@ GUI::~GUI(void)
 void
 GUI::show(void)
 {
-  static char	*htmldoc[1] = { "htmldoc" };	// argv[] array
+  static char	*htmldoc[1] = { (char *)"htmldoc" };	// argv[] array
 
 
   window->show(1, htmldoc);
@@ -1192,8 +1188,8 @@ GUI::show(void)
 //
 
 void
-GUI::progress(int  percent,	// I - Percent complete
-              char *text)	// I - Text prompt
+GUI::progress(int        percent,	// I - Percent complete
+              const char *text)		// I - Text prompt
 {
   if (text != NULL)
     progressBar->label(text);
@@ -1571,9 +1567,9 @@ GUI::parseOptions(const char *line)	// I - Line from file
 		temp2[1024],		// Option value
 		*tempptr,		// Pointer into option
 		formats[256];		// Header/footer formats
-  static char	*types[] =		// Typeface names...
+  static const char *types[] =		// Typeface names...
 		{ "Courier", "Times", "Helvetica" };
-  static char	*fonts[] =		// Font names...
+  static const char *fonts[] =		// Font names...
 		{
 		  "Courier", "Courier-Bold", "Courier-Oblique",
 		  "Courier-BoldOblique", "Times-Roman", "Times-Bold",
@@ -2053,11 +2049,11 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   int		i,			// Looping var
 		count;			// Number of files
   FILE		*fp;			// Book file pointer
-  static char	*formats = ".tchl1iIaAC/:dTD";
+  static const char *formats = ".tchl1iIaAC/:dTD";
 					// Format characters
-  static char	*types[] =		// Typeface names...
+  static const char *types[] =		// Typeface names...
 		{ "Courier", "Times", "Helvetica" };
-  static char	*fonts[] =		// Font names...
+  static const char *fonts[] =		// Font names...
 		{
 		  "Courier", "Courier-Bold", "Courier-Oblique",
 		  "Courier-BoldOblique", "Times-Roman", "Times-Bold",
@@ -3206,7 +3202,7 @@ GUI::saveOptionsCB(Fl_Widget *w,
                    GUI       *gui)
 {
   char		temp[4];		// Format string
-  static char	*formats = ".tchl1iIaAC/:dTD";
+  static const char *formats = ".tchl1iIaAC/:dTD";
 					// Format characters
 
 
@@ -3666,7 +3662,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   char		*filename,	// HTML filename
 		base[1024],	// Base directory of HTML file
 		bookbase[1024];	// Base directory of book file
-  static char	*formats = ".tchl1iIaAC/:dTD";
+  static const char *formats = ".tchl1iIaAC/:dTD";
 				// Format characters
 
 
@@ -3961,5 +3957,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.19 2001/08/16 21:11:47 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.20 2001/08/29 20:41:57 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.h,v 1.1.2.2 2001/08/16 21:11:52 mike Exp $"
+ * "$Id: progress.h,v 1.1.2.3 2001/08/29 20:42:04 mike Exp $"
  *
  *   Progress function definitions for HTMLDOC, a HTML document
  *   processing program.
@@ -58,9 +58,9 @@ typedef enum
  * Prototypes...
  */
 
-extern void	progress_error(HDerror error, char *format, ...);
+extern void	progress_error(HDerror error, const char *format, ...);
 extern void	progress_hide(void);
-extern void	progress_show(char *format, ...);
+extern void	progress_show(const char *format, ...);
 extern void	progress_update(int percent);
 
 #  ifdef __cplusplus
@@ -70,5 +70,5 @@ extern void	progress_update(int percent);
 #endif /* !_PROGRESS_H_ */
 
 /*
- * End of "$Id: progress.h,v 1.1.2.2 2001/08/16 21:11:52 mike Exp $".
+ * End of "$Id: progress.h,v 1.1.2.3 2001/08/29 20:42:04 mike Exp $".
  */

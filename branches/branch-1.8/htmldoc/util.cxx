@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.7 2001/08/16 20:34:46 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.8 2001/08/29 20:42:10 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -49,7 +49,7 @@ char *				/* O - String */
 format_number(int  n,		/* I - Number */
               char f)		/* I - Format */
 {
-  static char	*ones[10] =	/* Roman numerals, 0-9 */
+  static const char *ones[10] =	/* Roman numerals, 0-9 */
 		{
 		  "",	"i",	"ii",	"iii",	"iv",
 		  "v",	"vi",	"vii",	"viii",	"ix"
@@ -64,7 +64,7 @@ format_number(int  n,		/* I - Number */
 		  "",	"c",	"cc",	"ccc",	"cd",
 		  "d",	"dc",	"dcc",	"dccc",	"cm"
 		};
-  static char	*ONES[10] =	/* Roman numerals, 0-9 */
+  static const char *ONES[10] =	/* Roman numerals, 0-9 */
 		{
 		  "",	"I",	"II",	"III",	"IV",
 		  "V",	"VI",	"VII",	"VIII",	"IX"
@@ -144,7 +144,7 @@ get_color(const uchar *color,	/* I - Color attribute */
   static uchar	tempcolor[8];	/* Temporary holding place for hex colors */
   static struct
   {
-    char	*name;		/* Color name */
+    const char	*name;		/* Color name */
     uchar	red,		/* Red value */
 		green,		/* Green value */
 		blue;		/* Blue value */
@@ -418,5 +418,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.7 2001/08/16 20:34:46 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.8 2001/08/29 20:42:10 mike Exp $".
  */

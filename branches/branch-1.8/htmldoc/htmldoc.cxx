@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.23 2001/08/16 21:11:48 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.24 2001/08/29 20:41:59 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -68,12 +68,14 @@ typedef int (*exportfunc_t)(tree_t *, tree_t *);
  * Local functions...
  */
 
-static int	compare_strings(char *s, char *t, int tmin);
+static int	compare_strings(const char *s, const char *t, int tmin);
 static int	load_book(const char *filename, tree_t **document,
 		          exportfunc_t *exportfunc);
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
 static int	read_file(const char *filename, tree_t **document);
+extern "C" {
 static void	term_handler(int signum);
+}
 static void	usage(void);
 
 
@@ -140,7 +142,7 @@ main(int  argc,		/* I - Number of command-line arguments */
   */
 
   document   = NULL;
-  exportfunc = html_export;
+  exportfunc = (exportfunc_t)html_export;
 
  /*
   * Parse command-line options...
@@ -333,48 +335,48 @@ main(int  argc,		/* I - Number of command-line arguments */
       {
         if (strcasecmp(argv[i], "ps1") == 0)
         {
-	  exportfunc = pspdf_export;
+	  exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 1;
 	}
         else if (strcasecmp(argv[i], "ps2") == 0 ||
                  strcasecmp(argv[i], "ps") == 0)
         {
-	  exportfunc = pspdf_export;
+	  exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 2;
 	}
         else if (strcasecmp(argv[i], "ps3") == 0)
         {
-	  exportfunc = pspdf_export;
+	  exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 3;
 	}
         else if (strcasecmp(argv[i], "pdf14") == 0)
 	{
-          exportfunc = pspdf_export;
+          exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 0;
 	  PDFVersion = 1.4;
 	}
         else if (strcasecmp(argv[i], "pdf13") == 0 ||
 	         strcasecmp(argv[i], "pdf") == 0)
 	{
-          exportfunc = pspdf_export;
+          exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 0;
 	  PDFVersion = 1.3;
 	}
         else if (strcasecmp(argv[i], "pdf12") == 0)
 	{
-          exportfunc = pspdf_export;
+          exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 0;
 	  PDFVersion = 1.2;
 	}
         else if (strcasecmp(argv[i], "pdf11") == 0)
 	{
-          exportfunc  = pspdf_export;
+          exportfunc  = (exportfunc_t)pspdf_export;
 	  PSLevel     = 0;
 	  PDFVersion  = 1.1;
 	  Compression = 0;
 	}
         else if (strcasecmp(argv[i], "html") == 0)
-          exportfunc = html_export;
+          exportfunc = (exportfunc_t)html_export;
       }
       else
         usage();
@@ -606,18 +608,18 @@ main(int  argc,		/* I - Number of command-line arguments */
         {
           if (strcasecmp(extension, "ps") == 0)
           {
-	    exportfunc = pspdf_export;
+	    exportfunc = (exportfunc_t)pspdf_export;
 
 	    if (PSLevel == 0)
 	      PSLevel = 2;
 	  }
           else if (strcasecmp(extension, "pdf") == 0)
 	  {
-            exportfunc = pspdf_export;
+            exportfunc = (exportfunc_t)pspdf_export;
 	    PSLevel    = 0;
           }
 	  else if (strcasecmp(extension, "html") == 0)
-            exportfunc = html_export;
+            exportfunc = (exportfunc_t)html_export;
         }
       }
       else
@@ -843,9 +845,9 @@ main(int  argc,		/* I - Number of command-line arguments */
       PDFPageMode  = PDF_DOCUMENT;
       PDFFirstPage = PDF_PAGE_1;
 
-      if (exportfunc == html_export)
+      if (exportfunc == (exportfunc_t)html_export)
       {
-        exportfunc = pspdf_export;
+        exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel    = 0;
       }
     }
@@ -1324,9 +1326,9 @@ prefs_save(void)
  */
 
 static int			/* O - -1 or 1 = no match, 0 = match */
-compare_strings(char *s,	/* I - Command-line string */
-                char *t,	/* I - Option string */
-                int  tmin)	/* I - Minimum number of unique chars in option */
+compare_strings(const char *s,	/* I - Command-line string */
+                const char *t,	/* I - Option string */
+                int        tmin)/* I - Minimum number of unique chars in option */
 {
   int	slen;			/* Length of command-line string */
 
@@ -1596,45 +1598,45 @@ parse_options(const char   *line,	// I - Options from book file
     if (strcmp(temp, "-t") == 0)
     {
       if (strcmp(temp2, "html") == 0)
-        *exportfunc = html_export;
+        *exportfunc = (exportfunc_t)html_export;
       else if (strcmp(temp2, "ps1") == 0)
       {
-        *exportfunc = pspdf_export;
+        *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 1;
       }
       else if (strcmp(temp2, "ps") == 0 ||
                strcmp(temp2, "ps2") == 0)
       {
-        *exportfunc = pspdf_export;
+        *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 2;
       }
       else if (strcmp(temp2, "ps3") == 0)
       {
-        *exportfunc = pspdf_export;
+        *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 3;
       }
       else if (strcmp(temp2, "pdf11") == 0)
       {
-        *exportfunc = pspdf_export;
+        *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
 	PDFVersion  = 1.1f;
       }
       else if (strcmp(temp2, "pdf12") == 0)
       {
-        *exportfunc = pspdf_export;
+        *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
 	PDFVersion  = 1.2f;
       }
       else if (strcmp(temp2, "pdf") == 0 ||
                strcmp(temp2, "pdf13") == 0)
       {
-        *exportfunc = pspdf_export;
+        *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
 	PDFVersion  = 1.3f;
       }
       else if (strcmp(temp2, "pdf14") == 0)
       {
-        *exportfunc = pspdf_export;
+        *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
 	PDFVersion  = 1.4f;
       }
@@ -2126,5 +2128,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.23 2001/08/16 21:11:48 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.24 2001/08/29 20:41:59 mike Exp $".
  */

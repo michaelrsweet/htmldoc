@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.9.2.3 2001/05/29 21:05:25 mike Exp $"
+ * "$Id: html.h,v 1.9.2.4 2001/08/29 20:41:59 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -261,7 +261,7 @@ typedef struct tree_str
  * Globals...
  */
 
-extern char		*_htmlMarkups[];
+extern const char	*_htmlMarkups[];
 extern const char	*_htmlData;
 extern float		_htmlPPI;
 extern int		_htmlGrayscale;
@@ -281,7 +281,7 @@ extern const char	*_htmlFonts[4][4];
  * Prototypes...
  */
 
-extern tree_t	*htmlReadFile(tree_t *parent, FILE *fp, char *base);
+extern tree_t	*htmlReadFile(tree_t *parent, FILE *fp, const char *base);
 extern int	htmlWriteFile(tree_t *parent, FILE *fp);
 
 extern tree_t	*htmlAddTree(tree_t *parent, markup_t markup, uchar *data);
@@ -308,5 +308,5 @@ extern void	htmlSetTextColor(uchar *color);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.3 2001/05/29 21:05:25 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.4 2001/08/29 20:41:59 mike Exp $".
  */
