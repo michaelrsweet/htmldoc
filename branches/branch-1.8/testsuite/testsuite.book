@@ -1,18 +1,19 @@
-#HTMLDOC 1.8.20
--t pdf13 -f testsuite.pdf --webpage --no-title --linkstyle underline --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --footer h.1 --nup 1 --tocheader .t. --tocfooter ..i --portrait --color --no-pscommands --no-xrxcomments --no-compression --jpeg=0 --fontsize 11.0 --fontspacing 1.2 --headingfont Helvetica --bodyfont Times --headfootsize 11.0 --headfootfont Helvetica --charset 8859-1 --links --embedfonts --pagemode document --pagelayout single --firstpage p1 --pageeffect none --pageduration 10 --effectduration 1.0 --no-encryption --permissions all  --owner-password ""  --user-password "" --browserwidth 680
+#HTMLDOC 1.8.24rc1
+-t pdf13 -f testsuite.pdf --webpage --no-title --linkstyle underline --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --footer h.1 --nup 1 --tocheader .t. --tocfooter ..i --portrait --color --no-pscommands --no-xrxcomments --no-compression --jpeg=0 --fontsize 11.0 --fontspacing 1.2 --headingfont Helvetica --bodyfont Times --headfootsize 11.0 --headfootfont Helvetica --charset iso-8859-1 --links --embedfonts --pagemode document --pagelayout single --firstpage p1 --pageeffect none --pageduration 10 --effectduration 1.0 --no-encryption --permissions all  --owner-password ""  --user-password "" --browserwidth 680
 attributes.html
 basic.html
 color.html
 links.html
 list.html
+lt.html
 table-allspan.html
+table-cellpadding.html
 table-cellspacing.html
 table-colspan.html
 table-complex.html
 table-join.html
 table-long.html
 table-nested.html
-table-rowspan.html
 table-simple.html
 table-valign.html
 whitespace.html

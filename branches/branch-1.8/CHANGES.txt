@@ -1,4 +1,4 @@
-CHANGES.txt - 05/05/2004
+CHANGES.txt - 05/07/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -59,6 +59,7 @@ CHANGES IN HTMLDOC v1.8.24
 	- Character entities are now supported in HTML
 	  attributes and unknown or invalid character entities
 	  are left as plain text.
+	- Fixed handling of NOWRAP for some tables.
 
     BUG FIXES
 
@@ -89,6 +90,8 @@ CHANGES IN HTMLDOC v1.8.24
 	- Fixed some calls to strcpy with overlapping arguments.
 	- The names object was never set when the name objects
 	  were written.
+	- Character entities were not decoded/encoded inside
+	  HTML comments.
 
 
 CHANGES IN HTMLDOC v1.8.23

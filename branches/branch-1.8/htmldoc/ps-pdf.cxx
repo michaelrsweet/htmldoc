@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.246 2004/05/05 18:58:40 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.247 2004/05/07 22:04:57 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3924,20 +3924,19 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       * Add a file link...
       */
 
-      uchar	name[256],	/* New filename */
+      uchar	newname[256],	/* New filename */
 		*sep;		/* "?" separator in links */
 
 
       // Strip any trailing HTTP GET data stuff...
-      strncpy((char *)name, (char *)htmlGetVariable(t, (uchar *)"_HD_FILENAME"),
-              sizeof(name) - 1);
-      name[sizeof(name) - 1] = '\0';
+      strlcpy((char *)newname, (char *)htmlGetVariable(t, (uchar *)"_HD_FILENAME"),
+              sizeof(newname));
 
-      if ((sep = (uchar *)strchr((char *)name, '?')) != NULL)
+      if ((sep = (uchar *)strchr((char *)newname, '?')) != NULL)
         *sep = '\0';
 
       // Add the link
-      add_link(name, *page, (int)*y);
+      add_link(newname, *page, (int)*y);
     }
 
     if (chapter == 0 && !title_page)
@@ -5800,8 +5799,6 @@ parse_table(tree_t *t,			// I - Tree to parse
               col_width -= 2.0 * cellpadding;
 	    }
 	  }
-	  else if (htmlGetVariable(tempcol, (uchar *)"NOWRAP") != NULL)
-	    col_width = col_pref;
 	  else
 	    col_width = 0.0f;
 
@@ -9387,10 +9384,10 @@ set_color(FILE  *out,	/* I - File to write to */
  */
 
 static void
-set_font(FILE  *out,		/* I - File to write to */
-         int   typeface,	/* I - Typeface code */
-         int   style,		/* I - Style code */
-         float size)		/* I - Size */
+set_font(FILE  *out,			/* I - File to write to */
+         int   typeface,		/* I - Typeface code */
+         int   style,			/* I - Style code */
+         float size)			/* I - Size */
 {
   char	sizes[255],	/* Formatted string for size... */
 	*s;		/* Pointer to end of string */
@@ -9438,13 +9435,13 @@ set_font(FILE  *out,		/* I - File to write to */
  */
 
 static void
-set_pos(FILE  *out,	/* I - File to write to */
-        float x,	/* I - X position */
-        float y)	/* I - Y position */
+set_pos(FILE  *out,			/* I - File to write to */
+        float x,			/* I - X position */
+        float y)			/* I - Y position */
 {
-  char	xs[255],	/* Formatted string for X... */
-	ys[255],	/* Formatted string for Y... */
-	*s;		/* Pointer to end of string */
+  char	xs[255],			/* Formatted string for X... */
+	ys[255],			/* Formatted string for Y... */
+	*s;				/* Pointer to end of string */
 
 
   if (fabs(render_x - x) < 0.1 && fabs(render_y - y) < 0.1)
@@ -9496,9 +9493,9 @@ set_pos(FILE  *out,	/* I - File to write to */
  */
 
 static void
-ps_hex(FILE  *out,	/* I - File to print to */
-       uchar *data,	/* I - Data to print */
-       int   length)	/* I - Number of bytes to print */
+ps_hex(FILE  *out,			/* I - File to print to */
+       uchar *data,			/* I - Data to print */
+       int   length)			/* I - Number of bytes to print */
 {
   int		col;
   static const char *hex = "0123456789ABCDEF";
@@ -9533,11 +9530,11 @@ ps_hex(FILE  *out,	/* I - File to print to */
  */
 
 static void
-ps_ascii85(FILE  *out,		/* I - File to print to */
-	   uchar *data,		/* I - Data to print */
-	   int   length)	/* I - Number of bytes to print */
+ps_ascii85(FILE  *out,			/* I - File to print to */
+	   uchar *data,			/* I - Data to print */
+	   int   length)		/* I - Number of bytes to print */
 {
-  int		col;		/* Column */
+  int		col;			/* Column */
   unsigned	b;
   uchar		c[5];
   static uchar	leftdata[4];
@@ -9653,7 +9650,7 @@ static struct jpeg_error_mgr	jerr;		/* JPEG error handler */
  */
 
 static void
-jpg_init(j_compress_ptr cinfo)	/* I - Compressor info */
+jpg_init(j_compress_ptr cinfo)		/* I - Compressor info */
 {
   (void)cinfo;
 
@@ -9666,8 +9663,8 @@ jpg_init(j_compress_ptr cinfo)	/* I - Compressor info */
  * 'jpg_empty()' - Empty the JPEG output buffer.
  */
 
-static boolean			/* O - True if buffer written OK */
-jpg_empty(j_compress_ptr cinfo)	/* I - Compressor info */
+static boolean				/* O - True if buffer written OK */
+jpg_empty(j_compress_ptr cinfo)		/* I - Compressor info */
 {
   (void)cinfo;
 
@@ -9688,9 +9685,9 @@ jpg_empty(j_compress_ptr cinfo)	/* I - Compressor info */
  */
 
 static void
-jpg_term(j_compress_ptr cinfo)	/* I - Compressor info */
+jpg_term(j_compress_ptr cinfo)		/* I - Compressor info */
 {
-  int nbytes;			/* Number of bytes to write */
+  int nbytes;				/* Number of bytes to write */
 
 
   (void)cinfo;
@@ -9756,9 +9753,9 @@ jpg_setup(FILE           *out,	/* I - Output file */
  * 'compare_rgb()' - Compare two RGB colors...
  */
 
-static int			/* O - -1 if rgb1<rgb2, etc. */
-compare_rgb(unsigned *rgb1,	/* I - First color */
-            unsigned *rgb2)	/* I - Second color */
+static int				/* O - -1 if rgb1<rgb2, etc. */
+compare_rgb(unsigned *rgb1,		/* I - First color */
+            unsigned *rgb2)		/* I - Second color */
 {
   return (*rgb1 - *rgb2);
 }
@@ -9769,29 +9766,28 @@ compare_rgb(unsigned *rgb1,	/* I - First color */
  */
 
 static void
-write_image(FILE     *out,	/* I - Output file */
-            render_t *r,	/* I - Image to write */
-	    int      write_obj)	/* I - Write an object? */
+write_image(FILE     *out,		/* I - Output file */
+            render_t *r,		/* I - Image to write */
+	    int      write_obj)		/* I - Write an object? */
 {
-  int		i, j, k, m,	/* Looping vars */
-		ncolors;	/* Number of colors */
-  uchar		*pixel,		/* Current pixel */
-		*indices,	/* New indexed pixel array */
-		*indptr;	/* Current index */
-  int		indwidth,	/* Width of indexed line */
-		indbits;	/* Bits per index */
-  int		max_colors;	/* Max colors to use */
-  unsigned	colors[256],	/* Colormap values */
-		key,		/* Color key */
-		*match;		/* Matching color value */
-  uchar		grays[256],	/* Grayscale usage */
-		cmap[256][3];	/* Colormap */
-  image_t 	*img;		/* Image */
-  struct jpeg_compress_struct cinfo;
-  				/* JPEG compressor */
-  uchar		*data,		/* PS Level 3 image data */
-		*dataptr,	/* Pointer into image data */
-		*maskptr;	/* Pointer into mask data */
+  int		i, j, k, m,		/* Looping vars */
+		ncolors;		/* Number of colors */
+  uchar		*pixel,			/* Current pixel */
+		*indices,		/* New indexed pixel array */
+		*indptr;		/* Current index */
+  int		indwidth,		/* Width of indexed line */
+		indbits;		/* Bits per index */
+  int		max_colors;		/* Max colors to use */
+  unsigned	colors[256],		/* Colormap values */
+		key,			/* Color key */
+		*match;			/* Matching color value */
+  uchar		grays[256],		/* Grayscale usage */
+		cmap[256][3];		/* Colormap */
+  image_t 	*img;			/* Image */
+  struct jpeg_compress_struct cinfo;	/* JPEG compressor */
+  uchar		*data,			/* PS Level 3 image data */
+		*dataptr,		/* Pointer into image data */
+		*maskptr;		/* Pointer into mask data */
 
 
  /*
@@ -10642,17 +10638,17 @@ write_image(FILE     *out,	/* I - Output file */
  */
 
 static void
-write_imagemask(FILE     *out,	/* I - Output file */
-                render_t *r)	/* I - Image to write */
+write_imagemask(FILE     *out,		/* I - Output file */
+                render_t *r)		/* I - Image to write */
 {
-  image_t	*img;		/* Current image */
-  int		x, y;		/* Position in mask image */
-  int		startx, count;	/* Start and count */
-  uchar		*ptr,		/* Pointer into mask image */
-		byte,		/* Current byte */
-		bit;		/* Current bit */
-  float		scalex, scaley;	/* 1/(w-1) and 1/(h-1) scaling factors */
-  int		width, height;	/* Scaled width and height */
+  image_t	*img;			/* Current image */
+  int		x, y;			/* Position in mask image */
+  int		startx, count;		/* Start and count */
+  uchar		*ptr,			/* Pointer into mask image */
+		byte,			/* Current byte */
+		bit;			/* Current bit */
+  float		scalex, scaley;		/* 1/(w-1) and 1/(h-1) scaling factors */
+  int		width, height;		/* Scaled width and height */
 
 
   img    = r->data.image;
@@ -10759,33 +10755,33 @@ write_imagemask(FILE     *out,	/* I - Output file */
  */
 
 static void
-write_prolog(FILE  *out,	/* I - Output file */
-             int   page_count,	/* I - Number of pages (0 if not known) */
-             uchar *author,	/* I - Author of document */
-             uchar *creator,	/* I - Application that generated the HTML file */
-             uchar *copyright,	/* I - Copyright (if any) on the document */
-             uchar *keywords,	/* I - Search keywords */
-	     uchar *subject)	/* I - Subject */
+write_prolog(FILE  *out,		/* I - Output file */
+             int   page_count,		/* I - Number of pages (0 if not known) */
+             uchar *author,		/* I - Author of document */
+             uchar *creator,		/* I - Application that generated the HTML file */
+             uchar *copyright,		/* I - Copyright (if any) on the document */
+             uchar *keywords,		/* I - Search keywords */
+	     uchar *subject)		/* I - Subject */
 {
-  FILE		*prolog;	/* PostScript prolog file */
-  int		i, j,		/* Looping vars */
-		encoding_object;/* Font encoding object */
-  int		page;		/* Current page */
-  render_t	*r;		/* Current render data */
-  int		fonts_used[4][4];/* Whether or not a font is used */
-  int		font_desc[4][4];/* Font descriptor objects */
-  char		temp[1024];	/* Temporary string */
-  md5_state_t	md5;		/* MD5 state */
-  md5_byte_t	digest[16];	/* MD5 digest value */
-  rc4_context_t	rc4;		/* RC4 context */
-  uchar		owner_pad[32],	/* Padded owner password */
-		owner_key[32],	/* Owner key */
-		user_pad[32],	/* Padded user password */
-		user_key[32];	/* User key */
-  uchar		perm_bytes[4];	/* Permission bytes */
-  unsigned	perm_value;	/* Permission value, unsigned */
+  FILE		*prolog;		/* PostScript prolog file */
+  int		i, j,			/* Looping vars */
+		encoding_object;	/* Font encoding object */
+  int		page;			/* Current page */
+  render_t	*r;			/* Current render data */
+  int		fonts_used[4][4];	/* Whether or not a font is used */
+  int		font_desc[4][4];	/* Font descriptor objects */
+  char		temp[1024];		/* Temporary string */
+  md5_state_t	md5;			/* MD5 state */
+  md5_byte_t	digest[16];		/* MD5 digest value */
+  rc4_context_t	rc4;			/* RC4 context */
+  uchar		owner_pad[32],		/* Padded owner password */
+		owner_key[32],		/* Owner key */
+		user_pad[32],		/* Padded user password */
+		user_key[32];		/* User key */
+  uchar		perm_bytes[4];		/* Permission bytes */
+  unsigned	perm_value;		/* Permission value, unsigned */
   static unsigned char pad[32] =
-		{		/* Padding for passwords */
+		{			/* Padding for passwords */
 		  0x28, 0xbf, 0x4e, 0x5e, 0x4e, 0x75, 0x8a, 0x41,
 		  0x64, 0x00, 0x4e, 0x56, 0xff, 0xfa, 0x01, 0x08,
 		  0x2e, 0x2e, 0x00, 0xb6, 0xd0, 0x68, 0x3e, 0x80,
@@ -11495,17 +11491,17 @@ write_prolog(FILE  *out,	/* I - Output file */
  */
 
 static void
-write_string(FILE  *out,	/* I - Output file */
-             uchar *s,		/* I - String */
-	     int   compress)	/* I - Compress output? */
+write_string(FILE  *out,		/* I - Output file */
+             uchar *s,			/* I - String */
+	     int   compress)		/* I - Compress output? */
 {
-  int	i;			/* Looping var */
+  int	i;				/* Looping var */
 
 
   if (Encryption && !compress && PSLevel == 0)
   {
-    int		len;		// Length of string
-    uchar	news[1024];	// New string
+    int		len;			// Length of string
+    uchar	news[1024];		// New string
 
 
    /*
@@ -11621,23 +11617,23 @@ write_text(FILE     *out,	/* I - Output file */
  */
 
 static void
-write_trailer(FILE *out,	/* I - Output file */
-              int  num_pages)	/* I - Number of pages in file */
+write_trailer(FILE *out,		/* I - Output file */
+              int  num_file_pages)	/* I - Number of pages in file */
 {
-  int		i, j, k,	/* Looping vars */
-		type,		/* Type of number */
-		offset,		/* Offset to xref table in PDF file */
-		start;		/* Start page number */
-  page_t	*page;		/* Start page of chapter */
-  char		prefix[64],	/* Prefix string */
-		*prefptr;	/* Pointer into prefix string */
-  static const char *modes[] =	/* Page modes */
+  int		i, j, k,		/* Looping vars */
+		type,			/* Type of number */
+		offset,			/* Offset to xref table in PDF file */
+		start;			/* Start page number */
+  page_t	*page;			/* Start page of chapter */
+  char		prefix[64],		/* Prefix string */
+		*prefptr;		/* Pointer into prefix string */
+  static const char *modes[] =		/* Page modes */
 		{
 		  "UseNone",
 		  "UseOutlines",
 		  "FullScreen"
 		};
-  static const char *layouts[] =/* Page layouts */
+  static const char *layouts[] =	/* Page layouts */
 		{
 		  "SinglePage",
 		  "OneColumn",
@@ -11653,8 +11649,8 @@ write_trailer(FILE *out,	/* I - Output file */
     */
 
     fputs("%%Trailer\n", out);
-    if (num_pages > 0)
-      fprintf(out, "%%%%Pages: %d\n", num_pages);
+    if (num_file_pages > 0)
+      fprintf(out, "%%%%Pages: %d\n", num_file_pages);
 
     fputs("%%EOF\n", out);
   }
@@ -12150,11 +12146,11 @@ write_type1(FILE       *out,		/* I - File to write to */
 static void
 encrypt_init(void)
 {
-  int		i;		/* Looping var */
-  uchar		data[21],	/* Key data */
-		*dataptr;	/* Pointer to key data */
-  md5_state_t	md5;		/* MD5 state */
-  md5_byte_t	digest[16];	/* MD5 digest value */
+  int		i;			/* Looping var */
+  uchar		data[21],		/* Key data */
+		*dataptr;		/* Pointer to key data */
+  md5_state_t	md5;			/* MD5 state */
+  md5_byte_t	digest[16];		/* MD5 digest value */
 
 
  /*
@@ -12194,7 +12190,7 @@ encrypt_init(void)
  */
 
 static void
-flate_open_stream(FILE *out)	/* I - Output file */
+flate_open_stream(FILE *out)		/* I - Output file */
 {
   if (Encryption && !PSLevel)
     encrypt_init();
@@ -12219,7 +12215,7 @@ flate_open_stream(FILE *out)	/* I - Output file */
  */
 
 static void
-flate_close_stream(FILE *out)	/* I - Output file */
+flate_close_stream(FILE *out)		/* I - Output file */
 {
   if (!Compression)
   {
@@ -12285,8 +12281,8 @@ flate_close_stream(FILE *out)	/* I - Output file */
  */
 
 static void
-flate_puts(const char *s,	/* I - String to write */
-           FILE       *out)	/* I - Output file */
+flate_puts(const char *s,		/* I - String to write */
+           FILE       *out)		/* I - Output file */
 {
   flate_write(out, (uchar *)s, strlen(s));
 }
@@ -12297,13 +12293,13 @@ flate_puts(const char *s,	/* I - String to write */
  */
 
 static void
-flate_printf(FILE       *out,	/* I - Output file */
-             const char *format,/* I - Format string */
-             ...)		/* I - Additional args as necessary */
+flate_printf(FILE       *out,		/* I - Output file */
+             const char *format,	/* I - Format string */
+             ...)			/* I - Additional args as necessary */
 {
-  int		length;		/* Length of output string */
-  char		buf[10240];	/* Output buffer */
-  va_list	ap;		/* Argument pointer */
+  int		length;			/* Length of output string */
+  char		buf[10240];		/* Output buffer */
+  va_list	ap;			/* Argument pointer */
 
 
   va_start(ap, format);
@@ -12319,10 +12315,10 @@ flate_printf(FILE       *out,	/* I - Output file */
  */
 
 static void
-flate_write(FILE  *out,		/* I - Output file */
-            uchar *buf,		/* I - Buffer */
-            int   length,	/* I - Number of bytes to write */
-	    int   flush)	/* I - Flush when writing data? */
+flate_write(FILE  *out,			/* I - Output file */
+            uchar *buf,			/* I - Buffer */
+            int   length,		/* I - Number of bytes to write */
+	    int   flush)		/* I - Flush when writing data? */
 {
   if (compressor_active)
   {
@@ -12378,5 +12374,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.246 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.247 2004/05/07 22:04:57 mike Exp $".
  */
