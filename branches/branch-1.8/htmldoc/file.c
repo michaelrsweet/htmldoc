@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13 2000/10/12 23:07:34 mike Exp $"
+ * "$Id: file.c,v 1.13.2.1 2000/11/08 22:23:26 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -237,7 +237,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
       temp = filename;
 
-      while (*path != ';' && !*path && temp < (filename + sizeof(filename) - 1))
+      while (*path != ';' && *path && temp < (filename + sizeof(filename) - 1))
 	*temp++ = *path++;
 
       if (*path == ';')
@@ -640,5 +640,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.13 2000/10/12 23:07:34 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.1 2000/11/08 22:23:26 mike Exp $".
  */
