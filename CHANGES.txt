@@ -17,6 +17,7 @@ CHANGES IN HTMLDOC v1.8.8
 	  compile warning with some compilers.
 	- No longer draw borders around empty cells in tables..
 	- Now disable the TOC tab when using webpage mode.
+	- Now scale title image to 100% in HTML output.
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.15 2000/05/08 16:13:36 mike Exp $"
+ * "$Id: html.cxx,v 1.16 2000/06/16 02:12:22 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -428,11 +428,14 @@ write_title(FILE  *out,		/* I - Output file */
 
     if (TitleImage[0] != '\0')
     {
+      image_t *img = image_find(TitleImage);
+
       if (OutputFiles)
-	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\"><BR>\n",
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"100%%\"><BR>\n",
         	file_basename((char *)TitleImage));
       else
-	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\"><BR>\n", TitleImage);
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"100%%\"><BR>\n",
+        	TitleImage);
     }
 
     if (title != NULL)
@@ -881,5 +884,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.15 2000/05/08 16:13:36 mike Exp $".
+ * End of "$Id: html.cxx,v 1.16 2000/06/16 02:12:22 mike Exp $".
  */
