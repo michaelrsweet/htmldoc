@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.78 2000/06/05 03:18:23 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.79 2000/06/05 17:55:45 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -238,7 +238,7 @@ static float	render_size,
 
 static z_stream		compressor;
 static uchar		comp_buffer[64 * 1024];
-static uchar		encrypt_key[5];
+static uchar		encrypt_key[16];
 static rc4_context_t	encrypt_state;
 static md5_byte_t	file_id[16];
 
@@ -273,7 +273,7 @@ static void	pdf_write_links(FILE *out);
 static void	pdf_write_names(FILE *out);
 static int	pdf_count_headings(tree_t *toc);
 
-static void	encrypt_init(uchar *leader);
+static void	encrypt_init(void);
 static void	flate_open_stream(FILE *out);
 static void	flate_close_stream(FILE *out);
 static void	flate_puts(char *s, FILE *out);
@@ -1851,8 +1851,8 @@ pdf_write_background(FILE *out)		/* I - Output file */
 
   flate_open_stream(out);
   flate_write(out, background_image->pixels,
-            background_image->width * background_image->height *
-	    background_image->depth);
+              background_image->width * background_image->height *
+	      background_image->depth);
   flate_close_stream(out);
 
   length = ftell(out) - length;
@@ -1882,7 +1882,6 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		num_lobjs,		/* Number of links on this page */
 		lobjs[2 * MAX_LINKS];	/* Link objects */
   float		x, y;			/* Position of last link */
-  uchar		*filename;		/* Filename */
   render_t	*r,			/* Current render primitive */
 		*rlast,			/* Last render link primitive */
 		*rprev;			/* Previous render primitive */
@@ -2017,22 +2016,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
             fputs("/S/GoToR", out);
             fputs("/D[0/XYZ null null 0]", out);
-            fputs("/F(", out);
-
-	    for (filename = r->data.link; *filename != '\0'; filename ++)
-	      switch (*filename)
-	      {
-	        case '\\' :
-		    putc('/', out);
-		    break;
-		case ')' :
-		    putc('\\', out);
-		default :
-		    putc(*filename, out);
-		    break;
-	      }
-
-            putc(')', out);
+            fputs("/F", out);
+	    write_string(out, r->data.link, 0);
 	  }
 	  else
 	  {
@@ -2041,22 +2026,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	    */
 
             fputs("/S/URI", out);
-            fputs("/URI(", out);
-
-	    for (filename = r->data.link; *filename != '\0'; filename ++)
-	      switch (*filename)
-	      {
-	        case '\\' :
-		    putc('/', out);
-		    break;
-		case ')' :
-		    putc('\\', out);
-		default :
-		    putc(*filename, out);
-		    break;
-	      }
-
-            putc(')', out);
+            fputs("/URI", out);
+	    write_string(out, r->data.link, 0);
 	  }
 
           fputs(">>", out);
@@ -6210,8 +6181,7 @@ write_prolog(FILE *out,		/* I - Output file */
   int		fonts_used[4][4];/* Whether or not a font is used */
   char		temp[255];	/* Temporary string */
   md5_state_t	md5;		/* MD5 state */
-  md5_byte_t	digest[16],	/* MD5 digest value */
-		file_id[16];	/* File ID value */
+  md5_byte_t	digest[16];	/* MD5 digest value */
   rc4_context_t	rc4;		/* RC4 context */
   uchar		owner_pad[32],	/* Padded owner password */
 		owner_key[32],	/* Owner key */
@@ -6417,9 +6387,6 @@ write_prolog(FILE *out,		/* I - Output file */
     md5_append(&md5, (md5_byte_t *)&curtime, sizeof(curtime));
     md5_finish(&md5, file_id);
 
-    for (i = 0; i < 16; i ++)
-      file_id[i] = i;
-
    /*
     * Setup encryption stuff as necessary...
     */
@@ -6489,11 +6456,6 @@ write_prolog(FILE *out,		/* I - Output file */
 
       memcpy(encrypt_key, digest, 5);
 
-      fprintf(stderr, "digest = ");
-      for (i = 0; i < 16; i ++)
-        fprintf(stderr, "%02x", digest[i]);
-      fputs("\n", stderr);
-
       rc4_init(&rc4, digest, 5);
       rc4_encrypt(&rc4, pad, user_key, 32);
 
@@ -6529,9 +6491,8 @@ write_prolog(FILE *out,		/* I - Output file */
     fprintf(out, "%d 0 obj", num_objects);
     fputs("<<", out);
     fputs("/Producer", out);
-    strcpy(temp, "htmldoc " SVERSION " Copyright 1997-2000 Easy Software "
-                 "Products, All Rights Reserved.");
-    write_string(out, (uchar *)temp, 0);
+    write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2000 Easy "
+                               "Software Products, All Rights Reserved.", 0);
     fputs("/CreationDate", out);
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02dZ",
             curdate->tm_year + 1900, curdate->tm_mon + 1, curdate->tm_mday,
@@ -6626,17 +6587,23 @@ write_string(FILE  *out,	/* I - Output file */
 	     int   compress)	/* I - Compress output? */
 {
   int	i;			/* Looping var */
-  uchar	leader[10];		/* Leader string for encryption */
 
 
   if (Encryption && !compress && PSLevel == 0)
   {
+    int		len;		// Length of string
+    uchar	news[1024];	// New string
+
+
+   /*
+    * Write an encrypted string...
+    */
+
     putc('<', out);
-    encrypt_init(leader);
-    for (i = 0; i < 10; i ++)
-      fprintf(out, "%02x", leader[i]);
-    for (i = 0; s[i]; i ++)
-      fprintf(out, "%02x", s[i]);
+    encrypt_init();
+    rc4_encrypt(&encrypt_state, s, news, len = strlen((char *)s));
+    for (i = 0; i < len; i ++)
+      fprintf(out, "%02x", news[i]);
     putc('>', out);
   }
   else
@@ -6734,7 +6701,6 @@ write_trailer(FILE *out,	/* I - Output file */
   int		i, j,		/* Looping vars */
 		type,		/* Type of number */
 		offset;		/* Offset to xref table in PDF file */
-  char		temp[255];	/* Temporary string */
   static char	*modes[] =	/* Page modes */
 		{
 		  "UseNone",
@@ -6757,7 +6723,10 @@ write_trailer(FILE *out,	/* I - Output file */
     */
 
     if (pages > 0)
+    {
+      fputs("%%Trailer\n", out);
       fprintf(out, "%%%%Pages: %d\n", pages);
+    }
 
     fputs("%%EOF\n", out);
   }
@@ -6820,14 +6789,12 @@ write_trailer(FILE *out,	/* I - Output file */
       if (TitlePage)
       {
         fputs("0<</P", out);
-	strcpy(temp, "title");
-	write_string(out, (uchar *)temp, 0);
+	write_string(out, (uchar *)"title", 0);
 	fputs(">>", out);
 	if (PageDuplex)
 	{
 	  fputs("1<</P", out);
-	  strcpy(temp, "eltit");
-	  write_string(out, (uchar *)temp, 0);
+	  write_string(out, (uchar *)"eltit", 0);
 	  fputs(">>", out);
 	}
 	i += PageDuplex + 1;
@@ -6893,7 +6860,7 @@ write_trailer(FILE *out,	/* I - Output file */
     fputs("/ID[<", out);
     for (i = 0; i < 16; i ++)
       fprintf(out, "%02x", file_id[i]);
-    fputs("> <", out);
+    fputs("><", out);
     for (i = 0; i < 16; i ++)
       fprintf(out, "%02x", file_id[i]);
     fputs(">]", out);
@@ -6915,7 +6882,7 @@ write_trailer(FILE *out,	/* I - Output file */
  */
 
 static void
-encrypt_init(uchar *leader)	/* O - 10-byte leader */
+encrypt_init(void)
 {
   uchar		data[10];	/* Key data */
   md5_state_t	md5;		/* MD5 state */
@@ -6946,11 +6913,10 @@ encrypt_init(uchar *leader)	/* O - 10-byte leader */
   md5_finish(&md5, digest);
 
  /*
-  * Initialize the RC4 context and do the first 10 bytes of the digest...
+  * Initialize the RC4 context using the first 10 bytes of the digest...
   */
 
-  rc4_init(&encrypt_state, encrypt_key, 5);
-  rc4_encrypt(&encrypt_state, digest, leader, 10);
+  rc4_init(&encrypt_state, digest, 10);
 }
 
 
@@ -6961,14 +6927,8 @@ encrypt_init(uchar *leader)	/* O - 10-byte leader */
 static void
 flate_open_stream(FILE *out)	/* I - Output file */
 {
-  uchar	leader[10];
-
-
   if (Encryption && !PSLevel)
-  {
-    encrypt_init(leader);
-    fwrite(leader, 10, 1, out);
-  }
+    encrypt_init();
 
   if (!Compression)
     return;
@@ -7005,7 +6965,8 @@ flate_close_stream(FILE *out)	/* I - Output file */
         rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	            (uchar *)compressor.next_out - (uchar *)comp_buffer);
 
-      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer,
+             1, out);
     }
 
     compressor.next_out  = (Bytef *)comp_buffer;
@@ -7023,7 +6984,8 @@ flate_close_stream(FILE *out)	/* I - Output file */
         rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	            (uchar *)compressor.next_out - (uchar *)comp_buffer);
 
-      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer,
+             1, out);
     }
 
   }
@@ -7041,7 +7003,7 @@ flate_close_stream(FILE *out)	/* I - Output file */
 
 static void
 flate_puts(char *s,	/* I - String to write */
-         FILE *out)	/* I - Output file */
+           FILE *out)	/* I - Output file */
 {
   flate_write(out, (uchar *)s, strlen(s));
 }
@@ -7097,7 +7059,8 @@ flate_write(FILE  *out,		/* I - Output file */
             rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	        	(uchar *)compressor.next_out - (uchar *)comp_buffer);
 
-	  fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+	  fwrite(comp_buffer,
+	         (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
 	}
 
 	compressor.next_out  = (Bytef *)comp_buffer;
@@ -7111,13 +7074,27 @@ flate_write(FILE  *out,		/* I - Output file */
   else
   {
     if (Encryption && !PSLevel)
-      rc4_encrypt(&encrypt_state, buf, buf, length);
+    {
+      int	i,		// Looping var
+		bytes;		// Number of bytes to encrypt/write
+      uchar	newbuf[1024];	// New encrypted data buffer
 
-    fwrite(buf, length, 1, out);
+
+      for (i = 0; i < length; i += sizeof(newbuf))
+      {
+        if ((bytes = length - i) > sizeof(newbuf))
+	  bytes = sizeof(newbuf);
+
+        rc4_encrypt(&encrypt_state, buf + i, newbuf, bytes);
+        fwrite(newbuf, bytes, 1, out);
+      }
+    }
+    else
+      fwrite(buf, length, 1, out);
   }
 }
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.78 2000/06/05 03:18:23 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.79 2000/06/05 17:55:45 mike Exp $".
  */
