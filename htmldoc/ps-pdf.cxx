@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.164 2002/05/06 13:22:07 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.165 2002/05/07 06:13:26 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -28,87 +28,90 @@
  *
  * Contents:
  *
- *   pspdf_export()          - Export PostScript/PDF file(s)...
- *   pspdf_prepare_page()    - Add headers/footers to page before writing...
- *   pspdf_prepare_heading() - Add headers/footers to page before writing...
- *   ps_write_document()     - Write all render entities to PostScript file(s).
- *   ps_write_outpage()      - Write an output page.
- *   ps_write_page()         - Write all render entities on a page to a
- *                             PostScript file.
- *   ps_write_background()   - Write a background image...
- *   pdf_write_document()    - Write all render entities to a PDF file.
- *   pdf_write_resources()   - Write the resources dictionary for a page.
- *   pdf_write_outpage()     - Write an output page.
- *   pdf_write_page()        - Write a page to a PDF file.
- *   pdf_write_contents()    - Write the table of contents as outline records
- *                             to a PDF file.
- *   pdf_count_headings()    - Count the number of headings under this TOC
- *   pdf_write_links()       - Write annotation link objects for each page in
- *                             the document.
- *   pdf_write_names()       - Write named destinations for each link.
- *   pdf_start_object()      - Start a new PDF object...
- *   pdf_start_stream()      - Start a new PDF stream...
- *   pdf_end_object()        - End a PDF object...
- *   parse_contents()        - Parse the table of contents and produce a
- *   parse_doc()             - Parse a document tree and produce rendering
- *                             list output.
- *   parse_heading()         - Parse a heading tree and produce rendering list
- *                             output.
- *   parse_paragraph()       - Parse a paragraph tree and produce rendering
- *                             list output.
- *   parse_pre()             - Parse preformatted text and produce rendering
- *                             list output.
- *   parse_table()           - Parse a table and produce rendering output.
- *   parse_list()            - Parse a list entry and produce rendering output.
- *   init_list()             - Initialize the list type and value as necessary.
- *   parse_comment()         - Parse a comment for HTMLDOC comments.
- *   real_prev()             - Return the previous non-link markup in the tree.
- *   real_next()             - Return the next non-link markup in the tree.
- *   find_background()       - Find the background image/color for the given
- *                             document.
- *   write_background()      - Write the background image/color for to the
- *                             current page.
- *   new_render()            - Allocate memory for a new rendering structure.
- *   check_pages()           - Allocate memory for more pages as needed...
- *   add_link()              - Add a named link...
- *   find_link()             - Find a named link...
- *   compare_links()         - Compare two named links.
- *   copy_tree()             - Copy a markup tree...
- *   get_cell_size()         - Compute the minimum width of a cell.
- *   get_table_size()        - Compute the minimum width of a table.
- *   flatten_tree()          - Flatten an HTML tree to only include the text,
- *                             image, link, and break markups.
- *   update_image_size()     - Update the size of an image based upon the
- *   get_width()             - Get the width of a string in points.
- *   get_title()             - Get the title string for a document.
- *   open_file()             - Open an output file for the current chapter.
- *   set_color()             - Set the current text color...
- *   set_font()              - Set the current text font.
- *   set_pos()               - Set the current text position.
- *   ps_hex()                - Print binary data as a series of hexadecimal
- *                             numbers.
- *   ps_ascii85()            - Print binary data as a series of base-85
- *                             numbers.
- *   jpg_init()              - Initialize the JPEG destination.
- *   jpg_empty()             - Empty the JPEG output buffer.
- *   jpg_term()              - Write the last JPEG data to the file.
- *   jpg_setup()             - Setup the JPEG compressor for writing an image.
- *   compare_rgb()           - Compare two RGB colors...
- *   write_image()           - Write an image to the given output file...
- *   write_imagemask()       - Write an imagemask to the output file...
- *   write_prolog()          - Write the file prolog...
- *   write_string()          - Write a text entity.
- *   write_text()            - Write a text entity.
- *   write_trailer()         - Write the file trailer.
- *   write_truetype()        - Write a font descriptor for a TrueType font.
- *   encrypt_init()          - Initialize the RC4 encryption context for
- *                             the current object.
- *   flate_open_stream()     - Open a deflated output stream.
- *   flate_close_stream()    - Close a deflated output stream.
- *   flate_puts()            - Write a character string to a compressed stream.
- *   flate_printf()          - Write a formatted character string to a
- *                             compressed stream.
- *   flate_write()           - Write data to a compressed stream.
+ *   pspdf_export()           - Export PostScript/PDF file(s)...
+ *   pspdf_transform_coords() - Transform page coordinates.
+ *   pspdf_transform_page()   - Transform a page.
+ *   pspdf_prepare_outpages() - Prepare output pages...
+ *   pspdf_prepare_page()     - Add headers/footers to page before writing...
+ *   pspdf_prepare_heading()  - Add headers/footers to page before writing...
+ *   ps_write_document()      - Write all render entities to PostScript file(s).
+ *   ps_write_outpage()       - Write an output page.
+ *   ps_write_page()          - Write all render entities on a page to a
+ *                              PostScript file.
+ *   ps_write_background()    - Write a background image...
+ *   pdf_write_document()     - Write all render entities to a PDF file.
+ *   pdf_write_resources()    - Write the resources dictionary for a page.
+ *   pdf_write_outpage()      - Write an output page.
+ *   pdf_write_page()         - Write a page to a PDF file.
+ *   pdf_write_contents()     - Write the table of contents as outline records
+ *                              to a PDF file.
+ *   pdf_count_headings()     - Count the number of headings under this TOC
+ *   pdf_write_links()        - Write annotation link objects for each page in
+ *                              the document.
+ *   pdf_write_names()        - Write named destinations for each link.
+ *   pdf_start_object()       - Start a new PDF object...
+ *   pdf_start_stream()       - Start a new PDF stream...
+ *   pdf_end_object()         - End a PDF object...
+ *   parse_contents()         - Parse the table of contents and produce a
+ *   parse_doc()              - Parse a document tree and produce rendering
+ *                              list output.
+ *   parse_heading()          - Parse a heading tree and produce rendering list
+ *                              output.
+ *   parse_paragraph()        - Parse a paragraph tree and produce rendering
+ *                              list output.
+ *   parse_pre()              - Parse preformatted text and produce rendering
+ *                              list output.
+ *   parse_table()            - Parse a table and produce rendering output.
+ *   parse_list()             - Parse a list entry and produce rendering output.
+ *   init_list()              - Initialize the list type and value as necessary.
+ *   parse_comment()          - Parse a comment for HTMLDOC comments.
+ *   real_prev()              - Return the previous non-link markup in the tree.
+ *   real_next()              - Return the next non-link markup in the tree.
+ *   find_background()        - Find the background image/color for the given
+ *                              document.
+ *   write_background()       - Write the background image/color for to the
+ *                              current page.
+ *   new_render()             - Allocate memory for a new rendering structure.
+ *   check_pages()            - Allocate memory for more pages as needed...
+ *   add_link()               - Add a named link...
+ *   find_link()              - Find a named link...
+ *   compare_links()          - Compare two named links.
+ *   copy_tree()              - Copy a markup tree...
+ *   get_cell_size()          - Compute the minimum width of a cell.
+ *   get_table_size()         - Compute the minimum width of a table.
+ *   flatten_tree()           - Flatten an HTML tree to only include the text,
+ *                              image, link, and break markups.
+ *   update_image_size()      - Update the size of an image based upon the
+ *   get_width()              - Get the width of a string in points.
+ *   get_title()              - Get the title string for a document.
+ *   open_file()              - Open an output file for the current chapter.
+ *   set_color()              - Set the current text color...
+ *   set_font()               - Set the current text font.
+ *   set_pos()                - Set the current text position.
+ *   ps_hex()                 - Print binary data as a series of hexadecimal
+ *                              numbers.
+ *   ps_ascii85()             - Print binary data as a series of base-85
+ *                              numbers.
+ *   jpg_init()               - Initialize the JPEG destination.
+ *   jpg_empty()              - Empty the JPEG output buffer.
+ *   jpg_term()               - Write the last JPEG data to the file.
+ *   jpg_setup()              - Setup the JPEG compressor for writing an image.
+ *   compare_rgb()            - Compare two RGB colors...
+ *   write_image()            - Write an image to the given output file...
+ *   write_imagemask()        - Write an imagemask to the output file...
+ *   write_prolog()           - Write the file prolog...
+ *   write_string()           - Write a text entity.
+ *   write_text()             - Write a text entity.
+ *   write_trailer()          - Write the file trailer.
+ *   write_truetype()         - Write a font descriptor for a TrueType font.
+ *   encrypt_init()           - Initialize the RC4 encryption context for
+ *                              the current object.
+ *   flate_open_stream()      - Open a deflated output stream.
+ *   flate_close_stream()     - Close a deflated output stream.
+ *   flate_puts()             - Write a character string to a compressed stream.
+ *   flate_printf()           - Write a formatted character string to a
+ *                              compressed stream.
+ *   flate_write()            - Write data to a compressed stream.
  */
 
 /*
@@ -224,19 +227,21 @@ typedef struct			//// Page information
   char		media_color[64],	// Media color
 		media_type[64];		// Media type
   int		media_position;		// Media position
-  int		annot_object;		// Annotation object
   char		page_text[64];		// Page number for TOC
   image_t	*background_image;	// Background image
   float		background_color[3];	// Background color
 
   // Number-up support
   int		nup;			// Number up pages
+  int		outpage;		// Output page #
+  float		outmatrix[2][3];	// Transform matrix
 } page_t;
 
 typedef struct			//// Output page info
 {
   int		nup;			// Number up pages
   int		pages[16];		// Pages on this output page
+  int		annot_object;		// Annotation object
 } outpage_t;
 
 
@@ -328,6 +333,9 @@ static md5_byte_t	file_id[16];
 extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
 }
+
+static void	pspdf_transform_coords(page_t *p, float &x, float  &y);
+static void	pspdf_transform_page(int outpage, int pos, int page);
 
 static void	pspdf_prepare_outpages();
 static void	pspdf_prepare_page(int page);
@@ -936,6 +944,190 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
 
 /*
+ * 'pspdf_transform_coords()' - Transform page coordinates.
+ */
+
+static void
+pspdf_transform_coords(page_t *p,	// I - Page
+                       float  &x,	// IO - X coordinate
+		       float  &y)	// IO - Y coordinate
+{
+  float tx, ty;				// Temporary X and Y
+
+
+  tx = x;
+  ty = y;
+  x  = tx * p->outmatrix[0][0] + ty * p->outmatrix[0][1] + p->outmatrix[0][2];
+  y  = tx * p->outmatrix[1][0] + ty * p->outmatrix[1][1] + p->outmatrix[1][2];
+}
+
+
+/*
+ * 'pspdf_transform_page()' - Transform a page.
+ */
+
+static void
+pspdf_transform_page(int outpage,	// I - Output page
+                     int pos,		// I - Position on page
+                     int page)		// I - Input page
+{
+  outpage_t	*op;			// Current output page
+  page_t	*bp;			// Current base page
+  page_t	*p;			// Current input page
+  int		x, y;			// Position on output page
+  float		w, l,			// Width and length of subpage
+		tx, ty;			// Translation values for subpage
+  float		pw, pl;			// Printable width and length of full page
+
+
+  DEBUG_printf(("pspdf_transform_page(outpage = %d, pos = %d, page = %d)\n",
+                outpage, pos, page));
+
+  op             = outpages + outpage;
+  op->pages[pos] = page;
+  bp             = pages + op->pages[0];
+  p              = pages + page;
+  p->outpage     = outpage;
+  pw             = bp->width;
+  pl             = bp->length;
+
+  DEBUG_printf(("    width = %d, length = %d\n", p->width, p->length));
+
+  switch (op->nup)
+  {
+    default :
+    case 1 :
+        p->outmatrix[0][0] = 1.0f;
+        p->outmatrix[1][0] = 0.0f;
+        p->outmatrix[0][1] = 0.0f;
+        p->outmatrix[1][1] = 1.0f;
+        p->outmatrix[0][2] = 0.0f;
+        p->outmatrix[1][2] = 0.0f;
+	break;
+
+    case 2 :
+	x = pos & 1;
+
+        l = pw;
+        w = l * p->width / p->length;
+
+        if (w > (pl * 0.5f))
+        {
+          w = pl * 0.5f;
+          l = w * p->length / p->width;
+        }
+
+        tx = 0.5 * (pl * 0.5 - w);
+        ty = 0.5 * (pw - l);
+
+        p->outmatrix[0][0] = 0.0f;
+        p->outmatrix[1][0] = w / p->width;
+        p->outmatrix[0][1] = -w / p->width;
+        p->outmatrix[1][1] = 0.0f;
+        p->outmatrix[0][2] = ty + pl * w / p->width;
+        p->outmatrix[1][2] = tx + x * pl / 2;
+	break;
+
+    case 4 :
+        x = pos & 1;
+	y = 1 - pos / 2;
+
+        w = pw * 0.5;
+	l = w * p->length / p->width;
+
+	if (l > (pl * 0.5))
+	{
+	  l = pl * 0.5;
+	  w = l * p->width / p->length;
+	}
+
+        tx = 0.5 * (pw * 0.5 - w);
+        ty = 0.5 * (pl * 0.5 - l);
+
+        p->outmatrix[0][0] = w / p->width;
+        p->outmatrix[1][0] = 0.0f;
+        p->outmatrix[0][1] = 0.0f;
+        p->outmatrix[1][1] = w / p->width;
+        p->outmatrix[0][2] = tx + x * pw / 2;
+        p->outmatrix[1][2] = ty + y * pl / 2;
+	break;
+
+    case 6 :
+        x = pos % 3;
+	y = pos / 3;
+
+        l = pw * 0.5;
+        w = l * p->width / p->length;
+
+        if (w > (pl * 0.333f))
+        {
+          w = pl * 0.333f;
+          l = w * p->length / p->width;
+        }
+
+        tx = 0.5 * (pl * 0.333 - w);
+        ty = 0.5 * (pw * 0.5 - l);
+
+        p->outmatrix[0][0] = 0.0f;
+        p->outmatrix[1][0] = w / p->width;
+        p->outmatrix[0][1] = -w / p->width;
+        p->outmatrix[1][1] = 0.0f;
+        p->outmatrix[0][2] = ty + y * pw / 2 + pl * w / p->width;
+        p->outmatrix[1][2] = tx + x * pl / 3;
+	break;
+
+    case 9 :
+        x = pos % 3;
+	y = 2 - pos / 3;
+
+        w = pw * 0.333;
+	l = w * p->length / p->width;
+
+	if (l > (pl * 0.333))
+	{
+	  l = pl * 0.333;
+	  w = l * p->width / p->length;
+	}
+
+        tx = 0.5 * (pw * 0.333 - w);
+        ty = 0.5 * (pl * 0.333 - l);
+
+        p->outmatrix[0][0] = w / p->width;
+        p->outmatrix[1][0] = 0.0f;
+        p->outmatrix[0][1] = 0.0f;
+        p->outmatrix[1][1] = w / p->width;
+        p->outmatrix[0][2] = tx + x * pw / 3;
+        p->outmatrix[1][2] = ty + y * pl / 3;
+	break;
+
+    case 16 :
+        x = pos & 3;
+	y = 3 - pos / 4;
+
+        w = pw * 0.25;
+	l = w * p->length / p->width;
+
+	if (l > (pl * 0.25))
+	{
+	  l = pl * 0.25;
+	  w = l * p->width / p->length;
+	}
+
+        tx = 0.5 * (pw * 0.25 - w);
+        ty = 0.5 * (pl * 0.25 - l);
+
+        p->outmatrix[0][0] = w / p->width;
+        p->outmatrix[1][0] = 0.0f;
+        p->outmatrix[0][1] = 0.0f;
+        p->outmatrix[1][1] = w / p->width;
+        p->outmatrix[0][2] = tx + x * pw / 4;
+        p->outmatrix[1][2] = ty + y * pl / 4;
+	break;
+  }
+}
+
+
+/*
  * 'pspdf_prepare_outpages()' - Prepare output pages...
  */
 
@@ -977,7 +1169,7 @@ pspdf_prepare_outpages()
 	j            = 0;
       }
 
-      outpage->pages[j] = i;
+      pspdf_transform_page(num_outpages, j, i);
       j ++;
 
       if (j >= nup)
@@ -999,7 +1191,12 @@ pspdf_prepare_outpages()
   }
 
   // Loop through each chapter, adding pages as needed...
-  for (c = 0; c <= TocDocCount; c ++)
+  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
+    c = 0;
+  else
+    c = 1;
+
+  for (; c <= TocDocCount; c ++)
   {
     if (chapter_starts[c] < 0)
       continue;
@@ -1024,7 +1221,7 @@ pspdf_prepare_outpages()
 	j            = 0;
       }
 
-      outpage->pages[j] = i;
+      pspdf_transform_page(num_outpages, j, i);
       j ++;
 
       if (j >= nup)
@@ -1051,10 +1248,12 @@ pspdf_prepare_outpages()
   printf("num_outpages = %d\n", num_outpages);
   for (i = 0, outpage = outpages; i < num_outpages; i ++, outpage ++)
   {
-    printf("outpage[%d]: nup=%d, pages=[", i, outpage->nup);
+    printf("outpage[%d]:\tnup=%d, pages=[", i, outpage->nup);
     for (j = 0; j < outpage->nup; j ++)
       printf(" %d", outpage->pages[j]);
     puts(" ]");
+    page = pages + outpage->pages[0];
+    printf("\t\twidth = %d, length = %d\n", page->width, page->length);
   }
 
   for (c = 0; c <= TocDocCount; c ++)
@@ -1540,10 +1739,7 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   int		file_page;	/* Current page # in document */
   page_t	*p;		/* Current page */
   outpage_t	*op;		/* Current output page */
-  int		i, x, y;	/* Looping vars */
-  float		w, l,		/* Width and length of subpage */
-		tx, ty;		/* Translation values for subpage */
-  float		pw, pl;		/* Printable width and length of full page */
+  int		i;		/* Looping var */
 
 
   if (outpage < 0 || outpage >= num_outpages)
@@ -1589,20 +1785,6 @@ ps_write_outpage(FILE *out,	/* I - Output file */
     if (TitlePage)
       file_page += chapter_outstarts[1];
   }
-
- /*
-  * Clear the render cache...
-  */
-
-  render_typeface = -1;
-  render_style    = -1;
-  render_size     = -1;
-  render_rgb[0]   = 0.0f;
-  render_rgb[1]   = 0.0f;
-  render_rgb[2]   = 0.0f;
-  render_x        = -1.0f;
-  render_y        = -1.0f;
-  render_spacing  = -1.0f;
 
  /*
   * Output the page prolog...
@@ -1679,171 +1861,42 @@ ps_write_outpage(FILE *out,	/* I - Output file */
     fputs("%%EndPageSetup\n", out);
   }
 
-  pw = p->width;
-  pl = p->length;
+ /*
+  * Clear the render cache...
+  */
+
+  render_typeface = -1;
+  render_style    = -1;
+  render_size     = -1;
+  render_rgb[0]   = 0.0f;
+  render_rgb[1]   = 0.0f;
+  render_rgb[2]   = 0.0f;
+  render_x        = -1.0f;
+  render_y        = -1.0f;
+  render_spacing  = -1.0f;
+
+ /*
+  * Render all of the pages...
+  */
 
   switch (op->nup)
   {
-    default :
+    case 1 :
         ps_write_page(out, op->pages[0]);
 	break;
-    case 2 :
-	for (x = 0, i = 0; i < 2; i ++, x ++, p ++)
+
+    default :
+        for (i = 0; i < op->nup; i ++)
 	{
 	  if (op->pages[i] < 0)
 	    break;
 
-          l = pw;
-          w = l * p->width / p->length;
+          p = pages + op->pages[i];
 
-          if (w > (pl * 0.5f))
-          {
-            w = pl * 0.5f;
-            l = w * p->length / p->width;
-          }
-
-          tx = pl * 0.5 - w;
-          ty = (pw - l) * 0.5;
-
-          fprintf(out, "GS %.1f 0.0 T 90 RO %.1f %.1f T %.3f SC\n",
-	          pw, tx + w * x, ty, w / p->width);
-
-          ps_write_page(out, op->pages[i]);
-	  fputs("GR\n", out);
-	}
-	break;
-    case 4 :
-	for (x = 0, y = 1, i = 0; i < 4; i ++, x ++, p ++)
-	{
-	  if (x > 1)
-	  {
-	    x = 0;
-	    y --;
-	  }
-
-	  if (y < 0)
-	    y = 1;
-
-	  if (op->pages[i] < 0)
-	    break;
-
-          w = pw * 0.5;
-	  l = w * p->length / p->width;
-
-	  if (l > (pl * 0.5))
-	  {
-	    l = pl * 0.5;
-	    w = l * p->width / p->length;
-	  }
-
-          tx = pw * 0.5 - w;
-          ty = pl * 0.5 - l;
-
-          fprintf(out, "GS %.1f %.1f T %.3f SC\n",
-	          tx + w * x, ty + l * y, w / p->width);
-
-          ps_write_page(out, op->pages[i]);
-	  fputs("GR\n", out);
-	}
-	break;
-    case 6 :
-	for (x = 0, y = 1, i = 0; i < 6; i ++, x ++, p ++)
-	{
-	  if (x > 2)
-	  {
-	    x = 0;
-	    y --;
-	  }
-
-	  if (y < 0)
-	    y = 1;
-
-	  if (op->pages[i] < 0)
-	    break;
-
-          l = pw * 0.5;
-	  w = l * p->width / p->length;
-
-	  if (w > (pl * 0.333))
-	  {
-	    w = pl * 0.333;
-	    l = w * p->length / p->width;
-	  }
-
-          tx = pl * 0.333 - w;
-          ty = pw * 0.5 - l;
-
-          fprintf(out, "GS %.1f 0.0 T 90 RO %.1f %.1f T %.3f SC\n",
-	          pw, tx + w * x, ty + l * y, w / p->width);
-
-          ps_write_page(out, op->pages[i]);
-	  fputs("GR\n", out);
-	}
-	break;
-    case 9 :
-	for (x = 0, y = 2, i = 0; i < 9; i ++, x ++, p ++)
-	{
-	  if (x > 2)
-	  {
-	    x = 0;
-	    y --;
-	  }
-
-	  if (y < 0)
-	    y = 2;
-
-	  if (op->pages[i] < 0)
-	    break;
-
-          w = pw * 0.333;
-	  l = w * p->length / p->width;
-
-	  if (l > (pl * 0.333))
-	  {
-	    l = pl * 0.333;
-	    w = l * p->width / p->length;
-	  }
-
-          tx = pw * 0.333 - w;
-          ty = pl * 0.333 - l;
-
-          fprintf(out, "GS %.1f %.1f T %.3f SC\n",
-	          tx + w * x, ty + l * y, w / p->width);
-
-          ps_write_page(out, op->pages[i]);
-	  fputs("GR\n", out);
-	}
-	break;
-    case 16 :
-	for (x = 0, y = 3, i = 0; i < 16; i ++, x ++, p ++)
-	{
-	  if (x > 3)
-	  {
-	    x = 0;
-	    y --;
-	  }
-
-	  if (y < 0)
-	    y = 3;
-
-	  if (op->pages[i] < 0)
-	    break;
-
-          w = pw * 0.25;
-	  l = w * p->length / p->width;
-
-	  if (l > (pl * 0.25))
-	  {
-	    l = pl * 0.25;
-	    w = l * p->width / p->length;
-	  }
-
-          tx = pw * 0.25 - w;
-          ty = pl * 0.25 - l;
-
-          fprintf(out, "GS %.1f %.1f T %.3f SC\n",
-	          tx + w * x, ty + l * y, w / p->width);
-
+          fprintf(out, "GS[%.3f %.3f %.3f %.3f %.3f %.3f]CM\n",
+	          p->outmatrix[0][0], p->outmatrix[1][0],
+	          p->outmatrix[0][1], p->outmatrix[1][1],
+	          p->outmatrix[0][2], p->outmatrix[1][2]);
           ps_write_page(out, op->pages[i]);
 	  fputs("GR\n", out);
 	}
@@ -2014,7 +2067,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
   objects       = NULL;
 
   // Write the prolog...
-  write_prolog(out, num_pages, author, creator, copyright, keywords, subject);
+  write_prolog(out, num_outpages, author, creator, copyright, keywords, subject);
 
   // Write images as needed...
   num_images = image_getlist(&images);
@@ -2043,11 +2096,11 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
                    "Internal error: pages_object != num_objects");
 
   fputs("/Type/Pages", out);
-  fprintf(out, "/Count %d", num_pages);
+  fprintf(out, "/Count %d", num_outpages);
   fputs("/Kids[", out);
 
   if (TitlePage)
-    for (page = 0; page < chapter_starts[1]; page ++)
+    for (page = 0; page < chapter_outstarts[1]; page ++)
       fprintf(out, "%d 0 R\n", pages_object + page * 2 + 1);
 
   if (OutputType == OUTPUT_BOOK && TocLevels > 0)
@@ -2056,7 +2109,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
     chapter = 1;
 
   for (; chapter <= TocDocCount; chapter ++)
-    for (page = chapter_starts[chapter]; page <= chapter_ends[chapter]; page ++)
+    for (page = chapter_outstarts[chapter]; page < chapter_outends[chapter]; page ++)
       if (page < alloc_pages)
         fprintf(out, "%d 0 R\n", pages_object + 2 * page + 1);
 
@@ -2066,26 +2119,26 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
   chapter = -1;
 
   if (TitlePage)
-    for (page = 0; page < chapter_starts[1]; page ++)
-      pdf_write_page(out, page);
+    for (page = 0; page < chapter_outstarts[1]; page ++)
+      pdf_write_outpage(out, page);
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
   {
-    if (chapter_starts[chapter] < 0)
+    if (chapter_outstarts[chapter] < 0)
       continue;
 
-    for (page = chapter_starts[chapter];
-         page <= chapter_ends[chapter];
+    for (page = chapter_outstarts[chapter];
+         page < chapter_outends[chapter];
          page ++)
-      pdf_write_page(out, page);
+      pdf_write_outpage(out, page);
   }
 
   if (OutputType == OUTPUT_BOOK && TocLevels > 0)
   {
-    for (chapter = 0, page = chapter_starts[0];
-	 page <= chapter_ends[0];
+    for (chapter = 0, page = chapter_outstarts[0];
+	 page < chapter_outends[0];
 	 page ++)
-      pdf_write_page(out, page);
+      pdf_write_outpage(out, page);
 
    /*
     * Write the outline tree...
@@ -2179,9 +2232,11 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
 
 static void
 pdf_write_resources(FILE *out,	/* I - Output file */
-                    int  page)	/* I - Page for resources */
+                    int  outpage)/* I - Output page for resources */
 {
   int		i;		/* Looping var */
+  outpage_t	*op;		/* Current output page */
+  page_t	*p;		/* Current page */
   render_t	*r;		/* Render pointer */
   int		fonts_used[16];	/* Non-zero if the page uses a font */
   int		images_used;	/* Non-zero if the page uses an image */
@@ -2213,14 +2268,23 @@ pdf_write_resources(FILE *out,	/* I - Output file */
   images_used = background_image != NULL;
   text_used   = 0;
 
-  for (r = pages[page].start; r != NULL; r = r->next)
-    if (r->type == RENDER_IMAGE)
-      images_used = 1;
-    else if (r->type == RENDER_TEXT)
-    {
-      text_used = 1;
-      fonts_used[r->data.text.typeface * 4 + r->data.text.style] = 1;
-    }
+  op = outpages + outpage;
+  for (i = 0; i < op->nup; i ++)
+  {
+    if (op->pages[i] < 0)
+      break;
+
+    p = pages + op->pages[i];
+
+    for (r = p->start; r != NULL; r = r->next)
+      if (r->type == RENDER_IMAGE)
+	images_used = 1;
+      else if (r->type == RENDER_TEXT)
+      {
+	text_used = 1;
+	fonts_used[r->data.text.typeface * 4 + r->data.text.style] = 1;
+      }
+  }
 
   fputs("/Resources<<", out);
 
@@ -2252,9 +2316,17 @@ pdf_write_resources(FILE *out,	/* I - Output file */
 
   fputs("/XObject<<", out);
 
-  for (r = pages[page].start; r != NULL; r = r->next)
-    if (r->type == RENDER_IMAGE && r->data.image->obj)
-      fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
+  for (i = 0; i < op->nup; i ++)
+  {
+    if (op->pages[i] < 0)
+      break;
+
+    p = pages + op->pages[i];
+
+    for (r = p->start; r != NULL; r = r->next)
+      if (r->type == RENDER_IMAGE && r->data.image->obj)
+	fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
+  }
 
   if (background_image)
     fprintf(out, "/I%d %d 0 R", background_image->obj,
@@ -2278,6 +2350,111 @@ static void
 pdf_write_outpage(FILE *out,	/* I - Output file */
                   int  outpage)	/* I - Output page number */
 {
+  int		i;		/* Looping var */
+  page_t	*p;		/* Current page */
+  outpage_t	*op;		/* Output page */
+
+
+  DEBUG_printf(("pdf_write_outpage(out = %p, outpage = %d)\n", out, outpage));
+
+  if (outpage < 0 || outpage >= num_outpages)
+    return;
+
+  op = outpages + outpage;
+  p  = pages + op->pages[0];
+
+  DEBUG_printf(("op->pages[0] = %d (%dx%d)\n", op->pages[0], p->width,
+                p->length));
+
+ /*
+  * Let the user know which page we are writing...
+  */
+
+  if (Verbosity)
+  {
+    progress_show("Writing page %s...", p->page_text);
+    progress_update(100 * outpage / num_outpages);
+  }
+
+ /*
+  * Output the page prolog...
+  */
+
+  pdf_start_object(out);
+
+  fputs("/Type/Page", out);
+  fprintf(out, "/Parent %d 0 R", pages_object);
+  fprintf(out, "/Contents %d 0 R", num_objects + 1);
+  if (p->landscape)
+    fprintf(out, "/MediaBox[0 0 %d %d]", p->length, p->width);
+  else
+    fprintf(out, "/MediaBox[0 0 %d %d]", p->width, p->length);
+
+  pdf_write_resources(out, outpage);
+
+ /*
+  * Actions (links)...
+  */
+
+  if (op->annot_object > 0)
+    fprintf(out, "/Annots %d 0 R", op->annot_object);
+
+  pdf_end_object(out);
+
+  pdf_start_object(out);
+
+  if (Compression)
+    fputs("/Filter/FlateDecode", out);
+
+  pdf_start_stream(out);
+
+  flate_open_stream(out);
+
+ /*
+  * Clear the render cache...
+  */
+
+  render_rgb[0]   = 0.0f;
+  render_rgb[1]   = 0.0f;
+  render_rgb[2]   = 0.0f;
+  render_x        = -1.0f;
+  render_y        = -1.0f;
+
+ /*
+  * Render all of the pages...
+  */
+
+  switch (op->nup)
+  {
+    case 1 :
+        pdf_write_page(out, op->pages[0]);
+	break;
+
+    default :
+        for (i = 0; i < op->nup; i ++)
+	{
+	  if (op->pages[i] < 0)
+	    break;
+
+          p = pages + op->pages[i];
+
+          flate_printf(out, "q %.3f %.3f %.3f %.3f %.3f %.3f cm\n",
+	               p->outmatrix[0][0], p->outmatrix[1][0],
+	               p->outmatrix[0][1], p->outmatrix[1][1],
+	               p->outmatrix[0][2], p->outmatrix[1][2]);
+          pdf_write_page(out, op->pages[i]);
+	  flate_puts("Q\n", out);
+	}
+	break;
+  }
+
+ /*
+  * Close out the page...
+  */
+
+  flate_close_stream(out);
+
+  pdf_end_object(out);
 }
 
 
@@ -2301,63 +2478,8 @@ pdf_write_page(FILE  *out,	/* I - Output file */
   p = pages + page;
 
  /*
-  * Let the user know which page we are writing...
+  * Output the page header...
   */
-
-  if (Verbosity)
-  {
-    progress_show("Writing page %s...", p->page_text);
-    progress_update(100 * page / num_pages);
-  }
-
- /*
-  * Clear the render cache...
-  */
-
-  render_rgb[0]   = 0.0f;
-  render_rgb[1]   = 0.0f;
-  render_rgb[2]   = 0.0f;
-  render_x        = -1.0f;
-  render_y        = -1.0f;
-  box[0]          = -1.0f;
-  box[1]          = -1.0f;
-  box[2]          = -1.0f;
-
- /*
-  * Output the page prolog...
-  */
-
-  pdf_start_object(out);
-
-  fputs("/Type/Page", out);
-  fprintf(out, "/Parent %d 0 R", pages_object);
-  fprintf(out, "/Contents %d 0 R", num_objects + 1);
-  if (p->landscape)
-    fprintf(out, "/MediaBox[0 0 %d %d]", p->length,
-            p->width);
-  else
-    fprintf(out, "/MediaBox[0 0 %d %d]", p->width,
-            p->length);
-
-  pdf_write_resources(out, page);
-
- /*
-  * Actions (links)...
-  */
-
-  if (p->annot_object > 0)
-    fprintf(out, "/Annots %d 0 R", p->annot_object);
-
-  pdf_end_object(out);
-
-  pdf_start_object(out);
-
-  if (Compression)
-    fputs("/Filter/FlateDecode", out);
-
-  pdf_start_stream(out);
-
-  flate_open_stream(out);
 
   flate_puts("q\n", out);
   write_background(page, out);
@@ -2372,6 +2494,10 @@ pdf_write_page(FILE  *out,	/* I - Output file */
  /*
   * Render all graphics elements...
   */
+
+  box[0] = -1.0f;
+  box[1] = -1.0f;
+  box[2] = -1.0f;
 
   for (r = p->start; r != NULL; r = r->next)
     switch (r->type)
@@ -2424,6 +2550,8 @@ pdf_write_page(FILE  *out,	/* I - Output file */
     free(r);
   }
 
+  p->start = NULL;
+
   flate_puts("ET\n", out);
 
  /*
@@ -2431,9 +2559,6 @@ pdf_write_page(FILE  *out,	/* I - Output file */
   */
 
   flate_puts("Q\n", out);
-  flate_close_stream(out);
-
-  pdf_end_object(out);
 }
 
 
@@ -2459,6 +2584,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   int		*entry_counts,			/* Number of sub-entries for this entry */
 		*entry_objects;			/* Objects for each entry */
   tree_t	**entries;			/* Pointers to each entry */
+  float		x, y;				/* Position of link */
 
 
  /*
@@ -2478,9 +2604,12 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     fputs("/Title", out);
     write_string(out, (uchar *)TocTitle, 0);
 
-    fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
-            pages_object + 2 * chapter_starts[0] + 1,
-            PagePrintLength + PageBottom);
+    x = 0.0f;
+    y = PagePrintLength + PageBottom;
+    pspdf_transform_coords(pages + chapter_outstarts[0], x, y);
+
+    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f null]",
+            pages_object + 2 * chapter_outstarts[0] + 1, x, y);
 
     if (prev > 0)
       fprintf(out, "/Prev %d 0 R", prev);
@@ -2595,10 +2724,15 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       }
 
       if (heading_pages[*heading] > 0)
-	fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
-        	pages_object + 2 * (heading_pages[*heading] +
-		                    chapter_starts[1]) - 1,
-        	heading_tops[*heading]);
+      {
+	x = 0.0f;
+	y = heading_tops[*heading];
+	pspdf_transform_coords(pages + chapter_outstarts[0], x, y);
+
+	fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f null]",
+        	pages_object + 2 * (pages[heading_pages[*heading]].outpage +
+		                    chapter_outstarts[1]) + 1, x, y);
+      }
 
       (*heading) ++;
     }
@@ -2755,7 +2889,8 @@ pdf_end_object(FILE *out)	// I - File to write to
 static void
 pdf_write_links(FILE *out)		/* I - Output file */
 {
-  int		page,			/* Current page */
+  int		i,			/* Looping var */
+		outpage,		/* Current page */
 		lobj,			/* Current link */
 		num_lobjs,		/* Number of links on this page */
 		alloc_lobjs,		/* Number of links to allocate */
@@ -2765,39 +2900,51 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		*rlast,			/* Last render link primitive */
 		*rprev;			/* Previous render primitive */
   link_t	*link;			/* Local link */
+  page_t	*p;			/* Current page */
+  outpage_t	*op;			/* Current output page */
 
 
  /*
   * First combine adjacent, identical links...
   */
 
-  for (page = 0; page < num_pages; page ++)
-    for (r = pages[page].start, x = 0.0f, y = 0.0f, rlast = NULL, rprev = NULL;
-         r != NULL;
-	 rprev = r, r = r->next)
-      if (r->type == RENDER_LINK)
-      {
-        if (fabs(r->x - x) < 0.1f && fabs(r->y - y) < 0.1f &&
-	    rlast != NULL && strcmp((const char *)rlast->data.link,
-	                            (const char *)r->data.link) == 0)
-	{
-	  // Combine this primitive with the previous one in rlast...
-	  rlast->width = r->x + r->width - rlast->x;
-	  x            = rlast->x + rlast->width;
+  for (outpage = 0, op = outpages; outpage < num_outpages; outpage ++, op ++)
+  {
+    for (i = 0; i < op->nup; i ++)
+    {
+      if (op->pages[i] < 0)
+        break;
 
-	  // Delete this render primitive...
-	  rprev->next = r->next;
-	  free(r);
-	  r = rprev;
-	}
-	else
+      p = pages + op->pages[i];
+
+      for (r = p->start, x = 0.0f, y = 0.0f, rlast = NULL, rprev = NULL;
+           r != NULL;
+	   rprev = r, r = r->next)
+	if (r->type == RENDER_LINK)
 	{
-	  // Can't combine; just save this info for later use...
-	  rlast = r;
-	  x     = r->x + r->width;
-	  y     = r->y;
+          if (fabs(r->x - x) < 0.1f && fabs(r->y - y) < 0.1f &&
+	      rlast != NULL && strcmp((const char *)rlast->data.link,
+	                              (const char *)r->data.link) == 0)
+	  {
+	    // Combine this primitive with the previous one in rlast...
+	    rlast->width = r->x + r->width - rlast->x;
+	    x            = rlast->x + rlast->width;
+
+	    // Delete this render primitive...
+	    rprev->next = r->next;
+	    free(r);
+	    r = rprev;
+	  }
+	  else
+	  {
+	    // Can't combine; just save this info for later use...
+	    rlast = r;
+	    x     = r->x + r->width;
+	    y     = r->y;
+	  }
 	}
-      }
+    }
+  }
 
  /*
   * Setup the initial pages_object number...
@@ -2823,18 +2970,28 @@ pdf_write_links(FILE *out)		/* I - Output file */
   * Figure out how many link objects we'll have...
   */
 
-  for (page = 0, alloc_lobjs = 0; page < num_pages; page ++)
+  for (outpage = 0, op = outpages, alloc_lobjs = 0;
+       outpage < num_pages;
+       outpage ++, op ++)
   {
     num_lobjs = 0;
 
-    for (r = pages[page].start; r != NULL; r = r->next)
-      if (r->type == RENDER_LINK)
-      {
-        if (find_link(r->data.link) != NULL)
-          num_lobjs ++;
-        else
-          num_lobjs += 2;
-      }
+    for (i = 0; i < op->nup; i ++)
+    {
+      if (op->pages[i] < 0)
+        break;
+
+      p = pages + op->pages[i];
+
+      for (r = p->start; r != NULL; r = r->next)
+	if (r->type == RENDER_LINK)
+	{
+          if (find_link(r->data.link) != NULL)
+            num_lobjs ++;
+          else
+            num_lobjs += 2;
+	}
+    }
 
     if (num_lobjs > 0)
       pages_object += num_lobjs + 1;
@@ -2862,106 +3019,114 @@ pdf_write_links(FILE *out)		/* I - Output file */
   * Then generate annotation objects for all the links...
   */
 
-  for (page = 0; page < num_pages; page ++)
+  for (outpage = 0, op = outpages; outpage < num_pages; outpage ++, op ++)
   {
     num_lobjs = 0;
 
-    for (r = pages[page].start; r != NULL; r = r->next)
-      if (r->type == RENDER_LINK)
-      {
-        if ((link = find_link(r->data.link)) != NULL)
+    for (i = 0; i < op->nup; i ++)
+    {
+      if (op->pages[i] < 0)
+        break;
+
+      p = pages + op->pages[i];
+
+      for (r = p->start; r != NULL; r = r->next)
+	if (r->type == RENDER_LINK)
 	{
-	 /*
-          * Local link...
-          */
-
-          lobjs[num_lobjs ++] = pdf_start_object(out);
-
-          fputs("/Subtype/Link", out);
-          if (PageDuplex && (page & 1))
-            fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                    r->x + PageRight, r->y + PageBottom - 2,
-                    r->x + r->width + PageRight, r->y + r->height + PageBottom);
-          else
-            fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                    r->x + PageLeft, r->y + PageBottom - 2,
-                    r->x + r->width + PageLeft, r->y + r->height + PageBottom);
-          fputs("/Border[0 0 0]", out);
-	  fprintf(out, "/Dest[%d 0 R/XYZ null %d 0]",
-        	  pages_object + 2 * link->page + 3,
-        	  link->top);
-	  pdf_end_object(out);
-	}
-	else
-	{
-	 /*
-          * Remote link...
-          */
-
-          pdf_start_object(out);
-
-	  if (PDFVersion >= 1.2 &&
-              file_method((char *)r->data.link) == NULL)
+          if ((link = find_link(r->data.link)) != NULL)
 	  {
-#ifdef WIN32
-            if (strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
-#else
-            if (strcmp(file_extension((char *)r->data.link), "pdf") == 0)
-#endif /* WIN32 */
-            {
-	     /*
-	      * Link to external PDF file...
-	      */
+	   /*
+            * Local link...
+            */
 
-              fputs("/S/GoToR", out);
-              fputs("/D[0/XYZ null null 0]", out);
-              fputs("/F", out);
-	      write_string(out, r->data.link, 0);
-            }
-	    else
-            {
-	     /*
-	      * Link to external filename...
-	      */
+            lobjs[num_lobjs ++] = pdf_start_object(out);
 
-              fputs("/S/Launch", out);
-              fputs("/F", out);
-	      write_string(out, r->data.link, 0);
-            }
+            fputs("/Subtype/Link", out);
+            if (PageDuplex && (outpage & 1))
+              fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
+                      r->x + PageRight, r->y + PageBottom - 2,
+                      r->x + r->width + PageRight, r->y + r->height + PageBottom);
+            else
+              fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
+                      r->x + PageLeft, r->y + PageBottom - 2,
+                      r->x + r->width + PageLeft, r->y + r->height + PageBottom);
+            fputs("/Border[0 0 0]", out);
+	    fprintf(out, "/Dest[%d 0 R/XYZ null %d 0]",
+        	    pages_object + 2 * pages[link->page].outpage + 3,
+        	    link->top);
+	    pdf_end_object(out);
 	  }
 	  else
 	  {
 	   /*
-	    * Link to web file...
-	    */
+            * Remote link...
+            */
 
-            fputs("/S/URI", out);
-            fputs("/URI", out);
-	    write_string(out, r->data.link, 0);
+            pdf_start_object(out);
+
+	    if (PDFVersion >= 1.2 &&
+        	file_method((char *)r->data.link) == NULL)
+	    {
+  #ifdef WIN32
+              if (strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
+  #else
+              if (strcmp(file_extension((char *)r->data.link), "pdf") == 0)
+  #endif /* WIN32 */
+              {
+	       /*
+		* Link to external PDF file...
+		*/
+
+        	fputs("/S/GoToR", out);
+        	fputs("/D[0/XYZ null null 0]", out);
+        	fputs("/F", out);
+		write_string(out, r->data.link, 0);
+              }
+	      else
+              {
+	       /*
+		* Link to external filename...
+		*/
+
+        	fputs("/S/Launch", out);
+        	fputs("/F", out);
+		write_string(out, r->data.link, 0);
+              }
+	    }
+	    else
+	    {
+	     /*
+	      * Link to web file...
+	      */
+
+              fputs("/S/URI", out);
+              fputs("/URI", out);
+	      write_string(out, r->data.link, 0);
+	    }
+
+            pdf_end_object(out);
+
+            lobjs[num_lobjs ++] = pdf_start_object(out);
+
+            fputs("/Subtype/Link", out);
+            if (PageDuplex && (outpage & 1))
+              fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
+                      r->x + PageRight, r->y + PageBottom,
+                      r->x + r->width + PageRight, r->y + r->height + PageBottom);
+            else
+              fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
+                      r->x + PageLeft, r->y + PageBottom - 2,
+                      r->x + r->width + PageLeft, r->y + r->height + PageBottom);
+            fputs("/Border[0 0 0]", out);
+	    fprintf(out, "/A %d 0 R", num_objects - 1);
+            pdf_end_object(out);
 	  }
-
-          pdf_end_object(out);
-
-          lobjs[num_lobjs ++] = pdf_start_object(out);
-
-          fputs("/Subtype/Link", out);
-          if (PageDuplex && (page & 1))
-            fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                    r->x + PageRight, r->y + PageBottom,
-                    r->x + r->width + PageRight, r->y + r->height + PageBottom);
-          else
-            fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                    r->x + PageLeft, r->y + PageBottom - 2,
-                    r->x + r->width + PageLeft, r->y + r->height + PageBottom);
-          fputs("/Border[0 0 0]", out);
-	  fprintf(out, "/A %d 0 R", num_objects - 1);
-          pdf_end_object(out);
 	}
-      }
+    }
 
     if (num_lobjs > 0)
     {
-      pages[page].annot_object = pdf_start_object(out, 1);
+      outpages[outpage].annot_object = pdf_start_object(out, 1);
 
       for (lobj = 0; lobj < num_lobjs; lobj ++)
         fprintf(out, "%d 0 R%s", lobjs[lobj],
@@ -3036,7 +3201,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
   {
     pdf_start_object(out);
     fprintf(out, "/D[%d 0 R/XYZ null %d null]", 
-            pages_object + 2 * link->page + ((TocLevels > 0 && PageDuplex) ? 3 : 1),
+            pages_object + 2 * pages[link->page].outpage + ((TocLevels > 0 && PageDuplex) ? 3 : 1),
             link->top);
     pdf_end_object(out);
   }
@@ -7561,6 +7726,7 @@ check_pages(int page)	// I - Current page
 
   // Initialize the page data as needed...
   for (temp = pages + num_pages; num_pages <= page; num_pages ++, temp ++)
+  {
     if (!temp->width)
     {
       if (num_pages == 0 || !temp[-1].width || !temp[-1].length)
@@ -7597,6 +7763,7 @@ check_pages(int page)	// I - Current page
              sizeof(temp->background_color));
       temp->background_image = background_image;
     }
+  }
 }
 
 
@@ -9863,18 +10030,25 @@ write_prolog(FILE  *out,	/* I - Output file */
         // Handle document settings per-chapter...
 	for (i = start + 1; i < end; i += count)
 	{
-	  if (pages[outpages[i].pages[0]].width != pages[outpages[start].pages[0]].width ||
-	      pages[outpages[i].pages[0]].length != pages[outpages[start].pages[0]].length ||
-	      strcmp(pages[outpages[i].pages[0]].media_type, pages[outpages[start].pages[0]].media_type) != 0 ||
-	      strcmp(pages[outpages[i].pages[0]].media_color, pages[outpages[start].pages[0]].media_color) != 0 ||
-	      pages[outpages[i].pages[0]].duplex != pages[outpages[start].pages[0]].duplex)
+	  if (pages[outpages[i].pages[0]].width != pages[0].width ||
+	      pages[outpages[i].pages[0]].length != pages[0].length ||
+	      strcmp(pages[outpages[i].pages[0]].media_type,
+	             pages[0].media_type) != 0 ||
+	      strcmp(pages[outpages[i].pages[0]].media_color,
+	             pages[0].media_color) != 0 ||
+	      pages[outpages[i].pages[0]].duplex != pages[0].duplex)
 	  {
 	    for (count = 1; (i + count) <= end; count ++)
-	      if (pages[outpages[i].pages[0]].width != pages[outpages[i + count].pages[0]].width ||
-		  pages[outpages[i].pages[0]].length != pages[outpages[i + count].pages[0]].length ||
-		  strcmp(pages[outpages[i].pages[0]].media_type, pages[outpages[i + count].pages[0]].media_type) != 0 ||
-		  strcmp(pages[outpages[i].pages[0]].media_color, pages[outpages[i + count].pages[0]].media_color) != 0 ||
-		  pages[outpages[i].pages[0]].duplex != pages[outpages[i + count].pages[0]].duplex)
+	      if (pages[outpages[i].pages[0]].width !=
+	              pages[outpages[i + count].pages[0]].width ||
+		  pages[outpages[i].pages[0]].length !=
+		      pages[outpages[i + count].pages[0]].length ||
+		  strcmp(pages[outpages[i].pages[0]].media_type,
+		         pages[outpages[i + count].pages[0]].media_type) != 0 ||
+		  strcmp(pages[outpages[i].pages[0]].media_color,
+		         pages[outpages[i + count].pages[0]].media_color) != 0 ||
+		  pages[outpages[i].pages[0]].duplex !=
+		      pages[outpages[i + count].pages[0]].duplex)
 		break;
 
 	    fprintf(out, "%%XRXpageExceptions: %d %d %.0f %.0f %c%s opaque %s 0 0\n",
@@ -9883,9 +10057,11 @@ write_prolog(FILE  *out,	/* I - Output file */
 		    pages[outpages[i].pages[0]].length * 25.4f / 72.0f,
 		    tolower(pages[outpages[i].pages[0]].media_color[0]),
 		    pages[outpages[i].pages[0]].media_color + 1,
-		    pages[outpages[i].pages[0]].media_type[0] ? pages[outpages[i].pages[0]].media_type : "Plain");
+		    pages[outpages[i].pages[0]].media_type[0] ?
+		        pages[outpages[i].pages[0]].media_type : "Plain");
 
-	    if (pages[outpages[i].pages[0]].duplex && pages[outpages[i].pages[0]].landscape)
+	    if (pages[outpages[i].pages[0]].duplex &&
+	        pages[outpages[i].pages[0]].landscape)
 	      fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
 	              i + 1, i + count);
 	    else if (pages[outpages[i].pages[0]].duplex)
@@ -9904,30 +10080,40 @@ write_prolog(FILE  *out,	/* I - Output file */
         // All pages are in a single file...
         for (j = (TocLevels == 0); j <= TocDocCount; j ++)
 	{
-	  start = chapter_starts[j];
-	  end   = chapter_ends[j];
+	  start = chapter_outstarts[j];
+	  end   = chapter_outends[j];
 
-	  for (i = start + 1; i <= end; i += count)
+	  for (i = start + 1; i < end; i += count)
 	  {
 	    if (pages[outpages[i].pages[0]].width != pages[0].width ||
 		pages[outpages[i].pages[0]].length != pages[0].length ||
-		strcmp(pages[outpages[i].pages[0]].media_type, pages[0].media_type) != 0 ||
-		strcmp(pages[outpages[i].pages[0]].media_color, pages[0].media_color) != 0 ||
+		strcmp(pages[outpages[i].pages[0]].media_type,
+		       pages[0].media_type) != 0 ||
+		strcmp(pages[outpages[i].pages[0]].media_color,
+		       pages[0].media_color) != 0 ||
 		pages[outpages[i].pages[0]].duplex != pages[0].duplex)
 	    {
 	      for (count = 1; (i + count) <= end; count ++)
-		if (pages[outpages[i].pages[0]].width != pages[outpages[i + count].pages[0]].width ||
-		    pages[outpages[i].pages[0]].length != pages[outpages[i + count].pages[0]].length ||
-		    strcmp(pages[outpages[i].pages[0]].media_type, pages[outpages[i + count].pages[0]].media_type) != 0 ||
-		    strcmp(pages[outpages[i].pages[0]].media_color, pages[outpages[i + count].pages[0]].media_color) != 0 ||
-		    pages[outpages[i].pages[0]].duplex != pages[outpages[i + count].pages[0]].duplex)
+		if (pages[outpages[i].pages[0]].width !=
+		        pages[outpages[i + count].pages[0]].width ||
+		    pages[outpages[i].pages[0]].length !=
+		        pages[outpages[i + count].pages[0]].length ||
+		    strcmp(pages[outpages[i].pages[0]].media_type,
+		           pages[outpages[i + count].pages[0]].media_type) != 0 ||
+		    strcmp(pages[outpages[i].pages[0]].media_color,
+		           pages[outpages[i + count].pages[0]].media_color) != 0 ||
+		    pages[outpages[i].pages[0]].duplex !=
+		        pages[outpages[i + count].pages[0]].duplex)
 		  break;
 
-	      fprintf(out, "%%XRXpageExceptions: %d %d %d %d %c%s opaque %s 0 0\n",
-	              i + 1, i + count, pages[outpages[i].pages[0]].width, pages[outpages[i].pages[0]].length,
+	      fprintf(out, "%%XRXpageExceptions: %d %d %.0f %.0f %c%s opaque %s 0 0\n",
+	              i + 1, i + count,
+		      pages[outpages[i].pages[0]].width * 25.4f / 72.0f,
+		      pages[outpages[i].pages[0]].length * 25.4f / 72.0f,
 		      tolower(pages[outpages[i].pages[0]].media_color[0]),
 		      pages[outpages[i].pages[0]].media_color + 1,
-		      pages[outpages[i].pages[0]].media_type[0] ? pages[outpages[i].pages[0]].media_type : "Plain");
+		      pages[outpages[i].pages[0]].media_type[0] ?
+		          pages[outpages[i].pages[0]].media_type : "Plain");
 
 	      if (pages[outpages[i].pages[0]].duplex && pages[outpages[i].pages[0]].landscape)
 		fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
@@ -9990,7 +10176,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     * Procedures used throughout the document...
     */
 
-    fputs("%%BeginResource: procset htmldoc-page 1.8 15\n", out);
+    fputs("%%BeginResource: procset htmldoc-page 1.8 20\n", out);
     fputs("/BD{bind def}bind def", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
           "closepath stroke}BD", out);
@@ -11195,5 +11381,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.164 2002/05/06 13:22:07 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.165 2002/05/07 06:13:26 mike Exp $".
  */
