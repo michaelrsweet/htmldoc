@@ -1,9 +1,9 @@
 /*
- * "$Id: file.c,v 1.13 2000/10/12 23:07:34 mike Exp $"
+ * "$Id: file.c,v 1.13.2.6 2001/02/12 17:06:04 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -41,7 +41,12 @@
 #include "http.h"
 #include "progress.h"
 
-#include <unistd.h>
+#if defined(WIN32) || defined(__EMX__)
+#  include <io.h>
+#else
+#  include <unistd.h>
+#endif /* WIN32 || __EMX__ */
+
 #include <errno.h>
 #include <fcntl.h>
 
@@ -114,21 +119,52 @@ file_directory(const char *s)	/* I - Filename or URL */
   if (s == NULL)
     return (NULL);
 
-  strcpy(buf, s);
+  if (strncmp(s, "http://", 7) == 0)
+  {
+   /*
+    * Handle URLs...
+    */
 
-  if ((dir = strrchr(buf, '/')) != NULL)
-    *dir = '\0';
-  else if ((dir = strrchr(buf, '\\')) != NULL)
-    *dir = '\0';
-#ifdef MAC
-  else if ((dir = strrchr(buf, ':')) != NULL)
-    *dir = '\0';
-#endif /* MAC */
+    char	method[HTTP_MAX_URI],
+		username[HTTP_MAX_URI],
+		hostname[HTTP_MAX_URI],
+		resource[HTTP_MAX_URI];
+    int		port;
+
+
+    httpSeparate(s, method, username, hostname, &port, resource);
+    if ((dir = strrchr(resource, '/')) != NULL)
+      *dir = '\0';
+
+    if (username[0])
+      snprintf(buf, sizeof(buf), "%s://%s@%s:%d%s", method, username, hostname,
+               port, resource);
+    else
+      snprintf(buf, sizeof(buf), "%s://%s:%d%s", method, hostname, port,
+               resource);
+  }
   else
-    return (".");
+  {
+   /*
+    * Normal stuff...
+    */
 
-  if (strncmp(buf, "file:", 5) == 0)
-    strcpy(buf, buf + 5);
+    strcpy(buf, s);
+
+    if ((dir = strrchr(buf, '/')) != NULL)
+      *dir = '\0';
+    else if ((dir = strrchr(buf, '\\')) != NULL)
+      *dir = '\0';
+#ifdef MAC
+    else if ((dir = strrchr(buf, ':')) != NULL)
+      *dir = '\0';
+#endif /* MAC */
+    else
+      return (".");
+
+    if (strncmp(buf, "file:", 5) == 0)
+      strcpy(buf, buf + 5);
+  }
 
   return (buf);
 }
@@ -198,7 +234,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   int		bytes,			/* Bytes read */
 		count,			/* Number of bytes so far */
 		total;			/* Total bytes in file */
+#if defined(WIN32) || defined(__EMX__)
+  char		tmpdir[1024];		/* Buffer for temp dir */
+#else
   const char	*tmpdir;		/* Temporary directory */
+#endif /* WIN32 || __EMX__ */
   int		fd;			/* File descriptor */
   static char	filename[HTTP_MAX_URI];	/* Current filename */
 
@@ -237,7 +277,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
       temp = filename;
 
-      while (*path != ';' && !*path && temp < (filename + sizeof(filename) - 1))
+      while (*path != ';' && *path && temp < (filename + sizeof(filename) - 1))
 	*temp++ = *path++;
 
       if (*path == ';')
@@ -248,14 +288,14 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       */
 
       if (temp > filename && temp < (filename + sizeof(filename) - 1) &&
-          resource[0] != '/')
+          s[0] != '/')
 	*temp++ = '/';
 
      /*
       * Append the filename...
       */
 
-      strncpy(temp, resource, sizeof(filename) - (temp - filename));
+      strncpy(temp, s, sizeof(filename) - (temp - filename));
       filename[sizeof(filename) - 1] = '\0';
 
      /*
@@ -287,17 +327,6 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
         snprintf(filename, sizeof(filename), "%s/%s", path, s);
 
       httpSeparate(filename, method, username, hostname, &port, resource);
-    }
-
-    if (resource[strlen(resource) - 1] == '/' &&
-        s[strlen(s) - 1] != '/')
-    {
-     /*
-      * This is a questionable hack, but necessary until we make the
-      * interface smarter...
-      */
-
-      strcat((char *)s, "/");
     }
 
     if (proxy_port)
@@ -375,10 +404,10 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     web_files ++;
 
 #if defined(WIN32) || defined(__EMX__)
-    if ((tmpdir = getenv("TMPDIR")) == NULL)
-      tmpdir = "C:/WINDOWS/TEMP";
+    GetTempPath(sizeof(tmpdir), tmpdir);
 
-    snprintf(filename, sizeof(filename), "%s/%06d.dat", tmpdir, web_files);
+    snprintf(filename, sizeof(filename), "%s/%06d.%06d.dat", tmpdir,
+             GetCurrentProcessId(), web_files);
 #else
     if ((tmpdir = getenv("TMPDIR")) == NULL)
       tmpdir = "/var/tmp";
@@ -640,5 +669,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.13 2000/10/12 23:07:34 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.6 2001/02/12 17:06:04 mike Exp $".
  */

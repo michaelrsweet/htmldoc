@@ -1,7 +1,47 @@
-CHANGES.txt - 10/16/2000
+CHANGES.txt - 02/12/2001
 ------------------------
 
-CHANGES IN HTMLDOC v1.9
+CHANGES IN HTMLDOC v1.8.10
+
+    NEW FEATURES
+
+	- New "--quiet" option to suppress all messages sent to
+	  stderr.
+	- New chapter n/N page number format (:)
+	- New "--links" and "--no-links" options for PDF output.
+	- Added "&euro;" character name support.
+
+    CHANGES
+
+	- Documentation updates.
+	- If a heading already contains a link, the name assigned for
+	  the heading is stored in the existing link to avoid nested
+	  links.
+	- The table parsing code now also traverses THEAD and TFOOT
+	  sections and handles multiple TBODY, THEAD, and TFOOT
+	  sections.  The THEAD and TFOOT rows are treated as ordinary
+	  rows.
+	- Image alignment should now match W3C recommendations.
+	- Newlines inside quoted values (e.g. SRC="filename\r\n")
+	  are now ignored.
+	- The STYLE data generated in HTML output now includes the
+	  TYPE="text/css" attribute.
+
+    BUG FIXES
+
+	- The path support was still broken.
+	- Embedded files and images did not use path or HTTP
+	  support.
+	- Table cell borders could be drawn on the wrong page
+	  if not all cells in a row span more than one page.
+	- Large images could end up covering the footer at the
+	  bottom of the page (wasn't accounting for the line
+	  spacing.)
+	- Fixed some memory leaks that would affect Windows
+	  95/98/Me users.
+
+
+CHANGES IN HTMLDOC v1.8.9
 
     NEW FEATURES
 
@@ -11,6 +51,10 @@ CHANGES IN HTMLDOC v1.9
 	- Added support for BMP images.
 	- Added support for ROWSPAN attribute in tables.
 	- Added support for HTTP file references.
+	- Added new sample CGI program that can produce a PDF
+	  file for any page on a server.
+	- Added new n/N, date, and time formats for the header
+	  and footer.
 
     CHANGES
 
@@ -21,7 +65,7 @@ CHANGES IN HTMLDOC v1.9
 	  the options. (use a backslash to quote filenames
 	  starting with a dash)
 	- Multiple-line paragraphs that have only 1 line on the
-	  bottom of the current page are not started on the
+	  bottom of the current page are now started on the
 	  following page.
 	- DSC comments in PostScript output were not 100%
 	  conformant with the DSC spec.
@@ -49,6 +93,16 @@ CHANGES IN HTMLDOC v1.9
 	  line height.
 	- The compression slider was enabled in the GUI even
 	  though HTML output was selected.
+	- The Perl example code was incorrect.
+	- Fixed the check for whether or not pages were
+	  generated.
+	- htmlSetCharSet() wasn't reloading the character set
+	  data if the data directory changed.
+	- The GUI did not reset the default background color.
+	- The 'C' page number style (chapter page numbers) started
+	  at 3 instead of 1.
+	- The chapter links were off by 1 or 2 pages when no title
+	  page was included.
 
 
 CHANGES IN HTMLDOC v1.8.8

@@ -1,9 +1,9 @@
 dnl
-dnl "$Id: configure.in,v 1.23 2000/10/14 13:59:13 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.4 2001/02/02 15:10:52 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
-dnl   Copyright 1997-2000 by Michael Sweet, all rights reserved.
+dnl   Copyright 1997-2001 by Michael Sweet, all rights reserved.
 dnl
 dnl   HTMLDOC is distributed under the terms of the GNU General Public License
 dnl   which is described in the file "COPYING-2.0".
@@ -12,6 +12,15 @@ dnl
 AC_INIT(htmldoc/htmldoc.h)
 AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
+
+dnl Get the operating system and version number...
+
+uname=`uname`
+uversion=`uname -r | sed -e '1,$s/[[^0-9]]//g'`
+
+if test "$uname" = "IRIX64"; then
+    uname="IRIX"
+fi
 
 dnl Clear the debugging options unless the user asks for them...
 OPTIM=""
@@ -53,12 +62,30 @@ dnl Checks for string functions.
 AC_CHECK_FUNCS(strdup)
 AC_CHECK_FUNCS(strcasecmp)
 AC_CHECK_FUNCS(strncasecmp)
+if test "$uname" = "HP-UX" -a "$uversion" = "1020"; then
+	echo Forcing snprintf emulation for HP-UX.
+else
+	AC_CHECK_FUNCS(snprintf)
+	AC_CHECK_FUNCS(vsnprintf)
+fi
 
 dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
 AC_CHECK_LIB(m,pow)
+AC_CHECK_LIB(socket,socket,
+if test "$uname" != "IRIX"; then
+	LIBS="$LIBS -lsocket"
+else
+	echo "Not using -lsocket since you are running IRIX."
+fi)
+AC_CHECK_LIB(nsl,gethostbyaddr,
+if test "$uname" != "IRIX"; then
+	LIBS="$LIBS -lnsl"
+else
+	echo "Not using -lnsl since you are running IRIX."
+fi)
 
 OLDLIBS="$LIBS"
 
@@ -69,7 +96,7 @@ if test "$x_libraries" = "/usr/lib"; then
 fi
 if test ! "$x_libraries" = "NONE" -a ! "$x_libraries" = ""; then
 	LDFLAGS="$LDFLAGS -L$x_libraries"
-	if test "`uname`" = "SunOS"; then
+	if test "$uname" = "SunOS"; then
 		LDFLAGS="$LDFLAGS -R$x_libraries"
 	fi
 fi
@@ -156,7 +183,7 @@ if test -n "$GXX"; then
 
 	# Set optimization flags...
 	if test -z "$OPTIM"; then
-		if test "`uname`" = "HP-UX"; then
+		if test "$uname" = "HP-UX"; then
 			# ZLIB has trouble with GCC 2.95 and -O2...
 			OPTIM="-O1"
 		else
@@ -177,7 +204,7 @@ if test -n "$GXX"; then
 	CFLAGS="$OLDCFLAGS"
 
 	# See if we are running Solaris; if so, try the -fpermissive option...
-	if test "`uname`" = SunOS; then
+	if test "$uname" = SunOS; then
 		echo "Testing if GCC supports -fpermissive..."
 
 		OLDCFLAGS="$CFLAGS"
@@ -189,11 +216,11 @@ if test -n "$GXX"; then
 		CFLAGS="$OLDCFLAGS"
 	fi
 else
-	case `uname` in
+	case $uname in
         	IRIX*)
 			if test -z "$OPTIM"; then
 				if test `uname -r | sed -e '1,$s/\.//g'` -ge 62; then
-					OPTIM="-O2 -OPT:Olimit=4000"
+					OPTIM="-O3 -OPT:Olimit=5000"
         			else
 					OPTIM="-O2"
 				fi
@@ -207,7 +234,7 @@ else
 		SunOS*)
 			# Solaris
 			if test -z "$OPTIM"; then
-				OPTIM="-O"
+				OPTIM="-xO4"
 			fi
 			;;
 	esac
@@ -217,5 +244,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23 2000/10/14 13:59:13 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.4 2001/02/02 15:10:52 mike Exp $".
 dnl

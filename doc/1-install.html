@@ -20,8 +20,6 @@ following environments:
 
 	<LI>Compaq Tru64 UNIX 4.0 or higher
 
-	<LI>Digital UNIX 4.0 or higher
-
 	<LI>HP-UX 10.20 or higher
 
 	<LI>IRIX 5.3 or higher
@@ -32,13 +30,31 @@ following environments:
 
 	<LI>Microsoft Windows 98
 
+	<LI>Microsoft Windows Me
+
 	<LI>Microsoft Windows NT 4.0
 
-	<LI>Red Hat Linux 5.2 or higher
+	<LI>Microsoft Windows 2000
 
 	<LI>Solaris 2.5 or higher
 
 </UL>
+
+<H3>Installing HTMLDOC under Debian GNU/Linux</H3>
+
+Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
+
+<UL><PRE>
+% <KBD>dselect install htmldoc-1.8-linux-2.0.36-intel.deb ENTER</KBD>
+</PRE></UL>
+
+<H3>Ininstalling HTMLDOC under Debian GNU/Linux</H3>
+
+Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
+
+<UL><PRE>
+% <KBD>dselect remove htmldoc-1.8-linux-2.0.36-intel.deb ENTER</KBD>
+</PRE></UL>
 
 <H3>Installing HTMLDOC under Red Hat Linux</H3>
 
@@ -54,7 +70,7 @@ Run the following command to remove <I>HTMLDOC</I> from your Red Hat Linux
 system:
 
 <UL><PRE>
-% <KBD>rpm -r htmldoc ENTER</KBD>
+% <KBD>rpm -e htmldoc ENTER</KBD>
 </PRE></UL>
 
 <H3>Installing HTMLDOC under UNIX</H3>
@@ -160,6 +176,7 @@ option to change the installation prefix to <VAR>/usr/local</VAR>:
 % <KBD>./configure --prefix=/usr/local ENTER</KBD>
 </PRE></UL>
 
+<!-- NEED 3in -->
 <H3>Compiling under UNIX</H3>
 
 <I>HTMLDOC</I> is built from a Makefile in the distribution's main
@@ -169,11 +186,23 @@ directory. Simply run the "make" command to build <I>HTMLDOC</I>:
 % <KBD>make ENTER</KBD>
 </PRE></UL>
 
-If you get any fatal errors please send a copy of the make/compiler
-output to "<A HREF="mailto:htmldoc-support@easysw.com">htmldoc-support@easysw.com</A>"
-for assistance. Please note the version of <I>HTMLDOC</I> that you are
-using as well as any pertinent system information (operating system, OS
-version, compiler, etc.)
+If you get any fatal errors, please subscribe to the HTMLDOC
+mailing list and send a copy of the make/compiler output to
+"<A HREF="mailto:htmldoc@easysw.com">htmldoc@easysw.com</A>" for
+assistance. Please note the version of <I>HTMLDOC</I> that you
+are using as well as any pertinent system information (operating
+system, OS version, compiler, etc.)
+
+<P>To subscribe to the HTMLDOC mailing list, send a message to
+"<A HREF="mailto:majordomo@easysw.com">majordomo@easysw.com</A>"
+with the text:
+
+<UL><PRE>
+subscribe htmldoc
+</PRE></UL>
+
+in the message body. <I>You must subscribe to the list to post
+questions and comments.</I>
 
 <H3>Installing under UNIX</H3>
 

@@ -1,4 +1,4 @@
-README.txt - 07/31/2000
+README.txt - 02/12/2001
 -----------------------
 
 INTRODUCTION
@@ -12,7 +12,7 @@ INTRODUCTION
     "members only" web site that provides examples, tutorials, and tips
     for using HTMLDOC to publish documents on your web site.
 
-    HTMLDOC is copyright 1997-2000 by Easy Software Products and is
+    HTMLDOC is copyright 1997-2001 by Easy Software Products and is
     currently available under the GNU General Public License, version
     2.  See the LEGAL STUFF section below for details.
 
@@ -29,10 +29,9 @@ INTRODUCTION
 
 INTERNET RESOURCES
 
-    Problem reports should be addressed to
-    "htmldoc-support@easysw.com".  For general discussions about
-    HTMLDOC, subscribe to the HTMLDOC mailing list by sending a message
-    to "majordomo@easysw.com" with the text "subscribe htmldoc".
+    For general discussions about HTMLDOC, subscribe to the HTMLDOC
+    mailing list by sending a message to "majordomo@easysw.com" with
+    the text "subscribe htmldoc".
 
     The HTMLDOC home page is located at:
 
@@ -41,6 +40,11 @@ INTERNET RESOURCES
     The current version of HTMLDOC can be also downloaded from:
 
         http://www.easysw.com/software.html
+
+    Commercial support is available from Easy Software Products; send
+    requests to "htmldoc-support@easysw.com" (note: support via this
+    email address is only provided to customers with a valid support
+    contract!)
 
 
 REQUIREMENTS
@@ -55,7 +59,9 @@ REQUIREMENTS
 	- Linux 2.0 or higher (Intel only)
 	- Microsoft Windows 95
 	- Microsoft Windows 98
+	- Microsoft Windows Me
 	- Microsoft Windows NT 4.0
+	- Microsoft Windows 2000
 	- Red Hat Linux 5.2 or higher (Intel only)
 	- Solaris 2.5 or higher (SPARC and Intel)
 
@@ -66,7 +72,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.9-windows.exe" file to start the installation
+    the "htmldoc-1.8.10-windows.exe" file to start the installation
     wizard.
 
 
@@ -74,15 +80,19 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.9-linux-2.0.36-intel.rpm ENTER
+        rpm -i htmldoc-1.8.10-linux-2.0-intel.rpm ENTER
+
+    or:
+
+        rpm -i htmldoc-1.8.10-linux-2.2-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.9-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.9-platform.tar ENTER
+        gunzip htmldoc-1.8.10-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.10-platform.tar ENTER
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
@@ -162,9 +172,9 @@ RUNNING HTMLDOC FROM YOUR WEB SERVER
 CURRENT LIMITATIONS
 
     - No support for style sheets.
-    - ROWSPAN is not supported in tables.
     - CAPTIONs are always shown at the top of the table.
-    - HTML 4.0 table elements and attributes are not supported.
+    - HTML 4.0 table elements and attributes are not supported
+      (rules, THEAD, TFOOT, etc.)
 
 
 CREDITS
@@ -216,7 +226,7 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC is copyright 1997-2000 by Easy Software Products. This
+    HTMLDOC is copyright 1997-2001 by Easy Software Products. This
     program is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or

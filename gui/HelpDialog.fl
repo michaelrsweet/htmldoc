@@ -1,8 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0010 
-i18n_type 1 
-i18n_include "gui.h" 
-i18n_function _ 
+version 1.0011 
 header_name {.h} 
 code_name {.cxx} 
 gridx 5 
@@ -18,7 +15,7 @@ class HelpDialog {open
   } {
     Fl_Window window_ {
       label {Help Dialog} open
-      private xywh {464 372 530 385} resizable
+      private xywh {459 351 530 385} resizable
       code0 {\#include <string.h>} visible
     } {
       Fl_Group view_ {
@@ -58,8 +55,8 @@ else if (view_->filename())
       } {}
       Fl_Button {} {
         label Close
-        callback {window_->hide();} selected
-        xywh {425 350 95 25}
+        callback {window_->hide();}
+        xywh {465 350 55 25}
       }
       Fl_Button back_ {
         label {@<-}
@@ -75,7 +72,7 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {365 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
+        private xywh {405 350 25 25} shortcut 0xff51 labeltype SYMBOL_LABEL labelcolor 2
       }
       Fl_Button forward_ {
         label {@->}
@@ -91,7 +88,7 @@ if (strcmp(view_->filename(), file_[index_]) != 0)
   view_->load(file_[index_]);
 
 view_->topline(line_[index_]);}
-        private xywh {395 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
+        private xywh {435 350 25 25} shortcut 0xff53 labeltype SYMBOL_LABEL labelcolor 2
       }
       Fl_Button smaller_ {
         label F
@@ -101,7 +98,7 @@ view_->topline(line_[index_]);}
 if (view_->textsize() <= 8)
   smaller_->deactivate();
 larger_->activate();}
-        private xywh {305 350 25 25} labelfont 1 labelsize 10
+        private xywh {345 350 25 25} labelfont 1 labelsize 10
       }
       Fl_Button larger_ {
         label F
@@ -111,7 +108,7 @@ larger_->activate();}
 if (view_->textsize() >= 18)
   larger_->deactivate();
 smaller_->activate();}
-        private xywh {335 350 25 25} labelfont 1 labelsize 16
+        private xywh {375 350 25 25} labelfont 1 labelsize 16
       }
     }
     code {back_->deactivate();
@@ -119,6 +116,10 @@ forward_->deactivate();
 
 index_ = -1;
 max_  = 0;} {}
+  }
+  Function {~HelpDialog()} {} {
+    code {delete window_;} {selected
+    }
   }
   Function {h()} {return_type int
   } {

@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.27 2001/01/22 15:03:44 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.25.2.1 2001/02/02 15:10:55 mike Exp $"
 //
 //   More FileChooser routines.
 //
@@ -39,7 +39,6 @@
 //
 
 #include "FileChooser.h"
-#include "gui.h"
 #include <FL/filename.H>
 #include <FL/fl_ask.H>
 #include <FL/x.H>
@@ -107,9 +106,9 @@ FileChooser::directory(const char *d)	// I - Directory to change to
   // Clear the directory menu and fill it as needed...
   dirMenu->clear();
 #if defined(WIN32) || defined(__EMX__)
-  dirMenu->add(_("My Computer"));
+  dirMenu->add("My Computer");
 #else
-  dirMenu->add(_("File Systems"));
+  dirMenu->add("File Systems");
 #endif /* WIN32 || __EMX__ */
 
   levels = 0;
@@ -342,7 +341,7 @@ FileChooser::newdir()
 
 
   // Get a directory name from the user
-  if ((dir = fl_input(_("New Directory?"))) == NULL)
+  if ((dir = fl_input("New Directory?")) == NULL)
     return;
 
   // Make it relative to the current directory as needed...
@@ -366,7 +365,7 @@ FileChooser::newdir()
 #endif /* WIN32 */
     if (errno != EEXIST)
     {
-      fl_alert(_("Unable to create directory!"));
+      fl_alert("Unable to create directory!");
       return;
     }
 
@@ -549,7 +548,7 @@ FileChooser::fileNameCB()
       XBell(fl_display, 100);
 #endif // WIN32
 
-      fl_alert(_("Please choose an existing file!"));
+      fl_alert("Please choose an existing file!");
     }
   }
   else if (Fl::event_key() != FL_Delete)
@@ -667,5 +666,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.27 2001/01/22 15:03:44 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.25.2.1 2001/02/02 15:10:55 mike Exp $".
 //

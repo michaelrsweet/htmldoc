@@ -1,5 +1,5 @@
 //
-// "$Id: FileInput.cxx,v 1.4 2001/01/22 15:03:44 mike Exp $"
+// "$Id: FileInput.cxx,v 1.3.2.1 2001/02/02 15:10:56 mike Exp $"
 //
 //   FileInput routines.
 //
@@ -71,5 +71,5 @@ FileInput::handle(int event)	// I - Event to handle
 
 
 //
-// End of "$Id: FileInput.cxx,v 1.4 2001/01/22 15:03:44 mike Exp $".
+// End of "$Id: FileInput.cxx,v 1.3.2.1 2001/02/02 15:10:56 mike Exp $".
 //

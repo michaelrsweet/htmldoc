@@ -1,9 +1,9 @@
 /*
- * "$Id: string.h,v 1.5 2000/01/04 13:52:26 mike Exp $"
+ * "$Id: string.h,v 1.5.2.2 2001/02/02 15:11:03 mike Exp $"
  *
  *   HTML string definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -33,6 +33,7 @@
 
 #  include <stdio.h>
 #  include <stdlib.h>
+#  include <stdarg.h>
 #  include <string.h>
 
 #  ifdef __cplusplus
@@ -66,6 +67,15 @@ extern int	strcasecmp(const char *s, const char *t);
 extern int	strncasecmp(const char *s, const char *t, size_t n);
 #  endif /* !HAVE_STRNCASECMP */
 
+#  ifndef HAVE_SNPRINTF
+extern int	snprintf(char *, size_t, const char *, ...);
+#  endif /* !HAVE_SNPRINTF */
+
+#  ifndef HAVE_VSNPRINTF
+extern int	vsnprintf(char *, size_t, const char *, va_list);
+#  endif /* !HAVE_VSNPRINTF */
+
+
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
@@ -73,5 +83,5 @@ extern int	strncasecmp(const char *s, const char *t, size_t n);
 #endif /* !_HTMLDOC_STRING_H_ */
 
 /*
- * End of "$Id: string.h,v 1.5 2000/01/04 13:52:26 mike Exp $".
+ * End of "$Id: string.h,v 1.5.2.2 2001/02/02 15:11:03 mike Exp $".
  */
