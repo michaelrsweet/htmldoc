@@ -1,4 +1,4 @@
-CHANGES.txt - 07/15/2002
+CHANGES.txt - 07/18/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -18,6 +18,8 @@ CHANGES IN HTMLDOC v1.8.21
 	  Cygwin tools.
 	- HTMLDOC no longer inserts whitespace between text
 	  inside DIV elements.
+	- HTMLDOC now supports quoted usernames and passwords in
+	  URLs.
 
     BUG FIXES
 
