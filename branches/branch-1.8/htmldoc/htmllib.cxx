@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.74 2004/05/07 22:04:57 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.75 2004/05/08 01:27:32 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -3037,21 +3037,6 @@ fix_filename(char *filename,		/* I - Original filename */
   if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
     return (file_find(Path, filename));
 
-#ifdef MAC
-  //
-  // Convert UNIX/DOS/WINDOWS slashes to colons for MacOS...
-  //
-  // Question: WHY doesn't the Mac standard C library do this for
-  // you???
-  //
-
-  for (slash = strchr(filename, '/'); slash != NULL; slash = strchr(slash + 1, '/'))
-    *slash = ':';
-
-  for (slash = strchr(filename, '\\'); slash != NULL; slash = strchr(slash + 1, '\\'))
-    *slash = ':';
-#endif // MAC
-
   if (strncmp(filename, "./", 2) == 0 ||
       strncmp(filename, ".\\", 2) == 0)
     filename += 2;
@@ -3083,26 +3068,9 @@ fix_filename(char *filename,		/* I - Original filename */
     base = newfilename;
   }
 
-#ifdef MAC
-  //
-  // Convert UNIX/DOS/WINDOWS slashes to colons for MacOS...
-  //
-  // Question: WHY doesn't the Mac standard C library do this for
-  // you???
-  //
-
-  for (slash = strchr(newfilename, '/'); slash != NULL; slash = strchr(slash + 1, '/'))
-    *slash = ':';
-
-  for (slash = strchr(newfilename, '\\'); slash != NULL; slash = strchr(slash + 1, '\\'))
-    *slash = ':';
-#endif // MAC
-
 #if defined(WIN32) || defined(__EMX__)
   while (strncmp(filename, "../", 3) == 0 ||
          strncmp(filename, "..\\", 3) == 0)
-#elif defined(MAC)
-  while (strncmp(filename, "..:", 3) == 0)
 #else
   while (strncmp(filename, "../", 3) == 0)
 #endif // WIN32 || __EMX__
@@ -3112,9 +3080,6 @@ fix_filename(char *filename,		/* I - Original filename */
     if ((slash = strrchr(base, '/')) != NULL)
       *slash = '\0';
     else if ((slash = strrchr(base, '\\')) != NULL)
-      *slash = '\0';
-#elif defined(MAC)
-    if ((slash = strrchr(base, ':')) != NULL)
       *slash = '\0';
 #else
     if ((slash = strrchr(base, '/')) != NULL)
@@ -3127,12 +3092,8 @@ fix_filename(char *filename,		/* I - Original filename */
     }
   }
 
-#ifdef MAC
-  strcat(newfilename, ":");
-#else
   if (filename[0] != '/' && *base && base[strlen(base) - 1] != '/')
     strcat(newfilename, "/");
-#endif // MAC
 
   strcat(newfilename, filename);
 
@@ -3309,5 +3270,5 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.74 2004/05/07 22:04:57 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.75 2004/05/08 01:27:32 mike Exp $".
  */
