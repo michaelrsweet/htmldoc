@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.5 2001/02/01 21:59:42 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.6 2001/02/15 22:00:03 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -182,6 +182,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"8859-9", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"8859-14", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"8859-15", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"koi8-r", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	modeMenu[] =	// Menu items for mode chooser
@@ -3624,5 +3625,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.5 2001/02/01 21:59:42 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.6 2001/02/15 22:00:03 mike Exp $".
 //

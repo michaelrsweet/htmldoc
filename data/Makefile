@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.4.2.1 2001/02/02 15:10:53 mike Exp $"
+# "$Id: Makefile,v 1.4.2.2 2001/02/15 22:00:02 mike Exp $"
 #
 #   Makefile for HTMLDOC data files.
 #
@@ -34,7 +34,7 @@ include ../Makedefs
 #
 
 FILES	=	8859-1 8859-14 8859-15 8859-2 8859-3 8859-4 \
-		8859-5 8859-6 8859-7 8859-8 8859-9 psglyphs
+		8859-5 8859-6 8859-7 8859-8 8859-9 koi8-r psglyphs
 
 
 #
@@ -63,5 +63,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.4.2.1 2001/02/02 15:10:53 mike Exp $".
+# End of "$Id: Makefile,v 1.4.2.2 2001/02/15 22:00:02 mike Exp $".
 #
