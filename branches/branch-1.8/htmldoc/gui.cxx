@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.64 2004/02/10 22:08:31 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.65 2004/03/05 01:48:44 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -2700,7 +2700,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 
   REF(w);
 
-  gui->fc->filter("*.{htm,html,shtml,book}");
+  gui->fc->filter("WWW Files (*.{htm,html,shtml,book})");
   gui->fc->type(FileChooser::MULTI);
   gui->fc->label("Add HTML Files?");
   gui->fc->show();
@@ -2968,7 +2968,7 @@ GUI::logoImageCB(Fl_Widget *w,		// I - Widget
 {
   if (w == gui->logoBrowse)
   {
-    gui->fc->filter("*.{gif|jpg|png}");
+    gui->fc->filter("Image Files (*.{bmp,gif,jpg,png})");
     gui->fc->label("Logo Image?");
     gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
@@ -2996,7 +2996,7 @@ GUI::titleImageCB(Fl_Widget *w,		// I - Widget
 {
   if (w == gui->titleBrowse)
   {
-    gui->fc->filter("*.{gif|jpg|png|htm|html|shtml}");
+    gui->fc->filter("Image Files (*.{bmp,gif,jpg,png})\tWWW Files (*.{htm,html,shtml})");
     gui->fc->label("Title Image?");
     gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
@@ -3060,11 +3060,11 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
       gui->fc->type(FileChooser::CREATE);
 
       if (gui->typeHTML->value())
-	gui->fc->filter("*.htm*");
+	gui->fc->filter("WWW Files (*.htm*)");
       else if (gui->typePDF->value())
-	gui->fc->filter("*.pdf");
+	gui->fc->filter("PDF Files (*.pdf)");
       else
-	gui->fc->filter("*.ps");
+	gui->fc->filter("PostScript Files (*.ps)");
     }
     else
     {
@@ -3424,7 +3424,7 @@ GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
   if (w == gui->htmlBrowse)
   {
 #  if defined(WIN32) || defined(__EMX__)
-    gui->fc->filter("*.exe");
+    gui->fc->filter("Program Files (*.exe)");
 #  else
     gui->fc->filter("*");
 #  endif // WIN32 || __EMX__
@@ -3603,7 +3603,7 @@ GUI::bodyImageCB(Fl_Widget *w,		// I - Widget
 {
   if (w == gui->bodyBrowse)
   {
-    gui->fc->filter("*.{gif|jpg|png}");
+    gui->fc->filter("Image Files (*.{bmp,gif,jpg,png})");
     gui->fc->label("Body Image?");
     gui->fc->type(FileChooser::SINGLE);
     gui->fc->show();
@@ -3751,7 +3751,7 @@ GUI::openBookCB(Fl_Widget *w,	// I - Widget
   if (!gui->checkSave())
     return;
 
-  gui->fc->filter("*.book");
+  gui->fc->filter("Book Files (*.book)");
   gui->fc->label("Book File?");
   gui->fc->type(FileChooser::SINGLE);
   gui->fc->show();
@@ -3795,7 +3795,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
 
   REF(w);
 
-  gui->fc->filter("*.book");
+  gui->fc->filter("Book Files (*.book)");
   gui->fc->label("Book File?");
   gui->fc->type(FileChooser::CREATE);
   gui->fc->show();
@@ -4099,5 +4099,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.64 2004/02/10 22:08:31 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.65 2004/03/05 01:48:44 mike Exp $".
 //
