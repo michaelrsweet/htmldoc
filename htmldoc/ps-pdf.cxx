@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.76 2001/06/01 19:23:19 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.77 2001/06/01 20:40:52 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7485,7 +7485,7 @@ write_prolog(FILE  *out,	/* I - Output file */
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
 	    (int)(-timezone / 3600),
-	    ((timezone < 0 ? -timezone : timezone) / 60) % 60);
+	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
     if (title != NULL)
       fprintf(out, "%%%%Title: %s\n", title);
     if (author != NULL)
@@ -7868,7 +7868,7 @@ write_prolog(FILE  *out,	/* I - Output file */
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
 	    (int)(-timezone / 3600),
-	    ((timezone < 0 ? -timezone : timezone) / 60) % 60);
+	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
     write_string(out, (uchar *)temp, 0);
 
     if (title != NULL)
@@ -8684,5 +8684,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.76 2001/06/01 19:23:19 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.77 2001/06/01 20:40:52 mike Exp $".
  */
