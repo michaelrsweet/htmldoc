@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.9.2.5 2001/10/15 15:30:22 mike Exp $"
+ * "$Id: html.h,v 1.9.2.6 2001/10/31 17:15:54 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -208,8 +208,8 @@ typedef enum
 #  define SIZE_H7	0
 #  define SIZE_P	3
 #  define SIZE_PRE	2
-#  define SIZE_SUB	1
-#  define SIZE_SUP	1
+#  define SIZE_SUB	-2
+#  define SIZE_SUP	-2
 
 
 /*
@@ -308,5 +308,5 @@ extern void	htmlSetTextColor(uchar *color);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.5 2001/10/15 15:30:22 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.6 2001/10/31 17:15:54 mike Exp $".
  */

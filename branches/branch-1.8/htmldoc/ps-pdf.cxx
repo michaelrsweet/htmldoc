@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.120 2001/10/29 18:08:11 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.121 2001/10/31 17:15:56 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3143,6 +3143,25 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           *needspace = 1;
           break;
 
+      case MARKUP_DIV :
+          if (para->child != NULL)
+          {
+            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            htmlDeleteTree(para->child);
+            para->child = para->last_child = NULL;
+          }
+
+          parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
+	            needspace);
+
+          if (para->child != NULL)
+          {
+            parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
+            htmlDeleteTree(para->child);
+            para->child = para->last_child = NULL;
+          }
+          break;
+
       case MARKUP_PRE :
           if (para->child != NULL)
           {
@@ -3872,6 +3891,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       else if ((0.5 * temp->height) > height && temp->markup == MARKUP_IMG &&
                temp->valignment == ALIGN_MIDDLE)
         height = 0.5 * temp->height;
+
+      if (temp->superscript && height)
+        temp_height += height - temp_height;
     }
 
     for (spacing = 0.0, temp = prev = start;
@@ -3908,6 +3930,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         temp_height += 2 * borderspace;
       }
+
+      if (temp->subscript)
+        temp_height += height - temp_height;
 
       if (temp_height > spacing)
         spacing = temp_height;
@@ -5262,7 +5287,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         colspan --;
 
         if (cell_start[col] == NULL || row_spans[col] > 1 ||
-	    cells[row][col] == NULL)
+	    cells[row][col] == NULL || cells[row][col]->child == NULL)
 	  continue;
 
         if (row_spans[col])
@@ -5317,6 +5342,23 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	      break;
           }
         }
+#ifdef DEBUG
+        else
+	{
+	  if (cell_start[col] == cell_end[col])
+	    p = cell_start[col];
+	  else
+	    p = cell_start[col]->next;
+
+          for (; p != NULL; p = p->next)
+	  {
+	    printf("NOT aligning %p\n", p);
+
+            if (p == cell_end[col])
+	      break;
+          }
+	}
+#endif /* DEBUG */
       }
     }
 
@@ -7209,6 +7251,7 @@ get_cell_size(tree_t *t,		// I - Cell
       case MARKUP_BR :
       case MARKUP_CENTER :
       case MARKUP_DD :
+      case MARKUP_DIV :
       case MARKUP_DT :
       case MARKUP_H1 :
       case MARKUP_H2 :
@@ -10355,5 +10398,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.120 2001/10/29 18:08:11 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.121 2001/10/31 17:15:56 mike Exp $".
  */
