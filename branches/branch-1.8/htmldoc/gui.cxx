@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.59 2002/10/04 16:42:58 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.60 2002/12/11 21:46:20 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -80,6 +80,7 @@
 //
 
 #  include <ctype.h>
+#  include <time.h>
 #  include <math.h>
 #  include <FL/fl_ask.H>
 #  include <FL/Fl_Color_Chooser.H>
@@ -4062,5 +4063,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.59 2002/10/04 16:42:58 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.60 2002/12/11 21:46:20 mike Exp $".
 //
