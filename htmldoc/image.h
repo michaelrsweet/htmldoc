@@ -1,5 +1,5 @@
 /*
- * "$Id: image.h,v 1.5 2000/01/04 13:52:25 mike Exp $"
+ * "$Id: image.h,v 1.5.2.1 2001/01/18 21:27:33 mike Exp $"
  *
  *   Image management definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -32,7 +32,7 @@
 
 #  include <stdio.h>
 #  include <stdlib.h>
-#  include <string.h>
+#  include "string.h"
 
 #  include "types.h"
 
@@ -73,5 +73,5 @@ extern image_t	*image_load(const char *filename, int gray);
 #endif /* !_IMAGE_H_ */
 
 /*
- * End of "$Id: image.h,v 1.5 2000/01/04 13:52:25 mike Exp $".
+ * End of "$Id: image.h,v 1.5.2.1 2001/01/18 21:27:33 mike Exp $".
  */

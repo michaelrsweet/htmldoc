@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.2 2000/12/06 16:24:13 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.3 2001/01/18 21:27:32 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -500,9 +500,6 @@ image_load_png(image_t *img,	/* I - Image pointer */
   {
     png_set_packing(pp);
     png_set_expand(pp);
-
-    if (info->valid & PNG_INFO_sBIT)
-      png_set_shift(pp, &(info->sig_bit));
   }
   else if (info->bit_depth == 16)
     png_set_strip_16(pp);
@@ -1496,5 +1493,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.2 2000/12/06 16:24:13 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.3 2001/01/18 21:27:32 mike Exp $".
  */
