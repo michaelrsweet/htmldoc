@@ -1,10 +1,10 @@
 [FileGroups]
-group0=AFM Files
+group0=Font Files
 group1=Program Executables
 group2=Documentation
 group3=Data Files
 
-[AFM Files]
+[Font Files]
 SELFREGISTERING=No
 HTTPLOCATION=
 LANGUAGE=
