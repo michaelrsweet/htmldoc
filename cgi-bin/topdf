@@ -1,19 +1,25 @@
 #!/bin/sh
 #
-# Sample CGI shell script to convert the named HTML file to PDF on-the-fly.
+# Sample "portal" script to convert the named HTML file to PDF on-the-fly.
 #
 # Usage: http://www.domain.com/path/topdf/path/filename.html
 #
-# The filename on the command-line is relative to the document root of the
-# server.  This script is slightly more secure than the topdf.cgi script
-# since it will use the translated pathname coming from the HTTP server.
-# Just make sure your HTTP server is secure...
+
+#
+# The "options" variable contains any options you want to pass to HTMLDOC.
 #
 
-docroot=`dirname $PATH_TRANSLATED`
-cd $docroot
+options="-t pdf --quiet --jpeg --webpage --header .t. --footer .1."
+
+#
+# Tell the browser to expect a PDF file...
+#
 
 echo "Content-Type: application/pdf"
 echo ""
 
-htmldoc -t pdf --webpage $PATH_TRANSLATED
+#
+# Run HTMLDOC to generate the PDF file...
+#
+
+htmldoc $options http://${SERVER_NAME}:${SERVER_PORT}${PATH_INFO}?$QUERY_STRING

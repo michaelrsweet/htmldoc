@@ -1,4 +1,4 @@
-README.txt - 07/31/2000
+README.txt - 07/31/2003
 -----------------------
 
 INTRODUCTION
@@ -6,17 +6,19 @@ INTRODUCTION
     This README file describes HTMLDOC, a HTML processing program that
     generates HTML, PostScript, and PDF files with a table of contents.
 
+    **** HTMLDOC CURRENTLY ONLY SUPPORTS HTML 3.2 AND DOES NOT ****
+    **** SUPPORT STYLE SHEETS!  PLEASE READ THE DOCUMENTATION  ****
+    **** BEFORE ASKING QUESTIONS.                              ****
+
     Commercial support for HTMLDOC is available from Easy Software
-    Products for $99 US.  Besides giving you priority bug fixes and
+    Products for $495 US.  Besides giving you priority bug fixes and
     guaranteed support, the commercial support fee includes access to a
     "members only" web site that provides examples, tutorials, and tips
     for using HTMLDOC to publish documents on your web site.
 
-    HTMLDOC is copyright 1997-2000 by Easy Software Products and is
+    HTMLDOC is copyright 1997-2003 by Easy Software Products and is
     currently available under the GNU General Public License, version
     2.  See the LEGAL STUFF section below for details.
-
-    **** PLEASE READ THE DOCUMENTATION BEFORE ASKING QUESTIONS. ****
 
     Documentation for HTMLDOC is available in the "doc" subdirectory
     and is been generated from HTML "source" files into HTML,
@@ -29,10 +31,9 @@ INTRODUCTION
 
 INTERNET RESOURCES
 
-    Problem reports should be addressed to
-    "htmldoc-support@easysw.com".  For general discussions about
-    HTMLDOC, subscribe to the HTMLDOC mailing list by sending a message
-    to "majordomo@easysw.com" with the text "subscribe htmldoc".
+    For general discussions about HTMLDOC, subscribe to the HTMLDOC
+    mailing list by sending a message to "majordomo@easysw.com" with
+    the text "subscribe htmldoc".
 
     The HTMLDOC home page is located at:
 
@@ -42,22 +43,36 @@ INTERNET RESOURCES
 
         http://www.easysw.com/software.html
 
+    Commercial support is available from Easy Software Products; send
+    requests to "htmldoc-support@easysw.com" (note: support via this
+    email address is only provided to customers with a valid support
+    contract!)
+
 
 REQUIREMENTS
 
     HTMLDOC requires an average of 2MB of disk space for installation.
-    Binary distributions are available for the following platforms:
+    Binary distributions are available for the following platforms for
+    customers with a support contract:
 
+	- AIX 4.3.3 or higher
         - Compaq Tru64 UNIX 4.0 or higher
         - Digital UNIX 4.0 or higher
+	- FreeBSD 4.5 or higher
 	- HP-UX 10.20 or higher
 	- IRIX 5.3 or higher
 	- Linux 2.0 or higher (Intel only)
+	- MacOS X 10.1 or higher
 	- Microsoft Windows 95
 	- Microsoft Windows 98
+	- Microsoft Windows Me
 	- Microsoft Windows NT 4.0
+	- Microsoft Windows 2000
 	- Red Hat Linux 5.2 or higher (Intel only)
 	- Solaris 2.5 or higher (SPARC and Intel)
+
+    A free, unsupported binary distribution is also available for
+    Microsoft Windows.
 
     See the file "COMPILE.txt" for instructions on compiling HTMLDOC
     from the source code.
@@ -66,23 +81,34 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.9-windows.exe" file to start the installation
-    wizard.
+    the "htmldoc-1.8.24-windows.exe" or "htmldoc-1.8.24-winfree.exe" files
+    to start the installation wizard.
+
+    (the -windows file is the supported version, while the -winfree file
+     is the unsupported version)
 
 
 INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.9-linux-2.0.36-intel.rpm ENTER
+        rpm -i htmldoc-1.8.24-linux-2.0-intel.rpm ENTER
+
+    or:
+
+        rpm -i htmldoc-1.8.24-linux-2.2-intel.rpm ENTER
+
+    or:
+
+        rpm -i htmldoc-1.8.24-linux-2.4-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.9-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.9-platform.tar ENTER
+        gunzip htmldoc-1.8.24-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.24-platform.tar ENTER
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
@@ -162,9 +188,10 @@ RUNNING HTMLDOC FROM YOUR WEB SERVER
 CURRENT LIMITATIONS
 
     - No support for style sheets.
-    - ROWSPAN is not supported in tables.
+    - No support for HTML forms.
     - CAPTIONs are always shown at the top of the table.
-    - HTML 4.0 table elements and attributes are not supported.
+    - HTML 4.0 table elements and attributes are not supported
+      (rules, THEAD, TFOOT, etc.)
 
 
 CREDITS
@@ -184,10 +211,11 @@ CREDITS
 
 ENCRYPTION SUPPORT
 
-    HTMLDOC includes code to encrypt PDF document files using the RC4
-    algorithm with a 40-bit key. While this software and code may be
-    freely used and exported under current US laws, other countries may
-    restrict your use and possession of this code and software.
+    HTMLDOC includes code to encrypt PDF document files using
+    the RC4 algorithm with up to a 128-bit key. While this
+    software and code may be freely used and exported under
+    current US laws, other countries may restrict your use and
+    possession of this code and software.
 
 
 LEGAL STUFF
@@ -216,7 +244,7 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC is copyright 1997-2000 by Easy Software Products. This
+    HTMLDOC is copyright 1997-2003 by Easy Software Products. This
     program is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
