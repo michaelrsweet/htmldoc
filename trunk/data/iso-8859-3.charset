@@ -12,7 +12,7 @@
 2a asterisk
 2b plus
 2c comma
-2d minus
+2d hyphen
 2e period
 2f slash
 30 zero
@@ -131,7 +131,7 @@ a9 Idotaccent
 aa Scedilla
 ab Gbreve
 ac Jcircumflex
-ad hyphen
+ad minus
 af Zdotaccent
 b0 degree
 b1 hbar

@@ -12,7 +12,7 @@
 2a asterisk
 2b plus
 2c comma
-2d minus
+2d hyphen
 2e period
 2f slash
 30 zero
@@ -129,7 +129,7 @@ a8 dieresis
 a9 copyright
 ab guillemotleft
 ac logicalnot
-ad hyphen
+ad minus
 af afii00208
 b0 degree
 b1 plusminus

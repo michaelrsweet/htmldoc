@@ -12,7 +12,7 @@
 2a asterisk
 2b plus
 2c comma
-2d minus
+2d hyphen
 2e period
 2f slash
 30 zero
@@ -132,7 +132,7 @@ a9 Scaron
 aa Emacron
 ab Gcommaaccent
 ac Tbar
-ad hyphen
+ad minus
 ae Zcaron
 af macron
 b0 degree

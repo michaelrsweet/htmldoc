@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.6 2002/02/08 19:39:51 mike Exp $"
+// "$Id: style.h,v 1.7 2002/02/17 22:44:55 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -359,6 +359,25 @@ enum hdFontEncoding
   HD_FONTENCODING_UTF8
 };
 
+//
+// Kerning information...
+//
+
+struct hdFontKernPair		// Kerning pair data
+{
+  int		first,		// First character for kerning
+		second;		// First character for kerning
+  float		adjust;		// Horizontal adjustment
+};
+
+struct hdFontKernList		// Kerning data for strings
+{
+  const char	*s,		// String for this bunch of chars
+		length;		// Number of chars in string
+  float		width,		// Width of string
+		adjust;		// Horizontal adjustment at end...
+};
+
 
 //
 // Style data...
@@ -373,7 +392,9 @@ struct hdStyleFont
   hdFontInternal style;		// Internal font style
   hdFontEncoding encoding;	// Character encoding
   char		*ps_name,	// PostScript font name
-		*full_name;	// Full font name
+		*full_name,	// Full font name
+		*font_file;	// Font filename
+  int		fixed_width;	// Fixed width font?
   float		ul_position,	// Offset for underline
 		ul_thickness,	// Thickness for underline
 		cap_height,	// Height of uppercase letters
@@ -381,13 +402,20 @@ struct hdStyleFont
 		ascender,	// Highest point in font
 		descender;	// Lowest point in font
   int		num_widths;	// Number of widths in array
-  float		**widths;	// Character widths for 1pt text
-				// (arrays of 256 chars)
+  float		*widths;	// Character widths for 1pt text
+  int		num_kerns,	// Number of kerning pairs
+		*kerns_lut;	// Lookup array for start chars
+  hdFontKernPair *kerns;	// Kerning pairs array
 
   hdStyleFont(hdStyleSheet *css, hdFontFace t, hdFontInternal s, const char *n);
   ~hdStyleFont();
 
-  float		width(const char *s);
+  int		get_kerning(const char *s, hdFontKernList **kl);
+  float		get_width(const char *s);
+
+  int		read_afm(hdFile *fp, hdStyleSheet *css);
+  int		read_pfm(hdFile *fp, hdStyleSheet *css);
+  int		read_ttf(hdFile *fp, hdStyleSheet *css);
 };
 
 struct hdBorder
@@ -517,6 +545,9 @@ struct hdStyleSheet
   int		num_fonts;	// Number of fonts defined
   hdStyleFont	*fonts[HD_FONTFACE_MAX][HD_FONTINTERNAL_MAX];
 				// Array of fonts
+  char		*font_names[HD_FONTFACE_MAX];
+				// Names of base fonts...
+
   char		*charset;	// Character set
   hdFontEncoding encoding;	// Character encoding
   int		num_glyphs;	// Number of glyphs in charset
@@ -564,5 +595,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.6 2002/02/08 19:39:51 mike Exp $".
+// End of "$Id: style.h,v 1.7 2002/02/17 22:44:55 mike Exp $".
 //

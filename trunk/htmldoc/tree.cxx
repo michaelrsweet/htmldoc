@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.4 2002/02/09 23:54:39 mike Exp $"
+// "$Id: tree.cxx,v 1.5 2002/02/17 22:44:55 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -1023,21 +1023,33 @@ hdTree::parse_entity(hdFile       *fp,	// I - File to read from
   // into the correct UTF-8 stream...
   if (css->encoding == HD_FONTENCODING_8BIT || code < 128)
   {
+    // 7-bit ASCII value
     s[0] = code;
     s[1] = '\0';
   }
   else if (code < 2048)
   {
+    // 11-bit Unicode value
     s[0] = 0xc0 | (code >> 6);
     s[1] = 0x80 | (code & 63);
     s[2] = '\0';
   }
-  else
+  else if (code < 65536)
   {
+    // 16-bit Unicode value
     s[0] = 0xe0 | (code >> 12);
     s[1] = 0x80 | ((code >> 6) & 63);
     s[2] = 0x80 | (code & 63);
     s[3] = '\0';
+  }
+  else
+  {
+    // 21-bit Unicode value
+    s[0] = 0xf0 | (code >> 18);
+    s[1] = 0x80 | ((code >> 12) & 63);
+    s[2] = 0x80 | ((code >> 6) & 63);
+    s[3] = 0x80 | (code & 63);
+    s[4] = '\0';
   }
 }
 
@@ -1814,5 +1826,5 @@ htmlGetMeta(hdTree *tree,	/* I - Document tree */
 
 
 //
-// End of "$Id: tree.cxx,v 1.4 2002/02/09 23:54:39 mike Exp $".
+// End of "$Id: tree.cxx,v 1.5 2002/02/17 22:44:55 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: stylefont.cxx,v 1.1 2002/02/05 19:50:34 mike Exp $"
+// "$Id: stylefont.cxx,v 1.2 2002/02/17 22:44:55 mike Exp $"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
@@ -56,16 +56,84 @@ hdStyleFont::~hdStyleFont()
 
 
 //
-// 'hdStyleFont::width()' - Compute the width of a string.
+// 'hdStyleFont::get_kerning()' - Get the kerning list for a string.
+//
+
+int						// O - Number of kerning entries
+hdStyleFont::get_kerning(const char     *s,	// I - String to kern
+                         hdFontKernList **kl)	// O - Kerning list
+{
+}
+
+
+//
+// 'hdStyleFont::get_width()' - Compute the width of a string.
 //
 
 float					// O - Unscaled width
-hdStyleFont::width(const char *s)	// I - String to measure
+hdStyleFont::get_width(const char *s)	// I - String to measure
 {
   return (0.0f);
 }
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.1 2002/02/05 19:50:34 mike Exp $".
+// 'hdStyleFont::read_afm()' - Read a Type1 AFM file.
+//
+
+int					// O - 0 on success, -1 on error
+read_afm(hdFile       *fp,		// I - File to read from
+         hdStyleSheet *css)		// I - Stylesheet
+{
+  char		line[255],		// Line from file
+		*lineptr,		// Pointer into line
+		value[32],		// String value in line
+		value2[32];		// Second string value in line
+  int		number;			// Numeric value in line
+
+
+  while (fp->gets(line, sizeof(line)) != NULL)
+  {
+    // Get the initial keyword...
+    if ((lineptr = strchr(line, ' ')) != NULL)
+    {
+      // Nul-terminate the keyword, and then skip any remaining whitespace...
+      while (isspace(*lineptr))
+        *lineptr++ = '\0';
+    }
+
+    // 
+
+  }
+
+  return (0);
+}
+
+
+//
+// 'hdStyleFont::read_pfm()' - Read a Type1 PFM file.
+//
+
+int					// O - 0 on success, -1 on error
+read_pfm(hdFile       *fp,		// I - File to read from
+         hdStyleSheet *css)		// I - Stylesheet
+{
+  return (0);
+}
+
+
+//
+// 'hdStyleFont::read_ttf()' - Read a TrueType font file.
+//
+
+int					// O - 0 on success, -1 on error
+read_ttf(hdFile       *fp,		// I - File to read from
+         hdStyleSheet *css)		// I - Stylesheet
+{
+  return (0);
+}
+
+
+//
+// End of "$Id: stylefont.cxx,v 1.2 2002/02/17 22:44:55 mike Exp $".
 //

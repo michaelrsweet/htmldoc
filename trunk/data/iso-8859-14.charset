@@ -12,7 +12,7 @@
 2a asterisk
 2b plus
 2c comma
-2d minus
+2d hyphen
 2e period
 2f slash
 30 zero
@@ -128,7 +128,7 @@ a8 Wgrave
 a9 copyright
 aa Wacute
 ac Ygrave
-ad hyphen
+ad minus
 ae registered
 af Ydieresis
 b2 Gdotaccent

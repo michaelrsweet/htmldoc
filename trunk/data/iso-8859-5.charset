@@ -12,7 +12,7 @@
 2a asterisk
 2b plus
 2c comma
-2d minus
+2d hyphen
 2e period
 2f slash
 30 zero
@@ -132,7 +132,7 @@ a9 afii10058
 aa afii10059
 ab afii10060
 ac afii10061
-ad hyphen
+ad minus
 ae afii10062
 af afii10145
 b0 afii10017

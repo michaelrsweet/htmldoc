@@ -12,7 +12,7 @@
 2a asterisk
 2b plus
 2c comma
-2d minus
+2d hyphen
 2e period
 2f slash
 30 zero
@@ -131,7 +131,7 @@ a9 copyright
 aa multiply
 ab guillemotleft
 ac logicalnot
-ad hyphen
+ad minus
 ae registered
 b0 degree
 b1 plusminus
