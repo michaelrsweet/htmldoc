@@ -1,4 +1,4 @@
-CHANGES.txt - 05/30/2001
+CHANGES.txt - 05/31/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.13
@@ -11,6 +11,7 @@ CHANGES IN HTMLDOC v1.8.13
 	- Added a --no-jpeg option (same as --jpeg=0)
 	- Added support for the CSS2 page-break-before and
 	  page-break-after properties.
+	- Added a PHP example.
 
     CHANGES
 
