@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.242 2004/04/05 20:26:50 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.243 2004/04/15 19:58:20 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3836,7 +3836,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
 
       // Strip any trailing HTTP GET data stuff...
-      strncpy((char *)name, (char *)htmlGetVariable(t, (uchar *)"FILENAME"),
+      strncpy((char *)name, (char *)htmlGetVariable(t, (uchar *)"_HD_FILENAME"),
               sizeof(name) - 1);
       name[sizeof(name) - 1] = '\0';
 
@@ -4574,7 +4574,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         if (temp->link)
 	{
-          link = htmlGetVariable(temp->link, (uchar *)"HREF");
+          link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF");
 
 	 /*
 	  * Add a page link...
@@ -4665,7 +4665,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         if (temp->link)
 	{
-          link = htmlGetVariable(temp->link, (uchar *)"HREF");
+          link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF");
 
 	 /*
 	  * Add a page link...
@@ -5116,7 +5116,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
       if (temp->link != NULL)
       {
-        link = htmlGetVariable(temp->link, (uchar *)"HREF");
+        link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF");
 
        /*
 	* Add a page link...
@@ -5282,7 +5282,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     {
       if (start->link != NULL)
       {
-	link = htmlGetVariable(start->link, (uchar *)"HREF");
+	link = htmlGetVariable(start->link, (uchar *)"_HD_FULL_HREF");
 
        /*
 	* Add a page link...
@@ -12271,5 +12271,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.242 2004/04/05 20:26:50 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.243 2004/04/15 19:58:20 mike Exp $".
  */
