@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.12 2002/04/03 02:18:52 mike Exp $"
+// "$Id: tree.cxx,v 1.13 2002/04/03 02:29:30 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -1235,9 +1235,6 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 	    t->element == HD_ELEMENT_TITLE)
           whitespace = 0;
 
-        t->whitespace = whitespace;
-	whitespace    = 0;
-
         // If this is the matching close mark, or if we are starting the
 	// same element, or if we've completed a list, we're done!
 	if (ch == '/')
@@ -1833,5 +1830,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.12 2002/04/03 02:18:52 mike Exp $".
+// End of "$Id: tree.cxx,v 1.13 2002/04/03 02:29:30 mike Exp $".
 //
