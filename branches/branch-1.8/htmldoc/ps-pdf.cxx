@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.134 2001/11/21 17:47:33 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.135 2001/11/29 14:01:18 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3712,16 +3712,19 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  }
 
 	  // Top
-          new_render(*page, RENDER_BOX, image_left, *y,
+          new_render(*page, RENDER_BOX, image_left, *y - borderspace,
 		     temp->width + 2 * borderspace, borderspace, rgb);
 	  // Left
-          new_render(*page, RENDER_BOX, image_left, *y,
+          new_render(*page, RENDER_BOX, image_left,
+	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Right
-          new_render(*page, RENDER_BOX, image_left + temp->width + borderspace, *y,
+          new_render(*page, RENDER_BOX, image_left + temp->width + borderspace,
+	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Bottom
-          new_render(*page, RENDER_BOX, image_left, *y + temp->height + borderspace,
+          new_render(*page, RENDER_BOX, image_left,
+	             *y - temp->height - 2 * borderspace,
                      temp->width + 2 * borderspace, borderspace, rgb);
 	}
 
@@ -3781,16 +3784,18 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  }
 
 	  // Top
-          new_render(*page, RENDER_BOX, image_right, *y,
+          new_render(*page, RENDER_BOX, image_right, *y - borderspace,
 		     temp->width + 2 * borderspace, borderspace, rgb);
 	  // Left
-          new_render(*page, RENDER_BOX, image_right, *y,
+          new_render(*page, RENDER_BOX, image_right,
+	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Right
-          new_render(*page, RENDER_BOX, image_right + temp->width + borderspace, *y,
+          new_render(*page, RENDER_BOX, image_right + temp->width + borderspace,
+	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Bottom
-          new_render(*page, RENDER_BOX, image_right, *y + temp->height + borderspace,
+          new_render(*page, RENDER_BOX, image_right, *y - temp->height - 2 * borderspace,
                      temp->width + 2 * borderspace, borderspace, rgb);
 	}
 
@@ -4215,16 +4220,18 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             if (borderspace > 0.0f)
 	    {
 	      // Top
-              new_render(*page, RENDER_BOX, linex, *y + offset,
+              new_render(*page, RENDER_BOX, linex,
+	                 *y + offset + temp->height + borderspace,
 			 temp->width + 2 * borderspace, borderspace, rgb);
 	      // Left
               new_render(*page, RENDER_BOX, linex, *y + offset,
                 	 borderspace, temp->height + 2 * borderspace, rgb);
 	      // Right
-              new_render(*page, RENDER_BOX, linex + temp->width + borderspace, *y + offset,
-                	 borderspace, temp->height + 2 * borderspace, rgb);
+              new_render(*page, RENDER_BOX, linex + temp->width + borderspace,
+	                 *y + offset, borderspace,
+			 temp->height + 2 * borderspace, rgb);
 	      // Bottom
-              new_render(*page, RENDER_BOX, linex, *y + offset + temp->height + borderspace,
+              new_render(*page, RENDER_BOX, linex, *y + offset,
                 	 temp->width + 2 * borderspace, borderspace, rgb);
 	    }
 
@@ -10580,5 +10587,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.134 2001/11/21 17:47:33 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.135 2001/11/29 14:01:18 mike Exp $".
  */
