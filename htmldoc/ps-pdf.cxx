@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.53 2000/03/11 17:17:53 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.54 2000/03/13 20:52:44 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -343,7 +343,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 		height;		/* Height of title area */
   int		page,		/* Current page # */
 		heading;	/* Current heading # */
-  int		top, bottom;	/* Top and bottom margins... */
+  float		top, bottom;	/* Top and bottom margins... */
   image_t	*timage;	/* Title image */
   float		timage_width,	/* Title image width */
 		timage_height;	/* Title image height */
@@ -475,7 +475,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       {
 	r = new_render(0, RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
                        y - timage_height, timage_width, timage_height, timage);
-	y -= timage->height + _htmlSpacings[SIZE_P];
+	y -= timage_height + _htmlSpacings[SIZE_P];
       }
 
       get_color(_htmlTextColor, rgb);
@@ -2313,7 +2313,10 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
         	  memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
         	  if (temp->superscript)
-        	    r->y += height / 1.2 - temp->height * 1.2;
+        	    r->y += height - temp->height;
+        	  else if (temp->subscript)
+        	    r->y -= height * _htmlSizes[0] / _htmlSpacings[0] -
+		            temp->height;
 		  break;
 
 	      case MARKUP_IMG :
@@ -3335,7 +3338,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	if (linetype->superscript)
-          r->y += height / 1.2 - linetype->height * 1.2;
+          r->y += height - linetype->height;
+        else if (linetype->subscript)
+          r->y -= height * _htmlSizes[0] / _htmlSpacings[0] -
+		  linetype->height;
 
         free(linetype);
         linetype = NULL;
@@ -3424,7 +3430,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
       if (linetype->superscript)
-        r->y += height / 1.2 - linetype->height * 1.2;
+        r->y += height - linetype->height;
+      else if (linetype->subscript)
+        r->y -= height * _htmlSizes[0] / _htmlSpacings[0] -
+		linetype->height;
 
       free(linetype);
     }
@@ -6771,5 +6780,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.53 2000/03/11 17:17:53 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.54 2000/03/13 20:52:44 mike Exp $".
  */

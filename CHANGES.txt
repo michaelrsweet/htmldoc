@@ -1,6 +1,25 @@
 CHANGES.txt - 03/06/2000
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.6
+
+    CHANGES
+
+	- Minor source changes for OS/2 compilation.
+	- SUP and SUB now raise/lower text more to be consistent with
+	  browser look-n-feel.
+
+    BUG FIXES
+
+	- Cells that spanned more than two pages were drawn with boxes
+	  around them rather than just the sides.
+	- The stylesheet info in the HTML output specified the H1 size
+	  for all headings.
+	- The title page was incorrectly formatted when an image was
+	  specified - the text start position was computed using the
+	  pixel height of the title image and not the formatted height.
+
+
 CHANGES IN HTMLDOC v1.8.5
 
     NEW FEATURES

@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.5 2000/01/04 13:52:21 mike Exp $"
+# "$Id: Makefile.in,v 1.6 2000/03/13 20:52:42 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -43,7 +43,7 @@ DIRS	=	@GUI@ jpeg png zlib htmldoc doc
 all:	config.h
 	for dir in $(DIRS); do\
 		echo Making all in $$dir...;\
-		(cd $$dir; $(MAKE));\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
 	done
 
 
@@ -54,7 +54,7 @@ all:	config.h
 clean:
 	for dir in $(DIRS); do\
 		echo Cleaning in $$dir...;\
-		(cd $$dir; $(MAKE) clean);\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS) clean) || break;\
 	done
 
 
@@ -64,13 +64,13 @@ clean:
 
 install:
 	echo Installing in afm...
-	(cd afm; $(MAKE) install)
+	(cd afm; $(MAKE) -$(MAKEFLAGS) install)
 	echo Installing in data...
-	(cd data; $(MAKE) install)
+	(cd data; $(MAKE) -$(MAKEFLAGS) install)
 	echo Installing in doc...
-	(cd doc; $(MAKE) install)
+	(cd doc; $(MAKE) -$(MAKEFLAGS) install)
 	echo Installing in htmldoc...
-	(cd htmldoc; $(MAKE) install)
+	(cd htmldoc; $(MAKE) -$(MAKEFLAGS) install)
 	echo Installation is complete.
 
 
@@ -117,5 +117,5 @@ tardist:
 
 
 #
-# End of "$Id: Makefile.in,v 1.5 2000/01/04 13:52:21 mike Exp $".
+# End of "$Id: Makefile.in,v 1.6 2000/03/13 20:52:42 mike Exp $".
 #
