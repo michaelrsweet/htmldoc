@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.5.2.2 2001/02/02 15:11:04 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.3 2001/08/29 20:57:57 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -129,7 +129,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
 		*existing;	/* Existing link string */
   int		i, level;	/* Header level */
   uchar		*var;		/* Starting value/type for this level */
-  static char	*ones[10] =
+  static const char *ones[10] =
 		{
 		  "",	"i",	"ii",	"iii",	"iv",
 		  "v",	"vi",	"vii",	"viii",	"ix"
@@ -353,5 +353,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5.2.2 2001/02/02 15:11:04 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.3 2001/08/29 20:57:57 mike Exp $".
  */

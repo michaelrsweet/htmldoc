@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.10.2.4 2001/08/17 01:55:35 mike Exp $"
+# "$Id: Makefile.in,v 1.10.2.5 2001/08/29 20:57:50 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -41,7 +41,7 @@ INSTALLDIRS =	afm data doc htmldoc
 # Make all targets...
 #
 
-all:	Makedefs
+all:	Makedefs config.h
 	for dir in $(DIRS); do\
 		echo Making all in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
@@ -75,7 +75,20 @@ install:
 # Makedefs
 #
 
-Makedefs:	config.h.in Makedefs.in configure
+Makedefs:	Makedefs.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+
+
+#
+# config.h
+#
+
+config.h:	config.h.in configure
 	if test -f config.status; then \
 		./config.status --recheck; \
 		./config.status; \
@@ -133,5 +146,5 @@ depot:
 
 
 #
-# End of "$Id: Makefile.in,v 1.10.2.4 2001/08/17 01:55:35 mike Exp $".
+# End of "$Id: Makefile.in,v 1.10.2.5 2001/08/29 20:57:50 mike Exp $".
 #
