@@ -1,6 +1,18 @@
 CHANGES.txt - 06/29/2000
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.9
+
+    NEW FEATURES
+
+    CHANGES
+
+    BUG FIXES
+
+	- Didn't allow &#nnn; character escapes inside
+	  preformatted text.
+
+
 CHANGES IN HTMLDOC v1.8.8
 
     NEW FEATURES
