@@ -603,7 +603,12 @@ are loaded by HTMLDOC. It is usually used to get images that use absolute
 server paths to load.
 
 <P>Directories are separated by the semicolon (;) so that drive letters
-and URLs can be specified.
+and URLs can be specified.  Quotes around the directory parameter are
+optional.  They are usually used when the directory string contains spaces.
+
+<UL><PRE>
+<KBD>--path "dir1;dir2;dir3;...;dirN"</KBD>
+</PRE></UL>
 
 <!-- NEED 5in -->
 <H3>--permissions permission</H3>
