@@ -57,7 +57,8 @@ CONFIGURING HTMLDOC UNDER UNIX
     If the FLTK library is in a non-standard location you can
     specify it using:
 
-        ./configure --with-fltk=/some/directory
+        ./configure --with-fltk-includes=/some/directory/include \
+	    --with-fltk-libs=/some/directory/lib
 
     If you aren't using "cc" or "gcc" for your ANSI C compiler,
     you'll need to set the CC environment variable prior to
