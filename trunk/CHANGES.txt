@@ -38,6 +38,12 @@ CHANGES IN HTMLDOC v1.8.6
 	  to avoid potential buffer overflow problems in CGIs.
 	- If a row had a predefined height, HTMLDOC wasn't making sure
 	  that the row would fit on the current page.
+	- THEAD, TFOOT, and TBODY caused problems when formatting tables.
+	  Note: THEAD and TFOOT are *still* not supported, however the
+	  code now properly ignores them and parses the rows in the
+	  TBODY group.
+	- The VALIGN code introduced in the 1.8.5 release didn't check
+	  for NULL pointers in all cases.
 
 
 CHANGES IN HTMLDOC v1.8.5
