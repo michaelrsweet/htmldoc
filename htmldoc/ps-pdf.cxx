@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.241 2004/04/02 22:04:56 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.242 2004/04/05 20:26:50 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4827,9 +4827,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       else if ((0.5 * temp->height) > height && temp->markup == MARKUP_IMG &&
                temp->valignment == ALIGN_MIDDLE)
         height = 0.5 * temp->height;
-
-      if (temp->superscript && height)
-        temp_height += height - temp_height;
     }
 
     for (spacing = 0.0, temp = prev = start;
@@ -4866,9 +4863,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         temp_height += 2 * borderspace;
       }
-
-      if (temp->subscript)
-        temp_height += height - temp_height;
 
       if (temp_height > spacing)
         spacing = temp_height;
@@ -4984,18 +4978,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	   temp->green != linetype->green ||
 	   temp->blue != linetype->blue))
       {
-        switch (linetype->valignment)
-	{
-	  case ALIGN_TOP :
-	      offset = height - linetype->height;
-	      break;
-	  case ALIGN_MIDDLE :
-	      offset = 0.5f * (height - linetype->height);
-	      break;
-	  case ALIGN_BOTTOM :
-	      offset = 0.0f;
-	}
-
         r = new_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
 	               linewidth, linetype->height, line);
 	r->data.text.typeface = linetype->typeface;
@@ -5012,7 +4994,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         free(linetype);
         linetype = NULL;
       }
-
 
       switch (temp->markup)
       {
@@ -5040,18 +5021,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	                     "Text on page %d too large - "
 			     "truncation or overlapping may occur!", *page + 1);
 
-	    switch (temp->valignment)
-	    {
-	      case ALIGN_TOP :
-		  offset = height - temp->height;
-		  break;
-	      case ALIGN_MIDDLE :
-		  offset = 0.5f * (height - temp->height);
-		  break;
-	      case ALIGN_BOTTOM :
-		  offset = 0.0f;
-	    }
-
             if (linetype == NULL)
             {
 	      linetype  = temp;
@@ -5068,10 +5037,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             temp_width = temp->width + char_spacing * strlen((char *)lineptr);
 
 	    if (temp->underline || (temp->link && LinkStyle && PSLevel == 0))
-	      new_render(*page, RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
+	      new_render(*page, RENDER_BOX, linex, *y - 1, temp_width, 0, rgb);
 
 	    if (temp->strikethrough)
-	      new_render(*page, RENDER_BOX, linex, *y + offset + temp->height * 0.25f,
+	      new_render(*page, RENDER_BOX, linex, *y + temp->height * 0.25f,
 	                 temp_width, 0, rgb);
 
             linewidth  += temp_width;
@@ -5178,19 +5147,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     if (linetype != NULL)
     {
-      switch (linetype->valignment)
-      {
-	case ALIGN_TOP :
-	    offset = height - linetype->height;
-	    break;
-	case ALIGN_MIDDLE :
-	    offset = 0.5f * (height - linetype->height);
-	    break;
-	case ALIGN_BOTTOM :
-	    offset = 0.0f;
-      }
-
-      r = new_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
+      r = new_render(*page, RENDER_TEXT, linex - linewidth, *y,
                      linewidth, linetype->height, line);
       r->data.text.typeface = linetype->typeface;
       r->data.text.style    = linetype->style;
@@ -12314,5 +12271,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.241 2004/04/02 22:04:56 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.242 2004/04/05 20:26:50 mike Exp $".
  */
