@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.19 2000/01/04 13:45:50 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.20 2000/03/14 15:33:36 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -41,10 +41,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
 #  include <windows.h>
 #  include <direct.h>
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
+
+#if defined(__EMX__)
+#define  INCL_DOS
+#define  INCL_DOSMISC
+#include <os2.h>
+#endif /* __EMX__ */
 
 
 //
@@ -112,6 +118,7 @@ FileBrowser::item_height(void *p) const	// I - List item data
 int					// O - Width in pixels
 FileBrowser::item_width(void *p) const	// I - List item data
 {
+  int		i;			// Looping var
   FL_BLINE	*line;			// Pointer to line
   char		*text,			// Pointer into text
 		*ptr,			// Pointer into fragment
@@ -119,16 +126,18 @@ FileBrowser::item_width(void *p) const	// I - List item data
   int		width,			// Width of line
 		tempwidth;		// Width of fragment
   int		column;			// Current column
+  const int	*columns;		// Columns
 
 
   // Set the font and size...
   fl_font(textfont(), textsize());
 
   // Scan for newlines...
-  line = (FL_BLINE *)p;
+  line    = (FL_BLINE *)p;
+  columns = column_widths();
 
   if (strchr(line->txt, '\n') == NULL &&
-      strchr(line->txt, '\t') == NULL)
+      strchr(line->txt, column_char()) == NULL)
   {
     // Do a fast width calculation...
     width = (int)fl_width(line->txt);
@@ -156,11 +165,17 @@ FileBrowser::item_width(void *p) const	// I - List item data
 	ptr       = fragment;
 	tempwidth = 0;
       }
-      else if (*text == '\t')
+      else if (*text == column_char())
       {
         // Advance to the next column...
         column ++;
-        tempwidth = column * (int)fl_width("        ");
+	if (columns)
+	{
+	  for (i = 0, tempwidth = 0; i < column && columns[i]; i ++)
+	    tempwidth += columns[column - 1];
+	}
+	else
+          tempwidth = column * (int)fl_width("        ");
 
         if (tempwidth > width)
 	  width = tempwidth;
@@ -206,8 +221,16 @@ FileBrowser::item_draw(void *p,		// I - List item data
 		       int  w,		// I - Width of item
 		       int  h) const	// I - Height of item
 {
+  int		i;			// Looping var
   FL_BLINE	*line;			// Pointer to line
   Fl_Color	c;			// Text color
+  char		*text,			// Pointer into text
+		*ptr,			// Pointer into fragment
+		fragment[10240];	// Fragment of text
+  int		width,			// Width of line
+		height;			// Height of line
+  int		column;			// Current column
+  const int	*columns;		// Columns
 
 
   // Draw the list item text...
@@ -220,28 +243,92 @@ FileBrowser::item_draw(void *p,		// I - List item data
   else
     c = textcolor();
 
-  if (active_r())
-    fl_color(c);
-  else
-    fl_color(inactive(c));
-
   if (FileIcon::first() == NULL)
   {
     // No icons, just draw the text...
-    fl_draw(line->txt, x + 1, y, w - 2, h, FL_ALIGN_LEFT);
+    x ++;
+    w -= 2;
   }
   else
   {
-    // Icons; draw the text offset to the right...
-    fl_draw(line->txt, x + iconsize_ + 9, y, w - iconsize_ - 10, h,
-            FL_ALIGN_LEFT);
-
-    // And then draw the icon if it is set...
+    // Draw the icon if it is set...
     if (line->data)
       ((FileIcon *)line->data)->draw(x, y, iconsize_, iconsize_,
                                      (line->flags & SELECTED) ? FL_YELLOW :
 				                                FL_LIGHT2,
 				     active_r());
+
+    // Draw the text offset to the right...
+    x += iconsize_ + 9;
+    w -= iconsize_ - 10;
+
+    // Center the text vertically...
+    line   = (FL_BLINE *)p;
+    height = fl_height();
+
+    for (text = line->txt; *text != '\0'; text ++)
+      if (*text == '\n')
+	height += fl_height();
+
+    if (height < iconsize_)
+      y += (iconsize_ - height) / 2;
+  }
+
+  // Draw the text...
+  line    = (FL_BLINE *)p;
+  columns = column_widths();
+  width   = 0;
+  column  = 0;
+
+  if (active_r())
+    fl_color(c);
+  else
+    fl_color(inactive(c));
+
+  for (text = line->txt, ptr = fragment; *text != '\0'; text ++)
+    if (*text == '\n')
+    {
+      // Newline - nul terminate this fragment and draw it...
+      *ptr = '\0';
+
+      fl_draw(fragment, x + width, y, w - width, fl_height(),
+              (Fl_Align)(FL_ALIGN_LEFT | FL_ALIGN_CLIP));
+
+      // Point back to the start of the fragment...
+      ptr   = fragment;
+      width = 0;
+      y     += fl_height();
+    }
+    else if (*text == column_char())
+    {
+      // Tab - nul terminate this fragment and draw it...
+      *ptr = '\0';
+
+      fl_draw(fragment, x + width, y, w - width, fl_height(),
+              (Fl_Align)(FL_ALIGN_LEFT | FL_ALIGN_CLIP));
+
+      // Advance to the next column...
+      column ++;
+      if (columns)
+      {
+	for (i = 0, width = 0; i < column && columns[i]; i ++)
+	  width += columns[column - 1];
+      }
+      else
+        width = column * (int)fl_width("        ");
+
+      ptr = fragment;
+    }
+    else
+      *ptr++ = *text;
+
+  if (ptr > fragment)
+  {
+    // Nul terminate this fragment and draw it...
+    *ptr = '\0';
+
+    fl_draw(fragment, x + width, y, w - width, fl_height(),
+            (Fl_Align)(FL_ALIGN_LEFT | FL_ALIGN_CLIP));
   }
 }
 
@@ -304,6 +391,22 @@ FileBrowser::load(const char *directory)// I - Directory to load
 	  add(filename, icon);
 	else
 	  add(filename, icon);
+
+	num_files ++;
+      }
+#elif defined(__EMX__)
+    ULONG	curdrive;	// Current drive
+    ULONG	drives;		// Drive available bits
+    int		start = 3;      // 'C' (MRS - dunno if this is correct!)
+
+
+    DosQueryCurrentDisk(&curdrive, &drives);
+    drives >>= start - 1;
+    for (i = 'A'; i <= 'Z'; i ++, drives >>= 1)
+      if (drives & 1)
+      {
+        sprintf(filename, "%c:", i);
+        add(filename, icon);
 
 	num_files ++;
       }
@@ -411,5 +514,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.19 2000/01/04 13:45:50 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.20 2000/03/14 15:33:36 mike Exp $".
 //
