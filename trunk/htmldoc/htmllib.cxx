@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.36 2000/06/30 13:00:05 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.37 2000/07/11 13:57:16 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -525,7 +525,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           for (glyphptr = glyph;
                (ch = getc(fp)) != EOF && (glyphptr - glyph) < 15;
                glyphptr ++)
-            if (!isalnum(ch))
+            if (ch == ';' || isspace(ch))
               break;
             else
               *glyphptr = ch;
@@ -2295,5 +2295,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.36 2000/06/30 13:00:05 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.37 2000/07/11 13:57:16 mike Exp $".
  */
