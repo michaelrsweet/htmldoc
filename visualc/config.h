@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.16 2000/05/17 20:19:07 mike Exp $"
+ * "$Id: config.h,v 1.17 2000/05/17 20:44:02 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -38,6 +38,15 @@
 
 
 /*
+ * Do we have the image libraries?
+ */
+
+#define HAVE_LIBJPEG
+#define HAVE_LIBPNG
+#define HAVE_LIBZ
+
+
+/*
  * Do we have some of the "standard" string functions?
  */
 
@@ -66,6 +75,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h,v 1.16 2000/05/17 20:19:07 mike Exp $".
+ * End of "$Id: config.h,v 1.17 2000/05/17 20:44:02 mike Exp $".
  */
 

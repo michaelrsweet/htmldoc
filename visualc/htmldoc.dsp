@@ -133,6 +133,10 @@ SOURCE=..\htmldoc\string.c
 
 SOURCE=..\htmldoc\toc.cxx
 # End Source File
+# Begin Source File
+
+SOURCE=..\htmldoc\util.cxx
+# End Source File
 # End Group
 # Begin Group "Headers"
 
