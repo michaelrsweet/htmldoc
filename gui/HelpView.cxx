@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.22 2000/03/19 23:27:14 mike Exp $"
+// "$Id: HelpView.cxx,v 1.23 2000/03/21 04:03:29 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -226,7 +226,7 @@ HelpView::do_align(HelpBlock *block,	// I - Block to add to
     case CENTER :	// Center
 	offset = (block->w - xx) / 2;
 	break;
-    case LEFT :		// Left align
+    default :		// Left align
 	offset = 0;
 	break;
   }
@@ -541,33 +541,33 @@ HelpView::draw()
 	    popfont(font, size);
 	    pre = 0;
 	  }
-	}
-	else if (strcasecmp(buf, "IMG") == 0 &&
-        	 get_attr(attrs, "ALT", attr, sizeof(attr)) != NULL)
-	{
-	  // Show alt text...
-	  sprintf(buf, "[%s]", attr);
-	  ww = (int)fl_width(buf);
-
-          if (needspace && xx > block->x)
-	    xx += (int)fl_width(' ');
-
-          if ((xx + ww) > block->w)
+	  else if (strcasecmp(buf, "IMG") == 0 &&
+        	   get_attr(attrs, "ALT", attr, sizeof(attr)) != NULL)
 	  {
-	    if (line < 31)
-	      line ++;
-	    xx = block->line[line];
-	    yy += hh;
-	    hh = 0;
+	    // Show alt text...
+	    sprintf(buf, "[%s]", attr);
+	    ww = (int)fl_width(buf);
+
+            if (needspace && xx > block->x)
+	      xx += (int)fl_width(' ');
+
+            if ((xx + ww) > block->w)
+	    {
+	      if (line < 31)
+		line ++;
+	      xx = block->line[line];
+	      yy += hh;
+	      hh = 0;
+	    }
+
+            fl_draw(buf, xx + x(), yy + y());
+
+            xx += ww;
+	    if ((size + 2) > hh)
+	      hh = size + 2;
+
+	    needspace = 0;
 	  }
-
-          fl_draw(buf, xx + x(), yy + y());
-
-          xx += ww;
-	  if ((size + 2) > hh)
-	    hh = size + 2;
-
-	  needspace = 0;
 	}
 	else if (*ptr == '\n' && pre)
 	{
@@ -731,6 +731,9 @@ HelpView::format()
   links     = 0;
   xx        = 4;
   yy        = size + 2;
+  ww        = 0;
+  column    = 0;
+  border    = 0;
   hh        = 0;
   block     = add_block(value_, xx, yy, w() - 24, 0);
   row       = 0;
@@ -1160,33 +1163,33 @@ HelpView::format()
 	       strcasecmp(buf, "/KBD") == 0 ||
 	       strcasecmp(buf, "/VAR") == 0)
 	popfont(font, size);
-    }
-    else if (strcasecmp(buf, "IMG") == 0 &&
-             get_attr(attrs, "ALT", attr, sizeof(attr)) != NULL)
-    {
-      // Show alt text...
-      ww = (int)(fl_width(attr) + fl_width('[') + fl_width(']'));
-
-      if (needspace && xx > block->x)
-	ww += (int)fl_width(' ');
-
-      if ((xx + ww) > block->w)
+      else if (strcasecmp(buf, "IMG") == 0 &&
+               get_attr(attrs, "ALT", attr, sizeof(attr)) != NULL)
       {
-        line     = do_align(block, line, xx, align, links);
-	xx       = block->x;
-	yy       += hh;
-	block->h += hh;
-	hh       = 0;
+	// Show alt text...
+	ww = (int)(fl_width(attr) + fl_width('[') + fl_width(']'));
+
+	if (needspace && xx > block->x)
+	  ww += (int)fl_width(' ');
+
+	if ((xx + ww) > block->w)
+	{
+          line     = do_align(block, line, xx, align, links);
+	  xx       = block->x;
+	  yy       += hh;
+	  block->h += hh;
+	  hh       = 0;
+	}
+
+	if (link[0])
+	  add_link(link, xx, yy - size, ww, size);
+
+	xx += ww;
+	if ((size + 2) > hh)
+	  hh = size + 2;
+
+	needspace = 0;
       }
-
-      if (link[0])
-	add_link(link, xx, yy - size, ww, size);
-
-      xx += ww;
-      if ((size + 2) > hh)
-	hh = size + 2;
-
-      needspace = 0;
     }
     else if (*ptr == '\n' && pre)
     {
@@ -1795,5 +1798,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.22 2000/03/19 23:27:14 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.23 2000/03/21 04:03:29 mike Exp $".
 //

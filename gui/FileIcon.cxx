@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.19 2000/01/22 15:21:07 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.20 2000/03/21 04:03:29 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -542,7 +542,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     // OK, this character better be a letter...
     if (!isalpha(ch))
     {
-      fprintf(stderr, "FileIcon::load_fti(): Expected a letter at file position %d (saw '%c')\n",
+      fprintf(stderr, "FileIcon::load_fti(): Expected a letter at file position %ld (saw '%c')\n",
               ftell(fp) - 1, ch);
       break;
     }
@@ -564,7 +564,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     // Make sure we stopped on a parenthesis...
     if (ch != '(')
     {
-      fprintf(stderr, "FileIcon::load_fti(): Expected a ( at file position %d (saw '%c')\n",
+      fprintf(stderr, "FileIcon::load_fti(): Expected a ( at file position %ld (saw '%c')\n",
               ftell(fp) - 1, ch);
       break;
     }
@@ -585,7 +585,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     // Make sure we stopped on a parenthesis...
     if (ch != ')')
     {
-      fprintf(stderr, "FileIcon::load_fti(): Expected a ) at file position %d (saw '%c')\n",
+      fprintf(stderr, "FileIcon::load_fti(): Expected a ) at file position %ld (saw '%c')\n",
               ftell(fp) - 1, ch);
       break;
     }
@@ -593,7 +593,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     // Make sure the next character is a semicolon...
     if ((ch = getc(fp)) != ';')
     {
-      fprintf(stderr, "FileIcon::load_fti(): Expected a ; at file position %d (saw '%c')\n",
+      fprintf(stderr, "FileIcon::load_fti(): Expected a ; at file position %ld (saw '%c')\n",
               ftell(fp) - 1, ch);
       break;
     }
@@ -684,7 +684,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     }
     else
     {
-      fprintf(stderr, "FileIcon::load_fti(): Unknown command \"%s\" at file position %d.\n",
+      fprintf(stderr, "FileIcon::load_fti(): Unknown command \"%s\" at file position %ld.\n",
               command, ftell(fp) - 1);
       break;
     }
@@ -728,6 +728,7 @@ FileIcon::load_xpm(const char *xpm)	// I - File to read from
     return;
 
   // Read the file header until we find the first string...
+  ptr = NULL;
   while (fgets(line, sizeof(line), fp) != NULL)
     if ((ptr = strchr(line, '\"')) != NULL)
       break;
@@ -859,7 +860,8 @@ FileIcon::load_xpm(const char *xpm)	// I - File to read from
       return;
     }
 
-    ch = bg;
+    startx = 0;
+    ch     = bg;
     ptr ++;
 
     for (x = 0; x < width; x ++, ptr ++)
@@ -1213,5 +1215,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.19 2000/01/22 15:21:07 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.20 2000/03/21 04:03:29 mike Exp $".
 //
