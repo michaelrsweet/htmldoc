@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.185 2002/06/11 19:36:17 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.186 2002/06/13 18:44:11 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3268,7 +3268,11 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 
   height *= _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
 
-  x  = left + 36.0f * t->indent;
+  if (t->indent)
+    x = left + 18.0f + 18.0f * t->indent;
+  else
+    x = left;
+
   *y -= height;
 
  /*
@@ -3277,7 +3281,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 
   if (heading >= 0)
   {
-    hpage       = heading_pages[heading] + chapter_starts[1] - 1;
+    hpage       = heading_pages[heading];
     numberwidth = get_width((uchar *)pages[hpage].page_text,
                             t->typeface, t->style, t->size) +
 	          3.0f * dot_width;
@@ -3439,6 +3443,39 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 
 
 /*
+ * 'count_headings()' - Count the number of headings in the TOC.
+ */
+
+static int
+count_headings(tree_t *t)		// I - Tree to count
+{
+  int	count;				// Number of headings...
+
+
+  count = 0;
+
+  while (t != NULL)
+  {
+    switch (t->markup)
+    {
+      case MARKUP_B :
+      case MARKUP_LI :
+          count ++;
+	  break;
+
+      default :
+          count += count_headings(t->child);
+          break;
+    }
+
+    t = t->next;
+  }
+
+  return (count);
+}
+
+
+/*
  * 'parse_contents()' - Parse the table of contents and produce a
  *                      rendering list...
  */
@@ -3475,23 +3512,37 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
                         heading_pages[*heading]));
 
          /*
-          * Put the text...
+          * Put the text unless the author has flagged it otherwise...
           */
 
-          render_contents(t, left, right, bottom, top, y, page, *heading, chap);
+          if (htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
+	  {
+            render_contents(t, left, right, bottom, top, y, page,
+	                    *heading, chap);
 
-         /*
-	  * Update current headings for header/footer strings in TOC.
-	  */
+           /*
+	    * Update current headings for header/footer strings in TOC.
+	    */
 
-	  check_pages(*page);
+	    check_pages(*page);
 
-	  if (t->markup == MARKUP_B &&
-	      pages[*page].chapter == pages[*page - 1].chapter)
-	    pages[*page].chapter = htmlGetText(t->child);
+	    if (t->markup == MARKUP_B &&
+		pages[*page].chapter == pages[*page - 1].chapter)
+	      pages[*page].chapter = htmlGetText(t->child);
 
-	  if (pages[*page].heading == pages[*page - 1].heading)
-	    pages[*page].heading = htmlGetText(t->child);
+	    if (pages[*page].heading == pages[*page - 1].heading)
+	      pages[*page].heading = htmlGetText(t->child);
+          }
+	  else if (t->next != NULL && t->next->markup == MARKUP_UL)
+	  {
+	   /*
+	    * Skip children of omitted heading...
+	    */
+
+	    t = t->next;
+
+	    (*heading) += count_headings(t->child);
+	  }
 
          /*
           * Next heading...
@@ -3743,6 +3794,15 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
+      case MARKUP_H7 :
+      case MARKUP_H8 :
+      case MARKUP_H9 :
+      case MARKUP_H10 :
+      case MARKUP_H11 :
+      case MARKUP_H12 :
+      case MARKUP_H13 :
+      case MARKUP_H14 :
+      case MARKUP_H15 :
           if (para->child != NULL)
           {
             parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, *needspace);
@@ -8263,6 +8323,15 @@ get_cell_size(tree_t *t,		// I - Cell
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
+      case MARKUP_H7 :
+      case MARKUP_H8 :
+      case MARKUP_H9 :
+      case MARKUP_H10 :
+      case MARKUP_H11 :
+      case MARKUP_H12 :
+      case MARKUP_H13 :
+      case MARKUP_H14 :
+      case MARKUP_H15 :
       case MARKUP_HR :
       case MARKUP_LI :
       case MARKUP_P :
@@ -8594,6 +8663,15 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_H4 :
       case MARKUP_H5 :
       case MARKUP_H6 :
+      case MARKUP_H7 :
+      case MARKUP_H8 :
+      case MARKUP_H9 :
+      case MARKUP_H10 :
+      case MARKUP_H11 :
+      case MARKUP_H12 :
+      case MARKUP_H13 :
+      case MARKUP_H14 :
+      case MARKUP_H15 :
       case MARKUP_UL :
       case MARKUP_DIR :
       case MARKUP_MENU :
@@ -11660,5 +11738,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.185 2002/06/11 19:36:17 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.186 2002/06/13 18:44:11 mike Exp $".
  */

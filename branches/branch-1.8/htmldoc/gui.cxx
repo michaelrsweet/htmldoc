@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.53 2002/06/05 05:30:48 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.54 2002/06/13 18:44:07 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -944,7 +944,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   _tooltip(proxy, "Enter a URL for your HTTP proxy server.\n"
                   "(http://server:port)");
 
-  group = new Fl_Group(140, 160, 350, 50, "GUI Options: ");
+  group = new Fl_Group(140, 160, 350, 75, "GUI Options: \n\n\n\n");
   group->align(FL_ALIGN_LEFT);
 
     tooltips = new CheckButton(140, 160, 80, 25, "Tooltips");
@@ -3454,6 +3454,7 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->permAnnotate->color2(FL_RED);
     gui->tooltips->color2(FL_RED);
     gui->modern_skin->color2(FL_RED);
+    gui->strict_html->color2(FL_RED);
 
     gui->progressBar->color2(FL_BLUE);
     gui->progressBar->box(FL_UP_BOX);
@@ -3477,6 +3478,7 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->permAnnotate->color2(FL_BLACK);
     gui->tooltips->color2(FL_BLACK);
     gui->modern_skin->color2(FL_BLACK);
+    gui->strict_html->color2(FL_BLACK);
 
     gui->progressBar->color2(FL_YELLOW);
     gui->progressBar->box(FL_DOWN_BOX);
@@ -4043,5 +4045,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.53 2002/06/05 05:30:48 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.54 2002/06/13 18:44:07 mike Exp $".
 //
