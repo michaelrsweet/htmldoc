@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.26 2001/05/31 02:02:12 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.27 2001/06/01 19:23:19 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -703,12 +703,12 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
 	    if (parent == NULL)
 	    {
-              space->link     = parent->link;
 	      space->typeface = _htmlBodyFont;
 	      space->size     = SIZE_P;
 	    }
 	    else
 	    {
+              space->link     = parent->link;
 	      space->typeface = parent->typeface;
 	      space->size     = parent->size;
 	      space->style    = parent->style;
@@ -720,10 +720,10 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
             space->prev     = t->prev;
             space->next     = t;
 
-            if (space->prev == NULL && parent != NULL)
-	      parent->child = space;
-            else if (space->prev)
+            if (space->prev)
 	      space->prev->next = space;
+            else if (parent)
+	      parent->child = space;
 
 	    t->prev = space;
 
@@ -766,7 +766,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           t->strikethrough = 0;
           t->preformatted  = 0;
           t->style         = STYLE_BOLD;
-          t->child         = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_P :
@@ -779,7 +780,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           t->superscript   = 0;
           t->strikethrough = 0;
           t->preformatted  = 0;
-          t->child         = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_PRE :
@@ -790,7 +792,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           t->superscript   = 0;
           t->strikethrough = 0;
           t->preformatted  = 1;
-          t->child         = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_BLOCKQUOTE :
@@ -801,12 +804,13 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       case MARKUP_DL :
           t->indent ++;
 
-          t->child = htmlReadFile(t, fp, base);
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_DIV :
           get_alignment(t);
-          t->child = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_HR :
@@ -833,7 +837,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
             {
 	      strcpy(newbase, file_directory((char *)filename));
 
-              t->child = htmlReadFile(t, embed, newbase);
+              htmlReadFile(t, embed, newbase);
               fclose(embed);
             }
 #ifndef DEBUG
@@ -849,9 +853,12 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	    t->halignment = t->parent->halignment;
 	  else
             t->halignment = ALIGN_CENTER;
+
           get_alignment(t);
+
           t->style = STYLE_BOLD;
-          t->child = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_TD :
@@ -859,9 +866,12 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	    t->halignment = t->parent->halignment;
 	  else
             t->halignment = ALIGN_LEFT;
+
 	  get_alignment(t);
+
           t->style = STYLE_NORMAL;
-          t->child = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_FONT :
@@ -899,7 +909,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
               t->size = sizeval;
           }
 
-          t->child = htmlReadFile(t, fp, base);
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_BIG :
@@ -908,7 +918,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           else
             t->size = 7;
 
-          t->child = htmlReadFile(t, fp, base);
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_SMALL :
@@ -917,19 +927,21 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           else
             t->size = 0;
 
-          t->child = htmlReadFile(t, fp, base);
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_SUP :
           t->superscript = 1;
           t->size        = SIZE_SUP;
-          t->child       = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_SUB :
           t->subscript = 1;
           t->size      = SIZE_SUB;
-          t->child     = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_KBD :
@@ -958,12 +970,12 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
 	    if (parent == NULL)
 	    {
-              space->link     = parent->link;
 	      space->typeface = _htmlBodyFont;
 	      space->size     = SIZE_P;
 	    }
 	    else
 	    {
+              space->link     = parent->link;
 	      space->typeface = parent->typeface;
 	      space->size     = parent->size;
 	      space->style    = parent->style;
@@ -975,10 +987,10 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
             space->prev     = t->prev;
             space->next     = t;
 
-            if (space->prev == NULL && parent != NULL)
-	      parent->child = space;
-            else if (space->prev)
+            if (space->prev)
 	      space->prev->next = space;
+            else if (parent)
+	      parent->child = space;
 
 	    t->prev = space;
 
@@ -988,24 +1000,28 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	  }
 
           t->typeface = TYPE_COURIER;
-          t->child    = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_B :
           t->style = (style_t)(t->style | STYLE_BOLD);
-          t->child = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_DD :
           t->indent ++;
-          t->child = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_VAR :
           t->style = (style_t)(t->style | STYLE_ITALIC);
       case MARKUP_DFN :
           t->typeface = TYPE_HELVETICA;
-          t->child    = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_STRONG :
@@ -1015,25 +1031,29 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       case MARKUP_EM :
       case MARKUP_I :
           t->style = (style_t)(t->style | STYLE_ITALIC);
-          t->child = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_U :
       case MARKUP_INS :
           t->underline = 1;
-          t->child     = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_STRIKE :
       case MARKUP_S :
       case MARKUP_DEL :
           t->strikethrough = 1;
-          t->child         = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_CENTER :
           t->halignment = ALIGN_CENTER;
-          t->child      = htmlReadFile(t, fp, base);
+
+          htmlReadFile(t, fp, base);
           break;
 
       default :
@@ -1043,7 +1063,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
           get_alignment(t);
 
-          t->child = htmlReadFile(t, fp, base);
+          htmlReadFile(t, fp, base);
           break;
     }
   }  
@@ -1315,7 +1335,7 @@ htmlDeleteTree(tree_t *parent)	/* I - Parent to delete */
 
 
 /*
- * 'htmlInsertTree()' - Insert a tree node to the parent.
+ * 'htmlInsertTree()' - Insert a tree node under the parent.
  */
 
 tree_t *			/* O - New entry */
@@ -1330,7 +1350,7 @@ htmlInsertTree(tree_t   *parent,/* I - Parent entry */
     return (NULL);
 
  /*
-  * Insert the tree entry to the end of the chain of children...
+  * Insert the tree entry at the beginning of the chain of children...
   */
 
   if (parent != NULL)
@@ -2554,5 +2574,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.26 2001/05/31 02:02:12 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.27 2001/06/01 19:23:19 mike Exp $".
  */
