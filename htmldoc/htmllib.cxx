@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.65 2003/01/06 22:09:31 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.66 2003/03/21 21:09:26 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1036,6 +1036,14 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           break;
 
       case MARKUP_FONT :
+          if (have_whitespace)
+	  {
+	    // Insert a space before this element...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
           if ((face = htmlGetVariable(t, (uchar *)"FACE")) != NULL)
           {
             for (ptr = face; *ptr != '\0'; ptr ++)
@@ -1047,17 +1055,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
             else if (strstr((char *)face, "times") != NULL)
               t->typeface = TYPE_TIMES;
             else if (strstr((char *)face, "courier") != NULL)
-	    {
               t->typeface = TYPE_COURIER;
-
-              if (have_whitespace)
-	      {
-		// Insert a space before monospaced text...
-		insert_space(parent, t);
-
-		have_whitespace = 0;
-	      }
-            }
 	    else if (strstr((char *)face, "symbol") != NULL)
               t->typeface = TYPE_SYMBOL;
           }
@@ -1254,6 +1252,18 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
           descend = 1;
           break;
+
+      case MARKUP_A :
+          if (have_whitespace)
+	  {
+	    // Insert a space before this link...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
+          descend = 1;
+	  break;
 
       default :
          /*
@@ -2945,5 +2955,5 @@ htmlDebugStats(const char *title,	// I - Title
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.65 2003/01/06 22:09:31 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.66 2003/03/21 21:09:26 mike Exp $".
  */
