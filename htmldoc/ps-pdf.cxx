@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.113 2001/10/17 21:13:33 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.114 2001/10/18 01:53:30 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3607,6 +3607,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       else
 	borderspace = 0;
 
+      borderspace *= PagePrintWidth / _htmlBrowserWidth;
+
       if (strcasecmp((char *)align, "LEFT") == 0)
       {
         if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
@@ -3809,6 +3811,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  else
 	    borderspace = 0;
 
+          borderspace *= PagePrintWidth / _htmlBrowserWidth;
+
           temp_width += 2 * borderspace;
 	}
 
@@ -3893,6 +3897,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  borderspace = 1;
 	else
 	  borderspace = 0;
+
+        borderspace *= PagePrintWidth / _htmlBrowserWidth;
 
         temp_height += 2 * borderspace;
       }
@@ -4106,6 +4112,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      borderspace = 1;
 	    else
 	      borderspace = 0;
+
+            borderspace *= PagePrintWidth / _htmlBrowserWidth;
 
             temp_width += 2 * borderspace;
 
@@ -10318,5 +10326,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.113 2001/10/17 21:13:33 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.114 2001/10/18 01:53:30 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.11 2001/10/17 21:13:29 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.12 2001/10/18 01:53:30 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -46,6 +46,7 @@
 #  include <gui/FileChooser.h>
 #  include <gui/HelpDialog.h>
 #  include <gui/Progress.h>
+#  define _tooltip(w,s)
 #else
 #  include <FL/Fl_Check_Button.H>
 #  include <FL/Fl_Round_Button.H>
@@ -59,6 +60,7 @@
 #  define FileBrowser	Fl_File_Browser
 #  define HelpDialog	Fl_Help_Dialog
 #  define Progress	Fl_Progress
+#  define _tooltip(w,s)	(w)->tooltip((s))
 #endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 
 
@@ -284,5 +286,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.11 2001/10/17 21:13:29 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.12 2001/10/18 01:53:30 mike Exp $".
  */
