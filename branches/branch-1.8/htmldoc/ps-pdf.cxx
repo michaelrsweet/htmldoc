@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.239 2004/03/20 03:55:33 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.240 2004/03/30 15:14:13 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5616,10 +5616,6 @@ parse_table(tree_t *t,			// I - Tree to parse
   DEBUG_printf(("border = %.1f, cellpadding = %.1f\n", border,
                 cellpadding));
 
-  table_width -= 2.0f * (border + cellpadding);
-
-  DEBUG_printf(("adjusted table_width = %.1f\n", table_width));
-
   temp_bottom = bottom - cellpadding;
   temp_top    = top + cellpadding;
 
@@ -5748,6 +5744,10 @@ parse_table(tree_t *t,			// I - Tree to parse
 
 	      if (colspan <= 1)
 	        col_percent[col] = 1;
+	    }
+	    else
+	    {
+              col_width -= 2.0 * cellpadding;
 	    }
 	  }
 	  else if (htmlGetVariable(tempcol, (uchar *)"NOWRAP") != NULL)
@@ -12314,5 +12314,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.239 2004/03/20 03:55:33 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.240 2004/03/30 15:14:13 mike Exp $".
  */
