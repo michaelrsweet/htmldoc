@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.10 2004/03/31 06:32:26 mike Exp $"
+# "$Id: Makefile,v 1.11 2004/03/31 07:28:13 mike Exp $"
 #
 #   JPEG library Makefile for the HTMLDOC software.
 #
-#   Copyright 1997-2001 by Easy Software Products, all rights reserved.
+#   Copyright 1997-2004 by Easy Software Products, all rights reserved.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -15,14 +15,15 @@
 #       Attn: HTMLDOC Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3111 USA
+#       Hollywood, Maryland 20636-3142 USA
 #
-#       Voice: (301) 373-9603
+#       Voice: (301) 373-9600
 #       EMail: info@easysw.com
 #         WWW: http://www.easysw.com
 #
 
 include ../Makedefs
+
 
 #
 # Object files...
@@ -45,13 +46,17 @@ OBJS	=	jmemnobs.o \
 
 all:	libjpeg.a
 
+
 #
 # Clean all targets and object files...
 #
 
 clean:
+	$(RM) *.bak
+	$(RM) *.bck
 	$(RM) $(OBJS)
 	$(RM) libjpeg.a
+
 
 #
 # libjpeg.a
@@ -63,9 +68,24 @@ libjpeg.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
-$(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
-		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.10 2004/03/31 06:32:26 mike Exp $".
+# Update dependencies...
+#
+
+depend:
+	makedepend -Y -I.. -f Dependencies $(OBJS:.o=.c)
+
+
+#
+# Dependencies...
+#
+	
+$(OBJS):	../Makedefs
+
+include Dependencies
+
+
+#
+# End of "$Id: Makefile,v 1.11 2004/03/31 07:28:13 mike Exp $".
 #

@@ -1,5 +1,5 @@
 /*
- * "$Id: http.h,v 1.15 2004/03/31 07:01:57 mike Exp $"
+ * "$Id: http.h,v 1.16 2004/03/31 07:28:13 mike Exp $"
  *
  *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
  *   System (CUPS).
@@ -16,9 +16,9 @@
  *       Attn: CUPS Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
- *       Voice: (301) 373-9603
+ *       Voice: (301) 373-9600
  *       EMail: cups-info@cups.org
  *         WWW: http://www.cups.org
  *
@@ -365,5 +365,5 @@ extern int		httpWait(http_t *http, int msec);
 #endif /* !_CUPS_HTTP_H_ */
 
 /*
- * End of "$Id: http.h,v 1.15 2004/03/31 07:01:57 mike Exp $".
+ * End of "$Id: http.h,v 1.16 2004/03/31 07:28:13 mike Exp $".
  */

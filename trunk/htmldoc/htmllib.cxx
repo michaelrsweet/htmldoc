@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.45 2004/03/31 06:32:26 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.46 2004/03/31 07:28:13 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -2965,5 +2965,5 @@ htmlDebugStats(const char *title,	// I - Title
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.45 2004/03/31 06:32:26 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.46 2004/03/31 07:28:13 mike Exp $".
  */

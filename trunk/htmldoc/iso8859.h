@@ -1,5 +1,5 @@
 /*
- * "$Id: iso8859.h,v 1.5 2004/03/31 06:32:26 mike Exp $"
+ * "$Id: iso8859.h,v 1.6 2004/03/31 07:28:13 mike Exp $"
  *
  *   ISO-8859-1 definitions for HTMLDOC, an HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -42,5 +42,5 @@ extern uchar	*iso8859(uchar value);
 #endif /* !_ISO8859_H_ */
 
 /*
- * End of "$Id: iso8859.h,v 1.5 2004/03/31 06:32:26 mike Exp $".
+ * End of "$Id: iso8859.h,v 1.6 2004/03/31 07:28:13 mike Exp $".
  */

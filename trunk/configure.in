@@ -1,5 +1,5 @@
 #
-# "$Id: configure.in,v 1.26 2004/03/31 06:32:25 mike Exp $"
+# "$Id: configure.in,v 1.27 2004/03/31 07:28:13 mike Exp $"
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
@@ -15,7 +15,7 @@
 #       Attn: ESP Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3111 USA
+#       Hollywood, Maryland 20636-3142 USA
 #
 #       Voice: (301) 373-9600
 #       EMail: info@easysw.com
@@ -147,7 +147,7 @@ if test x$enable_ssl != xno; then
 	        "-lcrypto -lRSAglue -lrsaref"
 	    do
 		AC_CHECK_LIB(ssl,SSL_new,
-		    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT"
+		    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT -DOPENSSL_NO_KRB5"
 		     SSLLIBS="-lssl $libcrypto"
 		     AC_DEFINE(HAVE_SSL)
 		     AC_DEFINE(HAVE_LIBSSL)],,
@@ -318,17 +318,17 @@ if test -n "$GXX"; then
     fi
 
     # Show all standard warnings + unused variables when compiling...
-    OPTIM="-Wall -Wunused $OPTIM"
+    OPTIM="-Wall -Wunused -Wno-char-subscripts $OPTIM"
 
     # The following additional warnings are useful for tracking down problems...
-    #OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
+    OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
 
     # See if GCC supports -fno-rtti...
     AC_MSG_CHECKING(if GCC supports -fno-rtti)
     OLDCFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS -fno-rtti"
     AC_TRY_COMPILE(,,
-	OPTIM="$OPTIM -fno-rtti"
+	CXXFLAGS="$CXXFLAGS -fno-rtti"
 	AC_MSG_RESULT(yes),
 	AC_MSG_RESULT(no))
     CFLAGS="$OLDCFLAGS"
@@ -338,7 +338,7 @@ if test -n "$GXX"; then
     OLDCFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS -fno-exceptions"
     AC_TRY_COMPILE(,,
-	OPTIM="$OPTIM -fno-exceptions"
+	CXXFLAGS="$CXXFLAGS -fno-exceptions"
 	AC_MSG_RESULT(yes),
 	AC_MSG_RESULT(no))
     CFLAGS="$OLDCFLAGS"
@@ -350,7 +350,7 @@ if test -n "$GXX"; then
 	OLDCFLAGS="$CFLAGS"
 	CFLAGS="$CFLAGS -fpermissive"
 	AC_TRY_COMPILE(,,
-	    OPTIM="$OPTIM -fpermissive"
+	    CXXFLAGS="$CXXFLAGS -fpermissive"
 	    AC_MSG_RESULT(yes),
 	    AC_MSG_RESULT(no))
 	CFLAGS="$OLDCFLAGS"
@@ -381,8 +381,8 @@ else
 fi
 
 # Generate the top-level Makefile and Makedefs file...
-AC_OUTPUT(Makedefs Makefile htmldoc.list)
+AC_OUTPUT(Makedefs Makefile htmldoc.list htmldoc.plist)
 
 #
-# End of "$Id: configure.in,v 1.26 2004/03/31 06:32:25 mike Exp $".
+# End of "$Id: configure.in,v 1.27 2004/03/31 07:28:13 mike Exp $".
 #

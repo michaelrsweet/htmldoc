@@ -1,5 +1,5 @@
 /*
- * "$Id: file.h,v 1.20 2004/03/31 07:01:57 mike Exp $"
+ * "$Id: file.h,v 1.21 2004/03/31 07:28:13 mike Exp $"
  *
  *   Filename definitions for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -60,5 +60,5 @@ extern FILE		*file_temp(char *name, int len);
 #endif /* !_FILE_H_ */
 
 /*
- * End of "$Id: file.h,v 1.20 2004/03/31 07:01:57 mike Exp $".
+ * End of "$Id: file.h,v 1.21 2004/03/31 07:28:13 mike Exp $".
  */

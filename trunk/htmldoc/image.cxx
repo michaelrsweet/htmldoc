@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.24 2004/03/31 07:01:57 mike Exp $"
+ * "$Id: image.cxx,v 1.25 2004/03/31 07:28:13 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -1857,5 +1857,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.24 2004/03/31 07:01:57 mike Exp $".
+ * End of "$Id: image.cxx,v 1.25 2004/03/31 07:28:13 mike Exp $".
  */

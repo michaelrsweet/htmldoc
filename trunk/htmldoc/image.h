@@ -1,5 +1,5 @@
 /*
- * "$Id: image.h,v 1.19 2004/03/31 07:01:57 mike Exp $"
+ * "$Id: image.h,v 1.20 2004/03/31 07:28:13 mike Exp $"
  *
  *   Image management definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -16,7 +16,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -78,5 +78,5 @@ extern void	image_unload(image_t *img);
 #endif /* !_IMAGE_H_ */
 
 /*
- * End of "$Id: image.h,v 1.19 2004/03/31 07:01:57 mike Exp $".
+ * End of "$Id: image.h,v 1.20 2004/03/31 07:28:13 mike Exp $".
  */
