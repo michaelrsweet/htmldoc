@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.19 1999/11/15 21:38:05 mike Exp $"
+// "$Id: gui.cxx,v 1.20 1999/11/16 17:18:22 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1774,10 +1774,13 @@ GUI::docTypeCB(Fl_Widget *w,		// I - Toggle button widget
   }
   else
   {
-    if (gui->typeHTML->value())
-      gui->typePS->set();
-
     gui->typeHTML->deactivate();
+
+    if (gui->typeHTML->value())
+    {
+      gui->typePDF->setonly();
+      outputFormatCB(gui->typePDF, gui);
+    }
 
     gui->titlePage->value(0);
 
@@ -2103,6 +2106,10 @@ void
 GUI::outputPathCB(Fl_Widget *w,		// I - Widget
                   GUI       *gui)	// I - GUI
 {
+  char	filename[1024];			// Name of the output file
+  char	*extension;			// Extension of the output file
+
+
   if (w == gui->outputBrowse)
   {
     gui->fc->label("Output Path?");
@@ -2121,7 +2128,36 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->outputPath->value(file_localize(gui->fc->value(), NULL));
+      // Get the selected file...
+      strcpy(filename, file_localize(gui->fc->value(), NULL));
+      extension = file_extension(filename);
+
+      if (extension[0])
+      {
+        // Have an extension - check it!
+	if (strcasecmp(extension, "PS") == 0)
+	{
+	  gui->typePS->setonly();
+	  outputFormatCB(gui->typePS, gui);
+	}
+	else if (strcasecmp(extension, "PDF") == 0)
+	{
+	  gui->typePDF->setonly();
+	  outputFormatCB(gui->typePDF, gui);
+	}
+      }
+      else
+      {
+        // No extension - add one!
+	if (gui->typeHTML->value())
+	  strcat(filename, ".html");
+	else if (gui->typePS->value())
+	  strcat(filename, ".ps");
+	else
+	  strcat(filename, ".pdf");
+      }
+
+      gui->outputPath->value(filename);
       gui->title(gui->book_filename, 1);
     }
   }
@@ -2925,7 +2961,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       strcpy(base, file_directory(filename));
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME", (uchar *)filename);
+      htmlSetVariable(file, (uchar *)"FILENAME",
+                      (uchar *)file_basename(filename));
 
       htmlReadFile(file, docfile, base);
 
@@ -3017,5 +3054,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.19 1999/11/15 21:38:05 mike Exp $".
+// End of "$Id: gui.cxx,v 1.20 1999/11/16 17:18:22 mike Exp $".
 //
