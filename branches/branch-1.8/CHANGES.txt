@@ -1,5 +1,19 @@
-CHANGES.txt - 06/27/2001
+CHANGES.txt - 07/16/2001
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.15
+
+    NEW FEATURES
+
+    CHANGES
+
+	- Now load images into memory only as needed, and unload
+	  them when no longer needed.  This provides a dramatic
+	  reduction in memory usage with files that contain a
+	  lot of in-line images.
+
+    BUGS FIXES
+
 
 CHANGES IN HTMLDOC v1.8.14
 
