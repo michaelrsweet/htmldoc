@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.151 2002/03/08 20:58:40 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.152 2002/03/27 13:11:40 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5319,9 +5319,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	{
 	  cell_bg[col] = NULL;
 
-	  if (pages[*page].end == NULL)
-	    new_render(*page, RENDER_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
+          new_render(*page, RENDER_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
 	}
+
+        DEBUG_printf(("cell_bg[%d] = %p, pages[%d].end = %p\n",
+	              col, cell_bg[col], *page, pages[*page].end));
 
 	cell_start[col] = pages[*page].end;
 	cell_page[col]  = temp_page;
@@ -5354,6 +5356,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n",
 	              row, col, *y - cellpadding, temp_y, cell_height[col]));
+        DEBUG_printf(("cell_start[%d] = %p, cell_end[%d] = %p\n",
+	              col, cell_start[col], col, cell_end[col]));
       }
 
       if (row_spans[col] == 0 &&
@@ -5509,8 +5513,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
           for (; p != NULL; p = p->next)
 	  {
-	    DEBUG_printf(("aligning %p, y was %.1f, now %.1f\n",
-	                  p, p->y, p->y - delta_y));
+	    DEBUG_printf(("aligning %p (%s), y was %.1f, now %.1f\n",
+	                  p, p->data.text.buffer, p->y, p->y - delta_y));
 
             p->y -= delta_y;
             if (p == cell_end[col])
@@ -10703,5 +10707,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.151 2002/03/08 20:58:40 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.152 2002/03/27 13:11:40 mike Exp $".
  */
