@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.200 2002/08/01 02:27:23 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.201 2002/08/12 18:08:23 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -538,7 +538,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     logo_width = logo_height = 0.0f;
 
   find_background(document);
-  get_color((uchar *)LinkColor, link_color, 0);
+  get_color((uchar *)LinkColor, link_color);
 
  /*
   * Initialize page rendering variables...
@@ -11843,5 +11843,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.200 2002/08/01 02:27:23 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.201 2002/08/12 18:08:23 mike Exp $".
  */
