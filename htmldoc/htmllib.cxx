@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.7 1999/11/11 01:55:04 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.8 1999/11/11 21:36:45 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -309,8 +309,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       t->size         = SIZE_P;
 
       compute_color(t, _htmlTextColor);
-
-      printf("root color = %d, %d, %d...\n", t->red, t->green, t->blue);
     }
     else
     {
@@ -1225,6 +1223,8 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
     t->valignment = ALIGN_MIDDLE;
     t->typeface   = _htmlBodyFont;
     t->size       = SIZE_P;
+
+    compute_color(t, _htmlTextColor);
   }
   else
   {
@@ -1715,8 +1715,6 @@ htmlSetTextColor(uchar *color)	/* I - Text color */
 {
   strncpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
   _htmlTextColor[sizeof(_htmlTextColor) - 1] = '\0';
-
-  printf("Text color now \"%s\"\n", _htmlTextColor);
 }
 
 
@@ -1933,6 +1931,9 @@ compute_size(tree_t *t)		/* I - Tree entry */
     width_ptr  = htmlGetVariable(t, (uchar *)"WIDTH");
     height_ptr = htmlGetVariable(t, (uchar *)"HEIGHT");
 
+    img = image_load((char *)htmlGetVariable(t, (uchar *)"SRC"),
+                     _htmlGrayscale);
+
     if (width_ptr != NULL && height_ptr != NULL)
     {
       t->width  = atoi((char *)width_ptr) / _htmlPPI * 72.0f;
@@ -1940,9 +1941,6 @@ compute_size(tree_t *t)		/* I - Tree entry */
 
       return (0);
     }
-
-    img = image_load((char *)htmlGetVariable(t, (uchar *)"SRC"),
-                     _htmlGrayscale);
 
     if (img == NULL)
       return (-1);
@@ -2025,8 +2023,6 @@ compute_color(tree_t *t,	/* I - Tree entry */
     { "white",		255, 255, 255 }
   };
 
-
-  printf("compute_color(%08x, \"%s\")\n", t, color);
 
   if (color[0] == '#')
   {
@@ -2177,5 +2173,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.7 1999/11/11 01:55:04 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.8 1999/11/11 21:36:45 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.2 1999/11/09 22:16:43 mike Exp $"
+ * "$Id: toc.cxx,v 1.3 1999/11/11 21:36:46 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -75,7 +75,7 @@ toc_build(tree_t *tree)		/* I - Document tree */
   htmlSetVariable(title, (uchar *)"ALIGN", (uchar *)"CENTER");
   link = htmlAddTree(title, MARKUP_A, NULL);
   htmlSetVariable(link, (uchar *)"NAME", (uchar *)"CONTENTS");
-  htmlAddTree(link, MARKUP_NONE, (uchar *)"Table of Contents");
+  htmlAddTree(link, MARKUP_NONE, (uchar *)TocTitle);
 
   heading_parents[0] = toc;
   heading_parents[1] = toc;
@@ -107,7 +107,7 @@ add_heading(tree_t *toc,	/* I - Table of contents */
       htmlAddTree(toc, MARKUP_NONE, heading->data);
 
     heading = heading->next;
-  };
+  }
 }
 
 
@@ -233,14 +233,14 @@ parse_tree(tree_t *t)		/* I - Document tree */
                           TENS[(heading_numbers[i] / 10) % 10],
                           ONES[heading_numbers[i] % 10]);
                   break;
-            };
+            }
 
             if (i < level)
             {
               strcat((char *)heading, ".");
               strcat((char *)baselink, "_");
-            };
-          };
+            }
+          }
 
          /*
 	  * See if we have an existing <A NAME=...> for this heading...
@@ -273,7 +273,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
             strcat((char *)heading, " ");
 
             htmlInsertTree(t, MARKUP_NONE, heading);
-	  };
+	  }
 
          /*
 	  * Add the heading to the table of contents...
@@ -291,7 +291,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
               {
                 htmlAddTree(heading_parents[level], MARKUP_BR, NULL);
                 htmlAddTree(heading_parents[level], MARKUP_BR, NULL);
-              };
+              }
 
               parent = htmlAddTree(heading_parents[level], MARKUP_B, NULL);
             }
@@ -322,11 +322,11 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
         	target->child = t->child;
         	t->child      = target;
-	      };
-            };
+	      }
+            }
 
             add_heading(parent, t->child);
-          };
+          }
 
           last_level = level;
           break;
@@ -335,13 +335,13 @@ parse_tree(tree_t *t)		/* I - Document tree */
           if (t->child != NULL)
             parse_tree(t->child);
           break;
-    };
+    }
 
     t = t->next;
-  };
+  }
 }
 
 
 /*
- * End of "$Id: toc.cxx,v 1.2 1999/11/09 22:16:43 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.3 1999/11/11 21:36:46 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.8 1999/11/10 21:49:50 mike Exp $"
+// "$Id: gui.cxx,v 1.9 1999/11/11 21:36:44 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -80,6 +80,9 @@
 #    include "htmldoc.xbm"
 #  endif // WIN32
 
+#undef SVERSION
+#define SVERSION "1.8"
+
 
 const char	*GUI::help_dir = DOCUMENTATION;
 
@@ -137,6 +140,64 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"Helvetica-Bold", 0,  0, 0, 0, 0, FL_HELVETICA_BOLD, 14, 0},
 			  {"Helvetica-Oblique", 0,  0, 0, 0, 0, FL_HELVETICA_ITALIC, 14, 0},
 			  {"Helvetica-BoldOblique", 0,  0, 0, 0, 0, FL_HELVETICA_BOLD_ITALIC, 14, 0},
+			  {0}
+			};
+  static Fl_Menu	charsetMenu[] =	// Menu items for charset chooser
+			{
+			  {"8859-1", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-2", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-3", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-4", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-5", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-6", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-7", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-8", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-9", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-14", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"8859-15", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {0}
+			};
+  static Fl_Menu	modeMenu[] =	// Menu items for mode chooser
+			{
+			  {"Document", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Outline", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Full-Screen", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {0}
+			};
+  static Fl_Menu	layoutMenu[] =	// Menu items for layout chooser
+			{
+			  {"Single", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"One Column", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Two Column Left", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Two Column Right", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {0}
+			};
+  static Fl_Menu	firstMenu[] =	// Menu items for first chooser
+			{
+			  {"Page 1", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"TOC", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Chapter 1", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {0}
+			};
+  static Fl_Menu	effectMenu[] =	// Menu items for effect chooser
+			{
+			  {"None", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Box Inward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Box Outward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Dissolve", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Glitter Down", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Glitter Down+Right", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Glitter Right", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Horizontal Blinds", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Horizontal Sweep Inward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Horizontal Sweep Outward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Vertical Blinds", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Vertical Sweep Inward", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Vertical Sweep Outward ", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Wipe Down", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Wipe Left", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Wipe Right", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Wipe Up", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
 
@@ -273,43 +334,51 @@ GUI::GUI(const char *filename)		// Book file to load initially
   jpegCompress = new CheckButton(320, 125, 140, 20, "JPEG Big Images");
   jpegCompress->callback((Fl_Callback *)jpegCB, this);
 
-  compression = new Fl_Slider(140, 150, 310, 25, "Compression: ");
-  compression->align(FL_ALIGN_LEFT);
-  compression->type(FL_HOR_NICE_SLIDER);
-  compression->minimum(0.0);
-  compression->maximum(9.0);
-  compression->value(1.0);
-  compression->step(1.0);
-  compression->callback((Fl_Callback *)changeCB, this);
+  compGroup = new Fl_Group(140, 150, 310, 40, "Compression: \n ");
+  compGroup->align(FL_ALIGN_LEFT);
 
-  label = new Fl_Box(140, 175, 30, 10, "None");
-  label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  label->labelsize(10);
+    compression = new Fl_Slider(140, 150, 310, 20);
+    compression->type(FL_HOR_NICE_SLIDER);
+    compression->minimum(0.0);
+    compression->maximum(9.0);
+    compression->value(1.0);
+    compression->step(1.0);
+    compression->callback((Fl_Callback *)changeCB, this);
 
-  label = new Fl_Box(170, 175, 30, 10, "Fast");
-  label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  label->labelsize(10);
+    label = new Fl_Box(140, 170, 30, 10, "None");
+    label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+    label->labelsize(10);
 
-  label = new Fl_Box(420, 175, 30, 10, "Best");
-  label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
-  label->labelsize(10);
+    label = new Fl_Box(170, 170, 30, 10, "Fast");
+    label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+    label->labelsize(10);
 
-  jpegQuality = new Fl_Value_Slider(140, 190, 310, 25, "JPEG Quality: ");
-  jpegQuality->align(FL_ALIGN_LEFT);
-  jpegQuality->type(FL_HOR_NICE_SLIDER);
-  jpegQuality->minimum(50.0);
-  jpegQuality->maximum(100.0);
-  jpegQuality->value(90.0);
-  jpegQuality->step(1.0);
-  jpegQuality->callback((Fl_Callback *)changeCB, this);
+    label = new Fl_Box(420, 170, 30, 10, "Best");
+    label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+    label->labelsize(10);
 
-  label = new Fl_Box(175, 215, 40, 10, "Good");
-  label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
-  label->labelsize(10);
+  compGroup->end();
 
-  label = new Fl_Box(410, 215, 40, 10, "Best");
-  label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
-  label->labelsize(10);
+  jpegGroup = new Fl_Group(140, 185, 310, 40, "JPEG Quality: \n ");
+  jpegGroup->align(FL_ALIGN_LEFT);
+
+    jpegQuality = new Fl_Value_Slider(140, 185, 310, 20);
+    jpegQuality->type(FL_HOR_NICE_SLIDER);
+    jpegQuality->minimum(50.0);
+    jpegQuality->maximum(100.0);
+    jpegQuality->value(90.0);
+    jpegQuality->step(1.0);
+    jpegQuality->callback((Fl_Callback *)changeCB, this);
+
+    label = new Fl_Box(175, 205, 40, 10, "Good");
+    label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+    label->labelsize(10);
+
+    label = new Fl_Box(410, 205, 40, 10, "Best");
+    label->align(FL_ALIGN_RIGHT | FL_ALIGN_INSIDE);
+    label->labelsize(10);
+
+  jpegGroup->end();
 
   outputTab->end();
 
@@ -481,12 +550,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   bodyFont = new Fl_Choice(200, 105, 100, 25, "Body Typeface: ");
   bodyFont->menu(typefaceMenu);
   bodyFont->callback((Fl_Callback *)changeCB, this);
-  bodyFont->value(TYPE_TIMES);
 
   headingFont = new Fl_Choice(200, 135, 100, 25, "Heading Typeface: ");
   headingFont->menu(typefaceMenu);
   headingFont->callback((Fl_Callback *)changeCB, this);
-  headingFont->value(TYPE_HELVETICA);
 
   headFootSize = new Fl_Counter(200, 165, 150, 25, "Header/Footer Size: ");
   headFootSize->callback((Fl_Callback *)changeCB, this);
@@ -499,9 +566,101 @@ GUI::GUI(const char *filename)		// Book file to load initially
   headFootFont = new Fl_Choice(200, 195, 220, 25, "Header/Footer Font: ");
   headFootFont->menu(fontMenu);
   headFootFont->callback((Fl_Callback *)changeCB, this);
-  headFootFont->value(TYPE_HELVETICA);
+
+  charset = new Fl_Choice(200, 225, 90, 25, "Character Set: ");
+  charset->menu(charsetMenu);
+  charset->callback((Fl_Callback *)changeCB, this);
 
   fontsTab->end();
+
+  //
+  // PostScript tab...
+  //
+
+  psTab = new Fl_Group(10, 35, 450, 220, "PS");
+  psTab->hide();
+
+  psLevel = new Fl_Group(140, 45, 310, 20, "PostScript: ");
+  psLevel->align(FL_ALIGN_LEFT);
+
+    ps1 = new CheckButton(140, 45, 70, 20, "Level 1");
+    ps1->type(FL_RADIO_BUTTON);
+    ps1->callback((Fl_Callback *)psCB, this);
+
+    ps2 = new CheckButton(210, 45, 70, 20, "Level 2");
+    ps2->type(FL_RADIO_BUTTON);
+    ps2->callback((Fl_Callback *)psCB, this);
+
+    ps3 = new CheckButton(280, 45, 70, 20, "Level 3");
+    ps3->type(FL_RADIO_BUTTON);
+    ps3->callback((Fl_Callback *)psCB, this);
+
+  psLevel->end();
+
+  psCommands = new CheckButton(140, 70, 310, 20, "Send Printer Commands");
+  psCommands->callback((Fl_Callback *)changeCB, this);
+
+  psTab->end();
+
+  //
+  // PDF tab...
+  //
+
+  pdfTab = new Fl_Group(10, 35, 450, 220, "PDF");
+  pdfTab->hide();
+
+  pdfVersion = new Fl_Group(140, 45, 310, 40, "PDF Version: \n ");
+  pdfVersion->align(FL_ALIGN_LEFT);
+
+    pdf11 = new CheckButton(140, 45, 125, 20, "1.1 (Acrobat 2.x)");
+    pdf11->type(FL_RADIO_BUTTON);
+    pdf11->callback((Fl_Callback *)pdfCB, this);
+
+    pdf12 = new CheckButton(270, 45, 125, 20, "1.2 (Acrobat 3.0)");
+    pdf12->type(FL_RADIO_BUTTON);
+    pdf12->callback((Fl_Callback *)pdfCB, this);
+
+    pdf13 = new CheckButton(140, 65, 125, 20, "1.3 (Acrobat 4.0)");
+    pdf13->type(FL_RADIO_BUTTON);
+    pdf13->callback((Fl_Callback *)pdfCB, this);
+
+  pdfVersion->end();
+
+  pageMode = new Fl_Choice(140, 90, 120, 25, "Page Mode: ");
+  pageMode->menu(modeMenu);
+  pageMode->callback((Fl_Callback *)changeCB, this);
+
+  pageLayout = new Fl_Choice(140, 120, 150, 25, "Page Layout: ");
+  pageLayout->menu(layoutMenu);
+  pageLayout->callback((Fl_Callback *)changeCB, this);
+
+  firstPage = new Fl_Choice(140, 150, 100, 25, "First Page: ");
+  firstPage->menu(firstMenu);
+  firstPage->callback((Fl_Callback *)changeCB, this);
+
+  pageEffect = new Fl_Choice(140, 180, 210, 25, "Page Effect: ");
+  pageEffect->menu(effectMenu);
+  pageEffect->callback((Fl_Callback *)changeCB, this);
+
+  pageDuration = new Fl_Value_Slider(140, 210, 310, 20, "Page Duration: ");
+  pageDuration->align(FL_ALIGN_LEFT);
+  pageDuration->type(FL_HOR_NICE_SLIDER);
+  pageDuration->minimum(1.0);
+  pageDuration->maximum(60.0);
+  pageDuration->value(10.0);
+  pageDuration->step(1.0);
+  pageDuration->callback((Fl_Callback *)changeCB, this);
+
+  effectDuration = new Fl_Value_Slider(140, 235, 310, 20, "Effect Duration: ");
+  effectDuration->align(FL_ALIGN_LEFT);
+  effectDuration->type(FL_HOR_NICE_SLIDER);
+  effectDuration->minimum(0.5);
+  effectDuration->maximum(5.0);
+  effectDuration->value(1.0);
+  effectDuration->step(0.1);
+  effectDuration->callback((Fl_Callback *)changeCB, this);
+
+  pdfTab->end();
 
   //
   // Options tab...
@@ -518,42 +677,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   htmlBrowse = new Fl_Button(355, 45, 95, 25, "Browse...");
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
 
-  psLevel = new Fl_Group(140, 75, 310, 20, "PostScript: ");
-  psLevel->align(FL_ALIGN_LEFT);
-
-    ps1 = new CheckButton(140, 75, 70, 20, "Level 1");
-    ps1->type(FL_RADIO_BUTTON);
-    ps1->callback((Fl_Callback *)psCB, this);
-
-    ps2 = new CheckButton(210, 75, 70, 20, "Level 2");
-    ps2->type(FL_RADIO_BUTTON);
-    ps2->callback((Fl_Callback *)psCB, this);
-
-    ps3 = new CheckButton(280, 75, 70, 20, "Level 3");
-    ps3->type(FL_RADIO_BUTTON);
-    ps3->callback((Fl_Callback *)psCB, this);
-
-  psLevel->end();
-
-  psCommands = new CheckButton(140, 100, 310, 20, "Send Printer Commands");
-  psCommands->callback((Fl_Callback *)changeCB, this);
-
-  pdfVersion = new Fl_Group(140, 125, 310, 40, "PDF Version: \n ");
-  pdfVersion->align(FL_ALIGN_LEFT);
-
-    pdf11 = new CheckButton(140, 125, 125, 20, "1.1 (Acrobat 2.x)");
-    pdf11->type(FL_RADIO_BUTTON);
-    pdf11->callback((Fl_Callback *)pdfCB, this);
-
-    pdf12 = new CheckButton(270, 125, 125, 20, "1.2 (Acrobat 3.0)");
-    pdf12->type(FL_RADIO_BUTTON);
-    pdf12->callback((Fl_Callback *)pdfCB, this);
-
-    pdf13 = new CheckButton(140, 145, 125, 20, "1.3 (Acrobat 4.0)");
-    pdf13->type(FL_RADIO_BUTTON);
-    pdf13->callback((Fl_Callback *)pdfCB, this);
-
-  pdfVersion->end();
+  saveOptions = new Fl_Button(350, 235, 100, 25, "Save Options");
 
   optionsTab->end();
 
@@ -831,12 +955,12 @@ GUI::newBook(void)
   headFootSize->value(11.0);
 
   compression->value(0.0);
-  compression->deactivate();
+  compGroup->deactivate();
 
   jpegQuality->value(90.0);
-  jpegQuality->deactivate();
+  jpegGroup->deactivate();
 
-  pdfVersion->deactivate();
+  pdfTab->deactivate();
   pdf12->setonly();
 
   psLevel->deactivate();
@@ -973,7 +1097,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     else if (strncmp(temp, "--jpeg", 6) == 0)
     {
       jpegCompress->set();
-      jpegQuality->activate();
+      jpegGroup->activate();
       if (strlen(temp) > 7)
         jpegQuality->value(atof(temp + 7));
       else
@@ -1526,7 +1650,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
   if (gui->fc->count())
   {
     for (i = 1; i <= gui->fc->count(); i ++)
-      gui->inputFiles->add(file_localize(gui->fc->value(i)), gui->icon);
+      gui->inputFiles->add(file_localize(gui->fc->value(i), NULL), gui->icon);
 
     gui->title(gui->book_filename, 1);
   }
@@ -1692,7 +1816,7 @@ GUI::logoImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->logoImage->value(file_localize(gui->fc->value()));
+      gui->logoImage->value(file_localize(gui->fc->value(), NULL));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1720,7 +1844,7 @@ GUI::titleImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->titleImage->value(file_localize(gui->fc->value()));
+      gui->titleImage->value(file_localize(gui->fc->value(), NULL));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1780,7 +1904,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->outputPath->value(file_localize(gui->fc->value()));
+      gui->outputPath->value(file_localize(gui->fc->value(), NULL));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -1801,12 +1925,12 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
 
   if (w == gui->typePDF)
   {
-    gui->pdfVersion->activate();
+    gui->pdfTab->activate();
     gui->outputDirectory->deactivate();
   }
   else
   {
-    gui->pdfVersion->deactivate();
+    gui->pdfTab->deactivate();
     gui->outputDirectory->activate();
   }
 
@@ -1814,7 +1938,7 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
   {
     gui->jpegCompress->value(0);
     gui->jpegCompress->deactivate();
-    gui->jpegQuality->deactivate();
+    gui->jpegGroup->deactivate();
 
     gui->grayscale->value(0);
     gui->grayscale->deactivate();
@@ -1855,7 +1979,7 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
 
   if (w == gui->typePS)
   {
-    gui->psLevel->activate();
+    gui->psTab->activate();
 
     if (gui->ps1->value())
       gui->psCommands->deactivate();
@@ -1863,16 +1987,13 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
       gui->psCommands->activate();
   }
   else
-  {
-    gui->psLevel->deactivate();
-    gui->psCommands->deactivate();
-  }
+    gui->psTab->deactivate();
 
   if ((w == gui->typePDF && !gui->pdf11->value()) ||
       (w == gui->typePS && gui->ps3->value()))
-    gui->compression->activate();
+    gui->compGroup->activate();
   else
-    gui->compression->deactivate();
+    gui->compGroup->deactivate();
 }
 
 
@@ -1889,9 +2010,9 @@ GUI::jpegCB(Fl_Widget *w,	// I - Widget
   gui->title(gui->book_filename, 1);
 
   if (gui->jpegCompress->value())
-    gui->jpegQuality->activate();
+    gui->jpegGroup->activate();
   else
-    gui->jpegQuality->deactivate();
+    gui->jpegGroup->deactivate();
 }
 
 
@@ -1936,9 +2057,9 @@ GUI::pdfCB(Fl_Widget *w,	// I - Widget
 
 
   if (gui->pdf11->value())
-    gui->compression->deactivate();
+    gui->compGroup->deactivate();
   else
-    gui->compression->activate();
+    gui->compGroup->activate();
 
   gui->title(gui->book_filename, 1);
 }
@@ -1965,9 +2086,9 @@ GUI::psCB(Fl_Widget *w,		// I - Widget
   }
 
   if (w == gui->ps3)
-    gui->compression->activate();
+    gui->compGroup->activate();
   else
-    gui->compression->deactivate();
+    gui->compGroup->deactivate();
 
   gui->title(gui->book_filename, 1);
 }
@@ -2079,7 +2200,7 @@ GUI::bodyImageCB(Fl_Widget *w,		// I - Widget
 
     if (gui->fc->count())
     {
-      gui->bodyImage->value(file_localize(gui->fc->value()));
+      gui->bodyImage->value(file_localize(gui->fc->value(), NULL));
       gui->title(gui->book_filename, 1);
     }
   }
@@ -2363,6 +2484,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   strcpy(BodyImage, gui->bodyImage->value());
 
   htmlSetTextColor((uchar *)gui->textColor->value());
+  htmlSetCharSet(gui->charset->text(gui->charset->value()));
 
  /*
   * Load the input files...
@@ -2483,81 +2605,8 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 }
 
 
-//
-// 'file_localize()' - Localize a filename for the new working directory.
-//
-
-const char *				// O - New filename
-GUI::file_localize(const char *filename,// I - Filename
-                   const char *newcwd)	// I - New directory
-{
-  const char	*newslash;		// Directory separator
-  char		*slash;			// Directory separator
-  char		cwd[1024];		// Current directory
-  char		temp[1024];		// Temporary pathname
-  static char	newfilename[1024];	// New filename
-
-
-  if (filename[0] == '\0')
-    return ("");
-
-  getcwd(cwd, sizeof(cwd));
-  if (newcwd == NULL)
-    newcwd = cwd;
-
-#if defined(WIN32) || defined(__EMX__)
-  if (filename[0] != '/' &&
-      filename[0] != '\\' &&
-      !(isalpha(filename[0]) && filename[1] == ':'))
-#else
-  if (filename[0] != '/')
-#endif /* WIN32 || __EMX__ */
-    sprintf(temp, "%s/%s", cwd, filename);
-  else
-    strcpy(temp, filename);
-
-//  printf("temp = \'%s\'\n", temp);
-//  printf("newcwd = \'%s\'\n", newcwd);
-
-  for (slash = temp, newslash = newcwd;
-       *slash != '\0' && *newslash != '\0';
-       slash ++, newslash ++)
-    if ((*slash == '/' || *slash == '\\') &&
-        (*newslash == '/' || *newslash == '\\'))
-      continue;
-    else if (*slash != *newslash)
-      break;
-
-  while (*slash != '/' && *slash != '\\' && slash > temp)
-    slash --;
-
-  slash ++;
-
-//  printf("slash = \'%s\'\n", slash);
-
-  if (*newslash != '\0')
-    while (*newslash != '/' && *newslash != '\\' && newslash > newcwd)
-      newslash --;
-
-//  printf("newslash = \'%s\'\n", newslash);
-
-  newfilename[0] = '\0';
-
-  while (*newslash != '\0')
-  {
-    if (*newslash == '/' || *newslash == '\\')
-      strcat(newfilename, "../");
-    newslash ++;
-  }
-
-  strcat(newfilename, slash);
-
-  return (newfilename);
-}
-
-
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.8 1999/11/10 21:49:50 mike Exp $".
+// End of "$Id: gui.cxx,v 1.9 1999/11/11 21:36:44 mike Exp $".
 //
