@@ -1,5 +1,15 @@
-CHANGES.txt - 08/27/2002
+CHANGES.txt - 09/25/2002
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.23
+
+    BUG FIXES
+
+	- HTMLDOC tried to format tables with no rows or
+	  columns. While the HTML in technically not in error,
+	  it is not exactly something you'd expect someone to
+	  do.
+	  
 
 CHANGES IN HTMLDOC v1.8.22
 
