@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.231 2004/02/09 22:25:11 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.232 2004/02/10 03:44:26 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -166,50 +166,51 @@ extern "C" {		/* Workaround for JPEG header problems... */
  * Constants...
  */
 
-#define RENDER_TEXT	0
-#define RENDER_IMAGE	1
-#define RENDER_BOX	2
-#define RENDER_LINK	3
+#define RENDER_TEXT	0		/* Text fragment */
+#define RENDER_IMAGE	1		/* Image */
+#define RENDER_BOX	2		/* Box */
+#define RENDER_LINK	3		/* Hyperlink */
+#define RENDER_BG	4		/* Background image */
 
 
 /*
  * Structures...
  */
 
-typedef struct render_str	/**** Render entity structure ****/
+typedef struct render_str		/**** Render entity structure ****/
 {
-  struct render_str	*prev;	/* Previous rendering entity */
-  struct render_str	*next;	/* Next rendering entity */
-  int	type;			/* Type of entity */
-  float	x,			/* Position in points */
-	y,			/* ... */
-	width,			/* Size in points */
-	height;			/* ... */
+  struct render_str	*prev;		/* Previous rendering entity */
+  struct render_str	*next;		/* Next rendering entity */
+  int	type;				/* Type of entity */
+  float	x,				/* Position in points */
+	y,				/* ... */
+	width,				/* Size in points */
+	height;				/* ... */
   union
   {
     struct
     {
-      int	typeface,	/* Typeface for text */
-		style;		/* Style of text */
-      float	size;		/* Size of text in points */
-      float	spacing;	/* Inter-character spacing */
-      float	rgb[3];		/* Color of text */
-      uchar	buffer[1];	/* String buffer */
+      int	typeface,		/* Typeface for text */
+		style;			/* Style of text */
+      float	size;			/* Size of text in points */
+      float	spacing;		/* Inter-character spacing */
+      float	rgb[3];			/* Color of text */
+      uchar	buffer[1];		/* String buffer */
     }   	text;
-    image_t	*image;		/* Image pointer */
-    float	box[3];		/* Box color */
-    uchar	link[1];	/* Link URL */
+    image_t	*image;			/* Image pointer */
+    float	box[3];			/* Box color */
+    uchar	link[1];		/* Link URL */
   }	data;
 } render_t;
 
-typedef struct			/**** Named link position structure */
+typedef struct				/**** Named link position structure */
 {
-  short		page,		/* Page # */
-		top;		/* Top position */
-  uchar		name[124];	/* Reference name */
+  short		page,			/* Page # */
+		top;			/* Top position */
+  uchar		name[124];		/* Reference name */
 } link_t;
 
-typedef struct			//// Page information
+typedef struct				//// Page information
 {
   int		width,			// Width of page in points
 		length,			// Length of page in points
@@ -238,7 +239,7 @@ typedef struct			//// Page information
   float		outmatrix[2][3];	// Transform matrix
 } page_t;
 
-typedef struct			//// Output page info
+typedef struct				//// Output page info
 {
   int		nup;			// Number up pages
   int		pages[16];		// Pages on this output page
@@ -261,8 +262,8 @@ typedef struct			//// Output page info
  * Local globals...
  */
 
-static time_t	doc_time;	/* Current time */
-static struct tm *doc_date;	/* Current date */
+static time_t	doc_time;		// Current time
+static struct tm *doc_date;		// Current date
 
 static int	title_page;
 static int	chapter,
@@ -5451,15 +5452,15 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
  */
 
 static void
-parse_table(tree_t *t,		/* I - Tree to parse */
-            float  left,	/* I - Left margin */
-            float  right,	/* I - Printable width */
-            float  bottom,	/* I - Bottom margin */
-            float  top,		/* I - Printable top */
-            float  *x,		/* IO - X position */
-            float  *y,		/* IO - Y position */
-            int    *page,	/* IO - Page # */
-            int    needspace)	/* I - Need whitespace? */
+parse_table(tree_t *t,			// I - Tree to parse
+            float  left,		// I - Left margin
+            float  right,		// I - Printable width
+            float  bottom,		// I - Bottom margin
+            float  top,			// I - Printable top
+            float  *x,			// IO - X position
+            float  *y,			// IO - Y position
+            int    *page,		// IO - Page #
+            int    needspace)		// I - Need whitespace?
 {
   int		col,
 		row,
@@ -5499,28 +5500,33 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		table_width,
 		min_width,
 		temp_width,
+		table_y,
 		row_y, temp_y,
 		temp_bottom,
 		temp_top;
-  int		row_page, temp_page;
+  int		row_page, temp_page, table_page;
   uchar		*var,
-		*height_var;			// Row HEIGHT variable
+		*height_var;		// Row HEIGHT variable
   tree_t	*temprow,
 		*tempcol,
 		*tempnext,
 		***cells;
-  int		do_valign;			// True if we should do vertical alignment of cells
-  float		row_height,			// Total height of the row
-		temp_height;			// Temporary holder
-  int		cell_page[MAX_COLUMNS],		// Start page for cell
-		cell_endpage[MAX_COLUMNS];	// End page for cell
-  float		cell_y[MAX_COLUMNS],		// Row or each cell
-		cell_endy[MAX_COLUMNS],		// Row or each cell
-		cell_height[MAX_COLUMNS],	// Height of each cell in a row
-		span_heights[MAX_COLUMNS];	// Height of spans
-  render_t	*cell_bg[MAX_COLUMNS];		// Background rectangles
-  render_t	*cell_start[MAX_COLUMNS];	// Start of the content for a cell in the row
-  render_t	*cell_end[MAX_COLUMNS];		// End of the content for a cell in a row
+  int		do_valign;		// True if we should do vertical alignment of cells
+  float		row_height,		// Total height of the row
+		temp_height;		// Temporary holder
+  int		cell_page[MAX_COLUMNS],	// Start page for cell
+		cell_endpage[MAX_COLUMNS];
+					// End page for cell
+  float		cell_y[MAX_COLUMNS],	// Row or each cell
+		cell_endy[MAX_COLUMNS],	// Row or each cell
+		cell_height[MAX_COLUMNS],
+					// Height of each cell in a row
+		span_heights[MAX_COLUMNS];
+					// Height of spans
+  render_t	*cell_bg[MAX_COLUMNS];	// Background rectangles
+  render_t	*cell_start[MAX_COLUMNS];
+					// Start of the content for a cell in the row
+  render_t	*cell_end[MAX_COLUMNS];	// End of the content for a cell in a row
   uchar		*bgcolor;
   float		rgb[3],
 		bgrgb[3];
@@ -6121,6 +6127,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   memset(cell_height, 0, sizeof(cell_height));
   memset(cell_bg, 0, sizeof(cell_bg));
 
+  table_page = *page;
+  table_y    = *y;
+
   for (row = 0; row < num_rows; row ++)
   {
     height_var = NULL;
@@ -6246,11 +6255,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
         if (cells[row][col] == NULL)
 	  bgcolor = NULL;
-	else if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
-          if ((bgcolor = htmlGetVariable(cells[row][col]->parent, (uchar *)"BGCOLOR")) == NULL)
-	    bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR");
-
-	if (bgcolor != NULL)
+	else if ((bgcolor = htmlGetVariable(cells[row][col],
+                                            (uchar *)"BGCOLOR")) != NULL)
 	{
 	  memcpy(bgrgb, background_color, sizeof(bgrgb));
 
@@ -6503,6 +6509,18 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     row_y -= cellpadding;
 
+    if ((bgcolor = htmlGetVariable(cells[row][0]->parent,
+                                         (uchar *)"BGCOLOR")) != NULL)
+    {
+      memcpy(bgrgb, background_color, sizeof(bgrgb));
+
+      get_color(bgcolor, bgrgb, 0);
+
+      if (row_page != *page)
+      {
+      }
+    }
+
     for (col = 0; col < num_cols; col += colspan + 1)
     {
       if (row_spans[col] > 0)
@@ -6524,11 +6542,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           row_spans[col] > 0)
         continue;
 
-      if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
-        if ((bgcolor = htmlGetVariable(cells[row][col]->parent, (uchar *)"BGCOLOR")) == NULL)
-	  bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR");
-
-      if (bgcolor != NULL)
+      if ((bgcolor = htmlGetVariable(cells[row][col],
+                                     (uchar *)"BGCOLOR")) != NULL)
       {
         memcpy(bgrgb, background_color, sizeof(bgrgb));
 
@@ -6662,6 +6677,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       (*y) -= cellspacing;
 
     DEBUG_printf(("END row = %d, *y = %.1f, *page = %d\n", row, *y, *page));
+  }
+
+ /*
+  * Handle table background color...
+  */
+
+  if ((bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL)
+  {
   }
 
   *x = left;
@@ -12194,5 +12217,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.231 2004/02/09 22:25:11 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.232 2004/02/10 03:44:26 mike Exp $".
  */
