@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.22 2000/05/15 20:59:33 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.23 2000/12/11 04:40:31 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -377,7 +377,8 @@ FileBrowser::load(const char *directory)// I - Directory to load
     //
 
     num_files = 0;
-    icon      = FileIcon::find("any", FileIcon::DEVICE);
+    if ((icon = FileIcon::find("any", FileIcon::DEVICE)) == NULL)
+      icon = FileIcon::find("any", FileIcon::DIRECTORY);
 
 #if defined(WIN32)
     DWORD	drives;		// Drive available bits
@@ -516,5 +517,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.22 2000/05/15 20:59:33 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.23 2000/12/11 04:40:31 mike Exp $".
 //
