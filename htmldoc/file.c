@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.16 2001/05/20 13:05:15 mike Exp $"
+ * "$Id: file.c,v 1.13.2.17 2001/05/27 11:48:08 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -52,6 +52,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <ctype.h>
+
 
 
 /*
@@ -118,7 +120,7 @@ file_basename(const char *s)	/* I - Filename or URL */
     return (basename);
 
   strcpy(buf, basename);
-  *strchr(buf, '#') = '\0';
+  *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
 }
@@ -270,7 +272,7 @@ file_extension(const char *s)	/* I - Filename or URL */
     return (extension);
 
   strcpy(buf, extension);
-  *strchr(buf, '#') = '\0';
+  *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
 }
@@ -734,5 +736,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.16 2001/05/20 13:05:15 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.17 2001/05/27 11:48:08 mike Exp $".
  */
