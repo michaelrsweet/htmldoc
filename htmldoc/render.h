@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.7 2002/03/18 00:03:23 mike Exp $"
+// "$Id: render.h,v 1.8 2002/04/04 01:48:58 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -116,8 +116,10 @@ struct hdRenderPage		//// Page render information
   int		page_object,		// Page object
 		annot_object;		// Annotation object
   char		page_text[64];		// Page number for TOC
-  hdImage	*background_image;	// Background image
   float		background_color[3];	// Background color
+  hdImage	*background_image;	// Background image
+  float		background_position[2];	// Background start position
+  hdBackgroundRepeat background_repeat;	// Background repeat mode
 };
 
 
@@ -165,8 +167,10 @@ class hdRender
   char		media_color[64],	// Current media color
 		media_type[64];		// Current media type
   int		media_position;		// Current media position
-  hdImage	*background_image;	// Current background image
   float		background_color[3];	// Current background color
+  hdImage	*background_image;	// Current background image
+  float		background_position[2];	// Current background start position
+  hdBackgroundRepeat background_repeat;	// Current background repeat mode
 
   char		doc_date[64];		// Document creation date
   time_t	doc_time;		// Document creation time
@@ -219,13 +223,13 @@ class hdRender
   void		finish_document(const char *author, const char *creator,
 		                const char *copyright, const char *keywords);
 
-  void		parse_block(hdTree *t, hdMargin *m, float *x, float *y,
-		            int *page);
   int		parse_comment(hdTree *t, hdMargin *m, float *x, float *y,
 		              int *page);
   void		parse_contents(hdTree *t, hdMargin *m, float *y, int *page,
 		               int *heading, hdTree *chap);
   void		parse_doc(hdTree *t, hdMargin *m, float *x, float *y, int *page);
+  void		parse_line(hdTree *t, hdMargin *m, float *x, float *y,
+		           int *page, int lastline);
   void		parse_list(hdTree *t, hdMargin *m,  float *x, float *y,
 		           int *page);
   void		parse_table(hdTree *t, hdMargin *m, float *x, float *y,
@@ -433,5 +437,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.7 2002/03/18 00:03:23 mike Exp $".
+// End of "$Id: render.h,v 1.8 2002/04/04 01:48:58 mike Exp $".
 //

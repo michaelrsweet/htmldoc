@@ -1,5 +1,5 @@
 //
-// "$Id: render.cxx,v 1.7 2002/03/18 00:03:23 mike Exp $"
+// "$Id: render.cxx,v 1.8 2002/04/04 01:48:58 mike Exp $"
 //
 //   Core rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -57,24 +57,27 @@ hdRender::hdRender(hdStyleSheet *s)	// I - Stylesheet
   // Initialize class members...
   css = s;
 
-  page_width          = css->page_width;
-  page_length         = css->page_length;
-  page_left           = css->page_left;
-  page_right          = css->page_right;
-  page_bottom         = css->page_bottom;
-  page_top            = css->page_top;
-  page_print_width    = css->page_print_width;
-  page_print_length   = css->page_print_length;
-  orientation         = css->orientation;
-  sides               = css->sides;
-  media_color[0]      = '\0';
-  media_type[0]       = '\0';
-  media_position      = 0;
-  background_image    = NULL;
-  background_color[0] = 0.0f;
-  background_color[1] = 0.0f;
-  background_color[2] = 0.0f;
-  doc_time            = time(NULL);
+  page_width             = css->page_width;
+  page_length            = css->page_length;
+  page_left              = css->page_left;
+  page_right             = css->page_right;
+  page_bottom            = css->page_bottom;
+  page_top               = css->page_top;
+  page_print_width       = css->page_print_width;
+  page_print_length      = css->page_print_length;
+  orientation            = css->orientation;
+  sides                  = css->sides;
+  media_color[0]         = '\0';
+  media_type[0]          = '\0';
+  media_position         = 0;
+  background_color[0]    = 0.0f;
+  background_color[1]    = 0.0f;
+  background_color[2]    = 0.0f;
+  background_image       = NULL;
+  background_position[0] = 0.0f;
+  background_position[1] = 0.0f;
+  background_repeat      = HD_BACKGROUNDREPEAT_REPEAT;
+  doc_time               = time(NULL);
 
   date = localtime(&doc_time);
 
@@ -160,20 +163,6 @@ hdRender::finish_document(const char *author,
 
 
 //
-// 'hdRender::parse_block()' -
-//
-
-void
-hdRender::parse_block(hdTree   *t,
-                      hdMargin *m,
-		      float    *x,
-		      float    *y,
-		      int      *page)
-{
-}
-
-
-//
 // 'hdRender::parse_comment()' -
 //
 
@@ -214,6 +203,723 @@ hdRender::parse_doc(hdTree   *t,
 		    float    *y,
 		    int      *page)
 {
+}
+
+
+//
+// 'hdRender::parse_line()' - Render a single line of text.
+//
+
+void
+hdRender::parse_line(hdTree   *t,
+                     hdMargin *m,
+		     float    *x,
+		     float    *y,
+		     int      *page,
+		     int      lastline)
+{
+#if 0
+  int		whitespace;	// Non-zero if a fragment ends in whitespace
+  hdTree	*flat,
+		*start,
+		*end,
+		*prev,
+		*temp;
+  float		width,
+		height,
+		offset,
+		spacing,
+		borderspace,
+		temp_y,
+		temp_width,
+		temp_height;
+  float		format_width, image_y, image_left, image_right;
+  float		char_spacing;
+  int		num_chars;
+  hdRenderNode	*r;
+  uchar		*align,
+		*hspace,
+		*vspace,
+		*link,
+		*border;
+  float		rgb[3];
+  uchar		line[10240],
+		*lineptr;
+  hdTree	*linetype;
+  float		linex,
+		linewidth;
+  int		firstline;
+
+
+  DEBUG_printf(("parse_paragraph(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
+                t, left, right, bottom, top, *x, *y, *page, needspace));
+
+  flat        = flatten_tree(t->child);
+  image_left  = left;
+  image_right = right;
+  image_y     = 0;
+
+  if (flat == NULL)
+    DEBUG_puts("parse_paragraph: flat == NULL!");
+
+  // Add leading whitespace...
+  if (*y < top && needspace)
+    *y -= _htmlSpacings[SIZE_P];
+
+ //
+  * First scan for images with left/right alignment tags...
+ 
+
+  for (temp = flat, prev = NULL; temp != NULL;)
+  {
+    if (temp->element == HD_ELEMENT_IMG)
+      update_image_size(temp);
+
+    if (temp->element == HD_ELEMENT_IMG &&
+        (align = htmlGetVariable(temp, "ALIGN")))
+    {
+      if ((border = htmlGetVariable(temp, "BORDER")) != NULL)
+	borderspace = atof(border);
+      else if (temp->link)
+	borderspace = 1;
+      else
+	borderspace = 0;
+
+      borderspace *= css->print_width / _htmlBrowserWidth;
+
+      if (strcasecmp(align, "LEFT") == 0)
+      {
+        if ((vspace = htmlGetVariable(temp, "VSPACE")) != NULL)
+	  *y -= atoi(vspace);
+
+        if (*y < (bottom + temp->height + 2 * borderspace))
+        {
+	  (*page) ++;
+	  *y = top;
+
+	  if (Verbosity)
+	    progress_show("Formatting page %d", *page);
+        }
+
+        if (borderspace > 0.0f)
+	{
+	  if (temp->link && PSLevel == 0)
+	    memcpy(rgb, link_color, sizeof(rgb));
+	  else
+	  {
+	    rgb[0] = temp->red / 255.0f;
+	    rgb[1] = temp->green / 255.0f;
+	    rgb[2] = temp->blue / 255.0f;
+	  }
+
+	  // Top
+          add_render(*page, RENDER_BOX, image_left, *y - borderspace,
+		     temp->width + 2 * borderspace, borderspace, rgb);
+	  // Left
+          add_render(*page, RENDER_BOX, image_left,
+	             *y - temp->height - borderspace,
+                     borderspace, temp->height + 2 * borderspace, rgb);
+	  // Right
+          add_render(*page, RENDER_BOX, image_left + temp->width + borderspace,
+	             *y - temp->height - borderspace,
+                     borderspace, temp->height + 2 * borderspace, rgb);
+	  // Bottom
+          add_render(*page, RENDER_BOX, image_left,
+	             *y - temp->height - 2 * borderspace,
+                     temp->width + 2 * borderspace, borderspace, rgb);
+	}
+
+        *y -= borderspace;
+
+        add_render(*page, RENDER_IMAGE, image_left + borderspace,
+	           *y - temp->height, temp->width, temp->height,
+		   image_find(htmlGetVariable(temp, "REALSRC")));
+
+        *y -= borderspace;
+
+        if (vspace != NULL)
+	  *y -= atoi(vspace);
+
+        image_left += temp->width + 2 * borderspace;
+	temp_y     = *y - temp->height;
+
+	if (temp_y < image_y || image_y == 0)
+	  image_y = temp_y;
+
+        if ((hspace = htmlGetVariable(temp, "HSPACE")) != NULL)
+	  image_left += atoi(hspace);
+
+        if (prev != NULL)
+          prev->next = temp->next;
+        else
+          flat = temp->next;
+
+        free(temp);
+        temp = prev;
+      }
+      else if (strcasecmp(align, "RIGHT") == 0)
+      {
+        if ((vspace = htmlGetVariable(temp, "VSPACE")) != NULL)
+	  *y -= atoi(vspace);
+
+        if (*y < (bottom + temp->height + 2 * borderspace))
+        {
+	  (*page) ++;
+	  *y = top;
+
+	  if (Verbosity)
+	    progress_show("Formatting page %d", *page);
+        }
+
+        image_right -= temp->width + 2 * borderspace;
+
+        if (borderspace > 0.0f)
+	{
+	  if (temp->link && PSLevel == 0)
+	    memcpy(rgb, link_color, sizeof(rgb));
+	  else
+	  {
+	    rgb[0] = temp->red / 255.0f;
+	    rgb[1] = temp->green / 255.0f;
+	    rgb[2] = temp->blue / 255.0f;
+	  }
+
+	  // Top
+          add_render(*page, RENDER_BOX, image_right, *y - borderspace,
+		     temp->width + 2 * borderspace, borderspace, rgb);
+	  // Left
+          add_render(*page, RENDER_BOX, image_right,
+	             *y - temp->height - borderspace,
+                     borderspace, temp->height + 2 * borderspace, rgb);
+	  // Right
+          add_render(*page, RENDER_BOX, image_right + temp->width + borderspace,
+	             *y - temp->height - borderspace,
+                     borderspace, temp->height + 2 * borderspace, rgb);
+	  // Bottom
+          add_render(*page, RENDER_BOX, image_right, *y - temp->height - 2 * borderspace,
+                     temp->width + 2 * borderspace, borderspace, rgb);
+	}
+
+        *y -= borderspace;
+
+        add_render(*page, RENDER_IMAGE, image_right + borderspace,
+	           *y - temp->height, temp->width, temp->height,
+		   image_find(htmlGetVariable(temp, "REALSRC")));
+
+        *y -= borderspace;
+
+        if (vspace != NULL)
+	  *y -= atoi(vspace);
+
+	temp_y = *y - temp->height;
+
+	if (temp_y < image_y || image_y == 0)
+	  image_y = temp_y;
+
+        if ((hspace = htmlGetVariable(temp, "HSPACE")) != NULL)
+	  image_right -= atoi(hspace);
+
+        if (prev != NULL)
+          prev->next = temp->next;
+        else
+          flat = temp->next;
+
+        free(temp);
+        temp = prev;
+      }
+    }
+
+    if (temp != NULL)
+    {
+      prev = temp;
+      temp = temp->next;
+    }
+    else
+      temp = flat;
+  }
+
+ //
+  * Then format the text and inline images...
+ 
+
+  format_width = image_right - image_left;
+  firstline    = 1;
+
+  DEBUG_printf(("format_width = %.1f\n", format_width));
+
+  // Make stupid compiler warnings go away (if you can't put
+  // enough smarts in the compiler, don't add the warning!)
+  offset      = 0.0f;
+  temp_width  = 0.0f;
+  temp_height = 0.0f;
+  lineptr     = NULL;
+  linex       = 0.0f;
+  linewidth   = 0.0f;
+
+  while (flat != NULL)
+  {
+    start = flat;
+    end   = flat;
+    width = 0.0;
+
+    while (flat != NULL)
+    {
+      // Get fragments...
+      temp_width = 0.0;
+      temp       = flat;
+      whitespace = 0;
+
+      while (temp != NULL && !whitespace)
+      {
+        if (temp->element == HD_ELEMENT_NONE && temp->data[0] == ' ')
+	{
+          if (temp == start)
+            temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
+                          _htmlSizes[temp->size];
+          else if (temp_width > 0.0f)
+	    whitespace = 1;
+	}
+        else
+          whitespace = 0;
+
+        if (whitespace)
+	  break;
+
+        if (temp->element == HD_ELEMENT_IMG)
+	{
+	  if ((border = htmlGetVariable(temp, "BORDER")) != NULL)
+	    borderspace = atof(border);
+	  else if (temp->link)
+	    borderspace = 1;
+	  else
+	    borderspace = 0;
+
+          borderspace *= css->print_width / _htmlBrowserWidth;
+
+          temp_width += 2 * borderspace;
+	}
+
+        prev       = temp;
+        temp       = temp->next;
+        temp_width += prev->width;
+
+        
+        if (prev->element == HD_ELEMENT_BR)
+	  break;
+      }
+
+      if ((width + temp_width) <= format_width)
+      {
+        width += temp_width;
+        end  = temp;
+        flat = temp;
+
+        if (prev->element == HD_ELEMENT_BR)
+          break;
+      }
+      else if (width == 0.0)
+      {
+        width += temp_width;
+        end  = temp;
+        flat = temp;
+        break;
+      }
+      else
+        break;
+    }
+
+    if (start == end)
+    {
+      end   = start->next;
+      flat  = start->next;
+      width = start->width;
+    }
+
+    for (height = 0.0, num_chars = 0, temp = prev = start;
+         temp != end;
+	 temp = temp->next)
+    {
+      prev = temp;
+
+      if (temp->element == HD_ELEMENT_NONE)
+        num_chars += strlen(temp->data);
+
+      if (temp->height > height && temp->element != HD_ELEMENT_IMG)
+        height = temp->height;
+      else if ((0.5 * temp->height) > height && temp->element == HD_ELEMENT_IMG &&
+               temp->valignment == ALIGN_MIDDLE)
+        height = 0.5 * temp->height;
+
+      if (temp->superscript && height)
+        temp_height += height - temp_height;
+    }
+
+    for (spacing = 0.0, temp = prev = start;
+         temp != end;
+	 temp = temp->next)
+    {
+      prev = temp;
+
+      if (temp->element != HD_ELEMENT_IMG)
+        temp_height = temp->height * _htmlSpacings[0] / _htmlSizes[0];
+      else
+      {
+        switch (temp->valignment)
+	{
+	  case ALIGN_TOP :
+              temp_height = temp->height;
+	      break;
+	  case ALIGN_MIDDLE :
+              temp_height = 0.5f * temp->height + height;
+              break;
+	  case ALIGN_BOTTOM :
+	      temp_height = temp->height + height;
+              break;
+	}
+
+	if ((border = htmlGetVariable(temp, "BORDER")) != NULL)
+	  borderspace = atof(border);
+	else if (temp->link)
+	  borderspace = 1;
+	else
+	  borderspace = 0;
+
+        borderspace *= css->print_width / _htmlBrowserWidth;
+
+        temp_height += 2 * borderspace;
+      }
+
+      if (temp->subscript)
+        temp_height += height - temp_height;
+
+      if (temp_height > spacing)
+        spacing = temp_height;
+    }
+
+    if (firstline && end != NULL && *y < (bottom + 2.0f * height))
+    {
+      // Go to next page since only 1 line will fit on this one...
+      (*page) ++;
+      *y = top;
+
+      if (Verbosity)
+        progress_show("Formatting page %d", *page);
+    }
+
+    firstline = 0;
+
+    if (height == 0.0f)
+      height = spacing;
+
+    for (temp = start; temp != end; temp = temp->next)
+      if (temp->element != HD_ELEMENT_A)
+        break;
+
+    if (temp != NULL && temp->element == HD_ELEMENT_NONE && temp->data[0] == ' ')
+    {
+      strcpy(temp->data, temp->data + 1);
+      temp_width = _htmlWidths[temp->typeface][temp->style][' '] *
+                   _htmlSizes[temp->size];
+      temp->width -= temp_width;
+      num_chars --;
+    }
+
+    if (end != NULL)
+      temp = end->prev;
+    else
+      temp = NULL;
+
+    if (*y < (spacing + bottom))
+    {
+      (*page) ++;
+      *y = top;
+
+      if (Verbosity)
+        progress_show("Formatting page %d", *page);
+    }
+
+    *y -= height;
+
+    DEBUG_printf(("    y = %.1f, width = %.1f, height = %.1f\n", *y, width,
+                  height));
+
+    if (Verbosity)
+      progress_update(100 - (int)(100 * (*y) / css->print_length));
+
+    char_spacing = 0.0f;
+    whitespace   = 0;
+    temp         = start;
+    linetype     = NULL;
+
+    rgb[0] = temp->red / 255.0f;
+    rgb[1] = temp->green / 255.0f;
+    rgb[2] = temp->blue / 255.0f;
+
+    switch (t->halignment)
+    {
+      case ALIGN_LEFT :
+          linex = image_left;
+	  break;
+
+      case ALIGN_CENTER :
+          linex = image_left + 0.5f * (format_width - width);
+	  break;
+
+      case ALIGN_RIGHT :
+          linex = image_right - width;
+	  break;
+
+      case ALIGN_JUSTIFY :
+          linex = image_left;
+	  if (flat != NULL && flat->prev->element != HD_ELEMENT_BR && num_chars > 1)
+	    char_spacing = (format_width - width) / (num_chars - 1);
+	  break;
+    }
+
+    while (temp != end)
+    {
+      if (temp->link != NULL && PSLevel == 0 && Links &&
+          temp->element == HD_ELEMENT_NONE)
+      {
+	temp->red   = (int)(link_color[0] * 255.0);
+	temp->green = (int)(link_color[1] * 255.0);
+	temp->blue  = (int)(link_color[2] * 255.0);
+      }
+
+     //
+      * See if we are doing a run of characters in a line and need to
+      * output this run...
+     
+
+      if (linetype != NULL &&
+	  (temp->element != HD_ELEMENT_NONE ||
+	   temp->typeface != linetype->typeface ||
+	   temp->style != linetype->style ||
+	   temp->size != linetype->size ||
+	   temp->superscript != linetype->superscript ||
+	   temp->subscript != linetype->subscript ||
+	   temp->red != linetype->red ||
+	   temp->green != linetype->green ||
+	   temp->blue != linetype->blue))
+      {
+        switch (linetype->valignment)
+	{
+	  case ALIGN_TOP :
+	      offset = height - linetype->height;
+	      break;
+	  case ALIGN_MIDDLE :
+	      offset = 0.5f * (height - linetype->height);
+	      break;
+	  case ALIGN_BOTTOM :
+	      offset = 0.0f;
+	}
+
+        r = add_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
+	               linewidth, linetype->height, line);
+	r->data.text.typeface = linetype->typeface;
+	r->data.text.style    = linetype->style;
+	r->data.text.size     = _htmlSizes[linetype->size];
+	r->data.text.spacing  = char_spacing;
+        memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+
+	if (linetype->superscript)
+          r->y += height - linetype->height;
+        else if (linetype->subscript)
+          r->y -= height - linetype->height;
+
+        free(linetype);
+        linetype = NULL;
+      }
+
+      switch (temp->element)
+      {
+        case HD_ELEMENT_A :
+            if ((link = htmlGetVariable(temp, "NAME")) != NULL)
+            {
+             //
+              * Add a target link...
+             
+
+              add_link(link, *page, (int)(*y + 6 * height));
+            }
+
+	default :
+	    temp_width = temp->width;
+            break;
+
+        case HD_ELEMENT_NONE :
+            if (temp->data == NULL)
+              break;
+
+	    switch (temp->valignment)
+	    {
+	      case ALIGN_TOP :
+		  offset = height - temp->height;
+		  break;
+	      case ALIGN_MIDDLE :
+		  offset = 0.5f * (height - temp->height);
+		  break;
+	      case ALIGN_BOTTOM :
+		  offset = 0.0f;
+	    }
+
+            if (linetype == NULL)
+            {
+	      linetype  = temp;
+	      lineptr   = line;
+	      linewidth = 0.0;
+
+	      rgb[0] = temp->red / 255.0f;
+	      rgb[1] = temp->green / 255.0f;
+	      rgb[2] = temp->blue / 255.0f;
+	    }
+
+            strcpy(lineptr, temp->data);
+
+            temp_width = temp->width + char_spacing * strlen(lineptr);
+
+	    if (temp->underline || (temp->link && LinkStyle && PSLevel == 0))
+	      add_render(*page, RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
+
+	    if (temp->strikethrough)
+	      add_render(*page, RENDER_BOX, linex, *y + offset + temp->height * 0.25f,
+	                 temp_width, 0, rgb);
+
+            linewidth  += temp_width;
+            lineptr    += strlen(lineptr);
+
+            if (lineptr[-1] == ' ')
+              whitespace = 1;
+            else
+              whitespace = 0;
+	    break;
+
+	case HD_ELEMENT_IMG :
+	    if ((border = htmlGetVariable(temp, "BORDER")) != NULL)
+	      borderspace = atof(border);
+	    else if (temp->link)
+	      borderspace = 1;
+	    else
+	      borderspace = 0;
+
+            borderspace *= css->print_width / _htmlBrowserWidth;
+
+            temp_width += 2 * borderspace;
+
+	    switch (temp->valignment)
+	    {
+	      case ALIGN_TOP :
+		  offset = height - temp->height - 2 * borderspace;
+		  break;
+	      case ALIGN_MIDDLE :
+		  offset = -0.5f * temp->height - borderspace;
+		  break;
+	      case ALIGN_BOTTOM :
+		  offset = 0.0f;
+	    }
+
+            if (borderspace > 0.0f)
+	    {
+	      // Top
+              add_render(*page, RENDER_BOX, linex,
+	                 *y + offset + temp->height + borderspace,
+			 temp->width + 2 * borderspace, borderspace, rgb);
+	      // Left
+              add_render(*page, RENDER_BOX, linex, *y + offset,
+                	 borderspace, temp->height + 2 * borderspace, rgb);
+	      // Right
+              add_render(*page, RENDER_BOX, linex + temp->width + borderspace,
+	                 *y + offset, borderspace,
+			 temp->height + 2 * borderspace, rgb);
+	      // Bottom
+              add_render(*page, RENDER_BOX, linex, *y + offset,
+                	 temp->width + 2 * borderspace, borderspace, rgb);
+	    }
+
+	    add_render(*page, RENDER_IMAGE, linex + borderspace,
+	               *y + offset + borderspace, temp->width, temp->height,
+		       image_find(htmlGetVariable(temp, "REALSRC")));
+            whitespace = 0;
+	    temp_width = temp->width + 2 * borderspace;
+	    break;
+      }
+
+      if (temp->link != NULL)
+      {
+        link = htmlGetVariable(temp->link, "HREF");
+
+       //
+	* Add a page link...
+	*/
+
+	if (file_method(link) == NULL)
+	{
+	  if (file_target(link) != NULL)
+	    link = file_target(link) - 1; // Include # sign
+	  else
+	    link = file_basename(link);
+	}
+
+	add_render(*page, RENDER_LINK, linex, *y + offset, temp->width,
+	           temp->height, link);
+      }
+
+      linex += temp_width;
+      prev = temp;
+      temp = temp->next;
+      if (prev != linetype)
+        free(prev);
+    }
+
+    // See if we have a run of characters that hasn't been output...
+    if (linetype != NULL)
+    {
+      switch (linetype->valignment)
+      {
+	case ALIGN_TOP :
+	    offset = height - linetype->height;
+	    break;
+	case ALIGN_MIDDLE :
+	    offset = 0.5f * (height - linetype->height);
+	    break;
+	case ALIGN_BOTTOM :
+	    offset = 0.0f;
+      }
+
+      r = add_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
+                     linewidth, linetype->height, line);
+      r->data.text.typeface = linetype->typeface;
+      r->data.text.style    = linetype->style;
+      r->data.text.spacing  = char_spacing;
+      r->data.text.size     = _htmlSizes[linetype->size];
+      memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+
+      if (linetype->superscript)
+        r->y += height - linetype->height;
+      else if (linetype->subscript)
+        r->y -= height - linetype->height;
+
+      free(linetype);
+    }
+
+   //
+    * Update the margins after we pass below the images...
+   
+
+    *y -= spacing - height;
+
+    if (*y < image_y)
+    {
+      image_left   = left;
+      image_right  = right;
+      format_width = image_right - image_left;
+    }
+  }
+
+  *x = left;
+  if (*y > image_y && image_y > 0.0f)
+    *y = image_y;
+#endif // 0
 }
 
 
@@ -5852,5 +6558,5 @@ get_title(hdTree *doc)	// I - Document
 
 
 //
-// End of "$Id: render.cxx,v 1.7 2002/03/18 00:03:23 mike Exp $".
+// End of "$Id: render.cxx,v 1.8 2002/04/04 01:48:58 mike Exp $".
 //
