@@ -21,6 +21,7 @@ CHANGES IN HTMLDOC v1.8.3
 	  and PDF files.
 	- Filenames didn't always get updated properly when doing a
 	  "save as"...
+	- Fixed some more leading/trailing whitespace problems.
 
 
 CHANGES IN HTMLDOC v1.8.2
