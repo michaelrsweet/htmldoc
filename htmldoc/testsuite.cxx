@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.5 2002/02/26 05:16:03 mike Exp $"
+// "$Id: testsuite.cxx,v 1.6 2002/04/02 04:22:37 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -39,6 +39,8 @@
 
 void	print_tree(hdTree *t, int indent);
 void	print_style(hdStyle *s);
+void	write_book(hdFile *fp, hdTree *toc, hdTree *figures, hdTree *doc);
+void	write_html(hdFile *fp, hdTree *t);
 void	write_test(hdFile *fp);
 
 
@@ -59,7 +61,9 @@ main(int  argc,				// I - Number of command-line arguments
   hdFlateFilter		*flate;		// Flate filter
   hdJPEGFilter		*jpeg;		// JPEG filter
   hdStyleSheet		*css;		// Style sheet
-  hdTree		*html;		// HTML file
+  hdTree		*html,		// HTML file
+			*toc,		// Table-of-contents
+			*figures;	// List of figures...
 
 
   setbuf(stdout, NULL);
@@ -131,7 +135,7 @@ main(int  argc,				// I - Number of command-line arguments
       print_style(css->styles[i]);
     }
 
-    if ((fp = hdFile::open("../testsuite/basic.html", HD_FILE_READ)) != NULL)
+    if ((fp = hdFile::open("../testsuite/book.html", HD_FILE_READ)) != NULL)
     {
       html = hdTree::read(fp, "../testsuite", NULL, css);
 
@@ -140,13 +144,23 @@ main(int  argc,				// I - Number of command-line arguments
       if (html != NULL)
       {
         print_tree(html, 0);
+
+        toc     = html->build_toc(css, 3, 1);
+	figures = html->build_list(css, "FIGURE", "Figure");
+
+        fp = hdFile::open("test.html", HD_FILE_WRITE);
+	write_book(fp, toc, figures, html);
+	delete fp;
+
         delete html;
+	delete toc;
+	delete figures;
       }
       else
         puts("Unable to load HTML file!");
     }
     else
-      puts("Unable to open ../testsuite/basic.html!");
+      puts("Unable to open ../testsuite/book.html!");
 
     delete css;
   }
@@ -414,6 +428,120 @@ print_style(hdStyle *s)		// I - Style
 
 
 //
+// 'write_book()' - Write a book in HTML format...
+//
+
+void
+write_book(hdFile *fp,
+           hdTree *toc,
+	   hdTree *figures,
+	   hdTree *doc)
+{
+  fp->puts("<HTML><BODY>\n");
+  write_html(fp, toc);
+  fp->puts("<HR>\n");
+  write_html(fp, figures);
+  fp->puts("<HR>\n");
+  write_html(fp, doc);
+  fp->puts("</BODY></HTML>\n");
+}
+
+
+//
+// 'write_html()' - Write HTML to a file...
+//
+
+void
+write_html(hdFile *fp,
+           hdTree *t)
+{
+  int i, len, col = 0;
+
+  while (t)
+  {
+    switch (t->element)
+    {
+      case HD_ELEMENT_FILE :
+      case HD_ELEMENT_HTML :
+      case HD_ELEMENT_HEAD :
+      case HD_ELEMENT_BODY :
+          break;
+
+      case HD_ELEMENT_NONE :
+          len = strlen(t->data);
+	  if ((col + len) >= 80)
+	  {
+	    fp->puts("\n");
+	    col = 0;
+	  }
+
+	  if (t->whitespace && col)
+	  {
+	    col ++;
+	    fp->printf(" %s", t->data);
+	  }
+	  else
+	    fp->puts(t->data);
+
+          col += len;
+	  break;
+          
+      default :
+	  len = strlen(hdTree::elements[t->element]) + 1;
+
+	  if ((col + len) > 80)
+	  {
+            col = 0;
+	    fp->puts("\n");
+	  }
+
+	  fp->printf("<%s", hdTree::elements[t->element]);
+	  for (i = 0; i < t->nattrs; i ++)
+	  {
+	    len = strlen(t->attrs[i].name) + strlen(t->attrs[i].value) + 4;
+	    if ((col + len) > 80)
+	    {
+	      fp->printf("\n%s=\"%s\"", t->attrs[i].name, t->attrs[i].value);
+	      col = len - 1;
+	    }
+	    else
+	    {
+	      fp->printf(" %s=\"%s\"", t->attrs[i].name, t->attrs[i].value);
+	      col += len;
+	    }
+	  }
+	  fp->puts(">");
+	  col ++;
+          break;
+    }
+
+    if (t->child == NULL)
+    {
+      while (t->next == NULL && t->parent)
+      {
+	t = t->parent;
+	len = strlen(hdTree::elements[t->element]) + 3;
+
+	if ((col + len) > 80)
+	{
+          col = 0;
+	  fp->puts("\n");
+	}
+
+	fp->printf("</%s>", hdTree::elements[t->element]);
+	col += len;
+      }
+    }
+
+    t = t->real_next();
+  }
+
+  if (col)
+    fp->puts("\n");
+}
+
+
+//
 // 'write_test()' - Write test data to the specified file.
 //
 
@@ -432,5 +560,5 @@ write_test(hdFile *fp)	// I - File to write to...
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.5 2002/02/26 05:16:03 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.6 2002/04/02 04:22:37 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.10 2002/04/01 11:56:14 mike Exp $"
+// "$Id: tree.cxx,v 1.11 2002/04/02 04:22:37 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -1645,15 +1645,22 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 hdTree *				// O - Next logical node
 hdTree::real_next()
 {
+  hdTree	*t;			// Current node
+
+
   // Start at the current node and find the next logical node in
   // the tree...
+  if (child != NULL)
+    return (child);
+
   if (next != NULL)
     return (next);
 
-  if (parent != NULL)
-    return (parent->real_next());
-  else
-    return (NULL);
+  for (t = parent; t; t = t->parent)
+    if (t->next)
+      return (t->next);
+
+  return (NULL);
 }
 
 
@@ -1800,5 +1807,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.10 2002/04/01 11:56:14 mike Exp $".
+// End of "$Id: tree.cxx,v 1.11 2002/04/02 04:22:37 mike Exp $".
 //
