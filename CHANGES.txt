@@ -1,4 +1,4 @@
-CHANGES.txt - 05/09/2004
+CHANGES.txt - 05/15/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -101,6 +101,8 @@ CHANGES IN HTMLDOC v1.8.24
 	  were written.
 	- Character entities were not decoded/encoded inside
 	  HTML comments.
+	- The current heading was not always correctly
+	  substituted when used in the page header or footer.
 
 
 CHANGES IN HTMLDOC v1.8.23
