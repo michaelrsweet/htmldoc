@@ -9,12 +9,12 @@ class FileChooser {open
 } {
   decl {enum { SINGLE, MULTI, CREATE };} {public
   }
-  Function {FileChooser(const char *d, char *p, int t, const char *title)} {open
+  Function {FileChooser(const char *d, const char *p, int t, const char *title)} {open selected
   } {
     Fl_Window window {
       label {Pick a File}
       callback {fileList->deselect();
-fileName->value("");} open selected
+fileName->value("");} open
       private xywh {173 142 375 315} resizable hotspot
       code0 {if (title) window->label(title);}
       code1 {\#include <stdio.h>}
