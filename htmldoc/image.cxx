@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11 2000/10/12 00:20:35 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.1 2000/11/30 18:33:50 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -1098,15 +1098,10 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
                FILE    *fp,	/* I - File to read from */
 	       int     gray)	/* I - Grayscale image? */
 {
-  int		offset,		/* Offset to bitmap data */
-		info_size,	/* Size of info header */
-		planes,		/* Number of planes (always 1) */
+  int		info_size,	/* Size of info header */
 		depth,		/* Depth of image (bits) */
 		compression,	/* Type of compression */
-		image_size,	/* Size of image in bytes */
 		colors_used,	/* Number of colors used */
-		colors_important,/* Number of important colors */
-		bpp,		/* Bytes per pixel */
 		x, y,		/* Looping vars */
 		color,		/* Color of RLE pixel */
 		count,		/* Number of times to repeat */
@@ -1124,20 +1119,20 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   read_dword(fp);		/* Skip size */
   read_word(fp);		/* Skip reserved stuff */
   read_word(fp);
-  offset = read_dword(fp);
+  read_dword(fp);
 
   // Then the bitmap information...
   info_size        = read_dword(fp);
   img->width       = read_long(fp);
   img->height      = read_long(fp);
-  planes           = read_word(fp);
+  read_word(fp);
   depth            = read_word(fp);
   compression      = read_dword(fp);
-  image_size       = read_dword(fp);
+  read_dword(fp);
   read_long(fp);
   read_long(fp);
   colors_used      = read_dword(fp);
-  colors_important = read_dword(fp);
+  read_dword(fp);
 
   if (info_size > 40)
     for (info_size -= 40; info_size > 0; info_size --)
@@ -1499,5 +1494,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11 2000/10/12 00:20:35 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.1 2000/11/30 18:33:50 mike Exp $".
  */

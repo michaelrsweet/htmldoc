@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36 2000/10/12 00:20:35 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.1 2000/11/30 18:33:46 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -639,6 +639,18 @@ main(int  argc,		/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--portrait", 4) == 0)
       Landscape = 0;
+    else if (compare_strings(argv[i], "--proxy", 4) == 0)
+    {
+      i ++;
+      if (i < argc)
+      {
+        strncpy(Proxy, argv[i], sizeof(Proxy) - 1);
+	Proxy[sizeof(Proxy) - 1] = '\0';
+	file_proxy(Proxy);
+      }
+      else
+        usage();
+    }
     else if (compare_strings(argv[i], "--pscommands", 3) == 0)
       PSCommands = 1;
     else if (compare_strings(argv[i], "--right", 3) == 0)
@@ -1108,15 +1120,28 @@ prefs_load(void)
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "ownerpassword", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(OwnerPassword, value);
+  {
+    strncpy(OwnerPassword, value, sizeof(OwnerPassword) - 1);
+    OwnerPassword[sizeof(OwnerPassword) - 1] = '\0';
+  }
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "userpassword", NULL, NULL, (unsigned char *)value, &size))
-    strcpy(UserPassword, value);
+  {
+    strncpy(UserPassword, value, sizeof(UserPassword) - 1);
+    UserPassword[sizeof(UserPassword) - 1] = '\0';
+  }
 
   size = sizeof(value);
   if (!RegQueryValueEx(key, "path", NULL, NULL, (unsigned char *)value, &size))
     strcpy(Path, value);
+
+  size = sizeof(value);
+  if (!RegQueryValueEx(key, "proxy", NULL, NULL, (unsigned char *)value, &size))
+  {
+    strncpy(Proxy, value, sizeof(Proxy) - 1);
+    Proxy[sizeof(Proxy) - 1] = '\0';
+  }
 
   RegCloseKey(key);
 #else				//// Do .htmldocrc file in home dir...
@@ -1240,6 +1265,11 @@ prefs_load(void)
 	{
 	  strncpy(Path, line + 5, sizeof(Path) - 1);
 	  Path[sizeof(Path) - 1] = '\0';
+	}
+	else if (strncasecmp(line, "PROXY=", 5) == 0)
+	{
+	  strncpy(Proxy, line + 5, sizeof(Proxy) - 1);
+	  Proxy[sizeof(Proxy) - 1] = '\0';
 	}
 #  ifdef HAVE_LIBFLTK
         else if (strncasecmp(line, "EDITOR=", 7) == 0)
@@ -1458,6 +1488,9 @@ prefs_save(void)
   size = strlen(Path) + 1;
   RegSetValueEx(key, "path", 0, REG_SZ, (unsigned char *)Path, size);
 
+  size = strlen(Proxy) + 1;
+  RegSetValueEx(key, "proxy", 0, REG_SZ, (unsigned char *)Proxy, size);
+
   RegCloseKey(key);
 #  else				//// Do .htmldocrc file in home dir...
   char	htmldocrc[1024];	// HTMLDOC RC file
@@ -1519,6 +1552,7 @@ prefs_save(void)
       fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
       fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
       fprintf(fp, "PATH=%s\n", Path);
+      fprintf(fp, "PROXY=%s\n", Proxy);
 
       fprintf(fp, "EDITOR=%s\n", HTMLEditor);
 
@@ -1622,6 +1656,7 @@ usage(void)
   puts("  --path \"dir1;dir2;dir3;...;dirN\"");
   puts("  --permissions {all,annotate,copy,modify,print,no-annotate,no-copy,no-modify,no-print,none}");
   puts("  --portrait");
+  puts("  --proxy http://host:port");
   puts("  --pscommands");
   puts("  --right margin{in,cm,mm}");
   puts("  --size {letter,a4,WxH{in,cm,mm},etc}");
@@ -1658,5 +1693,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36 2000/10/12 00:20:35 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.1 2000/11/30 18:33:46 mike Exp $".
  */
