@@ -67,6 +67,8 @@ CHANGES IN HTMLDOC v1.8.24
 	- Fixed a bug when applying a table background color to
 	  a cell without a border that cross a page boundary.
 	- Fixed some calls to strcpy with overlapping arguments.
+	- The names object was never set when the name objects
+	  were written.
 
 
 CHANGES IN HTMLDOC v1.8.23
