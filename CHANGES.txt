@@ -1,6 +1,33 @@
 CHANGES.txt - 02/12/2001
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.10-1
+
+    CHANGES
+
+	- The "make install" target does a "make all" to ensure
+	  that the software is built before installing it.  This
+	  should help users that don't read the documentation
+	  build the software.
+	- Incorporated several OS/2 compile fixes from Alexander
+	  Mai.
+
+    BUG FIXES
+
+	- The temporary file created for PDF output to stdout
+	  was not unique.
+	- The temporary file created for PDF output to stdout
+	  did not use the GetTempPath() function under Windows.
+	- The temporary file cleanup code did not use the
+	  GetTempPath() function under Windows.
+	- The prefs_load() function did not check the
+	  HTMLDOC_DATA environment variable until after loading
+	  the preferences file.  This could cause any saved
+	  settings to generate error messages about missing
+	  files (these were reloaded when the document data was
+	  read, however.)
+
+
 CHANGES IN HTMLDOC v1.8.10
 
     NEW FEATURES

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.5 2001/02/12 17:06:04 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.6 2001/02/13 15:31:15 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1168,6 +1168,9 @@ prefs_load(void)
   FILE	*fp;			// File pointer
 
 
+  if (getenv("HTMLDOC_DATA") != NULL)
+    _htmlData = getenv("HTMLDOC_DATA");
+
   if (getenv("HOME") != NULL)
   {
     sprintf(htmldocrc, "%s/.htmldocrc", getenv("HOME"));
@@ -1300,9 +1303,6 @@ prefs_load(void)
       fclose(fp);
     }
   }
-
-  if (getenv("HTMLDOC_DATA") != NULL)
-    _htmlData = getenv("HTMLDOC_DATA");
 
 #  ifdef HAVE_LIBFLTK
   if (getenv("HTMLDOC_HELP") != NULL)
@@ -1726,5 +1726,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.5 2001/02/12 17:06:04 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.6 2001/02/13 15:31:15 mike Exp $".
  */
