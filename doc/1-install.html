@@ -1,6 +1,8 @@
 <HTML>
 <BODY>
 
+<DIV ALIGN="justify">
+
 <H1 ALIGN="RIGHT"><A NAME="INSTALL">Chapter 1 - Installing HTMLDOC</A></H1>
 
 This chapter describes the steps needed to install <I>HTMLDOC</I> on
@@ -20,8 +22,6 @@ following environments:
 
 	<LI>Compaq Tru64 UNIX 4.0 or higher
 
-	<LI>Digital UNIX 4.0 or higher
-
 	<LI>HP-UX 10.20 or higher
 
 	<LI>IRIX 5.3 or higher
@@ -32,13 +32,31 @@ following environments:
 
 	<LI>Microsoft Windows 98
 
+	<LI>Microsoft Windows Me
+
 	<LI>Microsoft Windows NT 4.0
 
-	<LI>Red Hat Linux 5.2 or higher
+	<LI>Microsoft Windows 2000
 
 	<LI>Solaris 2.5 or higher
 
 </UL>
+
+<H3>Installing HTMLDOC under Debian GNU/Linux</H3>
+
+Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
+
+<UL><PRE>
+% <KBD>dselect install htmldoc-1.8-linux-2.0.36-intel.deb ENTER</KBD>
+</PRE></UL>
+
+<H3>Ininstalling HTMLDOC under Debian GNU/Linux</H3>
+
+Run the following command to install <I>HTMLDOC</I> under Debian GNU/Linux:
+
+<UL><PRE>
+% <KBD>dselect remove htmldoc-1.8-linux-2.0.36-intel.deb ENTER</KBD>
+</PRE></UL>
 
 <H3>Installing HTMLDOC under Red Hat Linux</H3>
 
@@ -54,7 +72,7 @@ Run the following command to remove <I>HTMLDOC</I> from your Red Hat Linux
 system:
 
 <UL><PRE>
-% <KBD>rpm -r htmldoc ENTER</KBD>
+% <KBD>rpm -e htmldoc ENTER</KBD>
 </PRE></UL>
 
 <H3>Installing HTMLDOC under UNIX</H3>
@@ -95,13 +113,13 @@ different directories, architectures, or operating systems.
 
 <H3>Requirements</H3>
 
-<I>HTMLDOC</I> requires ANSI C and C++ compilers (GCC/EGCS work fine.) To
-build the GUI you'll also need:
+<I>HTMLDOC</I> requires ANSI C and C++ compilers - recent versions of GCC/EGCS
+work fine. To build the GUI you'll also need:
 
 <UL>
 
 	<LI><A HREF="http://fltk.easysw.com">Fast Light Tool Kit ("FLTK")</A>,
-	version 1.0 or newer.
+	version 1.0 or newer (version 1.0.10 preferred).
 
 	<LI><A HREF="ftp://ftp.x.org">X11 libraries</A>, R5 or higher (needed
 	to build under UNIX and OS/2 only.)
@@ -160,6 +178,7 @@ option to change the installation prefix to <VAR>/usr/local</VAR>:
 % <KBD>./configure --prefix=/usr/local ENTER</KBD>
 </PRE></UL>
 
+<!-- NEED 3in -->
 <H3>Compiling under UNIX</H3>
 
 <I>HTMLDOC</I> is built from a Makefile in the distribution's main
@@ -169,19 +188,34 @@ directory. Simply run the "make" command to build <I>HTMLDOC</I>:
 % <KBD>make ENTER</KBD>
 </PRE></UL>
 
-If you get any fatal errors please send a copy of the make/compiler
-output to "<A HREF="mailto:htmldoc-support@easysw.com">htmldoc-support@easysw.com</A>"
-for assistance. Please note the version of <I>HTMLDOC</I> that you are
-using as well as any pertinent system information (operating system, OS
-version, compiler, etc.)
+If you get any fatal errors, please subscribe to the HTMLDOC
+mailing list and send a copy of the make/compiler output to
+"<A HREF="mailto:htmldoc@easysw.com">htmldoc@easysw.com</A>" for
+assistance. Please note the version of <I>HTMLDOC</I> that you
+are using as well as any pertinent system information (operating
+system, OS version, compiler, etc.)
+
+<P>To subscribe to the HTMLDOC mailing list, send a message to
+"<A HREF="mailto:majordomo@easysw.com">majordomo@easysw.com</A>"
+with the text:
+
+<UL><PRE>
+subscribe htmldoc
+</PRE></UL>
+
+in the message body. <I>You must subscribe to the list to post
+questions and comments.</I>
 
 <H3>Installing under UNIX</H3>
 
-To install <I>HTMLDOC</I> simply run the "make install" command as root:
+To install <I>HTMLDOC</I> simply run the "make install" command:
 
 <UL><PRE>
 % <KBD>make install ENTER</KBD>
 </PRE></UL>
+
+<P>If you are installing in a restricted directory like <VAR>/usr</VAR>
+then you'll need to be logged in as root.
 
 <H3>Compiling with Visual C++</H3>
 
@@ -213,6 +247,8 @@ entries:
 	<DD>C:\installation\directory\doc
 
 </DL>
+
+</DIV>
 
 </BODY>
 </HTML>

@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.h,v 1.11 2001/01/22 15:03:43 mike Exp $"
+// "$Id: FileBrowser.h,v 1.10.2.2 2001/02/02 15:10:55 mike Exp $"
 //
 //   FileBrowser definitions.
 //
@@ -48,6 +48,7 @@ class FileBrowser : public Fl_Browser
   void		item_draw(void *, int, int, int, int) const;
   int		incr_height() const { return (item_height(0)); }
 
+
 public:
   FileBrowser(int, int, int, int, const char * = 0);
 
@@ -56,6 +57,11 @@ public:
 
   void		filter(const char *pattern);
   const char	*filter() const { return (pattern_); };
+
+  void		lineposition(int, Fl_Line_Position);
+  void		topline(int l) { lineposition(l, TOP); }
+  void		bottomline(int l) { lineposition(l, BOTTOM); }
+  void		middleline(int l) { lineposition(l, MIDDLE); }
 
   int		load(const char *directory);
 
@@ -67,5 +73,5 @@ public:
 #endif // !_GUI_FILEBROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.11 2001/01/22 15:03:43 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.10.2.2 2001/02/02 15:10:55 mike Exp $".
 //

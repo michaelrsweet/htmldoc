@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.22 2001/01/22 15:03:44 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.21.2.1 2001/02/02 15:10:55 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -1215,5 +1215,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.22 2001/01/22 15:03:44 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.21.2.1 2001/02/02 15:10:55 mike Exp $".
 //

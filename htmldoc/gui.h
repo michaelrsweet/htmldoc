@@ -1,9 +1,9 @@
 /*
- * "$Id: gui.h,v 1.14 2000/06/29 01:15:57 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.5 2001/03/04 03:05:06 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -63,6 +63,7 @@ class GUI
 		*typeWebPage;
   FileBrowser	*inputFiles;
   Fl_Button	*addFile,
+		*addURL,
 		*editFile,
 		*deleteFile,
 		*moveUpFile,
@@ -155,6 +156,8 @@ class GUI
 		*pageEffect;
   Fl_Value_Slider *pageDuration,
 		*effectDuration;
+  CheckButton	*links;
+  CheckButton	*truetype;
 
   Fl_Group	*securityTab;
   Fl_Group	*encryption;
@@ -173,6 +176,7 @@ class GUI
   Fl_Button	*htmlBrowse;
   Fl_Value_Slider *browserWidth;
   Fl_Input	*path;
+  Fl_Input	*proxy;
   Fl_Button	*saveOptions;
 
   Fl_Button	*bookSave,
@@ -181,12 +185,15 @@ class GUI
 
   Progress	*progressBar;
 
+  char		book_filename[1024];
+  int		book_changed;
+
   FileChooser	*fc;
   FileIcon	*icon;
   HelpDialog	*help;
-
-  char		book_filename[1024];
-  int		book_changed;
+  Fl_Window	*error_window;
+  Fl_Browser	*error_list;
+  Fl_Button	*error_ok;
 
   void		title(const char *filename = NULL, int changed = 0);
 
@@ -195,6 +202,7 @@ class GUI
   static void	docTypeCB(Fl_Widget *w, GUI *gui);
   static void	inputFilesCB(Fl_Widget *w, GUI *gui);
   static void	addFileCB(Fl_Widget *w, GUI *gui);
+  static void	addURLCB(Fl_Widget *w, GUI *gui);
   static void	editFilesCB(Fl_Widget *w, GUI *gui);
   static void	deleteFilesCB(Fl_Widget *w, GUI *gui);
   static void	moveUpFilesCB(Fl_Widget *w, GUI *gui);
@@ -234,6 +242,8 @@ class GUI
   static void	generateBookCB(Fl_Widget *w, GUI *gui);
   static void	closeBookCB(Fl_Widget *w, GUI *gui);
 
+  static void	errorCB(Fl_Widget *w, GUI *gui);
+
   public:
 
   static const char	*help_dir;
@@ -241,10 +251,12 @@ class GUI
   GUI(const char *filename = NULL);
   ~GUI(void);
 
+  void	add_error(const char *s) { error_list->add(s); }
   int	checkSave();
   void	hide() { window->hide(); help->hide(); fc->hide(); };
   int	loadBook(const char *bookfile);
   int	newBook();
+  void	parseOptions(const char *line);
   void	progress(int percent, char *text = NULL);
   int	saveBook(const char *bookfile);
   void	show();
@@ -253,5 +265,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14 2000/06/29 01:15:57 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.5 2001/03/04 03:05:06 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: CheckButton.cxx,v 1.11 2001/01/22 15:03:43 mike Exp $"
+// "$Id: CheckButton.cxx,v 1.10.2.1 2001/02/02 15:10:55 mike Exp $"
 //
 //   CheckButton routines for the Common UNIX Printing System (CUPS).
 //
@@ -109,5 +109,5 @@ CheckButton::CheckButton(int x, int y, int w, int h, const char* l)
 
 
 //
-// End of "$Id: CheckButton.cxx,v 1.11 2001/01/22 15:03:43 mike Exp $".
+// End of "$Id: CheckButton.cxx,v 1.10.2.1 2001/02/02 15:10:55 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.31 2001/01/22 15:03:44 mike Exp $"
+// "$Id: HelpView.cxx,v 1.30.2.1 2001/02/02 15:10:56 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -3120,5 +3120,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.31 2001/01/22 15:03:44 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.30.2.1 2001/02/02 15:10:56 mike Exp $".
 //

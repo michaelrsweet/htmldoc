@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.11 2000/01/04 13:52:22 mike Exp $"
+# "$Id: Makefile,v 1.11.2.2 2001/02/28 19:33:28 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
-#   Copyright 1997-2000 by Easy Software Products.
+#   Copyright 1997-2001 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -88,8 +88,9 @@ htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc
 #
 
 htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v -f htmldoc.pdf --duplex --jpeg --compression=9 \
-		--titleimage htmldoc.png --datadir .. $(SOURCES)
+	../htmldoc/htmldoc -v -f htmldoc.pdf --duplex --jpeg=75 \
+		 --compression=9 --titleimage htmldoc.png --datadir .. \
+		 $(SOURCES)
 
 
 #
@@ -97,10 +98,10 @@ htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc
 #
 
 htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
-	../htmldoc/htmldoc -v -f htmldoc.ps --duplex \
+	../htmldoc/htmldoc -v -f htmldoc.ps --duplex --jpeg=75 \
 		--titleimage htmldoc.png --datadir .. $(SOURCES)
 
 
 #
-# End of "$Id: Makefile,v 1.11 2000/01/04 13:52:22 mike Exp $".
+# End of "$Id: Makefile,v 1.11.2.2 2001/02/28 19:33:28 mike Exp $".
 #
