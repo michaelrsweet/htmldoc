@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.63 2000/04/22 18:12:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.64 2000/04/23 13:58:55 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2553,12 +2553,12 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      temp->markup != MARKUP_HR &&
 	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
 	      *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
 
           parse_doc(t->child, left + 36, right - 36, bottom, top, x, y, page, NULL);
 
           if (real_next(t) != NULL && *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
 
           *x = left;
           break;
@@ -2581,12 +2581,12 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      temp->markup != MARKUP_HR &&
 	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
 	      *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL);
 
           if (real_next(t) && *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
 
           *x = left;
           break;
@@ -2609,7 +2609,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      temp->markup != MARKUP_HR &&
 	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
 	      *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL);
           break;
@@ -2632,7 +2632,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      temp->markup != MARKUP_HR &&
 	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
 	      *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
 
           parse_pre(t, left, right, bottom, top, x, y, page);
           break;
@@ -2662,7 +2662,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      temp->markup != MARKUP_DL &&
 	      temp->markup != MARKUP_HR &&
 	      *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
 
           parse_doc(t->child, left + 36, right, bottom, top, x, y, page, para);
 
@@ -2674,11 +2674,10 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      temp->markup != MARKUP_MENU &&
 	      temp->markup != MARKUP_OL &&
 	      temp->markup != MARKUP_DL &&
-	      temp->markup != MARKUP_HR &&
 	      temp->markup != MARKUP_PRE &&
 	      (temp->markup < MARKUP_H1 || temp->markup > MARKUP_H6) &&
 	      *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
           break;
 
       case MARKUP_LI :
@@ -2696,7 +2695,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      temp->markup != MARKUP_UL &&
 	      temp->markup != MARKUP_OL &&
 	      *y < top)
-	    *y -= _htmlSpacings[t->size];
+	    *y -= _htmlSpacings[SIZE_P];
 
           parse_list(t, left, right, bottom, top, x, y, page);
           break;
@@ -2969,7 +2968,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   if (((t->markup - MARKUP_H1) < TocLevels || TocLevels == 0) && !title_page)
     current_heading = t->child;
 
-  if (*y < (5 * _htmlSpacings[t->size] + bottom))
+  if (*y < (5 * _htmlSpacings[SIZE_P] + bottom))
   {
     (*page) ++;
     *y = top;
@@ -2998,7 +2997,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       heading_pages[num_headings] = *page;
     }
 
-    heading_tops[num_headings] = (int)(*y + 2 * _htmlSpacings[t->size]);
+    heading_tops[num_headings] = (int)(*y + 2 * _htmlSpacings[SIZE_P]);
     num_headings ++;
   }
 
@@ -3020,7 +3019,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
            t->next->markup != MARKUP_MENU &&
 	   t->next->markup != MARKUP_DL &&
 	   t->next->markup != MARKUP_OL)
-    *y -= _htmlSpacings[t->next->size];
+    *y -= _htmlSpacings[SIZE_P];
 }
 
 
@@ -3077,7 +3076,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     DEBUG_puts("parse_paragraph: flat == NULL!");
 
   if (*y < top && t->prev != NULL)
-    *y -= _htmlSpacings[t->size];
+    *y -= _htmlSpacings[SIZE_P];
 
  /*
   * First scan for images with left/right alignment tags...
@@ -6841,5 +6840,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.63 2000/04/22 18:12:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.64 2000/04/23 13:58:55 mike Exp $".
  */
