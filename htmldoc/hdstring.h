@@ -1,5 +1,5 @@
 /*
- * "$Id: hdstring.h,v 1.1.2.5 2004/01/13 02:51:27 mike Exp $"
+ * "$Id: hdstring.h,v 1.1.2.6 2004/03/30 21:31:48 mike Exp $"
  *
  *   String definitions for HTMLDOC, a HTML document processing program.
  *
@@ -55,10 +55,7 @@ extern "C" {
 #    define strncasecmp(s,t,n)	strnicmp(s,t,n)
 #    define snprintf		_snprintf
 #    define vsnprintf		_vsnprintf
-#  elif defined(__EMX__)
-#    define strcasecmp(s,t)	stricmp(s,t)
-#    define strncasecmp(s,t,n)	strnicmp(s,t,n)
-#  endif /* WIN32 || __EMX__ */
+#  endif /* WIN32 */
 
 
 /*
@@ -112,5 +109,5 @@ extern int	hd_vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: hdstring.h,v 1.1.2.5 2004/01/13 02:51:27 mike Exp $".
+ * End of "$Id: hdstring.h,v 1.1.2.6 2004/03/30 21:31:48 mike Exp $".
  */
