@@ -35,6 +35,8 @@ CHANGES IN HTMLDOC v1.8.19
 	- The font width loading code didn't force the
 	  non-breaking space to have the same width as a regular
 	  space.
+	- PRE text didn't adjust the line height for the tallest
+	  fragment in the line.
 
 
 CHANGES IN HTMLDOC v1.8.18
