@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.10 1999/11/12 19:34:47 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.11 1999/11/12 21:59:57 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1610,9 +1610,9 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
         _htmlGlyphsAll[unicode] = strdup(glyph);
 
       fclose(fp);
-    }
 
-    _htmlInitialized = 1;
+      _htmlInitialized = 1;
+    }
   }
 
   memset(_htmlGlyphs, 0, sizeof(_htmlGlyphs));
@@ -2184,5 +2184,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.10 1999/11/12 19:34:47 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.11 1999/11/12 21:59:57 mike Exp $".
  */
