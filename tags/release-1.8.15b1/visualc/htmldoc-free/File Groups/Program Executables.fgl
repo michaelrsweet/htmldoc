@@ -1,0 +1,12 @@
+[TopDir]
+file0=C:\mike\htmldoc-1.8\README.txt
+file1=C:\mike\htmldoc-1.8\COPYING.txt
+file2=C:\mike\htmldoc-1.8\CHANGES.txt
+file3=C:\mike\htmldoc-1.8\visualc\ghtmldoc.exe
+file4=C:\mike\openssl-0.9.6a\out32dll\ssleay32.dll
+file5=C:\mike\openssl-0.9.6a\out32dll\libeay32.dll
+
+[General]
+Type=FILELIST
+Version=1.00.000
+
