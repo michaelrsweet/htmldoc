@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.79 2001/06/05 03:04:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.80 2001/06/05 14:07:53 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7702,14 +7702,8 @@ write_prolog(FILE  *out,	/* I - Output file */
      /*
       * What is the key length?
       *
-      * Note: Currently this code is disabled; all encrypted output is
-      *       40-bits until Adobe (or someone) clears up the errors in
-      *       the PDF 1.4 "delta" document.
-      *
-      *       (Also, it is interesting that the standard document
-      *        explicitly states that the U and O keys must be passed
-      *        as hex strings, but Acrobat puts out an unquoted (string)
-      *        entry...)
+      * Acrobat 4.0 and earlier (PDF 1.3 and earlier) allow a maximum of
+      * 40-bits.  Acrobat 5.0 and newer support 128-bits.
       */
 
       if (PDFVersion > 1.3)
@@ -7756,6 +7750,21 @@ write_prolog(FILE  *out,	/* I - Output file */
       }
 
      /*
+      * Figure out the permissions word; the new N-bit security
+      * handler adds several new permission bits, which we must
+      * simulate...
+      */
+
+      perm_value = (unsigned)Permissions;
+
+      if (encrypt_len > 5)
+      {
+        // N-bit encryption...
+	if (!(perm_value & PDF_PERM_COPY))
+	  perm_value &= ~0x00240000;	// Mask additional copy perms...
+      }
+
+     /*
       * Compute the encryption key...
       */
 
@@ -7763,7 +7772,6 @@ write_prolog(FILE  *out,	/* I - Output file */
       md5_append(&md5, user_pad, 32);
       md5_append(&md5, owner_key, 32);
 
-      perm_value = (unsigned)Permissions;
       perm_bytes[0] = perm_value;
       perm_bytes[1] = perm_value >> 8;
       perm_bytes[2] = perm_value >> 16;
@@ -7792,13 +7800,12 @@ write_prolog(FILE  *out,	/* I - Output file */
 
       if (encrypt_len > 5)
       {
-#if 0
         md5_init(&md5);
-        md5_append(&md5, encrypt_key, encrypt_len);
+        md5_append(&md5, pad, 32);
         md5_append(&md5, file_id, 16);
         md5_finish(&md5, user_key);
-#endif /* 0 */
-        memcpy(user_key, pad, 32);
+
+        memset(user_key + 16, 0, 16);
 
         // Encrypt the result 20 times...
         for (i = 0; i < 20; i ++)
@@ -7808,7 +7815,7 @@ write_prolog(FILE  *out,	/* I - Output file */
 	    digest[j] = encrypt_key[j] ^ i;
 
           rc4_init(&rc4, digest, encrypt_len);
-          rc4_encrypt(&rc4, user_key, user_key, 32);
+          rc4_encrypt(&rc4, user_key, user_key, 16);
 	}
       }
       else
@@ -7834,16 +7841,10 @@ write_prolog(FILE  *out,	/* I - Output file */
       if (encrypt_len > 5)
       {
         // N-bit encryption...
-	int newperms;
-
-        newperms = Permissions;
-	if (!(Permissions & PDF_PERM_COPY))
-	  newperms &= ~0x00240000;	// Mask additional copy perms...
-
-        fprintf(out, "/P %d/V 2/R 3/Length %d", newperms, encrypt_len * 8);
+        fprintf(out, "/P %d/V 2/R 3/Length %d", (int)perm_value, encrypt_len * 8);
       }
       else
-        fprintf(out, "/P %d/V 1/R 2", Permissions);
+        fprintf(out, "/P %d/V 1/R 2", (int)perm_value);
 
       pdf_end_object(out);
     }
@@ -8683,5 +8684,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.79 2001/06/05 03:04:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.80 2001/06/05 14:07:53 mike Exp $".
  */

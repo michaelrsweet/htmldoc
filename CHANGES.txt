@@ -1,5 +1,16 @@
-CHANGES.txt - 06/04/2001
+CHANGES.txt - 06/05/2001
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.14
+
+    NEW FEATURES
+
+	- Added support for 128-bit encryption.
+
+    CHANGES
+
+    BUG FIXES
+
 
 CHANGES IN HTMLDOC v1.8.13
 
