@@ -1,6 +1,6 @@
 # makefile for libpng on Linux ELF with gcc using MMX assembler code
 # Copyright (C) 1996, 1997 Andreas Dilger
-# Copyright (C) 1998-2001 Greg Roelofs
+# Copyright (C) 1998-2000 Greg Roelofs
 # For conditions of distribution and use, see copyright notice in png.h
 
 CC=gcc

@@ -1,5 +1,5 @@
 //
-// "$Id: FileInput.h,v 1.4 2001/01/22 15:03:44 mike Exp $"
+// "$Id: FileInput.h,v 1.3.2.2 2001/04/18 23:24:10 mike Exp $"
 //
 //   FileInput definitions.
 //
@@ -48,5 +48,5 @@ class FileInput : public Fl_Input	//// File input widget
 #endif // !_GUI_FILEINPUT_H_
 
 //
-// End of "$Id: FileInput.h,v 1.4 2001/01/22 15:03:44 mike Exp $".
+// End of "$Id: FileInput.h,v 1.3.2.2 2001/04/18 23:24:10 mike Exp $".
 //
