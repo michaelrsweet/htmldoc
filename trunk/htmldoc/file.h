@@ -1,5 +1,5 @@
 //
-// "$Id: file.h,v 1.11 2001/12/17 00:45:53 mike Exp $"
+// "$Id: file.h,v 1.12 2001/12/31 16:39:54 mike Exp $"
 //
 //   File class definitions for HTMLDOC, a HTML document processing program.
 //
@@ -30,6 +30,7 @@
 //
 
 #  include <stdio.h>
+#  include "http.h"
 
 
 //
@@ -65,7 +66,8 @@ class hdFile
   static int		no_local_;	// Allow local files to be opened?
 
   static const char	*proxy_;	// HTTP proxy URL
-  static char		proxy_host_[256];// HTTP proxy hostname
+  static char		proxy_host_[HD_MAX_URI];
+					// HTTP proxy hostname
   static int		proxy_port_;	// HTTP proxy port
 
   static int		temp_files_,	// Number of temporary files
@@ -130,6 +132,7 @@ class hdStdFile : public hdFile
 
   hdStdFile(const char *name, hdMode m);
   hdStdFile(FILE *f, hdMode m);
+  hdStdFile(int fd, hdMode m);
   virtual ~hdStdFile();
 
   virtual int	get();
@@ -210,5 +213,5 @@ class hdRC4Filter : public hdFile
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h,v 1.11 2001/12/17 00:45:53 mike Exp $".
+// End of "$Id: file.h,v 1.12 2001/12/31 16:39:54 mike Exp $".
 //

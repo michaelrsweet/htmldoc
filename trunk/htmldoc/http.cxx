@@ -1,5 +1,5 @@
 /*
- * "$Id: http.cxx,v 1.1 2001/12/07 18:26:58 mike Exp $"
+ * "$Id: http.cxx,v 1.2 2001/12/31 16:39:54 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
  *
@@ -74,6 +74,7 @@
 #include <errno.h>
 
 #include "http.h"
+#include "hdstring.h"
 #include "debug.h"
 
 #if !defined(WIN32)
@@ -127,6 +128,7 @@ static const char	*http_fields[] =
 			  "Content-Range",
 			  "Content-Type",
 			  "Content-Version",
+			  "Cookie",
 			  "Date",
 			  "Host",
 			  "If-Modified-Since",
@@ -138,6 +140,7 @@ static const char	*http_fields[] =
 			  "Range",
 			  "Referer",
 			  "Retry-After",
+			  "Set-Cookie",
 			  "Transfer-Encoding",
 			  "Upgrade",
 			  "User-Agent",
@@ -168,6 +171,15 @@ static const char	*months[12] =
 			  "Nov",
 			  "Dec"
 			};
+
+
+
+void
+hdHTTP::clear_fields()
+{
+  memset(fields, 0, sizeof(fields));
+  set_field(HD_HTTP_FIELD_HOST, hostname);
+}
 
 
 /*
@@ -2074,5 +2086,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.cxx,v 1.1 2001/12/07 18:26:58 mike Exp $".
+ * End of "$Id: http.cxx,v 1.2 2001/12/31 16:39:54 mike Exp $".
  */
