@@ -1,4 +1,4 @@
-CHANGES.txt - 03/06/2000
+CHANGES.txt - 05/19/2000
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.7
@@ -18,6 +18,8 @@ CHANGES IN HTMLDOC v1.8.7
 	  feed if there is not sufficient room on the page for
 	  the following text.
 	- Page comments are now supported in tables.
+	- Table rows are now allocated dynamically, MAX_ROWS at
+	  a time.
 
     CHANGES
 
@@ -37,6 +39,11 @@ CHANGES IN HTMLDOC v1.8.7
 	- Now only output link (A) style if it is set to "none".
 	  Otherwise Netscape would underline all targets as well
 	  as links.
+	- Increased the MAX_COLUMNS constant to 200, and dropped
+	  MAX_ROWS to 200. Note that the new table code now
+	  allocates rows in increments of MAX_ROWS rows, so the
+	  actual maximum number of rows depends on available
+	  memory.
 
     BUG FIXES
 

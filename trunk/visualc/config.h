@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.15 2000/04/12 02:35:31 mike Exp $"
+ * "$Id: config.h,v 1.16 2000/05/17 20:19:07 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -57,15 +57,15 @@
  */
 
 #define MAX_CHAPTERS	1000
-#define MAX_COLUMNS	100
+#define MAX_COLUMNS	200
 #define MAX_HEADINGS	10000
 #define MAX_IMAGES	1000
 #define MAX_LINKS	20000
 #define MAX_OBJECTS	(10 * MAX_PAGES)
 #define MAX_PAGES	10000
-#define MAX_ROWS	1000
+#define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h,v 1.15 2000/04/12 02:35:31 mike Exp $".
+ * End of "$Id: config.h,v 1.16 2000/05/17 20:19:07 mike Exp $".
  */
 
