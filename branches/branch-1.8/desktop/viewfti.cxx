@@ -1,5 +1,5 @@
 //
-// "$Id: viewfti.cxx,v 1.1.2.1 2004/06/14 02:57:45 mike Exp $"
+// "$Id: viewfti.cxx,v 1.1.2.2 2004/06/14 12:16:56 mike Exp $"
 //
 // FTI file viewer.
 //
@@ -43,18 +43,19 @@
 // 'main()' - Create a file chooser and wait for a selection to be made.
 //
 
-int			// O - Exit status
-main(int  argc,		// I - Number of command-line arguments
-     char *argv[])	// I - Command-line arguments
+int					// O - Exit status
+main(int  argc,				// I - Number of command-line arguments
+     char *argv[])			// I - Command-line arguments
 {
-  Fl_Window	*window;// Main window
-  Fl_Box	*box;// Buttons
-  Fl_File_Icon	*icon;	// New file icon
+  Fl_Window	*window;		// Main window
+  Fl_Box	*box;			// Buttons
+  Fl_File_Icon	*icon;			// New file icon
+  int		i;			// Looping var
 
 
-  if (argc != 2)
+  if (argc < 2)
   {
-    puts("Usage: viewfti filename.fti");
+    puts("Usage: viewfti filename.fti ...");
     return (1);
   }
 
@@ -69,7 +70,9 @@ main(int  argc,		// I - Number of command-line arguments
   box->box(FL_UP_BOX);
 
   icon = new Fl_File_Icon("", 0);
-  icon->load_fti(argv[1]);
+  for (i = 1; i < argc; i ++)
+    icon->load_fti(argv[i]);
+  box->labelcolor(FL_WHITE);
   icon->label(box);
 
   window->resizable(box);
@@ -83,5 +86,5 @@ main(int  argc,		// I - Number of command-line arguments
 
 
 //
-// End of "$Id: viewfti.cxx,v 1.1.2.1 2004/06/14 02:57:45 mike Exp $".
+// End of "$Id: viewfti.cxx,v 1.1.2.2 2004/06/14 12:16:56 mike Exp $".
 //
