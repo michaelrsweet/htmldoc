@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.144 2002/01/26 02:23:47 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.145 2002/01/27 21:32:28 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5284,7 +5284,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       {
         check_pages(*page);
 
-	if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
+        if (cells[row][col] == NULL)
+	  bgcolor = NULL;
+	else if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) == NULL)
           if ((bgcolor = htmlGetVariable(cells[row][col]->parent, (uchar *)"BGCOLOR")) == NULL)
 	    bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR");
 
@@ -10673,5 +10675,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.144 2002/01/26 02:23:47 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.145 2002/01/27 21:32:28 mike Exp $".
  */
