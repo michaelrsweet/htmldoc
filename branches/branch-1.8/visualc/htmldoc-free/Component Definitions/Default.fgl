@@ -24,15 +24,10 @@ SubDir0=<PROGRAMFILES>\<COMMONFILES>
 TYPE=TEXTSUBFIXED
 fulldirectory=
 
-[<TARGETDIR>\afm]
-DISPLAYTEXT=
-TYPE=FOLDER
-fulldirectory=
-
 [<TARGETDIR>]
 DISPLAYTEXT=General Application Destination
 SubDir0=<TARGETDIR>\data
-SubDir1=<TARGETDIR>\afm
+SubDir1=<TARGETDIR>\fonts
 TYPE=TEXTSUBFIXED
 SubDir2=<TARGETDIR>\doc
 fulldirectory=
@@ -57,4 +52,9 @@ SubDir3=USERDEFINED
 [General]
 Type=FILELIST
 Version=1.00.000
+
+[<TARGETDIR>\fonts]
+DISPLAYTEXT=
+TYPE=FOLDER
+fulldirectory=
 
