@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.20.2.10 2001/06/04 00:23:30 mike Exp $"
+ * "$Id: config.h,v 1.20.2.11 2001/06/20 18:04:53 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -76,7 +76,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.13"
+#define SVERSION	"1.8.14"
 
 
 /*
@@ -85,14 +85,21 @@
 
 #define MAX_CHAPTERS	1000
 #define MAX_COLUMNS	200
-#define MAX_HEADINGS	10000
-#define MAX_IMAGES	1000
-#define MAX_LINKS	20000
-#define MAX_OBJECTS	(10 * MAX_PAGES)
-#define MAX_PAGES	10000
-#define MAX_ROWS	200
+
 
 /*
- * End of "$Id: config.h,v 1.20.2.10 2001/06/04 00:23:30 mike Exp $".
+ * Memory allocation units for other stuff...
+ */
+
+#define ALLOC_FILES	10	/* Temporary/image files */
+#define ALLOC_HEADINGS	50	/* Headings */
+#define ALLOC_LINKS	100	/* Web links */
+#define ALLOC_OBJECTS	100	/* PDF objects */
+#define ALLOC_PAGES	10	/* PS/PDF pages */
+#define ALLOC_ROWS	20	/* Table rows */
+
+
+/*
+ * End of "$Id: config.h,v 1.20.2.11 2001/06/20 18:04:53 mike Exp $".
  */
 
