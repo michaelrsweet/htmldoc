@@ -1,11 +1,11 @@
 /*
- * "$Id: http.c,v 1.1 2000/09/11 01:19:25 mike Exp $"
+ * "$Id: http.c,v 1.1.2.7 2001/06/04 12:12:30 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
  *
- *   Copyright 1997-2000 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2001 by Easy Software Products, all rights reserved.
  *
- *   These statusd instructions, statements, and computer programs are the
+ *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
  *   copyright law.  Distribution and use rights are outlined in the file
  *   "LICENSE.txt" which should have been included with this file.  If this
@@ -23,39 +23,43 @@
  *
  * Contents:
  *
- *   httpInitialize()    - Initialize the HTTP interface library and set the
- *                         default HTTP proxy (if any).
- *   httpCheck()         - Check to see if there is a pending response from
- *                         the server.
- *   httpClose()         - Close an HTTP connection...
- *   httpConnect()       - Connect to a HTTP server.
- *   httpReconnect()     - Reconnect to a HTTP server...
- *   httpSeparate()      - Separate a Universal Resource Identifier into its
- *                         components.
- *   httpSetField()      - Set the value of an HTTP header.
- *   httpDelete()        - Send a DELETE request to the server.
- *   httpGet()           - Send a GET request to the server.
- *   httpHead()          - Send a HEAD request to the server.
- *   httpOptions()       - Send an OPTIONS request to the server.
- *   httpPost()          - Send a POST request to the server.
- *   httpPut()           - Send a PUT request to the server.
- *   httpTrace()         - Send an TRACE request to the server.
- *   httpFlush()         - Flush data from a HTTP connection.
- *   httpRead()          - Read data from a HTTP connection.
- *   httpWrite()         - Write data to a HTTP connection.
- *   httpGets()          - Get a line of text from a HTTP connection.
- *   httpPrintf()        - Print a formatted string to a HTTP connection.
- *   httpStatus()        - Return a short string describing a HTTP status code.
- *   httpGetDateString() - Get a formatted date/time string from a time value.
- *   httpGetDateTime()   - Get a time value from a formatted date/time string.
- *   httpUpdate()        - Update the current HTTP state for incoming data.
- *   httpDecode64()      - Base64-decode a string.
- *   httpEncode64()      - Base64-encode a string.
- *   httpGetLength()     - Get the amount of data remaining from the
- *                         content-length or transfer-encoding fields.
- *   http_field()        - Return the field index for a field name.
- *   http_send()         - Send a request with all fields and the trailing
- *                         blank line.
+ *   httpInitialize()     - Initialize the HTTP interface library and set the
+ *                          default HTTP proxy (if any).
+ *   httpCheck()          - Check to see if there is a pending response from
+ *                          the server.
+ *   httpClose()          - Close an HTTP connection...
+ *   httpConnect()        - Connect to a HTTP server.
+ *   httpConnectEncrypt() - Connect to a HTTP server using encryption.
+ *   httpEncryption()     - Set the required encryption on the link.
+ *   httpReconnect()      - Reconnect to a HTTP server...
+ *   httpSeparate()       - Separate a Universal Resource Identifier into its
+ *                          components.
+ *   httpGetSubField()    - Get a sub-field value.
+ *   httpSetField()       - Set the value of an HTTP header.
+ *   httpDelete()         - Send a DELETE request to the server.
+ *   httpGet()            - Send a GET request to the server.
+ *   httpHead()           - Send a HEAD request to the server.
+ *   httpOptions()        - Send an OPTIONS request to the server.
+ *   httpPost()           - Send a POST request to the server.
+ *   httpPut()            - Send a PUT request to the server.
+ *   httpTrace()          - Send an TRACE request to the server.
+ *   httpFlush()          - Flush data from a HTTP connection.
+ *   httpRead()           - Read data from a HTTP connection.
+ *   httpWrite()          - Write data to a HTTP connection.
+ *   httpGets()           - Get a line of text from a HTTP connection.
+ *   httpPrintf()         - Print a formatted string to a HTTP connection.
+ *   httpStatus()         - Return a short string describing a HTTP status code.
+ *   httpGetDateString()  - Get a formatted date/time string from a time value.
+ *   httpGetDateTime()    - Get a time value from a formatted date/time string.
+ *   httpUpdate()         - Update the current HTTP state for incoming data.
+ *   httpDecode64()       - Base64-decode a string.
+ *   httpEncode64()       - Base64-encode a string.
+ *   httpGetLength()      - Get the amount of data remaining from the
+ *                          content-length or transfer-encoding fields.
+ *   http_field()         - Return the field index for a field name.
+ *   http_send()          - Send a request with all fields and the trailing
+ *                          blank line.
+ *   http_upgrade()       - Force upgrade to TLS encryption.
  */
 
 /*
@@ -73,9 +77,16 @@
 #include "http.h"
 #include "debug.h"
 
-#if !defined(WIN32) && !defined(__EMX__)
+#if !defined(WIN32)
 #  include <signal.h>
-#endif /* !WIN32 && !__EMX__ */
+#endif /* !WIN32 */
+
+#ifdef HAVE_LIBSSL
+#  include <openssl/err.h>
+#  include <openssl/rand.h>
+#  include <openssl/ssl.h>
+#endif /* HAVE_LIBSSL */
+
 
 /*
  * Some operating systems have done away with the Fxxxx constants for
@@ -94,6 +105,9 @@
 static http_field_t	http_field(const char *name);
 static int		http_send(http_t *http, http_state_t request,
 			          const char *uri);
+#ifdef HAVE_LIBSSL
+static int		http_upgrade(http_t *http);
+#endif /* HAVE_LIBSSL */
 
 
 /*
@@ -165,7 +179,15 @@ static const char	*months[12] =
 void
 httpInitialize(void)
 {
-#if defined(WIN32) || defined(__EMX__)
+#ifdef HAVE_LIBSSL
+#  ifndef WIN32
+  struct timeval	curtime;	/* Current time in microseconds */
+#  endif /* !WIN32 */
+  int			i;		/* Looping var */
+  unsigned char		data[1024];	/* Seed data */
+#endif /* HAVE_LIBSSL */
+
+#if defined(WIN32)
   WSADATA	winsockdata;	/* WinSock data */
   static int	initialized = 0;/* Has WinSock been initialized? */
 
@@ -187,7 +209,28 @@ httpInitialize(void)
   sigaction(SIGPIPE, &action, NULL);
 #else
   signal(SIGPIPE, SIG_IGN);
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
+
+#ifdef HAVE_LIBSSL
+  SSL_load_error_strings();
+  SSL_library_init();
+
+ /*
+  * Using the current time is a dubious random seed, but on some systems
+  * it is the best we can do (on others, this seed isn't even used...)
+  */
+
+#  ifdef WIN32
+  srand(GetTickCount());
+#  else
+  gettimeofday(&curtime, NULL);
+  srand(curtime.tv_sec + curtime.tv_usec);
+#  endif /* WIN32 */
+  for (i = 0; i < sizeof(data); i ++)
+    data[i] = rand(); /* Yes, this is a poor source of random data... */
+
+  RAND_seed(&data, sizeof(data));
+#endif /* HAVE_LIBSSL */
 }
 
 
@@ -233,8 +276,28 @@ httpCheck(http_t *http)		/* I - HTTP connection */
 void
 httpClose(http_t *http)		/* I - Connection to close */
 {
-  if (http == NULL)
+#ifdef HAVE_LIBSSL
+  SSL_CTX	*context;	/* Context for encryption */
+  SSL		*conn;		/* Connection for encryption */
+#endif /* HAVE_LIBSSL */
+
+
+  if (!http)
     return;
+
+#ifdef HAVE_LIBSSL
+  if (http->tls)
+  {
+    conn    = (SSL *)(http->tls);
+    context = SSL_get_SSL_CTX(conn);
+
+    SSL_shutdown(conn);
+    SSL_CTX_free(context);
+    SSL_free(conn);
+
+    http->tls = NULL;
+  }
+#endif /* HAVE_LIBSSL */
 
 #ifdef WIN32
   closesocket(http->fd);
@@ -254,6 +317,32 @@ http_t *			/* O - New HTTP connection */
 httpConnect(const char *host,	/* I - Host to connect to */
             int        port)	/* I - Port number */
 {
+  http_encryption_t	encrypt;/* Type of encryption to use */
+
+
+ /*
+  * Set the default encryption status...
+  */
+
+  if (port == 443)
+    encrypt = HTTP_ENCRYPT_ALWAYS;
+  else
+    encrypt = HTTP_ENCRYPT_IF_REQUESTED;
+
+  return (httpConnectEncrypt(host, port, encrypt));
+}
+
+
+/*
+ * 'httpConnectEncrypt()' - Connect to a HTTP server using encryption.
+ */
+
+http_t *				/* O - New HTTP connection */
+httpConnectEncrypt(const char *host,	/* I - Host to connect to */
+                   int        port,	/* I - Port number */
+		   http_encryption_t encrypt)
+					/* I - Type of encryption to use */
+{
   http_t		*http;		/* New HTTP connection */
   struct hostent	*hostaddr;	/* Host address data */
 
@@ -268,6 +357,23 @@ httpConnect(const char *host,	/* I - Host to connect to */
   */
 
   if ((hostaddr = gethostbyname(host)) == NULL)
+  {
+   /*
+    * This hack to make users that don't have a localhost entry in
+    * their hosts file or DNS happy...
+    */
+
+    if (strcasecmp(host, "localhost") != 0)
+      return (NULL);
+    else if ((hostaddr = gethostbyname("127.0.0.1")) == NULL)
+      return (NULL);
+  }
+
+ /*
+  * Verify that it is an IPv4 address (IPv6 support will come in CUPS 1.2...)
+  */
+
+  if (hostaddr->h_addrtype != AF_INET || hostaddr->h_length != 4)
     return (NULL);
 
  /*
@@ -281,6 +387,7 @@ httpConnect(const char *host,	/* I - Host to connect to */
   http->version  = HTTP_1_1;
   http->blocking = 1;
   http->activity = time(NULL);
+  http->fd       = -1;
 
  /*
   * Copy the hostname and port and then "reconnect"...
@@ -294,6 +401,17 @@ httpConnect(const char *host,	/* I - Host to connect to */
 #else
   http->hostaddr.sin_port   = htons(port);
 #endif /* WIN32 */
+
+ /*
+  * Set the encryption status...
+  */
+
+  http->encryption = encrypt;
+
+ /*
+  * Connect to the remote system...
+  */
+
   if (httpReconnect(http))
   {
     free(http);
@@ -305,20 +423,66 @@ httpConnect(const char *host,	/* I - Host to connect to */
 
 
 /*
+ * 'httpEncryption()' - Set the required encryption on the link.
+ */
+
+int					/* O - -1 on error, 0 on success */
+httpEncryption(http_t            *http,	/* I - HTTP data */
+               http_encryption_t e)	/* I - New encryption preference */
+{
+#ifdef HAVE_LIBSSL
+  if (!http)
+    return (0);
+
+  http->encryption = e;
+
+  if ((http->encryption == HTTP_ENCRYPT_ALWAYS && !http->tls) ||
+      (http->encryption == HTTP_ENCRYPT_NEVER && http->tls))
+    return (httpReconnect(http));
+  else if (http->encryption == HTTP_ENCRYPT_REQUIRED && !http->tls)
+    return (http_upgrade(http));
+  else
+    return (0);
+#else
+  if (e == HTTP_ENCRYPT_ALWAYS || e == HTTP_ENCRYPT_REQUIRED)
+    return (-1);
+  else
+    return (0);
+#endif /* HAVE_LIBSSL */
+}
+
+
+/*
  * 'httpReconnect()' - Reconnect to a HTTP server...
  */
 
 int				/* O - 0 on success, non-zero on failure */
 httpReconnect(http_t *http)	/* I - HTTP data */
 {
-  int	val;			/* Socket option value */
+  int		val;		/* Socket option value */
+#ifdef HAVE_LIBSSL
+  SSL_CTX	*context;	/* Context for encryption */
+  SSL		*conn;		/* Connection for encryption */
 
+
+  if (http->tls)
+  {
+    conn    = (SSL *)(http->tls);
+    context = SSL_get_SSL_CTX(conn);
+
+    SSL_shutdown(conn);
+    SSL_CTX_free(context);
+    SSL_free(conn);
+
+    http->tls = NULL;
+  }
+#endif /* HAVE_LIBSSL */
 
  /*
   * Close any previously open socket...
   */
 
-  if (http->fd)
+  if (http->fd >= 0)
 #ifdef WIN32
     closesocket(http->fd);
 #else
@@ -331,11 +495,11 @@ httpReconnect(http_t *http)	/* I - HTTP data */
 
   if ((http->fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
     http->error  = WSAGetLastError();
 #else
     http->error  = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
     http->status = HTTP_ERROR;
     return (-1);
   }
@@ -360,11 +524,11 @@ httpReconnect(http_t *http)	/* I - HTTP data */
   if (connect(http->fd, (struct sockaddr *)&(http->hostaddr),
               sizeof(http->hostaddr)) < 0)
   {
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
     http->error  = WSAGetLastError();
 #else
     http->error  = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
     http->status = HTTP_ERROR;
 
 #ifdef WIN32
@@ -373,11 +537,51 @@ httpReconnect(http_t *http)	/* I - HTTP data */
     close(http->fd);
 #endif
 
+    http->fd = -1;
+
     return (-1);
   }
 
   http->error  = 0;
   http->status = HTTP_CONTINUE;
+
+#ifdef HAVE_LIBSSL
+  if (http->encryption == HTTP_ENCRYPT_ALWAYS)
+  {
+   /*
+    * Always do encryption via SSL.
+    */
+
+    context = SSL_CTX_new(SSLv23_method());
+    conn    = SSL_new(context);
+
+    SSL_set_fd(conn, http->fd);
+    if (SSL_connect(conn) != 1)
+    {
+      SSL_CTX_free(context);
+      SSL_free(conn);
+
+#if defined(WIN32)
+      http->error  = WSAGetLastError();
+#else
+      http->error  = errno;
+#endif /* WIN32 */
+      http->status = HTTP_ERROR;
+
+#ifdef WIN32
+      closesocket(http->fd);
+#else
+      close(http->fd);
+#endif
+
+      return (-1);
+    }
+
+    http->tls = conn;
+  }
+  else if (http->encryption == HTTP_ENCRYPT_REQUIRED)
+    return (http_upgrade(http));
+#endif /* HAVE_LIBSSL */
 
   return (0);
 }
@@ -396,66 +600,98 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
 	     int        *port,		/* O - Port number to use */
              char       *resource)	/* O - Resource/filename [1024] */
 {
-  char	*ptr;			/* Pointer into string... */
+  char		*ptr;				/* Pointer into string... */
+  const char	*atsign,			/* @ sign */
+		*slash;				/* Separator */
+  char		safeuri[HTTP_MAX_URI];		/* "Safe" local copy of URI */
 
+
+ /*
+  * Range check input...
+  */
 
   if (uri == NULL || method == NULL || username == NULL || host == NULL ||
       port == NULL || resource == NULL)
     return;
 
  /*
+  * Copy the URL to a local string to make sure we don't have a URL
+  * longer than HTTP_MAX_URI characters long...
+  */
+
+  strncpy(safeuri, uri, sizeof(safeuri));
+  safeuri[sizeof(safeuri) - 1] = '\0';
+
+  uri = safeuri;
+
+ /*
   * Grab the method portion of the URI...
   */
 
-  ptr = host;
-  while (*uri != ':' && *uri != '\0')
-    *ptr++ = *uri++;
-
-  *ptr = '\0';
-  if (*uri == ':')
-    uri ++;
-
- /*
-  * If the method contains a period or slash, then it's probably
-  * hostname/filename...
-  */
-
-  if (strchr(host, '.') != NULL || strchr(host, '/') != NULL || *uri == '\0')
+  if (strncmp(uri, "//", 2) == 0)
   {
-    if ((ptr = strchr(host, '/')) != NULL)
-    {
-      strncpy(resource, ptr, HTTP_MAX_URI - 1);
-      resource[HTTP_MAX_URI - 1] = '\0';
-      *ptr = '\0';
-    }
-    else
-      resource[0] = '\0';
+   /*
+    * Workaround for HP IPP client bug...
+    */
 
-    if (isdigit(*uri))
-    {
-     /*
-      * OK, we have "hostname:port[/resource]"...
-      */
-
-      *port = strtol(uri, (char **)&uri, 10);
-
-      if (*uri == '/')
-      {
-        strncpy(resource, uri, HTTP_MAX_URI - 1);
-        resource[HTTP_MAX_URI - 1] = '\0';
-      }
-    }
-    else
-      *port = 631;
-
-    strcpy(method, "http");
-    username[0] = '\0';
-    return;
+    strcpy(method, "ipp");
   }
   else
   {
-    strncpy(method, host, 31);
-    method[31] = '\0';
+   /*
+    * Standard URI with method...
+    */
+
+    for (ptr = host; *uri != ':' && *uri != '\0'; uri ++)
+      if (ptr < (host + HTTP_MAX_URI - 1))
+        *ptr++ = *uri;
+
+    *ptr = '\0';
+    if (*uri == ':')
+      uri ++;
+
+   /*
+    * If the method contains a period or slash, then it's probably
+    * hostname/filename...
+    */
+
+    if (strchr(host, '.') != NULL || strchr(host, '/') != NULL || *uri == '\0')
+    {
+      if ((ptr = strchr(host, '/')) != NULL)
+      {
+	strncpy(resource, ptr, HTTP_MAX_URI);
+	resource[HTTP_MAX_URI - 1] = '\0';
+	*ptr = '\0';
+      }
+      else
+	resource[0] = '\0';
+
+      if (isdigit(*uri))
+      {
+       /*
+	* OK, we have "hostname:port[/resource]"...
+	*/
+
+	*port = strtol(uri, (char **)&uri, 10);
+
+	if (*uri == '/')
+	{
+          strncpy(resource, uri, HTTP_MAX_URI);
+          resource[HTTP_MAX_URI - 1] = '\0';
+	}
+      }
+      else
+	*port = 631;
+
+      strcpy(method, "http");
+      username[0] = '\0';
+      return;
+    }
+    else
+    {
+      strncpy(method, host, 31);
+      method[31] = '\0';
+    }
   }
 
  /*
@@ -474,36 +710,41 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
   }
 
  /*
-  * Grab the hostname...
+  * Grab the username, if any...
   */
 
   while (*uri == '/')
     uri ++;
 
-  ptr = host;
-  while (!(*uri == ':' && isdigit(uri[1])) && *uri != '@' && *uri != '/' && *uri != '\0')
-    *ptr ++ = *uri ++;
+  if ((slash = strchr(uri, '/')) == NULL)
+    slash = uri + strlen(uri);
 
-  *ptr = '\0';
-
-  if (*uri == '@')
+  if ((atsign = strchr(uri, '@')) != NULL && atsign < slash)
   {
    /*
-    * Got a username...
+    * Got a username:password combo...
     */
 
-    strncpy(username, host, 31);
-    username[31] = '\0';
-    
-    ptr = host;
-    uri ++;
-    while (*uri != ':' && *uri != '/' && *uri != '\0')
-      *ptr ++ = *uri ++;
+    for (ptr = username; uri < atsign; uri ++)
+      if (ptr < (username + HTTP_MAX_URI - 1))
+	*ptr++ = *uri;
 
     *ptr = '\0';
+
+    uri = atsign + 1;
   }
   else
     username[0] = '\0';
+
+ /*
+  * Grab the hostname...
+  */
+
+  for (ptr = host; *uri != ':' && *uri != '/' && *uri != '\0'; uri ++)
+    if (ptr < (host + HTTP_MAX_URI - 1))
+      *ptr++ = *uri;
+
+  *ptr = '\0';
 
   if (*uri != ':')
   {
@@ -544,7 +785,7 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
   * The remaining portion is the resource string...
   */
 
-  strncpy(resource, uri, HTTP_MAX_URI - 1);
+  strncpy(resource, uri, HTTP_MAX_URI);
   resource[HTTP_MAX_URI - 1] = '\0';
 }
 
@@ -570,13 +811,16 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
       name == NULL || value == NULL)
     return (NULL);
 
+  DEBUG_printf(("httpGetSubField(%p, %d, \"%s\", %p)\n",
+                http, field, name, value));
+
   for (fptr = http->fields[field]; *fptr;)
   {
    /*
     * Skip leading whitespace...
     */
 
-    while (isspace(*fptr));
+    while (isspace(*fptr))
       fptr ++;
 
     if (*fptr == ',')
@@ -595,15 +839,20 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
 
     *ptr = '\0';
 
+    DEBUG_printf(("name = \"%s\"\n", temp));
+
    /*
     * Skip trailing chars up to the '='...
     */
 
-    while (*fptr && *fptr != '=')
+    while (isspace(*fptr))
       fptr ++;
 
     if (!*fptr)
       break;
+
+    if (*fptr != '=')
+      continue;
 
    /*
     * Skip = and leading whitespace...
@@ -611,7 +860,7 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
 
     fptr ++;
 
-    while (isspace(*fptr));
+    while (isspace(*fptr))
       fptr ++;
 
     if (*fptr == '\"')
@@ -647,6 +896,8 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
       while (*fptr && !isspace(*fptr) && *fptr != ',')
         fptr ++;
     }
+
+    DEBUG_printf(("value = \"%s\"\n", value));
 
    /*
     * See if this is the one...
@@ -858,6 +1109,10 @@ httpRead(http_t *http,			/* I - HTTP data */
     if (http->used > 0)
       memcpy(http->buffer, http->buffer + length, http->used);
   }
+#ifdef HAVE_LIBSSL
+  else if (http->tls)
+    bytes = SSL_read((SSL *)(http->tls), buffer, length);
+#endif /* HAVE_LIBSSL */
   else
   {
     DEBUG_printf(("httpRead: reading %d bytes from socket...\n", length));
@@ -868,11 +1123,11 @@ httpRead(http_t *http,			/* I - HTTP data */
   if (bytes > 0)
     http->data_remaining -= bytes;
   else if (bytes < 0)
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
     http->error = WSAGetLastError();
 #else
     http->error = errno;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
   if (http->data_remaining == 0)
   {
@@ -940,7 +1195,13 @@ httpWrite(http_t     *http,		/* I - HTTP data */
 
   while (length > 0)
   {
+#ifdef HAVE_LIBSSL
+    if (http->tls)
+      bytes = SSL_write((SSL *)(http->tls), buffer, length);
+    else
+#endif /* HAVE_LIBSSL */
     bytes = send(http->fd, buffer, length, 0);
+
     if (bytes < 0)
     {
       DEBUG_puts("httpWrite: error writing data...\n");
@@ -1003,11 +1264,11 @@ httpGets(char   *line,			/* I - Line to read into */
   * Pre-scan the buffer and see if there is a newline in there...
   */
 
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
   WSASetLastError(0);
 #else
   errno = 0;
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
   do
   {
@@ -1020,19 +1281,27 @@ httpGets(char   *line,			/* I - Line to read into */
       else
 	bufptr ++;
 
-    if (bufptr >= bufend)
+    if (bufptr >= bufend && http->used < HTTP_MAX_BUFFER)
     {
      /*
       * No newline; see if there is more data to be read...
       */
 
-      if ((bytes = recv(http->fd, bufend, HTTP_MAX_BUFFER - http->used, 0)) < 0)
+#ifdef HAVE_LIBSSL
+      if (http->tls)
+        bytes = SSL_read((SSL *)(http->tls), bufend,
+	                 HTTP_MAX_BUFFER - http->used);
+      else
+#endif /* HAVE_LIBSSL */
+      bytes = recv(http->fd, bufend, HTTP_MAX_BUFFER - http->used, 0);
+
+      if (bytes < 0)
       {
        /*
 	* Nope, can't get a line this time...
 	*/
 
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
         if (WSAGetLastError() != http->error)
 	{
 	  http->error = WSAGetLastError();
@@ -1048,7 +1317,7 @@ httpGets(char   *line,			/* I - Line to read into */
 	}
 
         DEBUG_printf(("httpGets(): recv() error %d!\n", errno));
-#endif /* WIN32 || __EMX__ */
+#endif /* WIN32 */
 
         return (NULL);
       }
@@ -1068,7 +1337,7 @@ httpGets(char   *line,			/* I - Line to read into */
       bufend     += bytes;
     }
   }
-  while (bufptr >= bufend);
+  while (bufptr >= bufend && http->used < HTTP_MAX_BUFFER);
 
   http->activity = time(NULL);
 
@@ -1079,6 +1348,7 @@ httpGets(char   *line,			/* I - Line to read into */
   lineptr = line;
   bufptr  = http->buffer;
   bytes   = 0;
+  length --;
 
   while (bufptr < bufend && bytes < length)
   {
@@ -1087,19 +1357,24 @@ httpGets(char   *line,			/* I - Line to read into */
     if (*bufptr == 0x0a)
     {
       bufptr ++;
-      *lineptr = '\0';
-
-      http->used -= bytes;
-      if (http->used > 0)
-	memcpy(http->buffer, bufptr, http->used);
-
-      DEBUG_printf(("httpGets(): Returning \"%s\"\n", line));
-      return (line);
+      break;
     }
     else if (*bufptr == 0x0d)
       bufptr ++;
     else
       *lineptr++ = *bufptr++;
+  }
+
+  if (bytes > 0)
+  {
+    *lineptr = '\0';
+
+    http->used -= bytes;
+    if (http->used > 0)
+      memcpy(http->buffer, bufptr, http->used);
+
+    DEBUG_printf(("httpGets(): Returning \"%s\"\n", line));
+    return (line);
   }
 
   DEBUG_puts("httpGets(): No new line available!");
@@ -1132,8 +1407,17 @@ httpPrintf(http_t     *http,		/* I - HTTP data */
   DEBUG_printf(("httpPrintf: %s", buf));
 
   for (tbytes = 0, bufptr = buf; tbytes < bytes; tbytes += nbytes, bufptr += nbytes)
-    if ((nbytes = send(http->fd, bufptr, bytes - tbytes, 0)) < 0)
+  {
+#ifdef HAVE_LIBSSL
+    if (http->tls)
+      nbytes = SSL_write((SSL *)(http->tls), bufptr, bytes - tbytes);
+    else
+#endif /* HAVE_LIBSSL */
+    nbytes = send(http->fd, bufptr, bytes - tbytes, 0);
+
+    if (nbytes < 0)
       return (-1);
+  }
 
   return (bytes);
 }
@@ -1148,6 +1432,10 @@ httpStatus(http_status_t status)	/* I - HTTP status code */
 {
   switch (status)
   {
+    case HTTP_CONTINUE :
+        return ("Continue");
+    case HTTP_SWITCHING_PROTOCOLS :
+        return ("Switching Protocols");
     case HTTP_OK :
         return ("OK");
     case HTTP_CREATED :
@@ -1170,6 +1458,8 @@ httpStatus(http_status_t status)	/* I - HTTP status code */
         return ("Request Entity Too Large");
     case HTTP_URI_TOO_LONG :
         return ("URI Too Long");
+    case HTTP_UPGRADE_REQUIRED :
+        return ("Upgrade Required");
     case HTTP_NOT_IMPLEMENTED :
         return ("Not Implemented");
     case HTTP_NOT_SUPPORTED :
@@ -1192,9 +1482,9 @@ httpGetDateString(time_t t)		/* I - UNIX time */
 
 
   tdate = gmtime(&t);
-  sprintf(datetime, "%s, %02d %s %d %02d:%02d:%02d GMT",
-          days[tdate->tm_wday], tdate->tm_mday, months[tdate->tm_mon],
-	  tdate->tm_year + 1900, tdate->tm_hour, tdate->tm_min, tdate->tm_sec);
+  snprintf(datetime, sizeof(datetime), "%s, %02d %s %d %02d:%02d:%02d GMT",
+           days[tdate->tm_wday], tdate->tm_mday, months[tdate->tm_mon],
+	   tdate->tm_year + 1900, tdate->tm_hour, tdate->tm_min, tdate->tm_sec);
 
   return (datetime);
 }
@@ -1248,6 +1538,10 @@ httpUpdate(http_t *http)		/* I - HTTP data */
   http_field_t	field;			/* Field index */
   int		major, minor;		/* HTTP version numbers */
   http_status_t	status;			/* Authorization status */
+#ifdef HAVE_LIBSSL
+  SSL_CTX	*context;		/* Context for encryption */
+  SSL		*conn;			/* Connection for encryption */
+#endif /* HAVE_LIBSSL */
 
 
   DEBUG_printf(("httpUpdate(%08x)\n", http));
@@ -1280,6 +1574,43 @@ httpUpdate(http_t *http)		/* I - HTTP data */
 
       if (http->status == HTTP_CONTINUE)
         return (http->status);
+
+#ifdef HAVE_LIBSSL
+      if (http->status == HTTP_SWITCHING_PROTOCOLS && !http->tls)
+      {
+	context = SSL_CTX_new(SSLv23_method());
+	conn    = SSL_new(context);
+
+	SSL_set_fd(conn, http->fd);
+	if (SSL_connect(conn) != 1)
+	{
+	  SSL_CTX_free(context);
+	  SSL_free(conn);
+
+#if defined(WIN32) || defined(__EMX__)
+	  http->error  = WSAGetLastError();
+#else
+	  http->error  = errno;
+#endif /* WIN32 || __EMX__ */
+	  http->status = HTTP_ERROR;
+
+#ifdef WIN32
+	  closesocket(http->fd);
+#else
+	  close(http->fd);
+#endif
+
+	  return (HTTP_ERROR);
+	}
+
+	http->tls = conn;
+
+        return (HTTP_CONTINUE);
+      }
+      else if (http->status == HTTP_UPGRADE_REQUIRED &&
+               http->encryption != HTTP_ENCRYPT_NEVER)
+        http->encryption = HTTP_ENCRYPT_REQUIRED;
+#endif /* HAVE_LIBSSL */
 
       httpGetLength(http);
 
@@ -1581,12 +1912,15 @@ http_send(http_t       *http,	/* I - HTTP data */
   * Encode the URI as needed...
   */
 
-  for (ptr = buf; *uri != '\0'; uri ++)
+  for (ptr = buf; *uri != '\0' && ptr < (buf + sizeof(buf) - 1); uri ++)
     if (*uri <= ' ' || *uri >= 127)
     {
-      *ptr ++ = '%';
-      *ptr ++ = hex[(*uri >> 4) & 15];
-      *ptr ++ = hex[*uri & 15];
+      if (ptr < (buf + sizeof(buf) - 1))
+        *ptr ++ = '%';
+      if (ptr < (buf + sizeof(buf) - 1))
+        *ptr ++ = hex[(*uri >> 4) & 15];
+      if (ptr < (buf + sizeof(buf) - 1))
+        *ptr ++ = hex[*uri & 15];
     }
     else
       *ptr ++ = *uri;
@@ -1609,6 +1943,14 @@ http_send(http_t       *http,	/* I - HTTP data */
     http->state ++;
 
   http->status = HTTP_CONTINUE;
+
+#ifdef HAVE_LIBSSL
+  if (http->encryption == HTTP_ENCRYPT_REQUIRED && !http->tls)
+  {
+    httpSetField(http, HTTP_FIELD_CONNECTION, "Upgrade");
+    httpSetField(http, HTTP_FIELD_UPGRADE, "TLS/1.0,SSL/2.0,SSL/3.0");
+  }
+#endif /* HAVE_LIBSSL */
 
   if (httpPrintf(http, "%s %s HTTP/1.1\r\n", codes[request], buf) < 1)
   {
@@ -1640,6 +1982,98 @@ http_send(http_t       *http,	/* I - HTTP data */
 }
 
 
+#ifdef HAVE_LIBSSL
 /*
- * End of "$Id: http.c,v 1.1 2000/09/11 01:19:25 mike Exp $".
+ * 'http_upgrade()' - Force upgrade to TLS encryption.
+ */
+
+static int			/* O - Status of connection */
+http_upgrade(http_t *http)	/* I - HTTP data */
+{
+  int		ret;		/* Return value */
+  http_t	myhttp;		/* Local copy of HTTP data */
+
+
+  DEBUG_printf(("http_upgrade(%p)\n", http));
+
+ /*
+  * Copy the HTTP data to a local variable so we can do the OPTIONS
+  * request without interfering with the existing request data...
+  */
+
+  memcpy(&myhttp, http, sizeof(myhttp));
+
+ /*
+  * Send an OPTIONS request to the server, requiring SSL or TLS
+  * encryption on the link...
+  */
+
+  httpClearFields(&myhttp);
+  httpSetField(&myhttp, HTTP_FIELD_CONNECTION, "upgrade");
+  httpSetField(&myhttp, HTTP_FIELD_UPGRADE, "TLS/1.0, SSL/2.0, SSL/3.0");
+
+  if ((ret = httpOptions(&myhttp, "*")) == 0)
+  {
+   /*
+    * Wait for the secure connection...
+    */
+
+    while (httpUpdate(&myhttp) == HTTP_CONTINUE);
+  }
+
+  httpFlush(&myhttp);
+
+ /*
+  * Copy the HTTP data back over, if any...
+  */
+
+  http->fd         = myhttp.fd;
+  http->error      = myhttp.error;
+  http->activity   = myhttp.activity;
+  http->status     = myhttp.status;
+  http->version    = myhttp.version;
+  http->keep_alive = myhttp.keep_alive;
+  http->used       = myhttp.used;
+
+  if (http->used)
+    memcpy(http->buffer, myhttp.buffer, http->used);
+
+  http->auth_type   = myhttp.auth_type;
+  http->nonce_count = myhttp.nonce_count;
+
+  memcpy(http->nonce, myhttp.nonce, sizeof(http->nonce));
+
+  http->tls        = myhttp.tls;
+  http->encryption = myhttp.encryption;
+
+ /*
+  * See if we actually went secure...
+  */
+
+  if (!http->tls)
+  {
+   /*
+    * Server does not support HTTP upgrade...
+    */
+
+    DEBUG_puts("Server does not support HTTP upgrade!");
+
+#ifdef WIN32
+    closesocket(http->fd);
+#else
+    close(http->fd);
+#endif
+
+    http->fd = -1;
+
+    return (-1);
+  }
+  else
+    return (ret);
+}
+#endif /* HAVE_LIBSSL */
+
+
+/*
+ * End of "$Id: http.c,v 1.1.2.7 2001/06/04 12:12:30 mike Exp $".
  */

@@ -1,9 +1,9 @@
 /*
- * "$Id: progress.cxx,v 1.6 2000/10/12 00:20:36 mike Exp $"
+ * "$Id: progress.cxx,v 1.6.2.3 2001/06/26 23:04:27 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -62,12 +62,13 @@ progress_error(char *format,	/* I - Printf-style format string */
 #ifdef HAVE_LIBFLTK
   if (BookGUI != NULL)
   {
-    fl_alert("%s", text);
+    BookGUI->add_error(text);
     return;
   }
 #endif /* HAVE_LIBFLTK */
 
-  fprintf(stderr, "\r%-79s\n", text);
+  if (Verbosity >= 0)
+    fprintf(stderr, "\r%-79s\n", text);
 }
 
 
@@ -86,8 +87,11 @@ progress_hide(void)
   }
 #endif /* HAVE_LIBFLTK */
 
-  fprintf(stderr, "\r%-79s\r", "");
-  fflush(stderr);
+  if (Verbosity > 0)
+  {
+    fprintf(stderr, "\r%-79s\r", "");
+    fflush(stderr);
+  }
 }
 
 
@@ -115,8 +119,11 @@ progress_show(char *format,	/* I - Printf-style format string */
   }
 #endif /* HAVE_LIBFLTK */
 
-  fprintf(stderr, "\r%-79s", text);
-  fflush(stderr);
+  if (Verbosity > 0)
+  {
+    fprintf(stderr, "\r%-79s", text);
+    fflush(stderr);
+  }
 }
 
 
@@ -138,5 +145,5 @@ progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.6 2000/10/12 00:20:36 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.6.2.3 2001/06/26 23:04:27 mike Exp $".
  */

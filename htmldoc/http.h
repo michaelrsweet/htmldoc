@@ -1,10 +1,10 @@
 /*
- * "$Id: http.h,v 1.2 2000/09/15 02:42:41 mike Exp $"
+ * "$Id: http.h,v 1.2.2.6 2001/06/04 12:12:30 mike Exp $"
  *
  *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
  *   System (CUPS).
  *
- *   Copyright 1997-2000 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2001 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -32,12 +32,12 @@
 
 #  include <string.h>
 #  include <time.h>
-#  if defined(WIN32) || defined(__EMX__)
+#  if defined(WIN32)
 #    include <winsock.h>
 #  else
 #    include <unistd.h>
-#    include <sys/time.h>
 #    include <sys/types.h>
+#    include <sys/time.h>
 #    include <sys/socket.h>
 #    include <netdb.h>
 #    include <netinet/in.h>
@@ -45,7 +45,7 @@
 #    include <netinet/in_systm.h>
 #    include <netinet/ip.h>
 #    include <netinet/tcp.h>
-#  endif /* WIN32 || __EMX__ */
+#  endif /* WIN32 */
 
 #  include "md5.h"
 
@@ -127,6 +127,19 @@ typedef enum
 
 
 /*
+ * HTTP encryption values...
+ */
+
+typedef enum
+{
+  HTTP_ENCRYPT_IF_REQUESTED,	/* Encrypt if requested (TLS upgrade) */
+  HTTP_ENCRYPT_NEVER,		/* Never encrypt */
+  HTTP_ENCRYPT_REQUIRED,	/* Encryption is required (TLS upgrade) */
+  HTTP_ENCRYPT_ALWAYS		/* Always encrypt (SSL) */
+} http_encryption_t;
+
+
+/*
  * HTTP authentication types...
  */
 
@@ -150,6 +163,7 @@ typedef enum
   HTTP_ERROR = -1,		/* An error response from httpXxxx() */
 
   HTTP_CONTINUE = 100,		/* Everything OK, keep going... */
+  HTTP_SWITCHING_PROTOCOLS,	/* HTTP upgrade to TLS/SSL */
 
   HTTP_OK = 200,		/* OPTIONS/GET/HEAD/POST/TRACE command was successful */
   HTTP_CREATED,			/* PUT command was successful */
@@ -182,6 +196,7 @@ typedef enum
   HTTP_REQUEST_TOO_LARGE,	/* Request entity too large */
   HTTP_URI_TOO_LONG,		/* URI too long */
   HTTP_UNSUPPORTED_MEDIATYPE,	/* The requested media type is unsupported */
+  HTTP_UPGRADE_REQUIRED = 426,	/* Upgrade to SSL/TLS required */
 
   HTTP_SERVER_ERROR = 500,	/* Internal server error */
   HTTP_NOT_IMPLEMENTED,		/* Feature not implemented */
@@ -261,6 +276,7 @@ typedef struct
 					/* Nonce value */
   int			nonce_count;	/* Nonce count */
   void			*tls;		/* TLS state information */
+  http_encryption_t	encryption;	/* Encryption requirements */
 } http_t;
 
 
@@ -274,7 +290,10 @@ extern int		httpCheck(http_t *http);
 						httpSetField((http), HTTP_FIELD_HOST, (http)->hostname)
 extern void		httpClose(http_t *http);
 extern http_t		*httpConnect(const char *host, int port);
+extern http_t		*httpConnectEncrypt(const char *host, int port,
+			                    http_encryption_t encrypt);
 extern int		httpDelete(http_t *http, const char *uri);
+extern int		httpEncryption(http_t *http, http_encryption_t e);
 #  define		httpError(http) ((http)->error)
 extern void		httpFlush(http_t *http);
 extern int		httpGet(http_t *http, const char *uri);
@@ -321,5 +340,5 @@ extern char		*httpMD5String(const md5_byte_t *, char [33]);
 #endif /* !_CUPS_HTTP_H_ */
 
 /*
- * End of "$Id: http.h,v 1.2 2000/09/15 02:42:41 mike Exp $".
+ * End of "$Id: http.h,v 1.2.2.6 2001/06/04 12:12:30 mike Exp $".
  */
