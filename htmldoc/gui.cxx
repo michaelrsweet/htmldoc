@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.23 1999/11/18 16:12:24 mike Exp $"
+// "$Id: gui.cxx,v 1.24 1999/12/11 14:33:20 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -683,6 +683,15 @@ GUI::GUI(const char *filename)		// Book file to load initially
   htmlBrowse = new Fl_Button(355, 45, 95, 25, "Browse...");
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
 
+  browserWidth = new Fl_Value_Slider(140, 75, 310, 20, "Browser Width: ");
+  browserWidth->align(FL_ALIGN_LEFT);
+  browserWidth->type(FL_HOR_NICE_SLIDER);
+  browserWidth->minimum(400.0);
+  browserWidth->maximum(1200.0);
+  browserWidth->value(_htmlBrowserWidth);
+  browserWidth->step(5.0);
+  browserWidth->callback((Fl_Callback *)changeCB, this);
+
   saveOptions = new Fl_Button(260, 235, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
 
@@ -1106,6 +1115,8 @@ GUI::newBook(void)
   psCommands->deactivate();
   psCommands->value(PSCommands);
 
+  browserWidth->value(_htmlBrowserWidth);
+
   title(NULL, 0);
 
   return (1);
@@ -1419,6 +1430,8 @@ GUI::loadBook(const char *filename)	// I - Name of book file
       outputDirectory->setonly();
       outputTypeCB(outputDirectory, this);
     }
+    else if (strcmp(temp, "--browserwidth") == 0)
+      browserWidth->value(atof(temp2));
     else if (strcmp(temp, "--size") == 0)
       pageSize->value(temp2);
     else if (strcmp(temp, "--left") == 0)
@@ -1739,6 +1752,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fprintf(fp, " --pageduration %.0f", pageDuration->value());
     fprintf(fp, " --effectduration %.1f", effectDuration->value());
   }
+
+  fprintf(fp, " --browserwidth %.0f", browserWidth->value());
 
   fputs("\n", fp);
   fclose(fp);
@@ -2586,6 +2601,8 @@ GUI::saveOptionsCB(Fl_Widget *w,
   htmlSetTextColor((uchar *)gui->textColor->value());
   htmlSetCharSet(gui->charset->text(gui->charset->value()));
 
+  _htmlBrowserWidth = gui->browserWidth->value();
+
   prefs_save();
 }
 
@@ -3009,6 +3026,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   htmlSetTextColor((uchar *)gui->textColor->value());
   htmlSetCharSet(gui->charset->text(gui->charset->value()));
 
+  _htmlBrowserWidth = gui->browserWidth->value();
+
  /*
   * Load the input files...
   */
@@ -3130,5 +3149,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.23 1999/11/18 16:12:24 mike Exp $".
+// End of "$Id: gui.cxx,v 1.24 1999/12/11 14:33:20 mike Exp $".
 //

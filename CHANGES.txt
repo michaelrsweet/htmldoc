@@ -5,6 +5,8 @@ CHANGES IN HTMLDOC v1.8.3
 
     NEW FEATURES
 
+	- New "--browserwidth" option to control scaling of images and
+	  tables that use fixed pixel widths.
 
     CHANGES
 
@@ -15,6 +17,10 @@ CHANGES IN HTMLDOC v1.8.3
     BUG FIXES
 
 	- Page break comments didn't force a paragraph break.
+	- --no-toc prevented chapters from being output in PS
+	  and PDF files.
+	- Filenames didn't always get updated properly when doing a
+	  "save as"...
 
 
 CHANGES IN HTMLDOC v1.8.2

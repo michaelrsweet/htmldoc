@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.7 1999/11/16 21:46:21 mike Exp $"
+ * "$Id: html.h,v 1.8 1999/12/11 14:33:20 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -265,6 +265,7 @@ extern const char	*_htmlData;
 extern float		_htmlPPI;
 extern int		_htmlGrayscale;
 extern uchar		_htmlTextColor[];
+extern float		_htmlBrowserWidth;
 extern float		_htmlSizes[],
 			_htmlSpacings[];
 extern typeface_t	_htmlBodyFont,
@@ -304,5 +305,5 @@ extern void	htmlSetTextColor(uchar *color);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.7 1999/11/16 21:46:21 mike Exp $".
+ * End of "$Id: html.h,v 1.8 1999/12/11 14:33:20 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.15 1999/12/07 14:12:06 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.16 1999/12/11 14:33:21 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -43,63 +43,6 @@
 #include "htmldoc.h"
 #include <ctype.h>
 
-
-/*
- * Usage:
- *
- *    htmldoc [options] filename1.html [ ... filenameN.html ]
- *
- * Options:
- *
- *    --bodycolor color
- *    --bodyfont {courier,times,helvetica}
- *    --bodyimage filename.{gif,jpg,png}
- *    --bottom margin{in,cm,mm}
- *    --color
- *    --compression[=level]
- *    --duplex
- *    --fontsize {6.0..24.0)
- *    --fontspacing {1.0..3.0}
- *    --footer fff
- *    {--format, -t} {ps1,ps2,pdf,html}
- *    --gray
- *    --header fff
- *    --headfootfont {courier,times,helvetica}
- *    --headfootsize {6.0..24.0}
- *    --headingfont {courier,times,helvetica}
- *    --help
- *    --jpeg[=quality]
- *    --left margin{in,cm,mm}
- *    --logo filename.{gif,jpg,png}
- *    --no-compression
- *    --no-title
- *    --no-toc
- *    --numbered
- *    {--outdir, -d} dirname
- *    {--outfile, -f} filename.{ps,pdf,html}
- *    --right margin{in,cm,mm}
- *    --size {letter,a4,WxH{in,cm,mm},etc}
- *    --title filename.{gif,jpg,png}
- *    --tocfooter fff
- *    --tocheader fff
- *    --toclevels levels
- *    --top margin{in,cm,mm}
- *    {--verbose, -v}
- *    --webpage
- *
- * fff = Formatting for header/footer (left, middle, right); each "f" is:
- *
- *    . = blank
- *    t = title
- *    h = current heading
- *    c = current chapter heading
- *    l = logo image
- *    i = lowercase roman numerals
- *    I = uppercase roman numerals
- *    1 = arabic numbers (1, 2, 3, ...)
- *    a = lowercase letters
- *    A = uppercase letters
- */
 
 /*
  * Local functions...
@@ -206,6 +149,14 @@ main(int  argc,		/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
         PageBottom = get_measurement(argv[i]);
+      else
+        usage();
+    }
+    else if (compare_strings(argv[i], "--browserwidth", 4) == 0)
+    {
+      i ++;
+      if (i < argc)
+        _htmlBrowserWidth = atof(argv[i]);
       else
         usage();
     }
@@ -1078,6 +1029,10 @@ prefs_load(void)
     strcpy(BodyImage, value);
 
   size = sizeof(value);
+  if (!RegQueryValueEx(key, "browserwidth", NULL, NULL, (unsigned char *)value, &size))
+    _htmlBrowserWidth = atof(value);
+
+  size = sizeof(value);
   if (!RegQueryValueEx(key, "pagewidth", NULL, NULL, (unsigned char *)value, &size))
     PageWidth = atoi(value);
 
@@ -1237,6 +1192,8 @@ prefs_load(void)
 	  strcpy(BodyColor, line + 10);
         else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
 	  strcpy(BodyImage, line + 10);
+        else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
+	  _htmlBrowserWidth = atof(line + 13);
         else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
 	  PageWidth = atoi(line + 10);
         else if (strncasecmp(line, "PAGELENGTH=", 11) == 0)
@@ -1355,6 +1312,10 @@ prefs_save(void)
 
   size = strlen(BodyImage) + 1;
   RegSetValueEx(key, "bodyimage", 0, REG_SZ, (unsigned char *)BodyImage, size);
+
+  sprintf(value, "%.0f", _htmlBrowserWidth);
+  size = strlen(value) + 1;
+  RegSetValueEx(key, "browserwidth", 0, REG_SZ, (unsigned char *)value, size);
 
   sprintf(value, "%d", PageWidth);
   size = strlen(value) + 1;
@@ -1507,6 +1468,7 @@ prefs_save(void)
       fprintf(fp, "TEXTCOLOR=%s\n", _htmlTextColor);
       fprintf(fp, "BODYCOLOR=%s\n", BodyColor);
       fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
+      fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlBrowserWidth);
       fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
       fprintf(fp, "PAGELENGTH=%d\n", PageLength);
       fprintf(fp, "PAGELEFT=%d\n", PageLeft);
@@ -1598,6 +1560,7 @@ usage(void)
   puts("  --bodyimage filename.{gif,jpg,png}");
   puts("  --book");
   puts("  --bottom margin{in,cm,mm}");
+  puts("  --browserwidth pixels");
   puts("  --charset {8859-1...8859-15}");
   puts("  --color");
   puts("  --compression[=level]");
@@ -1668,5 +1631,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.15 1999/12/07 14:12:06 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.16 1999/12/11 14:33:21 mike Exp $".
  */
