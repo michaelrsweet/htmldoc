@@ -14,7 +14,7 @@
 	<LI>Now break before and after DIV groups to match most
 	browsers (the HTML spec is ambivalent about it...)
 
-	<H3>Bug Fixes
+	<H3>Bug Fixes</H3>
 
 	<LI>HR elements didn't render properly.
 	<LI>Background images didn't render properly and could
@@ -75,7 +75,7 @@
 	elements.
 	<LI>OS/2 port changes from Alexander Mai.
 
-	<H3>Bug Fixes
+	<H3>Bug Fixes</H3>
 
 	<LI>If a document started with a heading greater than H1,
 	HTMLDOC would crash.
@@ -431,7 +431,7 @@
 
 	<H3>Bug Fixes</H3>
 
-	<LI>Didn't allow &#nnn; character escapes inside
+	<LI>Didn't allow &amp;#nnn; character escapes inside
 	preformatted text.
 	<LI>Empty TBODY groups would cause parse_table() to
 	crash.
@@ -493,8 +493,9 @@
 	border width, spacing, or padding values.
 	<LI>HTMLDOC crashed under Solaris when reading HTML files
 	from the standard input.
-	<LI><ELEM>text</ELEM> <MELE>text</MELE> was rendered
-	without an intervening space.
+	<LI>&lt;ELEM&gt;text&lt;/ELEM&gt;
+	&lt;MELE&gt;text&lt;/MELE&gt; was rendered without an
+	intervening space.
 
 </UL>
 
@@ -981,7 +982,7 @@
 	<LI>Fixed GIF loader bug (caused problems on Alpha machines)
 	<LI>No longer get extra line after list items.
 	<LI>&lt;FONT> markup nesting now works.
-	<LI>"&" by itself would cause loss of 15 characters.
+	<LI>"&amp;" by itself would cause loss of 15 characters.
 	<LI>The current directory was not tracked properly under Windows.
 	<LI>The right, top, and bottom margins were not being saved properly.
 	<LI>The htmlReadFile() function could consume too much stack space,
@@ -1067,7 +1068,7 @@
 
 <UL>
 
-	<LI>Now support "internal" links in a document (PDF & HTML).
+	<LI>Now support "internal" links in a document (PDF &amp; HTML).
 	<LI>Added "no compression" option for PDF files; this is needed for
 	older PDF readers like Acroread 2.x.
 	<LI>Much better parsing of HTML; should now work very well with the
