@@ -1,4 +1,4 @@
-CHANGES.txt - 01/06/2003
+CHANGES.txt - 01/08/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -8,6 +8,9 @@ CHANGES IN HTMLDOC v1.8.24
 	- HTMLDOC now offers an "htmlsep" output type which
 	  generates HTML output with a separate file for each
 	  heading in the table of contents.
+	- HTMLDOC now includes LINK elements in generated HTML
+	  so that intelligent browsers like Mozilla can show
+	  next/prev/contents/top buttons.
 
     BUG FIXES
 
