@@ -43,7 +43,7 @@ alt='Command prompt window'><br />
 <p>You now have a list of available files and directories that you can
 use. To access a different directory simply type <kbd>cd</kbd>
 and the name of the new directory. For example, type the following
-if you want to access a different directory called <var>Steve</var>:</p>
+if you want to access a directory called <var>Steve</var>:</p>
 
 <pre>
     <kbd>cd Steve ENTER</kbd>
@@ -58,52 +58,58 @@ if you want to access a different directory called <var>Steve</var>:</p>
     <kbd>htmldoc --webpage -f output.ps filename.html ENTER</kbd>
 </pre>
 
+<h3>What Are All These Commands?</h3>
+
 <p><tt>htmldoc</tt> is the name of the software.</p>
 
 <p><tt>--webpage</tt> is the document type that specifies
-unstructured files with page breaks between each file. Other
-document types available are <tt>--continous</tt> and
-<tt>--book</tt>. A <tt>--continous</tt> document type specifies
-unstructured files without page breaks between each file. The
-<tt>--book</tt> document type specifies that the input files are
-structured with headings such as <tt>&lt;H1&gt;</tt>,
-<tt>&lt;H2&gt;</tt>, and so forth.</p>
+unstructured files with page breaks between each file.</p>
 
 <p><tt>-f output.pdf</tt> is the file name that you will save
-all the documents into and also the type of file it will be. In
+all the documents into and also the type of file it is. In
 this example it is a PDF file.</p>
 
 <p><tt>filename.html</tt> is the name of the file that you want
 to be converted and the type of file it is. In this example it
 is a HTML file.</p>
 
+<p>Try the following exercise: You want to convert the file
+<var>myhtml.html</var> into a PDF file. The new file will be
+called <var>mypdf.pdf</var>. How would you do this? (Don't worry,
+it's answered for you on the next line. But try first.)</p>
+
+<p>To accomplish this type:</p>
+
+<pre>
+    <kbd>htmldoc --webpage -f mypdf.pdf myhtml.html ENTER</kbd>
+</pre>
+
+<h2>Converting Multiple HTML Files</h2>
+
 <p>To convert more than one web page with page breaks between
 each HTML file, type:
 
 <pre>
-    <kbd>htmldoc --webpage -f output.pdf file1.html fileN.html ENTER</kbd>
-    <kbd>htmldoc --webpage -f output.ps file1.html fileN.html ENTER</kbd>
+    <kbd>htmldoc --webpage -f output.pdf file1.html file2.html ENTER</kbd>
+    <kbd>htmldoc --webpage -f output.ps file1.html file2.html ENTER</kbd>
 </pre>
 
-<p>The <code>--webpage</code> option tells HTMLDOC that
-you want to convert web pages or other unstructured HTML files.
-You can also use <code>--continuous</code> to convert multiple
-HTML files without page breaks between files and
-<code>--book</code> to convert structured HTML files with
-headings into a book with a table of contents. The default
-document type is <code>--book</code>.
+<p>All we are doing is adding another file. In this example we
+are converting two files: <var>file1.html</var> and
+<var>file2.html</var>.</p>
 
-<p>The <code>-f</code> option tells HTMLDOC the file to
-generate. If you don't specify an output file, a PDF file is
-sent to the standard output. The <code>output.pdf</code> and
-<code>output.ps</code> arguments are the names of the output
-files you want to generate. The <code>.pdf</code> extension
-specifies that you want to generate a PDF file, while the
-<code>.ps</code> extension specifies PostScript output.
+<p>Try this example: Convert <var>one.html</var> and
+<var>two.html</var> into a PDF file named <var>12pdf.pdf</var>.
+Again, the answer is on the next line.</p>
 
-<p>The <code>filename.html</code>, <code>file1.html</code>, and
-<code>fileN.html</code> arguments are the input HTML files you
-want to convert. The HTML files can also be URLs, for example:
+<p>Your line command should look like this:</p>
+
+<pre>
+    <kbd>htmldoc --webpage -f 12pdf.pdf one.html two.html ENTER</kbd>
+</pre>
+
+<p>We've been using HTML files, but you can also use URLs. For
+example:</p>
 
 <pre>
     <kbd>htmldoc --webpage -f output.pdf http://slashdot.org/ ENTER</kbd>
@@ -117,31 +123,34 @@ want to convert. The HTML files can also be URLs, for example:
 one or more HTML files:
 
 <pre>
-    <kbd>htmldoc --book -f output.html file1.html ... fileN.html ENTER</kbd>
-    <kbd>htmldoc --book -f output.pdf file1.html ... fileN.html ENTER</kbd>
-    <kbd>htmldoc --book -f output.ps file1.html ... fileN.html ENTER</kbd>
+    <kbd>htmldoc --book -f output.html file1.html file2.html ENTER</kbd>
+    <kbd>htmldoc --book -f output.pdf file1.html file2.html ENTER</kbd>
+    <kbd>htmldoc --book -f output.ps file1.html file2.html ENTER</kbd>
 </pre>
 
-<p>where <code>output.html</code>, <code>output.pdf</code>, and
-<code>output.ps</code> are the names of the files you want to
-generate, and <code>file1.html</code> to <code>fileN.html</code>
-are the HTML files you want to use for the book.
+<h3>What are all these commands?</h3>
 
-<p>The <code>--book</code> option tells HTMLDOC that you
-want to generate a book from the HTML file(s) you specified.
+<p><tt>htmldoc</tt> is the name of the sofware.</p>
 
-<p>The <code>-f</code> option tells HTMLDOC what file to
-generate. If you don't specify an output file then a PDF file is
-sent to the standard output.
+<p><tt>--book</tt> is a type of document that specifies that
+the input files are structured with headings.</p>
 
-<p>HTMLDOC will build a table of contents for the book
-using the heading elements (<code>H1</code>, <code>H2</code>,
-etc.) in your HTML files. It will also add a title page using
-the document <code>TITLE</code> text and other <code>META</code>
-information you supply in your HTML files. See <A
-HREF="#HTMLREF">Chapter 6 - HTML Reference</A> for more
-information on the <code>META</code> variables that are
-supported.</p>
+<p><tt>-f output.html</tt> is where you want the converted files
+to go to. In this case, we requested the file be a HTML file. We
+could have made it a PDF (<tt>-f output.pdf</tt>) or Postscript
+(<tt>-f ouput.ps</tt>), too.</p>
+
+<p><tt>file1.html</tt> and <tt>file2.html</tt> are the files you
+want to convert.</p>  
+
+<p>HTMLDOC will build a table of contents for the book using the
+heading elements (<code>H1</code>, <code>H2</code>, etc.) in
+your HTML files. It will also add a title page using the
+document <code>TITLE</code> text (you're going to learn about
+title files shortly) and other <code>META</code> information you
+supply in your HTML files. See <A HREF="#HTMLREF">Chapter 6 -
+HTML Reference</A> for more information on the <code>META</code>
+variables that are supported.</p>
 
 <center><table width="80%" border="1" cellpadding="5" cellspacing="0" bgcolor="#cccccc">
 <tr>
@@ -171,10 +180,30 @@ image to use on the title page:
     <kbd>htmldoc --titlefile filename.html ... ENTER</kbd>
 </pre>
 
-<p>HTMLDOC supports BMP, GIF, JPEG, and PNG images, as
-well as generic HTML text you supply for the title page(s).
+<p>HTMLDOC supports BMP, GIF, JPEG, and PNG images, as well as
+generic HTML text you supply for the title page(s).</p>
 
-</DIV>
+<h3>Putting It All Together</h3>
 
-</BODY>
-</HTML>
+<pre>
+    <kbd>htmldoc --book -f 12book.pdf 1book.html 2book.html --titlefile bookcover.jpg ENTER</kbd>
+</pre>
+
+<p>Take a look at the entire command line. Dissect the
+information. Can you see what the new filename is? What are the
+names of the files being converted? Do you see the titlepage
+file? What kind of file is your titlefile?</p>
+
+<p>Figure it out? The new file is <var>12book.pdf</var>. The
+files converted were <var>1book.html</var> and
+<var>2book.html</var>. A title page was created using the JPEG
+image file <var>bookcover.jpg</var>.</p>
+
+<p><a href="#HTMLREF">Chapter 8 - Command Line Reference</a>
+digs deeper into what you can do with the the command line
+prompt.</p>
+
+</div>
+
+</body>
+</html>
