@@ -1,5 +1,18 @@
-CHANGES.txt - 03/13/2001
+CHANGES.txt - 03/28/2001
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.13
+
+    NEW FEATURES
+
+    CHANGES
+
+	- External file references to non-PDF files now use the
+	  "Launch" action so they can be opened/executed/saved
+	  as allowed by the OS and PDF viewer.
+
+    BUG FIXES
+
 
 CHANGES IN HTMLDOC v1.8.12
 
