@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.18 2000/10/12 23:07:33 mike Exp $"
+ * "$Id: config.h.in,v 1.19 2000/10/14 13:59:13 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -38,12 +38,10 @@
 
 
 /*
- * Do we have the image libraries?
+ * Do we have the Xpm library?
  */
 
-#undef HAVE_LIBJPEG
-#undef HAVE_LIBPNG
-#undef HAVE_LIBZ
+#undef HAVE_LIBXPM
 
 
 /*
@@ -75,6 +73,6 @@
 #define MAX_ROWS	200
 
 /*
- * End of "$Id: config.h.in,v 1.18 2000/10/12 23:07:33 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19 2000/10/14 13:59:13 mike Exp $".
  */
 
