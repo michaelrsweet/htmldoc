@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.19 2001/04/27 20:11:07 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.20 2001/05/21 15:08:42 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -587,7 +587,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       t->markup = MARKUP_NONE;
       t->data   = (uchar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment %s\n", indent, s));
+      DEBUG_printf(("%sfragment \"%s\"\n", indent, s));
     }
     else
     {
@@ -635,7 +635,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       t->markup = MARKUP_NONE;
       t->data   = (uchar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment %s\n", indent, s));
+      DEBUG_printf(("%sfragment \"%s\"\n", indent, s));
     }
 
    /*
@@ -2414,5 +2414,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.19 2001/04/27 20:11:07 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.20 2001/05/21 15:08:42 mike Exp $".
  */

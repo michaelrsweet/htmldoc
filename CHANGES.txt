@@ -34,6 +34,12 @@ CHANGES IN HTMLDOC v1.8.13
 	- The table formatting code adding the border width to
 	  the cell width, while Netscape and MSIE don't.  This
 	  caused some interesting formatting glitches...
+	- The table formatting code didn't account for the
+	  preferred width of colspan'd cells.
+	- The table formatting code tried to enforce the
+	  minimum cell width when squeezing a table to fit on
+	  the page; this caused the table to still exceed the
+	  width of the page.
 	- The PDF catalog object could contain a reference to
 	  a /Names object of "0 0 R", which is invalid.  This
 	  would happen when the "--no-links" option was used.
