@@ -1,9 +1,9 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.35 2001/12/17 18:27:33 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.36 2002/01/28 00:52:13 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2001 by Easy Software Products.
+ *   Copyright 1997-2002 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -2060,7 +2060,7 @@ term_handler(int signum)	// I - Signal number
 static void
 usage(void)
 {
-  puts("HTMLDOC Version " SVERSION " Copyright 1997-2001 Easy Software Products, All Rights Reserved.");
+  puts("HTMLDOC Version " SVERSION " Copyright 1997-2002 Easy Software Products, All Rights Reserved.");
   puts("This software is governed by the GNU General Public License, Version 2, and");
   puts("is based in part on the work of the Independent JPEG Group.");
   puts("");
@@ -2174,5 +2174,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.35 2001/12/17 18:27:33 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.36 2002/01/28 00:52:13 mike Exp $".
  */

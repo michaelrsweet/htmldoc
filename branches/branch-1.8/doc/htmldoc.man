@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.9 2001/11/14 17:38:55 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.10 2002/01/28 00:52:09 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.17" "14 November 2001" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.18" "27 January 2002" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -532,5 +532,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.9 2001/11/14 17:38:55 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.10 2002/01/28 00:52:09 mike Exp $".
 .\"

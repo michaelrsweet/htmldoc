@@ -1,4 +1,4 @@
-CHANGES.txt - 12/21/2001
+CHANGES.txt - 01/27/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.18

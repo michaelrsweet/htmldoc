@@ -1,9 +1,9 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.13 2001/12/13 19:04:09 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.14 2002/01/28 00:52:21 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2001 by Easy Software Products.
+ *   Copyright 1997-2002 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -263,5 +263,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.13 2001/12/13 19:04:09 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.14 2002/01/28 00:52:21 mike Exp $".
  */

@@ -1,9 +1,9 @@
 /*
- * "$Id: progress.cxx,v 1.6.2.9 2001/12/13 19:04:11 mike Exp $"
+ * "$Id: progress.cxx,v 1.6.2.10 2002/01/28 00:52:27 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2001 by Easy Software Products.
+ *   Copyright 1997-2002 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -168,5 +168,5 @@ progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.6.2.9 2001/12/13 19:04:11 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.6.2.10 2002/01/28 00:52:27 mike Exp $".
  */
