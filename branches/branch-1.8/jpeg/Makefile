@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.5.2.1 2001/02/02 15:11:04 mike Exp $"
+# "$Id: Makefile,v 1.5.2.2 2002/09/11 19:13:57 swdev Exp $"
 #
 #   JPEG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -18,8 +18,8 @@
 #       Hollywood, Maryland 20636-3111 USA
 #
 #       Voice: (301) 373-9603
-#       EMail: cups-info@cups.org
-#         WWW: http://www.cups.org
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
 #
 
 include ../Makedefs
@@ -67,5 +67,5 @@ $(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
 		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.5.2.1 2001/02/02 15:11:04 mike Exp $".
+# End of "$Id: Makefile,v 1.5.2.2 2002/09/11 19:13:57 swdev Exp $".
 #

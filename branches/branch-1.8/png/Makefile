@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:05 mike Exp $"
+# "$Id: Makefile,v 1.6.2.2 2002/09/11 19:13:58 swdev Exp $"
 #
 #   PNG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -20,8 +20,8 @@
 #       Hollywood, Maryland 20636-3111 USA
 #
 #       Voice: (301) 373-9603
-#       EMail: cups-info@cups.org
-#         WWW: http://www.cups.org
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
 #
 
 include ../Makedefs
@@ -61,5 +61,5 @@ libpng.a:	$(OBJS)
 $(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:05 mike Exp $".
+# End of "$Id: Makefile,v 1.6.2.2 2002/09/11 19:13:58 swdev Exp $".
 #

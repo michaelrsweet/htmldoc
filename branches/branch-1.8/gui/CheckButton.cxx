@@ -1,5 +1,5 @@
 //
-// "$Id: CheckButton.cxx,v 1.10.2.2 2001/04/18 23:24:09 mike Exp $"
+// "$Id: CheckButton.cxx,v 1.10.2.3 2002/09/11 19:13:54 swdev Exp $"
 //
 //   CheckButton routines for the Common UNIX Printing System (CUPS).
 //
@@ -18,8 +18,8 @@
 //       Hollywood, Maryland 20636-3111 USA
 //
 //       Voice: (301) 373-9603
-//       EMail: cups-info@cups.org
-//         WWW: http://www.cups.org
+//       EMail: info@easysw.com
+//         WWW: http://www.easysw.com
 //
 // Contents:
 //
@@ -109,5 +109,5 @@ CheckButton::CheckButton(int x, int y, int w, int h, const char* l)
 
 
 //
-// End of "$Id: CheckButton.cxx,v 1.10.2.2 2001/04/18 23:24:09 mike Exp $".
+// End of "$Id: CheckButton.cxx,v 1.10.2.3 2002/09/11 19:13:54 swdev Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: http.h,v 1.2.2.8 2002/01/28 00:52:24 mike Exp $"
+ * "$Id: http.h,v 1.2.2.9 2002/09/11 19:13:56 swdev Exp $"
  *
  *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
  *   System (CUPS).
@@ -19,8 +19,8 @@
  *       Hollywood, Maryland 20636-3111 USA
  *
  *       Voice: (301) 373-9603
- *       EMail: cups-info@cups.org
- *         WWW: http://www.cups.org
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
  */
 
 #ifndef _CUPS_HTTP_H_
@@ -340,5 +340,5 @@ extern char		*httpMD5String(const md5_byte_t *, char [33]);
 #endif /* !_CUPS_HTTP_H_ */
 
 /*
- * End of "$Id: http.h,v 1.2.2.8 2002/01/28 00:52:24 mike Exp $".
+ * End of "$Id: http.h,v 1.2.2.9 2002/09/11 19:13:56 swdev Exp $".
  */

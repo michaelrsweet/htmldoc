@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:06 mike Exp $"
+# "$Id: Makefile,v 1.6.2.2 2002/09/11 19:13:59 swdev Exp $"
 #
 #   ZIP library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -21,8 +21,8 @@
 #       Hollywood, Maryland 20636-3111 USA
 #
 #       Voice: (301) 373-9603
-#       EMail: cups-info@cups.org
-#         WWW: http://www.cups.org
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
 #
 
 include ../Makedefs
@@ -74,5 +74,5 @@ trees.o:	deflate.h zutil.h trees.h
 zutil.o:	zutil.h
 
 #
-# End of "$Id: Makefile,v 1.6.2.1 2001/02/02 15:11:06 mike Exp $".
+# End of "$Id: Makefile,v 1.6.2.2 2002/09/11 19:13:59 swdev Exp $".
 #
