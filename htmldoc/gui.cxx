@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.6 2001/02/15 22:00:03 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.7 2001/02/16 16:57:16 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -706,9 +706,16 @@ GUI::GUI(const char *filename)		// Book file to load initially
   effectDuration->step(0.1);
   effectDuration->callback((Fl_Callback *)changeCB, this);
 
-  links = new CheckButton(140, 260, 100, 25, "Links: ");
-  links->align(FL_ALIGN_LEFT);
+  group = new Fl_Group(140, 260, 350, 25, "Options: ");
+  group->align(FL_ALIGN_LEFT);
+
+  links = new CheckButton(140, 260, 105, 25, "Include Links");
   links->callback((Fl_Callback *)changeCB, this);
+
+  truetype = new CheckButton(250, 260, 210, 25, "Use TrueType Fonts");
+  truetype->callback((Fl_Callback *)changeCB, this);
+
+  group->end();
 
   pdfTab->end();
 
@@ -1092,7 +1099,6 @@ GUI::newBook(void)
   textColor->value((char *)_htmlTextColor);
   linkColor->value(LinkColor);
   linkStyle->value(LinkStyle);
-  links->value(Links);
 
   if (PageWidth == 595 && PageLength == 842)
     pageSize->value("A4");
@@ -1205,6 +1211,9 @@ GUI::newBook(void)
   pageDuration->value(PDFPageDuration);
 
   effectDuration->value(PDFEffectDuration);
+
+  links->value(Links);
+  truetype->value(TrueType);
 
   securityTab->deactivate();
 
@@ -1437,6 +1446,16 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     else if (strcmp(temp, "--no-links") == 0)
     {
       links->clear();
+      continue;
+    }
+    else if (strcmp(temp, "--truetype") == 0)
+    {
+      truetype->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-truetype") == 0)
+    {
+      truetype->clear();
       continue;
     }
     else if (strcmp(temp, "--pscommands") == 0)
@@ -1905,11 +1924,6 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   else
     fputs(" --linkstyle plain", fp);
 
-  if (links->value())
-    fputs(" --links", fp);
-  else
-    fputs(" --no-links", fp);
-
   if (bodyColor->size() > 0)
     fprintf(fp, " --bodycolor %s", bodyColor->value());
 
@@ -1992,6 +2006,16 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (typePDF->value())
   {
+    if (links->value())
+      fputs(" --links", fp);
+    else
+      fputs(" --no-links", fp);
+
+    if (truetype->value())
+      fputs(" --truetype", fp);
+    else
+      fputs(" --no-truetype", fp);
+
     fprintf(fp, " --pagemode %s", PDFModes[pageMode->value()]);
     fprintf(fp, " --pagelayout %s", PDFLayouts[pageLayout->value()]);
     fprintf(fp, " --firstpage %s", PDFPages[firstPage->value()]);
@@ -2980,9 +3004,10 @@ GUI::saveOptionsCB(Fl_Widget *w,
   PDFEffect         = gui->pageEffect->value();
   PDFPageDuration   = gui->pageDuration->value();
   PDFEffectDuration = gui->effectDuration->value();
+  Links             = gui->links->value();
+  TrueType          = gui->truetype->value();
 
-  Encryption = gui->encryptionYes->value();
-
+  Encryption  = gui->encryptionYes->value();
   Permissions = -64;
   if (gui->permPrint->value())
     Permissions |= PDF_PERM_PRINT;
@@ -3013,7 +3038,6 @@ GUI::saveOptionsCB(Fl_Widget *w,
 
   strcpy(LinkColor, gui->linkColor->value());
   LinkStyle = gui->linkStyle->value();
-  Links     = gui->links->value();
 
   _htmlBrowserWidth = gui->browserWidth->value();
 
@@ -3459,10 +3483,12 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   PDFEffect         = gui->pageEffect->value();
   PDFPageDuration   = gui->pageDuration->value();
   PDFEffectDuration = gui->effectDuration->value();
+  Links             = gui->links->value();
+  TrueType          = gui->truetype->value();
 
-  Encryption = gui->encryptionYes->value();
-
+  Encryption  = gui->encryptionYes->value();
   Permissions = -64;
+
   if (gui->permPrint->value())
     Permissions |= PDF_PERM_PRINT;
   if (gui->permModify->value())
@@ -3494,7 +3520,6 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   strcpy(LinkColor, gui->linkColor->value());
   LinkStyle = gui->linkStyle->value();
-  Links     = gui->links->value();
 
   _htmlBrowserWidth = gui->browserWidth->value();
   _htmlPPI          = _htmlBrowserWidth / PageWidth * 72.0f;
@@ -3625,5 +3650,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.6 2001/02/15 22:00:03 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.7 2001/02/16 16:57:16 mike Exp $".
 //

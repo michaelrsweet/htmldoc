@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.6 2001/02/13 15:31:15 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.7 2001/02/16 16:57:17 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -497,10 +497,12 @@ main(int  argc,		/* I - Number of command-line arguments */
       TocNumbers = 0;
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
       PSCommands = 0;
-    else if (compare_strings(argv[i], "--no-toc", 7) == 0)
-      TocLevels = 0;
     else if (compare_strings(argv[i], "--no-title", 7) == 0)
       TitlePage = 0;
+    else if (compare_strings(argv[i], "--no-toc", 7) == 0)
+      TocLevels = 0;
+    else if (compare_strings(argv[i], "--no-truetype", 7) == 0)
+      TrueType = 0;
     else if (compare_strings(argv[i], "--numbered", 4) == 0)
       TocNumbers = 1;
     else if (compare_strings(argv[i], "--outdir", 6) == 0 ||
@@ -750,6 +752,8 @@ main(int  argc,		/* I - Number of command-line arguments */
       else
         usage();
     }
+    else if (compare_strings(argv[i], "--truetype", 4) == 0)
+      TrueType = 1;
     else if (compare_strings(argv[i], "--verbose", 3) == 0 ||
              strcmp(argv[i], "-v") == 0)
     {
@@ -985,10 +989,6 @@ prefs_load(void)
     LinkStyle = atoi(value);
 
   size = sizeof(value);
-  if (!RegQueryValueEx(key, "links", NULL, NULL, (unsigned char *)value, &size))
-    Links = atoi(value);
-
-  size = sizeof(value);
   if (!RegQueryValueEx(key, "browserwidth", NULL, NULL, (unsigned char *)value, &size))
     _htmlBrowserWidth = atof(value);
 
@@ -1151,6 +1151,14 @@ prefs_load(void)
   }
 
   size = sizeof(value);
+  if (!RegQueryValueEx(key, "links", NULL, NULL, (unsigned char *)value, &size))
+    Links = atoi(value);
+
+  size = sizeof(value);
+  if (!RegQueryValueEx(key, "truetype", NULL, NULL, (unsigned char *)value, &size))
+    TrueType = atoi(value);
+
+  size = sizeof(value);
   if (!RegQueryValueEx(key, "path", NULL, NULL, (unsigned char *)value, &size))
     strcpy(Path, value);
 
@@ -1192,8 +1200,6 @@ prefs_load(void)
 	  strcpy(LinkColor, line + 10);
         else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
 	  LinkStyle = atoi(line + 10);
-        else if (strncasecmp(line, "LINKS=", 6) == 0)
-	  Links = atoi(line + 6);
         else if (strncasecmp(line, "BROWSERWIDTH=", 13) == 0)
 	  _htmlBrowserWidth = atof(line + 13);
         else if (strncasecmp(line, "PAGEWIDTH=", 10) == 0)
@@ -1284,6 +1290,10 @@ prefs_load(void)
 	  strncpy(UserPassword, line + 13, sizeof(UserPassword) - 1);
 	  UserPassword[sizeof(UserPassword) - 1] = '\0';
 	}
+        else if (strncasecmp(line, "LINKS=", 6) == 0)
+	  Links = atoi(line + 6);
+        else if (strncasecmp(line, "TRUETYPE=", 9) == 0)
+	  TrueType = atoi(line + 9);
 	else if (strncasecmp(line, "PATH=", 5) == 0)
 	{
 	  strncpy(Path, line + 5, sizeof(Path) - 1);
@@ -1350,10 +1360,6 @@ prefs_save(void)
   sprintf(value, "%d", LinkStyle);
   size = strlen(value) + 1;
   RegSetValueEx(key, "linkstyle", 0, REG_SZ, (unsigned char *)value, size);
-
-  sprintf(value, "%d", Links);
-  size = strlen(value) + 1;
-  RegSetValueEx(key, "links", 0, REG_SZ, (unsigned char *)value, size);
 
   sprintf(value, "%.0f", _htmlBrowserWidth);
   size = strlen(value) + 1;
@@ -1509,6 +1515,14 @@ prefs_save(void)
   RegSetValueEx(key, "userpassword", 0, REG_SZ,
                 (unsigned char *)UserPassword, size);
 
+  sprintf(value, "%d", Links);
+  size = strlen(value) + 1;
+  RegSetValueEx(key, "links", 0, REG_SZ, (unsigned char *)value, size);
+
+  sprintf(value, "%d", TrueType);
+  size = strlen(value) + 1;
+  RegSetValueEx(key, "truetype", 0, REG_SZ, (unsigned char *)value, size);
+
   size = strlen(Path) + 1;
   RegSetValueEx(key, "path", 0, REG_SZ, (unsigned char *)Path, size);
 
@@ -1534,7 +1548,6 @@ prefs_save(void)
       fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
       fprintf(fp, "LINKCOLOR=%s\n", LinkColor);
       fprintf(fp, "LINKSTYLE=%d\n", LinkStyle);
-      fprintf(fp, "LINKS=%d\n", Links);
       fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlBrowserWidth);
       fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
       fprintf(fp, "PAGELENGTH=%d\n", PageLength);
@@ -1576,6 +1589,8 @@ prefs_save(void)
       fprintf(fp, "PERMISSIONS=%d\n", Permissions);
       fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
       fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
+      fprintf(fp, "LINKS=%d\n", Links);
+      fprintf(fp, "TRUETYPE=%d\n", TrueType);
       fprintf(fp, "PATH=%s\n", Path);
       fprintf(fp, "PROXY=%s\n", Proxy);
 
@@ -1673,6 +1688,7 @@ usage(void)
   puts("  --no-pscommands");
   puts("  --no-title");
   puts("  --no-toc");
+  puts("  --no-truetype");
   puts("  --numbered");
   puts("  {--outdir, -d} dirname");
   puts("  {--outfile, -f} filename.{ps,pdf,html}");
@@ -1698,6 +1714,7 @@ usage(void)
   puts("  --toclevels levels");
   puts("  --toctitle string");
   puts("  --top margin{in,cm,mm}");
+  puts("  --truetype");
   puts("  --user-password password");
   puts("  {--verbose, -v}");
   puts("  --webpage");
@@ -1726,5 +1743,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.6 2001/02/13 15:31:15 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.7 2001/02/16 16:57:17 mike Exp $".
  */
