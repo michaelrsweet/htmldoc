@@ -1,9 +1,9 @@
 /*
- * "$Id: snprintf.c,v 1.1.2.1 2000/12/06 16:24:14 mike Exp $"
+ * "$Id: snprintf.c,v 1.1.2.2 2001/02/02 15:11:03 mike Exp $"
  *
  *   snprintf functions for HTMLDOC.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -282,6 +282,6 @@ snprintf(char       *buffer,	/* O - Output buffer */
 
 
 /*
- * End of "$Id: snprintf.c,v 1.1.2.1 2000/12/06 16:24:14 mike Exp $".
+ * End of "$Id: snprintf.c,v 1.1.2.2 2001/02/02 15:11:03 mike Exp $".
  */
 

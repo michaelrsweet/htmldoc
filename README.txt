@@ -12,7 +12,7 @@ INTRODUCTION
     "members only" web site that provides examples, tutorials, and tips
     for using HTMLDOC to publish documents on your web site.
 
-    HTMLDOC is copyright 1997-2000 by Easy Software Products and is
+    HTMLDOC is copyright 1997-2001 by Easy Software Products and is
     currently available under the GNU General Public License, version
     2.  See the LEGAL STUFF section below for details.
 
@@ -222,7 +222,7 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC is copyright 1997-2000 by Easy Software Products. This
+    HTMLDOC is copyright 1997-2001 by Easy Software Products. This
     program is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or

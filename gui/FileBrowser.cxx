@@ -1,9 +1,9 @@
 //
-// "$Id: FileBrowser.cxx,v 1.22.2.1 2000/12/08 15:55:08 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.22.2.2 2001/02/02 15:10:55 mike Exp $"
 //
 //   FileBrowser routines.
 //
-//   Copyright 1997-2000 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -569,5 +569,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.22.2.1 2000/12/08 15:55:08 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.22.2.2 2001/02/02 15:10:55 mike Exp $".
 //
