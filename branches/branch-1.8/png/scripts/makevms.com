@@ -3,6 +3,19 @@ $!
 $!
 $! Check for MMK/MMS
 $!
+$! This procedure accepts one parameter (contrib), which causes it to build
+$! the programs from the contrib directory instead of libpng.
+$!
+$ p1 = f$edit(p1,"UPCASE")
+$ if p1 .eqs. "CONTRIB"
+$ then
+$   set def [.contrib.gregbook]
+$   @makevms
+$   set def [-.pngminus]
+$   @makevms
+$   set def [--]
+$   exit
+$ endif
 $ Make = ""
 $ If F$Search ("Sys$System:MMS.EXE") .nes. "" Then Make = "MMS"
 $ If F$Type (MMK) .eqs. "STRING" Then Make = "MMK"
@@ -41,7 +54,7 @@ $ if make.eqs.""
 $  then
 $   dele pngtest.obj;*
 $   CALL MAKE png.OBJ "cc ''CCOPT' png" -
-	png.c png.h pngconf.h   
+	png.c png.h pngconf.h
 $   CALL MAKE pngpread.OBJ "cc ''CCOPT' pngpread" -
 					 pngpread.c png.h pngconf.h
 $   CALL MAKE pngset.OBJ "cc ''CCOPT' pngset" -
@@ -77,12 +90,13 @@ $   CALL MAKE libpng.OLB "lib/crea libpng.olb *.obj" *.OBJ
 $   write sys$output "Building pngtest..."
 $   CALL MAKE pngtest.OBJ "cc ''CCOPT' pngtest" -
 	pngtest.c png.h pngconf.h
-$   call make pngtest.exe - 
-	"LINK pngtest,libpng.olb/lib,''zlibsrc'libz.olb/lib" - 
+$   call make pngtest.exe -
+	"LINK pngtest,libpng.olb/lib,''zlibsrc'libz.olb/lib" -
 	pngtest.obj libpng.olb
 $   write sys$output "Testing Libpng..."
 $   run pngtest
 $  else
+$   if f$search("DESCRIP.MMS") .eqs. "" then copy/nolog [.SCRIPTS]DESCRIP.MMS []
 $   'make'/macro=('comp',zlibsrc='zlibsrc')
 $  endif
 $ write sys$output "Libpng build completed"
@@ -128,4 +142,3 @@ $ VV='F$Verify(VV)
 $Exit:
 $ If V Then Set Verify
 $ENDSUBROUTINE
-
