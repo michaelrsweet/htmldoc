@@ -11,9 +11,10 @@ class HelpDialog {open
   decl {int max_;} {}
   decl {int line_[100];} {}
   decl {char file_[100][256];} {}
-  Function {HelpDialog()} {} {
+  Function {HelpDialog()} {open
+  } {
     Fl_Window window_ {
-      label {Help Dialog}
+      label {Help Dialog} open
       private xywh {675 601 530 385} resizable
       code0 {\#include <string.h>} visible
     } {
@@ -43,9 +44,10 @@ class HelpDialog {open
 }
 else if (view_->filename())
 {
-  strcpy(file_[index_], view_->filename());
+  strncpy(file_[index_], view_->filename(), 255);
+  file_[index_][255] = '\\0';
   line_[index_] = view_->topline();
-}} open
+}} open selected
         private xywh {10 10 510 330} box DOWN_BOX resizable
         code0 {\#include "HelpView.h"}
         class HelpView
@@ -92,8 +94,7 @@ view_->topline(line_[index_]);}
 forward_->deactivate();
 
 index_ = 0;
-max_  = 0;} {selected
-    }
+max_  = 0;} {}
   }
   Function {hide()} {return_type void
   } {

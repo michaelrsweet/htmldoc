@@ -28,7 +28,8 @@ inline void HelpDialog::cb_view__i(HelpView*, void*) {
 }
 else if (view_->filename())
 {
-  strcpy(file_[index_], view_->filename());
+  strncpy(file_[index_], view_->filename(), 255);
+  file_[index_][255] = '\0';
   line_[index_] = view_->topline();
 };
 }

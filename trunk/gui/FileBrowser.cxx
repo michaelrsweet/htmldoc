@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.12 1999/10/14 15:24:34 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.13 1999/10/25 18:40:11 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -345,7 +345,8 @@ FileBrowser::load(const char *directory)// I - Directory to load
     //
 
 #if defined(WIN32) || defined(__EMX__)
-    strcpy(filename, directory_);
+    strncpy(filename, directory_, sizeof(filename) - 1);
+    filename[sizeof(filename) - 1] = '\0';
     i = strlen(filename) - 1;
 
     if (i == 2 && filename[1] == ':' &&
@@ -365,7 +366,8 @@ FileBrowser::load(const char *directory)// I - Directory to load
           strcmp(files[i]->d_name, "..") == 0)
 	continue;
 
-      sprintf(filename, "%s/%s", directory_, files[i]->d_name);
+      snprintf(filename, sizeof(filename), "%s/%s", directory_,
+               files[i]->d_name);
 
       if (filename_isdir(filename) ||
           filename_match(files[i]->d_name, pattern_))
@@ -400,5 +402,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.12 1999/10/14 15:24:34 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.13 1999/10/25 18:40:11 mike Exp $".
 //
