@@ -1,4 +1,4 @@
-CHANGES.txt - 10/02/2002
+CHANGES.txt - 10/03/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.23
@@ -23,6 +23,10 @@ CHANGES IN HTMLDOC v1.8.23
 	- The header/footer text was not centered properly if
 	  the header/footer font size was different than the
 	  default body font size.
+	- The GUI interface incorrectly localized URLs when
+	  doing a "save as" operation.
+	- The PNG background color was not correct for PNG files
+	  using <= 8 bits per pixel.
 
 
 CHANGES IN HTMLDOC v1.8.22

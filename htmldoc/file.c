@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.39 2002/08/19 19:07:05 mike Exp $"
+ * "$Id: file.c,v 1.13.2.40 2002/10/03 17:43:17 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -802,6 +802,9 @@ file_localize(const char *filename,	/* I - Filename */
   if (filename[0] == '\0')
     return ("");
 
+  if (file_method(filename))
+    return (filename);
+
   getcwd(cwd, sizeof(cwd));
   if (newcwd == NULL)
     newcwd = cwd;
@@ -1048,5 +1051,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.39 2002/08/19 19:07:05 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.40 2002/10/03 17:43:17 mike Exp $".
  */
