@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.23 2001/02/21 22:09:56 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.24 2001/02/22 01:22:45 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1469,9 +1469,8 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
     while ((bytes = fread(buffer, 1, sizeof(buffer), out)) > 0)
       fwrite(buffer, 1, bytes, stdout);
 
-    // Close and remove the temporary file...
+    // Close the temporary file (it is removed when the program exits...)
     fclose(out);
-    unlink(stdout_filename);
   }
 
   if (Verbosity)
@@ -5944,37 +5943,10 @@ open_file(void)
   }
   else if (OutputPath[0] != '\0')
     return (fopen(OutputPath, "wb"));
+  else if (PSLevel == 0)
+    return (file_temp(stdout_filename, sizeof(stdout_filename)));
   else
-  {
-    if (PSLevel == 0)
-    {
-#ifdef WIN32
-      GetTempPath(sizeof(stdout_filename), stdout_filename);
-      strncat(stdout_filename, "/XXXXXX", sizeof(stdout_filename));
-      stdout_filename[sizeof(stdout_filename) - 1] = '\0';
-      mktemp(stdout_filename);
-
-      return (fopen(stdout_filename, "wb"));
-#else
-      int fd;
-
-      if (getenv("TMP") != NULL)
-        sprintf(stdout_filename, "%s/XXXXXX", getenv("TMP"));
-      else
-        strcpy(stdout_filename, "/var/tmp/XXXXXX");
-
-      if ((fd = mkstemp(stdout_filename)) >= 0)
-        return (fdopen(fd, "wb"));
-      else
-      {
-        progress_error("Unable to create temporary file: %s", strerror(errno));
-        return (NULL);
-      }
-#endif // WIN32
-    }
-    else
-      return (stdout);
-  }
+    return (stdout);
 }
 
 
@@ -8124,5 +8096,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.23 2001/02/21 22:09:56 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.24 2001/02/22 01:22:45 mike Exp $".
  */

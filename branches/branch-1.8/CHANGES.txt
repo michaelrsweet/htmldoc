@@ -8,11 +8,16 @@ CHANGES IN HTMLDOC v1.8.12
 
     CHANGES
 
+	- Consolidated temporary file management into new file_temp()
+	  function.  The new function also makes use of the Windows
+	  "short lived" open option which may improve performance with
+	  small temporary files.
 
     BUG FIXES
 
 	- The web page output was not divided into chapters for
 	  each input file.
+	- The "make install" target did a clean.
 
 
 CHANGES IN HTMLDOC v1.8.11
