@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.33 2001/12/07 15:46:00 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.34 2001/12/13 19:04:06 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -108,7 +108,7 @@ main(int  argc,		/* I - Number of command-line arguments */
 		*file,		/* HTML document file */
 		*toc;		/* Table of contents */
   exportfunc_t	exportfunc;	/* Export function */
-  char		*extension;	/* Extension of output filename */
+  const char	*extension;	/* Extension of output filename */
   float		fontsize,	/* Base font size */
 		fontspacing;	/* Base font spacing */
 #ifdef HAVE_LIBFLTK
@@ -1246,6 +1246,8 @@ prefs_load(void)
         strcpy(HTMLEditor, line + 7);
       else if (strncasecmp(line, "TOOLTIPS=", 9) == 0)
         Tooltips = atoi(line + 9);
+      else if (strncasecmp(line, "MODERN=", 7) == 0)
+        ModernSkin = atoi(line + 7);
 #  endif // HAVE_LIBFLTK
     }
 
@@ -1352,6 +1354,7 @@ prefs_save(void)
 #ifdef HAVE_LIBFLTK
     fprintf(fp, "EDITOR=%s\n", HTMLEditor);
     fprintf(fp, "TOOLTIPS=%d\n", Tooltips);
+    fprintf(fp, "MODERN=%d\n", ModernSkin);
 #endif // HAVE_LIBFLTK
 
     fclose(fp);
@@ -1389,8 +1392,8 @@ load_book(const char   *filename,	// I  - Book file
           exportfunc_t *exportfunc)	// O  - Export function
 {
   FILE		*fp;			// File to read from
-  char		line[10240],		// Line from file
-		*dir;			// Directory
+  char		line[10240];		// Line from file
+  const char 	*dir;			// Directory
 
 
   // If the filename contains a path, chdir to it first...
@@ -2183,5 +2186,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.33 2001/12/07 15:46:00 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.34 2001/12/13 19:04:06 mike Exp $".
  */

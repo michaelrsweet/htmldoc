@@ -10,10 +10,11 @@
 
 <H2>Introduction</H2>
 
-<P>The <I>HTMLDOC</I> <VAR>.book</VAR> file format is a simple text format
-that provides the command-line options and files that are part of the
-document. These files can be used from the GUI interface or from the command-line
-using the <CODE>--batch</CODE> option:
+<P>The <I>HTMLDOC</I> <VAR>.book</VAR> file format is a simple
+text format that provides the command-line options and files
+that are part of the document. These files can be used from the
+GUI interface or from the command-line using the
+<CODE>--batch</CODE> option:
 
 <UL><PRE>
 htmldoc filename.book
@@ -34,10 +35,10 @@ htmldoc.exe --batch filename.book
 <P>Each <VAR>.book</VAR> file starts with a line reading:
 
 <UL><PRE>
-#HTMLDOC 1.8.13
+#HTMLDOC 1.8.17
 </PRE></UL>
 
-<P>The version number (1.8.13) is optional.
+<P>The version number (1.8.17) is optional.
 
 <H2>The Options</H2>
 
@@ -46,6 +47,14 @@ use any valid command-line option on this line:
 
 <UL><PRE>
 -f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
+</PRE></UL>
+
+<P>Long option lines can be broken using a trailing backslash (<TT>\</TT>) on
+the end of each continuation line:</P>
+
+<UL><PRE>
+-f htmldoc.pdf --titleimage htmldoc.png --duplex \
+--compression=9 --jpeg=90
 </PRE></UL>
 
 <H2>The Files</H2>

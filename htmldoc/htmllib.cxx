@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.42 2001/11/04 15:58:24 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.43 2001/12/13 19:04:09 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -221,7 +221,7 @@ static int	parse_variable(tree_t *t, FILE *fp);
 static int	compute_size(tree_t *t);
 static int	compute_color(tree_t *t, uchar *color);
 static int	get_alignment(tree_t *t);
-static char	*fix_filename(char *path, char *base);
+static const char *fix_filename(char *path, char *base);
 
 #define issuper(x)	((x) == MARKUP_CENTER || (x) == MARKUP_DIV ||\
 			 (x) == MARKUP_BLOCKQUOTE)
@@ -1843,7 +1843,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
     memset(_htmlGlyphsAll, 0, sizeof(_htmlGlyphsAll));
 
-    sprintf(line, "%s/data/psglyphs", _htmlData);
+    snprintf(line, sizeof(line), "%s/data/psglyphs", _htmlData);
     if ((fp = fopen(line, "r")) != NULL)
     {
       while (fscanf(fp, "%x%63s", &unicode, glyph) == 2)
@@ -1945,7 +1945,8 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
       for (ch = 0; ch < 256; ch ++)
         _htmlWidths[i][j][ch] = 0.6f;
 
-      sprintf(filename, "%s/afm/%s", _htmlData, _htmlFonts[i][j]);
+      snprintf(filename, sizeof(filename), "%s/afm/%s", _htmlData,
+               _htmlFonts[i][j]);
       if ((fp = fopen(filename, "r")) == NULL)
       {
 #ifndef DEBUG
@@ -2537,7 +2538,7 @@ get_alignment(tree_t *t)	/* I - Tree entry */
  * 'fix_filename()' - Fix a filename to be relative to the base directory.
  */
 
-static char *				/* O - Fixed filename */
+static const char *				/* O - Fixed filename */
 fix_filename(char *filename,		/* I - Original filename */
              char *base)		/* I - Base directory */
 {
@@ -2653,5 +2654,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.42 2001/11/04 15:58:24 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.43 2001/12/13 19:04:09 mike Exp $".
  */

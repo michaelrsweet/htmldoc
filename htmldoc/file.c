@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.28 2001/12/10 20:49:16 mike Exp $"
+ * "$Id: file.c,v 1.13.2.29 2001/12/13 19:04:04 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -106,10 +106,10 @@ int	no_local = 0;			/* Non-zero to disable local files */
  * 'file_basename()' - Return the base filename without directory or target.
  */
 
-char *				/* O - Base filename */
+const char *			/* O - Base filename */
 file_basename(const char *s)	/* I - Filename or URL */
 {
-  char		*basename;	/* Pointer to directory separator */
+  const char	*basename;	/* Pointer to directory separator */
   static char	buf[1024];	/* Buffer for files with targets */
 
 
@@ -133,7 +133,8 @@ file_basename(const char *s)	/* I - Filename or URL */
   if (strchr(basename, '#') == NULL)
     return (basename);
 
-  strcpy(buf, basename);
+  strncpy(buf, basename, sizeof(buf) - 1);
+  buf[sizeof(buf) - 1] = '\0';
   *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
@@ -200,7 +201,7 @@ file_cleanup(void)
  * 'file_directory()' - Return the directory without filename or target.
  */
 
-char *				/* O - Directory for file */
+const char *			/* O - Directory for file */
 file_directory(const char *s)	/* I - Filename or URL */
 {
   char		*dir;		/* Pointer to directory separator */
@@ -240,7 +241,8 @@ file_directory(const char *s)	/* I - Filename or URL */
     * Normal stuff...
     */
 
-    strcpy(buf, s);
+    strncpy(buf, s, sizeof(buf) - 1);
+    buf[sizeof(buf) - 1] = '\0';
 
     if ((dir = strrchr(buf, '/')) != NULL)
       *dir = '\0';
@@ -265,10 +267,10 @@ file_directory(const char *s)	/* I - Filename or URL */
  * 'file_extension()' - Return the extension of a file without the target.
  */
 
-char *				/* O - File extension */
+const char *			/* O - File extension */
 file_extension(const char *s)	/* I - Filename or URL */
 {
-  char		*extension;	/* Pointer to directory separator */
+  const char	*extension;	/* Pointer to directory separator */
   static char	buf[1024];	/* Buffer for files with targets */
 
 
@@ -284,7 +286,7 @@ file_extension(const char *s)	/* I - Filename or URL */
     extension ++;
 #endif /* MAC */
   else
-    extension = (char *)s;
+    extension = s;
 
   if ((extension = strrchr(extension, '.')) == NULL)
     return ("");
@@ -294,7 +296,9 @@ file_extension(const char *s)	/* I - Filename or URL */
   if (strchr(extension, '#') == NULL)
     return (extension);
 
-  strcpy(buf, extension);
+  strncpy(buf, extension, sizeof(buf) - 1);
+  buf[sizeof(buf) - 1] = '\0';
+
   *(char *)strchr(buf, '#') = '\0';
 
   return (buf);
@@ -305,7 +309,7 @@ file_extension(const char *s)	/* I - Filename or URL */
  * 'file_find()' - Find a file in one of the path directories.
  */
 
-char *					/* O - Pathname or NULL */
+const char *				/* O - Pathname or NULL */
 file_find(const char *path,		/* I - Path "dir;dir;dir" */
           const char *s)		/* I - File to find */
 {
@@ -367,7 +371,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     */
 
     if (path == NULL || !path[0])
-      return ((char *)s);
+      return (s);
 
    /*
     * Else loop through the path string until we reach the end...
@@ -415,7 +419,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     */
 
     if (!access(s, 0))
-      return ((char *)s);
+      return (s);
   }
   else
   {
@@ -438,7 +442,8 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     else if (s[0] == '/')
     {
       httpSeparate(path, method, username, hostname, &port, resource);
-      strcpy(resource, s);
+      strncpy(resource, s, sizeof(resource) - 1);
+      resource[sizeof(resource) - 1] = '\0';
     }
     else
     {
@@ -473,7 +478,8 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
         connhost = hostname;
         connport = port;
-        strcpy(connpath, resource);
+        strncpy(connpath, resource, sizeof(connpath) - 1);
+	connpath[sizeof(connpath) - 1] = '\0';
       }
 
       if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
@@ -638,6 +644,28 @@ file_gets(char  *buf,		/* I - Line buffer */
     }
     else if (ch == '\n')
       break;
+    else if (ch == '\\')
+    {
+     /*
+      * Handle \ escapes, to continue to multiple lines...
+      */
+
+      int nextch = getc(fp);
+
+      if (nextch == EOF)
+        break;
+      else if (nextch == '\r')
+      {
+        nextch = getc(fp);
+
+	if (nextch == EOF)
+	  break;
+	else if (nextch != '\n')
+	  ungetc(nextch, fp);
+      }
+      else if (nextch != '\n' && ptr < end)
+        *ptr++ = nextch;
+    }
     else if (ptr < end)
       *ptr++ = ch;
   }
@@ -655,7 +683,7 @@ file_gets(char  *buf,		/* I - Line buffer */
  * 'file_localize()' - Localize a filename for the new working directory.
  */
 
-char *					/* O - New filename */
+const char *				/* O - New filename */
 file_localize(const char *filename,	/* I - Filename */
               const char *newcwd)	/* I - New directory */
 {
@@ -697,7 +725,10 @@ file_localize(const char *filename,	/* I - Filename */
     sprintf(temp, "%s/%s", cwd, newslash);
   }
   else
-    strcpy(temp, filename);
+  {
+    strncpy(temp, filename, sizeof(temp) - 1);
+    temp[sizeof(temp) - 1] = '\0';
+  }
 
   for (slash = temp, newslash = newcwd;
        *slash != '\0' && *newslash != '\0';
@@ -744,7 +775,7 @@ file_localize(const char *filename,	/* I - Filename */
  * Returns NULL if the URL is a local file.
  */
 
-char *				/* O - Method string ("http", "ftp", etc.) */
+const char *			/* O - Method string ("http", "ftp", etc.) */
 file_method(const char *s)	/* I - Filename or URL */
 {
   if (strncmp(s, "http:", 5) == 0)
@@ -796,7 +827,8 @@ file_proxy(const char *url)	/* I - URL of proxy server */
 
     if (strcmp(method, "http") == 0)
     {
-      strcpy(proxy_host, hostname);
+      strncpy(proxy_host, hostname, sizeof(proxy_host) - 1);
+      proxy_host[sizeof(proxy_host) - 1] = '\0';
       proxy_port = port;
     }
   }
@@ -807,11 +839,11 @@ file_proxy(const char *url)	/* I - URL of proxy server */
  * 'file_target()' - Return the target of a link.
  */
 
-char *				/* O - Target name */
+const char *			/* O - Target name */
 file_target(const char *s)	/* I - Filename or URL */
 {
-  char		*basename;	/* Pointer to directory separator */
-  char		*target;	/* Pointer to target */
+  const char	*basename;	/* Pointer to directory separator */
+  const char	*target;	/* Pointer to target */
 
 
   if (s == NULL)
@@ -826,7 +858,7 @@ file_target(const char *s)	/* I - Filename or URL */
     basename ++;
 #endif /* MAC */
   else
-    basename = (char *)s;
+    basename = s;
 
   if ((target = strchr(basename, '#')) != NULL)
     return (target + 1);
@@ -909,5 +941,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.28 2001/12/10 20:49:16 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.29 2001/12/13 19:04:04 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.14 2001/10/18 23:49:33 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.15 2001/12/13 19:04:06 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -54,6 +54,8 @@
 #  include <FL/Fl_Help_Dialog.H>
 #  include <FL/Fl_Progress.H>
 #  include <FL/Fl_Tooltip.H>
+#  include <FL/Fl_Pixmap.H>
+#  include <FL/Fl_Tiled_Image.H>
 #  define CheckButton	Fl_Check_Button
 #  define RadioButton	Fl_Round_Button
 #  define FileChooser	Fl_File_Chooser
@@ -74,6 +76,13 @@ class GUI
   private:
 
   Fl_Window	*window;
+
+#  if FL_MINOR_VERSION >= 1
+  Fl_Group	*tile_group;
+  Fl_Image	*tile;
+  Fl_Tiled_Image *tile_image;
+#  endif // FL_MINOR_VERSION >= 1
+
   Fl_Group	*controls;
   Fl_Tabs	*tabs;
 
@@ -200,6 +209,7 @@ class GUI
   Fl_Input	*path;
   Fl_Input	*proxy;
   CheckButton	*tooltips;
+  CheckButton	*modern_skin;
 
   Fl_Button	*saveOptions;
 
@@ -261,6 +271,7 @@ class GUI
 
   static void	htmlEditorCB(Fl_Widget *w, GUI *gui);
   static void	tooltipCB(Fl_Widget *w, GUI *gui);
+  static void	skinCB(Fl_Widget *w, GUI *gui);
   static void	saveOptionsCB(Fl_Widget *w, GUI *gui);
 
   static void	helpCB(Fl_Widget *w, GUI *gui);
@@ -294,5 +305,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.14 2001/10/18 23:49:33 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.15 2001/12/13 19:04:06 mike Exp $".
  */

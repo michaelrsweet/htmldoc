@@ -1,5 +1,5 @@
 /*
- * "$Id: file.h,v 1.6.2.5 2001/12/07 15:46:00 mike Exp $"
+ * "$Id: file.h,v 1.6.2.6 2001/12/13 19:04:04 mike Exp $"
  *
  *   Filename definitions for HTMLDOC, a HTML document processing program.
  *
@@ -40,18 +40,18 @@ extern "C" {
  * Prototypes...
  */
 
-extern char	*file_basename(const char *s);
-extern void	file_cleanup(void);
-extern char	*file_directory(const char *s);
-extern char	*file_extension(const char *s);
-extern char	*file_find(const char *path, const char *s);
-extern char	*file_gets(char *buf, int buglen, FILE *fp);
-extern char	*file_localize(const char *filename, const char *newcwd);
-extern char	*file_method(const char *s);
-extern void	file_nolocal();
-extern void	file_proxy(const char *url);
-extern char	*file_target(const char *s);
-extern FILE	*file_temp(char *name, int len);
+extern const char	*file_basename(const char *s);
+extern void		file_cleanup(void);
+extern const char	*file_directory(const char *s);
+extern const char	*file_extension(const char *s);
+extern const char	*file_find(const char *path, const char *s);
+extern char		*file_gets(char *buf, int buflen, FILE *fp);
+extern const char	*file_localize(const char *filename, const char *newcwd);
+extern const char	*file_method(const char *s);
+extern void		file_nolocal();
+extern void		file_proxy(const char *url);
+extern const char	*file_target(const char *s);
+extern FILE		*file_temp(char *name, int len);
 
 #  ifdef __cplusplus
 }
@@ -60,5 +60,5 @@ extern FILE	*file_temp(char *name, int len);
 #endif /* !_FILE_H_ */
 
 /*
- * End of "$Id: file.h,v 1.6.2.5 2001/12/07 15:46:00 mike Exp $".
+ * End of "$Id: file.h,v 1.6.2.6 2001/12/13 19:04:04 mike Exp $".
  */

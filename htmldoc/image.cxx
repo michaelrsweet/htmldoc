@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.15 2001/10/20 21:49:22 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.16 2001/12/13 19:04:10 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -571,9 +571,12 @@ image_copy(const char *filename,/* I - Source file */
   */
 
   if (strcmp(destpath, ".") == 0)
-    strcpy(dest, file_basename(filename));
+  {
+    strncpy(dest, file_basename(filename), sizeof(dest) - 1);
+    dest[sizeof(dest) - 1] = '\0';
+  }
   else
-    sprintf(dest, "%s/%s", destpath, file_basename(filename));
+    snprintf(dest, sizeof(dest), "%s/%s", destpath, file_basename(filename));
 
   if (strcmp(dest, filename) == 0)
     return;
@@ -1691,5 +1694,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.15 2001/10/20 21:49:22 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.16 2001/12/13 19:04:10 mike Exp $".
  */
