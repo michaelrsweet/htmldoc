@@ -29,6 +29,10 @@ CHANGES IN HTMLDOC v1.8.20
 	- Fixed a bug in the htmlReadFile() function which
 	  caused user-provided title pages not to be displayed
 	  in PS or PDF output.
+	- The table-of-contents would inherit the last media
+	  settings in the document, but use the initial settings
+	  when formatting.
+
 
 CHANGES IN HTMLDOC v1.8.19
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.177 2002/05/30 15:44:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.178 2002/05/30 15:57:41 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7812,7 +7812,7 @@ check_pages(int page)	// I - Current page
   {
     if (!temp->width)
     {
-      if (num_pages == 0 || !temp[-1].width || !temp[-1].length)
+      if (num_pages == 0 || !temp[-1].width || !temp[-1].length || chapter == 0)
       {
 	temp->width     = PageWidth;
 	temp->length    = PageLength;
@@ -11463,5 +11463,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.177 2002/05/30 15:44:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.178 2002/05/30 15:57:41 mike Exp $".
  */
