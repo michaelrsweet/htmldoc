@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.20 2004/03/31 10:35:07 mike Exp $"
+ * "$Id: toc.cxx,v 1.21 2004/04/11 21:20:28 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -24,9 +24,9 @@
  *
  * Contents:
  *
- *   toc_build()   - Build a table of contents of the given HTML tree.
- *   add_heading() - Add heading records to the given toc entry...
- *   parse_tree()  - Parse headings from the given tree...
+ *   hdBook::toc_build()   - Build a table of contents of the given HTML tree.
+ *   hdBook::add_heading() - Add heading records to the given toc entry...
+ *   hdBook::parse_tree()  - Parse headings from the given tree...
  */
 
 /*
@@ -37,41 +37,17 @@
 
 
 /*
- * Local functions...
+ * 'hdBook::toc_build()' - Build a table of contents of the given HTML tree.
  */
 
-static void	parse_tree(hdTree *t);
-
-
-/*
- * Local globals...
- */
-
-static int	heading_numbers[15];
-static uchar	heading_types[15] =
-		{
-		  '1', '1', '1', '1', '1', '1', '1', '1',
-		  '1', '1', '1', '1', '1', '1', '1'
-		};
-static int	last_level;
-static hdTree	*heading_parents[15];
-
-
-/*
- * 'toc_build()' - Build a table of contents of the given HTML tree.
- */
-
-hdTree *			/* O - Table of contents tree */
-toc_build(hdTree *tree)		/* I - Document tree */
+hdTree *				/* O - Table of contents tree */
+hdBook::toc_build(hdTree *tree)		/* I - Document tree */
 {
-  hdTree	*toc,		/* TOC tree pointer */
-		*title,		/* Title entry */
-		*link;		/* Link entry */
+  hdTree	*toc,			/* TOC tree pointer */
+		*title,			/* Title entry */
+		*link;			/* Link entry */
 
 
-  TocDocCount        = 0;
-  last_level         = 0;	/* Currently at the "top" level */
-  heading_numbers[0] = 0;	/* Start at 1 (see below) */
 
   toc = htmlAddTree(NULL, HD_ELEMENT_BODY, NULL);
 
@@ -80,6 +56,12 @@ toc_build(hdTree *tree)		/* I - Document tree */
   link = htmlAddTree(title, HD_ELEMENT_A, NULL);
   htmlSetVariable(link, (uchar *)"NAME", (uchar *)"CONTENTS");
   htmlAddTree(link, HD_ELEMENT_NONE, (uchar *)TocTitle);
+
+  TocDocCount = 0;
+  last_level  = 0;			/* Currently at the "top" level */
+
+  memset(heading_numbers, 0, sizeof(heading_numbers));
+  memset(heading_types, '1', sizeof(heading_types));
 
   heading_parents[0]  = toc;
   heading_parents[1]  = toc;
@@ -97,24 +79,24 @@ toc_build(hdTree *tree)		/* I - Document tree */
   heading_parents[13] = toc;
   heading_parents[14] = toc;
 
-  parse_tree(tree);
+  toc_parse_tree(tree);
 
   return (toc);
 }
 
 
 /*
- * 'add_heading()' - Add heading records to the given toc entry...
+ * 'hdBook::toc_add_heading()' - Add heading records to the given toc entry...
  */
 
 void
-add_heading(hdTree *toc,	/* I - Table of contents */
-            hdTree *heading)	/* I - Heading entry */
+hdBook::toc_add_heading(hdTree *toc,	/* I - Table of contents */
+                        hdTree *heading)/* I - Heading entry */
 {
   while (heading != NULL)
   {
     if (heading->child != NULL)
-      add_heading(toc, heading->child);
+      toc_add_heading(toc, heading->child);
     else if (heading->element == HD_ELEMENT_NONE && heading->data != NULL)
       htmlAddTree(toc, HD_ELEMENT_NONE, heading->data);
 
@@ -124,23 +106,23 @@ add_heading(hdTree *toc,	/* I - Table of contents */
 
 
 /*
- * 'parse_tree()' - Parse headings from the given tree...
+ * 'hdBook::toc_parse_tree()' - Parse headings from the given tree...
  *
  * Note: We also add anchor points and numbers as necessary...
  */
 
-static void			/* O - Tree of TOC entries */
-parse_tree(hdTree *t)		/* I - Document tree */
+void
+hdBook::toc_parse_tree(hdTree *t)	/* I - Document tree */
 {
-  hdTree	*parent;	/* Parent of toc entry (DD or LI) */
-  hdTree	*target,	/* Link target */
-		*temp;		/* Looping var */
-  uchar		heading[255],	/* Heading numbers */
-		link[255],	/* Actual link */
-		baselink[255],	/* Base link (numbered) */
-		*existing;	/* Existing link string */
-  int		i, level;	/* Header level */
-  uchar		*var;		/* Starting value/type for this level */
+  hdTree	*parent;		/* Parent of toc entry (DD or LI) */
+  hdTree	*target,		/* Link target */
+		*temp;			/* Looping var */
+  uchar		heading[255],		/* Heading numbers */
+		link[255],		/* Actual link */
+		baselink[255],		/* Base link (numbered) */
+		*existing;		/* Existing link string */
+  int		i, level;		/* Header level */
+  uchar		*var;			/* Starting value/type for this level */
   static const char *ones[10] =
 		{
 		  "",	"i",	"ii",	"iii",	"iv",
@@ -369,7 +351,7 @@ parse_tree(hdTree *t)		/* I - Document tree */
 	      }
             }
 
-            add_heading(parent, t->child);
+            toc_add_heading(parent, t->child);
           }
 
           last_level = level;
@@ -377,7 +359,7 @@ parse_tree(hdTree *t)		/* I - Document tree */
 
       default :
           if (t->child != NULL)
-            parse_tree(t->child);
+            toc_parse_tree(t->child);
           break;
     }
 
@@ -387,5 +369,5 @@ parse_tree(hdTree *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.20 2004/03/31 10:35:07 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.21 2004/04/11 21:20:28 mike Exp $".
  */
