@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.38 2001/12/15 15:24:13 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.39 2001/12/16 13:55:52 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1071,66 +1071,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   tile_image = new Fl_Tiled_Image(tile, 505, 415);
 
   if (ModernSkin)
-  {
-    //
-    // Use "plastic" buttons...
-    //
-
-    tile_group->image(tile_image);
-
-    // Copy the old boxtypes...
-    Fl::set_boxtype(FL_FREE_BOXTYPE,                   FL_UP_BOX);
-    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 1), FL_DOWN_BOX);
-    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 2), _FL_ROUND_UP_BOX);
-    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 3), _FL_ROUND_DOWN_BOX);
-
-    // Set them to "plastic"...
-    Fl::set_boxtype(FL_UP_BOX,          FL_PLASTIC_UP_BOX);
-    Fl::set_boxtype(FL_DOWN_BOX,        FL_PLASTIC_DOWN_BOX);
-    Fl::set_boxtype(_FL_ROUND_UP_BOX,   FL_PLASTIC_UP_BOX);
-    Fl::set_boxtype(_FL_ROUND_DOWN_BOX, FL_PLASTIC_DOWN_BOX);
-
-    tabs->box(FL_PLASTIC_UP_BOX);
-
-    Fl::background(0xd8, 0xd8, 0xd8);
-
-    typeBook->down_box(FL_ROUND_UP_BOX);
-    typeContinuous->down_box(FL_ROUND_UP_BOX);
-    typeWebPage->down_box(FL_ROUND_UP_BOX);
-    outputFile->down_box(FL_ROUND_UP_BOX);
-    outputDirectory->down_box(FL_ROUND_UP_BOX);
-    typeHTML->down_box(FL_ROUND_UP_BOX);
-    typePS->down_box(FL_ROUND_UP_BOX);
-    typePDF->down_box(FL_ROUND_UP_BOX);
-    grayscale->down_box(FL_UP_BOX);
-    titlePage->down_box(FL_UP_BOX);
-    jpegCompress->down_box(FL_UP_BOX);
-    pageDuplex->down_box(FL_UP_BOX);
-    landscape->down_box(FL_UP_BOX);
-    numberedToc->down_box(FL_UP_BOX);
-    ps1->down_box(FL_ROUND_UP_BOX);
-    ps2->down_box(FL_ROUND_UP_BOX);
-    ps3->down_box(FL_ROUND_UP_BOX);
-    psCommands->down_box(FL_UP_BOX);
-    xrxComments->down_box(FL_UP_BOX);
-    pdf11->down_box(FL_ROUND_UP_BOX);
-    pdf12->down_box(FL_ROUND_UP_BOX);
-    pdf13->down_box(FL_ROUND_UP_BOX);
-    pdf14->down_box(FL_ROUND_UP_BOX);
-    links->down_box(FL_UP_BOX);
-    truetype->down_box(FL_UP_BOX);
-    encryptionYes->down_box(FL_ROUND_UP_BOX);
-    encryptionNo->down_box(FL_ROUND_UP_BOX);
-    permPrint->down_box(FL_UP_BOX);
-    permModify->down_box(FL_UP_BOX);
-    permCopy->down_box(FL_UP_BOX);
-    permAnnotate->down_box(FL_UP_BOX);
-    tooltips->down_box(FL_UP_BOX);
-    modern_skin->down_box(FL_UP_BOX);
-
-    progressBar->color2(FL_BLUE);
-    progressBar->box(FL_UP_BOX);
-  }
+    skinCB(0, this);
 #  endif // FL_MINOR_VERSION >= 1
 
 #  ifdef __sgi
@@ -3307,9 +3248,7 @@ void
 GUI::skinCB(Fl_Widget *w,	// I - Widget
             GUI       *gui)	// I - GUI interface
 {
-  REF(gui);
-
-  ModernSkin = ((Fl_Button *)w)->value();
+  ModernSkin = gui->modern_skin->value();
 
 #if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
   if (ModernSkin)
@@ -3370,6 +3309,40 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->tooltips->down_box(FL_UP_BOX);
     gui->modern_skin->down_box(FL_UP_BOX);
 
+    gui->typeBook->color2(fl_rgb_color(63, 63, 63));
+    gui->typeContinuous->color2(fl_rgb_color(63, 63, 63));
+    gui->typeWebPage->color2(fl_rgb_color(63, 63, 63));
+    gui->outputFile->color2(fl_rgb_color(63, 63, 63));
+    gui->outputDirectory->color2(fl_rgb_color(63, 63, 63));
+    gui->typeHTML->color2(fl_rgb_color(63, 63, 63));
+    gui->typePS->color2(fl_rgb_color(63, 63, 63));
+    gui->typePDF->color2(fl_rgb_color(63, 63, 63));
+    gui->grayscale->color2(fl_rgb_color(255, 63, 63));
+    gui->titlePage->color2(fl_rgb_color(255, 63, 63));
+    gui->jpegCompress->color2(fl_rgb_color(255, 63, 63));
+    gui->pageDuplex->color2(fl_rgb_color(255, 63, 63));
+    gui->landscape->color2(fl_rgb_color(255, 63, 63));
+    gui->numberedToc->color2(fl_rgb_color(255, 63, 63));
+    gui->ps1->color2(fl_rgb_color(63, 63, 63));
+    gui->ps2->color2(fl_rgb_color(63, 63, 63));
+    gui->ps3->color2(fl_rgb_color(63, 63, 63));
+    gui->psCommands->color2(fl_rgb_color(255, 63, 63));
+    gui->xrxComments->color2(fl_rgb_color(255, 63, 63));
+    gui->pdf11->color2(fl_rgb_color(63, 63, 63));
+    gui->pdf12->color2(fl_rgb_color(63, 63, 63));
+    gui->pdf13->color2(fl_rgb_color(63, 63, 63));
+    gui->pdf14->color2(fl_rgb_color(63, 63, 63));
+    gui->links->color2(fl_rgb_color(255, 63, 63));
+    gui->truetype->color2(fl_rgb_color(255, 63, 63));
+    gui->encryptionYes->color2(fl_rgb_color(63, 63, 63));
+    gui->encryptionNo->color2(fl_rgb_color(63, 63, 63));
+    gui->permPrint->color2(fl_rgb_color(255, 63, 63));
+    gui->permModify->color2(fl_rgb_color(255, 63, 63));
+    gui->permCopy->color2(fl_rgb_color(255, 63, 63));
+    gui->permAnnotate->color2(fl_rgb_color(255, 63, 63));
+    gui->tooltips->color2(fl_rgb_color(255, 63, 63));
+    gui->modern_skin->color2(fl_rgb_color(255, 63, 63));
+
     gui->progressBar->color2(FL_BLUE);
     gui->progressBar->box(FL_UP_BOX);
   }
@@ -3424,6 +3397,40 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
     gui->permAnnotate->down_box(FL_DOWN_BOX);
     gui->tooltips->down_box(FL_DOWN_BOX);
     gui->modern_skin->down_box(FL_DOWN_BOX);
+
+    gui->typeBook->color2(FL_BLACK);
+    gui->typeContinuous->color2(FL_BLACK);
+    gui->typeWebPage->color2(FL_BLACK);
+    gui->outputFile->color2(FL_BLACK);
+    gui->outputDirectory->color2(FL_BLACK);
+    gui->typeHTML->color2(FL_BLACK);
+    gui->typePS->color2(FL_BLACK);
+    gui->typePDF->color2(FL_BLACK);
+    gui->grayscale->color2(FL_BLACK);
+    gui->titlePage->color2(FL_BLACK);
+    gui->jpegCompress->color2(FL_BLACK);
+    gui->pageDuplex->color2(FL_BLACK);
+    gui->landscape->color2(FL_BLACK);
+    gui->numberedToc->color2(FL_BLACK);
+    gui->ps1->color2(FL_BLACK);
+    gui->ps2->color2(FL_BLACK);
+    gui->ps3->color2(FL_BLACK);
+    gui->psCommands->color2(FL_BLACK);
+    gui->xrxComments->color2(FL_BLACK);
+    gui->pdf11->color2(FL_BLACK);
+    gui->pdf12->color2(FL_BLACK);
+    gui->pdf13->color2(FL_BLACK);
+    gui->pdf14->color2(FL_BLACK);
+    gui->links->color2(FL_BLACK);
+    gui->truetype->color2(FL_BLACK);
+    gui->encryptionYes->color2(FL_BLACK);
+    gui->encryptionNo->color2(FL_BLACK);
+    gui->permPrint->color2(FL_BLACK);
+    gui->permModify->color2(FL_BLACK);
+    gui->permCopy->color2(FL_BLACK);
+    gui->permAnnotate->color2(FL_BLACK);
+    gui->tooltips->color2(FL_BLACK);
+    gui->modern_skin->color2(FL_BLACK);
 
     gui->progressBar->color2(FL_YELLOW);
     gui->progressBar->box(FL_DOWN_BOX);
@@ -4207,5 +4214,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.38 2001/12/15 15:24:13 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.39 2001/12/16 13:55:52 mike Exp $".
 //
