@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.2 2001/07/17 22:45:53 mike Exp $"
+ * "$Id: http.c,v 1.3 2001/09/27 22:33:22 mike Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
  *
@@ -631,10 +631,10 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
   if (strncmp(uri, "//", 2) == 0)
   {
    /*
-    * Workaround for HP IPP client bug...
+    * Workaround for common bad URLs...
     */
 
-    strcpy(method, "ipp");
+    strcpy(method, "http");
   }
   else
   {
@@ -681,7 +681,7 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
 	}
       }
       else
-	*port = 631;
+	*port = 80;
 
       strcpy(method, "http");
       username[0] = '\0';
@@ -2075,5 +2075,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.2 2001/07/17 22:45:53 mike Exp $".
+ * End of "$Id: http.c,v 1.3 2001/09/27 22:33:22 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.21 2000/11/06 19:53:03 mike Exp $"
+// "$Id: htmldoc.h,v 1.22 2001/09/27 22:33:22 mike Exp $"
 //
 //   Header file for HTMLDOC, a HTML document processing program.
 //
@@ -67,53 +67,53 @@ extern "C" {		/* Workaround for JPEG header problems... */
 
 enum			//// PDF page mode
 {
-  PDF_DOCUMENT,
-  PDF_OUTLINE,
-  PDF_FULLSCREEN
+  HD_PDF_DOCUMENT,
+  HD_PDF_OUTLINE,
+  HD_PDF_FULLSCREEN
 };
 
 enum			//// PDF page layout
 {
-  PDF_SINGLE,
-  PDF_ONE_COLUMN,
-  PDF_TWO_COLUMN_LEFT,
-  PDF_TWO_COLUMN_RIGHT
+  HD_PDF_SINGLE,
+  HD_PDF_ONE_COLUMN,
+  HD_PDF_TWO_COLUMN_LEFT,
+  HD_PDF_TWO_COLUMN_RIGHT
 };
 
 enum			//// PDF first page
 {
-  PDF_PAGE_1,
-  PDF_TOC,
-  PDF_CHAPTER_1
+  HD_PDF_PAGE_1,
+  HD_PDF_TOC,
+  HD_PDF_CHAPTER_1
 };
 
 enum			//// PDF transition effect
 {
-  PDF_NONE,
-  PDF_BOX_INWARD,
-  PDF_BOX_OUTWARD,
-  PDF_DISSOLVE,
-  PDF_GLITTER_DOWN,
-  PDF_GLITTER_DOWN_RIGHT,
-  PDF_GLITTER_RIGHT,
-  PDF_HORIZONTAL_BLINDS,
-  PDF_HORIZONTAL_SWEEP_INWARD,
-  PDF_HORIZONTAL_SWEEP_OUTWARD,
-  PDF_VERTICAL_BLINDS,
-  PDF_VERTICAL_SWEEP_INWARD,
-  PDF_VERTICAL_SWEEP_OUTWARD,
-  PDF_WIPE_DOWN,
-  PDF_WIPE_LEFT,
-  PDF_WIPE_RIGHT,
-  PDF_WIPE_UP
+  HD_PDF_NONE,
+  HD_PDF_BOX_INWARD,
+  HD_PDF_BOX_OUTWARD,
+  HD_PDF_DISSOLVE,
+  HD_PDF_GLITTER_DOWN,
+  HD_PDF_GLITTER_DOWN_RIGHT,
+  HD_PDF_GLITTER_RIGHT,
+  HD_PDF_HORIZONTAL_BLINDS,
+  HD_PDF_HORIZONTAL_SWEEP_INWARD,
+  HD_PDF_HORIZONTAL_SWEEP_OUTWARD,
+  HD_PDF_VERTICAL_BLINDS,
+  HD_PDF_VERTICAL_SWEEP_INWARD,
+  HD_PDF_VERTICAL_SWEEP_OUTWARD,
+  HD_PDF_WIPE_DOWN,
+  HD_PDF_WIPE_LEFT,
+  HD_PDF_WIPE_RIGHT,
+  HD_PDF_WIPE_UP
 };
 
 enum			//// PDF document permissions
 {
-  PDF_PERM_PRINT = 4,
-  PDF_PERM_MODIFY = 8,
-  PDF_PERM_COPY = 16,
-  PDF_PERM_ANNOTATE = 32
+  HD_PDF_PERM_PRINT = 4,
+  HD_PDF_PERM_MODIFY = 8,
+  HD_PDF_PERM_COPY = 16,
+  HD_PDF_PERM_ANNOTATE = 32
 };
 
 enum HDparam		//// HTMLDOC parameters...
@@ -184,19 +184,27 @@ enum HDparam		//// HTMLDOC parameters...
 
 enum			//// Render types
 {
-  RENDER_TEXT,
-  RENDER_IMAGE,
-  RENDER_BOX,
-  RENDER_FBOX,
-  RENDER_LINK
+  HD_RENDER_TEXT,
+  HD_RENDER_IMAGE,
+  HD_RENDER_BOX,
+  HD_RENDER_FBOX,
+  HD_RENDER_LINK
+};
+
+enum			//// Output formats
+{
+  HD_OUTPUT_HTML,
+  HD_OUTPUT_PS,
+  HD_OUTPUT_PDF
 };
 
 enum			//// Output types
 {
-  OUTPUT_HTML,
-  OUTPUT_PS,
-  OUTPUT_PDF
+  HD_OUTPUT_BOOK,
+  HD_OUTPUT_CONTINUOUS,
+  HD_OUTPUT_WEBPAGES
 };
+
 
 
 //
@@ -236,6 +244,28 @@ struct HDlink			//// Named link position structure
 		name[124];	// Reference name
 };
 
+struct HDpage			//// Page information
+{
+  int		width,			// Width of page in points
+		length,			// Length of page in points
+		left,			// Left margin in points
+		right,			// Right margin in points
+		top,			// Top margin in points
+		bottom,			// Bottom margin in points
+		duplex,			// Duplex this page?
+		landscape;		// Landscape orientation?
+  HDrender	*start,			// First render element
+		*end;			// Last render element
+  uchar		*chapter,		// Chapter text
+		*heading,		// Heading text
+		*header[3],		// Headers
+		*footer[3];		// Footers
+  char		media_color[64],	// Media color
+		media_type[64];		// Media type
+  int		media_position;		// Media position
+  int		annot_object;		// Annotation object
+} HDpage;
+
 
 //
 // HTMLDOC class...
@@ -267,11 +297,7 @@ class HTMLDOC
 
   int		num_pages_,		// Number of pages
 		alloc_pages_;		// Allocated pages
-  HDrender	**pages_,		// Page data
-		**endpages_;		// End of page data
-  uchar		**page_chapters_,	// Current chapter heading
-		**page_headings_;	// Current heading for each page
-  HDtree	*current_heading_;	// Current heading this page
+  HDpage	**pages_;		// Page data
 
   int		num_links_,		// Number of links
 		alloc_links_;		// Allocated links
@@ -327,7 +353,7 @@ class HTMLDOC
 		toc_levels_,		// Number of table-of-contents levels
 		toc_links_,		// Generate links
 		toc_numbers_;		// Generate heading numbers
-  int		output_book_;		// Output a "book"
+  int		output_type_;		// Output a "book", web page, etc.
   char		output_path_[1024];	// Output directory/name
   int		output_format_,		// Output format (HTML/PS/PDF)
 		output_files_,		// Generate multiple files?
@@ -366,10 +392,10 @@ class HTMLDOC
   HDstyle	head_foot_style_;	// Type style
   float		head_foot_size_;	// Size of header & footer
 
-  char		header_[4],		// Header for regular pages
-		toc_header_[4],		// Header for TOC pages
-		footer_[4],		// Regular page footer
-		toc_footer_[4],		// Footer for TOC pages
+  const char	*header_[3],		// Header for regular pages
+		*toc_header_[3],	// Header for TOC pages
+		*footer_[3],		// Regular page footer
+		*toc_footer_[3],	// Footer for TOC pages
 		toc_title_[1024];	// TOC title string
 
   char		title_file_[1024],	// Title page image file
@@ -500,7 +526,7 @@ class HTMLDOC
   const char	*get_string(HDparam param);
   int		load_book(const char *filename);
   void		load_files();
-  void		load_prefs();
+  void		load_prefs(const char *filename = (const char *)0);
   int		num_files() { return (num_files_); }
   int		main(int argc, char *argv[]);
   void		set_integer(HDparam param, int value);
@@ -508,7 +534,7 @@ class HTMLDOC
   void		set_page_size(const char *size);
   void		set_string(HDparam param, const char *value);
   int		save_book(const char *filename);
-  void		save_prefs();
+  void		save_prefs(const char *filename = (const char *)0);
   int		write_html();
   int		write_pdf();
   int		write_ps();
@@ -537,7 +563,7 @@ class HTMLDOC
 #  define TocLinks		toc_links_
 #  define TocNumbers		toc_numbers_
 #  define TocDocCount		toc_doc_count_
-#  define OutputBook		output_book_
+#  define OutputType		output_type_
 #  define OutputPath		output_path_
 #  define OutputFiles		output_files_
 #  define OutputColor		output_color_
@@ -586,5 +612,5 @@ class HTMLDOC
 #endif // !_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.21 2000/11/06 19:53:03 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.22 2001/09/27 22:33:22 mike Exp $".
 //

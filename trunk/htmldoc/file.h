@@ -1,9 +1,9 @@
 /*
- * "$Id: file.h,v 1.6 2000/09/11 01:19:25 mike Exp $"
+ * "$Id: file.h,v 1.7 2001/09/27 22:33:22 mike Exp $"
  *
  *   Filename definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2000 by Easy Software Products.
+ *   Copyright 1997-2001 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -22,8 +22,8 @@
  *         WWW: http://www.easysw.com
  */
 
-#ifndef _FILE_H_
-#  define _FILE_H_
+#ifndef _HD_FILE_H_
+#  define _HD_FILE_H_
 
 /*
  * Include necessary headers...
@@ -40,21 +40,23 @@ extern "C" {
  * Prototypes...
  */
 
-extern char	*file_basename(const char *s);
-extern char	*file_directory(const char *s);
-extern char	*file_extension(const char *s);
-extern char	*file_find(const char *path, const char *s);
-extern char	*file_localize(const char *filename, const char *newcwd);
-extern char	*file_method(const char *s);
-extern void	file_proxy(const char *url);
-extern char	*file_target(const char *s);
+extern char	*hd_file_basename(const char *s);
+extern void	hd_file_cleanup(void);
+extern char	*hd_file_directory(const char *s);
+extern char	*hd_file_extension(const char *s);
+extern char	*hd_file_find(const char *path, const char *s);
+extern char	*hd_file_localize(const char *filename, const char *newcwd);
+extern char	*hd_file_method(const char *s);
+extern void	hd_file_proxy(const char *url);
+extern char	*hd_file_target(const char *s);
+extern FILE	*hd_file_temp(char *name, int len);
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !_FILE_H_ */
+#endif /* !_HD_FILE_H_ */
 
 /*
- * End of "$Id: file.h,v 1.6 2000/09/11 01:19:25 mike Exp $".
+ * End of "$Id: file.h,v 1.7 2001/09/27 22:33:22 mike Exp $".
  */
