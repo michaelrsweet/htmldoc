@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.21 1999/11/16 17:30:52 mike Exp $"
+// "$Id: gui.cxx,v 1.22 1999/11/17 22:03:07 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1970,6 +1970,13 @@ GUI::moveUpFilesCB(Fl_Widget *w,	// I - Widget
       gui->title(gui->book_filename, 1);
     }
 
+  for (i = 1; i <= num_items; i ++)
+    if (gui->inputFiles->selected(i))
+      break;
+
+  if (!gui->inputFiles->visible(i))
+    gui->inputFiles->topline(i);
+
   if (gui->inputFiles->selected(1))
     gui->moveUpFile->deactivate();
 
@@ -2005,6 +2012,13 @@ GUI::moveDownFilesCB(Fl_Widget *w,	// I - Widget
       gui->inputFiles->select(i, 0);
       gui->title(gui->book_filename, 1);
     }
+
+  for (i = num_items; i >= 1; i --)
+    if (gui->inputFiles->selected(i))
+      break;
+
+  if (!gui->inputFiles->visible(i))
+    gui->inputFiles->bottomline(i);
 
   if (!gui->inputFiles->selected(1))
     gui->moveUpFile->activate();
@@ -2110,7 +2124,7 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
   if (w == gui->outputBrowse)
   {
     gui->fc->label("Output Path?");
-    gui->fc->type(FileChooser::SINGLE);
+    gui->fc->type(FileChooser::CREATE);
 
     if (gui->typeHTML->value())
       gui->fc->filter("*.htm*");
@@ -2843,6 +2857,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   */
 
   gui->controls->deactivate();
+  gui->window->cursor(FL_CURSOR_WAIT);
 
  /*
   * Set global vars used for converting the HTML files to XYZ format...
@@ -2994,6 +3009,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   if (document == NULL)
   {
     gui->controls->activate();
+    gui->window->cursor(FL_CURSOR_DEFAULT);
     gui->progress(0);
     fl_alert("No HTML files to format, cannot generate!");
     return;
@@ -3019,6 +3035,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   * Generate the output file(s).
   */
 
+  Errors = 0;
+
   if (gui->typeHTML->value())
     html_export(document, toc);
   else
@@ -3028,9 +3046,11 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   htmlDeleteTree(toc);
 
   gui->controls->activate();
+  gui->window->cursor(FL_CURSOR_DEFAULT);
   gui->progress(0);
 
-  fl_message("Document Generated!");
+  if (Errors == 0)
+    fl_message("Document Generated!");
 }
 
 
@@ -3052,5 +3072,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.21 1999/11/16 17:30:52 mike Exp $".
+// End of "$Id: gui.cxx,v 1.22 1999/11/17 22:03:07 mike Exp $".
 //
