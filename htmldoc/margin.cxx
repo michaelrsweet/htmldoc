@@ -1,5 +1,5 @@
 //
-// "$Id: margin.cxx,v 1.2 2002/01/05 23:14:41 mike Exp $"
+// "$Id: margin.cxx,v 1.3 2002/04/07 13:19:57 mike Exp $"
 //
 // Margin class routines for HTMLDOC, a HTML document processing program.
 //
@@ -48,15 +48,29 @@ hdMargin::hdMargin(float l,	// I - Initial left margin
 
 
 //
+// 'hdMargin::clear()' - Clear any old margins...
+//
+
+void
+hdMargin::clear(float y,	// I - Current Y position
+                int   p)	// I - Current page number
+{
+  while (level() > 0 && (y >= bottom() || p >= page()))
+    pop();
+}
+
+
+//
 // 'hdMargin::push()' - Push a new set of margins on the stack.
 //
 
 void
 hdMargin::push(float l,		// I - New left margin
                float r,		// I - New right margin
-	       float b)		// I - New bottom margin
+	       float b,		// I - New bottom margin
+	       int   p)		// I - Page number for margin
 {
-  if (b > bottom() || _level == 0)
+  if (b > bottom() || p > page() || _level == 0)
   {
     //
     // This new set of margins finishes before the current one;
@@ -70,8 +84,9 @@ hdMargin::push(float l,		// I - New left margin
     _left[_level]   = l;
     _right[_level]  = r;
     _bottom[_level] = b;
+    _page[_level]   = p;
   }
-  else if (b == bottom())
+  else if (b == bottom() && p == page())
   {
     //
     // This new set of margins finishes at the same time as the
@@ -95,6 +110,7 @@ hdMargin::push(float l,		// I - New left margin
     _left[_level + 1]   = l;
     _right[_level + 1]  = r;
     _bottom[_level + 1] = _bottom[_level];
+    _page[_level + 1]   = p;
 
     if (_left[_level] < l)
       _left[_level] = l;
@@ -112,5 +128,5 @@ hdMargin::push(float l,		// I - New left margin
 
 
 //
-// End of "$Id: margin.cxx,v 1.2 2002/01/05 23:14:41 mike Exp $".
+// End of "$Id: margin.cxx,v 1.3 2002/04/07 13:19:57 mike Exp $".
 //
