@@ -134,7 +134,7 @@ function topdf($filename, $options = "") {
     flush();
 
     # Run HTMLDOC to provide the PDF file to the user...
-    passthru("htmldoc -t pdf --quiet --jpeg --webpage $options \'$filename\'");
+    passthru("htmldoc -t pdf --quiet --jpeg --webpage $options '$filename'");
 }
 </PRE></UL>
 
