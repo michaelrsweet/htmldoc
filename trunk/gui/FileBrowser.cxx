@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.9 1999/07/09 18:42:35 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.10 1999/10/10 15:40:42 mike Exp $"
 //
 //   FileBrowser routines for the Common UNIX Printing System (CUPS).
 //
@@ -324,7 +324,7 @@ FileBrowser::load(const char *directory)// I - Directory to load
       {
         if (line[0] == '#' || line[0] == '\n')
 	  continue;
-        if (sscanf(line, "%*s%s", filename) != 1)
+        if (sscanf(line, "%*s%4095s", filename) != 1)
 	  continue;
 
         add(filename, icon);
@@ -400,5 +400,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.9 1999/07/09 18:42:35 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.10 1999/10/10 15:40:42 mike Exp $".
 //
