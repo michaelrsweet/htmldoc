@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.21.2.3 2001/05/27 11:39:43 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.21.2.4 2001/07/09 15:44:51 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -42,9 +42,13 @@
 // Include necessary header files...
 //
 
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_STRINGS_H
+#  include <strings.h>
+#endif /* HAVE_STRINGS_H */
 #include <ctype.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -1217,5 +1221,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.21.2.3 2001/05/27 11:39:43 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.21.2.4 2001/07/09 15:44:51 mike Exp $".
 //
