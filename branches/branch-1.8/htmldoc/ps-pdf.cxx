@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.29 2001/02/28 01:46:19 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.30 2001/02/28 19:33:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -44,6 +44,9 @@
  *   pdf_write_links()       - Write annotation link objects for each page in
  *                             the document.
  *   pdf_write_names()       - Write named destinations for each link.
+ *   pdf_start_object()      - Start a new PDF object...
+ *   pdf_start_stream()      - Start a new PDF stream...
+ *   pdf_end_object()        - End a PDF object...
  *   parse_contents()        - Parse the table of contents and produce a
  *   parse_doc()             - Parse a document tree and produce rendering
  *                             list output.
@@ -280,6 +283,10 @@ static void	pdf_write_contents(FILE *out, tree_t *toc, int parent,
 static void	pdf_write_links(FILE *out);
 static void	pdf_write_names(FILE *out);
 static int	pdf_count_headings(tree_t *toc);
+
+static int	pdf_start_object(FILE *out);
+static void	pdf_start_stream(FILE *out);
+static void	pdf_end_object(FILE *out);
 
 static void	encrypt_init(void);
 static void	flate_open_stream(FILE *out);
@@ -1363,13 +1370,11 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
     pdf_write_names(out);
 
   // Verify that everything is working so far...
-  num_objects ++;
+  pdf_start_object(out);
+
   if (pages_object != num_objects)
     progress_error("Internal error: pages_object != num_objects");
 
-  objects[num_objects] = ftell(out);
-  fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
   fputs("/Type/Pages", out);
   if (Landscape)
     fprintf(out, "/MediaBox[0 0 %d %d]", PageLength, PageWidth);
@@ -1381,7 +1386,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
 
   if (TitlePage)
     for (page = 0; page < chapter_starts[1]; page ++)
-      fprintf(out, "%d 0 R\n", pages_object + 1 + page * 3);
+      fprintf(out, "%d 0 R\n", pages_object + page * 2 + 1);
 
   if (TocLevels > 0)
     chapter = 0;
@@ -1391,10 +1396,9 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
   for (; chapter <= TocDocCount; chapter ++)
     for (page = chapter_starts[chapter]; page <= chapter_ends[chapter]; page ++)
       if (page < MAX_PAGES)
-        fprintf(out, "%d 0 R\n", pages_object + 3 * page + 1);
+        fprintf(out, "%d 0 R\n", pages_object + 2 * page + 1);
   fputs("]", out);
-  fputs(">>", out);
-  fputs("endobj\n", out);
+  pdf_end_object(out);
 
   page_chapter = NULL;
   page_heading = NULL;
@@ -1608,7 +1612,6 @@ pdf_write_page(FILE  *out,		/* I - Output file */
 	       uchar  **page_chapter)	/* IO - Page chapter string */
 {
   int		file_page,	/* Current page # in file */
-		length,		/* Stream length */
 		last_render;	/* Last type of render */
   render_t	*r,		/* Render pointer */
 		*next;		/* Next render */
@@ -1645,11 +1648,8 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   * Output the page prolog...
   */
 
-  num_objects ++;
-  objects[num_objects] = ftell(out);
+  pdf_start_object(out);
 
-  fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
   fputs("/Type/Page", out);
   fprintf(out, "/Parent %d 0 R", pages_object);
   fprintf(out, "/Contents %d 0 R", num_objects + 1);
@@ -1663,21 +1663,14 @@ pdf_write_page(FILE  *out,		/* I - Output file */
   if (annots_objects[page] > 0)
     fprintf(out, "/Annots %d 0 R", annots_objects[page]);
 
-  fputs(">>", out);
-  fputs("endobj\n", out);
+  pdf_end_object(out);
 
-  num_objects ++;
-  objects[num_objects] = ftell(out);
+  pdf_start_object(out);
 
-  fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
-  fprintf(out, "/Length %d 0 R", num_objects + 1);
   if (Compression)
     fputs("/Filter/FlateDecode", out);
-  fputs(">>", out);
-  fputs("stream\n", out);
 
-  length = ftell(out);
+  pdf_start_stream(out);
 
   flate_open_stream(out);
 
@@ -1769,16 +1762,8 @@ pdf_write_page(FILE  *out,		/* I - Output file */
 
   flate_puts("Q\n", out);
   flate_close_stream(out);
-  length = ftell(out) - length;
-  fputs("endstream\n", out);
-  fputs("endobj\n", out);
 
-  num_objects ++;
-  objects[num_objects] = ftell(out);
-
-  fprintf(out, "%d 0 obj\n", num_objects);
-  fprintf(out, "%d\n", length);
-  fputs("endobj\n", out);
+  pdf_end_object(out);
 }
 
 
@@ -1810,25 +1795,21 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   * Make an object for this entry...
   */
 
-  num_objects ++;
-  thisobj = num_objects;
-
   if (toc == NULL)
   {
    /*
     * This is for the Table of Contents page...
     */
 
-    objects[thisobj] = ftell(out);
-    fprintf(out, "%d 0 obj", thisobj);
-    fputs("<<", out);
+    thisobj = pdf_start_object(out);
+
     fprintf(out, "/Parent %d 0 R", parent);
 
     fputs("/Title", out);
     write_string(out, (uchar *)TocTitle, 0);
 
     fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
-            pages_object + 3 * chapter_starts[0] + 1,
+            pages_object + 2 * chapter_starts[0] + 1,
             PagePrintLength + PageBottom);
 
     if (prev > 0)
@@ -1837,8 +1818,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     if (next > 0)
       fprintf(out, "/Next %d 0 R", next);
 
-    fputs(">>", out);
-    fputs("endobj\n", out);
+    pdf_end_object(out);
   }
   else
   {
@@ -1863,13 +1843,13 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       */
 
       entries[0]       = NULL;
-      entry_objects[0] = thisobj + 1;
+      entry_objects[0] = num_objects + 2;
       entry            = thisobj + 2;
       count            = 1;
     }
     else
     {
-      entry = thisobj + 1;
+      entry = num_objects + 2;
       count = 0;
     }
 
@@ -1890,9 +1870,8 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     * Output the top-level object...
     */
 
-    objects[thisobj] = ftell(out);
-    fprintf(out, "%d 0 obj", thisobj);
-    fputs("<<", out);
+    thisobj = pdf_start_object(out);
+
     if (parent == 0)
       outline_object = thisobj;
     else
@@ -1916,8 +1895,8 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
       if (heading_pages[*heading] > 0)
 	fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
-        	pages_object + 3 * (heading_pages[*heading] +
-		                    chapter_starts[1]) - 2,
+        	pages_object + 2 * (heading_pages[*heading] +
+		                    chapter_starts[1]) - 1,
         	heading_tops[*heading]);
 
       (*heading) ++;
@@ -1929,8 +1908,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     if (next > 0)
       fprintf(out, "/Next %d 0 R", next);
 
-    fputs(">>", out);
-    fputs("endobj\n", out);
+    pdf_end_object(out);
 
     for (i = 0; i < count ; i ++)
       pdf_write_contents(out, entries[i], thisobj, i > 0 ? entry_objects[i - 1] : 0,
@@ -1958,6 +1936,81 @@ pdf_count_headings(tree_t *toc)	/* I - TOC entry */
       headings += pdf_count_headings(toc->child);
 
   return (headings);
+}
+
+
+/*
+ * PDF object state variables...
+ */
+
+static int	pdf_stream_length = 0;
+static int	pdf_stream_start = 0;
+
+
+/*
+ * 'pdf_start_object()' - Start a new PDF object...
+ */
+
+static int			// O - Object number
+pdf_start_object(FILE *out)	// I - File to write to
+{
+  if (num_objects >= MAX_OBJECTS)
+    return (0);
+
+  num_objects ++;
+  objects[num_objects] = ftell(out);
+  fprintf(out, "%d 0 obj", num_objects);
+  fputs("<<", out);
+
+  return (num_objects);
+}
+
+
+/*
+ * 'pdf_start_stream()' - Start a new PDF stream...
+ */
+
+static void
+pdf_start_stream(FILE *out)	// I - File to write to
+{
+  // Write the "/Length " string, get the position, and then write 10
+  // zeroes to cover the maximum size of a stream.
+
+  fputs("/Length ", out);
+  pdf_stream_length = ftell(out);
+  fputs("0000000000>>stream\n", out);
+  pdf_stream_start = ftell(out);
+}
+
+
+/*
+ * 'pdf_end_object()' - End a PDF object...
+ */
+
+static void
+pdf_end_object(FILE *out)	// I - File to write to
+{
+  int	length;			// Total length of stream
+  
+
+  if (pdf_stream_start)
+  {
+    // For streams, go back and update the length field in the
+    // object dictionary...
+    length = ftell(out) - pdf_stream_start;
+
+    fseek(out, pdf_stream_length, SEEK_SET);
+    fprintf(out, "%-10d", length);
+    fseek(out, 0, SEEK_END);
+
+    pdf_stream_start = 0;
+
+    fputs("endstream\n", out);
+  }
+  else
+    fputs(">>", out);
+
+  fputs("endobj\n", out);
 }
 
 
@@ -2076,12 +2129,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
           * Local link...
           */
 
-          num_objects ++;
-          lobjs[num_lobjs ++] = num_objects;
-          objects[num_objects] = ftell(out);
+          lobjs[num_lobjs ++] = pdf_start_object(out);
 
-          fprintf(out, "%d 0 obj", num_objects);
-          fputs("<<", out);
           fputs("/Subtype/Link", out);
           if (PageDuplex && (page & 1))
             fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
@@ -2093,10 +2142,9 @@ pdf_write_links(FILE *out)		/* I - Output file */
                     r->x + r->width + PageLeft, r->y + r->height + PageBottom);
           fputs("/Border[0 0 0]", out);
 	  fprintf(out, "/Dest[%d 0 R/XYZ null %d 0]",
-        	  pages_object + 3 * link->page + 4,
+        	  pages_object + 2 * link->page + 3,
         	  link->top);
-          fputs(">>", out);
-          fputs("endobj\n", out);
+	  pdf_end_object(out);
 	}
 	else
 	{
@@ -2104,11 +2152,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
           * Remote link...
           */
 
-          num_objects ++;
-          objects[num_objects] = ftell(out);
+          pdf_start_object(out);
 
-          fprintf(out, "%d 0 obj", num_objects);
-          fputs("<<", out);
 	  if (PDFVersion >= 1.2 &&
               file_method((char *)r->data.link) == NULL &&
 #ifdef WIN32
@@ -2137,15 +2182,10 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	    write_string(out, r->data.link, 0);
 	  }
 
-          fputs(">>", out);
-          fputs("endobj\n", out);
+          pdf_end_object(out);
 
-          num_objects ++;
-          lobjs[num_lobjs ++] = num_objects;
-          objects[num_objects] = ftell(out);
+          lobjs[num_lobjs ++] = pdf_start_object(out);
 
-          fprintf(out, "%d 0 obj", num_objects);
-          fputs("<<", out);
           fputs("/Subtype/Link", out);
           if (PageDuplex && (page & 1))
             fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
@@ -2157,8 +2197,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
                     r->x + r->width + PageLeft, r->y + r->height + PageBottom);
           fputs("/Border[0 0 0]", out);
 	  fprintf(out, "/A %d 0 R", num_objects - 1);
-          fputs(">>", out);
-          fputs("endobj\n", out);
+          pdf_end_object(out);
 	}
       }
 
@@ -2203,38 +2242,23 @@ pdf_write_names(FILE *out)		/* I - Output file */
   * Write the root name tree entry...
   */
 
-  num_objects ++;
-  names_object = num_objects;
-  objects[num_objects] = ftell(out);
-
-  fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
+  pdf_start_object(out);
   fprintf(out, "/Dests %d 0 R", num_objects + 1);
-  fputs(">>", out);
-  fputs("endobj\n", out);
+  pdf_end_object(out);
 
  /*
   * Write the name tree child list...
   */
 
-  num_objects ++;
-  objects[num_objects] = ftell(out);
-
-  fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
+  pdf_start_object(out);
   fprintf(out, "/Kids[%d 0 R]", num_objects + 1);
-  fputs(">>", out);
-  fputs("endobj\n", out);
+  pdf_end_object(out);
 
  /*
   * Write the leaf node for the name tree...
   */
 
-  num_objects ++;
-  objects[num_objects] = ftell(out);
-
-  fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
+  pdf_start_object(out);
 
   fputs("/Limits[", out);
   write_string(out, links[0].name, 0);
@@ -2249,21 +2273,15 @@ pdf_write_names(FILE *out)		/* I - Output file */
   }
   fputs("]", out);
 
-  fputs(">>", out);
-  fputs("endobj\n", out);
+  pdf_end_object(out);
 
   for (i = num_links, link = links; i > 0; i --, link ++)
   {
-    num_objects ++;
-    objects[num_objects] = ftell(out);
-
-    fprintf(out, "%d 0 obj", num_objects);
-    fputs("<<", out);
+    pdf_start_object(out);
     fprintf(out, "/D[%d 0 R/XYZ null %d null]", 
-            pages_object + 3 * link->page + ((TocLevels > 0 && PageDuplex) ? 4 : 1),
+            pages_object + 2 * link->page + ((TocLevels > 0 && PageDuplex) ? 3 : 1),
             link->top);
-    fputs(">>", out);
-    fputs("endobj\n", out);
+    pdf_end_object(out);
   }
 
 }
@@ -5910,16 +5928,16 @@ open_file(void)
     else
       sprintf(filename, "%s/doc%d.ps", OutputPath, chapter);
 
-    return (fopen(filename, "wb"));
+    return (fopen(filename, "wb+"));
   }
   else if (OutputFiles)
   {
     sprintf(filename, "%s/doc.pdf", OutputPath);
 
-    return (fopen(filename, "wb"));
+    return (fopen(filename, "wb+"));
   }
   else if (OutputPath[0] != '\0')
-    return (fopen(OutputPath, "wb"));
+    return (fopen(OutputPath, "wb+"));
   else if (PSLevel == 0)
     return (file_temp(stdout_filename, sizeof(stdout_filename)));
   else
@@ -6328,7 +6346,6 @@ write_image(FILE     *out,	/* I - Output file */
 		*match;		/* Matching color value */
   image_t 	*img;		/* Image */
   struct jpeg_compress_struct cinfo;	/* JPEG compressor */
-  long		length;		/* Length of image data */
 
 
  /*
@@ -6387,7 +6404,7 @@ write_image(FILE     *out,	/* I - Output file */
       */
 
       if (OutputJPEG && PSLevel != 1)
-	max_colors = 32;
+	max_colors = 16;
       else
 	max_colors = 256;
 
@@ -6644,47 +6661,29 @@ write_image(FILE     *out,	/* I - Output file */
         if (img->mask && write_obj && PDFVersion >= 1.3f)
 	{
 	  // We have a mask image, write it!
-	  num_objects ++;
-	  objects[num_objects] = ftell(out);
-	  fprintf(out, "%d 0 obj<<", num_objects);
+          pdf_start_object(out);
 	  fputs("/Type/XObject/Subtype/Image", out);
-	  fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true/Length %d 0 R",
-	          img->width, img->height, num_objects + 1);
+	  fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
+	          img->width, img->height);
           if (Compression)
             fputs("/Filter/FlateDecode", out);
-          fputs(">>", out);
-          fputs("stream\n", out);
 
-          length = ftell(out);
-
+          pdf_start_stream(out);
           flate_open_stream(out);
   	  flate_write(out, img->mask, img->maskwidth * img->height, 1);
 	  flate_close_stream(out);
 
-          length = ftell(out) - length;
-
-          fputs("endstream\n", out);
-          fputs("endobj\n", out);
-
-          num_objects ++;
-          objects[num_objects] = ftell(out);
-
-          fprintf(out, "%d 0 obj\n", num_objects);
-          fprintf(out, "%d\n", length);
-          fputs("endobj\n", out);
+          pdf_end_object(out);
 	}
 
         if (write_obj)
 	{
 	  // Write an image object...
-	  num_objects ++;
-	  img->obj = num_objects;
-	  objects[num_objects] = ftell(out);
-	  fprintf(out, "%d 0 obj<<", num_objects);
+	  img->obj = pdf_start_object(out);
+
 	  fputs("/Type/XObject/Subtype/Image", out);
-	  fprintf(out, "/Length %d 0 R", num_objects + 1);
 	  if (img->mask && PDFVersion >= 1.3f)
-	    fprintf(out, "/Mask %d 0 R", num_objects - 2);
+	    fprintf(out, "/Mask %d 0 R", img->obj - 1);
 
 	  if (ncolors > 0)
 	  {
@@ -6719,10 +6718,7 @@ write_image(FILE     *out,	/* I - Output file */
 
   	  fprintf(out, "/Width %d/Height %d/BitsPerComponent %d",
 	          img->width, img->height, indbits);
-          fputs(">>", out);
-          fputs("stream\n", out);
-
-          length = ftell(out);
+          pdf_start_stream(out);
 
           if (OutputJPEG && ncolors == 0)
 	  {
@@ -6751,17 +6747,7 @@ write_image(FILE     *out,	/* I - Output file */
               flate_close_stream(out);
           }
 
-          length = ftell(out) - length;
-
-          fputs("endstream\n", out);
-          fputs("endobj\n", out);
-
-          num_objects ++;
-          objects[num_objects] = ftell(out);
-
-          fprintf(out, "%d 0 obj\n", num_objects);
-          fprintf(out, "%d\n", length);
-          fputs("endobj\n", out);
+          pdf_end_object(out);
 	}
 	else
 	{
@@ -7348,11 +7334,8 @@ write_prolog(FILE  *out,	/* I - Output file */
       * Write the encryption dictionary...
       */
 
-      num_objects ++;
-      encrypt_object = num_objects;
-      objects[num_objects] = ftell(out);
-      fprintf(out, "%d 0 obj", num_objects);
-      fputs("<<", out);
+      encrypt_object = pdf_start_object(out);
+
       fputs("/Filter/Standard/R 2/O<", out);
       for (i = 0; i < 32; i ++)
         fprintf(out, "%02x", owner_key[i]);
@@ -7360,8 +7343,7 @@ write_prolog(FILE  *out,	/* I - Output file */
       for (i = 0; i < 32; i ++)
         fprintf(out, "%02x", user_key[i]);
       fprintf(out, ">/P %d/V 1", Permissions);
-      fputs(">>", out);
-      fputs("endobj\n", out);
+      pdf_end_object(out);
     }
     else
       encrypt_object = 0;
@@ -7370,11 +7352,8 @@ write_prolog(FILE  *out,	/* I - Output file */
     * Write info object...
     */
 
-    num_objects ++;
-    info_object = num_objects;
-    objects[num_objects] = ftell(out);
-    fprintf(out, "%d 0 obj", num_objects);
-    fputs("<<", out);
+    info_object = pdf_start_object(out);
+
     fputs("/Producer", out);
     write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2001 Easy "
                                "Software Products, All Rights Reserved.", 0);
@@ -7408,8 +7387,7 @@ write_prolog(FILE  *out,	/* I - Output file */
       write_string(out, keywords, 0);
     }
 
-    fputs(">>", out);
-    fputs("endobj\n", out);
+    pdf_end_object(out);
 
    /*
     * Write the font encoding for the selected character set.  Note that
@@ -7418,12 +7396,8 @@ write_prolog(FILE  *out,	/* I - Output file */
     * despite the fact that it is defined in the PDF specification...
     */
 
-    num_objects ++;
-    encoding_object = num_objects;
-    objects[num_objects] = ftell(out);
+    encoding_object = pdf_start_object(out);
 
-    fprintf(out, "%d 0 obj", encoding_object);
-    fputs("<<", out);
     fputs("/Type/Encoding", out);
     fputs("/Differences[", out);
     for (i = 0, j = -1; i < 256; i ++)
@@ -7440,8 +7414,8 @@ write_prolog(FILE  *out,	/* I - Output file */
 	j = i;
       }
 
-    fputs("]>>", out);
-    fputs("endobj\n", out);
+    fputs("]", out);
+    pdf_end_object(out);
 
     memset(font_desc, 0, sizeof(font_desc));
     if (TrueType)
@@ -7460,12 +7434,8 @@ write_prolog(FILE  *out,	/* I - Output file */
       for (j = 0; j < 4; j ++)
         if (fonts_used[i][j])
         {
-	  num_objects ++;
-	  font_objects[i * 4 + j] = num_objects;
-	  objects[num_objects] = ftell(out);
+	  font_objects[i * 4 + j] = pdf_start_object(out);
 
-	  fprintf(out, "%d 0 obj", font_objects[i * 4 + j]);
-	  fputs("<<", out);
 	  fputs("/Type/Font", out);
 
           if (font_desc[i][j])
@@ -7486,8 +7456,7 @@ write_prolog(FILE  *out,	/* I - Output file */
           }
 	  if (i < 3) /* Use native encoding for symbols */
 	    fprintf(out, "/Encoding %d 0 R", encoding_object);
-	  fputs(">>", out);
-	  fputs("endobj\n", out);
+          pdf_end_object(out);
         }
   }
 }
@@ -7663,11 +7632,8 @@ write_trailer(FILE *out,	/* I - Output file */
     * PDF...
     */
 
-    num_objects ++;
-    root_object = num_objects;
-    objects[num_objects] = ftell(out);
-    fprintf(out, "%d 0 obj", num_objects);
-    fputs("<<", out);
+    root_object = pdf_start_object(out);
+
     fputs("/Type/Catalog", out);
     fprintf(out, "/Pages %d 0 R", pages_object);
 
@@ -7694,13 +7660,13 @@ write_trailer(FILE *out,	/* I - Output file */
           if (TocLevels > 0)
 	  {
             fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
-                    pages_object + 3 * chapter_starts[0] + 1);
+                    pages_object + 2 * chapter_starts[0] + 1);
 	    break;
 	  }
           break;
       case PDF_CHAPTER_1 :
           fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
-                  pages_object + 3 * chapter_starts[1] + 1);
+                  pages_object + 2 * chapter_starts[1] + 1);
           break;
     }
 
@@ -7768,8 +7734,7 @@ write_trailer(FILE *out,	/* I - Output file */
       fputs("]>>", out);
     }
 
-    fputs(">>", out);
-    fputs("endobj\n", out);
+    pdf_end_object(out);
 
     offset = ftell(out);
 
@@ -7954,11 +7919,7 @@ write_truetype(FILE       *out,		/* I - File to write to */
   * Write the font descriptor...
   */
 
-  num_objects ++;
-  objects[num_objects] = ftell(out);
-
-  fprintf(out, "%d 0 obj", num_objects);
-  fputs("<<", out);
+  pdf_start_object(out);
   fputs("/Type/FontDescriptor", out);
   fprintf(out, "/Ascent %d", ascent);
   fprintf(out, "/Descent %d", descent);
@@ -7969,8 +7930,7 @@ write_truetype(FILE       *out,		/* I - File to write to */
   fprintf(out, "/StemV %d", widths['v']);
   fprintf(out, "/Flags %d", tflags[typeface] | sflags[style]);
   fprintf(out, "/FontName/%s%s", typefaces[typeface], styles[style]);
-  fputs(">>", out);
-  fputs("endobj\n", out);
+  pdf_end_object(out);
 
  /*
   * Write the character widths...
@@ -8217,5 +8177,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.29 2001/02/28 01:46:19 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.30 2001/02/28 19:33:29 mike Exp $".
  */
