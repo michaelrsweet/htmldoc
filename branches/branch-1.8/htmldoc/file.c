@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.15 2001/05/19 23:55:38 mike Exp $"
+ * "$Id: file.c,v 1.13.2.16 2001/05/20 13:05:15 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -52,6 +52,23 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+
+
+/*
+ * Temporary file definitions...
+ */
+
+#ifdef WIN32
+#  define getpid	GetCurrentProcessId
+#  define TEMPLATE	"%s%08x.%06d.tmp"
+#  define OPENMODE	(_O_CREAT | _O_RDWR | _O_EXCL | \
+			 _O_TRUNC | _O_BINARY | _O_SHORT_LIVED)
+#  define OPENPERM	(_S_IREAD | _S_IWRITE)
+#else
+#  define TEMPLATE	"%s/%06d.%06d.tmp"
+#  define OPENMODE	(O_CREAT | O_RDWR | O_EXCL | O_TRUNC)
+#  define OPENPERM	0600
+#endif /* WIN32 */
 
 
 /*
@@ -137,13 +154,8 @@ file_cleanup(void)
 
   while (web_files > 0)
   {
-#ifdef WIN32
-    snprintf(filename, sizeof(filename), "%s/%08x.%06d.tmp", tmpdir,
-             GetCurrentProcessId(), web_files);
-#else
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d.tmp", tmpdir,
+    snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
              getpid(), web_files);
-#endif /* WIN32 */
 
     if (unlink(filename))
       progress_error("Unable to delete temporary file \"%s\": %s",
@@ -702,21 +714,14 @@ file_temp(char *name,			/* O - Filename */
 
 #ifdef WIN32
   GetTempPath(sizeof(tmpdir), tmpdir);
-
-  snprintf(name, len, "%s/%08x.%06d.tmp", tmpdir, GetCurrentProcessId(), web_files);
-
-  fd = _open(name, _O_CREAT | _O_RDWR | _O_EXCL | _O_TRUNC | _O_BINARY | _O_SHORT_LIVED,
-             _S_IREAD | _S_IWRITE);
 #else
   if ((tmpdir = getenv("TMPDIR")) == NULL)
     tmpdir = "/var/tmp";
-
-  snprintf(name, len, "%s/%06d.%06d.tmp", tmpdir, getpid(), web_files);
-
-  fd = open(name, O_CREAT | O_RDWR | O_EXCL | O_TRUNC, 0600);
 #endif /* WIN32 */
 
-  if (fd >= 0)
+  snprintf(name, len, TEMPLATE, tmpdir, getpid(), web_files);
+
+  if ((fd = open(name, OPENMODE, OPENPERM)) >= 0)
     fp = fdopen(fd, "w+b");
   else
     fp = NULL;
@@ -729,5 +734,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.15 2001/05/19 23:55:38 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.16 2001/05/20 13:05:15 mike Exp $".
  */

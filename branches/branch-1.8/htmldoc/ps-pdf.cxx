@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.53 2001/05/19 23:55:38 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.54 2001/05/20 13:05:20 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3795,11 +3795,11 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
-#undef DEBUG_puts
-#define DEBUG_puts(x) puts(x)
-#define DEBUG
-#undef DEBUG_printf
-#define DEBUG_printf(x) printf x
+//#undef DEBUG_puts
+//#define DEBUG_puts(x) puts(x)
+//#define DEBUG
+//#undef DEBUG_printf
+//#define DEBUG_printf(x) printf x
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
  */
@@ -4757,11 +4757,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     free(cells);
   }
 }
-#undef DEBUG
-#undef DEBUG_puts
-#define DEBUG_puts(x)
-#undef DEBUG_printf
-#define DEBUG_printf(x)
+//#undef DEBUG
+//#undef DEBUG_puts
+//#define DEBUG_puts(x)
+//#undef DEBUG_printf
+//#define DEBUG_printf(x)
 
 
 /*
@@ -7490,7 +7490,12 @@ write_prolog(FILE  *out,	/* I - Output file */
       fputs(">/U<", out);
       for (i = 0; i < 32; i ++)
         fprintf(out, "%02x", user_key[i]);
-      fprintf(out, ">/P %d/V 1", Permissions);
+      fprintf(out, ">/P %d", Permissions);
+      if (PDFVersion > 1.3)
+        fputs("/V 2/Length 64", out);	// 64-bit encryption
+      else
+        fputs("/V 1", out);		// 40-bit encryption
+
       pdf_end_object(out);
     }
     else
@@ -8113,7 +8118,8 @@ write_truetype(FILE       *out,		/* I - File to write to */
 static void
 encrypt_init(void)
 {
-  uchar		data[10];	/* Key data */
+  uchar		data[13],	/* Key data */
+		*dataptr;	/* Pointer to key data */
   md5_state_t	md5;		/* MD5 state */
   md5_byte_t	digest[16];	/* MD5 digest value */
 
@@ -8122,30 +8128,39 @@ encrypt_init(void)
   * Compute the key data for the MD5 hash.
   */
 
-  data[0] = encrypt_key[0];
-  data[1] = encrypt_key[1];
-  data[2] = encrypt_key[2];
-  data[3] = encrypt_key[3];
-  data[4] = encrypt_key[4];
-  data[5] = num_objects;
-  data[6] = num_objects >> 8;
-  data[7] = num_objects >> 16;
-  data[8] = 0;
-  data[9] = 0;
+  dataptr    = data;
+
+  *dataptr++ = encrypt_key[0];
+  *dataptr++ = encrypt_key[1];
+  *dataptr++ = encrypt_key[2];
+  *dataptr++ = encrypt_key[3];
+  *dataptr++ = encrypt_key[4];
+  if (PDFVersion > 1.3)
+  {
+    *dataptr++ = encrypt_key[5];
+    *dataptr++ = encrypt_key[6];
+    *dataptr++ = encrypt_key[7];
+  }
+
+  *dataptr++ = num_objects;
+  *dataptr++ = num_objects >> 8;
+  *dataptr++ = num_objects >> 16;
+  *dataptr++ = 0;
+  *dataptr++ = 0;
 
  /*
   * Hash it...
   */
 
   md5_init(&md5);
-  md5_append(&md5, data, 10);
+  md5_append(&md5, data, dataptr - data);
   md5_finish(&md5, digest);
 
  /*
-  * Initialize the RC4 context using the first 10 bytes of the digest...
+  * Initialize the RC4 context using the first N+5 bytes of the digest...
   */
 
-  rc4_init(&encrypt_state, digest, 10);
+  rc4_init(&encrypt_state, digest, dataptr - data);
 }
 
 
@@ -8328,5 +8343,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.53 2001/05/19 23:55:38 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.54 2001/05/20 13:05:20 mike Exp $".
  */

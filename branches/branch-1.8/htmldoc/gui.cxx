@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.12 2001/03/04 03:05:05 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.13 2001/05/20 13:05:15 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -676,6 +676,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
     pdf13->type(FL_RADIO_BUTTON);
     pdf13->callback((Fl_Callback *)pdfCB, this);
 
+    pdf14 = new CheckButton(270, 65, 125, 20, "1.4 (Acrobat 5.0)");
+    pdf14->type(FL_RADIO_BUTTON);
+    pdf14->callback((Fl_Callback *)pdfCB, this);
+
   pdfVersion->end();
 
   pageMode = new Fl_Choice(140, 90, 120, 25, "Page Mode: ");
@@ -1213,10 +1217,15 @@ GUI::newBook(void)
     pdf12->setonly();
     pdfCB(pdf12, this);
   }
-  else
+  else if (PDFVersion < 1.4)
   {
     pdf13->setonly();
     pdfCB(pdf13, this);
+  }
+  else
+  {
+    pdf14->setonly();
+    pdfCB(pdf14, this);
   }
 
   pageMode->value(PDFPageMode);
@@ -1347,18 +1356,24 @@ GUI::loadBook(const char *filename)	// I - Name of book file
 
   // Read the second line from the book file; for older book files, this will
   // be the file count; for new files this will be the options...
-  fgets(line, sizeof(line), fp);
-  line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
+  do
+  {
+    fgets(line, sizeof(line), fp);
+    line[strlen(line) - 1] = '\0';	// Drop trailing newline
 
-  if (line[0] == '-')
-    parseOptions(line);
+    if (line[0] == '-')
+      parseOptions(line);
+  }
+  while (!line[0]);			// Skip blank lines...
 
   // Get input files/options...
   while (fgets(line, sizeof(line), fp) != NULL)
   {
-    line[strlen(line) - 1] = '\0';  /* Drop trailing newline */
+    line[strlen(line) - 1] = '\0';	// Drop trailing newline
 
-    if (line[0] == '-')
+    if (line[0] == '\0')
+      continue;				// Skip blank lines
+    else if (line[0] == '-')
       parseOptions(line);
     else if (line[0] == '\\')
       inputFiles->add(line + 1, icon);
@@ -1645,6 +1660,13 @@ GUI::parseOptions(const char *line)	// I - Line from file
 	outputFormatCB(typePDF, this);
 	pdfCB(pdf13, this);
       }
+      else if (strcmp(temp2, "pdf14") == 0)
+      {
+        typePDF->setonly();
+	pdf14->setonly();
+	outputFormatCB(typePDF, this);
+	pdfCB(pdf14, this);
+      }
     }
     else if (strcmp(temp, "--logo") == 0 ||
              strcmp(temp, "--logoimage") == 0)
@@ -1900,8 +1922,10 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fputs("-t pdf11", fp);
   else if (pdf12->value())
     fputs("-t pdf12", fp);
-  else
+  else if (pdf13->value())
     fputs("-t pdf13", fp);
+  else
+    fputs("-t pdf14", fp);
 
   if (outputFile->value())
     fprintf(fp, " -f %s", outputPath->value());
@@ -3061,8 +3085,10 @@ GUI::saveOptionsCB(Fl_Widget *w,
     PDFVersion = 1.1;
   else if (gui->pdf12->value())
     PDFVersion = 1.2;
-  else
+  else if (gui->pdf13->value())
     PDFVersion = 1.3;
+  else
+    PDFVersion = 1.4;
 
   PDFPageMode       = gui->pageMode->value();
   PDFPageLayout     = gui->pageLayout->value();
@@ -3540,8 +3566,10 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     PDFVersion = 1.1;
   else if (gui->pdf12->value())
     PDFVersion = 1.2;
-  else
+  else if (gui->pdf13->value())
     PDFVersion = 1.3;
+  else
+    PDFVersion = 1.4;
 
   PDFPageMode       = gui->pageMode->value();
   PDFPageLayout     = gui->pageLayout->value();
@@ -3738,5 +3766,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.12 2001/03/04 03:05:05 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.13 2001/05/20 13:05:15 mike Exp $".
 //
