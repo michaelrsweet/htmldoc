@@ -3,17 +3,11 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-/* @(#) $Id: zutil.c,v 1.5 2004/04/05 16:28:00 mike Exp $ */
+/* @(#) $Id: zutil.c,v 1.6 2004/04/05 16:37:30 mike Exp $ */
 
 #include "zutil.h"
 
 #include <config.h>
-#ifndef HAVE_VSNPRINTF
-#  define NO_VSNPRINTF
-#endif /* !HAVE_VSNPRINTF */
-#ifndef HAVE_SNPRINTF
-#  define NO_SNPRINTF
-#endif /* !HAVE_SNPRINTF */
 
 #ifndef NO_DUMMY_DECL
 struct internal_state      {int dummy;}; /* for buggy compilers */
