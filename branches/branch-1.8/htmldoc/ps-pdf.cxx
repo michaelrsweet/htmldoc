@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.181 2002/06/04 14:52:04 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.182 2002/06/04 16:02:13 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -612,8 +612,6 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
       if (PageDuplex && (num_pages & 1))
 	check_pages(num_pages);
-
-      printf("Title pages = %d\n", num_pages);
 
       htmlDeleteTree(t);
     }
@@ -11535,5 +11533,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.181 2002/06/04 14:52:04 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.182 2002/06/04 16:02:13 mike Exp $".
  */
