@@ -54,6 +54,8 @@ CHANGES IN HTMLDOC v1.8.12
 	  URLs for images (e.g. SRC="../images/filename.gif")
 	- Comments in the source document were being closed by
 	  a </!--> tag in the HTML output.
+	- The alignment attribute in TR elements was not inherited
+	  by the TD and TH elements.
 
 
 CHANGES IN HTMLDOC v1.8.11
