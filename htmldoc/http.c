@@ -1,5 +1,5 @@
 /*
- * "$Id: http.c,v 1.1.2.12 2002/07/18 16:35:18 mike Exp $"
+ * "$Id: http.c,v 1.1.2.13 2002/09/11 19:13:55 swdev Exp $"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS) scheduler.
  *
@@ -18,8 +18,8 @@
  *       Hollywood, Maryland 20636-3111 USA
  *
  *       Voice: (301) 373-9603
- *       EMail: cups-info@cups.org
- *         WWW: http://www.cups.org
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
  *
  * Contents:
  *
@@ -2098,5 +2098,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.1.2.12 2002/07/18 16:35:18 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.13 2002/09/11 19:13:55 swdev Exp $".
  */
