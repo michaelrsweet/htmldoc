@@ -1,5 +1,5 @@
 //
-// "$Id: image-gif.cxx,v 1.4 2001/12/17 03:03:55 mike Exp $"
+// "$Id: image-gif.cxx,v 1.5 2001/12/17 04:12:32 mike Exp $"
 //
 // Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -23,6 +23,14 @@
 //
 // Contents:
 //
+//   hdGIFImage::hdGIFImage() - Create a new GIF image.
+//   hdGIFImage::get_block()  - Read a GIF data block...
+//   hdGIFImage::get_code()   - Get a LZW code from the file...
+//   hdGIFImage::load()       - Load the image data...
+//   hdGIFImage::read_cmap()  - Read the colormap from a GIF file...
+//   hdGIFImage::read_image() - Read a GIF image stream...
+//   hdGIFImage::read_lzw()   - Read a byte from the LZW stream...
+//   hdGIFImage::real_load()  - Load a GIF image file...
 //
 
 //
@@ -546,5 +554,5 @@ hdGIFImage::real_load(int img,	// I - 1 = load image data, 0 = just info
 
 
 //
-// End of "$Id: image-gif.cxx,v 1.4 2001/12/17 03:03:55 mike Exp $".
+// End of "$Id: image-gif.cxx,v 1.5 2001/12/17 04:12:32 mike Exp $".
 //
