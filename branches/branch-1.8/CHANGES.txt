@@ -1,4 +1,4 @@
-CHANGES.txt - 11/07/2003
+CHANGES.txt - 12/18/2003
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
@@ -61,6 +61,9 @@ CHANGES IN HTMLDOC v1.8.24
 	  printing or displaying properly.
 	- Eliminated a common cause of "table too wide"
 	  formatting errors,
+	- Fixed a bug when applying a table background color to
+	  a cell without a border that cross a page boundary.
+	- Fixed some calls to strcpy with overlapping arguments.
 
 
 CHANGES IN HTMLDOC v1.8.23
