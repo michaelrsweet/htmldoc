@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.16 1999/11/17 14:27:21 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.17 1999/11/17 15:53:47 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -213,7 +213,8 @@ static char	*fix_filename(char *path, char *base);
 			 ((x) >= MARKUP_H1 && (x) <= MARKUP_H6) ||\
 			 (x) == MARKUP_HR || (x) == MARKUP_TABLE)
 #define islist(x)	((x) == MARKUP_DL || (x) == MARKUP_OL ||\
-			 (x) == MARKUP_UL)
+			 (x) == MARKUP_UL || (x) == MARKUP_DIR ||\
+			 (x) == MARKUP_MENU)
 #define istable(x)	((x) == MARKUP_TBODY || (x) == MARKUP_THEAD ||\
 			 (x) == MARKUP_TFOOT || (x) == MARKUP_TR)
 #define istentry(x)	((x) == MARKUP_TD || (x) == MARKUP_TH)
@@ -664,6 +665,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_BLOCKQUOTE :
+      case MARKUP_DIR :
+      case MARKUP_MENU :
       case MARKUP_UL :
       case MARKUP_OL :
       case MARKUP_DL :
@@ -955,6 +958,8 @@ write_file(tree_t *t,		/* I - Tree entry */
         case MARKUP_TITLE :
         case MARKUP_TR :
         case MARKUP_UL :
+	case MARKUP_DIR :
+	case MARKUP_MENU :
             if (col > 0)
             {
               putc('\n', fp);
@@ -1035,6 +1040,8 @@ write_file(tree_t *t,		/* I - Tree entry */
           case MARKUP_TITLE :
           case MARKUP_TR :
           case MARKUP_UL :
+          case MARKUP_DIR :
+          case MARKUP_MENU :
               putc('\n', fp);
               col = 0;
               break;
@@ -1297,6 +1304,8 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
         t->style = STYLE_ITALIC;
 
     case MARKUP_UL :
+    case MARKUP_DIR :
+    case MARKUP_MENU :
     case MARKUP_OL :
     case MARKUP_DL :
         t->indent ++;
@@ -2231,5 +2240,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.16 1999/11/17 14:27:21 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.17 1999/11/17 15:53:47 mike Exp $".
  */
