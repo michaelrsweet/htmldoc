@@ -1,5 +1,5 @@
 //
-// "$Id: toc.cxx,v 1.10 2002/04/02 22:01:57 mike Exp $"
+// "$Id: toc.cxx,v 1.11 2002/04/03 02:18:52 mike Exp $"
 //
 //   Table-of-contents methods for HTMLDOC, a HTML document processing program.
 //
@@ -72,7 +72,7 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 
   // Create a root node for the TOC...
   toc = new hdTree(HD_ELEMENT_BODY);
-  toc->set_attr("CLASS", "TOC");
+  toc->set_attr("class", "TOC");
   toc->style = css->find_style(toc);
 
   // Scan the document tree for headings...
@@ -98,7 +98,7 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
         numbers[level] = 0;
 
 	tocnode = new hdTree(HD_ELEMENT_UL, NULL, tocptr);
-	tocnode->set_attr("CLASS", "TOC");
+	tocnode->set_attr("class", "TOC");
 	tocnode->style = css->find_style(tocnode);
 	tocptr = tocnode;
       }
@@ -162,9 +162,10 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 
         t->child      = tlink;
 	t->last_child = tlink;
+	tlink->parent = t;
       }
 
-      if (tlink->get_attr("NAME") == NULL)
+      if (tlink->get_attr("name") == NULL)
       {
         // Add a named link...
 	strcpy(s, "HD_");
@@ -179,20 +180,20 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 	    strncat(sptr, "_", sizeof(s) - (sptr - s) - 1);
         }
 
-	tlink->set_attr("NAME", s);
+	tlink->set_attr("name", s);
       }
 
       // Then add a new node for the heading...
       tocnode = new hdTree(level == 0 ? HD_ELEMENT_P : HD_ELEMENT_LI, NULL, tocptr);
-      tocnode->set_attr("CLASS", "TOC");
+      tocnode->set_attr("class", "TOC");
       tocnode->style = css->find_style(tocnode);
 
       // And a node for the link...
-      snprintf(s, sizeof(s), "#%s", tlink->get_attr("NAME"));
+      snprintf(s, sizeof(s), "#%s", tlink->get_attr("name"));
 
       toclink = new hdTree(HD_ELEMENT_A, "", tocnode);
-      toclink->set_attr("HREF", s);
-      toclink->set_attr("CLASS", "TOC");
+      toclink->set_attr("href", s);
+      toclink->set_attr("class", "TOC");
       toclink->style = css->find_style(toclink);
 
       // Copy the text to the TOC...
@@ -210,5 +211,5 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: toc.cxx,v 1.10 2002/04/02 22:01:57 mike Exp $".
+// End of "$Id: toc.cxx,v 1.11 2002/04/03 02:18:52 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: common.cxx,v 1.3 2002/04/01 22:45:30 mike Exp $"
+// "$Id: common.cxx,v 1.4 2002/04/03 02:18:52 mike Exp $"
 //
 //   Common routines for HTMLDOC, a HTML document processing program.
 //
@@ -40,6 +40,30 @@
 //
 
 hdCommon	hdGlobal;
+
+
+void
+hdCommon::progress_error(hdError error, const char *format, ...)
+{
+}
+
+
+void
+hdCommon::progress_hide(void)
+{
+}
+
+
+void
+hdCommon::progress_show(const char *format, ...)
+{
+}
+
+
+void
+progress_update(int percent)
+{
+}
 
 
 //
@@ -479,5 +503,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: common.cxx,v 1.3 2002/04/01 22:45:30 mike Exp $".
+// End of "$Id: common.cxx,v 1.4 2002/04/03 02:18:52 mike Exp $".
 //

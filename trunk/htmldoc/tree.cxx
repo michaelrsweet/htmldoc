@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.11 2002/04/02 04:22:37 mike Exp $"
+// "$Id: tree.cxx,v 1.12 2002/04/03 02:18:52 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -473,13 +473,20 @@ hdTree::compute_size(hdStyleSheet *css)	// I - Stylesheet
 void
 hdTree::copy_text(hdTree *p)		// I - New parent
 {
-  hdTree	*t;			// Current node
+  hdTree	*t,			// Current node
+		*end,			// End node
+		*copyt;			// Copy of current node
 
 
   // Collect the current node and all that follow
-  for (t = child; t && t != real_next(); t = t->real_next())
+  end = real_next(0);
+
+  for (t = child; t && t != end; t = t->real_next())
     if (t->element == HD_ELEMENT_NONE)
-      new hdTree(HD_ELEMENT_NONE, t->data, p);
+    {
+      copyt = new hdTree(HD_ELEMENT_NONE, t->data, p);
+      copyt->whitespace = t->whitespace;
+    }
 }
 
 
@@ -490,16 +497,19 @@ hdTree::copy_text(hdTree *p)		// I - New parent
 hdTree *				// O - Matching node or NULL
 hdTree::find(hdElement e)		// I - Element to find
 {
-  hdTree	*t;			// Current node
+  hdTree	*t,			// Current node
+		*end;			// End node
 
 
   // Scan the tree for the element...
-  for (t = child; t && t != real_next(); t = t->real_next())
+  end = real_next(0);
+
+  for (t = child; t && t != end; t = t->real_next())
     if (t->element == e)
-      break;
+      return (t);
 
   // Return the match, if any...
-  return (t);
+  return (NULL);
 }
 
 
@@ -700,7 +710,7 @@ hdTree::get_meta(const char *name)	// I - Name of meta data
 //
 
 char *					// O - Text under the node.
-hdTree::get_text()
+hdTree::get_text(int comments)		// I - Include comments, too?
 {
   char		*s;			// String
   int		slen,			// Length of string
@@ -709,7 +719,9 @@ hdTree::get_text()
 
 
   // See if we already have the text for this node...
-  if (data)
+  if (element == HD_ELEMENT_COMMENT && !comments)
+    return (NULL);
+  else if (data)
     return (data);
   else if (elgroup[element] == HD_ELGROUP_NONE)
     return (NULL);
@@ -718,7 +730,7 @@ hdTree::get_text()
   s    = NULL;
 
   for (t = child; t; t = t->next)
-    if (t->get_text())
+    if (t->get_text(comments))
     {
       // Add the text to this string...
       tlen = strlen(t->data);
@@ -733,7 +745,14 @@ hdTree::get_text()
       if (!s)
         break;
 
-      strcpy(s + slen, t->data);
+      if (t->whitespace && slen)
+      {
+        s[slen] = ' ';
+        strcpy(s + slen + 1, t->data);
+      }
+      else
+        strcpy(s + slen, t->data);
+
       slen += tlen;
 
       data = s;
@@ -1231,6 +1250,15 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 	  // Then delete the closing element...
           t->remove();
 	  delete t;
+
+          // If this is a STYLE element, load the style data...
+	  if (temp != NULL && temp->element == HD_ELEMENT_STYLE)
+	  {
+	    // Get the text and create a memory file...
+	    hdMemFile *mf = new hdMemFile(temp->get_text(1));
+	    css->load(mf);
+	    delete mf;
+	  }
 	}
 	else if (hdElIsGroup(t->element))
 	{
@@ -1511,12 +1539,10 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 
 	      delete embed;
             }
-#if 0
 	    else
-	      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                             "Unable to embed \"%s\" - %s", filename,
-	                     strerror(errno));
-#endif // 0
+	      hdGlobal.progress_error(HD_ERROR_FILE_NOT_FOUND,
+                                      "Unable to embed \"%s\" - %s", filename,
+	                              strerror(errno));
 	  }
           break;
 
@@ -1643,14 +1669,14 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 //
 
 hdTree *				// O - Next logical node
-hdTree::real_next()
+hdTree::real_next(int descend)		// I - Descend into children?
 {
   hdTree	*t;			// Current node
 
 
   // Start at the current node and find the next logical node in
   // the tree...
-  if (child != NULL)
+  if (child != NULL && descend)
     return (child);
 
   if (next != NULL)
@@ -1807,5 +1833,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.11 2002/04/02 04:22:37 mike Exp $".
+// End of "$Id: tree.cxx,v 1.12 2002/04/03 02:18:52 mike Exp $".
 //

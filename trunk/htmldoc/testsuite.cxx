@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.7 2002/04/02 22:01:57 mike Exp $"
+// "$Id: testsuite.cxx,v 1.8 2002/04/03 02:18:52 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -39,7 +39,9 @@
 
 void	print_tree(hdTree *t, int indent);
 void	print_style(hdStyle *s);
-void	write_book(hdFile *fp, hdTree *toc, hdTree *figures, hdTree *doc);
+void	write_book(hdFile *fp, hdStyleSheet *css, hdTree *toc,
+	           hdTree *figures, hdTree *doc);
+void	write_css(hdFile *fp, hdStyleSheet *css);
 void	write_html(hdFile *fp, hdTree *t);
 void	write_test(hdFile *fp);
 
@@ -149,7 +151,7 @@ main(int  argc,				// I - Number of command-line arguments
 	figures = html->build_list(css, "FIGURE", "Figure");
 
         fp = hdFile::open("test.html", HD_FILE_WRITE);
-	write_book(fp, toc, figures, html);
+	write_book(fp, css, toc, figures, html);
 	delete fp;
 
         delete html;
@@ -294,8 +296,8 @@ print_tree(hdTree *t,		// I - Tree node
     switch (t->element)
     {
       case HD_ELEMENT_NONE :
-          printf("(none) \"%s\" %.1fx%.1f\n", t->data ? t->data : "(null)",
-	         t->width, t->height);
+          printf("(none) \"%s\" %.1fx%.1f (%d)\n", t->data ? t->data : "(null)",
+	         t->width, t->height, t->whitespace);
 	  break;
 
       case HD_ELEMENT_UNKNOWN :
@@ -432,18 +434,126 @@ print_style(hdStyle *s)		// I - Style
 //
 
 void
-write_book(hdFile *fp,
-           hdTree *toc,
-	   hdTree *figures,
-	   hdTree *doc)
+write_book(hdFile       *fp,
+           hdStyleSheet *css,
+           hdTree       *toc,
+	   hdTree       *figures,
+	   hdTree       *doc)
 {
-  fp->puts("<HTML><BODY>\n");
+  fp->puts("<html>\n");
+  fp->puts("<head>\n");
+  write_css(fp, css);
+  fp->puts("</head>\n");
+  fp->puts("<body>\n");
   write_html(fp, toc);
-  fp->puts("<HR>\n");
+  fp->puts("<hr>\n");
   write_html(fp, figures);
-  fp->puts("<HR>\n");
+  fp->puts("<hr>\n");
   write_html(fp, doc);
-  fp->puts("</BODY></HTML>\n");
+  fp->puts("</body>\n");
+  fp->puts("</html>\n");
+}
+
+
+//
+// 'write_css()' - Write stylesheet data...
+//
+
+void
+write_css(hdFile       *fp,
+          hdStyleSheet *css)
+{
+  int			i, j;
+  hdStyle		*style;
+  static const char	*displays[] =
+			{
+			  "none",
+			  "block",
+			  "compact",
+			  "inline",
+			  "inline-table",
+			  "list-item",
+			  "marker",
+			  "run-in",
+			  "table",
+			  "table-caption",
+			  "table-cell",
+			  "table-column",
+			  "table-column-group",
+			  "table-footer-group",
+			  "table-header-group",
+			  "table-row",
+			  "table-row-group"
+			};
+  static const char	*styles[] =
+			{
+			  "normal",
+			  "italic",
+			  "oblique"
+			};
+  static const char	*weights[] =
+			{
+			  "normal",
+			  "bold",
+			  "bolder",
+			  "lighter"
+			};
+
+
+  fp->puts("<style>\n");
+
+  for (i = 0; i < css->num_styles; i ++)
+  {
+    style = css->styles[i];
+
+    if (style->selectors[0].id &&
+        strncmp(style->selectors[0].id, "_HD", 3) == 0)
+      continue;
+
+    for (j = style->num_selectors - 1; j >= 0; j --)
+    {
+      fp->puts(hdTree::elements[style->selectors[j].element]);
+
+      if (style->selectors[j].class_)
+        fp->printf(".%s", style->selectors[j].class_);
+
+      if (style->selectors[j].pseudo)
+        fp->printf(":%s", style->selectors[j].pseudo);
+
+      if (style->selectors[j].id)
+        fp->printf("#%s", style->selectors[j].id);
+
+      fp->puts(" ");
+    }
+
+    fp->puts("{\n");
+
+    if (style->background_color_set)
+      fp->printf("    background-color: rgb(%d,%d,%d)\n", style->background_color[0],
+             style->background_color[1], style->background_color[2]);
+
+    if (style->background_image)
+      fp->printf("    background-image: url(%s)\n", style->background_image);
+
+    if (style->color_set)
+      fp->printf("    color: rgb(%d,%d,%d)\n", style->color[0],
+	     style->color[1], style->color[2]);
+
+    fp->printf("    display: %s\n", displays[style->display]);
+
+    if (style->font_family)
+      fp->printf("    font-family: %s\n", style->font_family);
+
+    if (style->font_style)
+      fp->printf("    font-style: %s\n", styles[style->font_style]);
+
+    if (style->font_weight)
+      fp->printf("    font-weight: %s\n", weights[style->font_weight]);
+
+    fp->puts("}\n");
+  }
+
+  fp->puts("</style>\n");
 }
 
 
@@ -490,7 +600,9 @@ write_html(hdFile *fp,
       default :
 	  len = strlen(hdTree::elements[t->element]) + 1;
 
-	  if ((col + len) > 80 || hdElIsBlock(t->element))
+	  if ((col + len) > 80 || hdElIsBlock(t->element) ||
+	      hdElIsTable(t->element) || hdElIsRowCol(t->element) ||
+	      hdElIsList(t->element) || hdElIsItem(t->element))
 	  {
             col = 0;
 	    fp->puts("\n");
@@ -499,6 +611,9 @@ write_html(hdFile *fp,
 	  fp->printf("<%s", hdTree::elements[t->element]);
 	  for (i = 0; i < t->nattrs; i ++)
 	  {
+	    if (strncasecmp(t->attrs[i].name, "_HD", 3) == 0)
+	      continue;
+
 	    len = strlen(t->attrs[i].name) + strlen(t->attrs[i].value) + 4;
 	    if ((col + len) > 80)
 	    {
@@ -568,5 +683,5 @@ write_test(hdFile *fp)	// I - File to write to...
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.7 2002/04/02 22:01:57 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.8 2002/04/03 02:18:52 mike Exp $".
 //
