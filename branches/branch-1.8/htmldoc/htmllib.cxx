@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.53 2002/04/10 17:51:28 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.54 2002/04/11 19:44:56 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -260,7 +260,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 		*t,		/* New tree entry */
 		*prev,		/* Previous tree entry */
 		*temp;		/* Temporary looping var */
-  int		pos;		/* Current file position */
+  int		descend;	/* Descend into node? */
   FILE		*embed;		/* File pointer for EMBED */
   char		newbase[1024];	/* New base directory for EMBED */
   uchar		*filename,	/* Filename for EMBED tag */
@@ -363,8 +363,6 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       * Markup char; grab the next char to see if this is a /...
       */
 
-      pos = ftell(fp) - 1;
-
       ch = getc(fp);
       if (isspace(ch) || ch == '=' || ch == '<')
       {
@@ -405,10 +403,10 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
 	if (parse_markup(t, fp) == MARKUP_ERROR)
 	{
-  #ifndef DEBUG
+#ifndef DEBUG
           progress_error(HD_ERROR_READ_ERROR,
-                         "Unable to parse HTML element at %d!", pos);
-  #endif /* !DEBUG */
+                         "Unable to parse HTML element at %d!", (int)ftell(fp));
+#endif /* !DEBUG */
 
           delete_node(t);
           break;
@@ -712,6 +710,8 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
     * Do markup-specific stuff...
     */
 
+    descend = 0;
+
     switch (t->markup)
     {
       case MARKUP_BODY :
@@ -734,7 +734,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	                    (uchar *)fix_filename((char *)filename,
 			                          (char *)base));
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_IMG :
@@ -782,7 +782,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           t->preformatted  = 0;
           t->style         = STYLE_BOLD;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_P :
@@ -796,7 +796,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           t->strikethrough = 0;
           t->preformatted  = 0;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_PRE :
@@ -808,7 +808,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           t->strikethrough = 0;
           t->preformatted  = 1;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_BLOCKQUOTE :
@@ -819,13 +819,13 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       case MARKUP_DL :
           t->indent ++;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_DIV :
           get_alignment(t);
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_HR :
@@ -880,7 +880,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
           t->style = STYLE_BOLD;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_TD :
@@ -893,7 +893,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
           t->style = STYLE_NORMAL;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_FONT :
@@ -949,7 +949,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
               t->size = sizeval;
           }
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_BIG :
@@ -966,7 +966,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           else
             t->size = 7;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_SMALL :
@@ -983,7 +983,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           else
             t->size = 0;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_SUP :
@@ -1002,7 +1002,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	  else
 	    t->size = sizeval;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_SUB :
@@ -1021,7 +1021,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	  else
 	    t->size = sizeval;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_KBD :
@@ -1045,19 +1045,19 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
           t->typeface = TYPE_COURIER;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_B :
           t->style = (style_t)(t->style | STYLE_BOLD);
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_DD :
           t->indent ++;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_VAR :
@@ -1065,7 +1065,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       case MARKUP_DFN :
           t->typeface = TYPE_HELVETICA;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_STRONG :
@@ -1076,7 +1076,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
       case MARKUP_I :
           t->style = (style_t)(t->style | STYLE_ITALIC);
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_U :
@@ -1091,7 +1091,7 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
           t->underline = 1;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_STRIKE :
@@ -1107,13 +1107,13 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
           t->strikethrough = 1;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       case MARKUP_CENTER :
           t->halignment = ALIGN_CENTER;
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
 
       default :
@@ -1123,8 +1123,14 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
           get_alignment(t);
 
-          htmlReadFile(t, fp, base);
+          descend = 1;
           break;
+    }
+
+    if (descend)
+    {
+      parent = t;
+      prev   = NULL;
     }
   }  
 
@@ -2701,5 +2707,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.53 2002/04/10 17:51:28 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.54 2002/04/11 19:44:56 mike Exp $".
  */
