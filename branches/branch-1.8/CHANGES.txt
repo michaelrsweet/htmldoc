@@ -1,4 +1,4 @@
-CHANGES.txt - 11/31/2000
+CHANGES.txt - 12/08/2000
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.9
@@ -58,6 +58,11 @@ CHANGES IN HTMLDOC v1.8.9
 	  generated.
 	- htmlSetCharSet() wasn't reloading the character set
 	  data if the data directory changed.
+	- The GUI did not reset the default background color.
+	- The 'C' page number style (chapter page numbers) started
+	  at 3 instead of 1.
+	- The chapter links were off by 1 or 2 pages when no title
+	  page was included.
 
 
 CHANGES IN HTMLDOC v1.8.8

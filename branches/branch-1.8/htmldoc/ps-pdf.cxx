@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.3 2000/12/01 21:46:48 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.4 2000/12/08 20:28:00 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -948,7 +948,7 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
           break;
 
       case 'C' :
-          number = format_number(print_page - chapter_starts[::chapter] + 2, '1');
+          number = format_number(print_page - chapter_starts[::chapter], '1');
 	  temp   = new_render(page, RENDER_TEXT, 0, y,
                               HeadFootSize / _htmlSizes[SIZE_P] *
 			      get_width((uchar *)number, HeadFootType,
@@ -1842,7 +1842,8 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
       if (heading_pages[*heading] > 0)
 	fprintf(out, "/Dest[%d 0 R/XYZ null %d null]",
-        	pages_object + 3 * heading_pages[*heading] + ((PageDuplex && TitlePage) ? 4 : 1),
+        	pages_object + 3 * (heading_pages[*heading] +
+		                    chapter_starts[0]) - 2,
         	heading_tops[*heading]);
 
       (*heading) ++;
@@ -4454,7 +4455,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR");
 
       if (bgcolor != NULL)
-        get_color(bgcolor, bgrgb);
+        get_color(bgcolor, bgrgb, 0);
 
       if (cell_page[col] != cell_endpage[col])
       {
@@ -4907,7 +4908,7 @@ find_background(tree_t *t)	/* I - Document to search */
   }
   else if (BodyColor[0] != '\0')
   {
-    get_color((uchar *)BodyColor, background_color);
+    get_color((uchar *)BodyColor, background_color, 0);
     return;
   }
 
@@ -4925,7 +4926,7 @@ find_background(tree_t *t)	/* I - Document to search */
         background_image = image_load((char *)var, !OutputColor);
 
       if ((var = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL)
-        get_color(var, background_color);
+        get_color(var, background_color, 0);
     }
 
     if (t->child != NULL)
@@ -7449,5 +7450,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.3 2000/12/01 21:46:48 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.4 2000/12/08 20:28:00 mike Exp $".
  */
