@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.48 2002/03/08 17:02:17 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.49 2002/03/24 17:27:47 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2544,7 +2544,7 @@ get_alignment(tree_t *t)	/* I - Tree entry */
  * 'fix_filename()' - Fix a filename to be relative to the base directory.
  */
 
-static const char *				/* O - Fixed filename */
+static const char *			/* O - Fixed filename */
 fix_filename(char *filename,		/* I - Original filename */
              char *base)		/* I - Base directory */
 {
@@ -2651,8 +2651,10 @@ fix_filename(char *filename,		/* I - Original filename */
 #ifdef MAC
   strcat(newfilename, ":");
 #else
-  strcat(newfilename, "/");
+  if (filename[0] != '/' && *base && base[strlen(base) - 1] != '/')
+    strcat(newfilename, "/");
 #endif // MAC
+
   strcat(newfilename, filename);
 
   return (file_find(Path, newfilename));
@@ -2660,5 +2662,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.48 2002/03/08 17:02:17 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.49 2002/03/24 17:27:47 mike Exp $".
  */
