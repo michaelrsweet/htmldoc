@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.98 2004/03/31 10:45:01 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.99 2004/04/11 19:38:58 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -28,121 +28,18 @@
  *
  * Contents:
  *
- *   pspdf_export()           - Export PostScript/PDF file(s)...
- *   pspdf_debug_stats()      - Display debug statistics for render memory use.
- *   pspdf_transform_coords() - Transform page coordinates.
- *   pspdf_transform_page()   - Transform a page.
- *   pspdf_prepare_outpages() - Prepare output pages...
- *   pspdf_prepare_page()     - Add headers/footers to page before writing...
- *   pspdf_prepare_heading()  - Add headers/footers to page before writing...
- *   ps_write_document()      - Write all render entities to PostScript file(s).
- *   ps_write_outpage()       - Write an output page.
- *   ps_write_page()          - Write all render entities on a page to a
- *                              PostScript file.
- *   ps_write_background()    - Write a background image...
- *   pdf_write_document()     - Write all render entities to a PDF file.
- *   pdf_write_resources()    - Write the resources dictionary for a page.
- *   pdf_write_outpage()      - Write an output page.
- *   pdf_write_page()         - Write a page to a PDF file.
- *   pdf_write_contents()     - Write the table of contents as outline records
- *                              to a PDF file.
- *   pdf_count_headings()     - Count the number of headings under this TOC
- *   pdf_write_links()        - Write annotation link objects for each page in
- *                              the document.
- *   pdf_write_names()        - Write named destinations for each link.
- *   pdf_start_object()       - Start a new PDF object...
- *   pdf_start_stream()       - Start a new PDF stream...
- *   pdf_end_object()         - End a PDF object...
- *   parse_contents()         - Parse the table of contents and produce a
- *   parse_doc()              - Parse a document tree and produce rendering
- *                              list output.
- *   parse_heading()          - Parse a heading tree and produce rendering list
- *                              output.
- *   parse_paragraph()        - Parse a paragraph tree and produce rendering
- *                              list output.
- *   parse_pre()              - Parse preformatted text and produce rendering
- *                              list output.
- *   parse_table()            - Parse a table and produce rendering output.
- *   parse_list()             - Parse a list entry and produce rendering output.
- *   init_list()              - Initialize the list type and value as necessary.
- *   parse_comment()          - Parse a comment for HTMLDOC comments.
- *   real_prev()              - Return the previous non-link markup in the tree.
- *   real_next()              - Return the next non-link markup in the tree.
- *   find_background()        - Find the background image/color for the given
- *                              document.
- *   write_background()       - Write the background image/color for to the
- *                              current page.
- *   new_render()             - Allocate memory for a new rendering structure.
- *   check_pages()            - Allocate memory for more pages as needed...
- *   add_link()               - Add a named link...
- *   find_link()              - Find a named link...
- *   compare_links()          - Compare two named links.
- *   copy_tree()              - Copy a markup tree...
- *   get_cell_size()          - Compute the minimum width of a cell.
- *   get_table_size()         - Compute the minimum width of a table.
- *   flatten_tree()           - Flatten an HTML tree to only include the text,
- *                              image, link, and break markups.
- *   update_image_size()      - Update the size of an image based upon the
- *   get_width()              - Get the width of a string in points.
- *   get_title()              - Get the title string for a document.
- *   open_file()              - Open an output file for the current chapter.
- *   set_color()              - Set the current text color...
- *   set_font()               - Set the current text font.
- *   set_pos()                - Set the current text position.
- *   ps_hex()                 - Print binary data as a series of hexadecimal
- *                              numbers.
- *   ps_ascii85()             - Print binary data as a series of base-85
- *                              numbers.
- *   jpg_init()               - Initialize the JPEG destination.
- *   jpg_empty()              - Empty the JPEG output buffer.
- *   jpg_term()               - Write the last JPEG data to the file.
- *   jpg_setup()              - Setup the JPEG compressor for writing an image.
- *   compare_rgb()            - Compare two RGB colors...
- *   write_image()            - Write an image to the given output file...
- *   write_imagemask()        - Write an imagemask to the output file...
- *   write_prolog()           - Write the file prolog...
- *   write_string()           - Write a text entity.
- *   write_text()             - Write a text entity.
- *   write_trailer()          - Write the file trailer.
- *   write_type1()            - Write an embedded Type 1 font.
- *   encrypt_init()           - Initialize the RC4 encryption context for
- *                              the current object.
- *   flate_open_stream()      - Open a deflated output stream.
- *   flate_close_stream()     - Close a deflated output stream.
- *   flate_puts()             - Write a character string to a compressed stream.
- *   flate_printf()           - Write a formatted character string to a
- *                              compressed stream.
- *   flate_write()            - Write data to a compressed stream.
  */
 
 /*
  * Include necessary headers.
  */
 
-/*
- * The GCC compiler on HP-UX has a nasty habit of incorrectly "fixing"
- * the vmtypes.h header file provided with HP-UX.  The following
- * conditional magic makes sure that "page_t" (which we use in our
- * code) is not defined...
- */
-
-#ifdef __hpux
-#  define page_t	hpux_page_t
-#endif // __hpux
-
 /*#define DEBUG*/
 #include "htmldoc.h"
-#include "margin.h"
-#include "md5.h"
-#include "rc4.h"
 #include <stdarg.h>
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
-
-#ifdef MAC		// MacOS-specific header file...
-#  include <Files.h>
-#endif // MAC
 
 #ifdef WIN32
 #  include <io.h>
@@ -151,102 +48,6 @@
 #endif // WIN32
 
 #include <fcntl.h>
-
-#include <zlib.h>
-
-extern "C" {		/* Workaround for JPEG header problems... */
-#include <jpeglib.h>	/* JPEG/JFIF image definitions */
-}
-
-#ifdef __hpux
-#  undef page_t
-#endif // __hpux
-
-
-/*
- * Constants...
- */
-
-#define RENDER_TEXT	0		/* Text fragment */
-#define RENDER_IMAGE	1		/* Image */
-#define RENDER_BOX	2		/* Box */
-#define RENDER_LINK	3		/* Hyperlink */
-#define RENDER_BG	4		/* Background image */
-
-
-/*
- * Structures...
- */
-
-typedef struct render_str		/**** Render entity structure ****/
-{
-  struct render_str	*prev;		/* Previous rendering entity */
-  struct render_str	*next;		/* Next rendering entity */
-  int	type;				/* Type of entity */
-  float	x,				/* Position in points */
-	y,				/* ... */
-	width,				/* Size in points */
-	height;				/* ... */
-  union
-  {
-    struct
-    {
-      int	typeface,		/* Typeface for text */
-		style;			/* Style of text */
-      float	size;			/* Size of text in points */
-      float	spacing;		/* Inter-character spacing */
-      float	rgb[3];			/* Color of text */
-      uchar	buffer[1];		/* String buffer */
-    }   	text;
-    image_t	*image;			/* Image pointer */
-    float	box[3];			/* Box color */
-    uchar	link[1];		/* Link URL */
-  }	data;
-} render_t;
-
-typedef struct				/**** Named link position structure */
-{
-  short		page,			/* Page # */
-		top;			/* Top position */
-  uchar		name[124];		/* Reference name */
-} link_t;
-
-typedef struct				//// Page information
-{
-  int		width,			// Width of page in points
-		length,			// Length of page in points
-		left,			// Left margin in points
-		right,			// Right margin in points
-		top,			// Top margin in points
-		bottom,			// Bottom margin in points
-		duplex,			// Duplex this page?
-		landscape;		// Landscape orientation?
-  render_t	*start,			// First render element
-		*end;			// Last render element
-  uchar		*chapter,		// Chapter text
-		*heading,		// Heading text
-		*header[3],		// Headers
-		*footer[3];		// Footers
-  char		media_color[64],	// Media color
-		media_type[64];		// Media type
-  int		media_position;		// Media position
-  char		page_text[64];		// Page number for TOC
-  image_t	*background_image;	// Background image
-  float		background_color[3];	// Background color
-
-  // Number-up support
-  int		nup;			// Number up pages
-  int		outpage;		// Output page #
-  float		outmatrix[2][3];	// Transform matrix
-} page_t;
-
-typedef struct				//// Output page info
-{
-  int		nup;			// Number up pages
-  int		pages[16];		// Pages on this output page
-  int		annot_object;		// Annotation object
-} outpage_t;
-
 
 /*
  * Timezone offset for dates, below...
@@ -260,203 +61,11 @@ typedef struct				//// Output page info
 
 
 /*
- * Local globals...
- */
-
-static time_t	doc_time;		// Current time
-static struct tm *doc_date;		// Current date
-
-static int	title_page;
-static int	chapter,
-		chapter_outstarts[MAX_CHAPTERS],
-		chapter_outends[MAX_CHAPTERS],
-		chapter_starts[MAX_CHAPTERS],
-		chapter_ends[MAX_CHAPTERS];
-
-static int	num_headings = 0,
-		alloc_headings = 0,
-		*heading_pages = NULL,
-		*heading_tops = NULL;
-
-static int	num_pages = 0,
-		alloc_pages = 0;
-static page_t	*pages = NULL;
-static hdTree	*current_heading;
-
-static int	num_outpages = 0;
-static outpage_t *outpages = NULL;
-
-static int	num_links = 0,
-		alloc_links = 0;
-static link_t	*links = NULL;
-
-static uchar	list_types[16];
-static int	list_values[16];
-
-static char	stdout_filename[256];
-static int	num_objects = 0,
-		alloc_objects = 0,
-		*objects = NULL,
-		root_object,
-		info_object,
-		outline_object,
-		pages_object,
-		names_object,
-		encrypt_object,
-		font_objects[16];
-
-static uchar	*doc_title = NULL;
-static image_t	*logo_image = NULL;
-static float	logo_width,
-		logo_height;
-
-static image_t	*hfimage[MAX_HF_IMAGES];
-static float	hfimage_width[MAX_HF_IMAGES],
-		hfimage_height[MAX_HF_IMAGES];
-static float    maxhfheight;
-
-static image_t	*background_image = NULL;
-static float	background_color[3] = { 1.0, 1.0, 1.0 },
-		link_color[3] = { 0.0, 0.0, 1.0 };
-
-static int	render_typeface,
-		render_style;
-static float	render_size,
-		render_rgb[3],
-		render_x,
-		render_y,
-		render_startx,
-		render_spacing;
-
-static int		compressor_active = 0;
-static z_stream		compressor;
-static uchar		comp_buffer[8192];
-static uchar		encrypt_key[16];
-static int		encrypt_len;
-static rc4_context_t	encrypt_state;
-static md5_byte_t	file_id[16];
-
-
-/*
- * Local functions...
- */
-
-extern "C" {
-typedef int	(*compare_func_t)(const void *, const void *);
-}
-
-static void	pspdf_debug_stats();
-
-static void	pspdf_transform_coords(page_t *p, float &x, float  &y);
-static void	pspdf_transform_page(int outpage, int pos, int page);
-
-static void	pspdf_prepare_outpages();
-static void	pspdf_prepare_page(int page);
-static void	pspdf_prepare_heading(int page, int print_page, uchar **format,
-		                      int y, char *page_text, int page_len,
-				      int render_heading = 1);
-static void	ps_write_document(uchar *author, uchar *creator,
-		                  uchar *copyright, uchar *keywords,
-				  uchar *subject);
-static void	ps_write_outpage(FILE *out, int outpage);
-static void	ps_write_page(FILE *out, int page);
-static void	ps_write_background(FILE *out);
-static void	pdf_write_document(uchar *author, uchar *creator,
-		                   uchar *copyright, uchar *keywords,
-				   uchar *subject, hdTree *toc);
-static void	pdf_write_outpage(FILE *out, int outpage);
-static void	pdf_write_page(FILE *out, int page);
-static void	pdf_write_resources(FILE *out, int page);
-static void	pdf_write_contents(FILE *out, hdTree *toc, int parent,
-		                   int prev, int next, int *heading);
-static void	pdf_write_links(FILE *out);
-static void	pdf_write_names(FILE *out);
-static int	pdf_count_headings(hdTree *toc);
-
-static int	pdf_start_object(FILE *out, int array = 0);
-static void	pdf_start_stream(FILE *out);
-static void	pdf_end_object(FILE *out);
-
-static void	encrypt_init(void);
-static void	flate_open_stream(FILE *out);
-static void	flate_close_stream(FILE *out);
-static void	flate_puts(const char *s, FILE *out);
-static void	flate_printf(FILE *out, const char *format, ...);
-static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
-
-static void	parse_contents(hdTree *t, hdMargin *margins, float *y,
-		               int *page, int *heading, hdTree *chap);
-static void	parse_doc(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			  hdTree *cpara, int *needspace);
-static void	parse_heading(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			      int needspace);
-static void	parse_paragraph(hdTree *t, hdMargin *margins, float *x,
-		                float *y, int *page, int needspace);
-static void	parse_pre(hdTree *t, hdMargin *margins, float *x, float *y,
-		          int *page, int needspace);
-static void	parse_table(hdTree *t, hdMargin *margins, float *x, float *y,
-		            int *page, int needspace);
-static void	parse_list(hdTree *t, hdMargin *margins, float *x, float *y,
-		           int *page, int needspace);
-static void	init_list(hdTree *t);
-static void	parse_comment(hdTree *t, hdMargin *margins, float *x, float *y,
-		              int *page, hdTree *para, int needspace);
-
-static hdTree	*real_prev(hdTree *t);
-static hdTree	*real_next(hdTree *t);
-
-static void	check_pages(int page);
-
-static void	add_link(uchar *name, int page, int top);
-static link_t	*find_link(uchar *name);
-static int	compare_links(link_t *n1, link_t *n2);
-
-static void	find_background(hdTree *t);
-static void	write_background(int page, FILE *out);
-
-static render_t	*new_render(int page, int type, float x, float y,
-		            float width, float height, void *data,
-			    render_t *insert = 0);
-static void	copy_tree(hdTree *parent, hdTree *t);
-static float	get_cell_size(hdTree *t, float left, float right,
-		              float *minwidth, float *prefwidth,
-			      float *minheight);
-static float	get_table_size(hdTree *t, float left, float right,
-		               float *minwidth, float *prefwidth,
-			       float *minheight);
-static hdTree	*flatten_tree(hdTree *t);
-static float	get_width(uchar *s, int typeface, int style, float size);
-static void	update_image_size(hdTree *t);
-static uchar	*get_title(hdTree *doc);
-static FILE	*open_file(void);
-static void	set_color(FILE *out, float *rgb);
-static void	set_font(FILE *out, int typeface, int style, float size);
-static void	set_pos(FILE *out, float x, float y);
-static void	write_prolog(FILE *out, int pages, uchar *author,
-		             uchar *creator, uchar *copyright,
-			     uchar *keywords, uchar *subject);
-static void	ps_hex(FILE *out, uchar *data, int length);
-static void	ps_ascii85(FILE *out, uchar *data, int length);
-static void	jpg_init(j_compress_ptr cinfo);
-static boolean	jpg_empty(j_compress_ptr cinfo);
-static void	jpg_term(j_compress_ptr cinfo);
-static void	jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
-static int	compare_rgb(unsigned *rgb1, unsigned *rgb2);
-static void	write_image(FILE *out, render_t *r, int write_obj = 0);
-static void	write_imagemask(FILE *out, render_t *r);
-static void	write_string(FILE *out, uchar *s, int compress);
-static void	write_text(FILE *out, render_t *r);
-static void	write_trailer(FILE *out, int pages);
-static int	write_type1(FILE *out, hdFontFace typeface,
-			    hdFontInternal style);
-
-
-/*
- * 'pspdf_export()' - Export PostScript/PDF file(s)...
+ * 'hdBook::pspdf_export()' - Export PostScript/PDF file(s)...
  */
 
 int
-pspdf_export(hdTree *document,	/* I - Document to export */
+hdBook::pspdf_export(hdTree *document,	/* I - Document to export */
              hdTree *toc)	/* I - Table of contents for document */
 {
   int		i, j;		/* Looping vars */
@@ -488,7 +97,7 @@ pspdf_export(hdTree *document,	/* I - Document to export */
   image_t	*timage;	/* Title image */
   float		timage_width,	/* Title image width */
 		timage_height;	/* Title image height */
-  render_t	*r;		/* Rendering structure... */
+  hdRender	*r;		/* Rendering structure... */
   float		rgb[3];		/* Text color */
   int		needspace;	/* Need whitespace */
 
@@ -567,10 +176,6 @@ pspdf_export(hdTree *document,	/* I - Document to export */
   * Initialize page rendering variables...
   */
 
-  num_pages   = 0;
-  alloc_pages = 0;
-  pages       = NULL;
-
   memset(list_types, 0267, sizeof(list_types));
   memset(list_values, 0, sizeof(list_values));
   memset(chapter_starts, -1, sizeof(chapter_starts));
@@ -583,8 +188,6 @@ pspdf_export(hdTree *document,	/* I - Document to export */
   heading_pages  = NULL;
   heading_tops   = NULL;
   num_links      = 0;
-  alloc_links    = 0;
-  links          = NULL;
   num_pages      = 0;
 
   DEBUG_printf(("pspdf_export: TitlePage = %d, TitleImage = \"%s\"\n",
@@ -592,19 +195,11 @@ pspdf_export(hdTree *document,	/* I - Document to export */
 
   if (TitlePage)
   {
-#ifdef WIN32
     if (TitleImage[0] &&
-        stricmp(file_extension(TitleImage), "bmp") != 0 &&
-	stricmp(file_extension(TitleImage), "gif") != 0 &&
-	stricmp(file_extension(TitleImage), "jpg") != 0 &&
-	stricmp(file_extension(TitleImage), "png") != 0)
-#else
-    if (TitleImage[0] &&
-        strcmp(file_extension(TitleImage), "bmp") != 0 &&
-	strcmp(file_extension(TitleImage), "gif") != 0 &&
-	strcmp(file_extension(TitleImage), "jpg") != 0 &&
-	strcmp(file_extension(TitleImage), "png") != 0)
-#endif // WIN32
+        strcasecmp(file_extension(TitleImage), "bmp") != 0 &&
+	strcasecmp(file_extension(TitleImage), "gif") != 0 &&
+	strcasecmp(file_extension(TitleImage), "jpg") != 0 &&
+	strcasecmp(file_extension(TitleImage), "png") != 0)
     {
       DEBUG_printf(("pspdf_export: Generating a titlepage using \"%s\"\n",
                     TitleImage));
@@ -681,7 +276,7 @@ pspdf_export(hdTree *document,	/* I - Document to export */
 
       if (timage != NULL)
       {
-	new_render(0, RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
+	new_render(0, HD_RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
                    y - timage_height, timage_width, timage_height, timage);
 	y -= timage_height + _htmlSpacings[SIZE_P];
       }
@@ -692,7 +287,7 @@ pspdf_export(hdTree *document,	/* I - Document to export */
       {
 	width = get_width(doc_title, _htmlHeadingFont, HD_FONTINTERNAL_BOLD,
 	                  _htmlSizes[SIZE_H1]);
-	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
+	r     = new_render(0, HD_RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                 	   y - _htmlSpacings[SIZE_H1], width,
 			   _htmlSizes[SIZE_H1], doc_title);
 
@@ -707,7 +302,7 @@ pspdf_export(hdTree *document,	/* I - Document to export */
 	{
 	  width = get_width(docnumber, _htmlBodyFont, HD_FONTINTERNAL_NORMAL,
 	                    _htmlSizes[SIZE_P]);
-	  r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
+	  r     = new_render(0, HD_RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                              y - _htmlSpacings[SIZE_P], width,
 			     _htmlSizes[SIZE_P], docnumber);
 
@@ -726,7 +321,7 @@ pspdf_export(hdTree *document,	/* I - Document to export */
       {
 	width = get_width(author, _htmlBodyFont, HD_FONTINTERNAL_NORMAL,
 	                  _htmlSizes[SIZE_P]);
-	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
+	r     = new_render(0, HD_RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                 	   y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
 			   author);
 
@@ -742,7 +337,7 @@ pspdf_export(hdTree *document,	/* I - Document to export */
       {
 	width = get_width(copyright, _htmlBodyFont, HD_FONTINTERNAL_NORMAL,
 	                  _htmlSizes[SIZE_P]);
-	r     = new_render(0, RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
+	r     = new_render(0, HD_RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
                 	   y - _htmlSpacings[SIZE_P], width, _htmlSizes[SIZE_P],
 			   copyright);
 
@@ -763,7 +358,7 @@ pspdf_export(hdTree *document,	/* I - Document to export */
   * Parse the document...
   */
 
-  if (OutputType == OUTPUT_BOOK)
+  if (OutputType == HD_OUTPUT_BOOK)
     chapter = 0;
   else
   {
@@ -975,16 +570,6 @@ pspdf_export(hdTree *document,	/* I - Document to export */
     TocFooter[i] = NULL;
   }
 
-  if (alloc_pages)
-  {
-    free(pages);
-    free(outpages);
-
-    num_pages   = 0;
-    alloc_pages = 0;
-    pages       = NULL;
-  }
-
   if (alloc_headings)
   {
     free(heading_pages);
@@ -1002,15 +587,15 @@ pspdf_export(hdTree *document,	/* I - Document to export */
 
 
 //
-// 'pspdf_debug_stats()' - Display debug statistics for render memory use.
+// 'hdBook::pspdf_debug_stats()' - Display debug statistics for render memory use.
 //
 
-static void
-pspdf_debug_stats()
+void
+hdBook::pspdf_debug_stats()
 {
   const char	*debug;			// HTMLDOC_DEBUG env var
   int		i;			// Looping var
-  render_t	*r;			// Render node
+  hdRender	*r;			// Render node
   int		bytes;			// Number of bytes
 
 
@@ -1020,20 +605,20 @@ pspdf_debug_stats()
 
   bytes = alloc_headings * sizeof(int) * 2;
 
-  bytes += alloc_pages * sizeof(page_t);
+  bytes += alloc_pages * sizeof(hdPage);
   for (i = 0; i < num_pages; i ++)
   {
     for (r = pages[i].start; r != NULL; r = r->next)
     {
-      bytes += sizeof(render_t);
+      bytes += sizeof(hdRender);
 
-      if (r->type == RENDER_TEXT)
+      if (r->type == HD_RENDER_TEXT)
         bytes += strlen((char *)r->data.text.buffer);
     }
   }
 
-  bytes += num_outpages * sizeof(outpage_t);
-  bytes += alloc_links * sizeof(link_t);
+  bytes += num_outpages * sizeof(hdOutPage);
+  bytes += alloc_links * sizeof(hdLink);
   bytes += alloc_objects * sizeof(int);
 
   progress_error(HD_ERROR_NONE, "DEBUG: Render Data = %d kbytes",
@@ -1042,11 +627,11 @@ pspdf_debug_stats()
 
 
 /*
- * 'pspdf_transform_coords()' - Transform page coordinates.
+ * 'hdBook::pspdf_transform_coords()' - Transform page coordinates.
  */
 
-static void
-pspdf_transform_coords(page_t *p,	// I - Page
+void
+hdBook::pspdf_transform_coords(hdPage *p,	// I - Page
                        float  &x,	// IO - X coordinate
 		       float  &y)	// IO - Y coordinate
 {
@@ -1061,17 +646,17 @@ pspdf_transform_coords(page_t *p,	// I - Page
 
 
 /*
- * 'pspdf_transform_page()' - Transform a page.
+ * 'hdBook::pspdf_transform_page()' - Transform a page.
  */
 
-static void
-pspdf_transform_page(int outpage,	// I - Output page
+void
+hdBook::pspdf_transform_page(int outpage,	// I - Output page
                      int pos,		// I - Position on page
                      int page)		// I - Input page
 {
-  outpage_t	*op;			// Current output page
-  page_t	*bp;			// Current base page
-  page_t	*p;			// Current input page
+  hdOutPage	*op;			// Current output page
+  hdPage	*bp;			// Current base page
+  hdPage	*p;			// Current input page
   int		x, y;			// Position on output page
   float		w, l,			// Width and length of subpage
 		tx, ty;			// Translation values for subpage
@@ -1229,22 +814,22 @@ pspdf_transform_page(int outpage,	// I - Output page
 
 
 /*
- * 'pspdf_prepare_outpages()' - Prepare output pages...
+ * 'hdBook::pspdf_prepare_outpages()' - Prepare output pages...
  */
 
-static void
-pspdf_prepare_outpages()
+void
+hdBook::pspdf_prepare_outpages()
 {
   int		c, i, j;	/* Looping vars */
   int		nup;		/* Current number-up value */
-  page_t	*page;		/* Current page */
-  outpage_t	*outpage;	/* Current output page */
+  hdPage	*page;		/* Current page */
+  hdOutPage	*outpage;	/* Current output page */
 
 
   // Allocate an output page array...
-  outpages = (outpage_t *)malloc(sizeof(outpage_t) * num_pages);
+  outpages = (hdOutPage *)malloc(sizeof(hdOutPage) * num_pages);
 
-  memset(outpages, -1, sizeof(outpage_t) * num_pages);
+  memset(outpages, -1, sizeof(hdOutPage) * num_pages);
 
   num_outpages = 0;
   outpage      = outpages;
@@ -1292,7 +877,7 @@ pspdf_prepare_outpages()
   }
 
   // Loop through each chapter, adding pages as needed...
-  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
+  if (OutputType == HD_OUTPUT_BOOK && TocLevels > 0)
     c = 0;
   else
     c = 1;
@@ -1379,11 +964,11 @@ pspdf_prepare_outpages()
 
 
 /*
- * 'pspdf_prepare_page()' - Add headers/footers to page before writing...
+ * 'hdBook::pspdf_prepare_page()' - Add headers/footers to page before writing...
  */
 
-static void
-pspdf_prepare_page(int page)		/* I - Page number */
+void
+hdBook::pspdf_prepare_page(int page)		/* I - Page number */
 {
   int	print_page;			/* Printed page # */
   char	page_text[64];			/* Page number text */
@@ -1397,7 +982,7 @@ pspdf_prepare_page(int page)		/* I - Page number */
   * and arabic numbers for all others...
   */
 
-  if (chapter == 0 && OutputType == OUTPUT_BOOK)
+  if (chapter == 0 && OutputType == HD_OUTPUT_BOOK)
   {
     print_page = page - chapter_starts[0] + 1;
     strncpy(page_text, format_number(print_page, 'i'), sizeof(page_text) - 1);
@@ -1458,7 +1043,7 @@ pspdf_prepare_page(int page)		/* I - Page number */
     pspdf_prepare_heading(page, print_page, pages[page].header, top,
                           page_text, sizeof(page_text),
 			  page > chapter_starts[chapter] ||
-			      OutputType != OUTPUT_BOOK);
+			      OutputType != HD_OUTPUT_BOOK);
     pspdf_prepare_heading(page, print_page, pages[page].footer, 0,
                           page_text, sizeof(page_text));
   }
@@ -1475,11 +1060,11 @@ pspdf_prepare_page(int page)		/* I - Page number */
 
 
 /*
- * 'pspdf_prepare_heading()' - Add headers/footers to page before writing...
+ * 'hdBook::pspdf_prepare_heading()' - Add headers/footers to page before writing...
  */
 
-static void
-pspdf_prepare_heading(int   page,	// I - Page number
+void
+hdBook::pspdf_prepare_heading(int   page,	// I - Page number
                       int   print_page,	// I - Printed page number
 		      uchar **format,	// I - Page headings
 		      int   y,		// I - Baseline of heading
@@ -1495,7 +1080,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 		*bufptr,		// Pointer into buffer
 		*formatptr;		// Pointer into format string
   int		formatlen;		// Length of format command string
-  render_t	*temp;			// Render structure for titles, etc.
+  hdRender	*temp;			// Render structure for titles, etc.
 
 
   DEBUG_printf(("pspdf_prepare_heading(%d, %d, %p, %d, %p, %d, %d)\n",
@@ -1531,10 +1116,10 @@ pspdf_prepare_heading(int   page,	// I - Page number
       {
 	// Insert the logo image...
 	if (y < (PagePrintLength / 2))
-	  temp = new_render(page, RENDER_IMAGE, 0, y, logo_width,
+	  temp = new_render(page, HD_RENDER_IMAGE, 0, y, logo_width,
 	                    logo_height, logo_image);
 	else // Offset from top
-	  temp = new_render(page, RENDER_IMAGE, 0,
+	  temp = new_render(page, HD_RENDER_IMAGE, 0,
 	                    y + HeadFootSize - logo_height,
 	                    logo_width, logo_height, logo_image);
       }
@@ -1553,10 +1138,10 @@ pspdf_prepare_heading(int   page,	// I - Page number
       else
       {
         if (y < (PagePrintLength / 2))
-          temp = new_render(page, RENDER_IMAGE, 0, y, hfimage_width[hfi],
+          temp = new_render(page, HD_RENDER_IMAGE, 0, y, hfimage_width[hfi],
                             hfimage_height[hfi], hfimage[hfi]);
         else
-          temp = new_render(page, RENDER_IMAGE, 0,
+          temp = new_render(page, HD_RENDER_IMAGE, 0,
                             y + HeadFootSize - hfimage_height[hfi],
                             hfimage_width[hfi], hfimage_height[hfi],
 			    hfimage[hfi]);
@@ -1623,7 +1208,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	  {
 	    int chapter_page;
 
-	    chapter_page = print_page - chapter_starts[::chapter] +
+	    chapter_page = print_page - chapter_starts[hdBook::chapter] +
 	                   chapter_starts[1];
 
 	    if (formatptr[11] == '(' && formatptr[12] && formatptr[13] == ')')
@@ -1644,15 +1229,15 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	  {
 	    if (formatptr[12] == '(' && formatptr[13] && formatptr[14] == ')')
             {
-	      number = format_number(chapter_ends[::chapter] -
-	                             chapter_starts[::chapter] + 1,
+	      number = format_number(chapter_ends[hdBook::chapter] -
+	                             chapter_starts[hdBook::chapter] + 1,
 				     formatptr[13]);
 	      formatptr += 15;
 	    }
 	    else
 	    {
-	      number = format_number(chapter_ends[::chapter] -
-	                             chapter_starts[::chapter] + 1, '1');
+	      number = format_number(chapter_ends[hdBook::chapter] -
+	                             chapter_starts[hdBook::chapter] + 1, '1');
 	      formatptr += 12;
 	    }
 
@@ -1722,7 +1307,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
       *bufptr = '\0';
 
       if (render_heading)
-	temp = new_render(page, RENDER_TEXT, 0, y,
+	temp = new_render(page, HD_RENDER_TEXT, 0, y,
                 	  get_width((uchar *)buffer, HeadFootType,
 			            HeadFootStyle, HeadFootSize),
 	        	  HeadFootSize, (uchar *)buffer);
@@ -1758,7 +1343,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
     * Set the text font and color...
     */
 
-    if (temp->type == RENDER_TEXT)
+    if (temp->type == HD_RENDER_TEXT)
     {
       temp->data.text.typeface = HeadFootType;
       temp->data.text.style    = HeadFootStyle;
@@ -1771,11 +1356,11 @@ pspdf_prepare_heading(int   page,	// I - Page number
 
 
 /*
- * 'ps_write_document()' - Write all render entities to PostScript file(s).
+ * 'hdBook::ps_write_document()' - Write all render entities to PostScript file(s).
  */
 
-static void
-ps_write_document(uchar *author,	/* I - Author of document */
+void
+hdBook::ps_write_document(uchar *author,	/* I - Author of document */
         	  uchar *creator,	/* I - Application that generated the HTML file */
         	  uchar *copyright,	/* I - Copyright (if any) on the document */
                   uchar *keywords,	/* I - Search keywords */
@@ -1794,7 +1379,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
 
   if (!OutputFiles)
   {
-    out = open_file();
+    out = pspdf_open_file();
 
     if (out == NULL)
     {
@@ -1806,7 +1391,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
     write_prolog(out, num_outpages, author, creator, copyright, keywords, subject);
   }
 
-  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
+  if (OutputType == HD_OUTPUT_BOOK && TocLevels > 0)
     chapter = 0;
   else
     chapter = 1;
@@ -1815,7 +1400,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
   {
     if (OutputFiles)
     {
-      out = open_file();
+      out = pspdf_open_file();
       write_prolog(out, chapter_outstarts[chapter], author, creator, copyright,
                    keywords, subject);
     }
@@ -1840,7 +1425,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
 
     if (OutputFiles)
     {
-      out = open_file();
+      out = pspdf_open_file();
       if (out == NULL)
       {
         progress_error(HD_ERROR_WRITE_ERROR,
@@ -1885,22 +1470,22 @@ ps_write_document(uchar *author,	/* I - Author of document */
       fclose(out);
   }
 
-  if (Verbosity)
+  if (verbosity)
     progress_hide();
 }
 
 
 /*
- * 'ps_write_outpage()' - Write an output page.
+ * 'hdBook::ps_write_outpage()' - Write an output page.
  */
 
-static void
-ps_write_outpage(FILE *out,	/* I - Output file */
+void
+hdBook::ps_write_outpage(FILE *out,	/* I - Output file */
                  int  outpage)	/* I - Output page number */
 {
   int		file_page;	/* Current page # in document */
-  page_t	*p;		/* Current page */
-  outpage_t	*op;		/* Current output page */
+  hdPage	*p;		/* Current page */
+  hdOutPage	*op;		/* Current output page */
   int		i;		/* Looping var */
 
 
@@ -1916,7 +1501,7 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   * Let the user know which page we are writing...
   */
 
-  if (Verbosity)
+  if (verbosity)
   {
     progress_show("Writing page %s...", p->page_text);
     progress_update(100 * outpage / num_outpages);
@@ -2071,16 +1656,16 @@ ps_write_outpage(FILE *out,	/* I - Output file */
 
 
 /*
- * 'ps_write_page()' - Write all render entities on a page to a PostScript file.
+ * 'hdBook::ps_write_page()' - Write all render entities on a page to a PostScript file.
  */
 
-static void
-ps_write_page(FILE  *out,	/* I - Output file */
+void
+hdBook::ps_write_page(FILE  *out,	/* I - Output file */
               int   page)	/* I - Page number */
 {
-  render_t	*r,		/* Render pointer */
+  hdRender	*r,		/* Render pointer */
 		*next;		/* Next render */
-  page_t	*p;		/* Current page */
+  hdPage	*p;		/* Current page */
 
 
   if (page < 0 || page >= alloc_pages)
@@ -2132,7 +1717,7 @@ ps_write_page(FILE  *out,	/* I - Output file */
   for (r = p->start; r != NULL; r = r->next)
     switch (r->type)
     {
-      case RENDER_BOX :
+      case HD_RENDER_BOX :
 	  set_color(out, r->data.box);
 	  set_pos(out, r->x, r->y);
 	  if (r->height > 0.0f)
@@ -2143,7 +1728,7 @@ ps_write_page(FILE  *out,	/* I - Output file */
 	  render_x = -1.0f;
 	  break;
 
-      case RENDER_IMAGE :
+      case HD_RENDER_IMAGE :
           if (r->width > 0.01f && r->height > 0.01f)
             write_image(out, r);
           break;
@@ -2155,7 +1740,7 @@ ps_write_page(FILE  *out,	/* I - Output file */
 
   for (r = p->start, next = NULL; r != NULL; r = next)
   {
-    if (r->type == RENDER_TEXT)
+    if (r->type == HD_RENDER_TEXT)
       write_text(out, r);
 
     next = r->next;
@@ -2173,11 +1758,11 @@ ps_write_page(FILE  *out,	/* I - Output file */
 
 
 /*
- * 'ps_write_background()' - Write a background image...
+ * 'hdBook::ps_write_background()' - Write a background image...
  */
 
-static void
-ps_write_background(FILE *out)		/* I - Output file */
+void
+hdBook::ps_write_background(FILE *out)		/* I - Output file */
 {
   int	y,				/* Current line */
 	pwidth;				/* Pixel width */
@@ -2202,11 +1787,11 @@ ps_write_background(FILE *out)		/* I - Output file */
 
 
 /*
- * 'pdf_write_document()' - Write all render entities to a PDF file.
+ * 'hdBook::pdf_write_document()' - Write all render entities to a PDF file.
  */
 
-static void
-pdf_write_document(uchar  *author,	// I - Author of document
+void
+hdBook::pdf_write_document(uchar  *author,	// I - Author of document
         	   uchar  *creator,	// I - Application that generated the HTML file
         	   uchar  *copyright,	// I - Copyright (if any) on the document
                    uchar  *keywords,	// I - Search keywords
@@ -2219,13 +1804,11 @@ pdf_write_document(uchar  *author,	// I - Author of document
 		heading;		// Current heading #
   int		bytes;			// Number of bytes
   char		buffer[8192];		// Copy buffer
-  int		num_images;		// Number of images in document
-  image_t	**images;		// Pointers to images
-  render_t	temp;			// Dummy rendering data...
+  hdRender	temp;			// Dummy rendering data...
 
 
   // Open the output file...
-  out = open_file();
+  out = pspdf_open_file();
   if (out == NULL)
   {
     progress_error(HD_ERROR_WRITE_ERROR,
@@ -2242,8 +1825,6 @@ pdf_write_document(uchar  *author,	// I - Author of document
   write_prolog(out, num_outpages, author, creator, copyright, keywords, subject);
 
   // Write images as needed...
-  num_images = image_getlist(&images);
-
   for (i = 0; i < num_images; i ++)
   {
     int	hfi;				// Header/footer image index
@@ -2292,7 +1873,7 @@ pdf_write_document(uchar  *author,	// I - Author of document
   for (outpage = 0; outpage < num_outpages; outpage ++)
     pdf_write_outpage(out, outpage);
 
-  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
+  if (OutputType == HD_OUTPUT_BOOK && TocLevels > 0)
   {
    /*
     * Write the outline tree...
@@ -2375,23 +1956,23 @@ pdf_write_document(uchar  *author,	// I - Author of document
     objects       = NULL;
   }
 
-  if (Verbosity)
+  if (verbosity)
     progress_hide();
 }
 
 
 /*
- * 'pdf_write_resources()' - Write the resources dictionary for a page.
+ * 'hdBook::pdf_write_resources()' - Write the resources dictionary for a page.
  */
 
-static void
-pdf_write_resources(FILE *out,	/* I - Output file */
+void
+hdBook::pdf_write_resources(FILE *out,	/* I - Output file */
                     int  outpage)/* I - Output page for resources */
 {
   int		i;		/* Looping var */
-  outpage_t	*op;		/* Current output page */
-  page_t	*p;		/* Current page */
-  render_t	*r;		/* Render pointer */
+  hdOutPage	*op;		/* Current output page */
+  hdPage	*p;		/* Current page */
+  hdRender	*r;		/* Render pointer */
   int		fonts_used[16];	/* Non-zero if the page uses a font */
   int		images_used;	/* Non-zero if the page uses an image */
   int		text_used;	/* Non-zero if the page uses text */
@@ -2431,9 +2012,9 @@ pdf_write_resources(FILE *out,	/* I - Output file */
     p = pages + op->pages[i];
 
     for (r = p->start; r != NULL; r = r->next)
-      if (r->type == RENDER_IMAGE)
+      if (r->type == HD_RENDER_IMAGE)
 	images_used = 1;
-      else if (r->type == RENDER_TEXT)
+      else if (r->type == HD_RENDER_TEXT)
       {
 	text_used = 1;
 	fonts_used[r->data.text.typeface * 4 + r->data.text.style] = 1;
@@ -2478,7 +2059,7 @@ pdf_write_resources(FILE *out,	/* I - Output file */
     p = pages + op->pages[i];
 
     for (r = p->start; r != NULL; r = r->next)
-      if (r->type == RENDER_IMAGE && r->data.image->obj)
+      if (r->type == HD_RENDER_IMAGE && r->data.image->obj)
 	fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
   }
 
@@ -2497,16 +2078,16 @@ pdf_write_resources(FILE *out,	/* I - Output file */
 
 
 /*
- * 'pdf_write_outpage()' - Write an output page.
+ * 'hdBook::pdf_write_outpage()' - Write an output page.
  */
 
-static void
-pdf_write_outpage(FILE *out,	/* I - Output file */
+void
+hdBook::pdf_write_outpage(FILE *out,	/* I - Output file */
                   int  outpage)	/* I - Output page number */
 {
   int		i;		/* Looping var */
-  page_t	*p;		/* Current page */
-  outpage_t	*op;		/* Output page */
+  hdPage	*p;		/* Current page */
+  hdOutPage	*op;		/* Output page */
 
 
   DEBUG_printf(("pdf_write_outpage(out = %p, outpage = %d)\n", out, outpage));
@@ -2524,7 +2105,7 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
   * Let the user know which page we are writing...
   */
 
-  if (Verbosity)
+  if (verbosity)
   {
     progress_show("Writing page %s...", p->page_text);
     progress_update(100 * outpage / num_outpages);
@@ -2603,17 +2184,17 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
 
 
 /*
- * 'pdf_write_page()' - Write a page to a PDF file.
+ * 'hdBook::pdf_write_page()' - Write a page to a PDF file.
  */
 
-static void
-pdf_write_page(FILE  *out,	/* I - Output file */
+void
+hdBook::pdf_write_page(FILE  *out,	/* I - Output file */
                int   page)	/* I - Page number */
 {
-  render_t	*r,		/* Render pointer */
+  hdRender	*r,		/* Render pointer */
 		*next;		/* Next render */
   float		box[3];		/* RGB color for boxes */
-  page_t	*p;		/* Current page */
+  hdPage	*p;		/* Current page */
 
 
   if (page < 0 || page >= alloc_pages)
@@ -2656,12 +2237,12 @@ pdf_write_page(FILE  *out,	/* I - Output file */
   for (r = p->start; r != NULL; r = r->next)
     switch (r->type)
     {
-      case RENDER_IMAGE :
+      case HD_RENDER_IMAGE :
           if (r->width > 0.01f && r->height > 0.01f)
             write_image(out, r);
           break;
 
-      case RENDER_BOX :
+      case HD_RENDER_BOX :
 	  if (r->height == 0.0)
 	  {
             if (box[0] != r->data.box[0] ||
@@ -2697,7 +2278,7 @@ pdf_write_page(FILE  *out,	/* I - Output file */
 
   for (r = p->start, next = NULL; r != NULL; r = next)
   {
-    if (r->type == RENDER_TEXT)
+    if (r->type == HD_RENDER_TEXT)
       write_text(out, r);
 
     next = r->next;
@@ -2717,12 +2298,12 @@ pdf_write_page(FILE  *out,	/* I - Output file */
 
 
 /*
- * 'pdf_write_contents()' - Write the table of contents as outline records to
+ * 'hdBook::pdf_write_contents()' - Write the table of contents as outline records to
  *                          a PDF file.
  */
 
-static void
-pdf_write_contents(FILE   *out,			/* I - Output file */
+void
+hdBook::pdf_write_contents(FILE   *out,			/* I - Output file */
                    hdTree *toc,			/* I - Table of contents tree */
                    int    parent,		/* I - Parent outline object */
                    int    prev,			/* I - Previous outline object */
@@ -2909,41 +2490,32 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
 
 /*
- * 'pdf_count_headings()' - Count the number of headings under this TOC
+ * 'hdBook::pdf_count_headings()' - Count the number of headings under this TOC
  *                          entry.
  */
 
-static int			/* O - Number of headings found */
-pdf_count_headings(hdTree *toc)	/* I - TOC entry */
+int			/* O - Number of headings found */
+hdBook::pdf_count_headings(hdTree *toc)	/* I - TOC entry */
 {
-  int	headings;		/* Number of headings */
+  int	nheadings;		/* Number of headings */
 
 
-  for (headings = 0; toc != NULL; toc = toc->next)
+  for (nheadings = 0; toc != NULL; toc = toc->next)
     if (toc->element == HD_ELEMENT_B || toc->element == HD_ELEMENT_LI)
-      headings ++;
+      nheadings ++;
     else if (toc->element == HD_ELEMENT_UL && toc->child != NULL)
-      headings += pdf_count_headings(toc->child);
+      nheadings += pdf_count_headings(toc->child);
 
-  return (headings);
+  return (nheadings);
 }
 
 
 /*
- * PDF object state variables...
+ * 'hdBook::pdf_start_object()' - Start a new PDF object...
  */
 
-static int	pdf_stream_length = 0;
-static int	pdf_stream_start = 0;
-static int	pdf_object_type = 0;
-
-
-/*
- * 'pdf_start_object()' - Start a new PDF object...
- */
-
-static int			// O - Object number
-pdf_start_object(FILE *out,	// I - File to write to
+int			// O - Object number
+hdBook::pdf_start_object(FILE *out,	// I - File to write to
                  int  array)	// I - 1 = array, 0 = dictionary
 {
   int	*temp;			// Temporary integer pointer
@@ -2985,11 +2557,11 @@ pdf_start_object(FILE *out,	// I - File to write to
 
 
 /*
- * 'pdf_start_stream()' - Start a new PDF stream...
+ * 'hdBook::pdf_start_stream()' - Start a new PDF stream...
  */
 
-static void
-pdf_start_stream(FILE *out)	// I - File to write to
+void
+hdBook::pdf_start_stream(FILE *out)	// I - File to write to
 {
   // Write the "/Length " string, get the position, and then write 10
   // zeroes to cover the maximum size of a stream.
@@ -3002,11 +2574,11 @@ pdf_start_stream(FILE *out)	// I - File to write to
 
 
 /*
- * 'pdf_end_object()' - End a PDF object...
+ * 'hdBook::pdf_end_object()' - End a PDF object...
  */
 
-static void
-pdf_end_object(FILE *out)	// I - File to write to
+void
+hdBook::pdf_end_object(FILE *out)	// I - File to write to
 {
   int	length;			// Total length of stream
   
@@ -3033,12 +2605,12 @@ pdf_end_object(FILE *out)	// I - File to write to
 
 
 /*
- * 'pdf_write_links()' - Write annotation link objects for each page in the
+ * 'hdBook::pdf_write_links()' - Write annotation link objects for each page in the
  *                       document.
  */
 
-static void
-pdf_write_links(FILE *out)		/* I - Output file */
+void
+hdBook::pdf_write_links(FILE *out)		/* I - Output file */
 {
   int		i,			/* Looping var */
 		outpage,		/* Current page */
@@ -3047,12 +2619,12 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		alloc_lobjs,		/* Number of links to allocate */
 		*lobjs;			/* Link objects */
   float		x, y;			/* Position of last link */
-  render_t	*r,			/* Current render primitive */
+  hdRender	*r,			/* Current render primitive */
 		*rlast,			/* Last render link primitive */
 		*rprev;			/* Previous render primitive */
-  link_t	*link;			/* Local link */
-  page_t	*p;			/* Current page */
-  outpage_t	*op;			/* Current output page */
+  hdLink	*link;			/* Local link */
+  hdPage	*p;			/* Current page */
+  hdOutPage	*op;			/* Current output page */
 
 
  /*
@@ -3071,7 +2643,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
       for (r = p->start, x = 0.0f, y = 0.0f, rlast = NULL, rprev = NULL;
            r != NULL;
 	   rprev = r, r = r->next)
-	if (r->type == RENDER_LINK)
+	if (r->type == HD_RENDER_LINK)
 	{
           if (fabs(r->x - x) < 0.1f && fabs(r->y - y) < 0.1f &&
 	      rlast != NULL && strcmp((const char *)rlast->data.link,
@@ -3135,7 +2707,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
       p = pages + op->pages[i];
 
       for (r = p->start; r != NULL; r = r->next)
-	if (r->type == RENDER_LINK)
+	if (r->type == HD_RENDER_LINK)
 	{
           if (find_link(r->data.link) != NULL)
             num_lobjs ++;
@@ -3182,7 +2754,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
       p = pages + op->pages[i];
 
       for (r = p->start; r != NULL; r = r->next)
-	if (r->type == RENDER_LINK)
+	if (r->type == HD_RENDER_LINK)
 	{
           if ((link = find_link(r->data.link)) != NULL)
 	  {
@@ -3260,7 +2832,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
         	fputs("/F", out);
 		write_string(out, r->data.link, 0);
 
-		if (StrictHTML)
+		if (strict_html)
 		  progress_error(HD_ERROR_UNRESOLVED_LINK,
 		                 "Unable to resolve link to \"%s\"!",
 		                 r->data.link);
@@ -3314,15 +2886,15 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
 
 /*
- * 'pdf_write_names()' - Write named destinations for each link.
+ * 'hdBook::pdf_write_names()' - Write named destinations for each link.
  */
 
-static void
-pdf_write_names(FILE *out)		/* I - Output file */
+void
+hdBook::pdf_write_names(FILE *out)		/* I - Output file */
 {
   int		i;			/* Looping var */
   uchar		*s;			/* Current character in name */
-  link_t	*link;			/* Local link */
+  hdLink	*link;			/* Local link */
 
 
  /*
@@ -3386,11 +2958,11 @@ pdf_write_names(FILE *out)		/* I - Output file */
 
 
 /*
- * 'render_contents()' - Render a single heading.
+ * 'hdBook::render_contents()' - Render a single heading.
  */
 
-static void
-render_contents(hdTree   *t,		/* I  - Tree to parse */
+void
+hdBook::render_contents(hdTree   *t,		/* I  - Tree to parse */
                 hdMargin *margins,	/* I  - Margins */
                 float    *y,		/* IO - Y position */
                 int      *page,		/* IO - Page # */
@@ -3409,7 +2981,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
   hdTree	*flat,
 		*temp,
 		*next;
-  render_t	*r;
+  hdRender	*r;
 #define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
 
 
@@ -3475,13 +3047,13 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
     if (*y < margins->bottom0())
     {
       (*page) ++;
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
 
       width = get_width((uchar *)TocTitle, HD_FONTFACE_SANS_SERIF, HD_FONTINTERNAL_BOLD, SIZE_H1);
       *y = margins->top() - _htmlSpacings[SIZE_H1];
       x  = margins->left() + 0.5f * (margins->right() - margins->left() - width);
-      r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
+      r = new_render(*page, HD_RENDER_TEXT, x, *y, 0, 0, TocTitle);
       r->data.text.typeface = HD_FONTFACE_SANS_SERIF;
       r->data.text.style    = HD_FONTINTERNAL_BOLD;
       r->data.text.size     = _htmlSizes[SIZE_H1];
@@ -3514,7 +3086,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
 	  file_target((char *)link) != NULL)
 	link = (uchar *)file_target((char *)link) - 1; // Include # sign
 
-      new_render(*page, RENDER_LINK, x, *y, temp->width,
+      new_render(*page, HD_RENDER_LINK, x, *y, temp->width,
 	         temp->height, link);
 
       if (PSLevel == 0 && Links)
@@ -3526,7 +3098,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
 	temp->blue  = (int)(link_color[2] * 255.0);
 
         if (LinkStyle)
-	  new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0,
+	  new_render(*page, HD_RENDER_BOX, x, *y - 1, temp->width, 0,
 	             link_color);
       }
     }
@@ -3540,7 +3112,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
             * Add a target link...
             */
 
-            add_link(link, *page, (int)(*y + height));
+            add_link(link, NULL, *page, (int)(*y + height));
           }
           break;
 
@@ -3549,13 +3121,13 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
             break;
 
 	  if (temp->underline)
-	    new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
+	    new_render(*page, HD_RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
 
 	  if (temp->strikethrough)
-	    new_render(*page, RENDER_BOX, x, *y + temp->height * 0.25f,
+	    new_render(*page, HD_RENDER_BOX, x, *y + temp->height * 0.25f,
 		       temp->width, 0, rgb);
 
-          r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
+          r = new_render(*page, HD_RENDER_TEXT, x, *y, 0, 0, temp->data);
           r->data.text.typeface = temp->typeface;
           r->data.text.style    = temp->style;
           r->data.text.size     = temp->size;
@@ -3570,7 +3142,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
 
       case HD_ELEMENT_IMG :
 	  update_image_size(temp);
-	  new_render(*page, RENDER_IMAGE, x, *y, temp->width, temp->height,
+	  new_render(*page, HD_RENDER_IMAGE, x, *y, temp->width, temp->height,
 		     image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 	  break;
 
@@ -3601,7 +3173,7 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
             sizeof(number) - (nptr - number) - 1);
     number[sizeof(number) - 1] = '\0';
 
-    r = new_render(*page, RENDER_TEXT, margins->right() - width + x, *y, 0, 0, number);
+    r = new_render(*page, HD_RENDER_TEXT, margins->right() - width + x, *y, 0, 0, number);
     r->data.text.typeface = t->typeface;
     r->data.text.style    = t->style;
     r->data.text.size     = t->size;
@@ -3611,11 +3183,11 @@ render_contents(hdTree   *t,		/* I  - Tree to parse */
 
 
 /*
- * 'count_headings()' - Count the number of headings in the TOC.
+ * 'hdBook::count_headings()' - Count the number of headings in the TOC.
  */
 
-static int
-count_headings(hdTree *t)		// I - Tree to count
+int
+hdBook::count_headings(hdTree *t)		// I - Tree to count
 {
   int	count;				// Number of headings...
 
@@ -3644,12 +3216,12 @@ count_headings(hdTree *t)		// I - Tree to count
 
 
 /*
- * 'parse_contents()' - Parse the table of contents and produce a
+ * 'hdBook::parse_contents()' - Parse the table of contents and produce a
  *                      rendering list...
  */
 
-static void
-parse_contents(hdTree   *t,		/* I - Tree to parse */
+void
+hdBook::parse_contents(hdTree   *t,		/* I - Tree to parse */
                hdMargin *margins,	/* I - Margins */
                float    *y,		/* IO - Y position */
                int      *page,		/* IO - Page # */
@@ -3727,11 +3299,11 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
 
 /*
- * 'parse_doc()' - Parse a document tree and produce rendering list output.
+ * 'hdBook::parse_doc()' - Parse a document tree and produce rendering list output.
  */
 
-static void
-parse_doc(hdTree   *t,			/* I - Tree to parse */
+void
+hdBook::parse_doc(hdTree   *t,			/* I - Tree to parse */
           hdMargin *margins,		/* I - Left margin */
           float    *x,			/* IO - X position */
           float    *y,			/* IO - Y position */
@@ -3762,8 +3334,8 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
   while (t != NULL)
   {
-    if (((t->element == HD_ELEMENT_H1 && OutputType == OUTPUT_BOOK) ||
-         (t->element == HD_ELEMENT_FILE && OutputType == OUTPUT_WEBPAGES)) &&
+    if (((t->element == HD_ELEMENT_H1 && OutputType == HD_OUTPUT_BOOK) ||
+         (t->element == HD_ELEMENT_FILE && OutputType == HD_OUTPUT_WEBPAGES)) &&
 	!title_page)
     {
       // New page on H1 in book mode or file in webpage mode...
@@ -3774,8 +3346,8 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
         para->child = para->last_child = NULL;
       }
 
-      if ((chapter > 0 && OutputType == OUTPUT_BOOK) ||
-          ((*page > 1 || *y < margins->top()) && OutputType == OUTPUT_WEBPAGES))
+      if ((chapter > 0 && OutputType == HD_OUTPUT_BOOK) ||
+          ((*page > 1 || *y < margins->top()) && OutputType == HD_OUTPUT_WEBPAGES))
       {
         if (*y < margins->top())
           (*page) ++;
@@ -3785,7 +3357,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
 	margins->clear(margins->top(), *page);
 
-        if (Verbosity)
+        if (verbosity)
           progress_show("Formatting page %d", *page);
 
         chapter_ends[chapter] = *page - 1;
@@ -3816,7 +3388,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
       * Add a link target using the ID=name variable...
       */
 
-      add_link(name, *page, (int)*y);
+      add_link(name, NULL, *page, (int)*y);
     }
     else if (t->element == HD_ELEMENT_FILE)
     {
@@ -3836,7 +3408,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
         *sep = '\0';
 
       // Add the link
-      add_link(newname, *page, (int)*y);
+      add_link(newname, NULL, *page, (int)*y);
     }
 
     if (chapter == 0 && !title_page)
@@ -3874,7 +3446,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
       margins->clear(margins->top(), *page);
 
       // Update the progress as necessary...
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
     }
 
@@ -4186,7 +3758,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
               (*page) ++;
 
-	      if (Verbosity)
+	      if (verbosity)
 	        progress_show("Formatting page %d", *page);
 
               margins->clear(margins->top(), *page);
@@ -4199,7 +3771,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
             rgb[1] = t->green / 255.0f;
             rgb[2] = t->blue / 255.0f;
 
-            new_render(*page, RENDER_BOX, *x, *y + _htmlSpacings[SIZE_P] * 0.5,
+            new_render(*page, HD_RENDER_BOX, *x, *y + _htmlSpacings[SIZE_P] * 0.5,
 	               width, height, rgb);
 	  }
 	  else
@@ -4210,7 +3782,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
             (*page) ++;
 
-	    if (Verbosity)
+	    if (verbosity)
 	      progress_show("Formatting page %d", *page);
 
             margins->clear(margins->top(), *page);
@@ -4300,7 +3872,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
       margins->clear(margins->top(), *page);
 
       // Update the progress as necessary...
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
     }
 
@@ -4325,11 +3897,11 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
 
 /*
- * 'parse_heading()' - Parse a heading tree and produce rendering list output.
+ * 'hdBook::parse_heading()' - Parse a heading tree and produce rendering list output.
  */
 
-static void
-parse_heading(hdTree   *t,		/* I - Tree to parse */
+void
+hdBook::parse_heading(hdTree   *t,		/* I - Tree to parse */
               hdMargin *margins,	/* I - Margins */
               float    *x,		/* IO - X position */
               float    *y,		/* IO - Y position */
@@ -4351,7 +3923,7 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
     (*page) ++;
     *y = margins->top();
 
-    if (Verbosity)
+    if (verbosity)
       progress_show("Formatting page %d", *page);
   }
 
@@ -4424,7 +3996,7 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
   parse_paragraph(t, margins, x, y, page, needspace);
 
   if (t->halignment == HD_TEXTALIGN_RIGHT && t->element == HD_ELEMENT_H1 &&
-      OutputType == OUTPUT_BOOK && !title_page)
+      OutputType == HD_OUTPUT_BOOK && !title_page)
   {
    /*
     * Special case - chapter heading for users manual...
@@ -4438,12 +4010,12 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
 
 
 /*
- * 'parse_paragraph()' - Parse a paragraph tree and produce rendering list
+ * 'hdBook::parse_paragraph()' - Parse a paragraph tree and produce rendering list
  *                       output.
  */
 
-static void
-parse_paragraph(hdTree   *t,		/* I - Tree to parse */
+void
+hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
                 hdMargin *margins,	/* I - Margins */
         	float    *x,		/* IO - X position */
         	float    *y,		/* IO - Y position */
@@ -4468,7 +4040,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 		temp_height;
   float		char_spacing;
   int		num_chars;
-  render_t	*r;
+  hdRender	*r;
   uchar		*align,
 		*hspace,
 		*vspace,
@@ -4543,7 +4115,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
           margins->clear(*y, *page);
 
-	  if (Verbosity)
+	  if (verbosity)
 	    progress_show("Formatting page %d", *page);
         }
 
@@ -4559,25 +4131,25 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	  }
 
 	  // Top
-          new_render(*page, RENDER_BOX, margins->left(), *y - borderspace,
+          new_render(*page, HD_RENDER_BOX, margins->left(), *y - borderspace,
 		     temp->width + 2 * borderspace, borderspace, rgb);
 	  // Left
-          new_render(*page, RENDER_BOX, margins->left(),
+          new_render(*page, HD_RENDER_BOX, margins->left(),
 	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Right
-          new_render(*page, RENDER_BOX, margins->left() + temp->width + borderspace,
+          new_render(*page, HD_RENDER_BOX, margins->left() + temp->width + borderspace,
 	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Bottom
-          new_render(*page, RENDER_BOX, margins->left(),
+          new_render(*page, HD_RENDER_BOX, margins->left(),
 	             *y - temp->height - 2 * borderspace,
                      temp->width + 2 * borderspace, borderspace, rgb);
 	}
 
         *y -= borderspace;
 
-        new_render(*page, RENDER_IMAGE, margins->left() + borderspace,
+        new_render(*page, HD_RENDER_IMAGE, margins->left() + borderspace,
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
@@ -4597,7 +4169,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	      link = (uchar *)file_basename((char *)link);
 	  }
 
-	  new_render(*page, RENDER_LINK, margins->left() + borderspace,
+	  new_render(*page, HD_RENDER_LINK, margins->left() + borderspace,
 	             *y - temp->height, temp->width, temp->height, link);
         }
 
@@ -4639,7 +4211,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
           margins->clear(*y, *page);
 
-	  if (Verbosity)
+	  if (verbosity)
 	    progress_show("Formatting page %d", *page);
         }
 
@@ -4655,20 +4227,20 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	  }
 
 	  // Top
-          new_render(*page, RENDER_BOX,
+          new_render(*page, HD_RENDER_BOX,
 	             margins->right() - temp->width - 2 * borderspace,
 	             *y - borderspace,
 		     temp->width + 2 * borderspace, borderspace, rgb);
 	  // Left
-          new_render(*page, RENDER_BOX, margins->right() - temp->width - borderspace,
+          new_render(*page, HD_RENDER_BOX, margins->right() - temp->width - borderspace,
 	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Right
-          new_render(*page, RENDER_BOX, margins->right() - borderspace,
+          new_render(*page, HD_RENDER_BOX, margins->right() - borderspace,
 	             *y - temp->height - borderspace,
                      borderspace, temp->height + 2 * borderspace, rgb);
 	  // Bottom
-          new_render(*page, RENDER_BOX,
+          new_render(*page, HD_RENDER_BOX,
 	             margins->right() - temp->width - 2 * borderspace,
 		     *y - temp->height - 2 * borderspace,
                      temp->width + 2 * borderspace, borderspace, rgb);
@@ -4676,7 +4248,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
         *y -= borderspace;
 
-        new_render(*page, RENDER_IMAGE,
+        new_render(*page, HD_RENDER_IMAGE,
 	           margins->right() - borderspace - temp->width,
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
@@ -4697,7 +4269,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	      link = (uchar *)file_basename((char *)link);
 	  }
 
-	  new_render(*page, RENDER_LINK,
+	  new_render(*page, HD_RENDER_LINK,
 	             margins->right() - borderspace - temp->width,
 	             *y - temp->height, temp->width, temp->height, link);
         }
@@ -4892,7 +4464,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       (*page) ++;
       *y = margins->top();
 
-      if (Verbosity)
+      if (verbosity)
         progress_show("Formatting page %d", *page);
     }
 
@@ -4928,7 +4500,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       (*page) ++;
       *y = margins->top();
 
-      if (Verbosity)
+      if (verbosity)
         progress_show("Formatting page %d", *page);
     }
 
@@ -4937,7 +4509,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     DEBUG_printf(("    y = %.1f, width = %.1f, height = %.1f\n", *y, width,
                   height));
 
-    if (Verbosity)
+    if (verbosity)
       progress_update(100 - (int)(100 * (*y) / PagePrintLength));
 
     char_spacing = 0.0f;
@@ -5008,7 +4580,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	      offset = 0.0f;
 	}
 
-        r = new_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
+        r = new_render(*page, HD_RENDER_TEXT, linex - linewidth, *y + offset,
 	               linewidth, linetype->height, line);
 	r->data.text.typeface = linetype->typeface;
 	r->data.text.style    = linetype->style;
@@ -5035,7 +4607,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
               * Add a target link...
               */
 
-              add_link(link, *page, (int)(*y + height));
+              add_link(link, NULL, *page, (int)(*y + height));
             }
 
 	default :
@@ -5080,10 +4652,10 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
             temp_width = temp->width + char_spacing * strlen((char *)lineptr);
 
 	    if (temp->underline || (temp->link && LinkStyle && PSLevel == 0))
-	      new_render(*page, RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
+	      new_render(*page, HD_RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
 
 	    if (temp->strikethrough)
-	      new_render(*page, RENDER_BOX, linex, *y + offset + temp->height * 0.25f,
+	      new_render(*page, HD_RENDER_BOX, linex, *y + offset + temp->height * 0.25f,
 	                 temp_width, 0, rgb);
 
             linewidth  += temp_width;
@@ -5134,22 +4706,22 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
             if (borderspace > 0.0f)
 	    {
 	      // Top
-              new_render(*page, RENDER_BOX, linex,
+              new_render(*page, HD_RENDER_BOX, linex,
 	                 *y + offset + temp->height + borderspace,
 			 temp->width + 2 * borderspace, borderspace, rgb);
 	      // Left
-              new_render(*page, RENDER_BOX, linex, *y + offset,
+              new_render(*page, HD_RENDER_BOX, linex, *y + offset,
                 	 borderspace, temp->height + 2 * borderspace, rgb);
 	      // Right
-              new_render(*page, RENDER_BOX, linex + temp->width + borderspace,
+              new_render(*page, HD_RENDER_BOX, linex + temp->width + borderspace,
 	                 *y + offset, borderspace,
 			 temp->height + 2 * borderspace, rgb);
 	      // Bottom
-              new_render(*page, RENDER_BOX, linex, *y + offset,
+              new_render(*page, HD_RENDER_BOX, linex, *y + offset,
                 	 temp->width + 2 * borderspace, borderspace, rgb);
 	    }
 
-	    new_render(*page, RENDER_IMAGE, linex + borderspace,
+	    new_render(*page, HD_RENDER_IMAGE, linex + borderspace,
 	               *y + offset + borderspace, temp->width, temp->height,
 		       image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
             whitespace = 0;
@@ -5173,7 +4745,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	    link = (uchar *)file_basename((char *)link);
 	}
 
-	new_render(*page, RENDER_LINK, linex, *y + offset, temp->width,
+	new_render(*page, HD_RENDER_LINK, linex, *y + offset, temp->width,
 	           temp->height, link);
       }
 
@@ -5202,7 +4774,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	    offset = 0.0f;
       }
 
-      r = new_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
+      r = new_render(*page, HD_RENDER_TEXT, linex - linewidth, *y + offset,
                      linewidth, linetype->height, line);
       r->data.text.typeface = linetype->typeface;
       r->data.text.style    = linetype->style;
@@ -5235,11 +4807,11 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
 
 /*
- * 'parse_pre()' - Parse preformatted text and produce rendering list output.
+ * 'hdBook::parse_pre()' - Parse preformatted text and produce rendering list output.
  */
 
-static void
-parse_pre(hdTree   *t,			/* I - Tree to parse */
+void
+hdBook::parse_pre(hdTree   *t,			/* I - Tree to parse */
           hdMargin *margins,		/* I - Margins */
           float    *x,			/* IO - X position */
           float    *y,			/* IO - Y position */
@@ -5255,7 +4827,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
   float		width,
 		height,
 		rgb[3];
-  render_t	*r;
+  hdRender	*r;
 
 
   DEBUG_printf(("parse_pre(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d\n",
@@ -5311,14 +4883,14 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
       (*page) ++;
       *y = margins->top();
 
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
     }
 
     *x = margins->left();
     *y -= height;
 
-    if (Verbosity)
+    if (verbosity)
       progress_update(100 - (int)(100 * (*y) / PagePrintLength));
 
     col = 0;
@@ -5340,7 +4912,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 	    link = (uchar *)file_basename((char *)link);
 	}
 
-	new_render(*page, RENDER_LINK, *x, *y, start->width,
+	new_render(*page, HD_RENDER_LINK, *x, *y, start->width,
 	           start->height, link);
 
 	if (PSLevel == 0 && Links)
@@ -5352,7 +4924,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 	  start->blue  = (int)(link_color[2] * 255.0);
 
           if (LinkStyle)
-	    new_render(*page, RENDER_BOX, *x, *y - 1, start->width, 0,
+	    new_render(*page, HD_RENDER_BOX, *x, *y - 1, start->width, 0,
 	               link_color);
 	}
       }
@@ -5366,7 +4938,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
               * Add a target link...
               */
 
-              add_link(link, *page, (int)(*y + height));
+              add_link(link, NULL, *page, (int)(*y + height));
             }
             break;
 
@@ -5394,24 +4966,24 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
             *lineptr = '\0';
 
             width = get_width(line, start->typeface, start->style, start->size);
-            r = new_render(*page, RENDER_TEXT, *x, *y, width, 0, line);
+            r = new_render(*page, HD_RENDER_TEXT, *x, *y, width, 0, line);
             r->data.text.typeface = start->typeface;
             r->data.text.style    = start->style;
             r->data.text.size     = start->size;
             memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	    if (start->underline)
-	      new_render(*page, RENDER_BOX, *x, *y - 1, start->width, 0, rgb);
+	      new_render(*page, HD_RENDER_BOX, *x, *y - 1, start->width, 0, rgb);
 
 	    if (start->strikethrough)
-	      new_render(*page, RENDER_BOX, *x, *y + start->height * 0.25f,
+	      new_render(*page, HD_RENDER_BOX, *x, *y + start->height * 0.25f,
 	        	 start->width, 0, rgb);
 
             *x += start->width;
             break;
 
 	case HD_ELEMENT_IMG :
-	    new_render(*page, RENDER_IMAGE, *x, *y, start->width, start->height,
+	    new_render(*page, HD_RENDER_IMAGE, *x, *y, start->width, start->height,
 		       image_find((char *)htmlGetVariable(start, (uchar *)"REALSRC")));
 
             *x += start->width;
@@ -5449,11 +5021,11 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 #endif /* TABLE_DEBUG */
 
 /*
- * 'parse_table()' - Parse a table and produce rendering output.
+ * 'hdBook::parse_table()' - Parse a table and produce rendering output.
  */
 
-static void
-parse_table(hdTree   *t,		// I - Tree to parse
+void
+hdBook::parse_table(hdTree   *t,		// I - Tree to parse
             hdMargin *margins,		// I - Margins
             float    *x,		// IO - X position
             float    *y,		// IO - Y position
@@ -5521,10 +5093,10 @@ parse_table(hdTree   *t,		// I - Tree to parse
 					// Height of each cell in a row
 		span_heights[MAX_COLUMNS];
 					// Height of spans
-  render_t	*cell_bg[MAX_COLUMNS];	// Background rectangles
-  render_t	*cell_start[MAX_COLUMNS];
+  hdRender	*cell_bg[MAX_COLUMNS];	// Background rectangles
+  hdRender	*cell_start[MAX_COLUMNS];
 					// Start of the content for a cell in the row
-  render_t	*cell_end[MAX_COLUMNS];	// End of the content for a cell in a row
+  hdRender	*cell_end[MAX_COLUMNS];	// End of the content for a cell in a row
   uchar		*bgcolor;
   float		rgb[3],
 		bgrgb[3];
@@ -6216,7 +5788,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
       margins->clear(*y, *page);
 
-      if (Verbosity)
+      if (verbosity)
         progress_show("Formatting page %d", *page);
     }
 
@@ -6284,14 +5856,14 @@ parse_table(hdTree   *t,		// I - Tree to parse
         	        2 * cellpadding;
 	  border_left = col_lefts[col] - cellpadding;
 
-          cell_bg[col] = new_render(*page, RENDER_BOX, border_left, row_y,
+          cell_bg[col] = new_render(*page, HD_RENDER_BOX, border_left, row_y,
                                     width + border, 0.0, bgrgb);
 	}
 	else
 	{
 	  cell_bg[col] = NULL;
 
-          new_render(*page, RENDER_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
+          new_render(*page, HD_RENDER_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
 	}
 
         DEBUG_printf(("cell_bg[%d] = %p, pages[%d].end = %p\n",
@@ -6425,7 +5997,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
       for (col = 0; col < num_cols; col += colspan + 1)
       {
-        render_t	*p;
+        hdRender	*p;
         float		delta_y;
 
 
@@ -6540,28 +6112,28 @@ parse_table(hdTree   *t,		// I - Tree to parse
         // Draw background on multiple pages...
 
 	// Bottom of first page...
-        new_render(row_page, RENDER_BOX, border_left, margins->bottom(),
+        new_render(row_page, HD_RENDER_BOX, border_left, margins->bottom(),
 	           width, row_starty - margins->bottom() + cellpadding, bgrgb,
 		   pages[row_page].start);
 
         // Intervening pages...
         for (temp_page = row_page + 1; temp_page != *page; temp_page ++)
 	{
-          new_render(temp_page, RENDER_BOX, border_left, margins->bottom(),
+          new_render(temp_page, HD_RENDER_BOX, border_left, margins->bottom(),
                      width, margins->length(), bgrgb, pages[temp_page].start);
         }
 
         // Top of last page...
 	check_pages(*page);
 
-        new_render(*page, RENDER_BOX, border_left, row_y,
+        new_render(*page, HD_RENDER_BOX, border_left, row_y,
 	           width, margins->top() - row_y, bgrgb,
 		   pages[*page].start);
       }
       else
       {
         // Draw background in row...
-        new_render(row_page, RENDER_BOX, border_left, row_y,
+        new_render(row_page, HD_RENDER_BOX, border_left, row_y,
 	           width, row_height + 2 * cellpadding, bgrgb,
 		   pages[temp_page].start);
       }
@@ -6612,16 +6184,16 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	  */
 
 	  // Top
-          new_render(cell_page[col], RENDER_BOX, border_left,
+          new_render(cell_page[col], HD_RENDER_BOX, border_left,
                      cell_y[col] + cellpadding,
 		     width + border, border, rgb);
 	  // Left
-          new_render(cell_page[col], RENDER_BOX, border_left, margins->bottom(),
+          new_render(cell_page[col], HD_RENDER_BOX, border_left, margins->bottom(),
                      border,
 		     cell_y[col] - margins->bottom() + cellpadding + border,
 		     rgb);
 	  // Right
-          new_render(cell_page[col], RENDER_BOX,
+          new_render(cell_page[col], HD_RENDER_BOX,
 	             border_left + width, margins->bottom(),
 		     border,
 		     cell_y[col] - margins->bottom() + cellpadding + border,
@@ -6645,16 +6217,16 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	  if (border > 0.0f)
 	  {
 	    // Left
-            new_render(temp_page, RENDER_BOX, border_left, margins->bottom(),
+            new_render(temp_page, HD_RENDER_BOX, border_left, margins->bottom(),
                        border, margins->length(), rgb);
 	    // Right
-            new_render(temp_page, RENDER_BOX,
+            new_render(temp_page, HD_RENDER_BOX,
 	               border_left + width, margins->bottom(),
 		       border, margins->length(), rgb);
           }
 
 	  if (bgcolor != NULL)
-            new_render(temp_page, RENDER_BOX, border_left, margins->bottom(),
+            new_render(temp_page, HD_RENDER_BOX, border_left, margins->bottom(),
                        width + border, margins->length(), bgrgb,
 		       pages[temp_page].start);
         }
@@ -6667,14 +6239,14 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	  */
 
 	  // Left
-          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
+          new_render(cell_endpage[col], HD_RENDER_BOX, border_left, row_y,
                      border, margins->top() - row_y, rgb);
 	  // Right
-          new_render(cell_endpage[col], RENDER_BOX,
+          new_render(cell_endpage[col], HD_RENDER_BOX,
 	             border_left + width, row_y,
                      border, margins->top() - row_y, rgb);
 	  // Bottom
-          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
+          new_render(cell_endpage[col], HD_RENDER_BOX, border_left, row_y,
                      width + border, border, rgb);
         }
 
@@ -6682,7 +6254,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	{
 	  check_pages(cell_endpage[col]);
 
-          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
+          new_render(cell_endpage[col], HD_RENDER_BOX, border_left, row_y,
 	             width + border, margins->top() - row_y, bgrgb,
 		     pages[cell_endpage[col]].start);
 	}
@@ -6698,18 +6270,18 @@ parse_table(hdTree   *t,		// I - Tree to parse
         if (border > 0.0f)
 	{
 	  // Top
-          new_render(cell_page[col], RENDER_BOX, border_left,
+          new_render(cell_page[col], HD_RENDER_BOX, border_left,
                      cell_y[col] + cellpadding,
 		     width + border, border, rgb);
 	  // Left
-          new_render(cell_page[col], RENDER_BOX, border_left, row_y,
+          new_render(cell_page[col], HD_RENDER_BOX, border_left, row_y,
                      border, cell_y[col] - row_y + cellpadding + border, rgb);
 	  // Right
-          new_render(cell_page[col], RENDER_BOX,
+          new_render(cell_page[col], HD_RENDER_BOX,
 	             border_left + width, row_y,
                      border, cell_y[col] - row_y + cellpadding + border, rgb);
 	  // Bottom
-          new_render(cell_page[col], RENDER_BOX, border_left, row_y,
+          new_render(cell_page[col], HD_RENDER_BOX, border_left, row_y,
                      width + border, border, rgb);
 	}
 
@@ -6748,27 +6320,27 @@ parse_table(hdTree   *t,		// I - Tree to parse
       // Draw background on multiple pages...
 
       // Bottom of first page...
-      new_render(table_page, RENDER_BOX, border_left, margins->bottom(),
+      new_render(table_page, HD_RENDER_BOX, border_left, margins->bottom(),
 	         width, table_y - margins->bottom() + cellpadding, bgrgb,
 		 pages[table_page].start);
 
       // Intervening pages...
       for (temp_page = table_page + 1; temp_page != *page; temp_page ++)
       {
-        new_render(temp_page, RENDER_BOX, border_left, margins->bottom(),
+        new_render(temp_page, HD_RENDER_BOX, border_left, margins->bottom(),
                    width, margins->length(), bgrgb, pages[temp_page].start);
       }
 
       // Top of last page...
       check_pages(*page);
 
-      new_render(*page, RENDER_BOX, border_left, *y,
+      new_render(*page, HD_RENDER_BOX, border_left, *y,
 	         width, margins->top() - *y, bgrgb, pages[*page].start);
     }
     else
     {
       // Draw background in row...
-      new_render(table_page, RENDER_BOX, border_left, *y,
+      new_render(table_page, HD_RENDER_BOX, border_left, *y,
 	         width, table_y - *y, bgrgb, pages[temp_page].start);
     }
   }
@@ -6812,11 +6384,11 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
 
 /*
- * 'parse_list()' - Parse a list entry and produce rendering output.
+ * 'hdBook::parse_list()' - Parse a list entry and produce rendering output.
  */
 
-static void
-parse_list(hdTree   *t,			/* I - Tree to parse */
+void
+hdBook::parse_list(hdTree   *t,			/* I - Tree to parse */
            hdMargin *margins,		/* I - Margins */
            float    *x,			/* IO - X position */
            float    *y,			/* IO - Y position */
@@ -6827,7 +6399,7 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
   uchar		*value;			/* VALUE= variable */
   int		typeface;		/* Typeface of list number */
   float		width;			/* Width of list number */
-  render_t	*r;			/* Render primitive */
+  hdRender	*r;			/* Render primitive */
   int		oldpage;		/* Old page value */
   float		oldy;			/* Old Y value */
   float		tempx;			/* Temporary X value */
@@ -6905,7 +6477,7 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
 
   width = get_width(number, typeface, t->style, t->size);
 
-  r = new_render(oldpage, RENDER_TEXT, margins->left() - width, oldy - t->size,
+  r = new_render(oldpage, HD_RENDER_TEXT, margins->left() - width, oldy - t->size,
                  width, t->size, number);
   r->data.text.typeface = typeface;
   r->data.text.style    = t->style;
@@ -6925,11 +6497,11 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
 
 
 /*
- * 'init_list()' - Initialize the list type and value as necessary.
+ * 'hdBook::init_list()' - Initialize the list type and value as necessary.
  */
 
-static void
-init_list(hdTree *t)			/* I - List entry */
+void
+hdBook::init_list(hdTree *t)			/* I - List entry */
 {
   uchar		*type,			/* TYPE= variable */
 		*value;			/* VALUE= variable */
@@ -6969,7 +6541,7 @@ init_list(hdTree *t)			/* I - List entry */
 
 
 /*
- * 'parse_comment()' - Parse a comment for HTMLDOC comments.
+ * 'hdBook::parse_comment()' - Parse a comment for HTMLDOC comments.
  */
 
 #ifdef COMMENT_DEBUG
@@ -6980,8 +6552,8 @@ init_list(hdTree *t)			/* I - List entry */
 #  define DEBUG_printf(x) printf x
 #endif /* COMMENT_DEBUG */
 
-static void
-parse_comment(hdTree   *t,		/* I - Tree to parse */
+void
+hdBook::parse_comment(hdTree   *t,		/* I - Tree to parse */
               hdMargin *margins,	/* I - Margins */
               float    *x,		/* IO - X position */
               float    *y,		/* IO - Y position */
@@ -7058,7 +6630,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       }
 
       (*page) ++;
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
       *x = margins->left();
       *y = margins->top();
@@ -7084,7 +6656,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       }
 
       (*page) ++;
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
       *x = margins->left();
       *y = margins->top();
@@ -7130,7 +6702,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	for (i = *page - i; (i % NumberUp) != 0; i ++, (*page) ++);
       }
 
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
 
       *x = margins->left();
@@ -7165,7 +6737,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       if (*y <= halfway)
       {
 	(*page) ++;
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
 	*x = margins->left();
 	*y = margins->top();
@@ -7211,7 +6783,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
 	(*page) ++;
 
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = margins->top();
         tof = 1;
@@ -7253,7 +6825,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	if (PageDuplex && ((*page) & 1))
 	  (*page) ++;
 
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = margins->top();
         tof = 1;
@@ -7318,7 +6890,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	if (PageDuplex && ((*page) & 1))
 	  (*page) ++;
 
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = margins->top();
         tof = 1;
@@ -7364,7 +6936,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	if (PageDuplex && ((*page) & 1))
 	  (*page) ++;
 
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = margins->top();
         tof = 1;
@@ -7434,7 +7006,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       if (PageDuplex && ((*page) & 1))
 	(*page) ++;
 
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
 
       check_pages(*page);
@@ -7493,7 +7065,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
 	(*page) ++;
 
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = margins->top();
         tof = 1;
@@ -7544,7 +7116,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
 	(*page) ++;
 
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
 	*y = margins->top();
         tof = 1;
@@ -7595,7 +7167,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
 	(*page) ++;
 
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
         tof = 1;
       }
@@ -7646,7 +7218,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
 	(*page) ++;
 
-	if (Verbosity)
+	if (verbosity)
 	  progress_show("Formatting page %d", *page);
 
         tof = 1;
@@ -7704,7 +7276,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       if (PageDuplex && ((*page) & 1))
 	(*page) ++;
 
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
 
       *x = margins->left();
@@ -7724,7 +7296,8 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	  margins->adjust_top(PageLength - PageTop - top);
         }
 
-        Landscape = pages[*page].landscape = 0;
+        Landscape              = 0;
+	pages[*page].landscape = 0;
       }
       else if (strncasecmp(comment, "ON", 2) == 0 || tolower(comment[0]) == 'y')
       {
@@ -7739,7 +7312,8 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	  margins->adjust_right(PageLength - PageRight - right);
         }
 
-        Landscape = pages[*page].landscape = 1;
+        Landscape              = 1;
+	pages[*page].landscape = 1;
       }
 
       *y = margins->top();
@@ -7784,7 +7358,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 
       margins->clear(*y, *page);
 
-      if (Verbosity)
+      if (verbosity)
 	progress_show("Formatting page %d", *page);
 
       *x = margins->left();
@@ -7792,7 +7366,10 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       check_pages(*page);
 
       if (strncasecmp(comment, "OFF", 3) == 0 || tolower(comment[0]) == 'n')
-        PageDuplex = pages[*page].duplex = 0;
+      {
+        PageDuplex          = 0;
+	pages[*page].duplex = 0;
+      }
       else if (strncasecmp(comment, "ON", 2) == 0 || tolower(comment[0]) == 'y')
       {
 	if ((*page) & 1)
@@ -7801,11 +7378,12 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 
           check_pages(*page);
 
-	  if (Verbosity)
+	  if (verbosity)
 	    progress_show("Formatting page %d", *page);
 	}
 
-        PageDuplex = pages[*page].duplex = 1;
+        PageDuplex          = 1;
+	pages[*page].duplex = 1;
       }
 
       // Skip duplex...
@@ -8059,11 +7637,11 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 
 
 /*
- * 'real_prev()' - Return the previous non-link markup in the tree.
+ * 'hdBook::real_prev()' - Return the previous non-link markup in the tree.
  */
 
-static hdTree *		/* O - Pointer to previous markup */
-real_prev(hdTree *t)	/* I - Current markup */
+hdTree *		/* O - Pointer to previous markup */
+hdBook::real_prev(hdTree *t)	/* I - Current markup */
 {
   if (t == NULL)
     return (NULL);
@@ -8088,11 +7666,11 @@ real_prev(hdTree *t)	/* I - Current markup */
 
 
 /*
- * 'real_next()' - Return the next non-link markup in the tree.
+ * 'hdBook::real_next()' - Return the next non-link markup in the tree.
  */
 
-static hdTree *		/* O - Pointer to next markup */
-real_next(hdTree *t)	/* I - Current markup */
+hdTree *		/* O - Pointer to next markup */
+hdBook::real_next(hdTree *t)	/* I - Current markup */
 {
   if (t == NULL)
     return (NULL);
@@ -8109,11 +7687,11 @@ real_next(hdTree *t)	/* I - Current markup */
 
 
 /*
- * 'find_background()' - Find the background image/color for the given document.
+ * 'hdBook::find_background()' - Find the background image/color for the given document.
  */
 
-static void
-find_background(hdTree *t)	/* I - Document to search */
+void
+hdBook::find_background(hdTree *t)	/* I - Document to search */
 {
   uchar		*var;		/* BGCOLOR/BACKGROUND variable */
 
@@ -8160,12 +7738,12 @@ find_background(hdTree *t)	/* I - Document to search */
 
 
 /*
- * 'write_background()' - Write the background image/color for to the current
+ * 'hdBook::write_background()' - Write the background image/color for to the current
  *                        page.
  */
 
-static void
-write_background(int  page,	/* I - Page we are writing for */
+void
+hdBook::write_background(int  page,	/* I - Page we are writing for */
                  FILE *out)	/* I - File to write to */
 {
   float	x, y;
@@ -8244,21 +7822,21 @@ write_background(int  page,	/* I - Page we are writing for */
 
 
 /*
- * 'new_render()' - Allocate memory for a new rendering structure.
+ * 'hdBook::new_render()' - Allocate memory for a new rendering structure.
  */
 
-static render_t *		/* O - New render structure */
-new_render(int      page,	/* I - Page number (0-n) */
+hdRender *		/* O - New render structure */
+hdBook::new_render(int      page,	/* I - Page number (0-n) */
            int      type,	/* I - Type of render primitive */
            float    x,		/* I - Horizontal position */
            float    y,		/* I - Vertical position */
            float    width,	/* I - Width */
            float    height,	/* I - Height */
            void     *data,	/* I - Data */
-	   render_t *insert)	/* I - Insert before here... */
+	   hdRender *insert)	/* I - Insert before here... */
 {
-  render_t		*r;	/* New render primitive */
-  static render_t	dummy;	/* Dummy var for errors... */
+  hdRender		*r;	/* New render primitive */
+  static hdRender	dummy;	/* Dummy var for errors... */
 
 
   DEBUG_printf(("new_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%p)\n",
@@ -8275,10 +7853,10 @@ new_render(int      page,	/* I - Page number (0-n) */
     return (&dummy);
   }
 
-  if ((type != RENDER_TEXT && type != RENDER_LINK) || data == NULL)
-    r = (render_t *)calloc(sizeof(render_t), 1);
+  if ((type != HD_RENDER_TEXT && type != HD_RENDER_LINK) || data == NULL)
+    r = (hdRender *)calloc(sizeof(hdRender), 1);
   else
-    r = (render_t *)calloc(sizeof(render_t) + strlen((char *)data), 1);
+    r = (hdRender *)calloc(sizeof(hdRender) + strlen((char *)data), 1);
 
   if (r == NULL)
   {
@@ -8296,7 +7874,7 @@ new_render(int      page,	/* I - Page number (0-n) */
 
   switch (type)
   {
-    case RENDER_TEXT :
+    case HD_RENDER_TEXT :
         if (data == NULL)
         {
           free(r);
@@ -8305,7 +7883,7 @@ new_render(int      page,	/* I - Page number (0-n) */
         strcpy((char *)r->data.text.buffer, (char *)data);
         get_color(_htmlTextColor, r->data.text.rgb);
         break;
-    case RENDER_IMAGE :
+    case HD_RENDER_IMAGE :
         if (data == NULL)
         {
           free(r);
@@ -8313,10 +7891,10 @@ new_render(int      page,	/* I - Page number (0-n) */
         }
         r->data.image = (image_t *)data;
         break;
-    case RENDER_BOX :
+    case HD_RENDER_BOX :
         memcpy(r->data.box, data, sizeof(r->data.box));
         break;
-    case RENDER_LINK :
+    case HD_RENDER_LINK :
         if (data == NULL)
         {
           free(r);
@@ -8356,13 +7934,13 @@ new_render(int      page,	/* I - Page number (0-n) */
 
 
 /*
- * 'check_pages()' - Allocate memory for more pages as needed...
+ * 'hdBook::check_pages()' - Allocate memory for more pages as needed...
  */
 
-static void
-check_pages(int page)	// I - Current page
+void
+hdBook::check_pages(int page)	// I - Current page
 {
-  page_t	*temp;	// Temporary page pointer
+  hdPage	*temp;	// Temporary page pointer
 
 
   DEBUG_printf(("check_pages(%d)\n", page));
@@ -8375,9 +7953,9 @@ check_pages(int page)	// I - Current page
 
     // Do the pages pointers...
     if (num_pages == 0)
-      temp = (page_t *)malloc(sizeof(page_t) * alloc_pages);
+      temp = (hdPage *)malloc(sizeof(hdPage) * alloc_pages);
     else
-      temp = (page_t *)realloc(pages, sizeof(page_t) * alloc_pages);
+      temp = (hdPage *)realloc(pages, sizeof(hdPage) * alloc_pages);
 
     if (temp == NULL)
     {
@@ -8388,7 +7966,7 @@ check_pages(int page)	// I - Current page
       return;
     }
 
-    memset(temp + alloc_pages - ALLOC_PAGES, 0, sizeof(page_t) * ALLOC_PAGES);
+    memset(temp + alloc_pages - ALLOC_PAGES, 0, sizeof(hdPage) * ALLOC_PAGES);
 
     pages = temp;
   }
@@ -8412,7 +7990,7 @@ check_pages(int page)	// I - Current page
       }
       else
       {
-	memcpy(temp, temp - 1, sizeof(page_t));
+	memcpy(temp, temp - 1, sizeof(hdPage));
 	temp->start = NULL;
 	temp->end   = NULL;
       }
@@ -8437,112 +8015,11 @@ check_pages(int page)	// I - Current page
 
 
 /*
- * 'add_link()' - Add a named link...
+ * 'hdBook::copy_tree()' - Copy a markup tree...
  */
 
-static void
-add_link(uchar *name,		/* I - Name of link */
-         int   page,		/* I - Page # */
-         int   top)		/* I - Y position */
-{
-  link_t	*temp;		/* New name */
-
-
-  if (name == NULL)
-    return;
-
-  DEBUG_printf(("add_link(name=\"%s\", page=%d, top=%d)\n", name, page, top));
-
-  if ((temp = find_link(name)) != NULL)
-  {
-    temp->page = page;
-    temp->top  = top;
-  }
-  else
-  {
-    // See if we need to allocate memory for links...
-    if (num_links >= alloc_links)
-    {
-      // Allocate more links...
-      alloc_links += ALLOC_LINKS;
-
-      if (num_links == 0)
-        temp = (link_t *)malloc(sizeof(link_t) * alloc_links);
-      else
-        temp = (link_t *)realloc(links, sizeof(link_t) * alloc_links);
-
-      if (temp == NULL)
-      {
-	progress_error(HD_ERROR_OUT_OF_MEMORY,
-                       "Unable to allocate memory for %d links - %s",
-	               alloc_links, strerror(errno));
-        alloc_links -= ALLOC_LINKS;
-	return;
-      }
-
-      links = temp;
-    }
-
-    // Add a new link...
-    temp = links + num_links;
-    num_links ++;
-
-    strncpy((char *)temp->name, (char *)name, sizeof(temp->name) - 1);
-    temp->name[sizeof(temp->name) - 1] = '\0';
-    temp->page = page;
-    temp->top  = top;
-
-    if (num_links > 1)
-      qsort(links, num_links, sizeof(link_t),
-            (compare_func_t)compare_links);
-  }
-}
-
-
-/*
- * 'find_link()' - Find a named link...
- */
-
-static link_t *
-find_link(uchar *name)	/* I - Name to find */
-{
-  link_t	key,	/* Search key */
-		*match;	/* Matching name entry */
-
-
-  if (name == NULL || num_links == 0)
-    return (NULL);
-
-  if (name[0] == '#')
-    name ++;
-
-  strncpy((char *)key.name, (char *)name, sizeof(key.name) - 1);
-  key.name[sizeof(key.name) - 1] = '\0';
-  match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t),
-                            (compare_func_t)compare_links);
-
-  return (match);
-}
-
-
-/*
- * 'compare_links()' - Compare two named links.
- */
-
-static int			/* O - 0 = equal, -1 or 1 = not equal */
-compare_links(link_t *n1,	/* I - First name */
-              link_t *n2)	/* I - Second name */
-{
-  return (strcasecmp((char *)n1->name, (char *)n2->name));
-}
-
-
-/*
- * 'copy_tree()' - Copy a markup tree...
- */
-
-static void
-copy_tree(hdTree *parent,	/* I - Source tree */
+void
+hdBook::copy_tree(hdTree *parent,	/* I - Source tree */
           hdTree *t)		/* I - Destination tree */
 {
   int		i;		/* I - Looping var */
@@ -8586,11 +8063,11 @@ copy_tree(hdTree *parent,	/* I - Source tree */
 #endif /* TABLE_DEBUG */
 
 //
-// 'get_cell_size()' - Compute the minimum width of a cell.
+// 'hdBook::get_cell_size()' - Compute the minimum width of a cell.
 //
 
-static float				// O - Required width of cell
-get_cell_size(hdTree *t,		// I - Cell
+float				// O - Required width of cell
+hdBook::get_cell_size(hdTree *t,		// I - Cell
               float  left,		// I - Left margin
 	      float  right,		// I - Right margin
 	      float  *minwidth,		// O - Minimum width
@@ -8858,11 +8335,11 @@ get_cell_size(hdTree *t,		// I - Cell
 
 
 //
-// 'get_table_size()' - Compute the minimum width of a table.
+// 'hdBook::get_table_size()' - Compute the minimum width of a table.
 //
 
-static float				// O - Minimum width of table
-get_table_size(hdTree *t,		// I - Table
+float				// O - Minimum width of table
+hdBook::get_table_size(hdTree *t,		// I - Table
                float  left,		// I - Left margin
 	       float  right,		// I - Right margin
 	       float  *minwidth,	// O - Minimum width
@@ -9058,12 +8535,12 @@ get_table_size(hdTree *t,		// I - Table
 
 
 /*
- * 'flatten_tree()' - Flatten an HTML tree to only include the text, image,
+ * 'hdBook::flatten_tree()' - Flatten an HTML tree to only include the text, image,
  *                    link, and break markups.
  */
 
-static hdTree *			/* O - Flattened markup tree */
-flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
+hdTree *			/* O - Flattened markup tree */
+hdBook::flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
 {
   hdTree	*temp,		/* New tree node */
 		*flat;		/* Flattened tree */
@@ -9182,12 +8659,12 @@ flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
 
 
 /*
- * 'update_image_size()' - Update the size of an image based upon the
+ * 'hdBook::update_image_size()' - Update the size of an image based upon the
  *                         printable width.
  */
 
-static void
-update_image_size(hdTree *t)	/* I - Tree entry */
+void
+hdBook::update_image_size(hdTree *t)	/* I - Tree entry */
 {
   image_t	*img;		/* Image file */
   uchar		*width,		/* Width string */
@@ -9244,11 +8721,11 @@ update_image_size(hdTree *t)	/* I - Tree entry */
 
 
 /*
- * 'get_width()' - Get the width of a string in points.
+ * 'hdBook::get_width()' - Get the width of a string in points.
  */
 
-static float			/* O - Width in points */
-get_width(uchar *s,		/* I - String to scan */
+float			/* O - Width in points */
+hdBook::get_width(uchar *s,		/* I - String to scan */
           int   typeface,	/* I - Typeface code */
           int   style,		/* I - Style code */
           float size)		/* I - Size */
@@ -9272,35 +8749,11 @@ get_width(uchar *s,		/* I - String to scan */
 
 
 /*
- * 'get_title()' - Get the title string for a document.
+ * 'hdBook::pspdf_open_file()' - Open an output file for the current chapter.
  */
 
-static uchar *		/* O - Title string */
-get_title(hdTree *doc)	/* I - Document */
-{
-  uchar	*temp;
-
-
-  while (doc != NULL)
-  {
-    if (doc->element == HD_ELEMENT_TITLE)
-      return (htmlGetText(doc->child));
-    else if (doc->child != NULL)
-      if ((temp = get_title(doc->child)) != NULL)
-        return (temp);
-    doc = doc->next;
-  }
-
-  return (NULL);
-}
-
-
-/*
- * 'open_file()' - Open an output file for the current chapter.
- */
-
-static FILE *		/* O - File pointer */
-open_file(void)
+FILE *		/* O - File pointer */
+hdBook::pspdf_open_file(void)
 {
   char	filename[255];	/* Filename */
 
@@ -9332,11 +8785,11 @@ open_file(void)
 
 
 /*
- * 'set_color()' - Set the current text color...
+ * 'hdBook::set_color()' - Set the current text color...
  */
 
-static void
-set_color(FILE  *out,	/* I - File to write to */
+void
+hdBook::set_color(FILE  *out,	/* I - File to write to */
           float *rgb)	/* I - RGB color */
 {
   if (rgb[0] == render_rgb[0] &&
@@ -9356,16 +8809,16 @@ set_color(FILE  *out,	/* I - File to write to */
 
 
 /*
- * 'set_font()' - Set the current text font.
+ * 'hdBook::set_font()' - Set the current text font.
  */
 
-static void
-set_font(FILE  *out,		/* I - File to write to */
+void
+hdBook::set_font(FILE  *out,		/* I - File to write to */
          int   typeface,	/* I - Typeface code */
          int   style,		/* I - Style code */
          float size)		/* I - Size */
 {
-  char	sizes[255],	/* Formatted string for size... */
+  char	sizestr[255],	/* Formatted string for size... */
 	*s;		/* Pointer to end of string */
 
 
@@ -9378,9 +8831,9 @@ set_font(FILE  *out,		/* I - File to write to */
   * Format size and strip trailing 0's and decimals...
   */
 
-  sprintf(sizes, "%.1f", size);
+  sprintf(sizestr, "%.1f", size);
 
-  for (s = sizes + strlen(sizes) - 1; s > sizes && *s == '0'; s --)
+  for (s = sizestr + strlen(sizestr) - 1; s > sizestr && *s == '0'; s --)
     *s = '\0';
 
   if (*s == '.')
@@ -9393,12 +8846,12 @@ set_font(FILE  *out,		/* I - File to write to */
   if (PSLevel > 0)
   {
     if (size != render_size)
-      fprintf(out, "%s FS", sizes);
+      fprintf(out, "%s FS", sizestr);
 
     fprintf(out, "/F%x SF ", typeface * 4 + style);
   }
   else
-    flate_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
+    flate_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizestr);
 
   render_typeface = typeface;
   render_style    = style;
@@ -9407,11 +8860,11 @@ set_font(FILE  *out,		/* I - File to write to */
 
 
 /*
- * 'set_pos()' - Set the current text position.
+ * 'hdBook::set_pos()' - Set the current text position.
  */
 
-static void
-set_pos(FILE  *out,	/* I - File to write to */
+void
+hdBook::set_pos(FILE  *out,	/* I - File to write to */
         float x,	/* I - X position */
         float y)	/* I - Y position */
 {
@@ -9465,11 +8918,11 @@ set_pos(FILE  *out,	/* I - File to write to */
 
 
 /*
- * 'ps_hex()' - Print binary data as a series of hexadecimal numbers.
+ * 'hdBook::ps_hex()' - Print binary data as a series of hexadecimal numbers.
  */
 
-static void
-ps_hex(FILE  *out,	/* I - File to print to */
+void
+hdBook::ps_hex(FILE  *out,	/* I - File to print to */
        uchar *data,	/* I - Data to print */
        int   length)	/* I - Number of bytes to print */
 {
@@ -9502,11 +8955,11 @@ ps_hex(FILE  *out,	/* I - File to print to */
 
 
 /*
- * 'ps_ascii85()' - Print binary data as a series of base-85 numbers.
+ * 'hdBook::ps_ascii85()' - Print binary data as a series of base-85 numbers.
  */
 
-static void
-ps_ascii85(FILE  *out,		/* I - File to print to */
+void
+hdBook::ps_ascii85(FILE  *out,		/* I - File to print to */
 	   uchar *data,		/* I - Data to print */
 	   int   length)	/* I - Number of bytes to print */
 {
@@ -9611,87 +9064,75 @@ ps_ascii85(FILE  *out,		/* I - File to print to */
 
 
 /*
- * JPEG library destination data manager.  These routines direct
- * compressed data from libjpeg into the PDF or PostScript file.
+ * 'hdBook::jpg_init()' - Initialize the JPEG destination.
  */
 
-static FILE			*jpg_file;	/* JPEG file */
-static uchar			jpg_buf[8192];	/* JPEG buffer */
-static jpeg_destination_mgr	jpg_dest;	/* JPEG destination manager */
-static struct jpeg_error_mgr	jerr;		/* JPEG error handler */
-
-
-/*
- * 'jpg_init()' - Initialize the JPEG destination.
- */
-
-static void
-jpg_init(j_compress_ptr cinfo)	/* I - Compressor info */
+void
+hdBook::jpg_init(j_compress_ptr cinfo)	/* I - Compressor info */
 {
-  (void)cinfo;
+  hdBook *book = (hdBook *)(cinfo->client_data);
 
-  jpg_dest.next_output_byte = jpg_buf;
-  jpg_dest.free_in_buffer   = sizeof(jpg_buf);
+  book->jpg_dest.next_output_byte = book->jpg_buf;
+  book->jpg_dest.free_in_buffer   = sizeof(book->jpg_buf);
 }
 
 
 /*
- * 'jpg_empty()' - Empty the JPEG output buffer.
+ * 'hdBook::jpg_empty()' - Empty the JPEG output buffer.
  */
 
-static boolean			/* O - True if buffer written OK */
-jpg_empty(j_compress_ptr cinfo)	/* I - Compressor info */
+boolean			/* O - True if buffer written OK */
+hdBook::jpg_empty(j_compress_ptr cinfo)	/* I - Compressor info */
 {
-  (void)cinfo;
+  hdBook *book = (hdBook *)(cinfo->client_data);
 
-  if (PSLevel > 0)
-    ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
+  if (book->PSLevel > 0)
+    book->ps_ascii85(book->jpg_file, book->jpg_buf, sizeof(book->jpg_buf));
   else
-    flate_write(jpg_file, jpg_buf, sizeof(jpg_buf));
+    book->flate_write(book->jpg_file, book->jpg_buf, sizeof(book->jpg_buf));
 
-  jpg_dest.next_output_byte = jpg_buf;
-  jpg_dest.free_in_buffer   = sizeof(jpg_buf);
+  book->jpg_dest.next_output_byte = book->jpg_buf;
+  book->jpg_dest.free_in_buffer   = sizeof(book->jpg_buf);
 
   return (TRUE);
 }
 
 
 /*
- * 'jpg_term()' - Write the last JPEG data to the file.
+ * 'hdBook::jpg_term()' - Write the last JPEG data to the file.
  */
 
-static void
-jpg_term(j_compress_ptr cinfo)	/* I - Compressor info */
+void
+hdBook::jpg_term(j_compress_ptr cinfo)	/* I - Compressor info */
 {
   int nbytes;			/* Number of bytes to write */
+  hdBook *book = (hdBook *)(cinfo->client_data);
 
 
-  (void)cinfo;
+  nbytes = sizeof(book->jpg_buf) - book->jpg_dest.free_in_buffer;
 
-  nbytes = sizeof(jpg_buf) - jpg_dest.free_in_buffer;
-
-  if (PSLevel > 0)
-    ps_ascii85(jpg_file, jpg_buf, nbytes);
+  if (book->PSLevel > 0)
+    book->ps_ascii85(book->jpg_file, book->jpg_buf, nbytes);
   else
-    flate_write(jpg_file, jpg_buf, nbytes);
+    book->flate_write(book->jpg_file, book->jpg_buf, nbytes);
 }
 
 
 /*
- * 'jpg_setup()' - Setup the JPEG compressor for writing an image.
+ * 'hdBook::jpg_setup()' - Setup the JPEG compressor for writing an image.
  */
 
-static void
-jpg_setup(FILE           *out,	/* I - Output file */
+void
+hdBook::jpg_setup(FILE           *out,	/* I - Output file */
           image_t        *img,	/* I - Output image */
           j_compress_ptr cinfo)	/* I - Compressor info */
 {
   int	i;			// Looping var
 
 
-  jpg_file    = out;
-  cinfo->err  = jpeg_std_error(&jerr);
-
+  jpg_file           = out;
+  cinfo->err         = jpeg_std_error(&jerr);
+  cinfo->client_data = this;
   jpeg_create_compress(cinfo);
 
   cinfo->dest = &jpg_dest;
@@ -9726,11 +9167,11 @@ jpg_setup(FILE           *out,	/* I - Output file */
 
 
 /*
- * 'compare_rgb()' - Compare two RGB colors...
+ * 'hdBook::compare_rgb()' - Compare two RGB colors...
  */
 
-static int			/* O - -1 if rgb1<rgb2, etc. */
-compare_rgb(unsigned *rgb1,	/* I - First color */
+int			/* O - -1 if rgb1<rgb2, etc. */
+hdBook::compare_rgb(unsigned *rgb1,	/* I - First color */
             unsigned *rgb2)	/* I - Second color */
 {
   return (*rgb1 - *rgb2);
@@ -9738,12 +9179,12 @@ compare_rgb(unsigned *rgb1,	/* I - First color */
 
 
 /*
- * 'write_image()' - Write an image to the given output file...
+ * 'hdBook::write_image()' - Write an image to the given output file...
  */
 
-static void
-write_image(FILE     *out,	/* I - Output file */
-            render_t *r,	/* I - Image to write */
+void
+hdBook::write_image(FILE     *out,	/* I - Output file */
+            hdRender *r,	/* I - Image to write */
 	    int      write_obj)	/* I - Write an object? */
 {
   int		i, j, k, m,	/* Looping vars */
@@ -9842,7 +9283,7 @@ write_image(FILE     *out,	/* I - Output file */
 	{
           if (ncolors > 0)
             match = (unsigned *)bsearch(&key, colors, ncolors, sizeof(unsigned),
-                                        (compare_func_t)compare_rgb);
+                                        (hdCompareFunc)compare_rgb);
           else
             match = NULL;
         }
@@ -9857,7 +9298,7 @@ write_image(FILE     *out,	/* I - Output file */
 
           if (ncolors > 1)
             qsort(colors, ncolors, sizeof(unsigned),
-                  (compare_func_t)compare_rgb);
+                  (hdCompareFunc)compare_rgb);
         }
       }
 
@@ -9981,7 +9422,7 @@ write_image(FILE     *out,	/* I - Output file */
 		if (*match != key)
         	  match = (unsigned *)bsearch(&key, colors, ncolors,
 		                              sizeof(unsigned),
-                            	              (compare_func_t)compare_rgb);
+                            	              (hdCompareFunc)compare_rgb);
 	        m = match - colors;
 
 		switch (k)
@@ -10018,7 +9459,7 @@ write_image(FILE     *out,	/* I - Output file */
 		if (*match != key)
         	  match = (unsigned *)bsearch(&key, colors, ncolors,
 		                              sizeof(unsigned),
-                            	              (compare_func_t)compare_rgb);
+                            	              (hdCompareFunc)compare_rgb);
 	        m = match - colors;
 
 		switch (k)
@@ -10056,7 +9497,7 @@ write_image(FILE     *out,	/* I - Output file */
 		if (*match != key)
         	  match = (unsigned *)bsearch(&key, colors, ncolors,
 		                              sizeof(unsigned),
-                            	              (compare_func_t)compare_rgb);
+                            	              (hdCompareFunc)compare_rgb);
 	        m = match - colors;
 
 		if (k)
@@ -10083,7 +9524,7 @@ write_image(FILE     *out,	/* I - Output file */
 		if (*match != key)
         	  match = (unsigned *)bsearch(&key, colors, ncolors,
 		                              sizeof(unsigned),
-                            	              (compare_func_t)compare_rgb);
+                            	              (hdCompareFunc)compare_rgb);
 	        *indptr = match - colors;
 	      }
 	    }
@@ -10611,12 +10052,12 @@ write_image(FILE     *out,	/* I - Output file */
 
 
 /*
- * 'write_imagemask()' - Write an imagemask to the output file...
+ * 'hdBook::write_imagemask()' - Write an imagemask to the output file...
  */
 
-static void
-write_imagemask(FILE     *out,	/* I - Output file */
-                render_t *r)	/* I - Image to write */
+void
+hdBook::write_imagemask(FILE     *out,	/* I - Output file */
+                hdRender *r)	/* I - Image to write */
 {
   image_t	*img;		/* Current image */
   int		x, y;		/* Position in mask image */
@@ -10728,11 +10169,11 @@ write_imagemask(FILE     *out,	/* I - Output file */
 
 
 /*
- * 'write_prolog()' - Write the file prolog...
+ * 'hdBook::write_prolog()' - Write the file prolog...
  */
 
-static void
-write_prolog(FILE  *out,	/* I - Output file */
+void
+hdBook::write_prolog(FILE  *out,	/* I - Output file */
              int   page_count,	/* I - Number of pages (0 if not known) */
              uchar *author,	/* I - Author of document */
              uchar *creator,	/* I - Application that generated the HTML file */
@@ -10744,7 +10185,7 @@ write_prolog(FILE  *out,	/* I - Output file */
   int		i, j,		/* Looping vars */
 		encoding_object;/* Font encoding object */
   int		page;		/* Current page */
-  render_t	*r;		/* Current render data */
+  hdRender	*r;		/* Current render data */
   int		fonts_used[4][4];/* Whether or not a font is used */
   int		font_desc[4][4];/* Font descriptor objects */
   char		temp[1024];	/* Temporary string */
@@ -10775,7 +10216,7 @@ write_prolog(FILE  *out,	/* I - Output file */
 
   for (page = 0; page < num_pages; page ++)
     for (r = pages[page].start; r != NULL; r = r->next)
-      if (r->type == RENDER_TEXT)
+      if (r->type == HD_RENDER_TEXT)
 	fonts_used[r->data.text.typeface][r->data.text.style] = 1;
 
  /*
@@ -11240,7 +10681,7 @@ write_prolog(FILE  *out,	/* I - Output file */
       if (encrypt_len > 5)
       {
         // N-bit encryption...
-	if (!(perm_value & PDF_PERM_COPY))
+	if (!(perm_value & HD_PDF_PERM_COPY))
 	  perm_value &= ~0x00240000;	// Mask additional copy perms...
       }
 
@@ -11464,11 +10905,11 @@ write_prolog(FILE  *out,	/* I - Output file */
 
 
 /*
- * 'write_string()' - Write a text entity.
+ * 'hdBook::write_string()' - Write a text entity.
  */
 
-static void
-write_string(FILE  *out,	/* I - Output file */
+void
+hdBook::write_string(FILE  *out,	/* I - Output file */
              uchar *s,		/* I - String */
 	     int   compress)	/* I - Compress output? */
 {
@@ -11542,12 +10983,12 @@ write_string(FILE  *out,	/* I - Output file */
 
 
 /*
- * 'write_text()' - Write a text entity.
+ * 'hdBook::write_text()' - Write a text entity.
  */
 
-static void
-write_text(FILE     *out,	/* I - Output file */
-           render_t *r)		/* I - Text entity */
+void
+hdBook::write_text(FILE     *out,	/* I - Output file */
+           hdRender *r)		/* I - Text entity */
 {
   uchar	*ptr;			/* Pointer into text */
 
@@ -11590,18 +11031,18 @@ write_text(FILE     *out,	/* I - Output file */
 
 
 /*
- * 'write_trailer()' - Write the file trailer.
+ * 'hdBook::write_trailer()' - Write the file trailer.
  */
 
-static void
-write_trailer(FILE *out,	/* I - Output file */
+void
+hdBook::write_trailer(FILE *out,	/* I - Output file */
               int  file_pages)	/* I - Number of pages in file */
 {
   int		i, j, k,	/* Looping vars */
 		type,		/* Type of number */
 		offset,		/* Offset to xref table in PDF file */
 		start;		/* Start page number */
-  page_t	*page;		/* Start page of chapter */
+  hdPage	*page;		/* Start page of chapter */
   char		prefix[64],	/* Prefix string */
 		*prefptr;	/* Pointer into prefix string */
   static const char *modes[] =	/* Page modes */
@@ -11655,7 +11096,7 @@ write_trailer(FILE *out,	/* I - Output file */
 
     switch (PDFFirstPage)
     {
-      case PDF_PAGE_1 :
+      case HD_PDF_PAGE_1 :
           if (TitlePage)
 	  {
             fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
@@ -11663,7 +11104,7 @@ write_trailer(FILE *out,	/* I - Output file */
             break;
 	  }
           break;
-      case PDF_TOC :
+      case HD_PDF_TOC :
           if (TocLevels > 0)
 	  {
             fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
@@ -11671,7 +11112,7 @@ write_trailer(FILE *out,	/* I - Output file */
 	    break;
 	  }
           break;
-      case PDF_CHAPTER_1 :
+      case HD_PDF_CHAPTER_1 :
           fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
                   pages_object + 2 * chapter_outstarts[1] + 1);
           break;
@@ -11808,11 +11249,11 @@ write_trailer(FILE *out,	/* I - Output file */
 
 
 /*
- * 'write_type1()' - Write an embedded Type 1 font.
+ * 'hdBook::write_type1()' - Write an embedded Type 1 font.
  */
 
-static int				/* O - Object number */
-write_type1(FILE       *out,		/* I - File to write to */
+int				/* O - Object number */
+hdBook::write_type1(FILE       *out,		/* I - File to write to */
             hdFontFace typeface,	/* I - Typeface */
 	    hdFontInternal    style)		/* I - Style */
 {
@@ -12116,12 +11557,12 @@ write_type1(FILE       *out,		/* I - File to write to */
 
 
 /*
- * 'encrypt_init()' - Initialize the RC4 encryption context for the current
+ * 'hdBook::encrypt_init()' - Initialize the RC4 encryption context for the current
  *                    object.
  */
 
-static void
-encrypt_init(void)
+void
+hdBook::encrypt_init(void)
 {
   int		i;		/* Looping var */
   uchar		data[21],	/* Key data */
@@ -12163,11 +11604,11 @@ encrypt_init(void)
 
 
 /*
- * 'flate_open_stream()' - Open a deflated output stream.
+ * 'hdBook::flate_open_stream()' - Open a deflated output stream.
  */
 
-static void
-flate_open_stream(FILE *out)	/* I - Output file */
+void
+hdBook::flate_open_stream(FILE *out)	/* I - Output file */
 {
   if (Encryption && !PSLevel)
     encrypt_init();
@@ -12188,11 +11629,11 @@ flate_open_stream(FILE *out)	/* I - Output file */
 
 
 /*
- * 'flate_close_stream()' - Close a deflated output stream.
+ * 'hdBook::flate_close_stream()' - Close a deflated output stream.
  */
 
-static void
-flate_close_stream(FILE *out)	/* I - Output file */
+void
+hdBook::flate_close_stream(FILE *out)	/* I - Output file */
 {
   if (!Compression)
   {
@@ -12254,11 +11695,11 @@ flate_close_stream(FILE *out)	/* I - Output file */
 
 
 /*
- * 'flate_puts()' - Write a character string to a compressed stream.
+ * 'hdBook::flate_puts()' - Write a character string to a compressed stream.
  */
 
-static void
-flate_puts(const char *s,	/* I - String to write */
+void
+hdBook::flate_puts(const char *s,	/* I - String to write */
            FILE       *out)	/* I - Output file */
 {
   flate_write(out, (uchar *)s, strlen(s));
@@ -12266,11 +11707,11 @@ flate_puts(const char *s,	/* I - String to write */
 
 
 /*
- * 'flate_printf()' - Write a formatted character string to a compressed stream.
+ * 'hdBook::flate_printf()' - Write a formatted character string to a compressed stream.
  */
 
-static void
-flate_printf(FILE       *out,	/* I - Output file */
+void
+hdBook::flate_printf(FILE       *out,	/* I - Output file */
              const char *format,/* I - Format string */
              ...)		/* I - Additional args as necessary */
 {
@@ -12288,11 +11729,11 @@ flate_printf(FILE       *out,	/* I - Output file */
 
 
 /*
- * 'flate_write()' - Write data to a compressed stream.
+ * 'hdBook::flate_write()' - Write data to a compressed stream.
  */
 
-static void
-flate_write(FILE  *out,		/* I - Output file */
+void
+hdBook::flate_write(FILE  *out,		/* I - Output file */
             uchar *buf,		/* I - Buffer */
             int   length,	/* I - Number of bytes to write */
 	    int   flush)	/* I - Flush when writing data? */
@@ -12351,5 +11792,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.98 2004/03/31 10:45:01 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.99 2004/04/11 19:38:58 mike Exp $".
  */

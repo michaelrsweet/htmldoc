@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.16 2004/03/31 20:56:56 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.17 2004/04/11 19:38:58 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -602,8 +602,8 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
       // Check for C-style comment...
       if ((ch = getc(f)) != '*')
       {
-        progress_error(HD_ERROR_CSS_ERROR,
-	                        "Bad sequence \"/%c\" in stylesheet!", ch);
+//        progress_error(HD_ERROR_CSS_ERROR,
+//	                        "Bad sequence \"/%c\" in stylesheet!", ch);
 	status = -1;
 	break;
       }
@@ -620,8 +620,8 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 
       if (ch != '/')
       {
-        progress_error(HD_ERROR_CSS_ERROR,
-	                        "Unterminated comment in stylesheet!");
+//        progress_error(HD_ERROR_CSS_ERROR,
+//	                        "Unterminated comment in stylesheet!");
 	status = -1;
 	break;
       }
@@ -637,8 +637,8 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
       // Read property data...
       if (read(f, props_p, props, sizeof(props)) == NULL)
       {
-        progress_error(HD_ERROR_CSS_ERROR,
-	                        "Missing property data in stylesheet!");
+//        progress_error(HD_ERROR_CSS_ERROR,
+//	                        "Missing property data in stylesheet!");
 	status = -1;
 	break;
       }
@@ -650,8 +650,8 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
       if (ch != '}')
       {
         ungetc(ch, f);
-	progress_error(HD_ERROR_CSS_ERROR,
-	                        "Missing } for style properties!");
+//	progress_error(HD_ERROR_CSS_ERROR,
+//	                        "Missing } for style properties!");
       }
 
       // Apply properties to all styles...
@@ -712,9 +712,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 
       if (cur_fstyle >= HD_SELECTOR_MAX)
       {
-        progress_error(HD_ERROR_CSS_ERROR,
-	                        "Too many selectors (> %d) in stylesheet!",
-	                        HD_SELECTOR_MAX);
+//        progress_error(HD_ERROR_CSS_ERROR,
+//	                        "Too many selectors (> %d) in stylesheet!",
+//	                        HD_SELECTOR_MAX);
 	status = -1;
 	break;
       }
@@ -724,8 +724,8 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
     else if (!sel_p[ch])
     {
       // Not a valid selector string...
-      progress_error(HD_ERROR_CSS_ERROR,
-                              "Bad stylesheet character \"%c\"!", ch);
+//      progress_error(HD_ERROR_CSS_ERROR,
+//                              "Bad stylesheet character \"%c\"!", ch);
       status = -1;
       break;
     }
@@ -811,9 +811,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 
 	    delete import_f;
 	  }
-	  else
-	    progress_error(HD_ERROR_CSS_ERROR,
-	                            "Unable to import \"%s\"!", import);
+//	  else
+//	    progress_error(HD_ERROR_CSS_ERROR,
+//	                            "Unable to import \"%s\"!", import);
 	}
       }
       else if (strcmp(sel_s, "@page") == 0)
@@ -836,15 +836,15 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 	if (ch != '{')
 	{
           ungetc(ch, f);
-	  progress_error(HD_ERROR_CSS_ERROR,
-	                          "Missing { for media selector!");
+//	  progress_error(HD_ERROR_CSS_ERROR,
+//	                          "Missing { for media selector!");
 	}
       }
       else
       {
         // Show a warning message...
-	progress_error(HD_ERROR_CSS_ERROR,
-	                        "Unsupported rule \"%s\"!", sel_s);
+//	progress_error(HD_ERROR_CSS_ERROR,
+//	                        "Unsupported rule \"%s\"!", sel_s);
 
         int braces = 0;
 
@@ -865,9 +865,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 	    break;
 	}
 
-        if (ch != ';')
-	  progress_error(HD_ERROR_CSS_ERROR,
-	                          "Missing terminator (;) for %s!", sel_s);
+//        if (ch != ';')
+//	  progress_error(HD_ERROR_CSS_ERROR,
+//	                          "Missing terminator (;) for %s!", sel_s);
       }
 
       continue;
@@ -1096,8 +1096,8 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   // Validate the character set name...
   if (cs == NULL || strchr(cs, '/') != NULL)
   {
-    progress_error(HD_ERROR_CSS_ERROR,
-                            "Bad character set \"%s\"!", cs ? cs : "(null)");
+//    progress_error(HD_ERROR_CSS_ERROR,
+//                            "Bad character set \"%s\"!", cs ? cs : "(null)");
     return;
   }
 
@@ -1106,27 +1106,27 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
            _htmlData, cs);
   if ((fp = fopen(filename, "r")) == NULL)
   {
-    progress_error(HD_ERROR_CSS_ERROR,
-                            "Unable to open character set file \"%s\"!",
-			    filename);
+//    progress_error(HD_ERROR_CSS_ERROR,
+//                            "Unable to open character set file \"%s\"!",
+//			    filename);
     return;
   }
 
   // Read the charset type (8bit or unicode)...
   if (fgets(line, sizeof(line), fp) == NULL)
   {
-    progress_error(HD_ERROR_CSS_ERROR,
-                            "Unable to read charset type from \"%s\"!",
-			    filename);
+//    progress_error(HD_ERROR_CSS_ERROR,
+//                            "Unable to read charset type from \"%s\"!",
+//			    filename);
     fclose(fp);
     return;
   }
 
   if (strcasecmp(line, "8bit") != 0 && strcasecmp(line, "unicode") != 0)
   {
-    progress_error(HD_ERROR_CSS_ERROR,
-                            "Bad charset type \"%s\" in \"%s\"!",
-			    line, filename);
+//    progress_error(HD_ERROR_CSS_ERROR,
+//                            "Bad charset type \"%s\" in \"%s\"!",
+//			    line, filename);
     fclose(fp);
     return;
   }
@@ -1169,15 +1169,15 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   {
     if (sscanf(line, "%x%254s", &code, name) != 2)
     {
-      progress_error(HD_ERROR_CSS_ERROR,
-                              "Bad line \"%s\" in \"%s\"!", line, filename);
+//      progress_error(HD_ERROR_CSS_ERROR,
+//                              "Bad line \"%s\" in \"%s\"!", line, filename);
       break;
     }
 
     if (code < 0 || code >= num_glyphs)
     {
-      progress_error(HD_ERROR_CSS_ERROR,
-                              "Invalid code %x in \"%s\"!", code, filename);
+//      progress_error(HD_ERROR_CSS_ERROR,
+//                              "Invalid code %x in \"%s\"!", code, filename);
       break;
     }
 
@@ -1210,5 +1210,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.16 2004/03/31 20:56:56 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.17 2004/04/11 19:38:58 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: book.cxx,v 1.4 2004/04/05 01:39:34 mike Exp $"
+// "$Id: book.cxx,v 1.5 2004/04/11 19:38:58 mike Exp $"
 //
 //   Book routines for HTMLDOC, a HTML document processing program.
 //
@@ -93,75 +93,93 @@ hdBook::hdBook()
       datadir = HTML_DATA;
   }
 
-  verbosity         = 0;
-  error_count       = 0;
-  strict_html       = false;
-  progress_visible  = false;
-  num_sizes         = 0;
-  sizes             = (hdPageSize *)0;
-  num_entities      = 0;
-  entities          = (hdEntity *)0;
-  num_headings      = 0;
-  alloc_headings    = 0;
-  headings          = (uchar **)0;
-  num_images        = 0;
-  alloc_images      = 0;
-  images            = (image_t **)0;
-  num_links         = 0;
-  alloc_links       = 0;
-  links             = (hdLink *)0;
-
-  Compression       = 1;
-  TitlePage         = true;
-  TocLinks          = true;
-  TocNumbers        = false;
-  TocLevels         = 3;
-  TocDocCount       = 0;
-  OutputFormat      = HD_OUTPUT_HTML;
-  OutputType        = HD_OUTPUT_BOOK;
-  OutputPath[0]     = '\0';
-  OutputFiles       = false;
-  OutputColor       = true;
-  OutputJPEG        = 0;
-  PDFVersion        = 13;
-  PDFPageMode       = HD_PDF_OUTLINE;
-  PDFPageLayout     = HD_PDF_SINGLE;
-  PDFFirstPage      = HD_PDF_CHAPTER_1;
-  PDFEffect         = HD_PDF_NONE;
-  PDFEffectDuration = 1.0f;
-  PDFPageDuration   = 10.0f;
-  Encryption        = false;
-  Permissions       = -4;
-  OwnerPassword[0]  = '\0';
-  UserPassword[0]   = '\0';
-  EmbedFonts        = false;
-  PSLevel           = 2;
-  PSCommands        = false;
-  XRXComments       = false;
-  PageWidth         = 595;
-  PageLength        = 792;
-  PageLeft          = 72;
-  PageRight         = 36;
-  PageTop           = 36;
-  PageBottom        = 36;
-  PageDuplex        = false;
-  Landscape         = false;
-  NumberUp          = 1;
-  HeadFootType      = HD_FONTFACE_SANS_SERIF;
-  HeadFootStyle     = HD_FONTINTERNAL_NORMAL;
-  HeadFootSize      = 11.0f;
-  Header[0]         = NULL;
-  Header[1]         = NULL;
-  Header[2]         = NULL;
-  Footer[0]         = NULL;
-  Footer[1]         = NULL;
-  Footer[2]         = NULL;
-  TocHeader[0]      = NULL;
-  TocHeader[1]      = NULL;
-  TocHeader[2]      = NULL;
-  TocFooter[0]      = NULL;
-  TocFooter[1]      = NULL;
-  TocFooter[2]      = NULL;
+  verbosity           = 0;
+  error_count         = 0;
+  strict_html         = false;
+  progress_visible    = false;
+  num_sizes           = 0;
+  sizes               = (hdPageSize *)0;
+  num_entities        = 0;
+  entities            = (hdEntity *)0;
+  num_headings        = 0;
+  alloc_headings      = 0;
+  headings            = (uchar **)0;
+  num_images          = 0;
+  alloc_images        = 0;
+  images              = (image_t **)0;
+  num_links           = 0;
+  alloc_links         = 0;
+  links               = (hdLink *)0;
+  num_pages           = 0;
+  alloc_pages         = 0;
+  pages               = (hdPage *)0;
+  num_outpages        = 0;
+  outpages            = (hdOutPage *)0;
+  num_objects         = 0;
+  alloc_objects       = 0;
+  objects             = (int *)0;
+  doc_title           = (uchar *)0;
+  logo_image          = (image_t *)0;
+  background_image    = (image_t *)0;
+  background_color[0] = 1.0f;
+  background_color[1] = 1.0f;
+  background_color[2] = 1.0f;
+  link_color[0]       = 0.0f;
+  link_color[1]       = 0.0f;
+  link_color[2]       = 1.0f;
+  compressor_active   = 0;
+  
+  Compression         = 1;
+  TitlePage           = true;
+  TocLinks            = true;
+  TocNumbers          = false;
+  TocLevels           = 3;
+  TocDocCount         = 0;
+  OutputFormat        = HD_OUTPUT_HTML;
+  OutputType          = HD_OUTPUT_BOOK;
+  OutputPath[0]       = '\0';
+  OutputFiles         = false;
+  OutputColor         = true;
+  OutputJPEG          = 0;
+  PDFVersion          = 13;
+  PDFPageMode         = HD_PDF_OUTLINE;
+  PDFPageLayout       = HD_PDF_SINGLE;
+  PDFFirstPage        = HD_PDF_CHAPTER_1;
+  PDFEffect           = HD_PDF_NONE;
+  PDFEffectDuration   = 1.0f;
+  PDFPageDuration     = 10.0f;
+  Encryption          = false;
+  Permissions         = -4;
+  OwnerPassword[0]    = '\0';
+  UserPassword[0]     = '\0';
+  EmbedFonts          = false;
+  PSLevel             = 2;
+  PSCommands          = false;
+  XRXComments         = false;
+  PageWidth           = 595;
+  PageLength          = 792;
+  PageLeft            = 72;
+  PageRight           = 36;
+  PageTop             = 36;
+  PageBottom          = 36;
+  PageDuplex          = false;
+  Landscape           = false;
+  NumberUp            = 1;
+  HeadFootType        = HD_FONTFACE_SANS_SERIF;
+  HeadFootStyle       = HD_FONTINTERNAL_NORMAL;
+  HeadFootSize        = 11.0f;
+  Header[0]           = NULL;
+  Header[1]           = NULL;
+  Header[2]           = NULL;
+  Footer[0]           = NULL;
+  Footer[1]           = NULL;
+  Footer[2]           = NULL;
+  TocHeader[0]        = NULL;
+  TocHeader[1]        = NULL;
+  TocHeader[2]        = NULL;
+  TocFooter[0]        = NULL;
+  TocFooter[1]        = NULL;
+  TocFooter[2]        = NULL;
 
   strcpy(TocTitle, "Table of Contents");
 
@@ -994,5 +1012,5 @@ hdPageSize::clear()
 
 
 //
-// End of "$Id: book.cxx,v 1.4 2004/04/05 01:39:34 mike Exp $".
+// End of "$Id: book.cxx,v 1.5 2004/04/11 19:38:58 mike Exp $".
 //
