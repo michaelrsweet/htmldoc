@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.178 2002/05/30 15:57:41 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.179 2002/05/31 12:57:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2110,7 +2110,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
 
   // Write links and target names...
   pdf_write_links(out);
-  if (PDFVersion >= 1.2)
+  if (PDFVersion >= 12)
     pdf_write_names(out);
 
   // Verify that everything is working so far...
@@ -2285,7 +2285,7 @@ pdf_write_resources(FILE *out,	/* I - Output file */
 
   if (!images_used)
     fputs("/ProcSet[/PDF/Text]", out);
-  else if (PDFVersion >= 1.2)
+  else if (PDFVersion >= 12)
   {
     if (OutputColor)
       fputs("/ProcSet[/PDF/Text/ImageB/ImageC/ImageI]", out);
@@ -2951,7 +2951,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
   * Add space for named links in PDF 1.2 output...
   */
 
-  if (PDFVersion >= 1.2)
+  if (PDFVersion >= 12)
     pages_object += num_links + 3;
 
  /*
@@ -3076,7 +3076,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
             pdf_start_object(out);
 
-	    if (PDFVersion >= 1.2 &&
+	    if (PDFVersion >= 12 &&
         	file_method((char *)r->data.link) == NULL)
 	    {
   #ifdef WIN32
@@ -9146,7 +9146,7 @@ write_image(FILE     *out,	/* I - Output file */
   if (!img->pixels && !img->obj)
     image_load(img->filename, !OutputColor, 1);
 
-  if (PSLevel != 1 && PDFVersion >= 1.2f && img->obj == 0)
+  if (PSLevel != 1 && PDFVersion >= 12 && img->obj == 0)
   {
     if (img->depth == 1)
     {
@@ -9475,14 +9475,14 @@ write_image(FILE     *out,	/* I - Output file */
 
         if (img->obj)
 	{
-	  if (img->mask && PDFVersion < 1.3f)
+	  if (img->mask && PDFVersion < 13)
 	    write_imagemask(out, r);
 
 	  flate_printf(out, "/I%d Do Q\n", img->obj);
 	  break;
 	}
 
-        if (img->mask && write_obj && PDFVersion >= 1.3f)
+        if (img->mask && write_obj && PDFVersion >= 13)
 	{
 	  // We have a mask image, write it!
           pdf_start_object(out);
@@ -9506,7 +9506,7 @@ write_image(FILE     *out,	/* I - Output file */
 	  img->obj = pdf_start_object(out);
 
 	  fputs("/Type/XObject/Subtype/Image", out);
-	  if (img->mask && PDFVersion >= 1.3f)
+	  if (img->mask && PDFVersion >= 13)
 	    fprintf(out, "/Mask %d 0 R", img->obj - 1);
 
 	  if (ncolors > 0)
@@ -10374,7 +10374,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     * Write PDF prolog stuff...
     */
 
-    fprintf(out, "%%PDF-%.1f\n", PDFVersion);
+    fprintf(out, "%%PDF-%.1f\n", 0.1 * PDFVersion);
     fputs("%\342\343\317\323\n", out);
     num_objects = 0;
 
@@ -10432,7 +10432,7 @@ write_prolog(FILE  *out,	/* I - Output file */
       * 40-bits.  Acrobat 5.0 and newer support 128-bits.
       */
 
-      if (PDFVersion > 1.3)
+      if (PDFVersion > 13)
         encrypt_len = 16;	// 128 bits
       else
         encrypt_len = 5;	// 40 bits
@@ -10891,7 +10891,7 @@ write_trailer(FILE *out,	/* I - Output file */
     fputs("/Type/Catalog", out);
     fprintf(out, "/Pages %d 0 R", pages_object);
 
-    if (PDFVersion >= 1.2)
+    if (PDFVersion >= 12)
     {
       if (names_object)
         fprintf(out, "/Names %d 0 R", names_object);
@@ -10928,7 +10928,7 @@ write_trailer(FILE *out,	/* I - Output file */
 
     fprintf(out, "/PageMode/%s", modes[PDFPageMode]);
 
-    if (PDFVersion > 1.2 && NumberUp == 1)
+    if (PDFVersion > 12 && NumberUp == 1)
     {
       // Output the PageLabels tree...
       fputs("/PageLabels<</Nums[", out);
@@ -11463,5 +11463,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.178 2002/05/30 15:57:41 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.179 2002/05/31 12:57:29 mike Exp $".
  */
