@@ -1,4 +1,4 @@
-README.txt - 07/31/2000
+README.txt - 12/06/2000
 -----------------------
 
 INTRODUCTION
@@ -29,10 +29,9 @@ INTRODUCTION
 
 INTERNET RESOURCES
 
-    Problem reports should be addressed to
-    "htmldoc-support@easysw.com".  For general discussions about
-    HTMLDOC, subscribe to the HTMLDOC mailing list by sending a message
-    to "majordomo@easysw.com" with the text "subscribe htmldoc".
+    For general discussions about HTMLDOC, subscribe to the HTMLDOC
+    mailing list by sending a message to "majordomo@easysw.com" with
+    the text "subscribe htmldoc".
 
     The HTMLDOC home page is located at:
 
@@ -41,6 +40,11 @@ INTERNET RESOURCES
     The current version of HTMLDOC can be also downloaded from:
 
         http://www.easysw.com/software.html
+
+    Commercial support is available from Easy Software Products; send
+    requests to "htmldoc-support@easysw.com" (note: support via this
+    email address is only provided to customers with a valid support
+    contract!)
 
 
 REQUIREMENTS
@@ -55,7 +59,9 @@ REQUIREMENTS
 	- Linux 2.0 or higher (Intel only)
 	- Microsoft Windows 95
 	- Microsoft Windows 98
+	- Microsoft Windows Me
 	- Microsoft Windows NT 4.0
+	- Microsoft Windows 2000
 	- Red Hat Linux 5.2 or higher (Intel only)
 	- Solaris 2.5 or higher (SPARC and Intel)
 
@@ -162,9 +168,9 @@ RUNNING HTMLDOC FROM YOUR WEB SERVER
 CURRENT LIMITATIONS
 
     - No support for style sheets.
-    - ROWSPAN is not supported in tables.
     - CAPTIONs are always shown at the top of the table.
-    - HTML 4.0 table elements and attributes are not supported.
+    - HTML 4.0 table elements and attributes are not supported
+      (rules, THEAD, TFOOT, etc.)
 
 
 CREDITS

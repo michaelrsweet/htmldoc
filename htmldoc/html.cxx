@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.1 2000/12/02 02:24:29 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.2 2000/12/06 13:55:39 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -174,8 +174,8 @@ html_export(tree_t *document,	/* I - Document to export */
 
   if (!OutputFiles && out != stdout)
   {
-    fputs("</body>\n", out);
-    fputs("</html>\n", out);
+    fputs("</BODY>\n", out);
+    fputs("</HTML>\n", out);
 
     fclose(out);
   }
@@ -251,83 +251,83 @@ write_header(FILE   **out,	/* IO - Output file */
 
   if (newfile)
   {
-    fputs("<!doctype HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "
+    fputs("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "
           "\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n", *out);
-    fputs("<html>\n", *out);
-    fputs("<head>\n", *out);
-    fprintf(*out, "<title>%s</title>\n", title);
+    fputs("<HTML>\n", *out);
+    fputs("<HEAD>\n", *out);
+    fprintf(*out, "<TITLE>%s</TITLE>\n", title);
     if (author != NULL)
-      fprintf(*out, "<meta name=\"author\" content=\"%s\">\n", author);
+      fprintf(*out, "<META NAME=\"author\" CONTENT=\"%s\">\n", author);
     if (copyright != NULL)
-      fprintf(*out, "<meta name=\"copyright\" content=\"%s\">\n", copyright);
+      fprintf(*out, "<META NAME=\"copyright\" CONTENT=\"%s\">\n", copyright);
     if (docnumber != NULL)
-      fprintf(*out, "<meta name=\"docnumber\" content=\"%s\">\n", docnumber);
-    fprintf(*out, "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-%s\">\n",
+      fprintf(*out, "<META NAME=\"docnumber\" CONTENT=\"%s\">\n", docnumber);
+    fprintf(*out, "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; CHARSET=iso-%s\">\n",
             _htmlCharSet);
 
-    fputs("<style><!--\n", *out);
-    fprintf(*out, "body { font-family: %s; font-size: %.1fpt }\n",
+    fputs("<STYLE><!--\n", *out);
+    fprintf(*out, "BODY { font-family: %s; font-size: %.1fpt }\n",
             families[_htmlBodyFont], _htmlSizes[SIZE_P]);
-    fprintf(*out, "h1 { font-family: %s; font-size: %.1fpt }\n",
+    fprintf(*out, "H1 { font-family: %s; font-size: %.1fpt }\n",
             families[_htmlHeadingFont], _htmlSizes[SIZE_H1]);
-    fprintf(*out, "h2 { font-family: %s; font-size: %.1fpt }\n",
+    fprintf(*out, "H2 { font-family: %s; font-size: %.1fpt }\n",
             families[_htmlHeadingFont], _htmlSizes[SIZE_H2]);
-    fprintf(*out, "h3 { font-family: %s; font-size: %.1fpt }\n",
+    fprintf(*out, "H3 { font-family: %s; font-size: %.1fpt }\n",
             families[_htmlHeadingFont], _htmlSizes[SIZE_H3]);
-    fprintf(*out, "h4 { font-family: %s; font-size: %.1fpt }\n",
+    fprintf(*out, "H4 { font-family: %s; font-size: %.1fpt }\n",
             families[_htmlHeadingFont], _htmlSizes[SIZE_H4]);
-    fprintf(*out, "h5 { font-family: %s; font-size: %.1fpt }\n",
+    fprintf(*out, "H5 { font-family: %s; font-size: %.1fpt }\n",
             families[_htmlHeadingFont], _htmlSizes[SIZE_H5]);
-    fprintf(*out, "h6 { font-family: %s; font-size: %.1fpt }\n",
+    fprintf(*out, "H6 { font-family: %s; font-size: %.1fpt }\n",
             families[_htmlHeadingFont], _htmlSizes[SIZE_H6]);
-    fprintf(*out, "sub { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
-    fprintf(*out, "sup { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
-    fprintf(*out, "pre { font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
+    fprintf(*out, "SUB { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
+    fprintf(*out, "SUP { font-size: %.1fpt }\n", _htmlSizes[SIZE_SUB]);
+    fprintf(*out, "PRE { font-size: %.1fpt }\n", _htmlSizes[SIZE_PRE]);
 
     if (!LinkStyle)
-      fputs("a { text-decoration: none }\n", *out);
+      fputs("A { text-decoration: none }\n", *out);
 
-    fputs("--></style>\n", *out);
-    fputs("</head>\n", *out);
+    fputs("--></STYLE>\n", *out);
+    fputs("</HEAD>\n", *out);
 
     if (BodyImage[0] != '\0')
-      fprintf(*out, "<body background=\"%s\"", file_basename(BodyImage));
+      fprintf(*out, "<BODY BACKGROUND=\"%s\"", file_basename(BodyImage));
     else if (BodyColor[0] != '\0')
-      fprintf(*out, "<body bgcolor=\"%s\"", BodyColor);
+      fprintf(*out, "<BODY BGCOLOR=\"%s\"", BodyColor);
     else
-      fputs("<body", *out);
+      fputs("<BODY", *out);
 
     if (_htmlTextColor[0] != '\0')
-      fprintf(*out, " text=\"%s\"", _htmlTextColor);
+      fprintf(*out, " TEXT=\"%s\"", _htmlTextColor);
 
     if (LinkColor[0] != '\0')
-      fprintf(*out, " link=\"%s\" vlink=\"%s\" alink=\"%s\"", LinkColor,
+      fprintf(*out, " LINK=\"%s\" VLINK=\"%s\" ALINK=\"%s\"", LinkColor,
               LinkColor, LinkColor);
 
     fputs(">\n", *out);
   }
   else
-    fputs("<hr>\n", *out);
+    fputs("<HR>\n", *out);
 
   if (OutputFiles && t != NULL && (t->prev != NULL || t->next != NULL))
   {
     if (LogoImage[0] != '\0')
-      fprintf(*out, "<img src=\"%s\">\n", file_basename(LogoImage));
+      fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
 
     if (TitlePage)
-      fputs("<a href=\"toc.html\">Contents</a>\n", *out);
+      fputs("<A HREF=\"toc.html\">Contents</A>\n", *out);
     else
-      fputs("<a href=\"index.html\">Contents</a>\n", *out);
+      fputs("<A HREF=\"index.html\">Contents</A>\n", *out);
 
     if (t->prev != NULL)
-      fprintf(*out, "<a href=\"%s\">Previous</a>\n",
+      fprintf(*out, "<A HREF=\"%s\">Previous</A>\n",
               file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
 
     if (t->next != NULL)
-      fprintf(*out, "<a href=\"%s\">Next</a>\n",
+      fprintf(*out, "<A HREF=\"%s\">Next</A>\n",
               file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
 
-    fputs("<hr>\n", *out);
+    fputs("<HR>\n", *out);
   }
 }
 
@@ -345,30 +345,30 @@ write_footer(FILE **out,	/* IO - Output file pointer */
 
   if (OutputFiles && t != NULL && (t->prev != NULL || t->next != NULL))
   {
-    fputs("<hr>\n", *out);
+    fputs("<HR>\n", *out);
 
     if (LogoImage[0] != '\0')
-      fprintf(*out, "<img src=\"%s\">\n", file_basename(LogoImage));
+      fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
 
     if (TitlePage)
-      fputs("<a href=\"toc.html\">Contents</a>\n", *out);
+      fputs("<A HREF=\"toc.html\">Contents</A>\n", *out);
     else
-      fputs("<a href=\"index.html\">Contents</a>\n", *out);
+      fputs("<A HREF=\"index.html\">Contents</A>\n", *out);
 
 
     if (t->prev != NULL)
-      fprintf(*out, "<a href=\"%s\">Previous</a>\n",
+      fprintf(*out, "<A HREF=\"%s\">Previous</A>\n",
               file_basename((char *)htmlGetVariable(t->prev, (uchar *)"FILENAME")));
 
     if (t->next != NULL)
-      fprintf(*out, "<a href=\"%s\">Next</a>\n",
+      fprintf(*out, "<A HREF=\"%s\">Next</A>\n",
               file_basename((char *)htmlGetVariable(t->next, (uchar *)"FILENAME")));
   }
 
   if (OutputFiles)
   {
-    fputs("</body>\n", *out);
-    fputs("</html>\n", *out);
+    fputs("</BODY>\n", *out);
+    fputs("</HTML>\n", *out);
 
     fclose(*out);
     *out = NULL;
@@ -422,37 +422,37 @@ write_title(FILE  *out,		/* I - Output file */
   {
     // Write a "standard" title page with image...
     if (OutputFiles)
-      fputs("<center><a href=\"toc.html\">", out);
+      fputs("<CENTER><A HREF=\"toc.html\">", out);
     else
-      fputs("<center><a href=\"#CONTENTS\">", out);
+      fputs("<CENTER><A HREF=\"#CONTENTS\">", out);
 
     if (TitleImage[0] != '\0')
     {
       image_t *img = image_find(TitleImage);
 
       if (OutputFiles)
-	fprintf(out, "<img src=\"%s\" border=\"0\" width=\"100%%\"><br>\n",
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"100%%\"><BR>\n",
         	file_basename((char *)TitleImage));
       else
-	fprintf(out, "<img src=\"%s\" border=\"0\" width=\"100%%\"><br>\n",
+	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"100%%\"><BR>\n",
         	TitleImage);
     }
 
     if (title != NULL)
-      fprintf(out, "<h1>%s</h1></a><br>\n", title);
+      fprintf(out, "<h1>%s</h1></A><BR>\n", title);
     else
-      fputs("</a>\n", out);
+      fputs("</A>\n", out);
 
     if (docnumber != NULL)
-      fprintf(out, "%s<br>\n", docnumber);
+      fprintf(out, "%s<BR>\n", docnumber);
 
     if (author != NULL)
-      fprintf(out, "%s<br>\n", author);
+      fprintf(out, "%s<BR>\n", author);
 
     if (copyright != NULL)
-      fprintf(out, "%s<br>\n", copyright);
+      fprintf(out, "%s<BR>\n", copyright);
 
-    fputs("</center>\n", out);
+    fputs("</CENTER>\n", out);
   }
 }
 
@@ -623,6 +623,7 @@ write_all(FILE   *out,		/* I - Output file */
 
       switch (t->markup)
       {
+        case MARKUP_NONE :
         case MARKUP_INPUT :
 	case MARKUP_IMG :
 	case MARKUP_AREA :
@@ -885,5 +886,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.1 2000/12/02 02:24:29 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.2 2000/12/06 13:55:39 mike Exp $".
  */
