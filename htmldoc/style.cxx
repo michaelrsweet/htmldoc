@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.2 2002/02/05 17:47:58 mike Exp $"
+// "$Id: style.cxx,v 1.3 2002/02/05 19:50:34 mike Exp $"
 //
 //   CSS routines for HTMLDOC, a HTML document processing program.
 //
@@ -191,8 +191,8 @@ hdStyle::get_border_width(const char *value)	// I - String value
 //
 
 int					// O - 0 on success, -1 on error
-get_color(const char    *color,		// I - Color string
-          unsigned char *rgb)		// O - RGB color
+hdStyle::get_color(const char    *color,// I - Color string
+                   unsigned char *rgb)	// O - RGB color
 {
   int		i, j;			// Temp/looping vars
   char		tempcolor[8];		// Temporary hex color
@@ -420,7 +420,7 @@ hdStyle::get_list_style_type(const char *value)	// I - String value
 //
 
 hdPageBreak					// O - Numeric value
-get_page_break(const char *value)		// I - String value
+hdStyle::get_page_break(const char *value)	// I - String value
 {
   if (strcasecmp(value, "always") == 0)
     return (HD_PAGEBREAK_ALWAYS);
@@ -439,10 +439,10 @@ get_page_break(const char *value)		// I - String value
 // 'hdStyle::get_pos()' - Get a margin/position/padding/border index.
 //
 
-int				// O - Index in property array
-get_pos(const char *name)	// I - Name of property
+int					// O - Index in property array
+hdStyle::get_pos(const char *name)	// I - Name of property
 {
-  const char	*pos;		// Position name...
+  const char	*pos;			// Position name...
 
 
   if ((pos = strchr(name, '-')) != NULL)
@@ -465,8 +465,8 @@ get_pos(const char *name)	// I - Name of property
 // 'hdStyle::get_subvalue()' - Get a subvalue from a property value.
 //
 
-char *				// O - New value pointer
-get_subvalue(char *valueptr)	// I - Value pointer
+char *					// O - New value pointer
+hdStyle::get_subvalue(char *valueptr)	// I - Value pointer
 {
   while (*valueptr && !isspace(*valueptr))
     if (*valueptr == '(')
@@ -1905,7 +1905,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
           if ((lh = strchr(subvalue, '/')) != NULL)
 	    *lh++ = '\0';
 
-          font_size = get_length(subvalue, font_size, &relative);
+          font_size = get_length(subvalue, 11.0f, &relative);
 
 	  if (relative)
 	  {
@@ -1916,7 +1916,17 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  }
 
           if (lh)
-	    line_height = get_length(lh, 1.0f);
+	  {
+	    line_height = get_length(lh, font_size, &relative);
+
+            if (line_height_rel)
+	      free(line_height_rel);
+
+	    if (relative)
+	      line_height_rel = strdup(lh);
+	    else
+	      line_height_rel = NULL;
+	  }
 	}
 	else
 	{
@@ -1940,24 +1950,34 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "font-size") == 0)
     {
-       char	*lh;			// Line height, if available
+      char	*lh;			// Line height, if available
 
 
-       if ((lh = strchr(value, '/')) != NULL)
-	 *lh++ = '\0';
+      if ((lh = strchr(value, '/')) != NULL)
+	*lh++ = '\0';
 
-       font_size = get_length(value, font_size, &relative);
+      font_size = get_length(value, 11.0f, &relative);
 
-       if (relative)
-       {
-	 if (font_size_rel)
-	   free(font_size_rel);
+      if (relative)
+      {
+	if (font_size_rel)
+	  free(font_size_rel);
 
-	 font_size_rel = strdup(subvalue);
-       }
+	font_size_rel = strdup(subvalue);
+      }
 
-       if (lh)
-	 line_height = get_length(lh, 1.0f);
+      if (lh)
+      {
+	line_height = get_length(lh, font_size, &relative);
+
+        if (line_height_rel)
+	  free(line_height_rel);
+
+	if (relative)
+	  line_height_rel = strdup(lh);
+	else
+	  line_height_rel = NULL;
+      }
     }
     else if (strcasecmp(name, "font-size-adjust") == 0)
     {
@@ -2059,10 +2079,15 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
     else if (strcasecmp(name, "line-height") == 0)
     {
-      if (strcasecmp(value, "normal") == 0)
-        line_height = 1.2f;
+      line_height = get_length(value, font_size, &relative);
+
+      if (line_height_rel)
+	free(line_height_rel);
+
+      if (strcasecmp(value, "normal") == 0 || relative)
+	line_height_rel = strdup(value);
       else
-        line_height = get_length(value, 1.0f);
+	line_height_rel = NULL;
     }
     else if (strcasecmp(name, "list-style") == 0)
     {
@@ -2670,6 +2695,8 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     }
   }
 
+  updated = 0;
+
   return (status);
 }
 
@@ -2681,148 +2708,88 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 void
 hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 {
+  // Stop immediately if we are already updated...
+  if (updated)
+    return;
+
+  updated = 1;
+
+  // Start by updating the font info for this style, since many things
+  // depend on the current font size...
+  if (font_size_rel)
+  {
+    hdSelector	body;			// BODY element selector
+    hdStyle	*body_style;		// BODY element style
+
+
+    memset(&body, 0, sizeof(body));
+    body.element = HD_ELEMENT_BODY;
+
+    if (selectors[0].element == HD_ELEMENT_BODY ||
+        (body_style = css->find_style(1, &body)) == NULL)
+      font_size = get_length(font_size_rel, 11.0f);
+    else
+    {
+      body_style->update(css);
+
+      font_size = get_length(font_size_rel, body_style->font_size);
+    }
+  }
+
+  font = css->find_font(this);
+
+  // Then do all of the other relative properties...
+  if (background_position_rel[0])
+    background_position[0] = get_length(background_position_rel[0], css->width);
+  if (background_position_rel[1])
+    background_position[1] = get_length(background_position_rel[1], css->length);
+
+  if (height_rel)
+    height = get_length(height_rel, css->length);
+
+  if (line_height_rel)
+  {
+    if (strcasecmp(line_height_rel, "normal") == 0)
+      line_height = 1.2f * font_size;
+    else
+      line_height = get_length(line_height_rel, font_size);
+  }
+
+  if (margin_rel[0])
+    margin[0] = get_length(margin_rel[0], css->length);
+  if (margin_rel[1])
+    margin[1] = get_length(margin_rel[1], css->width);
+  if (margin_rel[2])
+    margin[2] = get_length(margin_rel[2], css->width);
+  if (margin_rel[3])
+    margin[3] = get_length(margin_rel[3], css->length);
+
+  if (padding_rel[0])
+    padding[0] = get_length(padding_rel[0], css->length);
+  if (padding_rel[1])
+    padding[1] = get_length(padding_rel[1], css->width);
+  if (padding_rel[2])
+    padding[2] = get_length(padding_rel[2], css->width);
+  if (padding_rel[3])
+    padding[3] = get_length(padding_rel[3], css->length);
+
+  if (position_rel[0])
+    position[0] = get_length(position_rel[0], css->length);
+  if (position_rel[1])
+    position[1] = get_length(position_rel[1], css->width);
+  if (position_rel[2])
+    position[2] = get_length(position_rel[2], css->width);
+  if (position_rel[3])
+    position[3] = get_length(position_rel[3], css->length);
+
+  if (text_indent_rel)
+    text_indent = get_length(text_indent_rel, css->width);
+
+  if (width_rel)
+    width = get_length(width_rel, css->width);
 }
 
 
 //
-// 'hdStyleFont::hdStyleFont()' - Create a new font record.
-//
-
-hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
-        		 hdFontFace     t,	// I - Typeface
-			 hdFontInternal s,	// I - Style
-			 const char     *n)	// I - Font name
-{
-}
-
-
-//
-// 'hdStyleFont::~hdStyleFont()' - Destroy a font record.
-//
-
-hdStyleFont::~hdStyleFont()
-{
-}
-
-
-//
-// 'hdStyleFont::width()' - Compute the width of a string.
-//
-
-float					// O - Unscaled width
-hdStyleFont::width(const char *s)	// I - String to measure
-{
-  return (0.0f);
-}
-
-
-//
-// 'hdStyleSheet::hdStyleSheet()' - Create a new stylesheet.
-//
-
-hdStyleSheet::hdStyleSheet()
-{
-}
-
-
-//
-// 'hdStyleSheet::~hdStyleSheet()' - Destroy a stylesheet.
-//
-
-hdStyleSheet::~hdStyleSheet()
-{
-}
-
-
-//
-// 'hdStyleSheet::add_style()' - Add a style to a stylesheet.
-//
-
-void
-hdStyleSheet::add_style(hdStyle *s)	// I - New style
-{
-}
-
-
-//
-// 'hdStyleSheet::find_font()' - Find a font for the given style.
-//
-
-hdStyleFont *				// O - Font record
-hdStyleSheet::find_font(hdStyle *s)	// I - Style record
-{
-  return ((hdStyleFont *)0);
-}
-
-
-//
-// 'hdStyleSheet::find_style()' - Find the default style for the given
-//                                tree node.
-//
-
-hdStyle *				// O - Style record
-hdStyleSheet::find_style(hdTree *t)	// I - Tree node
-{
-  return ((hdStyle *)0);
-}
-
-
-//
-// 'hdStyleSheet::find_style()' - Find the default style for the given
-//                                selectors.
-//
-
-hdStyle *				// O - Style record
-find_style(int        nsels,		// I - Number of selectors
-           hdSelector *sels)		// I - Selectors
-{
-  return ((hdStyle *)0);
-}
-
-
-//
-// 'hdStyleSheet::load()' - Load a stylesheet from the given file.
-//
-
-int					// O - 0 on success, -1 on failure
-hdStyleSheet::load(hdFile     *f,	// I - File to read from
-                   const char *path)	// I - Search path for included files
-{
-  return (0);
-}
-
-
-//
-// 'hdStyleSheet::set_charset()' - Set the character set to use for the
-//                                 document.
-//
-
-void
-hdStyleSheet::set_charset(const char *cs)// I - Character set name
-{
-}
-
-
-//
-// 'hdStyleSheet::update()' - Update all relative stylesheet data.
-//
-
-void
-hdStyleSheet::update()
-{
-}
-
-
-//
-// 'hdStyleSheet::update_styles()' - Update all relative style data.
-//
-
-void
-hdStyleSheet::update_styles()
-{
-}
-
-
-//
-// End of "$Id: style.cxx,v 1.2 2002/02/05 17:47:58 mike Exp $".
+// End of "$Id: style.cxx,v 1.3 2002/02/05 19:50:34 mike Exp $".
 //
