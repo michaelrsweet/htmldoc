@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.107 2001/09/25 21:31:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.108 2001/10/01 20:57:07 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1416,7 +1416,8 @@ ps_write_page(FILE  *out,		/* I - Output file */
     // embedded commands...
     fputs("%XRXbegin: 001.0300\n", out);
     fputs("%XRXPDLformat: PS-Adobe\n", out);
-    fprintf(out, "%%XRXtitle: %s\n", title);
+    if (title)
+      fprintf(out, "%%XRXtitle: %s\n", title);
     fputs("%XRXcopyCount: 1\n", out);
     if (pages[page].duplex)
     {
@@ -10074,5 +10075,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.107 2001/09/25 21:31:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.108 2001/10/01 20:57:07 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.9 2001/09/30 22:41:31 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.10 2001/10/01 20:57:05 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -40,7 +40,7 @@
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Window.H>
 
-#if FLTK_MAJOR_VERSION == 1 && FLTK_MINOR_VERSION == 0
+#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 #  include <gui/CheckButton.h>
 #  define RadioButton	CheckButton
 #  include <gui/FileChooser.h>
@@ -59,7 +59,7 @@
 #  define FileBrowser	Fl_File_Browser
 #  define HelpDialog	Fl_Help_Dialog
 #  define Progress	Fl_Progress
-#endif // FLTK_MAJOR_VERSION == 1 && FLTK_MINOR_VERSION == 0
+#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 
 
 /*
@@ -283,5 +283,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.9 2001/09/30 22:41:31 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.10 2001/10/01 20:57:05 mike Exp $".
  */
