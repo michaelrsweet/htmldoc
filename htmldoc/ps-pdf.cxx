@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.45 2001/04/18 16:12:50 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.46 2001/04/27 20:11:08 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1358,7 +1358,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
   num_images = image_getlist(&images);
   for (i = 0; i < num_images; i ++)
     if (images[i]->use > 1 || images[i]->mask ||
-        (images[i]->width * images[i]->height * images[i]->depth) > 32768 ||
+        (images[i]->width * images[i]->height * images[i]->depth) > 65536 ||
 	images[i] == background_image ||
 	images[i] == logo_image)
     {
@@ -6150,13 +6150,13 @@ set_pos(FILE  *out,	/* I - File to write to */
 
   if (PSLevel > 0 || render_x == -1.0)
   {
-    sprintf(xs, "%.1f", x);
-    sprintf(ys, "%.1f", y);
+    sprintf(xs, "%.3f", x);
+    sprintf(ys, "%.3f", y);
   }
   else
   {
-    sprintf(xs, "%.1f", x - render_startx);
-    sprintf(ys, "%.1f", y - render_y);
+    sprintf(xs, "%.3f", x - render_startx);
+    sprintf(ys, "%.3f", y - render_y);
   }
 
  /*
@@ -6523,10 +6523,10 @@ write_image(FILE     *out,	/* I - Output file */
       * Color image...
       */
 
-      if (OutputJPEG && PSLevel != 1)
-	max_colors = 16;
+      if (OutputJPEG && !Compression)
+        max_colors = 16;
       else
-	max_colors = 256;
+        max_colors = 256;
 
       for (i = img->width * img->height, pixel = img->pixels;
 	   i > 0;
@@ -6790,7 +6790,7 @@ write_image(FILE     *out,	/* I - Output file */
 
           pdf_start_stream(out);
           flate_open_stream(out);
-  	  flate_write(out, img->mask, img->maskwidth * img->height, 1);
+  	  flate_write(out, img->mask, img->maskwidth * img->height);
 	  flate_close_stream(out);
 
           pdf_end_object(out);
@@ -6834,7 +6834,12 @@ write_image(FILE     *out,	/* I - Output file */
           if (Compression && (ncolors || !OutputJPEG))
             fputs("/Filter/FlateDecode", out);
 	  else if (OutputJPEG && ncolors == 0)
-	    fputs("/Filter/DCTDecode", out);
+	  {
+	    if (Compression)
+	      fputs("/Filter[/DCTDecode/FlateDecode]", out);
+	    else
+	      fputs("/Filter/DCTDecode", out);
+	  }
 
   	  fprintf(out, "/Width %d/Height %d/BitsPerComponent %d",
 	          img->width, img->height, indbits);
@@ -6842,6 +6847,9 @@ write_image(FILE     *out,	/* I - Output file */
 
           if (OutputJPEG && ncolors == 0)
 	  {
+	    if (Compression)
+              flate_open_stream(out);
+	    
 	    jpg_setup(out, img, &cinfo);
 
 	    for (i = img->height, pixel = img->pixels;
@@ -6851,6 +6859,9 @@ write_image(FILE     *out,	/* I - Output file */
 
 	    jpeg_finish_compress(&cinfo);
 	    jpeg_destroy_compress(&cinfo);
+
+	    if (Compression)
+              flate_close_stream(out);
 	  }
           else
 	  {
@@ -6858,10 +6869,10 @@ write_image(FILE     *out,	/* I - Output file */
               flate_open_stream(out);
 	    
 	    if (ncolors > 0)
-   	      flate_write(out, indices, indwidth * img->height, 1);
+   	      flate_write(out, indices, indwidth * img->height);
 	    else
   	      flate_write(out, img->pixels,
-	                  img->width * img->height * img->depth, 1);
+	                  img->width * img->height * img->depth);
 
 	    if (Compression)
               flate_close_stream(out);
@@ -8300,5 +8311,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.45 2001/04/18 16:12:50 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.46 2001/04/27 20:11:08 mike Exp $".
  */

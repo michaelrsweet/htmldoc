@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.18 2001/03/06 15:40:33 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.19 2001/04/27 20:11:07 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -357,169 +357,194 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       pos = ftell(fp) - 1;
 
       ch = getc(fp);
-      if (ch == ' ')
+      if (isspace(ch) || ch == '=' || ch == '<')
       {
        /*
-        * Illegal lone "<"!  Ignore it...
+        * Sigh...  "<" followed by anything but an element name is
+	* invalid HTML, but so many people have asked for this to
+	* be supported that we have added this hack...
 	*/
 
-	delete_node(t);
-	continue;
-      }
-      
-      if (ch != '/')
-        ungetc(ch, fp);
+	ptr = s;
+	if (have_whitespace)
+	{
+          *ptr++ = ' ';
+	  have_whitespace = 0;
+	}
 
-      if (parse_markup(t, fp) == MARKUP_ERROR)
-      {
-#ifndef DEBUG
-        progress_error("Unable to parse HTML element at %d!", pos);
-#endif /* !DEBUG */
+        *ptr++ = '<';
+	if (ch == '=')
+	  *ptr++ = '=';
+	else if (ch == '<')
+	  ungetc(ch, fp);
+	else
+	  have_whitespace = 1;
 
-        delete_node(t);
-        break;
-      }
+	*ptr++ = '\0';
 
-     /*
-      * Eliminate extra whitespace...
-      */
-
-      if (issuper(t->markup) || isblock(t->markup) ||
-          islist(t->markup) || islentry(t->markup) ||
-          istable(t->markup) || istentry(t->markup) ||
-	  t->markup == MARKUP_TITLE)
-        have_whitespace = 0;
-
-     /*
-      * If this is the matching close mark, or if we are starting the same
-      * markup, or if we've completed a list, we're done!
-      */
-
-      if (ch == '/')
-      {
-       /*
-        * Close markup; find matching markup...
-        */
-
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (temp->markup == t->markup)
-            break;
-	  else if (temp->markup == MARKUP_EMBED)
-	  {
-	    temp = NULL;
-            break;
-	  }
-      }
-      else if (t->markup == MARKUP_EMBED)
-      {
-       /*
-        * Close any text blocks...
-	*/
-
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (isblock(temp->markup) || islentry(temp->markup))
-            break;
-	  else if (istentry(temp->markup) || islist(temp->markup) ||
-	           issuper(temp->markup) || temp->markup == MARKUP_EMBED)
-	  {
-	    temp = NULL;
-	    break;
-	  }
-      }
-      else if (issuper(t->markup))
-      {
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (issuper(temp->markup))
-            break;
-	  else if (istentry(temp->markup) || temp->markup == MARKUP_EMBED)
-	  {
-	    temp = NULL;
-            break;
-	  }
-      }
-      else if (islist(t->markup))
-      {
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (isblock(temp->markup))
-	    break;
-	  else if (islentry(temp->markup) || istentry(temp->markup) ||
-	           issuper(temp->markup) || temp->markup == MARKUP_EMBED)
-	  {
-	    temp = NULL;
-            break;
-	  }
-
-      }
-      else if (islentry(t->markup))
-      {
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (islentry(temp->markup) || isblock(temp->markup))
-            break;
-	  else if (islist(temp->markup) || issuper(temp->markup) ||
-	           istentry(temp->markup) || temp->markup == MARKUP_EMBED)
-          {
-	    temp = NULL;
-	    break;
-	  }
-      }
-      else if (isblock(t->markup))
-      {
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (isblock(temp->markup) || islentry(temp->markup))
-            break;
-	  else if (istentry(temp->markup) || islist(temp->markup) ||
-	           issuper(temp->markup) || temp->markup == MARKUP_EMBED)
-	  {
-	    temp = NULL;
-	    break;
-	  }
-      }
-      else if (istable(t->markup))
-      {
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (istable(temp->markup))
-	    break;
-	  else if (temp->markup == MARKUP_TABLE || temp->markup == MARKUP_EMBED)
-	  {
-	    temp = NULL;
-            break;
-	  }
-      }
-      else if (istentry(t->markup))
-      {
-        for (temp = parent; temp != NULL; temp = temp->parent)
-          if (istentry(temp->markup))
-            break;
-	  else if (temp->markup == MARKUP_TABLE || istable(temp->markup) ||
-	           temp->markup == MARKUP_EMBED)
-	  {
-	    temp = NULL;
-            break;
-	  }
+	t->markup = MARKUP_NONE;
+	t->data   = (uchar *)strdup((char *)s);
       }
       else
-        temp = NULL;
-
-      if (temp != NULL)
       {
-        DEBUG_printf(("%s>>>> Auto-ascend <<<\n", indent));
+       /*
+        * Start of a markup...
+	*/
 
-        delete_node(t);
+	if (ch != '/')
+          ungetc(ch, fp);
+
+	if (parse_markup(t, fp) == MARKUP_ERROR)
+	{
+  #ifndef DEBUG
+          progress_error("Unable to parse HTML element at %d!", pos);
+  #endif /* !DEBUG */
+
+          delete_node(t);
+          break;
+	}
 
        /*
-        * If the markup doesn't start with a slash, or if it does but
-        * doesn't match up with the parent (i.e. <UL><LI>...<LI>...</UL>)
-        * then seek back so the parent entry gets a copy...
-        */
+	* Eliminate extra whitespace...
+	*/
 
-        if (ch != '/' || temp != parent)
-          fseek(fp, pos, SEEK_SET);	/* Make sure parent gets this markup... */
-        break;
-      }
-      else if (ch == '/')
-      {
-        delete_node(t);
-	continue;
+	if (issuper(t->markup) || isblock(t->markup) ||
+            islist(t->markup) || islentry(t->markup) ||
+            istable(t->markup) || istentry(t->markup) ||
+	    t->markup == MARKUP_TITLE)
+          have_whitespace = 0;
+
+       /*
+	* If this is the matching close mark, or if we are starting the same
+	* markup, or if we've completed a list, we're done!
+	*/
+
+	if (ch == '/')
+	{
+	 /*
+          * Close markup; find matching markup...
+          */
+
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (temp->markup == t->markup)
+              break;
+	    else if (temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+              break;
+	    }
+	}
+	else if (t->markup == MARKUP_EMBED)
+	{
+	 /*
+          * Close any text blocks...
+	  */
+
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (isblock(temp->markup) || islentry(temp->markup))
+              break;
+	    else if (istentry(temp->markup) || islist(temp->markup) ||
+	             issuper(temp->markup) || temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+	      break;
+	    }
+	}
+	else if (issuper(t->markup))
+	{
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (issuper(temp->markup))
+              break;
+	    else if (istentry(temp->markup) || temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+              break;
+	    }
+	}
+	else if (islist(t->markup))
+	{
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (isblock(temp->markup))
+	      break;
+	    else if (islentry(temp->markup) || istentry(temp->markup) ||
+	             issuper(temp->markup) || temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+              break;
+	    }
+
+	}
+	else if (islentry(t->markup))
+	{
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (islentry(temp->markup) || isblock(temp->markup))
+              break;
+	    else if (islist(temp->markup) || issuper(temp->markup) ||
+	             istentry(temp->markup) || temp->markup == MARKUP_EMBED)
+            {
+	      temp = NULL;
+	      break;
+	    }
+	}
+	else if (isblock(t->markup))
+	{
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (isblock(temp->markup) || islentry(temp->markup))
+              break;
+	    else if (istentry(temp->markup) || islist(temp->markup) ||
+	             issuper(temp->markup) || temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+	      break;
+	    }
+	}
+	else if (istable(t->markup))
+	{
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (istable(temp->markup))
+	      break;
+	    else if (temp->markup == MARKUP_TABLE || temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+              break;
+	    }
+	}
+	else if (istentry(t->markup))
+	{
+          for (temp = parent; temp != NULL; temp = temp->parent)
+            if (istentry(temp->markup))
+              break;
+	    else if (temp->markup == MARKUP_TABLE || istable(temp->markup) ||
+	             temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+              break;
+	    }
+	}
+	else
+          temp = NULL;
+
+	if (temp != NULL)
+	{
+          DEBUG_printf(("%s>>>> Auto-ascend <<<\n", indent));
+
+          delete_node(t);
+
+	 /*
+          * If the markup doesn't start with a slash, or if it does but
+          * doesn't match up with the parent (i.e. <UL><LI>...<LI>...</UL>)
+          * then seek back so the parent entry gets a copy...
+          */
+
+          if (ch != '/' || temp != parent)
+            fseek(fp, pos, SEEK_SET);	/* Make sure parent gets this markup... */
+          break;
+	}
+	else if (ch == '/')
+	{
+          delete_node(t);
+	  continue;
+	}
       }
     }
     else if (t->preformatted)
@@ -2389,5 +2414,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.18 2001/03/06 15:40:33 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.19 2001/04/27 20:11:07 mike Exp $".
  */

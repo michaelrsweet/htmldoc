@@ -1,4 +1,4 @@
-CHANGES.txt - 03/28/2001
+CHANGES.txt - 04/27/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.13
@@ -10,6 +10,13 @@ CHANGES IN HTMLDOC v1.8.13
 	- External file references to non-PDF files now use the
 	  "Launch" action so they can be opened/executed/saved
 	  as allowed by the OS and PDF viewer.
+	- Changed the indexed/JPEG'd transition point to 256
+	  colors when using Flate compression.  This makes PDF
+	  files much smaller in general.
+	- Changed the in-line image size limit to 64k.
+	- Now allow "<" followed by whitespace, "=", or "<". 
+	  This violates the HTML specification, but we're sick
+	  of people complaining about it.
 
     BUG FIXES
 
@@ -19,6 +26,8 @@ CHANGES IN HTMLDOC v1.8.13
 	- The PDF catalog object could contain a reference to
 	  a /Names object of "0 0 R", which is invalid.  This
 	  would happen when the "--no-links" option was used.
+	- Several HTML elements were incorrectly written with
+	  closing tags.
 
 
 CHANGES IN HTMLDOC v1.8.12
