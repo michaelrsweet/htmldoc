@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.87 2000/09/15 00:27:31 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.88 2000/10/12 21:18:42 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4167,8 +4167,11 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     }
     else
       temp_height = _htmlSpacings[SIZE_P];
-    
-    if (*y < (bottom + 2 * (border + cellpadding) + temp_height))
+
+    fprintf(stderr, "temp_height = %.1f, *y = %.1f\n", temp_height, *y);
+
+    if (*y < (bottom + 2 * (border + cellpadding) + temp_height) &&
+        temp_height < (top - bottom - 2 * (border + cellpadding)))
     {
       *y = top;
       (*page) ++;
@@ -7391,5 +7394,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.87 2000/09/15 00:27:31 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.88 2000/10/12 21:18:42 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.11 2000/10/12 00:20:35 mike Exp $"
+ * "$Id: file.c,v 1.12 2000/10/12 21:18:42 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -182,6 +182,7 @@ char *					/* O - Pathname or NULL */
 file_find(const char *path,		/* I - Path "dir;dir;dir" */
           const char *s)		/* I - File to find */
 {
+  int		retry;			/* Current retry */
   char		*temp,			/* Current position in filename */
 		method[HTTP_MAX_URI],	/* Method/scheme */
 		username[HTTP_MAX_URI],	/* Username:password */
@@ -350,15 +351,15 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
     progress_show("Getting %s...", connpath);
 
-    if (httpGet(http, connpath))
-      if (httpGet(http, connpath))
-      {
-        progress_hide();
-        progress_error("Unable to send request!");
-        return (NULL);
-      }
-
-    while ((status = httpUpdate(http)) == HTTP_CONTINUE);
+    for (status = HTTP_ERROR, retry = 0;
+         status == HTTP_ERROR && retry < 5;
+         retry ++)
+    {
+      if (!httpGet(http, connpath))
+	while ((status = httpUpdate(http)) == HTTP_CONTINUE);
+      else
+	status = HTTP_ERROR;
+    }
 
     if (status != HTTP_OK)
     {
@@ -369,6 +370,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     }
 
     web_files ++;
+
 #if defined(WIN32) || defined(__EMX__)
     if ((tmpdir = getenv("TMPDIR")) == NULL)
       tmpdir = "C:/WINDOWS/TEMP";
@@ -635,5 +637,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.11 2000/10/12 00:20:35 mike Exp $".
+ * End of "$Id: file.c,v 1.12 2000/10/12 21:18:42 mike Exp $".
  */
