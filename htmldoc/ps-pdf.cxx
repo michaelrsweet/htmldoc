@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.123 2001/11/02 18:09:40 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.124 2001/11/02 21:08:28 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2666,7 +2666,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 		numberwidth,
 		height,
 		rgb[3];
-  uchar		number[255],
+  uchar		number[1024],
 		*nptr,
 		*link;
   tree_t	*flat,
@@ -10398,5 +10398,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.123 2001/11/02 18:09:40 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.124 2001/11/02 21:08:28 mike Exp $".
  */
