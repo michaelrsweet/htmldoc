@@ -1,4 +1,4 @@
-CHANGES.txt - 10/04/2002
+CHANGES.txt - 10/07/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.23
@@ -7,6 +7,9 @@ CHANGES IN HTMLDOC v1.8.23
 
 	- HTMLDOC now supports a full alpha channel in PNG
 	  files.
+	- HTMLDOC now reports an error when a table, image, or
+	  section of text overflows into an adjacent table cell
+	  or off the right edge of the page.
 
     BUG FIXES
 
