@@ -215,6 +215,13 @@ transition effect in seconds.
 
 <P>This option is only available when generating PDF files.
 
+<H3>--embedfonts</H3>
+
+<P>The <CODE>--embedfonts</CODE> option specifies that fonts
+should be embedded in PostScript and PDF output.  This is
+especially useful when generating documents in character sets
+other than ISO-8859-1.
+
 <H3>--encryption</H3>
 
 <P>The <CODE>--encryption</CODE> option enables encryption and security
@@ -453,6 +460,11 @@ for one sided printing.
 Use the <CODE>--pscommands</CODE> option to generate PostScript duplex mode
 commands.
 
+<H3>--no-embedfonts</H3>
+
+The <CODE>--no-embedfonts</CODE> option specifies that fonts should
+not be embedded in PostScript and PDF output.
+
 <H3>--no-encryption</H3>
 
 <P>The <CODE>--no-encryption</CODE> option specifies that no encryption/security
@@ -500,11 +512,6 @@ be generated.
 
 The <CODE>--no-toc</CODE> option specifies that the table-of-contents pages
 should not be generated.
-
-<H3>--no-truetype</H3>
-
-The <CODE>--no-truetype</CODE> option specifies that TrueType fonts should
-not be used in PDF output.
 
 <H3>--no-xrxcomments</H3>
 
@@ -778,11 +785,6 @@ units are points (1 point = 1/72nd inch); the suffixes "in", "cm", and "mm"
 specify inches, centimeters, and millimeters, respectively.
 
 <P>This option is only available when generating PostScript or PDF files.
-
-<H3>--truetype</H3>
-
-<P>The <CODE>--truetype</CODE> option specifies that TrueType fonts should
-be used in PDF output.
 
 <H3>--user-password password</H3>
 
