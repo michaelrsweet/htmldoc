@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile.in,v 1.10.2.3 2001/02/22 01:22:40 mike Exp $"
+# "$Id: Makefile.in,v 1.10.2.4 2001/08/17 01:55:35 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -76,7 +76,12 @@ install:
 #
 
 Makedefs:	config.h.in Makedefs.in configure
-	./configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
 
 
 #
@@ -128,5 +133,5 @@ depot:
 
 
 #
-# End of "$Id: Makefile.in,v 1.10.2.3 2001/02/22 01:22:40 mike Exp $".
+# End of "$Id: Makefile.in,v 1.10.2.4 2001/08/17 01:55:35 mike Exp $".
 #

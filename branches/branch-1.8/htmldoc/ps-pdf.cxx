@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.94 2001/08/16 21:11:52 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.95 2001/08/17 01:55:37 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -779,6 +779,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     * Yes, write the document to disk...
     */
 
+    progress_error(HD_ERROR_NONE, "PAGES: %d\n", num_pages);
+
     if (PSLevel > 0)
       ps_write_document(title, author, creator, copyright, keywords);
     else
@@ -1275,6 +1277,9 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     if (OutputFiles)
     {
       write_trailer(out, 0);
+
+      progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
+
       fclose(out);
     }
   }
@@ -1315,6 +1320,9 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     if (OutputFiles)
     {
       write_trailer(out, 0);
+
+      progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
+
       fclose(out);
     }
   }
@@ -1326,6 +1334,9 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
   if (!OutputFiles)
   {
     write_trailer(out, 0);
+
+    progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
+
     if (out != stdout)
       fclose(out);
   }
@@ -1742,6 +1753,8 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
       FSpSetFInfo(&fSpec, &fInfo);
     }
 #endif // MAC
+
+  progress_error(HD_ERROR_NONE, "BYTES: %ld\n", ftell(out));
 
   fclose(out);
 
@@ -9930,5 +9943,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.94 2001/08/16 21:11:52 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.95 2001/08/17 01:55:37 mike Exp $".
  */
