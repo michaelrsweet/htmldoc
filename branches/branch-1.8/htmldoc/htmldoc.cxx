@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.67 2004/05/09 15:04:38 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.68 2004/05/09 18:51:59 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1028,24 +1028,53 @@ main(int  argc,				/* I - Number of command-line arguments */
     }
   }
 
-  if (CGIMode && getenv("SERVER_PORT") && getenv("PATH_INFO"))
+  if (CGIMode)
   {
-    // Read the referenced file from the local server...
     char	url[1024];		// URL
+    const char	*path_info,		// Path info, if any
+		*query;			// Query string, if any
 
 
-    if (getenv("HTTPS"))
-      snprintf(url, sizeof(url), "https://%s:%s%s", getenv("SERVER_NAME"),
-               getenv("SERVER_PORT"), getenv("PATH_INFO"));
+    path_info = getenv("PATH_INFO");
+    query     = getenv("QUERY_STRING");
+
+    if (getenv("SERVER_PORT") && path_info && *path_info)
+    {
+      // Read the referenced file from the local server...
+      if (getenv("HTTPS"))
+	snprintf(url, sizeof(url), "https://%s:%s%s", getenv("SERVER_NAME"),
+        	 getenv("SERVER_PORT"), getenv("PATH_INFO"));
+      else
+	snprintf(url, sizeof(url), "http://%s:%s%s", getenv("SERVER_NAME"),
+        	 getenv("SERVER_PORT"), getenv("PATH_INFO"));
+
+      if (query && argc == 1)
+      {
+	// Include query string on end of URL...
+        strlcat(url, "?", sizeof(url));
+	strlcat(url, query, sizeof(url));
+      }
+    }
+    else if (query && (!strncmp(query, "http:", 5)
+#ifdef HAVE_SSL
+             || !strncmp(query, "https:", 6)
+#endif // HAVE_SSL
+             ))
+    {
+      // Use URL in query string...
+      strlcpy(url, query, sizeof(url));
+    }
     else
-      snprintf(url, sizeof(url), "http://%s:%s%s", getenv("SERVER_NAME"),
-               getenv("SERVER_PORT"), getenv("PATH_INFO"));
+      url[0] = '\0';
 
-    progress_error(HD_ERROR_NONE, "INFO: HTMLDOC converting \"%s\".", url);
+    if (url[0])
+    {
+      progress_error(HD_ERROR_NONE, "INFO: HTMLDOC converting \"%s\".", url);
 
-    num_files ++;
+      num_files ++;
 
-    read_file(url, &document, Path);
+      read_file(url, &document, Path);
+    }
   }
 
  /*
@@ -2359,5 +2388,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.67 2004/05/09 15:04:38 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.68 2004/05/09 18:51:59 mike Exp $".
  */
