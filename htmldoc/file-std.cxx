@@ -1,5 +1,5 @@
 //
-// "$Id: file-std.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: file-std.cxx,v 1.4.2.2 2004/03/30 03:49:15 mike Exp $"
 //
 //   Stdio file routines for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -299,5 +299,5 @@ hdStdFile::unget(int c)			// I - Character to push back
 
 
 //
-// End of "$Id: file-std.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: file-std.cxx,v 1.4.2.2 2004/03/30 03:49:15 mike Exp $".
 //

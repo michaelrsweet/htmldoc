@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.20.2.3 2004/03/23 21:54:38 mike Exp $"
+// "$Id: style.h,v 1.20.2.4 2004/03/30 03:49:15 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -1188,5 +1188,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.20.2.3 2004/03/23 21:54:38 mike Exp $".
+// End of "$Id: style.h,v 1.20.2.4 2004/03/30 03:49:15 mike Exp $".
 //

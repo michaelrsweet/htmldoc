@@ -1,5 +1,5 @@
 //
-// "$Id: stylemedia.cxx,v 1.2.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: stylemedia.cxx,v 1.2.2.2 2004/03/30 03:49:15 mike Exp $"
 //
 //   CSS media routines for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -188,5 +188,5 @@ hdStyleMedia::update_printable()
 
 
 //
-// End of "$Id: stylemedia.cxx,v 1.2.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: stylemedia.cxx,v 1.2.2.2 2004/03/30 03:49:15 mike Exp $".
 //

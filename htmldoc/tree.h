@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.20.2.2 2004/03/23 03:31:28 mike Exp $"
+// "$Id: tree.h,v 1.20.2.3 2004/03/30 03:49:16 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -334,5 +334,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.20.2.2 2004/03/23 03:31:28 mike Exp $".
+// End of "$Id: tree.h,v 1.20.2.3 2004/03/30 03:49:16 mike Exp $".
 //

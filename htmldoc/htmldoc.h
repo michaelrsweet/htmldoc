@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.h,v 1.18.2.21.2.3 2004/03/23 21:54:38 mike Exp $"
+// "$Id: htmldoc.h,v 1.18.2.21.2.4 2004/03/30 03:49:15 mike Exp $"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -143,5 +143,5 @@ extern hdCommon	hdGlobal;
 #endif // !_HTMLDOC_HTMLDOC_H_
 
 //
-// End of "$Id: htmldoc.h,v 1.18.2.21.2.3 2004/03/23 21:54:38 mike Exp $".
+// End of "$Id: htmldoc.h,v 1.18.2.21.2.4 2004/03/30 03:49:15 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.65 2004/03/05 01:48:44 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.65.2.1 2004/03/30 03:49:15 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -4099,5 +4099,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.65 2004/03/05 01:48:44 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.65.2.1 2004/03/30 03:49:15 mike Exp $".
 //

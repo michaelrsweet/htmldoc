@@ -1,5 +1,5 @@
 //
-// "$Id: http-md5.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: http-md5.cxx,v 1.4.2.2 2004/03/30 03:49:15 mike Exp $"
 //
 //   MD5 password support for HTMLDOC.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -146,5 +146,5 @@ hdHTTP::md5_string(const hdByte *sum,		/* I - MD5 sum data */
 
 
 /*
- * End of "$Id: http-md5.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $".
+ * End of "$Id: http-md5.cxx,v 1.4.2.2 2004/03/30 03:49:15 mike Exp $".
  */

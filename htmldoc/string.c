@@ -1,5 +1,5 @@
 /*
- * "$Id: string.c,v 1.4.2.5 2004/01/13 02:51:27 mike Exp $"
+ * "$Id: string.c,v 1.4.2.5.2.1 2004/03/30 03:49:15 mike Exp $"
  *
  *   String functions for HTMLDOC.
  *
@@ -15,9 +15,9 @@
  *       Attn: CUPS Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3111 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
- *       Voice: (301) 373-9603
+ *       Voice: (301) 373-9600
  *       EMail: cups-info@cups.org
  *         WWW: http://www.cups.org
  *
@@ -25,9 +25,10 @@
  *
  * Contents:
  *
+ *   hd_strcasecmp()  - Do a case-insensitive comparison.
  *   hd_strcpy()      - Copy a string allowing for overlapping strings.
  *   hd_strdup()      - Duplicate a string.
- *   hd_strcasecmp()  - Do a case-insensitive comparison.
+ *   hd_strdupf()     - Format and duplicate a string.
  *   hd_strncasecmp() - Do a case-insensitive comparison on up to N chars.
  *   hd_strlcat()     - Safely concatenate two strings.
  *   hd_strlcpy()     - Safely copy two strings.
@@ -38,6 +39,36 @@
  */
 
 #include "hdstring.h"
+
+
+/*
+ * 'hd_strcasecmp()' - Do a case-insensitive comparison.
+ */
+
+#ifndef HAVE_STRCASECMP
+int				/* O - Result of comparison (-1, 0, or 1) */
+hd_strcasecmp(const char *s,	/* I - First string */
+              const char *t)	/* I - Second string */
+{
+  while (*s != '\0' && *t != '\0')
+  {
+    if (tolower(*s) < tolower(*t))
+      return (-1);
+    else if (tolower(*s) > tolower(*t))
+      return (1);
+
+    s ++;
+    t ++;
+  }
+
+  if (*s == '\0' && *t == '\0')
+    return (0);
+  else if (*s != '\0')
+    return (1);
+  else
+    return (-1);
+}
+#endif /* !HAVE_STRCASECMP */
 
 
 /*
@@ -78,33 +109,49 @@ hd_strdup(const char *s)	/* I - String to duplicate */
 
 
 /*
- * 'hd_strcasecmp()' - Do a case-insensitive comparison.
+ * 'hd_strdupf()' - Format and duplicate a string.
  */
 
-#ifndef HAVE_STRCASECMP
-int				/* O - Result of comparison (-1, 0, or 1) */
-hd_strcasecmp(const char *s,	/* I - First string */
-              const char *t)	/* I - Second string */
+char *					/* O - New string pointer */
+hd_strdupf(const char *format,		/* I - Printf-style format string */
+           va_list    ap)		/* I - Pointer to additional arguments */
 {
-  while (*s != '\0' && *t != '\0')
-  {
-    if (tolower(*s) < tolower(*t))
-      return (-1);
-    else if (tolower(*s) > tolower(*t))
-      return (1);
+  int	bytes;				/* Number of bytes required */
+  char	*buffer,			/* String buffer */
+	temp[256];			/* Small buffer for first vsnprintf */
 
-    s ++;
-    t ++;
+
+ /*
+  * First format with a tiny buffer; this will tell us how many bytes are
+  * needed...
+  */
+
+  bytes = vsnprintf(temp, sizeof(temp), format, ap);
+
+  if (bytes < sizeof(temp))
+  {
+   /*
+    * Hey, the formatted string fits in the tiny buffer, so just dup that...
+    */
+
+    return (strdup(temp));
   }
 
-  if (*s == '\0' && *t == '\0')
-    return (0);
-  else if (*s != '\0')
-    return (1);
-  else
-    return (-1);
+ /*
+  * Allocate memory for the whole thing and reformat to the new, larger
+  * buffer...
+  */
+
+  if ((buffer = calloc(1, bytes + 1)) != NULL)
+    vsnprintf(buffer, bytes + 1, format, ap);
+
+ /*
+  * Return the new string...
+  */
+
+  return (buffer);
 }
-#endif /* !HAVE_STRCASECMP */
+
 
 /*
  * 'hd_strncasecmp()' - Do a case-insensitive comparison on up to N chars.
@@ -222,5 +269,5 @@ hd_strlcpy(char       *dst,	/* O - Destination string */
 
 
 /*
- * End of "$Id: string.c,v 1.4.2.5 2004/01/13 02:51:27 mike Exp $".
+ * End of "$Id: string.c,v 1.4.2.5.2.1 2004/03/30 03:49:15 mike Exp $".
  */
