@@ -5,6 +5,8 @@ CHANGES IN HTMLDOC v1.8.7
 
     NEW FEATURES
 
+	- The configure script now uses the local PNG, ZLIB, and/or JPEG
+	  libraries when they are new enough.
 
     CHANGES
 

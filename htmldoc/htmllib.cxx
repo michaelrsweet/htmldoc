@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.26 2000/03/18 16:08:57 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.27 2000/04/16 17:31:40 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1614,8 +1614,10 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 
       _htmlInitialized = 1;
     }
+#ifndef DEBUG
     else
       progress_error("Unable to open psglyphs data file!");
+#endif /* !DEBUG */
   }
 
   memset(_htmlGlyphs, 0, sizeof(_htmlGlyphs));
@@ -1627,7 +1629,9 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
     * Can't open charset file; use ISO-8859-1...
     */
 
+#ifndef DEBUG
     progress_error("Unable to open character set file %s!", cs);
+#endif /* !DEBUG */
 
     for (i = 0; i < 256; i ++)
       chars[i] = i;
@@ -1699,7 +1703,9 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
       sprintf(filename, "%s/afm/%s", _htmlData, _htmlFonts[i][j]);
       if ((fp = fopen(filename, "r")) == NULL)
       {
+#ifndef DEBUG
         progress_error("Unable to open font width file %s!", _htmlFonts[i][j]);
+#endif /* !DEBUG */
         continue;
       }
 
@@ -2276,5 +2282,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.26 2000/03/18 16:08:57 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.27 2000/04/16 17:31:40 mike Exp $".
  */

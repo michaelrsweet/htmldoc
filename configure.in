@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.14 1999/12/30 16:08:52 mike Exp $"
+dnl "$Id: configure.in,v 1.15 2000/04/16 17:31:38 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -58,6 +58,36 @@ dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
+AC_CHECK_LIB(m,pow)
+AC_CHECK_LIB(jpeg,jpeg_CreateCompress,
+	JPEGINC=""
+	JPEG=""
+	LIBS="-ljpeg $LIBS",
+	JPEGINC="-I../jpeg"
+	JPEG="jpeg"
+	LIBS="../jpeg/libjpeg.a $LIBS")
+AC_CHECK_LIB(z,gzgets,
+	ZLIBINC=""
+	ZLIB=""
+	LIBS="-lz $LIBS",
+	ZLIBINC="-I../zlib"
+	ZLIB="zlib"
+	LIBS="../zlib/libz.a $LIBS")
+AC_CHECK_LIB(png,png_create_read_struct,
+	PNGINC=""
+	PNG=""
+	LIBS="-lpng $LIBS",
+	PNGINC="-I../png"
+	PNG="png"
+	LIBS="../png/libpng.a $LIBS")
+
+AC_SUBST(JPEG)
+AC_SUBST(JPEGINC)
+AC_SUBST(PNG)
+AC_SUBST(PNGINC)
+AC_SUBST(ZLIB)
+AC_SUBST(ZLIBINC)
+
 OLDLIBS="$LIBS"
 
 AC_PATH_X
@@ -85,11 +115,11 @@ AC_CHECK_LIB(Xext,XdbeQueryExtension)
 AC_CHECK_LIB(GL,glEnable)
 AC_CHECK_LIB(fltk,numericsort)
 
-if test "$ac_cv_lib_fltk_numericsort" = yes -a "$ac_cv_prog_CXX" != ""; then
-	LIBS="../gui/libgui.a $LIBS -lm"
+if test "$ac_cv_lib_fltk_numericsort" = yes; then
+	LIBS="../gui/libgui.a $LIBS"
 	GUI="gui"
 else
-	AC_MSG_WARN(C++ compiler or FLTK not available so no GUI will be built.)
+	AC_MSG_WARN(FLTK not available so no GUI will be built.)
 	LIBS="$OLDLIBS"
 	GUI=""
 fi
@@ -114,6 +144,7 @@ if test -n "$GXX"; then
 	        	OPTIM="-O2"
 		fi
 	fi
+	OPTIM="$OPTIM -fno-rtti -fno-exceptions -fomit-frame-pointer"
 else
 	case `uname` in
         	IRIX*)
@@ -143,5 +174,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.14 1999/12/30 16:08:52 mike Exp $".
+dnl End of "$Id: configure.in,v 1.15 2000/04/16 17:31:38 mike Exp $".
 dnl

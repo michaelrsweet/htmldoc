@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.20 2000/03/21 04:03:29 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.21 2000/04/16 17:31:40 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -510,7 +510,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
 
 
   // Try to open the file...
-  if ((fp = fopen(fti, "r")) == NULL)
+  if ((fp = fopen(fti, "rb")) == NULL)
   {
     fprintf(stderr, "FileIcon::load_fti(): Unable to open \"%s\" - %s\n",
             fti, strerror(errno));
@@ -724,7 +724,7 @@ FileIcon::load_xpm(const char *xpm)	// I - File to read from
 
 
   // Try to open the file...
-  if ((fp = fopen(xpm, "r")) == NULL)
+  if ((fp = fopen(xpm, "rb")) == NULL)
     return;
 
   // Read the file header until we find the first string...
@@ -1131,7 +1131,7 @@ load_kde_mimelnk(const char *filename)
   FileIcon	*icon;
 
 
-  if ((fp = fopen(filename, "r")) != NULL)
+  if ((fp = fopen(filename, "rb")) != NULL)
   {
     while (fgets(tmp, sizeof(tmp), fp))
     {
@@ -1147,7 +1147,7 @@ load_kde_mimelnk(const char *filename)
     {
       sprintf(full_iconfilename, "/usr/share/icons/%s", iconfilename);
 
-      if (mimetype && strcmp(mimetype, "inode/directory") == 0)
+      if (strcmp(mimetype, "inode/directory") == 0)
 	icon = new FileIcon("*", FileIcon::DIRECTORY);
       else
         icon = new FileIcon(kde_to_fltk_pattern(pattern), FileIcon::PLAIN);
@@ -1215,5 +1215,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.20 2000/03/21 04:03:29 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.21 2000/04/16 17:31:40 mike Exp $".
 //
