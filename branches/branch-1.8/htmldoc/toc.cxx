@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.5.2.3 2001/08/29 20:57:57 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.4 2001/11/16 20:04:19 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -47,8 +47,8 @@ static void	parse_tree(tree_t *t);
  * Local globals...
  */
 
-static uchar	heading_numbers[7],
-		heading_types[7] = { '1', '1', '1', '1', '1', '1', '1' };
+static int	heading_numbers[7];
+static uchar	heading_types[7] = { '1', '1', '1', '1', '1', '1', '1' };
 static int	last_level;
 static tree_t	*heading_parents[7];
 
@@ -353,5 +353,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5.2.3 2001/08/29 20:57:57 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.4 2001/11/16 20:04:19 mike Exp $".
  */
