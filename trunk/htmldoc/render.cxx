@@ -1,5 +1,5 @@
 //
-// "$Id: render.cxx,v 1.11 2002/04/07 13:39:46 mike Exp $"
+// "$Id: render.cxx,v 1.12 2002/04/08 01:09:18 mike Exp $"
 //
 //   Core rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -54,160 +54,19 @@ hdRender::finish_document(const char *author,
 //
 
 void
-parse_block(hdTree   *t,
-            hdMargin *m,
-	    float    *x,
-	    float    *y,
-            int      *page)
+hdRender::parse_block(hdTree   *block,		// I  - Block node
+                      hdMargin *m,		// I  - Current margins
+		      float    *x,		// IO - Current X position
+		      float    *y,		// IO - Current Y position
+        	      int      *page)		// IO - Current page
 {
-}
-
-
-//
-// 'hdRender::parse_comment()' -
-//
-
-int						// O  - Non-zero for page break
-hdRender::parse_comment(hdTree   *t,		// I  - Comment node
-                        hdMargin *m,		// I  - Current margins
-			float    *x,		// IO - Current X position
-			float    *y,		// IO - Current Y position
-                        int      *page)		// IO - Current page
-{
-  return (0);
-}
-
-
-//
-// 'hdRender::parse_contents()' -
-//
-
-void
-hdRender::parse_contents(hdTree     *t,
-                         hdMargin   *m,
-			 int        *page,
-			 const char *label)
-{
-}
-
-
-//
-// 'hdRender::parse_doc()' -
-//
-
-void
-hdRender::parse_doc(hdTree   *t,
-                    hdMargin *m,
-		    float    *x,
-		    float    *y,
-		    int      *page)
-{
-}
-
-
-//
-// 'hdRender::parse_image()' - Render an image...
-//
-
-void
-hdRender::parse_image(hdTree *t,		// I  - Image node
-                      float  tx,		// I  - Image X position
-		      float  ty,		// I  - Image Y position
-		      int    *page)		// IO - Current page
-{
-  hdImage	*img;				// Image
-  const char	*imgmapname;			// Image map name
-  hdTree	*imgmap,			// Image map
-		*imgarea;			// Image map area
-  const char	*imgareacoords;			// Image area coordinates
-  float		imgareax,			// Image area X
-		imgareay,			// Image area Y
-		imgareaw,			// Image area width
-		imgareah;			// Image area height
-
-
-  img = hdImage::find(t->get_attr("_HD_SRC"), css->grayscale);
-  if (!img)
-    return;
-
-  add_render(*page, HD_RENDERTYPE_IMAGE,
-	     tx + t->style->margin[HD_POS_LEFT] +
-		 t->style->border[HD_POS_LEFT].width +
-		 t->style->padding[HD_POS_LEFT], ty,
-	     t->width, t->height, img);
-
-  if (t->link)
-  {
-    // Add a hyper link for clicking...
-    add_render(*page, HD_RENDERTYPE_LINK,
-	       tx + t->style->margin[HD_POS_LEFT] +
-		   t->style->border[HD_POS_LEFT].width +
-		   t->style->padding[HD_POS_LEFT], ty,
-	       t->width, t->height,
-	       t->link->get_attr("href"));
-  }
-
-  if ((imgmapname = t->get_attr("usemap")) != NULL &&
-      (imgmap = find_imgmap(imgmapname)) != NULL)
-  {
-    // Add links from the image map...
-    for (imgarea = imgmap->child; imgarea; imgarea = imgarea->next)
-    {
-      if (imgarea->element != HD_ELEMENT_AREA)
-	continue;
-
-      if ((imgareacoords = imgarea->get_attr("coords")) == NULL)
-	continue;
-
-      if (sscanf(imgareacoords, "%f,%f,%f,%f", &imgareax, &imgareay,
-	         &imgareaw, &imgareah) != 4)
-	continue;
-
-      imgareax *= t->width / img->width();
-      imgareay *= t->height / img->height();
-      imgareaw *= t->width / img->width();
-      imgareah *= t->height / img->height();
-
-      imgareaw -= imgareax;
-      imgareah -= imgareay;
-
-      add_render(*page, HD_RENDERTYPE_LINK,
-	         tx + t->style->margin[HD_POS_LEFT] +
-		     t->style->border[HD_POS_LEFT].width +
-		     t->style->padding[HD_POS_LEFT] + imgareax,
-		 ty + imgareay, imgareaw, imgareah,
-		 imgarea->get_attr("href"));
-    }
-  }
-}
-
-
-//
-// 'hdRender::parse_index()' -
-//
-
-void
-hdRender::parse_index(hdTree     *t,
-                      hdMargin   *m,
-		      int        *page,
-		      const char *label)
-{
-}
-
-
-//
-// 'hdRender::parse_line()' - Render a single line of text.
-//
-
-void
-hdRender::parse_line(hdTree   *line,		// I  - Line tree
-                     hdMargin *m,		// I  - Current margins
-		     float    *x,		// IO - Current X position
-		     float    *y,		// IO - Current Y position
-		     int      *page,		// IO - Current page
-		     int      lastline)		// I  - 1 = last line
-{
-  hdTree	*t;				// Current node
+#if 0
+  hdTree	*t,				// Current node
+		*start,				// First node in line
+		*end,				// Last node in line
+		*next,				// Next node
+		*prev,				// Previous node
+		*bend;				// End of block
   float		tx,				// Temporary X position
 		ty,				// Temporary Y position
 		width,				// Width
@@ -228,6 +87,10 @@ hdRender::parse_line(hdTree   *line,		// I  - Line tree
   hdRenderNode	*r;				// New render node
 
 
+  // Mark the last node that we care about...
+  
+  // First loop for any floating elements embedded in the block...
+  for (t = block->child; 
   // First loop to figure out the total width and height of the line...
   width          = 0.0f;
   above          = 0.0f;
@@ -568,6 +431,590 @@ hdRender::parse_line(hdTree   *line,		// I  - Line tree
       case HD_ELEMENT_IMG :
           // Image element...
 	  parse_image(t, tx, ty, page);
+	  break;
+
+      default :
+          break;
+    }
+
+    // Finally, update the X position...
+    tx += temp_width;
+  }
+
+  // Update current position and margins...
+  *x = m->left();
+  *y -= line_height;
+
+  m->clear(*y, *page);
+#endif // 0
+}
+
+
+//
+// 'hdRender::parse_comment()' -
+//
+
+int						// O  - Non-zero for page break
+hdRender::parse_comment(hdTree   *t,		// I  - Comment node
+                        hdMargin *m,		// I  - Current margins
+			float    *x,		// IO - Current X position
+			float    *y,		// IO - Current Y position
+                        int      *page)		// IO - Current page
+{
+  return (0);
+}
+
+
+//
+// 'hdRender::parse_contents()' -
+//
+
+void
+hdRender::parse_contents(hdTree     *t,
+                         hdMargin   *m,
+			 int        *page,
+			 const char *label)
+{
+}
+
+
+//
+// 'hdRender::parse_doc()' -
+//
+
+void
+hdRender::parse_doc(hdTree   *t,
+                    hdMargin *m,
+		    float    *x,
+		    float    *y,
+		    int      *page)
+{
+}
+
+
+//
+// 'hdRender::parse_image()' - Render an image...
+//
+
+void
+hdRender::parse_image(hdTree   *t,		// I  - Image node
+                      hdMargin *m,		// IO - Margins
+                      float    *x,		// IO - Image X position
+		      float    *y,		// IO - Image Y position
+		      int      *page)		// IO - Current page
+{
+  float		tx,				// Temporary X position
+		ty,				// Temporary Y position
+		temp_width,			// Temporary width
+		temp_height;			// Temporary height
+  hdImage	*img;				// Image
+  const char	*imgmapname;			// Image map name
+  hdTree	*imgmap,			// Image map
+		*imgarea;			// Image map area
+  const char	*imgareacoords;			// Image area coordinates
+  float		imgareax,			// Image area X
+		imgareay,			// Image area Y
+		imgareaw,			// Image area width
+		imgareah;			// Image area height
+
+
+  // Figure out the position and size of the image box...
+  temp_width  = t->width +
+                t->style->margin[HD_POS_LEFT] +
+		t->style->border[HD_POS_LEFT].width +
+		t->style->padding[HD_POS_LEFT] +
+		t->style->margin[HD_POS_RIGHT] +
+		t->style->border[HD_POS_RIGHT].width +
+		t->style->padding[HD_POS_RIGHT];
+  temp_height = t->height +
+                t->style->margin[HD_POS_TOP] +
+		t->style->border[HD_POS_TOP].width +
+		t->style->padding[HD_POS_TOP] +
+		t->style->margin[HD_POS_BOTTOM] +
+		t->style->border[HD_POS_BOTTOM].width +
+		t->style->padding[HD_POS_BOTTOM];
+  tx          = *x;
+  ty          = *y + temp_height;
+
+  // Handle floating images...
+  if (t->style->float_ != HD_FLOAT_NONE)
+  {
+    if ((ty + temp_height) > m->bottom0())
+    {
+      (*page) ++;
+      ty = temp_height;
+      *y = 0.0f;
+    }
+
+    if (t->style->float_ == HD_FLOAT_LEFT)
+    {
+      tx = m->left();
+
+      m->push(m->left() + temp_width, m->right(), ty, *page);
+    }
+    else
+    {
+      tx = m->right() - temp_width;
+
+      m->push(m->left(), m->right() - temp_width, ty, *page);
+    }
+  }
+
+  // Render the background...
+  if (t->style->background_color_set ||
+      t->style->background_image ||
+      t->style->border[HD_POS_LEFT].style ||
+      t->style->border[HD_POS_BOTTOM].style ||
+      t->style->border[HD_POS_RIGHT].style ||
+      t->style->border[HD_POS_TOP].style)
+    add_render(*page, HD_RENDERTYPE_BACKGROUND, tx, ty, temp_width,
+               temp_height, t->style);
+
+  // Lookup the image...
+  img = hdImage::find(t->get_attr("_HD_SRC"), css->grayscale);
+  if (!img)
+    return;
+
+  // Render the image...
+  add_render(*page, HD_RENDERTYPE_IMAGE,
+	     tx + t->style->margin[HD_POS_LEFT] +
+		 t->style->border[HD_POS_LEFT].width +
+		 t->style->padding[HD_POS_LEFT], ty,
+	     t->width, t->height, img);
+
+  // Render any links...
+  if (t->link)
+  {
+    // Add a hyper link for clicking...
+    add_render(*page, HD_RENDERTYPE_LINK,
+	       tx + t->style->margin[HD_POS_LEFT] +
+		   t->style->border[HD_POS_LEFT].width +
+		   t->style->padding[HD_POS_LEFT], ty,
+	       t->width, t->height,
+	       t->link->get_attr("href"));
+  }
+
+  if ((imgmapname = t->get_attr("usemap")) != NULL &&
+      (imgmap = find_imgmap(imgmapname)) != NULL)
+  {
+    // Add links from the image map...
+    for (imgarea = imgmap->child; imgarea; imgarea = imgarea->next)
+    {
+      if (imgarea->element != HD_ELEMENT_AREA)
+	continue;
+
+      if ((imgareacoords = imgarea->get_attr("coords")) == NULL)
+	continue;
+
+      if (sscanf(imgareacoords, "%f,%f,%f,%f", &imgareax, &imgareay,
+	         &imgareaw, &imgareah) != 4)
+	continue;
+
+      imgareax *= t->width / img->width();
+      imgareay *= t->height / img->height();
+      imgareaw *= t->width / img->width();
+      imgareah *= t->height / img->height();
+
+      imgareaw -= imgareax;
+      imgareah -= imgareay;
+
+      add_render(*page, HD_RENDERTYPE_LINK,
+	         tx + t->style->margin[HD_POS_LEFT] +
+		     t->style->border[HD_POS_LEFT].width +
+		     t->style->padding[HD_POS_LEFT] + imgareax,
+		 ty + imgareay, imgareaw, imgareah,
+		 imgarea->get_attr("href"));
+    }
+  }
+}
+
+
+//
+// 'hdRender::parse_index()' -
+//
+
+void
+hdRender::parse_index(hdTree     *t,
+                      hdMargin   *m,
+		      int        *page,
+		      const char *label)
+{
+}
+
+
+//
+// 'hdRender::parse_line()' - Render a single line of text.
+//
+
+void
+hdRender::parse_line(hdTree   *line,		// I  - Line tree
+                     hdMargin *m,		// I  - Current margins
+		     float    *x,		// IO - Current X position
+		     float    *y,		// IO - Current Y position
+		     int      *page,		// IO - Current page
+		     int      lastline)		// I  - 1 = last line
+{
+  hdTree	*t;				// Current node
+  float		tx,				// Temporary X position
+		ty,				// Temporary Y position
+		width,				// Width
+		line_width,			// Total line width
+		format_width,			// Formatted width
+		above,				// Maximum height above baseline
+		below,				// Maximum height below baseline
+		height,				// Maximum height
+		line_height,			// Line height
+		letter_spacing,			// Additional letter spacing
+		word_spacing,			// Additional word spacing
+		temp_width,			// Temporary width value
+		temp_height,			// Temporary height value
+		decorationx,			// Text decoration X offset
+		decorationy;			// Text decoration Y offset
+  int		num_chars,			// Number of characters
+		num_words;			// Number of words
+  hdRenderNode	*r;				// New render node
+
+
+  // First loop to figure out the total width and height of the line...
+  width          = 0.0f;
+  above          = 0.0f;
+  below          = 0.0f;
+  letter_spacing = t->style->letter_spacing;
+  word_spacing   = t->style->word_spacing;
+  num_chars      = 0;
+  num_words      = 0;
+
+  for (t = line->child; t != NULL; t = t->next)
+  {
+    temp_height = t->height +
+                  t->style->margin[HD_POS_TOP] +
+		  t->style->border[HD_POS_TOP].width +
+		  t->style->padding[HD_POS_TOP] +
+                  t->style->margin[HD_POS_BOTTOM] +
+		  t->style->border[HD_POS_BOTTOM].width +
+		  t->style->padding[HD_POS_BOTTOM];
+
+    switch (t->style->vertical_align)
+    {
+      case HD_VERTICALALIGN_BASELINE :
+	  if (temp_height > height)
+	    height = temp_height;
+          break;
+
+      case HD_VERTICALALIGN_SUB :
+	  if (temp_height > below)
+	    below = temp_height;
+          break;
+      case HD_VERTICALALIGN_SUPER :
+	  if (temp_height > above)
+	    above = temp_height;
+          break;
+
+      default :
+          break;
+    }
+
+    width += t->width;
+
+    if (t->whitespace && t != line->child)
+    {
+      num_words ++;
+      width += t->style->font->get_width(" ") * t->style->font_size;
+    }
+
+    if (t->element == HD_ELEMENT_NONE && t->style->font != NULL)
+      num_chars += t->style->font->get_num_chars(t->data);
+  }
+
+  // Then figure out the right line height
+  if (lastline)
+    line_height = 0.0f;
+  else
+    line_height = height * t->style->line_height - height;
+
+  if (line_height < below)
+    line_height = below;
+
+  line_height += height + above;
+
+  // Then decide if we need more space for other types of alignment...
+  for (t = line->child; t != NULL; t = t->next)
+  {
+    temp_height = t->height +
+                  t->style->margin[HD_POS_TOP] +
+		  t->style->border[HD_POS_TOP].width +
+		  t->style->padding[HD_POS_TOP] +
+                  t->style->margin[HD_POS_BOTTOM] +
+		  t->style->border[HD_POS_BOTTOM].width +
+		  t->style->padding[HD_POS_BOTTOM];
+
+    switch (t->style->vertical_align)
+    {
+      case HD_VERTICALALIGN_TOP :
+	  if (temp_height > line_height)
+	    line_height = temp_height;
+          break;
+
+      case HD_VERTICALALIGN_TEXT_TOP :
+	  if (temp_height > (line_height - above))
+	    line_height = temp_height + above;
+          break;
+
+      case HD_VERTICALALIGN_MIDDLE :
+          ty = line_height - above - height +
+	       0.5f * t->style->font->x_height * t->style->font_size;
+
+	  if ((0.5f * temp_height + ty) > line_height)
+	    line_height = 0.5f * temp_height + ty;
+
+          if ((0.5f * temp_height) > ty)
+	  {
+	    line_height += 0.5f * temp_height - ty;
+	    below       += 0.5f * temp_height - ty;
+	  }
+          break;
+
+      case HD_VERTICALALIGN_BOTTOM :
+	  if (temp_height > below)
+	    below = temp_height;
+          break;
+
+      case HD_VERTICALALIGN_TEXT_BOTTOM :
+	  if (temp_height > (height * t->style->line_height + above))
+	  {
+	    line_height = temp_height + below;
+	    height      = temp_height - above;
+	  }
+          break;
+
+      default :
+          break;
+    }
+  }
+
+  // Next see if we need to skip to the next page...
+  if ((*y + line_height) > m->bottom0())
+  {
+    // Move to the next page...
+    (*page) ++;
+    *y = 0;
+
+    m->clear(*y, *page);
+  }
+
+  // Adjust the number of characters for the number of words - we don't
+  // want the letter spacing after the last character in each word...
+  num_chars -= num_words + 1;
+  if (num_chars < 0)
+    num_chars = 0;
+
+  // Add in the word and letter spacing...
+  format_width = width + num_words * word_spacing + num_chars * letter_spacing;
+
+  // Align the line...
+  line_width = m->width() -
+               line->style->padding[HD_POS_LEFT] -
+               line->style->padding[HD_POS_RIGHT] -
+               line->style->margin[HD_POS_LEFT] -
+               line->style->margin[HD_POS_RIGHT] -
+               line->style->border[HD_POS_LEFT].width -
+               line->style->border[HD_POS_RIGHT].width;
+
+  switch (t->style->text_align)
+  {
+    case HD_TEXTALIGN_LEFT :
+        tx = m->left() +
+             t->style->padding[HD_POS_LEFT] +
+             t->style->margin[HD_POS_LEFT] +
+             t->style->border[HD_POS_LEFT].width;
+	break;
+
+    case HD_TEXTALIGN_CENTER :
+        tx = m->left() + 0.5f * (m->width() - format_width);
+	break;
+
+    case HD_TEXTALIGN_RIGHT :
+        tx = m->right() -
+             t->style->padding[HD_POS_RIGHT] -
+             t->style->margin[HD_POS_RIGHT] -
+             t->style->border[HD_POS_RIGHT].width -
+	     format_width;
+	break;
+
+    case HD_TEXTALIGN_JUSTIFY :
+        tx = m->left() +
+             t->style->padding[HD_POS_LEFT] +
+             t->style->margin[HD_POS_LEFT] +
+             t->style->border[HD_POS_LEFT].width;
+
+        if (!lastline)
+	{
+          // Update the word and letter spacing...
+	  temp_width = line_width - format_width;
+	  if (num_chars < 3 && num_words > 0)
+	  {
+	    word_spacing += temp_width / num_words;
+	  }
+	  else if (num_words < 1 && num_chars > 0)
+	  {
+	    letter_spacing += temp_width / num_chars;
+	  }
+	  else if (num_words > 0 && num_chars > 0)
+	  {
+	    word_spacing   += 0.5f * temp_width / num_words;
+	    letter_spacing += 0.5f * temp_width / num_chars;
+	  }
+	}
+	break;
+  }
+
+  // Render any background for the paragraph...
+  if (line->style->background_color_set ||
+      line->style->background_image ||
+      line->style->border[HD_POS_LEFT].style ||
+      line->style->border[HD_POS_BOTTOM].style ||
+      line->style->border[HD_POS_RIGHT].style ||
+      line->style->border[HD_POS_TOP].style)
+    add_render(*page, HD_RENDERTYPE_BACKGROUND, tx, *y,
+               m->width(), line_height, line->style);
+
+  // Loop again to render the stuff...
+  for (t = line->child; t != NULL; t = t->next)
+  {
+    // Figure out the width of the node...
+    temp_width = t->width +
+                 t->style->margin[HD_POS_LEFT] +
+		 t->style->border[HD_POS_LEFT].width +
+		 t->style->padding[HD_POS_LEFT] +
+                 t->style->margin[HD_POS_RIGHT] +
+		 t->style->border[HD_POS_RIGHT].width +
+		 t->style->padding[HD_POS_RIGHT];
+
+    if (t->element == HD_ELEMENT_NONE)
+      temp_width += (t->style->font->get_num_chars(t->data) - 1) *
+                    letter_spacing;
+    
+    if (t->whitespace && t != line->child)
+      tx += t->style->font->get_width(" ") * t->style->font_size + word_spacing;
+
+    // Figure out the vertical position...
+    switch (t->style->vertical_align)
+    {
+      case HD_VERTICALALIGN_BASELINE :
+          ty = *y + above + height;
+          break;
+
+      case HD_VERTICALALIGN_SUB :
+          ty = *y + line_height - above + t->height;
+          break;
+
+      case HD_VERTICALALIGN_SUPER :
+	  ty = *y + above + t->height;
+          break;
+
+      case HD_VERTICALALIGN_TOP :
+          ty = *y + t->height;
+          break;
+
+      case HD_VERTICALALIGN_TEXT_TOP :
+	  ty = *y + above;
+          break;
+
+      case HD_VERTICALALIGN_MIDDLE :
+          ty = *y + above + height -
+	       0.5f * t->style->font->x_height * t->style->font_size +
+	       0.5f * t->height;
+          break;
+
+      case HD_VERTICALALIGN_BOTTOM :
+          ty = *y + line_height;
+          break;
+
+      case HD_VERTICALALIGN_TEXT_BOTTOM :
+          ty = *y + above + height + t->height;
+          break;
+    }
+
+    // Then render it...
+    switch (t->element)
+    {
+      case HD_ELEMENT_NONE :
+	  // Render the background and border, if any...
+	  if (t->style->background_color_set ||
+              t->style->background_image ||
+	      t->style->border[HD_POS_LEFT].style ||
+	      t->style->border[HD_POS_BOTTOM].style ||
+	      t->style->border[HD_POS_RIGHT].style ||
+	      t->style->border[HD_POS_TOP].style)
+	    add_render(*page, HD_RENDERTYPE_BACKGROUND, tx, *y,
+                       temp_width, line_height, t->style);
+
+          // Text element...
+          r = add_render(*page, HD_RENDERTYPE_TEXT,
+	                 tx + t->style->margin[HD_POS_LEFT] +
+			     t->style->border[HD_POS_LEFT].width +
+			     t->style->padding[HD_POS_LEFT], ty,
+			 t->width, t->style->font_size, t->data);
+
+          if (r)
+	  {
+	    r->data.text.font = t->style->font;
+	    r->data.text.font_size = t->style->font_size;
+	    r->data.text.char_spacing = letter_spacing;
+	    memcpy(r->data.text.rgb, t->style->color, sizeof(r->data.text.rgb));
+	  }
+
+          if (t->link)
+	  {
+	    // Add a hyper link for clicking...
+            add_render(*page, HD_RENDERTYPE_LINK,
+	               tx + t->style->margin[HD_POS_LEFT] +
+			   t->style->border[HD_POS_LEFT].width +
+			   t->style->padding[HD_POS_LEFT], ty,
+		       t->width, t->style->font_size,
+		       t->link->get_attr("href"));
+	  }
+
+          if (t->style->text_decoration)
+	  {
+	    if (t->whitespace && t != line->child &&
+	        t->prev->style->text_decoration == t->style->text_decoration)
+	      decorationx = t->style->font->get_width(" ") *
+	                        t->style->font_size + word_spacing;
+	    else
+	      decorationx = 0.0f;
+            
+            switch (t->style->text_decoration)
+	    {
+	      case HD_TEXTDECORATION_NONE :
+	          decorationy = 0.0f;
+	          break;
+
+	      case HD_TEXTDECORATION_UNDERLINE :
+		  decorationy = t->style->font->ul_position *
+		                t->style->font_size;
+	          break;
+
+	      case HD_TEXTDECORATION_OVERLINE :
+		  decorationy = t->style->font_size;
+	          break;
+
+	      case HD_TEXTDECORATION_LINE_THROUGH :
+		  decorationy = 0.5f * t->style->font_size;
+	          break;
+	    }
+
+            add_render(*page, HD_RENDERTYPE_BOX,
+	               tx - decorationx, ty - decorationy,
+		       temp_width + decorationx,
+		       t->style->font->ul_thickness * t->style->font_size,
+		       t->style->color);
+          }
+	  break;
+
+      case HD_ELEMENT_IMG :
+          // Image element...
+	  parse_image(t, m, &tx, &ty, page);
 	  break;
 
       default :
@@ -5936,5 +6383,5 @@ get_title(hdTree *doc)	// I - Document
 
 
 //
-// End of "$Id: render.cxx,v 1.11 2002/04/07 13:39:46 mike Exp $".
+// End of "$Id: render.cxx,v 1.12 2002/04/08 01:09:18 mike Exp $".
 //
