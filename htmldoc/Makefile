@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.1 1999/11/12 21:39:37 mike Exp $"
+#   "$Id: Makefile,v 1.2 1999/11/22 18:07:40 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -48,14 +48,14 @@ all:	htmldoc
 
 install:	all
 	if [ ! -d $(bindir) ]; then\
-		mkdir -p $(bindir);\
+		$(MKDIR) $(bindir);\
 	fi
 	cp htmldoc $(bindir)
 	chmod 555 $(bindir)/htmldoc
 
 
 #
-# clean out object and executable files...
+# Clean out object and executable files...
 #
 
 clean:
@@ -65,10 +65,10 @@ clean:
 # htmldoc
 #
 
-htmldoc:	$(OBJS) ../Makedefs ../gui/libgui.a ../jpeg/libjpeg.a \
+htmldoc:	$(OBJS) ../Makedefs ../jpeg/libjpeg.a \
 		../png/libpng.a ../zlib/libz.a
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o htmldoc $(OBJS) ../gui/libgui.a $(LIBS)
+	$(CXX) $(LDFLAGS) -o htmldoc $(OBJS) $(LIBS)
 
 gui.o:		gui.h html.h htmldoc.h image.h iso8859.h types.h htmldoc.xbm
 html.o:		html.h htmldoc.h image.h iso8859.h types.h
@@ -85,5 +85,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.1 1999/11/12 21:39:37 mike Exp $".
+# End of "$Id: Makefile,v 1.2 1999/11/22 18:07:40 mike Exp $".
 #

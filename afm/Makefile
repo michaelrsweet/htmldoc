@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.1 1999/11/10 15:59:24 mike Exp $"
+# "$Id: Makefile,v 1.2 1999/11/22 18:07:39 mike Exp $"
 #
 #   Makefile for HTMLDOC AFM files.
 #
@@ -52,7 +52,9 @@ all:
 #
 
 install:
-	$(MKDIR) $(datadir)/htmldoc/afm
+	if [ ! -d $(datadir)/htmldoc/afm ]; then\
+		$(MKDIR) $(datadir)/htmldoc/afm;\
+	fi
 	$(CP) $(AFMS) $(datadir)/htmldoc/afm
 	$(CHMOD) ugo+r $(datadir)/htmldoc/afm/*
 
@@ -64,5 +66,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.1 1999/11/10 15:59:24 mike Exp $".
+# End of "$Id: Makefile,v 1.2 1999/11/22 18:07:39 mike Exp $".
 #

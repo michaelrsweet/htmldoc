@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.27 1999/11/22 15:13:46 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.28 1999/11/22 18:07:40 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2971,7 +2971,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     *y -= height;
 
     if (Verbosity)
-      progress_update(100 - 100 * (*y) / PagePrintLength);
+      progress_update(100 - (int)(100 * (*y) / PagePrintLength));
 
     if (t->halignment == ALIGN_LEFT)
       *x = image_left;
@@ -3217,7 +3217,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
       *y -= _htmlSpacings[t->size];
 
       if (Verbosity)
-        progress_update(100 - 100 * (*y) / PagePrintLength);
+        progress_update(100 - (int)(100 * (*y) / PagePrintLength));
     }
 
     if (flat->link != NULL)
@@ -6276,5 +6276,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.27 1999/11/22 15:13:46 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.28 1999/11/22 18:07:40 mike Exp $".
  */
