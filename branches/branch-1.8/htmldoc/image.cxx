@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.19 2002/07/25 02:18:49 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.20 2002/07/25 21:29:25 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -709,6 +709,7 @@ image_load(const char *filename,/* I - Name of image file */
            int        gray,	/* I - 0 = color, 1 = grayscale */
            int        load_data)/* I - 1 = load image data, 0 = just info */
 {
+  int		i;		/* Looping var */
   FILE		*fp;		/* File pointer */
   uchar		header[16];	/* First 16 bytes of file */
   image_t	*img,		/* New image buffer */
@@ -729,6 +730,10 @@ image_load(const char *filename,/* I - Name of image file */
 
   if (filename[0] == '\0')	/* Microsoft VC++ runtime bug workaround... */
     return (NULL);
+
+  DEBUG_printf(("image_load(filename=\"%s\", gray=%d, load_data=%d)\n",
+                filename, gray, load_data));
+  DEBUG_printf(("Path = \"%s\"\n", Path));
 
  /*
   * See if we've already loaded it...
@@ -777,6 +782,20 @@ image_load(const char *filename,/* I - Name of image file */
     fclose(fp);
     return (NULL);
   }
+
+#ifdef DEBUG
+  printf("Header for \"%s\" (%s): \"", filename, realname);
+
+  for (i = 0; i < sizeof(header); i ++)
+    if (header[i] < ' ' || header[i] >= 127)
+      printf("\\x%02X", header[i]);
+    else
+      putchar(header[i]);
+
+  puts("\"\n");
+
+  printf(("match = %p\n", match);
+#endif // DEBUG
 
   rewind(fp);
 
@@ -837,12 +856,6 @@ image_load(const char *filename,/* I - Name of image file */
   else
   {
     progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", filename);
-    progress_error(HD_ERROR_BAD_FORMAT, "First 16 bytes are: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-		   header[0], header[1], header[2], header[3],
-		   header[4], header[5], header[6], header[7],
-		   header[8], header[9], header[10], header[11],
-		   header[12], header[13], header[14],
-		   header[15]);
     fclose(fp);
     free(img);
     return (NULL);
@@ -1700,5 +1713,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.19 2002/07/25 02:18:49 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.20 2002/07/25 21:29:25 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.33 2002/07/23 16:38:26 mike Exp $"
+ * "$Id: file.c,v 1.13.2.34 2002/07/25 21:29:24 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -28,6 +28,7 @@
  *                        temporary files...
  *   file_directory()   - Return the directory without filename or target.
  *   file_extension()   - Return the extension of a file without the target.
+ *   file_find_check()  - Check to see if the specified file or URL exists...
  *   file_find()        - Find a file in one of the path directories.
  *   file_gets()        - Read a line from a file terminated with CR, LF,
  *                        or CR LF.
@@ -46,6 +47,7 @@
 #include "file.h"
 #include "http.h"
 #include "progress.h"
+#include "debug.h"
 
 #if defined(WIN32)
 #  include <io.h>
@@ -160,6 +162,9 @@ file_cleanup(void)
     httpClose(http);
     http = NULL;
   }
+
+  if (getenv("HTMLDOC_NOCLEANUP"))
+    return;
 
 #ifdef WIN32
   GetTempPath(sizeof(tmpdir), tmpdir);
@@ -308,22 +313,18 @@ file_extension(const char *s)	/* I - Filename or URL */
 
 
 /*
- * 'file_find()' - Find a file in one of the path directories.
+ * 'file_find_check()' - Check to see if the specified file or URL exists...
  */
 
-const char *				/* O - Pathname or NULL */
-file_find(const char *path,		/* I - Path "dir;dir;dir" */
-          const char *s)		/* I - File to find */
+static const char *			/* O - Pathname or NULL */
+file_find_check(const char *filename)	/* I - File or URL */
 {
   int		i;			/* Looping var */
   int		retry;			/* Current retry */
-  char		*temp,			/* Current position in filename */
-		method[HTTP_MAX_URI],	/* Method/scheme */
+  char		method[HTTP_MAX_URI],	/* Method/scheme */
 		username[HTTP_MAX_URI],	/* Username:password */
 		hostname[HTTP_MAX_URI],	/* Hostname */
 		resource[HTTP_MAX_URI];	/* Resource */
-  const char	*sptr;			/* Pointer into "s" */
-  int		ch;			/* Quoted character */
   int		port;			/* Port number */
   const char	*connhost;		/* Host to connect to */
   int		connport;		/* Port to connect to */
@@ -334,22 +335,13 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   int		bytes,			/* Bytes read */
 		count,			/* Number of bytes so far */
 		total;			/* Total bytes in file */
-  static char	filename[HTTP_MAX_URI];	/* Current filename */
+  char		tempname[HTTP_MAX_URI];	/* Temporary filename */
 
 
- /*
-  * If the filename is NULL, return NULL...
-  */
-
-  if (s == NULL)
-    return (NULL);
-
-  if (strncmp(s, "http:", 5) == 0 || strncmp(s, "//", 2) == 0 ||
-      (path != NULL && strncmp(path, "http:", 5) == 0))
+  if (strncmp(filename, "http:", 5) == 0 || strncmp(filename, "//", 2) == 0)
     strcpy(method, "http");
 #ifdef HAVE_LIBSSL
-  else if (strncmp(s, "https:", 6) == 0 ||
-           (path != NULL && strncmp(path, "https:", 6) == 0))
+  else if (strncmp(filename, "https:", 6) == 0)
     strcpy(method, "https");
 #endif /* HAVE_LIBSSL */
   else
@@ -358,127 +350,21 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   if (strcmp(method, "file") == 0)
   {
    /*
-    * If we are not allowing access to local files, return NULL...
+    * Return immediately if we aren't allowing access to local files...
     */
 
     if (no_local)
-    {
-      for (i = 0; i < web_files; i ++)
-        if (strcmp(s, web_cache[i].name) == 0)
-	  return (s);
-
       return (NULL);
-    }
-
-   /*
-    * If the path is NULL or empty, return the filename...
-    */
-
-    if (path == NULL || !path[0])
-    {
-      if (strchr(s, '%') == NULL)
-        return (s);
-
-      for (sptr = s, temp = filename;
-           *sptr && temp < (filename + sizeof(filename) - 1);)
-        if (*sptr == '%' && isxdigit(sptr[1]) && isxdigit(sptr[2]))
-	{
-	 /*
-	  * Dequote %HH...
-	  */
-
-          if (isalpha(sptr[1]))
-	    ch = (tolower(sptr[1]) - 'a' + 10) << 4;
-	  else
-	    ch = (sptr[1] - '0') << 4;
-
-          if (isalpha(sptr[2]))
-	    ch |= tolower(sptr[2]) - 'a' + 10;
-	  else
-	    ch |= sptr[2] - '0';
-
-          *temp++ = ch;
-
-	  sptr += 3;
-	}
-	else
-	  *temp++ = *sptr++;
-
-      *temp = '\0';
-
-      return (filename);
-    }
-
-   /*
-    * Else loop through the path string until we reach the end...
-    */
-
-    while (*path != '\0')
-    {
-     /*
-      * Copy the path directory...
-      */
-
-      temp = filename;
-
-      while (*path != ';' && *path && temp < (filename + sizeof(filename) - 1))
-	*temp++ = *path++;
-
-      if (*path == ';')
-	path ++;
-
-     /*
-      * Append a slash as needed...
-      */
-
-      if (temp > filename && temp < (filename + sizeof(filename) - 1) &&
-          s[0] != '/')
-	*temp++ = '/';
-
-     /*
-      * Append the filename, dequoting %HH as needed...
-      */
-
-      for (sptr = s; *sptr && temp < (filename + sizeof(filename) - 1);)
-        if (*sptr == '%' && isxdigit(sptr[1]) && isxdigit(sptr[2]))
-	{
-	 /*
-	  * Dequote %HH...
-	  */
-
-          if (isalpha(sptr[1]))
-	    ch = (tolower(sptr[1]) - 'a' + 10) << 4;
-	  else
-	    ch = (sptr[1] - '0') << 4;
-
-          if (isalpha(sptr[2]))
-	    ch |= tolower(sptr[2]) - 'a' + 10;
-	  else
-	    ch |= sptr[2] - '0';
-
-          *temp++ = ch;
-
-	  sptr += 3;
-	}
-	else
-	  *temp++ = *sptr++;
-
-      *temp = '\0';
-
-     /*
-      * See if the file exists...
-      */
-
-      if (!access(filename, 0))
-	return (filename);
-    }
 
    /*
     * If the filename exists, return the filename...
     */
 
-    if (!access(s, 0))
-      return (s);
+    if (!access(filename, 0))
+    {
+      DEBUG_printf(("file_find_check: Returning \"%s\"!\n", filename));
+      return (filename);
+    }
   }
   else
   {
@@ -488,31 +374,14 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     */
 
     for (i = 0; i < web_files; i ++)
-      if (web_cache[i].url && strcmp(web_cache[i].url, s) == 0)
+      if (web_cache[i].url && strcmp(web_cache[i].url, filename) == 0)
+      {
+        DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\"!\n",
+	              web_cache[i].name, filename));
         return (web_cache[i].name);
+      }
 
-#ifdef HAVE_LIBSSL
-    if (strncmp(s, "http:", 5) == 0 || strncmp(s, "//", 2) == 0 ||
-        strncmp(s, "https:", 6) == 0)
-#else
-    if (strncmp(s, "http:", 5) == 0 || strncmp(s, "//", 2) == 0)
-#endif /* HAVE_LIBSSL */
-      httpSeparate(s, method, username, hostname, &port, resource);
-    else if (s[0] == '/')
-    {
-      httpSeparate(path, method, username, hostname, &port, resource);
-      strncpy(resource, s, sizeof(resource) - 1);
-      resource[sizeof(resource) - 1] = '\0';
-    }
-    else
-    {
-      if (strncmp(s, "./", 2) == 0)
-        snprintf(filename, sizeof(filename), "%s/%s", path, s + 2);
-      else
-        snprintf(filename, sizeof(filename), "%s/%s", path, s);
-
-      httpSeparate(filename, method, username, hostname, &port, resource);
-    }
+    httpSeparate(filename, method, username, hostname, &port, resource);
 
     for (status = HTTP_ERROR, retry = 0;
          status == HTTP_ERROR && retry < 5;
@@ -585,7 +454,9 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       }
 
       if (!httpGet(http, connpath))
+      {
 	while ((status = httpUpdate(http)) == HTTP_CONTINUE);
+      }
       else
 	status = HTTP_ERROR;
 
@@ -615,11 +486,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       return (NULL);
     }
 
-    if ((fp = file_temp(filename, sizeof(filename))) == NULL)
+    if ((fp = file_temp(tempname, sizeof(tempname))) == NULL)
     {
       progress_hide();
       progress_error(HD_ERROR_WRITE_ERROR,
-                     "Unable to create temporary file \"%s\": %s", filename,
+                     "Unable to create temporary file \"%s\": %s", tempname,
                      strerror(errno));
       httpFlush(http);
       return (NULL);
@@ -640,13 +511,152 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
     fclose(fp);
 
-    web_cache[web_files - 1].name = strdup(filename);
-    web_cache[web_files - 1].url  = strdup(s);
+    web_cache[web_files - 1].name = strdup(tempname);
+    web_cache[web_files - 1].url  = strdup(filename);
 
-    return (filename);
+    DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\"!\n",
+		  tempname, filename));
+
+    return (web_cache[web_files - 1].name);
   }
 
   return (NULL);
+}
+
+
+/*
+ * 'file_find()' - Find a file in one of the path directories.
+ */
+
+const char *				/* O - Pathname or NULL */
+file_find(const char *path,		/* I - Path "dir;dir;dir" */
+          const char *s)		/* I - File to find */
+{
+  int		i;			/* Looping var */
+  char		*temp;			/* Current position in filename */
+  const char	*sptr;			/* Pointer into "s" */
+  int		ch;			/* Quoted character */
+  char		basename[HTTP_MAX_URI],	/* Base (unquoted) filename */
+		filename[HTTP_MAX_URI];	/* Current filename */
+  const char	*realname;		/* Real filename */
+
+
+ /*
+  * If the filename is NULL, return NULL...
+  */
+
+  if (s == NULL)
+    return (NULL);
+
+  DEBUG_printf(("file_find(path=\"%s\", s=\"%s\")\n", path ? path : "(null)", s));
+
+ /*
+  * See if this is a cached remote file...
+  */
+
+  for (i = 0; i < web_files; i ++)
+    if (strcmp(s, web_cache[i].name) == 0)
+    {
+      DEBUG_printf(("file_find: Returning cache file \"%s\"!\n", s));
+      return (s);
+    }
+
+  DEBUG_printf(("file_find: \"%s\" not in web cache of %d files...\n",
+                s, web_files));
+
+ /*
+  * Make sure the filename is not quoted...
+  */
+
+  if (strchr(s, '%') == NULL)
+  {
+    strncpy(basename, s, sizeof(basename) - 1);
+    basename[sizeof(basename) - 1] = '\0';
+  }
+  else
+  {
+    for (sptr = s, temp = basename;
+	 *sptr && temp < (basename + sizeof(basename) - 1);)
+      if (*sptr == '%' && isxdigit(sptr[1]) && isxdigit(sptr[2]))
+      {
+       /*
+	* Dequote %HH...
+	*/
+
+	if (isalpha(sptr[1]))
+	  ch = (tolower(sptr[1]) - 'a' + 10) << 4;
+	else
+	  ch = (sptr[1] - '0') << 4;
+
+	if (isalpha(sptr[2]))
+	  ch |= tolower(sptr[2]) - 'a' + 10;
+	else
+	  ch |= sptr[2] - '0';
+
+	*temp++ = ch;
+
+	sptr += 3;
+      }
+      else
+	*temp++ = *sptr++;
+
+    *temp = '\0';
+  }
+
+ /*
+  * If we got a complete URL, we don't use the path...
+  */
+
+  if (path != NULL && !path[0])
+    path = NULL;
+
+  if (strncmp(filename, "http:", 5) == 0 ||
+      strncmp(filename, "https:", 6) == 0 ||
+      strncmp(filename, "//", 2) == 0)
+    path = NULL;
+
+ /*
+  * Loop through the path as needed...
+  */
+
+  if (path != NULL)
+  {
+    filename[sizeof(filename) - 1] = '\0';
+
+    while (*path != '\0')
+    {
+     /*
+      * Copy the path directory...
+      */
+
+      temp = filename;
+
+      while (*path != ';' && *path && temp < (filename + sizeof(filename) - 1))
+	*temp++ = *path++;
+
+      if (*path == ';')
+	path ++;
+
+     /*
+      * Append a slash as needed, then the filename...
+      */
+
+      if (temp > filename && temp < (filename + sizeof(filename) - 1) &&
+          basename[0] != '/')
+	*temp++ = '/';
+
+      strncpy(temp, basename, sizeof(filename) - (temp - filename) - 1);
+
+     /*
+      * See if the file or URL exists...
+      */
+
+      if ((realname = file_find_check(filename)) != NULL)
+	return (realname);
+    }
+  }
+
+  return (file_find_check(s));
 }
 
 
@@ -1000,5 +1010,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.33 2002/07/23 16:38:26 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.34 2002/07/25 21:29:24 mike Exp $".
  */
