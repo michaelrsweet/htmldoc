@@ -1,5 +1,5 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.6 2001/05/27 12:50:36 mike Exp $"
+.\" "$Id: htmldoc.man,v 1.7.2.7 2001/10/21 15:57:15 mike Exp $"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.13" "21 May 2001" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.15" "21 October 2001" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -40,8 +40,9 @@ A very common mistake is to try converting a web page using:
 htmldoc -f filename.pdf filename.html
 .LP
 which will likely produce a PDF file with no pages. To convert web
-page files you \fBmust\fR use the \fI--webpage\fR option at the
-command-line or choose \fIWeb Page\fR in the input tab of the GUI.
+page files you \fBmust\fR use the \fI--webpage\fR or \fI--continuous\fR
+options at the command-line or choose \fIWeb Page\fR or \fIContinuous\fR
+in the input tab of the GUI.
 .SH OPTIONS
 The following command-line options are supported by \fIHTMLDOC\fR:
 
@@ -87,6 +88,12 @@ Specifies the ISO character set to use for the output.
 --color
 .br
 Specifies that PostScript or PDF output should be in color.
+
+.TP 5
+--continuous
+.br
+Specifies that the HTML sources are unstructured (plain web pages.)
+No page breaks are inserted between each file or URL in the output.
 
 .TP 5
 --datadir \fIdirectory\fR
@@ -411,6 +418,7 @@ Provides verbose messages.
 --webpage
 .br
 Specifies that the HTML sources are unstructured (plain web pages.)
+A page break is inserted between each file or URL in the output.
 
 .SH HEADER/FOOTER FORMATS
 The header and footer of each page can contain up to three preformatted
@@ -524,5 +532,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.6 2001/05/27 12:50:36 mike Exp $".
+.\" End of "$Id: htmldoc.man,v 1.7.2.7 2001/10/21 15:57:15 mike Exp $".
 .\"
