@@ -1,0 +1,52 @@
+<HTML>
+<BODY>
+
+<H1 ALIGN="RIGHT"><A NAME="CMDLINE">Chapter 4 - HTMLDOC from the
+Command-Line</A></H1>
+
+This chapter describes how to use <I>HTMLDOC</I> from the command-line to
+convert web pages and generate books.
+
+<H2>Converting Web Pages</H2>
+
+To convert a web page type:
+
+<UL><PRE>
+% <KBD>htmldoc --webpage -f output.pdf filename.html ENTER</KBD>
+% <KBD>htmldoc --webpage -f output.ps filename.html ENTER</KBD>
+</PRE></UL>
+
+The "--webpage" option tells <I>HTMLDOC</I> that you want to convert a
+web page or other unstructured document.
+
+<P>The "-f" option tells <I>HTMLDOC</I> what file to generate. If you
+don't specify an output file then a PDF file is send to the standard
+output.
+
+<H2>Generating Books</H2>
+
+To generate a book from one or more HTML files type:
+
+<UL><PRE>
+% <KBD>htmldoc --book -f output.html filename.html ENTER</KBD>
+% <KBD>htmldoc --book -f output.pdf filename.html ENTER</KBD>
+% <KBD>htmldoc --book -f output.ps filename.html ENTER</KBD>
+</PRE></UL>
+
+The "--book" option tells <I>HTMLDOC</I> that you want to generate a
+book from the HTML file(s) you specified.
+
+<H2>Setting the Title Image</H2>
+
+The <CODE>--titleimage</CODE> sets the image to use on the title page:
+
+<UL><PRE>
+% <KBD>htmldoc --titleimage filename.gif ... ENTER</KBD>
+% <KBD>htmldoc --titleimage filename.jpg ... ENTER</KBD>
+% <KBD>htmldoc --titleimage filename.png ... ENTER</KBD>
+</PRE></UL>
+
+<I>HTMLDOC</I> supports GIF, JPEG, and PNG images.
+
+</BODY>
+</HTML>

@@ -1,0 +1,114 @@
+.\"
+.\" "$Id: htmldoc.man,v 1.3 2000/03/06 20:08:52 mike Exp $"
+.\"
+.\"   Manual page for HTMLDOC, a HTML document processing program.
+.\"
+.\"   Copyright 1997-1999 by Easy Software Products.
+.\"
+.\"   HTMLDOC is distributed under the terms of the GNU General Public License
+.\"   which is described in the file "COPYING.txt".
+.\"
+.TH htmldoc 1 "HTMLDOC 1.8.5" "6 March 2000" "Easy Software Products"
+.SH NAME
+htmldoc \- convert html source files into html, postscript, or pdf.
+.sp
+.SH SYNOPSIS
+htmldoc [options] filename1.html [ ... filenameN.html ]
+.LP
+htmldoc [options] -
+.LP
+htmldoc [filename.book]
+.sp
+.SH OPTIONS
+[ -d
+.I directory
+] [ -f
+.I filename
+] [ -t
+.I format
+] [ -v ] [ --bodycolor
+.I color
+] [ --bodyfont
+.I typeface
+] [ --bodyimage
+.I filename
+] [ --book ] [ --bottom
+.I margin
+] [ --color ] [ --duplex ] [ --fontsize
+.I size
+] [ --fontspacing
+.I spacing
+] [ --footer
+.I fff
+] [ --format
+.I format
+] [ --gray ] [ --header
+.I fff
+] [ --headfootfont
+.I font
+] [ --headfootsize
+.I size
+] [ --headingfont
+.I typeface
+] [ --help ] [ --jpeg
+.I [=quality]
+] [ --left
+.I margin
+] [ --logoimage
+.I filename
+] [ --no-compression ] [ --no-duplex ] [ --no-numbered ] [ --no-pscommands ]
+[ --no-title ] [ --no-toc ] [ --numbered ] [ --outdir
+.I directory
+] [ --outfile
+.I filename
+] [ --right
+.I margin
+] [ --size
+.I pagesize
+] [ --titlefile
+.I filename
+] [ --titleimage
+.I filename
+] [ --tocfooter
+.I fff
+] [ --tocheader
+.I fff
+] [ --toclevels
+.I levels
+] [ --top
+.I margin
+] [ --verbose ] [ --webpage ]
+.SH DESCRIPTION
+\fIHTMLDOC\fR converts HTML source files into indexed HTML, PostScript, or
+Portable Document Format (PDF) files that can be viewed online or printed.
+With no options a PDF document is produced on stdout.
+.LP
+The second form of \fIHTMLDOC\fR reads HTML source from stdin, which allows
+you to use \fIHTMLDOC\fR as a filter.
+.LP
+The third form of \fIHTMLDOC\fR launches a graphical interface that allows you
+to change options and generate documents interactively.
+.SH SEE ALSO
+HTMLDOC 1.8.5 Software Users Manual
+.LP
+HTMLDOC WWW page, http://www.easysw.com/htmldoc
+.SH AUTHOR
+Michael Sweet (mike@easysw.com), Easy Software Products
+.SH TRADEMARKS
+PostScript is a trademark that may be registered in some countries and Adobe is
+a registered trademark of Adobe Systems Incorporated.
+.SH COPYRIGHTS
+Portable Document Format Copyright 1993-1999 by Adobe Systems Incorporated.
+.LP
+HTMLDOC is copyright 1997-2000 by Easy Software. This program is free
+software; you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version.
+.SH NO WARRANTY
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+.\"
+.\" End of "$Id: htmldoc.man,v 1.3 2000/03/06 20:08:52 mike Exp $".
+.\"
