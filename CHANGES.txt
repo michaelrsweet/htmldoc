@@ -40,6 +40,10 @@ CHANGES IN HTMLDOC v1.8.24
 	- The default vertical alignment is now "bottom" inside
 	  paragraphs to correctly align different sized text and
 	  images to the baseline.
+	- Indexed images are now written as PDF image objects when
+	  encryption is enabled; this works around a serious bug in
+	  Acrobat 6 which tries to decrypt the colormap of in-line
+	  images twice, causing some very strange colors!
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.31 2004/02/06 03:51:09 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.32 2004/02/10 16:19:38 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -944,6 +944,12 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   // Setup image and buffers...
   img->depth  = gray ? 1 : 3;
 
+  // If this image is indexed and we are writing an encrypted PDF file, bump the use count so
+  // we create an image object (Acrobat 6 bug workaround)
+  if (depth <= 8 && Encryption)
+    img->use ++;
+
+  // Return now if we only need the dimensions...
   if (!load_data)
     return (0);
 
@@ -1270,6 +1276,11 @@ image_load_gif(image_t *img,	/* I - Image pointer */
   img->height = (buf[9] << 8) | buf[8];
   ncolors     = 2 << (buf[10] & 0x07);
 
+  // If we are writing an encrypted PDF file, bump the use count so we create
+  // an image object (Acrobat 6 bug workaround)
+  if (Encryption)
+    img->use ++;
+
   if (buf[10] & GIF_COLORMAP)
     if (gif_read_cmap(fp, ncolors, cmap, &gray))
       return (-1);
@@ -1500,7 +1511,14 @@ image_load_png(image_t *img,	/* I - Image pointer */
   png_read_info(pp, info);
 
   if (info->color_type & PNG_COLOR_MASK_PALETTE)
+  {
     png_set_expand(pp);
+
+    // If we are writing an encrypted PDF file, bump the use count so we create
+    // an image object (Acrobat 6 bug workaround)
+    if (Encryption)
+      img->use ++;
+  }
   else if (info->bit_depth < 8)
   {
     png_set_packing(pp);
@@ -1839,5 +1857,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.31 2004/02/06 03:51:09 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.32 2004/02/10 16:19:38 mike Exp $".
  */
