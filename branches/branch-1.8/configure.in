@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.52 2004/06/13 22:11:18 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.53 2004/06/14 02:23:46 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -261,6 +261,14 @@ if test "$prefix" = "NONE"; then
     prefix=/usr
 fi
 
+if test "$exec_prefix" = "NONE"; then
+    exec_prefix=/usr
+fi
+
+if test "$bindir" = "\${exec_prefix}/bin"; then
+    bindir="$exec_prefix/bin"
+fi
+
 AC_DEFINE_UNQUOTED(DOCUMENTATION, "$prefix/share/doc/htmldoc")
 AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
 
@@ -373,5 +381,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.ftr desktop/htmldoc.plist)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.52 2004/06/13 22:11:18 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.53 2004/06/14 02:23:46 mike Exp $".
 dnl
