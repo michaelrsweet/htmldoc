@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.8 2002/04/03 02:18:52 mike Exp $"
+// "$Id: testsuite.cxx,v 1.9 2002/04/03 18:12:57 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -40,7 +40,7 @@
 void	print_tree(hdTree *t, int indent);
 void	print_style(hdStyle *s);
 void	write_book(hdFile *fp, hdStyleSheet *css, hdTree *toc,
-	           hdTree *figures, hdTree *doc);
+	           hdTree *figures, hdTree *doc, hdTree *ind);
 void	write_css(hdFile *fp, hdStyleSheet *css);
 void	write_html(hdFile *fp, hdTree *t);
 void	write_test(hdFile *fp);
@@ -65,7 +65,8 @@ main(int  argc,				// I - Number of command-line arguments
   hdStyleSheet		*css;		// Style sheet
   hdTree		*html,		// HTML file
 			*toc,		// Table-of-contents
-			*figures;	// List of figures...
+			*figures,	// List of figures...
+			*ind;		// Index
 
 
   setbuf(stdout, NULL);
@@ -79,7 +80,6 @@ main(int  argc,				// I - Number of command-line arguments
   else
     printf("testimg.jpg: %dx%d pixels\n", img->width(), img->height());
 
-#if 0
   if (hdFile::find(0, "http://www.easysw.com/images/title-htmldoc.gif",
                    filename, sizeof(filename)))
   {
@@ -95,7 +95,6 @@ main(int  argc,				// I - Number of command-line arguments
   }
   else
     puts("Unable to load title-htmldoc.gif from www.easysw.com...");
-#endif // 0
 
   if ((fp = hdFile::open("../data/webpage.css", HD_FILE_READ)) == NULL)
     puts("Unable to open ../data/webpage.css...");
@@ -150,13 +149,18 @@ main(int  argc,				// I - Number of command-line arguments
         toc     = html->build_toc(css, 3, 1);
 	figures = html->build_list(css, "FIGURE", "Figure");
 
+        fp  = hdFile::open("../testsuite/book.words", HD_FILE_READ);
+	ind = html->build_index(css, fp);
+	delete fp;
+
         fp = hdFile::open("test.html", HD_FILE_WRITE);
-	write_book(fp, css, toc, figures, html);
+	write_book(fp, css, toc, figures, html, ind);
 	delete fp;
 
         delete html;
 	delete toc;
 	delete figures;
+	delete ind;
       }
       else
         puts("Unable to load HTML file!");
@@ -438,18 +442,25 @@ write_book(hdFile       *fp,
            hdStyleSheet *css,
            hdTree       *toc,
 	   hdTree       *figures,
-	   hdTree       *doc)
+	   hdTree       *doc,
+	   hdTree       *ind)
 {
   fp->puts("<html>\n");
   fp->puts("<head>\n");
   write_css(fp, css);
   fp->puts("</head>\n");
   fp->puts("<body>\n");
+  fp->puts("<h1>Table of Contents</h1>\n");
   write_html(fp, toc);
+  fp->puts("<p><a href=\"#HD_INDEX\">Index</a></p>\n");
   fp->puts("<hr>\n");
+  fp->puts("<h1>List of Figures</h1>\n");
   write_html(fp, figures);
   fp->puts("<hr>\n");
   write_html(fp, doc);
+  fp->puts("<hr>\n");
+  fp->puts("<h1><a name=\"HD_INDEX\">Index</a></h1>\n");
+  write_html(fp, ind);
   fp->puts("</body>\n");
   fp->puts("</html>\n");
 }
@@ -683,5 +694,5 @@ write_test(hdFile *fp)	// I - File to write to...
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.8 2002/04/03 02:18:52 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.9 2002/04/03 18:12:57 mike Exp $".
 //
