@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.28 2001/06/01 19:49:13 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.29 2001/06/04 13:22:30 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -683,6 +683,13 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           if ((color = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL &&
 	      !BodyColor[0])
 	    strcpy(BodyColor, (char *)color);
+
+          // Update the background image as necessary...
+          if ((filename = htmlGetVariable(t, (uchar *)"BACKGROUND")) != NULL)
+	    htmlSetVariable(t, (uchar *)"BACKGROUND",
+	                    (uchar *)fix_filename((char *)filename, base));
+
+          htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_IMG :
@@ -848,8 +855,18 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
             else if (strstr((char *)face, "times") != NULL)
               t->typeface = TYPE_TIMES;
             else if (strstr((char *)face, "courier") != NULL)
+	    {
               t->typeface = TYPE_COURIER;
-            else if (strstr((char *)face, "symbol") != NULL)
+
+              if (have_whitespace)
+	      {
+		// Insert a space before monospaced text...
+		insert_space(parent, t);
+
+		have_whitespace = 0;
+	      }
+            }
+	    else if (strstr((char *)face, "symbol") != NULL)
               t->typeface = TYPE_SYMBOL;
           }
 
@@ -858,6 +875,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
           if ((size = htmlGetVariable(t, (uchar *)"SIZE")) != NULL)
           {
+            if (have_whitespace)
+	    {
+	      // Insert a space before sized text...
+	      insert_space(parent, t);
+
+	      have_whitespace = 0;
+	    }
+
 	    if (isdigit(size[0]))
 	      sizeval = atoi((char *)size);
 	    else
@@ -875,6 +900,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_BIG :
+          if (have_whitespace)
+	  {
+	    // Insert a space before big text...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
           if (t->size < 6)
             t->size += 2;
           else
@@ -884,6 +917,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_SMALL :
+          if (have_whitespace)
+	  {
+	    // Insert a space before small text...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
           if (t->size > 2)
             t->size -= 2;
           else
@@ -893,6 +934,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_SUP :
+          if (have_whitespace)
+	  {
+	    // Insert a space before superscript text...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
           t->superscript = 1;
           t->size        = SIZE_SUP;
 
@@ -900,6 +949,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_SUB :
+          if (have_whitespace)
+	  {
+	    // Insert a space before subscript text...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
           t->subscript = 1;
           t->size      = SIZE_SUB;
 
@@ -958,6 +1015,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
       case MARKUP_U :
       case MARKUP_INS :
+          if (have_whitespace)
+	  {
+	    // Insert a space before underlined text...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
           t->underline = 1;
 
           htmlReadFile(t, fp, base);
@@ -966,6 +1031,14 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
       case MARKUP_STRIKE :
       case MARKUP_S :
       case MARKUP_DEL :
+          if (have_whitespace)
+	  {
+	    // Insert a space before struck-through text...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
           t->strikethrough = 1;
 
           htmlReadFile(t, fp, base);
@@ -2550,5 +2623,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.28 2001/06/01 19:49:13 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.29 2001/06/04 13:22:30 mike Exp $".
  */
