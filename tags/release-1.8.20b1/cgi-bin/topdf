@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Sample "portal" script to convert the named HTML file to PDF on-the-fly.
+#
+# Usage: http://www.domain.com/path/topdf/path/filename.html
+#
+
+#
+# The "options" variable contains any options you want to pass to HTMLDOC.
+#
+
+options="-t pdf --quiet --jpeg --webpage --header .t. --footer .1."
+
+#
+# Tell the browser to expect a PDF file...
+#
+
+echo "Content-Type: application/pdf"
+echo ""
+
+#
+# Run HTMLDOC to generate the PDF file...
+#
+
+htmldoc $options http://${SERVER_NAME}:${SERVER_PORT}${PATH_INFO}?$QUERY_STRING
