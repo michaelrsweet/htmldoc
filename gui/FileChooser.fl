@@ -1,110 +1,114 @@
 # data file for the Fltk User Interface Designer (fluid)
 version 1.00 
 header_name {.h} 
-code_name {.cpp} 
+code_name {.cxx} 
 gridx 5 
 gridy 5 
 snap 3
 class FileChooser {open
 } {
-  decl {enum { TYPE_MULTI = 1, TYPE_FOLLOW = 2 };} {public
-  }
-  Function {FileChooser(const char *d, char *p, int t, const char *title)} {open
+  Function {FileChooser(const char *d, char *p, int m, const char *title)} {open
   } {
     Fl_Window window {
       label {Pick a File} open
-      private xywh {173 142 296 257} hide hotspot
+      private xywh {173 142 345 270} resizable hotspot
       code0 {if (title) window->label(title);}
       code1 {\#include <stdio.h>}
       code2 {\#include <stdlib.h>}
-      code3 {\#include <string.h>} modal
+      code3 {\#include <string.h>} modal visible
     } {
       Fl_Browser fileList {
         callback {fileListCB();}
-        private xywh {20 5 270 180} type Hold color 196
+        private xywh {25 45 310 180} type Hold resizable
         code1 {\#include "FileBrowser.h"}
         class FileBrowser
-      }
-      Fl_Check_Button followLinks {
-        label {Follow Local Links}
-        private xywh {5 225 140 25} down_box DOWN_BOX color 7 selection_color 0 hide
-        code0 {\#include "CheckButton.h"}
-        code1 {if (!(t & TYPE_FOLLOW))
-  followLinks->hide();}
-        class CheckButton
       }
       Fl_Button {} {
         label Cancel
         callback {fileList->deselect();
 window->hide();}
-        private xywh {222 225 65 25}
+        private xywh {270 235 65 25}
       }
       Fl_Return_Button {} {
         label OK
         callback {window->hide();}
-        private xywh {162 225 55 25}
+        private xywh {210 235 55 25}
       }
-      Fl_Roller roller {
-        callback {fileList->textsize(o->value() * 0.1);
+      Fl_Group {} {open
+        xywh {10 45 15 180}
+        code0 {\#include <FL/Fl_Pack.H>}
+        class Fl_Pack
+      } {
+        Fl_Button {} {
+          label {*}
+          callback {fileList->filter("*");;
+rescan();}
+          xywh {10 45 15 15} labelcolor 4 align 17
+        }
+        Fl_Roller roller {
+          callback {fileList->textsize(o->value() * 0.1);
 fileList->redraw();}
-        xywh {5 35 15 90} minimum 60 maximum 360 step 1 value 140
+          xywh {10 60 15 100} minimum 60 maximum 640 step 1 value 140
+        }
+        Fl_Button {} {
+          label {reset.xbm}
+          callback {roller->value(140.0);
+fileList->textsize(14.0);
+fileList->redraw();}
+          xywh {10 160 15 15} labeltype image labelsize 11
+        }
+      }
+      Fl_Input fileName {
+        label {Filename:}
+        callback {fileNameCB();}
+        xywh {75 235 130 25} when 8
+      }
+      Fl_Input dirName {
+        label {Directory:}
+        callback {directory(dirName->value());}
+        xywh {75 10 175 25}
       }
       Fl_Button upButton {
         label {up.xbm}
         callback {up();}
-        xywh {5 5 15 15} labeltype image labelsize 8
+        xywh {280 10 25 25} labeltype image labelsize 8
       }
+      Fl_Menu_Button dirMenu {
+        callback {directory(dirMenu->text());} open
+        xywh {250 10 25 25}
+      } {}
       Fl_Button {} {
-        label {reset.xbm}
-        callback {roller->value(140.0);
-fileList->textsize(14.0);
-fileList->redraw();}
-        xywh {5 125 15 15} labeltype image labelsize 11
-      }
-      Fl_Input fileName {
-        label {Filename:}
-        callback {fileNameCB();} selected
-        xywh {75 190 215 25} when 8
-      }
-      Fl_Button {} {
-        label {*}
-        callback {fileList->filter("*");;
-rescan();}
-        xywh {5 20 15 15} labelcolor 4 align 17
+        label {new.xbm}
+        callback {newdir();}
+        xywh {310 10 25 25} labeltype image labelsize 8
       }
     }
-    code {if (d == NULL)
-  strcpy(directory_, ".");
-else
-  strcpy(directory_, d);
-init_symbols();
+    code {window->size_range(345, 270, 345);
+init_icons();
 fileList->filter(p);
-rescan();
-type_ = t;
-if (t & TYPE_FOLLOW)
-  followLinks->show();
-else
-  followLinks->hide();
-if (t & TYPE_MULTI)
+directory(d);
+multi_ = m;
+if (m)
   fileList->type(FL_MULTI_BROWSER);
 else
-  fileList->type(FL_HOLD_BROWSER);} {}
+  fileList->type(FL_HOLD_BROWSER);} {selected
+    }
   }
   decl {char directory_[1024];} {}
-  decl {int type_;} {}
+  decl {int multi_;} {}
   decl {void fileListCB();} {}
   decl {void fileNameCB();} {}
-  decl {void init_symbols();} {}
+  decl {void init_icons();} {}
+  decl {void newdir();} {}
   decl {void rescan();} {public
   }
   decl {void up();} {}
+  Function {color(Fl_Color c)} {} {
+    code {fileList->color(c);} {}
+  }
   decl {int count();} {public
   }
-  Function {directory(const char *d)} {return_type void
-  } {
-    code {strcpy(directory_, d);
-rescan();} {}
-  }
+  decl {void directory(const char *d);} {}
   Function {directory()} {return_type {char *}
   } {
     code {return directory_;} {}
@@ -118,44 +122,21 @@ rescan();} {}
   } {
     code {return (fileList->filter());} {}
   }
-  Function {follow_links(int f)} {return_type void
-  } {
-    code {followLinks->value(f);
-if (f)
-{
-  followLinks->show();
-  type_ |= TYPE_FOLLOW;
-}
-else
-{
-  followLinks->hide();
-  type_ &= ~TYPE_FOLLOW;
-}} {}
-  }
-  Function {follow_links()} {return_type int
-  } {
-    code {return (followLinks->value());} {}
-  }
   Function {hide()} {return_type void
   } {
     code {window->hide();} {}
   }
   Function {multi(int m)} {return_type void
   } {
-    code {if (m)
-{
-  type_ |= TYPE_MULTI;
+    code {multi_ = m;
+if (m)
   fileList->type(FL_MULTI_BROWSER);
-}
 else
-{
-  type_ &= ~TYPE_MULTI;
-  fileList->type(FL_HOLD_BROWSER);
-}} {}
+  fileList->type(FL_HOLD_BROWSER);} {}
   }
   Function {multi()} {return_type int
   } {
-    code {return (type_ & TYPE_MULTI);} {}
+    code {return (multi_);} {}
   }
   Function {show()} {return_type void
   } {

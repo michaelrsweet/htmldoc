@@ -2,11 +2,12 @@
 
 #ifndef FileChooser_h
 #define FileChooser_h
-#include "CheckButton.h"
 #include "FileBrowser.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Menu_Button.H>
+#include <FL/Fl_Pack.H>
 #include <FL/Fl_Return_Button.H>
 #include <FL/Fl_Roller.H>
 #include <FL/Fl_Window.H>
@@ -16,28 +17,23 @@
 
 class FileChooser {
 public:
-  enum { TYPE_MULTI = 1, TYPE_FOLLOW = 2 };
-  FileChooser(const char *d, char *p, int t, const char *title);
+  FileChooser(const char *d, char *p, int m, const char *title);
 private:
   Fl_Window *window;
   FileBrowser *fileList;
   inline void cb_fileList_i(FileBrowser*, void*);
   static void cb_fileList(FileBrowser*, void*);
-  CheckButton *followLinks;
   inline void cb_Cancel_i(Fl_Button*, void*);
   static void cb_Cancel(Fl_Button*, void*);
   inline void cb_OK_i(Fl_Return_Button*, void*);
   static void cb_OK(Fl_Return_Button*, void*);
+  inline void cb_roller_i(Fl_Button*, void*);
+  static void cb_roller(Fl_Button*, void*);
 public:
   Fl_Roller *roller;
 private:
-  inline void cb_roller_i(Fl_Roller*, void*);
-  static void cb_roller(Fl_Roller*, void*);
-public:
-  Fl_Button *upButton;
-private:
-  inline void cb_upButton_i(Fl_Button*, void*);
-  static void cb_upButton(Fl_Button*, void*);
+  inline void cb_roller1_i(Fl_Roller*, void*);
+  static void cb_roller1(Fl_Roller*, void*);
   inline void cb_reset_i(Fl_Button*, void*);
   static void cb_reset(Fl_Button*, void*);
 public:
@@ -45,25 +41,42 @@ public:
 private:
   inline void cb_fileName_i(Fl_Input*, void*);
   static void cb_fileName(Fl_Input*, void*);
-  inline void cb_j_i(Fl_Button*, void*);
-  static void cb_j(Fl_Button*, void*);
+public:
+  Fl_Input *dirName;
+private:
+  inline void cb_dirName_i(Fl_Input*, void*);
+  static void cb_dirName(Fl_Input*, void*);
+public:
+  Fl_Button *upButton;
+private:
+  inline void cb_upButton_i(Fl_Button*, void*);
+  static void cb_upButton(Fl_Button*, void*);
+public:
+  Fl_Menu_Button *dirMenu;
+private:
+  inline void cb_dirMenu_i(Fl_Menu_Button*, void*);
+  static void cb_dirMenu(Fl_Menu_Button*, void*);
+  inline void cb_new_i(Fl_Button*, void*);
+  static void cb_new(Fl_Button*, void*);
   char directory_[1024];
-  int type_;
+  int multi_;
   void fileListCB();
   void fileNameCB();
-  void init_symbols();
+  void init_icons();
+  void newdir();
 public:
   void rescan();
 private:
   void up();
 public:
+  void color(Fl_Color c);
   int count();
+private:
   void directory(const char *d);
+public:
   char * directory();
   void filter(const char *p);
   const char * filter();
-  void follow_links(int f);
-  int follow_links();
   void hide();
   void multi(int m);
   int multi();
