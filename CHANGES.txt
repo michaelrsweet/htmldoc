@@ -1,4 +1,4 @@
-CHANGES.txt - 02/20/2002
+CHANGES.txt - 03/07/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.19
@@ -7,6 +7,8 @@ CHANGES IN HTMLDOC v1.8.19
 
 	- Updated the HTML parser to use HTML 4.0 rules for
 	  embedding elements inside a LI.
+	- Now check for a TYPE attribute on EMBED elements, so
+	  that embedded Flash files do not get treated as HTML.
 
     BUG FIXES
 
