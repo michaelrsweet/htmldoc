@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /GX /Ot /Op /Ob2 /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD CPP /nologo /MT /GX /Ot /Op /Ob2 /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
 # SUBTRACT CPP /Os
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MTd /Gm /GX /Zi /Od /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk-1.0" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
+# ADD CPP /nologo /MTd /Gm /GX /Zi /Od /I ".." /I "../visualc" /I "../png" /I "../jpeg" /I "../zlib" /I "../../fltk" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "WIN32_LEAN_AND_MEAN" /D "VC_EXTRA_LEAN" /D "WIN32_EXTRA_LEAN" /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -199,6 +199,8 @@ SOURCE=..\gui\CheckButton.cxx
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -211,6 +213,8 @@ SOURCE=..\gui\CheckButton.h
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -225,6 +229,8 @@ SOURCE=..\gui\FileBrowser.cxx
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -237,6 +243,8 @@ SOURCE=..\gui\FileBrowser.h
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -251,6 +259,8 @@ SOURCE=..\gui\FileChooser.cxx
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -263,6 +273,8 @@ SOURCE=..\gui\FileChooser.h
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -277,6 +289,8 @@ SOURCE=..\gui\FileChooser2.cxx
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -289,6 +303,8 @@ SOURCE=..\gui\FileIcon.cxx
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -303,6 +319,8 @@ SOURCE=..\gui\FileIcon.h
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -315,6 +333,8 @@ SOURCE=..\gui\FileInput.cxx
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -329,6 +349,8 @@ SOURCE=..\gui\FileInput.h
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -341,6 +363,8 @@ SOURCE=..\htmldoc\gui.cxx
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -355,6 +379,8 @@ SOURCE=..\htmldoc\gui.h
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -367,6 +393,8 @@ SOURCE=..\gui\HelpDialog.cxx
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -381,6 +409,8 @@ SOURCE=..\gui\HelpDialog.h
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -393,6 +423,8 @@ SOURCE=..\gui\HelpView.cxx
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -407,6 +439,8 @@ SOURCE=..\gui\HelpView.h
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -419,6 +453,8 @@ SOURCE=.\htmldoc.ico
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
@@ -435,6 +471,10 @@ SOURCE=.\icons.rc
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+
 !ENDIF 
 
 # End Source File
@@ -448,6 +488,8 @@ SOURCE=..\gui\Progress.cxx
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
 
+# PROP Intermediate_Dir "../gui/Debug"
+
 !ENDIF 
 
 # End Source File
@@ -460,6 +502,8 @@ SOURCE=..\gui\Progress.h
 # PROP Intermediate_Dir "..\GUI\Release"
 
 !ELSEIF  "$(CFG)" == "htmldoc - Win32 Debug"
+
+# PROP Intermediate_Dir "../gui/Debug"
 
 !ENDIF 
 
