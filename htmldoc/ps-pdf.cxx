@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.130 2001/11/20 18:07:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.131 2001/11/20 19:32:14 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -325,7 +325,8 @@ static void	flate_printf(FILE *out, const char *format, ...);
 static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
 
 static void	parse_contents(tree_t *t, float left, float width, float bottom,
-		               float length, float *y, int *page, int *heading);
+		               float length, float *y, int *page, int *heading,
+			       tree_t *chap);
 static void	parse_doc(tree_t *t, float *left, float *right, float *bottom,
 		          float *top, float *x, float *y, int *page,
 			  tree_t *cpara, int *needspace);
@@ -767,7 +768,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     chapter_starts[0] = num_pages;
     chapter           = 0;
 
-    parse_contents(toc, 0, PagePrintWidth, bottom, top, &y, &page, &heading);
+    parse_contents(toc, 0, PagePrintWidth, bottom, top, &y, &page, &heading, 0);
     if (PageDuplex && (num_pages & 1))
       check_pages(num_pages);
     chapter_ends[0] = num_pages - 1;
@@ -2647,19 +2648,19 @@ pdf_write_names(FILE *out)		/* I - Output file */
 
 
 /*
- * 'parse_contents()' - Parse the table of contents and produce a
- *                      rendering list...
+ * 'render_contents()' - Render a single heading.
  */
 
 static void
-parse_contents(tree_t *t,		/* I - Tree to parse */
-               float  left,		/* I - Left margin */
-               float  right,		/* I - Printable width */
-               float  bottom,		/* I - Bottom margin */
-               float  top,		/* I - Printable top */
-               float  *y,		/* IO - Y position */
-               int    *page,		/* IO - Page # */
-               int    *heading)		/* IO - Heading # */
+render_contents(tree_t *t,		/* I - Tree to parse */
+                float  left,		/* I - Left margin */
+                float  right,		/* I - Printable width */
+                float  bottom,		/* I - Bottom margin */
+                float  top,		/* I - Printable top */
+                float  *y,		/* IO - Y position */
+                int    *page,		/* IO - Page # */
+	        int    heading,		/* I - Heading # */
+	        tree_t *chap)		/* I - Chapter heading */
 {
   float		x,
 		width,
@@ -2676,8 +2677,202 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 #define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
 
 
-  DEBUG_printf(("parse_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d)\n",
-         t, left, right, bottom, top, *y, *page, *heading));
+  DEBUG_printf(("render_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, show_page=%d)\n",
+                t, left, right, bottom, top, *y, *page, show_page));
+
+ /*
+  * Put the text...
+  */
+
+  flat = flatten_tree(t->child);
+
+  for (height = 0.0, temp = flat; temp != NULL; temp = temp->next)
+    if (temp->height > height)
+      height = temp->height;
+
+  height *= _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
+
+  x  = left + 36.0f * t->indent;
+  *y -= height;
+
+ /*
+  * Get the width of the page number, leave room for three dots...
+  */
+
+  if (heading >= 0)
+  {
+    sprintf((char *)number, "%d", heading_pages[heading]);
+    numberwidth = get_width(number, t->typeface, t->style, t->size) +
+	          3.0f * dot_width;
+  }
+  else
+  {
+    number[0]   = '\0';
+    numberwidth = 0.0f;
+  }
+
+  for (temp = flat; temp != NULL; temp = next)
+  {
+    rgb[0] = temp->red / 255.0f;
+    rgb[1] = temp->green / 255.0f;
+    rgb[2] = temp->blue / 255.0f;
+
+    if ((x + temp->width) >= (right - numberwidth))
+    {
+     /*
+      * Too wide to fit, continue on the next line
+      */
+
+      *y -= _htmlSpacings[SIZE_P];
+      x  = left + 36.0f * t->indent;
+    }
+
+    if (*y < bottom)
+    {
+      (*page) ++;
+      if (Verbosity)
+	progress_show("Formatting page %d", *page);
+
+      width = get_width((uchar *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
+      *y = top - _htmlSpacings[SIZE_H1];
+      x  = left + 0.5f * (right - left - width);
+      r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
+      r->data.text.typeface = TYPE_HELVETICA;
+      r->data.text.style    = STYLE_BOLD;
+      r->data.text.size     = _htmlSizes[SIZE_H1];
+      get_color(_htmlTextColor, r->data.text.rgb);
+
+      *y -= _htmlSpacings[SIZE_H1];
+      x  = left + 36.0f * t->indent;
+
+      if (chap != t)
+      {
+        render_contents(chap, left, right, bottom, top, y, page, -1, 0);
+	*y -= _htmlSpacings[SIZE_P];
+      }
+    }
+
+    if (temp->link != NULL)
+    {
+      link = htmlGetVariable(temp->link, (uchar *)"HREF");
+
+     /*
+      * Add a page link...
+      */
+
+      if (file_method((char *)link) == NULL &&
+	  file_target((char *)link) != NULL)
+	link = (uchar *)file_target((char *)link) - 1; // Include # sign
+
+      new_render(*page, RENDER_LINK, x, *y, temp->width,
+	         temp->height, link);
+
+      if (PSLevel == 0 && Links)
+      {
+        memcpy(rgb, link_color, sizeof(rgb));
+
+	temp->red   = (int)(link_color[0] * 255.0);
+	temp->green = (int)(link_color[1] * 255.0);
+	temp->blue  = (int)(link_color[2] * 255.0);
+
+        if (LinkStyle)
+	  new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0,
+	             link_color);
+      }
+    }
+
+    switch (temp->markup)
+    {
+      case MARKUP_A :
+          if ((link = htmlGetVariable(temp, (uchar *)"NAME")) != NULL)
+          {
+           /*
+            * Add a target link...
+            */
+
+            add_link(link, *page, (int)(*y + 6 * height));
+          }
+          break;
+
+      case MARKUP_NONE :
+          if (temp->data == NULL)
+            break;
+
+	  if (temp->underline)
+	    new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
+
+	  if (temp->strikethrough)
+	    new_render(*page, RENDER_BOX, x, *y + temp->height * 0.25f,
+		       temp->width, 0, rgb);
+
+          r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
+          r->data.text.typeface = temp->typeface;
+          r->data.text.style    = temp->style;
+          r->data.text.size     = _htmlSizes[temp->size];
+          memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+
+          if (temp->superscript)
+            r->y += height - temp->height;
+          else if (temp->subscript)
+            r->y -= height * _htmlSizes[0] / _htmlSpacings[0] -
+		    temp->height;
+	  break;
+
+      case MARKUP_IMG :
+	  update_image_size(temp);
+	  new_render(*page, RENDER_IMAGE, x, *y, temp->width, temp->height,
+		     image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
+	  break;
+
+      default :
+	  break;
+    }
+
+    x += temp->width;
+    next = temp->next;
+    free(temp);
+  }
+
+  if (numberwidth > 0.0f)
+  {
+   /*
+    * Draw dots leading up to the page number...
+    */
+
+    width = numberwidth - 3.0 * dot_width + x;
+
+    for (nptr = number; width < right; width += dot_width, nptr ++)
+      *nptr = '.';
+    nptr --;
+    sprintf((char *)nptr, "%d", heading_pages[heading]);
+
+    r = new_render(*page, RENDER_TEXT, right - width + x, *y, 0, 0, number);
+    r->data.text.typeface = t->typeface;
+    r->data.text.style    = t->style;
+    r->data.text.size     = _htmlSizes[t->size];
+    memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+  }
+}
+
+
+/*
+ * 'parse_contents()' - Parse the table of contents and produce a
+ *                      rendering list...
+ */
+
+static void
+parse_contents(tree_t *t,		/* I - Tree to parse */
+               float  left,		/* I - Left margin */
+               float  right,		/* I - Printable width */
+               float  bottom,		/* I - Bottom margin */
+               float  top,		/* I - Printable top */
+               float  *y,		/* IO - Y position */
+               int    *page,		/* IO - Page # */
+               int    *heading,		/* IO - Heading # */
+	       tree_t *chap)		/* I - Chapter heading */
+{
+  DEBUG_printf(("parse_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
+                t, left, right, bottom, top, *y, *page, *heading, chap));
 
   while (t != NULL)
   {
@@ -2690,6 +2885,8 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
           if (*y < (bottom + _htmlSpacings[SIZE_P] * 3))
 	    *y = 0; // Force page break
 
+          chap = t;
+
       case MARKUP_LI :	/* Lower-level TOC */
           DEBUG_printf(("parse_contents: heading=%d, page = %d\n", *heading,
                         heading_pages[*heading]));
@@ -2698,157 +2895,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
           * Put the text...
           */
 
-          flat = flatten_tree(t->child);
-
-	  for (height = 0.0, temp = flat; temp != NULL; temp = temp->next)
-	    if (temp->height > height)
-              height = temp->height;
-
-          height *= _htmlSpacings[SIZE_P] / _htmlSizes[SIZE_P];
-
-          x  = left + 36.0f * t->indent;
-	  *y -= height;
-
-	 /*
-	  * Get the width of the page number, leave room for three dots...
-	  */
-
-          sprintf((char *)number, "%d", heading_pages[*heading]);
-          numberwidth = get_width(number, t->typeface, t->style, t->size) +
-	                3.0f * dot_width;
-
-          for (temp = flat; temp != NULL; temp = next)
-          {
-	    rgb[0] = temp->red / 255.0f;
-	    rgb[1] = temp->green / 255.0f;
-	    rgb[2] = temp->blue / 255.0f;
-
-	    if ((x + temp->width) >= (right - numberwidth))
-	    {
-	     /*
-	      * Too wide to fit, continue on the next line
-	      */
-
-	      *y -= _htmlSpacings[SIZE_P];
-	      x  = left + 36.0f * t->indent;
-	    }
-
-            if (*y < bottom)
-            {
-              (*page) ++;
-	      if (Verbosity)
-		progress_show("Formatting page %d", *page);
-              width = get_width((uchar *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
-              *y = top - _htmlSpacings[SIZE_H1];
-              x  = left + 0.5f * (right - left - width);
-              r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
-              r->data.text.typeface = TYPE_HELVETICA;
-              r->data.text.style    = STYLE_BOLD;
-              r->data.text.size     = _htmlSizes[SIZE_H1];
-	      get_color(_htmlTextColor, r->data.text.rgb);
-
-              *y -= _htmlSpacings[SIZE_H1];
-	      x  = left + 36.0f * t->indent;
-            }
-
-	    if (temp->link != NULL)
-	    {
-              link = htmlGetVariable(temp->link, (uchar *)"HREF");
-
-	     /*
-	      * Add a page link...
-	      */
-
-	      if (file_method((char *)link) == NULL &&
-	          file_target((char *)link) != NULL)
-	        link = (uchar *)file_target((char *)link) - 1; // Include # sign
-
-	      new_render(*page, RENDER_LINK, x, *y, temp->width,
-	                 temp->height, link);
-
-	      if (PSLevel == 0 && Links)
-	      {
-                memcpy(rgb, link_color, sizeof(rgb));
-
-		temp->red   = (int)(link_color[0] * 255.0);
-		temp->green = (int)(link_color[1] * 255.0);
-		temp->blue  = (int)(link_color[2] * 255.0);
-
-                if (LinkStyle)
-		  new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0,
-	                     link_color);
-	      }
-	    }
-
-	    switch (temp->markup)
-	    {
-              case MARKUP_A :
-        	  if ((link = htmlGetVariable(temp, (uchar *)"NAME")) != NULL)
-        	  {
-        	   /*
-        	    * Add a target link...
-        	    */
-
-        	    add_link(link, *page, (int)(*y + 6 * height));
-        	  }
-        	  break;
-
-              case MARKUP_NONE :
-        	  if (temp->data == NULL)
-        	    break;
-
-		  if (temp->underline)
-		    new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
-
-		  if (temp->strikethrough)
-		    new_render(*page, RENDER_BOX, x, *y + temp->height * 0.25f,
-		               temp->width, 0, rgb);
-
-        	  r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
-        	  r->data.text.typeface = temp->typeface;
-        	  r->data.text.style    = temp->style;
-        	  r->data.text.size     = _htmlSizes[temp->size];
-        	  memcpy(r->data.text.rgb, rgb, sizeof(rgb));
-
-        	  if (temp->superscript)
-        	    r->y += height - temp->height;
-        	  else if (temp->subscript)
-        	    r->y -= height * _htmlSizes[0] / _htmlSpacings[0] -
-		            temp->height;
-		  break;
-
-	      case MARKUP_IMG :
-	          update_image_size(temp);
-		  new_render(*page, RENDER_IMAGE, x, *y, temp->width, temp->height,
-			     image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
-		  break;
-
-              default :
-	          break;
-	    }
-
-	    x += temp->width;
-	    next = temp->next;
-	    free(temp);
-	  }
-
-         /*
-          * Draw dots leading up to the page number...
-          */
-
-          sprintf((char *)number, "%d", heading_pages[*heading]);
-          width = get_width(number, t->typeface, t->style, t->size) + x;
-
-          for (nptr = number; width < right; width += dot_width, nptr ++)
-            *nptr = '.';
-          nptr --;
-          sprintf((char *)nptr, "%d", heading_pages[*heading]);
-
-          r = new_render(*page, RENDER_TEXT, right - width + x, *y, 0, 0, number);
-          r->data.text.typeface = t->typeface;
-          r->data.text.style    = t->style;
-          r->data.text.size     = _htmlSizes[t->size];
-          memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+          render_contents(t, left, right, bottom, top, y, page, *heading, chap);
 
          /*
           * Next heading...
@@ -2858,7 +2905,8 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
           break;
 
       default :
-          parse_contents(t->child, left, right, bottom, top, y, page, heading);
+          parse_contents(t->child, left, right, bottom, top, y, page, heading,
+	                 chap);
           break;
     }
 
@@ -10503,5 +10551,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.130 2001/11/20 18:07:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.131 2001/11/20 19:32:14 mike Exp $".
  */
