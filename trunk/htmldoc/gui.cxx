@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.9 1999/11/11 21:36:44 mike Exp $"
+// "$Id: gui.cxx,v 1.10 1999/11/12 14:24:26 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -2418,6 +2418,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   strcpy(OutputPath, gui->outputPath->value());
 
   OutputFiles = gui->outputDirectory->value();
+  OutputBook  = gui->typeBook->value();
 
   set_page_size((char *)gui->pageSize->value());
 
@@ -2608,5 +2609,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.9 1999/11/11 21:36:44 mike Exp $".
+// End of "$Id: gui.cxx,v 1.10 1999/11/12 14:24:26 mike Exp $".
 //
