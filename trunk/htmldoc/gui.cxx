@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.11 1999/11/12 17:48:24 mike Exp $"
+// "$Id: gui.cxx,v 1.12 1999/11/12 20:15:58 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -93,7 +93,6 @@ const char	*GUI::help_dir = DOCUMENTATION;
 
 GUI::GUI(const char *filename)		// Book file to load initially
 {
-  Fl_Tabs		*tabs;		// Tabs
   Fl_Group		*group;		// Group
   Fl_Button		*button;	// Push button
   Fl_Box		*label;		// Label box
@@ -2555,9 +2554,10 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
                   GUI       *gui)	// I - GUI
 {
   const char	*filename;	// Book filename
+  char		realname[1024];	// Real filename
+  const char	*extension;	// Filename extension
   const char	*newfile;	// New filename
   char		*dir;		// Book directory
-
 
   REF(w);
 
@@ -2575,6 +2575,46 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
     if (access(filename, 0) == 0)
       if (!fl_ask("File already exists!  OK to overwrite?"))
 	return;
+
+    extension = file_extension(filename);
+    if (!extension[0])
+    {
+      // No extension!  Add .book to the name...
+      sprintf(realname, "%s.book", filename);
+      filename = realname;
+    }
+    else if (strcasecmp(extension, "pdf") == 0 ||
+             strcasecmp(extension, "html") == 0 ||
+             strcasecmp(extension, "ps") == 0)
+    {
+      fl_alert("To generate a HTML, PDF, or PS file you must click on "
+               "the GENERATE button.  The SAVE and SAVE AS buttons "
+	       "save the current book file.");
+
+      gui->tabs->value(gui->outputTab);
+
+      gui->outputPath->value(file_localize(filename, NULL));
+      gui->outputFile->setonly();
+      outputTypeCB(gui->outputFile, gui);
+
+      if (strcasecmp(extension, "pdf") == 0)
+      {
+        gui->typePDF->setonly();
+	outputFormatCB(gui->typePDF, gui);
+      }
+      else if (strcasecmp(extension, "html") == 0)
+      {
+        gui->typeHTML->setonly();
+	outputFormatCB(gui->typeHTML, gui);
+      }
+      else
+      {
+        gui->typePS->setonly();
+	outputFormatCB(gui->typePS, gui);
+      }
+
+      return;
+    }
 
     dir = file_directory(filename);
 
@@ -2832,5 +2872,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.11 1999/11/12 17:48:24 mike Exp $".
+// End of "$Id: gui.cxx,v 1.12 1999/11/12 20:15:58 mike Exp $".
 //

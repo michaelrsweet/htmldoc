@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.10 1999/11/12 19:34:47 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.11 1999/11/12 20:15:59 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -816,7 +816,10 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     out = open_file();
 
     if (out == NULL)
-      return; /**** NEED TO ADD ERROR MESSAGE HOOK ****/
+    {
+      progress_error("Unable to open output file - %s\n", strerror(errno));
+      return;
+    }
 
     write_prolog(out, num_pages, title, author, creator, copyright);
   }
@@ -854,7 +857,10 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
     {
       out = open_file();
       if (out == NULL)
-        return; /**** NEED TO ADD ERROR MESSAGE HOOK ****/
+      {
+        progress_error("Unable to create output file - %s\n", strerror(errno));
+        return;
+      }
 
       write_prolog(out, chapter_ends[chapter] - chapter_starts[chapter] + 1, title, author, creator, copyright);
     }
@@ -4448,7 +4454,14 @@ open_file(void)
   else if (OutputPath[0] != '\0')
     return (fopen(OutputPath, "wb"));
   else
+  {
+#if defined(WIN32) || defined(__EMX__)
+    // Make sure we are in binary mode...  stupid Microsoft!
+    setmode(1, O_BINARY);
+#endif // WIN32 || __EMX__
+
     return (stdout);
+  }
 }
 
 
@@ -5892,5 +5905,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.10 1999/11/12 19:34:47 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.11 1999/11/12 20:15:59 mike Exp $".
  */

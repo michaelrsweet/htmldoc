@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.8 1999/11/12 17:48:24 mike Exp $"
+ * "$Id: gui.h,v 1.9 1999/11/12 20:15:59 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -54,6 +54,7 @@ class GUI
 
   Fl_Window	*window;
   Fl_Group	*controls;
+  Fl_Tabs	*tabs;
 
   Fl_Group	*inputTab;
   CheckButton	*typeBook,
@@ -231,5 +232,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.8 1999/11/12 17:48:24 mike Exp $".
+ * End of "$Id: gui.h,v 1.9 1999/11/12 20:15:59 mike Exp $".
  */
