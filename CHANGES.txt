@@ -26,6 +26,8 @@ CHANGES IN HTMLDOC v1.8.17
 	  for a legal-size document in landscape format.
 	- If a book only contained chapter headings, the PDF
 	  bookmarks would be missing the last chapter heading.
+	- Table cells that ended with a break would render
+	  incorrectly.
 
 
 CHANGES IN HTMLDOC v1.8.16
