@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.12 2001/02/09 22:12:45 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.13 2001/02/10 16:18:12 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3308,7 +3308,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     while (temp != end)
     {
-      if (temp->link != NULL)
+      if (temp->link != NULL && temp->markup != MARKUP_IMG)
       {
         link = htmlGetVariable(temp->link, (uchar *)"HREF");
 
@@ -3455,14 +3455,14 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	case MARKUP_IMG :
 	    switch (temp->valignment)
 	    {
-	      case ALIGN_BOTTOM :
-		  offset = 0.0f;
+	      case ALIGN_TOP :
+		  offset = height - temp->height;
 		  break;
 	      case ALIGN_MIDDLE :
-		  offset = -0.5f * temp->height;
+		  offset = 0.5f * (height - temp->height);
 		  break;
-	      case ALIGN_TOP :
-		  offset = -temp->height;
+	      case ALIGN_BOTTOM :
+		  offset = 0.0f;
 	    }
 
 	    new_render(*page, RENDER_IMAGE, *x, *y + offset, temp->width, temp->height,
@@ -7793,5 +7793,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.12 2001/02/09 22:12:45 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.13 2001/02/10 16:18:12 mike Exp $".
  */
