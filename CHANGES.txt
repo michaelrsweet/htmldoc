@@ -1,4 +1,4 @@
-CHANGES.txt - 06/28/2000
+CHANGES.txt - 06/29/2000
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.8
@@ -26,10 +26,12 @@ CHANGES IN HTMLDOC v1.8.8
 
     BUG FIXES
 
-	- Nested tables didn't take into account the table border
-	  width, spacing, or padding values.
+	- Nested tables didn't take into account the table
+	  border width, spacing, or padding values.
 	- HTMLDOC crashed under Solaris when reading HTML files
 	  from the standard input.
+	- <ELEM>text</ELEM> <MELE>text</MELE> wass rendered
+	  without an intervening space.
 
 
 CHANGES IN HTMLDOC v1.8.7
