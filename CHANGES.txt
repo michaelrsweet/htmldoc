@@ -1,4 +1,4 @@
-CHANGES.txt - 06/25/2002
+CHANGES.txt - 07/02/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -23,6 +23,8 @@ CHANGES IN HTMLDOC v1.8.21
 	- Links didn't always point to the right page in PDF
 	  output.
 	- XRX comment output could crash HTMLDOC.
+	- Fixed-width columns in tables could be resized by
+	  HTMLDOC.
 
 
 CHANGES IN HTMLDOC v1.8.20
