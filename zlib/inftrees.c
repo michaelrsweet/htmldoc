@@ -445,8 +445,6 @@ z_streamp z;             /* for memory allocation */
     ZFREE(z, c);
     fixed_built = 1;
   }
-#else
-  (void)z;
 #endif
   *bl = fixed_bl;
   *bd = fixed_bd;

@@ -1,5 +1,5 @@
 [Components]
-component0=AFM Files
+component0=Font Files
 component1=Program Executables
 component2=Documentation
 component3=Data Files
@@ -7,27 +7,27 @@ component3=Data Files
 [TopComponents]
 component0=Program Executables
 component1=Documentation
-component2=AFM Files
+component2=Font Files
 component3=Data Files
 
 [SetupType]
 setuptype0=Typical
 
-[AFM Files]
+[Font Files]
 required0=Program Executables
 SELECTED=Yes
 FILENEED=STANDARD
 HTTPLOCATION=
-STATUS=Adobe Font Metric Files
+STATUS=Type 1 Font Files
 UNINSTALLABLE=Yes
-TARGET=<TARGETDIR>\afm
+TARGET=<TARGETDIR>\fonts
 FTPLOCATION=
 VISIBLE=Yes
-DESCRIPTION=Adobe Font Metric Files
-DISPLAYTEXT=Adobe Font Metric Files
+DESCRIPTION=Type 1 Font Files
+DISPLAYTEXT=Type 1 Font Files
 IMAGE=
 DEFSELECTION=Yes
-filegroup0=AFM Files
+filegroup0=Font Files
 COMMENT=
 INCLUDEINBUILD=Yes
 INSTALLATION=ALWAYSOVERWRITE
@@ -37,7 +37,7 @@ ENCRYPT=No
 DISK=ANYDISK
 TARGETDIRCDROM=
 PASSWORD=
-TARGETHIDDEN=General Application Destination\afm
+TARGETHIDDEN=General Application Destination\fonts
 
 [Program Executables]
 SELECTED=Yes
@@ -56,7 +56,7 @@ filegroup0=Program Executables
 requiredby0=Data Files
 COMMENT=
 INCLUDEINBUILD=Yes
-requiredby1=AFM Files
+requiredby1=Font Files
 INSTALLATION=ALWAYSOVERWRITE
 requiredby2=Documentation
 COMPRESSIFSEPARATE=No
@@ -74,10 +74,10 @@ Name=
 
 [SetupTypeItem-Typical]
 Comment=
-item0=AFM Files
+item0=Font Files
 item1=Program Executables
-item2=Documentation
-item3=Data Files
+item2=Data Files
+item3=Documentation
 Descrip=
 DisplayText=
 
