@@ -1,7 +1,12 @@
-CHANGES.txt - 10/03/2002
+CHANGES.txt - 10/04/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.23
+
+    NEW FEATURES
+
+	- HTMLDOC now supports a full alpha channel in PNG
+	  files.
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.206 2002/10/02 18:53:07 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.207 2002/10/04 15:43:51 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2171,6 +2171,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
     {
       progress_show("Writing image %d (%s)...", i + 1, images[i]->filename);
       progress_update(100 * i / num_images);
+
       temp.data.image = images[i];
       write_image(out, &temp, 1);
     }
@@ -9772,13 +9773,13 @@ write_image(FILE     *out,	/* I - Output file */
           pdf_start_object(out);
 	  fputs("/Type/XObject/Subtype/Image", out);
 	  fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
-	          img->width, img->height);
+	          img->width * img->maskscale, img->height * img->maskscale);
           if (Compression)
             fputs("/Filter/FlateDecode", out);
 
           pdf_start_stream(out);
           flate_open_stream(out);
-  	  flate_write(out, img->mask, img->maskwidth * img->height);
+  	  flate_write(out, img->mask, img->maskwidth * img->height * img->maskscale);
 	  flate_close_stream(out);
 
           pdf_end_object(out);
@@ -10136,11 +10137,14 @@ write_imagemask(FILE     *out,	/* I - Output file */
 		byte,		/* Current byte */
 		bit;		/* Current bit */
   float		scalex, scaley;	/* 1/(w-1) and 1/(h-1) scaling factors */
+  int		width, height;	/* Scaled width and height */
 
 
-  img = r->data.image;
-  scalex = 1.0f / img->width;
-  scaley = 1.0f / img->height;
+  img    = r->data.image;
+  width  = img->width * img->maskscale;
+  height = img->width * img->maskscale;
+  scalex = 1.0f / width;
+  scaley = 1.0f / height;
 
   switch (PSLevel)
   {
@@ -10156,11 +10160,11 @@ write_imagemask(FILE     *out,	/* I - Output file */
         break;
   }
 
-  for (y = 0; y < img->height; y ++)
+  for (y = 0; y < height; y ++)
   {
-    for (x = 0, ptr = img->mask + (img->height - y - 1) * img->maskwidth,
+    for (x = 0, ptr = img->mask + (height - y - 1) * img->maskwidth,
              bit = 128, byte = *ptr++, startx = 0, count = 0;
-         x < img->width;
+         x < width;
 	 x ++)
     {
       if (!(bit & byte))
@@ -11871,5 +11875,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.206 2002/10/02 18:53:07 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.207 2002/10/04 15:43:51 mike Exp $".
  */
