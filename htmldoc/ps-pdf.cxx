@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.6 1999/11/12 00:48:27 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.7 1999/11/12 14:24:27 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -466,7 +466,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   * Parse the document...
   */
 
-  if (TocLevels > 0)
+  if (OutputBook)
     chapter = 0;
   else
   {
@@ -628,7 +628,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     * Add chapter header & footer...
     */
 
-    if (page > chapter_starts[chapter] || TocLevels == 0)
+    if (page > chapter_starts[chapter] || !OutputBook)
       pspdf_prepare_heading(page, print_page, title, title_width, *page_heading,
                             width, Header, PagePrintLength);
     pspdf_prepare_heading(page, print_page, title, title_width, *page_heading,
@@ -2147,7 +2147,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       add_link(name, *page, (int)(*y + 3 * t->height));
     }
 
-    if (t->markup == MARKUP_H1 && TocLevels > 0)
+    if (t->markup == MARKUP_H1 && OutputBook)
     {
       if (para->child != NULL)
       {
@@ -2582,7 +2582,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
   parse_paragraph(t, left, right, bottom, top, x, y, page);
 
-  if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 && TocLevels > 0)
+  if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 && OutputBook)
   {
    /*
     * Special case - chapter heading for user's manual...
@@ -5807,5 +5807,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.6 1999/11/12 00:48:27 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.7 1999/11/12 14:24:27 mike Exp $".
  */
