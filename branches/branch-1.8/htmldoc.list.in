@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.2 2002/04/17 20:40:38 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.3 2002/06/05 04:01:01 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -23,20 +23,9 @@ $datadir=@datadir@
 # Program
 f 0555 root sys $bindir/htmldoc htmldoc/htmldoc
 
-# AFM files
-f 0444 root sys $datadir/htmldoc/afm/Courier afm/Courier
-f 0444 root sys $datadir/htmldoc/afm/Courier-Bold afm/Courier-Bold
-f 0444 root sys $datadir/htmldoc/afm/Courier-BoldOblique afm/Courier-BoldOblique
-f 0444 root sys $datadir/htmldoc/afm/Courier-Oblique afm/Courier-Oblique
-f 0444 root sys $datadir/htmldoc/afm/Helvetica afm/Helvetica
-f 0444 root sys $datadir/htmldoc/afm/Helvetica-Bold afm/Helvetica-Bold
-f 0444 root sys $datadir/htmldoc/afm/Helvetica-BoldOblique afm/Helvetica-BoldOblique
-f 0444 root sys $datadir/htmldoc/afm/Helvetica-Oblique afm/Helvetica-Oblique
-f 0444 root sys $datadir/htmldoc/afm/Symbol afm/Symbol
-f 0444 root sys $datadir/htmldoc/afm/Times-Bold afm/Times-Bold
-f 0444 root sys $datadir/htmldoc/afm/Times-BoldItalic afm/Times-BoldItalic
-f 0444 root sys $datadir/htmldoc/afm/Times-Italic afm/Times-Italic
-f 0444 root sys $datadir/htmldoc/afm/Times-Roman afm/Times-Roman
+# Font files
+f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.afm
+f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.pfa
 
 # Data files
 f 0444 root sys $datadir/htmldoc/data/iso-8859-1 data/iso-8859-1
@@ -63,5 +52,5 @@ f 0444 root sys $datadir/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
 f 0444 root sys $datadir/doc/htmldoc/help.html doc/help.html
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.2 2002/04/17 20:40:38 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.3 2002/06/05 04:01:01 mike Exp $".
 #
