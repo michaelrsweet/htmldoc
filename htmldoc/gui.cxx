@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.10 2001/02/28 01:46:13 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.11 2001/02/28 20:34:54 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -2659,6 +2659,11 @@ void
 GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
                     GUI       *gui)	// I - GUI
 {
+  char		filename[1024],		// Output filename
+		*ptr;			// Pointer to extension
+  const char	*ext;			// Extension
+
+
   gui->title(gui->book_filename, 1);
 
   if (w == gui->typePDF)
@@ -2666,6 +2671,8 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->pdfTab->activate();
     gui->securityTab->activate();
     gui->outputDirectory->deactivate();
+
+    ext = ".pdf";
   }
   else
   {
@@ -2694,6 +2701,8 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->tocFooterLeft->deactivate();
     gui->tocFooterCenter->deactivate();
     gui->tocFooterRight->deactivate();
+
+    ext = ".html";
   }
   else
   {
@@ -2723,6 +2732,8 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
       gui->psCommands->deactivate();
     else
       gui->psCommands->activate();
+
+    ext = ".ps";
   }
   else
     gui->psTab->deactivate();
@@ -2733,6 +2744,23 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
   else
     gui->compGroup->deactivate();
 
+  // Update the output filename's extension if we are writing to a file
+  // and the output filename is not blank...
+  if (gui->outputFile->value() && gui->outputPath->value()[0])
+  {
+    strncpy(filename, gui->outputPath->value(), sizeof(filename) - 1);
+    filename[sizeof(filename) - 1] = '\0';
+
+    if ((ptr = strrchr(filename, '/')) == NULL)
+      ptr = filename;
+
+    if ((ptr = strrchr(ptr, '.')) == NULL)
+      strncat(filename, ext, sizeof(filename) - 1);
+    else
+      strncpy(ptr, ext, sizeof(filename) - 1 - (ptr - filename));
+
+    gui->outputPath->value(filename);
+  }
 }
 
 
@@ -3672,5 +3700,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.10 2001/02/28 01:46:13 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.11 2001/02/28 20:34:54 mike Exp $".
 //
