@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.21 2001/06/26 23:04:22 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.22 2001/08/16 20:34:38 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -39,7 +39,7 @@
  * Include necessary headers.
  */
 
-#define _HTMLDOC_C_
+#define _HTMLDOC_CXX_
 #include "htmldoc.h"
 #include <ctype.h>
 #include <fcntl.h>
@@ -321,7 +321,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strncpy(Footer, argv[i], 3);
+        get_format(argv[i], Footer);
       else
         usage();
     }
@@ -388,7 +388,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strncpy(Header, argv[i], 3);
+        get_format(argv[i], Header);
       else
         usage();
     }
@@ -778,7 +778,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strncpy(TocFooter, argv[i], 3);
+        get_format(argv[i], TocFooter);
       else
         usage();
     }
@@ -786,7 +786,7 @@ main(int  argc,		/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strncpy(TocHeader, argv[i], 3);
+        get_format(argv[i], TocHeader);
       else
         usage();
     }
@@ -1031,6 +1031,7 @@ prefs_getrc(void)
 void
 prefs_load(void)
 {
+  int	pos;			// Header/footer position
   char	line[2048];		// Line from RC file
   FILE	*fp;			// File pointer
 #ifdef WIN32			//// Do registry magic...
@@ -1132,13 +1133,13 @@ prefs_load(void)
       else if (strncasecmp(line, "JPEG=", 5) == 0)
 	OutputJPEG = atoi(line + 1);
       else if (strncasecmp(line, "PAGEHEADER=", 11) == 0)
-	strcpy(Header, line + 11);
+	get_format(line + 11, Header);
       else if (strncasecmp(line, "PAGEFOOTER=", 11) == 0)
-	strcpy(Footer, line + 11);
+	get_format(line + 11, Footer);
       else if (strncasecmp(line, "TOCHEADER=", 10) == 0)
-	strcpy(TocHeader, line + 10);
+	get_format(line + 10, TocHeader);
       else if (strncasecmp(line, "TOCFOOTER=", 10) == 0)
-	strcpy(TocFooter, line + 10);
+	get_format(line + 10, TocFooter);
       else if (strncasecmp(line, "TOCTITLE=", 9) == 0)
 	strcpy(TocTitle, line + 9);
       else if (strncasecmp(line, "BODYFONT=", 9) == 0)
@@ -1212,6 +1213,35 @@ prefs_load(void)
 
     fclose(fp);
   }
+
+  // Check header/footer formats...
+  for (pos = 0; pos < 3; pos ++)
+    if (Header[pos])
+      break;
+
+  if (pos == 3)
+    get_format(".t.", Header);
+
+  for (pos = 0; pos < 3; pos ++)
+    if (Footer[pos])
+      break;
+
+  if (pos == 3)
+    get_format("h.1", Footer);
+
+  for (pos = 0; pos < 3; pos ++)
+    if (TocHeader[pos])
+      break;
+
+  if (pos == 3)
+    get_format(".t.", TocHeader);
+
+  for (pos = 0; pos < 3; pos ++)
+    if (TocFooter[pos])
+      break;
+
+  if (pos == 3)
+    get_format("..1", TocFooter);
 }
 
 
@@ -1248,10 +1278,10 @@ prefs_save(void)
     fprintf(fp, "TOCNUMBERS=%d\n", TocNumbers);
     fprintf(fp, "TOCLEVELS=%d\n", TocLevels);
     fprintf(fp, "JPEG=%d\n", OutputJPEG);
-    fprintf(fp, "PAGEHEADER=%s\n", Header);
-    fprintf(fp, "PAGEFOOTER=%s\n", Footer);
-    fprintf(fp, "TOCHEADER=%s\n", TocHeader);
-    fprintf(fp, "TOCFOOTER=%s\n", TocFooter);
+//    fprintf(fp, "PAGEHEADER=%s\n", Header);
+//    fprintf(fp, "PAGEFOOTER=%s\n", Footer);
+//    fprintf(fp, "TOCHEADER=%s\n", TocHeader);
+//    fprintf(fp, "TOCFOOTER=%s\n", TocFooter);
     fprintf(fp, "TOCTITLE=%s\n", TocTitle);
     fprintf(fp, "BODYFONT=%d\n", _htmlBodyFont);
     fprintf(fp, "HEADINGFONT=%d\n", _htmlHeadingFont);
@@ -1646,15 +1676,9 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--bottom") == 0)
       PageBottom = get_measurement(temp2);
     else if (strcmp(temp, "--header") == 0)
-    {
-      strncpy(Header, temp2, sizeof(Header) - 1);
-      Header[sizeof(Header) - 1] = '\0';
-    }
+      get_format(temp2, Header);
     else if (strcmp(temp, "--footer") == 0)
-    {
-      strncpy(Footer, temp2, sizeof(Footer) - 1);
-      Footer[sizeof(Footer) - 1] = '\0';
-    }
+      get_format(temp2, Footer);
     else if (strcmp(temp, "--bodycolor") == 0)
     {
       strncpy(BodyColor, temp2, sizeof(BodyColor) - 1);
@@ -1682,15 +1706,9 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--toclevels") == 0)
       TocLevels = atoi(temp2);
     else if (strcmp(temp, "--tocheader") == 0)
-    {
-      strncpy(TocHeader, temp2, sizeof(TocHeader) - 1);
-      TocHeader[sizeof(TocHeader) - 1] = '\0';
-    }
+      get_format(temp2, TocHeader);
     else if (strcmp(temp, "--tocfooter") == 0)
-    {
-      strncpy(TocFooter, temp2, sizeof(TocFooter) - 1);
-      TocFooter[sizeof(TocFooter) - 1] = '\0';
-    }
+      get_format(temp2, TocFooter);
     else if (strcmp(temp, "--toctitle") == 0)
     {
       strncpy(TocTitle, temp2, sizeof(TocTitle) - 1);
@@ -2106,5 +2124,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.21 2001/06/26 23:04:22 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.22 2001/08/16 20:34:38 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.5 2001/08/16 03:12:47 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.6 2001/08/16 20:34:41 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -115,13 +115,15 @@ enum	/* PDF document permissions */
  * Globals...
  */
 
-#ifdef _HTMLDOC_C_
+#ifdef _HTMLDOC_CXX_
 #  define VAR
 #  define VALUE(x)	=x
+#  define NULL3		={0,0,0}
 #else
 #  define VAR		extern
 #  define VALUE(x)
-#endif /* _HTML_DOC_C */
+#  define NULL3
+#endif /* _HTML_DOC_CXX_ */
 
 VAR int		Verbosity	VALUE(0);	/* Verbosity */
 VAR int		Errors		VALUE(0);	/* Number of errors */
@@ -170,10 +172,10 @@ VAR style_t	HeadFootStyle	VALUE(STYLE_NORMAL);
 						/* Type style */
 VAR float	HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
 
-VAR char	Header[4]	VALUE(".t."),	/* Header for regular pages */
-		TocHeader[4]	VALUE(".t."),	/* Header for TOC pages */
-		Footer[4] 	VALUE("h.1"),	/* Regular page footer */
-		TocFooter[4]	VALUE("..i"),	/* Footer for TOC pages */
+VAR char	*Header[3]	NULL3,		/* Header for regular pages */
+		*TocHeader[3]	NULL3,		/* Header for TOC pages */
+		*Footer[3]	NULL3,		/* Regular page footer */
+		*TocFooter[3]	NULL3,		/* Footer for TOC pages */
 		TocTitle[1024]	VALUE("Table of Contents");
 						/* TOC title string */
 
@@ -230,6 +232,7 @@ extern int	html_export(tree_t *document, tree_t *toc);
 extern tree_t	*toc_build(tree_t *tree);
 
 extern void	get_color(const uchar *c, float *rgb, int defblack = 1);
+extern void	get_format(const char *fmt, char **formats);
 extern int	get_measurement(const char *s, float mul = 1.0f);
 extern void	set_page_size(const char *size);
 
@@ -243,5 +246,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.5 2001/08/16 03:12:47 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.6 2001/08/16 20:34:41 mike Exp $".
  */

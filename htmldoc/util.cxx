@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.6 2001/08/16 03:12:51 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.7 2001/08/16 20:34:46 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -26,6 +26,7 @@
  *   format_number()   - Format a number into arabic numerals, roman numerals,
  *                       or letters.
  *   get_color()       - Get a standard color value...
+ *   get_format()      - Convert an old "fff" format string to the new format.
  *   get_measurement() - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
  *   set_page_size()   - Set the output page size.
@@ -224,6 +225,87 @@ get_color(const uchar *color,	/* I - Color attribute */
 }
 
 
+//
+// 'get_format()' - Convert an old "fff" format string to the new format.
+//
+
+extern void
+get_format(const char *fmt,		// I - Old "fff" format
+           char       **formats)	// O - New format strings
+{
+  int	i;				// Looping var
+
+
+  for (i = 0; i < 3; i ++)
+    switch (fmt[i])
+    {
+      case '/' :
+          formats[i] = strdup("$PAGE(1)/$PAGES");
+          break;
+
+      case ':' :
+          formats[i] = strdup("$CHAPTERPAGE(1)/$CHAPTERPAGES");
+          break;
+
+      case '1' :
+          formats[i] = strdup("$PAGE(1)");
+          break;
+
+      case 'a' :
+          formats[i] = strdup("$PAGE(a)");
+          break;
+
+      case 'A' :
+          formats[i] = strdup("$PAGE(A)");
+          break;
+
+      case 'c' :
+          formats[i] = strdup("$CHAPTER");
+          break;
+
+      case 'C' :
+          formats[i] = strdup("$CHAPTERPAGE(1)");
+          break;
+
+      case 'd' :
+          formats[i] = strdup("$DATE");
+          break;
+
+      case 'D' :
+          formats[i] = strdup("$DATE $TIME");
+          break;
+
+      case 'h' :
+          formats[i] = strdup("$HEADING");
+          break;
+
+      case 'i' :
+          formats[i] = strdup("$PAGE(i)");
+          break;
+
+      case 'I' :
+          formats[i] = strdup("$PAGE(I)");
+          break;
+
+      case 'l' :
+          formats[i] = strdup("$LOGOIMAGE");
+          break;
+
+      case 't' :
+          formats[i] = strdup("$TITLE");
+          break;
+
+      case 'T' :
+          formats[i] = strdup("$TIME");
+          break;
+
+      default :
+          formats[i] = NULL;
+          break;
+    }
+}
+
+
 /*
  * 'get_measurement()' - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
@@ -336,5 +418,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.6 2001/08/16 03:12:51 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.7 2001/08/16 20:34:46 mike Exp $".
  */

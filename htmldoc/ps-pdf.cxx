@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.92 2001/08/16 03:12:47 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.93 2001/08/16 20:34:41 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -412,11 +412,18 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 		left, right,	/* Left and right margins */
 		bottom, top,	/* Bottom and top margins */
 		width,		/* Width of title, author, etc */
-		height,		/* Height of title area */
+		height;		/* Height of title area */
+  int		pos,		/* Current header/footer position */
+		page,		/* Current page # */
+		heading,	/* Current heading # */
+		toc_duplex,	/* Duplex TOC pages? */
+		toc_landscape,	/* Do TOC in landscape? */
 		toc_width,	/* Width of TOC pages */
-		toc_length;	/* Length of TOC pages */
-  int		page,		/* Current page # */
-		heading;	/* Current heading # */
+		toc_length,	/* Length of TOC pages */
+		toc_left,	/* TOC page margins */
+		toc_right,
+		toc_bottom,
+		toc_top;
   image_t	*timage;	/* Title image */
   float		timage_width,	/* Title image width */
 		timage_height;	/* Title image height */
@@ -440,8 +447,14 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     PagePrintLength = PageLength - PageTop - PageBottom;
   }
 
-  toc_width  = PagePrintWidth;
-  toc_length = PagePrintLength;
+  toc_width     = PageWidth;
+  toc_length    = PageLength;
+  toc_left      = PageLeft;
+  toc_right     = PageRight;
+  toc_bottom    = PageBottom;
+  toc_top       = PageTop;
+  toc_landscape = Landscape;
+  toc_duplex    = PageDuplex;
 
  /*
   * Get the document title, author, etc...
@@ -653,27 +666,33 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   page            = num_pages;
   current_heading = NULL;
   x               = 0.0f;
-  bottom          = 0.0f;
-  top             = PagePrintLength;
   needspace       = 0;
   left            = 0.0f;
   right           = PagePrintWidth;
 
-  if (strncmp(Header, "...", 3) != 0)
-  {
-    if (strchr(Header, 'l') != NULL && logo_height > HeadFootSize)
-      top -= logo_height + HeadFootSize;
-    else
-      top -= 2.0f * HeadFootSize;
-  }
+  // Adjust top margin as needed...
+  for (pos = 0; pos < 3; pos ++)
+    if (Header[pos])
+      break;
 
-  if (strncmp(Footer, "...", 3) != 0)
-  {
-    if (strchr(Footer, 'l') != NULL && logo_height > HeadFootSize)
-      bottom += logo_height + HeadFootSize;
-    else
-      bottom += 2.0f * HeadFootSize;
-  }
+  if (pos == 3)
+    top = PagePrintLength;
+  else if (logo_height > HeadFootSize)
+    top = PagePrintLength - logo_height - HeadFootSize;
+  else
+    top = PagePrintLength - 2 * HeadFootSize;
+
+  // Adjust bottom margin as needed...
+  for (pos = 0; pos < 3; pos ++)
+    if (Footer[pos])
+      break;
+
+  if (pos == 3)
+    bottom = 0.0f;
+  else if (logo_height > HeadFootSize)
+    bottom = logo_height + HeadFootSize;
+  else
+    bottom = 2 * HeadFootSize;
 
   y = top;
 
@@ -690,28 +709,55 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (TocLevels > 0)
   {
+    // Restore default page size, etc...
+    PageWidth  = toc_width;
+    PageLength = toc_length;
+    PageLeft   = toc_left;
+    PageRight  = toc_right;
+    PageBottom = toc_bottom;
+    PageTop    = toc_top;
+    Landscape  = toc_landscape;
+    PageDuplex = toc_duplex;
+
+    if (Landscape)
+    {
+      PagePrintWidth  = PageLength - PageLeft - PageRight;
+      PagePrintLength = PageWidth - PageTop - PageBottom;
+    }
+    else
+    {
+      PagePrintWidth  = PageWidth - PageLeft - PageRight;
+      PagePrintLength = PageLength - PageTop - PageBottom;
+    }
+
+    // Adjust top margin as needed...
+    for (pos = 0; pos < 3; pos ++)
+      if (TocHeader[pos])
+	break;
+
+    if (pos == 3)
+      top = PagePrintLength;
+    else if (logo_height > HeadFootSize)
+      top = PagePrintLength - logo_height - HeadFootSize;
+    else
+      top = PagePrintLength - 2 * HeadFootSize;
+
+    // Adjust bottom margin as needed...
+    for (pos = 0; pos < 3; pos ++)
+      if (TocFooter[pos])
+	break;
+
+    if (pos == 3)
+      bottom = 0.0f;
+    else if (logo_height > HeadFootSize)
+      bottom = logo_height + HeadFootSize;
+    else
+      bottom = 2 * HeadFootSize;
+
     y                 = 0.0;
     page              = num_pages - 1;
     heading           = 0;
     chapter_starts[0] = num_pages;
-    bottom            = 0;
-    top               = toc_length;
-
-    if (strncmp(TocHeader, "...", 3) != 0)
-    {
-      if (strchr(TocHeader, 'l') != NULL && logo_height > HeadFootSize)
-	top -= logo_height + HeadFootSize;
-      else
-	top -= 2.0f * HeadFootSize;
-    }
-
-    if (strncmp(TocFooter, "...", 3) != 0)
-    {
-      if (strchr(TocFooter, 'l') != NULL && logo_height > HeadFootSize)
-	bottom += logo_height + HeadFootSize;
-      else
-	bottom += 2.0f * HeadFootSize;
-    }
 
     parse_contents(toc, 0, toc_width, bottom, top, &y, &page, &heading);
     if (PageDuplex && (num_pages & 1))
@@ -886,6 +932,17 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   * Add page headings...
   */
 
+  if (pages[page].landscape)
+  {
+    PagePrintWidth  = pages[page].length - pages[page].right - pages[page].left;
+    PagePrintLength = pages[page].width - pages[page].top - pages[page].bottom;
+  }
+  else
+  {
+    PagePrintWidth  = pages[page].width - pages[page].right - pages[page].left;
+    PagePrintLength = pages[page].length - pages[page].top - pages[page].bottom;
+  }
+
   if (chapter == 0)
   {
    /*
@@ -926,22 +983,16 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
   int		pos,		/* Position in heading */
 		dir;		/* Direction of page */
   char		*number;	/* Page number */
-  char		nofN[256];	/* n/N page number */
-  char		date[256];	/* Date string */
+  char		buffer[1024],	/* String buffer */
+		*bufptr,	/* Pointer into buffer */
+		*formatptr;	/* Pointer into format string */
+  int		formatlen;	/* Length of format command string */
   render_t	*temp;		/* Render structure for titles, etc. */
 
 
   DEBUG_printf(("pspdf_prepare_heading(%d, %d, \"%s\", %.1f, \"%s\", %.1f, \"%s\", %d)\n",
                 page, print_page, title ? title : "(null)", title_width,
 		heading ? heading : "(null)", heading_width, format, y));
-
-#if 0
- /*
-  * Return right away if there is nothing to do...
-  */
-
-  if (strncmp(format, "...", 3) == 0)
-    return;
 
  /*
   * Add page headings...
@@ -961,130 +1012,176 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
     * Add the appropriate object...
     */
 
-    switch (*format[0])
+    if (!*format)
+      continue;
+
+    if (strncasecmp((char *)*format, "$LOGOIMAGE", 10) == 0 && logo_image)
     {
-      case '.' :
-      default :
-          temp = NULL;
-	  break;
+      // Insert the logo image...
+      if (y < (PagePrintLength / 2))
+	temp = new_render(page, RENDER_IMAGE, 0, y, logo_width,
+	                  logo_height, logo_image);
+      else // Offset from top
+	temp = new_render(page, RENDER_IMAGE, 0,
+	                  y + HeadFootSize - logo_height,
+	                  logo_width, logo_height, logo_image);
+    }
+    else
+    {
+      // Otherwise format the text...
+      buffer[sizeof(buffer) - 1] = '\0';
 
-      case '1' :
-      case 'i' :
-      case 'I' :
-      case 'a' :
-      case 'A' :
-          number = format_number(print_page, *format[0]);
-	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)number, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, number);
-          break;
-
-      case '/' : /* n/N */
-          strcpy(nofN, format_number(print_page, '1'));
-	  strcat(nofN, "/");
-	  strcat(nofN, format_number(chapter_ends[TocDocCount] -
-	                             chapter_starts[1] + 1, '1'));
-
-	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)nofN, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, nofN);
-          break;
-
-      case ':' : /* c/C */
-          strcpy(nofN, format_number(print_page - chapter_starts[::chapter], '1'));
-	  strcat(nofN, "/");
-	  strcat(nofN, format_number(chapter_ends[::chapter] -
-	                             chapter_starts[::chapter] + 1, '1'));
-
-	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)nofN, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, nofN);
-          break;
-
-      case 'd' : /* Date */
-          strftime(date, sizeof(date), "%x", doc_date);
-
-	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)date, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, date);
-          break;
-
-      case 'D' : /* Date and time */
-          strftime(date, sizeof(date), "%c", doc_date);
-
-	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)date, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, date);
-          break;
-
-      case 'T' : /* Time */
-          strftime(date, sizeof(date), "%X", doc_date);
-
-	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)date, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, date);
-          break;
-
-      case 't' :
-          if (title != NULL)
-	    temp = new_render(page, RENDER_TEXT, 0, y, title_width,
-	                      HeadFootSize, title);
-          else
-	    temp = NULL;
-          break;
-
-      case 'c' :
-          if (chapter != NULL)
-	    temp = new_render(page, RENDER_TEXT, 0, y, chapter_width,
-	                      HeadFootSize, chapter);
-          else
-	    temp = NULL;
-          break;
-
-      case 'C' :
-          number = format_number(print_page - chapter_starts[::chapter], '1');
-	  temp   = new_render(page, RENDER_TEXT, 0, y,
-                              HeadFootSize / _htmlSizes[SIZE_P] *
-			      get_width((uchar *)number, HeadFootType,
-			                HeadFootStyle, SIZE_P),
-			      HeadFootSize, number);
-          break;
-
-      case 'h' :
-          if (heading != NULL)
-	    temp = new_render(page, RENDER_TEXT, 0, y, heading_width,
-	                      HeadFootSize, heading);
-          else
-	    temp = NULL;
-          break;
-
-      case 'l' :
-          if (logo_image != NULL)
+      for (bufptr = buffer, formatptr = (char *)*format; *formatptr;)
+      {
+        if (*formatptr == '$')
+	{
+	  if (formatptr[1] == '$')
 	  {
-	    if (y < (PagePrintLength / 2))
-	      temp = new_render(page, RENDER_IMAGE, 0, y, logo_width,
-	                        logo_height, logo_image);
-            else // Offset from top
-	      temp = new_render(page, RENDER_IMAGE, 0,
-	                        y + HeadFootSize - logo_height,
-	                	logo_width, logo_height, logo_image);
-          }
+	    if (bufptr < (buffer + sizeof(buffer) - 1))
+	      *bufptr++ = '$';
+
+	    formatptr += 2;
+	    continue;
+	  }
+	  else if (!formatptr[1])
+	    break;
+
+          formatptr ++;
+	  for (formatlen = 1; isalpha(formatptr[formatlen]); formatlen ++);
+
+	  if (formatlen == 4 && strncasecmp(formatptr, "PAGE", 4) == 0)
+	  {
+	    if (formatptr[4] == '(' && formatptr[5] && formatptr[6] == ')')
+            {
+	      number = format_number(print_page, formatptr[5]);
+	      formatptr += 7;
+	    }
+	    else
+	    {
+	      number = format_number(print_page, '1');
+	      formatptr += 4;
+	    }
+
+            strncpy(bufptr, number, sizeof(buffer) - 1 - (bufptr - buffer));
+	    bufptr += strlen(bufptr);
+	  }
+	  else if (formatlen == 5 && strncasecmp(formatptr, "PAGES", 5) == 0)
+	  {
+	    if (formatptr[5] == '(' && formatptr[6] && formatptr[7] == ')')
+            {
+	      number = format_number(chapter_ends[TocDocCount] -
+	                             chapter_starts[1] + 1, formatptr[6]);
+	      formatptr += 8;
+	    }
+	    else
+	    {
+	      number = format_number(chapter_ends[TocDocCount] -
+	                             chapter_starts[1] + 1, '1');
+	      formatptr += 5;
+	    }
+
+            strncpy(bufptr, number, sizeof(buffer) - 1 - (bufptr - buffer));
+	    bufptr += strlen(bufptr);
+	  }
+	  else if (formatlen == 11 && strncasecmp(formatptr, "CHAPTERPAGE", 11) == 0)
+	  {
+	    if (formatptr[11] == '(' && formatptr[12] && formatptr[13] == ')')
+            {
+	      number = format_number(print_page - chapter_starts[::chapter],
+	                             formatptr[12]);
+	      formatptr += 14;
+	    }
+	    else
+	    {
+	      number = format_number(print_page - chapter_starts[::chapter], '1');
+	      formatptr += 11;
+	    }
+
+            strncpy(bufptr, number, sizeof(buffer) - 1 - (bufptr - buffer));
+	    bufptr += strlen(bufptr);
+	  }
+	  else if (formatlen == 12 && strncasecmp(formatptr, "CHAPTERPAGES", 12) == 0)
+	  {
+	    if (formatptr[12] == '(' && formatptr[13] && formatptr[14] == ')')
+            {
+	      number = format_number(chapter_ends[::chapter] -
+	                             chapter_starts[::chapter] + 1,
+				     formatptr[13]);
+	      formatptr += 15;
+	    }
+	    else
+	    {
+	      number = format_number(chapter_ends[::chapter] -
+	                             chapter_starts[::chapter] + 1, '1');
+	      formatptr += 12;
+	    }
+
+            strncpy(bufptr, number, sizeof(buffer) - 1 - (bufptr - buffer));
+	    bufptr += strlen(bufptr);
+	  }
+	  else if (formatlen == 5 && strncasecmp(formatptr, "TITLE", 5) == 0)
+	  {
+            formatptr += 5;
+	    if (title)
+	    {
+              strncpy(bufptr, (char *)title, sizeof(buffer) - 1 - (bufptr - buffer));
+	      bufptr += strlen(bufptr);
+	    }
+	  }
+	  else if (formatlen == 7 && strncasecmp(formatptr, "CHAPTER", 7) == 0)
+	  {
+            formatptr += 7;
+	    if (pages[page].chapter)
+	    {
+              strncpy(bufptr, (char *)(pages[page].chapter),
+	              sizeof(buffer) - 1 - (bufptr - buffer));
+	      bufptr += strlen(bufptr);
+	    }
+	  }
+	  else if (formatlen == 7 && strncasecmp(formatptr, "HEADING", 7) == 0)
+	  {
+            formatptr += 7;
+	    if (pages[page].heading)
+	    {
+              strncpy(bufptr, (char *)(pages[page].heading),
+	              sizeof(buffer) - 1 - (bufptr - buffer));
+	      bufptr += strlen(bufptr);
+	    }
+	  }
+	  else if (formatlen == 4 && strncasecmp(formatptr, "TIME", 4) == 0)
+	  {
+            formatptr += 4;
+            strftime(bufptr, sizeof(buffer) - 1 - (bufptr - buffer), "%X",
+	             doc_date);
+	    bufptr += strlen(bufptr);
+	  }
+	  else if (formatlen == 4 && strncasecmp(formatptr, "DATE", 4) == 0)
+	  {
+            formatptr += 4;
+            strftime(bufptr, sizeof(buffer) - 1 - (bufptr - buffer), "%x",
+	             doc_date);
+	    bufptr += strlen(bufptr);
+	  }
 	  else
-	    temp = NULL;
+	  {
+            strncpy(bufptr, formatptr - 1, sizeof(buffer) - 1 - (bufptr - buffer));
+	    bufptr += strlen(bufptr);
+	    formatptr += formatlen;
+	  }
+	}
+	else if (bufptr < (buffer + sizeof(buffer) - 1))
+	  *bufptr++ = *formatptr++;
+	else
 	  break;
-    }	
+      }
+
+      *bufptr = '\0';
+
+      temp = new_render(page, RENDER_TEXT, 0, y,
+                	get_width((uchar *)buffer, HeadFootType,
+			          HeadFootStyle, SIZE_P),
+	        	HeadFootSize, (uchar *)buffer);
+    }
 
     if (temp == NULL)
       continue;
@@ -1118,7 +1215,6 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
       get_color(_htmlTextColor, temp->data.text.rgb);
     }
   }
-#endif /* 0 */
 }
 
 
@@ -1283,22 +1379,131 @@ ps_write_page(FILE  *out,		/* I - Output file */
 
   fprintf(out, "%%%%Page: %s %d\n", page_text, file_page);
 
+  if (PSLevel > 1 && PSCommands)
+  {
+    fputs("%%BeginPageSetup\n", out);
+
+    // The following comments are Xerox job ticket information that
+    // is used on the high-end Laser Printing Systems rather than
+    // embedded commands...
+    fputs("%XRXbegin: 001.0300\n", out);
+    fputs("%XRXPDLformat: PS-Adobe\n", out);
+    fprintf(out, "%%XRXtitle: %s\n", title);
+    fputs("%XRXcopyCount: 1\n", out);
+    if (pages[page].duplex)
+    {
+      if (pages[page].landscape)
+	fputs("%XRXrequirements: duplex(tumble)\n", out);
+      else
+	fputs("%XRXrequirements: duplex\n", out);
+    }
+    fputs("%XRXdisposition: PRINT\n", out);
+    fputs("%XRXsignature: False\n", out);
+    fprintf(out, "%%XRXpaperType-size: %d %d\n", pages[page].width, pages[page].length);
+    if (pages[page].media_type[0])
+      fprintf(out, "%%XRXpaperType-preFinish: %c%s 0 0\n",
+              tolower(pages[page].media_type[0]),
+	      pages[page].media_type + 1);
+    if (pages[page].media_color[0])
+      fprintf(out, "%%XRXdocumentPaperColors: %c%s 0 0\n",
+              tolower(pages[page].media_color[0]),
+	      pages[page].media_color + 1);
+    fputs("%XRXend\n", out);
+
+    if (pages[page].landscape)
+    {
+      if (pages[page].width == 612 && pages[page].length == 792)
+	fputs("%%BeginFeature: *PageSize Letter.Transverse\n", out);
+      else if (pages[page].width == 612 && pages[page].length == 1008)
+	fputs("%%BeginFeature: *PageSize Legal.Transverse\n", out);
+      else if (pages[page].width == 595 && pages[page].length == 842)
+	fputs("%%BeginFeature: *PageSize A4.Transverse\n", out);
+      else
+	fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", pages[page].length,
+	        pages[page].width);
+
+      fprintf(out, "%d %d SetPageSize\n", pages[page].length, pages[page].width);
+
+      fputs("%%EndFeature\n", out);
+
+      if (pages[page].duplex)
+      {
+	fputs("%%BeginFeature: *Duplex DuplexTumble\n", out);
+	fputs("true true SetDuplexMode\n", out);
+        fputs("%%EndFeature\n", out);
+      }
+    }
+    else
+    {
+      if (pages[page].width == 612 && pages[page].length == 792)
+	fputs("%%BeginFeature: *PageSize Letter\n", out);
+      else if (pages[page].width == 612 && pages[page].length == 1008)
+	fputs("%%BeginFeature: *PageSize Legal\n", out);
+      else if (pages[page].width == 595 && pages[page].length == 842)
+	fputs("%%BeginFeature: *PageSize A4\n", out);
+      else
+	fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", pages[page].width,
+	        pages[page].length);
+
+      fprintf(out, "%d %d SetPageSize\n", pages[page].width, pages[page].length);
+      fputs("%%EndFeature\n", out);
+
+      if (pages[page].duplex)
+      {
+	fputs("%%BeginFeature: *Duplex DuplexNoTumble\n", out);
+	fputs("true false SetDuplexMode\n", out);
+        fputs("%%EndFeature\n", out);
+      }
+    }
+
+    if (!pages[page].duplex)
+    {
+      fputs("%%BeginFeature: *Duplex None\n", out);
+      fputs("false false SetDuplexMode\n", out);
+      fputs("%%EndFeature\n", out);
+    }
+
+    if (pages[page].media_color[0])
+    {
+      fprintf(out, "%%%%BeginFeature: *MediaColor %s\n", pages[page].media_color);
+      fprintf(out, "(%s) SetMediaColor\n", pages[page].media_color);
+      fputs("%%EndFeature\n", out);
+    }
+
+    if (pages[page].media_position)
+    {
+      fprintf(out, "%%%%BeginFeature: *InputSlot Tray%d\n",
+              pages[page].media_position);
+      fprintf(out, "%d SetMediaPosition\n", pages[page].media_position);
+      fputs("%%EndFeature\n", out);
+    }
+
+    if (pages[page].media_type[0])
+    {
+      fprintf(out, "%%%%BeginFeature: *MediaType %s\n", pages[page].media_type);
+      fprintf(out, "(%s) SetMediaType\n", pages[page].media_type);
+      fputs("%%EndFeature\n", out);
+    }
+
+    fputs("%%EndPageSetup\n", out);
+  }
+
   fputs("GS\n", out);
 
-  if (Landscape && !PSCommands)
+  if (pages[page].landscape && !PSCommands)
   {
-    if (PageDuplex && (page & 1))
-      fprintf(out, "0 %d T -90 rotate\n", PageLength);
+    if (pages[page].duplex && (page & 1))
+      fprintf(out, "0 %d T -90 rotate\n", pages[page].length);
     else
-      fprintf(out, "%d 0 T 90 rotate\n", PageWidth);
+      fprintf(out, "%d 0 T 90 rotate\n", pages[page].width);
   }
 
   write_background(out);
 
-  if (PageDuplex && (page & 1))
-    fprintf(out, "%d %d T\n", PageRight, PageBottom);
+  if (pages[page].duplex && (page & 1))
+    fprintf(out, "%d %d T\n", pages[page].right, pages[page].bottom);
   else
-    fprintf(out, "%d %d T\n", PageLeft, PageBottom);
+    fprintf(out, "%d %d T\n", pages[page].left, pages[page].bottom);
 
  /*
   * Render all page elements, freeing used memory as we go...
@@ -3227,7 +3432,9 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   if (t->markup == MARKUP_H1 && !title_page)
     pages[*page].chapter = htmlGetText(current_heading);
 
-  if ((pages[*page].heading == NULL || t->markup == MARKUP_H1) && !title_page)
+  if ((pages[*page].heading == NULL || t->markup == MARKUP_H1 ||
+      (*page > 0 && pages[*page].heading == pages[*page - 1].heading)) &&
+      !title_page)
     pages[*page].heading = htmlGetText(current_heading);
 
   if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
@@ -3344,8 +3551,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
   DEBUG_printf(("parse_paragraph(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
                 t, left, right, *x, *y, *page, needspace));
-  printf("parse_paragraph(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
-         t, left, right, *x, *y, *page, needspace);
 
   flat        = flatten_tree(t->child);
   image_left  = left;
@@ -5285,14 +5490,13 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	      int    needspace)	/* I - Need whitespace? */
 {
   const char	*comment;	/* Comment text */
-  char		*ptr;		/* Pointer into value string */
+  char		*ptr,		/* Pointer into value string */
+		buffer[1024];	/* Buffer for strings */
+  int		pos;		/* Position (left, center, right) */
 
 
   if (t->data == NULL)
     return;
-
-  printf("BEFORE *left = %f, *right = %f, *bottom = %f, *top = %f, *x = %f, *y = %f\n",
-         *left, *right, *bottom, *top, *x, *y);
 
   for (comment = (const char *)t->data; *comment;)
   {
@@ -5527,10 +5731,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       while (*comment && !isspace(*comment))
         comment ++;
     }
-    else if (strncasecmp(comment, "MEDIA TYPE ", 12) == 0)
+    else if (strncasecmp(comment, "MEDIA TYPE ", 11) == 0)
     {
       // Media type for page...
-      comment += 12;
+      comment += 11;
 
       while (isspace(*comment))
 	comment ++;
@@ -5571,9 +5775,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       *ptr = '\0';
     }
-    else if (strncasecmp(comment, "PAGE WIDTH ", 11) == 0)
+    else if (strncasecmp(comment, "MEDIA SIZE ", 11) == 0)
     {
-      // Page width...
+      // Media size...
       comment += 11;
 
       while (isspace(*comment))
@@ -5605,62 +5809,27 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       check_pages(*page);
 
-      *right         = PagePrintWidth - *right;
-      PageWidth      = pages[*page].width = get_measurement(comment);
-      PagePrintWidth = PageWidth - PageRight - PageLeft;
-      *right         = PagePrintWidth - *right;
+      *right = PagePrintWidth - *right;
+      *top   = PagePrintLength - *top;
+
+      set_page_size(comment);
+
+      *right = PagePrintWidth - *right;
+      *top   = PagePrintLength - *top;
+
+      pages[*page].width  = PageWidth;
+      pages[*page].length = PageLength;
+      PagePrintWidth      = PageWidth - PageRight - PageLeft;
+      PagePrintLength     = PageLength - PageTop - PageBottom;
 
       // Skip width...
       while (*comment && !isspace(*comment))
         comment ++;
     }
-    else if (strncasecmp(comment, "PAGE LENGTH ", 12) == 0)
-    {
-      // Page length...
-      comment += 12;
-
-      while (isspace(*comment))
-	comment ++;
-
-      if (!*comment)
-	break;
-
-      if (para != NULL && para->child != NULL)
-      {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
-	htmlDeleteTree(para->child);
-	para->child = para->last_child = NULL;
-      }
-
-      if (*y < *top)
-      {
-	(*page) ++;
-
-	if (PageDuplex && ((*page) & 1))
-	  (*page) ++;
-
-	if (Verbosity)
-	  progress_show("Formatting page %d", *page);
-      }
-
-      *x = *left;
-
-      check_pages(*page);
-
-      *top            = PagePrintLength - *top;
-      PageLength      = pages[*page].length = get_measurement(comment);
-      PagePrintLength = PageLength - PageTop - PageBottom;
-      *top            = PagePrintLength - *top;
-      *y              = *top;
-
-      // Skip length...
-      while (*comment && !isspace(*comment))
-        comment ++;
-    }
-    else if (strncasecmp(comment, "MARGIN LEFT ", 12) == 0)
+    else if (strncasecmp(comment, "MEDIA LEFT ", 11) == 0)
     {
       // Left margin...
-      comment += 12;
+      comment += 11;
 
       while (isspace(*comment))
 	comment ++;
@@ -5678,9 +5847,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       if (*y < *top)
       {
 	(*page) ++;
-
-	if (PageDuplex && ((*page) & 1))
-	  (*page) ++;
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
@@ -5700,9 +5866,49 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       while (*comment && !isspace(*comment))
         comment ++;
     }
-    else if (strncasecmp(comment, "MARGIN RIGHT ", 13) == 0)
+    else if (strncasecmp(comment, "MEDIA RIGHT ", 12) == 0)
     {
       // Right margin...
+      comment += 12;
+
+      while (isspace(*comment))
+	comment ++;
+
+      if (!*comment)
+	break;
+
+      if (para != NULL && para->child != NULL)
+      {
+	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	htmlDeleteTree(para->child);
+	para->child = para->last_child = NULL;
+      }
+
+      if (*y < *top)
+      {
+	(*page) ++;
+
+	if (Verbosity)
+	  progress_show("Formatting page %d", *page);
+	*y = *top;
+      }
+
+      *x = *left;
+
+      check_pages(*page);
+
+      *right         = PagePrintWidth - *right;
+      PageRight      = pages[*page].right = get_measurement(comment);
+      PagePrintWidth = PageWidth - PageRight - PageLeft;
+      *right         = PagePrintWidth - *right;
+
+      // Skip right...
+      while (*comment && !isspace(*comment))
+        comment ++;
+    }
+    else if (strncasecmp(comment, "MEDIA BOTTOM ", 13) == 0)
+    {
+      // Bottom margin...
       comment += 13;
 
       while (isspace(*comment))
@@ -5722,52 +5928,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       {
 	(*page) ++;
 
-	if (PageDuplex && ((*page) & 1))
-	  (*page) ++;
-
-	if (Verbosity)
-	  progress_show("Formatting page %d", *page);
-	*y = *top;
-      }
-
-      *x = *left;
-
-      check_pages(*page);
-
-      *right         = PagePrintWidth - *right;
-      PageLeft       = pages[*page].left = get_measurement(comment);
-      PagePrintWidth = PageWidth - PageRight - PageLeft;
-      *right         = PagePrintWidth - *right;
-
-      // Skip right...
-      while (*comment && !isspace(*comment))
-        comment ++;
-    }
-    else if (strncasecmp(comment, "MARGIN BOTTOM ", 14) == 0)
-    {
-      // Bottom margin...
-      comment += 14;
-
-      while (isspace(*comment))
-	comment ++;
-
-      if (!*comment)
-	break;
-
-      if (para != NULL && para->child != NULL)
-      {
-	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
-	htmlDeleteTree(para->child);
-	para->child = para->last_child = NULL;
-      }
-
-      if (*y < *top)
-      {
-	(*page) ++;
-
-	if (PageDuplex && ((*page) & 1))
-	  (*page) ++;
-
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
       }
@@ -5786,10 +5946,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       while (*comment && !isspace(*comment))
         comment ++;
     }
-    else if (strncasecmp(comment, "MARGIN TOP ", 11) == 0)
+    else if (strncasecmp(comment, "MEDIA TOP ", 10) == 0)
     {
       // Top margin...
-      comment += 11;
+      comment += 10;
 
       while (isspace(*comment))
 	comment ++;
@@ -5807,9 +5967,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       if (*y < *top)
       {
 	(*page) ++;
-
-	if (PageDuplex && ((*page) & 1))
-	  (*page) ++;
 
 	if (Verbosity)
 	  progress_show("Formatting page %d", *page);
@@ -5829,10 +5986,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       while (*comment && !isspace(*comment))
         comment ++;
     }
-    else if (strncasecmp(comment, "LANDSCAPE ", 10) == 0)
+    else if (strncasecmp(comment, "MEDIA LANDSCAPE ", 16) == 0)
     {
       // Landscape on/off...
-      comment += 10;
+      comment += 16;
 
       while (isspace(*comment))
 	comment ++;
@@ -5899,10 +6056,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       while (*comment && !isspace(*comment))
         comment ++;
     }
-    else if (strncasecmp(comment, "DUPLEX ", 7) == 0)
+    else if (strncasecmp(comment, "MEDIA DUPLEX ", 13) == 0)
     {
       // Duplex printing on/off...
-      comment += 7;
+      comment += 13;
 
       while (isspace(*comment))
 	comment ++;
@@ -5954,13 +6111,195 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       while (*comment && !isspace(*comment))
         comment ++;
     }
+    else if (strncasecmp(comment, "HEADER ", 7) == 0)
+    {
+      // Header string...
+      comment += 7;
+
+      while (isspace(*comment))
+	comment ++;
+
+      if (para != NULL && para->child != NULL)
+      {
+	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	htmlDeleteTree(para->child);
+	para->child = para->last_child = NULL;
+      }
+
+      if (*y < *top)
+      {
+	(*page) ++;
+
+	if (Verbosity)
+	  progress_show("Formatting page %d", *page);
+      }
+
+      *x = *left;
+
+      check_pages(*page);
+
+      if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
+      {
+        pos     = 0;
+	comment += 4;
+      }
+      else if (strncasecmp(comment, "CENTER", 6) == 0 && isspace(comment[6]))
+      {
+        pos     = 1;
+	comment += 6;
+      }
+      else if (strncasecmp(comment, "RIGHT", 5) == 0 && isspace(comment[5]))
+      {
+        pos     = 2;
+	comment += 5;
+      }
+      else
+      {
+        progress_error("Bad HEADER position: \"%s\"", comment);
+	break;
+      }
+
+      while (isspace(*comment))
+	comment ++;
+
+      if (*comment != '\"')
+      {
+        progress_error("Bad HEADER string: \"%s\"", comment);
+	break;
+      }
+
+      for (ptr = buffer, comment ++; *comment && *comment != '\"'; comment ++)
+      {
+        if (*comment == '\\')
+	  comment ++;
+
+	if (ptr < (buffer + sizeof(buffer) - 1))
+	  *ptr++ = *comment;
+      }
+
+      if (*comment == '\"')
+        comment ++;
+
+      *ptr = '\0';
+
+      if (ptr > buffer)
+        pages[*page].header[pos] = (uchar *)strdup(buffer);
+      else
+        pages[*page].header[pos] = NULL;
+
+      // Adjust top margin as needed...
+      for (pos = 0; pos < 3; pos ++)
+        if (pages[*page].header[pos])
+	  break;
+
+      if (pages[*page].landscape)
+        *top = PagePrintWidth;
+      else
+        *top = PagePrintLength;
+
+      if (pos < 3)
+      {
+	if (logo_height > HeadFootSize)
+          *top -= logo_height + HeadFootSize;
+	else
+          *top -= 2 * HeadFootSize;
+      }
+
+      *y = *top;
+    }
+    else if (strncasecmp(comment, "FOOTER ", 7) == 0)
+    {
+      // Header string...
+      comment += 7;
+
+      while (isspace(*comment))
+	comment ++;
+
+      if (para != NULL && para->child != NULL)
+      {
+	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	htmlDeleteTree(para->child);
+	para->child = para->last_child = NULL;
+      }
+
+      if (*y < *top)
+      {
+	(*page) ++;
+
+	if (Verbosity)
+	  progress_show("Formatting page %d", *page);
+
+        *y = *top;
+      }
+
+      *x = *left;
+
+      check_pages(*page);
+
+      if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
+      {
+        pos     = 0;
+	comment += 4;
+      }
+      else if (strncasecmp(comment, "CENTER", 6) == 0 && isspace(comment[6]))
+      {
+        pos     = 1;
+	comment += 6;
+      }
+      else if (strncasecmp(comment, "RIGHT", 5) == 0 && isspace(comment[5]))
+      {
+        pos     = 2;
+	comment += 5;
+      }
+      else
+      {
+        progress_error("Bad FOOTER position: \"%s\"", comment);
+	break;
+      }
+
+      while (isspace(*comment))
+	comment ++;
+
+      if (*comment != '\"')
+      {
+        progress_error("Bad FOOTER string: \"%s\"", comment);
+	break;
+      }
+
+      for (ptr = buffer, comment ++; *comment && *comment != '\"'; comment ++)
+      {
+        if (*comment == '\\')
+	  comment ++;
+
+	if (ptr < (buffer + sizeof(buffer) - 1))
+	  *ptr++ = *comment;
+      }
+
+      if (*comment == '\"')
+        comment ++;
+
+      *ptr = '\0';
+
+      if (ptr > buffer)
+        pages[*page].footer[pos] = (uchar *)strdup(buffer);
+      else
+        pages[*page].footer[pos] = NULL;
+
+      // Adjust bottom margin as needed...
+      for (pos = 0; pos < 3; pos ++)
+        if (pages[*page].footer[pos])
+	  break;
+
+      if (pos == 3)
+        *bottom = 0.0f;
+      else if (logo_height > HeadFootSize)
+        *bottom = logo_height + HeadFootSize;
+      else
+        *bottom = 2 * HeadFootSize;
+    }
     else
       break;
   }
-
-  printf("AFTER *left = %f, *right = %f, *bottom = %f, *top = %f, *x = %f, *y = %f\n",
-         *left, *right, *bottom, *top, *x, *y);
-
 }
 
 
@@ -6288,14 +6627,26 @@ check_pages(int page)	// I - Current page
   temp = pages + page;
   if (!temp->width)
   {
-    temp->width     = PageWidth;
-    temp->length    = PageLength;
-    temp->left      = PageLeft;
-    temp->right     = PageRight;
-    temp->top       = PageTop;
-    temp->bottom    = PageBottom;
-    temp->duplex    = PageDuplex;
-    temp->landscape = Landscape;
+    if (page == 0)
+    {
+      temp->width     = PageWidth;
+      temp->length    = PageLength;
+      temp->left      = PageLeft;
+      temp->right     = PageRight;
+      temp->top       = PageTop;
+      temp->bottom    = PageBottom;
+      temp->duplex    = PageDuplex;
+      temp->landscape = Landscape;
+
+      memcpy(temp->header, Header, sizeof(temp->header));
+      memcpy(temp->footer, Footer, sizeof(temp->footer));
+    }
+    else
+    {
+      memcpy(temp, temp - 1, sizeof(page_t));
+      temp->start = NULL;
+      temp->end   = NULL;
+    }
   }
 }
 
@@ -8408,27 +8759,6 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("%%DocumentData: Clean7bit\n", out);
     fputs("%%EndComments\n", out);
 
-    // The following comments are Xerox job ticket information that
-    // is used on the high-end Laser Printing Systems rather than
-    // embedded commands...
-    fputs("%XRXbegin: 001.0300\n", out);
-    fputs("%XRXPDLformat: PS-Adobe\n", out);
-    fprintf(out, "%%XRXtitle: %s\n", title);
-    fputs("%XRXcopyCount: 1\n", out);
-    if (PageDuplex)
-    {
-      if (Landscape)
-	fputs("%XRXrequirements: duplex(tumble)\n", out);
-      else
-	fputs("%XRXrequirements: duplex\n", out);
-    }
-    fputs("%XRXdisposition: PRINT\n", out);
-    fputs("%XRXsignature: False\n", out);
-    fprintf(out, "%%XRXpaperType-size: %d %d\n", PageWidth, PageLength);
-    fputs("%XRXpaperType-preFinish: Plain 0 0\n", out);
-    fputs("%XRXdocumentPaperColors: white\n", out);
-    fputs("%XRXend\n", out);
-
     fputs("%%BeginProlog\n", out);
 
    /*
@@ -8525,66 +8855,6 @@ write_prolog(FILE  *out,	/* I - Output file */
       ps_write_background(out);
 
     fputs("%%EndProlog\n", out);
-
-    if (PSLevel > 1 && PSCommands)
-    {
-      fputs("%%BeginSetup\n", out);
-
-      if (Landscape)
-      {
-        if (PageWidth == 612 && PageLength == 792)
-	  fputs("%%BeginFeature: *PageSize Letter.Transverse\n", out);
-        if (PageWidth == 612 && PageLength == 1008)
-	  fputs("%%BeginFeature: *PageSize Legal.Transverse\n", out);
-        if (PageWidth == 595 && PageLength == 842)
-	  fputs("%%BeginFeature: *PageSize A4.Transverse\n", out);
-        else
-	  fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", PageLength,
-	          PageWidth);
-
-	fprintf(out, "%d %d SetPageSize\n", PageLength, PageWidth);
-
-        fputs("%%EndFeature\n", out);
-
-        if (PageDuplex)
-	{
-	  fputs("%%BeginFeature: *Duplex DuplexTumble\n", out);
-	  fputs("true true SetDuplexMode\n", out);
-          fputs("%%EndFeature\n", out);
-	}
-      }
-      else
-      {
-        if (PageWidth == 612 && PageLength == 792)
-	  fputs("%%BeginFeature: *PageSize Letter\n", out);
-        if (PageWidth == 612 && PageLength == 1008)
-	  fputs("%%BeginFeature: *PageSize Legal\n", out);
-        if (PageWidth == 595 && PageLength == 842)
-	  fputs("%%BeginFeature: *PageSize A4\n", out);
-        else
-	  fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", PageWidth,
-	          PageLength);
-
-	fprintf(out, "%d %d SetPageSize\n", PageWidth, PageLength);
-        fputs("%%EndFeature\n", out);
-
-        if (PageDuplex)
-	{
-	  fputs("%%BeginFeature: *Duplex DuplexNoTumble\n", out);
-	  fputs("true false SetDuplexMode\n", out);
-          fputs("%%EndFeature\n", out);
-	}
-      }
-
-      if (!PageDuplex)
-      {
-	fputs("%%BeginFeature: *Duplex None\n", out);
-	fputs("false false SetDuplexMode\n", out);
-        fputs("%%EndFeature\n", out);
-      }
-
-      fputs("%%EndSetup\n", out);
-    }
   }
   else
   {
@@ -9146,7 +9416,8 @@ write_trailer(FILE *out,	/* I - Output file */
 
       if (TocLevels > 0)
       {
-        type = 'v';
+        type = 'r';
+#if 0
         for (j = 0; j < 3; j ++)
 	  if (TocHeader[j] == '1')
 	    type = 'D';
@@ -9160,6 +9431,7 @@ write_trailer(FILE *out,	/* I - Output file */
 	    type = 'r';
 	  else if (TocFooter[j] == 'I')
 	    type = 'R';
+#endif /* 0 */
 
         fprintf(out, "%d<</S/%c>>", i, type);
 
@@ -9167,6 +9439,7 @@ write_trailer(FILE *out,	/* I - Output file */
       }
 
       type = 'D';
+#if 0
       for (j = 0; j < 3; j ++)
 	if (Header[j] == '1')
 	  type = 'D';
@@ -9180,6 +9453,7 @@ write_trailer(FILE *out,	/* I - Output file */
 	  type = 'r';
 	else if (Footer[j] == 'I')
 	  type = 'R';
+#endif /* 0 */
 
       fprintf(out, "%d<</S/%c>>", i, type);
       fputs("]>>", out);
@@ -9624,5 +9898,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.92 2001/08/16 03:12:47 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.93 2001/08/16 20:34:41 mike Exp $".
  */
