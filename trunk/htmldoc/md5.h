@@ -1,5 +1,5 @@
 //
-// "$Id: md5.h,v 1.3 2001/12/31 16:39:55 mike Exp $"
+// "$Id: md5.h,v 1.4 2002/01/02 00:39:28 mike Exp $"
 //
 // MD5 support code for HTMLDOC.
 //
@@ -59,20 +59,21 @@ typedef unsigned char hdMD5Byte;	// 8-bit byte
 typedef unsigned int hdMD5Word;		// 32-bit word
 
 // Define the state of the MD5 Algorithm.
-struct hdMD5State
+struct hdMD5
 {
   hdMD5Word count[2];			// message length in bits, lsw first
   hdMD5Word abcd[4];			// digest buffer
   hdMD5Byte buf[64];			// accumulate block
 
-  void	init();
   void	append(const hdMD5Byte *data, int nbytes);
-  void	finish(hdMD5Byte digest[16]);
+  void	finish(hdMD5Byte *digest);
+  void	init();
+  void	process(const hdMD5Byte *data);
 };
 
 #endif // !_HTMLDOC_MD5_H_
 
 
 //
-// End of "$Id: md5.h,v 1.3 2001/12/31 16:39:55 mike Exp $".
+// End of "$Id: md5.h,v 1.4 2002/01/02 00:39:28 mike Exp $".
 //

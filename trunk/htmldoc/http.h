@@ -1,9 +1,9 @@
 //
-// "$Id: http.h,v 1.9 2002/01/01 21:24:31 mike Exp $"
+// "$Id: http.h,v 1.10 2002/01/02 00:39:28 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class definitions for HTMLDOC.
 //
-//   Copyright 1997-2001 by Easy Software Products, all rights reserved.
+//   Copyright 1997-2002 by Easy Software Products, all rights reserved.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -263,7 +263,7 @@ class hdHTTP
   char			buffer[HD_MAX_BUFFER];
 					// Buffer for messages
   int			authtype;	// Authentication in use
-  hdMD5State		md5_state;	// MD5 state
+  hdMD5			md5_state;	// MD5 state
   char			nonce[HD_MAX_VALUE];
 					// Nonce value
   int			nonce_count;	// Nonce count
@@ -333,5 +333,5 @@ class hdHTTP
 #endif // !_HTMLDOC_HTTP_H_
 
 //
-// End of "$Id: http.h,v 1.9 2002/01/01 21:24:31 mike Exp $".
+// End of "$Id: http.h,v 1.10 2002/01/02 00:39:28 mike Exp $".
 //
