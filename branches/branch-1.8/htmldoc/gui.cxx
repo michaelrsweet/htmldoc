@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.46 2002/01/28 00:52:10 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.47 2002/05/07 20:40:54 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -150,6 +150,16 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"Date", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Date + Time", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {0}
+			};
+  static Fl_Menu	nupMenu[] =	// Menu items for number-up chooser
+			{
+			  {"1", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"2", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"4", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"6", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"9", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"16", 0,  0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	typefaceMenu[] = // Menu items for typeface choosers
@@ -527,6 +537,11 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageFooterRight->menu(formatMenu);
   pageFooterRight->callback((Fl_Callback *)changeCB, this);
   _tooltip(pageFooterRight, "Choose the right header.");
+
+  numberUp = new Fl_Choice(140, 225, 50, 25, "Number Up: ");
+  numberUp->menu(nupMenu);
+  numberUp->callback((Fl_Callback *)changeCB, this);
+  _tooltip(numberUp, "Set the number of pages on each sheet.");
 
   pageTab->end();
 
@@ -1467,6 +1482,7 @@ GUI::loadBook(const char *filename)	// I - Name of book file
   FILE		*fp;			// File to read from
   char		line[10240];		// Line from file
   const char	*dir;			// Directory
+  char		basename[1024];		// Base filename
 
 
   // If the filename contains a path, chdir to it first...
@@ -1477,10 +1493,12 @@ GUI::loadBook(const char *filename)	// I - Name of book file
     * a chdir()...
     */
 
+    strncpy(basename, file_basename(filename), sizeof(basename) - 1);
+    basename[sizeof(basename) - 1] = '\0';
+    filename = basename;
+
     chdir(dir);
     fc->directory(".");
-
-    filename = file_basename(filename);
   }
 
   // Open the file...
@@ -3842,6 +3860,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   get_format(temp, Footer);
 
+  NumberUp = atoi(gui->numberUp->text(gui->numberUp->value()));
+
   _htmlBodyFont    = (typeface_t)gui->bodyFont->value();
   _htmlHeadingFont = (typeface_t)gui->headingFont->value();
   htmlSetBaseSize(gui->fontBaseSize->value(), gui->fontSpacing->value());
@@ -4057,5 +4077,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.46 2002/01/28 00:52:10 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.47 2002/05/07 20:40:54 mike Exp $".
 //

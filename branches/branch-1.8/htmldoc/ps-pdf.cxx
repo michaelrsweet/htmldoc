@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.165 2002/05/07 06:13:26 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.166 2002/05/07 20:41:00 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1245,6 +1245,10 @@ pspdf_prepare_outpages()
   }
 
 #ifdef DEBUG
+  for (c = 0; c <= TocDocCount; c ++)
+    printf("chapter_outstarts[%d] = %d, chapter_outends[%d] = %d\n",
+           c, chapter_outstarts[c], c, chapter_outends[c]);
+
   printf("num_outpages = %d\n", num_outpages);
   for (i = 0, outpage = outpages; i < num_outpages; i ++, outpage ++)
   {
@@ -1257,8 +1261,18 @@ pspdf_prepare_outpages()
   }
 
   for (c = 0; c <= TocDocCount; c ++)
-    printf("chapter_outstarts[%d] = %d, chapter_outends[%d] = %d\n",
-           c, chapter_outstarts[c], c, chapter_outends[c]);
+    printf("chapter_starts[%d] = %d, chapter_ends[%d] = %d\n",
+           c, chapter_starts[c], c, chapter_ends[c]);
+
+  for (i = 0; i < num_pages; i ++)
+    printf("pages[%d]->outpage = %d\n", i, pages[i].outpage);
+
+  for (i = 0; i < num_headings; i ++)
+    printf("heading_pages[%d] = %d\n", i, heading_pages[i]);
+
+  for (i = 0; i < num_links; i ++)
+    printf("links[%d].name = \"%s\", page = %d\n", i,
+           links[i].name, links[i].page);
 #endif // DEBUG
 }
 
@@ -2043,7 +2057,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
 {
   int		i;			// Looping variable
   FILE		*out;			/* Output file */
-  int		page,			/* Current page # */
+  int		outpage,		/* Current page # */
 		heading;		/* Current heading # */
   int		bytes;			/* Number of bytes */
   char		buffer[8192];		/* Copy buffer */
@@ -2099,47 +2113,17 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
   fprintf(out, "/Count %d", num_outpages);
   fputs("/Kids[", out);
 
-  if (TitlePage)
-    for (page = 0; page < chapter_outstarts[1]; page ++)
-      fprintf(out, "%d 0 R\n", pages_object + page * 2 + 1);
-
-  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
-    chapter = 0;
-  else
-    chapter = 1;
-
-  for (; chapter <= TocDocCount; chapter ++)
-    for (page = chapter_outstarts[chapter]; page < chapter_outends[chapter]; page ++)
-      if (page < alloc_pages)
-        fprintf(out, "%d 0 R\n", pages_object + 2 * page + 1);
+  for (outpage = 0; outpage < num_outpages; outpage ++)
+    fprintf(out, "%d 0 R\n", pages_object + outpage * 2 + 1);
 
   fputs("]", out);
   pdf_end_object(out);
 
-  chapter = -1;
-
-  if (TitlePage)
-    for (page = 0; page < chapter_outstarts[1]; page ++)
-      pdf_write_outpage(out, page);
-
-  for (chapter = 1; chapter <= TocDocCount; chapter ++)
-  {
-    if (chapter_outstarts[chapter] < 0)
-      continue;
-
-    for (page = chapter_outstarts[chapter];
-         page < chapter_outends[chapter];
-         page ++)
-      pdf_write_outpage(out, page);
-  }
+  for (outpage = 0; outpage < num_outpages; outpage ++)
+    pdf_write_outpage(out, outpage);
 
   if (OutputType == OUTPUT_BOOK && TocLevels > 0)
   {
-    for (chapter = 0, page = chapter_outstarts[0];
-	 page < chapter_outends[0];
-	 page ++)
-      pdf_write_outpage(out, page);
-
    /*
     * Write the outline tree...
     */
@@ -2163,9 +2147,9 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
   // This block of code sets the those values for PDF files.
   //
 
-  FCBPBRec    fcbInfo;	// File control block information
-  Str32	name;		// Name of file
-  FInfo	fInfo;		// File type/creator information
+  FCBPBRec	fcbInfo;	// File control block information
+  Str32		name;		// Name of file
+  FInfo		fInfo;		// File type/creator information
   FSSpec	fSpec;		// File specification
 
 
@@ -2606,9 +2590,9 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
     x = 0.0f;
     y = PagePrintLength + PageBottom;
-    pspdf_transform_coords(pages + chapter_outstarts[0], x, y);
+    pspdf_transform_coords(pages + chapter_starts[0], x, y);
 
-    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f null]",
+    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
             pages_object + 2 * chapter_outstarts[0] + 1, x, y);
 
     if (prev > 0)
@@ -2725,13 +2709,13 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
       if (heading_pages[*heading] > 0)
       {
+        i = heading_pages[*heading] + chapter_starts[1] - 1;
 	x = 0.0f;
-	y = heading_tops[*heading];
-	pspdf_transform_coords(pages + chapter_outstarts[0], x, y);
+	y = heading_tops[*heading] + pages[i].bottom;
+	pspdf_transform_coords(pages + i, x, y);
 
-	fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f null]",
-        	pages_object + 2 * (pages[heading_pages[*heading]].outpage +
-		                    chapter_outstarts[1]) + 1, x, y);
+	fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+        	pages_object + 2 * pages[i].outpage + 1, x, y);
       }
 
       (*heading) ++;
@@ -3038,22 +3022,39 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	   /*
             * Local link...
             */
+	    float x1, y1, x2, y2;
 
             lobjs[num_lobjs ++] = pdf_start_object(out);
 
             fputs("/Subtype/Link", out);
-            if (PageDuplex && (outpage & 1))
-              fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                      r->x + PageRight, r->y + PageBottom - 2,
-                      r->x + r->width + PageRight, r->y + r->height + PageBottom);
+
+            if (PageDuplex && (op->pages[i] & 1))
+	    {
+              x1 = r->x + p->right;
+	      y1 = r->y + p->bottom - 2;
+              x2 = r->x + r->width + p->right;
+	      y2 = r->y + r->height + p->bottom;
+	    }
             else
-              fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
-                      r->x + PageLeft, r->y + PageBottom - 2,
-                      r->x + r->width + PageLeft, r->y + r->height + PageBottom);
+	    {
+              x1 = r->x + p->left;
+	      y1 = r->y + p->bottom - 2;
+              x2 = r->x + r->width + p->left;
+	      y2 = r->y + r->height + p->bottom;
+	    }
+
+            pspdf_transform_coords(p, x1, y1);
+            pspdf_transform_coords(p, x2, y2);
+            fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]", x1, y1, x2, y2);
+
             fputs("/Border[0 0 0]", out);
-	    fprintf(out, "/Dest[%d 0 R/XYZ null %d 0]",
-        	    pages_object + 2 * pages[link->page].outpage + 3,
-        	    link->top);
+
+            x1 = 0.0f;
+	    y1 = link->top + pages[link->page].bottom;
+            pspdf_transform_coords(pages + link->page, x1, y1);
+	    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+        	    pages_object + 2 * pages[link->page + chapter_starts[1] - 1].outpage + 1,
+        	    x1, y1);
 	    pdf_end_object(out);
 	  }
 	  else
@@ -3200,9 +3201,13 @@ pdf_write_names(FILE *out)		/* I - Output file */
   for (i = num_links, link = links; i > 0; i --, link ++)
   {
     pdf_start_object(out);
-    fprintf(out, "/D[%d 0 R/XYZ null %d null]", 
-            pages_object + 2 * pages[link->page].outpage + ((TocLevels > 0 && PageDuplex) ? 3 : 1),
-            link->top);
+    float x, y;
+
+    x = 0.0f;
+    y = link->top + pages[link->page].bottom;
+    pspdf_transform_coords(pages + link->page, x, y);
+    fprintf(out, "/D[%d 0 R/XYZ %.0f %.0f 0]", 
+            pages_object + 2 * pages[link->page].outpage + 1, x, y);
     pdf_end_object(out);
   }
 }
@@ -3350,7 +3355,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
             * Add a target link...
             */
 
-            add_link(link, *page, (int)(*y + PageBottom + height));
+            add_link(link, *page, (int)(*y + height));
           }
           break;
 
@@ -3583,7 +3588,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       * Add a link target using the ID=name variable...
       */
 
-      add_link(name, *page, (int)*y + PageBottom);
+      add_link(name, *page, (int)*y);
     }
     else if (t->markup == MARKUP_FILE)
     {
@@ -3604,7 +3609,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         *sep = '\0';
 
       // Add the link
-      add_link(name, *page + (OutputType == OUTPUT_BOOK), (int)*y + PageBottom);
+      add_link(name, *page, (int)*y);
     }
 
     if (chapter == 0 && !title_page)
@@ -4724,7 +4729,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
               * Add a target link...
               */
 
-              add_link(link, *page, (int)(*y + PageBottom + height));
+              add_link(link, *page, (int)(*y + height));
             }
 
 	default :
@@ -5043,7 +5048,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
               * Add a target link...
               */
 
-              add_link(link, *page, (int)(*y + PageBottom + height));
+              add_link(link, *page, (int)(*y + height));
             }
             break;
 
@@ -10825,7 +10830,7 @@ write_trailer(FILE *out,	/* I - Output file */
       case PDF_PAGE_1 :
           if (TitlePage)
 	  {
-            fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
+            fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
                     pages_object + 1);
             break;
 	  }
@@ -10833,20 +10838,20 @@ write_trailer(FILE *out,	/* I - Output file */
       case PDF_TOC :
           if (TocLevels > 0)
 	  {
-            fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
-                    pages_object + 2 * chapter_starts[0] + 1);
+            fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
+                    pages_object + 2 * chapter_outstarts[0] + 1);
 	    break;
 	  }
           break;
       case PDF_CHAPTER_1 :
-          fprintf(out, "/OpenAction[%d 0 R/XYZ null null null]",
-                  pages_object + 2 * chapter_starts[1] + 1);
+          fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
+                  pages_object + 2 * chapter_outstarts[1] + 1);
           break;
     }
 
     fprintf(out, "/PageMode/%s", modes[PDFPageMode]);
 
-    if (PDFVersion > 1.2 && OutputType == OUTPUT_BOOK)
+    if (PDFVersion > 1.2 && NumberUp == 1)
     {
       // Output the PageLabels tree...
       fputs("/PageLabels<</Nums[", out);
@@ -11381,5 +11386,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.165 2002/05/07 06:13:26 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.166 2002/05/07 20:41:00 mike Exp $".
  */
