@@ -13,6 +13,7 @@ CHANGES IN HTMLDOC v1.8.3
 	- The configure script now looks for the OpenGL library
 	  (required if you use a shared FLTK library with OpenGL
 	  support.)
+	- Increased the max number of chapters to 1000.
 
     BUG FIXES
 
@@ -22,6 +23,11 @@ CHANGES IN HTMLDOC v1.8.3
 	- Filenames didn't always get updated properly when doing a
 	  "save as"...
 	- Fixed some more leading/trailing whitespace problems.
+	- Wasn't freeing page headings after the document was
+	  generated.
+	- Wasn't range checking the current chapter number; now
+	  limits the number of chapters to MAX_CHAPTERS and
+	  issues an error message whenever the limit is exceeded.
 
 
 CHANGES IN HTMLDOC v1.8.2

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.39 1999/12/13 01:19:17 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.40 1999/12/13 16:12:04 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -540,6 +540,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     chapter_ends[0] = num_pages - 1;
   }
 
+  if (TocDocCount > MAX_CHAPTERS)
+    TocDocCount = MAX_CHAPTERS;
+
  /*
   * Write the document to disk...
   */
@@ -549,8 +552,18 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   else
     pdf_write_document(title, author, creator, copyright, toc);
 
+ /*
+  * Free memory...
+  */
+
   if (title != NULL)
     free(title);
+
+  for (int i = 0; i < num_pages; i ++)
+  {
+    if (i == 0 || page_headings[i] != page_headings[i - 1])
+      free(page_headings[i]);
+  }
 
   return (0);
 }
@@ -2262,7 +2275,14 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       if (OutputBook)
       {
         chapter ++;
-        chapter_starts[chapter] = *page;
+	if (chapter >= MAX_CHAPTERS)
+	{
+	  progress_error("Too many chapters in document (%d > %d)!",
+	                 chapter, MAX_CHAPTERS);
+          chapter = MAX_CHAPTERS - 1;
+	}
+	else
+          chapter_starts[chapter] = *page;
 
 	if (chapter > TocDocCount)
 	  TocDocCount = chapter;
@@ -4381,8 +4401,12 @@ new_render(int   page,		/* I - Page number (0-n) */
   static render_t	dummy;	/* Dummy var for errors... */
 
 
-  if (page >= MAX_PAGES)
+  if (page < 0 || page >= MAX_PAGES)
+  {
+    progress_error("Page number (%d) out of range (1...%d)\n", page + 1, MAX_PAGES);
+    memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
+  }
 
   if (type == RENDER_IMAGE || data == NULL)
     r = (render_t *)calloc(sizeof(render_t), 1);
@@ -4390,7 +4414,11 @@ new_render(int   page,		/* I - Page number (0-n) */
     r = (render_t *)calloc(sizeof(render_t) + strlen((char *)data), 1);
 
   if (r == NULL)
+  {
+    progress_error("Unable to allocate memory on page %s\n", page + 1);
+    memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
+  }
 
   r->type   = type;
   r->x      = x;
@@ -4407,6 +4435,7 @@ new_render(int   page,		/* I - Page number (0-n) */
           return (NULL);
         }
         strcpy((char *)r->data.text.buffer, (char *)data);
+        get_color(_htmlTextColor, r->data.text.rgb);
         break;
     case RENDER_IMAGE :
         if (data == NULL)
@@ -6430,5 +6459,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.39 1999/12/13 01:19:17 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.40 1999/12/13 16:12:04 mike Exp $".
  */

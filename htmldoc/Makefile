@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.2 1999/11/22 18:07:40 mike Exp $"
+#   "$Id: Makefile,v 1.3 1999/12/13 16:12:04 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -70,6 +70,11 @@ htmldoc:	$(OBJS) ../Makedefs ../jpeg/libjpeg.a \
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o htmldoc $(OBJS) $(LIBS)
 
+htmldoc.purify:	$(OBJS) ../Makedefs ../jpeg/libjpeg.a \
+		../png/libpng.a ../zlib/libz.a
+	echo Linking $@...
+	purify $(CXX) $(LDFLAGS) -o htmldoc.purify $(OBJS) $(LIBS)
+
 gui.o:		gui.h html.h htmldoc.h image.h iso8859.h types.h htmldoc.xbm
 html.o:		html.h htmldoc.h image.h iso8859.h types.h
 htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h types.h
@@ -85,5 +90,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.2 1999/11/22 18:07:40 mike Exp $".
+# End of "$Id: Makefile,v 1.3 1999/12/13 16:12:04 mike Exp $".
 #
