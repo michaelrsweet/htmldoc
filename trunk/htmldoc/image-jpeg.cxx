@@ -1,5 +1,5 @@
 //
-// "$Id: image-jpeg.cxx,v 1.3 2002/01/05 23:14:40 mike Exp $"
+// "$Id: image-jpeg.cxx,v 1.4 2002/01/06 20:04:48 mike Exp $"
 //
 // JPEG image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -39,6 +39,7 @@
 //
 
 #include "image.h"
+#include "hdstring.h"
 
 extern "C" {		// Workaround for JPEG header problems...
 #include <jpeglib.h>	// JPEG/JFIF image definitions
@@ -84,6 +85,24 @@ hdJPEGImage::hdJPEGImage(const char *p,	// I - URI for image file
 
 
 //
+// 'hdJPEGImage::check()' - Try to load an image file as a JPEG.
+//
+
+hdImage *
+hdJPEGImage::check(const char *p,	// I - URI for image file
+                   int        gs,	// I - 1 = grayscale, 0 = color
+		   const char *header)	// I - First 16 bytes of file
+{
+  if (memcmp(header, "\377\330\377", 3) == 0 &&	// Start-of-Image
+      (uchar)header[3] >= 0xe0 &&
+      (uchar)header[3] <= 0xef)			// APPn
+    return (new hdJPEGImage(p, gs));
+  else
+    return (NULL);
+}
+
+
+//
 // 'hdJPEGImage::load()' - Load a JPEG image...
 //
 
@@ -119,6 +138,7 @@ hdJPEGImage::real_load(int img,		// I - Load image data?
   // Setup the error manager...
   jpeg_std_error(&err);
   err.error_exit = jpg_error;
+  cinfo.err = &err;
 
   // Setup the source manager...
   src = new jpg_source(&cinfo, fp);
@@ -283,5 +303,5 @@ jpg_source::jpg_source(j_decompress_ptr cinfo,	// I - Decompressor data
 
 
 //
-// End of "$Id: image-jpeg.cxx,v 1.3 2002/01/05 23:14:40 mike Exp $".
+// End of "$Id: image-jpeg.cxx,v 1.4 2002/01/06 20:04:48 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: image-gif.cxx,v 1.6 2002/01/05 23:14:40 mike Exp $"
+// "$Id: image-gif.cxx,v 1.7 2002/01/06 20:04:47 mike Exp $"
 //
 // Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -38,7 +38,7 @@
 //
 
 #include "image.h"
-#include <stdio.h>
+#include "hdstring.h"
 
 
 //
@@ -59,6 +59,23 @@ hdGIFImage::hdGIFImage(const char *p,	// I - URI of image
   uri(p);
 
   real_load(0, gs);
+}
+
+
+//
+// 'hdGIFImage::check()' - Try to load an image file as a GIF.
+//
+
+hdImage *
+hdGIFImage::check(const char *p,	// I - URI for image file
+                  int        gs,	// I - 1 = grayscale, 0 = color
+		  const char *header)	// I - First 16 bytes of file
+{
+  if (memcmp(header, "GIF87a", 6) == 0 ||
+      memcmp(header, "GIF89a", 6) == 0)
+    return (new hdGIFImage(p, gs));
+  else
+    return (NULL);
 }
 
 
@@ -554,5 +571,5 @@ hdGIFImage::real_load(int img,	// I - 1 = load image data, 0 = just info
 
 
 //
-// End of "$Id: image-gif.cxx,v 1.6 2002/01/05 23:14:40 mike Exp $".
+// End of "$Id: image-gif.cxx,v 1.7 2002/01/06 20:04:47 mike Exp $".
 //

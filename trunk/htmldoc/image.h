@@ -1,5 +1,5 @@
 //
-// "$Id: image.h,v 1.13 2002/01/05 23:14:41 mike Exp $"
+// "$Id: image.h,v 1.14 2002/01/06 20:04:48 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
@@ -58,7 +58,7 @@ enum hdImageType
 
 class hdImage;
 
-typedef hdImage *(*hdImageCheck)(const char *uri);
+typedef hdImage *(*hdImageCheck)(const char *uri, int gs, const char *header);
 
 class hdImage			//// Image class
 {
@@ -118,7 +118,7 @@ class hdImage			//// Image class
   int			width() { return width_; }
 
   // Global methods for caching of image files...
-  static hdImage	*find(const char *uri);
+  static hdImage	*find(const char *uri, int gs, const char *path = 0);
   static hdImage	**images() { return images_; }
   static int		num_images() { return num_images_; }
   static void		flush();
@@ -141,7 +141,7 @@ class hdBMPImage : public hdImage
 
   virtual int	load();
 
-  static hdImage	*check(const char *uri);
+  static hdImage	*check(const char *uri, int gs, const char *header);
 };
 
 class hdEPSImage : public hdImage
@@ -156,7 +156,7 @@ class hdEPSImage : public hdImage
   virtual int		save(char *path, char *d, int dlen);
   virtual hdImageType	type();
 
-  static hdImage	*check(const char *uri);
+  static hdImage	*check(const char *uri, int gs, const char *header);
 };
 
 class hdGIFImage : public hdImage
@@ -178,7 +178,7 @@ class hdGIFImage : public hdImage
 
   virtual int	load();
 
-  static hdImage	*check(const char *uri);
+  static hdImage	*check(const char *uri, int gs, const char *header);
 };
 
 class hdJPEGImage : public hdImage
@@ -191,7 +191,7 @@ class hdJPEGImage : public hdImage
 
   virtual int	load();
 
-  static hdImage	*check(const char *uri);
+  static hdImage	*check(const char *uri, int gs, const char *header);
 };
 
 class hdPNGImage : public hdImage
@@ -204,7 +204,7 @@ class hdPNGImage : public hdImage
 
   virtual int	load();
 
-  static hdImage	*check(const char *uri);
+  static hdImage	*check(const char *uri, int gs, const char *header);
 };
 
 class hdPNMImage : public hdImage
@@ -217,7 +217,7 @@ class hdPNMImage : public hdImage
 
   virtual int	load();
 
-  static hdImage	*check(const char *uri);
+  static hdImage	*check(const char *uri, int gs, const char *header);
 };
 
 class hdXBMImage : public hdImage
@@ -230,7 +230,7 @@ class hdXBMImage : public hdImage
 
   virtual int	load();
 
-  static hdImage	*check(const char *uri);
+  static hdImage	*check(const char *uri, int gs, const char *header);
 };
 
 class hdXPMImage : public hdImage
@@ -243,11 +243,11 @@ class hdXPMImage : public hdImage
 
   virtual int	load();
 
-  static hdImage	*check(const char *uri);
+  static hdImage	*check(const char *uri, int gs, const char *header);
 };
 
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.13 2002/01/05 23:14:41 mike Exp $".
+// End of "$Id: image.h,v 1.14 2002/01/06 20:04:48 mike Exp $".
 //

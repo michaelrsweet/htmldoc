@@ -1,5 +1,5 @@
 //
-// "$Id: http.cxx,v 1.5 2002/01/05 23:14:40 mike Exp $"
+// "$Id: http.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class routines for HTMLDOC.
 //
@@ -122,6 +122,7 @@ static const char	*http_fields[] =
 			  "Content-Version",
 			  "Cookie",
 			  "Date",
+			  "Expect",
 			  "Host",
 			  "If-Modified-Since",
 			  "If-Unmodified-since",
@@ -163,7 +164,6 @@ static const char	*http_months[12] =
 			  "Nov",
 			  "Dec"
 			};
-
 
 
 //
@@ -902,7 +902,7 @@ hdHTTP::flush()
 //
 
 int					// O - Number of bytes read
-hdHTTP::read(char *buffer,		// I - Buffer for data
+hdHTTP::read(char *b,			// I - Buffer for data
 	     int  length)		// I - Maximum number of bytes
 {
   int		bytes;			// Bytes read
@@ -911,7 +911,7 @@ hdHTTP::read(char *buffer,		// I - Buffer for data
 
   DEBUG_printf(("hdHTTP::read(%p, %d)\n", buffer, length));
 
-  if (buffer == NULL)
+  if (b == NULL)
     return (-1);
 
   activity = time(NULL);
@@ -961,7 +961,7 @@ hdHTTP::read(char *buffer,		// I - Buffer for data
 
     DEBUG_printf(("hdHTTP::read: grabbing %d bytes from input buffer...\n", bytes));
 
-    memcpy(buffer, buffer, length);
+    memcpy(b, buffer, length);
     used -= length;
 
     if (used > 0)
@@ -969,12 +969,12 @@ hdHTTP::read(char *buffer,		// I - Buffer for data
   }
 #ifdef HAVE_LIBSSL
   else if (tls)
-    bytes = SSL_read((SSL *)(tls), buffer, length);
+    bytes = SSL_read((SSL *)(tls), b, length);
 #endif // HAVE_LIBSSL
   else
   {
     DEBUG_printf(("hdHTTP::read: reading %d bytes from socket...\n", length));
-    bytes = recv(fd, buffer, length, 0);
+    bytes = recv(fd, b, length, 0);
     DEBUG_printf(("hdHTTP::read: read %d bytes from socket...\n", bytes));
   }
 
@@ -1010,14 +1010,14 @@ hdHTTP::read(char *buffer,		// I - Buffer for data
 //
  
 int					// O - Number of bytes written
-hdHTTP::write(const char *buffer,	// I - Buffer for data
+hdHTTP::write(const char *b,		// I - Buffer for data
 	      int        length)	// I - Number of bytes to write
 {
   int	tbytes,				// Total bytes sent
 	bytes;				// Bytes sent
 
 
-  if (buffer == NULL)
+  if (b == NULL)
     return (-1);
 
   activity = time(NULL);
@@ -1051,10 +1051,10 @@ hdHTTP::write(const char *buffer,	// I - Buffer for data
   {
 #ifdef HAVE_LIBSSL
     if (tls)
-      bytes = SSL_write((SSL *)(tls), buffer, length);
+      bytes = SSL_write((SSL *)(tls), b, length);
     else
 #endif // HAVE_LIBSSL
-    bytes = ::send(fd, buffer, length, 0);
+    bytes = ::send(fd, b, length, 0);
 
     if (bytes < 0)
     {
@@ -1063,7 +1063,7 @@ hdHTTP::write(const char *buffer,	// I - Buffer for data
       return (-1);
     }
 
-    buffer += bytes;
+    b      += bytes;
     tbytes += bytes;
     length -= bytes;
     if (data_encoding == HD_HTTP_ENCODE_LENGTH)
@@ -1842,5 +1842,5 @@ hdHTTP::upgrade()
 
 
 //
-// End of "$Id: http.cxx,v 1.5 2002/01/05 23:14:40 mike Exp $".
+// End of "$Id: http.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $".
 //

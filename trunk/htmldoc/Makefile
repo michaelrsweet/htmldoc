@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.20 2002/01/05 23:14:39 mike Exp $"
+# "$Id: Makefile,v 1.21 2002/01/06 20:04:47 mike Exp $"
 #
 # Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -33,7 +33,7 @@ include ../Makedefs
 # Targets...
 #
 
-TARGETS	=	libhtmldoc.a
+TARGETS	=	libhtmldoc.a testsuite
 
 
 #
@@ -45,7 +45,7 @@ LIBOBJS	=	file.o file-common.o file-open.o file-std.o \
 		image.o image-bmp.o image-gif.o image-jpeg.o image-png.o \
 		margin.o
 
-OBJS	=	$(LIBOBJS)
+OBJS	=	$(LIBOBJS) testsuite.o
 
 
 #
@@ -87,5 +87,18 @@ libhtmldoc.a:	$(LIBOBJS) ../Makedefs
 
 
 #
-# End of "$Id: Makefile,v 1.20 2002/01/05 23:14:39 mike Exp $".
+# testsuite
+#
+
+testsuite:	testsuite.o libhtmldoc.a ../Makedefs
+	echo Linking $@...
+	$(RM) $@
+	$(CXX) $(LDFLAGS) -o testsuite testsuite.o libhtmldoc.a $(LIBS)
+
+
+$(OBJS):	../Makedefs
+
+
+#
+# End of "$Id: Makefile,v 1.21 2002/01/06 20:04:47 mike Exp $".
 #
