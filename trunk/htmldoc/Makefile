@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.27 2002/02/26 05:16:00 mike Exp $"
+# "$Id: Makefile,v 1.28 2002/03/10 03:17:24 mike Exp $"
 #
 # Makefile for HTMLDOC library.
 #
@@ -45,7 +45,7 @@ LIBOBJS	=	common.o \
 		file-ascii.o file-flate.o file-jpeg.o file-rc4.o \
 		http.o http-md5.o md5.o \
 		image.o image-bmp.o image-gif.o image-jpeg.o image-png.o \
-		margin.o \
+		image-reduce.o margin.o \
 		style.o stylefont.o stylesheet.o tree.o
 
 OBJS	=	$(LIBOBJS) testsuite.o
@@ -113,5 +113,5 @@ include Dependencies
 
 
 #
-# End of "$Id: Makefile,v 1.27 2002/02/26 05:16:00 mike Exp $".
+# End of "$Id: Makefile,v 1.28 2002/03/10 03:17:24 mike Exp $".
 #

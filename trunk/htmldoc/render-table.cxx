@@ -1,5 +1,5 @@
 //
-// "$Id: render.cxx,v 1.4 2002/03/10 03:17:24 mike Exp $"
+// "$Id: render-table.cxx,v 1.1 2002/03/10 03:17:24 mike Exp $"
 //
 //   Core rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -35,38 +35,13 @@
 #include <config.h>
 
 
-  hdRender();
-  virtual	~hdRender();
-  void		finish_document(const char *author, const char *creator,
-		                const char *copyright, const char *keywords);
+//
+// Timezone offset for dates, below...
+//
 
-  void		parse_block(hdTree *t, hdMargin *m, float *x, float *y,
-		            int *page);
-  void		parse_comment(hdTree *t, hdMargin *m, float *x, float *y,
-		              int *page, hdTree *para);
-  void		parse_contents(hdTree *t, hdMargin *m, float *y, int *page,
-		               int *heading, hdTree *chap);
-  void		parse_doc(hdTree *t, hdMargin *m, float *x, float *y, int *page);
-  void		parse_list(hdTree *t, hdMargin *m,  float *x, float *y,
-		           int *page);
-
-  void		prepare_page(int page);
-  void		prepare_heading(int page, int print_page, char **format,
-			        int y, char *page_text, int page_len);
-
-  void		add_chapter();
-
-  void		add_heading(hdTree *node, int page, int top);
-
-  void		add_link(char *name, int page, int top);
-  hdRenderLink	*find_link(char *name);
-  static int	compare_links(hdRenderLink *n1, hdRenderLink *n2);
-
-  void		check_pages(int page);
-
-  hdRenderNode	*add_render(int page, int type, float x, float y,
-		            float width, float height, void *data,
-			    int insert = 0);
+#ifdef HAVE_TM_GMTOFF
+#  define timezone (doc_date->tm_gmtoff)
+#endif // HAVE_TM_GMTOFF
 
 
 #if 0
@@ -6421,5 +6396,5 @@ write_image(FILE     *out,	// I - Output file
 
 
 //
-// End of "$Id: render.cxx,v 1.4 2002/03/10 03:17:24 mike Exp $".
+// End of "$Id: render-table.cxx,v 1.1 2002/03/10 03:17:24 mike Exp $".
 //
