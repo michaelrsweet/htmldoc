@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.125 2001/11/09 20:42:35 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.126 2001/11/14 16:30:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4737,9 +4737,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	    if (col_width > col_swidths[col])
 	      col_swidths[col] = col_width;
 
-	    if (col_pref > col_swidths[col])
-	      col_swidths[col] = col_pref;
-
 	    if (col_min > col_smins[col])
 	      col_smins[col] = col_min;
           }
@@ -5069,9 +5066,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	if ((height_var = htmlGetVariable(cells[row][0]->parent,
                            	          (uchar *)"HEIGHT")) == NULL)
 	  for (col = 0; col < num_cols; col ++)
-	    if ((height_var = htmlGetVariable(cells[row][col],
-                                              (uchar *)"HEIGHT")) != NULL)
-	      break;
+	    if (htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") == NULL)
+	      if ((height_var = htmlGetVariable(cells[row][col],
+                                                (uchar *)"HEIGHT")) != NULL)
+	        break;
     }
 
     if (cells[row][0] != NULL && height_var != NULL)
@@ -5102,9 +5100,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	temp_height = PageLength / 8;
     }
 
+    DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f\n",
+                  row, temp_height, *y));
+
     if (*y < (bottom + 2 * cellpadding + temp_height) &&
         temp_height <= (top - bottom - 2 * cellpadding))
     {
+      DEBUG_puts("NEW PAGE");
+
       *y = top;
       (*page) ++;
 
@@ -5117,7 +5120,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     row_page   = *page;
     row_height = 0.0f;
 
-    DEBUG_printf(("BEFORE row = %d, row_y = %.1f, *y = %.1f\n", row, row_y, *y));
+    DEBUG_printf(("BEFORE row_y = %.1f, *y = %.1f\n", row_y, *y));
 
     for (col = 0; col < num_cols;)
     {
@@ -5201,6 +5204,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  row_y = cell_endy[col];
       }
 
+      DEBUG_printf(("**** col = %d, row = %d, row_y = %.1f\n", col, row, row_y));
+
       for (col ++; colspan > 0; colspan --, col ++)
       {
         cell_start[col]   = NULL;
@@ -5233,9 +5238,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       {
         temp_height = cell_height[col] - span_heights[col];
 	row_height  += temp_height;
-	row_y       -= temp_height;
-	DEBUG_printf(("Adjusting row-span height by %.1f, row_height = %.1f, row_y = %.1f\n",
-	              temp_height, row_height, row_y));
+	DEBUG_printf(("Adjusting row-span height by %.1f, new row_height = %.1f\n",
+	              temp_height, row_height));
 
 	for (tcol = 0; tcol < num_cols; tcol ++)
 	  if (row_spans[tcol])
@@ -5518,6 +5522,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
     *page = row_page;
     *y    = row_y - cellspacing;
+
+    DEBUG_printf(("END row = %d, *y = %.1f, *page = %d\n", row, *y, *page));
   }
 
   *x = left;
@@ -6486,21 +6492,23 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
         if (Header[pos])
 	  break;
 
-      if (Landscape)
-        *top = PagePrintWidth;
-      else
-        *top = PagePrintLength;
-
       if (pos < 3)
       {
 	if (logo_height > HeadFootSize)
-          *top -= logo_height + HeadFootSize;
+          PageTop = logo_height + HeadFootSize;
 	else
-          *top -= 2 * HeadFootSize;
+          PageTop = 2 * HeadFootSize;
       }
 
       if (tof)
+      {
+	if (Landscape)
+          *top = PagePrintWidth - PageTop;
+	else
+          *top = PagePrintLength - PageTop;
+
         *y = *top;
+      }
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
@@ -6581,11 +6589,14 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	  break;
 
       if (pos == 3)
-        *bottom = 0.0f;
+        PageBottom = 0.0f;
       else if (logo_height > HeadFootSize)
-        *bottom = logo_height + HeadFootSize;
+        PageBottom = logo_height + HeadFootSize;
       else
-        *bottom = 2 * HeadFootSize;
+        PageBottom = 2 * HeadFootSize;
+
+      if (tof)
+        *bottom = PageBottom;
     }
     else
       break;
@@ -10398,5 +10409,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.125 2001/11/09 20:42:35 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.126 2001/11/14 16:30:29 mike Exp $".
  */

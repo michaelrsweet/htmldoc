@@ -1,4 +1,4 @@
-CHANGES.txt - 11/09/2001
+CHANGES.txt - 11/14/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.17
@@ -8,6 +8,9 @@ CHANGES IN HTMLDOC v1.8.17
 
     CHANGES
 
+	- Made some changes in how COLSPAN and ROWSPAN are
+	  handled to better match how Netscape and MSIE format
+	  things.
 
     BUG FIXES
 
