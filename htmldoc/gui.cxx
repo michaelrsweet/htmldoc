@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.16 2001/07/21 23:54:31 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.17 2001/08/14 20:07:38 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -388,7 +388,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Input tab...
   //
 
-  inputTab = new Fl_Group(10, 35, 450, 245, "Input");
+  inputTab = new Fl_Group(10, 35, 450, 260, "Input");
 
   group = new Fl_Group(140, 45, 150, 20, "Document Type: ");
   group->align(FL_ALIGN_LEFT);
@@ -455,7 +455,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Output tab...
   //
 
-  outputTab = new Fl_Group(10, 35, 450, 245, "Output");
+  outputTab = new Fl_Group(10, 35, 450, 260, "Output");
   outputTab->hide();
 
   group = new Fl_Group(140, 45, 265, 20, "Output To: ");
@@ -558,7 +558,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Page tab...
   //
 
-  pageTab = new Fl_Group(10, 35, 450, 245, "Page");
+  pageTab = new Fl_Group(10, 35, 450, 260, "Page");
   pageTab->hide();
 
   pageSize = new Fl_Input(140, 45, 100, 25, "Page Size: ");
@@ -622,7 +622,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // TOC tab...
   //
 
-  tocTab = new Fl_Group(10, 35, 450, 245, "TOC");
+  tocTab = new Fl_Group(10, 35, 450, 260, "TOC");
   tocTab->hide();
 
   tocLevels = new Fl_Choice(140, 45, 100, 25, "Table of Contents: ");
@@ -676,7 +676,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Colors tab...
   //
 
-  colorsTab = new Fl_Group(10, 35, 450, 245, "Colors");
+  colorsTab = new Fl_Group(10, 35, 450, 260, "Colors");
   colorsTab->hide();
 
   bodyColor = new Fl_Input(140, 45, 100, 25, "Body Color: ");
@@ -718,7 +718,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Fonts tab...
   //
 
-  fontsTab = new Fl_Group(10, 35, 450, 245, "Fonts");
+  fontsTab = new Fl_Group(10, 35, 450, 260, "Fonts");
   fontsTab->hide();
 
   fontBaseSize = new Fl_Counter(200, 45, 150, 25, "Base Font Size: ");
@@ -767,7 +767,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // PostScript tab...
   //
 
-  psTab = new Fl_Group(10, 35, 450, 245, "PS");
+  psTab = new Fl_Group(10, 35, 450, 260, "PS");
   psTab->hide();
 
   psLevel = new Fl_Group(140, 45, 310, 20, "PostScript: ");
@@ -796,7 +796,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // PDF tab...
   //
 
-  pdfTab = new Fl_Group(10, 35, 450, 245, "PDF");
+  pdfTab = new Fl_Group(10, 35, 450, 260, "PDF");
   pdfTab->hide();
 
   pdfVersion = new Fl_Group(140, 45, 310, 40, "PDF Version: \n ");
@@ -871,7 +871,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Security tab...
   //
 
-  securityTab = new Fl_Group(10, 35, 450, 245, "Security");
+  securityTab = new Fl_Group(10, 35, 450, 260, "Security");
   securityTab->hide();
 
   encryption = new Fl_Group(140, 45, 310, 20, "Encryption: ");
@@ -910,7 +910,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Options tab...
   //
 
-  optionsTab = new Fl_Group(10, 35, 450, 245, "Options");
+  optionsTab = new Fl_Group(10, 35, 450, 260, "Options");
   optionsTab->hide();
 
   htmlEditor = new Fl_Input(140, 45, 215, 25, "HTML Editor: ");
@@ -3940,5 +3940,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.16 2001/07/21 23:54:31 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.17 2001/08/14 20:07:38 mike Exp $".
 //
