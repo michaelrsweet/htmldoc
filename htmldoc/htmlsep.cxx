@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.12 2004/05/19 15:31:47 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.13 2004/05/19 15:40:27 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -342,7 +342,7 @@ write_header(FILE   **out,	/* IO - Output file */
     if (heading < (num_headings - 1))
       fprintf(*out, "<A HREF=\"%s.html\">Next</A>\n", headings[heading + 1]);
 
-    fputs("<HR>\n", *out);
+    fputs("<HR NOSHADE>\n", *out);
   }
 }
 
@@ -358,7 +358,7 @@ write_footer(FILE **out,	/* IO - Output file pointer */
   if (*out == NULL)
     return;
 
-  fputs("<HR>\n", *out);
+  fputs("<HR NOSHADE>\n", *out);
 
   if (heading >= 0)
   {
@@ -1125,5 +1125,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.12 2004/05/19 15:31:47 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.13 2004/05/19 15:40:27 mike Exp $".
 //
