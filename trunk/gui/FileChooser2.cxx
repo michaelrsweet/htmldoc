@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.13 1999/04/29 13:12:18 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.14 1999/04/29 19:26:48 mike Exp $"
 //
 //   More FileChooser routines for the Common UNIX Printing System (CUPS).
 //
@@ -23,8 +23,6 @@
 //
 // Contents:
 //
-//   FileChooser::init_icons() - Initialize the default icons used by the
-//                               FileChooser widget.
 //   FileChooser::directory()  - Set the directory in the file chooser.
 //   FileChooser::count()      - Return the number of selected files.
 //   FileChooser::value()      - Return a selected filename.
@@ -57,59 +55,6 @@
 #else
 #  include <unistd.h>
 #endif /* WIN32 || __EMX__ */
-
-
-//
-// 'FileChooser::init_icons()' - Initialize the default icons used by the
-//                               FileChooser widget.
-//
-
-void
-FileChooser::init_icons()
-{
-  static int	init = 0;	// Have the icons been initialized?
-  static short	plain[] =	// Plain file icon
-		{
-		  1, 39, 4, 6, 3883, 22, 6, 2200, 912, 6, 6055, 2878,
-		  6, 7782, 2020, 0, 1, 256, 5, 0, 6, 2200, 1987, 6,
-		  2200, 7950, 6, 6001, 9893, 6, 6001, 3920, 0, 5, 0, 6,
-		  3069, 1553, 6, 3069, 7483, 6, 6870, 9459, 6, 6870,
-		  3497, 0, 5, 0, 6, 3959, 1151, 6, 3959, 7048, 6, 7739,
-		  8992, 6, 7739, 3084,
-		  FileIcon::END
-		};
-  static short	dir[] =		// Directory icon
-		{
-		  1, 256, 5, 256, 6, 2842, 7300, 6, 2683, 6823, 6,
-		  4525, 7767, 6, 4366, 8176, 0, 5, 256, 6, 7697, 4185,
-		  6, 7282, 3977, 6, 7320, 8660, 6, 7697, 8847, 0, 5,
-		  256, 6, 7282, 3977, 6, 2114, 1387, 6, 1727, 1581, 6,
-		  1727, 6322, 6, 2683, 6823, 6, 4525, 7767, 6, 7322,
-		  9165, 0, 1, 39, 4, 6, 2637, 0, 6, 1500, 569, 6, 7186,
-		  3411, 6, 8323, 2843, 0, 1, 0, 3, 6, 7282, 3977, 6,
-		  2114, 1387, 6, 2114, 6050, 6, 2944, 6482, 6, 3149,
-		  6106, 6, 4707, 6880, 6, 4764, 7391, 6, 7697, 8847, 6,
-		  7697, 4185, 0, 2, 6, 2114, 1387, 6, 1727, 1581, 6,
-		  1727, 6322, 6, 2683, 6823, 6, 2842, 7300, 6, 4366,
-		  8176, 6, 4525, 7767, 6, 7322, 9165, 6, 7320, 8660,
-		  FileIcon::END
-		};
-
-
-  //
-  // Add symbols if they haven't been already...
-  //
-
-  if (!init)
-  {
-    // Mark things as initialized...
-    init = 1;
-
-    // Create the default icons...
-    new FileIcon("*", FileIcon::PLAIN, sizeof(plain) / sizeof(plain[0]), plain);
-    new FileIcon("*", FileIcon::DIRECTORY, sizeof(dir) / sizeof(dir[0]), dir);
-  }
-}
 
 
 //
@@ -210,6 +155,15 @@ FileChooser::count()
     // Check to see if the file name input field is blank...
     filename = fileName->value();
     if (filename == NULL || filename[0] == '\0')
+      return (0);
+
+    // Is the file name a directory?
+    if (directory_[0] != '\0')
+      sprintf(pathname, "%s/%s", directory_, filename);
+    else
+      strcpy(pathname, filename);
+
+    if (filename_isdir(pathname))
       return (0);
     else
       return (1);
@@ -451,10 +405,12 @@ FileChooser::fileListCB()
     else
       window->hide();
   }
-  else if (!filename_isdir(pathname))
+  else
   {
     fileName->value(filename);
-    okButton->activate();
+
+    if (!filename_isdir(pathname))
+      okButton->activate();
   }
 }
 
@@ -630,10 +586,19 @@ FileChooser::fileNameCB()
       else
         fileName->position(min_match, max_match);
     }
+
+    // See if we need to enable the OK button...
+    sprintf(pathname, "%s/%s", directory_, fileName->value());
+
+    if ((type_ == CREATE || access(pathname, 0) == 0) &&
+        !filename_isdir(pathname))
+      okButton->activate();
+    else
+      okButton->deactivate();
   }
 }
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.13 1999/04/29 13:12:18 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.14 1999/04/29 19:26:48 mike Exp $".
 //

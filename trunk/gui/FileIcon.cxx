@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.5 1999/04/29 01:34:37 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.6 1999/04/29 19:26:49 mike Exp $"
 //
 //   FileIcon routines for the Common UNIX Printing System (CUPS).
 //
@@ -66,7 +66,7 @@
 // Icon cache...
 //
 
-FileIcon	*FileIcon::_first = (FileIcon *)0;
+FileIcon	*FileIcon::first_ = (FileIcon *)0;
 
 
 //
@@ -79,26 +79,26 @@ FileIcon::FileIcon(const char *p,	/* I - Filename pattern */
 		   short      *d)	/* I - Data values */
 {
   // Initialize the pattern and type...
-  _pattern = p;
-  _type    = t;
+  pattern_ = p;
+  type_    = t;
 
   // Copy icon data as needed...
   if (nd)
   {
-    _num_data   = nd;
-    _alloc_data = nd + 1;
-    _data       = (short *)calloc(sizeof(short), nd + 1);
-    memcpy(_data, d, nd * sizeof(short));
+    num_data_   = nd;
+    alloc_data_ = nd + 1;
+    data_       = (short *)calloc(sizeof(short), nd + 1);
+    memcpy(data_, d, nd * sizeof(short));
   }
   else
   {
-    _num_data   = 0;
-    _alloc_data = 0;
+    num_data_   = 0;
+    alloc_data_ = 0;
   }
 
   // And add the icon to the list of icons...
-  _next  = _first;
-  _first = this;
+  next_  = first_;
+  first_ = this;
 }
 
 
@@ -113,22 +113,22 @@ FileIcon::~FileIcon()
 
 
   // Find the icon in the list...
-  for (current = _first, prev = (FileIcon *)0;
+  for (current = first_, prev = (FileIcon *)0;
        current != this && current != (FileIcon *)0;
-       prev = current, current = current->_next);
+       prev = current, current = current->next_);
 
   // Remove the icon from the list as needed...
   if (current)
   {
     if (prev)
-      prev->_next = current->_next;
+      prev->next_ = current->next_;
     else
-      _first = current->_next;
+      first_ = current->next_;
   }
 
   // Free any memory used...
-  if (_alloc_data)
-    free(_data);
+  if (alloc_data_)
+    free(data_);
 }
 
 
@@ -143,26 +143,26 @@ FileIcon::add(short d)	// I - Data to add
 
 
   // Allocate/reallocate memory as needed
-  if ((_num_data + 1) >= _alloc_data)
+  if ((num_data_ + 1) >= alloc_data_)
   {
-    _alloc_data += 128;
+    alloc_data_ += 128;
 
-    if (_alloc_data == 128)
-      dptr = (short *)malloc(sizeof(short) * _alloc_data);
+    if (alloc_data_ == 128)
+      dptr = (short *)malloc(sizeof(short) * alloc_data_);
     else
-      dptr = (short *)realloc(_data, sizeof(short) * _alloc_data);
+      dptr = (short *)realloc(data_, sizeof(short) * alloc_data_);
 
     if (dptr == NULL)
       return (NULL);
 
-    _data = dptr;
+    data_ = dptr;
   }
 
   // Store the new data value and return
-  _data[_num_data++] = d;
-  _data[_num_data]   = END;
+  data_[num_data_++] = d;
+  data_[num_data_]   = END;
 
-  return (_data + _num_data - 1);
+  return (data_ + num_data_ - 1);
 }
 
 
@@ -202,9 +202,9 @@ FileIcon::find(const char *filename,	// I - Name of file */
 
   // Loop through the available file types and return any match that
   // is found...
-  for (current = _first; current != (FileIcon *)0; current = current->_next)
-    if ((current->_type == filetype || current->_type == ANY) &&
-        filename_match(filename, current->_pattern))
+  for (current = first_; current != (FileIcon *)0; current = current->next_)
+    if ((current->type_ == filetype || current->type_ == ANY) &&
+        filename_match(filename, current->pattern_))
       break;
 
   // Return the match (if any)...
@@ -217,18 +217,31 @@ FileIcon::find(const char *filename,	// I - Name of file */
 //
 
 void
-FileIcon::draw(Fl_Color ic,	// I - Icon color...
-               short *d)	// I - Data to draw...
+FileIcon::draw(int      x,	// I - Upper-lefthand X
+               int      y,	// I - Upper-lefthand Y
+	       int      w,	// I - Width of bounding box
+	       int	h,	// I - Height of bounding box
+               Fl_Color ic)	// I - Icon color...
 {
   Fl_Color	c;		// Current color
+  short		*d;		// Pointer to data
   short		*prim;		// Pointer to start of primitive...
-
+  double	scale;		// Scale of icon
 
   // Don't try to draw a NULL array!
-  if (d == NULL)
+  if (num_data_ == NULL)
     return;
 
+  // Setup the transform matrix as needed...
+  scale = w < h ? w : h;
+
+  fl_push_matrix();
+  fl_translate((float)x + 0.5 * ((float)w - scale),
+               (float)y + 0.5 * ((float)h + scale));
+  fl_scale(scale, -scale);
+
   // Loop through the array until we see an unmatched END...
+  d    = data_;
   prim = NULL;
   c    = ic;
   fl_color(c);
@@ -352,6 +365,9 @@ FileIcon::draw(Fl_Color ic,	// I - Icon color...
 	  fl_color(c);
 	  break;
     }
+
+  // Restore the transform matrix
+  fl_pop_matrix();
 }
 
 
@@ -532,12 +548,63 @@ FileIcon::load(const char *fti)	// File to read from
 
 #ifdef DEBUG
   printf("Icon File \"%s\":\n", fti);
-  for (int i = 0; i < _num_data; i ++)
-    printf("    %d,\n", _data[i]);
+  for (int i = 0; i < num_data_; i ++)
+    printf("    %d,\n", data_[i]);
 #endif /* DEBUG */
 }
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.5 1999/04/29 01:34:37 mike Exp $".
+// 'FileIcon::load_system_icons()' - Load the standard system icons/filetypes.
+
+void
+FileIcon::load_system_icons(void)
+{
+  static int	init = 0;	// Have the icons been initialized?
+  static short	plain[] =	// Plain file icon
+		{
+		  1, 39, 4, 6, 3883, 22, 6, 2200, 912, 6, 6055, 2878,
+		  6, 7782, 2020, 0, 1, 256, 5, 0, 6, 2200, 1987, 6,
+		  2200, 7950, 6, 6001, 9893, 6, 6001, 3920, 0, 5, 0, 6,
+		  3069, 1553, 6, 3069, 7483, 6, 6870, 9459, 6, 6870,
+		  3497, 0, 5, 0, 6, 3959, 1151, 6, 3959, 7048, 6, 7739,
+		  8992, 6, 7739, 3084,
+		  FileIcon::END
+		};
+  static short	dir[] =		// Directory icon
+		{
+		  1, 256, 5, 256, 6, 2842, 7300, 6, 2683, 6823, 6,
+		  4525, 7767, 6, 4366, 8176, 0, 5, 256, 6, 7697, 4185,
+		  6, 7282, 3977, 6, 7320, 8660, 6, 7697, 8847, 0, 5,
+		  256, 6, 7282, 3977, 6, 2114, 1387, 6, 1727, 1581, 6,
+		  1727, 6322, 6, 2683, 6823, 6, 4525, 7767, 6, 7322,
+		  9165, 0, 1, 39, 4, 6, 2637, 0, 6, 1500, 569, 6, 7186,
+		  3411, 6, 8323, 2843, 0, 1, 0, 3, 6, 7282, 3977, 6,
+		  2114, 1387, 6, 2114, 6050, 6, 2944, 6482, 6, 3149,
+		  6106, 6, 4707, 6880, 6, 4764, 7391, 6, 7697, 8847, 6,
+		  7697, 4185, 0, 2, 6, 2114, 1387, 6, 1727, 1581, 6,
+		  1727, 6322, 6, 2683, 6823, 6, 2842, 7300, 6, 4366,
+		  8176, 6, 4525, 7767, 6, 7322, 9165, 6, 7320, 8660,
+		  FileIcon::END
+		};
+
+
+  //
+  // Add symbols if they haven't been already...
+  //
+
+  if (!init)
+  {
+    // Mark things as initialized...
+    init = 1;
+
+    // Create the default icons...
+    new FileIcon("*", FileIcon::PLAIN, sizeof(plain) / sizeof(plain[0]), plain);
+    new FileIcon("*", FileIcon::DIRECTORY, sizeof(dir) / sizeof(dir[0]), dir);
+  }
+}
+
+
+//
+// End of "$Id: FileIcon.cxx,v 1.6 1999/04/29 19:26:49 mike Exp $".
 //

@@ -5,7 +5,7 @@ code_name {.cxx}
 gridx 5 
 gridy 5 
 snap 3
-class FileChooser {open
+class FileChooser {open selected
 } {
   decl {enum { SINGLE, MULTI, CREATE };} {public
   }
@@ -33,7 +33,7 @@ window->hide();}
       }
       Fl_Return_Button okButton {
         label OK
-        callback {window->hide();} selected
+        callback {window->hide();}
         private xywh {240 280 55 25}
       }
       Fl_Input fileName {
@@ -71,7 +71,6 @@ rescan();}
       }
     }
     code {window->size_range(345, 270, 345);
-init_icons();
 fileList->filter(p);
 type(t);
 value(d);} {}
@@ -80,7 +79,6 @@ value(d);} {}
   decl {int type_;} {}
   decl {void fileListCB();} {}
   decl {void fileNameCB();} {}
-  decl {void init_icons();} {}
   decl {void newdir();} {}
   decl {void rescan();} {public
   }

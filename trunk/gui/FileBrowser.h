@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.h,v 1.6 1999/04/29 01:34:36 mike Exp $"
+// "$Id: FileBrowser.h,v 1.7 1999/04/29 19:26:48 mike Exp $"
 //
 //   FileBrowser definitions for the Common UNIX Printing System (CUPS).
 //
@@ -39,24 +39,33 @@
 
 class FileBrowser : public Fl_Browser
 {
-  int		item_height(void *) const { return ((int)(textsize() * 1.5 + 2)); };
+  const char	*directory_;
+  uchar		iconsize_;
+  const char	*pattern_;
+
+  int		item_height(void *) const;
   int		item_width(void *) const;
   void		item_draw(void *, int, int, int, int) const;
-  int		full_height() const { return (size() * item_height(0)); }
   int		incr_height() const { return (item_height(0)); }
-  const char	*pattern_;
-  const char	*directory_;
 
 public:
   FileBrowser(int, int, int, int, const char * = 0);
 
-  int		load(const char *directory);
+  uchar		iconsize() const { return (iconsize_); };
+  void		iconsize(uchar s) { iconsize_ = s; redraw(); };
+
   void		filter(const char *pattern);
   const char	*filter() const { return (pattern_); };
+
+  int		load(const char *directory);
+
+  uchar		textsize() const { return (Fl_Browser::textsize()); };
+  void		textsize(uchar s) { Fl_Browser::textsize(s); iconsize_ = 3 * s / 2; };
+
 };
 
 #endif // !_GUI_FILEBROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.6 1999/04/29 01:34:36 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.7 1999/04/29 19:26:48 mike Exp $".
 //
