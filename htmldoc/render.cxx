@@ -1,5 +1,5 @@
 /*
- * "$Id: render.cxx,v 1.14.2.1 2004/03/22 03:15:03 mike Exp $"
+ * "$Id: render.cxx,v 1.14.2.2 2004/03/22 15:31:42 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -51,44 +51,89 @@
 
 
 /*
- * 'hdRender::hdRender()' - Export PostScript/PDF file(s)...
+ * 'pspdf_export()' - Export to PS/PDF.
  */
 
-hdRender::hdRender(tree_t *document,	/* I - Document to export */
-                   tree_t *toc)		/* I - Table of contents for document */
+int
+pspdf_export(tree_t *document, tree_t *toc)
 {
-  int		i, j;		/* Looping vars */
-  const char	*title_file;	/* Location of title image/file */
-  uchar		*author,	/* Author of document */
-		*creator,	/* HTML file creator (Netscape, etc) */
-		*copyright,	/* File copyright */
-		*docnumber,	/* Document number */
-		*keywords,	/* Search keywords */
-		*subject;	/* Subject */
-  tree_t	*t;		/* Title page document tree */
-  FILE		*fp;		/* Title page file */
-  float		x, y,		/* Current page position */
-		bottom, top,	/* Bottom and top margins */
-		width,		/* Width of , author, etc */
-		height;		/* Height of  area */
-  hdMargin	*margins;	/* Margins */
-  int		pos,		/* Current header/footer position */
-		page,		/* Current page # */
-		heading,	/* Current heading # */
-		toc_duplex,	/* Duplex TOC pages? */
-		toc_landscape,	/* Do TOC in landscape? */
-		toc_width,	/* Width of TOC pages */
-		toc_length,	/* Length of TOC pages */
-		toc_left,	/* TOC page margins */
+  hdRender	*render;
+  int		status;
+
+
+  render = new hdRender();
+  status = render->export_doc(document, toc);
+  delete render;
+
+  return (status);
+}
+
+
+/*
+ * 'hdRender::hdRender()' - Create a rendering instance...
+ */
+
+hdRender::hdRender()
+{
+  background_color[0] = 1.0f;
+  background_color[1] = 1.0f;
+  background_color[2] = 1.0f;
+  background_image    = NULL;
+  link_color[0]       = 0.0f;
+  link_color[1]       = 0.0f;
+  link_color[2]       = 1.0f;
+}
+
+
+/*
+ * 'hdRender::~hdRender()' - Destroy a rendering instance...
+ */
+
+hdRender::~hdRender()
+{
+}
+
+
+/*
+ * 'hdRender::export_doc()' - Export PostScript/PDF file(s)...
+ */
+
+int
+hdRender::export_doc(tree_t *document,	/* I - Document to export */
+                     tree_t *toc)	/* I - Table of contents for document */
+{
+  int		i, j;			/* Looping vars */
+  const char	*title_file;		/* Location of title image/file */
+  uchar		*author,		/* Author of document */
+		*creator,		/* HTML file creator (Netscape, etc) */
+		*copyright,		/* File copyright */
+		*docnumber,		/* Document number */
+		*keywords,		/* Search keywords */
+		*subject;		/* Subject */
+  tree_t	*t;			/* Title page document tree */
+  FILE		*fp;			/* Title page file */
+  float		x, y,			/* Current page position */
+		bottom, top,		/* Bottom and top margins */
+		width,			/* Width of , author, etc */
+		height;			/* Height of  area */
+  hdMargin	*margins;		/* Margins */
+  int		pos,			/* Current header/footer position */
+		page,			/* Current page # */
+		heading,		/* Current heading # */
+		toc_duplex,		/* Duplex TOC pages? */
+		toc_landscape,		/* Do TOC in landscape? */
+		toc_width,		/* Width of TOC pages */
+		toc_length,		/* Length of TOC pages */
+		toc_left,		/* TOC page margins */
 		toc_right,
 		toc_bottom,
 		toc_top;
-  image_t	*timage;	/* Title image */
-  float		timage_width,	/* Title image width */
-		timage_height;	/* Title image height */
-  hdRenderNode	*r;		/* Rendering structure... */
-  float		rgb[3];		/* Text color */
-  int		needspace;	/* Need whitespace */
+  image_t	*timage;		/* Title image */
+  float		timage_width,		/* Title image width */
+		timage_height;		/* Title image height */
+  hdRenderNode	*r;			/* Rendering structure... */
+  float		rgb[3];			/* Text color */
+  int		needspace;		/* Need whitespace */
 
 
  /*
@@ -212,7 +257,7 @@ hdRender::hdRender(tree_t *document,	/* I - Document to export */
       {
 	progress_error(HD_ERROR_FILE_NOT_FOUND,
 	               "Unable to find title file \"%s\"!", TitleImage);
-	return;
+	return (1);
       }
 
       // Write a title page from HTML source...
@@ -221,7 +266,7 @@ hdRender::hdRender(tree_t *document,	/* I - Document to export */
 	progress_error(HD_ERROR_FILE_NOT_FOUND,
 	               "Unable to open title file \"%s\" - %s!",
                        TitleImage, strerror(errno));
-	return;
+	return (1);
       }
 
       t = htmlReadFile(NULL, fp, file_directory(TitleImage));
@@ -589,6 +634,8 @@ hdRender::hdRender(tree_t *document,	/* I - Document to export */
     heading_pages  = NULL;
     heading_tops   = NULL;
   }
+
+  return (0);
 }
 
 
@@ -8081,8 +8128,7 @@ hdRender::add_link(uchar *name,		/* I - Name of link */
     temp = links + num_links;
     num_links ++;
 
-    strncpy((char *)temp->name, (char *)name, sizeof(temp->name) - 1);
-    temp->name[sizeof(temp->name) - 1] = '\0';
+    temp->name = (uchar *)strdup((char *)name);
     temp->page = page;
     temp->top  = top;
 
@@ -8110,10 +8156,9 @@ hdRender::find_link(uchar *name)	/* I - Name to find */
   if (name[0] == '#')
     name ++;
 
-  strncpy((char *)key.name, (char *)name, sizeof(key.name) - 1);
-  key.name[sizeof(key.name) - 1] = '\0';
-  match = (hdRenderLink *)bsearch(&key, links, num_links, sizeof(hdRenderLink),
-                            (hdCompareFunc)compare_links);
+  key.name = name;
+  match    = (hdRenderLink *)bsearch(&key, links, num_links, sizeof(hdRenderLink),
+                                     (hdCompareFunc)compare_links);
 
   return (match);
 }
@@ -11943,5 +11988,5 @@ hdRender::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: render.cxx,v 1.14.2.1 2004/03/22 03:15:03 mike Exp $".
+ * End of "$Id: render.cxx,v 1.14.2.2 2004/03/22 15:31:42 mike Exp $".
  */
