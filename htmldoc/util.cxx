@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.11 2002/05/07 23:30:49 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.12 2002/06/04 14:52:13 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -418,6 +418,25 @@ set_page_size(const char *size)	/* I - Page size string */
     PageWidth  = 612;
     PageLength = 792;
   }
+  else if (strcasecmp(size, "legal") == 0)
+  {
+   /*
+    * US Legal - 8.5x14 inches (216x356mm).
+    */
+
+    PageWidth  = 612;
+    PageLength = 1008;
+  }
+  else if (strcasecmp(size, "tabloid") == 0 ||
+           strcasecmp(size, "b") == 0)
+  {
+   /*
+    * US Tabloid - 11x17 inches (279x432mm).
+    */
+
+    PageWidth  = 792;
+    PageLength = 1214;
+  }
   else if (strcasecmp(size, "a4") == 0)
   {
    /*
@@ -426,6 +445,15 @@ set_page_size(const char *size)	/* I - Page size string */
 
     PageWidth  = 595;
     PageLength = 842;
+  }
+  else if (strcasecmp(size, "a3") == 0)
+  {
+   /*
+    * European standard A3 - 297x420mm (11.69x16.54 inches).
+    */
+
+    PageWidth  = 842;
+    PageLength = 1190;
   }
   else if (strcasecmp(size, "universal") == 0)
   {
@@ -467,5 +495,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.11 2002/05/07 23:30:49 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.12 2002/06/04 14:52:13 mike Exp $".
  */
