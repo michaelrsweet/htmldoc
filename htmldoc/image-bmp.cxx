@@ -1,5 +1,5 @@
 //
-// "$Id: image-bmp.cxx,v 1.1 2001/10/30 14:26:03 mike Exp $"
+// "$Id: image-bmp.cxx,v 1.2 2001/12/17 01:46:18 mike Exp $"
 //
 // BMP image handling routines for HTMLDOC.
 //
@@ -46,21 +46,46 @@
 // Local functions...
 //
 
-static int		read_long(FILE *fp);
-static unsigned short	read_word(FILE *fp);
-static unsigned int	read_dword(FILE *fp);
+static int		read_long(hdFile *fp);
+static unsigned short	read_word(hdFile *fp);
+static unsigned int	read_dword(hdFile *fp);
+
+
+//
+// 'hdBMPImage::hdBMPImage()' - Create a new BMP image.
+//
+
+hdBMPImage::hdBMPImage(const char *p,	// I - URI for image
+                       int        gs)	// I - Load as grayscale?
+{
+  uri(p);
+
+  real_load(0, gs);
+}
 
 
 //
 // 'hdBMPImage::load()' - Read a BMP image file.
 //
 
-bool			// O - 0 = success, -1 = fail
+int					// O - 0 = success, -1 = fail
 hdBMPImage::load()
 {
-#if 0
+  return (real_load(1, depth() == 1));
+}
+
+
+//
+// 'hdBMPImage::read_load()' - Really read a BMP image file...
+//
+
+int				// O - 0 = success, -1 = fail
+hdBMPImage::real_load(int img,	// I - Load image data?
+                      int gs)	// I - Load as grayscale?
+{
+  hdFile	*fp;		// File pointer
   int		info_size,	// Size of info header
-		depth,		// Depth of image (bits)
+		w, h, d,	// Size of image (pixels/bits)
 		compression,	// Type of compression
 		colors_used,	// Number of colors used
 		x, y,		// Looping vars
@@ -74,54 +99,59 @@ hdBMPImage::load()
   uchar		colormap[256][4];// Colormap
 
 
+  // Open the file if possible...
+  if ((fp = hdFile::open(uri(), HD_FILE_READ)) == NULL)
+    return (-1);
+
   // Get the header...
-  getc(fp);			// Skip "BM" sync chars
-  getc(fp);
+  fp->get();			// Skip "BM" sync chars
+  fp->get();
   read_dword(fp);		// Skip size
   read_word(fp);		// Skip reserved stuff
   read_word(fp);
   read_dword(fp);
 
   // Then the bitmap information...
-  info_size        = read_dword(fp);
-  img->width       = read_long(fp);
-  img->height      = read_long(fp);
-  read_word(fp);
-  depth            = read_word(fp);
-  compression      = read_dword(fp);
-  read_dword(fp);
-  read_long(fp);
-  read_long(fp);
-  colors_used      = read_dword(fp);
-  read_dword(fp);
+  info_size   = read_dword(fp);
+  w           = read_long(fp);
+  h           = read_long(fp);
+  /* skip */    read_word(fp);
+  d           = read_word(fp);
+  compression = read_dword(fp);
+  /* skip */    read_dword(fp);
+  /* skip */    read_long(fp);
+  /* skip */    read_long(fp);
+  colors_used = read_dword(fp);
+  /* skip */    read_dword(fp);
 
   if (info_size > 40)
     for (info_size -= 40; info_size > 0; info_size --)
-      getc(fp);
+      fp->get();
 
   // Get colormap...
-  if (colors_used == 0 && depth <= 8)
-    colors_used = 1 << depth;
+  if (colors_used == 0 && d <= 8)
+    colors_used = 1 << d;
 
-  fread(colormap, colors_used, 4, fp);
+  fp->read(colormap, colors_used * 4);
 
   // Setup image and buffers...
-  img->depth  = gray ? 1 : 3;
+  set_size(w, h, gs ? 1 : 3);
 
-  if (!load_data)
+  if (!img)
+  {
+    delete fp;
     return (0);
+  }
 
-  img->pixels = (uchar//)malloc(img->width// img->height// img->depth);
-  if (img->pixels == NULL)
-    return (-1);
+  alloc_pixels();
 
-  if (gray && depth <= 8)
+  if (gs && d <= 8)
   {
     // Convert colormap to grayscale...
     for (color = colors_used - 1; color >= 0; color --)
-      colormap[color][0] = (colormap[color][2]// 31 +
-                            colormap[color][1]// 61 +
-                            colormap[color][0]// 8) / 100;
+      colormap[color][0] = (colormap[color][2] * 31 +
+                            colormap[color][1] * 61 +
+                            colormap[color][0] * 8) / 100;
   }
 
   // Read the image data...
@@ -131,37 +161,37 @@ hdBMPImage::load()
   byte  = 0;
   temp  = 0;
 
-  for (y = img->height - 1; y >= 0; y --)
+  for (y = height() - 1; y >= 0; y --)
   {
-    ptr = img->pixels + y// img->width// img->depth;
+    ptr = pixels() + y * width() * depth();
 
-    switch (depth)
+    switch (d)
     {
       case 1 : // Bitmap
-          for (x = img->width, bit = 128; x > 0; x --)
+          for (x = width(), bit = 128; x > 0; x --)
 	  {
 	    if (bit == 128)
-	      byte = getc(fp);
+	      byte = fp->get();
 
 	    if (byte & bit)
 	    {
-	      if (!gray)
+	      if (!gs)
 	      {
 		*ptr++ = colormap[1][2];
 		*ptr++ = colormap[1][1];
               }
 
-	     //ptr++ = colormap[1][0];
+	      *ptr++ = colormap[1][0];
 	    }
 	    else
 	    {
-	      if (!gray)
+	      if (!gs)
 	      {
 		*ptr++ = colormap[0][2];
 		*ptr++ = colormap[0][1];
 	      }
 
-	     //ptr++ = colormap[0][0];
+	      *ptr++ = colormap[0][0];
 	    }
 
 	    if (bit > 1)
@@ -170,21 +200,15 @@ hdBMPImage::load()
 	      bit = 128;
 	  }
 
-         
-	 // Read remaining bytes to align to 32 bits...
-	 
-
-	  for (temp = (img->width + 7) / 8; temp & 3; temp ++)
-	    getc(fp);
+          // Read remaining bytes to align to 32 bits...
+	  for (temp = (width() + 7) / 8; temp & 3; temp ++)
+	    fp->get();
           break;
 
       case 4 : // 16-color
-          for (x = img->width, bit = 0xf0; x > 0; x --)
+          for (x = width(), bit = 0xf0; x > 0; x --)
 	  {
-	   
-	   // Get a new count as needed...
-	   
-
+	    // Get a new count as needed...
             if (compression != BI_RLE4 && count == 0)
 	    {
 	      count = 2;
@@ -196,102 +220,78 @@ hdBMPImage::load()
 	      while (align > 0)
 	      {
 	        align --;
-		getc(fp);
+		fp->get();
               }
 
-	      if ((count = getc(fp)) == 0)
+	      if ((count = fp->get()) == 0)
 	      {
-		if ((count = getc(fp)) == 0)
+		if ((count = fp->get()) == 0)
 		{
-		 
-		 // End of line...
-		 
-
+		  // End of line...
                   x ++;
 		  continue;
 		}
 		else if (count == 1)
 		{
-		 
-		 // End of image...
-		 
-
+		  // End of image...
 		  break;
 		}
 		else if (count == 2)
 		{
-		 
-		 // Delta...
-		 
-
-		  count = getc(fp)// getc(fp)// img->width;
+		  // Delta...
+		  count = fp->get() * fp->get() * width();
 		  color = 0;
 		}
 		else
 		{
-		 
-		 // Absolute...
-		 
-
+		  // Absolute...
 		  color = -1;
 		  align = ((4 - (count & 3)) / 2) & 1;
 		}
 	      }
 	      else
-	        color = getc(fp);
+	        color = fp->get();
             }
 
-           
-	   // Get a new color as needed...
-	   
-
+	    // Get a new color as needed...
 	    count --;
 
             if (bit == 0xf0)
 	    {
               if (color < 0)
-		temp = getc(fp);
+		temp = fp->get();
 	      else
 		temp = color;
 
-             
-	     // Copy the color value...
-	     
-
-              if (!gray)
+	      // Copy the color value...
+              if (!gs)
 	      {
 		*ptr++ = colormap[temp >> 4][2];
 		*ptr++ = colormap[temp >> 4][1];
               }
 
-	     //ptr++ = colormap[temp >> 4][0];
+	      *ptr++ = colormap[temp >> 4][0];
 	      bit    = 0x0f;
             }
 	    else
 	    {
-             
-	     // Copy the color value...
-	     
-
-	      if (!gray)
+	      // Copy the color value...
+	      if (!gs)
 	      {
-	       //ptr++ = colormap[temp & 15][2];
-	       //ptr++ = colormap[temp & 15][1];
+	        *ptr++ = colormap[temp & 15][2];
+	        *ptr++ = colormap[temp & 15][1];
 	      }
 
-	     //ptr++ = colormap[temp & 15][0];
+	      *ptr++ = colormap[temp & 15][0];
 	      bit    = 0xf0;
 	    }
 	  }
           break;
 
       case 8 : // 256-color
-          for (x = img->width; x > 0; x --)
+          for (x = width(); x > 0; x --)
 	  {
-	   
-	   // Get a new count as needed...
-	   
-
+	    // Get a new count as needed...
             if (compression != BI_RLE8)
 	    {
 	      count = 1;
@@ -303,109 +303,90 @@ hdBMPImage::load()
 	      while (align > 0)
 	      {
 	        align --;
-		getc(fp);
+		fp->get();
               }
 
-	      if ((count = getc(fp)) == 0)
+	      if ((count = fp->get()) == 0)
 	      {
-		if ((count = getc(fp)) == 0)
+		if ((count = fp->get()) == 0)
 		{
-		 
-		 // End of line...
-		 
-
+		  // End of line...
                   x ++;
 		  continue;
 		}
 		else if (count == 1)
 		{
-		 
-		 // End of image...
-		 
-
+		  // End of image...
 		  break;
 		}
 		else if (count == 2)
 		{
-		 
-		 // Delta...
-		 
-
-		  count = getc(fp)// getc(fp)// img->width;
+		  // Delta...
+		  count = fp->get() * fp->get() * width();
 		  color = 0;
 		}
 		else
 		{
-		 
-		 // Absolute...
-		 
-
+		  // Absolute...
 		  color = -1;
 		  align = (2 - (count & 1)) & 1;
 		}
 	      }
 	      else
-	        color = getc(fp);
+	        color = fp->get();
             }
 
-           
-	   // Get a new color as needed...
-	   
-
+	    // Get a new color as needed...
             if (color < 0)
-	      temp = getc(fp);
+	      temp = fp->get();
 	    else
 	      temp = color;
 
             count --;
 
-           
-	   // Copy the color value...
-	   
-
-            if (!gray)
+	    // Copy the color value...
+            if (!gs)
 	    {
-	     //ptr++ = colormap[temp][2];
-	     //ptr++ = colormap[temp][1];
+	      *ptr++ = colormap[temp][2];
+	      *ptr++ = colormap[temp][1];
 	    }
 
-	   //ptr++ = colormap[temp][0];
+	    *ptr++ = colormap[temp][0];
 	  }
           break;
 
       case 24 : // 24-bit RGB
-          if (gray)
+          if (gs)
 	  {
-            for (x = img->width; x > 0; x --)
+            for (x = width(); x > 0; x --)
 	    {
-	      temp = getc(fp)// 8;
-	      temp += getc(fp)// 61;
-	      temp += getc(fp)// 31;
-	     //ptr++ = temp / 100;
+	      temp = fp->get() * 8;
+	      temp += fp->get() * 61;
+	      temp += fp->get() * 31;
+	      *ptr++ = temp / 100;
 	    }
 	  }
 	  else
 	  {
-            for (x = img->width; x > 0; x --, ptr += 3)
+            for (x = width(); x > 0; x --, ptr += 3)
 	    {
-	      ptr[2] = getc(fp);
-	      ptr[1] = getc(fp);
-	      ptr[0] = getc(fp);
+	      ptr[2] = fp->get();
+	      ptr[1] = fp->get();
+	      ptr[0] = fp->get();
 	    }
           }
 
-         
-	 // Read remaining bytes to align to 32 bits...
-	 
-
-	  for (temp = img->width// 3; temp & 3; temp ++)
-	    getc(fp);
+	  // Read remaining bytes to align to 32 bits...
+	  for (temp = width() * 3; temp & 3; temp ++)
+	    fp->get();
           break;
     }
   }
 
-#endif // 0
-  return (true);
+  // Close the file and return...
+  delete fp;
+
+  return (0);
 }
 
 
@@ -414,13 +395,13 @@ hdBMPImage::load()
 //
 
 static unsigned short		// O - 16-bit unsigned integer
-read_word(FILE *fp)		// I - File to read from
+read_word(hdFile *fp)		// I - File to read from
 {
   unsigned char b0, b1;		// Bytes from file
 
 
-  b0 = getc(fp);
-  b1 = getc(fp);
+  b0 = fp->get();
+  b1 = fp->get();
 
   return ((b1 << 8) | b0);
 }
@@ -431,15 +412,15 @@ read_word(FILE *fp)		// I - File to read from
 //
 
 static unsigned int		// O - 32-bit unsigned integer
-read_dword(FILE *fp)		// I - File to read from
+read_dword(hdFile *fp)		// I - File to read from
 {
   unsigned char b0, b1, b2, b3;	// Bytes from file
 
 
-  b0 = getc(fp);
-  b1 = getc(fp);
-  b2 = getc(fp);
-  b3 = getc(fp);
+  b0 = fp->get();
+  b1 = fp->get();
+  b2 = fp->get();
+  b3 = fp->get();
 
   return ((((((b3 << 8) | b2) << 8) | b1) << 8) | b0);
 }
@@ -450,20 +431,20 @@ read_dword(FILE *fp)		// I - File to read from
 //
 
 static int			// O - 32-bit signed integer
-read_long(FILE *fp)		// I - File to read from
+read_long(hdFile *fp)		// I - File to read from
 {
   unsigned char b0, b1, b2, b3;	// Bytes from file
 
 
-  b0 = getc(fp);
-  b1 = getc(fp);
-  b2 = getc(fp);
-  b3 = getc(fp);
+  b0 = fp->get();
+  b1 = fp->get();
+  b2 = fp->get();
+  b3 = fp->get();
 
   return ((int)(((((b3 << 8) | b2) << 8) | b1) << 8) | b0);
 }
 
 
 //
-// End of "$Id: image-bmp.cxx,v 1.1 2001/10/30 14:26:03 mike Exp $".
+// End of "$Id: image-bmp.cxx,v 1.2 2001/12/17 01:46:18 mike Exp $".
 //
