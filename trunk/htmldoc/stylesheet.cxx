@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.13 2004/03/31 09:35:38 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.14 2004/03/31 09:51:27 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -548,7 +548,7 @@ hdStyleSheet::get_private_style(hdTree *t)
 //
 
 int					// O - 0 on success, -1 on failure
-hdStyleSheet::load(hdFile     *f,	// I - File to read from
+hdStyleSheet::load(FILE     *f,	// I - File to read from
                    const char *path)	// I - Search path for included files
 {
   int			i, j;		// Looping vars...
@@ -571,7 +571,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 			props_p[256];	// Property pattern
   char			import[1024],	// Import string
 			*import_ptr;	// Pointer into import string
-  hdFile		*import_f;	// Import file pointer
+  FILE		*import_f;	// Import file pointer
   char			media[256];	// Current media type
 
 
@@ -805,7 +805,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
         if ((!*import_ptr && !media[0]) || strstr(import_ptr, "print") != NULL)
 	{
 	  // Import the file...
-	  if ((import_f = hdFile::open(import, HD_FILE_READ)) != NULL)
+	  if ((import_f = FILE::open(import, HD_FILE_READ)) != NULL)
 	  {
 	    load(import_f, path);
 
@@ -1043,7 +1043,7 @@ hdStyleSheet::pattern(const char *r,	// I - Regular expression pattern
 //
 
 char *					// O - String or NULL on EOF
-hdStyleSheet::read(hdFile     *f,	// I - File to read from
+hdStyleSheet::read(FILE     *f,	// I - File to read from
                    const char *p,	// I - Allowed chars pattern buffer
 		   char       *s,	// O - String buffer
 		   int        slen)	// I - Number of bytes in string buffer
@@ -1087,7 +1087,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
 {
   int		i;			// Looping var
   char		filename[1024];		// Glyphs filename
-  hdFile	*fp;			// Glyphs file
+  FILE	*fp;			// Glyphs file
   char		line[256];		// Line from file
   int		code;			// Unicode number
   char		name[255];		// Name string
@@ -1104,7 +1104,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   // Open the charset file...
   snprintf(filename, sizeof(filename), "%s/data/%s.charset",
            hdGlobal.datadir, cs);
-  if ((fp = hdFile::open(filename, HD_FILE_READ)) == NULL)
+  if ((fp = FILE::open(filename, HD_FILE_READ)) == NULL)
   {
     hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
                             "Unable to open character set file \"%s\"!",
@@ -1210,5 +1210,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.13 2004/03/31 09:35:38 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.14 2004/03/31 09:51:27 mike Exp $".
 //

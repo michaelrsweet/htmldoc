@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.35 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: htmldoc.h,v 1.36 2004/03/31 09:51:27 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -182,9 +182,9 @@ VAR int		PageWidth	VALUE(595),	/* Page width in points */
 		Landscape	VALUE(0),	/* Landscape orientation? */
 		NumberUp	VALUE(1);	/* Number-up pages */
 
-VAR typeface_t	HeadFootType	VALUE(TYPE_HELVETICA);
+VAR hdFontFace	HeadFootType	VALUE(HD_FONTFACE_SANS_SERIF);
 						/* Typeface for header & footer */
-VAR style_t	HeadFootStyle	VALUE(STYLE_NORMAL);
+VAR hdFontInternal	HeadFootStyle	VALUE(HD_FONTINTERNAL_NORMAL);
 						/* Type style */
 VAR float	HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
 
@@ -250,13 +250,13 @@ VAR int		ModernSkin	VALUE(1);	/* Show modern skins? */
  * Prototypes...
  */
 
-extern int	pspdf_export(tree_t *document, tree_t *toc);
+extern int	pspdf_export(hdTree *document, hdTree *toc);
 
-extern int	html_export(tree_t *document, tree_t *toc);
+extern int	html_export(hdTree *document, hdTree *toc);
 
-extern int	htmlsep_export(tree_t *document, tree_t *toc);
+extern int	htmlsep_export(hdTree *document, hdTree *toc);
 
-extern tree_t	*toc_build(tree_t *tree);
+extern hdTree	*toc_build(hdTree *tree);
 
 extern void	get_color(const uchar *c, float *rgb, int defblack = 1);
 extern const char *get_fmt(char **formats);
@@ -274,5 +274,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.35 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.36 2004/03/31 09:51:27 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.13 2004/03/31 09:35:38 mike Exp $"
+// "$Id: style.cxx,v 1.14 2004/03/31 09:51:27 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -33,7 +33,7 @@
 //   hdStyle::get_color()                - Get a 24-bit color value.
 //   hdStyle::get_color()                - Get a floating point color value.
 //   hdStyle::get_length()               - Get a length/measurement value...
-//   hdStyle::get_list_style_type()      - Get a list style type value.
+//   hdStyle::get_list_hdFontInternalype()      - Get a list style type value.
 //   hdStyle::get_page_break()           - Get a page break value.
 //   hdStyle::get_pos()                  - Get a margin/position/padding/border
 //                                         index.
@@ -506,30 +506,30 @@ hdStyle::get_length(const char   *length,	// I - Length string
 
 
 //
-// 'hdStyle::get_list_style_type()' - Get a list style type value.
+// 'hdStyle::get_list_hdFontInternalype()' - Get a list style type value.
 //
 
 hdListStyleType					// O - Numeric value
-hdStyle::get_list_style_type(const char *value)	// I - String value
+hdStyle::get_list_hdFontInternalype(const char *value)	// I - String value
 {
   if (strcasecmp(value, "disc") == 0)
-    return (HD_LISTSTYLETYPE_DISC);
+    return (HD_LISTSTYLEHD_FONTFACE_DISC);
   else if (strcasecmp(value, "circle") == 0)
-    return (HD_LISTSTYLETYPE_CIRCLE);
+    return (HD_LISTSTYLEHD_FONTFACE_CIRCLE);
   else if (strcasecmp(value, "square") == 0)
-    return (HD_LISTSTYLETYPE_SQUARE);
+    return (HD_LISTSTYLEHD_FONTFACE_SQUARE);
   else if (strcasecmp(value, "decimal") == 0)
-    return (HD_LISTSTYLETYPE_DECIMAL);
+    return (HD_LISTSTYLEHD_FONTFACE_DECIMAL);
   else if (strcasecmp(value, "lower-roman") == 0)
-    return (HD_LISTSTYLETYPE_LOWER_ROMAN);
+    return (HD_LISTSTYLEHD_FONTFACE_LOWER_ROMAN);
   else if (strcasecmp(value, "upper-roman") == 0)
-    return (HD_LISTSTYLETYPE_UPPER_ROMAN);
+    return (HD_LISTSTYLEHD_FONTFACE_UPPER_ROMAN);
   else if (strcasecmp(value, "lower-alpha") == 0)
-    return (HD_LISTSTYLETYPE_LOWER_ALPHA);
+    return (HD_LISTSTYLEHD_FONTFACE_LOWER_ALPHA);
   else if (strcasecmp(value, "upper-alpha") == 0)
-    return (HD_LISTSTYLETYPE_UPPER_ALPHA);
+    return (HD_LISTSTYLEHD_FONTFACE_UPPER_ALPHA);
   else
-    return (HD_LISTSTYLETYPE_NONE);
+    return (HD_LISTSTYLEHD_FONTFACE_NONE);
 }
 
 
@@ -906,8 +906,8 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
     if (p->list_style_position)
       list_style_position = p->list_style_position;
 
-    if (p->list_style_type)
-      list_style_type = p->list_style_type;
+    if (p->list_hdFontInternalype)
+      list_hdFontInternalype = p->list_hdFontInternalype;
   }
 
   if ((hdElIsBlock(selectors[0].element) &&
@@ -1971,7 +1971,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  switch (pos)
 	  {
 	    case 0 : // Style
-	        font_style = HD_FONTSTYLE_NORMAL;
+	        font_style = HD_FONTHD_FONTINTERNAL_NORMAL;
 		break;
 
 	    case 1 : // Variant
@@ -1992,12 +1992,12 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	}
 	else if (strcasecmp(subvalue, "italic") == 0)
 	{
-	  font_style = HD_FONTSTYLE_ITALIC;
+	  font_style = HD_FONTHD_FONTINTERNAL_ITALIC;
 	  pos = 1;
 	}
 	else if (strcasecmp(subvalue, "oblique") == 0)
 	{
-	  font_style = HD_FONTSTYLE_OBLIQUE;
+	  font_style = HD_FONTHD_FONTINTERNAL_OBLIQUE;
 	  pos = 1;
 	}
 	else if (strcasecmp(subvalue, "small-caps") == 0)
@@ -2123,15 +2123,15 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     {
       if (strcasecmp(value, "normal") == 0)
       {
-        font_style = HD_FONTSTYLE_NORMAL;
+        font_style = HD_FONTHD_FONTINTERNAL_NORMAL;
       }
       else if (strcasecmp(value, "italic") == 0)
       {
-	font_style = HD_FONTSTYLE_ITALIC;
+	font_style = HD_FONTHD_FONTINTERNAL_ITALIC;
       }
       else if (strcasecmp(value, "oblique") == 0)
       {
-	font_style = HD_FONTSTYLE_OBLIQUE;
+	font_style = HD_FONTHD_FONTINTERNAL_OBLIQUE;
       }
       else
       {
@@ -2238,7 +2238,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  switch (pos)
 	  {
 	    case 0 : // list-style-type
-	        list_style_type = HD_LISTSTYLETYPE_NONE;
+	        list_hdFontInternalype = HD_LISTSTYLEHD_FONTFACE_NONE;
 		break;
 
 	    case 1 : // list-style-image
@@ -2260,7 +2260,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	         strcasecmp(subvalue, "lower-alpha") == 0 ||
 	         strcasecmp(subvalue, "upper-alpha") == 0)
 	{
-	  list_style_type = get_list_style_type(subvalue);
+	  list_hdFontInternalype = get_list_hdFontInternalype(subvalue);
 	  pos = 1;
 	}
         else if (strcasecmp(subvalue, "inside") == 0)
@@ -2345,7 +2345,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  strcasecmp(value, "lower-alpha") == 0 ||
 	  strcasecmp(value, "upper-alpha") == 0)
       {
-	list_style_type = get_list_style_type(value);
+	list_hdFontInternalype = get_list_hdFontInternalype(value);
       }
       else
       {
@@ -2925,5 +2925,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.13 2004/03/31 09:35:38 mike Exp $".
+// End of "$Id: style.cxx,v 1.14 2004/03/31 09:51:27 mike Exp $".
 //

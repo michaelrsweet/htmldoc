@@ -1,5 +1,5 @@
 /*
- * "$Id: types.h,v 1.12 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: types.h,v 1.13 2004/03/31 09:51:27 mike Exp $"
  *
  *   Common data types for HTMLDOC, an HTML document processing program.
  *
@@ -28,9 +28,10 @@
 #  include "config.h"
 
 typedef unsigned char uchar;
+typedef unsigned char hdByte;
 
 #endif /* !_TYPES_H_ */
 
 /*
- * End of "$Id: types.h,v 1.12 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: types.h,v 1.13 2004/03/31 09:51:27 mike Exp $".
  */

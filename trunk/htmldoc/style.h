@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.22 2004/03/31 09:35:38 mike Exp $"
+// "$Id: style.h,v 1.23 2004/03/31 09:51:27 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -23,8 +23,8 @@
 //
 
 //* @package HTMLDOC
-#ifndef _HTMLDOC_STYLE_H_
-#  define _HTMLDOC_STYLE_H_
+#ifndef _HTMLDOC_HD_FONTINTERNAL_H_
+#  define _HTMLDOC_HD_FONTINTERNAL_H_
 
 //
 // Include necessary headers...
@@ -34,26 +34,28 @@
 #  include "types.h"
 
 
-//
-// HTML element constants...
-//
+/*
+ * Markup constants...
+ */
 
 enum hdElement
 {
-  HD_ELEMENT_NONE = 0,		// Text fragment
-  HD_ELEMENT_FILE,		// File Delimiter
-  HD_ELEMENT_ERROR,		// Bad element
-  HD_ELEMENT_UNKNOWN,		// Unknown element
+  HD_ELEMENT_FILE = -3,			/* File Delimiter */
+  HD_ELEMENT_UNKNOWN = -2,		/* Unknown element */
+  HD_ELEMENT_ERROR = -1,	
+  HD_ELEMENT_NONE = 0,
   HD_ELEMENT_COMMENT,
   HD_ELEMENT_DOCTYPE,
   HD_ELEMENT_A,
   HD_ELEMENT_ACRONYM,
   HD_ELEMENT_ADDRESS,
+  HD_ELEMENT_APPLET,
   HD_ELEMENT_AREA,
   HD_ELEMENT_B,
   HD_ELEMENT_BASE,
   HD_ELEMENT_BASEFONT,
   HD_ELEMENT_BIG,
+  HD_ELEMENT_BLINK,
   HD_ELEMENT_BLOCKQUOTE,
   HD_ELEMENT_BODY,
   HD_ELEMENT_BR,
@@ -74,6 +76,8 @@ enum hdElement
   HD_ELEMENT_EMBED,
   HD_ELEMENT_FONT,
   HD_ELEMENT_FORM,
+  HD_ELEMENT_FRAME,
+  HD_ELEMENT_FRAMESET,
   HD_ELEMENT_H1,
   HD_ELEMENT_H2,
   HD_ELEMENT_H3,
@@ -103,7 +107,9 @@ enum hdElement
   HD_ELEMENT_MAP,
   HD_ELEMENT_MENU,
   HD_ELEMENT_META,
-  HD_ELEMENT_OBJECT,
+  HD_ELEMENT_MULTICOL,
+  HD_ELEMENT_NOBR,
+  HD_ELEMENT_NOFRAMES,
   HD_ELEMENT_OL,
   HD_ELEMENT_OPTION,
   HD_ELEMENT_P,
@@ -114,7 +120,6 @@ enum hdElement
   HD_ELEMENT_SELECT,
   HD_ELEMENT_SMALL,
   HD_ELEMENT_SPACER,
-  HD_ELEMENT_SPAN,
   HD_ELEMENT_STRIKE,
   HD_ELEMENT_STRONG,
   HD_ELEMENT_STYLE,
@@ -136,33 +141,6 @@ enum hdElement
   HD_ELEMENT_WBR,
   HD_ELEMENT_MAX
 };
-
-//
-// Macros to test elements for various things...
-//
-
-enum hdElGroup
-{
-  HD_ELGROUP_NONE = 0,
-  HD_ELGROUP_GROUP = 1,
-  HD_ELGROUP_BLOCK = 2,
-  HD_ELGROUP_TABLE = 4,
-  HD_ELGROUP_ROWCOL = 8,
-  HD_ELGROUP_CELL = 16,
-  HD_ELGROUP_LIST = 32,
-  HD_ELGROUP_ITEM = 64,
-  HD_ELGROUP_INLINE = 128
-};
-
-#define hdElIsGroup(x)	(hdTree::elgroup[x] & HD_ELGROUP_GROUP)
-#define hdElIsBlock(x)	(hdTree::elgroup[x] & HD_ELGROUP_BLOCK)
-#define hdElIsTable(x)	(hdTree::elgroup[x] & HD_ELGROUP_TABLE)
-#define hdElIsRowCol(x)	(hdTree::elgroup[x] & HD_ELGROUP_ROWCOL)
-#define hdElIsCell(x)	(hdTree::elgroup[x] & HD_ELGROUP_CELL)
-#define hdElIsList(x)	(hdTree::elgroup[x] & HD_ELGROUP_LIST)
-#define hdElIsItem(x)	(hdTree::elgroup[x] & HD_ELGROUP_ITEM)
-#define hdElIsInline(x)	(hdTree::elgroup[x] & HD_ELGROUP_INLINE)
-#define hdElIsNone(x)	(hdTree::elgroup[x] == HD_ELGROUP_NONE)
 
 
 //
@@ -261,9 +239,9 @@ enum hdFloat
 // font-style values...
 enum hdFontStyle
 {
-  HD_FONTSTYLE_NORMAL = 0,
-  HD_FONTSTYLE_ITALIC,
-  HD_FONTSTYLE_OBLIQUE
+  HD_FONTHD_FONTINTERNAL_NORMAL = 0,
+  HD_FONTHD_FONTINTERNAL_ITALIC,
+  HD_FONTHD_FONTINTERNAL_OBLIQUE
 };
 
 // font-variant values...
@@ -292,15 +270,15 @@ enum hdListStylePosition
 // list-style-type values...
 enum hdListStyleType
 {
-  HD_LISTSTYLETYPE_NONE = 0,
-  HD_LISTSTYLETYPE_DISC,
-  HD_LISTSTYLETYPE_CIRCLE,
-  HD_LISTSTYLETYPE_SQUARE,
-  HD_LISTSTYLETYPE_DECIMAL,
-  HD_LISTSTYLETYPE_LOWER_ROMAN,
-  HD_LISTSTYLETYPE_UPPER_ROMAN,
-  HD_LISTSTYLETYPE_LOWER_ALPHA,
-  HD_LISTSTYLETYPE_UPPER_ALPHA
+  HD_LISTSTYLEHD_FONTFACE_NONE = 0,
+  HD_LISTSTYLEHD_FONTFACE_DISC,
+  HD_LISTSTYLEHD_FONTFACE_CIRCLE,
+  HD_LISTSTYLEHD_FONTFACE_SQUARE,
+  HD_LISTSTYLEHD_FONTFACE_DECIMAL,
+  HD_LISTSTYLEHD_FONTFACE_LOWER_ROMAN,
+  HD_LISTSTYLEHD_FONTFACE_UPPER_ROMAN,
+  HD_LISTSTYLEHD_FONTFACE_LOWER_ALPHA,
+  HD_LISTSTYLEHD_FONTFACE_UPPER_ALPHA
 };
 
 // page-break values...
@@ -521,29 +499,29 @@ struct hdStyleFont
  /**
   * The <tt>read_afm()</tt> method loads font widths from an AFM file.
   *
-  * @param fp hdFile* The file to read from.
+  * @param fp FILE* The file to read from.
   * @param css hdStyleSheet* The stylesheet.
   * @return 0 on success, -1 on error.
   */
-  int		read_afm(hdFile *fp, hdStyleSheet *css);
+  int		read_afm(FILE *fp, hdStyleSheet *css);
 
  /**
   * The <tt>read_pfm()</tt> method loads font widths from a PFM file.
   *
-  * @param fp hdFile* The file to read from.
+  * @param fp FILE* The file to read from.
   * @param css hdStyleSheet* The stylesheet.
   * @return 0 on success, -1 on error.
   */
-  int		read_pfm(hdFile *fp, hdStyleSheet *css);
+  int		read_pfm(FILE *fp, hdStyleSheet *css);
 
  /**
   * The <tt>read_ttf()</tt> method loads font widths from a TTF file.
   *
-  * @param fp hdFile* The file to read from.
+  * @param fp FILE* The file to read from.
   * @param css hdStyleSheet* The stylesheet.
   * @return 0 on success, -1 on error.
   */
-  int		read_ttf(hdFile *fp, hdStyleSheet *css);
+  int		read_ttf(FILE *fp, hdStyleSheet *css);
 };
 
 /**
@@ -668,7 +646,7 @@ struct hdStyle
   //* The <tt>list-style-position</tt> value.
   hdListStylePosition	list_style_position;
   //* The <tt>list-style-type</tt> value.
-  hdListStyleType	list_style_type;
+  hdListStyleType	list_hdFontInternalype;
   //* The <tt>margin-left</tt>, <tt>margin-right</tt>, <tt>margin-top</tt>,
   //* and <tt>margin-bottom</tt> values.
   float			margin[4];
@@ -811,13 +789,13 @@ struct hdStyle
 		           hdStyleSheet *css, int *relative = (int *)0);
 
  /**
-  * The <tt>get_list_style_type()</tt> method returns the list style associated
+  * The <tt>get_list_hdFontInternalype()</tt> method returns the list style associated
   * with a string.
   *
   * @param value const&nbsp;char* The string value.
   * @return The list style integer value.
   */
-  hdListStyleType get_list_style_type(const char *value);
+  hdListStyleType get_list_hdFontInternalype(const char *value);
 
  /**
   * The <tt>get_margin()</tt> method returns the margin value in points.
@@ -1139,11 +1117,11 @@ struct hdStyleSheet
  /**
   * The <tt>load()</tt> method loads a stylesheet from a file stream.
   *
-  * @param f hdFile* A pointer to the file stream.
+  * @param f FILE* A pointer to the file stream.
   * @param path const&nbsp;char* A search path to be used by any included files.
   * @return 0 on success, -1 on failure.
   */
-  int		load(hdFile *f, const char *path = (const char *)0);
+  int		load(FILE *f, const char *path = (const char *)0);
 
  /**
   * The <tt>pattern()</tt> method initializes a regex character pattern that is used
@@ -1159,7 +1137,7 @@ struct hdStyleSheet
   * The <tt>read()</tt> method reads a single string from a file stream using the
   * specified pattern initialized by the pattern()</tt> method.
   *
-  * @param f hdFile* The file stream to read from.
+  * @param f FILE* The file stream to read from.
   * @param p const&nbsp;char* The pattern array initialized by the pattern()
   * method.
   * @param s char* The string buffer.
@@ -1167,7 +1145,7 @@ struct hdStyleSheet
   * @return A pointer to the string that was read or NULL if no string
   * could be read that matched the input pattern.
   */
-  char		*read(hdFile *f, const char *p, char *s, int slen);
+  char		*read(FILE *f, const char *p, char *s, int slen);
 
  /**
   * The <tt>set_charset()</tt> method sets the current character encoding to the named
@@ -1185,8 +1163,8 @@ struct hdStyleSheet
 };
 
 
-#endif // !_HTMLDOC_STYLE_H_
+#endif // !_HTMLDOC_HD_FONTINTERNAL_H_
 
 //
-// End of "$Id: style.h,v 1.22 2004/03/31 09:35:38 mike Exp $".
+// End of "$Id: style.h,v 1.23 2004/03/31 09:51:27 mike Exp $".
 //
