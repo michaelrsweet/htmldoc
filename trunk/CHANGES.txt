@@ -26,7 +26,7 @@ CHANGES IN HTMLDOC v1.9
 	- DSC comments in PostScript output were not 100%
 	  conformant with the DSC spec.
 	- Long table-of-contents entries are now wrapped
-	  (original patch supplied by ???)
+	  (original patch supplied by Richard Pennington)
 	- New color icon under UNIX when Xpm library available.
 
     BUG FIXES
