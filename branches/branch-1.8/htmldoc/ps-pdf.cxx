@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.222 2003/07/31 12:31:39 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.223 2003/08/01 12:57:35 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3876,20 +3876,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
           }
 
           parse_table(t, *left, *right, *bottom, *top, x, y, page, *needspace);
-
-	  // The following makes sure that tables embedded in a paragraph
-	  // (P) element get whitespace as needed, since the current HTML
-	  // parser and paragraph formatter don't handle inline tables.
 	  *needspace = 0;
-
-          for (temp = t->prev; temp; temp = temp->prev)
-	    if (temp->markup == MARKUP_P)
-	    {
-	      *needspace = 1;
-	      break;
-	    }
-	    else if (temp->markup != MARKUP_TABLE)
-	      break;
           break;
 
       case MARKUP_H1 :
@@ -12123,5 +12110,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.222 2003/07/31 12:31:39 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.223 2003/08/01 12:57:35 mike Exp $".
  */
