@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.19.2.20 2001/10/22 17:59:35 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.21 2001/10/31 21:15:22 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -21,6 +21,33 @@
  *       EMail: info@easysw.com
  *         WWW: http://www.easysw.com
  */
+
+/*
+ * What is the version number for this software?
+ */
+
+#define SVERSION	"1.8.16"
+
+
+/*
+ * Limits for the output "engines"...
+ */
+
+#define MAX_CHAPTERS	1000
+#define MAX_COLUMNS	200
+
+
+/*
+ * Memory allocation units for other stuff...
+ */
+
+#define ALLOC_FILES	10	/* Temporary/image files */
+#define ALLOC_HEADINGS	50	/* Headings */
+#define ALLOC_LINKS	100	/* Web links */
+#define ALLOC_OBJECTS	100	/* PDF objects */
+#define ALLOC_PAGES	10	/* PS/PDF pages */
+#define ALLOC_ROWS	20	/* Table rows */
+
 
 /*
  * Locations of files...
@@ -83,33 +110,13 @@
 
 
 /*
- * What is the version number for this software?
+ * Does the "tm" structure contain the "tm_gmtoff" member?
  */
 
-#define SVERSION	"1.8.15"
+#undef HAVE_TM_GMTOFF
 
 
 /*
- * Limits for the output "engines"...
- */
-
-#define MAX_CHAPTERS	1000
-#define MAX_COLUMNS	200
-
-
-/*
- * Memory allocation units for other stuff...
- */
-
-#define ALLOC_FILES	10	/* Temporary/image files */
-#define ALLOC_HEADINGS	50	/* Headings */
-#define ALLOC_LINKS	100	/* Web links */
-#define ALLOC_OBJECTS	100	/* PDF objects */
-#define ALLOC_PAGES	10	/* PS/PDF pages */
-#define ALLOC_ROWS	20	/* Table rows */
-
-
-/*
- * End of "$Id: config.h.in,v 1.19.2.20 2001/10/22 17:59:35 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.21 2001/10/31 21:15:22 mike Exp $".
  */
 

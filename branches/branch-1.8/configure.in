@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.22 2001/10/21 19:26:35 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.23 2001/10/31 21:15:27 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -88,6 +88,14 @@ else
     AC_CHECK_FUNCS(snprintf)
     AC_CHECK_FUNCS(vsnprintf)
 fi
+
+dnl See if the tm structure has the tm_gmtoff member...
+AC_MSG_CHECKING(for tm_gmtoff member in tm structure)
+AC_TRY_COMPILE([#include <time.h>],[struct tm t;
+  int o = t.tm_gmtoff;],
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_TM_GMTOFF),
+  AC_MSG_RESULT(no))
 
 dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
@@ -315,5 +323,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.22 2001/10/21 19:26:35 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.23 2001/10/31 21:15:27 mike Exp $".
 dnl
