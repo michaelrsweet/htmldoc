@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.17 2002/05/06 13:23:41 mike Exp $"
+// "$Id: tree.cxx,v 1.18 2002/07/22 01:43:46 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -1745,19 +1745,18 @@ hdTree::set_attr(const char *name,	// I - Name of attribute
 
   if (match == NULL)
   {
-    if (nattrs >= aattrs)
+    if ((nattrs & 3) == 0)
     {
       // Allocate more memory...
-      match = new hdTreeAttr[aattrs + 5];
+      match = new hdTreeAttr[nattrs + 4];
 
-      if (aattrs)
+      if (nattrs)
       {
-        memcpy(match, attrs, aattrs * sizeof(hdTreeAttr));
+        memcpy(match, attrs, nattrs * sizeof(hdTreeAttr));
 	delete[] attrs;
       }
 
-      attrs  = match;
-      aattrs += 5;
+      attrs = match;
     }
 
     // Add a new attribute...
@@ -1819,5 +1818,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.17 2002/05/06 13:23:41 mike Exp $".
+// End of "$Id: tree.cxx,v 1.18 2002/07/22 01:43:46 mike Exp $".
 //
