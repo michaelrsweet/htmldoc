@@ -16,6 +16,9 @@ CHANGES IN HTMLDOC v1.8.13
 	- The table formatting code adding the border width to
 	  the cell width, while Netscape and MSIE don't.  This
 	  caused some interesting formatting glitches...
+	- The PDF catalog object could contain a reference to
+	  a /Names object of "0 0 R", which is invalid.  This
+	  would happen when the "--no-links" option was used.
 
 
 CHANGES IN HTMLDOC v1.8.12
