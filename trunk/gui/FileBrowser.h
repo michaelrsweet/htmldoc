@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.h,v 1.11 2001/01/22 15:03:43 mike Exp $"
+// "$Id: FileBrowser.h,v 1.12 2001/04/18 18:13:35 mike Exp $"
 //
 //   FileBrowser definitions.
 //
@@ -43,6 +43,7 @@ class FileBrowser : public Fl_Browser
   uchar		iconsize_;
   const char	*pattern_;
 
+  int		full_height() const;
   int		item_height(void *) const;
   int		item_width(void *) const;
   void		item_draw(void *, int, int, int, int) const;
@@ -67,5 +68,5 @@ public:
 #endif // !_GUI_FILEBROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.11 2001/01/22 15:03:43 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.12 2001/04/18 18:13:35 mike Exp $".
 //
