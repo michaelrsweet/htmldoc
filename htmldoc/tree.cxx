@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.20 2003/01/02 03:10:12 mike Exp $"
+// "$Id: tree.cxx,v 1.21 2003/01/02 04:36:07 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -1150,14 +1150,14 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 			*size;		// Size for FONT tag
   int			sizeval;	// Size value from FONT tag
   char			s[10240];	// String from file
-  int			whitespace;	// Leading whitespace?
+  bool			whitespace;	// Leading whitespace?
 
 
   // The initial parent node is the FILE pseudo-element...
   p = new hdTree(HD_ELEMENT_FILE);
 
   // Parse data until we hit end-of-file...
-  whitespace = 0;
+  whitespace = false;
 
   while ((ch = fp->get()) != EOF)
   {
@@ -1166,7 +1166,7 @@ hdTree::read(hdFile       *fp,		// I - File to read from
     {
       while (isspace(ch))
       {
-        whitespace = 1;
+        whitespace = true;
         ch         = fp->get();
       }
 
@@ -1189,7 +1189,7 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 	// invalid HTML, but so many people have asked for this to
 	// be supported that we have added this hack...
         t->whitespace = whitespace;
-	whitespace    = 0;
+	whitespace    = false;
 
 	ptr = s;
         *ptr++ = '<';
@@ -1198,7 +1198,7 @@ hdTree::read(hdFile       *fp,		// I - File to read from
 	else if (ch == '<')
 	  fp->unget(ch);
 	else
-	  whitespace = 1;
+	  whitespace = true;
 
 	*ptr++ = '\0';
 
@@ -1222,7 +1222,7 @@ hdTree::read(hdFile       *fp,		// I - File to read from
             hdElIsList(t->element) || hdElIsItem(t->element) ||
             hdElIsTable(t->element) || hdElIsCell(t->element) ||
 	    t->element == HD_ELEMENT_TITLE)
-          whitespace = 0;
+          whitespace = false;
 
         // If this is the matching close mark, or if we are starting the
 	// same element, or if we've completed a list, we're done!
@@ -1368,7 +1368,7 @@ hdTree::read(hdFile       *fp,		// I - File to read from
       // Read the next string fragment...
       ptr           = s;
       t->whitespace = whitespace;
-      whitespace    = 0;
+      whitespace    = false;
 
       while (!isspace(ch) && ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
       {
@@ -1384,7 +1384,7 @@ hdTree::read(hdFile       *fp,		// I - File to read from
       }
 
       if (isspace(ch))
-        whitespace = 1;
+        whitespace = true;
 
       *ptr = '\0';
 
@@ -1818,5 +1818,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.20 2003/01/02 03:10:12 mike Exp $".
+// End of "$Id: tree.cxx,v 1.21 2003/01/02 04:36:07 mike Exp $".
 //

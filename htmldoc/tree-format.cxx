@@ -1,5 +1,5 @@
 //
-// "$Id: tree-format.cxx,v 1.3 2002/08/01 01:24:26 mike Exp $"
+// "$Id: tree-format.cxx,v 1.4 2003/01/02 04:36:07 mike Exp $"
 //
 //   HTML formatting routines for HTMLDOC, a HTML document processing program.
 //
@@ -45,7 +45,8 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
                float        &y,			// IO - Current Y position
 	       int          &page)		// IO - Current page
 {
-  float		fragwidth,			// Fragment width
+  float		linewidth,			// Current line width
+		fragwidth,			// Fragment width
 		linespacing,			// Line spacing
 		ascender,			// Ascender
 		descender;			// Descender
@@ -76,14 +77,23 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
   descender  = 0.0;
   block      = NULL;
 
+  if (style)
+    linewidth = m->width() -
+                style->get_format_spacing(HD_POS_LEFT) -
+                style->get_format_spacing(HD_POS_RIGHT);
+  else
+    linewidth = m->width();
+
   while (temp != NULL)
   {
+    printf("temp = %p\n", temp);
+
     // If there is whitespace here, process the fragment...
     temp->nodebreak = HD_NODEBREAK_NONE;
 
     if ((temp->whitespace || hdElIsGroup(temp->element)) && frag != temp)
     {
-      if ((fragwidth + x) > m->width())
+      if ((fragwidth + x) > linewidth)
       {
         frag->nodebreak = HD_NODEBREAK_LINE;
 	x               = 0.0;
@@ -98,6 +108,13 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
 	}
 
 	m->clear(y, page);
+
+	if (style)
+	  linewidth = m->width() -
+                      style->get_format_spacing(HD_POS_LEFT) -
+                      style->get_format_spacing(HD_POS_RIGHT);
+	else
+	  linewidth = m->width();
 
         if (frag->whitespace)
 	  fragwidth -= frag->style->font->get_width(" ") *
@@ -255,13 +272,11 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
 	    x = 0.0;
 
 	    if (block)
-	      y += block->style->get_margin(HD_POS_BOTTOM) +
-	           block->style->get_padding(HD_POS_BOTTOM);
+	      y += block->style->get_format_spacing(HD_POS_BOTTOM);
 
             block = temp;
 
-	    y += block->style->get_margin(HD_POS_TOP) +
-	         block->style->get_padding(HD_POS_TOP);
+	    y += block->style->get_format_spacing(HD_POS_TOP);
 
             if (y >= m->length())
 	    {
@@ -270,6 +285,13 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
 	    }
 
 	    m->clear(y, page);
+
+	    if (style)
+	      linewidth = m->width() -
+                	  style->get_format_spacing(HD_POS_LEFT) -
+                	  style->get_format_spacing(HD_POS_RIGHT);
+	    else
+	      linewidth = m->width();
 	  }
           break;
     }
@@ -277,18 +299,22 @@ hdTree::format(hdStyleSheet *css,		// I  - Style sheet
     // Find the next logical node...
     if (temp->child != NULL)
       temp = temp->child;
-    else if (temp->next == NULL)
-    {
-      temp = temp->parent;
-      if (temp == this)
-        temp = NULL;
-    }
     else
-      temp = temp->next;
+    {
+      while (temp != NULL && temp->next == NULL)
+      {
+        temp = temp->parent;
+        if (temp == this)
+          temp = NULL;
+      }
+
+      if (temp)
+        temp = temp->next;
+    }
   }
 
   // Handle any remaining text fragment...
-  if ((fragwidth + x) > m->width())
+  if ((fragwidth + x) > linewidth)
   {
     frag->nodebreak = HD_NODEBREAK_LINE;
     x               = 0.0;
@@ -390,5 +416,5 @@ hdTree::format_list(hdStyleSheet *css,		// I  - Style sheet
 
 
 //
-// End of "$Id: tree-format.cxx,v 1.3 2002/08/01 01:24:26 mike Exp $".
+// End of "$Id: tree-format.cxx,v 1.4 2003/01/02 04:36:07 mike Exp $".
 //

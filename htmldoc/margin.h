@@ -1,5 +1,5 @@
 //
-// "$Id: margin.h,v 1.6 2002/09/08 00:15:01 mike Exp $"
+// "$Id: margin.h,v 1.7 2003/01/02 04:36:07 mike Exp $"
 //
 // Margin class definitions for HTMLDOC, a HTML document processing
 // program.
@@ -68,63 +68,63 @@ class hdMargin
     hdMargin(float l, float r, float b, float t = 0.0);
 
    /**
-    * The left() method returns the current left margin.
+    * The <TT>left()</TT> method returns the current left margin.
     *
     * @return The left margin in points.
     */
     float	left() { return (_left[_level]); }
 
    /**
-    * The right() method returns the current right margin.
+    * The <TT>right()</TT> method returns the current right margin.
     *
     * @return The right margin in points.
     */
     float	right() { return (_right[_level]); }
 
    /**
-    * The bottom() method returns the current bottom margin.
+    * The <TT>bottom()</TT> method returns the current bottom margin.
     *
     * @return The bottom margin in points.
     */
     float	bottom() { return (_bottom[_level]); }
 
    /**
-    * The bottom0() method returns the initial bottom margin.
+    * The <TT>bottom0()</TT> method returns the initial bottom margin.
     *
     * @return The bottom margin in points.
     */
     float	bottom0() { return (_bottom[0]); }
 
    /**
-    * The page() method returns the ending page for the current margins.
+    * The <TT>page()</TT> method returns the ending page for the current margins.
     *
     * @return The ending page number.
     */
     int		page() { return (_page[_level]); }
 
    /**
-    * The top() method returns the top margin.
+    * The <TT>top()</TT> method returns the top margin.
     *
     * @return The top margin in points.
     */
     float	top() { return (_top); }
 
    /**
-    * The width() method returns the current width.
+    * The <TT>width()</TT> method returns the current width.
     *
     * @return The width in points.
     */
     float	width() { return (_right[_level] - _left[_level]); }
 
    /**
-    * The length() method returns the current length.
+    * The <TT>length()</TT> method returns the current length.
     *
     * @return The length in points.
     */
     float	length() { return (_bottom[0] - _top); }
 
    /**
-    * The push() method pushes a new set of margins on the stack.
+    * The <TT>push()</TT> method pushes a new set of margins on the stack.
     *
     * @param l float The new left margin in points.
     * @param r float The new right margin in points.
@@ -134,19 +134,19 @@ class hdMargin
     void	push(float l, float r, float b, int p = 0);
 
    /**
-    * The pop() method pops the current margins off the stack. If the
+    * The <TT>pop()</TT> method pops the current margins off the stack. If the
     * current margins are at the top of the stack, nothing is popped.
     */
     void	pop() { if (_level) _level --; }
 
    /**
-    * The clear() method pops all margins off the stack, leaving the
+    * The <TT>clear()</TT> method pops all margins off the stack, leaving the
     * initial margins only.
     */
     void	clear() { _level = 0; }
 
    /**
-    * The clear() method pops all margins earlier than the specified
+    * The <TT>clear()</TT> method pops all margins earlier than the specified
     * vertical position and page.
     *
     * @param y float The vertical position on the page in points.
@@ -155,7 +155,7 @@ class hdMargin
     void	clear(float y, int p);
 
    /**
-    * The level() method returns the current stack depth.
+    * The <TT>level()</TT> method returns the current stack depth.
     *
     * @return The stack depth.
     */
@@ -166,5 +166,5 @@ class hdMargin
 
 
 //
-// End of "$Id: margin.h,v 1.6 2002/09/08 00:15:01 mike Exp $".
+// End of "$Id: margin.h,v 1.7 2003/01/02 04:36:07 mike Exp $".
 //
