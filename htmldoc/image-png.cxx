@@ -1,5 +1,5 @@
 //
-// "$Id: image-png.cxx,v 1.1 2001/10/30 14:26:04 mike Exp $"
+// "$Id: image-png.cxx,v 1.2 2001/12/30 19:46:22 mike Exp $"
 //
 // PNG image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -35,62 +35,93 @@
 
 
 //
-// 'image_load_png()' - Load a PNG image file.
+// Local functions...
 //
 
-static int			// O - 0 = success, -1 = fail
-image_load_png(image_t//img,	// I - Image pointer
-               FILE   //fp,	// I - File to read from
-               int     gray,	// I - 0 = color, 1 = grayscale
-               int     load_data)// I - 1 = load image data, 0 = just info
+static void	png_read(png_structp pp, png_bytep data, png_uint_32 length);
+
+
+//
+// 'hdPNGImage::hdPNGImage()' - Create a new PNG image.
+//
+
+hdPNGImage::hdPNGImage(const char *p,	// I - URI for image file
+                       int        gs)	// I - 0 for color, 1 for grayscale
 {
-  int		i;	// Looping var
-  png_structp	pp;	// PNG read pointer
-  png_infop	info;	// PNG info pointers
-  png_bytep	*rows;	// PNG row pointers
-  uchar		*inptr,	// Input pixels
-		*outptr;// Output pixels
-  png_color_16	bg;	// Background color
-  float		rgb[3];	// RGB color of background
+  uri(p);
+
+  real_load(0, gs);
+}
 
 
- 
- // Setup the PNG data structures...
- 
+//
+// 'hdPNGImage::load()' - Load a PNG image...
+//
 
+int					// O - 0 on success, -1 on failure
+hdPNGImage::load()
+{
+  return (real_load(1, depth() == 1));
+}
+
+
+//
+// 'hdPNGImage::real_load()' - Load a PNG image file.
+//
+
+int				// O - 0 = success, -1 = fail
+hdPNGImage::real_load(int img,	// I - 1 = load image data, 0 = just info
+                      int gs)	// I - 0 = color, 1 = grayscale
+{
+  hdFile	*fp;		// File pointer
+  int		i, j;		// Looping vars
+  png_structp	pp;		// PNG read pointer
+  png_infop	info;		// PNG info pointers
+  int		d;		// Depth of image
+  png_bytep	*rows;		// PNG row pointers
+  png_bytep	local;		// Local image data...
+  png_bytep	localptr;	// Pointer to local image data...
+  uchar		*pixelptr;	// Pointer to final image data...
+
+
+  // Open the file...
+  if ((fp = hdFile::open(uri(), HD_FILE_READ)) == NULL)
+    return (-1);
+
+  // Setup the PNG data structures...
   pp   = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   info = png_create_info_struct(pp);
 
- 
- // Initialize the PNG read "engine"...
- 
+  // Initialize the PNG read "engine"...
+  png_set_read_fn(pp, fp, (png_rw_ptr)png_read);
 
-  png_init_io(pp, fp);
-
- 
- // Get the image dimensions and convert to grayscale or RGB...
- 
-
+  // Get the image dimensions and convert to grayscale or RGB...
   png_read_info(pp, info);
 
   if (info->color_type == PNG_COLOR_TYPE_PALETTE)
     png_set_expand(pp);
 
-  if (info->color_type == PNG_COLOR_TYPE_GRAY)
-    img->depth = 1;
+  if (info->color_type & PNG_COLOR_MASK_COLOR)
+    d = 3;
   else
-    img->depth = gray ? 1 : 3;
+    d = 1;
 
-  img->width  = info->width;
-  img->height = info->height;
+  set_size(info->width, info->height, gs ? 1 : d);
 
-  if (!load_data)
+  if (!img)
   {
     png_read_destroy(pp, info, NULL);
+    delete fp;
     return (0);
   }
 
-  img->pixels = (uchar//)malloc(img->width// img->height// 3);
+  alloc_pixels();
+
+  if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
+    d ++;
+
+  if (!(d & 1))
+    alloc_mask();
 
   if (info->bit_depth < 8)
   {
@@ -100,86 +131,109 @@ image_load_png(image_t//img,	// I - Image pointer
   else if (info->bit_depth == 16)
     png_set_strip_16(pp);
 
- 
- // Handle transparency...
- 
-
+  // Handle transparency...
   if (png_get_valid(pp, info, PNG_INFO_tRNS))
     png_set_tRNS_to_alpha(pp);
 
-  if (BodyColor[0])
-  {
-   
-   // User-defined color...
-   
-
-    get_color((uchar//)BodyColor, rgb);
-
-    bg.red   = (png_uint_16)(rgb[0]// 65535.0f + 0.5f);
-    bg.green = (png_uint_16)(rgb[1]// 65535.0f + 0.5f);
-    bg.blue  = (png_uint_16)(rgb[2]// 65535.0f + 0.5f);
-  }
+  // Allocate a local copy of the image as needed...
+  if (depth() != d)
+    local = new png_byte[info->width * info->height * d];
   else
-  {
-   
-   // Default to white...
-   
+    local = (png_bytep)pixels();
 
-    bg.red   = 65535;
-    bg.green = 65535;
-    bg.blue  = 65535;
-  }
-
-  png_set_background(pp, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
-
- 
- // Allocate pointers...
- 
-
-  rows = (png_bytep//)calloc(info->height, sizeof(png_bytep));
+  // Allocate memory and setup the pointers for the whole image...
+  rows = new png_bytep[info->height];
 
   for (i = 0; i < (int)info->height; i ++)
-    if (info->color_type == PNG_COLOR_TYPE_GRAY)
-      rows[i] = img->pixels + i// img->width;
-    else
-      rows[i] = img->pixels + i// img->width// 3;
+    rows[i] = local + i * info->width * d;
 
- 
- // Read the image, handling interlacing as needed...
- 
-
+  // Read the image, handling interlacing as needed...
   for (i = png_set_interlace_handling(pp); i > 0; i --)
-    png_read_rows(pp, rows, NULL, img->height);
+    png_read_rows(pp, rows, NULL, info->height);
 
- 
- // Reformat the data as necessary for the reader...
- 
-
-  if (gray && info->color_type != PNG_COLOR_TYPE_GRAY)
+  // Reformat the data as necessary for the reader...
+  if (local != pixels())
   {
-   
-   // Greyscale output needed...
-   
-
-    for (inptr = img->pixels, outptr = img->pixels, i = img->width// img->height;
-         i > 0;
-         inptr += 3, outptr ++, i --)
-     //outptr = (31// inptr[0] + 61// inptr[1] + 8// inptr[2]) / 100;
+    if (d == 3)
+    {
+      // Convert to grayscale...
+      for (i = (int)info->height, pixelptr = pixels(), localptr = local;
+           i > 0;
+	   i --)
+	for (j = (int)info->width; j > 0; j --, localptr += 3)
+          *pixelptr++ = (31 * localptr[0] + 61 * localptr[1] +
+	                 8 * localptr[2]) / 100;
+    }
+    else
+    {
+      // Handle transparency and possibly convert to grayscale...
+      for (i = 0, pixelptr = pixels(), localptr = local;
+           i < (int)info->height;
+	   i ++)
+        if (d == 2)
+	{
+	  for (j = 0; j < (int)info->width; j ++, localptr += 2)
+	  {
+            *pixelptr++ = localptr[0];
+	    set_mask(j, i, localptr[1]);
+	  }
+        }
+	else if (gs)
+	{
+	  for (j = 0; j < (int)info->width; j ++, localptr += 4)
+	  {
+            *pixelptr++ = (31 * localptr[0] + 61 * localptr[1] +
+	                   8 * localptr[2]) / 100;
+	    set_mask(j, i, localptr[3]);
+	  }
+	}
+	else
+	{
+	  for (j = 0; j < (int)info->width; j ++)
+	  {
+            *pixelptr++ = *localptr++;
+            *pixelptr++ = *localptr++;
+            *pixelptr++ = *localptr++;
+	    set_mask(j, i, *localptr++);
+	  }
+	}
+    }
   }
 
- 
- // Free memory and return...
- 
+  // Free memory and return...
+  delete[] rows;
 
-  free(rows);
+  if (local != (png_bytep)pixels())
+    delete[] local;
 
   png_read_end(pp, info);
   png_read_destroy(pp, info, NULL);
+
+  delete fp;
 
   return (0);
 }
 
 
 //
-// End of "$Id: image-png.cxx,v 1.1 2001/10/30 14:26:04 mike Exp $".
+// 'png_read()' - Read data from a PNG image file...
+//
+
+static void
+png_read(png_structp pp,		// I - PNG image
+         png_bytep   data,		// I - Data buffer
+	 png_uint_32 length)		// I - Number of bytes to read
+{
+  hdFile	*fp;			// File pointer
+
+
+  fp = (hdFile *)png_get_io_ptr(pp);
+
+  if (fp->read(data, length) != (int)length)
+    png_error(pp, "Read Error");
+}
+
+
+//
+// End of "$Id: image-png.cxx,v 1.2 2001/12/30 19:46:22 mike Exp $".
 //
