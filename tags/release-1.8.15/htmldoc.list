@@ -1,0 +1,62 @@
+#
+# "$Id: htmldoc.list,v 1.11.2.16 2001/10/17 21:13:27 mike Exp $"
+#
+#   ESP Package Manager (EPM) file list for HTMLDOC.
+#
+#   EPM can be found at "http://www.easysw.com/epm".
+#
+
+%product HTMLDOC
+%copyright 1997-2001 by Easy Software Products, All Rights Reserved.
+%vendor Easy Software Products
+%license COPYING.txt
+%readme README.txt
+%version 1.8.15
+
+# Program
+f 0555 root sys /usr/bin/htmldoc htmldoc/htmldoc
+
+# AFM files
+f 0444 root sys /usr/share/htmldoc/afm/Courier afm/Courier
+f 0444 root sys /usr/share/htmldoc/afm/Courier-Bold afm/Courier-Bold
+f 0444 root sys /usr/share/htmldoc/afm/Courier-BoldOblique afm/Courier-BoldOblique
+f 0444 root sys /usr/share/htmldoc/afm/Courier-Oblique afm/Courier-Oblique
+f 0444 root sys /usr/share/htmldoc/afm/Helvetica afm/Helvetica
+f 0444 root sys /usr/share/htmldoc/afm/Helvetica-Bold afm/Helvetica-Bold
+f 0444 root sys /usr/share/htmldoc/afm/Helvetica-BoldOblique afm/Helvetica-BoldOblique
+f 0444 root sys /usr/share/htmldoc/afm/Helvetica-Oblique afm/Helvetica-Oblique
+f 0444 root sys /usr/share/htmldoc/afm/Symbol afm/Symbol
+f 0444 root sys /usr/share/htmldoc/afm/Times-Bold afm/Times-Bold
+f 0444 root sys /usr/share/htmldoc/afm/Times-BoldItalic afm/Times-BoldItalic
+f 0444 root sys /usr/share/htmldoc/afm/Times-Italic afm/Times-Italic
+f 0444 root sys /usr/share/htmldoc/afm/Times-Roman afm/Times-Roman
+
+# Data files
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-1 data/iso-8859-1
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-14 data/iso-8859-14
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-15 data/iso-8859-15
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-2 data/iso-8859-2
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-3 data/iso-8859-3
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-4 data/iso-8859-4
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-5 data/iso-8859-5
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-6 data/iso-8859-6
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-7 data/iso-8859-7
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-8 data/iso-8859-8
+f 0444 root sys /usr/share/htmldoc/data/iso-8859-9 data/iso-8859-9
+f 0444 root sys /usr/share/htmldoc/data/koi8-r data/koi8-r
+f 0444 root sys /usr/share/htmldoc/data/prolog.ps data/prolog.ps
+f 0444 root sys /usr/share/htmldoc/data/psglyphs data/psglyphs
+
+# Documentation
+%system irix
+f 0444 root sys /usr/catman/u_man/cat1/htmldoc.1 doc/htmldoc.1
+%system !irix
+f 0444 root sys /usr/man/man1/htmldoc.1 doc/htmldoc.man
+%system all
+
+f 0444 root sys /usr/share/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
+f 0444 root sys /usr/share/doc/htmldoc/help.html doc/help.html
+
+#
+# End of "$Id: htmldoc.list,v 1.11.2.16 2001/10/17 21:13:27 mike Exp $".
+#
