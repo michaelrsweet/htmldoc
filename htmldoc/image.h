@@ -1,10 +1,10 @@
 //
-// "$Id: image.h,v 1.12 2001/12/17 03:03:56 mike Exp $"
+// "$Id: image.h,v 1.13 2002/01/05 23:14:41 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
 //
-// Copyright 1997-2001 by Easy Software Products.
+// Copyright 1997-2002 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -249,5 +249,5 @@ class hdXPMImage : public hdImage
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.12 2001/12/17 03:03:56 mike Exp $".
+// End of "$Id: image.h,v 1.13 2002/01/05 23:14:41 mike Exp $".
 //

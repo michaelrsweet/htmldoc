@@ -1,9 +1,9 @@
 //
-// "$Id: image-bmp.cxx,v 1.3 2001/12/17 03:03:55 mike Exp $"
+// "$Id: image-bmp.cxx,v 1.4 2002/01/05 23:14:40 mike Exp $"
 //
 // BMP image handling routines for HTMLDOC.
 //
-// Copyright 1997-2001 by Easy Software Products.
+// Copyright 1997-2002 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -452,5 +452,5 @@ read_long(hdFile *fp)		// I - File to read from
 
 
 //
-// End of "$Id: image-bmp.cxx,v 1.3 2001/12/17 03:03:55 mike Exp $".
+// End of "$Id: image-bmp.cxx,v 1.4 2002/01/05 23:14:40 mike Exp $".
 //

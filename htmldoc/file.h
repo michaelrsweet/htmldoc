@@ -1,9 +1,9 @@
 //
-// "$Id: file.h,v 1.13 2002/01/01 18:27:30 mike Exp $"
+// "$Id: file.h,v 1.14 2002/01/05 23:14:39 mike Exp $"
 //
 //   File class definitions for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2001 by Easy Software Products.
+//   Copyright 1997-2002 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -30,6 +30,7 @@
 //
 
 #  include <stdio.h>
+#  include <errno.h>
 #  include "http.h"
 
 
@@ -77,11 +78,13 @@ class hdFile
   // Common per-file data...
   hdMode	mode_;			// Open mode
   long		pos_;			// Position in file
+  int		error_;			// Last error
 
   protected:
 
   void		mode(hdMode m) { mode_ = m; }
   void		pos(long p) { pos_ = p; }
+  void		error(int e) { error_ = e; }
 
   public:
 
@@ -91,12 +94,13 @@ class hdFile
   virtual int	get() = 0;
   virtual int	put(int c) = 0;
   virtual int	read(void *b, int len) = 0;
-  virtual int	seek(long pos, int whence) = 0;
-  virtual int	size() = 0;
-  virtual int	write(void *b, int len) = 0;
+  virtual int	seek(long p, int w) = 0;
+  virtual long	size() = 0;
+  virtual int	write(const void *b, int len) = 0;
   virtual int	unget(int c) = 0;
 
   // Common methods for all file classes...
+  int		error() { return error_; }
   char		*gets(char *s, int slen);
   hdMode	mode() { return (mode_); }
   long		pos() { return (pos_); }
@@ -108,11 +112,11 @@ class hdFile
   static void	cleanup(void);
   static char	*directory(const char *uri, char *t, int tlen);
   static char	*extension(const char *uri, char *t, int tlen);
-  static char	*find(const char *path, char *uri, int urilen, char *name, int namelen);
+  static char	*find(const char *path, const char *uri, char *name, int namelen);
   static char	*localize(char *name, int namelen, const char *newcwd);
-  static const char *method(const char *uri);
+  static const char *scheme(const char *uri);
   static void	no_local() { no_local_ = 1; }
-  static hdFile	*open(const char *uri, hdMode m);
+  static hdFile	*open(const char *uri, hdMode m, const char *path = 0);
   static void	proxy(const char *url);
   static const char *proxy() { return (proxy_); }
   static const char *target(const char *uri);
@@ -127,6 +131,7 @@ class hdFile
 class hdStdFile : public hdFile
 {
   FILE	*fp_;
+  long	size_;
 
   public:
 
@@ -138,9 +143,9 @@ class hdStdFile : public hdFile
   virtual int	get();
   virtual int	put(int c);
   virtual int	read(void *b, int len);
-  virtual int	seek(long pos, int whence);
-  virtual int	size();
-  virtual int	write(void *b, int len);
+  virtual int	seek(long p, int w);
+  virtual long	size();
+  virtual int	write(const void *b, int len);
   virtual int	unget(int c);
 };
 
@@ -163,9 +168,9 @@ class hdFlateFilter : public hdFile
   virtual int	get();
   virtual int	put(int c);
   virtual int	read(void *b, int len);
-  virtual int	seek(long pos, int whence);
-  virtual int	size();
-  virtual int	write(void *b, int len);
+  virtual int	seek(long p, int w);
+  virtual long	size();
+  virtual int	write(const void *b, int len);
   virtual int	unget(int c);
 };
 
@@ -185,9 +190,9 @@ class hdJPEGFilter : public hdFile
   virtual int	get();
   virtual int	put(int c);
   virtual int	read(void *b, int len);
-  virtual int	seek(long pos, int whence);
-  virtual int	size();
-  virtual int	write(void *b, int len);
+  virtual int	seek(long p, int w);
+  virtual long	size();
+  virtual int	write(const void *b, int len);
   virtual int	unget(int c);
 };
 
@@ -204,14 +209,14 @@ class hdRC4Filter : public hdFile
   virtual int	get();
   virtual int	put(int c);
   virtual int	read(void *b, int len);
-  virtual int	seek(long pos, int whence);
-  virtual int	size();
-  virtual int	write(void *b, int len);
+  virtual int	seek(long p, int w);
+  virtual long	size();
+  virtual int	write(const void *b, int len);
   virtual int	unget(int c);
 };
 
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h,v 1.13 2002/01/01 18:27:30 mike Exp $".
+// End of "$Id: file.h,v 1.14 2002/01/05 23:14:39 mike Exp $".
 //

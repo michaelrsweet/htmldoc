@@ -1,9 +1,9 @@
 //
-// "$Id: file.cxx,v 1.4 2002/01/01 21:24:30 mike Exp $"
+// "$Id: file.cxx,v 1.5 2002/01/05 23:14:39 mike Exp $"
 //
 //   Filename routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2001 by Easy Software Products.
+//   Copyright 1997-2002 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -29,11 +29,11 @@
 //   hdFile::extension()   - Return the extension of a file without the target.
 //   hdFile::find()        - Find a file in one of the path directories.
 //   hdFile::localize()    - Localize a filename for the new working directory.
-//   hdFile::method()      - Return the method for a filename or URL.
+//   hdFile::scheme()      - Return the scheme for a filename or URL.
 //   hdFile::proxy()       - Set the proxy_ host for all HTTP requests.
 //   hdFile::target()      - Return the target of a link.
 //   hdFile::temp()        - Create and open a temporary file.
-///
+//
 
 //
 // Include necessary headers.
@@ -195,24 +195,24 @@ hdFile::directory(const char *s,// I - Filename or URL
   if (strncmp(s, "http://", 7) == 0 || strncmp(s, "https://", 8) == 0)
   {
     // Handle URLs...
-    char	method[HD_MAX_URI],
+    char	scheme[HD_MAX_URI],
 		username[HD_MAX_URI],
 		hostname[HD_MAX_URI],
 		resource[HD_MAX_URI];
     int		port;
 
 
-    hdHTTP::separate(s, method, sizeof(method), username, sizeof(username),
+    hdHTTP::separate(s, scheme, sizeof(scheme), username, sizeof(username),
                      hostname, sizeof(hostname), &port, resource,
 		     sizeof(resource));
     if ((dir = strrchr(resource, '/')) != NULL)
       *dir = '\0';
 
     if (username[0])
-      snprintf(t, tlen, "%s://%s@%s:%d%s", method, username, hostname,
+      snprintf(t, tlen, "%s://%s@%s:%d%s", scheme, username, hostname,
                port, resource);
     else
-      snprintf(t, tlen, "%s://%s:%d%s", method, hostname, port,
+      snprintf(t, tlen, "%s://%s:%d%s", scheme, hostname, port,
                resource);
   }
   else
@@ -288,17 +288,16 @@ hdFile::extension(const char *s,// I - Filename or URL
 // 'hdFile::find()' - Find a file in one of the path directories.
 //
 
-char *					// O  - Pathname or NULL
-hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
-             char       *uri,		// IO - URI to find
-	     int        urilen,		// I  - Size of URI buffer
-	     char       *name,		// O  - Found filename
-	     int        namelen)	// I  - Size of filename buffer
+char *					// O - Pathname or NULL
+hdFile::find(const char *path,		// I - Path "dir;dir;dir"
+             const char *uri,		// I - URI to find
+	     char       *name,		// O - Found filename
+	     int        namelen)	// I - Size of filename buffer
 {
   int		i;			// Looping var
   int		retry;			// Current retry
   char		*temp,			// Current position in filename
-		method[HD_MAX_URI],	// Method/scheme
+		scheme[HD_MAX_URI],	// Method/scheme
 		username[HD_MAX_URI],	// Username:password
 		hostname[HD_MAX_URI],	// Hostname
 		resource[HD_MAX_URI];	// Resource
@@ -321,16 +320,16 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
 
   if (strncmp(uri, "http:", 5) == 0 || strncmp(uri, "//", 2) == 0 ||
       (path != NULL && strncmp(path, "http:", 5) == 0))
-    strcpy(method, "http");
+    strcpy(scheme, "http");
 #ifdef HAVE_LIBSSL
   else if (strncmp(uri, "https:", 6) == 0 ||
            (path != NULL && strncmp(path, "https:", 6) == 0))
-    strcpy(method, "https");
+    strcpy(scheme, "https");
 #endif // HAVE_LIBSSL
   else
-    strcpy(method, "file");
+    strcpy(scheme, "file");
 
-  if (strcmp(method, "file") == 0)
+  if (strcmp(scheme, "file") == 0)
   {
     // If we are not allowing access to local files, return NULL...
     if (no_local_)
@@ -406,12 +405,12 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
 #else
     if (strncmp(uri, "http:", 5) == 0 || strncmp(uri, "//", 2) == 0)
 #endif // HAVE_LIBSSL
-      hdHTTP::separate(uri, method, sizeof(method), username, sizeof(username),
+      hdHTTP::separate(uri, scheme, sizeof(scheme), username, sizeof(username),
                        hostname, sizeof(hostname), &port, resource,
 		       sizeof(resource));
     else if (uri[0] == '/')
     {
-      hdHTTP::separate(path, method, sizeof(method), username, sizeof(username),
+      hdHTTP::separate(path, scheme, sizeof(scheme), username, sizeof(username),
                        hostname, sizeof(hostname), &port, resource,
 		       sizeof(resource));
       strncpy(resource, uri, sizeof(resource) - 1);
@@ -424,7 +423,7 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
       else
         snprintf(name, namelen, "%s/%s", path, uri);
 
-      hdHTTP::separate(name, method, sizeof(method), username,
+      hdHTTP::separate(name, scheme, sizeof(scheme), username,
                        sizeof(username), hostname, sizeof(hostname), &port,
 		       resource, sizeof(resource));
     }
@@ -438,7 +437,7 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
         // Send request to proxy_ host...
         connhost = proxy_host_;
         connport = proxy_port_;
-        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", method,
+        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", scheme,
                  hostname, port, resource);
       }
       else
@@ -453,7 +452,7 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
       atexit(hdFile::cleanup);
 
 #ifdef HAVE_LIBSSL
-      if (strcmp(method, "http") == 0)
+      if (strcmp(scheme, "http") == 0)
         http = new hdHTTP(connhost, connport);
       else
         http = new hdHTTP(connhost, connport, HD_HTTP_ENCRYPT_ALWAYS);
@@ -496,7 +495,7 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
 
         // Grab new location from HTTP data...
 	hdHTTP::separate(http->get_field(HD_HTTP_FIELD_LOCATION),
-	                 method, sizeof(method), username, sizeof(username),
+	                 scheme, sizeof(scheme), username, sizeof(username),
                 	 hostname, sizeof(hostname), &port, resource,
 			 sizeof(resource));
         status = HD_HTTP_ERROR;
@@ -640,13 +639,13 @@ hdFile::localize(char       *name,	// IO - Name of file
 
 
 //
-// 'hdFile::method()' - Return the method for a filename or URL.
+// 'hdFile::scheme()' - Return the scheme for a filename or URL.
 //
 // Returns NULL if the URL is a local file.
 //
 
 const char *			// O - Method string ("http", "ftp", etc.)
-hdFile::method(const char *s)	// I - Filename or URL
+hdFile::scheme(const char *s)	// I - Filename or URL
 {
   if (strncmp(s, "http:", 5) == 0)
     return ("http");
@@ -668,7 +667,7 @@ hdFile::method(const char *s)	// I - Filename or URL
 void
 hdFile::proxy(const char *url)	// I - URL of proxy_ server
 {
-  char	method[HD_MAX_URI],	// Method name (must be http)
+  char	scheme[HD_MAX_URI],	// Method name (must be http)
 	username[HD_MAX_URI],	// Username:password information
 	hostname[HD_MAX_URI],	// Hostname
 	resource[HD_MAX_URI];	// Resource name
@@ -682,11 +681,11 @@ hdFile::proxy(const char *url)	// I - URL of proxy_ server
   }
   else
   {
-    hdHTTP::separate(url, method, sizeof(method), username, sizeof(username),
+    hdHTTP::separate(url, scheme, sizeof(scheme), username, sizeof(username),
                      hostname, sizeof(hostname), &port, resource,
 		     sizeof(resource));
 
-    if (strcmp(method, "http") == 0)
+    if (strcmp(scheme, "http") == 0)
     {
       strncpy(proxy_host_, hostname, sizeof(proxy_host_) - 1);
       proxy_host_[sizeof(proxy_host_) - 1] = '\0';
@@ -793,5 +792,5 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
 
 
 //
-// End of "$Id: file.cxx,v 1.4 2002/01/01 21:24:30 mike Exp $".
+// End of "$Id: file.cxx,v 1.5 2002/01/05 23:14:39 mike Exp $".
 //

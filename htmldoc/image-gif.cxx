@@ -1,9 +1,9 @@
 //
-// "$Id: image-gif.cxx,v 1.5 2001/12/17 04:12:32 mike Exp $"
+// "$Id: image-gif.cxx,v 1.6 2002/01/05 23:14:40 mike Exp $"
 //
 // Image handling routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2001 by Easy Software Products.
+// Copyright 1997-2002 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -554,5 +554,5 @@ hdGIFImage::real_load(int img,	// I - 1 = load image data, 0 = just info
 
 
 //
-// End of "$Id: image-gif.cxx,v 1.5 2001/12/17 04:12:32 mike Exp $".
+// End of "$Id: image-gif.cxx,v 1.6 2002/01/05 23:14:40 mike Exp $".
 //
