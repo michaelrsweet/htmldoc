@@ -1,4 +1,4 @@
-README.txt - 11/18/1999
+README.txt - 11/23/1999
 -----------------------
 
 INTRODUCTION
@@ -63,7 +63,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8-windows.exe" file to start the installation
+    the "htmldoc-1.8.1-windows.exe" file to start the installation
     wizard.
 
 
@@ -71,15 +71,15 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8-linux-2.0.36-intel.rpm ENTER
+        rpm -i htmldoc-1.8.1-linux-2.0.36-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8-platform.tar.gz ENTER
-	tar xf htmldoc-1.8-platform.tar ENTER
+        gunzip htmldoc-1.8.1-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.1-platform.tar ENTER
 	./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
@@ -159,7 +159,7 @@ RUNNING HTMLDOC FROM YOUR WEB SERVER
 CURRENT LIMITATIONS
 
     - No support for style sheets.
-    - ROWSPAN and VALIGN are now supported in tables.
+    - ROWSPAN and VALIGN are not supported in tables.
     - CAPTIONs are always shown at the top of the table.
     - HTML 4.0 table elements and attributes are not supported.
 
