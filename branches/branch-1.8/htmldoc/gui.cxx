@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.9 2001/02/23 13:47:13 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.10 2001/02/28 01:46:13 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1611,15 +1611,15 @@ GUI::parseOptions(const char *line)	// I - Line from file
 	outputFormatCB(typePDF, this);
 	pdfCB(pdf11, this);
       }
-      else if (strcmp(temp2, "pdf") == 0 ||
-               strcmp(temp2, "pdf12") == 0)
+      else if (strcmp(temp2, "pdf12") == 0)
       {
         typePDF->setonly();
 	pdf12->setonly();
 	outputFormatCB(typePDF, this);
 	pdfCB(pdf12, this);
       }
-      else if (strcmp(temp2, "pdf13") == 0)
+      else if (strcmp(temp2, "pdf") == 0 ||
+               strcmp(temp2, "pdf13") == 0)
       {
         typePDF->setonly();
 	pdf13->setonly();
@@ -3672,5 +3672,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.9 2001/02/23 13:47:13 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.10 2001/02/28 01:46:13 mike Exp $".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.28 2001/02/27 02:13:14 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.29 2001/02/28 01:46:19 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6641,7 +6641,7 @@ write_image(FILE     *out,	/* I - Output file */
 	  break;
 	}
 
-        if (img->mask && write_obj)
+        if (img->mask && write_obj && PDFVersion >= 1.3f)
 	{
 	  // We have a mask image, write it!
 	  num_objects ++;
@@ -6683,7 +6683,7 @@ write_image(FILE     *out,	/* I - Output file */
 	  fprintf(out, "%d 0 obj<<", num_objects);
 	  fputs("/Type/XObject/Subtype/Image", out);
 	  fprintf(out, "/Length %d 0 R", num_objects + 1);
-	  if (img->mask)
+	  if (img->mask && PDFVersion >= 1.3f)
 	    fprintf(out, "/Mask %d 0 R", num_objects - 2);
 
 	  if (ncolors > 0)
@@ -8217,5 +8217,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.28 2001/02/27 02:13:14 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.29 2001/02/28 01:46:19 mike Exp $".
  */
