@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.21 2000/04/11 00:24:08 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.22 2000/05/15 20:59:33 mike Exp $"
 //
 //   FileBrowser routines.
 //
@@ -164,6 +164,7 @@ FileBrowser::item_width(void *p) const	// I - List item data
         // Point back to the start of the fragment...
 	ptr       = fragment;
 	tempwidth = 0;
+	column    = 0;
       }
       else if (*text == column_char())
       {
@@ -172,10 +173,10 @@ FileBrowser::item_width(void *p) const	// I - List item data
 	if (columns)
 	{
 	  for (i = 0, tempwidth = 0; i < column && columns[i]; i ++)
-	    tempwidth += columns[column - 1];
+	    tempwidth += columns[i];
 	}
 	else
-          tempwidth = column * (int)fl_width("        ");
+          tempwidth = column * (int)(fl_height() * 0.6 * 8.0);
 
         if (tempwidth > width)
 	  width = tempwidth;
@@ -295,9 +296,10 @@ FileBrowser::item_draw(void *p,		// I - List item data
               (Fl_Align)(FL_ALIGN_LEFT | FL_ALIGN_CLIP));
 
       // Point back to the start of the fragment...
-      ptr   = fragment;
-      width = 0;
-      y     += fl_height();
+      ptr    = fragment;
+      width  = 0;
+      y      += fl_height();
+      column = 0;
     }
     else if (*text == column_char())
     {
@@ -312,10 +314,10 @@ FileBrowser::item_draw(void *p,		// I - List item data
       if (columns)
       {
 	for (i = 0, width = 0; i < column && columns[i]; i ++)
-	  width += columns[column - 1];
+	  width += columns[i];
       }
       else
-        width = column * (int)fl_width("        ");
+        width = column * (int)(fl_height() * 0.6 * 8.0);
 
       ptr = fragment;
     }
@@ -514,5 +516,5 @@ FileBrowser::filter(const char *pattern)	// I - Pattern string
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.21 2000/04/11 00:24:08 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.22 2000/05/15 20:59:33 mike Exp $".
 //
