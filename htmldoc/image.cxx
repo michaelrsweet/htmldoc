@@ -1,5 +1,5 @@
 //
-// "$Id: image.cxx,v 1.15 2001/12/07 18:26:58 mike Exp $"
+// "$Id: image.cxx,v 1.16 2001/12/17 00:45:54 mike Exp $"
 //
 //   Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -41,63 +41,166 @@ int	hdImage::num_images_ = 0,	// Number of images in cache
 	hdImage::alloc_images_ = 0;	// Allocated images
 hdImage	**hdImage::images_ = NULL;	// Images in cache
 
+int	hdImage::num_formats_ = 0,	// Number of file formats
+	hdImage::alloc_formats_ = 0;	// Allocated file formats
+hdImageCheck	*hdImage::formats_ = 0;	// File formats
+
 
 //
-// 'hdImage::compare()' - Compare two image filenames...
+// 'hdImage::hdImage()' - Create a new empty image...
 //
 
-static int			// O - Result of comparison
-image_compare(hdImage **img1,	// I - First image
-              hdImage **img2)	// I - Second image
+hdImage::hdImage()
+{
+  uri_       = (char *)0;
+  width_     = 0;
+  height_    = 0;
+  depth_     = 0;
+  use_       = 1;
+  obj_       = 0;
+  type_      = HD_IMAGE_RASTER;
+  pixels_    = 0;
+  mask_      = 0;
+  maskwidth_ = 0;
+}
+
+
+//
+// 'hdImage::~hdImage()' - Delete an image...
+//
+
+hdImage::~hdImage()
+{
+  int	i;	// Looping var
+
+
+  free();
+
+  if (uri_)
+    delete[] uri_;
+
+  for (i = 0; i < num_images_; i ++)
+    if (images_[i] == this)
+      break;
+
+  if (i < num_images_)
+  {
+    num_images_ --;
+
+    if (i < num_images_)
+      memcpy(images_ + i, images_ + i + 1,
+             sizeof(hdImage *) * (num_images_ - i));
+  }
+}
+
+
+//
+// 'hdImage::need_mask()' - Allocate memory for the image mask...
+//
+
+void
+hdImage::alloc_mask()
+{
+  int	size;			// Byte size of mask image
+
+
+  // See if we've already allocated the mask image...
+  if (mask_)
+    return;
+
+  // Figure out the size of the mask image, and then allocate and clear
+  // all the bits needed...
+  maskwidth_ = (width_ + 7) / 8;
+  size       = maskwidth_ * height_;
+
+  mask_ = new uchar[size];
+
+  memset(mask_, 0, size);
+}
+
+
+//
+// 'hdImage::need_pixels()' - Allocate memory for the image pixels...
+//
+
+void
+hdImage::alloc_pixels()
+{
+  int	size;			// Byte size of pixels image
+
+
+  // See if we've already allocated the pixels array...
+  if (pixels_ || !width_ || !height_ || !depth_)
+    return;
+
+  // Figure out the size of the pixels array, and then allocate and clear
+  // all the bits needed...
+  size = width_ * height_ * depth_;
+
+  pixels_ = new uchar[size];
+
+  memset(pixels_, 0, size);
+}
+
+
+//
+// 'hdImage::compare()' - Compare two images...
+//
+
+int					// O - Result of comparison
+hdImage::compare(hdImage **img1,	// I - First image
+                 hdImage **img2)	// I - Second image
 {
 #ifdef WIN32
-  return (strcasecmp((*img1)->filename, (*img2)->filename));
+  return (strcasecmp((*img1)->uri_, (*img2)->uri_));
 #else
-  return (strcmp((*img1)->filename, (*img2)->filename));
+  return (strcmp((*img1)->uri_, (*img2)->uri_));
 #endif // WIN32
 }
 
 
 //
-// 'image_copy()' - Copy image files to the destination directory...
+// 'hdImage::copy()' - Copy image files to the destination directory...
 //
 
 int				// O - 0 on success, -1 on failure
-hdImage::copy(char *dest,	// I - Destination path
-              int  destlen)	// I - Max length of destination
+hdImage::copy(const char *path,	// I - Destination path
+              char       *d,	// O - Destination filename
+              int        dlen)	// I - Max length of destination
 {
-  FILE	*in, *out;		// Input/output files
-  uchar	buffer[8192];		// Data buffer
-  int	nbytes;			// Number of bytes in buffer
+  hdFile	*in, *out;	// Input/output files
+  char		buffer[8192];	// Data buffer
+  int		nbytes;		// Number of bytes in buffer
 
 
   // Figure out the destination filename...
-  if (strcmp(destpath, ".") == 0)
-    strcpy(dest, file_basename(filename));
+  if (strcmp(path, ".") == 0)
+    hdFile::basename(uri_, d, dlen);
   else
-    sprintf(dest, "%s/%s", destpath, file_basename(filename));
+    snprintf(d, dlen, "%s/%s", path,
+             hdFile::basename(uri_, buffer, sizeof(buffer)));
 
-  if (strcmp(dest, filename) == 0)
-    return;
+  // Don't copy if the destination == source
+  if (strcmp(d, uri_) == 0)
+    return (0);
 
   // Open files and copy...
-  if ((filename = file_find(Path, filename)) == NULL)
-    return;
+  if ((in = hdFile::open(uri_, HD_FILE_READ)) == NULL)
+    return (-1);
 
-  if ((in = fopen(filename, "rb")) == NULL)
-    return;
-
-  if ((out = fopen(dest, "wb")) == NULL)
+  if ((out = hdFile::open(d, HD_FILE_WRITE)) == NULL)
   {
-    fclose(in);
-    return;
+    delete in;
+    return (-1);
   }
 
-  while ((nbytes = fread(buffer, 1, sizeof(buffer), in)) > 0)
-    fwrite(buffer, 1, nbytes, out);
+  while ((nbytes = in->read(buffer, sizeof(buffer))) > 0)
+    out->write(buffer, nbytes);
 
-  fclose(in);
-  fclose(out);
+  delete in;
+  delete out;
+
+  return (0);
 }
 
 
@@ -106,39 +209,72 @@ hdImage::copy(char *dest,	// I - Destination path
 //
 
 hdImage *			// O - Pointer to image
-hdImage::find(const char *uri,	// I - Name of image file
-              int        load_data)// I - 1 = load image data
+hdImage::find(const char *p)	// I - Name of image file
 {
+  int		i;		// Looping var...
   hdImage	key,		// Search key...
 		*keyptr,	// Pointer to search key...
+		*img,		// Pointer to image...
 		**match;	// Matching image
+  hdImageCheck	*f;		// Pointer to check functions...
 
 
   // Range check...
-  if (filename == NULL)
+  if (p == NULL)
     return (NULL);
 
-  if (filename[0] == '\0')	// Microsoft VC++ runtime bug workaround...
+  if (p[0] == '\0')	// Microsoft VC++ runtime bug workaround...
     return (NULL);
 
   // See if we've already loaded it...
   if (num_images_ > 0)
   {
-    key.uri = uri;
-    keyptr  = &key;
+    key.uri(p);
+
+    keyptr = &key;
 
     match = (hdImage **)bsearch(&keyptr, images_, num_images_, sizeof(hdImage *),
                                 (int (*)(const void *, const void *))compare);
     if (match)
     {
-      if (load_data && !(*match)->pixels_)
-        (*match)->load();
+      img = *match;
+      img->use_ ++;
 
-      return (*match);
+      return (img);
     }
   }
 
-  return ((hdImage *)0);
+  // Nope, see if we can load it...
+  for (i = 0, img = (hdImage *)0, f = formats_; i < num_formats_; i ++, f ++)
+    if ((img = (*f)(p)) != NULL)
+      break;
+
+  if (!img)
+    return ((hdImage *)0);
+
+  // Add the new image to the cache...
+  if (num_images_ >= alloc_images_)
+  {
+    hdImage **temp = new hdImage *[alloc_images_ + ALLOC_FILES];
+
+    if (num_images_)
+    {
+      memcpy(temp, images_, sizeof(hdImage *) * num_images_);
+      delete[] images_;
+    }
+
+    images_       = temp;
+    alloc_images_ += ALLOC_FILES;
+  }
+
+  images_[num_images_] = img;
+  num_images_ ++;
+
+  if (num_images_ > 1)
+    qsort(images_, num_images_, sizeof(hdImage *),
+          (int (*)(const void *, const void *))compare);
+
+  return (img);
 }
 
 
@@ -167,13 +303,48 @@ hdImage::flush(void)
 }
 
 
+//
+// 'hdImage::free()' - Free an image from memory.
+//
+
+void
+hdImage::free()
+{
+  if (!pixels_ && !mask_)
+    return;
+
+  if (pixels_)
+  {
+    delete[] pixels_;
+    pixels_ = (uchar *)0;
+  }
+
+  if (mask_)
+  {
+    delete[] mask_;
+    mask_ = (uchar *)0;
+  }
+}
+
+
+//
+// 'hdImage::load()' - Load an image into memory...
+//
+
+int				// O - 0 on success, -1 on error
+hdImage::load()
+{
+  return (-1);
+}
+
+
 #if 0
 //
 // 'image_load()' - Load an image file from disk...
 //
 
 hdImage *			// O - Pointer to image
-image_load(const char *filename,// I - Name of image file
+image_load(const char *uri_,// I - Name of image file
            int        gray,	// I - 0 = color, 1 = grayscale
            int        load_data)// I - 1 = load image data, 0 = just info
 {
@@ -185,20 +356,20 @@ image_load(const char *filename,// I - Name of image file
 		**match,	// Matching image
 		**temp;		// Temporary array pointer
   int		status;		// Status of load...
-  const char	*realname;	// Real filename
+  const char	*realname;	// Real uri_
 
 
   // Range check...
-  if (filename == NULL)
+  if (uri_ == NULL)
     return (NULL);
 
-  if (filename[0] == '\0')	// Microsoft VC++ runtime bug workaround...
+  if (uri_[0] == '\0')	// Microsoft VC++ runtime bug workaround...
     return (NULL);
 
   // See if we've already loaded it...
   if (num_images > 0)
   {
-    strcpy(key.filename, filename);
+    strcpy(key.uri_, uri_);
     keyptr = &key;
 
     match = (hdImage **)bsearch(&keyptr, images, num_images, sizeof(hdImage *),
@@ -216,10 +387,10 @@ image_load(const char *filename,// I - Name of image file
   * Figure out the file type...
  
 
-  if ((realname = file_find(Path, filename)) == NULL)
+  if ((realname = hdFile::find(Path, uri_)) == NULL)
   {
     progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to find image file \"%s\"!", filename);
+                   "Unable to find image file \"%s\"!", uri_);
     return (NULL);
   }
 
@@ -227,14 +398,14 @@ image_load(const char *filename,// I - Name of image file
   {
     progress_error(HD_ERROR_FILE_NOT_FOUND,
                    "Unable to open image file \"%s\" (%s) for reading!",
-		   filename, realname);
+		   uri_, realname);
     return (NULL);
   }
 
   if (fread(header, 1, sizeof(header), fp) == 0)
   {
     progress_error(HD_ERROR_READ_ERROR,
-                   "Unable to read image file \"%s\"!", filename);
+                   "Unable to read image file \"%s\"!", uri_);
     fclose(fp);
     return (NULL);
   }
@@ -272,14 +443,14 @@ image_load(const char *filename,// I - Name of image file
     if (img == NULL)
     {
       progress_error(HD_ERROR_READ_ERROR, "Unable to allocate memory for \"%s\"",
-                     filename);
+                     uri_);
       fclose(fp);
       return (NULL);
     }
 
     images[num_images] = img;
 
-    strcpy(img->filename, filename);
+    strcpy(img->uri_, uri_);
     img->use = 1;
   }
   else
@@ -298,7 +469,7 @@ image_load(const char *filename,// I - Name of image file
     status = image_load_jpeg(img, fp, gray, load_data);
   else
   {
-    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", filename);
+    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", uri_);
     fclose(fp);
     free(img);
     return (NULL);
@@ -308,7 +479,7 @@ image_load(const char *filename,// I - Name of image file
 
   if (status)
   {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!", filename);
+    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!", uri_);
     if (!match)
       free(img);
     return (NULL);
@@ -324,41 +495,99 @@ image_load(const char *filename,// I - Name of image file
 
   return (img);
 }
+#endif // 0
 
 
 //
-// 'image_need_mask()' - Allocate memory for the image mask...
+// 'hdImage::register_standard()' - Register all of the standard image formats.
 //
 
-static void
-image_need_mask(hdImage *img)	// I - Image to add mask to
+void
+hdImage::register_standard()
 {
-  int	size;			// Byte size of mask image
-
-
-  if (img == NULL || img->mask != NULL)
-    return;
-
- // 
-  * Figure out the size of the mask image, and then allocate and set all the
-  * bits needed...
- 
-
-  img->maskwidth = (img->width + 7) / 8;
-  size           = img->maskwidth * img->height;
-  
-  img->mask = (uchar *)calloc(size, 1);
+  register_format(hdBMPImage::check);
+  register_format(hdEPSImage::check);
+  register_format(hdGIFImage::check);
+  register_format(hdJPEGImage::check);
+  register_format(hdPNGImage::check);
+  register_format(hdPNMImage::check);
+  register_format(hdXBMImage::check);
+  register_format(hdXPMImage::check);
 }
 
 
 //
-// 'image_set_mask()' - Clear a bit in the image mask.
+// 'hdImage::register_format()' - Register an image file format.
 //
 
-static void
-image_set_mask(hdImage *img,	// I - Image to operate on
-               int     x,	// I - X coordinate
-               int     y)	// I - Y coordinate
+void
+hdImage::register_format(hdImageCheck check)	// I - Check function
+{
+  int		i;				// Looping var
+  hdImageCheck	*temp;				// Image check function array
+
+
+  // Make sure this function has not been registered before...
+  for (i = 0; i < num_formats_; i ++)
+    if (check == formats_[i])
+      return;
+
+  if (num_formats_ >= alloc_formats_)
+  {
+    temp = new hdImageCheck[alloc_formats_ + ALLOC_FILES];
+    if (num_formats_)
+    {
+      memcpy(temp, formats_, sizeof(hdImageCheck) * num_formats_);
+      delete[] formats_;
+      formats_ = temp;
+    }
+
+    alloc_formats_ += ALLOC_FILES;
+  }
+
+  formats_[num_formats_] = check;
+  num_formats_ ++;
+}
+
+
+//
+// 'hdImage::save()' - Save the image to the named destination.
+//
+
+int				// O - 0 on success, -1 on failure
+hdImage::save(const char *path,	// I - Destination path
+              char       *d,	// O - Destination filename
+	      int        dlen)	// I - Size of destination filename
+{
+  if (type_ == HD_IMAGE_VECTOR)
+    return (save_as_png(path, d, dlen));
+  else
+    return (copy(path, d, dlen));
+}
+
+
+//
+// 'hdImage::save_as_png()' - Save a PNG image to the named destination.
+//
+
+int					// O - 0 on success, -1 on failure
+hdImage::save_as_png(const char *path,	// I - Destination path
+                     char       *d,	// O - Destination filename
+	             int        dlen)	// I - Size of destination filename
+{
+  // TODO: implement this!
+  return (-1);
+}
+
+
+//
+// 'hdImage::set_mask()' - Clear a bit in the image mask.
+//
+
+void
+hdImage::set_mask(int   x,	// I - X coordinate
+                  int   y,	// I - Y coordinate
+		  uchar a)	// I - Alpha value
 {
   uchar		*maskptr;	// Pointer into mask image
   static uchar	masks[8] =	// Masks for each bit
@@ -366,44 +595,97 @@ image_set_mask(hdImage *img,	// I - Image to operate on
 		  0x80, 0x40, 0x20, 0x10,
 		  0x08, 0x04, 0x02, 0x01
 		};
+  static uchar	dither[16][16] = // Simple 16x16 Floyd dither
+		{
+		 { 0,   128, 32,  160, 8,   136, 40,  168,
+		   2,   130, 34,  162, 10,  138, 42,  170 },
+		 { 192, 64,  224, 96,  200, 72,  232, 104,
+		   194, 66,  226, 98,  202, 74,  234, 106 },
+		 { 48,  176, 16,  144, 56,  184, 24,  152,
+		   50,  178, 18,  146, 58,  186, 26,  154 },
+		 { 240, 112, 208, 80,  248, 120, 216, 88,
+		   242, 114, 210, 82,  250, 122, 218, 90 },
+		 { 12,  140, 44,  172, 4,   132, 36,  164,
+		   14,  142, 46,  174, 6,   134, 38,  166 },
+		 { 204, 76,  236, 108, 196, 68,  228, 100,
+		   206, 78,  238, 110, 198, 70,  230, 102 },
+		 { 60,  188, 28,  156, 52,  180, 20,  148,
+		   62,  190, 30,  158, 54,  182, 22,  150 },
+		 { 252, 124, 220, 92,  244, 116, 212, 84,
+		   254, 126, 222, 94,  246, 118, 214, 86 },
+		 { 3,   131, 35,  163, 11,  139, 43,  171,
+		   1,   129, 33,  161, 9,   137, 41,  169 },
+		 { 195, 67,  227, 99,  203, 75,  235, 107,
+		   193, 65,  225, 97,  201, 73,  233, 105 },
+		 { 51,  179, 19,  147, 59,  187, 27,  155,
+		   49,  177, 17,  145, 57,  185, 25,  153 },
+		 { 243, 115, 211, 83,  251, 123, 219, 91,
+		   241, 113, 209, 81,  249, 121, 217, 89 },
+		 { 15,  143, 47,  175, 7,   135, 39,  167,
+		   13,  141, 45,  173, 5,   133, 37,  165 },
+		 { 207, 79,  239, 111, 199, 71,  231, 103,
+		   205, 77,  237, 109, 197, 69,  229, 101 },
+		 { 63,  191, 31,  159, 55,  183, 23,  151,
+		   61,  189, 29,  157, 53,  181, 21,  149 },
+		 { 254, 127, 223, 95,  247, 119, 215, 87,
+		   253, 125, 221, 93,  245, 117, 213, 85 }
+	       };
 
 
-  if (img == NULL || img->mask == NULL || x < 0 || x >= img->width ||
-      y < 0 || y > img->height)
+  // Make sure we have a mask and the coordinates lie inside...
+  if (!mask_ || x < 0 || x >= width_ || y < 0 || y > height_)
     return;
 
-  maskptr  = img->mask + y * img->maskwidth + x / 8;
-  *maskptr |= masks[x & 7];
+  // Conditionally set the mask bit depending on the alpha value...
+  // Note that the mask image contains 1 bits for each *transparent*
+  // pixel...
+  maskptr  = mask_ + y * maskwidth_ + x / 8;
+
+  if (a <= dither[x & 15][y & 15])
+    *maskptr |= masks[x & 7];
 }
 
 
 //
-// 'image_unload()' - Unload an image from memory.
+// 'hdImage::set_size()' - Set the size of the image...
 //
 
 void
-image_unload(hdImage *img)	// I - Image
+hdImage::set_size(int w,		// I - Width of image
+                  int h,		// I - Height of image
+		  int d)		// I - Depth of image
 {
-  if (!img)
-    return;
+  // Free any existing pixel data as needed...
+  if (pixels_ || mask_)
+    free();
 
-  if (!img->use || !img->pixels)
-    return;
-
-  if (img->obj)
-    img->use = 0;
-  else
-    img->use --;
-
-  if (img->use)
-    return;
-
-  free(img->pixels);
-  img->pixels = NULL;
+  // Set the size of the image...
+  width_  = w;
+  height_ = h;
+  depth_  = d;
 }
-#endif // 0
 
 
 //
-// End of "$Id: image.cxx,v 1.15 2001/12/07 18:26:58 mike Exp $".
+// 'hdImage::uri()' - Set the name of an image...
+//
+
+void
+hdImage::uri(const char *p)		// I - New URI
+{
+  if (uri_)
+    delete[] uri_;
+
+  if (p)
+  {
+    uri_ = new char[strlen(p) + 1];
+    strcpy(uri_, p);
+  }
+  else
+    uri_ = (char *)0;
+}
+
+
+//
+// End of "$Id: image.cxx,v 1.16 2001/12/17 00:45:54 mike Exp $".
 //
