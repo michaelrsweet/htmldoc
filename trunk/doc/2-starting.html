@@ -1,80 +1,122 @@
-<HTML>
-<BODY>
+<html>
+<body>
 
 <!-- FOOTER RIGHT "2-$CHAPTERPAGE" -->
-<DIV ALIGN="justify">
+<div align="justify">
 
-<H1 ALIGN="RIGHT"><A NAME="STARTING">Chapter 2 - Getting Started</A></H1>
+<h1 align="right"><a name="STARTING">Chapter 2 - Getting Started</a></h1>
 
-<P>This chapter describes how to start <I>HTMLDOC</I> and
-convert HTML files into PostScript and PDF files.</P>
+<p>This chapter describes how to start HTMLDOC and
+convert HTML files into PostScript and PDF files.</p>
 
-<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" CELLSPACING="0" BGCOLOR="#cccccc">
-<TR>
-	<TD><B>Note:</B>
+<center><table width="80%" border="1" cellpadding="5" cellspacing="0" bgcolor="#cccccc">
+<tr>
+	<td><b>Note:</b>
 
-	<P><I>HTMLDOC</I> currently does not support HTML 4.0
-	features such as stylesheets or the <CODE>STYLE</CODE>,
-	<CODE>TBODY</CODE>, <CODE>THEAD</CODE>, or
-	<CODE>TFOOT</CODE> elements. For more information,
-	please consult <A HREF="#HTMLREF">Chapter 6 - HTML
-	Reference</A>.
+	<p>HTMLDOC currently does not support HTML 4.0
+	features such as stylesheets or the <code>STYLE</code>,
+	<code>TBODY</code>, <code>THEAD</code>, or
+	<code>TFOOT</code> elements. For more information,
+	please consult <a href="#HTMLREF">Chapter 6 - HTML
+	Reference</a>.
 
-	</TD>
-</TR>
-</TABLE></CENTER>
+	</td>
+</tr>
+</table></center>
 
-<H2>Starting HTMLDOC</H2>
+<h2>Starting HTMLDOC</h2>
 
-<P>To start <I>HTMLDOC</I> under UNIX type:
+<p>For UNIX type:</p>
 
-<UL><PRE>
-% <KBD>htmldoc <I>ENTER</I></KBD>
-</PRE></UL>
+<pre>
+    % <kbd>htmldoc <i>ENTER</i></kbd>
+</pre>
 
-<P>Choose <VAR>HTMLDOC</VAR> from the <VAR>Start</VAR> menu to
-start <I>HTMLDOC</I> under Windows.
+<p>For Windows click:</p>
 
-<H2>Choosing a HTML File</H2>
+<pre>
+    Start Menu->All Programs->HTMLDOC->HTMLDOC
+</pre>
 
-<P>The <I>HTMLDOC</I> window (Figure 2-1) shows the list of
+<p>For Linux click:</p>
+
+<pre>
+    Applications Menu->Office->HTMLDOC
+</pre>
+
+<p>For MacOS X click:</p>
+
+<pre>
+    Applications Folder->HTMLDOC
+</pre>
+
+<p>For Solaris click:</p>
+
+<pre>
+     Applications Window->ESP->HTMLDOC
+</pre>
+
+<h2>Choosing a HTML File</h2>
+
+<p>The HTMLDOC window (Figure 2-1) shows the list of
 input files that will be converted. Start by clicking on the
-<VAR>Web Page</VAR> radio button (1) to specify that you will be
-converting a HTML web page file.
+<var>Web Page</var> radio button (1) to specify that you will be
+converting a HTML web page file.</p>
 
-<P ALIGN="CENTER"><IMG SRC="htmldoc-fig21.png">
-<BR>Figure 2-1 - The HTMLDOC Window
+<p align='center'><img src="htmldoc-fig21.png">
+<br />Figure 2-1 - The HTMLDOC Window</p>
 
-<P>Then choose a file for conversion by clicking on the <VAR>Add
-Files...</VAR> button (2). When the file chooser dialog appears (Figure 2-2),
-double-click on the HTML file (3) you wish to convert from the list of files.
+<p>Then choose a file for conversion by clicking on the <var>Add
+Files...</var> button (2). When the file chooser dialog appears
+(Figure 2-2), double-click on the HTML file (3) you wish to
+convert from the list of files. If you don't see the file you
+wish to add, then double click on the folder with ../ (4) to see
+more file options.
 
-<P ALIGN="CENTER"><IMG SRC="htmldoc-fig22.png">
-<BR>Figure 2-2 - The File Chooser Dialog
+<p align='center'><img src="htmldoc-fig22.png">
+<br />Figure 2-2 - The File Chooser Dialog</p>
 
-<H2>Setting the Output File</H2>
+<h2>Setting the Output File</h2>
 
-<P>Now that you've chosen a HTML file to convert, click on the
-<VAR>Output</VAR> tab (4) to set the output file (Figure 2-3).
-Type the name of the output file into the <VAR>Output Path</VAR>
-field or click on the <VAR>Browse...</VAR> button (5) to select
-the output file using the file chooser.
+<p>You've chosen your HTML files to be converted, now you need
+to save your file(s) somewhere. The output file is where you
+would do that. Click on the <var>Output</var> tab (5) to set the
+output file (Figure 2-3). You can either type the name of the
+output file into the <var>Output Path</var> field or click on
+the <var>Browse...</var> button (6) to find an acceptable output
+location. Clicking on browse allows you to put the new file in a
+specific folder for easy retrieval. When you click on a folder
+you will notice that the filename area and text is highlighted.
+Click a few times at the end of the file name path and add a
+slash (<kbd>/</kbd>) and the name of the new file. If you don't
+see the folder you want to put your document in, double click on
+the folder with <var>../</var> after it.</p>
 
-<P ALIGN="CENTER"><IMG SRC="htmldoc-fig23.png">
-<BR>Figure 2-3 - The Output Tab
+<p align='center'><img src="htmldoc-fig23.png">
+<br />Figure 2-3 - The Output Tab</p>
 
-<P>Since you chose to convert a <VAR>Web Page</VAR> instead of a book,
-<I>HTMLDOC</I> has automatically chosen to produce a PDF file.
+<h2>Generating the Document</h2>
 
-<H2>Generating the Document</H2>
+<p>You can generate the document by clicking on the
+<var>Generate</var> button (7) at the bottom of the HTMLDOC
+window. When the conversion is completed you can open the PDF
+file that is produced using Adobe Acrobat Reader or any other
+PDF viewing application.</p>
 
-Once you have chosen the output file you can generate it by clicking on
-the <VAR>Generate</VAR> button (6) at the bottom of the <I>HTMLDOC</I>
-window. When the conversion is completed you can open the PDF file that
-is produced using Adobe Acrobat Reader or any other PDF viewing
-application.
+<center><table width='80%' border='1' cellpadding='5' cellspacing='0' bgcolor='#cccccc'>
+<tr>
+	<td><b>Note:</b>
+	
+	<p>The <var>Open</var> button at the bottom of the
+	HTMLDOC GUI Open Window will not open the generated
+	document for viewing. You will learn about the
+	<var>Open</var> button in later chapters.</p>
 
-</DIV>
+	</td>
+</tr>
+</table></center>
 
-</BODY>
-</HTML>
+</div>
+
+</body>
+</html>
