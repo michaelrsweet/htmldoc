@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.20 1999/11/16 17:18:22 mike Exp $"
+// "$Id: gui.cxx,v 1.21 1999/11/16 17:30:52 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -884,8 +884,8 @@ GUI::title(const char *filename,// Name of file being edited
   strcat(title, "HTMLDOC " SVERSION);
 
   window->label(title);
-//  if (window->visible())
-//    Fl::check();
+  if (window->visible())
+    Fl::check();
 }
 
 
@@ -899,9 +899,6 @@ GUI::newBook(void)
   char	size[255];	// Page size string
   char	formats[256];	// Format characters
 
-
-  if (!checkSave())
-    return (0);
 
   prefs_load();
 
@@ -2502,9 +2499,7 @@ GUI::saveOptionsCB(Fl_Widget *w,
   PDFPageDuration   = gui->pageDuration->value();
   PDFEffectDuration = gui->effectDuration->value();
 
-  if (gui->typePDF->value())
-    PSLevel = 0;
-  else if (gui->ps1->value())
+  if (gui->ps1->value())
     PSLevel = 1;
   else if (gui->ps2->value())
     PSLevel = 2;
@@ -2659,6 +2654,9 @@ GUI::newBookCB(Fl_Widget *w,	// I - Widget
                GUI       *gui)	// I - GUI
 {
   REF(w);
+
+  if (!gui->checkSave())
+    return;
 
   gui->newBook();
 }
@@ -3054,5 +3052,5 @@ GUI::closeBookCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.20 1999/11/16 17:18:22 mike Exp $".
+// End of "$Id: gui.cxx,v 1.21 1999/11/16 17:30:52 mike Exp $".
 //
