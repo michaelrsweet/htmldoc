@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.48 2002/07/01 16:56:32 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.49 2002/07/19 18:37:45 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -1452,25 +1452,20 @@ load_book(const char   *filename,	// I  - Book file
   FILE		*fp;			// File to read from
   char		line[10240];		// Line from file
   const char 	*dir;			// Directory
+  const char	*local;			// Local filename
+  char		html[1024];		// HTML filename
 
 
-  // If the filename contains a path, chdir to it first...
-  if ((dir = file_directory(filename)) != NULL)
-  {
-   /*
-    * Filename contains a complete path - get the directory portion and do
-    * a chdir()...
-    */
-
-    chdir(dir);
-
-    filename = file_basename(filename);
-  }
+  // See if the filename contains a path...
+  dir = file_directory(filename);
 
   // Open the file...
-  if ((fp = fopen(filename, "rb")) == NULL)
+  if ((local = file_find(Path, filename)) == NULL)
+    return (0);
+
+  if ((fp = fopen(local, "rb")) == NULL)
   {
-    fprintf(stderr, "htmldoc: Unable to open \"%s\": %s\n", filename,
+    fprintf(stderr, "htmldoc: Unable to open \"%s\": %s\n", local,
             strerror(errno));
     return (0);
   }
@@ -1502,6 +1497,15 @@ load_book(const char   *filename,	// I  - Book file
       continue;				// Skip blank lines
     else if (line[0] == '-')
       parse_options(line, exportfunc);
+    else if (dir != NULL && line[0] != '/')
+    {
+      if (line[0] == '\\')
+	snprintf(html, sizeof(html), "%s/%s", dir, line + 1);
+      else
+	snprintf(html, sizeof(html), "%s/%s", dir, line);
+
+      read_file(html, document);
+    }
     else if (line[0] == '\\')
       read_file(line + 1, document);
     else
@@ -2245,5 +2249,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.48 2002/07/01 16:56:32 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.49 2002/07/19 18:37:45 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.59 2002/06/13 18:44:10 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.60 2002/07/19 18:37:48 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -288,8 +288,8 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
                 parent, fp, base ? base : "(null)"));
 
 #ifdef DEBUG
-  strcat((char *)indent, "    ");
-#endif /* DEBUG */
+  indent[0] = '\0';
+#endif // DEBUG
 
  /*
   * Start off with no previous tree entry...
@@ -390,6 +390,8 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	* invalid HTML, but so many people have asked for this to
 	* be supported that we have added this hack...
 	*/
+
+	progress_error(HD_ERROR_HTML_ERROR, "Unquoted < on line %d.", linenum);
 
 	if (ch == '\n')
 	  linenum ++;
@@ -515,7 +517,6 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	      temp = NULL;
               break;
 	    }
-
 	}
 	else if (islentry(t->markup))
 	{
@@ -597,6 +598,17 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 	                  indent, _htmlMarkups[temp->markup],
 			  _htmlMarkups[t->markup], linenum));
 	  }
+
+#ifdef DEBUG
+          for (tree_t *p = parent;
+	       p && p != temp && indent[0];
+	       p = p->parent)
+	    indent[strlen((char *)indent) - 4] = '\0';
+
+          if (indent[0])
+            indent[strlen((char *)indent) - 4] = '\0';
+#endif // DEBUG
+
 
           // Safety check; should never happen, since MARKUP_FILE is
 	  // the root node created by the caller...
@@ -692,8 +704,17 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
             else
               *glyphptr = ch;
 
-          *glyphptr = '\0';
-          ch = iso8859(glyph);
+          if (glyphptr == glyph)
+	  {
+	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+	                   linenum);
+            ch = '&';
+	  }
+	  else
+	  {
+            *glyphptr = '\0';
+            ch = iso8859(glyph);
+	  }
         }
 
         if (ch != 0 && ch != '\r')
@@ -743,8 +764,17 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
             else
               *glyphptr = ch;
 
-          *glyphptr = '\0';
-          ch = iso8859(glyph);
+          if (glyphptr == glyph)
+	  {
+	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
+	                   linenum);
+            ch = '&';
+	  }
+	  else
+	  {
+            *glyphptr = '\0';
+            ch = iso8859(glyph);
+	  }
         }
 
         if (ch != 0)
@@ -1236,14 +1266,14 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
 
     if (descend)
     {
+#ifdef DEBUG
+      strcat((char *)indent, "    ");
+#endif // DEBUG
+
       parent = t;
       prev   = NULL;
     }
   }  
-
-#ifdef DEBUG
-  indent[strlen((char *)indent) - 4] = '\0';
-#endif /* DEBUG */
 
   return (tree);
 }
@@ -2841,5 +2871,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.59 2002/06/13 18:44:10 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.60 2002/07/19 18:37:48 mike Exp $".
  */
