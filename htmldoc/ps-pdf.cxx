@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.88 2000/10/12 21:18:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89 2000/10/12 23:07:34 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4168,8 +4168,6 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     else
       temp_height = _htmlSpacings[SIZE_P];
 
-    fprintf(stderr, "temp_height = %.1f, *y = %.1f\n", temp_height, *y);
-
     if (*y < (bottom + 2 * (border + cellpadding) + temp_height) &&
         temp_height < (top - bottom - 2 * (border + cellpadding)))
     {
@@ -4530,6 +4528,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
   render_t	*r;		/* Render primitive */
   int		oldpage;	/* Old page value */
   float		oldy;		/* Old Y value */
+  float		tempx;		/* Temporary X value */
 
 
   DEBUG_printf(("parse_list(t=%08x, left=%d, right=%d, x=%.1f, y=%.1f, page=%d\n",
@@ -4544,8 +4543,16 @@ parse_list(tree_t *t,		/* I - Tree to parse */
   oldy    = *y;
   oldpage = *page;
   r       = endpages[*page];
+  tempx   = *x;
 
-  parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
+  if (t->indent == 0)
+  {
+    // Adjust left margin when no UL/OL/DL is being used...
+    left  += _htmlSizes[t->size];
+    tempx += _htmlSizes[t->size];
+  }
+
+  parse_doc(t->child, left, right, bottom, top, &tempx, y, page, NULL,
             &needspace);
 
   // Handle when paragraph wrapped to new page...
@@ -7394,5 +7401,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.88 2000/10/12 21:18:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89 2000/10/12 23:07:34 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.12 2000/10/12 21:18:42 mike Exp $"
+ * "$Id: file.c,v 1.13 2000/10/12 23:07:34 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -342,6 +342,9 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
     httpClearFields(http);
     httpSetField(http, HTTP_FIELD_HOST, hostname);
+    httpSetField(http, HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
+    httpSetField(http, HTTP_FIELD_CONNECTION, "Keep-Alive");
+
     if (username[0])
     {
       strcpy(connauth, "Basic ");
@@ -637,5 +640,5 @@ close_connection(void)
 
 
 /*
- * End of "$Id: file.c,v 1.12 2000/10/12 21:18:42 mike Exp $".
+ * End of "$Id: file.c,v 1.13 2000/10/12 23:07:34 mike Exp $".
  */
