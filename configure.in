@@ -1,5 +1,5 @@
 #
-# "$Id: configure.in,v 1.23.2.61 2004/11/01 10:35:23 mike Exp $"
+# "$Id: configure.in,v 1.23.2.62 2004/11/06 03:41:58 mike Exp $"
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
@@ -27,7 +27,7 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.8.24rc3 Open Source"
+SVERSION="1.8.24 Open Source"
 NVERSION=10802401
 AC_SUBST(SVERSION)
 AC_SUBST(NVERSION)
@@ -394,5 +394,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
 
 #
-# End of "$Id: configure.in,v 1.23.2.61 2004/11/01 10:35:23 mike Exp $".
+# End of "$Id: configure.in,v 1.23.2.62 2004/11/06 03:41:58 mike Exp $".
 #
