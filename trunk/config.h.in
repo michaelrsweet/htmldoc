@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.23 2004/03/31 07:28:13 mike Exp $"
+ * "$Id: config.h.in,v 1.24 2004/03/31 07:44:26 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -100,8 +100,11 @@
  * Do we have some of the "standard" string functions?
  */
 
-#undef HAVE_STRDUP
 #undef HAVE_STRCASECMP
+#undef HAVE_STRDUP
+#undef HAVE_STRDUPF
+#undef HAVE_STRLCAT
+#undef HAVE_STRLCPY
 #undef HAVE_STRNCASECMP
 
 
@@ -128,6 +131,6 @@
 
 
 /*
- * End of "$Id: config.h.in,v 1.23 2004/03/31 07:28:13 mike Exp $".
+ * End of "$Id: config.h.in,v 1.24 2004/03/31 07:44:26 mike Exp $".
  */
 

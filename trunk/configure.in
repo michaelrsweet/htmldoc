@@ -1,5 +1,5 @@
 #
-# "$Id: configure.in,v 1.27 2004/03/31 07:28:13 mike Exp $"
+# "$Id: configure.in,v 1.28 2004/03/31 07:44:26 mike Exp $"
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
@@ -83,7 +83,7 @@ AC_CHECK_HEADER(strings.h, AC_DEFINE(HAVE_STRINGS_H))
 AC_CHECK_HEADER(locale.h, AC_DEFINE(HAVE_LOCALE_H))
 
 # Checks for string functions.
-AC_CHECK_FUNCS(strdup strcasecmp strncasecmp strlcat strlcpy)
+AC_CHECK_FUNCS(strcasecmp strdup strdupf strlcat strlcpy strncasecmp)
 if test "$uname" = "HP-UX" -a "$uversion" = "1020"; then
     AC_MSG_WARN(Forcing snprintf emulation for HP-UX...)
 else
@@ -384,5 +384,5 @@ fi
 AC_OUTPUT(Makedefs Makefile htmldoc.list htmldoc.plist)
 
 #
-# End of "$Id: configure.in,v 1.27 2004/03/31 07:28:13 mike Exp $".
+# End of "$Id: configure.in,v 1.28 2004/03/31 07:44:26 mike Exp $".
 #
