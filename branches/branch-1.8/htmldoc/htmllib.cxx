@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.78 2004/07/21 19:32:23 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.79 2004/10/21 19:05:04 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -1254,7 +1254,6 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       case MARKUP_STRONG :
           t->style = (style_t)(t->style | STYLE_BOLD);
       case MARKUP_CITE :
-      case MARKUP_DT :
       case MARKUP_EM :
       case MARKUP_I :
           t->style = (style_t)(t->style | STYLE_ITALIC);
@@ -3298,5 +3297,5 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.78 2004/07/21 19:32:23 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.79 2004/10/21 19:05:04 mike Exp $".
  */
