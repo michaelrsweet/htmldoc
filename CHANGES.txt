@@ -1,4 +1,4 @@
-CHANGES.txt - 06/07/2002
+CHANGES.txt - 06/11/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -11,9 +11,11 @@ CHANGES IN HTMLDOC v1.8.21
 
     BUG FIXES
 
-	- "make install" didn't work for the fonts directory.
-	- "&euro;" didn't work, while "&#128;" did (the name table was
-	  not sorted properly...)
+	- "make install" didn't work in the fonts directory.
+	- "&euro;" didn't work, while "&#128;" did: the
+	  character name table was not sorted properly...
+	- Links didn't always point to the right page in PDF
+	  output.
 
 
 CHANGES IN HTMLDOC v1.8.20

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.184 2002/06/06 14:32:28 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.185 2002/06/11 19:36:17 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2716,16 +2716,13 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 	free(text);
       }
 
-      if (heading_pages[*heading] > 0)
-      {
-        i = heading_pages[*heading] + chapter_starts[1] - 1;
-	x = 0.0f;
-	y = heading_tops[*heading] + pages[i].bottom;
-	pspdf_transform_coords(pages + i, x, y);
+      i = heading_pages[*heading];
+      x = 0.0f;
+      y = heading_tops[*heading] + pages[i].bottom;
+      pspdf_transform_coords(pages + i, x, y);
 
-	fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
-        	pages_object + 2 * pages[i].outpage + 1, x, y);
-      }
+      fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+              pages_object + 2 * pages[i].outpage + 1, x, y);
 
       (*heading) ++;
     }
@@ -3062,7 +3059,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	    y1 = link->top + pages[link->page].bottom;
             pspdf_transform_coords(pages + link->page, x1, y1);
 	    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
-        	    pages_object + 2 * pages[link->page + chapter_starts[1] - 1].outpage + 1,
+        	    pages_object + 2 * pages[link->page].outpage + 1,
         	    x1, y1);
 	    pdf_end_object(out);
 	  }
@@ -4206,7 +4203,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       heading_tops = temp;
     }
 
-    heading_pages[num_headings] = *page - chapter_starts[1] + 1;
+    heading_pages[num_headings] = *page;
     heading_tops[num_headings]  = (int)(*y + 4 * _htmlSpacings[SIZE_P]);
     num_headings ++;
   }
@@ -7939,9 +7936,11 @@ add_link(uchar *name,		/* I - Name of link */
   if (name == NULL)
     return;
 
+  DEBUG_printf(("add_link(name=\"%s\", page=%d, top=%d)\n", name, page, top));
+
   if ((temp = find_link(name)) != NULL)
   {
-    temp->page = page - 1;
+    temp->page = page;
     temp->top  = top;
   }
   else
@@ -7975,7 +7974,7 @@ add_link(uchar *name,		/* I - Name of link */
 
     strncpy((char *)temp->name, (char *)name, sizeof(temp->name) - 1);
     temp->name[sizeof(temp->name) - 1] = '\0';
-    temp->page = page - 1;
+    temp->page = page;
     temp->top  = top;
 
     if (num_links > 1)
@@ -11661,5 +11660,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.184 2002/06/06 14:32:28 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.185 2002/06/11 19:36:17 mike Exp $".
  */
