@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.19.2.35 2004/02/09 22:25:11 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.35.2.1 2004/03/22 21:56:28 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -26,36 +26,37 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.24"
+#define HD_SVERSION	"1.9a1"
 
 
 /*
  * Limits for the output "engines"...
  */
 
-#define MAX_CHAPTERS	1000	/* Maximum number of chapters or files */
-#define MAX_COLUMNS	200	/* Maximum number of columns in a table */
-#define MAX_HF_IMAGES	10	/* Maximum number of header/footer images */
+#define HD_MAX_COLUMNS		200	/* Max columns in table */
+/*#define MAX_CHAPTERS	1000*/	/* Maximum number of chapters or files */
+/*#define MAX_COLUMNS	200*/	/* Maximum number of columns in a table */
+/*#define MAX_HF_IMAGES	10*/	/* Maximum number of header/footer images */
 
 
 /*
  * Memory allocation units for other stuff...
  */
 
-#define ALLOC_FILES	10	/* Temporary/image files */
-#define ALLOC_HEADINGS	50	/* Headings */
-#define ALLOC_LINKS	100	/* Web links */
-#define ALLOC_OBJECTS	100	/* PDF objects */
-#define ALLOC_PAGES	10	/* PS/PDF pages */
-#define ALLOC_ROWS	20	/* Table rows */
+#define HD_ALLOC_FILES		10	/* Temporary/image files */
+#define HD_ALLOC_HEADINGS	50	/* Headings */
+#define HD_ALLOC_LINKS		100	/* Web links */
+#define HD_ALLOC_OBJECTS	100	/* PDF objects */
+#define HD_ALLOC_PAGES		10	/* PS/PDF pages */
+#define HD_ALLOC_ROWS		20	/* Table rows */
 
 
 /*
  * Locations of files...
  */
 
-#define DOCUMENTATION	"/usr/share/doc/htmldoc"
-#define HTML_DATA	"/usr/share/htmldoc"
+#define HD_DOCUMENTATION	"/usr/share/doc/htmldoc"
+#define HD_HTML_DATA		"/usr/share/htmldoc"
 
 
 /*
@@ -128,6 +129,6 @@
 
 
 /*
- * End of "$Id: config.h.in,v 1.19.2.35 2004/02/09 22:25:11 mike Exp $".
+ * End of "$Id: config.h.in,v 1.19.2.35.2.1 2004/03/22 21:56:28 mike Exp $".
  */
 

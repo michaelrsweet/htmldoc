@@ -1,7 +1,7 @@
 # DO NOT DELETE
 
-common.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h
-common.o: tree.h margin.h hdstring.h ../config.h
+common.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h types.h
+common.o: style.h margin.h image.h rc4.h hdstring.h
 file.o: file.h http.h md5.h types.h hdstring.h ../config.h
 file-common.o: file.h http.h md5.h types.h hdstring.h ../config.h
 file-mem.o: file.h http.h md5.h types.h hdstring.h ../config.h
@@ -19,34 +19,26 @@ image-bmp.o: image.h file.h http.h md5.h types.h hdstring.h ../config.h
 image-gif.o: image.h file.h http.h md5.h types.h hdstring.h ../config.h
 image-jpeg.o: image.h file.h http.h md5.h types.h hdstring.h ../config.h
 image-png.o: image.h file.h http.h md5.h types.h
-image-reduce.o: htmldoc.h render.h style.h file.h http.h md5.h types.h
-image-reduce.o: image.h tree.h margin.h hdstring.h ../config.h
-index.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h
-index.o: tree.h margin.h hdstring.h ../config.h
-list.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h tree.h
-list.o: margin.h hdstring.h ../config.h
+image-reduce.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h
+image-reduce.o: types.h style.h margin.h image.h rc4.h hdstring.h
+index.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h types.h
+index.o: style.h margin.h image.h rc4.h hdstring.h
+list.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h types.h
+list.o: style.h margin.h image.h rc4.h hdstring.h
 margin.o: margin.h
-render.o: debug.h htmldoc.h render.h style.h file.h http.h md5.h types.h
-render.o: image.h tree.h margin.h hdstring.h ../config.h
-render-support.o: debug.h htmldoc.h render.h style.h file.h http.h md5.h
-render-support.o: types.h image.h tree.h margin.h hdstring.h ../config.h
-render-table.o: debug.h htmldoc.h render.h style.h file.h http.h md5.h
-render-table.o: types.h image.h tree.h margin.h hdstring.h ../config.h
+render.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h types.h
+render.o: style.h margin.h image.h rc4.h
 style.o: tree.h file.h http.h md5.h types.h style.h margin.h hdstring.h
 style.o: ../config.h
-stylefont.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h
-stylefont.o: tree.h margin.h hdstring.h ../config.h
-stylemedia.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h
-stylemedia.o: tree.h margin.h hdstring.h ../config.h
-stylesheet.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h
-stylesheet.o: tree.h margin.h hdstring.h ../config.h
-toc.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h tree.h
-toc.o: margin.h hdstring.h ../config.h
-tree.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h tree.h
-tree.o: margin.h hdstring.h ../config.h
-tree-format.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h
-tree-format.o: tree.h margin.h hdstring.h ../config.h
-tree-table.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h
-tree-table.o: tree.h margin.h hdstring.h ../config.h
-testsuite.o: htmldoc.h render.h style.h file.h http.h md5.h types.h image.h
-testsuite.o: tree.h margin.h hdstring.h ../config.h
+stylefont.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h
+stylefont.o: types.h style.h margin.h image.h rc4.h hdstring.h
+stylemedia.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h
+stylemedia.o: types.h style.h margin.h image.h rc4.h hdstring.h
+stylesheet.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h
+stylesheet.o: types.h style.h margin.h image.h rc4.h hdstring.h
+toc.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h types.h
+toc.o: style.h margin.h image.h rc4.h hdstring.h
+tree.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h types.h
+tree.o: style.h margin.h image.h rc4.h hdstring.h
+testsuite.o: htmldoc.h render.h ../config.h tree.h file.h http.h md5.h
+testsuite.o: types.h style.h margin.h image.h rc4.h hdstring.h

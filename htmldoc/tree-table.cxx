@@ -1,5 +1,5 @@
 //
-// "$Id: tree-table.cxx,v 1.3 2004/02/03 02:55:29 mike Exp $"
+// "$Id: tree-table.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   HTML table formatting routines for HTMLDOC, a HTML document
 //   processing program.
@@ -1581,5 +1581,5 @@ hdTree::get_table_size(hdStyleSheet *css,	// I  - Style sheet
 
 
 //
-// End of "$Id: tree-table.cxx,v 1.3 2004/02/03 02:55:29 mike Exp $".
+// End of "$Id: tree-table.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $".
 //

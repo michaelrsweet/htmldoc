@@ -1,5 +1,5 @@
 /*
- * "$Id: render.h,v 1.21.2.3 2004/03/22 21:14:46 mike Exp $"
+ * "$Id: render.h,v 1.21.2.4 2004/03/22 21:56:29 mike Exp $"
  *
  *   Render class definitions for HTMLDOC, a HTML document processing
  *   program.
@@ -30,10 +30,14 @@
  * Include necessary headers.
  */
 
-#  include "margin.h"
+#  include <config.h> // TEMPORARY
+#  include "tree.h"
+#  include "image.h"
 #  include "md5.h"
 #  include "rc4.h"
 #  include <zlib.h>
+#  include <stdio.h>
+#  include <sys/types.h>
 
 extern "C" {				// Workaround for JPEG header probs...
 #  include <jpeglib.h>			// JPEG/JFIF image definitions
@@ -70,7 +74,6 @@ enum hdRenderType
 /**
  * The hdRenderText structure 
  */
-#if 0
 struct hdRenderText
 {
   //* Font for text
@@ -98,7 +101,6 @@ struct hdRenderURL
   //* Link URL
   char		*url;
 };
-#endif // 0
 
 /**
  * The hdRenderNode structure describes rendering primitives used when
@@ -121,7 +123,6 @@ struct hdRenderNode
   //* Height in points
   float		height;
 
-#if 0
   union
   {
     //* Text data
@@ -139,23 +140,6 @@ struct hdRenderNode
     //* Link data
     hdRenderURL	link;
   }	data;
-#else
-  union
-  {
-    struct
-    {
-      int	typeface,		/* Typeface for text */
-		style;			/* Style of text */
-      float	size;			/* Size of text in points */
-      float	spacing;		/* Inter-character spacing */
-      float	rgb[3];			/* Color of text */
-      uchar	buffer[1];		/* String buffer */
-    }   	text;
-    image_t	*image;			/* Image pointer */
-    float	box[3];			/* Box color */
-    uchar	link[1];		/* Link URL */
-  }	data;
-#endif // 0
 
 #if 0
  /**
@@ -213,15 +197,15 @@ struct hdRenderPage
   //* Landscape orientation?
   int		landscape;
   //* Title text
-  uchar		*title;
+  char		*title;
   //* Chapter text
-  uchar		*chapter;
+  char		*chapter;
   //* Heading text
-  uchar		*heading;
+  char		*heading;
   //* Headers
-  uchar		*header[3];
+  char		*header[3];
   //* Footers
-  uchar		*footer[3];
+  char		*footer[3];
   //* Media color
   char		media_color[64];
   //* Media type
@@ -230,12 +214,8 @@ struct hdRenderPage
   int		media_position;
   //* Page number for TOC
   char		page_text[64];
-//  //* Background
-//  hdStyle	*background;
-  //* Background image
-  image_t	*background_image;
-  //* Background color
-  float		background_color[3];
+  //* Background
+  hdStyle	*background;
 
   //* Number up pages
   int		nup;
@@ -275,9 +255,9 @@ struct hdRenderLink
   //* Top position
   short		top;
   //* Filename
-  uchar		*filename;
+  char		*filename;
   //* Reference name
-  uchar		*name;
+  char		*name;
 };
 
 
@@ -293,7 +273,7 @@ struct hdRenderChapter
   int		last;
 };
 
-#if 0
+
 /**
  * The hdRenderHeading structure holds the page and position of each
  * heading in a document.
@@ -308,7 +288,7 @@ struct hdRenderHeading
   //* HTML tree node with heading
   hdTree	*node;
 };
-#endif // 0
+
 
 /**
  * The hdRender class handles rendering a document to one or more pages.
@@ -321,7 +301,70 @@ class hdRender
   hdRender();
   ~hdRender();
 
-  int export_doc(tree_t *document, tree_t *toc);
+  int export_doc(hdTree *document, hdTree *toc);
+
+#define VALUE(x)
+#define NULL3
+
+  char		OutputPath[255]	VALUE("");	/* Output directory/name */
+  int		OutputFiles	VALUE(0),	/* Generate multiple files? */
+		OutputColor	VALUE(1);	/* Output color images */
+  int		OutputJPEG	VALUE(0);	/* JPEG compress images? */
+  int		PDFVersion	VALUE(13);	/* Version of PDF to support */
+  int		PDFPageMode	VALUE(PDF_OUTLINE),
+						/* PageMode attribute */
+		PDFPageLayout	VALUE(PDF_SINGLE),
+						/* PageLayout attribute */
+		PDFFirstPage	VALUE(PDF_CHAPTER_1),
+						/* First page */
+		PDFEffect	VALUE(PDF_NONE);/* Page transition effect */
+  float		PDFEffectDuration VALUE(1.0),	/* Page effect duration */
+		PDFPageDuration	VALUE(10.0);	/* Page duration */
+  int		Encryption	VALUE(0),	/* Encrypt the PDF file? */
+		Permissions	VALUE(-4);	/* File permissions? */
+  char		OwnerPassword[33] VALUE(""),	/* Owner password */
+		UserPassword[33] VALUE("");	/* User password */
+  int		EmbedFonts	VALUE(0);	/* Embed fonts? */
+  int		PSLevel		VALUE(2),	/* Language level (0 for PDF) */
+		PSCommands	VALUE(0),	/* Output PostScript commands? */
+		XRXComments	VALUE(0);	/* Output Xerox comments? */
+  int		PageWidth	VALUE(595),	/* Page width in points */
+		PageLength	VALUE(792),	/* Page length in points */
+		PageLeft	VALUE(72),	/* Left margin */
+		PageRight	VALUE(36),	/* Right margin */
+		PageTop		VALUE(36),	/* Top margin */
+		PageBottom	VALUE(36),	/* Bottom margin */
+		PagePrintWidth,			/* Printable width */
+		PagePrintLength,		/* Printable length */
+		PageDuplex	VALUE(0),	/* Adjust margins/pages for duplexing? */
+		Landscape	VALUE(0),	/* Landscape orientation? */
+		NumberUp	VALUE(1);	/* Number-up pages */
+
+//  typeface_t	HeadFootType	VALUE(TYPE_HELVETICA);
+						/* Typeface for header & footer */
+//  style_t	HeadFootStyle	VALUE(STYLE_NORMAL);
+						/* Type style */
+  float		HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
+
+  char		*Header[3]	NULL3,		/* Header for regular pages */
+		*TocHeader[3]	NULL3,		/* Header for TOC pages */
+		*Footer[3]	NULL3,		/* Regular page footer */
+		*TocFooter[3]	NULL3,		/* Footer for TOC pages */
+		TocTitle[1024]	VALUE("Table of Contents");
+						/* TOC title string */
+
+  char		TitleImage[1024] VALUE(""),	/* Title page image */
+		LogoImage[1024]	VALUE(""),	/* Logo image */
+		BodyColor[255]	VALUE(""),	/* Body color */
+		BodyImage[1024]	VALUE(""),	/* Body image */
+		LinkColor[255]	VALUE("");	/* Link color */
+
+  char		HFImage[HD_MAX_HF_IMAGES][1024];	/* Header/footer images */
+
+  int		LinkStyle	VALUE(1);	/* 1 = underline, 0 = plain */
+  int		Links		VALUE(1);	/* 1 = generate links, 0 = no links */
+  char		Path[2048]	VALUE(""),	/* Search path */
+		Proxy[1024]	VALUE("");	/* Proxy URL */
 
   protected:
 
@@ -330,10 +373,10 @@ class hdRender
 
   int		title_page;
   int		chapter,
-		chapter_outstarts[MAX_CHAPTERS],
-		chapter_outends[MAX_CHAPTERS],
-		chapter_starts[MAX_CHAPTERS],
-		chapter_ends[MAX_CHAPTERS];
+		chapter_outstarts[HD_MAX_CHAPTERS],
+		chapter_outends[HD_MAX_CHAPTERS],
+		chapter_starts[HD_MAX_CHAPTERS],
+		chapter_ends[HD_MAX_CHAPTERS];
 
   int		num_headings,
 		alloc_headings,
@@ -343,7 +386,7 @@ class hdRender
   int		num_pages,
 		alloc_pages;
   hdRenderPage	*pages;
-  tree_t	*current_heading;
+  hdTree	*current_heading;
 
   int		num_outpages;
   hdRenderOutPage *outpages;
@@ -352,7 +395,7 @@ class hdRender
 		alloc_links;
   hdRenderLink	*links;
 
-  uchar		list_types[16];
+  char		list_types[16];
   int		list_values[16];
 
   char		stdout_filename[256];
@@ -367,17 +410,17 @@ class hdRender
 		encrypt_object,
 		font_objects[16];
 
-  uchar		*doc_title;
-  image_t	*logo_image;
+  char		*doc_title;
+  hdImage	*logo_image;
   float		logo_width,
 		logo_height;
 
-  image_t	*hfimage[MAX_HF_IMAGES];
-  float		hfimage_width[MAX_HF_IMAGES],
-		hfimage_height[MAX_HF_IMAGES];
+  hdImage	*hfimage[HD_MAX_HF_IMAGES];
+  float		hfimage_width[HD_MAX_HF_IMAGES],
+		hfimage_height[HD_MAX_HF_IMAGES];
   float		maxhfheight;
 
-  image_t	*background_image;
+  hdImage	*background_image;
   float		background_color[3],
 		link_color[3];
 
@@ -392,11 +435,11 @@ class hdRender
 
   int		compressor_active;
   z_stream	compressor;
-  uchar		comp_buffer[8192];
-  uchar		encrypt_key[16];
+  char		comp_buffer[8192];
+  char		encrypt_key[16];
   int		encrypt_len;
   rc4_context_t	encrypt_state;
-  md5_byte_t	file_id[16];
+  hdByte	file_id[16];
 
  /*
   * JPEG library destination data manager.  These routines direct
@@ -404,7 +447,7 @@ class hdRender
   */
 
   FILE			*jpg_file;	/* JPEG file */
-  uchar			jpg_buf[8192];	/* JPEG buffer */
+  char			jpg_buf[8192];	/* JPEG buffer */
   jpeg_destination_mgr	jpg_dest;	/* JPEG destination manager */
   struct jpeg_error_mgr	jerr;		/* JPEG error handler */
 
@@ -416,27 +459,27 @@ class hdRender
 
   void		prepare_outpages();
   void		prepare_page(int page);
-  void		prepare_heading(int page, int print_page, uchar **format,
+  void		prepare_heading(int page, int print_page, char **format,
 			        int y, char *page_text, int page_len,
 				int render_heading = 1);
 
-  void		ps_write_document(uchar *author, uchar *creator,
-			          uchar *copyright, uchar *keywords,
-				  uchar *subject);
+  void		ps_write_document(char *author, char *creator,
+			          char *copyright, char *keywords,
+				  char *subject);
   void		ps_write_outpage(FILE *out, int outpage);
   void		ps_write_page(FILE *out, int page);
   void		ps_write_background(FILE *out);
-  void		pdf_write_document(uchar *author, uchar *creator,
-			           uchar *copyright, uchar *keywords,
-				   uchar *subject, tree_t *toc);
+  void		pdf_write_document(char *author, char *creator,
+			           char *copyright, char *keywords,
+				   char *subject, hdTree *toc);
   void		pdf_write_outpage(FILE *out, int outpage);
   void		pdf_write_page(FILE *out, int page);
   void		pdf_write_resources(FILE *out, int page);
-  void		pdf_write_contents(FILE *out, tree_t *toc, int parent,
+  void		pdf_write_contents(FILE *out, hdTree *toc, int parent,
 			           int prev, int next, int *heading);
   void		pdf_write_links(FILE *out);
   void		pdf_write_names(FILE *out);
-  int		pdf_count_headings(tree_t *toc);
+  int		pdf_count_headings(hdTree *toc);
 
   int		pdf_start_object(FILE *out, int array = 0);
   void		pdf_start_stream(FILE *out);
@@ -447,76 +490,75 @@ class hdRender
   void		flate_close_stream(FILE *out);
   void		flate_puts(const char *s, FILE *out);
   void		flate_printf(FILE *out, const char *format, ...);
-  void		flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
+  void		flate_write(FILE *out, char *inbuf, int length, int flush=0);	
 
-  void		render_contents(tree_t *t, hdMargin *margins, float *y,
-		                int *page, int heading, tree_t *chap);
-  int		count_headings(tree_t *t);
-  void		parse_contents(tree_t *t, hdMargin *margins, float *y,
-			       int *page, int *heading, tree_t *chap);
-  void		parse_doc(tree_t *t, hdMargin *margins, float *x, float *y, int *page,
-			  tree_t *cpara, int *needspace);
-  void		parse_heading(tree_t *t, hdMargin *margins, float *x, float *y, int *page,
+  void		render_contents(hdTree *t, hdMargin *margins, float *y,
+		                int *page, int heading, hdTree *chap);
+  int		count_headings(hdTree *t);
+  void		parse_contents(hdTree *t, hdMargin *margins, float *y,
+			       int *page, int *heading, hdTree *chap);
+  void		parse_doc(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
+			  hdTree *cpara, int *needspace);
+  void		parse_heading(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
 			      int needspace);
-  void		parse_paragraph(tree_t *t, hdMargin *margins, float *x,
+  void		parse_paragraph(hdTree *t, hdMargin *margins, float *x,
 			        float *y, int *page, int needspace);
-  void		parse_pre(tree_t *t, hdMargin *margins, float *x, float *y,
+  void		parse_pre(hdTree *t, hdMargin *margins, float *x, float *y,
 			  int *page, int needspace);
-  void		parse_table(tree_t *t, hdMargin *margins, float *x, float *y,
+  void		parse_table(hdTree *t, hdMargin *margins, float *x, float *y,
 			    int *page, int needspace);
-  void		parse_list(tree_t *t, hdMargin *margins, float *x, float *y,
+  void		parse_list(hdTree *t, hdMargin *margins, float *x, float *y,
 			   int *page, int needspace);
-  void		init_list(tree_t *t);
-  void		parse_comment(tree_t *t, hdMargin *margins, float *x, float *y,
-			      int *page, tree_t *para, int needspace);
+  void		init_list(hdTree *t);
+  void		parse_comment(hdTree *t, hdMargin *margins, float *x, float *y,
+			      int *page, hdTree *para, int needspace);
 
-  tree_t	*real_prev(tree_t *t);
-  tree_t	*real_next(tree_t *t);
+  hdTree	*real_prev(hdTree *t);
+  hdTree	*real_next(hdTree *t);
 
   void		check_pages(int page);
 
-  void		add_link(uchar *name, int page, int top);
-  hdRenderLink	*find_link(uchar *name);
+  void		add_link(char *name, int page, int top);
+  hdRenderLink	*find_link(char *name);
   static int	compare_links(hdRenderLink *n1, hdRenderLink *n2);
 
-  void		find_background(tree_t *t);
+  void		find_background(hdTree *t);
   void		write_background(int page, FILE *out);
 
   hdRenderNode	*new_render(int page, hdRenderType type, float x, float y,
 		            float width, float height, void *data,
 			    hdRenderNode *insert = 0);
-  void		copy_tree(tree_t *parent, tree_t *t);
-  float		get_cell_size(tree_t *t, float left, float right,
+  void		copy_tree(hdTree *parent, hdTree *t);
+  float		get_cell_size(hdTree *t, float left, float right,
 		              float *minwidth, float *prefwidth,
 			      float *minheight);
-  float		get_table_size(tree_t *t, float left, float right,
+  float		get_table_size(hdTree *t, float left, float right,
 		               float *minwidth, float *prefwidth,
 			       float *minheight);
-  tree_t	*flatten_tree(tree_t *t);
-  float		get_width(uchar *s, int typeface, int style, int size);
-  void		update_image_size(tree_t *t);
-  uchar		*get_title(tree_t *doc);
+  hdTree	*flatten_tree(hdTree *t);
+  float		get_width(char *s, int typeface, int style, int size);
+  void		update_image_size(hdTree *t);
+  char		*get_title(hdTree *doc);
   FILE		*open_file(void);
   void		set_color(FILE *out, float *rgb);
   void		set_font(FILE *out, int typeface, int style, float size);
   void		set_pos(FILE *out, float x, float y);
-  void		write_prolog(FILE *out, int pages, uchar *author,
-		             uchar *creator, uchar *copyright,
-			     uchar *keywords, uchar *subject);
-  void		ps_hex(FILE *out, uchar *data, int length);
-  void		ps_ascii85(FILE *out, uchar *data, int length);
+  void		write_prolog(FILE *out, int pages, char *author,
+		             char *creator, char *copyright,
+			     char *keywords, char *subject);
+  void		ps_hex(FILE *out, char *data, int length);
+  void		ps_ascii85(FILE *out, char *data, int length);
   static void	jpg_init(j_compress_ptr cinfo);
   static boolean jpg_empty(j_compress_ptr cinfo);
   static void	jpg_term(j_compress_ptr cinfo);
-  void		jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
+  void		jpg_setup(FILE *out, hdImage *img, j_compress_ptr cinfo);
   static int	compare_rgb(unsigned *rgb1, unsigned *rgb2);
   void		write_image(FILE *out, hdRenderNode *r, int write_obj = 0);
   void		write_imagemask(FILE *out, hdRenderNode *r);
-  void		write_string(FILE *out, uchar *s, int compress);
+  void		write_string(FILE *out, char *s, int compress);
   void		write_text(FILE *out, hdRenderNode *r);
   void		write_trailer(FILE *out, int pages);
-  int		write_type1(FILE *out, typeface_t typeface,
-			    style_t style);
+  int		write_type1(FILE *out, hdStyleFont *font);
 };
 
 
@@ -524,5 +566,5 @@ class hdRender
 
 
 /*
- * End of "$Id: render.h,v 1.21.2.3 2004/03/22 21:14:46 mike Exp $".
+ * End of "$Id: render.h,v 1.21.2.4 2004/03/22 21:56:29 mike Exp $".
  */

@@ -1,5 +1,5 @@
 //
-// "$Id: md5.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $"
+// "$Id: md5.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 // MD5 support code for HTMLDOC.
 //
@@ -389,5 +389,5 @@ hdMD5::finish(hdByte *digest)	// O - Final sum
 
 
 //
-// End of "$Id: md5.cxx,v 1.4 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: md5.cxx,v 1.4.2.1 2004/03/22 21:56:29 mike Exp $".
 //

@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.13.2.15.2.3 2004/03/22 15:31:42 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.15.2.4 2004/03/22 21:56:29 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -30,20 +30,49 @@ include ../Makedefs
 
 
 #
+# Targets...
+#
+
+TARGETS	=	libhtmldoc.a testsuite
+
+
+#
 # Object files...
 #
 
-OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o http.o \
-		http-addr.o http-support.o image.o iso8859.o margin.o md5.o \
-		progress.o rc4.o render.o snprintf.o string.o \
-		toc.o util.o
+HEADERS	=	\
+		file.h \
+		htmldoc.h \
+		http.h \
+		image.h \
+		margin.h \
+		md5.h \
+		render.h \
+		style.h \
+		tree.h \
+		types.h
+
+LIBOBJS	=	\
+		common.o \
+		file.o file-common.o file-mem.o file-open.o file-std.o \
+		file-ascii.o file-flate.o file-jpeg.o file-rc4.o \
+		http.o http-md5.o md5.o \
+		image.o image-bmp.o image-gif.o image-jpeg.o image-png.o \
+		image-reduce.o index.o list.o margin.o \
+		render.o \
+		style.o stylefont.o stylemedia.o stylesheet.o toc.o \
+		tree.o
+
+OBJS	=	$(LIBOBJS) testsuite.o
+
+#OBJS	=	gui.o htmldoc.o
 
 
 #
 # Make everything...
 #
 
-all:	htmldoc$(EXEEXT)
+all:	$(TARGETS)
 
 
 #
@@ -63,7 +92,9 @@ install:	all
 #
 
 clean:
-	rm -f $(OBJS) htmldoc$(EXEEXT)
+	rm -f $(OBJS) $(TARGETS)
+	rm -f *.bck
+	rm -f *.bak
 
 
 #
@@ -99,28 +130,48 @@ util.o:		htmldoc.h types.h
 
 
 #
-# testhtml
+# libhtmldoc.a
 #
 
-testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o \
-		http-addr.o http-support.o image.o iso8859.o \
-		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o \
-		htmlsep.o string.o ../Makedefs
+libhtmldoc.a:	$(LIBOBJS) ../Makedefs
+	echo Archiving $@...
+	$(RM) $@
+	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
+	$(RANLIB) $@
+
+
+#
+# testsuite
+#
+
+testsuite:	testsuite.o libhtmldoc.a ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o gui.o htmllibd.o \
-		http.o http-addr.o http-support.o image.o iso8859.o \
-		progress.o ps-pdf.o toc.o util.o string.o \
-		md5.o rc4.o html.o htmlsep.o $(LIBS)
+	$(RM) $@
+	$(CXX) $(LDFLAGS) -o testsuite testsuite.o libhtmldoc.a $(LIBS)
 
-testhtml.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
-htmllibd.o:	htmllib.cxx ../config.h ../Makedefs debug.h html.h htmldoc.h \
-		image.h iso8859.h types.h
-	echo Compiling $<...
-	$(CXX) $(CXXFLAGS) -DDEBUG -o htmllibd.o -c htmllib.cxx
 
-$(OBJS):	../Makedefs ../config.h
+$(OBJS):	../Makedefs
 
 
 #
-# End of "$Id: Makefile,v 1.13.2.15.2.3 2004/03/22 15:31:42 mike Exp $".
+# reference.html/xml
+#
+
+reference.html:	$(LIBOBJS:.o=.cxx) $(HEADERS)
+	$(RM) reference.xml
+	mxmldoc reference.xml $(LIBOBJS:.o=.cxx) $(HEADERS) >reference.html
+
+
+#
+# depend
+#
+
+depend:
+	makedepend -Y -I.. -f Dependencies $(LIBOBJS:.o=.cxx) testsuite.cxx
+
+include Dependencies
+
+
+#
+# End of "$Id: Makefile,v 1.13.2.15.2.4 2004/03/22 21:56:29 mike Exp $".
 #

@@ -1,5 +1,5 @@
 //
-// "$Id: file-ascii.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $"
+// "$Id: file-ascii.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   ASCII filter functions for HTMLDOC.
 //
@@ -421,5 +421,5 @@ hdASCIIHexFilter::unget(int c)		// I - Character to unget
 
 
 //
-// End of "$Id: file-ascii.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $".
+// End of "$Id: file-ascii.cxx,v 1.3.2.1 2004/03/22 21:56:29 mike Exp $".
 //

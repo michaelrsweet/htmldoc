@@ -1,5 +1,5 @@
 //
-// "$Id: image-jpeg.cxx,v 1.6 2004/02/03 02:55:28 mike Exp $"
+// "$Id: image-jpeg.cxx,v 1.6.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 // JPEG image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -301,5 +301,5 @@ jpg_source::jpg_source(j_decompress_ptr cinfo,	// I - Decompressor data
 
 
 //
-// End of "$Id: image-jpeg.cxx,v 1.6 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: image-jpeg.cxx,v 1.6.2.1 2004/03/22 21:56:29 mike Exp $".
 //

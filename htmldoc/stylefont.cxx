@@ -1,5 +1,5 @@
 //
-// "$Id: stylefont.cxx,v 1.8 2004/02/03 02:55:29 mike Exp $"
+// "$Id: stylefont.cxx,v 1.8.2.1 2004/03/22 21:56:29 mike Exp $"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
@@ -514,5 +514,5 @@ hdStyleFont::read_ttf(hdFile       *fp,	// I - File to read from
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.8 2004/02/03 02:55:29 mike Exp $".
+// End of "$Id: stylefont.cxx,v 1.8.2.1 2004/03/22 21:56:29 mike Exp $".
 //

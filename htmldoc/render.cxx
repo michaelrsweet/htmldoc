@@ -1,5 +1,5 @@
 /*
- * "$Id: render.cxx,v 1.14.2.3 2004/03/22 21:14:46 mike Exp $"
+ * "$Id: render.cxx,v 1.14.2.4 2004/03/22 21:56:29 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -36,6 +36,7 @@
 
 /*#define DEBUG*/
 #include "htmldoc.h"
+#include "debug.h"
 #include <stdarg.h>
 #include <ctype.h>
 #include <time.h>
@@ -55,7 +56,7 @@
  */
 
 int
-pspdf_export(tree_t *document, tree_t *toc)
+pspdf_export(hdTree *document, hdTree *toc)
 {
   hdRender	*render;
   int		status;
@@ -99,18 +100,18 @@ hdRender::~hdRender()
  */
 
 int
-hdRender::export_doc(tree_t *document,	/* I - Document to export */
-                     tree_t *toc)	/* I - Table of contents for document */
+hdRender::export_doc(hdTree *document,	/* I - Document to export */
+                     hdTree *toc)	/* I - Table of contents for document */
 {
   int		i, j;			/* Looping vars */
   const char	*title_file;		/* Location of title image/file */
-  uchar		*author,		/* Author of document */
+  char		*author,		/* Author of document */
 		*creator,		/* HTML file creator (Netscape, etc) */
 		*copyright,		/* File copyright */
 		*docnumber,		/* Document number */
 		*keywords,		/* Search keywords */
 		*subject;		/* Subject */
-  tree_t	*t;			/* Title page document tree */
+  hdTree	*t;			/* Title page document tree */
   FILE		*fp;			/* Title page file */
   float		x, y,			/* Current page position */
 		bottom, top,		/* Bottom and top margins */
@@ -128,7 +129,7 @@ hdRender::export_doc(tree_t *document,	/* I - Document to export */
 		toc_right,
 		toc_bottom,
 		toc_top;
-  image_t	*timage;		/* Title image */
+  hdImage	*timage;		/* Title image */
   float		timage_width,		/* Title image width */
 		timage_height;		/* Title image height */
   hdRenderNode	*r;			/* Rendering structure... */
@@ -165,12 +166,12 @@ hdRender::export_doc(tree_t *document,	/* I - Document to export */
   */
 
   doc_title   = get_title(document);
-  author      = htmlGetMeta(document, (uchar *)"author");
-  creator     = htmlGetMeta(document, (uchar *)"generator");
-  copyright   = htmlGetMeta(document, (uchar *)"copyright");
-  docnumber   = htmlGetMeta(document, (uchar *)"docnumber");
-  keywords    = htmlGetMeta(document, (uchar *)"keywords");
-  subject     = htmlGetMeta(document, (uchar *)"subject");
+  author      = htmlGetMeta(document, (char *)"author");
+  creator     = htmlGetMeta(document, (char *)"generator");
+  copyright   = htmlGetMeta(document, (char *)"copyright");
+  docnumber   = htmlGetMeta(document, (char *)"docnumber");
+  keywords    = htmlGetMeta(document, (char *)"keywords");
+  subject     = htmlGetMeta(document, (char *)"subject");
   logo_image  = image_load(LogoImage, !OutputColor);
   maxhfheight = 0.0f;
 
@@ -185,7 +186,7 @@ hdRender::export_doc(tree_t *document,	/* I - Document to export */
   else
     logo_width = logo_height = 0.0f;
 
-  for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
+  for (int hfi = 0; hfi < HD_MAX_HF_IMAGES; hfi ++)
   {
     hfimage[hfi] = image_load(HFImage[hfi], !OutputColor);
 
@@ -204,7 +205,7 @@ hdRender::export_doc(tree_t *document,	/* I - Document to export */
   }
 
   find_background(document);
-  get_color((uchar *)LinkColor, link_color);
+  get_color((char *)LinkColor, link_color);
 
  /*
   * Initialize page rendering variables...
@@ -527,8 +528,8 @@ hdRender::export_doc(tree_t *document,	/* I - Document to export */
       prepare_page(page);
   }
 
-  if (TocDocCount > MAX_CHAPTERS)
-    TocDocCount = MAX_CHAPTERS;
+  if (TocDocCount > HD_MAX_CHAPTERS)
+    TocDocCount = HD_MAX_CHAPTERS;
 
  /*
   * Do we have any pages?
@@ -1120,7 +1121,7 @@ hdRender::prepare_page(int page)		/* I - Page number */
 void
 hdRender::prepare_heading(int   page,	// I - Page number
                       int   print_page,	// I - Printed page number
-		      uchar **format,	// I - Page headings
+		      char **format,	// I - Page headings
 		      int   y,		// I - Baseline of heading
 		      char  *page_text,	// O - Page number text
 		      int   page_len,	// I - Size of page text
@@ -1186,7 +1187,7 @@ hdRender::prepare_heading(int   page,	// I - Page number
 
       hfi = strtol((char*)((*format) + 8), &hfp, 10);
 
-      if (hfi < 0 || hfi >= MAX_HF_IMAGES || (isspace(*hfp) || !*hfp))
+      if (hfi < 0 || hfi >= HD_MAX_HF_IMAGES || (isspace(*hfp) || !*hfp))
         progress_error(HD_ERROR_BAD_HF_STRING,
 	               "Bad $HFIMAGE... substitution on page %d.", page + 1);
       else
@@ -1362,10 +1363,10 @@ hdRender::prepare_heading(int   page,	// I - Page number
 
       if (render_heading)
 	temp = new_render(page, HD_RENDERTYPE_TEXT, 0, y,
-                	  get_width((uchar *)buffer, HeadFootType,
+                	  get_width((char *)buffer, HeadFootType,
 			            HeadFootStyle, SIZE_P) * HeadFootSize /
 			      _htmlSizes[SIZE_P],
-	        	  HeadFootSize, (uchar *)buffer);
+	        	  HeadFootSize, (char *)buffer);
 
       if (strstr((char *)*format, "$PAGE") ||
           strstr((char *)*format, "$CHAPTERPAGE"))
@@ -1415,11 +1416,11 @@ hdRender::prepare_heading(int   page,	// I - Page number
  */
 
 void
-hdRender::ps_write_document(uchar *author,	/* I - Author of document */
-        	  uchar *creator,	/* I - Application that generated the HTML file */
-        	  uchar *copyright,	/* I - Copyright (if any) on the document */
-                  uchar *keywords,	/* I - Search keywords */
-		  uchar *subject)	/* I - Subject */
+hdRender::ps_write_document(char *author,	/* I - Author of document */
+        	  char *creator,	/* I - Application that generated the HTML file */
+        	  char *copyright,	/* I - Copyright (if any) on the document */
+                  char *keywords,	/* I - Search keywords */
+		  char *subject)	/* I - Subject */
 {
   FILE		*out;		/* Output file */
   int		page;		/* Current page # */
@@ -1846,12 +1847,12 @@ hdRender::ps_write_background(FILE *out)		/* I - Output file */
  */
 
 void
-hdRender::pdf_write_document(uchar  *author,	// I - Author of document
-        	   uchar  *creator,	// I - Application that generated the HTML file
-        	   uchar  *copyright,	// I - Copyright (if any) on the document
-                   uchar  *keywords,	// I - Search keywords
-		   uchar  *subject,	// I - Subject
-                   tree_t *toc)		// I - Table of contents tree
+hdRender::pdf_write_document(char  *author,	// I - Author of document
+        	   char  *creator,	// I - Application that generated the HTML file
+        	   char  *copyright,	// I - Copyright (if any) on the document
+                   char  *keywords,	// I - Search keywords
+		   char  *subject,	// I - Subject
+                   hdTree *toc)		// I - Table of contents tree
 {
   int		i;			// Looping variable
   FILE		*out;			// Output file
@@ -1860,7 +1861,7 @@ hdRender::pdf_write_document(uchar  *author,	// I - Author of document
   int		bytes;			// Number of bytes
   char		buffer[8192];		// Copy buffer
   int		num_images;		// Number of images in document
-  image_t	**images;		// Pointers to images
+  hdImage	**images;		// Pointers to images
   hdRenderNode	temp;			// Dummy rendering data...
 
 
@@ -1889,7 +1890,7 @@ hdRender::pdf_write_document(uchar  *author,	// I - Author of document
     int	hfi;				// Header/footer image index
 
 
-    for (hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
+    for (hfi = 0; hfi < HD_MAX_HF_IMAGES; hfi ++)
       if (images[i] == hfimage[hfi])
         break;
 
@@ -1897,7 +1898,7 @@ hdRender::pdf_write_document(uchar  *author,	// I - Author of document
         (images[i]->width * images[i]->height * images[i]->depth) > 65536 ||
 	images[i] == background_image ||
 	images[i] == logo_image ||
-	hfi < MAX_HF_IMAGES)
+	hfi < HD_MAX_HF_IMAGES)
     {
       progress_show("Writing image %d (%s)...", i + 1, images[i]->filename);
       progress_update(100 * i / num_images);
@@ -2363,7 +2364,7 @@ hdRender::pdf_write_page(FILE  *out,	/* I - Output file */
 
 void
 hdRender::pdf_write_contents(FILE   *out,			/* I - Output file */
-                   tree_t *toc,			/* I - Table of contents tree */
+                   hdTree *toc,			/* I - Table of contents tree */
                    int    parent,		/* I - Parent outline object */
                    int    prev,			/* I - Previous outline object */
                    int    next,			/* I - Next outline object */
@@ -2373,11 +2374,11 @@ hdRender::pdf_write_contents(FILE   *out,			/* I - Output file */
 		thisobj,			/* This object */
 		entry,				/* TOC entry object */
 		count;				/* Number of entries at this level */
-  uchar		*text;				/* Entry text */
-  tree_t	*temp;				/* Looping var */
+  char		*text;				/* Entry text */
+  hdTree	*temp;				/* Looping var */
   int		*entry_counts,			/* Number of sub-entries for this entry */
 		*entry_objects;			/* Objects for each entry */
-  tree_t	**entries;			/* Pointers to each entry */
+  hdTree	**entries;			/* Pointers to each entry */
   float		x, y;				/* Position of link */
 
 
@@ -2396,7 +2397,7 @@ hdRender::pdf_write_contents(FILE   *out,			/* I - Output file */
     fprintf(out, "/Parent %d 0 R", parent);
 
     fputs("/Title", out);
-    write_string(out, (uchar *)TocTitle, 0);
+    write_string(out, (char *)TocTitle, 0);
 
     x = 0.0f;
     y = PagePrintLength + PageBottom;
@@ -2436,7 +2437,7 @@ hdRender::pdf_write_contents(FILE   *out,			/* I - Output file */
       return;
     }
 
-    if ((entries = (tree_t **)calloc(sizeof(tree_t *), num_headings + 1)) == NULL)
+    if ((entries = (hdTree **)calloc(sizeof(hdTree *), num_headings + 1)) == NULL)
     {
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d headings - %s",
@@ -2554,7 +2555,7 @@ hdRender::pdf_write_contents(FILE   *out,			/* I - Output file */
  */
 
 int			/* O - Number of headings found */
-hdRender::pdf_count_headings(tree_t *toc)	/* I - TOC entry */
+hdRender::pdf_count_headings(hdTree *toc)	/* I - TOC entry */
 {
   int	headings;		/* Number of headings */
 
@@ -2961,7 +2962,7 @@ void
 hdRender::pdf_write_names(FILE *out)		/* I - Output file */
 {
   int		i;			/* Looping var */
-  uchar		*s;			/* Current character in name */
+  char		*s;			/* Current character in name */
   hdRenderLink	*link;			/* Local link */
 
 
@@ -3030,12 +3031,12 @@ hdRender::pdf_write_names(FILE *out)		/* I - Output file */
  */
 
 void
-hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
+hdRender::render_contents(hdTree   *t,		/* I  - Tree to parse */
                 hdMargin *margins,	/* I  - Margins */
                 float    *y,		/* IO - Y position */
                 int      *page,		/* IO - Page # */
 	        int      heading,	/* I  - Heading # */
-	        tree_t   *chap)		/* I  - Chapter heading */
+	        hdTree   *chap)		/* I  - Chapter heading */
 {
   float		x,
 		width,
@@ -3043,10 +3044,10 @@ hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
 		height,
 		rgb[3];
   int		hpage;
-  uchar		number[1024],
+  char		number[1024],
 		*nptr,
 		*link;
-  tree_t	*flat,
+  hdTree	*flat,
 		*temp,
 		*next;
   hdRenderNode	*r;
@@ -3086,7 +3087,7 @@ hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
   if (heading >= 0)
   {
     hpage       = heading_pages[heading];
-    numberwidth = get_width((uchar *)pages[hpage].page_text,
+    numberwidth = get_width((char *)pages[hpage].page_text,
                             t->typeface, t->style, t->size) +
 	          3.0f * dot_width;
   }
@@ -3118,7 +3119,7 @@ hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
 
-      width = get_width((uchar *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
+      width = get_width((char *)TocTitle, TYPE_HELVETICA, STYLE_BOLD, SIZE_H1);
       *y = margins->top() - _htmlSpacings[SIZE_H1];
       x  = margins->left() + 0.5f * (margins->right() - margins->left() - width);
       r = new_render(*page, HD_RENDERTYPE_TEXT, x, *y, 0, 0, TocTitle);
@@ -3144,7 +3145,7 @@ hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
 
     if (temp->link != NULL)
     {
-      link = htmlGetVariable(temp->link, (uchar *)"HREF");
+      link = htmlGetVariable(temp->link, (char *)"HREF");
 
      /*
       * Add a page link...
@@ -3152,7 +3153,7 @@ hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
 
       if (file_method((char *)link) == NULL &&
 	  file_target((char *)link) != NULL)
-	link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	link = (char *)file_target((char *)link) - 1; // Include # sign
 
       new_render(*page, HD_RENDERTYPE_LINK, x, *y, temp->width,
 	         temp->height, link);
@@ -3174,7 +3175,7 @@ hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
     switch (temp->markup)
     {
       case MARKUP_A :
-          if ((link = htmlGetVariable(temp, (uchar *)"NAME")) != NULL)
+          if ((link = htmlGetVariable(temp, (char *)"NAME")) != NULL)
           {
            /*
             * Add a target link...
@@ -3211,7 +3212,7 @@ hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
       case MARKUP_IMG :
 	  update_image_size(temp);
 	  new_render(*page, HD_RENDERTYPE_IMAGE, x, *y, temp->width, temp->height,
-		     image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
+		     image_find((char *)htmlGetVariable(temp, (char *)"REALSRC")));
 	  break;
 
       default :
@@ -3255,7 +3256,7 @@ hdRender::render_contents(tree_t   *t,		/* I  - Tree to parse */
  */
 
 int
-hdRender::count_headings(tree_t *t)		// I - Tree to count
+hdRender::count_headings(hdTree *t)		// I - Tree to count
 {
   int	count;				// Number of headings...
 
@@ -3289,12 +3290,12 @@ hdRender::count_headings(tree_t *t)		// I - Tree to count
  */
 
 void
-hdRender::parse_contents(tree_t   *t,		/* I - Tree to parse */
+hdRender::parse_contents(hdTree   *t,		/* I - Tree to parse */
                hdMargin *margins,	/* I - Margins */
                float    *y,		/* IO - Y position */
                int      *page,		/* IO - Page # */
                int      *heading,	/* IO - Heading # */
-	       tree_t   *chap)		/* I - Chapter heading */
+	       hdTree   *chap)		/* I - Chapter heading */
 {
   DEBUG_printf(("parse_contents(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), y=%.1f, page=%d, heading=%d, chap=%p)\n",
                 t, margins->left(), margins->right(), margins->bottom(),
@@ -3321,7 +3322,7 @@ hdRender::parse_contents(tree_t   *t,		/* I - Tree to parse */
           * Put the text unless the author has flagged it otherwise...
           */
 
-          if (htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC") == NULL)
+          if (htmlGetVariable(t, (char *)"_HD_OMIT_TOC") == NULL)
 	  {
             render_contents(t, margins, y, page, *heading, chap);
 
@@ -3371,20 +3372,20 @@ hdRender::parse_contents(tree_t   *t,		/* I - Tree to parse */
  */
 
 void
-hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
+hdRender::parse_doc(hdTree   *t,			/* I - Tree to parse */
           hdMargin *margins,		/* I - Left margin */
           float    *x,			/* IO - X position */
           float    *y,			/* IO - Y position */
           int      *page,		/* IO - Page # */
-	  tree_t   *cpara,		/* I - Current paragraph */
+	  hdTree   *cpara,		/* I - Current paragraph */
 	  int      *needspace)		/* I - Need whitespace before this element */
 {
   int		i;			/* Looping var */
-  tree_t	*para,			/* Phoney paragraph tree entry */
+  hdTree	*para,			/* Phoney paragraph tree entry */
 		*temp;			/* Paragraph entry */
   var_t		*var;			/* Variable entry */
-  uchar		*name;			/* ID name */
-  uchar		*style;			/* STYLE attribute */
+  char		*name;			/* ID name */
+  char		*style;			/* STYLE attribute */
   float		width,			/* Width of horizontal rule */
 		height,			/* Height of rule */
 		rgb[3];			/* RGB color of rule */
@@ -3432,12 +3433,12 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
       }
 
       chapter ++;
-      if (chapter >= MAX_CHAPTERS)
+      if (chapter >= HD_MAX_CHAPTERS)
       {
 	progress_error(HD_ERROR_TOO_MANY_CHAPTERS,
 	               "Too many chapters/files in document (%d > %d)!",
-	               chapter, MAX_CHAPTERS);
-        chapter = MAX_CHAPTERS - 1;
+	               chapter, HD_MAX_CHAPTERS);
+        chapter = HD_MAX_CHAPTERS - 1;
       }
       else
         chapter_starts[chapter] = *page;
@@ -3450,7 +3451,7 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
       *needspace = 0;
     }
 
-    if ((name = htmlGetVariable(t, (uchar *)"ID")) != NULL)
+    if ((name = htmlGetVariable(t, (char *)"ID")) != NULL)
     {
      /*
       * Add a link target using the ID=name variable...
@@ -3464,16 +3465,16 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
       * Add a file link...
       */
 
-      uchar	name[256],	/* New filename */
+      char	name[256],	/* New filename */
 		*sep;		/* "?" separator in links */
 
 
       // Strip any trailing HTTP GET data stuff...
-      strncpy((char *)name, (char *)htmlGetVariable(t, (uchar *)"FILENAME"),
+      strncpy((char *)name, (char *)htmlGetVariable(t, (char *)"FILENAME"),
               sizeof(name) - 1);
       name[sizeof(name) - 1] = '\0';
 
-      if ((sep = (uchar *)strchr((char *)name, '?')) != NULL)
+      if ((sep = (char *)strchr((char *)name, '?')) != NULL)
         *sep = '\0';
 
       // Add the link
@@ -3494,7 +3495,7 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
     }
 
     // Check for some basic stylesheet stuff...
-    if ((style = htmlGetStyle(t, (uchar *)"page-break-before:")) != NULL &&
+    if ((style = htmlGetStyle(t, (char *)"page-break-before:")) != NULL &&
 	strcasecmp((char *)style, "avoid") != 0)
     {
       // Advance to the next page...
@@ -3785,13 +3786,13 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
-          if (htmlGetVariable(t, (uchar *)"BREAK") == NULL)
+          if (htmlGetVariable(t, (char *)"BREAK") == NULL)
 	  {
 	   /*
 	    * Generate a horizontal rule...
 	    */
 
-            if ((name = htmlGetVariable(t, (uchar *)"WIDTH")) == NULL)
+            if ((name = htmlGetVariable(t, (char *)"WIDTH")) == NULL)
 	      width = margins->right() - margins->left();
 	    else
 	    {
@@ -3801,7 +3802,7 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
                 width = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
             }
 
-            if ((name = htmlGetVariable(t, (uchar *)"SIZE")) == NULL)
+            if ((name = htmlGetVariable(t, (char *)"SIZE")) == NULL)
 	      height = 2;
 	    else
 	      height = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
@@ -3879,7 +3880,7 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
           break;
 
       case MARKUP_A :
-          if (htmlGetVariable(t, (uchar *)"NAME") != NULL)
+          if (htmlGetVariable(t, (char *)"NAME") != NULL)
 	  {
 	   /*
 	    * Add this named destination to the paragraph tree...
@@ -3921,7 +3922,7 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
 
 
     // Check for some basic stylesheet stuff...
-    if ((style = htmlGetStyle(t, (uchar *)"page-break-after:")) != NULL &&
+    if ((style = htmlGetStyle(t, (char *)"page-break-after:")) != NULL &&
 	strcasecmp((char *)style, "avoid") != 0)
     {
       // Advance to the next page...
@@ -3970,7 +3971,7 @@ hdRender::parse_doc(tree_t   *t,			/* I - Tree to parse */
  */
 
 void
-hdRender::parse_heading(tree_t   *t,		/* I - Tree to parse */
+hdRender::parse_heading(hdTree   *t,		/* I - Tree to parse */
               hdMargin *margins,	/* I - Margins */
               float    *x,		/* IO - X position */
               float    *y,		/* IO - Y position */
@@ -4084,7 +4085,7 @@ hdRender::parse_heading(tree_t   *t,		/* I - Tree to parse */
  */
 
 void
-hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
+hdRender::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
                 hdMargin *margins,	/* I - Margins */
         	float    *x,		/* IO - X position */
         	float    *y,		/* IO - Y position */
@@ -4092,7 +4093,7 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
         	int      needspace)	/* I - Need whitespace? */
 {
   int		whitespace;		/* Non-zero if a fragment ends in whitespace */
-  tree_t	*flat,
+  hdTree	*flat,
 		*start,
 		*end,
 		*prev,
@@ -4110,16 +4111,16 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
   float		char_spacing;
   int		num_chars;
   hdRenderNode	*r;
-  uchar		*align,
+  char		*align,
 		*hspace,
 		*vspace,
 		*link,
 		*border;
   float		rgb[3];
-  uchar		line[10240],
+  char		line[10240],
 		*lineptr,
 		*dataptr;
-  tree_t	*linetype;
+  hdTree	*linetype;
   float		linex,
 		linewidth;
   int		firstline;
@@ -4150,9 +4151,9 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
       update_image_size(temp);
 
     if (temp->markup == MARKUP_IMG &&
-        (align = htmlGetVariable(temp, (uchar *)"ALIGN")))
+        (align = htmlGetVariable(temp, (char *)"ALIGN")))
     {
-      if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
+      if ((border = htmlGetVariable(temp, (char *)"BORDER")) != NULL)
 	borderspace = atof((char *)border);
       else if (temp->link)
 	borderspace = 1;
@@ -4163,13 +4164,13 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 
       if (strcasecmp((char *)align, "LEFT") == 0)
       {
-        if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
+        if ((hspace = htmlGetVariable(temp, (char *)"HSPACE")) != NULL)
 	  hspace_value = atoi((char *)hspace) * PagePrintWidth /
 	                 _htmlBrowserWidth;
         else
 	  hspace_value = 0;
 
-        if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
+        if ((vspace = htmlGetVariable(temp, (char *)"VSPACE")) != NULL)
 	  vspace_value = atoi((char *)vspace) * PagePrintWidth /
 	                 _htmlBrowserWidth;
         else
@@ -4220,11 +4221,11 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 
         new_render(*page, HD_RENDERTYPE_IMAGE, margins->left() + borderspace,
 	           *y - temp->height, temp->width, temp->height,
-		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
+		   image_find((char *)htmlGetVariable(temp, (char *)"REALSRC")));
 
         if (temp->link)
 	{
-          link = htmlGetVariable(temp->link, (uchar *)"HREF");
+          link = htmlGetVariable(temp->link, (char *)"HREF");
 
 	 /*
 	  * Add a page link...
@@ -4233,9 +4234,9 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 	  if (file_method((char *)link) == NULL)
 	  {
 	    if (file_target((char *)link) != NULL)
-	      link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	      link = (char *)file_target((char *)link) - 1; // Include # sign
 	    else
-	      link = (uchar *)file_basename((char *)link);
+	      link = (char *)file_basename((char *)link);
 	  }
 
 	  new_render(*page, HD_RENDERTYPE_LINK, margins->left() + borderspace,
@@ -4259,13 +4260,13 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
       }
       else if (strcasecmp((char *)align, "RIGHT") == 0)
       {
-        if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
+        if ((hspace = htmlGetVariable(temp, (char *)"HSPACE")) != NULL)
 	  hspace_value = atoi((char *)hspace) * PagePrintWidth /
 	                 _htmlBrowserWidth;
         else
 	  hspace_value = 0;
 
-        if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
+        if ((vspace = htmlGetVariable(temp, (char *)"VSPACE")) != NULL)
 	  vspace_value = atoi((char *)vspace) * PagePrintWidth /
 	                 _htmlBrowserWidth;
         else
@@ -4320,11 +4321,11 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
         new_render(*page, HD_RENDERTYPE_IMAGE,
 	           margins->right() - borderspace - temp->width,
 	           *y - temp->height, temp->width, temp->height,
-		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
+		   image_find((char *)htmlGetVariable(temp, (char *)"REALSRC")));
 
         if (temp->link)
 	{
-          link = htmlGetVariable(temp->link, (uchar *)"HREF");
+          link = htmlGetVariable(temp->link, (char *)"HREF");
 
 	 /*
 	  * Add a page link...
@@ -4333,9 +4334,9 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 	  if (file_method((char *)link) == NULL)
 	  {
 	    if (file_target((char *)link) != NULL)
-	      link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	      link = (char *)file_target((char *)link) - 1; // Include # sign
 	    else
-	      link = (uchar *)file_basename((char *)link);
+	      link = (char *)file_basename((char *)link);
 	  }
 
 	  new_render(*page, HD_RENDERTYPE_LINK,
@@ -4417,7 +4418,7 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 
         if (temp->markup == MARKUP_IMG)
 	{
-	  if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
+	  if ((border = htmlGetVariable(temp, (char *)"BORDER")) != NULL)
 	    borderspace = atof((char *)border);
 	  else if (temp->link)
 	    borderspace = 1;
@@ -4508,7 +4509,7 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
               break;
 	}
 
-	if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
+	if ((border = htmlGetVariable(temp, (char *)"BORDER")) != NULL)
 	  borderspace = atof((char *)border);
 	else if (temp->link)
 	  borderspace = 1;
@@ -4670,7 +4671,7 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
       switch (temp->markup)
       {
         case MARKUP_A :
-            if ((link = htmlGetVariable(temp, (uchar *)"NAME")) != NULL)
+            if ((link = htmlGetVariable(temp, (char *)"NAME")) != NULL)
             {
              /*
               * Add a target link...
@@ -4749,7 +4750,7 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 			     "truncation or overlapping may occur!", *page + 1);
             }
 
-	    if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
+	    if ((border = htmlGetVariable(temp, (char *)"BORDER")) != NULL)
 	      borderspace = atof((char *)border);
 	    else if (temp->link)
 	      borderspace = 1;
@@ -4792,7 +4793,7 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 
 	    new_render(*page, HD_RENDERTYPE_IMAGE, linex + borderspace,
 	               *y + offset + borderspace, temp->width, temp->height,
-		       image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
+		       image_find((char *)htmlGetVariable(temp, (char *)"REALSRC")));
             whitespace = 0;
 	    temp_width = temp->width + 2 * borderspace;
 	    break;
@@ -4800,7 +4801,7 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 
       if (temp->link != NULL)
       {
-        link = htmlGetVariable(temp->link, (uchar *)"HREF");
+        link = htmlGetVariable(temp->link, (char *)"HREF");
 
        /*
 	* Add a page link...
@@ -4809,9 +4810,9 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 	if (file_method((char *)link) == NULL)
 	{
 	  if (file_target((char *)link) != NULL)
-	    link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	    link = (char *)file_target((char *)link) - 1; // Include # sign
 	  else
-	    link = (uchar *)file_basename((char *)link);
+	    link = (char *)file_basename((char *)link);
 	}
 
 	new_render(*page, HD_RENDERTYPE_LINK, linex, *y + offset, temp->width,
@@ -4880,15 +4881,15 @@ hdRender::parse_paragraph(tree_t   *t,		/* I - Tree to parse */
  */
 
 void
-hdRender::parse_pre(tree_t   *t,			/* I - Tree to parse */
+hdRender::parse_pre(hdTree   *t,			/* I - Tree to parse */
           hdMargin *margins,		/* I - Margins */
           float    *x,			/* IO - X position */
           float    *y,			/* IO - Y position */
           int      *page,		/* IO - Page # */
           int      needspace)		/* I - Need whitespace? */
 {
-  tree_t	*flat, *start, *next;
-  uchar		*link,
+  hdTree	*flat, *start, *next;
+  char		*link,
 		line[10240],
 		*lineptr,
 		*dataptr;
@@ -4967,7 +4968,7 @@ hdRender::parse_pre(tree_t   *t,			/* I - Tree to parse */
     {
       if (start->link != NULL)
       {
-	link = htmlGetVariable(start->link, (uchar *)"HREF");
+	link = htmlGetVariable(start->link, (char *)"HREF");
 
        /*
 	* Add a page link...
@@ -4976,9 +4977,9 @@ hdRender::parse_pre(tree_t   *t,			/* I - Tree to parse */
 	if (file_method((char *)link) == NULL)
 	{
 	  if (file_target((char *)link) != NULL)
-	    link = (uchar *)file_target((char *)link) - 1; // Include # sign
+	    link = (char *)file_target((char *)link) - 1; // Include # sign
 	  else
-	    link = (uchar *)file_basename((char *)link);
+	    link = (char *)file_basename((char *)link);
 	}
 
 	new_render(*page, HD_RENDERTYPE_LINK, *x, *y, start->width,
@@ -5001,7 +5002,7 @@ hdRender::parse_pre(tree_t   *t,			/* I - Tree to parse */
       switch (start->markup)
       {
 	case MARKUP_A :
-            if ((link = htmlGetVariable(start, (uchar *)"NAME")) != NULL)
+            if ((link = htmlGetVariable(start, (char *)"NAME")) != NULL)
             {
              /*
               * Add a target link...
@@ -5053,7 +5054,7 @@ hdRender::parse_pre(tree_t   *t,			/* I - Tree to parse */
 
 	case MARKUP_IMG :
 	    new_render(*page, HD_RENDERTYPE_IMAGE, *x, *y, start->width, start->height,
-		       image_find((char *)htmlGetVariable(start, (uchar *)"REALSRC")));
+		       image_find((char *)htmlGetVariable(start, (char *)"REALSRC")));
 
             *x += start->width;
             col ++;
@@ -5094,7 +5095,7 @@ hdRender::parse_pre(tree_t   *t,			/* I - Tree to parse */
  */
 
 void
-hdRender::parse_table(tree_t   *t,		// I - Tree to parse
+hdRender::parse_table(hdTree   *t,		// I - Tree to parse
             hdMargin *margins,		// I - Margins
             float    *x,		// IO - X position
             float    *y,		// IO - Y position
@@ -5111,20 +5112,20 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 		alloc_rows,
 		regular_cols,
 		tempspace,
-		col_spans[MAX_COLUMNS],
-		row_spans[MAX_COLUMNS];
-  char		col_fixed[MAX_COLUMNS],
-		col_percent[MAX_COLUMNS];
-  float		col_lefts[MAX_COLUMNS],
-		col_rights[MAX_COLUMNS],
+		col_spans[HD_MAX_COLUMNS],
+		row_spans[HD_MAX_COLUMNS];
+  char		col_fixed[HD_MAX_COLUMNS],
+		col_percent[HD_MAX_COLUMNS];
+  float		col_lefts[HD_MAX_COLUMNS],
+		col_rights[HD_MAX_COLUMNS],
 		col_width,
-		col_widths[MAX_COLUMNS],
-		col_swidths[MAX_COLUMNS],
+		col_widths[HD_MAX_COLUMNS],
+		col_swidths[HD_MAX_COLUMNS],
 		col_min,
-		col_mins[MAX_COLUMNS],
-		col_smins[MAX_COLUMNS],
+		col_mins[HD_MAX_COLUMNS],
+		col_smins[HD_MAX_COLUMNS],
 		col_pref,
-		col_prefs[MAX_COLUMNS],
+		col_prefs[HD_MAX_COLUMNS],
 		col_height,
 		cellpadding,
 		cellspacing,
@@ -5142,9 +5143,9 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 		table_y,
 		row_y, row_starty, temp_y;
   int		row_page, temp_page, table_page;
-  uchar		*var,
+  char		*var,
 		*height_var;		// Row HEIGHT variable
-  tree_t	*temprow,
+  hdTree	*temprow,
 		*tempcol,
 		*tempnext,
 		***cells,
@@ -5153,20 +5154,20 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
   float		row_height,		// Total height of the row
 		temp_height;		// Temporary holder
   hdMargin	*cell_margins;		// Margins for cell
-  int		cell_page[MAX_COLUMNS],	// Start page for cell
-		cell_endpage[MAX_COLUMNS];
+  int		cell_page[HD_MAX_COLUMNS],	// Start page for cell
+		cell_endpage[HD_MAX_COLUMNS];
 					// End page for cell
-  float		cell_y[MAX_COLUMNS],	// Row or each cell
-		cell_endy[MAX_COLUMNS],	// Row or each cell
-		cell_height[MAX_COLUMNS],
+  float		cell_y[HD_MAX_COLUMNS],	// Row or each cell
+		cell_endy[HD_MAX_COLUMNS],	// Row or each cell
+		cell_height[HD_MAX_COLUMNS],
 					// Height of each cell in a row
-		span_heights[MAX_COLUMNS];
+		span_heights[HD_MAX_COLUMNS];
 					// Height of spans
-  hdRenderNode	*cell_bg[MAX_COLUMNS];	// Background rectangles
-  hdRenderNode	*cell_start[MAX_COLUMNS];
+  hdRenderNode	*cell_bg[HD_MAX_COLUMNS];	// Background rectangles
+  hdRenderNode	*cell_start[HD_MAX_COLUMNS];
 					// Start of the content for a cell in the row
-  hdRenderNode	*cell_end[MAX_COLUMNS];	// End of the content for a cell in a row
-  uchar		*bgcolor;
+  hdRenderNode	*cell_end[HD_MAX_COLUMNS];	// End of the content for a cell in a row
+  char		*bgcolor;
   float		rgb[3],
 		bgrgb[3];
 
@@ -5194,7 +5195,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 
   cells = NULL;
 
-  if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"WIDTH")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
       table_width = atof((char *)var) * margins->width() / 100.0f;
@@ -5206,17 +5207,17 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 
   DEBUG_printf(("table_width = %.1f\n", table_width));
 
-  if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"CELLPADDING")) != NULL)
     cellpadding = atoi((char *)var);
   else
     cellpadding = 1.0f;
 
-  if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"CELLSPACING")) != NULL)
     cellspacing = atoi((char *)var);
   else
     cellspacing = 0.0f;
 
-  if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"BORDER")) != NULL)
   {
     if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
       border = 1.0f;
@@ -5230,7 +5231,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
   rgb[1] = t->green / 255.0f;
   rgb[2] = t->blue / 255.0f;
 
-  if ((var = htmlGetVariable(t, (uchar *)"BORDERCOLOR")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"BORDERCOLOR")) != NULL)
     get_color(var, rgb, 0);
 
   if (border == 0.0f && cellpadding > 0.0f)
@@ -5272,7 +5273,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 
     if (temprow->markup == MARKUP_CAPTION)
     {
-      if ((var = htmlGetVariable(temprow, (uchar *)"ALIGN")) == NULL ||
+      if ((var = htmlGetVariable(temprow, (char *)"ALIGN")) == NULL ||
           strcasecmp((char *)var, "bottom"))
       {
        /*
@@ -5313,11 +5314,11 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
         alloc_rows += ALLOC_ROWS;
 
         if (alloc_rows == ALLOC_ROWS)
-	  cells = (tree_t ***)malloc(sizeof(tree_t **) * alloc_rows);
+	  cells = (hdTree ***)malloc(sizeof(hdTree **) * alloc_rows);
 	else
-	  cells = (tree_t ***)realloc(cells, sizeof(tree_t **) * alloc_rows);
+	  cells = (hdTree ***)realloc(cells, sizeof(hdTree **) * alloc_rows);
 
-        if (cells == (tree_t ***)0)
+        if (cells == (hdTree ***)0)
 	{
 	  progress_error(HD_ERROR_OUT_OF_MEMORY,
                          "Unable to allocate memory for table!");
@@ -5325,7 +5326,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 	}
       }	
 
-      if ((cells[num_rows] = (tree_t **)calloc(sizeof(tree_t *), MAX_COLUMNS)) == NULL)
+      if ((cells[num_rows] = (hdTree **)calloc(sizeof(hdTree *), HD_MAX_COLUMNS)) == NULL)
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
                        "Unable to allocate memory for table!");
@@ -5357,17 +5358,17 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
         col = 0;
 
       for (tempcol = temprow->child;
-           tempcol != NULL && col < MAX_COLUMNS;
+           tempcol != NULL && col < HD_MAX_COLUMNS;
            tempcol = tempcol->next)
         if (tempcol->markup == MARKUP_TD || tempcol->markup == MARKUP_TH)
         {
 	  // Handle colspan and rowspan stuff...
-          if ((var = htmlGetVariable(tempcol, (uchar *)"COLSPAN")) != NULL)
+          if ((var = htmlGetVariable(tempcol, (char *)"COLSPAN")) != NULL)
             colspan = atoi((char *)var);
           else
             colspan = 1;
 
-          if ((var = htmlGetVariable(tempcol, (uchar *)"ROWSPAN")) != NULL)
+          if ((var = htmlGetVariable(tempcol, (char *)"ROWSPAN")) != NULL)
 	  {
             row_spans[col] = atoi((char *)var);
 
@@ -5378,7 +5379,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
           // Compute the cell size...
           col_width = get_cell_size(tempcol, 0.0f, table_width, &col_min,
 	                            &col_pref, &col_height);
-          if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
+          if ((var = htmlGetVariable(tempcol, (char *)"WIDTH")) != NULL)
 	  {
 	    if (var[strlen((char *)var) - 1] == '%')
 	    {
@@ -5388,7 +5389,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 	        col_percent[col] = 1;
 	    }
 	  }
-	  else if (htmlGetVariable(tempcol, (uchar *)"NOWRAP") != NULL)
+	  else if (htmlGetVariable(tempcol, (char *)"NOWRAP") != NULL)
 	    col_width = col_pref;
 	  else
 	    col_width = 0.0f;
@@ -5426,7 +5427,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 	      col_mins[col] = col_min;
           }
 
-	  while (colspan > 0 && col < MAX_COLUMNS)
+	  while (colspan > 0 && col < HD_MAX_COLUMNS)
 	  {
             cells[num_rows][col] = tempcol;
             col ++;
@@ -5470,7 +5471,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
   * Now figure out the width of the table...
   */
 
-  if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"WIDTH")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
       width = atof((char *)var) * margins->width() / 100.0f;
@@ -5806,13 +5807,13 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
       * Get height...
       */
 
-      if ((height_var = htmlGetVariable(t, (uchar *)"HEIGHT")) == NULL)
+      if ((height_var = htmlGetVariable(t, (char *)"HEIGHT")) == NULL)
 	if ((height_var = htmlGetVariable(cells[row][0]->parent,
-                           	          (uchar *)"HEIGHT")) == NULL)
+                           	          (char *)"HEIGHT")) == NULL)
 	  for (col = 0; col < num_cols; col ++)
-	    if (htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") == NULL)
+	    if (htmlGetVariable(cells[row][col], (char *)"ROWSPAN") == NULL)
 	      if ((height_var = htmlGetVariable(cells[row][col],
-                                                (uchar *)"HEIGHT")) != NULL)
+                                                (char *)"HEIGHT")) != NULL)
 	        break;
     }
 
@@ -5825,7 +5826,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
       else
         temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
 
-      if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
+      if (htmlGetVariable(t, (char *)"HEIGHT") != NULL)
         temp_height /= num_rows;
 
       temp_height -= 2 * cellpadding;
@@ -5873,7 +5874,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
     {
       if (row_spans[col] == 0)
       {
-        if ((var = htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN")) != NULL)
+        if ((var = htmlGetVariable(cells[row][col], (char *)"ROWSPAN")) != NULL)
           row_spans[col] = atoi((char *)var);
 
         if (row_spans[col] > (num_rows - row))
@@ -5915,7 +5916,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
         if (cells[row][col] == NULL)
 	  bgcolor = NULL;
 	else if ((bgcolor = htmlGetVariable(cells[row][col],
-                                            (uchar *)"BGCOLOR")) != NULL)
+                                            (char *)"BGCOLOR")) != NULL)
 	{
 	  memcpy(bgrgb, background_color, sizeof(bgrgb));
 
@@ -6053,7 +6054,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
 	else
           temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
 
-        if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
+        if (htmlGetVariable(t, (char *)"HEIGHT") != NULL)
           temp_height /= num_rows;
 
         if (temp_height > row_height)
@@ -6170,7 +6171,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
     width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
 
     if ((bgcolor = htmlGetVariable(cells[row][0]->parent,
-                                         (uchar *)"BGCOLOR")) != NULL)
+                                         (char *)"BGCOLOR")) != NULL)
     {
       memcpy(bgrgb, background_color, sizeof(bgrgb));
 
@@ -6230,7 +6231,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
         continue;
 
       if ((bgcolor = htmlGetVariable(cells[row][col],
-                                     (uchar *)"BGCOLOR")) != NULL)
+                                     (char *)"BGCOLOR")) != NULL)
       {
         memcpy(bgrgb, background_color, sizeof(bgrgb));
 
@@ -6375,7 +6376,7 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
   * Handle table background color...
   */
 
-  if ((bgcolor = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL)
+  if ((bgcolor = htmlGetVariable(t, (char *)"BGCOLOR")) != NULL)
   {
     memcpy(bgrgb, background_color, sizeof(bgrgb));
 
@@ -6457,15 +6458,15 @@ hdRender::parse_table(tree_t   *t,		// I - Tree to parse
  */
 
 void
-hdRender::parse_list(tree_t   *t,			/* I - Tree to parse */
+hdRender::parse_list(hdTree   *t,			/* I - Tree to parse */
            hdMargin *margins,		/* I - Margins */
            float    *x,			/* IO - X position */
            float    *y,			/* IO - Y position */
            int      *page,		/* IO - Page # */
            int      needspace)		/* I - Need whitespace? */
 {
-  uchar		number[255];		/* List number (for numbered types) */
-  uchar		*value;			/* VALUE= variable */
+  char		number[255];		/* List number (for numbered types) */
+  char		*value;			/* VALUE= variable */
   int		typeface;		/* Typeface of list number */
   float		width;			/* Width of list number */
   hdRenderNode	*r;			/* Render primitive */
@@ -6514,7 +6515,7 @@ hdRender::parse_list(tree_t   *t,			/* I - Tree to parse */
     }
   }
     
-  if ((value = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
+  if ((value = htmlGetVariable(t, (char *)"VALUE")) != NULL)
   {
     if (isdigit(value[0]))
       list_values[t->indent] = atoi((char *)value);
@@ -6570,14 +6571,14 @@ hdRender::parse_list(tree_t   *t,			/* I - Tree to parse */
  */
 
 void
-hdRender::init_list(tree_t *t)			/* I - List entry */
+hdRender::init_list(hdTree *t)			/* I - List entry */
 {
-  uchar		*type,			/* TYPE= variable */
+  char		*type,			/* TYPE= variable */
 		*value;			/* VALUE= variable */
-  static uchar	*symbols = (uchar *)"\327\267\250\340";
+  static char	*symbols = (char *)"\327\267\250\340";
 
 
-  if ((type = htmlGetVariable(t, (uchar *)"TYPE")) != NULL)
+  if ((type = htmlGetVariable(t, (char *)"TYPE")) != NULL)
   {
     if (strlen((char *)type) == 1)
       list_types[t->indent] = type[0];
@@ -6592,8 +6593,8 @@ hdRender::init_list(tree_t *t)			/* I - List entry */
   else if (t->markup == MARKUP_OL)
     list_types[t->indent] = '1';
 
-  if ((value = htmlGetVariable(t, (uchar *)"VALUE")) == NULL)
-    value = htmlGetVariable(t, (uchar *)"START");
+  if ((value = htmlGetVariable(t, (char *)"VALUE")) == NULL)
+    value = htmlGetVariable(t, (char *)"START");
 
   if (value != NULL)
   {
@@ -6622,12 +6623,12 @@ hdRender::init_list(tree_t *t)			/* I - List entry */
 #endif /* COMMENT_DEBUG */
 
 void
-hdRender::parse_comment(tree_t   *t,		/* I - Tree to parse */
+hdRender::parse_comment(hdTree   *t,		/* I - Tree to parse */
               hdMargin *margins,	/* I - Margins */
               float    *x,		/* IO - X position */
               float    *y,		/* IO - Y position */
               int      *page,		/* IO - Page # */
-	      tree_t   *para,		/* I - Current paragraph */
+	      hdTree   *para,		/* I - Current paragraph */
 	      int      needspace)	/* I - Need whitespace? */
 {
   int		i;			/* Looping var */
@@ -7529,7 +7530,7 @@ hdRender::parse_comment(tree_t   *t,		/* I - Tree to parse */
 
 	check_pages(*page);
 
-	pages[*page].header[pos] = (uchar *)Header[pos];
+	pages[*page].header[pos] = (char *)Header[pos];
       }
 
       // Adjust top margin as needed...
@@ -7625,7 +7626,7 @@ hdRender::parse_comment(tree_t   *t,		/* I - Tree to parse */
       {
 	check_pages(*page);
 
-	pages[*page].footer[pos] = (uchar *)Footer[pos];
+	pages[*page].footer[pos] = (char *)Footer[pos];
       }
 
       // Adjust bottom margin as needed...
@@ -7703,8 +7704,8 @@ hdRender::parse_comment(tree_t   *t,		/* I - Tree to parse */
  * 'hdRender::real_prev()' - Return the previous non-link markup in the tree.
  */
 
-tree_t *		/* O - Pointer to previous markup */
-hdRender::real_prev(tree_t *t)	/* I - Current markup */
+hdTree *		/* O - Pointer to previous markup */
+hdRender::real_prev(hdTree *t)	/* I - Current markup */
 {
   if (t == NULL)
     return (NULL);
@@ -7732,8 +7733,8 @@ hdRender::real_prev(tree_t *t)	/* I - Current markup */
  * 'hdRender::real_next()' - Return the next non-link markup in the tree.
  */
 
-tree_t *		/* O - Pointer to next markup */
-hdRender::real_next(tree_t *t)	/* I - Current markup */
+hdTree *		/* O - Pointer to next markup */
+hdRender::real_next(hdTree *t)	/* I - Current markup */
 {
   if (t == NULL)
     return (NULL);
@@ -7754,9 +7755,9 @@ hdRender::real_next(tree_t *t)	/* I - Current markup */
  */
 
 void
-hdRender::find_background(tree_t *t)	/* I - Document to search */
+hdRender::find_background(hdTree *t)	/* I - Document to search */
 {
-  uchar		*var;		/* BGCOLOR/BACKGROUND variable */
+  char		*var;		/* BGCOLOR/BACKGROUND variable */
 
 
  /*
@@ -7771,7 +7772,7 @@ hdRender::find_background(tree_t *t)	/* I - Document to search */
   }
   else if (BodyColor[0] != '\0')
   {
-    get_color((uchar *)BodyColor, background_color, 0);
+    get_color((char *)BodyColor, background_color, 0);
     return;
   }
 
@@ -7785,10 +7786,10 @@ hdRender::find_background(tree_t *t)	/* I - Document to search */
   {
     if (t->markup == MARKUP_BODY)
     {
-      if ((var = htmlGetVariable(t, (uchar *)"BACKGROUND")) != NULL)
+      if ((var = htmlGetVariable(t, (char *)"BACKGROUND")) != NULL)
         background_image = image_load((char *)var, !OutputColor);
 
-      if ((var = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL)
+      if ((var = htmlGetVariable(t, (char *)"BGCOLOR")) != NULL)
         get_color(var, background_color, 0);
     }
 
@@ -7952,7 +7953,7 @@ hdRender::new_render(int      page,	/* I - Page number (0-n) */
           free(r);
           return (NULL);
         }
-        r->data.image = (image_t *)data;
+        r->data.image = (hdImage *)data;
         break;
     case HD_RENDERTYPE_BOX :
         memcpy(r->data.box, data, sizeof(r->data.box));
@@ -8082,7 +8083,7 @@ hdRender::check_pages(int page)	// I - Current page
  */
 
 void
-hdRender::add_link(uchar *name,		/* I - Name of link */
+hdRender::add_link(char *name,		/* I - Name of link */
          int   page,		/* I - Page # */
          int   top)		/* I - Y position */
 {
@@ -8128,7 +8129,7 @@ hdRender::add_link(uchar *name,		/* I - Name of link */
     temp = links + num_links;
     num_links ++;
 
-    temp->name = (uchar *)strdup((char *)name);
+    temp->name = (char *)strdup((char *)name);
     temp->page = page;
     temp->top  = top;
 
@@ -8144,7 +8145,7 @@ hdRender::add_link(uchar *name,		/* I - Name of link */
  */
 
 hdRenderLink *
-hdRender::find_link(uchar *name)	/* I - Name to find */
+hdRender::find_link(char *name)	/* I - Name to find */
 {
   hdRenderLink	key,	/* Search key */
 		*match;	/* Matching name entry */
@@ -8181,11 +8182,11 @@ hdRender::compare_links(hdRenderLink *n1,	/* I - First name */
  */
 
 void
-hdRender::copy_tree(tree_t *parent,	/* I - Source tree */
-          tree_t *t)		/* I - Destination tree */
+hdRender::copy_tree(hdTree *parent,	/* I - Source tree */
+          hdTree *t)		/* I - Destination tree */
 {
   int		i;		/* I - Looping var */
-  tree_t	*temp;		/* I - New tree entry */
+  hdTree	*temp;		/* I - New tree entry */
   var_t		*var;		/* I - Current markup variable */
 
 
@@ -8229,16 +8230,16 @@ hdRender::copy_tree(tree_t *parent,	/* I - Source tree */
 //
 
 float				// O - Required width of cell
-hdRender::get_cell_size(tree_t *t,		// I - Cell
+hdRender::get_cell_size(hdTree *t,		// I - Cell
               float  left,		// I - Left margin
 	      float  right,		// I - Right margin
 	      float  *minwidth,		// O - Minimum width
 	      float  *prefwidth,	// O - Preferred width
 	      float  *minheight)	// O - Minimum height
 {
-  tree_t	*temp,			// Current tree entry
+  hdTree	*temp,			// Current tree entry
 		*next;			// Next tree entry
-  uchar		*var;			// Attribute value
+  char		*var;			// Attribute value
   int		nowrap;			// NOWRAP attribute?
   float		width,			// Width of cell
 		frag_width,		// Fragment required width
@@ -8254,7 +8255,7 @@ hdRender::get_cell_size(tree_t *t,		// I - Cell
                 t, left, right, minwidth, prefwidth, minheight));
 
   // First see if the width has been specified for this cell...
-  if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL &&
+  if ((var = htmlGetVariable(t, (char *)"WIDTH")) != NULL &&
       (var[strlen((char *)var) - 1] != '%' || (right - left) > 0.0f))
   {
     // Yes, use it!
@@ -8270,7 +8271,7 @@ hdRender::get_cell_size(tree_t *t,		// I - Cell
   prefw = 0.0f;
 
   // Then the height...
-  if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"HEIGHT")) != NULL)
   {
     // Yes, use it!
     if (var[strlen((char *)var) - 1] == '%')
@@ -8281,7 +8282,7 @@ hdRender::get_cell_size(tree_t *t,		// I - Cell
   else
     minh = 0.0f;
 
-  nowrap = (htmlGetVariable(t, (uchar *)"NOWRAP") != NULL);
+  nowrap = (htmlGetVariable(t, (char *)"NOWRAP") != NULL);
 
   DEBUG_printf(("nowrap = %d\n", nowrap));
 
@@ -8329,7 +8330,7 @@ hdRender::get_cell_size(tree_t *t,		// I - Cell
 	  else if (temp->markup == MARKUP_SPACER)
 	    printf("SPACER = %.1f\n", temp->width);
 	  else
-	    printf("IMG(%s) = %.1f\n", htmlGetVariable(temp, (uchar *)"SRC"),
+	    printf("IMG(%s) = %.1f\n", htmlGetVariable(temp, (char *)"SRC"),
 	           temp->width);
 #endif // TABLE_DEBUG
 
@@ -8501,16 +8502,16 @@ hdRender::get_cell_size(tree_t *t,		// I - Cell
 //
 
 float				// O - Minimum width of table
-hdRender::get_table_size(tree_t *t,		// I - Table
+hdRender::get_table_size(hdTree *t,		// I - Table
                float  left,		// I - Left margin
 	       float  right,		// I - Right margin
 	       float  *minwidth,	// O - Minimum width
 	       float  *prefwidth,	// O - Preferred width
 	       float  *minheight)	// O - Minimum height
 {
-  tree_t	*temp,			// Current tree entry
+  hdTree	*temp,			// Current tree entry
 		*next;			// Next tree entry
-  uchar		*var;			// Attribute value
+  char		*var;			// Attribute value
   float		width,			// Required width of table
 		minw,			// Minimum width of table
 		minh,			// Minimum height of table
@@ -8535,7 +8536,7 @@ hdRender::get_table_size(tree_t *t,		// I - Table
                 t, left, right, minwidth, prefwidth, minheight));
 
   // First see if the width has been specified for this table...
-  if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL &&
+  if ((var = htmlGetVariable(t, (char *)"WIDTH")) != NULL &&
       (var[strlen((char *)var) - 1] != '%' || (right - left) > 0.0f))
   {
     // Yes, use it!
@@ -8551,7 +8552,7 @@ hdRender::get_table_size(tree_t *t,		// I - Table
   prefw = 0.0f;
 
   // Then the height...
-  if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"HEIGHT")) != NULL)
   {
     // Yes, use it!
     if (var[strlen((char *)var) - 1] == '%')
@@ -8632,17 +8633,17 @@ hdRender::get_table_size(tree_t *t,		// I - Table
   minh += row_height;
 
   // Add room for spacing and padding...
-  if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"CELLPADDING")) != NULL)
     cellpadding = atoi((char *)var);
   else
     cellpadding = 1.0f;
 
-  if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"CELLSPACING")) != NULL)
     cellspacing = atoi((char *)var);
   else
     cellspacing = 0.0f;
 
-  if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
+  if ((var = htmlGetVariable(t, (char *)"BORDER")) != NULL)
   {
     if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
       border = 1.0f;
@@ -8701,10 +8702,10 @@ hdRender::get_table_size(tree_t *t,		// I - Table
  *                    link, and break markups.
  */
 
-tree_t *			/* O - Flattened markup tree */
-hdRender::flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
+hdTree *			/* O - Flattened markup tree */
+hdRender::flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
 {
-  tree_t	*temp,		/* New tree node */
+  hdTree	*temp,		/* New tree node */
 		*flat;		/* Flattened tree */
 
 
@@ -8720,8 +8721,8 @@ hdRender::flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_BR :
       case MARKUP_SPACER :
       case MARKUP_IMG :
-	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
-	  memcpy(temp, t, sizeof(tree_t));
+	  temp = (hdTree *)calloc(sizeof(hdTree), 1);
+	  memcpy(temp, t, sizeof(hdTree));
 	  temp->parent = NULL;
 	  temp->child  = NULL;
 	  temp->prev   = flat;
@@ -8735,10 +8736,10 @@ hdRender::flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
           break;
 
       case MARKUP_A :
-          if (htmlGetVariable(t, (uchar *)"NAME") != NULL)
+          if (htmlGetVariable(t, (char *)"NAME") != NULL)
           {
-	    temp = (tree_t *)calloc(sizeof(tree_t), 1);
-	    memcpy(temp, t, sizeof(tree_t));
+	    temp = (hdTree *)calloc(sizeof(hdTree), 1);
+	    memcpy(temp, t, sizeof(hdTree));
 	    temp->parent = NULL;
 	    temp->child  = NULL;
 	    temp->prev   = flat;
@@ -8776,7 +8777,7 @@ hdRender::flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_DT :
       case MARKUP_TR :
       case MARKUP_CAPTION :
-	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
+	  temp = (hdTree *)calloc(sizeof(hdTree), 1);
 	  temp->markup = MARKUP_BR;
 	  temp->parent = NULL;
 	  temp->child  = NULL;
@@ -8826,15 +8827,15 @@ hdRender::flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
  */
 
 void
-hdRender::update_image_size(tree_t *t)	/* I - Tree entry */
+hdRender::update_image_size(hdTree *t)	/* I - Tree entry */
 {
-  image_t	*img;		/* Image file */
-  uchar		*width,		/* Width string */
+  hdImage	*img;		/* Image file */
+  char		*width,		/* Width string */
 		*height;	/* Height string */
 
 
-  width  = htmlGetVariable(t, (uchar *)"WIDTH");
-  height = htmlGetVariable(t, (uchar *)"HEIGHT");
+  width  = htmlGetVariable(t, (char *)"WIDTH");
+  height = htmlGetVariable(t, (char *)"HEIGHT");
 
   if (width != NULL && height != NULL)
   {
@@ -8851,7 +8852,7 @@ hdRender::update_image_size(tree_t *t)	/* I - Tree entry */
     return;
   }
 
-  img = image_find((char *)htmlGetVariable(t, (uchar *)"REALSRC"));
+  img = image_find((char *)htmlGetVariable(t, (char *)"REALSRC"));
 
   if (img == NULL)
     return;
@@ -8887,12 +8888,12 @@ hdRender::update_image_size(tree_t *t)	/* I - Tree entry */
  */
 
 float			/* O - Width in points */
-hdRender::get_width(uchar *s,		/* I - String to scan */
+hdRender::get_width(char *s,		/* I - String to scan */
           int   typeface,	/* I - Typeface code */
           int   style,		/* I - Style code */
           int   size)		/* I - Size */
 {
-  uchar	*ptr;			/* Current character */
+  char	*ptr;			/* Current character */
   float	width;			/* Current width */
 
 
@@ -8914,10 +8915,10 @@ hdRender::get_width(uchar *s,		/* I - String to scan */
  * 'hdRender::get_title()' - Get the title string for a document.
  */
 
-uchar *		/* O - Title string */
-hdRender::get_title(tree_t *doc)	/* I - Document */
+char *		/* O - Title string */
+hdRender::get_title(hdTree *doc)	/* I - Document */
 {
-  uchar	*temp;
+  char	*temp;
 
 
   while (doc != NULL)
@@ -9109,7 +9110,7 @@ hdRender::set_pos(FILE  *out,	/* I - File to write to */
 
 void
 hdRender::ps_hex(FILE  *out,	/* I - File to print to */
-       uchar *data,	/* I - Data to print */
+       char *data,	/* I - Data to print */
        int   length)	/* I - Number of bytes to print */
 {
   int		col;
@@ -9120,7 +9121,7 @@ hdRender::ps_hex(FILE  *out,	/* I - File to print to */
   while (length > 0)
   {
    /*
-    * Put the hex uchars out to the file; note that we don't use fprintf()
+    * Put the hex chars out to the file; note that we don't use fprintf()
     * for speed reasons...
     */
 
@@ -9146,13 +9147,13 @@ hdRender::ps_hex(FILE  *out,	/* I - File to print to */
 
 void
 hdRender::ps_ascii85(FILE  *out,		/* I - File to print to */
-	   uchar *data,		/* I - Data to print */
+	   char *data,		/* I - Data to print */
 	   int   length)	/* I - Number of bytes to print */
 {
   int		col;		/* Column */
   unsigned	b;
-  uchar		c[5];
-  static uchar	leftdata[4];
+  char		c[5];
+  static char	leftdata[4];
   static int	leftcount = 0;
 
 
@@ -9318,7 +9319,7 @@ hdRender::jpg_term(j_compress_ptr cinfo)	/* I - Compressor info */
 
 void
 hdRender::jpg_setup(FILE           *out,	/* I - Output file */
-          image_t        *img,	/* I - Output image */
+          hdImage        *img,	/* I - Output image */
           j_compress_ptr cinfo)	/* I - Compressor info */
 {
   int	i;			// Looping var
@@ -9385,7 +9386,7 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
 {
   int		i, j, k, m,	/* Looping vars */
 		ncolors;	/* Number of colors */
-  uchar		*pixel,		/* Current pixel */
+  char		*pixel,		/* Current pixel */
 		*indices,	/* New indexed pixel array */
 		*indptr;	/* Current index */
   int		indwidth,	/* Width of indexed line */
@@ -9394,12 +9395,12 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
   unsigned	colors[256],	/* Colormap values */
 		key,		/* Color key */
 		*match;		/* Matching color value */
-  uchar		grays[256],	/* Grayscale usage */
+  char		grays[256],	/* Grayscale usage */
 		cmap[256][3];	/* Colormap */
-  image_t 	*img;		/* Image */
+  hdImage 	*img;		/* Image */
   struct jpeg_compress_struct cinfo;
   				/* JPEG compressor */
-  uchar		*data,		/* PS Level 3 image data */
+  char		*data,		/* PS Level 3 image data */
 		*dataptr,	/* Pointer into image data */
 		*maskptr;	/* Pointer into mask data */
 
@@ -9517,7 +9518,7 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
       indbits = 8;
 
     indwidth = (img->width * indbits + 7) / 8;
-    indices  = (uchar *)malloc(indwidth * img->height);
+    indices  = (char *)malloc(indwidth * img->height);
 
     if (img->depth == 1)
     {
@@ -9919,7 +9920,7 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
   	    flate_write(out, img->pixels, img->width * img->height * img->depth, 1);
           }
 
-	  flate_write(out, (uchar *)"\nEI\nQ\n", 6, 1);
+	  flate_write(out, (char *)"\nEI\nQ\n", 6, 1);
 	}
         break;
 
@@ -10022,7 +10023,7 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
 
 	    if (img->mask && img->maskscale == 8)
 	    {
-	      data = (uchar *)malloc(img->width * 2);
+	      data = (char *)malloc(img->width * 2);
 
 	      for (i = 0, maskptr = img->mask, indptr = indices;
 	           i < img->height;
@@ -10094,7 +10095,7 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
 
 	    if (img->mask && img->maskscale == 8)
 	    {
-	      data = (uchar *)malloc(img->width * (img->depth + 1));
+	      data = (char *)malloc(img->width * (img->depth + 1));
 
 	      for (i = 0, maskptr = img->mask, pixel = img->pixels;
 	           i < img->height;
@@ -10173,7 +10174,7 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
 	  fputs("/DataSource currentfile/ASCII85Decode filter>>image\n", out);
 
 	  ps_ascii85(out, indices, indwidth * img->height);
-          ps_ascii85(out, (uchar *)"", 0);
+          ps_ascii85(out, (char *)"", 0);
           fputs("~>\n", out);
         }
 	else if (OutputJPEG)
@@ -10207,7 +10208,7 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
 	  jpeg_finish_compress(&cinfo);
 	  jpeg_destroy_compress(&cinfo);
 
-          ps_ascii85(out, (uchar *)"", 0);
+          ps_ascii85(out, (char *)"", 0);
           fputs("~>\n", out);
         }
         else
@@ -10232,7 +10233,7 @@ hdRender::write_image(FILE     *out,	/* I - Output file */
         	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
 
 	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth);
-          ps_ascii85(out, (uchar *)"", 0);
+          ps_ascii85(out, (char *)"", 0);
           fputs("~>\n", out);
         }
 
@@ -10255,10 +10256,10 @@ void
 hdRender::write_imagemask(FILE     *out,	/* I - Output file */
                 hdRenderNode *r)	/* I - Image to write */
 {
-  image_t	*img;		/* Current image */
+  hdImage	*img;		/* Current image */
   int		x, y;		/* Position in mask image */
   int		startx, count;	/* Start and count */
-  uchar		*ptr,		/* Pointer into mask image */
+  char		*ptr,		/* Pointer into mask image */
 		byte,		/* Current byte */
 		bit;		/* Current bit */
   float		scalex, scaley;	/* 1/(w-1) and 1/(h-1) scaling factors */
@@ -10371,11 +10372,11 @@ hdRender::write_imagemask(FILE     *out,	/* I - Output file */
 void
 hdRender::write_prolog(FILE  *out,	/* I - Output file */
              int   page_count,	/* I - Number of pages (0 if not known) */
-             uchar *author,	/* I - Author of document */
-             uchar *creator,	/* I - Application that generated the HTML file */
-             uchar *copyright,	/* I - Copyright (if any) on the document */
-             uchar *keywords,	/* I - Search keywords */
-	     uchar *subject)	/* I - Subject */
+             char *author,	/* I - Author of document */
+             char *creator,	/* I - Application that generated the HTML file */
+             char *copyright,	/* I - Copyright (if any) on the document */
+             char *keywords,	/* I - Search keywords */
+	     char *subject)	/* I - Subject */
 {
   FILE		*prolog;	/* PostScript prolog file */
   int		i, j,		/* Looping vars */
@@ -10386,13 +10387,13 @@ hdRender::write_prolog(FILE  *out,	/* I - Output file */
   int		font_desc[4][4];/* Font descriptor objects */
   char		temp[1024];	/* Temporary string */
   md5_state_t	md5;		/* MD5 state */
-  md5_byte_t	digest[16];	/* MD5 digest value */
+  hdByte	digest[16];	/* MD5 digest value */
   rc4_context_t	rc4;		/* RC4 context */
-  uchar		owner_pad[32],	/* Padded owner password */
+  char		owner_pad[32],	/* Padded owner password */
 		owner_key[32],	/* Owner key */
 		user_pad[32],	/* Padded user password */
 		user_key[32];	/* User key */
-  uchar		perm_bytes[4];	/* Permission bytes */
+  char		perm_bytes[4];	/* Permission bytes */
   unsigned	perm_value;	/* Permission value, unsigned */
   static unsigned char pad[32] =
 		{		/* Padding for passwords */
@@ -10774,8 +10775,8 @@ hdRender::write_prolog(FILE  *out,	/* I - Output file */
     */
 
     md5_init(&md5);
-    md5_append(&md5, (md5_byte_t *)OutputPath, sizeof(OutputPath));
-    md5_append(&md5, (md5_byte_t *)&doc_time, sizeof(doc_time));
+    md5_append(&md5, (hdByte *)OutputPath, sizeof(OutputPath));
+    md5_append(&md5, (hdByte *)&doc_time, sizeof(doc_time));
     md5_finish(&md5, file_id);
 
    /*
@@ -10975,7 +10976,7 @@ hdRender::write_prolog(FILE  *out,	/* I - Output file */
     info_object = pdf_start_object(out);
 
     fputs("/Producer", out);
-    write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2004 Easy "
+    write_string(out, (char *)"htmldoc " SVERSION " Copyright 1997-2004 Easy "
                                "Software Products, All Rights Reserved.", 0);
     fputs("/CreationDate", out);
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
@@ -10983,7 +10984,7 @@ hdRender::write_prolog(FILE  *out,	/* I - Output file */
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
 	    (int)(-timezone / 3600),
 	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
-    write_string(out, (uchar *)temp, 0);
+    write_string(out, (char *)temp, 0);
 
     if (doc_title != NULL)
     {
@@ -11007,7 +11008,7 @@ hdRender::write_prolog(FILE  *out,	/* I - Output file */
       }
 
       fputs("/Author", out);
-      write_string(out, (uchar *)temp, 0);
+      write_string(out, (char *)temp, 0);
     }
 
     if (creator != NULL)
@@ -11106,7 +11107,7 @@ hdRender::write_prolog(FILE  *out,	/* I - Output file */
 
 void
 hdRender::write_string(FILE  *out,	/* I - Output file */
-             uchar *s,		/* I - String */
+             char *s,		/* I - String */
 	     int   compress)	/* I - Compress output? */
 {
   int	i;			/* Looping var */
@@ -11115,7 +11116,7 @@ hdRender::write_string(FILE  *out,	/* I - Output file */
   if (Encryption && !compress && PSLevel == 0)
   {
     int		len;		// Length of string
-    uchar	news[1024];	// New string
+    char	news[1024];	// New string
 
 
    /*
@@ -11132,7 +11133,7 @@ hdRender::write_string(FILE  *out,	/* I - Output file */
   else
   {
     if (compress)
-      flate_write(out, (uchar *)"(", 1);
+      flate_write(out, (char *)"(", 1);
     else
       putc('(', out);
 
@@ -11141,7 +11142,7 @@ hdRender::write_string(FILE  *out,	/* I - Output file */
       if (*s == 160) /* &nbsp; */
       {
 	if (compress)
-          flate_write(out, (uchar *)" ", 1);
+          flate_write(out, (char *)" ", 1);
 	else
           putc(' ', out);
       }
@@ -11155,7 +11156,7 @@ hdRender::write_string(FILE  *out,	/* I - Output file */
       else if (compress)
       {
 	if (*s == '(' || *s == ')' || *s == '\\')
-          flate_write(out, (uchar *)"\\", 1);
+          flate_write(out, (char *)"\\", 1);
 
 	flate_write(out, s, 1);
       }
@@ -11171,7 +11172,7 @@ hdRender::write_string(FILE  *out,	/* I - Output file */
     }
 
     if (compress)
-      flate_write(out, (uchar *)")", 1);
+      flate_write(out, (char *)")", 1);
     else
       putc(')', out);
   }
@@ -11186,7 +11187,7 @@ void
 hdRender::write_text(FILE     *out,	/* I - Output file */
            hdRenderNode *r)		/* I - Text entity */
 {
-  uchar	*ptr;			/* Pointer into text */
+  char	*ptr;			/* Pointer into text */
 
 
   // Quick optimization - don't output spaces...
@@ -11326,12 +11327,12 @@ hdRender::write_trailer(FILE *out,	/* I - Output file */
       if (TitlePage)
       {
         fputs("0<</P", out);
-	write_string(out, (uchar *)"title", 0);
+	write_string(out, (char *)"title", 0);
 	fputs(">>", out);
 	if (PageDuplex)
 	{
 	  fputs("1<</P", out);
-	  write_string(out, (uchar *)"eltit", 0);
+	  write_string(out, (char *)"eltit", 0);
 	  fputs(">>", out);
 	}
 	i += PageDuplex + 1;
@@ -11400,7 +11401,7 @@ hdRender::write_trailer(FILE *out,	/* I - Output file */
 	{
 	  *prefptr = '\0';
 	  fputs("/P", out);
-	  write_string(out, (uchar *)prefix, 0);
+	  write_string(out, (char *)prefix, 0);
 	}
 	fputs(">>", out);
 
@@ -11616,7 +11617,7 @@ hdRender::write_type1(FILE       *out,		/* I - File to write to */
         *dataptr++ = ch;
       }
 
-      flate_write(out, (uchar *)line, dataptr - line);
+      flate_write(out, (char *)line, dataptr - line);
     }
 
     flate_puts(line, out);
@@ -11761,10 +11762,10 @@ void
 hdRender::encrypt_init(void)
 {
   int		i;		/* Looping var */
-  uchar		data[21],	/* Key data */
+  char		data[21],	/* Key data */
 		*dataptr;	/* Pointer to key data */
   md5_state_t	md5;		/* MD5 state */
-  md5_byte_t	digest[16];	/* MD5 digest value */
+  hdByte	digest[16];	/* MD5 digest value */
 
 
  /*
@@ -11835,7 +11836,7 @@ hdRender::flate_close_stream(FILE *out)	/* I - Output file */
   {
     if (PSLevel)
     {
-      ps_ascii85(out, (uchar *)"", 0);
+      ps_ascii85(out, (char *)"", 0);
       fputs("~>\n", out);
     }
 
@@ -11846,14 +11847,14 @@ hdRender::flate_close_stream(FILE *out)	/* I - Output file */
   {
     if (PSLevel)
       ps_ascii85(out, comp_buffer,
-                 (uchar *)compressor.next_out - (uchar *)comp_buffer);
+                 (char *)compressor.next_out - (char *)comp_buffer);
     else
     {
       if (Encryption)
         rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
-	            (uchar *)compressor.next_out - (uchar *)comp_buffer);
+	            (char *)compressor.next_out - (char *)comp_buffer);
 
-      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer,
+      fwrite(comp_buffer, (char *)compressor.next_out - (char *)comp_buffer,
              1, out);
     }
 
@@ -11861,18 +11862,18 @@ hdRender::flate_close_stream(FILE *out)	/* I - Output file */
     compressor.avail_out = sizeof(comp_buffer);
   }
 
-  if ((uchar *)compressor.next_out > (uchar *)comp_buffer)
+  if ((char *)compressor.next_out > (char *)comp_buffer)
   {
     if (PSLevel)
       ps_ascii85(out, comp_buffer,
-                 (uchar *)compressor.next_out - (uchar *)comp_buffer);
+                 (char *)compressor.next_out - (char *)comp_buffer);
     else
     {
       if (Encryption)
         rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
-	            (uchar *)compressor.next_out - (uchar *)comp_buffer);
+	            (char *)compressor.next_out - (char *)comp_buffer);
 
-      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer,
+      fwrite(comp_buffer, (char *)compressor.next_out - (char *)comp_buffer,
              1, out);
     }
 
@@ -11884,7 +11885,7 @@ hdRender::flate_close_stream(FILE *out)	/* I - Output file */
 
   if (PSLevel)
   {
-    ps_ascii85(out, (uchar *)"", 0);
+    ps_ascii85(out, (char *)"", 0);
     fputs("~>\n", out);
   }
 }
@@ -11898,7 +11899,7 @@ void
 hdRender::flate_puts(const char *s,	/* I - String to write */
            FILE       *out)	/* I - Output file */
 {
-  flate_write(out, (uchar *)s, strlen(s));
+  flate_write(out, (char *)s, strlen(s));
 }
 
 
@@ -11920,7 +11921,7 @@ hdRender::flate_printf(FILE       *out,	/* I - Output file */
   length = vsnprintf(buf, sizeof(buf), format, ap);
   va_end(ap);
 
-  flate_write(out, (uchar *)buf, length);
+  flate_write(out, (char *)buf, length);
 }
 
 
@@ -11930,7 +11931,7 @@ hdRender::flate_printf(FILE       *out,	/* I - Output file */
 
 void
 hdRender::flate_write(FILE  *out,		/* I - Output file */
-            uchar *buf,		/* I - Buffer */
+            char *buf,		/* I - Buffer */
             int   length,	/* I - Number of bytes to write */
 	    int   flush)	/* I - Flush when writing data? */
 {
@@ -11945,15 +11946,15 @@ hdRender::flate_write(FILE  *out,		/* I - Output file */
       {
 	if (PSLevel)
 	  ps_ascii85(out, comp_buffer,
-                     (uchar *)compressor.next_out - (uchar *)comp_buffer);
+                     (char *)compressor.next_out - (char *)comp_buffer);
 	else
 	{
 	  if (Encryption)
             rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
-	        	(uchar *)compressor.next_out - (uchar *)comp_buffer);
+	        	(char *)compressor.next_out - (char *)comp_buffer);
 
 	  fwrite(comp_buffer,
-	         (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+	         (char *)compressor.next_out - (char *)comp_buffer, 1, out);
 	}
 
 	compressor.next_out  = (Bytef *)comp_buffer;
@@ -11968,7 +11969,7 @@ hdRender::flate_write(FILE  *out,		/* I - Output file */
   {
     int		i,		// Looping var
 		bytes;		// Number of bytes to encrypt/write
-    uchar	newbuf[1024];	// New encrypted data buffer
+    char	newbuf[1024];	// New encrypted data buffer
 
 
     for (i = 0; i < length; i += sizeof(newbuf))
@@ -11988,5 +11989,5 @@ hdRender::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: render.cxx,v 1.14.2.3 2004/03/22 21:14:46 mike Exp $".
+ * End of "$Id: render.cxx,v 1.14.2.4 2004/03/22 21:56:29 mike Exp $".
  */

@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.43.2.1 2004/03/20 03:57:25 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.43.2.2 2004/03/22 21:56:29 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -14,9 +14,9 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.89a1"
-AC_SUBST(SVERSION)
-AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
+HD_SVERSION="1.89a1"
+AC_SUBST(HD_SVERSION)
+AC_DEFINE_UNQUOTED(HD_VERSION, "$HD_SVERSION")
 
 dnl Get the operating system and version number...
 
@@ -134,7 +134,7 @@ if test x$enable_ssl != xno; then
 	        "-lcrypto -lRSAglue -lrsaref"
 	    do
 		AC_CHECK_LIB(ssl,SSL_new,
-		    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT"
+		    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT -DOPENSSL_NO_KRB5"
 		     SSLLIBS="-lssl $libcrypto"
 		     AC_DEFINE(HAVE_SSL)
 		     AC_DEFINE(HAVE_LIBSSL)],,
@@ -259,8 +259,8 @@ if test "$prefix" = "NONE"; then
     prefix=/usr
 fi
 
-AC_DEFINE_UNQUOTED(DOCUMENTATION, "$prefix/share/doc/htmldoc")
-AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
+AC_DEFINE_UNQUOTED(HD_DOCUMENTATION, "$prefix/share/doc/htmldoc")
+AC_DEFINE_UNQUOTED(HD_HTML_DATA, "$prefix/share/htmldoc")
 
 dnl Update compiler options...
 if test -n "$GXX"; then
@@ -371,5 +371,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.43.2.1 2004/03/20 03:57:25 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.43.2.2 2004/03/22 21:56:29 mike Exp $".
 dnl
