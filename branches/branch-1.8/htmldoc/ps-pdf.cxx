@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.58 2001/05/21 17:51:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.59 2001/05/21 18:47:21 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3202,6 +3202,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   format_width = image_right - image_left;
   firstline    = 1;
 
+  printf("format_width = %.1f\n", format_width);
+
   while (flat != NULL)
   {
     start = flat;
@@ -3221,7 +3223,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
           temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
                         _htmlSizes[temp->size];
 
-        if (temp->markup == MARKUP_NONE && temp->data[strlen((char *)temp->data) - 1] == ' ')
+        if (temp->markup == MARKUP_NONE &&
+	    (temp->data[strlen((char *)temp->data) - 1] == ' ' ||
+	     temp->data[0] == ' '))
           whitespace = 1;
         else
           whitespace = 0;
@@ -3258,6 +3262,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       flat  = start->next;
       width = start->width;
     }
+
+    printf("    width = %.1f\n", width);
 
     for (height = 0.0, num_chars = 0, temp = prev = start;
          temp != end;
@@ -8606,5 +8612,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.58 2001/05/21 17:51:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.59 2001/05/21 18:47:21 mike Exp $".
  */

@@ -61,6 +61,8 @@ CHANGES IN HTMLDOC v1.8.13
 	  not use the same template under Windows, causing
 	  multiple conversions to fail when temporary files were
 	  used.
+	- Paragraphs could end up with one extra text fragment,
+	  causing the line to be too long.
 
 
 CHANGES IN HTMLDOC v1.8.12
