@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.83 2001/06/20 16:37:43 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.84 2001/06/27 01:22:33 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4737,11 +4737,16 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	cell_y[col]     = temp_y;
 
         if (cells[row][col] != NULL && cells[row][col]->child != NULL)
-	  parse_doc(cells[row][col]->child,
+	{
+	  DEBUG_printf(("    parsing cell %d,%d; width = %.1f\n", row, col,
+	                col_rights[col + colspan] - col_lefts[col]));
+
+          parse_doc(cells[row][col]->child,
                     col_lefts[col], col_rights[col + colspan],
                     bottom + cellpadding,
                     top - cellpadding,
                     x, &temp_y, &temp_page, NULL, &tempspace);
+        }
 
         cell_endpage[col] = temp_page;
         cell_endy[col]    = temp_y;
@@ -6051,7 +6056,22 @@ get_cell_size(tree_t *t,		// I - Cell
 	    frag_width += temp->width;
 	  break;
 
-      default :
+      case MARKUP_ADDRESS :
+      case MARKUP_BLOCKQUOTE :
+      case MARKUP_BR :
+      case MARKUP_CENTER :
+      case MARKUP_DD :
+      case MARKUP_DT :
+      case MARKUP_H1 :
+      case MARKUP_H2 :
+      case MARKUP_H3 :
+      case MARKUP_H4 :
+      case MARKUP_H5 :
+      case MARKUP_H6 :
+      case MARKUP_HR :
+      case MARKUP_LI :
+      case MARKUP_P :
+      case MARKUP_PRE :
 	  if (nowrap && frag_pref > prefw)
 	    prefw = frag_pref;
 
@@ -9025,5 +9045,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.83 2001/06/20 16:37:43 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.84 2001/06/27 01:22:33 mike Exp $".
  */
