@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.85 2001/06/27 16:39:19 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.86 2001/07/11 13:28:19 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6095,6 +6095,8 @@ get_cell_size(tree_t *t,		// I - Cell
 
           frag_pref   = 0.0f;
           frag_height = 0.0f;
+
+      default :
 	  break;
     }
 
@@ -9063,5 +9065,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.85 2001/06/27 16:39:19 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.86 2001/07/11 13:28:19 mike Exp $".
  */
