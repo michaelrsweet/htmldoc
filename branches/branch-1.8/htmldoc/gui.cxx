@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.55 2002/06/13 19:11:30 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.56 2002/06/13 20:10:48 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -3895,7 +3895,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   else
     PSLevel = 3;
 
-  _htmlPPI = _htmlBrowserWidth / PageWidth * 72.0f;
+  _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
   file_proxy(gui->proxy->value());
 
@@ -4045,5 +4045,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.55 2002/06/13 19:11:30 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.56 2002/06/13 20:10:48 mike Exp $".
 //

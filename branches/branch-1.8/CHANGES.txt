@@ -1,4 +1,4 @@
-CHANGES.txt - 06/12/2002
+CHANGES.txt - 06/13/2002
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.21
@@ -11,6 +11,9 @@ CHANGES IN HTMLDOC v1.8.21
 
     CHANGES
 
+	- HTMLDOC now calculates the resolution of the body
+	  image using the printable width instead of the page
+	  width.
 
     BUG FIXES
 
