@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.229 2004/02/06 03:51:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.230 2004/02/09 21:29:52 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3271,7 +3271,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
   * Write the root name tree entry...
   */
 
-  pdf_start_object(out);
+  names_object = pdf_start_object(out);
   fprintf(out, "/Dests %d 0 R", num_objects + 1);
   pdf_end_object(out);
 
@@ -12128,5 +12128,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.229 2004/02/06 03:51:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.230 2004/02/09 21:29:52 mike Exp $".
  */
