@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.26 2000/05/16 18:56:05 mike Exp $"
+// "$Id: HelpView.cxx,v 1.27 2000/05/20 13:03:53 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -2040,6 +2040,7 @@ HelpView::load_gif(HelpImage *img,	// I - Image pointer
 }
 
 
+#ifdef HAVE_LIBJPEG
 //
 // 'HelpView::load_jpeg()' - Load a JPEG image file.
 //
@@ -2091,8 +2092,10 @@ HelpView::load_jpeg(HelpImage *img,	// I - Image pointer
 
   return (1);
 }
+#endif // HAVE_LIBJPEG
 
 
+#ifdef HAVE_LIBPNG
 //
 // 'HelpView::load_png()' - Load a PNG image file.
 //
@@ -2173,6 +2176,7 @@ HelpView::load_png(HelpImage *img,	// I - Image pointer
 
   return (1);
 }
+#endif // HAVE_LIBPNG
 
 
 //
@@ -2622,5 +2626,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.26 2000/05/16 18:56:05 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.27 2000/05/20 13:03:53 mike Exp $".
 //
