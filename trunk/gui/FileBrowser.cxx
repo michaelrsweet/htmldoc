@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx,v 1.5 1999/04/27 12:43:35 mike Exp $"
+// "$Id: FileBrowser.cxx,v 1.6 1999/04/27 15:13:19 mike Exp $"
 //
 //   FileBrowser routines for the Common UNIX Printing System (CUPS).
 //
@@ -23,6 +23,12 @@
 //
 // Contents:
 //
+//   FileBrowser::item_width()  - Return the width of a list item.
+//   FileBrowser::item_draw()   - Draw a list item.
+//   FileBrowser::FileBrowser() - Create a FileBrowser widget.
+//   FileBrowser::load()        - Load a directory into the browser.
+//   FileBrowser::filter()      - Set the filename filter.
+//
 
 //
 // Include necessary header files...
@@ -41,7 +47,10 @@
 #endif /* WIN32 || __EMX__ */
 
 
-// From "Fl_Browser.cxx"...
+//
+// FL_BLINE definition from "Fl_Browser.cxx"...
+//
+
 #define SELECTED 1
 #define NOTDISPLAYED 2
 
@@ -56,20 +65,33 @@ struct FL_BLINE			// data is in a linked list of these
 };
 
 
-int
-FileBrowser::item_width(void *p) const
+//
+// 'FileBrowser::item_width()' - Return the width of a list item.
+//
+
+int					// O - Width in pixels
+FileBrowser::item_width(void *p) const	// I - List item data
 {
   fl_font(textfont(), textsize());
   return ((int)(fl_width(((FL_BLINE *)p)->txt) + 2 * textsize() + 4.5));
 }
 
 
+//
+// 'FileBrowser::item_draw()' - Draw a list item.
+//
+
 void
-FileBrowser::item_draw(void *p, int x, int y, int w, int h) const
+FileBrowser::item_draw(void *p,		// I - List item data
+                       int  x,		// I - Upper-lefthand X coordinate
+		       int  y,		// I - Upper-lefthand Y coordinate
+		       int  w,		// I - Width of item
+		       int  h) const	// I - Height of item
 {
   FL_BLINE	*line;			// Pointer to line
 
 
+  // Draw the list item text...
   line = (FL_BLINE *)p;
 
   fl_font(textfont(), textsize());
@@ -81,6 +103,7 @@ FileBrowser::item_draw(void *p, int x, int y, int w, int h) const
   fl_draw(line->txt, x + 2 * textsize() + 2, y, w - 2 * textsize() - 2, h,
           FL_ALIGN_LEFT);
 
+  // Then draw the icon, if any...
   if (line->data)
   {
     fl_push_matrix();
@@ -93,16 +116,29 @@ FileBrowser::item_draw(void *p, int x, int y, int w, int h) const
 }
 
 
-FileBrowser::FileBrowser(int x, int y, int w, int h, const char *l) :
-Fl_Browser(x, y, w, h, l)
+//
+// 'FileBrowser::FileBrowser()' - Create a FileBrowser widget.
+//
+
+FileBrowser::FileBrowser(int        x,	// I - Upper-lefthand X coordinate
+                         int        y,	// I - Upper-lefthand Y coordinate
+			 int        w,	// I - Width in pixels
+			 int        h,	// I - Height in pixels
+			 const char *l)	// I - Label text
+    : Fl_Browser(x, y, w, h, l)
 {
+  // Initialize the filter pattern and current directory...
   pattern_   = "*";
   directory_ = "";
 }
 
 
-int
-FileBrowser::load(const char *directory)
+//
+// 'FileBrowser::load()' - Load a directory into the browser.
+//
+
+int					// O - Number of files loaded
+FileBrowser::load(const char *directory)// I - Directory to load
 {
   int		i;		// Looping var
   int		num_files;	// Number of files in directory
@@ -231,18 +267,24 @@ FileBrowser::load(const char *directory)
 }
 
 
+//
+// 'FileBrowser::filter()' - Set the filename filter.
+//
+
 void
-FileBrowser::filter(const char *pattern)
+FileBrowser::filter(const char *pattern)	// I - Pattern string
 {
+  // If pattern is NULL set the pattern to "*"...
   if (pattern)
     pattern_ = pattern;
   else
     pattern_ = "*";
 
+  // Reload the current directory...
   load(directory_);
 }
 
 
 //
-// End of "$Id: FileBrowser.cxx,v 1.5 1999/04/27 12:43:35 mike Exp $".
+// End of "$Id: FileBrowser.cxx,v 1.6 1999/04/27 15:13:19 mike Exp $".
 //

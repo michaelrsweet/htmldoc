@@ -5,11 +5,9 @@
 #include "FileBrowser.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Choice.H>
 #include <FL/Fl_Input.H>
-#include <FL/Fl_Menu_Button.H>
-#include <FL/Fl_Pack.H>
 #include <FL/Fl_Return_Button.H>
-#include <FL/Fl_Roller.H>
 #include <FL/Fl_Window.H>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,37 +25,25 @@ private:
   static void cb_Cancel(Fl_Button*, void*);
   inline void cb_OK_i(Fl_Return_Button*, void*);
   static void cb_OK(Fl_Return_Button*, void*);
-  inline void cb_roller_i(Fl_Button*, void*);
-  static void cb_roller(Fl_Button*, void*);
-public:
-  Fl_Roller *roller;
-private:
-  inline void cb_roller1_i(Fl_Roller*, void*);
-  static void cb_roller1(Fl_Roller*, void*);
-  inline void cb_reset_i(Fl_Button*, void*);
-  static void cb_reset(Fl_Button*, void*);
 public:
   Fl_Input *fileName;
 private:
   inline void cb_fileName_i(Fl_Input*, void*);
   static void cb_fileName(Fl_Input*, void*);
 public:
-  Fl_Input *dirName;
-private:
-  inline void cb_dirName_i(Fl_Input*, void*);
-  static void cb_dirName(Fl_Input*, void*);
-public:
   Fl_Button *upButton;
 private:
   inline void cb_upButton_i(Fl_Button*, void*);
   static void cb_upButton(Fl_Button*, void*);
-public:
-  Fl_Menu_Button *dirMenu;
-private:
-  inline void cb_dirMenu_i(Fl_Menu_Button*, void*);
-  static void cb_dirMenu(Fl_Menu_Button*, void*);
   inline void cb_new_i(Fl_Button*, void*);
   static void cb_new(Fl_Button*, void*);
+public:
+  Fl_Choice *dirMenu;
+private:
+  inline void cb_dirMenu_i(Fl_Choice*, void*);
+  static void cb_dirMenu(Fl_Choice*, void*);
+  inline void cb_allfiles_i(Fl_Button*, void*);
+  static void cb_allfiles(Fl_Button*, void*);
   char directory_[1024];
   int multi_;
   void fileListCB();
