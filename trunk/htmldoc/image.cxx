@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.7 2000/05/04 16:34:04 mike Exp $"
+ * "$Id: image.cxx,v 1.8 2000/05/15 21:58:29 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -165,7 +165,7 @@ image_load(const char *filename,/* I - Name of image file */
   */
 
   if (memcmp(header, "GIF87a", 6) == 0 ||
-           memcmp(header, "GIF89a", 6) == 0)
+      memcmp(header, "GIF89a", 6) == 0)
     status = image_load_gif(img,  fp, gray);
   else if (memcmp(header, "\211PNG", 4) == 0)
     status = image_load_png(img, fp, gray);
@@ -1042,5 +1042,5 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
 
 /*
- * End of "$Id: image.cxx,v 1.7 2000/05/04 16:34:04 mike Exp $".
+ * End of "$Id: image.cxx,v 1.8 2000/05/15 21:58:29 mike Exp $".
  */

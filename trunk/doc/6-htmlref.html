@@ -85,7 +85,7 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 <TR><TD>SUB</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Reduced Fontsize</TD></TR>
 <TR><TD>SUP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Reduced Fontsize</TD></TR>
 <TR><TD>TABLE</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#TABLE">See Below</A></TD></TR>
-<TR><TD>TBODY</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
+<TR><TD>TBODY</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
 <TR><TD>TD</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD></TD></TR>
 <TR><TD>TEXTAREA</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
 <TR><TD>TFOOT</TD><TD ALIGN="CENTER">4.0</TD><TD ALIGN="CENTER">No</TD><TD></TD></TR>
@@ -119,8 +119,14 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 	<DT><CODE>&lt;!-- NEW SHEET --&gt;</CODE>
 	<DD>Break to the next sheet.
 
+	<DT><CODE>&lt;!-- NEED length --&gt;</CODE>
+	<DD>Break if there is less than <CODE>length</CODE> units left
+	on the current page. The <CODE>length</CODE> value defaults to
+	points but can be suffixed by <CODE>in</CODE>, <CODE>mm</CODE>,
+	or <CODE>cm</CODE> to convert from the corresponding units.
+
 </DL>
-	
+
 <H2><A NAME="FONT">FONT Attributes</A></H2>
 
 Limited typeface specification is currently supported to ensure
