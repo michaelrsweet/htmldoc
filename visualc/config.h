@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.3 1999/11/09 22:16:43 mike Exp $"
+ * "$Id: config.h,v 1.4 1999/11/10 00:01:17 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -26,24 +26,24 @@
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"C:/Program Files/HTMLDOC/doc"
-#define HTML_DATA	"C:/Program Files/HTMLDOC"
+#define DOCUMENTATION	"../doc"
+#define HTML_DATA	".."
 
 
 /*
  * Do we have the FLTK library?
  */
 
-#undef HAVE_LIBFLTK
+#define HAVE_LIBFLTK
 
 
 /*
  * Do we have some of the "standard" string functions?
  */
 
-#undef HAVE_STRDUP
-#undef HAVE_STRCASECMP
-#undef HAVE_STRNCASECMP
+#define HAVE_STRDUP
+#define HAVE_STRCASECMP
+#define HAVE_STRNCASECMP
 
 /*
  * What is the version number for this software?
@@ -66,6 +66,6 @@
 #define MAX_ROWS	1000
 
 /*
- * End of "$Id: config.h,v 1.3 1999/11/09 22:16:43 mike Exp $".
+ * End of "$Id: config.h,v 1.4 1999/11/10 00:01:17 mike Exp $".
  */
 

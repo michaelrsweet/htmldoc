@@ -1,5 +1,5 @@
 /*
- * "$Id: string.c,v 1.2 1999/11/09 22:16:43 mike Exp $"
+ * "$Id: string.c,v 1.3 1999/11/10 00:01:17 mike Exp $"
  *
  *   String functions for HTMLDOC, a HTML document processing program.
  *
@@ -47,7 +47,7 @@ strdup(const char *s)	/* I - String to duplicate... */
   char	*t;		/* New string */
 
 
-  if ((t = calloc(strlen(s) + 1)) != NULL)
+  if ((t = calloc(strlen(s) + 1, 1)) != NULL)
     strcpy(t, s);
 
   return (t);
@@ -120,5 +120,5 @@ strncasecmp(const char *s,	/* I - First string */
 
 
 /*
- * End of "$Id: string.c,v 1.2 1999/11/09 22:16:43 mike Exp $".
+ * End of "$Id: string.c,v 1.3 1999/11/10 00:01:17 mike Exp $".
  */
