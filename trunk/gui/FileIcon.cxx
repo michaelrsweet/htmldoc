@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.12 1999/11/12 21:18:17 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.13 1999/11/12 21:37:54 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -907,20 +907,22 @@ FileIcon::load_system_icons(void)
   // Add symbols if they haven't been added already...
   if (!init)
   {
-#if 0
-    if (!access("/usr/share/pixmaps", F_OK))
-    {
-      // Load GNOME icons from PNG files in /usr/share/pixmaps...
-    }
-    else 
-#endif /* 0 */
-    if (!access("/usr/share/icons", F_OK))
+    if (!access("/usr/share/mimelnk", F_OK))
     {
       // Load KDE icons...
       icon = new FileIcon("*", FileIcon::PLAIN);
       icon->load_xpm("/usr/share/icons/unknown.xpm");
 
       load_kde_icons("/usr/share/mimelnk");
+    }
+    else if (!access("/usr/share/icons/folder.xpm", F_OK))
+    {
+      // Load GNOME icons...
+      icon = new FileIcon("*", FileIcon::PLAIN);
+      icon->load_xpm("/usr/share/icons/page.xpm");
+
+      icon = new FileIcon("*", FileIcon::DIRECTORY);
+      icon->load_xpm("/usr/share/icons/folder.xpm");
     }
     else if (!access("/usr/dt/appconfig/icons", F_OK))
     {
@@ -1137,5 +1139,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.12 1999/11/12 21:18:17 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.13 1999/11/12 21:37:54 mike Exp $".
 //
