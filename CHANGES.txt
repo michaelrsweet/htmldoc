@@ -30,7 +30,7 @@ CHANGES IN HTMLDOC v1.8.8
 	  border width, spacing, or padding values.
 	- HTMLDOC crashed under Solaris when reading HTML files
 	  from the standard input.
-	- <ELEM>text</ELEM> <MELE>text</MELE> wass rendered
+	- <ELEM>text</ELEM> <MELE>text</MELE> was rendered
 	  without an intervening space.
 
 
