@@ -2,25 +2,23 @@
 
 book.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 book.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-file.o: book.h html.h style.h types.h ../config.h hdstring.h iso8859.h http.h
-file.o: md5.h image.h margin.h rc4.h debug.h
 gui.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 gui.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
 gui.o: ../desktop/htmldoc.xpm
 html.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 html.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
+htmldoc.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
+htmldoc.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
 htmlsep.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 htmlsep.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-http.o: http-private.h ../config.h http.h md5.h hdstring.h debug.h
 http-addr.o: hdstring.h ../config.h http.h md5.h
+http.o: http-private.h ../config.h http.h md5.h hdstring.h debug.h
 http-support.o: hdstring.h ../config.h http.h md5.h
 image.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 image.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
 iso8859.o: hdstring.h ../config.h iso8859.h types.h
 license.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 license.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-license.o: ../license3/ESPLicenseDialog.h ../license3/license.h
-license.o: ../license3/Fl_URL.h
 link.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 link.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
 margin.o: margin.h
@@ -32,18 +30,10 @@ ps-pdf.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
 rc4.o: rc4.h
 snprintf.o: hdstring.h ../config.h
 string.o: hdstring.h ../config.h
-style.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-style.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-stylefont.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-stylefont.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-stylemedia.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-stylemedia.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-stylesheet.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-stylesheet.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
+testhtml.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
+testhtml.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
 toc.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 toc.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-tree.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-tree.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
 util.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
 util.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
 testhtml.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
