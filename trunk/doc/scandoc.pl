@@ -545,11 +545,11 @@ sub parseDeclaration {
       
       my $fullName = "$baseScope$className"; ##$tmplParams"; JAMES
       # print STDERR "CLASS $fullName\n";
-      
+
       my @bases = ();
-      
+
       if (&matchColon) {
-	
+
 	for (;;) {
 	  my $p;
 	  &matchKW( "virtual" );
