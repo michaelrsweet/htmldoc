@@ -1,5 +1,8 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.00 
+version 1.0010 
+i18n_type 1 
+i18n_include "gui.h" 
+i18n_function _ 
 header_name {.h} 
 code_name {.cxx} 
 gridx 5 
