@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.37 2004/05/09 15:04:38 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.38 2004/05/19 15:40:27 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -353,7 +353,7 @@ write_header(FILE   **out,	/* IO - Output file */
     fputs(">\n", *out);
   }
   else
-    fputs("<HR>\n", *out);
+    fputs("<HR NOSHADE>\n", *out);
 
   if (OutputFiles && t != NULL && (t->prev != NULL || t->next != NULL))
   {
@@ -377,7 +377,7 @@ write_header(FILE   **out,	/* IO - Output file */
       fprintf(*out, "<A HREF=\"%s\">Next</A>\n",
               file_basename((char *)htmlGetVariable(t->next, (uchar *)"_HD_FILENAME")));
 
-    fputs("<HR>\n", *out);
+    fputs("<HR NOSHADE>\n", *out);
   }
 }
 
@@ -395,7 +395,7 @@ write_footer(FILE **out,	/* IO - Output file pointer */
 
   if (OutputFiles && t != NULL && (t->prev != NULL || t->next != NULL))
   {
-    fputs("<HR>\n", *out);
+    fputs("<HR NOSHADE>\n", *out);
 
     if (LogoImage[0])
       fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
@@ -1032,5 +1032,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.37 2004/05/09 15:04:38 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.38 2004/05/19 15:40:27 mike Exp $".
  */
