@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.11.2.2 2001/02/28 19:33:28 mike Exp $"
+# "$Id: Makefile,v 1.11.2.3 2001/05/21 12:08:52 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -36,7 +36,7 @@ include ../Makedefs
 SOURCES	=	intro.html 1-install.html 2-starting.html \
 		3-books.html 4-cmdline.html 5-cgi.html \
 		6-htmlref.html 7-guiref.html 8-cmdref.html \
-		a-license.html
+		a-license.html b-book.html
 
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	help.html htmldoc.pdf
@@ -103,5 +103,5 @@ htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
 
 
 #
-# End of "$Id: Makefile,v 1.11.2.2 2001/02/28 19:33:28 mike Exp $".
+# End of "$Id: Makefile,v 1.11.2.3 2001/05/21 12:08:52 mike Exp $".
 #
