@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.25 2001/10/18 21:14:57 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.26 2001/10/18 23:19:21 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -110,9 +110,8 @@ const char	*GUI::help_dir = DOCUMENTATION;
 // The following is experimental to make things look a little
 // like Aqua on the Mac...
 
-//#define AQUA
-
-#ifdef AQUA
+static int	AquaMode = 1;
+static void	aquaCB(CheckButton *w, void *);
 
 extern void	fl_down_box(int x, int y, int w, int h, Fl_Color c);
 extern void	fl_up_box(int x, int y, int w, int h, Fl_Color c);
@@ -237,7 +236,50 @@ aqua_up_box(int      x,
   else
     fl_up_box(x, y, w, h, c);
 }
-#endif // AQUA
+
+
+//
+// 'GUI::aquaCB()' - Toggle between Aqua and Windows look-n-feel.
+//
+
+void
+GUI::aquaCB(Fl_Widget *w,		// I - Aqua mode check button
+            GUI       *gui)		// I - GUI class (ignored)
+{
+  if (w)
+    AquaMode = ((CheckButton *)w)->value();
+
+  if (AquaMode)
+  {
+    Fl::set_boxtype(FL_UP_BOX, aqua_up_box, 3, 3, 6, 6);
+    Fl::set_boxtype(FL_DOWN_BOX, aqua_down_box, 3, 3, 6, 6);
+    Fl::set_boxtype(_FL_ROUND_UP_BOX, aqua_up_box, 3, 3, 6, 6);
+    Fl::set_boxtype(_FL_ROUND_DOWN_BOX, aqua_down_box, 3, 3, 6, 6);
+
+    gui->bookHelp->color(FL_WHITE, FL_BLUE);
+    gui->bookNew->color(FL_WHITE, FL_BLUE);
+    gui->bookOpen->color(FL_WHITE, FL_BLUE);
+    gui->bookSave->color(FL_WHITE, FL_BLUE);
+    gui->bookSaveAs->color(FL_WHITE, FL_BLUE);
+    gui->bookGenerate->color(FL_WHITE, FL_BLUE);
+    gui->bookClose->color(FL_WHITE, FL_RED);
+  }
+  else
+  {
+    Fl::set_boxtype(FL_UP_BOX, fl_up_box, 3, 3, 6, 6);
+    Fl::set_boxtype(FL_DOWN_BOX, fl_down_box, 3, 3, 6, 6);
+    define_FL_ROUND_UP_BOX();
+
+    gui->bookHelp->color(FL_GRAY, FL_GRAY);
+    gui->bookNew->color(FL_GRAY, FL_GRAY);
+    gui->bookOpen->color(FL_GRAY, FL_GRAY);
+    gui->bookSave->color(FL_GRAY, FL_GRAY);
+    gui->bookSaveAs->color(FL_GRAY, FL_GRAY);
+    gui->bookGenerate->color(FL_GRAY, FL_GRAY);
+    gui->bookClose->color(FL_GRAY, FL_GRAY);
+  }
+}
+
 
 
 //
@@ -880,36 +922,44 @@ GUI::GUI(const char *filename)		// Book file to load initially
     pdf11 = new RadioButton(140, 45, 125, 20, "1.1 (Acrobat 2.x)");
     pdf11->type(FL_RADIO_BUTTON);
     pdf11->callback((Fl_Callback *)pdfCB, this);
+    _tooltip(pdf11, "Produce PDF files for Acrobat 2.x.");
 
     pdf12 = new RadioButton(270, 45, 125, 20, "1.2 (Acrobat 3.0)");
     pdf12->type(FL_RADIO_BUTTON);
     pdf12->callback((Fl_Callback *)pdfCB, this);
+    _tooltip(pdf12, "Produce PDF files for Acrobat 3.0.");
 
     pdf13 = new RadioButton(140, 65, 125, 20, "1.3 (Acrobat 4.0)");
     pdf13->type(FL_RADIO_BUTTON);
     pdf13->callback((Fl_Callback *)pdfCB, this);
+    _tooltip(pdf13, "Produce PDF files for Acrobat 4.0.");
 
     pdf14 = new RadioButton(270, 65, 125, 20, "1.4 (Acrobat 5.0)");
     pdf14->type(FL_RADIO_BUTTON);
     pdf14->callback((Fl_Callback *)pdfCB, this);
+    _tooltip(pdf14, "Produce PDF files for Acrobat 5.0.");
 
   pdfVersion->end();
 
   pageMode = new Fl_Choice(140, 90, 120, 25, "Page Mode: ");
   pageMode->menu(modeMenu);
   pageMode->callback((Fl_Callback *)changeCB, this);
+  _tooltip(pageMode, "Choose the initial viewing mode for the file.");
 
   pageLayout = new Fl_Choice(140, 120, 150, 25, "Page Layout: ");
   pageLayout->menu(layoutMenu);
   pageLayout->callback((Fl_Callback *)changeCB, this);
+  _tooltip(pageLayout, "Choose the initial page layout for the file.");
 
   firstPage = new Fl_Choice(140, 150, 100, 25, "First Page: ");
   firstPage->menu(firstMenu);
   firstPage->callback((Fl_Callback *)changeCB, this);
+  _tooltip(pageMode, "Choose the initial page that will be shown.");
 
   pageEffect = new Fl_Choice(140, 180, 210, 25, "Page Effect: ");
   pageEffect->menu(effectMenu);
   pageEffect->callback((Fl_Callback *)effectCB, this);
+  _tooltip(pageEffect, "Choose the page transition effect.");
 
   pageDuration = new Fl_Value_Slider(140, 210, 345, 20, "Page Duration: ");
   pageDuration->align(FL_ALIGN_LEFT);
@@ -919,6 +969,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageDuration->value(10.0);
   pageDuration->step(1.0);
   pageDuration->callback((Fl_Callback *)changeCB, this);
+  _tooltip(pageDuration, "Set the amount of time each page is visible.");
 
   effectDuration = new Fl_Value_Slider(140, 235, 345, 20, "Effect Duration: ");
   effectDuration->align(FL_ALIGN_LEFT);
@@ -928,15 +979,18 @@ GUI::GUI(const char *filename)		// Book file to load initially
   effectDuration->value(1.0);
   effectDuration->step(0.1);
   effectDuration->callback((Fl_Callback *)changeCB, this);
+  _tooltip(effectDuration, "Set the amount of time to use for the page transition effect.");
 
   group = new Fl_Group(140, 260, 350, 25, "Options: ");
   group->align(FL_ALIGN_LEFT);
 
-  links = new CheckButton(140, 260, 105, 25, "Include Links");
-  links->callback((Fl_Callback *)changeCB, this);
+    links = new CheckButton(140, 260, 105, 25, "Include Links");
+    links->callback((Fl_Callback *)changeCB, this);
+    _tooltip(links, "Check to include hyperlinks in the output file.");
 
-  truetype = new CheckButton(250, 260, 210, 25, "Use TrueType Fonts");
-  truetype->callback((Fl_Callback *)changeCB, this);
+    truetype = new CheckButton(250, 260, 210, 25, "Use TrueType Fonts");
+    truetype->callback((Fl_Callback *)changeCB, this);
+    _tooltip(truetype, "Check to use TrueType fonts in the output file instead of Type1 fonts.");
 
   group->end();
 
@@ -956,10 +1010,13 @@ GUI::GUI(const char *filename)		// Book file to load initially
     encryptionNo->type(FL_RADIO_BUTTON);
     encryptionNo->set();
     encryptionNo->callback((Fl_Callback *)encryptionCB, this);
+    _tooltip(encryptionNo, "Select to disable encryption (scrambling) of the output file.");
 
     encryptionYes = new RadioButton(180, 45, 45, 20, "Yes");
     encryptionYes->type(FL_RADIO_BUTTON);
     encryptionYes->callback((Fl_Callback *)encryptionCB, this);
+    _tooltip(encryptionNo, "Select to enable encryption (scrambling) of the output file.\n"
+                           "(128-bit encryption for Acrobat 5.0, 40-bit for older versions.)");
 
   encryption->end();
 
@@ -967,17 +1024,25 @@ GUI::GUI(const char *filename)		// Book file to load initially
   permissions->align(FL_ALIGN_LEFT);
 
     permPrint    = new CheckButton(140, 70, 80, 20, "Print");
+    _tooltip(permPrint, "Check to allow the user to print the output file.");
     permModify   = new CheckButton(220, 70, 80, 20, "Modify");
+    _tooltip(permModify, "Check to allow the user to modify the output file.");
     permCopy     = new CheckButton(140, 90, 80, 20, "Copy");
+    _tooltip(permCopy, "Check to allow the user to copy text and images from the output file.");
     permAnnotate = new CheckButton(220, 90, 80, 20, "Annotate");
+    _tooltip(permAnnotate, "Check to allow the user to annotate the output file.");
 
   permissions->end();
 
   ownerPassword = new Fl_Secret_Input(140, 115, 150, 25, "Owner Password: ");
   ownerPassword->maximum_size(32);
+  _tooltip(ownerPassword, "Enter the password required to modify the file.\n"
+                          "(leave blank for a random password)");
 
   userPassword = new Fl_Secret_Input(140, 145, 150, 25, "User Password: ");
   userPassword->maximum_size(32);
+  _tooltip(ownerPassword, "Enter the password required to open the file.\n"
+                          "(leave blank for no password)");
 
   securityTab->end();
 
@@ -992,9 +1057,12 @@ GUI::GUI(const char *filename)		// Book file to load initially
   htmlEditor->value(HTMLEditor);
   htmlEditor->when(FL_WHEN_CHANGED);
   htmlEditor->callback((Fl_Callback *)htmlEditorCB, this);
+  _tooltip(htmlEditor, "Enter the command used to edit HTML files.\n"
+                       "(use \"%s\" to insert the filename)");
 
   htmlBrowse = new Fl_Button(390, 45, 95, 25, "Browse...");
   htmlBrowse->callback((Fl_Callback *)htmlEditorCB, this);
+  _tooltip(htmlBrowse, "Click to choose the HTML editor.");
 
   browserWidth = new Fl_Value_Slider(140, 75, 345, 20, "Browser Width: ");
   browserWidth->align(FL_ALIGN_LEFT);
@@ -1004,21 +1072,47 @@ GUI::GUI(const char *filename)		// Book file to load initially
   browserWidth->value(_htmlBrowserWidth);
   browserWidth->step(5.0);
   browserWidth->callback((Fl_Callback *)changeCB, this);
+  _tooltip(browserWidth, "Set the target browser width in pixels.\n"
+                         "(this determines the page scaling of images)");
 
   path = new Fl_Input(140, 100, 345, 25, "Search Path: ");
   path->value(Path);
   path->maximum_size(sizeof(Path) - 1);
   path->when(FL_WHEN_CHANGED);
   path->callback((Fl_Callback *)changeCB, this);
+  _tooltip(path, "Enter one or more directories or URLs to search for files.\n"
+                 "(separate each directory or URL with the ';' character)");
 
   proxy = new Fl_Input(140, 130, 345, 25, "HTTP Proxy URL: ");
   proxy->value(Proxy);
   proxy->maximum_size(sizeof(Proxy) - 1);
   proxy->when(FL_WHEN_CHANGED);
   proxy->callback((Fl_Callback *)changeCB, this);
+  _tooltip(proxy, "Enter a URL for your HTTP proxy server.\n"
+                  "(http://server:port)");
+
+  group = new Fl_Group(140, 160, 350, 25, "GUI Options: ");
+  group->align(FL_ALIGN_LEFT);
+
+    tooltips = new CheckButton(140, 160, 80, 25, "Tooltips");
+    tooltips->callback((Fl_Callback *)tooltipCB, this);
+    tooltips->value(Tooltips);
+    _tooltip(tooltips, "Check to show tooltips.");
+#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
+    tooltips->deactivate();
+#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
+
+    aquamode = new CheckButton(225, 160, 85, 25, "Aqua Mode");
+    aquamode->callback((Fl_Callback *)aquaCB, this);
+    aquamode->value(AquaMode);
+    _tooltip(aquamode, "Check for a MacOS Aqua look-n-feel.\n"
+                       "Uncheck for a Windows/KDE look-n-feel.");
+
+  group->end();
 
   saveOptions = new Fl_Button(295, 260, 190, 25, "Save Options and Defaults");
   saveOptions->callback((Fl_Callback *)saveOptionsCB, this);
+  _tooltip(saveOptions, "Click to save the current options.");
 
   optionsTab->end();
 
@@ -1028,54 +1122,33 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Button bar...
   //
 
-  button = new Fl_Button(10, 355, 55, 25, "Help");
-  button->shortcut(FL_F + 1);
-  button->callback((Fl_Callback *)helpCB, this);
-#ifdef AQUA
-  button->color(FL_WHITE, FL_GREEN);
-#endif // AQUA
+  bookHelp = new Fl_Button(10, 355, 55, 25, "Help");
+  bookHelp->shortcut(FL_F + 1);
+  bookHelp->callback((Fl_Callback *)helpCB, this);
 
-  button = new Fl_Button(70, 355, 50, 25, "New");
-  button->shortcut(FL_CTRL | 'n');
-  button->callback((Fl_Callback *)newBookCB, this);
-#ifdef AQUA
-  button->color(FL_WHITE, FL_GREEN);
-#endif // AQUA
+  bookNew = new Fl_Button(70, 355, 50, 25, "New");
+  bookNew->shortcut(FL_CTRL | 'n');
+  bookNew->callback((Fl_Callback *)newBookCB, this);
 
-  button = new Fl_Button(125, 355, 65, 25, "Open...");
-  button->shortcut(FL_CTRL | 'o');
-  button->callback((Fl_Callback *)openBookCB, this);
-#ifdef AQUA
-  button->color(FL_WHITE, FL_GREEN);
-#endif // AQUA
+  bookOpen = new Fl_Button(125, 355, 65, 25, "Open...");
+  bookOpen->shortcut(FL_CTRL | 'o');
+  bookOpen->callback((Fl_Callback *)openBookCB, this);
 
   bookSave = new Fl_Button(195, 355, 55, 25, "Save");
   bookSave->shortcut(FL_CTRL | 's');
   bookSave->callback((Fl_Callback *)saveBookCB, this);
-#ifdef AQUA
-  bookSave->color(FL_WHITE, FL_GREEN);
-#endif // AQUA
 
   bookSaveAs = new Fl_Button(255, 355, 85, 25, "Save As...");
   bookSaveAs->shortcut(FL_CTRL | FL_SHIFT | 's');
   bookSaveAs->callback((Fl_Callback *)saveAsBookCB, this);
-#ifdef AQUA
-  bookSaveAs->color(FL_WHITE, FL_GREEN);
-#endif // AQUA
 
   bookGenerate = new Fl_Button(345, 355, 85, 25, "Generate");
   bookGenerate->shortcut(FL_CTRL | 'g');
   bookGenerate->callback((Fl_Callback *)generateBookCB, this);
-#ifdef AQUA
-  bookGenerate->color(FL_WHITE, FL_GREEN);
-#endif // AQUA
 
-  button = new Fl_Button(435, 355, 60, 25, "Close");
-  button->shortcut(FL_CTRL | 'q');
-  button->callback((Fl_Callback *)closeBookCB, this);
-#ifdef AQUA
-  button->color(FL_WHITE, FL_RED);
-#endif // AQUA
+  bookClose = new Fl_Button(435, 355, 60, 25, "Close");
+  bookClose->shortcut(FL_CTRL | 'q');
+  bookClose->callback((Fl_Callback *)closeBookCB, this);
 
   controls->end();
 
@@ -1127,13 +1200,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
                DefaultRootWindow(fl_display), htmldoc_bits,
 	       htmldoc_width, htmldoc_height));
 #  endif // WIN32
-
-#ifdef AQUA
-  Fl::set_boxtype(FL_UP_BOX, aqua_up_box, 3, 3, 6, 6);
-  Fl::set_boxtype(FL_DOWN_BOX, aqua_down_box, 3, 3, 6, 6);
-  Fl::set_boxtype(_FL_ROUND_UP_BOX, aqua_up_box, 3, 3, 6, 6);
-  Fl::set_boxtype(_FL_ROUND_DOWN_BOX, aqua_down_box, 3, 3, 6, 6);
-#endif // AQUA
 
   window->resizable(tabs);
   window->size_range(470, 390);
@@ -1228,6 +1294,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
     newBookCB(NULL, this);
   else
     loadBook(filename);
+
+#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
+  Fl_Tooltip::enable(Tooltips);
+#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 }
 
 
@@ -3287,18 +3357,36 @@ GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
       if (strstr(filename, "netscape") != NULL ||
           strstr(filename, "NETSCAPE") != NULL)
 #if defined(WIN32) || defined(__EMX__)
-        sprintf(command, "%s -edit %%s", filename);
+        sprintf(command, "%s -edit \"%%s\"", filename);
 #else
         sprintf(command, "%s -remote \'editFile(%%s)\'", filename);
 #endif // WIN32 || __EMX__
       else
-        sprintf(command, "%s %%s", filename);
+        sprintf(command, "%s \"%%s\"", filename);
 
       gui->htmlEditor->value(command);
     }
   }
 
   strcpy(HTMLEditor, gui->htmlEditor->value());
+}
+
+
+//
+// 'GUI::tooltipCB()' - Enable or disable tooltips.
+//
+
+void
+GUI::tooltipCB(Fl_Widget *w,	// I - Widget
+               GUI       *gui)	// I - GUI interface
+{
+  REF(gui);
+
+  Tooltips = ((Fl_Button *)w)->value();
+
+#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
+  Fl_Tooltip::enable(Tooltips);
+#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 }
 
 
@@ -4074,5 +4162,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.25 2001/10/18 21:14:57 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.26 2001/10/18 23:19:21 mike Exp $".
 //

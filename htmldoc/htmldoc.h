@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.11 2001/10/17 21:13:33 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.12 2001/10/18 23:19:27 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -228,10 +228,11 @@ VAR const char	*PDFEffects[17]			/* Effect strings */
 #ifdef HAVE_LIBFLTK
 VAR GUI		*BookGUI	VALUE(NULL);	/* GUI for book files */
 #  ifdef WIN32					/* Editor for HTML files */
-VAR char	HTMLEditor[1024] VALUE("notepad.exe %s");
+VAR char	HTMLEditor[1024] VALUE("notepad.exe \"%s\"");
 #  else
 VAR char	HTMLEditor[1024] VALUE("nedit %s");
 #  endif /* WIN32 */
+VAR int		Tooltips	VALUE(1);	/* Show tooltips? */
 #endif /* HAVE_LIBFLTK */
 
 
@@ -261,5 +262,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.11 2001/10/17 21:13:33 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.12 2001/10/18 23:19:27 mike Exp $".
  */
