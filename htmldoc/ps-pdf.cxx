@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.56 2001/05/21 15:08:43 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.57 2001/05/21 17:26:40 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -92,6 +92,7 @@
  *   jpg_setup()             - Setup the JPEG compressor for writing an image.
  *   compare_rgb()           - Compare two RGB colors...
  *   write_image()           - Write an image to the given output file...
+ *   write_imagemask()       - Write an imagemask to the output file...
  *   write_prolog()          - Write the file prolog...
  *   write_string()          - Write a text entity.
  *   write_text()            - Write a text entity.
@@ -186,6 +187,15 @@ typedef struct			/**** Named link position structure */
 		top;		/* Top position */
   uchar		name[124];	/* Reference name */
 } link_t;
+
+
+/*
+ * Timezone offset for dates, below...
+ */
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#  define timezone (doc_date->tm_gmtoff)
+#endif /* __*BSD__ */
 
 
 /*
@@ -358,6 +368,7 @@ static void	jpg_term(j_compress_ptr cinfo);
 static void	jpg_setup(FILE *out, image_t *img, j_compress_ptr cinfo);
 static int	compare_rgb(uchar *rgb1, uchar *rgb2);
 static void	write_image(FILE *out, render_t *r, int write_obj = 0);
+static void	write_imagemask(FILE *out, render_t *r);
 static void	write_string(FILE *out, uchar *s, int compress);
 static void	write_text(FILE *out, render_t *r);
 static void	write_trailer(FILE *out, int pages);
@@ -6787,6 +6798,9 @@ write_image(FILE     *out,	/* I - Output file */
 
         if (img->obj)
 	{
+	  if (img->mask && PDFVersion < 1.3f)
+	    write_imagemask(out, r);
+
 	  flate_printf(out, "/I%d Do Q\n", img->obj);
 	  break;
 	}
@@ -6967,6 +6981,9 @@ write_image(FILE     *out,	/* I - Output file */
 	fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	        r->x, r->y);
 
+	if (img->mask)
+	  write_imagemask(out, r);
+
 	fprintf(out, "/picture %d string def\n", img->width * img->depth);
 
 	if (img->depth == 1)
@@ -6991,6 +7008,9 @@ write_image(FILE     *out,	/* I - Output file */
           fputs("GS", out);
 	  fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	          r->x, r->y);
+
+	  if (img->mask)
+	    write_imagemask(out, r);
 
           if (ncolors > 0)
           {
@@ -7057,6 +7077,9 @@ write_image(FILE     *out,	/* I - Output file */
         fputs("GS", out);
 	fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	        r->x, r->y);
+
+	if (img->mask)
+	  write_imagemask(out, r);
 
         if (ncolors > 0)
         {
@@ -7150,12 +7173,149 @@ write_image(FILE     *out,	/* I - Output file */
 
 
 /*
- * Timezone offset for dates, below...
+ * 'write_imagemask()' - Write an imagemask to the output file...
  */
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
-#  define timezone (doc_date->tm_gmtoff)
-#endif /* __*BSD__ */
+static void
+write_imagemask(FILE     *out,	/* I - Output file */
+                render_t *r)	/* I - Image to write */
+{
+  image_t	*img;		/* Current image */
+  int		x, y;		/* Position in mask image */
+  int		startx, count;	/* Start and count */
+  uchar		*ptr,		/* Pointer into mask image */
+		byte,		/* Current byte */
+		bit;		/* Current bit */
+  float		scalex, scaley;	/* 1/(w-1) and 1/(h-1) scaling factors */
+
+
+  img = r->data.image;
+  scalex = 1.0f / img->width;
+  scaley = 1.0f / img->height;
+
+  switch (PSLevel)
+  {
+    case 0 : // PDF
+        break;
+
+    case 1 : // PostScript Level 1
+        fputs("\nnewpath\n", out);
+        break;
+
+    default : // PostScript Level 2/3
+        fputs("[\n", out);
+        break;
+  }
+
+  for (y = 0; y < img->height; y ++)
+  {
+    for (x = 0, ptr = img->mask + (img->height - y - 1) * img->maskwidth,
+             bit = 128, byte = *ptr++, startx = 0, count = 0;
+         x < img->width;
+	 x ++)
+    {
+      if (!(bit & byte))
+      {
+        if (!count)
+	  startx = x;
+
+        count ++;
+      }
+      else if (count)
+      {
+	switch (PSLevel)
+	{
+	  case 0 : // PDF
+	      flate_printf(out, "%.6f %.6f m\n",
+		           (float)startx * scalex,
+		           (float)y * scaley);
+	      flate_printf(out, "%.6f %.6f l\n",
+		           (float)(startx + count) * scalex,
+		           (float)y * scaley);
+	      flate_printf(out, "%.6f %.6f l\n",
+		           (float)(startx + count) * scalex,
+		           (float)(y + 1) * scaley);
+	      flate_printf(out, "%.6f %.6f l\n",
+		           (float)startx * scalex,
+		           (float)(y + 1) * scaley);
+	      flate_puts("h\n", out);
+              break;
+
+	  case 1 : // PostScript Level 1
+	      fprintf(out, "%.6f %.6f %.6f %.6f re\n",
+		      (float)startx * scalex,
+		      (float)y * scaley,
+		      (float)count * scalex,
+		      1.0f * scaley);
+              break;
+
+	  default : // PostScript Level 2/3
+	      fprintf(out, "%.6f %.6f %.6f %.6f\n",
+		      (float)startx * scalex,
+		      (float)y * scaley,
+		      (float)count * scalex,
+		      1.0f * scaley);
+              break;
+	}
+
+	count = 0;
+      }
+
+      if (bit > 1)
+        bit >>= 1;
+      else
+      {
+        bit  = 128;
+	byte = *ptr++;
+      }
+    }
+
+    if (count)
+    {
+      switch (PSLevel)
+      {
+	case 0 : // PDF
+	    flate_printf(out, "%.6f %.6f %.6f %.6f re\n",
+			 (float)startx * scalex,
+			 (float)y * scaley,
+			 (float)count * scalex,
+			 1.0f * scaley);
+            break;
+
+	case 1 : // PostScript Level 1
+	    fprintf(out, "%.6f %.6f %.6f %.6f re\n",
+		    (float)startx * scalex,
+		    (float)y * scaley,
+		    (float)count * scalex,
+		    1.0f * scaley);
+            break;
+
+	default : // PostScript Level 2/3
+	    fprintf(out, "%.6f %.6f %.6f %.6f\n",
+		    (float)startx * scalex,
+		    (float)y * scaley,
+		    (float)count * scalex,
+		    1.0f * scaley);
+            break;
+      }
+    }
+  }
+
+  switch (PSLevel)
+  {
+    case 0 : // PDF
+        flate_puts("W n\n", out);
+        break;
+
+    case 1 : // PostScript Level 1
+        fputs("clip\n", out);
+        break;
+
+    default : // PostScript Level 2/3
+        fputs("]rectclip\n", out);
+        break;
+  }
+}
 
 
 /*
@@ -7323,6 +7483,8 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("/J{0 exch ashow}BD", out);
     fputs("/L{0 rlineto stroke}BD", out);
     fputs("/M{moveto}BD\n", out);
+    if (PSLevel == 1)
+      fputs("/re{4 2 roll moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath}BD\n", out);
     fputs("/S{show}BD", out);
     fputs("/SF{findfont hdFontSize scalefont setfont}BD", out);
     fputs("/SP{showpage}BD", out);
@@ -8448,5 +8610,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.56 2001/05/21 15:08:43 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.57 2001/05/21 17:26:40 mike Exp $".
  */
