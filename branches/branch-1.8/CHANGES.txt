@@ -68,6 +68,7 @@ CHANGES IN HTMLDOC v1.8.24
 	- Changed handling of NOWRAP for some tables.
 	- The --permissions option now supports multiple
 	  permission keywords in a single invocation.
+	- Dropped support for MacOS 9 and earlier.
 
     BUG FIXES
 
