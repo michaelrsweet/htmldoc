@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.69 2004/05/09 15:04:38 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.70 2004/05/15 21:24:23 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -1478,21 +1478,21 @@ GUI::newBook(void)
   landscape->value(Landscape);
 
   memset(formats, 0, sizeof(formats));
-  formats['t'] = 1;
-  formats['c'] = 2;
-  formats['h'] = 3;
-  formats['l'] = 4;
-  formats['1'] = 5;
-  formats['i'] = 6;
-  formats['I'] = 7;
-  formats['a'] = 8;
-  formats['A'] = 9;
-  formats['C'] = 10;
-  formats['/'] = 11;
-  formats[':'] = 12;
-  formats['d'] = 13;
-  formats['T'] = 14;
-  formats['D'] = 15;
+  formats[(int)'t'] = 1;
+  formats[(int)'c'] = 2;
+  formats[(int)'h'] = 3;
+  formats[(int)'l'] = 4;
+  formats[(int)'1'] = 5;
+  formats[(int)'i'] = 6;
+  formats[(int)'I'] = 7;
+  formats[(int)'a'] = 8;
+  formats[(int)'A'] = 9;
+  formats[(int)'C'] = 10;
+  formats[(int)'/'] = 11;
+  formats[(int)':'] = 12;
+  formats[(int)'d'] = 13;
+  formats[(int)'T'] = 14;
+  formats[(int)'D'] = 15;
 
   fmt = get_fmt(Header);
   pageHeaderLeft->value(formats[fmt[0]]);
@@ -1770,21 +1770,21 @@ GUI::parseOptions(const char *line)	// I - Line from file
 
   // Initialize the format character lookup table...
   memset(formats, 0, sizeof(formats));
-  formats['t'] = 1;
-  formats['c'] = 2;
-  formats['h'] = 3;
-  formats['l'] = 4;
-  formats['1'] = 5;
-  formats['i'] = 6;
-  formats['I'] = 7;
-  formats['a'] = 8;
-  formats['A'] = 9;
-  formats['C'] = 10;
-  formats['/'] = 11;
-  formats[':'] = 12;
-  formats['d'] = 13;
-  formats['T'] = 14;
-  formats['D'] = 15;
+  formats[(int)'t'] = 1;
+  formats[(int)'c'] = 2;
+  formats[(int)'h'] = 3;
+  formats[(int)'l'] = 4;
+  formats[(int)'1'] = 5;
+  formats[(int)'i'] = 6;
+  formats[(int)'I'] = 7;
+  formats[(int)'a'] = 8;
+  formats[(int)'A'] = 9;
+  formats[(int)'C'] = 10;
+  formats[(int)'/'] = 11;
+  formats[(int)':'] = 12;
+  formats[(int)'d'] = 13;
+  formats[(int)'T'] = 14;
+  formats[(int)'D'] = 15;
 
   // Parse the input line...
   for (lineptr = line; *lineptr != '\0';)
@@ -4101,5 +4101,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.69 2004/05/09 15:04:38 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.70 2004/05/15 21:24:23 mike Exp $".
 //

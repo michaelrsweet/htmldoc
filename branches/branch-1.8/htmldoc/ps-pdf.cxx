@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.252 2004/05/09 15:04:38 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.253 2004/05/15 21:24:23 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -220,8 +220,9 @@ typedef struct				//// Page information
   render_t	*start,			// First render element
 		*end;			// Last render element
   uchar		*chapter,		// Chapter text
-		*heading,		// Heading text
-		*header[3],		// Headers
+		*heading;		// Heading text
+  tree_t	*headnode;		// Heading node
+  uchar		*header[3],		// Headers
 		*footer[3];		// Footers
   char		media_color[64],	// Media color
 		media_type[64];		// Media type
@@ -4442,7 +4443,10 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   if ((pages[*page].heading == NULL || t->markup == MARKUP_H1 ||
       (*page > 0 && pages[*page].heading == pages[*page - 1].heading)) &&
       !title_page)
-    pages[*page].heading = htmlGetText(current_heading);
+  {
+    pages[*page].heading  = htmlGetText(current_heading);
+    pages[*page].headnode = current_heading;
+  }
 
   if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
   {
@@ -8434,6 +8438,12 @@ check_pages(int page)	// I - Current page
       {
 	memcpy(temp->header, Header, sizeof(temp->header));
 	memcpy(temp->footer, Footer, sizeof(temp->footer));
+
+        if (current_heading != temp->headnode)
+	{
+	  temp->heading  = htmlGetText(current_heading);
+	  temp->headnode = current_heading;
+	}
       }
 
       memcpy(temp->background_color, background_color,
@@ -12350,5 +12360,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.252 2004/05/09 15:04:38 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.253 2004/05/15 21:24:23 mike Exp $".
  */
