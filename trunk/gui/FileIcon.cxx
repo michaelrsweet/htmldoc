@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.15 1999/12/13 14:53:11 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.16 1999/12/14 22:14:57 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -502,7 +502,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     return;
 
   // Read the entire file, adding data as needed...
-  outline = NULL;
+  outline = 0;
 
   while ((ch = getc(fp)) != EOF)
   {
@@ -611,8 +611,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
       add(OUTLINEPOLYGON);
       outline = add(0) - data_;
     }
-    else if (strcmp(command, "endoutlinepolygon") == 0 &&
-             outline != NULL)
+    else if (strcmp(command, "endoutlinepolygon") == 0 && outline)
     {
       // Set the outline color; see above for valid values...
       if (strcmp(params, "iconcolor") == 0)
@@ -636,7 +635,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
 	  data_[outline] = c;
       }
 
-      outline = NULL;
+      outline = 0;
       add(END);
     }
     else if (strncmp(command, "end", 3) == 0)
@@ -1179,5 +1178,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.15 1999/12/13 14:53:11 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.16 1999/12/14 22:14:57 mike Exp $".
 //
