@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.1.2.2 2002/06/06 12:10:24 mike Exp $"
+# "$Id: Makefile,v 1.1.2.3 2002/06/06 19:43:37 mike Exp $"
 #
 #   Makefile for HTMLDOC font files.
 #
@@ -46,9 +46,7 @@ FONTS	=	\
 		Times-Bold \
 		Times-BoldItalic \
 		Times-Italic \
-		Times-Roman \
-		ZapfChancery \
-		ZapfDingbats
+		Times-Roman
 
 
 #
@@ -95,5 +93,5 @@ clean:
 
 
 #
-# End of "$Id: Makefile,v 1.1.2.2 2002/06/06 12:10:24 mike Exp $".
+# End of "$Id: Makefile,v 1.1.2.3 2002/06/06 19:43:37 mike Exp $".
 #
