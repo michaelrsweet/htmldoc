@@ -244,8 +244,13 @@
 #      undef _BSD_SOURCE
 #    endif
 #    ifdef _SETJMP_H
-      __png.h__ already includes setjmp.h;
-      __dont__ include it again.;
+/* Explanation added by debian maintainer Philippe Troin <phil@fifi.org>.
+   There are two versions of setjmp, depending wether or not we compile for
+   BSD. They are incompatible and can cause crashes. The PNG people force
+   here a unique behavior for setjmp. It you get the error below,
+   then include <png.h> before <setjmp.h>.
+*/
+#error png.h already includes setjmp.h with some additional fixup.
 #    endif
 #  endif /* __linux__ */
 

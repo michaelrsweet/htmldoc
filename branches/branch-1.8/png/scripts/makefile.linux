@@ -11,8 +11,10 @@ prefix=/usr/local
 # Where the zlib library and include files are located
 #ZLIBLIB=/usr/local/lib
 #ZLIBINC=/usr/local/include
-ZLIBLIB=../zlib
-ZLIBINC=../zlib
+#ZLIBLIB=../zlib
+#ZLIBINC=../zlib
+ZLIBLIB=/usr/lib
+ZLIBINC=/usr/include
 
 ALIGN=
 # for i386:
@@ -24,9 +26,9 @@ WARNMORE=-Wwrite-strings -Wpointer-arith -Wshadow \
 
 # for pgcc version 2.95.1, -O3 is buggy; don't use it.
 
-CFLAGS=-I$(ZLIBINC) -Wall -O3 -funroll-loops \
-	$(ALIGN) # $(WARNMORE) -g -DPNG_DEBUG=5
-LDFLAGS=-L. -Wl,-rpath,. -L$(ZLIBLIB) -Wl,-rpath,$(ZLIBLIB) -lpng -lz -lm
+CFLAGS=-I$(ZLIBINC) -Wall -O3 -funroll-loops -D_REENTRANT \
+	$(ALIGN) $(DEBCFLAGS) # $(WARNMORE) -g -DPNG_DEBUG=5
+LDFLAGS=-L. -lpng -lz -lm
 
 RANLIB=ranlib
 #RANLIB=echo
@@ -71,7 +73,7 @@ pngtest: pngtest.o libpng.so
 	$(CC) -o pngtest $(CFLAGS) pngtest.o $(LDFLAGS)
 
 test: pngtest
-	./pngtest
+	LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH ./pngtest
 
 install: libpng.a libpng.so.$(PNGVER)
 	-@if [ ! -d $(INCPATH)  ]; then mkdir $(INCPATH); fi
