@@ -1,5 +1,5 @@
 //
-// "$Id: render-table.cxx,v 1.3 2002/03/17 19:24:52 mike Exp $"
+// "$Id: render-table.cxx,v 1.4 2002/03/18 00:03:22 mike Exp $"
 //
 //   Table rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -634,7 +634,7 @@ hdRender::parse_table(hdTree   *t,		// I  - Table
       // Do page comments...
       if (cells[row][0]->parent->prev != NULL &&
           cells[row][0]->parent->prev->element == HD_ELEMENT_COMMENT)
-        parse_comment(cells[row][0]->parent->prev, m, x, y, page, NULL);
+        parse_comment(cells[row][0]->parent->prev, m, x, y, page);
 
       // Get height...
       if ((height_var = t->get_attr("HEIGHT")) == NULL)
@@ -1575,5 +1575,5 @@ hdRender::get_table_size(hdTree *t,		// I - Table
 
 
 //
-// End of "$Id: render-table.cxx,v 1.3 2002/03/17 19:24:52 mike Exp $".
+// End of "$Id: render-table.cxx,v 1.4 2002/03/18 00:03:22 mike Exp $".
 //
