@@ -1,5 +1,5 @@
 /*
- * "$Id: gui.h,v 1.14.2.8 2001/09/17 16:59:51 mike Exp $"
+ * "$Id: gui.h,v 1.14.2.9 2001/09/30 22:41:31 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
@@ -40,10 +40,26 @@
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Window.H>
 
-#include <gui/CheckButton.h>
-#include <gui/FileChooser.h>
-#include <gui/HelpDialog.h>
-#include <gui/Progress.h>
+#if FLTK_MAJOR_VERSION == 1 && FLTK_MINOR_VERSION == 0
+#  include <gui/CheckButton.h>
+#  define RadioButton	CheckButton
+#  include <gui/FileChooser.h>
+#  include <gui/HelpDialog.h>
+#  include <gui/Progress.h>
+#else
+#  include <FL/Fl_Check_Button.H>
+#  include <FL/Fl_Round_Button.H>
+#  include <FL/Fl_File_Chooser.H>
+#  include <FL/Fl_Help_Dialog.H>
+#  include <FL/Fl_Progress.H>
+#  define CheckButton	Fl_Check_Button
+#  define RadioButton	Fl_Round_Button
+#  define FileChooser	Fl_File_Chooser
+#  define FileIcon	Fl_File_Icon
+#  define FileBrowser	Fl_File_Browser
+#  define HelpDialog	Fl_Help_Dialog
+#  define Progress	Fl_Progress
+#endif // FLTK_MAJOR_VERSION == 1 && FLTK_MINOR_VERSION == 0
 
 
 /*
@@ -59,7 +75,7 @@ class GUI
   Fl_Tabs	*tabs;
 
   Fl_Group	*inputTab;
-  CheckButton	*typeBook,
+  RadioButton	*typeBook,
 		*typeContinuous,
 		*typeWebPage;
   FileBrowser	*inputFiles;
@@ -75,11 +91,11 @@ class GUI
   Fl_Button	*titleBrowse;
 
   Fl_Group	*outputTab;
-  CheckButton	*outputFile,
+  RadioButton	*outputFile,
 		*outputDirectory;
   Fl_Input	*outputPath;
   Fl_Button	*outputBrowse;
-  CheckButton	*typeHTML,
+  RadioButton	*typeHTML,
 		*typePS,
 		*typePDF;
   CheckButton	*grayscale,
@@ -141,14 +157,14 @@ class GUI
 
   Fl_Group	*psTab;
   Fl_Group	*psLevel;
-  Fl_Button	*ps1,
+  RadioButton	*ps1,
 		*ps2,
 		*ps3;
   CheckButton	*psCommands;
 
   Fl_Group	*pdfTab;
   Fl_Group	*pdfVersion;
-  Fl_Button	*pdf11,
+  RadioButton	*pdf11,
 		*pdf12,
 		*pdf13,
 		*pdf14;
@@ -163,7 +179,7 @@ class GUI
 
   Fl_Group	*securityTab;
   Fl_Group	*encryption;
-  CheckButton	*encryptionYes,
+  RadioButton	*encryptionYes,
 		*encryptionNo;
   Fl_Group	*permissions;
   CheckButton	*permPrint,
@@ -267,5 +283,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.14.2.8 2001/09/17 16:59:51 mike Exp $".
+ * End of "$Id: gui.h,v 1.14.2.9 2001/09/30 22:41:31 mike Exp $".
  */
