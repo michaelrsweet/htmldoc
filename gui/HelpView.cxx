@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.6 1999/10/12 16:25:30 mike Exp $"
+// "$Id: HelpView.cxx,v 1.7 1999/10/25 18:40:11 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -693,7 +693,10 @@ HelpView::format()
         if (get_attr(attrs, "NAME", attr, sizeof(attr)) != NULL)
 	  add_target(attr, yy - size - 2);
 	else if (get_attr(attrs, "HREF", attr, sizeof(attr)) != NULL)
-	  strcpy(link, attr);
+	{
+	  strncpy(link, attr, sizeof(link) - 1);
+	  link[sizeof(link) - 1] = '\0';
+	}
       }
       else if (strcasecmp(buf, "/A") == 0)
         link[0] = '\0';
@@ -1183,7 +1186,8 @@ HelpView::handle(int event)	// I - Event to handle
   {
     fl_cursor(FL_CURSOR_DEFAULT);
 
-    strcpy(target, link->name);
+    strncpy(target, link->name, sizeof(target) - 1);
+    target[sizeof(target) - 1] = '\0';
 
     set_changed();
 
@@ -1272,7 +1276,9 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
   char	*target;		// Target in file
 
 
-  strcpy(filename_, f);
+  strncpy(filename_, f, sizeof(filename_) - 1);
+  filename_[sizeof(filename_) - 1] = '\0';
+
   if ((target = strrchr(filename_, '#')) != NULL)
     *target++ = '\0';
 
@@ -1332,7 +1338,9 @@ HelpView::topline(const char *n)	// I - Target name
   if (ntargets_ == 0)
     return;
 
-  strcpy(key.name, n);
+  strncpy(key.name, n, sizeof(key.name) - 1);
+  key.name[sizeof(key.name) - 1] = '\0';
+
   target = (HelpTarget *)bsearch(&key, targets_, ntargets_, sizeof(HelpTarget),
                                  (int (*)(const void *, const void *))compare_targets);
 
@@ -1406,5 +1414,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.6 1999/10/12 16:25:30 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.7 1999/10/25 18:40:11 mike Exp $".
 //

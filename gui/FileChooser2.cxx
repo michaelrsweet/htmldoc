@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx,v 1.18 1999/10/14 15:24:36 mike Exp $"
+// "$Id: FileChooser2.cxx,v 1.19 1999/10/25 18:40:11 mike Exp $"
 //
 //   More FileChooser routines.
 //
@@ -84,7 +84,10 @@ FileChooser::directory(const char *d)	// I - Directory to change to
 #endif /* WIN32 || __EMX__ */
       filename_absolute(directory_, d);
     else
-      strcpy(directory_, d);
+    {
+      strncpy(directory_, d, sizeof(directory_) - 1);
+      directory_[sizeof(directory_) - 1] = '\0';
+    }
 
     // Strip any trailing slash and/or period...
     dirptr = directory_ + strlen(directory_) - 1;
@@ -159,9 +162,12 @@ FileChooser::count()
 
     // Is the file name a directory?
     if (directory_[0] != '\0')
-      sprintf(pathname, "%s/%s", directory_, filename);
+      snprintf(pathname, sizeof(pathname), "%s/%s", directory_, filename);
     else
-      strcpy(pathname, filename);
+    {
+      strncpy(pathname, filename, sizeof(pathname) - 1);
+      pathname[sizeof(pathname) - 1] = '\0';
+    }
 
     if (filename_isdir(pathname))
       return (0);
@@ -175,9 +181,12 @@ FileChooser::count()
       // See if this file is a directory...
       filename = (char *)fileList->text(i);
       if (directory_[0] != '\0')
-	sprintf(pathname, "%s/%s", directory_, filename);
+	snprintf(pathname, sizeof(pathname), "%s/%s", directory_, filename);
       else
-	strcpy(pathname, filename);
+      {
+	strncpy(pathname, filename, sizeof(pathname) - 1);
+	pathname[sizeof(pathname) - 1] = '\0';
+      }
 
       if (!filename_isdir(pathname))
 	count ++;
@@ -206,7 +215,7 @@ FileChooser::value(int f)	// I - File number
     if (name[0] == '\0')
       return (NULL);
 
-    sprintf(pathname, "%s/%s", directory_, name);
+    snprintf(pathname, sizeof(pathname), "%s/%s", directory_, name);
     return ((const char *)pathname);
   }
 
@@ -215,7 +224,7 @@ FileChooser::value(int f)	// I - File number
     {
       // See if this file is a directory...
       name = fileList->text(i);
-      sprintf(pathname, "%s/%s", directory_, name);
+      snprintf(pathname, sizeof(pathname), "%s/%s", directory_, name);
 
       if (!filename_isdir(pathname))
       {
@@ -256,7 +265,9 @@ FileChooser::value(const char *filename)	// I - Filename + directory
     type(SINGLE);
 
   // See if there is a directory in there...
-  strcpy(pathname, filename);
+  strncpy(pathname, filename, sizeof(pathname) - 1);
+  pathname[sizeof(pathname) - 1] = '\0';
+
   if ((slash = strrchr(pathname, '/')) == NULL)
     slash = strrchr(pathname, '\\');
 
@@ -335,9 +346,12 @@ FileChooser::newdir()
 #else
   if (dir[0] != '/' && dir[0] != '\\')
 #endif /* WIN32 || __EMX__ */
-    sprintf(pathname, "%s/%s", directory_, dir);
+    snprintf(pathname, sizeof(pathname), "%s/%s", directory_, dir);
   else
-    strcpy(pathname, dir);
+  {
+    strncpy(pathname, dir, sizeof(pathname) - 1);
+    pathname[sizeof(pathname) - 1] = '\0';
+  }
 
   // Create the directory; ignore EEXIST errors...
 #if defined(WIN32) || defined(__EMX__)
@@ -386,9 +400,12 @@ FileChooser::fileListCB()
 
   filename = (char *)fileList->text(fileList->value());
   if (directory_[0] != '\0')
-    sprintf(pathname, "%s/%s", directory_, filename);
+    snprintf(pathname, sizeof(pathname), "%s/%s", directory_, filename);
   else
-    strcpy(pathname, filename);
+  {
+    strncpy(pathname, filename, sizeof(pathname) - 1);
+    pathname[sizeof(pathname) - 1] = '\0';
+  }
 
   if (Fl::event_clicks())
   {
@@ -447,15 +464,21 @@ FileChooser::fileNameCB()
       filename[0] != '/' &&
       filename[0] != '\\' &&
       !(isalpha(filename[0]) && filename[1] == ':'))
-    sprintf(pathname, "%s/%s", directory_, filename);
+    snprintf(pathname, sizeof(pathname), "%s/%s", directory_, filename);
   else
-    strcpy(pathname, filename);
+  {
+    strncpy(pathname, filename, sizeof(pathname) - 1);
+    pathname[sizeof(pathname) - 1] = '\0';
+  }
 #else
   if (directory_[0] != '\0' &&
       filename[0] != '/')
-    sprintf(pathname, "%s/%s", directory_, filename);
+    snprintf(pathname, sizeof(pathname), "%s/%s", directory_, filename);
   else
-    strcpy(pathname, filename);
+  {
+    strncpy(pathname, filename, sizeof(pathname) - 1);
+    pathname[sizeof(pathname) - 1] = '\0';
+  }
 #endif /* WIN32 || __EMX__ */
 
   if (Fl::event_key() == FL_Enter)
@@ -544,8 +567,9 @@ FileChooser::fileNameCB()
 	if (max_match == 100000)
 	{
 	  // First match; copy stuff over...
-	  max_match = strlen(file);
-	  strcpy(pathname, file);
+	  strncpy(pathname, file, sizeof(pathname) - 1);
+	  pathname[sizeof(pathname) - 1] = '\0';
+	  max_match = strlen(pathname);
 
 	  // And then make sure that the item is visible
           fileList->topline(i);
@@ -594,7 +618,7 @@ FileChooser::fileNameCB()
     }
 
     // See if we need to enable the OK button...
-    sprintf(pathname, "%s/%s", directory_, fileName->value());
+    snprintf(pathname, sizeof(pathname), "%s/%s", directory_, fileName->value());
 
     if ((type_ == CREATE || access(pathname, 0) == 0) &&
         !filename_isdir(pathname))
@@ -606,5 +630,5 @@ FileChooser::fileNameCB()
 
 
 //
-// End of "$Id: FileChooser2.cxx,v 1.18 1999/10/14 15:24:36 mike Exp $".
+// End of "$Id: FileChooser2.cxx,v 1.19 1999/10/25 18:40:11 mike Exp $".
 //
