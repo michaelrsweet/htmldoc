@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.10 1999/11/23 13:53:13 mike Exp $"
+dnl "$Id: configure.in,v 1.11 1999/12/08 17:03:35 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -69,6 +69,7 @@ if test ! "$x_includes" = "NONE" -a ! "$x_includes" = ""; then
 	CFLAGS="$CFLAGS -I$x_includes"
 	CXXFLAGS="$CXXFLAGS -I$x_includes"
 fi
+AC_CHECK_LIB(GL,glEnable)
 AC_CHECK_LIB(fltk,numericsort)
 
 if test "$ac_cv_lib_fltk_numericsort" = yes -a "$ac_cv_prog_CXX" != ""; then
@@ -136,5 +137,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.10 1999/11/23 13:53:13 mike Exp $".
+dnl End of "$Id: configure.in,v 1.11 1999/12/08 17:03:35 mike Exp $".
 dnl

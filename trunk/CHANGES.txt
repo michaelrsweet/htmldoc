@@ -1,6 +1,22 @@
 CHANGES.txt - 12/06/1999
 ------------------------
 
+CHANGES IN HTMLDOC v1.8.3
+
+    NEW FEATURES
+
+
+    CHANGES
+
+	- The configure script now looks for the OpenGL library
+	  (required if you use a shared FLTK library with OpenGL
+	  support.)
+
+    BUG FIXES
+
+	- Page break comments didn't force a paragraph break.
+
+
 CHANGES IN HTMLDOC v1.8.2
 
     NEW FEATURES
