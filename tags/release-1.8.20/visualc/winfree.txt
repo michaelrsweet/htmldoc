@@ -1,0 +1,7 @@
+This is the FREE version of HTMLDOC for Windows and
+comes with ABSOLUTELY NO SUPPORT OR WARRANTY
+OF ANY KIND.  See:
+
+    http://www.easysw.com/htmldoc
+
+for commercial support options.
