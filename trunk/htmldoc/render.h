@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.13 2002/05/06 13:23:41 mike Exp $"
+// "$Id: render.h,v 1.14 2002/07/22 01:43:46 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -32,7 +32,6 @@
 #  include "style.h"
 #  include "image.h"
 #  include "tree.h"
-#  include "margin.h"
 
 
 //
@@ -443,5 +442,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.13 2002/05/06 13:23:41 mike Exp $".
+// End of "$Id: render.h,v 1.14 2002/07/22 01:43:46 mike Exp $".
 //
