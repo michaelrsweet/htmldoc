@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.56 2002/05/30 15:44:08 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.57 2002/05/31 20:41:43 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -592,11 +592,15 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           // Safety check; should never happen, since MARKUP_FILE is
 	  // the root node created by the caller...
           if (temp->parent)
+	  {
 	    parent = temp->parent;
+            prev   = parent->last_child;
+	  }
 	  else
-	    parent = temp;
-
-          prev = parent->last_child;
+	  {
+	    for (prev = temp; prev->next; prev = prev->next);
+	    parent = NULL;
+	  }
 
           if (ch == '/')
 	  {
@@ -2806,5 +2810,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.56 2002/05/30 15:44:08 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.57 2002/05/31 20:41:43 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.179 2002/05/31 12:57:29 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.180 2002/05/31 20:41:44 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4094,6 +4094,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
   if (cpara != para)
     htmlDeleteTree(para);
+
+  DEBUG_printf(("LEAVING parse_doc(), x = %.1f, y = %.1f, page = %d\n",
+                *x, *y, *page));
 }
 
 
@@ -4966,6 +4969,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   *x = left;
   if (*y > image_y && image_y > 0.0f)
     *y = image_y;
+
+  DEBUG_printf(("LEAVING parse_paragraph(), x = %.1f, y = %.1f, page = %d\n",
+                *x, *y, *page));
 }
 
 
@@ -6550,6 +6556,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 		hfspace;	/* Space for header/footer */
 
 
+  DEBUG_printf(("parse_comment(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d, para=%p, needspace=%d\n",
+                t, *left, *right, *x, *y, *page, para, needspace));
+
   if (t->data == NULL)
     return;
 
@@ -6712,6 +6721,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if ((*y - get_measurement(comment, _htmlSpacings[SIZE_P])) < *bottom)
@@ -6746,6 +6758,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -6806,6 +6821,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -6847,6 +6865,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -6907,6 +6928,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -6971,6 +6995,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -7017,6 +7044,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -7063,6 +7093,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -7109,6 +7142,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -7156,6 +7192,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -7228,6 +7267,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (!tof)
@@ -7282,6 +7324,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
@@ -7373,6 +7418,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
 	htmlDeleteTree(para->child);
 	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
       }
 
       if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
@@ -7461,6 +7509,16 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       NumberUp = strtol(comment, (char **)&comment, 10);
 
+      if (para != NULL && para->child != NULL)
+      {
+	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	htmlDeleteTree(para->child);
+	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
+      }
+
       if (tof)
         pages[*page].nup = NumberUp;
     }
@@ -7468,7 +7526,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       break;
   }
 
-//  printf("AFTER tof=%d, *y=%.1f, *top=%.1f\n", tof, *y, *top);
+  DEBUG_printf(("LEAVING parse_comment() x=%.1f, y=%.1f, page=%d\n",
+                *x, *y, *page));
 }
 
 
@@ -11463,5 +11522,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.179 2002/05/31 12:57:29 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.180 2002/05/31 20:41:44 mike Exp $".
  */
