@@ -100,43 +100,37 @@ sub topdf {
 
 <H2>Calling HTMLDOC from PHP</H2>
 
-<P>PHP is quickly becoming the most popular server-side scripting
-language available. PHP provides a <CODE>popen()</CODE> function that
-can be used to pipe an HTML report into <I>HTMLDOC</I>. This combined
-with the <CODE>set_header()</CODE> function can be used to provide
-on-the-fly reports in PDF format.
+<P>PHP is quickly becoming the most popular server-side
+scripting language available. PHP provides a
+<CODE>passthru()</CODE> function that can be used to run
+<I>HTMLDOC</I>. This combined with the <CODE>header()</CODE>
+function can be used to provide on-the-fly reports in PDF
+format.
 
-<P>Here is a simple PHP function that can be used to pipe a HTML report
-to the HTTP client in PDF format:
+<P>Here is a simple PHP function that can be used to convert a HTML report
+to PDF and send it to the HTTP client:
 
 <UL><PRE>
-function topdf() {
+function topdf($filename, $options = "") {
     # Write the content type to the client...
-    set_header("Content-Type: application/pdf");
+    header("Content-Type: application/pdf");
     flush();
 
     # Run HTMLDOC to provide the PDF file to the user...
-    return (popen("htmldoc -t pdf --quiet --webpage -", "w"));
+    passthru("htmldoc -t pdf --quiet --jpeg --webpage $options $filename");
 }
 </PRE></UL>
 
-<P>The return value is the file number for the pipe. Call pclose() after you
-are done writing the report:
+<P>The function accepts a filename and an optional "options"
+string for specifying the header, footer, fonts, etc. To make
+this a "portal" script, add the following code:
 
 <UL><PRE>
-$pdf = topdf();
+global $SERVER_NAME;
+global $SERVER_PORT;
+global $PATH_INFO;
 
-fputs($pdf, "&lt;HTML>\n"
-           ."&lt;HEAD>&lt;TITLE>My Report&lt;/TITLE>&lt;/HEAD>\n"
-	   ."&lt;BODY>\n"
-	   ."&lt;H1>This is My Report&lt;/H1>\n"
-	   ."&lt;P>We sold 600 wozsnots and 100 widgets in this quarter. Here is the "
-	   ."graph of the sales:&lt;/P>\n"
-	   ."&lt;P ALIGN=\"CENTER\">&lt;IMG SRC=\"graph.gif\">&lt;/P>\n"
-	   ."&lt;/BODY>\n"
-	   ."&lt;/HTML>\n");
-
-pclose($pdf);
+topdf("http://${SERVER_NAME}:${SERVER_PORT}$PATH_INFO");
 </PRE></UL>
 
 <!-- NEED 5in -->
