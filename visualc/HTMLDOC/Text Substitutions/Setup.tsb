@@ -1,34 +1,34 @@
-[<HKCR>]
-KeyType=4
+[<SRCDIR>]
 Value=
+KeyType=4
 
 [<HKUS>]
-KeyType=4
 Value=
+KeyType=4
 
-[<SRCDIR>]
-KeyType=4
+[<HKCR>]
 Value=
+KeyType=4
 
 [<PROGRAMFILES>]
-KeyType=4
 Value=
+KeyType=4
 
 [<TARGETDIR>]
-KeyType=4
 Value=
+KeyType=4
 
 [<WINSYSDIR>]
-KeyType=4
 Value=
+KeyType=4
 
 [<COMMONFILES>]
-KeyType=4
 Value=
+KeyType=4
 
 [<WINDIR>]
-KeyType=4
 Value=
+KeyType=4
 
 [Data]
 Key0=<PROGRAMFILES>
@@ -36,41 +36,41 @@ Key1=<COMMONFILES>
 Key2=<WINDIR>
 Key3=<WINSYSDIR>
 Key4=<TARGETDIR>
-Key10=<HKDD>
 Key5=<SUPPORTDIR>
-Key11=<HKUS>
+Key10=<HKDD>
 Key6=<SRCDIR>
-Key12=<HKCR>
+Key11=<HKUS>
 Key7=<HKLM>
-Key13=<SHELL_OBJECT_FOLDER>
+Key12=<HKCR>
 Key8=<HKCU>
+Key13=<SHELL_OBJECT_FOLDER>
 Key9=<HKCC>
 
-[<SHELL_OBJECT_FOLDER>]
-KeyType=4
-Value=
-
 [<SUPPORTDIR>]
-KeyType=4
 Value=
+KeyType=4
+
+[<SHELL_OBJECT_FOLDER>]
+Value=
+KeyType=4
 
 [General]
 Type=TEXTSUB
 Version=1.00.000
 
-[<HKCU>]
-KeyType=4
-Value=
-
 [<HKLM>]
-KeyType=4
 Value=
+KeyType=4
 
-[<HKDD>]
-KeyType=4
+[<HKCU>]
 Value=
+KeyType=4
 
 [<HKCC>]
-KeyType=4
 Value=
+KeyType=4
+
+[<HKDD>]
+Value=
+KeyType=4
 
