@@ -31,7 +31,12 @@
 	properly.
 
 	<LI>Cells didn't align properly if they were the first
-	things on the page.
+	things on the page, or if there were several
+	intervening empty cells.
+
+	<LI>The preferred cell width handling didn't account for
+	the minimum cell width, which could cause some tables
+	to become too large.
 
 	<LI>Remote URLs didn't always resolve properly (like the
 	images from the Google web page...)
