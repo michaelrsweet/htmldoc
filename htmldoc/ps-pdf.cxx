@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.80 2000/06/05 20:18:28 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.81 2000/06/06 01:06:11 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -651,13 +651,28 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     TocDocCount = MAX_CHAPTERS;
 
  /*
-  * Write the document to disk...
+  * Do we have any pages?
   */
 
-  if (PSLevel > 0)
-    ps_write_document(title, author, creator, copyright);
+  if (num_pages > 0)
+  {
+   /*
+    * Yes, write the document to disk...
+    */
+
+    if (PSLevel > 0)
+      ps_write_document(title, author, creator, copyright);
+    else
+      pdf_write_document(title, author, creator, copyright, toc);
+  }
   else
-    pdf_write_document(title, author, creator, copyright, toc);
+  {
+   /*
+    * No, show an error...
+    */
+
+    progress_error("Error: no pages generated! (did you remember to use webpage mode?");
+  }
 
  /*
   * Free memory...
@@ -3966,12 +3981,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       * Get height...
       */
 
-      if ((var = htmlGetVariable(cells[row][0]->parent,
-                        	 (uchar *)"HEIGHT")) == NULL)
-	for (col = 0; col < num_cols; col ++)
-	  if ((var = htmlGetVariable(cells[row][col],
-                                     (uchar *)"HEIGHT")) != NULL)
-	    break;
+      if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) == NULL)
+	if ((var = htmlGetVariable(cells[row][0]->parent,
+                        	   (uchar *)"HEIGHT")) == NULL)
+	  for (col = 0; col < num_cols; col ++)
+	    if ((var = htmlGetVariable(cells[row][col],
+                                       (uchar *)"HEIGHT")) != NULL)
+	      break;
     }
 
     if (cells[row][0] != NULL && var != NULL)
@@ -3981,10 +3997,15 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	temp_height = atof((char *)var) * 0.01f * PagePrintLength;
       else
         temp_height = atof((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+
+      if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
+        temp_height /= num_rows;
+
+      temp_height -= 2 * (border + cellpadding);
     }
     else
       temp_height = _htmlSpacings[SIZE_P];
-
+    
     if (*y < (bottom + 2 * (border + cellpadding) + temp_height))
     {
       *y = top;
@@ -4069,6 +4090,9 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  temp_height = atof((char *)var) * 0.01f * PagePrintLength;
 	else
           temp_height = atof((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+
+	if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
+          temp_height /= num_rows;
 
         if (temp_height > row_height)
 	{
@@ -7096,5 +7120,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.80 2000/06/05 20:18:28 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.81 2000/06/06 01:06:11 mike Exp $".
  */
