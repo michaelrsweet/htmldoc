@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.86 2001/07/11 13:28:19 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.87 2001/07/16 16:20:26 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1371,6 +1371,9 @@ ps_write_background(FILE *out)		/* I - Output file */
 	pwidth;				/* Pixel width */
 
 
+  if (!background_image->pixels)
+    image_load(background_image->filename, !OutputColor, 1);
+
   pwidth = background_image->width * background_image->depth;
 
   fputs("/BG[", out);
@@ -1381,6 +1384,8 @@ ps_write_background(FILE *out)		/* I - Output file */
     putc('>', out);
   }
   fputs("]def", out);
+
+  image_unload(background_image);
 }
 
 
@@ -7004,6 +7009,9 @@ write_image(FILE     *out,	/* I - Output file */
   indices  = NULL;
   indwidth = 0;
 
+  if (!img->pixels && !img->obj)
+    image_load(img->filename, !OutputColor, 1);
+
   if (PSLevel != 1 && PDFVersion >= 1.2f && img->obj == 0)
   {
     if (img->depth == 1)
@@ -7647,6 +7655,8 @@ write_image(FILE     *out,	/* I - Output file */
 
   if (ncolors > 0)
     free(indices);
+
+  image_unload(img);
 }
 
 
@@ -9065,5 +9075,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.86 2001/07/11 13:28:19 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.87 2001/07/16 16:20:26 mike Exp $".
  */
