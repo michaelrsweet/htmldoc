@@ -1,5 +1,5 @@
 /*
- * "$Id: render.cxx,v 1.14.2.7 2004/03/24 03:02:09 mike Exp $"
+ * "$Id: render.cxx,v 1.14.2.8 2004/03/25 02:01:37 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6409,7 +6409,7 @@ hdRender::parse_table(hdTree   *t,		// I - Tree to parse
  */
 
 void
-hdRender::parse_list(hdTree   *t,			/* I - Tree to parse */
+hdRender::parse_list(hdTree   *t,	/* I - Tree to parse */
            hdMargin *margins,		/* I - Margins */
            float    *x,			/* IO - X position */
            float    *y,			/* IO - Y position */
@@ -6417,7 +6417,7 @@ hdRender::parse_list(hdTree   *t,			/* I - Tree to parse */
            int      needspace)		/* I - Need whitespace? */
 {
   char		number[255];		/* List number (for numbered types) */
-  char		*value;			/* VALUE= variable */
+  const char	*value;			/* VALUE= variable */
   float		width;			/* Width of list number */
   int		oldpage;		/* Old page value */
   float		oldy;			/* Old Y value */
@@ -7014,7 +7014,7 @@ hdRender::parse_comment(hdTree   *t,		/* I - Tree to parse */
       right = PagePrintWidth - margins->right();
       top   = PagePrintLength - margins->top();
 
-      set_page_size(comment);
+//      set_page_size(comment);
 
       if (Landscape)
       {
@@ -7674,12 +7674,12 @@ hdRender::format_number(int  n,		/* I - Number */
   switch (f)
   {
     default :
-        buffer[0] = '\0';
+        format_number_[0] = '\0';
 	break;
 
     case 'a' :
         if (n >= (26 * 26))
-	  buffer[0] = '\0';
+	  format_number_[0] = '\0';
         else if (n > 26)
           snprintf(format_number_, sizeof(format_number_), "%c%c",
 	           'a' + (n / 26) - 1, 'a' + (n % 26) - 1);
@@ -7690,7 +7690,7 @@ hdRender::format_number(int  n,		/* I - Number */
 
     case 'A' :
         if (n >= (26 * 26))
-	  buffer[0] = '\0';
+	  format_number_[0] = '\0';
         else if (n > 26)
           snprintf(format_number_, sizeof(format_number_), "%c%c",
 	           'A' + (n / 26) - 1, 'A' + (n % 26) - 1);
@@ -7705,7 +7705,7 @@ hdRender::format_number(int  n,		/* I - Number */
 
     case 'i' :
         if (n >= 1000)
-	  buffer[0] = '\0';
+	  format_number_[0] = '\0';
 	else
           snprintf(format_number_, sizeof(format_number_), "%s%s%s",
 	           hundreds[n / 100], tens[(n / 10) % 10], ones[n % 10]);
@@ -7713,14 +7713,51 @@ hdRender::format_number(int  n,		/* I - Number */
 
     case 'I' :
         if (n >= 1000)
-	  buffer[0] = '\0';
+	  format_number_[0] = '\0';
 	else
           snprintf(format_number_, sizeof(format_number_), "%s%s%s",
 	           HUNDREDS[n / 100], TENS[(n / 10) % 10], ONES[n % 10]);
         break;
   }
 
-  return (buffer);
+  return (format_number_);
+}
+
+
+/*
+ * 'hdRender::get_measurement()' - Get a size measurement in inches, points, centimeters,
+ *                                 or millimeters.
+ */
+
+int				/* O - Measurement in points */
+hdRender::get_measurement(const char *s,	/* I - Measurement string */
+                float      mul)	/* I - Multiplier */
+{
+  float	val;			/* Measurement value */
+
+
+ /*
+  * Get the floating point value of "s" and skip all digits and decimal points.
+  */
+
+  val = (float)atof(s);
+  while (isdigit(*s) || *s == '.')
+    s ++;
+
+ /*
+  * Check for a trailing unit specifier...
+  */
+
+  if (strcasecmp(s, "mm") == 0)
+    val *= 72.0f / 25.4f;
+  else if (strcasecmp(s, "cm") == 0)
+    val *= 72.0f / 2.54f;
+  else if (strncasecmp(s, "in", 2) == 0)
+    val *= 72.0f;
+  else
+    val *= mul;
+
+  return ((int)val);
 }
 
 
@@ -7781,7 +7818,7 @@ hdRender::real_next(hdTree *t)	/* I - Current markup */
 void
 hdRender::find_background(hdTree *t)	/* I - Document to search */
 {
-  char		*var;		/* BGCOLOR/BACKGROUND variable */
+  const char	*var;			/* BGCOLOR/BACKGROUND variable */
 
 
  /*
@@ -7796,7 +7833,7 @@ hdRender::find_background(hdTree *t)	/* I - Document to search */
   }
   else if (BodyColor[0] != '\0')
   {
-    hdStyle::get_color(BodyColor, background_color, 0);
+    hdStyle::get_color(BodyColor, background_color);
     return;
   }
 
@@ -7814,7 +7851,7 @@ hdRender::find_background(hdTree *t)	/* I - Document to search */
         background_image = hdImage::find(var, !OutputColor, Path);
 
       if ((var = t->get_attr("BGCOLOR")) != NULL)
-        hdStyle::get_color(var, background_color, 0);
+        hdStyle::get_color(var, background_color);
     }
 
     if (t->child != NULL)
@@ -7852,8 +7889,8 @@ hdRender::write_background(int  page,	/* I - Page we are writing for */
 
   if (background_image != NULL)
   {
-    width  = background_image->width() * 72.0f / _htmlPPI;
-    height = background_image->height() * 72.0f / _htmlPPI;
+    width  = background_image->width() * 72.0f / stylesheet->ppi;
+    height = background_image->height() * 72.0f / stylesheet->ppi;
 
     if (width < 1.0f)
       width = 1.0f;
@@ -7867,7 +7904,7 @@ hdRender::write_background(int  page,	/* I - Page we are writing for */
             for (y = 0.0; y < page_length; y += height)
             {
   	      flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
-              flate_printf(out, "/I%d Do\n", background_image->obj);
+              flate_printf(out, "/I%d Do\n", background_image->obj());
 	      flate_puts("Q\n", out);
             }
 	  break;
@@ -7881,7 +7918,7 @@ hdRender::write_background(int  page,	/* I - Page we are writing for */
                   background_image->width(), -background_image->height(),
 		  background_image->height());
           fputs("{/iy iy 1 add def BG iy get}", out);
-	  if (background_image->depth == 1)
+	  if (background_image->depth() == 1)
 	    fputs("image\n", out);
 	  else
 	    fputs("false 3 colorimage\n", out);
@@ -7914,17 +7951,20 @@ hdRender::write_background(int  page,	/* I - Page we are writing for */
  */
 
 hdRenderNode *		/* O - New render structure */
-hdRender::new_render(int      page,	/* I - Page number (0-n) */
-           hdRenderType      type,	/* I - Type of render primitive */
-           float    x,		/* I - Horizontal position */
-           float    y,		/* I - Vertical position */
-           float    width,	/* I - Width */
-           float    height,	/* I - Height */
-           void     *data,	/* I - Data */
-	   hdRenderNode *insert)	/* I - Insert before here... */
+hdRender::new_render(int          page,	/* I - Page number (0-n) */
+        	     hdRenderType type,	/* I - Type of render primitive */
+		     hdStyle      *s,	// I - Style
+        	     float        x,	/* I - Horizontal position */
+        	     float        y,	/* I - Vertical position */
+        	     float        width,/* I - Width */
+        	     float        height,
+					/* I - Height */
+        	     const void   *data,/* I - Data */
+		     hdRenderNode *insert)
+					/* I - Insert before here... */
 {
-  hdRenderNode		*r;	/* New render primitive */
-  static hdRenderNode	dummy;	/* Dummy var for errors... */
+  hdRenderNode		*r;		/* New render primitive */
+  static hdRenderNode	dummy;		/* Dummy var for errors... */
 
 
   DEBUG_printf(("new_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%p)\n",
@@ -7941,10 +7981,7 @@ hdRender::new_render(int      page,	/* I - Page number (0-n) */
     return (&dummy);
   }
 
-  if ((type != HD_RENDERTYPE_TEXT && type != HD_RENDERTYPE_LINK) || data == NULL)
-    r = (hdRenderNode *)calloc(sizeof(hdRenderNode), 1);
-  else
-    r = (hdRenderNode *)calloc(sizeof(hdRenderNode) + strlen(data), 1);
+  r = new hdRenderNode(type, x, y, width, height, s, data);
 
   if (r == NULL)
   {
@@ -7952,44 +7989,6 @@ hdRender::new_render(int      page,	/* I - Page number (0-n) */
                    "Unable to allocate memory on page %s\n", page + 1);
     memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
-  }
-
-  r->type   = type;
-  r->x      = x;
-  r->y      = y;
-  r->width  = width;
-  r->height = height;
-
-  switch (type)
-  {
-    case HD_RENDERTYPE_TEXT :
-        if (data == NULL)
-        {
-          free(r);
-          return (NULL);
-        }
-        strcpy(r->data.text.buffer, data);
-        hdStyle::get_color(_htmlTextColor, r->data.text.rgb);
-        break;
-    case HD_RENDERTYPE_IMAGE :
-        if (data == NULL)
-        {
-          free(r);
-          return (NULL);
-        }
-        r->data.image = (hdImage *)data;
-        break;
-    case HD_RENDERTYPE_BOX :
-        memcpy(r->data.box, data, sizeof(r->data.box));
-        break;
-    case HD_RENDERTYPE_LINK :
-        if (data == NULL)
-        {
-          free(r);
-          return (NULL);
-        }
-        strcpy(r->data.link, data);
-        break;
   }
 
   if (insert)
@@ -12016,5 +12015,5 @@ hdRender::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: render.cxx,v 1.14.2.7 2004/03/24 03:02:09 mike Exp $".
+ * End of "$Id: render.cxx,v 1.14.2.8 2004/03/25 02:01:37 mike Exp $".
  */
