@@ -1,5 +1,5 @@
 //
-// "$Id: margin.cxx,v 1.4.2.1 2004/03/20 03:57:25 mike Exp $"
+// "$Id: margin.cxx,v 1.4.2.2 2004/03/21 21:55:09 mike Exp $"
 //
 // Margin class routines for HTMLDOC, a HTML document processing program.
 //
@@ -44,6 +44,7 @@ hdMargin::hdMargin(float l,	// I - Initial left margin
   _right[0]  = r;
   _bottom[0] = b;
   _top       = t;
+  _page[0]   = 0;
 }
 
 
@@ -70,7 +71,7 @@ hdMargin::push(float l,		// I - New left margin
 	       float b,		// I - New bottom margin
 	       int   p)		// I - Page number for margin
 {
-  if (b < bottom() || p > page() || _level == 0)
+  if (b > bottom() || p > page() || _level == 0)
   {
     //
     // This new set of margins finishes before the current one;
@@ -128,5 +129,5 @@ hdMargin::push(float l,		// I - New left margin
 
 
 //
-// End of "$Id: margin.cxx,v 1.4.2.1 2004/03/20 03:57:25 mike Exp $".
+// End of "$Id: margin.cxx,v 1.4.2.2 2004/03/21 21:55:09 mike Exp $".
 //
