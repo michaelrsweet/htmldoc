@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.1 1999/11/07 13:33:22 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.2 1999/11/07 15:59:47 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -482,7 +482,7 @@ main(int  argc,		/* I - Number of command-line arguments */
       */
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"FILENAME", "");
+      htmlSetVariable(file, (uchar *)"FILENAME", (uchar *)"");
 
       htmlReadFile(file, stdin, NULL);
 
@@ -1072,5 +1072,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.1 1999/11/07 13:33:22 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.2 1999/11/07 15:59:47 mike Exp $".
  */

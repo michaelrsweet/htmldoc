@@ -54,21 +54,8 @@
  * You can use a signed char by having GETJSAMPLE mask it with 0xFF.
  */
 
-#ifdef HAVE_UNSIGNED_CHAR
-
 typedef unsigned char JSAMPLE;
 #define GETJSAMPLE(value)  ((int) (value))
-
-#else /* not HAVE_UNSIGNED_CHAR */
-
-typedef char JSAMPLE;
-#ifdef CHAR_IS_UNSIGNED
-#define GETJSAMPLE(value)  ((int) (value))
-#else
-#define GETJSAMPLE(value)  ((int) (value) & 0xFF)
-#endif /* CHAR_IS_UNSIGNED */
-
-#endif /* HAVE_UNSIGNED_CHAR */
 
 #define MAXJSAMPLE	255
 #define CENTERJSAMPLE	128
@@ -105,22 +92,8 @@ typedef short JCOEF;
  * managers, this is also the data type passed to fread/fwrite.
  */
 
-#ifdef HAVE_UNSIGNED_CHAR
-
 typedef unsigned char JOCTET;
 #define GETJOCTET(value)  (value)
-
-#else /* not HAVE_UNSIGNED_CHAR */
-
-typedef char JOCTET;
-#ifdef CHAR_IS_UNSIGNED
-#define GETJOCTET(value)  (value)
-#else
-#define GETJOCTET(value)  ((value) & 0xFF)
-#endif /* CHAR_IS_UNSIGNED */
-
-#endif /* HAVE_UNSIGNED_CHAR */
-
 
 /* These typedefs are used for various table entries and so forth.
  * They must be at least as wide as specified; but making them too big
@@ -131,23 +104,11 @@ typedef char JOCTET;
 
 /* UINT8 must hold at least the values 0..255. */
 
-#ifdef HAVE_UNSIGNED_CHAR
 typedef unsigned char UINT8;
-#else /* not HAVE_UNSIGNED_CHAR */
-#ifdef CHAR_IS_UNSIGNED
-typedef char UINT8;
-#else /* not CHAR_IS_UNSIGNED */
-typedef short UINT8;
-#endif /* CHAR_IS_UNSIGNED */
-#endif /* HAVE_UNSIGNED_CHAR */
 
 /* UINT16 must hold at least the values 0..65535. */
 
-#ifdef HAVE_UNSIGNED_SHORT
 typedef unsigned short UINT16;
-#else /* not HAVE_UNSIGNED_SHORT */
-typedef unsigned int UINT16;
-#endif /* HAVE_UNSIGNED_SHORT */
 
 /* INT16 must hold at least the values -32768..32767. */
 
@@ -157,8 +118,8 @@ typedef short INT16;
 
 /* INT32 must hold at least signed 32-bit values. */
 
-#ifndef XMD_H			/* X11/xmd.h correctly defines INT32 */
-typedef long INT32;
+#ifndef XMD_H
+typedef int INT32;
 #endif
 
 /* Datatype used for image dimensions.  The JPEG standard only supports
@@ -196,12 +157,7 @@ typedef unsigned int JDIMENSION;
  * Again, you can customize this if you need special linkage keywords.
  */
 
-#ifdef HAVE_PROTOTYPES
 #define JMETHOD(type,methodname,arglist)  type (*methodname) arglist
-#else
-#define JMETHOD(type,methodname,arglist)  type (*methodname) ()
-#endif
-
 
 /* Here is the pseudo-keyword for declaring pointers that must be "far"
  * on 80x86 machines.  Most of the specialized coding for 80x86 is handled
@@ -209,11 +165,8 @@ typedef unsigned int JDIMENSION;
  * explicit coding is needed; see uses of the NEED_FAR_POINTERS symbol.
  */
 
-#ifdef NEED_FAR_POINTERS
-#define FAR  far
-#else
+#undef FAR
 #define FAR
-#endif
 
 
 /*
@@ -224,7 +177,7 @@ typedef unsigned int JDIMENSION;
  */
 
 #ifndef HAVE_BOOLEAN
-typedef int boolean;
+typedef char boolean;
 #endif
 #ifndef FALSE			/* in case these macros already exist */
 #define FALSE	0		/* values of boolean */
