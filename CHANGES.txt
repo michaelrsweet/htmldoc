@@ -13,6 +13,7 @@ CHANGES IN HTMLDOC v1.8.12
 	  the image width * height >= 1024.
 	- Now use JPEG compression when the number of colors
 	  would be > 32 colors or 16 gray shades.
+	- Transparency support for GIF files!
 
     CHANGES
 
