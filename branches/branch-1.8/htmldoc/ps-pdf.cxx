@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.118 2001/10/26 18:14:03 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.119 2001/10/29 17:56:35 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3256,11 +3256,11 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	    */
 
             if ((name = htmlGetVariable(t, (uchar *)"WIDTH")) == NULL)
-	      width = right - left;
+	      width = *right - *left;
 	    else
 	    {
 	      if (strchr((char *)name, '%') != NULL)
-	        width = atoi((char *)name) * (right - left) / 100;
+	        width = atoi((char *)name) * (*right - *left) / 100;
 	      else
                 width = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
             }
@@ -6678,6 +6678,11 @@ write_background(FILE *out)	/* I - File to write to */
   {
     width  = background_image->width * PagePrintWidth / _htmlBrowserWidth;
     height = background_image->height * PagePrintWidth / _htmlBrowserWidth;
+
+    if (width < 1.0f)
+      width = 1.0f;
+    if (height < 1.0f)
+      height = 1.0f;
 
     switch (PSLevel)
     {
@@ -10347,5 +10352,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.118 2001/10/26 18:14:03 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.119 2001/10/29 17:56:35 mike Exp $".
  */
