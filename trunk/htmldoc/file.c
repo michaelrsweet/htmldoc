@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.10 2000/09/24 16:04:21 mike Exp $"
+ * "$Id: file.c,v 1.11 2000/10/12 00:20:35 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -41,6 +41,9 @@
 #include "http.h"
 #include "progress.h"
 
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
 
 /*
  * Local globals...
@@ -49,7 +52,7 @@
 char	proxy_host[HTTP_MAX_URI] = "";
 int	proxy_port = 0;
 http_t	*http = NULL;
-char	web_filename[1024] = "";
+int	web_files = 0;
 
 
 /*
@@ -194,7 +197,9 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   int		bytes,			/* Bytes read */
 		count,			/* Number of bytes so far */
 		total;			/* Total bytes in file */
-  static char	filename[1024];		/* Current filename */
+  const char	*tmpdir;		/* Temporary directory */
+  int		fd;			/* File descriptor */
+  static char	filename[HTTP_MAX_URI];	/* Current filename */
 
 
  /*
@@ -204,8 +209,9 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   if (s == NULL)
     return (NULL);
 
-  if (strncmp(s, "http:", 5) == 0)
-    httpSeparate(s, method, username, hostname, &port, resource);
+  if (strncmp(s, "http:", 5) == 0 ||
+      (path != NULL && strncmp(path, "http:", 5) == 0))
+    strcpy(method, "http");
   else
     strcpy(method, "file");
 
@@ -264,6 +270,23 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
    /*
     * Remote file; try getting it from the remote system...
     */
+
+    if (strncmp(s, "http:", 5) == 0)
+      httpSeparate(s, method, username, hostname, &port, resource);
+    else if (s[0] == '/')
+    {
+      httpSeparate(path, method, username, hostname, &port, resource);
+      strcpy(resource, s);
+    }
+    else
+    {
+      if (strncmp(s, "./", 2) == 0)
+        snprintf(filename, sizeof(filename), "%s/%s", path, s + 2);
+      else
+        snprintf(filename, sizeof(filename), "%s/%s", path, s);
+
+      httpSeparate(filename, method, username, hostname, &port, resource);
+    }
 
     if (resource[strlen(resource) - 1] == '/' &&
         s[strlen(s) - 1] != '/')
@@ -345,16 +368,36 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       return (NULL);
     }
 
-    if (!web_filename[0])
-      tmpnam(web_filename);
+    web_files ++;
+#if defined(WIN32) || defined(__EMX__)
+    if ((tmpdir = getenv("TMPDIR")) == NULL)
+      tmpdir = "C:/WINDOWS/TEMP";
+
+    snprintf(filename, sizeof(filename), "%s/%06d.dat", tmpdir, web_files);
+#else
+    if ((tmpdir = getenv("TMPDIR")) == NULL)
+      tmpdir = "/var/tmp";
+
+    snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, web_files,
+             getpid());
+    if ((fd = open(filename, O_CREAT | O_EXCL | O_TRUNC, 0600)) >= 0)
+      close(fd);
+    else
+    {
+      progress_hide();
+      progress_error("Unable to create temp file - %s!", strerror(errno));
+      httpFlush(http);
+      return (NULL);
+    }
+#endif /* WIN32 || __EMX__ */
 
     if ((total = atoi(httpGetField(http, HTTP_FIELD_CONTENT_LENGTH))) == 0)
       total = 1024 * 1024;
 
-    if ((fp = fopen(web_filename, "wb")) == NULL)
+    if ((fp = fopen(filename, "wb")) == NULL)
     {
       progress_hide();
-      progress_error("Unable to create temporary file \"%s\"!", web_filename);
+      progress_error("Unable to create temporary file \"%s\"!", filename);
       httpFlush(http);
       return (NULL);
     }
@@ -371,7 +414,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
     fclose(fp);
 
-    return (web_filename);
+    return (filename);
   }
 
   return (NULL);
@@ -558,14 +601,39 @@ file_target(const char *s)	/* I - Filename or URL */
 static void
 close_connection(void)
 {
+  char		filename[1024];
+  const char	*tmpdir;
+
+
   if (http)
   {
     httpClose(http);
     http = NULL;
   }
+
+#if defined(WIN32) || defined(__EMX__)
+    if ((tmpdir = getenv("TMPDIR")) == NULL)
+      tmpdir = "C:/WINDOWS/TEMP";
+#else
+    if ((tmpdir = getenv("TMPDIR")) == NULL)
+      tmpdir = "/var/tmp";
+#endif /* WIN32 || __EMX__ */
+
+  while (web_files > 0)
+  {
+#if defined(WIN32) || defined(__EMX__)
+    snprintf(filename, sizeof(filename), "%s/%06d.dat", tmpdir, web_files);
+#else
+    snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, web_files,
+             getpid());
+#endif /* WIN32 || __EMX__ */
+
+    unlink(filename);
+    web_files --;
+  }
 }
 
 
 /*
- * End of "$Id: file.c,v 1.10 2000/09/24 16:04:21 mike Exp $".
+ * End of "$Id: file.c,v 1.11 2000/10/12 00:20:35 mike Exp $".
  */

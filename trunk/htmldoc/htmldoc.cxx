@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.35 2000/09/15 02:42:40 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36 2000/10/12 00:20:35 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -817,7 +817,6 @@ main(int  argc,		/* I - Number of command-line arguments */
 	htmlSetVariable(file, (uchar *)"FILENAME",
                 	(uchar *)file_basename(argv[i]));
 
-        printf("base = \"%s\"\n", base);
 	htmlReadFile(file, docfile, base);
 
 	fclose(docfile);
@@ -1659,5 +1658,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.35 2000/09/15 02:42:40 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36 2000/10/12 00:20:35 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.cxx,v 1.5 2000/03/18 16:08:57 mike Exp $"
+ * "$Id: progress.cxx,v 1.6 2000/10/12 00:20:36 mike Exp $"
  *
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
@@ -67,8 +67,7 @@ progress_error(char *format,	/* I - Printf-style format string */
   }
 #endif /* HAVE_LIBFLTK */
 
-  fprintf(stderr, "\r%-79s", text);
-  fflush(stderr);
+  fprintf(stderr, "\r%-79s\n", text);
 }
 
 
@@ -139,5 +138,5 @@ progress_update(int percent)	/* I - Percent complete */
 
 
 /*
- * End of "$Id: progress.cxx,v 1.5 2000/03/18 16:08:57 mike Exp $".
+ * End of "$Id: progress.cxx,v 1.6 2000/10/12 00:20:36 mike Exp $".
  */
