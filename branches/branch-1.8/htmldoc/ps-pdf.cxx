@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.59 2001/05/21 18:47:21 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.60 2001/05/21 20:40:08 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3202,7 +3202,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   format_width = image_right - image_left;
   firstline    = 1;
 
-  printf("format_width = %.1f\n", format_width);
+  DEBUG_printf(("format_width = %.1f\n", format_width));
 
   while (flat != NULL)
   {
@@ -3263,7 +3263,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       width = start->width;
     }
 
-    printf("    width = %.1f\n", width);
+    DEBUG_printf(("    width = %.1f\n", width));
 
     for (height = 0.0, num_chars = 0, temp = prev = start;
          temp != end;
@@ -7636,10 +7636,10 @@ write_prolog(FILE  *out,	/* I - Output file */
       md5_append(&md5, owner_pad, 32);
       md5_finish(&md5, digest);
 
-      if (PDFVersion > 1.3)
+      if (encrypt_len > 5)
       {
-        // MD5 the result 50 more times...
-	for (i = 0; i < 50; i ++)
+        // MD5 the result 49 more times...
+	for (i = 0; i < 49; i ++)
 	{
           md5_init(&md5);
           md5_append(&md5, digest, 16);
@@ -7647,13 +7647,13 @@ write_prolog(FILE  *out,	/* I - Output file */
 	}
       }
 
-      rc4_init(&rc4, digest, encrypt_len);
-      rc4_encrypt(&rc4, user_pad, owner_key, 32);
-
-      if (PDFVersion > 1.3)
+      if (encrypt_len > 5)
       {
-        // Re-encrypt the result 19 times...
-	for (i = 1; i < 20; i ++)
+        // Copy the padded user password...
+        memcpy(owner_key, user_pad, 32);
+
+        // Encrypt the result 20 times...
+	for (i = 0; i < 20; i ++)
 	{
 	  // XOR each byte in the key with the loop counter...
 	  for (j = 0; j < encrypt_len; j ++)
@@ -7662,6 +7662,11 @@ write_prolog(FILE  *out,	/* I - Output file */
           rc4_init(&rc4, encrypt_key, encrypt_len);
           rc4_encrypt(&rc4, owner_key, owner_key, 32);
 	}
+      }
+      else
+      {
+        rc4_init(&rc4, digest, encrypt_len);
+        rc4_encrypt(&rc4, user_pad, owner_key, 32);
       }
 
      /*
@@ -7682,7 +7687,7 @@ write_prolog(FILE  *out,	/* I - Output file */
       md5_append(&md5, file_id, 16);
       md5_finish(&md5, digest);
 
-      if (PDFVersion > 1.3)
+      if (encrypt_len > 5)
       {
         // MD5 the result 50 times..
         for (i = 0; i < 50; i ++)
@@ -7699,25 +7704,26 @@ write_prolog(FILE  *out,	/* I - Output file */
       * Compute the user key...
       */
 
-      if (PDFVersion > 1.3)
+      if (encrypt_len > 5)
       {
+#if 0
         md5_init(&md5);
-        md5_append(&md5, digest, 16);
+        md5_append(&md5, encrypt_key, encrypt_len);
         md5_append(&md5, file_id, 16);
-        md5_finish(&md5, digest);
+        md5_finish(&md5, user_key);
+#else
+        memcpy(user_key, pad, 32);
+#endif /* 0 */
 
-        rc4_init(&rc4, encrypt_key, encrypt_len);
-        rc4_encrypt(&rc4, digest, user_key, 16);
-
-        // Re-encrypt the result 19 times...
-	for (i = 1; i < 20; i ++)
+        // Encrypt the result 20 times...
+        for (i = 0; i < 20; i ++)
 	{
 	  // XOR each byte in the key with the loop counter...
 	  for (j = 0; j < encrypt_len; j ++)
 	    digest[j] = encrypt_key[j] ^ i;
 
           rc4_init(&rc4, digest, encrypt_len);
-          rc4_encrypt(&rc4, user_key, user_key, 16);
+          rc4_encrypt(&rc4, user_key, user_key, 32);
 	}
       }
       else
@@ -7736,9 +7742,9 @@ write_prolog(FILE  *out,	/* I - Output file */
       for (i = 0; i < 32; i ++)
         fprintf(out, "%02x", owner_key[i]);
       fputs(">/U<", out);
-      if (PDFVersion > 1.3)
+      if (encrypt_len > 5)
       {
-        for (i = 0; i < 16; i ++)
+        for (i = 0; i < 32; i ++)
           fprintf(out, "%02x", user_key[i]);
       }
       else
@@ -7747,7 +7753,7 @@ write_prolog(FILE  *out,	/* I - Output file */
           fprintf(out, "%02x", user_key[i]);
       }
       fputs(">", out);
-      if (PDFVersion > 1.3)
+      if (encrypt_len > 5)
       {
         // 64-bit encryption...
 	int newperms;
@@ -8412,20 +8418,6 @@ encrypt_init(void)
   md5_finish(&md5, digest);
 
  /*
-  * For PDF 1.4, hash it 50 more times...
-  */
-
-  if (encrypt_len > 5)
-  {
-    for (i = 0; i < 50; i ++)
-    {
-      md5_init(&md5);
-      md5_append(&md5, digest, 16);
-      md5_finish(&md5, digest);
-    }
-  }
-
- /*
   * Initialize the RC4 context using the first N+5 bytes of the digest...
   */
 
@@ -8612,5 +8604,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.59 2001/05/21 18:47:21 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.60 2001/05/21 20:40:08 mike Exp $".
  */
