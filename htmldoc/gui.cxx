@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.76 2004/06/14 22:13:52 swdev Exp $"
+// "$Id: gui.cxx,v 1.36.2.77 2004/06/15 01:09:09 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -69,6 +69,8 @@
 //   GUI::generateBookCB() - Generate the current book.
 //   GUI::closeBookCB()    - Close the current book.
 //   GUI::errorCB()        - Close the error window.
+//   aboutCloseCB()        - Close the about window.
+//   GUI::showAboutCB()    - Show the about window.
 //
 
 #include "htmldoc.h"
@@ -87,6 +89,9 @@
 #  include <FL/fl_draw.H>
 #  include <FL/x.H>
 
+#  include <FL/Fl_Pixmap.H>
+#  include "../desktop/htmldoc.xpm"
+
 #  ifdef WIN32
 #    include <direct.h>
 #    include <io.h>
@@ -95,7 +100,6 @@
 #    include <unistd.h>
 #    ifdef HAVE_LIBXPM
 #      include <X11/xpm.h>
-#      include "../desktop/htmldoc.xpm"
 #    elif !defined(__APPLE__)
 #      include "../desktop/htmldoc.xbm"
 #    endif // HAVE_LIBXPM
@@ -267,10 +271,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Create a dialog window...
   //
 
-  window = new Fl_Double_Window(505, 415, "HTMLDOC " SVERSION);
+  window = new Fl_Double_Window(505, 370, "HTMLDOC " SVERSION);
   window->callback((Fl_Callback *)closeBookCB, this);
 
-  controls = new Fl_Group(0, 0, 505, 385);
+  controls = new Fl_Group(0, 0, 505, 330);
   tabs     = new Fl_Tabs(10, 10, 485, 285);
 
   tabs->selection_color(FL_WHITE);
@@ -978,6 +982,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   group->end();
 
+  showAbout = new Fl_Button(75, 260, 130, 25, "About HTMLDOC");
+  showAbout->callback((Fl_Callback *)showAboutCB);
+  showAbout->tooltip("Click to show information about HTMLDOC.");
+
   showLicense = new Fl_Button(215, 260, 70, 25, "License");
   showLicense->callback((Fl_Callback *)showLicenseCB);
   showLicense->tooltip("Click to show the software license.");
@@ -994,55 +1002,41 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Button bar...
   //
 
-  bookHelp = new Fl_Button(10, 355, 55, 25, "Help");
+  bookHelp = new Fl_Button(10, 305, 55, 25, "Help");
   bookHelp->shortcut(FL_F + 1);
   bookHelp->callback((Fl_Callback *)helpCB, this);
 
-  bookNew = new Fl_Button(70, 355, 50, 25, "New");
+  bookNew = new Fl_Button(70, 305, 50, 25, "New");
   bookNew->shortcut(FL_CTRL | 'n');
   bookNew->callback((Fl_Callback *)newBookCB, this);
 
-  bookOpen = new Fl_Button(125, 355, 65, 25, "Open...");
+  bookOpen = new Fl_Button(125, 305, 65, 25, "Open...");
   bookOpen->shortcut(FL_CTRL | 'o');
   bookOpen->callback((Fl_Callback *)openBookCB, this);
 
-  bookSave = new Fl_Button(195, 355, 55, 25, "Save");
+  bookSave = new Fl_Button(195, 305, 55, 25, "Save");
   bookSave->shortcut(FL_CTRL | 's');
   bookSave->callback((Fl_Callback *)saveBookCB, this);
 
-  bookSaveAs = new Fl_Button(255, 355, 85, 25, "Save As...");
+  bookSaveAs = new Fl_Button(255, 305, 85, 25, "Save As...");
   bookSaveAs->shortcut(FL_CTRL | FL_SHIFT | 's');
   bookSaveAs->callback((Fl_Callback *)saveAsBookCB, this);
 
-  bookGenerate = new Fl_Button(345, 355, 85, 25, "Generate");
+  bookGenerate = new Fl_Button(345, 305, 85, 25, "Generate");
   bookGenerate->shortcut(FL_CTRL | 'g');
   bookGenerate->callback((Fl_Callback *)generateBookCB, this);
 
-  bookClose = new Fl_Button(435, 355, 60, 25, "Close");
+  bookClose = new Fl_Button(435, 305, 60, 25, "Close");
   bookClose->shortcut(FL_CTRL | 'q');
   bookClose->callback((Fl_Callback *)closeBookCB, this);
 
   controls->end();
 
   //
-  // Copyright notice...
-  //
-
-  label = new Fl_Box(10, 300, 485, 50,
-          "HTMLDOC " SVERSION " Copyright 1997-2004 by Easy Software Products "
-	  "(http://www.easysw.com). This program is free software; you can "
-	  "redistribute it and/or modify it under the terms of the GNU General "
-	  "Public License as published by the Free Software Foundation. This "
-	  "software is based in part on the work of the Independent JPEG Group."
-	  );
-  label->labelsize(10);
-  label->align(FL_ALIGN_TOP | FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
-
-  //
   // Progress bar...
   //
 
-  progressBar = new Fl_Progress(10, 385, 485, 20, "HTMLDOC " SVERSION " Ready.");
+  progressBar = new Fl_Progress(10, 340, 485, 20, "HTMLDOC " SVERSION " Ready.");
 
   window->end();
 
@@ -1054,7 +1048,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   window->icon((char *)LoadImage(fl_display, MAKEINTRESOURCE(IDI_ICON),
                                  IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
 #  elif defined(__APPLE__)
-  // NEED TO DO MacOS stuff here...
+  // MacOS X gets the icon from the application bundle...
 #  elif defined(HAVE_LIBXPM) // X11 w/Xpm library
   Pixmap	pixmap, mask;	// Icon pixmaps
   XpmAttributes	attrs;		// Attributes of icon
@@ -1076,7 +1070,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 #  endif // WIN32
 
   window->resizable(tabs);
-  window->size_range(470, 390);
+  window->size_range(470, 360);
   show();
 
   // File chooser, icons, help dialog, error window...
@@ -3967,19 +3961,13 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     // Show debug info...
     htmlDebugStats("Document Tree", document);
 
-   /*
-    * Build a table of contents for the documents...
-    */
-
+    // Build a table of contents for the documents...
     if (OutputType == OUTPUT_BOOK && TocLevels > 0)
       toc = toc_build(document);
     else
       toc = NULL;
 
-   /*
-    * Generate the output file(s).
-    */
-
+    // Generate the output file(s).
     if (gui->typeHTML->value())
       html_export(document, toc);
     else if (gui->typeHTMLSep->value())
@@ -4040,8 +4028,89 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 }
 
 
+//
+// 'aboutCloseCB()' - Close the about window.
+//
+
+static void
+aboutCloseCB(Fl_Widget *w)		// I - Widget
+{
+  if (w && w->window())
+    w->window()->hide();
+}
+
+
+//
+// 'GUI::showAboutCB()' - Show the about window.
+//
+
+void
+GUI::showAboutCB(void)
+{
+  Fl_Window	*about;			// About window
+  Fl_Group	*group;			// Group
+  Fl_Box	*label;			// Labels
+  Fl_Help_View	*text;			// Help text
+  Fl_Button	*button;		// Close button
+  Fl_Pixmap	logo(htmldoc_xpm);	// Logo image
+
+
+  about = new Fl_Window(410, 300, "About HTMLDOC");
+  about->modal();
+  about->hotspot(about);
+
+  group = new Fl_Group(10, 10, 390, 245, "About HTMLDOC");
+  group->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE);
+  group->labelcolor(FL_BLUE);
+  group->labelfont(FL_HELVETICA_BOLD);
+  group->labelsize(18);
+  group->box(FL_THIN_UP_BOX);
+
+  label = new Fl_Box(20, 45, 35, 35);
+  label->image(&logo);
+
+  label = new Fl_Box(60, 45, 330, 35,
+          "HTMLDOC " SVERSION " Copyright 1997-2004 by Easy Software Products "
+	  "(http://www.easysw.com)."
+	  );
+  label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
+
+  text = new Fl_Help_View(20, 90, 370, 155);
+  text->value(
+    "HTMLDOC converts HTML files and web pages to PDF and PostScript.\n\n"
+    "<p>HTMLDOC is available both as free software under the terms of "
+    "the GNU General Public License and as commercial software via "
+    "the HTMLDOC membership options. "
+    "The HTMLDOC Basic membership provides the HTMLDOC software in "
+    "convenient, installable packages for your operating system of "
+    "choice. "
+    "The HTMLDOC Professional membership adds one year of commercial "
+    "telephone and on-line support. "
+    "Both membership options provide financial support for the "
+    "continued development of HTMLDOC as an open source product.\n\n"
+    "<p>For more information, please visit us on the web at the following "
+    "URL:\n"
+    "<pre>\n\n"
+    "    http://www.easysw.com/htmldoc/\n"
+    "</pre>\n"
+    );
+  text->textsize(FL_NORMAL_SIZE);
+
+  group->end();
+
+  button = new Fl_Button(340, 265, 60, 25, "Close");
+  button->callback((Fl_Callback *)aboutCloseCB);
+
+  about->end();
+  about->show();
+  while (about->shown())
+    Fl::wait();
+
+  delete about;
+}
+
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.76 2004/06/14 22:13:52 swdev Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.77 2004/06/15 01:09:09 mike Exp $".
 //
