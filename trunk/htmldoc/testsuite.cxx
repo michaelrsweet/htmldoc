@@ -1,5 +1,5 @@
 //
-// "$Id: testsuite.cxx,v 1.11 2003/01/02 04:36:07 mike Exp $"
+// "$Id: testsuite.cxx,v 1.12 2003/01/08 02:38:50 mike Exp $"
 //
 //   Test program for HTMLDOC, a HTML document processing program.
 //
@@ -148,7 +148,7 @@ main(int  argc,				// I - Number of command-line arguments
 	float x = 0.0, y = 0.0;
 	int page = 0;
 
-        html->format(css, m, x, y, page);
+        html->format_doc(css, m, x, y, page);
 
         print_tree(html, 0);
 
@@ -720,5 +720,5 @@ write_test(hdFile *fp)	// I - File to write to...
 
 
 //
-// End of "$Id: testsuite.cxx,v 1.11 2003/01/02 04:36:07 mike Exp $".
+// End of "$Id: testsuite.cxx,v 1.12 2003/01/08 02:38:50 mike Exp $".
 //
