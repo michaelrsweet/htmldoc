@@ -308,10 +308,10 @@ current margins are at the top of the stack, nothing is popped.
 <A HREF="#hdTree.copy_text">copy_text</A>,
 <A HREF="#hdTree.find">find</A>,
 <A HREF="#hdTree.fix_url">fix_url</A>,
-<A HREF="#hdTree.format">format</A>,
 <A HREF="#hdTree.format_block">format_block</A>,
 <A HREF="#hdTree.format_comment">format_comment</A>,
 <A HREF="#hdTree.format_contents">format_contents</A>,
+<A HREF="#hdTree.format_doc">format_doc</A>,
 <A HREF="#hdTree.format_image">format_image</A>,
 <A HREF="#hdTree.format_index">format_index</A>,
 <A HREF="#hdTree.format_list">format_list</A>,
@@ -641,43 +641,6 @@ to the new parent node.
 
 </DIV>
 
-<H4><A NAME="hdTree.format">void			format(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
-<DIV CLASS="indent">
-<P>The <TT>format()</TT> method formats this node and all child nodes, updating
-the width, height, and nodebreak members.
-
-<P><B>Parameters</B>
-<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
-<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
-
-<TR><TD VALIGN="TOP"><TT>css</TT></TD>
-<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
-<TD VALIGN="TOP">The stylesheet to use.
-</TD></TR>
-
-<TR><TD VALIGN="TOP"><TT>m</TT></TD>
-<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
-<TD VALIGN="TOP">The margins to use.
-</TD></TR>
-
-<TR><TD VALIGN="TOP"><TT>x</TT></TD>
-<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
-<TD VALIGN="TOP">The current X position in points.
-</TD></TR>
-
-<TR><TD VALIGN="TOP"><TT>y</TT></TD>
-<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
-<TD VALIGN="TOP">The current Y position in points.
-</TD></TR>
-
-<TR><TD VALIGN="TOP"><TT>page</TT></TD>
-<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
-<TD VALIGN="TOP">The current page.</TD></TR>
-
-</TABLE></DIV>
-
-</DIV>
-
 <H4><A NAME="hdTree.format_block">void			format_block(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
 <DIV CLASS="indent">
 <P>The <TT>format_block()</TT> method formats a block node and its children, updating
@@ -754,6 +717,43 @@ the width, height, and nodebreak members.
 <H4><A NAME="hdTree.format_contents">void			format_contents(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
 <DIV CLASS="indent">
 <P>The <TT>format_contents()</TT> method formats a table-of-contents.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.format_doc">void			format_doc(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The <TT>format_doc()</TT> method formats this node and all child nodes,
+updating the width, height, and nodebreak members.
 
 <P><B>Parameters</B>
 <DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">

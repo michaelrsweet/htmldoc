@@ -1,5 +1,5 @@
 //
-// "$Id: tree-format.cxx,v 1.4 2003/01/02 04:36:07 mike Exp $"
+// "$Id: tree-format.cxx,v 1.5 2003/01/08 02:38:50 mike Exp $"
 //
 //   HTML formatting routines for HTMLDOC, a HTML document processing program.
 //
@@ -35,15 +35,15 @@
 
 
 //
-// 'hdTree::format()' - Format a document.
+// 'hdTree::format_doc()' - Format a document.
 //
 
 void
-hdTree::format(hdStyleSheet *css,		// I  - Style sheet
-               hdMargin     *m,			// IO - Margins
-               float        &x,			// IO - Current X position
-               float        &y,			// IO - Current Y position
-	       int          &page)		// IO - Current page
+hdTree::format_doc(hdStyleSheet *css,		// I  - Style sheet
+                   hdMargin     *m,		// IO - Margins
+                   float        &x,		// IO - Current X position
+                   float        &y,		// IO - Current Y position
+	           int          &page)		// IO - Current page
 {
   float		linewidth,			// Current line width
 		fragwidth,			// Fragment width
@@ -416,5 +416,5 @@ hdTree::format_list(hdStyleSheet *css,		// I  - Style sheet
 
 
 //
-// End of "$Id: tree-format.cxx,v 1.4 2003/01/02 04:36:07 mike Exp $".
+// End of "$Id: tree-format.cxx,v 1.5 2003/01/08 02:38:50 mike Exp $".
 //
