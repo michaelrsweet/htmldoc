@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.28 2000/04/21 13:08:28 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.29 2000/04/28 19:01:49 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -609,6 +609,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 	    htmlSetVariable(t, (uchar *)"SRC",
 	                    (uchar *)fix_filename((char *)filename, base));
 
+      case MARKUP_BR :
       case MARKUP_NONE :
       case MARKUP_SPACER :
 	 /*
@@ -683,7 +684,6 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
       case MARKUP_DOCTYPE :
       case MARKUP_AREA :
-      case MARKUP_BR :
       case MARKUP_COMMENT :
       case MARKUP_INPUT :
       case MARKUP_ISINDEX :
@@ -2045,6 +2045,13 @@ compute_size(tree_t *t)		/* I - Tree entry */
 
     return (0);
   }
+  else if (t->markup == MARKUP_BR)
+  {
+    t->width  = 0.0;
+    t->height = _htmlSizes[t->size];
+
+    return (0);
+  }
   else if (t->preformatted && t->data)
   {
     for (max_width = 0.0, width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
@@ -2268,5 +2275,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.28 2000/04/21 13:08:28 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.29 2000/04/28 19:01:49 mike Exp $".
  */
