@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.22.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: tree.cxx,v 1.22.2.2 2004/03/23 21:54:38 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -103,6 +103,15 @@ const char	*hdTree::elements[HD_ELEMENT_MAX] =
 		  "h4",
 		  "h5",
 		  "h6",
+		  "h7",
+		  "h8",
+		  "h9",
+		  "h10",
+		  "h11",
+		  "h12",
+		  "h13",
+		  "h14",
+		  "h15",
 		  "head",
 		  "hr",
 		  "html",
@@ -124,6 +133,7 @@ const char	*hdTree::elements[HD_ELEMENT_MAX] =
 		  "pre",
 		  "s",
 		  "samp",
+		  "script",
 		  "select",
 		  "small",
 		  "spacer",
@@ -193,6 +203,15 @@ unsigned char	hdTree::elgroup[HD_ELEMENT_MAX] =
 		  HD_ELGROUP_BLOCK,	// H4
 		  HD_ELGROUP_BLOCK,	// H5
 		  HD_ELGROUP_BLOCK,	// H6
+		  HD_ELGROUP_BLOCK,	// H7
+		  HD_ELGROUP_BLOCK,	// H8
+		  HD_ELGROUP_BLOCK,	// H9
+		  HD_ELGROUP_BLOCK,	// H10
+		  HD_ELGROUP_BLOCK,	// H11
+		  HD_ELGROUP_BLOCK,	// H12
+		  HD_ELGROUP_BLOCK,	// H13
+		  HD_ELGROUP_BLOCK,	// H14
+		  HD_ELGROUP_BLOCK,	// H15
 		  HD_ELGROUP_GROUP,	// HEAD
 		  HD_ELGROUP_NONE,	// HR
 		  HD_ELGROUP_GROUP,	// HTML
@@ -214,6 +233,7 @@ unsigned char	hdTree::elgroup[HD_ELEMENT_MAX] =
 		  HD_ELGROUP_BLOCK,	// PRE
 		  HD_ELGROUP_INLINE,	// S
 		  HD_ELGROUP_INLINE,	// SAMP
+		  HD_ELGROUP_INLINE,	// SCRIPT
 		  HD_ELGROUP_GROUP,	// SELECT
 		  HD_ELGROUP_INLINE,	// SMALL
 		  HD_ELGROUP_NONE,	// SPACER
@@ -1818,5 +1838,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.22.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: tree.cxx,v 1.22.2.2 2004/03/23 21:54:38 mike Exp $".
 //

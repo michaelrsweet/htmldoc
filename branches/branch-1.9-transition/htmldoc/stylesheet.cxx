@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.11.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.11.2.2 2004/03/23 21:54:38 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -27,6 +27,7 @@
 //   hdStyleSheet::~hdStyleSheet()     - Destroy a stylesheet.
 //   hdStyleSheet::add_style()         - Add a style to a stylesheet.
 //   hdStyleSheet::find_font()         - Find a font for the given style.
+//   hdStyleSheet::find_style()        - Find the default style for the given
 //   hdStyleSheet::find_style()        - Find the default style for the given
 //   hdStyleSheet::find_style()        - Find the default style for the given
 //   hdStyleSheet::get_glyph()         - Find the index for the named glyph...
@@ -454,6 +455,31 @@ hdStyleSheet::find_style(int             nsels,	// I - Number of selectors
 
   // Return the best match...
   return (best);
+}
+
+
+//
+// 'hdStyleSheet::find_style()' - Find the default style for the given
+//                                element.
+//
+
+hdStyle *				// O - Style record
+hdStyleSheet::find_style(hdElement e,	// I - Element
+                         const char *c,	// I - Class name, if any
+                         const char *i,	// I - ID, if any
+                         const char *p)	// I - Pseudo target, if any
+{
+  hdStyleSelector	sel;		// Selector...
+
+
+  // Build the selector for this node...
+  sel.element = e;
+  sel.class_  = c;
+  sel.id      = i;
+  sel.pseudo  = p;
+
+  // Do the search...
+  return (find_style(1, &sel));
 }
 
 
@@ -1184,5 +1210,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.11.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.11.2.2 2004/03/23 21:54:38 mike Exp $".
 //

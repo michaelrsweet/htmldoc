@@ -1,5 +1,5 @@
 //
-// "$Id: image.h,v 1.5.2.9.2.1 2004/03/22 21:56:29 mike Exp $"
+// "$Id: image.h,v 1.5.2.9.2.2 2004/03/23 21:54:38 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
@@ -117,6 +117,7 @@ class hdImage			//// Image class
   virtual int		save(const char *path, char *d, int dlen);
   hdImageType		type() { return type_; }
   const char		*uri() { return uri_; }
+  int			use() { return use_; }
   int			width() { return width_; }
 
   // Global methods for caching of image files...
@@ -251,5 +252,5 @@ class hdXPMImage : public hdImage
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.5.2.9.2.1 2004/03/22 21:56:29 mike Exp $".
+// End of "$Id: image.h,v 1.5.2.9.2.2 2004/03/23 21:54:38 mike Exp $".
 //

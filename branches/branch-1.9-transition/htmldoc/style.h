@@ -1,5 +1,5 @@
 //
-// "$Id: style.h,v 1.20.2.2 2004/03/23 03:31:27 mike Exp $"
+// "$Id: style.h,v 1.20.2.3 2004/03/23 21:54:38 mike Exp $"
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
@@ -80,6 +80,15 @@ enum hdElement
   HD_ELEMENT_H4,
   HD_ELEMENT_H5,
   HD_ELEMENT_H6,
+  HD_ELEMENT_H7,
+  HD_ELEMENT_H8,
+  HD_ELEMENT_H9,
+  HD_ELEMENT_H10,
+  HD_ELEMENT_H11,
+  HD_ELEMENT_H12,
+  HD_ELEMENT_H13,
+  HD_ELEMENT_H14,
+  HD_ELEMENT_H15,
   HD_ELEMENT_HEAD,
   HD_ELEMENT_HR,
   HD_ELEMENT_HTML,
@@ -101,6 +110,7 @@ enum hdElement
   HD_ELEMENT_PRE,
   HD_ELEMENT_S,
   HD_ELEMENT_SAMP,
+  HD_ELEMENT_SCRIPT,
   HD_ELEMENT_SELECT,
   HD_ELEMENT_SMALL,
   HD_ELEMENT_SPACER,
@@ -387,7 +397,7 @@ enum hdFontEncoding
 
 
 /**
- * The <TT>hdFontKernPair</TT> structure contains character kerning
+ * The <tt>hdFontKernPair</tt> structure contains character kerning
  * information for a pair of characters...
  */
 struct hdFontKernPair
@@ -404,7 +414,7 @@ struct hdFontKernPair
 struct hdStyleSheet;
 
 /**
- * The <TT>hdStyleFont</TT> structure describes a single font that is used
+ * The <tt>hdStyleFont</tt> structure describes a single font that is used
  * by a stylesheet.
  */
 
@@ -448,7 +458,7 @@ struct hdStyleFont
   hdFontKernPair *kerns;
 
  /**
-  * The <TT>constructor creates a new font record for the specified font
+  * The <tt>constructor creates a new font record for the specified font
   * name and loads the necessary font width and kerning information.
   *
   * @param css hdStyleSheet* A pointer to the style sheet.
@@ -459,14 +469,14 @@ struct hdStyleFont
   hdStyleFont(hdStyleSheet *css, hdFontFace t, hdFontInternal s, const char *n);
 
  /**
-  * The <TT>destructor free all memory associated with the font.
+  * The <tt>destructor free all memory associated with the font.
   */
   ~hdStyleFont();
 
   static int	compare_kerns(hdFontKernPair *a, hdFontKernPair *b);
 
  /**
-  * The <TT>get_char()</TT> method returns the next character from the specified
+  * The <tt>get_char()</tt> method returns the next character from the specified
   * string and updates the string pointer to the next character position.
   * This method handles multi-byte and single-byte encodings transparently
   * to the caller.
@@ -477,7 +487,7 @@ struct hdStyleFont
   int		get_char(const char *&s);
 
  /**
-  * The <TT>get_kerning()</TT> method generates an array of kerning values
+  * The <tt>get_kerning()</tt> method generates an array of kerning values
   * as well as a total kerning adjustment for the specified string.
   * 
   * @param s const&nbsp;char* The string to kern.
@@ -489,7 +499,7 @@ struct hdStyleFont
   int		get_kerning(const char *s, float &tk, float *&kl);
 
  /**
-  * The <TT>get_num_chars()</TT> method returns the actual number of
+  * The <tt>get_num_chars()</tt> method returns the actual number of
   * characters in the given string and handles multi-byte and
   * single-byte encodings transparently to the caller.
   *
@@ -499,7 +509,7 @@ struct hdStyleFont
   int		get_num_chars(const char *s);
 
  /**
-  * The <TT>get_width()</TT> method returns the width of a string, including
+  * The <tt>get_width()</tt> method returns the width of a string, including
   * adjustments for kerning. The width value is scaled for a point
   * size of 1.0.
   *
@@ -509,7 +519,7 @@ struct hdStyleFont
   float		get_width(const char *s);
 
  /**
-  * The <TT>read_afm()</TT> method loads font widths from an AFM file.
+  * The <tt>read_afm()</tt> method loads font widths from an AFM file.
   *
   * @param fp hdFile* The file to read from.
   * @param css hdStyleSheet* The stylesheet.
@@ -518,7 +528,7 @@ struct hdStyleFont
   int		read_afm(hdFile *fp, hdStyleSheet *css);
 
  /**
-  * The <TT>read_pfm()</TT> method loads font widths from a PFM file.
+  * The <tt>read_pfm()</tt> method loads font widths from a PFM file.
   *
   * @param fp hdFile* The file to read from.
   * @param css hdStyleSheet* The stylesheet.
@@ -527,7 +537,7 @@ struct hdStyleFont
   int		read_pfm(hdFile *fp, hdStyleSheet *css);
 
  /**
-  * The <TT>read_ttf()</TT> method loads font widths from a TTF file.
+  * The <tt>read_ttf()</tt> method loads font widths from a TTF file.
   *
   * @param fp hdFile* The file to read from.
   * @param css hdStyleSheet* The stylesheet.
@@ -537,7 +547,7 @@ struct hdStyleFont
 };
 
 /**
- * The <TT>hdBorder</TT> structure holds border attribute information.
+ * The <tt>hdBorder</tt> structure holds border attribute information.
  */
 struct hdBorder
 {
@@ -555,7 +565,7 @@ struct hdBorder
 #define HD_SELECTOR_MAX	100
 
 /**
- * The <TT>hdStyleSelector</TT> structure is used to select specific styles
+ * The <tt>hdStyleSelector</tt> structure is used to select specific styles
  * in a stylesheet.
  */
 struct hdStyleSelector
@@ -563,19 +573,19 @@ struct hdStyleSelector
   //* Element for selection
   hdElement		element;
   //* Class name for selection
-  char			*class_;
+  const char		*class_;
   //* Pseudo-class for selection
-  char			*pseudo;
+  const char		*pseudo;
   //* ID for selection
-  char			*id;
+  const char		*id;
 
  /**
-  * The <TT>constructor creates a new, blank selector.
+  * The <tt>constructor creates a new, blank selector.
   */
   hdStyleSelector();
 
  /**
-  * The <TT>set()</TT> method sets the selector values.
+  * The <tt>set()</tt> method sets the selector values.
   *
   * @param e hdElement The HTML element.
   * @param c const&nbsp;char* The HTML CLASS attribute.
@@ -585,13 +595,14 @@ struct hdStyleSelector
   void	set(hdElement e, const char *c, const char *p, const char *i);
 
  /**
-  * The <TT>clear()</TT> method resets the selector values, freeing memory as needed.
+  * The <tt>clear()</tt> method resets the selector values, freeing memory
+  * as needed.
   */
   void	clear();
 };
 
 /**
- * The <TT>hdStyle</TT> structure stores all of the supported style
+ * The <tt>hdStyle</tt> structure stores all of the supported style
  * information for a single style in a stylesheet.
  */
 struct hdStyle
@@ -603,108 +614,108 @@ struct hdStyle
   //* Selectors for the style record.
   hdStyleSelector	*selectors;
 
-  //* The <TT>background-color</TT> value.
+  //* The <tt>background-color</tt> value.
   unsigned char		background_color[3];
-  //* True if the <TT>background-color</TT> value is set for this style.
+  //* True if the <tt>background-color</tt> value is set for this style.
   char			background_color_set;
-  //* The <TT>background-image</TT> value.
+  //* The <tt>background-image</tt> value.
   char			*background_image;
-  //* The <TT>background-position</TT> values.
+  //* The <tt>background-position</tt> values.
   float			background_position[2];
-  //* The relative <TT>background-position</TT> values, if any.
+  //* The relative <tt>background-position</tt> values, if any.
   char			*background_position_rel[2];
-  //* The <TT>background-repeat</TT> value.
+  //* The <tt>background-repeat</tt> value.
   hdBackgroundRepeat	background_repeat;
-  //* The <TT>border-left</TT>, <TT>border-right</TT>, <TT>border-top</TT>,
-  //* and <TT>border-bottom</TT> values.
+  //* The <tt>border-left</tt>, <tt>border-right</tt>, <tt>border-top</tt>,
+  //* and <tt>border-bottom</tt> values.
   hdBorder		border[4];
-  //* The <TT>clear</TT> value.
+  //* The <tt>clear</tt> value.
   hdClear		clear;
-  //* The <TT>color</TT> value.
+  //* The <tt>color</tt> value.
   unsigned char		color[3];
-  //* True if the <TT>color</TT> value is set for this style.
+  //* True if the <tt>color</tt> value is set for this style.
   char			color_set;
-  //* The <TT>display</TT> value.
+  //* The <tt>display</tt> value.
   hdDisplay		display;
-  //* The <TT>float</TT> value.
+  //* The <tt>float</tt> value.
   hdFloat		float_;
-  //* The <TT>font associated with this style.
+  //* The <tt>font associated with this style.
   hdStyleFont		*font;
-  //* The <TT>font-family</TT> value.
+  //* The <tt>font-family</tt> value.
   char			*font_family;
-  //* The <TT>font-size</TT> value.
+  //* The <tt>font-size</tt> value.
   float			font_size;
-  //* The relative <TT>font-size</TT> value, if any.
+  //* The relative <tt>font-size</tt> value, if any.
   char			*font_size_rel;
-  //* The <TT>font-style</TT> value.
+  //* The <tt>font-style</tt> value.
   hdFontStyle		font_style;
-  //* The <TT>font-variant</TT> value.
+  //* The <tt>font-variant</tt> value.
   hdFontVariant		font_variant;
-  //* The <TT>font-weight</TT> value.
+  //* The <tt>font-weight</tt> value.
   hdFontWeight		font_weight;
-  //* The <TT>height</TT> value.
+  //* The <tt>height</tt> value.
   float			height;
-  //* The relative <TT>height</TT> value, if any.
+  //* The relative <tt>height</tt> value, if any.
   char			*height_rel;
-  //* The <TT>letter-spacing</TT> value.
+  //* The <tt>letter-spacing</tt> value.
   float			letter_spacing;
-  //* The <TT>line-height</TT> value.
+  //* The <tt>line-height</tt> value.
   float			line_height;
-  //* The relative <TT>line-height</TT> value, if any.
+  //* The relative <tt>line-height</tt> value, if any.
   char			*line_height_rel;
-  //* The <TT>list-style-image</TT> value.
+  //* The <tt>list-style-image</tt> value.
   char			*list_style_image;
-  //* The <TT>list-style-position</TT> value.
+  //* The <tt>list-style-position</tt> value.
   hdListStylePosition	list_style_position;
-  //* The <TT>list-style-type</TT> value.
+  //* The <tt>list-style-type</tt> value.
   hdListStyleType	list_style_type;
-  //* The <TT>margin-left</TT>, <TT>margin-right</TT>, <TT>margin-top</TT>,
-  //* and <TT>margin-bottom</TT> values.
+  //* The <tt>margin-left</tt>, <tt>margin-right</tt>, <tt>margin-top</tt>,
+  //* and <tt>margin-bottom</tt> values.
   float			margin[4];
-  //* The relative <TT>margin-left</TT>, <TT>margin-right</TT>,
-  //* <TT>margin-top</TT>, and <TT>margin-bottom</TT> values, if any.
+  //* The relative <tt>margin-left</tt>, <tt>margin-right</tt>,
+  //* <tt>margin-top</tt>, and <tt>margin-bottom</tt> values, if any.
   char			*margin_rel[4];
-  //* The <TT>padding-left</TT>, <TT>padding-right</TT>, <TT>padding-top</TT>,
-  //* and <TT>padding-bottom</TT> values.
+  //* The <tt>padding-left</tt>, <tt>padding-right</tt>, <tt>padding-top</tt>,
+  //* and <tt>padding-bottom</tt> values.
   float			padding[4];
-  //* The relative <TT>padding-left</TT>, <TT>padding-right</TT>,
-  //* <TT>padding-top</TT>, and <TT>padding-bottom values</TT>, if any.
+  //* The relative <tt>padding-left</tt>, <tt>padding-right</tt>,
+  //* <tt>padding-top</tt>, and <tt>padding-bottom values</tt>, if any.
   char			*padding_rel[4];
-  //* The <TT>page-break-after</TT> value.
+  //* The <tt>page-break-after</tt> value.
   hdPageBreak		page_break_after;
-  //* The <TT>page-break-before</TT> value.
+  //* The <tt>page-break-before</tt> value.
   hdPageBreak		page_break_before;
-  //* The <TT>page-break-inside</TT> value.
+  //* The <tt>page-break-inside</tt> value.
   hdPageBreak		page_break_inside;
-  //* The <TT>position-left</TT>, <TT>position-right</TT>,
-  //* <TT>position-top</TT>, and <TT>position-bottom</TT> values.
+  //* The <tt>position-left</tt>, <tt>position-right</tt>,
+  //* <tt>position-top</tt>, and <tt>position-bottom</tt> values.
   float			position[4];
-  //* The relative <TT>position-left</TT>, <TT>position-right</TT>,
-  //* <TT>position-top</TT>, and <TT>position-bottom</TT> values, if any.
+  //* The relative <tt>position-left</tt>, <tt>position-right</tt>,
+  //* <tt>position-top</tt>, and <tt>position-bottom</tt> values, if any.
   char			*position_rel[4];
-  //* The <TT>text-align</TT> value.
+  //* The <tt>text-align</tt> value.
   hdTextAlign		text_align;
-  //* The <TT>text-decoration</TT> value.
+  //* The <tt>text-decoration</tt> value.
   hdTextDecoration	text_decoration;
-  //* The <TT>text-indent</TT> value.
+  //* The <tt>text-indent</tt> value.
   float			text_indent;
-  //* The relative <TT>text-indent</TT> value, if any.
+  //* The relative <tt>text-indent</tt> value, if any.
   char			*text_indent_rel;
-  //* The <TT>text-transform</TT> value.
+  //* The <tt>text-transform</tt> value.
   hdTextTransform	text_transform;
-  //* The <TT>vertical-align</TT> value.
+  //* The <tt>vertical-align</tt> value.
   hdVerticalAlign	vertical_align;
-  //* The <TT>white-space</TT> value.
+  //* The <tt>white-space</tt> value.
   hdWhiteSpace		white_space;
-  //* The <TT>width</TT> value.
+  //* The <tt>width</tt> value.
   float			width;
-  //* The relative <TT>width</TT> value, if any.
+  //* The relative <tt>width</tt> value, if any.
   char			*width_rel;
-  //* The <TT>word-spacing</TT> value.
+  //* The <tt>word-spacing</tt> value.
   float			word_spacing;
 
  /**
-  * The <TT>constructor creates a new style record.
+  * The <tt>constructor creates a new style record.
   *
   * @param nsels int The number of selectors for the style.
   * @param sels hdStyleSelector* The selectors for the style.
@@ -713,17 +724,17 @@ struct hdStyle
   hdStyle(int nsels, hdStyleSelector *sels, hdStyle *p = (hdStyle *)0);
 
  /**
-  * The <TT>destructor free all memory associated with the style record.
+  * The <tt>destructor free all memory associated with the style record.
   */
   ~hdStyle();
 
  /**
-  * The <TT>get_border()</TT> method returns the width in points of the specified
+  * The <tt>get_border()</tt> method returns the width in points of the specified
   * border.
   *
-  * @param p int The border position: <TT>HD_POS_LEFT</TT>,
-  * <TT>HD_POS_RIGHT</TT>, <TT>HD_POS_TOP</TT>, or
-  * <TT>HD_POS_BOTTOM</TT>.
+  * @param p int The border position: <tt>HD_POS_LEFT</tt>,
+  * <tt>HD_POS_RIGHT</tt>, <tt>HD_POS_TOP</tt>, or
+  * <tt>HD_POS_BOTTOM</tt>.
   * @return The border width in points.
   */
   float		get_border(int p)
@@ -735,7 +746,7 @@ struct hdStyle
 		}
 
  /**
-  * The <TT>get_border_style()</TT> method returns the border style associated
+  * The <tt>get_border_style()</tt> method returns the border style associated
   * with the specified string value.
   *
   * @param value const&nbsp;char* The string to be converted.
@@ -744,7 +755,7 @@ struct hdStyle
   hdBorderStyle	get_border_style(const char *value);
 
  /**
-  * The <TT>get_border_width()</TT> method returns the width in points for the
+  * The <tt>get_border_width()</tt> method returns the width in points for the
   * given string value.
   *
   * @param value const&nbsp;char* The border value string.
@@ -754,7 +765,7 @@ struct hdStyle
   float		get_border_width(const char *value, hdStyleSheet *css);
 
  /**
-  * The <TT>get_color()</TT> method converts the string color to a 24-bit
+  * The <tt>get_color()</tt> method converts the string color to a 24-bit
   * RGB value.
   *
   * @param value const&nbsp;char* The color value string.
@@ -764,7 +775,7 @@ struct hdStyle
   static int	get_color(const char *color, hdByte *rgb);
 
  /**
-  * The <TT>get_color()</TT> method converts the string color to a floating
+  * The <tt>get_color()</tt> method converts the string color to a floating
   * point RGB value.
   *
   * @param value const&nbsp;char* The color value string.
@@ -774,12 +785,12 @@ struct hdStyle
   static int	get_color(const char *color, float *rgb);
 
  /**
-  * The <TT>get_format_spacing()</TT> method returns the
+  * The <tt>get_format_spacing()</tt> method returns the
   * sum of the border, margin, and padding values.
   *
-  * @param p int The spacing position: <TT>HD_POS_LEFT</TT>,
-  * <TT>HD_POS_RIGHT</TT>, <TT>HD_POS_TOP</TT>, or
-  * <TT>HD_POS_BOTTOM</TT>.
+  * @param p int The spacing position: <tt>HD_POS_LEFT</tt>,
+  * <tt>HD_POS_RIGHT</tt>, <tt>HD_POS_TOP</tt>, or
+  * <tt>HD_POS_BOTTOM</tt>.
   * @return The spacing value in points.
   */
   float		get_format_spacing(int p)
@@ -788,7 +799,7 @@ struct hdStyle
 		}
 
  /**
-  * The <TT>get_length()</TT> method converts a "length" value to points.
+  * The <tt>get_length()</tt> method converts a "length" value to points.
   *
   * @param length const&nbsp;char* The length string.
   * @param max_length float The maximum value for the given axis.
@@ -800,7 +811,7 @@ struct hdStyle
 		           hdStyleSheet *css, int *relative = (int *)0);
 
  /**
-  * The <TT>get_list_style_type()</TT> method returns the list style associated
+  * The <tt>get_list_style_type()</tt> method returns the list style associated
   * with a string.
   *
   * @param value const&nbsp;char* The string value.
@@ -809,11 +820,11 @@ struct hdStyle
   hdListStyleType get_list_style_type(const char *value);
 
  /**
-  * The <TT>get_margin()</TT> method returns the margin value in points.
+  * The <tt>get_margin()</tt> method returns the margin value in points.
   *
-  * @param p int The margin position: <TT>HD_POS_LEFT</TT>,
-  * <TT>HD_POS_RIGHT</TT>, <TT>HD_POS_TOP</TT>, or
-  * <TT>HD_POS_BOTTOM</TT>.
+  * @param p int The margin position: <tt>HD_POS_LEFT</tt>,
+  * <tt>HD_POS_RIGHT</tt>, <tt>HD_POS_TOP</tt>, or
+  * <tt>HD_POS_BOTTOM</tt>.
   * @return The margin value in points.
   */
   float		get_margin(int p)
@@ -825,11 +836,11 @@ struct hdStyle
 		}
 
  /**
-  * The <TT>get_padding()</TT> method returns the padding value in points.
+  * The <tt>get_padding()</tt> method returns the padding value in points.
   *
-  * @param p int The padding position: <TT>HD_POS_LEFT</TT>,
-  * <TT>HD_POS_RIGHT</TT>, <TT>HD_POS_TOP</TT>, or
-  * <TT>HD_POS_BOTTOM</TT>.
+  * @param p int The padding position: <tt>HD_POS_LEFT</tt>,
+  * <tt>HD_POS_RIGHT</tt>, <tt>HD_POS_TOP</tt>, or
+  * <tt>HD_POS_BOTTOM</tt>.
   * @return The padding value in points.
   */
   float		get_padding(int p)
@@ -841,7 +852,7 @@ struct hdStyle
 		}
 
  /**
-  * The <TT>get_page_break()</TT> method returns the page break constant
+  * The <tt>get_page_break()</tt> method returns the page break constant
   * associated with the string.
   *
   * @param value const&nbsp;char* The value string.
@@ -850,7 +861,7 @@ struct hdStyle
   hdPageBreak	get_page_break(const char *value);
 
  /**
-  * The <TT>get_pos()</TT> method returns the position constant associated
+  * The <tt>get_pos()</tt> method returns the position constant associated
   * with the string.
   *
   * @param name const&nbsp;char* The position string.
@@ -859,7 +870,7 @@ struct hdStyle
   int		get_pos(const char *name);
 
  /**
-  * The <TT>get_subvalue()</TT> method extracts a single value from a property string.
+  * The <tt>get_subvalue()</tt> method extracts a single value from a property string.
   *
   * @param valueptr char* Pointer to property string.
   * @return New string pointer after the property value.
@@ -867,14 +878,23 @@ struct hdStyle
   char		*get_subvalue(char *valueptr);
 
  /**
-  * The <TT>inherit()</TT> method inherits style data from the specified style.
+  * The <tt>get_width()</tt> method computes the width of a string using
+  * the current style.
+  *
+  * @param s const&nbsp;char* Pointer to string.
+  * @return String width in points.
+  */
+  float		get_width(const char *s);
+
+ /**
+  * The <tt>inherit()</tt> method inherits style data from the specified style.
   *
   * @param p hdStyle* Parent style.
   */
   void		inherit(hdStyle *p);
 
  /**
-  * The <TT>load()</TT> method loads style data from a string.
+  * The <tt>load()</tt> method loads style data from a string.
   *
   * @param css hdStyleSheet* The stylesheet.
   * @param s const&nbsp;char* The style string.
@@ -883,7 +903,7 @@ struct hdStyle
   int		load(hdStyleSheet *css, const char *s);
 
  /**
-  * The <TT>update()</TT> method updates all relative values in the style.
+  * The <tt>update()</tt> method updates all relative values in the style.
   *
   * @param css hdStyleSheet* The stylesheet.
   */
@@ -915,7 +935,7 @@ enum hdSides
 struct hdTree;
 
 /**
- * The <TT>hdStyleMedia</TT> structure describes the output media
+ * The <tt>hdStyleMedia</tt> structure describes the output media
  * attributes.
  */
 struct hdStyleMedia
@@ -950,12 +970,12 @@ struct hdStyleMedia
   hdSides	sides;
 
  /**
-  * The <TT>constructor creates a new hdStyleMedia structure.
+  * The <tt>constructor creates a new hdStyleMedia structure.
   */
   hdStyleMedia();
 
  /**
-  * The <TT>set_margins()</TT> method sets the page margins.
+  * The <tt>set_margins()</tt> method sets the page margins.
   *
   * @param l float The left margin in points.
   * @param b float The bottom margin in points.
@@ -965,18 +985,18 @@ struct hdStyleMedia
   void		set_margins(float l, float b, float r, float t);
 
  /**
-  * The <TT>set_orientation()</TT> method sets the orientation of the page.
+  * The <tt>set_orientation()</tt> method sets the orientation of the page.
   *
   * @param o hdOrientation The orientation of the page:
-  * <TT>HD_ORIENTATION_PORTRAIT</TT>,
-  * <TT>HD_ORIENTATION_LANDSCAPE</TT>,
-  * <TT>HD_ORIENTATION_REVERSE_PORTRAIT</TT>, or
-  * <TT>HD_ORIENTATION_REVERSE_LANDSCAPE</TT>.
+  * <tt>HD_ORIENTATION_PORTRAIT</tt>,
+  * <tt>HD_ORIENTATION_LANDSCAPE</tt>,
+  * <tt>HD_ORIENTATION_REVERSE_PORTRAIT</tt>, or
+  * <tt>HD_ORIENTATION_REVERSE_LANDSCAPE</tt>.
   */
   void		set_orientation(hdOrientation o);
 
  /**
-  * The <TT>set_size()</TT> method sets the page dimensions by number.
+  * The <tt>set_size()</tt> method sets the page dimensions by number.
   *
   * @param w float The width in points.
   * @param l float The length in points.
@@ -984,21 +1004,21 @@ struct hdStyleMedia
   void		set_size(float w, float l);
 
  /**
-  * The <TT>set_size()</TT> method sets the page dimensions by name.
+  * The <tt>set_size()</tt> method sets the page dimensions by name.
   *
   * @param name const&nbsp;char* The size name.
   */
   void		set_size(const char *name); 
 
  /**
-  * The <TT>update_printable()</TT> method updates the printable width and
+  * The <tt>update_printable()</tt> method updates the printable width and
   * length for the current dimensions and margins.
   */
   void		update_printable();
 };
 
 /**
- * The <TT>hdStyleSheet</TT> structure holds a style sheet for a
+ * The <tt>hdStyleSheet</tt> structure holds a style sheet for a
  * document.
  */
 struct hdStyleSheet
@@ -1053,14 +1073,14 @@ struct hdStyleSheet
   ~hdStyleSheet();
 
  /**
-  * The <TT>add_style()</TT> method adds a style to the stylesheet.
+  * The <tt>add_style()</tt> method adds a style to the stylesheet.
   *
   * @param s hdStyle* The style to add.
   */
   void		add_style(hdStyle *s);
 
  /**
-  * The <TT>find_font()</TT> method finds the font used by a style.
+  * The <tt>find_font()</tt> method finds the font used by a style.
   *
   * @param s hdStyle* The style.
   * @return A pointer to the font for the style.
@@ -1068,7 +1088,7 @@ struct hdStyleSheet
   hdStyleFont	*find_font(hdStyle *s);
 
  /**
-  * The <TT>find_style()</TT> method finds the matching style for the given document
+  * The <tt>find_style()</tt> method finds the matching style for the given document
   * tree node.
   *
   * @param t hdTree* The document tree node.
@@ -1078,7 +1098,7 @@ struct hdStyleSheet
   hdStyle	*find_style(hdTree *t);
 
  /**
-  * The <TT>find_style()</TT> method finds the matching style for the given selectors.
+  * The <tt>find_style()</tt> method finds the matching style for the given selectors.
   *
   * @param nsels int The number of selectors.
   * @param sels hdStyleSelector* The selector array.
@@ -1089,7 +1109,17 @@ struct hdStyleSheet
   hdStyle	*find_style(int nsels, hdStyleSelector *sels, int exact = 0);
 
  /**
-  * The <TT>get_glyph()</TT> method returns the character code for the given character
+  * The <tt>find_style()</tt> method finds the matching style for the given element.
+  *
+  * @param e hdElement The element to find.
+  * @return A pointer to the matching style, or NULL if no matching style
+  * is available.
+  */
+  hdStyle	*find_style(hdElement e, const char *c = 0,
+		            const char *i = 0, const char *p = 0);
+
+ /**
+  * The <tt>get_glyph()</tt> method returns the character code for the given character
   * name. Both HTML and PostScript glyph names are recognized and supported.
   *
   * @param s const&nbsp;char* The character name string.
@@ -1098,7 +1128,7 @@ struct hdStyleSheet
   int		get_glyph(const char *s);
 
  /**
-  * The <TT>get_private_style()</TT> method generates a private style for the given
+  * The <tt>get_private_style()</tt> method generates a private style for the given
   * document tree node.
   *
   * @param t hdTree* The document tree node.
@@ -1107,7 +1137,7 @@ struct hdStyleSheet
   hdStyle	*get_private_style(hdTree *t);
 
  /**
-  * The <TT>load()</TT> method loads a stylesheet from a file stream.
+  * The <tt>load()</tt> method loads a stylesheet from a file stream.
   *
   * @param f hdFile* A pointer to the file stream.
   * @param path const&nbsp;char* A search path to be used by any included files.
@@ -1116,7 +1146,7 @@ struct hdStyleSheet
   int		load(hdFile *f, const char *path = (const char *)0);
 
  /**
-  * The <TT>pattern()</TT> method initializes a regex character pattern that is used
+  * The <tt>pattern()</tt> method initializes a regex character pattern that is used
   * when reading stylesheets.
   *
   * @param r const&nbsp;char* The regex character pattern.
@@ -1126,8 +1156,8 @@ struct hdStyleSheet
   void		pattern(const char *r, char p[256]);
 
  /**
-  * The <TT>read()</TT> method reads a single string from a file stream using the
-  * specified pattern initialized by the pattern()</TT> method.
+  * The <tt>read()</tt> method reads a single string from a file stream using the
+  * specified pattern initialized by the pattern()</tt> method.
   *
   * @param f hdFile* The file stream to read from.
   * @param p const&nbsp;char* The pattern array initialized by the pattern()
@@ -1140,7 +1170,7 @@ struct hdStyleSheet
   char		*read(hdFile *f, const char *p, char *s, int slen);
 
  /**
-  * The <TT>set_charset()</TT> method sets the current character encoding to the named
+  * The <tt>set_charset()</tt> method sets the current character encoding to the named
   * IANA-defined character set.
   *
   * @param cs const&nbsp;char* The character set name.
@@ -1148,7 +1178,7 @@ struct hdStyleSheet
   void		set_charset(const char *cs);
  
  /**
-  * The <TT>update_styles()</TT> method updates all of the relative style information
+  * The <tt>update_styles()</tt> method updates all of the relative style information
   * in the stylesheet.
   */
   void		update_styles();
@@ -1158,5 +1188,5 @@ struct hdStyleSheet
 #endif // !_HTMLDOC_STYLE_H_
 
 //
-// End of "$Id: style.h,v 1.20.2.2 2004/03/23 03:31:27 mike Exp $".
+// End of "$Id: style.h,v 1.20.2.3 2004/03/23 21:54:38 mike Exp $".
 //
