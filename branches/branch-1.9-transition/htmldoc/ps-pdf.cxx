@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.237.2.2 2004/03/21 03:40:32 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.237.2.3 2004/03/21 21:55:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3469,7 +3469,7 @@ render_contents(tree_t   *t,		/* I  - Tree to parse */
       x  = margins->left() + 36.0f * t->indent;
     }
 
-    if (*y < margins->bottom())
+    if (*y < margins->bottom0())
     {
       (*page) ++;
       if (Verbosity)
@@ -3665,7 +3665,7 @@ parse_contents(tree_t   *t,		/* I - Tree to parse */
           if (t->prev != NULL)	/* Advance one line prior to margins->top()-levels... */
             *y -= _htmlSpacings[SIZE_P];
 
-          if (*y < (margins->bottom() + _htmlSpacings[SIZE_P] * 3))
+          if (*y < (margins->bottom0() + _htmlSpacings[SIZE_P] * 3))
 	    *y = 0; // Force page break
 
           chap = t;
@@ -4176,7 +4176,7 @@ parse_doc(tree_t   *t,			/* I - Tree to parse */
 		  break;
 	    }
 
-            if (*y < (margins->bottom() + height + _htmlSpacings[SIZE_P]))
+            if (*y < (margins->bottom0() + height + _htmlSpacings[SIZE_P]))
 	    {
 	     /*
 	      * Won't fit on this page...
@@ -4459,10 +4459,11 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 		offset,
 		spacing,
 		borderspace,
+		hspace_value,
+		vspace_value,
 		temp_y,
 		temp_width,
 		temp_height;
-  float		format_width;
   float		char_spacing;
   int		num_chars;
   render_t	*r;
@@ -4519,10 +4520,21 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 
       if (strcasecmp((char *)align, "LEFT") == 0)
       {
-        if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
-	  *y -= atoi((char *)vspace);
+        if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
+	  hspace_value = atoi((char *)hspace) * PagePrintWidth /
+	                 _htmlBrowserWidth;
+        else
+	  hspace_value = 0;
 
-        if (*y < (margins->bottom() + temp->height + 2 * borderspace))
+        if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
+	  vspace_value = atoi((char *)vspace) * PagePrintWidth /
+	                 _htmlBrowserWidth;
+        else
+	  vspace_value = 0;
+
+	*y -= vspace_value;
+
+        if (*y < (margins->bottom0() + temp->height + 2 * borderspace))
         {
 	  (*page) ++;
 	  *y = margins->top();
@@ -4587,18 +4599,12 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 	             *y - temp->height, temp->width, temp->height, link);
         }
 
-        *y -= borderspace;
-
-        if (vspace != NULL)
-	  *y -= atoi((char *)vspace);
+        *y -= borderspace + vspace_value;
 
 	temp_y = *y - temp->height;
 
-        margins->push(margins->left() + temp->width + 2 * borderspace,
-	              margins->right(), temp_y);
-
-        if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
-	  margins->adjust_left(atoi((char *)hspace));
+        margins->push(margins->left() + temp->width + 2 * borderspace +
+	                  hspace_value, margins->right(), temp_y);
 
         if (prev != NULL)
           prev->next = temp->next;
@@ -4610,10 +4616,21 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
       }
       else if (strcasecmp((char *)align, "RIGHT") == 0)
       {
-        if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
-	  *y -= atoi((char *)vspace);
+        if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
+	  hspace_value = atoi((char *)hspace) * PagePrintWidth /
+	                 _htmlBrowserWidth;
+        else
+	  hspace_value = 0;
 
-        if (*y < (margins->bottom() + temp->height + 2 * borderspace))
+        if ((vspace = htmlGetVariable(temp, (uchar *)"VSPACE")) != NULL)
+	  vspace_value = atoi((char *)vspace) * PagePrintWidth /
+	                 _htmlBrowserWidth;
+        else
+	  vspace_value = 0;
+
+	*y -= vspace_value;
+
+        if (*y < (margins->bottom0() + temp->height + 2 * borderspace))
         {
 	  (*page) ++;
 	  *y = margins->top();
@@ -4657,7 +4674,8 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 
         *y -= borderspace;
 
-        new_render(*page, RENDER_IMAGE, margins->right() + borderspace,
+        new_render(*page, RENDER_IMAGE,
+	           margins->right() - borderspace - temp->width,
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
@@ -4677,23 +4695,17 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 	      link = (uchar *)file_basename((char *)link);
 	  }
 
-	  new_render(*page, RENDER_LINK, margins->right() + borderspace,
+	  new_render(*page, RENDER_LINK,
+	             margins->right() - borderspace - temp->width,
 	             *y - temp->height, temp->width, temp->height, link);
         }
 
-        *y -= borderspace;
-
-        if (vspace != NULL)
-	  *y -= atoi((char *)vspace);
+        *y -= borderspace + vspace_value;
 
 	temp_y = *y - temp->height;
 
-        margins->push(margins->left(),
-	              margins->right() - temp->width - 2 * borderspace,
-		      temp_y);
-
-        if ((hspace = htmlGetVariable(temp, (uchar *)"HSPACE")) != NULL)
-	  margins->adjust_right(-atoi((char *)hspace));
+        margins->push(margins->left(), margins->right() - temp->width -
+	                               2 * borderspace - hspace_value, temp_y);
 
         if (prev != NULL)
           prev->next = temp->next;
@@ -4718,10 +4730,9 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
   * Then format the text and inline images...
   */
 
-  format_width = margins->right() - margins->left();
-  firstline    = 1;
+  firstline = 1;
 
-  DEBUG_printf(("format_width = %.1f\n", format_width));
+  DEBUG_printf(("margins->width() = %.1f\n", margins->width()));
 
   // Make stupid compiler warnings go away (if you can't put
   // enough smarts in the compiler, don't add the warning!)
@@ -4784,7 +4795,7 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 	  break;
       }
 
-      if ((width + temp_width) <= format_width)
+      if ((width + temp_width) <= margins->width())
       {
         width += temp_width;
         end  = temp;
@@ -4873,7 +4884,7 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
         spacing = temp_height;
     }
 
-    if (firstline && end != NULL && *y < (margins->bottom() + 2.0f * height))
+    if (firstline && end != NULL && *y < (margins->bottom0() + 2.0f * height))
     {
       // Go to next page since only 1 line will fit on this one...
       (*page) ++;
@@ -4910,7 +4921,7 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
     else
       temp = NULL;
 
-    if (*y < (spacing + margins->bottom()))
+    if (*y < (spacing + margins->bottom0()))
     {
       (*page) ++;
       *y = margins->top();
@@ -4943,7 +4954,7 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
 	  break;
 
       case ALIGN_CENTER :
-          linex = margins->left() + 0.5f * (format_width - width);
+          linex = margins->left() + 0.5f * (margins->width() - width);
 	  break;
 
       case ALIGN_RIGHT :
@@ -4953,7 +4964,7 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
       case ALIGN_JUSTIFY :
           linex = margins->left();
 	  if (flat != NULL && flat->prev->markup != MARKUP_BR && num_chars > 1)
-	    char_spacing = (format_width - width) / (num_chars - 1);
+	    char_spacing = (margins->width() - width) / (num_chars - 1);
 	  break;
     }
 
@@ -5212,8 +5223,6 @@ parse_paragraph(tree_t   *t,		/* I - Tree to parse */
     *y -= spacing - height;
 
     margins->clear(*y, *page);
-
-    format_width = margins->width();
   }
 
   *x = margins->left();
@@ -5295,7 +5304,7 @@ parse_pre(tree_t   *t,			/* I - Tree to parse */
     if (flat)
       flat = flat->next;
 
-    if (*y < (height + margins->bottom()))
+    if (*y < (height + margins->bottom0()))
     {
       (*page) ++;
       *y = margins->top();
@@ -6195,7 +6204,7 @@ parse_table(tree_t   *t,		// I - Tree to parse
     DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f\n",
                   row, temp_height, *y));
 
-    if (*y < (margins->bottom() + 2 * cellpadding + temp_height) &&
+    if (*y < (margins->bottom0() + 2 * cellpadding + temp_height) &&
         temp_height <= (margins->length() - 2 * cellpadding))
     {
       DEBUG_puts("NEW PAGE");
@@ -7149,7 +7158,7 @@ parse_comment(tree_t   *t,		/* I - Tree to parse */
 	para->child = para->last_child = NULL;
       }
 
-      halfway = 0.5f * (margins->top() + margins->bottom());
+      halfway = 0.5f * (margins->top() + margins->bottom0());
 
       if (*y <= halfway)
       {
@@ -7196,7 +7205,7 @@ parse_comment(tree_t   *t,		/* I - Tree to parse */
 	tof = (*y >= margins->top());
       }
 
-      if ((*y - get_measurement(comment, _htmlSpacings[SIZE_P])) < margins->bottom())
+      if ((*y - get_measurement(comment, _htmlSpacings[SIZE_P])) < margins->bottom0())
       {
 	(*page) ++;
 
@@ -12340,5 +12349,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.237.2.2 2004/03/21 03:40:32 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.237.2.3 2004/03/21 21:55:09 mike Exp $".
  */
