@@ -9,6 +9,7 @@ CHANGES IN HTMLDOC v1.8.10
 	  stderr.
 	- New chapter n/N page number format (:)
 	- New "--links" and "--no-links" options for PDF output.
+	- Added "&euro;" character name support.
 
     CHANGES
 
