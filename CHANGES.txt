@@ -5,8 +5,8 @@ CHANGES IN HTMLDOC v1.8.13
 
     NEW FEATURES
 
-	- Added support for secure (https) URLs via the
-	  OpenSSL library.
+	- Added support for secure (https) URLs via the OpenSSL
+	  library.
 	- Added support for Acrobat 5.0 (PDF 1.4).
 	- Added support for transparency in PostScript and
 	  PDF 1.1 and 1.2 output.
@@ -79,8 +79,10 @@ CHANGES IN HTMLDOC v1.8.13
 	- Image objects that were both JPEG and Flate compressed
 	  would not display (filters specified in the wrong
 	  order.)
-	- Images with more than 256 colors would cause a segfault
-	  on some systems.
+	- Images with more than 256 colors would cause a
+	  segfault on some systems.
+	- Background images would generate the error message
+	  "XObject 'Innn' is unknown".
 
 
 CHANGES IN HTMLDOC v1.8.12
