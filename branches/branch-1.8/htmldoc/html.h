@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.9.2.2 2001/02/20 02:15:56 mike Exp $"
+ * "$Id: html.h,v 1.9.2.3 2001/05/29 21:05:25 mike Exp $"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -295,6 +295,8 @@ extern uchar	*htmlGetMeta(tree_t *tree, uchar *name);
 extern uchar	*htmlGetVariable(tree_t *t, uchar *name);
 extern int	htmlSetVariable(tree_t *t, uchar *name, uchar *value);
 
+extern uchar	*htmlGetStyle(tree_t *t, uchar *name);
+
 extern void	htmlSetBaseSize(float p, float s);
 extern void	htmlSetCharSet(const char *cs);
 extern void	htmlSetTextColor(uchar *color);
@@ -306,5 +308,5 @@ extern void	htmlSetTextColor(uchar *color);
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.9.2.2 2001/02/20 02:15:56 mike Exp $".
+ * End of "$Id: html.h,v 1.9.2.3 2001/05/29 21:05:25 mike Exp $".
  */

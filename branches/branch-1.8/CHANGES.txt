@@ -1,4 +1,4 @@
-CHANGES.txt - 05/24/2001
+CHANGES.txt - 05/30/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.13
@@ -9,6 +9,8 @@ CHANGES IN HTMLDOC v1.8.13
 	- Added support for transparency in PostScript and
 	  PDF 1.1 and 1.2 output.
 	- Added a --no-jpeg option (same as --jpeg=0)
+	- Added support for the CSS2 page-break-before and
+	  page-break-after properties.
 
 
     CHANGES
