@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.47 2002/03/07 21:48:39 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.48 2002/03/08 17:02:17 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -266,7 +266,8 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
   uchar		*filename,	/* Filename for EMBED tag */
 		*face,		/* Typeface for FONT tag */
 		*color,		/* Color for FONT tag */
-		*size;		/* Size for FONT tag */
+		*size,		/* Size for FONT tag */
+		*type;		/* Type for EMBED tag */
   int		sizeval;	/* Size value from FONT tag */
   static uchar	s[10240];	/* String from file */
   static int	have_whitespace = 0;
@@ -806,8 +807,8 @@ htmlReadFile(tree_t     *parent,/* I - Parent tree entry */
           break;
 
       case MARKUP_EMBED :
-          if ((var = htmlGetVariable(t, (uchar *)"TYPE")) != NULL &&
-	      strncasecmp(var, "text/html", 9) != NULL)
+          if ((type = htmlGetVariable(t, (uchar *)"TYPE")) != NULL &&
+	      strncasecmp((const char *)type, "text/html", 9) != 0)
 	    break;
 
           if ((filename = htmlGetVariable(t, (uchar *)"SRC")) != NULL)
@@ -2659,5 +2660,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.47 2002/03/07 21:48:39 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.48 2002/03/08 17:02:17 mike Exp $".
  */
