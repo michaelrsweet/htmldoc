@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.00 
+version 1.0009 
 header_name {.h} 
 code_name {.cxx} 
 gridx 5 
@@ -16,14 +16,14 @@ class FileChooser {open
       callback {fileList->deselect();
 fileName->value("");
 window->hide();} open
-      private xywh {173 142 375 315} resizable hotspot
+      private xywh {191 211 375 315} resizable hotspot
       code0 {if (title) window->label(title);}
       code1 {\#include <stdio.h>}
       code2 {\#include <stdlib.h>}
       code3 {\#include <string.h>} modal visible
     } {
       Fl_Browser fileList {
-        callback {fileListCB();} selected
+        callback {fileListCB();}
         private xywh {10 45 355 180} type Hold resizable hotspot
         code1 {\#include "FileBrowser.h"}
         class FileBrowser
@@ -71,9 +71,15 @@ directory(pathname);} open
       } {}
       Fl_Button {} {
         label {allfiles.xbm}
-        callback {fileList->filter("*");;
-rescan();}
+        callback {const char *f;
+if ((f = fl_input("New Filter?",
+                  fileList->filter())) != NULL)
+{
+  fileList->filter(f);
+  rescan();
+}} selected
         private xywh {340 10 25 25} labeltype image labelsize 28 labelcolor 4 align 16
+        code0 {\#include <FL/fl_ask.H>}
       }
     }
     code {window->size_range(345, 270, 345);
