@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.41.2.16 2001/02/25 23:01:43 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.41.2.17 2001/03/05 20:44:54 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -773,14 +773,20 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           break;
 
       case MARKUP_TH :
-          t->halignment = ALIGN_CENTER;
+          if (htmlGetVariable(t->parent, (uchar *)"ALIGN") != NULL)
+	    t->halignment = t->parent->halignment;
+	  else
+            t->halignment = ALIGN_CENTER;
           get_alignment(t);
           t->style = STYLE_BOLD;
           t->child = htmlReadFile(t, fp, base);
           break;
 
       case MARKUP_TD :
-          t->halignment = ALIGN_LEFT;
+          if (htmlGetVariable(t->parent, (uchar *)"ALIGN") != NULL)
+	    t->halignment = t->parent->halignment;
+	  else
+            t->halignment = ALIGN_LEFT;
 	  get_alignment(t);
           t->style = STYLE_NORMAL;
           t->child = htmlReadFile(t, fp, base);
@@ -2382,5 +2388,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.41.2.16 2001/02/25 23:01:43 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.41.2.17 2001/03/05 20:44:54 mike Exp $".
  */
