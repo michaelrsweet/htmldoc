@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.1 1999/11/12 21:38:51 mike Exp $"
+# "$Id: Makefile,v 1.2 2000/01/04 13:52:23 mike Exp $"
 #
 #   Makefile for HTMLDOC GUI library.
 #
-#   Copyright 1997-1999 by Easy Software Products.
+#   Copyright 1997-2000 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -77,5 +77,5 @@ HelpView.o:	HelpView.h
 $(OBJS):	../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.1 1999/11/12 21:38:51 mike Exp $".
+# End of "$Id: Makefile,v 1.2 2000/01/04 13:52:23 mike Exp $".
 #

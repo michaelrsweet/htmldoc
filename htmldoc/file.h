@@ -1,9 +1,9 @@
 /*
- * "$Id: file.h,v 1.3 1999/11/11 21:36:44 mike Exp $"
+ * "$Id: file.h,v 1.4 2000/01/04 13:52:24 mike Exp $"
  *
  *   Filename definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-1999 by Easy Software Products.
+ *   Copyright 1997-2000 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -54,5 +54,5 @@ extern char	*file_target(const char *s);
 #endif /* !_FILE_H_ */
 
 /*
- * End of "$Id: file.h,v 1.3 1999/11/11 21:36:44 mike Exp $".
+ * End of "$Id: file.h,v 1.4 2000/01/04 13:52:24 mike Exp $".
  */

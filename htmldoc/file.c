@@ -1,9 +1,9 @@
 /*
- * "$Id: file.c,v 1.5 1999/12/11 14:33:19 mike Exp $"
+ * "$Id: file.c,v 1.6 2000/01/04 13:52:24 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-1999 by Easy Software Products.
+ *   Copyright 1997-2000 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -292,5 +292,5 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * End of "$Id: file.c,v 1.5 1999/12/11 14:33:19 mike Exp $".
+ * End of "$Id: file.c,v 1.6 2000/01/04 13:52:24 mike Exp $".
  */
