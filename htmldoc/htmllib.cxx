@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.30 2000/04/28 21:37:55 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.31 2000/05/05 17:06:29 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -298,7 +298,12 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
     t = (tree_t *)calloc(sizeof(tree_t), 1);
     if (t == NULL)
+    {
+#ifndef DEBUG
+      progress_error("Unable to allocate memory for HTML tree node!");
+#endif /* !DEBUG */
       break;
+    }
 
    /*
     * Set/copy font characteristics...
@@ -360,6 +365,9 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
 
       if (parse_markup(t, fp) == MARKUP_ERROR)
       {
+#ifndef DEBUG
+        progress_error("Unable to parse HTML element at %d!", pos);
+#endif /* !DEBUG */
         free(t);
         break;
       }
@@ -378,13 +386,34 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
         for (temp = parent; temp != NULL; temp = temp->parent)
           if (temp->markup == t->markup)
             break;
+	  else if (temp->markup == MARKUP_EMBED)
+	  {
+	    temp = NULL;
+            break;
+	  }
+      }
+      else if (t->markup == MARKUP_EMBED)
+      {
+       /*
+        * Close any text blocks...
+	*/
+
+        for (temp = parent; temp != NULL; temp = temp->parent)
+          if (isblock(temp->markup) || islentry(temp->markup))
+            break;
+	  else if (istentry(temp->markup) || islist(temp->markup) ||
+	           issuper(temp->markup) || temp->markup == MARKUP_EMBED)
+	  {
+	    temp = NULL;
+	    break;
+	  }
       }
       else if (issuper(t->markup))
       {
         for (temp = parent; temp != NULL; temp = temp->parent)
           if (issuper(temp->markup))
             break;
-	  else if (istentry(temp->markup))
+	  else if (istentry(temp->markup) || temp->markup == MARKUP_EMBED)
 	  {
 	    temp = NULL;
             break;
@@ -395,7 +424,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
         for (temp = parent; temp != NULL; temp = temp->parent)
           if (isblock(temp->markup))
 	    break;
-	  else if (islentry(temp->markup) || istentry(temp->markup) || issuper(temp->markup))
+	  else if (islentry(temp->markup) || istentry(temp->markup) ||
+	           issuper(temp->markup) || temp->markup == MARKUP_EMBED)
 	  {
 	    temp = NULL;
             break;
@@ -407,7 +437,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
         for (temp = parent; temp != NULL; temp = temp->parent)
           if (islentry(temp->markup) || isblock(temp->markup))
             break;
-	  else if (islist(temp->markup) || issuper(temp->markup))
+	  else if (islist(temp->markup) || issuper(temp->markup) ||
+	           temp->markup == MARKUP_EMBED)
           {
 	    temp = NULL;
 	    break;
@@ -419,7 +450,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
           if (isblock(temp->markup) || islentry(temp->markup))
             break;
 	  else if (istentry(temp->markup) || islist(temp->markup) ||
-	           issuper(temp->markup))
+	           issuper(temp->markup) || temp->markup == MARKUP_EMBED)
 	  {
 	    temp = NULL;
 	    break;
@@ -430,7 +461,7 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
         for (temp = parent; temp != NULL; temp = temp->parent)
           if (istable(temp->markup))
 	    break;
-	  else if (temp->markup == MARKUP_TABLE)
+	  else if (temp->markup == MARKUP_TABLE || temp->markup == MARKUP_EMBED)
 	  {
 	    temp = NULL;
             break;
@@ -441,7 +472,8 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
         for (temp = parent; temp != NULL; temp = temp->parent)
           if (istentry(temp->markup))
             break;
-	  else if (temp->markup == MARKUP_TABLE || istable(temp->markup))
+	  else if (temp->markup == MARKUP_TABLE || istable(temp->markup) ||
+	           temp->markup == MARKUP_EMBED)
 	  {
 	    temp = NULL;
             break;
@@ -708,6 +740,11 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
               t->child = htmlReadFile(t, embed, newbase);
               fclose(embed);
             }
+#ifndef DEBUG
+	    else
+	      progress_error("Unable to embed \"%s\" - %s", filename,
+	                     strerror(errno));
+#endif /* !DEBUG */
 	  }
           break;
 
@@ -2160,6 +2197,9 @@ fix_filename(char *filename,		/* I - Original filename */
   if (filename == NULL)
     return (NULL);
 
+  if (strcmp(base, ".") == 0)
+    return (filename);
+
 #ifdef MAC
   //
   // Convert UNIX/DOS/WINDOWS slashes to colons for MacOS...
@@ -2218,6 +2258,11 @@ fix_filename(char *filename,		/* I - Original filename */
     if ((slash = strrchr(newfilename, '/')) != NULL)
       *slash = '\0';
 #endif // WIN32 || __EMX__
+    else
+    {
+      filename -= 3;
+      break;
+    }
   }
 
 #ifdef MAC
@@ -2232,5 +2277,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.30 2000/04/28 21:37:55 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.31 2000/05/05 17:06:29 mike Exp $".
  */
