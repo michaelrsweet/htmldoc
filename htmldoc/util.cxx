@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.2 2001/02/12 17:06:11 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.3 2001/03/07 22:01:15 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -140,6 +140,7 @@ get_color(const uchar *color,	/* I - Color attribute */
 	  int         defblack)	/* I - Default color is black? */
 {
   int		i;		/* Looping vars */
+  static uchar	tempcolor[8];	/* Temporary holding place for hex colors */
   static struct
   {
     char	*name;		/* Color name */
@@ -169,6 +170,22 @@ get_color(const uchar *color,	/* I - Color attribute */
     { "yellow",		255, 255, 0 }
   };
 
+
+  // First, see if this is a hex color with a missing # in front...
+  if (strlen(color) == 6)
+  {
+    for (i = 0; i < 6; i ++)
+      if (!isxdigit(color[i]))
+        break;
+
+    if (i == 6)
+    {
+      // Update the color name to be #RRGGBB instead of RRGGBB...
+      tempcolor[0] = '#';
+      strcpy(tempcolor + 1, color);
+      color = tempcolor;
+    }
+  }
 
   if (!color[0])
   {
@@ -316,5 +333,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.2 2001/02/12 17:06:11 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.3 2001/03/07 22:01:15 mike Exp $".
  */

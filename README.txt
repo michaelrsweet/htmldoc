@@ -1,4 +1,4 @@
-README.txt - 02/20/2001
+README.txt - 03/07/2001
 -----------------------
 
 INTRODUCTION
@@ -7,7 +7,7 @@ INTRODUCTION
     generates HTML, PostScript, and PDF files with a table of contents.
 
     Commercial support for HTMLDOC is available from Easy Software
-    Products for $99 US.  Besides giving you priority bug fixes and
+    Products for $495 US.  Besides giving you priority bug fixes and
     guaranteed support, the commercial support fee includes access to a
     "members only" web site that provides examples, tutorials, and tips
     for using HTMLDOC to publish documents on your web site.
@@ -72,7 +72,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.11-windows.exe" file to start the installation
+    the "htmldoc-1.8.12-windows.exe" file to start the installation
     wizard.
 
 
@@ -80,19 +80,19 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.11-linux-2.0-intel.rpm ENTER
+        rpm -i htmldoc-1.8.12-linux-2.0-intel.rpm ENTER
 
     or:
 
-        rpm -i htmldoc-1.8.11-linux-2.2-intel.rpm ENTER
+        rpm -i htmldoc-1.8.12-linux-2.2-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.11-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.11-platform.tar ENTER
+        gunzip htmldoc-1.8.12-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.12-platform.tar ENTER
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)

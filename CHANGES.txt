@@ -44,6 +44,10 @@ CHANGES IN HTMLDOC v1.8.12
 	  the PRE font with some browsers.
 	- The snprintf/vsnprintf emulation functions were not
 	  included in the HTMLDOC makefile.
+	- RGB hex colors are now recognized with or without the
+	  leading #.  This breaks HTML standards compliance but
+	  should reduce the number of problem reports from buggy
+	  HTML.
 
     BUG FIXES
 
