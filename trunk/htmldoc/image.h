@@ -1,5 +1,5 @@
 //
-// "$Id: image.h,v 1.15 2002/03/10 03:17:24 mike Exp $"
+// "$Id: image.h,v 1.16 2002/09/04 05:32:12 mike Exp $"
 //
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
@@ -71,8 +71,8 @@ class hdImage			//// Image class
 		use_,		// Number of times this image was used
 		obj_;		// Object number
   hdImageType	type_;		// Type of image
-  uchar		*pixels_;	// 8-bit pixel data
-  uchar		*mask_;		// 1-bit mask data, if any (1 = transparent)
+  hdByte	*pixels_;	// 8-bit pixel data
+  hdByte	*mask_;		// 1-bit mask data, if any (1 = transparent)
   int		maskwidth_;	// Byte width of mask data
 
   static int	num_formats_,	// Number of registered formats
@@ -85,7 +85,7 @@ class hdImage			//// Image class
   void			alloc_pixels();
   int			copy(const char *path, char *d, int dlen);
   int			save_as_png(const char *path, char *d, int dlen);
-  void			set_mask(int x, int y, uchar a = 0);
+  void			set_mask(int x, int y, hdByte a = 0);
   void			set_size(int w, int h, int d);
   void			uri(const char *p);
   void			type(hdImageType t) { type_ = t; }
@@ -106,11 +106,11 @@ class hdImage			//// Image class
   int			height() { return height_; }
   int			hold() { return ++ use_; }
   virtual int		load();
-  uchar			*mask() { return mask_; }
+  hdByte		*mask() { return mask_; }
   int			maskwidth() { return maskwidth_; }
   int			obj() { return obj_; }
   void			obj(int o) { obj_ = o; }
-  uchar			*pixels() { return pixels_; }
+  hdByte		*pixels() { return pixels_; }
   unsigned char		*reduce(int max_colors, int &bytes_per_line,
 			        int &num_colors, unsigned *colors);
   int			release() { return -- use_; }
@@ -163,11 +163,11 @@ class hdEPSImage : public hdImage
 
 class hdGIFImage : public hdImage
 {
-  typedef uchar	cmap_t[256][3];
+  typedef hdByte	cmap_t[256][3];
 
   int	eof;		// Did we hit EOF?
 
-  int	get_block(hdFile *fp, uchar *buffer);
+  int	get_block(hdFile *fp, hdByte *buffer);
   int	get_code(hdFile *fp, int code_size, int first_time);
   int	read_cmap(hdFile *fp, int ncolors, cmap_t cmap, int *gray);
   int	read_image(hdFile *fp, cmap_t cmap, int interlace, int transparent);
@@ -251,5 +251,5 @@ class hdXPMImage : public hdImage
 #endif // !HTMLDOC_IMAGE_H
 
 //
-// End of "$Id: image.h,v 1.15 2002/03/10 03:17:24 mike Exp $".
+// End of "$Id: image.h,v 1.16 2002/09/04 05:32:12 mike Exp $".
 //
