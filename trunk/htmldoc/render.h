@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.14 2002/07/22 01:43:46 mike Exp $"
+// "$Id: render.h,v 1.15 2002/09/02 23:04:11 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -22,6 +22,7 @@
 //         WWW: http://www.easysw.com
 //
 
+//* @package HTMLDOC
 #ifndef _HTMLDOC_RENDER_H_
 #  define _HTMLDOC_RENDER_H_
 
@@ -53,7 +54,11 @@ enum hdRenderType
 // Structures...
 //
 
-struct hdRenderNode		//// Render node structure
+/**
+ * The hdRenderNode structure describes rendering primitives used when
+ * producing PostScript and PDF output.
+ */
+struct hdRenderNode
 {
   hdRenderNode	*next;			// Next rendering node
   hdRenderType	type;			// Type of node
@@ -87,8 +92,26 @@ struct hdRenderNode		//// Render node structure
     }		link;
   }	data;
 
+ /**
+  * The constructor creates a new render node with the specified data.
+  *
+  * @param t The type of render primitive, HD_RENDERTYPE_TEXT,
+  * HD_RENDERTYPE_IMAGE, HD_RENDERTYPE_BOX, HD_RENDERTYPE_BACKGROUND,
+  * HD_RENDERTYPE_LINK, or HD_RENDERTYPE_FORM.
+  * @param xx The X position in points.
+  * @param yy The Y position in points.
+  * @param w The width in points.
+  * @param h The height in points.
+  * @param d The data associated with the node, if any.
+  * @param alloc_d Whether the data was allocated (1) or not (0).
+  */
   hdRenderNode(hdRenderType t, float xx, float yy, float w, float h,
                const void *d = (const void *)0, int alloc_d = 0);
+
+ /**
+  * The destructor frees all memory associated with the node, including
+  * the data if it was allocated.
+  */
   ~hdRenderNode();
 };
 
@@ -189,7 +212,6 @@ class hdRender
 		alloc_pages;		// Allocated pages
   hdRenderPage	*pages;			// Pages
 
-  int		render_disable;		// Don't actually create render data
   hdStyleFont	*render_font;		// Current font
   float		render_size,		// Current font size
 		render_rgb[3],		// Current drawing color
@@ -442,5 +464,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.14 2002/07/22 01:43:46 mike Exp $".
+// End of "$Id: render.h,v 1.15 2002/09/02 23:04:11 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: style.cxx,v 1.9 2002/05/06 13:23:41 mike Exp $"
+// "$Id: style.cxx,v 1.10 2002/09/02 23:04:11 mike Exp $"
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
@@ -23,24 +23,24 @@
 //
 // Contents:
 //
-//   hdSelector::hdSelector()       - Initialize a selector.
-//   hdSelector::set()              - Set selector values.
-//   hdSelector::clear()            - Free selector strings.
-//   hdStyle::hdStyle()             - Create a new style record.
-//   hdStyle::~hdStyle()            - Destroy a style record.
-//   hdStyle::get_border_style()    - Get a border style value.
-//   hdStyle::get_border_width()    - Get a border width value.
-//   hdStyle::get_color()           - Get a color value.
-//   hdStyle::get_length()          - Get a length/measurement value...
-//   hdStyle::get_list_style_type() - Get a list style type value.
-//   hdStyle::get_page_break()      - Get a page break value.
-//   hdStyle::get_pos()             - Get a margin/position/padding/border
-//                                    index.
-//   hdStyle::get_subvalue()        - Get a subvalue from a property value.
-//   hdStyle::inherit()             - Inherit style properties from a parent
-//                                    style.
-//   hdStyle::load()                - Load a style definition from a string.
-//   hdStyle::update()              - Update relative style definitions.
+//   hdStyleSelector::hdStyleSelector()  - Initialize a selector.
+//   hdStyleSelector::set()              - Set selector values.
+//   hdStyleSelector::clear()            - Free selector strings.
+//   hdStyle::hdStyle()                  - Create a new style record.
+//   hdStyle::~hdStyle()                 - Destroy a style record.
+//   hdStyle::get_border_style()         - Get a border style value.
+//   hdStyle::get_border_width()         - Get a border width value.
+//   hdStyle::get_color()                - Get a color value.
+//   hdStyle::get_length()               - Get a length/measurement value...
+//   hdStyle::get_list_style_type()      - Get a list style type value.
+//   hdStyle::get_page_break()           - Get a page break value.
+//   hdStyle::get_pos()                  - Get a margin/position/padding/border
+//                                         index.
+//   hdStyle::get_subvalue()             - Get a subvalue from a property value.
+//   hdStyle::inherit()                  - Inherit style properties from a
+//                                         parent style.
+//   hdStyle::load()                     - Load a style definition from a string.
+//   hdStyle::update()                   - Update relative style definitions.
 //
 
 //
@@ -53,25 +53,25 @@
 
 
 //
-// 'hdSelector::hdSelector()' - Initialize a selector.
+// 'hdStyleSelector::hdStyleSelector()' - Initialize a selector.
 //
 
-hdSelector::hdSelector()
+hdStyleSelector::hdStyleSelector()
 {
   // Clear the whole structure to 0...
-  memset(this, 0, sizeof(hdSelector));
+  memset(this, 0, sizeof(hdStyleSelector));
 }
 
 
 //
-// 'hdSelector::set()' - Set selector values.
+// 'hdStyleSelector::set()' - Set selector values.
 //
 
 void
-hdSelector::set(hdElement  e,	// I - Element
-                const char *c,	// I - Class string
-                const char *p,	// I - Pseudo-selector string
-		const char *i)	// I - ID string
+hdStyleSelector::set(hdElement  e,	// I - Element
+                     const char *c,	// I - Class string
+                     const char *p,	// I - Pseudo-selector string
+		     const char *i)	// I - ID string
 {
   // Set/allocate the new values...
   element = e;
@@ -94,11 +94,11 @@ hdSelector::set(hdElement  e,	// I - Element
 
 
 //
-// 'hdSelector::clear()' - Free selector strings.
+// 'hdStyleSelector::clear()' - Free selector strings.
 //
 
 void
-hdSelector::clear()
+hdStyleSelector::clear()
 {
   if (class_)
   {
@@ -124,9 +124,9 @@ hdSelector::clear()
 // 'hdStyle::hdStyle()' - Create a new style record.
 //
 
-hdStyle::hdStyle(int        nsels,	// I - Number of selectors
-		 hdSelector *sels,	// I - Selectors
-                 hdStyle    *p)		// I - Parent style
+hdStyle::hdStyle(int             nsels,	// I - Number of selectors
+		 hdStyleSelector *sels,	// I - Selectors
+                 hdStyle         *p)	// I - Parent style
 {
   int	i;				// Looping var
 
@@ -155,9 +155,9 @@ hdStyle::hdStyle(int        nsels,	// I - Number of selectors
   // Copy the selectors.  The selector strings are allocated by
   // the caller, but are freed by the destructor...
   num_selectors = nsels;
-  selectors     = new hdSelector[nsels];
+  selectors     = new hdStyleSelector[nsels];
 
-  memcpy(selectors, sels, nsels * sizeof(hdSelector));
+  memcpy(selectors, sels, nsels * sizeof(hdStyleSelector));
 
   // Now copy the parent attributes as needed...
   inherit(p);
@@ -2814,8 +2814,8 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
   // depend on the current font size...
   if (font_size_rel)
   {
-    hdSelector	body;			// BODY element selector
-    hdStyle	*body_style;		// BODY element style
+    hdStyleSelector	body;		// BODY element selector
+    hdStyle		*body_style;	// BODY element style
 
 
     memset(&body, 0, sizeof(body));
@@ -2889,5 +2889,5 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
 
 //
-// End of "$Id: style.cxx,v 1.9 2002/05/06 13:23:41 mike Exp $".
+// End of "$Id: style.cxx,v 1.10 2002/09/02 23:04:11 mike Exp $".
 //

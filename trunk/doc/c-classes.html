@@ -1,0 +1,727 @@
+
+<HTML>
+<HEAD>
+	<STYLE><!--
+	H1, H2, H3, H4, H5, H6 { font-family: sans-serif; }
+	P.indent { margin-left: 3em; }
+	--></STYLE>
+</HEAD>
+<BODY>
+<H1 ALIGN="RIGHT">C - HTMLDOC Class Reference</H1>
+<P>This appendix provides a complete reference to the classes and structures
+provided in the HTMLDOC library.
+<H2>Class List</H2>
+<UL>
+
+	<LI><A HREF="#hdFontKernPair">struct hdFontKernPair</A></LI>
+
+	<LI><A HREF="#hdRenderNode">struct hdRenderNode</A></LI>
+
+	<LI><A HREF="#hdStyle">struct hdStyle</A></LI>
+
+	<LI><A HREF="#hdStyleFont">struct hdStyleFont</A></LI>
+
+	<LI><A HREF="#hdStyleMedia">struct hdStyleMedia</A></LI>
+
+	<LI><A HREF="#hdStyleSelector">struct hdStyleSelector</A></LI>
+
+	<LI><A HREF="#hdStyleSheet">struct hdStyleSheet</A></LI>
+
+</UL>
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdFontKernPair">struct hdFontKernPair</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The <TT>hdFontKernPair</TT> structure contains character kerning
+information for a pair of characters...</P>
+
+<H3>Members</H3>
+
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Member</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="adjust"><TT>adjust</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">The horizontal adjustment value between characters.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="first"><TT>first</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">The first character for kerning.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="second"><TT>second</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">The second character for kerning.</TD></TR>
+
+</TABLE>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdRenderNode">struct hdRenderNode</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRenderNode structure describes rendering primitives used when
+producing PostScript and PDF output.</P>
+
+<H3>Members</H3>
+
+<P>This class does not provide any public members.
+
+<H3>Methods</H3>
+
+<H4><A NAME="hdRenderNode">hdRenderNode(hdRenderType t, float xx, float yy, float w, float h, const void *d = (const void *)0, int alloc_d = 0)</A></H4>
+<P>The constructor creates a new render node with the specified data.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>t</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">type of render primitive, HD_RENDERTYPE_TEXT,
+HD_RENDERTYPE_IMAGE, HD_RENDERTYPE_BOX, HD_RENDERTYPE_BACKGROUND,
+HD_RENDERTYPE_LINK, or HD_RENDERTYPE_FORM.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>xx</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>yy</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>w</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">width in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>h</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">height in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>d</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">data associated with the node, if any.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>alloc_d</TT></TD>
+<TD VALIGN="TOP"><TT>Whether</TT></TD>
+<TD VALIGN="TOP">the data was allocated (1) or not (0).</TD></TR>
+
+</TABLE>
+
+<H4><A NAME="~hdRenderNode">~hdRenderNode()</A></H4>
+<P>The destructor frees all memory associated with the node, including
+the data if it was allocated.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdStyle">struct hdStyle</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdStyle structure stores all of the supported style information
+for a single style in a stylesheet.</P>
+
+<H3>Members</H3>
+
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Member</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="background_color"><TT>background_color</TT></A></TD>
+<TD VALIGN="TOP"><TT>  unsigned char		[3]</TT></TD>
+<TD VALIGN="TOP">The <TT>background-color</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="background_color_set"><TT>background_color_set</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			</TT></TD>
+<TD VALIGN="TOP">True if the <TT>background-color</TT> value is set for this style.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="background_image"><TT>background_image</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*</TT></TD>
+<TD VALIGN="TOP">The <TT>background-image</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="background_position"><TT>background_position</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			[2]</TT></TD>
+<TD VALIGN="TOP">The <TT>background-position</TT> values.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="background_position_rel"><TT>background_position_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*[2]</TT></TD>
+<TD VALIGN="TOP">The relative <TT>background-position</TT> values, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="background_repeat"><TT>background_repeat</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdBackgroundRepeat	</TT></TD>
+<TD VALIGN="TOP">The <TT>background-repeat</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="border"><TT>border</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdBorder		[4]</TT></TD>
+<TD VALIGN="TOP">The <TT>border-left</TT>, <TT>border-right</TT>, <TT>border-top</TT>,
+and <TT>border-bottom</TT> values.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="clear"><TT>clear</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdClear		</TT></TD>
+<TD VALIGN="TOP">The <TT>clear</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="color"><TT>color</TT></A></TD>
+<TD VALIGN="TOP"><TT>  unsigned char		[3]</TT></TD>
+<TD VALIGN="TOP">The <TT>color</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="color_set"><TT>color_set</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			</TT></TD>
+<TD VALIGN="TOP">True if the <TT>color</TT> value is set for this style.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="display"><TT>display</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdDisplay		</TT></TD>
+<TD VALIGN="TOP">The <TT>display</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="float_"><TT>float_</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdFloat		</TT></TD>
+<TD VALIGN="TOP">The <TT>float</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="font"><TT>font</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdStyleFont		*</TT></TD>
+<TD VALIGN="TOP">The <TT>font associated with this style.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="font_family"><TT>font_family</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*</TT></TD>
+<TD VALIGN="TOP">The <TT>font-family</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="font_size"><TT>font_size</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			</TT></TD>
+<TD VALIGN="TOP">The <TT>font-size</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="font_size_rel"><TT>font_size_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*</TT></TD>
+<TD VALIGN="TOP">The relative <TT>font-size</TT> value, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="font_style"><TT>font_style</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdFontStyle		</TT></TD>
+<TD VALIGN="TOP">The <TT>font-style</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="font_variant"><TT>font_variant</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdFontVariant		</TT></TD>
+<TD VALIGN="TOP">The <TT>font-variant</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="font_weight"><TT>font_weight</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdFontWeight		</TT></TD>
+<TD VALIGN="TOP">The <TT>font-weight</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="height"><TT>height</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			</TT></TD>
+<TD VALIGN="TOP">The <TT>height</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="height_rel"><TT>height_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*</TT></TD>
+<TD VALIGN="TOP">The relative <TT>height</TT> value, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="letter_spacing"><TT>letter_spacing</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			</TT></TD>
+<TD VALIGN="TOP">The <TT>letter-spacing</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="line_height"><TT>line_height</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			</TT></TD>
+<TD VALIGN="TOP">The <TT>line-height</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="line_height_rel"><TT>line_height_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*</TT></TD>
+<TD VALIGN="TOP">The relative <TT>line-height</TT> value, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="list_style_image"><TT>list_style_image</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*</TT></TD>
+<TD VALIGN="TOP">The <TT>list-style-image</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="list_style_position"><TT>list_style_position</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdListStylePosition	</TT></TD>
+<TD VALIGN="TOP">The <TT>list-style-position</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="list_style_type"><TT>list_style_type</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdListStyleType	</TT></TD>
+<TD VALIGN="TOP">The <TT>list-style-type</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="margin"><TT>margin</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			[4]</TT></TD>
+<TD VALIGN="TOP">The <TT>margin-left</TT>, <TT>margin-right</TT>, <TT>margin-top</TT>,
+and <TT>margin-bottom</TT> values.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="margin_rel"><TT>margin_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*[4]</TT></TD>
+<TD VALIGN="TOP">The relative <TT>margin-left</TT>, <TT>margin-right</TT>,
+<TT>margin-top</TT>, and <TT>margin-bottom</TT> values, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="num_selectors"><TT>num_selectors</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int			</TT></TD>
+<TD VALIGN="TOP">Number of selectors for the style record.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="padding"><TT>padding</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			[4]</TT></TD>
+<TD VALIGN="TOP">The <TT>padding-left</TT>, <TT>padding-right</TT>, <TT>padding-top</TT>,
+and <TT>padding-bottom</TT> values.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="padding_rel"><TT>padding_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*[4]</TT></TD>
+<TD VALIGN="TOP">The relative <TT>padding-left</TT>, <TT>padding-right</TT>,
+<TT>padding-top</TT>, and <TT>padding-bottom values</TT>, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="page_break_after"><TT>page_break_after</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdPageBreak		</TT></TD>
+<TD VALIGN="TOP">The <TT>page-break-after</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="page_break_before"><TT>page_break_before</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdPageBreak		</TT></TD>
+<TD VALIGN="TOP">The <TT>page-break-before</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="page_break_inside"><TT>page_break_inside</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdPageBreak		</TT></TD>
+<TD VALIGN="TOP">The <TT>page-break-inside</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="position"><TT>position</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			[4]</TT></TD>
+<TD VALIGN="TOP">The <TT>position-left</TT>, <TT>position-right</TT>,
+<TT>position-top</TT>, and <TT>position-bottom</TT> values.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="position_rel"><TT>position_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*[4]</TT></TD>
+<TD VALIGN="TOP">The relative <TT>position-left</TT>, <TT>position-right</TT>,
+<TT>position-top</TT>, and <TT>position-bottom</TT> values, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="selectors"><TT>selectors</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdStyleSelector	*</TT></TD>
+<TD VALIGN="TOP">Selectors for the style record.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="text_align"><TT>text_align</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTextAlign		</TT></TD>
+<TD VALIGN="TOP">The <TT>text-align</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="text_decoration"><TT>text_decoration</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTextDecoration	</TT></TD>
+<TD VALIGN="TOP">The <TT>text-decoration</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="text_indent"><TT>text_indent</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			</TT></TD>
+<TD VALIGN="TOP">The <TT>text-indent</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="text_indent_rel"><TT>text_indent_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*</TT></TD>
+<TD VALIGN="TOP">The relative <TT>text-indent</TT> value, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="text_transform"><TT>text_transform</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTextTransform	</TT></TD>
+<TD VALIGN="TOP">The <TT>text-transform</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="updated"><TT>updated</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int			</TT></TD>
+<TD VALIGN="TOP">True if relative attributes have been updated in the style record.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="vertical_align"><TT>vertical_align</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdVerticalAlign	</TT></TD>
+<TD VALIGN="TOP">The <TT>vertical-align</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="white_space"><TT>white_space</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdWhiteSpace		</TT></TD>
+<TD VALIGN="TOP">The <TT>white-space</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="width"><TT>width</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			</TT></TD>
+<TD VALIGN="TOP">The <TT>width</TT> value.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="width_rel"><TT>width_rel</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char			*</TT></TD>
+<TD VALIGN="TOP">The relative <TT>width</TT> value, if any.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="word_spacing"><TT>word_spacing</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float			</TT></TD>
+<TD VALIGN="TOP">The <TT>word-spacing</TT> value.</TD></TR>
+
+</TABLE>
+
+<H3>Methods</H3>
+
+<H4><A NAME="get_border">float		get_border(int p)</A></H4>
+<P>The get_border() method returns the width in points of the specified
+border.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>p</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">border position: HD_POS_LEFT, HD_POS_RIGHT, HD_POS_TOP,
+or HD_POS_BOTTOM.</TD></TR>
+
+</TABLE>
+
+<P><B>Returns</B>
+<P>The border width in points.
+
+<H4><A NAME="get_border_style">hdBorderStyle	get_border_style(const char *value)</A></H4>
+<P>The get_border_style() method returns the border style associated
+with the specified string value.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>value</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">string to be converted.</TD></TR>
+
+</TABLE>
+
+<P><B>Returns</B>
+<P>The border style associated with the string.
+
+<H4><A NAME="get_border_width">float		get_border_width(const char *value, hdStyleSheet *css)</A></H4>
+<P>The get_border_width() method returns the width in points for the
+given string value.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>value</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">border value string.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">stylesheet.</TD></TR>
+
+</TABLE>
+
+<P><B>Returns</B>
+<P>The width in points.
+
+<H4><A NAME="get_color">static int	get_color(const char *color, unsigned char *rgb)</A></H4>
+<P>The get_color() method converts the string color to a 24-bit
+RGB value.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>value</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">color value string.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>rgb</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">RGB color array.</TD></TR>
+
+</TABLE>
+
+<P><B>Returns</B>
+<P>1 if the color was converted, 0 otherwise.
+
+<H4><A NAME="hdStyle">hdStyle(int nsels, hdStyleSelector *sels, hdStyle *p = (hdStyle *)0)</A></H4>
+<P>The constructor creates a new style record.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>nsels</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">number of selectors for the style.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>sels</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">selectors for the style.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>p</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">parent style.</TD></TR>
+
+</TABLE>
+
+<H4><A NAME="~hdStyle">~hdStyle()</A></H4>
+<P>The destructor free all memory associated with the style record.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdStyleFont">struct hdStyleFont</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The <TT>hdStyleFont</TT> structure describes a single font that is used
+by a stylesheet.</P>
+
+<H3>Members</H3>
+
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Member</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="ascender"><TT>ascender</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Highest point in font.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="cap_height"><TT>cap_height</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Height of uppercase letters.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="descender"><TT>descender</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Lowest point in font.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="fixed_width"><TT>fixed_width</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">True if this font is fixed width.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="font_file"><TT>font_file</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Font filename.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="full_name"><TT>full_name</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Full font name.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="kerns"><TT>kerns</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdFontKernPair *</TT></TD>
+<TD VALIGN="TOP">Kerning pairs array.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="num_kerns"><TT>num_kerns</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Number of kerning pairs.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="num_widths"><TT>num_widths</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Number of widths in array.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="object"><TT>object</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Object number for PDF files.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="ps_name"><TT>ps_name</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">PostScript font name.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="style"><TT>style</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdFontInternal </TT></TD>
+<TD VALIGN="TOP">Internal font style.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="typeface"><TT>typeface</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdFontFace	</TT></TD>
+<TD VALIGN="TOP">Typeface identifier.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="ul_position"><TT>ul_position</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Offset for underline.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="ul_thickness"><TT>ul_thickness</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Thickness for underline.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="widths"><TT>widths</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		*</TT></TD>
+<TD VALIGN="TOP">Character widths for 1pt text.</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="x_height"><TT>x_height</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Height of lowercase letters.</TD></TR>
+
+</TABLE>
+
+<H3>Methods</H3>
+
+<H4><A NAME="get_char">int		get_char(const char *&amp;s)</A></H4>
+<P>The get_char() method returns the next character from the specified
+string and updates the string pointer to the next character position.
+This method handles multi-byte and single-byte encodings transparently
+to the caller.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>s</TT></TD>
+<TD VALIGN="TOP"><TT>A</TT></TD>
+<TD VALIGN="TOP">pointer into a string.</TD></TR>
+
+</TABLE>
+
+<P><B>Returns</B>
+<P>The character value.
+
+<H4><A NAME="get_kerning">int		get_kerning(const char *s, float &amp;tk, float *&amp;kl)</A></H4>
+<P>The get_kerning() method generates an array of kerning values
+as well as a total kerning adjustment for the specified string.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>s</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">string to kern.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>tk</TT></TD>
+<TD VALIGN="TOP"><TT>Variable</TT></TD>
+<TD VALIGN="TOP">to hold total kerning value.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>kl</TT></TD>
+<TD VALIGN="TOP"><TT>Pointer</TT></TD>
+<TD VALIGN="TOP">for kerning array for each character.</TD></TR>
+
+</TABLE>
+
+<P><B>Returns</B>
+<P>The number of kerning entries. Normally 1 less
+then the total number of chracters in the input string.
+
+<H4><A NAME="get_num_chars">int		get_num_chars(const char *s)</A></H4>
+<P>The get_num_chars() method returns the actual number of
+characters in the given string and handles multi-byte and
+single-byte encodings transparently to the caller.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>s</TT></TD>
+<TD VALIGN="TOP"><TT>A</TT></TD>
+<TD VALIGN="TOP">pointer to the string.</TD></TR>
+
+</TABLE>
+
+<P><B>Returns</B>
+<P>The number of characters in the string.
+
+<H4><A NAME="get_width">float		get_width(const char *s)</A></H4>
+<P>The get_width() method returns the width of a string, including
+adjustments for kerning. The width value is scaled for a point
+size of 1.0.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>s</TT></TD>
+<TD VALIGN="TOP"><TT>A</TT></TD>
+<TD VALIGN="TOP">pointer to the string.</TD></TR>
+
+</TABLE>
+
+<P><B>Returns</B>
+<P>The width of the string.
+
+<H4><A NAME="hdStyleFont">hdStyleFont(hdStyleSheet *css, hdFontFace t, hdFontInternal s, const char *n)</A></H4>
+<P>The constructor creates a new font record for the specified font
+name and loads the necessary font width and kerning information.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>A</TT></TD>
+<TD VALIGN="TOP">pointer to the style sheet.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>t</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">font typeface index.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>s</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">font style index.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>n</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">PostScript name of the font.</TD></TR>
+
+</TABLE>
+
+<H4><A NAME="~hdStyleFont">~hdStyleFont()</A></H4>
+<P>The destructor free all memory associated with the font.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdStyleMedia">struct hdStyleMedia</A></H2>
+<HR>
+<H3>Description</H3>
+<P>orientation values...
+sides values...
+media data...</P>
+
+<H3>Members</H3>
+
+<P>This class does not provide any public members.
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdStyleSelector">struct hdStyleSelector</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdStyleSelector structure is used to select specific styles
+in a stylesheet.</P>
+
+<H3>Members</H3>
+
+<P>This class does not provide any public members.
+
+<H3>Methods</H3>
+
+<H4><A NAME="clear">void	clear()</A></H4>
+<P>The clear() method resets the selector values, freeing memory as needed.
+
+<H4><A NAME="hdStyleSelector">hdStyleSelector()</A></H4>
+<P>The constructor creates a new, blank selector.
+
+<H4><A NAME="set">void	set(hdElement e, const char *c, const char *p, const char *i)</A></H4>
+<P>The set() method sets the selector values.
+
+<P><B>Parameters</B>
+<P CLASS="indent"><TABLE BORDER="1">
+<TR><TH>Name</TH><TH>Data Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>e</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">HTML element.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>c</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">HTML CLASS attribute.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>p</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">HTML pseudo-class attribute (link, visited, etc.)
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>i</TT></TD>
+<TD VALIGN="TOP"><TT>The</TT></TD>
+<TD VALIGN="TOP">HTML ID attribute.</TD></TR>
+
+</TABLE>
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdStyleSheet">struct hdStyleSheet</A></H2>
+<HR>
+<H3>Description</H3>
+<P>style sheet data...</P>
+
+<H3>Members</H3>
+
+<P>This class does not provide any public members.
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,5 +1,5 @@
 //
-// "$Id: stylefont.cxx,v 1.5 2002/04/11 01:41:11 mike Exp $"
+// "$Id: stylefont.cxx,v 1.6 2002/09/02 23:04:12 mike Exp $"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
@@ -223,8 +223,8 @@ hdStyleFont::get_char(const char *&s)	// IO - String pointer
 
 int					// O - Number of kerning entries
 hdStyleFont::get_kerning(const char *s,	// I - String to kern
-                         float      *tk,// O - Total kerning adjustment
-                         float      **kl)// O - Kerning adjustments
+                         float      &tk,// O - Total kerning adjustment
+                         float      *&kl)// O - Kerning adjustments
 {
   int			i,		// Looping var
 			first,		// First char from string
@@ -237,8 +237,8 @@ hdStyleFont::get_kerning(const char *s,	// I - String to kern
 
 
   // Handle simple, empty strings and when there is no kerning info...
-  *tk = 0.0f;
-  *kl = NULL;
+  tk = 0.0f;
+  kl = NULL;
 
   if (num_kerns == 0 || (num_chars = get_num_chars(s)) < 2)
     return (0);
@@ -278,8 +278,8 @@ hdStyleFont::get_kerning(const char *s,	// I - String to kern
   }
 
   // Return the kerning adjustments...
-  *tk = tadjust;
-  *kl = adjusts;
+  tk = tadjust;
+  kl = adjusts;
 
   return (num_chars);
 }
@@ -342,7 +342,7 @@ hdStyleFont::get_width(const char *s)	// I - String to measure
   float	*adjusts;			// Adjustments array
 
 
-  if (get_kerning(s, &w, &adjusts) > 0)
+  if (get_kerning(s, w, adjusts) > 0)
     delete[] adjusts;
 
   while ((ch = get_char(s)) != 0)
@@ -514,5 +514,5 @@ hdStyleFont::read_ttf(hdFile       *fp,	// I - File to read from
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.5 2002/04/11 01:41:11 mike Exp $".
+// End of "$Id: stylefont.cxx,v 1.6 2002/09/02 23:04:12 mike Exp $".
 //

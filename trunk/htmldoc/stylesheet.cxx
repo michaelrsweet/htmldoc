@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.9 2002/07/18 02:46:22 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.10 2002/09/02 23:04:12 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -343,10 +343,11 @@ hdStyleSheet::find_font(hdStyle *s)	// I - Style record
 hdStyle *				// O - Style record
 hdStyleSheet::find_style(hdTree *t)	// I - Tree node
 {
-  int		i;			// Looping var...
-  int		nsels;			// Number of selectors...
-  hdSelector	sels[HD_SELECTOR_MAX];	// Selectors...
-  hdTree	*p;			// Tree pointer...
+  int			i;		// Looping var...
+  int			nsels;		// Number of selectors...
+  hdStyleSelector	sels[HD_SELECTOR_MAX];
+					// Selectors...
+  hdTree		*p;		// Tree pointer...
 
 
   // Figure out how many selectors to use...
@@ -378,9 +379,9 @@ hdStyleSheet::find_style(hdTree *t)	// I - Tree node
 //
 
 hdStyle *					// O - Style record
-hdStyleSheet::find_style(int        nsels,	// I - Number of selectors
-                         hdSelector *sels,	// I - Selectors
-			 int        exact)	// I - Exact match required?
+hdStyleSheet::find_style(int             nsels,	// I - Number of selectors
+                         hdStyleSelector *sels,	// I - Selectors
+			 int             exact)	// I - Exact match required?
 {
   int		i, j;				// Looping vars
   hdStyle	*s,				// Current style
@@ -484,11 +485,11 @@ hdStyle	*				// O - New style
 hdStyleSheet::get_private_style(hdTree *t)
 					// I - Tree node that needs style
 {
-  hdStyle	*parent,		// Parent style
-		*style;			// New private style
-  hdSelector	selector;		// Selector for private style
-  char		id[16];			// Selector ID
-  const char	*style_attr;		// STYLE attribute, if any
+  hdStyle		*parent,	// Parent style
+			*style;		// New private style
+  hdStyleSelector	selector;	// Selector for private style
+  char			id[16];		// Selector ID
+  const char		*style_attr;	// STYLE attribute, if any
 
 
   // Find the parent style...
@@ -524,28 +525,28 @@ int					// O - 0 on success, -1 on failure
 hdStyleSheet::load(hdFile     *f,	// I - File to read from
                    const char *path)	// I - Search path for included files
 {
-  int		i, j;			// Looping vars...
-  int		status;			// Load status
-  int		ch;			// Character from file
-  char		sel_s[1024],		// Selector string
-		sel_p[256],		// Selector pattern
-		*sel_class,		// Selector class
-		*sel_pseudo,		// Selector pseudo-target
-		*sel_id;		// Selector ID
-  int		cur_style,		// Current style
-		num_styles,		// Number of styles to create
-		num_selectors[HD_SELECTOR_MAX];
+  int			i, j;		// Looping vars...
+  int			status;		// Load status
+  int			ch;		// Character from file
+  char			sel_s[1024],	// Selector string
+			sel_p[256],	// Selector pattern
+			*sel_class,	// Selector class
+			*sel_pseudo,	// Selector pseudo-target
+			*sel_id;	// Selector ID
+  int			cur_style,	// Current style
+			num_styles,	// Number of styles to create
+			num_selectors[HD_SELECTOR_MAX];
 					// Number of selectors for each style
-  hdSelector	*selectors[HD_SELECTOR_MAX],
+  hdStyleSelector	*selectors[HD_SELECTOR_MAX],
   					// Selectors for each style
-		parent;			// Parent style
-  hdStyle	*style;			// New style
-  char		props[4096],		// Style properties
-		props_p[256];		// Property pattern
-  char		import[1024],		// Import string
-		*import_ptr;		// Pointer into import string
-  hdFile	*import_f;		// Import file pointer
-  char		media[256];		// Current media type
+			parent;		// Parent style
+  hdStyle		*style;		// New style
+  char			props[4096],	// Style properties
+			props_p[256];	// Property pattern
+  char			import[1024],	// Import string
+			*import_ptr;	// Pointer into import string
+  hdFile		*import_f;	// Import file pointer
+  char			media[256];	// Current media type
 
 
   // Initialize the read patterns.
@@ -851,7 +852,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
     {
       num_styles ++;
       num_selectors[cur_style] = 0;
-      selectors[cur_style]     = new hdSelector[HD_SELECTOR_MAX];
+      selectors[cur_style]     = new hdStyleSelector[HD_SELECTOR_MAX];
     }
 
     // Separate the selector string into its components...
@@ -874,7 +875,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
     // Insert the new selector before any existing ones...
     if (num_selectors[cur_style] > 0)
       memmove(selectors[cur_style] + 1, selectors[cur_style],
-              num_selectors[cur_style] * sizeof(hdSelector));
+              num_selectors[cur_style] * sizeof(hdStyleSelector));
 
     selectors[cur_style]->set(hdTree::get_element(sel_s),
                               sel_class, sel_pseudo, sel_id);
@@ -1183,5 +1184,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.9 2002/07/18 02:46:22 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.10 2002/09/02 23:04:12 mike Exp $".
 //

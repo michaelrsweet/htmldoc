@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.18 2002/07/22 01:43:46 mike Exp $"
+// "$Id: tree.cxx,v 1.19 2002/09/02 23:04:12 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -1134,23 +1134,23 @@ hdTree::read(hdFile       *fp,		// I - File to read from
              const char   *path,	// I - Additional search paths
              hdStyleSheet *css)		// I - Stylesheet
 {
-  int		ch;			// Character from file
-  char		*ptr;			// Pointer in string
-  hdTree	*t,			// New tree node
-		*p,			// Parent tree node
-		*temp;			// Temporary tree node
-  hdStyle	*style;			// Current style
-  hdSelector	selector;		// Style selector...
-  hdFile	*embed;			// File pointer for EMBED
-  char		newbase[1024];		// New base directory for EMBED
-  const char	*filename,		// Filename for EMBED tag
-		*align,			// Horizontal/vertical alignment
-		*color,			// Color for FONT tag
-		*face,			// Typeface for FONT tag
-		*size;			// Size for FONT tag
-  int		sizeval;		// Size value from FONT tag
-  char		s[10240];		// String from file
-  int		whitespace;		// Leading whitespace?
+  int			ch;		// Character from file
+  char			*ptr;		// Pointer in string
+  hdTree		*t,		// New tree node
+			*p,		// Parent tree node
+			*temp;		// Temporary tree node
+  hdStyle		*style;		// Current style
+  hdStyleSelector	selector;	// Style selector...
+  hdFile		*embed;		// File pointer for EMBED
+  char			newbase[1024];	// New base directory for EMBED
+  const char		*filename,	// Filename for EMBED tag
+			*align,		// Horizontal/vertical alignment
+			*color,		// Color for FONT tag
+			*face,		// Typeface for FONT tag
+			*size;		// Size for FONT tag
+  int			sizeval;	// Size value from FONT tag
+  char			s[10240];	// String from file
+  int			whitespace;	// Leading whitespace?
 
 
   // The initial parent node is the FILE pseudo-element...
@@ -1818,5 +1818,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.18 2002/07/22 01:43:46 mike Exp $".
+// End of "$Id: tree.cxx,v 1.19 2002/09/02 23:04:12 mike Exp $".
 //
