@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.21 2000/03/13 20:52:43 mike Exp $"
+// "$Id: HelpView.cxx,v 1.22 2000/03/19 23:27:14 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -417,8 +417,8 @@ HelpView::draw()
 	  }
 	  else if (strcasecmp(buf, "HR") == 0)
 	  {
-	    fl_line(block->x + x(), yy + hh + y(), block->w + x(),
-	            yy + hh + y());
+	    fl_line(block->x + x(), yy + y(), block->w + x(),
+	            yy + y());
 
 	    if (line < 31)
 	      line ++;
@@ -541,6 +541,33 @@ HelpView::draw()
 	    popfont(font, size);
 	    pre = 0;
 	  }
+	}
+	else if (strcasecmp(buf, "IMG") == 0 &&
+        	 get_attr(attrs, "ALT", attr, sizeof(attr)) != NULL)
+	{
+	  // Show alt text...
+	  sprintf(buf, "[%s]", attr);
+	  ww = (int)fl_width(buf);
+
+          if (needspace && xx > block->x)
+	    xx += (int)fl_width(' ');
+
+          if ((xx + ww) > block->w)
+	  {
+	    if (line < 31)
+	      line ++;
+	    xx = block->line[line];
+	    yy += hh;
+	    hh = 0;
+	  }
+
+          fl_draw(buf, xx + x(), yy + y());
+
+          xx += ww;
+	  if ((size + 2) > hh)
+	    hh = size + 2;
+
+	  needspace = 0;
 	}
 	else if (*ptr == '\n' && pre)
 	{
@@ -939,8 +966,8 @@ HelpView::format()
           yy += size + 2;
 	else if (strcasecmp(buf, "HR") == 0)
 	{
+	  hh += 2 * size;
 	  yy += size;
-	  hh = size;
 	}
 
         if (row)
@@ -1134,6 +1161,33 @@ HelpView::format()
 	       strcasecmp(buf, "/VAR") == 0)
 	popfont(font, size);
     }
+    else if (strcasecmp(buf, "IMG") == 0 &&
+             get_attr(attrs, "ALT", attr, sizeof(attr)) != NULL)
+    {
+      // Show alt text...
+      ww = (int)(fl_width(attr) + fl_width('[') + fl_width(']'));
+
+      if (needspace && xx > block->x)
+	ww += (int)fl_width(' ');
+
+      if ((xx + ww) > block->w)
+      {
+        line     = do_align(block, line, xx, align, links);
+	xx       = block->x;
+	yy       += hh;
+	block->h += hh;
+	hh       = 0;
+      }
+
+      if (link[0])
+	add_link(link, xx, yy - size, ww, size);
+
+      xx += ww;
+      if ((size + 2) > hh)
+	hh = size + 2;
+
+      needspace = 0;
+    }
     else if (*ptr == '\n' && pre)
     {
       if (link[0])
@@ -1217,6 +1271,8 @@ HelpView::format()
 
     if ((xx + ww) > block->w)
     {
+      line     = do_align(block, line, xx, align, links);
+      xx       = block->x;
       yy       += hh;
       block->h += hh;
       hh       = 0;
@@ -1224,6 +1280,12 @@ HelpView::format()
 
     if (link[0])
       add_link(link, xx, yy - size, ww, size);
+
+    xx += ww;
+    if ((size + 2) > hh)
+      hh = size + 2;
+
+    needspace = 0;
   }
 
   block->end = ptr;
@@ -1733,5 +1795,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.21 2000/03/13 20:52:43 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.22 2000/03/19 23:27:14 mike Exp $".
 //
