@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.23 2002/01/28 00:52:12 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.24 2002/01/29 02:00:40 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -112,13 +112,15 @@ html_export(tree_t *document,	/* I - Document to export */
 
   if (OutputFiles && TitleImage[0] != '\0' && TitlePage &&
 #ifdef WIN32
-      stricmp(file_extension(TitleImage), "htm") != 0 &&
-      stricmp(file_extension(TitleImage), "html") != 0 &&
-      stricmp(file_extension(TitleImage), "shtml") != 0)
+      stricmp(file_extension(TitleImage), "bmp") == 0 ||
+      stricmp(file_extension(TitleImage), "gif") == 0 ||
+      stricmp(file_extension(TitleImage), "jpg") == 0 ||
+      stricmp(file_extension(TitleImage), "png") == 0)
 #else
-      strcmp(file_extension(TitleImage), "htm") != 0 &&
-      strcmp(file_extension(TitleImage), "html") != 0 &&
-      strcmp(file_extension(TitleImage), "shtml") != 0)
+      strcmp(file_extension(TitleImage), "bmp") == 0 ||
+      strcmp(file_extension(TitleImage), "gif") == 0 ||
+      strcmp(file_extension(TitleImage), "jpg") == 0 ||
+      strcmp(file_extension(TitleImage), "png") == 0)
 #endif // WIN32
     image_copy(TitleImage, OutputPath);
 
@@ -402,6 +404,7 @@ write_title(FILE  *out,		/* I - Output file */
             uchar *docnumber)	/* I - ID number for document */
 {
   FILE		*fp;		/* Title file */
+  const char	*title_file;	/* Location of title file */
   tree_t	*t;		/* Title file document tree */
 
 
@@ -409,17 +412,28 @@ write_title(FILE  *out,		/* I - Output file */
     return;
 
 #ifdef WIN32
-  if (stricmp(file_extension(TitleImage), "htm") == 0 ||
-      stricmp(file_extension(TitleImage), "html") == 0 ||
-      stricmp(file_extension(TitleImage), "shtml") == 0)
+  if (stricmp(file_extension(TitleImage), "bmp") != 0 &&
+      stricmp(file_extension(TitleImage), "gif") != 0 &&
+      stricmp(file_extension(TitleImage), "jpg") != 0 &&
+      stricmp(file_extension(TitleImage), "png") != 0)
 #else
-  if (strcmp(file_extension(TitleImage), "htm") == 0 ||
-      strcmp(file_extension(TitleImage), "html") == 0 ||
-      strcmp(file_extension(TitleImage), "shtml") == 0)
+  if (strcmp(file_extension(TitleImage), "bmp") != 0 &&
+      strcmp(file_extension(TitleImage), "gif") != 0 &&
+      strcmp(file_extension(TitleImage), "jpg") != 0 &&
+      strcmp(file_extension(TitleImage), "png") != 0)
 #endif // WIN32
   {
+    // Find the title page file...
+    if ((title_file = file_find(Path, TitleImage)) == NULL)
+    {
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open title file \"%s\" - %s!",
+                     TitleImage, strerror(errno));
+      return;
+    }
+
     // Write a title page from HTML source...
-    if ((fp = fopen(TitleImage, "rb")) == NULL)
+    if ((fp = fopen(title_file, "rb")) == NULL)
     {
       progress_error(HD_ERROR_FILE_NOT_FOUND,
                      "Unable to open title file \"%s\" - %s!",
@@ -942,5 +956,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.23 2002/01/28 00:52:12 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.24 2002/01/29 02:00:40 mike Exp $".
  */
