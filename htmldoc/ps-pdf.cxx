@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.56 2000/03/16 14:24:39 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.57 2000/03/17 23:26:33 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1910,11 +1910,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
     for (r = pages[page]; r != NULL; r = r->next)
       if (r->type == RENDER_LINK)
       {
-        if (r->data.link[0] == '#')
-        {
-          if (find_link(r->data.link + 1) != NULL)
-            num_lobjs ++;
-        }
+        if (find_link(r->data.link) != NULL)
+          num_lobjs ++;
         else
           num_lobjs += 2;
       }
@@ -1943,14 +1940,11 @@ pdf_write_links(FILE *out)		/* I - Output file */
     for (r = pages[page]; r != NULL; r = r->next)
       if (r->type == RENDER_LINK)
       {
-	if (r->data.link[0] == '#')
+        if ((link = find_link(r->data.link)) != NULL)
 	{
 	 /*
           * Local link...
           */
-
-          if ((link = find_link(r->data.link + 1)) == NULL)
-            continue;
 
           num_objects ++;
           lobjs[num_lobjs ++] = num_objects;
@@ -2403,24 +2397,6 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
   while (t != NULL)
   {
-    if ((name = htmlGetVariable(t, (uchar *)"ID")) != NULL)
-    {
-     /*
-      * Add a link target using the ID=name variable...
-      */
-
-      add_link(name, *page, (int)(*y + 3 * t->height));
-    }
-    else if (t->markup == MARKUP_FILE)
-    {
-     /*
-      * Add a file link...
-      */
-
-      add_link(htmlGetVariable(t, (uchar *)"FILENAME"), *page,
-               (int)(*y + 3 * t->height));
-    }
-
     if (((t->markup == MARKUP_H1 && OutputBook) ||
          (t->markup == MARKUP_FILE && !OutputBook)) && !title_page)
     {
@@ -2464,6 +2440,24 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
       *y = top;
       *x = left;
+    }
+
+    if ((name = htmlGetVariable(t, (uchar *)"ID")) != NULL)
+    {
+     /*
+      * Add a link target using the ID=name variable...
+      */
+
+      add_link(name, *page, (int)(*y + 3 * t->height));
+    }
+    else if (t->markup == MARKUP_FILE)
+    {
+     /*
+      * Add a file link...
+      */
+
+      add_link(htmlGetVariable(t, (uchar *)"FILENAME"), *page,
+               (int)(*y + 3 * t->height));
     }
 
     if (chapter == 0 && !title_page)
@@ -4850,6 +4844,9 @@ find_link(uchar *name)	/* I - Name to find */
   if (name == NULL || num_links == 0)
     return (NULL);
 
+  if (name[0] == '#')
+    name ++;
+
   strncpy((char *)key.name, (char *)name, sizeof(key.name) - 1);
   key.name[sizeof(key.name) - 1] = '\0';
   match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t),
@@ -6801,5 +6798,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.56 2000/03/16 14:24:39 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.57 2000/03/17 23:26:33 mike Exp $".
  */
