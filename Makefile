@@ -1,8 +1,7 @@
 #
-#   "$Id: Makefile.in,v 1.1 1999/11/07 13:33:10 mike Exp $"
+#   "$Id: Makefile,v 1.1 1999/11/08 17:12:39 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
-#   @configure_input@
 #
 #   Copyright 1997-1999 by Michael Sweet.
 #
@@ -11,49 +10,21 @@
 #
 
 #
-# Fix for broken make programs...
+# Include common definitions...
 #
 
-SHELL		=	/bin/sh
+include Makedefs
 
-#
-# C++ compiler to use...
-#
-
-CXX		=	@CXX@
-
-#
-# Install directories...
-#
-
-prefix		=	@prefix@
-exec_prefix	=	@exec_prefix@
-bindir		=	@bindir@
-mandir		=	@mandir@
-
-#
-# Compiler options...
-#
-
-CXXFLAGS	=	@CXXFLAGS@ @X_CFLAGS@ @DEFS@
-LDFLAGS		=	@LDFLAGS@
-
-LIBS		=	@LIBS@ @X_LIBS@ @X_EXTRA_LIBS@ -lm
 
 #
 # Object files...
 #
 
-OBJS		=	gui.o html.o htmldoc.o htmllib.o image.o iso8859.o \
-			ps-pdf.o toc.o
-
-#
-# Compilation rules...
-#
-
-.SUFFIXES:	.o .cpp .h
-.cpp.o:
-	$(CXX) $(CXXFLAGS) -c $<
+GUI_OBJS	=	CheckButton.o FileBrowser.o FileChooser.o \
+			FileChooser2.o FileIcon.o HelpDialog.o HelpView.o gui.o
+CMD_OBJS	=	file.o html.o htmldoc.o htmllib.o image.o iso8859.o \
+			ps-pdf.o string.o toc.o
+OBJS		=	$(GUI_OBJS) $(CMD_OBJS)
 
 #
 # make htmldoc...
@@ -106,7 +77,9 @@ image.o:	config.h debug.h image.h types.h Makefile
 iso8859.o:	config.h iso8859.h types.h Makefile
 ps-pdf.o:	config.h debug.h html.h htmldoc.h image.h iso8859.h types.h widths.h Makefile
 toc.o:		config.h html.h htmldoc.h image.h iso8859.h types.h Makefile
+string.o:	config.h string.h Makefile
+file.o:		config.h file.h string.h Makefile
 
 #
-# End of "$Id: Makefile.in,v 1.1 1999/11/07 13:33:10 mike Exp $".
+# End of "$Id: Makefile,v 1.1 1999/11/08 17:12:39 mike Exp $".
 #

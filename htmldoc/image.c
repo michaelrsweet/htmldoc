@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.1 1999/11/07 13:33:13 mike Exp $"
+ * "$Id: image.c,v 1.1 1999/11/08 17:12:42 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -955,5 +955,5 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
 
 /*
- * End of "$Id: image.cxx,v 1.1 1999/11/07 13:33:13 mike Exp $".
+ * End of "$Id: image.c,v 1.1 1999/11/08 17:12:42 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.2 1999/11/07 23:06:06 mike Exp $"
+ * "$Id: htmllib.c,v 1.1 1999/11/08 17:12:42 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -2383,5 +2383,5 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.2 1999/11/07 23:06:06 mike Exp $".
+ * End of "$Id: htmllib.c,v 1.1 1999/11/08 17:12:42 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.1 1999/11/07 13:33:11 mike Exp $"
+ * "$Id: toc.c,v 1.1 1999/11/08 17:12:42 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -330,5 +330,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.1 1999/11/07 13:33:11 mike Exp $".
+ * End of "$Id: toc.c,v 1.1 1999/11/08 17:12:42 mike Exp $".
  */
