@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.26 2001/10/18 23:19:21 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.27 2001/10/18 23:49:32 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -105,181 +105,6 @@
 //
 
 const char	*GUI::help_dir = DOCUMENTATION;
-
-
-// The following is experimental to make things look a little
-// like Aqua on the Mac...
-
-static int	AquaMode = 1;
-static void	aquaCB(CheckButton *w, void *);
-
-extern void	fl_down_box(int x, int y, int w, int h, Fl_Color c);
-extern void	fl_up_box(int x, int y, int w, int h, Fl_Color c);
-extern uchar	*fl_gray_ramp();
-
-
-//
-// 'aqua_draw()' - Draw an aqua button.
-//
-
-void
-aqua_draw(int      x,
-          int      y,
-	  int      w,
-	  int      h,
-	  Fl_Color c,
-	  char     *effect)
-{
-  uchar     *g = fl_gray_ramp();
-  int       i, j, k;
-  int       dx, dy;
-
-
-  if (w > h)
-  {
-    const int r = h / 2;
-
-#if 0
-    fl_color(c);
-    fl_pie(x, y, h, h, 90.0, 270.0);
-    fl_pie(x + w - h, y, h, h, 270.0, 90.0);
-    fl_rectf(x + h / 2, y, w - h, h);
-#endif /* 0 */
-
-    for (i = 0, y += h / 2 - 1, h -= 5, dy = -h / 2;
-         i <= h;
-	 i ++, dy ++)
-    {
-      dx = (int)sqrt(r * r - dy * dy);
-      k  = effect[i * 15 / h];
-
-      if (k == 'J')
-        k = fl_color_average(FL_BLACK, c, 0.1);
-      else
-        k  = fl_color_average((Fl_Color)(g[k]), c, 0.75);
-
-      fl_color(k);
-      fl_xyline(x + 4 + r - dx, y + dy, x + w - 4 - r + dx);
-
-      fl_color(fl_color_average((Fl_Color)k, FL_BLACK, 0.75));
-      fl_xyline(x + 2 + r - dx, y + dy, x + 3 + r - dx);
-      fl_xyline(x + w - 3 - r + dx, y + dy, x + w - 2 - r + dx);
-    }
-  }
-  else
-  {
-    const int r = w / 2;
-
-#if 0
-    fl_color(c);
-    fl_pie(x, y, w, w, 0.0, 180.0);
-    fl_pie(x, y + h - w, w, w, 180.0, 0.0);
-    fl_rectf(x, y + w / 2, w, h - w);
-#endif /* 0 */
-
-    for (i = 0, x += w / 2, w -= 5, dx = -w / 2;
-         i <= w;
-	 i ++, dx ++)
-    {
-      dy = (int)sqrt(r * r - dx * dx);
-      k  = effect[i * 15 / w];
-
-      if (k == 'J')
-        k = fl_color_average(FL_BLACK, c, 0.1);
-      else
-        k  = fl_color_average((Fl_Color)(g[k]), c, 0.75);
-
-      fl_color(k);
-      fl_yxline(x + dx, y + 4 + r - dy, y + h - 4 - r + dy);
-
-      fl_color(fl_color_average((Fl_Color)k, FL_BLACK, 0.75));
-      fl_yxline(x + dx, y + 2 + r - dy, y + 3 + r - dy);
-      fl_yxline(x + dx, y + h - 3 - r + dy, y + h - 2 - r + dy);
-    }
-  }
-}
-
-
-//
-// 'aqua_down_box()' - Draw buttons a la MacOS X Aqua...
-//
-
-void
-aqua_down_box(int      x,
-              int      y,
-	      int      w,
-	      int      h,
-	      Fl_Color c)
-{
-  if ((w > 30 && h <= 30) ||
-      (w <= 30 && h > 30))
-    aqua_draw(x, y, w, h, c, "JTRPNNNOOQRSUVUJ");
-  else
-    fl_down_box(x, y, w, h, c);
-}
-
-
-//
-// 'aqua_up_box()' - Draw buttons a la MacOS X Aqua...
-//
-
-void
-aqua_up_box(int      x,
-            int      y,
-	    int      w,
-	    int      h,
-	    Fl_Color c)
-{
-  if ((w > 30 && h <= 30) ||
-      (w <= 30 && h > 30))
-    aqua_draw(x, y, w, h, c, "JUVSOOOPQRSTUVVUJ");
-  else
-    fl_up_box(x, y, w, h, c);
-}
-
-
-//
-// 'GUI::aquaCB()' - Toggle between Aqua and Windows look-n-feel.
-//
-
-void
-GUI::aquaCB(Fl_Widget *w,		// I - Aqua mode check button
-            GUI       *gui)		// I - GUI class (ignored)
-{
-  if (w)
-    AquaMode = ((CheckButton *)w)->value();
-
-  if (AquaMode)
-  {
-    Fl::set_boxtype(FL_UP_BOX, aqua_up_box, 3, 3, 6, 6);
-    Fl::set_boxtype(FL_DOWN_BOX, aqua_down_box, 3, 3, 6, 6);
-    Fl::set_boxtype(_FL_ROUND_UP_BOX, aqua_up_box, 3, 3, 6, 6);
-    Fl::set_boxtype(_FL_ROUND_DOWN_BOX, aqua_down_box, 3, 3, 6, 6);
-
-    gui->bookHelp->color(FL_WHITE, FL_BLUE);
-    gui->bookNew->color(FL_WHITE, FL_BLUE);
-    gui->bookOpen->color(FL_WHITE, FL_BLUE);
-    gui->bookSave->color(FL_WHITE, FL_BLUE);
-    gui->bookSaveAs->color(FL_WHITE, FL_BLUE);
-    gui->bookGenerate->color(FL_WHITE, FL_BLUE);
-    gui->bookClose->color(FL_WHITE, FL_RED);
-  }
-  else
-  {
-    Fl::set_boxtype(FL_UP_BOX, fl_up_box, 3, 3, 6, 6);
-    Fl::set_boxtype(FL_DOWN_BOX, fl_down_box, 3, 3, 6, 6);
-    define_FL_ROUND_UP_BOX();
-
-    gui->bookHelp->color(FL_GRAY, FL_GRAY);
-    gui->bookNew->color(FL_GRAY, FL_GRAY);
-    gui->bookOpen->color(FL_GRAY, FL_GRAY);
-    gui->bookSave->color(FL_GRAY, FL_GRAY);
-    gui->bookSaveAs->color(FL_GRAY, FL_GRAY);
-    gui->bookGenerate->color(FL_GRAY, FL_GRAY);
-    gui->bookClose->color(FL_GRAY, FL_GRAY);
-  }
-}
-
 
 
 //
@@ -1101,12 +926,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
 #if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
     tooltips->deactivate();
 #endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
-
-    aquamode = new CheckButton(225, 160, 85, 25, "Aqua Mode");
-    aquamode->callback((Fl_Callback *)aquaCB, this);
-    aquamode->value(AquaMode);
-    _tooltip(aquamode, "Check for a MacOS Aqua look-n-feel.\n"
-                       "Uncheck for a Windows/KDE look-n-feel.");
 
   group->end();
 
@@ -4162,5 +3981,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.26 2001/10/18 23:19:21 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.27 2001/10/18 23:49:32 mike Exp $".
 //
