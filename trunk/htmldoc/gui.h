@@ -1,12 +1,25 @@
 /*
- * "$Id: gui.h,v 1.4 1999/11/09 21:36:23 mike Exp $"
+ * "$Id: gui.h,v 1.5 1999/11/09 22:16:41 mike Exp $"
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-1999 by Michael Sweet.
+ *   Copyright 1997-1999 by Easy Software Products.
  *
- *   HTMLDOC is distributed under the terms of the GNU General Public License
- *   which is described in the file "COPYING-2.0".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Easy Software Products and are protected by Federal
+ *   copyright law.  Distribution and use rights are outlined in the file
+ *   "COPYING.txt" which should have been included with this file.  If this
+ *   file is missing or damaged please contact Easy Software Products
+ *   at:
+ *
+ *       Attn: ESP Licensing Information
+ *       Easy Software Products
+ *       44141 Airport View Drive, Suite 204
+ *       Hollywood, Maryland 20636-3111 USA
+ *
+ *       Voice: (301) 373-9600
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
  */
 
 /*
@@ -201,5 +214,5 @@ class GUI
 
 
 /*
- * End of "$Id: gui.h,v 1.4 1999/11/09 21:36:23 mike Exp $".
+ * End of "$Id: gui.h,v 1.5 1999/11/09 22:16:41 mike Exp $".
  */

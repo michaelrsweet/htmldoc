@@ -1,12 +1,25 @@
 /*
- * "$Id: string.c,v 1.1 1999/11/08 17:12:42 mike Exp $"
+ * "$Id: string.c,v 1.2 1999/11/09 22:16:43 mike Exp $"
  *
  *   String functions for HTMLDOC, a HTML document processing program.
  *
  *   Copyright 1997-1999 by Easy Software Products.
  *
- *   HTMLDOC is distributed under the terms of the GNU General Public License
- *   which is described in the file "COPYING.txt".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Easy Software Products and are protected by Federal
+ *   copyright law.  Distribution and use rights are outlined in the file
+ *   "COPYING.txt" which should have been included with this file.  If this
+ *   file is missing or damaged please contact Easy Software Products
+ *   at:
+ *
+ *       Attn: ESP Licensing Information
+ *       Easy Software Products
+ *       44141 Airport View Drive, Suite 204
+ *       Hollywood, Maryland 20636-3111 USA
+ *
+ *       Voice: (301) 373-9600
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
  *
  * Contents:
  *
@@ -107,5 +120,5 @@ strncasecmp(const char *s,	/* I - First string */
 
 
 /*
- * End of "$Id: string.c,v 1.1 1999/11/08 17:12:42 mike Exp $".
+ * End of "$Id: string.c,v 1.2 1999/11/09 22:16:43 mike Exp $".
  */

@@ -1,13 +1,26 @@
 /*
- * "$Id: iso8859.cxx,v 1.1 1999/11/08 18:35:18 mike Exp $"
+ * "$Id: iso8859.cxx,v 1.2 1999/11/09 22:16:42 mike Exp $"
  *
  *   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  *   processing program.
  *
- *   Copyright 1997-1999 by Michael Sweet.
+ *   Copyright 1997-1999 by Easy Software Products.
  *
- *   HTMLDOC is distributed under the terms of the GNU General Public License
- *   which is described in the file "COPYING-2.0".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Easy Software Products and are protected by Federal
+ *   copyright law.  Distribution and use rights are outlined in the file
+ *   "COPYING.txt" which should have been included with this file.  If this
+ *   file is missing or damaged please contact Easy Software Products
+ *   at:
+ *
+ *       Attn: ESP Licensing Information
+ *       Easy Software Products
+ *       44141 Airport View Drive, Suite 204
+ *       Hollywood, Maryland 20636-3111 USA
+ *
+ *       Voice: (301) 373-9600
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
  *
  * Contents:
  *
@@ -227,5 +240,5 @@ compare_lut(lut_t *a,	/* I - First glyph */
 
 
 /*
- * End of "$Id: iso8859.cxx,v 1.1 1999/11/08 18:35:18 mike Exp $".
+ * End of "$Id: iso8859.cxx,v 1.2 1999/11/09 22:16:42 mike Exp $".
  */

@@ -1,55 +1,69 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.2 1999/11/09 21:36:23 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.3 1999/11/09 22:16:42 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
  *
  *   Just in case you didn't notice it, this file is too big; it will be
  *   broken into more manageable pieces once we make all of the output
- *   "drivers" classes...
+ *   "drivers" into classes...
  *
- *   Copyright 1997-1999 by Michael Sweet.
+ *   Copyright 1997-1999 by Easy Software Products.
  *
- *   HTMLDOC is distributed under the terms of the GNU General Public License
- *   which is described in the file "COPYING-2.0".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Easy Software Products and are protected by Federal
+ *   copyright law.  Distribution and use rights are outlined in the file
+ *   "COPYING.txt" which should have been included with this file.  If this
+ *   file is missing or damaged please contact Easy Software Products
+ *   at:
+ *
+ *       Attn: ESP Licensing Information
+ *       Easy Software Products
+ *       44141 Airport View Drive, Suite 204
+ *       Hollywood, Maryland 20636-3111 USA
+ *
+ *       Voice: (301) 373-9600
+ *       EMail: info@easysw.com
+ *         WWW: http://www.easysw.com
  *
  * Contents:
  *
- *   pdf_export()            - Export PDF file(s)...
- *   ps_export_level1()      - Export level 1 PostScript file(s)...
- *   ps_export_level2()      - Export level 2 PostScript file(s)...
  *   pspdf_export()          - Export PostScript/PDF file(s)...
  *   pspdf_prepare_page()    - Add headers/footers to page before writing...
- *   pspdf_prepare_heading() - Add header/footer to page before writing...
+ *   pspdf_prepare_heading() - Add headers/footers to page before writing...
  *   ps_write_document()     - Write all render entities to PostScript file(s).
  *   ps_write_page()         - Write all render entities on a page to a
  *                             PostScript file.
  *   ps_write_background()   - Write a background image...
  *   pdf_write_document()    - Write all render entities to a PDF file.
+ *   pdf_write_resources()   - Write the resources dictionary for a page.
  *   pdf_write_page()        - Write a page to a PDF file.
- *   pdf_write_contents()    - Write the table of contents as outline records to
- *                             a PDF file.
+ *   pdf_write_contents()    - Write the table of contents as outline records
+ *                             to a PDF file.
  *   pdf_count_headings()    - Count the number of headings under this TOC
- *                             entry.
  *   pdf_write_background()  - Write a background image...
- *   pdf_write_links()       - Write annotation link objects for each page in the
- *                             document.
+ *   pdf_write_links()       - Write annotation link objects for each page in
+ *                             the document.
  *   pdf_write_names()       - Write named destinations for each link.
  *   parse_contents()        - Parse the table of contents and produce a
- *                             rendering list...
- *   parse_doc()             - Parse a document tree and produce rendering list
- *                             output.
+ *   parse_doc()             - Parse a document tree and produce rendering
+ *                             list output.
  *   parse_heading()         - Parse a heading tree and produce rendering list
  *                             output.
- *   parse_paragraph()       - Parse a paragraph tree and produce rendering list
- *                             output.
- *   parse_pre()             - Parse preformatted text and produce rendering list
- *                             output.
+ *   parse_paragraph()       - Parse a paragraph tree and produce rendering
+ *                             list output.
+ *   parse_pre()             - Parse preformatted text and produce rendering
+ *                             list output.
  *   parse_table()           - Parse a table and produce rendering output.
  *   parse_list()            - Parse a list entry and produce rendering output.
  *   init_list()             - Initialize the list type and value as necessary.
  *   real_prev()             - Return the previous non-link markup in the tree.
  *   real_next()             - Return the next non-link markup in the tree.
+ *   get_color()             - Get a standard color value...
+ *   find_background()       - Find the background image/color for the given
+ *                             document.
+ *   write_background()      - Write the background image/color for to the
+ *                             current page.
  *   new_render()            - Allocate memory for a new rendering structure.
  *   add_link()              - Add a named link...
  *   find_link()             - Find a named link...
@@ -57,10 +71,7 @@
  *   copy_tree()             - Copy a markup tree...
  *   flatten_tree()          - Flatten an HTML tree to only include the text,
  *                             image, link, and break markups.
- *   find_background()       - Find the background image/color for the given
- *                             document.
  *   update_image_size()     - Update the size of an image based upon the
- *                             printable width.
  *   get_width()             - Get the width of a string in points.
  *   get_title()             - Get the title string for a document.
  *   open_file()             - Open an output file for the current chapter.
@@ -69,7 +80,8 @@
  *   set_pos()               - Set the current text position.
  *   ps_hex()                - Print binary data as a series of hexadecimal
  *                             numbers.
- *   ps_ascii85()            - Print binary data as a series of base-85 numbers.
+ *   ps_ascii85()            - Print binary data as a series of base-85
+ *                             numbers.
  *   jpg_init()              - Initialize the JPEG destination.
  *   jpg_empty()             - Empty the JPEG output buffer.
  *   jpg_term()              - Write the last JPEG data to the file.
@@ -77,15 +89,15 @@
  *   compare_rgb()           - Compare two RGB colors...
  *   write_image()           - Write an image to the given output file...
  *   write_prolog()          - Write the file prolog...
- *   write_string()          - Write a text string.
+ *   write_string()          - Write a text entity.
  *   write_text()            - Write a text entity.
  *   write_trailer()         - Write the file trailer.
  *   pdf_open_stream()       - Open a deflated output stream in a PDF file.
  *   pdf_close_stream()      - Close a deflated output string in a PDF file.
- *   pdf_puts()              - Write a character string to a compressed stream in
- *                             a PDF file.
- *   pdf_printf()            - Write a formatted character string to a compressed
- *                             stream in a PDF file.
+ *   pdf_puts()              - Write a character string to a compressed stream
+ *                             in a PDF file.
+ *   pdf_printf()            - Write a formatted character string to a
+ *                             compressed stream in a PDF file.
  *   pdf_write()             - Write data to a compressed stream in a PDF file.
  */
 
@@ -5771,5 +5783,5 @@ pdf_write(FILE *out,	/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.2 1999/11/09 21:36:23 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.3 1999/11/09 22:16:42 mike Exp $".
  */
