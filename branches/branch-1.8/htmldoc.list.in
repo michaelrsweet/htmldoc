@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.23 2004/05/26 20:34:33 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.24 2004/06/10 21:08:33 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -24,9 +24,9 @@ $datadir=@datadir@
 %system darwin
 f 0555 root sys /Applications/htmldoc.app/Contents/MacOS/htmldoc htmldoc/htmldoc nostrip()
 l 0555 root sys $bindir/htmldoc /Applications/htmldoc.app/Contents/MacOS/htmldoc
-f 0444 root sys /Applications/htmldoc.app/Contents/Resources/htmldoc.icns htmldoc.icns
-f 0444 root sys /Applications/htmldoc.app/Contents/Info.plist htmldoc.plist
-f 0444 root sys /Applications/htmldoc.app/Contents/PkgInfo htmldoc.info
+f 0444 root sys /Applications/htmldoc.app/Contents/Resources/htmldoc.icns desktop/htmldoc.icns
+f 0444 root sys /Applications/htmldoc.app/Contents/Info.plist desktop/htmldoc.plist
+f 0444 root sys /Applications/htmldoc.app/Contents/PkgInfo desktop/htmldoc.info
 
 %system !darwin
 f 0555 root sys $bindir/htmldoc htmldoc/htmldoc
@@ -70,6 +70,25 @@ f 0444 root sys $mandir/man1/htmldoc.1 doc/htmldoc.man
 f 0444 root sys $datadir/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
 f 0444 root sys $datadir/doc/htmldoc/help.html doc/help.html
 
+# Desktop integration...
+%system aix hpux solaris tru64
+f 0444 root sys $datadir/htmldoc/dt/appconfig/appmanager/C/ESP/htmldoc desktop/htmldoc.appconfig
+f 0444 root sys $datadir/htmldoc/dt/appconfig/types/C/htmldoc.dt desktop/htmldoc.dt
+f 0444 root sys $datadir/htmldoc/dt/appconfig/icons/C/ desktop/*.bm
+f 0444 root sys $datadir/htmldoc/dt/appconfig/icons/C/ desktop/*.pm
+%postinstall <<EOF
+if test -x /usr/dt/bin/dtappintegrate; then
+        /usr/dt/bin/dtappintegrate -s $datadir/htmldoc
+fi
+EOF
+%system linux freebsd netbsd openbsd
+f 0444 root sys /etc/X11/applnk/Office/htmldoc.desktop desktop/htmldoc.desktop
+f 0444 root sys /usr/share/mimelnk/application/vnd.htmldoc-book.desktop desktop/vnd.htmldoc-book.desktop
+f 0444 root sys /usr/share/pixmaps/htmldoc.png desktop/htmldoc.png
+%system irix
+# Nothing for IRIX yet
+%system all
+
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.23 2004/05/26 20:34:33 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.24 2004/06/10 21:08:33 mike Exp $".
 #
