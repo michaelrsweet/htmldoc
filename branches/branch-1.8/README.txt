@@ -195,8 +195,8 @@ CREDITS
 ENCRYPTION SUPPORT
 
     HTMLDOC includes code to encrypt PDF document files using the RC4
-    algorithm with 40- or 64-bit keys. While this software and code may
-    be freely used and exported under current US laws, other countries
+    algorithm with a 40-bit key. While this software and code may be
+    freely used and exported under current US laws, other countries
     may restrict your use and possession of this code and software.
 
 
