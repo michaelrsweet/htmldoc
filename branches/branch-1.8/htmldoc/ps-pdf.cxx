@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.157 2002/04/10 20:37:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.158 2002/04/10 21:17:14 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2800,7 +2800,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
             * Add a target link...
             */
 
-            add_link(link, *page, (int)(*y + 6 * height));
+            add_link(link, *page, (int)*y + PageBottom);
           }
           break;
 
@@ -3033,7 +3033,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       * Add a link target using the ID=name variable...
       */
 
-      add_link(name, *page, (int)(*y + 3 * t->height));
+      add_link(name, *page, (int)*y + PageBottom);
     }
     else if (t->markup == MARKUP_FILE)
     {
@@ -3054,7 +3054,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         *sep = '\0';
 
       // Add the link
-      add_link(name, *page + (OutputType == OUTPUT_BOOK), (int)top);
+      add_link(name, *page + (OutputType == OUTPUT_BOOK), (int)*y + PageBottom);
     }
 
     if (chapter == 0 && !title_page)
@@ -4172,7 +4172,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
               * Add a target link...
               */
 
-              add_link(link, *page, (int)(*y + 6 * height));
+              add_link(link, *page, (int)(*y + PageBottom + height));
             }
 
 	default :
@@ -4491,7 +4491,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
               * Add a target link...
               */
 
-              add_link(link, *page, (int)(*y + 6 * t->height));
+              add_link(link, *page, (int)(*y + PageBottom + height));
             }
             break;
 
@@ -10780,5 +10780,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.157 2002/04/10 20:37:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.158 2002/04/10 21:17:14 mike Exp $".
  */
