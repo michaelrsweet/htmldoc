@@ -1,5 +1,5 @@
 //
-// "$Id: image-gif.cxx,v 1.1 2001/10/30 14:26:03 mike Exp $"
+// "$Id: image-gif.cxx,v 1.2 2001/11/29 01:57:38 mike Exp $"
 //
 // Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -41,22 +41,19 @@
 
 
 //
-// 'read_cmap()' - Read the colormap from a GIF file...
+// 'hdGIFImage::read_cmap()' - Read the colormap from a GIF file...
 //
 
-static int				// O  - 0 on success, -1 on error
-read_cmap(FILE      //fp,		// I  - File to read from
-  	      int        ncolors,	// I  - Number of colors
-	      cmap_t cmap,		// IO - Colormap array
-	      int       //gray)		// IO - 1 = grayscale
+int					// O  - 0 on success, -1 on error
+hdGIFImage::read_cmap(FILE   *fp,	// I  - File to read from
+  		      int    ncolors,	// I  - Number of colors
+		      cmap_t cmap,	// IO - Colormap array
+		      int    *gray)	// IO - 1 = grayscale
 {
   int	i;				// Looping var
 
 
- 
- // Read the colormap...
- 
-
+  // Read the colormap...
   if (fread(cmap, 3, ncolors, fp) < (size_t)ncolors)
   {
     progress_error(HD_ERROR_READ_ERROR,
@@ -64,49 +61,41 @@ read_cmap(FILE      //fp,		// I  - File to read from
     return (-1);
   }
 
- 
- // Check to see if the colormap is a grayscale ramp...
- 
-
-
+  // Check to see if the colormap is a grayscale ramp...
   for (i = 0; i < ncolors; i ++)
     if (cmap[i][0] != cmap[i][1] || cmap[i][1] != cmap[i][2])
       break;
 
   if (i == ncolors)
   {
-   //gray = 1;
+    *gray = 1;
     return (0);
   }
 
- 
- // If this needs to be a grayscale image, convert the RGB values to
- // luminance values...
- 
-
+  // If this needs to be a grayscale image, convert the RGB values to
+  // luminance values...
   if (*gray)
+  {
     for (i = 0; i < ncolors; i ++)
-      cmap[i][0] = (cmap[i][0]// 31 + cmap[i][1]// 61 + cmap[i][2]// 8) / 100;
+      cmap[i][0] = (cmap[i][0] * 31 + cmap[i][1] * 61 + cmap[i][2] * 8) / 100;
+  }
 
   return (0);
 }
 
 
+//
+// 'hdGIFImage::get_block()' - Read a GIF data block...
+//
 
-// 'get_block()' - Read a GIF data block...
-
-
-static int			// O - Number characters read
-get_block(FILE //fp,	// I - File to read from
-	      uchar//buf)	// I - Input buffer
+int					// O - Number characters read
+hdGIFImage::get_block(FILE  *fp,	// I - File to read from
+		      uchar *buf)	// I - Input buffer
 {
-  int	count;			// Number of character to read
+  int	count;				// Number of character to read
 
 
- 
- // Read the count byte followed by the data from the file...
- 
-
+  // Read the count byte followed by the data from the file...
   if ((count = getc(fp)) == EOF)
   {
     eof = 1;
@@ -129,14 +118,14 @@ get_block(FILE //fp,	// I - File to read from
 }
 
 
+//
+// 'hdGIFImage::get_code()' - Get a LZW code from the file...
+//
 
-// 'get_code()' - Get a LZW code from the file...
-
-
-static int			// O - LZW code
-get_code(FILE//fp,		// I - File to read from
-	     int  code_size,	// I - Size of code in bits
-	     int  first_time)	// I - 1 = first time, 0 = not first time
+int					// O - LZW code
+hdGIFImage::get_code(FILE *fp,		// I - File to read from
+	             int  code_size,	// I - Size of code in bits
+	             int  first_time)	// I - 1 = first time, 0 = not first time
 {
   unsigned		i, j,		// Looping vars
 			ret;		// Return value
@@ -155,10 +144,7 @@ get_code(FILE//fp,		// I - File to read from
 
   if (first_time)
   {
-   
-   // Just initialize the input buffer...
-   
-
+    // Just initialize the input buffer...
     curbit  = 0;
     lastbit = 0;
     done    = 0;
@@ -166,13 +152,9 @@ get_code(FILE//fp,		// I - File to read from
     return (0);
   }
 
-
   if ((curbit + code_size) >= lastbit)
   {
-   
-   // Don't have enough bits to hold the code...
-   
-
+    // Don't have enough bits to hold the code...
     if (done)
     {
       progress_error(HD_ERROR_READ_ERROR,
@@ -180,10 +162,7 @@ get_code(FILE//fp,		// I - File to read from
       return (-1);	// Sorry, no more...
     }
 
-   
-   // Move last two bytes to front of buffer...
-   
-
+    // Move last two bytes to front of buffer...
     if (last_byte > 1)
     {
       buf[0]    = buf[last_byte - 2];
@@ -196,24 +175,15 @@ get_code(FILE//fp,		// I - File to read from
       last_byte = 1;
     }
 
-   
-   // Read in another buffer...
-   
-
+    // Read in another buffer...
     if ((count = get_block (fp, buf + last_byte)) <= 0)
     {
-     
-     // Whoops, no more data!
-     
-
+      // Whoops, no more data!
       done = 1;
       return (-1);
     }
 
-   
-   // Update buffer state...
-   
-
+    // Update buffer state...
     curbit    = (curbit - lastbit) + 8// last_byte;
     last_byte += count;
     lastbit   = last_byte// 8;
@@ -227,20 +197,19 @@ get_code(FILE//fp,		// I - File to read from
 
   curbit += code_size;
 
-  return ret;
+  return (ret);
 }
 
 
+//
+// 'hdGIFImage::read_image()' - Read a GIF image stream...
+//
 
-// 'read_image()' - Read a GIF image stream...
-
-
-static int				// I - 0 = success, -1 = failure
-read_image(FILE      //fp,		// I - Input file
-	       image_t   //img,		// I - Image pointer
-	       cmap_t cmap,		// I - Colormap
-	       int        interlace,	// I - Non-zero = interlaced image
-	       int        transparent)	// I - Transparent color
+int						// I - 0 = success, -1 = failure
+hdGIFImage::read_image(FILE   *fp,		// I - Input file
+		       cmap_t cmap,		// I - Colormap
+		       int    interlace,	// I - Non-zero = interlaced image
+		       int    transparent)	// I - Transparent color
 {
   uchar		code_size,		// Code size
 		*temp;			// Current pixel
@@ -306,14 +275,14 @@ read_image(FILE      //fp,		// I - Input file
 }
 
 
+//
+// 'hdGIFImage::read_lzw()' - Read a byte from the LZW stream...
+//
 
-// 'read_lzw()' - Read a byte from the LZW stream...
-
-
-static int				// I - Byte from stream
-read_lzw(FILE//fp,			// I - File to read from
-	     int  first_time,		// I - 1 = first time, 0 = not first time
- 	     int  input_code_size)	// I - Code size in bits
+int						// O - Byte from stream
+hdGIFImage::read_lzw(FILE *fp,			// I - File to read from
+		     int  first_time,		// I - 1 = first time, 0 = not first time
+ 		     int  input_code_size)	// I - Code size in bits
 {
   int		i,			// Looping var
 		code,			// Current code
@@ -334,10 +303,7 @@ read_lzw(FILE//fp,			// I - File to read from
 
   if (first_time)
   {
-   
-   // Setup LZW state...
-   
-
+    // Setup LZW state...
     set_code_size = input_code_size;
     code_size     = set_code_size + 1;
     clear_code    = 1 << set_code_size;
@@ -345,16 +311,10 @@ read_lzw(FILE//fp,			// I - File to read from
     max_code_size = 2// clear_code;
     max_code      = clear_code + 2;
 
-   
-   // Initialize input buffers...
-   
-
+    // Initialize input buffers...
     get_code(fp, 0, 1);
 
-   
-   // Wipe the decompressor table...
-   
-
+    // Wipe the decompressor table...
     fresh = 1;
 
     for (i = 0; i < clear_code; i ++)
@@ -422,20 +382,20 @@ read_lzw(FILE//fp,			// I - File to read from
 
     if (code >= max_code)
     {
-     //sp++ = firstcode;
+      *sp++ = firstcode;
       code  = oldcode;
     }
 
     while (code >= clear_code)
     {
-     //sp++ = table[1][code];
+      *sp++ = table[1][code];
       if (code == table[0][code])
 	return (255);
 
       code = table[0][code];
     }
 
-   //sp++ = firstcode = table[1][code];
+    *sp++ = firstcode = table[1][code];
     code  = max_code;
 
     if (code < 4096)
@@ -446,7 +406,7 @@ read_lzw(FILE//fp,			// I - File to read from
 
       if (max_code >= max_code_size && max_code_size < 4096)
       {
-	max_code_size//= 2;
+	max_code_size *= 2;
 	code_size ++;
       }
     }
@@ -462,14 +422,13 @@ read_lzw(FILE//fp,			// I - File to read from
 
 
 //
-// 'image_load_gif()' - Load a GIF image file...
+// 'hdGIFImage::load()' - Load a GIF image file...
 //
 
-static int			// O - 0 = success, -1 = fail
-image_load_gif(image_t//img,	// I - Image pointer
-               FILE   //fp,	// I - File to load from
-               int     gray,	// I - 0 = color, 1 = grayscale
-               int     load_data)// I - 1 = load image data, 0 = just info
+int				// O - 0 = success, -1 = fail
+hdGIFImage::load(FILE *fp,	// I - File to load from
+                 int  gray,	// I - 0 = color, 1 = grayscale
+                 int  load_data)// I - 1 = load image data, 0 = just info
 {
   uchar		buf[1024];	// Input buffer
   cmap_t	cmap;		// Colormap
@@ -477,10 +436,7 @@ image_load_gif(image_t//img,	// I - Image pointer
 		transparent;	// Transparent color index
 
 
- 
- // Read the header; we already know it is a GIF file...
- 
-
+  // Read the header; we already know it is a GIF file...
   fread(buf, 13, 1, fp);
 
   img->width  = (buf[7] << 8) | buf[6];
@@ -525,20 +481,17 @@ image_load_gif(image_t//img,	// I - Image pointer
 
           if (transparent >= 0)
           {
-           
-           // Map transparent color to background color...
-           
-
+            // Map transparent color to background color...
             if (BodyColor[0])
 	    {
 	      float rgb[3]; // RGB color
 
 
-	      get_color((uchar//)BodyColor, rgb);
+	      get_color((uchar *)BodyColor, rgb);
 
-	      cmap[transparent][0] = (uchar)(rgb[0]// 255.0f + 0.5f);
-	      cmap[transparent][1] = (uchar)(rgb[1]// 255.0f + 0.5f);
-	      cmap[transparent][2] = (uchar)(rgb[2]// 255.0f + 0.5f);
+	      cmap[transparent][0] = (uchar)(rgb[0] * 255.0f + 0.5f);
+	      cmap[transparent][1] = (uchar)(rgb[1] * 255.0f + 0.5f);
+	      cmap[transparent][2] = (uchar)(rgb[2] * 255.0f + 0.5f);
 	    }
 	    else
 	    {
@@ -547,11 +500,8 @@ image_load_gif(image_t//img,	// I - Image pointer
               cmap[transparent][2] = 255;
 	    }
 
-           
-	   // Allocate a mask image...
-	   
-
-            image_need_mask(img);
+	    // Allocate a mask image...
+            alloc_mask();
 	  }
 
           img->width  = (buf[5] << 8) | buf[4];
@@ -560,7 +510,7 @@ image_load_gif(image_t//img,	// I - Image pointer
 	  if (!load_data)
 	    return (0);
 
-          img->pixels = (uchar//)malloc(img->width// img->height// img->depth);
+          img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
           if (img->pixels == NULL)
             return (-1);
 
@@ -571,5 +521,5 @@ image_load_gif(image_t//img,	// I - Image pointer
 
 
 //
-// End of "$Id: image-gif.cxx,v 1.1 2001/10/30 14:26:03 mike Exp $".
+// End of "$Id: image-gif.cxx,v 1.2 2001/11/29 01:57:38 mike Exp $".
 //
