@@ -1,4 +1,4 @@
-CHANGES.txt - 07/16/2001
+CHANGES.txt - 07/17/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.15
@@ -13,6 +13,9 @@ CHANGES IN HTMLDOC v1.8.15
 	  lot of in-line images.
 
     BUGS FIXES
+
+	- If a document started with a heading greater than H1,
+	  HTMLDOC would crash.
 
 
 CHANGES IN HTMLDOC v1.8.14

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.87 2001/07/16 16:20:26 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.88 2001/07/17 18:35:38 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3235,17 +3235,13 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       progress_show("Formatting page %d", *page);
   }
 
+  check_pages(*page);
+
   if (t->markup == MARKUP_H1 && !title_page)
-  {
-    check_pages(*page);
     page_chapters[*page] = htmlGetText(current_heading);
-  }
 
   if ((page_headings[*page] == NULL || t->markup == MARKUP_H1) && !title_page)
-  {
-    check_pages(*page);
     page_headings[*page] = htmlGetText(current_heading);
-  }
 
   if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
   {
@@ -9075,5 +9071,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.87 2001/07/16 16:20:26 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.88 2001/07/17 18:35:38 mike Exp $".
  */
