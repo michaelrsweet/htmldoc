@@ -1,4 +1,5 @@
-# makefile for libpng
+# makefile for libpng (.a and .so), SGI IRIX with 'cc'
+# Copyright (C) 2001 Glenn Randers-Pehrson
 # Copyright (C) 1995 Guy Eric Schalnat, Group 42, Inc.
 # For conditions of distribution and use, see copyright notice in png.h
 
@@ -6,6 +7,8 @@
 prefix=/usr/local
 
 # Where the zlib library and include files are located
+#ZLIBLIB=/usr/local/lib32
+#ZLIBINC=/usr/local/include
 #ZLIBLIB=/usr/local/lib
 #ZLIBINC=/usr/local/include
 ZLIBLIB=../zlib
@@ -13,23 +16,46 @@ ZLIBINC=../zlib
 
 CC=cc
 
+# ABI can be blank to use default for your system, -32, -o32, -n32, or -64
+# See "man abi".  zlib must be built with the same ABI.
+ABI=
+
 WARNMORE=-fullwarn
-# You can add the -n32 option; then zlib must also be compiled with -n32
-CFLAGS=-I$(ZLIBINC) -O $(WARNMORE) # -g -DPNG_DEBUG=5
-LDFLAGS=-L. -L$(ZLIBLIB) -lpng -lz -lm
+# Note: -KPIC is the default anyhow
+#CFLAGS= $(ABI) -I$(ZLIBINC) -O $(WARNMORE) -KPIC -DPNG_USE_PNGGCCRD # -g -DPNG_DEBUG=5
+CFLAGS=$(ABI) -I$(ZLIBINC) -O $(WARNMORE) -DPNG_USE_PNGGCCRD -DPNG_NO_ASSEMBLER_CODE
+LDFLAGS=$(ABI) -L. -L$(ZLIBLIB) -lpng -lz -lm
+LDSHARED=cc $(ABI) -shared
+
+VER=1.2.1
+# See "man dso" for info about shared objects
+SONUM=3
+SHAREDLIB=libpng.so
 
 RANLIB=echo
 #RANLIB=ranlib
 
-OBJS = png.o pngset.o pngget.o pngrutil.o pngtrans.o pngwutil.o \
+INCPATH=$(prefix)/include
+LIBPATH=$(prefix)/lib
+#LIBPATH=$(prefix)/lib32
+
+OBJS = pnggccrd.o png.o pngset.o pngget.o pngrutil.o pngtrans.o pngwutil.o \
 	pngread.o pngrio.o pngwio.o pngwrite.o pngrtran.o \
 	pngwtran.o pngmem.o pngerror.o pngpread.o
 
-all: libpng.a pngtest
+all: libpng.a pngtest shared
+
+shared: $(SHAREDLIB).$(SONUM).$(VER)
 
 libpng.a: $(OBJS)
 	ar rc $@  $(OBJS)
 	$(RANLIB) $@
+
+$(SHAREDLIB).$(SONUM).$(VER): $(OBJS)
+	$(LDSHARED) -o $@ $(OBJS)
+	rm -f $(SHAREDLIB) $(SHAREDLIB).$(SONUM)
+	ln -s $@ $(SHAREDLIB)
+	ln -s $@ $(SHAREDLIB).$(SONUM)
 
 pngtest: pngtest.o libpng.a
 	$(CC) -o pngtest $(CFLAGS) pngtest.o $(LDFLAGS)
@@ -38,17 +64,25 @@ test: pngtest
 	./pngtest
 
 install: libpng.a
-	-@mkdir $(prefix)/include
-	-@mkdir $(prefix)/lib
-	cp png.h $(prefix)/include
-	cp pngconf.h $(prefix)/include
-	chmod 644 $(prefix)/include/png.h
-	chmod 644 $(prefix)/include/pngconf.h
-	cp libpng.a $(prefix)/lib
-	chmod 644 $(prefix)/lib/libpng.a
+	-@mkdir $(INCPATH)
+	-@mkdir $(LIBPATH)
+	cp png.h $(INCPATH)
+	cp pngconf.h $(INCPATH)
+	chmod 644 $(INCPATH)/png.h
+	chmod 644 $(INCPATH)/pngconf.h
+	cp libpng.a $(LIBPATH)
+	chmod 644 $(LIBPATH)/libpng.a
+
+install-shared: $(SHAREDLIB).$(SONUM).$(VER)
+	cp $(SHAREDLIB).$(SONUM).$(VER) $(LIBPATH)
+	chmod 755 $(SHAREDLIB).$(SONUM).$(VER)
+	(cd $(LIBPATH); if test -f $(SHAREDLIB).$(SONUM).$(VER); then \
+	rm -f $(SHAREDLIB) $(SHAREDLIB).$(SONUM); \
+	ln -s $(SHAREDLIB).$(SONUM).$(VER) $(SHAREDLIB).$(SONUM); \
+	ln -s $(SHAREDLIB).$(SONUM) $(SHAREDLIB))
 
 clean:
-	rm -f *.o libpng.a pngtest pngout.png
+	rm -f *.o libpng.a pngtest pngout.png $(SHAREDLIB) $(SHAREDLIB).$(SONUM)*
 
 DOCS = ANNOUNCE CHANGES INSTALL KNOWNBUG LICENSE README TODO Y2KINFO
 writelock:
@@ -72,4 +106,5 @@ pngwrite.o: png.h pngconf.h
 pngwtran.o: png.h pngconf.h
 pngwutil.o: png.h pngconf.h
 pngpread.o: png.h pngconf.h
+pnggccrd.o: png.h pngconf.h
 
