@@ -6,9 +6,9 @@
 #include "FileBrowser.h"
 #include <FL/Fl.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_Choice.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Return_Button.H>
+#include <FL/Fl_Roller.H>
 #include <FL/Fl_Window.H>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,55 +16,53 @@
 
 class FileChooser {
 public:
-  enum { TYPE_HTML, TYPE_IMAGE };
-  FileChooser(const char *d, int t, int m, const char *title);
+  enum { TYPE_MULTI = 1, TYPE_FOLLOW = 2 };
+  FileChooser(const char *d, char *p, int t, const char *title);
 private:
   Fl_Window *window;
-  Fl_Choice *dirHistory;
   FileBrowser *fileList;
   inline void cb_fileList_i(FileBrowser*, void*);
   static void cb_fileList(FileBrowser*, void*);
-  Fl_Button *prevDir;
-  inline void cb_prevDir_i(Fl_Button*, void*);
-  static void cb_prevDir(Fl_Button*, void*);
-  Fl_Button *newDir;
-  inline void cb_newDir_i(Fl_Button*, void*);
-  static void cb_newDir(Fl_Button*, void*);
-  Fl_Input *fileName;
   CheckButton *followLinks;
   inline void cb_Cancel_i(Fl_Button*, void*);
   static void cb_Cancel(Fl_Button*, void*);
   inline void cb_OK_i(Fl_Return_Button*, void*);
   static void cb_OK(Fl_Return_Button*, void*);
+public:
+  Fl_Roller *roller;
+private:
+  inline void cb_roller_i(Fl_Roller*, void*);
+  static void cb_roller(Fl_Roller*, void*);
+  inline void cb_up_i(Fl_Button*, void*);
+  static void cb_up(Fl_Button*, void*);
+  inline void cb_reset_i(Fl_Button*, void*);
+  static void cb_reset(Fl_Button*, void*);
+public:
+  Fl_Input *fileName;
+private:
+  inline void cb_xbm_i(Fl_Button*, void*);
+  static void cb_xbm(Fl_Button*, void*);
   char directory_[1024];
-public:
-  void directory(const char *d);
-  char * directory();
-private:
-  int multi_;
-public:
-  void multi(int m);
-  int multi();
-private:
-  int ok_;
-public:
-  int ok();
-private:
   int type_;
-public:
-  void type(int t);
-  int type();
-  void value(const char *v);
-  const char * value();
-  void show();
-  void hide();
-  int visible();
-private:
+  void fileListCB();
   void init_symbols();
-  void new_directory();
 public:
   void rescan();
 private:
-  void fileListCB(Fl_Widget *, void *);
+  void up();
+public:
+  int count();
+  void directory(const char *d);
+  char * directory();
+  void filter(const char *p);
+  const char * filter();
+  void follow_links(int f);
+  int follow_links();
+  void hide();
+  void multi(int m);
+  int multi();
+  void show();
+  const char *value(int f);
+  int visible();
 };
 #endif
