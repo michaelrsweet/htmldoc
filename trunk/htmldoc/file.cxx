@@ -1,5 +1,5 @@
 //
-// "$Id: file.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $"
+// "$Id: file.cxx,v 1.7 2002/03/11 02:33:04 mike Exp $"
 //
 //   Filename routines for HTMLDOC, a HTML document processing program.
 //
@@ -477,7 +477,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
 
       http->clear_fields();
       http->set_field(HD_HTTP_FIELD_HOST, hostname);
-      http->set_field(HD_HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
+      http->set_field(HD_HTTP_FIELD_USER_AGENT, "HTMLDOC v" HD_SVERSION);
       http->set_field(HD_HTTP_FIELD_CONNECTION, "Keep-Alive");
 
       if (username[0])
@@ -755,7 +755,7 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
   // Allocate memory for the file cache as needed...
   if (temp_files_ >= temp_alloc_)
   {
-    temp_alloc_ += ALLOC_FILES;
+    temp_alloc_ += HD_ALLOC_FILES;
 
     temp = new hdCache[temp_alloc_];
 
@@ -799,5 +799,5 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
 
 
 //
-// End of "$Id: file.cxx,v 1.6 2002/01/06 20:04:47 mike Exp $".
+// End of "$Id: file.cxx,v 1.7 2002/03/11 02:33:04 mike Exp $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: image.cxx,v 1.19 2002/01/06 20:04:48 mike Exp $"
+// "$Id: image.cxx,v 1.20 2002/03/11 02:33:05 mike Exp $"
 //
 //   Image handling routines for HTMLDOC, a HTML document processing program.
 //
@@ -300,7 +300,7 @@ hdImage::find(const char *p,	// I - Name of image file
   // Add the new image to the cache...
   if (num_images_ >= alloc_images_)
   {
-    hdImage **temp = new hdImage *[alloc_images_ + ALLOC_FILES];
+    hdImage **temp = new hdImage *[alloc_images_ + HD_ALLOC_FILES];
 
     if (num_images_)
     {
@@ -309,7 +309,7 @@ hdImage::find(const char *p,	// I - Name of image file
     }
 
     images_       = temp;
-    alloc_images_ += ALLOC_FILES;
+    alloc_images_ += HD_ALLOC_FILES;
   }
 
   images_[num_images_] = img;
@@ -419,7 +419,7 @@ hdImage::register_format(hdImageCheck check)	// I - Check function
 
   if (num_formats_ >= alloc_formats_)
   {
-    temp = new hdImageCheck[alloc_formats_ + ALLOC_FILES];
+    temp = new hdImageCheck[alloc_formats_ + HD_ALLOC_FILES];
     if (num_formats_)
     {
       memcpy(temp, formats_, sizeof(hdImageCheck) * num_formats_);
@@ -427,7 +427,7 @@ hdImage::register_format(hdImageCheck check)	// I - Check function
     }
 
     formats_       = temp;
-    alloc_formats_ += ALLOC_FILES;
+    alloc_formats_ += HD_ALLOC_FILES;
   }
 
   formats_[num_formats_] = check;
@@ -572,5 +572,5 @@ hdImage::uri(const char *p)		// I - New URI
 
 
 //
-// End of "$Id: image.cxx,v 1.19 2002/01/06 20:04:48 mike Exp $".
+// End of "$Id: image.cxx,v 1.20 2002/03/11 02:33:05 mike Exp $".
 //

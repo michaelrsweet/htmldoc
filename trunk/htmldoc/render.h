@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.4 2002/03/10 03:17:28 mike Exp $"
+// "$Id: render.h,v 1.5 2002/03/11 02:33:06 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -150,14 +150,14 @@ class hdRender
   public:
 
   hdStyleSheet	*css;			// Stylesheet data
-  int		width,			// Current width of page in points
-		length,			// Current length of page in points
-		left,			// Current left margin in points
-		bottom,			// Current bottom margin in points
-		right,			// Current right margin in points
-		top,			// Current top margin in points
-		print_width,		// Current printable width in points
-		print_length;		// Current printable length in points
+  float		page_width,		// Current width of page in points
+		page_length,		// Current length of page in points
+		page_left,		// Current left margin in points
+		page_bottom,		// Current bottom margin in points
+		page_right,		// Current right margin in points
+		page_top,		// Current top margin in points
+		page_print_width,	// Current printable width in points
+		page_print_length;	// Current printable length in points
   hdOrientation	orientation;		// Current orientation
   hdSides	sides;			// Current duplex setting
   char		media_color[64],	// Current media color
@@ -176,7 +176,7 @@ class hdRender
 		alloc_chapters;		// Allocated chapters
   hdRenderChapter *chapters;		// Chapters
 
-  hdTree	*current_heading;	// Current heading
+  char		*current_heading;	// Current heading
   int		num_headings,		// Number of headings
 		alloc_headings;		// Allocated headings
   hdRenderHeading *headings;		// Headings
@@ -197,7 +197,7 @@ class hdRender
 		render_startx,		// Current text X margin
 		render_spacing;		// Current text spacing
 
-  hdRender();
+  hdRender(hdStyleSheet *s);
   virtual	~hdRender();
 
   virtual int	write_chapter(hdFile *out,
@@ -430,5 +430,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.4 2002/03/10 03:17:28 mike Exp $".
+// End of "$Id: render.h,v 1.5 2002/03/11 02:33:06 mike Exp $".
 //
