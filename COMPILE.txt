@@ -1,4 +1,4 @@
-COMPILE.txt - 02/10/2004
+COMPILE.txt - 09/23/2004
 ------------------------
 
 REQUIREMENTS
@@ -17,23 +17,20 @@ REQUIREMENTS
 COMPILING HTMLDOC UNDER WINDOWS
 
     For the Windows version we have included Visual C++
-    workspace and project files under the "visualc" directory. 
-    You will probably have to adjust the locations of the FLTK
-    project file and include directory for your system. 
-    Dependencies are setup so you can just build the HTMLDOC
-    target and all of the support libraries will be compiled as
-    needed.
+    workspace and project files under the "visualc" and "vcnet"
+    directories. You must add the FLTK and OpenSSL include and
+    library directories to your VC++ environment options.
 
 
 INSTALLING HTMLDOC UNDER WINDOWS
 
-    We highly recommend installing the software using
-    InstallShield. Project files for InstallShield are included
-    in the "visualc/HTMLDOC" subdirectory.
+    We highly recommend installing the software using the
+    VC++.NET MSI file as provided in the project files under the
+    "vcnet" directory.
 
     If you want to install the software by hand, create a
     directory for the software and copy the HTMLDOC executable,
-    the "afm" directory, the "data" directory, and the "doc"
+    the "fonts" directory, the "data" directory, and the "doc"
     directory to it.
 
     Then create the following registry entries with REGEDIT:
@@ -56,12 +53,6 @@ CONFIGURING HTMLDOC UNDER UNIX
     "--prefix" option when you run the configure script:
 
         ./configure --prefix=/some/directory
-
-    If the FLTK library is in a non-standard location you can
-    specify it using:
-
-        ./configure --with-fltk-includes=/some/directory/include \
-	    --with-fltk-libs=/some/directory/lib
 
     If the OpenSSL library is in a non-standard location you can
     specify it using:

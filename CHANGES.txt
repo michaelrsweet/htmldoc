@@ -1,4 +1,4 @@
-CHANGES.txt - 07/21/2004
+CHANGES.txt - 09/23/2004
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.24
