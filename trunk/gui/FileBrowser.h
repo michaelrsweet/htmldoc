@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.h,v 1.3 1999/02/20 14:16:45 mike Exp $"
+// "$Id: FileBrowser.h,v 1.4 1999/04/21 01:22:21 mike Exp $"
 //
 //   FileBrowser definitions for HTMLDOC, an HTML document processing program.
 //
@@ -13,22 +13,16 @@
 // Include necessary header files...
 //
 
-#ifndef _FILE_BROWSER_H_
-#  define _FILE_BROWSER_H_
+#ifndef _GUI_FILEBROWSER_H_
+#  define _GUI_FILEBROWSER_H_
 
 #  include <FL/Fl_Browser.H>
+#  include "FileIcon.h"
 
 
 //
-// FileBrowser class and support structures...
+// FileBrowser class...
 //
-
-struct FBIcon			//// Icon data
-{
-  FBIcon	*next;			// Pointer to next icon/filetype
-  const char	*pattern;		// Pattern string 
-  void		(*drawfunc)(Fl_Color);	// Draw function
-};
 
 class FileBrowser : public Fl_Browser
 {
@@ -39,24 +33,17 @@ class FileBrowser : public Fl_Browser
   int		incr_height() const { return (item_height(0)); }
   const char	*pattern_;
   const char	*directory_;
-  static FBIcon	*icons_;
 
 public:
   FileBrowser(int, int, int, int, const char * = 0);
 
   int		load(const char *directory);
-  void		icon(const char *pattern, void (*drawfunc)(Fl_Color));
   void		filter(const char *pattern);
   const char	*filter() const { return (pattern_); };
-  static void	draw_cdrom(Fl_Color c);
-  static void	draw_drive(Fl_Color c);
-  static void	draw_floppy(Fl_Color c);
-  static void	draw_file(Fl_Color c);
-  static void	draw_folder(Fl_Color c);
 };
 
-#endif // !_FILE_BROWSER_H_
+#endif // !_GUI_FILEBROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.3 1999/02/20 14:16:45 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.4 1999/04/21 01:22:21 mike Exp $".
 //
