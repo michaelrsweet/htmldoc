@@ -1,5 +1,5 @@
 //
-// "$Id: license.cxx,v 1.1.2.1 2004/06/14 20:24:57 mike Exp $"
+// "$Id: license.cxx,v 1.1.2.2 2004/06/14 21:51:05 mike Exp $"
 //
 //   GUI license dialog routines for HTMLDOC, an HTML document processing
 //   program.
@@ -78,8 +78,8 @@ GUI::showLicenseCB(void)
   box = new Fl_Box(20, 45, 440, 110,
     "You are using the free, unsupported version of HTMLDOC which is "
     "provided under the terms of the GNU General Public License shown "
-    "below. To purchase support or otherwise financially support the "
-    "development of HTMLDOC, please point your web browser at the "
+    "below. Basic and professional memberships, which financially "
+    "support the continued development of HTMLDOC, may be purchased at the "
     "following URL:\n"
     "\n"
     "                http://www.easysw.com/htmldoc/"
@@ -364,5 +364,5 @@ closeLicenseCB(Fl_Widget *w)		// I - Close button
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: license.cxx,v 1.1.2.1 2004/06/14 20:24:57 mike Exp $".
+// End of "$Id: license.cxx,v 1.1.2.2 2004/06/14 21:51:05 mike Exp $".
 //
