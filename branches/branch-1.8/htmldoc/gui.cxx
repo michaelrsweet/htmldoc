@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.21 2001/09/17 16:59:50 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.22 2001/09/30 22:41:30 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -388,16 +388,16 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   group = new Fl_Group(140, 45, 250, 20, "Document Type: ");
   group->align(FL_ALIGN_LEFT);
-    typeBook = new CheckButton(140, 45, 60, 20, "Book");
+    typeBook = new RadioButton(140, 45, 60, 20, "Book");
     typeBook->type(FL_RADIO_BUTTON);
     typeBook->setonly();
     typeBook->callback((Fl_Callback *)docTypeCB, this);
 
-    typeContinuous = new CheckButton(200, 45, 100, 20, "Continuous");
+    typeContinuous = new RadioButton(200, 45, 100, 20, "Continuous");
     typeContinuous->type(FL_RADIO_BUTTON);
     typeContinuous->callback((Fl_Callback *)docTypeCB, this);
 
-    typeWebPage = new CheckButton(300, 45, 90, 20, "Web Page");
+    typeWebPage = new RadioButton(300, 45, 90, 20, "Web Page");
     typeWebPage->type(FL_RADIO_BUTTON);
     typeWebPage->callback((Fl_Callback *)docTypeCB, this);
   group->end();
@@ -460,12 +460,12 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   group = new Fl_Group(140, 45, 265, 20, "Output To: ");
   group->align(FL_ALIGN_LEFT);
-    outputFile = new CheckButton(140, 45, 50, 20, "File");
+    outputFile = new RadioButton(140, 45, 50, 20, "File");
     outputFile->type(FL_RADIO_BUTTON);
     outputFile->setonly();
     outputFile->callback((Fl_Callback *)outputTypeCB, this);
 
-    outputDirectory = new CheckButton(190, 45, 105, 20, "Directory");
+    outputDirectory = new RadioButton(190, 45, 105, 20, "Directory");
     outputDirectory->type(FL_RADIO_BUTTON);
     outputDirectory->callback((Fl_Callback *)outputTypeCB, this);
   group->end();
@@ -479,16 +479,16 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   group = new Fl_Group(140, 100, 255, 20, "Output Format: ");
   group->align(FL_ALIGN_LEFT);
-    typeHTML = new CheckButton(140, 100, 65, 20, "HTML");
+    typeHTML = new RadioButton(140, 100, 65, 20, "HTML");
     typeHTML->type(FL_RADIO_BUTTON);
     typeHTML->setonly();
     typeHTML->callback((Fl_Callback *)outputFormatCB, this);
 
-    typePS = new CheckButton(205, 100, 45, 20, "PS");
+    typePS = new RadioButton(205, 100, 45, 20, "PS");
     typePS->type(FL_RADIO_BUTTON);
     typePS->callback((Fl_Callback *)outputFormatCB, this);
 
-    typePDF = new CheckButton(250, 100, 55, 20, "PDF");
+    typePDF = new RadioButton(250, 100, 55, 20, "PDF");
     typePDF->type(FL_RADIO_BUTTON);
     typePDF->callback((Fl_Callback *)outputFormatCB, this);
   group->end();
@@ -773,15 +773,15 @@ GUI::GUI(const char *filename)		// Book file to load initially
   psLevel = new Fl_Group(140, 45, 310, 20, "PostScript: ");
   psLevel->align(FL_ALIGN_LEFT);
 
-    ps1 = new CheckButton(140, 45, 70, 20, "Level 1");
+    ps1 = new RadioButton(140, 45, 70, 20, "Level 1");
     ps1->type(FL_RADIO_BUTTON);
     ps1->callback((Fl_Callback *)psCB, this);
 
-    ps2 = new CheckButton(210, 45, 70, 20, "Level 2");
+    ps2 = new RadioButton(210, 45, 70, 20, "Level 2");
     ps2->type(FL_RADIO_BUTTON);
     ps2->callback((Fl_Callback *)psCB, this);
 
-    ps3 = new CheckButton(280, 45, 70, 20, "Level 3");
+    ps3 = new RadioButton(280, 45, 70, 20, "Level 3");
     ps3->type(FL_RADIO_BUTTON);
     ps3->callback((Fl_Callback *)psCB, this);
 
@@ -802,19 +802,19 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pdfVersion = new Fl_Group(140, 45, 310, 40, "PDF Version: \n ");
   pdfVersion->align(FL_ALIGN_LEFT);
 
-    pdf11 = new CheckButton(140, 45, 125, 20, "1.1 (Acrobat 2.x)");
+    pdf11 = new RadioButton(140, 45, 125, 20, "1.1 (Acrobat 2.x)");
     pdf11->type(FL_RADIO_BUTTON);
     pdf11->callback((Fl_Callback *)pdfCB, this);
 
-    pdf12 = new CheckButton(270, 45, 125, 20, "1.2 (Acrobat 3.0)");
+    pdf12 = new RadioButton(270, 45, 125, 20, "1.2 (Acrobat 3.0)");
     pdf12->type(FL_RADIO_BUTTON);
     pdf12->callback((Fl_Callback *)pdfCB, this);
 
-    pdf13 = new CheckButton(140, 65, 125, 20, "1.3 (Acrobat 4.0)");
+    pdf13 = new RadioButton(140, 65, 125, 20, "1.3 (Acrobat 4.0)");
     pdf13->type(FL_RADIO_BUTTON);
     pdf13->callback((Fl_Callback *)pdfCB, this);
 
-    pdf14 = new CheckButton(270, 65, 125, 20, "1.4 (Acrobat 5.0)");
+    pdf14 = new RadioButton(270, 65, 125, 20, "1.4 (Acrobat 5.0)");
     pdf14->type(FL_RADIO_BUTTON);
     pdf14->callback((Fl_Callback *)pdfCB, this);
 
@@ -877,12 +877,12 @@ GUI::GUI(const char *filename)		// Book file to load initially
   encryption = new Fl_Group(140, 45, 310, 20, "Encryption: ");
   encryption->align(FL_ALIGN_LEFT);
 
-    encryptionNo = new CheckButton(140, 45, 40, 20, "No");
+    encryptionNo = new RadioButton(140, 45, 40, 20, "No");
     encryptionNo->type(FL_RADIO_BUTTON);
     encryptionNo->set();
     encryptionNo->callback((Fl_Callback *)encryptionCB, this);
 
-    encryptionYes = new CheckButton(180, 45, 45, 20, "Yes");
+    encryptionYes = new RadioButton(180, 45, 45, 20, "Yes");
     encryptionYes->type(FL_RADIO_BUTTON);
     encryptionYes->callback((Fl_Callback *)encryptionCB, this);
 
@@ -3980,5 +3980,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.21 2001/09/17 16:59:50 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.22 2001/09/30 22:41:30 mike Exp $".
 //

@@ -1,5 +1,5 @@
 dnl
-dnl "$Id: configure.in,v 1.23.2.17 2001/07/17 22:48:03 mike Exp $"
+dnl "$Id: configure.in,v 1.23.2.18 2001/09/30 22:41:30 mike Exp $"
 dnl
 dnl   Configuration script for HTMLDOC, an HTML document processing program.
 dnl
@@ -57,6 +57,7 @@ AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
 AC_PATH_PROG(CHMOD,chmod)
 AC_PATH_PROG(CP,cp)
+AC_PATH_PROG(FLTKCONFIG,fltk-config)
 AC_PATH_PROG(MV,mv)
 AC_PATH_PROG(MKDIR,mkdir)
 AC_PATH_PROG(RM,rm)
@@ -210,8 +211,12 @@ if test x$with_x != xno; then
     AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
 
     if test x$ac_cv_lib_fltk_numericsort = xyes; then
-	LIBS="../gui/libgui.a $LIBS"
-	GUI="gui"
+        if test "$ac_cv_prog_fltk_config" = ":"; then
+	    LIBS="../gui/libgui.a $LIBS"
+	    GUI="gui"
+	else
+	    GUI=""
+	fi
     else
 	AC_MSG_WARN(FLTK not available so no GUI will be built.)
 	LIBS="$OLDLIBS"
@@ -238,7 +243,7 @@ AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
 dnl Update compiler options...
 if test -n "$GXX"; then
     # Since we don't use libstdc++, use gcc to avoid getting it linked in...
-    CXX="$GCC"
+    CXX="$CC"
 
     # Set optimization flags...
     if test -z "$OPTIM"; then
@@ -307,5 +312,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile)
 
 dnl
-dnl End of "$Id: configure.in,v 1.23.2.17 2001/07/17 22:48:03 mike Exp $".
+dnl End of "$Id: configure.in,v 1.23.2.18 2001/09/30 22:41:30 mike Exp $".
 dnl
