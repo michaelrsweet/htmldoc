@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.14 2001/05/17 13:26:50 mike Exp $"
+ * "$Id: file.c,v 1.13.2.15 2001/05/19 23:55:38 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -138,13 +138,17 @@ file_cleanup(void)
   while (web_files > 0)
   {
 #ifdef WIN32
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d.dat", tmpdir,
+    snprintf(filename, sizeof(filename), "%s/%08x.%06d.tmp", tmpdir,
              GetCurrentProcessId(), web_files);
 #else
-    snprintf(filename, sizeof(filename), "%s/%06d.%06d", tmpdir, getpid(), web_files);
+    snprintf(filename, sizeof(filename), "%s/%06d.%06d.tmp", tmpdir,
+             getpid(), web_files);
 #endif /* WIN32 */
 
-    unlink(filename);
+    if (unlink(filename))
+      progress_error("Unable to delete temporary file \"%s\": %s",
+                     filename, strerror(errno));
+
     web_files --;
 
     if (web_cache[web_files].name)
@@ -471,7 +475,8 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     if ((fp = file_temp(filename, sizeof(filename))) == NULL)
     {
       progress_hide();
-      progress_error("Unable to create temporary file \"%s\"!", filename);
+      progress_error("Unable to create temporary file \"%s\": %s", filename,
+                     strerror(errno));
       httpFlush(http);
       return (NULL);
     }
@@ -698,15 +703,15 @@ file_temp(char *name,			/* O - Filename */
 #ifdef WIN32
   GetTempPath(sizeof(tmpdir), tmpdir);
 
-  snprintf(name, len, "%s/%08x.%06d.dat", tmpdir, GetCurrentProcessId(), web_files);
+  snprintf(name, len, "%s/%08x.%06d.tmp", tmpdir, GetCurrentProcessId(), web_files);
 
-  fd = _open(name, _O_CREAT | _O_RDWR | _O_EXCL | _O_TRUNC | _O_SHORT_LIVED |
-                   _O_BINARY, _S_IREAD | _S_IWRITE);
+  fd = _open(name, _O_CREAT | _O_RDWR | _O_EXCL | _O_TRUNC | _O_BINARY | _O_SHORT_LIVED,
+             _S_IREAD | _S_IWRITE);
 #else
   if ((tmpdir = getenv("TMPDIR")) == NULL)
     tmpdir = "/var/tmp";
 
-  snprintf(name, len, "%s/%06d.%06d", tmpdir, getpid(), web_files);
+  snprintf(name, len, "%s/%06d.%06d.tmp", tmpdir, getpid(), web_files);
 
   fd = open(name, O_CREAT | O_RDWR | O_EXCL | O_TRUNC, 0600);
 #endif /* WIN32 */
@@ -717,15 +722,12 @@ file_temp(char *name,			/* O - Filename */
     fp = NULL;
 
   if (!fp)
-  {
     web_files --;
-    name[0] = '\0';
-  }
 
   return (fp);
 }
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.14 2001/05/17 13:26:50 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.15 2001/05/19 23:55:38 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.52 2001/05/18 21:16:20 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.53 2001/05/19 23:55:38 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -777,7 +777,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   * and arabic numbers for all others...
   */
 
-  if (chapter == 0)
+  if (chapter == 0 && OutputBook)
   {
     print_page = page - chapter_starts[0] + 1;
     page_text  = format_number(print_page, 'i');
@@ -1469,15 +1469,9 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
       fInfo.fdCreator = 'CARO';
       FSpSetFInfo(&fSpec, &fInfo);
     }
-
-  //
-  // Now that the PDF file is associated with that type, close the file.
-  //
-
-  fclose(out);
-#else
-  fclose(out);
 #endif // MAC
+
+  fclose(out);
 
   //
   // If we are sending the output to stdout, copy the temp file now...
@@ -2298,7 +2292,6 @@ pdf_write_names(FILE *out)		/* I - Output file */
             link->top);
     pdf_end_object(out);
   }
-
 }
 
 
@@ -6832,6 +6825,17 @@ write_image(FILE     *out,	/* I - Output file */
 	      colors[1][2] = 0;
 	    }
 
+	    if (Encryption)
+	    {
+              uchar ecolors[256][3]; // Encrypted colors
+
+
+	      // Encrypt the colormap...
+	      encrypt_init();
+	      rc4_encrypt(&encrypt_state, colors[0], ecolors[0], ncolors * 3);
+              memcpy(colors, ecolors, ncolors * 3);
+	    }
+
 	    fprintf(out, "/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
 	      fprintf(out, "%02X%02X%02X", colors[i][0], colors[i][1], colors[i][2]);
@@ -6860,8 +6864,7 @@ write_image(FILE     *out,	/* I - Output file */
 
           if (OutputJPEG && ncolors == 0)
 	  {
-	    if (Compression)
-              flate_open_stream(out);
+            flate_open_stream(out);
 	    
 	    jpg_setup(out, img, &cinfo);
 
@@ -6873,13 +6876,11 @@ write_image(FILE     *out,	/* I - Output file */
 	    jpeg_finish_compress(&cinfo);
 	    jpeg_destroy_compress(&cinfo);
 
-	    if (Compression)
-              flate_close_stream(out);
+            flate_close_stream(out);
 	  }
           else
 	  {
-	    if (Compression)
-              flate_open_stream(out);
+            flate_open_stream(out);
 	    
 	    if (ncolors > 0)
    	      flate_write(out, indices, indwidth * img->height);
@@ -6887,8 +6888,7 @@ write_image(FILE     *out,	/* I - Output file */
   	      flate_write(out, img->pixels,
 	                  img->width * img->height * img->depth);
 
-	    if (Compression)
-              flate_close_stream(out);
+            flate_close_stream(out);
           }
 
           pdf_end_object(out);
@@ -7823,7 +7823,7 @@ write_trailer(FILE *out,	/* I - Output file */
 
     fprintf(out, "/PageMode/%s", modes[PDFPageMode]);
 
-    if (PDFVersion > 1.2)
+    if (PDFVersion > 1.2 && OutputBook)
     {
       // Output the PageLabels tree...
       fputs("/PageLabels<</Nums[", out);
@@ -8328,5 +8328,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.52 2001/05/18 21:16:20 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.53 2001/05/19 23:55:38 mike Exp $".
  */
