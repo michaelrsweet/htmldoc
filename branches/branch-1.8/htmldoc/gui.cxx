@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.33 2001/11/30 02:59:04 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.34 2001/12/06 18:15:34 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -963,51 +963,18 @@ GUI::GUI(const char *filename)		// Book file to load initially
   tabs->end();
 
 #  if FL_MINOR_VERSION >= 1
-  tabs->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  tabs->box(FL_PLASTIC_UP_BOX);
 
-  inputTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  outputTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  pageTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  fontsTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  colorsTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  tocTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  psTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  pdfTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  securityTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  optionsTab->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-
-  typeBook->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  typeContinuous->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  typeWebPage->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  outputFile->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  outputDirectory->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  typeHTML->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  typePS->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  typePDF->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  grayscale->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  titlePage->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  jpegCompress->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  pageDuplex->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  landscape->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  numberedToc->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  ps1->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  ps2->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  ps3->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  psCommands->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  xrxComments->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  pdf11->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  pdf12->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  pdf13->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  pdf14->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  links->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  truetype->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  encryptionYes->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  encryptionNo->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  permPrint->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  permModify->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  permCopy->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  permAnnotate->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
-  tooltips->color(fl_rgb_color(0xd1, 0xd1, 0xd1));
+  inputTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  outputTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  pageTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  fontsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  colorsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  tocTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  psTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  pdfTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  securityTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+  optionsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
 
   typeBook->down_box(FL_ROUND_UP_BOX);
   typeContinuous->down_box(FL_ROUND_UP_BOX);
@@ -1098,6 +1065,9 @@ GUI::GUI(const char *filename)		// Book file to load initially
   progressBar = new Progress(10, 385, 485, 20, "HTMLDOC " SVERSION " Ready.");
 
 #  if FL_MINOR_VERSION >= 1
+  progressBar->color2(FL_BLUE);
+  progressBar->box(FL_UP_BOX);
+
   tile_group->end();
 #  endif // FL_MINOR_VERSION >= 1
 
@@ -4088,5 +4058,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.33 2001/11/30 02:59:04 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.34 2001/12/06 18:15:34 mike Exp $".
 //
