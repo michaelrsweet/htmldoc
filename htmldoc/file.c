@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.7 2000/06/29 01:15:56 mike Exp $"
+ * "$Id: file.c,v 1.8 2000/09/11 01:19:25 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -26,8 +26,10 @@
  *   file_basename()  - Return the base filename without directory or target.
  *   file_directory() - Return the directory without filename or target.
  *   file_extension() - Return the extension of a file without the target.
+ *   file_find()      - Find a file in one of the path directories.
  *   file_localize()  - Localize a filename for the new working directory.
  *   file_method()    - Return the method for a filename or URL.
+ *   file_proxy()     - Set the proxy host for all HTTP requests.
  *   file_target()    - Return the target of a link.
  */
 
@@ -36,6 +38,23 @@
  */
 
 #include "file.h"
+#include "http.h"
+
+
+/*
+ * Local globals...
+ */
+
+char	proxy_host[HTTP_MAX_URI] = "";
+int	proxy_port = 0;
+http_t	*http = NULL;
+
+
+/*
+ * Local functions...
+ */
+
+static void	close_connection(void);
 
 
 /*
@@ -324,6 +343,38 @@ file_method(const char *s)	/* I - Filename or URL */
 
 
 /*
+ * 'file_proxy()' - Set the proxy host for all HTTP requests.
+ */
+
+void
+file_proxy(const char *url)	/* I - URL of proxy server */
+{
+   char	method[HTTP_MAX_URI],	/* Method name (must be HTTP) */
+	username[HTTP_MAX_URI],	/* Username:password information */
+	hostname[HTTP_MAX_URI],	/* Hostname */
+	resource[HTTP_MAX_URI];	/* Resource name */
+  int	port;			/* Port number */
+
+
+  if (url == NULL || url[0] == '\0')
+  {
+    proxy_host[0] = '\0';
+    proxy_port    = 0;
+  }
+  else
+  {
+    httpSeparate(url, method, username, hostname, &port, resource);
+
+    if (strcmp(method, "http") == 0)
+    {
+      strcpy(proxy_host, hostname);
+      proxy_port = port;
+    }
+  }
+}
+
+
+/*
  * 'file_target()' - Return the target of a link.
  */
 
@@ -356,5 +407,20 @@ file_target(const char *s)	/* I - Filename or URL */
 
 
 /*
- * End of "$Id: file.c,v 1.7 2000/06/29 01:15:56 mike Exp $".
+ * 'close_connection()' - Close an open HTTP connection on exit...
+ */
+
+static void
+close_connection(void)
+{
+  if (http)
+  {
+    httpClose(http);
+    http = NULL;
+  }
+}
+
+
+/*
+ * End of "$Id: file.c,v 1.8 2000/09/11 01:19:25 mike Exp $".
  */
