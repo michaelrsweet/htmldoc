@@ -1,13 +1,10 @@
-CHANGES.txt - 03/31/2004
+CHANGES.txt - 04/15/2004
 ------------------------
 
-CHANGES IN HTMLDOC v1.9b1
+CHANGES IN HTMLDOC v1.8.24
 
     NEW FEATURES
 
-	- HTMLDOC now provides much better support for
-	  "wrapping" of text around images and new support for
-	  tables via the ALIGN attribute.
 	- HTMLDOC now offers an "htmlsep" output type which
 	  generates HTML output with a separate file for each
 	  heading in the table of contents.
@@ -21,6 +18,8 @@ CHANGES IN HTMLDOC v1.9b1
 	- Added support for HP LaserJet 5000 and Xerox DocuPrint
 	  2000/100 printer commands.
 	- Added multiple header/footer image support.
+	- Links to external URLs are now resolved so that the
+	  output file can be moved without affecting them.
 
     CHANGES
 
@@ -48,6 +47,11 @@ CHANGES IN HTMLDOC v1.9b1
 	  Acrobat 6 which tries to decrypt the colormap of in-line
 	  images twice, causing some very strange colors!
 	- Table captions can now be bottom aligned.
+	- Blocks now break at the bottom of a page if the
+	  current line height + standard line height goes below
+	  the bottom of the page; this prevents images with
+	  captions from getting erroneously moved to the top of
+	  the next page.
 
     BUG FIXES
 

@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.5 2004/04/11 21:20:28 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.17 2004/02/06 03:51:09 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636-3111 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -23,14 +23,14 @@
  *
  * Contents:
  *
- *   hdBook::format_number()   - Format a number into arabic numerals, roman numerals,
+ *   format_number()   - Format a number into arabic numerals, roman numerals,
  *                       or letters.
- *   hdBook::get_color()       - Get a standard color value...
- *   hdBook::get_format()      - Convert an old "fff" format string to the new format.
- *   hdBook::get_fmt()         - Convert a new format string to the old "fff" format.
- *   hdBook::get_measurement() - Get a size measurement in inches, points, centimeters,
+ *   get_color()       - Get a standard color value...
+ *   get_format()      - Convert an old "fff" format string to the new format.
+ *   get_fmt()         - Convert a new format string to the old "fff" format.
+ *   get_measurement() - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
- *   hdBook::set_page_size()   - Set the output page size.
+ *   set_page_size()   - Set the output page size.
  */
 
 /*
@@ -42,12 +42,12 @@
 
 
 /*
- * 'hdBook::format_number()' - Format a number into arabic numerals, roman numerals,
+ * 'format_number()' - Format a number into arabic numerals, roman numerals,
  *                     or letters.
  */
 
 char *				/* O - String */
-hdBook::format_number(int  n,		/* I - Number */
+format_number(int  n,		/* I - Number */
               char f)		/* I - Format */
 {
   static const char *ones[10] =	/* Roman numerals, 0-9 */
@@ -133,11 +133,11 @@ hdBook::format_number(int  n,		/* I - Number */
 
 
 /*
- * 'hdBook::get_color()' - Get a standard color value...
+ * 'get_color()' - Get a standard color value...
  */
 
 void
-hdBook::get_color(const uchar *color,	/* I - Color attribute */
+get_color(const uchar *color,	/* I - Color attribute */
           float       *rgb,	/* O - RGB value */
 	  int         defblack)	/* I - Default color is black? */
 {
@@ -238,11 +238,11 @@ hdBook::get_color(const uchar *color,	/* I - Color attribute */
 
 
 //
-// 'hdBook::get_format()' - Convert an old "fff" format string to the new format.
+// 'get_format()' - Convert an old "fff" format string to the new format.
 //
 
 void
-hdBook::get_format(const char *fmt,		// I - Old "fff" format
+get_format(const char *fmt,		// I - Old "fff" format
            char       **formats)	// O - New format strings
 {
   int	i;				// Looping var
@@ -327,11 +327,11 @@ hdBook::get_format(const char *fmt,		// I - Old "fff" format
 
 
 //
-// 'hdBook::get_fmt()' - Convert a new format string to the old "fff" format.
+// 'get_fmt()' - Convert a new format string to the old "fff" format.
 //
 
 const char *				// O - Old format string
-hdBook::get_fmt(char **formats)			// I - New format strings
+get_fmt(char **formats)			// I - New format strings
 {
   int		i, j;			// Looping vars
   static char	fmt[4];			// Old format string
@@ -375,12 +375,12 @@ hdBook::get_fmt(char **formats)			// I - New format strings
 
 
 /*
- * 'hdBook::get_measurement()' - Get a size measurement in inches, points, centimeters,
+ * 'get_measurement()' - Get a size measurement in inches, points, centimeters,
  *                       or millimeters.
  */
 
 int				/* O - Measurement in points */
-hdBook::get_measurement(const char *s,	/* I - Measurement string */
+get_measurement(const char *s,	/* I - Measurement string */
                 float      mul)	/* I - Multiplier */
 {
   float	val;			/* Measurement value */
@@ -412,11 +412,11 @@ hdBook::get_measurement(const char *s,	/* I - Measurement string */
 
 
 /*
- * 'hdBook::set_page_size()' - Set the output page size.
+ * 'set_page_size()' - Set the output page size.
  */
 
 void
-hdBook::set_page_size(const char *size)	/* I - Page size string */
+set_page_size(const char *size)	/* I - Page size string */
 {
   float	width,			/* Width in points */
 	length;			/* Length in points */
@@ -514,5 +514,5 @@ hdBook::set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.5 2004/04/11 21:20:28 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.17 2004/02/06 03:51:09 mike Exp $".
  */

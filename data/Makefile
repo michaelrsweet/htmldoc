@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.5 2004/03/31 06:32:25 mike Exp $"
+# "$Id: Makefile,v 1.4.2.5 2002/08/26 18:04:41 mike Exp $"
 #
 #   Makefile for HTMLDOC data files.
 #
@@ -67,5 +67,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.5 2004/03/31 06:32:25 mike Exp $".
+# End of "$Id: Makefile,v 1.4.2.5 2002/08/26 18:04:41 mike Exp $".
 #

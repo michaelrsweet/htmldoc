@@ -31,6 +31,9 @@
 
 	<LI>Added multiple header/footer image support.
 
+	<li>Links to external URLs are now resolved so that the
+	output file can be moved without affecting them.</li>
+
 	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<LI>The command-line now allows --fontsize values from 4
@@ -67,6 +70,12 @@
 	images twice, causing some very strange colors!
 
 	<LI>Table captions can now be bottom aligned.
+
+	<li>Blocks now break at the bottom of a page if the
+	current line height + standard line height goes below
+	the bottom of the page; this prevents images with
+	captions from getting erroneously moved to the top of
+	the next page.
 
 	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
