@@ -1,68 +1,90 @@
 /*
- * "$Id: string.c,v 1.4.2.4 2003/01/06 22:09:44 mike Exp $"
+ * "$Id: string.c,v 1.4.2.5 2004/01/13 02:51:27 mike Exp $"
  *
- *   String functions for HTMLDOC, a HTML document processing program.
+ *   String functions for HTMLDOC.
  *
- *   Copyright 1997-2003 by Easy Software Products.
+ *   Copyright 1997-2004 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
  *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
+ *   "LICENSE.txt" which should have been included with this file.  If this
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: ESP Licensing Information
+ *       Attn: CUPS Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
  *       Hollywood, Maryland 20636-3111 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: info@easysw.com
- *         WWW: http://www.easysw.com
+ *       Voice: (301) 373-9603
+ *       EMail: cups-info@cups.org
+ *         WWW: http://www.cups.org
+ *
+ *   This file is subject to the Apple OS-Developed Software exception.
  *
  * Contents:
  *
- *   strdup()      - Duplicate a string.
- *   strcasecmp()  - Compare two strings, ignoring differences in case.
- *   strncasecmp() - Compare two strings, ignoring differences in case.
+ *   hd_strcpy()      - Copy a string allowing for overlapping strings.
+ *   hd_strdup()      - Duplicate a string.
+ *   hd_strcasecmp()  - Do a case-insensitive comparison.
+ *   hd_strncasecmp() - Do a case-insensitive comparison on up to N chars.
+ *   hd_strlcat()     - Safely concatenate two strings.
+ *   hd_strlcpy()     - Safely copy two strings.
  */
 
 /*
- * Include necessary headers.
+ * Include necessary headers...
  */
 
 #include "hdstring.h"
-#include <ctype.h>
 
 
-#ifndef HAVE_STRDUP
 /*
- * 'strdup()' - Duplicate a string.
+ * 'hd_strcpy()' - Copy a string allowing for overlapping strings.
  */
 
-char *			/* O - New string pointer... */
-strdup(const char *s)	/* I - String to duplicate... */
+void
+hd_strcpy(char       *dst,		/* I - Destination string */
+          const char *src)		/* I - Source string */
 {
-  char	*t;		/* New string */
+  while (*src)
+    *dst++ = *src++;
+
+  *dst = '\0';
+}
 
 
-  if ((t = calloc(strlen(s) + 1, 1)) != NULL)
-    strcpy(t, s);
+/*
+ * 'hd_strdup()' - Duplicate a string.
+ */
 
-  return (t);
+#ifndef HAVE_STRDUP
+char *				/* O - New string pointer */
+hd_strdup(const char *s)	/* I - String to duplicate */
+{
+  char	*t;			/* New string pointer */
+
+
+  if (s == NULL)
+    return (NULL);
+
+  if ((t = malloc(strlen(s) + 1)) == NULL)
+    return (NULL);
+
+  return (strcpy(t, s));
 }
 #endif /* !HAVE_STRDUP */
 
 
-#ifndef HAVE_STRCASECMP
 /*
- * 'strcasecmp()' - Compare two strings, ignoring differences in case.
+ * 'hd_strcasecmp()' - Do a case-insensitive comparison.
  */
 
+#ifndef HAVE_STRCASECMP
 int				/* O - Result of comparison (-1, 0, or 1) */
-strcasecmp(const char *s,	/* I - First string */
-           const char *t)	/* I - Second string */
+hd_strcasecmp(const char *s,	/* I - First string */
+              const char *t)	/* I - Second string */
 {
   while (*s != '\0' && *t != '\0')
   {
@@ -84,16 +106,15 @@ strcasecmp(const char *s,	/* I - First string */
 }
 #endif /* !HAVE_STRCASECMP */
 
-
-#ifndef HAVE_STRNCASECMP
 /*
- * 'strncasecmp()' - Compare two strings, ignoring differences in case.
+ * 'hd_strncasecmp()' - Do a case-insensitive comparison on up to N chars.
  */
 
+#ifndef HAVE_STRNCASECMP
 int				/* O - Result of comparison (-1, 0, or 1) */
-strncasecmp(const char *s,	/* I - First string */
-            const char *t,	/* I - Second string */
-	    size_t     n)	/* I - Maximum number of characters to compare */
+hd_strncasecmp(const char *s,	/* I - First string */
+               const char *t,	/* I - Second string */
+	       size_t     n)	/* I - Maximum number of characters to compare */
 {
   while (*s != '\0' && *t != '\0' && n > 0)
   {
@@ -119,6 +140,87 @@ strncasecmp(const char *s,	/* I - First string */
 #endif /* !HAVE_STRNCASECMP */
 
 
+#ifndef HAVE_STRLCAT
 /*
- * End of "$Id: string.c,v 1.4.2.4 2003/01/06 22:09:44 mike Exp $".
+ * 'hd_strlcat()' - Safely concatenate two strings.
+ */
+
+size_t				/* O - Length of string */
+hd_strlcat(char       *dst,	/* O - Destination string */
+           const char *src,	/* I - Source string */
+	   size_t     size)	/* I - Size of destination string buffer */
+{
+  size_t	srclen;		/* Length of source string */
+  size_t	dstlen;		/* Length of destination string */
+
+
+ /*
+  * Figure out how much room is left...
+  */
+
+  dstlen = strlen(dst);
+  size   -= dstlen + 1;
+
+  if (!size)
+    return (dstlen);		/* No room, return immediately... */
+
+ /*
+  * Figure out how much room is needed...
+  */
+
+  srclen = strlen(src);
+
+ /*
+  * Copy the appropriate amount...
+  */
+
+  if (srclen > size)
+    srclen = size;
+
+  memcpy(dst + dstlen, src, srclen);
+  dst[dstlen + srclen] = '\0';
+
+  return (dstlen + srclen);
+}
+#endif /* !HAVE_STRLCAT */
+
+
+#ifndef HAVE_STRLCPY
+/*
+ * 'hd_strlcpy()' - Safely copy two strings.
+ */
+
+size_t				/* O - Length of string */
+hd_strlcpy(char       *dst,	/* O - Destination string */
+           const char *src,	/* I - Source string */
+	   size_t      size)	/* I - Size of destination string buffer */
+{
+  size_t	srclen;		/* Length of source string */
+
+
+ /*
+  * Figure out how much room is needed...
+  */
+
+  size --;
+
+  srclen = strlen(src);
+
+ /*
+  * Copy the appropriate amount...
+  */
+
+  if (srclen > size)
+    srclen = size;
+
+  memcpy(dst, src, srclen);
+  dst[srclen] = '\0';
+
+  return (srclen);
+}
+#endif /* !HAVE_STRLCPY */
+
+
+/*
+ * End of "$Id: string.c,v 1.4.2.5 2004/01/13 02:51:27 mike Exp $".
  */

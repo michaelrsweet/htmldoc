@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.19.2.32 2003/01/06 22:09:22 mike Exp $"
+ * "$Id: config.h.in,v 1.19.2.33 2004/01/13 02:51:27 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -72,10 +72,13 @@
 
 
 /*
- * Do we have the OpenSSL library?
+ * Which encryption libraries do we have?
  */
 
+#undef HAVE_CDSASSL
+#undef HAVE_GNUTLS
 #undef HAVE_LIBSSL
+#undef HAVE_SSL
 
 
 /*
@@ -117,6 +120,13 @@
 
 
 /*
- * End of "$Id: config.h.in,v 1.19.2.32 2003/01/06 22:09:22 mike Exp $".
+ * Do we have hstrerror()?
+ */
+
+#undef HAVE_HSTRERROR
+
+
+/*
+ * End of "$Id: config.h.in,v 1.19.2.33 2004/01/13 02:51:27 mike Exp $".
  */
 
