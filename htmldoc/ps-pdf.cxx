@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.208 2002/10/07 19:54:09 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.209 2002/10/23 15:37:32 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5330,11 +5330,12 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
       free(start);
       start = next;
 
-      if (*x > right)
-	progress_error(HD_ERROR_CONTENT_TOO_LARGE,
-	               "Preformatted text on page %d too long - "
-		       "truncation or overlapping may occur!", *page + 1);
     }
+
+    if (*x > right)
+      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
+	             "Preformatted text on page %d too long - "
+		     "truncation or overlapping may occur!", *page + 1);
 
     *y -= _htmlSpacings[t->size] - _htmlSizes[t->size];
   }
@@ -11898,5 +11899,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.208 2002/10/07 19:54:09 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.209 2002/10/23 15:37:32 mike Exp $".
  */
