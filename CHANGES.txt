@@ -76,6 +76,8 @@ CHANGES IN HTMLDOC v1.8.24
 	- HTMLDOC no longer specifies an interpolation
 	  preference for images in PostScript or PDF output (STR
 	  #8)
+	- The DT element no longer applies an italic style (PR
+	  #5178)
 
     BUG FIXES
 
