@@ -1,11 +1,19 @@
 # makefile for libpng on Linux ELF with gcc using MMX assembler code
-# Copyright (C) 1996, 1997 Andreas Dilger
-# Copyright (C) 1998-2001 Greg Roelofs
+# Copyright 1996-1997 Andreas Dilger
+# Copyright 1998-2001 Greg Roelofs
 # For conditions of distribution and use, see copyright notice in png.h
+
+# CAUTION: Do not use this makefile with gcc versions 2.7.2.2 and earlier.
+
+# WARNING: The assembler code in pnggccrd.c may not be thread safe.
+
+# NOTE:  When testing MMX performance on a multitasking system, make sure
+#        there are no floating-point programs (e.g., SETI@Home) running in
+#        the background!  Context switches between MMX and FPU are expensive.
 
 CC=gcc
 
-# where "make install" puts libpng.a, libpng.so*, png.h and pngconf.h
+# where "make install" puts libpng.a, libpng.so*, png.h, and pngconf.h
 prefix=/usr/local
 
 # Where the zlib library and include files are located
