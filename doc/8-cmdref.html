@@ -633,7 +633,7 @@ optional.  They are usually used when the directory string contains spaces.
 <H3>--permissions permission</H3>
 
 <P>The <CODE>--permissions</CODE> option specifies the document permissions.
-Multiple options can be specified as needed:</P>
+The available permission parameters are listed below:</P>
 
 <CENTER><TABLE BORDER="1" CELLPADDING="5">
 <TR><TH>Permission</TH><TH>Description</TH></TR>
@@ -649,7 +649,19 @@ Multiple options can be specified as needed:</P>
 <TR><TD>none</TD><TD>No permissions</TD></TR>
 </TABLE></CENTER>
 
-<P>This option is only available when generating PDF files.
+<P>The <CODE>--encryption</CODE> option must be used in conjunction with the <CODE>--permissions</CODE> parameter.
+
+<UL><PRE>
+<KBD>--permissions no-print --encryption</KBD>
+</PRE></UL>
+
+<P>Multiple options can be specified with multiple <CODE>--permissions</CODE> entries as needed. 
+
+<UL><PRE>
+<KBD>--permissions no-print --permissions no-copy --encryption</KBD>
+</PRE></UL>
+
+<P>This option is only available when generating PDF files.</P>
 
 <H3>--portrait</H3>
 
