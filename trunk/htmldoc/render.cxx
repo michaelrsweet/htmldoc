@@ -1,5 +1,5 @@
 //
-// "$Id: render.cxx,v 1.10 2002/04/07 13:19:57 mike Exp $"
+// "$Id: render.cxx,v 1.11 2002/04/07 13:39:46 mike Exp $"
 //
 //   Core rendering methods for HTMLDOC, a HTML document processing
 //   program.
@@ -34,119 +34,6 @@
 #include "debug.h"
 #include "htmldoc.h"
 #include "hdstring.h"
-
-
-//
-// Timezone offset for dates, below...
-//
-
-#ifdef HAVE_TM_GMTOFF
-#  define timezone (date->tm_gmtoff)
-#endif // HAVE_TM_GMTOFF
-
-
-//
-// 'hdRender::hdRender()' - Create a new render instance.
-//
-
-hdRender::hdRender(hdStyleSheet *s)	// I - Stylesheet
-{
-  struct tm	*date;			// Time/date info...
-
-
-  // Initialize class members...
-  css = s;
-
-  page_width             = css->page_width;
-  page_length            = css->page_length;
-  page_left              = css->page_left;
-  page_right             = css->page_right;
-  page_bottom            = css->page_bottom;
-  page_top               = css->page_top;
-  page_print_width       = css->page_print_width;
-  page_print_length      = css->page_print_length;
-  orientation            = css->orientation;
-  sides                  = css->sides;
-  media_color[0]         = '\0';
-  media_type[0]          = '\0';
-  media_position         = 0;
-  background_color[0]    = 0.0f;
-  background_color[1]    = 0.0f;
-  background_color[2]    = 0.0f;
-  background_image       = NULL;
-  background_position[0] = 0.0f;
-  background_position[1] = 0.0f;
-  background_repeat      = HD_BACKGROUNDREPEAT_REPEAT;
-  doc_time               = time(NULL);
-
-  date = localtime(&doc_time);
-
-  snprintf(doc_date, sizeof(doc_date), "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
-           date->tm_year + 1900, date->tm_mon + 1, date->tm_mday,
-           date->tm_hour, date->tm_min, date->tm_sec,
-	   (int)(-timezone / 3600),
-	   (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
-
-  doc_title           = "Untitled";
-  title_page          = 0;
-  current_chapter     = 0;
-  num_chapters        = 0;
-  alloc_chapters      = 0;
-  chapters            = NULL;
-  current_heading     = NULL;
-  num_headings        = 0;
-  alloc_headings      = 0;
-  headings            = NULL;
-  num_links           = 0;
-  alloc_links         = 0;
-  links               = NULL;
-  num_pages           = 0;
-  alloc_pages         = 0;
-  pages               = NULL;
-  render_font         = NULL;
-  render_size         = -1.0f;
-  render_rgb[0]       = -1.0f;
-  render_rgb[1]       = -1.0f;
-  render_rgb[2]       = -1.0f;
-  render_x            = -1.0f;
-  render_y            = -1.0f;
-  render_startx       = -1.0f;
-  render_spacing      = 0.0f;
-}
-
-
-//
-// 'hdRender::~hdRender()' -
-//
-
-hdRender::~hdRender()
-{
-  int		i;			// Looping var...
-  hdRenderNode	*r,			// Pointer to node
-		*next;			// Pointer to next node
-
-
-  if (alloc_chapters)
-    delete[] chapters;
-
-  if (alloc_headings)
-    delete[] headings;
-
-  if (alloc_links)
-    delete[] links;
-
-  if (alloc_pages)
-  {
-    for (i = 0; i < num_pages; i ++)
-      for (r = pages[i].first; r; r = next)
-      {
-        next = r->next;
-	delete r;
-      }
-
-    delete[] pages;
-  }
-}
 
 
 //
@@ -219,6 +106,83 @@ hdRender::parse_doc(hdTree   *t,
 
 
 //
+// 'hdRender::parse_image()' - Render an image...
+//
+
+void
+hdRender::parse_image(hdTree *t,		// I  - Image node
+                      float  tx,		// I  - Image X position
+		      float  ty,		// I  - Image Y position
+		      int    *page)		// IO - Current page
+{
+  hdImage	*img;				// Image
+  const char	*imgmapname;			// Image map name
+  hdTree	*imgmap,			// Image map
+		*imgarea;			// Image map area
+  const char	*imgareacoords;			// Image area coordinates
+  float		imgareax,			// Image area X
+		imgareay,			// Image area Y
+		imgareaw,			// Image area width
+		imgareah;			// Image area height
+
+
+  img = hdImage::find(t->get_attr("_HD_SRC"), css->grayscale);
+  if (!img)
+    return;
+
+  add_render(*page, HD_RENDERTYPE_IMAGE,
+	     tx + t->style->margin[HD_POS_LEFT] +
+		 t->style->border[HD_POS_LEFT].width +
+		 t->style->padding[HD_POS_LEFT], ty,
+	     t->width, t->height, img);
+
+  if (t->link)
+  {
+    // Add a hyper link for clicking...
+    add_render(*page, HD_RENDERTYPE_LINK,
+	       tx + t->style->margin[HD_POS_LEFT] +
+		   t->style->border[HD_POS_LEFT].width +
+		   t->style->padding[HD_POS_LEFT], ty,
+	       t->width, t->height,
+	       t->link->get_attr("href"));
+  }
+
+  if ((imgmapname = t->get_attr("usemap")) != NULL &&
+      (imgmap = find_imgmap(imgmapname)) != NULL)
+  {
+    // Add links from the image map...
+    for (imgarea = imgmap->child; imgarea; imgarea = imgarea->next)
+    {
+      if (imgarea->element != HD_ELEMENT_AREA)
+	continue;
+
+      if ((imgareacoords = imgarea->get_attr("coords")) == NULL)
+	continue;
+
+      if (sscanf(imgareacoords, "%f,%f,%f,%f", &imgareax, &imgareay,
+	         &imgareaw, &imgareah) != 4)
+	continue;
+
+      imgareax *= t->width / img->width();
+      imgareay *= t->height / img->height();
+      imgareaw *= t->width / img->width();
+      imgareah *= t->height / img->height();
+
+      imgareaw -= imgareax;
+      imgareah -= imgareay;
+
+      add_render(*page, HD_RENDERTYPE_LINK,
+	         tx + t->style->margin[HD_POS_LEFT] +
+		     t->style->border[HD_POS_LEFT].width +
+		     t->style->padding[HD_POS_LEFT] + imgareax,
+		 ty + imgareay, imgareaw, imgareah,
+		 imgarea->get_attr("href"));
+    }
+  }
+}
+
+
+//
 // 'hdRender::parse_index()' -
 //
 
@@ -262,15 +226,6 @@ hdRender::parse_line(hdTree   *line,		// I  - Line tree
   int		num_chars,			// Number of characters
 		num_words;			// Number of words
   hdRenderNode	*r;				// New render node
-  hdImage	*img;				// Image
-  const char	*imgmapname;			// Image map name
-  hdTree	*imgmap,			// Image map
-		*imgarea;			// Image map area
-  const char	*imgareacoords;			// Image area coordinates
-  float		imgareax,			// Image area X
-		imgareay,			// Image area Y
-		imgareaw,			// Image area width
-		imgareah;			// Image area height
 
 
   // First loop to figure out the total width and height of the line...
@@ -612,59 +567,7 @@ hdRender::parse_line(hdTree   *line,		// I  - Line tree
 
       case HD_ELEMENT_IMG :
           // Image element...
-	  img = hdImage::find(t->get_attr("_HD_SRC"), css->grayscale);
-	  if (!img)
-	    break;
-
-          r = add_render(*page, HD_RENDERTYPE_IMAGE,
-	                 tx + t->style->margin[HD_POS_LEFT] +
-			     t->style->border[HD_POS_LEFT].width +
-			     t->style->padding[HD_POS_LEFT], ty,
-			 t->width, t->height, img);
-
-          if (t->link)
-	  {
-	    // Add a hyper link for clicking...
-            add_render(*page, HD_RENDERTYPE_LINK,
-	               tx + t->style->margin[HD_POS_LEFT] +
-			   t->style->border[HD_POS_LEFT].width +
-			   t->style->padding[HD_POS_LEFT], ty,
-		       t->width, t->height,
-		       t->link->get_attr("href"));
-	  }
-
-	  if ((imgmapname = t->get_attr("usemap")) != NULL &&
-	      (imgmap = find_imgmap(imgmapname)) != NULL)
-	  {
-	    // Add links from the image map...
-	    for (imgarea = imgmap->child; imgarea; imgarea = imgarea->next)
-            {
-	      if (imgarea->element != HD_ELEMENT_AREA)
-	        continue;
-
-              if ((imgareacoords = imgarea->get_attr("coords")) == NULL)
-	        continue;
-
-              if (sscanf(imgareacoords, "%f,%f,%f,%f", &imgareax, &imgareay,
-	                 &imgareaw, &imgareah) != 4)
-		continue;
-
-              imgareax *= t->width / img->width();
-              imgareay *= t->height / img->height();
-              imgareaw *= t->width / img->width();
-              imgareah *= t->height / img->height();
-
-              imgareaw -= imgareax;
-              imgareah -= imgareay;
-
-              add_render(*page, HD_RENDERTYPE_LINK,
-	        	 tx + t->style->margin[HD_POS_LEFT] +
-			     t->style->border[HD_POS_LEFT].width +
-			     t->style->padding[HD_POS_LEFT] + imgareax,
-			 ty + imgareay, imgareaw, imgareah,
-			 imgarea->get_attr("href"));
-	    }
-	  }
+	  parse_image(t, tx, ty, page);
 	  break;
 
       default :
@@ -720,350 +623,6 @@ hdRender::prepare_heading(int  page,
 			  int  page_len)
 {
 }
-
-
-//
-// 'hdRender::add_chapter()' -
-//
-
-void
-hdRender::add_chapter()
-{
-}
-
-
-//
-// 'hdRender::add_heading()' -
-//
-
-void
-hdRender::add_heading(hdTree *node,
-        	      int    page,
-		      int    top)
-{
-}
-
-
-//
-// 'hdRender::add_imgmap()' - Add an image map to the document.
-//
-
-void
-hdRender::add_imgmap(hdTree *t)		// I - MAP node
-{
-  hdTree	**temp;			// New image map array...
-
-
-  if (num_imgmaps >= alloc_imgmaps)
-  {
-    temp = new hdTree *[alloc_imgmaps + 10];
-
-    if (alloc_imgmaps)
-    {
-      memcpy(temp, imgmaps, alloc_imgmaps * sizeof(hdTree *));
-      delete[] imgmaps;
-    }
-
-    imgmaps       = temp;
-    alloc_imgmaps += 10;
-  }
-
-  imgmaps[num_imgmaps] = t;
-  num_imgmaps ++;
-}
-
-
-//
-// 'hdRender::find_imgmap()' - Find an image map node in the document.
-//
-
-hdTree *				// O - MAP node
-hdRender::find_imgmap(const char *name)	// I - Name of image map
-{
-  int		i;			// Looping var
-  const char	*temp;			// Pointer to map name
-
-
-  // Get the map name after the #...
-  if ((temp = strrchr(name, '#')) != NULL)
-    name = temp + 1;
-
-  // Loop until we find it...
-  for (i = 0; i < num_imgmaps; i ++)
-    if ((temp = imgmaps[i]->get_attr("name")) != NULL &&
-        strcasecmp(name, temp) == 0)
-      return (imgmaps[i]);
-
-  return (NULL);
-}
-
-
-//
-// 'hdRender::add_link()' - Add a link destination.
-//
-
-void
-hdRender::add_link(const char *name,	// I - Name of link
-        	   int        page,	// I - Link page
-		   int        top)	// I - Link Y position
-{
-  hdRenderLink	*temp;			// New link
-
-
-  if (name == NULL)
-    return;
-
-  if ((temp = find_link(name)) != NULL)
-  {
-    temp->page = page;
-    temp->top  = top;
-  }
-  else
-  {
-    // See if we need to allocate memory for links...
-    if (num_links >= alloc_links)
-    {
-      // Allocate more links...
-      temp = new hdRenderLink[alloc_links + HD_ALLOC_LINKS];
-
-      if (alloc_links)
-      {
-        memcpy(temp, links, alloc_links * sizeof(hdRenderLink));
-	delete[] links;
-      }
-
-      links       = temp;
-      alloc_links += HD_ALLOC_LINKS;
-    }
-
-    // Add a new link...
-    temp = links + num_links;
-    num_links ++;
-
-    temp->name = strdup(name);
-    temp->page = page;
-    temp->top  = top;
-
-    if (num_links > 1)
-      qsort(links, num_links, sizeof(hdRenderLink),
-            (hdCompareFunc)compare_links);
-  }
-}
-
-
-//
-// 'hdRender::find_link()' - Find a link...
-//
-
-hdRenderLink *				// O - Matching link
-hdRender::find_link(const char *name)	// I - Name of link
-{
-  hdRenderLink	key,			// Search key
-		*match;			// Matching name entry
-
-
-  if (name == NULL || num_links == 0)
-    return (NULL);
-
-  if (name[0] == '#')
-    name ++;
-
-  key.name = (char *)name;
-
-  match = (hdRenderLink *)bsearch(&key, links, num_links, sizeof(hdRenderLink),
-                                  (hdCompareFunc)compare_links);
-
-  return (match);
-}
-
-
-//
-// 'hdRender::compare_links()' -
-//
-
-int						// O - Result of comparison
-hdRender::compare_links(hdRenderLink *n1,	// I - First link
-                        hdRenderLink *n2)	// I - Second link
-{
-  return (strcasecmp(n1->name, n2->name));
-}
-
-
-//
-// 'hdRender::check_pages()' -
-//
-
-void
-hdRender::check_pages(int page)
-{
-}
-
-
-//
-// 'hdRender::add_render()' - Add a render node.
-//
-
-hdRenderNode *				// O - New render node
-hdRender::add_render(int          page,	// I - Page to add to
-        	     hdRenderType type,	// I - Render type
-		     float        x,	// I - X position of node
-		     float        y,	// I - Y position of node
-        	     float        width,// I - Width of node
-		     float        height,// I - Height of node
-		     const void   *data,// I - Data
-		     int          alloc_data,
-		     			// I - Did we allocate the data?
-        	     int          insert)// I - Insert at beginning of page?
-{
-  hdRenderNode		*r;		// New render primitive
-
-
-  DEBUG_printf(("add_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%d)\n",
-                page, type, x, y, width, height, data, insert));
-
-  // Make sure the page node is allocated...
-  check_pages(page);
-
-  if (page < 0 || page >= alloc_pages)
-  {
-    hdGlobal.progress_error(HD_ERROR_INTERNAL_ERROR,
-                            "Page number (%d) out of range (1...%d)\n", page + 1,
-                            alloc_pages);
-
-    return ((hdRenderNode *)0);
-  }
-
-  // Keep track of the type of render nodes on this page...
-  pages[page].types |= type;
-
-  // Create the new render node...
-  r = new hdRenderNode(type, x, y, width, height, data, alloc_data);
-
-  if (insert)
-  {
-    r->next           = pages[page].first;
-    pages[page].first = r;
-
-    if (pages[page].last == NULL)
-      pages[page].last = r;
-  }
-  else
-  {
-    if (pages[page].last != NULL)
-      pages[page].last->next = r;
-    else
-      pages[page].first = r;
-
-    r->next         = NULL;
-    pages[page].last = r;
-  }
-
-  DEBUG_printf(("    returning r = %p\n", r));
-
-  return (r);
-}
-
-
-//
-// 'hdRender::get_color()' - Get a color value.
-//
-
-void
-hdRender::get_color(const char *c,	// I - Color name
-                    float      *rgb,	// O - RGB color
-	            int        defblack)// I - Default to black?
-{
-  unsigned char	rgbc[3];		// Integer RGB value...
-
-
-  // Initialize color value...
-  memset(rgbc, defblack ? 0 : 255, 3);
-
-  hdStyle::get_color(c, rgbc);
-
-  rgb[0] = rgbc[0] / 255.0f;
-  rgb[1] = rgbc[1] / 255.0f;
-  rgb[2] = rgbc[2] / 255.0f;
-}
-
-
-//
-// 'hdRenderNode::hdRenderNode()' - Create a new render node.
-//
-
-hdRenderNode::hdRenderNode(hdRenderType t,	// I - Type of node
-                           float        xx,	// I - X position of node
-			   float        yy,	// I - Y position of node
-			   float        w,	// I - Width of node
-			   float        h,	// I - Height of node
-                           const void   *d,	// I - Pointer to data
-			   int          alloc_d)// I - Was data allocated?
-{
-  next   = (hdRenderNode *)0;
-  type   = t;
-  x      = xx;
-  y      = yy;
-  width  = w;
-  height = h;
-
-  switch (t)
-  {
-    case HD_RENDERTYPE_TEXT :
-        data.text.font         = NULL;
-	data.text.font_size    = h;
-	data.text.char_spacing = 0.0f;
-	data.text.rgb[0]       = 0.0f;
-	data.text.rgb[1]       = 0.0f;
-	data.text.rgb[2]       = 0.0f;
-	data.text.alloc_string = alloc_d;
-	data.text.string       = (char *)d;
-        break;
-
-    case HD_RENDERTYPE_IMAGE :
-        data.image = (hdImage *)d;
-        break;
-
-    case HD_RENDERTYPE_BOX :
-        if (d)
-          memcpy(data.box, d, sizeof(data.box));
-        break;
-
-    case HD_RENDERTYPE_BACKGROUND :
-        data.background = (hdStyle *)d;
-	break;
-
-    case HD_RENDERTYPE_LINK :
-        data.link.alloc_url = alloc_d;
-	data.link.url       = (char *)d;
-        break;
-
-    case HD_RENDERTYPE_FORM :
-        break;
-  }
-}
-
-
-//
-// 'hdRenderNode::~hdRenderNode()' - Destroy a render node.
-//
-
-hdRenderNode::~hdRenderNode()
-{
-  switch (type)
-  {
-    case HD_RENDERTYPE_TEXT :
-        if (data.text.alloc_string)
-	  free(data.text.string);
-	break;
-
-    case HD_RENDERTYPE_LINK :
-        if (data.link.alloc_url)
-	  free(data.link.url);
-	break;
-  }
-}
-
-
 
 
 #if 0
@@ -6377,5 +5936,5 @@ get_title(hdTree *doc)	// I - Document
 
 
 //
-// End of "$Id: render.cxx,v 1.10 2002/04/07 13:19:57 mike Exp $".
+// End of "$Id: render.cxx,v 1.11 2002/04/07 13:39:46 mike Exp $".
 //

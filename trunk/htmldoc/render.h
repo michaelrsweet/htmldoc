@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.10 2002/04/07 13:19:58 mike Exp $"
+// "$Id: render.h,v 1.11 2002/04/07 13:39:47 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -239,6 +239,7 @@ class hdRender
 		               const char *label);
   void		parse_doc(hdTree *t, hdMargin *m, float *x, float *y,
 		          int *page);
+  void		parse_image(hdTree *t, float tx, float ty, int *page);
   void		parse_index(hdTree *t, hdMargin *m, int *page,
 		            const char *label);
   void		parse_line(hdTree *line, hdMargin *m, float *x, float *y,
@@ -453,5 +454,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.10 2002/04/07 13:19:58 mike Exp $".
+// End of "$Id: render.h,v 1.11 2002/04/07 13:39:47 mike Exp $".
 //
