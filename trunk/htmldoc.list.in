@@ -1,17 +1,17 @@
 #
-# "$Id: htmldoc.list.in,v 1.2 2004/03/31 07:01:55 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.3 2004/10/23 07:52:57 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
-#   EPM can be found at "http://www.easysw.com/epm".
+#   EPM can be found at "http://www.easysw.com/epm/".
 #
 
 %product HTMLDOC
 %copyright 1997-2004 by Easy Software Products, All Rights Reserved.
 %vendor Easy Software Products
-%license COPYING.txt
-%readme README.txt
-%version @SVERSION@
+%license htmldoc.eula
+%readme htmldoc.readme
+%version @SVERSION@ @NVERSION@
 
 # Directories...
 $prefix=@prefix@
@@ -24,9 +24,9 @@ $datadir=@datadir@
 %system darwin
 f 0555 root sys /Applications/htmldoc.app/Contents/MacOS/htmldoc htmldoc/htmldoc nostrip()
 l 0555 root sys $bindir/htmldoc /Applications/htmldoc.app/Contents/MacOS/htmldoc
-f 0444 root sys /Applications/htmldoc.app/Contents/Resources/htmldoc.icns htmldoc.icns
-f 0444 root sys /Applications/htmldoc.app/Contents/Info.plist htmldoc.plist
-f 0444 root sys /Applications/htmldoc.app/Contents/PkgInfo htmldoc.info
+f 0444 root sys /Applications/htmldoc.app/Contents/Resources/htmldoc.icns desktop/htmldoc.icns
+f 0444 root sys /Applications/htmldoc.app/Contents/Info.plist desktop/htmldoc.plist
+f 0444 root sys /Applications/htmldoc.app/Contents/PkgInfo desktop/htmldoc.info
 
 %system !darwin
 f 0555 root sys $bindir/htmldoc htmldoc/htmldoc
@@ -70,6 +70,46 @@ f 0444 root sys $mandir/man1/htmldoc.1 doc/htmldoc.man
 f 0444 root sys $datadir/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
 f 0444 root sys $datadir/doc/htmldoc/help.html doc/help.html
 
+# Desktop integration...
+%system aix hpux solaris tru64
+f 0555 root sys $datadir/htmldoc/dt/appconfig/appmanager/C/ESP/htmldoc desktop/htmldoc.appconfig
+f 0444 root sys $datadir/htmldoc/dt/appconfig/types/C/htmldoc.dt desktop/htmldoc.dt
+f 0444 root sys $datadir/htmldoc/dt/appconfig/icons/C/ desktop/*.bm
+f 0444 root sys $datadir/htmldoc/dt/appconfig/icons/C/ desktop/*.pm
+%postinstall <<EOF
+if test -x /usr/dt/bin/dtappintegrate; then
+        /usr/dt/bin/dtappintegrate -s $datadir/htmldoc
+fi
+EOF
+%system linux freebsd netbsd openbsd
+f 0444 root sys /usr/share/applications/htmldoc.desktop desktop/htmldoc.desktop
+f 0444 root sys /usr/share/icons/hicolor/16x16/apps/htmldoc.png desktop/htmldoc-16.png
+f 0444 root sys /usr/share/icons/hicolor/24x24/apps/htmldoc.png desktop/htmldoc-24.png
+f 0444 root sys /usr/share/icons/hicolor/32x32/apps/htmldoc.png desktop/htmldoc-32.png
+f 0444 root sys /usr/share/icons/hicolor/48x48/apps/htmldoc.png desktop/htmldoc-48.png
+f 0444 root sys /usr/share/icons/hicolor/64x64/apps/htmldoc.png desktop/htmldoc-64.png
+f 0444 root sys /usr/share/icons/hicolor/96x96/apps/htmldoc.png desktop/htmldoc-96.png
+f 0444 root sys /usr/share/icons/hicolor/128x128/apps/htmldoc.png desktop/htmldoc-128.png
+f 0444 root sys /usr/share/mime/packages/htmldoc.xml desktop/htmldoc.xml
+f 0444 root sys /usr/share/mimelnk/application/vnd.htmldoc-book.desktop desktop/vnd.htmldoc-book.desktop
+%postinstall <<EOF
+if test -x /usr/bin/update-mime-database; then
+	/usr/bin/update-mime-database /usr/share/mime
+fi
+EOF
+
+%system irix
+f 0444 root sys /usr/lib/images/htmldoc.icon desktop/htmldoc.icon
+f 0444 root sys /usr/lib/filetype/install/htmldoc.ftr desktop/htmldoc.ftr
+f 0444 root sys /usr/lib/filetype/install/iconlib/ desktop/*.fti
+l 0555 root sys /usr/lib/desktop/iconcatalog/C/Applications/HTMLDOC $bindir/htmldoc
+%postinstall <<EOF
+tag 0x00FE2000 $bindir/htmldoc
+(cd /usr/lib/filetype; /sbin/make -u)
+/usr/lib/desktop/telldesktop restart
+EOF
+%system all
+
 #
-# End of "$Id: htmldoc.list.in,v 1.2 2004/03/31 07:01:55 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.3 2004/10/23 07:52:57 mike Exp $".
 #
