@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.161 2002/04/12 19:24:19 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.162 2002/04/17 20:03:32 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -113,6 +113,17 @@
  * Include necessary headers.
  */
 
+/*
+ * The GCC compiler on HP-UX has a nasty habit of incorrectly "fixing"
+ * the vmtypes.h header file provided with HP-UX.  The following
+ * conditional magic makes sure that "page_t" (which we use in our
+ * code) is not defined...
+ */
+
+#ifdef __hpux
+#  define page_t	hpux_page_t
+#endif // __hpux
+
 /*#define DEBUG*/
 #include "htmldoc.h"
 #include "md5.h"
@@ -139,6 +150,10 @@
 extern "C" {		/* Workaround for JPEG header problems... */
 #include <jpeglib.h>	/* JPEG/JFIF image definitions */
 }
+
+#ifdef __hpux
+#  undef page_t
+#endif // __hpux
 
 
 /*
@@ -1301,7 +1316,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
     }
   }
 
-  if (TocLevels > 0)
+  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
     chapter = 0;
   else
     chapter = 1;
@@ -1676,7 +1691,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
     for (page = 0; page < chapter_starts[1]; page ++)
       fprintf(out, "%d 0 R\n", pages_object + page * 2 + 1);
 
-  if (OutputType == OUTPUT_BOOK)
+  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
     chapter = 0;
   else
     chapter = 1;
@@ -1706,7 +1721,7 @@ pdf_write_document(uchar  *author,	/* I - Author of document */
       pdf_write_page(out, page);
   }
 
-  if (TocLevels > 0)
+  if (OutputType == OUTPUT_BOOK && TocLevels > 0)
   {
     for (chapter = 0, page = chapter_starts[0];
 	 page <= chapter_ends[0];
@@ -10782,5 +10797,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.161 2002/04/12 19:24:19 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.162 2002/04/17 20:03:32 mike Exp $".
  */

@@ -1,5 +1,22 @@
-CHANGES.txt - 04/10/2002
+CHANGES.txt - 04/17/2002
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.20
+
+    NEW FEATURES
+
+
+    CHANGES
+
+
+    BUG FIXES
+
+	- HTMLDOC wouldn't compile using GCC under HP-UX due to
+	  a badly "fixed" system header file (vmtypes.h).
+
+	- Generating a book without a table-of-contents would
+	  produce a bad PDF file.
+
 
 CHANGES IN HTMLDOC v1.8.19
 
