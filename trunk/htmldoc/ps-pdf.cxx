@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.11 1999/11/12 20:15:59 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.12 1999/11/12 22:07:53 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3848,7 +3848,14 @@ get_color(uchar *color,
   };
 
 
-  if (color[0] == '#')
+  if (!color[0])
+  {
+    rgb[0] = 0.0f;
+    rgb[1] = 0.0f;
+    rgb[2] = 0.0f;
+    return;
+  }
+  else if (color[0] == '#')
   {
    /*
     * RGB value in hex...
@@ -3867,8 +3874,8 @@ get_color(uchar *color,
         rgb[0] = colors[i].red / 255.0f;
         rgb[1] = colors[i].green / 255.0f;
         rgb[2] = colors[i].blue / 255.0f;
-      };
-  };
+      }
+  }
 }
 
 
@@ -5905,5 +5912,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.11 1999/11/12 20:15:59 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.12 1999/11/12 22:07:53 mike Exp $".
  */
