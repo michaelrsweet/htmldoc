@@ -63,8 +63,8 @@ fileList->redraw();}
       }
       Fl_Input fileName {
         label {Filename:}
-        callback {fileNameCB();}
-        xywh {75 190 215 25} when 1
+        callback {fileNameCB();} selected
+        xywh {75 190 215 25} when 8
       }
       Fl_Button {} {
         label {*}
@@ -170,7 +170,6 @@ fileList->deselect();} {}
   }
   Function {label(const char *l)} {return_type void
   } {
-    code {window->label(l);} {selected
-    }
+    code {window->label(l);} {}
   }
 } 

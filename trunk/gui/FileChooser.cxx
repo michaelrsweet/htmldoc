@@ -41,7 +41,7 @@ void FileChooser::cb_upButton(Fl_Button* o, void* v) {
 
 #include <FL/Fl_Bitmap.H>
 static unsigned char bits_up[] = {  
-32, 0, 112, 0, 248, 0, 32, 0
+4, 14, 31, 4, 4, 4, 4, 252
 };
 static Fl_Bitmap bitmap_up(bits_up, 8, 8);
 
@@ -55,7 +55,7 @@ void FileChooser::cb_reset(Fl_Button* o, void* v) {
 }
 
 static unsigned char bits_reset[] = {  
-255, 0, 129, 0, 189, 0, 189, 0
+255, 129, 189, 189, 189, 189, 129, 255
 };
 static Fl_Bitmap bitmap_reset(bits_reset, 8, 8);
 
@@ -118,7 +118,7 @@ FileChooser::FileChooser(const char *d, char *p, int t, const char *title) {
     }
     { Fl_Input* o = fileName = new Fl_Input(75, 190, 215, 25, "Filename:");
       o->callback((Fl_Callback*)cb_fileName);
-      o->when(1);
+      o->when(8);
     }
     { Fl_Button* o = new Fl_Button(5, 20, 15, 15, "*");
       o->labelcolor(4);
