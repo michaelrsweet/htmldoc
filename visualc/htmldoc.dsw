@@ -3,31 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "fltk"="..\..\fltk-1.0\visualc\fltk.lib.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "fluid"="..\..\fltk-1.0\visualc\fluid.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "forms"="..\..\fltk-1.0\visualc\forms.dsp" - Package Owner=<4>
+Project: "fltk"="..\..\fltk-1.1\visualc\fltk.lib.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -48,9 +24,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name fltk
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name jpeg
     End Project Dependency
     Begin Project Dependency
@@ -58,6 +31,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name zlib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name fltk
     End Project Dependency
 }}}
 
