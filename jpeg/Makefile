@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.2 1999/06/18 18:36:21 mike Exp $"
+# "$Id: Makefile,v 1.3 1999/06/21 18:47:27 mike Exp $"
 #
 #   JPEG library Makefile for the Common UNIX Printing System (CUPS).
 #
@@ -58,6 +58,7 @@ clean:
 #
 
 libjpeg.a:	$(OBJS)
+	echo Archiving $<...
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
@@ -66,5 +67,5 @@ $(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
 		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.2 1999/06/18 18:36:21 mike Exp $".
+# End of "$Id: Makefile,v 1.3 1999/06/21 18:47:27 mike Exp $".
 #
