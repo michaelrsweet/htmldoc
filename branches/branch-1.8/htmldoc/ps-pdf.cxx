@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.2 2000/11/30 18:33:50 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.3 2000/12/01 21:46:48 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -185,6 +185,9 @@ typedef struct			/**** Named link position structure */
 /*
  * Local globals...
  */
+
+static time_t	doc_time;	/* Current time */
+static struct tm *doc_date;	/* Current date */
 
 static int	title_page;
 static int	chapter,
@@ -423,6 +426,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   memset(chapter_starts, -1, sizeof(chapter_starts));
   memset(chapter_ends, -1, sizeof(chapter_starts));
 
+  doc_time     = time(NULL);
+  doc_date     = localtime(&doc_time);
   num_headings = 0;
   num_links    = 0;
 
@@ -829,6 +834,8 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
   int		pos,		/* Position in heading */
 		dir;		/* Direction of page */
   char		*number;	/* Page number */
+  char		nofN[256];	/* n/N page number */
+  char		date[256];	/* Date string */
   render_t	*temp;		/* Render structure for titles, etc. */
 
 
@@ -879,6 +886,49 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 			      get_width((uchar *)number, HeadFootType,
 			                HeadFootStyle, SIZE_P),
 			      HeadFootSize, number);
+          break;
+
+      case '/' : /* n/N */
+          strcpy(nofN, format_number(print_page, '1'));
+	  strcat(nofN, "/");
+	  strcat(nofN, format_number(chapter_ends[TocDocCount] -
+	                             chapter_starts[1] + 1, '1'));
+
+	  temp   = new_render(page, RENDER_TEXT, 0, y,
+                              HeadFootSize / _htmlSizes[SIZE_P] *
+			      get_width((uchar *)nofN, HeadFootType,
+			                HeadFootStyle, SIZE_P),
+			      HeadFootSize, nofN);
+          break;
+
+      case 'd' : /* Date */
+          strftime(date, sizeof(date), "%x", doc_date);
+
+	  temp   = new_render(page, RENDER_TEXT, 0, y,
+                              HeadFootSize / _htmlSizes[SIZE_P] *
+			      get_width((uchar *)date, HeadFootType,
+			                HeadFootStyle, SIZE_P),
+			      HeadFootSize, date);
+          break;
+
+      case 'D' : /* Date and time */
+          strftime(date, sizeof(date), "%c", doc_date);
+
+	  temp   = new_render(page, RENDER_TEXT, 0, y,
+                              HeadFootSize / _htmlSizes[SIZE_P] *
+			      get_width((uchar *)date, HeadFootType,
+			                HeadFootStyle, SIZE_P),
+			      HeadFootSize, date);
+          break;
+
+      case 'T' : /* Time */
+          strftime(date, sizeof(date), "%X", doc_date);
+
+	  temp   = new_render(page, RENDER_TEXT, 0, y,
+                              HeadFootSize / _htmlSizes[SIZE_P] *
+			      get_width((uchar *)date, HeadFootType,
+			                HeadFootStyle, SIZE_P),
+			      HeadFootSize, date);
           break;
 
       case 't' :
@@ -6457,7 +6507,6 @@ write_prolog(FILE *out,		/* I - Output file */
 {
   int		i, j,		/* Looping vars */
 		encoding_object;/* Font encoding object */
-  time_t	curtime;	/* Current time */
   struct tm	*curdate;	/* Current date */
   int		page;		/* Current page */
   render_t	*r;		/* Current render data */
@@ -6485,8 +6534,7 @@ write_prolog(FILE *out,		/* I - Output file */
   * Get the current time and date (ZULU).
   */
 
-  curtime = time(NULL);
-  curdate = gmtime(&curtime);
+  curdate = gmtime(&doc_time);
 
  /*
   * See what fonts are used...
@@ -6685,7 +6733,7 @@ write_prolog(FILE *out,		/* I - Output file */
 
     md5_init(&md5);
     md5_append(&md5, (md5_byte_t *)OutputPath, sizeof(OutputPath));
-    md5_append(&md5, (md5_byte_t *)&curtime, sizeof(curtime));
+    md5_append(&md5, (md5_byte_t *)&doc_time, sizeof(doc_time));
     md5_finish(&md5, file_id);
 
    /*
@@ -6720,7 +6768,7 @@ write_prolog(FILE *out,		/* I - Output file */
         * Generate a pseudo-random owner password...
 	*/
 
-	srand(curtime);
+	srand(time(NULL));
 
 	for (i = 0; i < 32; i ++)
 	  owner_pad[i] = rand();
@@ -7401,5 +7449,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.2 2000/11/30 18:33:50 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.3 2000/12/01 21:46:48 mike Exp $".
  */
