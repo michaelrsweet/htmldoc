@@ -1,9 +1,10 @@
 [Desktop Entry]
+Encoding=UTF-8
+Type=Application
 Name=HTMLDOC
 Comment=HTML Conversion Software
 TryExec=htmldoc
 Exec=htmldoc %F
 Icon=htmldoc.png
-Terminal=0
-Type=Application
-MimeType=application/vnd.htmldoc-book
+Terminal=false
+Categories=Application;Office;X-Red-Hat-Base;

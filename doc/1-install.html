@@ -70,21 +70,43 @@ prompts.</p>
 <i>Figure 1-4: The software installation wizard</i></p>
 
 
-
 <h3>Installing HTMLDOC on Red Hat Linux</h3>
 
-<p>Run the following command to install HTMLDOC under Red Hat
-Linux:</p>
+<p>Double-click on the
+<var>htmldoc-version-linux-intel.rpm</var> icon or run the
+following command to install HTMLDOC on Red Hat Linux:</p>
 
 <pre>
     <kbd>rpm -i htmldoc-<i>version</i>-linux-intel.rpm ENTER</kbd>
 </pre>
 
 
+<h3>Installing HTMLDOC on Solaris</h3>
+
+<p>Run the following command to install HTMLDOC on Solaris SPARC:</p>
+
+<pre>
+    <kbd>swtool -d htmldoc-<i>version</i>-solaris-sparc.pkg ENTER</kbd>
+</pre>
+
+<p>Run the following command to install HTMLDOC on Solaris Intel:</p>
+
+<pre>
+    <kbd>swtool -d htmldoc-<i>version</i>-solaris-intel.pkg ENTER</kbd>
+</pre>
+
+<p>After running the <tt>swtool</tt> command, the window in
+Figure 1-5 will appear. Choose <var>Install</var> from the
+<var>Software</var> menu to install the software.</p>
+
+<p><img src='htmldoc-fig15.png' alt='The Solaris software tool'/><br />
+<i>Figure 1-5: The Solaris software tool</i></p>
+
+
 <h3>Installing HTMLDOC on UNIX/Linux</h3>
 
 <p>Run the following commands as the root user to install
-HTMLDOC under UNIX/Linux:</p>
+HTMLDOC on UNIX/Linux:</p>
 
 <pre>
     <kbd>gunzip htmldoc-<i>version</i>-<i>platform</i>.tar.gz ENTER</kbd>
@@ -94,23 +116,31 @@ HTMLDOC under UNIX/Linux:</p>
 
 <p>Substitute the correct version and platform strings as
 appropriate. After you have run the <tt>setup</tt> program, the
-window shown in Figure 1- will appear. Follow the installation
+window shown in Figure 1-6 will appear. Follow the installation
 prompts until the software is installed.</p>
 
-<p><img src='htmldoc-fig15.png' alt='The software installation wizard'/><br />
-<i>Figure 1-5: The software installation wizard</i></p>
+<p><img src='htmldoc-fig16.png' alt='The software installation wizard'/><br />
+<i>Figure 1-6: The software installation wizard</i></p>
 
 
 <h2>Licensing HTMLDOC</h2>
 
 <p>Before you can use HTMLDOC, you must license it. When you first run
-HTMLDOC, the license dialog will appear:</p>
+HTMLDOC, the license dialog (Figure 1-7) will appear.</p>
 
-<p align='center'><img src='license.png'><br />
-<i>Figure 1-??? - The HTMLDOC License Dialog</i></p>
+<p align='center'><img src='htmldoc-fig17.png'><br />
+<i>Figure 1-7 - The HTMLDOC License Dialog</i></p>
+
+<p>Click on the <var>Update License</var> button to show the
+license manager window (Figure 1-8).</p>
+
+<p align='center'><img src='htmldoc-fig18.png'><br />
+<i>Figure 1-8 - The HTMLDOC License Dialog</i></p>
 
 <p>Enter the license key that was emailed to you or came on the
-inside of the HTMLDOC CD-ROM case.</p>
+inside of the HTMLDOC CD-ROM case and click on the <var>OK</var>
+button. Click on the <var>Close</var> button to start using the
+software.</p>
 
 
 <h2>Uninstalling HTMLDOC</h2>
@@ -125,19 +155,14 @@ software from your system.</p>
 list is displayed, select HTMLDOC and click on the
 <var>Remove</var> button.</p>
 
+
 <h3>Uninstalling HTMLDOC on MacOS X</h3>
 
 <p>Double-click on the HTMLDOC package in the finder and
 follow the installer prompts.</p>
 
+
 <h3>Uninstalling HTMLDOC on Red Hat Linux</h3>
-
-<p>Run the following command to install HTMLDOC under Red Hat
-Linux:</p>
-
-<pre>
-    % <kbd>rpm -i htmldoc-<i>version</i>-linux-2.4-intel.rpm ENTER</kbd>
-</pre>
 
 <p>Run the following command to remove HTMLDOC from your Red Hat
 Linux system:</p>
@@ -146,10 +171,20 @@ Linux system:</p>
     % <kbd>rpm -e htmldoc ENTER</kbd>
 </pre>
 
+
+<h3>Uninstalling HTMLDOC on Solaris</h3>
+
+<p>Run the following command to remove HTMLDOC from Solaris:</p>
+
+<pre>
+    % <kbd>pkgrm htmldoc ENTER</kbd>
+</pre>
+
+
 <h3>Uninstalling HTMLDOC on UNIX/Linux</h3>
 
-<p>Run the following command to remove HTMLDOC from your UNIX
-system:</p>
+<p>Run the following command to remove HTMLDOC from your
+UNIX/Linux system:</p>
 
 <pre>
     % <kbd>/etc/software/htmldoc.remove ENTER</kbd>

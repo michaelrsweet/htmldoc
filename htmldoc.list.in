@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.28 2004/06/14 22:13:52 swdev Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.29 2004/06/16 01:25:43 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -82,8 +82,7 @@ if test -x /usr/dt/bin/dtappintegrate; then
 fi
 EOF
 %system linux freebsd netbsd openbsd
-f 0444 root sys /etc/X11/applnk/Office/htmldoc.desktop desktop/htmldoc.desktop
-f 0444 root sys /usr/share/mimelnk/application/vnd.htmldoc-book.desktop desktop/vnd.htmldoc-book.desktop
+f 0444 root sys /usr/share/applications/htmldoc.desktop desktop/htmldoc.desktop
 f 0444 root sys /usr/share/icons/hicolor/16x16/apps/htmldoc.png desktop/htmldoc-16.png
 f 0444 root sys /usr/share/icons/hicolor/24x24/apps/htmldoc.png desktop/htmldoc-24.png
 f 0444 root sys /usr/share/icons/hicolor/32x32/apps/htmldoc.png desktop/htmldoc-32.png
@@ -91,6 +90,12 @@ f 0444 root sys /usr/share/icons/hicolor/48x48/apps/htmldoc.png desktop/htmldoc-
 f 0444 root sys /usr/share/icons/hicolor/64x64/apps/htmldoc.png desktop/htmldoc-64.png
 f 0444 root sys /usr/share/icons/hicolor/96x96/apps/htmldoc.png desktop/htmldoc-96.png
 f 0444 root sys /usr/share/icons/hicolor/128x128/apps/htmldoc.png desktop/htmldoc-128.png
+f 0444 root sys /usr/share/mime/packages/htmldoc.xml desktop/htmldoc.xml
+f 0444 root sys /usr/share/mimelnk/application/vnd.htmldoc-book.desktop desktop/vnd.htmldoc-book.desktop
+%postinstall <<EOF
+if test -x /usr/bin/update-mime-database; then
+	/usr/bin/update-mime-database /usr/share/mime
+fi
 
 %system irix
 f 0444 root sys /usr/lib/images/htmldoc.icon desktop/htmldoc.icon
@@ -105,5 +110,5 @@ EOF
 %system all
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.28 2004/06/14 22:13:52 swdev Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.29 2004/06/16 01:25:43 mike Exp $".
 #
