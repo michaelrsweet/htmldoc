@@ -1,5 +1,5 @@
 //
-// "$Id: margin.cxx,v 1.4.2.2 2004/03/21 21:55:09 mike Exp $"
+// "$Id: margin.cxx,v 1.4.2.3 2004/03/22 21:14:46 mike Exp $"
 //
 // Margin class routines for HTMLDOC, a HTML document processing program.
 //
@@ -39,12 +39,12 @@ hdMargin::hdMargin(float l,	// I - Initial left margin
 		   float b,	// I - Initial bottom margin
 		   float t)	// I - Top margin
 {
-  _level     = 0;
-  _left[0]   = l;
-  _right[0]  = r;
-  _bottom[0] = b;
-  _top       = t;
-  _page[0]   = 0;
+  level_     = 0;
+  left_[0]   = l;
+  right_[0]  = r;
+  bottom_[0] = b;
+  top_       = t;
+  page_[0]   = 0;
 }
 
 
@@ -71,21 +71,21 @@ hdMargin::push(float l,		// I - New left margin
 	       float b,		// I - New bottom margin
 	       int   p)		// I - Page number for margin
 {
-  if (b > bottom() || p > page() || _level == 0)
+  if (b > bottom() || p > page() || level_ == 0)
   {
     //
     // This new set of margins finishes before the current one;
     // just push the new margins on the stack...
     //
 
-    if (_level >= (HD_MARGIN_MAX - 1))
+    if (level_ >= (HD_MARGIN_MAX - 1))
       return;
 
-    _level ++;
-    _left[_level]   = l;
-    _right[_level]  = r;
-    _bottom[_level] = b;
-    _page[_level]   = p;
+    level_ ++;
+    left_[level_]   = l;
+    right_[level_]  = r;
+    bottom_[level_] = b;
+    page_[level_]   = p;
   }
   else if (b == bottom() && p == page())
   {
@@ -94,8 +94,8 @@ hdMargin::push(float l,		// I - New left margin
     // current one; replace the current one...
     //
 
-    _left[_level]  = l;
-    _right[_level] = r;
+    left_[level_]  = l;
+    right_[level_] = r;
   }
   else
   {
@@ -105,29 +105,29 @@ hdMargin::push(float l,		// I - New left margin
     // margins as needed...
     //
 
-    if (_level >= (HD_MARGIN_MAX - 1))
+    if (level_ >= (HD_MARGIN_MAX - 1))
       return;
 
-    _left[_level + 1]   = l;
-    _right[_level + 1]  = r;
-    _bottom[_level + 1] = _bottom[_level];
-    _page[_level + 1]   = p;
+    left_[level_ + 1]   = l;
+    right_[level_ + 1]  = r;
+    bottom_[level_ + 1] = bottom_[level_];
+    page_[level_ + 1]   = p;
 
-    if (_left[_level] < l)
-      _left[_level] = l;
+    if (left_[level_] < l)
+      left_[level_] = l;
     else
-      _left[_level] = _left[_level - 1];
-    if (_right[_level] > r)
-      _right[_level] = r;
+      left_[level_] = left_[level_ - 1];
+    if (right_[level_] > r)
+      right_[level_] = r;
     else
-      _right[_level] = _right[_level - 1];
-    _bottom[_level] = b;
+      right_[level_] = right_[level_ - 1];
+    bottom_[level_] = b;
 
-    _level ++;
+    level_ ++;
   }
 }
 
 
 //
-// End of "$Id: margin.cxx,v 1.4.2.2 2004/03/21 21:55:09 mike Exp $".
+// End of "$Id: margin.cxx,v 1.4.2.3 2004/03/22 21:14:46 mike Exp $".
 //
