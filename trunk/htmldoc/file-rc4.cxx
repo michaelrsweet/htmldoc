@@ -1,5 +1,5 @@
 //
-// "$Id: file-rc4.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file-rc4.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $"
 //
 //   RC4 filter functions for HTMLDOC.
 //
@@ -52,9 +52,12 @@
 // 'hdRC4Filter::hdRC4Filter()' - Construct an RC4 encryption filter.
 //
 
-hdRC4Filter::hdRC4Filter(hdFile              *f,	// I - File or filter
-                         const unsigned char *key,	// I - Key
-			 unsigned            keylen)	// I - Length of key
+hdRC4Filter::hdRC4Filter(hdFile              *f,
+					// I - File or filter
+                         const unsigned char *key,
+					// I - Key
+			 unsigned            keylen)
+					// I - Length of key
 {
   chain_ = f;
 
@@ -76,7 +79,7 @@ hdRC4Filter::~hdRC4Filter()
 // 'hdRC4Filter::get()' - Get a character (not implemented)
 //
 
-int			// O - -1 for error/not implemented
+int					// O - -1 for error/not implemented
 hdRC4Filter::get()
 {
   return (-1);
@@ -87,10 +90,10 @@ hdRC4Filter::get()
 // 'hdRC4Filter::put()' - Put a single character to the filter.
 //
 
-int			// O - -1 on error, 0 on success
-hdRC4Filter::put(int c)	// I - Character to put
+int					// O - -1 on error, 0 on success
+hdRC4Filter::put(int c)			// I - Character to put
 {
-  unsigned char	in[1];	// Input array for encryption...
+  unsigned char	in[1];			// Input array for encryption...
 
 
   in[0] = (unsigned)c;
@@ -105,9 +108,9 @@ hdRC4Filter::put(int c)	// I - Character to put
 // 'hdRC4Filter::read()' - Read bytes (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdRC4Filter::read(void *,	// I - Bytes to read
-                  int)		// I - Number of bytes to read
+int					// O - -1 for error (not implemented)
+hdRC4Filter::read(void *,		// I - Bytes to read
+                  int)			// I - Number of bytes to read
 {
   return (-1);
 }
@@ -117,9 +120,9 @@ hdRC4Filter::read(void *,	// I - Bytes to read
 // 'hdRC4Filter::seek()' - See in the file (not implemented)
 //
 
-int				// O - -1 for error (not implemented)
-hdRC4Filter::seek(long,		// I - Position or offset
-                  int)		// I - Whence to seek from
+int					// O - -1 for error (not implemented)
+hdRC4Filter::seek(long,			// I - Position or offset
+                  int)			// I - Whence to seek from
 {
   return (-1);
 }
@@ -129,7 +132,7 @@ hdRC4Filter::seek(long,		// I - Position or offset
 // 'hdRC4Filter::size()' - Return the size of the file.
 //
 
-long				// O - Size of file in bytes
+long					// O - Size of file in bytes
 hdRC4Filter::size()
 {
   return (chain_->size());
@@ -172,8 +175,8 @@ hdRC4Filter::write(const void *b,	// I - Buffer to write
 // 'hdRC4Filter::unget()' - Un-get a character (not supported)
 //
 
-int				// O - -1 on error (not supported)
-hdRC4Filter::unget(int c)	// I - Character to unget
+int					// O - -1 on error (not supported)
+hdRC4Filter::unget(int c)		// I - Character to unget
 {
   return (-1);
 }
@@ -184,11 +187,13 @@ hdRC4Filter::unget(int c)	// I - Character to unget
 //
 
 void
-hdRC4Filter::init(const unsigned char *key,	// I - Key
-                  unsigned            keylen)	// I - Length of key
+hdRC4Filter::init(const unsigned char *key,
+					// I - Key
+                  unsigned            keylen)
+					// I - Length of key
 {
-  int		i, j;				// Looping vars
-  unsigned char	tmp;				// Temporary variable
+  int		i, j;			// Looping vars
+  unsigned char	tmp;			// Temporary variable
 
 
   // Fill in linearly s0=0, s1=1, ...
@@ -217,13 +222,16 @@ hdRC4Filter::init(const unsigned char *key,	// I - Key
 //
 
 void
-hdRC4Filter::encrypt(const unsigned char *input,// I - Input buffer
-	             unsigned char       *output,// O - Output buffer
-	             unsigned            len)	// I - Size of buffers
+hdRC4Filter::encrypt(const unsigned char *input,
+					// I - Input buffer
+	             unsigned char       *output,
+					// O - Output buffer
+	             unsigned            len)
+					// I - Size of buffers
 {
-  int		i, j;				// Looping vars
-  unsigned char	tmp;				// Swap variable
-  int		t;				// Current S box
+  int		i, j;			// Looping vars
+  unsigned char	tmp;			// Swap variable
+  int		t;			// Current S box
 
 
   // Loop through the entire buffer...
@@ -256,5 +264,5 @@ hdRC4Filter::encrypt(const unsigned char *input,// I - Input buffer
 
 
 //
-// End of "$Id: file-rc4.cxx,v 1.2 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file-rc4.cxx,v 1.3 2004/03/08 01:01:41 mike Exp $".
 //

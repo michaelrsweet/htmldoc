@@ -1,5 +1,5 @@
 //
-// "$Id: render.h,v 1.20 2004/02/03 02:55:29 mike Exp $"
+// "$Id: render.h,v 1.21 2004/03/08 01:01:41 mike Exp $"
 //
 //   Render class definitions for HTMLDOC.
 //
@@ -35,17 +35,23 @@
 #  include "tree.h"
 
 
-//
-// Render node types...
-//
+/**
+ * Render node types...
+ */
 
 enum hdRenderType
 {
+  //* Text
   HD_RENDERTYPE_TEXT = 1,
+  //* Image
   HD_RENDERTYPE_IMAGE = 2,
+  //* Box
   HD_RENDERTYPE_BOX = 4,
+  //* Background area
   HD_RENDERTYPE_BACKGROUND = 6,
+  //* Link
   HD_RENDERTYPE_LINK = 8,
+  //* Form field
   HD_RENDERTYPE_FORM = 16
 };
 
@@ -198,14 +204,8 @@ struct hdRenderPage
   int		annot_object;
   //* Page number for TOC
   char		page_text[64];
-  //* Background color
-  float		background_color[3];
-  //* Background image
-  hdImage	*background_image;
-  //* Background start position
-  float		background_position[2];
-  //* Background repeat mode
-  hdBackgroundRepeat background_repeat;
+  //* Background
+  hdStyle	*background;
 };
 
 
@@ -219,6 +219,8 @@ struct hdRenderLink
   short		page;
   //* Top position
   short		top;
+  //* Filename
+  char		*filename;
   //* Reference name
   char		*name;
 };
@@ -264,20 +266,14 @@ struct hdRenderHeading
 
 class hdRender
 {
-  public:
+  protected:
 
   //* Stylesheet data
   hdStyleSheet	*css;
   //* Media attributes
   hdStyleMedia	media;
-  //* Current background color
-  float		background_color[3];
-  //* Current background image
-  hdImage	*background_image;
-  //* Current background start position
-  float		background_position[2];
-  //* Current background repeat mode
-  hdBackgroundRepeat background_repeat;
+  //* Current background
+  hdStyle	*background;
 
   //* Document creation date
   char		doc_date[64];
@@ -341,6 +337,8 @@ class hdRender
   float		render_startx;
   //* Current text spacing
   float		render_spacing;
+
+  public:
 
   hdRender(hdStyleSheet *s);
   virtual	~hdRender();
@@ -422,7 +420,7 @@ class hdRender
  * The hdPSRender class writes PostScript files.
  */
 
-class hdPSRender : public hdRender
+class hdPSRender : protected hdRender
 {
   public:
 
@@ -449,7 +447,7 @@ class hdPSRender : public hdRender
  * The hdPDFRender class writes PDF files.
  */
 
-class hdPDFRender : public hdRender
+class hdPDFRender : protected hdRender
 {
   public:
 
@@ -606,5 +604,5 @@ class hdPDFRender : public hdRender
 #endif // !_HTMLDOC_RENDER_H_
 
 //
-// End of "$Id: render.h,v 1.20 2004/02/03 02:55:29 mike Exp $".
+// End of "$Id: render.h,v 1.21 2004/03/08 01:01:41 mike Exp $".
 //

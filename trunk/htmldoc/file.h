@@ -1,5 +1,5 @@
 //
-// "$Id: file.h,v 1.17 2004/02/03 02:55:28 mike Exp $"
+// "$Id: file.h,v 1.18 2004/03/08 01:01:41 mike Exp $"
 //
 //   File class definitions for HTMLDOC, a HTML document processing program.
 //
@@ -41,33 +41,23 @@ extern "C"
 
 
 //
-// Enumerations...
+// Types, structures, and classes...
 //
 
-enum hdMode				// Open modes...
+enum hdMode				//// Open modes...
 {
-  HD_FILE_READ,
-  HD_FILE_WRITE,
-  HD_FILE_UPDATE
+  HD_FILE_READ,				// Open for reading
+  HD_FILE_WRITE,			// Open for writing
+  HD_FILE_UPDATE			// Open for read/write
 };
 
-
-//
-// HTTP cache data...
-//
-
-struct hdCache
+struct hdCache				//// HTTP cache data
 {
   char	*name;				// Temporary filename
   char	*url;				// URL
 };
 
-
-//
-// Base file class...
-//
-
-class hdFile
+class hdFile				//// Base file class...
 {
   // Global class state data...
   static int		no_local_;	// Allow local files to be opened?
@@ -129,15 +119,11 @@ class hdFile
   static hdFile	*temp(const char *uri, char *name, int len);
 };
 
+class hdStdFile : public hdFile		//// STDIO-based files...
 
-//
-// STDIO-based files...
-//
-
-class hdStdFile : public hdFile
 {
-  FILE	*fp_;
-  long	size_;
+  FILE	*fp_;				// STDIO file pointer
+  long	size_;				// Size of file
 
   public:
 
@@ -155,20 +141,15 @@ class hdStdFile : public hdFile
   virtual int	unget(int c);
 };
 
-
-//
-// Memory buffer-based files...
-//
-
-class hdMemFile : public hdFile
+class hdMemFile : public hdFile		//// Memory buffer-based files...
 {
-  char	*buffer_,	// Start of buffer
-	*current_,	// Current position in buffer
-	*end_;		// End of buffer
-  long	size_,		// Current size of buffer file
-	alloc_size_,	// Allocated size of buffer
-	max_size_,	// Maximum size of buffer
-	incr_size_;	// Size increment
+  char	*buffer_,			// Start of buffer
+	*current_,			// Current position in buffer
+	*end_;				// End of buffer
+  long	size_,				// Current size of buffer file
+	alloc_size_,			// Allocated size of buffer
+	max_size_,			// Maximum size of buffer
+	incr_size_;			// Size increment
 
   public:
 
@@ -185,17 +166,12 @@ class hdMemFile : public hdFile
   virtual int	unget(int c);
 };
 
-
-//
-// File filters...
-//
-
-class hdASCII85Filter : public hdFile
+class hdASCII85Filter : public hdFile	//// Base85 encoding filter
 {
-  hdFile	*chain_;	// Pointer to next file/filter
-  unsigned char	buffer_[4];	// Buffer of up to 4 chars
-  int		bufused_;	// Used bytes in buffer
-  int		column_;	// Column in output
+  hdFile	*chain_;		// Pointer to next file/filter
+  unsigned char	buffer_[4];		// Buffer of up to 4 chars
+  int		bufused_;		// Used bytes in buffer
+  int		column_;		// Column in output
 
   public:
 
@@ -211,10 +187,10 @@ class hdASCII85Filter : public hdFile
   virtual int	unget(int c);
 };
 
-class hdASCIIHexFilter : public hdFile
+class hdASCIIHexFilter : public hdFile	//// Hex encoding filter
 {
-  hdFile	*chain_;	// Pointer to next file/filter
-  int		column_;	// Column in output
+  hdFile	*chain_;		// Pointer to next file/filter
+  int		column_;		// Column in output
 
   public:
 
@@ -230,11 +206,11 @@ class hdASCIIHexFilter : public hdFile
   virtual int	unget(int c);
 };
 
-class hdFlateFilter : public hdFile
+class hdFlateFilter : public hdFile	//// Flate compression filter
 {
-  hdFile	*chain_;	// Pointer to next file/filter
-  char		buffer_[16384];	// Compression buffer
-  z_stream	stream_;	// Compression state
+  hdFile	*chain_;		// Pointer to next file/filter
+  char		buffer_[16384];		// Compression buffer
+  z_stream	stream_;		// Compression state
 
   public:
 
@@ -250,14 +226,14 @@ class hdFlateFilter : public hdFile
   virtual int	unget(int c);
 };
 
-class hdJPEGFilter : public hdFile
+class hdJPEGFilter : public hdFile	//// JPEG compression filter
 {
   hdFile		*chain_;	// Pointer to next file or filter
   JOCTET		buffer_[16384];	// Compression buffer
   jpeg_compress_struct	cinfo_;		// Compression information
   struct hdJPEGDest
   {
-    jpeg_destination_mgr pub_;           // Public JPEG destination manager data
+    jpeg_destination_mgr pub_;		// Public JPEG destination manager data
     hdJPEGFilter	*jpeg_filter_;	// JPEG filter pointer
   }			dest_mgr_;	// Destination manager
   jpeg_error_mgr	error_mgr_;	// Error manager
@@ -280,12 +256,12 @@ class hdJPEGFilter : public hdFile
   virtual int	unget(int c);
 };
 
-class hdRC4Filter : public hdFile
+class hdRC4Filter : public hdFile	//// RC4 encryption filter
 {
-  hdFile	*chain_;	// Pointer to next filter or file in chain
-  unsigned char	sbox_[256];	// S boxes for encryption
-  int		si_, sj_;	// Current indices into S boxes
-  unsigned char	buffer_[16384];	// Encryption buffer
+  hdFile	*chain_;		// Pointer to next filter or file in chain
+  unsigned char	sbox_[256];		// S boxes for encryption
+  int		si_, sj_;		// Current indices into S boxes
+  unsigned char	buffer_[16384];		// Encryption buffer
 
   void		init(const unsigned char *key, unsigned keylen);
   void		encrypt(const unsigned char *input, unsigned char *output,
@@ -308,5 +284,5 @@ class hdRC4Filter : public hdFile
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h,v 1.17 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: file.h,v 1.18 2004/03/08 01:01:41 mike Exp $".
 //

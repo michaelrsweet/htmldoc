@@ -1,5 +1,5 @@
 //
-// "$Id: render-support.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $"
+// "$Id: render-support.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $"
 //
 //   Rendering support methods for HTMLDOC, a HTML document processing
 //   program.
@@ -72,16 +72,9 @@ hdRender::hdRender(hdStyleSheet *s)	// I - Stylesheet
   strcpy(media.media_color, css->media.media_color);
   strcpy(media.media_type, css->media.media_type);
 
-  background_color[0]    = 0.0f;
-  background_color[1]    = 0.0f;
-  background_color[2]    = 0.0f;
-  background_image       = NULL;
-  background_position[0] = 0.0f;
-  background_position[1] = 0.0f;
-  background_repeat      = HD_BACKGROUNDREPEAT_REPEAT;
-  doc_time               = time(NULL);
-
-  date = localtime(&doc_time);
+  background = NULL;
+  doc_time   = time(NULL);
+  date       = localtime(&doc_time);
 
   snprintf(doc_date, sizeof(doc_date), "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
            date->tm_year + 1900, date->tm_mon + 1, date->tm_mday,
@@ -497,5 +490,5 @@ hdRenderNode::~hdRenderNode()
 
 
 //
-// End of "$Id: render-support.cxx,v 1.3 2004/02/03 02:55:28 mike Exp $".
+// End of "$Id: render-support.cxx,v 1.4 2004/03/08 01:01:41 mike Exp $".
 //
