@@ -115,6 +115,14 @@ SOURCE=..\htmldoc\htmlsep.cxx
 # End Source File
 # Begin Source File
 
+SOURCE="..\htmldoc\http-addr.c"
+# End Source File
+# Begin Source File
+
+SOURCE="..\htmldoc\http-support.c"
+# End Source File
+# Begin Source File
+
 SOURCE=..\htmldoc\http.c
 # End Source File
 # Begin Source File
