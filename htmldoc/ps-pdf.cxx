@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.8 1999/11/12 17:48:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.9 1999/11/12 19:19:57 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2653,6 +2653,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   tree_t	*linetype;
   float		linex,
 		linewidth;
+  static float	blue[3] = { 0.0f, 0.0f, 1.0f };
 
 
   if (*page > MAX_PAGES)
@@ -2869,12 +2870,12 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     linetype   = NULL;
     linex      = 0.0;
 
+    rgb[0] = temp->red / 255.0f;
+    rgb[1] = temp->green / 255.0f;
+    rgb[2] = temp->blue / 255.0f;
+
     while (temp != end)
     {
-      rgb[0] = temp->red / 255.0f;
-      rgb[1] = temp->green / 255.0f;
-      rgb[2] = temp->blue / 255.0f;
-
       if (temp->link != NULL)
       {
         link = htmlGetVariable(temp->link, (uchar *)"HREF");
@@ -2895,11 +2896,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  temp->red   = 0;
 	  temp->green = 0;
 	  temp->blue  = 255;
-
-	  rgb[0] = 0.0f;
-	  rgb[1] = 0.0f;
-	  rgb[2] = 1.0f;
-	  r = new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, rgb);
+	  r = new_render(*page, RENDER_BOX, *x, *y - 1, temp->width, 0, blue);
 	}
       }
 
@@ -2956,6 +2953,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      lineptr   = line;
 	      linex     = *x;
 	      linewidth = 0.0;
+
+	      rgb[0] = temp->red / 255.0f;
+	      rgb[1] = temp->green / 255.0f;
+	      rgb[2] = temp->blue / 255.0f;
 	    }
 
 	    if (temp->underline)
@@ -5879,5 +5880,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.8 1999/11/12 17:48:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.9 1999/11/12 19:19:57 mike Exp $".
  */
