@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.3 1999/09/24 16:06:52 mike Exp $"
+// "$Id: HelpView.cxx,v 1.4 1999/09/24 20:41:02 mike Exp $"
 //
 //   Help Viewer routines for the Common UNIX Printing System (CUPS).
 //
@@ -44,7 +44,12 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 HelpBlock *
-HelpView::add_block(const char *s, int x, int y, int w, int h, int a)
+HelpView::add_block(const char *s,
+                    int        xx,
+		    int        yy,
+		    int        ww,
+		    int        hh,
+		    int        a)
 {
   HelpBlock	*temp;
 
@@ -61,10 +66,10 @@ HelpView::add_block(const char *s, int x, int y, int w, int h, int a)
 
   temp = blocks_ + nblocks_;
   temp->start = s;
-  temp->x     = x;
-  temp->y     = y;
-  temp->w     = w;
-  temp->h     = h;
+  temp->x     = xx;
+  temp->y     = yy;
+  temp->w     = ww;
+  temp->h     = hh;
   temp->align = a;
 
   nblocks_ ++;
@@ -78,8 +83,44 @@ HelpView::add_block(const char *s, int x, int y, int w, int h, int a)
 //
 
 void
-HelpView::add_link(const char *n, int xx, int yy, int ww, int hh)
+HelpView::add_link(const char *n,
+                   int        xx,
+		   int        yy,
+		   int        ww,
+		   int        hh)
 {
+  HelpLink	*temp;
+  char		*target;
+
+
+  if (nlinks_ >= alinks_)
+  {
+    alinks_ += 16;
+
+    if (alinks_ == 16)
+      links_ = (HelpLink *)malloc(sizeof(HelpLink) * alinks_);
+    else
+      links_ = (HelpLink *)realloc(links_, sizeof(HelpLink) * alinks_);
+  }
+
+  temp = links_ + nlinks_;
+
+  temp->x       = xx;
+  temp->y       = yy;
+  temp->w       = xx + ww;
+  temp->h       = yy + hh;
+
+  strcpy(temp->filename, n);
+
+  if ((target = strrchr(temp->filename, '#')) != NULL)
+  {
+    *target++ = '\0';
+    strcpy(temp->name, target);
+  }
+  else
+    temp->name[0] = '\0';
+
+  nlinks_ ++;
 }
 
 
@@ -88,8 +129,28 @@ HelpView::add_link(const char *n, int xx, int yy, int ww, int hh)
 //
 
 void
-HelpView::add_target(const char *n, int yy)
+HelpView::add_target(const char *n,
+                     int        yy)
 {
+  HelpTarget	*temp;
+
+
+  if (ntargets_ >= atargets_)
+  {
+    atargets_ += 16;
+
+    if (atargets_ == 16)
+      targets_ = (HelpTarget *)malloc(sizeof(HelpTarget) * atargets_);
+    else
+      targets_ = (HelpTarget *)realloc(targets_, sizeof(HelpTarget) * atargets_);
+  }
+
+  temp = targets_ + ntargets_;
+
+  temp->y = yy;
+  strcpy(temp->name, n);
+
+  ntargets_ ++;
 }
 
 
@@ -117,7 +178,7 @@ HelpView::draw()
 		attr[1024];
   int		xx, yy, ww, hh;
   uchar		font, size;
-  int		align, head, pre, needspace;
+  int		head, pre, needspace;
   Fl_Boxtype	b = box() ? box() : FL_DOWN_BOX;
 
 
@@ -143,7 +204,6 @@ HelpView::draw()
       hh        = 0;
       pre       = 0;
       head      = 0;
-      align     = block->align;
       needspace = 0;
 
       initfont(font, size);
@@ -297,7 +357,8 @@ HelpView::draw()
 
 	    pushfont(font, size);
 	  }
-	  else if (strcasecmp(buf, "A") == 0)
+	  else if (strcasecmp(buf, "A") == 0 &&
+	           get_attr(attrs, "HREF", attr, sizeof(attr)) != NULL)
 	    fl_color(FL_BLUE);
 	  else if (strcasecmp(buf, "/A") == 0)
 	    fl_color(FL_BLACK);
@@ -313,7 +374,7 @@ HelpView::draw()
 
             fl_rect(block->x + x() - 4,
 	            block->y - topline_ + y() - size - 3,
-		    block->w - block->x + 7, block->h + 7);
+		    block->w - block->x + 7, block->h + size - 5);
 	  }
 	  else if (strcasecmp(buf, "I") == 0)
 	    pushfont(font |= FL_ITALIC, size);
@@ -466,13 +527,16 @@ HelpView::format()
 		*attrs;
   char		*s,
 		buf[1024],
-		attr[1024];
+		attr[1024],
+		link[1024];
   int		xx, yy, ww, hh;
   uchar		font, size;
   int		align,
 		head,
 		pre,
 		needspace;
+  int		column,
+		columns[200];
 
 
   nblocks_  = 0;
@@ -494,6 +558,7 @@ HelpView::format()
   pre       = 0;
   align     = 1;
   needspace = 0;
+  link[0]   = '\0';
 
   for (ptr = value_, s = buf; *ptr;)
   {
@@ -516,6 +581,9 @@ HelpView::format()
 	  hh       = 0;
 	}
 
+        if (link[0])
+	  add_link(link, xx, yy - size, ww, size);
+
 	xx += ww;
 	if ((size + 2) > hh)
 	  hh = size + 2;
@@ -529,6 +597,9 @@ HelpView::format()
 	{
 	  if (*ptr == '\n')
 	  {
+            if (link[0])
+	      add_link(link, xx, yy - hh, ww, hh);
+
             xx = block->x;
 	    yy += hh;
 	    block->h += hh;
@@ -572,6 +643,17 @@ HelpView::format()
 
       if (strcasecmp(buf, "HEAD") == 0)
         head = 1;
+      else if (strcasecmp(buf, "/HEAD") == 0)
+        head = 0;
+      else if (strcasecmp(buf, "A") == 0)
+      {
+        if (get_attr(attrs, "NAME", attr, sizeof(attr)) != NULL)
+	  add_target(attr, yy - size - 2);
+	else if (get_attr(attrs, "HREF", attr, sizeof(attr)) != NULL)
+	  strcpy(link, attr);
+      }
+      else if (strcasecmp(buf, "/A") == 0)
+        link[0] = '\0';
       else if (strcasecmp(buf, "BR") == 0)
       {
         xx       = block->x;
@@ -614,7 +696,14 @@ HelpView::format()
 	  block->h += size + 2;
 	}
         else if (strcasecmp(buf, "TABLE") == 0)
+	{
 	  block->h += size + 2;
+
+          for (column = 0; column < 200; column ++)
+	    columns[column] = 14 * size;
+
+	  column = 0;
+	}
 
         if (tolower(buf[0]) == 'h')
 	{
@@ -654,113 +743,6 @@ HelpView::format()
 	needspace = 0;
         hh        = 0;
       }
-      else if (strcasecmp(buf, "TR") == 0)
-      {
-        block->end = start;
-
-        xx       = block->x;
-        block->h += hh;
-
-        if (!block->h)
-	{
-	  nblocks_ --;
-	  block --;
-	}
-
-        if (row)
-	{
-          yy = row->y + row->h;
-
-	  for (cell = row + 1; cell <= block; cell ++)
-	    if ((cell->y + cell->h) > yy)
-	      yy = cell->y + cell->h;
-
-          block->h = yy - block->y + 2;
-
-	  for (cell = row + 1; cell < block; cell ++)
-	    cell->h = block->h;
-	}
-
-	yy        = block->y + block->h - 4;
-	hh        = 0;
-        block     = row = add_block(start, xx, yy, w() - 24, 0, align);
-	needspace = 0;
-      }
-      else if ((strcasecmp(buf, "TD") == 0 ||
-                strcasecmp(buf, "TH") == 0) && row)
-      {
-        block->end = start;
-	block->h   += hh;
-
-        if (strcasecmp(buf, "TH") == 0)
-	  font = textfont_ | FL_BOLD;
-	else
-	  font = textfont_;
-
-        size = textsize_;
-
-        if (strncasecmp(block->start, "<TR", 3) == 0)
-          xx = block->x + size + 3;
-	else
-          xx = block->x + 14 * size + 6;
-
-        if (block->end == block->start)
-	{
-	  nblocks_ --;
-	  block --;
-	}
-
-	pushfont(font, size);
-
-	yy        = row->y;
-	hh        = 0;
-        block     = add_block(start, xx, yy, xx + 14 * size, 0, align);
-	needspace = 0;
-      }
-      else if ((strcasecmp(buf, "/TD") == 0 ||
-                strcasecmp(buf, "/TH") == 0) && row)
-        popfont(font, size);
-      else if (strcasecmp(buf, "/TR") == 0 && row != NULL)
-      {
-        block->end = start;
-	block->h   += hh;
-
-        xx = row->x;
-
-        if (block->end == block->start)
-	{
-	  nblocks_ --;
-	  block --;
-	}
-
-        yy = row->y + row->h;
-
-	for (cell = row + 1; cell <= block; cell ++)
-	  if ((cell->y + cell->h) > yy)
-	    yy = cell->y + cell->h;
-
-        block->h = yy - block->y + 2;
-
-	for (cell = row + 1; cell < block; cell ++)
-	  cell->h = block->h;
-
-	yy        = block->y + block->h - 4;
-        block     = add_block(start, xx, yy, w() - 24, 0, align);
-	needspace = 0;
-	row       = NULL;
-      }
-      else if (strcasecmp(buf, "B") == 0)
-	pushfont(font |= FL_BOLD, size);
-      else if (strcasecmp(buf, "I") == 0)
-	pushfont(font |= FL_ITALIC, size);
-      else if (strcasecmp(buf, "CODE") == 0)
-	pushfont(font = FL_COURIER, size);
-      else if (strcasecmp(buf, "KBD") == 0)
-	pushfont(font = FL_COURIER_BOLD, size);
-      else if (strcasecmp(buf, "VAR") == 0)
-	pushfont(font = FL_COURIER_ITALIC, size);
-      else if (strcasecmp(buf, "/HEAD") == 0)
-        head = 0;
       else if (strcasecmp(buf, "/P") == 0 ||
 	       strcasecmp(buf, "/H1") == 0 ||
 	       strcasecmp(buf, "/H2") == 0 ||
@@ -808,6 +790,127 @@ HelpView::format()
 	needspace = 0;
 	hh        = 0;
       }
+      else if (strcasecmp(buf, "TR") == 0)
+      {
+        block->end = start;
+
+        xx       = block->x;
+        block->h += hh;
+
+        if (!block->h)
+	{
+	  nblocks_ --;
+	  block --;
+	}
+
+        if (row)
+	{
+          yy = row->y + row->h;
+
+	  for (cell = row + 1; cell <= block; cell ++)
+	    if ((cell->y + cell->h) > yy)
+	      yy = cell->y + cell->h;
+
+          block->h = yy - block->y + 2;
+
+	  for (cell = row + 1; cell < block; cell ++)
+	    cell->h = block->h;
+	}
+
+	yy        = block->y + block->h - 4;
+	hh        = 0;
+        block     = row = add_block(start, xx, yy, w() - 24, 0, align);
+	needspace = 0;
+
+	column = 0;
+      }
+      else if (strcasecmp(buf, "/TR") == 0 && row != NULL)
+      {
+        block->end = start;
+	block->h   += hh;
+
+        xx = row->x;
+
+        if (block->end == block->start)
+	{
+	  nblocks_ --;
+	  block --;
+	}
+
+        yy = row->y + row->h;
+
+	for (cell = row + 1; cell <= block; cell ++)
+	  if ((cell->y + cell->h) > yy)
+	    yy = cell->y + cell->h;
+
+        block->h = yy - block->y + 2;
+
+	for (cell = row + 1; cell < block; cell ++)
+	  cell->h = block->h;
+
+	yy        = block->y + block->h - 4;
+        block     = add_block(start, xx, yy, w() - 24, 0, align);
+	needspace = 0;
+	row       = NULL;
+      }
+      else if ((strcasecmp(buf, "TD") == 0 ||
+                strcasecmp(buf, "TH") == 0) && row)
+      {
+        block->end = start;
+	block->h   += hh;
+
+        if (strcasecmp(buf, "TH") == 0)
+	  font = textfont_ | FL_BOLD;
+	else
+	  font = textfont_;
+
+        size = textsize_;
+
+        if (column == 0)
+          xx = block->x + size + 3;
+	else
+          xx = block->w + 6;
+
+        if (block->end == block->start)
+	{
+	  nblocks_ --;
+	  block --;
+	}
+
+	pushfont(font, size);
+
+        if (get_attr(attrs, "WIDTH", attr, sizeof(attr)) != NULL)
+	{
+	  ww = atoi(attr);
+
+	  if (attr[strlen(attr) - 1] == '%')
+	    ww = ww * w() / 100;
+
+          columns[column] = ww;
+	}
+	else
+	  ww = columns[column];
+
+	yy        = row->y;
+	hh        = 0;
+        block     = add_block(start, xx, yy, xx + ww, 0, align);
+	needspace = 0;
+
+	column ++;
+      }
+      else if ((strcasecmp(buf, "/TD") == 0 ||
+                strcasecmp(buf, "/TH") == 0) && row)
+        popfont(font, size);
+      else if (strcasecmp(buf, "B") == 0)
+	pushfont(font |= FL_BOLD, size);
+      else if (strcasecmp(buf, "I") == 0)
+	pushfont(font |= FL_ITALIC, size);
+      else if (strcasecmp(buf, "CODE") == 0)
+	pushfont(font = FL_COURIER, size);
+      else if (strcasecmp(buf, "KBD") == 0)
+	pushfont(font = FL_COURIER_BOLD, size);
+      else if (strcasecmp(buf, "VAR") == 0)
+	pushfont(font = FL_COURIER_ITALIC, size);
       else if (strcasecmp(buf, "/B") == 0 ||
 	       strcasecmp(buf, "/I") == 0 ||
 	       strcasecmp(buf, "/CODE") == 0 ||
@@ -817,6 +920,9 @@ HelpView::format()
     }
     else if (*ptr == '\n' && pre)
     {
+      if (link[0])
+	add_link(link, xx, yy - hh, ww, hh);
+
       xx        = block->x;
       yy        += hh;
       block->h  += hh;
@@ -895,10 +1001,17 @@ HelpView::format()
       block->h += hh;
       hh       = 0;
     }
+
+    if (link[0])
+      add_link(link, xx, yy - size, ww, size);
   }
 
   block->end = ptr;
   size_      = yy + hh;
+
+  if (ntargets_ > 1)
+    qsort(targets_, ntargets_, sizeof(HelpTarget),
+          (int (*)(const void *, const void *))compare_targets);
 
   if (size_ < (h() - 8))
     scrollbar_.hide();
@@ -919,6 +1032,56 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
 		   char       *buf,	// O - Buffer for attribute value
 		   int        bufsize)	// I - Size of buffer
 {
+  char	name[255],			// Name from string
+	*ptr,				// Pointer into name or value
+	quote;				// Quote
+
+
+  while (*p && *p != '>')
+  {
+    while (isspace(*p))
+      p ++;
+
+    if (*p == '>' || !*p)
+      return (NULL);
+
+    for (ptr = name; *p && !isspace(*p) && *p != '=';)
+      *ptr++ = *p++;
+    *ptr = '\0';
+
+    if (isspace(*p) || !*p)
+      buf[0] = '\0';
+    else
+    {
+      if (*p == '=')
+        p ++;
+
+      for (ptr = buf; *p && !isspace(*p) && *p != '>';)
+        if (*p == '\'' || *p == '\"')
+	{
+	  quote = *p++;
+
+	  while (*p && *p != quote)
+	    if ((ptr - buf + 1) < bufsize)
+	      *ptr++ = *p++;
+	    else
+	      p ++;
+
+          if (*p == quote)
+	    p ++;
+	}
+	else if ((ptr - buf + 1) < bufsize)
+	  *ptr++ = *p++;
+	else
+	  p ++;
+
+      *ptr = '\0';
+    }
+
+    if (strcasecmp(n, name) == 0)
+      return (buf);
+  }
+
   return (NULL);
 }
 
@@ -926,19 +1089,58 @@ HelpView::get_attr(const char *p,	// I - Pointer to start of attributes
 int
 HelpView::handle(int event)
 {
-#if 0
+  int		i;
+  int		xx, yy;
+  HelpLink	*link;
+  char		target[32];
+
+
   switch (event)
   {
-    case FL_KEYBOARD :
-        break;
-    case FL_BUTTON :
-    case FL_MOTION :
-        break;
-  }
-#endif /* 0 */
+    case FL_MOVE :
+    case FL_PUSH :
+        xx = Fl::event_x() - x();
+	yy = Fl::event_y() - y() + topline_;
+        if (!scrollbar_.visible() || xx < (w() - 20))
+	  break;
 
-  // Use the Fl_Input handler...
-  return (Fl_Group::handle(event));
+    default :
+	// Use the Fl_Group handler...
+	return (Fl_Group::handle(event));
+  }
+
+  // Handle mouse clicks on links...
+  for (i = nlinks_, link = links_; i > 0; i --, link ++)
+    if (xx >= link->x && xx < link->w &&
+        yy >= link->y && yy < link->h)
+      break;
+
+  if (!i)
+  {
+    fl_cursor(FL_CURSOR_DEFAULT);
+    return (1);
+  }
+
+  // Change the cursor for FL_MOTION events, and go to the link for
+  // clicks...
+  if (event == FL_MOVE)
+    fl_cursor(FL_CURSOR_HAND);
+  else
+  {
+    fl_cursor(FL_CURSOR_DEFAULT);
+
+    strcpy(target, link->name);
+
+    set_changed();
+
+    if (strcmp(link->filename, filename_) != 0)
+      load(link->filename);
+
+    if (target[0])
+      topline(target);
+  }
+
+  return (1);
 }
 
 
@@ -950,27 +1152,28 @@ HelpView::HelpView(int xx, int yy, int ww, int hh, const char *l)
     : Fl_Group(xx, yy, ww, hh, l),
       scrollbar_(xx + ww - 20, yy, 20, hh)
 {
-  value_     = NULL;
+  filename_[0] = '\0';
+  value_       = NULL;
 
-  ablocks_    = 0;
-  nblocks_    = 0;
-  blocks_     = (HelpBlock *)0;
+  ablocks_     = 0;
+  nblocks_     = 0;
+  blocks_      = (HelpBlock *)0;
 
-  alinks_    = 0;
-  nlinks_    = 0;
-  links_     = (HelpLink *)0;
+  alinks_      = 0;
+  nlinks_      = 0;
+  links_       = (HelpLink *)0;
 
-  atargets_  = 0;
-  ntargets_  = 0;
-  targets_   = (HelpTarget *)0;
+  atargets_    = 0;
+  ntargets_    = 0;
+  targets_     = (HelpTarget *)0;
+
+  textfont_    = FL_TIMES;
+  textsize_    = 12;
+
+  topline_     = 0;
+  size_        = 0;
 
   color(FL_WHITE);
-
-  textfont_ = FL_TIMES;
-  textsize_ = 12;
-
-  topline_  = 0;
-  size_ = 0;
 
   scrollbar_.value(0, hh, 0, 1);
   scrollbar_.step(8.0);
@@ -1043,6 +1246,19 @@ HelpView::resize(int x, int y, int w, int h)
 void
 HelpView::topline(const char *n)	// I - Target name
 {
+  HelpTarget	key,			// Target name key
+		*target;		// Pointer to matching target
+
+
+  if (ntargets_ == 0)
+    return;
+
+  strcpy(key.name, n);
+  target = (HelpTarget *)bsearch(&key, targets_, ntargets_, sizeof(HelpTarget),
+                                 (int (*)(const void *, const void *))compare_targets);
+
+  if (target != NULL)
+    topline(target->y);
 }
 
 
@@ -1072,6 +1288,9 @@ HelpView::topline(int t)	// I - Top line number
 
   scrollbar_.value(topline_, hh, 0, size_ - h());
 
+  do_callback();
+  clear_changed();
+
   redraw();
 }
 
@@ -1097,5 +1316,5 @@ HelpView::value(const char *v)	// I - Text to view
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.3 1999/09/24 16:06:52 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.4 1999/09/24 20:41:02 mike Exp $".
 //
