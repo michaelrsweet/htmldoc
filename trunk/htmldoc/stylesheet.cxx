@@ -1,5 +1,5 @@
 //
-// "$Id: stylesheet.cxx,v 1.7 2002/05/06 13:23:41 mike Exp $"
+// "$Id: stylesheet.cxx,v 1.8 2002/07/18 01:14:58 mike Exp $"
 //
 //   CSS sheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -527,8 +527,6 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
   int		i, j;			// Looping vars...
   int		status;			// Load status
   int		ch;			// Character from file
-  char		filename[1024];		// Include file
-  hdFile	*include;		// Include file pointer
   char		sel_s[1024],		// Selector string
 		sel_p[256],		// Selector pattern
 		*sel_class,		// Selector class
@@ -544,6 +542,9 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
   hdStyle	*style;			// New style
   char		props[4096],		// Style properties
 		props_p[256];		// Property pattern
+  char		import[1024],		// Import string
+		*import_ptr;		// Pointer into import string
+  hdFile	*import_f;		// Import file pointer
 
 
   // Initialize the read patterns.
@@ -566,7 +567,8 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
       // Check for C-style comment...
       if ((ch = f->get()) != '*')
       {
-        fprintf(stderr, "Bad sequence \"/%c\" in stylesheet!\n", ch);
+        hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                        "Bad sequence \"/%c\" in stylesheet!", ch);
 	status = -1;
 	break;
       }
@@ -583,7 +585,8 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 
       if (ch != '/')
       {
-        fputs("Unterminated comment in stylesheet!\n", stderr);
+        hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                        "Unterminated comment in stylesheet!");
 	status = -1;
 	break;
       }
@@ -599,7 +602,8 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
       // Read property data...
       if (read(f, props_p, props, sizeof(props)) == NULL)
       {
-        fputs("Missing property data in stylesheet!\n", stderr);
+        hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                        "Missing property data in stylesheet!");
 	status = -1;
 	break;
       }
@@ -662,8 +666,9 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 
       if (cur_style >= HD_SELECTOR_MAX)
       {
-        fprintf(stderr, "Too many selectors (> %d) in stylesheet!\n",
-	        HD_SELECTOR_MAX);
+        hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                        "Too many selectors (> %d) in stylesheet!",
+	                        HD_SELECTOR_MAX);
 	status = -1;
 	break;
       }
@@ -673,7 +678,8 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
     else if (!sel_p[ch])
     {
       // Not a valid selector string...
-      fprintf(stderr, "Bad stylesheet character \"%c\"!\n", ch);
+      hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+                              "Bad stylesheet character \"%c\"!", ch);
       status = -1;
       break;
     }
@@ -687,6 +693,92 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
     if (sel_s[0] == '@')
     {
       // @ selector...
+      if (strcmp(sel_s, "@import") == 0)
+      {
+        // Include another stylesheet...
+	import_ptr = import;
+
+	while ((ch = f->get()) >= 0)
+	  if (!isspace(ch))
+	    break;
+
+        f->unget(ch);
+
+        // Read the URL and potentially a media selector...
+	while ((ch = f->get()) >= 0)
+	{
+	  // Stop at ';'...
+	  if (ch == ';')
+	    break;
+
+          // Handle quotes...
+	  if (import_ptr < (import + sizeof(import) - 1))
+	    *import_ptr++ = ch;
+
+	  if (ch == '\"')
+	  {
+	    while ((ch = f->get()) >= 0)
+	    {
+	      if (import_ptr < (import + sizeof(import) - 1))
+		*import_ptr++ = ch;
+
+	      if (ch == '\"')
+	        break;
+            }
+	  }
+	}
+
+        *import_ptr = '\0';
+
+        // Skip the initial url(" or "...
+	if (strncmp(import, "url(", 4) == 0)
+	  import_ptr = import + 4;
+	else
+	  import_ptr = import;
+
+	if (*import_ptr == '\"')
+	  import_ptr ++;
+
+        strcpy(import, import_ptr);
+	if ((import_ptr = strchr(import, '\"')) == NULL)
+	  import_ptr = strchr(import, ')');
+
+	if (import_ptr)
+	  *import_ptr++ = '\0';
+
+        // Now see if there is a media selector...
+        while (isspace(*import_ptr))
+	  import_ptr ++;
+
+        if (*import_ptr == ')')
+	  import_ptr ++;
+
+        while (isspace(*import_ptr))
+	  import_ptr ++;
+
+        if (!*import_ptr && strstr(import_ptr, "print") != NULL)
+	{
+	  // Import the file...
+	  if ((import_f = hdFile::open(import, HD_FILE_READ)) != NULL)
+	  {
+	    load(import_f, path);
+
+	    delete import_f;
+	  }
+	  else
+	    hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+	                            "Unable to import \"%s\"!", import);
+	}
+      }
+      else if (strcmp(sel_s, "@page") == 0)
+      {
+        // Set page parameters...
+      }
+      else
+      {
+        // Show a warning message...
+      }
+
       continue;
     }
 
@@ -913,7 +1005,8 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   // Validate the character set name...
   if (cs == NULL || strchr(cs, '/') != NULL)
   {
-    fprintf(stderr, "Bad character set \"%s\"!\n", cs ? cs : "(null)");
+    hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+                            "Bad character set \"%s\"!", cs ? cs : "(null)");
     return;
   }
 
@@ -922,21 +1015,27 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
            hdGlobal.datadir, cs);
   if ((fp = hdFile::open(filename, HD_FILE_READ)) == NULL)
   {
-    fprintf(stderr, "Unable to open character set file \"%s\"!\n", filename);
+    hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+                            "Unable to open character set file \"%s\"!",
+			    filename);
     return;
   }
 
   // Read the charset type (8bit or unicode)...
   if (fp->gets(line, sizeof(line)) == NULL)
   {
-    fprintf(stderr, "Unable to read charset type from \"%s\"!\n", filename);
+    hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+                            "Unable to read charset type from \"%s\"!",
+			    filename);
     delete fp;
     return;
   }
 
   if (strcasecmp(line, "8bit") != 0 && strcasecmp(line, "unicode") != 0)
   {
-    fprintf(stderr, "Bad charset type \"%s\" in \"%s\"!\n", line, filename);
+    hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+                            "Bad charset type \"%s\" in \"%s\"!",
+			    line, filename);
     delete fp;
     return;
   }
@@ -979,13 +1078,15 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   {
     if (sscanf(line, "%x%254s", &code, name) != 2)
     {
-      fprintf(stderr, "Bad line \"%s\" in \"%s\"!\n", line, filename);
+      hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+                              "Bad line \"%s\" in \"%s\"!", line, filename);
       break;
     }
 
     if (code < 0 || code >= num_glyphs)
     {
-      fprintf(stderr, "Invalid code %x in \"%s\"!\n", code, filename);
+      hdGlobal.progress_error(HD_ERROR_CSS_ERROR,
+                              "Invalid code %x in \"%s\"!", code, filename);
       break;
     }
 
@@ -1018,5 +1119,5 @@ hdStyleSheet::update_styles()
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.7 2002/05/06 13:23:41 mike Exp $".
+// End of "$Id: stylesheet.cxx,v 1.8 2002/07/18 01:14:58 mike Exp $".
 //
