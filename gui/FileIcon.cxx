@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.13 1999/11/12 21:37:54 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.14 1999/11/18 01:57:41 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -878,29 +878,67 @@ FileIcon::load_system_icons(void)
   static int	init = 0;	// Have the icons been initialized?
   static short	plain[] =	// Plain file icon
 		{
-		  1, 39, 4, 6, 3883, 22, 6, 2200, 912, 6, 6055, 2878,
-		  6, 7782, 2020, 0, 1, 256, 5, 0, 6, 2200, 1987, 6,
-		  2200, 7950, 6, 6001, 9893, 6, 6001, 3920, 0, 5, 0, 6,
-		  3069, 1553, 6, 3069, 7483, 6, 6870, 9459, 6, 6870,
-		  3497, 0, 5, 0, 6, 3959, 1151, 6, 3959, 7048, 6, 7739,
-		  8992, 6, 7739, 3084,
-		  FileIcon::END
+		  COLOR, 256, OUTLINEPOLYGON, FL_GRAY,
+		  VERTEX, 2000, 1000, VERTEX, 2000, 9000,
+		  VERTEX, 6000, 9000, VERTEX, 8000, 7000,
+		  VERTEX, 8000, 1000, END, OUTLINEPOLYGON, FL_GRAY,
+		  VERTEX, 6000, 9000, VERTEX, 6000, 7000,
+		  VERTEX, 8000, 7000, END,
+		  COLOR, FL_BLACK, LINE, VERTEX, 6000, 7000,
+		  VERTEX, 8000, 7000, VERTEX, 8000, 1000,
+		  VERTEX, 2000, 1000, END, LINE, VERTEX, 3000, 7000,
+		  VERTEX, 5000, 7000, END, LINE, VERTEX, 3000, 6000,
+		  VERTEX, 5000, 6000, END, LINE, VERTEX, 3000, 5000,
+		  VERTEX, 7000, 5000, END, LINE, VERTEX, 3000, 4000,
+		  VERTEX, 7000, 4000, END, LINE, VERTEX, 3000, 3000,
+		  VERTEX, 7000, 3000, END, LINE, VERTEX, 3000, 2000,
+		  VERTEX, 7000, 2000, END, 
+		  END
+		};
+  static short	image[] =	// Image file icon
+		{
+		  COLOR, 256, OUTLINEPOLYGON, FL_GRAY,
+		  VERTEX, 2000, 1000, VERTEX, 2000, 9000,
+		  VERTEX, 6000, 9000, VERTEX, 8000, 7000,
+		  VERTEX, 8000, 1000, END, OUTLINEPOLYGON, FL_GRAY,
+		  VERTEX, 6000, 9000, VERTEX, 6000, 7000,
+		  VERTEX, 8000, 7000, END,
+		  COLOR, FL_BLACK, LINE, VERTEX, 6000, 7000,
+		  VERTEX, 8000, 7000, VERTEX, 8000, 1000,
+		  VERTEX, 2000, 1000, END,
+		  COLOR, FL_RED, POLYGON, VERTEX, 3500, 2500,
+		  VERTEX, 3000, 3000, VERTEX, 3000, 4000,
+		  VERTEX, 3500, 4500, VERTEX, 4500, 4500,
+		  VERTEX, 5000, 4000, VERTEX, 5000, 3000,
+		  VERTEX, 4500, 2500, END,
+		  COLOR, FL_GREEN, POLYGON, VERTEX, 5500, 2500,
+		  VERTEX, 5000, 3000, VERTEX, 5000, 4000,
+		  VERTEX, 5500, 4500, VERTEX, 6500, 4500,
+		  VERTEX, 7000, 4000, VERTEX, 7000, 3000,
+		  VERTEX, 6500, 2500, END,
+		  COLOR, FL_BLUE, POLYGON, VERTEX, 4500, 3500,
+		  VERTEX, 4000, 4000, VERTEX, 4000, 5000,
+		  VERTEX, 4500, 5500, VERTEX, 5500, 5500,
+		  VERTEX, 6000, 5000, VERTEX, 6000, 4000,
+		  VERTEX, 5500, 3500, END,
+		  END
 		};
   static short	dir[] =		// Directory icon
 		{
-		  1, 256, 5, 256, 6, 2842, 7300, 6, 2683, 6823, 6,
-		  4525, 7767, 6, 4366, 8176, 0, 5, 256, 6, 7697, 4185,
-		  6, 7282, 3977, 6, 7320, 8660, 6, 7697, 8847, 0, 5,
-		  256, 6, 7282, 3977, 6, 2114, 1387, 6, 1727, 1581, 6,
-		  1727, 6322, 6, 2683, 6823, 6, 4525, 7767, 6, 7322,
-		  9165, 0, 1, 39, 4, 6, 2637, 0, 6, 1500, 569, 6, 7186,
-		  3411, 6, 8323, 2843, 0, 1, 0, 3, 6, 7282, 3977, 6,
-		  2114, 1387, 6, 2114, 6050, 6, 2944, 6482, 6, 3149,
-		  6106, 6, 4707, 6880, 6, 4764, 7391, 6, 7697, 8847, 6,
-		  7697, 4185, 0, 2, 6, 2114, 1387, 6, 1727, 1581, 6,
-		  1727, 6322, 6, 2683, 6823, 6, 2842, 7300, 6, 4366,
-		  8176, 6, 4525, 7767, 6, 7322, 9165, 6, 7320, 8660,
-		  FileIcon::END
+		  COLOR, 256, POLYGON, VERTEX, 1000, 1000,
+		  VERTEX, 1000, 7500,  VERTEX, 9000, 7500,
+		  VERTEX, 9000, 1000, END,
+		  POLYGON, VERTEX, 1000, 7500, VERTEX, 2500, 9000,
+		  VERTEX, 5000, 9000, VERTEX, 6500, 7500, END,
+		  COLOR, FL_WHITE, LINE, VERTEX, 1500, 1500,
+		  VERTEX, 1500, 7000, VERTEX, 9000, 7000, END,
+		  COLOR, FL_BLACK, LINE, VERTEX, 9000, 7500,
+		  VERTEX, 9000, 1000, VERTEX, 1000, 1000, END,
+		  COLOR, FL_GRAY, LINE, VERTEX, 1000, 1000,
+		  VERTEX, 1000, 7500, VERTEX, 2500, 9000,
+		  VERTEX, 5000, 9000, VERTEX, 6500, 7500,
+		  VERTEX, 9000, 7500, END,
+		  END
 		};
 
 
@@ -991,6 +1029,8 @@ FileIcon::load_system_icons(void)
     {
       // Create the default icons...
       new FileIcon("*", FileIcon::PLAIN, sizeof(plain) / sizeof(plain[0]), plain);
+      new FileIcon("*.{bmp|bw|gif|jpg|pbm|pcd|pgm|ppm|png|ras|rgb|tif|xbm|xpm}", FileIcon::PLAIN,
+                   sizeof(image) / sizeof(image[0]), image);
       new FileIcon("*", FileIcon::DIRECTORY, sizeof(dir) / sizeof(dir[0]), dir);
     }
 
@@ -1139,5 +1179,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.13 1999/11/12 21:37:54 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.14 1999/11/18 01:57:41 mike Exp $".
 //
