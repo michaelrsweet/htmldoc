@@ -1,9 +1,9 @@
 //
-// "$Id: FileBrowser.h,v 1.10 2000/01/04 13:45:51 mike Exp $"
+// "$Id: FileBrowser.h,v 1.11 2001/01/22 15:03:43 mike Exp $"
 //
 //   FileBrowser definitions.
 //
-//   Copyright 1997-2000 by Easy Software Products.
+//   Copyright 1997-2001 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -67,5 +67,5 @@ public:
 #endif // !_GUI_FILEBROWSER_H_
 
 //
-// End of "$Id: FileBrowser.h,v 1.10 2000/01/04 13:45:51 mike Exp $".
+// End of "$Id: FileBrowser.h,v 1.11 2001/01/22 15:03:43 mike Exp $".
 //

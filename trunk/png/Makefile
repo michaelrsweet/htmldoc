@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.6 2000/03/06 20:42:51 mike Exp $"
+# "$Id: Makefile,v 1.7 2001/01/22 15:03:52 mike Exp $"
 #
 #   PNG library Makefile for the Common UNIX Printing System (CUPS).
 #
-#   Makefile copyright 1997-2000 by Easy Software Products, all rights reserved.
+#   Makefile copyright 1997-2001 by Easy Software Products, all rights reserved.
 #   PNG library copyright 1995 Guy Eric Schalnat, Group 42, Inc.
 #   For conditions of distribution and use, see copyright notice in png.h
 #
@@ -61,5 +61,5 @@ libpng.a:	$(OBJS)
 $(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.6 2000/03/06 20:42:51 mike Exp $".
+# End of "$Id: Makefile,v 1.7 2001/01/22 15:03:52 mike Exp $".
 #

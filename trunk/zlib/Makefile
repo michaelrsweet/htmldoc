@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.6 2000/03/06 20:42:51 mike Exp $"
+# "$Id: Makefile,v 1.7 2001/01/22 15:04:05 mike Exp $"
 #
 #   ZIP library Makefile for the Common UNIX Printing System (CUPS).
 #
-#   Makefile copyright 1997-2000 by Easy Software Products, all rights
+#   Makefile copyright 1997-2001 by Easy Software Products, all rights
 #   reserved.
 #   ZIP library copyright 1995-1998 Jean-loup Gailly.
 #   For conditions of distribution and use, see copyright notice in zlib.h 
@@ -74,5 +74,5 @@ trees.o:	deflate.h zutil.h trees.h
 zutil.o:	zutil.h
 
 #
-# End of "$Id: Makefile,v 1.6 2000/03/06 20:42:51 mike Exp $".
+# End of "$Id: Makefile,v 1.7 2001/01/22 15:04:05 mike Exp $".
 #
