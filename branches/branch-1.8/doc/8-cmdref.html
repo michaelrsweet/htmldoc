@@ -62,6 +62,17 @@ can be one of the following:
 The <CODE>-v</CODE> option specifies that progress information should be
 sent/displayed to the standard error file.
 
+<H3>--batch filename.book</H3>
+
+The <CODE>--batch</CODE> option specifies a book file that you would like to
+generate without the GUI popping up. This option can be combined with other
+options to generate the same book in different formats and sizes:
+
+<UL><PRE>
+% <KBD>htmldoc --batch filename.book -f filename.ps ENTER</KBD>
+% <KBD>htmldoc --batch filename.book -f filename.pdf ENTER</KBD>
+</PRE></UL>
+
 <H3>--bodycolor color</H3>
 
 The <CODE>--bodycolor</CODE> option specifies the background color for all
