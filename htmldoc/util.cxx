@@ -1,5 +1,5 @@
 /*
- * "$Id: util.cxx,v 1.1.2.18 2004/05/05 18:58:41 mike Exp $"
+ * "$Id: util.cxx,v 1.1.2.19 2004/05/09 15:04:39 mike Exp $"
  *
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
@@ -184,7 +184,7 @@ get_color(const uchar *color,	/* I - Color attribute */
     {
       // Update the color name to be #RRGGBB instead of RRGGBB...
       tempcolor[0] = '#';
-      strcpy((char *)tempcolor + 1, (char *)color);
+      strlcpy((char *)tempcolor + 1, (char *)color, sizeof(tempcolor) - 1);
       color = tempcolor;
     }
   }
@@ -359,6 +359,7 @@ get_fmt(char **formats)			// I - New format strings
   };
 
 
+  // Safe because fmt is 4 chars long
   strcpy(fmt, "...");
 
   for (i = 0; i < 3; i ++)
@@ -514,5 +515,5 @@ set_page_size(const char *size)	/* I - Page size string */
 
 
 /*
- * End of "$Id: util.cxx,v 1.1.2.18 2004/05/05 18:58:41 mike Exp $".
+ * End of "$Id: util.cxx,v 1.1.2.19 2004/05/09 15:04:39 mike Exp $".
  */

@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.251 2004/05/08 15:29:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.252 2004/05/09 15:04:38 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -757,6 +757,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     }
 
     for (page = 0; page < num_pages; page ++)
+      // Safe because page_text is more than 6 chars
       strcpy((char *)pages[page].page_text, (page & 1) ? "eltit" : "title");
   }
   else
@@ -1403,19 +1404,18 @@ pspdf_prepare_page(int page)		/* I - Page number */
   if (chapter == 0 && OutputType == OUTPUT_BOOK)
   {
     print_page = page - chapter_starts[0] + 1;
-    strncpy(page_text, format_number(print_page, 'i'), sizeof(page_text) - 1);
-    page_text[sizeof(page_text) - 1] = '\0';
+    strlcpy(page_text, format_number(print_page, 'i'), sizeof(page_text));
   }
   else if (chapter < 0)
   {
     print_page = 0;
+    // Safe because page_text is more than 6 chars
     strcpy(page_text, (page & 1) ? (char *)"eltit" : (char *)"title");
   }
   else
   {
     print_page = page - chapter_starts[1] + 1;
-    strncpy(page_text, format_number(print_page, '1'), sizeof(page_text) - 1);
-    page_text[sizeof(page_text) - 1] = '\0';
+    strlcpy(page_text, format_number(print_page, '1'), sizeof(page_text));
   }
 
   DEBUG_printf(("BEFORE page %d page_text is \"%s\"...\n", page, page_text));
@@ -1470,8 +1470,7 @@ pspdf_prepare_page(int page)		/* I - Page number */
   * Copy the page number for the TOC...
   */
 
-  strncpy(pages[page].page_text, page_text, sizeof(pages[page].page_text) - 1);
-  pages[page].page_text[sizeof(pages[page].page_text) - 1] = '\0';
+  strlcpy(pages[page].page_text, page_text, sizeof(pages[page].page_text));
 
   DEBUG_printf(("AFTER page %d page_text is \"%s\"...\n", page, page_text));
 }
@@ -1601,7 +1600,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	      formatptr += 4;
 	    }
 
-            strncpy(bufptr, number, sizeof(buffer) - 1 - (bufptr - buffer));
+            strlcpy(bufptr, number, sizeof(buffer) - (bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 5 && strncasecmp(formatptr, "PAGES", 5) == 0)
@@ -1619,7 +1618,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	      formatptr += 5;
 	    }
 
-            strncpy(bufptr, number, sizeof(buffer) - 1 - (bufptr - buffer));
+            strlcpy(bufptr, number, sizeof(buffer) - (bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 11 && strncasecmp(formatptr, "CHAPTERPAGE", 11) == 0)
@@ -1640,7 +1639,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	      formatptr += 11;
 	    }
 
-            strncpy(bufptr, number, sizeof(buffer) - 1 - (bufptr - buffer));
+            strlcpy(bufptr, number, sizeof(buffer) - (bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 12 && strncasecmp(formatptr, "CHAPTERPAGES", 12) == 0)
@@ -1659,7 +1658,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	      formatptr += 12;
 	    }
 
-            strncpy(bufptr, number, sizeof(buffer) - 1 - (bufptr - buffer));
+            strlcpy(bufptr, number, sizeof(buffer) - (bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 5 && strncasecmp(formatptr, "TITLE", 5) == 0)
@@ -1667,8 +1666,8 @@ pspdf_prepare_heading(int   page,	// I - Page number
             formatptr += 5;
 	    if (doc_title)
 	    {
-              strncpy(bufptr, (char *)doc_title,
-	              sizeof(buffer) - 1 - (bufptr - buffer));
+              strlcpy(bufptr, (char *)doc_title,
+	              sizeof(buffer) - (bufptr - buffer));
 	      bufptr += strlen(bufptr);
 	    }
 	  }
@@ -1677,8 +1676,8 @@ pspdf_prepare_heading(int   page,	// I - Page number
             formatptr += 7;
 	    if (pages[page].chapter)
 	    {
-              strncpy(bufptr, (char *)(pages[page].chapter),
-	              sizeof(buffer) - 1 - (bufptr - buffer));
+              strlcpy(bufptr, (char *)(pages[page].chapter),
+	              sizeof(buffer) - (bufptr - buffer));
 	      bufptr += strlen(bufptr);
 	    }
 	  }
@@ -1687,8 +1686,8 @@ pspdf_prepare_heading(int   page,	// I - Page number
             formatptr += 7;
 	    if (pages[page].heading)
 	    {
-              strncpy(bufptr, (char *)(pages[page].heading),
-	              sizeof(buffer) - 1 - (bufptr - buffer));
+              strlcpy(bufptr, (char *)(pages[page].heading),
+	              sizeof(buffer) - (bufptr - buffer));
 	      bufptr += strlen(bufptr);
 	    }
 	  }
@@ -1711,7 +1710,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
             progress_error(HD_ERROR_BAD_HF_STRING,
 	        	   "Bad header/footer $ command on page %d.", page + 1);
 
-            strncpy(bufptr, formatptr - 1, sizeof(buffer) - 1 - (bufptr - buffer));
+            strlcpy(bufptr, formatptr - 1, sizeof(buffer) - (bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	    formatptr += formatlen;
 	  }
@@ -1733,10 +1732,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 
       if (strstr((char *)*format, "$PAGE") ||
           strstr((char *)*format, "$CHAPTERPAGE"))
-      {
-        strncpy(page_text, buffer, page_len - 1);
-	page_text[page_len - 1] = '\0';
-      }
+        strlcpy(page_text, buffer, page_len);
     }
 
     if (temp == NULL)
@@ -3678,9 +3674,8 @@ render_contents(tree_t *t,		/* I - Tree to parse */
       *nptr++ = '.';
     nptr --;
 
-    strncpy((char *)nptr, pages[hpage].page_text,
-            sizeof(number) - (nptr - number) - 1);
-    number[sizeof(number) - 1] = '\0';
+    strlcpy((char *)nptr, pages[hpage].page_text,
+            sizeof(number) - (nptr - number));
 
     r = new_render(*page, RENDER_TEXT, right - width + x, *y, 0, 0, number);
     r->data.text.typeface = t->typeface;
@@ -5110,7 +5105,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      rgb[2] = temp->blue / 255.0f;
 	    }
 
-            strcpy((char *)lineptr, (char *)temp->data);
+            strlcpy((char *)lineptr, (char *)temp->data,
+	            sizeof(line) - (lineptr - line));
 
             temp_width = temp->width + char_spacing * strlen((char *)lineptr);
 
@@ -8312,6 +8308,7 @@ new_render(int      page,	/* I - Page number (0-n) */
           free(r);
           return (NULL);
         }
+	// Safe because buffer is allocated...
         strcpy((char *)r->data.text.buffer, (char *)data);
         get_color(_htmlTextColor, r->data.text.rgb);
         break;
@@ -8332,6 +8329,7 @@ new_render(int      page,	/* I - Page number (0-n) */
           free(r);
           return (NULL);
         }
+	// Safe because buffer is allocated...
         strcpy((char *)r->data.link, (char *)data);
         break;
   }
@@ -8497,8 +8495,7 @@ add_link(uchar *name,		/* I - Name of link */
     temp = links + num_links;
     num_links ++;
 
-    strncpy((char *)temp->name, (char *)name, sizeof(temp->name) - 1);
-    temp->name[sizeof(temp->name) - 1] = '\0';
+    strlcpy((char *)temp->name, (char *)name, sizeof(temp->name));
     temp->page = page;
     temp->top  = top;
 
@@ -8526,8 +8523,7 @@ find_link(uchar *name)	/* I - Name to find */
   if (name[0] == '#')
     name ++;
 
-  strncpy((char *)key.name, (char *)name, sizeof(key.name) - 1);
-  key.name[sizeof(key.name) - 1] = '\0';
+  strlcpy((char *)key.name, (char *)name, sizeof(key.name));
   match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t),
                             (compare_func_t)compare_links);
 
@@ -11160,7 +11156,7 @@ write_prolog(FILE  *out,		/* I - Output file */
       * Copy and pad the user password...
       */
 
-      strncpy((char *)user_pad, UserPassword, sizeof(user_pad));
+      strlcpy((char *)user_pad, UserPassword, sizeof(user_pad));
 
       if ((i = strlen(UserPassword)) < 32)
 	memcpy(user_pad + i, pad, 32 - i);
@@ -11171,7 +11167,7 @@ write_prolog(FILE  *out,		/* I - Output file */
         * Copy and pad the owner password...
 	*/
 
-        strncpy((char *)owner_pad, OwnerPassword, sizeof(owner_pad));
+        strlcpy((char *)owner_pad, OwnerPassword, sizeof(owner_pad));
 
 	if ((i = strlen(OwnerPassword)) < 32)
 	  memcpy(owner_pad + i, pad, 32 - i);
@@ -11368,15 +11364,9 @@ write_prolog(FILE  *out,		/* I - Output file */
       if (author && copyright)
         snprintf(temp, sizeof(temp), "%s, %s", author, copyright);
       else if (author)
-      {
-        strncpy(temp, (const char *)author, sizeof(temp) - 1);
-	temp[sizeof(temp) - 1] = '\0';
-      }
+        strlcpy(temp, (const char *)author, sizeof(temp));
       else
-      {
-        strncpy(temp, (const char *)copyright, sizeof(temp) - 1);
-	temp[sizeof(temp) - 1] = '\0';
-      }
+        strlcpy(temp, (const char *)copyright, sizeof(temp));
 
       fputs("/Author", out);
       write_string(out, (uchar *)temp, 0);
@@ -11738,14 +11728,14 @@ write_trailer(FILE *out,		/* I - Output file */
 	start = chapter_starts[j] - chapter_starts[1] + 1;
 	type  = 'D';
 
-        memset(prefix, 0, sizeof(prefix));
+        prefix[0] = '\0';
 
 	for (k = 0; k < 3; k ++)
 	{
 	  if (page->header[k] && strstr((char *)page->header[k], "PAGE"))
-	    strncpy(prefix, (char *)page->header[k], sizeof(prefix) - 1);
+	    strlcpy(prefix, (char *)page->header[k], sizeof(prefix));
 	  else if (page->footer[k] && strstr((char *)page->footer[k], "PAGE"))
-	    strncpy(prefix, (char *)page->footer[k], sizeof(prefix) - 1);
+	    strlcpy(prefix, (char *)page->footer[k], sizeof(prefix));
 
 	  if ((page->header[k] && strstr((char *)page->header[k], "PAGE(i)")) ||
 	      (page->footer[k] && strstr((char *)page->footer[k], "PAGE(i)")))
@@ -12360,5 +12350,5 @@ flate_write(FILE  *out,			/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.251 2004/05/08 15:29:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.252 2004/05/09 15:04:38 mike Exp $".
  */

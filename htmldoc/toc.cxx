@@ -1,5 +1,5 @@
 /*
- * "$Id: toc.cxx,v 1.5.2.12 2004/05/05 18:58:41 mike Exp $"
+ * "$Id: toc.cxx,v 1.5.2.13 2004/05/09 15:04:39 mike Exp $"
  *
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
@@ -267,8 +267,8 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
             if (i < level)
             {
-              strcat((char *)heading, ".");
-              strcat((char *)baselink, "_");
+              strlcat((char *)heading, ".", sizeof(heading));
+              strlcat((char *)baselink, "_", sizeof(baselink));
             }
           }
 
@@ -300,7 +300,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
           if (TocNumbers)
 	  {
-            strcat((char *)heading, " ");
+            strlcat((char *)heading, " ", sizeof(heading));
 
             htmlInsertTree(t, MARKUP_NONE, heading);
 	  }
@@ -387,5 +387,5 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
 
 /*
- * End of "$Id: toc.cxx,v 1.5.2.12 2004/05/05 18:58:41 mike Exp $".
+ * End of "$Id: toc.cxx,v 1.5.2.13 2004/05/09 15:04:39 mike Exp $".
  */
