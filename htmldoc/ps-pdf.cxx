@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.101 2004/10/22 05:43:14 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.102 2004/10/24 03:23:42 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3545,7 +3545,7 @@ hdBook::parse_doc(hdTree   *t,			/* I - Tree to parse */
           {
 	    if (t->parent == NULL)
 	    {
-              para->halignment = HD_TEXTALIGN_LEFT;
+              para->halignment = HD_TEXT_ALIGN_LEFT;
               para->indent     = 0;
 	    }
 	    else
@@ -3821,13 +3821,13 @@ hdBook::parse_doc(hdTree   *t,			/* I - Tree to parse */
 
           switch (t->halignment)
 	  {
-	    case HD_TEXTALIGN_LEFT :
+	    case HD_TEXT_ALIGN_LEFT :
 	        *x = margins->left();
 		break;
-	    case HD_TEXTALIGN_CENTER :
+	    case HD_TEXT_ALIGN_CENTER :
 	        *x = margins->left() + (margins->right() - margins->left() - width) * 0.5f;
 		break;
-	    case HD_TEXTALIGN_RIGHT :
+	    case HD_TEXT_ALIGN_RIGHT :
 	        *x = margins->right() - width;
 		break;
 	  }
@@ -4067,7 +4067,7 @@ hdBook::parse_heading(hdTree   *t,		/* I - Tree to parse */
 
   parse_paragraph(t, margins, x, y, page, needspace);
 
-  if (t->halignment == HD_TEXTALIGN_RIGHT && t->element == HD_ELEMENT_H1 &&
+  if (t->halignment == HD_TEXT_ALIGN_RIGHT && t->element == HD_ELEMENT_H1 &&
       OutputType == HD_OUTPUT_BOOK && !title_page)
   {
    /*
@@ -4481,10 +4481,10 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         num_chars += strlen((char *)temp->data);
 
       if (temp->height > height &&
-          (temp->element != HD_ELEMENT_IMG || temp->valignment != HD_VERTICALALIGN_MIDDLE))
+          (temp->element != HD_ELEMENT_IMG || temp->valignment != HD_VERTICAL_ALIGN_MIDDLE))
         height = temp->height;
       else if ((0.5 * temp->height) > height && temp->element == HD_ELEMENT_IMG &&
-               temp->valignment == HD_VERTICALALIGN_MIDDLE)
+               temp->valignment == HD_VERTICAL_ALIGN_MIDDLE)
         height = 0.5 * temp->height;
     }
 
@@ -4500,13 +4500,13 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       {
         switch (temp->valignment)
 	{
-	  case HD_VERTICALALIGN_TOP :
+	  case HD_VERTICAL_ALIGN_TOP :
               temp_height = temp->height;
 	      break;
-	  case HD_VERTICALALIGN_MIDDLE :
+	  case HD_VERTICAL_ALIGN_MIDDLE :
               temp_height = 0.5f * temp->height + height;
               break;
-	  case HD_VERTICALALIGN_BOTTOM :
+	  case HD_VERTICAL_ALIGN_BOTTOM :
 	      temp_height = temp->height;
               break;
 	}
@@ -4592,19 +4592,19 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
     switch (t->halignment)
     {
-      case HD_TEXTALIGN_LEFT :
+      case HD_TEXT_ALIGN_LEFT :
           linex = margins->left();
 	  break;
 
-      case HD_TEXTALIGN_CENTER :
+      case HD_TEXT_ALIGN_CENTER :
           linex = margins->left() + 0.5f * (margins->width() - width);
 	  break;
 
-      case HD_TEXTALIGN_RIGHT :
+      case HD_TEXT_ALIGN_RIGHT :
           linex = margins->right() - width;
 	  break;
 
-      case HD_TEXTALIGN_JUSTIFY :
+      case HD_TEXT_ALIGN_JUSTIFY :
           linex = margins->left();
 	  if (flat != NULL && flat->prev->element != HD_ELEMENT_BR && num_chars > 1)
 	    char_spacing = (margins->width() - width) / (num_chars - 1);
@@ -4639,13 +4639,13 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
       {
         switch (linetype->valignment)
 	{
-	  case HD_VERTICALALIGN_TOP :
+	  case HD_VERTICAL_ALIGN_TOP :
 	      offset = height - linetype->height;
 	      break;
-	  case HD_VERTICALALIGN_MIDDLE :
+	  case HD_VERTICAL_ALIGN_MIDDLE :
 	      offset = 0.5f * (height - linetype->height);
 	      break;
-	  case HD_VERTICALALIGN_BOTTOM :
+	  case HD_VERTICAL_ALIGN_BOTTOM :
 	      offset = 0.0f;
 	}
 
@@ -4696,13 +4696,13 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
 	    switch (temp->valignment)
 	    {
-	      case HD_VERTICALALIGN_TOP :
+	      case HD_VERTICAL_ALIGN_TOP :
 		  offset = height - temp->height;
 		  break;
-	      case HD_VERTICALALIGN_MIDDLE :
+	      case HD_VERTICAL_ALIGN_MIDDLE :
 		  offset = 0.5f * (height - temp->height);
 		  break;
-	      case HD_VERTICALALIGN_BOTTOM :
+	      case HD_VERTICAL_ALIGN_BOTTOM :
 		  offset = 0.0f;
 	    }
 
@@ -4764,13 +4764,13 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
 	    switch (temp->valignment)
 	    {
-	      case HD_VERTICALALIGN_TOP :
+	      case HD_VERTICAL_ALIGN_TOP :
 		  offset = height - temp->height - 2 * borderspace;
 		  break;
-	      case HD_VERTICALALIGN_MIDDLE :
+	      case HD_VERTICAL_ALIGN_MIDDLE :
 		  offset = -0.5f * temp->height - borderspace;
 		  break;
-	      case HD_VERTICALALIGN_BOTTOM :
+	      case HD_VERTICAL_ALIGN_BOTTOM :
 		  offset = 0.0f;
 	    }
 
@@ -4835,13 +4835,13 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     {
       switch (linetype->valignment)
       {
-	case HD_VERTICALALIGN_TOP :
+	case HD_VERTICAL_ALIGN_TOP :
 	    offset = height - linetype->height;
 	    break;
-	case HD_VERTICALALIGN_MIDDLE :
+	case HD_VERTICAL_ALIGN_MIDDLE :
 	    offset = 0.5f * (height - linetype->height);
 	    break;
-	case HD_VERTICALALIGN_BOTTOM :
+	case HD_VERTICAL_ALIGN_BOTTOM :
 	    offset = 0.0f;
       }
 
@@ -5748,13 +5748,13 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 
   switch (t->halignment)
   {
-    case HD_TEXTALIGN_LEFT :
+    case HD_TEXT_ALIGN_LEFT :
         *x = margins->left() + cellpadding;
         break;
-    case HD_TEXTALIGN_CENTER :
+    case HD_TEXT_ALIGN_CENTER :
         *x = margins->left() + 0.5f * (margins->width() - width) + cellpadding;
         break;
-    case HD_TEXTALIGN_RIGHT :
+    case HD_TEXT_ALIGN_RIGHT :
         *x = margins->right() - width + cellpadding;
         break;
   }
@@ -6099,11 +6099,11 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
         if (row_spans[col])
           switch (cells[row][col]->valignment)
 	  {
-            case HD_VERTICALALIGN_MIDDLE :
+            case HD_VERTICAL_ALIGN_MIDDLE :
         	delta_y = (span_heights[col] - cell_height[col]) * 0.5f;
         	break;
 
-            case HD_VERTICALALIGN_BOTTOM :
+            case HD_VERTICAL_ALIGN_BOTTOM :
         	delta_y = span_heights[col] - cell_height[col];
         	break;
 
@@ -6114,11 +6114,11 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 	else
           switch (cells[row][col]->valignment)
 	  {
-            case HD_VERTICALALIGN_MIDDLE :
+            case HD_VERTICAL_ALIGN_MIDDLE :
         	delta_y = (row_height - cell_height[col]) * 0.5f;
         	break;
 
-            case HD_VERTICALALIGN_BOTTOM :
+            case HD_VERTICAL_ALIGN_BOTTOM :
         	delta_y = row_height - cell_height[col];
         	break;
 
@@ -11925,5 +11925,5 @@ hdBook::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.101 2004/10/22 05:43:14 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.102 2004/10/24 03:23:42 mike Exp $".
  */

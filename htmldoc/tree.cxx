@@ -1,5 +1,5 @@
 /*
- * "$Id: tree.cxx,v 1.28 2004/10/23 20:23:19 mike Exp $"
+ * "$Id: tree.cxx,v 1.29 2004/10/24 03:23:42 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -347,8 +347,8 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 
     if (parent == NULL)
     {
-      t->halignment   = HD_TEXTALIGN_LEFT;
-      t->valignment   = HD_VERTICALALIGN_BOTTOM;
+      t->halignment   = HD_TEXT_ALIGN_LEFT;
+      t->valignment   = HD_VERTICAL_ALIGN_BOTTOM;
       t->typeface     = _htmlBodyFont;
       t->size         = _htmlSizes[SIZE_P];
 
@@ -636,8 +636,8 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	    // Reparent the node...
 	    if (parent == NULL)
 	    {
-	      t->halignment   = HD_TEXTALIGN_LEFT;
-	      t->valignment   = HD_VERTICALALIGN_BOTTOM;
+	      t->halignment   = HD_TEXT_ALIGN_LEFT;
+	      t->valignment   = HD_VERTICAL_ALIGN_BOTTOM;
 	      t->typeface     = _htmlBodyFont;
 	      t->size         = _htmlSizes[SIZE_P];
 
@@ -868,7 +868,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
 	  }
 
           // Get the image alignment...
-          t->valignment = HD_VERTICALALIGN_BOTTOM;
+          t->valignment = HD_VERTICAL_ALIGN_BOTTOM;
           get_alignment(t);
 
           // Update the image source as necessary...
@@ -968,7 +968,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
           break;
 
       case HD_ELEMENT_HR :
-          t->halignment = HD_TEXTALIGN_CENTER;
+          t->halignment = HD_TEXT_ALIGN_CENTER;
           get_alignment(t);
           break;
 
@@ -1013,12 +1013,12 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
           if (htmlGetVariable(t->parent, (uchar *)"ALIGN") != NULL)
 	    t->halignment = t->parent->halignment;
 	  else
-            t->halignment = HD_TEXTALIGN_CENTER;
+            t->halignment = HD_TEXT_ALIGN_CENTER;
 
           if (htmlGetVariable(t->parent, (uchar *)"VALIGN") != NULL)
 	    t->valignment = t->parent->valignment;
 	  else
-            t->valignment = HD_VERTICALALIGN_MIDDLE;
+            t->valignment = HD_VERTICAL_ALIGN_MIDDLE;
 
           get_alignment(t);
 
@@ -1031,12 +1031,12 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
           if (htmlGetVariable(t->parent, (uchar *)"ALIGN") != NULL)
 	    t->halignment = t->parent->halignment;
 	  else
-            t->halignment = HD_TEXTALIGN_LEFT;
+            t->halignment = HD_TEXT_ALIGN_LEFT;
 
           if (htmlGetVariable(t->parent, (uchar *)"VALIGN") != NULL)
 	    t->valignment = t->parent->valignment;
 	  else
-            t->valignment = HD_VERTICALALIGN_MIDDLE;
+            t->valignment = HD_VERTICAL_ALIGN_MIDDLE;
 
 	  get_alignment(t);
 
@@ -1244,7 +1244,7 @@ htmlReadFile(hdTree     *parent,/* I - Parent tree entry */
           break;
 
       case HD_ELEMENT_CENTER :
-          t->halignment = HD_TEXTALIGN_CENTER;
+          t->halignment = HD_TEXT_ALIGN_CENTER;
 
           descend = 1;
           break;
@@ -1612,8 +1612,8 @@ htmlNewTree(hdTree   *parent,	/* I - Parent entry */
 
   if (parent == NULL)
   {
-    t->halignment = HD_TEXTALIGN_LEFT;
-    t->valignment = HD_VERTICALALIGN_BOTTOM;
+    t->halignment = HD_TEXT_ALIGN_LEFT;
+    t->valignment = HD_VERTICAL_ALIGN_BOTTOM;
     t->typeface   = _htmlBodyFont;
     t->size       = _htmlSizes[SIZE_P];
 
@@ -2760,19 +2760,19 @@ get_alignment(hdTree *t)	/* I - Tree entry */
   if (align != NULL)
   {
     if (strcasecmp((char *)align, "left") == 0)
-      t->halignment = HD_TEXTALIGN_LEFT;
+      t->halignment = HD_TEXT_ALIGN_LEFT;
     else if (strcasecmp((char *)align, "center") == 0)
-      t->halignment = HD_TEXTALIGN_CENTER;
+      t->halignment = HD_TEXT_ALIGN_CENTER;
     else if (strcasecmp((char *)align, "right") == 0)
-      t->halignment = HD_TEXTALIGN_RIGHT;
+      t->halignment = HD_TEXT_ALIGN_RIGHT;
     else if (strcasecmp((char *)align, "justify") == 0)
-      t->halignment = HD_TEXTALIGN_JUSTIFY;
+      t->halignment = HD_TEXT_ALIGN_JUSTIFY;
     else if (strcasecmp((char *)align, "top") == 0)
-      t->valignment = HD_VERTICALALIGN_TOP;
+      t->valignment = HD_VERTICAL_ALIGN_TOP;
     else if (strcasecmp((char *)align, "middle") == 0)
-      t->valignment = HD_VERTICALALIGN_MIDDLE;
+      t->valignment = HD_VERTICAL_ALIGN_MIDDLE;
     else if (strcasecmp((char *)align, "bottom") == 0)
-      t->valignment = HD_VERTICALALIGN_BOTTOM;
+      t->valignment = HD_VERTICAL_ALIGN_BOTTOM;
   }
 
   if ((align = htmlGetVariable(t, (uchar *)"VALIGN")) == NULL)
@@ -2781,13 +2781,13 @@ get_alignment(hdTree *t)	/* I - Tree entry */
   if (align != NULL)
   {
     if (strcasecmp((char *)align, "top") == 0)
-      t->valignment = HD_VERTICALALIGN_TOP;
+      t->valignment = HD_VERTICAL_ALIGN_TOP;
     else if (strcasecmp((char *)align, "middle") == 0)
-      t->valignment = HD_VERTICALALIGN_MIDDLE;
+      t->valignment = HD_VERTICAL_ALIGN_MIDDLE;
     else if (strcasecmp((char *)align, "center") == 0)
-      t->valignment = HD_VERTICALALIGN_MIDDLE;
+      t->valignment = HD_VERTICAL_ALIGN_MIDDLE;
     else if (strcasecmp((char *)align, "bottom") == 0)
-      t->valignment = HD_VERTICALALIGN_BOTTOM;
+      t->valignment = HD_VERTICAL_ALIGN_BOTTOM;
   }
 
   return (0);
@@ -3076,5 +3076,5 @@ htmlFixLinks(hdTree *doc,		// I - Top node
 
 
 /*
- * End of "$Id: tree.cxx,v 1.28 2004/10/23 20:23:19 mike Exp $".
+ * End of "$Id: tree.cxx,v 1.29 2004/10/24 03:23:42 mike Exp $".
  */
