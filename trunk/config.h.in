@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.8 1999/12/13 01:19:16 mike Exp $"
+ * "$Id: config.h.in,v 1.9 1999/12/13 16:12:03 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -56,7 +56,7 @@
  * Limits for the output "engines"...
  */
 
-#define MAX_CHAPTERS	100
+#define MAX_CHAPTERS	1000
 #define MAX_COLUMNS	100
 #define MAX_HEADINGS	10000
 #define MAX_IMAGES	1000
@@ -66,6 +66,6 @@
 #define MAX_ROWS	1000
 
 /*
- * End of "$Id: config.h.in,v 1.8 1999/12/13 01:19:16 mike Exp $".
+ * End of "$Id: config.h.in,v 1.9 1999/12/13 16:12:03 mike Exp $".
  */
 
