@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.7 2002/08/23 19:55:55 mike Exp $"
+# "$Id: htmldoc.list.in,v 1.1.2.8 2002/08/28 19:15:59 mike Exp $"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -28,6 +28,16 @@ f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.afm
 f 0444 root sys $datadir/htmldoc/fonts/ fonts/*.pfa
 
 # Data files
+f 0444 root sys $datadir/htmldoc/data/cp-874 data/cp-874
+f 0444 root sys $datadir/htmldoc/data/cp-1250 data/cp-1250
+f 0444 root sys $datadir/htmldoc/data/cp-1251 data/cp-1251
+f 0444 root sys $datadir/htmldoc/data/cp-1252 data/cp-1252
+f 0444 root sys $datadir/htmldoc/data/cp-1253 data/cp-1253
+f 0444 root sys $datadir/htmldoc/data/cp-1254 data/cp-1254
+f 0444 root sys $datadir/htmldoc/data/cp-1255 data/cp-1255
+f 0444 root sys $datadir/htmldoc/data/cp-1256 data/cp-1256
+f 0444 root sys $datadir/htmldoc/data/cp-1257 data/cp-1257
+f 0444 root sys $datadir/htmldoc/data/cp-1258 data/cp-1258
 f 0444 root sys $datadir/htmldoc/data/iso-8859-1 data/iso-8859-1
 f 0444 root sys $datadir/htmldoc/data/iso-8859-14 data/iso-8859-14
 f 0444 root sys $datadir/htmldoc/data/iso-8859-15 data/iso-8859-15
@@ -52,5 +62,5 @@ f 0444 root sys $datadir/doc/htmldoc/htmldoc.pdf doc/htmldoc.pdf
 f 0444 root sys $datadir/doc/htmldoc/help.html doc/help.html
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.7 2002/08/23 19:55:55 mike Exp $".
+# End of "$Id: htmldoc.list.in,v 1.1.2.8 2002/08/28 19:15:59 mike Exp $".
 #
