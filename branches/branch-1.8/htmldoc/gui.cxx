@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.34 2001/12/06 18:15:34 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.35 2001/12/13 19:04:04 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -101,8 +101,6 @@
 #  endif // WIN32
 
 #  if FL_MINOR_VERSION >= 1
-#    include <FL/Fl_Pixmap.H>
-#    include <FL/Fl_Tiled_Image.H>
 #    include "tile.xpm"
 #  endif // FL_MINOR_VERSION >= 1
 
@@ -242,20 +240,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			};
 
 
-#  if FL_MINOR_VERSION >= 1
-  //
-  // Use "plastic" buttons...
-  //
-
-  Fl_Pixmap	*tile = new Fl_Pixmap((const char * const *)tile_xpm);
-  Fl_Group	*tile_group;
-
-  Fl::set_boxtype(FL_UP_BOX, FL_PLASTIC_UP_BOX);
-  Fl::set_boxtype(FL_DOWN_BOX, FL_PLASTIC_DOWN_BOX);
-  Fl::set_boxtype(_FL_ROUND_UP_BOX, FL_PLASTIC_UP_BOX);
-  Fl::set_boxtype(_FL_ROUND_DOWN_BOX, FL_PLASTIC_DOWN_BOX);
-#  endif // FL_MINOR_VERSION >= 1
-
   //
   // Create a dialog window...
   //
@@ -266,7 +250,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
 #  if FL_MINOR_VERSION >= 1
   tile_group = new Fl_Group(0, 0, 505, 415);
   tile_group->align(FL_ALIGN_INSIDE);
-  tile_group->image(new Fl_Tiled_Image(tile, 505, 415));
 #  endif // FL_MINOR_VERSION >= 1
 
   controls = new Fl_Group(0, 0, 505, 385);
@@ -941,7 +924,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   _tooltip(proxy, "Enter a URL for your HTTP proxy server.\n"
                   "(http://server:port)");
 
-  group = new Fl_Group(140, 160, 350, 25, "GUI Options: ");
+  group = new Fl_Group(140, 160, 350, 50, "GUI Options: ");
   group->align(FL_ALIGN_LEFT);
 
     tooltips = new CheckButton(140, 160, 80, 25, "Tooltips");
@@ -950,6 +933,14 @@ GUI::GUI(const char *filename)		// Book file to load initially
     _tooltip(tooltips, "Check to show tooltips.");
 #  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
     tooltips->deactivate();
+#  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
+
+    modern_skin = new CheckButton(140, 185, 120, 25, "Modern Look");
+    modern_skin->callback((Fl_Callback *)skinCB, this);
+    modern_skin->value(ModernSkin);
+    _tooltip(modern_skin, "Check to show the more modern look-n-feel.");
+#  if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
+    modern_skin->deactivate();
 #  endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 0
 
   group->end();
@@ -961,54 +952,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   optionsTab->end();
 
   tabs->end();
-
-#  if FL_MINOR_VERSION >= 1
-  tabs->box(FL_PLASTIC_UP_BOX);
-
-  inputTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  outputTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  pageTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  fontsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  colorsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  tocTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  psTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  pdfTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  securityTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-  optionsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
-
-  typeBook->down_box(FL_ROUND_UP_BOX);
-  typeContinuous->down_box(FL_ROUND_UP_BOX);
-  typeWebPage->down_box(FL_ROUND_UP_BOX);
-  outputFile->down_box(FL_ROUND_UP_BOX);
-  outputDirectory->down_box(FL_ROUND_UP_BOX);
-  typeHTML->down_box(FL_ROUND_UP_BOX);
-  typePS->down_box(FL_ROUND_UP_BOX);
-  typePDF->down_box(FL_ROUND_UP_BOX);
-  grayscale->down_box(FL_UP_BOX);
-  titlePage->down_box(FL_UP_BOX);
-  jpegCompress->down_box(FL_UP_BOX);
-  pageDuplex->down_box(FL_UP_BOX);
-  landscape->down_box(FL_UP_BOX);
-  numberedToc->down_box(FL_UP_BOX);
-  ps1->down_box(FL_ROUND_UP_BOX);
-  ps2->down_box(FL_ROUND_UP_BOX);
-  ps3->down_box(FL_ROUND_UP_BOX);
-  psCommands->down_box(FL_UP_BOX);
-  xrxComments->down_box(FL_UP_BOX);
-  pdf11->down_box(FL_ROUND_UP_BOX);
-  pdf12->down_box(FL_ROUND_UP_BOX);
-  pdf13->down_box(FL_ROUND_UP_BOX);
-  pdf14->down_box(FL_ROUND_UP_BOX);
-  links->down_box(FL_UP_BOX);
-  truetype->down_box(FL_UP_BOX);
-  encryptionYes->down_box(FL_ROUND_UP_BOX);
-  encryptionNo->down_box(FL_ROUND_UP_BOX);
-  permPrint->down_box(FL_UP_BOX);
-  permModify->down_box(FL_UP_BOX);
-  permCopy->down_box(FL_UP_BOX);
-  permAnnotate->down_box(FL_UP_BOX);
-  tooltips->down_box(FL_UP_BOX);
-#  endif // FL_MINOR_VERSION >= 1
 
   //
   // Button bar...
@@ -1065,9 +1008,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   progressBar = new Progress(10, 385, 485, 20, "HTMLDOC " SVERSION " Ready.");
 
 #  if FL_MINOR_VERSION >= 1
-  progressBar->color2(FL_BLUE);
-  progressBar->box(FL_UP_BOX);
-
   tile_group->end();
 #  endif // FL_MINOR_VERSION >= 1
 
@@ -1124,11 +1064,88 @@ GUI::GUI(const char *filename)		// Book file to load initially
   error_window->resizable(error_list);
 
   // Use cheesy hardcoded "style" stuff until FLTK 2.0...
-#  if FL_MAJOR_VERSION < 2
-#    ifdef __sgi
+#  if FL_MINOR_VERSION >= 1
+  tile       = new Fl_Pixmap((const char * const *)tile_xpm);
+  tile_image = new Fl_Tiled_Image(tile, 505, 415);
+
+  if (ModernSkin)
+  {
+    //
+    // Use "plastic" buttons...
+    //
+
+    tile_group->image(tile_image);
+
+    // Copy the old boxtypes...
+    Fl::set_boxtype(FL_FREE_BOXTYPE,                   FL_UP_BOX);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 1), FL_DOWN_BOX);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 2), _FL_ROUND_UP_BOX);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 3), _FL_ROUND_DOWN_BOX);
+
+    // Set them to "plastic"...
+    Fl::set_boxtype(FL_UP_BOX,          FL_PLASTIC_UP_BOX);
+    Fl::set_boxtype(FL_DOWN_BOX,        FL_PLASTIC_DOWN_BOX);
+    Fl::set_boxtype(_FL_ROUND_UP_BOX,   FL_PLASTIC_UP_BOX);
+    Fl::set_boxtype(_FL_ROUND_DOWN_BOX, FL_PLASTIC_DOWN_BOX);
+
+    tabs->box(FL_PLASTIC_UP_BOX);
+
+    Fl::background(0xe1, 0xe1, 0xe1);
+
+//  inputTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  outputTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  pageTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  fontsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  colorsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  tocTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  psTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  pdfTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  securityTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+//  optionsTab->color(fl_rgb_color(0xe1, 0xe1, 0xe1));
+
+    typeBook->down_box(FL_ROUND_UP_BOX);
+    typeContinuous->down_box(FL_ROUND_UP_BOX);
+    typeWebPage->down_box(FL_ROUND_UP_BOX);
+    outputFile->down_box(FL_ROUND_UP_BOX);
+    outputDirectory->down_box(FL_ROUND_UP_BOX);
+    typeHTML->down_box(FL_ROUND_UP_BOX);
+    typePS->down_box(FL_ROUND_UP_BOX);
+    typePDF->down_box(FL_ROUND_UP_BOX);
+    grayscale->down_box(FL_UP_BOX);
+    titlePage->down_box(FL_UP_BOX);
+    jpegCompress->down_box(FL_UP_BOX);
+    pageDuplex->down_box(FL_UP_BOX);
+    landscape->down_box(FL_UP_BOX);
+    numberedToc->down_box(FL_UP_BOX);
+    ps1->down_box(FL_ROUND_UP_BOX);
+    ps2->down_box(FL_ROUND_UP_BOX);
+    ps3->down_box(FL_ROUND_UP_BOX);
+    psCommands->down_box(FL_UP_BOX);
+    xrxComments->down_box(FL_UP_BOX);
+    pdf11->down_box(FL_ROUND_UP_BOX);
+    pdf12->down_box(FL_ROUND_UP_BOX);
+    pdf13->down_box(FL_ROUND_UP_BOX);
+    pdf14->down_box(FL_ROUND_UP_BOX);
+    links->down_box(FL_UP_BOX);
+    truetype->down_box(FL_UP_BOX);
+    encryptionYes->down_box(FL_ROUND_UP_BOX);
+    encryptionNo->down_box(FL_ROUND_UP_BOX);
+    permPrint->down_box(FL_UP_BOX);
+    permModify->down_box(FL_UP_BOX);
+    permCopy->down_box(FL_UP_BOX);
+    permAnnotate->down_box(FL_UP_BOX);
+    tooltips->down_box(FL_UP_BOX);
+    modern_skin->down_box(FL_UP_BOX);
+
+    progressBar->color2(FL_BLUE);
+    progressBar->box(FL_UP_BOX);
+  }
+#  endif // FL_MINOR_VERSION >= 1
+
+#  ifdef __sgi
   fc->color((Fl_Color)196);
   inputFiles->color((Fl_Color)196);
-#    elif defined(WIN32)
+#  elif defined(WIN32) && FL_MINOR_VERSION < 1
   pageSizeMenu->down_box(FL_FLAT_BOX);
   pageSizeMenu->selection_color((Fl_Color)137);
   pageHeaderLeft->down_box(FL_FLAT_BOX);
@@ -1176,8 +1193,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   firstPage->selection_color((Fl_Color)137);
   pageEffect->down_box(FL_FLAT_BOX);
   pageEffect->selection_color((Fl_Color)137);
-#    endif // __sgi
-#  endif // FL_MAJOR_VERSION < 2
+#  endif // __sgi
 
   while (window->damage())
     Fl::check();
@@ -1211,6 +1227,11 @@ GUI::~GUI(void)
   delete fc;
   delete help;
   delete error_window;
+
+#if FL_MINOR_VERSION >= 1
+  delete tile_image;
+  delete tile;
+#endif // FL_MINOR_VERSION >= 1
 
   while (FileIcon::first())
     delete FileIcon::first();
@@ -1531,8 +1552,8 @@ int					// O - 1 = success, 0 = fail
 GUI::loadBook(const char *filename)	// I - Name of book file
 {
   FILE		*fp;			// File to read from
-  char		line[10240],		// Line from file
-		*dir;			// Directory
+  char		line[10240];		// Line from file
+  const char	*dir;			// Directory
 
 
   // If the filename contains a path, chdir to it first...
@@ -2660,7 +2681,8 @@ GUI::editFilesCB(Fl_Widget *w,		// I - Widget
   for (i = 1; i <= num_items; i ++)
     if (gui->inputFiles->selected(i))
     {
-      sprintf(command, gui->htmlEditor->value(), gui->inputFiles->text(i));
+      snprintf(command, sizeof(command), gui->htmlEditor->value(),
+               gui->inputFiles->text(i));
 
 #ifdef WIN32
       memset(&suInfo, 0, sizeof(suInfo));
@@ -2877,8 +2899,8 @@ void
 GUI::outputPathCB(Fl_Widget *w,		// I - Widget
                   GUI       *gui)	// I - GUI
 {
-  char	filename[1024];			// Name of the output file
-  char	*extension;			// Extension of the output file
+  char		filename[1024];		// Name of the output file
+  const char	*extension;		// Extension of the output file
 
 
   if (w == gui->outputBrowse)
@@ -3253,12 +3275,12 @@ GUI::htmlEditorCB(Fl_Widget *w,		// I - Widget
       if (strstr(filename, "netscape") != NULL ||
           strstr(filename, "NETSCAPE") != NULL)
 #if defined(WIN32) || defined(__EMX__)
-        sprintf(command, "%s -edit \"%%s\"", filename);
+        snprintf(command, sizeof(command), "%s -edit \"%%s\"", filename);
 #else
-        sprintf(command, "%s -remote \'editFile(%%s)\'", filename);
+        snprintf(command, sizeof(command), "%s -remote \'editFile(%%s)\'", filename);
 #endif // WIN32 || __EMX__
       else
-        sprintf(command, "%s \"%%s\"", filename);
+        snprintf(command, sizeof(command), "%s \"%%s\"", filename);
 
       gui->htmlEditor->value(command);
     }
@@ -3282,6 +3304,141 @@ GUI::tooltipCB(Fl_Widget *w,	// I - Widget
 
 #if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
   Fl_Tooltip::enable(Tooltips);
+#endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
+}
+
+
+//
+// 'GUI::skinCB()' - Enable or disable the modern "skin".
+//
+
+void
+GUI::skinCB(Fl_Widget *w,	// I - Widget
+            GUI       *gui)	// I - GUI interface
+{
+  REF(gui);
+
+  ModernSkin = ((Fl_Button *)w)->value();
+
+#if FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
+  if (ModernSkin)
+  {
+    //
+    // Use "plastic" buttons...
+    //
+
+    gui->tile_group->image(gui->tile_image);
+
+    // Copy the old boxtypes...
+    Fl::set_boxtype(FL_FREE_BOXTYPE,                   FL_UP_BOX);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 1), FL_DOWN_BOX);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 2), _FL_ROUND_UP_BOX);
+    Fl::set_boxtype((Fl_Boxtype)(FL_FREE_BOXTYPE + 3), _FL_ROUND_DOWN_BOX);
+
+    // Set them to "plastic"...
+    Fl::set_boxtype(FL_UP_BOX,          FL_PLASTIC_UP_BOX);
+    Fl::set_boxtype(FL_DOWN_BOX,        FL_PLASTIC_DOWN_BOX);
+    Fl::set_boxtype(_FL_ROUND_UP_BOX,   FL_PLASTIC_UP_BOX);
+    Fl::set_boxtype(_FL_ROUND_DOWN_BOX, FL_PLASTIC_DOWN_BOX);
+
+    gui->tabs->box(FL_PLASTIC_UP_BOX);
+
+    Fl::background(0xe1, 0xe1, 0xe1);
+
+    gui->typeBook->down_box(FL_ROUND_UP_BOX);
+    gui->typeContinuous->down_box(FL_ROUND_UP_BOX);
+    gui->typeWebPage->down_box(FL_ROUND_UP_BOX);
+    gui->outputFile->down_box(FL_ROUND_UP_BOX);
+    gui->outputDirectory->down_box(FL_ROUND_UP_BOX);
+    gui->typeHTML->down_box(FL_ROUND_UP_BOX);
+    gui->typePS->down_box(FL_ROUND_UP_BOX);
+    gui->typePDF->down_box(FL_ROUND_UP_BOX);
+    gui->grayscale->down_box(FL_UP_BOX);
+    gui->titlePage->down_box(FL_UP_BOX);
+    gui->jpegCompress->down_box(FL_UP_BOX);
+    gui->pageDuplex->down_box(FL_UP_BOX);
+    gui->landscape->down_box(FL_UP_BOX);
+    gui->numberedToc->down_box(FL_UP_BOX);
+    gui->ps1->down_box(FL_ROUND_UP_BOX);
+    gui->ps2->down_box(FL_ROUND_UP_BOX);
+    gui->ps3->down_box(FL_ROUND_UP_BOX);
+    gui->psCommands->down_box(FL_UP_BOX);
+    gui->xrxComments->down_box(FL_UP_BOX);
+    gui->pdf11->down_box(FL_ROUND_UP_BOX);
+    gui->pdf12->down_box(FL_ROUND_UP_BOX);
+    gui->pdf13->down_box(FL_ROUND_UP_BOX);
+    gui->pdf14->down_box(FL_ROUND_UP_BOX);
+    gui->links->down_box(FL_UP_BOX);
+    gui->truetype->down_box(FL_UP_BOX);
+    gui->encryptionYes->down_box(FL_ROUND_UP_BOX);
+    gui->encryptionNo->down_box(FL_ROUND_UP_BOX);
+    gui->permPrint->down_box(FL_UP_BOX);
+    gui->permModify->down_box(FL_UP_BOX);
+    gui->permCopy->down_box(FL_UP_BOX);
+    gui->permAnnotate->down_box(FL_UP_BOX);
+    gui->tooltips->down_box(FL_UP_BOX);
+    gui->modern_skin->down_box(FL_UP_BOX);
+
+    gui->progressBar->color2(FL_BLUE);
+    gui->progressBar->box(FL_UP_BOX);
+  }
+  else
+  {
+    //
+    // Use "plastic" buttons...
+    //
+
+    gui->tile_group->image(0);
+
+    // Restore the old boxtypes...
+    Fl::set_boxtype(FL_UP_BOX,          FL_FREE_BOXTYPE);
+    Fl::set_boxtype(FL_DOWN_BOX,        (Fl_Boxtype)(FL_FREE_BOXTYPE + 1));
+    Fl::set_boxtype(_FL_ROUND_UP_BOX,   (Fl_Boxtype)(FL_FREE_BOXTYPE + 2));
+    Fl::set_boxtype(_FL_ROUND_DOWN_BOX, (Fl_Boxtype)(FL_FREE_BOXTYPE + 3));
+
+    gui->tabs->box(FL_THIN_UP_BOX);
+
+    Fl::background(0xcb, 0xcb, 0xcb);
+
+    gui->typeBook->down_box(FL_ROUND_DOWN_BOX);
+    gui->typeContinuous->down_box(FL_ROUND_DOWN_BOX);
+    gui->typeWebPage->down_box(FL_ROUND_DOWN_BOX);
+    gui->outputFile->down_box(FL_ROUND_DOWN_BOX);
+    gui->outputDirectory->down_box(FL_ROUND_DOWN_BOX);
+    gui->typeHTML->down_box(FL_ROUND_DOWN_BOX);
+    gui->typePS->down_box(FL_ROUND_DOWN_BOX);
+    gui->typePDF->down_box(FL_ROUND_DOWN_BOX);
+    gui->grayscale->down_box(FL_DOWN_BOX);
+    gui->titlePage->down_box(FL_DOWN_BOX);
+    gui->jpegCompress->down_box(FL_DOWN_BOX);
+    gui->pageDuplex->down_box(FL_DOWN_BOX);
+    gui->landscape->down_box(FL_DOWN_BOX);
+    gui->numberedToc->down_box(FL_DOWN_BOX);
+    gui->ps1->down_box(FL_ROUND_DOWN_BOX);
+    gui->ps2->down_box(FL_ROUND_DOWN_BOX);
+    gui->ps3->down_box(FL_ROUND_DOWN_BOX);
+    gui->psCommands->down_box(FL_DOWN_BOX);
+    gui->xrxComments->down_box(FL_DOWN_BOX);
+    gui->pdf11->down_box(FL_ROUND_DOWN_BOX);
+    gui->pdf12->down_box(FL_ROUND_DOWN_BOX);
+    gui->pdf13->down_box(FL_ROUND_DOWN_BOX);
+    gui->pdf14->down_box(FL_ROUND_DOWN_BOX);
+    gui->links->down_box(FL_DOWN_BOX);
+    gui->truetype->down_box(FL_DOWN_BOX);
+    gui->encryptionYes->down_box(FL_ROUND_DOWN_BOX);
+    gui->encryptionNo->down_box(FL_ROUND_DOWN_BOX);
+    gui->permPrint->down_box(FL_DOWN_BOX);
+    gui->permModify->down_box(FL_DOWN_BOX);
+    gui->permCopy->down_box(FL_DOWN_BOX);
+    gui->permAnnotate->down_box(FL_DOWN_BOX);
+    gui->tooltips->down_box(FL_DOWN_BOX);
+    gui->modern_skin->down_box(FL_DOWN_BOX);
+
+    gui->progressBar->color2(FL_YELLOW);
+    gui->progressBar->box(FL_DOWN_BOX);
+  }
+
+  gui->window->redraw();
 #endif // FL_MAJOR_VERSION == 1 && FL_MINOR_VERSION == 1
 }
 
@@ -3576,7 +3733,8 @@ GUI::helpCB(Fl_Widget *w,	// I - Widget
 
   REF(w);
 
-  sprintf(link, "%s/help.html#%s", help_dir, gui->tabs->value()->label());
+  snprintf(link, sizeof(link), "%s/help.html#%s", help_dir,
+           gui->tabs->value()->label());
   gui->help->load(link);
   gui->help->show();
 }
@@ -3651,7 +3809,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
   char		realname[1024];	// Real filename
   const char	*extension;	// Filename extension
   const char	*newfile;	// New filename
-  char		*dir;		// Book directory
+  const char	*dir;		// Book directory
 
 
   REF(w);
@@ -3675,7 +3833,7 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
     if (!extension[0])
     {
       // No extension!  Add .book to the name...
-      sprintf(realname, "%s.book", filename);
+      snprintf(realname, sizeof(realname), "%s.book", filename);
       filename = realname;
     }
     else if (strcasecmp(extension, "pdf") == 0 ||
@@ -3753,8 +3911,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   tree_t	*document,	// Master HTML document
 		*file,		// HTML document file
 		*toc;		// Table of contents
-  char		*filename,	// HTML filename
-		base[1024],	// Base directory of HTML file
+  const char	*filename;	// HTML filename
+  char		base[1024],	// Base directory of HTML file
 		bookbase[1024];	// Base directory of book file
   static const char *formats = ".tchl1iIaAC/:dTD";
 				// Format characters
@@ -3933,7 +4091,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       * Read from a file...
       */
 
-      sprintf(temp, "Loading \"%s\"...", filename);
+      snprintf(temp, sizeof(temp), "Loading \"%s\"...", filename);
       gui->progress(100 * i / count, temp);
 
       strcpy(base, file_directory(gui->inputFiles->text(i)));
@@ -4058,5 +4216,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.34 2001/12/06 18:15:34 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.35 2001/12/13 19:04:04 mike Exp $".
 //

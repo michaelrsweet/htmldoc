@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.137 2001/12/10 20:09:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.138 2001/12/13 19:04:11 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7921,17 +7921,17 @@ open_file(void)
   if (OutputFiles && PSLevel > 0)
   {
     if (chapter == -1)
-      sprintf(filename, "%s/cover.ps", OutputPath);
+      snprintf(filename, sizeof(filename), "%s/cover.ps", OutputPath);
     else if (chapter == 0)
-      sprintf(filename, "%s/contents.ps", OutputPath);
+      snprintf(filename, sizeof(filename), "%s/contents.ps", OutputPath);
     else
-      sprintf(filename, "%s/doc%d.ps", OutputPath, chapter);
+      snprintf(filename, sizeof(filename), "%s/doc%d.ps", OutputPath, chapter);
 
     return (fopen(filename, "wb+"));
   }
   else if (OutputFiles)
   {
-    sprintf(filename, "%s/doc.pdf", OutputPath);
+    snprintf(filename, sizeof(filename), "%s/doc.pdf", OutputPath);
 
     return (fopen(filename, "wb+"));
   }
@@ -10272,7 +10272,8 @@ write_truetype(FILE       *out,		/* I - File to write to */
   * Try to open the AFM file for the Type1 font...
   */
 
-  sprintf(filename, "%s/afm/%s", _htmlData, _htmlFonts[typeface][style]);
+  snprintf(filename, sizeof(filename), "%s/afm/%s", _htmlData,
+           _htmlFonts[typeface][style]);
   if ((fp = fopen(filename, "r")) == NULL)
   {
 #ifndef DEBUG
@@ -10542,7 +10543,7 @@ flate_printf(FILE       *out,	/* I - Output file */
 
 
   va_start(ap, format);
-  length = vsprintf(buf, format, ap);
+  length = vsnprintf(buf, sizeof(buf), format, ap);
   va_end(ap);
 
   flate_write(out, (uchar *)buf, length);
@@ -10611,5 +10612,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.137 2001/12/10 20:09:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.138 2001/12/13 19:04:11 mike Exp $".
  */

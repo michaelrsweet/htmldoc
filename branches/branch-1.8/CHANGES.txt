@@ -1,4 +1,4 @@
-CHANGES.txt - 12/07/2001
+CHANGES.txt - 12/13/2001
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.17
@@ -10,6 +10,8 @@ CHANGES IN HTMLDOC v1.8.17
 	  based on the header/footer string.
 	- Added new "--no-localfiles" option to disable access
 	  to local files for added security in web services.
+	- Long lines in book files can not be broken up using
+	  a trailing backslash.
 
     CHANGES
 
@@ -20,6 +22,7 @@ CHANGES IN HTMLDOC v1.8.17
 	  line endings.
 	- Changed the TOC numbering to use 32-bit integers
 	  instead of 8-bit integers...
+	- Added a modern "skin" to the GUI interface.
 
     BUG FIXES
 

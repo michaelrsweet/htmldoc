@@ -1,5 +1,5 @@
 /*
- * "$Id: html.cxx,v 1.17.2.20 2001/10/20 21:49:16 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.21 2001/12/13 19:04:06 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
@@ -218,9 +218,9 @@ write_header(FILE   **out,	/* IO - Output file */
              uchar  *docnumber,	/* I - ID number for document */
 	     tree_t *t)		/* I - Current document file */
 {
-  char	realname[1024];		/* Real filename */
-  char	*basename;		/* Filename without directory */
-  int	newfile;		/* Non-zero if this is a new file */
+  char		realname[1024];	/* Real filename */
+  const char	*basename;	/* Filename without directory */
+  int		newfile;	/* Non-zero if this is a new file */
   static const char *families[] =/* Typeface names */
 		{
 		  "monospace",
@@ -234,7 +234,7 @@ write_header(FILE   **out,	/* IO - Output file */
     newfile  = 1;
     basename = file_basename((char *)filename);
 
-    sprintf(realname, "%s/%s", OutputPath, basename);
+    snprintf(realname, sizeof(realname), "%s/%s", OutputPath, basename);
 
     *out = fopen(realname, "w");
   }
@@ -891,7 +891,8 @@ update_links(tree_t *t,		/* I - Document tree */
 	      strcmp((char *)filename, (char *)link->filename) != 0)
 #endif /* WIN32 || __EMX__ */
 	  {
-	    sprintf((char *)newhref, "%s%s", link->filename, href);
+	    snprintf((char *)newhref, sizeof(newhref), "%s%s",
+	             link->filename, href);
 	    htmlSetVariable(t, (uchar *)"HREF", newhref);
 	  }
 	}
@@ -926,7 +927,7 @@ update_links(tree_t *t,		/* I - Document tree */
         if (href[0] != '#' && file_method((char *)href) == NULL &&
 	    (link = find_link(href)) != NULL)
 	{
-	  sprintf((char *)newhref, "#%s", link->name);
+	  snprintf((char *)newhref, sizeof(newhref), "#%s", link->name);
 	  htmlSetVariable(t, (uchar *)"HREF", newhref);
 	}
       }
@@ -941,5 +942,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.20 2001/10/20 21:49:16 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.21 2001/12/13 19:04:06 mike Exp $".
  */

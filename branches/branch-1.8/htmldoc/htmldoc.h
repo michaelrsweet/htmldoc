@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.12 2001/10/18 23:19:27 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.13 2001/12/13 19:04:09 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -233,6 +233,7 @@ VAR char	HTMLEditor[1024] VALUE("notepad.exe \"%s\"");
 VAR char	HTMLEditor[1024] VALUE("nedit %s");
 #  endif /* WIN32 */
 VAR int		Tooltips	VALUE(1);	/* Show tooltips? */
+VAR int		ModernSkin	VALUE(1);	/* Show modern skins? */
 #endif /* HAVE_LIBFLTK */
 
 
@@ -262,5 +263,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.12 2001/10/18 23:19:27 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.13 2001/12/13 19:04:09 mike Exp $".
  */
