@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.49 2000/03/03 21:24:13 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.50 2000/03/06 17:21:33 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -217,7 +217,8 @@ static int	num_objects,
 		font_objects[16];
 
 static image_t	*logo_image = NULL;
-
+static float	logo_width,
+		logo_height;
 static image_t	*background_image = NULL;
 static float	background_color[3] = { 1.0, 1.0, 1.0 };
 
@@ -375,6 +376,14 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   copyright  = htmlGetMeta(document, (uchar *)"copyright");
   docnumber  = htmlGetMeta(document, (uchar *)"docnumber");
   logo_image = image_load(LogoImage, !OutputColor);
+
+  if (logo_image != NULL)
+  {
+    logo_width  = logo_image->width * PagePrintWidth / _htmlBrowserWidth;
+    logo_height = logo_width * logo_image->height / logo_image->width;
+  }
+  else
+    logo_width = logo_height = 0.0f;
 
   find_background(document);
 
@@ -556,10 +565,20 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   top             = PagePrintLength;
 
   if (strncmp(Header, "...", 3) != 0)
-    top -= (int)(2.0f * HeadFootSize + 0.5f);
+  {
+    if (strchr(Header, 'l') != NULL && logo_height > HeadFootSize)
+      top -= logo_height + HeadFootSize;
+    else
+      top -= 2.0f * HeadFootSize;
+  }
 
   if (strncmp(Footer, "...", 3) != 0)
-    bottom += (int)(2.0f * HeadFootSize + 0.5f);
+  {
+    if (strchr(Footer, 'l') != NULL && logo_height > HeadFootSize)
+      bottom += logo_height + HeadFootSize;
+    else
+      bottom += 2.0f * HeadFootSize;
+  }
 
   y = top;
 
@@ -583,10 +602,20 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     top               = PagePrintLength;
 
     if (strncmp(TocHeader, "...", 3) != 0)
-      top -= (int)(2.0f * HeadFootSize + 0.5f);
+    {
+      if (strchr(TocHeader, 'l') != NULL && logo_height > HeadFootSize)
+	top -= logo_height + HeadFootSize;
+      else
+	top -= 2.0f * HeadFootSize;
+    }
 
     if (strncmp(TocFooter, "...", 3) != 0)
-      bottom += (int)(2.0f * HeadFootSize + 0.5f);
+    {
+      if (strchr(TocFooter, 'l') != NULL && logo_height > HeadFootSize)
+	bottom += logo_height + HeadFootSize;
+      else
+	bottom += 2.0f * HeadFootSize;
+    }
 
     parse_contents(toc, 0, PagePrintWidth, bottom, top, &y, &page, &heading);
     if (PageDuplex && (num_pages & 1))
@@ -837,15 +866,14 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
       case 'l' :
           if (logo_image != NULL)
 	  {
-	    if (logo_image->height < HeadFootSize)
-	      temp = new_render(page, RENDER_IMAGE, 0, y,
-	                	logo_image->width, logo_image->height,
-	                	logo_image);
-            else
-	      temp = new_render(page, RENDER_IMAGE, 0, y,
-	                	HeadFootSize * logo_image->width / logo_image->height,
-	                	HeadFootSize, logo_image);
-	  }
+	    if (y < (PagePrintLength / 2))
+	      temp = new_render(page, RENDER_IMAGE, 0, y, logo_width,
+	                        logo_height, logo_image);
+            else // Offset from top
+	      temp = new_render(page, RENDER_IMAGE, 0,
+	                        y + HeadFootSize - logo_height,
+	                	logo_width, logo_height, logo_image);
+          }
 	  else
 	    temp = NULL;
 	  break;
@@ -2817,6 +2845,39 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             *x = left;
             *y = top;
 	  }
+	  else if (strncasecmp(comment, "HALF PAGE", 9) == 0)
+	  {
+	   /*
+	    * <!-- HALF PAGE --> Go to the next half page.  If in the
+	    * top half of a page, go to the bottom half.  If in the
+	    * bottom half, go to the next page.
+	    */
+	    float halfway;
+
+
+            if (para->child != NULL)
+            {
+              parse_paragraph(para, left, right, bottom, top, x, y, page);
+              htmlDeleteTree(para->child);
+              para->child = para->last_child = NULL;
+            }
+
+	    halfway = 0.5f * (top + bottom);
+
+	    if (*y <= halfway)
+	    {
+	      (*page) ++;
+	      if (Verbosity)
+		progress_show("Formatting page %d", *page);
+	      *x = left;
+	      *y = top;
+	    }
+	    else
+	    {
+	      *x = left;
+	      *y = halfway;
+	    }
+	  }
           break;
 
       case MARKUP_TITLE :
@@ -3600,6 +3661,12 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		*flat,
 		*next,
 		**cells[MAX_ROWS];
+  int		do_valign;			// True if we should do vertical alignment of cells
+  float		row_height,			// Total height of the row
+		temp_height;			// Temporary holder
+  float		cell_height[MAX_COLUMNS];	// Height of each cell in a row
+  render_t	*cell_start[MAX_COLUMNS];	// Start of the content for a cell in the row
+  render_t	*cell_end[MAX_COLUMNS];		// End of the content for a cell in a row
   uchar		*bgcolor;
   float		rgb[3],
 		bgrgb[3];
@@ -3977,8 +4044,10 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         progress_show("Formatting page %d", *page);
     }
 
-    row_y    = *y;
-    row_page = *page;
+    do_valign  = 1;
+    row_y      = *y;
+    row_page   = *page;
+    row_height = 0.0f;
 
     for (col = 0; col < num_cols; col += colspan + 1)
     {
@@ -3997,11 +4066,26 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       temp_y    = *y - (border + cellspacing);
       temp_page = *page;
 
+      cell_start[col] = endpages[*page];
       parse_doc(cells[row][col]->child,
                 col_lefts[col], col_rights[col + colspan],
                 bottom + border + cellspacing + cellpadding,
                 top - border - cellspacing - cellpadding,
                 x, &temp_y, &temp_page, NULL);
+
+      if (temp_page == row_page)
+      {
+        if (cell_start[col] == NULL)
+	  cell_start[col] = pages[*page];
+
+        cell_end[col]    = endpages[*page];
+        cell_height[col] = *y - (border + cellspacing) - temp_y;
+        if (cell_height[col] > row_height)
+          row_height = cell_height[col];
+      }
+      else
+        // Don't do vertical alignment if content spans more than one page
+	do_valign = 0;
 
       if (temp_page > row_page)
       {
@@ -4010,6 +4094,77 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       }
       else if (temp_y < row_y && temp_page == row_page)
         row_y = temp_y;
+    }
+
+   /*
+    * Do the vertical alignment
+    */
+
+    if (do_valign)
+    {
+      if ((var = htmlGetVariable(cells[row][0]->parent,
+                                 (uchar *)"HEIGHT")) == NULL)
+        for (col = 0; col < num_cols; col ++)
+	  if ((var = htmlGetVariable(cells[row][col],
+                                     (uchar *)"HEIGHT")) != NULL)
+	    break;
+
+      if (var != NULL)
+      {
+        // Hardcode the row height...
+        if (var[strlen((char *)var) - 1] == '%')
+	  temp_height = atof((char *)var) * 0.01f * PagePrintLength;
+	else
+          temp_height = atof((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+
+        if (temp_height > row_height)
+	{
+	  // Only enforce the height if it is > the actual row height.
+	  row_height = temp_height;
+          row_y      = *y - temp_height;
+	}
+      }
+
+      for (col = 0; col < num_cols; col += colspan + 1)
+      {
+        render_t	*p;
+        float		delta_y;
+
+
+        for (colspan = 1; (col + colspan) < num_cols; colspan ++)
+          if (cells[row][col] != cells[row][col + colspan])
+            break;
+
+        colspan --;
+
+        if (cells[row][col] == NULL)
+	  continue;
+
+        switch (cells[row][col]->valignment)
+	{
+          case ALIGN_MIDDLE :
+              delta_y = (row_height - cell_height[col]) * 0.5f;
+              break;
+
+          case ALIGN_BOTTOM :
+              delta_y = row_height - cell_height[col];
+              break;
+
+          default :
+              delta_y = 0.0f;
+              break;
+        }
+
+        if (delta_y > 0.0f)
+	{
+          for (p = cell_start[col]->next; p != NULL; p = p->next)
+	  {
+            p->y -= delta_y;
+            if (p == cell_end[col])
+	      break;
+          }
+        }
+      }
     }
 
     row_y -= 2 * (border + cellpadding + cellspacing);
@@ -6589,5 +6744,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.49 2000/03/03 21:24:13 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.50 2000/03/06 17:21:33 mike Exp $".
  */
