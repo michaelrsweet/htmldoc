@@ -1,5 +1,5 @@
 //
-// "$Id: http.cxx,v 1.3 2002/01/01 18:27:30 mike Exp $"
+// "$Id: http.cxx,v 1.4 2002/01/01 21:24:31 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class routines for HTMLDOC.
 //
@@ -23,6 +23,47 @@
 //
 // Contents:
 //
+//   hdHTTP::clear_fields()       - Clear HTTP request/response fields.
+//   hdHTTP::initialize()         - Initialize the HTTP interface library.
+//   hdHTTP::check()              - Check to see if there is a pending
+//                                  response from the server.
+//   hdHTTP::~hdHTTP()            - Close the HTTP connection and free memory...
+//   hdHTTP::hdHTTP()             - Connect to a HTTP server.
+//   hdHTTP::set_encryption()     - Set the required encryption on the link.
+//   hdHTTP::reconnect()          - Reconnect to a HTTP server...
+//   hdHTTP::separate()           - Separate a Universal Resource Identifier
+//                                  into its components.
+//   hdHTTP::get_sub_field()      - Get a sub-field value.
+//   hdHTTP::set_field()          - Set the value of an HTTP header.
+//   hdHTTP::send_delete()        - Send a DELETE request to the server.
+//   hdHTTP::send_get()           - Send a GET request to the server.
+//   hdHTTP::send_head()          - Send a HEAD request to the server.
+//   hdHTTP::send_options()       - Send an OPTIONS request to the server.
+//   hdHTTP::send_post()          - Send a POST request to the server.
+//   hdHTTP::send_put()           - Send a PUT request to the server.
+//   hdHTTP::send_trace()         - Send an TRACE request to the server.
+//   hdHTTP::flush()              - Flush data from a HTTP connection.
+//   hdHTTP::read()               - Read data from a HTTP connection.
+//   hdHTTP::write()              - Write data to a HTTP connection.
+//   hdHTTP::gets()               - Get a line of text from a HTTP connection.
+//   hdHTTP::printf()             - Print a formatted string to a HTTP
+//                                  connection.
+//   hdHTTP::status_string()      - Return a short string describing a HTTP
+//                                  status code.
+//   hdHTTP::get_date_string()    - Get a formatted date/time string from a
+//                                  time value.
+//   hdHTTP::get_date_time()      - Get a time value from a formatted date/time string.
+//   hdHTTP::update()             - Update the current HTTP state for incoming
+//                                  data.
+//   hdHTTP::decode64()           - Base64-decode a string.
+//   hdHTTP::encode64()           - Base64-encode a string.
+//   hdHTTP::get_content_length() - Get the amount of data remaining from
+//                                  the content-length or transfer-encoding
+//                                  fields.
+//   hdHTTP::field_number()       - Return the field index for a field name.
+//   hdHTTP::send()               - Send a request with all fields and the
+//                                  trailing blank line.
+//   hdHTTP::upgrade()            - Force upgrade to TLS encryption.
 //
 
 //
@@ -133,13 +174,12 @@ void
 hdHTTP::clear_fields()
 {
   memset(fields, 0, sizeof(fields));
-  set_field(HD_HD_HTTP_FIELD_HOST, hostname);
+  set_field(HD_HTTP_FIELD_HOST, hostname);
 }
 
 
 //
-// 'hdHTTP::initialize()' - Initialize the HTTP interface library and set the
-//                          default HTTP proxy (if any).
+// 'hdHTTP::initialize()' - Initialize the HTTP interface library.
 //
 
 void
@@ -196,7 +236,7 @@ hdHTTP::initialize(void)
   gettimeofday(&curtime, NULL);
   srand(curtime.tv_sec + curtime.tv_usec);
 #  endif // WIN32
-  for (i = 0; i < sizeof(data); i ++)
+  for (i = 0; i < (int)sizeof(data); i ++)
     data[i] = rand(); // Yes, this is a poor source of random data...
 
   RAND_seed(&data, sizeof(data));
@@ -232,9 +272,8 @@ hdHTTP::check()
 
 //
 // 'hdHTTP::~hdHTTP()' - Close the HTTP connection and free memory...
+//
 
-
-void
 hdHTTP::~hdHTTP()
 {
 #ifdef HAVE_LIBSSL
@@ -269,12 +308,11 @@ hdHTTP::~hdHTTP()
 // 'hdHTTP::hdHTTP()' - Connect to a HTTP server.
 //
 
-hdHTTP *				// O - New HTTP connection
 hdHTTP::hdHTTP(const char       *host,	// I - Host to connect to
                int              port,	// I - Port number
 	       hdHTTPEncryption encrypt)// I - Type of encryption to use
 {
-  struct hostent	*hostaddr;	// Host address data
+  struct hostent	*h;		// Host address data
 
 
   // Make sure socket IO is initialized...
@@ -285,10 +323,10 @@ hdHTTP::hdHTTP(const char       *host,	// I - Host to connect to
   blocking       = 1;
   error          = 0;
   activity       = time(NULL);
-  state          = HD_HTTP_IDLE;
+  state          = HD_HTTP_WAITING;
   status         = HD_HTTP_ERROR;
   version        = HD_HTTP_1_1;
-  keep_alive     = HD_HTTP_KEEP_ALIVE_ON;
+  keep_alive     = HD_HTTP_KEEPALIVE_ON;
   data           = (char *)0;
   data_encoding  = HD_HTTP_ENCODE_LENGTH;
   data_remaining = 0;
@@ -300,18 +338,18 @@ hdHTTP::hdHTTP(const char       *host,	// I - Host to connect to
 
   memset(&hostaddr, 0, sizeof(hostaddr));
   memset(hostname, 0, sizeof(hostname));
-  memset(fields, 0, sizeof(fields);
+  memset(fields, 0, sizeof(fields));
   memset(buffer, 0, sizeof(buffer));
   memset(&md5_state, 0, sizeof(md5_state));
   memset(nonce, 0, sizeof(nonce));
 
   // Lookup the host...
   if (host)
-    hostaddr = gethostbyname(host);
+    h = gethostbyname(host);
   else
-    hostaddr = NULL;
+    h = NULL;
 
-  if (hostaddr == NULL)
+  if (h == NULL)
   {
     // This hack to make users that don't have a localhost entry in
     // their hosts file or DNS happy...
@@ -319,18 +357,18 @@ hdHTTP::hdHTTP(const char       *host,	// I - Host to connect to
 
     if (strcasecmp(host, "localhost") != 0)
       return;
-    else if ((hostaddr = gethostbyname("127.0.0.1")) == NULL)
+    else if ((h = gethostbyname("127.0.0.1")) == NULL)
       return;
   }
 
   // Verify that it is an IPv4 address (IPv6 support will come soon...)
-  if (hostaddr->h_addrtype != AF_INET || hostaddr->h_length != 4)
-    return (NULL);
+  if (h->h_addrtype != AF_INET || h->h_length != 4)
+    return;
 
   // Copy the hostname and port and then "reconnect"...
   strncpy(hostname, host, sizeof(hostname) - 1);
-  memcpy((char *)&(hostaddr.sin_addr), hostaddr->h_addr, hostaddr->h_length);
-  hostaddr.sin_family = hostaddr->h_addrtype;
+  memcpy((char *)&(hostaddr.sin_addr), h->h_addr, h->h_length);
+  hostaddr.sin_family = h->h_addrtype;
 #ifdef WIN32
   hostaddr.sin_port   = htons((u_short)port);
 #else
@@ -343,11 +381,11 @@ hdHTTP::hdHTTP(const char       *host,	// I - Host to connect to
 
 
 //
-// 'hdHTTP::encryption()' - Set the required encryption on the link.
+// 'hdHTTP::set_encryption()' - Set the required encryption on the link.
 //
 
 int					// O - -1 on error, 0 on success
-hdHTTP::encryption(hdHTTPEncryption e)	// I - New encryption preference
+hdHTTP::set_encryption(hdHTTPEncryption e)// I - New encryption preference
 {
 #ifdef HAVE_LIBSSL
   encryption = e;
@@ -370,7 +408,7 @@ hdHTTP::encryption(hdHTTPEncryption e)	// I - New encryption preference
 
 //
 // 'hdHTTP::reconnect()' - Reconnect to a HTTP server...
-
+//
 
 int				// O - 0 on success, non-zero on failure
 hdHTTP::reconnect()
@@ -415,8 +453,8 @@ hdHTTP::reconnect()
   }
 
 #ifdef FD_CLOEXEC
-  fcntl(fd, F_SETFD, FD_CLOEXEC);	// Close this socket when starting *
-					 * other processes...             
+  fcntl(fd, F_SETFD, FD_CLOEXEC);	// Close this socket when starting
+					// other processes...             
 #endif // FD_CLOEXEC
 
   val = 1;
@@ -492,78 +530,57 @@ hdHTTP::reconnect()
 
 //
 // 'hdHTTP::separate()' - Separate a Universal Resource Identifier into its
-//                    components.
-
+//                        components.
+//
 
 void
-hdHTTP::separate(const char *uri,		// I - Universal Resource Identifier
-             char       *method,	// O - Method [32] (http, https, etc.)
-	     char       *username,	// O - Username [32]
-	     char       *host,		// O - Hostname [32]
-	     int        *port,		// O - Port number to use
-             char       *resource)	// O - Resource/filename [1024]
+hdHTTP::separate(const char *uri,	// I - Universal Resource Identifier
+        	 char       *method,	// O - Method (http, https, etc.)
+		 int        methodlen,	// I - Size of method buffer
+		 char       *username,	// O - Username
+		 int        usernamelen,// I - Size of username buffer
+		 char       *host,	// O - Hostname
+		 int        hostlen,	// I - Size of hostname buffer
+		 int        *port,	// O - Port number to use
+        	 char       *resource,	// O - Resource/filename
+		 int        resourcelen)// I - Size of resource buffer
 {
   char		*ptr;				// Pointer into string...
   const char	*atsign,			// @ sign
 		*slash;				// Separator
-  char		safeuri[HD_MAX_URI];		// "Safe" local copy of URI
 
 
- //
   // Range check input...
- 
-
   if (uri == NULL || method == NULL || username == NULL || host == NULL ||
       port == NULL || resource == NULL)
     return;
 
- //
-  // Copy the URL to a local string to make sure we don't have a URL
-  // longer than HD_MAX_URI characters long...
- 
-
-  strncpy(safeuri, uri, sizeof(safeuri));
-  safeuri[sizeof(safeuri) - 1] = '\0';
-
-  uri = safeuri;
-
- //
   // Grab the method portion of the URI...
- 
-
   if (strncmp(uri, "//", 2) == 0)
   {
-   //
     // Workaround for common bad URLs...
-   
-
-    strcpy(method, "http");
+    strncpy(method, "http", methodlen - 1);
+    method[methodlen - 1] = '\0';
   }
   else
   {
-   //
     // Standard URI with method...
-   
-
     for (ptr = host; *uri != ':' && *uri != '\0'; uri ++)
-      if (ptr < (host + HD_MAX_URI - 1))
+      if (ptr < (host + hostlen - 1))
         *ptr++ = *uri;
 
-    //ptr = '\0';
+    *ptr = '\0';
     if (*uri == ':')
       uri ++;
 
-   //
     // If the method contains a period or slash, then it's probably
     // hostname/filename...
-   
-
     if (strchr(host, '.') != NULL || strchr(host, '/') != NULL || *uri == '\0')
     {
       if ((ptr = strchr(host, '/')) != NULL)
       {
-	strncpy(resource, ptr, HD_MAX_URI);
-	resource[HD_MAX_URI - 1] = '\0';
+	strncpy(resource, ptr, resourcelen - 1);
+	resource[resourcelen - 1] = '\0';
 	*ptr = '\0';
       }
       else
@@ -571,51 +588,44 @@ hdHTTP::separate(const char *uri,		// I - Universal Resource Identifier
 
       if (isdigit(*uri))
       {
-       //
-	* OK, we have "hostname:port[/resource]"...
-	*/
-
+        // OK, we have "hostname:port[/resource]"...
 	*port = strtol(uri, (char **)&uri, 10);
 
 	if (*uri == '/')
 	{
-          strncpy(resource, uri, HD_MAX_URI);
-          resource[HD_MAX_URI - 1] = '\0';
+          strncpy(resource, uri, resourcelen);
+          resource[resourcelen - 1] = '\0';
 	}
       }
       else
 	*port = 80;
 
-      strcpy(method, "http");
+      strncpy(method, "http", methodlen - 1);
+      method[methodlen - 1] = '\0';
+
       username[0] = '\0';
       return;
     }
     else
     {
-      strncpy(method, host, 31);
-      method[31] = '\0';
+      strncpy(method, host, methodlen - 1);
+      method[methodlen - 1] = '\0';
     }
   }
 
- //
-  // If the method starts with less than 2 slashes then it is a local resource...
- 
-
+  // If the URI starts with less than 2 slashes then it is a local resource...
   if (strncmp(uri, "//", 2) != 0)
   {
-    strncpy(resource, uri, 1023);
-    resource[1023] = '\0';
+    strncpy(resource, uri, resourcelen - 1);
+    resource[resourcelen - 1] = '\0';
 
     username[0] = '\0';
     host[0]     = '\0';
-    //port       = 0;
+    *port       = 0;
     return;
   }
 
- //
   // Grab the username, if any...
- 
-
   while (*uri == '/')
     uri ++;
 
@@ -624,30 +634,24 @@ hdHTTP::separate(const char *uri,		// I - Universal Resource Identifier
 
   if ((atsign = strchr(uri, '@')) != NULL && atsign < slash)
   {
-   //
     // Got a username:password combo...
-   
-
     for (ptr = username; uri < atsign; uri ++)
-      if (ptr < (username + HD_MAX_URI - 1))
+      if (ptr < (username + usernamelen - 1))
 	*ptr++ = *uri;
 
-    //ptr = '\0';
+    *ptr = '\0';
 
     uri = atsign + 1;
   }
   else
     username[0] = '\0';
 
- //
   // Grab the hostname...
- 
-
   for (ptr = host; *uri != ':' && *uri != '/' && *uri != '\0'; uri ++)
-    if (ptr < (host + HD_MAX_URI - 1))
+    if (ptr < (host + hostlen - 1))
       *ptr++ = *uri;
 
-  //ptr = '\0';
+  *ptr = '\0';
 
   if (*uri != ':')
   {
@@ -660,69 +664,51 @@ hdHTTP::separate(const char *uri,		// I - Universal Resource Identifier
   }
   else
   {
-   //
     // Parse port number...
-   
-
-    //port = 0;
-    uri ++;
-    while (isdigit(*uri))
-    {
-      *port = (*port * 10) + *uri - '0';
-      uri ++;
-    }
+    *port = strtol(uri, (char **)&uri, 10);
   }
 
   if (*uri == '\0')
   {
-   //
     // Hostname but no port or path...
-   
-
     resource[0] = '/';
     resource[1] = '\0';
-    return;
   }
-
- //
-  // The remaining portion is the resource string...
- 
-
-  strncpy(resource, uri, HD_MAX_URI);
-  resource[HD_MAX_URI - 1] = '\0';
+  else
+  {
+    // The remaining portion is the resource string...
+    strncpy(resource, uri, resourcelen);
+    resource[resourcelen - 1] = '\0';
+  }
 }
 
 
 //
-// 'hdHTTP::getSubField()' - Get a sub-field value.
+// 'hdHTTP::get_sub_field()' - Get a sub-field value.
+//
 
-
-char *					// O - Value or NULL
-hdHTTP::getSubField(hdHTTP       *http,	// I - HTTP data
-                hdHTTPField field,	// I - Field index
-                const char   *name,	// I - Name of sub-field
-		char         *value)	// O - Value string
+char *						// O - Value or NULL
+hdHTTP::get_sub_field(hdHTTPField field,	// I - Field index
+                      const char   *name,	// I - Name of sub-field
+		      char         *value,	// O - Value string
+		      int          valuelen)	// I - Value size
 {
   const char	*fptr;			// Pointer into field
   char		temp[HD_MAX_VALUE],	// Temporary buffer for name
 		*ptr;			// Pointer into string buffer
 
 
-  if (http == NULL ||
-      field < HD_HTTP_FIELD_ACCEPT_LANGUAGE ||
+  if (field < HD_HTTP_FIELD_ACCEPT_LANGUAGE ||
       field > HD_HTTP_FIELD_WWW_AUTHENTICATE ||
       name == NULL || value == NULL)
     return (NULL);
 
-  DEBUG_printf(("hdHTTP::getSubField(%p, %d, \"%s\", %p)\n",
-                http, field, name, value));
+  DEBUG_printf(("get_sub_field(%d, \"%s\", %p)\n",
+                field, name, value));
 
   for (fptr = fields[field]; *fptr;)
   {
-   //
     // Skip leading whitespace...
-   
-
     while (isspace(*fptr))
       fptr ++;
 
@@ -732,22 +718,16 @@ hdHTTP::getSubField(hdHTTP       *http,	// I - HTTP data
       continue;
     }
 
-   //
     // Get the sub-field name...
-   
-
     for (ptr = temp;
          *fptr && *fptr != '=' && !isspace(*fptr) && ptr < (temp + sizeof(temp) - 1);
          *ptr++ = *fptr++);
 
-    //ptr = '\0';
+    *ptr = '\0';
 
     DEBUG_printf(("name = \"%s\"\n", temp));
 
-   //
     // Skip trailing chars up to the '='...
-   
-
     while (isspace(*fptr))
       fptr ++;
 
@@ -757,10 +737,7 @@ hdHTTP::getSubField(hdHTTP       *http,	// I - HTTP data
     if (*fptr != '=')
       continue;
 
-   //
     // Skip = and leading whitespace...
-   
-
     fptr ++;
 
     while (isspace(*fptr))
@@ -768,12 +745,9 @@ hdHTTP::getSubField(hdHTTP       *http,	// I - HTTP data
 
     if (*fptr == '\"')
     {
-     //
-      * Read quoted string...
-     
-
+      // Read quoted string...
       for (ptr = value, fptr ++;
-           *fptr && *fptr != '\"' && ptr < (value + HD_MAX_VALUE - 1);
+           *fptr && *fptr != '\"' && ptr < (value + valuelen - 1);
 	   *ptr++ = *fptr++);
 
       *ptr = '\0';
@@ -786,12 +760,9 @@ hdHTTP::getSubField(hdHTTP       *http,	// I - HTTP data
     }
     else
     {
-     //
-      * Read unquoted string...
-     
-
+      // Read unquoted string...
       for (ptr = value;
-           *fptr && !isspace(*fptr) && *fptr != ',' && ptr < (value + HD_MAX_VALUE - 1);
+           *fptr && !isspace(*fptr) && *fptr != ',' && ptr < (value + valuelen - 1);
 	   *ptr++ = *fptr++);
 
       *ptr = '\0';
@@ -802,10 +773,7 @@ hdHTTP::getSubField(hdHTTP       *http,	// I - HTTP data
 
     DEBUG_printf(("value = \"%s\"\n", value));
 
-   //
     // See if this is the one...
-   
-
     if (strcmp(name, temp) == 0)
       return (value);
   }
@@ -818,15 +786,13 @@ hdHTTP::getSubField(hdHTTP       *http,	// I - HTTP data
 
 //
 // 'hdHTTP::set_field()' - Set the value of an HTTP header.
-
+//
 
 void
-hdHTTP::set_field(hdHTTP       *http,	// I - HTTP data
-             hdHTTPField field,	// I - Field index
-	     const char   *value)	// I - Value
+hdHTTP::set_field(hdHTTPField field,	// I - Field index
+	          const char  *value)	// I - Value
 {
-  if (http == NULL ||
-      field < HD_HTTP_FIELD_ACCEPT_LANGUAGE ||
+  if (field < HD_HTTP_FIELD_ACCEPT_LANGUAGE ||
       field > HD_HTTP_FIELD_WWW_AUTHENTICATE ||
       value == NULL)
     return;
@@ -837,123 +803,115 @@ hdHTTP::set_field(hdHTTP       *http,	// I - HTTP data
 
 
 //
-// 'hdHTTP::delete()' - Send a DELETE request to the server.
-
+// 'hdHTTP::send_delete()' - Send a DELETE request to the server.
+//
 
 int					// O - Status of call (0 = success)
-hdHTTP::delete(hdHTTP     *http,		// I - HTTP data
-           const char *uri)		// I - URI to delete
+hdHTTP::send_delete(const char *uri)	// I - URI to delete
 {
-  return (http_send(http, HD_HTTP_DELETE, uri));
+  return (send(HD_HTTP_DELETE, uri));
 }
 
 
 //
-// 'hdHTTP::get()' - Send a GET request to the server.
-
+// 'hdHTTP::send_get()' - Send a GET request to the server.
+//
 
 int					// O - Status of call (0 = success)
-hdHTTP::get(hdHTTP     *http,		// I - HTTP data
-        const char *uri)		// I - URI to get
+hdHTTP::send_get(const char *uri)		// I - URI to get
 {
-  return (http_send(http, HD_HTTP_GET, uri));
+  return (send(HD_HTTP_GET, uri));
 }
 
 
 //
-// 'hdHTTP::head()' - Send a HEAD request to the server.
-
+// 'hdHTTP::send_head()' - Send a HEAD request to the server.
+//
 
 int					// O - Status of call (0 = success)
-hdHTTP::head(hdHTTP     *http,		// I - HTTP data
-         const char *uri)		// I - URI for head
+hdHTTP::send_head(const char *uri)	// I - URI for head
 {
-  return (http_send(http, HD_HTTP_HEAD, uri));
+  return (send(HD_HTTP_HEAD, uri));
 }
 
 
 //
-// 'hdHTTP::options()' - Send an OPTIONS request to the server.
-
+// 'hdHTTP::send_options()' - Send an OPTIONS request to the server.
+//
 
 int					// O - Status of call (0 = success)
-hdHTTP::options(hdHTTP     *http,		// I - HTTP data
-            const char *uri)		// I - URI for options
+hdHTTP::send_options(const char *uri)	// I - URI for options
 {
-  return (http_send(http, HD_HTTP_OPTIONS, uri));
+  return (send(HD_HTTP_OPTIONS, uri));
 }
 
 
 //
-// 'hdHTTP::post()' - Send a POST request to the server.
-
+// 'hdHTTP::send_post()' - Send a POST request to the server.
+//
 
 int					// O - Status of call (0 = success)
-hdHTTP::post(hdHTTP     *http,		// I - HTTP data
-         const char *uri)		// I - URI for post
+hdHTTP::send_post(const char *uri)	// I - URI for post
 {
-  hdHTTP::getLength(http);
+  get_content_length();
 
-  return (http_send(http, HD_HTTP_POST, uri));
+  return (send(HD_HTTP_POST, uri));
 }
 
 
 //
-// 'hdHTTP::put()' - Send a PUT request to the server.
-
+// 'hdHTTP::send_put()' - Send a PUT request to the server.
+//
 
 int					// O - Status of call (0 = success)
-hdHTTP::put(hdHTTP     *http,		// I - HTTP data
-        const char *uri)		// I - URI to put
+hdHTTP::send_put(const char *uri)		// I - URI to put
 {
-  hdHTTP::getLength(http);
+  get_content_length();
 
-  return (http_send(http, HD_HTTP_PUT, uri));
+  return (send(HD_HTTP_PUT, uri));
 }
 
 
 //
-// 'hdHTTP::trace()' - Send an TRACE request to the server.
-
+// 'hdHTTP::send_trace()' - Send an TRACE request to the server.
+//
 
 int					// O - Status of call (0 = success)
-hdHTTP::trace(hdHTTP     *http,		// I - HTTP data
-          const char *uri)		// I - URI for trace
+hdHTTP::send_trace(const char *uri)	// I - URI for trace
 {
-  return (http_send(http, HD_HTTP_TRACE, uri));
+  return (send(HD_HTTP_TRACE, uri));
 }
 
 
 //
 // 'hdHTTP::flush()' - Flush data from a HTTP connection.
-
+//
 
 void
-hdHTTP::flush(hdHTTP *http)	// I - HTTP data
+hdHTTP::flush()
 {
   char	buffer[8192];	// Junk buffer
 
 
-  while (hdHTTP::read(http, buffer, sizeof(buffer)) > 0);
+  while (read(buffer, sizeof(buffer)) > 0);
 }
 
 
 //
 // 'hdHTTP::read()' - Read data from a HTTP connection.
-
+//
 
 int					// O - Number of bytes read
-hdHTTP::read(hdHTTP *http,			// I - HTTP data
-         char   *buffer,		// I - Buffer for data
-	 int    length)			// I - Maximum number of bytes
+hdHTTP::read(char *buffer,		// I - Buffer for data
+	     int  length)		// I - Maximum number of bytes
 {
   int		bytes;			// Bytes read
   char		len[32];		// Length string
 
 
-  DEBUG_printf(("hdHTTP::read(%08x, %08x, %d)\n", http, buffer, length));
+  DEBUG_printf(("hdHTTP::read(%p, %d)\n", buffer, length));
 
-  if (http == NULL || buffer == NULL)
+  if (buffer == NULL)
     return (-1);
 
   activity = time(NULL);
@@ -966,7 +924,7 @@ hdHTTP::read(hdHTTP *http,			// I - HTTP data
   {
     DEBUG_puts("hdHTTP::read: Getting chunk length...");
 
-    if (hdHTTP::gets(len, sizeof(len), http) == NULL)
+    if (gets(len, sizeof(len)) == NULL)
     {
       DEBUG_puts("hdHTTP::read: Could not get length!");
       return (0);
@@ -979,16 +937,13 @@ hdHTTP::read(hdHTTP *http,			// I - HTTP data
 
   if (data_remaining == 0)
   {
-   //
     // A zero-length chunk ends a transfer; unless we are reading POST
     // data, go idle...
-   
-
     if (data_encoding == HD_HTTP_ENCODE_CHUNKED)
-      hdHTTP::gets(len, sizeof(len), http);
+      gets(len, sizeof(len));
 
     if (state == HD_HTTP_POST_RECV)
-      state ++;
+      state = HD_HTTP_POST_SEND;
     else
       state = HD_HTTP_WAITING;
 
@@ -1035,12 +990,12 @@ hdHTTP::read(hdHTTP *http,			// I - HTTP data
   if (data_remaining == 0)
   {
     if (data_encoding == HD_HTTP_ENCODE_CHUNKED)
-      hdHTTP::gets(len, sizeof(len), http);
+      gets(len, sizeof(len));
 
     if (data_encoding != HD_HTTP_ENCODE_CHUNKED)
     {
       if (state == HD_HTTP_POST_RECV)
-	state ++;
+	state = HD_HTTP_POST_SEND;
       else
 	state = HD_HTTP_WAITING;
     }
@@ -1052,42 +1007,38 @@ hdHTTP::read(hdHTTP *http,			// I - HTTP data
 
 //
 // 'hdHTTP::write()' - Write data to a HTTP connection.
-
+//
  
 int					// O - Number of bytes written
-hdHTTP::write(hdHTTP     *http,		// I - HTTP data
-          const char *buffer,		// I - Buffer for data
-	  int        length)		// I - Number of bytes to write
+hdHTTP::write(const char *buffer,	// I - Buffer for data
+	      int        length)	// I - Number of bytes to write
 {
   int	tbytes,				// Total bytes sent
 	bytes;				// Bytes sent
 
 
-  if (http == NULL || buffer == NULL)
+  if (buffer == NULL)
     return (-1);
 
   activity = time(NULL);
 
   if (data_encoding == HD_HTTP_ENCODE_CHUNKED)
   {
-    if (hdHTTP::printf(http, "%x\r\n", length) < 0)
+    if (printf("%x\r\n", length) < 0)
       return (-1);
 
     if (length == 0)
     {
-     //
-      * A zero-length chunk ends a transfer; unless we are sending POST
-      * data, go idle...
-     
-
+      // A zero-length chunk ends a transfer; unless we are sending POST
+      // data, go idle...
       DEBUG_puts("hdHTTP::write: changing states...");
 
       if (state == HD_HTTP_POST_RECV)
-	state ++;
+	state = HD_HTTP_POST_SEND;
       else
 	state = HD_HTTP_WAITING;
 
-      if (hdHTTP::printf(http, "\r\n") < 0)
+      if (printf("\r\n") < 0)
 	return (-1);
 
       return (0);
@@ -1103,7 +1054,7 @@ hdHTTP::write(hdHTTP     *http,		// I - HTTP data
       bytes = SSL_write((SSL *)(tls), buffer, length);
     else
 #endif // HAVE_LIBSSL
-    bytes = send(fd, buffer, length, 0);
+    bytes = ::send(fd, buffer, length, 0);
 
     if (bytes < 0)
     {
@@ -1120,19 +1071,16 @@ hdHTTP::write(hdHTTP     *http,		// I - HTTP data
   }
 
   if (data_encoding == HD_HTTP_ENCODE_CHUNKED)
-    if (hdHTTP::printf(http, "\r\n") < 0)
+    if (printf("\r\n") < 0)
       return (-1);
 
   if (data_remaining == 0 && data_encoding == HD_HTTP_ENCODE_LENGTH)
   {
-   //
     // Finished with the transfer; unless we are sending POST data, go idle...
-   
-
     DEBUG_puts("hdHTTP::write: changing states...");
 
     if (state == HD_HTTP_POST_RECV)
-      state ++;
+      state = HD_HTTP_POST_SEND;
     else
       state = HD_HTTP_WAITING;
   }
@@ -1145,12 +1093,11 @@ hdHTTP::write(hdHTTP     *http,		// I - HTTP data
 
 //
 // 'hdHTTP::gets()' - Get a line of text from a HTTP connection.
-
+//
 
 char *					// O - Line or NULL
-hdHTTP::gets(char   *line,			// I - Line to read into
-         int    length,			// I - Max length of buffer
-	 hdHTTP *http)			// I - HTTP data
+hdHTTP::gets(char *line,		// O - Line buffer
+             int  length)		// I - Max length of buffer
 {
   char	*lineptr,			// Pointer into line
 	*bufptr,			// Pointer into input buffer
@@ -1158,15 +1105,12 @@ hdHTTP::gets(char   *line,			// I - Line to read into
   int	bytes;				// Number of bytes read
 
 
-  DEBUG_printf(("hdHTTP::gets(%08x, %d, %08x)\n", line, length, http));
+  DEBUG_printf(("hdHTTP::gets(%p, %d)\n", line, length));
 
-  if (http == NULL || line == NULL)
+  if (line == NULL)
     return (NULL);
 
- //
   // Pre-scan the buffer and see if there is a newline in there...
- 
-
 #if defined(WIN32)
   WSASetLastError(0);
 #else
@@ -1186,10 +1130,7 @@ hdHTTP::gets(char   *line,			// I - Line to read into
 
     if (bufptr >= bufend && used < HD_MAX_BUFFER)
     {
-     //
-      * No newline; see if there is more data to be read...
-     
-
+      // No newline; see if there is more data to be read...
 #ifdef HAVE_LIBSSL
       if (tls)
         bytes = SSL_read((SSL *)(tls), bufend,
@@ -1229,10 +1170,7 @@ hdHTTP::gets(char   *line,			// I - Line to read into
         return (NULL);
       }
 
-     //
-      * Yup, update the amount used and the end pointer...
-     
-
+      // Yup, update the amount used and the end pointer...
       used += bytes;
       bufend     += bytes;
     }
@@ -1241,10 +1179,7 @@ hdHTTP::gets(char   *line,			// I - Line to read into
 
   activity = time(NULL);
 
- //
   // Read a line from the buffer...
- 
-    
   lineptr = line;
   bufptr  = buffer;
   bytes   = 0;
@@ -1267,7 +1202,7 @@ hdHTTP::gets(char   *line,			// I - Line to read into
 
   if (bytes > 0)
   {
-    //lineptr = '\0';
+    *lineptr = '\0';
 
     used -= bytes;
     if (used > 0)
@@ -1285,12 +1220,11 @@ hdHTTP::gets(char   *line,			// I - Line to read into
 
 //
 // 'hdHTTP::printf()' - Print a formatted string to a HTTP connection.
-
+//
 
 int					// O - Number of bytes written
-hdHTTP::printf(hdHTTP     *http,		// I - HTTP data
-           const char *format,		// I - printf-style format string
-	   ...)				// I - Additional args as needed
+hdHTTP::printf(const char *format,	// I - printf-style format string
+	       ...)			// I - Additional args as needed
 {
   int		bytes,			// Number of bytes to write
 		nbytes,			// Number of bytes written
@@ -1313,7 +1247,7 @@ hdHTTP::printf(hdHTTP     *http,		// I - HTTP data
       nbytes = SSL_write((SSL *)(tls), bufptr, bytes - tbytes);
     else
 #endif // HAVE_LIBSSL
-    nbytes = send(fd, bufptr, bytes - tbytes, 0);
+    nbytes = ::send(fd, bufptr, bytes - tbytes, 0);
 
     if (nbytes < 0)
       return (-1);
@@ -1324,13 +1258,13 @@ hdHTTP::printf(hdHTTP     *http,		// I - HTTP data
 
 
 //
-// 'hdHTTP::status()' - Return a short string describing a HTTP status code.
-
+// 'hdHTTP::status_string()' - Return a short string describing a HTTP status code.
+//
 
 const char *				// O - String or NULL
-hdHTTP::status(http_status_t status)	// I - HTTP status code
+hdHTTP::status_string(hdHTTPStatus s)	// I - HTTP status code
 {
-  switch (status)
+  switch (s)
   {
     case HD_HTTP_CONTINUE :
         return ("Continue");
@@ -1371,11 +1305,11 @@ hdHTTP::status(http_status_t status)	// I - HTTP status code
 
 
 //
-// 'hdHTTP::getDateString()' - Get a formatted date/time string from a time value.
-
+// 'hdHTTP::get_date_string()' - Get a formatted date/time string from a time value.
+//
 
 const char *				// O - Date/time string
-hdHTTP::getDateString(time_t t)		// I - UNIX time
+hdHTTP::get_date_string(time_t t)	// I - UNIX time
 {
   struct tm	*tdate;
   static char	datetime[256];
@@ -1383,7 +1317,8 @@ hdHTTP::getDateString(time_t t)		// I - UNIX time
 
   tdate = gmtime(&t);
   snprintf(datetime, sizeof(datetime), "%s, %02d %s %d %02d:%02d:%02d GMT",
-           days[tdate->tm_wday], tdate->tm_mday, months[tdate->tm_mon],
+           http_days[tdate->tm_wday], tdate->tm_mday,
+	   http_months[tdate->tm_mon],
 	   tdate->tm_year + 1900, tdate->tm_hour, tdate->tm_min, tdate->tm_sec);
 
   return (datetime);
@@ -1391,11 +1326,11 @@ hdHTTP::getDateString(time_t t)		// I - UNIX time
 
 
 //
-// 'hdHTTP::getDateTime()' - Get a time value from a formatted date/time string.
-
+// 'hdHTTP::get_date_time()' - Get a time value from a formatted date/time string.
+//
 
 time_t					// O - UNIX time
-hdHTTP::getDateTime(const char *s)		// I - Date/time string
+hdHTTP::get_date_time(const char *s)	// I - Date/time string
 {
   int		i;			// Looping var
   struct tm	tdate;			// Time/date structure
@@ -1408,7 +1343,7 @@ hdHTTP::getDateTime(const char *s)		// I - Date/time string
     return (0);
 
   for (i = 0; i < 12; i ++)
-    if (strcasecmp(mon, months[i]) == 0)
+    if (strcasecmp(mon, http_months[i]) == 0)
       break;
 
   if (i >= 12)
@@ -1428,36 +1363,30 @@ hdHTTP::getDateTime(const char *s)		// I - Date/time string
 
 //
 // 'hdHTTP::update()' - Update the current HTTP state for incoming data.
+//
 
-
-http_status_t				// O - HTTP status
-hdHTTP::update(hdHTTP *http)		// I - HTTP data
+hdHTTPStatus				// O - HTTP status
+hdHTTP::update()
 {
   char		line[1024],		// Line from connection...
 		*value;			// Pointer to value on line
   hdHTTPField	field;			// Field index
   int		major, minor;		// HTTP version numbers
-  http_status_t	status;			// Authorization status
+  hdHTTPStatus	status;			// Authorization status
 #ifdef HAVE_LIBSSL
   SSL_CTX	*context;		// Context for encryption
   SSL		*conn;			// Connection for encryption
 #endif // HAVE_LIBSSL
 
 
-  DEBUG_printf(("hdHTTP::update(%08x)\n", http));
+  DEBUG_puts("hdHTTP::update()");
 
- //
   // If we haven't issued any commands, then there is nothing to "update"...
- 
-
   if (state == HD_HTTP_WAITING)
     return (HD_HTTP_CONTINUE);
 
- //
   // Grab all of the lines we can from the connection...
- 
-
-  while (hdHTTP::gets(line, sizeof(line), http) != NULL)
+  while (gets(line, sizeof(line)) != NULL)
   {
     DEBUG_puts(line);
 
@@ -1512,15 +1441,24 @@ hdHTTP::update(hdHTTP *http)		// I - HTTP data
         encryption = HD_HTTP_ENCRYPT_REQUIRED;
 #endif // HAVE_LIBSSL
 
-      hdHTTP::getLength(http);
+      get_content_length();
 
       switch (state)
       {
         case HD_HTTP_GET :
+	    state = HD_HTTP_GET_SEND;
+	    break;
+
 	case HD_HTTP_POST :
+	    state = HD_HTTP_POST_RECV;
+	    break;
+
 	case HD_HTTP_POST_RECV :
+	    state = HD_HTTP_POST_SEND;
+	    break;
+
 	case HD_HTTP_PUT :
-	    state ++;
+	    state = HD_HTTP_PUT_RECV;
 	    break;
 
 	default :
@@ -1532,10 +1470,7 @@ hdHTTP::update(hdHTTP *http)		// I - HTTP data
     }
     else if (strncmp(line, "HTTP/", 5) == 0)
     {
-     //
-      * Got the beginning of a response...
-     
-
+      // Got the beginning of a response...
       if (sscanf(line, "HTTP/%d.%d%d", &major, &minor, (int *)&status) != 3)
         return (HD_HTTP_ERROR);
 
@@ -1544,25 +1479,19 @@ hdHTTP::update(hdHTTP *http)		// I - HTTP data
     }
     else if ((value = strchr(line, ':')) != NULL)
     {
-     //
-      * Got a value...
-     
-
+      // Got a value...
       *value++ = '\0';
       while (isspace(*value))
         value ++;
 
-     //
-      * Be tolerants of servers that send unknown attribute fields...
-     
-
-      if ((field = http_field(line)) == HD_HTTP_FIELD_UNKNOWN)
+      // Be tolerants of servers that send unknown attribute fields...
+      if ((field = field_number(line)) == HD_HTTP_FIELD_UNKNOWN)
       {
         DEBUG_printf(("hdHTTP::update: unknown field %s seen!\n", line));
         continue;
       }
 
-      hdHTTP::set_field(http, field, value);
+      set_field(field, value);
     }
     else
     {
@@ -1571,43 +1500,35 @@ hdHTTP::update(hdHTTP *http)		// I - HTTP data
     }
   }
 
- //
   // See if there was an error...
- 
-
   if (error)
   {
     status = HD_HTTP_ERROR;
     return (HD_HTTP_ERROR);
   }
 
- //
   // If we haven't already returned, then there is nothing new...
- 
-
   return (HD_HTTP_CONTINUE);
 }
 
 
 //
 // 'hdHTTP::decode64()' - Base64-decode a string.
+//
 
-
-char *				// O - Decoded string
-hdHTTP::decode64(char       *out,	// I - String to write to
-             const char *in)	// I - String to read from
+char *					// O - Decoded string
+hdHTTP::decode64(char       *out,	// O - String to write to
+                 int        outlen,	// I - Size of buffer
+                 const char *in)	// I - String to read from
 {
-  int	pos,			// Bit position
-	base64;			// Value of this character
-  char	*outptr;		// Output pointer
+  int	pos,				// Bit position
+	base64;				// Value of this character
+  char	*outptr;			// Output pointer
 
 
-  for (outptr = out, pos = 0; *in != '\0'; in ++)
+  for (outptr = out, pos = 0; *in != '\0' && outptr < (out + outlen - 1); in ++)
   {
-   //
     // Decode this character into a number from 0 to 63...
-   
-
     if (*in >= 'A' && *in <= 'Z')
       base64 = *in - 'A';
     else if (*in >= 'a' && *in <= 'z')
@@ -1623,10 +1544,7 @@ hdHTTP::decode64(char       *out,	// I - String to write to
     else
       continue;
 
-   //
     // Store the result in the appropriate chars...
-   
-
     switch (pos)
     {
       case 0 :
@@ -1650,26 +1568,24 @@ hdHTTP::decode64(char       *out,	// I - String to write to
     }
   }
 
-  //outptr = '\0';
+  *outptr = '\0';
 
- //
   // Return the decoded string...
- 
-
   return (out);
 }
 
 
 //
 // 'hdHTTP::encode64()' - Base64-encode a string.
+//
 
-
-char *				// O - Encoded string
-hdHTTP::encode64(char       *out,	// I - String to write to
-             const char *in)	// I - String to read from
+char *					// O - Encoded string
+hdHTTP::encode64(char       *out,	// O - String to write to
+                 int        outlen,	// I - Size of buffer
+                 const char *in)	// I - String to read from
 {
-  char		*outptr;	// Output pointer
-  static char	base64[] =	// Base64 characters...
+  char		*outptr;		// Output pointer
+  static char	base64[] =		// Base64 characters...
   		{
 		  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		  "abcdefghijklmnopqrstuvwxyz"
@@ -1678,14 +1594,11 @@ hdHTTP::encode64(char       *out,	// I - String to write to
   		};
 
 
-  for (outptr = out; *in != '\0'; in ++)
+  for (outptr = out; *in != '\0' && outptr < (out + outlen - 5); in ++)
   {
-   //
     // Encode the up to 3 characters as 4 Base64 numbers...
-   
-
-    //outptr ++ = base64[in[0] >> 2];
-    //outptr ++ = base64[((in[0] << 4) | (in[1] >> 4)) & 63];
+    *outptr++ = base64[in[0] >> 2];
+    *outptr++ = base64[((in[0] << 4) | (in[1] >> 4)) & 63];
 
     in ++;
     if (*in == '\0')
@@ -1694,35 +1607,32 @@ hdHTTP::encode64(char       *out,	// I - String to write to
       break;
     }
 
-    //outptr ++ = base64[((in[0] << 2) | (in[1] >> 6)) & 63];
+    *outptr++ = base64[((in[0] << 2) | (in[1] >> 6)) & 63];
 
     in ++;
     if (*in == '\0')
       break;
 
-    //outptr ++ = base64[in[0] & 63];
+    *outptr++ = base64[in[0] & 63];
   }
 
-  //outptr ++ = '=';
-  //outptr = '\0';
+  // Add trailing "=" and nul...
+  *outptr ++ = '=';
+  *outptr = '\0';
 
- //
   // Return the encoded string...
- 
-
   return (out);
 }
 
 
 //
-// 'hdHTTP::getLength()' - Get the amount of data remaining from the
-//                     content-length or transfer-encoding fields.
-
+// 'hdHTTP::get_content_length()' - Get the amount of data remaining from the content-length or transfer-encoding fields.
+//
 
 int				// O - Content length
-hdHTTP::getLength(hdHTTP *http)	// I - HTTP data
+hdHTTP::get_content_length()
 {
-  DEBUG_printf(("hdHTTP::getLength(%08x)\n", http));
+  DEBUG_puts("hdHTTP::get_content_length()");
 
   if (strcasecmp(fields[HD_HTTP_FIELD_TRANSFER_ENCODING], "chunked") == 0)
   {
@@ -1735,14 +1645,11 @@ hdHTTP::getLength(hdHTTP *http)	// I - HTTP data
   {
     data_encoding = HD_HTTP_ENCODE_LENGTH;
 
-   //
     // The following is a hack for HTTP servers that don't send a
     // content-length or transfer-encoding field...
     //
     // If there is no content-length then the connection must close
     // after the transfer is complete...
-   
-
     if (fields[HD_HTTP_FIELD_CONTENT_LENGTH][0] == '\0')
       data_remaining = 2147483647;
     else
@@ -1756,13 +1663,13 @@ hdHTTP::getLength(hdHTTP *http)	// I - HTTP data
 
 
 //
-// 'http_field()' - Return the field index for a field name.
+// 'hdHTTP::field_number()' - Return the field index for a field name.
+//
 
-
-static hdHTTPField		// O - Field index
-http_field(const char *name)	// I - String name
+hdHTTPField				// O - Field index
+hdHTTP::field_number(const char *name)	// I - String name
 {
-  int	i;			// Looping var
+  int	i;				// Looping var
 
 
   for (i = 0; i < HD_HTTP_FIELD_MAX; i ++)
@@ -1774,18 +1681,17 @@ http_field(const char *name)	// I - String name
 
 
 //
-// 'http_send()' - Send a request with all fields and the trailing blank line.
+// 'hdHTTP::send()' - Send a request with all fields and the trailing blank line.
+//
 
-
-static int			// O - 0 on success, non-zero on error
-http_send(hdHTTP       *http,	// I - HTTP data
-          hdHTTPState request,	// I - Request code
-	  const char   *uri)	// I - URI
+int					// O - 0 on success, non-zero on error
+hdHTTP::send(hdHTTPState request,	// I - Request code
+	     const char  *uri)		// I - URI
 {
-  int		i;		// Looping var
-  char		*ptr,		// Pointer in buffer
-		buf[1024];	// Encoded URI buffer
-  static const char *codes[] =	// Request code strings
+  int		i;			// Looping var
+  char		*ptr,			// Pointer in buffer
+		buf[HD_MAX_URI + 1];	// Encoded URI buffer
+  static const char *codes[] =		// Request code strings
 		{
 		  NULL,
 		  "OPTIONS",
@@ -1802,16 +1708,13 @@ http_send(hdHTTP       *http,	// I - HTTP data
 		  "CLOSE"
 		};
   static const char *hex = "0123456789ABCDEF";
-				// Hex digits
+					// Hex digits
 
 
-  if (http == NULL || uri == NULL)
+  if (uri == NULL)
     return (-1);
 
- //
   // Encode the URI as needed...
- 
-
   for (ptr = buf; *uri != '\0' && ptr < (buf + sizeof(buf) - 1); uri ++)
     if (*uri <= ' ' || *uri >= 127)
     {
@@ -1825,34 +1728,31 @@ http_send(hdHTTP       *http,	// I - HTTP data
     else
       *ptr ++ = *uri;
 
-  //ptr = '\0';
+  *ptr = '\0';
 
- //
   // See if we had an error the last time around; if so, reconnect...
- 
-
   if (status == HD_HTTP_ERROR || status >= HD_HTTP_BAD_REQUEST)
     reconnect();
 
- //
   // Send the request header...
- 
-
-  state = request;
-  if (request == HD_HTTP_POST || request == HD_HTTP_PUT)
-    state ++;
+  if (request == HD_HTTP_POST)
+    state = HD_HTTP_POST_RECV;
+  else if (request == HD_HTTP_PUT)
+    state = HD_HTTP_PUT_RECV;
+  else
+    state = request;
 
   status = HD_HTTP_CONTINUE;
 
 #ifdef HAVE_LIBSSL
   if (encryption == HD_HTTP_ENCRYPT_REQUIRED && !tls)
   {
-    hdHTTP::set_field(http, HD_HTTP_FIELD_CONNECTION, "Upgrade");
-    hdHTTP::set_field(http, HD_HTTP_FIELD_UPGRADE, "TLS/1.0,SSL/2.0,SSL/3.0");
+    set_field(HD_HTTP_FIELD_CONNECTION, "Upgrade");
+    set_field(HD_HTTP_FIELD_UPGRADE, "TLS/1.0,SSL/2.0,SSL/3.0");
   }
 #endif // HAVE_LIBSSL
 
-  if (hdHTTP::printf(http, "%s %s HTTP/1.1\r\n", codes[request], buf) < 1)
+  if (printf("%s %s HTTP/1.1\r\n", codes[request], buf) < 1)
   {
     status = HD_HTTP_ERROR;
     return (-1);
@@ -1863,99 +1763,64 @@ http_send(hdHTTP       *http,	// I - HTTP data
     {
       DEBUG_printf(("%s: %s\n", http_fields[i], fields[i]));
 
-      if (hdHTTP::printf(http, "%s: %s\r\n", http_fields[i], fields[i]) < 1)
+      if (printf("%s: %s\r\n", http_fields[i], fields[i]) < 1)
       {
 	status = HD_HTTP_ERROR;
 	return (-1);
       }
     }
 
-  if (hdHTTP::printf(http, "\r\n") < 1)
+  if (printf("\r\n") < 1)
   {
     status = HD_HTTP_ERROR;
     return (-1);
   }
 
-  hdHTTP::clear_fields(http);
+  clear_fields();
 
   return (0);
 }
 
 
-#ifdef HAVE_LIBSSL
 //
-// 'http_upgrade()' - Force upgrade to TLS encryption.
+// 'hdHTTP::upgrade()' - Force upgrade to TLS encryption.
+//
 
-
-static int			// O - Status of connection
-http_upgrade(hdHTTP *http)	// I - HTTP data
+int				// O - Status of connection
+hdHTTP::upgrade()
 {
+#ifdef HAVE_LIBSSL
   int		ret;		// Return value
-  hdHTTP	myhttp;		// Local copy of HTTP data
+  char		save_fields[HD_HTTP_FIELD_MAX][HD_MAX_VALUE];
 
 
-  DEBUG_printf(("http_upgrade(%p)\n", http));
+  DEBUG_puts("hdHTTP::upgrade()");
 
- //
   // Copy the HTTP data to a local variable so we can do the OPTIONS
   // request without interfering with the existing request data...
- 
+  memcpy(save_fields, fields, sizeof(save_fields));
 
-  memcpy(&myhttp, http, sizeof(myhttp));
-
- //
   // Send an OPTIONS request to the server, requiring SSL or TLS
   // encryption on the link...
- 
+  clear_fields();
+  set_field(HD_HTTP_FIELD_CONNECTION, "upgrade");
+  set_field(HD_HTTP_FIELD_UPGRADE, "TLS/1.0, SSL/2.0, SSL/3.0");
 
-  hdHTTP::clear_fields(&myhttp);
-  hdHTTP::set_field(&myhttp, HD_HTTP_FIELD_CONNECTION, "upgrade");
-  hdHTTP::set_field(&myhttp, HD_HTTP_FIELD_UPGRADE, "TLS/1.0, SSL/2.0, SSL/3.0");
-
-  if ((ret = hdHTTP::options(&myhttp, "*")) == 0)
+  if ((ret = send_options("*")) == 0)
   {
-   //
     // Wait for the secure connection...
-   
-
-    while (hdHTTP::update(&myhttp) == HD_HTTP_CONTINUE);
+    while (update() == HD_HTTP_CONTINUE);
   }
 
-  hdHTTP::flush(&myhttp);
+  flush();
 
- //
   // Copy the HTTP data back over, if any...
+  memcpy(fields, save_fields, sizeof(save_fields));
  
-
-  fd         = myhttp.fd;
-  error      = myhttp.error;
-  activity   = myhttp.activity;
-  status     = myhttp.status;
-  version    = myhttp.version;
-  keep_alive = myhttp.keep_alive;
-  used       = myhttp.used;
-
-  if (used)
-    memcpy(buffer, myhttp.buffer, used);
-
-  auth_type   = myhttp.auth_type;
-  nonce_count = myhttp.nonce_count;
-
-  memcpy(nonce, myhttp.nonce, sizeof(nonce));
-
-  tls        = myhttp.tls;
-  encryption = myhttp.encryption;
-
- //
   // See if we actually went secure...
- 
-
   if (!tls)
   {
-   //
     // Server does not support HTTP upgrade...
-   
-
     DEBUG_puts("Server does not support HTTP upgrade!");
 
 #ifdef WIN32
@@ -1970,10 +1835,12 @@ http_upgrade(hdHTTP *http)	// I - HTTP data
   }
   else
     return (ret);
-}
+#else
+  return (-1);
 #endif // HAVE_LIBSSL
+}
 
 
 //
-// End of "$Id: http.cxx,v 1.3 2002/01/01 18:27:30 mike Exp $".
+// End of "$Id: http.cxx,v 1.4 2002/01/01 21:24:31 mike Exp $".
 //

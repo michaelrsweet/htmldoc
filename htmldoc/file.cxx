@@ -1,5 +1,5 @@
 //
-// "$Id: file.cxx,v 1.3 2002/01/01 18:27:29 mike Exp $"
+// "$Id: file.cxx,v 1.4 2002/01/01 21:24:30 mike Exp $"
 //
 //   Filename routines for HTMLDOC, a HTML document processing program.
 //
@@ -484,7 +484,7 @@ hdFile::find(const char *path,		// I  - Path "dir;dir;dir"
         http->set_field(HD_HTTP_FIELD_AUTHORIZATION, connauth);
       }
 
-      if (!http->do_get(connpath))
+      if (!http->send_get(connpath))
 	while ((status = http->update()) == HD_HTTP_CONTINUE);
       else
 	status = HD_HTTP_ERROR;
@@ -793,5 +793,5 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
 
 
 //
-// End of "$Id: file.cxx,v 1.3 2002/01/01 18:27:29 mike Exp $".
+// End of "$Id: file.cxx,v 1.4 2002/01/01 21:24:30 mike Exp $".
 //

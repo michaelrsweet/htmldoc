@@ -1,5 +1,5 @@
 //
-// "$Id: http.h,v 1.8 2002/01/01 18:27:30 mike Exp $"
+// "$Id: http.h,v 1.9 2002/01/01 21:24:31 mike Exp $"
 //
 //   Hyper-Text Transport Protocol class definitions for HTMLDOC.
 //
@@ -282,13 +282,6 @@ class hdHTTP
 
   int			check();
   void			clear_fields();
-  int			do_delete(const char *uri);
-  int			do_get(const char *uri);
-  int			do_head(const char *uri);
-  int			do_options(const char *uri);
-  int			do_post(const char *uri);
-  int			do_put(const char *uri);
-  int			do_trace(const char *uri);
   void			flush();
   int			get_blocking() { return blocking; }
   hdHTTPEncryption	get_encryption() { return encryption; }
@@ -299,12 +292,19 @@ class hdHTTP
   const char		*get_hostname() { return hostname; }
   hdHTTPState		get_state() { return state; }
   hdHTTPStatus		get_status() { return status; }
-  const char		*get_sub_field(hdHTTPField field, const char *name,
+  char			*get_sub_field(hdHTTPField field, const char *name,
 			               char *value, int length);
   char			*gets(char *line, int length);
   int			printf(const char *format, ...);
   int			read(char *buffer, int length);
   int			reconnect();
+  int			send_delete(const char *uri);
+  int			send_get(const char *uri);
+  int			send_head(const char *uri);
+  int			send_options(const char *uri);
+  int			send_post(const char *uri);
+  int			send_put(const char *uri);
+  int			send_trace(const char *uri);
   void			set_blocking(int b) { blocking = b; }
   int			set_encryption(hdHTTPEncryption e);
   void			set_field(hdHTTPField field, const char *value);
@@ -333,5 +333,5 @@ class hdHTTP
 #endif // !_HTMLDOC_HTTP_H_
 
 //
-// End of "$Id: http.h,v 1.8 2002/01/01 18:27:30 mike Exp $".
+// End of "$Id: http.h,v 1.9 2002/01/01 21:24:31 mike Exp $".
 //
