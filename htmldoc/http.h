@@ -1,9 +1,9 @@
 /*
- * "$Id: http.h,v 1.2.2.10 2002/09/11 19:24:40 swdev Exp $"
+ * "$Id: http.h,v 1.2.2.11 2003/01/06 22:09:32 mike Exp $"
  *
  *   Hyper-Text Transport Protocol definitions for the HTMLDOC software.
  *
- *   Copyright 1997-2002 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2003 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -339,5 +339,5 @@ extern char		*httpMD5String(const md5_byte_t *, char [33]);
 #endif /* !_CUPS_HTTP_H_ */
 
 /*
- * End of "$Id: http.h,v 1.2.2.10 2002/09/11 19:24:40 swdev Exp $".
+ * End of "$Id: http.h,v 1.2.2.11 2003/01/06 22:09:32 mike Exp $".
  */

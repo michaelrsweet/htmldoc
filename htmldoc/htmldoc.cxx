@@ -1,9 +1,9 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.55 2002/10/25 13:37:54 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.56 2003/01/06 22:09:27 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2002 by Easy Software Products.
+ *   Copyright 1997-2003 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -421,6 +421,10 @@ main(int  argc,		/* I - Number of command-line arguments */
 	}
         else if (strcasecmp(argv[i], "html") == 0)
           exportfunc = (exportfunc_t)html_export;
+        else if (strcasecmp(argv[i], "htmlsep") == 0)
+          exportfunc = (exportfunc_t)htmlsep_export;
+	else
+	  usage();
       }
       else
         usage();
@@ -1758,6 +1762,8 @@ parse_options(const char   *line,	// I - Options from book file
     {
       if (strcmp(temp2, "html") == 0)
         *exportfunc = (exportfunc_t)html_export;
+      else if (strcmp(temp2, "htmlsep") == 0)
+        *exportfunc = (exportfunc_t)htmlsep_export;
       else if (strcmp(temp2, "ps1") == 0)
       {
         *exportfunc = (exportfunc_t)pspdf_export;
@@ -2175,7 +2181,7 @@ term_handler(int signum)	// I - Signal number
 static void
 usage(void)
 {
-  puts("HTMLDOC Version " SVERSION " Copyright 1997-2002 Easy Software Products, All Rights Reserved.");
+  puts("HTMLDOC Version " SVERSION " Copyright 1997-2003 Easy Software Products, All Rights Reserved.");
   puts("This software is governed by the GNU General Public License, Version 2, and");
   puts("is based in part on the work of the Independent JPEG Group.");
   puts("");
@@ -2293,5 +2299,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.55 2002/10/25 13:37:54 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.56 2003/01/06 22:09:27 mike Exp $".
  */

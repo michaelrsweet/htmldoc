@@ -1,9 +1,9 @@
 /*
- * "$Id: html.cxx,v 1.17.2.28 2002/10/02 18:53:05 mike Exp $"
+ * "$Id: html.cxx,v 1.17.2.29 2003/01/06 22:09:26 mike Exp $"
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2002 by Easy Software Products.
+ *   Copyright 1997-2003 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -984,5 +984,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 /*
- * End of "$Id: html.cxx,v 1.17.2.28 2002/10/02 18:53:05 mike Exp $".
+ * End of "$Id: html.cxx,v 1.17.2.29 2003/01/06 22:09:26 mike Exp $".
  */

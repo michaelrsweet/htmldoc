@@ -1,9 +1,9 @@
 /*
- * "$Id: http.c,v 1.1.2.15 2002/10/31 16:07:02 mike Exp $"
+ * "$Id: http.c,v 1.1.2.16 2003/01/06 22:09:32 mike Exp $"
  *
  *   HTTP routines for the HTMLDOC software.
  *
- *   Copyright 1997-2002 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2003 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -2282,5 +2282,5 @@ http_upgrade(http_t *http)	/* I - HTTP data */
 
 
 /*
- * End of "$Id: http.c,v 1.1.2.15 2002/10/31 16:07:02 mike Exp $".
+ * End of "$Id: http.c,v 1.1.2.16 2003/01/06 22:09:32 mike Exp $".
  */

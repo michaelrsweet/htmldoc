@@ -1,9 +1,9 @@
 #
-#   "$Id: Makefile,v 1.13.2.10 2002/07/08 17:11:10 mike Exp $"
+#   "$Id: Makefile,v 1.13.2.11 2003/01/06 22:09:24 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2002 by Easy Software Products.
+#   Copyright 1997-2003 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -33,7 +33,7 @@ include ../Makedefs
 # Object files...
 #
 
-OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o http.o \
+OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o http.o \
 		image.o iso8859.o md5.o progress.o ps-pdf.o rc4.o \
 		snprintf.o string.o toc.o util.o
 
@@ -82,6 +82,7 @@ gui.o:		gui.h html.h htmldoc.h image.h iso8859.h progress.h \
 html.o:		html.h htmldoc.h image.h iso8859.h progress.h types.h
 htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h progress.h types.h
 htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h progress.h types.h
+htmlsep.o:	html.h htmldoc.h image.h iso8859.h progress.h types.h
 http.o:		http.h hdstring.h
 image.o:	debug.h htmldoc.h image.h progress.h types.h
 iso8859.o:	iso8859.h types.h
@@ -114,5 +115,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.13.2.10 2002/07/08 17:11:10 mike Exp $".
+# End of "$Id: Makefile,v 1.13.2.11 2003/01/06 22:09:24 mike Exp $".
 #

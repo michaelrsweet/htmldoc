@@ -1,4 +1,4 @@
-README.txt - 10/24/2002
+README.txt - 01/06/2003
 -----------------------
 
 INTRODUCTION
@@ -16,7 +16,7 @@ INTRODUCTION
     "members only" web site that provides examples, tutorials, and tips
     for using HTMLDOC to publish documents on your web site.
 
-    HTMLDOC is copyright 1997-2002 by Easy Software Products and is
+    HTMLDOC is copyright 1997-2003 by Easy Software Products and is
     currently available under the GNU General Public License, version
     2.  See the LEGAL STUFF section below for details.
 
@@ -81,7 +81,7 @@ REQUIREMENTS
 INSTALLING HTMLDOC UNDER MICROSOFT WINDOWS
 
     HTMLDOC comes in a self-extracting archive.  Double-click on or run
-    the "htmldoc-1.8.23-windows.exe" or "htmldoc-1.8.23-winfree.exe" files
+    the "htmldoc-1.8.24-windows.exe" or "htmldoc-1.8.24-winfree.exe" files
     to start the installation wizard.
 
     (the -windows file is the supported version, while the -winfree file
@@ -92,23 +92,23 @@ INSTALLING HTMLDOC UNDER RED HAT LINUX
 
     Type the following command to install HTMLDOC under Red Hat Linux:
 
-        rpm -i htmldoc-1.8.23-linux-2.0-intel.rpm ENTER
+        rpm -i htmldoc-1.8.24-linux-2.0-intel.rpm ENTER
 
     or:
 
-        rpm -i htmldoc-1.8.23-linux-2.2-intel.rpm ENTER
+        rpm -i htmldoc-1.8.24-linux-2.2-intel.rpm ENTER
 
     or:
 
-        rpm -i htmldoc-1.8.23-linux-2.4-intel.rpm ENTER
+        rpm -i htmldoc-1.8.24-linux-2.4-intel.rpm ENTER
 
 
 INSTALLING HTMLDOC UNDER UNIX
 
     Type the following commands to install HTMLDOC under UNIX:
 
-        gunzip htmldoc-1.8.23-platform.tar.gz ENTER
-	tar xf htmldoc-1.8.23-platform.tar ENTER
+        gunzip htmldoc-1.8.24-platform.tar.gz ENTER
+	tar xf htmldoc-1.8.24-platform.tar ENTER
 	./setup ENTER *or* ./htmldoc.install ENTER
 
     (replace "platform" with the appropriate platform name)
@@ -244,7 +244,7 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC is copyright 1997-2002 by Easy Software Products. This
+    HTMLDOC is copyright 1997-2003 by Easy Software Products. This
     program is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
