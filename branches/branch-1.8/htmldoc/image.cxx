@@ -1,5 +1,5 @@
 /*
- * "$Id: image.cxx,v 1.11.2.12 2001/06/19 15:30:30 mike Exp $"
+ * "$Id: image.cxx,v 1.11.2.13 2001/07/16 16:20:25 mike Exp $"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
@@ -103,10 +103,10 @@ static int	gif_read_image(FILE *fp, image_t *img, gif_cmap_t cmap,
 static int	gif_read_lzw(FILE *fp, int first_time, int input_code_size);
 
 static int	image_compare(image_t **img1, image_t **img2);
-static int	image_load_bmp(image_t *img, FILE *fp, int gray);
-static int	image_load_gif(image_t *img, FILE *fp, int gray);
-static int	image_load_jpeg(image_t *img, FILE *fp, int gray);
-static int	image_load_png(image_t *img, FILE *fp, int gray);
+static int	image_load_bmp(image_t *img, FILE *fp, int gray, int load_data);
+static int	image_load_gif(image_t *img, FILE *fp, int gray, int load_data);
+static int	image_load_jpeg(image_t *img, FILE *fp, int gray, int load_data);
+static int	image_load_png(image_t *img, FILE *fp, int gray, int load_data);
 static void	image_need_mask(image_t *img);
 static void	image_set_mask(image_t *img, int x, int y);
 
@@ -604,7 +604,8 @@ image_copy(const char *filename,/* I - Source file */
  */
 
 image_t *			/* O - Pointer to image */
-image_find(const char *filename)/* I - Name of image file */
+image_find(const char *filename,/* I - Name of image file */
+           int        load_data)/* I - 1 = load image data */
 {
   image_t	key,		/* Search key... */
 		*keyptr,	/* Pointer to search key... */
@@ -633,7 +634,12 @@ image_find(const char *filename)/* I - Name of image file */
     match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
                                 (int (*)(const void *, const void *))image_compare);
     if (match != NULL)
-      return (*match);
+    {
+      if (load_data && !(*match)->pixels)
+        return (image_load((*match)->filename, (*match)->depth == 1, 1));
+      else
+        return (*match);
+    }
   }
 
   return (NULL);
@@ -659,7 +665,9 @@ image_flush_cache(void)
     if (images[i]->mask)
       free(images[i]->mask);
 
-    free(images[i]->pixels);
+    if (images[i]->pixels)
+      free(images[i]->pixels);
+
     free(images[i]);
   }
 
@@ -692,7 +700,8 @@ image_getlist(image_t ***ptrs)	/* O - Pointer to images array */
 
 image_t *			/* O - Pointer to image */
 image_load(const char *filename,/* I - Name of image file */
-           int        gray)	/* I - 0 = color, 1 = grayscale */
+           int        gray,	/* I - 0 = color, 1 = grayscale */
+           int        load_data)/* I - 1 = load image data, 0 = just info */
 {
   FILE		*fp;		/* File pointer */
   uchar		header[16];	/* First 16 bytes of file */
@@ -726,12 +735,14 @@ image_load(const char *filename,/* I - Name of image file */
 
     match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
                                 (int (*)(const void *, const void *))image_compare);
-    if (match != NULL)
+    if (match != NULL && (!load_data || (*match)->pixels))
     {
       (*match)->use ++;
       return (*match);
     }
   }
+  else
+    match = NULL;
 
  /*
   * Figure out the file type...
@@ -763,55 +774,60 @@ image_load(const char *filename,/* I - Name of image file */
   rewind(fp);
 
   // See if the images array needs to be resized...
-  if (num_images >= alloc_images)
+  if (!match)
   {
-    // Yes...
-    alloc_images += ALLOC_FILES;
-
-    if (num_images == 0)
-      temp = (image_t **)malloc(sizeof(image_t *) * alloc_images);
-    else
-      temp = (image_t **)realloc(images, sizeof(image_t *) * alloc_images);
-
-    if (temp == NULL)
+    if (num_images >= alloc_images)
     {
-      progress_error("Unable to allocate memory for %d images - %s",
-                     alloc_images, strerror(errno));
+      // Yes...
+      alloc_images += ALLOC_FILES;
+
+      if (num_images == 0)
+	temp = (image_t **)malloc(sizeof(image_t *) * alloc_images);
+      else
+	temp = (image_t **)realloc(images, sizeof(image_t *) * alloc_images);
+
+      if (temp == NULL)
+      {
+	progress_error("Unable to allocate memory for %d images - %s",
+                       alloc_images, strerror(errno));
+	fclose(fp);
+	return (NULL);
+      }
+
+      images = temp;
+    }
+
+    // Allocate memory...
+    img = (image_t *)calloc(sizeof(image_t), 1);
+
+    if (img == NULL)
+    {
+      progress_error("Unable to allocate memory for \"%s\"!", filename);
+      progress_error("    Real filename = \"%s\"", realname);
+      progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
       fclose(fp);
       return (NULL);
     }
 
-    images = temp;
+    images[num_images] = img;
+
+    strcpy(img->filename, filename);
+    img->use = 1;
   }
-
-  // Allocate memory...
-  img = (image_t *)calloc(sizeof(image_t), 1);
-
-  if (img == NULL)
-  {
-    progress_error("Unable to allocate memory for \"%s\"!", filename);
-    progress_error("    Real filename = \"%s\"", realname);
-    progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
-    fclose(fp);
-    return (NULL);
-  }
-
-  images[num_images] = img;
-
-  strcpy(img->filename, filename);
-  img->use = 1;
+  else
+    img = *match;
 
   // Load the image as appropriate...
   if (memcmp(header, "GIF87a", 6) == 0 ||
       memcmp(header, "GIF89a", 6) == 0)
-    status = image_load_gif(img,  fp, gray);
+    status = image_load_gif(img,  fp, gray, load_data);
   else if (memcmp(header, "BM", 2) == 0)
-    status = image_load_bmp(img, fp, gray);
+    status = image_load_bmp(img, fp, gray, load_data);
   else if (memcmp(header, "\211PNG", 4) == 0)
-    status = image_load_png(img, fp, gray);
+    status = image_load_png(img, fp, gray, load_data);
   else if (memcmp(header, "\377\330\377", 3) == 0 &&	/* Start-of-Image */
 	   header[3] >= 0xe0 && header[3] <= 0xef)	/* APPn */
-    status = image_load_jpeg(img, fp, gray);
+    status = image_load_jpeg(img, fp, gray, load_data);
   else
   {
     progress_error("Unknown image file format for \"%s\"!", filename);
@@ -828,14 +844,18 @@ image_load(const char *filename,/* I - Name of image file */
     progress_error("Unable to load image file \"%s\"!", filename);
     progress_error("    Real filename = \"%s\"", realname);
     progress_error("    Error = %d, \"%s\"", errno, strerror(errno));
-    free(img);
+    if (!match)
+      free(img);
     return (NULL);
   }
 
-  num_images ++;
-  if (num_images > 1)
-    qsort(images, num_images, sizeof(image_t *),
-          (int (*)(const void *, const void *))image_compare);
+  if (!match)
+  {
+    num_images ++;
+    if (num_images > 1)
+      qsort(images, num_images, sizeof(image_t *),
+            (int (*)(const void *, const void *))image_compare);
+  }
 
   return (img);
 }
@@ -848,7 +868,8 @@ image_load(const char *filename,/* I - Name of image file */
 static int			/* O - 0 = success, -1 = fail */
 image_load_bmp(image_t *img,	/* I - Image to load into */
                FILE    *fp,	/* I - File to read from */
-	       int     gray)	/* I - Grayscale image? */
+	       int     gray,	/* I - Grayscale image? */
+               int     load_data)/* I - 1 = load image data, 0 = just info */
 {
   int		info_size,	/* Size of info header */
 		depth,		/* Depth of image (bits) */
@@ -898,6 +919,10 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
 
   // Setup image and buffers...
   img->depth  = gray ? 1 : 3;
+
+  if (!load_data)
+    return (0);
+
   img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
   if (img->pixels == NULL)
     return (-1);
@@ -1202,7 +1227,8 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
 static int			/* O - 0 = success, -1 = fail */
 image_load_gif(image_t *img,	/* I - Image pointer */
                FILE    *fp,	/* I - File to load from */
-               int     gray)	/* I - 0 = color, 1 = grayscale */
+               int     gray,	/* I - 0 = color, 1 = grayscale */
+               int     load_data)/* I - 1 = load image data, 0 = just info */
 {
   uchar		buf[1024];	/* Input buffer */
   gif_cmap_t	cmap;		/* Colormap */
@@ -1290,6 +1316,9 @@ image_load_gif(image_t *img,	/* I - Image pointer */
           img->width  = (buf[5] << 8) | buf[4];
           img->height = (buf[7] << 8) | buf[6];
           img->depth  = gray ? 1 : 3;
+	  if (!load_data)
+	    return (0);
+
           img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
           if (img->pixels == NULL)
             return (-1);
@@ -1307,7 +1336,8 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 static int			/* O - 0 = success, -1 = fail */
 image_load_jpeg(image_t *img,	/* I - Image pointer */
                 FILE    *fp,	/* I - File to load from */
-                int     gray)	/* I - 0 = color, 1 = grayscale */
+                int     gray,	/* I - 0 = color, 1 = grayscale */
+                int     load_data)/* I - 1 = load image data, 0 = just info */
 {
   struct jpeg_decompress_struct	cinfo;		/* Decompressor info */
   struct jpeg_error_mgr		jerr;		/* Error handler info */
@@ -1342,6 +1372,13 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
   img->width  = cinfo.output_width;
   img->height = cinfo.output_height;
   img->depth  = cinfo.output_components;
+
+  if (!load_data)
+  {
+    jpeg_destroy_decompress(&cinfo);
+    return (0);
+  }
+
   img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
 
   if (img->pixels == NULL)
@@ -1374,7 +1411,8 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
 static int			/* O - 0 = success, -1 = fail */
 image_load_png(image_t *img,	/* I - Image pointer */
                FILE    *fp,	/* I - File to read from */
-               int     gray)	/* I - 0 = color, 1 = grayscale */
+               int     gray,	/* I - 0 = color, 1 = grayscale */
+               int     load_data)/* I - 1 = load image data, 0 = just info */
 {
   int		i;	/* Looping var */
   png_structp	pp;	/* PNG read pointer */
@@ -1415,6 +1453,13 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   img->width  = info->width;
   img->height = info->height;
+
+  if (!load_data)
+  {
+    png_read_destroy(pp, info, NULL);
+    return (0);
+  }
+
   img->pixels = (uchar *)malloc(img->width * img->height * 3);
 
   if (info->bit_depth < 8)
@@ -1557,6 +1602,32 @@ image_set_mask(image_t *img,	/* I - Image to operate on */
 
 
 /*
+ * 'image_unload()' - Unload an image from memory.
+ */
+
+void
+image_unload(image_t *img)	// I - Image
+{
+  if (!img)
+    return;
+
+  if (!img->use || !img->pixels)
+    return;
+
+  if (img->obj)
+    img->use = 0;
+  else
+    img->use --;
+
+  if (img->use)
+    return;
+
+  free(img->pixels);
+  img->pixels = NULL;
+}
+
+
+/*
  * 'jpeg_error_handler()' - Handle JPEG errors by not exiting.
  */
 
@@ -1620,5 +1691,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.11.2.12 2001/06/19 15:30:30 mike Exp $".
+ * End of "$Id: image.cxx,v 1.11.2.13 2001/07/16 16:20:25 mike Exp $".
  */
