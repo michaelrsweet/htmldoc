@@ -13,6 +13,10 @@ CHANGES IN HTMLDOC v1.8.13
 
     BUG FIXES
 
+	- The table formatting code adding the border width to
+	  the cell width, while Netscape and MSIE don't.  This
+	  caused some interesting formatting glitches...
+
 
 CHANGES IN HTMLDOC v1.8.12
 
