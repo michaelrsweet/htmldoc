@@ -103,9 +103,12 @@ The following HTML elements are recognized by <I>HTMLDOC</I>:
 
 <H2><A NAME="COMMENTS">Comments</A></H2>
 
-<I>HTMLDOC</I> supports three special HTML comments to initiate page breaks:
+<I>HTMLDOC</I> supports four special HTML comments to initiate page breaks:
 
 <DL>
+
+	<DT><CODE>&lt;!-- HALF PAGE --&gt;</CODE>
+	<DD>Break to the next half page.
 
 	<DT><CODE>&lt;!-- PAGE BREAK --&gt;</CODE>
 	<DD>Break to the next page.
@@ -269,7 +272,7 @@ title page and document information:
 
 <H2><A NAME="BREAKS">Page Breaks</A></H2>
 
-<I>HTMLDOC</I> supports three new <A HREF="#COMMENTS">page comments</A>
+<I>HTMLDOC</I> supports four new <A HREF="#COMMENTS">page comments</A>
 to specify page breaks. In addition, the older <CODE>BREAK</CODE> attribute
 is still supported by the <CODE>HR</CODE> element:
 
@@ -294,9 +297,7 @@ code.
 	<LI>The <CODE>CAPTION</CODE> element is always shown at the top
 	of the table.
 
-	<LI>The <CODE>ROWSPAN</CODE> attribute is ignored.
-
-	<LI>The <CODE>VALIGN</CODE> attribute is ignored.
+	<LI>The <CODE>ROWSPAN</CODE> attribute is not supported.
 
 </UL>
 
