@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.2 2003/01/08 20:16:56 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.3 2003/05/26 20:18:59 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -146,9 +146,9 @@ htmlsep_export(tree_t *document,	// I - Document to export
 
   scan_links(document);
 
-  printf("num_headings = %d\n", num_headings);
-  for (i = 0; i < num_headings; i ++)
-    printf("headings[%d] = \"%s\"\n", i, headings[i]);
+//  printf("num_headings = %d\n", num_headings);
+//  for (i = 0; i < num_headings; i ++)
+//    printf("headings[%d] = \"%s\"\n", i, headings[i]);
 
   heading = -1;
   update_links(document, &heading);
@@ -1091,5 +1091,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.2 2003/01/08 20:16:56 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.3 2003/05/26 20:18:59 mike Exp $".
 //
