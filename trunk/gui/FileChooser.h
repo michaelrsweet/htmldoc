@@ -19,6 +19,8 @@ public:
   FileChooser(const char *d, char *p, int t, const char *title);
 private:
   Fl_Window *window;
+  inline void cb_window_i(Fl_Window*, void*);
+  static void cb_window(Fl_Window*, void*);
   FileBrowser *fileList;
   inline void cb_fileList_i(FileBrowser*, void*);
   static void cb_fileList(FileBrowser*, void*);
