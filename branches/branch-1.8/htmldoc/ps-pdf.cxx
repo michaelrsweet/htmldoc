@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.73 2001/05/31 13:38:42 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.74 2001/06/01 18:13:21 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -4765,18 +4765,23 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  * |   |   |   |
 	  */
 
-          new_render(cell_page[col], RENDER_FBOX, border_left, bottom,
-                     border_size, cell_y[col] - bottom + cellpadding, rgb);
-          new_render(cell_page[col], RENDER_FBOX,
-	             border_left + width - border_size, bottom,
-		     border_size, cell_y[col] - bottom + cellpadding, rgb);
+	  // Top
           new_render(cell_page[col], RENDER_FBOX, border_left,
-                     cell_y[col] + cellpadding, width, border_size, rgb);
+                     cell_y[col] + cellpadding,
+		     width + border, border, rgb);
+	  // Left
+          new_render(cell_page[col], RENDER_FBOX, border_left, bottom,
+                     border, cell_y[col] - bottom + cellpadding + border, rgb);
+	  // Right
+          new_render(cell_page[col], RENDER_FBOX,
+	             border_left + width, bottom,
+		     border, cell_y[col] - bottom + cellpadding + border, rgb);
         }
 
         if (bgcolor != NULL)
           new_render(*page, RENDER_FBOX, border_left, bottom,
-                     width, cell_y[col] - bottom + cellpadding, bgrgb, 1);
+                     width + border,
+		     cell_y[col] - bottom + cellpadding + border, bgrgb, 1);
 
         for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
 	{
@@ -4785,39 +4790,44 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  * |   |   |   |
 	  */
 
-	  if (border > 0)
+	  if (border > 0.0f)
 	  {
+	    // Left
             new_render(temp_page, RENDER_FBOX, border_left, bottom,
-                       border_size, top - bottom, rgb);
+                       border, top - bottom, rgb);
+	    // Right
             new_render(temp_page, RENDER_FBOX,
-	               border_left + width - border_size, bottom,
-		       border_size, top - bottom, rgb);
+	               border_left + width, bottom,
+		       border, top - bottom, rgb);
           }
 
 	  if (bgcolor != NULL)
             new_render(temp_page, RENDER_FBOX, border_left, bottom,
-                       width, top - bottom, bgrgb, 1);
+                       width + border, top - bottom, bgrgb, 1);
         }
 
-        if (border > 0)
+        if (border > 0.0f)
 	{
 	 /*
 	  * |   |   |   |
 	  * +---+---+---+
 	  */
 
+	  // Left
           new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
-                     border_size, top - row_y, rgb);
+                     border, top - row_y, rgb);
+	  // Right
           new_render(cell_endpage[col], RENDER_FBOX,
-	             border_left + width - border_size, row_y,
-                     border_size, top - row_y, rgb);
+	             border_left + width, row_y,
+                     border, top - row_y, rgb);
+	  // Bottom
           new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
-                     width, border_size, rgb);
+                     width + border, border, rgb);
         }
 
         if (bgcolor != NULL)
           new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
-	             width, top - row_y, bgrgb, 1);
+	             width + border, top - row_y, bgrgb, 1);
       }
       else
       {
@@ -4827,23 +4837,28 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  * +---+---+---+
 	  */
 
-        if (border > 0)
+        if (border > 0.0f)
 	{
+	  // Top
           new_render(cell_page[col], RENDER_FBOX, border_left,
-                     cell_y[col] + cellpadding - border_size,
-		     width, border_size, rgb);
+                     cell_y[col] + cellpadding,
+		     width + border, border, rgb);
+	  // Left
           new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
-                     border_size, cell_y[col] - row_y + cellpadding, rgb);
+                     border, cell_y[col] - row_y + cellpadding + border, rgb);
+	  // Right
           new_render(cell_page[col], RENDER_FBOX,
-	             border_left + width - border_size, row_y,
-                     border_size, cell_y[col] - row_y + cellpadding, rgb);
+	             border_left + width, row_y,
+                     border, cell_y[col] - row_y + cellpadding + border, rgb);
+	  // Bottom
           new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
-                     width, border_size, rgb);
+                     width + border, border, rgb);
 	}
 
         if (bgcolor != NULL)
           new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
-                     width, cell_y[col] - row_y + cellpadding, bgrgb, 1);
+                     width + border,
+		     cell_y[col] - row_y + cellpadding + border, bgrgb, 1);
       }
     }
 
@@ -8667,5 +8682,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.73 2001/05/31 13:38:42 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.74 2001/06/01 18:13:21 mike Exp $".
  */
