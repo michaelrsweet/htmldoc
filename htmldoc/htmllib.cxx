@@ -1,5 +1,5 @@
 /*
- * "$Id: htmllib.cxx,v 1.29 2000/04/28 19:01:49 mike Exp $"
+ * "$Id: htmllib.cxx,v 1.30 2000/04/28 21:37:55 mike Exp $"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -598,6 +598,10 @@ htmlReadFile(tree_t *parent,	/* I - Parent tree entry */
             compute_color(t, color);
 	  else
             compute_color(t, _htmlTextColor);
+
+          if ((color = htmlGetVariable(t, (uchar *)"BGCOLOR")) != NULL &&
+	      !BodyColor[0])
+	    strcpy(BodyColor, (char *)color);
           break;
 
       case MARKUP_IMG :
@@ -2093,62 +2097,15 @@ static int
 compute_color(tree_t *t,	/* I - Tree entry */
               uchar  *color)	/* I - Color string */
 {
-  int		i;		/* Looping vars */
-  static struct
-  {
-    char		*name;	/* Color name */
-    uchar		red,	/* Red value */
-			green,	/* Green value */
-			blue;	/* Blue value */
-  }		colors[] =	/* Color "database" */
-  {
-    { "aqua",		0,   255, 255 }, /* AKA Cyan */
-    { "black",		0,   0,   0 },
-    { "blue",		0,   0,   255 },
-    { "cyan",		0,   255, 255 },
-    { "fuchsia",	255, 0,   255 }, /* AKA Magenta */
-    { "gray",		128, 128, 128 },
-    { "green",		0,   128, 0 },
-    { "grey",		128, 128, 128 },
-    { "lime",		0,   255, 0 },
-    { "magenta",	255, 0,   255 },
-    { "maroon",		128, 0,   0 },
-    { "navy",		0,   0,   128 },
-    { "olive",		128, 128, 0 },
-    { "purple",		128, 0,   128 },
-    { "red",		255, 0,   0 },
-    { "silver",		192, 192, 192 },
-    { "teal",		0,   128, 128 },
-    { "white",		255, 255, 255 },
-    { "yellow",		255, 255, 0 }
-  };
+  float	rgb[3];			/* RGB color */
 
 
-  if (color[0] == '#')
-  {
-   /*
-    * RGB value in hex...
-    */
+  get_color(color, rgb);
+  t->red   = rgb[0] * 255.0;
+  t->green = rgb[1] * 255.0;
+  t->blue  = rgb[2] * 255.0;
 
-    i = strtol((char *)color + 1, NULL, 16);
-
-    t->red   = i >> 16;
-    t->green = (i >> 8) & 255;
-    t->blue  = i & 255;
-
-    return (0);
-  }
-
-  for (i = 0; i < (sizeof(colors) / sizeof(colors[0])); i ++)
-    if (strcasecmp(colors[i].name, (char *)color) == 0)
-    {
-      t->red   = colors[i].red;
-      t->green = colors[i].green;
-      t->blue  = colors[i].blue;
-      return (0);
-    }
-
-  return (-1);
+  return (0);
 }
 
 
@@ -2275,5 +2232,5 @@ fix_filename(char *filename,		/* I - Original filename */
 
 
 /*
- * End of "$Id: htmllib.cxx,v 1.29 2000/04/28 19:01:49 mike Exp $".
+ * End of "$Id: htmllib.cxx,v 1.30 2000/04/28 21:37:55 mike Exp $".
  */

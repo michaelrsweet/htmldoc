@@ -22,6 +22,8 @@ CHANGES IN HTMLDOC v1.8.7
 	  next page.
 	- <TABLE ALIGN=xyz> now aligns the table (previously it
 	  just set the default alignment of cells.)
+	- Transparent GIFs now use the body color instead of white
+	  for the transparent color.
 
     BUG FIXES
 
@@ -36,6 +38,8 @@ CHANGES IN HTMLDOC v1.8.7
 	  correct position.
 	- Wasn't setting the height of BR elements, so <BR><BR>
 	  didn't insert a blank line.
+	- The table of contents would show the wrong page numbers
+	  if no title page was generated.
 
 
 CHANGES IN HTMLDOC v1.8.6
