@@ -1,11 +1,11 @@
 
 /* pngread.c - read a PNG file
  *
- * libpng 1.0.6 - March 21, 2000
+ * libpng 1.2.1 - December 12, 2001
  * For conditions of distribution and use, see copyright notice in png.h
- * Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.
- * Copyright (c) 1996, 1997 Andreas Dilger
- * Copyright (c) 1998, 1999, 2000 Glenn Randers-Pehrson
+ * Copyright (c) 1998-2001 Glenn Randers-Pehrson
+ * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
+ * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
  *
  * This file contains routines that an application calls directly to
  * read a PNG file or stream.
@@ -15,18 +15,18 @@
 #include "png.h"
 
 /* Create a PNG structure for reading, and allocate any memory needed. */
-png_structp
+png_structp PNGAPI
 png_create_read_struct(png_const_charp user_png_ver, png_voidp error_ptr,
    png_error_ptr error_fn, png_error_ptr warn_fn)
 {
 
 #ifdef PNG_USER_MEM_SUPPORTED
    return (png_create_read_struct_2(user_png_ver, error_ptr, error_fn,
-      warn_fn, NULL, NULL, NULL));
+      warn_fn, png_voidp_NULL, png_malloc_ptr_NULL, png_free_ptr_NULL));
 }
 
 /* Alternate create PNG structure for reading, and allocate any memory needed. */
-png_structp
+png_structp PNGAPI
 png_create_read_struct_2(png_const_charp user_png_ver, png_voidp error_ptr,
    png_error_ptr error_fn, png_error_ptr warn_fn, png_voidp mem_ptr,
    png_malloc_ptr malloc_fn, png_free_ptr free_fn)
@@ -41,16 +41,20 @@ png_create_read_struct_2(png_const_charp user_png_ver, png_voidp error_ptr,
 #endif
 #endif
 
+   int i;
+
    png_debug(1, "in png_create_read_struct\n");
 #ifdef PNG_USER_MEM_SUPPORTED
    if ((png_ptr = (png_structp)png_create_struct_2(PNG_STRUCT_PNG,
-      (png_malloc_ptr)malloc_fn)) == NULL)
+      (png_malloc_ptr)malloc_fn, (png_voidp)mem_ptr)) == NULL)
 #else
    if ((png_ptr = (png_structp)png_create_struct(PNG_STRUCT_PNG)) == NULL)
 #endif
-   {
-      return (png_structp)NULL;
-   }
+      return (NULL);
+
+#ifdef PNG_ASSEMBLER_CODE_SUPPORTED
+   png_init_mmx_flags(png_ptr);   /* 1.2.0 addition */
+#endif
 
 #ifdef PNG_SETJMP_SUPPORTED
 #ifdef USE_FAR_KEYWORD
@@ -60,8 +64,9 @@ png_create_read_struct_2(png_const_charp user_png_ver, png_voidp error_ptr,
 #endif
    {
       png_free(png_ptr, png_ptr->zbuf);
+      png_ptr->zbuf=NULL;
       png_destroy_struct(png_ptr);
-      return (png_structp)NULL;
+      return (NULL);
    }
 #ifdef USE_FAR_KEYWORD
    png_memcpy(png_ptr->jmpbuf,jmpbuf,sizeof(jmp_buf));
@@ -74,16 +79,42 @@ png_create_read_struct_2(png_const_charp user_png_ver, png_voidp error_ptr,
 
    png_set_error_fn(png_ptr, error_ptr, error_fn, warn_fn);
 
-   /* Libpng 0.90 and later are binary incompatible with libpng 0.89, so
-    * we must recompile any applications that use any older library version.
-    * For versions after libpng 1.0, we will be compatible, so we need
-    * only check the first digit.
-    */
-   if (user_png_ver == NULL || user_png_ver[0] != png_libpng_ver[0] ||
-       (user_png_ver[0] == '0' && user_png_ver[2] < '9'))
+   i=0;
+   do
    {
-      png_error(png_ptr,
-         "Incompatible libpng version in application and library");
+     if(user_png_ver[i] != png_libpng_ver[i])
+        png_ptr->flags |= PNG_FLAG_LIBRARY_MISMATCH;
+   } while (png_libpng_ver[i++]);
+
+   if (png_ptr->flags & PNG_FLAG_LIBRARY_MISMATCH)
+   {
+     /* Libpng 0.90 and later are binary incompatible with libpng 0.89, so
+      * we must recompile any applications that use any older library version.
+      * For versions after libpng 1.0, we will be compatible, so we need
+      * only check the first digit.
+      */
+     if (user_png_ver == NULL || user_png_ver[0] != png_libpng_ver[0] ||
+         (user_png_ver[0] == '1' && user_png_ver[2] != png_libpng_ver[2]) ||
+         (user_png_ver[0] == '0' && user_png_ver[2] < '9'))
+     {
+#if !defined(PNG_NO_STDIO) && !defined(_WIN32_WCE)
+        char msg[80];
+        if (user_png_ver)
+        {
+          sprintf(msg, "Application was compiled with png.h from libpng-%.20s",
+             user_png_ver);
+          png_warning(png_ptr, msg);
+        }
+        sprintf(msg, "Application  is  running with png.c from libpng-%.20s",
+           png_libpng_ver);
+        png_warning(png_ptr, msg);
+#endif
+#ifdef PNG_ERROR_NUMBERS_SUPPORTED
+        png_ptr->flags=0;
+#endif
+        png_error(png_ptr,
+           "Incompatible libpng version in application and library");
+     }
    }
 
    /* initialize zbuf - compression buffer */
@@ -106,7 +137,7 @@ png_create_read_struct_2(png_const_charp user_png_ver, png_voidp error_ptr,
    png_ptr->zstream.next_out = png_ptr->zbuf;
    png_ptr->zstream.avail_out = (uInt)png_ptr->zbuf_size;
 
-   png_set_read_fn(png_ptr, NULL, NULL);
+   png_set_read_fn(png_ptr, png_voidp_NULL, png_rw_ptr_NULL);
 
    return (png_ptr);
 }
@@ -114,19 +145,97 @@ png_create_read_struct_2(png_const_charp user_png_ver, png_voidp error_ptr,
 /* Initialize PNG structure for reading, and allocate any memory needed.
    This interface is deprecated in favour of the png_create_read_struct(),
    and it will eventually disappear. */
-void
+#undef png_read_init
+void PNGAPI
 png_read_init(png_structp png_ptr)
+{
+   /* We only come here via pre-1.0.7-compiled applications */
+   png_read_init_2(png_ptr, "1.0.6 or earlier", 0, 0);
+}
+
+#undef png_read_init_2
+void PNGAPI
+png_read_init_2(png_structp png_ptr, png_const_charp user_png_ver,
+   png_size_t png_struct_size, png_size_t png_info_size)
+{
+   /* We only come here via pre-1.0.12-compiled applications */
+#if !defined(PNG_NO_STDIO) && !defined(_WIN32_WCE)
+   if(sizeof(png_struct) > png_struct_size || sizeof(png_info) > png_info_size)
+   {
+      char msg[80];
+      png_ptr->warning_fn=NULL;
+      if (user_png_ver)
+      {
+        sprintf(msg, "Application was compiled with png.h from libpng-%.20s",
+           user_png_ver);
+        png_warning(png_ptr, msg);
+      }
+      sprintf(msg, "Application  is  running with png.c from libpng-%.20s",
+         png_libpng_ver);
+      png_warning(png_ptr, msg);
+   }
+#endif
+   if(sizeof(png_struct) > png_struct_size)
+     {
+       png_ptr->error_fn=NULL;
+#ifdef PNG_ERROR_NUMBERS_SUPPORTED
+       png_ptr->flags=0;
+#endif
+       png_error(png_ptr,
+       "The png struct allocated by the application for reading is too small.");
+     }
+   if(sizeof(png_info) > png_info_size)
+     {
+       png_ptr->error_fn=NULL;
+#ifdef PNG_ERROR_NUMBERS_SUPPORTED
+       png_ptr->flags=0;
+#endif
+       png_error(png_ptr,
+         "The info struct allocated by application for reading is too small.");
+     }
+   png_read_init_3(&png_ptr, user_png_ver, png_struct_size);
+}
+
+void PNGAPI
+png_read_init_3(png_structpp ptr_ptr, png_const_charp user_png_ver,
+   png_size_t png_struct_size)
 {
 #ifdef PNG_SETJMP_SUPPORTED
    jmp_buf tmp_jmp;  /* to save current jump buffer */
 #endif
 
-   png_debug(1, "in png_read_init\n");
+   int i=0;
+
+   png_structp png_ptr=*ptr_ptr;
+
+   do
+   {
+     if(user_png_ver[i] != png_libpng_ver[i])
+     {
+#ifdef PNG_LEGACY_SUPPORTED
+       png_ptr->flags |= PNG_FLAG_LIBRARY_MISMATCH;
+#else
+       png_ptr->warning_fn=NULL;
+       png_warning(png_ptr,
+        "Application uses deprecated png_read_init() and should be recompiled.");
+       break;
+#endif
+     }
+   } while (png_libpng_ver[i++]);
+
+   png_debug(1, "in png_read_init_3\n");
 
 #ifdef PNG_SETJMP_SUPPORTED
    /* save jump buffer and error functions */
    png_memcpy(tmp_jmp, png_ptr->jmpbuf, sizeof (jmp_buf));
 #endif
+
+   if(sizeof(png_struct) > png_struct_size)
+     {
+       png_destroy_struct(png_ptr);
+       *ptr_ptr = (png_structp)png_create_struct(PNG_STRUCT_PNG);
+       png_ptr = *ptr_ptr;
+     }
 
    /* reset all variables to 0 */
    png_memset(png_ptr, 0, sizeof (png_struct));
@@ -156,7 +265,7 @@ png_read_init(png_structp png_ptr)
    png_ptr->zstream.next_out = png_ptr->zbuf;
    png_ptr->zstream.avail_out = (uInt)png_ptr->zbuf_size;
 
-   png_set_read_fn(png_ptr, NULL, NULL);
+   png_set_read_fn(png_ptr, png_voidp_NULL, png_rw_ptr_NULL);
 }
 
 /* Read the information before the actual image data.  This has been
@@ -167,7 +276,7 @@ png_read_init(png_structp png_ptr)
  * here.  The application can then have access to the signature bytes we
  * read if it is determined that this isn't a valid PNG file.
  */
-void
+void PNGAPI
 png_read_info(png_structp png_ptr, png_infop info_ptr)
 {
    png_debug(1, "in png_read_info\n");
@@ -189,6 +298,8 @@ png_read_info(png_structp png_ptr, png_infop info_ptr)
          else
             png_error(png_ptr, "PNG file corrupted by ASCII conversion");
       }
+      if (num_checked < 3)
+         png_ptr->mode |= PNG_HAVE_PNG_SIGNATURE;
    }
 
    for(;;)
@@ -259,7 +370,7 @@ png_read_info(png_structp png_ptr, png_infop info_ptr)
       png_reset_crc(png_ptr);
       png_crc_read(png_ptr, png_ptr->chunk_name, 4);
 
-      png_debug2(0, "Reading %s chunk, length=%d.\n", png_ptr->chunk_name,
+      png_debug2(0, "Reading %s chunk, length=%lu.\n", png_ptr->chunk_name,
          length);
 
       /* This should be a binary subdivision search or a hash for
@@ -376,13 +487,16 @@ png_read_info(png_structp png_ptr, png_infop info_ptr)
 }
 
 /* optional call to update the users info_ptr structure */
-void
+void PNGAPI
 png_read_update_info(png_structp png_ptr, png_infop info_ptr)
 {
    png_debug(1, "in png_read_update_info\n");
    /* save jump buffer and error functions */
    if (!(png_ptr->flags & PNG_FLAG_ROW_INIT))
       png_read_start_row(png_ptr);
+   else
+      png_warning(png_ptr,
+      "Ignoring extra png_read_update_info() call; row buffer not reallocated");
    png_read_transform_info(png_ptr, info_ptr);
 }
 
@@ -391,7 +505,7 @@ png_read_update_info(png_structp png_ptr, png_infop info_ptr)
  * the user to obtain a gamma-corrected palette, for example.
  * If the user doesn't call this, we will do it ourselves.
  */
-void
+void PNGAPI
 png_start_read_image(png_structp png_ptr)
 {
    png_debug(1, "in png_start_read_image\n");
@@ -400,7 +514,7 @@ png_start_read_image(png_structp png_ptr)
       png_read_start_row(png_ptr);
 }
 
-void
+void PNGAPI
 png_read_row(png_structp png_ptr, png_bytep row, png_bytep dsp_row)
 {
 #ifdef PNG_USE_LOCAL_ARRAYS
@@ -409,7 +523,7 @@ png_read_row(png_structp png_ptr, png_bytep row, png_bytep dsp_row)
    const int png_pass_mask[7] = {0x80, 0x08, 0x88, 0x22, 0xaa, 0x55, 0xff};
 #endif
    int ret;
-   png_debug2(1, "in png_read_row (row %d, pass %d)\n",
+   png_debug2(1, "in png_read_row (row %lu, pass %d)\n",
       png_ptr->row_number, png_ptr->pass);
    /* save jump buffer and error functions */
    if (!(png_ptr->flags & PNG_FLAG_ROW_INIT))
@@ -586,6 +700,15 @@ png_read_row(png_structp png_ptr, png_bytep row, png_bytep dsp_row)
 
    png_memcpy_check(png_ptr, png_ptr->prev_row, png_ptr->row_buf,
       png_ptr->rowbytes + 1);
+   
+#if defined(PNG_MNG_FEATURES_SUPPORTED)
+   if((png_ptr->mng_features_permitted & PNG_FLAG_MNG_FILTER_64) &&
+      (png_ptr->filter_type == PNG_INTRAPIXEL_DIFFERENCING))
+   {
+      /* Intrapixel differencing */
+      png_do_read_intrapixel(&(png_ptr->row_info), png_ptr->row_buf + 1);
+   }
+#endif
 
    if (png_ptr->transformations)
       png_do_read_transformations(png_ptr);
@@ -596,8 +719,11 @@ png_read_row(png_structp png_ptr, png_bytep row, png_bytep dsp_row)
       (png_ptr->transformations & PNG_INTERLACE))
    {
       if (png_ptr->pass < 6)
+/*       old interface (pre-1.0.9):
          png_do_read_interlace(&(png_ptr->row_info),
             png_ptr->row_buf + 1, png_ptr->pass, png_ptr->transformations);
+ */
+         png_do_read_interlace(png_ptr);
 
       if (dsp_row != NULL)
          png_combine_row(png_ptr, dsp_row,
@@ -641,10 +767,10 @@ png_read_row(png_structp png_ptr, png_bytep row, png_bytep dsp_row)
  * not called png_set_interlace_handling(), the display_row buffer will
  * be ignored, so pass NULL to it.
  *
- * [*] png_handle_alpha() does not exist yet, as of libpng version 1.0.6.
+ * [*] png_handle_alpha() does not exist yet, as of libpng version 1.2.1
  */
 
-void
+void PNGAPI
 png_read_rows(png_structp png_ptr, png_bytepp row,
    png_bytepp display_row, png_uint_32 num_rows)
 {
@@ -668,14 +794,14 @@ png_read_rows(png_structp png_ptr, png_bytepp row,
       for (i = 0; i < num_rows; i++)
       {
          png_bytep rptr = *rp;
-         png_read_row(png_ptr, rptr, NULL);
+         png_read_row(png_ptr, rptr, png_bytep_NULL);
          rp++;
       }
    else if(dp != NULL)
       for (i = 0; i < num_rows; i++)
       {
          png_bytep dptr = *dp;
-         png_read_row(png_ptr, NULL, dptr);
+         png_read_row(png_ptr, png_bytep_NULL, dptr);
          dp++;
       }
 }
@@ -690,9 +816,9 @@ png_read_rows(png_structp png_ptr, png_bytepp row,
  * only call this function once.  If you desire to have an image for
  * each pass of a interlaced image, use png_read_rows() instead.
  *
- * [*] png_handle_alpha() does not exist yet, as of libpng version 1.0.6.
+ * [*] png_handle_alpha() does not exist yet, as of libpng version 1.2.1
  */
-void
+void PNGAPI
 png_read_image(png_structp png_ptr, png_bytepp image)
 {
    png_uint_32 i,image_height;
@@ -720,7 +846,7 @@ png_read_image(png_structp png_ptr, png_bytepp image)
       rp = image;
       for (i = 0; i < image_height; i++)
       {
-         png_read_row(png_ptr, *rp, NULL);
+         png_read_row(png_ptr, *rp, png_bytep_NULL);
          rp++;
       }
    }
@@ -730,7 +856,7 @@ png_read_image(png_structp png_ptr, png_bytepp image)
  * file, will verify the end is accurate, and will read any comments
  * or time information at the end of the file, if info is not NULL.
  */
-void
+void PNGAPI
 png_read_end(png_structp png_ptr, png_infop info_ptr)
 {
    png_byte chunk_length[4];
@@ -834,8 +960,7 @@ png_read_end(png_structp png_ptr, png_infop info_ptr)
           */
          if (length > 0 || png_ptr->mode & PNG_AFTER_IDAT)
             png_error(png_ptr, "Too many IDAT's found");
-         else
-            png_crc_finish(png_ptr, 0);
+         png_crc_finish(png_ptr, length);
       }
       else if (!png_memcmp(png_ptr->chunk_name, png_PLTE, 4))
          png_handle_PLTE(png_ptr, info_ptr, length);
@@ -913,7 +1038,7 @@ png_read_end(png_structp png_ptr, png_infop info_ptr)
 }
 
 /* free all memory used by the read */
-void
+void PNGAPI
 png_destroy_read_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr,
    png_infopp end_info_ptr_ptr)
 {
@@ -921,6 +1046,7 @@ png_destroy_read_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr,
    png_infop info_ptr = NULL, end_info_ptr = NULL;
 #ifdef PNG_USER_MEM_SUPPORTED
    png_free_ptr free_fn = NULL;
+   png_voidp mem_ptr = NULL;
 #endif
 
    png_debug(1, "in png_destroy_read_struct\n");
@@ -936,6 +1062,7 @@ png_destroy_read_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr,
 
 #ifdef PNG_USER_MEM_SUPPORTED
    free_fn = png_ptr->free_fn;
+   mem_ptr = png_ptr->mem_ptr;
 #endif
 
    png_read_destroy(png_ptr, info_ptr, end_info_ptr);
@@ -947,11 +1074,12 @@ png_destroy_read_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr,
 #endif
 
 #ifdef PNG_USER_MEM_SUPPORTED
-      png_destroy_struct_2((png_voidp)info_ptr, free_fn);
+      png_destroy_struct_2((png_voidp)info_ptr, (png_free_ptr)free_fn,
+          (png_voidp)mem_ptr);
 #else
       png_destroy_struct((png_voidp)info_ptr);
 #endif
-      *info_ptr_ptr = (png_infop)NULL;
+      *info_ptr_ptr = NULL;
    }
 
    if (end_info_ptr != NULL)
@@ -960,26 +1088,28 @@ png_destroy_read_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr,
       png_free_data(png_ptr, end_info_ptr, PNG_FREE_TEXT, -1);
 #endif
 #ifdef PNG_USER_MEM_SUPPORTED
-      png_destroy_struct_2((png_voidp)end_info_ptr, free_fn);
+      png_destroy_struct_2((png_voidp)end_info_ptr, (png_free_ptr)free_fn,
+         (png_voidp)mem_ptr);
 #else
       png_destroy_struct((png_voidp)end_info_ptr);
 #endif
-      *end_info_ptr_ptr = (png_infop)NULL;
+      *end_info_ptr_ptr = NULL;
    }
 
    if (png_ptr != NULL)
    {
 #ifdef PNG_USER_MEM_SUPPORTED
-      png_destroy_struct_2((png_voidp)png_ptr, free_fn);
+      png_destroy_struct_2((png_voidp)png_ptr, (png_free_ptr)free_fn,
+          (png_voidp)mem_ptr);
 #else
       png_destroy_struct((png_voidp)png_ptr);
 #endif
-      *png_ptr_ptr = (png_structp)NULL;
+      *png_ptr_ptr = NULL;
    }
 }
 
 /* free all memory used by the read (old method) */
-void
+void /* PRIVATE */
 png_read_destroy(png_structp png_ptr, png_infop info_ptr, png_infop end_info_ptr)
 {
 #ifdef PNG_SETJMP_SUPPORTED
@@ -1001,7 +1131,7 @@ png_read_destroy(png_structp png_ptr, png_infop info_ptr, png_infop end_info_ptr
       png_info_destroy(png_ptr, end_info_ptr);
 
    png_free(png_ptr, png_ptr->zbuf);
-   png_free(png_ptr, png_ptr->row_buf);
+   png_free(png_ptr, png_ptr->big_row_buf);
    png_free(png_ptr, png_ptr->prev_row);
 #if defined(PNG_READ_DITHER_SUPPORTED)
    png_free(png_ptr, png_ptr->palette_lookup);
@@ -1014,19 +1144,37 @@ png_read_destroy(png_structp png_ptr, png_infop info_ptr, png_infop end_info_ptr
    png_free(png_ptr, png_ptr->gamma_from_1);
    png_free(png_ptr, png_ptr->gamma_to_1);
 #endif
+#ifdef PNG_FREE_ME_SUPPORTED
    if (png_ptr->free_me & PNG_FREE_PLTE)
       png_zfree(png_ptr, png_ptr->palette);
    png_ptr->free_me &= ~PNG_FREE_PLTE;
+#else
+   if (png_ptr->flags & PNG_FLAG_FREE_PLTE)
+      png_zfree(png_ptr, png_ptr->palette);
+   png_ptr->flags &= ~PNG_FLAG_FREE_PLTE;
+#endif
 #if defined(PNG_tRNS_SUPPORTED) || \
     defined(PNG_READ_EXPAND_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
+#ifdef PNG_FREE_ME_SUPPORTED
    if (png_ptr->free_me & PNG_FREE_TRNS)
       png_free(png_ptr, png_ptr->trans);
    png_ptr->free_me &= ~PNG_FREE_TRNS;
+#else
+   if (png_ptr->flags & PNG_FLAG_FREE_TRNS)
+      png_free(png_ptr, png_ptr->trans);
+   png_ptr->flags &= ~PNG_FLAG_FREE_TRNS;
+#endif
 #endif
 #if defined(PNG_READ_hIST_SUPPORTED)
+#ifdef PNG_FREE_ME_SUPPORTED
    if (png_ptr->free_me & PNG_FREE_HIST)
       png_free(png_ptr, png_ptr->hist);
    png_ptr->free_me &= ~PNG_FREE_HIST;
+#else
+   if (png_ptr->flags & PNG_FLAG_FREE_HIST)
+      png_free(png_ptr, png_ptr->hist);
+   png_ptr->flags &= ~PNG_FLAG_FREE_HIST;
+#endif
 #endif
 #if defined(PNG_READ_GAMMA_SUPPORTED)
    if (png_ptr->gamma_16_table != NULL)
@@ -1100,14 +1248,15 @@ png_read_destroy(png_structp png_ptr, png_infop info_ptr, png_infop end_info_ptr
 
 }
 
-void
+void PNGAPI
 png_set_read_status_fn(png_structp png_ptr, png_read_status_ptr read_row_fn)
 {
    png_ptr->read_row_fn = read_row_fn;
 }
 
 #if defined(PNG_INFO_IMAGE_SUPPORTED)
-void png_read_png(png_structp png_ptr, png_infop info_ptr,
+void PNGAPI
+png_read_png(png_structp png_ptr, png_infop info_ptr,
                            int transforms,
                            voidp params)
 {
@@ -1213,21 +1362,28 @@ void png_read_png(png_structp png_ptr, png_infop info_ptr,
 
    /* Optional call to gamma correct and add the background to the palette
     * and update info structure.  REQUIRED if you are expecting libpng to
-    * update the palette for you (ie you selected such a transform above).
+    * update the palette for you (i.e., you selected such a transform above).
     */
    png_read_update_info(png_ptr, info_ptr);
 
    /* -------------- image transformations end here ------------------- */
 
+#ifdef PNG_FREE_ME_SUPPORTED
+   png_free_data(png_ptr, info_ptr, PNG_FREE_ROWS, 0);
+#endif
    if(info_ptr->row_pointers == NULL)
    {
       info_ptr->row_pointers = (png_bytepp)png_malloc(png_ptr,
-                                         info_ptr->height * sizeof(png_bytep));
+         info_ptr->height * sizeof(png_bytep));
+#ifdef PNG_FREE_ME_SUPPORTED
       info_ptr->free_me |= PNG_FREE_ROWS;
+#endif
+      for (row = 0; row < (int)info_ptr->height; row++)
+      {
+         info_ptr->row_pointers[row] = (png_bytep)png_malloc(png_ptr,
+            png_get_rowbytes(png_ptr, info_ptr));
+      }
    }
-   for (row = 0; row < (int)info_ptr->height; row++)
-       info_ptr->row_pointers[row] = png_malloc(png_ptr,
-                                      png_get_rowbytes(png_ptr, info_ptr));
 
    png_read_image(png_ptr, info_ptr->row_pointers);
    info_ptr->valid |= PNG_INFO_IDAT;
@@ -1235,7 +1391,7 @@ void png_read_png(png_structp png_ptr, png_infop info_ptr,
    /* read rest of file, and get additional chunks in info_ptr - REQUIRED */
    png_read_end(png_ptr, info_ptr);
 
-   if(transforms == 0 || params == (voidp)NULL)
+   if(transforms == 0 || params == NULL)
       /* quiet compiler warnings */ return;
 
 }

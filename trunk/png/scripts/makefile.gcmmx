@@ -24,17 +24,30 @@ WARNMORE=-Wwrite-strings -Wpointer-arith -Wshadow \
 
 # for pgcc version 2.95.1, -O3 is buggy; don't use it.
 
-CFLAGS=-DPNG_USE_PNGGCCRD -I$(ZLIBINC) -Wall -O3 $(ALIGN) -funroll-loops \
-        -fomit-frame-pointer  # $(WARNMORE) -g -DPNG_DEBUG=5
+# Remove -DPNG_THREAD_UNSAFE_OK if you need thread safety
+### for generic gcc:
+CFLAGS=-DPNG_THREAD_UNSAFE_OK -DPNG_USE_PNGGCCRD -I$(ZLIBINC) -Wall \
+       	-O3 $(ALIGN) -funroll-loops \
+	-fomit-frame-pointer  # $(WARNMORE) -g -DPNG_DEBUG=5
+### for gcc 2.95.2 on 686:
+#CFLAGS=-DPNG_THREAD_UNSAFE_OK -DPNG_USE_PNGGCCRD -I$(ZLIBINC) -Wall -O3 \
+#	-mcpu=i686 -malign-double -ffast-math -fstrict-aliasing \
+#	$(ALIGN) -funroll-loops -funroll-all-loops -fomit-frame-pointer 
+### for gcc 2.7.2.3 on 486 and up:
+#CFLAGS=-DPNG_THREAD_UNSAFE_OK -DPNG_USE_PNGGCCRD -I$(ZLIBINC) -Wall -O3 \
+#	-m486 -malign-double -ffast-math \
+#	$(ALIGN) -funroll-loops -funroll-all-loops -fomit-frame-pointer 
+
 LDFLAGS=-L. -Wl,-rpath,. -L$(ZLIBLIB) -Wl,-rpath,$(ZLIBLIB) -lpng -lz -lm
+LDFLAGS_A=-L$(ZLIBLIB) -Wl,-rpath,$(ZLIBLIB) libpng.a -lz -lm
 
 RANLIB=ranlib
 #RANLIB=echo
 
-# read libpng.txt or png.h to see why PNGMAJ is 2.  You should not
+# read libpng.txt or png.h to see why PNGMAJ is 3.  You should not
 # have to change it.
-PNGMAJ = 2
-PNGMIN = 1.0.6
+PNGMAJ = 3
+PNGMIN = 1.2.1
 PNGVER = $(PNGMAJ).$(PNGMIN)
 
 INCPATH=$(prefix)/include
@@ -51,20 +64,12 @@ OBJSDLL = $(OBJS:.o=.pic.o)
 .c.pic.o:
 	$(CC) -c $(CFLAGS) -fPIC -o $@ $*.c
 
-all: libpng.a libpng.so pngtest
+all: libpng.a libpng.so pngtest pngtest-static
 
-pnggccrd.o:	png.h pngconf.h pngasmrd.h
-	@echo ""
-	@echo '    You can ignore the single "control reaches end of non-void function"'
-	@echo '    warning and multiple "<variable> defined but not used" warnings:'
-	@echo ""
+pnggccrd.o:	pnggccrd.c png.h pngconf.h
 	$(CC) -c $(CFLAGS) -o $@ $*.c
 
-pnggccrd.pic.o:	png.h pngconf.h pngasmrd.h
-	@echo ""
-	@echo '    You can ignore the single "control reaches end of non-void function"'
-	@echo '    warning and multiple "<variable> defined but not used" warnings:'
-	@echo ""
+pnggccrd.pic.o:	pnggccrd.c png.h pngconf.h
 	$(CC) -c $(CFLAGS) -fPIC -o $@ pnggccrd.c
 
 libpng.a: $(OBJS)
@@ -84,8 +89,18 @@ libpng.so.$(PNGVER): $(OBJSDLL)
 pngtest: pngtest.o libpng.so
 	$(CC) -o pngtest $(CFLAGS) pngtest.o $(LDFLAGS)
 
-test: pngtest
+pngtest-static: pngtest.o libpng.a
+	$(CC) -o pngtest-static $(CFLAGS) pngtest.o $(LDFLAGS_A)
+
+test: pngtest pngtest-static
+	@echo ""
+	@echo "   Testing dynamically linked version:"
+	@echo ""
 	./pngtest
+	@echo ""
+	@echo "   Testing statically linked version:"
+	@echo ""
+	./pngtest-static
 
 install: libpng.a libpng.so.$(PNGVER)
 	-@if [ ! -d $(INCPATH)  ]; then mkdir $(INCPATH); fi
@@ -99,28 +114,26 @@ install: libpng.a libpng.so.$(PNGVER)
 	 ln -sf libpng.so.$(PNGMAJ) libpng.so)
 
 clean:
-	/bin/rm -f *.o libpng.a libpng.so* pngtest pngout.png
+	/bin/rm -f *.o libpng.a libpng.so libpng.so.$(PNGMAJ)* pngtest pngout.png
 
 DOCS = ANNOUNCE CHANGES INSTALL KNOWNBUG LICENSE README TODO Y2KINFO
 writelock:
 	chmod a-w *.[ch35] $(DOCS) scripts/*
 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+png.o png.pic.o:		png.h pngconf.h png.c
+pngerror.o pngerror.pic.o:	png.h pngconf.h pngerror.c
+pngrio.o pngrio.pic.o:		png.h pngconf.h pngrio.c
+pngwio.o pngwio.pic.o:		png.h pngconf.h pngwio.c
+pngmem.o pngmem.pic.o:		png.h pngconf.h pngmem.c
+pngset.o pngset.pic.o:		png.h pngconf.h pngset.c
+pngget.o pngget.pic.o:		png.h pngconf.h pngget.c
+pngread.o pngread.pic.o:	png.h pngconf.h pngread.c
+pngrtran.o pngrtran.pic.o:	png.h pngconf.h pngrtran.c
+pngrutil.o pngrutil.pic.o:	png.h pngconf.h pngrutil.c
+pngtrans.o pngtrans.pic.o:	png.h pngconf.h pngtrans.c
+pngwrite.o pngwrite.pic.o:	png.h pngconf.h pngwrite.c
+pngwtran.o pngwtran.pic.o:	png.h pngconf.h pngwtran.c
+pngwutil.o pngwutil.pic.o:	png.h pngconf.h pngwutil.c
+pngpread.o pngpread.pic.o:	png.h pngconf.h pngpread.c
 
-png.o png.pic.o: png.h pngconf.h
-pngerror.o pngerror.pic.o: png.h pngconf.h
-pngrio.o pngrio.pic.o: png.h pngconf.h
-pngwio.o pngwio.pic.o: png.h pngconf.h
-pngmem.o pngmem.pic.o: png.h pngconf.h
-pngset.o pngset.pic.o: png.h pngconf.h
-pngget.o pngget.pic.o: png.h pngconf.h
-pngread.o pngread.pic.o: png.h pngconf.h
-pngrtran.o pngrtran.pic.o: png.h pngconf.h
-pngrutil.o pngrutil.pic.o: png.h pngconf.h
-pngtrans.o pngtrans.pic.o: png.h pngconf.h
-pngwrite.o pngwrite.pic.o: png.h pngconf.h
-pngwtran.o pngwtran.pic.o: png.h pngconf.h
-pngwutil.o pngwutil.pic.o: png.h pngconf.h
-pngpread.o pngpread.pic.o: png.h pngconf.h
-
-pngtest.o: png.h pngconf.h
+pngtest.o:			png.h pngconf.h pngtest.c

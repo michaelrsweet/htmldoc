@@ -55,7 +55,7 @@
 
 #define PROGNAME  "rpng2-x"
 #define LONGNAME  "Progressive PNG Viewer for X"
-#define VERSION   "1.12 of 19 March 2000"
+#define VERSION   "1.22 of 16 August 2001"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -226,6 +226,7 @@ static Colormap colormap;
 static int have_nondefault_visual = FALSE;
 static int have_colormap = FALSE;
 static int have_window = FALSE;
+static int have_gc = FALSE;
 
 
 
@@ -359,6 +360,18 @@ int main(int argc, char **argv)
             pause_after_pass = TRUE;
         } else if (!strncmp(*argv, "-timing", 2)) {
             timing = TRUE;
+#if (defined(__i386__) || defined(_M_IX86))
+        } else if (!strncmp(*argv, "-nommxfilters", 7)) {
+            rpng2_info.nommxfilters = TRUE;
+        } else if (!strncmp(*argv, "-nommxcombine", 7)) {
+            rpng2_info.nommxcombine = TRUE;
+        } else if (!strncmp(*argv, "-nommxinterlace", 7)) {
+            rpng2_info.nommxinterlace = TRUE;
+        } else if (!strcmp(*argv, "-nommx")) {
+            rpng2_info.nommxfilters = TRUE;
+            rpng2_info.nommxcombine = TRUE;
+            rpng2_info.nommxinterlace = TRUE;
+#endif
         } else {
             if (**argv != '-') {
                 filename = *argv;
@@ -414,10 +427,13 @@ int main(int argc, char **argv)
     /* usage screen */
 
     if (error) {
-        fprintf(stderr, "\n%s %s:  %s\n", PROGNAME, VERSION, appname);
+        fprintf(stderr, "\n%s %s:  %s\n\n", PROGNAME, VERSION, appname);
         readpng2_version_info();
         fprintf(stderr, "\n"
           "Usage:  %s [-display xdpy] [-gamma exp] [-bgcolor bg | -bgpat pat]\n"
+#if (defined(__i386__) || defined(_M_IX86))
+          "        %*s [[-nommxfilters] [-nommxcombine] [-nommxinterlace] | -nommx]\n"
+#endif
           "        %*s [-usleep dur | -timing] [-pause] file.png\n\n"
           "    xdpy\tname of the target X display (e.g., ``hostname:0'')\n"
           "    exp \ttransfer-function exponent (``gamma'') of the display\n"
@@ -429,6 +445,10 @@ int main(int argc, char **argv)
           "\t\t  used with transparent images; overrides -bgpat\n"
           "    pat \tdesired background pattern number (1-%d); used with\n"
           "\t\t  transparent images; overrides -bgcolor\n"
+#if (defined(__i386__) || defined(_M_IX86))
+          "    -nommx*\tdisable optimized MMX routines for decoding row filters,\n"
+          "\t\t  combining rows, and expanding interlacing, respectively\n"
+#endif
           "    dur \tduration in microseconds to wait after displaying each\n"
           "\t\t  row (for demo purposes)\n"
           "    -timing\tenables delay for every block read, to simulate modem\n"
@@ -436,8 +456,11 @@ int main(int argc, char **argv)
           "    -pause\tpauses after displaying each pass until key pressed\n"
           "\nPress Q, Esc or mouse button 1 (within image window, after image\n"
           "is displayed) to quit.\n"
-          "\n", PROGNAME, strlen(PROGNAME), " ", default_display_exponent,
-          num_bgpat);
+          "\n", PROGNAME,
+#if (defined(__i386__) || defined(_M_IX86))
+          strlen(PROGNAME), " ",
+#endif
+          strlen(PROGNAME), " ", default_display_exponent, num_bgpat);
         exit(1);
     }
 
@@ -562,8 +585,15 @@ static void rpng2_x_init(void)
      * pattern */
 
     if (rpng2_x_create_window()) {
+
+        /* GRR TEMPORARY HACK:  this is fundamentally no different from cases
+         * above; libpng should longjmp() back to us when png_ptr goes away.
+         * If we/it segfault instead, seems like a libpng bug... */
+
+        /* we're here via libpng callback, so if window fails, clean and bail */
         readpng2_cleanup(&rpng2_info);
-        return;
+        rpng2_x_cleanup();
+        exit(2);
     }
 }
 
@@ -715,9 +745,20 @@ static int rpng2_x_create_window(void)
     XSetWMProperties(display, window, pWindowName, pIconName, NULL, 0,
       size_hints, wm_hints, NULL);
 
+    /* various properties and hints no longer needed; free memory */
+    if (pWindowName)
+       XFree(pWindowName->value);
+    if (pIconName)
+       XFree(pIconName->value);
+    if (size_hints)
+        XFree(size_hints);
+    if (wm_hints)
+       XFree(wm_hints);
+
     XMapWindow(display, window);
 
     gc = XCreateGC(display, window, 0, &gcvalues);
+    have_gc = TRUE;
 
 /*---------------------------------------------------------------------------
     Allocate memory for the X- and display-specific version of the image.
@@ -1333,7 +1374,8 @@ static void rpng2_x_cleanup(void)
         ximage = NULL;
     }
 
-    XFreeGC(display, gc);
+    if (have_gc)
+        XFreeGC(display, gc);
 
     if (have_window)
         XDestroyWindow(display, window);
