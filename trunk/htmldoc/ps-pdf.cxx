@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.42 1999/12/31 02:53:58 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.43 1999/12/31 15:42:14 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -861,6 +861,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
   */
 
   chapter      = -1;
+  page_chapter = NULL;
   page_heading = NULL;
 
   if (!OutputFiles)
@@ -1161,6 +1162,7 @@ pdf_write_document(uchar   *title,	/* I - Title for all pages */
   fputs(">>", out);
   fputs("endobj\n", out);
 
+  page_chapter = NULL;
   page_heading = NULL;
   chapter      = -1;
 
@@ -6444,5 +6446,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.42 1999/12/31 02:53:58 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.43 1999/12/31 15:42:14 mike Exp $".
  */
