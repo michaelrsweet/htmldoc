@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.69 2001/05/30 19:38:25 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.70 2001/05/30 21:10:46 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -2733,9 +2733,11 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
+
+	    *needspace = 1;
           }
 
-          parse_heading(t, left, right, bottom, top, x, y, page, 1);
+          parse_heading(t, left, right, bottom, top, x, y, page, *needspace);
 	  *needspace = 1;
           break;
 
@@ -2745,6 +2747,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
+
+	    *needspace = 1;
           }
 
           parse_doc(t->child, left + 36, right - 36, bottom, top, x, y, page, NULL,
@@ -2760,9 +2764,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          }
 
-          *needspace = 1;
+            *needspace = 1;
+          }
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
 	            needspace);
@@ -2777,9 +2781,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-          }
 
-	  *needspace = 1;
+	    *needspace = 1;
+          }
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
 	            needspace);
@@ -2794,6 +2798,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
+
+	    *needspace = 1;
           }
 
           parse_pre(t, left, right, bottom, top, x, y, page, *needspace);
@@ -2815,10 +2821,16 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
+          if (t->indent == 1)
+	    *needspace = 1;
+
           *x = left + 36.0f;
 
           parse_doc(t->child, left + 36, right, bottom, top, x, y, page, para,
 	            needspace);
+
+          if (t->indent == 1)
+	    *needspace = 1;
           break;
 
       case MARKUP_LI :
@@ -2827,6 +2839,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
+
+	    *needspace = 0;
           }
 
           parse_list(t, left, right, bottom, top, x, y, page, *needspace);
@@ -2841,6 +2855,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
+
+	    *needspace = 0;
           }
 
           *x = left - 36.0f;
@@ -2858,6 +2874,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             parse_paragraph(para, left, right, bottom, top, x, y, page, *needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
+
+	    *needspace = 0;
           }
 
           parse_doc(t->child, left, right, bottom, top, x, y, page, NULL,
@@ -2941,7 +2959,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
             *y = top;
 	  }
 
-          *x = left;
+          *x         = left;
+          *needspace = 0;
           break;
 
       case MARKUP_COMMENT :
@@ -8647,5 +8666,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.69 2001/05/30 19:38:25 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.70 2001/05/30 21:10:46 mike Exp $".
  */

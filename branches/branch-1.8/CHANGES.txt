@@ -12,7 +12,6 @@ CHANGES IN HTMLDOC v1.8.13
 	- Added support for the CSS2 page-break-before and
 	  page-break-after properties.
 
-
     CHANGES
 
 	- External file references to non-PDF files now use the
@@ -33,6 +32,8 @@ CHANGES IN HTMLDOC v1.8.13
 	  though these are not a part of the format. (added to
 	  support some scripted apps that include extra
 	  newlines...)
+	- Changed the leading space handling of blocks to more
+	  closely match the standard browser behavior.
 
     BUG FIXES
 
