@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.232 2004/02/10 03:44:26 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.233 2004/02/10 16:19:38 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -9649,10 +9649,14 @@ write_image(FILE     *out,	/* I - Output file */
   if (!img->pixels && !img->obj)
     image_load(img->filename, !OutputColor, 1);
 
-//  if (PSLevel == 3 && img->mask && img->maskscale == 8)
-//    ncolors = 0;
-//  else
-  if (PSLevel != 1 && PDFVersion >= 12 && img->obj == 0)
+  // Note: Acrobat 6 tries to decrypt the colormap of indexed in-line images twice, which
+  //       is 1) not consistent with prior Acrobat releases and 2) in violation of their
+  //       PDF spec.  The "img->use > 1 || !Encryption" test prevents the use of indexed
+  //       in-line images when encryption is enabled.
+  //
+  //       We are filing a bug on this with Adobe, but if history is any indicator, we are
+  //       stuck with this workaround forever...
+  if (PSLevel != 1 && PDFVersion >= 12 && img->obj == 0 && (img->use > 1 || !Encryption))
   {
     if (img->depth == 1)
     {
@@ -12217,5 +12221,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.232 2004/02/10 03:44:26 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.233 2004/02/10 16:19:38 mike Exp $".
  */
