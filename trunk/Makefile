@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.6 1999/11/18 20:22:13 mike Exp $"
+# "$Id: Makefile,v 1.7 1999/11/19 15:50:54 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -89,7 +89,7 @@ config.h:	config.h.in Makedefs.in configure
 #
 
 epm:
-	epm htmldoc
+	epm -v htmldoc
 
 
 #
@@ -97,7 +97,7 @@ epm:
 #
 
 rpm:
-	epm -f rpm htmldoc
+	epm -v -f rpm htmldoc
 
 
 #
@@ -105,7 +105,7 @@ rpm:
 #
 
 deb:
-	epm -f deb htmldoc
+	epm -v -f deb htmldoc
 
 
 #
@@ -113,9 +113,9 @@ deb:
 #
 
 tardist:
-	epm -f tardist htmldoc
+	epm -v -f tardist htmldoc
 
 
 #
-# End of "$Id: Makefile,v 1.6 1999/11/18 20:22:13 mike Exp $".
+# End of "$Id: Makefile,v 1.7 1999/11/19 15:50:54 mike Exp $".
 #
