@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.12 2001/02/28 01:46:14 mike Exp $"
+ * "$Id: htmldoc.cxx,v 1.36.2.13 2001/03/08 19:13:19 mike Exp $"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -2229,7 +2229,7 @@ read_file(const char *filename,		// I  - File/URL to read
       * Read from a file...
       */
 
-      if (Verbosity)
+      if (Verbosity > 0)
         fprintf(stderr, "htmldoc: Reading %s...\n", filename);
 
       _htmlPPI = _htmlBrowserWidth / PageWidth * 72.0f;
@@ -2395,5 +2395,5 @@ usage(void)
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.12 2001/02/28 01:46:14 mike Exp $".
+ * End of "$Id: htmldoc.cxx,v 1.36.2.13 2001/03/08 19:13:19 mike Exp $".
  */
