@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h,v 1.22 2004/10/23 17:55:25 mike Exp $"
+ * "$Id: config.h,v 1.2 2004/10/23 17:55:25 mike Exp $"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -130,6 +130,6 @@
 
 
 /*
- * End of "$Id: config.h,v 1.22 2004/10/23 17:55:25 mike Exp $".
+ * End of "$Id: config.h,v 1.2 2004/10/23 17:55:25 mike Exp $".
  */
 
