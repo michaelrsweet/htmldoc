@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx,v 1.14 2000/01/22 15:21:08 mike Exp $"
+// "$Id: HelpView.cxx,v 1.15 2000/01/22 16:20:26 mike Exp $"
 //
 //   Help Viewer widget routines.
 //
@@ -56,8 +56,11 @@
 #include <errno.h>
 
 #if defined(WIN32) || defined(__EMX__)
+#  include <io.h>
 #  define strcasecmp(s,t)	stricmp((s), (t))
 #  define strncasecmp(s,t,n)	strnicmp((s), (t), (n))
+#else
+#  include <unistd.h>
 #endif // WIN32 || __EMX__
 
 
@@ -267,7 +270,7 @@ HelpView::draw()
   if (scrollbar_.visible())
   {
     draw_child(scrollbar_);
-    draw_box(b, x(), y(), w() - 20, h(), bgcolor_);
+    draw_box(b, x(), y(), w() - 17, h(), bgcolor_);
   }
   else
     draw_box(b, x(), y(), w(), h(), bgcolor_);
@@ -1436,7 +1439,7 @@ HelpView::HelpView(int        xx,	// I - Left position
 		   int        hh,	// I - Height in pixels
 		   const char *l)
     : Fl_Group(xx, yy, ww, hh, l),
-      scrollbar_(xx + ww - 20, yy, 20, hh)
+      scrollbar_(xx + ww - 17, yy, 17, hh)
 {
   filename_[0] = '\0';
   value_       = NULL;
@@ -1505,8 +1508,16 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
   char		error[1024];	// Error buffer
 
 
-  if ((slash = strrchr(f, '/')) == NULL && directory_[0])
-    sprintf(filename_, "%s/%s", directory_, f);
+  if ((slash = strrchr(f, '/')) == NULL)
+  {
+    if (directory_[0])
+      sprintf(filename_, "%s/%s", directory_, f);
+    else
+    {
+      getcwd(error, sizeof(error));
+      sprintf(filename_, "file:%s/%s", error, f);
+    }
+  }
   else
     strcpy(filename_, f);
 
@@ -1514,7 +1525,7 @@ HelpView::load(const char *f)	// I - Filename to load (may also have target)
 
   if ((slash = strrchr(directory_, '/')) == NULL)
     directory_[0] = '\0';
-  else
+  else if (slash > directory_ && slash[-1] != '/')
     *slash = '\0';
 
   if ((target = strrchr(filename_, '#')) != NULL)
@@ -1583,7 +1594,7 @@ HelpView::resize(int xx,	// I - New left position
 		 int hh)	// I - New height
 {
   Fl_Widget::resize(xx, yy, ww, hh);
-  scrollbar_.resize(xx + ww - 20, yy, 20, hh);
+  scrollbar_.resize(xx + ww - 17, yy, 17, hh);
 
   format();
 }
@@ -1674,5 +1685,5 @@ scrollbar_callback(Fl_Widget *s, void *)
 
 
 //
-// End of "$Id: HelpView.cxx,v 1.14 2000/01/22 15:21:08 mike Exp $".
+// End of "$Id: HelpView.cxx,v 1.15 2000/01/22 16:20:26 mike Exp $".
 //
