@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.204 2002/08/27 19:14:53 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.205 2002/09/25 19:56:00 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -5660,6 +5660,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  row_spans[col] --;
     }
   }
+
+ /*
+  * OK, some people apparently create HTML tables with no columns or
+  * rows...  If this happened, return immediately...
+  */
+
+  if (num_cols == 0)
+    return;
 
  /*
   * Now figure out the width of the table...
@@ -11858,5 +11866,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.204 2002/08/27 19:14:53 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.205 2002/09/25 19:56:00 mike Exp $".
  */
