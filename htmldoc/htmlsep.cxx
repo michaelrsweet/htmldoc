@@ -1,5 +1,5 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.7 2004/02/09 22:25:11 mike Exp $"
+// "$Id: htmlsep.cxx,v 1.1.2.8 2004/04/20 20:10:06 mike Exp $"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
@@ -564,6 +564,7 @@ write_node(FILE   *out,		/* I - Output file */
 {
   int		i;		/* Looping var */
   uchar		*ptr,		/* Pointer to output string */
+		*entity,	/* Entity string */
 		*src,		/* Source image */
 		newsrc[1024];	/* New source image filename */
 
@@ -707,10 +708,19 @@ write_node(FILE   *out,		/* I - Output file */
 
 	    if (t->vars[i].value == NULL)
               col += fprintf(out, "%s", t->vars[i].name);
-	    else if (strchr((char *)t->vars[i].value, '\"') != NULL)
-              col += fprintf(out, "%s=\'%s\'", t->vars[i].name, t->vars[i].value);
 	    else
-              col += fprintf(out, "%s=\"%s\"", t->vars[i].name, t->vars[i].value);
+	    {
+	      col += fprintf(out, "%s=\"", t->vars[i].name);
+	      for (ptr = t->vars[i].value; *ptr; ptr ++)
+	      {
+		entity = iso8859(*ptr);
+		fputs((char *)entity, out);
+		col += strlen((char *)entity);
+	      }
+
+	      putc('\"', out);
+	      col ++;
+	    }
 	  }
 
 	  putc('>', out);
@@ -1106,5 +1116,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.7 2004/02/09 22:25:11 mike Exp $".
+// End of "$Id: htmlsep.cxx,v 1.1.2.8 2004/04/20 20:10:06 mike Exp $".
 //
