@@ -7,15 +7,16 @@ This chapter describes all of the GUI controls in <I>HTMLDOC</I>.
 
 <H2>The HTMLDOC GUI</H2>
 
-The <I>HTMLDOC</I> GUI (Figures 7-1 through 7-9) is contained in a single window
-showing the input, output, and generation options. At the bottom are buttons
-to load, save, and generate documents.
+The <I>HTMLDOC</I> GUI (Figures 7-1 through 7-10) is contained in
+a single window showing the input, output, and generation
+options. At the bottom are buttons to load, save, and generate
+documents.
 
 <H3>Document File Operations</H3>
 
 <I>HTMLDOC</I> stores the HTML files, settings, and options in
 <CODE>.BOOK</CODE> files. The buttons on the bottom of the
-<I>HTMLDOC</I> window allow you manage these files and generate
+<I>HTMLDOC</I> window allow you to manage these files and generate
 formatted documents.
 
 <H3>New</H3>
@@ -179,13 +180,20 @@ applied to continuous-tone images.
 
 <H3>Compression</H3>
 
-The <VAR>Compression</VAR> slider controls the amount of Flate
-compression that is used when writing PDF or Level 3 PostScript output.
+The <VAR>Compression</VAR> slider controls the amount of
+compression that is used when writing PDF or Level 3 PostScript
+output.
+
+<P><B>Note:</B> <I>HTMLDOC</I> uses Flate compression, which is
+not encumbered by patents and is also used by the popular PKZIP
+and gzip programs. Flate is a lossless compression algorithm
+(that is, you get back exactly what you put in) that performs
+very well on indexed images and text.
 
 <H3>JPEG Quality</H3>
 
 The <VAR>JPEG Quality</VAR> slider controls the quality level used
-when JPEG compressing continuous-tone images.
+when writing continuous-tone images with JPEG compression.
 
 <P ALIGN=CENTER><IMG SRC="htmldoc-fig73.png">
 <BR>Figure 7-3 - The Page Tab
@@ -234,7 +242,7 @@ for centimeters.
 <H3>Header and Footer</H3>
 
 Select the desired text in each of the option buttons to customize the
-header and footer for the document/body pages.  The leftmost option
+header and footer for the document/body pages.  The left-most option
 buttons set the text that is left-justified, while the middle buttons
 set the text that is centered and the right buttons set the text that
 is right-justified.
@@ -259,7 +267,7 @@ the headings in the document.
 <H3>Header and Footer</H3>
 
 Select the desired text in each of the option buttons to customize the
-header and footer for the tables-of-contents pages.  The leftmost option
+header and footer for the tables-of-contents pages.  The left-most option
 buttons set the text that is left-justified, while the middle buttons
 set the text that is centered and the right buttons set the text that
 is right-justified.
@@ -370,7 +378,7 @@ The PS tab (Figure 7-7) contains options specific to PostScript output.
 
 <H3>PostScript Level</H3>
 
-Click on of the <VAR>Level</VAR> radio buttons to select the language
+Click on one of the <VAR>Level</VAR> radio buttons to select the language
 level to generate. PostScript Level 1 is compatible with all PostScript
 printers and will produce the largest output files.
 
@@ -565,7 +573,7 @@ while clicking to select multiple files.
 <H3>Filename</H3>
 
 The <VAR>Filename</VAR> field contains the currently selected filename.
-Type a name in the field to select a file or directory. As you type any
+Type a name in the field to select a file or directory. As you type, any
 matching filenames will be highlighted; press the <KBD>TAB</KBD> key to
 accept the matches.
 
