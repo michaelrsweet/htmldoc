@@ -286,7 +286,7 @@ function SetupRegistry()
   RegDBSetKeyValueEx("bookfile", "EditFlags", REGDB_BINARY, "\0\0\0\0", 4);
 
   RegDBCreateKeyEx("bookfile\\DefaultIcon", "");
-  szValue = TARGETDIR ^ "htmldoc.exe";
+  szValue = TARGETDIR ^ "ghtmldoc.exe";
   RegDBSetKeyValueEx("bookfile\\DefaultIcon", "", REGDB_STRING, szValue, -1);
 
   RegDBCreateKeyEx("bookfile\\Shell", "");
@@ -294,9 +294,9 @@ function SetupRegistry()
   RegDBCreateKeyEx("bookfile\\Shell\\Open", "");
 
   RegDBCreateKeyEx("bookfile\\Shell\\Open\\command", "");
-  szPath = TARGETDIR ^ "htmldoc.exe";
+  szPath = TARGETDIR ^ "ghtmldoc.exe";
   LongPathToQuote(szPath, TRUE);
-  szValue = szPath + " %1";
+  szValue = szPath + " \"%L\"";
   RegDBSetKeyValueEx("bookfile\\Shell\\Open\\command", "", REGDB_STRING, szValue, -1);
 
   // Add the software installation information for installed
@@ -338,14 +338,15 @@ function SetupFolders()
   szFolder = FOLDER_PROGRAMS ^ "HTMLDOC";
   CreateProgramFolder(szFolder);
 
-  szFile = TARGETDIR ^ "htmldoc.exe";
+  szFile = TARGETDIR ^ "ghtmldoc.exe";
   LongPathToQuote(szFile, TRUE);
-  AddFolderIcon(szFolder, "HTMLDOC v1.8.8", szFile, "", "", 0, "", 0);
-  AddFolderIcon(FOLDER_DESKTOP, "HTMLDOC v1.8.8", szFile, "", "", 0, "", 0);
+  AddFolderIcon(szFolder, "HTMLDOC v1.8.24b12", szFile, "", "", 0, "", 0);
+  AddFolderIcon(FOLDER_DESKTOP, "HTMLDOC v1.8.24b12", szFile, "", "", 0, "", 0);
 
   szFile = TARGETDIR ^ "doc\\htmldoc.pdf";
   LongPathToQuote(szFile, TRUE);
   AddFolderIcon(szFolder, "Software Users Manual", szFile, "", "", 0, "", 0);
+  AddFolderIcon(FOLDER_DESKTOP, "HTMLDOC Users Manual", szFile, "", "", 0, "", 0);
 
   return nResult;
  end;
@@ -605,6 +606,43 @@ end;
  // --- include script file section ---
 
 #include "sddialog.rul"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

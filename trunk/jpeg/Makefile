@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.9 2002/12/17 18:59:40 swdev Exp $"
+# "$Id: Makefile,v 1.10 2004/03/31 06:32:26 mike Exp $"
 #
-#   JPEG library Makefile for the Common UNIX Printing System (CUPS).
+#   JPEG library Makefile for the HTMLDOC software.
 #
-#   Copyright 1997-2003 by Easy Software Products, all rights reserved.
+#   Copyright 1997-2001 by Easy Software Products, all rights reserved.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -12,14 +12,14 @@
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
-#       Attn: CUPS Licensing Information
+#       Attn: HTMLDOC Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
 #       Hollywood, Maryland 20636-3111 USA
 #
 #       Voice: (301) 373-9603
-#       EMail: cups-info@cups.org
-#         WWW: http://www.cups.org
+#       EMail: info@easysw.com
+#         WWW: http://www.easysw.com
 #
 
 include ../Makedefs
@@ -39,13 +39,11 @@ OBJS	=	jmemnobs.o \
 		jidctflt.o jidctfst.o jidctint.o jidctred.o jquant1.o \
 		jquant2.o jutils.o jmemmgr.o
 
-
 #
 # Make all targets...
 #
 
 all:	libjpeg.a
-
 
 #
 # Clean all targets and object files...
@@ -54,15 +52,6 @@ all:	libjpeg.a
 clean:
 	$(RM) $(OBJS)
 	$(RM) libjpeg.a
-
-
-#
-# Update dependencies (without system header dependencies...)
-#
-
-depend:
-	makedepend -Y -I.. -fDependencies $(OBJS:.o=.c) >/dev/null 2>&1
-
 
 #
 # libjpeg.a
@@ -74,14 +63,9 @@ libjpeg.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
+$(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
+		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
-# Dependencies...
-#
-
-include Dependencies
-
-
-#
-# End of "$Id: Makefile,v 1.9 2002/12/17 18:59:40 swdev Exp $".
+# End of "$Id: Makefile,v 1.10 2004/03/31 06:32:26 mike Exp $".
 #

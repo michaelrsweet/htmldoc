@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.4 2000/01/04 13:52:22 mike Exp $"
+# "$Id: Makefile,v 1.5 2004/03/31 06:32:25 mike Exp $"
 #
 #   Makefile for HTMLDOC data files.
 #
-#   Copyright 1997-2000 by Easy Software Products.
+#   Copyright 1997-2001 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -33,8 +33,12 @@ include ../Makedefs
 # Character set/glyph files...
 #
 
-FILES	=	8859-1 8859-14 8859-15 8859-2 8859-3 8859-4 \
-		8859-5 8859-6 8859-7 8859-8 8859-9 psglyphs
+FILES	=	cp-1250 cp-1251 cp-1252 cp-1253 cp-1254 cp-1255 \
+		cp-1256 cp-1257 cp-1258 cp-874 \
+		iso-8859-1 iso-8859-14 iso-8859-15 iso-8859-2 iso-8859-3 \
+		iso-8859-4 iso-8859-5 iso-8859-6 iso-8859-7 iso-8859-8 \
+		iso-8859-9 \
+		koi8-r prolog.ps psglyphs
 
 
 #
@@ -63,5 +67,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.4 2000/01/04 13:52:22 mike Exp $".
+# End of "$Id: Makefile,v 1.5 2004/03/31 06:32:25 mike Exp $".
 #

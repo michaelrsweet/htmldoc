@@ -1,9 +1,9 @@
 #
-#   "$Id: Makedefs.in,v 1.11 2004/02/03 02:55:28 mike Exp $"
+#   "$Id: Makedefs.in,v 1.12 2004/03/31 06:32:25 mike Exp $"
 #
 #   Makefile definitions for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2001 by Easy Software Products.
+#   Copyright 1997-2004 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -26,19 +26,22 @@
 # Programs...
 #
 
-AR	=	@AR@
-AWK	=	@AWK@
-CC	=	@CC@
-CXX	=	@CXX@
-CHMOD	=	@CHMOD@
-CP	=	@CP@
-LN	=	/bin/ln -sf
-MKDIR	=	@MKDIR@ -p
-MV	=	@MV@
-POST	=	@POST@
-RANLIB	=	@RANLIB@
-RM	=	@RM@ -f
-SHELL	=	/bin/sh
+AR		=	@AR@
+AWK		=	@AWK@
+CC		=	@CC@
+CXX		=	@CXX@
+CHMOD		=	@CHMOD@
+CP		=	@CP@
+LN		=	/bin/ln -sf
+MKDIR		=	@MKDIR@ -p
+MV		=	@MV@
+POST		=	@POST@
+RANLIB		=	@RANLIB@
+RM		=	@RM@ -f
+SHELL		=	/bin/sh
+
+# The extension to use for executables...
+EXEEXT		=	@EXEEXT@
 
 #
 # Directories...
@@ -67,14 +70,12 @@ top_srcdir	=	@top_srcdir@
 # OPTIM   defines the common compiler optimization/debugging options.
 #
 
-ARFLAGS	=	@ARFLAGS@
-CFLAGS	=	-I.. @CFLAGS@ $(OPTIM) $(SSLFLAGS) @JPEGINC@ @PNGINC@ @ZLIBINC@
-CXXFLAGS =	-I.. @CXXFLAGS@ $(OPTIM) $(SSLFLAGS) @JPEGINC@ @PNGINC@ @ZLIBINC@
-LDFLAGS	=	@LDFLAGS@ $(OPTIM)
-LIBS	=	@LIBS@
-OPTIM	=	@OPTIM@
-SSLFLAGS =	@SSLFLAGS@
-
+ARFLAGS		=	@ARFLAGS@
+CFLAGS		=	-I.. @CFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
+CXXFLAGS	=	-I.. @CXXFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
+LDFLAGS		=	@LDFLAGS@ $(OPTIM)
+LIBS		=	@SSLLIBS@ @LIBS@
+OPTIM		=	@OPTIM@ @SSLFLAGS@
 
 #
 # Rules...
@@ -90,5 +91,5 @@ SSLFLAGS =	@SSLFLAGS@
 	$(CXX) $(CXXFLAGS) -c $<
 
 #
-# End of "$Id: Makedefs.in,v 1.11 2004/02/03 02:55:28 mike Exp $".
+# End of "$Id: Makedefs.in,v 1.12 2004/03/31 06:32:25 mike Exp $".
 #
