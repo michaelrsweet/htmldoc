@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.221 2003/04/30 16:06:49 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.222 2003/07/31 12:31:39 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -345,7 +345,8 @@ static void	pspdf_transform_page(int outpage, int pos, int page);
 static void	pspdf_prepare_outpages();
 static void	pspdf_prepare_page(int page);
 static void	pspdf_prepare_heading(int page, int print_page, uchar **format,
-		                      int y, char *page_text, int page_len);
+		                      int y, char *page_text, int page_len,
+				      int render_heading = 1);
 static void	ps_write_document(uchar *author, uchar *creator,
 		                  uchar *copyright, uchar *keywords,
 				  uchar *subject);
@@ -1384,6 +1385,12 @@ pspdf_prepare_page(int page)		/* I - Page number */
     page_text[sizeof(page_text) - 1] = '\0';
   }
 
+  DEBUG_printf(("BEFORE page %d page_text is \"%s\"...\n", page, page_text));
+
+  DEBUG_printf(("    header[0] = \"%s\"\n", pages[page].header[0]));
+  DEBUG_printf(("    header[1] = \"%s\"\n", pages[page].header[1]));
+  DEBUG_printf(("    header[2] = \"%s\"\n", pages[page].header[2]));
+
  /*
   * Add page headings...
   */
@@ -1418,9 +1425,10 @@ pspdf_prepare_page(int page)		/* I - Page number */
     * Add chapter header & footer...
     */
 
-    if (page > chapter_starts[chapter] || OutputType != OUTPUT_BOOK)
-      pspdf_prepare_heading(page, print_page, pages[page].header, top,
-                            page_text, sizeof(page_text));
+    pspdf_prepare_heading(page, print_page, pages[page].header, top,
+                          page_text, sizeof(page_text),
+			  page > chapter_starts[chapter] ||
+			      OutputType != OUTPUT_BOOK);
     pspdf_prepare_heading(page, print_page, pages[page].footer, 0,
                           page_text, sizeof(page_text));
   }
@@ -1431,6 +1439,8 @@ pspdf_prepare_page(int page)		/* I - Page number */
 
   strncpy(pages[page].page_text, page_text, sizeof(pages[page].page_text) - 1);
   pages[page].page_text[sizeof(pages[page].page_text) - 1] = '\0';
+
+  DEBUG_printf(("AFTER page %d page_text is \"%s\"...\n", page, page_text));
 }
 
 
@@ -1439,25 +1449,28 @@ pspdf_prepare_page(int page)		/* I - Page number */
  */
 
 static void
-pspdf_prepare_heading(int   page,		/* I - Page number */
-                      int   print_page,         /* I - Printed page number */
-		      uchar **format,		/* I - Page headings */
-		      int   y,			/* I - Baseline of heading */
-		      char  *page_text,		/* O - Page number text */
-		      int   page_len)		/* I - Size of page text */
+pspdf_prepare_heading(int   page,	// I - Page number
+                      int   print_page,	// I - Printed page number
+		      uchar **format,	// I - Page headings
+		      int   y,		// I - Baseline of heading
+		      char  *page_text,	// O - Page number text
+		      int   page_len,	// I - Size of page text
+                      int   render_heading)
+		      			// I - Render the heading?
 {
-  int		pos,		/* Position in heading */
-		dir;		/* Direction of page */
-  char		*number;	/* Page number */
-  char		buffer[1024],	/* String buffer */
-		*bufptr,	/* Pointer into buffer */
-		*formatptr;	/* Pointer into format string */
-  int		formatlen;	/* Length of format command string */
-  render_t	*temp;		/* Render structure for titles, etc. */
+  int		pos,			// Position in heading
+		dir;			// Direction of page
+  char		*number;		// Page number
+  char		buffer[1024],		// String buffer
+		*bufptr,		// Pointer into buffer
+		*formatptr;		// Pointer into format string
+  int		formatlen;		// Length of format command string
+  render_t	*temp;			// Render structure for titles, etc.
 
 
-  DEBUG_printf(("pspdf_prepare_heading(%d, %d, %p, %d, %p, %d)\n",
-                page, print_page, format, y, page_text, page_len));
+  DEBUG_printf(("pspdf_prepare_heading(%d, %d, %p, %d, %p, %d, %d)\n",
+                page, print_page, format, y, page_text, page_len,
+	        render_heading));
 
  /*
   * Add page headings...
@@ -1480,16 +1493,21 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
     if (!*format)
       continue;
 
+    temp = NULL;
+
     if (strncasecmp((char *)*format, "$LOGOIMAGE", 10) == 0 && logo_image)
     {
-      // Insert the logo image...
-      if (y < (PagePrintLength / 2))
-	temp = new_render(page, RENDER_IMAGE, 0, y, logo_width,
-	                  logo_height, logo_image);
-      else // Offset from top
-	temp = new_render(page, RENDER_IMAGE, 0,
-	                  y + HeadFootSize - logo_height,
-	                  logo_width, logo_height, logo_image);
+      if (render_heading)
+      {
+	// Insert the logo image...
+	if (y < (PagePrintLength / 2))
+	  temp = new_render(page, RENDER_IMAGE, 0, y, logo_width,
+	                    logo_height, logo_image);
+	else // Offset from top
+	  temp = new_render(page, RENDER_IMAGE, 0,
+	                    y + HeadFootSize - logo_height,
+	                    logo_width, logo_height, logo_image);
+      }
     }
     else
     {
@@ -1647,11 +1665,12 @@ pspdf_prepare_heading(int   page,		/* I - Page number */
 
       *bufptr = '\0';
 
-      temp = new_render(page, RENDER_TEXT, 0, y,
-                	get_width((uchar *)buffer, HeadFootType,
-			          HeadFootStyle, SIZE_P) * HeadFootSize /
-			    _htmlSizes[SIZE_P],
-	        	HeadFootSize, (uchar *)buffer);
+      if (render_heading)
+	temp = new_render(page, RENDER_TEXT, 0, y,
+                	  get_width((uchar *)buffer, HeadFootType,
+			            HeadFootStyle, SIZE_P) * HeadFootSize /
+			      _htmlSizes[SIZE_P],
+	        	  HeadFootSize, (uchar *)buffer);
 
       if (strstr((char *)*format, "$PAGE") ||
           strstr((char *)*format, "$CHAPTERPAGE"))
@@ -7641,6 +7660,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (tof)
       {
+        DEBUG_printf(("Setting header %d for page %d to \"%s\"...\n",
+	              pos, *page, Header[pos] ? Header[pos] : "(null)"));
+
 	check_pages(*page);
 
 	pages[*page].header[pos] = (uchar *)Header[pos];
@@ -12101,5 +12123,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.221 2003/04/30 16:06:49 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.222 2003/07/31 12:31:39 mike Exp $".
  */
