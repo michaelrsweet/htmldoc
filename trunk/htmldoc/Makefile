@@ -1,5 +1,5 @@
 #
-#   "$Id: Makefile,v 1.10 2000/06/20 16:12:05 mike Exp $"
+#   "$Id: Makefile,v 1.11 2000/09/11 01:19:25 mike Exp $"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
@@ -33,8 +33,10 @@ include ../Makedefs
 # Object files...
 #
 
-OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o image.o iso8859.o \
-		md5.o progress.o ps-pdf.o rc4.o string.o toc.o util.o
+OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o http.o \
+		image.o iso8859.o md5.o progress.o ps-pdf.o rc4.o \
+		string.o toc.o util.o
+
 
 #
 # Make everything...
@@ -73,11 +75,12 @@ htmldoc.purify:	$(OBJS) ../Makedefs
 	echo Linking $@...
 	purify $(CXX) $(LDFLAGS) -o htmldoc.purify $(OBJS) $(LIBS)
 
-file.o:		file.h string.h
+file.o:		file.h http.h string.h
 gui.o:		gui.h html.h htmldoc.h image.h iso8859.h types.h htmldoc.xbm
 html.o:		html.h htmldoc.h image.h iso8859.h types.h
 htmldoc.o:	gui.h html.h htmldoc.h image.h iso8859.h types.h
 htmllib.o:	debug.h htmldoc.h html.h image.h iso8859.h types.h
+http.o:		http.h string.h
 image.o:	debug.h htmldoc.h image.h types.h
 iso8859.o:	iso8859.h types.h
 md5.o:		md5.h
@@ -106,5 +109,5 @@ $(OBJS):	../Makedefs ../config.h
 
 
 #
-# End of "$Id: Makefile,v 1.10 2000/06/20 16:12:05 mike Exp $".
+# End of "$Id: Makefile,v 1.11 2000/09/11 01:19:25 mike Exp $".
 #
