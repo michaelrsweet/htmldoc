@@ -6,14 +6,12 @@ INTRODUCTION
     This README file describes HTMLDOC, a HTML processing program that
     generates HTML, PostScript, and PDF files with a table of contents.
 
+    Commercial support for HTMLDOC is available from Easy Software
+    Products for $99 US.
+
     HTMLDOC is copyright 1997-1999 by Easy Software Products and is
     currently available under the GNU General Public License, version
     2.  See the LEGAL STUFF section below for details.
-
-    Commercial support for HTMLDOC is available from Easy Software
-    Products for $99 US.  If you use HTMLDOC in any professional or
-    commercial capacity, please support us so we can continue to
-    provide free software like this.
 
     **** PLEASE READ THE DOCUMENTATION BEFORE ASKING QUESTIONS. ****
 

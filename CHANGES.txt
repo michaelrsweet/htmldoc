@@ -33,6 +33,7 @@ CHANGES IN HTMLDOC v1.8
 	- Added CAPTION support for tables.
 	- Filename links now work for HTML files included in a
 	  document.
+	- Now support BGCOLOR in tables.
 
     CHANGES
 
