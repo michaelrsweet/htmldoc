@@ -1,22 +1,22 @@
 [Data]
 =>>>>>>> 1.7
-TITLE_MAIN=HTMLDOC 1.8.24b7\nCommercial Version
-COMPANY_NAME=Easy Software Products
+TITLE_MAIN=HTMLDOC 1.8.24b11
 ERROR_COMPONENT=Component:
+COMPANY_NAME=Easy Software Products
 COMPANY_NAME16=Easy Software Products
-ERROR_MOVEDATA=An error occurred during the move data process: %d
-PRODUCT_VERSION=1.8.24b7
 ERROR_FILEGROUP=File Group:
+PRODUCT_VERSION=1.8.24b11
+ERROR_MOVEDATA=An error occurred during the move data process: %d
 UNINST_KEY=HTMLDOC
 TITLE_CAPTIONBAR=HTMLDOC Setup
 PRODUCT_NAME16=Product
-ERROR_FILE=File:
-ERROR_VGARESOLUTION=This program requires VGA or better resolution.
 FOLDER_NAME=HTMLDOC
+ERROR_VGARESOLUTION=This program requires VGA or better resolution.
+ERROR_FILE=File:
+UNINST_DISPLAY_NAME=HTMLDOC 1.8.24b11
 PRODUCT_KEY=htmldoc.exe
-UNINST_DISPLAY_NAME=HTMLDOC 1.8.24b7 Commercial Version
-PRODUCT_NAME=HTMLDOC
 ERROR_UNINSTSETUP=unInstaller setup failed to initialize.  You may not be able to uninstall this product.
+PRODUCT_NAME=HTMLDOC
 
 [General]
 Language=0009

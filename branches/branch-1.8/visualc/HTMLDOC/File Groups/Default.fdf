@@ -1,8 +1,8 @@
 [FileGroups]
 group0=Font Files
 group1=Program Executables
-group2=Documentation
-group3=Data Files
+group2=Data Files
+group3=Documentation
 
 [Font Files]
 SELFREGISTERING=No
@@ -37,7 +37,7 @@ Type=FileGrp
 Version=1.00.000
 Name=
 
-[Data Files]
+[Documentation]
 SELFREGISTERING=No
 HTTPLOCATION=
 LANGUAGE=
@@ -51,7 +51,7 @@ COMPRESSDLL=
 POTENTIALLY=No
 MISC=
 
-[Documentation]
+[Data Files]
 SELFREGISTERING=No
 HTTPLOCATION=
 LANGUAGE=
