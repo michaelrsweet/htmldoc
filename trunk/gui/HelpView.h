@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h,v 1.10 2000/05/16 02:41:29 mike Exp $"
+// "$Id: HelpView.h,v 1.11 2000/06/15 00:32:44 mike Exp $"
 //
 //   Help Viewer widget definitions.
 //
@@ -56,11 +56,11 @@ struct HelpBlock
   uchar		font,		// Text font
 		size,		// Text size
 		border;		// Draw border?
-  short		x,		// Indentation/starting X coordinate
+  int		x,		// Indentation/starting X coordinate
 		y,		// Starting Y coordinate
 		w,		// Width
 		h;		// Height
-  short		line[32];	// Left starting position for each line
+  int		line[32];	// Left starting position for each line
 };
 
 //
@@ -203,5 +203,5 @@ class HelpView : public Fl_Group	//// Help viewer widget
 #endif // !_GUI_HELPVIEW_H_
 
 //
-// End of "$Id: HelpView.h,v 1.10 2000/05/16 02:41:29 mike Exp $".
+// End of "$Id: HelpView.h,v 1.11 2000/06/15 00:32:44 mike Exp $".
 //
