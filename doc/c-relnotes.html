@@ -12,53 +12,53 @@
 
 	<H3>New Features</H3>
 
-	<LI>Now support the "subject" meta variable.
+	<LI>Now support the "subject" meta variable.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>Updated the HTML parser to use HTML 4.0 rules for
-	embedding elements inside a LI.
+	embedding elements inside a LI.</LI>
 
 	<LI>Now check for a TYPE attribute on EMBED elements, so
-	that embedded Flash files do not get treated as HTML.
+	that embedded Flash files do not get treated as HTML.</LI>
 
 	<LI>Now put the COPYRIGHT meta data in the Author field in
-	a PDF file along with the AUTHOR meta data (if any).
+	a PDF file along with the AUTHOR meta data (if any).</LI>
 
 	<LI>No longer embed the prolog.ps command header when
 	PostScript commands are not being embedded in the
-	output.
+	output.</LI>
 
-	<LI>HTMLDOC now properly ignores the HTML 4.0 COL element.
+	<LI>HTMLDOC now properly ignores the HTML 4.0 COL element.</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>Squeezed tables were not centered or right-aligned
-	properly.
+	properly.</LI>
 
 	<LI>Cells didn't align properly if they were the first
 	things on the page, or if there were several
-	intervening empty cells.
+	intervening empty cells.</LI>
 
 	<LI>The preferred cell width handling didn't account for
 	the minimum cell width, which could cause some tables
-	to become too large.
+	to become too large.</LI>
 
 	<LI>Remote URLs didn't always resolve properly (like the
-	images from the Google web page...)
+	images from the Google web page...)</LI>
 
 	<LI>The font width loading code didn't force the
 	non-breaking space to have the same width as a regular
-	space.
+	space.</LI>
 
 	<LI>PRE text didn't adjust the line height for the tallest
-	fragment in the line.
+	fragment in the line.</LI>
 
 	<LI>HTMLDOC tried to seek backwards when reading HTML
-	from the standard input.
+	from the standard input.</LI>
 
 	<LI>The media margin comments did not work properly when
-	the current media orientation was landscape.
+	the current media orientation was landscape.</LI>
 
 </UL>
 
@@ -68,15 +68,15 @@
 
 	<H3>New Features</H3>
 
-	<LI>Added support for remote HTML title pages.
+	<LI>Added support for remote HTML title pages.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>Now accept all JPEG files, even if they don't start
-	with an APPn marker.
+	with an APPn marker.</LI>
 
 	<LI>Now only start a new page for a chapter/filter if we
-	aren't already at the top of a page.
+	aren't already at the top of a page.</LI>
 
 	<H3>Bug Fixes</H3>
 
@@ -86,18 +86,18 @@
 	if you use "ROWSPAN=17" for all cells in a row,
 	HTMLDOC now treats this as if you did not use ROWSPAN
 	at all.  It is unclear if this is what the W3C
-	intends.
+	intends.</LI>
 
 	<LI>The "--webpage" option didn't force toc levels to 0,
 	which caused a bad page object reference to be
-	inserted in the PDF output file.
+	inserted in the PDF output file.</LI>
 
 	<LI>Background colors in nested tables didn't always get
 	drawn in the right order, resulting in the wrong
-	colors showing through.
+	colors showing through.</LI>
 
 	<LI>The HEADER page comment didn't set the correct top
-	position in landscape orientation.
+	position in landscape orientation.</LI>
 
 </UL>
 
@@ -109,54 +109,54 @@
 
 	<LI>Improved table-of-contents generation, with chapter
 	headings at the top of new TOC pages and page numbers
-	based on the header/footer string.
+	based on the header/footer string.</LI>
 
 	<LI>Added new "--no-localfiles" option to disable access
-	to local files for added security in web services.
+	to local files for added security in web services.</LI>
 
 	<LI>Long lines in book files can not be broken up using
-	a trailing backslash.
+	a trailing backslash.</LI>
 
-	<LI>Added a modern "skin" to the GUI interface.
+	<LI>Added a modern "skin" to the GUI interface.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>Made some changes in how COLSPAN and ROWSPAN are
 	handled to better match how Netscape and MSIE format
-	things.
+	things.</LI>
 	<LI>HTMLDOC now handles .book files with CR, LF, or CR LF
-	line endings.
+	line endings.</LI>
 	<LI>Changed the TOC numbering to use 32-bit integers
-	instead of 8-bit integers...
-	<LI>Now handle local links with quoted (%HH) characters.
+	instead of 8-bit integers...</LI>
+	<LI>Now handle local links with quoted (%HH) characters.</LI>
 	<LI>The command-line interface no longer sets PDF output
-	mode when using --continuous or --webpage.
+	mode when using --continuous or --webpage.</LI>
 	<LI>HTMLDOC now opens HTML output files in binary mode to
 	prevent extra CR's under Windows, and strips incoming
-	CR's from PRE text.
+	CR's from PRE text.</LI>
 	<LI>Now support inserting the current chapter and heading
-	in the table-of-contents headers and footers.
+	in the table-of-contents headers and footers.</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>The table cell border and background were offset by
 	the cellpadding when they should only be offset by the
-	cellspacing.
+	cellspacing.</LI>
 	<LI>The buffer used for periods that lead up to the page
 	number in the table-of-contents was not large enough
-	for a legal-size document in landscape format.
+	for a legal-size document in landscape format.</LI>
 	<LI>If a book only contained chapter headings, the PDF
-	bookmarks would be missing the last chapter heading.
+	bookmarks would be missing the last chapter heading.</LI>
 	<LI>Table cells that ended with a break would render
-	incorrectly.
+	incorrectly.</LI>
 	<LI>Fixed the table pre-format sizing code to properly
-	account for borders, padding, etc.
+	account for borders, padding, etc.</LI>
 	<LI>Fixed the table squeezing code to honor minimum widths
-	and properly resize the remaining space.
+	and properly resize the remaining space.</LI>
 	<LI>The MEDIA SIZE page comment did not reset the printable
-	width and length of the page.
+	width and length of the page.</LI>
 	<LI>Tables that used COLSPAN did not honor WIDTH values in
-	non-spanned cells.
+	non-spanned cells.</LI>
 
 </UL>
 
@@ -167,20 +167,20 @@
 	<H3>Changes</H3>
 
 	<LI>Now break before and after DIV groups to match most
-	browsers (the HTML spec is ambivalent about it...)
+	browsers (the HTML spec is ambivalent about it...)</LI>
 
 	<H3>Bug Fixes</H3>
 
-	<LI>HR elements didn't render properly.
+	<LI>HR elements didn't render properly.</LI>
 	<LI>Background images didn't render properly and could
-	lock up HTMLDOC.
+	lock up HTMLDOC.</LI>
 	<LI>The "HALF PAGE" comment would lock up HTMLDOC -
 	HTMLDOC would keep adding pages until it ran out of
-	memory.
+	memory.</LI>
 	<LI>SUP and SUB used a fixed (reduced) size instead of
-	using a smaller size from the current one.
+	using a smaller size from the current one.</LI>
 	<LI>Empty cells could cause unnecessary vertical alignment
-	on the same row.
+	on the same row.</LI>
 
 </UL>
 
@@ -192,66 +192,66 @@
 	<H3>New Features</H3>
 
 	<LI>Now support media source, type, and color attributes
-	in PS output.
+	in PS output.</LI>
 	<LI>Now support per-page size, margins, headers, footers,
-	orientation, and duplexing.
+	orientation, and duplexing.</LI>
 	<LI>Now support plain text for headers and footers, with $
-	variables to include page numbers and so forth.
+	variables to include page numbers and so forth.</LI>
 	<LI>New device control prolog file for printer-specific
-	option commands.
+	option commands.</LI>
 	<LI>Now support a new continuous web page mode that
 	doesn't automatically insert a page break with each
-	HTML file or URL (--continuous).
-	<LI>Now draw border around inline images as needed.
-	<LI>Now support MacOS X (only command-line at present).
+	HTML file or URL (--continuous).</LI>
+	<LI>Now draw border around inline images as needed.</LI>
+	<LI>Now support MacOS X (only command-line at present).</LI>
 	<LI>Now support the "page-break-before", "text-align",
 	"vertical-align" style attributes, but only for style
-	information in an element's STYLE attribute.
+	information in an element's STYLE attribute.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>Now load images into memory only as needed, and unload
 	them when no longer needed.  This provides a dramatic
 	reduction in memory usage with files that contain a
-	lot of in-line images.
+	lot of in-line images.</LI>
 	<LI>Now use the long names for the Flate and DCT filters
 	in all non-inline PDF streams.  This avoids a stupid
 	bug in Acrobat Reader when printing to PostScript
-	printers.
+	printers.</LI>
 	<LI>HTMLDOC now strips any trailing GET query information
-	when saving the start of files (target) in a document.
+	when saving the start of files (target) in a document.</LI>
 	<LI>Unqualified URLs (no leading scheme name, e.g. http:)
 	now default to the HTTP port (80) instead of the IPP
-	port (631).
+	port (631).</LI>
 	<LI>Optimized the image writing code to do more efficient
 	color searching.  This provides a significant speed
-	improvement when including images.
+	improvement when including images.</LI>
 	<LI>Now hide all text inside SCRIPT, SELECT, and TEXTAREA
-	elements.
-	<LI>OS/2 port changes from Alexander Mai.
+	elements.</LI>
+	<LI>OS/2 port changes from Alexander Mai.</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>If a document started with a heading greater than H1,
-	HTMLDOC would crash.
+	HTMLDOC would crash.</LI>
 	<LI>Full justification would incorrectly be applied to
-	text ending with a break.
+	text ending with a break.</LI>
 	<LI>Images using ALIGN="MIDDLE" were not centered properly
-	on the baseline.
+	on the baseline.</LI>
 	<LI>Table cells that used both ROWSPAN and COLSPAN did not
 	format properly (the colspan was lost after the first
-	row.)
+	row.)</LI>
 	<LI>Tables that used cells that exclusively used COLSPAN
-	did not format properly.
+	did not format properly.</LI>
 	<LI>When writing HTML output, image references would
-	incorrectly be mapped using the current path.
+	incorrectly be mapped using the current path.</LI>
 	<LI>Images with a width or height of 0 should not be
-	written to PS or PDF output.
+	written to PS or PDF output.</LI>
 	<LI>The CreationDate comment in PostScript output
 	contained a bad timezone offset (+-0500, for example,
-	instead of -0500).
+	instead of -0500).</LI>
 	<LI>The PHP portal example now verifies that the URL
-	passed to it contains no illegal characters.
+	passed to it contains no illegal characters.</LI>
 
 </UL>
 
@@ -261,9 +261,9 @@
 
 	<H3>New Features</H3>
 
-	<LI>Added support for 128-bit encryption.
+	<LI>Added support for 128-bit encryption.</LI>
 	<LI>Added support for GET form request data in the PHP and
-	Java "portal" examples.
+	Java "portal" examples.</LI>
 
 	<H3>Changes</H3>
 
@@ -271,24 +271,24 @@
 	HTMLDOC now dynamically allocates memory as needed for
 	pages, images, headings, and links.  This has the
 	happy side-effect of reducing the initial memory
-	footprint significantly.
+	footprint significantly.</LI>
 	<LI>Now call setlocale() when it is available to localize
-	the date and time in the output.
+	the date and time in the output.</LI>
 	<LI>The table parsing code now checks to see that a
 	ROWSPAN attribute fits in the table; e.g., a ROWSPAN
 	of 10 for a table that has only 6 rows remaining needs
-	to be reduced to 6...
+	to be reduced to 6...</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>Tables with a lot of COLSPANs could cause a divide-
-	by-zero error or bad pages (NAN instead of a number.)
+	by-zero error or bad pages (NAN instead of a number.)</LI>
 	<LI>Table cells with a single render element would not be
-	vertically aligned.
+	vertically aligned.</LI>
 	<LI>The --quiet option would enable progress messages on
-	the command-line.
+	the command-line.</LI>
 	<LI>Table cell widths could be computed incorrectly,
-	causing unnecessary wrapping.
+	causing unnecessary wrapping.</LI>
 
 </UL>
 
@@ -299,83 +299,83 @@
 	<H3>New Features</H3>
 
 	<LI>Added support for secure (https) URLs via the
-	OpenSSL library.
-	<LI>Added support for Acrobat 5.0 (PDF 1.4).
+	OpenSSL library.</LI>
+	<LI>Added support for Acrobat 5.0 (PDF 1.4).</LI>
 	<LI>Added support for transparency in PostScript and
-	PDF 1.1 and 1.2 output.
-	<LI>Added a --no-jpeg option (same as --jpeg=0)
+	PDF 1.1 and 1.2 output.</LI>
+	<LI>Added a --no-jpeg option (same as --jpeg=0)</LI>
 	<LI>Added support for the CSS2 page-break-before and
-	page-break-after properties.
-	<LI>Added a PHP example.
+	page-break-after properties.</LI>
+	<LI>Added a PHP example.</LI>
 
 	<H3>Changes</H3>
 
 	<LI>External file references to non-PDF files now use the
 	"Launch" action so they can be opened/executed/saved
-	as allowed by the OS and PDF viewer.
+	as allowed by the OS and PDF viewer.</LI>
 	<LI>Changed the indexed/JPEG'd transition point to 256
 	colors when using Flate compression.  This makes PDF
-	files much smaller in general.
-	<LI>Changed the in-line image size limit to 64k.
+	files much smaller in general.</LI>
+	<LI>Changed the in-line image size limit to 64k.</LI>
 	<LI>Now allow "&lt;" followed by whitespace, "=", or "&lt;". 
 	This violates the HTML specification, but we're sick
-	of people complaining about it.
+	of people complaining about it.</LI>
 	<LI>Preferences are now stored in a user-specific file
 	under Windows, just like UNIX.  This provides
 	user-specific preferences and allows preferences to
-	be kept when upgrading to new versions of HTMLDOC.
+	be kept when upgrading to new versions of HTMLDOC.</LI>
 	<LI>The book loading code now allows for blank lines, even
 	though these are not a part of the format. (added to
 	support some scripted apps that include extra
-	newlines...)
+	newlines...)</LI>
 	<LI>Changed the leading space handling of blocks to more
-	closely match the standard browser behavior.
+	closely match the standard browser behavior.</LI>
 
 	<H3>Bug Fixes</H3>
 
 	<LI>The table formatting code adding the border width to
 	the cell width, while Netscape and MSIE don't.  This
-	caused some interesting formatting glitches...
+	caused some interesting formatting glitches...</LI>
 	<LI>The table formatting code didn't account for the
-	preferred width of colspan'd cells.
+	preferred width of colspan'd cells.</LI>
 	<LI>The table formatting code tried to enforce the
 	minimum cell width when squeezing a table to fit on
 	the page; this caused the table to still exceed the
-	width of the page.
+	width of the page.</LI>
 	<LI>The PDF catalog object could contain a reference to
 	a /Names object of "0 0 R", which is invalid.  This
-	would happen when the "--no-links" option was used.
+	would happen when the "--no-links" option was used.</LI>
 	<LI>Several HTML elements were incorrectly written with
-	closing tags.
+	closing tags.</LI>
 	<LI>When piping PDF output, the temporary file that is
 	created needed to be open for reading and writing,
-	but HTMLDOC only opened the file for writing.
-	<LI>Image links did not work.
+	but HTMLDOC only opened the file for writing.</LI>
+	<LI>Image links did not work.</LI>
 	<LI>The JPEG image loading code did not correctly handle
-	grayscale JPEG images.
+	grayscale JPEG images.</LI>
 	<LI>JPEG images were not encrypted when writing a document
-	with encryption enabled.
-	<LI>The user password was not properly encrypted.
+	with encryption enabled.</LI>
+	<LI>The user password was not properly encrypted.</LI>
 	<LI>The colormap of indexed images were not encrypted when
-	writing a document with encryption enabled.
+	writing a document with encryption enabled.</LI>
 	<LI>The temporary file creation and cleanup functions did
 	not use the same template under Windows, causing
 	multiple conversions to fail when temporary files were
-	used.
+	used.</LI>
 	<LI>Paragraphs could end up with one extra text fragment,
-	causing the line to be too long.
+	causing the line to be too long.</LI>
 	<LI>The command-line program would clear the error count
 	after reading all the files/URLs on the command-line,
 	but before generating the document. If there were
 	problems reading the files/URLs, HTMLDOC would return a
-	0 exit status instead of 1.
+	0 exit status instead of 1.</LI>
 	<LI>Image objects that were both JPEG and Flate compressed
 	would not display (filters specified in the wrong
-	order.)
+	order.)</LI>
 	<LI>Images with more than 256 colors would cause a segfault
-	on some systems.
+	on some systems.</LI>
 	<LI>Background images would generate the error message
-	"XObject 'Innn' is unknown".
+	"XObject 'Innn' is unknown".</LI>
 
 </UL>
 
