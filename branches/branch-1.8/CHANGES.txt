@@ -68,6 +68,9 @@ CHANGES IN HTMLDOC v1.8.13
 	  but before generating the document. If there were
 	  problems reading the files/URLs, HTMLDOC would return
 	  a 0 exit status instead of 1.
+	- Image objects that were both JPEG and Flate compressed
+	  would not display (filters specified in the wrong
+	  order.)
 
 
 CHANGES IN HTMLDOC v1.8.12

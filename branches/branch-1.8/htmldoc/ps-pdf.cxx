@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.61 2001/05/23 20:55:14 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.62 2001/05/25 19:17:06 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -6880,7 +6880,7 @@ write_image(FILE     *out,	/* I - Output file */
 	  else if (OutputJPEG && ncolors == 0)
 	  {
 	    if (Compression)
-	      fputs("/Filter[/DCT/Fl]", out);
+	      fputs("/Filter[/Fl/DCT]", out);
 	    else
 	      fputs("/Filter/DCT", out);
 	  }
@@ -8601,5 +8601,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.61 2001/05/23 20:55:14 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.62 2001/05/25 19:17:06 mike Exp $".
  */
