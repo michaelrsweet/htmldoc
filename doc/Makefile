@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.11 2000/01/04 13:52:22 mike Exp $"
+# "$Id: Makefile,v 1.12 2002/09/02 23:04:10 mike Exp $"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -102,5 +102,13 @@ htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc
 
 
 #
-# End of "$Id: Makefile,v 1.11 2000/01/04 13:52:22 mike Exp $".
+# update: update class reference documentation...
+#
+
+update:
+	perl scandoc.pl -i htmldoc.pl -t 8 ../htmldoc/*.h
+
+
+#
+# End of "$Id: Makefile,v 1.12 2002/09/02 23:04:10 mike Exp $".
 #

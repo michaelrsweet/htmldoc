@@ -1,5 +1,5 @@
 //
-// "$Id: tree.h,v 1.14 2002/07/29 02:10:28 mike Exp $"
+// "$Id: tree.h,v 1.15 2002/09/02 23:04:12 mike Exp $"
 //
 //   HTML tree definitions for HTMLDOC, a HTML document processing program.
 //
@@ -38,7 +38,7 @@
 // Nodebreak values...
 //
 
-enum
+enum hdNodeBreak
 {
   HD_NODEBREAK_NONE = 0,
   HD_NODEBREAK_LEFT = 1,
@@ -145,5 +145,5 @@ struct hdTree
 #endif // !_HTMLDOC_TREE_H_
 
 //
-// End of "$Id: tree.h,v 1.14 2002/07/29 02:10:28 mike Exp $".
+// End of "$Id: tree.h,v 1.15 2002/09/02 23:04:12 mike Exp $".
 //
