@@ -1,5 +1,5 @@
 //
-// "$Id: toc.cxx,v 1.11 2002/04/03 02:18:52 mike Exp $"
+// "$Id: toc.cxx,v 1.12 2002/04/03 21:04:31 mike Exp $"
 //
 //   Table-of-contents methods for HTMLDOC, a HTML document processing program.
 //
@@ -197,7 +197,7 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
       toclink->style = css->find_style(toclink);
 
       // Copy the text to the TOC...
-      t->copy_text(toclink);
+      t->copy_text(css, toclink);
 
       // Finally, add a pseudo-attribute for the chapter number...
       snprintf(s, sizeof(s), "%d", chapter);
@@ -211,5 +211,5 @@ hdTree::build_toc(hdStyleSheet *css,	// I - Style sheet
 
 
 //
-// End of "$Id: toc.cxx,v 1.11 2002/04/03 02:18:52 mike Exp $".
+// End of "$Id: toc.cxx,v 1.12 2002/04/03 21:04:31 mike Exp $".
 //

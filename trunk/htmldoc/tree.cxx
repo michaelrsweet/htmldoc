@@ -1,5 +1,5 @@
 //
-// "$Id: tree.cxx,v 1.14 2002/04/03 18:12:57 mike Exp $"
+// "$Id: tree.cxx,v 1.15 2002/04/03 21:04:31 mike Exp $"
 //
 //   HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
@@ -471,7 +471,8 @@ hdTree::compute_size(hdStyleSheet *css)	// I - Stylesheet
 //
 
 void
-hdTree::copy_text(hdTree *p)		// I - New parent
+hdTree::copy_text(hdStyleSheet *css,	// I - Stylesheet
+                  hdTree *p)		// I - New parent
 {
   hdTree	*t,			// Current node
 		*end,			// End node
@@ -486,6 +487,7 @@ hdTree::copy_text(hdTree *p)		// I - New parent
     {
       copyt = new hdTree(HD_ELEMENT_NONE, t->data, p);
       copyt->whitespace = t->whitespace;
+      copyt->compute_size(css);
     }
 }
 
@@ -1818,5 +1820,5 @@ compare_variables(hdTreeAttr *v0,	// I - First variable
 
 
 //
-// End of "$Id: tree.cxx,v 1.14 2002/04/03 18:12:57 mike Exp $".
+// End of "$Id: tree.cxx,v 1.15 2002/04/03 21:04:31 mike Exp $".
 //
