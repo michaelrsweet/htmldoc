@@ -15,9 +15,23 @@ provided in the HTMLDOC library.
 
 	<LI><A HREF="#hdMargin">class hdMargin</A></LI>
 
+	<LI><A HREF="#hdTree">struct hdTree</A></LI>
+
+	<LI><A HREF="#hdTreeAttr">struct hdTreeAttr</A></LI>
+
 	<LI><A HREF="#hdBorder">struct hdBorder</A></LI>
 
 	<LI><A HREF="#hdFontKernPair">struct hdFontKernPair</A></LI>
+
+	<LI><A HREF="#hdPDFRender">class hdPDFRender</A></LI>
+
+	<LI><A HREF="#hdPSRender">class hdPSRender</A></LI>
+
+	<LI><A HREF="#hdRender">class hdRender</A></LI>
+
+	<LI><A HREF="#hdRenderChapter">struct hdRenderChapter</A></LI>
+
+	<LI><A HREF="#hdRenderHeading">struct hdRenderHeading</A></LI>
 
 	<LI><A HREF="#hdRenderLink">struct hdRenderLink</A></LI>
 
@@ -26,6 +40,8 @@ provided in the HTMLDOC library.
 	<LI><A HREF="#hdRenderPage">struct hdRenderPage</A></LI>
 
 	<LI><A HREF="#hdRenderText">struct hdRenderText</A></LI>
+
+	<LI><A HREF="#hdRenderURL">struct hdRenderURL</A></LI>
 
 	<LI><A HREF="#hdStyle">struct hdStyle</A></LI>
 
@@ -276,6 +292,1066 @@ current margins are at the top of the stack, nothing is popped.
 
 </DIV>
 
+<!-- NEW PAGE -->
+<H2><A NAME="hdTree">struct hdTree</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdTree structure holds a single node in an HTML document tree.</P>
+
+<P>Methods:
+<A HREF="#hdTree.add">add</A>,
+<A HREF="#hdTree.build_index">build_index</A>,
+<A HREF="#hdTree.build_index">build_index</A>,
+<A HREF="#hdTree.build_list">build_list</A>,
+<A HREF="#hdTree.build_toc">build_toc</A>,
+<A HREF="#hdTree.compute_size">compute_size</A>,
+<A HREF="#hdTree.copy_text">copy_text</A>,
+<A HREF="#hdTree.find">find</A>,
+<A HREF="#hdTree.fix_url">fix_url</A>,
+<A HREF="#hdTree.format">format</A>,
+<A HREF="#hdTree.format_block">format_block</A>,
+<A HREF="#hdTree.format_comment">format_comment</A>,
+<A HREF="#hdTree.format_contents">format_contents</A>,
+<A HREF="#hdTree.format_image">format_image</A>,
+<A HREF="#hdTree.format_index">format_index</A>,
+<A HREF="#hdTree.format_list">format_list</A>,
+<A HREF="#hdTree.format_table">format_table</A>,
+<A HREF="#hdTree.get_attr">get_attr</A>,
+<A HREF="#hdTree.get_cell_size">get_cell_size</A>,
+<A HREF="#hdTree.get_element">get_element</A>,
+<A HREF="#hdTree.get_meta">get_meta</A>,
+<A HREF="#hdTree.get_table_size">get_table_size</A>,
+<A HREF="#hdTree.get_text">get_text</A>,
+<A HREF="#hdTree.get_title">get_title</A>,
+<A HREF="#hdTree.hdTree">hdTree</A>,
+<A HREF="#hdTree.insert">insert</A>,
+<A HREF="#hdTree.parse_attribute">parse_attribute</A>,
+<A HREF="#hdTree.parse_element">parse_element</A>,
+<A HREF="#hdTree.parse_entity">parse_entity</A>,
+<A HREF="#hdTree.read">read</A>,
+<A HREF="#hdTree.real_next">real_next</A>,
+<A HREF="#hdTree.real_prev">real_prev</A>,
+<A HREF="#hdTree.remove">remove</A>,
+<A HREF="#hdTree.set_attr">set_attr</A>,
+<A HREF="#hdTree.~hdTree">~hdTree</A>
+</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.attrs"><TT>attrs</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTreeAttr	*</TT></TD>
+<TD VALIGN="TOP">Attributes...</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.child"><TT>child</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTree	*</TT></TD>
+<TD VALIGN="TOP">First child entry</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.data"><TT>data</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Text (HD_ELEMENT_NONE or HD_ELEMENT_COMMENT)</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.element"><TT>element</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdElement	</TT></TD>
+<TD VALIGN="TOP">Markup element</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.elements"><TT>elements</TT></A></TD>
+<TD VALIGN="TOP"><TT>  static const char	*[]</TT></TD>
+<TD VALIGN="TOP">Strings for each element...</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.elgroup"><TT>elgroup</TT></A></TD>
+<TD VALIGN="TOP"><TT>  static unsigned char	[HD_ELEMENT_MAX]</TT></TD>
+<TD VALIGN="TOP">Grouping information for each element...</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.height"><TT>height</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Height of this fragment in points</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.last_child"><TT>last_child</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTree	*</TT></TD>
+<TD VALIGN="TOP">Last child entry</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.link"><TT>link</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTree	*</TT></TD>
+<TD VALIGN="TOP">Linked-to</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.nattrs"><TT>nattrs</TT></A></TD>
+<TD VALIGN="TOP"><TT>  short		</TT></TD>
+<TD VALIGN="TOP">Number of attributes...</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.next"><TT>next</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTree	*</TT></TD>
+<TD VALIGN="TOP">Next entry on this level</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.nodebreak"><TT>nodebreak</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		</TT></TD>
+<TD VALIGN="TOP">Line/left/right break before this node?</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.parent"><TT>parent</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTree	*</TT></TD>
+<TD VALIGN="TOP">Parent tree entry</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.prev"><TT>prev</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTree	*</TT></TD>
+<TD VALIGN="TOP">Previous entry on this level</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.style"><TT>style</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdStyle	*</TT></TD>
+<TD VALIGN="TOP">Style data</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.whitespace"><TT>whitespace</TT></A></TD>
+<TD VALIGN="TOP"><TT>  bool		</TT></TD>
+<TD VALIGN="TOP">Whitespace before this node?</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTree.width"><TT>width</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Width of this fragment in points</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<H4><A NAME="hdTree.add">void			add(hdTree *p)</A></H4>
+<DIV CLASS="indent">
+<P>The add() method adds the current node as the last child of
+the specified parent. If the node is a child of another parent, it
+is first removed from the old parent.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>p</TT></TD>
+<TD VALIGN="TOP"><TT>hdTree*</TT></TD>
+<TD VALIGN="TOP">Parent node.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.build_index">hdTree		*build_index(hdStyleSheet *css, hdFile *wordfile)</A></H4>
+<DIV CLASS="indent">
+<P>The build_index() method creates an index of words from a file.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>wordfile</TT></TD>
+<TD VALIGN="TOP"><TT>hdFile*</TT></TD>
+<TD VALIGN="TOP">The file containing the list of words.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The document tree containing the index.
+
+</DIV>
+
+<H4><A NAME="hdTree.build_index">hdTree		*build_index(hdStyleSheet *css, int num_phrases, const char **phrases)</A></H4>
+<DIV CLASS="indent">
+<P>The build_index() method creates an index of words from an array of
+phrases.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>num_phrases</TT></TD>
+<TD VALIGN="TOP"><TT>int</TT></TD>
+<TD VALIGN="TOP">The number of word phrases to index.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>phrases</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char**</TT></TD>
+<TD VALIGN="TOP">The word phrases to index.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The document tree containing the index.
+
+</DIV>
+
+<H4><A NAME="hdTree.build_list">hdTree		*build_list(hdStyleSheet *css, const char *class_, const char *prefix)</A></H4>
+<DIV CLASS="indent">
+<P>The build_list() method creates a list of figures, tables, etc. based
+on the named HTML class.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>class_</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The class to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>prefix</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The prefix to use for generated links.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The document tree containing the list.
+
+</DIV>
+
+<H4><A NAME="hdTree.build_toc">hdTree		*build_toc(hdStyleSheet *css, int levels, bool numbered)</A></H4>
+<DIV CLASS="indent">
+<P>The build_toc() method creates a table of contents with the given
+parameters.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>levels</TT></TD>
+<TD VALIGN="TOP"><TT>int</TT></TD>
+<TD VALIGN="TOP">The number of TOC levels to show.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>numbered</TT></TD>
+<TD VALIGN="TOP"><TT>bool</TT></TD>
+<TD VALIGN="TOP">If true, headings are automatically numbered.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The document tree containing the table of contents.
+
+</DIV>
+
+<H4><A NAME="hdTree.compute_size">void			compute_size(hdStyleSheet *css)</A></H4>
+<DIV CLASS="indent">
+<P>The compute_size() method computes the width and height of the node.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.copy_text">void			copy_text(hdStyleSheet *css, hdTree *p)</A></H4>
+<DIV CLASS="indent">
+<P>The copy_text() method copies all text nodes from the current node
+to the new parent node.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>p</TT></TD>
+<TD VALIGN="TOP"><TT>hdTree*</TT></TD>
+<TD VALIGN="TOP">The new parent node.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.find">hdTree		*find(hdElement e)</A></H4>
+<DIV CLASS="indent">
+<P>The find() method finds the first child node matching the given element.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>e</TT></TD>
+<TD VALIGN="TOP"><TT>hdElement</TT></TD>
+<TD VALIGN="TOP">The element to find.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>A pointer to the child node or NULL if none is found.
+
+</DIV>
+
+<H4><A NAME="hdTree.fix_url">static char		*fix_url(const char *url, const char *base, const char *path, char *s, int slen)</A></H4>
+<DIV CLASS="indent">
+<P>The fix_url() method converts a relative URL into an absolute URL.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>url</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The URL to convert.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>base</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The base path for the document.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>path</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">A semicolon-separated list of directories and URLs to search.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>s</TT></TD>
+<TD VALIGN="TOP"><TT>char*</TT></TD>
+<TD VALIGN="TOP">URL output buffer.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>slen</TT></TD>
+<TD VALIGN="TOP"><TT>int</TT></TD>
+<TD VALIGN="TOP">The size of the URL output buffer.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The absolute URL.
+
+</DIV>
+
+<H4><A NAME="hdTree.format">void			format(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The format() method formats this node and all child nodes, updating
+the width, height, and nodebreak members.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.format_block">void			format_block(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The format_block() method formats a block node and its children, updating
+the width, height, and nodebreak members.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.format_comment">void			format_comment(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The format_comment() method processes HTML comments.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.format_contents">void			format_contents(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The format_contents() method formats a table-of-contents.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.format_image">void			format_image(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The format_image() method formats an image, updating the width,
+height, and nodebreak members.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.format_index">void			format_index(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The format_index() method formats an index.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.format_list">void			format_list(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The format_list() method formats a list of whatever.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.format_table">void			format_table(hdStyleSheet *css, hdMargin *m, float &amp;x, float &amp;y, int &amp;page)</A></H4>
+<DIV CLASS="indent">
+<P>The format_table() method formats a table, updating the width,
+height, and nodebreak members.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The margins to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>x</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current X position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>y</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The current Y position in points.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>page</TT></TD>
+<TD VALIGN="TOP"><TT>int&amp;</TT></TD>
+<TD VALIGN="TOP">The current page.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.get_attr">const char		*get_attr(const char *name)</A></H4>
+<DIV CLASS="indent">
+<P>The get_attr() method retrieves the value of a node attribute.
+The attribute name is case-insensitive.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>name</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The attribute name.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The string value or NULL if undefined. If the name is
+defined without a value, then an empty string is returned.
+
+</DIV>
+
+<H4><A NAME="hdTree.get_cell_size">float			get_cell_size(hdStyleSheet *css, hdMargin *m, float &amp;minwidth, float &amp;prefwidth, float &amp;minheight)</A></H4>
+<DIV CLASS="indent">
+<P>The get_cell_size() method determines the size of the table cell.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The current margins.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>minwidth</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The minimum width of the cell.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>prefwidth</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The preferred width of the cell.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>minheight</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The minimum height of the cell.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The required width of the cell or 0 if none is specified.
+
+</DIV>
+
+<H4><A NAME="hdTree.get_element">static hdElement	get_element(const char *name)</A></H4>
+<DIV CLASS="indent">
+<P>The get_element() method gets the hdElement constant associated with
+the given string.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>name</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The element name.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The hdElement constant.
+
+</DIV>
+
+<H4><A NAME="hdTree.get_meta">const char		*get_meta(const char *name)</A></H4>
+<DIV CLASS="indent">
+<P>The get_meta() method gets the META data associated with the given name.
+If the current node is not a META element then get_meta() recursively
+searches the tree for META elements.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>name</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The META name.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The associated string value or NULL if none is count.
+
+</DIV>
+
+<H4><A NAME="hdTree.get_table_size">float			get_table_size(hdStyleSheet *css, hdMargin *m, float &amp;minwidth, float &amp;prefwidth, float &amp;minheight)</A></H4>
+<DIV CLASS="indent">
+<P>The get_table_size() method determines the size of a table.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>m</TT></TD>
+<TD VALIGN="TOP"><TT>hdMargin*</TT></TD>
+<TD VALIGN="TOP">The current margins.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>minwidth</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The minimum width of the table.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>prefwidth</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The preferred width of the table.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>minheight</TT></TD>
+<TD VALIGN="TOP"><TT>float&amp;</TT></TD>
+<TD VALIGN="TOP">The minimum height of the table.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The required width of the table or 0 if none is specified.
+
+</DIV>
+
+<H4><A NAME="hdTree.get_text">char			*get_text(bool comments = false)</A></H4>
+<DIV CLASS="indent">
+<P>The get_text() method returns the text associated with the current
+node. If the current node is not HD_ELEMENT_NONE or
+HD_ELEMENT_COMMENT, then get_text() recursively combines text
+fragments of child nodes as needed.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>comments</TT></TD>
+<TD VALIGN="TOP"><TT>bool</TT></TD>
+<TD VALIGN="TOP">Whether to include comment text.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The text associated with the current node or NULL if none
+is found.
+
+</DIV>
+
+<H4><A NAME="hdTree.get_title">char			*get_title()</A></H4>
+<DIV CLASS="indent">
+<P>The get_title() method returns the text associated with the title
+node in the current tree. If the current node is not a
+HD_ELEMENT_TITLE element, then get_title() recursively searches the
+tree.
+
+<P><B>Returns</B>
+<P>The title text or NULL if none is found.
+
+</DIV>
+
+<H4><A NAME="hdTree.hdTree">hdTree(hdElement e = HD_ELEMENT_NONE, const char *d = (const char *)0, hdTree *p = (hdTree *)0)</A></H4>
+<DIV CLASS="indent">
+<P>The constructor creates a new tree node.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>e</TT></TD>
+<TD VALIGN="TOP"><TT>hdElement</TT></TD>
+<TD VALIGN="TOP">The element type for this node.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>d</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The data for this node, if any.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>p</TT></TD>
+<TD VALIGN="TOP"><TT>hdTree*</TT></TD>
+<TD VALIGN="TOP">The parent node, if any.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.insert">void			insert(hdTree *p)</A></H4>
+<DIV CLASS="indent">
+<P>The insert() method inserts the current node as the first child of
+the specified parent. If the node is a child of another parent, it
+is first removed from the old parent.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>p</TT></TD>
+<TD VALIGN="TOP"><TT>hdTree*</TT></TD>
+<TD VALIGN="TOP">Parent node.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.parse_attribute">bool			parse_attribute(hdFile *fp)</A></H4>
+<DIV CLASS="indent">
+<P>The parse_attribute() method parses a single attribute from a file
+and adds it to the current node.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>fp</TT></TD>
+<TD VALIGN="TOP"><TT>hdFile*</TT></TD>
+<TD VALIGN="TOP">File to read from.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>Returns true if the attribute was read correctly, false
+otherwise.
+
+</DIV>
+
+<H4><A NAME="hdTree.parse_element">hdElement		parse_element(hdFile *fp)</A></H4>
+<DIV CLASS="indent">
+<P>The parse_element() method parses an element from a file and
+initializes the current node.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>fp</TT></TD>
+<TD VALIGN="TOP"><TT>hdFile*</TT></TD>
+<TD VALIGN="TOP">File to read from.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The HTML element or HD_ELEMENT_ERROR if the element could
+not be parsed.
+
+</DIV>
+
+<H4><A NAME="hdTree.parse_entity">void			parse_entity(hdFile *fp, hdStyleSheet *css, char *s, int slen)</A></H4>
+<DIV CLASS="indent">
+<P>The parse_entity() method parses a HTML entity (&amp;lt;, etc.)
+from a file and puts the corresponding string representation in
+the supplied string buffer.  If the entity is invalid, the
+original text is returned.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>fp</TT></TD>
+<TD VALIGN="TOP"><TT>hdFile*</TT></TD>
+<TD VALIGN="TOP">File to read from.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>s</TT></TD>
+<TD VALIGN="TOP"><TT>char*</TT></TD>
+<TD VALIGN="TOP">The string buffer.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>slen</TT></TD>
+<TD VALIGN="TOP"><TT>int</TT></TD>
+<TD VALIGN="TOP">The size of the string buffer in bytes.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.read">static hdTree		*read(hdFile *fp, const char *base, const char *path, hdStyleSheet *css)</A></H4>
+<DIV CLASS="indent">
+<P>The read() method reads a HTML document tree from the specified
+file.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>fp</TT></TD>
+<TD VALIGN="TOP"><TT>hdFile*</TT></TD>
+<TD VALIGN="TOP">File to read from.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>base</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The base path for the file.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>path</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The search path to use.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>css</TT></TD>
+<TD VALIGN="TOP"><TT>hdStyleSheet*</TT></TD>
+<TD VALIGN="TOP">The stylesheet to use.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The document tree.
+
+</DIV>
+
+<H4><A NAME="hdTree.real_next">hdTree		*real_next(bool descend = true)</A></H4>
+<DIV CLASS="indent">
+<P>The real_next() method returns the next logical node in the
+tree.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>descend</TT></TD>
+<TD VALIGN="TOP"><TT>bool</TT></TD>
+<TD VALIGN="TOP">Whether to descend into child nodes.</TD></TR>
+
+</TABLE></DIV>
+
+<P><B>Returns</B>
+<P>The next logical node.
+
+</DIV>
+
+<H4><A NAME="hdTree.real_prev">hdTree		*real_prev()</A></H4>
+<DIV CLASS="indent">
+<P>The real_prev() method returns the previous logical node in
+the tree.
+
+<P><B>Returns</B>
+<P>The previous logical node.
+
+</DIV>
+
+<H4><A NAME="hdTree.remove">void			remove()</A></H4>
+<DIV CLASS="indent">
+<P>The remove() method removes the current node from its parent.
+
+</DIV>
+
+<H4><A NAME="hdTree.set_attr">void			set_attr(const char *name, const char *value)</A></H4>
+<DIV CLASS="indent">
+<P>The set_attr() method adds or changes a node attribute.
+The attribute name is case-insensitive.
+
+<P><B>Parameters</B>
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Name</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><TT>name</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The name of the attribute.
+</TD></TR>
+
+<TR><TD VALIGN="TOP"><TT>value</TT></TD>
+<TD VALIGN="TOP"><TT>const&nbsp;char*</TT></TD>
+<TD VALIGN="TOP">The value of the attribute.</TD></TR>
+
+</TABLE></DIV>
+
+</DIV>
+
+<H4><A NAME="hdTree.~hdTree">~hdTree()</A></H4>
+<DIV CLASS="indent">
+<P>The destructor free a tree node.
+
+</DIV>
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdTreeAttr">struct hdTreeAttr</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdTreeAttr structure holds attribute information for a node.</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTreeAttr.name"><TT>name</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Variable name</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdTreeAttr.value"><TT>value</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Variable value</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
 </TABLE></DIV>
 
 </BODY>
@@ -345,23 +1421,272 @@ information for a pair of characters...</P>
 <P>This class does not provide any public methods.
 
 <!-- NEW PAGE -->
-<H2><A NAME="hdRenderLink">struct hdRenderLink</A></H2>
+<H2><A NAME="hdPDFRender">class hdPDFRender</A></H2>
 <HR>
 <H3>Description</H3>
-<P>The hdRenderLink structure describes a single link on a page.</P>
+<P>The hdPDFRender class writes PDF files.</P>
+
+<H3>Base Classes</H3>
+<P>
+<A HREF="#hdRender">hdRender</A>
+<H3>Members</H3>
+
+<P>This class does not provide any public members.
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdPSRender">class hdPSRender</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdPSRender class writes PostScript files.</P>
+
+<H3>Base Classes</H3>
+<P>
+<A HREF="#hdRender">hdRender</A>
+<H3>Members</H3>
+
+<P>This class does not provide any public members.
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdRender">class hdRender</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRender class converts hdTree nodes into pages which can be written
+to files or displays.</P>
 
 <H3>Members</H3>
 
 <DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
 <TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
 
-<TR><TD VALIGN="TOP"><A NAME="hdRenderLink.alloc_url"><TT>alloc_url</TT></A></TD>
+<TR><TD VALIGN="TOP"><A NAME="hdRender.alloc_chapters"><TT>alloc_chapters</TT></A></TD>
 <TD VALIGN="TOP"><TT>  int		</TT></TD>
-<TD VALIGN="TOP">Did we allocate the URL?</TD></TR>
+<TD VALIGN="TOP">Allocated chapters</TD></TR>
 
-<TR><TD VALIGN="TOP"><A NAME="hdRenderLink.url"><TT>url</TT></A></TD>
+<TR><TD VALIGN="TOP"><A NAME="hdRender.alloc_headings"><TT>alloc_headings</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Allocated headings</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.alloc_imgmaps"><TT>alloc_imgmaps</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Allocated image maps</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.alloc_links"><TT>alloc_links</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Allocated links</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.alloc_pages"><TT>alloc_pages</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Allocated pages</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.background_color"><TT>background_color</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		[3]</TT></TD>
+<TD VALIGN="TOP">Current background color</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.background_image"><TT>background_image</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdImage	*</TT></TD>
+<TD VALIGN="TOP">Current background image</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.background_position"><TT>background_position</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		[2]</TT></TD>
+<TD VALIGN="TOP">Current background start position</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.background_repeat"><TT>background_repeat</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdBackgroundRepeat </TT></TD>
+<TD VALIGN="TOP">Current background repeat mode</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.chapters"><TT>chapters</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdRenderChapter *</TT></TD>
+<TD VALIGN="TOP">Chapters</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.css"><TT>css</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdStyleSheet	*</TT></TD>
+<TD VALIGN="TOP">Stylesheet data</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.current_chapter"><TT>current_chapter</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Current chapter</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.current_heading"><TT>current_heading</TT></A></TD>
 <TD VALIGN="TOP"><TT>  char		*</TT></TD>
-<TD VALIGN="TOP">Link URL</TD></TR>
+<TD VALIGN="TOP">Current heading</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.doc_date"><TT>doc_date</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		[64]</TT></TD>
+<TD VALIGN="TOP">Document creation date</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.doc_time"><TT>doc_time</TT></A></TD>
+<TD VALIGN="TOP"><TT>  time_t	</TT></TD>
+<TD VALIGN="TOP">Document creation time</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.doc_title"><TT>doc_title</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Document title</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.headings"><TT>headings</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdRenderHeading *</TT></TD>
+<TD VALIGN="TOP">Headings</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.imgmaps"><TT>imgmaps</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTree	**</TT></TD>
+<TD VALIGN="TOP">Image maps</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.links"><TT>links</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdRenderLink	*</TT></TD>
+<TD VALIGN="TOP">Links</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.media"><TT>media</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdStyleMedia	</TT></TD>
+<TD VALIGN="TOP">Media attributes</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.num_chapters"><TT>num_chapters</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Number of chapters</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.num_headings"><TT>num_headings</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Number of headings</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.num_imgmaps"><TT>num_imgmaps</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Number of image maps</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.num_links"><TT>num_links</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Number of links</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.num_pages"><TT>num_pages</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Number of pages</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.pages"><TT>pages</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdRenderPage	*</TT></TD>
+<TD VALIGN="TOP">Pages</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.render_font"><TT>render_font</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdStyleFont	*</TT></TD>
+<TD VALIGN="TOP">Current font</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.render_rgb"><TT>render_rgb</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		[3]</TT></TD>
+<TD VALIGN="TOP">Current drawing color</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.render_size"><TT>render_size</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Current font size</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.render_spacing"><TT>render_spacing</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Current text spacing</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.render_startx"><TT>render_startx</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Current text X margin</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.render_x"><TT>render_x</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Current X position</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.render_y"><TT>render_y</TT></A></TD>
+<TD VALIGN="TOP"><TT>  float		</TT></TD>
+<TD VALIGN="TOP">Current Y position</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRender.title_page"><TT>title_page</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Non-zero when processing title page</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdRenderChapter">struct hdRenderChapter</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRenderChapter structure holds the start and end pages for
+a chapter.</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderChapter.first"><TT>first</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">First page in chapter</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderChapter.last"><TT>last</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Last page in chapter</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdRenderHeading">struct hdRenderHeading</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRenderHeading structure holds the page and position of each
+heading in a document.</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderHeading.node"><TT>node</TT></A></TD>
+<TD VALIGN="TOP"><TT>  hdTree	*</TT></TD>
+<TD VALIGN="TOP">HTML tree node with heading</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderHeading.page"><TT>page</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Page number</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderHeading.top"><TT>top</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Top position</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdRenderLink">struct hdRenderLink</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRenderLink structure holds the positions and pages of
+named links.</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderLink.name"><TT>name</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Reference name</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderLink.page"><TT>page</TT></A></TD>
+<TD VALIGN="TOP"><TT>  short		</TT></TD>
+<TD VALIGN="TOP">Page number</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderLink.top"><TT>top</TT></A></TD>
+<TD VALIGN="TOP"><TT>  short		</TT></TD>
+<TD VALIGN="TOP">Top position</TD></TR>
 
 </TABLE></DIV>
 
@@ -397,10 +1722,6 @@ producing PostScript and PDF output.</P>
 <TR><TD VALIGN="TOP"><A NAME="hdRenderNode.type"><TT>type</TT></A></TD>
 <TD VALIGN="TOP"><TT>  hdRenderType	</TT></TD>
 <TD VALIGN="TOP">Type of node</TD></TR>
-
-<TR><TD VALIGN="TOP"><A NAME="hdRenderNode.union"><TT>union</TT></A></TD>
-<TD VALIGN="TOP"><TT>  </TT></TD>
-<TD VALIGN="TOP">Union of render data</TD></TR>
 
 <TR><TD VALIGN="TOP"><A NAME="hdRenderNode.width"><TT>width</TT></A></TD>
 <TD VALIGN="TOP"><TT>  float		</TT></TD>
@@ -629,6 +1950,31 @@ page.</P>
 <TR><TD VALIGN="TOP"><A NAME="hdRenderText.string"><TT>string</TT></A></TD>
 <TD VALIGN="TOP"><TT>  char		*</TT></TD>
 <TD VALIGN="TOP">String pointer</TD></TR>
+
+</TABLE></DIV>
+
+<H3>Methods</H3>
+
+<P>This class does not provide any public methods.
+
+<!-- NEW PAGE -->
+<H2><A NAME="hdRenderURL">struct hdRenderURL</A></H2>
+<HR>
+<H3>Description</H3>
+<P>The hdRenderURL structure describes a single link on a page.</P>
+
+<H3>Members</H3>
+
+<DIV CLASS="indent"><TABLE BORDER="1" CELLPADDING="5">
+<TR BGCOLOR="#cccccc"><TH>Member</TH><TH>Data&nbsp;Type</TH><TH>Description</TH></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderURL.alloc_url"><TT>alloc_url</TT></A></TD>
+<TD VALIGN="TOP"><TT>  int		</TT></TD>
+<TD VALIGN="TOP">Did we allocate the URL?</TD></TR>
+
+<TR><TD VALIGN="TOP"><A NAME="hdRenderURL.url"><TT>url</TT></A></TD>
+<TD VALIGN="TOP"><TT>  char		*</TT></TD>
+<TD VALIGN="TOP">Link URL</TD></TR>
 
 </TABLE></DIV>
 
