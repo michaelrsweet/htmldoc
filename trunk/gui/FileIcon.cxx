@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.6 1999/04/29 19:26:49 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.7 1999/07/13 19:12:55 mike Exp $"
 //
 //   FileIcon routines for the Common UNIX Printing System (CUPS).
 //
@@ -229,7 +229,7 @@ FileIcon::draw(int      x,	// I - Upper-lefthand X
   double	scale;		// Scale of icon
 
   // Don't try to draw a NULL array!
-  if (num_data_ == NULL)
+  if (num_data_ == 0)
     return;
 
   // Setup the transform matrix as needed...
@@ -606,5 +606,5 @@ FileIcon::load_system_icons(void)
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.6 1999/04/29 19:26:49 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.7 1999/07/13 19:12:55 mike Exp $".
 //
