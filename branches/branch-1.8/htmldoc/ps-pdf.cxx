@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.41 2001/03/11 22:29:14 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.42 2001/03/12 16:57:09 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -7265,7 +7265,7 @@ write_prolog(FILE  *out,	/* I - Output file */
     fputs("/L{0 rlineto stroke}BD", out);
     fputs("/M{moveto}BD\n", out);
     fputs("/S{show}BD", out);
-    fputs("/SF{findfont /hdFontSize scalefont setfont}BD", out);
+    fputs("/SF{findfont hdFontSize scalefont setfont}BD", out);
     fputs("/SP{showpage}BD", out);
     fputs("/T{translate}BD\n", out);
 
@@ -8273,5 +8273,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.41 2001/03/11 22:29:14 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.42 2001/03/12 16:57:09 mike Exp $".
  */
