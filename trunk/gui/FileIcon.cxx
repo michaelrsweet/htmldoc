@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx,v 1.23 2001/04/15 11:52:45 mike Exp $"
+// "$Id: FileIcon.cxx,v 1.24 2001/05/31 19:33:10 mike Exp $"
 //
 //   FileIcon routines.
 //
@@ -42,9 +42,13 @@
 // Include necessary header files...
 //
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_STRINGS_H
+#  include <strings.h>
+#endif // HAVE_STRINGS_H
 #include <ctype.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -557,7 +561,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     {
       if (ch == '(')
         break;
-      else if ((ptr - command) < (sizeof(command) - 1))
+      else if (ptr < (command + sizeof(command) - 1))
         *ptr++ = ch;
     }
 
@@ -578,7 +582,7 @@ FileIcon::load_fti(const char *fti)	// I - File to read from
     {
       if (ch == ')')
         break;
-      else if ((ptr - params) < (sizeof(params) - 1))
+      else if (ptr < (params + sizeof(params) - 1))
         *ptr++ = ch;
     }
 
@@ -1217,5 +1221,5 @@ get_kde_val(char       *str,
 
 
 //
-// End of "$Id: FileIcon.cxx,v 1.23 2001/04/15 11:52:45 mike Exp $".
+// End of "$Id: FileIcon.cxx,v 1.24 2001/05/31 19:33:10 mike Exp $".
 //
