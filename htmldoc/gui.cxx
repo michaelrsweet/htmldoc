@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.20 2001/08/29 20:41:57 mike Exp $"
+// "$Id: gui.cxx,v 1.36.2.21 2001/09/17 16:59:50 mike Exp $"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -386,14 +386,18 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   inputTab = new Fl_Group(10, 35, 450, 260, "Input");
 
-  group = new Fl_Group(140, 45, 150, 20, "Document Type: ");
+  group = new Fl_Group(140, 45, 250, 20, "Document Type: ");
   group->align(FL_ALIGN_LEFT);
     typeBook = new CheckButton(140, 45, 60, 20, "Book");
     typeBook->type(FL_RADIO_BUTTON);
     typeBook->setonly();
     typeBook->callback((Fl_Callback *)docTypeCB, this);
 
-    typeWebPage = new CheckButton(200, 45, 90, 20, "Web Page");
+    typeContinuous = new CheckButton(200, 45, 100, 20, "Continuous");
+    typeContinuous->type(FL_RADIO_BUTTON);
+    typeContinuous->callback((Fl_Callback *)docTypeCB, this);
+
+    typeWebPage = new CheckButton(300, 45, 90, 20, "Web Page");
     typeWebPage->type(FL_RADIO_BUTTON);
     typeWebPage->callback((Fl_Callback *)docTypeCB, this);
   group->end();
@@ -1252,15 +1256,22 @@ GUI::newBook(void)
 
   prefs_load();
 
-  if (OutputBook)
+  switch (OutputType)
   {
-    typeBook->setonly();
-    docTypeCB(typeBook, this);
-  }
-  else
-  {
-    typeWebPage->setonly();
-    docTypeCB(typeWebPage, this);
+    case OUTPUT_BOOK :
+	typeBook->setonly();
+	docTypeCB(typeBook, this);
+	break;
+
+    case OUTPUT_CONTINUOUS :
+	typeContinuous->setonly();
+	docTypeCB(typeContinuous, this);
+	break;
+
+    case OUTPUT_WEBPAGES :
+	typeWebPage->setonly();
+	docTypeCB(typeWebPage, this);
+	break;
   }
 
   inputFiles->clear();
@@ -1735,6 +1746,12 @@ GUI::parseOptions(const char *line)	// I - Line from file
       docTypeCB(typeBook, this);
       continue;
     }
+    else if (strcmp(temp, "--continuous") == 0)
+    {
+      typeContinuous->setonly();
+      docTypeCB(typeContinuous, this);
+      continue;
+    }
     else if (strcmp(temp, "--webpage") == 0)
     {
       typeWebPage->setonly();
@@ -2102,6 +2119,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
 
   if (typeWebPage->value())
     fputs(" --webpage", fp);
+  else if (typeContinuous->value())
+    fputs(" --continuous", fp);
   else
   {
     fputs(" --book", fp);
@@ -2357,11 +2376,9 @@ GUI::changeCB(Fl_Widget *w,	// I - Widget
 //
 
 void
-GUI::docTypeCB(Fl_Widget *w,		// I - Toggle button widget
+GUI::docTypeCB(Fl_Widget *w,	// I - Toggle button widget
                GUI       *gui)	// I - GUI
 {
-  REF(w);
-
   gui->title(gui->book_filename, 1);
 
   if (w == gui->typeBook)
@@ -3694,7 +3711,13 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   strcpy(OutputPath, gui->outputPath->value());
 
   OutputFiles = gui->outputDirectory->value();
-  OutputBook  = gui->typeBook->value();
+
+  if (gui->typeBook->value())
+    OutputType = OUTPUT_BOOK;
+  else if (gui->typeContinuous->value())
+    OutputType = OUTPUT_CONTINUOUS;
+  else
+    OutputType = OUTPUT_WEBPAGES;
 
   set_page_size((char *)gui->pageSize->value());
 
@@ -3887,7 +3910,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
     * Build a table of contents for the documents...
     */
 
-    if (OutputBook && TocLevels > 0)
+    if (OutputType == OUTPUT_BOOK && TocLevels > 0)
       toc = toc_build(document);
     else
       toc = NULL;
@@ -3957,5 +3980,5 @@ GUI::errorCB(Fl_Widget *w,		// I - Widget
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.20 2001/08/29 20:41:57 mike Exp $".
+// End of "$Id: gui.cxx,v 1.36.2.21 2001/09/17 16:59:50 mike Exp $".
 //

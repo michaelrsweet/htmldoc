@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.102 2001/09/13 18:16:49 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.103 2001/09/17 16:59:55 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -661,7 +661,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   * Parse the document...
   */
 
-  if (OutputBook)
+  if (OutputType == OUTPUT_BOOK)
     chapter = 0;
   else
   {
@@ -914,7 +914,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
   * and arabic numbers for all others...
   */
 
-  if (chapter == 0 && OutputBook)
+  if (chapter == 0 && OutputType == OUTPUT_BOOK)
   {
     print_page = page - chapter_starts[0] + 1;
     page_text  = format_number(print_page, 'i');
@@ -967,7 +967,7 @@ pspdf_prepare_page(int   page,			/* I - Page number */
     * Add chapter header & footer...
     */
 
-    if (page > chapter_starts[chapter] || !OutputBook)
+    if (page > chapter_starts[chapter] || OutputType != OUTPUT_BOOK)
       pspdf_prepare_heading(page, print_page, title, pages[page].header,
                             PagePrintLength);
     pspdf_prepare_heading(page, print_page, title, pages[page].footer, 0);
@@ -1237,8 +1237,6 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
         	  uchar *copyright,	/* I - Copyright (if any) on the document */
                   uchar *keywords)	/* I - Search keywords */
 {
-  uchar		*page_chapter,	/* Current chapter text */
-		*page_heading;	/* Current heading text */
   FILE		*out;		/* Output file */
   int		page;		/* Current page # */
 
@@ -1247,10 +1245,8 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
   * Write the title page(s)...
   */
 
-  chapter      = -1;
-  page_chapter = NULL;
-  page_heading = NULL;
-  out          = NULL;
+  chapter = -1;
+  out     = NULL;
 
   if (!OutputFiles)
   {
@@ -1312,7 +1308,7 @@ ps_write_document(uchar *title,		/* I - Title on all pages */
                    title, author, creator, copyright, keywords);
     }
 
-    for (page = chapter_starts[chapter], page_heading = NULL;
+    for (page = chapter_starts[chapter];
          page <= chapter_ends[chapter];
          page ++)
       ps_write_page(out, page, title);
@@ -1628,8 +1624,6 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
                    tree_t *toc)		/* I - Table of contents tree */
 {
   int		i;			// Looping variable
-  uchar		*page_chapter,		/* Current chapter text */
-		*page_heading;		/* Current heading text */
   FILE		*out;			/* Output file */
   int		page,			/* Current page # */
 		heading;		/* Current heading # */
@@ -1702,9 +1696,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
   fputs("]", out);
   pdf_end_object(out);
 
-  page_chapter = NULL;
-  page_heading = NULL;
-  chapter      = -1;
+  chapter = -1;
 
   if (TitlePage)
     for (page = 0; page < chapter_starts[1]; page ++)
@@ -1715,7 +1707,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
     if (chapter_starts[chapter] < 0)
       continue;
 
-    for (page = chapter_starts[chapter], page_heading = NULL;
+    for (page = chapter_starts[chapter];
          page <= chapter_ends[chapter];
          page ++)
       pdf_write_page(out, page, title);
@@ -1723,7 +1715,7 @@ pdf_write_document(uchar  *title,	/* I - Title for all pages */
 
   if (TocLevels > 0)
   {
-    for (chapter = 0, page = chapter_starts[0], page_heading = NULL;
+    for (chapter = 0, page = chapter_starts[0];
 	 page <= chapter_ends[0];
 	 page ++)
       pdf_write_page(out, page, title);
@@ -2949,8 +2941,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
   while (t != NULL)
   {
-    if (((t->markup == MARKUP_H1 && OutputBook) ||
-         (t->markup == MARKUP_FILE && !OutputBook)) && !title_page)
+    if (((t->markup == MARKUP_H1 && OutputType == OUTPUT_BOOK) ||
+         (t->markup == MARKUP_FILE && OutputType == OUTPUT_WEBPAGES)) &&
+	!title_page)
     {
       // New page on H1 in book mode or file in webpage mode...
       if (para->child != NULL)
@@ -2960,8 +2953,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
         para->child = para->last_child = NULL;
       }
 
-      if ((chapter > 0 && OutputBook) ||
-          ((*page > 1 || *y < *top) && !OutputBook))
+      if ((chapter > 0 && OutputType == OUTPUT_BOOK) ||
+          ((*page > 1 || *y < *top) && OutputType == OUTPUT_WEBPAGES))
       {
         (*page) ++;
         if (PageDuplex && (*page & 1))
@@ -3006,8 +2999,20 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       * Add a file link...
       */
 
-      add_link(htmlGetVariable(t, (uchar *)"FILENAME"), *page + OutputBook,
-               (int)top);
+      uchar	name[256],	/* New filename */
+		*sep;		/* "?" separator in links */
+
+
+      // Strip any trailing HTTP GET data stuff...
+      strncpy((char *)name, (char *)htmlGetVariable(t, (uchar *)"FILENAME"),
+              sizeof(name) - 1);
+      name[sizeof(name) - 1] = '\0';
+
+      if ((sep = (uchar *)strchr((char *)name, '?')) != NULL)
+        *sep = '\0';
+
+      // Add the link
+      add_link(name, *page + (OutputType == OUTPUT_BOOK), (int)top);
     }
 
     if (chapter == 0 && !title_page)
@@ -3541,8 +3546,8 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
   parse_paragraph(t, left, right, bottom, top, x, y, page, needspace);
 
-  if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 && OutputBook &&
-      !title_page)
+  if (t->halignment == ALIGN_RIGHT && t->markup == MARKUP_H1 &&
+      OutputType == OUTPUT_BOOK && !title_page)
   {
    /*
     * Special case - chapter heading for users manual...
@@ -6762,11 +6767,11 @@ check_pages(int page)	// I - Current page
  */
 
 static void
-add_link(uchar *name,	/* I - Name of link */
-         int   page,	/* I - Page # */
-         int   top)	/* I - Y position */
+add_link(uchar *name,		/* I - Name of link */
+         int   page,		/* I - Page # */
+         int   top)		/* I - Y position */
 {
-  link_t	*temp;	/* New name */
+  link_t	*temp;		/* New name */
 
 
   if (name == NULL)
@@ -9424,7 +9429,7 @@ static void
 write_trailer(FILE *out,	/* I - Output file */
               int  pages)	/* I - Number of pages in file */
 {
-  int		i, j,		/* Looping vars */
+  int		i,		/* Looping vars */
 		type,		/* Type of number */
 		offset;		/* Offset to xref table in PDF file */
   static const char *modes[] =	/* Page modes */
@@ -9502,7 +9507,7 @@ write_trailer(FILE *out,	/* I - Output file */
 
     fprintf(out, "/PageMode/%s", modes[PDFPageMode]);
 
-    if (PDFVersion > 1.2 && OutputBook)
+    if (PDFVersion > 1.2 && OutputType == OUTPUT_BOOK)
     {
       // Output the PageLabels tree...
       fputs("/PageLabels<</Nums[", out);
@@ -10008,5 +10013,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.102 2001/09/13 18:16:49 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.103 2001/09/17 16:59:55 mike Exp $".
  */

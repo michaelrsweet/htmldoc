@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.18.2.8 2001/08/29 20:42:02 mike Exp $"
+ * "$Id: htmldoc.h,v 1.18.2.9 2001/09/17 16:59:55 mike Exp $"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -53,6 +53,18 @@ extern "C" {
  */
 
 #define REF(x)		(void)x;
+
+
+/*
+ * Output type...
+ */
+
+enum
+{
+  OUTPUT_BOOK,
+  OUTPUT_CONTINUOUS,
+  OUTPUT_WEBPAGES
+};
 
 
 /*
@@ -133,7 +145,8 @@ VAR int		TitlePage	VALUE(1),	/* Need a title page */
 		TocLinks	VALUE(1),	/* Generate links */
 		TocNumbers	VALUE(0),	/* Generate heading numbers */
 		TocDocCount	VALUE(0);	/* Number of chapters */
-VAR int		OutputBook	VALUE(1);	/* Output a "book" */
+VAR int		OutputType	VALUE(OUTPUT_BOOK);
+						/* Output a "book", etc. */
 VAR char	OutputPath[255]	VALUE("");	/* Output directory/name */
 VAR int		OutputFiles	VALUE(0),	/* Generate multiple files? */
 		OutputColor	VALUE(1);	/* Output color images */
@@ -246,5 +259,5 @@ extern char	*format_number(int n, char f);
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.18.2.8 2001/08/29 20:42:02 mike Exp $".
+ * End of "$Id: htmldoc.h,v 1.18.2.9 2001/09/17 16:59:55 mike Exp $".
  */
