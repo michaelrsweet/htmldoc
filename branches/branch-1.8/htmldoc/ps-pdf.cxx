@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.89.2.43 2001/03/28 17:59:51 mike Exp $"
+ * "$Id: ps-pdf.cxx,v 1.89.2.44 2001/04/12 21:20:20 mike Exp $"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -3851,6 +3851,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 		cellpadding,
 		cellspacing,
 		border,
+		border_left,
+		border_size,
 		width,
 		pref_width,
 		span_width,
@@ -3931,6 +3933,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   }
   else
     border = 0.0f;
+
+  border_size = border - 1.0f;
 
   memset(row_spans, 0, sizeof(row_spans));
   memset(span_heights, 0, sizeof(span_heights));
@@ -4015,7 +4019,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	      colspan == 1)
 	  {
 	    if (var[strlen((char *)var) - 1] == '%')
-              col_width -= 2.0 * (cellpadding + border) - cellspacing;
+              col_width -= 2.0 * cellpadding - cellspacing;
 	  }
 	  else
 	    col_width = 0.0f;
@@ -4091,8 +4095,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     for (col = 0, width = 0.0; col < num_cols; col ++)
       width += col_prefs[col];
 
-    width += (2 * (border + cellpadding) + cellspacing) * num_cols -
-             cellspacing;
+    width += (2 * cellpadding + cellspacing) * num_cols - cellspacing;
 
     if (width > (right - left))
       width = right - left;
@@ -4104,7 +4107,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
   DEBUG_printf(("\nTABLE: %dx%d\n\n", num_cols, num_rows));
 
-  actual_width  = (2 * (border + cellpadding) + cellspacing) * num_cols -
+  actual_width  = (2 * cellpadding + cellspacing) * num_cols -
                   cellspacing;
   regular_width = (width - actual_width) / num_cols;
 
@@ -4201,8 +4204,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       for (colspan = 0, span_width = 0.0f; colspan < col_spans[col]; colspan ++)
         span_width += col_widths[col + colspan];
 
-      span_width += 2 * (border + cellpadding + cellspacing) *
-                    (col_spans[col] - 1);
+      span_width += (2 * cellpadding + cellspacing) *
+                    (col_spans[col] - 1) - cellspacing;
       pref_width = 0.0f;
 
       if (span_width < col_swidths[col])
@@ -4283,13 +4286,13 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   switch (t->halignment)
   {
     case ALIGN_LEFT :
-        *x = left + border + cellpadding;
+        *x = left + cellpadding;
         break;
     case ALIGN_CENTER :
-        *x = left + 0.5f * (right - left - width) + border + cellpadding;
+        *x = left + 0.5f * (right - left - width) + cellpadding;
         break;
     case ALIGN_RIGHT :
-        *x = right - width + border + cellpadding;
+        *x = right - width + cellpadding;
         break;
   }
 
@@ -4297,7 +4300,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
   {
     col_lefts[col]  = *x;
     col_rights[col] = *x + col_widths[col];
-    *x = col_rights[col] + 2 * (border + cellpadding) + cellspacing;
+    *x = col_rights[col] + 2 * cellpadding + cellspacing;
 
     DEBUG_printf(("left[%d] = %.1f, right[%d] = %.1f\n", col, col_lefts[col], col,
                   col_rights[col]));
@@ -4328,8 +4331,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       if (cells[row][0]->parent->prev != NULL &&
           cells[row][0]->parent->prev->markup == MARKUP_COMMENT)
         parse_comment(cells[row][0]->parent->prev,
-                      left, right, bottom + border + cellpadding,
-                      top - border - cellpadding, x, y, page, NULL, 0);
+                      left, right, bottom + cellpadding,
+                      top - cellpadding, x, y, page, NULL, 0);
 
      /*
       * Get height...
@@ -4349,14 +4352,14 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       // Row height specified; make sure it'll fit...
       if (height_var[strlen((char *)height_var) - 1] == '%')
 	temp_height = atof((char *)height_var) * 0.01f *
-	              (PagePrintLength - 2 * (border + cellpadding));
+	              (PagePrintLength - 2 * cellpadding);
       else
         temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
 
       if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
         temp_height /= num_rows;
 
-      temp_height -= 2 * (border + cellpadding);
+      temp_height -= 2 * cellpadding;
     }
     else
     {
@@ -4372,8 +4375,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	temp_height = PageLength / 8;
     }
 
-    if (*y < (bottom + 2 * (border + cellpadding) + temp_height) &&
-        temp_height <= (top - bottom - 2 * (border + cellpadding)))
+    if (*y < (bottom + 2 * cellpadding + temp_height) &&
+        temp_height <= (top - bottom - 2 * cellpadding))
     {
       *y = top;
       (*page) ++;
@@ -4383,7 +4386,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
     }
 
     do_valign  = 1;
-    row_y      = *y - (border + cellpadding);
+    row_y      = *y - cellpadding;
     row_page   = *page;
     row_height = 0.0f;
 
@@ -4408,7 +4411,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
                     col, colspan, col_lefts[col], col_rights[col + colspan], cells[row][col]));
 
       *x        = col_lefts[col];
-      temp_y    = *y - (border + cellpadding);
+      temp_y    = *y - cellpadding;
       temp_page = *page;
       tempspace = 0;
 
@@ -4421,20 +4424,20 @@ parse_table(tree_t *t,		/* I - Tree to parse */
         if (cells[row][col] != NULL && cells[row][col]->child != NULL)
 	  parse_doc(cells[row][col]->child,
                     col_lefts[col], col_rights[col + colspan],
-                    bottom + border + cellpadding,
-                    top - border - cellpadding,
+                    bottom + cellpadding,
+                    top - cellpadding,
                     x, &temp_y, &temp_page, NULL, &tempspace);
 
         cell_endpage[col] = temp_page;
         cell_endy[col]    = temp_y;
-        cell_height[col]  = *y - (border + cellpadding) - temp_y;
+        cell_height[col]  = *y - cellpadding - temp_y;
         cell_end[col]     = endpages[*page];
 
         if (cell_start[col] == NULL)
 	  cell_start[col] = pages[*page];
 
         DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n",
-	              row, col, *y - (border + cellpadding), temp_y, cell_height[col]));
+	              row, col, *y - cellpadding, temp_y, cell_height[col]));
       }
 
       if (row_spans[col] == 0 &&
@@ -4603,7 +4606,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
           cells[row][col] != NULL && cells[row][col]->child != NULL)
         cell_endpage[col] = temp_page;
 
-    row_y -= 2 * (border + cellpadding);
+    row_y -= 2 * cellpadding;
 
     for (col = 0; col < num_cols; col += colspan + 1)
     {
@@ -4620,7 +4623,7 @@ parse_table(tree_t *t,		/* I - Tree to parse */
       colspan --;
 
       width = col_rights[col + colspan] - col_lefts[col] +
-              2 * cellpadding + 2 * border;
+              2 * cellpadding;
 
       if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
           row_spans[col] > 0)
@@ -4632,6 +4635,8 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
       if (bgcolor != NULL)
         get_color(bgcolor, bgrgb, 0);
+
+      border_left = col_lefts[col] - cellpadding;
 
       if (cell_page[col] != cell_endpage[col])
       {
@@ -4646,19 +4651,18 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  * |   |   |   |
 	  */
 
-          new_render(cell_page[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
-                     bottom, 0.0f,
-                     cell_y[col] - bottom + border + cellpadding, rgb);
-          new_render(cell_page[col], RENDER_BOX, col_rights[col] + cellpadding + border,
-                     bottom, 0.0f,
-                     cell_y[col] - bottom + border + cellpadding, rgb);
-          new_render(cell_page[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
-                     cell_y[col] + border + cellpadding, width, 0.0f, rgb);
+          new_render(cell_page[col], RENDER_FBOX, border_left, bottom,
+                     border_size, cell_y[col] - bottom + cellpadding, rgb);
+          new_render(cell_page[col], RENDER_FBOX,
+	             border_left + width - border_size, bottom,
+		     border_size, cell_y[col] - bottom + cellpadding, rgb);
+          new_render(cell_page[col], RENDER_FBOX, border_left,
+                     cell_y[col] + cellpadding, width, border_size, rgb);
         }
 
         if (bgcolor != NULL)
-          new_render(*page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
-                     bottom, width, cell_y[col] - bottom + border + cellpadding, bgrgb, 1);
+          new_render(*page, RENDER_FBOX, border_left, bottom,
+                     width, cell_y[col] - bottom + cellpadding, bgrgb, 1);
 
         for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
 	{
@@ -4669,15 +4673,16 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 
 	  if (border > 0)
 	  {
-            new_render(temp_page, RENDER_BOX, col_lefts[col] - cellpadding - border,
-                       bottom, 0.0f, top - bottom, rgb);
-            new_render(temp_page, RENDER_BOX, col_rights[col] + cellpadding + border,
-                       bottom, 0.0f, top - bottom, rgb);
+            new_render(temp_page, RENDER_FBOX, border_left, bottom,
+                       border_size, top - bottom, rgb);
+            new_render(temp_page, RENDER_FBOX,
+	               border_left + width - border_size, bottom,
+		       border_size, top - bottom, rgb);
           }
 
 	  if (bgcolor != NULL)
-            new_render(temp_page, RENDER_FBOX, col_lefts[col] - cellpadding - border,
-                       bottom, width, top - bottom, bgrgb, 1);
+            new_render(temp_page, RENDER_FBOX, border_left, bottom,
+                       width, top - bottom, bgrgb, 1);
         }
 
         if (border > 0)
@@ -4687,27 +4692,44 @@ parse_table(tree_t *t,		/* I - Tree to parse */
 	  * +---+---+---+
 	  */
 
-          new_render(cell_endpage[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
-                     row_y, 0.0f, top - row_y, rgb);
-          new_render(cell_endpage[col], RENDER_BOX, col_rights[col] + cellpadding + border,
-                     row_y, 0.0f, top - row_y, rgb);
-          new_render(cell_endpage[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
-                     row_y, width, 0.0f, rgb);
+          new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
+                     border_size, top - row_y, rgb);
+          new_render(cell_endpage[col], RENDER_FBOX,
+	             border_left + width - border_size, row_y,
+                     border_size, top - row_y, rgb);
+          new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
+                     width, border_size, rgb);
         }
 
         if (bgcolor != NULL)
-          new_render(cell_endpage[col], RENDER_FBOX, col_lefts[col] - cellpadding - border,
-                     row_y, width, top - row_y, bgrgb, 1);
+          new_render(cell_endpage[col], RENDER_FBOX, border_left, row_y,
+	             width, top - row_y, bgrgb, 1);
       }
       else
       {
+	 /*
+	  * +---+---+---+
+	  * |   |   |   |
+	  * +---+---+---+
+	  */
+
         if (border > 0)
-          new_render(cell_page[col], RENDER_BOX, col_lefts[col] - cellpadding - border,
-                     row_y, width, cell_y[col] - row_y + border + cellpadding, rgb);
+	{
+          new_render(cell_page[col], RENDER_FBOX, border_left,
+                     cell_y[col] + cellpadding - border_size,
+		     width, border_size, rgb);
+          new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
+                     border_size, cell_y[col] - row_y + cellpadding, rgb);
+          new_render(cell_page[col], RENDER_FBOX,
+	             border_left + width - border_size, row_y,
+                     border_size, cell_y[col] - row_y + cellpadding, rgb);
+          new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
+                     width, border_size, rgb);
+	}
 
         if (bgcolor != NULL)
-          new_render(cell_page[col], RENDER_FBOX, col_lefts[col] - cellpadding - border,
-                     row_y, width, cell_y[col] - row_y + border + cellpadding, bgrgb, 1);
+          new_render(cell_page[col], RENDER_FBOX, border_left, row_y,
+                     width, cell_y[col] - row_y + cellpadding, bgrgb, 1);
       }
     }
 
@@ -5631,8 +5653,7 @@ get_table_size(tree_t *t,		// I - Table
 		row_min,		// Row minimum width
 		row_height,		// Row minimum height
 		cellpadding,		// Padding inside cells
-		cellspacing,		// Spacing around cells
-		border;			// Border thickness
+		cellspacing;		// Spacing around cells
   int		columns,		// Current number of columns
 		max_columns,		// Maximum columns
 		rows;			// Number of rows
@@ -5738,7 +5759,7 @@ get_table_size(tree_t *t,		// I - Table
   // Make sure last row is counted in min height calcs.
   minh += row_height;
 
-  // Add room for spacing, padding, and borders...
+  // Add room for spacing and padding...
   if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
     cellpadding = atoi((char *)var);
   else
@@ -5749,20 +5770,12 @@ get_table_size(tree_t *t,		// I - Table
   else
     cellspacing = 0.0f;
 
-  if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
-  {
-    if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
-      border = 1.0f;
-  }
-  else
-    border = 0.0f;
-
   if (width > 0.0f)
-    width += max_columns * (2 * (border + cellpadding) + cellspacing);
+    width += max_columns * (2 * cellpadding + cellspacing) - cellspacing;
 
-  minw  += max_columns * (2 * (border + cellpadding) + cellspacing);
-  prefw += max_columns * (2 * (border + cellpadding) + cellspacing);
-  minh  += rows * (2 * (border + cellpadding) + cellspacing);
+  minw  += max_columns * (2 * cellpadding + cellspacing) - cellspacing;
+  prefw += max_columns * (2 * cellpadding + cellspacing) - cellspacing;
+  minh  += rows * (2 * cellpadding + cellspacing) - cellspacing;
 
   // Return the required, minimum, and preferred size of the table...
   *minwidth  = minw;
@@ -8285,5 +8298,5 @@ flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.89.2.43 2001/03/28 17:59:51 mike Exp $".
+ * End of "$Id: ps-pdf.cxx,v 1.89.2.44 2001/04/12 21:20:20 mike Exp $".
  */
