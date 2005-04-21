@@ -1,6 +1,20 @@
 CHANGES-1.8.txt
 ---------------
 
+CHANGES IN HTMLDOC v1.8.25
+
+    NEW FEATURES
+
+	- Added "--overflow" and "--no-overflow" command-line
+	  options to show or hide the content-too-large errors;
+	  the default is "--no-overflow".
+
+    BUG FIXES
+
+	- "$HFIMAGEn" didn't work in a header/footer string.
+	- HTMLDOC could crash when rendering a table.
+
+
 CHANGES IN HTMLDOC v1.8.24
 
     NEW FEATURES
