@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.h,v 1.37 2004/03/31 20:56:56 mike Exp $"
+ * "$Id$"
  *
  *   Header file for HTMLDOC, a HTML document processing program.
  *
@@ -91,5 +91,5 @@ VAR int		ModernSkin	VALUE(1);	/* Show modern skins? */
 #endif /* __cplusplus */
 
 /*
- * End of "$Id: htmldoc.h,v 1.37 2004/03/31 20:56:56 mike Exp $".
+ * End of "$Id$".
  */

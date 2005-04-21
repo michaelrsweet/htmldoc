@@ -1,5 +1,5 @@
 /*
- * "$Id: ps-pdf.cxx,v 1.104 2004/10/25 14:30:03 mike Exp $"
+ * "$Id$"
  *
  *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
  *   program.
@@ -1138,7 +1138,7 @@ hdBook::pspdf_prepare_heading(int   page,	// I - Page number
 
       hfi = strtol((char*)((*format) + 8), &hfp, 10);
 
-      if (hfi < 0 || hfi >= MAX_HF_IMAGES || (isspace(*hfp) || !*hfp))
+      if (hfi < 0 || hfi >= MAX_HF_IMAGES || !(isspace(*hfp) || !*hfp))
         progress_error(HD_ERROR_BAD_HF_STRING,
 	               "Bad $HFIMAGE... substitution on page %d.", page + 1);
       else
@@ -4708,8 +4708,8 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
             if (temp->data == NULL)
               break;
 
-	    if ((temp->width - margins->width()) > 0.001 ||
-	        (temp->height - margins->length()) > 0.001)
+	    if (((temp->width - margins->width()) > 0.001 ||
+	         (temp->height - margins->length()) > 0.001) && overflow_errors)
 	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	                     "Text on page %d too large - "
 			     "truncation or overlapping may occur!",
@@ -4760,12 +4760,13 @@ hdBook::parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	    break;
 
 	case HD_ELEMENT_IMG :
-	    if ((temp->width - margins->width()) > 0.001 ||
-	        (temp->height - margins->length()) > 0.001)
+	    if (((temp->width - margins->width()) > 0.001 ||
+	         (temp->height - margins->length()) > 0.001) && overflow_errors)
 	    {
 	      DEBUG_printf(("IMAGE: %.3fx%.3f > %.3fx%.3f\n",
 	                    temp->width, temp->height,
-			    margins->right() - margins->left(), margins->top() - margins->bottom()));
+			    margins->right() - margins->left(),
+			    margins->top() - margins->bottom()));
 
 	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	                     "Image on page %d too large - "
@@ -5092,7 +5093,7 @@ hdBook::parse_pre(hdTree   *t,			/* I - Tree to parse */
 
     }
 
-    if ((*x - margins->right()) > 0.001)
+    if ((*x - margins->right()) > 0.001 && overflow_errors)
       progress_error(HD_ERROR_CONTENT_TOO_LARGE,
 	             "Preformatted text on page %d too long - "
 		     "truncation or overlapping may occur!", *page + 1);
@@ -5248,6 +5249,11 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
   }
   else
     border = 0.0f;
+
+#ifdef TABLE_DEBUG
+  if (border == 0.0f)
+    border = 0.01f;
+#endif // TABLE_DEBUG
 
   rgb[0] = t->red / 255.0f;
   rgb[1] = t->green / 255.0f;
@@ -5757,7 +5763,7 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
                   margins->width()));
   }
 
-  if ((width - margins->width()) > 0.001f)
+  if ((width - margins->width()) > 0.001f && overflow_errors)
     progress_error(HD_ERROR_CONTENT_TOO_LARGE,
                    "Table on page %d too wide - "
 		   "truncation or overlapping may occur!", *page + 1);
@@ -5798,6 +5804,24 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
     *y -= _htmlSpacings[SIZE_P];
 
   margins->clear(*y, *page);
+
+#ifdef TABLE_DEBUG
+  check_pages(*page);
+
+  {
+    render_t *r;
+    char table_debug[255];
+
+    snprintf(table_debug, sizeof(table_debug), "t=%p", t);
+    r = new_render(*page, RENDER_TEXT, left, *y,
+                   get_width((uchar *)table_debug, TYPE_COURIER, STYLE_NORMAL, 3),
+		   _htmlSizes[3], table_debug);
+
+    r->data.text.typeface = TYPE_COURIER;
+    r->data.text.style    = STYLE_NORMAL;
+    r->data.text.size     = _htmlSizes[3];
+  }
+#endif // TABLE_DEBUG
 
   memset(row_spans, 0, sizeof(row_spans));
   memset(cell_start, 0, sizeof(cell_start));
@@ -5877,8 +5901,8 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 	temp_height = PageLength / 8;
     }
 
-    DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f\n",
-                  row, temp_height, *y));
+    DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f, *page = %d\n",
+                  row, temp_height, *y, *page));
 
     if (*y < (margins->bottom0() + 2 * cellpadding + temp_height) &&
         temp_height <= (margins->length() - 2 * cellpadding))
@@ -5900,7 +5924,8 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
     row_page   = *page;
     row_height = 0.0f;
 
-    DEBUG_printf(("BEFORE row_y = %.1f, *y = %.1f\n", row_y, *y));
+    DEBUG_printf(("BEFORE row_y = %.1f, *y = %.1f, row_page = %d\n",
+                  row_y, *y, row_page));
 
     for (col = 0, rowspan = 9999; col < num_cols; col += colspan)
     {
@@ -5975,6 +6000,26 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 	cell_page[col]  = temp_page;
 	cell_y[col]     = temp_y;
 
+#ifdef TABLE_DEBUG2
+	check_pages(*page);
+
+	{
+	  render_t *r;
+	  char table_debug[255];
+
+	  snprintf(table_debug, sizeof(table_debug), "cell=%p [%d,%d]",
+	           cells[row][col], row, col);
+	  r = new_render(temp_page, RENDER_TEXT, *x, temp_y,
+                	 get_width((uchar *)table_debug, TYPE_COURIER, STYLE_NORMAL, 1),
+			 _htmlSizes[1], table_debug);
+
+	  r->data.text.typeface = TYPE_COURIER;
+	  r->data.text.style    = STYLE_NORMAL;
+	  r->data.text.size     = _htmlSizes[1];
+	}
+#endif // TABLE_DEBUG2
+
+
         if (cells[row][col] != NULL && cells[row][col]->child != NULL)
 	{
 	  DEBUG_printf(("    parsing cell %d,%d; width = %.1f\n", row, col,
@@ -6011,7 +6056,7 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 	  cell_height[col] > row_height)
         row_height = cell_height[col];
 
-      if (row_spans[col] < (rowspan + 1))
+      if (row_spans[col] <= rowspan)
       {
 	if (cell_page[col] != cell_endpage[col])
 	  do_valign = 0;
@@ -6025,7 +6070,8 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 	  row_y = cell_endy[col];
       }
 
-      DEBUG_printf(("**** col = %d, row = %d, row_y = %.1f\n", col, row, row_y));
+      DEBUG_printf(("**** col = %d, row = %d, row_y = %.1f, row_page = %d\n",
+                    col, row, row_y, row_page));
 
       for (col ++; colspan > 0; colspan --, col ++)
       {
@@ -6050,8 +6096,9 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
       if (row_spans[col])
         span_heights[col] += row_height;
 
-      DEBUG_printf(("col = %d, row_spans = %d, span_heights = %.1f, cell_height = %.1f\n",
-                    col, row_spans[col], span_heights[col], cell_height[col]));
+      DEBUG_printf(("col = %d, cell_y = %.1f, cell_page = %d, cell_endpage = %d, row_spans = %d, span_heights = %.1f, cell_height = %.1f\n",
+                    col, cell_y[col], cell_page[col], cell_endpage[col],
+		    row_spans[col], span_heights[col], cell_height[col]));
 
       if (row_spans[col] == rowspan &&
           cell_page[col] == cell_endpage[col] &&
@@ -6071,8 +6118,8 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
       }
     }
 
-    DEBUG_printf(("AFTER row = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n",
-                  row, row_y, row_height, *y, do_valign));
+    DEBUG_printf(("AFTER row = %d, row_page = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n",
+                  row, row_page, row_y, row_height, *y, do_valign));
 
    /*
     * Do the vertical alignment
@@ -6190,16 +6237,27 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
     }
 
     // Update all current columns with ROWSPAN <= rowspan to use the same
-    // end page...
-    for (col = 1, temp_page = cell_endpage[0]; col < num_cols; col ++)
-      if (cell_endpage[col] > temp_page && row_spans[col] <= rowspan &&
+    // end page and row...
+    for (col = 0, temp_page = -1, temp_y = 99999999; col < num_cols; col ++)
+      if (row_spans[col] <= rowspan &&
           cells[row][col] != NULL && cells[row][col]->child != NULL)
-        temp_page = cell_endpage[col];
+      {
+        if (cell_endpage[col] > temp_page)
+	{
+          temp_page = cell_endpage[col];
+	  temp_y    = cell_endy[col];
+	}
+        else if (cell_endpage[col] == temp_page && cell_endy[col] < temp_y)
+	  temp_y = cell_endy[col];
+      }
 
     for (col = 0; col < num_cols; col ++)
       if (row_spans[col] <= rowspan &&
           cells[row][col] != NULL && cells[row][col]->child != NULL)
+      {
         cell_endpage[col] = temp_page;
+	cell_endy[col]    = temp_y;
+      }
 
     row_y -= cellpadding;
 
@@ -6214,7 +6272,7 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 
       get_color(bgcolor, bgrgb, 0);
 
-      if (row_page != *page)
+      if (row_page < *page)
       {
         // Draw background on multiple pages...
 
@@ -6224,7 +6282,7 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
 		   pages[row_page].start);
 
         // Intervening pages...
-        for (temp_page = row_page + 1; temp_page != *page; temp_page ++)
+        for (temp_page = row_page + 1; temp_page < *page; temp_page ++)
 	{
           new_render(temp_page, HD_RENDER_BOX, border_left, margins->bottom(),
                      width, margins->length(), bgrgb, pages[temp_page].start);
@@ -6266,6 +6324,11 @@ hdBook::parse_table(hdTree   *t,		// I - Tree to parse
       if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
           row_spans[col] > 0)
         continue;
+
+      DEBUG_printf(("DRAWING BORDER+BACKGROUND: col=%d, row=%d, cell_page=%d, cell_y=%.1f\n"
+                    "                           cell_endpage=%d, cell_endy=%.1f\n",
+		    col, row, cell_page[col], cell_y[col],
+		    cell_endpage[col], cell_endy[col]));
 
       if ((bgcolor = htmlGetVariable(cells[row][col],
                                      (uchar *)"BGCOLOR")) != NULL)
@@ -7534,7 +7597,7 @@ hdBook::parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
         progress_error(HD_ERROR_BAD_COMMENT,
                        "Bad HEADER position: \"%s\"", comment);
-	break;
+	return;
       }
 
       while (isspace(*comment))
@@ -7544,7 +7607,7 @@ hdBook::parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
         progress_error(HD_ERROR_BAD_COMMENT,
                        "Bad HEADER string: \"%s\"", comment);
-	break;
+	return;
       }
 
       for (ptr = buffer, comment ++; *comment && *comment != '\"'; comment ++)
@@ -7633,7 +7696,7 @@ hdBook::parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
         progress_error(HD_ERROR_BAD_COMMENT,
                        "Bad FOOTER position: \"%s\"", comment);
-	break;
+	return;
       }
 
       while (isspace(*comment))
@@ -7643,7 +7706,7 @@ hdBook::parse_comment(hdTree   *t,		/* I - Tree to parse */
       {
         progress_error(HD_ERROR_BAD_COMMENT,
                        "Bad FOOTER string: \"%s\"", comment);
-	break;
+	return;
       }
 
       for (ptr = buffer, comment ++; *comment && *comment != '\"'; comment ++)
@@ -8292,7 +8355,7 @@ hdBook::get_cell_size(hdTree *t,		// I - Cell
 	  else
 	    printf("IMG(%s) = %.1f\n", htmlGetVariable(temp, (uchar *)"SRC"),
 	           temp->width);
-#endif // TABLE_DEBUG
+#endif // TABLE_DEBUG2
 
           // Handle min/preferred widths separately...
           if (temp->width > minw)
@@ -11088,9 +11151,20 @@ hdBook::write_string(FILE  *out,	/* I - Output file */
 
     putc('<', out);
     encrypt_init();
-    rc4_encrypt(&encrypt_state, s, news, len = strlen((char *)s));
-    for (i = 0; i < len; i ++)
-      fprintf(out, "%02x", news[i]);
+
+    for (len = strlen((char *)s); len > 0; len -= bytes, s += bytes)
+    {
+      if (len > (int)sizeof(news))
+        bytes = (int)sizeof(news);
+      else
+        bytes = len;
+
+      rc4_encrypt(&encrypt_state, s, news, bytes);
+
+      for (i = 0; i < bytes; i ++)
+        fprintf(out, "%02x", news[i]);
+    }
+
     putc('>', out);
   }
   else
@@ -11946,5 +12020,5 @@ hdBook::flate_write(FILE  *out,		/* I - Output file */
 
 
 /*
- * End of "$Id: ps-pdf.cxx,v 1.104 2004/10/25 14:30:03 mike Exp $".
+ * End of "$Id$".
  */

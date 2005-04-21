@@ -1,5 +1,5 @@
 //
-// "$Id: book.h,v 1.8 2004/10/23 20:23:19 mike Exp $"
+// "$Id$"
 //
 //   Common definitions for HTMLDOC, a HTML document processing program.
 //
@@ -282,6 +282,7 @@ struct hdBook
   // Data for this book...
   int		error_count;		// Number of errors
   bool		strict_html;		// Strict HTML checking?
+  bool		overflow_errors;	// Show errors on overflow?
   bool		progress_visible;	// Progress visible?
   int		verbosity;		// Verbosity level
 
@@ -670,5 +671,5 @@ struct hdBook
 #endif // !HTMLDOC_BOOK_H
 
 //
-// End of "$Id: book.h,v 1.8 2004/10/23 20:23:19 mike Exp $".
+// End of "$Id$".
 //
