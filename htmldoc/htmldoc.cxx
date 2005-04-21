@@ -1,5 +1,5 @@
 /*
- * "$Id: htmldoc.cxx,v 1.36.2.77 2004/10/06 19:45:40 mike Exp $"
+ * "$Id$"
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
@@ -725,6 +725,8 @@ main(int  argc,				/* I - Number of command-line arguments */
       file_nolocal();
     else if (compare_strings(argv[i], "--no-numbered", 6) == 0)
       TocNumbers = 0;
+    else if (compare_strings(argv[i], "--no-overflow", 6) == 0)
+      OverflowErrors = 0;
     else if (compare_strings(argv[i], "--no-pscommands", 6) == 0)
       PSCommands = 0;
     else if (compare_strings(argv[i], "--no-strict", 6) == 0)
@@ -796,6 +798,8 @@ main(int  argc,				/* I - Number of command-line arguments */
       else
         usage(argv[i - 1]);
     }
+    else if (compare_strings(argv[i], "--overflow", 4) == 0)
+      OverflowErrors = 1;
     else if (compare_strings(argv[i], "--owner-password", 4) == 0)
     {
       i ++;
@@ -1838,6 +1842,14 @@ parse_options(const char   *line,	// I - Options from book file
       Encryption = 0;
       continue;
     }
+    else if (strcmp(temp, "--strict") == 0)
+      StrictHTML = 1;
+    else if (strcmp(temp, "--no-strict") == 0)
+      StrictHTML = 0;
+    else if (strcmp(temp, "--overflow") == 0)
+      OverflowErrors = 1;
+    else if (strcmp(temp, "--no-overflow") == 0)
+      OverflowErrors = 0;
 
     if (*lineptr == '\"')
     {
@@ -2362,7 +2374,6 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --links");
     puts("  --linkstyle {plain,underline}");
     puts("  --logoimage filename.{bmp,gif,jpg,png}");
-    puts("  --owner-password password");
     puts("  --no-compression");
     puts("  --no-duplex");
     puts("  --no-embedfonts");
@@ -2370,6 +2381,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --no-links");
     puts("  --no-localfiles");
     puts("  --no-numbered");
+    puts("  --no-overflow");
     puts("  --no-pscommands");
     puts("  --no-strict");
     puts("  --no-title");
@@ -2378,6 +2390,8 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --nup {1,2,4,6,9,16}");
     puts("  {--outdir, -d} dirname");
     puts("  {--outfile, -f} filename.{ps,pdf,html}");
+    puts("  --overflow");
+    puts("  --owner-password password");
     puts("  --pageduration {1.0..60.0}");
     puts("  --pageeffect {none,bi,bo,d,gd,gdr,gr,hb,hsi,hso,vb,vsi,vso,wd,wl,wr,wu}");
     puts("  --pagelayout {single,one,twoleft,tworight}");
@@ -2431,5 +2445,5 @@ usage(const char *arg)			// I - Bad argument string
 
 
 /*
- * End of "$Id: htmldoc.cxx,v 1.36.2.77 2004/10/06 19:45:40 mike Exp $".
+ * End of "$Id$".
  */

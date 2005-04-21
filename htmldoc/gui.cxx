@@ -1,5 +1,5 @@
 //
-// "$Id: gui.cxx,v 1.36.2.78 2004/07/21 19:32:23 mike Exp $"
+// "$Id$"
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
@@ -283,7 +283,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   controls = new Fl_Group(0, 0, 505, 330);
   tabs     = new Fl_Tabs(10, 10, 485, 285);
 
-  tabs->selection_color(FL_WHITE);
+  tabs->selection_color(FL_BLUE);
 
   //
   // Input tab...
@@ -969,22 +969,27 @@ GUI::GUI(const char *filename)		// Book file to load initially
   proxy->tooltip("Enter a URL for your HTTP proxy server.\n"
                   "(http://server:port)");
 
-  group = new Fl_Group(140, 160, 350, 75, "GUI Options: \n\n\n\n");
+  group = new Fl_Group(140, 160, 350, 80, "GUI Options: \n\n\n\n\n");
   group->align(FL_ALIGN_LEFT);
 
-    tooltips = new Fl_Check_Button(140, 160, 80, 25, "Tooltips");
+    tooltips = new Fl_Check_Button(140, 160, 75, 20, "Tooltips");
     tooltips->callback((Fl_Callback *)tooltipCB, this);
     tooltips->value(Tooltips);
     tooltips->tooltip("Check to show tooltips.");
 
-    modern_skin = new Fl_Check_Button(140, 185, 120, 25, "Modern Look");
+    modern_skin = new Fl_Check_Button(140, 180, 110, 20, "Modern Look");
     modern_skin->callback((Fl_Callback *)skinCB, this);
     modern_skin->value(ModernSkin);
     modern_skin->tooltip("Check to show the more modern look-n-feel.");
 
-    strict_html = new Fl_Check_Button(140, 210, 120, 25, "Strict HTML");
+    strict_html = new Fl_Check_Button(140, 200, 100, 20, "Strict HTML");
     strict_html->value(StrictHTML);
     strict_html->tooltip("Check to require strict HTML conformance.");
+
+    overflow_errors = new Fl_Check_Button(140, 220, 135, 20, "Error on Overflow");
+    overflow_errors->value(OverflowErrors);
+    overflow_errors->tooltip("Check to display an error when the HTML content\n"
+                             "is too large to fit on the page.");
 
   group->end();
 
@@ -1335,7 +1340,8 @@ GUI::loadSettings()
 
   strlcpy(Proxy, proxy->value(), sizeof(Proxy));
 
-  StrictHTML = strict_html->value();
+  StrictHTML     = strict_html->value();
+  OverflowErrors = overflow_errors->value();
 }
 
 
@@ -1595,6 +1601,7 @@ GUI::newBook(void)
   proxy->value(Proxy);
   browserWidth->value(_htmlBrowserWidth);
   strict_html->value(StrictHTML);
+  overflow_errors->value(OverflowErrors);
 
   title(NULL, 0);
 
@@ -1883,6 +1890,16 @@ GUI::parseOptions(const char *line)	// I - Line from file
     else if (strcmp(temp, "--no-strict") == 0)
     {
       strict_html->clear();
+      continue;
+    }
+    else if (strcmp(temp, "--overflow") == 0)
+    {
+      overflow_errors->set();
+      continue;
+    }
+    else if (strcmp(temp, "--no-overflow") == 0)
+    {
+      overflow_errors->clear();
       continue;
     }
     else if (strcmp(temp, "--book") == 0)
@@ -2502,6 +2519,11 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fputs(" --strict", fp);
   else
     fputs(" --no-strict", fp);
+
+  if (overflow_errors->value())
+    fputs(" --overflow", fp);
+  else
+    fputs(" --no-overflow", fp);
 
   fputs("\n", fp);
 
@@ -3478,6 +3500,7 @@ GUI::skinCB(Fl_Widget *,	// I - Widget
     gui->tooltips->color2(FL_RED);
     gui->modern_skin->color2(FL_RED);
     gui->strict_html->color2(FL_RED);
+    gui->overflow_errors->color2(FL_RED);
 
     gui->progressBar->color2(FL_BLUE);
     gui->progressBar->box(FL_UP_BOX);
@@ -3502,6 +3525,7 @@ GUI::skinCB(Fl_Widget *,	// I - Widget
     gui->tooltips->color2(FL_BLACK);
     gui->modern_skin->color2(FL_BLACK);
     gui->strict_html->color2(FL_BLACK);
+    gui->overflow_errors->color2(FL_BLACK);
 
     gui->progressBar->color2(FL_YELLOW);
     gui->progressBar->box(FL_DOWN_BOX);
@@ -3777,7 +3801,8 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
     filename = gui->fc->value();
 
     if (access(filename, 0) == 0)
-      if (!fl_ask("File already exists!  OK to overwrite?"))
+      if (!fl_choice("File already exists!  OK to overwrite?", "Cancel",
+                     "Overwrite", NULL))
 	return;
 
     extension = file_extension(filename);
@@ -4023,8 +4048,9 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   if (Errors == 0)
     fl_message("Document generated successfully!");
-  else if (fl_ask("%d error%s occurred while generating document.\nWould you like to see the list?",
-                  Errors, Errors == 1 ? "" : "s"))
+  else if (fl_choice("%d error%s occurred while generating document.\n"
+                     "Would you like to see the list?", "Continue",
+		     "View Error List", NULL, Errors, Errors == 1 ? "" : "s"))
   {
     gui->error_window->show();
 
@@ -4151,5 +4177,5 @@ GUI::showAboutCB(void)
 #endif // HAVE_LIBFLTK
 
 //
-// End of "$Id: gui.cxx,v 1.36.2.78 2004/07/21 19:32:23 mike Exp $".
+// End of "$Id$".
 //
