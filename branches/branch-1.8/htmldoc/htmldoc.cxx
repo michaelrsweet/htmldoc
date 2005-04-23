@@ -205,6 +205,8 @@ main(int  argc,				/* I - Number of command-line arguments */
 
     if (!access(bookfile, 0))
       load_book(bookfile, &document, &exportfunc, 1);
+    else
+      file_nolocal();
   }
   else
   {
