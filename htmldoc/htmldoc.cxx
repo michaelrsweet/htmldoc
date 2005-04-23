@@ -77,7 +77,7 @@ typedef int (*exportfunc_t)(tree_t *, tree_t *);
 
 static int	compare_strings(const char *s, const char *t, int tmin);
 static int	load_book(const char *filename, tree_t **document,
-		          exportfunc_t *exportfunc);
+		          exportfunc_t *exportfunc, int set_nolocal = 0);
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
 static int	read_file(const char *filename, tree_t **document,
 		          const char *path);
@@ -174,7 +174,6 @@ main(int  argc,				/* I - Number of command-line arguments */
     PDFFirstPage  = PDF_PAGE_1;
 
     file_cookies(getenv("HTTP_COOKIE"));
-    file_nolocal();
 
     progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
     progress_error(HD_ERROR_NONE, "INFO: TMPDIR is \"%s\"\n", getenv("TMPDIR"));
@@ -205,7 +204,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       strlcpy(bookfile, ".book", sizeof(bookfile));
 
     if (!access(bookfile, 0))
-      load_book(bookfile, &document, &exportfunc);
+      load_book(bookfile, &document, &exportfunc, 1);
   }
   else
   {
@@ -1584,7 +1583,8 @@ compare_strings(const char *s,	/* I - Command-line string */
 static int				// O  - 1 = success, 0 = failure
 load_book(const char   *filename,	// I  - Book file
           tree_t       **document,	// IO - Document tree
-          exportfunc_t *exportfunc)	// O  - Export function
+          exportfunc_t *exportfunc,	// O  - Export function
+          int          set_nolocal)	// I  - Set file_nolocal() after lookup?
 {
   FILE		*fp;			// File to read from
   char		line[10240];		// Line from file
@@ -1602,7 +1602,12 @@ load_book(const char   *filename,	// I  - Book file
     strlcpy(path, Path, sizeof(path));
 
   // Open the file...
-  if ((local = file_find(Path, filename)) == NULL)
+  local = file_find(Path, filename);
+
+  if (set_nolocal)
+    file_nolocal();
+
+  if (!local)
     return (0);
 
   if ((fp = fopen(local, "rb")) == NULL)
