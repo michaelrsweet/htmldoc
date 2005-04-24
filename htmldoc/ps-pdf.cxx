@@ -221,7 +221,7 @@ hdBook::pspdf_export(hdTree *document,	/* I - Document to export */
 	return (1);
       }
 
-      t = htmlReadFile(NULL, fp, file_directory(TitleImage), NULL);
+      t = html_read_file(NULL, fp, file_directory(TitleImage));
       htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
       fclose(fp);
 
@@ -371,7 +371,7 @@ hdBook::pspdf_export(hdTree *document,	/* I - Document to export */
 
   // Adjust top margin as needed...
   for (pos = 0; pos < 3; pos ++)
-    if (Header[pos])
+    if (Header[pos] || Header1[pos])
       break;
 
   if (pos == 3)
@@ -562,6 +562,15 @@ hdBook::pspdf_export(hdTree *document,	/* I - Document to export */
 
     for (j = 0; j < 3; j ++)
     {
+      if (!pages[i].header1[j])
+        continue;
+
+      if (i == 0 || pages[i].header1[j] != pages[i - 1].header1[j])
+        free(pages[i].header1[j]);
+    }
+
+    for (j = 0; j < 3; j ++)
+    {
       if (!pages[i].footer[j])
         continue;
 
@@ -573,6 +582,7 @@ hdBook::pspdf_export(hdTree *document,	/* I - Document to export */
   for (i = 0; i < 3; i ++)
   {
     Header[i]    = NULL;
+    Header1[i]   = NULL;
     Footer[i]    = NULL;
     TocHeader[i] = NULL;
     TocFooter[i] = NULL;
@@ -1047,10 +1057,12 @@ hdBook::pspdf_prepare_page(int page)		/* I - Page number */
     * Add chapter header & footer...
     */
 
-    pspdf_prepare_heading(page, print_page, pages[page].header, top,
-                          page_text, sizeof(page_text),
-			  page > chapter_starts[chapter] ||
-			      OutputType != HD_OUTPUT_BOOK);
+    if (page > chapter_starts[chapter] || OutputType != HD_OUTPUT_BOOK)
+      pspdf_prepare_heading(page, print_page, pages[page].header, top,
+                            page_text, sizeof(page_text));
+    else
+      pspdf_prepare_heading(page, print_page, pages[page].header1, top,
+                            page_text, sizeof(page_text));
     pspdf_prepare_heading(page, print_page, pages[page].footer, 0,
                           page_text, sizeof(page_text));
   }
@@ -1071,13 +1083,11 @@ hdBook::pspdf_prepare_page(int page)		/* I - Page number */
 
 void
 hdBook::pspdf_prepare_heading(int   page,	// I - Page number
-                      int   print_page,	// I - Printed page number
-		      uchar **format,	// I - Page headings
-		      int   y,		// I - Baseline of heading
-		      char  *page_text,	// O - Page number text
-		      int   page_len,	// I - Size of page text
-                      int   render_heading)
-		      			// I - Render the heading?
+                	      int   print_page,	// I - Printed page number
+			      uchar **format,	// I - Page headings
+			      int   y,		// I - Baseline of heading
+			      char  *page_text,	// O - Page number text
+			      int   page_len)	// I - Size of page text
 {
   int		pos,			// Position in heading
 		dir;			// Direction of page
@@ -1089,9 +1099,9 @@ hdBook::pspdf_prepare_heading(int   page,	// I - Page number
   hdRender	*temp;			// Render structure for titles, etc.
 
 
-  DEBUG_printf(("pspdf_prepare_heading(%d, %d, %p, %d, %p, %d, %d)\n",
-                page, print_page, format, y, page_text, page_len,
-	        render_heading));
+  DEBUG_printf(("pspdf_prepare_heading(%d, %d, [\"%s\",\"%s\",\"%s\"], %d, %p, %d)\n",
+                page, print_page, format[0], format[1], format[2], y,
+		page_text, page_len));
 
  /*
   * Add page headings...
@@ -1118,17 +1128,14 @@ hdBook::pspdf_prepare_heading(int   page,	// I - Page number
 
     if (strncasecmp((char *)*format, "$LOGOIMAGE", 10) == 0 && logo_image)
     {
-      if (render_heading)
-      {
-	// Insert the logo image...
-	if (y < (PagePrintLength / 2))
-	  temp = new_render(page, HD_RENDER_IMAGE, 0, y, logo_width,
-	                    logo_height, logo_image);
-	else // Offset from top
-	  temp = new_render(page, HD_RENDER_IMAGE, 0,
-	                    y + HeadFootSize - logo_height,
-	                    logo_width, logo_height, logo_image);
-      }
+      // Insert the logo image...
+      if (y < (PagePrintLength / 2))
+	temp = new_render(page, HD_RENDER_IMAGE, 0, y, logo_width,
+	                  logo_height, logo_image);
+      else // Offset from top
+	temp = new_render(page, HD_RENDER_IMAGE, 0,
+	                  y + HeadFootSize - logo_height,
+	                  logo_width, logo_height, logo_image);
     }
     else if (strncasecmp((char *)*format, "$HFIMAGE", 8) == 0)
     {
@@ -1312,11 +1319,10 @@ hdBook::pspdf_prepare_heading(int   page,	// I - Page number
 
       *bufptr = '\0';
 
-      if (render_heading)
-	temp = new_render(page, HD_RENDER_TEXT, 0, y,
-                	  get_width((uchar *)buffer, HeadFootType,
-			            HeadFootStyle, HeadFootSize),
-	        	  HeadFootSize, (uchar *)buffer);
+      temp = new_render(page, HD_RENDER_TEXT, 0, y,
+                	get_width((uchar *)buffer, HeadFootType,
+			          HeadFootStyle, HeadFootSize),
+	        	HeadFootSize, (uchar *)buffer);
 
       if (strstr((char *)*format, "$PAGE") ||
           strstr((char *)*format, "$CHAPTERPAGE"))
@@ -3444,7 +3450,7 @@ hdBook::parse_doc(hdTree   *t,			/* I - Tree to parse */
 	!title_page)
     {
       // New page on H1 in book mode or file in webpage mode...
-      if (para->child != NULL)
+      if (para->child != NULL && chapter > 0)
       {
         parse_paragraph(para, margins, x, y, page, *needspace);
         htmlDeleteTree(para->child);
@@ -3468,6 +3474,14 @@ hdBook::parse_doc(hdTree   *t,			/* I - Tree to parse */
         chapter_ends[chapter] = *page - 1;
       }
 
+      // Make sure header and footer strings are correct...
+      check_pages(*page);
+
+      memcpy(pages[*page].header, Header, sizeof(pages[*page].header));
+      memcpy(pages[*page].header1, Header1, sizeof(pages[*page].header1));
+      memcpy(pages[*page].footer, Footer, sizeof(pages[*page].footer));
+
+      // Bump the chapter/file count...
       chapter ++;
       if (chapter >= MAX_CHAPTERS)
       {
@@ -7659,6 +7673,85 @@ hdBook::parse_comment(hdTree   *t,		/* I - Tree to parse */
       if (tof)
         *y = margins->top();
     }
+    else if (strncasecmp(comment, "HEADER1 ", 8) == 0)
+    {
+      // First page header string...
+      comment += 8;
+
+      while (isspace(*comment))
+	comment ++;
+
+      if (para != NULL && para->child != NULL)
+      {
+	parse_paragraph(para, *left, *right, *bottom, *top, x, y, page, needspace);
+	htmlDeleteTree(para->child);
+	para->child = para->last_child = NULL;
+
+	// Mark if we are still at the top of form...
+	tof = (*y >= *top);
+      }
+
+      if (strncasecmp(comment, "LEFT", 4) == 0 && isspace(comment[4]))
+      {
+        pos     = 0;
+	comment += 4;
+      }
+      else if (strncasecmp(comment, "CENTER", 6) == 0 && isspace(comment[6]))
+      {
+        pos     = 1;
+	comment += 6;
+      }
+      else if (strncasecmp(comment, "RIGHT", 5) == 0 && isspace(comment[5]))
+      {
+        pos     = 2;
+	comment += 5;
+      }
+      else
+      {
+        progress_error(HD_ERROR_BAD_COMMENT,
+                       "Bad HEADER1 position: \"%s\"", comment);
+	return;
+      }
+
+      while (isspace(*comment))
+	comment ++;
+
+      if (*comment != '\"')
+      {
+        progress_error(HD_ERROR_BAD_COMMENT,
+                       "Bad HEADER1 string: \"%s\"", comment);
+	return;
+      }
+
+      for (ptr = buffer, comment ++; *comment && *comment != '\"'; comment ++)
+      {
+        if (*comment == '\\')
+	  comment ++;
+
+	if (ptr < (buffer + sizeof(buffer) - 1))
+	  *ptr++ = *comment;
+      }
+
+      if (*comment == '\"')
+        comment ++;
+
+      *ptr = '\0';
+
+      if (ptr > buffer)
+        Header1[pos] = strdup(buffer);
+      else
+        Header1[pos] = NULL;
+
+      if (tof)
+      {
+        DEBUG_printf(("Setting header1 %d for page %d to \"%s\"...\n",
+	              pos, *page, Header1[pos] ? Header1[pos] : "(null)"));
+
+	check_pages(*page);
+
+	pages[*page].header1[pos] = (uchar *)Header1[pos];
+      }
+    }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
       // Header string...
@@ -8179,6 +8272,7 @@ hdBook::check_pages(int page)	// I - Current page
       else
       {
 	memcpy(temp->header, Header, sizeof(temp->header));
+	memcpy(temp->header1, Header1, sizeof(temp->header1));
 	memcpy(temp->footer, Footer, sizeof(temp->footer));
 
         if (current_heading != temp->headnode)

@@ -1,5 +1,5 @@
 /*
- * "$Id: html.h,v 1.18 2004/10/25 14:30:03 mike Exp $"
+ * "$Id$"
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
@@ -64,8 +64,6 @@ extern "C" {
 
 struct hdTree;
 
-extern hdTree	*htmlReadFile(hdTree *parent, FILE *fp, const char *base,
-		              hdStyleSheet *stylesheet);
 extern int	htmlWriteFile(hdTree *parent, FILE *fp);
 
 extern hdTree	*htmlAddTree(hdTree *parent, hdElement markup, uchar *data);
@@ -135,6 +133,7 @@ struct hdTree
   int		nvars;			/* Number of variables... */
   hdAttr	*vars;			/* Variables... */
 
+  void		apply_css();
   const char	*get_attr(const char *n) { return ((const char *)htmlGetVariable(this, (uchar *)n)); }
   static hdElement get_element(const char *n);
 };
@@ -167,5 +166,5 @@ extern const char	*_htmlFonts[4][4];
 #endif /* !_HTML_H_ */
 
 /*
- * End of "$Id: html.h,v 1.18 2004/10/25 14:30:03 mike Exp $".
+ * End of "$Id$".
  */

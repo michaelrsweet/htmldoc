@@ -286,8 +286,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
   controls = new Fl_Group(0, 0, 505, 330);
   tabs     = new Fl_Tabs(10, 10, 485, 285);
 
-  tabs->selection_color(FL_BLUE);
-
   //
   // Input tab...
   //
@@ -501,76 +499,91 @@ GUI::GUI(const char *filename)		// Book file to load initially
   pageTab = new Fl_Group(10, 35, 485, 260, "Page");
   pageTab->hide();
 
-  pageSize = new Fl_Input(140, 45, 100, 25, "Page Size: ");
+  pageSize = new Fl_Input(145, 45, 100, 25, "Page Size: ");
   pageSize->when(FL_WHEN_CHANGED);
   pageSize->callback((Fl_Callback *)changeCB, this);
   pageSize->tooltip("Enter the page size.");
 
-  pageSizeMenu = new Fl_Menu_Button(240, 45, 25, 25, "");
+  pageSizeMenu = new Fl_Menu_Button(245, 45, 25, 25, "");
   pageSizeMenu->menu(sizeMenu);
   pageSizeMenu->callback((Fl_Callback *)sizeCB, this);
   pageSizeMenu->tooltip("Click to choose a standard size.");
 
-  pageDuplex = new Fl_Check_Button(270, 48, 70, 20, "2-Sided");
+  pageDuplex = new Fl_Check_Button(275, 48, 70, 20, "2-Sided");
   pageDuplex->callback((Fl_Callback *)changeCB, this);
   pageDuplex->tooltip("Produce output suitable for double-sided printing.");
 
-  landscape = new Fl_Check_Button(345, 48, 90, 20, "Landscape");
+  landscape = new Fl_Check_Button(350, 48, 90, 20, "Landscape");
   landscape->callback((Fl_Callback *)changeCB, this);
   landscape->tooltip("Check to rotate the output to landscape orientation.");
 
-  pageTop = new Fl_Input(225, 75, 60, 25, "Top");
+  pageTop = new Fl_Input(230, 75, 60, 25, "Top");
   pageTop->when(FL_WHEN_CHANGED);
   pageTop->callback((Fl_Callback *)changeCB, this);
   pageTop->tooltip("Enter the top margin.");
 
-  pageLeft = new Fl_Input(190, 105, 60, 25, "Left");
+  pageLeft = new Fl_Input(195, 105, 60, 25, "Left");
   pageLeft->when(FL_WHEN_CHANGED);
   pageLeft->callback((Fl_Callback *)changeCB, this);
   pageLeft->tooltip("Enter the left margin.");
 
-  pageRight = new Fl_Input(255, 105, 60, 25, "Right");
+  pageRight = new Fl_Input(260, 105, 60, 25, "Right");
   pageRight->when(FL_WHEN_CHANGED);
   pageRight->align(FL_ALIGN_RIGHT);
   pageRight->callback((Fl_Callback *)changeCB, this);
   pageRight->tooltip("Enter the right margin.");
 
-  pageBottom = new Fl_Input(225, 135, 60, 25, "Bottom");
+  pageBottom = new Fl_Input(230, 135, 60, 25, "Bottom");
   pageBottom->when(FL_WHEN_CHANGED);
   pageBottom->callback((Fl_Callback *)changeCB, this);
   pageBottom->tooltip("Enter the bottom margin.");
 
-  pageHeaderLeft = new Fl_Choice(140, 165, 110, 25, "Header: ");
+  pageHeaderLeft = new Fl_Choice(145, 165, 110, 25, "Header: ");
   pageHeaderLeft->menu(formatMenu);
   pageHeaderLeft->callback((Fl_Callback *)changeCB, this);
   pageHeaderLeft->tooltip("Choose the left header.");
 
-  pageHeaderCenter = new Fl_Choice(255, 165, 110, 25);
+  pageHeaderCenter = new Fl_Choice(260, 165, 110, 25);
   pageHeaderCenter->menu(formatMenu);
   pageHeaderCenter->callback((Fl_Callback *)changeCB, this);
   pageHeaderCenter->tooltip("Choose the center header.");
 
-  pageHeaderRight = new Fl_Choice(370, 165, 110, 25);
+  pageHeaderRight = new Fl_Choice(375, 165, 110, 25);
   pageHeaderRight->menu(formatMenu);
   pageHeaderRight->callback((Fl_Callback *)changeCB, this);
   pageHeaderRight->tooltip("Choose the right header.");
 
-  pageFooterLeft = new Fl_Choice(140, 195, 110, 25, "Footer: ");
+  pageHeader1Left = new Fl_Choice(145, 195, 110, 25, "Header (1st Page): ");
+  pageHeader1Left->menu(formatMenu);
+  pageHeader1Left->callback((Fl_Callback *)changeCB, this);
+  pageHeader1Left->tooltip("Choose the left header1.");
+
+  pageHeader1Center = new Fl_Choice(260, 195, 110, 25);
+  pageHeader1Center->menu(formatMenu);
+  pageHeader1Center->callback((Fl_Callback *)changeCB, this);
+  pageHeader1Center->tooltip("Choose the center header1.");
+
+  pageHeader1Right = new Fl_Choice(375, 195, 110, 25);
+  pageHeader1Right->menu(formatMenu);
+  pageHeader1Right->callback((Fl_Callback *)changeCB, this);
+  pageHeader1Right->tooltip("Choose the right header1.");
+
+  pageFooterLeft = new Fl_Choice(145, 225, 110, 25, "Footer: ");
   pageFooterLeft->menu(formatMenu);
   pageFooterLeft->callback((Fl_Callback *)changeCB, this);
   pageFooterLeft->tooltip("Choose the left footer.");
 
-  pageFooterCenter = new Fl_Choice(255, 195, 110, 25);
+  pageFooterCenter = new Fl_Choice(260, 225, 110, 25);
   pageFooterCenter->menu(formatMenu);
   pageFooterCenter->callback((Fl_Callback *)changeCB, this);
   pageFooterCenter->tooltip("Choose the center header.");
 
-  pageFooterRight = new Fl_Choice(370, 195, 110, 25);
+  pageFooterRight = new Fl_Choice(375, 225, 110, 25);
   pageFooterRight->menu(formatMenu);
   pageFooterRight->callback((Fl_Callback *)changeCB, this);
   pageFooterRight->tooltip("Choose the right header.");
 
-  numberUp = new Fl_Choice(140, 225, 50, 25, "Number Up: ");
+  numberUp = new Fl_Choice(145, 255, 50, 25, "Number Up: ");
   numberUp->menu(nupMenu);
   numberUp->callback((Fl_Callback *)changeCB, this);
   numberUp->tooltip("Set the number of pages on each sheet.");
@@ -2063,6 +2076,12 @@ GUI::parseOptions(const char *line)	// I - Line from file
       pageHeaderCenter->value(formats[temp2[1]]);
       pageHeaderRight->value(formats[temp2[2]]);
     }
+    else if (strcmp(temp, "--header1") == 0)
+    {
+      pageHeader1Left->value(formats[temp2[0]]);
+      pageHeader1Center->value(formats[temp2[1]]);
+      pageHeader1Right->value(formats[temp2[2]]);
+    }
     else if (strcmp(temp, "--footer") == 0)
     {
       pageFooterLeft->value(formats[temp2[0]]);
@@ -2398,6 +2417,11 @@ GUI::saveBook(const char *filename)	// I - Name of book file
             formats[pageHeaderLeft->value()],
 	    formats[pageHeaderCenter->value()],
 	    formats[pageHeaderRight->value()]);
+
+    fprintf(fp, " --header1 %c%c%c",
+            formats[pageHeader1Left->value()],
+	    formats[pageHeader1Center->value()],
+	    formats[pageHeader1Right->value()]);
 
     fprintf(fp, " --footer %c%c%c",
             formats[pageFooterLeft->value()],
@@ -3487,6 +3511,8 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
   if (ModernSkin)
   {
     // Use alternate colors for the "modern" look-n-feel...
+    gui->tabs->selection_color(FL_BLUE);
+
     gui->grayscale->color2(FL_RED);
     gui->titlePage->color2(FL_RED);
     gui->jpegCompress->color2(FL_RED);
@@ -3512,6 +3538,8 @@ GUI::skinCB(Fl_Widget *w,	// I - Widget
   else
   {
     // Use standard colors...
+    gui->tabs->selection_color(FL_GRAY);
+
     gui->grayscale->color2(FL_BLACK);
     gui->titlePage->color2(FL_BLACK);
     gui->jpegCompress->color2(FL_BLACK);
@@ -3982,7 +4010,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
                       (uchar *)hdBook::file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
-      htmlReadFile(file, docfile, base, NULL);
+      gui->book->html_read_file(file, docfile, base);
 
       fclose(docfile);
 
@@ -4141,8 +4169,7 @@ GUI::showAboutCB(void)
   label->image(&logo);
 
   label = new Fl_Box(60, 45, 330, 35,
-          "HTMLDOC " SVERSION " Copyright 1997-2004 by Easy Software Products "
-	  "(http://www.easysw.com)."
+          "HTMLDOC " SVERSION "\nCopyright 1997-2005 by Easy Software Products"
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 
@@ -4151,13 +4178,10 @@ GUI::showAboutCB(void)
     "HTMLDOC converts HTML files and web pages to PDF and PostScript.\n\n"
     "<p>HTMLDOC is available both as free software under the terms of "
     "the GNU General Public License and as commercial software via "
-    "the HTMLDOC membership options. "
-    "The HTMLDOC Basic membership provides the HTMLDOC software in "
+    "the HTMLDOC Basic product which provides the HTMLDOC software in "
     "convenient, installable packages for your operating system of "
-    "choice. "
-    "The HTMLDOC Professional membership adds one year of commercial "
-    "telephone and on-line support. "
-    "Both membership options provide financial support for the "
+    "choice. Commercial support is also available in 90-day and 1-year "
+    "increments. All products provide financial support for the "
     "continued development of HTMLDOC as an open source product.\n\n"
     "<p>For more information, please visit us on the web at the following "
     "URL:\n"

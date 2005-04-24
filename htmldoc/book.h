@@ -241,7 +241,8 @@ struct hdPage				//// Page information
   uchar		*chapter,		// Chapter text
 		*heading;		// Heading text
   hdTree	*headnode;		// Heading node
-  uchar		*header[3],		// Headers
+  uchar		*header[3],		// Headers for regular pages
+		*header1[3],		// Headers for first pages
 		*footer[3];		// Footers
   char		media_color[64],	// Media color
 		media_type[64];		// Media type
@@ -291,6 +292,8 @@ struct hdBook
 
   int		num_entities;		// Number of entities in table
   hdEntity	*entities;		// Entity table
+
+  hdStyleSheet	*stylesheet;		// Current stylesheet
 
   // Heading strings used for filenames...
   int		num_headings,		// Number of headings
@@ -430,6 +433,7 @@ struct hdBook
   float		HeadFootSize;		// Size of header & footer
 
   char		*Header[3],		// Header for regular pages
+		*Header1[3],		// Header for first pages
 		*TocHeader[3],		// Header for TOC pages
 		*Footer[3],		// Regular page footer
 		*TocFooter[3],		// Footer for TOC pages
@@ -548,8 +552,7 @@ struct hdBook
   void		pspdf_prepare_outpages();
   void		pspdf_prepare_page(int page);
   void		pspdf_prepare_heading(int page, int print_page, uchar **format,
-		                      int y, char *hdPageext, int page_len,
-				      int render_heading = 1);
+		                      int y, char *hdPageext, int page_len);
   void		ps_write_document(uchar *author, uchar *creator,
 		                  uchar *copyright, uchar *keywords,
 				  uchar *subject);
@@ -658,6 +661,8 @@ struct hdBook
   void			file_proxy(const char *url);
   static const char	*file_target(const char *s);
   FILE			*file_temp(char *name, size_t len);
+
+  hdTree	*html_read_file(hdTree *parent, FILE *fp, const char *base);
 
   static int	image_compare(image_t **img1, image_t **img2);
   void		image_copy(const char *filename, const char *destpath);
