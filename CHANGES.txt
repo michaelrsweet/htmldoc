@@ -20,8 +20,14 @@ CHANGES IN HTMLDOC v1.8.25
 	- Cookies were not sent in HTTP requests (STR #71)
 	- Table cells were not aligned properly when the ROWSPAN
 	  attribute was set to 1 (STR #73)
-	- Unresolved hyperlinks in aligned images could crash
-	  HTMLDOC (STR #62)
+	- HTMLDOC crashed when rendering unresolved hyperlinks in
+	  aligned images (STR #62)
+	- Documented the HTMLDOC_NOCGI environment variable (STR
+	  #63)
+	- HTMLDOC sometimes crashed when rendering tables with
+	  background colors (STR #65)
+	- HTMLDOC would crash when writing encrypted strings
+	  longer than 1024 bytes (STR #66)
 
 
 CHANGES IN HTMLDOC v1.8.24
