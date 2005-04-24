@@ -353,7 +353,7 @@ httpConnectEncrypt(const char *host,	/* I - Host to connect to */
   struct hostent	*hostaddr;	/* Host address data */
 
 
-  if (host == NULL)
+  if (!host)
     return (NULL);
 
   httpInitialize();
@@ -387,7 +387,7 @@ httpConnectEncrypt(const char *host,	/* I - Host to connect to */
   */
 
   http = calloc(sizeof(http_t), 1);
-  if (http == NULL)
+  if (!http)
     return (NULL);
 
   http->version  = HTTP_1_1;
@@ -486,6 +486,10 @@ int				/* O - 0 on success, non-zero on failure */
 httpReconnect(http_t *http)	/* I - HTTP data */
 {
   int		val;		/* Socket option value */
+
+
+  if (!http)
+    return (-1);
 
 #ifdef HAVE_SSL
   if (http->tls)
@@ -614,10 +618,10 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
 		*ptr;			/* Pointer into string buffer */
 
 
-  if (http == NULL ||
+  if (!http ||
       field < HTTP_FIELD_ACCEPT_LANGUAGE ||
       field > HTTP_FIELD_WWW_AUTHENTICATE ||
-      name == NULL || value == NULL)
+      !name || !value)
     return (NULL);
 
   DEBUG_printf(("httpGetSubField(%p, %d, \"%s\", %p)\n",
@@ -629,7 +633,7 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
     * Skip leading whitespace...
     */
 
-    while (isspace(*fptr))
+    while (isspace(*fptr & 255))
       fptr ++;
 
     if (*fptr == ',')
@@ -643,7 +647,7 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
     */
 
     for (ptr = temp;
-         *fptr && *fptr != '=' && !isspace(*fptr) && ptr < (temp + sizeof(temp) - 1);
+         *fptr && *fptr != '=' && !isspace(*fptr & 255) && ptr < (temp + sizeof(temp) - 1);
          *ptr++ = *fptr++);
 
     *ptr = '\0';
@@ -654,7 +658,7 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
     * Skip trailing chars up to the '='...
     */
 
-    while (isspace(*fptr))
+    while (isspace(*fptr & 255))
       fptr ++;
 
     if (!*fptr)
@@ -669,7 +673,7 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
 
     fptr ++;
 
-    while (isspace(*fptr))
+    while (isspace(*fptr & 255))
       fptr ++;
 
     if (*fptr == '\"')
@@ -697,12 +701,12 @@ httpGetSubField(http_t       *http,	/* I - HTTP data */
       */
 
       for (ptr = value;
-           *fptr && !isspace(*fptr) && *fptr != ',' && ptr < (value + HTTP_MAX_VALUE - 1);
+           *fptr && !isspace(*fptr & 255) && *fptr != ',' && ptr < (value + HTTP_MAX_VALUE - 1);
 	   *ptr++ = *fptr++);
 
       *ptr = '\0';
 
-      while (*fptr && !isspace(*fptr) && *fptr != ',')
+      while (*fptr && !isspace(*fptr & 255) && *fptr != ',')
         fptr ++;
     }
 
@@ -731,10 +735,10 @@ httpSetField(http_t       *http,	/* I - HTTP data */
              http_field_t field,	/* I - Field index */
 	     const char   *value)	/* I - Value */
 {
-  if (http == NULL ||
+  if (!http ||
       field < HTTP_FIELD_ACCEPT_LANGUAGE ||
       field > HTTP_FIELD_WWW_AUTHENTICATE ||
-      value == NULL)
+      !value)
     return;
 
   strlcpy(http->fields[field], value, HTTP_MAX_VALUE);
@@ -839,10 +843,7 @@ httpFlush(http_t *http)	/* I - HTTP data */
   char	buffer[8192];	/* Junk buffer */
 
 
-  if (http->state != HTTP_WAITING)
-  {
-    while (httpRead(http, buffer, sizeof(buffer)) > 0);
-  }
+  while (httpRead(http, buffer, sizeof(buffer)) > 0);
 }
 
 
@@ -861,7 +862,7 @@ httpRead(http_t *http,			/* I - HTTP data */
 
   DEBUG_printf(("httpRead(%p, %p, %d)\n", http, buffer, length));
 
-  if (http == NULL || buffer == NULL)
+  if (!http || !buffer)
     return (-1);
 
   http->activity = time(NULL);
@@ -874,7 +875,7 @@ httpRead(http_t *http,			/* I - HTTP data */
   {
     DEBUG_puts("httpRead: Getting chunk length...");
 
-    if (httpGets(len, sizeof(len), http) == NULL)
+    if (!httpGets(len, sizeof(len), http))
     {
       DEBUG_puts("httpRead: Could not get length!");
       return (0);
@@ -904,6 +905,12 @@ httpRead(http_t *http,			/* I - HTTP data */
       http->state ++;
     else
       http->state = HTTP_WAITING;
+
+   /*
+    * Prevent future reads for this request...
+    */
+
+    http->data_encoding = HTTP_ENCODE_LENGTH;
 
     return (0);
   }
@@ -1097,7 +1104,7 @@ httpWait(http_t *http,			/* I - HTTP data */
   * First see if there is data in the buffer...
   */
 
-  if (http == NULL)
+  if (!http)
     return (0);
 
   if (http->used)
@@ -1124,7 +1131,7 @@ httpWrite(http_t     *http,		/* I - HTTP data */
 	bytes;				/* Bytes sent */
 
 
-  if (http == NULL || buffer == NULL)
+  if (!http || !buffer)
     return (-1);
 
   http->activity = time(NULL);
@@ -1179,7 +1186,7 @@ httpWrite(http_t     *http,		/* I - HTTP data */
 #else
       if (errno == EINTR)
         continue;
-      else if (errno != http->error)
+      else if (errno != http->error && errno != ECONNRESET)
       {
         http->error = errno;
 	continue;
@@ -1271,7 +1278,7 @@ httpGets(char   *line,			/* I - Line to read into */
 
   DEBUG_printf(("httpGets(%p, %d, %p)\n", line, length, http));
 
-  if (http == NULL || line == NULL)
+  if (!http || !line)
     return (NULL);
 
  /*
@@ -1527,8 +1534,8 @@ httpUpdate(http_t *http)		/* I - HTTP data */
   char		line[1024],		/* Line from connection... */
 		*value;			/* Pointer to value on line */
   http_field_t	field;			/* Field index */
-  int		major, minor;		/* HTTP version numbers */
-  http_status_t	status;			/* Authorization status */
+  int		major, minor,		/* HTTP version numbers */
+		status;			/* Authorization status */
 
 
   DEBUG_printf(("httpUpdate(%p)\n", http));
@@ -1567,11 +1574,11 @@ httpUpdate(http_t *http)		/* I - HTTP data */
       {
 	if (http_setup_ssl(http) != 0)
 	{
-#ifdef WIN32
+#  ifdef WIN32
 	  closesocket(http->fd);
-#else
+#  else
 	  close(http->fd);
-#endif
+#  endif /* WIN32 */
 
 	  return (HTTP_ERROR);
 	}
@@ -1605,11 +1612,11 @@ httpUpdate(http_t *http)		/* I - HTTP data */
       * Got the beginning of a response...
       */
 
-      if (sscanf(line, "HTTP/%d.%d%d", &major, &minor, (int *)&status) != 3)
+      if (sscanf(line, "HTTP/%d.%d%d", &major, &minor, &status) != 3)
         return (HTTP_ERROR);
 
       http->version = (http_version_t)(major * 100 + minor);
-      http->status  = status;
+      http->status  = (http_status_t)status;
     }
     else if ((value = strchr(line, ':')) != NULL)
     {
@@ -1618,7 +1625,7 @@ httpUpdate(http_t *http)		/* I - HTTP data */
       */
 
       *value++ = '\0';
-      while (isspace(*value))
+      while (isspace(*value & 255))
         value ++;
 
      /*
@@ -1659,6 +1666,9 @@ httpUpdate(http_t *http)		/* I - HTTP data */
  /*
   * See if there was an error...
   */
+
+  if (http->error == EPIPE && http->status > HTTP_CONTINUE)
+    return (http->status);
 
   if (http->error)
   {
@@ -1893,7 +1903,7 @@ http_send(http_t       *http,	/* I - HTTP data */
 				/* Hex digits */
 
 
-  if (http == NULL || uri == NULL)
+  if (!http || !uri)
     return (-1);
 
  /*
@@ -1958,6 +1968,13 @@ http_send(http_t       *http,	/* I - HTTP data */
       }
     }
 
+  if (http->cookie)
+    if (httpPrintf(http, "Cookie: $Version=0; %s\r\n", http->cookie) < 1)
+    {
+      http->status = HTTP_ERROR;
+      return (-1);
+    }
+
   if (httpPrintf(http, "\r\n") < 1)
   {
     http->status = HTTP_ERROR;
@@ -1983,6 +2000,7 @@ http_wait(http_t *http,			/* I - HTTP data */
 #endif /* !WIN32 && !__EMX__ */
   struct timeval	timeout;	/* Timeout */
   int			nfds;		/* Result from select() */
+  int			set_size;	/* Size of select set */
 
 
  /*
@@ -2029,24 +2047,36 @@ http_wait(http_t *http,			/* I - HTTP data */
 
     getrlimit(RLIMIT_NOFILE, &limit);
 
-    http->input_set = calloc(1, (limit.rlim_cur + 31) / 8);
-#endif /* WIN32 */
+    set_size = (limit.rlim_cur + 31) / 8 + 4;
+    if (set_size < sizeof(fd_set))
+      set_size = sizeof(fd_set);
+
+    http->input_set = calloc(1, set_size);
+#endif /* WIN32 || __EMX__ */
 
     if (!http->input_set)
       return (0);
   }
 
-  FD_SET(http->fd, http->input_set);
-
-  if (msec >= 0)
+  do
   {
-    timeout.tv_sec  = msec / 1000;
-    timeout.tv_usec = (msec % 1000) * 1000;
+    FD_SET(http->fd, http->input_set);
 
-    nfds = select(http->fd + 1, http->input_set, NULL, NULL, &timeout);
+    if (msec >= 0)
+    {
+      timeout.tv_sec  = msec / 1000;
+      timeout.tv_usec = (msec % 1000) * 1000;
+
+      nfds = select(http->fd + 1, http->input_set, NULL, NULL, &timeout);
+    }
+    else
+      nfds = select(http->fd + 1, http->input_set, NULL, NULL, NULL);
   }
-  else
-    nfds = select(http->fd + 1, http->input_set, NULL, NULL, NULL);
+#if defined(WIN32) || defined(__EMX__)
+  while (nfds < 0 && WSAGetLastError() == WSAEINTR);
+#else
+  while (nfds < 0 && errno == EINTR);
+#endif /* WIN32 || __EMX__ */
 
   FD_CLR(http->fd, http->input_set);
 
@@ -2188,7 +2218,7 @@ http_setup_ssl(http_t *http)		/* I - HTTP data */
 #  elif defined(HAVE_GNUTLS)
   conn = (http_tls_t *)malloc(sizeof(http_tls_t));
 
-  if (conn == NULL)
+  if (!conn)
   {
     http->error  = errno;
     http->status = HTTP_ERROR;
@@ -2198,7 +2228,7 @@ http_setup_ssl(http_t *http)		/* I - HTTP data */
 
   credentials = (gnutls_certificate_client_credentials *)
                     malloc(sizeof(gnutls_certificate_client_credentials));
-  if (credentials == NULL)
+  if (!credentials)
   {
     free(conn);
 
