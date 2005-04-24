@@ -512,11 +512,19 @@ main(int  argc,				/* I - Number of command-line arguments */
       OutputColor    = 0;
       _htmlGrayscale = 1;
     }
-    else if (compare_strings(argv[i], "--header", 7) == 0)
+    else if (!strcmp(argv[i], "--header"))
     {
       i ++;
       if (i < argc)
         get_format(argv[i], Header);
+      else
+        usage(argv[i - 1]);
+    }
+    else if (!strcmp(argv[i], "--header1"))
+    {
+      i ++;
+      if (i < argc)
+        get_format(argv[i], Header1);
       else
         usage(argv[i - 1]);
     }
@@ -1961,6 +1969,8 @@ parse_options(const char   *line,	// I - Options from book file
       PageBottom = get_measurement(temp2);
     else if (strcmp(temp, "--header") == 0)
       get_format(temp2, Header);
+    else if (strcmp(temp, "--header1") == 0)
+      get_format(temp2, Header1);
     else if (strcmp(temp, "--footer") == 0)
       get_format(temp2, Footer);
     else if (strcmp(temp, "--bodycolor") == 0)
@@ -2363,6 +2373,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html,htmlsep}");
     puts("  --gray");
     puts("  --header fff");
+    puts("  --header1 fff");
     puts("  --headfootfont {courier{-bold,-oblique,-boldoblique},\n"
 	 "                  times{-roman,-bold,-italic,-bolditalic},\n"
 	 "                  helvetica{-bold,-oblique,-boldoblique}}");
