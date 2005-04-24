@@ -232,9 +232,12 @@ HTMLDOC program on the web server.</p>
 
 <p>To make this work the CGI script or program must send the
 appropriate HTTP attributes, the required empty line to signify
-the beginning of the document, and then execute the
-HTMLDOC program to generate the HTML, PostScript, or PDF
-file as needed.</p>
+the beginning of the document, and then execute the HTMLDOC
+program to generate the HTML, PostScript, or PDF file as needed.
+Since HTMLDOC looks for CGI environment variables when it is run,
+you must also set the <tt>HTMLDOC_NOCGI</tt> environment variable
+to a value of 1 before running HTMLDOC from your CGI script or
+program.</p>
 
 <p>Another way to generate PDF files from your reports is to use
 HTMLDOC as a "portal" application. When used as a portal,
@@ -256,6 +259,12 @@ limited to GET type requests. Here is a script called
     #
     # Usage: http://www.domain.com/path/topdf/path/filename.html
     #
+
+    #
+    # Tell HTMLDOC not to run in CGI mode...
+    #
+
+    HTMLDOC_NOCGI=1; export HTMLDOC_NOCGI
 
     #
     # The "options" variable contains any options you want to pass to HTMLDOC.
@@ -304,6 +313,9 @@ to the HTTP client:</p>
 	# Make stdout unbuffered...
 	select(STDOUT); $| = 1;
 
+	# Tell HTMLDOC not to run in CGI mode...
+        $ENV{HTMLDOC_NOCGI} = 1;
+
 	# Write the content type to the client...
 	print "Content-Type: application/pdf\n\n";
 
@@ -326,6 +338,9 @@ to PDF and send it to the HTTP client:</p>
 
 <pre>
     function topdf($filename, $options = "") {
+	# Tell HTMLDOC not to run in CGI mode...
+        putenv("HTMLDOC_NOCGI=1");
+
 	# Write the content type to the client...
 	header("Content-Type: application/pdf");
 	flush();
@@ -411,14 +426,28 @@ pipe:</p>
 
 
     /* topdf() - convert a HTML file to PDF */
-    FILE *topdf(const char *filename)	/* HTML file to convert */
+    FILE *topdf(const char *filename)           /* I - HTML file to convert */
     {
       char	command[1024];			/* Command to execute */
 
 
+     /*
+      * Tell HTMLDOC not to run in CGI mode...
+      */
+
+      putenv("HTMLDOC_NOCGI=1");
+
+     /*
+      * Write the content type to the client...
+      */
+
       puts("Content-Type: application/pdf\n");
 
-      sprintf(command, "htmldoc -t pdf --webpage %s", filename);
+     /*
+      * Run HTMLDOC to provide the PDF file to the user...
+      */
+
+      sprintf(command, "htmldoc --quiet -t pdf --webpage %s", filename);
 
       return (popen(command, "w"));
     }
@@ -427,8 +456,23 @@ pipe:</p>
     /* topdf2() - pipe HTML output to HTMLDOC for conversion to PDF */
     FILE *topdf2(void)
     {
+     /*
+      * Tell HTMLDOC not to run in CGI mode...
+      */
+
+      putenv("HTMLDOC_NOCGI=1");
+
+     /*
+      * Write the content type to the client...
+      */
+
       puts("Content-Type: application/pdf\n");
-      return (popen("htmldoc -t pdf --webpage -", "w"));
+
+     /*
+      * Open a pipe to HTMLDOC...
+      */
+
+      return (popen("htmldoc --quiet -t pdf --webpage -", "w"));
     }
 </pre>
 
