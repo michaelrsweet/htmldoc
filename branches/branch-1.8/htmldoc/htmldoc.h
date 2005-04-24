@@ -191,6 +191,7 @@ VAR style_t	HeadFootStyle	VALUE(STYLE_NORMAL);
 VAR float	HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
 
 VAR char	*Header[3]	NULL3,		/* Header for regular pages */
+		*Header1[3]	NULL3,		/* Header for first pages */
 		*TocHeader[3]	NULL3,		/* Header for TOC pages */
 		*Footer[3]	NULL3,		/* Regular page footer */
 		*TocFooter[3]	NULL3,		/* Footer for TOC pages */

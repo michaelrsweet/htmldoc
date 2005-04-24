@@ -8,6 +8,9 @@ CHANGES IN HTMLDOC v1.8.25
 	- Added "--overflow" and "--no-overflow" command-line
 	  options to show or hide the content-too-large errors;
 	  the default is "--no-overflow".
+	- Added "--header1" command-line option and "HEADER1"
+	  page comments to set the page header for the first page
+	  of each chapter.
 
     BUG FIXES
 

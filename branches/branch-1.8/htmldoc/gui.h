@@ -106,6 +106,9 @@ class GUI
   Fl_Choice		*pageHeaderLeft,
       			*pageHeaderCenter,
       			*pageHeaderRight,
+      			*pageHeader1Left,
+      			*pageHeader1Center,
+      			*pageHeader1Right,
       			*pageFooterLeft,
       			*pageFooterCenter,
       			*pageFooterRight;
