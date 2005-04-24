@@ -1,9 +1,9 @@
 /*
- * "$Id: hdstring.h,v 1.1.2.8 2004/05/09 15:04:38 mike Exp $"
+ * "$Id$"
  *
  *   String definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -115,5 +115,5 @@ extern int	hd_vsnprintf(char *, size_t, const char *, va_list);
 #endif /* !_HDSTRING_H_ */
 
 /*
- * End of "$Id: hdstring.h,v 1.1.2.8 2004/05/09 15:04:38 mike Exp $".
+ * End of "$Id$".
  */

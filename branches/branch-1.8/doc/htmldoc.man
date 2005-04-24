@@ -1,9 +1,9 @@
 .\"
-.\" "$Id: htmldoc.man,v 1.7.2.26 2004/11/16 15:21:33 mike Exp $"
+.\" "$Id$"
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
-.\"   Copyright 1997-2004 by Easy Software Products.
+.\"   Copyright 1997-2005 by Easy Software Products.
 .\"
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
@@ -546,7 +546,7 @@ a registered trademark of Adobe Systems Incorporated.
 .SH COPYRIGHTS
 Portable Document Format Copyright 1993-1999 by Adobe Systems Incorporated.
 .LP
-HTMLDOC is copyright 1997-2004 by Easy Software Products. This program is free
+HTMLDOC is copyright 1997-2005 by Easy Software Products. This program is free
 software; you can redistribute it and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation; either
 version 2 of the License, or (at your option) any later version.
@@ -558,5 +558,5 @@ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 details.
 .\"
-.\" End of "$Id: htmldoc.man,v 1.7.2.26 2004/11/16 15:21:33 mike Exp $".
+.\" End of "$Id$".
 .\"

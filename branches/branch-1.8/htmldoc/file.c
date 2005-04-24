@@ -1,9 +1,9 @@
 /*
- * "$Id: file.c,v 1.13.2.51 2004/10/23 19:57:15 mike Exp $"
+ * "$Id$"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -1048,5 +1048,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.51 2004/10/23 19:57:15 mike Exp $".
+ * End of "$Id$".
  */

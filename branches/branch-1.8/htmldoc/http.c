@@ -1,9 +1,9 @@
 /*
- * "$Id: http.c,v 1.1.2.21 2004/05/07 22:04:57 mike Exp $"
+ * "$Id$"
  *
  *   HTTP routines for the Common UNIX Printing System (CUPS).
  *
- *   Copyright 1997-2004 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2005 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -2420,5 +2420,5 @@ CDSAWriteFunc(SSLConnectionRef connection,	/* I  - SSL/TLS connection */
 
 
 /*
- * End of "$Id: http.c,v 1.1.2.21 2004/05/07 22:04:57 mike Exp $".
+ * End of "$Id$".
  */

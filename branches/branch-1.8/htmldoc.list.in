@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.list.in,v 1.1.2.30 2004/06/16 14:00:17 mike Exp $"
+# "$Id$"
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
@@ -7,11 +7,12 @@
 #
 
 %product HTMLDOC
-%copyright 1997-2004 by Easy Software Products, All Rights Reserved.
+%copyright 1997-2005 by Easy Software Products, All Rights Reserved.
 %vendor Easy Software Products
 %license htmldoc.eula
 %readme htmldoc.readme
 %version @SVERSION@ @NVERSION@
+%description HTMLDOC converts HTML files and web pages to PDF and PostScript.
 
 # Directories...
 $prefix=@prefix@
@@ -111,5 +112,5 @@ EOF
 %system all
 
 #
-# End of "$Id: htmldoc.list.in,v 1.1.2.30 2004/06/16 14:00:17 mike Exp $".
+# End of "$Id$".
 #

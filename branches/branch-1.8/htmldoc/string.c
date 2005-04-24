@@ -1,9 +1,9 @@
 /*
- * "$Id: string.c,v 1.4.2.6 2004/05/05 18:58:41 mike Exp $"
+ * "$Id$"
  *
  *   String functions for HTMLDOC.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -222,5 +222,5 @@ hd_strlcpy(char       *dst,	/* O - Destination string */
 
 
 /*
- * End of "$Id: string.c,v 1.4.2.6 2004/05/05 18:58:41 mike Exp $".
+ * End of "$Id$".
  */
