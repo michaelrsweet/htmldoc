@@ -1,9 +1,9 @@
 /*
- * "$Id: config.h,v 1.1.2.10 2004/11/06 03:41:59 mike Exp $"
+ * "$Id$"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.24 Open Source"
+#define SVERSION	"1.8.25 Open Source"
 
 
 /*
@@ -130,6 +130,6 @@
 
 
 /*
- * End of "$Id: config.h,v 1.1.2.10 2004/11/06 03:41:59 mike Exp $".
+ * End of "$Id$".
  */
 

@@ -1,10 +1,10 @@
 //
-// "$Id: htmlsep.cxx,v 1.1.2.16 2004/09/23 20:16:14 mike Exp $"
+// "$Id$"
 //
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
 //
-//   Copyright 1997-2004 by Easy Software Products.
+//   Copyright 1997-2005 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1160,5 +1160,5 @@ update_links(tree_t *t,		/* I - Document tree */
 
 
 //
-// End of "$Id: htmlsep.cxx,v 1.1.2.16 2004/09/23 20:16:14 mike Exp $".
+// End of "$Id$".
 //

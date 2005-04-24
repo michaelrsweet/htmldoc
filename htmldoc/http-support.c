@@ -1,9 +1,9 @@
 /*
- * "$Id: http-support.c,v 1.1.2.3 2004/05/05 18:58:40 mike Exp $"
+ * "$Id$"
  *
  *   HTTP support routines for the Common UNIX Printing System (CUPS).
  *
- *   Copyright 1997-2004 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2005 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -340,5 +340,5 @@ hd_hstrerror(int error)			/* I - Error number */
 
 
 /*
- * End of "$Id: http-support.c,v 1.1.2.3 2004/05/05 18:58:40 mike Exp $".
+ * End of "$Id$".
  */

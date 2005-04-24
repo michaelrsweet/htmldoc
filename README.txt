@@ -1,4 +1,4 @@
-README.txt - 11/16/2004
+README.txt - 04/24/2005
 -----------------------
 
 INTRODUCTION
@@ -11,7 +11,7 @@ INTRODUCTION
     **** SUPPORT STYLE SHEETS!  PLEASE READ THE DOCUMENTATION  ****
     **** BEFORE ASKING QUESTIONS.                              ****
 
-    HTMLDOC is copyright 1997-2004 by Easy Software Products.
+    HTMLDOC is copyright 1997-2005 by Easy Software Products.
     The source code is available under the GNU General Public
     License, version 2.  Binaries are provided under a typical
     commercial End-User License Agreement. See the LEGAL STUFF
@@ -188,7 +188,7 @@ LEGAL STUFF
     HTMLDOC and <HTML>DOC are the trademark property of Easy
     Software Products.
 
-    HTMLDOC is copyright 1997-2004 by Easy Software Products.
+    HTMLDOC is copyright 1997-2005 by Easy Software Products.
     See Appendix A of the HTMLDOC Software Users Manual and the
     files "COPYING.txt" and "htmldoc.eula" for the terms of use.
 
