@@ -17,6 +17,7 @@ CHANGES IN HTMLDOC v1.8.25
 	- "$HFIMAGEn" didn't work in a header/footer string.
 	- HTMLDOC could crash when rendering a table.
 	- Book files were not used in CGI mode (STR #69)
+	- Cookies were not sent in HTTP requests (STR #71)
 
 
 CHANGES IN HTMLDOC v1.8.24
