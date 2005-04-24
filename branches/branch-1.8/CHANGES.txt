@@ -18,7 +18,8 @@ CHANGES IN HTMLDOC v1.8.25
 	- HTMLDOC could crash when rendering a table.
 	- Book files were not used in CGI mode (STR #69)
 	- Cookies were not sent in HTTP requests (STR #71)
-
+	- Table cells were not aligned properly when the ROWSPAN
+	  attribute was set to 1 (STR #73)
 
 CHANGES IN HTMLDOC v1.8.24
 

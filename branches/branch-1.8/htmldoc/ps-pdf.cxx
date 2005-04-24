@@ -5861,6 +5861,9 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  {
             row_spans[col] = atoi((char *)var);
 
+	    if (row_spans[col] == 1)
+	      row_spans[col] = 0;
+
 	    for (tcol = 1; tcol < colspan; tcol ++)
               row_spans[col + tcol] = row_spans[col];
           }
@@ -6395,6 +6398,9 @@ parse_table(tree_t *t,			// I - Tree to parse
       {
         if ((var = htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN")) != NULL)
           row_spans[col] = atoi((char *)var);
+
+        if (row_spans[col] == 1)
+	  row_spans[col] = 0;
 
         if (row_spans[col] > (num_rows - row))
 	  row_spans[col] = num_rows - row;
