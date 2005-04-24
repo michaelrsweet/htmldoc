@@ -1,5 +1,5 @@
 /*
- * "$Id: tree.cxx,v 1.30 2004/10/25 14:30:03 mike Exp $"
+ * "$Id$"
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
@@ -23,34 +23,34 @@
  *
  * Contents:
  *
- *   htmlReadFile()      - Read a file for HTML markup codes.
- *   write_file()        - Write a tree entry to a file...
- *   htmlWriteFile()     - Write an HTML markup tree to a file.
- *   htmlAddTree()       - Add a tree node to the parent.
- *   htmlDeleteTree()    - Free all memory associated with a tree...
- *   htmlInsertTree()    - Insert a tree node to the parent.
- *   htmlNewTree()       - Create a new tree node for the parent.
- *   htmlGetText()       - Get all text from the given tree.
- *   htmlGetMeta()       - Get document "meta" data...
- *   htmlGetStyle()      - Get a style value from a node's STYLE attribute.
- *   htmlGetVariable()   - Get a variable value from a markup entry.
- *   htmlSetVariable()   - Set a variable for a markup entry.
- *   htmlSetBaseSize()   - Set the font sizes and spacings...
- *   htmlSetCharSet()    - Set the character set for output.
- *   htmlSetTextColor()  - Set the default text color.
- *   compare_variables() - Compare two markup variables.
- *   compare_markups()   - Compare two markup strings...
- *   delete_node()       - Free all memory associated with a node...
- *   insert_space()      - Insert a whitespace character before the
- *                         specified node.
- *   parse_markup()      - Parse a markup string.
- *   parse_variable()    - Parse a markup variable string.
- *   compute_size()      - Compute the width and height of a tree entry.
- *   compute_color()     - Compute the red, green, blue color from the given
- *   get_alignment()     - Get horizontal & vertical alignment values.
- *   fix_filename()      - Fix a filename to be relative to the base directory.
- *   html_memory_used()  - Figure out the amount of memory that was used.
- *   htmlDebugStats()    - Display debug statistics for HTML tree memory use.
+ *   hdBook::html_read_file() - Read a file for HTML markup codes.
+ *   write_file()             - Write a tree entry to a file...
+ *   htmlWriteFile()          - Write an HTML markup tree to a file.
+ *   htmlAddTree()            - Add a tree node to the parent.
+ *   htmlDeleteTree()         - Free all memory associated with a tree...
+ *   htmlInsertTree()         - Insert a tree node to the parent.
+ *   htmlNewTree()            - Create a new tree node for the parent.
+ *   htmlGetText()            - Get all text from the given tree.
+ *   htmlGetMeta()            - Get document "meta" data...
+ *   htmlGetStyle()           - Get a style value from a node's STYLE attribute.
+ *   htmlGetVariable()        - Get a variable value from a markup entry.
+ *   htmlSetVariable()        - Set a variable for a markup entry.
+ *   htmlSetBaseSize()        - Set the font sizes and spacings...
+ *   htmlSetCharSet()         - Set the character set for output.
+ *   htmlSetTextColor()       - Set the default text color.
+ *   compare_variables()      - Compare two markup variables.
+ *   compare_markups()        - Compare two markup strings...
+ *   delete_node()            - Free all memory associated with a node...
+ *   insert_space()           - Insert a whitespace character before the
+ *                              specified node.
+ *   parse_markup()           - Parse a markup string.
+ *   parse_variable()         - Parse a markup variable string.
+ *   compute_size()           - Compute the width and height of a tree entry.
+ *   compute_color()          - Compute the red, green, blue color from the given
+ *   get_alignment()          - Get horizontal & vertical alignment values.
+ *   fix_filename()           - Fix a filename to be relative to the base directory.
+ *   html_memory_used()       - Figure out the amount of memory that was used.
+ *   htmlDebugStats()         - Display debug statistics for HTML tree memory use.
  */
 
 /*
@@ -255,14 +255,14 @@ static uchar	indent[255] = "";
 
 
 /*
- * 'htmlReadFile()' - Read a file for HTML markup codes.
+ * 'hdBook::html_read_file()' - Read a file for HTML markup codes.
  */
 
 hdTree *				// O - Pointer to top of file tree
-htmlReadFile(hdTree     *parent,	// I - Parent tree entry
-             FILE       *fp,		// I - File pointer
-	     const char *base,		// I - Base directory for file
-             hdStyleSheet *stylesheet)	// I - Stylesheet
+hdBook::html_read_file(hdTree     *parent,
+					// I - Parent tree entry
+        	       FILE       *fp,	// I - File pointer
+		       const char *base)// I - Base directory for file
 {
   int		ch;			// Character from file
   uchar		*ptr,			// Pointer in string
@@ -286,7 +286,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
   static int	have_whitespace = 0;	// Non-zero if there was leading whitespace
 
 
-  DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
+  DEBUG_printf(("hdBook::html_read_file(parent=%p, fp=%p, base=\"%s\")\n",
                 parent, fp, base ? base : "(null)"));
 
 #ifdef DEBUG
@@ -1034,7 +1034,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
             {
 	      strcpy(newbase, hdBook::file_directory((char *)filename));
 
-              htmlReadFile(t, embed, newbase, stylesheet);
+              html_read_file(t, embed, newbase);
               fclose(embed);
             }
 #ifndef DEBUG
@@ -1320,6 +1320,17 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
   }  
 
   return (tree);
+}
+
+
+//
+// 'hdTree::apply_css()' - Apply style data to the node.
+//
+
+void
+hdTree::apply_css()
+{
+  
 }
 
 
@@ -3314,5 +3325,5 @@ htmlFixLinks(hdTree *doc,		// I - Top node
 
 
 /*
- * End of "$Id: tree.cxx,v 1.30 2004/10/25 14:30:03 mike Exp $".
+ * End of "$Id$".
  */

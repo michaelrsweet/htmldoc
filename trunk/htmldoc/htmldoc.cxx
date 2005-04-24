@@ -64,7 +64,8 @@ const char *__XOS2RedirRoot(const char *);
  */
 
 static int	compare_strings(const char *s, const char *t, int tmin);
-static int	load_book(hdBook *book, const char *filename, hdTree **document);
+static int	load_book(hdBook *book, const char *filename, hdTree **document,
+		          int set_nolocal = 0);
 static void	parse_options(hdBook *book, const char *line);
 static int	read_file(hdBook *book, const char *filename,
 		          hdTree **document, const char *path);
@@ -154,7 +155,6 @@ main(int  argc,				// I - Number of command-line arguments
     book->PDFFirstPage  = HD_PDF_PAGE_1;
 
     book->file_cookies(getenv("HTTP_COOKIE"));
-    book->file_nolocal();
 
     book->progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
     book->progress_error(HD_ERROR_NONE, "INFO: TMPDIR is \"%s\"", getenv("TMPDIR"));
@@ -185,7 +185,9 @@ main(int  argc,				// I - Number of command-line arguments
       strlcpy(bookfile, ".book", sizeof(bookfile));
 
     if (!access(bookfile, 0))
-      load_book(book, bookfile, &document);
+      load_book(book, bookfile, &document, 1);
+    else
+      book->file_nolocal();
   }
   else
   {
@@ -481,13 +483,21 @@ main(int  argc,				// I - Number of command-line arguments
       book->OutputColor = false;
       _htmlGrayscale    = 1;
     }
-    else if (compare_strings(argv[i], "--header", 7) == 0)
+    else if (!strcmp(argv[i], "--header"))
     {
       i ++;
       if (i < argc)
         book->get_format(argv[i], book->Header);
       else
         usage(book, argv[i - 1]);
+    }
+    else if (!strcmp(argv[i], "--header1"))
+    {
+      i ++;
+      if (i < argc)
+        get_format(argv[i], Header1);
+      else
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--headfootfont", 11) == 0)
     {
@@ -1008,7 +1018,7 @@ main(int  argc,				// I - Number of command-line arguments
       _fsetmode(stdin, "b");
 #endif // WIN32 || __EMX__
 
-      htmlReadFile(file, stdin, ".", NULL);
+      book->html_read_file(file, stdin, ".");
 
       if (document == NULL)
         document = file;
@@ -1172,7 +1182,8 @@ compare_strings(const char *s,	/* I - Command-line string */
 static int				// O  - 1 = success, 0 = failure
 load_book(hdBook       *book,		// I  - Book
           const char   *filename,	// I  - Book file
-          hdTree       **document)	// IO - Document tree
+          hdTree       **document,	// IO - Document tree
+	  int          set_nolocal)	// I  - Set file_nolocal() after lookup
 {
   FILE		*fp;			// File to read from
   char		line[10240];		// Line from file
@@ -1190,7 +1201,12 @@ load_book(hdBook       *book,		// I  - Book
     strlcpy(path, book->Path, sizeof(path));
 
   // Open the file...
-  if ((local = book->file_find(book->Path, filename)) == NULL)
+  local = book->file_find(book->Path, filename);
+
+  if (set_nolocal)
+    book->file_nolocal();
+
+  if (!local)
     return (0);
 
   if ((fp = fopen(local, "rb")) == NULL)
@@ -1542,6 +1558,8 @@ parse_options(hdBook       *book,	// I  - Book
       book->PageBottom = book->get_measurement(temp2);
     else if (strcmp(temp, "--header") == 0)
       book->get_format(temp2, book->Header);
+    else if (strcmp(temp, "--header1") == 0)
+      book->get_format(temp2, book->Header1);
     else if (strcmp(temp, "--footer") == 0)
       book->get_format(temp2, book->Footer);
     else if (strcmp(temp, "--bodycolor") == 0)
@@ -1788,7 +1806,7 @@ read_file(hdBook     *book,		// I  - Book
                       (uchar *)hdBook::file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
-      htmlReadFile(file, docfile, base, NULL);
+      book->html_read_file(file, docfile, base);
 
       fclose(docfile);
 
@@ -1951,6 +1969,7 @@ usage(hdBook     *book,			// I - Book
     puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html,htmlsep}");
     puts("  --gray");
     puts("  --header fff");
+    puts("  --header1 fff");
     puts("  --headfootfont {courier{-bold,-oblique,-boldoblique},\n"
 	 "                  times{-roman,-bold,-italic,-bolditalic},\n"
 	 "                  helvetica{-bold,-oblique,-boldoblique}}");
