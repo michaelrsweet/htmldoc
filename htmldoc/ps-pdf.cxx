@@ -4742,10 +4742,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
-        if (temp->link)
-	{
-          link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF");
-
+        if (temp->link &&
+	    (link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF")) != NULL)
+        {
 	 /*
 	  * Add a page link...
 	  */
@@ -4833,10 +4832,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	           *y - temp->height, temp->width, temp->height,
 		   image_find((char *)htmlGetVariable(temp, (uchar *)"REALSRC")));
 
-        if (temp->link)
-	{
-          link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF");
-
+        if (temp->link &&
+	    (link = htmlGetVariable(temp->link, (uchar *)"_HD_FULL_HREF")) != NULL)
+        {
 	 /*
 	  * Add a page link...
 	  */
@@ -5450,10 +5448,9 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     col = 0;
     while (start != flat)
     {
-      if (start->link != NULL)
+      if (start->link &&
+	  (link = htmlGetVariable(start->link, (uchar *)"_HD_FULL_HREF")) != NULL)
       {
-	link = htmlGetVariable(start->link, (uchar *)"_HD_FULL_HREF");
-
        /*
 	* Add a page link...
 	*/
