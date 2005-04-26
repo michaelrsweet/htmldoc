@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.14 2004/10/23 08:28:43 mike Exp $"
+# "$Id$"
 #
 #   ZIP library Makefile for the HTMLDOC software.
 #
@@ -69,5 +69,5 @@ inftrees.o:	zutil.h inftrees.h
 inffast.o:	zutil.h inftrees.h inflate.h inffast.h
 
 #
-# End of "$Id: Makefile,v 1.14 2004/10/23 08:28:43 mike Exp $".
+# End of "$Id$".
 #
