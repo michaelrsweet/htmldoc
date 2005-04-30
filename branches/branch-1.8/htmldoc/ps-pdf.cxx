@@ -6837,7 +6837,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  cell_bg[col]->height = cell_y[col] - bottom + cellpadding + border;
 	}
 
-        for (temp_page = cell_page[col] + 1; temp_page != cell_endpage[col]; temp_page ++)
+        for (temp_page = cell_page[col] + 1; temp_page < cell_endpage[col]; temp_page ++)
 	{
 	 /*
 	  * |   |   |   |
@@ -6955,7 +6955,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 		 pages[table_page].start);
 
       // Intervening pages...
-      for (temp_page = table_page + 1; temp_page != *page; temp_page ++)
+      for (temp_page = table_page + 1; temp_page < *page; temp_page ++)
       {
         new_render(temp_page, RENDER_BOX, border_left, bottom,
                    width, top - bottom, bgrgb, pages[temp_page].start);
