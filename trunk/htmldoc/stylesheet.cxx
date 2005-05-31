@@ -1,9 +1,9 @@
 //
-// "$Id: stylesheet.cxx,v 1.18 2004/10/24 03:23:42 mike Exp $"
+// "$Id$"
 //
-//   CSS sheet routines for HTMLDOC, a HTML document processing program.
+//   Basic stylesheet routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2004 by Easy Software Products.
+//   Copyright 1997-2005 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3142 USA
+//       Hollywood, Maryland 20636 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -23,20 +23,6 @@
 //
 // Contents:
 //
-//   hdStyleSheet::hdStyleSheet()      - Create a new stylesheet.
-//   hdStyleSheet::~hdStyleSheet()     - Destroy a stylesheet.
-//   hdStyleSheet::add_style()         - Add a style to a stylesheet.
-//   hdStyleSheet::find_font()         - Find a font for the given style.
-//   hdStyleSheet::find_style()        - Find the default style for the given
-//   hdStyleSheet::find_style()        - Find the default style for the given
-//   hdStyleSheet::find_style()        - Find the default style for the given
-//   hdStyleSheet::get_glyph()         - Find the index for the named glyph...
-//   hdStyleSheet::get_private_style() - Get a private style definition.
-//   hdStyleSheet::load()              - Load a stylesheet from the given file.
-//   hdStyleSheet::pattern()           - Initialize a regex pattern buffer...
-//   hdStyleSheet::read()              - Read a string from the given file.
-//   hdStyleSheet::set_charset()       - Set the document character set.
-//   hdStyleSheet::update_styles()     - Update all relative style data.
 //
 
 //
@@ -54,14 +40,42 @@
 
 hdStyleSheet::hdStyleSheet()
 {
-  // Initialize the stylesheet structure.  Using memset() is safe
-  // on structures...
+  num_styles   = 0;
+  alloc_styles = 0;
+  styles       = NULL;
 
-  memset(this, 0, sizeof(hdStyleSheet));
-
+  memset(max_selectors, 0, sizeof(max_selectors));
   memset(elements, -1, sizeof(elements));
 
-  ppi = 80.0f;
+  num_fonts = 0;
+  memset(fonts, 0, sizeof(fonts));
+  memset(font_names, 0, sizeof(font_names));
+
+  charset       = NULL;
+  encoding      = HD_FONT_ENCODING_8BIT;
+  num_glyphs    = 0;
+  glyphs        = NULL;
+  grayscale     = false;
+  ppi           = 80.0f;
+  browser_width = 680.0f;
+  private_id    = 0;
+
+  // Set default style stuff...
+  set_color("#000000");
+  set_font_family("serif");
+  set_font_size("11pt");
+  set_line_height("1.2");
+
+  def_style.font_style          = HD_FONT_STYLE_NORMAL;
+  def_style.font_variant        = HD_FONT_VARIANT_NORMAL;
+  def_style.font_weight         = HD_FONT_WEIGHT_NORMAL;
+  def_style.list_style_position = HD_LIST_STYLE_POSITION_OUTSIDE;
+  def_style.list_style_type     = HD_LIST_STYLE_TYPE_NONE;
+  def_style.orphans             = 2;
+  def_style.text_align          = HD_TEXT_ALIGN_LEFT;
+  def_style.text_decoration     = HD_TEXT_DECORATION_NONE;
+  def_style.text_transform      = HD_TEXT_TRANSFORM_NONE;
+  def_style.widows              = 2;
 
   // Set the default character set to "iso-8859-1"...
   set_charset("iso-8859-1");
@@ -90,7 +104,7 @@ hdStyleSheet::~hdStyleSheet()
   // Free all fonts...
   for (i = 0; i < num_fonts; i ++)
   {
-    for (j = 0; j < HD_FONTINTERNAL_MAX; j ++)
+    for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
       if (fonts[i][j])
         delete fonts[i][j];
 
@@ -226,29 +240,47 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
 hdStyleFont *				// O - Font record
 hdStyleSheet::find_font(hdStyle *s)	// I - Style record
 {
+  hdFontInternal	fs;		// Font style index
+
+
+  // Figure out the font style we need...
+  if (s->font_weight == HD_FONT_WEIGHT_BOLD)
+  {
+    if (s->font_style >= HD_FONT_STYLE_ITALIC)
+      fs = HD_FONT_INTERNAL_BOLD_ITALIC;
+    else
+      fs = HD_FONT_INTERNAL_BOLD;
+  }
+  else if (s->font_style >= HD_FONT_STYLE_ITALIC)
+    fs = HD_FONT_INTERNAL_ITALIC;
+  else
+    fs = HD_FONT_INTERNAL_NORMAL;
+
+  return (find_font(s->font_family, fs));
+}
+
+
+//
+// 'hdStyleSheet::find_font()' - Find a specific font.
+//
+
+hdStyleFont *				// O - Font record
+hdStyleSheet::find_font(
+  const char     *family,		// I - Font family
+  hdFontInternal fs)			// I - Internal font style
+{
   char		face[1024],		// Font face property
 		*start,			// Start of current font face
 		*ptr;			// End of current font face
   int		i;			// Looping var
   int		tf;			// Typeface index
-  int		fs;			// Font style index
   hdStyleFont	*temp;			// New font record
 
 
-  // Figure out the font style we need...
-  if (s->font_weight == HD_FONT_WEIGHT_BOLD ||
-      s->font_weight == HD_FONT_WEIGHT_BOLDER)
-    fs = HD_FONTINTERNAL_BOLD;
-  else
-    fs = HD_FONTINTERNAL_NORMAL;
-
-  if (s->font_style)
-    fs += 2;
-
   // Make a copy of the font family...
-  if (s->font_family)
+  if (family)
   {
-    strncpy(face, s->font_family, sizeof(face) - 1);
+    strncpy(face, family, sizeof(face) - 1);
     face[sizeof(face) - 1] = '\0';
   }
   else
@@ -268,36 +300,36 @@ hdStyleSheet::find_font(hdStyle *s)	// I - Style record
       *ptr++ = '\0';
 
     // See if the font face exists already...
-    if (strcasecmp(start, "monospace") == 0 ||
-        strcasecmp(start, "Courier") == 0)
-      tf = HD_FONTFACE_MONOSPACE;
-    else if (strcasecmp(start, "serif") == 0 ||
-             strcasecmp(start, "Times") == 0)
-      tf = HD_FONTFACE_SERIF;
-    else if (strcasecmp(start, "sans-serif") == 0 ||
-             strcasecmp(start, "Arial") == 0 ||
-             strcasecmp(start, "Helvetica") == 0)
-      tf = HD_FONTFACE_SANS_SERIF;
-    else if (strcasecmp(start, "symbol") == 0)
-      tf = HD_FONTFACE_SYMBOL;
-    else if (strcasecmp(start, "cursive") == 0 ||
-             strcasecmp(start, "ZapfChancery") == 0)
-      tf = HD_FONTFACE_CURSIVE;
+    if (!strcasecmp(start, "monospace") ||
+        !strcasecmp(start, "Courier"))
+      tf = HD_FONT_FACE_MONOSPACE;
+    else if (!strcasecmp(start, "serif") ||
+             !strcasecmp(start, "Times"))
+      tf = HD_FONT_FACE_SERIF;
+    else if (!strcasecmp(start, "sans-serif") ||
+             !strcasecmp(start, "Arial") ||
+             !strcasecmp(start, "Helvetica"))
+      tf = HD_FONT_FACE_SANS_SERIF;
+    else if (!strcasecmp(start, "symbol"))
+      tf = HD_FONT_FACE_SYMBOL;
+    else if (!strcasecmp(start, "cursive") ||
+             !strcasecmp(start, "ZapfChancery"))
+      tf = HD_FONT_FACE_CURSIVE;
     else
     {
       // Add a custom font...
-      for (tf = HD_FONTFACE_CUSTOM; tf < HD_FONTFACE_MAX; tf ++)
+      for (tf = HD_FONT_FACE_CUSTOM; tf < HD_FONT_FACE_MAX; tf ++)
         if (font_names[tf] == NULL)
 	  break;
-	else if (strcasecmp(start, font_names[tf]) == 0)
+	else if (!strcasecmp(start, font_names[tf]))
 	  break;
 
-      if (tf >= HD_FONTFACE_MAX)
-        tf = HD_FONTFACE_SERIF;
+      if (tf >= HD_FONT_FACE_MAX)
+        tf = HD_FONT_FACE_SERIF;
     }
 
     // Return the existing font, if any...
-    if (fonts[tf][fs] != NULL)
+    if (fonts[tf][fs])
       return (fonts[tf][fs]);
 
     // Try loading a new font...
@@ -327,50 +359,16 @@ hdStyleSheet::find_font(hdStyle *s)	// I - Style record
     {
       // Font was loaded, set the name and return the font...
       font_names[tf] = strdup(start);
+
+      if (tf >= num_fonts)
+        num_fonts = tf + 1;
+
       return (fonts[tf][fs]);
     }
   }
 
   // Couldn't find font, return 0...
   return ((hdStyleFont *)0);
-}
-
-
-//
-// 'hdStyleSheet::find_style()' - Find the default style for the given
-//                                tree node.
-//
-
-hdStyle *				// O - Style record
-hdStyleSheet::find_style(hdTree *t)	// I - Tree node
-{
-  int			i;		// Looping var...
-  int			nsels;		// Number of selectors...
-  hdStyleSelector	sels[HD_SELECTOR_MAX];
-					// Selectors...
-  hdTree		*p;		// Tree pointer...
-
-
-  // Figure out how many selectors to use...
-  if (max_selectors[t->element] > HD_SELECTOR_MAX)
-    nsels = HD_SELECTOR_MAX;
-  else
-    nsels = max_selectors[t->element];
-
-  // Build the selectors for this node...
-  for (i = 0, p = t; i < nsels; i ++, p = t->parent)
-  {
-    sels[i].element = p->element;
-    sels[i].class_  = (char *)p->get_attr("CLASS");
-    sels[i].id      = (char *)p->get_attr("ID");
-    if (sels[i].element == HD_ELEMENT_A && p->get_attr("HREF") != NULL)
-      sels[i].pseudo = (char *)"link";
-    else
-      sels[i].pseudo = NULL;
-  }
-
-  // Do the search...
-  return (find_style(i, sels));
 }
 
 
@@ -474,12 +472,174 @@ hdStyleSheet::find_style(hdElement e,	// I - Element
 
   // Build the selector for this node...
   sel.element = e;
-  sel.class_  = c;
-  sel.id      = i;
-  sel.pseudo  = p;
+  sel.class_  = (char *)c;
+  sel.id      = (char *)i;
+  sel.pseudo  = (char *)p;
 
   // Do the search...
   return (find_style(1, &sel));
+}
+
+
+static const char * const hd_elements[] =
+{
+  "",		/* HD_ELEMENT_NONE */
+  "!--",	/* HD_ELEMENT_COMMENT */
+  "!DOCTYPE",
+  "a",
+  "abbr",
+  "acronym",
+  "address",
+  "applet",
+  "area",
+  "b",
+  "base",
+  "basefont",
+  "bdo",
+  "big",
+  "blink",
+  "blockquote",
+  "body",
+  "br",
+  "button",
+  "caption",
+  "center",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "dd",
+  "del",
+  "dfn",
+  "dir",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "fieldset",
+  "font",
+  "form",
+  "frame",
+  "frameset",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "h7",
+  "h8",
+  "h9",
+  "h10",
+  "h11",
+  "h12",
+  "h13",
+  "h14",
+  "h15",
+  "head",
+  "hr",
+  "html",
+  "i",
+  "iframe",
+  "img",
+  "input",
+  "ins",
+  "isindex",
+  "kbd",
+  "label",
+  "legend",
+  "li",
+  "link",
+  "map",
+  "menu",
+  "meta",
+  "multicol",
+  "nobr",
+  "noframes",
+  "object",
+  "ol",
+  "optgroup",
+  "option",
+  "p",
+  "param",
+  "pre",
+  "q",
+  "s",
+  "samp",
+  "script",
+  "select",
+  "small",
+  "spacer",
+  "span",
+  "strike",
+  "strong",
+  "style",
+  "sub",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "textarea",
+  "tfoot",
+  "th",
+  "thead",
+  "title",
+  "tr",
+  "tt",
+  "u",
+  "ul",
+  "var",
+  "wbr"
+};
+
+
+//
+// 'hd_compare_elements()' - Compare two element strings...
+//
+
+static int				// O - Result of comparison
+hd_compare_elements(const char **m0,	// I - First element
+                    const char **m1)	// I - Second element
+{
+  if (tolower((*m0)[0]) == 'h' && isdigit((*m0)[1]) &&
+      tolower((*m1)[0]) == 'h' && isdigit((*m1)[1]))
+    return (atoi(*m0 + 1) - atoi(*m1 + 1));
+  else
+    return (strcasecmp(*m0, *m1));
+}
+
+
+//
+// 'hdStyleSheet::get_element()' - Get the enumeration for an element.
+//
+
+hdElement				// O - Element enumeration
+hdStyleSheet::get_element(const char *s)// I - Element name
+{
+  const char	**temp;			// Element name array
+
+
+  temp = (const char **)bsearch(&s, hd_elements,
+                        	sizeof(hd_elements) / sizeof(hd_elements[0]),
+                        	sizeof(hd_elements[0]),
+                        	(hdCompareFunc)hd_compare_elements);
+
+  if (temp == NULL)
+    return (HD_ELEMENT_UNKNOWN);
+  else
+    return ((hdElement)(temp - hd_elements));
+}
+
+
+//
+// 'hdStyleSheet::get_element()' - Get the element string for an enumeration.
+//
+
+const char *				// O - Element name
+hdStyleSheet::get_element(hdElement e)	// I - Element enumeration
+{
+  return (hd_elements[e]);
 }
 
 
@@ -504,55 +664,15 @@ hdStyleSheet::get_glyph(const char *s)	// I - Glyph name
 
 
 //
-// 'hdStyleSheet::get_private_style()' - Get a private style definition.
-//
-
-hdStyle	*				// O - New style
-hdStyleSheet::get_private_style(hdTree *t)
-					// I - Tree node that needs style
-{
-  hdStyle		*parent,	// Parent style
-			*style;		// New private style
-  hdStyleSelector	selector;	// Selector for private style
-  char			id[16];		// Selector ID
-  const char		*style_attr;	// STYLE attribute, if any
-
-
-  // Find the parent style...
-  parent = find_style(t);
-
-  // Setup a private selector ID for this node...
-  sprintf(id, "_HD_%08X", private_id ++);
-
-  // Create a new style derived from this node...
-  selector.set(t->element, NULL, NULL, id);
-
-  style = new hdStyle(1, &selector, t->css);
-
-  style->inherit(parent);
-
-  // Apply the STYLE attribute for this node, if any...
-  if ((style_attr = t->get_attr("STYLE")) != NULL)
-    style->load(this, style_attr);
-
-  // Add the style to the stylesheet...
-  add_style(style);
-
-  // Return the new style...
-  return (style);
-}
-
-
-//
 // 'hdStyleSheet::load()' - Load a stylesheet from the given file.
 //
 
-int					// O - 0 on success, -1 on failure
-hdStyleSheet::load(FILE     *f,		// I - File to read from
+bool					// O - True on success, false on failure
+hdStyleSheet::load(FILE       *f,	// I - File to read from
                    const char *path)	// I - Search path for included files
 {
   int			i, j;		// Looping vars...
-  int			status;		// Load status
+  bool			status;		// Load status
   int			ch;		// Character from file
   char			sel_s[1024],	// Selector string
 			sel_p[256],	// Selector pattern
@@ -582,7 +702,7 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
   // Loop until we can't read any more...
   cur_fstyle  = 0;
   num_fstyles = 0;
-  status      = 0;
+  status      = true;
   cssmedia[0] = '\0';
 
   while ((ch = getc(f)) != EOF)
@@ -602,9 +722,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
       // Check for C-style comment...
       if ((ch = getc(f)) != '*')
       {
-//        progress_error(HD_ERROR_CSS_ERROR,
-//	                        "Bad sequence \"/%c\" in stylesheet!", ch);
-	status = -1;
+        progress_error(HD_ERROR_CSS_ERROR,
+	               "Bad sequence \"/%c\" in stylesheet!", ch);
+	status = false;
 	break;
       }
 
@@ -620,9 +740,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 
       if (ch != '/')
       {
-//        progress_error(HD_ERROR_CSS_ERROR,
-//	                        "Unterminated comment in stylesheet!");
-	status = -1;
+        progress_error(HD_ERROR_CSS_ERROR,
+	               "Unterminated comment in stylesheet!");
+	status = false;
 	break;
       }
 
@@ -637,9 +757,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
       // Read property data...
       if (read(f, props_p, props, sizeof(props)) == NULL)
       {
-//        progress_error(HD_ERROR_CSS_ERROR,
-//	                        "Missing property data in stylesheet!");
-	status = -1;
+        progress_error(HD_ERROR_CSS_ERROR,
+	               "Missing property data in stylesheet!");
+	status = false;
 	break;
       }
 
@@ -650,8 +770,8 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
       if (ch != '}')
       {
         ungetc(ch, f);
-//	progress_error(HD_ERROR_CSS_ERROR,
-//	                        "Missing } for style properties!");
+	progress_error(HD_ERROR_CSS_ERROR,
+	               "Missing } for style properties!");
       }
 
       // Apply properties to all styles...
@@ -661,6 +781,15 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 
       for (i = 0; i < num_fstyles; i ++)
       {
+        // Force link pseudo-selectors to element "A".
+        if (selectors[i]->element == HD_ELEMENT_NONE &&
+	    selectors[i]->pseudo &&
+	    (!strcmp(selectors[i]->pseudo, "link") ||
+	     !strcmp(selectors[i]->pseudo, "active") ||
+	     !strcmp(selectors[i]->pseudo, "visited") ||
+	     !strcmp(selectors[i]->pseudo, "hover")))
+	  selectors[i]->element = HD_ELEMENT_A;
+
         if (selectors[i]->element == HD_ELEMENT_NONE)
 	{
 	  // Create an instance of this style for each element...
@@ -676,7 +805,7 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
               add_style(style);
 	    }
 
-            style->load(this, props);
+            status = status && style->load(this, props);
 	  }
 
 	  selectors[i]->element = HD_ELEMENT_NONE;
@@ -684,16 +813,23 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 	else
 	{
 	  // Apply to just the selected element...
-          parent.element = selectors[i]->element;
-
           if ((style = find_style(num_selectors[i], selectors[i], 1)) == NULL)
           {
-	    style = new hdStyle(num_selectors[i], selectors[i],
-	                	find_style(1, &parent, 1));
+	    if (selectors[i]->class_ || selectors[i]->pseudo ||
+	        selectors[i]->id)
+            {
+	      parent.element = selectors[i]->element;
+
+	      style = new hdStyle(num_selectors[i], selectors[i],
+	                	  find_style(1, &parent, 1));
+            }
+	    else
+	      style = new hdStyle(num_selectors[i], selectors[i], &def_style);
+
             add_style(style);
 	  }
 
-          style->load(this, props);
+          status = status && style->load(this, props);
         }
 
         delete[] selectors[i];
@@ -712,10 +848,10 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 
       if (cur_fstyle >= HD_SELECTOR_MAX)
       {
-//        progress_error(HD_ERROR_CSS_ERROR,
-//	                        "Too many selectors (> %d) in stylesheet!",
-//	                        HD_SELECTOR_MAX);
-	status = -1;
+        progress_error(HD_ERROR_CSS_ERROR,
+	               "Too many selectors (> %d) in stylesheet!",
+	               HD_SELECTOR_MAX);
+	status = false;
 	break;
       }
 
@@ -724,9 +860,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
     else if (!sel_p[ch])
     {
       // Not a valid selector string...
-//      progress_error(HD_ERROR_CSS_ERROR,
-//                              "Bad stylesheet character \"%c\"!", ch);
-      status = -1;
+      progress_error(HD_ERROR_CSS_ERROR,
+                     "Bad stylesheet character \"%c\"!", ch);
+      status = false;
       break;
     }
 
@@ -811,9 +947,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 
 	    delete import_f;
 	  }
-//	  else
-//	    progress_error(HD_ERROR_CSS_ERROR,
-//	                            "Unable to import \"%s\"!", import);
+	  else
+	    progress_error(HD_ERROR_CSS_ERROR,
+	                   "Unable to import \"%s\"!", import);
 	}
       }
       else if (strcmp(sel_s, "@page") == 0)
@@ -836,15 +972,15 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 	if (ch != '{')
 	{
           ungetc(ch, f);
-//	  progress_error(HD_ERROR_CSS_ERROR,
-//	                          "Missing { for media selector!");
+	  progress_error(HD_ERROR_CSS_ERROR,
+	                 "Missing { for media selector!");
 	}
       }
       else
       {
         // Show a warning message...
-//	progress_error(HD_ERROR_CSS_ERROR,
-//	                        "Unsupported rule \"%s\"!", sel_s);
+	progress_error(HD_ERROR_CSS_ERROR,
+	               "Unsupported rule \"%s\"!", sel_s);
 
         int braces = 0;
 
@@ -865,9 +1001,9 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
 	    break;
 	}
 
-//        if (ch != ';')
-//	  progress_error(HD_ERROR_CSS_ERROR,
-//	                          "Missing terminator (;) for %s!", sel_s);
+        if (ch != ';')
+	  progress_error(HD_ERROR_CSS_ERROR,
+	                 "Missing terminator (;) for %s!", sel_s);
       }
 
       continue;
@@ -895,7 +1031,7 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
     if (sel_id)
       *sel_id++ = '\0';
 
-    if (hdTree::get_element(sel_s) == HD_ELEMENT_UNKNOWN)
+    if (get_element(sel_s) == HD_ELEMENT_UNKNOWN)
       printf("UNKNOWN ELEMENT %s!\n", sel_s);
 
     // Insert the new selector before any existing ones...
@@ -903,8 +1039,8 @@ hdStyleSheet::load(FILE     *f,		// I - File to read from
       memmove(selectors[cur_fstyle] + 1, selectors[cur_fstyle],
               num_selectors[cur_fstyle] * sizeof(hdStyleSelector));
 
-    selectors[cur_fstyle]->set(hdTree::get_element(sel_s),
-                              sel_class, sel_pseudo, sel_id);
+    selectors[cur_fstyle]->set(get_element(sel_s),
+                               sel_class, sel_pseudo, sel_id);
 
     num_selectors[cur_fstyle] ++;
   }
@@ -1087,7 +1223,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
 {
   int		i;			// Looping var
   char		filename[1024];		// Glyphs filename
-  FILE	*fp;			// Glyphs file
+  FILE		*fp;			// Glyphs file
   char		line[256];		// Line from file
   int		code;			// Unicode number
   char		name[255];		// Name string
@@ -1096,37 +1232,36 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   // Validate the character set name...
   if (cs == NULL || strchr(cs, '/') != NULL)
   {
-//    progress_error(HD_ERROR_CSS_ERROR,
-//                            "Bad character set \"%s\"!", cs ? cs : "(null)");
+    progress_error(HD_ERROR_CSS_ERROR,
+                   "Bad character set \"%s\"!", cs ? cs : "(null)");
     return;
   }
 
   // Open the charset file...
-  snprintf(filename, sizeof(filename), "%s/data/%s",
-           _htmlData, cs);
+  snprintf(filename, sizeof(filename), "%s/data/%s", _htmlData, cs);
   if ((fp = fopen(filename, "r")) == NULL)
   {
-//    progress_error(HD_ERROR_CSS_ERROR,
-//                            "Unable to open character set file \"%s\"!",
-//			    filename);
+    progress_error(HD_ERROR_CSS_ERROR,
+                   "Unable to open character set file \"%s\"!",
+                   filename);
     return;
   }
 
   // Read the charset type (8bit or unicode)...
-  if (fgets(line, sizeof(line), fp) == NULL)
+  if (file_gets(line, sizeof(line), fp) == NULL)
   {
-//    progress_error(HD_ERROR_CSS_ERROR,
-//                            "Unable to read charset type from \"%s\"!",
-//			    filename);
+    progress_error(HD_ERROR_CSS_ERROR,
+                   "Unable to read charset type from \"%s\"!",
+		   filename);
     fclose(fp);
     return;
   }
 
   if (strcasecmp(line, "8bit") != 0 && strcasecmp(line, "unicode") != 0)
   {
-//    progress_error(HD_ERROR_CSS_ERROR,
-//                            "Bad charset type \"%s\" in \"%s\"!",
-//			    line, filename);
+    progress_error(HD_ERROR_CSS_ERROR,
+                   "Bad charset type \"%s\" in \"%s\"!",
+		   line, filename);
     fclose(fp);
     return;
   }
@@ -1147,12 +1282,12 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   // Allocate the charset array...
   if (line[0] == '8')
   {
-    encoding   = HD_FONTENCODING_8BIT;
+    encoding   = HD_FONT_ENCODING_8BIT;
     num_glyphs = 256;
   }
   else
   {
-    encoding   = HD_FONTENCODING_UTF8;
+    encoding   = HD_FONT_ENCODING_UTF8;
     num_glyphs = 65536;
   }
 
@@ -1165,19 +1300,19 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   //
   //     HHHH glyph-name
 
-  while (fgets(line, sizeof(line), fp) != NULL)
+  while (file_gets(line, sizeof(line), fp) != NULL)
   {
     if (sscanf(line, "%x%254s", &code, name) != 2)
     {
-//      progress_error(HD_ERROR_CSS_ERROR,
-//                              "Bad line \"%s\" in \"%s\"!", line, filename);
+      progress_error(HD_ERROR_CSS_ERROR,
+                     "Bad line \"%s\" in \"%s\"!", line, filename);
       break;
     }
 
     if (code < 0 || code >= num_glyphs)
     {
-//      progress_error(HD_ERROR_CSS_ERROR,
-//                              "Invalid code %x in \"%s\"!", code, filename);
+      progress_error(HD_ERROR_CSS_ERROR,
+                     "Invalid code %x in \"%s\"!", code, filename);
       break;
     }
 
@@ -1193,22 +1328,25 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
 //
 
 void
-hdStyleSheet::update_styles()
+hdStyleSheet::update_styles(bool force)	// I - Force update?
 {
   int		i;		// Looping var
   hdStyle	**style;	// Current style
 
 
-  // First clear the "updated" state of all styles...
-  for (i = num_styles, style = styles; i > 0; i --, style ++)
-    (*style)->updated = 0;
+  if (force)
+  {
+    // Clear the "updated" state of all styles...
+    for (i = num_styles, style = styles; i > 0; i --, style ++)
+      (*style)->updated = 0;
+  }
 
-  // Then update all the styles...
+  // Update all the styles...
   for (i = num_styles, style = styles; i > 0; i --, style ++)
     (*style)->update(this);
 }
 
 
 //
-// End of "$Id: stylesheet.cxx,v 1.18 2004/10/24 03:23:42 mike Exp $".
+// End of "$Id$".
 //

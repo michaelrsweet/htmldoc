@@ -1,9 +1,9 @@
 //
-// "$Id: stylemedia.cxx,v 1.5 2004/03/31 10:35:07 mike Exp $"
+// "$Id$"
 //
 //   CSS media routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2004 by Easy Software Products.
+//   Copyright 1997-2005 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3142 USA
+//       Hollywood, Maryland 20636 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -192,5 +192,5 @@ hdStyleMedia::update_printable()
 
 
 //
-// End of "$Id: stylemedia.cxx,v 1.5 2004/03/31 10:35:07 mike Exp $".
+// End of "$Id$".
 //

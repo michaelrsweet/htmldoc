@@ -1,10 +1,10 @@
 /*
- * "$Id: image.h,v 1.21 2004/04/05 01:39:34 mike Exp $"
+ * "$Id$"
  *
  *   Image management definitions for HTMLDOC, a HTML document processing
  *   program.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -41,27 +41,35 @@ extern "C" {
 #  endif /* __cplusplus */
 
 
-struct hdBook;
-
 /*
  * Image structure...
  */
 
 typedef struct			/**** Image structure ****/
 {
-  hdBook	*book;		// Current book
   char		filename[1024];	/* Name of image file (for caching of images */
   int		width,		/* Width of image in pixels */
 		height,		/* Height of image in pixels */
 		depth,		/* 1 for grayscale, 3 for RGB */
 		use,		/* Number of times this image was used */
 		obj;		/* Object number */
-  uchar		*pixels;	/* 8-bit pixel data */
-  uchar		*mask;		/* 1-bit mask data, if any */
+  hdChar		*pixels;	/* 8-bit pixel data */
+  hdChar		*mask;		/* 1-bit mask data, if any */
   int		maskwidth,	/* Byte width of mask data */
 		maskscale;	/* Scaling of mask data */
-} image_t;
+} hdImage;
 
+
+/*
+ * Prototypes...
+ */
+
+extern void	image_copy(const char *filename, const char *destpath);
+extern hdImage	*image_find(const char *filename, int load_data = 0);
+extern void	image_flush_cache(void);
+extern int	image_getlist(hdImage ***ptrs);
+extern hdImage	*image_load(const char *filename, int gray, int load_data = 0);
+extern void	image_unload(hdImage *img);
 
 #  ifdef __cplusplus
 }
@@ -70,5 +78,5 @@ typedef struct			/**** Image structure ****/
 #endif /* !_IMAGE_H_ */
 
 /*
- * End of "$Id: image.h,v 1.21 2004/04/05 01:39:34 mike Exp $".
+ * End of "$Id$".
  */

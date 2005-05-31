@@ -4,7 +4,7 @@
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
  *
- *   Copyright 1997-2004 by Michael Sweet.
+ *   Copyright 1997-2005 by Michael Sweet.
  *
  *   HTMLDOC is distributed under the terms of the Aladdin Free Public License
  *   which is described in the file "LICENSE.txt".
@@ -30,17 +30,16 @@ void	prefs_save(void) { }
  * 'main()' - Main entry for test program.
  */
 
-int					// O - Exit status
-main(int  argc,				// I - Number of command-line arguments
-     char *argv[])			// I - Command-line arguments
+int				/* O - Exit status */
+main(int  argc,			/* I - Number of command-line arguments */
+     char *argv[])		/* I - Command-line arguments */
 {
-  int		i;			// Looping var
-  FILE		*fp;			// Input file
-  hdTree	*t,			// HTML markup tree
-		*doc,			// HTML document
-		*toc;			// Table-of-contents
-  hdBook	*book;			// Book
-  char		base[1024];		// Base directory
+  int		i;		/* Looping var */
+  FILE		*fp;		/* Input file */
+  hdTree	*t,		/* HTML markup tree */
+		*doc,		/* HTML document */
+		*toc;		/* Table of contents */
+  char		base[1024];	/* Base directory */
 
 
 #ifdef DEBUG
@@ -131,10 +130,8 @@ main(int  argc,				// I - Number of command-line arguments
     return(1);
   };
 
-  book = new hdBook();
-
   for (i = 1, doc = NULL; i < argc; i ++)
-    if ((fp = fopen(book->file_find("", argv[i]), "r")) != NULL)
+    if ((fp = fopen(file_find("", argv[i]), "r")) != NULL)
     {
       strlcpy(base, argv[i], sizeof(base));
       if (strrchr(base, '/') != NULL)
@@ -142,7 +139,7 @@ main(int  argc,				// I - Number of command-line arguments
       else
         base[0] = '\0';
 
-      t = book->html_read_file(NULL, fp, base);
+      t = htmlReadFile(NULL, fp, base);
       fclose(fp);
 
       if (t != NULL)
@@ -160,7 +157,7 @@ main(int  argc,				// I - Number of command-line arguments
   if (doc != NULL)
   {
     htmlWriteFile(doc, stdout);
-    toc = book->toc_build(doc);
+    toc = toc_build(doc);
     puts("---- TABLE OF CONTENTS ----");
     htmlWriteFile(toc, stdout);
   }

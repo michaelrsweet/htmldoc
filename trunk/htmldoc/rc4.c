@@ -1,5 +1,5 @@
 /*
- * "$Id: rc4.c,v 1.5 2004/03/31 06:32:26 mike Exp $"
+ * "$Id$"
  *
  *   RC4 functions for HTMLDOC.
  *
@@ -141,5 +141,5 @@ rc4_encrypt(rc4_context_t       *text,		/* I - Context */
 
 
 /*
- * End of "$Id: rc4.c,v 1.5 2004/03/31 06:32:26 mike Exp $".
+ * End of "$Id$".
  */

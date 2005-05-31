@@ -1,9 +1,9 @@
 //
-// "$Id: margin.cxx,v 1.7 2004/10/18 03:11:41 mike Exp $"
+// "$Id$"
 //
 // Margin class routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2004 by Easy Software Products.
+// Copyright 1997-2005 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
 //     Attn: HTMLDOC Licensing Information
 //     Easy Software Products
 //     44141 Airport View Drive, Suite 204
-//     Hollywood, Maryland 20636-3142 USA
+//     Hollywood, Maryland 20636 USA
 //
 //     Voice: (301) 373-9600
 //     EMail: info@easysw.com
@@ -153,5 +153,5 @@ hdMargin::push(float l,			// I - New left margin
 
 
 //
-// End of "$Id: margin.cxx,v 1.7 2004/10/18 03:11:41 mike Exp $".
+// End of "$Id$".
 //

@@ -1,40 +1,47 @@
 # DO NOT DELETE
 
-book.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-book.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-gui.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-gui.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-gui.o: ../desktop/htmldoc.xpm
-html.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-html.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-htmldoc.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-htmldoc.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-htmlsep.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-htmlsep.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
+file.o: file.h hdstring.h ../config.h http.h md5.h progress.h debug.h
+gui.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+gui.o: style.h image.h debug.h progress.h gui.h ../desktop/htmldoc.xpm
+html.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+html.o: style.h image.h debug.h progress.h gui.h
+htmldoc.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+htmldoc.o: style.h image.h debug.h progress.h gui.h
+htmllib.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+htmllib.o: style.h image.h debug.h progress.h gui.h
+htmlsep.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+htmlsep.o: style.h image.h debug.h progress.h gui.h
 http-addr.o: hdstring.h ../config.h http.h md5.h
 http.o: http-private.h ../config.h http.h md5.h hdstring.h debug.h
 http-support.o: hdstring.h ../config.h http.h md5.h
-image.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-image.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
+image.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+image.o: style.h image.h debug.h progress.h gui.h
 iso8859.o: hdstring.h ../config.h iso8859.h types.h
-license.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-license.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-link.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-link.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
+license.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+license.o: style.h image.h debug.h progress.h gui.h
 margin.o: margin.h
 md5.o: md5.h hdstring.h ../config.h
-progress.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-progress.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-ps-pdf.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-ps-pdf.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
+progress.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+progress.o: style.h image.h debug.h progress.h gui.h
+ps-pdf.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+ps-pdf.o: style.h image.h debug.h progress.h gui.h margin.h md5.h rc4.h
 rc4.o: rc4.h
 snprintf.o: hdstring.h ../config.h
 string.o: hdstring.h ../config.h
-testhtml.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-testhtml.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-toc.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-toc.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-util.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-util.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
-testhtml.o: htmldoc.h book.h html.h style.h types.h ../config.h hdstring.h
-testhtml.o: iso8859.h http.h md5.h image.h margin.h rc4.h debug.h gui.h
+style.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+style.o: style.h image.h debug.h progress.h gui.h
+stylefont.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+stylefont.o: style.h image.h debug.h progress.h gui.h
+stylemedia.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h
+stylemedia.o: types.h style.h image.h debug.h progress.h gui.h
+stylesheet.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h
+stylesheet.o: types.h style.h image.h debug.h progress.h gui.h
+styletree.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+styletree.o: style.h image.h debug.h progress.h gui.h
+testhtml.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+testhtml.o: style.h image.h debug.h progress.h gui.h
+teststyle.o: hdstring.h ../config.h style.h types.h progress.h
+toc.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+toc.o: style.h image.h debug.h progress.h gui.h
+util.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+util.o: style.h image.h debug.h progress.h gui.h
