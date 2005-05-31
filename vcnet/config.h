@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.25 Open Source"
+#define SVERSION	"1.8-current Open Source"
 
 
 /*
