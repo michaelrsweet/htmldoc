@@ -1,9 +1,9 @@
 #
-#   "$Id: Makefile,v 1.42 2004/10/23 07:52:57 mike Exp $"
+#   "$Id$"
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2004 by Easy Software Products.
+#   Copyright 1997-2005 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
 #       Attn: ESP Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3142 USA
+#       Hollywood, Maryland 20636 USA
 #
 #       Voice: (301) 373-9600
 #       EMail: info@easysw.com
@@ -33,12 +33,12 @@ include ../Makedefs
 # Object files...
 #
 
-LIBOBJS	=	\
-		book.o \
-		file.o \
+OBJS	=	\
 		gui.o \
+		file.o \
 		html.o \
 		htmldoc.o \
+		htmllib.o \
 		htmlsep.o \
 		http.o \
 		http-addr.o \
@@ -46,7 +46,6 @@ LIBOBJS	=	\
 		image.o \
 		iso8859.o \
 		license.o \
-		link.o \
 		margin.o \
 		md5.o \
 		progress.o \
@@ -58,18 +57,11 @@ LIBOBJS	=	\
 		stylefont.o \
 		stylemedia.o \
 		stylesheet.o \
+		styletree.o \
 		toc.o \
-		tree.o \
 		util.o
 
-OBJS	=	\
-		$(LIBOBJS) \
-		htmldoc.o \
-		htmllibd.o \
-		testhtml.o
-
 SRCS	=	\
-		book.cxx \
 		file.c \
 		gui.cxx \
 		html.cxx \
@@ -82,7 +74,6 @@ SRCS	=	\
 		image.cxx \
 		iso8859.cxx \
 		license.cxx \
-		link.cxx \
 		margin.cxx \
 		md5.c \
 		progress.cxx \
@@ -90,22 +81,22 @@ SRCS	=	\
 		rc4.c \
 		snprintf.c \
 		string.c \
+		style.cxx \
+		stylefont.cxx \
+		stylemedia.cxx \
+		stylesheet.cxx \
+		styletree.cxx \
 		testhtml.cxx \
+		teststyle.cxx \
 		toc.cxx \
 		util.cxx
-
-TARGETS	=	\
-		libhtmldoc.a \
-		htmldoc$(EXEEXT) \
-		testhtml$(EXEEXT)
 
 
 #
 # Make everything...
 #
 
-all:		$(TARGETS)
-
+all:	htmldoc$(EXEEXT) teststyle$(EXEEXT)
 
 #
 # Install everything...
@@ -120,16 +111,18 @@ install:	all
 
 
 #
+# Uninstall everything...
+#
+
+uninstall:
+
+
+#
 # Clean out object and executable files...
 #
 
 clean:
-	$(RM) *.bak
-	$(RM) *.bck
-	$(RM) core
-	$(RM) core.* 
-	$(RM) $(OBJS)
-	$(RM) $(TARGETS)
+	rm -f $(OBJS) htmldoc$(EXEEXT)
 
 
 #
@@ -137,27 +130,16 @@ clean:
 #
 
 depend:
-	makedepend -Y -I.. -f Dependencies $(SRCS) testhtml.cxx
-
-
-#
-# libhtmldoc.a
-#
-
-libhtmldoc.a:	$(LIBOBJS) ../Makedefs
-	echo Archiving $@...
-	$(RM) $@
-	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
-	$(RANLIB) $@
+	makedepend -Y -I.. -f Dependencies $(SRCS)
 
 
 #
 # htmldoc
 #
 
-htmldoc$(EXEEXT):	htmldoc.o libhtmldoc.a ../Makedefs
+htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) htmldoc.o libhtmldoc.a $(LIBS)
+	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
 	$(POST) htmldoc$(EXEEXT)
 
 
@@ -165,9 +147,38 @@ htmldoc$(EXEEXT):	htmldoc.o libhtmldoc.a ../Makedefs
 # testhtml
 #
 
-testhtml$(EXEEXT):	testhtml.o libhtmldoc.a ../Makedefs
+testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o \
+		http-addr.o http-support.o image.o iso8859.o license.o \
+		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o \
+		htmlsep.o string.o ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o libhtmldoc.a $(LIBS)
+	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o gui.o htmllibd.o \
+		http.o http-addr.o http-support.o image.o iso8859.o license.o \
+		progress.o ps-pdf.o toc.o util.o string.o \
+		md5.o rc4.o html.o htmlsep.o ../license3/liblicense.a $(LIBS)
+
+htmllibd.o:	htmllib.cxx ../config.h ../Makedefs debug.h html.h htmldoc.h \
+		image.h iso8859.h types.h
+	echo Compiling $<...
+	$(CXX) $(CXXFLAGS) -DDEBUG -o htmllibd.o -c htmllib.cxx
+
+
+#
+# teststyle
+#
+
+teststyle$(EXEEXT):	teststyle.o \
+	                file.o http.o http-addr.o http-support.o \
+			snprintf.o string.o \
+			style.o stylefont.o stylemedia.o stylesheet.o \
+			../Makedefs
+	echo Linking $@...
+	$(CXX) $(LDFLAGS) -o teststyle$(EXEEXT) teststyle.o \
+	                file.o http.o http-addr.o http-support.o \
+			snprintf.o string.o \
+			style.o stylefont.o stylemedia.o stylesheet.o $(LIBS)
+
+teststyle.o:	../Makedefs ../config.h
 
 
 #
@@ -180,5 +191,5 @@ include Dependencies
 
 
 #
-# End of "$Id: Makefile,v 1.42 2004/10/23 07:52:57 mike Exp $".
+# End of "$Id$".
 #

@@ -1,9 +1,9 @@
 /*
- * "$Id: image.cxx,v 1.28 2004/10/23 07:06:19 mike Exp $"
+ * "$Id$"
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -65,7 +65,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
 #define GIF_INTERLACE	0x40
 #define GIF_COLORMAP	0x80
 
-typedef uchar	gif_cmap_t[256][3];
+typedef hdChar	gif_cmap_t[256][3];
 
 
 /*
@@ -84,6 +84,9 @@ typedef uchar	gif_cmap_t[256][3];
  * Local globals...
  */
 
+static int	num_images = 0,		/* Number of images in cache */
+		alloc_images = 0;	/* Allocated images */
+static hdImage	**images = NULL;	/* Images in cache */
 static int	gif_eof = 0;		/* Did we hit EOF? */
 
 
@@ -91,20 +94,21 @@ static int	gif_eof = 0;		/* Did we hit EOF? */
  * Local functions...
  */
 
-static int	gif_read_cmap(hdBook *book, FILE *fp, int ncolors, gif_cmap_t cmap,
+static int	gif_read_cmap(FILE *fp, int ncolors, gif_cmap_t cmap,
 		              int *gray);
-static int	gif_get_block(hdBook *book, FILE *fp, uchar *buffer);
-static int	gif_get_code(hdBook *book, FILE *fp, int code_size, int first_time);
-static int	gif_read_image(hdBook *book, FILE *fp, image_t *img, gif_cmap_t cmap,
+static int	gif_get_block(FILE *fp, hdChar *buffer);
+static int	gif_get_code (FILE *fp, int code_size, int first_time);
+static int	gif_read_image(FILE *fp, hdImage *img, gif_cmap_t cmap,
 		               int interlace, int transparent);
-static int	gif_read_lzw(hdBook *book, FILE *fp, int first_time, int input_code_size);
+static int	gif_read_lzw(FILE *fp, int first_time, int input_code_size);
 
-static int	image_load_bmp(hdBook *book, image_t *img, FILE *fp, int gray, int load_data);
-static int	image_load_gif(hdBook *book, image_t *img, FILE *fp, int gray, int load_data);
-static int	image_load_jpeg(hdBook *book, image_t *img, FILE *fp, int gray, int load_data);
-static int	image_load_png(hdBook *book, image_t *img, FILE *fp, int gray, int load_data);
-static void	image_need_mask(hdBook *book, image_t *img, int scaling = 1);
-static void	image_set_mask(hdBook *book, image_t *img, int x, int y, uchar alpha = 0);
+static int	image_compare(hdImage **img1, hdImage **img2);
+static int	image_load_bmp(hdImage *img, FILE *fp, int gray, int load_data);
+static int	image_load_gif(hdImage *img, FILE *fp, int gray, int load_data);
+static int	image_load_jpeg(hdImage *img, FILE *fp, int gray, int load_data);
+static int	image_load_png(hdImage *img, FILE *fp, int gray, int load_data);
+static void	image_need_mask(hdImage *img, int scaling = 1);
+static void	image_set_mask(hdImage *img, int x, int y, hdChar alpha = 0);
 
 static void		jpeg_error_handler(j_common_ptr);
 static int		read_long(FILE *fp);
@@ -116,14 +120,13 @@ static unsigned int	read_dword(FILE *fp);
  * 'gif_read_cmap()' - Read the colormap from a GIF file...
  */
 
-static int				// O  - 0 on success, -1 on error
-gif_read_cmap(hdBook     *book,		// I  - Current book
-              FILE       *fp,		// I  - File to read from
-  	      int        ncolors,	// I  - Number of colors
-	      gif_cmap_t cmap,		// IO - Colormap array
-	      int        *gray)		// IO - 1 = grayscale
+static int				/* O  - 0 on success, -1 on error */
+gif_read_cmap(FILE       *fp,		/* I  - File to read from */
+  	      int        ncolors,	/* I  - Number of colors */
+	      gif_cmap_t cmap,		/* IO - Colormap array */
+	      int        *gray)		/* IO - 1 = grayscale */
 {
-  int	i;				// Looping var
+  int	i;				/* Looping var */
 
 
  /*
@@ -132,8 +135,8 @@ gif_read_cmap(hdBook     *book,		// I  - Current book
 
   if (fread(cmap, 3, ncolors, fp) < (size_t)ncolors)
   {
-    book->progress_error(HD_ERROR_READ_ERROR,
-                         "Unable to read GIF colormap: %s", strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR,
+                   "Unable to read GIF colormap: %s", strerror(errno));
     return (-1);
   }
 
@@ -164,16 +167,15 @@ gif_read_cmap(hdBook     *book,		// I  - Current book
 }
 
 
-//
-// 'gif_get_block()' - Read a GIF data block...
-//
+/*
+ * 'gif_get_block()' - Read a GIF data block...
+ */
 
-static int				// O - Number characters read
-gif_get_block(hdBook *book,		// I  - Current book
-              FILE   *fp,		// I - File to read from
-	      uchar  *buf)		// I - Input buffer
+static int			/* O - Number characters read */
+gif_get_block(FILE  *fp,	/* I - File to read from */
+	      hdChar *buf)	/* I - Input buffer */
 {
-  int	count;				// Number of character to read
+  int	count;			/* Number of character to read */
 
 
  /*
@@ -189,9 +191,9 @@ gif_get_block(hdBook *book,		// I  - Current book
     gif_eof = 1;
   else if (fread(buf, 1, count, fp) < (size_t)count)
   {
-    book->progress_error(HD_ERROR_READ_ERROR,
-                         "Unable to read GIF block of %d bytes: %s", count,
-                         strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR,
+                   "Unable to read GIF block of %d bytes: %s", count,
+                   strerror(errno));
     gif_eof = 1;
     return (-1);
   }
@@ -202,25 +204,24 @@ gif_get_block(hdBook *book,		// I  - Current book
 }
 
 
-//
-// 'gif_get_code()' - Get a LZW code from the file...
-//
+/*
+ * 'gif_get_code()' - Get a LZW code from the file...
+ */
 
-static int				// O - LZW code
-gif_get_code(hdBook *book,		// I  - Current book
-             FILE   *fp,		// I - File to read from
-	     int    code_size,		// I - Size of code in bits
-	     int    first_time)		// I - 1 = first time, 0 = not first time
+static int			/* O - LZW code */
+gif_get_code(FILE *fp,		/* I - File to read from */
+	     int  code_size,	/* I - Size of code in bits */
+	     int  first_time)	/* I - 1 = first time, 0 = not first time */
 {
-  unsigned		i, j,		// Looping vars
-			ret;		// Return value
-  int			count;		// Number of bytes read
-  static uchar		buf[280];	// Input buffer
-  static unsigned	curbit,		// Current bit
-			lastbit,	// Last bit in buffer
-			done,		// Done with this buffer?
-			last_byte;	// Last byte in buffer
-  static unsigned	bits[8] =	// Bit masks for codes
+  unsigned		i, j,		/* Looping vars */
+			ret;		/* Return value */
+  int			count;		/* Number of bytes read */
+  static hdChar		buf[280];	/* Input buffer */
+  static unsigned	curbit,		/* Current bit */
+			lastbit,	/* Last bit in buffer */
+			done,		/* Done with this buffer? */
+			last_byte;	/* Last byte in buffer */
+  static unsigned	bits[8] =	/* Bit masks for codes */
 			{
 			  0x01, 0x02, 0x04, 0x08,
 			  0x10, 0x20, 0x40, 0x80
@@ -249,8 +250,8 @@ gif_get_code(hdBook *book,		// I  - Current book
 
     if (done)
     {
-      book->progress_error(HD_ERROR_READ_ERROR,
-                           "Not enough data left to read GIF compression code.");
+      progress_error(HD_ERROR_READ_ERROR,
+                     "Not enough data left to read GIF compression code.");
       return (-1);	/* Sorry, no more... */
     }
 
@@ -274,7 +275,7 @@ gif_get_code(hdBook *book,		// I  - Current book
     * Read in another buffer...
     */
 
-    if ((count = gif_get_block(book, fp, buf + last_byte)) <= 0)
+    if ((count = gif_get_block (fp, buf + last_byte)) <= 0)
     {
      /*
       * Whoops, no more data!
@@ -305,24 +306,23 @@ gif_get_code(hdBook *book,		// I  - Current book
 }
 
 
-//
-// 'gif_read_image()' - Read a GIF image stream...
-//
+/*
+ * 'gif_read_image()' - Read a GIF image stream...
+ */
 
-static int				// I - 0 = success, -1 = failure
-gif_read_image(hdBook     *book,	// I  - Current book
-               FILE       *fp,		// I - Input file
-	       image_t    *img,		// I - Image pointer
-	       gif_cmap_t cmap,		// I - Colormap
-	       int        interlace,	// I - Non-zero = interlaced image
-	       int        transparent)	// I - Transparent color
+static int				/* I - 0 = success, -1 = failure */
+gif_read_image(FILE       *fp,		/* I - Input file */
+	       hdImage    *img,		/* I - Image pointer */
+	       gif_cmap_t cmap,		/* I - Colormap */
+	       int        interlace,	/* I - Non-zero = interlaced image */
+	       int        transparent)	/* I - Transparent color */
 {
-  uchar		code_size,		// Code size
-		*temp;			// Current pixel
-  int		xpos,			// Current X position
-		ypos,			// Current Y position
-		pass;			// Current pass
-  int		pixel;			// Current pixel
+  hdChar		code_size,		/* Code size */
+		*temp;			/* Current pixel */
+  int		xpos,			/* Current X position */
+		ypos,			/* Current Y position */
+		pass;			/* Current pass */
+  int		pixel;			/* Current pixel */
   static int	xpasses[4] = { 8, 8, 4, 2 },
 		ypasses[5] = { 0, 4, 2, 1, 999999 };
 
@@ -332,12 +332,12 @@ gif_read_image(hdBook     *book,	// I  - Current book
   pass      = 0;
   code_size = getc(fp);
 
-  if (gif_read_lzw(book, fp, 1, code_size) < 0)
+  if (gif_read_lzw(fp, 1, code_size) < 0)
     return (-1);
 
   temp = img->pixels;
 
-  while ((pixel = gif_read_lzw(book, fp, 0, code_size)) >= 0)
+  while ((pixel = gif_read_lzw(fp, 0, code_size)) >= 0)
   {
     temp[0] = cmap[pixel][0];
 
@@ -348,7 +348,7 @@ gif_read_image(hdBook     *book,	// I  - Current book
     }
 
     if (pixel == transparent)
-      image_set_mask(book, img, xpos, ypos);
+      image_set_mask(img, xpos, ypos);
 
     xpos ++;
     temp += img->depth;
@@ -385,27 +385,26 @@ gif_read_image(hdBook     *book,	// I  - Current book
  * 'gif_read_lzw()' - Read a byte from the LZW stream...
  */
 
-static int				// I - Byte from stream
-gif_read_lzw(hdBook *book,		// I  - Current book
-             FILE   *fp,		// I - File to read from
-	     int    first_time,		// I - 1 = first time, 0 = not first time
- 	     int    input_code_size)	// I - Code size in bits
+static int				/* I - Byte from stream */
+gif_read_lzw(FILE *fp,			/* I - File to read from */
+	     int  first_time,		/* I - 1 = first time, 0 = not first time */
+ 	     int  input_code_size)	/* I - Code size in bits */
 {
-  int		i,			// Looping var
-		code,			// Current code
-		incode;			// Input code
-  static short	fresh = 0,		// 1 = empty buffers
-		code_size,		// Current code size
-		set_code_size,		// Initial code size set
-		max_code,		// Maximum code used
-		max_code_size,		// Maximum code size
-		firstcode,		// First code read
-		oldcode,		// Last code read
-		clear_code,		// Clear code for LZW input
-		end_code,		// End code for LZW input
-		table[2][4096],		// String table
-		stack[8192],		// Output stack
-		*sp;			// Current stack pointer
+  int		i,			/* Looping var */
+		code,			/* Current code */
+		incode;			/* Input code */
+  static short	fresh = 0,		/* 1 = empty buffers */
+		code_size,		/* Current code size */
+		set_code_size,		/* Initial code size set */
+		max_code,		/* Maximum code used */
+		max_code_size,		/* Maximum code size */
+		firstcode,		/* First code read */
+		oldcode,		/* Last code read */
+		clear_code,		/* Clear code for LZW input */
+		end_code,		/* End code for LZW input */
+		table[2][4096],		/* String table */
+		stack[8192],		/* Output stack */
+		*sp;			/* Current stack pointer */
 
 
   if (first_time)
@@ -425,7 +424,7 @@ gif_read_lzw(hdBook *book,		// I  - Current book
     * Initialize input buffers...
     */
 
-    gif_get_code(book, fp, 0, 1);
+    gif_get_code(fp, 0, 1);
 
    /*
     * Wipe the decompressor table...
@@ -451,7 +450,7 @@ gif_read_lzw(hdBook *book,		// I  - Current book
     fresh = 0;
 
     do
-      firstcode = oldcode = gif_get_code(book, fp, code_size, 0);
+      firstcode = oldcode = gif_get_code(fp, code_size, 0);
     while (firstcode == clear_code);
 
     return (firstcode);
@@ -460,7 +459,7 @@ gif_read_lzw(hdBook *book,		// I  - Current book
   if (sp > stack)
     return (*--sp);
 
-  while ((code = gif_get_code(book, fp, code_size, 0)) >= 0)
+  while ((code = gif_get_code (fp, code_size, 0)) >= 0)
   {
     if (code == clear_code)
     {
@@ -479,17 +478,17 @@ gif_read_lzw(hdBook *book,		// I  - Current book
 
       sp = stack;
 
-      firstcode = oldcode = gif_get_code(book, fp, code_size, 0);
+      firstcode = oldcode = gif_get_code(fp, code_size, 0);
 
       return (firstcode);
     }
     else if (code == end_code)
     {
-      uchar	buf[260];
+      hdChar	buf[260];
 
 
       if (!gif_eof)
-        while (gif_get_block(book, fp, buf) > 0);
+        while (gif_get_block(fp, buf) > 0);
 
       return (-2);
     }
@@ -537,13 +536,13 @@ gif_read_lzw(hdBook *book,		// I  - Current book
 }
 
 
-//
-// 'hdBook::image_compare()' - Compare two image filenames...
-//
+/*
+ * 'image_compare()' - Compare two image filenames...
+ */
 
-int					// O - Result of comparison
-hdBook::image_compare(image_t **img1,	// I - First image
-                      image_t **img2)	// I - Second image
+static int			/* O - Result of comparison */
+image_compare(hdImage **img1,	/* I - First image */
+              hdImage **img2)	/* I - Second image */
 {
 #ifdef WIN32
   return (strcasecmp((*img1)->filename, (*img2)->filename));
@@ -553,18 +552,18 @@ hdBook::image_compare(image_t **img1,	// I - First image
 }
 
 
-//
-// 'hdBook::image_copy()' - Copy image files to the destination directory...
-//
+/*
+ * 'image_copy()' - Copy image files to the destination directory...
+ */
 
 void
-hdBook::image_copy(const char *filename,// I - Source file
-                   const char *destpath)// I - Destination path
+image_copy(const char *filename,/* I - Source file */
+           const char *destpath)/* I - Destination path */
 {
-  char	dest[255];			// Destination file
-  FILE	*in, *out;			// Input/output files
-  uchar	buffer[8192];			// Data buffer
-  int	nbytes;				// Number of bytes in buffer
+  char	dest[255];		/* Destination file */
+  FILE	*in, *out;		/* Input/output files */
+  hdChar	buffer[8192];		/* Data buffer */
+  int	nbytes;			/* Number of bytes in buffer */
 
 
  /*
@@ -603,21 +602,18 @@ hdBook::image_copy(const char *filename,// I - Source file
 }
 
 
-//
-// 'hdBook::image_find()' - Find an image file in memory...
-//
+/*
+ * 'image_find()' - Find an image file in memory...
+ */
 
-image_t *				// O - Pointer to image
-hdBook::image_find(const char *filename,// I - Name of image file
-                   int        load_data)// I - 1 = load image data
+hdImage *			/* O - Pointer to image */
+image_find(const char *filename,/* I - Name of image file */
+           int        load_data)/* I - 1 = load image data */
 {
-  image_t	key,			// Search key...
-		*keyptr,		// Pointer to search key...
-		**match;		// Matching image
+  hdImage	key,		/* Search key... */
+		*keyptr,	/* Pointer to search key... */
+		**match;	/* Matching image */
 
-
-  DEBUG_printf(("image_find(filename=\"%s\", load_data=%d)\n",
-                filename ? filename : "(null)", load_data));
 
  /*
   * Range check...
@@ -638,8 +634,8 @@ hdBook::image_find(const char *filename,// I - Name of image file
     strlcpy(key.filename, filename, sizeof(key.filename));
     keyptr = &key;
 
-    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
-                                (hdCompareFunc)image_compare);
+    match = (hdImage **)bsearch(&keyptr, images, num_images, sizeof(hdImage *),
+                                (int (*)(const void *, const void *))image_compare);
     if (match != NULL)
     {
       if (load_data && !(*match)->pixels)
@@ -649,18 +645,18 @@ hdBook::image_find(const char *filename,// I - Name of image file
     }
   }
 
-  return (image_load(filename, !OutputColor, load_data));
+  return (NULL);
 }
 
 
-//
-// 'hdBook::image_flush_cache()' - Flush the image cache...
-//
+/*
+ * 'image_flush_cache()' - Flush the image cache...
+ */
 
 void
-hdBook::image_flush_cache(void)
+image_flush_cache(void)
 {
-  int	i;				// Looping var
+  int	i;			/* Looping var */
 
 
  /*
@@ -689,12 +685,12 @@ hdBook::image_flush_cache(void)
 }
 
 
-//
-// 'hdBook::image_getlist()' - Get the list of images that are loaded.
-//
+/*
+ * 'image_getlist()' - Get the list of images that are loaded.
+ */
 
-int					// O - Number of images in array
-hdBook::image_getlist(image_t ***ptrs)	// O - Pointer to images array
+int				/* O - Number of images in array */
+image_getlist(hdImage ***ptrs)	/* O - Pointer to images array */
 {
   *ptrs = images;
   return (num_images);
@@ -702,30 +698,27 @@ hdBook::image_getlist(image_t ***ptrs)	// O - Pointer to images array
 
 
 /*
- * 'hdBook::image_load()' - Load an image file from disk...
+ * 'image_load()' - Load an image file from disk...
  */
 
-image_t *				// O - Pointer to image
-hdBook::image_load(const char *filename,// I - Name of image file
-        	   int        gray,	// I - 0 = color, 1 = grayscale
-        	   int        load_data)// I - 1 = load image data, 0 = just info
+hdImage *			/* O - Pointer to image */
+image_load(const char *filename,/* I - Name of image file */
+           int        gray,	/* I - 0 = color, 1 = grayscale */
+           int        load_data)/* I - 1 = load image data, 0 = just info */
 {
 #ifdef DEBUG
-  int		i;			// Looping var
+  int		i;		/* Looping var */
 #endif // DEBUG
-  FILE		*fp;			// File pointer
-  uchar		header[16];		// First 16 bytes of file
-  image_t	*img,			// New image buffer
-		key,			// Search key...
-		*keyptr,		// Pointer to search key...
-		**match,		// Matching image
-		**temp;			// Temporary array pointer
-  int		status;			// Status of load...
-  const char	*realname;		// Real filename
+  FILE		*fp;		/* File pointer */
+  hdChar		header[16];	/* First 16 bytes of file */
+  hdImage	*img,		/* New image buffer */
+		key,		/* Search key... */
+		*keyptr,	/* Pointer to search key... */
+		**match,	/* Matching image */
+		**temp;		/* Temporary array pointer */
+  int		status;		/* Status of load... */
+  const char	*realname;	/* Real filename */
 
-
-  DEBUG_printf(("image_load(filename=\"%s\", gray=%d, load_data=%d)\n",
-                filename ? filename : "(null)", gray, load_data));
 
  /*
   * Range check...
@@ -750,7 +743,7 @@ hdBook::image_load(const char *filename,// I - Name of image file
     strlcpy(key.filename, filename, sizeof(key.filename));
     keyptr = &key;
 
-    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
+    match = (hdImage **)bsearch(&keyptr, images, num_images, sizeof(hdImage *),
                                 (int (*)(const void *, const void *))image_compare);
     if (match != NULL && (!load_data || (*match)->pixels))
     {
@@ -813,9 +806,9 @@ hdBook::image_load(const char *filename,// I - Name of image file
       alloc_images += ALLOC_FILES;
 
       if (num_images == 0)
-	temp = (image_t **)malloc(sizeof(image_t *) * alloc_images);
+	temp = (hdImage **)malloc(sizeof(hdImage *) * alloc_images);
       else
-	temp = (image_t **)realloc(images, sizeof(image_t *) * alloc_images);
+	temp = (hdImage **)realloc(images, sizeof(hdImage *) * alloc_images);
 
       if (temp == NULL)
       {
@@ -830,7 +823,7 @@ hdBook::image_load(const char *filename,// I - Name of image file
     }
 
     // Allocate memory...
-    img = (image_t *)calloc(sizeof(image_t), 1);
+    img = (hdImage *)calloc(sizeof(hdImage), 1);
 
     if (img == NULL)
     {
@@ -851,13 +844,13 @@ hdBook::image_load(const char *filename,// I - Name of image file
   // Load the image as appropriate...
   if (memcmp(header, "GIF87a", 6) == 0 ||
       memcmp(header, "GIF89a", 6) == 0)
-    status = image_load_gif(this, img,  fp, gray, load_data);
+    status = image_load_gif(img,  fp, gray, load_data);
   else if (memcmp(header, "BM", 2) == 0)
-    status = image_load_bmp(this, img, fp, gray, load_data);
+    status = image_load_bmp(img, fp, gray, load_data);
   else if (memcmp(header, "\211PNG", 4) == 0)
-    status = image_load_png(this, img, fp, gray, load_data);
+    status = image_load_png(img, fp, gray, load_data);
   else if (memcmp(header, "\377\330\377", 3) == 0)
-    status = image_load_jpeg(this, img, fp, gray, load_data);
+    status = image_load_jpeg(img, fp, gray, load_data);
   else
   {
     progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", filename);
@@ -880,11 +873,9 @@ hdBook::image_load(const char *filename,// I - Name of image file
   {
     num_images ++;
     if (num_images > 1)
-      qsort(images, num_images, sizeof(image_t *),
-            (hdCompareFunc)image_compare);
+      qsort(images, num_images, sizeof(hdImage *),
+            (int (*)(const void *, const void *))image_compare);
   }
-
-  DEBUG_printf(("    returning img=%p\n", img));
 
   return (img);
 }
@@ -894,33 +885,32 @@ hdBook::image_load(const char *filename,// I - Name of image file
  * 'image_load_bmp()' - Read a BMP image file.
  */
 
-static int				// O - 0 = success, -1 = fail
-image_load_bmp(hdBook  *book,		// I  - Current book
-               image_t *img,		// I - Image to load into
-               FILE    *fp,		// I - File to read from
-	       int     gray,		// I - Grayscale image?
-               int     load_data)	// I - 1 = load image data, 0 = just info
+static int			/* O - 0 = success, -1 = fail */
+image_load_bmp(hdImage *img,	/* I - Image to load into */
+               FILE    *fp,	/* I - File to read from */
+	       int     gray,	/* I - Grayscale image? */
+               int     load_data)/* I - 1 = load image data, 0 = just info */
 {
-  int		info_size,		// Size of info header
-		depth,			// Depth of image (bits)
-		compression,		// Type of compression
-		colors_used,		// Number of colors used
-		x, y,			// Looping vars
-		color,			// Color of RLE pixel
-		count,			// Number of times to repeat
-		temp,			// Temporary color
-		align;			// Alignment bytes
-  uchar		bit,			// Bit in image
-		byte;			// Byte in image
-  uchar		*ptr;			// Pointer into pixels
-  uchar		colormap[256][4];	// Colormap
+  int		info_size,	/* Size of info header */
+		depth,		/* Depth of image (bits) */
+		compression,	/* Type of compression */
+		colors_used,	/* Number of colors used */
+		x, y,		/* Looping vars */
+		color,		/* Color of RLE pixel */
+		count,		/* Number of times to repeat */
+		temp,		/* Temporary color */
+		align;		/* Alignment bytes */
+  hdChar		bit,		/* Bit in image */
+		byte;		/* Byte in image */
+  hdChar		*ptr;		/* Pointer into pixels */
+  hdChar		colormap[256][4];/* Colormap */
 
 
   // Get the header...
-  getc(fp);				// Skip "BM" sync chars
+  getc(fp);			/* Skip "BM" sync chars */
   getc(fp);
-  read_dword(fp);			// Skip size
-  read_word(fp);			// Skip reserved stuff
+  read_dword(fp);		/* Skip size */
+  read_word(fp);		/* Skip reserved stuff */
   read_word(fp);
   read_dword(fp);
 
@@ -950,17 +940,16 @@ image_load_bmp(hdBook  *book,		// I  - Current book
   // Setup image and buffers...
   img->depth  = gray ? 1 : 3;
 
-  // If this image is indexed and we are writing an encrypted PDF file,
-  // bump the use count so we create an image object (Acrobat 6 bug
-  // workaround)
-  if (depth <= 8 && book->Encryption)
+  // If this image is indexed and we are writing an encrypted PDF file, bump the use count so
+  // we create an image object (Acrobat 6 bug workaround)
+  if (depth <= 8 && Encryption)
     img->use ++;
 
   // Return now if we only need the dimensions...
   if (!load_data)
     return (0);
 
-  img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
+  img->pixels = (hdChar *)malloc(img->width * img->height * img->depth);
   if (img->pixels == NULL)
     return (-1);
 
@@ -1261,17 +1250,16 @@ image_load_bmp(hdBook  *book,		// I  - Current book
  * 'image_load_gif()' - Load a GIF image file...
  */
 
-static int				// O - 0 = success, -1 = fail
-image_load_gif(hdBook  *book,		// I  - Current book
-               image_t *img,		// I - Image pointer
-               FILE    *fp,		// I - File to load from
-               int     gray,		// I - 0 = color, 1 = grayscale
-               int     load_data)	// I - 1 = load image data, 0 = just info
+static int			/* O - 0 = success, -1 = fail */
+image_load_gif(hdImage *img,	/* I - Image pointer */
+               FILE    *fp,	/* I - File to load from */
+               int     gray,	/* I - 0 = color, 1 = grayscale */
+               int     load_data)/* I - 1 = load image data, 0 = just info */
 {
-  uchar		buf[1024];		// Input buffer
-  gif_cmap_t	cmap;			// Colormap
-  int		ncolors,		// Bits per pixel
-		transparent;		// Transparent color index
+  hdChar		buf[1024];	/* Input buffer */
+  gif_cmap_t	cmap;		/* Colormap */
+  int		ncolors,	/* Bits per pixel */
+		transparent;	/* Transparent color index */
 
 
  /*
@@ -1286,11 +1274,11 @@ image_load_gif(hdBook  *book,		// I  - Current book
 
   // If we are writing an encrypted PDF file, bump the use count so we create
   // an image object (Acrobat 6 bug workaround)
-  if (book->Encryption)
+  if (Encryption)
     img->use ++;
 
   if (buf[10] & GIF_COLORMAP)
-    if (gif_read_cmap(book, fp, ncolors, cmap, &gray))
+    if (gif_read_cmap(fp, ncolors, cmap, &gray))
       return (-1);
 
   transparent = -1;
@@ -1306,12 +1294,12 @@ image_load_gif(hdBook  *book,		// I  - Current book
           buf[0] = getc(fp);
           if (buf[0] == 0xf9)	/* Graphic Control Extension */
           {
-            gif_get_block(book, fp, buf);
+            gif_get_block(fp, buf);
             if (buf[0] & 1)	/* Get transparent color index */
               transparent = buf[3];
           }
 
-          while (gif_get_block(book, fp, buf) != 0);
+          while (gif_get_block(fp, buf) != 0);
           break;
 
       case ',' :	/* Image data */
@@ -1321,7 +1309,7 @@ image_load_gif(hdBook  *book,		// I  - Current book
           {
             ncolors = 2 << (buf[8] & 0x07);
 
-	    if (gif_read_cmap(book, fp, ncolors, cmap, &gray))
+	    if (gif_read_cmap(fp, ncolors, cmap, &gray))
 	      return (-1);
 	  }
 
@@ -1331,16 +1319,16 @@ image_load_gif(hdBook  *book,		// I  - Current book
             * Map transparent color to background color...
             */
 
-            if (book->BodyColor[0])
+            if (BodyColor[0])
 	    {
 	      float rgb[3]; /* RGB color */
 
 
-	      book->get_color((uchar *)book->BodyColor, rgb);
+	      get_color((hdChar *)BodyColor, rgb);
 
-	      cmap[transparent][0] = (uchar)(rgb[0] * 255.0f + 0.5f);
-	      cmap[transparent][1] = (uchar)(rgb[1] * 255.0f + 0.5f);
-	      cmap[transparent][2] = (uchar)(rgb[2] * 255.0f + 0.5f);
+	      cmap[transparent][0] = (hdChar)(rgb[0] * 255.0f + 0.5f);
+	      cmap[transparent][1] = (hdChar)(rgb[1] * 255.0f + 0.5f);
+	      cmap[transparent][2] = (hdChar)(rgb[2] * 255.0f + 0.5f);
 	    }
 	    else
 	    {
@@ -1353,7 +1341,7 @@ image_load_gif(hdBook  *book,		// I  - Current book
 	    * Allocate a mask image...
 	    */
 
-            image_need_mask(book, img);
+            image_need_mask(img);
 	  }
 
           img->width  = (buf[5] << 8) | buf[4];
@@ -1362,12 +1350,11 @@ image_load_gif(hdBook  *book,		// I  - Current book
 	  if (!load_data)
 	    return (0);
 
-          img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
+          img->pixels = (hdChar *)malloc(img->width * img->height * img->depth);
           if (img->pixels == NULL)
             return (-1);
 
-	  return (gif_read_image(book, fp, img, cmap, buf[8] & GIF_INTERLACE,
-	                         transparent));
+	  return (gif_read_image(fp, img, cmap, buf[8] & GIF_INTERLACE, transparent));
     }
   }
 }
@@ -1377,16 +1364,15 @@ image_load_gif(hdBook  *book,		// I  - Current book
  * 'image_load_jpeg()' - Load a JPEG image file.
  */
 
-static int				// O - 0 = success, -1 = fail
-image_load_jpeg(hdBook  *book,		// I  - Current book
-                image_t *img,		// I - Image pointer
-                FILE    *fp,		// I - File to load from
-                int     gray,		// I - 0 = color, 1 = grayscale
-                int     load_data)	// I - 1 = load image data, 0 = just info
+static int			/* O - 0 = success, -1 = fail */
+image_load_jpeg(hdImage *img,	/* I - Image pointer */
+                FILE    *fp,	/* I - File to load from */
+                int     gray,	/* I - 0 = color, 1 = grayscale */
+                int     load_data)/* I - 1 = load image data, 0 = just info */
 {
-  struct jpeg_decompress_struct	cinfo;	// Decompressor info
-  struct jpeg_error_mgr		jerr;	// Error handler info
-  JSAMPROW			row;	// Sample row pointer
+  struct jpeg_decompress_struct	cinfo;		/* Decompressor info */
+  struct jpeg_error_mgr		jerr;		/* Error handler info */
+  JSAMPROW			row;		/* Sample row pointer */
 
 
   jpeg_std_error(&jerr);
@@ -1424,7 +1410,7 @@ image_load_jpeg(hdBook  *book,		// I  - Current book
     return (0);
   }
 
-  img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
+  img->pixels = (hdChar *)malloc(img->width * img->height * img->depth);
 
   if (img->pixels == NULL)
   {
@@ -1453,20 +1439,19 @@ image_load_jpeg(hdBook  *book,		// I  - Current book
  * 'image_load_png()' - Load a PNG image file.
  */
 
-static int				// O - 0 = success, -1 = fail
-image_load_png(hdBook  *book,		// I  - Current book
-               image_t *img,		// I - Image pointer
-               FILE    *fp,		// I - File to read from
-               int     gray,		// I - 0 = color, 1 = grayscale
-               int     load_data)	// I - 1 = load image data, 0 = just info
+static int			/* O - 0 = success, -1 = fail */
+image_load_png(hdImage *img,	/* I - Image pointer */
+               FILE    *fp,	/* I - File to read from */
+               int     gray,	/* I - 0 = color, 1 = grayscale */
+               int     load_data)/* I - 1 = load image data, 0 = just info */
 {
-  int		i, j;			// Looping vars
-  png_structp	pp;			// PNG read pointer
-  png_infop	info;			// PNG info pointers
-  int		depth;			// Input image depth
-  png_bytep	*rows;			// PNG row pointers
-  uchar		*inptr,			// Input pixels
-		*outptr;		// Output pixels
+  int		i, j;		/* Looping vars */
+  png_structp	pp;		/* PNG read pointer */
+  png_infop	info;		/* PNG info pointers */
+  int		depth;		/* Input image depth */
+  png_bytep	*rows;		/* PNG row pointers */
+  hdChar		*inptr,		/* Input pixels */
+		*outptr;	/* Output pixels */
 
 
  /*
@@ -1476,18 +1461,16 @@ image_load_png(hdBook  *book,		// I  - Current book
   pp = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (!pp)
   {
-    book->progress_error(HD_ERROR_OUT_OF_MEMORY,
-                         "Unable to allocate memory for PNG file: %s",
-                         strerror(errno));
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for PNG file: %s",
+                   strerror(errno));
     return (-1);
   }
 
   info = png_create_info_struct(pp);
   if (!info)
   {
-    book->progress_error(HD_ERROR_OUT_OF_MEMORY,
-                         "Unable to allocate memory for PNG info: %s",
-                         strerror(errno));
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for PNG info: %s",
+                   strerror(errno));
 
     png_destroy_read_struct(&pp, NULL, NULL);
 
@@ -1498,7 +1481,7 @@ image_load_png(hdBook  *book,		// I  - Current book
 
   if (setjmp(pp->jmpbuf)) 
   {
-    book->progress_error(HD_ERROR_BAD_FORMAT, "PNG file contains errors!");
+    progress_error(HD_ERROR_BAD_FORMAT, "PNG file contains errors!");
 
     png_destroy_read_struct(&pp, &info, NULL);
 
@@ -1529,7 +1512,7 @@ image_load_png(hdBook  *book,		// I  - Current book
 
     // If we are writing an encrypted PDF file, bump the use count so we create
     // an image object (Acrobat 6 bug workaround)
-    if (book->Encryption)
+    if (Encryption)
       img->use ++;
   }
   else if (info->bit_depth < 8)
@@ -1556,12 +1539,12 @@ image_load_png(hdBook  *book,		// I  - Current book
 
   if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
   {
-    if ((book->PSLevel == 0 && book->PDFVersion >= 14) || book->PSLevel == 3)
-      image_need_mask(book, img, 8);
-    else if (book->PSLevel == 0 && book->PDFVersion == 13)
-      image_need_mask(book, img, 2);
+    if ((PSLevel == 0 && PDFVersion >= 14) || PSLevel == 3)
+      image_need_mask(img, 8);
+    else if (PSLevel == 0 && PDFVersion == 13)
+      image_need_mask(img, 2);
     else
-      image_need_mask(book, img);
+      image_need_mask(img);
 
     depth ++;
   }
@@ -1585,7 +1568,7 @@ image_load_png(hdBook  *book,		// I  - Current book
     return (0);
   }
 
-  img->pixels = (uchar *)malloc(img->width * img->height * depth);
+  img->pixels = (hdChar *)malloc(img->width * img->height * depth);
 
  /*
   * Allocate pointers...
@@ -1629,7 +1612,7 @@ image_load_png(hdBook  *book,		// I  - Current book
 
     for (inptr = img->pixels + depth - 1, i = 0; i < img->height; i ++)
       for (j = 0; j < img->width; j ++, inptr += depth)
-        image_set_mask(book, img, j, i, *inptr);
+        image_set_mask(img, j, i, *inptr);
   }
 
  /*
@@ -1691,11 +1674,10 @@ image_load_png(hdBook  *book,		// I  - Current book
  */
 
 static void
-image_need_mask(hdBook  *book,		// I - Book
-                image_t *img,		// I - Image to add mask to
-                int     scaling)	// I - Scaling for mask image
+image_need_mask(hdImage *img,	/* I - Image to add mask to */
+                int     scaling)/* I - Scaling for mask image */
 {
-  int	size;				// Byte size of mask image
+  int	size;			/* Byte size of mask image */
 
 
   if (img == NULL || img->mask != NULL)
@@ -1721,7 +1703,7 @@ image_need_mask(hdBook  *book,		// I - Book
     size           = img->maskwidth * img->height * scaling;
   }
 
-  img->mask = (uchar *)calloc(size, 1);
+  img->mask = (hdChar *)calloc(size, 1);
 }
 
 
@@ -1730,20 +1712,19 @@ image_need_mask(hdBook  *book,		// I - Book
  */
 
 static void
-image_set_mask(hdBook  *book,		// I - Book
-               image_t *img,		// I - Image to operate on
-               int     x,		// I - X coordinate
-               int     y,		// I - Y coordinate
-	       uchar   alpha)		// I - Alpha value
+image_set_mask(hdImage *img,	/* I - Image to operate on */
+               int     x,	/* I - X coordinate */
+               int     y,	/* I - Y coordinate */
+	       hdChar   alpha)	/* I - Alpha value */
 {
-  int		i, j;			// Looping vars
-  uchar		*maskptr;		// Pointer into mask image
-  static uchar	masks[8] =		// Masks for each bit
+  int		i, j;		/* Looping vars */
+  hdChar		*maskptr;	/* Pointer into mask image */
+  static hdChar	masks[8] =	/* Masks for each bit */
 		{
 		  0x80, 0x40, 0x20, 0x10,
 		  0x08, 0x04, 0x02, 0x01
 		};
-  static uchar	dither[4][4] =		// Simple 4x4 clustered-dot dither
+  static hdChar	dither[4][4] = // Simple 4x4 clustered-dot dither
 		{
 		  { 0,  2,  15, 6 },
 		  { 4,  12, 9,  11 },
@@ -1759,7 +1740,7 @@ image_set_mask(hdBook  *book,		// I - Book
   if (img->maskscale == 8)
   {
     // Store the alpha value directly...
-    if (book->PSLevel)
+    if (PSLevel)
       img->mask[y * img->maskwidth + x] = 255 - alpha;
     else
       img->mask[y * img->maskwidth + x] = alpha;
@@ -1783,11 +1764,11 @@ image_set_mask(hdBook  *book,		// I - Book
 
 
 /*
- * 'hdBook::image_unload()' - Unload an image from memory.
+ * 'image_unload()' - Unload an image from memory.
  */
 
 void
-hdBook::image_unload(image_t *img)	// I - Image
+image_unload(hdImage *img)	// I - Image
 {
   if (!img)
     return;
@@ -1872,5 +1853,5 @@ read_long(FILE *fp)               /* I - File to read from */
 
 
 /*
- * End of "$Id: image.cxx,v 1.28 2004/10/23 07:06:19 mike Exp $".
+ * End of "$Id$".
  */

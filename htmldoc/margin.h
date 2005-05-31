@@ -1,5 +1,5 @@
 //
-// "$Id: margin.h,v 1.12 2004/10/22 05:43:14 mike Exp $"
+// "$Id$"
 //
 // Margin class definitions for HTMLDOC, a HTML document processing
 // program.
@@ -203,5 +203,5 @@ class hdMargin
 
 
 //
-// End of "$Id: margin.h,v 1.12 2004/10/22 05:43:14 mike Exp $".
+// End of "$Id$".
 //

@@ -1,10 +1,10 @@
 /*
- * "$Id: iso8859.cxx,v 1.7 2004/10/23 07:06:19 mike Exp $"
+ * "$Id$"
  *
  *   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  *   processing program.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -47,7 +47,7 @@
 
 typedef struct
 {
-  uchar	name[7],
+  hdChar	name[7],
 	value;
 } lut_t;
 
@@ -168,8 +168,8 @@ static int	compare_lut(lut_t *, lut_t *);
  * 'iso8859()' - Return the 8-bit character value of a glyph name.
  */
 
-uchar				/* O - ISO-8859-1 equivalent */
-iso8859(uchar *name)		/* I - Glyph name */
+hdChar				/* O - ISO-8859-1 equivalent */
+iso8859(hdChar *name)		/* I - Glyph name */
 {
   lut_t		key,		/* Lookup table key */
 		*match;		/* Matching entry pointer */
@@ -212,12 +212,12 @@ iso8859(uchar *name)		/* I - Glyph name */
  * 'iso8859()' - Return the glyph name of an 8-bit character value.
  */
 
-uchar *			/* O - Glyph name */
-iso8859(uchar value)	/* I - ISO-8859-1 equivalent */
+hdChar *			/* O - Glyph name */
+iso8859(hdChar value)	/* I - ISO-8859-1 equivalent */
 {
   int		i;		/* Looping var */
   static int	first_time = 1;	/* First time called? */
-  static uchar	buf[255];	/* Character buffer */
+  static hdChar	buf[255];	/* Character buffer */
 
 
   if (first_time)
@@ -254,5 +254,5 @@ compare_lut(lut_t *a,	/* I - First glyph */
 
 
 /*
- * End of "$Id: iso8859.cxx,v 1.7 2004/10/23 07:06:19 mike Exp $".
+ * End of "$Id$".
  */

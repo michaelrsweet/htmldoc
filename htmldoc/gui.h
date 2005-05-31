@@ -3,7 +3,7 @@
  *
  *   GUI definitions for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *       Hollywood, Maryland 20636-3142 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -39,6 +39,7 @@
 #include <FL/Fl_Tabs.H>
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Double_Window.H>
+
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_File_Chooser.H>
@@ -206,7 +207,6 @@ class GUI
 
   Fl_Progress		*progressBar;
 
-  hdBook		*book;
   char			book_filename[1024];
   int			book_changed;
 
@@ -294,7 +294,6 @@ class GUI
   void	progress(int percent, const char *text = NULL);
   int	saveBook(const char *bookfile);
   void	show();
-  int	shown() { return (window->shown()); }
   int	visible() { return (window->visible()); }
 };
 

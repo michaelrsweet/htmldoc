@@ -1,9 +1,9 @@
 //
-// "$Id: stylefont.cxx,v 1.13 2004/03/31 20:56:56 mike Exp $"
+// "$Id$"
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2004 by Easy Software Products.
+//   Copyright 1997-2005 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3142 USA
+//       Hollywood, Maryland 20636 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -43,7 +43,7 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
 			 hdFontInternal s,	// I - Style
 			 const char     *n)	// I - Font name
 {
-  int			i, j;			// Looping vars...
+  int			i;			// Looping vars...
   char			filename[1024];		// Filename
   FILE			*fp;			// File pointer
   static const char	*styles[][2] =		// PostScript style suffixes
@@ -54,6 +54,8 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
 			  { "-BoldItalic",	"-BoldOblique" }
 			};
 
+
+//  printf("hdStyleFont(css=%p, t=%d, s=%d, n=\"%s\")\n", css, t, s, n);
 
   // Clear the structure...
   memset(this, 0, sizeof(hdStyleFont));
@@ -67,30 +69,24 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
   memset(widths, 0, sizeof(float) * css->num_glyphs);
 
   // Map font family to base font...
-  if (strcasecmp(n, "serif") == 0)
+  if (!strcasecmp(n, "serif"))
     n = "Times";
-  else if (strcasecmp(n, "sans-serif") == 0)
+  else if (!strcasecmp(n, "sans-serif"))
     n = "Helvetica";
-  else if (strcasecmp(n, "monospace") == 0)
+  else if (!strcasecmp(n, "monospace"))
     n = "Courier";
-  else if (strcasecmp(n, "symbol") == 0)
+  else if (!strcasecmp(n, "symbol"))
     n = "Symbol";
-  else if (strcasecmp(n, "cursive") == 0)
+  else if (!strcasecmp(n, "cursive"))
     n = "ZapfChancery";
 
   // Now try to find the font...
-  for (fp = NULL, i = 0; i < 4; i ++)
+  for (fp = NULL, i = 0; i < 2; i ++)
   {
-    for (j = 0; j < 2; j ++)
-    {
-      // Try a variation of the font name...
-      snprintf(filename, sizeof(filename), "%s/fonts/%s%s.afm",
-               _htmlData, n, styles[i][j]);
-      if ((fp = fopen(filename, "r")) != NULL)
-        break;
-    }
-
-    if (fp != NULL)
+    // Try a variation of the font name...
+    snprintf(filename, sizeof(filename), "%s/fonts/%s%s.afm",
+             _htmlData, n, styles[s][i]);
+    if ((fp = fopen(filename, "r")) != NULL)
       break;
   }
 
@@ -104,6 +100,8 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
 
   if (fp != NULL)
   {
+//    printf("    filename=\"%s\"\n", filename);
+
     // Read the AFM file...
     read_afm(fp, css);
     fclose(fp);
@@ -158,55 +156,54 @@ hdStyleFont::compare_kerns(hdFontKernPair *a,	// I - First kerning pair
 //
 
 int					// O  - Character from string
-hdStyleFont::get_char(const char *&s)	// IO - String pointer
+hdStyleFont::get_char(const hdChar *&s)	// IO - String pointer
 {
-  const hdByte	*us;			// Unsigned string
-  int		ch,			// Next character from string
-		i,			// Looping var
-		count;			// Number of bytes in UTF-8 encoding
+  int	ch,				// Next character from string
+	i,				// Looping var
+	count;				// Number of bytes in UTF-8 encoding
 
 
   // Handle the easy cases...
   if (!s || !*s)
     return (0);
-  else if (encoding == HD_FONTENCODING_8BIT)
-    return (*s++ & 255);
+  else if (encoding == HD_FONT_ENCODING_8BIT)
+    return (*s++);
 
   // OK, extract a single UTF-8 encoded char...  This code also supports
   // reading ISO-8859-1 characters that are masquerading as UTF-8.
-  if (*us < 192)
+  if (*s < 192)
   {
     s ++;
-    return (*us);
+    return (*s);
   }
 
-  if ((*us & 0xe0) == 0xc0)
+  if ((*s & 0xe0) == 0xc0)
   {
-    ch    = *us & 0x1f;
+    ch    = *s & 0x1f;
     count = 1;
   }
-  else if ((*us & 0xf0) == 0xe0)
+  else if ((*s & 0xf0) == 0xe0)
   {
-    ch    = *us & 0x0f;
+    ch    = *s & 0x0f;
     count = 2;
   }
   else
   {
-    ch    = *us & 0x07;
+    ch    = *s & 0x07;
     count = 3;
   }
 
-  for (i = 1; i <= count && *us; i ++)
-    if (us[i] < 128 || us[i] > 191)
+  for (i = 1; i <= count && s[i]; i ++)
+    if (s[i] < 128 || s[i] > 191)
       break;
     else
-      ch = (ch << 6) | (us[i] & 0x3f);
+      ch = (ch << 6) | (s[i] & 0x3f);
 
   if (i <= count)
   {
     // Return just the initial char...
     s ++;
-    return (*us);
+    return (*s);
   }
   else
   {
@@ -222,9 +219,10 @@ hdStyleFont::get_char(const char *&s)	// IO - String pointer
 //
 
 int					// O - Number of kerning entries
-hdStyleFont::get_kerning(const char *s,	// I - String to kern
-                         float      &tk,// O - Total kerning adjustment
-                         float      *&kl)// O - Kerning adjustments
+hdStyleFont::get_kerning(
+  const hdChar *s,			// I - String to kern
+  float        &tk,			// O - Total kerning adjustment
+  float        *&kl)			// O - Kerning adjustments
 {
   int			i,		// Looping var
 			first,		// First char from string
@@ -290,40 +288,40 @@ hdStyleFont::get_kerning(const char *s,	// I - String to kern
 //
 
 int					// O - Number of chars in string
-hdStyleFont::get_num_chars(const char *s)// I - String
+hdStyleFont::get_num_chars(
+  const hdChar *s)			// I - String
 {
-  const hdByte	*us;			// Unsigned string
-  int		num_chars;		// Number of characters
+  int	num_chars;			// Number of characters
 
 
   // Handle the easy cases...
   if (!s || !*s)
     return (0);
-  else if (encoding == HD_FONTENCODING_8BIT)
-    return (strlen(s));
+  else if (encoding == HD_FONT_ENCODING_8BIT)
+    return (strlen((char *)s));
 
   // OK, loop through the string, looking for chars in the range of
   // 1 to 127 and 192 to 255 which indicate the start of UTF-8
   // encoded char codes...
-  for (num_chars = 0, us = (const unsigned char *)s; *us; us ++, num_chars ++)
-    if (*us > 191)
+  for (num_chars = 0; *s; s ++, num_chars ++)
+    if (*s > 191)
     {
       // This hack is necessary to support ISO-8859-1 encoded text
       // that is masquerading as UTF-8 text...
       int count;
 
-      if ((*us & 0xe0) == 0xc0)
+      if ((*s & 0xe0) == 0xc0)
         count = 1;
-      else if ((*us & 0xf0) == 0xe0)
+      else if ((*s & 0xf0) == 0xe0)
         count = 2;
       else
         count = 3;
 
-      for (; count > 0 && *us; count --, us ++)
-        if (*us < 128 || *us > 191)
+      for (; count > 0 && *s; count --, s ++)
+        if (*s < 128 || *s > 191)
 	  break;
 
-      us --;
+      s --;
     }
 
   return (num_chars);
@@ -335,18 +333,26 @@ hdStyleFont::get_num_chars(const char *s)// I - String
 //
 
 float					// O - Unscaled width
-hdStyleFont::get_width(const char *s)	// I - String to measure
+hdStyleFont::get_width(const hdChar *s)	// I - String to measure
 {
   int	ch;				// Character in string
   float	w;				// Current width
   float	*adjusts;			// Adjustments array
 
 
+//  printf("Width of \"%s\" is ", s);
+
+#if 0
   if (get_kerning(s, w, adjusts) > 0)
     delete[] adjusts;
+#else
+  w = 0.0f;
+#endif // 0
 
   while ((ch = get_char(s)) != 0)
     w += widths[ch];
+
+//  printf("%.1f...\n", w);
 
   return (w);
 }
@@ -374,7 +380,7 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
   // Loop through the AFM file...
   alloc_kerns = num_kerns;
 
-  while (fgets(line, sizeof(line), fp) != NULL)
+  while (file_gets(line, sizeof(line), fp) != NULL)
   {
     // Get the initial keyword...
     if ((lineptr = strchr(line, ' ')) != NULL)
@@ -385,52 +391,66 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
     }
 
     // See what we have...
-    if (strcmp(line, "FontName") == 0)
+    if (!strcmp(line, "FontName"))
     {
       // Get PostScript font name...
       ps_name = strdup(lineptr);
     }
-    else if (strcmp(line, "FullName") == 0)
+    else if (!strcmp(line, "FullName"))
     {
       // Human-readable font name...
       full_name = strdup(lineptr);
     }
-    else if (strcmp(line, "IsFixedPitch") == 0)
+    else if (!strcmp(line, "IsFixedPitch"))
     {
       // Fixed-pitch font?
-      fixed_width = strcmp(lineptr, "true") == 0;
+      fixed_width = strcmp(lineptr, "true");
     }
-    else if (strcmp(line, "UnderlinePosition") == 0)
+    else if (!strcmp(line, "UnderlinePosition"))
     {
       // Where to place the underline...
       ul_position = (float)atof(lineptr) * 0.001f;
     }
-    else if (strcmp(line, "UnderlineThickness") == 0)
+    else if (!strcmp(line, "UnderlineThickness"))
     {
       // How thick to make the underline...
       ul_thickness = (float)atof(lineptr) * 0.001f;
     }
-    else if (strcmp(line, "CapHeight") == 0)
+    else if (!strcmp(line, "CapHeight"))
     {
       // How tall are uppercase letters?
       cap_height = (float)atof(lineptr) * 0.001f;
     }
-    else if (strcmp(line, "XHeight") == 0)
+    else if (!strcmp(line, "XHeight"))
     {
       // How tall are lowercase letters?
       x_height = (float)atof(lineptr) * 0.001f;
     }
-    else if (strcmp(line, "Descender") == 0)
+    else if (!strcmp(line, "Descender"))
     {
       // How low do the descenders go?
       descender = (float)atof(lineptr) * 0.001f;
     }
-    else if (strcmp(line, "Ascender") == 0)
+    else if (!strcmp(line, "Ascender"))
     {
       // How high do the ascenders go?
       ascender = (float)atof(lineptr) * 0.001f;
     }
-    else if (strcmp(line, "C") == 0)
+    else if (!strcmp(line, "ItalicAngle "))
+    {
+      // Angle for italic text...
+      italic_angle = (float)atof(lineptr) * 0.001f;
+    }
+    else if (!strcmp(line, "FontBBox"))
+    {
+      // Bounding box for all characters...
+      sscanf(lineptr, "%f%f%f%f", bbox + 0, bbox + 1, bbox + 2, bbox + 3);
+      bbox[0] *= 0.001;
+      bbox[1] *= 0.001;
+      bbox[2] *= 0.001;
+      bbox[3] *= 0.001;
+    }
+    else if (!strcmp(line, "C"))
     {
       // Get the character width and glyph name...
       if (sscanf(lineptr, "%*d%*s%*s%d%*s%*s%31s", &number, value) != 2)
@@ -438,10 +458,13 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
 
       // Assign the width to all code points with this glyph...
       for (glyph = 0; glyph < css->num_glyphs; glyph ++)
-        if (css->glyphs[glyph] && strcmp(css->glyphs[glyph], value) == 0)
+        if (css->glyphs[glyph] && !strcmp(css->glyphs[glyph], value))
+	{
+//	  printf("\"%s\" (%02X) = %.3f...\n", value, glyph, number * 0.001f);
           widths[glyph] = number * 0.001f;
+	}
     }
-    else if (strcmp(line, "KPX") == 0)
+    else if (!strcmp(line, "KPX"))
     {
       // Get kerning data...
       if (sscanf(lineptr, "%31s%31s%d", value, value2, &number) != 3)
@@ -514,5 +537,5 @@ hdStyleFont::read_ttf(FILE       *fp,	// I - File to read from
 
 
 //
-// End of "$Id: stylefont.cxx,v 1.13 2004/03/31 20:56:56 mike Exp $".
+// End of "$Id$".
 //

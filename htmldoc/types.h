@@ -1,9 +1,9 @@
 /*
- * "$Id: types.h,v 1.14 2004/03/31 10:35:07 mike Exp $"
+ * "$Id$"
  *
  *   Common data types for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -22,18 +22,15 @@
  *         WWW: http://www.easysw.com
  */
 
-#ifndef HTMLDOC_TYPES_H
-#  define HTMLDOC_TYPES_H
+#ifndef _TYPES_H_
+#  define _TYPES_H_
 
 #  include "config.h"
 
-
-//
-// Basic data types...
-//
-
-typedef unsigned char uchar;
 typedef unsigned char hdByte;
+typedef unsigned char hdChar;
+typedef hdChar *hdUTF8;
+
 
 //
 // C library comparison function type...
@@ -45,8 +42,8 @@ extern "C"
 }
 
 
-#endif /* !HTMLDOC_TYPES_H */
+#endif /* !_TYPES_H_ */
 
 /*
- * End of "$Id: types.h,v 1.14 2004/03/31 10:35:07 mike Exp $".
+ * End of "$Id$".
  */
