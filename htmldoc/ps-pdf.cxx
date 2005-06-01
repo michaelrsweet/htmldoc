@@ -3557,9 +3557,6 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
   DEBUG_printf(("render_contents(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), y=%.1f, page=%d, heading=%d, chap=%p)\n",
                 t, margins->left(), margins->right(), margins->bottom(),
 		margins->top(), *y, *page, heading, chap));
-  printf("render_contents(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), y=%.1f, page=%d, heading=%d, chap=%p)\n",
-         t, margins->left(), margins->right(), margins->bottom(),
-	 margins->top(), *y, *page, heading, chap);
 
   if (!t)
     return;
@@ -3568,8 +3565,8 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
   * Put the text...
   */
 
-  printf("    t->style->font_size=%.1f, line_height=%.1f\n",
-         t->style->font_size, t->style->line_height);
+  DEBUG_printf(("    t->style->font_size=%.1f, line_height=%.1f\n",
+                t->style->font_size, t->style->line_height));
 
   flat = flatten_tree(t->child->child);
 
@@ -3577,7 +3574,7 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
     if (temp->style->line_height > height)
       height = temp->style->line_height;
 
-  printf("    height=%.1f\n", height);
+  DEBUG_printf(("    height=%.1f\n", height));
 
   x = margins->left();
 

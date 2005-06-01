@@ -1040,6 +1040,7 @@ hdStyle::init()
   text_indent_rel = NULL;
   text_transform  = HD_TEXT_TRANSFORM_INHERIT;
   unicode_bidi    = HD_UNICODE_BIDI_NORMAL;
+  vertical_align  = HD_VERTICAL_ALIGN_INHERIT;
   white_space     = HD_WHITE_SPACE_NORMAL;
   widows          = HD_WIDOWS_INHERIT;
   width           = HD_WIDTH_AUTO;
