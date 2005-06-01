@@ -315,7 +315,9 @@ if test -n "$GXX"; then
 	    ;;
     esac
 
-    CXX="$CC"
+    if test "x$uname" != xDarwin; then
+	CXX="$CC"
+    fi
 
     dnl Set optimization flags...
     if test -z "$OPTIM"; then
