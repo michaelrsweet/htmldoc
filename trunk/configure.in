@@ -1,5 +1,5 @@
 #
-# "$Id: configure.in,v 1.30 2004/10/23 17:55:25 mike Exp $"
+# "$Id$"
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
@@ -315,7 +315,9 @@ if test -n "$GXX"; then
 	    ;;
     esac
 
-    CXX="$CC"
+    if test "x$uname" != xDarwin; then
+	CXX="$CC"
+    fi
 
     dnl Set optimization flags...
     if test -z "$OPTIM"; then
@@ -394,5 +396,5 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
 
 #
-# End of "$Id: configure.in,v 1.30 2004/10/23 17:55:25 mike Exp $".
+# End of "$Id$".
 #
