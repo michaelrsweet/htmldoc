@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.16 2004/10/23 20:23:19 mike Exp $"
+# "$Id$"
 #
 #   Makefile for HTMLDOC documentation files.
 #
@@ -42,7 +42,7 @@ SOURCES	=	intro.html 1-install.html 2-starting.html \
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	help.html htmldoc.pdf
 
-HTMLDOC	=	../htmldoc/htmldoc$(EXEEXT) --strict --datadir .. --verbose
+HTMLDOC	=	HTMLDOC_DATA=..;../htmldoc/htmldoc$(EXEEXT) --strict --verbose
 
 
 #
@@ -122,5 +122,5 @@ htmldoc.1:	htmldoc.man
 
 
 #
-# End of "$Id: Makefile,v 1.16 2004/10/23 20:23:19 mike Exp $".
+# End of "$Id$".
 #
