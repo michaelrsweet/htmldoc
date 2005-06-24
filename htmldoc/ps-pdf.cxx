@@ -6971,7 +6971,7 @@ parse_table(tree_t *t,			// I - Tree to parse
     {
       // Draw background in row...
       new_render(table_page, RENDER_BOX, border_left, *y,
-	         width, table_y - *y, bgrgb, pages[temp_page].start);
+	         width, table_y - *y, bgrgb, pages[table_page].start);
     }
   }
 
