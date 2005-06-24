@@ -6741,7 +6741,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
         // Draw background in row...
         new_render(row_page, HD_RENDER_BOX, border_left, row_y,
 	           width, row_height + 2 * cellpadding, bgrgb,
-		   pages[temp_page].start);
+		   pages[row_page].start);
       }
     }
 
@@ -6947,7 +6947,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
     {
       // Draw background in row...
       new_render(table_page, HD_RENDER_BOX, border_left, *y,
-	         width, table_y - *y, bgrgb, pages[temp_page].start);
+	         width, table_y - *y, bgrgb, pages[table_page].start);
     }
   }
 
