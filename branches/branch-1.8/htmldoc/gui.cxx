@@ -112,6 +112,9 @@
 //
 
 const char	*GUI::help_dir = DOCUMENTATION;
+#ifdef __APPLE__
+char		*apple_filename = NULL;
+#endif // __APPLE__
 
 
 //
@@ -265,8 +268,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			};
 
 
-  // Support opening of books via the finder...
 #ifdef __APPLE__
+  // Support opening of books via the finder...
   fl_open_callback(appleOpenCB);
 #endif // __APPLE__
 
@@ -475,7 +478,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
     jpegQuality->step(1.0);
     jpegQuality->callback((Fl_Callback *)changeCB, this);
     jpegQuality->tooltip("Set the quality of images using JPEG compression.\n"
-                          "(lower quality produces smaller output)");
+                         "(lower quality produces smaller output)");
 
     label = new Fl_Box(175, 205, 40, 10, "Good");
     label->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
@@ -907,7 +910,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
     encryptionYes->type(FL_RADIO_BUTTON);
     encryptionYes->callback((Fl_Callback *)encryptionCB, this);
     encryptionYes->tooltip("Select to enable encryption (scrambling) of the output file.\n"
-                            "(128-bit encryption for Acrobat 5.0, 40-bit for older versions.)");
+                           "(128-bit encryption for Acrobat 5.0, 40-bit for older versions.)");
 
   encryption->end();
 
@@ -928,12 +931,12 @@ GUI::GUI(const char *filename)		// Book file to load initially
   ownerPassword = new Fl_Secret_Input(140, 115, 150, 25, "Owner Password: ");
   ownerPassword->maximum_size(32);
   ownerPassword->tooltip("Enter the password required to modify the file.\n"
-                          "(leave blank for a random password)");
+			 "(leave blank for a random password)");
 
   userPassword = new Fl_Secret_Input(140, 145, 150, 25, "User Password: ");
   userPassword->maximum_size(32);
   userPassword->tooltip("Enter the password required to open the file.\n"
-                         "(leave blank for no password)");
+			"(leave blank for no password)");
 
   securityTab->end();
 
@@ -964,7 +967,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   browserWidth->step(5.0);
   browserWidth->callback((Fl_Callback *)changeCB, this);
   browserWidth->tooltip("Set the target browser width in pixels.\n"
-                         "(this determines the page scaling of images)");
+			"(this determines the page scaling of images)");
 
   path = new Fl_Input(140, 100, 345, 25, "Search Path: ");
   path->value(Path);
@@ -1095,7 +1098,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
 
   window->resizable(tabs);
   window->size_range(470, 360);
-  show();
 
   // File chooser, icons, help dialog, error window...
   fc = new Fl_File_Chooser(".", "*", Fl_File_Chooser::SINGLE, "Title");
@@ -1116,6 +1118,27 @@ GUI::GUI(const char *filename)		// Book file to load initially
   error_window->end();
   error_window->resizable(error_list);
 
+  //
+  // Load the given book or create a new one...
+  //
+
+  book_changed     = 0;
+  book_filename[0] = '\0';
+
+#ifdef __APPLE__
+  if (apple_filename)
+  {
+    loadBook(apple_filename);
+    free(apple_filename);
+    apple_filename = NULL;
+  }
+  else
+#endif // __APPLE__
+  if (filename == NULL)
+    newBookCB(NULL, this);
+  else
+    loadBook(filename);
+
   // Use cheesy hardcoded "style" stuff until FLTK 2.0...
   skinCB(0, this);
 
@@ -1124,20 +1147,14 @@ GUI::GUI(const char *filename)		// Book file to load initially
   inputFiles->color((Fl_Color)196);
 #  endif // __sgi
 
+  // Show the window...
+  show();
+
+#if 0
+  // Wait for the window to be drawn...
   while (window->damage())
     Fl::check();
-
-  //
-  // Load the given book or create a new one...
-  //
-
-  book_changed     = 0;
-  book_filename[0] = '\0';
-
-  if (filename == NULL)
-    newBookCB(NULL, this);
-  else
-    loadBook(filename);
+#endif // 0
 }
 
 
@@ -1185,11 +1202,12 @@ GUI::progress(int        percent,	// I - Percent complete
   else if (percent == 0)
     progressBar->label("HTMLDOC " SVERSION " Ready.");
 
- if ((percent - (int)progressBar->value()) >= 5 ||
-     percent < (int)progressBar->value())
+  if ((percent - (int)progressBar->value()) >= 10 ||
+      percent < (int)progressBar->value())
     progressBar->value(percent);
 
-  Fl::check();
+  if (progressBar->damage())
+    Fl::check();
 }
 
 
@@ -2268,6 +2286,13 @@ GUI::parseOptions(const char *line)	// I - Line from file
 void
 GUI::appleOpenCB(const char *f)		// I - Book file to open
 {
+  // Save the filename if the book GUI hasn't been initialized...
+  if (!BookGUI)
+  {
+    apple_filename = strdup(f);
+    return;
+  }
+
   // See if the user wants to save the current book...
   if (!BookGUI->checkSave())
     return;
