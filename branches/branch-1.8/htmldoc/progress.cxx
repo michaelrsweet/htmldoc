@@ -42,7 +42,7 @@
 
 #ifdef WIN32
 #  define getpid	GetCurrentProcessId
-static HANDLE	event_log = 0;
+static FILE	*error_log = NULL;
 #else
 #  include <unistd.h>
 #endif // WIN32
@@ -94,17 +94,28 @@ progress_error(HDerror    error,	/* I - Error number */
   if (CGIMode)
   {
     if (!error_log)
-      error_log = OpenEventLog(NULL, "htmldoc");
+    {
+      // Append messages to a file called "htmldoc.log"...
+      char	tmppath[1024];		// Buffer for temp dir
+      char	filename[1024];		// htmldoc.log filename
+
+
+      GetTempPath(sizeof(tmppath), tmppath);
+      snprintf(filename, sizeof(filename), "%s/htmldoc.log", tmppath);
+
+      error_log = fopen(filename, "a");
+    }
 
     if (error_log)
     {
-      char	*s;			// Pointer to message text...
+      fprintf(error_log, "HTMLDOC(%d) ", (int)getpid());
 
+      if (error)
+	fprintf(error_log, "ERR%03d: %s\n", error, text);
+      else
+	fprintf(error_log, "%s\n", text);
 
-      ReportEvent(error_log,
-                  error ? EVENTLOG_ERROR_TYPE : EVENTLOG_INFORMATION_TYPE,
-                  1, error ? error | 0xc0000000 : 0x40000000, NULL,
-		  1, 0, &s, NULL);
+      fflush(error_log);
     }
 
     return;

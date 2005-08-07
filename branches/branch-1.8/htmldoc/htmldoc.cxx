@@ -27,6 +27,7 @@
  *   prefs_getrc()     - Get the rc file for preferences...
  *   prefs_load()      - Load HTMLDOC preferences...
  *   prefs_save()      - Save HTMLDOC preferences...
+ *   prefs_set_paths() - Set HTMLDOC data/help paths...
  *   compare_strings() - Compare two command-line strings.
  *   load_book()       - Load a book file...
  *   parse_options()   - Parse options from a book file...
@@ -140,6 +141,12 @@ main(int  argc,				/* I - Number of command-line arguments */
 #endif // WIN32
 
  /*
+  * Set the location of data and help files...
+  */
+
+  prefs_set_paths();
+
+ /*
   * Check if we are being executed as a CGI program...
   */
 
@@ -176,7 +183,11 @@ main(int  argc,				/* I - Number of command-line arguments */
     file_cookies(getenv("HTTP_COOKIE"));
 
     progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
-    progress_error(HD_ERROR_NONE, "INFO: TMPDIR is \"%s\"\n", getenv("TMPDIR"));
+#ifdef WIN32
+    progress_error(HD_ERROR_NONE, "INFO: TEMP is \"%s\"", getenv("TEMP"));
+#else
+    progress_error(HD_ERROR_NONE, "INFO: TMPDIR is \"%s\"", getenv("TMPDIR"));
+#endif // WIN32
 
     argc = 1;
 
@@ -1244,77 +1255,7 @@ prefs_load(void)
   int	pos;			// Header/footer position
   char	line[2048];		// Line from RC file
   FILE	*fp;			// File pointer
-#ifdef WIN32			//// Do registry magic...
-  HKEY		key;		// Registry key
-  DWORD		size;		// Size of string
-  static char	data[1024];	// Data directory
-  static char	doc[1024];	// Documentation directory
-  static char	path[4096];	// PATH environment variable
-#endif // WIN32
 
-
-  //
-  // Get the installed directories...
-  //
-
-#ifdef WIN32
-  // Open the registry...
-  if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                    "SOFTWARE\\Easy Software Products\\HTMLDOC", 0,
-                    KEY_READ, &key))
-  {
-    // Grab the installed directories...
-    size = sizeof(data);
-    if (!RegQueryValueEx(key, "data", NULL, NULL, (unsigned char *)data, &size))
-      _htmlData = data;
-
-#  ifdef HAVE_LIBFLTK
-    size = sizeof(doc);
-    if (!RegQueryValueEx(key, "doc", NULL, NULL, (unsigned char *)doc, &size))
-      GUI::help_dir = doc;
-#  endif // HAVE_LIBFLTK
-
-    RegCloseKey(key);
-  }
-
-  // See if the HTMLDOC program folder is in the system execution path...
-  if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                    "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
-                    0, KEY_READ | KEY_WRITE, &key))
-  {
-    // Grab the current path...
-    size = sizeof(path);
-    if (!RegQueryValueEx(key, "Path", NULL, NULL, (unsigned char *)path, &size))
-      if (strstr(path, _htmlData) == NULL)
-      {
-        // The data directory is not in the path, so add it...
-        strlcat(path, ";", sizeof(path));
-        strlcat(path, _htmlData, sizeof(path));
-        RegSetValueEx(key, "Path", 0, REG_EXPAND_SZ, (unsigned char *)path, strlen(path) + 1);
-      }
-  }
-#endif // WIN32
-
-#if defined(__EMX__) && defined(HAVE_LIBFLTK)
-  // If being installed within XFree86 OS/2 Environment
-  // we can use those values which are overwritten by
-  // the according environment variables.
-  _htmlData = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc"));
-  GUI::help_dir = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc/doc"));
-#endif // __EMX__ && HAVE_LIBFLTK
-
-  //
-  // See if the installed directories have been overridden by
-  // environment variables...
-  //
-
-  if (getenv("HTMLDOC_DATA") != NULL)
-    _htmlData = getenv("HTMLDOC_DATA");
-
-#ifdef HAVE_LIBFLTK
-  if (getenv("HTMLDOC_HELP") != NULL)
-    GUI::help_dir = getenv("HTMLDOC_HELP");
-#endif // HAVE_LIBFLTK
 
   //
   // Read the preferences file...
@@ -1563,6 +1504,91 @@ prefs_save(void)
 
     fclose(fp);
   }
+}
+
+
+/*
+ * 'prefs_set_paths()' - Set HTMLDOC data/help paths...
+ */
+
+void
+prefs_set_paths(void)
+{
+#ifdef WIN32			//// Do registry magic...
+  HKEY		key;		// Registry key
+  DWORD		size;		// Size of string
+  static char	data[1024];	// Data directory
+  static char	doc[1024];	// Documentation directory
+  static char	path[4096];	// PATH environment variable
+#endif // WIN32
+
+
+  //
+  // Get the installed directories...
+  //
+
+#ifdef WIN32
+  // Open the registry...
+  if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                    "SOFTWARE\\Easy Software Products\\HTMLDOC", 0,
+                    KEY_READ, &key))
+  {
+    // Grab the installed directories...
+    size = sizeof(data);
+    if (!RegQueryValueEx(key, "data", NULL, NULL, (unsigned char *)data, &size))
+      _htmlData = data;
+    else
+      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to read \"data\" value from registry!");
+
+#  ifdef HAVE_LIBFLTK
+    size = sizeof(doc);
+    if (!RegQueryValueEx(key, "doc", NULL, NULL, (unsigned char *)doc, &size))
+      GUI::help_dir = doc;
+#  endif // HAVE_LIBFLTK
+
+    RegCloseKey(key);
+  }
+  else
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to read HTMLDOC installation from registry!");
+
+  // See if the HTMLDOC program folder is in the system execution path...
+  if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                    "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
+                    0, KEY_READ | KEY_WRITE, &key))
+  {
+    // Grab the current path...
+    size = sizeof(path);
+    if (!RegQueryValueEx(key, "Path", NULL, NULL, (unsigned char *)path, &size))
+      if (strstr(path, _htmlData) == NULL)
+      {
+        // The data directory is not in the path, so add it...
+        strlcat(path, ";", sizeof(path));
+        strlcat(path, _htmlData, sizeof(path));
+        RegSetValueEx(key, "Path", 0, REG_EXPAND_SZ, (unsigned char *)path, strlen(path) + 1);
+      }
+  }
+#endif // WIN32
+
+#if defined(__EMX__) && defined(HAVE_LIBFLTK)
+  // If being installed within XFree86 OS/2 Environment
+  // we can use those values which are overwritten by
+  // the according environment variables.
+  _htmlData = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc"));
+  GUI::help_dir = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc/doc"));
+#endif // __EMX__ && HAVE_LIBFLTK
+
+  //
+  // See if the installed directories have been overridden by
+  // environment variables...
+  //
+
+  if (getenv("HTMLDOC_DATA") != NULL)
+    _htmlData = getenv("HTMLDOC_DATA");
+
+#ifdef HAVE_LIBFLTK
+  if (getenv("HTMLDOC_HELP") != NULL)
+    GUI::help_dir = getenv("HTMLDOC_HELP");
+#endif // HAVE_LIBFLTK
 }
 
 
