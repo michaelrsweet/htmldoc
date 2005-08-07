@@ -42,6 +42,7 @@
 
 #ifdef WIN32
 #  define getpid	GetCurrentProcessId
+static HANDLE	event_log = 0;
 #else
 #  include <unistd.h>
 #endif // WIN32
@@ -88,10 +89,26 @@ progress_error(HDerror    error,	/* I - Error number */
 #endif /* HAVE_LIBFLTK */
 
 #ifdef WIN32
-  // IIS doesn't separate stderr from stdout, so we cannot output any CGI error messages
-  // on Windows...
+  // IIS doesn't separate stderr from stdout, so we have to send CGI errors
+  // to a separate event log...
   if (CGIMode)
+  {
+    if (!error_log)
+      error_log = OpenEventLog(NULL, "htmldoc");
+
+    if (error_log)
+    {
+      char	*s;			// Pointer to message text...
+
+
+      ReportEvent(error_log,
+                  error ? EVENTLOG_ERROR_TYPE : EVENTLOG_INFORMATION_TYPE,
+                  1, error ? error | 0xc0000000 : 0x40000000, NULL,
+		  1, 0, &s, NULL);
+    }
+
     return;
+  }
 #endif // WIN32
 
   if (Verbosity >= 0)
@@ -100,7 +117,7 @@ progress_error(HDerror    error,	/* I - Error number */
       fprintf(stderr, "\r%-79.79s\r", "");
 
     if (CGIMode)
-      fprintf(stderr, "HTMLDOC(%d) ", getpid());
+      fprintf(stderr, "HTMLDOC(%d) ", (int)getpid());
 
     if (error)
       fprintf(stderr, "ERR%03d: %s\n", error, text);
@@ -168,7 +185,7 @@ progress_show(const char *format,	/* I - Printf-style format string */
   {
     if (Verbosity > 0)
     {
-      fprintf(stderr, "HTMLDOC(%d) INFO: %s\n", getpid(), text);
+      fprintf(stderr, "HTMLDOC(%d) INFO: %s\n", (int)getpid(), text);
       fflush(stderr);
     }
 
