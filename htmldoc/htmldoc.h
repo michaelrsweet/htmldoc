@@ -269,6 +269,7 @@ extern void	set_page_size(const char *size);
 
 extern void	prefs_load(void);
 extern void	prefs_save(void);
+extern void	prefs_set_paths(void);
 
 extern char	*format_number(int n, char f);
 

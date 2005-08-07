@@ -1,4 +1,4 @@
-CHANGES.txt - 04/23/2005
+CHANGES.txt - 08/07/2005
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.25
@@ -11,6 +11,12 @@ CHANGES IN HTMLDOC v1.8.25
 	- Added "--header1" command-line option and "HEADER1"
 	  page comments to set the page header for the first page
 	  of each chapter.
+
+    CHANGES:
+
+	- On Windows, HTMLDOC now logs CGI mode errors to a file
+	  called "htmldoc.log" in the Windows temporary
+	  directory.
 
     BUG FIXES
 
@@ -28,6 +34,8 @@ CHANGES IN HTMLDOC v1.8.25
 	  background colors (STR #65)
 	- HTMLDOC would crash when writing encrypted strings
 	  longer than 1024 bytes (STR #66)
+	- HTMLDOC didn't set the data directory when running in
+	  CGI mode on Windows.
 
 
 CHANGES IN HTMLDOC v1.8.24
