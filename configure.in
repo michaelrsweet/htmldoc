@@ -389,6 +389,9 @@ else
 		OPTIM="-xO4 -xarch=generic"
 	    fi
 	    ;;
+	UNIX_SV*)
+	    dnl NCR SVR4 MP-RAS
+	    CXXFLAGS="-Hcppext=cxx $CXXFLAGS"
     esac
 fi
 
