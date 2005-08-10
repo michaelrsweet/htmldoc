@@ -1501,7 +1501,7 @@ parse_markup(hdTree *t,			/* I - Current tree entry */
   {
     while (ch != EOF && cptr < (comment + sizeof(comment) - 1))
     {
-      if (ch == '>' && temp == NULL)
+      if (ch == '>' && t->element == HD_ELEMENT_UNKNOWN)
         break;
 
       if (ch == '\n')
@@ -2648,9 +2648,9 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
   {
     if (isdigit(size[0]))
       t->style->font_size = _htmlStyleSheet->def_style.font_size *
-                            pow(1.2f, atof((char *)size) - 3.0f);
+                            pow(1.2, atof((char *)size) - 3.0);
     else
-      t->style->font_size *= pow(1.2f, atof((char *)size));
+      t->style->font_size *= pow(1.2, atof((char *)size));
 
     t->style->set_string(NULL, t->style->font_size_rel);
   }
