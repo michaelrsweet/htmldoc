@@ -5655,6 +5655,8 @@ parse_table(tree_t *t,			// I - Tree to parse
   uchar		*bgcolor;
   float		rgb[3],
 		bgrgb[3];
+  const char	*htmldoc_debug;		// HTMLDOC_DEBUG env var
+  int		table_debug;		// Do table debugging?
 
 
   DEBUG_puts("\n\nTABLE");
@@ -5664,6 +5666,16 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   if (t->child == NULL)
     return;   /* Empty table... */
+
+ /*
+  * Check debug mode...
+  */
+
+  if ((htmldoc_debug = getenv("HTMLDOC_DEBUG")) != NULL &&
+      (strstr(htmldoc_debug, "table") || strstr(htmldoc_debug, "all")))
+    table_debug = 1;
+  else
+    table_debug = 0;
 
  /*
   * Figure out the # of rows, columns, and the desired widths...
@@ -5712,10 +5724,8 @@ parse_table(tree_t *t,			// I - Tree to parse
   else
     border = 0.0f;
 
-#ifdef TABLE_DEBUG
-  if (border == 0.0f)
+  if (table_debug && border == 0.0f)
     border = 0.01f;
-#endif // TABLE_DEBUG
 
   rgb[0] = t->red / 255.0f;
   rgb[1] = t->green / 255.0f;
@@ -6268,10 +6278,10 @@ parse_table(tree_t *t,			// I - Tree to parse
   if (*y < top && needspace)
     *y -= _htmlSpacings[SIZE_P];
 
-#ifdef TABLE_DEBUG
-  check_pages(*page);
-
+  if (table_debug)
   {
+    check_pages(*page);
+
     render_t *r;
     char table_debug[255];
 
@@ -6284,7 +6294,6 @@ parse_table(tree_t *t,			// I - Tree to parse
     r->data.text.style    = STYLE_NORMAL;
     r->data.text.size     = _htmlSizes[3];
   }
-#endif // TABLE_DEBUG
 
   memset(row_spans, 0, sizeof(row_spans));
   memset(cell_start, 0, sizeof(cell_start));
@@ -6465,10 +6474,10 @@ parse_table(tree_t *t,			// I - Tree to parse
 	cell_page[col]  = temp_page;
 	cell_y[col]     = temp_y;
 
-#ifdef TABLE_DEBUG2
-	check_pages(*page);
-
+        if (table_debug)
 	{
+	  check_pages(*page);
+
 	  render_t *r;
 	  char table_debug[255];
 
@@ -6482,8 +6491,6 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  r->data.text.style    = STYLE_NORMAL;
 	  r->data.text.size     = _htmlSizes[1];
 	}
-#endif // TABLE_DEBUG2
-
 
         if (cells[row][col] != NULL && cells[row][col]->child != NULL)
 	{
