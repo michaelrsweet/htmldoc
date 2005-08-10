@@ -343,6 +343,9 @@
 				RelativePath="..\htmldoc\license.cxx">
 			</File>
 			<File
+				RelativePath="..\htmldoc\margin.cxx">
+			</File>
+			<File
 				RelativePath="..\htmldoc\md5.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -436,6 +439,21 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\htmldoc\style.cxx">
+			</File>
+			<File
+				RelativePath="..\htmldoc\stylefont.cxx">
+			</File>
+			<File
+				RelativePath="..\htmldoc\stylemedia.cxx">
+			</File>
+			<File
+				RelativePath="..\htmldoc\stylesheet.cxx">
+			</File>
+			<File
+				RelativePath="..\htmldoc\styletree.cxx">
 			</File>
 			<File
 				RelativePath="..\htmldoc\toc.cxx">
