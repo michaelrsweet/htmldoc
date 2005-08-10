@@ -149,15 +149,15 @@ Manager</var> program (Figure 5-1):</p>
 
 <ol>
 
-	<li>Click on Start</li>
+	<li>Click on <var>Start</var></li>
 
-	<li>Click on Settings</li>
+	<li>Click on <var>Settings</var></li>
 
-	<li>Click on Control Panel</li>
+	<li>Click on <var>Control Panel</var></li>
 
-	<li>Double-click on Administrative Tools</li>
+	<li>Double-click on <var>Administrative Tools</var></li>
 
-	<li>Double-click on Internet Services Manager</li>
+	<li>Double-click on <var>Internet Services Manager</var></li>
 
 </ol>
 
@@ -189,6 +189,9 @@ folder for HTMLDOC:</p>
 	<li>Click <var>Finish</var> to dismiss the wizard (Figure 5-8)</li>
 
 </ol>
+
+<p>If you are using IIS 6.0, proceed to the next section titled,
+<a href="#IIS6.0">"Additional Configuration for IIS 6.0"</a>.</p>
 
 <p align='center'><img src='htmldoc-fig51.png' width='600' alt='The Internet Services Manager Window'><br />
 <i>Figure 5-1: The Internet Services Manager Window</i></p>
@@ -227,6 +230,79 @@ follows:</p>
 <p>The boldface portion represents the location of the
 HTMLDOC program on the web server.</p>
 
+<h3><a name='IIS6.0'>Additional Configuration for IIS 6.0</a></h3>
+
+<p>IIS 6.0 requires additional configuration steps due to its
+increased focus on security. Start by running the <var>Internet
+Services Manager</var> program (Figure 5-1):</p>
+
+<ol>
+
+	<li>Click on <var>Start</var></li>
+
+	<li>Click on <var>Settings</var></li>
+
+	<li>Click on <var>Control Panel</var></li>
+
+	<li>Double-click on <var>Administrative Tools</var></li>
+
+	<li>Double-click on <var>Internet Services Manager</var></li>
+
+</ol>
+
+<p>After the <var>Internet Services Manager</var> window (Figure
+5-1) appears, perform the following steps to add a new Wed
+Service Extension for HTMLDOC:</p>
+
+<ol>
+
+	<li>Click on <var>Web Service Extensions</var></li>
+
+	<li>Click <var>Add a new Web Service Extension</var></li>
+
+	<li>Enter the name "HTMLDOC" when the <var>Web Service
+	Extension</var> window appears</li>
+
+	<li>Click <var>Add...</var> and choose the
+	<var>htmldoc.exe</var> file from the program folder,
+	typically
+	<var>C:\Program&nbsp;Files\Easy&nbsp;Software&nbsp;Products\HTMLDOC</var></li>
+
+	<li>Check the <var>Set extension status to Allowed</var> box</li>
+
+	<li>Click <var>OK</var> to add the extension and dismiss
+	the window</li>
+
+</ol>
+
+<p>Finally, double-click the <var>My Computer</var> icon on the
+desktop or start the <var>Windows Explorer</var>. When the
+explorer window appears, perform the following steps to provide
+write access to the Windows temporary folder:</p>
+
+<ol>
+
+	<li>Open the windows temporary file folder, typically
+	<var>C:\WINDOWS\TEMP</var></li>
+
+	<li>Choose <var>Properties</var> from the <var>File</var>
+	menu</li>
+
+	<li>Click on the <var>Security</var> tab</li>
+
+	<li>Click <var>Add...</var>, enter the username for
+	the web server, typically "SERVER\IUSR_SERVER"
+	where "SERVER" is the name you gave your server,
+	and click <var>OK</var></li>
+
+	<li>Click on the username you just added in the list</li>
+
+	<li>Check the <var>Read</var> and <var>Write</var>
+	permissions</li>
+
+	<li>Click <var>OK</var> to save the changes</li>
+
+</ol>
 
 <h2>Using HTMLDOC From Server-Side Scripts and Programs</h2>
 
