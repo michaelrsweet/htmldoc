@@ -23,7 +23,7 @@
 				InlineFunctionExpansion="2"
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="0"
-				AdditionalIncludeDirectories="..\zlib-1.1.3,../vcnet,../zlib"
+				AdditionalIncludeDirectories="../vcnet,../zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;WIN32_LEAN_AND_MEAN;VC_EXTRA_LEAN;WIN32_EXTRA_LEAN"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\zlib-1.1.3,../vcnet,../zlib"
+				AdditionalIncludeDirectories="../vcnet,../zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;WIN32_LEAN_AND_MEAN;VC_EXTRA_LEAN;WIN32_EXTRA_LEAN"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -284,25 +284,6 @@
 		</File>
 		<File
 			RelativePath="..\png\pngset.c">
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					FavorSizeOrSpeed="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\png\pngtest.c">
 			<FileConfiguration
 				Name="Release|Win32">
 				<Tool
