@@ -12387,7 +12387,7 @@ write_type1(FILE       *out,		/* I - File to write to */
 	  if (sscanf(line, "%*s%d%*s%*s%d", &ch, &width) != 2)
 	    continue;
 
-	  if (ch < 256)
+	  if (ch >= 0 && ch < 256)
 	    widths[ch] = width;
 	}
       }

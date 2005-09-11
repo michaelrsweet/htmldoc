@@ -36,6 +36,8 @@ CHANGES IN HTMLDOC v1.8.25
 	  longer than 1024 bytes (STR #66)
 	- HTMLDOC didn't set the data directory when running in
 	  CGI mode on Windows.
+	- HTMLDOC could crash when loading the Symbol.afm file
+	  (STR #93)
 
 
 CHANGES IN HTMLDOC v1.8.24
