@@ -56,6 +56,7 @@
 #else
 #  include <signal.h>
 #  include <unistd.h>
+#  include <sys/time.h>
 #endif // WIN32
 
 #ifdef __EMX__
@@ -77,6 +78,7 @@ typedef int (*exportfunc_t)(tree_t *, tree_t *);
  */
 
 static int	compare_strings(const char *s, const char *t, int tmin);
+static double	get_seconds(void);
 static int	load_book(const char *filename, tree_t **document,
 		          exportfunc_t *exportfunc, int set_nolocal = 0);
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
@@ -108,7 +110,13 @@ main(int  argc,				/* I - Number of command-line arguments */
   float		fontsize,		/* Base font size */
 		fontspacing;		/* Base font spacing */
   int		num_files;		/* Number of files provided on the command-line */
+  double	start_time,		/* Start time */
+		load_time,		/* Load time */
+		end_time;		/* End time */
+  const char	*debug;			/* HTMLDOC_DEBUG environment variable */
 
+
+  start_time = get_seconds();
 
 #ifdef __APPLE__
  /*
@@ -1167,6 +1175,8 @@ main(int  argc,				/* I - Number of command-line arguments */
   // Fix links...
   htmlFixLinks(document, document);
 
+  load_time = get_seconds();
+
   // Show debug info...
   htmlDebugStats("Document Tree", document);
 
@@ -1186,6 +1196,22 @@ main(int  argc,				/* I - Number of command-line arguments */
   */
 
   (*exportfunc)(document, toc);
+
+  end_time = get_seconds();
+
+ /*
+  * Report running time statistics as needed...
+  */
+
+  if ((debug = getenv("HTMLDOC_DEBUG")) != NULL &&
+      (strstr(debug, "all") != NULL || strstr(debug, "timing") != NULL))
+    progress_error(HD_ERROR_NONE, "TIMING: %.3f %.3f %.3f",
+                   load_time - start_time, end_time - load_time,
+		   end_time - start_time);
+
+ /*
+  * Cleanup...
+  */
 
   htmlDeleteTree(document);
   htmlDeleteTree(toc);
@@ -1609,6 +1635,25 @@ compare_strings(const char *s,	/* I - Command-line string */
     return (-1);
   else
     return (strncmp(s, t, slen));
+}
+
+
+/*
+ * 'get_seconds()' - Get the current fractional time in seconds.
+ */
+
+static double				/* O - Number of seconds */
+get_seconds(void)
+{
+#ifdef WIN32
+  return (GetTickCount() * 0.001);
+#else
+  struct timeval	curtime;	/* Current time */
+
+  gettimeofday(&curtime, NULL);
+
+  return (curtime.tv_sec + curtime.tv_usec * 0.000001);
+#endif /* WIN32 */
 }
 
 
