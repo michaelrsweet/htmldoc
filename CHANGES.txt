@@ -1,4 +1,4 @@
-CHANGES.txt - 08/07/2005
+CHANGES.txt - 09/14/2005
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.25
@@ -11,6 +11,7 @@ CHANGES IN HTMLDOC v1.8.25
 	- Added "--header1" command-line option and "HEADER1"
 	  page comments to set the page header for the first page
 	  of each chapter.
+	- Added "timing" and "remotebytes" debug data generation.
 
     CHANGES:
 
