@@ -5622,6 +5622,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 		regular_width,
 		actual_width,
 		table_width,
+		table_height,
 		min_width,
 		temp_width,
 		table_y,
@@ -5701,6 +5702,16 @@ parse_table(tree_t *t,			// I - Tree to parse
   }
   else
     table_width = right - left;
+
+  if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
+  {
+    if (var[strlen((char *)var) - 1] == '%')
+      table_height = atof((char *)var) * (top - bottom) / 100.0f;
+    else
+      table_height = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+  }
+  else
+    table_height = -1.0f;
 
   DEBUG_printf(("table_width = %.1f\n", table_width));
 
@@ -6342,22 +6353,16 @@ parse_table(tree_t *t,			// I - Tree to parse
       else
         temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
 
-      if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
-        temp_height /= num_rows;
+      if (table_height > 0.0f && temp_height > table_height)
+        temp_height = table_height;
 
       temp_height -= 2 * cellpadding;
     }
-    else if (cells[row][0] != NULL &&
-             (height_var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
+    else if (cells[row][0] != NULL && table_height > 0.0)
     {
       // Table height specified; make sure it'll fit...
-      if (height_var[strlen((char *)height_var) - 1] == '%')
-	temp_height = atof((char *)height_var) * 0.01f *
-	              (PagePrintLength - 2 * cellpadding);
-      else
-        temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
-
-      temp_height /= num_rows;
+      if (temp_height > table_height)
+        temp_height = table_height;
       temp_height -= 2 * cellpadding;
     }
     else
@@ -6607,8 +6612,8 @@ parse_table(tree_t *t,			// I - Tree to parse
 	else
           temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
 
-        if (htmlGetVariable(t, (uchar *)"HEIGHT") != NULL)
-          temp_height /= num_rows;
+        if (table_height > 0 && temp_height > table_height)
+          temp_height = table_height;
 
         temp_height -= 2 * cellpadding;
 
