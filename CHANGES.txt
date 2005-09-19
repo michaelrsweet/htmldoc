@@ -1,4 +1,4 @@
-CHANGES.txt - 09/14/2005
+CHANGES.txt - 09/19/2005
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.25
@@ -39,6 +39,8 @@ CHANGES IN HTMLDOC v1.8.25
 	  CGI mode on Windows.
 	- HTMLDOC could crash when loading the Symbol.afm file
 	  (STR #93)
+	- HTMLDOC did not always honor HEIGHT attributes in table
+	  rows.
 
 
 CHANGES IN HTMLDOC v1.8.24
