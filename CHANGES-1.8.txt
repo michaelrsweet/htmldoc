@@ -41,6 +41,8 @@ CHANGES IN HTMLDOC v1.8.25
 	  (STR #93)
 	- HTMLDOC did not always honor HEIGHT attributes in table
 	  rows.
+	- Tables with a mix of colspan and rowspan sometimes
+	  caused cells to be moved vertically outside the cell.
 
 
 CHANGES IN HTMLDOC v1.8.24
