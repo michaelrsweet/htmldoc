@@ -11,12 +11,36 @@ CHANGES IN HTMLDOC v1.8.25
 	- Added "--header1" command-line option and "HEADER1"
 	  page comments to set the page header for the first page
 	  of each chapter.
+	- Added "timing" and "remotebytes" debug data generation.
+
+    CHANGES:
+
+	- On Windows, HTMLDOC now logs CGI mode errors to a file
+	  called "htmldoc.log" in the Windows temporary
+	  directory.
 
     BUG FIXES
 
 	- "$HFIMAGEn" didn't work in a header/footer string.
 	- HTMLDOC could crash when rendering a table.
 	- Book files were not used in CGI mode (STR #69)
+	- Cookies were not sent in HTTP requests (STR #71)
+	- Table cells were not aligned properly when the ROWSPAN
+	  attribute was set to 1 (STR #73)
+	- HTMLDOC crashed when rendering unresolved hyperlinks in
+	  aligned images (STR #62)
+	- Documented the HTMLDOC_NOCGI environment variable (STR
+	  #63)
+	- HTMLDOC sometimes crashed when rendering tables with
+	  background colors (STR #65)
+	- HTMLDOC would crash when writing encrypted strings
+	  longer than 1024 bytes (STR #66)
+	- HTMLDOC didn't set the data directory when running in
+	  CGI mode on Windows.
+	- HTMLDOC could crash when loading the Symbol.afm file
+	  (STR #93)
+	- HTMLDOC did not always honor HEIGHT attributes in table
+	  rows.
 
 
 CHANGES IN HTMLDOC v1.8.24
