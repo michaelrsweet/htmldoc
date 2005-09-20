@@ -20,11 +20,20 @@
 	page comments to set the page header for the first page
 	of each chapter.</li>
 
+	<li>Added "timing" and "remotebytes" debug data
+	generation.</li>
+
 	<H3 _HD_OMIT_TOC>Changes</H3>
 
 	<li>On Windows, HTMLDOC now logs CGI mode errors to a file
 	called "htmldoc.log" in the Windows temporary
 	directory.</li>
+
+	<li>HTMLDOC no longer uses Base-85 encoding for image
+	data when producing Level 2 and 3 PostScript output. It
+	appears that many printers and PostScript interpreters
+	cannot properly decode this data when the original image
+	data is not a multiple of 8 bits.</li>
 
 	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
 
@@ -59,6 +68,10 @@
 
 	<li>HTMLDOC did not always honor HEIGHT attributes in
 	table rows.</li>
+
+	<li>Tables with a mix of colspan and rowspan sometimes
+	caused cells to be moved vertically outside the
+	cell.</li>
 
 </UL>
 

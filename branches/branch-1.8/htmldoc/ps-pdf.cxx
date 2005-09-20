@@ -445,7 +445,9 @@ static void	write_prolog(FILE *out, int pages, uchar *author,
 		             uchar *creator, uchar *copyright,
 			     uchar *keywords, uchar *subject);
 static void	ps_hex(FILE *out, uchar *data, int length);
+#ifdef HTMLDOC_ASCII85
 static void	ps_ascii85(FILE *out, uchar *data, int length, int eod = 0);
+#endif // HTMLDOC_ASCII85
 static void	jpg_init(j_compress_ptr cinfo);
 static boolean	jpg_empty(j_compress_ptr cinfo);
 static void	jpg_term(j_compress_ptr cinfo);
@@ -9801,6 +9803,8 @@ ps_hex(FILE  *out,			/* I - File to print to */
 }
 
 
+
+#ifdef HTMLDOC_ASCII85
 /*
  * 'ps_ascii85()' - Print binary data as a series of base-85 numbers.
  */
@@ -9913,6 +9917,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
     col = 0;
   }
 }
+#endif // HTMLDOC_ASCII85
 
 
 /*
@@ -9950,7 +9955,11 @@ jpg_empty(j_compress_ptr cinfo)		/* I - Compressor info */
   (void)cinfo;
 
   if (PSLevel > 0)
+#ifdef HTMLDOC_ASCII85
     ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
+#else
+    ps_hex(jpg_file, jpg_buf, sizeof(jpg_buf));
+#endif // HTMLDOC_ASCII85
   else
     flate_write(jpg_file, jpg_buf, sizeof(jpg_buf));
 
@@ -9976,7 +9985,11 @@ jpg_term(j_compress_ptr cinfo)		/* I - Compressor info */
   nbytes = sizeof(jpg_buf) - jpg_dest.free_in_buffer;
 
   if (PSLevel > 0)
+#ifdef HTMLDOC_ASCII85
     ps_ascii85(jpg_file, jpg_buf, nbytes);
+#else
+    ps_hex(jpg_file, jpg_buf, nbytes);
+#endif // HTMLDOC_ASCII85
   else
     flate_write(jpg_file, jpg_buf, nbytes);
 }
@@ -10677,7 +10690,11 @@ write_image(FILE     *out,		/* I - Output file */
 	      fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
-	    fputs("/DataSource currentfile/ASCII85Decode filter", out);
+#ifdef HTMLDOC_ASCII85
+            fputs("/DataSource currentfile/ASCII85Decode filter", out);
+#else
+            fputs("/DataSource currentfile/ASCIIHexDecode filter", out);
+#endif // HTMLDOC_ASCII85
 
             if (Compression)
 	      fputs("/FlateDecode filter", out);
@@ -10753,7 +10770,11 @@ write_image(FILE     *out,		/* I - Output file */
 	    fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
+#ifdef HTMLDOC_ASCII85
             fputs("/DataSource currentfile/ASCII85Decode filter", out);
+#else
+            fputs("/DataSource currentfile/ASCIIHexDecode filter", out);
+#endif // HTMLDOC_ASCII85
 
             if (Compression)
 	      fputs("/FlateDecode filter", out);
@@ -10847,10 +10868,15 @@ write_image(FILE     *out,		/* I - Output file */
 	    fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
+#ifdef HTMLDOC_ASCII85
 	  fputs("/DataSource currentfile/ASCII85Decode filter>>image\n", out);
 
-	  ps_ascii85(out, indices, indwidth * img->height);
-          ps_ascii85(out, (uchar *)"", 0, 1);
+	  ps_ascii85(out, indices, indwidth * img->height, 1);
+#else
+	  fputs("/DataSource currentfile/ASCIIHexDecode filter>>image\n", out);
+
+	  ps_hex(out, indices, indwidth * img->height);
+#endif /* HTMLDOC_ASCII85 */
         }
 	else if (OutputJPEG)
 	{
@@ -10874,8 +10900,13 @@ write_image(FILE     *out,		/* I - Output file */
 	  fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
+#ifdef HTMLDOC_ASCII85
 	  fputs("/DataSource currentfile/ASCII85Decode filter/DCTDecode filter"
 	        ">>image\n", out);
+#else
+	  fputs("/DataSource currentfile/ASCIIHexDecode filter/DCTDecode filter"
+	        ">>image\n", out);
+#endif // HTMLDOC_ASCII85
 
 	  jpg_setup(out, img, &cinfo);
 
@@ -10887,7 +10918,9 @@ write_image(FILE     *out,		/* I - Output file */
 	  jpeg_finish_compress(&cinfo);
 	  jpeg_destroy_compress(&cinfo);
 
+#ifdef HTMLDOC_ASCII85
           ps_ascii85(out, (uchar *)"", 0, 1);
+#endif // HTMLDOC_ASCII85
         }
         else
         {
@@ -10911,11 +10944,17 @@ write_image(FILE     *out,		/* I - Output file */
 	  fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
+#ifdef HTMLDOC_ASCII85
           fputs("/DataSource currentfile/ASCII85Decode filter"
 	        ">>image\n", out);
 
-	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth);
-          ps_ascii85(out, (uchar *)"", 0, 1);
+	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth, 1);
+#else
+          fputs("/DataSource currentfile/ASCIIHexDecode filter"
+	        ">>image\n", out);
+
+	  ps_hex(out, img->pixels, img->width * img->height * img->depth);
+#endif // HTMLDOC_ASCII85
         }
 
 	fputs("GR\n", out);
@@ -12519,8 +12558,10 @@ flate_close_stream(FILE *out)		/* I - Output file */
 {
   if (!Compression)
   {
+#ifdef HTMLDOC_ASCII85
     if (PSLevel)
       ps_ascii85(out, (uchar *)"", 0, 1);
+#endif // HTMLDOC_ASCII85
 
     return;
   }
@@ -12528,8 +12569,13 @@ flate_close_stream(FILE *out)		/* I - Output file */
   while (deflate(&compressor, Z_FINISH) != Z_STREAM_END)
   {
     if (PSLevel)
+#ifdef HTMLDOC_ASCII85
       ps_ascii85(out, comp_buffer,
                  (uchar *)compressor.next_out - (uchar *)comp_buffer);
+#else
+      ps_hex(out, comp_buffer,
+             (uchar *)compressor.next_out - (uchar *)comp_buffer);
+#endif // HTMLDOC_ASCII85
     else
     {
       if (Encryption)
@@ -12547,8 +12593,13 @@ flate_close_stream(FILE *out)		/* I - Output file */
   if ((uchar *)compressor.next_out > (uchar *)comp_buffer)
   {
     if (PSLevel)
+#ifdef HTMLDOC_ASCII85
       ps_ascii85(out, comp_buffer,
                  (uchar *)compressor.next_out - (uchar *)comp_buffer);
+#else
+      ps_hex(out, comp_buffer,
+             (uchar *)compressor.next_out - (uchar *)comp_buffer);
+#endif // HTMLDOC_ASCII85
     else
     {
       if (Encryption)
@@ -12565,8 +12616,10 @@ flate_close_stream(FILE *out)		/* I - Output file */
 
   compressor_active = 0;
 
+#ifdef HTMLDOC_ASCII85
   if (PSLevel)
     ps_ascii85(out, (uchar *)"", 0, 1);
+#endif // HTMLDOC_ASCII85
 }
 
 
@@ -12624,8 +12677,13 @@ flate_write(FILE  *out,			/* I - Output file */
       if (compressor.avail_out < (int)(sizeof(comp_buffer) / 8))
       {
 	if (PSLevel)
+#ifdef HTMLDOC_ASCII85
 	  ps_ascii85(out, comp_buffer,
                      (uchar *)compressor.next_out - (uchar *)comp_buffer);
+#else
+	  ps_hex(out, comp_buffer,
+                 (uchar *)compressor.next_out - (uchar *)comp_buffer);
+#endif // HTMLDOC_ASCII85
 	else
 	{
 	  if (Encryption)
@@ -12661,7 +12719,11 @@ flate_write(FILE  *out,			/* I - Output file */
     }
   }
   else if (PSLevel)
+#ifdef HTMLDOC_ASCII85
     ps_ascii85(out, buf, length);
+#else
+    ps_hex(out, buf, length);
+#endif // HTMLDOC_ASCII85
   else
     fwrite(buf, length, 1, out);
 }
