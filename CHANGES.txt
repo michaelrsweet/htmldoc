@@ -18,6 +18,11 @@ CHANGES IN HTMLDOC v1.8.25
 	- On Windows, HTMLDOC now logs CGI mode errors to a file
 	  called "htmldoc.log" in the Windows temporary
 	  directory.
+	- HTMLDOC no longer uses Base-85 encoding for image data
+	  when producing Level 2 and 3 PostScript output. It
+	  appears that many printers and PostScript interpreters
+	  cannot properly decode this data when the original
+	  image data is not a multiple of 8 bits.
 
     BUG FIXES
 
