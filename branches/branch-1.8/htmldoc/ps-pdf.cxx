@@ -6783,16 +6783,17 @@ parse_table(tree_t *t,			// I - Tree to parse
 
     for (col = 0; col < num_cols; col += colspan + 1)
     {
-      if (row_spans[col] > 0)
-      {
-        DEBUG_printf(("row = %d, col = %d, decrementing row_spans (%d) to %d...\n", row,
-	              col, row_spans[col], row_spans[col] - rowspan));
-        row_spans[col] -= rowspan;
-      }
-
-      for (colspan = 1; (col + colspan) < num_cols; colspan ++)
+      for (colspan = 0; (col + colspan) < num_cols; colspan ++)
         if (cells[row][col] != cells[row][col + colspan])
           break;
+	else if (row_spans[col + colspan] > 0)
+	{
+          DEBUG_printf(("row = %d, col = %d, decrementing row_spans (%d) to %d...\n", row,
+	        	col, row_spans[col + colspan],
+			row_spans[col + colspan] - rowspan));
+          row_spans[col + colspan] -= rowspan;
+	}
+
       colspan --;
 
       width = col_rights[col + colspan] - col_lefts[col] +
