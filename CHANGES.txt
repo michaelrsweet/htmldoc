@@ -23,6 +23,9 @@ CHANGES IN HTMLDOC v1.8.25
 	  appears that many printers and PostScript interpreters
 	  cannot properly decode this data when the original
 	  image data is not a multiple of 8 bits.
+	- HTMLDOC now renders STRONG elements in boldface instead
+	  of bold-italic to match the W3C recommendations.
+
 
     BUG FIXES
 
