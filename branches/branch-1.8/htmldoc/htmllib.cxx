@@ -1231,6 +1231,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           descend = 1;
           break;
 
+      case MARKUP_STRONG :
       case MARKUP_B :
           t->style = (style_t)(t->style | STYLE_BOLD);
 
@@ -1251,8 +1252,6 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           descend = 1;
           break;
 
-      case MARKUP_STRONG :
-          t->style = (style_t)(t->style | STYLE_BOLD);
       case MARKUP_CITE :
       case MARKUP_EM :
       case MARKUP_I :
