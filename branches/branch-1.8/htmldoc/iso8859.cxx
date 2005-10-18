@@ -191,6 +191,8 @@ iso8859(uchar *name)		/* I - Glyph name */
 
     if (ch == 0x20ac)
       ch = 0x80; /* Remap Euro character */
+    else if (ch == 0x201c || ch == 0x201d)
+      ch = '\"'; /* Remap left/right quotation marks */
 
     return (ch);
   }
