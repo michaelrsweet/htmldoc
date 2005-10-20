@@ -6296,12 +6296,12 @@ parse_table(tree_t *t,			// I - Tree to parse
     check_pages(*page);
 
     render_t *r;
-    char table_debug[255];
+    char table_text[255];
 
-    snprintf(table_debug, sizeof(table_debug), "t=%p", t);
+    snprintf(table_text, sizeof(table_text), "t=%p", t);
     r = new_render(*page, RENDER_TEXT, left, *y,
-                   get_width((uchar *)table_debug, TYPE_COURIER, STYLE_NORMAL, 3),
-		   _htmlSizes[3], table_debug);
+                   get_width((uchar *)table_text, TYPE_COURIER, STYLE_NORMAL, 3),
+		   _htmlSizes[3], table_text);
 
     r->data.text.typeface = TYPE_COURIER;
     r->data.text.style    = STYLE_NORMAL;
@@ -6486,13 +6486,13 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  check_pages(*page);
 
 	  render_t *r;
-	  char table_debug[255];
+	  char table_text[255];
 
-	  snprintf(table_debug, sizeof(table_debug), "cell=%p [%d,%d]",
+	  snprintf(table_text, sizeof(table_text), "cell=%p [%d,%d]",
 	           cells[row][col], row, col);
 	  r = new_render(temp_page, RENDER_TEXT, *x, temp_y,
-                	 get_width((uchar *)table_debug, TYPE_COURIER, STYLE_NORMAL, 1),
-			 _htmlSizes[1], table_debug);
+                	 get_width((uchar *)table_text, TYPE_COURIER, STYLE_NORMAL, 1),
+			 _htmlSizes[1], table_text);
 
 	  r->data.text.typeface = TYPE_COURIER;
 	  r->data.text.style    = STYLE_NORMAL;
