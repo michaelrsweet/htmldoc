@@ -179,22 +179,37 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"Courier",   0, 0, 0, 0, 0, FL_COURIER, 14, 0},
 			  {"Times",     0, 0, 0, 0, 0, FL_TIMES, 14, 0},
 			  {"Helvetica", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Monospace", 0, 0, 0, 0, 0, FL_COURIER, 14, 0},
+			  {"Serif",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Sans",      0, 0, 0, 0, 0, FL_TIMES, 14, 0},
 			  {0}
 			};
   static Fl_Menu	fontMenu[] =	// Menu items for font choosers
 			{
-			  {"Courier",               0, 0, 0, 0, 0, FL_COURIER, 14, 0},
-			  {"Courier-Bold",          0, 0, 0, 0, 0, FL_COURIER_BOLD, 14, 0},
-			  {"Courier-Oblique",       0, 0, 0, 0, 0, FL_COURIER_ITALIC, 14, 0},
-			  {"Courier-BoldOblique",   0, 0, 0, 0, 0, FL_COURIER_BOLD_ITALIC, 14, 0},
-			  {"Times-Roman",           0, 0, 0, 0, 0, FL_TIMES, 14, 0},
-			  {"Times-Bold",            0, 0, 0, 0, 0, FL_TIMES_BOLD, 14, 0},
-			  {"Times-Italic",          0, 0, 0, 0, 0, FL_TIMES_ITALIC, 14, 0},
-			  {"Times-BoldItalic",      0, 0, 0, 0, 0, FL_TIMES_BOLD_ITALIC, 14, 0},
-			  {"Helvetica",             0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
-			  {"Helvetica-Bold",        0, 0, 0, 0, 0, FL_HELVETICA_BOLD, 14, 0},
-			  {"Helvetica-Oblique",     0, 0, 0, 0, 0, FL_HELVETICA_ITALIC, 14, 0},
-			  {"Helvetica-BoldOblique", 0, 0, 0, 0, 0, FL_HELVETICA_BOLD_ITALIC, 14, 0},
+			  {"Courier",                0, 0, 0, 0, 0, FL_COURIER, 14, 0},
+			  {"Courier-Bold",           0, 0, 0, 0, 0, FL_COURIER_BOLD, 14, 0},
+			  {"Courier-Oblique",        0, 0, 0, 0, 0, FL_COURIER_ITALIC, 14, 0},
+			  {"Courier-BoldOblique",    0, 0, 0, 0, 0, FL_COURIER_BOLD_ITALIC, 14, 0},
+			  {"Times-Roman",            0, 0, 0, 0, 0, FL_TIMES, 14, 0},
+			  {"Times-Bold",             0, 0, 0, 0, 0, FL_TIMES_BOLD, 14, 0},
+			  {"Times-Italic",           0, 0, 0, 0, 0, FL_TIMES_ITALIC, 14, 0},
+			  {"Times-BoldItalic",       0, 0, 0, 0, 0, FL_TIMES_BOLD_ITALIC, 14, 0},
+			  {"Helvetica",              0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Helvetica-Bold",         0, 0, 0, 0, 0, FL_HELVETICA_BOLD, 14, 0},
+			  {"Helvetica-Oblique",      0, 0, 0, 0, 0, FL_HELVETICA_ITALIC, 14, 0},
+			  {"Helvetica-BoldOblique",  0, 0, 0, 0, 0, FL_HELVETICA_BOLD_ITALIC, 14, 0},
+			  {"Monospace",              0, 0, 0, 0, 0, FL_COURIER, 14, 0},
+			  {"Monospace-Bold",         0, 0, 0, 0, 0, FL_COURIER_BOLD, 14, 0},
+			  {"Monospace-Oblique",      0, 0, 0, 0, 0, FL_COURIER_ITALIC, 14, 0},
+			  {"Monospace-BoldOblique",  0, 0, 0, 0, 0, FL_COURIER_BOLD_ITALIC, 14, 0},
+			  {"Serif-Roman",            0, 0, 0, 0, 0, FL_TIMES, 14, 0},
+			  {"Serif-Bold",             0, 0, 0, 0, 0, FL_TIMES_BOLD, 14, 0},
+			  {"Serif-Italic",           0, 0, 0, 0, 0, FL_TIMES_ITALIC, 14, 0},
+			  {"Serif-BoldItalic",       0, 0, 0, 0, 0, FL_TIMES_BOLD_ITALIC, 14, 0},
+			  {"Sans",                   0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Sans-Bold",              0, 0, 0, 0, 0, FL_HELVETICA_BOLD, 14, 0},
+			  {"Sans-Oblique",           0, 0, 0, 0, 0, FL_HELVETICA_ITALIC, 14, 0},
+			  {"Sans-BoldOblique",       0, 0, 0, 0, 0, FL_HELVETICA_BOLD_ITALIC, 14, 0},
 			  {0}
 			};
   static Fl_Menu	charsetMenu[] =	// Menu items for charset chooser
@@ -1741,14 +1756,40 @@ GUI::parseOptions(const char *line)	// I - Line from file
 		*tempptr,		// Pointer into option
 		formats[256];		// Header/footer formats
   static const char *types[] =		// Typeface names...
-		{ "Courier", "Times", "Helvetica" };
+		{
+		  "Courier",
+		  "Times",
+		  "Helvetica",
+		  "Monospace",
+		  "Serif",
+		  "Sans"
+		};
   static const char *fonts[] =		// Font names...
 		{
-		  "Courier", "Courier-Bold", "Courier-Oblique",
-		  "Courier-BoldOblique", "Times-Roman", "Times-Bold",
-		  "Times-Italic", "Times-BoldItalic",
-		  "Helvetica", "Helvetica-Bold",
-		  "Helvetica-Oblique", "Helvetica-BoldOblique"
+		  "Courier",
+		  "Courier-Bold",
+		  "Courier-Oblique",
+		  "Courier-BoldOblique",
+		  "Times-Roman",
+		  "Times-Bold",
+		  "Times-Italic",
+		  "Times-BoldItalic",
+		  "Helvetica",
+		  "Helvetica-Bold",
+		  "Helvetica-Oblique",
+		  "Helvetica-BoldOblique",
+		  "Monospace",
+		  "Monospace-Bold",
+		  "Monospace-Oblique",
+		  "Monospace-BoldOblique",
+		  "Serif-Roman",
+		  "Serif-Bold",
+		  "Serif-Oblique",
+		  "Serif-BoldOblique",
+		  "Sans",
+		  "Sans-Bold",
+		  "Sans-Oblique",
+		  "Sans-BoldOblique"
 		};
 
 
@@ -2156,7 +2197,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
       fontSpacing->value(atof(temp2));
     else if (strcmp(temp, "--headingfont") == 0)
     {
-      for (i = 0; i < 3; i ++)
+      for (i = 0; i < (int)(sizeof(types) / sizeof(types[0])); i ++)
         if (strcasecmp(types[i], temp2) == 0)
 	{
 	  headingFont->value(i);
@@ -2165,7 +2206,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
     }
     else if (strcmp(temp, "--bodyfont") == 0)
     {
-      for (i = 0; i < 3; i ++)
+      for (i = 0; i < (int)(sizeof(types) / sizeof(types[0])); i ++)
         if (strcasecmp(types[i], temp2) == 0)
 	{
 	  bodyFont->value(i);
@@ -2176,7 +2217,7 @@ GUI::parseOptions(const char *line)	// I - Line from file
       headFootSize->value(atof(temp2));
     else if (strcmp(temp, "--headfootfont") == 0)
     {
-      for (i = 0; i < 12; i ++)
+      for (i = 0; i < (int)(sizeof(fonts) / sizeof(fonts[0])); i ++)
         if (strcasecmp(fonts[i], temp2) == 0)
 	{
 	  headFootFont->value(i);
@@ -2316,14 +2357,40 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   static const char *formats = ".tchl1iIaAC/:dTD";
 					// Format characters
   static const char *types[] =		// Typeface names...
-		{ "Courier", "Times", "Helvetica" };
+		{
+		  "Courier",
+		  "Times",
+		  "Helvetica",
+		  "Monospace",
+		  "Serif",
+		  "Sans"
+		};
   static const char *fonts[] =		// Font names...
 		{
-		  "Courier", "Courier-Bold", "Courier-Oblique",
-		  "Courier-BoldOblique", "Times-Roman", "Times-Bold",
-		  "Times-Italic", "Times-BoldItalic",
-		  "Helvetica", "Helvetica-Bold",
-		  "Helvetica-Oblique", "Helvetica-BoldOblique"
+		  "Courier",
+		  "Courier-Bold",
+		  "Courier-Oblique",
+		  "Courier-BoldOblique",
+		  "Times-Roman",
+		  "Times-Bold",
+		  "Times-Italic",
+		  "Times-BoldItalic",
+		  "Helvetica",
+		  "Helvetica-Bold",
+		  "Helvetica-Oblique",
+		  "Helvetica-BoldOblique",
+		  "Monospace",
+		  "Monospace-Bold",
+		  "Monospace-Oblique",
+		  "Monospace-BoldOblique",
+		  "Serif-Roman",
+		  "Serif-Bold",
+		  "Serif-Oblique",
+		  "Serif-BoldOblique",
+		  "Sans",
+		  "Sans-Bold",
+		  "Sans-Oblique",
+		  "Sans-BoldOblique"
 		};
 
 

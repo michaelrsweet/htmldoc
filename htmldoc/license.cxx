@@ -78,7 +78,7 @@ GUI::showLicenseCB(void)
   box = new Fl_Box(20, 45, 440, 110,
     "You are using the free, unsupported version of HTMLDOC which is "
     "provided under the terms of the GNU General Public License shown "
-    "below. HTMLDOC Basic and HTMLDOC Professional, which financially "
+    "below. Commercial versions of HTMLDOC, which financially "
     "support the continued development of HTMLDOC, may be purchased at the "
     "following URL:\n"
     "\n"

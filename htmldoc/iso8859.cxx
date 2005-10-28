@@ -36,8 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "hdstring.h"
-#include "iso8859.h"
+#include "html.h"
 #include "types.h"
 
 
@@ -47,8 +46,8 @@
 
 typedef struct
 {
-  uchar	name[7],
-	value;
+  uchar	name[12];
+  int	value;
 } lut_t;
 
 static lut_t	iso8859_numbers[] =
@@ -108,7 +107,7 @@ static lut_t	iso8859_numbers[] =
 		  { "egrave",	232 },
 		  { "eth",	240 },
 		  { "euml",	235 },
-		  { "euro",	128 },
+		  { "euro",	0x20ac },
 		  { "frac12",	189 },
 		  { "frac14",	188 },
 		  { "frac34",	190 },
@@ -168,11 +167,12 @@ static int	compare_lut(lut_t *, lut_t *);
  * 'iso8859()' - Return the 8-bit character value of a glyph name.
  */
 
-uchar				/* O - ISO-8859-1 equivalent */
-iso8859(uchar *name)		/* I - Glyph name */
+uchar					/* O - ISO-8859-1 equivalent */
+iso8859(uchar *name)			/* I - Glyph name */
 {
-  lut_t		key,		/* Lookup table key */
-		*match;		/* Matching entry pointer */
+  lut_t	key,				/* Lookup table key */
+	*match;				/* Matching entry pointer */
+  int	ch;				/* Character */
 
 
   if (strlen((char *)name) == 1)
@@ -182,31 +182,42 @@ iso8859(uchar *name)		/* I - Glyph name */
   else if (name[0] == '#')
   {
     // Return a decimal or hex character...
-    int ch;			/* Character */
-
     if (name[1] == 'x')
       ch = strtol((char *)name + 2, NULL, 16);
     else
       ch = strtol((char *)name + 1, NULL, 10);
 
-    if (ch == 0x20ac)
-      ch = 0x80; /* Remap Euro character */
-    else if (ch == 0x201c || ch == 0x201d)
-      ch = '\"'; /* Remap left/right quotation marks */
+    if (ch > 0xffff)
+      return (0);
+  }
+  else
+  {
+    strlcpy((char *)key.name, (char *)name, sizeof(key.name));
+    match = (lut_t *)bsearch(&key, iso8859_numbers,
+                             sizeof(iso8859_numbers) / sizeof(iso8859_numbers[0]),
+                             sizeof(iso8859_numbers[0]),
+                             (int (*)(const void *, const void *))compare_lut);
 
-    return (ch);
+    if (match == NULL)
+      return (0);
+    else
+      ch = match->value;
   }
 
-  strlcpy((char *)key.name, (char *)name, sizeof(key.name));
-  match = (lut_t *)bsearch(&key, iso8859_numbers,
-                           sizeof(iso8859_numbers) / sizeof(iso8859_numbers[0]),
-                           sizeof(iso8859_numbers[0]),
-                           (int (*)(const void *, const void *))compare_lut);
+  if (ch > 0x7f)
+  {
+    // Lookup Unicode value in the current charset...
+    const char *glyph = _htmlGlyphsAll[ch];
 
-  if (match == NULL)
-    return (0);
-  else
-    return (match->value);
+    for (ch = 0; ch < 256; ch ++)
+      if (_htmlGlyphs[ch] && !strcmp(_htmlGlyphs[ch], glyph))
+	break;
+
+    if (ch >= 256)
+      return (0);
+  }
+
+  return (ch);
 }
 
 
@@ -225,8 +236,10 @@ iso8859(uchar value)	/* I - ISO-8859-1 equivalent */
   if (first_time)
   {
     memset(iso8859_names, 0, sizeof(iso8859_names));
+
     for (i = 0; i < (int)(sizeof(iso8859_numbers) / sizeof(iso8859_numbers[0])); i ++)
-      iso8859_names[iso8859_numbers[i].value] = iso8859_numbers + i;
+      if (iso8859_numbers[i].value < 256)
+	iso8859_names[iso8859_numbers[i].value] = iso8859_numbers + i;
 
     first_time = 0;
   }

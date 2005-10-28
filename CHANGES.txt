@@ -1,4 +1,4 @@
-CHANGES.txt - 09/20/2005
+CHANGES.txt - 10/28/2005
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.25
@@ -12,6 +12,9 @@ CHANGES IN HTMLDOC v1.8.25
 	  page comments to set the page header for the first page
 	  of each chapter.
 	- Added "timing" and "remotebytes" debug data generation.
+	- Added DejaVu font collection to better support Cyrillic
+	  and Greek text; the new fonts are available under the
+	  generic names "monospace", "sans", and "serif".
 
     CHANGES:
 
@@ -25,7 +28,8 @@ CHANGES IN HTMLDOC v1.8.25
 	  image data is not a multiple of 8 bits.
 	- HTMLDOC now renders STRONG elements in boldface instead
 	  of bold-italic to match the W3C recommendations.
-
+	- HTMLDOC now subsets embedded fonts to reduce output
+	  size.
 
     BUG FIXES
 
