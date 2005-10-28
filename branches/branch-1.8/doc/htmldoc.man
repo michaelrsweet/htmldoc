@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.24" "16 November 2004" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.25" "28 October 2005" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -57,9 +57,9 @@ Generates the specified book file without opening the GUI.
 Specifies the background color for all pages.
 
 .TP 5
---bodyfont \fI{courier,times,helvetica}\fR
+--bodyfont \fI{courier,helvetica,monospace,sans,serif,times}\fR
 .TP 5
---textfont \fI{courier,times,helvetica}\fR
+--textfont \fI{courier,helvetica,monospace,sans,serif,times}\fR
 .br
 Specifies the default typeface for all normal text.
 
@@ -537,7 +537,7 @@ current time
 .SH SEE ALSO
 HTMLDOC Software Users Manual
 .LP
-http://www.easysw.com/htmldoc
+http://www.easysw.com/htmldoc/
 .SH AUTHOR
 Michael Sweet (mike@easysw.com), Easy Software Products
 .SH TRADEMARKS

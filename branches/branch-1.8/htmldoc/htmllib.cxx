@@ -182,10 +182,14 @@ typeface_t	_htmlBodyFont = TYPE_TIMES,
 int		_htmlInitialized = 0;	/* Initialized glyphs yet? */
 char		_htmlCharSet[256] = "iso-8859-1";
 					/* Character set name */
-float		_htmlWidths[4][4][256];	/* Character widths of fonts */
+float		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
+					/* Character widths of fonts */
 const char	*_htmlGlyphsAll[65536];	/* Character glyphs for Unicode */
 const char	*_htmlGlyphs[256];	/* Character glyphs for charset */
-const char	*_htmlFonts[4][4] =
+int		_htmlNumSorted = 0;	/* Number of sorted glyphs */
+const char	*_htmlSorted[256];	/* Sorted character glyphs for charset */
+uchar		_htmlSortedChars[256];	/* Sorted character indices */
+const char	*_htmlFonts[TYPE_MAX][STYLE_MAX] =
 		{
 		  {
 		    "Courier",
@@ -206,11 +210,46 @@ const char	*_htmlFonts[4][4] =
 		    "Helvetica-BoldOblique"
 		  },
 		  {
+		    "Monospace",
+		    "Monospace-Bold",
+		    "Monospace-Oblique",
+		    "Monospace-BoldOblique"
+		  },
+		  {
+		    "Serif-Roman",
+		    "Serif-Bold",
+		    "Serif-Oblique",
+		    "Serif-BoldOblique"
+		  },
+		  {
+		    "Sans",
+		    "Sans-Bold",
+		    "Sans-Oblique",
+		    "Sans-BoldOblique"
+		  },
+		  {
 		    "Symbol",
 		    "Symbol",
 		    "Symbol",
 		    "Symbol"
+		  },
+		  {
+		    "Dingbats",
+		    "Dingbats",
+		    "Dingbats",
+		    "Dingbats"
 		  }
+		};
+int		_htmlStandardFonts[TYPE_MAX] =
+		{
+		  1,	// Courier
+		  1,	// Times
+		  1,	// Helvetica
+		  0,	// Monospace
+		  0,	// Sans
+		  0,	// Serif
+		  1,	// Symbol
+		  0	// Dingbats
 		};
 
 
@@ -975,7 +1014,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           break;
 
       case MARKUP_PRE :
-          t->typeface      = TYPE_COURIER;
+          t->typeface      = _htmlBodyFont >= TYPE_MONOSPACE ? TYPE_MONOSPACE
+	                                                     : TYPE_COURIER;
           t->size          = SIZE_PRE;
           t->style         = STYLE_NORMAL;
           t->subscript     = 0;
@@ -1095,7 +1135,13 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
             for (ptr = face; *ptr != '\0'; ptr ++)
               *ptr = tolower(*ptr);
 
-            if (strstr((char *)face, "arial") != NULL ||
+            if (strstr((char *)face, "serif") != NULL)
+              t->typeface = TYPE_SERIF;
+            else if (strstr((char *)face, "sans") != NULL)
+              t->typeface = TYPE_SANS_SERIF;
+            else if (strstr((char *)face, "mono") != NULL)
+              t->typeface = TYPE_MONOSPACE;
+            else if (strstr((char *)face, "arial") != NULL ||
                 strstr((char *)face, "helvetica") != NULL)
               t->typeface = TYPE_HELVETICA;
             else if (strstr((char *)face, "times") != NULL)
@@ -1104,6 +1150,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
               t->typeface = TYPE_COURIER;
 	    else if (strstr((char *)face, "symbol") != NULL)
               t->typeface = TYPE_SYMBOL;
+	    else if (strstr((char *)face, "dingbat") != NULL)
+              t->typeface = TYPE_DINGBATS;
           }
 
           if ((color = htmlGetVariable(t, (uchar *)"COLOR")) != NULL)
@@ -1226,7 +1274,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	    have_whitespace = 0;
 	  }
 
-          t->typeface = TYPE_COURIER;
+          t->typeface = _htmlBodyFont >= TYPE_MONOSPACE ? TYPE_MONOSPACE
+	                                                : TYPE_COURIER;
 
           descend = 1;
           break;
@@ -1247,7 +1296,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       case MARKUP_VAR :
           t->style = (style_t)(t->style | STYLE_ITALIC);
       case MARKUP_DFN :
-          t->typeface = TYPE_HELVETICA;
+          t->typeface = _htmlBodyFont >= TYPE_MONOSPACE ? TYPE_SANS_SERIF
+	                                                : TYPE_HELVETICA;
 
           descend = 1;
           break;
@@ -1725,7 +1775,8 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
         break;
 
     case MARKUP_PRE :
-        t->typeface      = TYPE_COURIER;
+        t->typeface      = _htmlBodyFont >= TYPE_MONOSPACE ? TYPE_MONOSPACE
+	                                                   : TYPE_COURIER;
         t->size          = SIZE_PRE;
         t->style         = STYLE_NORMAL;
         t->subscript     = 0;
@@ -2075,16 +2126,17 @@ htmlSetBaseSize(float p,	/* I - Point size of paragraph font */
  */
 
 void
-htmlSetCharSet(const char *cs)	/* I - Character set file to load */
+htmlSetCharSet(const char *cs)		/* I - Character set file to load */
 {
-  int		i, j;		/* Looping vars */
-  char		filename[1024];	/* Filenames */
-  FILE		*fp;		/* Files */
-  int		ch, unicode;	/* Character values */
-  float		width;		/* Width value */
-  char		glyph[64];	/* Glyph name */
-  char		line[1024];	/* Line from AFM file */
-  int		chars[256];	/* Character encoding array */
+  int		i, j;			/* Looping vars */
+  int		diff;			/* Result of comparison */
+  char		filename[1024];		/* Filenames */
+  FILE		*fp;			/* Files */
+  int		ch, unicode;		/* Character values */
+  float		width;			/* Width value */
+  char		glyph[64];		/* Glyph name */
+  char		line[1024];		/* Line from AFM file */
+  int		chars[256];		/* Character encoding array */
 
 
   strlcpy(_htmlCharSet, cs, sizeof(_htmlCharSet));
@@ -2136,34 +2188,37 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
       chars[i] = i;
 
    /*
-    * Hardcode characters 128 to 159 for Microsoft's version of ISO-8859-1...
+    * Hardcode characters 128 to 159 for Microsoft's version of ISO-8859-1
+    * (CP-1252)...
     */
 
-    chars[0x80] = 0x20ac; /* Euro */
-    chars[0x82] = 0x201a;
-    chars[0x83] = 0x0192;
-    chars[0x84] = 0x201e;
-    chars[0x85] = 0x2026;
-    chars[0x86] = 0x2020;
-    chars[0x87] = 0x2021;
-    chars[0x88] = 0x02c6;
-    chars[0x89] = 0x2030;
-    chars[0x8a] = 0x0160;
-    chars[0x8b] = 0x2039;
-    chars[0x8c] = 0x0152;
-    chars[0x91] = 0x2018;
-    chars[0x92] = 0x2019;
-    chars[0x93] = 0x201c;
-    chars[0x94] = 0x201d;
-    chars[0x95] = 0x2022;
-    chars[0x96] = 0x2013;
-    chars[0x97] = 0x2014;
-    chars[0x98] = 0x02dc;
-    chars[0x99] = 0x2122;
-    chars[0x9a] = 0x0161;
-    chars[0x9b] = 0x203a;
-    chars[0x9c] = 0x0153;
-    chars[0x9f] = 0x0178;
+    chars[0x80] = 0x20ac; /* EURO SIGN  */
+    chars[0x82] = 0x201a; /* SINGLE LOW-9 QUOTATION MARK */
+    chars[0x83] = 0x0192; /* LATIN SMALL LETTER F WITH HOOK */
+    chars[0x84] = 0x201e; /* DOUBLE LOW-9 QUOTATION MARK */
+    chars[0x85] = 0x2026; /* HORIZONTAL ELLIPSIS */
+    chars[0x86] = 0x2020; /* DAGGER */
+    chars[0x87] = 0x2021; /* DOUBLE DAGGER */
+    chars[0x88] = 0x02c6; /* MODIFIER LETTER CIRCUMFLEX ACCENT */
+    chars[0x89] = 0x2030; /* PER MILLE SIGN */
+    chars[0x8a] = 0x0160; /* LATIN CAPITAL LETTER S WITH CARON */
+    chars[0x8b] = 0x2039; /* SINGLE LEFT-POINTING ANGLE QUOTATION MARK */
+    chars[0x8c] = 0x0152; /* LATIN CAPITAL LIGATURE OE */
+    chars[0x8e] = 0x017d; /* LATIN CAPITAL LETTER Z WITH CARON */
+    chars[0x91] = 0x2018; /* LEFT SINGLE QUOTATION MARK */
+    chars[0x92] = 0x2019; /* RIGHT SINGLE QUOTATION MARK */
+    chars[0x93] = 0x201c; /* LEFT DOUBLE QUOTATION MARK */
+    chars[0x94] = 0x201d; /* RIGHT DOUBLE QUOTATION MARK */
+    chars[0x95] = 0x2022; /* BULLET */
+    chars[0x96] = 0x2013; /* EN DASH */
+    chars[0x97] = 0x2014; /* EM DASH */
+    chars[0x98] = 0x02dc; /* SMALL TILDE */
+    chars[0x99] = 0x2122; /* TRADE MARK SIGN */
+    chars[0x9a] = 0x0161; /* LATIN SMALL LETTER S WITH CARON */
+    chars[0x9b] = 0x203a; /* SINGLE RIGHT-POINTING ANGLE QUOTATION MARK */
+    chars[0x9c] = 0x0153; /* LATIN SMALL LIGATURE OE */
+    chars[0x9e] = 0x017e; /* LATIN SMALL LETTER Z WITH CARON */
+    chars[0x9f] = 0x0178; /* LATIN CAPITAL LETTER Y WITH DIAERESIS */
   }
   else
   {
@@ -2183,18 +2238,80 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
   * Build the glyph array...
   */
 
-  for (i = 0; i < 256; i ++)
+  for (i = 0, j = 0, _htmlNumSorted = 0; i < 256; i ++)
+  {
+   /*
+    * Add the glyph to the charset array...
+    */
+
     if (chars[i] == 0)
+    {
       _htmlGlyphs[i] = NULL;
+      continue;
+    }
     else
       _htmlGlyphs[i] = _htmlGlyphsAll[chars[i]];
+
+   /*
+    * Then add it, as needed, to the sorted array which is used for
+    * embedding font subsets...
+    */
+
+    if (_htmlNumSorted == 0)
+    {
+      _htmlSorted[0]      = _htmlGlyphs[i];
+      _htmlSortedChars[0] = i;
+      _htmlNumSorted      = 1;
+    }
+    else
+    {
+      while ((diff = strcmp(_htmlGlyphs[i], _htmlSorted[j])) < 0 && j > 0)
+        j --;
+
+      while (diff > 0 && j < _htmlNumSorted)
+      {
+        j ++;
+
+	if (j >= _htmlNumSorted)
+	  break;
+
+        diff = strcmp(_htmlGlyphs[i], _htmlSorted[j]);
+      }
+
+      if (diff)
+      {
+        if (j < _htmlNumSorted)
+	{
+	  memmove(_htmlSorted + j + 1, _htmlSorted + j,
+	          (_htmlNumSorted - j) * sizeof(char *));
+	  memmove(_htmlSortedChars + j + 1, _htmlSortedChars + j,
+	          (_htmlNumSorted - j) * sizeof(uchar));
+        }
+
+        _htmlSorted[j]      = _htmlGlyphs[i];
+	_htmlSortedChars[j] = i;
+	_htmlNumSorted ++;
+      }
+    }
+  }
+
+#ifdef DEBUG
+  printf("_htmlNumSorted=%d\n", _htmlNumSorted);
+  for (i = 0; i < _htmlNumSorted; i ++)
+  {
+    if (i && strcmp(_htmlSorted[i], _htmlSorted[i - 1]) <= 0)
+      printf("_htmlSorted[%d]=\"%s\" ERROR!!!!\n", i, _htmlSorted[i]);
+    else
+      printf("_htmlSorted[%d]=\"%s\"\n", i, _htmlSorted[i]);
+  }
+#endif /* DEBUG */
 
  /*
   * Now read all of the font widths...
   */
 
-  for (i = 0; i < 4; i ++)
-    for (j = 0; j < 4; j ++)
+  for (i = 0; i < TYPE_MAX; i ++)
+    for (j = 0; j < STYLE_MAX; j ++)
     {
       for (ch = 0; ch < 256; ch ++)
         _htmlWidths[i][j][ch] = 0.6f;
@@ -2215,7 +2332,7 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
         if (strncmp(line, "C ", 2) != 0)
 	  continue;
 
-        if (i < 3)
+        if (i < TYPE_SYMBOL)
 	{
 	 /*
 	  * Handle encoding of Courier, Times, and Helvetica using
@@ -2226,13 +2343,13 @@ htmlSetCharSet(const char *cs)	/* I - Character set file to load */
 	    continue;
 
           for (ch = 0; ch < 256; ch ++)
-	    if (_htmlGlyphs[ch] && strcmp(_htmlGlyphs[ch], glyph) == 0)
+	    if (_htmlGlyphs[ch] && !strcmp(_htmlGlyphs[ch], glyph))
 	      _htmlWidths[i][j][ch] = width * 0.001f;
 	}
 	else
 	{
 	 /*
-	  * Symbol font uses its own encoding...
+	  * Symbol and dingbats fonts uses their own encoding...
 	  */
 
           if (sscanf(line, "%*s%d%*s%*s%f", &ch, &width) != 2)

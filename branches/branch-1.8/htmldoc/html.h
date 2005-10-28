@@ -190,7 +190,12 @@ typedef enum
 	TYPE_COURIER = 0,
 	TYPE_TIMES,
 	TYPE_HELVETICA,
-	TYPE_SYMBOL
+	TYPE_MONOSPACE,
+	TYPE_SERIF,
+	TYPE_SANS_SERIF,
+	TYPE_SYMBOL,
+	TYPE_DINGBATS,
+	TYPE_MAX
 } typeface_t;
 
 /*
@@ -202,7 +207,8 @@ typedef enum
 	STYLE_NORMAL = 0,
 	STYLE_BOLD,
 	STYLE_ITALIC,
-	STYLE_BOLD_ITALIC
+	STYLE_BOLD_ITALIC,
+	STYLE_MAX
 } style_t;
 
 /*
@@ -248,7 +254,7 @@ typedef struct tree_str
   uchar			*data;		/* Text (MARKUP_NONE or MARKUP_COMMENT) */
   unsigned		halignment:2,	/* Horizontal alignment */
 			valignment:2,	/* Vertical alignment */
-			typeface:2,	/* Typeface code */
+			typeface:3,	/* Typeface code */
 			size:3,		/* Size of text */
 			style:2,	/* Style of text */
 			underline:1,	/* Text is underlined? */
@@ -282,9 +288,14 @@ extern float		_htmlSizes[],
 extern typeface_t	_htmlBodyFont,
 			_htmlHeadingFont;
 extern char		_htmlCharSet[];
-extern float		_htmlWidths[4][4][256];
+extern float		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
 extern const char	*_htmlGlyphs[];
-extern const char	*_htmlFonts[4][4];
+extern const char	*_htmlGlyphsAll[];
+extern int		_htmlNumSorted;
+extern const char	*_htmlSorted[];
+extern uchar		_htmlSortedChars[];
+extern const char	*_htmlFonts[TYPE_MAX][STYLE_MAX];
+extern int		_htmlStandardFonts[TYPE_MAX];
 
 
 /*

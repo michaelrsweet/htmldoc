@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.1.2.4 2004/05/10 01:14:53 mike Exp $"
+# "$Id$"
 #
 #   Makefile for HTMLDOC font files.
 #
@@ -38,10 +38,23 @@ FONTS	=	\
 		Courier-Bold \
 		Courier-BoldOblique \
 		Courier-Oblique \
+		Dingbats \
 		Helvetica \
 		Helvetica-Bold \
 		Helvetica-BoldOblique \
 		Helvetica-Oblique \
+		Monospace \
+		Monospace-Bold \
+		Monospace-BoldOblique \
+		Monospace-Oblique \
+		Sans \
+		Sans-Bold \
+		Sans-BoldOblique \
+		Sans-Oblique \
+		Serif-Roman \
+		Serif-Bold \
+		Serif-BoldOblique \
+		Serif-Oblique \
 		Symbol \
 		Times-Bold \
 		Times-BoldItalic \
@@ -93,5 +106,5 @@ clean:
 
 
 #
-# End of "$Id: Makefile,v 1.1.2.4 2004/05/10 01:14:53 mike Exp $".
+# End of "$Id$".
 #
