@@ -95,13 +95,18 @@ hdStyleSheet::get_private_style(
 
   // Find the right style for this node...
   if ((nstyle = _htmlStyleSheet->find_style(t)) == NULL)
-    nstyle = _htmlStyleSheet->find_style(HD_ELEMENT_BODY);
+  {
+    if (t->style)
+      nstyle = t->style;
+    else
+      nstyle = &(_htmlStyleSheet->def_style);
+  }
 
 #ifdef DEBUG
-  if (t->element == HD_ELEMENT_H1)
-    printf("H1 style: %s, font-family=\"%s\"...\n",
-           _htmlStyleSheet->get_element(nstyle->selectors[0].element),
-	   nstyle->font_family);
+  printf("%s style: %s, font-family=\"%s\", font-weight=%d...\n",
+         _htmlStyleSheet->get_element(t->element),
+         _htmlStyleSheet->get_element(nstyle->selectors[0].element),
+	 nstyle->font_family, nstyle->font_weight);
 #endif // DEBUG
 
   // Setup a private selector ID for this node...

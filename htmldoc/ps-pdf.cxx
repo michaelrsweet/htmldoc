@@ -2467,7 +2467,7 @@ pdf_write_resources(FILE *out,		/* I - Output file */
   {
     fputs("/Font<<", out);
     for (i = 0; i < (HD_FONT_FACE_MAX * HD_FONT_INTERNAL_MAX); i ++)
-      if (fonts_used[i])
+      if (fonts_used[i] && font_objects[i])
 	fprintf(out, "/F%x %d 0 R", i, font_objects[i]);
     fputs(">>", out);
   }
