@@ -300,18 +300,23 @@ hdStyleSheet::find_font(
       *ptr++ = '\0';
 
     // See if the font face exists already...
-    if (!strcasecmp(start, "monospace") ||
-        !strcasecmp(start, "Courier"))
+    if (!strcasecmp(start, "monospace"))
       tf = HD_FONT_FACE_MONOSPACE;
-    else if (!strcasecmp(start, "serif") ||
-             !strcasecmp(start, "Times"))
+    else if (!strcasecmp(start, "Courier"))
+      tf = HD_FONT_FACE_COURIER;
+    else if (!strcasecmp(start, "serif"))
       tf = HD_FONT_FACE_SERIF;
-    else if (!strcasecmp(start, "sans-serif") ||
-             !strcasecmp(start, "Arial") ||
-             !strcasecmp(start, "Helvetica"))
+    else if (!strcasecmp(start, "Times"))
+      tf = HD_FONT_FACE_TIMES;
+    else if (!strcasecmp(start, "sans-serif"))
       tf = HD_FONT_FACE_SANS_SERIF;
+    else if (!strcasecmp(start, "Arial") ||
+             !strcasecmp(start, "Helvetica"))
+      tf = HD_FONT_FACE_HELVETICA;
     else if (!strcasecmp(start, "symbol"))
       tf = HD_FONT_FACE_SYMBOL;
+    else if (!strcasecmp(start, "dingbats"))
+      tf = HD_FONT_FACE_DINGBATS;
     else if (!strcasecmp(start, "cursive") ||
              !strcasecmp(start, "ZapfChancery"))
       tf = HD_FONT_FACE_CURSIVE;

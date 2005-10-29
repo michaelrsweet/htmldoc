@@ -114,15 +114,21 @@ toc_build(hdTree *tree)		/* I - Document tree */
  */
 
 void
-add_heading(hdTree *toc,	/* I - Table of contents */
-            hdTree *heading)	/* I - Heading entry */
+add_heading(hdTree *toc,		/* I - Table of contents */
+            hdTree *heading)		/* I - Heading entry */
 {
+  hdTree	*t;			/* New text node */
+
+
   while (heading != NULL)
   {
     if (heading->child != NULL)
       add_heading(toc, heading->child);
     else if (heading->element == HD_ELEMENT_NONE && heading->data != NULL)
-      htmlAddTree(toc, HD_ELEMENT_NONE, heading->data);
+    {
+      if ((t = htmlAddTree(toc, HD_ELEMENT_NONE, heading->data)) != NULL)
+        t->width = t->style->get_width(t->data);
+    }
 
     heading = heading->next;
   }
@@ -135,18 +141,18 @@ add_heading(hdTree *toc,	/* I - Table of contents */
  * Note: We also add anchor points and numbers as necessary...
  */
 
-static void			/* O - Tree of TOC entries */
-parse_tree(hdTree *t)		/* I - Document tree */
+static void				/* O - Tree of TOC entries */
+parse_tree(hdTree *t)			/* I - Document tree */
 {
-  hdTree	*parent;	/* Parent of toc entry (DD or LI) */
-  hdTree	*target,	/* Link target */
-		*temp;		/* Looping var */
-  hdChar		heading[255],	/* Heading numbers */
-		link[255],	/* Actual link */
-		baselink[255],	/* Base link (numbered) */
-		*existing;	/* Existing link string */
-  int		i, level;	/* Header level */
-  hdChar		*var;		/* Starting value/type for this level */
+  hdTree	*parent;		/* Parent of toc entry (DD or LI) */
+  hdTree	*target,		/* Link target */
+		*temp;			/* Looping var */
+  hdChar	heading[255],		/* Heading numbers */
+		link[255],		/* Actual link */
+		baselink[255],		/* Base link (numbered) */
+		*existing;		/* Existing link string */
+  int		i, level;		/* Header level */
+  hdChar	*var;			/* Starting value/type for this level */
   static const char *ones[10] =
 		{
 		  "",	"i",	"ii",	"iii",	"iv",
