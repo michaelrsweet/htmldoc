@@ -6364,13 +6364,6 @@ parse_table(tree_t *t,			// I - Tree to parse
 
       temp_height -= 2 * cellpadding;
     }
-    else if (cells[row][0] != NULL && table_height > 0.0)
-    {
-      // Table height specified; make sure it'll fit...
-      if (temp_height > table_height)
-        temp_height = table_height;
-      temp_height -= 2 * cellpadding;
-    }
     else
     {
       // Use min height computed from get_cell_size()...
@@ -6381,7 +6374,14 @@ parse_table(tree_t *t,			// I - Tree to parse
 	    cells[row][col]->height > temp_height)
 	  temp_height = cells[row][col]->height;
 
-      if (temp_height > (PageLength / 8) && height_var == NULL)
+      if (table_height > 0.0)
+      {
+	// Table height specified; make sure it'll fit...
+	if (temp_height > table_height)
+          temp_height = table_height;
+	temp_height -= 2 * cellpadding;
+      }
+      else if (temp_height > (PageLength / 8) && height_var == NULL)
 	temp_height = PageLength / 8;
     }
 
