@@ -45,18 +45,18 @@ extern "C" {
  * Image structure...
  */
 
-typedef struct			/**** Image structure ****/
+typedef struct				/**** Image structure ****/
 {
-  char		filename[1024];	/* Name of image file (for caching of images */
-  int		width,		/* Width of image in pixels */
-		height,		/* Height of image in pixels */
-		depth,		/* 1 for grayscale, 3 for RGB */
-		use,		/* Number of times this image was used */
-		obj;		/* Object number */
-  hdChar		*pixels;	/* 8-bit pixel data */
-  hdChar		*mask;		/* 1-bit mask data, if any */
-  int		maskwidth,	/* Byte width of mask data */
-		maskscale;	/* Scaling of mask data */
+  char		filename[1024];		/* Name of image file (for caching of images */
+  int		width,			/* Width of image in pixels */
+		height,			/* Height of image in pixels */
+		depth,			/* 1 for grayscale, 3 for RGB */
+		use,			/* Number of times this image was used */
+		obj;			/* Object number */
+  hdChar	*pixels;		/* 8-bit pixel data */
+  hdChar	*mask;			/* 1-bit mask data, if any */
+  int		maskwidth,		/* Byte width of mask data */
+		maskscale;		/* Scaling of mask data */
 } hdImage;
 
 

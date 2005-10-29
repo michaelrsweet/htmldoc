@@ -287,7 +287,7 @@ static int	num_objects = 0,
 		pages_object,
 		names_object,
 		encrypt_object,
-		font_objects[16];
+		font_objects[HD_FONT_FACE_MAX * HD_FONT_INTERNAL_MAX];
 
 static hdChar	*doc_title = NULL;
 static hdImage	*logo_image = NULL;
@@ -311,6 +311,7 @@ static float	render_size,
 		render_y,
 		render_startx,
 		render_spacing;
+static hdChar	render_char_used[256];
 
 static int		compressor_active = 0;
 static z_stream		compressor;
@@ -319,6 +320,13 @@ static hdChar		encrypt_key[16];
 static int		encrypt_len;
 static rc4_context_t	encrypt_state;
 static md5_byte_t	file_id[16];
+
+
+inline bool				// O - true if base font, false otherwise
+is_base_font(int face)			// I - Font face */
+{
+  return (face <= HD_FONT_FACE_TIMES || face == HD_FONT_FACE_SYMBOL);
+}
 
 
 /*
@@ -1781,8 +1789,9 @@ ps_write_document(hdChar *author,	/* I - Author of document */
                   hdChar *keywords,	/* I - Search keywords */
 		  hdChar *subject)	/* I - Subject */
 {
-  FILE		*out;		/* Output file */
-  int		page;		/* Current page # */
+  FILE		*out;			/* Output file */
+  int		page;			/* Current page # */
+  int		first;			/* First chapter */
 
 
  /*
@@ -1807,20 +1816,20 @@ ps_write_document(hdChar *author,	/* I - Author of document */
   }
 
   if (OutputType == HD_OUTPUT_BOOK && TocLevels > 0)
-    chapter = 0;
+    first = 0;
   else
-    chapter = 1;
+    first = 1;
 
   if (TitlePage)
   {
     if (OutputFiles)
     {
       out = open_file();
-      write_prolog(out, chapter_outstarts[chapter], author, creator, copyright,
+      write_prolog(out, chapter_outstarts[first], author, creator, copyright,
                    keywords, subject);
     }
 
-    for (page = 0; page < chapter_outstarts[chapter]; page ++)
+    for (page = 0; page < chapter_outstarts[first]; page ++)
       ps_write_outpage(out, page);
 
     if (OutputFiles)
@@ -1833,7 +1842,7 @@ ps_write_document(hdChar *author,	/* I - Author of document */
     }
   }
 
-  for (; chapter <= TocDocCount; chapter ++)
+  for (chapter = first; chapter <= TocDocCount; chapter ++)
   {
     if (chapter_starts[chapter] < 0)
       continue;
@@ -1932,20 +1941,17 @@ ps_write_outpage(FILE *out,	/* I - Output file */
     file_page = outpage + 1;
   else if (chapter == 0)
   {
-    file_page = outpage - chapter_outstarts[0] + 1;
-
     if (TitlePage)
-      file_page += chapter_outstarts[1];
+      file_page = outpage + 1;
+    else
+      file_page = outpage - chapter_outstarts[0] + 1;
   }
   else
   {
-    file_page = outpage - chapter_outstarts[1] + 1;
-
-    if (TocLevels > 0)
-      file_page += chapter_outends[0] - chapter_outstarts[0];
-
     if (TitlePage)
-      file_page += chapter_outstarts[1];
+      file_page = outpage + 1;
+    else
+      file_page = outpage - chapter_outstarts[1] + 1;
   }
 
  /*
@@ -2387,7 +2393,8 @@ pdf_write_resources(FILE *out,		/* I - Output file */
   hdOutPage	*op;			/* Current output page */
   hdPage	*p;			/* Current page */
   hdRender	*r;			/* Render pointer */
-  int		fonts_used[16];		/* Non-zero if the page uses a font */
+  int		fonts_used[HD_FONT_FACE_MAX * HD_FONT_INTERNAL_MAX];
+					/* Non-zero if the page uses a font */
   int		images_used;		/* Non-zero if the page uses an image */
   int		text_used;		/* Non-zero if the page uses text */
   static const char *effects[] =	/* Effects and their commands */
@@ -2457,9 +2464,9 @@ pdf_write_resources(FILE *out,		/* I - Output file */
   if (text_used)
   {
     fputs("/Font<<", out);
-    for (i = 0; i < 16; i ++)
+    for (i = 0; i < (HD_FONT_FACE_MAX * HD_FONT_INTERNAL_MAX); i ++)
       if (fonts_used[i])
-	fprintf(out, "/F%1x %d 0 R", i, font_objects[i]);
+	fprintf(out, "/F%x %d 0 R", i, font_objects[i]);
     fputs(">>", out);
   }
 
@@ -5655,6 +5662,8 @@ parse_table(hdTree   *t,		// I - Tree to parse
   hdChar	*bgcolor;
   float		rgb[3],
 		bgrgb[3];
+  const char	*htmldoc_debug;		// HTMLDOC_DEBUG env var
+  int		table_debug;		// Do table debugging?
 
 
   DEBUG_puts("\n\nTABLE");
@@ -5665,6 +5674,16 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
   if (t->child == NULL)
     return;   /* Empty table... */
+
+ /*
+  * Check debug mode...
+  */
+
+  if ((htmldoc_debug = getenv("HTMLDOC_DEBUG")) != NULL &&
+      (strstr(htmldoc_debug, "table") || strstr(htmldoc_debug, "all")))
+    table_debug = 1;
+  else
+    table_debug = 0;
 
  /*
   * Figure out the # of rows, columns, and the desired widths...
@@ -5723,10 +5742,8 @@ parse_table(hdTree   *t,		// I - Tree to parse
   else
     border = 0.0f;
 
-#ifdef TABLE_DEBUG
-  if (border == 0.0f)
+  if (table_debug && border == 0.0f)
     border = 0.01f;
-#endif // TABLE_DEBUG
 
   rgb[0] = t->style->color[0] / 255.0f;
   rgb[1] = t->style->color[1] / 255.0f;
@@ -6275,10 +6292,10 @@ parse_table(hdTree   *t,		// I - Tree to parse
   if (*y < margins->top() && needspace)
     *y -= t->style->line_height;
 
-#ifdef TABLE_DEBUG
-  check_pages(*page);
-
+  if (table_debug)
   {
+    check_pages(*page);
+
     hdRender *r;
     char table_debug[255];
 
@@ -6290,7 +6307,6 @@ parse_table(hdTree   *t,		// I - Tree to parse
     r->data.text.style    = HD_FONT_INTERNAL_NORMAL;
     r->data.text.size     = 11.0f;
   }
-#endif // TABLE_DEBUG
 
   memset(row_spans, 0, sizeof(row_spans));
   memset(cell_start, 0, sizeof(cell_start));
@@ -6465,6 +6481,26 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	cell_start[col] = pages[*page].end;
 	cell_page[col]  = temp_page;
 	cell_y[col]     = temp_y;
+
+#if 0 // TODO
+        if (table_debug)
+	{
+	  check_pages(*page);
+
+	  render_t *r;
+	  char table_text[255];
+
+	  snprintf(table_text, sizeof(table_text), "cell=%p [%d,%d]",
+	           cells[row][col], row, col);
+	  r = new_render(temp_page, RENDER_TEXT, *x, temp_y,
+                	 get_width((hdChar *)table_text, TYPE_COURIER, STYLE_NORMAL, 1),
+			 _htmlSizes[1], table_text);
+
+	  r->data.text.typeface = TYPE_COURIER;
+	  r->data.text.style    = STYLE_NORMAL;
+	  r->data.text.size     = _htmlSizes[1];
+	}
+#endif // 0
 
         if (cells[row][col] != NULL && cells[row][col]->child != NULL)
 	{
@@ -8571,6 +8607,10 @@ new_render(int      page,	/* I - Page number (0-n) */
         r->data.text.rgb[0] = _htmlStyleSheet->def_style.color[0];
         r->data.text.rgb[1] = _htmlStyleSheet->def_style.color[1];
         r->data.text.rgb[2] = _htmlStyleSheet->def_style.color[2];
+
+        // Mark characters that are used...
+	for (hdChar *ptr = r->data.text.buffer; *ptr; ptr ++)
+	  render_char_used[*ptr] = 1;
         break;
     case HD_RENDER_IMAGE :
         if (data == NULL)
@@ -9766,6 +9806,7 @@ ps_hex(FILE  *out,			/* I - File to print to */
 }
 
 
+#ifdef HTMLDOC_ASCII85
 /*
  * 'ps_ascii85()' - Print binary data as a series of base-85 numbers.
  */
@@ -9878,6 +9919,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
     col = 0;
   }
 }
+#endif // HTMLDOC_ASCII85
 
 
 /*
@@ -9915,7 +9957,11 @@ jpg_empty(j_compress_ptr cinfo)		/* I - Compressor info */
   (void)cinfo;
 
   if (PSLevel > 0)
+#ifdef HTMLDOC_ASCII85
     ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
+#else
+    ps_hex(jpg_file, jpg_buf, sizeof(jpg_buf));
+#endif // HTMLDOC_ASCII85
   else
     flate_write(jpg_file, jpg_buf, sizeof(jpg_buf));
 
@@ -9941,7 +9987,11 @@ jpg_term(j_compress_ptr cinfo)		/* I - Compressor info */
   nbytes = sizeof(jpg_buf) - jpg_dest.free_in_buffer;
 
   if (PSLevel > 0)
+#ifdef HTMLDOC_ASCII85
     ps_ascii85(jpg_file, jpg_buf, nbytes);
+#else
+    ps_hex(jpg_file, jpg_buf, nbytes);
+#endif // HTMLDOC_ASCII85
   else
     flate_write(jpg_file, jpg_buf, nbytes);
 }
@@ -10642,7 +10692,11 @@ write_image(FILE     *out,		/* I - Output file */
 	      fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
-	    fputs("/DataSource currentfile/ASCII85Decode filter", out);
+#ifdef HTMLDOC_ASCII85
+            fputs("/DataSource currentfile/ASCII85Decode filter", out);
+#else
+            fputs("/DataSource currentfile/ASCIIHexDecode filter", out);
+#endif // HTMLDOC_ASCII85
 
             if (Compression)
 	      fputs("/FlateDecode filter", out);
@@ -10718,7 +10772,11 @@ write_image(FILE     *out,		/* I - Output file */
 	    fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
+#ifdef HTMLDOC_ASCII85
             fputs("/DataSource currentfile/ASCII85Decode filter", out);
+#else
+            fputs("/DataSource currentfile/ASCIIHexDecode filter", out);
+#endif // HTMLDOC_ASCII85
 
             if (Compression)
 	      fputs("/FlateDecode filter", out);
@@ -10812,10 +10870,15 @@ write_image(FILE     *out,		/* I - Output file */
 	    fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
+#ifdef HTMLDOC_ASCII85
 	  fputs("/DataSource currentfile/ASCII85Decode filter>>image\n", out);
 
-	  ps_ascii85(out, indices, indwidth * img->height);
-          ps_ascii85(out, (hdChar *)"", 0, 1);
+	  ps_ascii85(out, indices, indwidth * img->height, 1);
+#else
+	  fputs("/DataSource currentfile/ASCIIHexDecode filter>>image\n", out);
+
+	  ps_hex(out, indices, indwidth * img->height);
+#endif /* HTMLDOC_ASCII85 */
         }
 	else if (OutputJPEG)
 	{
@@ -10839,8 +10902,13 @@ write_image(FILE     *out,		/* I - Output file */
 	  fputs("/Interpolate true", out);
 #endif // HTMLDOC_INTERPOLATION
 
+#ifdef HTMLDOC_ASCII85
 	  fputs("/DataSource currentfile/ASCII85Decode filter/DCTDecode filter"
 	        ">>image\n", out);
+#else
+	  fputs("/DataSource currentfile/ASCIIHexDecode filter/DCTDecode filter"
+	        ">>image\n", out);
+#endif // HTMLDOC_ASCII85
 
 	  jpg_setup(out, img, &cinfo);
 
@@ -10852,7 +10920,9 @@ write_image(FILE     *out,		/* I - Output file */
 	  jpeg_finish_compress(&cinfo);
 	  jpeg_destroy_compress(&cinfo);
 
+#ifdef HTMLDOC_ASCII85
           ps_ascii85(out, (hdChar *)"", 0, 1);
+#endif // HTMLDOC_ASCII85
         }
         else
         {
@@ -10872,15 +10942,17 @@ write_image(FILE     *out,		/* I - Output file */
         	  img->width, -img->height, img->height,
         	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
 
-#ifdef HTMLDOC_INTERPOLATION
-	  fputs("/Interpolate true", out);
-#endif // HTMLDOC_INTERPOLATION
-
+#ifdef HTMLDOC_ASCII85
           fputs("/DataSource currentfile/ASCII85Decode filter"
 	        ">>image\n", out);
 
-	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth);
-          ps_ascii85(out, (hdChar *)"", 0, 1);
+	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth, 1);
+#else
+          fputs("/DataSource currentfile/ASCIIHexDecode filter"
+	        ">>image\n", out);
+
+	  ps_hex(out, img->pixels, img->width * img->height * img->depth);
+#endif // HTMLDOC_ASCII85
         }
 
 	fputs("GR\n", out);
@@ -11269,14 +11341,24 @@ write_prolog(FILE  *out,		/* I - Output file */
     else
       fputs("%%Pages: (atend)\n", out);
 
-    if (EmbedFonts)
-      fputs("%%DocumentProvidedResources:\n", out);
-    else
+    if (!EmbedFonts)
+    {
       fputs("%%DocumentNeededResources:\n", out);
 
-    for (i = 0; i < 4; i ++)
-      for (j = 0; j < 4; j ++)
-        if (fonts_used[i][j] && _htmlStyleSheet->fonts[i][j])
+      for (i = 0; i < HD_FONT_FACE_MAX; i ++)
+        for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
+          if (fonts_used[i][j] && is_base_font(i) &&
+	      _htmlStyleSheet->fonts[i][j])
+            fprintf(out, "%%%%+ font %s\n",
+	            _htmlStyleSheet->fonts[i][j]->ps_name);
+    }
+
+    fputs("%%DocumentProvidedResources:\n", out);
+
+    for (i = 0; i < HD_FONT_FACE_MAX; i ++)
+      for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
+        if (fonts_used[i][j] && (EmbedFonts || !is_base_font(i)) &&
+	    _htmlStyleSheet->fonts[i][j])
           fprintf(out, "%%%%+ font %s\n",
 	          _htmlStyleSheet->fonts[i][j]->ps_name);
     fputs("%%DocumentData: Clean7bit\n", out);
@@ -11288,10 +11370,10 @@ write_prolog(FILE  *out,		/* I - Output file */
     * Embed fonts?
     */
 
-    if (EmbedFonts)
+    for (i = 0; i < HD_FONT_FACE_MAX; i ++)
     {
-      for (i = 0; i < 4; i ++)
-	for (j = 0; j < 4; j ++)
+      if (EmbedFonts || !is_base_font(i))
+	for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
           if (fonts_used[i][j])
 	    write_type1(out, (hdFontFace)i, (hdFontStyle)j);
     }
@@ -11300,7 +11382,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     * Procedures used throughout the document...
     */
 
-    fputs("%%BeginResource: procset htmldoc-page 1.8 24\n", out);
+    fputs("%%BeginResource: procset htmldoc-page 1.9 0\n", out);
     fputs("/BD{bind def}bind def", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
           "closepath stroke}BD", out);
@@ -11362,8 +11444,8 @@ write_prolog(FILE  *out,		/* I - Output file */
     * Fonts...
     */
 
-    for (i = 0; i < 4; i ++)
-      for (j = 0; j < 4; j ++)
+    for (i = 0; i < HD_FONT_FACE_MAX; i ++)
+      for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
         if (fonts_used[i][j] && _htmlStyleSheet->fonts[i][j])
         {
 	  if (i < 3)
@@ -11703,23 +11785,23 @@ write_prolog(FILE  *out,		/* I - Output file */
 
     memset(font_desc, 0, sizeof(font_desc));
 
-    if (EmbedFonts)
-    {
-     /*
-      * Build font descriptors for the EmbedFonts fonts...
-      */
+   /*
+    * Build font descriptors for the EmbedFonts fonts...
+    */
 
-      for (i = 0; i < 4; i ++)
-	for (j = 0; j < 4; j ++)
+    for (i = 0; i < HD_FONT_FACE_MAX; i ++)
+    {
+      if (EmbedFonts || !is_base_font(i))
+	for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
           if (fonts_used[i][j])
 	    font_desc[i][j] = write_type1(out, (hdFontFace )i, (hdFontStyle)j);
     }
 
-    for (i = 0; i < 4; i ++)
-      for (j = 0; j < 4; j ++)
+    for (i = 0; i < HD_FONT_FACE_MAX; i ++)
+      for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
         if (fonts_used[i][j] && _htmlStyleSheet->fonts[i][j])
         {
-	  font_objects[i * 4 + j] = pdf_start_object(out);
+	  font_objects[i * HD_FONT_INTERNAL_MAX + j] = pdf_start_object(out);
 
 	  fputs("/Type/Font", out);
 	  fputs("/Subtype/Type1", out);
@@ -11734,7 +11816,7 @@ write_prolog(FILE  *out,		/* I - Output file */
 	    fprintf(out, "/FontDescriptor %d 0 R", font_desc[i][j]);
 	  }
 
-	  if (i < 3) /* Use native encoding for symbols */
+	  if (i < HD_FONT_FACE_SYMBOL) /* Use native encoding for symbols */
 	    fprintf(out, "/Encoding %d 0 R", encoding_object);
 
           pdf_end_object(out);
@@ -12106,6 +12188,55 @@ write_trailer(FILE *out,		/* I - Output file */
 
 
 /*
+ * 'type1_decrypt()' - Decrypt Type 1 font data.
+ */
+
+static void
+type1_decrypt(hdChar *buffer,		/* IO - Buffer */
+              int   length)		/* I  - Length of buffer */
+{
+  hdChar			plain;		/* Plaintext value */
+  unsigned short	key;		/* Decryption key */
+
+
+  key = 55665;
+
+  while (length > 0)
+  {
+    plain = *buffer ^ (key >> 8);
+    key   = (*buffer + key) * 52845 + 22719;
+
+    length --;
+    *buffer++ = plain;
+  }
+}
+
+
+/*
+ * 'type1_encrypt()' - Encrypt Type 1 font data.
+ */
+
+static void
+type1_encrypt(hdChar *buffer,		/* IO - Buffer */
+              int   length)		/* I  - Length of buffer */
+{
+  unsigned short	key;		/* Decryption key */
+
+
+  key = 55665;
+
+  while (length > 0)
+  {
+    *buffer ^= (key >> 8);
+    key     = (*buffer + key) * 52845 + 22719;
+
+    length --;
+    buffer ++;
+  }
+}
+
+
+/*
  * 'write_type1()' - Write an embedded Type 1 font.
  */
 
@@ -12114,25 +12245,36 @@ write_type1(FILE        *out,		/* I - File to write to */
             hdFontFace  typeface,	/* I - Typeface */
 	    hdFontStyle style)		/* I - Style */
 {
+  int		i;			/* Looping var */
   hdStyleFont	*font;			/* Font */
   FILE		*fp;			/* PFA file */
   int		ch;			/* Character value */
-  char		line[1024],		/* Line from AFM file */
+  char		glyph[64],		/* Glyph name */
+		line[1024],		/* Line from AFM file */
 		*lineptr,		/* Pointer into line */
 		*dataptr;		/* Pointer for data */
+  int		dosubset;		/* Subset this font? */
   int		length1,		/* Length1 value for font */
 		length2,		/* Length2 value for font */
-		length3;		/* Length3 value for font */
-  static int	tflags[] =		/* Typeface flags */
+		length3,		/* Length3 value for font */
+		start,			/* Start of font data */
+		end;			/* End of font data */
+  hdChar	*original,		/* Original font data */
+		*subset,		/* Subset font data */
+		*char_ptr,		/* Start of current char */
+		*subset_ptr,		/* Pointer into subset data */
+		*original_ptr,		/* Pointer into original data */
+		*original_end;		/* End of original data */
+  static int	tflags[] =		/* PDF typeface flags */
 		{
 		  33,			/* Courier */
 		  34,			/* Times-Roman */
 		  32,			/* Helvetica */
+		  33,			/* Monospace */
+		  34,			/* Serif */
+		  32,			/* Sans-Serif */
 		  4,			/* Symbol */
-		  32,			/*  */
-		  32,			/*  */
-		  32,			/*  */
-		  32,			/*  */
+		  4,			/* Dingbats */
 		  32,			/*  */
 		  32,			/*  */
 		  32,			/*  */
@@ -12142,7 +12284,7 @@ write_type1(FILE        *out,		/* I - File to write to */
 		  32,			/*  */
 		  32			/*  */
 		};
-  static int	sflags[] =		/* Style flags */
+  static int	sflags[] =		/* PDF style flags */
 		{
 		  0,			/* Normal */
 		  0,			/* Bold */
@@ -12157,6 +12299,9 @@ write_type1(FILE        *out,		/* I - File to write to */
   * because the Type1 fonts that Adobe ships typically do not include
   * the full set of characters required by some of the ISO character
   * sets.
+  *
+  * We also do subsetting of Type1 fonts by decrypting the font data,
+  * extracting the chars we need, and re-encrypting the output...
   */
 
   font = _htmlStyleSheet->fonts[typeface][style];
@@ -12173,6 +12318,268 @@ write_type1(FILE        *out,		/* I - File to write to */
   }
 
  /*
+  * Start by getting the offsets in the font file...
+  */
+
+  length1 = 0;
+  length2 = 0;
+  length3 = 0;
+
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    length1 += strlen(line);
+    if (strstr(line, "currentfile eexec") != NULL)
+      break;
+  }
+
+  start = end = ftell(fp);
+
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    if (strlen(line) == 65)
+      break;
+
+    length2 += (strlen(line) - 1) / 2;
+    end     = ftell(fp);
+  }
+
+  length3 = strlen(line);
+  while (fgets(line, sizeof(line), fp) != NULL)
+    length3 += strlen(line);
+
+  if (typeface >= HD_FONT_FACE_SYMBOL)
+  {
+   /*
+    * For now, the symbol fonts do not get subsetted...
+    */
+
+    dosubset = 0;
+  }
+  else
+  {
+   /*
+    * Subset this font...
+    */
+
+    dosubset = 1;
+
+   /*
+    * Allocate a buffer to hold the font data...
+    */
+
+    original = (hdChar *)malloc(length2);
+    subset   = (hdChar *)malloc(length2);
+
+    if (!original || !subset)
+    {
+      if (original)
+	free(original);
+
+      if (subset)
+	free(subset);
+
+      progress_error(HD_ERROR_OUT_OF_MEMORY,
+                     "Unable to allocate memory for font \"%s\"!", font->font_file);
+      return (0);
+    }
+
+   /*
+    * Read the font data...
+    */
+
+    fseek(fp, start, SEEK_SET);
+
+    for (original_ptr = original, i = length2; i > 0; i --, original_ptr ++)
+    {
+      do
+      {
+	ch = getc(fp);
+      }
+      while (isspace(ch & 255));
+
+      if (isdigit(ch & 255))
+	*original_ptr = (ch - '0') << 4;
+      else
+	*original_ptr = (tolower(ch & 255) - 'a' + 10) << 4;
+
+      do
+      {
+	ch = getc(fp);
+      }
+      while (isspace(ch & 255));
+
+      if (isdigit(ch & 255))
+	*original_ptr |= ch - '0';
+      else
+	*original_ptr |= tolower(ch & 255) - 'a' + 10;
+    }
+
+   /*
+    * Decrypt the font data and find the /Chars array...
+    */
+
+    type1_decrypt(original, length2);
+
+    original_end = original + length2 - 12;
+
+    for (original_ptr = original + 4; original_ptr < original_end; original_ptr ++)
+      if (*original_ptr == '/' && !memcmp(original_ptr + 1, "CharStrings", 11))
+        break;
+
+    if (original_ptr >= original_end)
+    {
+      progress_error(HD_ERROR_BAD_FORMAT,
+                     "No /CharStrings array in font \"%s\"!", font->font_file);
+      progress_error(HD_ERROR_BAD_FORMAT,
+                     "length2=%d in font \"%s\"!", length2, font->font_file);
+
+      fwrite(original, length2, 1, stdout);
+
+      free(original);
+      free(subset);
+
+      return (0);
+    }
+
+    if ((original_ptr = (hdChar *)strchr((char *)original_ptr, '\n')) == NULL)
+    {
+      free(original);
+      free(subset);
+
+      progress_error(HD_ERROR_BAD_FORMAT,
+                     "No newline after /CharStrings array in font \"%s\"!",
+		     font->font_file);
+
+      return (0);
+    }
+
+    original_ptr ++;
+
+   /*
+    * Copy the data up to the array...
+    */
+
+    memcpy(subset, original, original_ptr - original);
+    subset_ptr = subset + (original_ptr - original);
+
+   /*
+    * Collect all of the characters in the array...
+    */
+
+    while (*original_ptr == '/')
+    {
+     /*
+      * Read character data of the form:
+      *
+      *     /name length RD dataND\n
+      */
+
+      char_ptr     = original_ptr;
+      original_ptr = (hdChar *)strchr((char *)original_ptr, ' ');
+
+      if (!original_ptr || (original_ptr - char_ptr) > (int)sizeof(glyph) ||
+          original_ptr == (char_ptr + 1))
+      {
+	free(original);
+	free(subset);
+
+	progress_error(HD_ERROR_BAD_FORMAT,
+                       "Bad character data in font \"%s\"!", font->font_file);
+
+	return (0);
+      }
+
+      memcpy(glyph, char_ptr + 1, original_ptr - char_ptr - 1);
+      glyph[original_ptr - char_ptr - 1] = '\0';
+
+      i = strtol((char *)original_ptr, (char **)&original_ptr, 10);
+
+      if (!original_ptr || i <= 0 || (i > (original - original_ptr + length2)))
+      {
+	free(original);
+	free(subset);
+
+	progress_error(HD_ERROR_BAD_FORMAT,
+                       "Bad character data in font \"%s\"!", font->font_file);
+
+	return (0);
+      }
+
+      while (isspace(*original_ptr))
+        original_ptr ++;
+
+      while (*original_ptr && !isspace(*original_ptr))
+        original_ptr ++;
+
+      while (isspace(*original_ptr))
+        original_ptr ++;
+
+      original_ptr += i;
+      while (*original_ptr && *original_ptr != '\n')
+        original_ptr ++;
+
+      if (*original_ptr != '\n')
+      {
+	free(original);
+	free(subset);
+
+	progress_error(HD_ERROR_BAD_FORMAT,
+                       "Bad character data in font \"%s\"!", font->font_file);
+
+	return (0);
+      }
+
+      original_ptr ++;
+
+     /*
+      * Now see if we need this glyph...
+      */
+
+      if (!glyph[1])
+        i = render_char_used[glyph[0]];
+      else if (!strcmp(glyph, ".notdef"))
+        i = 1;
+      else
+      {
+        for (i = 0; i < _htmlStyleSheet->num_glyphs; i ++)
+	  if (_htmlStyleSheet->glyphs[i] &&
+	      !strcmp(glyph, _htmlStyleSheet->glyphs[i]))
+	    break;
+
+        if (i < _htmlStyleSheet->num_glyphs)
+          i = render_char_used[i];
+	else
+	  i = 0;
+      }
+
+      if (i)
+      {
+        DEBUG_printf(("%s: embedding \"%s\"...\n", font->ps_name, glyph));
+
+        // Yes, copy it over...
+	memcpy(subset_ptr, char_ptr, original_ptr - char_ptr);
+	subset_ptr += original_ptr - char_ptr;
+      }
+    }
+
+   /*
+    * Copy the rest of the data over...
+    */
+
+    i = length2 - (original_ptr - original);
+    memcpy(subset_ptr, original_ptr, i);
+    subset_ptr += i;
+
+   /*
+    * Encrypt the subset data...
+    */
+
+    length2 = subset_ptr - subset;
+
+    type1_encrypt(subset, length2);
+  }
+
+ /*
   * Write the font (object)...
   */
 
@@ -12186,10 +12593,44 @@ write_type1(FILE        *out,		/* I - File to write to */
 
     line[0] = '\0';
 
+    rewind(fp);
+
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      fputs(line, out);
+
+      if (ftell(fp) >= start)
+        break;
+    }
+
+    if (dosubset)
+    {
+     /*
+      * Output the subsetted font data...
+      */
+
+      ps_hex(out, subset, length2);
+      fseek(fp, end, SEEK_SET);
+    }
+    else
+    {
+     /*
+      * Copy the font data as-is...
+      */
+
+      while (fgets(line, sizeof(line), fp) != NULL)
+      {
+	fputs(line, out);
+
+	if (ftell(fp) >= end)
+          break;
+      }
+    }
+
     while (fgets(line, sizeof(line), fp) != NULL)
       fputs(line, out);
 
-    if (line[strlen(line) - 1] != '\n')
+    if (line[0] && line[strlen(line) - 1] != '\n')
       fputs("\n", out);
 
     fputs("%%EndResource\n", out);
@@ -12202,31 +12643,6 @@ write_type1(FILE        *out,		/* I - File to write to */
     * Embed a Type1 font object in the PDF output...
     */
 
-    length1 = 0;
-    length2 = 0;
-    length3 = 0;
-
-    while (fgets(line, sizeof(line), fp) != NULL)
-    {
-      length1 += strlen(line);
-      if (strstr(line, "currentfile eexec") != NULL)
-        break;
-    }
-
-    while (fgets(line, sizeof(line), fp) != NULL)
-    {
-      if (strlen(line) == 65)
-        break;
-
-      length2 += (strlen(line) - 1) / 2;
-    }
-
-    length3 = strlen(line);
-    while (fgets(line, sizeof(line), fp) != NULL)
-      length3 += strlen(line);
-
-    rewind(fp);
-
     pdf_start_object(out);
     fprintf(out, "/Length1 %d", length1);
     fprintf(out, "/Length2 %d", length2);
@@ -12236,38 +12652,61 @@ write_type1(FILE        *out,		/* I - File to write to */
     pdf_start_stream(out);
     flate_open_stream(out);
 
+   /*
+    * Copy the header...
+    */
+
+    rewind(fp);
+
     while (fgets(line, sizeof(line), fp) != NULL)
     {
       flate_puts(line, out);
 
-      if (strstr(line, "currentfile eexec") != NULL)
+      if (ftell(fp) >= start)
         break;
     }
 
-    while (fgets(line, sizeof(line), fp) != NULL)
+   /*
+    * Copy the font data...
+    */
+
+    if (dosubset)
     {
-      if (strlen(line) == 65)
-        break;
-
-      for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
+      // Embed the subset...
+      flate_write(out, subset, length2);
+      fseek(fp, end, SEEK_SET);
+    }
+    else
+    {
+      // Embed the entire font...
+      while (fgets(line, sizeof(line), fp) != NULL)
       {
-        if (isdigit(lineptr[0]))
-	  ch = (lineptr[0] - '0') << 4;
-	else
-	  ch = (lineptr[0] - 'a' + 10) << 4;
+	for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
+	{
+          if (isdigit(lineptr[0]))
+	    ch = (lineptr[0] - '0') << 4;
+	  else
+	    ch = (tolower(lineptr[0]) - 'a' + 10) << 4;
 
-        if (isdigit(lineptr[1]))
-	  ch |= lineptr[1] - '0';
-	else
-	  ch |= lineptr[1] - 'a' + 10;
+          if (isdigit(lineptr[1]))
+	    ch |= lineptr[1] - '0';
+	  else
+	    ch |= tolower(lineptr[1]) - 'a' + 10;
 
-        *dataptr++ = ch;
+          *dataptr++ = ch;
+	}
+
+	flate_write(out, (hdChar *)line, dataptr - line);
+
+	if (ftell(fp) >= end)
+          break;
       }
-
-      flate_write(out, (hdChar *)line, dataptr - line);
     }
 
-    flate_puts(line, out);
+   /*
+    * Copy the remaining data...
+    */
+
     while (fgets(line, sizeof(line), fp) != NULL)
       flate_puts(line, out);
 
@@ -12309,6 +12748,16 @@ write_type1(FILE        *out,		/* I - File to write to */
   }
 
  /*
+  * Free any memory used...
+  */
+
+  if (dosubset)
+  {
+    free(original);
+    free(subset);
+  }
+
+ /*
   * Return the font descriptor...
   */
 
@@ -12325,7 +12774,7 @@ static void
 encrypt_init(void)
 {
   int		i;			/* Looping var */
-  hdChar		data[21],		/* Key data */
+  hdChar	data[21],		/* Key data */
 		*dataptr;		/* Pointer to key data */
   md5_state_t	md5;			/* MD5 state */
   md5_byte_t	digest[16];		/* MD5 digest value */
@@ -12397,8 +12846,10 @@ flate_close_stream(FILE *out)		/* I - Output file */
 {
   if (!Compression)
   {
+#ifdef HTMLDOC_ASCII85
     if (PSLevel)
       ps_ascii85(out, (hdChar *)"", 0, 1);
+#endif // HTMLDOC_ASCII85
 
     return;
   }
@@ -12406,8 +12857,13 @@ flate_close_stream(FILE *out)		/* I - Output file */
   while (deflate(&compressor, Z_FINISH) != Z_STREAM_END)
   {
     if (PSLevel)
+#ifdef HTMLDOC_ASCII85
       ps_ascii85(out, comp_buffer,
                  (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
+#else
+      ps_hex(out, comp_buffer,
+             (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
+#endif // HTMLDOC_ASCII85
     else
     {
       if (Encryption)
@@ -12425,8 +12881,13 @@ flate_close_stream(FILE *out)		/* I - Output file */
   if ((hdChar *)compressor.next_out > (hdChar *)comp_buffer)
   {
     if (PSLevel)
+#ifdef HTMLDOC_ASCII85
       ps_ascii85(out, comp_buffer,
                  (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
+#else
+      ps_hex(out, comp_buffer,
+             (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
+#endif // HTMLDOC_ASCII85
     else
     {
       if (Encryption)
@@ -12443,8 +12904,10 @@ flate_close_stream(FILE *out)		/* I - Output file */
 
   compressor_active = 0;
 
+#ifdef HTMLDOC_ASCII85
   if (PSLevel)
     ps_ascii85(out, (hdChar *)"", 0, 1);
+#endif // HTMLDOC_ASCII85
 }
 
 
@@ -12502,8 +12965,13 @@ flate_write(FILE  *out,			/* I - Output file */
       if (compressor.avail_out < (int)(sizeof(comp_buffer) / 8))
       {
 	if (PSLevel)
+#ifdef HTMLDOC_ASCII85
 	  ps_ascii85(out, comp_buffer,
                      (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
+#else
+	  ps_hex(out, comp_buffer,
+                 (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
+#endif // HTMLDOC_ASCII85
 	else
 	{
 	  if (Encryption)
@@ -12539,7 +13007,11 @@ flate_write(FILE  *out,			/* I - Output file */
     }
   }
   else if (PSLevel)
+#ifdef HTMLDOC_ASCII85
     ps_ascii85(out, buf, length);
+#else
+    ps_hex(out, buf, length);
+#endif // HTMLDOC_ASCII85
   else
     fwrite(buf, length, 1, out);
 }

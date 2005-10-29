@@ -36,12 +36,9 @@
 #include "htmldoc.h"
 #include <stdarg.h>
 
-#ifdef HAVE_LIBFLTK
-#  include <FL/fl_ask.H>
-#endif // HAVE_LIBFLTK
-
 #ifdef WIN32
 #  define getpid	GetCurrentProcessId
+static FILE	*error_log = NULL;
 #else
 #  include <unistd.h>
 #endif // WIN32
@@ -77,21 +74,38 @@ progress_error(hdError    error,	/* I - Error number */
   vsnprintf(text, sizeof(text), format, ap);
   va_end(ap);
 
-#ifdef HAVE_LIBFLTK
-  if (BookGUI != NULL)
+#ifdef WIN32
+  // IIS doesn't separate stderr from stdout, so we have to send CGI errors
+  // to a separate event log...
+  if (CGIMode)
   {
-    if (error)
-      BookGUI->add_error(text);
+    if (!error_log)
+    {
+      // Append messages to a file called "htmldoc.log"...
+      char	tmppath[1024];		// Buffer for temp dir
+      char	filename[1024];		// htmldoc.log filename
+
+
+      GetTempPath(sizeof(tmppath), tmppath);
+      snprintf(filename, sizeof(filename), "%s/htmldoc.log", tmppath);
+
+      error_log = fopen(filename, "a");
+    }
+
+    if (error_log)
+    {
+      fprintf(error_log, "HTMLDOC(%d) ", (int)getpid());
+
+      if (error)
+	fprintf(error_log, "ERR%03d: %s\n", error, text);
+      else
+	fprintf(error_log, "%s\n", text);
+
+      fflush(error_log);
+    }
 
     return;
   }
-#endif /* HAVE_LIBFLTK */
-
-#ifdef WIN32
-  // IIS doesn't separate stderr from stdout, so we cannot output any CGI error messages
-  // on Windows...
-  if (CGIMode)
-    return;
 #endif // WIN32
 
   if (Verbosity >= 0)
@@ -100,7 +114,7 @@ progress_error(hdError    error,	/* I - Error number */
       fprintf(stderr, "\r%-79.79s\r", "");
 
     if (CGIMode)
-      fprintf(stderr, "HTMLDOC(%d) ", getpid());
+      fprintf(stderr, "HTMLDOC(%d) ", (int)getpid());
 
     if (error)
       fprintf(stderr, "ERR%03d: %s\n", error, text);
@@ -119,14 +133,6 @@ progress_error(hdError    error,	/* I - Error number */
 void
 progress_hide(void)
 {
-#ifdef HAVE_LIBFLTK
-  if (BookGUI != NULL)
-  {
-    BookGUI->progress(0, "HTMLDOC " SVERSION " Ready.");
-    return;
-  }
-#endif /* HAVE_LIBFLTK */
-
   if (CGIMode)
     return;
 
@@ -156,19 +162,11 @@ progress_show(const char *format,	/* I - Printf-style format string */
   vsnprintf(text, sizeof(text), format, ap);
   va_end(ap);
 
-#ifdef HAVE_LIBFLTK
-  if (BookGUI != NULL)
-  {
-    BookGUI->progress(0, text);
-    return;
-  }
-#endif /* HAVE_LIBFLTK */
-
   if (CGIMode)
   {
     if (Verbosity > 0)
     {
-      fprintf(stderr, "HTMLDOC(%d) INFO: %s\n", getpid(), text);
+      fprintf(stderr, "HTMLDOC(%d) INFO: %s\n", (int)getpid(), text);
       fflush(stderr);
     }
 
@@ -192,13 +190,6 @@ progress_show(const char *format,	/* I - Printf-style format string */
 void
 progress_update(int percent)	/* I - Percent complete */
 {
-#ifdef HAVE_LIBFLTK
-  if (BookGUI != NULL)
-  {
-    BookGUI->progress(percent);
-    return;
-  }
-#endif /* HAVE_LIBFLTK */
 }
 
 

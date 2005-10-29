@@ -1441,8 +1441,7 @@ parse_markup(hdTree *t,			/* I - Current tree entry */
   char		markup[255],		/* Markup string... */
 		*mptr,			/* Current character... */
 		comment[10240],		/* Comment string */
-		*cptr,			/* Current char... */
-		**temp;			/* Markup variable entry */
+		*cptr;			/* Current char... */
 
 
   mptr = markup;

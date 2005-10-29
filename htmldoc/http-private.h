@@ -15,7 +15,7 @@
  *       Attn: CUPS Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: cups-info@cups.org
@@ -31,7 +31,26 @@
  * Include necessary headers...
  */
 
-#  include <config.h>
+#  include "hdstring.h"
+#  include <limits.h>
+#  ifdef WIN32
+#    include <io.h>
+#    include <winsock2.h>
+#  else
+#    include <unistd.h>
+#    include <fcntl.h>
+#    include <sys/socket.h>
+#    define closesocket(f) close(f)
+#  endif /* WIN32 */
+
+#  ifdef __sgi
+/*
+ * IRIX does not define socklen_t, and in fact uses an int instead of
+ * unsigned type for length values...
+ */
+
+typedef int socklen_t;
+#  endif /* __sgi */
 
 #  include "http.h"
 
@@ -69,6 +88,10 @@ typedef struct
 
 typedef SSLConnectionRef http_tls_t;
 
+extern OSStatus	_httpReadCDSA(SSLConnectionRef connection, void *data,
+		              size_t *dataLength);
+extern OSStatus	_httpWriteCDSA(SSLConnectionRef connection, const void *data,
+		               size_t *dataLength);
 #  endif /* HAVE_LIBSSL */
 
 /*
@@ -76,8 +99,8 @@ typedef SSLConnectionRef http_tls_t;
  */
 
 #  ifndef HAVE_HSTRERROR
-extern const char *hd_hstrerror(int error);
-#    define hstrerror hd_hstrerror
+extern const char *_hd_hstrerror(int error);
+#    define hstrerror _hd_hstrerror
 #  elif defined(_AIX) || defined(__osf__)
 /*
  * AIX and Tru64 UNIX don't provide a prototype but do provide the function...
