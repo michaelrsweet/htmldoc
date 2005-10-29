@@ -430,7 +430,9 @@ static void	write_prolog(FILE *out, int pages, hdChar *author,
 		             hdChar *creator, hdChar *copyright,
 			     hdChar *keywords, hdChar *subject);
 static void	ps_hex(FILE *out, hdChar *data, int length);
+#ifdef HTMLDOC_ASCII85
 static void	ps_ascii85(FILE *out, hdChar *data, int length, int eod = 0);
+#endif /* HTMLDOC_ASCII85 */
 static void	jpg_init(j_compress_ptr cinfo);
 static boolean	jpg_empty(j_compress_ptr cinfo);
 static void	jpg_term(j_compress_ptr cinfo);
@@ -450,40 +452,42 @@ static int	write_type1(FILE *out, hdFontFace typeface,
  */
 
 int
-pspdf_export(hdTree *document,	/* I - Document to export */
-             hdTree *toc)	/* I - Table of contents for document */
+pspdf_export(hdTree *document,		/* I - Document to export */
+             hdTree *toc)		/* I - Table of contents for document */
 {
-  int		i, j;		/* Looping vars */
-  const char	*title_file;	/* Location of title image/file */
-  hdChar		*author,	/* Author of document */
-		*creator,	/* HTML file creator (Netscape, etc) */
-		*copyright,	/* File copyright */
-		*docnumber,	/* Document number */
-		*keywords,	/* Search keywords */
-		*subject;	/* Subject */
-  hdTree	*t;		/* Title page document tree */
-  FILE		*fp;		/* Title page file */
-  float		x, y;		/* Current page position */
-//float		width,		/* Width of , author, etc */
-//		height;		/* Height of  area */
-  hdMargin	*margins;	/* Margin stack */
-  int		pos,		/* Current header/footer position */
-		page,		/* Current page # */
-		heading,	/* Current heading # */
-		toc_duplex,	/* Duplex TOC pages? */
-		toc_landscape,	/* Do TOC in landscape? */
-		toc_width,	/* Width of TOC pages */
-		toc_length,	/* Length of TOC pages */
-		toc_left,	/* TOC page margins */
+  int		i, j;			/* Looping vars */
+  const char	*title_file;		/* Location of title image/file */
+  hdChar	*author,		/* Author of document */
+		*creator,		/* HTML file creator (Netscape, etc) */
+		*copyright,		/* File copyright */
+		*docnumber,		/* Document number */
+		*keywords,		/* Search keywords */
+		*subject;		/* Subject */
+  hdTree	*t;			/* Title page document tree */
+  FILE		*fp;			/* Title page file */
+  float		x, y;			/* Current page position */
+  float		width,			/* Width of title, author, etc */
+		height;			/* Height of title page area */
+  hdMargin	*margins;		/* Margin stack */
+  int		pos,			/* Current header/footer position */
+		page,			/* Current page # */
+		heading,		/* Current heading # */
+		toc_duplex,		/* Duplex TOC pages? */
+		toc_landscape,		/* Do TOC in landscape? */
+		toc_width,		/* Width of TOC pages */
+		toc_length,		/* Length of TOC pages */
+		toc_left,		/* TOC page margins */
 		toc_right,
 		toc_bottom,
 		toc_top;
-  hdImage	*timage;	/* Title image */
-  float		timage_width,	/* Title image width */
-		timage_height;	/* Title image height */
-//  hdRender	*r;		/* Rendering structure... */
-//  float		rgb[3];		/* Text color */
-  int		needspace;	/* Need whitespace */
+  hdImage	*timage;		/* Title image */
+  float		timage_width,		/* Title image width */
+		timage_height;		/* Title image height */
+  hdStyle	*h1_title,		/* Heading style for title page */
+		*p_title;		/* Paragraph style for title page */
+  hdRender	*r;			/* Rendering structure... */
+  float		rgb[3];			/* Text color */
+  int		needspace;		/* Need whitespace */
 
 
  /*
@@ -648,19 +652,21 @@ pspdf_export(hdTree *document,	/* I - Document to export */
       if (PageDuplex)
         check_pages(1);
 
-#if 0 // TOOD UPDATE FOR STYLES
       height = 0.0;
 
+      h1_title = _htmlStyleSheet->find_style(HD_ELEMENT_H1, "HD_TITLE");
+      p_title  = _htmlStyleSheet->find_style(HD_ELEMENT_P, "HD_TITLE");
+
       if (timage != NULL)
-	height += timage_height + _htmlSpacings[HD_FONT_SIZE_P];
+	height += timage_height + p_title->line_height;
       if (doc_title != NULL)
-	height += _htmlSpacings[HD_FONT_SIZE_H1] + _htmlSpacings[HD_FONT_SIZE_P];
+	height += h1_title->line_height + p_title->line_height;
       if (author != NULL)
-	height += _htmlSpacings[HD_FONT_SIZE_P];
+	height += p_title->line_height;
       if (docnumber != NULL)
-	height += _htmlSpacings[HD_FONT_SIZE_P];
+	height += p_title->line_height;
       if (copyright != NULL)
-	height += _htmlSpacings[HD_FONT_SIZE_P];
+	height += p_title->line_height;
 
       y = 0.5f * (PagePrintLength + height);
 
@@ -668,77 +674,74 @@ pspdf_export(hdTree *document,	/* I - Document to export */
       {
 	new_render(0, HD_RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
                    y - timage_height, timage_width, timage_height, timage);
-	y -= timage_height + _htmlSpacings[HD_FONT_SIZE_P];
+	y -= timage_height + p_title->line_height;
       }
 
-      rgb[0] = _htmlStyleSheet->def_style.color[0];
-      rgb[1] = _htmlStyleSheet->def_style.color[1];
-      rgb[2] = _htmlStyleSheet->def_style.color[2];
+      rgb[0] = p_title->color[0] / 255.0;
+      rgb[1] = p_title->color[1] / 255.0;
+      rgb[2] = p_title->color[2] / 255.0;
 
       if (doc_title != NULL)
       {
-	width = get_width(doc_title, _htmlHeadingFont, HD_FONT_INTERNAL_BOLD,
-	                  _htmlSizes[HD_FONT_SIZE_H1]);
+	width = h1_title->get_width(doc_title);
 	r     = new_render(0, HD_RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	   y - _htmlSpacings[HD_FONT_SIZE_H1], width,
-			   _htmlSizes[HD_FONT_SIZE_H1], doc_title);
+                	   y - h1_title->line_height, width,
+			   h1_title->font_size, doc_title);
 
-	r->data.text.typeface = _htmlHeadingFont;
-	r->data.text.style    = HD_FONT_INTERNAL_BOLD;
-	r->data.text.size     = _htmlSizes[HD_FONT_SIZE_H1];
-	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
+	r->data.text.typeface = h1_title->font->typeface;
+	r->data.text.style    = h1_title->font->style;
+	r->data.text.size     = h1_title->font_size;
+	r->data.text.rgb[0]   = h1_title->color[0] / 255.0;
+	r->data.text.rgb[1]   = h1_title->color[1] / 255.0;
+	r->data.text.rgb[2]   = h1_title->color[2] / 255.0;
 
-	y -= _htmlSpacings[HD_FONT_SIZE_H1];
+	y -= h1_title->line_height;
 
 	if (docnumber != NULL)
 	{
-	  width = get_width(docnumber, _htmlBodyFont, HD_FONT_INTERNAL_NORMAL,
-	                    _htmlSizes[HD_FONT_SIZE_P]);
+	  width = p_title->get_width(docnumber);
 	  r     = new_render(0, HD_RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                             y - _htmlSpacings[HD_FONT_SIZE_P], width,
-			     _htmlSizes[HD_FONT_SIZE_P], docnumber);
+                             y - p_title->line_height, width,
+			     p_title->font_size, docnumber);
 
-	  r->data.text.typeface = _htmlBodyFont;
-	  r->data.text.style    = HD_FONT_INTERNAL_NORMAL;
-	  r->data.text.size     = _htmlSizes[HD_FONT_SIZE_P];
+	  r->data.text.typeface = p_title->font->typeface;
+	  r->data.text.style    = p_title->font->style;
+	  r->data.text.size     = p_title->font_size;
           memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
-	  y -= _htmlSpacings[HD_FONT_SIZE_P];
+	  y -= p_title->line_height;
 	}
 
-	y -= _htmlSpacings[HD_FONT_SIZE_P];
+	y -= p_title->line_height;
       }
 
       if (author != NULL)
       {
-	width = get_width(author, _htmlBodyFont, HD_FONT_INTERNAL_NORMAL,
-	                  _htmlSizes[HD_FONT_SIZE_P]);
+	width = p_title->get_width(author);
 	r     = new_render(0, HD_RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	   y - _htmlSpacings[HD_FONT_SIZE_P], width, _htmlSizes[HD_FONT_SIZE_P],
+                	   y - p_title->line_height, width, p_title->font_size,
 			   author);
 
-	r->data.text.typeface = _htmlBodyFont;
-	r->data.text.style    = HD_FONT_INTERNAL_NORMAL;
-	r->data.text.size     = _htmlSizes[HD_FONT_SIZE_P];
+	r->data.text.typeface = p_title->font->typeface;
+	r->data.text.style    = p_title->font->style;
+	r->data.text.size     = p_title->font_size;
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
-	y -= _htmlSpacings[HD_FONT_SIZE_P];
+	y -= p_title->line_height;
       }
 
       if (copyright != NULL)
       {
-	width = get_width(copyright, _htmlBodyFont, HD_FONT_INTERNAL_NORMAL,
-	                  _htmlSizes[HD_FONT_SIZE_P]);
+	width = p_title->get_width(copyright);
 	r     = new_render(0, HD_RENDER_TEXT, (PagePrintWidth - width) * 0.5f,
-                	   y - _htmlSpacings[HD_FONT_SIZE_P], width, _htmlSizes[HD_FONT_SIZE_P],
+                	   y - p_title->line_height, width, p_title->font_size,
 			   copyright);
 
-	r->data.text.typeface = _htmlBodyFont;
-	r->data.text.style    = HD_FONT_INTERNAL_NORMAL;
-	r->data.text.size     = _htmlSizes[HD_FONT_SIZE_P];
+	r->data.text.typeface = p_title->font->typeface;
+	r->data.text.style    = p_title->font->style;
+	r->data.text.size     = p_title->font_size;
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
       }
-#endif // 0
     }
 
     for (page = 0; page < num_pages; page ++)
@@ -2420,7 +2423,6 @@ pdf_write_resources(FILE *out,		/* I - Output file */
 
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  fonts_used[HeadFootType * 4 + HeadFootStyle] = 1;
   images_used = background_image != NULL;
   text_used   = 0;
 
@@ -6359,13 +6361,6 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
       temp_height -= 2 * cellpadding;
     }
-    else if (cells[row][0] != NULL && table_height > 0.0)
-    {
-      // Table height specified; make sure it'll fit...
-      if (temp_height > table_height)
-        temp_height = table_height;
-      temp_height -= 2 * cellpadding;
-    }
     else
     {
       // Use min height computed from get_cell_size()...
@@ -6376,7 +6371,14 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	    cells[row][col]->height > temp_height)
 	  temp_height = cells[row][col]->height;
 
-      if (temp_height > (PageLength / 8) && height_var == NULL)
+      if (table_height > 0.0)
+      {
+	// Table height specified; make sure it'll fit...
+	if (temp_height > table_height)
+          temp_height = table_height;
+	temp_height -= 2 * cellpadding;
+      }
+      else if (temp_height > (PageLength / 8) && height_var == NULL)
 	temp_height = PageLength / 8;
     }
 
@@ -11129,7 +11131,6 @@ write_prolog(FILE  *out,		/* I - Output file */
   */
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  fonts_used[HeadFootType][HeadFootStyle] = 1;
 
   for (page = 0; page < num_pages; page ++)
     for (r = pages[page].start; r != NULL; r = r->next)
@@ -12305,6 +12306,11 @@ write_type1(FILE        *out,		/* I - File to write to */
   */
 
   font = _htmlStyleSheet->fonts[typeface][style];
+  if (!font)
+  {
+    printf("fonts[%d][%d] = NULL\n", typeface, style);
+    return (0);
+  }
 
  /*
   * Try to open the PFA file for the Type1 font...
@@ -12354,6 +12360,8 @@ write_type1(FILE        *out,		/* I - File to write to */
     */
 
     dosubset = 0;
+    original = NULL;
+    subset   = NULL;
   }
   else
   {

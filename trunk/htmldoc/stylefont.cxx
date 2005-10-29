@@ -70,11 +70,21 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
 
   // Map font family to base font...
   if (!strcasecmp(n, "serif"))
-    n = "Times";
-  else if (!strcasecmp(n, "sans-serif"))
-    n = "Helvetica";
+    n = "Serif";
+  else if (!strcasecmp(n, "sans") ||
+           !strcasecmp(n, "sans-serif"))
+    n = "Sans";
   else if (!strcasecmp(n, "monospace"))
+    n = "Monospace";
+  else if (!strcasecmp(n, "times"))
+    n = "Times";
+  else if (!strcasecmp(n, "arial") ||
+           !strcasecmp(n, "helvetica"))
+    n = "Helvetica";
+  else if (!strcasecmp(n, "courier"))
     n = "Courier";
+  else if (!strcasecmp(n, "dingbats"))
+    n = "Dingbats";
   else if (!strcasecmp(n, "symbol"))
     n = "Symbol";
   else if (!strcasecmp(n, "cursive"))
@@ -337,7 +347,7 @@ hdStyleFont::get_width(const hdChar *s)	// I - String to measure
 {
   int	ch;				// Character in string
   float	w;				// Current width
-  float	*adjusts;			// Adjustments array
+//  float	*adjusts;			// Adjustments array
 
 
 //  printf("Width of \"%s\" is ", s);
@@ -507,6 +517,7 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
 
   // Make sure that non-breaking space has the same width as space...
   widths[160] = widths[32];
+  num_widths  = css->num_glyphs;
 
   return (0);
 }
