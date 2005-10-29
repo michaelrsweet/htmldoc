@@ -34,7 +34,6 @@ include ../Makedefs
 #
 
 OBJS	=	\
-		gui.o \
 		file.o \
 		html.o \
 		htmldoc.o \
@@ -42,10 +41,10 @@ OBJS	=	\
 		htmlsep.o \
 		http.o \
 		http-addr.o \
+		http-addrlist.o \
 		http-support.o \
 		image.o \
 		iso8859.o \
-		license.o \
 		margin.o \
 		md5.o \
 		progress.o \
@@ -63,17 +62,16 @@ OBJS	=	\
 
 SRCS	=	\
 		file.c \
-		gui.cxx \
 		html.cxx \
 		htmldoc.cxx \
 		htmllib.cxx \
 		htmlsep.cxx \
-		http-addr.c \
 		http.c \
+		http-addr.c \
+		http-addrlist.c \
 		http-support.c \
 		image.cxx \
 		iso8859.cxx \
-		license.cxx \
 		margin.cxx \
 		md5.c \
 		progress.cxx \
@@ -115,6 +113,7 @@ install:	all
 #
 
 uninstall:
+	$(RM) $(bindir)/htmldoc$(EXEEXT)
 
 
 #
@@ -140,20 +139,19 @@ depend:
 htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
-	$(POST) htmldoc$(EXEEXT)
 
 
 #
 # testhtml
 #
 
-testhtml$(EXEEXT):	testhtml.o file.o gui.o htmllibd.o http.o \
-		http-addr.o http-support.o image.o iso8859.o license.o \
+testhtml$(EXEEXT):	testhtml.o file.o htmllibd.o http.o \
+		http-addr.o http-addrlist.o http-support.o image.o iso8859.o \
 		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o \
 		htmlsep.o string.o ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o gui.o htmllibd.o \
-		http.o http-addr.o http-support.o image.o iso8859.o license.o \
+	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o htmllibd.o \
+		http.o http-addr.o http-addrlist.o http-support.o image.o iso8859.o \
 		progress.o ps-pdf.o toc.o util.o string.o \
 		md5.o rc4.o html.o htmlsep.o ../license3/liblicense.a $(LIBS)
 
@@ -168,14 +166,14 @@ htmllibd.o:	htmllib.cxx ../config.h ../Makedefs debug.h html.h htmldoc.h \
 #
 
 teststyle$(EXEEXT):	teststyle.o \
-	                file.o http.o http-addr.o http-support.o \
-			snprintf.o string.o \
+	                file.o http.o http-addr.o http-addrlist.o \
+			http-support.o snprintf.o string.o \
 			style.o stylefont.o stylemedia.o stylesheet.o \
 			../Makedefs
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o teststyle$(EXEEXT) teststyle.o \
-	                file.o http.o http-addr.o http-support.o \
-			snprintf.o string.o \
+	                file.o http.o http-addr.o http-addrlist.o \
+			http-support.o snprintf.o string.o \
 			style.o stylefont.o stylemedia.o stylesheet.o $(LIBS)
 
 teststyle.o:	../Makedefs ../config.h

@@ -1,5 +1,5 @@
 /*
- * "$Id: file.c,v 1.13.2.52.2.1 2005/05/04 18:28:50 mike Exp $"
+ * "$Id: file.c,v 1.13.2.53 2005/09/14 23:18:03 mike Exp $"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
@@ -148,6 +148,8 @@ file_cleanup(void)
 {
   int		i;			/* Looping var */
   char		filename[1024];		/* Temporary file */
+  struct stat	fileinfo;		/* File information */
+  size_t	remotebytes;		/* Size of remote data */
   const char	*tmpdir;		/* Temporary directory */
 #ifdef WIN32
   char		tmppath[1024];		/* Temporary directory */
@@ -173,11 +175,32 @@ file_cleanup(void)
 #endif /* WIN32 */
 
  /*
+  * Report on the remote data bytes that were downloaded...
+  */
+
+  debug = getenv("HTMLDOC_DEBUG");
+
+  if (debug &&
+      (strstr(debug, "all") != NULL || strstr(debug, "remotebytes") != NULL))
+  {
+    for (i = 0, remotebytes = 0; i < web_files; i ++)
+      if (web_cache[i].url)
+      {
+	snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
+        	 (long)getpid(), i + 1);
+        if (!stat(filename, &fileinfo))
+	  remotebytes += fileinfo.st_size;
+      }
+
+    progress_error(HD_ERROR_NONE, "REMOTEBYTES: %ld", (long)remotebytes);
+  }
+
+ /*
   * Check to see if we want to leave the temporary files around for
   * debugging...
   */
 
-  if ((debug = getenv("HTMLDOC_DEBUG")) != NULL &&
+  if (debug &&
       (strstr(debug, "all") != NULL || strstr(debug, "tempfiles") != NULL))
   {
    /*
@@ -1048,5 +1071,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.52.2.1 2005/05/04 18:28:50 mike Exp $".
+ * End of "$Id: file.c,v 1.13.2.53 2005/09/14 23:18:03 mike Exp $".
  */

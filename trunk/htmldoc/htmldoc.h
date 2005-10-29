@@ -35,10 +35,6 @@
 #include "debug.h"
 #include "progress.h"
 
-#ifdef HAVE_LIBFLTK
-#  include "gui.h"
-#endif /* HAVE_LIBFLTK */
-
 #ifdef WIN32	    /* Include all 8 million Windows header files... */
 #  include <windows.h>
 #endif /* WIN32 */
@@ -237,17 +233,6 @@ VAR const char	*PDFEffects[17]			/* Effect strings */
 #  endif /* _HTMLDOC_CXX_ */
 ;
 
-#ifdef HAVE_LIBFLTK
-VAR GUI		*BookGUI	VALUE(NULL);	/* GUI for book files */
-#  ifdef WIN32					/* Editor for HTML files */
-VAR char	HTMLEditor[1024] VALUE("notepad.exe \"%s\"");
-#  else
-VAR char	HTMLEditor[1024] VALUE("nedit %s");
-#  endif /* WIN32 */
-VAR int		Tooltips	VALUE(1);	/* Show tooltips? */
-VAR int		ModernSkin	VALUE(1);	/* Show modern skins? */
-#endif /* HAVE_LIBFLTK */
-
 
 /*
  * Prototypes...
@@ -269,6 +254,7 @@ extern void	set_page_size(const char *size);
 
 extern void	prefs_load(void);
 extern void	prefs_save(void);
+extern void	prefs_set_paths(void);
 
 extern char	*format_number(int n, char f);
 

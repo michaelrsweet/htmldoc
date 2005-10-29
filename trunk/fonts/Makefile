@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.2 2004/03/31 06:32:25 mike Exp $"
+# "$Id$"
 #
 #   Makefile for HTMLDOC font files.
 #
-#   Copyright 1997-2002 by Easy Software Products.
+#   Copyright 1997-2005 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
 #       Attn: ESP Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3111 USA
+#       Hollywood, Maryland 20636 USA
 #
 #       Voice: (301) 373-9600
 #       EMail: info@easysw.com
@@ -38,10 +38,23 @@ FONTS	=	\
 		Courier-Bold \
 		Courier-BoldOblique \
 		Courier-Oblique \
+		Dingbats \
 		Helvetica \
 		Helvetica-Bold \
 		Helvetica-BoldOblique \
 		Helvetica-Oblique \
+		Monospace \
+		Monospace-Bold \
+		Monospace-BoldOblique \
+		Monospace-Oblique \
+		Sans \
+		Sans-Bold \
+		Sans-BoldOblique \
+		Sans-Oblique \
+		Serif-Roman \
+		Serif-Bold \
+		Serif-BoldOblique \
+		Serif-Oblique \
 		Symbol \
 		Times-Bold \
 		Times-BoldItalic \
@@ -62,7 +75,7 @@ all:
 
 install:
 	echo "Installing font files in $(datadir)/htmldoc/fonts..."
-	if [ ! -d $(datadir)/htmldoc/fonts ]; then\
+	if test ! -d $(datadir)/htmldoc/fonts; then\
 		$(MKDIR) $(datadir)/htmldoc/fonts;\
 	fi
 	for font in $(FONTS); do \
@@ -78,10 +91,6 @@ install:
 
 uninstall:
 	echo "Uninstalling font files from $(datadir)/htmldoc/fonts..."
-	for font in $(FONTS); do \
-		$(RM) $(datadir)/htmldoc/fonts/$$font.afm; \
-		$(RM) $(datadir)/htmldoc/fonts/$$font.pfa; \
-	done
 	-$(RMDIR) $(datadir)/htmldoc/fonts
 
 
@@ -93,5 +102,5 @@ clean:
 
 
 #
-# End of "$Id: Makefile,v 1.2 2004/03/31 06:32:25 mike Exp $".
+# End of "$Id$".
 #

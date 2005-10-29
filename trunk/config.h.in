@@ -1,5 +1,5 @@
 /*
- * "$Id: config.h.in,v 1.24 2004/03/31 07:44:26 mike Exp $"
+ * "$Id$"
  *
  *   Configuration file for HTMLDOC.
  *
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.24"
+#define SVERSION	"1.9"
 
 
 /*
@@ -56,20 +56,6 @@
 
 #define DOCUMENTATION	"/usr/share/doc/htmldoc"
 #define HTML_DATA	"/usr/share/htmldoc"
-
-
-/*
- * Do we have the FLTK library?
- */
-
-#undef HAVE_LIBFLTK
-
-
-/*
- * Do we have the Xpm library?
- */
-
-#undef HAVE_LIBXPM
 
 
 /*
@@ -131,6 +117,46 @@
 
 
 /*
- * End of "$Id: config.h.in,v 1.24 2004/03/31 07:44:26 mike Exp $".
+ * Do we have getaddrinfo()?
+ */
+
+#undef HAVE_GETADDRINFO
+
+
+/*
+ * Do we have getnameinfo()?
+ */
+
+#undef HAVE_GETNAMEINFO
+
+
+/*
+ * Do we have the long long type?
+ */
+
+#undef HAVE_LONG_LONG
+
+#ifdef HAVE_LONG_LONG
+#  define HTMLDOC_LLFMT		"%lld"
+#  define HTMLDOC_LLCAST	(long long)
+#else
+#  define HTMLDOC_LLFMT		"%ld"
+#  define HTMLDOC_LLCAST	(long)
+#endif /* HAVE_LONG_LONG */
+
+
+/*
+ * Do we have the strtoll() function?
+ */
+
+#undef HAVE_STRTOLL
+
+#ifndef HAVE_STRTOLL
+#  define strtoll(nptr,endptr,base) strtol((nptr), (endptr), (base))
+#endif /* !HAVE_STRTOLL */
+
+
+/*
+ * End of "$Id$".
  */
 
