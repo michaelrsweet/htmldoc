@@ -411,6 +411,11 @@ hdStyleSheet::find_style(int             nsels,	// I - Number of selectors
     if (exact && nsels != s->num_selectors)
       continue;
 
+    // Don't use private styles...
+    if (s->num_selectors == 1 && s->selectors[0].id &&
+        !strncmp(s->selectors[0].id, "_HD_", 4))
+      continue;
+
     for (j = 0, score = 0; j < nsels && j < s->num_selectors; j ++, score <<= 2)
     {
       // Check the element...
@@ -433,6 +438,11 @@ hdStyleSheet::find_style(int             nsels,	// I - Number of selectors
           (sels[j].pseudo == NULL ||
 	   strcasecmp(sels[j].pseudo, s->selectors[j].pseudo) == 0))
 	score ++;
+      else
+      {
+        score = 0;
+	break;
+      }
 
       // Check the id...
       if ((sels[j].id != NULL) == (s->selectors[j].id != NULL) &&
@@ -455,6 +465,17 @@ hdStyleSheet::find_style(int             nsels,	// I - Number of selectors
       best       = s;
     }
   }
+
+#ifdef DEBUG
+  if (sels[0].element == HD_ELEMENT_A)
+  {
+    if (best)
+      printf("find_style: A:%s matched %s:%s...\n", sels[0].pseudo,
+             get_element(best->selectors[0].element),
+	     best->selectors[0].pseudo);
+      printf("find_style: A:%s did not match...\n", sels[0].pseudo);
+  }
+#endif // DEBUG
 
   // Return the best match...
   return (best);

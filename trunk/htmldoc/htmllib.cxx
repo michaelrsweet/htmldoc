@@ -2524,7 +2524,7 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
     vspace      = NULL;
   }
 
-  center = t->style->text_align == HD_TEXT_ALIGN_CENTER &&
+  center = t->style && t->style->text_align == HD_TEXT_ALIGN_CENTER &&
            t->element == HD_ELEMENT_TABLE;
 
   // Create a private style and make changes as needed...
