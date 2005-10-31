@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.5 2004/03/31 06:32:25 mike Exp $"
+# "$Id$"
 #
 #   Makefile for HTMLDOC data files.
 #
@@ -38,7 +38,7 @@ FILES	=	cp-1250 cp-1251 cp-1252 cp-1253 cp-1254 cp-1255 \
 		iso-8859-1 iso-8859-14 iso-8859-15 iso-8859-2 iso-8859-3 \
 		iso-8859-4 iso-8859-5 iso-8859-6 iso-8859-7 iso-8859-8 \
 		iso-8859-9 \
-		koi8-r prolog.ps psglyphs
+		koi8-r prolog.ps psglyphs standard.css
 
 
 #
@@ -67,5 +67,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.5 2004/03/31 06:32:25 mike Exp $".
+# End of "$Id$".
 #
