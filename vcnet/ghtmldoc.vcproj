@@ -35,11 +35,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libfltkimages.lib libfltk.lib libeay32.lib ssleay32.lib comctl32.lib wsock32.lib"
+				AdditionalDependencies="libfltkimages.lib libfltk.lib libeay32.lib ssleay32.lib comctl32.lib ws2_32.lib"
 				OutputFile="ghtmldocd.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../../openssl-0.9.6a/out32dll"
+				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames="libcmtd.lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\gDebug/ghtmldocd.pdb"
@@ -101,11 +101,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="fltkimages.lib fltk.lib libeay32.lib ssleay32.lib comctl32.lib wsock32.lib"
+				AdditionalDependencies="fltkimages.lib fltk.lib libeay32.lib ssleay32.lib comctl32.lib ws2_32.lib"
 				OutputFile="ghtmldoc.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../../openssl-0.9.6a/out32dll"
+				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				ProgramDatabaseFile=".\gRelease/ghtmldoc.pdb"
 				SubSystem="2"
@@ -262,6 +262,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\htmldoc\http-addrlist.c">
 			</File>
 			<File
 				RelativePath="..\htmldoc\http-support.c">

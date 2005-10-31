@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8-current Open Source"
+#define SVERSION	"1.8-current"
 
 
 /*
@@ -127,6 +127,46 @@
  */
 
 #undef HAVE_HSTRERROR
+
+
+/*
+ * Do we have getaddrinfo()?
+ */
+
+#define HAVE_GETADDRINFO
+
+
+/*
+ * Do we have getnameinfo()?
+ */
+
+#define HAVE_GETNAMEINFO
+
+
+/*
+ * Do we have the long long type?
+ */
+
+#undef HAVE_LONG_LONG
+
+#ifdef HAVE_LONG_LONG
+#  define HTMLDOC_LLFMT		"%lld"
+#  define HTMLDOC_LLCAST	(long long)
+#else
+#  define HTMLDOC_LLFMT		"%ld"
+#  define HTMLDOC_LLCAST	(long)
+#endif /* HAVE_LONG_LONG */
+
+
+/*
+ * Do we have the strtoll() function?
+ */
+
+#undef HAVE_STRTOLL
+
+#ifndef HAVE_STRTOLL
+#  define strtoll(nptr,endptr,base) strtol((nptr), (endptr), (base))
+#endif /* !HAVE_STRTOLL */
 
 
 /*
