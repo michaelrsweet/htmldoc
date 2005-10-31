@@ -578,6 +578,23 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   get_color((uchar *)LinkColor, link_color);
 
  /*
+  * Make sure that we embed combining characters for fonts that
+  * need them...
+  */
+
+  memset(render_char_used, 0, sizeof(render_char_used));
+  render_char_used[iso8859((uchar *)"acute")] = 1;	// Acute
+  render_char_used[iso8859((uchar *)"#x2c7")] = 1;	// Caron
+  render_char_used[iso8859((uchar *)"cedil")] = 1;	// Cedilla
+  render_char_used[iso8859((uchar *)"circ")]  = 1;	// Circumflex
+  render_char_used['`']                       = 1;	// Grave
+  render_char_used[iso8859((uchar *)"macr")]  = 1;	// Macron
+  render_char_used[iso8859((uchar *)"#x2da")] = 1;	// Ring
+  render_char_used['/']                       = 1;	// Slash
+  render_char_used['~']                       = 1;	// Tilde
+  render_char_used[iso8859((uchar *)"uml")]   = 1;	// Umlaut/dieresis
+
+ /*
   * Initialize page rendering variables...
   */
 
@@ -589,7 +606,6 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   memset(list_values, 0, sizeof(list_values));
   memset(chapter_starts, -1, sizeof(chapter_starts));
   memset(chapter_ends, -1, sizeof(chapter_starts));
-  memset(render_char_used, 0, sizeof(render_char_used));
 
   doc_time       = time(NULL);
   doc_date       = localtime(&doc_time);
