@@ -107,7 +107,6 @@
  *   write_trailer()          - Write the file trailer.
  *   type1_decrypt()          - Decrypt Type 1 font data.
  *   type1_encrypt()          - Encrypt Type 1 font data.
- *   compare_glyphs()         - Compare two glyph names...
  *   write_type1()            - Write an embedded Type 1 font.
  *   encrypt_init()           - Initialize the RC4 encryption context for
  *                              the current object.
@@ -11146,6 +11145,19 @@ write_prolog(FILE  *out,		/* I - Output file */
       if (r->type == RENDER_TEXT)
 	fonts_used[r->data.text.typeface][r->data.text.style] = 1;
 
+#ifdef DEBUG
+  puts("The following fonts were used:");
+  for (i = 0; i < TYPE_MAX; i ++)
+    for (j = 0; j < STYLE_MAX; j ++)
+      if (fonts_used[i][j])
+        printf("    %s\n", _htmlFonts[i][j]);
+
+  puts("\nThe following characters were used:");
+  for (i = 0; i < 256; i ++)
+    if (render_char_used[i])
+      printf("    %02X: %s\n", i, _htmlGlyphs[i]);
+#endif // DEBUG
+
  /*
   * Generate the heading...
   */
@@ -12234,18 +12246,6 @@ type1_encrypt(uchar *buffer,		/* IO - Buffer */
 
 
 /*
- * 'compare_glyphs()' - Compare two glyph names...
- */
-
-static int				/* O - -1 if m0 < m1, 0 if m0 == m1, 1 if m0 > m1 */
-compare_glyphs(char **m0,		/* I - First markup */
-               char **m1)		/* I - Second markup */
-{
-  return (strcmp(*m0, *m1));
-}
-
-
-/*
  * 'write_type1()' - Write an embedded Type 1 font.
  */
 
@@ -12260,7 +12260,6 @@ write_type1(FILE       *out,		/* I - File to write to */
   int		ch;			/* Character value */
   int		width;			/* Width value */
   char		glyph[64],		/* Glyph name */
-		*glyphptr,		/* Pointer to glyph name */
 		line[1024],		/* Line from AFM file */
 		*lineptr,		/* Pointer into line */
 		*dataptr;		/* Pointer for data */
@@ -12366,6 +12365,8 @@ write_type1(FILE       *out,		/* I - File to write to */
     */
 
     dosubset = 0;
+    original = NULL;
+    subset   = NULL;
   }
   else
   {
@@ -12547,20 +12548,12 @@ write_type1(FILE       *out,		/* I - File to write to */
       * Now see if we need this glyph...
       */
 
-      const char **match;
-
-      glyphptr = glyph;
-
       if (!glyph[1])
         i = render_char_used[glyph[0]];
       else if (!strcmp(glyph, ".notdef"))
         i = 1;
-      else if ((match = (const char **)bsearch(&glyphptr, _htmlSorted,
-                                               _htmlNumSorted, sizeof(char *),
-	                                       (int (*)(const void *,
-				                        const void *))
-					           compare_glyphs)) != NULL)
-        i = render_char_used[_htmlSortedChars[match - _htmlSorted]];
+      else if ((ch = htmlFindGlyph(glyph)) != 0)
+        i = render_char_used[ch];
       else
         i = 0;
 

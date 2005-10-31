@@ -23,34 +23,39 @@
  *
  * Contents:
  *
- *   htmlReadFile()      - Read a file for HTML markup codes.
- *   write_file()        - Write a tree entry to a file...
- *   htmlWriteFile()     - Write an HTML markup tree to a file.
- *   htmlAddTree()       - Add a tree node to the parent.
- *   htmlDeleteTree()    - Free all memory associated with a tree...
- *   htmlInsertTree()    - Insert a tree node to the parent.
- *   htmlNewTree()       - Create a new tree node for the parent.
- *   htmlGetText()       - Get all text from the given tree.
- *   htmlGetMeta()       - Get document "meta" data...
- *   htmlGetStyle()      - Get a style value from a node's STYLE attribute.
- *   htmlGetVariable()   - Get a variable value from a markup entry.
- *   htmlSetVariable()   - Set a variable for a markup entry.
- *   htmlSetBaseSize()   - Set the font sizes and spacings...
- *   htmlSetCharSet()    - Set the character set for output.
- *   htmlSetTextColor()  - Set the default text color.
- *   compare_variables() - Compare two markup variables.
- *   compare_markups()   - Compare two markup strings...
- *   delete_node()       - Free all memory associated with a node...
- *   insert_space()      - Insert a whitespace character before the
- *                         specified node.
- *   parse_markup()      - Parse a markup string.
- *   parse_variable()    - Parse a markup variable string.
- *   compute_size()      - Compute the width and height of a tree entry.
- *   compute_color()     - Compute the red, green, blue color from the given
- *   get_alignment()     - Get horizontal & vertical alignment values.
- *   fix_filename()      - Fix a filename to be relative to the base directory.
- *   html_memory_used()  - Figure out the amount of memory that was used.
- *   htmlDebugStats()    - Display debug statistics for HTML tree memory use.
+ *   htmlReadFile()       - Read a file for HTML markup codes.
+ *   write_file()         - Write a tree entry to a file...
+ *   htmlWriteFile()      - Write an HTML markup tree to a file.
+ *   htmlAddTree()        - Add a tree node to the parent.
+ *   htmlDeleteTree()     - Free all memory associated with a tree...
+ *   htmlInsertTree()     - Insert a tree node to the parent.
+ *   htmlNewTree()        - Create a new tree node for the parent.
+ *   htmlGetText()        - Get all text from the given tree.
+ *   htmlGetMeta()        - Get document "meta" data...
+ *   htmlGetStyle()       - Get a style value from a node's STYLE attribute.
+ *   htmlGetVariable()    - Get a variable value from a markup entry.
+ *   htmlLoadFontWidths() - Load all of the font width files.
+ *   htmlSetVariable()    - Set a variable for a markup entry.
+ *   htmlSetBaseSize()    - Set the font sizes and spacings...
+ *   htmlSetCharSet()     - Set the character set for output.
+ *   htmlSetTextColor()   - Set the default text color.
+ *   compare_variables()  - Compare two markup variables.
+ *   compare_markups()    - Compare two markup strings...
+ *   delete_node()        - Free all memory associated with a node...
+ *   insert_space()       - Insert a whitespace character before the
+ *                          specified node.
+ *   parse_markup()       - Parse a markup string.
+ *   parse_variable()     - Parse a markup variable string.
+ *   compute_size()       - Compute the width and height of a tree entry.
+ *   compute_color()      - Compute the red, green, blue color from the given
+ *   get_alignment()      - Get horizontal & vertical alignment values.
+ *   fix_filename()       - Fix a filename to be relative to the base directory.
+ *   html_memory_used()   - Figure out the amount of memory that was used.
+ *   htmlDebugStats()     - Display debug statistics for HTML tree memory use.
+ *   find_glyph()         - Find the closest glyph in the sorted array.
+ *   htmlAddGlyph()       - Add a glyph to the sorted array.
+ *   htmlFindGlyph()      - Find a glyph in the sorted array.
+ *   htmlInitGlyphs()     - Initialize the sorted glyphs array.
  */
 
 /*
@@ -769,7 +774,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = ';';
 	  }
-	  else if (ptr < (s + sizeof(s) - 1))
+	  else
 	    *ptr++ = ch;
         }
 	else if (ch != 0 && ch != '\r')
@@ -822,13 +827,14 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	    else
 	      *eptr++ = ch;
 
+          *eptr = '\0';
+
           if (ch != ';')
 	  {
 	    ungetc(ch, fp);
 	    ch = 0;
 	  }
 
-          *eptr = '\0';
           if (!ch)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
@@ -851,7 +857,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = ';';
 	  }
-	  else if (ptr < (s + sizeof(s) - 1))
+	  else
 	    *ptr++ = ch;
         }
 	else if (ch)
@@ -874,7 +880,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       t->markup = MARKUP_NONE;
       t->data   = (uchar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
+      DEBUG_printf(("%sfragment \"%s\" (len=%d), line %d\n", indent, s,
+                    ptr - s, linenum));
     }
 
    /*
@@ -2029,6 +2036,85 @@ htmlGetVariable(tree_t *t,	/* I - Tree entry */
 
 
 /*
+ * 'htmlLoadFontWidths()' - Load all of the font width files.
+ */
+
+void
+htmlLoadFontWidths(void)
+{
+  int		i, j;			/* Looping vars */
+  char		filename[1024];		/* Filenames */
+  FILE		*fp;			/* Files */
+  int		ch;			/* Character */
+  float		width;			/* Width value */
+  char		glyph[64];		/* Glyph name */
+  char		line[1024];		/* Line from AFM file */
+
+
+ /*
+  * Now read all of the font widths...
+  */
+
+  for (i = 0; i < TYPE_MAX; i ++)
+    for (j = 0; j < STYLE_MAX; j ++)
+    {
+      for (ch = 0; ch < 256; ch ++)
+        _htmlWidths[i][j][ch] = 0.6f;
+
+      snprintf(filename, sizeof(filename), "%s/fonts/%s.afm", _htmlData,
+               _htmlFonts[i][j]);
+      if ((fp = fopen(filename, "r")) == NULL)
+      {
+#ifndef DEBUG
+        progress_error(HD_ERROR_FILE_NOT_FOUND,
+                       "Unable to open font width file %s!", filename);
+#endif /* !DEBUG */
+        continue;
+      }
+
+      while (fgets(line, sizeof(line), fp) != NULL)
+      {
+        if (strncmp(line, "C ", 2) != 0)
+	  continue;
+
+        if (i < TYPE_SYMBOL)
+	{
+	 /*
+	  * Handle encoding of Courier, Times, and Helvetica using
+	  * assigned charset...
+	  */
+
+          if (sscanf(line, "%*s%*s%*s%*s%f%*s%*s%s", &width, glyph) != 2)
+	    continue;
+
+          for (ch = 0; ch < 256; ch ++)
+	    if (_htmlGlyphs[ch] && !strcmp(_htmlGlyphs[ch], glyph))
+	      _htmlWidths[i][j][ch] = width * 0.001f;
+	}
+	else
+	{
+	 /*
+	  * Symbol and dingbats fonts uses their own encoding...
+	  */
+
+          if (sscanf(line, "%*s%d%*s%*s%f", &ch, &width) != 2)
+	    continue;
+
+          if (ch < 256 && ch >= 0)
+	    _htmlWidths[i][j][ch] = width * 0.001f;
+	}
+      }
+
+      fclose(fp);
+
+      // Make sure that non-breaking space has the same width as
+      // a breaking space...
+      _htmlWidths[i][j][160] = _htmlWidths[i][j][32];
+    }
+}
+
+
+/*
  * 'htmlSetVariable()' - Set a variable for a markup entry.
  */
 
@@ -2129,13 +2215,11 @@ void
 htmlSetCharSet(const char *cs)		/* I - Character set file to load */
 {
   int		i, j;			/* Looping vars */
-  int		diff;			/* Result of comparison */
   char		filename[1024];		/* Filenames */
   FILE		*fp;			/* Files */
   int		ch, unicode;		/* Character values */
-  float		width;			/* Width value */
   char		glyph[64];		/* Glyph name */
-  char		line[1024];		/* Line from AFM file */
+  char		line[1024];		/* Line from charset file */
   int		chars[256];		/* Character encoding array */
 
 
@@ -2186,39 +2270,6 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
 
     for (i = 0; i < 256; i ++)
       chars[i] = i;
-
-   /*
-    * Hardcode characters 128 to 159 for Microsoft's version of ISO-8859-1
-    * (CP-1252)...
-    */
-
-    chars[0x80] = 0x20ac; /* EURO SIGN  */
-    chars[0x82] = 0x201a; /* SINGLE LOW-9 QUOTATION MARK */
-    chars[0x83] = 0x0192; /* LATIN SMALL LETTER F WITH HOOK */
-    chars[0x84] = 0x201e; /* DOUBLE LOW-9 QUOTATION MARK */
-    chars[0x85] = 0x2026; /* HORIZONTAL ELLIPSIS */
-    chars[0x86] = 0x2020; /* DAGGER */
-    chars[0x87] = 0x2021; /* DOUBLE DAGGER */
-    chars[0x88] = 0x02c6; /* MODIFIER LETTER CIRCUMFLEX ACCENT */
-    chars[0x89] = 0x2030; /* PER MILLE SIGN */
-    chars[0x8a] = 0x0160; /* LATIN CAPITAL LETTER S WITH CARON */
-    chars[0x8b] = 0x2039; /* SINGLE LEFT-POINTING ANGLE QUOTATION MARK */
-    chars[0x8c] = 0x0152; /* LATIN CAPITAL LIGATURE OE */
-    chars[0x8e] = 0x017d; /* LATIN CAPITAL LETTER Z WITH CARON */
-    chars[0x91] = 0x2018; /* LEFT SINGLE QUOTATION MARK */
-    chars[0x92] = 0x2019; /* RIGHT SINGLE QUOTATION MARK */
-    chars[0x93] = 0x201c; /* LEFT DOUBLE QUOTATION MARK */
-    chars[0x94] = 0x201d; /* RIGHT DOUBLE QUOTATION MARK */
-    chars[0x95] = 0x2022; /* BULLET */
-    chars[0x96] = 0x2013; /* EN DASH */
-    chars[0x97] = 0x2014; /* EM DASH */
-    chars[0x98] = 0x02dc; /* SMALL TILDE */
-    chars[0x99] = 0x2122; /* TRADE MARK SIGN */
-    chars[0x9a] = 0x0161; /* LATIN SMALL LETTER S WITH CARON */
-    chars[0x9b] = 0x203a; /* SINGLE RIGHT-POINTING ANGLE QUOTATION MARK */
-    chars[0x9c] = 0x0153; /* LATIN SMALL LIGATURE OE */
-    chars[0x9e] = 0x017e; /* LATIN SMALL LETTER Z WITH CARON */
-    chars[0x9f] = 0x0178; /* LATIN CAPITAL LETTER Y WITH DIAERESIS */
   }
   else
   {
@@ -2238,7 +2289,9 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
   * Build the glyph array...
   */
 
-  for (i = 0, j = 0, _htmlNumSorted = 0; i < 256; i ++)
+  htmlInitGlyphs();
+
+  for (i = 0, j = 0; i < 256; i ++)
   {
    /*
     * Add the glyph to the charset array...
@@ -2257,115 +2310,10 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
     * embedding font subsets...
     */
 
-    if (_htmlNumSorted == 0)
-    {
-      _htmlSorted[0]      = _htmlGlyphs[i];
-      _htmlSortedChars[0] = i;
-      _htmlNumSorted      = 1;
-    }
-    else
-    {
-      while ((diff = strcmp(_htmlGlyphs[i], _htmlSorted[j])) < 0 && j > 0)
-        j --;
-
-      while (diff > 0 && j < _htmlNumSorted)
-      {
-        j ++;
-
-	if (j >= _htmlNumSorted)
-	  break;
-
-        diff = strcmp(_htmlGlyphs[i], _htmlSorted[j]);
-      }
-
-      if (diff)
-      {
-        if (j < _htmlNumSorted)
-	{
-	  memmove(_htmlSorted + j + 1, _htmlSorted + j,
-	          (_htmlNumSorted - j) * sizeof(char *));
-	  memmove(_htmlSortedChars + j + 1, _htmlSortedChars + j,
-	          (_htmlNumSorted - j) * sizeof(uchar));
-        }
-
-        _htmlSorted[j]      = _htmlGlyphs[i];
-	_htmlSortedChars[j] = i;
-	_htmlNumSorted ++;
-      }
-    }
+    htmlAddGlyph(_htmlGlyphs[i], i);
   }
 
-#ifdef DEBUG
-  printf("_htmlNumSorted=%d\n", _htmlNumSorted);
-  for (i = 0; i < _htmlNumSorted; i ++)
-  {
-    if (i && strcmp(_htmlSorted[i], _htmlSorted[i - 1]) <= 0)
-      printf("_htmlSorted[%d]=\"%s\" ERROR!!!!\n", i, _htmlSorted[i]);
-    else
-      printf("_htmlSorted[%d]=\"%s\"\n", i, _htmlSorted[i]);
-  }
-#endif /* DEBUG */
-
- /*
-  * Now read all of the font widths...
-  */
-
-  for (i = 0; i < TYPE_MAX; i ++)
-    for (j = 0; j < STYLE_MAX; j ++)
-    {
-      for (ch = 0; ch < 256; ch ++)
-        _htmlWidths[i][j][ch] = 0.6f;
-
-      snprintf(filename, sizeof(filename), "%s/fonts/%s.afm", _htmlData,
-               _htmlFonts[i][j]);
-      if ((fp = fopen(filename, "r")) == NULL)
-      {
-#ifndef DEBUG
-        progress_error(HD_ERROR_FILE_NOT_FOUND,
-                       "Unable to open font width file %s!", filename);
-#endif /* !DEBUG */
-        continue;
-      }
-
-      while (fgets(line, sizeof(line), fp) != NULL)
-      {
-        if (strncmp(line, "C ", 2) != 0)
-	  continue;
-
-        if (i < TYPE_SYMBOL)
-	{
-	 /*
-	  * Handle encoding of Courier, Times, and Helvetica using
-	  * assigned charset...
-	  */
-
-          if (sscanf(line, "%*s%*s%*s%*s%f%*s%*s%s", &width, glyph) != 2)
-	    continue;
-
-          for (ch = 0; ch < 256; ch ++)
-	    if (_htmlGlyphs[ch] && !strcmp(_htmlGlyphs[ch], glyph))
-	      _htmlWidths[i][j][ch] = width * 0.001f;
-	}
-	else
-	{
-	 /*
-	  * Symbol and dingbats fonts uses their own encoding...
-	  */
-
-          if (sscanf(line, "%*s%d%*s%*s%f", &ch, &width) != 2)
-	    continue;
-
-          if (ch < 256 && ch >= 0)
-	    _htmlWidths[i][j][ch] = width * 0.001f;
-	}
-      }
-
-      fclose(fp);
-
-      // Make sure that non-breaking space has the same width as
-      // a breaking space...
-      _htmlWidths[i][j][160] = _htmlWidths[i][j][32];
-    }
+  htmlLoadFontWidths();
 }
 
 
@@ -2644,7 +2592,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
             if (cptr < (comment + sizeof(comment) - 1))
 	      *cptr++ = ';';
 	  }
-	  else if (cptr < (comment + sizeof(comment) - 1))
+	  else
 	    *cptr++ = ch;
 	}
 	else
@@ -3409,6 +3357,162 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
     tree = tree->next;
   }
+}
+
+
+/*
+ * 'find_glyph()' - Find the closest glyph in the sorted array.
+ */
+
+static int				/* O - Closest match */
+find_glyph(const char *glyph,		/* I - Glyph name */
+           int        *rdiff)		/* I - Difference */
+{
+  int	left,				/* Left side of search */
+	right,				/* Right side of search */
+	current,			/* Current element */
+	diff;				/* Comparison with current element */
+
+
+ /*
+  * Start search in the middle...
+  */
+
+  left  = 0;
+  right = _htmlNumSorted - 1;
+
+  do
+  {
+    current = (left + right) / 2;
+    diff    = strcmp(glyph, _htmlSorted[current]);
+
+    DEBUG_printf(("find_glyph: left=%d, right=%d, current=%d, diff=%d\n",
+                  left, right, current, diff));
+
+    if (diff == 0)
+      break;
+    else if (diff < 0)
+      right = current;
+    else
+      left = current;
+  }
+  while ((right - left) > 1);
+
+  if (diff != 0)
+  {
+   /*
+    * Check the last 1 or 2 elements...
+    */
+
+    if ((diff = strcmp(glyph, _htmlSorted[left])) <= 0)
+      current = left;
+    else
+    {
+      diff    = strcmp(glyph, _htmlSorted[right]);
+      current = right;
+    }
+  }
+
+ /*
+  * Return the closest element and the difference...
+  */
+
+  DEBUG_printf(("find_glyph: Returning %d, diff=%d\n", current, diff));
+
+  *rdiff = diff;
+
+  return (current);
+}
+
+
+/*
+ * 'htmlAddGlyph()' - Add a glyph to the sorted array.
+ */
+
+void
+htmlAddGlyph(const char *glyph,		/* I - Glyph name */
+             int        ch)		/* I - Character index */
+{
+  int	closest,			/* Closest match */
+	diff;				/* Difference */
+
+
+  DEBUG_printf(("htmlAddGlyph(glyph=\"%s\", ch=%d)\n", glyph, ch));
+
+ /*
+  * Find the insertion point...
+  */
+
+  if (!_htmlNumSorted)
+    closest = 0;
+  else
+  {
+    closest = find_glyph(glyph, &diff);
+
+    if (diff == 0)
+      return;
+    else if (diff > 0)
+      closest ++;
+  }
+
+ /*
+  * Insert or append the element...
+  */
+
+  if (closest < _htmlNumSorted)
+  {
+    memmove(_htmlSorted + closest + 1, _htmlSorted + closest,
+            (_htmlNumSorted - closest) * sizeof(char *));
+    memmove(_htmlSortedChars + closest + 1, _htmlSortedChars + closest,
+            _htmlNumSorted - closest);
+  }
+
+  _htmlSorted[closest]      = glyph;
+  _htmlSortedChars[closest] = ch;
+  _htmlNumSorted ++;
+
+#ifdef DEBUG
+  int i;
+
+  printf("    _htmlNumSorted=%d\n", _htmlNumSorted);
+  for (i = 0; i < _htmlNumSorted; i ++)
+  {
+    if (i && strcmp(_htmlSorted[i], _htmlSorted[i - 1]) <= 0)
+      printf("    _htmlSorted[%d]=\"%s\" ERROR!!!!\n", i, _htmlSorted[i]);
+    else
+      printf("    _htmlSorted[%d]=\"%s\"\n", i, _htmlSorted[i]);
+  }
+#endif /* DEBUG */
+}
+
+
+/*
+ * 'htmlFindGlyph()' - Find a glyph in the sorted array.
+ */
+
+int					/* O - Character or -1 if not found */
+htmlFindGlyph(const char *glyph)	/* I - Glyph name */
+{
+  int	closest,			/* Closest match */
+	diff;				/* Difference */
+
+
+  closest = find_glyph(glyph, &diff);
+  if (diff)
+    return (0);
+  else
+    return (_htmlSortedChars[closest]);
+}
+
+
+/*
+ * 'htmlInitGlyphs()' - Initialize the sorted glyphs array.
+ */
+
+void
+htmlInitGlyphs(void)
+{
+  _htmlNumSorted = 0;
 }
 
 
