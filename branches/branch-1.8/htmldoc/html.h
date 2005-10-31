@@ -326,6 +326,11 @@ extern void	htmlSetBaseSize(float p, float s);
 extern void	htmlSetCharSet(const char *cs);
 extern void	htmlSetTextColor(uchar *color);
 
+extern void	htmlAddGlyph(const char *glyph, int ch);
+extern int	htmlFindGlyph(const char *glyph);
+extern void	htmlInitGlyphs(void);
+extern void	htmlLoadFontWidths(void);
+
 extern void	htmlDebugStats(const char *title, tree_t *t);
 
 #  ifdef __cplusplus
