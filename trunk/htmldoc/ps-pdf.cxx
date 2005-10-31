@@ -4469,6 +4469,10 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
       progress_show("Formatting page %d", *page);
   }
 
+  DEBUG_printf(("Before %s: y=%.1f, line_height=%.1f\n",
+                _htmlStyleSheet->get_element(t->element), *y,
+		t->style->line_height));
+
   check_pages(*page);
 
   if (t->element == HD_ELEMENT_H1 && !title_page)
@@ -4549,6 +4553,9 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
 
     margins->clear(*y, *page);
   }
+
+  DEBUG_printf(("After %s: y=%.1f\n", _htmlStyleSheet->get_element(t->element),
+                *y));
 }
 
 
@@ -4590,7 +4597,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 		*link,
 		*border;
   float		rgb[3];
-  hdChar		line[10240],
+  hdChar	line[10240],
 		*lineptr,
 		*dataptr;
   hdTree	*linetype;
@@ -5000,6 +5007,17 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         temp_height += 2 * borderspace;
       }
 
+#ifdef DEBUG
+      if (temp_height > 20)
+      {
+        if (temp->element == HD_ELEMENT_NONE)
+          printf("\"%s\": temp_height=%.1f\n", temp->data, temp_height);
+	else
+	  printf("%s: temp_height=%.1f\n",
+	         _htmlStyleSheet->get_element(temp->element), temp_height);
+      }
+#endif // DEBUG
+
       if (temp_height > spacing)
         spacing = temp_height;
     }
@@ -5361,6 +5379,9 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
    /*
     * Update the margins after we pass below the images...
     */
+
+    if (spacing > 20 || height > 20)
+      printf("y=%.1f, spacing=%.1f, height=%.1f\n", *y, spacing, height);
 
     *y -= spacing - height;
 
@@ -9459,11 +9480,12 @@ flatten_tree(hdTree *t)		/* I - Markup tree to flatten */
       case HD_ELEMENT_TR :
       case HD_ELEMENT_CAPTION :
 	  temp = (hdTree *)calloc(sizeof(hdTree), 1);
+          temp->style   = t->style;
 	  temp->element = HD_ELEMENT_BR;
-	  temp->parent = NULL;
-	  temp->child  = NULL;
-	  temp->prev   = flat;
-	  temp->next   = NULL;
+	  temp->parent  = NULL;
+	  temp->child   = NULL;
+	  temp->prev    = flat;
+	  temp->next    = NULL;
 	  if (flat != NULL)
             flat->next = temp;
           flat = temp;

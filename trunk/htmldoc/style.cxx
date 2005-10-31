@@ -618,6 +618,10 @@ hdStyle::get_length(
     val *= 72.0f / 25.4f;
   else if (!strcasecmp(units, "pc"))
     val *= 12.0f;
+  else if (!strcasecmp(units, "pt") || (!*units && val >= 4.0))
+  {
+    // No conversion needed for points...
+  }
   else if (!strcasecmp(units, "px"))
   {
     // Pixel resolutions use a global "pixels per inch" setting
@@ -2685,6 +2689,9 @@ hdStyle::set_font_size(
   font_size = get_length(s, css->def_style.font_size,
                          css->def_style.font_size, css, &relative);
 
+//  printf("set_font_size(s=\"%s\", css=%p) = %.1f, font_size=%.1f\n",
+//         s, css, font_size, css->def_style.font_size);
+
   set_string(relative ? s : NULL, font_size_rel);
 }
 
@@ -2704,6 +2711,8 @@ hdStyle::set_line_height(
   line_height = get_length(lh, css->def_style.font_size,
                            css->def_style.font_size, css, &relative);
 
+//  printf("set_line_height(lh=\"%s\", css=%p) = %.1f, font_size=%.1f\n",
+//         lh, css, line_height, css->def_style.font_size);
   set_string(relative ? lh : NULL, line_height_rel);
 }
 
