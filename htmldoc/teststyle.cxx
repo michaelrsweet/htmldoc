@@ -147,7 +147,7 @@ main(int  argc,				// I - Number of command-line args
 
 
   // Check command-line...
-  if (argc != 2)
+  if (argc < 2)
   {
     puts("Usage: teststyle filename.css");
     return (1);
@@ -161,7 +161,9 @@ main(int  argc,				// I - Number of command-line args
   }
 
   css = new hdStyleSheet();
+
   css->load(fp, ".");
+  css->set_line_height("1.1");
   css->update_styles();
 
   fclose(fp);
@@ -294,6 +296,28 @@ main(int  argc,				// I - Number of command-line args
     if (style->list_style_type != HD_LIST_STYLE_TYPE_INHERIT)
       printf("  list-style-type: %s\n",
              list_style_type[style->list_style_type]);
+
+    for (j = 0; j < 4; j ++)
+      if (style->margin[j] != HD_WIDTH_AUTO || style->margin_rel[j])
+      {
+	printf("  margin-%s:", pos[j]);
+
+        if (style->margin_rel[j])
+	  printf(" %s (%.1f)\n", style->margin_rel[j], style->margin[j]);
+	else
+          printf(" %.1f\n", style->margin[j]);
+      }
+
+    for (j = 0; j < 4; j ++)
+      if (style->padding[j] != HD_WIDTH_AUTO || style->padding_rel[j])
+      {
+	printf("  padding-%s:", pos[j]);
+
+        if (style->padding_rel[j])
+	  printf(" %s (%.1f)\n", style->padding_rel[j], style->padding[j]);
+	else
+          printf(" %.1f\n", style->padding[j]);
+      }
 
     if (style->page_break_after)
       printf("  page-break-after: %s\n", page_break[style->page_break_after]);

@@ -2381,7 +2381,8 @@ htmlDeleteStyleSheet(void)
 void
 htmlInitStyleSheet(void)
 {
-  FILE *fp;				// Standard stylesheet...
+  char	filename[1024];			// Stylesheet filename
+  FILE	*fp;				// Standard stylesheet
 
 
   // Check if we have already been called...
@@ -2391,9 +2392,12 @@ htmlInitStyleSheet(void)
   // Create a new stylesheet and load the standard stylesheet file...
   _htmlStyleSheet = new hdStyleSheet();
 
-  fp = fopen("../data/standard.css", "rb");
-  _htmlStyleSheet->load(fp, "../data");
-  fclose(fp);
+  snprintf(filename, sizeof(filename), "%s/data/standard.css", _htmlData);
+  if ((fp = fopen(filename, "rb")) != NULL)
+  {
+    _htmlStyleSheet->load(fp, _htmlData);
+    fclose(fp);
+  }
 
   _htmlStyleSheet->update_styles();
 }
