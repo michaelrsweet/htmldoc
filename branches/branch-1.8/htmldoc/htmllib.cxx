@@ -2310,7 +2310,8 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
     * embedding font subsets...
     */
 
-    htmlAddGlyph(_htmlGlyphs[i], i);
+    if (_htmlGlyphs[i])
+      htmlAddGlyph(_htmlGlyphs[i], i);
   }
 
   htmlLoadFontWidths();
