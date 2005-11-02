@@ -579,7 +579,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
  /*
   * Make sure that we embed combining characters for fonts that
-  * need them...
+  * need them...  This definitely falls under the category of "hack"
+  * but it is the only way to safely subset the Type 1 fonts we use...
   */
 
   memset(render_char_used, 0, sizeof(render_char_used));
@@ -593,6 +594,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   render_char_used['/']                       = 1;	// Slash
   render_char_used['~']                       = 1;	// Tilde
   render_char_used[iso8859((uchar *)"uml")]   = 1;	// Umlaut/dieresis
+
+  for (i = 32; i < 127; i ++)
+    render_char_used[i] = 1;
 
  /*
   * Initialize page rendering variables...
@@ -12396,7 +12400,7 @@ write_type1(FILE       *out,		/* I - File to write to */
     * Allocate a buffer to hold the font data...
     */
 
-    original = (uchar *)malloc(length2);
+    original = (uchar *)malloc(length2 + 1);
     subset   = (uchar *)malloc(length2);
 
     if (!original || !subset)
@@ -12411,6 +12415,8 @@ write_type1(FILE       *out,		/* I - File to write to */
                      "Unable to allocate memory for font \"%s\"!", filename);
       return (0);
     }
+
+    original[length2] = '\0';		// Ensure nul termination...
 
    /*
     * Read the font data...
