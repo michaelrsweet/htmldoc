@@ -324,8 +324,6 @@ iso8859(uchar *name)			/* I - Glyph name */
 
   if (strlen((char *)name) == 1)
     return (name[0]);
-  else if (strlen((char *)name) > 6)
-    return (0);
   else if (name[0] == '#')
   {
     // Return a decimal or hex character...
