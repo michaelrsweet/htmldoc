@@ -34,6 +34,7 @@ include ../Makedefs
 #
 
 OBJS	=	\
+		entity.o \
 		file.o \
 		html.o \
 		htmldoc.o \
@@ -44,7 +45,6 @@ OBJS	=	\
 		http-addrlist.o \
 		http-support.o \
 		image.o \
-		iso8859.o \
 		margin.o \
 		md5.o \
 		progress.o \
@@ -61,6 +61,7 @@ OBJS	=	\
 		util.o
 
 SRCS	=	\
+		entity.cxx \
 		file.c \
 		html.cxx \
 		htmldoc.cxx \
@@ -71,7 +72,6 @@ SRCS	=	\
 		http-addrlist.c \
 		http-support.c \
 		image.cxx \
-		iso8859.cxx \
 		margin.cxx \
 		md5.c \
 		progress.cxx \
