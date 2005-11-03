@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.25" "28 October 2005" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.25" "3 November 2005" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -357,6 +357,12 @@ in the output.
 Suppresses all messages, even error messages.
 
 .TP 5
+--referer \fIurl\fR
+.br
+Specifies the URL that is passed in the Referer: field of HTTP
+requests.
+
+.TP 5
 --right \fImargin\fR
 .br
 Specifies the right margin in points (no suffix or ##pt), inches
@@ -534,29 +540,63 @@ T
 .br
 current time
 
+.SH ENVIRONMENT VARIABLES
+HTMLDOC looks for several environment variables which can override
+the default directories, display additional debugging information, and
+disable CGI mode:
+
+.TP 5
+HTMLDOC_DATA
+.br
+This environment variable specifies the location of HTMLDOC's data
+and fonts directories, normally /usr/share/htmldoc or
+C:\\Program Files\\Easy Software Products\\HTMLDOC.
+
+.TP 5
+HTMLDOC_DEBUG
+.br
+This environment variable enables debugging information that is
+sent to stderr. The value is a list of any of the following
+keywords separated by spaces: "all", "links", "memory",
+"remotebytes", "table", "tempfiles", and/or "timing".
+
+.TP 5
+HTMLDOC_HELP
+.br
+This environment variable specifies the location of HTMLDOC's
+documentation directory, normally
+/usr/share/doc/htmldoc or C:\\Program Files\\Easy
+Software Products\\HTMLDOC\\doc.
+
+.TP 5
+HTMLDOC_NOCGI
+.br
+This environment variable, when set (the value doesn't
+matter), disables CGI mode. It is most useful for using HTMLDOC
+on a web server from a scripting language or invocation from a
+program.
+
 .SH SEE ALSO
 HTMLDOC Software Users Manual
 .LP
 http://www.easysw.com/htmldoc/
 .SH AUTHOR
-Michael Sweet (mike@easysw.com), Easy Software Products
+Michael Sweet, Easy Software Products
 .SH TRADEMARKS
 PostScript is a trademark that may be registered in some countries and Adobe is
 a registered trademark of Adobe Systems Incorporated.
 .SH COPYRIGHTS
 Portable Document Format Copyright 1993-1999 by Adobe Systems Incorporated.
 .LP
-HTMLDOC is copyright 1997-2005 by Easy Software Products. This program is free
-software; you can redistribute it and/or modify it under the terms of the GNU
-General Public License as published by the Free Software Foundation; either
-version 2 of the License, or (at your option) any later version.
+HTMLDOC and <HTML>DOC are the trademark property of Easy Software
+Products. HTMLDOC is copyright 1997-2005 by Easy Software
+Products.
 .LP
 This program is based in part on the work of the Independent JPEG Group.
 .SH NO WARRANTY
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-details.
+FOR A PARTICULAR PURPOSE.
 .\"
 .\" End of "$Id$".
 .\"
