@@ -12217,55 +12217,6 @@ write_trailer(FILE *out,		/* I - Output file */
 
 
 /*
- * 'type1_decrypt()' - Decrypt Type 1 font data.
- */
-
-static void
-type1_decrypt(uchar *buffer,		/* IO - Buffer */
-              int   length)		/* I  - Length of buffer */
-{
-  uchar			plain;		/* Plaintext value */
-  unsigned short	key;		/* Decryption key */
-
-
-  key = 55665;
-
-  while (length > 0)
-  {
-    plain = *buffer ^ (key >> 8);
-    key   = (*buffer + key) * 52845 + 22719;
-
-    length --;
-    *buffer++ = plain;
-  }
-}
-
-
-/*
- * 'type1_encrypt()' - Encrypt Type 1 font data.
- */
-
-static void
-type1_encrypt(uchar *buffer,		/* IO - Buffer */
-              int   length)		/* I  - Length of buffer */
-{
-  unsigned short	key;		/* Decryption key */
-
-
-  key = 55665;
-
-  while (length > 0)
-  {
-    *buffer ^= (key >> 8);
-    key     = (*buffer + key) * 52845 + 22719;
-
-    length --;
-    buffer ++;
-  }
-}
-
-
-/*
  * 'write_type1()' - Write an embedded Type 1 font.
  */
 
@@ -12274,7 +12225,6 @@ write_type1(FILE       *out,		/* I - File to write to */
             typeface_t typeface,	/* I - Typeface */
 	    style_t    style)		/* I - Style */
 {
-  int		i;			/* Looping var */
   char		filename[1024];		/* PFA filename */
   FILE		*fp;			/* PFA file */
   int		ch;			/* Character value */
@@ -12290,18 +12240,9 @@ write_type1(FILE       *out,		/* I - File to write to */
 		bbox[4],		/* Bounding box */
 		italic_angle;		/* Angle for italics */
   int		widths[256];		/* Character widths */
-  int		dosubset;		/* Subset this font? */
   int		length1,		/* Length1 value for font */
 		length2,		/* Length2 value for font */
-		length3,		/* Length3 value for font */
-		start,			/* Start of font data */
-		end;			/* End of font data */
-  uchar		*original,		/* Original font data */
-		*subset,		/* Subset font data */
-		*char_ptr,		/* Start of current char */
-		*subset_ptr,		/* Pointer into subset data */
-		*original_ptr,		/* Pointer into original data */
-		*original_end;		/* End of original data */
+		length3;		/* Length3 value for font */
   static int	tflags[] =		/* PDF typeface flags */
 		{
 		  33,			/* Courier */
@@ -12309,7 +12250,7 @@ write_type1(FILE       *out,		/* I - File to write to */
 		  32,			/* Helvetica */
 		  33,			/* Monospace */
 		  34,			/* Serif */
-		  32,			/* Sans-Serif */
+		  32,			/* Sans */
 		  4,			/* Symbol */
 		  4			/* Dingbats */
 		};
@@ -12328,9 +12269,6 @@ write_type1(FILE       *out,		/* I - File to write to */
   * because the Type1 fonts that Adobe ships typically do not include
   * the full set of characters required by some of the ISO character
   * sets.
-  *
-  * We also do subsetting of Type1 fonts by decrypting the font data,
-  * extracting the chars we need, and re-encrypting the output...
   */
 
  /*
@@ -12349,265 +12287,6 @@ write_type1(FILE       *out,		/* I - File to write to */
   }
 
  /*
-  * Start by getting the offsets in the font file...
-  */
-
-  length1 = 0;
-  length2 = 0;
-  length3 = 0;
-
-  while (fgets(line, sizeof(line), fp) != NULL)
-  {
-    length1 += strlen(line);
-    if (strstr(line, "currentfile eexec") != NULL)
-      break;
-  }
-
-  start = end = ftell(fp);
-
-  while (fgets(line, sizeof(line), fp) != NULL)
-  {
-    if (strlen(line) == 65)
-      break;
-
-    length2 += (strlen(line) - 1) / 2;
-    end     = ftell(fp);
-  }
-
-  length3 = strlen(line);
-  while (fgets(line, sizeof(line), fp) != NULL)
-    length3 += strlen(line);
-
-  if (typeface >= TYPE_SYMBOL)
-  {
-   /*
-    * For now, the symbol fonts do not get subsetted...
-    */
-
-    dosubset = 0;
-    original = NULL;
-    subset   = NULL;
-  }
-  else
-  {
-   /*
-    * Subset this font...
-    */
-
-    dosubset = 1;
-
-   /*
-    * Allocate a buffer to hold the font data...
-    */
-
-    original = (uchar *)malloc(length2 + 1);
-    subset   = (uchar *)malloc(length2);
-
-    if (!original || !subset)
-    {
-      if (original)
-	free(original);
-
-      if (subset)
-	free(subset);
-
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
-                     "Unable to allocate memory for font \"%s\"!", filename);
-      return (0);
-    }
-
-    original[length2] = '\0';		// Ensure nul termination...
-
-   /*
-    * Read the font data...
-    */
-
-    fseek(fp, start, SEEK_SET);
-
-    for (original_ptr = original, i = length2; i > 0; i --, original_ptr ++)
-    {
-      do
-      {
-	ch = getc(fp);
-      }
-      while (isspace(ch & 255));
-
-      if (isdigit(ch & 255))
-	*original_ptr = (ch - '0') << 4;
-      else
-	*original_ptr = (tolower(ch & 255) - 'a' + 10) << 4;
-
-      do
-      {
-	ch = getc(fp);
-      }
-      while (isspace(ch & 255));
-
-      if (isdigit(ch & 255))
-	*original_ptr |= ch - '0';
-      else
-	*original_ptr |= tolower(ch & 255) - 'a' + 10;
-    }
-
-   /*
-    * Decrypt the font data and find the /Chars array...
-    */
-
-    type1_decrypt(original, length2);
-
-    original_end = original + length2 - 12;
-
-    for (original_ptr = original + 4; original_ptr < original_end; original_ptr ++)
-      if (*original_ptr == '/' && !memcmp(original_ptr + 1, "CharStrings", 11))
-        break;
-
-    if (original_ptr >= original_end)
-    {
-      progress_error(HD_ERROR_BAD_FORMAT,
-                     "No /CharStrings array in font \"%s\"!", filename);
-      progress_error(HD_ERROR_BAD_FORMAT,
-                     "length2=%d in font \"%s\"!", length2, filename);
-
-      fwrite(original, length2, 1, stdout);
-
-      free(original);
-      free(subset);
-
-      return (0);
-    }
-
-    if ((original_ptr = (uchar *)strchr((char *)original_ptr, '\n')) == NULL)
-    {
-      free(original);
-      free(subset);
-
-      progress_error(HD_ERROR_BAD_FORMAT,
-                     "No newline after /CharStrings array in font \"%s\"!",
-		     filename);
-
-      return (0);
-    }
-
-    original_ptr ++;
-
-   /*
-    * Copy the data up to the array...
-    */
-
-    memcpy(subset, original, original_ptr - original);
-    subset_ptr = subset + (original_ptr - original);
-
-   /*
-    * Collect all of the characters in the array...
-    */
-
-    while (*original_ptr == '/')
-    {
-     /*
-      * Read character data of the form:
-      *
-      *     /name length RD dataND\n
-      */
-
-      char_ptr     = original_ptr;
-      original_ptr = (uchar *)strchr((char *)original_ptr, ' ');
-
-      if (!original_ptr || (original_ptr - char_ptr) > (int)sizeof(glyph) ||
-          original_ptr == (char_ptr + 1))
-      {
-	free(original);
-	free(subset);
-
-	progress_error(HD_ERROR_BAD_FORMAT,
-                       "Bad character data in font \"%s\"!", filename);
-
-	return (0);
-      }
-
-      memcpy(glyph, char_ptr + 1, original_ptr - char_ptr - 1);
-      glyph[original_ptr - char_ptr - 1] = '\0';
-
-      i = strtol((char *)original_ptr, (char **)&original_ptr, 10);
-
-      if (!original_ptr || i <= 0 || (i > (original - original_ptr + length2)))
-      {
-	free(original);
-	free(subset);
-
-	progress_error(HD_ERROR_BAD_FORMAT,
-                       "Bad character data in font \"%s\"!", filename);
-
-	return (0);
-      }
-
-      while (isspace(*original_ptr))
-        original_ptr ++;
-
-      while (*original_ptr && !isspace(*original_ptr))
-        original_ptr ++;
-
-      while (isspace(*original_ptr))
-        original_ptr ++;
-
-      original_ptr += i;
-      while (*original_ptr && *original_ptr != '\n')
-        original_ptr ++;
-
-      if (*original_ptr != '\n')
-      {
-	free(original);
-	free(subset);
-
-	progress_error(HD_ERROR_BAD_FORMAT,
-                       "Bad character data in font \"%s\"!", filename);
-
-	return (0);
-      }
-
-      original_ptr ++;
-
-     /*
-      * Now see if we need this glyph...
-      */
-
-      if (!glyph[1])
-        i = render_char_used[glyph[0]];
-      else if (!strcmp(glyph, ".notdef"))
-        i = 1;
-      else if ((ch = htmlFindGlyph(glyph)) != 0)
-        i = render_char_used[ch];
-      else
-        i = 0;
-
-      if (i)
-      {
-        DEBUG_printf(("%s: embedding \"%s\"...\n", _htmlFonts[typeface][style],
-	              glyph));
-
-        // Yes, copy it over...
-	memcpy(subset_ptr, char_ptr, original_ptr - char_ptr);
-	subset_ptr += original_ptr - char_ptr;
-      }
-    }
-
-   /*
-    * Copy the rest of the data over...
-    */
-
-    i = length2 - (original_ptr - original);
-    memcpy(subset_ptr, original_ptr, i);
-    subset_ptr += i;
-
-   /*
-    * Encrypt the subset data...
-    */
-
-    length2 = subset_ptr - subset;
-
-    type1_encrypt(subset, length2);
-  }
-
- /*
   * Write the font (object)...
   */
 
@@ -12621,44 +12300,10 @@ write_type1(FILE       *out,		/* I - File to write to */
 
     line[0] = '\0';
 
-    rewind(fp);
-
-    while (fgets(line, sizeof(line), fp) != NULL)
-    {
-      fputs(line, out);
-
-      if (ftell(fp) >= start)
-        break;
-    }
-
-    if (dosubset)
-    {
-     /*
-      * Output the subsetted font data...
-      */
-
-      ps_hex(out, subset, length2);
-      fseek(fp, end, SEEK_SET);
-    }
-    else
-    {
-     /*
-      * Copy the font data as-is...
-      */
-
-      while (fgets(line, sizeof(line), fp) != NULL)
-      {
-	fputs(line, out);
-
-	if (ftell(fp) >= end)
-          break;
-      }
-    }
-
     while (fgets(line, sizeof(line), fp) != NULL)
       fputs(line, out);
 
-    if (line[0] && line[strlen(line) - 1] != '\n')
+    if (line[strlen(line) - 1] != '\n')
       fputs("\n", out);
 
     fputs("%%EndResource\n", out);
@@ -12671,6 +12316,31 @@ write_type1(FILE       *out,		/* I - File to write to */
     * Embed a Type1 font object in the PDF output...
     */
 
+    length1 = 0;
+    length2 = 0;
+    length3 = 0;
+
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      length1 += strlen(line);
+      if (strstr(line, "currentfile eexec") != NULL)
+        break;
+    }
+
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      if (strlen(line) == 65)
+        break;
+
+      length2 += (strlen(line) - 1) / 2;
+    }
+
+    length3 = strlen(line);
+    while (fgets(line, sizeof(line), fp) != NULL)
+      length3 += strlen(line);
+
+    rewind(fp);
+
     pdf_start_object(out);
     fprintf(out, "/Length1 %d", length1);
     fprintf(out, "/Length2 %d", length2);
@@ -12680,61 +12350,38 @@ write_type1(FILE       *out,		/* I - File to write to */
     pdf_start_stream(out);
     flate_open_stream(out);
 
-   /*
-    * Copy the header...
-    */
-
-    rewind(fp);
-
     while (fgets(line, sizeof(line), fp) != NULL)
     {
       flate_puts(line, out);
 
-      if (ftell(fp) >= start)
+      if (strstr(line, "currentfile eexec") != NULL)
         break;
     }
 
-   /*
-    * Copy the font data...
-    */
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+      if (strlen(line) == 65)
+        break;
 
-    if (dosubset)
-    {
-      // Embed the subset...
-      flate_write(out, subset, length2);
-      fseek(fp, end, SEEK_SET);
-    }
-    else
-    {
-      // Embed the entire font...
-      while (fgets(line, sizeof(line), fp) != NULL)
+      for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
       {
-	for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
-	{
-          if (isdigit(lineptr[0]))
-	    ch = (lineptr[0] - '0') << 4;
-	  else
-	    ch = (tolower(lineptr[0]) - 'a' + 10) << 4;
+        if (isdigit(lineptr[0]))
+	  ch = (lineptr[0] - '0') << 4;
+	else
+	  ch = (tolower(lineptr[0] & 255) - 'a' + 10) << 4;
 
-          if (isdigit(lineptr[1]))
-	    ch |= lineptr[1] - '0';
-	  else
-	    ch |= tolower(lineptr[1]) - 'a' + 10;
+        if (isdigit(lineptr[1]))
+	  ch |= lineptr[1] - '0';
+	else
+	  ch |= tolower(lineptr[1] & 255) - 'a' + 10;
 
-          *dataptr++ = ch;
-	}
-
-	flate_write(out, (uchar *)line, dataptr - line);
-
-	if (ftell(fp) >= end)
-          break;
+        *dataptr++ = ch;
       }
+
+      flate_write(out, (uchar *)line, dataptr - line);
     }
 
-   /*
-    * Copy the remaining data...
-    */
-
+    flate_puts(line, out);
     while (fgets(line, sizeof(line), fp) != NULL)
       flate_puts(line, out);
 
@@ -12857,16 +12504,6 @@ write_type1(FILE       *out,		/* I - File to write to */
     for (ch = 1; ch < 256; ch ++)
       fprintf(out, " %d", widths[ch]);
     pdf_end_object(out);
-  }
-
- /*
-  * Free any memory used...
-  */
-
-  if (dosubset)
-  {
-    free(original);
-    free(subset);
   }
 
  /*
