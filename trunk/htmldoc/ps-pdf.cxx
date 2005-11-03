@@ -12359,12 +12359,12 @@ write_type1(FILE        *out,		/* I - File to write to */
         if (isdigit(lineptr[0]))
 	  ch = (lineptr[0] - '0') << 4;
 	else
-	  ch = (lineptr[0] - 'a' + 10) << 4;
+	  ch = (tolower(lineptr[0] & 255) - 'a' + 10) << 4;
 
         if (isdigit(lineptr[1]))
 	  ch |= lineptr[1] - '0';
 	else
-	  ch |= lineptr[1] - 'a' + 10;
+	  ch |= tolower(lineptr[1] & 255) - 'a' + 10;
 
         *dataptr++ = ch;
       }
