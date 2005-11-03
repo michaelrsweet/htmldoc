@@ -1,4 +1,4 @@
-CHANGES.txt - 10/28/2005
+CHANGES.txt - 11/03/2005
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.25
@@ -15,6 +15,9 @@ CHANGES IN HTMLDOC v1.8.25
 	- Added DejaVu font collection to better support Cyrillic
 	  and Greek text; the new fonts are available under the
 	  generic names "monospace", "sans", and "serif".
+	- Added "--referer" command-line option and corresponding
+	  CGI-mode support to pass Referer: information in HTTP
+	  requests (STR #91)
 
     CHANGES:
 

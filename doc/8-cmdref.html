@@ -745,6 +745,11 @@ PostScript files.
 <P>The <CODE>--quiet</CODE> option prevents error messages from being
 sent to stderr.
 
+<H3>--referer url</H3>
+
+<P>The <CODE>--referer</CODE> option sets the URL that is passed
+in the <CODE>Referer:</CODE> field of HTTP requests.</P>
+
 <H3>--right margin</H3>
 
 <p>The <CODE>--right</CODE> option specifies the right margin. The default
@@ -900,6 +905,51 @@ job comments should be written to the output files.
 <P>This option is only available when generating PostScript files.
 
 <!-- NEW PAGE -->
+<H2>Environment Variables</H2>
+
+<p>HTMLDOC looks for several environment variables which can override
+the default directories, display additional debugging information, and
+disable CGI mode.</p>
+
+<H3>HTMLDOC_DATA</H3>
+
+<p>This environment variable specifies the location of HTMLDOC's <VAR>data</VAR>
+and <VAR>fonts</VAR> directories, normally <VAR>/usr/share/htmldoc</VAR> or
+<VAR>C:\Program Files\Easy Software Products\HTMLDOC</VAR>.</p>
+
+<H3>HTMLDOC_DEBUG</H3>
+
+<p>This environment variable enables debugging information that
+is sent to stderr. The value is a list of keywords separated by
+spaces:</p>
+
+<CENTER><TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>keyword</TH><TH>Information Shown</TH></TR>
+<TR><TD><CODE>links</CODE></TD><TD>Shows all of the links in a document</TD></TR>
+<TR><TD><CODE>memory</CODE></TD><TD>Shows memory usage statistics</TD></TR>
+<TR><TD><CODE>remotebytes</CODE></TD><TD>Shows the number of bytes that were transferred via HTTP</TD></TR>
+<TR><TD><CODE>table</CODE></TD><TD>Puts a box around each table, row, and cell</TD></TR>
+<TR><TD><CODE>tempfiles</CODE></TD><TD>Shows the temporary files that were created, and preserves them for debugging</TD></TR>
+<TR><TD><CODE>timing</CODE></TD><TD>Shows the load and render times</TD></TR>
+<TR><TD><CODE>all</CODE></TD><TD>All of the above</TD></TR>
+</TABLE></CENTER>
+
+<H3>HTMLDOC_HELP</H3>
+
+<p>This environment variable specifies the location of HTMLDOC's
+documentation directory, normally
+<VAR>/usr/share/doc/htmldoc</VAR> or <VAR>C:\Program Files\Easy
+Software Products\HTMLDOC\doc</VAR>.</p>
+
+<H3>HTMLDOC_NOCGI</H3>
+
+<p>This environment variable, when set (the value doesn't
+matter), disables CGI mode. It is most useful for using HTMLDOC
+on a web server from a scripting language or invocation from a
+program.</p>
+
+
+<!-- NEW PAGE -->
 <H2>Messages</H2>
 
 <P>HTMLDOC sends error and status messages to stderr unless the
@@ -914,13 +964,12 @@ that were written to an output file. If the output is directed
 at a directory then multiple <CODE>BYTES:</CODE> messages will
 be sent.
 
-<H3>PAGES: Message</H3>
+<H3>DEBUG: Messages</H3>
 
-<P>The <CODE>PAGES:</CODE> message specifies the number of pages
-that were written to an output file. If the output is directed
-at a directory then multiple <CODE>PAGES:</CODE> messages will
-be sent. No <CODE>PAGES:</CODE> messages are sent when
-generating HTML output.
+<P>The <CODE>DEBUG:</CODE> messages contain debugging information
+based on the value of the <CODE>HTMLDOC_DEBUG</CODE> environment
+variable. Normally, no <CODE>DEBUG:</CODE> messages are sent by
+HTMLDOC.</P>
 
 <H3>ERRnnn: Messages</H3>
 
@@ -968,6 +1017,35 @@ Error numbers 1 to 14 map to the following errors:
 
 <P>Error numbers 100 to 505 correspond directly to a HTTP status
 code.
+
+<H3>INFO: Messages</H3>
+
+<P>The <CODE>INFO:</CODE> messages contain general information
+that is logged when HTMLDOC is running in CGI mode or when you
+use the <CODE>--verbose</CODE> option.</P>
+
+<H3>PAGES: Message</H3>
+
+<P>The <CODE>PAGES:</CODE> message specifies the number of pages
+that were written to an output file. If the output is directed
+at a directory then multiple <CODE>PAGES:</CODE> messages will
+be sent. No <CODE>PAGES:</CODE> messages are sent when
+generating HTML output.
+
+<H3>REMOTEBYTES: Message</H3>
+
+<P>The <CODE>REMOTEBYTES:</CODE> message specifies the number of
+bytes that were transferred using HTTP. This message is only
+displayed if the <CODE>HTMLDOC_DEBUG</CODE> environment variable
+has the keyword <CODE>remotebytes</CODE> or <CODE>all</CODE>.</P>
+
+<H3>TIMING: Message</H3>
+
+<P>The <CODE>TIMING:</CODE> message specifies the load, render,
+and total time in seconds for the current command. This message
+is only displayed if the <CODE>HTMLDOC_DEBUG</CODE> environment
+variable has the keyword <CODE>timing</CODE> or
+<CODE>all</CODE>.</P>
 
 </DIV>
 

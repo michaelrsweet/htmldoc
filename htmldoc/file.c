@@ -37,6 +37,7 @@
  *   file_method()      - Return the method for a filename or URL.
  *   file_nolocal()     - Disable access to local files.
  *   file_proxy()       - Set the proxy host for all HTTP requests.
+ *   file_referer()     - Set the HTTP referer for remote accesses.
  *   file_target()      - Return the target of a link.
  *   file_temp()        - Create and open a temporary file.
  */
@@ -103,6 +104,8 @@ int	web_files = 0,			/* Number of temporary files */
 cache_t	*web_cache = NULL;		/* Cache array */
 int	no_local = 0;			/* Non-zero to disable local files */
 char	cookies[1024] = "";		/* HTTP cookies, if any */
+char	referer_url[HTTP_MAX_VALUE] = "";
+					/* HTTP referer, if any */
 
 
 /*
@@ -502,6 +505,7 @@ file_find_check(const char *filename)	/* I - File or URL */
       httpSetField(http, HTTP_FIELD_HOST, hostname);
       httpSetField(http, HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
       httpSetField(http, HTTP_FIELD_CONNECTION, "Keep-Alive");
+      httpSetField(http, HTTP_FIELD_REFERER, referer_url);
 
       if (username[0])
       {
@@ -961,6 +965,20 @@ file_proxy(const char *url)	/* I - URL of proxy server */
       proxy_port = port;
     }
   }
+}
+
+
+/*
+ * 'file_referer()' - Set the HTTP referer for remote accesses.
+ */
+
+void
+file_referer(const char *referer)	/* I - Referer URL */
+{
+  if (referer)
+    strlcpy(referer_url, referer, sizeof(referer_url));
+  else
+    referer_url[0] = '\0';
 }
 
 
