@@ -175,6 +175,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     PDFFirstPage  = HD_PDF_PAGE_1;
 
     file_cookies(getenv("HTTP_COOKIE"));
+    file_referer(getenv("HTTP_REFERER"));
 
     progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
 #ifdef WIN32
@@ -941,7 +942,15 @@ main(int  argc,				/* I - Number of command-line arguments */
       PSCommands = 1;
     else if (compare_strings(argv[i], "--quiet", 3) == 0)
       Verbosity = -1;
-    else if (compare_strings(argv[i], "--right", 3) == 0)
+    else if (!compare_strings(argv[i], "--referer", 4))
+    {
+      i ++;
+      if (i < argc)
+        file_referer(argv[i]);
+      else
+        usage(argv[i - 1]);
+    }
+    else if (compare_strings(argv[i], "--right", 4) == 0)
     {
       i ++;
       if (i < argc)
@@ -2493,6 +2502,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --proxy http://host:port");
     puts("  --pscommands");
     puts("  --quiet");
+    puts("  --referer url");
     puts("  --right margin{in,cm,mm}");
     puts("  --size {letter,a4,WxH{in,cm,mm},etc}");
     puts("  --strict");
