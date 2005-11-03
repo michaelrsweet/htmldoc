@@ -34,7 +34,6 @@
 
 #  include "file.h"
 #  include "hdstring.h"
-#  include "iso8859.h"
 #  include "style.h"
 
 #  ifdef __cplusplus

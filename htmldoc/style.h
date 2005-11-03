@@ -474,10 +474,12 @@ struct hdStyleFont
   char		*ps_name;
   //* Full font name.
   char		*full_name;
-  //* Font filename.
+  //* Font data filename.
   char		*font_file;
+  //* Font width filename.
+  char		*width_file;
   //* True if this font is fixed width.
-  int		fixed_width;
+  bool		fixed_width;
   //* Highest point in font.
   float		ascender;
   //* Bounding box
@@ -540,7 +542,7 @@ struct hdStyleFont
   * @param tk float Variable to hold total kerning value.
   * @param kl float* Pointer for kerning array for each character.
   * @return The number of kerning entries. Normally 1 less
-  * then the total number of chracters in the input string.
+  * then the total number of characters in the input string.
   */
   int		get_kerning(const hdChar *s, float &tk, float *&kl);
 
@@ -565,6 +567,14 @@ struct hdStyleFont
   float		get_width(const hdChar *s);
 
  /**
+  * The <tt>load_widths()</tt> method loads the font widths using the
+  * current character set.
+  *
+  * @param css hdStyleSheet* A pointer to the style sheet.
+  */
+  void		load_widths(hdStyleSheet *css);
+
+ /**
   * The <tt>read_afm()</tt> method loads font widths from an AFM file.
   *
   * @param fp FILE* The file to read from.
@@ -572,15 +582,6 @@ struct hdStyleFont
   * @return 0 on success, -1 on error.
   */
   int		read_afm(FILE *fp, hdStyleSheet *css);
-
- /**
-  * The <tt>read_pfm()</tt> method loads font widths from a PFM file.
-  *
-  * @param fp FILE* The file to read from.
-  * @param css hdStyleSheet* The stylesheet.
-  * @return 0 on success, -1 on error.
-  */
-  int		read_pfm(FILE *fp, hdStyleSheet *css);
 
  /**
   * The <tt>read_ttf()</tt> method loads font widths from a TTF file.
@@ -1145,6 +1146,9 @@ struct hdStyleSheet
   //* Glyphs in charset
   char		**glyphs;
 
+  //* Unicode glyphs
+  char		*uniglyphs[65536];
+
   //* Default media attributes from stylesheet
   hdStyleMedia	default_media;
   //* Current media attributes
@@ -1244,8 +1248,26 @@ struct hdStyleSheet
   const char	*get_element(hdElement e);
 
  /**
-  * The <tt>get_glyph()</tt> method returns the character code for the given character
-  * name. Both HTML and PostScript glyph names are recognized and supported.
+  * The <tt>get_entity(const char *)</tt> method returns the character
+  * code for the given entity.
+  *
+  * @param name const&nbsp;char* The entity name string.
+  * @return The character code or 0 if the name is unknown.
+  */
+  int		get_entity(const char *name);
+
+ /**
+  * The <tt>get_entity(int)</tt> method returns the entity for the
+  * given character code.
+  *
+  * @param ch int The character code.
+  * @return The entity name string.
+  */
+  const char	*get_entity(int ch);
+
+ /**
+  * The <tt>get_glyph()</tt> method returns the character code for the
+  * given glyph name.
   *
   * @param s const&nbsp;char* The character name string.
   * @return The character code or -1 if the name is unknown.
@@ -1260,6 +1282,15 @@ struct hdStyleSheet
   * @return A pointer to a new, private style record.
   */
   hdStyle	*get_private_style(hdTree *t, bool force = false);
+
+ /**
+  * The <tt>get_uniglyph()</tt> method returns the character code for the given character
+  * name.
+  *
+  * @param s const&nbsp;char* The character name string.
+  * @return The character code or -1 if the name is unknown.
+  */
+  int		get_uniglyph(const char *s);
 
  /**
   * The <tt>load()</tt> method loads a stylesheet from a file stream.
@@ -1329,6 +1360,12 @@ struct hdStyleSheet
   * @param lh const&nbsp;char* The default line height.
   */
   void		set_line_height(const char *lh) { def_style.set_line_height(lh, this); }
+
+ /**
+  * The <tt>update_fonts()</tt> method updates the font widths for the
+  * current character set.
+  */
+  void		update_fonts(void);
 
  /**
   * The <tt>update_styles()</tt> method updates all of the relative style
