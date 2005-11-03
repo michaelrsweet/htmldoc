@@ -1076,7 +1076,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 
   // Range check...
   if (!css || !s)
-    return (-1);
+    return (false);
 
   // Loop until we have nothing more...
   status = true;
