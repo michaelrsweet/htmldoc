@@ -1,5 +1,6 @@
 # DO NOT DELETE
 
+entity.o: hdstring.h ../config.h style.h types.h
 file.o: file.h hdstring.h ../config.h http.h md5.h progress.h debug.h
 html.o: htmldoc.h html.h file.h hdstring.h ../config.h style.h types.h
 html.o: image.h debug.h progress.h
@@ -15,7 +16,6 @@ http-addrlist.o: http-private.h hdstring.h ../config.h http.h md5.h debug.h
 http-support.o: debug.h http-private.h hdstring.h ../config.h http.h md5.h
 image.o: htmldoc.h html.h file.h hdstring.h ../config.h style.h types.h
 image.o: image.h debug.h progress.h
-iso8859.o: hdstring.h ../config.h style.h types.h
 margin.o: margin.h
 md5.o: md5.h hdstring.h ../config.h
 progress.o: htmldoc.h html.h file.h hdstring.h ../config.h style.h types.h
