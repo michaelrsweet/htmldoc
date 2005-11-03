@@ -41,7 +41,7 @@
 				OutputFile="htmldoc.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../../openssl-0.9.6a/out32dll"
+				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				ProgramDatabaseFile=".\Release/htmldoc.pdb"
 				SubSystem="1"
@@ -104,7 +104,7 @@
 				OutputFile="htmldocd.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../../openssl-0.9.6a/out32dll"
+				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames="libcmtd.lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/htmldocd.pdb"
@@ -146,6 +146,9 @@
 		<Filter
 			Name="Source"
 			Filter="c,cxx">
+			<File
+				RelativePath="..\htmldoc\entity.cxx">
+			</File>
 			<File
 				RelativePath="..\htmldoc\file.c">
 				<FileConfiguration
@@ -261,6 +264,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\htmldoc\http-addrlist.c">
+			</File>
+			<File
 				RelativePath="..\htmldoc\http-support.c">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -300,25 +306,6 @@
 			</File>
 			<File
 				RelativePath="..\htmldoc\image.cxx">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						FavorSizeOrSpeed="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\htmldoc\iso8859.cxx">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool

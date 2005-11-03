@@ -1,9 +1,9 @@
 /*
- * "$Id: config.h,v 1.2 2004/10/23 17:55:25 mike Exp $"
+ * "$Id$"
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2004 by Easy Software Products.
+ *   Copyright 1997-2005 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9b1 Open Source"
+#define SVERSION	"1.9-current"
 
 
 /*
@@ -54,24 +54,8 @@
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"C:/Program Files/HTMLDOC/doc"
-#define HTML_DATA	"C:/Program Files/HTMLDOC"
-
-
-/*
- * Do we have the FLTK library?
- */
-
-#ifndef _CONSOLE
-#  define HAVE_LIBFLTK
-#endif /* !_CONSOLE */
-
-
-/*
- * Do we have the Xpm library?
- */
-
-#undef HAVE_LIBXPM
+#define DOCUMENTATION	"C:/Program Files/Easy Software Products/HTMLDOC/doc"
+#define HTML_DATA	"C:/Program Files/Easy Software Products/HTMLDOC"
 
 
 /*
@@ -102,8 +86,11 @@
  * Do we have some of the "standard" string functions?
  */
 
-#define HAVE_STRDUP
 #define HAVE_STRCASECMP
+#define HAVE_STRDUP
+#undef HAVE_STRDUPF
+#undef HAVE_STRLCAT
+#undef HAVE_STRLCPY
 #define HAVE_STRNCASECMP
 
 
@@ -130,6 +117,46 @@
 
 
 /*
- * End of "$Id: config.h,v 1.2 2004/10/23 17:55:25 mike Exp $".
+ * Do we have getaddrinfo()?
+ */
+
+#define HAVE_GETADDRINFO
+
+
+/*
+ * Do we have getnameinfo()?
+ */
+
+#define HAVE_GETNAMEINFO
+
+
+/*
+ * Do we have the long long type?
+ */
+
+#undef HAVE_LONG_LONG
+
+#ifdef HAVE_LONG_LONG
+#  define HTMLDOC_LLFMT		"%lld"
+#  define HTMLDOC_LLCAST	(long long)
+#else
+#  define HTMLDOC_LLFMT		"%ld"
+#  define HTMLDOC_LLCAST	(long)
+#endif /* HAVE_LONG_LONG */
+
+
+/*
+ * Do we have the strtoll() function?
+ */
+
+#undef HAVE_STRTOLL
+
+#ifndef HAVE_STRTOLL
+#  define strtoll(nptr,endptr,base) strtol((nptr), (endptr), (base))
+#endif /* !HAVE_STRTOLL */
+
+
+/*
+ * End of "$Id$".
  */
 
