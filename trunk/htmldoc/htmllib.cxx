@@ -503,13 +503,14 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	    else
 	      *eptr++ = ch;
 
+          *eptr = '\0';
+
           if (ch != ';')
 	  {
 	    ungetc(ch, fp);
 	    ch = 0;
 	  }
 
-          *eptr = '\0';
           if (!ch)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
@@ -520,7 +521,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
             strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
 	    ptr += strlen((char *)ptr);
 	  }
-	  else if ((ch = iso8859(entity)) == 0)
+	  else if ((ch = _htmlStyleSheet->get_entity((char *)entity)) == 0)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
 	                   entity, linenum);
@@ -532,7 +533,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = ';';
 	  }
-	  else if (ptr < (s + sizeof(s) - 1))
+	  else
 	    *ptr++ = ch;
         }
 	else if (ch != 0 && ch != '\r')
@@ -557,7 +558,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
       t->element = HD_ELEMENT_NONE;
       t->data   = (hdChar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
+      DEBUG_printf(("%sfragment \"%s\" (len=%d), line %d\n", indent, s,
+                    ptr - s, linenum));
     }
     else
     {
@@ -585,13 +587,14 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	    else
 	      *eptr++ = ch;
 
+          *eptr = '\0';
+
           if (ch != ';')
 	  {
 	    ungetc(ch, fp);
 	    ch = 0;
 	  }
 
-          *eptr = '\0';
           if (!ch)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d.",
@@ -602,7 +605,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
             strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
 	    ptr += strlen((char *)ptr);
 	  }
-	  else if ((ch = iso8859(entity)) == 0)
+	  else if ((ch = _htmlStyleSheet->get_entity((char *)entity)) == 0)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
 	                   entity, linenum);
@@ -614,7 +617,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = ';';
 	  }
-	  else if (ptr < (s + sizeof(s) - 1))
+	  else
 	    *ptr++ = ch;
         }
 	else if (ch)
@@ -637,7 +640,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
       t->element = HD_ELEMENT_NONE;
       t->data   = (hdChar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
+      DEBUG_printf(("%sfragment \"%s\" (len=%d), line %d\n", indent, s,
+                    ptr - s, linenum));
     }
 
    /*
@@ -809,12 +813,12 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
  * 'write_file()' - Write a tree entry to a file...
  */
 
-static int			/* I - New column */
-write_file(hdTree *t,		/* I - Tree entry */
-           FILE   *fp,		/* I - File to write to */
-           int    col)		/* I - Current column */
+static int				/* I - New column */
+write_file(hdTree *t,			/* I - Tree entry */
+           FILE   *fp,			/* I - File to write to */
+           int    col)			/* I - Current column */
 {
-  int	i;			/* Looping var */
+  int		i;			/* Looping var */
   hdChar	*ptr;			/* Character pointer */
 
 
@@ -825,7 +829,7 @@ write_file(hdTree *t,		/* I - Tree entry */
       if (t->style->white_space == HD_WHITE_SPACE_PRE)
       {
         for (ptr = t->data; *ptr != '\0'; ptr ++)
-          fputs((char *)iso8859(*ptr), fp);
+          fputs(_htmlStyleSheet->get_entity(*ptr), fp);
 
 	if (t->data[strlen((char *)t->data) - 1] == '\n')
           col = 0;
@@ -841,7 +845,7 @@ write_file(hdTree *t,		/* I - Tree entry */
 	}
 
         for (ptr = t->data; *ptr != '\0'; ptr ++)
-          fputs((char *)iso8859(*ptr), fp);
+          fputs(_htmlStyleSheet->get_entity(*ptr), fp);
 
 	col += strlen((char *)t->data);
 
@@ -1557,7 +1561,7 @@ parse_markup(hdTree *t,			/* I - Current tree entry */
 	            sizeof(comment) - (cptr - comment));
 	    cptr += strlen((char *)cptr);
 	  }
-	  else if ((ch = iso8859(entity)) == 0)
+	  else if ((ch = _htmlStyleSheet->get_entity((char *)entity)) == 0)
 	  {
 	    progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
 	                   entity, *linenum);
@@ -1570,7 +1574,7 @@ parse_markup(hdTree *t,			/* I - Current tree entry */
             if (cptr < (comment + sizeof(comment) - 1))
 	      *cptr++ = ';';
 	  }
-	  else if (cptr < (comment + sizeof(comment) - 1))
+	  else
 	    *cptr++ = ch;
 	}
 	else
@@ -1705,7 +1709,7 @@ parse_variable(hdTree *t,		// I - Current tree entry
                 strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
-	      else if ((ch = iso8859(entity)) == 0)
+	      else if ((ch = _htmlStyleSheet->get_entity((char *)entity)) == 0)
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
 	                       entity, *linenum);
@@ -1768,7 +1772,7 @@ parse_variable(hdTree *t,		// I - Current tree entry
                 strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
-	      else if ((ch = iso8859(entity)) == 0)
+	      else if ((ch = _htmlStyleSheet->get_entity((char *)entity)) == 0)
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
 	                       entity, *linenum);
@@ -1832,7 +1836,7 @@ parse_variable(hdTree *t,		// I - Current tree entry
                 strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
-	      else if ((ch = iso8859(entity)) == 0)
+	      else if ((ch = _htmlStyleSheet->get_entity((char *)entity)) == 0)
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %d.",
 	                       entity, *linenum);
@@ -2670,7 +2674,7 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
 
   if (vspace)
   {
-    val = t->style->get_length((char *)hspace, 1,
+    val = t->style->get_length((char *)vspace, 1,
                                72.0f / _htmlStyleSheet->ppi, _htmlStyleSheet);
 
     t->style->set_string(NULL, t->style->margin_rel[HD_POS_TOP]);

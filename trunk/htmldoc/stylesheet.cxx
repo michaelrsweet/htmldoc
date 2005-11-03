@@ -40,6 +40,13 @@
 
 hdStyleSheet::hdStyleSheet()
 {
+  char	filename[1024];			// Filename
+  FILE	*fp;				// psglyph file
+  int	unicode;			// Unicode character
+  char	glyph[64];			// Glyph name
+
+
+  // Initialize stylesheet globals...
   num_styles   = 0;
   alloc_styles = 0;
   styles       = NULL;
@@ -60,9 +67,32 @@ hdStyleSheet::hdStyleSheet()
   browser_width = 680.0f;
   private_id    = 0;
 
+  // Load unicode glyphs...
+  memset(uniglyphs, 0, sizeof(uniglyphs));
+
+  snprintf(filename, sizeof(filename), "%s/data/psglyphs", _htmlData);
+  if ((fp = fopen(filename, "r")) != NULL)
+  {
+    while (fscanf(fp, "%x%63s", &unicode, glyph) == 2)
+    {
+      if (unicode < 0 ||
+          unicode >= (int)(sizeof(uniglyphs) / sizeof(uniglyphs[0])))
+        progress_error(HD_ERROR_BAD_FORMAT,
+	               "Bad Unicode character %x in psglyphs data file!",
+	               unicode);
+      else
+        uniglyphs[unicode] = strdup(glyph);
+    }
+
+    fclose(fp);
+  }
+  else
+    progress_error(HD_ERROR_FILE_NOT_FOUND,
+                   "Unable to open psglyphs data file!");
+
   // Set default style stuff...
   set_color("#000000");
-  set_font_family("serif");
+  set_font_family("Times");
   set_font_size("11pt");
   set_line_height("1.2");
 
@@ -116,14 +146,12 @@ hdStyleSheet::~hdStyleSheet()
   if (charset)
     free(charset);
 
-  if (num_glyphs)
-  {
-    for (i = 0; i < num_glyphs; i ++)
-      if (glyphs[i])
-	free(glyphs[i]);
-
+  if (num_glyphs && glyphs != uniglyphs)
     delete[] glyphs;
-  }
+
+  for (i = 0; i < (int)(sizeof(uniglyphs) / sizeof(uniglyphs[0])); i ++)
+    if (uniglyphs[i])
+      free(uniglyphs[i]);
 }
 
 
@@ -308,7 +336,8 @@ hdStyleSheet::find_font(
       tf = HD_FONT_FACE_SERIF;
     else if (!strcasecmp(start, "Times"))
       tf = HD_FONT_FACE_TIMES;
-    else if (!strcasecmp(start, "sans-serif"))
+    else if (!strcasecmp(start, "sans-serif") ||
+             !strcasecmp(start, "sans"))
       tf = HD_FONT_FACE_SANS_SERIF;
     else if (!strcasecmp(start, "Arial") ||
              !strcasecmp(start, "Helvetica"))
@@ -681,7 +710,7 @@ hdStyleSheet::get_glyph(const char *s)	// I - Glyph name
 
   // Do a brute-force search for the glyph name...
   for (i = 0; i < num_glyphs; i ++)
-    if (glyphs[i] && strcmp(glyphs[i], s) == 0)
+    if (glyphs[i] && !strcmp(glyphs[i], s))
       return (i);
 
   // Didn't find the glyph, so return -1...
@@ -1247,12 +1276,9 @@ hdStyleSheet::read(FILE     *f,	// I - File to read from
 void
 hdStyleSheet::set_charset(const char *cs)// I - Character set name
 {
-  int		i;			// Looping var
   char		filename[1024];		// Glyphs filename
   FILE		*fp;			// Glyphs file
-  char		line[256];		// Line from file
-  int		code;			// Unicode number
-  char		name[255];		// Name string
+  int		ch, unicode;		// Characters
 
 
   // Validate the character set name...
@@ -1263,89 +1289,91 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
     return;
   }
 
+  // Free the old charset stuff...
+  if (charset)
+    free(charset);
+
+  charset = strdup(cs);
+
+  if (num_glyphs && glyphs != uniglyphs)
+  {
+    delete[] glyphs;
+
+    num_glyphs = 0;
+    glyphs     = NULL;
+  }
+
+  // UTF-8 
+  if (!strcasecmp(cs, "utf-8"))
+  {
+    // UTF-8 is Unicode, so no mappings are necessary...
+    num_glyphs = 65536;
+    glyphs     = uniglyphs;
+    encoding   = HD_FONT_ENCODING_UTF8;
+
+    return;
+  }
+
   // Open the charset file...
   snprintf(filename, sizeof(filename), "%s/data/%s", _htmlData, cs);
   if ((fp = fopen(filename, "r")) == NULL)
   {
-    progress_error(HD_ERROR_CSS_ERROR,
+    progress_error(HD_ERROR_FILE_NOT_FOUND,
                    "Unable to open character set file \"%s\"!",
                    filename);
     return;
   }
 
-  // Read the charset type (8bit or unicode)...
-  if (file_gets(line, sizeof(line), fp) == NULL)
-  {
-    progress_error(HD_ERROR_CSS_ERROR,
-                   "Unable to read charset type from \"%s\"!",
-		   filename);
-    fclose(fp);
-    return;
-  }
+  // Allocate memory for up to 256 characters...
+  num_glyphs = 256;
+  glyphs     = new char *[num_glyphs];
+  encoding   = HD_FONT_ENCODING_8BIT;
 
-  if (strcasecmp(line, "8bit") != 0 && strcasecmp(line, "unicode") != 0)
-  {
-    progress_error(HD_ERROR_CSS_ERROR,
-                   "Bad charset type \"%s\" in \"%s\"!",
-		   line, filename);
-    fclose(fp);
-    return;
-  }
-
-  // Free the old charset stuff...
-  if (charset)
-    free(charset);
-
-  if (num_glyphs)
-  {
-    for (i = 0; i < num_glyphs; i ++)
-      if (glyphs[i])
-        free(glyphs[i]);
-
-    delete[] glyphs;
-  }
-
-  // Allocate the charset array...
-  if (line[0] == '8')
-  {
-    encoding   = HD_FONT_ENCODING_8BIT;
-    num_glyphs = 256;
-  }
-  else
-  {
-    encoding   = HD_FONT_ENCODING_UTF8;
-    num_glyphs = 65536;
-  }
-
-  charset = strdup(cs);
-  glyphs  = new char *[num_glyphs];
-
-  memset(glyphs, 0, num_glyphs * sizeof(char *));
+  memset(glyphs, 0, sizeof(glyphs));
 
   // Now read all of the remaining lines from the file in the format:
   //
-  //     HHHH glyph-name
+  //     CC UUUU
+  //
+  // Note that we currently do not support Unicode past plane 0 - since
+  // there is no support for CJK fonts in the current code, there is
+  // little point...  This will be addressed in a future release...
 
-  while (file_gets(line, sizeof(line), fp) != NULL)
+  while (fscanf(fp, "%x%x", &ch, &unicode) == 2)
   {
-    if (sscanf(line, "%x%254s", &code, name) != 2)
+    if (ch < 0 || ch > 255 || unicode < 0 || unicode > 0xffff)
+      progress_error(HD_ERROR_BAD_FORMAT,
+                     "Bad character %x to unicode %x mapping in %s!",
+		     ch, unicode, filename);
+    else
     {
-      progress_error(HD_ERROR_CSS_ERROR,
-                     "Bad line \"%s\" in \"%s\"!", line, filename);
-      break;
-    }
+      if (!uniglyphs[unicode])
+      {
+        char uniglyph[32];
 
-    if (code < 0 || code >= num_glyphs)
-    {
-      progress_error(HD_ERROR_CSS_ERROR,
-                     "Invalid code %x in \"%s\"!", code, filename);
-      break;
-    }
+	sprintf(uniglyph, "uni%04x", unicode);
+	uniglyphs[unicode] = strdup(uniglyph);
+      }
 
-    glyphs[code] = strdup(name);
+      glyphs[ch] = uniglyphs[unicode];
+    }
   }
 
   fclose(fp);
+}
+
+
+//
+// 'hdStyleSheet::update_fonts()' - Update all fonts for the current charset.
+//
+
+void
+hdStyleSheet::update_fonts()
+{
+  for (int i = 0; i < HD_FONT_FACE_MAX; i ++)
+    for (int j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
+      if (fonts[i][j])
+        fonts[i][j]->load_widths(this);
 }
 
 
@@ -1356,8 +1384,8 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
 void
 hdStyleSheet::update_styles(bool force)	// I - Force update?
 {
-  int		i;		// Looping var
-  hdStyle	**style;	// Current style
+  int		i;			// Looping var
+  hdStyle	**style;		// Current style
 
 
   if (force)

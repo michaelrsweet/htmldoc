@@ -574,16 +574,16 @@ write_all(FILE   *out,		/* I - Output file */
  * 'write_node()' - Write a single tree node.
  */
 
-static int			/* O - Current column */
-write_node(FILE   *out,		/* I - Output file */
-           hdTree *t,		/* I - Document tree node */
-           int    col)		/* I - Current column */
+static int				/* O - Current column */
+write_node(FILE   *out,			/* I - Output file */
+           hdTree *t,			/* I - Document tree node */
+           int    col)			/* I - Current column */
 {
-  int		i;		/* Looping var */
-  hdChar		*ptr,		/* Pointer to output string */
-		*entity,	/* Entity string */
-		*src,		/* Source image */
-		newsrc[1024];	/* New source image filename */
+  int		i;			/* Looping var */
+  const hdChar	*ptr,			/* Pointer to output string */
+		*src;			/* Source image */
+  hdChar	newsrc[1024];		/* New source image filename */
+  const char	*entity;		/* Entity string */
 
 
   if (out == NULL)
@@ -598,7 +598,7 @@ write_node(FILE   *out,		/* I - Output file */
 	if (t->style->white_space == HD_WHITE_SPACE_PRE)
 	{
           for (ptr = t->data; *ptr; ptr ++)
-            fputs((char *)iso8859(*ptr), out);
+            fputs(_htmlStyleSheet->get_entity(*ptr), out);
 
 	  if (t->data[strlen((char *)t->data) - 1] == '\n')
             col = 0;
@@ -614,7 +614,7 @@ write_node(FILE   *out,		/* I - Output file */
 	  }
 
           for (ptr = t->data; *ptr; ptr ++)
-            fputs((char *)iso8859(*ptr), out);
+            fputs(_htmlStyleSheet->get_entity(*ptr), out);
 
 	  col += strlen((char *)t->data);
 
@@ -630,7 +630,7 @@ write_node(FILE   *out,		/* I - Output file */
     case HD_ELEMENT_UNKNOWN :
         fputs("\n<!--", out);
 	for (ptr = t->data; *ptr; ptr ++)
-	  fputs((char *)iso8859(*ptr), out);
+	  fputs(_htmlStyleSheet->get_entity(*ptr), out);
 	fputs("-->\n", out);
 	col = 0;
 	break;
@@ -726,9 +726,9 @@ write_node(FILE   *out,		/* I - Output file */
 	      col += fprintf(out, "%s=\"", t->attrs[i].name);
 	      for (ptr = t->attrs[i].value; *ptr; ptr ++)
 	      {
-		entity = iso8859(*ptr);
-		fputs((char *)entity, out);
-		col += strlen((char *)entity);
+		entity = _htmlStyleSheet->get_entity(*ptr);
+		fputs(entity, out);
+		col += strlen(entity);
 	      }
 
 	      putc('\"', out);

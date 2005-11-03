@@ -32,6 +32,11 @@
 #include "htmldoc.h"
 #include "hdstring.h"
 #include <stdlib.h>
+#ifdef WIN32
+#  include <io.h>
+#else
+#  include <unistd.h>
+#endif // WIN32
 
 
 //
@@ -63,10 +68,6 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
   // Initialize variables...
   typeface = t;
   style    = s;
-  encoding = css->encoding;
-  widths   = new float[css->num_glyphs];
-
-  memset(widths, 0, sizeof(float) * css->num_glyphs);
 
   // Map font family to base font...
   if (!strcasecmp(n, "serif"))
@@ -96,31 +97,25 @@ hdStyleFont::hdStyleFont(hdStyleSheet   *css,	// I - Stylesheet
     // Try a variation of the font name...
     snprintf(filename, sizeof(filename), "%s/fonts/%s%s.afm",
              _htmlData, n, styles[s][i]);
-    if ((fp = fopen(filename, "r")) != NULL)
+    if (!access(filename, 0))
       break;
   }
 
-  if (fp == NULL)
+  if (i == 2)
   {
     // Use the font name without a suffix...
     snprintf(filename, sizeof(filename), "%s/fonts/%s.afm",
              _htmlData, n);
-    fp = fopen(filename, "r");
   }
 
-  if (fp != NULL)
-  {
-//    printf("    filename=\"%s\"\n", filename);
+  width_file = strdup(filename);
 
-    // Read the AFM file...
-    read_afm(fp, css);
-    fclose(fp);
+  // Change the extension to ".pfa" and save the font filename for later
+  // use as needed...
+  strcpy(filename + strlen(filename) - 4, ".pfa");
+  font_file = strdup(filename);
 
-    // Change the extension to ".pfa" and save the font filename for later
-    // use as needed...
-    strcpy(filename + strlen(filename) - 4, ".pfa");
-    font_file = strdup(filename);
-  }
+  load_widths(css);
 }
 
 
@@ -142,6 +137,9 @@ hdStyleFont::~hdStyleFont()
     free(full_name);
 
   if (font_file)
+    free(font_file);
+
+  if (width_file)
     free(font_file);
 }
 
@@ -182,10 +180,7 @@ hdStyleFont::get_char(const hdChar *&s)	// IO - String pointer
   // OK, extract a single UTF-8 encoded char...  This code also supports
   // reading ISO-8859-1 characters that are masquerading as UTF-8.
   if (*s < 192)
-  {
-    s ++;
-    return (*s);
-  }
+    return (*s++);
 
   if ((*s & 0xe0) == 0xc0)
   {
@@ -212,8 +207,7 @@ hdStyleFont::get_char(const hdChar *&s)	// IO - String pointer
   if (i <= count)
   {
     // Return just the initial char...
-    s ++;
-    return (*s);
+    return (*s++);
   }
   else
   {
@@ -369,6 +363,64 @@ hdStyleFont::get_width(const hdChar *s)	// I - String to measure
 
 
 //
+// 'hdStyleFont::load_widths()' - Load character widths for a font.
+//
+
+void
+hdStyleFont::load_widths(
+    hdStyleSheet *css)			// I - Stylesheet
+{
+  FILE	*fp;				// File to read from
+
+
+  // Free old font width data...
+  if (num_kerns > 0)
+    delete[] kerns;
+
+  if (num_widths > 0)
+    delete[] widths;
+
+  if (ps_name)
+    free(ps_name);
+
+  if (full_name)
+    free(full_name);
+
+  // Initialize font width data...
+  encoding     = css->encoding;
+  ps_name      = NULL;
+  full_name    = NULL;
+  fixed_width  = false;
+  ascender     = 0.0f;
+  bbox[0]      = 0.0f;
+  bbox[1]      = 0.0f;
+  bbox[2]      = 0.0f;
+  bbox[3]      = 0.0f;
+  cap_height   = 0.0f;
+  descender    = 0.0f;
+  italic_angle = 0.0f;
+  ul_position  = 0.0f;
+  ul_thickness = 0.0f;
+  x_height     = 0.0f;
+  num_widths   = css->num_glyphs;
+  widths       = new float[num_widths];
+  num_kerns    = 0;
+  kerns        = NULL;
+
+  memset(widths, 0, sizeof(float) * num_widths);
+
+  if ((fp = fopen(width_file, "rb")) != NULL)
+  {
+//    printf("    filename=\"%s\"\n", filename);
+
+    // Read the AFM file...
+    read_afm(fp, css);
+    fclose(fp);
+  }
+}
+
+
+//
 // 'hdStyleFont::read_afm()' - Read a Type1 AFM file.
 //
 
@@ -388,7 +440,7 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
 
 
   // Loop through the AFM file...
-  alloc_kerns = num_kerns;
+  alloc_kerns = 0;
 
   while (file_gets(line, sizeof(line), fp) != NULL)
   {
@@ -414,7 +466,7 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
     else if (!strcmp(line, "IsFixedPitch"))
     {
       // Fixed-pitch font?
-      fixed_width = strcmp(lineptr, "true");
+      fixed_width = !strcmp(lineptr, "true");
     }
     else if (!strcmp(line, "UnderlinePosition"))
     {
@@ -519,18 +571,6 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
   widths[160] = widths[32];
   num_widths  = css->num_glyphs;
 
-  return (0);
-}
-
-
-//
-// 'hdStyleFont::read_pfm()' - Read a Type1 PFM file.
-//
-
-int					// O - 0 on success, -1 on error
-hdStyleFont::read_pfm(FILE       *fp,	// I - File to read from
-                      hdStyleSheet *css)// I - Stylesheet
-{
   return (0);
 }
 
