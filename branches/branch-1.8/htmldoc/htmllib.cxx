@@ -881,7 +881,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       t->data   = (uchar *)strdup((char *)s);
 
       DEBUG_printf(("%sfragment \"%s\" (len=%d), line %d\n", indent, s,
-                    ptr - s, linenum));
+                    (int)(ptr - s), linenum));
     }
 
    /*
