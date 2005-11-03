@@ -327,7 +327,6 @@ static float	render_size,
 		render_y,
 		render_startx,
 		render_spacing;
-static char	render_char_used[256];
 
 static int		compressor_active = 0;
 static z_stream		compressor;
@@ -576,27 +575,6 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   find_background(document);
   get_color((uchar *)LinkColor, link_color);
-
- /*
-  * Make sure that we embed combining characters for fonts that
-  * need them...  This definitely falls under the category of "hack"
-  * but it is the only way to safely subset the Type 1 fonts we use...
-  */
-
-  memset(render_char_used, 0, sizeof(render_char_used));
-  render_char_used[iso8859((uchar *)"acute")] = 1;	// Acute
-  render_char_used[iso8859((uchar *)"#x2c7")] = 1;	// Caron
-  render_char_used[iso8859((uchar *)"cedil")] = 1;	// Cedilla
-  render_char_used[iso8859((uchar *)"circ")]  = 1;	// Circumflex
-  render_char_used['`']                       = 1;	// Grave
-  render_char_used[iso8859((uchar *)"macr")]  = 1;	// Macron
-  render_char_used[iso8859((uchar *)"#x2da")] = 1;	// Ring
-  render_char_used['/']                       = 1;	// Slash
-  render_char_used['~']                       = 1;	// Tilde
-  render_char_used[iso8859((uchar *)"uml")]   = 1;	// Umlaut/dieresis
-
-  for (i = 32; i < 127; i ++)
-    render_char_used[i] = 1;
 
  /*
   * Initialize page rendering variables...
@@ -8594,10 +8572,6 @@ new_render(int      page,		/* I - Page number (0-n) */
 	// Safe because buffer is allocated...
         strcpy((char *)r->data.text.buffer, (char *)data);
         get_color(_htmlTextColor, r->data.text.rgb);
-
-        // Mark characters that are used...
-	for (uchar *ptr = r->data.text.buffer; *ptr; ptr ++)
-	  render_char_used[*ptr] = 1;
         break;
     case RENDER_IMAGE :
         if (data == NULL)
@@ -11171,11 +11145,6 @@ write_prolog(FILE  *out,		/* I - Output file */
     for (j = 0; j < STYLE_MAX; j ++)
       if (fonts_used[i][j])
         printf("    %s\n", _htmlFonts[i][j]);
-
-  puts("\nThe following characters were used:");
-  for (i = 0; i < 256; i ++)
-    if (render_char_used[i])
-      printf("    %02X: %s\n", i, _htmlGlyphs[i]);
 #endif // DEBUG
 
  /*
