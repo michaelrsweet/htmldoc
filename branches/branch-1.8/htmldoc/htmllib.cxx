@@ -52,10 +52,6 @@
  *   fix_filename()       - Fix a filename to be relative to the base directory.
  *   html_memory_used()   - Figure out the amount of memory that was used.
  *   htmlDebugStats()     - Display debug statistics for HTML tree memory use.
- *   find_glyph()         - Find the closest glyph in the sorted array.
- *   htmlAddGlyph()       - Add a glyph to the sorted array.
- *   htmlFindGlyph()      - Find a glyph in the sorted array.
- *   htmlInitGlyphs()     - Initialize the sorted glyphs array.
  */
 
 /*
@@ -2289,8 +2285,6 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
   * Build the glyph array...
   */
 
-  htmlInitGlyphs();
-
   for (i = 0, j = 0; i < 256; i ++)
   {
    /*
@@ -2304,14 +2298,6 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
     }
     else
       _htmlGlyphs[i] = _htmlGlyphsAll[chars[i]];
-
-   /*
-    * Then add it, as needed, to the sorted array which is used for
-    * embedding font subsets...
-    */
-
-    if (_htmlGlyphs[i])
-      htmlAddGlyph(_htmlGlyphs[i], i);
   }
 
   htmlLoadFontWidths();
@@ -3117,6 +3103,8 @@ fix_filename(char *filename,		/* I - Original filename */
   static char	newfilename[1024];	/* New filename */
 
 
+//  printf("fix_filename(filename=\"%s\", base=\"%s\")\n", filename, base);
+
   if (filename == NULL)
     return (NULL);
 
@@ -3182,6 +3170,8 @@ fix_filename(char *filename,		/* I - Original filename */
     strlcat(newfilename, "/", sizeof(newfilename));
 
   strlcat(newfilename, filename, sizeof(newfilename));
+
+//  printf("    newfilename=\"%s\"\n", newfilename);
 
   return (file_find(Path, newfilename));
 }
@@ -3358,162 +3348,6 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 
     tree = tree->next;
   }
-}
-
-
-/*
- * 'find_glyph()' - Find the closest glyph in the sorted array.
- */
-
-static int				/* O - Closest match */
-find_glyph(const char *glyph,		/* I - Glyph name */
-           int        *rdiff)		/* I - Difference */
-{
-  int	left,				/* Left side of search */
-	right,				/* Right side of search */
-	current,			/* Current element */
-	diff;				/* Comparison with current element */
-
-
- /*
-  * Start search in the middle...
-  */
-
-  left  = 0;
-  right = _htmlNumSorted - 1;
-
-  do
-  {
-    current = (left + right) / 2;
-    diff    = strcmp(glyph, _htmlSorted[current]);
-
-    DEBUG_printf(("find_glyph: left=%d, right=%d, current=%d, diff=%d\n",
-                  left, right, current, diff));
-
-    if (diff == 0)
-      break;
-    else if (diff < 0)
-      right = current;
-    else
-      left = current;
-  }
-  while ((right - left) > 1);
-
-  if (diff != 0)
-  {
-   /*
-    * Check the last 1 or 2 elements...
-    */
-
-    if ((diff = strcmp(glyph, _htmlSorted[left])) <= 0)
-      current = left;
-    else
-    {
-      diff    = strcmp(glyph, _htmlSorted[right]);
-      current = right;
-    }
-  }
-
- /*
-  * Return the closest element and the difference...
-  */
-
-  DEBUG_printf(("find_glyph: Returning %d, diff=%d\n", current, diff));
-
-  *rdiff = diff;
-
-  return (current);
-}
-
-
-/*
- * 'htmlAddGlyph()' - Add a glyph to the sorted array.
- */
-
-void
-htmlAddGlyph(const char *glyph,		/* I - Glyph name */
-             int        ch)		/* I - Character index */
-{
-  int	closest,			/* Closest match */
-	diff;				/* Difference */
-
-
-  DEBUG_printf(("htmlAddGlyph(glyph=\"%s\", ch=%d)\n", glyph, ch));
-
- /*
-  * Find the insertion point...
-  */
-
-  if (!_htmlNumSorted)
-    closest = 0;
-  else
-  {
-    closest = find_glyph(glyph, &diff);
-
-    if (diff == 0)
-      return;
-    else if (diff > 0)
-      closest ++;
-  }
-
- /*
-  * Insert or append the element...
-  */
-
-  if (closest < _htmlNumSorted)
-  {
-    memmove(_htmlSorted + closest + 1, _htmlSorted + closest,
-            (_htmlNumSorted - closest) * sizeof(char *));
-    memmove(_htmlSortedChars + closest + 1, _htmlSortedChars + closest,
-            _htmlNumSorted - closest);
-  }
-
-  _htmlSorted[closest]      = glyph;
-  _htmlSortedChars[closest] = ch;
-  _htmlNumSorted ++;
-
-#ifdef DEBUG
-  int i;
-
-  printf("    _htmlNumSorted=%d\n", _htmlNumSorted);
-  for (i = 0; i < _htmlNumSorted; i ++)
-  {
-    if (i && strcmp(_htmlSorted[i], _htmlSorted[i - 1]) <= 0)
-      printf("    _htmlSorted[%d]=\"%s\" ERROR!!!!\n", i, _htmlSorted[i]);
-    else
-      printf("    _htmlSorted[%d]=\"%s\"\n", i, _htmlSorted[i]);
-  }
-#endif /* DEBUG */
-}
-
-
-/*
- * 'htmlFindGlyph()' - Find a glyph in the sorted array.
- */
-
-int					/* O - Character or -1 if not found */
-htmlFindGlyph(const char *glyph)	/* I - Glyph name */
-{
-  int	closest,			/* Closest match */
-	diff;				/* Difference */
-
-
-  closest = find_glyph(glyph, &diff);
-  if (diff)
-    return (0);
-  else
-    return (_htmlSortedChars[closest]);
-}
-
-
-/*
- * 'htmlInitGlyphs()' - Initialize the sorted glyphs array.
- */
-
-void
-htmlInitGlyphs(void)
-{
-  _htmlNumSorted = 0;
 }
 
 

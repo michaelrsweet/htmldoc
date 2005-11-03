@@ -291,9 +291,6 @@ extern char		_htmlCharSet[];
 extern float		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
 extern const char	*_htmlGlyphs[];
 extern const char	*_htmlGlyphsAll[];
-extern int		_htmlNumSorted;
-extern const char	*_htmlSorted[];
-extern uchar		_htmlSortedChars[];
 extern const char	*_htmlFonts[TYPE_MAX][STYLE_MAX];
 extern int		_htmlStandardFonts[TYPE_MAX];
 
@@ -326,9 +323,6 @@ extern void	htmlSetBaseSize(float p, float s);
 extern void	htmlSetCharSet(const char *cs);
 extern void	htmlSetTextColor(uchar *color);
 
-extern void	htmlAddGlyph(const char *glyph, int ch);
-extern int	htmlFindGlyph(const char *glyph);
-extern void	htmlInitGlyphs(void);
 extern void	htmlLoadFontWidths(void);
 
 extern void	htmlDebugStats(const char *title, tree_t *t);

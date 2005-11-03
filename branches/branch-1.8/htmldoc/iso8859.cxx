@@ -379,9 +379,6 @@ iso8859(uchar *name)			/* I - Glyph name */
 	  else
 	    _htmlGlyphs[newch] = glyph;
 
-	  // Add the character to the sorted glyph array...
-	  htmlAddGlyph(_htmlGlyphs[newch], newch);
-
           // Reload font widths...
 	  htmlLoadFontWidths();
 
