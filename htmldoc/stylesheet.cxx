@@ -1329,7 +1329,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   glyphs     = new char *[num_glyphs];
   encoding   = HD_FONT_ENCODING_8BIT;
 
-  memset(glyphs, 0, sizeof(glyphs));
+  memset(glyphs, 0, num_glyphs * sizeof(char *));
 
   // Now read all of the remaining lines from the file in the format:
   //

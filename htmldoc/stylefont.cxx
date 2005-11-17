@@ -518,6 +518,9 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
       if (sscanf(lineptr, "%*d%*s%*s%d%*s%*s%31s", &number, value) != 2)
         continue;
 
+//      printf("num_glyphs=%d, glyphs=%p, value=\"%s\"...\n", css->num_glyphs,
+//             css->glyphs, value);
+
       // Assign the width to all code points with this glyph...
       for (glyph = 0; glyph < css->num_glyphs; glyph ++)
         if (css->glyphs[glyph] && !strcmp(css->glyphs[glyph], value))
