@@ -364,8 +364,7 @@ hdStyleSheet::get_entity(
     }
 
     for (newch = 128; newch < 256; newch ++)
-      if (glyphs[newch] &&
-          !strcmp(glyphs[newch], glyph))
+      if (glyphs[newch] && !strcmp(glyphs[newch], glyph))
 	break;
 
     if (newch >= 256)
