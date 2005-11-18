@@ -22,8 +22,8 @@
  *         WWW: http://www.easysw.com
  */
 
-#ifndef _HTMLDOC_HTML_H_
-#  define _HTMLDOC_HTML_H_
+#ifndef _HTML_H_
+#  define _HTML_H_
 
 /*
  * Include necessary headers...
@@ -34,7 +34,7 @@
 
 #  include "file.h"
 #  include "hdstring.h"
-#  include "style.h"
+#  include "iso8859.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -42,82 +42,296 @@ extern "C" {
 
 
 /*
- * Element attributes...
+ * Define some compatibility macros for Microsoft Windows...
+ */
+
+#  ifdef WIN32
+#    define strcasecmp(s,t)	stricmp(s,t)
+#    define strncasecmp(s,t,n)	strnicmp(s,t,n)
+#  endif /* WIN32 */
+
+
+/*
+ * Markup constants...
+ */
+
+typedef enum
+{
+	MARKUP_FILE = -3,	/* File Delimiter */
+	MARKUP_UNKNOWN = -2,	/* Unknown element */
+	MARKUP_ERROR = -1,	
+	MARKUP_NONE = 0,
+	MARKUP_COMMENT,
+	MARKUP_DOCTYPE,
+	MARKUP_A,
+	MARKUP_ACRONYM,
+	MARKUP_ADDRESS,
+	MARKUP_APPLET,
+	MARKUP_AREA,
+	MARKUP_B,
+	MARKUP_BASE,
+	MARKUP_BASEFONT,
+	MARKUP_BIG,
+	MARKUP_BLINK,
+	MARKUP_BLOCKQUOTE,
+	MARKUP_BODY,
+	MARKUP_BR,
+	MARKUP_CAPTION,
+	MARKUP_CENTER,
+	MARKUP_CITE,
+	MARKUP_CODE,
+	MARKUP_COL,
+	MARKUP_COLGROUP,
+	MARKUP_DD,
+	MARKUP_DEL,
+	MARKUP_DFN,
+	MARKUP_DIR,
+	MARKUP_DIV,
+	MARKUP_DL,
+	MARKUP_DT,
+	MARKUP_EM,
+	MARKUP_EMBED,
+	MARKUP_FONT,
+	MARKUP_FORM,
+	MARKUP_FRAME,
+	MARKUP_FRAMESET,
+	MARKUP_H1,
+	MARKUP_H2,
+	MARKUP_H3,
+	MARKUP_H4,
+	MARKUP_H5,
+	MARKUP_H6,
+	MARKUP_H7,
+	MARKUP_H8,
+	MARKUP_H9,
+	MARKUP_H10,
+	MARKUP_H11,
+	MARKUP_H12,
+	MARKUP_H13,
+	MARKUP_H14,
+	MARKUP_H15,
+	MARKUP_HEAD,
+	MARKUP_HR,
+	MARKUP_HTML,
+	MARKUP_I,
+	MARKUP_IMG,
+	MARKUP_INPUT,
+	MARKUP_INS,
+	MARKUP_ISINDEX,
+	MARKUP_KBD,
+	MARKUP_LI,
+	MARKUP_LINK,
+	MARKUP_MAP,
+	MARKUP_MENU,
+	MARKUP_META,
+	MARKUP_MULTICOL,
+	MARKUP_NOBR,
+	MARKUP_NOFRAMES,
+	MARKUP_OL,
+	MARKUP_OPTION,
+	MARKUP_P,
+	MARKUP_PRE,
+	MARKUP_S,
+	MARKUP_SAMP,
+	MARKUP_SCRIPT,
+	MARKUP_SELECT,
+	MARKUP_SMALL,
+	MARKUP_SPACER,
+	MARKUP_STRIKE,
+	MARKUP_STRONG,
+	MARKUP_STYLE,
+	MARKUP_SUB,
+	MARKUP_SUP,
+	MARKUP_TABLE,
+	MARKUP_TBODY,
+	MARKUP_TD,
+	MARKUP_TEXTAREA,
+	MARKUP_TFOOT,
+	MARKUP_TH,
+	MARKUP_THEAD,
+	MARKUP_TITLE,
+	MARKUP_TR,
+	MARKUP_TT,
+	MARKUP_U,
+	MARKUP_UL,
+	MARKUP_VAR,
+	MARKUP_WBR
+} markup_t;
+
+/*
+ * Horizontal alignment...
+ */
+
+typedef enum
+{
+	ALIGN_LEFT = 0,
+	ALIGN_CENTER,
+	ALIGN_RIGHT,
+	ALIGN_JUSTIFY
+} halignment_t;
+
+/*
+ * Vertical alignment...
+ */
+
+typedef enum
+{
+	ALIGN_TOP = 0,
+	ALIGN_MIDDLE,
+	ALIGN_BOTTOM
+} valignment_t;
+
+/*
+ * Typeface...
+ */
+
+typedef enum
+{
+	TYPE_COURIER = 0,
+	TYPE_TIMES,
+	TYPE_HELVETICA,
+	TYPE_MONOSPACE,
+	TYPE_SERIF,
+	TYPE_SANS_SERIF,
+	TYPE_SYMBOL,
+	TYPE_DINGBATS,
+	TYPE_MAX
+} typeface_t;
+
+/*
+ * Style...
+ */
+
+typedef enum
+{
+	STYLE_NORMAL = 0,
+	STYLE_BOLD,
+	STYLE_ITALIC,
+	STYLE_BOLD_ITALIC,
+	STYLE_MAX
+} style_t;
+
+/*
+ * Sizes...
+ */
+
+#  define SIZE_H1	6
+#  define SIZE_H2	5
+#  define SIZE_H3	4
+#  define SIZE_H4	3
+#  define SIZE_H5	2
+#  define SIZE_H6	1
+#  define SIZE_H7	0
+#  define SIZE_P	3
+#  define SIZE_PRE	2
+#  define SIZE_SUB	-2
+#  define SIZE_SUP	-2
+
+
+/*
+ * Markup variables...
  */
 
 typedef struct
 {
-  char		*name;			//* Attribute name
-  hdChar	*value;			//* Attribute value
-} hdTreeAttr;
+  uchar			*name,		/* Variable name */
+			*value;		/* Variable value */
+} var_t;
 
 /*
  * Parsing tree...
  */
 
-struct hdTree
+typedef struct tree_str
 {
-  struct hdTree	*parent,		//* Parent tree entry
-		*child,			//* First child entry
-		*last_child,		//* Last child entry
-		*prev,			//* Previous entry on this level
-		*next,			//* Next entry on this level
-		*link;			//* Linked-to
-  hdElement	element;		//* Markup code
-  hdStyle	*style;			//* CSS data
-  hdUTF8	data;			//* Text (HD_ELEMENT_NONE or HD_ELEMENT_COMMENT)
-  float		width,			//* Width of this fragment in points
-		height;			//* Height of this fragment in points
-  int		nattrs;			//* Number of attributes...
-  hdTreeAttr	*attrs;			//* Attributes...
-};
+  struct tree_str	*parent,	/* Parent tree entry */
+			*child,		/* First child entry */
+			*last_child,	/* Last child entry */
+			*prev,		/* Previous entry on this level */
+			*next,		/* Next entry on this level */
+			*link;		/* Linked-to */
+  markup_t		markup;		/* Markup code */
+  uchar			*data;		/* Text (MARKUP_NONE or MARKUP_COMMENT) */
+  unsigned		halignment:2,	/* Horizontal alignment */
+			valignment:2,	/* Vertical alignment */
+			typeface:3,	/* Typeface code */
+			size:3,		/* Size of text */
+			style:2,	/* Style of text */
+			underline:1,	/* Text is underlined? */
+			strikethrough:1,/* Text is struck-through? */
+			subscript:1,	/* Text is subscripted? */
+			superscript:1,	/* Text is superscripted? */
+			preformatted:1,	/* Preformatted text? */
+			indent:4;	/* Indentation level 0-15 */
+  uchar			red,		/* Color of this fragment */
+			green,
+			blue;
+  float			width,		/* Width of this fragment in points */
+			height;		/* Height of this fragment in points */
+  int			nvars;		/* Number of variables... */
+  var_t			*vars;		/* Variables... */
+} tree_t;
 
 
 /*
  * Globals...
  */
 
+extern const char	*_htmlMarkups[];
 extern const char	*_htmlData;
-extern hdFontFace	_htmlBodyFont,
+extern float		_htmlPPI;
+extern int		_htmlGrayscale;
+extern uchar		_htmlTextColor[];
+extern float		_htmlBrowserWidth;
+extern float		_htmlSizes[],
+			_htmlSpacings[];
+extern typeface_t	_htmlBodyFont,
 			_htmlHeadingFont;
-extern hdStyleSheet	*_htmlStyleSheet;
+extern char		_htmlCharSet[];
+extern float		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
+extern const char	*_htmlGlyphs[];
+extern const char	*_htmlGlyphsAll[];
+extern const char	*_htmlFonts[TYPE_MAX][STYLE_MAX];
+extern int		_htmlStandardFonts[TYPE_MAX];
 
 
 /*
  * Prototypes...
  */
 
-extern hdTree	*htmlReadFile(hdTree *parent, FILE *fp, const char *base);
-extern int	htmlWriteFile(hdTree *parent, FILE *fp);
+extern tree_t	*htmlReadFile(tree_t *parent, FILE *fp, const char *base);
+extern int	htmlWriteFile(tree_t *parent, FILE *fp);
 
-extern hdTree	*htmlAddTree(hdTree *parent, hdElement element, hdChar *data);
-extern int	htmlDeleteTree(hdTree *parent);
-extern hdTree	*htmlInsertTree(hdTree *parent, hdElement element, hdChar *data);
-extern hdTree	*htmlNewTree(hdTree *parent, hdElement element, hdChar *data);
+extern tree_t	*htmlAddTree(tree_t *parent, markup_t markup, uchar *data);
+extern int	htmlDeleteTree(tree_t *parent);
+extern tree_t	*htmlInsertTree(tree_t *parent, markup_t markup, uchar *data);
+extern tree_t	*htmlNewTree(tree_t *parent, markup_t markup, uchar *data);
 
-extern hdTree	*htmlFindFile(hdTree *doc, const char *filename);
-extern hdTree	*htmlFindTarget(hdTree *doc, hdChar *name);
-extern void	htmlFixLinks(hdTree *doc, hdTree *tree, const char *base = 0);
+extern tree_t	*htmlFindFile(tree_t *doc, uchar *filename);
+extern tree_t	*htmlFindTarget(tree_t *doc, uchar *name);
+extern void	htmlFixLinks(tree_t *doc, tree_t *tree, uchar *base = 0);
 
-extern hdElement htmlGetElement(const char *name);
-extern hdChar	*htmlGetText(hdTree *tree);
-extern hdChar	*htmlGetMeta(hdTree *tree, const char *name);
+extern uchar	*htmlGetText(tree_t *tree);
+extern uchar	*htmlGetMeta(tree_t *tree, uchar *name);
 
-extern hdChar	*htmlGetAttr(hdTree *t, const char *name);
-extern int	htmlSetAttr(hdTree *t, const char *name, hdChar *value);
+extern uchar	*htmlGetVariable(tree_t *t, uchar *name);
+extern int	htmlSetVariable(tree_t *t, uchar *name, uchar *value);
 
-extern void	htmlUpdateStyle(hdTree *t, const char *base);
-extern void	htmlDeleteStyleSheet(void);
-extern void	htmlInitStyleSheet(void);
+extern uchar	*htmlGetStyle(tree_t *t, uchar *name);
 
-extern void	htmlDebugStats(const char *title, hdTree *t);
-extern void	htmlDebugStyleStats(void);
+extern void	htmlSetBaseSize(float p, float s);
+extern void	htmlSetCharSet(const char *cs);
+extern void	htmlSetTextColor(uchar *color);
+
+extern void	htmlLoadFontWidths(void);
+
+extern void	htmlDebugStats(const char *title, tree_t *t);
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !_HTMLDOC_HTML_H_ */
+#endif /* !_HTML_H_ */
 
 /*
  * End of "$Id$".

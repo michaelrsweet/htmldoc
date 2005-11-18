@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9-current"
+#define SVERSION	"1.8-current"
 
 
 /*
@@ -54,8 +54,24 @@
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"C:/Program Files/Easy Software Products/HTMLDOC/doc"
-#define HTML_DATA	"C:/Program Files/Easy Software Products/HTMLDOC"
+#define DOCUMENTATION	"C:/Program Files/HTMLDOC/doc"
+#define HTML_DATA	"C:/Program Files/HTMLDOC"
+
+
+/*
+ * Do we have the FLTK library?
+ */
+
+#ifndef _CONSOLE
+#  define HAVE_LIBFLTK
+#endif /* !_CONSOLE */
+
+
+/*
+ * Do we have the Xpm library?
+ */
+
+#undef HAVE_LIBXPM
 
 
 /*
@@ -86,11 +102,8 @@
  * Do we have some of the "standard" string functions?
  */
 
-#define HAVE_STRCASECMP
 #define HAVE_STRDUP
-#undef HAVE_STRDUPF
-#undef HAVE_STRLCAT
-#undef HAVE_STRLCPY
+#define HAVE_STRCASECMP
 #define HAVE_STRNCASECMP
 
 

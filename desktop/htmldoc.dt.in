@@ -1,5 +1,5 @@
 #
-# "$Id: htmldoc.dt.in,v 1.2 2004/10/23 07:06:18 mike Exp $"
+# "$Id: htmldoc.dt.in,v 1.1.2.2 2004/06/17 18:30:20 swdev Exp $"
 #
 #   CDE Action and DataType Definitions for HTMLDOC.
 #
@@ -84,5 +84,5 @@ ACTION Open
 
 
 #
-# End of "$Id: htmldoc.dt.in,v 1.2 2004/10/23 07:06:18 mike Exp $".
+# End of "$Id: htmldoc.dt.in,v 1.1.2.2 2004/06/17 18:30:20 swdev Exp $".
 #

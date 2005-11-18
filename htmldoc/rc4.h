@@ -1,5 +1,5 @@
 /*
- * "$Id$"
+ * "$Id: rc4.h,v 1.2 2000/06/05 03:18:24 mike Exp $"
  *
  *   RC4 functions for HTMLDOC.
  *
@@ -59,5 +59,5 @@ extern void	rc4_encrypt(rc4_context_t *context, const unsigned char *input,
 #endif /* !_RC4_H_ */
 
 /*
- * End of "$Id$".
+ * End of "$Id: rc4.h,v 1.2 2000/06/05 03:18:24 mike Exp $".
  */

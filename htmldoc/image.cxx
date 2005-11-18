@@ -65,7 +65,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
 #define GIF_INTERLACE	0x40
 #define GIF_COLORMAP	0x80
 
-typedef hdChar	gif_cmap_t[256][3];
+typedef uchar	gif_cmap_t[256][3];
 
 
 /*
@@ -86,7 +86,7 @@ typedef hdChar	gif_cmap_t[256][3];
 
 static int	num_images = 0,		/* Number of images in cache */
 		alloc_images = 0;	/* Allocated images */
-static hdImage	**images = NULL;	/* Images in cache */
+static image_t	**images = NULL;	/* Images in cache */
 static int	gif_eof = 0;		/* Did we hit EOF? */
 
 
@@ -96,19 +96,19 @@ static int	gif_eof = 0;		/* Did we hit EOF? */
 
 static int	gif_read_cmap(FILE *fp, int ncolors, gif_cmap_t cmap,
 		              int *gray);
-static int	gif_get_block(FILE *fp, hdChar *buffer);
+static int	gif_get_block(FILE *fp, uchar *buffer);
 static int	gif_get_code (FILE *fp, int code_size, int first_time);
-static int	gif_read_image(FILE *fp, hdImage *img, gif_cmap_t cmap,
+static int	gif_read_image(FILE *fp, image_t *img, gif_cmap_t cmap,
 		               int interlace, int transparent);
 static int	gif_read_lzw(FILE *fp, int first_time, int input_code_size);
 
-static int	image_compare(hdImage **img1, hdImage **img2);
-static int	image_load_bmp(hdImage *img, FILE *fp, int gray, int load_data);
-static int	image_load_gif(hdImage *img, FILE *fp, int gray, int load_data);
-static int	image_load_jpeg(hdImage *img, FILE *fp, int gray, int load_data);
-static int	image_load_png(hdImage *img, FILE *fp, int gray, int load_data);
-static void	image_need_mask(hdImage *img, int scaling = 1);
-static void	image_set_mask(hdImage *img, int x, int y, hdChar alpha = 0);
+static int	image_compare(image_t **img1, image_t **img2);
+static int	image_load_bmp(image_t *img, FILE *fp, int gray, int load_data);
+static int	image_load_gif(image_t *img, FILE *fp, int gray, int load_data);
+static int	image_load_jpeg(image_t *img, FILE *fp, int gray, int load_data);
+static int	image_load_png(image_t *img, FILE *fp, int gray, int load_data);
+static void	image_need_mask(image_t *img, int scaling = 1);
+static void	image_set_mask(image_t *img, int x, int y, uchar alpha = 0);
 
 static void		jpeg_error_handler(j_common_ptr);
 static int		read_long(FILE *fp);
@@ -173,7 +173,7 @@ gif_read_cmap(FILE       *fp,		/* I  - File to read from */
 
 static int			/* O - Number characters read */
 gif_get_block(FILE  *fp,	/* I - File to read from */
-	      hdChar *buf)	/* I - Input buffer */
+	      uchar *buf)	/* I - Input buffer */
 {
   int	count;			/* Number of character to read */
 
@@ -216,7 +216,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
   unsigned		i, j,		/* Looping vars */
 			ret;		/* Return value */
   int			count;		/* Number of bytes read */
-  static hdChar		buf[280];	/* Input buffer */
+  static uchar		buf[280];	/* Input buffer */
   static unsigned	curbit,		/* Current bit */
 			lastbit,	/* Last bit in buffer */
 			done,		/* Done with this buffer? */
@@ -312,12 +312,12 @@ gif_get_code(FILE *fp,		/* I - File to read from */
 
 static int				/* I - 0 = success, -1 = failure */
 gif_read_image(FILE       *fp,		/* I - Input file */
-	       hdImage    *img,		/* I - Image pointer */
+	       image_t    *img,		/* I - Image pointer */
 	       gif_cmap_t cmap,		/* I - Colormap */
 	       int        interlace,	/* I - Non-zero = interlaced image */
 	       int        transparent)	/* I - Transparent color */
 {
-  hdChar		code_size,		/* Code size */
+  uchar		code_size,		/* Code size */
 		*temp;			/* Current pixel */
   int		xpos,			/* Current X position */
 		ypos,			/* Current Y position */
@@ -484,7 +484,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
     }
     else if (code == end_code)
     {
-      hdChar	buf[260];
+      uchar	buf[260];
 
 
       if (!gif_eof)
@@ -541,8 +541,8 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
  */
 
 static int			/* O - Result of comparison */
-image_compare(hdImage **img1,	/* I - First image */
-              hdImage **img2)	/* I - Second image */
+image_compare(image_t **img1,	/* I - First image */
+              image_t **img2)	/* I - Second image */
 {
 #ifdef WIN32
   return (strcasecmp((*img1)->filename, (*img2)->filename));
@@ -562,7 +562,7 @@ image_copy(const char *filename,/* I - Source file */
 {
   char	dest[255];		/* Destination file */
   FILE	*in, *out;		/* Input/output files */
-  hdChar	buffer[8192];		/* Data buffer */
+  uchar	buffer[8192];		/* Data buffer */
   int	nbytes;			/* Number of bytes in buffer */
 
 
@@ -606,11 +606,11 @@ image_copy(const char *filename,/* I - Source file */
  * 'image_find()' - Find an image file in memory...
  */
 
-hdImage *			/* O - Pointer to image */
+image_t *			/* O - Pointer to image */
 image_find(const char *filename,/* I - Name of image file */
            int        load_data)/* I - 1 = load image data */
 {
-  hdImage	key,		/* Search key... */
+  image_t	key,		/* Search key... */
 		*keyptr,	/* Pointer to search key... */
 		**match;	/* Matching image */
 
@@ -634,7 +634,7 @@ image_find(const char *filename,/* I - Name of image file */
     strlcpy(key.filename, filename, sizeof(key.filename));
     keyptr = &key;
 
-    match = (hdImage **)bsearch(&keyptr, images, num_images, sizeof(hdImage *),
+    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
                                 (int (*)(const void *, const void *))image_compare);
     if (match != NULL)
     {
@@ -690,7 +690,7 @@ image_flush_cache(void)
  */
 
 int				/* O - Number of images in array */
-image_getlist(hdImage ***ptrs)	/* O - Pointer to images array */
+image_getlist(image_t ***ptrs)	/* O - Pointer to images array */
 {
   *ptrs = images;
   return (num_images);
@@ -701,7 +701,7 @@ image_getlist(hdImage ***ptrs)	/* O - Pointer to images array */
  * 'image_load()' - Load an image file from disk...
  */
 
-hdImage *			/* O - Pointer to image */
+image_t *			/* O - Pointer to image */
 image_load(const char *filename,/* I - Name of image file */
            int        gray,	/* I - 0 = color, 1 = grayscale */
            int        load_data)/* I - 1 = load image data, 0 = just info */
@@ -710,8 +710,8 @@ image_load(const char *filename,/* I - Name of image file */
   int		i;		/* Looping var */
 #endif // DEBUG
   FILE		*fp;		/* File pointer */
-  hdChar		header[16];	/* First 16 bytes of file */
-  hdImage	*img,		/* New image buffer */
+  uchar		header[16];	/* First 16 bytes of file */
+  image_t	*img,		/* New image buffer */
 		key,		/* Search key... */
 		*keyptr,	/* Pointer to search key... */
 		**match,	/* Matching image */
@@ -743,7 +743,7 @@ image_load(const char *filename,/* I - Name of image file */
     strlcpy(key.filename, filename, sizeof(key.filename));
     keyptr = &key;
 
-    match = (hdImage **)bsearch(&keyptr, images, num_images, sizeof(hdImage *),
+    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
                                 (int (*)(const void *, const void *))image_compare);
     if (match != NULL && (!load_data || (*match)->pixels))
     {
@@ -806,9 +806,9 @@ image_load(const char *filename,/* I - Name of image file */
       alloc_images += ALLOC_FILES;
 
       if (num_images == 0)
-	temp = (hdImage **)malloc(sizeof(hdImage *) * alloc_images);
+	temp = (image_t **)malloc(sizeof(image_t *) * alloc_images);
       else
-	temp = (hdImage **)realloc(images, sizeof(hdImage *) * alloc_images);
+	temp = (image_t **)realloc(images, sizeof(image_t *) * alloc_images);
 
       if (temp == NULL)
       {
@@ -823,7 +823,7 @@ image_load(const char *filename,/* I - Name of image file */
     }
 
     // Allocate memory...
-    img = (hdImage *)calloc(sizeof(hdImage), 1);
+    img = (image_t *)calloc(sizeof(image_t), 1);
 
     if (img == NULL)
     {
@@ -873,7 +873,7 @@ image_load(const char *filename,/* I - Name of image file */
   {
     num_images ++;
     if (num_images > 1)
-      qsort(images, num_images, sizeof(hdImage *),
+      qsort(images, num_images, sizeof(image_t *),
             (int (*)(const void *, const void *))image_compare);
   }
 
@@ -886,7 +886,7 @@ image_load(const char *filename,/* I - Name of image file */
  */
 
 static int			/* O - 0 = success, -1 = fail */
-image_load_bmp(hdImage *img,	/* I - Image to load into */
+image_load_bmp(image_t *img,	/* I - Image to load into */
                FILE    *fp,	/* I - File to read from */
 	       int     gray,	/* I - Grayscale image? */
                int     load_data)/* I - 1 = load image data, 0 = just info */
@@ -900,10 +900,10 @@ image_load_bmp(hdImage *img,	/* I - Image to load into */
 		count,		/* Number of times to repeat */
 		temp,		/* Temporary color */
 		align;		/* Alignment bytes */
-  hdChar		bit,		/* Bit in image */
+  uchar		bit,		/* Bit in image */
 		byte;		/* Byte in image */
-  hdChar		*ptr;		/* Pointer into pixels */
-  hdChar		colormap[256][4];/* Colormap */
+  uchar		*ptr;		/* Pointer into pixels */
+  uchar		colormap[256][4];/* Colormap */
 
 
   // Get the header...
@@ -949,7 +949,7 @@ image_load_bmp(hdImage *img,	/* I - Image to load into */
   if (!load_data)
     return (0);
 
-  img->pixels = (hdChar *)malloc(img->width * img->height * img->depth);
+  img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
   if (img->pixels == NULL)
     return (-1);
 
@@ -1251,12 +1251,12 @@ image_load_bmp(hdImage *img,	/* I - Image to load into */
  */
 
 static int			/* O - 0 = success, -1 = fail */
-image_load_gif(hdImage *img,	/* I - Image pointer */
+image_load_gif(image_t *img,	/* I - Image pointer */
                FILE    *fp,	/* I - File to load from */
                int     gray,	/* I - 0 = color, 1 = grayscale */
                int     load_data)/* I - 1 = load image data, 0 = just info */
 {
-  hdChar		buf[1024];	/* Input buffer */
+  uchar		buf[1024];	/* Input buffer */
   gif_cmap_t	cmap;		/* Colormap */
   int		ncolors,	/* Bits per pixel */
 		transparent;	/* Transparent color index */
@@ -1324,11 +1324,11 @@ image_load_gif(hdImage *img,	/* I - Image pointer */
 	      float rgb[3]; /* RGB color */
 
 
-	      get_color((hdChar *)BodyColor, rgb);
+	      get_color((uchar *)BodyColor, rgb);
 
-	      cmap[transparent][0] = (hdChar)(rgb[0] * 255.0f + 0.5f);
-	      cmap[transparent][1] = (hdChar)(rgb[1] * 255.0f + 0.5f);
-	      cmap[transparent][2] = (hdChar)(rgb[2] * 255.0f + 0.5f);
+	      cmap[transparent][0] = (uchar)(rgb[0] * 255.0f + 0.5f);
+	      cmap[transparent][1] = (uchar)(rgb[1] * 255.0f + 0.5f);
+	      cmap[transparent][2] = (uchar)(rgb[2] * 255.0f + 0.5f);
 	    }
 	    else
 	    {
@@ -1350,7 +1350,7 @@ image_load_gif(hdImage *img,	/* I - Image pointer */
 	  if (!load_data)
 	    return (0);
 
-          img->pixels = (hdChar *)malloc(img->width * img->height * img->depth);
+          img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
           if (img->pixels == NULL)
             return (-1);
 
@@ -1365,7 +1365,7 @@ image_load_gif(hdImage *img,	/* I - Image pointer */
  */
 
 static int			/* O - 0 = success, -1 = fail */
-image_load_jpeg(hdImage *img,	/* I - Image pointer */
+image_load_jpeg(image_t *img,	/* I - Image pointer */
                 FILE    *fp,	/* I - File to load from */
                 int     gray,	/* I - 0 = color, 1 = grayscale */
                 int     load_data)/* I - 1 = load image data, 0 = just info */
@@ -1410,7 +1410,7 @@ image_load_jpeg(hdImage *img,	/* I - Image pointer */
     return (0);
   }
 
-  img->pixels = (hdChar *)malloc(img->width * img->height * img->depth);
+  img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
 
   if (img->pixels == NULL)
   {
@@ -1440,7 +1440,7 @@ image_load_jpeg(hdImage *img,	/* I - Image pointer */
  */
 
 static int			/* O - 0 = success, -1 = fail */
-image_load_png(hdImage *img,	/* I - Image pointer */
+image_load_png(image_t *img,	/* I - Image pointer */
                FILE    *fp,	/* I - File to read from */
                int     gray,	/* I - 0 = color, 1 = grayscale */
                int     load_data)/* I - 1 = load image data, 0 = just info */
@@ -1450,7 +1450,7 @@ image_load_png(hdImage *img,	/* I - Image pointer */
   png_infop	info;		/* PNG info pointers */
   int		depth;		/* Input image depth */
   png_bytep	*rows;		/* PNG row pointers */
-  hdChar		*inptr,		/* Input pixels */
+  uchar		*inptr,		/* Input pixels */
 		*outptr;	/* Output pixels */
 
 
@@ -1568,7 +1568,7 @@ image_load_png(hdImage *img,	/* I - Image pointer */
     return (0);
   }
 
-  img->pixels = (hdChar *)malloc(img->width * img->height * depth);
+  img->pixels = (uchar *)malloc(img->width * img->height * depth);
 
  /*
   * Allocate pointers...
@@ -1674,7 +1674,7 @@ image_load_png(hdImage *img,	/* I - Image pointer */
  */
 
 static void
-image_need_mask(hdImage *img,	/* I - Image to add mask to */
+image_need_mask(image_t *img,	/* I - Image to add mask to */
                 int     scaling)/* I - Scaling for mask image */
 {
   int	size;			/* Byte size of mask image */
@@ -1703,7 +1703,7 @@ image_need_mask(hdImage *img,	/* I - Image to add mask to */
     size           = img->maskwidth * img->height * scaling;
   }
 
-  img->mask = (hdChar *)calloc(size, 1);
+  img->mask = (uchar *)calloc(size, 1);
 }
 
 
@@ -1712,19 +1712,19 @@ image_need_mask(hdImage *img,	/* I - Image to add mask to */
  */
 
 static void
-image_set_mask(hdImage *img,	/* I - Image to operate on */
+image_set_mask(image_t *img,	/* I - Image to operate on */
                int     x,	/* I - X coordinate */
                int     y,	/* I - Y coordinate */
-	       hdChar   alpha)	/* I - Alpha value */
+	       uchar   alpha)	/* I - Alpha value */
 {
   int		i, j;		/* Looping vars */
-  hdChar		*maskptr;	/* Pointer into mask image */
-  static hdChar	masks[8] =	/* Masks for each bit */
+  uchar		*maskptr;	/* Pointer into mask image */
+  static uchar	masks[8] =	/* Masks for each bit */
 		{
 		  0x80, 0x40, 0x20, 0x10,
 		  0x08, 0x04, 0x02, 0x01
 		};
-  static hdChar	dither[4][4] = // Simple 4x4 clustered-dot dither
+  static uchar	dither[4][4] = // Simple 4x4 clustered-dot dither
 		{
 		  { 0,  2,  15, 6 },
 		  { 4,  12, 9,  11 },
@@ -1768,7 +1768,7 @@ image_set_mask(hdImage *img,	/* I - Image to operate on */
  */
 
 void
-image_unload(hdImage *img)	// I - Image
+image_unload(image_t *img)	// I - Image
 {
   if (!img)
     return;

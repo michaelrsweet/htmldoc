@@ -1,5 +1,5 @@
 //
-// "$Id: htmldoc.java,v 1.2 2004/03/31 07:01:55 mike Exp $"
+// "$Id: htmldoc.java,v 1.1.2.4 2004/05/10 01:14:53 mike Exp $"
 //
 //   Java interface to HTMLDOC.
 //
@@ -15,7 +15,7 @@
 //       Attn: ESP Licensing Information
 //       Easy Software Products
 //       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
+//       Hollywood, Maryland 20636-3142 USA
 //
 //       Voice: (301) 373-9600
 //       EMail: info@easysw.com
@@ -112,5 +112,5 @@ class htmldoc
 
 
 //
-// End of "$Id: htmldoc.java,v 1.2 2004/03/31 07:01:55 mike Exp $".
+// End of "$Id: htmldoc.java,v 1.1.2.4 2004/05/10 01:14:53 mike Exp $".
 //

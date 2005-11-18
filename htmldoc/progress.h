@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.h,v 1.1.2.12.2.2 2005/05/04 18:28:50 mike Exp $"
+ * "$Id$"
  *
  *   Progress function definitions for HTMLDOC, a HTML document
  *   processing program.
@@ -54,16 +54,15 @@ typedef enum
   HD_ERROR_CONTENT_TOO_LARGE,
   HD_ERROR_UNRESOLVED_LINK,
   HD_ERROR_BAD_HF_STRING,
-  HD_ERROR_CSS_ERROR,
   HD_ERROR_HTTPBASE = 100
-} hdError;
+} HDerror;
 
 
 /*
  * Prototypes...
  */
 
-extern void	progress_error(hdError error, const char *format, ...);
+extern void	progress_error(HDerror error, const char *format, ...);
 extern void	progress_hide(void);
 extern void	progress_show(const char *format, ...);
 extern void	progress_update(int percent);
@@ -75,5 +74,5 @@ extern void	progress_update(int percent);
 #endif /* !_PROGRESS_H_ */
 
 /*
- * End of "$Id: progress.h,v 1.1.2.12.2.2 2005/05/04 18:28:50 mike Exp $".
+ * End of "$Id$".
  */
