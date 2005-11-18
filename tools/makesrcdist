@@ -28,8 +28,8 @@ else
 	fileversion=$1
 	url="https://svn.easysw.com/public/htmldoc/tags/release-$version"
 
-	svn copy https://svn.easysw.com/public/htmldoc/trunk "$url" \
-		-m "Tag $version" || exit 1
+	svn copy https://svn.easysw.com/public/htmldoc/branches/branch-1.8 \
+		 "$url" -m "Tag $version" || exit 1
 fi
 
 echo Exporting $fileversion...
