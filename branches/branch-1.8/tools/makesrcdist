@@ -55,7 +55,7 @@ tar czf htmldoc-$fileversion-source.tar.gz htmldoc-$version
 echo -n ...bz2
 tar cjf htmldoc-$fileversion-source.tar.bz2 htmldoc-$version
 echo -n ...zip
-zip -v9 htmldoc-$fileversion-source.tar.bz2 htmldoc-$version
+zip -r9 htmldoc-$fileversion-source.zip htmldoc-$version
 echo "..."
 
 echo "Done!"
