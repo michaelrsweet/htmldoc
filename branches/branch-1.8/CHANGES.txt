@@ -31,6 +31,10 @@ CHANGES IN HTMLDOC v1.8.25
 	  image data is not a multiple of 8 bits.
 	- HTMLDOC now renders STRONG elements in boldface instead
 	  of bold-italic to match the W3C recommendations.
+	- HTMLDOC now automatically inserts a TR element before a
+	  TD or TH element as needed to improve web site
+	  compatibility; this also triggers a HTML error in
+	  --strict mode.
 
     BUG FIXES
 

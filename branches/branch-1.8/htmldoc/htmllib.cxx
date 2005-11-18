@@ -603,6 +603,21 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	    else if (temp->markup == MARKUP_TABLE || istable(temp->markup) ||
 	             temp->markup == MARKUP_EMBED)
 	    {
+	      if (temp->markup != MARKUP_TR)
+	      {
+	        // Strictly speaking, this is an error - TD/TH can only
+		// be found under TR, but web browsers automatically
+		// inject a TR...
+		progress_error(HD_ERROR_HTML_ERROR,
+		               "No TR element before %s element on line %d.",
+			       _htmlMarkups[t->markup], linenum);
+
+                parent = htmlAddTree(temp, MARKUP_TR, NULL);
+		prev   = NULL;
+		DEBUG_printf(("%str (inserted) under %s, line %d\n", indent,
+		              _htmlMarkups[temp->markup], linenum));
+	      }
+
 	      temp = NULL;
               break;
 	    }
@@ -614,7 +629,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	{
           DEBUG_printf(("%s>>>> Auto-ascend <<<\n", indent));
 
-          if (temp && ch != '/' &&
+          if (ch != '/' &&
 	      temp->markup != MARKUP_BODY &&
 	      temp->markup != MARKUP_DD &&
 	      temp->markup != MARKUP_DT &&
@@ -649,7 +664,6 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           if (indent[0])
             indent[strlen((char *)indent) - 4] = '\0';
 #endif // DEBUG
-
 
           // Safety check; should never happen, since MARKUP_FILE is
 	  // the root node created by the caller...
@@ -885,6 +899,9 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
     * entry we've read, set the child pointer...
     */
 
+    DEBUG_printf(("%sADDING %s node to %s parent!\n", indent,
+                  _htmlMarkups[t->markup],
+		  parent ? _htmlMarkups[parent->markup] : "ROOT"));
     if (parent != NULL && prev == NULL)
       parent->child = t;
 
