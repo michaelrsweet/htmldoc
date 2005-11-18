@@ -39,7 +39,7 @@ svn export $url /tmp/htmldoc-$version
 echo Updating version information...
 cd /tmp/htmldoc-$version
 
-sed -e '1,$s/^VERSION=.*/VERSION='$version'/' \
+sed -e '1,$s/^SVERSION=.*/SVERSION="'$version'"/' \
 	<configure.in >configure.in.new
 mv configure.in.new configure.in
 
