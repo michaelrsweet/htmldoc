@@ -31,7 +31,7 @@
 // Margin stack size...
 //
 
-#  define HD_MARGIN_MAX	10
+#  define HD_MARGIN_MAX	128
 
 
 /**
@@ -75,6 +75,13 @@ class hdMargin
     float	left() { return (left_[level_]); }
 
    /**
+    * The <TT>left0()</TT> method returns the initial left margin.
+    *
+    * @return The left margin in points.
+    */
+    float	left0() { return (left_[0]); }
+
+   /**
     * The <TT>right()</TT> method returns the current right margin.
     *
     * @return The right margin in points.
@@ -115,6 +122,13 @@ class hdMargin
     * @return The width in points.
     */
     float	width() { return (right_[level_] - left_[level_]); }
+
+   /**
+    * The <TT>width0()</TT> method returns the initial width.
+    *
+    * @return The width in points.
+    */
+    float	width0() { return (right_[0] - left_[0]); }
 
    /**
     * The <TT>length()</TT> method returns the current length.
