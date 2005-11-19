@@ -3562,9 +3562,10 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
   hdStyle	*style;			// Style data for title
 
 
-  DEBUG_printf(("render_contents(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), y=%.1f, page=%d, heading=%d, chap=%p)\n",
-                t, margins->left(), margins->right(), margins->bottom(),
-		margins->top(), *y, *page, heading, chap));
+  DEBUG_printf(("render_contents(t=%p(%s), margins=(%.1f, %.1f, %.1f, %.1f, %d), y=%.1f, page=%d, heading=%d, chap=%p)\n",
+                t, _htmlStyleSheet->get_element(t->element),
+		margins->left(), margins->right(), margins->bottom(),
+		margins->top(), margins->level(), *y, *page, heading, chap));
 
   if (!t)
     return;
@@ -3632,7 +3633,7 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
 
       width = style->get_width((hdChar *)TocTitle);
       *y = margins->top() - style->line_height;
-      x  = margins->left() + 0.5f * (margins->width() - width);
+      x  = margins->left0() + 0.5f * (margins->width0() - width);
       r = new_render(*page, HD_RENDER_TEXT, x, *y, width, style->font_size,
                      TocTitle);
       r->data.text.typeface = style->font->typeface;
@@ -3670,8 +3671,7 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
 	         temp->height, link);
 
       if (PSLevel == 0 && Links && LinkStyle)
-	new_render(*page, HD_RENDER_BOX, x, *y - 1, temp->width, 0,
-	           link_color);
+	new_render(*page, HD_RENDER_BOX, x, *y - 1, temp->width, 0, rgb);
     }
 
     switch (temp->element)
@@ -3799,9 +3799,10 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
                int      *heading,	/* IO - Heading # */
 	       hdTree   *chap)		/* I - Chapter heading */
 {
-  DEBUG_printf(("parse_contents(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), y=%.1f, page=%d, heading=%d, chap=%p)\n",
-                t, margins->left(), margins->right(), margins->bottom(),
-		margins->top(), *y, *page, *heading, chap));
+  DEBUG_printf(("parse_contents(t=%p(%s), margins=(%.1f, %.1f, %.1f, %.1f, %d), y=%.1f, page=%d, heading=%d, chap=%p)\n",
+                t, _htmlStyleSheet->get_element(t->element),
+		margins->left(), margins->right(), margins->bottom(),
+		margins->top(), margins->level(), *y, *page, *heading, chap));
 
   while (t != NULL)
   {
@@ -3826,6 +3827,14 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
           if (htmlGetAttr(t, "_HD_OMIT_TOC") == NULL)
 	  {
+	    bool pushed = t->style->margin[HD_POS_LEFT] != 0.0 ||
+	                  t->style->margin[HD_POS_RIGHT] != 0.0;
+
+            if (pushed)
+	      margins->push(margins->left() + t->style->margin[HD_POS_LEFT],
+	                    margins->right() - t->style->margin[HD_POS_RIGHT],
+			    margins->bottom(), 0);
+
             render_contents(t, margins, y, page, *heading, chap);
 
            /*
@@ -3849,6 +3858,9 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
             if (t->last_child->element == HD_ELEMENT_UL)
               parse_contents(t->last_child, margins, y, page, heading, chap);
+
+            if (pushed)
+              margins->pop();
           }
 	  else if (t->next != NULL && t->next->element == HD_ELEMENT_UL)
 	  {
@@ -3860,11 +3872,26 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
 	    (*heading) += count_headings(t->child) + 1;
 	  }
+          break;
 
+      case HD_ELEMENT_UL :
+	  bool pushed = t->style->margin[HD_POS_LEFT] != 0.0 ||
+	                t->style->margin[HD_POS_RIGHT] != 0.0;
+
+          if (pushed)
+	    margins->push(margins->left() + t->style->margin[HD_POS_LEFT],
+	                  margins->right() - t->style->margin[HD_POS_RIGHT],
+			  margins->bottom(), 0);
+
+          parse_contents(t->child, margins, y, page, heading, chap);
+
+          if (pushed)
+            margins->pop();
           break;
 
       default :
-          parse_contents(t->child, margins, y, page, heading, chap);
+          if (t->child)
+            parse_contents(t->child, margins, y, page, heading, chap);
           break;
     }
 

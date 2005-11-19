@@ -2767,6 +2767,8 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
                              body_style->font_size, css);
     }
   }
+  else if (font_size == HD_FONT_SIZE_INHERIT)
+    font_size = css->def_style.font_size;
 
   font = css->find_font(this);
 
