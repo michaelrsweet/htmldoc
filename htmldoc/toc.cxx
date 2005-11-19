@@ -127,7 +127,10 @@ add_heading(hdTree *toc,		/* I - Table of contents */
     else if (heading->element == HD_ELEMENT_NONE && heading->data != NULL)
     {
       if ((t = htmlAddTree(toc, HD_ELEMENT_NONE, heading->data)) != NULL)
-        t->width = t->style->get_width(t->data);
+      {
+        t->width  = t->style->get_width(t->data);
+	t->height = t->style->font_size;
+      }
     }
 
     heading = heading->next;
