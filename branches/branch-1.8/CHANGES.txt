@@ -5,6 +5,8 @@ CHANGES IN HTMLDOC v1.8.26
 
     BUG FIXES
 
+	- Row backgrounds incorrectly replaced cell backgrounds
+	  when the first cell in a row used ROWSPAN (PR #6033)
 	- HTMLDOC did not correctly parse FONT FACE attributes
 	  (PR #6006)
 	- Images in Level 2/3 PostScript output did not work on
