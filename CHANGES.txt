@@ -5,6 +5,8 @@ CHANGES IN HTMLDOC v1.8.26
 
     BUG FIXES
 
+	- HTMLDOC did not correctly parse FONT FACE attributes
+	  (PR #6006)
 	- Images in Level 2/3 PostScript output did not work on
 	  some printers (PR #6000)
 	- The GUI did not use the first page header (PR #5978)
