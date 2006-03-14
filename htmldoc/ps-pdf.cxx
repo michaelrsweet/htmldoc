@@ -6744,9 +6744,15 @@ parse_table(tree_t *t,			// I - Tree to parse
     border_left = col_lefts[0] - cellpadding;
     width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
 
-    if (cells[row][0] &&
-        (bgcolor = htmlGetVariable(cells[row][0]->parent,
-                                   (uchar *)"BGCOLOR")) != NULL)
+    for (bgcolor = NULL, col = 0; col < num_cols; col ++)
+      if (row_spans[col] <= rowspan &&
+          cells[row][col] &&
+	  !htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") &&
+          (bgcolor = htmlGetVariable(cells[row][col]->parent,
+                                     (uchar *)"BGCOLOR")) != NULL)
+        break;
+
+    if (bgcolor)
     {
       memcpy(bgrgb, background_color, sizeof(bgrgb));
 
