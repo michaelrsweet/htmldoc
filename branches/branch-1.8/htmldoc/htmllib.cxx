@@ -1152,26 +1152,67 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
           if ((face = htmlGetVariable(t, (uchar *)"FACE")) != NULL)
           {
-            for (ptr = face; *ptr != '\0'; ptr ++)
-              *ptr = tolower(*ptr);
+	    char	font[255],	// Font name
+			*fontptr;	// Pointer into font name
 
-            if (strstr((char *)face, "serif") != NULL)
-              t->typeface = TYPE_SERIF;
-            else if (strstr((char *)face, "sans") != NULL)
-              t->typeface = TYPE_SANS_SERIF;
-            else if (strstr((char *)face, "mono") != NULL)
-              t->typeface = TYPE_MONOSPACE;
-            else if (strstr((char *)face, "arial") != NULL ||
-                strstr((char *)face, "helvetica") != NULL)
-              t->typeface = TYPE_HELVETICA;
-            else if (strstr((char *)face, "times") != NULL)
-              t->typeface = TYPE_TIMES;
-            else if (strstr((char *)face, "courier") != NULL)
-              t->typeface = TYPE_COURIER;
-	    else if (strstr((char *)face, "symbol") != NULL)
-              t->typeface = TYPE_SYMBOL;
-	    else if (strstr((char *)face, "dingbat") != NULL)
-              t->typeface = TYPE_DINGBATS;
+
+            for (ptr = face; *ptr;)
+	    {
+	      while (isspace(*ptr) || *ptr == ',')
+	        ptr ++;
+
+              if (!*ptr)
+	        break;
+
+	      for (fontptr = font; *ptr && *ptr != ',' && !isspace(*ptr); ptr ++)
+	        if (fontptr < (font + sizeof(font) - 1))
+		  *fontptr++ = *ptr;
+
+              *fontptr = '\0';
+
+              if (!strcasecmp(font, "serif"))
+	      {
+        	t->typeface = TYPE_SERIF;
+		break;
+	      }
+              else if (!strcasecmp(font, "sans-serif") ||
+	               !strcasecmp(font, "sans"))
+	      {
+        	t->typeface = TYPE_SANS_SERIF;
+		break;
+	      }
+              else if (!strcasecmp(font, "mono"))
+	      {
+        	t->typeface = TYPE_MONOSPACE;
+		break;
+	      }
+              else if (!strcasecmp(font, "arial") ||
+	               !strcasecmp(font, "helvetica"))
+              {
+        	t->typeface = TYPE_HELVETICA;
+		break;
+	      }
+              else if (!strcasecmp(font, "times"))
+	      {
+        	t->typeface = TYPE_TIMES;
+		break;
+	      }
+              else if (!strcasecmp(font, "courier"))
+	      {
+        	t->typeface = TYPE_COURIER;
+		break;
+	      }
+	      else if (!strcasecmp(font, "symbol"))
+	      {
+        	t->typeface = TYPE_SYMBOL;
+		break;
+	      }
+	      else if (!strcasecmp(font, "dingbat"))
+	      {
+        	t->typeface = TYPE_DINGBATS;
+		break;
+	      }
+	    }
           }
 
           if ((color = htmlGetVariable(t, (uchar *)"COLOR")) != NULL)
