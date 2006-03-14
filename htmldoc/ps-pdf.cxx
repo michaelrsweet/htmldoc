@@ -9843,7 +9843,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
 	  break;
     }
 
-    if (col >= 64)
+    if (col >= 76)
     {
       col = 0;
       putc('\n', out);
@@ -9889,7 +9889,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
   if (eod)
   {
     // Do the end-of-data dance...
-    if (col >= 64)
+    if (col >= 76)
     {
       col = 0;
       putc('\n', out);
@@ -10198,7 +10198,8 @@ write_image(FILE     *out,		/* I - Output file */
       indbits = 8;
 
     indwidth = (img->width * indbits + 7) / 8;
-    indices  = (uchar *)malloc(indwidth * img->height);
+    indices  = (uchar *)calloc(indwidth, img->height + 1);
+					// height + 1 for PS odd-row-count bug
 
     if (img->depth == 1)
     {
@@ -10872,11 +10873,13 @@ write_image(FILE     *out,		/* I - Output file */
 #ifdef HTMLDOC_ASCII85
 	  fputs("/DataSource currentfile/ASCII85Decode filter>>image\n", out);
 
-	  ps_ascii85(out, indices, indwidth * img->height, 1);
+          ps_ascii85(out, indices, indwidth * img->height, 1);
 #else
 	  fputs("/DataSource currentfile/ASCIIHexDecode filter>>image\n", out);
 
-	  ps_hex(out, indices, indwidth * img->height);
+          ps_hex(out, indices, indwidth * img->height);
+	  // End of data marker...
+	  fputs(">\n", out);
 #endif /* HTMLDOC_ASCII85 */
         }
 	else if (OutputJPEG)
@@ -10921,6 +10924,9 @@ write_image(FILE     *out,		/* I - Output file */
 
 #ifdef HTMLDOC_ASCII85
           ps_ascii85(out, (uchar *)"", 0, 1);
+#else
+	  // End of data marker...
+	  fputs(">\n", out);
 #endif // HTMLDOC_ASCII85
         }
         else
@@ -10949,12 +10955,15 @@ write_image(FILE     *out,		/* I - Output file */
           fputs("/DataSource currentfile/ASCII85Decode filter"
 	        ">>image\n", out);
 
-	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth, 1);
+	  ps_ascii85(out, img->pixels, img->width * img->height *
+	                               img->depth, 1);
 #else
           fputs("/DataSource currentfile/ASCIIHexDecode filter"
 	        ">>image\n", out);
 
-	  ps_hex(out, img->pixels, img->width * img->height * img->depth);
+          ps_hex(out, img->pixels, img->width * img->depth * img->height);
+	  // End of data marker...
+	  fputs(">\n", out);
 #endif // HTMLDOC_ASCII85
         }
 
@@ -12625,6 +12634,12 @@ flate_close_stream(FILE *out)		/* I - Output file */
 #ifdef HTMLDOC_ASCII85
   if (PSLevel)
     ps_ascii85(out, (uchar *)"", 0, 1);
+#else
+  if (PSLevel)
+  {
+    // End of data marker...
+    fputs(">\n", out);
+  }
 #endif // HTMLDOC_ASCII85
 }
 
