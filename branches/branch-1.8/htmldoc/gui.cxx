@@ -3,7 +3,7 @@
 //
 //   GUI routines for HTMLDOC, an HTML document processing program.
 //
-//   Copyright 1997-2005 by Easy Software Products.
+//   Copyright 1997-2006 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1313,6 +1313,12 @@ GUI::loadSettings()
 
   get_format(temp, Header);
 
+  temp[0] = formats[pageHeader1Left->value()];
+  temp[1] = formats[pageHeader1Center->value()];
+  temp[2] = formats[pageHeader1Right->value()];
+
+  get_format(temp, Header1);
+
   temp[0] = formats[pageFooterLeft->value()];
   temp[1] = formats[pageFooterCenter->value()];
   temp[2] = formats[pageFooterRight->value()];
@@ -1496,6 +1502,11 @@ GUI::newBook(void)
   pageHeaderLeft->value(formats[fmt[0]]);
   pageHeaderCenter->value(formats[fmt[1]]);
   pageHeaderRight->value(formats[fmt[2]]);
+
+  fmt = get_fmt(Header1);
+  pageHeader1Left->value(formats[fmt[0]]);
+  pageHeader1Center->value(formats[fmt[1]]);
+  pageHeader1Right->value(formats[fmt[2]]);
 
   fmt = get_fmt(Footer);
   pageFooterLeft->value(formats[fmt[0]]);

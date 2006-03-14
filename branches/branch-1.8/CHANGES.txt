@@ -1,5 +1,14 @@
-CHANGES.txt - 11/18/2005
+CHANGES.txt - 03/14/2006
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.26
+
+    BUG FIXES
+
+	- Images in Level 2/3 PostScript output did not work on
+	  some printers (PR #6000)
+	- The GUI did not use the first page header (PR #5978)
+
 
 CHANGES IN HTMLDOC v1.8.25
 
