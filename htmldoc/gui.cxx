@@ -4266,7 +4266,7 @@ GUI::showAboutCB(void)
   label->image(&logo);
 
   label = new Fl_Box(60, 45, 330, 35,
-          "HTMLDOC " SVERSION "\nCopyright 1997-2005 by Easy Software Products"
+          "HTMLDOC " SVERSION "\nCopyright 1997-2006 by Easy Software Products"
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 
