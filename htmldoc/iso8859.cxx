@@ -356,6 +356,9 @@ iso8859(uchar *name)			/* I - Glyph name */
     char uniglyph[32];
     int newch;
 
+    if (!_htmlInitialized)
+      htmlSetCharSet("iso-8859-1");
+
     if ((glyph = _htmlGlyphsAll[ch]) == NULL)
     {
       sprintf(uniglyph, "uni%04x", ch);
@@ -378,6 +381,8 @@ iso8859(uchar *name)			/* I - Glyph name */
 	    _htmlGlyphsAll[ch] = _htmlGlyphs[newch] = strdup(glyph);
 	  else
 	    _htmlGlyphs[newch] = glyph;
+
+          _htmlUnicode[newch] = ch;
 
           // Reload font widths...
 	  htmlLoadFontWidths();

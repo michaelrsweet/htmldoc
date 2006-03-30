@@ -4,7 +4,7 @@
  *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
  *   System (CUPS).
  *
- *   Copyright 1997-2005 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -39,6 +39,9 @@
 #    include <winsock2.h>
 #    include <ws2tcpip.h>
 #  else
+#    ifdef __sgi /* IRIX needs this for IPv6 support!?! */
+#      define INET6
+#    endif /* __sgi */
 #    include <unistd.h>
 #    include <sys/time.h>
 #    include <sys/socket.h>
@@ -56,6 +59,17 @@
 #  endif /* WIN32 */
 
 #  include "md5.h"
+
+/*
+ * With GCC 3.0 and higher, we can mark old APIs "deprecated" so you get
+ * a warning at compile-time.
+ */
+
+#  if defined(__GNUC__) && __GNUC__ > 2
+#    define _HTTP_DEPRECATED __attribute__ ((__deprecated__))
+#  else
+#    define _HTTP_DEPRECATED
+#  endif /* __GNUC__ && __GNUC__ > 2 */
 
 
 /*
@@ -86,6 +100,8 @@ extern "C" {
 #    define s6_addr32	_S6_un._S6_u32
 #  elif defined(__FreeBSD__) || defined(__APPLE__)
 #    define s6_addr32	__u6_addr.__u6_addr32
+#  elif defined(__osf__)
+#    define s6_addr32	s6_un.sa6_laddr
 #  elif defined(WIN32)
 /*
  * Windows only defines byte and 16-bit word members of the union and
@@ -102,7 +118,7 @@ extern "C" {
 
 #  define HTTP_MAX_URI		1024	/* Max length of URI string */
 #  define HTTP_MAX_HOST		256	/* Max length of hostname string */
-#  define HTTP_MAX_BUFFER	1024	/* Max length of data buffer */
+#  define HTTP_MAX_BUFFER	2048	/* Max length of data buffer */
 #  define HTTP_MAX_VALUE	256	/* Max header field value length */
 
 
@@ -231,6 +247,8 @@ typedef enum http_status_e		/**** HTTP status codes ****/
   HTTP_REQUEST_TOO_LARGE,		/* Request entity too large */
   HTTP_URI_TOO_LONG,			/* URI too long */
   HTTP_UNSUPPORTED_MEDIATYPE,		/* The requested media type is unsupported */
+  HTTP_REQUESTED_RANGE,			/* The requested range is not satisfiable */
+  HTTP_EXPECTATION_FAILED,		/* The expectation given in an Expect header field was not met */
   HTTP_UPGRADE_REQUIRED = 426,		/* Upgrade to SSL/TLS required */
 
   HTTP_SERVER_ERROR = 500,		/* Internal server error */
@@ -257,6 +275,17 @@ typedef enum http_uri_status_e		/**** URI separation status @since CUPS1.2@ ****
   HTTP_URI_MISSING_RESOURCE		/* Missing resource in URI (warning) */
 } http_uri_status_t;
 
+typedef enum http_uri_coding_e		/**** URI en/decode flags ****/
+{
+  HTTP_URI_CODING_NONE = 0,		/* Don't en/decode anything */
+  HTTP_URI_CODING_USERNAME = 1,		/* En/decode the username portion */
+  HTTP_URI_CODING_HOSTNAME = 2,		/* En/decode the hostname portion */
+  HTTP_URI_CODING_RESOURCE = 4,		/* En/decode the resource portion */
+  HTTP_URI_CODING_MOST = 7,		/* En/decode all but the query */
+  HTTP_URI_CODING_QUERY = 8,		/* En/decode the query portion */
+  HTTP_URI_CODING_ALL = 15		/* En/decode everything */
+} http_uri_coding_t;
+
 typedef enum http_version_e		/**** HTTP version numbers ****/
 {
   HTTP_0_9 = 9,				/* HTTP/0.9 */
@@ -264,7 +293,7 @@ typedef enum http_version_e		/**** HTTP version numbers ****/
   HTTP_1_1 = 101			/* HTTP/1.1 */
 } http_version_t;
 
-typedef union http_addr_u		/**** Socket address union, which
+typedef union _http_addr_u		/**** Socket address union, which
 					 **** makes using IPv6 and other
 					 **** address types easier and
 					 **** more portable. @since CUPS 1.2@
@@ -291,7 +320,7 @@ typedef struct http_addrlist_s		/**** Socket address list, which is
   http_addr_t		addr;		/* Address */
 } http_addrlist_t;
 
-typedef struct http_s			/**** HTTP connection structure. ****/
+typedef struct _http_s			/**** HTTP connection structure. ****/
 {
   int			fd;		/* File descriptor for this socket */
   int			blocking;	/* To block or not to block */
@@ -312,8 +341,6 @@ typedef struct http_s			/**** HTTP connection structure. ****/
   int			used;		/* Number of bytes used in buffer */
   char			buffer[HTTP_MAX_BUFFER];
 					/* Buffer for incoming data */
-  char			wbuffer[HTTP_MAX_BUFFER];
-					/* Buffer for outgoing data */
   int			auth_type;	/* Authentication in use */
   md5_state_t		md5_state;	/* MD5 state */
   char			nonce[HTTP_MAX_VALUE];
@@ -332,10 +359,12 @@ typedef struct http_s			/**** HTTP connection structure. ****/
 					/* Username:password string @since CUPS 1.1.20@ */
   int			digest_tries;	/* Number of tries for digest auth @since CUPS 1.1.20@ */
   /**** New in CUPS 1.2 ****/
+  off_t			data_remaining;	/* Number of bytes left @since CUPS 1.2@ */
   http_addr_t		*hostaddr;	/* Current host address and port @since CUPS 1.2@ */
   http_addrlist_t	*addrlist;	/* List of valid addresses @since CUPS 1.2@ */
+  char			wbuffer[HTTP_MAX_BUFFER];
+					/* Buffer for outgoing data */
   int			wused;		/* Write buffer bytes used @since CUPS 1.2@ */
-  off_t			data_remaining;	/* Number of bytes left @since CUPS 1.2@ */
 } http_t;
 
 
@@ -343,23 +372,22 @@ typedef struct http_s			/**** HTTP connection structure. ****/
  * Prototypes...
  */
 
-#  define		httpBlocking(http,b)	(http)->blocking = (b)
+extern void		httpBlocking(http_t *http, int b);
 extern int		httpCheck(http_t *http);
-#  define		httpClearFields(http)	memset((http)->fields, 0, sizeof((http)->fields)),\
-						httpSetField((http), HTTP_FIELD_HOST, (http)->hostname)
+extern void		httpClearFields(http_t *http);
 extern void		httpClose(http_t *http);
 extern http_t		*httpConnect(const char *host, int port);
 extern http_t		*httpConnectEncrypt(const char *host, int port,
 			                    http_encryption_t encryption);
 extern int		httpDelete(http_t *http, const char *uri);
 extern int		httpEncryption(http_t *http, http_encryption_t e);
-#  define		httpError(http) ((http)->error)
+extern int		httpError(http_t *http);
 extern void		httpFlush(http_t *http);
 extern int		httpGet(http_t *http, const char *uri);
 extern char		*httpGets(char *line, int length, http_t *http);
 extern const char	*httpGetDateString(time_t t);
 extern time_t		httpGetDateTime(const char *s);
-#  define		httpGetField(http,field)	(http)->fields[field]
+extern const char	*httpGetField(http_t *http, http_field_t field);
 extern struct hostent	*httpGetHostByName(const char *name);
 extern char		*httpGetSubField(http_t *http, http_field_t field,
 			                 const char *name, char *value);
@@ -373,20 +401,20 @@ __attribute__ ((__format__ (__printf__, 2, 3)))
 #  endif /* __GNUC__ */
 ;
 extern int		httpPut(http_t *http, const char *uri);
-extern int		httpRead(http_t *http, char *buffer, int length);
+extern int		httpRead(http_t *http, char *buffer, int length) _HTTP_DEPRECATED;
 extern int		httpReconnect(http_t *http);
 extern void		httpSeparate(const char *uri, char *method,
 			             char *username, char *host, int *port,
-				     char *resource);
+				     char *resource) _HTTP_DEPRECATED;
 extern void		httpSetField(http_t *http, http_field_t field,
 			             const char *value);
 extern const char	*httpStatus(http_status_t status);
 extern int		httpTrace(http_t *http, const char *uri);
 extern http_status_t	httpUpdate(http_t *http);
-extern int		httpWrite(http_t *http, const char *buffer, int length);
-extern char		*httpEncode64(char *out, const char *in);
-extern char		*httpDecode64(char *out, const char *in);
-extern int		httpGetLength(http_t *http);
+extern int		httpWrite(http_t *http, const char *buffer, int length) _HTTP_DEPRECATED;
+extern char		*httpEncode64(char *out, const char *in) _HTTP_DEPRECATED;
+extern char		*httpDecode64(char *out, const char *in) _HTTP_DEPRECATED;
+extern int		httpGetLength(http_t *http) _HTTP_DEPRECATED;
 extern char		*httpMD5(const char *, const char *, const char *,
 			         char [33]);
 extern char		*httpMD5Final(const char *, const char *, const char *,
@@ -395,7 +423,7 @@ extern char		*httpMD5String(const unsigned char *, char [33]);
 
 /**** New in CUPS 1.1.19 ****/
 extern void		httpClearCookie(http_t *http);
-#define httpGetCookie(http) ((http)->cookie)
+extern const char	*httpGetCookie(http_t *http);
 extern void		httpSetCookie(http_t *http, const char *cookie);
 extern int		httpWait(http_t *http, int msec);
 
@@ -407,7 +435,7 @@ extern void		httpSeparate2(const char *uri,
 			              char *method, int methodlen,
 			              char *username, int usernamelen,
 				      char *host, int hostlen, int *port,
-				      char *resource, int resourcelen);
+				      char *resource, int resourcelen) _HTTP_DEPRECATED;
 
 /**** New in CUPS 1.2 ****/
 extern int		httpAddrAny(const http_addr_t *addr);
@@ -423,29 +451,39 @@ extern char		*httpAddrLookup(const http_addr_t *addr,
                                         char *name, int namelen);
 extern char		*httpAddrString(const http_addr_t *addr,
 			                char *s, int slen);
-extern http_uri_status_t httpAssembleURI(char *uri, int urilen,
+extern http_uri_status_t httpAssembleURI(http_uri_coding_t encoding,
+			                 char *uri, int urilen,
 			        	 const char *scheme,
 					 const char *username,
 					 const char *host, int port,
 					 const char *resource);
-extern http_uri_status_t httpAssembleURIf(char *uri, int urilen,
+extern http_uri_status_t httpAssembleURIf(http_uri_coding_t encoding,
+			                  char *uri, int urilen,
 			        	  const char *scheme,
 					  const char *username,
 					  const char *host, int port,
 					  const char *resourcef, ...);
 extern int		httpFlushWrite(http_t *http);
+extern int		httpGetBlocking(http_t *http);
 extern const char	*httpGetDateString2(time_t t, char *s, int slen);
-extern const char	*httpGetHostname(char *s, int slen);
+extern int		httpGetFd(http_t *http);
+extern const char	*httpGetHostname(http_t *http, char *s, int slen);
 extern off_t		httpGetLength2(http_t *http);
+extern http_status_t	httpGetStatus(http_t *http);
 extern char		*httpGetSubField2(http_t *http, http_field_t field,
 			                  const char *name, char *value,
 					  int valuelen);
-extern http_uri_status_t httpSeparateURI(const char *uri,
+extern ssize_t		httpRead2(http_t *http, char *buffer, size_t length);
+extern http_uri_status_t httpSeparateURI(http_uri_coding_t decoding,
+			                 const char *uri,
 			        	 char *scheme, int schemelen,
 			        	 char *username, int usernamelen,
 					 char *host, int hostlen, int *port,
 					 char *resource, int resourcelen);
-extern void		httpSetLength(http_t *http, off_t length);
+extern void		httpSetExpect(http_t *http, http_status_t expect);
+extern void		httpSetLength(http_t *http, size_t length);
+extern ssize_t		httpWrite2(http_t *http, const char *buffer,
+			           size_t length);
 
 
 /*

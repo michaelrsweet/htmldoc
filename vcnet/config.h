@@ -3,7 +3,7 @@
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8-current"
+#define SVERSION	"1.8.26 Open Source"
 
 
 /*
@@ -127,20 +127,6 @@
  */
 
 #undef HAVE_HSTRERROR
-
-
-/*
- * Do we have getaddrinfo()?
- */
-
-#define HAVE_GETADDRINFO
-
-
-/*
- * Do we have getnameinfo()?
- */
-
-#define HAVE_GETNAMEINFO
 
 
 /*

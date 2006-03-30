@@ -2440,9 +2440,9 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fputs("-t pdf14", fp);
 
   if (outputFile->value())
-    fprintf(fp, " -f %s", outputPath->value());
+    fprintf(fp, " -f \"%s\"", outputPath->value());
   else
-    fprintf(fp, " -d %s", outputPath->value());
+    fprintf(fp, " -d \"%s\"", outputPath->value());
 
   if (typeWebPage->value())
     fputs(" --webpage", fp);
@@ -2470,13 +2470,13 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     fputs(" --title", fp);
 
     if (titleImage->size() > 0)
-      fprintf(fp, " --titleimage %s", titleImage->value());
+      fprintf(fp, " --titleimage \"%s\"", titleImage->value());
   }
   else
     fputs(" --no-title", fp);
 
   if (logoImage->size() > 0)
-    fprintf(fp, " --logoimage %s", logoImage->value());
+    fprintf(fp, " --logoimage \"%s\"", logoImage->value());
 
   if (textColor->size() > 0)
     fprintf(fp, " --textcolor %s", textColor->value());

@@ -3,7 +3,7 @@
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2005 by Easy Software Products.
+#   Copyright 1997-2006 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -27,8 +27,8 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.8-current"
-NVERSION=10802500
+SVERSION="1.8.26"
+NVERSION=10802600
 AC_SUBST(SVERSION)
 AC_SUBST(NVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
