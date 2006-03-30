@@ -3,7 +3,7 @@
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -185,6 +185,7 @@ char		_htmlCharSet[256] = "iso-8859-1";
 					/* Character set name */
 float		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
 					/* Character widths of fonts */
+int		_htmlUnicode[256];	/* Character to Unicode mapping */
 const char	*_htmlGlyphsAll[65536];	/* Character glyphs for Unicode */
 const char	*_htmlGlyphs[256];	/* Character glyphs for charset */
 int		_htmlNumSorted = 0;	/* Number of sorted glyphs */
@@ -2268,7 +2269,7 @@ htmlSetBaseSize(float p,	/* I - Point size of paragraph font */
 void
 htmlSetCharSet(const char *cs)		/* I - Character set file to load */
 {
-  int		i, j;			/* Looping vars */
+  int		i;			/* Looping var */
   char		filename[1024];		/* Filenames */
   FILE		*fp;			/* Files */
   int		ch, unicode;		/* Character values */
@@ -2343,7 +2344,7 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
   * Build the glyph array...
   */
 
-  for (i = 0, j = 0; i < 256; i ++)
+  for (i = 0; i < 256; i ++)
   {
    /*
     * Add the glyph to the charset array...
@@ -2356,6 +2357,9 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
     }
     else
       _htmlGlyphs[i] = _htmlGlyphsAll[chars[i]];
+
+    if (_htmlGlyphs[i])
+      _htmlUnicode[i] = chars[i];
   }
 
   htmlLoadFontWidths();
@@ -2950,7 +2954,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
 
 
   if (!_htmlInitialized)
-    htmlSetCharSet("8859-1");
+    htmlSetCharSet("iso-8859-1");
 
   if (t->markup == MARKUP_IMG)
   {
@@ -3114,19 +3118,20 @@ get_alignment(tree_t *t)	/* I - Tree entry */
 
   if (align != NULL)
   {
-    if (strcasecmp((char *)align, "left") == 0)
+    if (!strcasecmp((char *)align, "left"))
       t->halignment = ALIGN_LEFT;
-    else if (strcasecmp((char *)align, "center") == 0)
+    else if (!strcasecmp((char *)align, "center"))
       t->halignment = ALIGN_CENTER;
-    else if (strcasecmp((char *)align, "right") == 0)
+    else if (!strcasecmp((char *)align, "right"))
       t->halignment = ALIGN_RIGHT;
-    else if (strcasecmp((char *)align, "justify") == 0)
+    else if (!strcasecmp((char *)align, "justify"))
       t->halignment = ALIGN_JUSTIFY;
-    else if (strcasecmp((char *)align, "top") == 0)
+    else if (!strcasecmp((char *)align, "top"))
       t->valignment = ALIGN_TOP;
-    else if (strcasecmp((char *)align, "middle") == 0)
+    else if (!strcasecmp((char *)align, "middle") ||
+             !strcasecmp((char *)align, "absmiddle"))
       t->valignment = ALIGN_MIDDLE;
-    else if (strcasecmp((char *)align, "bottom") == 0)
+    else if (!strcasecmp((char *)align, "bottom"))
       t->valignment = ALIGN_BOTTOM;
   }
 
@@ -3135,13 +3140,13 @@ get_alignment(tree_t *t)	/* I - Tree entry */
 
   if (align != NULL)
   {
-    if (strcasecmp((char *)align, "top") == 0)
+    if (!strcasecmp((char *)align, "top"))
       t->valignment = ALIGN_TOP;
-    else if (strcasecmp((char *)align, "middle") == 0)
+    else if (!strcasecmp((char *)align, "middle"))
       t->valignment = ALIGN_MIDDLE;
-    else if (strcasecmp((char *)align, "center") == 0)
+    else if (!strcasecmp((char *)align, "center"))
       t->valignment = ALIGN_MIDDLE;
-    else if (strcasecmp((char *)align, "bottom") == 0)
+    else if (!strcasecmp((char *)align, "bottom"))
       t->valignment = ALIGN_BOTTOM;
   }
 

@@ -6,6 +6,48 @@
 
 <P>This appendix provides the release notes for each version of HTMLDOC.
 
+<H2>Changes in HTMLDOC v1.8.26</H2>
+
+<UL>
+
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
+
+	<LI>Outline and keyword strings in PDF files are now stored
+	as Unicode (STR #113)</LI>
+
+	<LI>The Flate compression code could get in an infinite
+	loop if it ran out of memory (STR #101)</LI>
+
+	<LI>Book files saved from the GUI did not handle filenames
+	with spaces (STR #105)</LI>
+
+	<LI>Fixed and re-enabled the ASCII85Device filter support
+	in PostScript Level 2/3 output (STR #116)</LI>
+
+	<LI>Character entities in the first word of a file were not
+	rendered properly (STR #111)</LI>
+
+	<LI>Fixed-size table columns were incorrectly resized when
+	a table width was also specified and there was extra
+	space to distribute (PR #6062)</LI>
+
+	<LI>Text could "walk" up or down when in-line images were
+	used (PR #6034)</LI>
+
+	<LI>Row backgrounds incorrectly replaced cell backgrounds
+	when the first cell in a row used ROWSPAN (PR #6033, PR
+	#6036)</LI>
+
+	<LI>HTMLDOC did not correctly parse FONT FACE attributes
+	(PR #6006)</LI>
+
+	<LI>Images in Level 2/3 PostScript output did not work on
+	some printers (PR #6000)</LI>
+
+	<LI>The GUI did not use the first page header (PR #5978)</LI>
+
+</UL>
+
 <H2>Changes in HTMLDOC v1.8.25</H2>
 
 <UL>

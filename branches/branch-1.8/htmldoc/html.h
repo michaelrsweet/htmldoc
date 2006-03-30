@@ -3,7 +3,7 @@
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -287,8 +287,10 @@ extern float		_htmlSizes[],
 			_htmlSpacings[];
 extern typeface_t	_htmlBodyFont,
 			_htmlHeadingFont;
+extern int		_htmlInitialized;
 extern char		_htmlCharSet[];
 extern float		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
+extern int		_htmlUnicode[];
 extern const char	*_htmlGlyphs[];
 extern const char	*_htmlGlyphsAll[];
 extern const char	*_htmlFonts[TYPE_MAX][STYLE_MAX];

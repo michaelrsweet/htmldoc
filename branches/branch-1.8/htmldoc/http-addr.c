@@ -3,7 +3,7 @@
  *
  *   HTTP address routines for the Common UNIX Printing System (CUPS).
  *
- *   Copyright 1997-2005 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -72,7 +72,7 @@ httpAddrAny(const http_addr_t *addr)	/* I - Address to check */
  * @since CUPS 1.2@
  */
 
-int						/* O - 1 if equal, 0 if != */
+int						/* O - 1 if equal, 0 if not */
 httpAddrEqual(const http_addr_t *addr1,		/* I - First address */
               const http_addr_t *addr2)		/* I - Second address */
 {
@@ -133,8 +133,7 @@ httpAddrLocalhost(
 {
 #ifdef AF_INET6
   if (addr->addr.sa_family == AF_INET6 &&
-      (IN6_IS_ADDR_LOOPBACK(&(addr->ipv6.sin6_addr)) ||
-       IN6_IS_ADDR_UNSPECIFIED(&(addr->ipv6.sin6_addr))))
+      IN6_IS_ADDR_LOOPBACK(&(addr->ipv6.sin6_addr)))
     return (1);
 #endif /* AF_INET6 */
 
@@ -164,10 +163,11 @@ httpAddrLocalhost(
  * @since CUPS 1.2@
  */
 
-char *						/* O - Host name */
-httpAddrLookup(const http_addr_t *addr,		/* I - Address to lookup */
-               char              *name,		/* I - Host name buffer */
-	       int               namelen)	/* I - Size of name buffer */
+char *					/* O - Host name */
+httpAddrLookup(
+    const http_addr_t *addr,		/* I - Address to lookup */
+    char              *name,		/* I - Host name buffer */
+    int               namelen)		/* I - Size of name buffer */
 {
   DEBUG_printf(("httpAddrLookup(addr=%p, name=%p, namelen=%d)\n",
                 addr, name, namelen));
@@ -191,11 +191,8 @@ httpAddrLookup(const http_addr_t *addr,		/* I - Address to lookup */
 #endif /* AF_LOCAL */
 #ifdef HAVE_GETNAMEINFO
   {
-    char	servname[1024];			/* Service name (not used) */
-
-
     if (getnameinfo(&addr->addr, httpAddrLength(addr), name, namelen,
-                    servname, sizeof(servname), 0))
+                    NULL, 0, 0))
     {
      /*
       * If we get an error back, then the address type is not supported
@@ -240,15 +237,15 @@ httpAddrLookup(const http_addr_t *addr,		/* I - Address to lookup */
 
 
 /*
- * 'httpAddrString()' - Convert an IP address to a dotted string.
+ * 'httpAddrString()' - Convert an address to a numeric string.
  *
  * @since CUPS 1.2@
  */
 
-char *						/* O - IP string */
-httpAddrString(const http_addr_t *addr,		/* I - Address to convert */
-               char              *s,		/* I - String buffer */
-	       int               slen)		/* I - Length of string */
+char *					/* O - Numeric address string */
+httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
+               char              *s,	/* I - String buffer */
+	       int               slen)	/* I - Length of string */
 {
   DEBUG_printf(("httpAddrString(addr=%p, s=%p, slen=%d)\n",
                 addr, s, slen));
@@ -270,13 +267,22 @@ httpAddrString(const http_addr_t *addr,		/* I - Address to convert */
     strlcpy(s, addr->un.sun_path, slen);
   else
 #endif /* AF_LOCAL */
-#ifdef HAVE_GETNAMEINFO
+  if (addr->addr.sa_family == AF_INET)
   {
-    char	servname[1024];		/* Service name (not used) */
+    unsigned temp;			/* Temporary address */
 
 
+    temp = ntohl(addr->ipv4.sin_addr.s_addr);
+
+    snprintf(s, slen, "%d.%d.%d.%d", (temp >> 24) & 255,
+             (temp >> 16) & 255, (temp >> 8) & 255, temp & 255);
+  }
+#ifdef AF_INET6
+  else if (addr->addr.sa_family == AF_INET6)
+  {
+#  ifdef HAVE_GETNAMEINFO
     if (getnameinfo(&addr->addr, httpAddrLength(addr), s, slen,
-                    servname, sizeof(servname), NI_NUMERICHOST))
+                    NULL, 0, NI_NUMERICHOST))
     {
      /*
       * If we get an error back, then the address type is not supported
@@ -287,104 +293,87 @@ httpAddrString(const http_addr_t *addr,		/* I - Address to convert */
 
       return (NULL);
     }
-  }
-#else
-  {
-#ifdef AF_INET6
-    if (addr->addr.sa_family == AF_INET6)
+#  else
+    char	*sptr;			/* Pointer into string */
+    int		i;			/* Looping var */
+    unsigned	temp;			/* Current value */
+    const char	*prefix;		/* Prefix for address */
+
+
+    prefix = "";
+    for (sptr = s, i = 0; i < 4 && addr->ipv6.sin6_addr.s6_addr32[i]; i ++)
     {
-      char		*sptr;		/* Pointer into string */
-      int		i;		/* Looping var */
-      unsigned		temp;		/* Current value */
-      const char	*prefix;	/* Prefix for address */
+      temp = ntohl(addr->ipv6.sin6_addr.s6_addr32[i]);
 
+      snprintf(sptr, slen, "%s%x", prefix, (temp >> 16) & 0xffff);
+      prefix = ":";
+      slen -= strlen(sptr);
+      sptr += strlen(sptr);
 
-      prefix = "";
-      for (sptr = s, i = 0; i < 4 && addr->ipv6.sin6_addr.s6_addr32[i]; i ++)
+      temp &= 0xffff;
+
+      if (temp || i == 3 || addr->ipv6.sin6_addr.s6_addr32[i + 1])
       {
-        temp = ntohl(addr->ipv6.sin6_addr.s6_addr32[i]);
+        snprintf(sptr, slen, "%s%x", prefix, temp);
+	slen -= strlen(sptr);
+	sptr += strlen(sptr);
+      }
+    }
 
-        snprintf(sptr, slen, "%s%x", prefix, (temp >> 16) & 0xffff);
+    if (i < 4)
+    {
+      while (i < 4 && !addr->ipv6.sin6_addr.s6_addr32[i])
+	i ++;
+
+      if (i < 4)
+      {
+        snprintf(sptr, slen, "%s:", prefix);
 	prefix = ":";
 	slen -= strlen(sptr);
 	sptr += strlen(sptr);
 
-        temp &= 0xffff;
-
-	if (temp || i == 3 || addr->ipv6.sin6_addr.s6_addr32[i + 1])
+	for (; i < 4; i ++)
 	{
-          snprintf(sptr, slen, "%s%x", prefix, temp);
-	  slen -= strlen(sptr);
-	  sptr += strlen(sptr);
-	}
-      }
+          temp = ntohl(addr->ipv6.sin6_addr.s6_addr32[i]);
 
-      if (i < 4)
-      {
-	while (i < 4 && !addr->ipv6.sin6_addr.s6_addr32[i])
-	  i ++;
-
-        if (i < 4)
-	{
-          snprintf(sptr, slen, "%s:", prefix);
-	  prefix = ":";
-	  slen -= strlen(sptr);
-	  sptr += strlen(sptr);
-
-	  for (; i < 4; i ++)
+          if ((temp & 0xffff0000) || addr->ipv6.sin6_addr.s6_addr32[i - 1])
 	  {
-            temp = ntohl(addr->ipv6.sin6_addr.s6_addr32[i]);
-
-            if ((temp & 0xffff0000) || addr->ipv6.sin6_addr.s6_addr32[i - 1])
-	    {
-              snprintf(sptr, slen, "%s%x", prefix, (temp >> 16) & 0xffff);
-	      slen -= strlen(sptr);
-	      sptr += strlen(sptr);
-            }
-
-            snprintf(sptr, slen, "%s%x", prefix, temp & 0xffff);
+            snprintf(sptr, slen, "%s%x", prefix, (temp >> 16) & 0xffff);
 	    slen -= strlen(sptr);
 	    sptr += strlen(sptr);
-	  }
-	}
-	else if (sptr == s)
-	{
-	 /*
-          * Empty address...
-	  */
+          }
 
-          strlcpy(s, "::", slen);
-	  sptr = s + 2;
-	  slen -= 2;
-	}
-	else
-	{
-	 /*
-	  * Empty at end...
-	  */
-
-          strlcpy(sptr, "::", slen);
-	  sptr += 2;
-	  slen -= 2;
+          snprintf(sptr, slen, "%s%x", prefix, temp & 0xffff);
+	  slen -= strlen(sptr);
+	  sptr += strlen(sptr);
 	}
       }
+      else if (sptr == s)
+      {
+       /*
+        * Empty address...
+	*/
+
+        strlcpy(s, "::", slen);
+	sptr = s + 2;
+	slen -= 2;
+      }
+      else
+      {
+       /*
+	* Empty at end...
+	*/
+
+        strlcpy(sptr, "::", slen);
+	sptr += 2;
+	slen -= 2;
+      }
     }
-    else
-#endif /* AF_INET6 */
-    if (addr->addr.sa_family == AF_INET)
-    {
-      unsigned temp;				/* Temporary address */
-
-
-      temp = ntohl(addr->ipv4.sin_addr.s_addr);
-
-      snprintf(s, slen, "%d.%d.%d.%d", (temp >> 24) & 255,
-               (temp >> 16) & 255, (temp >> 8) & 255, temp & 255);
-    }
-    else
-      strlcpy(s, "UNKNOWN", slen);
+#  endif /* HAVE_GETNAMEINFO */
   }
-#endif /* HAVE_GETNAMEINFO */
+#endif /* AF_INET6 */
+  else
+    strlcpy(s, "UNKNOWN", slen);
 
   DEBUG_printf(("httpAddrString: returning \"%s\"...\n", s));
 
@@ -445,7 +434,7 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
       return (NULL);			/* Invalid byte ranges! */
 
     ip_addr = htonl(((((((ip[0] << 8) | ip[1]) << 8) | ip[2]) << 8) |
-                         ip[3]));
+                     ip[3]));
 
    /*
     * Fill in the host entry and return it...
@@ -478,35 +467,48 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
 
 
 /*
- * 'httpGetHostname()' - Get the FQDN for the local system.
+ * 'httpGetHostname()' - Get the FQDN for the connection or local system.
  *
- * This function uses both gethostname() and gethostbyname() to
- * get the local hostname with domain.
+ * When "http" points to a connected socket, return the hostname or
+ * address that was used in the call to httpConnect() or httpConnectEncrypt().
+ * Otherwise, return the FQDN for the local system using both gethostname()
+ * and gethostbyname() to get the local hostname with domain.
  *
  * @since CUPS 1.2@
  */
 
-const char *				/* O - FQDN for this system */
-httpGetHostname(char *s,		/* I - String buffer for name */
-                int  slen)		/* I - Size of buffer */
+const char *				/* O - FQDN for connection or system */
+httpGetHostname(http_t *http,		/* I - HTTP connection or NULL */
+                char   *s,		/* I - String buffer for name */
+                int    slen)		/* I - Size of buffer */
 {
   struct hostent	*host;		/* Host entry to get FQDN */
 
 
- /*
-  * Get the hostname...
-  */
-
-  gethostname(s, slen);
-
-  if (!strchr(s, '.'))
+  if (http)
+  {
+    if (http->hostname[0] == '/')
+      strlcpy(s, "localhost", slen);
+    else
+      strlcpy(s, http->hostname, slen);
+  }
+  else
   {
    /*
-    * The hostname is not a FQDN, so look it up...
+    * Get the hostname...
     */
 
-    if ((host = gethostbyname(s)) != NULL)
-      strlcpy(s, host->h_name, slen);
+    gethostname(s, slen);
+
+    if (!strchr(s, '.'))
+    {
+     /*
+      * The hostname is not a FQDN, so look it up...
+      */
+
+      if ((host = gethostbyname(s)) != NULL)
+	strlcpy(s, host->h_name, slen);
+    }
   }
 
  /*

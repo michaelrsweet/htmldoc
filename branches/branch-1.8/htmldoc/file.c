@@ -514,7 +514,8 @@ file_find_check(const char *filename)	/* I - File or URL */
         httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
       }
 
-      httpSetCookie(http, cookies);
+      if (cookies[0])
+        httpSetCookie(http, cookies);
 
       if (!httpGet(http, connpath))
       {

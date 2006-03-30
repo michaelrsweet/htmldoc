@@ -8,7 +8,7 @@
  *   broken into more manageable pieces once we make all of the output
  *   "drivers" into classes...
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -159,6 +159,14 @@ extern "C" {		/* Workaround for JPEG header problems... */
 #ifdef __hpux
 #  undef page_t
 #endif // __hpux
+
+
+/*
+ * Output options...
+ */
+
+#define HTMLDOC_ASCII85
+//#define HTMLDOC_INTERPOLATION
 
 
 /*
@@ -462,6 +470,7 @@ static void	write_text(FILE *out, render_t *r);
 static void	write_trailer(FILE *out, int pages);
 static int	write_type1(FILE *out, typeface_t typeface,
 			    style_t style);
+static void	write_utf16(FILE *out, uchar *s);
 
 
 /*
@@ -1965,7 +1974,7 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   * Output the page prolog...
   */
 
-  fprintf(out, "%%%%Page: %s %d\n", p->page_text, file_page);
+  fprintf(out, "%%%%Page: (%s) %d\n", p->page_text, file_page);
   if (op->nup == 1)
   {
     if (p->duplex && !(file_page & 1))
@@ -2811,7 +2820,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     fprintf(out, "/Parent %d 0 R", parent);
 
     fputs("/Title", out);
-    write_string(out, (uchar *)TocTitle, 0);
+    write_utf16(out, (uchar *)TocTitle);
 
     x = 0.0f;
     y = PagePrintLength + PageBottom;
@@ -2943,7 +2952,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     if ((text = htmlGetText(toc->child->child)) != NULL)
     {
       fputs("/Title", out);
-      write_string(out, text, 0);
+      write_utf16(out, text);
       free(text);
     }
 
@@ -3033,7 +3042,7 @@ pdf_write_files(FILE   *out,		// I - Output file
       fprintf(out, "/Parent %d 0 R", outline_object);
 
       fputs("/Title", out);
-      write_string(out, text, 0);
+      write_utf16(out, text);
       if (alloc_text)
         free(text);
 
@@ -5010,19 +5019,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         temp_height = temp->height * _htmlSpacings[0] / _htmlSizes[0];
       else
       {
-        switch (temp->valignment)
-	{
-	  case ALIGN_TOP :
-              temp_height = temp->height;
-	      break;
-	  case ALIGN_MIDDLE :
-              temp_height = 0.5f * temp->height + height;
-              break;
-	  case ALIGN_BOTTOM :
-	      temp_height = temp->height;
-              break;
-	}
-
 	if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
 	  borderspace = atof((char *)border);
 	else if (temp->link)
@@ -5032,7 +5028,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         borderspace *= PagePrintWidth / _htmlBrowserWidth;
 
-        temp_height += 2 * borderspace;
+        temp_height = temp->height + 2 * borderspace;
       }
 
       if (temp_height > spacing)
@@ -5149,7 +5145,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	   temp->green != linetype->green ||
 	   temp->blue != linetype->blue))
       {
-        r = new_render(*page, RENDER_TEXT, linex - linewidth, *y + offset,
+        r = new_render(*page, RENDER_TEXT, linex - linewidth, *y,
 	               linewidth, linetype->height, line);
 	r->data.text.typeface = linetype->typeface;
 	r->data.text.style    = linetype->style;
@@ -5254,7 +5250,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		  offset = height - temp->height - 2 * borderspace;
 		  break;
 	      case ALIGN_MIDDLE :
-		  offset = -0.5f * temp->height - borderspace;
+		  offset = 0.5f * (height - temp->height) - borderspace;
+		  fprintf(stderr, "IMG ALIGN=MIDDLE offset=%.1f, height=%.1f, temp->height=%.1f\n",
+		          offset, height, temp->height);
 		  break;
 	      case ALIGN_BOTTOM :
 		  offset = 0.0f;
@@ -6198,7 +6196,7 @@ parse_table(tree_t *t,			// I - Tree to parse
       regular_width = (width - actual_width) / num_cols;
 
       for (col = 0; col < num_cols; col ++)
-        if (!col_fixed[col] || var != NULL)
+        if (!col_fixed[col])
 	{
 	  col_widths[col] += regular_width;
 	  DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
@@ -9918,6 +9916,8 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
       c[0] = b + '!';
 
       fwrite(c, leftcount + 1, 1, out);
+
+      leftcount = 0;
     }
 
     fputs("~>\n", out);
@@ -11344,7 +11344,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     else
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
-    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2005 Easy Software Products, All Rights Reserved.\n", out);
+    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2006 Easy Software Products, All Rights Reserved.\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%+03d%02d\n",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
@@ -11727,7 +11727,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     info_object = pdf_start_object(out);
 
     fputs("/Producer", out);
-    write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2005 Easy "
+    write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2006 Easy "
                                "Software Products, All Rights Reserved.", 0);
     fputs("/CreationDate", out);
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
@@ -11740,7 +11740,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     if (doc_title != NULL)
     {
       fputs("/Title", out);
-      write_string(out, doc_title, 0);
+      write_utf16(out, doc_title);
     }
 
     if (author != NULL || copyright != NULL)
@@ -11753,25 +11753,25 @@ write_prolog(FILE  *out,		/* I - Output file */
         strlcpy(temp, (const char *)copyright, sizeof(temp));
 
       fputs("/Author", out);
-      write_string(out, (uchar *)temp, 0);
+      write_utf16(out, (uchar *)temp);
     }
 
     if (creator != NULL)
     {
       fputs("/Creator", out);
-      write_string(out, creator, 0);
+      write_utf16(out, creator);
     }
 
     if (keywords != NULL)
     {
       fputs("/Keywords", out);
-      write_string(out, keywords, 0);
+      write_utf16(out, keywords);
     }
 
     if (subject != NULL)
     {
       fputs("/Subject", out);
-      write_string(out, subject, 0);
+      write_utf16(out, subject);
     }
 
     pdf_end_object(out);
@@ -12499,6 +12499,79 @@ write_type1(FILE       *out,		/* I - File to write to */
 
 
 /*
+ * 'write_utf16()' - Write a UTF-16 string...
+ */
+
+static void
+write_utf16(FILE  *out,			// I - File to write to
+            uchar *s)			// I - String to write
+{
+  uchar *sptr;				// Pointer into string
+
+
+ /*
+  * We start by checking to see if the string is composed only of
+  * ASCII characters; if so, we can just write a normal string...
+  */
+
+  for (sptr = s; *sptr && !(*sptr & 0x80); sptr ++);
+  if (!*sptr)
+  {
+   /*
+    * Write an ASCII string...
+    */
+
+    write_string(out, s, 0);
+  }
+  else if (Encryption)
+  {
+   /*
+    * Convert the string to Unicode and encrypt...
+    */
+
+    int		ch;			// Character value
+    uchar	unicode[2],		// Unicode character
+		enicode[2];		// Encrypted unicode character
+
+
+    putc('<', out);
+    encrypt_init();
+
+    unicode[0] = 0xfe;			// Start with BOM
+    unicode[1] = 0xff;
+
+    rc4_encrypt(&encrypt_state, unicode, enicode, 2);
+
+    fprintf(out, "%02x%02x", enicode[0], enicode[1]);
+
+    for (sptr = s; *sptr; sptr ++)
+    {
+      ch         = _htmlUnicode[*sptr];
+      unicode[0] = ch >> 8;
+      unicode[1] = ch;
+
+      rc4_encrypt(&encrypt_state, unicode, enicode, 2);
+
+      fprintf(out, "%02x%02x", enicode[0], enicode[1]);
+    }
+
+    putc('>', out);
+  }
+  else
+  {
+   /*
+    * Convert the string to Unicode...
+    */
+
+    fputs("<feff", out);		// Start with BOM
+    for (sptr = s; *sptr; sptr ++)
+      fprintf(out, "%04x", _htmlUnicode[*sptr]);
+    putc('>', out);
+  }
+}
+
+
+/*
  * 'encrypt_init()' - Initialize the RC4 encryption context for the current
  *                    object.
  */
@@ -12577,6 +12650,9 @@ flate_open_stream(FILE *out)		/* I - Output file */
 static void
 flate_close_stream(FILE *out)		/* I - Output file */
 {
+  int	status;				/* Deflate status */
+
+
   if (!Compression)
   {
 #ifdef HTMLDOC_ASCII85
@@ -12587,8 +12663,14 @@ flate_close_stream(FILE *out)		/* I - Output file */
     return;
   }
 
-  while (deflate(&compressor, Z_FINISH) != Z_STREAM_END)
+  while ((status = deflate(&compressor, Z_FINISH)) != Z_STREAM_END)
   {
+    if (status < Z_OK && status != Z_BUF_ERROR)
+    {
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "deflate() failed (%d)", status);
+      return;
+    }
+
     if (PSLevel)
 #ifdef HTMLDOC_ASCII85
       ps_ascii85(out, comp_buffer,
@@ -12694,6 +12776,9 @@ flate_write(FILE  *out,			/* I - Output file */
             int   length,		/* I - Number of bytes to write */
 	    int   flush)		/* I - Flush when writing data? */
 {
+  int	status;				/* Deflate status */
+
+
   if (compressor_active)
   {
     compressor.next_in  = buf;
@@ -12725,7 +12810,14 @@ flate_write(FILE  *out,			/* I - Output file */
 	compressor.avail_out = sizeof(comp_buffer);
       }
 
-      deflate(&compressor, flush ? Z_FULL_FLUSH : Z_NO_FLUSH);
+      status = deflate(&compressor, flush ? Z_FULL_FLUSH : Z_NO_FLUSH);
+
+      if (status < Z_OK && status != Z_BUF_ERROR)
+      {
+	progress_error(HD_ERROR_OUT_OF_MEMORY, "deflate() failed (%d)", status);
+	return;
+      }
+
       flush = 0;
     }
   }
