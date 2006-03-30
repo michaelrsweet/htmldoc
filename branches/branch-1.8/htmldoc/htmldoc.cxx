@@ -43,6 +43,7 @@
 
 #define _HTMLDOC_CXX_
 #include "htmldoc.h"
+#include "http.h"
 #include <ctype.h>
 #include <fcntl.h>
 
@@ -156,10 +157,16 @@ main(int  argc,				/* I - Number of command-line arguments */
 
  /*
   * Check if we are being executed as a CGI program...
+  *
+  * Note: We can't short-circuit this test to include a check for
+  * PATH_INFO since that could lead to a remote execution hole.
+  * Instead, we'll display an error message later if we can't find
+  * a PATH_INFO variable and advise the administrator on how to
+  * correct the problem...
   */
 
-  if (getenv("GATEWAY_INTERFACE") && getenv("SERVER_NAME") &&
-      getenv("SERVER_SOFTWARE") && !getenv("HTMLDOC_NOCGI"))
+  if (!getenv("HTMLDOC_NOCGI") && getenv("GATEWAY_INTERFACE") &&
+      getenv("SERVER_NAME") && getenv("SERVER_SOFTWARE"))
   {
     const char	*path_translated;	// PATH_TRANSLATED env var
     char	bookfile[1024];		// Book filename
@@ -1184,28 +1191,32 @@ main(int  argc,				/* I - Number of command-line arguments */
   if (CGIMode)
   {
     char	url[1024];		// URL
-    const char	*path_info,		// Path info, if any
+    const char	*https,			// HTTPS env var, if any
+		*path_info,		// Path info, if any
 		*query,			// Query string, if any
-		*https;			// HTTPS env var, if any
+		*server_name,		// Server name
+		*server_port;		// Server port
 
 
-    path_info = getenv("PATH_INFO");
-    query     = getenv("QUERY_STRING");
-    https     = getenv("HTTPS");
+    https       = getenv("HTTPS");
+    path_info   = getenv("PATH_INFO");
+    query       = getenv("QUERY_STRING");
+    server_name = getenv("SERVER_NAME");
+    server_port = getenv("SERVER_PORT");
 
-    if (getenv("SERVER_PORT") && path_info && *path_info)
+    if (server_port && path_info && *path_info)
     {
       // Read the referenced file from the local server...
       if (https && strcmp(https, "off"))
-	snprintf(url, sizeof(url), "https://%s:%s%s", getenv("SERVER_NAME"),
-        	 getenv("SERVER_PORT"), getenv("PATH_INFO"));
+	httpAssembleURI(HTTP_URI_CODING_ALL, url, sizeof(url), "https",
+	                NULL, server_name, atoi(server_port), path_info);
       else
-	snprintf(url, sizeof(url), "http://%s:%s%s", getenv("SERVER_NAME"),
-        	 getenv("SERVER_PORT"), getenv("PATH_INFO"));
+	httpAssembleURI(HTTP_URI_CODING_ALL, url, sizeof(url), "http",
+	                NULL, server_name, atoi(server_port), path_info);
 
       if (query && *query && *query != '-')
       {
-	// Include query string on end of URL...
+	// Include query string on end of URL, which is already URI encoded...
         strlcat(url, "?", sizeof(url));
 	strlcat(url, query, sizeof(url));
       }
@@ -1216,6 +1227,9 @@ main(int  argc,				/* I - Number of command-line arguments */
 
       read_file(url, &document, Path);
     }
+    else
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "PATH_INFO is not set in the environment!");
   }
 
  /*
@@ -2548,12 +2562,22 @@ usage(const char *arg)			// I - Bad argument string
   if (CGIMode)
     puts("Content-Type: text/plain\r\n\r");
 
-  puts("HTMLDOC Version " SVERSION " Copyright 1997-2005 Easy Software Products, All Rights Reserved.");
-  puts("This software is governed by the GNU General Public License, Version 2, and");
-  puts("is based in part on the work of the Independent JPEG Group.");
+  puts("HTMLDOC Version " SVERSION " Copyright 1997-2006 Easy Software Products, All Rights Reserved.");
+  puts("This software is based in part on the work of the Independent JPEG Group.");
   puts("");
 
-  if (!CGIMode)
+  if (CGIMode)
+  {
+    puts("HTMLDOC is running in CGI mode.  To disable CGI mode when running");
+    puts("from a server-side script/page, set the HTMLDOC_NOCGI environment");
+    puts("variable prior to running HTMLDOC.");
+    puts("");
+    puts("If you are trying to use CGI mode, make sure that the ServerName");
+    puts("for the web server is accessible from the local system.  If you");
+    puts("are using Apache 2.0.30 or later, make sure you set 'AcceptPathInfo'");
+    puts("to 'On' for the HTMLDOC/cgi-bin directory.");
+  }
+  else
   {
     if (arg && arg[0] == '-')
       printf("ERROR: Bad option argument \"%s\"!\n\n", arg);
