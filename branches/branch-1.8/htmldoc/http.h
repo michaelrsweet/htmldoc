@@ -36,6 +36,8 @@
 #  include <time.h>
 #  include <sys/types.h>
 #  ifdef WIN32
+/* Windows does not support the ssize_t type, so map it to off_t... */
+typedef off_t ssize_t;			/* @private@ */
 #    include <winsock2.h>
 #    include <ws2tcpip.h>
 #  else
