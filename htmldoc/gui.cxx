@@ -4277,7 +4277,7 @@ GUI::showAboutCB(void)
     "the GNU General Public License and as commercial software via "
     "the HTMLDOC Basic product which provides the HTMLDOC software in "
     "convenient, installable packages for your operating system of "
-    "choice. Commercial support is also available in 90-day and 1-year "
+    "choice. Commercial support is also available in 1-year "
     "increments. All products provide financial support for the "
     "continued development of HTMLDOC as an open source product.\n\n"
     "<p>For more information, please visit us on the web at the following "
