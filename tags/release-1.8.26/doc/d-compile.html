@@ -1,0 +1,157 @@
+<html>
+<body>
+
+<!-- FOOTER RIGHT "1-$CHAPTERPAGE" -->
+<div align='justify'>
+
+<h1 align='right'><a name='COMPILE'>Appendix D - Compiling
+HTMLDOC from Source</a></H1>
+
+<p>This chapter describes the steps needed to install HTMLDOC on
+your system from the source distributions.</p>
+
+<h2>Requirements</h2>
+
+<p>HTMLDOC requires ANSI C and C++ compilers - recent versions
+of GCC/EGCS work fine. To build the GUI you'll also need:</p>
+
+<ul>
+
+	<li><a href='http://www.fltk.org'>Fast Light Tool Kit ("FLTK")</a>,
+	version 1.1 or higher.
+
+	<li><a href='ftp://ftp.x.org'>X11 libraries</a>, R5 or higher (needed
+	to build under UNIX and OS/2 only.)
+
+</ul>
+
+<p>Secure (https) URL support can be enabled via the <A
+HREF='http://www.openssl.org/'>OpenSSL</a> library. You should
+use at least version 0.9.6l.</p>
+
+<h2>Compiling under UNIX/Linux</h2>
+
+<p>HTMLDOC uses a configuration script produced by GNU autoconf
+to configure itself for your system. If your ANSI C compiler is
+not called <var>cc</var> or <var>gcc</var>, set the
+<code>CC</code> environment variable to the name and path of
+your ANSI C compiler:</p>
+
+<pre>
+    % <kbd>setenv CC /path/to/compiler ENTER</kbd>         [C Shell]
+    % <kbd>CC=/path/to/compiler; export CC ENTER</kbd>     [Bourne/Korn Shell]
+</pre>
+
+<p>Similarly, if your C++ compiler is not called <var>CC</var>,
+<var>gcc</var>, <var>c++</var>, or <var>g++</var>, set the
+<code>CXX</code> environment variable to the name and path of
+your C++ compiler:</p>
+
+<pre>
+    % <kbd>setenv CXX /path/to/compiler ENTER</kbd>        [C Shell]
+    % <kbd>CXX=/path/to/compiler; export CXX ENTER</kbd>   [Bourne/Korn Shell]
+</pre>
+
+<p>Then run the following command to configure HTMLDOC for
+installation in the default directories:</p>
+
+<pre>
+    % <kbd>./configure ENTER</kbd>
+</pre>
+
+<p>The default configuration will install HTMLDOC in the
+<var>/usr/bin</var> directory with the data files under
+<var>/usr/share/htmldoc</var> and the documentation and on-line
+help under <var>/usr/share/doc/htmldoc</var>. Use the
+<code>--prefix</code> option to change the installation prefix
+to a different directory such as <var>/usr/local</var>:
+
+<pre>
+    % <kbd>./configure --prefix=/usr/local ENTER</kbd>
+</pre>
+
+<p>If the OpenSSL library is not installed in a standard
+location for your compilers, use the
+<code>--with-openssl-includes</code> and
+<code>--with-openssl-libs</code> options to point to the OpenSSL
+library:
+
+<pre>
+    % <kbd>./configure --with-openssl-libs=/path/to/openssl/lib \
+        --with-openssl-includes=/path/to/openssl ENTER</kbd>
+</pre>
+
+<p>HTMLDOC is built from a Makefile in the distribution's main
+directory. Simply run the "make" command to build HTMLDOC:
+
+<pre>
+    % <kbd>make ENTER</kbd>
+</pre>
+
+<p>If you get any fatal errors, please report them on the
+<code>htmldoc.general</code> newsgroup at:</p>
+
+<pre>
+    <a href='http://www.easysw.com/newsgroups.php'>http://www.easysw.com/newsgroups.php</a>
+</pre>
+
+<p>Please note the version of HTMLDOC that you are using as well
+as any pertinent system information such as the operating
+system, OS version, compiler, and so forth. Omitting this
+information may delay or prevent a solution to your problem.</p>
+
+<p>Once you have compiled the software successfully, you may
+install HTMLDOC by running the following command:</p>
+
+<pre>
+    % <kbd>make install ENTER</kbd>
+</pre>
+
+<p>If you are installing in a restricted directory like
+<var>/usr</var> then you'll need to be logged in as root.</p>
+
+
+<h2>Compiling on Windows Using Visual C++</h2>
+
+<p>A Visual C++ 6.0 workspace file and associated project files are
+included in the source distribution under the "visualc" directory. Open
+the workspace file "htmldoc.dsw", adjust the FLTK include and project
+file locations, and then build the HTMLDOC target.
+
+<center><table width='80%' border='1' cellpadding='5' cellspacing='0' bgcolor='#cccccc'>
+<tr>
+	<td><b>Note:</b>
+
+	<p>You also need to download the OpenSSL and FLTK
+	libraries in order to compile HTMLDOC with Visual
+	C++.</p>
+
+	</td>
+</tr>
+</table></center>
+
+<h2>Installing with Visual C++</h2>
+
+<p>To install HTMLDOC with Visual C++, create an installation
+directory and copy the <var>ghtmldoc.exe</var> and
+<var>htmldoc.exe</var> executables, the <var>afm</var>
+directoryj, the <var>data</var> directory, and the
+<var>doc</var> directory to it.</p>
+
+<p>Then use the <var>regedit</var> program to create the
+following two string entries:</p>
+
+<dl>
+
+	<dt><code>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\data</code>
+	<dd>C:\installation\directory
+
+	<dt><code>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\doc</code>
+	<dd>C:\installation\directory\doc
+
+</dl>
+
+</div>
+
+</body>
+</html>
