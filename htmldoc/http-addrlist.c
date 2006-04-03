@@ -3,7 +3,7 @@
  *
  *   HTTP address list routines for the Common UNIX Printing System (CUPS).
  *
- *   Copyright 1997-2005 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -89,6 +89,11 @@ httpAddrConnect(
     setsockopt(*sock, SOL_SOCKET, SO_REUSEPORT, &val, sizeof(val));
 #endif /* SO_REUSEPORT */
 
+#ifdef SO_NOSIGPIPE
+    val = 1;
+    setsockopt(*sock, SOL_SOCKET, SO_NOSIGPIPE, &val, sizeof(val));
+#endif /* SO_NOSIGPIPE */
+
    /*
     * Using TCP_NODELAY improves responsiveness, especially on systems
     * with a slow loopback interface...
@@ -122,7 +127,11 @@ httpAddrConnect(
     * Close this socket and move to the next address...
     */
 
+#ifdef WIN32
     closesocket(*sock);
+#else
+    close(*sock);
+#endif /* WIN32 */
 
     addrlist = addrlist->next;
   }
@@ -401,7 +410,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 #  ifdef AF_INET6
           if (host->h_addrtype == AF_INET6)
 	  {
-            first->addr.ipv6.sin6_family = AF_INET6;
+            temp->addr.ipv6.sin6_family = AF_INET6;
 	    memcpy(&(temp->addr.ipv6), host->h_addr_list[i],
 	           sizeof(temp->addr.ipv6));
             temp->addr.ipv6.sin6_port = htons(portnum);
@@ -409,7 +418,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 	  else
 #  endif /* AF_INET6 */
 	  {
-            first->addr.ipv4.sin_family = AF_INET;
+            temp->addr.ipv4.sin_family = AF_INET;
 	    memcpy(&(temp->addr.ipv4), host->h_addr_list[i],
 	           sizeof(temp->addr.ipv4));
             temp->addr.ipv4.sin_port = htons(portnum);

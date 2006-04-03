@@ -3,7 +3,7 @@
  *
  *   Private HTTP definitions for the Common UNIX Printing System (CUPS).
  *
- *   Copyright 1997-2005 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -43,14 +43,14 @@
 #    define closesocket(f) close(f)
 #  endif /* WIN32 */
 
-#  ifdef __sgi
+#  if defined(__sgi) || (defined(__APPLE__) && !defined(_SOCKLEN_T))
 /*
- * IRIX does not define socklen_t, and in fact uses an int instead of
+ * IRIX and MacOS X 10.2.x do not define socklen_t, and in fact use an int instead of
  * unsigned type for length values...
  */
 
 typedef int socklen_t;
-#  endif /* __sgi */
+#  endif /* __sgi || (__APPLE__ && !_SOCKLEN_T) */
 
 #  include "http.h"
 

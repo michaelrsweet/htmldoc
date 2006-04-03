@@ -1,5 +1,5 @@
 //
-// "$Id: png2fti.cxx,v 1.2 2004/10/23 07:06:19 mike Exp $"
+// "$Id: png2fti.cxx,v 1.1.2.5 2004/06/14 16:03:10 mike Exp $"
 //
 // Simple utility which converts a PNG or XPM icon file to a 3D SGI FTI
 // icon file.
@@ -323,5 +323,5 @@ main(int  argc,				// I - Number of command-line args
 
 
 //
-// End of "$Id: png2fti.cxx,v 1.2 2004/10/23 07:06:19 mike Exp $".
+// End of "$Id: png2fti.cxx,v 1.1.2.5 2004/06/14 16:03:10 mike Exp $".
 //

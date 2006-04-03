@@ -26,8 +26,15 @@ htmldoc -f filename.pdf filename.html
 page files you <B>must</B> use the <CODE>--webpage</CODE> option at the
 command-line or choose <VAR>Web Page</VAR> in the input tab of the GUI.
 
-<P><B>HTMLDOC does not support HTML 4.0 elements, attributes,
-stylesheets, or scripting.</B>
+<center><table width='80%' border='1' cellpadding='5' bgcolor='#cccccc'>
+<tr>
+	<td><B>Note:</B>
+
+	<P>HTMLDOC does not support HTML 4.0 elements, attributes,
+	stylesheets, or scripting.</P>
+	</td>
+</tr>
+</table></center>
 
 <!-- NEED 5in -->
 <H2>Elements</H2>
@@ -64,9 +71,9 @@ stylesheets, or scripting.</B>
 <TR><TD>EM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Italic/Oblique</TD></TR>
 <TR><TD>EMBED</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>HTML Only</TD></TR>
 <TR><TD>FONT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#FONT">See Below</A></TD></TR>
-<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
 <TR><TD>FORM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>FRAME</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
 <TR><TD>FRAMESET</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>H1</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
 <TR><TD>H2</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
@@ -95,10 +102,10 @@ stylesheets, or scripting.</B>
 <TR><TD>OPTION</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>P</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>PRE</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
-<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
 <TR><TD>S</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Strikethrough</TD></TR>
 <TR><TD>SAMP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
 <TR><TD>SCRIPT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
+<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
 <TR><TD>SELECT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>SMALL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>SPACER</TD><TD ALIGN="CENTER">N3.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
@@ -262,6 +269,7 @@ control the current media options:</P>
 
 </DL>
 
+<!-- NEED 2in -->
 <H3>Header/Footer Strings</H3>
 
 <P>The <CODE>HEADER</CODE> and <CODE>FOOTER</CODE> comments
@@ -349,10 +357,11 @@ portability across platforms and for older PostScript printers:</P>
 <TR><TH>Requested Font</TH><TH>Actual Font</TH></TR>
 <TR><TD>Arial</TD><TD>Helvetica</TD></TR>
 <TR><TD>Courier</TD><TD>Courier</TD></TR>
+<TR><TD>Dingbats</TD><TD>Dingbats</TD></TR>
 <TR><TD>Helvetica</TD><TD>Helvetica</TD></TR>
-<TR><TD>Monospace</TD><TD>Courier</TD></TR>
-<TR><TD>Sans-Serif</TD><TD>Helvetica</TD></TR>
-<TR><TD>Serif</TD><TD>Times</TD></TR>
+<TR><TD>Monospace</TD><TD>DejaVu Sans Mono</TD></TR>
+<TR><TD>Sans</TD><TD>DejaVu Sans</TD></TR>
+<TR><TD>Serif</TD><TD>DejaVu Serif</TD></TR>
 <TR><TD>Symbol</TD><TD>Symbol</TD></TR>
 <TR><TD>Times</TD><TD>Times</TD></TR>
 </TABLE></CENTER>

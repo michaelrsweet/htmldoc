@@ -1,9 +1,9 @@
 /*
- * "$Id: file.c,v 1.13.2.53 2005/09/14 23:18:03 mike Exp $"
+ * "$Id$"
  *
  *   Filename routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -290,23 +290,21 @@ file_directory(const char *s)	/* I - Filename or URL */
     * Handle URLs...
     */
 
-    char	method[HTTP_MAX_URI],
+    char	scheme[HTTP_MAX_URI],
 		username[HTTP_MAX_URI],
 		hostname[HTTP_MAX_URI],
 		resource[HTTP_MAX_URI];
     int		port;
 
 
-    httpSeparate(s, method, username, hostname, &port, resource);
+    httpSeparateURI(HTTP_URI_CODING_ALL, s, scheme, sizeof(scheme),
+                    username, sizeof(username), hostname, sizeof(hostname),
+		    &port, resource, sizeof(resource));
     if ((dir = strrchr(resource, '/')) != NULL)
       *dir = '\0';
 
-    if (username[0])
-      snprintf(buf, sizeof(buf), "%s://%s@%s:%d%s", method, username, hostname,
-               port, resource);
-    else
-      snprintf(buf, sizeof(buf), "%s://%s:%d%s", method, hostname, port,
-               resource);
+    httpAssembleURI(HTTP_URI_CODING_ALL, buf, sizeof(buf), scheme, username,
+                    hostname, port, resource);
   }
   else
   {
@@ -381,7 +379,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 {
   int		i;			/* Looping var */
   int		retry;			/* Current retry */
-  char		method[HTTP_MAX_URI],	/* Method/scheme */
+  char		scheme[HTTP_MAX_URI],	/* Method/scheme */
 		username[HTTP_MAX_URI],	/* Username:password */
 		hostname[HTTP_MAX_URI],	/* Hostname */
 		resource[HTTP_MAX_URI];	/* Resource */
@@ -392,24 +390,24 @@ file_find_check(const char *filename)	/* I - File or URL */
 		connauth[HTTP_MAX_VALUE];/* Auth string */
   http_status_t	status;			/* Status of request... */
   FILE		*fp;			/* Web file */
-  int		bytes,			/* Bytes read */
-		count,			/* Number of bytes so far */
-		total;			/* Total bytes in file */
+  ssize_t	bytes,			/* Bytes read */
+		count;			/* Number of bytes so far */
+  off_t		total;			/* Total bytes in file */
   char		tempname[HTTP_MAX_URI];	/* Temporary filename */
 
 
   DEBUG_printf(("file_find_check(filename=\"%s\")\n", filename));
 
   if (strncmp(filename, "http:", 5) == 0 || strncmp(filename, "//", 2) == 0)
-    strcpy(method, "http");
+    strcpy(scheme, "http");
 #ifdef HAVE_SSL
   else if (strncmp(filename, "https:", 6) == 0)
-    strcpy(method, "https");
+    strcpy(scheme, "https");
 #endif /* HAVE_SSL */
   else
-    strcpy(method, "file");
+    strcpy(scheme, "file");
 
-  if (strcmp(method, "file") == 0)
+  if (strcmp(scheme, "file") == 0)
   {
    /*
     * Return immediately if we aren't allowing access to local files...
@@ -443,7 +441,9 @@ file_find_check(const char *filename)	/* I - File or URL */
         return (web_cache[i].name);
       }
 
-    httpSeparate(filename, method, username, hostname, &port, resource);
+    httpSeparateURI(HTTP_URI_CODING_ALL, filename, scheme, sizeof(scheme),
+                    username, sizeof(username), hostname, sizeof(hostname),
+		    &port, resource, sizeof(resource));
 
     for (status = HTTP_ERROR, retry = 0;
          status == HTTP_ERROR && retry < 5;
@@ -457,7 +457,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
         connhost = proxy_host;
         connport = proxy_port;
-        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", method,
+        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", scheme,
                  hostname, port, resource);
       }
       else
@@ -482,7 +482,7 @@ file_find_check(const char *filename)	/* I - File or URL */
         progress_show("Connecting to %s...", connhost);
 
 #ifdef HAVE_SSL
-        if (strcmp(method, "http") == 0)
+        if (strcmp(scheme, "http") == 0)
           http = httpConnect(connhost, connport);
 	else
           http = httpConnectEncrypt(connhost, connport, HTTP_ENCRYPT_ALWAYS);
@@ -503,18 +503,19 @@ file_find_check(const char *filename)	/* I - File or URL */
 
       httpClearFields(http);
       httpSetField(http, HTTP_FIELD_HOST, hostname);
-      httpSetField(http, HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
       httpSetField(http, HTTP_FIELD_CONNECTION, "Keep-Alive");
       httpSetField(http, HTTP_FIELD_REFERER, referer_url);
 
       if (username[0])
       {
         strcpy(connauth, "Basic ");
-        httpEncode64(connauth + 6, username);
+        httpEncode64_2(connauth + 6, sizeof(connauth) - 6, username,
+	               strlen(username));
         httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
       }
 
-      httpSetCookie(http, cookies);
+      if (cookies[0])
+        httpSetCookie(http, cookies);
 
       if (!httpGet(http, connpath))
       {
@@ -535,8 +536,12 @@ file_find_check(const char *filename)	/* I - File or URL */
         * Grab new location from HTTP data...
 	*/
 
-        httpSeparate(httpGetField(http, HTTP_FIELD_LOCATION), method, username,
-	             hostname, &port, resource);
+	httpSeparateURI(HTTP_URI_CODING_ALL,
+	                httpGetField(http, HTTP_FIELD_LOCATION),
+			scheme, sizeof(scheme), username, sizeof(username),
+			hostname, sizeof(hostname), &port,
+			resource, sizeof(resource));
+
         status = HTTP_ERROR;
       }
     }
@@ -544,7 +549,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     if (status != HTTP_OK)
     {
       progress_hide();
-      progress_error((hdError)status, "%s", httpStatus(status));
+      progress_error((HDerror)status, "%s", httpStatus(status));
       httpFlush(http);
       return (NULL);
     }
@@ -559,15 +564,15 @@ file_find_check(const char *filename)	/* I - File or URL */
       return (NULL);
     }
 
-    if ((total = atoi(httpGetField(http, HTTP_FIELD_CONTENT_LENGTH))) == 0)
+    if ((total = httpGetLength2(http)) == 0)
       total = 8192;
 
     count = 0;
-    while ((bytes = httpRead(http, resource, sizeof(resource))) > 0)
+    while ((bytes = httpRead2(http, resource, sizeof(resource))) > 0)
     {
       count += bytes;
       progress_update((100 * count / total) % 101);
-      fwrite(resource, 1, (size_t)bytes, fp);
+      fwrite(resource, 1, bytes, fp);
     }
 
     progress_hide();
@@ -943,7 +948,7 @@ file_nolocal()
 void
 file_proxy(const char *url)	/* I - URL of proxy server */
 {
-   char	method[HTTP_MAX_URI],	/* Method name (must be HTTP) */
+   char	scheme[HTTP_MAX_URI],	/* Method name (must be HTTP) */
 	username[HTTP_MAX_URI],	/* Username:password information */
 	hostname[HTTP_MAX_URI],	/* Hostname */
 	resource[HTTP_MAX_URI];	/* Resource name */
@@ -957,9 +962,11 @@ file_proxy(const char *url)	/* I - URL of proxy server */
   }
   else
   {
-    httpSeparate(url, method, username, hostname, &port, resource);
+    httpSeparateURI(HTTP_URI_CODING_ALL, url, scheme, sizeof(scheme),
+                    username, sizeof(username), hostname, sizeof(hostname),
+		    &port, resource, sizeof(resource));
 
-    if (strcmp(method, "http") == 0)
+    if (strcmp(scheme, "http") == 0)
     {
       strlcpy(proxy_host, hostname, sizeof(proxy_host));
       proxy_port = port;
@@ -1089,5 +1096,5 @@ file_temp(char *name,			/* O - Filename */
 
 
 /*
- * End of "$Id: file.c,v 1.13.2.53 2005/09/14 23:18:03 mike Exp $".
+ * End of "$Id$".
  */

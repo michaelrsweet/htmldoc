@@ -7,11 +7,12 @@
 #
 
 %product HTMLDOC
-%copyright 1997-2004 by Easy Software Products, All Rights Reserved.
+%copyright 1997-2006 by Easy Software Products, All Rights Reserved.
 %vendor Easy Software Products
 %license htmldoc.eula
 %readme htmldoc.readme
 %version @SVERSION@ @NVERSION@
+%description HTMLDOC converts HTML files and web pages to PDF and PostScript.
 
 # Directories...
 $prefix=@prefix@
@@ -61,7 +62,6 @@ f 0444 root sys $datadir/htmldoc/data/iso-8859-9 data/iso-8859-9
 f 0444 root sys $datadir/htmldoc/data/koi8-r data/koi8-r
 f 0444 root sys $datadir/htmldoc/data/prolog.ps data/prolog.ps
 f 0444 root sys $datadir/htmldoc/data/psglyphs data/psglyphs
-f 0444 root sys $datadir/htmldoc/data/standard.css data/standard.css
 
 # Documentation
 f 0444 root sys $mandir/cat1/htmldoc.1 doc/htmldoc.1

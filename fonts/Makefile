@@ -3,7 +3,7 @@
 #
 #   Makefile for HTMLDOC font files.
 #
-#   Copyright 1997-2005 by Easy Software Products.
+#   Copyright 1997-2002 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
 #       Attn: ESP Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636 USA
+#       Hollywood, Maryland 20636-3142 USA
 #
 #       Voice: (301) 373-9600
 #       EMail: info@easysw.com
@@ -75,7 +75,7 @@ all:
 
 install:
 	echo "Installing font files in $(datadir)/htmldoc/fonts..."
-	if test ! -d $(datadir)/htmldoc/fonts; then\
+	if [ ! -d $(datadir)/htmldoc/fonts ]; then\
 		$(MKDIR) $(datadir)/htmldoc/fonts;\
 	fi
 	for font in $(FONTS); do \
@@ -91,6 +91,10 @@ install:
 
 uninstall:
 	echo "Uninstalling font files from $(datadir)/htmldoc/fonts..."
+	for font in $(FONTS); do \
+		$(RM) $(datadir)/htmldoc/fonts/$$font.afm; \
+		$(RM) $(datadir)/htmldoc/fonts/$$font.pfa; \
+	done
 	-$(RMDIR) $(datadir)/htmldoc/fonts
 
 

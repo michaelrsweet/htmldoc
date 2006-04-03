@@ -8,7 +8,7 @@
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.9" "3 November 2005" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.25" "3 November 2005" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp

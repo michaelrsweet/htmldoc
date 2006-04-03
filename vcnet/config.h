@@ -3,7 +3,7 @@
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9-current"
+#define SVERSION	"1.8.26 Open Source"
 
 
 /*
@@ -54,8 +54,24 @@
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"C:/Program Files/Easy Software Products/HTMLDOC/doc"
-#define HTML_DATA	"C:/Program Files/Easy Software Products/HTMLDOC"
+#define DOCUMENTATION	"C:/Program Files/HTMLDOC/doc"
+#define HTML_DATA	"C:/Program Files/HTMLDOC"
+
+
+/*
+ * Do we have the FLTK library?
+ */
+
+#ifndef _CONSOLE
+#  define HAVE_LIBFLTK
+#endif /* !_CONSOLE */
+
+
+/*
+ * Do we have the Xpm library?
+ */
+
+#undef HAVE_LIBXPM
 
 
 /*
@@ -86,11 +102,8 @@
  * Do we have some of the "standard" string functions?
  */
 
-#define HAVE_STRCASECMP
 #define HAVE_STRDUP
-#undef HAVE_STRDUPF
-#undef HAVE_STRLCAT
-#undef HAVE_STRLCPY
+#define HAVE_STRCASECMP
 #define HAVE_STRNCASECMP
 
 
@@ -114,20 +127,6 @@
  */
 
 #undef HAVE_HSTRERROR
-
-
-/*
- * Do we have getaddrinfo()?
- */
-
-#define HAVE_GETADDRINFO
-
-
-/*
- * Do we have getnameinfo()?
- */
-
-#define HAVE_GETNAMEINFO
 
 
 /*

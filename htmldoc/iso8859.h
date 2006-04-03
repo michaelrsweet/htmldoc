@@ -1,7 +1,7 @@
 /*
  * "$Id$"
  *
- *   Common data types for HTMLDOC, an HTML document processing program.
+ *   ISO-8859-1 definitions for HTMLDOC, an HTML document processing program.
  *
  *   Copyright 1997-2005 by Easy Software Products.
  *
@@ -22,14 +22,24 @@
  *         WWW: http://www.easysw.com
  */
 
-#ifndef _TYPES_H_
-#  define _TYPES_H_
+#ifndef _ISO8859_H_
+#  define _ISO8859_H_
 
-#  include "config.h"
+/*
+ * Include necessary headers.
+ */
 
-typedef unsigned char uchar;
+#  include "types.h"
 
-#endif /* !_TYPES_H_ */
+
+/*
+ * Prototypes...
+ */
+
+extern uchar	iso8859(uchar *name);
+extern uchar	*iso8859(uchar value);
+
+#endif /* !_ISO8859_H_ */
 
 /*
  * End of "$Id$".
