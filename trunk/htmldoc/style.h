@@ -3,7 +3,7 @@
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2004 by Easy Software Products.
+//   Copyright 1997-2006 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1148,6 +1148,8 @@ struct hdStyleSheet
 
   //* Unicode glyphs
   char		*uniglyphs[65536];
+  //* Unicode equivalents
+  int		unicode[256];
 
   //* Default media attributes from stylesheet
   hdStyleMedia	default_media;
@@ -1282,6 +1284,8 @@ struct hdStyleSheet
   * @return A pointer to a new, private style record.
   */
   hdStyle	*get_private_style(hdTree *t, bool force = false);
+
+  int		get_unicode(const hdChar *&s);
 
  /**
   * The <tt>get_uniglyph()</tt> method returns the character code for the given character

@@ -8,7 +8,7 @@
  *   broken into more manageable pieces once we make all of the output
  *   "drivers" into classes...
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -142,6 +142,14 @@
 extern "C" {		/* Workaround for JPEG header problems... */
 #include <jpeglib.h>	/* JPEG/JFIF image definitions */
 }
+
+
+/*
+ * Output options...
+ */
+
+#define HTMLDOC_ASCII85
+//#define HTMLDOC_INTERPOLATION
 
 
 /*
@@ -444,6 +452,7 @@ static void	write_text(FILE *out, hdRender *r);
 static void	write_trailer(FILE *out, int pages);
 static int	write_type1(FILE *out, hdFontFace typeface,
 			    hdFontStyle style);
+static void	write_utf16(FILE *out, hdChar *s);
 
 
 /*
@@ -1960,7 +1969,7 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   * Output the page prolog...
   */
 
-  fprintf(out, "%%%%Page: %s %d\n", p->page_text, file_page);
+  fprintf(out, "%%%%Page: (%s) %d\n", p->page_text, file_page);
   if (op->nup == 1)
   {
     if (p->duplex && !(file_page & 1))
@@ -2805,7 +2814,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     fprintf(out, "/Parent %d 0 R", parent);
 
     fputs("/Title", out);
-    write_string(out, (hdChar *)TocTitle, 0);
+    write_utf16(out, (hdChar *)TocTitle);
 
     x = 0.0f;
     y = PagePrintLength + PageBottom;
@@ -2937,7 +2946,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     if ((text = htmlGetText(toc->child->child)) != NULL)
     {
       fputs("/Title", out);
-      write_string(out, text, 0);
+      write_utf16(out, text);
       free(text);
     }
 
@@ -3027,7 +3036,7 @@ pdf_write_files(FILE   *out,		// I - Output file
       fprintf(out, "/Parent %d 0 R", outline_object);
 
       fputs("/Title", out);
-      write_string(out, text, 0);
+      write_utf16(out, text);
       if (alloc_text)
         free(text);
 
@@ -3799,6 +3808,9 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
                int      *heading,	/* IO - Heading # */
 	       hdTree   *chap)		/* I - Chapter heading */
 {
+  bool pushed;				// Margins pushed?
+
+
   DEBUG_printf(("parse_contents(t=%p(%s), margins=(%.1f, %.1f, %.1f, %.1f, %d), y=%.1f, page=%d, heading=%d, chap=%p)\n",
                 t, _htmlStyleSheet->get_element(t->element),
 		margins->left(), margins->right(), margins->bottom(),
@@ -3827,8 +3839,8 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
           if (htmlGetAttr(t, "_HD_OMIT_TOC") == NULL)
 	  {
-	    bool pushed = t->style->margin[HD_POS_LEFT] != 0.0 ||
-	                  t->style->margin[HD_POS_RIGHT] != 0.0;
+	    pushed = t->style->margin[HD_POS_LEFT] != 0.0 ||
+	             t->style->margin[HD_POS_RIGHT] != 0.0;
 
             if (pushed)
 	      margins->push(margins->left() + t->style->margin[HD_POS_LEFT],
@@ -3875,8 +3887,8 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
           break;
 
       case HD_ELEMENT_UL :
-	  bool pushed = t->style->margin[HD_POS_LEFT] != 0.0 ||
-	                t->style->margin[HD_POS_RIGHT] != 0.0;
+	  pushed = t->style->margin[HD_POS_LEFT] != 0.0 ||
+	           t->style->margin[HD_POS_RIGHT] != 0.0;
 
           if (pushed)
 	    margins->push(margins->left() + t->style->margin[HD_POS_LEFT],
@@ -5002,25 +5014,6 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         temp_height = temp->style->line_height;
       else
       {
-        switch (temp->style->vertical_align)
-	{
-	  case HD_VERTICAL_ALIGN_TEXT_TOP :
-	  case HD_VERTICAL_ALIGN_SUPER :
-	  case HD_VERTICAL_ALIGN_TOP :
-              temp_height = temp->height;
-	      break;
-	  case HD_VERTICAL_ALIGN_MIDDLE :
-              temp_height = 0.5f * temp->height + height;
-              break;
-	  case HD_VERTICAL_ALIGN_BOTTOM :
-	  case HD_VERTICAL_ALIGN_BASELINE :
-	  case HD_VERTICAL_ALIGN_TEXT_BOTTOM :
-	  case HD_VERTICAL_ALIGN_SUB :
-	  case HD_VERTICAL_ALIGN_INHERIT :
-	      temp_height = temp->height;
-              break;
-	}
-
 	if ((border = htmlGetAttr(temp, "BORDER")) != NULL)
 	  borderspace = atof((char *)border);
 	else if (temp->link)
@@ -5030,7 +5023,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
         borderspace *= PagePrintWidth / _htmlStyleSheet->browser_width;
 
-        temp_height += 2 * borderspace;
+        temp_height = temp->height + 2 * borderspace;
       }
 
 #ifdef DEBUG
@@ -6792,9 +6785,15 @@ parse_table(hdTree   *t,		// I - Tree to parse
     border_left = col_lefts[0] - cellpadding;
     width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
 
-    if (cells[row][0] &&
-        (bgcolor = htmlGetAttr(cells[row][0]->parent,
-                                   "BGCOLOR")) != NULL)
+    for (bgcolor = NULL, col = 0; col < num_cols; col ++)
+      if (row_spans[col] <= rowspan &&
+          cells[row][col] &&
+	  !htmlGetAttr(cells[row][col], "ROWSPAN") &&
+          (bgcolor = htmlGetAttr(cells[row][col]->parent,
+                                 "BGCOLOR")) != NULL)
+        break;
+
+    if (bgcolor)
     {
       memcpy(bgrgb, background_color, sizeof(bgrgb));
 
@@ -9873,6 +9872,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
   {
     switch (leftcount)
     {
+      default :
       case 0 :
           b = (((((data[0] << 8) | data[1]) << 8) | data[2]) << 8) | data[3];
 	  break;
@@ -9887,7 +9887,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
 	  break;
     }
 
-    if (col >= 64)
+    if (col >= 76)
     {
       col = 0;
       putc('\n', out);
@@ -9933,7 +9933,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
   if (eod)
   {
     // Do the end-of-data dance...
-    if (col >= 64)
+    if (col >= 76)
     {
       col = 0;
       putc('\n', out);
@@ -9956,6 +9956,8 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
       c[0] = b + '!';
 
       fwrite(c, leftcount + 1, 1, out);
+
+      leftcount = 0;
     }
 
     fputs("~>\n", out);
@@ -10242,7 +10244,7 @@ write_image(FILE     *out,		/* I - Output file */
       indbits = 8;
 
     indwidth = (img->width * indbits + 7) / 8;
-    indices  = (hdChar *)malloc(indwidth * img->height);
+    indices  = (hdChar *)calloc(indwidth, img->height);
 
     if (img->depth == 1)
     {
@@ -10921,6 +10923,8 @@ write_image(FILE     *out,		/* I - Output file */
 	  fputs("/DataSource currentfile/ASCIIHexDecode filter>>image\n", out);
 
 	  ps_hex(out, indices, indwidth * img->height);
+	  // End of data marker...
+	  fputs(">\n", out);
 #endif /* HTMLDOC_ASCII85 */
         }
 	else if (OutputJPEG)
@@ -10965,6 +10969,9 @@ write_image(FILE     *out,		/* I - Output file */
 
 #ifdef HTMLDOC_ASCII85
           ps_ascii85(out, (hdChar *)"", 0, 1);
+#else
+	  // End of data marker...
+	  fputs(">\n", out);
 #endif // HTMLDOC_ASCII85
         }
         else
@@ -10989,12 +10996,15 @@ write_image(FILE     *out,		/* I - Output file */
           fputs("/DataSource currentfile/ASCII85Decode filter"
 	        ">>image\n", out);
 
-	  ps_ascii85(out, img->pixels, img->width * img->height * img->depth, 1);
+	  ps_ascii85(out, img->pixels, img->width * img->height *
+	                               img->depth, 1);
 #else
           fputs("/DataSource currentfile/ASCIIHexDecode filter"
 	        ">>image\n", out);
 
-	  ps_hex(out, img->pixels, img->width * img->height * img->depth);
+	  ps_hex(out, img->pixels, img->width * img->depth * img->height);
+	  // End of data marker...
+	  fputs(">\n", out);
 #endif // HTMLDOC_ASCII85
         }
 
@@ -11368,7 +11378,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     else
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
-    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2005 Easy Software Products, All Rights Reserved.\n", out);
+    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2006 Easy Software Products, All Rights Reserved.\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%+03d%02d\n",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
@@ -11756,7 +11766,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     info_object = pdf_start_object(out);
 
     fputs("/Producer", out);
-    write_string(out, (hdChar *)"htmldoc " SVERSION " Copyright 1997-2005 Easy "
+    write_string(out, (hdChar *)"htmldoc " SVERSION " Copyright 1997-2006 Easy "
                                "Software Products, All Rights Reserved.", 0);
     fputs("/CreationDate", out);
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
@@ -11769,7 +11779,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     if (doc_title != NULL)
     {
       fputs("/Title", out);
-      write_string(out, doc_title, 0);
+      write_utf16(out, doc_title);
     }
 
     if (author != NULL || copyright != NULL)
@@ -11782,25 +11792,25 @@ write_prolog(FILE  *out,		/* I - Output file */
         strlcpy(temp, (const char *)copyright, sizeof(temp));
 
       fputs("/Author", out);
-      write_string(out, (hdChar *)temp, 0);
+      write_utf16(out, (hdChar *)temp);
     }
 
     if (creator != NULL)
     {
       fputs("/Creator", out);
-      write_string(out, creator, 0);
+      write_utf16(out, creator);
     }
 
     if (keywords != NULL)
     {
       fputs("/Keywords", out);
-      write_string(out, keywords, 0);
+      write_utf16(out, keywords);
     }
 
     if (subject != NULL)
     {
       fputs("/Subject", out);
-      write_string(out, subject, 0);
+      write_utf16(out, subject);
     }
 
     pdf_end_object(out);
@@ -11880,9 +11890,9 @@ write_prolog(FILE  *out,		/* I - Output file */
  */
 
 static void
-write_string(FILE  *out,		/* I - Output file */
+write_string(FILE   *out,		/* I - Output file */
              hdChar *s,			/* I - String */
-	     int   compress)		/* I - Compress output? */
+	     int    compress)		/* I - Compress output? */
 {
   int	i;				/* Looping var */
 
@@ -12347,7 +12357,8 @@ write_type1(FILE        *out,		/* I - File to write to */
 
     while (fgets(line, sizeof(line), fp) != NULL)
     {
-      if (strlen(line) == 65)
+      if (!strcmp(line, "00000000000000000000000000000000"
+                        "00000000000000000000000000000000\n"))
         break;
 
       length2 += (strlen(line) - 1) / 2;
@@ -12378,10 +12389,12 @@ write_type1(FILE        *out,		/* I - File to write to */
 
     while (fgets(line, sizeof(line), fp) != NULL)
     {
-      if (strlen(line) == 65)
-        break;
+      if (!strcmp(line, "00000000000000000000000000000000"
+                        "00000000000000000000000000000000\n"))
 
-      for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
+      dataptr = line;
+
+      for (lineptr = line; isxdigit(*lineptr); lineptr += 2)
       {
         if (isdigit(lineptr[0]))
 	  ch = (lineptr[0] - '0') << 4;
@@ -12445,6 +12458,80 @@ write_type1(FILE        *out,		/* I - File to write to */
   */
 
   return (num_objects - 1);
+}
+
+
+/*
+ * 'write_utf16()' - Write a UTF-16 string...
+ */
+
+static void
+write_utf16(FILE   *out,		// I - File to write to
+            hdChar *s)			// I - String to write
+{
+  const hdChar *sptr;			// Pointer into string
+
+
+ /*
+  * We start by checking to see if the string is composed only of
+  * ASCII characters; if so, we can just write a normal string...
+  */
+
+  for (sptr = s; *sptr && !(*sptr & 0x80); sptr ++);
+  if (!*sptr)
+  {
+   /*
+    * Write an ASCII string...
+    */
+
+    write_string(out, s, 0);
+  }
+  else if (Encryption)
+  {
+   /*
+    * Convert the string to Unicode and encrypt...
+    */
+
+    int		ch;			// Character value
+    hdChar	unicode[2],		// Unicode character
+		enicode[2];		// Encrypted unicode character
+
+
+    putc('<', out);
+    encrypt_init();
+
+    unicode[0] = 0xfe;			// Start with BOM
+    unicode[1] = 0xff;
+
+    rc4_encrypt(&encrypt_state, unicode, enicode, 2);
+
+    fprintf(out, "%02x%02x", enicode[0], enicode[1]);
+
+    for (sptr = s; *sptr;)
+    {
+      ch = _htmlStyleSheet->get_unicode(sptr);
+
+      unicode[0] = ch >> 8;
+      unicode[1] = ch;
+
+      rc4_encrypt(&encrypt_state, unicode, enicode, 2);
+
+      fprintf(out, "%02x%02x", enicode[0], enicode[1]);
+    }
+
+    putc('>', out);
+  }
+  else
+  {
+   /*
+    * Convert the string to Unicode...
+    */
+
+    fputs("<feff", out);		// Start with BOM
+    for (sptr = s; *sptr;)
+      fprintf(out, "%04x", _htmlStyleSheet->get_unicode(sptr));
+    putc('>', out);
+  }
 }
 
 
@@ -12527,6 +12614,9 @@ flate_open_stream(FILE *out)		/* I - Output file */
 static void
 flate_close_stream(FILE *out)		/* I - Output file */
 {
+  int	status;				/* Deflate status */
+
+
   if (!Compression)
   {
 #ifdef HTMLDOC_ASCII85
@@ -12537,8 +12627,14 @@ flate_close_stream(FILE *out)		/* I - Output file */
     return;
   }
 
-  while (deflate(&compressor, Z_FINISH) != Z_STREAM_END)
+  while ((status = deflate(&compressor, Z_FINISH)) != Z_STREAM_END)
   {
+    if (status < Z_OK && status != Z_BUF_ERROR)
+    {
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "deflate() failed (%d)", status);
+      return;
+    }
+
     if (PSLevel)
 #ifdef HTMLDOC_ASCII85
       ps_ascii85(out, comp_buffer,
@@ -12590,6 +12686,12 @@ flate_close_stream(FILE *out)		/* I - Output file */
 #ifdef HTMLDOC_ASCII85
   if (PSLevel)
     ps_ascii85(out, (hdChar *)"", 0, 1);
+#else
+  if (PSLevel)
+  {
+    // End of data marker...
+    fputs(">\n", out);
+  }
 #endif // HTMLDOC_ASCII85
 }
 
@@ -12638,6 +12740,9 @@ flate_write(FILE  *out,			/* I - Output file */
             int   length,		/* I - Number of bytes to write */
 	    int   flush)		/* I - Flush when writing data? */
 {
+  int	status;				/* Deflate status */
+
+
   if (compressor_active)
   {
     compressor.next_in  = buf;
@@ -12669,7 +12774,14 @@ flate_write(FILE  *out,			/* I - Output file */
 	compressor.avail_out = sizeof(comp_buffer);
       }
 
-      deflate(&compressor, flush ? Z_FULL_FLUSH : Z_NO_FLUSH);
+      status = deflate(&compressor, flush ? Z_FULL_FLUSH : Z_NO_FLUSH);
+
+      if (status < Z_OK && status != Z_BUF_ERROR)
+      {
+	progress_error(HD_ERROR_OUT_OF_MEMORY, "deflate() failed (%d)", status);
+	return;
+      }
+
       flush = 0;
     }
   }
