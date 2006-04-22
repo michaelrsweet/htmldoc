@@ -3,7 +3,7 @@
 //
 //   Basic stylesheet routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2005 by Easy Software Products.
+//   Copyright 1997-2006 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -719,6 +719,66 @@ hdStyleSheet::get_glyph(const char *s)	// I - Glyph name
 
 
 //
+// 'hdStyleSheet::get_unicode()' - Get a Unicode character value.
+//
+
+int					// O  - Unicode value
+hdStyleSheet::get_unicode(
+    const hdChar *&s)			// IO - String pointer
+{
+  int	ch,				// Next character from string
+	i,				// Looping var
+	count;				// Number of bytes in UTF-8 encoding
+
+
+  // Handle the easy cases...
+  if (!s || !*s)
+    return (0);
+  else if (encoding == HD_FONT_ENCODING_8BIT)
+    return (unicode[*s++]);
+
+  // OK, extract a single UTF-8 encoded char...  This code also supports
+  // reading ISO-8859-1 characters that are masquerading as UTF-8.
+  if (*s < 192)
+    return (*s++);
+
+  if ((*s & 0xe0) == 0xc0)
+  {
+    ch    = *s & 0x1f;
+    count = 1;
+  }
+  else if ((*s & 0xf0) == 0xe0)
+  {
+    ch    = *s & 0x0f;
+    count = 2;
+  }
+  else
+  {
+    ch    = *s & 0x07;
+    count = 3;
+  }
+
+  for (i = 1; i <= count && s[i]; i ++)
+    if (s[i] < 128 || s[i] > 191)
+      break;
+    else
+      ch = (ch << 6) | (s[i] & 0x3f);
+
+  if (i <= count)
+  {
+    // Return just the initial char...
+    return (*s++);
+  }
+  else
+  {
+    // Return the decoded char...
+    s += count + 1;
+    return (ch);
+  }
+}
+
+
+//
 // 'hdStyleSheet::load()' - Load a stylesheet from the given file.
 //
 
@@ -1278,7 +1338,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
 {
   char		filename[1024];		// Glyphs filename
   FILE		*fp;			// Glyphs file
-  int		ch, unicode;		// Characters
+  int		ch, unich;		// Characters
 
 
   // Validate the character set name...
@@ -1330,6 +1390,7 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   encoding   = HD_FONT_ENCODING_8BIT;
 
   memset(glyphs, 0, num_glyphs * sizeof(char *));
+  memset(unicode, 0, sizeof(unicode));
 
   // Now read all of the remaining lines from the file in the format:
   //
@@ -1339,23 +1400,24 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   // there is no support for CJK fonts in the current code, there is
   // little point...  This will be addressed in a future release...
 
-  while (fscanf(fp, "%x%x", &ch, &unicode) == 2)
+  while (fscanf(fp, "%x%x", &ch, &unich) == 2)
   {
-    if (ch < 0 || ch > 255 || unicode < 0 || unicode > 0xffff)
+    if (ch < 0 || ch > 255 || unich < 0 || unich > 0xffff)
       progress_error(HD_ERROR_BAD_FORMAT,
                      "Bad character %x to unicode %x mapping in %s!",
-		     ch, unicode, filename);
+		     ch, unich, filename);
     else
     {
-      if (!uniglyphs[unicode])
+      if (!uniglyphs[unich])
       {
         char uniglyph[32];
 
-	sprintf(uniglyph, "uni%04x", unicode);
-	uniglyphs[unicode] = strdup(uniglyph);
+	sprintf(uniglyph, "uni%04x", unich);
+	uniglyphs[unich] = strdup(uniglyph);
       }
 
-      glyphs[ch] = uniglyphs[unicode];
+      glyphs[ch]  = uniglyphs[unich];
+      unicode[ch] = unich;
     }
   }
 
