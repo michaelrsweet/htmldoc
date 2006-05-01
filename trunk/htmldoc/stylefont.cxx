@@ -140,7 +140,7 @@ hdStyleFont::~hdStyleFont()
     free(font_file);
 
   if (width_file)
-    free(font_file);
+    free(width_file);
 }
 
 
