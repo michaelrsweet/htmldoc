@@ -6036,7 +6036,12 @@ parse_table(tree_t *t,			// I - Tree to parse
     if (col_widths[col] > 0.0f)
     {
       if (col_mins[col] > col_widths[col])
+      {
+        DEBUG_printf(("    updating column %d to width=%.1f\n", col,
+	              col_mins[col]));
+
         col_widths[col] = col_mins[col];
+      }
 
       actual_width += col_widths[col];
     }
@@ -8940,6 +8945,24 @@ get_cell_size(tree_t *t,		// I - Cell
     switch (temp->markup)
     {
       case MARKUP_TABLE :
+	  // Update widths...
+	  if (frag_pref > prefw)
+	    prefw = frag_pref;
+
+	  if (frag_width > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
+	        	  frag_width, minw));
+	    minw = frag_width;
+	  }
+
+	  if (nowrap && frag_pref > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for break...\n",
+	        	  frag_pref, minw));
+	    minw = frag_pref;
+	  }
+
           // For nested tables, compute the width of the table.
           frag_width = get_table_size(temp, left, right, &frag_min,
 	                              &frag_pref, &frag_height);
@@ -9049,7 +9072,11 @@ get_cell_size(tree_t *t,		// I - Cell
               minw = frag_width;
 	    }
 
-            frag_width = 0.0f;
+	    if (!isspace(temp->data[0]))
+              frag_width = 0.0f;
+
+            DEBUG_printf(("frag_width=%.1f after whitespace processing...\n",
+	                  frag_width));
 	  }
 	  else if (temp->data != NULL)
             frag_width += temp->width + 1;
@@ -9091,6 +9118,13 @@ get_cell_size(tree_t *t,		// I - Cell
 	  if (frag_pref > prefw)
 	    prefw = frag_pref;
 
+          if (frag_width > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
+	                  frag_width, minw));
+            minw = frag_width;
+	  }
+
 	  if (nowrap && frag_pref > minw)
 	  {
 	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for break...\n",
@@ -9131,6 +9165,13 @@ get_cell_size(tree_t *t,		// I - Cell
   // Check the last fragment's width...
   if (frag_pref > prefw)
     prefw = frag_pref;
+
+  if (frag_width > minw)
+  {
+    DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
+	          frag_width, minw));
+    minw = frag_width;
+  }
 
   // Handle the "NOWRAP" option...
   if (nowrap && prefw > minw)
