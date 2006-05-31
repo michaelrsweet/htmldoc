@@ -7219,8 +7219,10 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 		hfspace;	/* Space for header/footer */
 
 
-  DEBUG_printf(("parse_comment(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d, para=%p, needspace=%d\n",
-                t, *left, *right, *x, *y, *page, para, needspace));
+  DEBUG_printf(("parse_comment(t=%p, left=%.1f, right=%.1f, bottom=%.1f, "
+                "top=%.1f, x=%.1f, y=%.1f, page=%d, para=%p, needspace=%d\n",
+                t, *left, *right, *bottom, *top, *x, *y, *page, para,
+		needspace));
 
   if (t->data == NULL)
     return;
@@ -7808,8 +7810,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         PagePrintLength = PageLength - PageTop - PageBottom;
 
-      *top = PagePrintLength - *top;
-      *y   = *top;
+      *top    = PagePrintLength - *top;
+      *y      = *top;
 
       // Skip bottom...
       while (*comment && !isspace(*comment))
