@@ -5251,8 +5251,6 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		  break;
 	      case ALIGN_MIDDLE :
 		  offset = 0.5f * (height - temp->height) - borderspace;
-		  fprintf(stderr, "IMG ALIGN=MIDDLE offset=%.1f, height=%.1f, temp->height=%.1f\n",
-		          offset, height, temp->height);
 		  break;
 	      case ALIGN_BOTTOM :
 		  offset = 0.0f;
@@ -6371,7 +6369,8 @@ parse_table(tree_t *t,			// I - Tree to parse
            col < num_cols;
 	   col ++)
         if (cells[row][col] != NULL &&
-	    cells[row][col]->height > temp_height)
+	    cells[row][col]->height > temp_height &&
+	    !htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN"))
 	  temp_height = cells[row][col]->height;
 
       if (table_height > 0.0)
