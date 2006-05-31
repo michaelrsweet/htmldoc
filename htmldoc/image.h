@@ -64,7 +64,8 @@ typedef struct			/**** Image structure ****/
  * Prototypes...
  */
 
-extern void	image_copy(const char *filename, const char *destpath);
+extern void	image_copy(const char *src, const char *realsrc,
+		           const char *destpath);
 extern image_t	*image_find(const char *filename, int load_data = 0);
 extern void	image_flush_cache(void);
 extern int	image_getlist(image_t ***ptrs);

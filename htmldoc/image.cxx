@@ -557,45 +557,54 @@ image_compare(image_t **img1,	/* I - First image */
  */
 
 void
-image_copy(const char *filename,/* I - Source file */
-           const char *destpath)/* I - Destination path */
+image_copy(const char *src,		/* I - Source file */
+           const char *realsrc,		/* I - Real source file */
+           const char *destpath)	/* I - Destination path */
 {
-  char	dest[255];		/* Destination file */
-  FILE	*in, *out;		/* Input/output files */
-  uchar	buffer[8192];		/* Data buffer */
-  int	nbytes;			/* Number of bytes in buffer */
+  char		dest[255];		/* Destination file */
+  FILE		*in, *out;		/* Input/output files */
+  uchar		buffer[8192];		/* Data buffer */
+  int		nbytes;			/* Number of bytes in buffer */
 
+
+  if (!src || !realsrc || !destpath)
+    return;
 
  /*
   * Figure out the destination filename...
   */
 
-  if (strcmp(destpath, ".") == 0)
-    strlcpy(dest, file_basename(filename), sizeof(dest));
+  if (!strcmp(destpath, "."))
+    strlcpy(dest, file_basename(src), sizeof(dest));
   else
-    snprintf(dest, sizeof(dest), "%s/%s", destpath, file_basename(filename));
+    snprintf(dest, sizeof(dest), "%s/%s", destpath, file_basename(src));
 
-  if (strcmp(dest, filename) == 0)
+  if (!strcmp(dest, realsrc))
     return;
 
  /*
   * Open files and copy...
   */
 
-  if ((filename = file_find(Path, filename)) == NULL)
+  if ((in = fopen(realsrc, "rb")) == NULL)
+  {
+    progress_error(HD_ERROR_READ_ERROR, "Unable to open \"%s\" - %s",
+                   realsrc, strerror(errno));
     return;
-
-  if ((in = fopen(filename, "rb")) == NULL)
-    return;
+  }
 
   if ((out = fopen(dest, "wb")) == NULL)
   {
+    progress_error(HD_ERROR_READ_ERROR, "Unable to create \"%s\" - %s",
+                   dest, strerror(errno));
     fclose(in);
     return;
   }
 
   while ((nbytes = fread(buffer, 1, sizeof(buffer), in)) > 0)
     fwrite(buffer, 1, nbytes, out);
+
+  progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
   fclose(in);
   fclose(out);

@@ -118,14 +118,11 @@ htmlsep_export(tree_t *document,	// I - Document to export
 
   // Copy logo and title images...
   if (LogoImage[0])
-  {
-    if (LogoImage[0])
-      image_copy(LogoImage, OutputPath);
+    image_copy(LogoImage, file_find(LogoImage, Path), OutputPath);
 
-    for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
-      if (HFImage[hfi][0])
-        image_copy(HFImage[hfi], OutputPath);
-  }
+  for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
+    if (HFImage[hfi][0])
+      image_copy(HFImage[hfi], file_find(HFImage[hfi], Path), OutputPath);
 
   if (TitleImage[0] && TitlePage &&
 #ifdef WIN32
@@ -139,7 +136,7 @@ htmlsep_export(tree_t *document,	// I - Document to export
       strcmp(file_extension(TitleImage), "jpg") == 0 ||
       strcmp(file_extension(TitleImage), "png") == 0)
 #endif // WIN32
-    image_copy(TitleImage, OutputPath);
+    image_copy(TitleImage, file_find(TitleImage, Path), OutputPath);
 
   // Get document strings...
   title     = get_title(document);
@@ -581,6 +578,7 @@ write_node(FILE   *out,		/* I - Output file */
   uchar		*ptr,		/* Pointer to output string */
 		*entity,	/* Entity string */
 		*src,		/* Source image */
+		*realsrc,	/* Real source image */
 		newsrc[1024];	/* New source image filename */
 
 
@@ -681,7 +679,8 @@ write_node(FILE   *out,		/* I - Output file */
 
     default :
 	if (t->markup == MARKUP_IMG &&
-            (src = htmlGetVariable(t, (uchar *)"REALSRC")) != NULL)
+            (src = htmlGetVariable(t, (uchar *)"SRC")) != NULL &&
+            (realsrc = htmlGetVariable(t, (uchar *)"REALSRC")) != NULL)
 	{
 	 /*
           * Update local images...
@@ -691,7 +690,7 @@ write_node(FILE   *out,		/* I - Output file */
               src[0] != '/' && src[0] != '\\' &&
 	      (!isalpha(src[0]) || src[1] != ':'))
           {
-            image_copy((char *)src, OutputPath);
+            image_copy((char *)src, (char *)realsrc, OutputPath);
             strlcpy((char *)newsrc, file_basename((char *)src), sizeof(newsrc));
             htmlSetVariable(t, (uchar *)"SRC", newsrc);
           }
