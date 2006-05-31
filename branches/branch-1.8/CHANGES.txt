@@ -5,6 +5,8 @@ CHANGES IN HTMLDOC v1.8.27
 
     BUG FIXES
 
+	- Table cell width calculations didn't always account for
+	  the proper minimum width (STR #121)
 	- Images were not copied when generating indexed HTML
 	  output to a directory (STR #117)
 	- Changing the bottom margin resulted in text that was
