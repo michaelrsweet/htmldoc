@@ -1,5 +1,15 @@
-CHANGES.txt - 03/29/2006
+CHANGES.txt - 05/30/2006
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.27
+
+    BUG FIXES
+
+	- Changing the bottom margin resulted in text that was
+	  formatted below the bottom margin.
+	- The Monospace-Oblique font was not embedded properly in
+	  PDF files.
+
 
 CHANGES IN HTMLDOC v1.8.26
 
