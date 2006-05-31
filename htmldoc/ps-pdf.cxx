@@ -6760,17 +6760,17 @@ parse_table(tree_t *t,			// I - Tree to parse
 
       get_color(bgcolor, bgrgb, 0);
 
-      if (row_page < *page)
+      if (row_page > *page)
       {
         // Draw background on multiple pages...
 
 	// Bottom of first page...
-        new_render(row_page, RENDER_BOX, border_left, bottom,
+        new_render(*page, RENDER_BOX, border_left, bottom,
 	           width, row_starty - bottom + cellpadding, bgrgb,
-		   pages[row_page].start);
+		   pages[*page].start);
 
         // Intervening pages...
-        for (temp_page = row_page + 1; temp_page < *page; temp_page ++)
+        for (temp_page = *page + 1; temp_page < row_page; temp_page ++)
 	{
           new_render(temp_page, RENDER_BOX, border_left, bottom,
                      width, top - bottom, bgrgb, pages[temp_page].start);
@@ -6779,9 +6779,9 @@ parse_table(tree_t *t,			// I - Tree to parse
         // Top of last page...
 	check_pages(*page);
 
-        new_render(*page, RENDER_BOX, border_left, row_y,
+        new_render(row_page, RENDER_BOX, border_left, row_y,
 	           width, top - row_y, bgrgb,
-		   pages[*page].start);
+		   pages[row_page].start);
       }
       else
       {

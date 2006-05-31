@@ -5,6 +5,8 @@ CHANGES IN HTMLDOC v1.8.27
 
     BUG FIXES
 
+	- Rows using BGCOLOR that spanned across multiple pages
+	  did not render properly (PR #6149)
 	- Rows no longer start on a new page due to a cell with
 	  both HEIGHT and ROWSPAN specified (PR #6086)
 	- CMYK JPEG images caused HTMLDOC to crash (PR #6106)
