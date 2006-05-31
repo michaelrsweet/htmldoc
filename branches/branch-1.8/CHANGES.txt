@@ -1,10 +1,12 @@
-CHANGES.txt - 05/30/2006
+CHANGES.txt - 05/31/2006
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.27
 
     BUG FIXES
 
+	- Images were not copied when generating indexed HTML
+	  output to a directory (STR #117)
 	- Changing the bottom margin resulted in text that was
 	  formatted below the bottom margin.
 	- The Monospace-Oblique font was not embedded properly in
