@@ -862,7 +862,8 @@ image_load(const char *filename,/* I - Name of image file */
     status = image_load_jpeg(img, fp, gray, load_data);
   else
   {
-    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", filename);
+    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!",
+                   file_rlookup(filename));
     fclose(fp);
     free(img);
     return (NULL);
@@ -872,7 +873,8 @@ image_load(const char *filename,/* I - Name of image file */
 
   if (status)
   {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!", filename);
+    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!",
+                   file_rlookup(filename));
     if (!match)
       free(img);
     return (NULL);
@@ -1400,7 +1402,16 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
     cinfo.out_color_components = 1;
     cinfo.output_components    = 1;
   }
-  else
+  else if (cinfo.num_components != 3)
+  {
+    jpeg_destroy_decompress(&cinfo);
+
+    progress_error(HD_ERROR_BAD_FORMAT,
+                   "CMYK JPEG files are not supported! (%s)",
+		   file_rlookup(img->filename));
+    return (-1);
+  }
+  else             
   {
     cinfo.out_color_space      = JCS_RGB;
     cinfo.out_color_components = 3;
