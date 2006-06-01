@@ -2103,6 +2103,7 @@ ps_write_page(FILE  *out,	/* I - Output file */
   render_t	*r,		/* Render pointer */
 		*next;		/* Next render */
   page_t	*p;		/* Current page */
+  const char	*debug;		/* HTMLDOC_DEBUG environment variable */
 
 
   if (page < 0 || page >= alloc_pages)
@@ -2185,6 +2186,13 @@ ps_write_page(FILE  *out,	/* I - Output file */
   }
 
   p->start = NULL;
+
+  if ((debug = getenv("HTMLDOC_DEBUG")) != NULL && strstr(debug, "margin"))
+  {
+    // Show printable area...
+    fprintf(out, "1 0 1 C 0 0 %d %d B\n", p->width - p->right - p->left,
+        	 p->length - p->top - p->bottom);
+  }
 
  /*
   * Output the page trailer...
@@ -2630,6 +2638,7 @@ pdf_write_page(FILE  *out,	/* I - Output file */
 		*next;		/* Next render */
   float		box[3];		/* RGB color for boxes */
   page_t	*p;		/* Current page */
+  const char	*debug;		/* HTMLDOC_DEBUG environment variable */
 
 
   if (page < 0 || page >= alloc_pages)
@@ -2732,6 +2741,13 @@ pdf_write_page(FILE  *out,	/* I - Output file */
   p->start = NULL;
 
   flate_puts("ET\n", out);
+
+  if ((debug = getenv("HTMLDOC_DEBUG")) != NULL && strstr(debug, "margin"))
+  {
+    // Show printable area...
+    flate_printf(out, "1 0 1 RG 0 0 %d %d re S\n", p->width - p->right - p->left,
+        	 p->length - p->top - p->bottom);
+  }
 
  /*
   * Output the page trailer...
@@ -7814,8 +7830,8 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         PagePrintLength = PageLength - PageTop - PageBottom;
 
-      *top    = PagePrintLength - *top;
-      *y      = *top;
+      *top = PagePrintLength - *top;
+      *y   = *top;
 
       // Skip bottom...
       while (*comment && !isspace(*comment))
@@ -8087,7 +8103,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       // Adjust top margin as needed...
       for (pos = 0; pos < 3; pos ++)
-        if (Header[pos])
+        if (Header[pos] || Header1[pos])
 	  break;
 
       if (pos < 3)
@@ -8183,10 +8199,30 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
 	pages[*page].header1[pos] = (uchar *)Header1[pos];
       }
+
+      // Adjust top margin as needed...
+      for (pos = 0; pos < 3; pos ++)
+        if (Header[pos] || Header1[pos])
+	  break;
+
+      if (pos < 3)
+      {
+	if (maxhfheight > HeadFootSize)
+          hfspace = (int)(maxhfheight + HeadFootSize);
+	else
+          hfspace = (int)(2 * HeadFootSize);
+      }
+      else
+        hfspace = 0;
+
+      *top = PagePrintLength - hfspace;
+
+      if (tof)
+        *y = *top;
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
-      // Header string...
+      // Footer string...
       comment += 7;
 
       while (isspace(*comment))
@@ -8272,8 +8308,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         hfspace = (int)(2 * HeadFootSize);
 
-      if (tof)
-        *bottom = hfspace;
+      *bottom = hfspace;
     }
     else if (strncasecmp(comment, "NUMBER-UP ", 10) == 0)
     {
