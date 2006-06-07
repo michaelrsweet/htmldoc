@@ -6,6 +6,38 @@
 
 <P>This appendix provides the release notes for each version of HTMLDOC.
 
+<H2>Changes in HTMLDOC v1.8.27</H2>
+
+<UL>
+
+	<H3 _HD_OMIT_TOC>Bug Fixes</H3>
+
+	<LI>Image filenames using % escapes were not decoded
+	properly.</LI>
+
+	<LI>Rows using BGCOLOR that spanned across multiple pages
+	did not render properly (PR #6149)</LI>
+
+	<LI>Rows no longer start on a new page due to a cell with
+	both HEIGHT and ROWSPAN specified (PR #6086)</LI>
+
+	<LI>CMYK JPEG images caused HTMLDOC to crash (PR #6106)</LI>
+
+	<LI>Table cell width calculations didn't always account for
+	the proper minimum width (STR #121)</LI>
+
+	<LI>Images were not copied when generating indexed HTML
+	output to a directory (STR #117)</LI>
+
+	<LI>Changing the bottom margin resulted in text that was
+	formatted below the bottom margin.</LI>
+
+	<LI>The Monospace-Oblique font was not embedded properly in
+	PDF files.</LI>
+
+</UL>
+
+
 <H2>Changes in HTMLDOC v1.8.26</H2>
 
 <UL>
