@@ -1,10 +1,12 @@
-CHANGES.txt - 05/31/2006
+CHANGES.txt - 06/07/2006
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.27
 
     BUG FIXES
 
+	- Image filenames using % escapes were not decoded
+	  properly.
 	- Rows using BGCOLOR that spanned across multiple pages
 	  did not render properly (PR #6149)
 	- Rows no longer start on a new page due to a cell with
