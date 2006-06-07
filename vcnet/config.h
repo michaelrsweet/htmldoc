@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.26 Open Source"
+#define SVERSION	"1.8.27"
 
 
 /*
@@ -54,8 +54,8 @@
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"C:/Program Files/HTMLDOC/doc"
-#define HTML_DATA	"C:/Program Files/HTMLDOC"
+#define DOCUMENTATION	"C:/Program Files/Easy Software Products/HTMLDOC/doc"
+#define HTML_DATA	"C:/Program Files/Easy Software Products/HTMLDOC"
 
 
 /*
@@ -127,6 +127,20 @@
  */
 
 #undef HAVE_HSTRERROR
+
+
+/*
+ * Do we have getaddrinfo()?
+ */
+
+#define HAVE_GETADDRINFO
+
+
+/*
+ * Do we have getnameinfo()?
+ */
+
+#define HAVE_GETNAMEINFO
 
 
 /*
