@@ -557,45 +557,54 @@ image_compare(hdImage **img1,	/* I - First image */
  */
 
 void
-image_copy(const char *filename,/* I - Source file */
-           const char *destpath)/* I - Destination path */
+image_copy(const char *src,		/* I - Source file */
+           const char *realsrc,		/* I - Real source file */
+           const char *destpath)	/* I - Destination path */
 {
-  char	dest[255];		/* Destination file */
-  FILE	*in, *out;		/* Input/output files */
+  char		dest[255];		/* Destination file */
+  FILE		*in, *out;		/* Input/output files */
   hdChar	buffer[8192];		/* Data buffer */
-  int	nbytes;			/* Number of bytes in buffer */
+  int		nbytes;			/* Number of bytes in buffer */
 
+
+  if (!src || !realsrc || !destpath)
+    return;
 
  /*
   * Figure out the destination filename...
   */
 
-  if (strcmp(destpath, ".") == 0)
-    strlcpy(dest, file_basename(filename), sizeof(dest));
+  if (!strcmp(destpath, "."))
+    strlcpy(dest, file_basename(src), sizeof(dest));
   else
-    snprintf(dest, sizeof(dest), "%s/%s", destpath, file_basename(filename));
+    snprintf(dest, sizeof(dest), "%s/%s", destpath, file_basename(src));
 
-  if (strcmp(dest, filename) == 0)
+  if (!strcmp(dest, realsrc))
     return;
 
  /*
   * Open files and copy...
   */
 
-  if ((filename = file_find(Path, filename)) == NULL)
+  if ((in = fopen(realsrc, "rb")) == NULL)
+  {
+    progress_error(HD_ERROR_READ_ERROR, "Unable to open \"%s\" - %s",
+                   realsrc, strerror(errno));
     return;
-
-  if ((in = fopen(filename, "rb")) == NULL)
-    return;
+  }
 
   if ((out = fopen(dest, "wb")) == NULL)
   {
+    progress_error(HD_ERROR_READ_ERROR, "Unable to create \"%s\" - %s",
+                   dest, strerror(errno));
     fclose(in);
     return;
   }
 
   while ((nbytes = fread(buffer, 1, sizeof(buffer), in)) > 0)
     fwrite(buffer, 1, nbytes, out);
+
+  progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
   fclose(in);
   fclose(out);
@@ -853,7 +862,8 @@ image_load(const char *filename,/* I - Name of image file */
     status = image_load_jpeg(img, fp, gray, load_data);
   else
   {
-    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!", filename);
+    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!",
+                   file_rlookup(filename));
     fclose(fp);
     free(img);
     return (NULL);
@@ -863,7 +873,8 @@ image_load(const char *filename,/* I - Name of image file */
 
   if (status)
   {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!", filename);
+    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!",
+                   file_rlookup(filename));
     if (!match)
       free(img);
     return (NULL);
@@ -1390,6 +1401,15 @@ image_load_jpeg(hdImage *img,	/* I - Image pointer */
     cinfo.out_color_space      = JCS_GRAYSCALE;
     cinfo.out_color_components = 1;
     cinfo.output_components    = 1;
+  }
+  else if (cinfo.num_components != 3)
+  {
+    jpeg_destroy_decompress(&cinfo);
+
+    progress_error(HD_ERROR_BAD_FORMAT,
+                   "CMYK JPEG files are not supported! (%s)",
+		   file_rlookup(img->filename));
+    return (-1);
   }
   else
   {

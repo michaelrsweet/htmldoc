@@ -38,6 +38,8 @@
  *   file_nolocal()     - Disable access to local files.
  *   file_proxy()       - Set the proxy host for all HTTP requests.
  *   file_referer()     - Set the HTTP referer for remote accesses.
+ *   file_rlookup()     - Lookup a filename to find the original URL, if
+ *                        applicable.
  *   file_target()      - Return the target of a link.
  *   file_temp()        - Create and open a temporary file.
  */
@@ -986,6 +988,25 @@ file_referer(const char *referer)	/* I - Referer URL */
     strlcpy(referer_url, referer, sizeof(referer_url));
   else
     referer_url[0] = '\0';
+}
+
+
+/*
+ * 'file_rlookup()' - Lookup a filename to find the original URL, if applicable.
+ */
+
+const char *				/* O - URL or filename */
+file_rlookup(const char *filename)	/* I - Filename */
+{
+  int		i;			/* Looping var */
+  cache_t	*wc;			/* Current cache file */
+
+
+  for (i = web_files, wc = web_cache; i > 0; i --, wc ++)
+    if (!strcmp(wc->name, filename))
+      return (wc->url);
+
+  return (filename);
 }
 
 
