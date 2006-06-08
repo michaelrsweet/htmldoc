@@ -5268,7 +5268,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
             linewidth  += temp_width;
             lineptr    += strlen((char *)lineptr);
 
-            if (lineptr[-1] == ' ')
+            if (lineptr > line && lineptr[-1] == ' ')
               whitespace = 1;
             else
               whitespace = 0;
