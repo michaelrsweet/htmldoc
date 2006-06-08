@@ -2098,6 +2098,7 @@ ps_write_page(FILE  *out,	/* I - Output file */
   hdRender	*r,		/* Render pointer */
 		*next;		/* Next render */
   hdPage	*p;		/* Current page */
+  const char	*debug;		/* HTMLDOC_DEBUG environment variable */
 
 
   if (page < 0 || page >= alloc_pages)
@@ -2180,6 +2181,13 @@ ps_write_page(FILE  *out,	/* I - Output file */
   }
 
   p->start = NULL;
+
+  if ((debug = getenv("HTMLDOC_DEBUG")) != NULL && strstr(debug, "margin"))
+  {
+    // Show printable area...
+    fprintf(out, "1 0 1 C 0 0 %d %d B\n", p->width - p->right - p->left,
+        	 p->length - p->top - p->bottom);
+  }
 
  /*
   * Output the page trailer...
@@ -2624,6 +2632,7 @@ pdf_write_page(FILE  *out,	/* I - Output file */
 		*next;		/* Next render */
   float		box[3];		/* RGB color for boxes */
   hdPage	*p;		/* Current page */
+  const char	*debug;		/* HTMLDOC_DEBUG environment variable */
 
 
   if (page < 0 || page >= alloc_pages)
@@ -2726,6 +2735,13 @@ pdf_write_page(FILE  *out,	/* I - Output file */
   p->start = NULL;
 
   flate_puts("ET\n", out);
+
+  if ((debug = getenv("HTMLDOC_DEBUG")) != NULL && strstr(debug, "margin"))
+  {
+    // Show printable area...
+    flate_printf(out, "1 0 1 RG 0 0 %d %d re S\n", p->width - p->right - p->left,
+        	 p->length - p->top - p->bottom);
+  }
 
  /*
   * Output the page trailer...
@@ -6243,7 +6259,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
       regular_width = (width - actual_width) / num_cols;
 
       for (col = 0; col < num_cols; col ++)
-        if (!col_fixed[col] || var != NULL)
+        if (!col_fixed[col])
 	{
 	  col_widths[col] += regular_width;
 	  DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
@@ -6405,7 +6421,8 @@ parse_table(hdTree   *t,		// I - Tree to parse
            col < num_cols;
 	   col ++)
         if (cells[row][col] != NULL &&
-	    cells[row][col]->height > temp_height)
+	    cells[row][col]->height > temp_height &&
+	    !htmlGetAttr(cells[row][col], "ROWSPAN"))
 	  temp_height = cells[row][col]->height;
 
       if (table_height > 0.0)
@@ -6799,28 +6816,28 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
       get_color(bgcolor, bgrgb, 0);
 
-      if (row_page < *page)
+      if (row_page > *page)
       {
         // Draw background on multiple pages...
 
 	// Bottom of first page...
-        new_render(row_page, HD_RENDER_BOX, border_left, margins->bottom0(),
+        new_render(*page, HD_RENDER_BOX, border_left, margins->bottom0(),
 	           width, row_starty - margins->bottom0() + cellpadding, bgrgb,
-		   pages[row_page].start);
+		   pages[*page].start);
 
         // Intervening pages...
-        for (temp_page = row_page + 1; temp_page < *page; temp_page ++)
+        for (temp_page = *page + 1; temp_page < row_page; temp_page ++)
 	{
           new_render(temp_page, HD_RENDER_BOX, border_left, margins->bottom0(),
                      width, margins->length(), bgrgb, pages[temp_page].start);
         }
 
         // Top of last page...
-	check_pages(*page);
+	check_pages(row_page);
 
-        new_render(*page, HD_RENDER_BOX, border_left, row_y,
+        new_render(row_page, HD_RENDER_BOX, border_left, row_y,
 	           width, margins->top() - row_y, bgrgb,
-		   pages[*page].start);
+		   pages[row_page].start);
       }
       else
       {
@@ -8155,7 +8172,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 
       // Adjust top margin as needed...
       for (pos = 0; pos < 3; pos ++)
-        if (Header[pos])
+        if (Header[pos] || Header1[pos])
 	  break;
 
       if (pos < 3)
@@ -8254,7 +8271,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
     }
     else if (strncasecmp(comment, "FOOTER ", 7) == 0)
     {
-      // Header string...
+      // Footer string...
       comment += 7;
 
       while (isspace(*comment))
@@ -9004,6 +9021,24 @@ get_cell_size(hdTree *t,		// I - Cell
     switch (temp->element)
     {
       case HD_ELEMENT_TABLE :
+	  // Update widths...
+	  if (frag_pref > prefw)
+	    prefw = frag_pref;
+
+	  if (frag_width > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
+			  frag_width, minw));
+	    minw = frag_width;
+	  }
+
+	  if (nowrap && frag_pref > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for break...\n",
+			  frag_pref, minw));
+	    minw = frag_pref;
+	  }
+
           // For nested tables, compute the width of the table.
           frag_width = get_table_size(temp, left, right, &frag_min,
 	                              &frag_pref, &frag_height);
@@ -9114,7 +9149,11 @@ get_cell_size(hdTree *t,		// I - Cell
               minw = frag_width;
 	    }
 
-            frag_width = 0.0f;
+	    if (!isspace(temp->data[0]))
+              frag_width = 0.0f;
+
+            DEBUG_printf(("frag_width=%.1f after whitespace processing...\n",
+	                  frag_width));
 	  }
 	  else if (temp->data != NULL)
             frag_width += temp->width + 1;
@@ -9156,6 +9195,13 @@ get_cell_size(hdTree *t,		// I - Cell
 	  if (frag_pref > prefw)
 	    prefw = frag_pref;
 
+          if (frag_width > minw)
+	  {
+	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
+	                  frag_width, minw));
+            minw = frag_width;
+	  }
+
 	  if (nowrap && frag_pref > minw)
 	  {
 	    DEBUG_printf(("Setting minw to %.1f (was %.1f) for break...\n",
@@ -9196,6 +9242,13 @@ get_cell_size(hdTree *t,		// I - Cell
   // Check the last fragment's width...
   if (frag_pref > prefw)
     prefw = frag_pref;
+
+  if (frag_width > minw)
+  {
+    DEBUG_printf(("Setting minw to %.1f (was %.1f) for block...\n",
+	          frag_width, minw));
+    minw = frag_width;
+  }
 
   // Handle the "NOWRAP" option...
   if (nowrap && prefw > minw)
@@ -12391,10 +12444,9 @@ write_type1(FILE        *out,		/* I - File to write to */
     {
       if (!strcmp(line, "00000000000000000000000000000000"
                         "00000000000000000000000000000000\n"))
+        break;
 
-      dataptr = line;
-
-      for (lineptr = line; isxdigit(*lineptr); lineptr += 2)
+      for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
       {
         if (isdigit(lineptr[0]))
 	  ch = (lineptr[0] - '0') << 4;

@@ -2009,11 +2009,49 @@ fix_filename(char       *filename,	/* I - Original filename */
              const char *base)		/* I - Base directory */
 {
   char		*slash;			/* Location of slash */
+  char		temp[1024],		/* Temporary filename */
+		*tempptr;		/* Pointer into filename */
   static char	newfilename[1024];	/* New filename */
 
 
+//  printf("fix_filename(filename=\"%s\", base=\"%s\")\n", filename, base);
+
   if (filename == NULL)
     return (NULL);
+
+  // Unescape filenames as needed...
+  if (strchr(filename, '%') && !strstr(filename, "//"))
+  {
+    for (tempptr = temp; *filename && tempptr < (temp + sizeof(temp) - 1);)
+    {
+      if (*filename == '%')
+      {
+        // Decode hex-escaped filename character...
+	filename ++;
+	if (isxdigit(filename[0] & 255) && isxdigit(filename[1] & 255))
+	{
+	  if (isdigit(filename[0] & 255))
+	    *tempptr = (filename[0] - '0') << 4;
+	  else
+	    *tempptr = (tolower(filename[0]) - 'a' + 10) << 4;
+
+	  if (isdigit(filename[1] & 255))
+	    *tempptr |= filename[1] - '0';
+	  else
+	    *tempptr |= tolower(filename[0]) - 'a' + 10;
+
+          tempptr ++;
+	  filename += 2;
+	}
+	else
+	  *tempptr++ = '%';
+      }
+      else
+        *tempptr++ = *filename++;
+    }
+
+    filename = temp;
+  }
 
   if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
     return (file_find(Path, filename));
@@ -2077,6 +2115,8 @@ fix_filename(char       *filename,	/* I - Original filename */
     strlcat(newfilename, "/", sizeof(newfilename));
 
   strlcat(newfilename, filename, sizeof(newfilename));
+
+//  printf("    newfilename=\"%s\"\n", newfilename);
 
   return (file_find(Path, newfilename));
 }

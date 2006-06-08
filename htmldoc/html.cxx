@@ -95,15 +95,15 @@ static void	update_links(hdTree *t, hdChar *filename);
  * 'html_export()' - Export to HTML...
  */
 
-int				/* O - 0 = success, -1 = failure */
-html_export(hdTree *document,	/* I - Document to export */
-            hdTree *toc)	/* I - Table of contents for document */
+int					/* O - 0 = success, -1 = failure */
+html_export(hdTree *document,		/* I - Document to export */
+            hdTree *toc)		/* I - Table of contents for document */
 {
   hdChar	*title,			/* Title text */
-	*author,		/* Author name */
-	*copyright,		/* Copyright text */
-	*docnumber;		/* Document number */
-  FILE	*out;			/* Output file */
+		*author,		/* Author name */
+		*copyright,		/* Copyright text */
+		*docnumber;		/* Document number */
+  FILE		*out;			/* Output file */
 
 
  /*
@@ -113,11 +113,11 @@ html_export(hdTree *document,	/* I - Document to export */
   if (OutputFiles)
   {
     if (LogoImage[0])
-      image_copy(LogoImage, OutputPath);
+      image_copy(LogoImage, file_find(LogoImage, Path), OutputPath);
 
     for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
       if (HFImage[hfi][0])
-        image_copy(HFImage[hfi], OutputPath);
+        image_copy(HFImage[hfi], file_find(HFImage[hfi], Path), OutputPath);
   }
 
   if (OutputFiles && TitleImage[0] && TitlePage &&
@@ -132,7 +132,7 @@ html_export(hdTree *document,	/* I - Document to export */
       strcmp(file_extension(TitleImage), "jpg") == 0 ||
       strcmp(file_extension(TitleImage), "png") == 0)
 #endif // WIN32
-    image_copy(TitleImage, OutputPath);
+    image_copy(TitleImage, file_find(TitleImage, Path), OutputPath);
 
  /*
   * Get document strings...
@@ -225,18 +225,18 @@ html_export(hdTree *document,	/* I - Document to export */
  */
 
 static void
-write_header(FILE   **out,	/* IO - Output file */
-             hdChar  *filename,	/* I - Output filename */
-	     hdChar  *title,	/* I - Title for document */
-             hdChar  *author,	/* I - Author for document */
-             hdChar  *copyright,	/* I - Copyright for document */
-             hdChar  *docnumber,	/* I - ID number for document */
-	     hdTree *t)		/* I - Current document file */
+write_header(FILE   **out,		/* IO - Output file */
+             hdChar *filename,		/* I - Output filename */
+	     hdChar *title,		/* I - Title for document */
+             hdChar *author,		/* I - Author for document */
+             hdChar *copyright,		/* I - Copyright for document */
+             hdChar *docnumber,		/* I - ID number for document */
+	     hdTree *t)			/* I - Current document file */
 {
-  char		realname[1024];	/* Real filename */
-  const char	*basename;	/* Filename without directory */
-  int		newfile;	/* Non-zero if this is a new file */
-  static const char *families[] =/* Typeface names */
+  char		realname[1024];		/* Real filename */
+  const char	*basename;		/* Filename without directory */
+  int		newfile;		/* Non-zero if this is a new file */
+  static const char *families[] =	/* Typeface names */
 		{
 		  "monospace",
 		  "serif",
@@ -397,8 +397,8 @@ write_header(FILE   **out,	/* IO - Output file */
  */
 
 static void
-write_footer(FILE **out,	/* IO - Output file pointer */
-	     hdTree *t)		/* I - Current document file */
+write_footer(FILE   **out,		/* IO - Output file pointer */
+	     hdTree *t)			/* I - Current document file */
 {
   if (*out == NULL)
     return;
@@ -447,15 +447,15 @@ write_footer(FILE **out,	/* IO - Output file pointer */
  */
 
 static void
-write_title(FILE  *out,		/* I - Output file */
-            hdChar *title,	/* I - Title for document */
-            hdChar *author,	/* I - Author for document */
-            hdChar *copyright,	/* I - Copyright for document */
-            hdChar *docnumber)	/* I - ID number for document */
+write_title(FILE   *out,		/* I - Output file */
+            hdChar *title,		/* I - Title for document */
+            hdChar *author,		/* I - Author for document */
+            hdChar *copyright,		/* I - Copyright for document */
+            hdChar *docnumber)		/* I - ID number for document */
 {
-  FILE		*fp;		/* Title file */
-  const char	*title_file;	/* Location of title file */
-  hdTree	*t;		/* Title file document tree */
+  FILE		*fp;			/* Title file */
+  const char	*title_file;		/* Location of title file */
+  hdTree	*t;			/* Title file document tree */
 
 
   if (out == NULL)
@@ -546,10 +546,10 @@ write_title(FILE  *out,		/* I - Output file */
  * 'write_all()' - Write all markup text for the given tree.
  */
 
-static int			/* O - Current column */
-write_all(FILE   *out,		/* I - Output file */
-          hdTree *t,		/* I - Document tree */
-          int    col)		/* I - Current column */
+static int				/* O - Current column */
+write_all(FILE   *out,			/* I - Output file */
+          hdTree *t,			/* I - Document tree */
+          int    col)			/* I - Current column */
 {
   if (out == NULL)
     return (0);
@@ -581,7 +581,8 @@ write_node(FILE   *out,			/* I - Output file */
 {
   int		i;			/* Looping var */
   const hdChar	*ptr,			/* Pointer to output string */
-		*src;			/* Source image */
+		*src,			/* Source image */
+		*realsrc;		/* Real source image */
   hdChar	newsrc[1024];		/* New source image filename */
   const char	*entity;		/* Entity string */
 
@@ -683,19 +684,20 @@ write_node(FILE   *out,			/* I - Output file */
 
     default :
 	if (t->element == HD_ELEMENT_IMG && OutputFiles &&
-            (src = htmlGetAttr(t, "_HD_SRC")) != NULL)
+            (src = htmlGetAttr(t, "SRC")) != NULL &&
+            (realsrc = htmlGetAttr(t, "_HD_SRC")) != NULL)
 	{
 	 /*
-          * Update local images...
+          * Update and copy local images...
           */
 
           if (file_method((char *)src) == NULL &&
               src[0] != '/' && src[0] != '\\' &&
 	      (!isalpha(src[0]) || src[1] != ':'))
           {
-            image_copy((char *)src, OutputPath);
+            image_copy((char *)src, (char *)realsrc, OutputPath);
             strlcpy((char *)newsrc, file_basename((char *)src), sizeof(newsrc));
-            htmlSetAttr(t, "_HD_SRC", newsrc);
+            htmlSetAttr(t, "SRC", newsrc);
           }
 	}
 

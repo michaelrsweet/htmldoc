@@ -52,6 +52,7 @@ extern const char	*file_method(const char *s);
 extern void		file_nolocal();
 extern void		file_proxy(const char *url);
 extern void		file_referer(const char *referer);
+extern const char	*file_rlookup(const char *filename);
 extern const char	*file_target(const char *s);
 extern FILE		*file_temp(char *name, int len);
 
