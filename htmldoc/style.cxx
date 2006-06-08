@@ -858,6 +858,9 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
   if (direction != HD_DIRECTION_INHERIT)
     direction = p->direction;
 
+  if (display != HD_DISPLAY_INHERIT)
+    display = p->display;
+
   if (float_ != HD_FLOAT_INHERIT)
     float_ = p->float_;
 

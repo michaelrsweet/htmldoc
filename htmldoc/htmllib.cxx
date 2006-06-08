@@ -191,7 +191,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
     if (parent)
     {
       t->link  = parent->link;
-      t->style = parent->style;
+      t->style = parent->style ? parent->style :
+                                 _htmlStyleSheet->find_style(parent);
     }
 
    /*
@@ -1145,7 +1146,7 @@ htmlNewTree(hdTree    *parent,		//* I - Parent entry
   if (parent)
     t->link = parent->link;
 
-  if (parent && data)
+  if (parent && parent->style && data)
     t->style = parent->style;
   else if (t->element < HD_ELEMENT_A)
     t->style = _htmlStyleSheet->find_style(HD_ELEMENT_BODY);
@@ -2459,6 +2460,10 @@ htmlInitStyleSheet(void)
     _htmlStyleSheet->load(fp, _htmlData);
     fclose(fp);
   }
+  else
+    progress_error(HD_ERROR_FILE_NOT_FOUND,
+                   "Unable to open standard stylesheet \"%s\" - %s",
+		   filename, strerror(errno));
 
   _htmlStyleSheet->update_styles();
 }

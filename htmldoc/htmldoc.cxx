@@ -366,6 +366,9 @@ main(int  argc,				/* I - Number of command-line arguments */
         _htmlData = argv[i];
       else
         usage(argv[i - 1]);
+
+      htmlDeleteStyleSheet();
+      htmlInitStyleSheet();
     }
     else if (compare_strings(argv[i], "--duplex", 4) == 0)
       PageDuplex = 1;
@@ -1153,6 +1156,9 @@ main(int  argc,				/* I - Number of command-line arguments */
 
   if (num_files == 0 || document == NULL)
     usage("No HTML files!");
+
+  if (!_htmlStyleSheet || _htmlStyleSheet->num_styles == 0)
+    usage("Missing standard.css!");
 
  /*
   * Find the first one in the list...
