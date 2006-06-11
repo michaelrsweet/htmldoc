@@ -1,22 +1,35 @@
-/*
- * "$Id$"
- *
- *   Test program for HTML parsing routines for HTMLDOC, an HTML document
- *   processing program.
- *
- *   Copyright 1997-2005 by Michael Sweet.
- *
- *   HTMLDOC is distributed under the terms of the Aladdin Free Public License
- *   which is described in the file "LICENSE.txt".
- *
- * Contents:
- *
- *   main() - Main entry for test program.
- */
+//
+// "$Id$"
+//
+//   Test program for HTML parsing routines for HTMLDOC, an HTML document
+//   processing program.
+//
+//   Copyright 1997-2006 by Easy Software Products.
+//
+//   These coded instructions, statements, and computer programs are the
+//   property of Easy Software Products and are protected by Federal
+//   copyright law.  Distribution and use rights are outlined in the file
+//   "COPYING.txt" which should have been included with this file.  If this
+//   file is missing or damaged please contact Easy Software Products
+//   at:
+//
+//       Attn: ESP Licensing Information
+//       Easy Software Products
+//       44141 Airport View Drive, Suite 204
+//       Hollywood, Maryland 20636 USA
+//
+//       Voice: (301) 373-9600
+//       EMail: info@easysw.com
+//         WWW: http://www.easysw.com
+//
+// Contents:
+//
+//   main() - Main entry for test program.
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 #define _HTMLDOC_CXX_
 #include "htmldoc.h"
@@ -26,9 +39,9 @@ void	prefs_load(void) { }
 void	prefs_save(void) { }
 
 
-/*
- * 'main()' - Main entry for test program.
- */
+//
+// 'main()' - Main entry for test program.
+//
 
 int				/* O - Exit status */
 main(int  argc,			/* I - Number of command-line arguments */
@@ -130,6 +143,10 @@ main(int  argc,			/* I - Number of command-line arguments */
     return(1);
   };
 
+  _htmlData = "..";
+
+  htmlInitStyleSheet();
+
   for (i = 1, doc = NULL; i < argc; i ++)
     if ((fp = fopen(file_find("", argv[i]), "r")) != NULL)
     {
@@ -166,6 +183,6 @@ main(int  argc,			/* I - Number of command-line arguments */
 }
 
 
-/*
- * End of "$Id$".
- */
+//
+// End of "$Id$".
+//

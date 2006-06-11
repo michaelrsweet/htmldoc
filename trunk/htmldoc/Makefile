@@ -33,11 +33,10 @@ include ../Makedefs
 # Object files...
 #
 
-OBJS	=	\
+BASEOBJS =	\
 		entity.o \
 		file.o \
 		html.o \
-		htmldoc.o \
 		htmllib.o \
 		htmlsep.o \
 		http.o \
@@ -59,7 +58,11 @@ OBJS	=	\
 		styletree.o \
 		toc.o \
 		util.o
-
+OBJS	=	\
+		$(BASEOBJS) \
+		htmldoc.o \
+		testhtml.o \
+		teststyle.o
 SRCS	=	\
 		entity.cxx \
 		file.c \
@@ -94,7 +97,7 @@ SRCS	=	\
 # Make everything...
 #
 
-all:	htmldoc$(EXEEXT) teststyle$(EXEEXT)
+all:	htmldoc$(EXEEXT) testhtml$(EXEEXT) teststyle$(EXEEXT)
 
 #
 # Install everything...
@@ -136,47 +139,28 @@ depend:
 # htmldoc
 #
 
-htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
+htmldoc$(EXEEXT):	htmldoc.o $(BASEOBJS) ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) htmldoc.o $(BASEOBJS) $(LIBS)
 
 
 #
 # testhtml
 #
 
-testhtml$(EXEEXT):	testhtml.o file.o htmllibd.o http.o \
-		http-addr.o http-addrlist.o http-support.o image.o iso8859.o \
-		md5.o rc4.o progress.o ps-pdf.o toc.o util.o html.o \
-		htmlsep.o string.o ../Makedefs
+testhtml$(EXEEXT):	testhtml.o $(BASEOBJS) ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o file.o htmllibd.o \
-		http.o http-addr.o http-addrlist.o http-support.o image.o iso8859.o \
-		progress.o ps-pdf.o toc.o util.o string.o \
-		md5.o rc4.o html.o htmlsep.o ../license3/liblicense.a $(LIBS)
+	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o $(BASEOBJS) $(LIBS)
 
-htmllibd.o:	htmllib.cxx ../config.h ../Makedefs debug.h html.h htmldoc.h \
-		image.h iso8859.h types.h
-	echo Compiling $<...
-	$(CXX) $(CXXFLAGS) -DDEBUG -o htmllibd.o -c htmllib.cxx
 
 
 #
 # teststyle
 #
 
-teststyle$(EXEEXT):	teststyle.o \
-	                file.o http.o http-addr.o http-addrlist.o \
-			http-support.o snprintf.o string.o \
-			style.o stylefont.o stylemedia.o stylesheet.o \
-			../Makedefs
+teststyle$(EXEEXT):	teststyle.o $(BASEOBJS) ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o teststyle$(EXEEXT) teststyle.o \
-	                file.o http.o http-addr.o http-addrlist.o \
-			http-support.o snprintf.o string.o \
-			style.o stylefont.o stylemedia.o stylesheet.o $(LIBS)
-
-teststyle.o:	../Makedefs ../config.h
+	$(CXX) $(LDFLAGS) -o teststyle$(EXEEXT) teststyle.o $(BASEOBJS) $(LIBS)
 
 
 #

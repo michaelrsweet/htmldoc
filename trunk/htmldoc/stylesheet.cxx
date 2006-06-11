@@ -96,14 +96,16 @@ hdStyleSheet::hdStyleSheet()
   set_font_size("11pt");
   set_line_height("1.2");
 
+  def_style.direction           = HD_DIRECTION_LTR;
   def_style.font_style          = HD_FONT_STYLE_NORMAL;
   def_style.font_variant        = HD_FONT_VARIANT_NORMAL;
   def_style.font_weight         = HD_FONT_WEIGHT_NORMAL;
+  def_style.letter_spacing      = 0.0f;
   def_style.list_style_position = HD_LIST_STYLE_POSITION_OUTSIDE;
-  def_style.list_style_type     = HD_LIST_STYLE_TYPE_NONE;
+  def_style.list_style_type     = HD_LIST_STYLE_TYPE_DISC;
   def_style.orphans             = 2;
   def_style.text_align          = HD_TEXT_ALIGN_LEFT;
-  def_style.text_decoration     = HD_TEXT_DECORATION_NONE;
+  def_style.text_indent         = 0.0;
   def_style.text_transform      = HD_TEXT_TRANSFORM_NONE;
   def_style.widows              = 2;
 
@@ -939,7 +941,8 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 	                	  find_style(1, &parent, 1));
             }
 	    else
-	      style = new hdStyle(num_selectors[i], selectors[i], &def_style);
+	      style = new hdStyle(num_selectors[i], selectors[i],
+	                          NULL /* &def_style */);
 
             add_style(style);
 	  }
