@@ -96,9 +96,20 @@ static const char *fix_filename(char *path, const char *base);
 			 (x) == HD_ELEMENT_TFOOT || (x) == HD_ELEMENT_TR)
 #define istentry(x)	((x) == HD_ELEMENT_TD || (x) == HD_ELEMENT_TH)
 
-#ifdef DEBUG
-static hdChar	indent[255] = "";
-#endif /* DEBUG */
+static FILE	*debug_file = NULL;
+static int	debug_indent = 0;
+
+
+/*
+ * 'htmlSetDebugFile()' - Set the file to send debugging information.
+ */
+
+void
+htmlSetDebugFile(FILE *fp)		// I - File to send debug info or NULL
+{
+  debug_file   = fp;
+  debug_indent = 0;
+}
 
 
 /*
@@ -130,10 +141,6 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
   DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
                 parent, fp, base ? base : "(null)"));
-
-#ifdef DEBUG
-  indent[0] = '\0';
-#endif // DEBUG
 
  /*
   * Start off with no previous tree entry...
@@ -177,10 +184,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
     t = (hdTree *)calloc(sizeof(hdTree), 1);
     if (t == NULL)
     {
-#ifndef DEBUG
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for HTML tree node!");
-#endif /* !DEBUG */
       break;
     }
 
@@ -251,10 +256,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
 	if (parse_markup(t, fp, &linenum) == HD_ELEMENT_ERROR)
 	{
-#ifndef DEBUG
           progress_error(HD_ERROR_READ_ERROR,
                          "Unable to parse HTML element on line %d!", linenum);
-#endif /* !DEBUG */
 
           delete_node(t);
           break;
@@ -400,9 +403,11 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
                 parent = htmlAddTree(temp, HD_ELEMENT_TR, NULL);
 		prev   = NULL;
-		DEBUG_printf(("%str (inserted) under %s, line %d\n", indent,
-		              _htmlStyleSheet->get_element(temp->element),
-			      linenum));
+		if (debug_file)
+		  fprintf(debug_file, "%*str (inserted) under %s, line %d\n",
+		          debug_indent, "",
+		          _htmlStyleSheet->get_element(temp->element),
+			  linenum);
 	      }
 
 	      temp = NULL;
@@ -414,7 +419,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
 	if (temp != NULL)
 	{
-          DEBUG_printf(("%s>>>> Auto-ascend <<<\n", indent));
+          if (debug_file)
+	    fprintf(debug_file, "%*s>>>> Auto-ascend <<<\n", debug_indent, "");
 
           if (temp && ch != '/' &&
 	      temp->element != HD_ELEMENT_BODY &&
@@ -437,21 +443,22 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	                   "No /%s element before %s element on line %d.",
 	                   _htmlStyleSheet->get_element(temp->element),
 			   _htmlStyleSheet->get_element(t->element), linenum);
-	    DEBUG_printf(("%sNo /%s element before %s element on line %d.\n",
-	                  indent, _htmlStyleSheet->get_element(temp->element),
-			  _htmlStyleSheet->get_element(t->element), linenum));
+	    if (debug_file)
+	      fprintf(debug_file,
+	              "%*sNo /%s element before %s element on line %d.\n",
+	              debug_indent, "",
+		      _htmlStyleSheet->get_element(temp->element),
+		      _htmlStyleSheet->get_element(t->element), linenum);
 	  }
 
-#ifdef DEBUG
-          for (hdTree *p = parent;
-	       p && p != temp && indent[0];
-	       p = p->parent)
-	    indent[strlen((char *)indent) - 4] = '\0';
+          if (debug_file && debug_indent > 0)
+	  {
+	    hdTree *p = parent;
 
-          if (indent[0])
-            indent[strlen((char *)indent) - 4] = '\0';
-#endif // DEBUG
-
+            for (debug_indent -= 4;
+		 p && p != temp && debug_indent > 0;
+		 p = p->parent, debug_indent -= 4);
+          }
 
           // Safety check; should never happen, since HD_ELEMENT_FILE is
 	  // the root node created by the caller...
@@ -478,7 +485,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	    if (parent)
 	    {
 	      t->link  = parent->link;
-              t->style = _htmlStyleSheet->find_style(t);
+              t->style = parent->style ? parent->style :
+	                     _htmlStyleSheet->find_style(parent);
 	    }
           }
 	}
@@ -491,9 +499,10 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	    progress_error(HD_ERROR_HTML_ERROR,
 	                   "Dangling /%s element on line %d.",
 			   _htmlStyleSheet->get_element(t->element), linenum);
-	    DEBUG_printf(("%sDangling /%s element on line %d.\n",
-			  indent, _htmlStyleSheet->get_element(t->element),
-			  linenum));
+	    if (debug_file)
+	      fprintf(debug_file, "%*sDangling /%s element on line %d.\n",
+		      debug_indent, "",
+		      _htmlStyleSheet->get_element(t->element), linenum);
           }
 
 	  delete_node(t);
@@ -576,8 +585,9 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
       t->element = HD_ELEMENT_NONE;
       t->data   = (hdChar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment \"%s\" (len=%d), line %d\n", indent, s,
-                    ptr - s, linenum));
+      if (debug_file)
+	fprintf(debug_file, "%*sfragment \"%s\" (len=%d), line %d\n",
+	        debug_indent, "", s, ptr - s, linenum);
     }
     else
     {
@@ -658,14 +668,20 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
       t->element = HD_ELEMENT_NONE;
       t->data   = (hdChar *)strdup((char *)s);
 
-      DEBUG_printf(("%sfragment \"%s\" (len=%d), line %d\n", indent, s,
-                    ptr - s, linenum));
+      if (debug_file)
+	fprintf(debug_file, "%*sfragment \"%s\" (len=%d), line %d\n",
+	        debug_indent, "", s, ptr - s, linenum);
     }
 
    /*
     * If the parent tree pointer is not null and this is the first
     * entry we've read, set the child pointer...
     */
+
+    if (debug_file)
+      fprintf(debug_file, "%*sADDING %s node to %s parent!\n",
+              debug_indent, "", _htmlStyleSheet->get_element(t->element),
+	      parent ? _htmlStyleSheet->get_element(parent->element) : "ROOT");
 
     if (parent != NULL && prev == NULL)
       parent->child = t;
@@ -757,12 +773,10 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
               htmlReadFile(t, embed, newbase);
               fclose(embed);
             }
-#ifndef DEBUG
 	    else
 	      progress_error(HD_ERROR_FILE_NOT_FOUND,
                              "Unable to embed \"%s\" - %s", filename,
 	                     strerror(errno));
-#endif /* !DEBUG */
 	  }
           break;
 
@@ -814,9 +828,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
     if (descend)
     {
-#ifdef DEBUG
-      strlcat((char *)indent, "    ", sizeof(indent));
-#endif // DEBUG
+      debug_indent += 4;
 
       parent = t;
       prev   = NULL;
@@ -1419,10 +1431,8 @@ insert_space(hdTree *parent,	// I - Parent node
   space = (hdTree *)calloc(sizeof(hdTree), 1);
   if (space == NULL)
   {
-#ifndef DEBUG
     progress_error(HD_ERROR_OUT_OF_MEMORY,
                    "Unable to allocate memory for HTML tree node!");
-#endif /* !DEBUG */
     return;
   }
 

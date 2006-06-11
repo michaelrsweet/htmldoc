@@ -37,6 +37,9 @@ void	prefs_load(void) { }
 void	prefs_save(void) { }
 
 
+static void	show_style(hdStyleSheet *css, hdStyle *style);
+
+
 //
 // 'main()' - Test the stylesheet loading code.
 //
@@ -48,7 +51,62 @@ main(int  argc,				// I - Number of command-line args
   FILE		*fp;			// Stylesheet file
   hdStyleSheet	*css;			// Stylesheet data
   hdStyle	*style;			// Style data
-  int		i, j;			// Looping vars
+  int		i;			// Looping var
+
+
+  // Check command-line...
+  if (argc < 2)
+  {
+    puts("Usage: teststyle filename.css");
+    return (1);
+  }
+
+  // Load the stylesheet...
+  if ((fp = fopen(argv[1], "r")) == NULL)
+  {
+    perror(argv[1]);
+    return (1);
+  }
+
+  css = new hdStyleSheet();
+
+  css->set_line_height("1.1");
+  css->load(fp, ".");
+  css->update_styles();
+
+  fclose(fp);
+
+  // Show all of the styles...
+  printf("\"%s\": %d styles...\n\n", argv[1], css->num_styles);
+
+  show_style(css, &(css->def_style));
+
+  for (i = 0; i < css->num_styles; i ++)
+  {
+    style = css->styles[i];
+
+    if (style->selectors[0].id && !strncmp(style->selectors[0].id, "_HD", 3))
+      continue;
+
+    show_style(css, style);
+  }
+
+  // Free memory and return...
+  delete css;
+
+  return (0);
+}
+
+
+//
+// 'show_style()' - Show a single style...
+//
+
+static void
+show_style(hdStyleSheet *css,		// I - Stylesheet
+           hdStyle      *style)		// I - Style to show
+{
+  int	i;				// Looping var
   static const char * const		// Enumeration strings...
 		pos[4] = { "bottom", "left", "right", "top" };
   static const char * const
@@ -105,210 +163,172 @@ main(int  argc,				// I - Number of command-line args
 		                  "pre-wrap", "pre-line" };
 
 
-  // Check command-line...
-  if (argc < 2)
+  for (i = style->num_selectors - 1; i >= 0; i --)
   {
-    puts("Usage: teststyle filename.css");
-    return (1);
+    fputs(css->get_element(style->selectors[i].element), stdout);
+
+    if (style->selectors[i].class_)
+      printf(".%s", style->selectors[i].class_);
+
+    if (style->selectors[i].pseudo)
+      printf(":%s", style->selectors[i].pseudo);
+
+    if (style->selectors[i].id)
+      printf("#%s", style->selectors[i].id);
+
+    putchar(' ');
   }
 
-  // Load the stylesheet...
-  if ((fp = fopen(argv[1], "r")) == NULL)
+  puts("{");
+
+  if (style->background_color_set != HD_COLOR_INHERIT ||
+      style->background_image ||
+      style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT ||
+      style->background_position[0] != HD_WIDTH_AUTO ||
+      style->background_position[1] != HD_WIDTH_AUTO)
   {
-    perror(argv[1]);
-    return (1);
+    printf("  background:");
+
+    if (style->background_color_set == HD_COLOR_TRANSPARENT)
+      fputs(" transparent", stdout);
+    else if (style->background_color_set == HD_COLOR_SET)
+      printf(" rgb(%d,%d,%d)", style->background_color[0],
+             style->background_color[1], style->background_color[2]);
+
+    if (style->background_image)
+      printf("  url(%s)", style->background_image);
+
+    if (style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT)
+      printf(" %s", background_repeat[style->background_repeat]);
+
+    for (i = 0; i < 2; i ++)
+      if (style->background_position_rel[i])
+        printf(" %s (%.1f)", style->background_position_rel[i],
+	       style->background_position[i]);
+      else if (style->background_position[i] == HD_WIDTH_AUTO)
+        printf(" auto");
+      else
+        printf(" %.1f", style->background_position[i]);
+
+    putchar('\n');
   }
 
-  css = new hdStyleSheet();
-
-  css->load(fp, ".");
-  css->set_line_height("1.1");
-  css->update_styles();
-
-  fclose(fp);
-
-  // Show all of the styles...
-  printf("\"%s\": %d styles...\n\n", argv[1], css->num_styles);
-
-  for (i = 0; i < css->num_styles; i ++)
-  {
-    style = css->styles[i];
-
-    if (style->selectors[0].id && !strncmp(style->selectors[0].id, "_HD", 3))
-      continue;
-
-    for (j = style->num_selectors - 1; j >= 0; j --)
+  for (i = 0; i < 4; i ++)
+    if (style->border[i].color_set ||
+        style->border[i].style != HD_BORDER_STYLE_NONE ||
+        style->border[i].width != HD_WIDTH_AUTO)
     {
-      fputs(css->get_element(style->selectors[j].element), stdout);
+      printf("  border-%s:", pos[i]);
 
-      if (style->selectors[j].class_)
-        printf(".%s", style->selectors[j].class_);
-
-      if (style->selectors[j].pseudo)
-        printf(":%s", style->selectors[j].pseudo);
-
-      if (style->selectors[j].id)
-        printf("#%s", style->selectors[j].id);
-
-      putchar(' ');
-    }
-
-    puts("{");
-
-    if (style->background_color_set != HD_COLOR_INHERIT ||
-        style->background_image ||
-	style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT ||
-        style->background_position[0] != HD_WIDTH_AUTO ||
-        style->background_position[1] != HD_WIDTH_AUTO)
-    {
-      printf("  background:");
-
-      if (style->background_color_set == HD_COLOR_TRANSPARENT)
+      if (style->border[i].color_set == HD_COLOR_TRANSPARENT)
         fputs(" transparent", stdout);
-      else if (style->background_color_set == HD_COLOR_SET)
-	printf(" rgb(%d,%d,%d)", style->background_color[0],
-               style->background_color[1], style->background_color[2]);
+      else if (style->border[i].color_set == HD_COLOR_SET)
+	printf(" rgb(%d,%d,%d)", style->border[i].color[0],
+	       style->border[i].color[1], style->border[i].color[2]);
 
-      if (style->background_image)
-	printf("  url(%s)", style->background_image);
+      printf(" %s", border_style[style->border[i].style]);
 
-      if (style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT)
-        printf(" %s", background_repeat[style->background_repeat]);
-
-      for (j = 0; j < 2; j ++)
-	if (style->background_position_rel[j])
-          printf(" %s (%.1f)", style->background_position_rel[j],
-	         style->background_position[j]);
-	else if (style->background_position[j] == HD_WIDTH_AUTO)
-          printf(" auto");
-	else
-          printf(" %.1f", style->background_position[j]);
-
-      putchar('\n');
+      if (style->border[i].width != HD_WIDTH_AUTO)
+        printf(" %.1f\n", style->border[i].width);
+      else
+        putchar('\n');
     }
 
-    for (j = 0; j < 4; j ++)
-      if (style->border[j].color_set ||
-          style->border[j].style != HD_BORDER_STYLE_NONE ||
-          style->border[j].width != HD_WIDTH_AUTO)
-      {
-	printf("  border-%s:", pos[j]);
+  if (style->selectors[0].element == HD_ELEMENT_TABLE)
+    printf("  caption-side: %s\n", caption_side[style->caption_side]);
 
-	if (style->border[j].color_set == HD_COLOR_TRANSPARENT)
-          fputs(" transparent", stdout);
-	else if (style->border[j].color_set == HD_COLOR_SET)
-	  printf(" rgb(%d,%d,%d)", style->border[j].color[0],
-		 style->border[j].color[1], style->border[j].color[2]);
+  if (style->clear != HD_CLEAR_NONE)
+    printf("  clear: %s\n", clear[style->clear]);
 
-	printf(" %s", border_style[style->border[j].style]);
+  if (style->color_set == HD_COLOR_SET)
+    printf("  color: rgb(%d,%d,%d)\n", style->color[0],
+	   style->color[1], style->color[2]);
 
-	if (style->border[j].width != HD_WIDTH_AUTO)
-          printf(" %.1f\n", style->border[j].width);
-	else
-          putchar('\n');
-      }
+  if (style->display != HD_DISPLAY_INLINE)
+    printf("  display: %s\n", display[style->display]);
 
-    if (style->selectors[0].element == HD_ELEMENT_TABLE)
-      printf("  caption-side: %s\n", caption_side[style->caption_side]);
+  if (style->float_ != HD_FLOAT_NONE)
+    printf("  float: %s\n", float_[style->float_]);
 
-    if (style->clear != HD_CLEAR_NONE)
-      printf("  clear: %s\n", clear[style->clear]);
+  if (style->font_family)
+    printf("  font-family: %s\n", style->font_family);
 
-    if (style->color_set == HD_COLOR_SET)
-      printf("  color: rgb(%d,%d,%d)\n", style->color[0],
-	     style->color[1], style->color[2]);
+  if (style->font_size_rel)
+    printf("  font-size: %s (%.1f)\n", style->font_size_rel,
+           style->font_size);
+  else
+    printf("  font-size: %.1f\n", style->font_size);
 
-    if (style->display != HD_DISPLAY_INLINE)
-      printf("  display: %s\n", display[style->display]);
+  if (style->font_style)
+    printf("  font-style: %s\n", font_style[style->font_style]);
 
-    if (style->float_ != HD_FLOAT_NONE)
-      printf("  float: %s\n", float_[style->float_]);
+  if (style->font_variant)
+    printf("  font-variant: %s\n", font_variant[style->font_variant]);
 
-    if (style->font_family)
-      printf("  font-family: %s\n", style->font_family);
+  if (style->font_weight)
+    printf("  font-weight: %s\n", font_weight[style->font_weight]);
 
-    if (style->font_size_rel)
-      printf("  font-size: %s (%.1f)\n", style->font_size_rel,
-             style->font_size);
-    else
-      printf("  font-size: %.1f\n", style->font_size);
+  if (style->line_height_rel)
+    printf("  line-height: %s (%.1f)\n", style->line_height_rel,
+           style->line_height);
+  else
+    printf("  line-height: %.1f\n", style->line_height);
 
-    if (style->font_style)
-      printf("  font-style: %s\n", font_style[style->font_style]);
+  if (style->list_style_position != HD_LIST_STYLE_POSITION_INHERIT)
+    printf("  list-style-position: %s\n",
+           list_style_position[style->list_style_position]);
 
-    if (style->font_variant)
-      printf("  font-variant: %s\n", font_variant[style->font_variant]);
+  if (style->list_style_type != HD_LIST_STYLE_TYPE_INHERIT)
+    printf("  list-style-type: %s\n",
+           list_style_type[style->list_style_type]);
 
-    if (style->font_weight)
-      printf("  font-weight: %s\n", font_weight[style->font_weight]);
+  for (i = 0; i < 4; i ++)
+    if (style->margin[i] != HD_WIDTH_AUTO || style->margin_rel[i])
+    {
+      printf("  margin-%s:", pos[i]);
 
-    if (style->line_height_rel)
-      printf("  line-height: %s (%.1f)\n", style->line_height_rel,
-             style->line_height);
-    else
-      printf("  line-height: %.1f\n", style->line_height);
+      if (style->margin_rel[i])
+	printf(" %s (%.1f)\n", style->margin_rel[i], style->margin[i]);
+      else
+        printf(" %.1f\n", style->margin[i]);
+    }
 
-    if (style->list_style_position != HD_LIST_STYLE_POSITION_INHERIT)
-      printf("  list-style-position: %s\n",
-             list_style_position[style->list_style_position]);
+  for (i = 0; i < 4; i ++)
+    if (style->padding[i] != HD_WIDTH_AUTO || style->padding_rel[i])
+    {
+      printf("  padding-%s:", pos[i]);
 
-    if (style->list_style_type != HD_LIST_STYLE_TYPE_INHERIT)
-      printf("  list-style-type: %s\n",
-             list_style_type[style->list_style_type]);
+      if (style->padding_rel[i])
+	printf(" %s (%.1f)\n", style->padding_rel[i], style->padding[i]);
+      else
+        printf(" %.1f\n", style->padding[i]);
+    }
 
-    for (j = 0; j < 4; j ++)
-      if (style->margin[j] != HD_WIDTH_AUTO || style->margin_rel[j])
-      {
-	printf("  margin-%s:", pos[j]);
+  if (style->page_break_after)
+    printf("  page-break-after: %s\n", page_break[style->page_break_after]);
 
-        if (style->margin_rel[j])
-	  printf(" %s (%.1f)\n", style->margin_rel[j], style->margin[j]);
-	else
-          printf(" %.1f\n", style->margin[j]);
-      }
+  if (style->page_break_before)
+    printf("  page-break-before: %s\n", page_break[style->page_break_before]);
 
-    for (j = 0; j < 4; j ++)
-      if (style->padding[j] != HD_WIDTH_AUTO || style->padding_rel[j])
-      {
-	printf("  padding-%s:", pos[j]);
+  if (style->page_break_inside)
+    printf("  page-break-inside: %s\n", page_break[style->page_break_inside]);
 
-        if (style->padding_rel[j])
-	  printf(" %s (%.1f)\n", style->padding_rel[j], style->padding[j]);
-	else
-          printf(" %.1f\n", style->padding[j]);
-      }
+  if (style->text_align != HD_TEXT_ALIGN_INHERIT)
+    printf("  text-align: %s\n", text_align[style->text_align]);
 
-    if (style->page_break_after)
-      printf("  page-break-after: %s\n", page_break[style->page_break_after]);
+  if (style->text_decoration != HD_TEXT_DECORATION_INHERIT)
+    printf("  text-decoration: %s\n", text_decoration[style->text_decoration]);
 
-    if (style->page_break_before)
-      printf("  page-break-before: %s\n", page_break[style->page_break_before]);
+  if (style->text_transform != HD_TEXT_TRANSFORM_INHERIT)
+    printf("  text-transform: %s\n", text_transform[style->text_transform]);
 
-    if (style->page_break_inside)
-      printf("  page-break-inside: %s\n", page_break[style->page_break_inside]);
+  if (style->vertical_align != HD_VERTICAL_ALIGN_INHERIT)
+    printf("  vertical-align: %s\n", vertical_align[style->vertical_align]);
 
-    if (style->text_align != HD_TEXT_ALIGN_INHERIT)
-      printf("  text-align: %s\n", text_align[style->text_align]);
+  if (style->white_space != HD_WHITE_SPACE_INHERIT)
+    printf("  white-space: %s\n", white_space[style->white_space]);
 
-    if (style->text_decoration != HD_TEXT_DECORATION_INHERIT)
-      printf("  text-decoration: %s\n", text_decoration[style->text_decoration]);
-
-    if (style->text_transform != HD_TEXT_TRANSFORM_INHERIT)
-      printf("  text-transform: %s\n", text_transform[style->text_transform]);
-
-    if (style->vertical_align != HD_VERTICAL_ALIGN_INHERIT)
-      printf("  vertical-align: %s\n", vertical_align[style->vertical_align]);
-
-    if (style->white_space != HD_WHITE_SPACE_INHERIT)
-      printf("  white-space: %s\n", white_space[style->white_space]);
-
-    puts("}\n");
-  }
-
-  // Free memory and return...
-  delete css;
-
-  return (0);
+  puts("}\n");
 }
 
 

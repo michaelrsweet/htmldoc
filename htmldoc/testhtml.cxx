@@ -146,6 +146,7 @@ main(int  argc,			/* I - Number of command-line arguments */
   _htmlData = "..";
 
   htmlInitStyleSheet();
+  htmlSetDebugFile(stdout);
 
   for (i = 1, doc = NULL; i < argc; i ++)
     if ((fp = fopen(file_find("", argv[i]), "r")) != NULL)
