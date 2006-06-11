@@ -110,6 +110,7 @@ extern void	htmlUpdateStyle(hdTree *t, const char *base);
 extern void	htmlDeleteStyleSheet(void);
 extern void	htmlInitStyleSheet(void);
 
+extern void	htmlSetDebugFile(FILE *fp);
 extern void	htmlDebugStats(const char *title, hdTree *t);
 extern void	htmlDebugStyleStats(void);
 

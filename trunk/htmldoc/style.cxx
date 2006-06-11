@@ -803,7 +803,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
   if (!p)
     return;
 
-  if (background_color_set == HD_COLOR_INHERIT)
+  if (p->background_color_set != HD_COLOR_INHERIT)
   {
     background_color[0]  = p->background_color[0];
     background_color[1]  = p->background_color[1];
@@ -811,23 +811,23 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
     background_color_set = p->background_color_set;
   }
 
-  if (background_image && !strcasecmp(background_image, "inherit"))
+  if (p->background_image && strcasecmp(p->background_image, "inherit"))
     set_string(p->background_image, background_image);
 
   for (i = 0; i < 2; i ++)
-    if (background_position_rel[i] &&
-        !strcasecmp(background_position_rel[i], "inherit"))
+    if (p->background_position_rel[i] &&
+        strcasecmp(p->background_position_rel[i], "inherit"))
     {
       set_string(NULL, background_position_rel[i]);
       background_position[i] = p->background_position[i];
     }
 
-  if (background_repeat == HD_BACKGROUND_REPEAT_INHERIT)
+  if (p->background_repeat != HD_BACKGROUND_REPEAT_INHERIT)
     background_repeat = p->background_repeat;
 
   for (i = 0; i < 4; i ++)
   {
-    if (border[i].color_set == HD_COLOR_INHERIT)
+    if (p->border[i].color_set != HD_COLOR_INHERIT)
     {
       border[i].color[0]  = p->border[i].color[0];
       border[i].color[1]  = p->border[i].color[1];
@@ -835,20 +835,20 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
       border[i].color_set = p->border[i].color_set;
     }
 
-    if (border[i].style == HD_BORDER_STYLE_INHERIT)
+    if (p->border[i].style != HD_BORDER_STYLE_INHERIT)
       border[i].style = p->border[i].style;
 
-    if (border[i].width == HD_BORDER_WIDTH_INHERIT)
+    if (p->border[i].width != HD_BORDER_WIDTH_INHERIT)
     {
       set_string(NULL, border[i].width_rel);
       border[i].width = p->border[i].width;
     }
   }
 
-  if (clear == HD_CLEAR_INHERIT)
+  if (p->clear != HD_CLEAR_INHERIT)
     clear = p->clear;
 
-  if (p->color_set == HD_COLOR_INHERIT)
+  if (p->color_set != HD_COLOR_INHERIT)
   {
     color[0]  = p->color[0];
     color[1]  = p->color[1];
@@ -856,117 +856,117 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
     color_set = p->color_set;
   }
 
-  if (direction == HD_DIRECTION_INHERIT)
+  if (p->direction != HD_DIRECTION_INHERIT)
     direction = p->direction;
 
-  if (display == HD_DISPLAY_INHERIT)
+  if (p->display != HD_DISPLAY_INHERIT)
     display = p->display;
 
-  if (float_ == HD_FLOAT_INHERIT)
+  if (p->float_ != HD_FLOAT_INHERIT)
     float_ = p->float_;
 
   if (p->font_family)
     set_string(p->font_family, font_family);
 
-  if (p->font_size == HD_FONT_SIZE_INHERIT)
+  if (p->font_size != HD_FONT_SIZE_INHERIT)
   {
     set_string(NULL, font_size_rel);
     font_size = p->font_size;
   }
 
-  if (p->font_style == HD_FONT_STYLE_INHERIT)
+  if (p->font_style != HD_FONT_STYLE_INHERIT)
     font_style = p->font_style;
 
-  if (p->font_variant == HD_FONT_VARIANT_INHERIT)
+  if (p->font_variant != HD_FONT_VARIANT_INHERIT)
     font_variant = p->font_variant;
 
-  if (p->font_weight == HD_FONT_WEIGHT_INHERIT)
+  if (p->font_weight != HD_FONT_WEIGHT_INHERIT)
     font_weight = p->font_weight;
 
-  if (height == HD_HEIGHT_INHERIT)
+  if (p->height != HD_HEIGHT_INHERIT)
   {
     set_string(NULL, height_rel);
     height = p->height;
   }
 
-  if (p->letter_spacing == HD_LETTER_SPACING_INHERIT)
+  if (p->letter_spacing != HD_LETTER_SPACING_INHERIT)
     letter_spacing = p->letter_spacing;
 
-  if (p->line_height == HD_LINE_HEIGHT_INHERIT)
+  if (p->line_height != HD_LINE_HEIGHT_INHERIT)
   {
     set_string(NULL, line_height_rel);
     line_height = p->line_height;
   }
 
-  if (list_style_image && !strcasecmp(list_style_image, "inherit"))
+  if (p->list_style_image && strcasecmp(p->list_style_image, "inherit"))
     set_string(p->list_style_image, list_style_image);
 
-  if (list_style_position == HD_LIST_STYLE_POSITION_INHERIT)
+  if (p->list_style_position != HD_LIST_STYLE_POSITION_INHERIT)
     list_style_position = p->list_style_position;
 
-  if (list_style_type == HD_LIST_STYLE_TYPE_INHERIT)
+  if (p->list_style_type != HD_LIST_STYLE_TYPE_INHERIT)
     list_style_type = p->list_style_type;
 
   for (i = 0; i < 4; i ++)
-    if (margin[i] == HD_MARGIN_INHERIT)
+    if (p->margin[i] != HD_MARGIN_INHERIT)
     {
       set_string(NULL, margin_rel[i]);
       margin[i] = p->margin[i];
     }
 
-  if (orphans == HD_ORPHANS_INHERIT)
+  if (p->orphans != HD_ORPHANS_INHERIT)
     orphans = p->orphans;
 
   for (i = 0; i < 4; i ++)
-    if (padding[i] == HD_PADDING_INHERIT)
+    if (p->padding[i] != HD_PADDING_INHERIT)
     {
       set_string(NULL, padding_rel[i]);
       padding[i] = p->padding[i];
     }
 
-  if (page_break_after == HD_PAGE_BREAK_INHERIT)
+  if (p->page_break_after != HD_PAGE_BREAK_INHERIT)
     page_break_after = p->page_break_after;
 
-  if (page_break_before == HD_PAGE_BREAK_INHERIT)
+  if (p->page_break_before != HD_PAGE_BREAK_INHERIT)
     page_break_before = p->page_break_before;
 
-  if (page_break_inside == HD_PAGE_BREAK_INHERIT)
+  if (p->page_break_inside != HD_PAGE_BREAK_INHERIT)
     page_break_inside = p->page_break_inside;
 
-  if (text_align == HD_TEXT_ALIGN_INHERIT)
+  if (p->text_align != HD_TEXT_ALIGN_INHERIT)
     text_align = p->text_align;
 
-  if (text_decoration == HD_TEXT_DECORATION_INHERIT)
+  if (p->text_decoration != HD_TEXT_DECORATION_INHERIT)
     text_decoration = p->text_decoration;
 
-  if (text_indent == HD_TEXT_INDENT_INHERIT)
+  if (p->text_indent != HD_TEXT_INDENT_INHERIT)
   {
     set_string(NULL, text_indent_rel);
     text_indent = p->text_indent;
   }
 
-  if (text_transform == HD_TEXT_TRANSFORM_INHERIT)
+  if (p->text_transform != HD_TEXT_TRANSFORM_INHERIT)
     text_transform = p->text_transform;
 
-  if (unicode_bidi == HD_UNICODE_BIDI_INHERIT)
+  if (p->unicode_bidi != HD_UNICODE_BIDI_INHERIT)
     unicode_bidi = p->unicode_bidi;
 
-  if (vertical_align == HD_VERTICAL_ALIGN_INHERIT)
+  if (p->vertical_align != HD_VERTICAL_ALIGN_INHERIT)
     vertical_align = p->vertical_align;
 
-  if (white_space == HD_WHITE_SPACE_INHERIT)
+  if (p->white_space != HD_WHITE_SPACE_INHERIT)
     white_space = p->white_space;
 
-  if (widows == HD_WIDOWS_INHERIT)
+  if (p->widows != HD_WIDOWS_INHERIT)
     widows = p->widows;
 
-  if (width == HD_WIDTH_INHERIT)
+  if (p->width != HD_WIDTH_INHERIT)
   {
     set_string(NULL, width_rel);
     width = p->width;
   }
 
-  if (word_spacing == HD_WORD_SPACING_INHERIT)
+  if (p->word_spacing != HD_WORD_SPACING_INHERIT)
     word_spacing = p->word_spacing;
 }
 
@@ -1023,7 +1023,7 @@ hdStyle::init()
   height              = HD_WIDTH_AUTO;
   height_rel          = NULL;
   letter_spacing      = HD_LETTER_SPACING_INHERIT;
-  line_height         = 0.0f;
+  line_height         = HD_LINE_HEIGHT_INHERIT;
   line_height_rel     = NULL;
   list_style_image    = NULL;
   list_style_position = HD_LIST_STYLE_POSITION_INHERIT;
@@ -2792,7 +2792,7 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
 
   if (line_height_rel)
   {
-    if (strcasecmp(line_height_rel, "normal") == 0)
+    if (!strcasecmp(line_height_rel, "normal"))
       line_height = 1.2f * font_size;
     else
       line_height = get_length(line_height_rel, font_size, font_size, css);

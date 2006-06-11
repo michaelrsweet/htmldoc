@@ -109,6 +109,8 @@ hdStyleSheet::hdStyleSheet()
   def_style.text_transform      = HD_TEXT_TRANSFORM_NONE;
   def_style.widows              = 2;
 
+  printf("def_style.line_height=%.1f\n", def_style.line_height);
+
   // Set the default character set to "iso-8859-1"...
   set_charset("iso-8859-1");
 }
@@ -940,9 +942,12 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 	      style = new hdStyle(num_selectors[i], selectors[i],
 	                	  find_style(1, &parent, 1));
             }
+	    else if (selectors[i]->element == HD_ELEMENT_HTML ||
+		     selectors[i]->element == HD_ELEMENT_HEAD ||
+		     selectors[i]->element == HD_ELEMENT_BODY)
+	      style = new hdStyle(num_selectors[i], selectors[i], &def_style);
 	    else
-	      style = new hdStyle(num_selectors[i], selectors[i],
-	                          NULL /* &def_style */);
+	      style = new hdStyle(num_selectors[i], selectors[i], NULL);
 
             add_style(style);
 	  }

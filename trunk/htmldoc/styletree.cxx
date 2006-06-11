@@ -115,8 +115,20 @@ hdStyleSheet::get_private_style(
   // Create a new style derived from this node...
   selector.set(t->element, NULL, NULL, id);
 
+  DEBUG_printf(("t->style->white_space=%d, nstyle->white_space=%d\n",
+        	t->style ? t->style->white_space : -1,
+		nstyle ? nstyle->white_space : -1));
+  DEBUG_printf(("t->style->line_height=%.1f, nstyle->line_height=%.1f\n",
+        	t->style ? t->style->line_height : -1,
+		nstyle ? nstyle->line_height : -1));
+
   style = new hdStyle(1, &selector, t->style);
+  DEBUG_printf(("    BEFORE style->white_space=%d\n", style->white_space));
+  DEBUG_printf(("    BEFORE style->line_height=%.1f\n", style->line_height));
+
   style->inherit(nstyle);
+  DEBUG_printf(("    AFTER style->white_space=%d\n", style->white_space));
+  DEBUG_printf(("    AFTER style->line_height=%.1f\n", style->line_height));
 
   // Apply the STYLE attribute for this node, if any...
   if ((style_attr = (char *)htmlGetAttr(t, "STYLE")) != NULL)
@@ -198,6 +210,7 @@ hdStyleSheet::get_private_style(
 
       if (j < 4)
         continue;
+
       if ((style->list_style_image == NULL) !=
               (existing->list_style_image == NULL))
 	continue;
@@ -208,9 +221,16 @@ hdStyleSheet::get_private_style(
 
       delete style;
 
+      DEBUG_printf(("Returning existing style for %s, style->white_space=%d, "
+        	    "existing->white_space=%d...\n", get_element(t->element),
+		    style->white_space, existing->white_space));
+
       return (existing);
     }
   }
+
+  DEBUG_printf(("Returning private style for %s...\n",
+                get_element(t->element)));
 
   // Add the style to the stylesheet...
   add_style(style);
