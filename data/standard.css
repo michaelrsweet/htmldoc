@@ -3,7 +3,7 @@
  *
  *   Standard stylesheet for HTMLDOC.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -142,15 +142,18 @@ blockquote
 i, cite, em, var, address
 {
   font-style: italic;
+  white-space: inherit;
 }
 
-pre, tt, code, kbd, samp
+tt, code, kbd, samp
 {
   font-family: monospace;
+  white-space: inherit;
 }
 
 pre
 {
+  font-family: monospace;
   white-space: pre;
 }
 
@@ -162,11 +165,13 @@ button, textarea, input, object,  select
 big
 {
   font-size: 1.17em;
+  white-space: inherit;
 }
 
 small, sub, sup
 {
   font-size: .83em;
+  white-space: inherit;
 }
 
 sub
@@ -192,6 +197,7 @@ thead, tbody, tfoot
 s, strike, del
 {
   text-decoration: line-through;
+  white-space: inherit;
 }
 
 hr
@@ -222,6 +228,7 @@ ol ul, ul ol, ul ul, ol ol
 u, ins
 {
   text-decoration: underline;
+  white-space: inherit;
 }
 
 center
@@ -233,32 +240,39 @@ abbr, acronym
 {
   font-variant: small-caps;
   letter-spacing: 0.1em;
+  white-space: inherit;
 }
 
 a:link {
   color: blue;
   text-decoration: underline;
+  white-space: inherit;
 }
 
 a:visited {
   color: red;
   text-decoration: underline;
+  white-space: inherit;
 }
 
 a:active {
   color: lime;
+  white-space: inherit;
 }
 
 a:link img {
   border: 2px solid blue;
+  white-space: inherit;
 }
 
 a:visited img {
   border: 2px solid red;
+  white-space: inherit;
 }
 
 a:active img {
   border: 2px solid lime;
+  white-space: inherit;
 }
 
 

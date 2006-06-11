@@ -3,7 +3,7 @@
 //
 //   Stylesheet test program for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2005 by Easy Software Products.
+//   Copyright 1997-2006 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -29,53 +29,12 @@
 // Include necessary headers.
 //
 
-#include "hdstring.h"
-#include "style.h"
-#include "progress.h"
+#define _HTMLDOC_CXX_
+#include "htmldoc.h"
 
 
-//
-// Global stuff for testing...
-//
-
-const char	*_htmlData = "..";
-
-
-//
-// 'progress_error()' - Display an error message.
-//
-
-void
-progress_error(hdError    error,	// I - Error number
-               const char *format,	// I - Printf-style format string
-               ...)			// I - Additional args as needed
-{
-  va_list	ap;			// Argument pointer
-
-
-  va_start(ap, format);
-  vfprintf(stderr, format, ap);
-  putc('\n', stderr);
-  va_end(ap);
-}
-
-
-void
-progress_hide(void)
-{
-}
-
-
-void
-progress_show(const char *format, ...)
-{
-}
-
-
-void
-progress_update(int percent)
-{
-}
+void	prefs_load(void) { }
+void	prefs_save(void) { }
 
 
 //
