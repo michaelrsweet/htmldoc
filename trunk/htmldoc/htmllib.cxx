@@ -714,6 +714,40 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
     switch (t->element)
     {
+      case HD_ELEMENT_STYLE :
+          // Read embedded stylesheet...
+	  descend = 1;
+
+	  _htmlStyleSheet->load(fp, base);
+	  break;
+
+      case HD_ELEMENT_LINK :
+          // See if we have a stylesheet link...
+	  {
+	    hdChar *rel = htmlGetAttr(t, "REL");
+	    hdChar *href = htmlGetAttr(t, "HREF");
+
+	    if (rel && !strcasecmp((char *)rel, "stylesheet") && href)
+	    {
+	      filename = (hdChar *)fix_filename((char *)href,
+	                                	(char *)base);
+
+              if ((embed = fopen((char *)filename, "r")) != NULL)
+              {
+		strlcpy(newbase, file_directory((char *)filename),
+		        sizeof(newbase));
+
+        	_htmlStyleSheet->load(embed, newbase);
+        	fclose(embed);
+              }
+	      else
+		progress_error(HD_ERROR_FILE_NOT_FOUND,
+                               "Unable to read stylesheet \"%s\" - %s",
+			       rel, strerror(errno));
+	    }
+	  }
+	  break;
+
       case HD_ELEMENT_BODY :
           // Update the background image as necessary...
           if ((filename = htmlGetAttr(t, "BACKGROUND")) != NULL)
@@ -753,7 +787,6 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
       case HD_ELEMENT_COMMENT :
       case HD_ELEMENT_INPUT :
       case HD_ELEMENT_ISINDEX :
-      case HD_ELEMENT_LINK :
       case HD_ELEMENT_META :
       case HD_ELEMENT_WBR :
       case HD_ELEMENT_COL :
