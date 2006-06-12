@@ -868,7 +868,11 @@ httpGets(char   *line,			/* I - Line to read into */
       if (!http->blocking && !http_wait(http, 10000))
       {
         DEBUG_puts("httpGets: Timed out!");
+#ifdef WIN32
+        http->error = WSAETIMEDOUT;
+#else
         http->error = ETIMEDOUT;
+#endif /* WIN32 */
         return (NULL);
       }
 
