@@ -487,6 +487,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	      t->link  = parent->link;
               t->style = parent->style ? parent->style :
 	                     _htmlStyleSheet->find_style(parent);
+
+              htmlUpdateStyle(t, base);
 	    }
           }
 	}
@@ -679,9 +681,10 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
     */
 
     if (debug_file)
-      fprintf(debug_file, "%*sADDING %s node to %s parent!\n",
+      fprintf(debug_file, "%*sADDING %s node to %s parent, white_space=%d!\n",
               debug_indent, "", _htmlStyleSheet->get_element(t->element),
-	      parent ? _htmlStyleSheet->get_element(parent->element) : "ROOT");
+	      parent ? _htmlStyleSheet->get_element(parent->element) : "ROOT",
+	      t->style ? t->style->white_space : -1);
 
     if (parent != NULL && prev == NULL)
       parent->child = t;
@@ -2756,6 +2759,12 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
   }
 
   t->style->update(_htmlStyleSheet);
+
+  if (debug_file)
+    fprintf(debug_file,
+            "%*sstyle->font_size=%.1f, line_height=%.1f, white_space=%d...\n",
+            debug_indent, "", t->style->font_size, t->style->line_height,
+	    t->style->white_space);
 
 #ifdef DEBUG
   if (t->element == HD_ELEMENT_H1)
