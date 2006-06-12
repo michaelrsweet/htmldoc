@@ -55,13 +55,31 @@
 
 
 //
-// 'hdStyleSelector::hdStyleSelector()' - Initialize a selector.
+// 'hdStyleSelector::hdStyleSelector()' - Initialize a blank selector.
 //
 
 hdStyleSelector::hdStyleSelector()
 {
   // Clear the whole structure to 0...
   memset(this, 0, sizeof(hdStyleSelector));
+}
+
+
+//
+// 'hdStyleSelector::hdStyleSelector()' - Initialize a selector with the given values.
+//
+
+hdStyleSelector::hdStyleSelector(
+    hdElement  e,			// I - Element
+    const char *c,			// I - Class string
+    const char *p,			// I - Pseudo-selector string
+    const char *i)			// I - ID string)
+{
+  // Clear the whole structure to 0...
+  memset(this, 0, sizeof(hdStyleSelector));
+
+  // Set the values...
+  set(e, c, p, i);
 }
 
 

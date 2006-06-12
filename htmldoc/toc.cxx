@@ -4,7 +4,7 @@
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -75,16 +75,18 @@ toc_build(hdTree *tree)		/* I - Document tree */
 
   toc = htmlAddTree(NULL, HD_ELEMENT_BODY, NULL);
   htmlSetAttr(toc, "CLASS", (hdChar *)"HD_TOC");
-  htmlUpdateStyle(toc, NULL);
+  htmlUpdateStyle(toc, ".");
 
   title = htmlAddTree(toc, HD_ELEMENT_H1, NULL);
   htmlSetAttr(title, "ALIGN", (hdChar *)"CENTER");
   htmlSetAttr(title, "CLASS", (hdChar *)"HD_TOC");
-  htmlUpdateStyle(title, NULL);
+  htmlUpdateStyle(title, ".");
+
   link = htmlAddTree(title, HD_ELEMENT_A, NULL);
   htmlSetAttr(link, "NAME", (hdChar *)"CONTENTS");
   htmlSetAttr(link, "CLASS", (hdChar *)"HD_TOC");
-  htmlUpdateStyle(link, NULL);
+  htmlUpdateStyle(link, ".");
+
   htmlAddTree(link, HD_ELEMENT_NONE, (hdChar *)TocTitle);
 
   heading_parents[0]  = toc;
@@ -337,7 +339,7 @@ parse_tree(hdTree *t)			/* I - Document tree */
 		    htmlAddTree(heading_parents[last_level], HD_ELEMENT_UL, NULL);
 
               htmlSetAttr(heading_parents[level], "CLASS", (hdChar *)"HD_TOC");
-              htmlUpdateStyle(heading_parents[level], NULL);
+              htmlUpdateStyle(heading_parents[level], ".");
 
               DEBUG_printf(("level=%d, last_level=%d, created new UL parent %p\n",
 	                    level, last_level, heading_parents[level]));
@@ -357,7 +359,7 @@ parse_tree(hdTree *t)			/* I - Document tree */
               parent = htmlAddTree(heading_parents[level], HD_ELEMENT_LI, NULL);
 
             htmlSetAttr(parent, "CLASS", (hdChar *)"HD_TOC");
-            htmlUpdateStyle(parent, NULL);
+            htmlUpdateStyle(parent, ".");
 
             DEBUG_printf(("parent=%p\n", parent));
 
@@ -373,7 +375,7 @@ parse_tree(hdTree *t)			/* I - Document tree */
               parent = htmlAddTree(parent, HD_ELEMENT_A, NULL);
               htmlSetAttr(parent, "HREF", link);
               htmlSetAttr(parent, "CLASS", (hdChar *)"HD_TOC");
-              htmlUpdateStyle(parent, NULL);
+              htmlUpdateStyle(parent, ".");
 
              /*
               * Insert a NAME marker if needed and reparent all the
@@ -401,7 +403,7 @@ parse_tree(hdTree *t)			/* I - Document tree */
         	  target->child = t->child;
         	  t->child      = target;
 
-                  htmlUpdateStyle(target, NULL);
+                  htmlUpdateStyle(target, ".");
 	        }
 	      }
             }
