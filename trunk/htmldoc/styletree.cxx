@@ -88,7 +88,6 @@ hdStyleSheet::get_private_style(
 {
   hdStyle		*style,		// New private style
 			*nstyle;	// Node's style
-  hdStyleSelector	selector;	// Selector for private style
   char			id[16];		// Selector ID
   const char		*style_attr;	// STYLE attribute, if any
 
@@ -113,7 +112,8 @@ hdStyleSheet::get_private_style(
   sprintf(id, "_HD_%08X", private_id ++);
 
   // Create a new style derived from this node...
-  selector.set(t->element, NULL, NULL, id);
+  hdStyleSelector	selector(t->element, NULL, NULL, id);
+  					// Selector for private style
 
   DEBUG_printf(("t->style->white_space=%d, nstyle->white_space=%d\n",
         	t->style ? t->style->white_space : -1,

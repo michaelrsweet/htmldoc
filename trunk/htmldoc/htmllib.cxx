@@ -3,7 +3,7 @@
  *
  *   HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -1156,14 +1156,13 @@ htmlNewTree(hdTree    *parent,		//* I - Parent entry
 
   // Inherit characteristics as needed...
   if (parent)
-    t->link = parent->link;
-
-  if (parent && parent->style && data)
+  {
+    t->link  = parent->link;
     t->style = parent->style;
-  else if (t->element < HD_ELEMENT_A)
+  }
+
+  if (!t->style)
     t->style = _htmlStyleSheet->find_style(HD_ELEMENT_BODY);
-  else
-    t->style = _htmlStyleSheet->find_style(t);
 
   // Return the new node...
   return (t);

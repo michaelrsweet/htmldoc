@@ -491,7 +491,9 @@ pspdf_export(hdTree *document,		/* I - Document to export */
   hdImage	*timage;		/* Title image */
   float		timage_width,		/* Title image width */
 		timage_height;		/* Title image height */
-  hdStyle	*h1_title,		/* Heading style for title page */
+  hdStyle	*temp,			/* Current style for title page */
+		*body_title,		/* Body style for title page */
+		*h1_title,		/* Heading style for title page */
 		*p_title;		/* Paragraph style for title page */
   hdRender	*r;			/* Rendering structure... */
   float		rgb[3];			/* Text color */
@@ -662,8 +664,19 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 
       height = 0.0;
 
-      h1_title = _htmlStyleSheet->find_style(HD_ELEMENT_H1, "HD_TITLE");
-      p_title  = _htmlStyleSheet->find_style(HD_ELEMENT_P, "HD_TITLE");
+      hdStyleSelector h1_selector(HD_ELEMENT_H1, NULL, NULL, "_HD_TITLE");
+      hdStyleSelector p_selector(HD_ELEMENT_P, NULL, NULL, "_HD_TITLE");
+
+      body_title = _htmlStyleSheet->find_style(HD_ELEMENT_BODY, "HD_TITLE");
+      temp       = _htmlStyleSheet->find_style(HD_ELEMENT_H1, "HD_TITLE");
+      h1_title   = new hdStyle(1, &h1_selector, body_title);
+      h1_title->inherit(temp);
+      _htmlStyleSheet->add_style(h1_title);
+
+      temp       = _htmlStyleSheet->find_style(HD_ELEMENT_P, "HD_TITLE");
+      p_title    = new hdStyle(1, &p_selector, body_title);
+      p_title->inherit(temp);
+      _htmlStyleSheet->add_style(p_title);
 
       if (timage != NULL)
 	height += timage_height + p_title->line_height;
@@ -3584,7 +3597,6 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
 		*next;
   hdRender	*r;
   float		dot_width;
-  hdStyle	*style;			// Style data for title
 
 
   DEBUG_printf(("render_contents(t=%p(%s), margins=(%.1f, %.1f, %.1f, %.1f, %d), y=%.1f, page=%d, heading=%d, chap=%p)\n",
@@ -3654,7 +3666,20 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
       if (Verbosity)
 	progress_show("Formatting page %d", *page);
 
-      style = _htmlStyleSheet->find_style(HD_ELEMENT_H1, "HD_TOC");
+      // Find/create private style for table-of-contents title...
+      hdStyleSelector selector(HD_ELEMENT_H1, NULL, NULL, "_HD_TOC");
+      hdStyle *style = _htmlStyleSheet->find_style(1, &selector, true);
+
+      if (!style)
+      {
+	hdStyle *body_style = _htmlStyleSheet->find_style(HD_ELEMENT_BODY,
+                                                          "HD_TOC");
+	hdStyle *h1_style = _htmlStyleSheet->find_style(HD_ELEMENT_H1,
+	                                                "HD_TOC");
+        style = new hdStyle(1, &selector, body_style);
+	style->inherit(h1_style);
+	_htmlStyleSheet->add_style(style);
+      }
 
       width = style->get_width((hdChar *)TocTitle);
       *y = margins->top() - style->line_height;
@@ -3834,6 +3859,12 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
   while (t != NULL)
   {
+    DEBUG_printf(("    t->element=%s, t->style->font_size=%.1f, "
+                  "line_height=%.1f\n",
+        	  _htmlStyleSheet->get_element(t->element),
+		  t->style ? t->style->font_size : -1.0,
+		  t->style ? t->style->line_height : -1.0));
+
     switch (t->element)
     {
       case HD_ELEMENT_B :	/* Top-level TOC */

@@ -634,6 +634,16 @@ struct hdStyleSelector
   hdStyleSelector();
 
  /**
+  * The constructor creates a new selector with the given values.
+  *
+  * @param e hdElement The HTML element.
+  * @param c const&nbsp;char* The HTML CLASS attribute.
+  * @param p const&nbsp;char* The HTML pseudo-class attribute (link, visited, etc.)
+  * @param i const&nbsp;char* The HTML ID attribute.
+  */
+  hdStyleSelector(hdElement e, const char *c, const char *p, const char *i);
+
+ /**
   * The <tt>set()</tt> method sets the selector values.
   *
   * @param e hdElement The HTML element.
@@ -1219,7 +1229,7 @@ struct hdStyleSheet
   * @return A pointer to the matching style, or NULL if no matching style
   * is available.
   */
-  hdStyle	*find_style(int nsels, hdStyleSelector *sels, int exact = 0);
+  hdStyle	*find_style(int nsels, hdStyleSelector *sels, bool exact = false);
 
  /**
   * The <tt>find_style()</tt> method finds the matching style for the given element.

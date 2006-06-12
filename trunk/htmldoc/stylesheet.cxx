@@ -109,8 +109,6 @@ hdStyleSheet::hdStyleSheet()
   def_style.text_transform      = HD_TEXT_TRANSFORM_NONE;
   def_style.widows              = 2;
 
-  printf("def_style.line_height=%.1f\n", def_style.line_height);
-
   // Set the default character set to "iso-8859-1"...
   set_charset("iso-8859-1");
 }
@@ -415,17 +413,18 @@ hdStyleSheet::find_font(
 //                                selectors.
 //
 
-hdStyle *					// O - Style record
-hdStyleSheet::find_style(int             nsels,	// I - Number of selectors
-                         hdStyleSelector *sels,	// I - Selectors
-			 int             exact)	// I - Exact match required?
+hdStyle *				// O - Style record
+hdStyleSheet::find_style(
+    int             nsels,		// I - Number of selectors
+    hdStyleSelector *sels,		// I - Selectors
+    bool            exact)		// I - Exact match required?
 {
-  int		i, j;				// Looping vars
-  hdStyle	*s,				// Current style
-		*best;				// Best match
-  int		score,				// Current score
-		best_score;			// Best match score
-  hdElement	e;				// Top-level element
+  int		i, j;			// Looping vars
+  hdStyle	*s,			// Current style
+		*best;			// Best match
+  int		score,			// Current score
+		best_score;		// Best match score
+  hdElement	e;			// Top-level element
 
 
   // Check quickly to see if we have any style info for this element...
