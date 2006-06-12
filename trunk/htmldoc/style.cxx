@@ -2785,6 +2785,7 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
     {
       body_style->update(css);
 
+      font_size = body_style->font_size;
       font_size = get_length(font_size_rel, body_style->font_size,
                              body_style->font_size, css);
     }
