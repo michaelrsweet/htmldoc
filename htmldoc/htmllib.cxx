@@ -2799,6 +2799,10 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
             debug_indent, "", t->style->font_size, t->style->line_height,
 	    t->style->white_space);
 
+  // Force PRE to be preformatted...
+  if (t->element == HD_ELEMENT_PRE)
+    t->style->white_space = HD_WHITE_SPACE_PRE;
+
 #ifdef DEBUG
   if (t->element == HD_ELEMENT_H1)
     printf("H1 font-family=\"%s\", font=%p...\n", t->style->font_family,
