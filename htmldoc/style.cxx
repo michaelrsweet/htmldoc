@@ -1145,7 +1145,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     for (valueptr --; valueptr > value && isspace(*valueptr); *valueptr-- = '\0');
 
     // See if we know the name...
-    if (strcasecmp(name, "background") == 0)
+    if (!strcasecmp(name, "background"))
     {
       // Loop until we have exhausted the value string...
       subvalue = value;
@@ -1168,7 +1168,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  set_string(NULL, background_image);
 	else if (!strcasecmp(subvalue, "bottom"))
 	{
-	  set_string(subvalue, background_position_rel[1]);
+	  set_string("100%", background_position_rel[1]);
 
 	  pos = 0;
 	}
@@ -1176,31 +1176,31 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	{
 	  if (pos < 0)
 	  {
-	    set_string(subvalue, background_position_rel[0]);
-	    set_string(subvalue, background_position_rel[1]);
+	    set_string("50%", background_position_rel[0]);
+	    set_string("50%", background_position_rel[1]);
           }
 	  else
 	  {
-	    set_string(subvalue, background_position_rel[pos]);
+	    set_string("50%", background_position_rel[pos]);
 
 	    pos = 1 - pos;
 	  }
 	}
 	else if (!strcasecmp(subvalue, "left"))
 	{
-	  set_string(subvalue, background_position_rel[0]);
+	  set_string("0%", background_position_rel[0]);
 
 	  pos = 1;
 	}
 	else if (!strcasecmp(subvalue, "right"))
 	{
-	  set_string(subvalue, background_position_rel[0]);
+	  set_string("100%", background_position_rel[0]);
 
 	  pos = 1;
 	}
 	else if (!strcasecmp(subvalue, "top"))
 	{
-	  set_string(subvalue, background_position_rel[1]);
+	  set_string("0%", background_position_rel[1]);
 
 	  pos = 0;
 	}
@@ -1263,7 +1263,11 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	subvalue = valueptr;
       }
     }
-    else if (strcasecmp(name, "background-color") == 0)
+    else if (!strcasecmp(name, "background-attachment"))
+    {
+      // Ignore...
+    }
+    else if (!strcasecmp(name, "background-color"))
     {
       if (get_color(value, rgb, &set))
       {
@@ -1276,7 +1280,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	status = false;
       }
     }
-    else if (strcasecmp(name, "background-image") == 0)
+    else if (!strcasecmp(name, "background-image"))
     {
       if (strncasecmp(value, "url(", 4) == 0)
       {
@@ -1289,7 +1293,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	set_string(value + 4, background_image);
       }
     }
-    else if (strcasecmp(name, "background-position") == 0)
+    else if (!strcasecmp(name, "background-position"))
     {
       // Loop until we have exhausted the value string...
       subvalue = value;
@@ -1301,41 +1305,41 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	valueptr = get_subvalue(valueptr);
 
         // Process it...
-	if (strcasecmp(subvalue, "bottom") == 0)
+	if (!strcasecmp(subvalue, "bottom"))
 	{
-	  set_string(subvalue, background_position_rel[1]);
+	  set_string("100%", background_position_rel[1]);
 
 	  pos = 0;
 	}
-	else if (strcasecmp(subvalue, "center") == 0)
+	else if (!strcasecmp(subvalue, "center"))
 	{
 	  if (pos < 0)
 	  {
-	    set_string(subvalue, background_position_rel[0]);
-	    set_string(subvalue, background_position_rel[1]);
+	    set_string("50%", background_position_rel[0]);
+	    set_string("50%", background_position_rel[1]);
           }
 	  else
 	  {
-	    set_string(subvalue, background_position_rel[pos]);
+	    set_string("50%", background_position_rel[pos]);
 
 	    pos = 1 - pos;
 	  }
 	}
-	else if (strcasecmp(subvalue, "left") == 0)
+	else if (!strcasecmp(subvalue, "left"))
 	{
-	  set_string(subvalue, background_position_rel[0]);
+	  set_string("0%", background_position_rel[0]);
 
 	  pos = 1;
 	}
-	else if (strcasecmp(subvalue, "right") == 0)
+	else if (!strcasecmp(subvalue, "right"))
 	{
-	  set_string(subvalue, background_position_rel[0]);
+	  set_string("100%", background_position_rel[0]);
 
 	  pos = 1;
 	}
-	else if (strcasecmp(subvalue, "top") == 0)
+	else if (!strcasecmp(subvalue, "top"))
 	{
-	  set_string(subvalue, background_position_rel[1]);
+	  set_string("0%", background_position_rel[1]);
 
 	  pos = 0;
 	}
@@ -1596,7 +1600,9 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	}
 	else if (!strcasecmp(subvalue, "inherit"))
 	{
-	  // TODO
+	  border[pos].color_set = HD_COLOR_INHERIT;
+	  border[pos].style     = HD_BORDER_STYLE_INHERIT;
+	  border[pos].width     = HD_BORDER_WIDTH_INHERIT;
 	}
 	else
 	{
@@ -1620,6 +1626,33 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
       {
 	memcpy(border[pos].color, rgb, sizeof(border[pos].color));
         border[pos].color_set = set;
+      }
+    }
+    else if (!strcasecmp(name, "border-bottom-style") ||
+             !strcasecmp(name, "border-left-style") ||
+             !strcasecmp(name, "border-right-style") ||
+             !strcasecmp(name, "border-top-style"))
+    {
+      pos = get_pos(name);
+
+      if (!strcasecmp(value, "none") ||
+	  !strcasecmp(value, "dotted") ||
+	  !strcasecmp(value, "dashed") ||
+	  !strcasecmp(value, "solid") ||
+	  !strcasecmp(value, "double") ||
+	  !strcasecmp(value, "groove") ||
+	  !strcasecmp(value, "ridge") ||
+	  !strcasecmp(value, "inset") ||
+	  !strcasecmp(value, "outset"))
+	border[pos].style = get_border_style(subvalue);
+      else if (!strcasecmp(value, "inherit"))
+        border[pos].style = HD_BORDER_STYLE_INHERIT;
+      else
+      {
+	// Unknown value...
+	progress_error(HD_ERROR_CSS_ERROR, "Unknown %s value \"%s\"!\n", name,
+	               value);
+	status = false;
       }
     }
     else if (!strcasecmp(name, "border-bottom-width") ||
@@ -1744,7 +1777,9 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	}
 	else if (!strcasecmp(subvalue, "inherit"))
 	{
-	  // TODO
+	  border[pos].color_set = HD_COLOR_INHERIT;
+	  border[pos].style     = HD_BORDER_STYLE_INHERIT;
+	  border[pos].width     = HD_BORDER_WIDTH_INHERIT;
 	}
 	else
 	{
@@ -1807,6 +1842,33 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 
 	    case 3 :
 		border[HD_POS_LEFT].style   = bs;
+		break;
+          }
+
+	  pos ++;
+	}
+	else if (!strcasecmp(subvalue, "inherit"))
+	{
+          switch (pos)
+	  {
+	    case 0 :
+		border[HD_POS_TOP].style    = HD_BORDER_STYLE_INHERIT;
+		border[HD_POS_RIGHT].style  = HD_BORDER_STYLE_INHERIT;
+		border[HD_POS_BOTTOM].style = HD_BORDER_STYLE_INHERIT;
+		border[HD_POS_LEFT].style   = HD_BORDER_STYLE_INHERIT;
+		break;
+
+	    case 1 :
+		border[HD_POS_RIGHT].style  = HD_BORDER_STYLE_INHERIT;
+		border[HD_POS_LEFT].style   = HD_BORDER_STYLE_INHERIT;
+		break;
+
+	    case 2 :
+		border[HD_POS_BOTTOM].style = HD_BORDER_STYLE_INHERIT;
+		break;
+
+	    case 3 :
+		border[HD_POS_LEFT].style   = HD_BORDER_STYLE_INHERIT;
 		break;
           }
 

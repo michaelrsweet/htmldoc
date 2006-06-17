@@ -996,17 +996,18 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
     // OK, got a selector, see if it is @foo...
     if (sel_s[0] == '@')
     {
-      // @ selector...
-      if (strcmp(sel_s, "@import") == 0)
+      // @ selector, skip trailing whitespace...
+      while ((ch = getc(f)) >= 0)
+	if (!isspace(ch))
+	  break;
+
+      ungetc(ch, f);
+
+      // Process...
+      if (!strcmp(sel_s, "@import"))
       {
         // Include another stylesheet...
 	import_ptr = import;
-
-	while ((ch = getc(f)) >= 0)
-	  if (!isspace(ch))
-	    break;
-
-        ungetc(ch, f);
 
         // Read the URL and potentially a media selector...
 	while ((ch = getc(f)) >= 0)
@@ -1035,7 +1036,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
         *import_ptr = '\0';
 
         // Skip the initial url(" or "...
-	if (strncmp(import, "url(", 4) == 0)
+	if (!strncmp(import, "url(", 4))
 	  import_ptr = import + 4;
 	else
 	  import_ptr = import;
@@ -1060,7 +1061,9 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
         while (isspace(*import_ptr))
 	  import_ptr ++;
 
-        if ((!*import_ptr && !cssmedia[0]) || strstr(import_ptr, "print") != NULL)
+        if ((!*import_ptr && !cssmedia[0]) ||
+	    strstr(import_ptr, "print") ||
+	    strstr(import_ptr, "all"))
 	{
 	  // Import the file...
 	  if ((import_f = fopen(import, "r")) != NULL)
@@ -1074,17 +1077,14 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 	                   "Unable to import \"%s\"!", import);
 	}
       }
-      else if (strcmp(sel_s, "@page") == 0)
+      else if (!strcmp(sel_s, "@page"))
       {
         // Set page parameters...
       }
-      else if (strcmp(sel_s, "@media") == 0)
+      else if (!strcmp(sel_s, "@media"))
       {
         // Set parameters for a specific media type...
 	read(f, sel_p, cssmedia, sizeof(cssmedia));
-
-	if (strcmp(cssmedia, "print") == 0)
-	  cssmedia[0] = '\0';
 
         // Read up to the first {...
 	while ((ch = getc(f)) >= 0)
@@ -1095,8 +1095,11 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 	{
           ungetc(ch, f);
 	  progress_error(HD_ERROR_CSS_ERROR,
-	                 "Missing { for media selector!");
+	                 "Missing { for media selector \"%s\"!", cssmedia);
 	}
+
+	if (!strcmp(cssmedia, "print") || !strcmp(cssmedia, "all"))
+	  cssmedia[0] = '\0';
       }
       else
       {
@@ -1301,7 +1304,7 @@ hdStyleSheet::pattern(const char *r,	// I - Regular expression pattern
 //
 
 char *					// O - String or NULL on EOF
-hdStyleSheet::read(FILE     *f,	// I - File to read from
+hdStyleSheet::read(FILE       *f,	// I - File to read from
                    const char *p,	// I - Allowed chars pattern buffer
 		   char       *s,	// O - String buffer
 		   int        slen)	// I - Number of bytes in string buffer

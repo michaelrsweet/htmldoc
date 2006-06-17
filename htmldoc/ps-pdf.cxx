@@ -4006,8 +4006,11 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
         para->child = para->last_child = NULL;
       }
 
+#if 0
       if ((chapter > 0 && OutputType == HD_OUTPUT_BOOK) ||
           ((*page > 1 || *y < margins->top()) && OutputType == HD_OUTPUT_WEBPAGES))
+#endif //0
+      if (*page > 1 || *y < margins->top())
       {
         if (*y < margins->top())
           (*page) ++;
