@@ -1,4 +1,4 @@
-COMPILE.txt - 09/23/2004
+COMPILE.txt - 06/18/2006
 ------------------------
 
 REQUIREMENTS
@@ -7,26 +7,16 @@ REQUIREMENTS
     compilers (gcc is fine, most vendor compilers work, too). 
     The JPEG, PNG, and ZLIB libraries are provided with HTMLDOC.
 
-    For the GUI support you'll need FLTK 1.1 or higher.  FLTK is
-    a LGPL'd cross-platform GUI toolkit and can be downloaded
-    from:
-
-        http://www.fltk.org/
-
 
 COMPILING HTMLDOC UNDER WINDOWS
 
-    For the Windows version we have included Visual C++
-    workspace and project files under the "visualc" and "vcnet"
-    directories. You must add the FLTK and OpenSSL include and
-    library directories to your VC++ environment options.
+    For the Windows version we have included Visual C++.NET
+    solution and project files under the "vcnet" directory. You
+    must add the OpenSSL include and library directories to your
+    VC++ environment options.
 
 
 INSTALLING HTMLDOC UNDER WINDOWS
-
-    We highly recommend installing the software using the
-    VC++.NET MSI file as provided in the project files under the
-    "vcnet" directory.
 
     If you want to install the software by hand, create a
     directory for the software and copy the HTMLDOC executable,

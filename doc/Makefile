@@ -3,7 +3,7 @@
 #
 #   Makefile for HTMLDOC documentation files.
 #
-#   Copyright 1997-2001 by Easy Software Products.
+#   Copyright 1997-2006 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -33,16 +33,33 @@ include ../Makedefs
 # Documentation files...
 #
 
-SOURCES	=	intro.html 1-install.html 2-starting.html \
-		3-books.html 4-cmdline.html 5-cgi.html \
-		6-htmlref.html 7-guiref.html 8-cmdref.html \
-		a-license.html b-book.html c-relnotes.html \
-		d-compile.html
+SOURCES	=	\
+		intro.html \
+		1-install.html \
+		2-starting.html \
+		3-books.html \
+		4-cmdline.html \
+		5-cgi.html \
+		6-htmlref.html \
+		8-cmdref.html \
+		a-license.html \
+		b-book.html \
+		c-relnotes.html \
+		htmldoc-fig51.png \
+		htmldoc-fig52.png \
+		htmldoc-fig53.png \
+		htmldoc-fig54.png \
+		htmldoc-fig55.png \
+		htmldoc-fig56.png \
+		htmldoc-fig57.png \
+		htmldoc-fig58.png \
+		htmldoc.book \
+		htmldoc.words
 
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
-DOCFILES =	help.html htmldoc.pdf
+DOCFILES =	htmldoc.pdf
 
-HTMLDOC	=	HTMLDOC_DATA=..;export HTMLDOC_DATA;../htmldoc/htmldoc$(EXEEXT) --strict --verbose
+HTMLDOC	=	HTMLDOC_DATA=".." ../htmldoc/htmldoc$(EXEEXT) --strict --verbose
 
 
 #
