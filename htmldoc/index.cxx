@@ -273,11 +273,11 @@ index_doc(hdTree     *doc,		// I - Document
       // Add a link for the page...
       indlink = htmlAddTree(indnode, HD_ELEMENT_A, NULL);
       htmlSetAttr(indlink, "class", (hdChar *)"HD_INDEX");
-      htmlUpdateStyle(indlink, ".");
 
       snprintf(s, sizeof(s), "#%s", htmlGetAttr(p[0]->matches[j], "NAME"));
       htmlSetAttr(indlink, "href", (hdChar *)s);
       indlink->link = indlink;
+      htmlUpdateStyle(indlink, ".");
 
       sprintf(s, "%d", j + 1);
       htmlAddTree(indlink, HD_ELEMENT_NONE, (hdChar *)s);

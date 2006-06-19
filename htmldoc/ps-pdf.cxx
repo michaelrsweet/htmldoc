@@ -453,6 +453,7 @@ static void	write_trailer(FILE *out, int pages);
 static int	write_type1(FILE *out, hdFontFace typeface,
 			    hdFontStyle style);
 static void	write_utf16(FILE *out, hdChar *s);
+static int	update_index(hdTree *t, int last_page = -1);
 
 
 /*
@@ -822,11 +823,6 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 
   parse_doc(document, margins, &x, &y, &page, NULL, &needspace);
 
-  if (ind)
-    parse_doc(ind, margins, &x, &y, &page, NULL, &needspace);
-
-  delete margins;
-
   if (PageDuplex && (num_pages & 1))
     check_pages(num_pages);
 
@@ -835,6 +831,25 @@ pspdf_export(hdTree *document,		/* I - Document to export */
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
     for (page = chapter_starts[chapter]; page <= chapter_ends[chapter]; page ++)
       pspdf_prepare_page(page);
+
+  if (ind)
+  {
+    update_index(ind);
+
+    chapter = TocDocCount;
+
+    parse_doc(ind, margins, &x, &y, &page, NULL, &needspace);
+
+    if (PageDuplex && (num_pages & 1))
+      check_pages(num_pages);
+
+    chapter_ends[chapter] = num_pages - 1;
+
+    for (page = chapter_starts[chapter]; page < num_pages; page ++)
+      pspdf_prepare_page(page);
+  }
+
+  delete margins;
 
  /*
   * Parse the table-of-contents if necessary...
@@ -12899,6 +12914,71 @@ flate_write(FILE  *out,			/* I - Output file */
 #endif // HTMLDOC_ASCII85
   else
     fwrite(buf, length, 1, out);
+}
+
+
+/*
+ * 'update_index()' - Update the index to use page numbers instead of
+ *                    link numbers.
+ */
+
+static int				// O - Last page number
+update_index(hdTree *t,			// I - Index tree
+             int    last_page)		// I - Last page number
+{
+  hdRenderLink	*link;			// Link
+  hdChar	*href;			// Link target
+
+
+  // Loop through index nodes...
+  while (t)
+  {
+    if (t->element == HD_ELEMENT_A &&
+        (href = htmlGetAttr(t, "HREF")) != NULL &&
+	(link = find_link(href + 1)) != NULL)
+    {
+      if (link->page == last_page)
+      {
+        // Remove the duplicate page number listing...
+	hdTree	*prev,			// Previous entry node, if any
+		*next,			// Next entry node, if any
+		*first,			// First node for this listing
+		*last;			// Last node for this listing
+
+
+	first       = t->prev;
+	last        = t;
+        prev        = first->prev;
+	first->prev = NULL;
+	next        = last->next;
+	last->next  = NULL;
+	prev->next  = next;
+
+	if (next)
+	  next->prev = prev;
+	else
+	  t->parent->last_child = prev;
+
+        htmlDeleteTree(first);
+	t = prev;
+      }
+      else
+      {
+	// Rewrite link text with real page number...
+	last_page = link->page;
+
+	free(t->child->data);
+	t->child->data  = (hdChar *)strdup(pages[link->page].page_text);
+	t->child->width = t->child->style->get_width(t->child->data);
+      }
+    }
+    else if (t->child)
+      update_index(t->child, last_page);
+
+    t = t->next;
+  }
+
+  return (last_page);
 }
 
 
