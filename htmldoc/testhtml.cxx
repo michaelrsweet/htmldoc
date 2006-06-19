@@ -175,7 +175,7 @@ main(int  argc,			/* I - Number of command-line arguments */
   if (doc != NULL)
   {
     htmlWriteFile(doc, stdout);
-    toc = toc_build(doc);
+    toc = toc_build(doc, NULL);
     puts("---- TABLE OF CONTENTS ----");
     htmlWriteFile(toc, stdout);
   }

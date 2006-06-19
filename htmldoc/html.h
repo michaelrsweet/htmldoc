@@ -95,8 +95,10 @@ extern int	htmlDeleteTree(hdTree *parent);
 extern hdTree	*htmlInsertTree(hdTree *parent, hdElement element, hdChar *data);
 extern hdTree	*htmlNewTree(hdTree *parent, hdElement element, hdChar *data);
 
+extern hdTree	*htmlFindElement(hdTree *doc, hdElement element);
 extern hdTree	*htmlFindFile(hdTree *doc, const char *filename);
 extern hdTree	*htmlFindTarget(hdTree *doc, hdChar *name);
+extern hdTree	*htmlRealNext(hdTree *tree, bool descend = true);
 extern void	htmlFixLinks(hdTree *doc, hdTree *tree, const char *base = 0);
 
 extern hdElement htmlGetElement(const char *name);

@@ -44,6 +44,7 @@ BASEOBJS =	\
 		http-addrlist.o \
 		http-support.o \
 		image.o \
+		index.o \
 		margin.o \
 		md5.o \
 		progress.o \
@@ -75,6 +76,7 @@ SRCS	=	\
 		http-addrlist.c \
 		http-support.c \
 		image.cxx \
+		index.cxx \
 		margin.cxx \
 		md5.c \
 		progress.cxx \

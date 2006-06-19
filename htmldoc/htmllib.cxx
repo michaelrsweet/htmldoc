@@ -1183,13 +1183,6 @@ htmlNewTree(hdTree    *parent,		//* I - Parent entry
   if (t == NULL)
     return (NULL);
 
-  // Set the element code and copy the data if necessary...
-  t->element = element;
-  t->parent  = parent;
-
-  if (data)
-    t->data = (hdChar *)strdup((char *)data);
-
   // Inherit characteristics as needed...
   if (parent)
   {
@@ -1199,6 +1192,16 @@ htmlNewTree(hdTree    *parent,		//* I - Parent entry
 
   if (!t->style)
     t->style = _htmlStyleSheet->find_style(HD_ELEMENT_BODY);
+
+  // Set the element code and copy the data if necessary...
+  t->element = element;
+  t->parent  = parent;
+
+  if (data)
+  {
+    t->data = (hdChar *)strdup((char *)data);
+    compute_size(t);
+  }
 
   // Return the new node...
   return (t);
@@ -2354,6 +2357,32 @@ htmlDebugStyleStats(void)
 
 
 //
+// 'htmlFindElement()' - Find an element in the document.
+//
+
+hdTree *				// O - Matching element node or NULL
+htmlFindElement(hdTree    *doc,		// I - Document
+                hdElement element)	// I - Element to find
+{
+  hdTree	*tree,			// Current node
+		*match;			// Marching node
+
+
+  if (!doc)
+    return (NULL);
+
+  for (tree = doc; tree; tree = tree->next)
+    if (tree->element == element)
+      return (tree);
+    else if (tree->child &&
+             (match = htmlFindElement(tree->child, element)) != NULL)
+      return (match);
+
+  return (NULL);
+}
+
+
+//
 // 'htmlFindFile()' - Find a file in the document.
 //
 
@@ -2511,6 +2540,33 @@ htmlInitStyleSheet(void)
 		   filename, strerror(errno));
 
   _htmlStyleSheet->update_styles();
+}
+
+
+//
+// 'htmlRealNext()' - Return the next logical node in the tree.
+//
+
+hdTree *				// O - Next logical node or NULL
+htmlRealNext(hdTree *tree,		// I - Current node
+             bool   descend)		// I - Descend into child node?
+{
+  hdTree	*t;			// Current node
+
+
+  // Start at the current node and find the next logical node in
+  // the tree...
+  if (tree->child && descend)
+    return (tree->child);
+
+  if (tree->next)
+    return (tree->next);
+
+  for (t = tree->parent; t; t = t->parent)
+    if (t->next)
+      return (t->next);
+
+  return (NULL);
 }
 
 
