@@ -191,8 +191,10 @@ VAR char	*Header[3]	NULL3,		/* Header for regular pages */
 		*TocHeader[3]	NULL3,		/* Header for TOC pages */
 		*Footer[3]	NULL3,		/* Regular page footer */
 		*TocFooter[3]	NULL3,		/* Footer for TOC pages */
-		TocTitle[1024]	VALUE("Table of Contents");
+		TocTitle[1024]	VALUE("Table of Contents"),
 						/* TOC title string */
+		IndexTitle[1024] VALUE("Index");
+						/* Index title string */
 
 VAR char	TitleImage[1024] VALUE(""),	/* Title page image */
 		LogoImage[1024]	VALUE(""),	/* Logo image */
@@ -209,7 +211,8 @@ VAR char	HFImage[MAX_HF_IMAGES][1024]	/* Header/footer images */
 VAR int		LinkStyle	VALUE(1);	/* 1 = underline, 0 = plain */
 VAR int		Links		VALUE(1);	/* 1 = generate links, 0 = no links */
 VAR char	Path[2048]	VALUE(""),	/* Search path */
-		Proxy[1024]	VALUE("");	/* Proxy URL */
+		Proxy[1024]	VALUE(""),	/* Proxy URL */
+		Words[1024]	VALUE("");	/* Word/phrase list file */
 
 VAR const char	*PDFModes[3]			/* Mode strings */
 #  ifdef _HTMLDOC_CXX_
@@ -238,13 +241,15 @@ VAR const char	*PDFEffects[17]			/* Effect strings */
  * Prototypes...
  */
 
-extern int	pspdf_export(hdTree *document, hdTree *toc);
+extern int	pspdf_export(hdTree *document, hdTree *toc, hdTree *idx);
 
-extern int	html_export(hdTree *document, hdTree *toc);
+extern int	html_export(hdTree *document, hdTree *toc, hdTree *idx);
 
-extern int	htmlsep_export(hdTree *document, hdTree *toc);
+extern int	htmlsep_export(hdTree *document, hdTree *toc, hdTree *idx);
 
-extern hdTree	*toc_build(hdTree *tree);
+extern hdTree	*toc_build(hdTree *tree, hdTree *ind);
+
+extern hdTree	*index_build(hdTree *doc, const char *words);
 
 extern void	get_color(const hdChar *c, float *rgb, int defblack = 1);
 extern const char *get_fmt(char **formats);

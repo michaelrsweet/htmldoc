@@ -69,7 +69,7 @@ const char *__XOS2RedirRoot(const char *);
  * Local types...
  */
 
-typedef int (*exportfunc_t)(hdTree *, hdTree *);
+typedef int (*exportfunc_t)(hdTree *, hdTree *, hdTree *);
 
 
 /*
@@ -103,7 +103,8 @@ main(int  argc,				/* I - Number of command-line arguments */
   int		i, j;			/* Looping vars */
   hdTree	*document,		/* Master HTML document */
 		*file,			/* HTML document file */
-		*toc;			/* Table of contents */
+		*toc,			/* Table of contents */
+		*ind;			/* Index */
   exportfunc_t	exportfunc;		/* Export function */
   const char	*extension;		/* Extension of output filename */
   float		fontsize,		/* Base font size */
@@ -1056,13 +1057,21 @@ main(int  argc,				/* I - Number of command-line arguments */
       puts(SVERSION);
       return (0);
     }
-    else if (compare_strings(argv[i], "--webpage", 3) == 0)
+    else if (compare_strings(argv[i], "--webpage", 4) == 0)
     {
       TocLevels    = 0;
       TitlePage    = 0;
       OutputType   = HD_OUTPUT_WEBPAGES;
       PDFPageMode  = HD_PDF_DOCUMENT;
       PDFFirstPage = HD_PDF_PAGE_1;
+    }
+    else if (compare_strings(argv[i], "--words", 4) == 0)
+    {
+      i ++;
+      if (i < argc)
+        strlcpy(Words, argv[i], sizeof(Words));
+      else
+        usage(argv[i - 1]);
     }
     else if (compare_strings(argv[i], "--xrxcomments", 3) == 0)
       XRXComments = 1;
@@ -1179,8 +1188,13 @@ main(int  argc,				/* I - Number of command-line arguments */
   * Build a table of contents for the documents if necessary...
   */
 
+  if (Words[0])
+    ind = index_build(document, Words);
+  else
+    ind = NULL;
+
   if (OutputType == HD_OUTPUT_BOOK && TocLevels > 0)
-    toc = toc_build(document);
+    toc = toc_build(document, ind);
   else
     toc = NULL;
 
@@ -1192,7 +1206,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   * Generate the output file(s).
   */
 
-  (*exportfunc)(document, toc);
+  (*exportfunc)(document, toc, ind);
 
   end_time = get_seconds();
 
@@ -2250,6 +2264,8 @@ parse_options(const char   *line,	// I - Options from book file
       strlcpy(OwnerPassword, temp2, sizeof(OwnerPassword));
     else if (strcmp(temp, "--path") == 0)
       strlcpy(Path, temp2, sizeof(Path) - 1);
+    else if (strcmp(temp, "--words") == 0)
+      strlcpy(Words, temp2, sizeof(Words));
     else if (strcmp(temp, "--proxy") == 0)
     {
       strlcpy(Proxy, temp2, sizeof(Proxy));

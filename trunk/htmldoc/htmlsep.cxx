@@ -4,7 +4,7 @@
 //   Separated HTML export functions for HTMLDOC, a HTML document processing
 //   program.
 //
-//   Copyright 1997-2005 by Easy Software Products.
+//   Copyright 1997-2006 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -98,7 +98,8 @@ static void	update_links(hdTree *t, int *heading);
 
 int					// O - 0 = success, -1 = failure
 htmlsep_export(hdTree *document,	// I - Document to export
-               hdTree *toc)		// I - Table of contents for document
+               hdTree *toc,		// I - Table of contents for document
+	       hdTree *ind)		// I - Index of document
 {
   int	i;				// Looping var
   int	heading;			// Current heading number
@@ -189,6 +190,14 @@ htmlsep_export(hdTree *document,	// I - Document to export
   if (out != NULL)
     write_footer(&out, heading);
 
+  if (ind)
+  {
+    write_header(&out, (hdChar *)"idx.html", title, author, copyright,
+        	 docnumber, -1);
+    write_doc(&out, ind, 0, &heading, title, author, copyright, docnumber);
+    write_footer(&out, -1);
+  }
+
   // Free memory...
   if (title != NULL)
     free(title);
@@ -223,17 +232,17 @@ htmlsep_export(hdTree *document,	// I - Document to export
  */
 
 static void
-write_header(FILE   **out,	/* IO - Output file */
-             hdChar  *filename,	/* I - Output filename */
-	     hdChar  *title,	/* I - Title for document */
-             hdChar  *author,	/* I - Author for document */
+write_header(FILE   **out,		/* IO - Output file */
+             hdChar  *filename,		/* I - Output filename */
+	     hdChar  *title,		/* I - Title for document */
+             hdChar  *author,		/* I - Author for document */
              hdChar  *copyright,	/* I - Copyright for document */
              hdChar  *docnumber,	/* I - ID number for document */
-	     int    heading)	/* I - Current heading */
+	     int    heading)		/* I - Current heading */
 {
-  char		realname[1024];	/* Real filename */
-  const char	*basename;	/* Filename without directory */
-  static const char *families[] =/* Typeface names */
+  char		realname[1024];		/* Real filename */
+  const char	*basename;		/* Filename without directory */
+  static const char *families[] =	/* Typeface names */
 		{
 		  "monospace",
 		  "serif",
@@ -357,8 +366,8 @@ write_header(FILE   **out,	/* IO - Output file */
  */
 
 static void
-write_footer(FILE **out,	/* IO - Output file pointer */
-	     int  heading)	/* I  - Current heading */
+write_footer(FILE **out,		/* IO - Output file pointer */
+	     int  heading)		/* I  - Current heading */
 {
   if (*out == NULL)
     return;
@@ -401,15 +410,15 @@ write_footer(FILE **out,	/* IO - Output file pointer */
  */
 
 static void
-write_title(FILE  *out,		/* I - Output file */
-            hdChar *title,	/* I - Title for document */
-            hdChar *author,	/* I - Author for document */
-            hdChar *copyright,	/* I - Copyright for document */
-            hdChar *docnumber)	/* I - ID number for document */
+write_title(FILE  *out,			/* I - Output file */
+            hdChar *title,		/* I - Title for document */
+            hdChar *author,		/* I - Author for document */
+            hdChar *copyright,		/* I - Copyright for document */
+            hdChar *docnumber)		/* I - ID number for document */
 {
-  FILE		*fp;		/* Title file */
-  const char	*title_file;	/* Location of title file */
-  hdTree	*t;		/* Title file document tree */
+  FILE		*fp;			/* Title file */
+  const char	*title_file;		/* Location of title file */
+  hdTree	*t;			/* Title file document tree */
 
 
   if (out == NULL)
@@ -492,10 +501,10 @@ write_title(FILE  *out,		/* I - Output file */
  * 'write_all()' - Write all markup text for the given tree.
  */
 
-static int			/* O - Current column */
-write_all(FILE   *out,		/* I - Output file */
-          hdTree *t,		/* I - Document tree */
-          int    col)		/* I - Current column */
+static int				/* O - Current column */
+write_all(FILE   *out,			/* I - Output file */
+          hdTree *t,			/* I - Document tree */
+          int    col)			/* I - Current column */
 {
   if (out == NULL)
     return (0);
@@ -530,7 +539,7 @@ write_doc(FILE   **out,			// I - Output file
 	  hdChar  *copyright,		// I  - Copyright
 	  hdChar  *docnumber)		// I  - Document number
 {
-  hdChar	filename[1024];			// Filename
+  hdChar	filename[1024];		// Filename
 
 
   while (t != NULL)
@@ -605,7 +614,8 @@ write_node(FILE   *out,			/* I - Output file */
 	}
 	else
 	{
-	  if ((col + strlen((char *)t->data)) > 72 && col > 0)
+	  if ((col + strlen((char *)t->data)) > 72 && col > 0 &&
+	      isspace(t->data[0] & 255))
 	  {
             putc('\n', out);
             col = 0;
@@ -616,7 +626,7 @@ write_node(FILE   *out,			/* I - Output file */
 
 	  col += strlen((char *)t->data);
 
-	  if (col > 72)
+	  if (col > 72 && isspace(t->data[strlen((char *)t->data) - 1] & 255))
 	  {
             putc('\n', out);
             col = 0;
@@ -738,7 +748,8 @@ write_node(FILE   *out,			/* I - Output file */
 	  putc('>', out);
 	  col ++;
 
-	  if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE)
+	  if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE &&
+	      t->style->display != HD_DISPLAY_INLINE)
 	  {
 	    putc('\n', out);
 	    col = 0;
@@ -755,17 +766,18 @@ write_node(FILE   *out,			/* I - Output file */
  * 'write_nodeclose()' - Close a single tree node.
  */
 
-static int			/* O - Current column */
-write_nodeclose(FILE   *out,	/* I - Output file */
-                hdTree *t,	/* I - Document tree node */
-                int    col)	/* I - Current column */
+static int				/* O - Current column */
+write_nodeclose(FILE   *out,		/* I - Output file */
+                hdTree *t,		/* I - Document tree node */
+                int    col)		/* I - Current column */
 {
   if (out == NULL)
     return (0);
 
   if (t->element != HD_ELEMENT_HEAD && t->element != HD_ELEMENT_TITLE)
   {
-    if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE)
+    if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE &&
+        t->style->display != HD_DISPLAY_INLINE)
     {
       putc('\n', out);
       col = 0;
@@ -843,10 +855,10 @@ write_nodeclose(FILE   *out,	/* I - Output file */
  * 'write_toc()' - Write all markup text for the given table-of-contents.
  */
 
-static int			/* O - Current column */
-write_toc(FILE   *out,		/* I - Output file */
-          hdTree *t,		/* I - Document tree */
-          int    col)		/* I - Current column */
+static int				/* O - Current column */
+write_toc(FILE   *out,			/* I - Output file */
+          hdTree *t,			/* I - Document tree */
+          int    col)			/* I - Current column */
 {
   if (out == NULL)
     return (0);
@@ -874,10 +886,10 @@ write_toc(FILE   *out,		/* I - Output file */
  * 'get_title()' - Get the title string for the given document...
  */
 
-static hdChar *		/* O - Title string */
-get_title(hdTree *doc)	/* I - Document tree */
+static hdChar *				/* O - Title string */
+get_title(hdTree *doc)			/* I - Document tree */
 {
-  hdChar	*temp;		/* Temporary pointer to title */
+  hdChar	*temp;			/* Temporary pointer to title */
 
 
   while (doc != NULL)
@@ -902,13 +914,13 @@ get_title(hdTree *doc)	/* I - Document tree */
 static void
 add_heading(hdTree *t)			// I - Heading node
 {
-  int	i,				// Looping var
-	count;				// Count of headings with this name
-  hdChar	*heading,			// Heading text for this node
-	*ptr,				// Pointer into text
-	*ptr2,				// Second pointer into text
-	s[1024],			// New text if we have a conflict
-	**temp;				// New heading array pointer
+  int		i,			// Looping var
+		count;			// Count of headings with this name
+  hdChar	*heading,		// Heading text for this node
+		*ptr,			// Pointer into text
+		*ptr2,			// Second pointer into text
+		s[1024],		// New text if we have a conflict
+		**temp;			// New heading array pointer
 
 
   // Start by getting the heading text...
@@ -983,10 +995,10 @@ add_heading(hdTree *t)			// I - Heading node
  */
 
 static void
-add_link(hdChar *name)		/* I - Name of link */
+add_link(hdChar *name)			/* I - Name of link */
 {
-  hdChar		*filename;	/* File for link */
-  hdLink	*temp;		/* New name */
+  hdChar	*filename;		/* File for link */
+  hdLink	*temp;			/* New name */
 
 
   if (num_headings)
@@ -1038,12 +1050,12 @@ add_link(hdChar *name)		/* I - Name of link */
  * 'find_link()' - Find a named link...
  */
 
-static hdLink *
-find_link(hdChar *name)		/* I - Name to find */
+static hdLink *				/* O - Matching link */
+find_link(hdChar *name)			/* I - Name to find */
 {
-  hdChar		*target;	/* Pointer to target name portion */
-  hdLink	key,		/* Search key */
-		*match;		/* Matching name entry */
+  hdChar	*target;		/* Pointer to target name portion */
+  hdLink	key,			/* Search key */
+		*match;			/* Matching name entry */
 
 
   if (name == NULL || num_links == 0)
@@ -1065,9 +1077,9 @@ find_link(hdChar *name)		/* I - Name to find */
  * 'compare_links()' - Compare two named links.
  */
 
-static int			/* O - 0 = equal, -1 or 1 = not equal */
-compare_links(hdLink *n1,	/* I - First name */
-              hdLink *n2)	/* I - Second name */
+static int				/* O - 0 = equal, -1 or 1 = not equal */
+compare_links(hdLink *n1,		/* I - First name */
+              hdLink *n2)		/* I - Second name */
 {
   return (strcasecmp((char *)n1->name, (char *)n2->name));
 }
@@ -1079,7 +1091,7 @@ compare_links(hdLink *n1,	/* I - First name */
  */
 
 static void
-scan_links(hdTree *t)		/* I - Document tree */
+scan_links(hdTree *t)			/* I - Document tree */
 {
   hdChar	*name;			/* Name of link */
 
@@ -1107,13 +1119,13 @@ scan_links(hdTree *t)		/* I - Document tree */
  */
 
 static void
-update_links(hdTree *t,		/* I - Document tree */
-             int    *heading)	/* I - Current heading */
+update_links(hdTree *t,			/* I - Document tree */
+             int    *heading)		/* I - Current heading */
 {
-  hdLink	*link;		/* Link */
-  hdChar		*href;		/* Reference name */
-  hdChar		newhref[1024];	/* New reference name */
-  hdChar		*filename;	/* Current filename */
+  hdLink	*link;			/* Link */
+  hdChar	*href;			/* Reference name */
+  hdChar	newhref[1024];		/* New reference name */
+  hdChar	*filename;		/* Current filename */
 
 
   // Scan the document, rewriting HREF's as needed...

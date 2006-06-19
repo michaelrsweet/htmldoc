@@ -61,12 +61,13 @@ static hdTree	*heading_parents[15];
  * 'toc_build()' - Build a table of contents of the given HTML tree.
  */
 
-hdTree *			/* O - Table of contents tree */
-toc_build(hdTree *tree)		/* I - Document tree */
+hdTree *				/* O - Table of contents tree */
+toc_build(hdTree *tree,			/* I - Document tree */
+          hdTree *ind)			/* I - Index tree, if any */
 {
-  hdTree	*toc,		/* TOC tree pointer */
-		*title,		/* Title entry */
-		*link;		/* Link entry */
+  hdTree	*toc,			/* TOC tree pointer */
+		*title,			/* Title entry */
+		*link;			/* Link entry */
 
 
   TocDocCount        = 0;
@@ -74,17 +75,16 @@ toc_build(hdTree *tree)		/* I - Document tree */
   heading_numbers[0] = 0;	/* Start at 1 (see below) */
 
   toc = htmlAddTree(NULL, HD_ELEMENT_BODY, NULL);
-  htmlSetAttr(toc, "CLASS", (hdChar *)"HD_TOC");
+  htmlSetAttr(toc, "class", (hdChar *)"HD_TOC");
   htmlUpdateStyle(toc, ".");
 
   title = htmlAddTree(toc, HD_ELEMENT_H1, NULL);
-  htmlSetAttr(title, "ALIGN", (hdChar *)"CENTER");
-  htmlSetAttr(title, "CLASS", (hdChar *)"HD_TOC");
+  htmlSetAttr(title, "class", (hdChar *)"HD_TOC");
   htmlUpdateStyle(title, ".");
 
   link = htmlAddTree(title, HD_ELEMENT_A, NULL);
   htmlSetAttr(link, "NAME", (hdChar *)"CONTENTS");
-  htmlSetAttr(link, "CLASS", (hdChar *)"HD_TOC");
+  htmlSetAttr(link, "class", (hdChar *)"HD_TOC");
   htmlUpdateStyle(link, ".");
 
   htmlAddTree(link, HD_ELEMENT_NONE, (hdChar *)TocTitle);
@@ -106,6 +106,22 @@ toc_build(hdTree *tree)		/* I - Document tree */
   heading_parents[14] = toc;
 
   parse_tree(tree);
+
+  if (ind)
+  {
+    // Add listing for index...
+    title = htmlAddTree(toc, HD_ELEMENT_B, NULL);
+    htmlSetAttr(title, "class", (hdChar *)"HD_TOC");
+    htmlUpdateStyle(title, ".");
+
+    link = htmlAddTree(title, HD_ELEMENT_A, NULL);
+    htmlSetAttr(link, "href", (hdChar *)"#INDEX");
+    htmlSetAttr(link, "class", (hdChar *)"HD_TOC");
+    htmlUpdateStyle(link, ".");
+    link->link = link;
+
+    htmlAddTree(link, HD_ELEMENT_NONE, (hdChar *)IndexTitle);
+  }
 
   return (toc);
 }
@@ -338,7 +354,7 @@ parse_tree(hdTree *t)			/* I - Document tree */
         	heading_parents[level] =
 		    htmlAddTree(heading_parents[last_level], HD_ELEMENT_UL, NULL);
 
-              htmlSetAttr(heading_parents[level], "CLASS", (hdChar *)"HD_TOC");
+              htmlSetAttr(heading_parents[level], "class", (hdChar *)"HD_TOC");
               htmlUpdateStyle(heading_parents[level], ".");
 
               DEBUG_printf(("level=%d, last_level=%d, created new UL parent %p\n",
@@ -358,7 +374,7 @@ parse_tree(hdTree *t)			/* I - Document tree */
             else
               parent = htmlAddTree(heading_parents[level], HD_ELEMENT_LI, NULL);
 
-            htmlSetAttr(parent, "CLASS", (hdChar *)"HD_TOC");
+            htmlSetAttr(parent, "class", (hdChar *)"HD_TOC");
             htmlUpdateStyle(parent, ".");
 
             DEBUG_printf(("parent=%p\n", parent));
@@ -373,9 +389,10 @@ parse_tree(hdTree *t)			/* I - Document tree */
               */
 
               parent = htmlAddTree(parent, HD_ELEMENT_A, NULL);
-              htmlSetAttr(parent, "HREF", link);
-              htmlSetAttr(parent, "CLASS", (hdChar *)"HD_TOC");
+              htmlSetAttr(parent, "href", link);
+              htmlSetAttr(parent, "class", (hdChar *)"HD_TOC");
               htmlUpdateStyle(parent, ".");
+	      parent->link = parent;
 
              /*
               * Insert a NAME marker if needed and reparent all the

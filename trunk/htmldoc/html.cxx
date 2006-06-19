@@ -3,7 +3,7 @@
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -97,7 +97,8 @@ static void	update_links(hdTree *t, hdChar *filename);
 
 int					/* O - 0 = success, -1 = failure */
 html_export(hdTree *document,		/* I - Document to export */
-            hdTree *toc)		/* I - Table of contents for document */
+            hdTree *toc,		/* I - Table of contents for document */
+	    hdTree *ind)		// I - Index of document
 {
   hdChar	*title,			/* Title text */
 		*author,		/* Author name */
@@ -192,6 +193,15 @@ html_export(hdTree *document,		/* I - Document to export */
     write_footer(&out, document);
 
     document = document->next;
+  }
+
+  if (ind)
+  {
+    write_header(&out, (hdChar *)"idx.html", title, author, copyright,
+        	 docnumber, ind);
+    if (out)
+      write_all(out, ind->child, 0);
+    write_footer(&out, ind);
   }
 
   if (!OutputFiles && out != stdout && out != NULL)
@@ -608,7 +618,8 @@ write_node(FILE   *out,			/* I - Output file */
 	}
 	else
 	{
-	  if ((col + strlen((char *)t->data)) > 72 && col > 0)
+	  if ((col + strlen((char *)t->data)) > 72 && col > 0 &&
+	      isspace(t->data[0] & 255))
 	  {
             putc('\n', out);
             col = 0;
@@ -619,7 +630,7 @@ write_node(FILE   *out,			/* I - Output file */
 
 	  col += strlen((char *)t->data);
 
-	  if (col > 72)
+	  if (col > 72 && isspace(t->data[strlen((char *)t->data) - 1] & 255))
 	  {
             putc('\n', out);
             col = 0;
@@ -741,7 +752,8 @@ write_node(FILE   *out,			/* I - Output file */
 	  putc('>', out);
 	  col ++;
 
-	  if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE)
+	  if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE &&
+	      t->style->display != HD_DISPLAY_INLINE)
 	  {
 	    putc('\n', out);
 	    col = 0;
@@ -768,7 +780,8 @@ write_nodeclose(FILE   *out,	/* I - Output file */
 
   if (t->element != HD_ELEMENT_HEAD && t->element != HD_ELEMENT_TITLE)
   {
-    if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE)
+    if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE &&
+        t->style->display != HD_DISPLAY_INLINE)
     {
       putc('\n', out);
       col = 0;

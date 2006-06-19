@@ -197,7 +197,7 @@ struct hdRenderLink			/**** Named link position structure */
 {
   short		page,			/* Page # */
 		top;			/* Top position */
-  hdChar		name[124];		/* Reference name */
+  hdChar	name[124];		/* Reference name */
 };
 
 struct hdPage				//// Page information
@@ -212,10 +212,10 @@ struct hdPage				//// Page information
 		landscape;		// Landscape orientation?
   hdRender	*start,			// First render element
 		*end;			// Last render element
-  hdChar		*chapter,		// Chapter text
+  hdChar	*chapter,		// Chapter text
 		*heading;		// Heading text
   hdTree	*headnode;		// Heading node
-  hdChar		*header[3],		// Headers for regular pages
+  hdChar	*header[3],		// Headers for regular pages
 		*header1[3],		// Headers for first pages
 		*footer[3];		// Footers for all pages
   char		media_color[64],	// Media color
@@ -461,7 +461,8 @@ static void	write_utf16(FILE *out, hdChar *s);
 
 int
 pspdf_export(hdTree *document,		/* I - Document to export */
-             hdTree *toc)		/* I - Table of contents for document */
+             hdTree *toc,		/* I - Table of contents for document */
+	     hdTree *ind)		// I - Index of document
 {
   int		i, j;			/* Looping vars */
   const char	*title_file;		/* Location of title image/file */
@@ -820,6 +821,9 @@ pspdf_export(hdTree *document,		/* I - Document to export */
   y = margins->top();
 
   parse_doc(document, margins, &x, &y, &page, NULL, &needspace);
+
+  if (ind)
+    parse_doc(ind, margins, &x, &y, &page, NULL, &needspace);
 
   delete margins;
 
