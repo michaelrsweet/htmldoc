@@ -23,6 +23,21 @@
 //
 // Contents:
 //
+//   index_build()                   - Build an index from a file...
+//   index_doc()                     - Build an index from a list of phrases...
+//   hdIndex::hdIndex()              - Create an index...
+//   hdIndex::~hdIndex()             - Destroy an index...
+//   hdIndex::scan()                 - Scan a document tree for index matches...
+//   hdIndex::sort_topics()          - Sort phrases by topic.
+//   hdIndex::sort_words()           - Sort phrases by words.
+//   hdIndexPhrase::hdIndexPhrase()  - Create a phrase for indexing.
+//   hdIndexPhrase::~hdIndexPhrase() - Delete a phrase.
+//   hdIndexPhrase::add_match()      - Add a match to a phrase...
+//   hdIndexPhrase::compare_topics() - Compare two phrases, ordering by the
+//                                     topic.
+//   hdIndexPhrase::compare_tree()   - Compare a phrase to tree nodes...
+//   hdIndexPhrase::compare_words()  - Compare two phrases, ordering by the
+//                                     word.
 //
 
 //
@@ -179,7 +194,7 @@ index_doc(hdTree     *doc,		// I - Document
 
      for (j = 0; j < p[0]->num_matches; j ++)
        printf("    #%d%p (%s)\n", j + 1, p[0]->matches[j],
-              p[0]->matches[j]->get_attr("name"));
+              htmlGetAttr(p[0]->matches[j], "name"));
   }
 #endif // 0
 
@@ -343,6 +358,7 @@ hdIndex::scan(hdTree *t)		// I - Document to scan
 		result;			// Result of comparison
   hdTree	*target,		// Current link target...
 		*temp;			// New link target...
+  hdChar	*ptr;			// Pointer to data
 
 
   // with the minimal optimization of a hashing table.  
@@ -366,7 +382,9 @@ hdIndex::scan(hdTree *t)		// I - Document to scan
     else if (t->element == HD_ELEMENT_NONE)
     {
       // Check this node for matches...
-      i = tolower(t->data[0] & 255);
+      for (ptr = t->data; isspace(*ptr); ptr ++);
+
+      i = tolower(*ptr);
       i = hash[i];
 
       if (i >= 0)
@@ -643,18 +661,22 @@ hdIndexPhrase::compare_tree(hdTree *t)	// I - Current node
   for (i = 0; i < num_words && t != NULL; t = htmlRealNext(t))
   {
     // Only compare text fragments; stop when we hit a block boundary.
-    if (t->element != HD_ELEMENT_NONE && t->style->display != HD_DISPLAY_INLINE)
-      break;
-    else if (t->element != HD_ELEMENT_NONE)
-      continue;
+    if (t->element != HD_ELEMENT_NONE)
+    {
+      if (t->style->display != HD_DISPLAY_INLINE)
+        break;
+      else
+        continue;
+    }
 
     // Do a case-insensitive comparison, ignoring trailing punctuation
-    // chars...
-    for (a = (char *)t->data, b = words[i]; *a && *b; a ++, b ++)
+    // chars and skipping leading whitespace...
+    for (a = (char *)t->data; isspace(*a & 255); a ++);
+    for (b = words[i]; *a && *b; a ++, b ++)
       if (tolower(*a & 255) != tolower(*b & 255))
         break;
 
-    if (*b || (!ispunct(*a) && *a))
+    if (*b || (!ispunct(*a & 255) && !isspace(*a & 255) && *a))
     {
       if (tolower(*a & 255) < tolower(*b & 255))
         return (-1);
