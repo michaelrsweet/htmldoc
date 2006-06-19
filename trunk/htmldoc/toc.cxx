@@ -83,7 +83,7 @@ toc_build(hdTree *tree,			/* I - Document tree */
   htmlUpdateStyle(title, ".");
 
   link = htmlAddTree(title, HD_ELEMENT_A, NULL);
-  htmlSetAttr(link, "NAME", (hdChar *)"CONTENTS");
+  htmlSetAttr(link, "name", (hdChar *)"CONTENTS");
   htmlSetAttr(link, "class", (hdChar *)"HD_TOC");
   htmlUpdateStyle(link, ".");
 
@@ -312,11 +312,11 @@ parse_tree(hdTree *t)			/* I - Document tree */
           existing = NULL;
 
           if (t->parent != NULL && t->parent->element == HD_ELEMENT_A)
-	    existing = htmlGetAttr(t->parent, "NAME");
+	    existing = htmlGetAttr(t->parent, "name");
 
 	  if (existing == NULL &&
               t->child != NULL && t->child->element == HD_ELEMENT_A)
-	    existing = htmlGetAttr(t->child, "NAME");
+	    existing = htmlGetAttr(t->child, "name");
 
           if (existing != NULL &&
 	      strlen((char *)existing) >= 124)	/* Max size of link name */
@@ -406,14 +406,14 @@ parse_tree(hdTree *t)			/* I - Document tree */
 		*/
 
                 if (t->parent != NULL && t->parent->element == HD_ELEMENT_A)
-	          htmlSetAttr(t->parent, "NAME", baselink);
+	          htmlSetAttr(t->parent, "name", baselink);
 		else if (t->child != NULL && t->child->element == HD_ELEMENT_A)
-	          htmlSetAttr(t->child, "NAME", baselink);
+	          htmlSetAttr(t->child, "name", baselink);
 		else
 		{
         	  target = htmlNewTree(t, HD_ELEMENT_A, NULL);
 
-        	  htmlSetAttr(target, "NAME", baselink);
+        	  htmlSetAttr(target, "name", baselink);
         	  for (temp = t->child; temp != NULL; temp = temp->next)
                     temp->parent = target;
 
