@@ -1,3 +1,0 @@
-#HTMLDOC 1.8.24mrc1
--t ps2 -f htmldoc-cd.ps --webpage --no-title --linkstyle underline --size 4.75x7in --left 0.5in --right 0.250in --top 0.250in --bottom 0.250in --header ... --footer .1. --nup 1 --tocheader .t. --tocfooter ..i --duplex --portrait --grayscale --no-pscommands --no-xrxcomments --compression=9 --jpeg=0 --fontsize 8.5 --fontspacing 1.1 --headingfont Helvetica --bodyfont Times --headfootsize 8.0 --headfootfont Helvetica-Oblique --charset iso-8859-1 --browserwidth 680
-htmldoc-cd.html

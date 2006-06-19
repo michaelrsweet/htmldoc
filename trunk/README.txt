@@ -1,4 +1,4 @@
-README.txt - 09/23/2004
+README.txt - 06/18/2006
 -----------------------
 
 INTRODUCTION
@@ -7,11 +7,7 @@ INTRODUCTION
     program that generates HTML, PostScript, and PDF files with
     a table of contents.
 
-    **** HTMLDOC CURRENTLY ONLY SUPPORTS HTML 3.2 AND DOES NOT ****
-    **** SUPPORT STYLE SHEETS!  PLEASE READ THE DOCUMENTATION  ****
-    **** BEFORE ASKING QUESTIONS.                              ****
-
-    HTMLDOC is copyright 1997-2004 by Easy Software Products.
+    HTMLDOC is copyright 1997-2006 by Easy Software Products.
     The source code is available under the GNU General Public
     License, version 2.  See the LEGAL STUFF section below for
     details.
@@ -20,22 +16,15 @@ INTRODUCTION
     subdirectory and is been generated from HTML "source" files
     into HTML, PostScript, and PDF using HTMLDOC.
 
-    HTMLDOC supports most HTML 3.2 and some HTML 4.0 markups as
-    well as BMP, GIF, JPEG, and PNG images.  Eventually HTMLDOC
-    will be compliant with HTML 4.0 and support style sheets.
+    HTMLDOC supports most HTML 4.0 elements, CSS1 and some CSS2
+    stylesheet properties, and BMP, GIF, JPEG, and PNG images.
+    The documentation in the "doc" directory provides details
+    about the HTML and CSS supoprt in HTMLDOC.
 
     Please support continued HTMLDOC development by purchasing
     HTMLDOC on CD-ROM from the following page:
 
         http://www.easysw.com/htmldoc/
-
-    HTMLDOC Basic is available for $49.95 and provides the
-    software on CD-ROM and 30 days of installation support via
-    email, telephone, and WWW.
-
-    HTMLDOC Professional is available for $499.95 and provides
-    the software on CD-ROM and one year of general support via
-    email, telephone, and WWW.
 
 
 INTERNET RESOURCES
@@ -124,7 +113,6 @@ USING HTMLDOC
 
 CURRENT LIMITATIONS
 
-    - No support for style sheets.
     - No support for HTML forms.
     - HTML 4.0 table elements and attributes are not supported
       (rules, THEAD, TFOOT, etc.)
@@ -187,9 +175,9 @@ LEGAL STUFF
 
     HTMLDOC is the trademark property of Easy Software Products.
 
-    HTMLDOC is copyright 1997-2004 by Easy Software Products.
+    HTMLDOC is copyright 1997-2006 by Easy Software Products.
     See Appendix A of the HTMLDOC Software Users Manual or the
     files "COPYING.txt" and "htmldoc.eula" for the terms of use.
 
     This software is based in part on the work of the
-    Independent JPEG Group and FLTK project.
+    Independent JPEG Group.
