@@ -1,10 +1,12 @@
-CHANGES.txt - 06/07/2006
+CHANGES.txt - 06/20/2006
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.27
 
     BUG FIXES
 
+	- Remote URLs did not always work on older operating
+	  systems (PR #6179)
 	- Image filenames using % escapes were not decoded
 	  properly.
 	- Rows using BGCOLOR that spanned across multiple pages
