@@ -109,18 +109,8 @@ toc_build(hdTree *tree,			/* I - Document tree */
 
   if (ind)
   {
-    // Add listing for index...
-    title = htmlAddTree(toc, HD_ELEMENT_B, NULL);
-    htmlSetAttr(title, "class", (hdChar *)"HD_TOC");
-    htmlUpdateStyle(title, ".");
-
-    link = htmlAddTree(title, HD_ELEMENT_A, NULL);
-    htmlSetAttr(link, "href", (hdChar *)"#INDEX");
-    htmlSetAttr(link, "class", (hdChar *)"HD_TOC");
-    htmlUpdateStyle(link, ".");
-    link->link = link;
-
-    htmlAddTree(link, HD_ELEMENT_NONE, (hdChar *)IndexTitle);
+    parse_tree(ind);
+    TocDocCount --;
   }
 
   return (toc);

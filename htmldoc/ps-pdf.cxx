@@ -12946,8 +12946,12 @@ update_index(hdTree *t,			// I - Index tree
 		*last;			// Last node for this listing
 
 
-	first       = t->prev;
-	last        = t;
+	first = t->prev;
+	if (t->next)
+	  last = t->next;
+	else
+	  last = t;
+
         prev        = first->prev;
 	first->prev = NULL;
 	next        = last->next;
