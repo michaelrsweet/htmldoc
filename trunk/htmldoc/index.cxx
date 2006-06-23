@@ -164,7 +164,7 @@ index_doc(hdTree     *doc,		// I - Document
           int        num_phrases,	// I - Number of phrases
 	  const char **phrases)		// I - Phrases
 {
-  int		i, j;			// Looping vars
+  int		i, j, k, n;		// Looping vars
   hdIndex	*inddata;		// Index data
   hdIndexPhrase	**p;			// Index phrase
   int		ch;			// Current character
@@ -208,8 +208,7 @@ index_doc(hdTree     *doc,		// I - Document
   htmlUpdateStyle(title, ".");
 
   link = htmlAddTree(title, HD_ELEMENT_A, NULL);
-  htmlSetAttr(link, "NAME", (hdChar *)"INDEX");
-  htmlSetAttr(link, "class", (hdChar *)"HD_INDEX");
+  htmlSetAttr(link, "name", (hdChar *)"HD_INDEX");
   htmlUpdateStyle(link, ".");
 
   htmlAddTree(link, HD_ELEMENT_NONE, (hdChar *)IndexTitle);
@@ -236,9 +235,14 @@ index_doc(hdTree     *doc,		// I - Document
       htmlSetAttr(indnode, "class", (hdChar *)"HD_INDEX");
       htmlUpdateStyle(indnode, ".");
 
+      indlink = htmlAddTree(indnode, HD_ELEMENT_A, NULL);
+      snprintf(s, sizeof(s), "HD_INDEX_%c", ch);
+      htmlSetAttr(indlink, "name", (hdChar *)s);
+      htmlUpdateStyle(indlink, ".");
+
       s[0] = ch;
       s[1] = '\0';
-      htmlAddTree(indnode, HD_ELEMENT_NONE, (hdChar *)s);
+      htmlAddTree(indlink, HD_ELEMENT_NONE, (hdChar *)s);
     }
 
     if (topic != p[0]->topic)
@@ -280,22 +284,29 @@ index_doc(hdTree     *doc,		// I - Document
       htmlAddTree(indnode, HD_ELEMENT_NONE, (hdChar *)s);
     }
 
-    for (j = 0; j < p[0]->num_matches; j ++)
+    for (j = 0, n = 0; j < p[0]->num_matches; j = k)
     {
       // Add the link...
-      htmlAddTree(indnode, HD_ELEMENT_NONE, j ? (hdChar *)", " : (hdChar *)" ");
+      htmlAddTree(indnode, HD_ELEMENT_NONE, (hdChar *)" ");
 
       // Add a link for the page...
       indlink = htmlAddTree(indnode, HD_ELEMENT_A, NULL);
-      htmlSetAttr(indlink, "class", (hdChar *)"HD_INDEX");
-
       snprintf(s, sizeof(s), "#%s", htmlGetAttr(p[0]->matches[j], "NAME"));
       htmlSetAttr(indlink, "href", (hdChar *)s);
+      htmlSetAttr(indlink, "_HD_FULL_HREF", (hdChar *)s);
       indlink->link = indlink;
       htmlUpdateStyle(indlink, ".");
 
-      sprintf(s, "%d", j + 1);
+      n ++;
+      sprintf(s, "%d", n);
       htmlAddTree(indlink, HD_ELEMENT_NONE, (hdChar *)s);
+
+      for (k = j + 1; k < p[0]->num_matches; k ++)
+        if (p[0]->matches[j] != p[0]->matches[k])
+	  break;
+
+      if (k < p[0]->num_matches)
+	htmlAddTree(indnode, HD_ELEMENT_NONE, (hdChar *)",");
     }
   }
 
@@ -359,6 +370,8 @@ hdIndex::scan(hdTree *t)		// I - Document to scan
   hdTree	*target,		// Current link target...
 		*temp;			// New link target...
   hdChar	*ptr;			// Pointer to data
+  int		number;			// Target number
+  char		name[255];		// Target name
 
 
   // with the minimal optimization of a hashing table.  
@@ -366,7 +379,7 @@ hdIndex::scan(hdTree *t)		// I - Document to scan
   sort_words();
 
   // Scan the document...
-  for (target = NULL; t; t = htmlRealNext(t))
+  for (target = NULL, number = 0; t; t = htmlRealNext(t))
   {
     // This method basically uses a "brute force" searching algorithm.
     // The only optimizations we use use are a hash table that tells us
@@ -399,12 +412,41 @@ hdIndex::scan(hdTree *t)		// I - Document to scan
 	    break;
           else if (result == 0)
 	  {
-	    // We found a match; see if the current paragraph contains
-	    // a link target...
-	    if (temp == NULL && t->parent != NULL &&
-		(temp = htmlFindElement(t->parent, HD_ELEMENT_A)) != NULL)
-	      if (htmlGetAttr(temp, "NAME"))
-		target = temp;
+	    // We found a match; if there is no target in the current
+	    // paragraph, add one...
+	    if (!target)
+	    {
+	      // Create the node...
+	      target = htmlNewTree(NULL, HD_ELEMENT_A, NULL);
+	      sprintf(name, "HD_INDEX_%06d", number ++);
+	      htmlSetAttr(target, "name", (hdChar *)name);
+
+              // Reparent the current node under the target node...
+              target->prev       = t->prev;
+	      target->next       = t->next;
+	      target->parent     = t->parent;
+	      target->link       = t->link;
+	      target->style      = t->style;
+	      target->child      = t;
+	      target->last_child = t;
+
+              if (target->prev)
+	        target->prev->next = target;
+	      else
+	        target->parent->child = target;
+
+              if (target->next)
+	        target->next->prev = target;
+	      else
+	        target->parent->last_child = target;
+
+	      htmlUpdateStyle(target, ".");
+
+	      t->prev   = NULL;
+	      t->next   = NULL;
+	      t->parent = target;
+	      t->style  = target->style;
+            }
 
             // Add the link to the list of matches...
 	    phrases[i]->add_match(target);
@@ -414,6 +456,8 @@ hdIndex::scan(hdTree *t)		// I - Document to scan
 	}
       }
     }
+    else if (!t->style || t->style->display != HD_DISPLAY_INLINE)
+      target = NULL;
   }
 }
 
