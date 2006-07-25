@@ -3,7 +3,7 @@
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2005 by Easy Software Products.
+//   Copyright 1997-2006 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1148,7 +1148,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     if (!strcasecmp(name, "background"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = -1;
 
       while (*subvalue)
@@ -1296,7 +1296,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (!strcasecmp(name, "background-position"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = -1;
 
       while (*subvalue)
@@ -1399,7 +1399,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     {
       // Loop until we have exhausted the value string...
       char last = '\0';
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = 0;
 
       while (*subvalue)
@@ -1551,7 +1551,8 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	else
 	{
 	  // Unknown value...
-	  progress_error(HD_ERROR_CSS_ERROR, "Unknown border value \"%s\"!\n", subvalue);
+	  progress_error(HD_ERROR_CSS_ERROR, "Unknown border value \"%s\"!\n",
+	                 subvalue);
 	  status = false;
 	}
 
@@ -1565,7 +1566,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
              !strcasecmp(name, "border-top"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = get_pos(name);
 
       while (*subvalue)
@@ -1669,7 +1670,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (!strcasecmp(name, "border-color"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = 0;
 
       while (*subvalue)
@@ -1742,7 +1743,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
              !strcasecmp(name, "border-top"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = get_pos(name);
 
       while (*subvalue)
@@ -1799,7 +1800,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (!strcasecmp(name, "border-style"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = 0;
 
       while (*subvalue)
@@ -1888,7 +1889,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (!strcasecmp(name, "border-width"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = 0;
 
       while (*subvalue)
@@ -2085,7 +2086,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (!strcasecmp(name, "font"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = 0;
 
       while (*subvalue)
@@ -2266,7 +2267,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (!strcasecmp(name, "list-style"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = 0;
 
       while (*subvalue)
@@ -2388,7 +2389,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (!strcasecmp(name, "margin"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = 0;
 
       while (*subvalue)
@@ -2506,7 +2507,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
     else if (!strcasecmp(name, "padding"))
     {
       // Loop until we have exhausted the value string...
-      subvalue = value;
+      subvalue = valueptr = value;
       pos      = 0;
 
       while (*subvalue)
