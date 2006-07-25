@@ -2116,14 +2116,14 @@ fix_filename(char       *filename,	/* I - Original filename */
 
     if (filename[0] == '/')
     {
-      if ((slash = strchr(base, '/')) != NULL)
+      if ((slash = (char *)strchr(base, '/')) != NULL)
         strlcpy(slash, filename, sizeof(newfilename) - (slash - newfilename));
       else
         strlcat(newfilename, filename, sizeof(newfilename));
 
       return (newfilename);
     }
-    else if ((slash = strchr(base, '/')) == NULL)
+    else if ((slash = (char *)strchr(base, '/')) == NULL)
       strlcat(newfilename, "/", sizeof(newfilename));
   }
   else
@@ -2150,7 +2150,7 @@ fix_filename(char       *filename,	/* I - Original filename */
     else if ((slash = strrchr(base, '\\')) != NULL)
       *slash = '\0';
 #else
-    if ((slash = strrchr(base, '/')) != NULL)
+    if ((slash = (char *)strrchr(base, '/')) != NULL)
       *slash = '\0';
 #endif // WIN32 || __EMX__
     else
