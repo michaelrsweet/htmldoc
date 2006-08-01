@@ -5538,10 +5538,6 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 
   while (flat != NULL)
   {
-    rgb[0] = flat->style->color[0] / 255.0f;
-    rgb[1] = flat->style->color[1] / 255.0f;
-    rgb[2] = flat->style->color[2] / 255.0f;
-
     for (height = 0.0f, start = flat; flat != NULL; flat = flat->next)
     {
       if (flat->height > height)
@@ -5574,6 +5570,10 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
     col = 0;
     while (start != flat)
     {
+      rgb[0] = start->style->color[0] / 255.0f;
+      rgb[1] = start->style->color[1] / 255.0f;
+      rgb[2] = start->style->color[2] / 255.0f;
+
       if (start->link &&
 	  (link = htmlGetAttr(start->link, "_HD_FULL_HREF")) != NULL)
       {
@@ -8794,7 +8794,8 @@ check_pages(int page)	// I - Current page
   if (page >= alloc_pages)
   {
     // Yes, allocate enough for ALLOC_PAGES more pages...
-    alloc_pages += ALLOC_PAGES;
+    while (page >= alloc_pages)
+      alloc_pages += ALLOC_PAGES;
 
     // Do the pages pointers...
     if (num_pages == 0)
@@ -8811,7 +8812,7 @@ check_pages(int page)	// I - Current page
       return;
     }
 
-    memset(temp + alloc_pages - ALLOC_PAGES, 0, sizeof(hdPage) * ALLOC_PAGES);
+    memset(temp + num_pages, 0, (alloc_pages - num_pages) * sizeof(hdPage));
 
     pages = temp;
   }
