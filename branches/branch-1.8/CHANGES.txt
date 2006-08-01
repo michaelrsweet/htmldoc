@@ -5,6 +5,8 @@ CHANGES IN HTMLDOC v1.8.27
 
     BUG FIXES
 
+	- Fixed a crash bug that appeared when more than 10 blank
+	  pages were present in a document (PR #6223)
 	- Color changes were not reflected in PRE text (STR #129)
 	- Remote URLs did not always work on older operating
 	  systems (PR #6179)

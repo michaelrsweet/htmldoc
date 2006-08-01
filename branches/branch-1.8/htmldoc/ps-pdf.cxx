@@ -8685,7 +8685,8 @@ check_pages(int page)	// I - Current page
   if (page >= alloc_pages)
   {
     // Yes, allocate enough for ALLOC_PAGES more pages...
-    alloc_pages += ALLOC_PAGES;
+    while (page >= alloc_pages)
+      alloc_pages += ALLOC_PAGES;
 
     // Do the pages pointers...
     if (num_pages == 0)
@@ -8702,7 +8703,7 @@ check_pages(int page)	// I - Current page
       return;
     }
 
-    memset(temp + alloc_pages - ALLOC_PAGES, 0, sizeof(page_t) * ALLOC_PAGES);
+    memset(temp + num_pages, 0, (alloc_pages - num_pages) * sizeof(page_t));
 
     pages = temp;
   }
