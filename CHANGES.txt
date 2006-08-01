@@ -1,10 +1,11 @@
-CHANGES.txt - 06/20/2006
+CHANGES.txt - 08/01/2006
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.27
 
     BUG FIXES
 
+	- Color changes were not reflected in PRE text (STR #129)
 	- Remote URLs did not always work on older operating
 	  systems (PR #6179)
 	- Image filenames using % escapes were not decoded
