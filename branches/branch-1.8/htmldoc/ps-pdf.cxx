@@ -5427,10 +5427,6 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
   while (flat != NULL)
   {
-    rgb[0] = flat->red / 255.0f;
-    rgb[1] = flat->green / 255.0f;
-    rgb[2] = flat->blue / 255.0f;
-
     for (height = 0.0f, start = flat; flat != NULL; flat = flat->next)
     {
       if (flat->height > height)
@@ -5463,6 +5459,10 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     col = 0;
     while (start != flat)
     {
+      rgb[0] = start->red / 255.0f;
+      rgb[1] = start->green / 255.0f;
+      rgb[2] = start->blue / 255.0f;
+
       if (start->link &&
 	  (link = htmlGetVariable(start->link, (uchar *)"_HD_FULL_HREF")) != NULL)
       {
