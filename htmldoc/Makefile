@@ -15,7 +15,7 @@
 #       Attn: ESP Licensing Information
 #       Easy Software Products
 #       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636 USA
+#       Hollywood, Maryland 20636-3142 USA
 #
 #       Voice: (301) 373-9600
 #       EMail: info@easysw.com
@@ -33,73 +33,17 @@ include ../Makedefs
 # Object files...
 #
 
-BASEOBJS =	\
-		entity.o \
-		file.o \
-		html.o \
-		htmllib.o \
-		htmlsep.o \
-		http.o \
-		http-addr.o \
-		http-addrlist.o \
-		http-support.o \
-		image.o \
-		index.o \
-		margin.o \
-		md5.o \
-		progress.o \
-		ps-pdf.o \
-		rc4.o \
-		snprintf.o \
-		string.o \
-		style.o \
-		stylefont.o \
-		stylemedia.o \
-		stylesheet.o \
-		styletree.o \
-		toc.o \
-		util.o
-OBJS	=	\
-		$(BASEOBJS) \
-		htmldoc.o \
-		testhtml.o \
-		teststyle.o
-SRCS	=	\
-		entity.cxx \
-		file.c \
-		html.cxx \
-		htmldoc.cxx \
-		htmllib.cxx \
-		htmlsep.cxx \
-		http.c \
-		http-addr.c \
-		http-addrlist.c \
-		http-support.c \
-		image.cxx \
-		index.cxx \
-		margin.cxx \
-		md5.c \
-		progress.cxx \
-		ps-pdf.cxx \
-		rc4.c \
-		snprintf.c \
-		string.c \
-		style.cxx \
-		stylefont.cxx \
-		stylemedia.cxx \
-		stylesheet.cxx \
-		styletree.cxx \
-		testhtml.cxx \
-		teststyle.cxx \
-		toc.cxx \
-		util.cxx
+OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o \
+		http.o http-addr.o http-addrlist.o http-support.o image.o \
+		iso8859.o license.o md5.o progress.o ps-pdf.o rc4.o \
+		snprintf.o string.o toc.o util.o
 
 
 #
 # Make everything...
 #
 
-all:	htmldoc$(EXEEXT) testhtml$(EXEEXT) teststyle$(EXEEXT)
+all:	htmldoc$(EXEEXT)
 
 #
 # Install everything...
@@ -111,14 +55,6 @@ install:	all
 	fi
 	cp htmldoc$(EXEEXT) $(bindir)
 	chmod ugo+rx $(bindir)/htmldoc$(EXEEXT)
-
-
-#
-# Uninstall everything...
-#
-
-uninstall:
-	$(RM) $(bindir)/htmldoc$(EXEEXT)
 
 
 #
@@ -134,43 +70,19 @@ clean:
 #
 
 depend:
-	makedepend -Y -I.. -f Dependencies $(SRCS)
+	makedepend -Y -I.. -fDependencies $(OBJS:.o=.c) $(OBJS:.o=.cxx) >/dev/null 2>&1
 
 
 #
 # htmldoc
 #
 
-htmldoc$(EXEEXT):	htmldoc.o $(BASEOBJS) ../Makedefs
+htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) htmldoc.o $(BASEOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
+	$(POST) htmldoc$(EXEEXT)
 
-
-#
-# testhtml
-#
-
-testhtml$(EXEEXT):	testhtml.o $(BASEOBJS) ../Makedefs
-	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o $(BASEOBJS) $(LIBS)
-
-
-
-#
-# teststyle
-#
-
-teststyle$(EXEEXT):	teststyle.o $(BASEOBJS) ../Makedefs
-	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o teststyle$(EXEEXT) teststyle.o $(BASEOBJS) $(LIBS)
-
-
-#
-# Dependencies...
-#
-
-$(OBJS):	../Makedefs ../config.h
-
+$(OBJS):	../Makedefs
 include Dependencies
 
 

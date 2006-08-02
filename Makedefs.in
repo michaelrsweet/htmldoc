@@ -1,9 +1,9 @@
 #
-#   "$Id: Makedefs.in,v 1.13 2004/03/31 07:28:13 mike Exp $"
+#   "$Id$"
 #
 #   Makefile definitions for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2004 by Easy Software Products.
+#   Copyright 1997-2005 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -71,8 +71,8 @@ top_srcdir	=	@top_srcdir@
 #
 
 ARFLAGS		=	@ARFLAGS@
-CFLAGS		=	-I.. @CFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
-CXXFLAGS	=	-I.. @CXXFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
+CFLAGS		=	-I.. @CFLAGS@ @LARGEFILE@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
+CXXFLAGS	=	-I.. @CXXFLAGS@ @LARGEFILE@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
 LDFLAGS		=	@LDFLAGS@ $(OPTIM)
 LIBS		=	@SSLLIBS@ @LIBS@
 OPTIM		=	@OPTIM@ @SSLFLAGS@
@@ -91,5 +91,5 @@ OPTIM		=	@OPTIM@ @SSLFLAGS@
 	$(CXX) $(CXXFLAGS) -c $<
 
 #
-# End of "$Id: Makedefs.in,v 1.13 2004/03/31 07:28:13 mike Exp $".
+# End of "$Id$".
 #

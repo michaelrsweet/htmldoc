@@ -27,20 +27,7 @@
 
 #  include "config.h"
 
-typedef unsigned char hdByte;
-typedef unsigned char hdChar;
-typedef hdChar *hdUTF8;
-
-
-//
-// C library comparison function type...
-//
-
-extern "C"
-{
-  typedef int (*hdCompareFunc)(const void *, const void *);
-}
-
+typedef unsigned char uchar;
 
 #endif /* !_TYPES_H_ */
 

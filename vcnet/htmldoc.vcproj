@@ -37,7 +37,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib comctl32.lib wsock32.lib"
+				AdditionalDependencies="libeay32.lib ssleay32.lib comctl32.lib ws2_32.lib"
 				OutputFile="htmldoc.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -100,7 +100,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib comctl32.lib wsock32.lib"
+				AdditionalDependencies="libeay32.lib ssleay32.lib comctl32.lib ws2_32.lib"
 				OutputFile="htmldocd.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -146,9 +146,6 @@
 		<Filter
 			Name="Source"
 			Filter="c,cxx">
-			<File
-				RelativePath="..\htmldoc\entity.cxx">
-			</File>
 			<File
 				RelativePath="..\htmldoc\file.c">
 				<FileConfiguration
@@ -324,7 +321,23 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\htmldoc\margin.cxx">
+				RelativePath="..\htmldoc\iso8859.cxx">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\htmldoc\md5.c">
@@ -420,21 +433,6 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\htmldoc\style.cxx">
-			</File>
-			<File
-				RelativePath="..\htmldoc\stylefont.cxx">
-			</File>
-			<File
-				RelativePath="..\htmldoc\stylemedia.cxx">
-			</File>
-			<File
-				RelativePath="..\htmldoc\stylesheet.cxx">
-			</File>
-			<File
-				RelativePath="..\htmldoc\styletree.cxx">
 			</File>
 			<File
 				RelativePath="..\htmldoc\toc.cxx">

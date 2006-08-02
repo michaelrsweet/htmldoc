@@ -3,7 +3,7 @@
  *
  *   Configuration file for HTMLDOC.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2006 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -15,7 +15,7 @@
  *       Attn: ESP Licensing Information
  *       Easy Software Products
  *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       Hollywood, Maryland 20636 USA
  *
  *       Voice: (301) 373-9600
  *       EMail: info@easysw.com
@@ -26,7 +26,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9-current"
+#define SVERSION	"1.8.27"
 
 
 /*
@@ -59,6 +59,22 @@
 
 
 /*
+ * Do we have the FLTK library?
+ */
+
+#ifndef _CONSOLE
+#  define HAVE_LIBFLTK
+#endif /* !_CONSOLE */
+
+
+/*
+ * Do we have the Xpm library?
+ */
+
+#undef HAVE_LIBXPM
+
+
+/*
  * Which encryption libraries do we have?
  */
 
@@ -86,11 +102,8 @@
  * Do we have some of the "standard" string functions?
  */
 
-#define HAVE_STRCASECMP
 #define HAVE_STRDUP
-#undef HAVE_STRDUPF
-#undef HAVE_STRLCAT
-#undef HAVE_STRLCPY
+#define HAVE_STRCASECMP
 #define HAVE_STRNCASECMP
 
 
