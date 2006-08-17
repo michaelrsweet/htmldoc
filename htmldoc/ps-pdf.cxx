@@ -3012,7 +3012,6 @@ pdf_write_files(FILE   *out,		// I - Output file
 {
   int		i,			// Looping var
 		num_files,		// Number of FILE elements
-		entry,			// Entry object
 		alloc_text;		// Allocated text?
   uchar		*text;			// Entry text
   tree_t	*temp;			// Current node
@@ -3053,7 +3052,7 @@ pdf_write_files(FILE   *out,		// I - Output file
       else if ((text = htmlGetVariable(temp, (uchar *)"_HD_FILENAME")) == NULL)
         text = (uchar *)"Unknown";
 
-      entry = pdf_start_object(out);
+      pdf_start_object(out);
       
       fprintf(out, "/Parent %d 0 R", outline_object);
 
