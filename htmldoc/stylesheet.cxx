@@ -814,7 +814,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 
 
   // Initialize the read patterns.
-  pattern("a-zA-Z0-9@.:#", sel_p);
+  pattern("-a-zA-Z0-9@.:#_", sel_p);
   pattern("~}", props_p);
 
   // Loop until we can't read any more...
