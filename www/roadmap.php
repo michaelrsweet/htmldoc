@@ -4,9 +4,6 @@ include_once "phplib/db-str.php";
 
 // List of versions that are planned...
 $versions = array(
-  "1.8"  => "The 1.8 series is in maintenance mode. We plan on releasing "
-           ."one more patch release to fix any outstanding issues as we "
-	   ."continue to develop the new feature releases.",
   "1.9"  => "The 1.9 series will focus on supporting UTF-8, basic CSS1 "
            ."functionality, <tt>INPUT</tt> and <tt>TEXTAREA</tt> form "
 	   ."fields, background images in tables, and custom Type 1 fonts.",
@@ -43,40 +40,40 @@ while (list($version, $description) = each($versions))
   $result = db_query("SELECT id, status FROM str WHERE "
                     ."str_version LIKE '${version}%'"
 		    ." AND status != " . STR_STATUS_UNRESOLVED
-		    ." AND status != " . STR_STATUS_NEW
-		    ." ORDER BY id");
+		    ." ORDER BY status DESC,priority DESC,id");
 
   if (db_count($result) > 0)
   {
+    $completed = 0;
     while ($row = db_next($result))
       if ($row["status"] == STR_STATUS_RESOLVED)
 	$completed ++;
 
-    $count   += db_count($result);
+    $count   = db_count($result);
     $percent = (int)(100 * $completed / $count);
 
     print("<h2><a name='$version'>HTMLDOC $version ($completed of $count "
          ."completed, $percent%)</a></h2>\n"
 	 ."<p>$description</p>\n");
 
-    html_start_table(array("STR #", "Summary", "Subsystem", "Status"));
+    html_start_table(array("STR #", "Summary", "Priority", "Status"));
 
     db_seek($result, 0);
     while ($row = db_next($result))
     {
+      if ($row["status"] == STR_STATUS_RESOLVED)
+        continue;
+
       $id        = $row["id"];
       $str       = new str($id);
-      $subsystem = htmlspecialchars($str->subsystem);
       $summary   = htmlspecialchars($str->summary);
+      $priority  = $STR_PRIORITY_SHORT[$str->priority];
       $status    = $STR_STATUS_SHORT[$str->status];
-
-      if ($str->status == STR_STATUS_RESOLVED)
-        continue;
 
       html_start_row();
       print("<td align='center'><a href='str.php?L$id'>$id</a></td>"
            ."<td><a href='str.php?L$id'>$summary</a></td>"
-           ."<td align='center'><a href='str.php?L$id'>$subsystem</a></td>"
+           ."<td align='center'><a href='str.php?L$id'>$priority</a></td>"
            ."<td align='center'><a href='str.php?L$id'>$status</a></td>");
       html_end_row();
     }

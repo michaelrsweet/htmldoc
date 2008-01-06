@@ -9,8 +9,7 @@ include "revisions.php";
 $repobase = "http://svn.easysw.com/public/htmldoc/";
 
 $repos = array(
-  "htmldoc-1.9.x" => "trunk",
-//  "htmldoc-1.8.x" => "branches/branch-1.8"
+  "htmldoc-1.9.x" => "trunk"
 );
 
 $snapshots = fopen("snapshots.md5", "w");
@@ -18,9 +17,6 @@ $snapshots = fopen("snapshots.md5", "w");
 reset($repos);
 while (list($version, $path) = each($repos))
 {
-  if ($argc > 1 && $argv[1] != $version)
-    continue;
-
   $url      = "$repobase$path";
   $prevrev  = $revisions[$version];
   $nextrev  = $prevrev + 1;
@@ -67,16 +63,16 @@ while (list($version, $path) = each($repos))
     system("cd /tmp/$version-r$revision; autoconf");
     system("cd /tmp/$version-r$revision; rm -rf autom4te*.cache");
     system("cd /tmp/$version-r$revision; rm -rf standards");
-    system("cd /tmp; tar czf /home/ftp/pub/htmldoc/snapshots/$version-r$revision.tar.gz $version-r$revision");
+    system("cd /tmp; tar czf /home/ftp.easysw.com/pub/htmldoc/snapshots/$version-r$revision.tar.gz $version-r$revision");
     print("Created $version-r$revision.tar.gz...\n");
-    system("cd /tmp; tar cjf /home/ftp/pub/htmldoc/snapshots/$version-r$revision.tar.bz2 $version-r$revision");
+    system("cd /tmp; tar cjf /home/ftp.easysw.com/pub/htmldoc/snapshots/$version-r$revision.tar.bz2 $version-r$revision");
     print("Created $version-r$revision.tar.bz2...\n");
-    system("cd /tmp; zip -qr9 /home/ftp/pub/htmldoc/snapshots/$version-r$revision.zip $version-r$revision");
+    system("cd /tmp; zip -qr9 /home/ftp.easysw.com/pub/htmldoc/snapshots/$version-r$revision.zip $version-r$revision");
     print("Created $version-r$revision.tar.zip...\n");
 
     // Add a news announcement...
     $date     = time();
-    $abstract = "A new weekly snapshot of HTMLDOC $basever "
+    $abstract = "A new developer snapshot of HTMLDOC $basever "
                ."(r$revision) is now available";
     $body     = "$abstract on the download page:\n\n"
                ."    http://www.htmldoc.org/software.php\n\n"
@@ -85,7 +81,7 @@ while (list($version, $path) = each($repos))
 	       ."Commit Log:\n\n<pre>" . db_escape(wordwrap($log)) . "</pre>\n";
 
     db_query("INSERT INTO article VALUES(NULL, 2, 1, "
-            ."'HTMLDOC $basever Weekly Snapshot, r$revision', '$abstract.', 'News', "
+            ."'HTMLDOC $basever Developer Snapshot, r$revision', '$abstract.', 'News', "
 	    ."'$body', $date, 'mike', $date, 'mike')");
 
     $revisions[$version] = $revision;
@@ -94,7 +90,7 @@ while (list($version, $path) = each($repos))
     $revision = $prevrev;
 
   // Save MD5 sums of the snapshots...
-  $fp = popen("cd /home/ftp/pub/htmldoc/snapshots; md5sum $version-r$revision.*", "r");
+  $fp = popen("cd /home/ftp.easysw.com/pub/htmldoc/snapshots; md5sum $version-r$revision.*", "r");
   while ($line = fgets($fp, 1024))
   {
     $data = explode("  ", trim($line));
@@ -112,7 +108,6 @@ $fp = fopen("revisions.php", "w");
 fwrite($fp, "<?php\n"
            ."\$revisions = array(\n"
 	   ."  \"htmldoc-1.9.x\" => \"" . $revisions["htmldoc-1.9.x"] . "\",\n"
-	   ."  \"htmldoc-1.8.x\" => \"" . $revisions["htmldoc-1.8.x"] . "\"\n"
 	   .");\n"
 	   ."?>\n");
 fclose($fp);

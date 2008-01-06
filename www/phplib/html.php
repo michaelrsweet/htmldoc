@@ -111,18 +111,18 @@ html_header($title = "",		// I - Additional document title
     $html_title = "";
 
   print("  <title>$html_title HTMLDOC</title>\n"
-       ."  <meta http-equiv='Pragma' content='no-cache'/>\n"
+       ."  <meta http-equiv='Pragma' content='no-cache'>\n"
        ."  <meta http-equiv='Content-Type' content='text/html; "
-       ."charset=utf-8'/>\n"
-       ."  <link rel='stylesheet' type='text/css' href='${path}style.css'/>\n"
+       ."charset=utf-8'>\n"
+       ."  <link rel='stylesheet' type='text/css' href='${path}style.css'>\n"
        ."  <link rel='alternate' title='HTMLDOC RSS' "
-       ."type='application/rss+xml' href='${path}index.rss'/>\n"
+       ."type='application/rss+xml' href='${path}index.rss'>\n"
        ."  <link rel='shortcut icon' href='${path}favicon.ico' "
-       ."type='image/x-icon'/>\n");
+       ."type='image/x-icon'>\n");
 
   // If refresh URL is specified, add the META tag...
   if ($refresh != "")
-    print("  <meta http-equiv='refresh' content='3; $refresh'/>\n");
+    print("  <meta http-equiv='refresh' content='3; $refresh'>\n");
 
   // Search engine keywords...
   reset($html_keywords);
@@ -133,7 +133,7 @@ html_header($title = "",		// I - Additional document title
   while (list($key, $val) = each($html_keywords))
     print(",$val");
 
-  print("'/>\n");
+  print("'>\n");
 
   print("</head>\n"
        ."<body>\n");
@@ -141,11 +141,11 @@ html_header($title = "",		// I - Additional document title
   // Standard navigation stuff...
   if ($html_show_all)
   {
-    print("<p><table width='100%' border='0' cellspacing='0' "
+    print("<table width='100%' border='0' cellspacing='0' "
 	 ."cellpadding='0'>\n"
 	 ."<tr class='header'>"
 	 ."<td valign='top' rowspan='2'><img src='${path}images/top-left.gif' width='15' "
-	 ."height='15' alt=''/></td>"
+	 ."height='15' alt=''></td>"
 	 ."<td colspan='2' nowrap><h2 class='title'>");
 
     if ($title != "")
@@ -158,20 +158,19 @@ html_header($title = "",		// I - Additional document title
 	 ."<a href='http://www.easysw.com/htmldoc/'>"
 	 ."<img src='${path}images/logo.gif' width='33' height='48' "
 	 ."alt='Buy HTMLDOC on CD-ROM!' title='Buy HTMLDOC on CD-ROM!' "
-	 ."border='0' align='middle'/></a></td>"
+	 ."border='0' align='middle'></a></td>"
 	 ."<td align='right' valign='top' width='15' height='48' rowspan='2'>"
 	 ."<a href='http://www.easysw.com/htmldoc/'>"
 	 ."<img src='${path}images/logo2.gif' width='15' height='48' "
 	 ."alt='Buy HTMLDOC on CD-ROM!' title='Buy HTMLDOC on CD-ROM!' "
-	 ."border='0' align='middle'/></a></td></tr>\n");
+	 ."border='0' align='middle'></a></td></tr>\n");
     print("<tr class='header'>"
          ."<td width='100%' nowrap>[&nbsp;<a href='${path}index.php'>Home</a> | "
 	 ."<a href='${path}articles.php'>Articles &amp; FAQs</a> | "
 	 ."<a href='${path}str.php'>Bugs &amp; Features</a> | "
 	 ."<a href='${path}documentation.php'>Documentation</a> | "
 	 ."<a href='${path}software.php'>Download</a> | "
-	 ."<a href='${path}newsgroups.php'>Forums</a> | "
-	 ."<a href='${path}links.php'>Links</a>&nbsp;]</td>"
+	 ."<a href='${path}newsgroups.php'>Forums</a>&nbsp;]</td>"
 	 ."<td align='right'>[&nbsp;");
 
     if ($LOGIN_USER)
@@ -231,17 +230,17 @@ html_footer()
     print("<tr class='page'><td colspan='5'>&nbsp;</td></tr>\n");
     print("<tr class='header'>"
 	 ."<td valign='bottom'><img src='${html_path}images/bottom-left.gif' "
-	 ."width='15' height='15' alt=''/></td>"
-	 ."<td colspan='3'><small> <br />"
-	 ."Copyright 1997-2005 by Easy Software Products. HTMLDOC and "
+	 ."width='15' height='15' alt=''></td>"
+	 ."<td colspan='3'><small> <br>"
+	 ."Copyright 1997-2008 by Easy Software Products. HTMLDOC and "
 	 ."&lt;HTML&gt;DOC are the trademark property of Easy Software Products. "
 	 ."HTMLDOC is free software; you can redistribute it and/or modify it "
 	 ."under the terms of the GNU General Public License as published by the "
-	 ."Free Software Foundation.<br />&nbsp;</small></td>"
+	 ."Free Software Foundation.<br>&nbsp;</small></td>"
 	 ."<td align='right' valign='bottom' width='15'><img src='${html_path}images/bottom-right.gif' "
-	 ."width='15' height='15' alt=''/></td>"
+	 ."width='15' height='15' alt=''></td>"
 	 ."</tr>\n");
-    print("</table></p>\n");
+    print("</table>\n");
   }
 
   print("</body>\n"
@@ -324,10 +323,10 @@ html_start_table($headings)		// I - Array of heading strings
   global $html_row, $html_cols;
 
 
-  print("<p><table border='0' cellpadding='0' cellspacing='0' width='100%'>"
+  print("<table border='0' cellpadding='0' cellspacing='0' width='100%'>"
        ."<tr class='header'><th align='left' valign='top'>"
        ."<img src='images/hdr-top-left.gif' width='16' height='16' "
-       ."alt=''/></th>");
+       ."alt=''></th>");
 
   $html_row  = 0;
   $html_cols = count($headings);
@@ -344,7 +343,7 @@ html_start_table($headings)		// I - Array of heading strings
 
   print("<th align='right' valign='top'>"
        ."<img src='images/hdr-top-right.gif' "
-       ."width='16' height='16' alt=''/></th></tr>\n");
+       ."width='16' height='16' alt=''></th></tr>\n");
 }
 
 
@@ -359,11 +358,11 @@ html_end_table()
 
   print("<tr class='header'><th align='left' valign='bottom'>"
        ."<img src='images/hdr-bottom-left.gif' width='16' height='16' "
-       ."alt=''/></th>"
+       ."alt=''></th>"
        ."<th colspan='$html_cols'>&nbsp;</th>"
        ."<th align='right' valign='bottom'><img src='images/hdr-bottom-right.gif' "
-       ."width='16' height='16' alt=''/></th></tr>\n"
-       ."</table></p>\n");
+       ."width='16' height='16' alt=''></th></tr>\n"
+       ."</table>\n");
 }
 
 
