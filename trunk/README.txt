@@ -1,4 +1,4 @@
-README.txt - 06/18/2006
+README.txt - 2008-01-05
 -----------------------
 
 INTRODUCTION
@@ -7,7 +7,7 @@ INTRODUCTION
     program that generates HTML, PostScript, and PDF files with
     a table of contents.
 
-    HTMLDOC is copyright 1997-2006 by Easy Software Products.
+    HTMLDOC is copyright 1997-2008 by Easy Software Products.
     The source code is available under the GNU General Public
     License, version 2.  See the LEGAL STUFF section below for
     details.
@@ -41,16 +41,6 @@ INTERNET RESOURCES
     The HTMLDOC commercial home page is located at:
 
         http://www.easysw.com/htmldoc/
-
-    Commercial support is provided by Easy Software Products;
-    send commercial support requests to the following email
-    address:
-
-        htmldoc-support@easysw.com
-
-    or use the form at the following page:
-
-	http://www.easysw.com/support.php
 
 
 REQUIREMENTS
@@ -120,9 +110,6 @@ CURRENT LIMITATIONS
 
 CREDITS
 
-    Many thanks to Leonard Rosenthol for providing changes to
-    support a MacOS version of HTMLDOC.
-
     The table VALIGN and "HALF PAGE" code was contributed by D.
     Richard Hipp.
 
@@ -162,7 +149,7 @@ LEGAL STUFF
 
     Linux is a registered trademark of Linus Torvalds.
 
-    MacOS is a registered trademark of Apple Computer, Inc.
+    Mac OS is a registered trademark of Apple Inc.
 
     Microsoft and Windows are registered trademarks of Microsoft
     Corporation.
@@ -175,7 +162,7 @@ LEGAL STUFF
 
     HTMLDOC is the trademark property of Easy Software Products.
 
-    HTMLDOC is copyright 1997-2006 by Easy Software Products.
+    HTMLDOC is copyright 1997-2008 by Easy Software Products.
     See Appendix A of the HTMLDOC Software Users Manual or the
     files "COPYING.txt" and "htmldoc.eula" for the terms of use.
 

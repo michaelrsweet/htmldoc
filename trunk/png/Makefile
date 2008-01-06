@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile,v 1.13 2004/10/23 08:28:43 mike Exp $"
+# "$Id$"
 #
 #   PNG library Makefile for the HTMLDOC software.
 #
@@ -10,18 +10,16 @@
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
 #   copyright law.  Distribution and use rights are outlined in the file
-#   "LICENSE.txt" which should have been included with this file.  If this
+#   "COPYING.txt" which should have been included with this file.  If this
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
 #       Attn: HTMLDOC Licensing Information
 #       Easy Software Products
-#       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3142 USA
+#       516 Rio Grand Ct
+#       Morgan Hill, CA 95037 USA
 #
-#       Voice: (301) 373-9600
-#       EMail: info@easysw.com
-#         WWW: http://www.easysw.com
+#       http://www.htmldoc.org/
 #
 
 include ../Makedefs
@@ -61,5 +59,5 @@ libpng.a:	$(OBJS)
 $(OBJS):	png.h pngconf.h ../Makedefs
 
 #
-# End of "$Id: Makefile,v 1.13 2004/10/23 08:28:43 mike Exp $".
+# End of "$Id$".
 #

@@ -13,14 +13,12 @@
 //   file is missing or damaged please contact Easy Software Products
 //   at:
 //
-//       Attn: ESP Licensing Information
+//       Attn: HTMLDOC Licensing Information
 //       Easy Software Products
-//       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636 USA
+//       516 Rio Grand Ct
+//       Morgan Hill, CA 95037 USA
 //
-//       Voice: (301) 373-9600
-//       EMail: info@easysw.com
-//         WWW: http://www.easysw.com
+//       http://www.htmldoc.org/
 //
 // Contents:
 //
