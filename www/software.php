@@ -176,7 +176,10 @@ else
     else
       print("$cs$ce");
 
-    $kbytes = (int)((filesize("/home/ftp.easysw.com/pub/$filename") + 1023) / 1024);
+    if (file_exists("/home/ftp.easysw.com/pub/$filename"))
+      $kbytes = (int)((filesize("/home/ftp.easysw.com/pub/$filename") + 1023) / 1024);
+    else
+      $kbytes = "???";
 
     print("$cs<a href='$PHP_SELF?VERSION=$version&amp;FILE=$filename'>"
          ."<tt>$basename</tt></a>$ce"
