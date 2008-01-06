@@ -1,26 +1,24 @@
 //
 // "$Id$"
 //
-// Margin class definitions for HTMLDOC, a HTML document processing
-// program.
+//   Margin class definitions for HTMLDOC, a HTML document processing
+//   program.
 //
-// Copyright 1997-2004 by Easy Software Products.
+//   Copyright 1997-2004 by Easy Software Products.
 //
-// These coded instructions, statements, and computer programs are the
-// property of Easy Software Products and are protected by Federal
-// copyright law.  Distribution and use rights are outlined in the file
-// "LICENSE.txt" which should have been included with this file.  If this
-// file is missing or damaged please contact Easy Software Products
-// at:
+//   These coded instructions, statements, and computer programs are the
+//   property of Easy Software Products and are protected by Federal
+//   copyright law.  Distribution and use rights are outlined in the file
+//   "COPYING.txt" which should have been included with this file.  If this
+//   file is missing or damaged please contact Easy Software Products
+//   at:
 //
-//     Attn: HTMLDOC Licensing Information
-//     Easy Software Products
-//     44141 Airport View Drive, Suite 204
-//     Hollywood, Maryland 20636-3142 USA
+//       Attn: HTMLDOC Licensing Information
+//       Easy Software Products
+//       516 Rio Grand Ct
+//       Morgan Hill, CA 95037 USA
 //
-//     Voice: (301) 373-9600
-//     EMail: info@easysw.com
-//       WWW: http://www.easysw.com
+//       http://www.htmldoc.org/
 //
 
 #ifndef HTMLDOC_MARGIN_H

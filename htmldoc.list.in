@@ -3,21 +3,36 @@
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
-#   EPM can be found at "http://www.easysw.com/epm/".
+#   Copyright 1997-2008 by Easy Software Products.
+#
+#   These coded instructions, statements, and computer programs are the
+#   property of Easy Software Products and are protected by Federal
+#   copyright law.  Distribution and use rights are outlined in the file
+#   "COPYING.txt" which should have been included with this file.  If this
+#   file is missing or damaged please contact Easy Software Products
+#   at:
+#
+#       Attn: HTMLDOC Licensing Information
+#       Easy Software Products
+#       516 Rio Grand Ct
+#       Morgan Hill, CA 95037 USA
+#
+#       http://www.htmldoc.org/
 #
 
 %product HTMLDOC
-%copyright 1997-2004 by Easy Software Products, All Rights Reserved.
+%copyright 1997-2008 by Easy Software Products, All Rights Reserved.
 %vendor Easy Software Products
 %license htmldoc.eula
 %readme htmldoc.readme
-%version @SVERSION@ @NVERSION@
+%version @SVERSION@
 
 # Directories...
 $prefix=@prefix@
 $exec_prefix=@exec_prefix@
 $bindir=@bindir@
 $mandir=@mandir@
+$datarootdir=@datarootdir@
 $datadir=@datadir@
 
 # Program
@@ -64,7 +79,6 @@ f 0444 root sys $datadir/htmldoc/data/psglyphs data/psglyphs
 f 0444 root sys $datadir/htmldoc/data/standard.css data/standard.css
 
 # Documentation
-f 0444 root sys $mandir/cat1/htmldoc.1 doc/htmldoc.1
 f 0444 root sys $mandir/man1/htmldoc.1 doc/htmldoc.man
 %system all
 

@@ -3,7 +3,7 @@
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2004 by Easy Software Products.
+#   Copyright 1997-2008 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -12,14 +12,12 @@
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
-#       Attn: ESP Licensing Information
+#       Attn: HTMLDOC Licensing Information
 #       Easy Software Products
-#       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636 USA
+#       516 Rio Grand Ct
+#       Morgan Hill, CA 95037 USA
 #
-#       Voice: (301) 373-9600
-#       EMail: info@easysw.com
-#         WWW: http://www.easysw.com
+#       http://www.htmldoc.org/
 #
 
 AC_INIT(htmldoc/htmldoc.h)
@@ -27,10 +25,12 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.9-current"
-NVERSION=10899000
+if test -d .svn; then
+        SVERSION="1.9svn-r`svnversion . | awk -F: '{print $NF}' | sed -e '1,$s/[[a-zA-Z]]*//g'`"
+else
+	SVERSION="1.9svn"
+fi
 AC_SUBST(SVERSION)
-AC_SUBST(NVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
 
 dnl Get the operating system and version number...
@@ -47,7 +47,6 @@ AC_SUBST(OPTIM)
 CFLAGS="${CFLAGS:=}"
 CXXFLAGS="${CXXFLAGS:=}"
 LDFLAGS="${LDFLAGS:=}"
-
 
 AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging, default=no],
     [if eval "test x$enable_debug = xyes"; then
