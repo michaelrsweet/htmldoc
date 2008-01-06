@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.24 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2004, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20040923">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="pathdir1dir2dir3dirN.html">
+<LINK REL="Next" HREF="portrait.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="pathdir1dir2dir3dirN.html">Previous</A>
+<A HREF="portrait.html">Next</A>
+<HR NOSHADE>
+<H3><A NAME="9_2_64">--permissions permission</A></H3>
+<P>The <CODE>--permissions</CODE> option specifies the document
+ permissions. The available permission parameters are listed below:</P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="5">
+<TR><TH>Permission</TH><TH>Description</TH></TR>
+<TR><TD>all</TD><TD>All permissions</TD></TR>
+<TR><TD>annotate</TD><TD>User can annotate document</TD></TR>
+<TR><TD>copy</TD><TD>User can copy text and images from document</TD></TR>
+<TR><TD>modify</TD><TD>User can modify document</TD></TR>
+<TR><TD>print</TD><TD>User can print document</TD></TR>
+<TR><TD>no-annotate</TD><TD>User cannot annotate document</TD></TR>
+<TR><TD>no-copy</TD><TD>User cannot copy text and images from document</TD>
+</TR>
+<TR><TD>no-modify</TD><TD>User cannot modify document</TD></TR>
+<TR><TD>no-print</TD><TD>User cannot print document</TD></TR>
+<TR><TD>none</TD><TD>No permissions</TD></TR>
+</TABLE>
+</CENTER>
+<P>The <CODE>--encryption</CODE> option must be used in conjunction with
+ the <CODE>--permissions</CODE> parameter.</P>
+<UL>
+<PRE>
+<KBD>--permissions no-print --encryption</KBD>
+</PRE>
+</UL>
+<P>Multiple options can be specified with multiple <CODE>--permissions</CODE>
+ entries as needed.</P>
+<UL>
+<PRE>
+<KBD>--permissions no-print --permissions no-copy --encryption</KBD>
+</PRE>
+</UL>
+<P>This option is only available when generating PDF files.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="pathdir1dir2dir3dirN.html">Previous</A>
+<A HREF="portrait.html">Next</A>
+</BODY>
+</HTML>

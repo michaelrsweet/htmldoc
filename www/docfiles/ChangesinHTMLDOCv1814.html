@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.27 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2006, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20060801">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1815.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1813.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1815.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1813.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_14">Changes in HTMLDOC v1.8.14</A></H2>
+<UL>
+<H3><A NAME="12_14_1">New Features</A></H3>
+<LI>Added support for 128-bit encryption.</LI>
+<LI>Added support for GET form request data in the PHP and Java &quot;portal&quot;
+ examples.</LI>
+<H3><A NAME="12_14_2">Changes</A></H3>
+<LI>Most output generation limits have been removed; HTMLDOC now
+ dynamically allocates memory as needed for pages, images, headings, and
+ links. This has the happy side-effect of reducing the initial memory
+ footprint significantly.</LI>
+<LI>Now call setlocale() when it is available to localize the date and
+ time in the output.</LI>
+<LI>The table parsing code now checks to see that a ROWSPAN attribute
+ fits in the table; e.g., a ROWSPAN of 10 for a table that has only 6
+ rows remaining needs to be reduced to 6...</LI>
+<H3><A NAME="12_14_3">Bug Fixes</A></H3>
+<LI>Tables with a lot of COLSPANs could cause a divide- by-zero error or
+ bad pages (NAN instead of a number.)</LI>
+<LI>Table cells with a single render element would not be vertically
+ aligned.</LI>
+<LI>The --quiet option would enable progress messages on the
+ command-line.</LI>
+<LI>Table cell widths could be computed incorrectly, causing unnecessary
+ wrapping.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1815.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1813.html">Next</A>
+</BODY>
+</HTML>

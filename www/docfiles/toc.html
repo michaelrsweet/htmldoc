@@ -1,0 +1,550 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.27 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2006, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20060801">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<H1 ALIGN="CENTER"><A NAME="CONTENTS">Table of Contents</A></H1>
+<BR>
+<BR><B><A HREF="Introduction.html#INTRO">Introduction</A></B>
+<UL>
+<LI><A HREF="History.html#1_1">History</A></LI>
+<LI><A HREF="OrganizationofThisManual.html#1_2">Organization of This
+ Manual</A></LI>
+<LI><A HREF="Support.html#1_3">Support</A></LI>
+<LI><A HREF="EncryptionSupport.html#1_4">Encryption Support</A></LI>
+<LI><A HREF="CopyrightTrademarkandLicenseInformation.html#1_5">
+Copyright, Trademark, and License Information</A></LI>
+</UL>
+<B><A HREF="Chapter1InstallingHTMLDOC.html#INSTALL">Chapter 1 -
+ Installing HTMLDOC</A></B>
+<UL>
+<LI><A HREF="Requirements.html#2_1">Requirements</A></LI>
+<LI><A HREF="InstallingHTMLDOC.html#2_2">Installing HTMLDOC</A>
+<UL>
+<LI><A HREF="InstallingHTMLDOConMicrosoftWindows.html#2_2_1">Installing
+ HTMLDOC on Microsoft Windows</A></LI>
+<LI><A HREF="InstallingHTMLDOConMacOSX.html#2_2_2">Installing HTMLDOC on
+ MacOS X</A></LI>
+<LI><A HREF="InstallingHTMLDOConLinux.html#2_2_3">Installing HTMLDOC on
+ Linux</A></LI>
+<LI><A HREF="InstallingHTMLDOConSolaris.html#2_2_4">Installing HTMLDOC
+ on Solaris</A></LI>
+</UL>
+</LI>
+<LI><A HREF="LicensingHTMLDOC.html#2_3">Licensing HTMLDOC</A></LI>
+<LI><A HREF="UninstallingHTMLDOC.html#2_4">Uninstalling HTMLDOC</A>
+<UL>
+<LI><A HREF="UninstallingHTMLDOConMicrosoftWindows.html#2_4_1">
+Uninstalling HTMLDOC on Microsoft Windows</A></LI>
+<LI><A HREF="UninstallingHTMLDOConMacOSX.html#2_4_2">Uninstalling
+ HTMLDOC on MacOS X</A></LI>
+<LI><A HREF="UninstallingHTMLDOConLinux.html#2_4_3">Uninstalling HTMLDOC
+ on Linux</A></LI>
+<LI><A HREF="UninstallingHTMLDOConSolaris.html#2_4_4">Uninstalling
+ HTMLDOC on Solaris</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="Chapter2GettingStarted.html#STARTING">Chapter 2 - Getting
+ Started</A></B>
+<UL>
+<LI><A HREF="StartingHTMLDOC.html#3_1">Starting HTMLDOC</A></LI>
+<LI><A HREF="ChoosingaHTMLFile.html#3_2">Choosing a HTML File</A></LI>
+<LI><A HREF="SettingtheOutputFile.html#3_3">Setting the Output File</A></LI>
+<LI><A HREF="GeneratingtheDocument.html#3_4">Generating the Document</A></LI>
+</UL>
+<B><A HREF="Chapter3GeneratingBooks.html#BOOKS">Chapter 3 - Generating
+ Books</A></B>
+<UL>
+<LI><A HREF="Overview.html#4_1">Overview</A></LI>
+<LI><A HREF="ChoosingHTMLFiles.html#4_2">Choosing HTML Files</A></LI>
+<LI><A HREF="SelectingaTitleFile.html#4_3">Selecting a Title File</A></LI>
+<LI><A HREF="SettingtheOutputFormat.html#4_4">Setting the Output Format</A>
+</LI>
+<LI><A HREF="SettingtheOutputFile1.html#4_5">Setting the Output File</A></LI>
+<LI><A HREF="GeneratingtheDocument1.html#4_6">Generating the Document</A>
+</LI>
+<LI><A HREF="SavingYourBook.html#4_7">Saving Your Book</A></LI>
+</UL>
+<B><A HREF="Chapter4HTMLDOCfromtheCommandLine.html#CMDLINE">Chapter 4 -
+ HTMLDOC from the Command-Line</A></B>
+<UL>
+<LI><A HREF="GettingtotheCommandLineonWindows.html#5_1">Getting to the
+ Command-Line on Windows</A></LI>
+<LI><A HREF="TheBasicsofCommandLineAccess.html#5_2">The Basics of
+ Command-Line Access</A>
+<UL>
+<LI><A HREF="WhatAreAllTheseCommands.html#5_2_1">What Are All These
+ Commands?</A></LI>
+</UL>
+</LI>
+<LI><A HREF="ConvertingMultipleHTMLFiles.html#5_3">Converting Multiple
+ HTML Files</A></LI>
+<LI><A HREF="GeneratingBooks.html#5_4">Generating Books</A>
+<UL>
+<LI><A HREF="Whatareallthesecommands.html#5_4_1">What are all these
+ commands?</A></LI>
+</UL>
+</LI>
+<LI><A HREF="SettingtheTitleFile.html#5_5">Setting the Title File</A>
+<UL>
+<LI><A HREF="PuttingItAllTogether.html#5_5_1">Putting It All Together</A>
+</LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="Chapter5UsingHTMLDOConaWebServer.html#CGI">Chapter 5 - Using
+ HTMLDOC on a Web Server</A></B>
+<UL>
+<LI><A HREF="TheBasics.html#6_1">The Basics</A></LI>
+<LI><A HREF="UsingHTMLDOCasaCGIProgram.html#6_2">Using HTMLDOC as a CGI
+ Program</A>
+<UL>
+<LI><A HREF="ServerSidePreferences.html#6_2_1">Server-Side Preferences</A>
+</LI>
+<LI><A HREF="ConfiguringHTMLDOCwithApache.html#6_2_2">Configuring
+ HTMLDOC with Apache</A></LI>
+<LI><A HREF="ConfiguringHTMLDOCwithMicrosoftIIS.html#6_2_3">Configuring
+ HTMLDOC with Microsoft IIS</A></LI>
+<LI><A HREF="AdditionalConfigurationforIIS60.html#IIS6.0">Additional
+ Configuration for IIS 6.0</A></LI>
+</UL>
+</LI>
+<LI><A HREF="UsingHTMLDOCFromServerSideScriptsandPrograms.html#6_3">
+Using HTMLDOC From Server-Side Scripts and Programs</A>
+<UL>
+<LI><A HREF="CallingHTMLDOCfromaShellScript.html#6_3_1">Calling HTMLDOC
+ from a Shell Script</A></LI>
+<LI><A HREF="CallingHTMLDOCfromPerl.html#6_3_2">Calling HTMLDOC from
+ Perl</A></LI>
+<LI><A HREF="CallingHTMLDOCfromPHP.html#6_3_3">Calling HTMLDOC from PHP</A>
+</LI>
+<LI><A HREF="CallingHTMLDOCfromC.html#6_3_4">Calling HTMLDOC from C</A></LI>
+<LI><A HREF="CallingHTMLDOCfromJava.html#6_3_5">Calling HTMLDOC from
+ Java</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="Chapter6HTMLReference.html#HTMLREF">Chapter 6 - HTML
+ Reference</A></B>
+<UL>
+<LI><A HREF="GeneralUsage.html#7_1">General Usage</A></LI>
+<LI><A HREF="Elements.html#7_2">Elements</A></LI>
+<LI><A HREF="Comments.html#COMMENTS">Comments</A>
+<UL>
+<LI><A HREF="HeaderFooterStrings.html#7_3_1">Header/Footer Strings</A></LI>
+</UL>
+</LI>
+<LI><A HREF="FONTAttributes.html#FONT">FONT Attributes</A></LI>
+<LI><A HREF="Headings.html#HEADING">Headings</A>
+<UL>
+<LI><A HREF="NumberedHeadings.html#7_5_1">Numbered Headings</A></LI>
+</UL>
+</LI>
+<LI><A HREF="Images.html#IMAGES">Images</A></LI>
+<LI><A HREF="Links.html#LINKS">Links</A></LI>
+<LI><A HREF="METAAttributes.html#META">META Attributes</A></LI>
+<LI><A HREF="PageBreaks.html#BREAKS">Page Breaks</A></LI>
+<LI><A HREF="Tables.html#TABLE">Tables</A></LI>
+</UL>
+<B><A HREF="Chapter7GUIReference.html#GUIREF">Chapter 7 - GUI Reference</A>
+</B>
+<UL>
+<LI><A HREF="TheHTMLDOCGUI.html#8_1">The HTMLDOC GUI</A>
+<UL>
+<LI><A HREF="DocumentFileOperations.html#8_1_1">Document File Operations</A>
+</LI>
+<LI><A HREF="New.html#8_1_2">New</A></LI>
+<LI><A HREF="Open.html#8_1_3">Open...</A></LI>
+<LI><A HREF="Save.html#8_1_4">Save</A></LI>
+<LI><A HREF="SaveAs.html#8_1_5">Save As...</A></LI>
+<LI><A HREF="Generate.html#8_1_6">Generate</A></LI>
+<LI><A HREF="Close.html#8_1_7">Close</A></LI>
+</UL>
+</LI>
+<LI><A HREF="TheInputTab.html#8_2">The Input Tab</A>
+<UL>
+<LI><A HREF="DocumentType.html#8_2_1">Document Type</A></LI>
+<LI><A HREF="InputFiles.html#8_2_2">Input Files</A></LI>
+<LI><A HREF="AddFiles.html#8_2_3">Add Files...</A></LI>
+<LI><A HREF="EditFiles.html#8_2_4">Edit Files...</A></LI>
+<LI><A HREF="DeleteFiles.html#8_2_5">Delete Files</A></LI>
+<LI><A HREF="MoveUp.html#8_2_6">Move Up</A></LI>
+<LI><A HREF="MoveDown.html#8_2_7">Move Down</A></LI>
+<LI><A HREF="LogoImage.html#8_2_8">Logo Image</A></LI>
+<LI><A HREF="TitleFileImage.html#8_2_9">Title File/Image</A></LI>
+</UL>
+</LI>
+<LI><A HREF="TheOutputTab.html#8_3">The Output Tab</A>
+<UL>
+<LI><A HREF="OutputTo.html#8_3_1">Output To</A></LI>
+<LI><A HREF="OutputPath.html#8_3_2">Output Path</A></LI>
+<LI><A HREF="OutputFormat.html#8_3_3">Output Format</A></LI>
+<LI><A HREF="OutputOptions.html#8_3_4">Output Options</A></LI>
+<LI><A HREF="Compression.html#8_3_5">Compression</A></LI>
+<LI><A HREF="JPEGQuality.html#8_3_6">JPEG Quality</A></LI>
+</UL>
+</LI>
+<LI><A HREF="ThePageTab.html#8_4">The Page Tab</A>
+<UL>
+<LI><A HREF="PageSize.html#8_4_1">Page Size</A></LI>
+<LI><A HREF="2Sided.html#8_4_2">2-Sided</A></LI>
+<LI><A HREF="Landscape.html#8_4_3">Landscape</A></LI>
+<LI><A HREF="TopLeftRightandBottom.html#8_4_4">Top, Left, Right, and
+ Bottom</A></LI>
+<LI><A HREF="HeaderandFooter.html#8_4_5">Header and Footer</A></LI>
+</UL>
+</LI>
+<LI><A HREF="TheTOCTab.html#8_5">The TOC Tab</A>
+<UL>
+<LI><A HREF="TableofContents.html#8_5_1">Table of Contents</A></LI>
+<LI><A HREF="NumberedHeadings1.html#8_5_2">Numbered Headings</A></LI>
+<LI><A HREF="HeaderandFooter1.html#8_5_3">Header and Footer</A></LI>
+<LI><A HREF="Title.html#8_5_4">Title</A></LI>
+</UL>
+</LI>
+<LI><A HREF="TheColorsTab.html#8_6">The Colors Tab</A>
+<UL>
+<LI><A HREF="BodyColor.html#8_6_1">Body Color</A></LI>
+<LI><A HREF="BodyImage.html#8_6_2">Body Image</A></LI>
+<LI><A HREF="TextColor.html#8_6_3">Text Color</A></LI>
+<LI><A HREF="LinkColor.html#8_6_4">Link Color</A></LI>
+<LI><A HREF="LinkStyle.html#8_6_5">Link Style</A></LI>
+</UL>
+</LI>
+<LI><A HREF="TheFontsTab.html#8_7">The Fonts Tab</A>
+<UL>
+<LI><A HREF="BaseFontSize.html#8_7_1">Base Font Size</A></LI>
+<LI><A HREF="LineSpacing.html#8_7_2">Line Spacing</A></LI>
+<LI><A HREF="BodyTypeface.html#8_7_3">Body Typeface</A></LI>
+<LI><A HREF="HeadingTypeface.html#8_7_4">Heading Typeface</A></LI>
+<LI><A HREF="HeaderFooterSize.html#8_7_5">Header/Footer Size</A></LI>
+<LI><A HREF="HeaderFooterFont.html#8_7_6">Header/Footer Font</A></LI>
+<LI><A HREF="CharacterSet.html#8_7_7">Character Set</A></LI>
+<LI><A HREF="Options.html#8_7_8">Options</A></LI>
+</UL>
+</LI>
+<LI><A HREF="ThePSTab.html#8_8">The PS Tab</A>
+<UL>
+<LI><A HREF="PostScriptLevel.html#8_8_1">PostScript Level</A></LI>
+<LI><A HREF="SendPrinterCommands.html#8_8_2">Send Printer Commands</A></LI>
+<LI><A HREF="IncludeXeroxJobComments.html#8_8_3">Include Xerox Job
+ Comments</A></LI>
+</UL>
+</LI>
+<LI><A HREF="ThePDFTab.html#8_9">The PDF Tab</A>
+<UL>
+<LI><A HREF="PDFVersion.html#8_9_1">PDF Version</A></LI>
+<LI><A HREF="PageMode.html#8_9_2">Page Mode</A></LI>
+<LI><A HREF="PageLayout.html#8_9_3">Page Layout</A></LI>
+<LI><A HREF="FirstPage.html#8_9_4">First Page</A></LI>
+<LI><A HREF="PageEffect.html#8_9_5">Page Effect</A></LI>
+<LI><A HREF="PageDuration.html#8_9_6">Page Duration</A></LI>
+<LI><A HREF="EffectDuration.html#8_9_7">Effect Duration</A></LI>
+</UL>
+</LI>
+<LI><A HREF="TheSecurityTab.html#8_10">The Security Tab</A>
+<UL>
+<LI><A HREF="Encryption.html#8_10_1">Encryption</A></LI>
+<LI><A HREF="Permissions.html#8_10_2">Permissions</A></LI>
+<LI><A HREF="OwnerPassword.html#8_10_3">Owner Password</A></LI>
+<LI><A HREF="Options1.html#8_10_4">Options</A></LI>
+<LI><A HREF="UserPassword.html#8_10_5">User Password</A></LI>
+</UL>
+</LI>
+<LI><A HREF="TheOptionsTab.html#8_11">The Options Tab</A>
+<UL>
+<LI><A HREF="HTMLEditor.html#8_11_1">HTML Editor</A></LI>
+<LI><A HREF="BrowserWidth.html#8_11_2">Browser Width</A></LI>
+<LI><A HREF="SearchPath.html#8_11_3">Search Path</A></LI>
+<LI><A HREF="ProxyURL.html#8_11_4">Proxy URL</A></LI>
+<LI><A HREF="Tooltips.html#8_11_5">Tooltips</A></LI>
+<LI><A HREF="ModernLook.html#8_11_6">Modern Look</A></LI>
+<LI><A HREF="StrictHTML.html#8_11_7">Strict HTML</A></LI>
+<LI><A HREF="SaveOptionsandDefaults.html#8_11_8">Save Options and
+ Defaults</A></LI>
+</UL>
+</LI>
+<LI><A HREF="TheFileChooser.html#FILECHOOSER">The File Chooser</A>
+<UL>
+<LI><A HREF="Show.html#8_12_1">Show</A></LI>
+<LI><A HREF="Favorites.html#8_12_2">Favorites</A></LI>
+<LI><A HREF="FileList.html#8_12_3">File List</A></LI>
+<LI><A HREF="Filename.html#8_12_4">Filename</A></LI>
+<LI><A HREF="DialogButtons.html#8_12_5">Dialog Buttons</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="Chapter8CommandLineReference.html#CMDREF">Chapter 8 -
+ Command-Line Reference</A></B>
+<UL>
+<LI><A HREF="BasicUsage.html#9_1">Basic Usage</A></LI>
+<LI><A HREF="Options2.html#9_2">Options</A>
+<UL>
+<LI><A HREF="ddirectory.html#9_2_1">-d directory</A></LI>
+<LI><A HREF="ffilename.html#9_2_2">-f filename</A></LI>
+<LI><A HREF="tformat.html#9_2_3">-t format</A></LI>
+<LI><A HREF="v.html#9_2_4">-v</A></LI>
+<LI><A HREF="batchfilenamebook.html#9_2_5">--batch filename.book</A></LI>
+<LI><A HREF="bodycolorcolor.html#9_2_6">--bodycolor color</A></LI>
+<LI><A HREF="bodyfonttypeface.html#9_2_7">--bodyfont typeface</A></LI>
+<LI><A HREF="bodyimagefilename.html#9_2_8">--bodyimage filename</A></LI>
+<LI><A HREF="book.html#9_2_9">--book</A></LI>
+<LI><A HREF="bottommargin.html#9_2_10">--bottom margin</A></LI>
+<LI><A HREF="browserwidthpixels.html#9_2_11">--browserwidth pixels</A></LI>
+<LI><A HREF="charsetcharset.html#9_2_12">--charset charset</A></LI>
+<LI><A HREF="color.html#9_2_13">--color</A></LI>
+<LI><A HREF="compressionlevel.html#9_2_14">--compression[=level]</A></LI>
+<LI><A HREF="continuous.html#9_2_15">--continuous</A></LI>
+<LI><A HREF="cookiesnamevaluewithspacenamevalue.html#9_2_16">--cookies
+ 'name=\&quot;value with space\&quot;; name=value'</A></LI>
+<LI><A HREF="datadirdirectory.html#9_2_17">--datadir directory</A></LI>
+<LI><A HREF="duplex.html#9_2_18">--duplex</A></LI>
+<LI><A HREF="effectdurationseconds.html#9_2_19">--effectduration seconds</A>
+</LI>
+<LI><A HREF="embedfonts.html#9_2_20">--embedfonts</A></LI>
+<LI><A HREF="encryption.html#9_2_21">--encryption</A></LI>
+<LI><A HREF="firstpagepage.html#9_2_22">--firstpage page</A></LI>
+<LI><A HREF="fontsizesize.html#9_2_23">--fontsize size</A></LI>
+<LI><A HREF="fontspacingspacing.html#9_2_24">--fontspacing spacing</A></LI>
+<LI><A HREF="footerlcr.html#footer">--footer lcr</A></LI>
+<LI><A HREF="formatformat.html#9_2_26">--format format</A></LI>
+<LI><A HREF="gray.html#9_2_27">--gray</A></LI>
+<LI><A HREF="headerlcr.html#9_2_28">--header lcr</A></LI>
+<LI><A HREF="headfootfontfont.html#9_2_29">--headfootfont font</A></LI>
+<LI><A HREF="headfootsizesize.html#9_2_30">--headfootsize size</A></LI>
+<LI><A HREF="headingfonttypeface.html#9_2_31">--headingfont typeface</A></LI>
+<LI><A HREF="help.html#9_2_32">--help</A></LI>
+<LI><A HREF="helpdirdirectory.html#9_2_33">--helpdir directory</A></LI>
+<LI><A HREF="jpegquality.html#9_2_34">--jpeg[=quality]</A></LI>
+<LI><A HREF="landscape.html#9_2_35">--landscape</A></LI>
+<LI><A HREF="leftmargin.html#9_2_36">--left margin</A></LI>
+<LI><A HREF="linkcolorcolor.html#9_2_37">--linkcolor color</A></LI>
+<LI><A HREF="links.html#9_2_38">--links</A></LI>
+<LI><A HREF="linkstylestyle.html#9_2_39">--linkstyle style</A></LI>
+<LI><A HREF="logoimagefilename.html#9_2_40">--logoimage filename</A></LI>
+<LI><A HREF="nocompression.html#9_2_41">--no-compression</A></LI>
+<LI><A HREF="noduplex.html#9_2_42">--no-duplex</A></LI>
+<LI><A HREF="noembedfonts.html#9_2_43">--no-embedfonts</A></LI>
+<LI><A HREF="noencryption.html#9_2_44">--no-encryption</A></LI>
+<LI><A HREF="nojpeg.html#9_2_45">--no-jpeg</A></LI>
+<LI><A HREF="nolinks.html#9_2_46">--no-links</A></LI>
+<LI><A HREF="nolocalfiles.html#9_2_47">--no-localfiles</A></LI>
+<LI><A HREF="nonumbered.html#9_2_48">--no-numbered</A></LI>
+<LI><A HREF="nopscommands.html#9_2_49">--no-pscommands</A></LI>
+<LI><A HREF="nostrict.html#9_2_50">--no-strict</A></LI>
+<LI><A HREF="notitle.html#9_2_51">--no-title</A></LI>
+<LI><A HREF="notoc.html#9_2_52">--no-toc</A></LI>
+<LI><A HREF="noxrxcomments.html#9_2_53">--no-xrxcomments</A></LI>
+<LI><A HREF="numbered.html#9_2_54">--numbered</A></LI>
+<LI><A HREF="nuppages.html#9_2_55">--nup pages</A></LI>
+<LI><A HREF="outdirdirectory.html#9_2_56">--outdir directory</A></LI>
+<LI><A HREF="outfilefilename.html#9_2_57">--outfile filename</A></LI>
+<LI><A HREF="ownerpasswordpassword.html#9_2_58">--owner-password
+ password</A></LI>
+<LI><A HREF="pagedurationseconds.html#9_2_59">--pageduration seconds</A></LI>
+<LI><A HREF="pageeffecteffect.html#9_2_60">--pageeffect effect</A></LI>
+<LI><A HREF="pagelayoutlayout.html#9_2_61">--pagelayout layout</A></LI>
+<LI><A HREF="pagemodemode.html#9_2_62">--pagemode mode</A></LI>
+<LI><A HREF="pathdir1dir2dir3dirN.html#9_2_63">--path
+ dir1;dir2;dir3;...;dirN</A></LI>
+<LI><A HREF="permissionspermissionpermission.html#9_2_64">--permissions
+ permission[,permission,...]</A></LI>
+<LI><A HREF="portrait.html#9_2_65">--portrait</A></LI>
+<LI><A HREF="pscommands.html#9_2_66">--pscommands</A></LI>
+<LI><A HREF="quiet.html#9_2_67">--quiet</A></LI>
+<LI><A HREF="refererurl.html#9_2_68">--referer url</A></LI>
+<LI><A HREF="rightmargin.html#9_2_69">--right margin</A></LI>
+<LI><A HREF="sizesize.html#9_2_70">--size size</A></LI>
+<LI><A HREF="strict.html#9_2_71">--strict</A></LI>
+<LI><A HREF="textcolorcolor.html#9_2_72">--textcolor color</A></LI>
+<LI><A HREF="textfonttypeface.html#9_2_73">--textfont typeface</A></LI>
+<LI><A HREF="title.html#9_2_74">--title</A></LI>
+<LI><A HREF="titlefilefilename.html#9_2_75">--titlefile filename</A></LI>
+<LI><A HREF="titleimagefilename.html#9_2_76">--titleimage filename</A></LI>
+<LI><A HREF="tocfooterlcr.html#9_2_77">--tocfooter lcr</A></LI>
+<LI><A HREF="tocheaderlcr.html#9_2_78">--tocheader lcr</A></LI>
+<LI><A HREF="toclevelslevels.html#9_2_79">--toclevels levels</A></LI>
+<LI><A HREF="toctitlestring.html#9_2_80">--toctitle string</A></LI>
+<LI><A HREF="topmargin.html#9_2_81">--top margin</A></LI>
+<LI><A HREF="userpasswordpassword.html#9_2_82">--user-password password</A>
+</LI>
+<LI><A HREF="verbose.html#9_2_83">--verbose</A></LI>
+<LI><A HREF="version.html#9_2_84">--version</A></LI>
+<LI><A HREF="webpage.html#9_2_85">--webpage</A></LI>
+<LI><A HREF="xrxcomments.html#9_2_86">--xrxcomments</A></LI>
+</UL>
+</LI>
+<LI><A HREF="EnvironmentVariables.html#9_3">Environment Variables</A>
+<UL>
+<LI><A HREF="HTMLDOCDATA.html#9_3_1">HTMLDOC_DATA</A></LI>
+<LI><A HREF="HTMLDOCDEBUG.html#9_3_2">HTMLDOC_DEBUG</A></LI>
+<LI><A HREF="HTMLDOCHELP.html#9_3_3">HTMLDOC_HELP</A></LI>
+<LI><A HREF="HTMLDOCNOCGI.html#9_3_4">HTMLDOC_NOCGI</A></LI>
+</UL>
+</LI>
+<LI><A HREF="Messages.html#9_4">Messages</A>
+<UL>
+<LI><A HREF="BYTESMessage.html#9_4_1">BYTES: Message</A></LI>
+<LI><A HREF="DEBUGMessages.html#9_4_2">DEBUG: Messages</A></LI>
+<LI><A HREF="ERRnnnMessages.html#9_4_3">ERRnnn: Messages</A></LI>
+<LI><A HREF="INFOMessages.html#9_4_4">INFO: Messages</A></LI>
+<LI><A HREF="PAGESMessage.html#9_4_5">PAGES: Message</A></LI>
+<LI><A HREF="REMOTEBYTESMessage.html#9_4_6">REMOTEBYTES: Message</A></LI>
+<LI><A HREF="TIMINGMessage.html#9_4_7">TIMING: Message</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="AppendixALicenseAgreement.html#LICENSE">Appendix A - License
+ Agreement</A></B>
+<UL>
+<LI><A HREF="Introduction1.html#10_1">Introduction</A>
+<UL>
+<LI><A HREF="SourceCodeandtheGNUGPL.html#10_1_1">Source Code and the GNU
+ GPL</A></LI>
+<LI><A HREF="Trademarks.html#10_1_2">Trademarks</A></LI>
+<LI><A HREF="BinaryDistributionRights.html#10_1_3">Binary Distribution
+ Rights</A></LI>
+<LI><A HREF="BinariesandSupport.html#10_1_4">Binaries and Support</A></LI>
+</UL>
+</LI>
+<LI><A HREF="EndUserLicenseAgreement.html#10_2">End-User License
+ Agreement</A>
+<UL>
+<LI><A HREF="TERMSANDCONDITIONSOFSOFTWARELICENSE.html#10_2_1">TERMS AND
+ CONDITIONS OF SOFTWARE LICENSE</A></LI>
+<LI><A HREF="LIMITEDWARRANTYANDDISCLAIMEROFWARRANTYLIMITATIONOFLIABILITY.html#10_2_2">
+LIMITED WARRANTY AND DISCLAIMER OF WARRANTY; LIMITATION OF LIABILITY</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="AppendixBBookFileFormat.html#BOOKFORMAT">Appendix B - Book
+ File Format</A></B>
+<UL>
+<LI><A HREF="Introduction2.html#11_1">Introduction</A></LI>
+<LI><A HREF="TheHeader.html#11_2">The Header</A></LI>
+<LI><A HREF="TheOptions.html#11_3">The Options</A></LI>
+<LI><A HREF="TheFiles.html#11_4">The Files</A></LI>
+<LI><A HREF="PuttingItAllTogether1.html#11_5">Putting It All Together</A>
+</LI>
+<LI><A HREF="OlderBookFiles.html#11_6">Older Book Files</A></LI>
+</UL>
+<B><A HREF="AppendixCReleaseNotes.html#RELNOTES">Appendix C - Release
+ Notes</A></B>
+<UL>
+<LI><A HREF="ChangesinHTMLDOCv1827.html#12_1">Changes in HTMLDOC v1.8.27</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1826.html#12_2">Changes in HTMLDOC v1.8.26</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1825.html#12_3">Changes in HTMLDOC v1.8.25</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1824.html#12_4">Changes in HTMLDOC v1.8.24</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1823.html#12_5">Changes in HTMLDOC v1.8.23</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1822.html#12_6">Changes in HTMLDOC v1.8.22</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1821.html#12_7">Changes in HTMLDOC v1.8.21</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1820.html#12_8">Changes in HTMLDOC v1.8.20</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1819.html#12_9">Changes in HTMLDOC v1.8.19</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1818.html#12_10">Changes in HTMLDOC
+ v1.8.18</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1817.html#12_11">Changes in HTMLDOC
+ v1.8.17</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1816.html#12_12">Changes in HTMLDOC
+ v1.8.16</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1815.html#12_13">Changes in HTMLDOC
+ v1.8.15</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1814.html#12_14">Changes in HTMLDOC
+ v1.8.14</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1813.html#12_15">Changes in HTMLDOC
+ v1.8.13</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv1812.html#12_16">Changes in HTMLDOC
+ v1.8.12</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv188.html#12_17">Changes in HTMLDOC v1.8.8</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv187.html#12_18">Changes in HTMLDOC v1.8.7</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv186.html#12_19">Changes in HTMLDOC v1.8.6</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv185.html#12_20">Changes in HTMLDOC v1.8.5</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv184.html#12_21">Changes in HTMLDOC v1.8.4</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv183.html#12_22">Changes in HTMLDOC v1.8.3</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv182.html#12_23">Changes in HTMLDOC v1.8.2</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv181.html#12_24">Changes in HTMLDOC v1.8.1</A>
+<UL></UL>
+</LI>
+<LI><A HREF="ChangesinHTMLDOCv18.html#12_25">Changes in HTMLDOC v1.8</A>
+<UL></UL>
+</LI>
+</UL>
+<B><A HREF="AppendixDCompilingHTMLDOCfromSource.html#COMPILE">Appendix D
+ - Compiling HTMLDOC from Source</A></B>
+<UL>
+<LI><A HREF="Requirements1.html#13_1">Requirements</A></LI>
+<LI><A HREF="CompilingunderUNIXLinux.html#13_2">Compiling under
+ UNIX/Linux</A></LI>
+<LI><A HREF="CompilingonWindowsUsingVisualC.html#13_3">Compiling on
+ Windows Using Visual C++</A></LI>
+<LI><A HREF="InstallingwithVisualC.html#13_4">Installing with Visual C++</A>
+</LI>
+</UL>
+<HR NOSHADE>
+</BODY>
+</HTML>

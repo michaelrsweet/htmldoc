@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.27 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2006, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20060801">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Requirements1.html">
+<LINK REL="Next" HREF="CompilingonWindowsUsingVisualC.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Requirements1.html">Previous</A>
+<A HREF="CompilingonWindowsUsingVisualC.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="13_2">Compiling under UNIX/Linux</A></H2>
+<P>HTMLDOC uses a configuration script produced by GNU autoconf to
+ configure itself for your system. If your ANSI C compiler is not called<VAR>
+ cc</VAR> or<VAR> gcc</VAR>, set the <CODE>CC</CODE> environment
+ variable to the name and path of your ANSI C compiler:</P>
+<PRE>
+    % <KBD>setenv CC /path/to/compiler ENTER</KBD>         [C Shell]
+    % <KBD>CC=/path/to/compiler; export CC ENTER</KBD>     [Bourne/Korn Shell]
+</PRE>
+<P>Similarly, if your C++ compiler is not called<VAR> CC</VAR>,<VAR> gcc</VAR>
+,<VAR> c++</VAR>, or<VAR> g++</VAR>, set the <CODE>CXX</CODE>
+ environment variable to the name and path of your C++ compiler:</P>
+<PRE>
+    % <KBD>setenv CXX /path/to/compiler ENTER</KBD>        [C Shell]
+    % <KBD>CXX=/path/to/compiler; export CXX ENTER</KBD>   [Bourne/Korn Shell]
+</PRE>
+<P>Then run the following command to configure HTMLDOC for installation
+ in the default directories:</P>
+<PRE>
+    % <KBD>./configure ENTER</KBD>
+</PRE>
+<P>The default configuration will install HTMLDOC in the<VAR> /usr/bin</VAR>
+ directory with the data files under<VAR> /usr/share/htmldoc</VAR> and
+ the documentation and on-line help under<VAR> /usr/share/doc/htmldoc</VAR>
+. Use the <CODE>--prefix</CODE> option to change the installation prefix
+ to a different directory such as<VAR> /usr/local</VAR>:</P>
+<PRE>
+    % <KBD>./configure --prefix=/usr/local ENTER</KBD>
+</PRE>
+<P>If the OpenSSL library is not installed in a standard location for
+ your compilers, use the <CODE>--with-openssl-includes</CODE> and <CODE>
+--with-openssl-libs</CODE> options to point to the OpenSSL library:</P>
+<PRE>
+    % <KBD>./configure --with-openssl-libs=/path/to/openssl/lib \
+        --with-openssl-includes=/path/to/openssl ENTER</KBD>
+</PRE>
+<P>HTMLDOC is built from a Makefile in the distribution's main
+ directory. Simply run the &quot;make&quot; command to build HTMLDOC:</P>
+<PRE>
+    % <KBD>make ENTER</KBD>
+</PRE>
+<P>If you get any fatal errors, please report them on the <CODE>
+htmldoc.general</CODE> newsgroup at:</P>
+<PRE>
+    <A href="http://www.easysw.com/newsgroups.php">http://www.easysw.com/newsgroups.php</A>
+</PRE>
+<P>Please note the version of HTMLDOC that you are using as well as any
+ pertinent system information such as the operating system, OS version,
+ compiler, and so forth. Omitting this information may delay or prevent
+ a solution to your problem.</P>
+<P>Once you have compiled the software successfully, you may install
+ HTMLDOC by running the following command:</P>
+<PRE>
+    % <KBD>make install ENTER</KBD>
+</PRE>
+<P>If you are installing in a restricted directory like<VAR> /usr</VAR>
+ then you'll need to be logged in as root.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Requirements1.html">Previous</A>
+<A HREF="CompilingonWindowsUsingVisualC.html">Next</A>
+</BODY>
+</HTML>

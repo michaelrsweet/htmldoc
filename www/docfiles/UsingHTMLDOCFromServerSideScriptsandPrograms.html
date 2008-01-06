@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.27 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2006, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20060801">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="AdditionalConfigurationforIIS60.html">
+<LINK REL="Next" HREF="CallingHTMLDOCfromaShellScript.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="AdditionalConfigurationforIIS60.html">Previous</A>
+<A HREF="CallingHTMLDOCfromaShellScript.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="6_3">Using HTMLDOC From Server-Side Scripts and Programs</A>
+</H2>
+<P>To make this work the CGI script or program must send the appropriate
+ HTTP attributes, the required empty line to signify the beginning of
+ the document, and then execute the HTMLDOC program to generate the
+ HTML, PostScript, or PDF file as needed. Since HTMLDOC looks for CGI
+ environment variables when it is run, you must also set the <TT>
+HTMLDOC_NOCGI</TT> environment variable to a value of 1 before running
+ HTMLDOC from your CGI script or program.</P>
+<P>Another way to generate PDF files from your reports is to use HTMLDOC
+ as a &quot;portal&quot; application. When used as a portal, HTMLDOC automatically
+ retrieves the named document or report from your server and passes a
+ PDF version to the web browser. See the next sections for more
+ information.</P>
+
+<!-- NEED 6in -->
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="AdditionalConfigurationforIIS60.html">Previous</A>
+<A HREF="CallingHTMLDOCfromaShellScript.html">Next</A>
+</BODY>
+</HTML>

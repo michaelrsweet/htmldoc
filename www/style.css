@@ -1,0 +1,86 @@
+BODY {
+  background: #ffffff;
+  color: #000000;
+  font-family: sans-serif;
+  text-align: justify;
+}
+
+P, TD, TH {
+  color: #000000;
+  font-family: sans-serif;
+}
+
+H2.title {
+  font-style: italic;
+  line-height: 100%;
+  margin-top: 5px;
+  margin-bottom: 0;
+  text-decoration: underline;
+}
+
+H1, H2, H3, H4, H5, H6 {
+  color: #000000;
+  font-family: sans-serif;
+}
+
+KBD {
+  color: #006600;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+PRE {
+  color: #7f0000;
+  font-family: monospace;
+}
+
+PRE.command {
+  margin-left: 3em;
+}
+
+SUB, SUP {
+  font-size: smaller;
+}
+
+TR.header, TR.header TH, TH.header {
+  background-color: #99cccc;
+}
+
+TR.page, TD.page {
+  background-color: #e0e0f4;
+}
+
+TR.data0, TD.data0 {
+  background-color: #d8d8e8;
+}
+
+TR.data1, TD.data1 {
+  background-color: #d0d0e0;
+}
+
+INPUT[TYPE="TEXT"], TEXTAREA {
+  font-family: monospace;
+}
+
+A:link, A:visited {
+  text-decoration: none;
+  font-weight: bold;
+  color: #00007f;
+}
+
+A:link:hover, A:visited:hover, A:active {
+  text-decoration: underline;
+  font-weight: bold;
+  color: #0000ff;
+}
+
+DL {
+  margin-left: 2em;
+}
+
+.valid {
+}
+
+.invalid {
+  color: red;
+}

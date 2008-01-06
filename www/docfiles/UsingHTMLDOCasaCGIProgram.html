@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.27 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2006, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20060801">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="TheBasics.html">
+<LINK REL="Next" HREF="ServerSidePreferences.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="TheBasics.html">Previous</A>
+<A HREF="ServerSidePreferences.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="6_2">Using HTMLDOC as a CGI Program</A></H2>
+<P>HTMLDOC 1.8.24 and higher supports operation as a CGI program. You
+ can copy or symlink the<VAR> htmldoc</VAR> (all but Windows) or<VAR>
+ htmldoc.exe</VAR> (Windows) executable to your web server's<VAR>
+ cgi-bin</VAR> directory and then use it to produce PDF versions of your
+ web pages.</P>
+<P>The CGI converts a page on your local server to PDF and sends it to
+ the client's web browser. For example, to convert a page called<VAR>
+ superproducts.html</VAR> at the following URL:</P>
+<PRE>
+    http://servername/superproducts.html
+</PRE>
+<P>and if you installed HTMLDOC in your server's<VAR> cgi-bin</VAR>
+ directory, you would direct your clients to the following URL:</P>
+<PRE>
+    http://servername<B>/cgi-bin/htmldoc</B>/superproducts.html
+</PRE>
+<P>The boldface portion represents the location of the HTMLDOC
+ executable on the web server. You simply place that path before the
+ page you want to convert.</P>
+<P>Form data using the <CODE>GET</CODE> method can be passed at the end
+ of the URL, for example:</P>
+<PRE>
+    http://servername/cgi-bin/htmldoc/superproducts.html<B>?name=value</B>
+</PRE>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="TheBasics.html">Previous</A>
+<A HREF="ServerSidePreferences.html">Next</A>
+</BODY>
+</HTML>

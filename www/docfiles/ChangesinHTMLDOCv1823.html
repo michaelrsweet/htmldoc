@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.27 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2006, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20060801">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1824.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1822.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1824.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1822.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_5">Changes in HTMLDOC v1.8.23</A></H2>
+<UL>
+<H3><A NAME="12_5_1">New Features</A></H3>
+<LI>HTMLDOC now supports a full alpha channel in PNG files.</LI>
+<LI>HTMLDOC now reports an error when a table, image, or section of text
+ overflows into an adjacent table cell or off the right edge of the
+ page.
+<H3><A NAME="12_5_2">Changes</A></H3>
+</LI>
+<LI>The NEW SHEET page comment now breaks on N-up boundaries when N is
+ greater than 1.
+<H3><A NAME="12_5_3">Bug Fixes</A></H3>
+</LI>
+<LI>HTMLDOC tried to format tables with no rows or columns. While the
+ HTML in technically not in error, it is not exactly something you'd
+ expect someone to do.</LI>
+<LI>HTMLDOC didn't report an error when it could not find the specified
+ title page file.</LI>
+<LI>HTMLDOC could crash if it was unable to create its output files.</LI>
+<LI>HTMLDOC could crash when writing HTML output containing unknown HTML
+ elements.</LI>
+<LI>HTMLDOC could crash when writing HTML output if the output document
+ had no title.</LI>
+<LI>The htmlGetText() function used a fixed-size (10k) buffer which
+ allowed for a buffer overflow. The new code (from HTMLDOC 1.9)
+ allocates its buffer instead.</LI>
+<LI>The header/footer text was not centered properly if the
+ header/footer font size was different than the default body font size.</LI>
+<LI>The GUI interface incorrectly localized URLs when doing a &quot;save as&quot;
+ operation.</LI>
+<LI>The PNG background color was not correct for PNG files using &lt;= 8
+ bits per pixel.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1824.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1822.html">Next</A>
+</BODY>
+</HTML>

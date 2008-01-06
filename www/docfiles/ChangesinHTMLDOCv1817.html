@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.27 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2006, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20060801">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1818.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1816.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1818.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1816.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_11">Changes in HTMLDOC v1.8.17</A></H2>
+<UL>
+<H3><A NAME="12_11_1">New Features</A></H3>
+<LI>Improved table-of-contents generation, with chapter headings at the
+ top of new TOC pages and page numbers based on the header/footer
+ string.</LI>
+<LI>Added new &quot;--no-localfiles&quot; option to disable access to local files
+ for added security in web services.</LI>
+<LI>Long lines in book files can not be broken up using a trailing
+ backslash.</LI>
+<LI>Added a modern &quot;skin&quot; to the GUI interface.</LI>
+<H3><A NAME="12_11_2">Changes</A></H3>
+<LI>Made some changes in how COLSPAN and ROWSPAN are handled to better
+ match how Netscape and MSIE format things.</LI>
+<LI>HTMLDOC now handles .book files with CR, LF, or CR LF line endings.</LI>
+<LI>Changed the TOC numbering to use 32-bit integers instead of 8-bit
+ integers...</LI>
+<LI>Now handle local links with quoted (%HH) characters.</LI>
+<LI>The command-line interface no longer sets PDF output mode when using
+ --continuous or --webpage.</LI>
+<LI>HTMLDOC now opens HTML output files in binary mode to prevent extra
+ CR's under Windows, and strips incoming CR's from PRE text.</LI>
+<LI>Now support inserting the current chapter and heading in the
+ table-of-contents headers and footers.</LI>
+<H3><A NAME="12_11_3">Bug Fixes</A></H3>
+<LI>The table cell border and background were offset by the cellpadding
+ when they should only be offset by the cellspacing.</LI>
+<LI>The buffer used for periods that lead up to the page number in the
+ table-of-contents was not large enough for a legal-size document in
+ landscape format.</LI>
+<LI>If a book only contained chapter headings, the PDF bookmarks would
+ be missing the last chapter heading.</LI>
+<LI>Table cells that ended with a break would render incorrectly.</LI>
+<LI>Fixed the table pre-format sizing code to properly account for
+ borders, padding, etc.</LI>
+<LI>Fixed the table squeezing code to honor minimum widths and properly
+ resize the remaining space.</LI>
+<LI>The MEDIA SIZE page comment did not reset the printable width and
+ length of the page.</LI>
+<LI>Tables that used COLSPAN did not honor WIDTH values in non-spanned
+ cells.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1818.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1816.html">Next</A>
+</BODY>
+</HTML>

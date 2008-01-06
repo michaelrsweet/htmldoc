@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /links.php
+Disallow: /str.php
+Disallow: /newsgroups.php

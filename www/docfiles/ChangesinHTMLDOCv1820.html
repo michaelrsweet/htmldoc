@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.27 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Easy Software Products">
+<META NAME="copyright" CONTENT="Copyright 1997-2006, All Rights Reserved.">
+<META NAME="docnumber" CONTENT="ESP-003-20060801">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1821.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1819.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1821.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1819.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_8">Changes in HTMLDOC v1.8.20</A></H2>
+<UL>
+<H3><A NAME="12_8_1">New Features</A></H3>
+<LI>New --nup and NUMBER-UP options for PostScript and PDF output.</LI>
+<LI>HTMLDOC now logs HTML errors.</LI>
+<LI>HTMLDOC now supports the A3, B, Legal, and Tabloid size names.</LI>
+<LI>HTMLDOC now supports embedding of the base Type1 fonts in PostScript
+ and PDF output.
+<H3><A NAME="12_8_2">Changes</A></H3>
+</LI>
+<LI>The HTML parser now allows BODY to auto-close HEAD and visa-versa.
+<H3><A NAME="12_8_3">Bug Fixes</A></H3>
+</LI>
+<LI>HTMLDOC wouldn't compile using GCC under HP-UX due to a badly
+ &quot;fixed&quot; system header file (vmtypes.h).</LI>
+<LI>Generating a book without a table-of-contents would produce a bad
+ PDF file.</LI>
+<LI>The Xerox XRX comments used the wrong units for the media size,
+ points instead of millimeters.</LI>
+<LI>IMG elements with links that use the ALIGN attribute didn't get the
+ links.</LI>
+<LI>Header and footer comments would interfere with the top and bottom
+ margin settings.</LI>
+<LI>Fixed a bug in the htmlReadFile() function which caused
+ user-provided title pages not to be displayed in PS or PDF output.</LI>
+<LI>The table-of-contents would inherit the last media settings in the
+ document, but use the initial settings when formatting.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1821.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1819.html">Next</A>
+</BODY>
+</HTML>
