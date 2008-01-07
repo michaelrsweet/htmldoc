@@ -1,4 +1,4 @@
-#!/usr/local/bin/php -f
+#!/usr/bin/php -f
 <?php
 
 include_once "../phplib/globals.php";
