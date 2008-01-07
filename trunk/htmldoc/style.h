@@ -3,7 +3,7 @@
 //
 //   Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2006 by Easy Software Products.
+//   Copyright 1997-2008 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -1149,13 +1149,13 @@ struct hdStyleSheet
   char		*charset;
   //* Character encoding
   hdFontEncoding encoding;
-  //* Number of glyphs in charset
-  int		num_glyphs;
   //* Glyphs in charset
-  char		**glyphs;
+  char		*glyphs[256];
 
   //* Unicode glyphs
   char		*uniglyphs[65536];
+  //* Unicode to character mapping...
+  hdChar	unichars[65536];
   //* Unicode equivalents
   int		unicode[256];
 
@@ -1264,7 +1264,7 @@ struct hdStyleSheet
   * @param name const&nbsp;char* The entity name string.
   * @return The character code or 0 if the name is unknown.
   */
-  int		get_entity(const char *name);
+  int		get_entity(const char *name, int ch = 0);
 
  /**
   * The <tt>get_entity(int)</tt> method returns the entity for the
@@ -1292,8 +1292,6 @@ struct hdStyleSheet
   * @return A pointer to a new, private style record.
   */
   hdStyle	*get_private_style(hdTree *t, bool force = false);
-
-  int		get_unicode(const hdChar *&s);
 
  /**
   * The <tt>get_uniglyph()</tt> method returns the character code for the given character

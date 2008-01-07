@@ -8,7 +8,7 @@
  *   broken into more manageable pieces once we make all of the output
  *   "drivers" into classes...
  *
- *   Copyright 1997-2006 by Easy Software Products.
+ *   Copyright 1997-2008 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -12617,7 +12617,7 @@ write_utf16(FILE   *out,		// I - File to write to
 
     for (sptr = s; *sptr;)
     {
-      ch = _htmlStyleSheet->get_unicode(sptr);
+      ch = _htmlStyleSheet->unichars[*sptr++];
 
       unicode[0] = ch >> 8;
       unicode[1] = ch;
@@ -12637,7 +12637,7 @@ write_utf16(FILE   *out,		// I - File to write to
 
     fputs("<feff", out);		// Start with BOM
     for (sptr = s; *sptr;)
-      fprintf(out, "%04x", _htmlStyleSheet->get_unicode(sptr));
+      fprintf(out, "%04x", _htmlStyleSheet->unichars[*sptr++]);
     putc('>', out);
   }
 }
