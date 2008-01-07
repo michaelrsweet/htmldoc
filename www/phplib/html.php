@@ -110,15 +110,16 @@ html_header($title = "",		// I - Additional document title
   else
     $html_title = "";
 
-  print("  <title>$html_title HTMLDOC</title>\n"
-       ."  <meta http-equiv='Pragma' content='no-cache'>\n"
+//       ."  <meta http-equiv='Pragma' content='no-cache'>\n"
+
+  print("  <title>$html_title &lt;HTML&gt;DOC</title>\n"
        ."  <meta http-equiv='Content-Type' content='text/html; "
        ."charset=utf-8'>\n"
        ."  <link rel='stylesheet' type='text/css' href='${path}style.css'>\n"
        ."  <link rel='alternate' title='HTMLDOC RSS' "
        ."type='application/rss+xml' href='${path}index.rss'>\n"
-       ."  <link rel='shortcut icon' href='${path}favicon.ico' "
-       ."type='image/x-icon'>\n");
+       ."  <link rel='shortcut icon' href='${path}images/htmldoc.gif' "
+       ."type='image/gif'>\n");
 
   // If refresh URL is specified, add the META tag...
   if ($refresh != "")
@@ -141,37 +142,35 @@ html_header($title = "",		// I - Additional document title
   // Standard navigation stuff...
   if ($html_show_all)
   {
-    print("<table width='100%' border='0' cellspacing='0' "
-	 ."cellpadding='0'>\n"
+    print("<table width='100%' style='height: 100%;' border='0' "
+         ."cellspacing='0' cellpadding='0' summary=''>\n"
 	 ."<tr class='header'>"
-	 ."<td valign='top' rowspan='2'><img src='${path}images/top-left.gif' width='15' "
-	 ."height='15' alt=''></td>"
-	 ."<td colspan='2' nowrap><h2 class='title'>");
+	 ."<td valign='bottom' rowspan='2'>"
+	 ."<img src='${path}images/htmldoc.gif' width='64' height='64' "
+	 ."alt='&lt;HTML&gt;DOC'></td>"
+	 ."<td class='title' colspan='2' nowrap>");
 
     if ($title != "")
       print(htmlspecialchars($title));
     else
-      print("HTMLDOC");
+      print("&lt;HTML&gt;DOC");
 
-    print("</h2></td>"
-	 ."<td align='right' valign='top' width='33' height='48' rowspan='2'>"
-	 ."<a href='http://www.easysw.com/htmldoc/'>"
-	 ."<img src='${path}images/logo.gif' width='33' height='48' "
-	 ."alt='Buy HTMLDOC on CD-ROM!' title='Buy HTMLDOC on CD-ROM!' "
-	 ."border='0' align='middle'></a></td>"
-	 ."<td align='right' valign='top' width='15' height='48' rowspan='2'>"
-	 ."<a href='http://www.easysw.com/htmldoc/'>"
-	 ."<img src='${path}images/logo2.gif' width='15' height='48' "
-	 ."alt='Buy HTMLDOC on CD-ROM!' title='Buy HTMLDOC on CD-ROM!' "
-	 ."border='0' align='middle'></a></td></tr>\n");
-    print("<tr class='header'>"
-         ."<td width='100%' nowrap>[&nbsp;<a href='${path}index.php'>Home</a> | "
-	 ."<a href='${path}articles.php'>Articles &amp; FAQs</a> | "
-	 ."<a href='${path}str.php'>Bugs &amp; Features</a> | "
-	 ."<a href='${path}documentation.php'>Documentation</a> | "
-	 ."<a href='${path}software.php'>Download</a> | "
-	 ."<a href='${path}newsgroups.php'>Forums</a>&nbsp;]</td>"
-	 ."<td align='right'>[&nbsp;");
+    print("</td></tr>\n"
+         ."<tr class='header'>"
+         ."<td class='links' width='100%' nowrap>"
+	 ."<a href='${path}index.php'>Home</a>"
+	 ." &middot; "
+	 ."<a href='${path}articles.php'>Articles &amp; FAQs</a>"
+	 ." &middot; "
+	 ."<a href='${path}str.php'>Bugs &amp; Features</a>"
+	 ." &middot; "
+	 ."<a href='${path}documentation.php'>Documentation</a>"
+	 ." &middot; "
+	 ."<a href='${path}software.php'>Download</a>"
+	 ." &middot; "
+	 ."<a href='${path}newsgroups.php'>Forums</a>"
+	 ."</td>"
+	 ."<td align='right' class='links'>");
 
     if ($LOGIN_USER)
       print("<a href='${path}account.php'>$LOGIN_USER</a>");
@@ -189,13 +188,11 @@ html_header($title = "",		// I - Additional document title
       print("<a href='${path}login.php?PAGE=$url'>Login</a>");
     }
 
-    print("&nbsp;]&nbsp;&nbsp;&nbsp;</td>"
+    print("</td>"
 	 ."</tr>\n");
 
-    print("<tr class='page'><td></td>"
-	 ."<td colspan='3' width='100%' valign='top'>"
-	 ."<table width='100%' height='100%' border='0' cellpadding='5' "
-	 ."cellspacing='0'><tr><td valign='top'>");
+    print("<tr class='page'>"
+	 ."<td class='page' colspan='3' width='100%'>");
   }
   else
   {
@@ -205,8 +202,7 @@ html_header($title = "",		// I - Additional document title
 	 ."<a href='${path}str.php'></a>"
 	 ."<a href='${path}documentation.php'></a>"
 	 ."<a href='${path}software.php'></a>"
-	 ."<a href='${path}newsgroups.php'></a>"
-	 ."<a href='${path}links.php'></a>");
+	 ."<a href='${path}newsgroups.php'></a>");
   }
 
   if ($links != "")
@@ -221,26 +217,19 @@ html_header($title = "",		// I - Additional document title
 function
 html_footer()
 {
-  global $html_path, $html_show_all;
+  global $html_show_all;
 
 
   if ($html_show_all)
   {
-    print("</td></tr></table></td><td></td></tr>\n");
-    print("<tr class='page'><td colspan='5'>&nbsp;</td></tr>\n");
-    print("<tr class='header'>"
-	 ."<td valign='bottom'><img src='${html_path}images/bottom-left.gif' "
-	 ."width='15' height='15' alt=''></td>"
-	 ."<td colspan='3'><small> <br>"
+    print("</td></tr>\n"
+         ."<tr class='footer'><td colspan='3'>"
 	 ."Copyright 1997-2008 by Easy Software Products. HTMLDOC and "
 	 ."&lt;HTML&gt;DOC are the trademark property of Easy Software Products. "
 	 ."HTMLDOC is free software; you can redistribute it and/or modify it "
 	 ."under the terms of the GNU General Public License as published by the "
-	 ."Free Software Foundation.<br>&nbsp;</small></td>"
-	 ."<td align='right' valign='bottom' width='15'><img src='${html_path}images/bottom-right.gif' "
-	 ."width='15' height='15' alt=''></td>"
-	 ."</tr>\n");
-    print("</table>\n");
+	 ."Free Software Foundation.</td></tr>\n"
+         ."</table>\n");
   }
 
   print("</body>\n"
@@ -260,9 +249,9 @@ html_start_links($center = 0)		// I - 1 for centered, 0 for in-line
   $html_firstlink = 1;
 
   if ($center)
-    print("<p class='center' align='center'>[&nbsp;");
+    print("<p class='center' align='center'>");
   else
-    print("<p>[&nbsp;");
+    print("<p>");
 }
 
 
@@ -273,7 +262,7 @@ html_start_links($center = 0)		// I - 1 for centered, 0 for in-line
 function
 html_end_links()
 {
-  print("&nbsp;]</p>\n");
+  print("</p>\n");
 }
 
 
@@ -290,7 +279,7 @@ html_link($text,			// I - Text for hyperlink
   if ($html_firstlink)
     $html_firstlink = 0;
   else
-    print(" | ");
+    print(" &middot; ");
 
   $safetext = str_replace(" ", "&nbsp;", htmlspecialchars($text));
 
@@ -323,7 +312,8 @@ html_start_table($headings)		// I - Array of heading strings
   global $html_row, $html_cols;
 
 
-  print("<table border='0' cellpadding='0' cellspacing='0' width='100%'>"
+  print("<table border='0' cellpadding='0' cellspacing='0' width='100%' "
+       ."summary=''>"
        ."<tr class='header'><th align='left' valign='top'>"
        ."<img src='images/hdr-top-left.gif' width='16' height='16' "
        ."alt=''></th>");
