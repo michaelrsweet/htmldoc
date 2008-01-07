@@ -21,26 +21,32 @@
 //
 // Contents:
 //
-//   hdStyleSelector::hdStyleSelector()  - Initialize a selector.
-//   hdStyleSelector::set()              - Set selector values.
-//   hdStyleSelector::clear()            - Free selector strings.
-//   hdStyle::hdStyle()                  - Create a new style record.
-//   hdStyle::~hdStyle()                 - Destroy a style record.
-//   hdStyle::get_border_style()         - Get a border style value.
-//   hdStyle::get_border_width()         - Get a border width value.
-//   hdStyle::get_color()                - Get a 24-bit color value.
-//   hdStyle::get_color()                - Get a floating point color value.
-//   hdStyle::get_length()               - Get a length/measurement value...
-//   hdStyle::get_list_style_type()      - Get a list style type value.
-//   hdStyle::get_page_break()           - Get a page break value.
-//   hdStyle::get_pos()                  - Get a margin/position/padding/border
-//                                         index.
-//   hdStyle::get_subvalue()             - Get a subvalue from a property value.
-//   hdStyle::get_width()                - Get width of string in points.
-//   hdStyle::inherit()                  - Inherit style properties from a
-//                                         parent style.
-//   hdStyle::load()                     - Load a style definition from a string.
-//   hdStyle::update()                   - Update relative style definitions.
+//   hdStyleSelector::hdStyleSelector() - Initialize a selector with the given
+//                                        values.
+//   hdStyleSelector::set()             - Set selector values.
+//   hdStyleSelector::clear()           - Free selector strings.
+//   hdStyle::hdStyle()                 - Create a new style record.
+//   hdStyle::~hdStyle()                - Destroy a style record.
+//   hdStyle::copy()                    - Copy style properties from an original
+//                                        style.
+//   hdStyle::get_border_style()        - Get a border style value.
+//   hdStyle::get_border_width()        - Get a border width value.
+//   hdStyle::get_color()               - Get a floating point color value.
+//   hdStyle::get_length()              - Get a length/measurement value...
+//   hdStyle::get_list_style_type()     - Get a list style type value.
+//   hdStyle::get_page_break()          - Get a page break value.
+//   hdStyle::get_pos()                 - Get a margin/position/padding/border
+//                                        index.
+//   hdStyle::get_subvalue()            - Get a subvalue from a property value.
+//   hdStyle::get_width()               - Get width of string in points.
+//   hdStyle::inherit()                 - Inherit style properties from a parent
+//                                        style.
+//   hdStyle::init()                    - Initialize the style data to defaults.
+//   hdStyle::load()                    - Load a style definition from a string.
+//   hdStyle::set_font_size()           - Set the font size.
+//   hdStyle::set_line_height()         - Set the line height.
+//   hdStyle::set_string()              - Copy and set a string value.
+//   hdStyle::update()                  - Update relative style definitions.
 //
 
 //
@@ -1643,7 +1649,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  !strcasecmp(value, "ridge") ||
 	  !strcasecmp(value, "inset") ||
 	  !strcasecmp(value, "outset"))
-	border[pos].style = get_border_style(subvalue);
+	border[pos].style = get_border_style(value);
       else if (!strcasecmp(value, "inherit"))
         border[pos].style = HD_BORDER_STYLE_INHERIT;
       else
