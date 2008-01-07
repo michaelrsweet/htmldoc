@@ -932,10 +932,16 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
     }
     else if (!sel_p[ch])
     {
-      // Not a valid selector string...
-      progress_error(HD_ERROR_CSS_ERROR,
-                     "Bad stylesheet character \"%c\"!", ch);
-      status = false;
+      if (ch == '<' && !cssmedia[0])
+        status = true;
+      else
+      {
+	// Not a valid selector string...
+	progress_error(HD_ERROR_CSS_ERROR,
+		       "Bad stylesheet character \"%c\"!", ch);
+	status = false;
+      }
+
       break;
     }
 
