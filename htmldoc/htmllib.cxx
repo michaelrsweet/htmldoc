@@ -1,70 +1,71 @@
-/*
- * "$Id: htmllib.cxx,v 1.41.2.80.2.9 2005/05/09 02:05:01 mike Exp $"
- *
- *   HTML parsing routines for HTMLDOC, a HTML document processing program.
- *
- *   Copyright 1997-2006 by Easy Software Products.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: HTMLDOC Licensing Information
- *       Easy Software Products
- *       516 Rio Grand Ct
- *       Morgan Hill, CA 95037 USA
- *
- *       http://www.htmldoc.org/
- *
- * Contents:
- *
- *   htmlReadFile()      - Read a file for HTML markup codes.
- *   write_file()        - Write a tree entry to a file...
- *   htmlWriteFile()     - Write an HTML markup tree to a file.
- *   htmlAddTree()       - Add a tree node to the parent.
- *   htmlDeleteTree()    - Free all memory associated with a tree...
- *   htmlInsertTree()    - Insert a tree node to the parent.
- *   htmlNewTree()       - Create a new tree node for the parent.
- *   htmlGetText()       - Get all text from the given tree.
- *   htmlGetMeta()       - Get document "meta" data...
- *   htmlGetStyle()      - Get a style value from a node's STYLE attribute.
- *   htmlGetAttr()       - Get a variable value from a markup entry.
- *   htmlSetAttr()       - Set a variable for a markup entry.
- *   compare_variables() - Compare two markup variables.
- *   delete_node()       - Free all memory associated with a node...
- *   insert_space()      - Insert a whitespace character before the
- *                         specified node.
- *   parse_markup()      - Parse a markup string.
- *   parse_variable()    - Parse a markup variable string.
- *   compute_size()      - Compute the width and height of a tree entry.
- *   compute_color()     - Compute the red, green, blue color from the given
- *   get_alignment()     - Get horizontal & vertical alignment values.
- *   fix_filename()      - Fix a filename to be relative to the base directory.
- *   html_memory_used()  - Figure out the amount of memory that was used.
- *   htmlDebugStats()    - Display debug statistics for HTML tree memory use.
- */
+//
+// "$Id: htmllib.cxx,v 1.41.2.80.2.9 2005/05/09 02:05:01 mike Exp $"
+//
+//   HTML parsing routines for HTMLDOC, a HTML document processing program.
+//
+//   Copyright 1997-2008 by Easy Software Products.
+//
+//   These coded instructions, statements, and computer programs are the
+//   property of Easy Software Products and are protected by Federal
+//   copyright law.  Distribution and use rights are outlined in the file
+//   "COPYING.txt" which should have been included with this file.  If this
+//   file is missing or damaged please contact Easy Software Products
+//   at:
+//
+//       Attn: HTMLDOC Licensing Information
+//       Easy Software Products
+//       516 Rio Grand Ct
+//       Morgan Hill, CA 95037 USA
+//
+//       http://www.htmldoc.org/
+//
+// Contents:
+//
+//   htmlReadFile()      - Read a file for HTML markup codes.
+//   write_file()        - Write a tree entry to a file...
+//   htmlWriteFile()     - Write an HTML markup tree to a file.
+//   htmlAddTree()       - Add a tree node to the parent.
+//   htmlDeleteTree()    - Free all memory associated with a tree...
+//   htmlInsertTree()    - Insert a tree node to the parent.
+//   htmlNewTree()       - Create a new tree node for the parent.
+//   htmlGetText()       - Get all text from the given tree.
+//   htmlGetMeta()       - Get document "meta" data...
+//   htmlGetStyle()      - Get a style value from a node's STYLE attribute.
+//   htmlGetAttr()       - Get a variable value from a markup entry.
+//   htmlSetAttr()       - Set a variable for a markup entry.
+//   compare_variables() - Compare two markup variables.
+//   delete_node()       - Free all memory associated with a node...
+//   insert_space()      - Insert a whitespace character before the
+//                         specified node.
+//   parse_markup()      - Parse a markup string.
+//   parse_variable()    - Parse a markup variable string.
+//   compute_size()      - Compute the width and height of a tree entry.
+//   compute_color()     - Compute the red, green, blue color from the given
+//   get_alignment()     - Get horizontal & vertical alignment values.
+//   fix_filename()      - Fix a filename to be relative to the base directory.
+//   html_memory_used()  - Figure out the amount of memory that was used.
+//   htmlDebugStats()    - Display debug statistics for HTML tree memory use.
+//   utf8_getc()         - Get a UTF-8 encoded character.
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 #include "htmldoc.h"
 #include <ctype.h>
 #include <math.h>
 
 
-const char	*_htmlData = HTML_DATA;	/* Data directory */
+const char	*_htmlData = HTML_DATA;	// Data directory
 hdFontFace	_htmlBodyFont = HD_FONT_FACE_SERIF,
 		_htmlHeadingFont = HD_FONT_FACE_SANS_SERIF;
 hdStyleSheet	*_htmlStyleSheet = NULL;// Style data
 
 
-/*
- * Local functions.
- */
+//
+// Local functions.
+//
 
 extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
@@ -78,6 +79,7 @@ static int	parse_markup(hdTree *t, FILE *fp, int *linenum);
 static int	parse_variable(hdTree *t, FILE *fp, int *linenum);
 static int	compute_size(hdTree *t);
 static const char *fix_filename(char *path, const char *base);
+static int	utf8_getc(int ch, FILE *fp);
 
 #define issuper(x)	((x) == HD_ELEMENT_CENTER || (x) == HD_ELEMENT_DIV ||\
 			 (x) == HD_ELEMENT_BLOCKQUOTE)
@@ -98,9 +100,9 @@ static FILE	*debug_file = NULL;
 static int	debug_indent = 0;
 
 
-/*
- * 'htmlSetDebugFile()' - Set the file to send debugging information.
- */
+//
+// 'htmlSetDebugFile()' - Set the file to send debugging information.
+//
 
 void
 htmlSetDebugFile(FILE *fp)		// I - File to send debug info or NULL
@@ -110,9 +112,9 @@ htmlSetDebugFile(FILE *fp)		// I - File to send debug info or NULL
 }
 
 
-/*
- * 'htmlReadFile()' - Read a file for HTML markup codes.
- */
+//
+// 'htmlReadFile()' - Read a file for HTML markup codes.
+//
 
 hdTree *				// O - Pointer to top of file tree
 htmlReadFile(hdTree     *parent,	// I - Parent tree entry
@@ -140,25 +142,16 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
   DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
                 parent, fp, base ? base : "(null)"));
 
- /*
-  * Start off with no previous tree entry...
-  */
-
+  // Start off with no previous tree entry...
   prev = NULL;
   tree = NULL;
 
- /*
-  * Parse data until we hit end-of-file...
-  */
-
+  // Parse data until we hit end-of-file...
   linenum = 1;
 
   while ((ch = getc(fp)) != EOF)
   {
-   /*
-    * Ignore leading whitespace...
-    */
-
+    // Ignore leading whitespace...
     if (parent == NULL || parent->style == NULL ||
         parent->style->white_space != HD_WHITE_SPACE_PRE)
     {
@@ -175,10 +168,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
         break;
     }
 
-   /*
-    * Allocate a new tree entry - use calloc() to get zeroed data...
-    */
-
+    // Allocate a new tree entry - use calloc() to get zeroed data...
     t = (hdTree *)calloc(sizeof(hdTree), 1);
     if (t == NULL)
     {
@@ -187,10 +177,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
       break;
     }
 
-   /*
-    * Set/copy style characteristics...
-    */
-
+    // Set/copy style characteristics...
     if (parent)
     {
       t->link  = parent->link;
@@ -198,26 +185,17 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
                                  _htmlStyleSheet->find_style(parent);
     }
 
-   /*
-    * See what the character was...
-    */
-
+    // See what the character was...
     if (ch == '<')
     {
-     /*
-      * Markup char; grab the next char to see if this is a /...
-      */
-
+      // Markup char; grab the next char to see if this is a /...
       ch = getc(fp);
 
       if (isspace(ch) || ch == '=' || ch == '<')
       {
-       /*
-        * Sigh...  "<" followed by anything but an element name is
-	* invalid HTML, but so many people have asked for this to
-	* be supported that we have added this hack...
-	*/
-
+        // Sigh...  "<" followed by anything but an element name is
+	// invalid HTML, but so many people have asked for this to
+	// be supported that we have added this hack...
 	progress_error(HD_ERROR_HTML_ERROR, "Unquoted < on line %d.", linenum);
 
 	if (ch == '\n')
@@ -245,10 +223,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
       }
       else
       {
-       /*
-        * Start of a markup...
-	*/
-
+        // Start of a markup...
 	if (ch != '/')
           ungetc(ch, fp);
 
@@ -263,27 +238,18 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
         htmlUpdateStyle(t, base);
 
-       /*
-	* Eliminate extra whitespace...
-	*/
-
+	// Eliminate extra whitespace...
 	if (issuper(t->element) || isblock(t->element) ||
             islist(t->element) || islentry(t->element) ||
             istable(t->element) || istentry(t->element) ||
 	    t->element == HD_ELEMENT_TITLE)
           have_whitespace = 0;
 
-       /*
-	* If this is the matching close mark, or if we are starting the same
-	* markup, or if we've completed a list, we're done!
-	*/
-
+	// If this is the matching close mark, or if we are starting the same
+	// markup, or if we've completed a list, we're done!
 	if (ch == '/')
 	{
-	 /*
-          * Close markup; find matching markup...
-          */
-
+	  // Close markup; find matching markup...
           for (temp = parent; temp != NULL; temp = temp->parent)
             if (temp->element == t->element)
               break;
@@ -295,10 +261,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	}
 	else if (t->element == HD_ELEMENT_BODY || t->element == HD_ELEMENT_HEAD)
 	{
-	 /*
-          * Make sure we aren't inside an existing HEAD or BODY...
-	  */
-
+	  // Make sure we aren't inside an existing HEAD or BODY...
           for (temp = parent; temp != NULL; temp = temp->parent)
             if (temp->element == HD_ELEMENT_BODY || temp->element == HD_ELEMENT_HEAD)
               break;
@@ -310,10 +273,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	}
 	else if (t->element == HD_ELEMENT_EMBED)
 	{
-	 /*
-          * Close any text blocks...
-	  */
-
+	  // Close any text blocks...
           for (temp = parent; temp != NULL; temp = temp->parent)
             if (isblock(temp->element) || islentry(temp->element))
               break;
@@ -512,10 +472,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
     }
     else if (t->style->white_space == HD_WHITE_SPACE_PRE)
     {
-     /*
-      * Read a pre-formatted string into the current tree entry...
-      */
-
+      // Read a pre-formatted string into the current tree entry...
       ptr = s;
       while (ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
       {
@@ -563,6 +520,15 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	  else
 	    *ptr++ = ch;
         }
+	else if ((ch & 0x80) &&
+	         _htmlStyleSheet->encoding == HD_FONT_ENCODING_UTF8)
+        {
+	  // Collect UTF-8 value...
+	  ch = utf8_getc(ch, fp);
+
+	  if (ch)
+	    *ptr++ = ch;
+	}
 	else if (ch != 0 && ch != '\r')
 	{
           *ptr++ = ch;
@@ -591,10 +557,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
     }
     else
     {
-     /*
-      * Read the next string fragment...
-      */
-
+      // Read the next string fragment...
       ptr = s;
       if (have_whitespace)
       {
@@ -648,6 +611,15 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	  else
 	    *ptr++ = ch;
         }
+	else if ((ch & 0x80) &&
+	         _htmlStyleSheet->encoding == HD_FONT_ENCODING_UTF8)
+        {
+	  // Collect UTF-8 value...
+	  ch = utf8_getc(ch, fp);
+
+	  if (ch)
+	    *ptr++ = ch;
+	}
 	else if (ch)
           *ptr++ = ch;
 
@@ -673,11 +645,8 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	        debug_indent, "", s, ptr - s, linenum);
     }
 
-   /*
-    * If the parent tree pointer is not null and this is the first
-    * entry we've read, set the child pointer...
-    */
-
+    // If the parent tree pointer is not null and this is the first
+    // entry we've read, set the child pointer...
     if (debug_file)
       fprintf(debug_file, "%*sADDING %s node to %s parent, white_space=%d!\n",
               debug_indent, "", _htmlStyleSheet->get_element(t->element),
@@ -690,10 +659,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
     if (parent != NULL)
       parent->last_child = t;
 
-   /*
-    * Do the prev/next links...
-    */
-
+    // Do the prev/next links...
     t->parent = parent;
     t->prev   = prev;
     if (prev != NULL)
@@ -704,10 +670,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
     prev = t;
 
-   /*
-    * Do markup-specific stuff...
-    */
-
+    // Do markup-specific stuff...
     descend = 0;
 
     switch (t->element)
@@ -772,10 +735,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
       case HD_ELEMENT_BR :
       case HD_ELEMENT_NONE :
       case HD_ELEMENT_SPACER :
-	 /*
-	  * Figure out the width & height of this markup...
-	  */
-
+	  // Figure out the width & height of this markup...
           compute_size(t);
 	  break;
 
@@ -873,17 +833,17 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 }
 
 
-/*
- * 'write_file()' - Write a tree entry to a file...
- */
+//
+// 'write_file()' - Write a tree entry to a file...
+//
 
-static int				/* I - New column */
-write_file(hdTree *t,			/* I - Tree entry */
-           FILE   *fp,			/* I - File to write to */
-           int    col)			/* I - Current column */
+static int				// I - New column
+write_file(hdTree *t,			// I - Tree entry
+           FILE   *fp,			// I - File to write to
+           int    col)			// I - Current column
 {
-  int		i;			/* Looping var */
-  hdChar	*ptr;			/* Character pointer */
+  int		i;			// Looping var
+  hdChar	*ptr;			// Character pointer
 
 
   while (t != NULL)
@@ -1047,13 +1007,13 @@ write_file(hdTree *t,			/* I - Tree entry */
 }
         
   
-/*
- * 'htmlWriteFile()' - Write an HTML markup tree to a file.
- */
+//
+// 'htmlWriteFile()' - Write an HTML markup tree to a file.
+//
 
-int				/* O - Write status: 0 = success, -1 = fail */
-htmlWriteFile(hdTree *parent,	/* I - Parent tree entry */
-              FILE   *fp)	/* I - File to write to */
+int				// O - Write status: 0 = success, -1 = fail
+htmlWriteFile(hdTree *parent,	// I - Parent tree entry
+              FILE   *fp)	// I - File to write to
 {
   if (write_file(parent, fp, 0) < 0)
     return (-1);
@@ -1062,25 +1022,22 @@ htmlWriteFile(hdTree *parent,	/* I - Parent tree entry */
 }
 
 
-/*
- * 'htmlAddTree()' - Add a tree node to the parent.
- */
+//
+// 'htmlAddTree()' - Add a tree node to the parent.
+//
 
-hdTree *			/* O - New entry */
-htmlAddTree(hdTree   *parent,	/* I - Parent entry */
-            hdElement markup,	/* I - Markup code */
-            hdChar    *data)	/* I - Data/text */
+hdTree *			// O - New entry
+htmlAddTree(hdTree   *parent,	// I - Parent entry
+            hdElement markup,	// I - Markup code
+            hdChar    *data)	// I - Data/text
 {
-  hdTree	*t;		/* New tree entry */
+  hdTree	*t;		// New tree entry
 
 
   if ((t = htmlNewTree(parent, markup, data)) == NULL)
     return (NULL);
 
- /*
-  * Add the tree entry to the end of the chain of children...
-  */
-
+  // Add the tree entry to the end of the chain of children...
   if (parent != NULL)
   {
     if (parent->last_child != NULL)
@@ -1098,14 +1055,14 @@ htmlAddTree(hdTree   *parent,	/* I - Parent entry */
 }
 
 
-/*
- * 'htmlDeleteTree()' - Free all memory associated with a tree...
- */
+//
+// 'htmlDeleteTree()' - Free all memory associated with a tree...
+//
 
-int				/* O - 0 for success, -1 for failure */
-htmlDeleteTree(hdTree *parent)	/* I - Parent to delete */
+int				// O - 0 for success, -1 for failure
+htmlDeleteTree(hdTree *parent)	// I - Parent to delete
 {
-  hdTree	*next;		/* Next tree entry */
+  hdTree	*next;		// Next tree entry
 
 
   if (parent == NULL)
@@ -1128,25 +1085,22 @@ htmlDeleteTree(hdTree *parent)	/* I - Parent to delete */
 }
 
 
-/*
- * 'htmlInsertTree()' - Insert a tree node under the parent.
- */
+//
+// 'htmlInsertTree()' - Insert a tree node under the parent.
+//
 
-hdTree *			/* O - New entry */
-htmlInsertTree(hdTree   *parent,/* I - Parent entry */
-               hdElement markup,	/* I - Markup code */
-               hdChar    *data)	/* I - Data/text */
+hdTree *			// O - New entry
+htmlInsertTree(hdTree   *parent,// I - Parent entry
+               hdElement markup,	// I - Markup code
+               hdChar    *data)	// I - Data/text
 {
-  hdTree	*t;		/* New tree entry */
+  hdTree	*t;		// New tree entry
 
 
   if ((t = htmlNewTree(parent, markup, data)) == NULL)
     return (NULL);
 
- /*
-  * Insert the tree entry at the beginning of the chain of children...
-  */
-
+  // Insert the tree entry at the beginning of the chain of children...
   if (parent != NULL)
   {
     if (parent->child != NULL)
@@ -1164,16 +1118,16 @@ htmlInsertTree(hdTree   *parent,/* I - Parent entry */
 }
 
 
-/*
- * 'htmlNewTree()' - Create a new tree node for the parent.
- */
+//
+// 'htmlNewTree()' - Create a new tree node for the parent.
+//
 
-hdTree *				//* O - New entry
-htmlNewTree(hdTree    *parent,		//* I - Parent entry
-            hdElement element,		//* I - Element code
-            hdChar    *data)		//* I - Data/text
+hdTree *				/// O - New entry
+htmlNewTree(hdTree    *parent,		/// I - Parent entry
+            hdElement element,		/// I - Element code
+            hdChar    *data)		/// I - Data/text
 {
-  hdTree	*t;			//* New tree entry
+  hdTree	*t;			/// New tree entry
 
 
   // Allocate a new tree entry - use calloc() to get zeroed data...
@@ -1206,12 +1160,12 @@ htmlNewTree(hdTree    *parent,		//* I - Parent entry
 }
 
 
-/*
- * 'htmlGetText()' - Get all text from the given tree.
- */
+//
+// 'htmlGetText()' - Get all text from the given tree.
+//
 
-hdChar *				/* O - String containing text nodes */
-htmlGetText(hdTree *t)			/* I - Tree to pick */
+hdChar *				// O - String containing text nodes
+htmlGetText(hdTree *t)			// I - Tree to pick
 {
   hdChar	*s,			// String
 		*s2,			// New string
@@ -1264,42 +1218,33 @@ htmlGetText(hdTree *t)			/* I - Tree to pick */
 }
 
 
-/*
- * 'htmlGetMeta()' - Get document "meta" data...
- */
+//
+// 'htmlGetMeta()' - Get document "meta" data...
+//
 
-hdChar *				/* O - Content string */
-htmlGetMeta(hdTree     *tree,		/* I - Document tree */
-            const char *name)		/* I - Metadata name */
+hdChar *				// O - Content string
+htmlGetMeta(hdTree     *tree,		// I - Document tree
+            const char *name)		// I - Metadata name
 {
-  hdChar	*tname,			/* Name value from tree entry */
-		*tcontent;		/* Content value from tree entry */
+  hdChar	*tname,			// Name value from tree entry
+		*tcontent;		// Content value from tree entry
 
 
   while (tree != NULL)
   {
-   /*
-    * Check this tree entry...
-    */
-
+    // Check this tree entry...
     if (tree->element == HD_ELEMENT_META &&
         (tname = htmlGetAttr(tree, "NAME")) != NULL &&
         (tcontent = htmlGetAttr(tree, "CONTENT")) != NULL)
       if (strcasecmp((char *)name, (char *)tname) == 0)
         return (tcontent);
 
-   /*
-    * Check child entries...
-    */
-
+    // Check child entries...
     if (tree->child != NULL)
       if ((tcontent = htmlGetMeta(tree->child, name)) != NULL)
         return (tcontent);
 
-   /*
-    * Next tree entry...
-    */
-
+    // Next tree entry...
     tree = tree->next;
   }
 
@@ -1307,16 +1252,16 @@ htmlGetMeta(hdTree     *tree,		/* I - Document tree */
 }
 
 
-/*
- * 'htmlGetAttr()' - Get a variable value from a markup entry.
- */
+//
+// 'htmlGetAttr()' - Get a variable value from a markup entry.
+//
 
-hdChar *				/* O - Value or NULL if variable does not exist */
-htmlGetAttr(hdTree     *t,		/* I - Tree entry */
-            const char *name)		/* I - Variable name */
+hdChar *				// O - Value or NULL if variable does not exist
+htmlGetAttr(hdTree     *t,		// I - Tree entry
+            const char *name)		// I - Variable name
 {
-  hdTreeAttr	*v,			/* Matching variable */
-		key;			/* Search key */
+  hdTreeAttr	*v,			// Matching variable
+		key;			// Search key
 
 
   if (t == NULL || name == NULL || t->nattrs == 0)
@@ -1335,17 +1280,17 @@ htmlGetAttr(hdTree     *t,		/* I - Tree entry */
 }
 
 
-/*
- * 'htmlSetAttr()' - Set a variable for a markup entry.
- */
+//
+// 'htmlSetAttr()' - Set a variable for a markup entry.
+//
 
-int					/* O - Set status: 0 = success, -1 = fail */
-htmlSetAttr(hdTree     *t,		/* I - Tree entry */
-            const char *name,		/* I - Variable name */
-            hdChar     *value)		/* I - Variable value */
+int					// O - Set status: 0 = success, -1 = fail
+htmlSetAttr(hdTree     *t,		// I - Tree entry
+            const char *name,		// I - Variable name
+            hdChar     *value)		// I - Variable value
 {
-  hdTreeAttr	*v,			/* Matching variable */
-		key;			/* Search key */
+  hdTreeAttr	*v,			// Matching variable
+		key;			// Search key
 
 
   DEBUG_printf(("%shtmlSetAttr(%p, \"%s\", \"%s\")\n", indent, t, name,
@@ -1408,27 +1353,27 @@ htmlSetAttr(hdTree     *t,		/* I - Tree entry */
 }
 
 
-/*
- * 'compare_variables()' - Compare two markup variables.
- */
+//
+// 'compare_variables()' - Compare two markup variables.
+//
 
-static int			/* O - -1 if v0 < v1, 0 if v0 == v1, 1 if v0 > v1 */
-compare_variables(hdTreeAttr *v0,	/* I - First variable */
-                  hdTreeAttr *v1)	/* I - Second variable */
+static int			// O - -1 if v0 < v1, 0 if v0 == v1, 1 if v0 > v1
+compare_variables(hdTreeAttr *v0,	// I - First variable
+                  hdTreeAttr *v1)	// I - Second variable
 {
   return (strcasecmp((char *)v0->name, (char *)v1->name));
 }
 
 
-/*
- * 'delete_node()' - Free all memory associated with a node...
- */
+//
+// 'delete_node()' - Free all memory associated with a node...
+//
 
 static void
-delete_node(hdTree *t)		/* I - Node to delete */
+delete_node(hdTree *t)		// I - Node to delete
 {
-  int		i;		/* Looping var */
-  hdTreeAttr		*var;		/* Current variable */
+  int		i;		// Looping var
+  hdTreeAttr		*var;		// Current variable
 
 
   if (t == NULL)
@@ -1496,20 +1441,20 @@ insert_space(hdTree *parent,	// I - Parent node
 }
 
 
-/*
- * 'parse_markup()' - Parse a markup string.
- */
+//
+// 'parse_markup()' - Parse a markup string.
+//
 
-static int				/* O - -1 on error, HD_ELEMENT_nnnn otherwise */
-parse_markup(hdTree *t,			/* I - Current tree entry */
-             FILE   *fp,		/* I - Input file */
-	     int    *linenum)		/* O - Current line number */
+static int				// O - -1 on error, HD_ELEMENT_nnnn otherwise
+parse_markup(hdTree *t,			// I - Current tree entry
+             FILE   *fp,		// I - Input file
+	     int    *linenum)		// O - Current line number
 {
-  int		ch, ch2;		/* Characters from file */
-  char		markup[255],		/* Markup string... */
-		*mptr,			/* Current character... */
-		comment[10240],		/* Comment string */
-		*cptr;			/* Current char... */
+  int		ch, ch2;		// Characters from file
+  char		markup[255],		// Markup string...
+		*mptr,			// Current character...
+		comment[10240],		// Comment string
+		*cptr;			// Current char...
 
 
   mptr = markup;
@@ -1548,10 +1493,7 @@ parse_markup(hdTree *t,			/* I - Current tree entry */
 
   if (t->element == HD_ELEMENT_UNKNOWN)
   {
-   /*
-    * Unrecognized markup stuff...
-    */
-
+    // Unrecognized markup stuff...
     strlcpy((char *)comment, (char *)markup, sizeof(comment));
     cptr = comment + strlen((char *)comment);
 
@@ -1595,8 +1537,8 @@ parse_markup(hdTree *t,			/* I - Current tree entry */
         if (ch == '&')
 	{
           // Handle character entities...
-	  hdChar	entity[16],		// Character entity name
-		*eptr;			// Pointer into name
+	  hdChar	entity[16],	// Character entity name
+			*eptr;		// Pointer into name
 
 
 	  eptr = entity;
@@ -1683,9 +1625,9 @@ parse_markup(hdTree *t,			/* I - Current tree entry */
 }
 
 
-/*
- * 'parse_variable()' - Parse a markup variable string.
- */
+//
+// 'parse_variable()' - Parse a markup variable string.
+//
 
 static int				// O - -1 on error, 0 on success
 parse_variable(hdTree *t,		// I - Current tree entry
@@ -1786,7 +1728,17 @@ parse_variable(hdTree *t,		// I - Current tree entry
 		  *ptr++ = ';';
 	      }
 	      else if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = ch;
+	      {
+		if ((ch & 0x80) &&
+	            _htmlStyleSheet->encoding == HD_FONT_ENCODING_UTF8)
+	        {
+		  // Collect UTF-8 value...
+		  ch = utf8_getc(ch, fp);
+		}
+
+	        if (ch)
+		  *ptr++ = ch;
+              }
 	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
@@ -1853,7 +1805,17 @@ parse_variable(hdTree *t,		// I - Current tree entry
 	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
-              *ptr++ = ch;
+            {
+	      if ((ch & 0x80) &&
+		  _htmlStyleSheet->encoding == HD_FONT_ENCODING_UTF8)
+	      {
+		// Collect UTF-8 value...
+		ch = utf8_getc(ch, fp);
+	      }
+
+	      if (ch)
+		*ptr++ = ch;
+	    }
 	    else if (ch == '\n')
 	    {
 	      if (ptr < (value + sizeof(value) - 1))
@@ -1916,7 +1878,17 @@ parse_variable(hdTree *t,		// I - Current tree entry
 	        *ptr++ = ch;
 	    }
             else if (ptr < (value + sizeof(value) - 1))
-              *ptr++ = ch;
+	    {
+	      if ((ch & 0x80) &&
+		  _htmlStyleSheet->encoding == HD_FONT_ENCODING_UTF8)
+	      {
+		// Collect UTF-8 value...
+		ch = utf8_getc(ch, fp);
+	      }
+
+	      if (ch)
+		*ptr++ = ch;
+            }
 	  }
 
 	  if (ch == '\n')
@@ -1932,19 +1904,19 @@ parse_variable(hdTree *t,		// I - Current tree entry
 }
 
 
-/*
- * 'compute_size()' - Compute the width and height of a tree entry.
- */
+//
+// 'compute_size()' - Compute the width and height of a tree entry.
+//
 
-static int			/* O - 0 = success, -1 = failure */
-compute_size(hdTree *t)		/* I - Tree entry */
+static int			// O - 0 = success, -1 = failure
+compute_size(hdTree *t)		// I - Tree entry
 {
-  hdChar	*width_ptr,	/* Pointer to width string */
-		*height_ptr,	/* Pointer to height string */
-		*size_ptr,	/* Pointer to size string */
-		*type_ptr;	/* Pointer to spacer type string */
-  hdImage	*img;		/* Image */
-  char		number[255];	/* Width or height value */
+  hdChar	*width_ptr,	// Pointer to width string
+		*height_ptr,	// Pointer to height string
+		*size_ptr,	// Pointer to size string
+		*type_ptr;	// Pointer to spacer type string
+  hdImage	*img;		// Image
+  char		number[255];	// Width or height value
 
 
   if (t->element == HD_ELEMENT_IMG)
@@ -2047,18 +2019,18 @@ compute_size(hdTree *t)		/* I - Tree entry */
 }
 
 
-/*
- * 'fix_filename()' - Fix a filename to be relative to the base directory.
- */
+//
+// 'fix_filename()' - Fix a filename to be relative to the base directory.
+//
 
-static const char *			/* O - Fixed filename */
-fix_filename(char       *filename,	/* I - Original filename */
-             const char *base)		/* I - Base directory */
+static const char *			// O - Fixed filename
+fix_filename(char       *filename,	// I - Original filename
+             const char *base)		// I - Base directory
 {
-  char		*slash;			/* Location of slash */
-  char		temp[1024],		/* Temporary filename */
-		*tempptr;		/* Pointer into filename */
-  static char	newfilename[1024];	/* New filename */
+  char		*slash;			// Location of slash
+  char		temp[1024],		// Temporary filename
+		*tempptr;		// Pointer into filename
+  static char	newfilename[1024];	// New filename
 
 
 //  printf("fix_filename(filename=\"%s\", base=\"%s\")\n", filename, base);
@@ -2128,7 +2100,7 @@ fix_filename(char       *filename,	/* I - Original filename */
   {
     if (filename[0] == '/' || filename[0] == '\\' || base == NULL ||
 	base[0] == '\0' || (isalpha(filename[0]) && filename[1] == ':'))
-      return (file_find(Path, filename)); /* No change needed for absolute path */
+      return (file_find(Path, filename)); // No change needed for absolute path
 
     strlcpy(newfilename, base, sizeof(newfilename));
     base = newfilename;
@@ -2343,8 +2315,8 @@ htmlDebugStyleStats(void)
   }
 
   sbytes += (strlen(_htmlStyleSheet->charset) + 8) & ~7;
-  sbytes += _htmlStyleSheet->num_glyphs * sizeof(char *);
-  for (i = 0; i < _htmlStyleSheet->num_glyphs; i ++)
+  sbytes += sizeof(_htmlStyleSheet->glyphs);
+  for (i = 0; i < 256; i ++)
     if (_htmlStyleSheet->glyphs[i])
       sbytes += (strlen(_htmlStyleSheet->glyphs[i]) + 8) & ~7;
 
@@ -2865,6 +2837,60 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
 }
 
 
-/*
- * End of "$Id: htmllib.cxx,v 1.41.2.80.2.9 2005/05/09 02:05:01 mike Exp $".
- */
+//
+// 'utf8_getc()' - Get a UTF-8 encoded character.
+//
+
+static int				// O - Unicode equivalent
+utf8_getc(int  ch,			// I - Initial character
+          FILE *fp)			// I - File to read from
+{
+  int	temp;				// Temporary character */
+
+
+  if ((ch & 0xe0) == 0xc0)
+  {
+    ch   = (ch & 0x1f) << 6;
+    temp = getc(fp);
+
+    if ((temp & 0xc0) == 0x80)
+      ch |= (temp & 0x3f) << 6;
+    else
+      goto bad_sequence;
+  }
+  else if ((ch & 0xf0) == 0xe0)
+  {
+    ch   = (ch & 0x0f) << 12;
+    temp = getc(fp);
+
+    if ((temp & 0xc0) == 0x80)
+      ch |= (temp & 0x3f) << 6;
+    else
+      goto bad_sequence;
+
+    if ((temp & 0xc0) == 0x80)
+      ch |= (temp & 0x3f) << 6;
+    else
+      goto bad_sequence;
+  }
+  else
+    goto bad_sequence;
+
+  // Now that we have the Unicode value, return the mapped character...
+  temp = _htmlStyleSheet->unichars[ch];
+
+  if (temp)
+    return (temp);
+  else
+    return (_htmlStyleSheet->get_entity(NULL, ch));
+
+  bad_sequence:
+
+  progress_error(HD_ERROR_READ_ERROR, "Bad UTF-8 character sequence!");
+  return (0);
+}
+
+
+//
+// End of "$Id: htmllib.cxx,v 1.41.2.80.2.9 2005/05/09 02:05:01 mike Exp $".
+//

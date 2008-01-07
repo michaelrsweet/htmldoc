@@ -3,7 +3,7 @@
 //
 //   Basic stylesheet routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2006 by Easy Software Products.
+//   Copyright 1997-2008 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -21,6 +21,21 @@
 //
 // Contents:
 //
+//   hdStyleSheet::hdStyleSheet()  - Create a new stylesheet.
+//   hdStyleSheet::~hdStyleSheet() - Destroy a stylesheet.
+//   hdStyleSheet::add_style()     - Add a style to a stylesheet.
+//   hdStyleSheet::find_font()     - Find a specific font.
+//   hdStyleSheet::find_style()    - Find the default style for the given
+//                                   element.
+//   hd_compare_elements()         - Compare two element strings...
+//   hdStyleSheet::get_element()   - Get the element string for an enumeration.
+//   hdStyleSheet::get_glyph()     - Find the index for the named glyph...
+//   hdStyleSheet::load()          - Load a stylesheet from the given file.
+//   hdStyleSheet::pattern()       - Initialize a regex pattern buffer...
+//   hdStyleSheet::read()          - Read a string from the given file.
+//   hdStyleSheet::set_charset()   - Set the document character set.
+//   hdStyleSheet::update_fonts()  - Update all fonts for the current charset.
+//   hdStyleSheet::update_styles() - Update all relative style data.
 //
 
 //
@@ -58,12 +73,13 @@ hdStyleSheet::hdStyleSheet()
 
   charset       = NULL;
   encoding      = HD_FONT_ENCODING_8BIT;
-  num_glyphs    = 0;
-  glyphs        = NULL;
   grayscale     = false;
   ppi           = 80.0f;
   browser_width = 680.0f;
   private_id    = 0;
+
+  memset(glyphs, 0, sizeof(glyphs));
+  memset(unichars, 0, sizeof(unichars));
 
   // Load unicode glyphs...
   memset(uniglyphs, 0, sizeof(uniglyphs));
@@ -145,9 +161,6 @@ hdStyleSheet::~hdStyleSheet()
   // Free all glyphs...
   if (charset)
     free(charset);
-
-  if (num_glyphs && glyphs != uniglyphs)
-    delete[] glyphs;
 
   for (i = 0; i < (int)(sizeof(uniglyphs) / sizeof(uniglyphs[0])); i ++)
     if (uniglyphs[i])
@@ -710,72 +723,12 @@ hdStyleSheet::get_glyph(const char *s)	// I - Glyph name
 
 
   // Do a brute-force search for the glyph name...
-  for (i = 0; i < num_glyphs; i ++)
+  for (i = 0; i < (int)(sizeof(glyphs) / sizeof(glyphs[0])); i ++)
     if (glyphs[i] && !strcmp(glyphs[i], s))
       return (i);
 
   // Didn't find the glyph, so return -1...
   return (-1);
-}
-
-
-//
-// 'hdStyleSheet::get_unicode()' - Get a Unicode character value.
-//
-
-int					// O  - Unicode value
-hdStyleSheet::get_unicode(
-    const hdChar *&s)			// IO - String pointer
-{
-  int	ch,				// Next character from string
-	i,				// Looping var
-	count;				// Number of bytes in UTF-8 encoding
-
-
-  // Handle the easy cases...
-  if (!s || !*s)
-    return (0);
-  else if (encoding == HD_FONT_ENCODING_8BIT)
-    return (unicode[*s++]);
-
-  // OK, extract a single UTF-8 encoded char...  This code also supports
-  // reading ISO-8859-1 characters that are masquerading as UTF-8.
-  if (*s < 192)
-    return (*s++);
-
-  if ((*s & 0xe0) == 0xc0)
-  {
-    ch    = *s & 0x1f;
-    count = 1;
-  }
-  else if ((*s & 0xf0) == 0xe0)
-  {
-    ch    = *s & 0x0f;
-    count = 2;
-  }
-  else
-  {
-    ch    = *s & 0x07;
-    count = 3;
-  }
-
-  for (i = 1; i <= count && s[i]; i ++)
-    if (s[i] < 128 || s[i] > 191)
-      break;
-    else
-      ch = (ch << 6) | (s[i] & 0x3f);
-
-  if (i <= count)
-  {
-    // Return just the initial char...
-    return (*s++);
-  }
-  else
-  {
-    // Return the decoded char...
-    s += count + 1;
-    return (ch);
-  }
 }
 
 
@@ -1363,26 +1316,29 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
 
   charset = strdup(cs);
 
-  if (num_glyphs && glyphs != uniglyphs)
-  {
-    delete[] glyphs;
+  // Initialize the character set/glyph LUTs...
+  memset(glyphs, 0, sizeof(glyphs));
+  memset(unicode, 0, sizeof(unicode));
+  memset(unichars, 0, sizeof(unichars));
 
-    num_glyphs = 0;
-    glyphs     = NULL;
-  }
-
-  // UTF-8 
+  // Initialize the character set as needed...
   if (!strcasecmp(cs, "utf-8"))
   {
-    // UTF-8 is Unicode, so no mappings are necessary...
-    num_glyphs = 65536;
-    glyphs     = uniglyphs;
-    encoding   = HD_FONT_ENCODING_UTF8;
+    // UTF-8 is Unicode, but for now we map it to US ASCII + up to 128
+    // "extended" charcters - basically a dynamic 8-bit character set.
+    encoding = HD_FONT_ENCODING_UTF8;
+
+    memcpy(glyphs, uniglyphs, 128 * sizeof(char *));
+
+    for (ch = 32; ch < 127; ch ++)
+      unichars[ch] = unicode[ch] = ch;
 
     return;
   }
 
-  // Open the charset file...
+  // For other character sets, open the charset file...
+  encoding = HD_FONT_ENCODING_8BIT;
+
   snprintf(filename, sizeof(filename), "%s/data/%s", _htmlData, cs);
   if ((fp = fopen(filename, "r")) == NULL)
   {
@@ -1391,14 +1347,6 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
                    filename);
     return;
   }
-
-  // Allocate memory for up to 256 characters...
-  num_glyphs = 256;
-  glyphs     = new char *[num_glyphs];
-  encoding   = HD_FONT_ENCODING_8BIT;
-
-  memset(glyphs, 0, num_glyphs * sizeof(char *));
-  memset(unicode, 0, sizeof(unicode));
 
   // Now read all of the remaining lines from the file in the format:
   //
@@ -1418,14 +1366,15 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
     {
       if (!uniglyphs[unich])
       {
-        char uniglyph[32];
+        char uniglyph[32];		// Unicode glyph name
 
 	sprintf(uniglyph, "uni%04x", unich);
 	uniglyphs[unich] = strdup(uniglyph);
       }
 
-      glyphs[ch]  = uniglyphs[unich];
-      unicode[ch] = unich;
+      glyphs[ch]      = uniglyphs[unich];
+      unicode[ch]     = unich;
+      unichars[unich] = ch;
     }
   }
 

@@ -1,35 +1,39 @@
-/*
- * "$Id$"
- *
- *   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
- *   processing program.
- *
- *   Copyright 1997-2005 by Easy Software Products.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: HTMLDOC Licensing Information
- *       Easy Software Products
- *       516 Rio Grand Ct
- *       Morgan Hill, CA 95037 USA
- *
- *       http://www.htmldoc.org/
- *
- * Contents:
- *
- *   iso8859()     - Return the 8-bit character value of a glyph name.
- *   iso8859()     - Return the glyph name of an 8-bit character value.
- *   compare_lut() - Compare two glyphs.
- */
+//
+// "$Id$"
+//
+//   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
+//   processing program.
+//
+//   Copyright 1997-2008 by Easy Software Products.
+//
+//   These coded instructions, statements, and computer programs are the
+//   property of Easy Software Products and are protected by Federal
+//   copyright law.  Distribution and use rights are outlined in the file
+//   "COPYING.txt" which should have been included with this file.  If this
+//   file is missing or damaged please contact Easy Software Products
+//   at:
+//
+//       Attn: HTMLDOC Licensing Information
+//       Easy Software Products
+//       516 Rio Grand Ct
+//       Morgan Hill, CA 95037 USA
+//
+//       http://www.htmldoc.org/
+//
+// Contents:
+//
+//   hdStyleSheet::get_entity(const char *) - Return the character code of an
+//                                            entity name.
+//   hdStyleSheet::get_entity(int)          - Return the entity name of a
+//                                            character code.
+//   compare_lut()                          - Compare two glyphs.
+//   init_lut()                             - Initialize the reverse-lookup
+//                                            table.
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,9 +42,9 @@
 #include "style.h"
 
 
-/*
- * Lookup table structure...
- */
+//
+// Lookup table structure...
+//
 
 typedef struct
 {
@@ -304,159 +308,140 @@ static lut_t	entity_numbers[] =
 		  { "zwnj",	8204 }
 		};
 static lut_t	*entity_names[256];
+static int	entity_initialized = 0;
 
 static int	compare_lut(lut_t *, lut_t *);
+static void	init_lut(void);
 
 
-/*
- * 'hdStyleSheet::get_entity(const char *)' - Return the character code of an entity name.
- */
+//
+// 'hdStyleSheet::get_entity(const char *)' - Return the character code of an entity name.
+//
 
-int					/* O - Character code */
+int					// O - Character code
 hdStyleSheet::get_entity(
-    const char *name)			/* I - Entity name */
+    const char *name,			// I - Entity name
+    int        ch)			// I - Unicode character
 {
-  lut_t		key,			/* Lookup table key */
-		*match;			/* Matching entry pointer */
-  int		ch;			/* Character */
+  lut_t		key,			// Lookup table key
+		*match = NULL;		// Matching entry pointer
 
 
-  if (strlen((char *)name) == 1)
-    return (name[0]);
-  else if (name[0] == '#')
+  if (!entity_initialized)
+    init_lut();
+
+  if (name)
   {
-    // Return a decimal or hex character...
-    if (name[1] == 'x')
-      ch = strtol((char *)name + 2, NULL, 16);
-    else
-      ch = strtol((char *)name + 1, NULL, 10);
-
-    if (ch > 0xffff || ch <= 0)
-      return (0);
-  }
-  else
-  {
-    strlcpy((char *)key.name, (char *)name, sizeof(key.name));
-    match = (lut_t *)bsearch(&key, entity_numbers,
-                             sizeof(entity_numbers) / sizeof(entity_numbers[0]),
-                             sizeof(entity_numbers[0]),
-                             (int (*)(const void *, const void *))compare_lut);
-
-    if (match == NULL)
-      return (0);
-    else
-      ch = match->value;
-  }
-
-  if (ch > 0x7f && encoding == HD_FONT_ENCODING_8BIT)
-  {
-    // Lookup Unicode value in the current charset...
-    char *glyph;
-    char uniglyph[32];
-    int newch;
-
-    if ((glyph = uniglyphs[ch]) == NULL)
+    if (strlen((char *)name) == 1)
+      return (name[0]);
+    else if (name[0] == '#')
     {
-      sprintf(uniglyph, "uni%04x", ch);
-      glyph = uniglyph;
-    }
-
-    for (newch = 128; newch < 256; newch ++)
-      if (glyphs[newch] && !strcmp(glyphs[newch], glyph))
-	break;
-
-    if (newch >= 256)
-    {
-      // Not part of the standard charset, see if we have room for a
-      // few extras...
-      for (newch = 128; newch < 256; newch ++)
-        if (!glyphs[newch])
-	{
-	  // Yes, assign this character to it...
-	  if (glyph == uniglyph)
-	    uniglyphs[ch] =
-	    glyphs[newch] = strdup(glyph);
-	  else
-	    glyphs[newch] = glyph;
-
-          // Reload font widths...
-	  update_fonts();
-
-	  // Return the new character...
-	  return (newch);
-	}
-
-      // No room, return nul...
-      return (0);
+      // Return a decimal or hex character...
+      if (name[1] == 'x')
+	ch = strtol((char *)name + 2, NULL, 16);
+      else
+	ch = strtol((char *)name + 1, NULL, 10);
     }
     else
-      ch = newch;
-  }
-  else if (ch > 0x7f && encoding == HD_FONT_ENCODING_UTF8)
-  {
-    // Lookup Unicode value in the current charset...
-    char uniglyph[32];
-
-    if (!uniglyphs[ch])
     {
-      sprintf(uniglyph, "uni%04x", ch);
-      uniglyphs[ch] = strdup(uniglyph);
+      strlcpy((char *)key.name, (char *)name, sizeof(key.name));
+      match = (lut_t *)bsearch(&key, entity_numbers,
+			       sizeof(entity_numbers) / sizeof(entity_numbers[0]),
+			       sizeof(entity_numbers[0]),
+			       (int (*)(const void *, const void *))compare_lut);
 
+      if (match == NULL)
+	return (0);
+      else
+	ch = match->value;
+    }
+  }
+
+  if (ch > 0xffff || ch <= 0)
+    return (0);
+
+  if (ch < 0x7f)
+    return (ch);
+
+  // Lookup Unicode value in the current charset...
+  int newch = unichars[ch];
+
+  if (newch)
+    return (newch);
+
+  // Find a spare slot...
+  char *glyph = uniglyphs[ch];
+  if (!glyph)
+  {
+    // Initialize Unicode glyph name...
+    char uniglyph[8];
+
+    sprintf(uniglyph, "uni%04x", ch);
+    glyph = uniglyphs[ch] = strdup(uniglyph);
+  }
+
+  for (newch = 128; newch < 256; newch ++)
+    if (!glyphs[newch])
+    {
+      glyphs[newch]   = glyph;
+      unichars[newch] = ch;
+
+      if (match)
+        entity_names[newch] = match;
+
+      // Reload font widths...
       update_fonts();
-    }
-  }
 
-  return (ch);
+      // Return the new character...
+      return (newch);
+    }
+
+  // No room, return nul...
+  return (0);
 }
 
 
-/*
- * 'hdStyleSheet::get_entity(int)' - Return the entity name of a character code.
- */
+//
+// 'hdStyleSheet::get_entity(int)' - Return the entity name of a character code.
+//
 
-const char *				/* O - Entity name */
-hdStyleSheet::get_entity(int value)	/* I - Character code */
+const char *				// O - Entity name
+hdStyleSheet::get_entity(int value)	// I - Character code
 {
-  int		i;			/* Looping var */
-  static int	first_time = 1;		/* First time called? */
-  static char	buf[255];		/* Character buffer */
+  static char	buf[255];		// Character buffer
 
 
-  if (first_time)
-  {
-    memset(entity_names, 0, sizeof(entity_names));
-    for (i = 0; i < (int)(sizeof(entity_numbers) / sizeof(entity_numbers[0])); i ++)
-      entity_names[entity_numbers[i].value] = entity_numbers + i;
-
-    first_time = 0;
-  }
+  if (!entity_initialized)
+    init_lut();
 
   if (entity_names[value] == NULL)
   {
-    if (encoding == HD_FONT_ENCODING_8BIT || value < 0x80)
+    int ch = unichars[value];
+
+    if (encoding == HD_FONT_ENCODING_8BIT || ch < 0x80)
     {
-      buf[0] = value;
+      buf[0] = ch;
       buf[1] = '\0';
     }
-    else if (value < 0x800)
+    else if (ch < 0x800)
     {
-      buf[0] = 0xc0 | (value >> 6);
-      buf[1] = 0x80 | (value & 0x3f);
+      buf[0] = 0xc0 | (ch >> 6);
+      buf[1] = 0x80 | (ch & 0x3f);
       buf[2] = '\0';
     }
-    else if (value < 0x10000)
+    else if (ch < 0x10000)
     {
-      buf[0] = 0xe0 | (value >> 12);
-      buf[1] = 0x80 | ((value >> 6) & 0x3f);
-      buf[2] = 0x80 | (value & 0x3f);
+      buf[0] = 0xe0 | (ch >> 12);
+      buf[1] = 0x80 | ((ch >> 6) & 0x3f);
+      buf[2] = 0x80 | (ch & 0x3f);
       buf[3] = '\0';
     }
     else
     {
-      buf[0] = 0xf0 | (value >> 18);
-      buf[1] = 0x80 | ((value >> 12) & 0x3f);
-      buf[2] = 0x80 | ((value >> 6) & 0x3f);
-      buf[3] = 0x80 | (value & 0x3f);
+      buf[0] = 0xf0 | (ch >> 18);
+      buf[1] = 0x80 | ((ch >> 12) & 0x3f);
+      buf[2] = 0x80 | ((ch >> 6) & 0x3f);
+      buf[3] = 0x80 | (ch & 0x3f);
       buf[4] = '\0';
     }
   }
@@ -467,18 +452,40 @@ hdStyleSheet::get_entity(int value)	/* I - Character code */
 }
 
 
-/*
- * 'compare_lut()' - Compare two glyphs.
- */
+//
+// 'compare_lut()' - Compare two glyphs.
+//
 
-static int		/* O - 0 if equal, -1 if a<b, 1 if a>b */
-compare_lut(lut_t *a,	/* I - First glyph */
-            lut_t *b)	/* I - Second glyph */
+static int				// O - 0 if equal, -1 if a<b, 1 if a>b
+compare_lut(lut_t *a,			// I - First glyph
+            lut_t *b)			// I - Second glyph
 {
   return (strcmp((char *)a->name, (char *)b->name));
 }
 
 
-/*
- * End of "$Id$".
- */
+//
+// 'init_lut()' - Initialize the reverse-lookup table.
+//
+
+static void
+init_lut(void)
+{
+  int	i;				// Looping var
+
+
+  memset(entity_names, 0, sizeof(entity_names));
+
+  for (i = 0;
+       i < (int)(sizeof(entity_numbers) / sizeof(entity_numbers[0]));
+       i ++)
+    if (entity_numbers[i].value < 0x7f)
+      entity_names[entity_numbers[i].value] = entity_numbers + i;
+
+  entity_initialized = 1;
+}
+
+
+//
+// End of "$Id$".
+//

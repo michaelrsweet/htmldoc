@@ -3,7 +3,7 @@
 //
 //   CSS font routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2005 by Easy Software Products.
+//   Copyright 1997-2008 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -21,6 +21,16 @@
 //
 // Contents:
 //
+//   hdStyleFont::hdStyleFont()   - Create a new font record.
+//   hdStyleFont::~hdStyleFont()  - Destroy a font record.
+//   hdStyleFont::compare_kerns() - Compare two kerning pairs...
+//   hdStyleFont::get_char()      - Get a character from a string.
+//   hdStyleFont::get_kerning()   - Get the kerning list for a string.
+//   hdStyleFont::get_num_chars() - Get the number of characters in the string.
+//   hdStyleFont::get_width()     - Compute the width of a string.
+//   hdStyleFont::load_widths()   - Load character widths for a font.
+//   hdStyleFont::read_afm()      - Read a Type1 AFM file.
+//   hdStyleFont::read_ttf()      - Read a TrueType font file.
 //
 
 //
@@ -400,7 +410,7 @@ hdStyleFont::load_widths(
   ul_position  = 0.0f;
   ul_thickness = 0.0f;
   x_height     = 0.0f;
-  num_widths   = css->num_glyphs;
+  num_widths   = 256;
   widths       = new float[num_widths];
   num_kerns    = 0;
   kerns        = NULL;
@@ -516,11 +526,10 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
       if (sscanf(lineptr, "%*d%*s%*s%d%*s%*s%31s", &number, value) != 2)
         continue;
 
-//      printf("num_glyphs=%d, glyphs=%p, value=\"%s\"...\n", css->num_glyphs,
-//             css->glyphs, value);
+//      printf("glyphs=%p, value=\"%s\"...\n", css->glyphs, value);
 
       // Assign the width to all code points with this glyph...
-      for (glyph = 0; glyph < css->num_glyphs; glyph ++)
+      for (glyph = 0; glyph < 256; glyph ++)
         if (css->glyphs[glyph] && !strcmp(css->glyphs[glyph], value))
 	{
 //	  printf("\"%s\" (%02X) = %.3f...\n", value, glyph, number * 0.001f);
@@ -570,7 +579,7 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
 
   // Make sure that non-breaking space has the same width as space...
   widths[160] = widths[32];
-  num_widths  = css->num_glyphs;
+  num_widths  = 256;
 
   return (0);
 }
