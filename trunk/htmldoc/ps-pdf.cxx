@@ -3866,9 +3866,6 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
                int      *heading,	/* IO - Heading # */
 	       hdTree   *chap)		/* I - Chapter heading */
 {
-  bool pushed;				// Margins pushed?
-
-
   DEBUG_printf(("parse_contents(t=%p(%s), margins=(%.1f, %.1f, %.1f, %.1f, %d), y=%.1f, page=%d, heading=%d, chap=%p)\n",
                 t, _htmlStyleSheet->get_element(t->element),
 		margins->left(), margins->right(), margins->bottom(),
@@ -3903,14 +3900,6 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
           if (htmlGetAttr(t, "_HD_OMIT_TOC") == NULL)
 	  {
-	    pushed = t->style->margin[HD_POS_LEFT] != 0.0 ||
-	             t->style->margin[HD_POS_RIGHT] != 0.0;
-
-            if (pushed)
-	      margins->push(margins->left() + t->style->margin[HD_POS_LEFT],
-	                    margins->right() - t->style->margin[HD_POS_RIGHT],
-			    margins->bottom(), 0);
-
             render_contents(t, margins, y, page, *heading, chap);
 
            /*
@@ -3934,9 +3923,6 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
 
             if (t->last_child->element == HD_ELEMENT_UL)
               parse_contents(t->last_child, margins, y, page, heading, chap);
-
-            if (pushed)
-              margins->pop();
           }
 	  else if (t->next != NULL && t->next->element == HD_ELEMENT_UL)
 	  {
@@ -3951,18 +3937,11 @@ parse_contents(hdTree   *t,		/* I - Tree to parse */
           break;
 
       case HD_ELEMENT_UL :
-	  pushed = t->style->margin[HD_POS_LEFT] != 0.0 ||
-	           t->style->margin[HD_POS_RIGHT] != 0.0;
-
-          if (pushed)
-	    margins->push(margins->left() + t->style->margin[HD_POS_LEFT],
-	                  margins->right() - t->style->margin[HD_POS_RIGHT],
-			  margins->bottom(), 0);
+	  margins->adjust_left(t->style->margin[HD_POS_LEFT]);
 
           parse_contents(t->child, margins, y, page, heading, chap);
 
-          if (pushed)
-            margins->pop();
+	  margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
           break;
 
       default :
