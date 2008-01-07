@@ -56,6 +56,7 @@ $STR_SUBSYSTEMS = array(
   "Image",
   "Installer",
   "Multiple",
+  "None",
   "Render",
   "Style",
   "Tree",
@@ -73,8 +74,6 @@ $STR_VERSIONS = array(
   "1.9-current",
   "+1.9b1",
   "1.8-current",
-  "+1.8.29",
-  "+1.8.28",
   "1.8.27",
   "1.8.26",
   "1.8.25",
@@ -870,7 +869,8 @@ class str
       if ($version[0] == '+' && $LOGIN_LEVEL < AUTH_DEVEL)
         continue;
 
-      if ($this->priority == STR_PRIORITY_RFE && !strpos($version, "-feature"))
+      if ($name != "fix_version" && $this->priority == STR_PRIORITY_RFE &&
+          !strpos($version, "-feature"))
         continue;
 
       if ($version[0] == '+')
