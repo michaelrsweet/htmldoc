@@ -3,7 +3,7 @@
 //
 //   CSS style routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2006 by Easy Software Products.
+//   Copyright 1997-2008 by Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -512,7 +512,7 @@ hdStyle::get_color(const char *color,	// I - Color string
     // rgb(r,g,b)
     int irgb[3];
 
-    if (sscanf(color, "rgb(%d,%d,%d)", irgb + 1, irgb + 2, irgb + 3) != 3)
+    if (sscanf(color, "rgb(%d,%d,%d)", irgb + 0, irgb + 1, irgb + 2) != 3)
     {
       rgb[0] = 0;
       rgb[1] = 0;
