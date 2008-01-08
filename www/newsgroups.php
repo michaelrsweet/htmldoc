@@ -554,7 +554,7 @@ show_groups($group_filter,		// I - Group filter
     html_end_row();
   }
 
-  html_start_row("header");
+  html_start_row("footer");
   print("<th colspan='3'>Forums and Mailing Lists</th>");
   html_end_row();
 
@@ -739,8 +739,8 @@ show_message($group,			// I - Group
   html_start_table(array($subject, $author, $date));
   html_start_row();
   print("<td colspan='3'><tt>$body</tt><br />\n"
-       ."[&nbsp;<a href='$PHP_SELF?g$group+v:$msgnum'>Direct&nbsp;Link"
-       ."&nbsp;to&nbsp;Message</a>&nbsp;]</td>");
+       ."<a href='$PHP_SELF?g$group+v:$msgnum'>Direct&nbsp;Link"
+       ."&nbsp;to&nbsp;Message</a></td>");
   html_end_row();
   html_end_table();
 

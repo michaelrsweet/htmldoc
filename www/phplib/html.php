@@ -110,8 +110,6 @@ html_header($title = "",		// I - Additional document title
   else
     $html_title = "";
 
-//       ."  <meta http-equiv='Pragma' content='no-cache'>\n"
-
   print("  <title>$html_title &lt;HTML&gt;DOC</title>\n"
        ."  <meta http-equiv='Content-Type' content='text/html; "
        ."charset=utf-8'>\n"
@@ -142,13 +140,13 @@ html_header($title = "",		// I - Additional document title
   // Standard navigation stuff...
   if ($html_show_all)
   {
-    print("<table width='100%' style='height: 100%;' border='0' "
-         ."cellspacing='0' cellpadding='0' summary=''>\n"
-	 ."<tr class='header'>"
-	 ."<td valign='bottom' rowspan='2'>"
+    print("<table class='page' summary=''>\n"
+	 ."<tr>"
+	 ."<td class='pagelogo' rowspan='2'>"
+	 ."<a href='http://www.easysw.com/htmldoc/'>"
 	 ."<img src='${path}images/htmldoc.gif' width='64' height='64' "
-	 ."alt='&lt;HTML&gt;DOC'></td>"
-	 ."<td class='title' colspan='2' nowrap>");
+	 ."border='0' alt='&lt;HTML&gt;DOC'></a></td>"
+	 ."<td class='pagetitle' colspan='2'>");
 
     if ($title != "")
       print(htmlspecialchars($title));
@@ -156,8 +154,8 @@ html_header($title = "",		// I - Additional document title
       print("&lt;HTML&gt;DOC");
 
     print("</td></tr>\n"
-         ."<tr class='header'>"
-         ."<td class='links' width='100%' nowrap>"
+         ."<tr>"
+         ."<td class='pagelinks'>"
 	 ."<a href='${path}index.php'>Home</a>"
 	 ." &middot; "
 	 ."<a href='${path}articles.php'>Articles &amp; FAQs</a>"
@@ -170,7 +168,7 @@ html_header($title = "",		// I - Additional document title
 	 ." &middot; "
 	 ."<a href='${path}newsgroups.php'>Forums</a>"
 	 ."</td>"
-	 ."<td align='right' class='links'>");
+	 ."<td align='right' class='pagelinks'>");
 
     if ($LOGIN_USER)
       print("<a href='${path}account.php'>$LOGIN_USER</a>");
@@ -191,8 +189,8 @@ html_header($title = "",		// I - Additional document title
     print("</td>"
 	 ."</tr>\n");
 
-    print("<tr class='page'>"
-	 ."<td class='page' colspan='3' width='100%'>");
+    print("<tr>"
+	 ."<td class='page' colspan='3'>");
   }
   else
   {
@@ -223,7 +221,7 @@ html_footer()
   if ($html_show_all)
   {
     print("</td></tr>\n"
-         ."<tr class='footer'><td colspan='3'>"
+         ."<tr><td class='pagefooter' colspan='3'>"
 	 ."Copyright 1997-2008 by Easy Software Products. HTMLDOC and "
 	 ."&lt;HTML&gt;DOC are the trademark property of Easy Software Products. "
 	 ."HTMLDOC is free software; you can redistribute it and/or modify it "
@@ -312,11 +310,8 @@ html_start_table($headings)		// I - Array of heading strings
   global $html_row, $html_cols;
 
 
-  print("<table border='0' cellpadding='0' cellspacing='0' width='100%' "
-       ."summary=''>"
-       ."<tr class='header'><th align='left' valign='top'>"
-       ."<img src='images/hdr-top-left.gif' width='16' height='16' "
-       ."alt=''></th>");
+  print("<table class='standard' summary=''>"
+       ."<tr class='header'>");
 
   $html_row  = 0;
   $html_cols = count($headings);
@@ -331,9 +326,7 @@ html_start_table($headings)		// I - Array of heading strings
       print("<th>&nbsp;</th>");
   }
 
-  print("<th align='right' valign='top'>"
-       ."<img src='images/hdr-top-right.gif' "
-       ."width='16' height='16' alt=''></th></tr>\n");
+  print("</tr>\n");
 }
 
 
@@ -344,15 +337,7 @@ html_start_table($headings)		// I - Array of heading strings
 function
 html_end_table()
 {
-  global $html_cols;
-
-  print("<tr class='header'><th align='left' valign='bottom'>"
-       ."<img src='images/hdr-bottom-left.gif' width='16' height='16' "
-       ."alt=''></th>"
-       ."<th colspan='$html_cols'>&nbsp;</th>"
-       ."<th align='right' valign='bottom'><img src='images/hdr-bottom-right.gif' "
-       ."width='16' height='16' alt=''></th></tr>\n"
-       ."</table>\n");
+  print("</table>\n");
 }
 
 
@@ -368,7 +353,7 @@ html_start_row($classname = "")		// I - HTML class to use
   if ($classname == "")
     $classname = "data$html_row";
 
-  print("<tr class='$classname'><td>&nbsp;</td>");
+  print("<tr class='$classname'>");
 }
 
 
@@ -383,7 +368,7 @@ html_end_row()
 
   $html_row = 1 - $html_row;
 
-  print("</td><td>&nbsp;</td></tr>\n");
+  print("</tr>\n");
 }
 
 

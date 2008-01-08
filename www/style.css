@@ -43,45 +43,100 @@ SUB, SUP {
   font-size: smaller;
 }
 
-TR.header, TD.links, TD.title {
+TABLE.page {
+  border: none;
+  border-collapse: collapse;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+TD.pagelogo {
+  border: none;
+  border-bottom: solid 2px #000011;
+  padding: 0;
+  vertical-align: bottom;
+}
+
+TD.pagelinks, TD.pagetitle {
   background-color: #99cccc;
   color: #000011;
   padding: 0px 10px;
+  white-space: nowrap;
+  width: 100%;
 }
 
-TD.title {
+TD.pagetitle {
   font-size: 150%;
   font-style: italic;
   font-weight: bold;
   height: 32px;
 }
 
-TD.links {
+TD.pagelinks {
   border-bottom: solid 2px #000011;
   font-size: 90%;
   height: 32px;
 }
 
-TR.page, TD.page {
+TD.page {
   background-color: #e0e0f4;
   height: 100%;
-  padding: 10px;
+  padding: 10px 20px;
   vertical-align: top;
+  width: 100%;
 }
 
-TR.footer TD {
+TD.pagefooter {
   background: #000011;
   color: #99cccc;
   font-size: 80%;
   padding: 5px;
+  width: 100%;
 }
 
-TR.data0, TD.data0 {
+TABLE.standard {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: thin solid #000011;
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+TR.header {
+  border-bottom: thin solid #000011;
+}
+
+TR.header TH {
+  color: #000011;
+  padding: 0px 5px;
+}
+
+TR.footer TH {
+  background-color: #99cccc;
+  border: thin solid #000011;
+  color: #000011;
+  padding: 10px;
+}
+
+TR.data0 {
   background-color: #d8d8e8;
+  border-left: thin solid #000011;
+  border-right: thin solid #000011;
 }
 
-TR.data1, TD.data1 {
+TR.data1 {
   background-color: #d0d0e0;
+  border-left: thin solid #000011;
+  border-right: thin solid #000011;
+}
+
+TR.data0 TD, TR.data1 TD {
+  padding: 5px;
 }
 
 INPUT[TYPE="TEXT"], TEXTAREA {

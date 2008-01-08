@@ -281,7 +281,7 @@ class str
 	$hclass = "invalid";
       print("<tr><th class='$hclass' align='right' valign='top' nowrap>Duplicate Of:</th><td>");
       print("<input type='text' name='master_id' "
-           ."value='$html' size='4'/>");
+           ."value='$html' size='4'>");
       print("</td></tr>\n");
     }
 
@@ -307,7 +307,7 @@ class str
       print("</select></td></tr>\n");
     }
     else
-      print("<input type='hidden' name='status' value='$this->status'/>"
+      print("<input type='hidden' name='status' value='$this->status'>"
           . $STR_STATUS_LONG[$this->status] ."</td></tr>\n");
 
     // priority
@@ -351,7 +351,7 @@ class str
     if ($LOGIN_LEVEL >= AUTH_DEVEL)
       $this->select_subsystem("subsystem", $this->subsystem);
     else
-      print("<input type='hidden' name='subsystem' value=''/><i>Unassigned</i>");
+      print("<input type='hidden' name='subsystem' value=''><i>Unassigned</i>");
     print("</td></tr>\n");
 
     // summary
@@ -362,7 +362,7 @@ class str
       $hclass = "invalid";
     print("<tr><th class='$hclass' align='right' valign='top' nowrap>Summary:</th><td>");
     print("<input type='text' name='summary' "
-         ."value='$html' size='72'/>");
+         ."value='$html' size='72'>");
     print("</td></tr>\n");
 
     // str_version
@@ -403,7 +403,7 @@ class str
       print("</select>");
     }
     else
-      print("<input type='hidden' name='manager_user' value=''/><i>Unassigned</i>");
+      print("<input type='hidden' name='manager_user' value=''><i>Unassigned</i>");
     print("</td></tr>\n");
 
     // fix_version
@@ -422,12 +422,12 @@ class str
 	$hclass = "invalid";
 
       print(" <b class='$hclass'>SVN: r</b><input type='text' size='6' "
-           ."name='fix_revision' value='$this->fix_revision'/>");
+           ."name='fix_revision' value='$this->fix_revision'>");
     }
     else
     {
-      print("<input type='hidden' name='fix_version' value=''/><i>Unassigned</i>");
-      print("<input type='hidden' name='fix_revision' value=''/>");
+      print("<input type='hidden' name='fix_version' value=''><i>Unassigned</i>");
+      print("<input type='hidden' name='fix_revision' value=''>");
     }
     print("</td></tr>\n");
 
@@ -473,7 +473,7 @@ class str
 	else
 	  print("<option value='$key'>$temp</option>");
       }
-      print("</select><br />\n");
+      print("</select><br>\n");
     }
 
     $html = htmlspecialchars($contents);
@@ -486,7 +486,7 @@ class str
 
     // Submit
     print("<tr><td></td><td>"
-         ."<input type='submit' value='$action'/>"
+         ."<input type='submit' value='$action'>"
          ."</td></tr>\n"
          ."</table></p>\n"
          ."</form>\n");
@@ -1093,7 +1093,7 @@ class str
 	 ."<form method='POST' action='$PHP_SELF?N$this->id$options'>"
 	 ."<input type='text' size='40' maxsize='128' name='EMAIL' value='$email'>"
 	 ."<input type='submit' value='Change Notification Status'>"
-	 ."<br /><input type='radio' name='NOTIFICATION' checked value='ON'>Receive EMails "
+	 ."<br><input type='radio' name='NOTIFICATION' checked value='ON'>Receive EMails "
 	 ."<input type='radio' name='NOTIFICATION' value='OFF'>Don't Receive EMails"
 	 ."</form>"
 	 ."</td></tr>\n");

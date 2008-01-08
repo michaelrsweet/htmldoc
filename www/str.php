@@ -290,7 +290,7 @@ str_history($str,			// I - STR to show
   global $PHP_SELF, $LOGIN_LEVEL;
 
 
-  print("<hr noshade/><p><b>Trouble Report Files:</b></p>\n");
+  print("<hr noshade><p><b>Trouble Report Files:</b></p>\n");
   if ($str->status >= STR_STATUS_ACTIVE && $allowpost)
   {
     html_start_links();
@@ -323,19 +323,19 @@ str_history($str,			// I - STR to show
         $filesize = sprintf("%.1fM", $filesize / 1024.0 / 1024.0);
 
       html_start_row();
-      print("<td align='center' valign='top'>$email<br />$time $date");
+      print("<td align='center' valign='top'>$email<br>$time $date");
 
       if ($LOGIN_LEVEL >= AUTH_DEVEL)
       {
         print("<form method='POST' action='$PHP_SELF?U$str->id$options'>"
-	     ."<input type='hidden' name='FILE_ID' value='$strfile->id'/>");
+	     ."<input type='hidden' name='FILE_ID' value='$strfile->id'>");
 
         if ($strfile->is_published)
-	  print("<input type='hidden' name='IS_PUBLISHED' value='0'/>"
-	       ."<input type='submit' value='Hide'/>");
+	  print("<input type='hidden' name='IS_PUBLISHED' value='0'>"
+	       ."<input type='submit' value='Hide'>");
         else
-	  print("<input type='hidden' name='IS_PUBLISHED' value='1'/>"
-	       ."<input type='submit' value='Show'/>");
+	  print("<input type='hidden' name='IS_PUBLISHED' value='1'>"
+	       ."<input type='submit' value='Show'>");
 
 	print("</form>");
       }
@@ -350,7 +350,7 @@ str_history($str,			// I - STR to show
     html_end_table();
   }
 
-  print("<hr noshade/><p><b>Trouble Report Dialog:</b></p>\n");
+  print("<hr noshade><p><b>Trouble Report Dialog:</b></p>\n");
   if ($str->status >= STR_STATUS_ACTIVE && $allowpost)
   {
     html_start_links();
@@ -377,19 +377,19 @@ str_history($str,			// I - STR to show
       $contents = quote_text($strtext->contents);
 
       html_start_row();
-      print("<td align='center' valign='top'>$email<br />$time $date");
+      print("<td align='center' valign='top'>$email<br>$time $date");
 
       if ($LOGIN_LEVEL >= AUTH_DEVEL)
       {
         print("<form method='POST' action='$PHP_SELF?U$str->id$options'>"
-	     ."<input type='hidden' name='TEXT_ID' value='$strtext->id'/>");
+	     ."<input type='hidden' name='TEXT_ID' value='$strtext->id'>");
 
         if ($strtext->is_published)
-	  print("<input type='hidden' name='IS_PUBLISHED' value='0'/>"
-	       ."<input type='submit' value='Hide'/>");
+	  print("<input type='hidden' name='IS_PUBLISHED' value='0'>"
+	       ."<input type='submit' value='Hide'>");
         else
-	  print("<input type='hidden' name='IS_PUBLISHED' value='1'/>"
-	       ."<input type='submit' value='Show'/>");
+	  print("<input type='hidden' name='IS_PUBLISHED' value='1'>"
+	       ."<input type='submit' value='Show'>");
 
 	print("</form>");
       }
@@ -629,9 +629,9 @@ switch ($op)
 
         print("<form method='POST' action='$PHP_SELF'><p align='center'>"
 	     ."Search&nbsp;Words: &nbsp;<input type='text' size='60' name='SEARCH' value='$search'>"
-	     ."<input type='submit' value='Search Requests'></p>\n");
+	     ."<input type='submit' value='Search Requests'><br>\n");
 
-	print("<p align='center'>Priority:&nbsp;<select name='FPRIORITY'>");
+	print("Priority:&nbsp;<select name='FPRIORITY'>");
 	print("<option value='0'>Don't Care</option>");
         for ($i = 1; $i <= 5; $i ++)
 	{
@@ -687,7 +687,7 @@ switch ($op)
         }
 
         print("</p></form>\n");
-	print("<hr noshade/>\n");
+	print("<hr noshade>\n");
 
         $str     = new str();
         $matches = $str->search($search, "-status -priority -scope",
@@ -721,34 +721,37 @@ switch ($op)
 	  $prev = 0;
 	$next = $index + $PAGE_MAX;
 
-        print("<p>$count STR(s) found, showing $start to $end:</p>\n");
-
         if ($LOGIN_LEVEL >= AUTH_DEVEL)
 	  print("<form method='POST' action='$PHP_SELF?B$options'>\n");
 
+
         if ($count > $PAGE_MAX)
 	{
-          print("<p><table border='0' cellspacing='0' cellpadding='0' "
-	       ."width='100%'>\n");
+          $nav = "<p align='center'>";
 
-          print("<tr><td>");
 	  if ($index > 0)
-	    print("[&nbsp;<a href='$PHP_SELF?L+P$priority+S$status+C$scope+I$prev+"
-		 ."E$femail+Q"
-		 . urlencode($search)
-		 ."'>Previous&nbsp;$PAGE_MAX</a>&nbsp;]");
-          print("</td><td align='right'>");
+	    $nav .= "<a href='$PHP_SELF?L+P$priority+S$status+C$scope+I$prev+"
+		   ."E$femail+Q"
+		   . urlencode($search)
+		 ."'>&larr; Previous&nbsp;$PAGE_MAX</a>";
+
+          $nav .= " &middot; Showing $start to $end of $count &middot; ";
+
 	  if ($end < $count)
 	  {
 	    $next_count = min($PAGE_MAX, $count - $end);
-	    print("[&nbsp;<a href='$PHP_SELF?L+P$priority+S$status+C$scope+I$next+"
-		 ."E$femail+Q"
-		 . urlencode($search)
-		 ."'>Next&nbsp;$next_count</a>&nbsp;]");
+	    $nav .= "<a href='$PHP_SELF?L+P$priority+S$status+C$scope+I$next+"
+		   ."E$femail+Q"
+		   . urlencode($search)
+		   ."'>Next&nbsp;$next_count &rarr;</a>";
           }
-          print("</td></tr>\n");
-	  print("</table></p>\n");
+
+	  $nav .= "</p>\n";
         }
+	else
+	  $nav = "";
+
+        print($nav);
 
         html_start_table(array("Id", "Priority", "Status", "Scope",
 	                       "Summary", "Version", "Last Updated",
@@ -771,7 +774,7 @@ switch ($op)
 
           if ($str->is_published == 0)
 	    $summabbr .= " <img src='images/private.gif' width='16' height='16' "
-	                ."border='0' align='middle' alt='Private'/>";
+	                ."border='0' align='middle' alt='Private'>";
 
           print("<td nowrap>");
           if ($LOGIN_LEVEL >= AUTH_DEVEL)
@@ -821,8 +824,8 @@ switch ($op)
 
         if ($LOGIN_LEVEL >= AUTH_DEVEL)
 	{
-	  html_start_row("header");
-	  print("<th colspan='8'>&nbsp;<br />");
+	  html_start_row("footer");
+	  print("<th colspan='8'>");
 
           print("Status:&nbsp;<select name='status'>"
 	       ."<option value=''>No Change</option>");
@@ -858,7 +861,7 @@ switch ($op)
 	    print("<option value='$val'>$val</option>");
           print("</select>\n");
 
-	  print("<br />Assigned To:&nbsp;<select name='manager_user'>"
+	  print("<br>Assigned To:&nbsp;<select name='manager_user'>"
 	       ."<option value=''>No Change</option>");
 	  reset($STR_MANAGERS);
 	  while (list($key, $val) = each($STR_MANAGERS))
@@ -886,29 +889,7 @@ switch ($op)
 
         html_end_table();
 
-        if ($count > $PAGE_MAX)
-	{
-          print("<p><table border='0' cellspacing='0' cellpadding='0' "
-	       ."width='100%'>\n");
-
-          print("<tr><td>");
-	  if ($index > 0)
-	    print("[&nbsp;<a href='$PHP_SELF?L+P$priority+S$status+C$scope+I$prev+"
-		 ."E$femail+Q"
-		 . urlencode($search)
-		 ."'>Previous&nbsp;$PAGE_MAX</a>&nbsp;]");
-          print("</td><td align='right'>");
-	  if ($end < $count)
-	  {
-	    $next_count = min($PAGE_MAX, $count - $end);
-	    print("[&nbsp;<a href='$PHP_SELF?L+P$priority+S$status+C$scope+I$next+"
-		 ."E$femail+Q"
-		 . urlencode($search)
-		 ."'>Next&nbsp;$next_count</a>&nbsp;]");
-          }
-          print("</td></tr>\n");
-	  print("</table></p>\n");
-        }
+        print($nav);
 
 	if ($LOGIN_LEVEL >= AUTH_DEVEL)
 	  print("</form>");
@@ -920,7 +901,7 @@ switch ($op)
 
 	if ($LOGIN_LEVEL >= AUTH_DEVEL)
  	  print(", <img src='images/private.gif' width='16' height='16' "
-	       ."align='middle' alt='private'/> = hidden from public view");
+	       ."align='absmiddle' alt='private'> = hidden from public view");
 
         print("</p>\n");
       }
@@ -983,7 +964,7 @@ switch ($op)
 
 	print("<form action='$PHP_SELF?F$id' method='POST' "
              ."enctype='multipart/form-data'>\n"
-             ."<input type='hidden' name='MAX_FILE_SIZE' value='10485760'/>"
+             ."<input type='hidden' name='MAX_FILE_SIZE' value='10485760'>"
 	     ."<p align='center'><table class='edit'>\n");
 
 	// File...
@@ -992,9 +973,9 @@ switch ($op)
 
 	// Submit
 	print("<tr><td></td><td>"
-             ."<input type='submit' value='$action'/>"
+             ."<input type='submit' value='$action'>"
              ."</td></tr>\n"
-             ."</table></p>\n"
+             ."</table>\n"
              ."</form>\n");
 
         html_footer();
@@ -1073,9 +1054,9 @@ switch ($op)
 
 	// Submit
 	print("<tr><td></td><td>"
-             ."<input type='submit' value='$action'/>"
+             ."<input type='submit' value='$action'>"
              ."</td></tr>\n"
-             ."</table></p>\n"
+             ."</table>\n"
              ."</form>\n");
 
         html_footer();
@@ -1217,7 +1198,7 @@ switch ($op)
 	if ($REQUEST_METHOD == "POST")
 	  print("<p><b>Error:</b> Please fill in the fields as "
 	       ."<span class='invalid'>marked</span> and resubmit.</p>\n"
-	       ."<hr noshade/>\n");
+	       ."<hr noshade>\n");
 	else if ($id <= 0)
 	  print("<p>Please use this form to report all bugs and request "
 	       ."features in the $PROJECT_NAME software. General usage "
@@ -1227,7 +1208,7 @@ switch ($op)
 	       ."the operating system, compiler, sample programs and/or "
 	       ."files, and any other information you can about your "
 	       ."problem. <i>Thank you</i> for helping us to improve "
-	       ."$PROJECT_NAME!</p><hr noshade/>\n");
+	       ."$PROJECT_NAME!</p><hr noshade>\n");
 
         $str->edit($action, $options);
 
