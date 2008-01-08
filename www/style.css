@@ -40,7 +40,7 @@ PRE.command {
 }
 
 SUB, SUP {
-  font-size: smaller;
+  font-size: 50%;
 }
 
 TABLE.page {
