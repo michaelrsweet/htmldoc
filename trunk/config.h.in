@@ -52,8 +52,8 @@
  * Locations of files...
  */
 
-#define DOCUMENTATION	"/usr/share/doc/htmldoc"
-#define HTML_DATA	"/usr/share/htmldoc"
+#define HTMLDOC_DOCDIR	"/usr/share/doc/htmldoc"
+#define HTMLDOC_DATADIR	"/usr/share/htmldoc"
 
 
 /*

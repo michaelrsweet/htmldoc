@@ -22,13 +22,13 @@
 
 AC_INIT(htmldoc/htmldoc.h)
 AC_CONFIG_HEADER(config.h)
-AC_PREFIX_DEFAULT(/usr)
+AC_PREFIX_DEFAULT(/)
 
 dnl Define the version number...
 if test -d .svn; then
-        SVERSION="1.9svn-r`svnversion . | awk -F: '{print $NF}' | sed -e '1,$s/[[a-zA-Z]]*//g'`"
+    SVERSION="1.9svn-r`svnversion . | awk -F: '{print $NF}' | sed -e '1,$s/[[a-zA-Z]]*//g'`"
 else
-	SVERSION="1.9svn"
+    SVERSION="1.9svn"
 fi
 AC_SUBST(SVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
@@ -119,30 +119,30 @@ AC_SYS_LARGEFILE
 dnl Define largefile options as needed...
 LARGEFILE=""
 if test x$enable_largefile != xno; then
-	LARGEFILE="-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"
+    LARGEFILE="-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"
 
-	if test $ac_cv_sys_large_files = 1; then
-		LARGEFILE="$LARGEFILE -D_LARGE_FILES"
-	fi
+    if test x$ac_cv_sys_large_files = x1; then
+	LARGEFILE="$LARGEFILE -D_LARGE_FILES"
+    fi
 
-	if test $ac_cv_sys_file_offset_bits = 64; then
-		LARGEFILE="$LARGEFILE -D_FILE_OFFSET_BITS=64"
-	fi
+    if test x$ac_cv_sys_file_offset_bits = x64; then
+	LARGEFILE="$LARGEFILE -D_FILE_OFFSET_BITS=64"
+    fi
 fi
 AC_SUBST(LARGEFILE)
 
 dnl Check for "long long" support...
 AC_CACHE_CHECK(for long long int, ac_cv_c_long_long,
-	[if test "$GCC" = yes; then
-		ac_cv_c_long_long=yes
-	else
-		AC_TRY_COMPILE(,[long long int i;],
-			ac_cv_c_long_long=yes,
-			ac_cv_c_long_long=no)
-	fi])
+    [if test "$GCC" = yes; then
+	ac_cv_c_long_long=yes
+    else
+	AC_TRY_COMPILE(,[long long int i;],
+		ac_cv_c_long_long=yes,
+		ac_cv_c_long_long=no)
+    fi])
 
 if test $ac_cv_c_long_long = yes; then
-	AC_DEFINE(HAVE_LONG_LONG)
+    AC_DEFINE(HAVE_LONG_LONG)
 fi
 
 AC_CHECK_FUNC(strtoll, AC_DEFINE(HAVE_STRTOLL))
@@ -286,19 +286,60 @@ LIBS="$NEWLIBS $LIBS"
 
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
-    prefix=/usr
+    prefix="/"
 fi
 
 if test "$exec_prefix" = "NONE"; then
-    exec_prefix=/usr
+    if test "$prefix" = "/"; then
+	exec_prefix="/usr"
+    else
+	exec_prefix="$prefix"
+    fi
 fi
 
 if test "$bindir" = "\${exec_prefix}/bin"; then
     bindir="$exec_prefix/bin"
 fi
 
-AC_DEFINE_UNQUOTED(DOCUMENTATION, "$prefix/share/doc/htmldoc")
-AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
+if test "$datarootdir" = "\${prefix}/share"; then
+    if test "$prefix" = "/"; then
+	datarootdir="/usr/share"
+    else
+	datarootdir="$prefix/share"
+    fi
+fi
+
+if test "$datadir" = "\${prefix}/share"; then
+    if test "$prefix" = "/"; then
+	datadir="/usr/share"
+    else
+	datadir="$prefix/share"
+    fi
+elif test "$datadir" = "\${datarootdir}"; then
+    datadir="$datarootdir"
+fi
+
+AC_DEFINE_UNQUOTED(HTMLDOC_DATADIR, "$datadir/htmldoc")
+
+if test "$sysconfdir" = "\${prefix}/etc"; then
+    if test "$prefix" = "/"; then
+	if test "$uname" = Darwin; then
+	    sysconfdir="/private/etc"
+	else
+	    sysconfdir="/etc"
+	fi
+    else
+	sysconfdir="$prefix/etc"
+    fi
+fi
+
+AC_ARG_WITH(docdir, [  --with-docdir           set path for documentation],docdir="$withval",docdir="")
+
+if test x$docdir = x; then
+    docdir="$datadir/doc/htmldoc"
+fi
+
+AC_DEFINE_UNQUOTED(HTMLDOC_DOCDIR, "$docdir")
 
 dnl Update compiler options...
 if test -n "$GXX"; then
@@ -372,14 +413,6 @@ else
 	    CXXFLAGS="-Hcppext=cxx $CXXFLAGS"
     esac
 fi
-
-dnl Set build mode...
-if test x$enable_debug = xyes; then
-	BUILDMODE="debug"
-else
-	BUILDMODE="production"
-fi
-AC_SUBST(BUILDMODE)
 
 dnl Generate the top-level Makefile and Makedefs file...
 AC_OUTPUT(Makedefs Makefile htmldoc.list)
