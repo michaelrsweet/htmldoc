@@ -689,6 +689,9 @@ hdStyleSheet::get_element(const char *s)// I - Element name
   const char	**temp;			// Element name array
 
 
+  if (!strcmp(s, "*"))
+    return (HD_ELEMENT_NONE);
+
   temp = (const char **)bsearch(&s, hd_elements,
                         	sizeof(hd_elements) / sizeof(hd_elements[0]),
                         	sizeof(hd_elements[0]),
@@ -765,7 +768,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 
 
   // Initialize the read patterns.
-  pattern("-a-zA-Z0-9@.:#_", sel_p);
+  pattern("-a-zA-Z0-9@.:#_*", sel_p);
   pattern("~}", props_p);
 
   // Loop until we can't read any more...

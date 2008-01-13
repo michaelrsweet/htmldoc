@@ -2845,31 +2845,42 @@ static int				// O - Unicode equivalent
 utf8_getc(int  ch,			// I - Initial character
           FILE *fp)			// I - File to read from
 {
-  int	temp;				// Temporary character */
+  int	ch2 = -1, ch3 = -1;		// Temporary characters
+  int	unicode;			// Unicode character
 
 
   if ((ch & 0xe0) == 0xc0)
   {
-    ch   = (ch & 0x1f) << 6;
-    temp = getc(fp);
+   /*
+    * Two-byte sequence for 0x80 to 0x7ff...
+    */
 
-    if ((temp & 0xc0) == 0x80)
-      ch |= (temp & 0x3f) << 6;
+    ch  = (ch & 0x1f) << 6;
+    ch2 = getc(fp);
+
+    if ((ch2 & 0xc0) == 0x80)
+      ch |= ch2 & 0x3f;
     else
       goto bad_sequence;
   }
   else if ((ch & 0xf0) == 0xe0)
   {
-    ch   = (ch & 0x0f) << 12;
-    temp = getc(fp);
+   /*
+    * Three-byte sequence from 0x800 to 0xffff...
+    */
 
-    if ((temp & 0xc0) == 0x80)
-      ch |= (temp & 0x3f) << 6;
+    ch  = (ch & 0x0f) << 12;
+    ch2 = getc(fp);
+
+    if ((ch2 & 0xc0) == 0x80)
+      ch |= (ch2 & 0x3f) << 6;
     else
       goto bad_sequence;
 
-    if ((temp & 0xc0) == 0x80)
-      ch |= (temp & 0x3f) << 6;
+    ch3 = getc(fp);
+
+    if ((ch3 & 0xc0) == 0x80)
+      ch |= ch3 & 0x3f;
     else
       goto bad_sequence;
   }
@@ -2877,16 +2888,26 @@ utf8_getc(int  ch,			// I - Initial character
     goto bad_sequence;
 
   // Now that we have the Unicode value, return the mapped character...
-  temp = _htmlStyleSheet->unichars[ch];
+  unicode = _htmlStyleSheet->unichars[ch];
 
-  if (temp)
-    return (temp);
+  if (unicode)
+    return (unicode);
   else
     return (_htmlStyleSheet->get_entity(NULL, ch));
 
   bad_sequence:
 
-  progress_error(HD_ERROR_READ_ERROR, "Bad UTF-8 character sequence!");
+  if (ch3 >= 0)
+    progress_error(HD_ERROR_READ_ERROR,
+                   "Bad UTF-8 character sequence %02X %02X %02X!",
+		   ch, ch2, ch3);
+  else if (ch2 >= 0)
+    progress_error(HD_ERROR_READ_ERROR,
+                   "Bad UTF-8 character sequence %02X %02X!", ch, ch2);
+  else
+    progress_error(HD_ERROR_READ_ERROR,
+                   "Bad UTF-8 character sequence %02X!", ch);
+
   return (0);
 }
 
