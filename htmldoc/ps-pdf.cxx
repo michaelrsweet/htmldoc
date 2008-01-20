@@ -4955,6 +4955,9 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     end   = flat;
     width = 0.0;
 
+    if (flat->width >= margins->width() && margins->level() > 0)
+      margins->end(*y, *page);
+
     while (flat != NULL)
     {
       // Get fragments...
