@@ -7279,6 +7279,7 @@ init_list(hdTree *t)			/* I - List entry */
  * 'parse_comment()' - Parse a comment for HTMLDOC comments.
  */
 
+#define COMMENT_DEBUG
 #ifdef COMMENT_DEBUG
 #  undef DEBUG_puts
 #  define DEBUG_puts(x) puts(x)
@@ -7326,8 +7327,9 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
   // Mark if we are at the top of form...
   tof = (*y >= margins->top());
 
-  DEBUG_printf(("BEFORE tof=%d, *y=%.1f, margins->top()=%.1f, *page=%d, t->data=\"%s\"\n",
-        	tof, *y, margins->top(), *page, t->data));
+  DEBUG_printf(("BEFORE tof=%d, *y=%.1f, *page=%d, top()=%.1f, right()=%.1f\n",
+        	tof, *y, *page, margins->top(), margins->right()));
+  DEBUG_printf(("        t->data = \"%s\"\n", t->data));
   DEBUG_printf((" PagePrintWidth = %d\n", PagePrintWidth));
   DEBUG_printf(("PagePrintLength = %d\n", PagePrintLength));
   DEBUG_printf(("      PageWidth = %d\n", PageWidth));
@@ -7337,7 +7339,6 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
   DEBUG_printf(("      PageRight = %d\n", PageRight));
   DEBUG_printf(("        PageTop = %d\n", PageTop));
   DEBUG_printf(("      Landscape = %d\n", Landscape));
-
 
   for (comment = (const char *)t->data; *comment;)
   {
@@ -8024,11 +8025,11 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	{
 	  right          = PageLength - PageRight - margins->right();
 	  PagePrintWidth = PageWidth - PageRight - PageLeft;
-	  margins->adjust_right(PageWidth - PageRight - right);
+	  margins->adjust_right(PageWidth - PageLength);
 
 	  top             = PageWidth - PageTop - margins->top();
 	  PagePrintLength = PageLength - PageTop - PageBottom;
-	  margins->adjust_top(PageLength - PageTop - top);
+	  margins->adjust_top(PageLength - PageWidth);
         }
 
         Landscape              = 0;
@@ -8040,11 +8041,11 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	{
 	  top             = PageLength - PageTop - margins->top();
 	  PagePrintLength = PageWidth - PageTop - PageBottom;
-	  margins->adjust_top(PageWidth - PageTop - top);
+	  margins->adjust_top(PageWidth - PageLength);
 
 	  right          = PageWidth - PageRight - margins->right();
 	  PagePrintWidth = PageLength - PageRight - PageLeft;
-	  margins->adjust_right(PageLength - PageRight - right);
+	  margins->adjust_right(PageLength - PageWidth);
         }
 
         Landscape              = 1;
@@ -8428,8 +8429,9 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       break;
   }
 
-  DEBUG_printf(("LEAVING parse_comment() x=%.1f, y=%.1f, page=%d\n",
-                *x, *y, *page));
+  DEBUG_printf(("LEAVING parse_comment() x=%.1f, y=%.1f, page=%d, "
+                "top()=%.1f, right()=%.1f\n",
+		*x, *y, *page, margins->top(), margins->right()));
   DEBUG_printf((" PagePrintWidth = %d\n", PagePrintWidth));
   DEBUG_printf(("PagePrintLength = %d\n", PagePrintLength));
   DEBUG_printf(("      PageWidth = %d\n", PageWidth));
