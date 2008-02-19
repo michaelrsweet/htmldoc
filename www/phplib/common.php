@@ -15,7 +15,6 @@
 //   sanitize_email()      - Convert an email address to something a SPAMbot
 //                           can't read...
 //   sanitize_text()       - Sanitize text.
-//   select_is_published() - Do a <select> for the "is published" field...
 //   show_comments()       - Show comments for the given path...
 //   validate_email()      - Validate an email address...
 //
@@ -652,28 +651,6 @@ sanitize_text($text)			// I - Original text
     $qtext .= quote_text($word);
 
   return ($qtext);
-}
-
-
-//
-// 'select_is_published()' - Do a <select> for the "is published" field...
-//
-
-function
-select_is_published($is_published = 1)	// I - Default state
-{
-  print("<select name='IS_PUBLISHED'>");
-  if ($is_published)
-  {
-    print("<option value='0'>No</option>");
-    print("<option value='1' selected>Yes</option>");
-  }
-  else
-  {
-    print("<option value='0' selected>No</option>");
-    print("<option value='1'>Yes</option>");
-  }
-  print("</select>");
 }
 
 

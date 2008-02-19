@@ -75,7 +75,8 @@ function				// O - User information
 html_header($title = "",		// I - Additional document title
             $path = "",			// I - Relative path to root
 	    $refresh = "",		// I - Refresh URL
-	    $links = "")		// I - Array of links
+	    $links = "",		// I - Array of links
+	    $javascript = "")		// I - Javascript, if any
 {
   global $html_keywords, $html_path, $argc, $argv, $PHP_SELF, $LOGIN_USER,
 	 $_SERVER, $html_show_all;
@@ -133,6 +134,9 @@ html_header($title = "",		// I - Additional document title
     print(",$val");
 
   print("'>\n");
+
+  if ($javascript != "")
+    print("  <script type='text/javascript'>\n$javascript\n  </script>\n");
 
   print("</head>\n"
        ."<body>\n");
@@ -270,7 +274,8 @@ html_end_links()
 
 function
 html_link($text,			// I - Text for hyperlink
-          $link)			// I - URL for hyperlink
+          $link,			// I - URL for hyperlink
+	  $onclick = "")		// I - Javascript for "onclick"
 {
   global $html_firstlink;
 
@@ -281,7 +286,10 @@ html_link($text,			// I - Text for hyperlink
 
   $safetext = str_replace(" ", "&nbsp;", htmlspecialchars($text));
 
-  print("<a href='$link'>$safetext</a>");
+  print("<a href='$link'");
+  if ($onclick != "")
+    print(" onclick='$onclick'");
+  print(">$safetext</a>");
 }
 
 
@@ -295,7 +303,14 @@ html_links($links)			// I - Associated array of hyperlinks
   html_start_links(1);
   reset($links);
   while (list($key, $val) = each($links))
-    html_link($key, $val);
+  {
+    $data = explode(" ", $val);
+
+    if (sizeof($data) == 2)
+      html_link($key, $data[0], $data[1]);
+    else
+      html_link($key, $val);
+  }
   html_end_links();
 }
 

@@ -760,6 +760,55 @@ class str
         }
         else if ($word == "not")
           $logic = ' NOT';
+        else if (substr($word, 0, 8) == "creator:")
+	{
+	  $word   = substr($word, 8);
+          $query .= "$prefix$logic create_user LIKE \"$word\"";
+          $prefix = $next;
+          $logic  = '';
+	}
+        else if (substr($word, 0, 10) == "developer:")
+	{
+	  $word   = substr($word, 10);
+          $query .= "$prefix$logic manager_user LIKE \"$word\"";
+          $prefix = $next;
+          $logic  = '';
+	}
+        else if (substr($word, 0, 11) == "fixversion:")
+	{
+	  $word   = substr($word, 11);
+          $query  .= "$prefix$logic fix_version LIKE \"$word%\"";
+          $prefix = $next;
+          $logic  = '';
+	}
+        else if (substr($word, 0, 7) == "number:")
+	{
+	  $number = (int)substr($word, 7);
+          $query  .= "$prefix$logic id = $number";
+          $prefix = $next;
+          $logic  = '';
+	}
+        else if (substr($word, 0, 10) == "subsystem:")
+	{
+	  $word   = substr($word, 10);
+          $query  .= "$prefix$logic subsystem LIKE \"$word\"";
+          $prefix = $next;
+          $logic  = '';
+	}
+        else if (substr($word, 0, 6) == "title:")
+	{
+	  $word   = substr($word, 6);
+          $query  .= "$prefix$logic summary LIKE \"%$word%\"";
+          $prefix = $next;
+          $logic  = '';
+	}
+        else if (substr($word, 0, 8) == "version:")
+	{
+	  $word   = substr($word, 8);
+          $query  .= "$prefix$logic str_version LIKE \"$word%\"";
+          $prefix = $next;
+          $logic  = '';
+	}
         else
         {
           $query .= "$prefix$logic (";
@@ -773,10 +822,11 @@ class str
 
           $query .= "${subpre}summary LIKE \"%$word%\"";
           $subpre = " OR ";
-          $query .= "${subpre}subsystem LIKE \"%$word%\"";
-          $query .= "${subpre}str_version LIKE \"%$word%\"";
-          $query .= "${subpre}fix_version LIKE \"%$word%\"";
-          $query .= "${subpre}manager_user LIKE \"%$word%\"";
+          $query .= "${subpre}subsystem LIKE \"$word\"";
+          $query .= "${subpre}str_version LIKE \"$word%\"";
+          $query .= "${subpre}fix_version LIKE \"$word%\"";
+          $query .= "${subpre}create_user LIKE \"$word\"";
+          $query .= "${subpre}manager_user LIKE \"$word\"";
 
           $query .= ")";
           $prefix = $next;
@@ -1025,7 +1075,7 @@ class str
       $fix_version = "<i>Unassigned</i>";
 
     if ($this->fix_revision > 0)
-      $fix_revision = " (SVN: v$this->fix_revision)";
+      $fix_revision = " (SVN: r$this->fix_revision)";
     else
       $fix_revision = "";
 
