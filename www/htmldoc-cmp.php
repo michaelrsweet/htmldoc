@@ -6,7 +6,7 @@ html_header("Configuration Management Plan");
 
 ?>
 
-<p><i>Last Modified: October 17, 2004</i></p>
+<p><i>Last Modified: February 18, 2008</i></p>
 
 <p>The HTMLDOC configuration management plan defines how
 releases are done, how bugs and feature requests are handled,
@@ -406,8 +406,7 @@ the SVN "&#36;Id$" tag:</p>
      *
      *   Description of file contents.
      *
-     *   Copyright 1997-2004 by Easy Software Products, all rights
-     *   reserved.
+     *   Copyright 1997-2008 by Easy Software Products.
      *
      *   These coded instructions, statements, and computer programs are
      *   the property of Easy Software Products and are protected by
@@ -418,12 +417,10 @@ the SVN "&#36;Id$" tag:</p>
      *
      *       Attn: HTMLDOC Licensing Information
      *       Easy Software Products
-     *       44141 Airport View Drive, Suite 204
-     *       Hollywood, Maryland 20636 USA
+     *       516 Rio Grand Ct
+     *       Morgan Hill, CA 95037 USA
      *
-     *       Voice: (301) 373-9600
-     *       EMail: info@easysw.com
-     *         WWW: http://www.htmldoc.org/
+     *       http://www.htmldoc.org/
      *
      * Contents:
      *
@@ -763,7 +760,7 @@ following basic guidelines shall be followed:</p>
 	sooner.</li>
 
 	<li><b>Use debugging tools</b> such as <a
-	href='http://valgrind.kde.org'
+	href='http://www.valgrind.org'
 	target='_new'>Valgrind</a> to find problems in your
 	code.</li>
 
