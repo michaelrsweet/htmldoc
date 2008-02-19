@@ -1,6 +1,6 @@
 <?php
 //
-// "$Id: db-article.php,v 1.10 2006/07/11 13:55:14 mike Exp $"
+// "$Id: db-article.php 57 2008-01-08 23:57:12Z mike $"
 //
 // Class for the article table.
 //
@@ -126,7 +126,7 @@ class article
       $hclass = "invalid";
     print("<tr><th class='$hclass' align='right' valign='top'>Title:</th><td>");
     print("<input type='text' name='title' "
-         ."value='$html' size='72'/>");
+         ."value='$html' size='72'>");
     print("</td></tr>\n");
 
     // abstract
@@ -136,7 +136,7 @@ class article
     else
       $hclass = "invalid";
     print("<tr><th class='$hclass' align='right' valign='top'>Abstract:</th><td>");
-    print("<textarea name='abstract' cols='72' rows='2' wrap='virtual'/>"
+    print("<textarea name='abstract' cols='72' rows='2' wrap='virtual'>"
          ."$html</textarea></td></tr>\n");
 
     // type
@@ -154,7 +154,10 @@ class article
 	print(" selected");
       print(">$val</option>");
     }
-    print("</select></td></tr>\n");
+    $html = htmlspecialchars($this->type, ENT_QUOTES);
+    print("<option value='...'>Other...</option></select>"
+         ."&nbsp;Other:&nbsp;<input type='text' name='type_other' "
+	 ."value='$html' size='10' maxsize='255'></td></tr>\n");
 
     // contents
     $html = htmlspecialchars($this->contents, ENT_QUOTES);
@@ -174,8 +177,8 @@ class article
 
     // Submit
     print("<tr><td></td><td>"
-         ."<input type='submit' name='SUBMIT' value='$action'/>"
-         ."<input type='submit' name='SUBMIT' value='Preview Article'/>"
+         ."<input type='submit' name='SUBMIT' value='$action'>"
+         ."<input type='submit' name='SUBMIT' value='Preview Article'>"
          ."</td></tr>\n"
          ."</table></p>\n"
          ."</form>\n");
@@ -224,7 +227,7 @@ class article
     global $_GET, $_POST, $LOGIN_LEVEL;
 
 
-    if ($LOGIN_LEVEL < AUTH_DEVEL)
+    if ($LOGIN_LEVEL < AUTH_DEVEL && $this->id == 0)
       $this->is_published = 0;
     else if (array_key_exists("is_published", $_GET))
       $this->is_published = $_GET["is_published"];
@@ -245,6 +248,15 @@ class article
       $this->type = $_GET["type"];
     else if (array_key_exists("type", $_POST))
       $this->type = $_POST["type"];
+    if ($this->type == "...")
+    {
+      if (array_key_exists("type_other", $_GET))
+	$this->type = $_GET["type_other"];
+      else if (array_key_exists("type_other", $_POST))
+	$this->type = $_POST["type_other"];
+      else
+        $this->type = "";
+    }
 
     if (array_key_exists("contents", $_GET))
       $this->contents = $_GET["contents"];
@@ -316,7 +328,7 @@ class article
          $order = "",			// I - Order fields
 	 $type = "",			// I - Type field
 	 $is_published = 0,		// I - Only return published articles
-	 $link_id = 0)			// I - Link ID, if any
+	 $link_id = PROJECT_LINK_ALL)	// I - Link ID, if any
   {
     global $LOGIN_USER, $LOGIN_LEVEL;
 
@@ -348,7 +360,7 @@ class article
       $prefix = " AND ";
     }
 
-    if ($link_id)
+    if ($link_id > PROJECT_LINK_ALL)
     {
       $query .= "${prefix}link_id = $link_id";
       $prefix = " AND ";
@@ -382,6 +394,27 @@ class article
         }
         else if ($word == "not")
           $logic = ' NOT';
+        else if (substr($word, 0, 8) == "creator:")
+	{
+	  $word   = substr($word, 8);
+          $query .= "$prefix$logic create_user LIKE \"$word\"";
+          $prefix = $next;
+          $logic  = '';
+	}
+        else if (substr($word, 0, 7) == "number:")
+	{
+	  $number = (int)substr($word, 7);
+          $query  .= "$prefix$logic id = $number";
+          $prefix = $next;
+          $logic  = '';
+	}
+        else if (substr($word, 0, 6) == "title:")
+	{
+	  $word   = substr($word, 6);
+          $query  .= "$prefix$logic title LIKE \"%$word%\"";
+          $prefix = $next;
+          $logic  = '';
+	}
         else
         {
           $query .= "$prefix$logic (";
@@ -508,10 +541,10 @@ class article
       print("<p align='center'><b>This article is currently hidden from "
 	   ."public view.</b></p>\n");
 
-    print("<p><i>Created at $create_date by $create_user</i><br />");
-    if ($modify_date != $create_date && $modify_user == $create_user)
-      print("<p><i>Last modified at $modify_date</i><br />");
-    print("$contents\n");
+    print("<h2>$title</h2>\n"
+	 ."<p><i>Created at $create_date by $create_user, last modified "
+	 ."at $modify_date</i><br>\n"
+	 ."$contents\n");
 
     if ($this->link_id)
     {
@@ -533,7 +566,7 @@ class article
       }
     }
 
-    print("<hr noshade/>\n"
+    print("<hr noshade>\n"
 	 ."<h2><a name='_USER_COMMENTS'>Comments</a></h2>\n");
 
     html_start_links();
@@ -546,6 +579,6 @@ class article
 
 
 //
-// End of "$Id: db-article.php,v 1.10 2006/07/11 13:55:14 mike Exp $".
+// End of "$Id: db-article.php 57 2008-01-08 23:57:12Z mike $".
 //
 ?>
