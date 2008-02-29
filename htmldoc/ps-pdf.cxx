@@ -26,91 +26,6 @@
  *
  * Contents:
  *
- *   pspdf_export()           - Export PostScript/PDF file(s)...
- *   pspdf_debug_stats()      - Display debug statistics for render memory use.
- *   pspdf_transform_coords() - Transform page coordinates.
- *   pspdf_transform_page()   - Transform a page.
- *   pspdf_prepare_outpages() - Prepare output pages...
- *   pspdf_prepare_page()     - Add headers/footers to page before writing...
- *   pspdf_prepare_heading()  - Add headers/footers to page before writing...
- *   ps_write_document()      - Write all render entities to PostScript file(s).
- *   ps_write_outpage()       - Write an output page.
- *   ps_write_page()          - Write all render entities on a page to a
- *                              PostScript file.
- *   ps_write_background()    - Write a background image...
- *   pdf_write_document()     - Write all render entities to a PDF file.
- *   pdf_write_resources()    - Write the resources dictionary for a page.
- *   pdf_write_outpage()      - Write an output page.
- *   pdf_write_page()         - Write a page to a PDF file.
- *   pdf_write_contents()     - Write the table of contents as outline records
- *                              to a PDF file.
- *   pdf_write_files()        - Write an outline of HTML files.
- *   pdf_count_headings()     - Count the number of headings under this TOC
- *   pdf_write_links()        - Write annotation link objects for each page in
- *                              the document.
- *   pdf_write_names()        - Write named destinations for each link.
- *   pdf_start_object()       - Start a new PDF object...
- *   pdf_start_stream()       - Start a new PDF stream...
- *   pdf_end_object()         - End a PDF object...
- *   parse_contents()         - Parse the table of contents and produce a
- *   parse_doc()              - Parse a document tree and produce rendering
- *                              list output.
- *   parse_heading()          - Parse a heading tree and produce rendering list
- *                              output.
- *   parse_paragraph()        - Parse a paragraph tree and produce rendering
- *                              list output.
- *   parse_pre()              - Parse preformatted text and produce rendering
- *                              list output.
- *   parse_table()            - Parse a table and produce rendering output.
- *   parse_list()             - Parse a list entry and produce rendering output.
- *   init_list()              - Initialize the list type and value as necessary.
- *   parse_comment()          - Parse a comment for HTMLDOC comments.
- *   real_prev()              - Return the previous non-link markup in the tree.
- *   real_next()              - Return the next non-link markup in the tree.
- *   find_background()        - Find the background image/color for the given
- *                              document.
- *   write_background()       - Write the background image/color for to the
- *                              current page.
- *   new_render()             - Allocate memory for a new rendering structure.
- *   check_pages()            - Allocate memory for more pages as needed...
- *   add_link()               - Add a named link...
- *   find_link()              - Find a named link...
- *   compare_links()          - Compare two named links.
- *   copy_tree()              - Copy a markup tree...
- *   get_cell_size()          - Compute the minimum width of a cell.
- *   get_table_size()         - Compute the minimum width of a table.
- *   flatten_tree()           - Flatten an HTML tree to only include the text,
- *                              image, link, and break markups.
- *   update_image_size()      - Update the size of an image based upon the
- *   get_title()              - Get the title string for a document.
- *   open_file()              - Open an output file for the current chapter.
- *   set_color()              - Set the current text color...
- *   set_font()               - Set the current text font.
- *   set_pos()                - Set the current text position.
- *   ps_hex()                 - Print binary data as a series of hexadecimal
- *                              numbers.
- *   ps_ascii85()             - Print binary data as a series of base-85
- *                              numbers.
- *   jpg_init()               - Initialize the JPEG destination.
- *   jpg_empty()              - Empty the JPEG output buffer.
- *   jpg_term()               - Write the last JPEG data to the file.
- *   jpg_setup()              - Setup the JPEG compressor for writing an image.
- *   compare_rgb()            - Compare two RGB colors...
- *   write_image()            - Write an image to the given output file...
- *   write_imagemask()        - Write an imagemask to the output file...
- *   write_prolog()           - Write the file prolog...
- *   write_string()           - Write a text entity.
- *   write_text()             - Write a text entity.
- *   write_trailer()          - Write the file trailer.
- *   write_type1()            - Write an embedded Type 1 font.
- *   encrypt_init()           - Initialize the RC4 encryption context for
- *                              the current object.
- *   flate_open_stream()      - Open a deflated output stream.
- *   flate_close_stream()     - Close a deflated output stream.
- *   flate_puts()             - Write a character string to a compressed stream.
- *   flate_printf()           - Write a formatted character string to a
- *                              compressed stream.
- *   flate_write()            - Write data to a compressed stream.
  */
 
 /*
@@ -158,7 +73,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
 #define HD_RENDER_IMAGE	1		/* Image */
 #define HD_RENDER_BOX	2		/* Box */
 #define HD_RENDER_LINK	3		/* Hyperlink */
-#define HD_RENDER_BG	4		/* Background image */
+#define HD_RENDER_BG	4		/* Background */
 
 
 /*
@@ -188,6 +103,7 @@ struct hdRender				/**** Render entity structure ****/
     hdImage	*image;			/* Image pointer */
     float	box[3];			/* Box color */
     hdChar	link[1];		/* Link URL */
+    hdStyle	*bg;			/* Background style */
   }	data;
 };
 
@@ -220,6 +136,7 @@ struct hdPage				//// Page information
 		media_type[64];		// Media type
   int		media_position;		// Media position
   char		page_text[64];		// Page number for TOC
+  hdStyle	*background;		// Background style
   hdImage	*background_image;	// Background image
   float		background_color[3];	// Background color
 
@@ -5673,6 +5590,46 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 #  define DEBUG_printf(x) printf x
 #endif /* TABLE_DEBUG */
 
+
+struct hdTableColumn			//// Table column state
+{
+  bool		fixed,			// Fixed-width column?
+		percent;		// Percentage-width column?
+  int		colspan,		// Current colspan
+		rowspan,		// Current rowspan
+		start_page,		// Start page
+		end_page;		// End page
+  float		start_y,		// Start Y position
+		end_y,			// End Y position
+		left,			// Left X position
+		right,			// Right X position
+		width,			// Width of column
+		min_width,		// Minimum width of column
+		pref_width,		// Preferred width of column
+		span_width,		// Spanned width of column
+		min_span_width,		// Minimum spanned width of column
+		height,			// Height of current column
+		span_height;		// Height of spanned column
+  hdRender	*bg_render,		// Background rectangles
+		*start_render,		// Start of the column content
+		*end_render;		// End of the column content
+};
+
+
+/*
+ * 'render_table_row()' - Render a table row.
+ */
+
+static void
+render_table_row(int           num_cols,// I  - Number of columns
+		 hdTableColumn *cols,	// I  - Columns
+                 hdTree        **cells,	// I  - Cells in this row
+		 float         *y,	// IO - Y position
+		 int           *page)	// IO - Page #
+{
+}
+
+
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
  */
@@ -5685,82 +5642,66 @@ parse_table(hdTree   *t,		// I - Tree to parse
             int      *page,		// IO - Page #
             int      needspace)		// I - Need whitespace?
 {
-  int		col,
-		row,
-		tcol,
-		colspan,
-		rowspan,
-		num_cols,
-		num_rows,
-		alloc_rows,
-		regular_cols,
-		tempspace,
-		col_spans[MAX_COLUMNS],
-		row_spans[MAX_COLUMNS];
-  char		col_fixed[MAX_COLUMNS],
-		col_percent[MAX_COLUMNS];
-  float		col_lefts[MAX_COLUMNS],
-		col_rights[MAX_COLUMNS],
-		col_width,
-		col_widths[MAX_COLUMNS],
-		col_swidths[MAX_COLUMNS],
-		col_min,
-		col_mins[MAX_COLUMNS],
-		col_smins[MAX_COLUMNS],
-		col_pref,
-		col_prefs[MAX_COLUMNS],
-		col_height,
-		cellpadding,
-		cellspacing,
-		border,
-		border_left,
-		border_size,
-		width,
-		pref_width,
-		span_width,
-		regular_width,
-		actual_width,
-		table_width,
-		table_height,
-		min_width,
-		temp_width,
-		table_y,
-		row_y, row_starty, temp_y;
-  int		row_page, temp_page, table_page;
-  hdChar	*var,
+  int		col,			// Current column
+		row,			// Current row
+		tcol,			// Temporary column
+		colspan,		// Current colspan
+		rowspan,		// Current rowspan
+		num_cols,		// Number of columns
+		num_rows,		// Number of rows
+		alloc_rows,		// Allocated rows
+		regular_cols,		// Number of regular-size columns
+		tempspace,		// Temporary spacing
+		header_row;		// Header row
+  hdTableColumn	columns[MAX_COLUMNS],	// Normal columns
+		headers[MAX_COLUMNS];	// Header columns
+  float		col_width,		// Current column width
+		col_min,		// Current minimum column width
+		col_pref,		// Current preferred column width
+		col_height,		// Current column height
+		cellpadding,		// Cell padding to use
+		cellspacing,		// Cell spacing to use
+		border,			// Border
+		border_left,		// Border left margin
+		border_size,		// Total border size
+		width,			// Table width
+		pref_width,		// Preferred table width
+		span_width,		// Width of span
+		regular_width,		// Width of all normal sized columns
+		actual_width,		// Actual width of table
+		table_width,		// Requested table width
+		table_height,		// Requested table height
+		min_width,		// Minimum table width
+		temp_width,		// Current width
+		table_y,		// Table start position
+		row_y,			// Row end position
+		row_starty,		// Row start position
+		temp_y;			// Temporary position
+  int		row_page,		// Row start page
+		temp_page,		// Temporary page
+		table_page;		// Table start page
+  hdChar	*var,			// Attribute
 		*height_var;		// Row HEIGHT variable
-  hdTree	*temprow,
-		*tempcol,
-		*tempnext,
-		***cells,
-		*caption;		// Caption for bottom, if any
-  int		do_valign;		// True if we should do vertical alignment of cells
+  hdTree	*temprow,		// Current row
+		*tempcol,		// Current column
+		*tempnext,		// Next row/column
+		***cells,		// Table cell grid
+		*caption;		// Table caption, if any
+  bool		do_valign;		// True if we should do vertical alignment of cells
   float		row_height,		// Total height of the row
 		temp_height;		// Temporary holder
   hdMargin	*cell_margins;		// Margins for cell
-  int		cell_page[MAX_COLUMNS],	// Start page for cell
-		cell_endpage[MAX_COLUMNS];
-					// End page for cell
-  float		cell_y[MAX_COLUMNS],	// Row or each cell
-		cell_endy[MAX_COLUMNS],	// Row or each cell
-		cell_height[MAX_COLUMNS],
-					// Height of each cell in a row
-		span_heights[MAX_COLUMNS];
-					// Height of spans
-  hdRender	*cell_bg[MAX_COLUMNS];	// Background rectangles
-  hdRender	*cell_start[MAX_COLUMNS];
-					// Start of the content for a cell in the row
-  hdRender	*cell_end[MAX_COLUMNS];	// End of the content for a cell in a row
-  hdChar	*bgcolor;
-  float		rgb[3],
-		bgrgb[3];
+  hdChar	*bgcolor;		// Background color, if any
+  float		rgb[3],			// Border color
+		bgrgb[3];		// Background color
   const char	*htmldoc_debug;		// HTMLDOC_DEBUG env var
   int		table_debug;		// Do table debugging?
 
 
   DEBUG_puts("\n\nTABLE");
 
-  DEBUG_printf(("parse_table(t=%p, margins=(%.1f, %.1f,%.1f, %.1f), x=%.1f, y=%.1f, page=%d\n",
+  DEBUG_printf(("parse_table(t=%p, margins=(%.1f, %.1f,%.1f, %.1f), "
+                "x=%.1f, y=%.1f, page=%d\n",
                 t, margins->left(), margins->right(), margins->bottom(),
 		margins->top(), *x, *y, *page));
 
@@ -5781,15 +5722,6 @@ parse_table(hdTree   *t,		// I - Tree to parse
   * Figure out the # of rows, columns, and the desired widths...
   */
 
-  memset(col_spans, 0, sizeof(col_spans));
-  memset(col_fixed, 0, sizeof(col_fixed));
-  memset(col_percent, 0, sizeof(col_percent));
-  memset(col_widths, 0, sizeof(col_widths));
-  memset(col_swidths, 0, sizeof(col_swidths));
-  memset(col_mins, 0, sizeof(col_mins));
-  memset(col_smins, 0, sizeof(col_smins));
-  memset(col_prefs, 0, sizeof(col_prefs));
-
   cells = NULL;
 
   if ((var = htmlGetAttr(t, "WIDTH")) != NULL)
@@ -5797,7 +5729,8 @@ parse_table(hdTree   *t,		// I - Tree to parse
     if (var[strlen((char *)var) - 1] == '%')
       table_width = atof((char *)var) * margins->width() / 100.0f;
     else
-      table_width = atoi((char *)var) * PagePrintWidth / _htmlStyleSheet->browser_width;
+      table_width = atoi((char *)var) * PagePrintWidth /
+                    _htmlStyleSheet->browser_width;
   }
   else
     table_width = margins->width();
@@ -5807,7 +5740,8 @@ parse_table(hdTree   *t,		// I - Tree to parse
     if (var[strlen((char *)var) - 1] == '%')
       table_height = atof((char *)var) * margins->length() / 100.0f;
     else
-      table_height = atoi((char *)var) * PagePrintWidth / _htmlStyleSheet->browser_width;
+      table_height = atoi((char *)var) * PagePrintWidth /
+                     _htmlStyleSheet->browser_width;
   }
   else
     table_height = -1.0f;
@@ -5862,18 +5796,17 @@ parse_table(hdTree   *t,		// I - Tree to parse
   border      *= PagePrintWidth / _htmlStyleSheet->browser_width;
   border_size *= PagePrintWidth / _htmlStyleSheet->browser_width;
 
-  DEBUG_printf(("border = %.1f, cellpadding = %.1f\n", border,
-                cellpadding));
+  DEBUG_printf(("border=%.1f, cellpadding=%.1f\n", border, cellpadding));
 
 //  temp_bottom = margins->bottom() - cellpadding;
 //  temp_top    = margins->top() + cellpadding;
   margins->adjust_bottom(-cellpadding);
   margins->adjust_top(cellpadding);
 
-  memset(row_spans, 0, sizeof(row_spans));
-  memset(span_heights, 0, sizeof(span_heights));
+  memset(columns, 0, sizeof(columns));
 
-  for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0, caption = NULL;
+  for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0,
+           caption = NULL;
        temprow != NULL;
        temprow = tempnext)
   {
@@ -5901,11 +5834,16 @@ parse_table(hdTree   *t,		// I - Tree to parse
       }
     }
     else if (temprow->element == HD_ELEMENT_TR ||
-             ((temprow->element == HD_ELEMENT_TBODY || temprow->element == HD_ELEMENT_THEAD ||
+             ((temprow->element == HD_ELEMENT_TBODY ||
+	       temprow->element == HD_ELEMENT_THEAD ||
                temprow->element == HD_ELEMENT_TFOOT) && temprow->child != NULL))
     {
       // Descend into table body as needed...
-      if (temprow->element == HD_ELEMENT_TBODY || temprow->element == HD_ELEMENT_THEAD ||
+      if (temprow->element == HD_ELEMENT_THEAD)
+        header_row = row;
+
+      if (temprow->element == HD_ELEMENT_TBODY ||
+          temprow->element == HD_ELEMENT_THEAD ||
           temprow->element == HD_ELEMENT_TFOOT)
         temprow = temprow->child;
 
@@ -5942,24 +5880,24 @@ parse_table(hdTree   *t,		// I - Tree to parse
       }
 
 #ifdef DEBUG
-      printf("BEFORE row %d: num_cols = %d\n", num_rows, num_cols);
+      printf("BEFORE row %d: num_cols=%d\n", num_rows, num_cols);
 
       if (num_rows)
         for (col = 0; col < num_cols; col ++)
-	  printf("    col %d: row_spans[] = %d\n", col, row_spans[col]);
+	  printf("    columns[%d].rowspan=%d\n", col, columns[col].rowspan);
 #endif // DEBUG
 
       // Figure out the starting column...
       if (num_rows)
       {
 	for (col = 0, rowspan = 9999; col < num_cols; col ++)
-	  if (row_spans[col] < rowspan)
-	    rowspan = row_spans[col];
+	  if (columns[col].rowspan < rowspan)
+	    rowspan = columns[col].rowspan;
 
 	for (col = 0; col < num_cols; col ++)
-	  row_spans[col] -= rowspan;
+	  columns[col].rowspan -= rowspan;
 
-	for (col = 0; row_spans[col] && col < num_cols; col ++)
+	for (col = 0; columns[col].rowspan && col < num_cols; col ++)
           cells[num_rows][col] = cells[num_rows - 1][col];
       }
       else
@@ -5978,13 +5916,13 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
           if ((var = htmlGetAttr(tempcol, "ROWSPAN")) != NULL)
 	  {
-            row_spans[col] = atoi((char *)var);
+            columns[col].rowspan = atoi((char *)var);
 
-	    if (row_spans[col] == 1)
-	      row_spans[col] = 0;
+	    if (columns[col].rowspan == 1)
+	      columns[col].rowspan = 0;
 
 	    for (tcol = 1; tcol < colspan; tcol ++)
-              row_spans[col + tcol] = row_spans[col];
+              columns[col + tcol].rowspan = columns[col].rowspan;
           }
 
           // Compute the cell size...
@@ -5997,7 +5935,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
               col_width -= 2.0 * cellpadding - cellspacing;
 
 	      if (colspan <= 1)
-	        col_percent[col] = 1;
+	        columns[col].percent = true;
 	    }
 	    else
 	    {
@@ -6009,35 +5947,36 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
           tempcol->height = col_height;
 
-	  DEBUG_printf(("%d,%d: colsp=%d, rowsp=%d, width=%.1f, minw=%.1f, prefw=%.1f, minh=%.1f\n",
-	                col, num_rows, colspan, row_spans[col], col_width,
+	  DEBUG_printf(("%d,%d: colsp=%d, rowsp=%d, width=%.1f, minw=%.1f, "
+	                "prefw=%.1f, minh=%.1f\n",
+	                col, num_rows, colspan, columns[col].rowspan, col_width,
 			col_min, col_pref, col_height));
 
           // Add widths to columns...
           if (colspan > 1)
           {
-	    if (colspan > col_spans[col])
-	      col_spans[col] = colspan;
+	    if (colspan > columns[col].colspan)
+	      columns[col].colspan = colspan;
 
-	    if (col_width > col_swidths[col])
-	      col_swidths[col] = col_width;
+	    if (col_width > columns[col].span_width)
+	      columns[col].span_width = col_width;
 
-	    if (col_min > col_smins[col])
-	      col_smins[col] = col_min;
+	    if (col_min > columns[col].min_span_width)
+	      columns[col].min_span_width = col_min;
           }
 	  else
 	  {
 	    if (col_width > 0.0f)
-	      col_fixed[col] = 1;
+	      columns[col].fixed = true;
 
-	    if (col_width > col_widths[col])
-	      col_widths[col] = col_width;
+	    if (col_width > columns[col].width)
+	      columns[col].width = col_width;
 
-	    if (col_pref > col_prefs[col])
-	      col_prefs[col] = col_pref;
+	    if (col_pref > columns[col].pref_width)
+	      columns[col].pref_width = col_pref;
 
-	    if (col_min > col_mins[col])
-	      col_mins[col] = col_min;
+	    if (col_min > columns[col].min_width)
+	      columns[col].min_width = col_min;
           }
 
 	  while (colspan > 0 && col < MAX_COLUMNS)
@@ -6047,7 +5986,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
             colspan --;
           }
 
-          while (row_spans[col] && col < num_cols)
+          while (columns[col].rowspan && col < num_cols)
 	  {
             cells[num_rows][col] = cells[num_rows - 1][col];
 	    col ++;
@@ -6058,17 +5997,17 @@ parse_table(hdTree   *t,		// I - Tree to parse
         num_cols = col;
 
 #ifdef DEBUG
-      printf("AFTER row %d: num_cols = %d\n", num_rows, num_cols);
+      printf("AFTER row %d: num_cols=%d\n", num_rows, num_cols);
 
       for (col = 0; col < num_cols; col ++)
-        printf("    col %d: row_spans[] = %d\n", col, row_spans[col]);
+        printf("    col %d: rowspan=%d\n", col, columns[col].rowspan);
 #endif // DEBUG
 
       num_rows ++;
 
       for (col = 0; col < num_cols; col ++)
-        if (row_spans[col])
-	  row_spans[col] --;
+        if (columns[col].rowspan)
+	  columns[col].rowspan --;
     }
   }
 
@@ -6094,7 +6033,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
   else
   {
     for (col = 0, width = 0.0; col < num_cols; col ++)
-      width += col_prefs[col];
+      width += columns[col].pref_width;
 
     width += (2 * cellpadding + cellspacing) * num_cols - cellspacing;
 
@@ -6112,16 +6051,17 @@ parse_table(hdTree   *t,		// I - Tree to parse
                   cellspacing;
   regular_width = (width - actual_width) / num_cols;
 
-  DEBUG_printf(("    width = %.1f, actual_width = %.1f, regular_width = %.1f\n\n",
+  DEBUG_printf(("    width = %.1f, actual_width=%.1f, regular_width=%.1f\n\n",
                 width, actual_width, regular_width));
   DEBUG_puts("    Col  Width   Min     Pref    Fixed?  Percent?");
   DEBUG_puts("    ---  ------  ------  ------  ------  --------");
 
 #ifdef DEBUG
   for (col = 0; col < num_cols; col ++)
-    printf("    %-3d  %-6.1f  %-6.1f  %-6.1f  %-6s  %s\n", col, col_widths[col],
-           col_mins[col], col_prefs[col], col_fixed[col] ? "YES" : "NO",
-	   col_percent[col] ? "YES" : "NO");
+    printf("    %-3d  %-6.1f  %-6.1f  %-6.1f  %-6s  %s\n", col,
+           columns[col].width, columns[col].min_width, columns[col].pref_width,
+	   columns[col].fixed ? "YES" : "NO",
+	   columns[col].percent ? "YES" : "NO");
 
   puts("");
 #endif /* DEBUG */
@@ -6133,21 +6073,21 @@ parse_table(hdTree   *t,		// I - Tree to parse
   DEBUG_puts("PASS 1: fixed width handling\n");
 
   for (col = 0, regular_cols = 0; col < num_cols; col ++)
-    if (col_widths[col] > 0.0f)
+    if (columns[col].width > 0.0f)
     {
-      if (col_mins[col] > col_widths[col])
-        col_widths[col] = col_mins[col];
+      if (columns[col].min_width > columns[col].width)
+        columns[col].width = columns[col].min_width;
 
-      actual_width += col_widths[col];
+      actual_width += columns[col].width;
     }
     else
     {
       regular_cols ++;
 
-      actual_width += col_mins[col];
+      actual_width += columns[col].min_width;
     }
 
-  DEBUG_printf(("    actual_width = %.1f, regular_cols = %d\n\n", actual_width,
+  DEBUG_printf(("    actual_width=%.1f, regular_cols=%d\n\n", actual_width,
                 regular_cols));
 
  /*
@@ -6158,10 +6098,10 @@ parse_table(hdTree   *t,		// I - Tree to parse
   DEBUG_puts("PASS 2: preferred width handling\n");
 
   for (col = 0, pref_width = 0.0f; col < num_cols; col ++)
-    if (col_widths[col] == 0.0f)
-      pref_width += col_prefs[col] - col_mins[col];
+    if (columns[col].width == 0.0f)
+      pref_width += columns[col].pref_width - columns[col].min_width;
 
-  DEBUG_printf(("    pref_width = %.1f\n", pref_width));
+  DEBUG_printf(("    pref_width=%.1f\n", pref_width));
 
   if (pref_width > 0.0f)
   {
@@ -6170,26 +6110,28 @@ parse_table(hdTree   *t,		// I - Tree to parse
     else if (regular_width > 1.0f)
       regular_width = 1.0f;
 
-    DEBUG_printf(("    regular_width = %.1f\n", regular_width));
+    DEBUG_printf(("    regular_width=%.1f\n", regular_width));
 
     for (col = 0; col < num_cols; col ++)
-      if (col_widths[col] == 0.0f)
+      if (columns[col].width == 0.0f)
       {
-	pref_width = (col_prefs[col] - col_mins[col]) * regular_width;
+	pref_width = (columns[col].pref_width - columns[col].min_width) *
+	             regular_width;
 
 	if ((actual_width + pref_width) > width)
 	{
-          if (col == (num_cols - 1) && (width - actual_width) >= col_mins[col])
-	    col_widths[col] = width - actual_width;
+          if (col == (num_cols - 1) &&
+	      (width - actual_width) >= columns[col].min_width)
+	    columns[col].width = width - actual_width;
 	  else
-	    col_widths[col] = col_mins[col];
+	    columns[col].width = columns[col].min_width;
 	}
 	else
-          col_widths[col] = pref_width + col_mins[col];
+          columns[col].width = pref_width + columns[col].min_width;
 
-        DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+        DEBUG_printf(("    columns[%d].width=%.1f\n", col, columns[col].width));
 
-	actual_width += col_widths[col] - col_mins[col];
+	actual_width += columns[col].width - columns[col].min_width;
       }
   }
   else
@@ -6199,11 +6141,11 @@ parse_table(hdTree   *t,		// I - Tree to parse
     */
 
     for (col = 0; col < num_cols; col ++)
-      if (col_widths[col] == 0.0f)
-        col_widths[col] = col_mins[col];
+      if (columns[col].width == 0.0f)
+        columns[col].width = columns[col].min_width;
   }
 
-  DEBUG_printf(("    actual_width = %.1f\n\n", actual_width));
+  DEBUG_printf(("    actual_width=%.1f\n\n", actual_width));
 
  /*
   * Pass three enforces any hard or minimum widths for COLSPAN'd
@@ -6214,29 +6156,36 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
   for (col = 0; col < num_cols; col ++)
   {
-    DEBUG_printf(("    col %d, colspan %d\n", col, col_spans[col]));
+    DEBUG_printf(("    columns[%d].colspan=%d\n", col, columns[col].colspan));
 
-    if (col_spans[col] > 1)
+    if (columns[col].colspan > 1)
     {
-      for (colspan = 0, span_width = 0.0f; colspan < col_spans[col]; colspan ++)
-        span_width += col_widths[col + colspan];
+      for (colspan = 0, span_width = 0.0f;
+           colspan < columns[col].colspan;
+	   colspan ++)
+        span_width += columns[col + colspan].width;
 
       pref_width = 0.0f;
 
-      if (span_width < col_swidths[col])
-        pref_width = col_swidths[col];
-      if (span_width < col_smins[col] && pref_width < col_smins[col])
-        pref_width = col_smins[col];
+      if (span_width < columns[col].span_width)
+        pref_width = columns[col].span_width;
+      if (span_width < columns[col].min_span_width &&
+          pref_width < columns[col].min_span_width)
+        pref_width = columns[col].min_span_width;
 
-      for (colspan = 0; colspan < col_spans[col]; colspan ++)
-        if (col_fixed[col + colspan])
+      for (colspan = 0; colspan < columns[col].colspan; colspan ++)
+        if (columns[col + colspan].fixed)
 	{
-          span_width -= col_widths[col + colspan];
-	  pref_width -= col_widths[col + colspan];
+          span_width -= columns[col + colspan].width;
+	  pref_width -= columns[col + colspan].width;
 	}
 
-      DEBUG_printf(("    col_swidths=%.1f, col_smins=%.1f, span_width=%.1f, pref_width=%.1f\n",
-                    col_swidths[col], col_smins[col], span_width, pref_width));
+      DEBUG_printf(("    columns[%d].span_width=%.1f, "
+                    "columns[%d].min_span_width=%.1f, "
+                    "span_width=%.1f, pref_width=%.1f\n",
+                    col, columns[col].span_width,
+		    col, columns[col].min_span_width,
+		    span_width, pref_width));
 
       if (pref_width > 0.0f && pref_width > span_width)
       {
@@ -6245,15 +6194,15 @@ parse_table(hdTree   *t,		// I - Tree to parse
           // Expand cells proportionately...
 	  regular_width = pref_width / span_width;
 
-	  for (colspan = 0; colspan < col_spans[col]; colspan ++)
-	    if (!col_fixed[col + colspan])
+	  for (colspan = 0; colspan < columns[col].colspan; colspan ++)
+	    if (!columns[col + colspan].fixed)
 	    {
-	      actual_width -= col_widths[col + colspan];
-	      col_widths[col + colspan] *= regular_width;
-	      actual_width += col_widths[col + colspan];
+	      actual_width -= columns[col + colspan].width;
+	      columns[col + colspan].width *= regular_width;
+	      actual_width += columns[col + colspan].width;
 
-              DEBUG_printf(("    col_widths[%d] = %.1f\n", col + colspan,
-	                    col_widths[col + colspan]));
+              DEBUG_printf(("    columns[%d].width=%.1f\n", col + colspan,
+	                    columns[col + colspan].width));
 	    }
         }
 	else
@@ -6263,21 +6212,22 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	  // to you by Yahoo! and their single cell tables with
 	  // colspan=2 :)
 
-	  regular_width = pref_width / col_spans[col];
+	  regular_width = pref_width / columns[col].colspan;
 
-	  for (colspan = 0; colspan < col_spans[col]; colspan ++)
+	  for (colspan = 0; colspan < columns[col].colspan; colspan ++)
 	  {
 	    actual_width += regular_width;
-	    col_widths[col + colspan] += regular_width;
+	    columns[col + colspan].width += regular_width;
 
-            DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+            DEBUG_printf(("    columns[%d].width=%.1f\n", col + colspan,
+	                   columns[col + colspan].width));
 	  }
 	}
       }
     }
   }
 
-  DEBUG_printf(("    actual_width = %.1f\n\n", actual_width));
+  DEBUG_printf(("    actual_width=%.1f\n\n", actual_width));
 
  /*
   * Pass four divides up the remaining space amongst the columns...
@@ -6288,7 +6238,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
   if (width > actual_width)
   {
     for (col = 0, colspan = 0; col < num_cols; col ++)
-      if (!col_fixed[col] || col_percent[col])
+      if (!columns[col].fixed || columns[col].percent)
         colspan ++;
 
     if (colspan > 0)
@@ -6296,10 +6246,11 @@ parse_table(hdTree   *t,		// I - Tree to parse
       regular_width = (width - actual_width) / num_cols;
 
       for (col = 0; col < num_cols; col ++)
-        if (!col_fixed[col])
+        if (!columns[col].fixed || columns[col].percent)
 	{
-	  col_widths[col] += regular_width;
-	  DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+	  columns[col].width += regular_width;
+	  DEBUG_printf(("    columns[%d].width=%.1f\n", col,
+	                columns[col].widt));
 	}
     }
   }
@@ -6322,9 +6273,9 @@ parse_table(hdTree   *t,		// I - Tree to parse
     */
 
     for (col = 0, min_width = -cellspacing; col < num_cols; col ++)
-      min_width += col_mins[col] + 2 * cellpadding + cellspacing;
+      min_width += columns[col].min_width + 2 * cellpadding + cellspacing;
 
-    DEBUG_printf(("    table_width = %.1f, width = %.1f, min_width = %.1f\n",
+    DEBUG_printf(("    table_width=%.1f, width=%.1f, min_width=%.1f\n",
                   table_width, width, min_width));
 
     temp_width = table_width - min_width;
@@ -6337,16 +6288,17 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
     for (col = 0; col < num_cols; col ++)
     {
-      col_widths[col] = col_mins[col] +
-                        temp_width * (col_widths[col] - col_mins[col]) / width;
+      columns[col].width = columns[col].min_width +
+                           temp_width * (columns[col].width -
+			                 columns[col].min_width) / width;
 
-      DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+      DEBUG_printf(("    columns[%d],width=%.1f\n", col, columns[col].width));
     }
 
     for (col = 0, width = -cellspacing; col < num_cols; col ++)
-      width += col_widths[col] + 2 * cellpadding + cellspacing;
+      width += columns[col].width + 2 * cellpadding + cellspacing;
 
-    DEBUG_printf(("    new width = %.1f, max width = %.1f\n", width,
+    DEBUG_printf(("    new width=%.1f, margins->width()=%.1f\n", width,
                   margins->width()));
   }
 
@@ -6357,8 +6309,10 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
   DEBUG_puts("");
 
-  DEBUG_printf(("Final table width = %.1f, alignment = %d\n",
-                width, t->style->text_align));
+  DEBUG_printf(("Final table width=%.1f, margin[HD_POS_LEFT]=%.1f, "
+                "margin[HD_POS_RIGHT]=%.1f\n",
+                width, t->style->margin[HD_POS_LEFT],
+		t->style->margin[HD_POS_RIGHT]));
 
   if (t->style->margin[HD_POS_LEFT] != HD_MARGIN_AUTO)
     *x = margins->left() + cellpadding;
@@ -6369,12 +6323,12 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
   for (col = 0; col < num_cols; col ++)
   {
-    col_lefts[col]  = *x;
-    col_rights[col] = *x + col_widths[col];
-    *x = col_rights[col] + 2 * cellpadding + cellspacing;
+    columns[col].left  = *x;
+    columns[col].right = *x + columns[col].width;
+    *x = columns[col].right + 2 * cellpadding + cellspacing;
 
-    DEBUG_printf(("left[%d] = %.1f, right[%d] = %.1f\n", col, col_lefts[col], col,
-                  col_rights[col]));
+    DEBUG_printf(("columns[%d].left=%.1f, columns[%d].right=%.1f\n", col,
+                  columns[col].left, col, columns[col].right));
   }
 
  /*
@@ -6400,11 +6354,14 @@ parse_table(hdTree   *t,		// I - Tree to parse
     r->data.text.size     = 11.0f;
   }
 
-  memset(row_spans, 0, sizeof(row_spans));
-  memset(cell_start, 0, sizeof(cell_start));
-  memset(cell_end, 0, sizeof(cell_end));
-  memset(cell_height, 0, sizeof(cell_height));
-  memset(cell_bg, 0, sizeof(cell_bg));
+  for (col = 0; col < num_cols; col ++)
+  {
+    columns[col].rowspan      = 0;
+    columns[col].start_render = NULL;
+    columns[col].end_render   = NULL;
+    columns[col].height       = 0.0f;
+    columns[col].bg_render    = NULL;
+  }
 
   table_page = *page;
   table_y    = *y;
@@ -6444,7 +6401,8 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	temp_height = atof((char *)height_var) * 0.01f *
 	              (PagePrintLength - 2 * cellpadding);
       else
-        temp_height = atof((char *)height_var) * PagePrintWidth / _htmlStyleSheet->browser_width;
+        temp_height = atof((char *)height_var) * PagePrintWidth /
+	              _htmlStyleSheet->browser_width;
 
       if (table_height > 0.0f && temp_height > table_height)
         temp_height = table_height;
@@ -6473,7 +6431,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	temp_height = PageLength / 8;
     }
 
-    DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f, *page = %d\n",
+    DEBUG_printf(("BEFORE row %d: temp_height=%.1f, *y=%.1f, *page=%d\n",
                   row, temp_height, *y, *page));
 
     if (*y < (margins->bottom0() + 2 * cellpadding + temp_height) &&
@@ -6496,27 +6454,27 @@ parse_table(hdTree   *t,		// I - Tree to parse
     row_page   = *page;
     row_height = 0.0f;
 
-    DEBUG_printf(("BEFORE row_y = %.1f, *y = %.1f, row_page = %d\n",
-                  row_y, *y, row_page));
+    DEBUG_printf(("BEFORE row_y=%.1f, *y=%.1f, row_page=%d\n", row_y, *y,
+                  row_page));
 
     for (col = 0, rowspan = 9999; col < num_cols; col += colspan)
     {
-      if (row_spans[col] == 0)
+      if (columns[col].rowspan == 0)
       {
         if ((var = htmlGetAttr(cells[row][col], "ROWSPAN")) != NULL)
-          row_spans[col] = atoi((char *)var);
+          columns[col].rowspan = atoi((char *)var);
 
-        if (row_spans[col] == 1)
-	  row_spans[col] = 0;
+        if (columns[col].rowspan == 1)
+	  columns[col].rowspan = 0;
 
-        if (row_spans[col] > (num_rows - row))
-	  row_spans[col] = num_rows - row;
+        if (columns[col].rowspan > (num_rows - row))
+	  columns[col].rowspan = num_rows - row;
 
-	span_heights[col] = 0.0f;
+	columns[col].span_height = 0.0f;
       }
 
-      if (row_spans[col] < rowspan)
-	rowspan = row_spans[col];
+      if (columns[col].rowspan < rowspan)
+	rowspan = columns[col].rowspan;
 
       for (colspan = 1; (col + colspan) < num_cols; colspan ++)
         if (cells[row][col] != cells[row][col + colspan])
@@ -6533,10 +6491,12 @@ parse_table(hdTree   *t,		// I - Tree to parse
           break;
       colspan --;
 
-      DEBUG_printf(("    col = %d, colspan = %d, margins->left() = %.1f, right = %.1f, cell = %p\n",
-                    col, colspan, col_lefts[col], col_rights[col + colspan], cells[row][col]));
+      DEBUG_printf(("    colspan=%d, columns[%d].left=%.1f, "
+                    "columns[%d].right=%.1f, cell=%p\n",
+                    colspan, col, columns[col].left, col + colspan,
+		    columns[col + colspan].right, cells[row][col]));
 
-      *x        = col_lefts[col];
+      *x        = columns[col].left;
       temp_y    = *y - cellpadding;
       temp_page = *page;
       tempspace = 0;
@@ -6554,26 +6514,27 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
           get_color(bgcolor, bgrgb, 0);
 
-	  width       = col_rights[col + colspan] - col_lefts[col] +
+	  width       = columns[col + colspan].right - columns[col].left +
         	        2 * cellpadding;
-	  border_left = col_lefts[col] - cellpadding;
+	  border_left = columns[col].left - cellpadding;
 
-          cell_bg[col] = new_render(*page, HD_RENDER_BOX, border_left, row_y,
-                                    width + border, 0.0, bgrgb);
+          columns[col].bg_render = new_render(*page, HD_RENDER_BOX, border_left,
+	                                      row_y, width + border, 0.0,
+					      bgrgb);
 	}
 	else
 	{
-	  cell_bg[col] = NULL;
+	  columns[col].bg_render = NULL;
 
           new_render(*page, HD_RENDER_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
 	}
 
-        DEBUG_printf(("cell_bg[%d] = %p, pages[%d].end = %p\n",
-	              col, cell_bg[col], *page, pages[*page].end));
+        DEBUG_printf(("columns[%d].bg_render=%p, pages[%d].end=%p\n",
+	              col, columns[col].bg_render, *page, pages[*page].end));
 
-	cell_start[col] = pages[*page].end;
-	cell_page[col]  = temp_page;
-	cell_y[col]     = temp_y;
+	columns[col].start_render = pages[*page].end;
+	columns[col].start_page   = temp_page;
+	columns[col].start_y      = temp_y;
 
 #if 0 // TODO
         if (table_debug)
@@ -6597,10 +6558,11 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
         if (cells[row][col] != NULL && cells[row][col]->child != NULL)
 	{
-	  DEBUG_printf(("    parsing cell %d,%d; width = %.1f\n", row, col,
-	                col_rights[col + colspan] - col_lefts[col]));
+	  DEBUG_printf(("    parsing cell %d,%d; width=%.1f\n", row, col,
+	                columns[col + colspan].right - columns[col].left));
 
-          cell_margins = new hdMargin(col_lefts[col], col_rights[col + colspan],
+          cell_margins = new hdMargin(columns[col].left,
+	                              columns[col + colspan].right,
 	                              margins->bottom() + cellpadding,
 				      margins->top() - cellpadding);
 
@@ -6612,55 +6574,55 @@ parse_table(hdTree   *t,		// I - Tree to parse
           delete cell_margins;
         }
 
-        cell_endpage[col] = temp_page;
-        cell_endy[col]    = temp_y;
-        cell_height[col]  = *y - cellpadding - temp_y;
-        cell_end[col]     = pages[*page].end;
+        columns[col].end_page   = temp_page;
+        columns[col].end_y      = temp_y;
+        columns[col].height     = *y - cellpadding - temp_y;
+        columns[col].end_render = pages[*page].end;
 
-        if (cell_start[col] == NULL)
-	  cell_start[col] = pages[*page].start;
+        if (columns[col].start_render == NULL)
+	  columns[col].start_render = pages[*page].start;
 
-        DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n",
-	              row, col, *y - cellpadding, temp_y, cell_height[col]));
-        DEBUG_printf(("cell_start[%d] = %p, cell_end[%d] = %p\n",
-	              col, cell_start[col], col, cell_end[col]));
+        DEBUG_printf(("row=%d, col=%d, y=%.1f, cell_y=%.1f, cell_height=%.1f\n",
+	              row, col, *y - cellpadding, temp_y, columns[col].height));
+        DEBUG_printf(("start_render=%p, end_render=%p\n",
+	              columns[col].start_render, columns[col].end_render));
       }
 
-      if (row_spans[col] == 0 &&
-          cell_page[col] == cell_endpage[col] &&
-	  cell_height[col] > row_height)
-        row_height = cell_height[col];
+      if (columns[col].rowspan == 0 &&
+          columns[col].start_page == columns[col].end_page &&
+	  columns[col].height > row_height)
+        row_height = columns[col].height;
 
-      if (row_spans[col] <= rowspan)
+      if (columns[col].rowspan <= rowspan)
       {
-	if (cell_page[col] != cell_endpage[col])
+	if (columns[col].start_page != columns[col].end_page)
 	  do_valign = 0;
 
-        if (cell_endpage[col] > row_page)
+        if (columns[col].end_page > row_page)
 	{
-	  row_page = cell_endpage[col];
-	  row_y    = cell_endy[col];
+	  row_page = columns[col].end_page;
+	  row_y    = columns[col].end_y;
 	}
-	else if (cell_endy[col] < row_y && cell_endpage[col] == row_page)
-	  row_y = cell_endy[col];
+	else if (columns[col].end_y < row_y && columns[col].end_page == row_page)
+	  row_y = columns[col].end_y;
       }
 
-      DEBUG_printf(("**** col = %d, row = %d, row_y = %.1f, row_page = %d\n",
+      DEBUG_printf(("**** col=%d, row=%d, row_y=%.1f, row_page=%d\n",
                     col, row, row_y, row_page));
 
       for (col ++; colspan > 0; colspan --, col ++)
       {
-        cell_start[col]   = NULL;
-        cell_page[col]    = cell_page[col - 1];
-        cell_y[col]       = cell_y[col - 1];
-	cell_end[col]     = NULL;
-        cell_endpage[col] = cell_endpage[col - 1];
-        cell_endy[col]    = cell_endy[col - 1];
-	cell_height[col]  = cell_height[col - 1];
+        columns[col].start_render = NULL;
+        columns[col].start_page   = columns[col - 1].start_page;
+        columns[col].start_y      = columns[col - 1].start_y;
+	columns[col].end_render   = NULL;
+        columns[col].end_page     = columns[col - 1].end_page;
+        columns[col].end_y        = columns[col - 1].end_y;
+	columns[col].height       = columns[col - 1].height;
       }
     }
 
-    DEBUG_printf(("row = %d, row_y = %.1f, row_height = %.1f\n", row, row_y, row_height));
+    DEBUG_printf(("row=%d, row_y=%.1f, row_height=%.1f\n", row, row_y, row_height));
 
     for (col = 0; col < num_cols; col += colspan)
     {
@@ -6668,32 +6630,36 @@ parse_table(hdTree   *t,		// I - Tree to parse
         if (cells[row][col] != cells[row][col + colspan])
           break;
 
-      if (row_spans[col])
-        span_heights[col] += row_height;
+      if (columns[col].rowspan)
+        columns[col].span_height += row_height;
 
-      DEBUG_printf(("col = %d, cell_y = %.1f, cell_page = %d, cell_endpage = %d, row_spans = %d, span_heights = %.1f, cell_height = %.1f\n",
-                    col, cell_y[col], cell_page[col], cell_endpage[col],
-		    row_spans[col], span_heights[col], cell_height[col]));
+      DEBUG_printf(("col=%d, start_y=%.1f, start_page=%d, end_page=%d, "
+                    "rowspan=%d, span_height=%.1f, height=%.1f\n",
+                    col, columns[col].start_y, columns[col].start_page,
+		    columns[col].end_page, columns[col].rowspans[col],
+		    columns[col].span_height, columns[col].height));
 
-      if (row_spans[col] == rowspan &&
-          cell_page[col] == cell_endpage[col] &&
-	  cell_height[col] > span_heights[col])
+      if (columns[col].rowspan == rowspan &&
+          columns[col].start_page == columns[col].end_page &&
+	  columns[col].height > columns[col].span_height)
       {
-        temp_height = cell_height[col] - span_heights[col];
+        temp_height = columns[col].height - columns[col].span_height;
 	row_height  += temp_height;
-	DEBUG_printf(("Adjusting row-span height by %.1f, new row_height = %.1f\n",
+	DEBUG_printf(("Adjusting row-span height by %.1f, new row_height=%.1f\n",
 	              temp_height, row_height));
 
 	for (tcol = 0; tcol < num_cols; tcol ++)
-	  if (row_spans[tcol])
+	  if (columns[col].rowspan)
 	  {
-	    span_heights[tcol] += temp_height;
-	    DEBUG_printf(("col = %d, span_heights = %.1f\n", tcol, span_heights[tcol]));
+	    columns[col].span_height += temp_height;
+	    DEBUG_printf(("columns[%d].span_height=%.1f\n", tcol,
+	                  columns[tcol].span_height));
 	  }
       }
     }
 
-    DEBUG_printf(("AFTER row = %d, row_page = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n",
+    DEBUG_printf(("AFTER row %d: row_page=%d, row_y=%.1f, row_height=%.1f, "
+                  "*y=%.1f, do_valign=%d\n",
                   row, row_page, row_y, row_height, *y, do_valign));
 
    /*
@@ -6708,7 +6674,8 @@ parse_table(hdTree   *t,		// I - Tree to parse
         if (height_var[strlen((char *)height_var) - 1] == '%')
 	  temp_height = atof((char *)height_var) * 0.01f * PagePrintLength;
 	else
-          temp_height = atof((char *)height_var) * PagePrintWidth / _htmlStyleSheet->browser_width;
+          temp_height = atof((char *)height_var) * PagePrintWidth /
+	                _htmlStyleSheet->browser_width;
 
         if (table_height > 0 && temp_height > table_height)
           temp_height = table_height;
@@ -6735,19 +6702,21 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
         colspan --;
 
-        if (cell_start[col] == NULL || row_spans[col] > rowspan ||
+        if (columns[col].start_render == NULL ||
+	    columns[col].rowspan > rowspan ||
 	    cells[row][col] == NULL || cells[row][col]->child == NULL)
 	  continue;
 
-        if (row_spans[col])
+        if (columns[col].rowspan)
           switch (cells[row][col]->style->vertical_align)
 	  {
             case HD_VERTICAL_ALIGN_MIDDLE :
-        	delta_y = (span_heights[col] - cell_height[col]) * 0.5f;
+        	delta_y = (columns[col].span_height -
+		           columns[col].height) * 0.5f;
         	break;
 
             case HD_VERTICAL_ALIGN_BOTTOM :
-        	delta_y = span_heights[col] - cell_height[col];
+        	delta_y = columns[col].span_height - columns[col].height;
         	break;
 
             default :
@@ -6758,11 +6727,11 @@ parse_table(hdTree   *t,		// I - Tree to parse
           switch (cells[row][col]->style->vertical_align)
 	  {
             case HD_VERTICAL_ALIGN_MIDDLE :
-        	delta_y = (row_height - cell_height[col]) * 0.5f;
+        	delta_y = (row_height - columns[col].height) * 0.5f;
         	break;
 
             case HD_VERTICAL_ALIGN_BOTTOM :
-        	delta_y = row_height - cell_height[col];
+        	delta_y = row_height - columns[col].height;
         	break;
 
             default :
@@ -6770,16 +6739,17 @@ parse_table(hdTree   *t,		// I - Tree to parse
         	break;
           }
 
-	DEBUG_printf(("row = %d, col = %d, valign = %d, cell_height = %.1f, span_heights = %.1f, delta_y = %.1f\n",
+	DEBUG_printf(("row=%d, col=%d, valign=%d, height=%.1f, "
+	              "span_height=%.1f, delta_y=%.1f\n",
 	              row, col, cells[row][col]->style->vertical_align,
-		      cell_height[col], span_heights[col], delta_y));
+		      columns[col].height, columns[col].span_height, delta_y));
 
         if (delta_y > 0.0f)
 	{
-	  if (cell_start[col] == cell_end[col])
-	    p = cell_start[col];
+	  if (columns[col].start_render == columns[col].end_render)
+	    p = columns[col].start_render;
 	  else
-	    p = cell_start[col]->next;
+	    p = columns[col].start_render->next;
 
           for (; p != NULL; p = p->next)
 	  {
@@ -6787,23 +6757,23 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	                  p, p->data.text.buffer, p->y, p->y - delta_y));
 
             p->y -= delta_y;
-            if (p == cell_end[col])
+            if (p == columns[col].end_render)
 	      break;
           }
         }
 #ifdef DEBUG
         else
 	{
-	  if (cell_start[col] == cell_end[col])
-	    p = cell_start[col];
+	  if (columns[col].start_render == columns[col].end_render)
+	    p = columns[col].start_render;
 	  else
-	    p = cell_start[col]->next;
+	    p = columns[col].start_render->next;
 
           for (; p != NULL; p = p->next)
 	  {
 	    printf("NOT aligning %p\n", p);
 
-            if (p == cell_end[col])
+            if (p == columns[col].end_render)
 	      break;
           }
 	}
@@ -6814,33 +6784,35 @@ parse_table(hdTree   *t,		// I - Tree to parse
     // Update all current columns with ROWSPAN <= rowspan to use the same
     // end page and row...
     for (col = 0, temp_page = -1, temp_y = 99999999; col < num_cols; col ++)
-      if (row_spans[col] <= rowspan &&
+      if (columns[col].rowspan <= rowspan &&
           cells[row][col] != NULL && cells[row][col]->child != NULL)
       {
-        if (cell_endpage[col] > temp_page)
+        if (columns[col].end_page > temp_page)
 	{
-          temp_page = cell_endpage[col];
-	  temp_y    = cell_endy[col];
+          temp_page = columns[col].end_page;
+	  temp_y    = columns[col].end_y;
 	}
-        else if (cell_endpage[col] == temp_page && cell_endy[col] < temp_y)
-	  temp_y = cell_endy[col];
+        else if (columns[col].end_page == temp_page &&
+	         columns[col].end_y < temp_y)
+	  temp_y = columns[col].end_y;
       }
 
     for (col = 0; col < num_cols; col ++)
-      if (row_spans[col] <= rowspan &&
+      if (columns[col].rowspan <= rowspan &&
           cells[row][col] != NULL && cells[row][col]->child != NULL)
       {
-        cell_endpage[col] = temp_page;
-	cell_endy[col]    = temp_y;
+        columns[col].end_page = temp_page;
+	columns[col].end_y    = temp_y;
       }
 
     row_y -= cellpadding;
 
-    border_left = col_lefts[0] - cellpadding;
-    width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
+    border_left = columns[0].left - cellpadding;
+    width       = columns[num_cols - 1].right - columns[0].left +
+                  2 * cellpadding;
 
     for (bgcolor = NULL, col = 0; col < num_cols; col ++)
-      if (row_spans[col] <= rowspan &&
+      if (columns[col].rowspan <= rowspan &&
           cells[row][col] &&
 	  !htmlGetAttr(cells[row][col], "ROWSPAN") &&
           (bgcolor = htmlGetAttr(cells[row][col]->parent,
@@ -6890,39 +6862,38 @@ parse_table(hdTree   *t,		// I - Tree to parse
       for (colspan = 0; (col + colspan) < num_cols; colspan ++)
         if (cells[row][col] != cells[row][col + colspan])
           break;
-	else if (row_spans[col + colspan] > 0)
+	else if (columns[col + colspan].rowspan > 0)
 	{
           DEBUG_printf(("row = %d, col = %d, decrementing row_spans (%d) to %d...\n", row,
-	        	col, row_spans[col + colspan],
-			row_spans[col + colspan] - rowspan));
-          row_spans[col + colspan] -= rowspan;
+	        	col, columns[col + colspan].rowspan,
+			columns[col + colspan].rowspan - rowspan));
+          columns[col + colspan].rowspan -= rowspan;
 	}
 
       colspan --;
 
-      width = col_rights[col + colspan] - col_lefts[col] +
+      width = columns[col + colspan].right - columns[col].left +
               2 * cellpadding;
 
       if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
-          row_spans[col] > 0)
+          columns[col].rowspan > 0)
         continue;
 
       DEBUG_printf(("DRAWING BORDER+BACKGROUND: col=%d, row=%d, cell_page=%d, cell_y=%.1f\n"
                     "                           cell_endpage=%d, cell_endy=%.1f\n",
-		    col, row, cell_page[col], cell_y[col],
-		    cell_endpage[col], cell_endy[col]));
+		    col, row, columns[col].start_page, columns[col].start_y,
+		    columns[col].end_page, columns[col].end_y));
 
-      if ((bgcolor = htmlGetAttr(cells[row][col],
-                                     "BGCOLOR")) != NULL)
+      if ((bgcolor = htmlGetAttr(cells[row][col], "BGCOLOR")) != NULL)
       {
         memcpy(bgrgb, background_color, sizeof(bgrgb));
 
         get_color(bgcolor, bgrgb, 0);
       }
 
-      border_left = col_lefts[col] - cellpadding;
+      border_left = columns[col].left - cellpadding;
 
-      if (cell_page[col] != cell_endpage[col])
+      if (columns[col].start_page != columns[col].end_page)
       {
        /*
         * Crossing a page boundary...
@@ -6936,25 +6907,32 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	  */
 
 	  // Top
-          new_render(cell_page[col], HD_RENDER_BOX, border_left,
-                     cell_y[col] + cellpadding,
+          new_render(columns[col].start_page, HD_RENDER_BOX, border_left,
+                     columns[col].start_y + cellpadding,
 		     width + border, border, rgb);
 	  // Left
-          new_render(cell_page[col], HD_RENDER_BOX, border_left, margins->bottom0(),
-                     border, cell_y[col] - margins->bottom0() + cellpadding + border, rgb);
+          new_render(columns[col].start_page, HD_RENDER_BOX, border_left,
+	             margins->bottom0(), border,
+		     columns[col].start_y - margins->bottom0() + cellpadding +
+		         border, rgb);
 	  // Right
-          new_render(cell_page[col], HD_RENDER_BOX,
-	             border_left + width, margins->bottom0(),
-		     border, cell_y[col] - margins->bottom0() + cellpadding + border, rgb);
+          new_render(columns[col].start_page, HD_RENDER_BOX,
+	             border_left + width, margins->bottom0(), border,
+		     columns[col].start_y - margins->bottom0() + cellpadding +
+		         border, rgb);
         }
 
         if (bgcolor != NULL)
         {
-	  cell_bg[col]->y      = margins->bottom0();
-	  cell_bg[col]->height = cell_y[col] - margins->bottom0() + cellpadding + border;
+	  columns[col].bg_render->y      = margins->bottom0();
+	  columns[col].bg_render->height = columns[col].start_y -
+	                                   margins->bottom0() + cellpadding +
+					   border;
 	}
 
-        for (temp_page = cell_page[col] + 1; temp_page < cell_endpage[col]; temp_page ++)
+        for (temp_page = columns[col].start_page + 1;
+	     temp_page < columns[col].end_page;
+	     temp_page ++)
 	{
 	 /*
 	  * |   |   |   |
@@ -6986,24 +6964,24 @@ parse_table(hdTree   *t,		// I - Tree to parse
 	  */
 
 	  // Left
-          new_render(cell_endpage[col], HD_RENDER_BOX, border_left, row_y,
+          new_render(columns[col].end_page, HD_RENDER_BOX, border_left, row_y,
                      border, margins->top() - row_y, rgb);
 	  // Right
-          new_render(cell_endpage[col], HD_RENDER_BOX,
+          new_render(columns[col].end_page, HD_RENDER_BOX,
 	             border_left + width, row_y,
                      border, margins->top() - row_y, rgb);
 	  // Bottom
-          new_render(cell_endpage[col], HD_RENDER_BOX, border_left, row_y,
+          new_render(columns[col].end_page, HD_RENDER_BOX, border_left, row_y,
                      width + border, border, rgb);
         }
 
         if (bgcolor != NULL)
 	{
-	  check_pages(cell_endpage[col]);
+	  check_pages(columns[col].end_page);
 
-          new_render(cell_endpage[col], HD_RENDER_BOX, border_left, row_y,
+          new_render(columns[col].end_page, HD_RENDER_BOX, border_left, row_y,
 	             width + border, margins->top() - row_y, bgrgb,
-		     pages[cell_endpage[col]].start);
+		     pages[columns[col].end_page].start);
 	}
       }
       else
@@ -7017,25 +6995,27 @@ parse_table(hdTree   *t,		// I - Tree to parse
         if (border > 0.0f)
 	{
 	  // Top
-          new_render(cell_page[col], HD_RENDER_BOX, border_left,
-                     cell_y[col] + cellpadding,
-		     width + border, border, rgb);
+          new_render(columns[col].start_page, HD_RENDER_BOX, border_left,
+                     columns[col].start_y + cellpadding, width + border,
+		     border, rgb);
 	  // Left
-          new_render(cell_page[col], HD_RENDER_BOX, border_left, row_y,
-                     border, cell_y[col] - row_y + cellpadding + border, rgb);
+          new_render(columns[col].start_page, HD_RENDER_BOX, border_left, row_y,
+                     border,
+		     columns[col].start_y - row_y + cellpadding + border, rgb);
 	  // Right
-          new_render(cell_page[col], HD_RENDER_BOX,
-	             border_left + width, row_y,
-                     border, cell_y[col] - row_y + cellpadding + border, rgb);
+          new_render(columns[col].start_page, HD_RENDER_BOX,
+	             border_left + width, row_y, border,
+		     columns[col].start_y - row_y + cellpadding + border, rgb);
 	  // Bottom
-          new_render(cell_page[col], HD_RENDER_BOX, border_left, row_y,
+          new_render(columns[col].start_page, HD_RENDER_BOX, border_left, row_y,
                      width + border, border, rgb);
 	}
 
         if (bgcolor != NULL)
 	{
-	  cell_bg[col]->y      = row_y;
-	  cell_bg[col]->height = cell_y[col] - row_y + cellpadding + border;
+	  columns[col].bg_render->y      = row_y;
+	  columns[col].bg_render->height = columns[col].start_y - row_y +
+	                                   cellpadding + border;
 	}
       }
     }
@@ -7046,7 +7026,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
     if (row < (num_rows - 1))
       (*y) -= cellspacing;
 
-    DEBUG_printf(("END row = %d, *y = %.1f, *page = %d\n", row, *y, *page));
+    DEBUG_printf(("END row=%d, *y=%.1f, *page=%d\n", row, *y, *page));
   }
 
  /*
@@ -7059,8 +7039,9 @@ parse_table(hdTree   *t,		// I - Tree to parse
 
     get_color(bgcolor, bgrgb, 0);
 
-    border_left = col_lefts[0] - cellpadding;
-    width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
+    border_left = columns[0].left - cellpadding;
+    width       = columns[num_cols - 1].right - columns[0].left +
+                  2 * cellpadding;
 
     if (table_page != *page)
     {
@@ -7282,7 +7263,7 @@ init_list(hdTree *t)			/* I - List entry */
  * 'parse_comment()' - Parse a comment for HTMLDOC comments.
  */
 
-#define COMMENT_DEBUG
+//#define COMMENT_DEBUG
 #ifdef COMMENT_DEBUG
 #  undef DEBUG_puts
 #  define DEBUG_puts(x) puts(x)
