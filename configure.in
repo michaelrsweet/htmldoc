@@ -319,7 +319,7 @@ elif test "$datadir" = "\${datarootdir}"; then
     datadir="$datarootdir"
 fi
 
-AC_DEFINE_UNQUOTED(HTMLDOC_DATADIR, "$datadir/htmldoc")
+AC_DEFINE_UNQUOTED(HTMLDOC_DATA, "$datadir/htmldoc")
 
 if test "$sysconfdir" = "\${prefix}/etc"; then
     if test "$prefix" = "/"; then

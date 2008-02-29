@@ -57,7 +57,7 @@
 #include <math.h>
 
 
-const char	*_htmlData = HTMLDOC_DATADIR;	// Data directory
+const char	*_htmlData = HTMLDOC_DATA;	// Data directory
 hdFontFace	_htmlBodyFont = HD_FONT_FACE_SERIF,
 		_htmlHeadingFont = HD_FONT_FACE_SANS_SERIF;
 hdStyleSheet	*_htmlStyleSheet = NULL;// Style data

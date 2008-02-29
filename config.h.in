@@ -53,7 +53,7 @@
  */
 
 #define HTMLDOC_DOCDIR	"/usr/share/doc/htmldoc"
-#define HTMLDOC_DATADIR	"/usr/share/htmldoc"
+#define HTMLDOC_DATA	"/usr/share/htmldoc"
 
 
 /*
