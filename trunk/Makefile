@@ -38,7 +38,7 @@ EPM	=	epm -v --output-dir dist
 # Subdirectories...
 #
 
-DIRS	=	@JPEG@ @ZLIB@ @PNG@ htmldoc doc
+DIRS	=	$(ZLIBDIR) $(JPEGDIR) $(PNGDIR) htmldoc doc
 INSTALLDIRS =	fonts data doc htmldoc
 
 
@@ -46,7 +46,7 @@ INSTALLDIRS =	fonts data doc htmldoc
 # Make all targets...
 #
 
-all:	Makedefs Makefile config.h htmldoc.list
+all:	Makedefs config.h htmldoc.list
 	for dir in $(DIRS); do\
 		echo Making all in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
@@ -71,6 +71,15 @@ clean:
 
 
 #
+# Remove everything that isn't included with a distribution...
+#
+
+distclean:	clean
+	$(RM) -r dist
+	$(RM) Makedefs
+
+
+#
 # Install object and target files...
 #
 
@@ -83,52 +92,19 @@ install:
 
 
 #
-# Makedefs
-#
-
-Makedefs:	Makedefs.in configure
-	if test -f config.status; then \
-		./config.status --recheck; \
-		./config.status; \
-	else \
-		./configure; \
-	fi
-	touch config.h
-
-
-#
-# Makefile
-#
-
-Makefile:	Makefile.in configure
-	if test -f config.status; then \
-		./config.status --recheck; \
-		./config.status; \
-	else \
-		./configure; \
-	fi
-	touch config.h
-
-
-#
-# config.h
+# Re-run configure script as needed...
 #
 
 config.h:	config.h.in configure
-	if test -f config.status; then \
-		./config.status --recheck; \
-		./config.status; \
-	else \
-		./configure; \
-	fi
-	touch config.h
+	$(MAKE) -$(MAKEFLAGS) reconfigure
 
-
-#
-# htmldoc.list
-#
+Makedefs:	Makedefs.in configure
+	$(MAKE) -$(MAKEFLAGS) reconfigure
 
 htmldoc.list:	htmldoc.list.in configure
+	$(MAKE) -$(MAKEFLAGS) reconfigure
+
+reconfigure:
 	if test -f config.status; then \
 		./config.status --recheck; \
 		./config.status; \
@@ -139,14 +115,19 @@ htmldoc.list:	htmldoc.list.in configure
 
 
 #
-# Make a portable binary distribution using EPM.
+# Make binary distributions using EPM.
 #
-# EPM = ESP Package Manager, available at "http://www.easysw.com/epm/".
+# EPM = ESP Package Manager, available at "http://www.epmhome.org/".
 #
 
 epm:
 	$(RM) -r dist
 	$(EPM) htmldoc
+	case `uname` in \
+		Linux*) $(EPM) -f rpm htmldoc ;; \
+		Darwin*) $(EPM) -f osx htmldoc ;; \
+		SunOS*) $(RPM) -f pkg htmdoc ;; \
+	esac
 
 
 #
