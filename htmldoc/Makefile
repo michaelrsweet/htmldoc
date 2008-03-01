@@ -139,7 +139,8 @@ depend:
 # htmldoc
 #
 
-htmldoc$(EXEEXT):	htmldoc.o $(BASEOBJS) ../Makedefs
+htmldoc$(EXEEXT):	htmldoc.o $(BASEOBJS) ../Makedefs \
+			$(PNGDEP) $(JPEGDEP) $(ZLIBDEP)
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) htmldoc.o $(BASEOBJS) $(LIBS)
 
@@ -148,7 +149,8 @@ htmldoc$(EXEEXT):	htmldoc.o $(BASEOBJS) ../Makedefs
 # testhtml
 #
 
-testhtml$(EXEEXT):	testhtml.o $(BASEOBJS) ../Makedefs
+testhtml$(EXEEXT):	testhtml.o $(BASEOBJS) ../Makedefs \
+			$(PNGDEP) $(JPEGDEP) $(ZLIBDEP)
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) testhtml.o $(BASEOBJS) $(LIBS)
 
@@ -158,7 +160,8 @@ testhtml$(EXEEXT):	testhtml.o $(BASEOBJS) ../Makedefs
 # teststyle
 #
 
-teststyle$(EXEEXT):	teststyle.o $(BASEOBJS) ../Makedefs
+teststyle$(EXEEXT):	teststyle.o $(BASEOBJS) ../Makedefs \
+			$(PNGDEP) $(JPEGDEP) $(ZLIBDEP)
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o teststyle$(EXEEXT) teststyle.o $(BASEOBJS) $(LIBS)
 

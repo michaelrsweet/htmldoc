@@ -41,6 +41,7 @@ SHELL		=	/bin/sh
 # The extension to use for executables...
 EXEEXT		=	@EXEEXT@
 
+
 #
 # Directories...
 #
@@ -61,6 +62,24 @@ srcdir		=	@srcdir@
 sysconfdir	=	@sysconfdir@
 top_srcdir	=	@top_srcdir@
 
+
+#
+# Image libraries...
+#
+
+JPEGDEP		=	@JPEGDEP@
+JPEGDIR		=	@JPEGDIR@
+JPEGINC		=	@JPEGINC@
+
+PNGDEP		=	@PNGDEP@
+PNGDIR		=	@PNGDIR@
+PNGINC		=	@PNGINC@
+
+ZLIBDEP		=	@ZLIBDEP@
+ZLIBDIR		=	@ZLIBDIR@
+ZLIBINC		=	@ZLIBINC@
+
+
 #
 # Program options...
 #
@@ -68,11 +87,12 @@ top_srcdir	=	@top_srcdir@
 #
 
 ARFLAGS		=	@ARFLAGS@
-CFLAGS		=	-I.. @CFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
-CXXFLAGS	=	-I.. @CXXFLAGS@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
+CFLAGS		=	-I.. @CFLAGS@ $(OPTIM) $(PNGINC) $(JPEGINC) $(ZLIBINC)
+CXXFLAGS	=	-I.. @CXXFLAGS@ $(OPTIM) $(PNGINC) $(JPEGINC) $(ZLIBINC)
 LDFLAGS		=	@LDFLAGS@ $(OPTIM)
-LIBS		=	@SSLLIBS@ @LIBS@
+LIBS		=	@SSLLIBS@ $(PNGDEP) $(JPEGDEP) $(ZLIBDEP) @LIBS@
 OPTIM		=	@OPTIM@ @SSLFLAGS@
+
 
 #
 # Rules...
