@@ -227,8 +227,8 @@ articles_main($link_id = PROJECT_LINK_ALL,
           db_query("COMMIT TRANSACTION");
 	}
 
-	make_rdf_file("${path}index.rss", "http://www.cups.org/", "CUPS",
-                      "CUPS News");
+	make_rdf_file("${path}index.rss", "http://www.htmldoc.org/", "HTMLDOC",
+                      "HTMLDOC News");
 	header("Location: $PHP_SELF?L$options");
 	break;
 
@@ -247,8 +247,8 @@ articles_main($link_id = PROJECT_LINK_ALL,
 	{
           $article->delete();
 
-	  make_rdf_file("${path}index.rss", "http://www.cups.org/", "CUPS",
-                	"CUPS News");
+	  make_rdf_file("${path}index.rss", "http://www.htmldoc.org/",
+                        "HTMLDOC", "HTMLDOC News");
           header("Location: $PHP_SELF?L$options");
 	}
 	else
@@ -272,8 +272,8 @@ articles_main($link_id = PROJECT_LINK_ALL,
 	break;
 
     case 'G' : // Generate RSS file...
-	make_rdf_file("${path}index.rss", "http://www.cups.org/", "CUPS",
-                      "CUPS News");
+	make_rdf_file("${path}index.rss", "http://www.htmldoc.org/", "HTMLDOC",
+                      "HTMLDOC News");
 
 	html_header("Update RSS File", $path, "$PHP_SELF?L$options", "", $links);
 
@@ -504,8 +504,8 @@ articles_main($link_id = PROJECT_LINK_ALL,
 	      notify_users($id, "modified");
 	  }
 
-	  make_rdf_file("${path}index.rss", "http://www.cups.org/", "CUPS",
-                	"CUPS News");
+	  make_rdf_file("${path}index.rss", "http://www.htmldoc.org/",
+                        "HTMLDOC", "HTMLDOC News");
 	  header("Location: $PHP_SELF?L$id$options");
 	}
 	else
