@@ -777,7 +777,7 @@ switch ($op)
 
 	  if (($priority || $status || $scope) && $search != "")
 	    print("<p>[ <a href='$PHP_SELF?L+S0+Q" . urlencode($search)
-	         ."'>Search for \"<i>$search</i>\" in all requests</a> ]</p>\n");
+	         ."'>Search for \"<i>$htmlsearch</i>\" in all requests</a> ]</p>\n");
 
 	  html_footer();
 	  exit();
