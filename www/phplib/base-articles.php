@@ -328,9 +328,11 @@ articles_main($link_id = PROJECT_LINK_ALL,
 	    html_link("Update RSS File", "$PHP_SELF?G$options");
 	  html_end_links();
 
+          $htmlsearch = htmlspecialchars($search, ENT_QUOTES);
+
           print("<form method='POST' action='$PHP_SELF?L'><p align='center'>"
 	       ."Search:&nbsp;"
-	       ."<input type='text' size='60' name='SEARCH' value='$search'>"
+	       ."<input type='text' size='60' name='SEARCH' value='$htmlsearch'>"
 	       ."<input type='submit' value='Search Articles'><br>\n"
 	       ."<i>Search supports 'and', 'or', 'not', and parenthesis. "
                ."<a href='${path}search-help.php'>More info...</a></i>");
