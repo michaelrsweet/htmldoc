@@ -319,25 +319,11 @@ articles_main($link_id = PROJECT_LINK_ALL,
 	{
           $bookmark  = "$PHP_URL?L+T" . urlencode($stype) .
 	               "+P$link_id+Q" . urlencode($search);
-          $bookstr   = str_replace(array("\\", "\""), array("\\\\", "\\\""),
-	                           $bookmark);
-          $searchstr = "$PROJECT_NAME Articles: " .
-	               str_replace(array("\\", "\""), array("\\\\", "\\\""),
-	                           $search);
-          html_header("Articles", $path, "", $links,
-	      "function add_bookmark()\n"
-	     ."{\n"
-	     ."  if (navigator.appName == \"Microsoft Internet Explorer\")\n"
-	     ."    window.external.AddFavorite(\"$bookstr\", \"$searchstr\");\n"
-	     ."  else if (navigator.appName == \"Netscape\")\n"
-	     ."    window.sidebar.addPanel(\"$searchstr\", \"$bookstr\", \"\");\n"
-	     ."  else\n"
-	     ."    alert(\"Bookmark this page to return to your search.\");\n"
-	     ."}");
+          html_header("Articles", $path, "", $links);
 
 	  html_start_links(1);
 	  html_link("Submit Article", "$PHP_SELF?U$options");
-	  html_link("Bookmark Search", $bookmark, "add_bookmark();");
+	  html_link("Link To Search Results", $bookmark);
 	  if ($LOGIN_LEVEL >= AUTH_DEVEL)
 	    html_link("Update RSS File", "$PHP_SELF?G$options");
 	  html_end_links();

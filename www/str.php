@@ -682,24 +682,10 @@ switch ($op)
       {
 	$bookmark  = "$PHP_URL?L+P$priority+S$status+C$scope+E$femail+"
 		    ."M$PAGE_MAX+Q" . urlencode($search);
-	$bookstr   = str_replace(array("\\", "\""), array("\\\\", "\\\""),
-				 $bookmark);
-	$searchstr = "$PROJECT_NAME STRs: " .
-		     str_replace(array("\\", "\""), array("\\\\", "\\\""),
-				 $search);
 
         html_header("Bugs & Features", "", "",
 	            array("Submit Bug or Feature Request" => "$PHP_SELF?U$options'",
-		          "Bookmark Search" => "$bookmark add_bookmark();"),
-		    "function add_bookmark()\n"
-		   ."{\n"
-		   ."  if (navigator.appName == \"Microsoft Internet Explorer\")\n"
-		   ."    window.external.AddFavorite(\"$bookstr\", \"$searchstr\");\n"
-		   ."  else if (navigator.appName == \"Netscape\")\n"
-		   ."    window.sidebar.addPanel(\"$searchstr\", \"$bookstr\", \"\");\n"
-		   ."  else\n"
-		   ."    alert(\"Bookmark this page to return to your search.\");\n"
-		   ."}");
+		          "Link To Search Results" => "$bookmark"));
 
         print("<form method='POST' action='$PHP_SELF'><p align='center'>"
 	     ."Search&nbsp;Words: &nbsp;<input type='text' size='60' name='SEARCH' value='$search'>"
