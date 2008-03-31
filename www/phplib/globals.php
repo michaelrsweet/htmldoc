@@ -40,7 +40,7 @@ foreach (array("argc", "argv", "REQUEST_METHOD", "SERVER_NAME", "SERVER_PORT", "
 
 // Handle PHP_SELF differently - we need to quote it properly...
 if (array_key_exists("PHP_SELF", $_SERVER))
-  $PHP_SELF = htmlspecialchars(urlencode($_SERVER["PHP_SELF"]), ENT_QUOTES);
+  $PHP_SELF = htmlspecialchars($_SERVER["PHP_SELF"], ENT_QUOTES);
 else
   $PHP_SELF = "";
 
