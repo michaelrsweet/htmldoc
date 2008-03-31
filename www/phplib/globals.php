@@ -30,13 +30,19 @@ define("PROJECT_LINK_ALL", 0);
 
 global $_COOKIE, $_FILES, $_GET, $_POST, $_SERVER;
 
-foreach (array("argc", "argv", "PHP_SELF", "REQUEST_METHOD", "SERVER_NAME", "SERVER_PORT", "REMOTE_ADDR") as $var)
+foreach (array("argc", "argv", "REQUEST_METHOD", "SERVER_NAME", "SERVER_PORT", "REMOTE_ADDR") as $var)
 {
   if (array_key_exists($var, $_SERVER))
     $$var = $_SERVER[$var];
   else
     $$var = "";
 }
+
+// Handle PHP_SELF differently - we need to quote it properly...
+if (array_key_exists("PHP_SELF", $_SERVER))
+  $PHP_SELF = htmlspecialchars(urlencode($_SERVER["PHP_SELF"]), ENT_QUOTES);
+else
+  $PHP_SELF = "";
 
 if (array_key_exists("ISHTTPS", $_SERVER))
   $PHP_URL = "https://$SERVER_NAME:$SERVER_PORT$PHP_SELF";
