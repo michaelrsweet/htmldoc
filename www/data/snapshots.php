@@ -25,8 +25,8 @@ while (list($version, $path) = each($repos))
 
   // Export this branch...
   print("Exporting $version...\n");
-  system("rm -rf /tmp/$version-r$revision");
-  system("rm -rf /tmp/htmldoc");
+  system("/bin/rm -rf /tmp/$version-r$revision");
+  system("/bin/rm -rf /tmp/htmldoc");
   print("svn export $url /tmp/htmldoc\n");
 
   $fp = popen("svn export $url /tmp/htmldoc", "r");
@@ -98,7 +98,7 @@ while (list($version, $path) = each($repos))
   }
   pclose($fp);
 
-  system("rm -rf /tmp/$version-r$revision");
+  system("/bin/rm -rf /tmp/$version-r$revision");
 }
 
 fclose($snapshots);
