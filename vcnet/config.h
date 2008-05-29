@@ -54,8 +54,8 @@
  * Locations of files (overridden by the registry...)
  */
 
-#define DOCUMENTATION	"C:/Program Files/Easy Software Products/HTMLDOC/doc"
-#define HTML_DATA	"C:/Program Files/Easy Software Products/HTMLDOC"
+#define HTMLDOC_DOCDIR	"C:/Program Files/Easy Software Products/HTMLDOC/doc"
+#define HTMLDOC_DATA	"C:/Program Files/Easy Software Products/HTMLDOC"
 
 
 /*

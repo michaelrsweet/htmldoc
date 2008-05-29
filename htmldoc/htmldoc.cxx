@@ -140,6 +140,12 @@ main(int  argc,				/* I - Number of command-line arguments */
   prefs_set_paths();
 
  /*
+  * Load preferences...
+  */
+
+  prefs_load();
+
+ /*
   * Check if we are being executed as a CGI program...
   */
 
@@ -221,12 +227,6 @@ main(int  argc,				/* I - Number of command-line arguments */
 
     document   = NULL;
     exportfunc = (exportfunc_t)html_export;
-
-   /*
-    * Load preferences...
-    */
-
-    prefs_load();
   }
 
  /*
