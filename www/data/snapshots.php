@@ -12,8 +12,6 @@ $repos = array(
   "htmldoc-1.9.x" => "trunk"
 );
 
-$snapshots = fopen("snapshots.md5", "w");
-
 reset($repos);
 while (list($version, $path) = each($repos))
 {
@@ -86,10 +84,18 @@ while (list($version, $path) = each($repos))
 
     $revisions[$version] = $revision;
   }
-  else
-    $revision = $prevrev;
 
+  system("rm -rf /tmp/$version-r$revision");
+}
+
+$snapshots = fopen("snapshots.md5", "w");
+
+reset($repos);
+while (list($version, $path) = each($repos))
+{
   // Save MD5 sums of the snapshots...
+  $revision = $revisions[$version];
+
   $fp = popen("cd /home/ftp.easysw.com/pub/htmldoc/snapshots; md5sum $version-r$revision.*", "r");
   while ($line = fgets($fp, 1024))
   {
@@ -97,8 +103,6 @@ while (list($version, $path) = each($repos))
     fwrite($snapshots, "$data[0] $basever-r$revision htmldoc/snapshots/$data[1]\n");
   }
   pclose($fp);
-
-  system("/bin/rm -rf /tmp/$version-r$revision");
 }
 
 fclose($snapshots);
