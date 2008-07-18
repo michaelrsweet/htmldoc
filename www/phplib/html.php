@@ -150,7 +150,7 @@ html_header($title = "",		// I - Additional document title
 	 ."<a href='http://www.easysw.com/htmldoc/'>"
 	 ."<img src='${path}images/htmldoc.gif' width='64' height='64' "
 	 ."border='0' alt='&lt;HTML&gt;DOC'></a></td>"
-	 ."<td class='pagetitle' colspan='2'>");
+	 ."<td class='pagetitle' colspan='2' width='100%'>");
 
     if ($title != "")
       print(htmlspecialchars($title));
@@ -159,7 +159,7 @@ html_header($title = "",		// I - Additional document title
 
     print("</td></tr>\n"
          ."<tr>"
-         ."<td class='pagelinks'>"
+         ."<td class='pagelinks' width='100%'>"
 	 ."<a href='${path}index.php'>Home</a>"
 	 ." &middot; "
 	 ."<a href='${path}articles.php'>Articles &amp; FAQs</a>"
