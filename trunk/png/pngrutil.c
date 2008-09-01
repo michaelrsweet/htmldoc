@@ -611,7 +611,7 @@ png_handle_IEND(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
    }
    png_crc_finish(png_ptr, length);
 
-   info_ptr = info_ptr; /* quiet compiler warnings about unused info_ptr */
+   (void)info_ptr; /* quiet compiler warnings about unused info_ptr */
 }
 
 #if defined(PNG_READ_gAMA_SUPPORTED)

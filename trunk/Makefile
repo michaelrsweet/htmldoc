@@ -62,12 +62,6 @@ clean:
 		echo Cleaning in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS) clean) || break;\
 	done
-	$(RM) *.bak
-	$(RM) *.bck
-	$(RM) core
-	$(RM) core.* 
-	$(RM) -r autom4te*.cache
-	$(RM) config.h config.log config.status
 
 
 #
@@ -76,6 +70,12 @@ clean:
 
 distclean:	clean
 	$(RM) -r dist
+	$(RM) *.bak
+	$(RM) *.bck
+	$(RM) core
+	$(RM) core.* 
+	$(RM) -r autom4te*.cache
+	$(RM) config.h config.log config.status
 	$(RM) Makedefs
 
 
@@ -128,6 +128,17 @@ epm:
 		Darwin*) $(EPM) -f osx htmldoc ;; \
 		SunOS*) $(RPM) -f pkg htmdoc ;; \
 	esac
+
+
+#
+# Scan code using clang (http://clang.llvm.org/StaticAnalysisUsage.html)
+#
+
+.PHONY: clang
+clang:
+	$(RM) -r clang
+	scan-build -o `pwd`/clang $(MAKE) $(MFLAGS) \
+		CC=ccc-analyzer CXX=ccc-analyzer clean all
 
 
 #

@@ -437,7 +437,7 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
             png_bytep sp, dp;
             png_uint_32 i;
             png_uint_32 row_width = row_info->width;
-            for (i = 0, sp = dp = row; i < row_width; i++)
+            for (i = 0, sp = row; i < row_width; i++)
             {
                /* does nothing
                *(dp++) = *(sp++);
@@ -445,7 +445,7 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
                *(dp++) = *(sp++);
                */
                sp+=3; dp = sp;
-               *(dp++) = (png_byte)(255 - *(sp++));
+               *(dp) = (png_byte)(255 - *(sp++));
             }
          }
          /* This inverts the alpha channel in RRGGBBAA */
@@ -455,7 +455,7 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
             png_uint_32 i;
             png_uint_32 row_width = row_info->width;
 
-            for (i = 0, sp = dp = row; i < row_width; i++)
+            for (i = 0, sp = row; i < row_width; i++)
             {
                /* does nothing
                *(dp++) = *(sp++);
@@ -467,7 +467,7 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
                */
                sp+=6; dp = sp;
                *(dp++) = (png_byte)(255 - *(sp++));
-               *(dp++) = (png_byte)(255 - *(sp++));
+               *(dp) = (png_byte)(255 - *(sp++));
             }
          }
       }
@@ -493,7 +493,7 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
             png_uint_32 i;
             png_uint_32 row_width = row_info->width;
 
-            for (i = 0, sp = dp = row; i < row_width; i++)
+            for (i = 0, sp = row; i < row_width; i++)
             {
                /* does nothing
                *(dp++) = *(sp++);
@@ -501,7 +501,7 @@ png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
                */
                sp+=2; dp = sp;
                *(dp++) = (png_byte)(255 - *(sp++));
-               *(dp++) = (png_byte)(255 - *(sp++));
+               *(dp) = (png_byte)(255 - *(sp++));
             }
          }
       }
