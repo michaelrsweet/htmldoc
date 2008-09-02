@@ -43,7 +43,7 @@ if (array_key_exists("SITE", $_GET))
   setcookie("SITE", $site, time() + 90 * 86400, "/");
 }
 else if (array_key_exists("SITE", $_COOKIE) &&
-         array_key_exists($_COOKIE["SITE"], $sitelist))
+         array_key_exists($_COOKIE["SITE"], $MIRRORS))
   $site = $_COOKIE["SITE"];
 else
   $site = mirror_closest();
