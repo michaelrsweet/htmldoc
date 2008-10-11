@@ -76,7 +76,7 @@ while (list($version, $path) = each($repos))
                ."    http://www.htmldoc.org/software.php\n\n"
 	       ."<b>This snapshot contains pre-release software and should not "
 	       ."be used on production systems.</b>\n\n"
-	       ."Commit Log:\n\n<pre>" . db_escape(wordwrap($log)) . "</pre>\n";
+	       ."Commit Log:\n\n<pre>" . db_escape(htmlspecialchars(wordwrap($log))) . "</pre>\n";
 
     db_query("INSERT INTO article VALUES(NULL, 2, 1, "
             ."'HTMLDOC $basever Developer Snapshot, r$revision', '$abstract.', 'News', "
