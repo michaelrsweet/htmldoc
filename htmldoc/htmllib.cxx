@@ -2115,9 +2115,9 @@ fix_filename(char       *filename,	// I - Original filename
   {
     filename += 3;
 #if defined(WIN32) || defined(__EMX__)
-    if ((slash = strrchr(base, '/')) != NULL)
+    if ((slash = (char *)strrchr(base, '/')) != NULL)
       *slash = '\0';
-    else if ((slash = strrchr(base, '\\')) != NULL)
+    else if ((slash = (char *)strrchr(base, '\\')) != NULL)
       *slash = '\0';
 #else
     if ((slash = (char *)strrchr(base, '/')) != NULL)

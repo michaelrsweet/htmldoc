@@ -1,399 +1,523 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="libpng"
-	SccProjectName=""
-	SccLocalPath="">
+	ProjectGUID="{1132A142-F8A1-4464-881C-7F50D77A1CD2}"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
 				InlineFunctionExpansion="2"
-				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="../vcnet,../zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;WIN32_LEAN_AND_MEAN;VC_EXTRA_LEAN;WIN32_EXTRA_LEAN"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/libpng.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				CompileAs="0"/>
+				SuppressStartupBanner="true"
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="png.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				Culture="1033"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../vcnet,../zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;WIN32_LEAN_AND_MEAN;VC_EXTRA_LEAN;WIN32_EXTRA_LEAN"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/libpng.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="pngd.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="true"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				Culture="1033"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
 		<File
-			RelativePath="..\png\png.c">
+			RelativePath="..\png\png.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngerror.c">
+			RelativePath="..\png\pngerror.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngget.c">
+			RelativePath="..\png\pngget.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngmem.c">
+			RelativePath="..\png\pngmem.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngpread.c">
+			RelativePath="..\png\pngpread.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngread.c">
+			RelativePath="..\png\pngread.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngrio.c">
+			RelativePath="..\png\pngrio.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngrtran.c">
+			RelativePath="..\png\pngrtran.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngrutil.c">
+			RelativePath="..\png\pngrutil.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngset.c">
+			RelativePath="..\png\pngset.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngtrans.c">
+			RelativePath="..\png\pngtrans.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngwio.c">
+			RelativePath="..\png\pngwio.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngwrite.c">
+			RelativePath="..\png\pngwrite.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngwtran.c">
+			RelativePath="..\png\pngwtran.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\png\pngwutil.c">
+			RelativePath="..\png\pngwutil.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					FavorSizeOrSpeed="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
+					PreprocessorDefinitions=""
+				/>
 			</FileConfiguration>
 		</File>
 	</Files>
