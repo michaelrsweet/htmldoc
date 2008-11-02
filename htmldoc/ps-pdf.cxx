@@ -5810,7 +5810,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
   memset(columns, 0, sizeof(columns));
 
   for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0,
-           caption = NULL, row = NULL;
+           caption = NULL, row = 0;
        temprow != NULL;
        temprow = tempnext)
   {
