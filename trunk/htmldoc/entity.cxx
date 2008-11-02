@@ -383,8 +383,8 @@ hdStyleSheet::get_entity(
   for (newch = 128; newch < 256; newch ++)
     if (!glyphs[newch])
     {
-      glyphs[newch]   = glyph;
-      unichars[newch] = ch;
+      glyphs[newch] = glyph;
+      unichars[ch]  = newch;
 
       if (match)
         entity_names[newch] = match;

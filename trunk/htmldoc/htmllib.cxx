@@ -2888,9 +2888,7 @@ utf8_getc(int  ch,			// I - Initial character
     goto bad_sequence;
 
   // Now that we have the Unicode value, return the mapped character...
-  unicode = _htmlStyleSheet->unichars[ch];
-
-  if (unicode)
+  if ((unicode = _htmlStyleSheet->unichars[ch]) != 0)
     return (unicode);
   else
     return (_htmlStyleSheet->get_entity(NULL, ch));
