@@ -5356,10 +5356,14 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
       r = new_render(*page, HD_RENDER_TEXT, linex - linewidth, *y + offset,
                      linewidth, linetype->height, line);
-      r->data.text.typeface = linetype->style->font->typeface;
-      r->data.text.style    = linetype->style->font->style;
-      r->data.text.spacing  = char_spacing;
-      r->data.text.size     = linetype->style->font_size;
+      if (linetype->style->font)
+      {
+	r->data.text.typeface = linetype->style->font->typeface;
+	r->data.text.style    = linetype->style->font->style;
+      }
+
+      r->data.text.spacing = char_spacing;
+      r->data.text.size    = linetype->style->font_size;
       memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
       free(linetype);
