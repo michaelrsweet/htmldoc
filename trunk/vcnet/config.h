@@ -1,9 +1,9 @@
 /*
  * "$Id$"
  *
- *   Configuration file for HTMLDOC.
+ *   Visual C++ 2008 configuration file for HTMLDOC.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2008 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -12,21 +12,73 @@
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: ESP Licensing Information
+ *       Attn: HTMLDOC Licensing Information
  *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636-3142 USA
+ *       516 Rio Grand Ct
+ *       Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: info@easysw.com
- *         WWW: http://www.easysw.com
+ *       http://www.htmldoc.org/
  */
+
+/*
+ * Beginning with VC2005, Microsoft breaks ISO C and POSIX conformance
+ * by deprecating a number of functions in the name of security, even
+ * when many of the affected functions are otherwise completely secure.
+ * The _CRT_SECURE_NO_DEPRECATE definition ensures that we won't get
+ * warnings from their use...
+ *
+ * Then Microsoft decided that they should ignore this in VC2008 and use
+ * yet another define (_CRT_SECURE_NO_WARNINGS) instead.  Bastards.
+ */
+
+#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_WARNINGS
+
+
+/*
+ * Include necessary headers...
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <ctype.h>
+#include <io.h>
+
+
+/*
+ * Microsoft also renames the POSIX functions to _name, and introduces
+ * a broken compatibility layer using the original names.  As a result,
+ * random crashes can occur when, for example, strdup() allocates memory
+ * from a different heap than used by malloc() and free().
+ *
+ * To avoid moronic problems like this, we #define the POSIX function
+ * names to the corresponding non-standard Microsoft names.
+ */
+
+#define access		_access
+#define close		_close
+#define fdopen		_fdopen
+#define getcwd		_getcwd
+#define open		_open
+#define read	        _read
+#define setmode		_setmode
+#define snprintf 	_snprintf
+#define strdup		_strdup
+#define stricmp		_stricmp
+#define strnicmp	_strnicmp
+#define timezone	_timezone
+#define unlink		_unlink
+#define vsnprintf 	_vsnprintf
+#define write		_write
+
 
 /*
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9-current"
+#define SVERSION	"1.9svn"
 
 
 /*
