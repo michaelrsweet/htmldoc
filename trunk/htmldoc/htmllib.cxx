@@ -2069,6 +2069,7 @@ fix_filename(char       *filename,	// I - Original filename
         *tempptr++ = *filename++;
     }
 
+    *tempptr = '\0';
     filename = temp;
   }
 
