@@ -1508,7 +1508,10 @@ parse_markup(hdTree *t,			// I - Current tree entry
 
   if (t->element == HD_ELEMENT_COMMENT || t->element == HD_ELEMENT_UNKNOWN)
   {
-    while (ch != EOF && cptr < (comment + sizeof(comment) - 1))
+    int lastch = ch;			// Last character seen
+
+
+    while (ch != EOF && cptr < (comment + sizeof(comment) - 2))
     {
       if (ch == '>' && t->element == HD_ELEMENT_UNKNOWN)
         break;
@@ -1516,17 +1519,14 @@ parse_markup(hdTree *t,			// I - Current tree entry
       if (ch == '\n')
         (*linenum) ++;
 
-      if (ch == '-')
+      if (ch == '-' && lastch == '-')
       {
         *cptr++ = ch;
 
         if ((ch2 = getc(fp)) == '>')
 	{
 	  // Erase trailing -->
-	  cptr --;
-	  if (*cptr == '-' && cptr > comment)
-	    cptr --;
-
+	  cptr -= 2;
 	  break;
         }
 	else
@@ -1586,7 +1586,8 @@ parse_markup(hdTree *t,			// I - Current tree entry
 	else
 	  *cptr++ = ch;
 
-        ch = getc(fp);
+        lastch = ch;
+        ch     = getc(fp);
       }
     }
 
