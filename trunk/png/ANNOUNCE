@@ -1,5 +1,5 @@
 
-Libpng 1.2.31 - August 21, 2008
+Libpng 1.2.33 - October 31, 2008
 
 This is a public release of libpng, intended for use in production codes.
 
@@ -8,48 +8,47 @@ Files available for download:
 Source files with LF line endings (for Unix/Linux) and with a
 "configure" script
 
-   libpng-1.2.31.tar.gz
-   libpng-1.2.31.tar.lzma
+   libpng-1.2.33.tar.gz
+   libpng-1.2.33.tar.lzma
      (Get the lzma codec from <http://tukaani.org/lzma>).
-   libpng-1.2.31.tar.bz2
+   libpng-1.2.33.tar.bz2
 
 Source files with LF line endings (for Unix/Linux) without the
 "configure" script
 
-   libpng-1.2.31-no-config.tar.gz
-   libpng-1.2.31-no-config.tar.lzma
-   libpng-1.2.31-no-config.tar.bz2
+   libpng-1.2.33-no-config.tar.gz
+   libpng-1.2.33-no-config.tar.lzma
+   libpng-1.2.33-no-config.tar.bz2
 
 Source files with CRLF line endings (for Windows), without the
 "configure" script
 
-   lpng1231.zip
-   lpng1231.7z
-   lpng1231.tar.bz2
+   lpng1233.zip
+   lpng1233.7z
+   lpng1233.tar.bz2
 
 Project files
 
-   libpng-1.2.31-project-netware.zip
-   libpng-1.2.31-project-wince.zip
+   libpng-1.2.33-project-netware.zip
+   libpng-1.2.33-project-wince.zip
 
 Other information:
 
-   libpng-1.2.31-README.txt
-   libpng-1.2.31-KNOWNBUGS.txt
-   libpng-1.2.31-LICENSE.txt
-   libpng-1.2.31-Y2K-compliance.txt
-   libpng-1.2.31-[previous version]-diff.txt
+   libpng-1.2.33-README.txt
+   libpng-1.2.33-KNOWNBUGS.txt
+   libpng-1.2.33-LICENSE.txt
+   libpng-1.2.33-Y2K-compliance.txt
+   libpng-1.2.33-[previous version]-diff.txt
 
-Changes since the last public release (1.2.30):
+Changes since the last public release (1.2.32):
 
-version 1.2.31 [August 21, 2008]
+version 1.2.33 [October 31, 2008]
 
-  Removed extra crc check at the end of png_handle_cHRM().  Bug introduced
-    in libpng-1.2.30 (Heiko Nitzsche).
-  Added PNG_WRITE_FLUSH_SUPPORTED block around new png_flush() call.
-  Added PNG_WRITE_FLUSH_AFTER_IEND_SUPPORTED block, off by default, around
-    new png_flush().
-
+  Revised makefile.darwin to fix shared library numbering.
+  Change png_set_gray_1_2_4_to_8() to png_set_expand_gray_1_2_4_to_8()
+    in example.c (debian bug report)
+  Changed remaining "key" to "png_ptr->chunkdata" in png_handle_tEXt()
+    to avoid memory leak after memory failure while reading tEXt chunk.`
 
 Send comments/corrections/commendations to png-mng-implement at lists.sf.net
 (subscription required; visit 
