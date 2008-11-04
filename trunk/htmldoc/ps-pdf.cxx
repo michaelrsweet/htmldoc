@@ -3566,7 +3566,7 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
 
   dot_width = t->style->get_width((hdChar *)".");
 
-  if (heading >= 0)
+  if (heading >= 0 && heading < num_headings)
   {
     hpage       = heading_pages[heading];
     numberwidth = t->style->get_width((hdChar *)pages[hpage].page_text) +
