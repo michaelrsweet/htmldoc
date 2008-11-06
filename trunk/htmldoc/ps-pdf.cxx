@@ -709,30 +709,59 @@ pspdf_export(hdTree *document,		/* I - Document to export */
   margins         = new hdMargin(0.0f, PagePrintWidth, 0.0f, PagePrintLength);
 
   // Adjust top margin as needed...
-  for (pos = 0; pos < 3; pos ++)
-    if (Header[pos] || Header1[pos])
-      break;
+  float adjust, image_adjust, temp_adjust;
 
-  if (pos < 3)
+  if (maxhfheight > HeadFootSize)
+    image_adjust = maxhfheight + HeadFootSize;
+  else
+    image_adjust = 2 * HeadFootSize;
+
+  for (adjust = 0.0, pos = 0; pos < 3; pos ++)
   {
-    if (maxhfheight > HeadFootSize)
-      margins->adjust_top(-(maxhfheight + HeadFootSize));
-    else
-      margins->adjust_top(-2 * HeadFootSize);
+    if (Header[pos])
+    {
+      if (strstr(Header[pos], "$IMAGE") != NULL ||
+          strstr(Header[pos], "$HFIMAGE") != NULL)
+        temp_adjust = image_adjust;
+      else
+        temp_adjust = 2 * HeadFootSize;
+
+      if (temp_adjust > adjust)
+        adjust = temp_adjust;
+    }
+
+    if (Header1[pos])
+    {
+      if (strstr(Header1[pos], "$IMAGE") != NULL ||
+          strstr(Header1[pos], "$HFIMAGE") != NULL)
+        temp_adjust = image_adjust;
+      else
+        temp_adjust = 2 * HeadFootSize;
+
+      if (temp_adjust > adjust)
+        adjust = temp_adjust;
+    }
   }
+
+  margins->adjust_top(-adjust);
 
   // Adjust bottom margin as needed...
-  for (pos = 0; pos < 3; pos ++)
-    if (Footer[pos])
-      break;
-
-  if (pos < 3)
+  for (adjust = 0.0, pos = 0; pos < 3; pos ++)
   {
-    if (maxhfheight > HeadFootSize)
-      margins->adjust_bottom(maxhfheight + HeadFootSize);
-    else
-      margins->adjust_bottom(2 * HeadFootSize);
+    if (Footer[pos])
+    {
+      if (strstr(Footer[pos], "$IMAGE") != NULL ||
+          strstr(Footer[pos], "$HFIMAGE") != NULL)
+        temp_adjust = image_adjust;
+      else
+        temp_adjust = 2 * HeadFootSize;
+
+      if (temp_adjust > adjust)
+        adjust = temp_adjust;
+    }
   }
+
+  margins->adjust_bottom(adjust);
 
   y = margins->top();
 
@@ -7290,8 +7319,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
   char		*ptr,			/* Pointer into value string */
 		buffer[1024];		/* Buffer for strings */
   int		pos,			/* Position (left, center, right) */
-		tof,			/* Top of form */
-		hfspace;		/* Space for header/footer */
+		tof;			/* Top of form */
   float		right,			// Right margin
 		top;			// Top margin
 
@@ -8194,21 +8222,41 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       }
 
       // Adjust top margin as needed...
-      for (pos = 0; pos < 3; pos ++)
-        if (Header[pos] || Header1[pos])
-	  break;
+      float adjust, image_adjust, temp_adjust;
 
-      if (pos < 3)
-      {
-	if (maxhfheight > HeadFootSize)
-          hfspace = (int)(maxhfheight + HeadFootSize);
-	else
-          hfspace = (int)(2 * HeadFootSize);
-      }
+      if (maxhfheight > HeadFootSize)
+	image_adjust = maxhfheight + HeadFootSize;
       else
-        hfspace = 0;
+	image_adjust = 2 * HeadFootSize;
 
-      margins->adjust_top(PagePrintLength - hfspace - margins->top());
+      for (adjust = 0.0, pos = 0; pos < 3; pos ++)
+      {
+	if (Header[pos])
+	{
+	  if (strstr(Header[pos], "$IMAGE") != NULL ||
+	      strstr(Header[pos], "$HFIMAGE") != NULL)
+	    temp_adjust = image_adjust;
+	  else
+	    temp_adjust = 2 * HeadFootSize;
+
+	  if (temp_adjust > adjust)
+	    adjust = temp_adjust;
+	}
+
+	if (Header1[pos])
+	{
+	  if (strstr(Header1[pos], "$IMAGE") != NULL ||
+	      strstr(Header1[pos], "$HFIMAGE") != NULL)
+	    temp_adjust = image_adjust;
+	  else
+	    temp_adjust = 2 * HeadFootSize;
+
+	  if (temp_adjust > adjust)
+	    adjust = temp_adjust;
+	}
+      }
+
+      margins->adjust_top(PagePrintLength - adjust - margins->top());
 
       if (tof)
         *y = margins->top();
@@ -8281,6 +8329,43 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
         Header1[pos] = strdup(buffer);
       else
         Header1[pos] = NULL;
+
+      // Adjust top margin as needed...
+      float adjust, image_adjust, temp_adjust;
+
+      if (maxhfheight > HeadFootSize)
+	image_adjust = maxhfheight + HeadFootSize;
+      else
+	image_adjust = 2 * HeadFootSize;
+
+      for (adjust = 0.0, pos = 0; pos < 3; pos ++)
+      {
+	if (Header[pos])
+	{
+	  if (strstr(Header[pos], "$IMAGE") != NULL ||
+	      strstr(Header[pos], "$HFIMAGE") != NULL)
+	    temp_adjust = image_adjust;
+	  else
+	    temp_adjust = 2 * HeadFootSize;
+
+	  if (temp_adjust > adjust)
+	    adjust = temp_adjust;
+	}
+
+	if (Header1[pos])
+	{
+	  if (strstr(Header1[pos], "$IMAGE") != NULL ||
+	      strstr(Header1[pos], "$HFIMAGE") != NULL)
+	    temp_adjust = image_adjust;
+	  else
+	    temp_adjust = 2 * HeadFootSize;
+
+	  if (temp_adjust > adjust)
+	    adjust = temp_adjust;
+	}
+      }
+
+      margins->adjust_top(PagePrintLength - adjust - margins->top());
 
       if (tof)
       {
@@ -8369,19 +8454,30 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       }
 
       // Adjust bottom margin as needed...
-      for (pos = 0; pos < 3; pos ++)
-        if (Footer[pos])
-	  break;
+      float adjust, image_adjust, temp_adjust;
 
-      if (pos == 3)
-        hfspace = 0;
-      else if (maxhfheight > HeadFootSize)
-        hfspace = (int)(maxhfheight + HeadFootSize);
+      if (maxhfheight > HeadFootSize)
+	image_adjust = maxhfheight + HeadFootSize;
       else
-        hfspace = (int)(2 * HeadFootSize);
+	image_adjust = 2 * HeadFootSize;
+
+      for (adjust = 0.0, pos = 0; pos < 3; pos ++)
+      {
+	if (Footer[pos])
+	{
+	  if (strstr(Footer[pos], "$IMAGE") != NULL ||
+	      strstr(Footer[pos], "$HFIMAGE") != NULL)
+	    temp_adjust = image_adjust;
+	  else
+	    temp_adjust = 2 * HeadFootSize;
+
+	  if (temp_adjust > adjust)
+	    adjust = temp_adjust;
+	}
+      }
 
       if (tof)
-        margins->adjust_bottom(hfspace - margins->bottom0());
+        margins->adjust_bottom(adjust - margins->bottom0());
     }
     else if (strncasecmp(comment, "NUMBER-UP ", 10) == 0)
     {
