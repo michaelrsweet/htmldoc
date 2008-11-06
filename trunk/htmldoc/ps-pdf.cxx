@@ -1757,9 +1757,9 @@ pspdf_prepare_heading(int    page,	// I - Page number
       temp->data.text.typeface = style->font->typeface;
       temp->data.text.style    = style->font->style;
       temp->data.text.size     = style->font_size;
-      temp->data.text.rgb[0]   = style->color[0];
-      temp->data.text.rgb[1]   = style->color[1];
-      temp->data.text.rgb[2]   = style->color[2];
+      temp->data.text.rgb[0]   = style->color[0] / 255.0;
+      temp->data.text.rgb[1]   = style->color[1] / 255.0;
+      temp->data.text.rgb[2]   = style->color[2] / 255.0;
     }
   }
 }
@@ -8786,9 +8786,9 @@ new_render(int      page,	/* I - Page number (0-n) */
         }
 	// Safe because buffer is allocated...
         strcpy((char *)r->data.text.buffer, (char *)data);
-        r->data.text.rgb[0] = _htmlStyleSheet->def_style.color[0];
-        r->data.text.rgb[1] = _htmlStyleSheet->def_style.color[1];
-        r->data.text.rgb[2] = _htmlStyleSheet->def_style.color[2];
+        r->data.text.rgb[0] = _htmlStyleSheet->def_style.color[0] / 255.0;
+        r->data.text.rgb[1] = _htmlStyleSheet->def_style.color[1] / 255.0;
+        r->data.text.rgb[2] = _htmlStyleSheet->def_style.color[2] / 255.0;
         break;
     case HD_RENDER_IMAGE :
         if (data == NULL)
