@@ -553,7 +553,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
       if (debug_file)
 	fprintf(debug_file, "%*sfragment \"%s\" (len=%d), line %d\n",
-	        debug_indent, "", s, ptr - s, linenum);
+	        debug_indent, "", s, (int)(ptr - s), linenum);
     }
     else
     {
@@ -642,7 +642,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
       if (debug_file)
 	fprintf(debug_file, "%*sfragment \"%s\" (len=%d), line %d\n",
-	        debug_indent, "", s, ptr - s, linenum);
+	        debug_indent, "", s, (int)(ptr - s), linenum);
     }
 
     // If the parent tree pointer is not null and this is the first

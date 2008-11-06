@@ -1,8 +1,10 @@
-CHANGES.txt - 2008-11-03
+CHANGES.txt - 2008-11-05
 ------------------------
 
 CHANGES IN HTMLDOC v1.9b1
 
+	- The header and footer margins no longer include the logo
+	  image height if no image is used (STR #174)
 	- The table-of-contents code did not validate the current
 	  heading number (STR #183)
 	- HTMLDOC no longer terminates comments when it sees only
