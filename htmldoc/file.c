@@ -935,7 +935,7 @@ file_method(const char *s)	/* I - Filename or URL */
  */
 
 void
-file_nolocal()
+file_nolocal(void)
 {
   no_local = 1;
 }
