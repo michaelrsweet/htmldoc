@@ -21,31 +21,41 @@
 //
 // Contents:
 //
-//   htmlReadFile()      - Read a file for HTML markup codes.
-//   write_file()        - Write a tree entry to a file...
-//   htmlWriteFile()     - Write an HTML markup tree to a file.
-//   htmlAddTree()       - Add a tree node to the parent.
-//   htmlDeleteTree()    - Free all memory associated with a tree...
-//   htmlInsertTree()    - Insert a tree node to the parent.
-//   htmlNewTree()       - Create a new tree node for the parent.
-//   htmlGetText()       - Get all text from the given tree.
-//   htmlGetMeta()       - Get document "meta" data...
-//   htmlGetStyle()      - Get a style value from a node's STYLE attribute.
-//   htmlGetAttr()       - Get a variable value from a markup entry.
-//   htmlSetAttr()       - Set a variable for a markup entry.
-//   compare_variables() - Compare two markup variables.
-//   delete_node()       - Free all memory associated with a node...
-//   insert_space()      - Insert a whitespace character before the
-//                         specified node.
-//   parse_markup()      - Parse a markup string.
-//   parse_variable()    - Parse a markup variable string.
-//   compute_size()      - Compute the width and height of a tree entry.
-//   compute_color()     - Compute the red, green, blue color from the given
-//   get_alignment()     - Get horizontal & vertical alignment values.
-//   fix_filename()      - Fix a filename to be relative to the base directory.
-//   html_memory_used()  - Figure out the amount of memory that was used.
-//   htmlDebugStats()    - Display debug statistics for HTML tree memory use.
-//   utf8_getc()         - Get a UTF-8 encoded character.
+//   htmlSetDebugFile()     - Set the file to send debugging information.
+//   htmlReadFile()         - Read a file for HTML markup codes.
+//   write_file()           - Write a tree entry to a file...
+//   htmlWriteFile()        - Write an HTML markup tree to a file.
+//   htmlAddTree()          - Add a tree node to the parent.
+//   htmlDeleteTree()       - Free all memory associated with a tree...
+//   htmlInsertTree()       - Insert a tree node under the parent.
+//   htmlNewTree()          - Create a new tree node for the parent.
+//   htmlGetText()          - Get all text from the given tree.
+//   htmlGetMeta()          - Get document "meta" data...
+//   htmlGetAttr()          - Get a variable value from a markup entry.
+//   htmlSetAttr()          - Set a variable for a markup entry.
+//   compare_variables()    - Compare two markup variables.
+//   delete_node()          - Free all memory associated with a node...
+//   insert_space()         - Insert a whitespace character before the specified
+//                            node.
+//   parse_markup()         - Parse a markup string.
+//   parse_variable()       - Parse a markup variable string.
+//   compute_size()         - Compute the width and height of a tree entry.
+//   fix_filename()         - Fix a filename to be relative to the base
+//                            directory.
+//   html_memory_used()     - Figure out the amount of memory that was used.
+//   htmlDebugStats()       - Display debug statistics for HTML tree memory use.
+//   style_memory_used()    - Figure out the amount of memory that was used for
+//                            styles.
+//   htmlDebugStyleStats()  - Display debug statistics for stylesheet memory
+//                            use.
+//   htmlFindElement()      - Find an element in the document.
+//   htmlFindFile()         - Find a file in the document.
+//   htmlFixLinks()         - Fix the external links in the document.
+//   htmlDeleteStyleSheet() - Delete all of the stylesheet data.
+//   htmlInitStyleSheet()   - Initialize the stylesheet data.
+//   htmlRealNext()         - Return the next logical node in the tree.
+//   htmlUpdateStyle()      - Update the style data for a node.
+//   utf8_getc()            - Get a UTF-8 encoded character.
 //
 
 //

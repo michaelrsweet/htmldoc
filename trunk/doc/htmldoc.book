@@ -1,5 +1,5 @@
 #HTMLDOC 1.9
--t pdf15 -f htmldoc.pdf --book --toclevels 3 --title --linkstyle none --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --footer h.1 --tocheader .t. --tocfooter ..i --duplex --compression=9 --jpeg=75 --fontsize 11.0 --fontspacing 1.2 --headingfont Sans --bodyfont Sans --headfootsize 11.0 --headfootfont Sans-Oblique --browserwidth 680 --words htmldoc.words
+-t pdf14 -f htmldoc.pdf --book --toclevels 3 --title --linkstyle none --size Universal --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --footer h.1 --tocheader .t. --tocfooter ..i --duplex --compression=9 --jpeg=75 --fontsize 11.0 --fontspacing 1.2 --headingfont Sans --bodyfont Sans --headfootsize 11.0 --headfootfont Sans-Oblique --browserwidth 680 --words htmldoc.words
 intro.html
 1-install.html
 2-starting.html
