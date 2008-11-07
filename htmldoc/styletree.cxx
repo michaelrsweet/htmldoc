@@ -110,8 +110,10 @@ hdStyleSheet::get_private_style(
   sprintf(id, "_HD_%08X", private_id ++);
 
   // Create a new style derived from this node...
-  hdStyleSelector	selector(t->element, NULL, NULL, id);
-  					// Selector for private style
+  hdStyleSelector	selector(t->element, (char *)htmlGetAttr(t, "CLASS"),
+                                 t->element == HD_ELEMENT_A &&
+				     htmlGetAttr(t, "HREF") ? "link" : NULL,
+				 id);	// Selector for private style
 
   DEBUG_printf(("t->style->white_space=%d, nstyle->white_space=%d\n",
         	t->style ? t->style->white_space : -1,
@@ -146,7 +148,13 @@ hdStyleSheet::get_private_style(
     {
       existing = styles[i];
 
-      if (existing->selectors[0].element != t->element)
+      if (existing->selectors[0].element != t->element ||
+          (existing->selectors[0].class_ != NULL) != (selector.class_ != NULL) ||
+          (existing->selectors[0].class_  &&
+	   strcasecmp(existing->selectors[0].class_, selector.class_)) ||
+          (existing->selectors[0].pseudo != NULL) != (selector.pseudo != NULL) ||
+          (existing->selectors[0].pseudo  &&
+	   strcasecmp(existing->selectors[0].pseudo, selector.pseudo)))
         break;
 
       if (memcmp(style->background_color, existing->background_color, 3) ||
