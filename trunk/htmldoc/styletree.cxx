@@ -27,9 +27,9 @@
 // Include necessary headers.
 //
 
+//#define DEBUG
 #include "htmldoc.h"
 #include "hdstring.h"
-//#define DEBUG
 
 
 //
@@ -100,10 +100,10 @@ hdStyleSheet::get_private_style(
   }
 
 #ifdef DEBUG
-  printf("%s style: %s, font-family=\"%s\", font-weight=%d...\n",
+  printf("%s style: %s, font-family=\"%s\", font-weight=%d, font-size=%.1f...\n",
          _htmlStyleSheet->get_element(t->element),
          _htmlStyleSheet->get_element(nstyle->selectors[0].element),
-	 nstyle->font_family, nstyle->font_weight);
+	 nstyle->font_family, nstyle->font_weight, nstyle->font_size);
 #endif // DEBUG
 
   // Setup a private selector ID for this node...
@@ -121,14 +121,19 @@ hdStyleSheet::get_private_style(
   DEBUG_printf(("t->style->line_height=%.1f, nstyle->line_height=%.1f\n",
         	t->style ? t->style->line_height : -1,
 		nstyle ? nstyle->line_height : -1));
+  DEBUG_printf(("t->style->font_size=%.1f, nstyle->font_size=%.1f\n",
+        	t->style ? t->style->font_size : -1,
+		nstyle ? nstyle->font_size : -1));
 
   style = new hdStyle(1, &selector, t->style);
   DEBUG_printf(("    BEFORE style->white_space=%d\n", style->white_space));
   DEBUG_printf(("    BEFORE style->line_height=%.1f\n", style->line_height));
+  DEBUG_printf(("    BEFORE style->font_size=%.1f\n", style->font_size));
 
   style->inherit(nstyle);
   DEBUG_printf(("    AFTER style->white_space=%d\n", style->white_space));
   DEBUG_printf(("    AFTER style->line_height=%.1f\n", style->line_height));
+  DEBUG_printf(("    AFTER style->font_size=%.1f\n", style->font_size));
 
   // Apply the STYLE attribute for this node, if any...
   if ((style_attr = (char *)htmlGetAttr(t, "STYLE")) != NULL)
