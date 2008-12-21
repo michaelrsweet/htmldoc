@@ -3,7 +3,7 @@
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2008 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -55,13 +55,6 @@
 #  include <unistd.h>
 #  include <sys/time.h>
 #endif // WIN32
-
-#ifdef __EMX__
-extern "C" {
-const char *__XOS2RedirRoot(const char *);
-}
-#endif
- 
 
 /*
  * Local types...
@@ -149,8 +142,9 @@ main(int  argc,				/* I - Number of command-line arguments */
   * Check if we are being executed as a CGI program...
   */
 
-  if (getenv("GATEWAY_INTERFACE") && getenv("SERVER_NAME") &&
-      getenv("SERVER_SOFTWARE") && !getenv("HTMLDOC_NOCGI"))
+  if (!getenv("HTMLDOC_NOCGI") &&
+      getenv("GATEWAY_INTERFACE") && getenv("SERVER_NAME") &&
+      getenv("SERVER_SOFTWARE") && getenv("PATH_TRANSLATED"))
   {
     const char	*path_translated;	// PATH_TRANSLATED env var
     char	bookfile[1024];		// Book filename
@@ -179,8 +173,8 @@ main(int  argc,				/* I - Number of command-line arguments */
     PDFPageMode   = HD_PDF_DOCUMENT;
     PDFFirstPage  = HD_PDF_PAGE_1;
 
-    file_cookies(getenv("HTTP_COOKIE"));
-    file_referer(getenv("HTTP_REFERER"));
+    hdFile::cookies(getenv("HTTP_COOKIE"));
+    hdFile::referer(getenv("HTTP_REFERER"));
 
     progress_error(HD_ERROR_NONE, "INFO: HTMLDOC " SVERSION " starting in CGI mode.");
 #ifdef WIN32
@@ -206,7 +200,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       {
         // Not found, try `dirname $PATH_TRANSLATED`/.book
         snprintf(bookfile, sizeof(bookfile), "%s/.book",
-	         file_directory(path_translated));
+	         hdFile::directory(path_translated));
         if (access(bookfile, 0))
 	  strlcpy(bookfile, ".book", sizeof(bookfile));
       }
@@ -217,7 +211,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     if (!access(bookfile, 0))
       load_book(bookfile, &document, &exportfunc, 1);
     else
-      file_nolocal();
+      hdFile::no_local(true);
   }
   else
   {
@@ -354,7 +348,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        file_cookies(argv[i]);
+        hdFile::cookies(argv[i]);
       else
         usage(argv[i - 1]);
     }
@@ -769,7 +763,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     else if (compare_strings(argv[i], "--no-links", 7) == 0)
       Links = 0;
     else if (compare_strings(argv[i], "--no-localfiles", 7) == 0)
-      file_nolocal();
+      hdFile::no_local(true);
     else if (compare_strings(argv[i], "--no-numbered", 6) == 0)
       TocNumbers = 0;
     else if (compare_strings(argv[i], "--no-overflow", 6) == 0)
@@ -824,7 +818,7 @@ main(int  argc,				/* I - Number of command-line arguments */
         strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 0;
 
-        if ((extension = file_extension(argv[i])) != NULL)
+        if ((extension = hdFile::extension(argv[i])) != NULL)
         {
           if (strcasecmp(extension, "ps") == 0)
           {
@@ -935,7 +929,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       if (i < argc)
       {
         strlcpy(Proxy, argv[i], sizeof(Proxy));
-	file_proxy(Proxy);
+	hdFile::proxy(Proxy);
       }
       else
         usage(argv[i - 1]);
@@ -948,7 +942,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        file_referer(argv[i]);
+        hdFile::referer(argv[i]);
       else
         usage(argv[i - 1]);
     }
@@ -1225,7 +1219,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   htmlDeleteTree(document);
   htmlDeleteTree(toc);
 
-  file_cleanup();
+  hdFile::cleanup();
   image_flush_cache();
 
   return (Errors);
@@ -1305,7 +1299,7 @@ prefs_load(void)
 
   if ((fp = fopen(prefs_getrc(), "r")) != NULL)
   {
-    while (file_gets(line, sizeof(line), fp) != NULL)
+    while (hdFile::gets(line, sizeof(line), fp) != NULL)
     {
       if (line[strlen(line) - 1] == '\n')
         line[strlen(line) - 1] = '\0';
@@ -1649,7 +1643,7 @@ static int				// O  - 1 = success, 0 = failure
 load_book(const char   *filename,	// I  - Book file
           hdTree       **document,	// IO - Document tree
           exportfunc_t *exportfunc,	// O  - Export function
-          int          set_nolocal)	// I  - Set file_nolocal() after lookup?
+          int          set_nolocal)	// I  - Set hdFile::no_local(true) after lookup?
 {
   FILE		*fp;			// File to read from
   char		line[10240];		// Line from file
@@ -1659,7 +1653,7 @@ load_book(const char   *filename,	// I  - Book file
 
 
   // See if the filename contains a path...
-  dir = file_directory(filename);
+  dir = hdFile::directory(filename);
 
   if (dir != NULL)
     snprintf(path, sizeof(path), "%s;%s", dir, Path);
@@ -1667,10 +1661,10 @@ load_book(const char   *filename,	// I  - Book file
     strlcpy(path, Path, sizeof(path));
 
   // Open the file...
-  local = file_find(Path, filename);
+  local = hdFile::find(Path, filename);
 
   if (set_nolocal)
-    file_nolocal();
+    hdFile::no_local(true);
 
   if (!local)
     return (0);
@@ -1683,7 +1677,7 @@ load_book(const char   *filename,	// I  - Book file
   }
 
   // Get the header...
-  file_gets(line, sizeof(line), fp);
+  hdFile::gets(line, sizeof(line), fp);
   if (strncmp(line, "#HTMLDOC", 8) != 0)
   {
     fclose(fp);
@@ -1696,7 +1690,7 @@ load_book(const char   *filename,	// I  - Book file
   // be the file count; for new files this will be the options...
   do
   {
-    file_gets(line, sizeof(line), fp);
+    hdFile::gets(line, sizeof(line), fp);
 
     if (line[0] == '-')
     {
@@ -1711,7 +1705,7 @@ load_book(const char   *filename,	// I  - Book file
   while (!line[0]);			// Skip blank lines
 
   // Get input files/options...
-  while (file_gets(line, sizeof(line), fp) != NULL)
+  while (hdFile::gets(line, sizeof(line), fp) != NULL)
   {
     if (!line[0])
       continue;				// Skip blank lines
@@ -2267,10 +2261,10 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--proxy") == 0)
     {
       strlcpy(Proxy, temp2, sizeof(Proxy));
-      file_proxy(Proxy);
+      hdFile::proxy(Proxy);
     }
     else if (strcmp(temp, "--cookies") == 0)
-      file_cookies(temp2);
+      hdFile::cookies(temp2);
   }
 }
 
@@ -2293,7 +2287,7 @@ read_file(const char *filename,		// I  - File/URL to read
   DEBUG_printf(("read_file(filename=\"%s\", document=%p, path=\"%s\")\n",
                 filename, document, path));
 
-  if ((realname = file_find(path, filename)) != NULL)
+  if ((realname = hdFile::find(path, filename)) != NULL)
   {
     if ((docfile = fopen(realname, "rb")) != NULL)
     {
@@ -2307,10 +2301,10 @@ read_file(const char *filename,		// I  - File/URL to read
       _htmlStyleSheet->ppi = 72.0f * _htmlStyleSheet->browser_width /
                              (PageWidth - PageLeft - PageRight);
 
-      strlcpy(base, file_directory(filename), sizeof(base));
+      strlcpy(base, hdFile::directory(filename), sizeof(base));
 
       file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
-      htmlSetAttr(file, "_HD_FILENAME", (hdChar *)file_basename(filename));
+      htmlSetAttr(file, "_HD_FILENAME", (hdChar *)hdFile::basename(filename));
       htmlSetAttr(file, "_HD_BASE", (hdChar *)base);
 
       htmlReadFile(file, docfile, base);
@@ -2413,7 +2407,7 @@ term_handler(int signum)	// I - Signal number
 {
   REF(signum);
 
-  file_cleanup();
+  hdFile::cleanup();
   image_flush_cache();
   exit(1);
 }

@@ -3,7 +3,7 @@
 #
 #   Makefile for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2005 by Easy Software Products.
+#   Copyright 1997-2008 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -34,20 +34,25 @@ include ../Makedefs
 BASEOBJS =	\
 		entity.o \
 		file.o \
+		file-ascii.o \
+		file-common.o \
+		file-flate.o \
+		file-jpeg.o \
+		file-mem.o \
+		file-open.o \
+		file-rc4.o \
+		file-std.o \
 		html.o \
 		htmllib.o \
 		htmlsep.o \
 		http.o \
-		http-addr.o \
-		http-addrlist.o \
-		http-support.o \
+		http-md5.o \
 		image.o \
 		index.o \
 		margin.o \
 		md5.o \
 		progress.o \
 		ps-pdf.o \
-		rc4.o \
 		snprintf.o \
 		string.o \
 		style.o \
@@ -64,22 +69,27 @@ OBJS	=	\
 		teststyle.o
 SRCS	=	\
 		entity.cxx \
-		file.c \
+		file.cxx \
+		file-ascii.cxx \
+		file-common.cxx \
+		file-flate.cxx \
+		file-jpeg.cxx \
+		file-mem.cxx \
+		file-open.cxx \
+		file-rc4.cxx \
+		file-std.cxx \
 		html.cxx \
 		htmldoc.cxx \
 		htmllib.cxx \
 		htmlsep.cxx \
-		http.c \
-		http-addr.c \
-		http-addrlist.c \
-		http-support.c \
+		http.cxx \
+		http-md5.cxx \
 		image.cxx \
 		index.cxx \
 		margin.cxx \
-		md5.c \
+		md5.cxx \
 		progress.cxx \
 		ps-pdf.cxx \
-		rc4.c \
 		snprintf.c \
 		string.c \
 		style.cxx \
