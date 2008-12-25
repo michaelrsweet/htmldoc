@@ -62,8 +62,7 @@ class hdFile				//// Base file class...
   static bool		no_local_;	// Allow local files to be opened?
 
   static char		*proxy_;	// HTTP proxy URL
-  static char		proxy_host_[HD_MAX_URI];
-					// HTTP proxy hostname
+  static char		*proxy_host_;	// HTTP proxy hostname
   static int		proxy_port_;	// HTTP proxy port
   static char		*referer_;	// HTTP referer, if any
   static int		temp_files_,	// Number of temporary files
@@ -71,163 +70,181 @@ class hdFile				//// Base file class...
   static hdCache	*temp_cache_;	// Cache data
 
   // Common per-file data...
-  hdMode	mode_;			// Open mode
-  long		pos_;			// Position in file
-  int		error_;			// Last error
+  int			error_;		// Last error
+  hdMode		mode_;		// Open mode
+  size_t		pos_;		// Position in file
+  char			*uri_;		// URI of opened file
 
   protected:
 
-  void		mode(hdMode m) { mode_ = m; }
-  void		pos(long p) { pos_ = p; }
-  void		error(int e) { error_ = e; }
+  void			error(int e) { error_ = e; }
+  void			mode(hdMode m) { mode_ = m; }
+  void			pos(size_t p) { pos_ = p; }
+  void			uri(const char *u);
 
   public:
 
   // Virtual methods that must be implemented by subclasses
-  virtual ~hdFile();
+  virtual		~hdFile();
 
-  virtual int	get() = 0;
-  virtual int	put(int c) = 0;
-  virtual int	read(void *b, int len) = 0;
-  virtual int	seek(long p, int w) = 0;
-  virtual long	size() = 0;
-  virtual int	write(const void *b, int len) = 0;
-  virtual int	unget(int c) = 0;
+  virtual int		get() = 0;
+  virtual int		put(int c) = 0;
+  virtual ssize_t	read(void *b, size_t len) = 0;
+  virtual ssize_t	seek(ssize_t p, int whence) = 0;
+  virtual size_t	size() = 0;
+  virtual ssize_t	write(const void *b, size_t len) = 0;
+  virtual int		unget(int c) = 0;
 
   // Common methods for all file classes...
-  int		error() { return error_; }
-  char		*gets(char *s, int slen);
-  hdMode	mode() { return (mode_); }
-  long		pos() { return (pos_); }
-  int		printf(const char *f, ...);
-  int		puts(const char *s);
+  char			*basename(char *t, size_t tlen)
+			{ return (basename(uri_, t, tlen)); }
+  char			*dirname(char *t, size_t tlen)
+			{ return (dirname(uri_, t, tlen)); }
+  int			error() { return error_; }
+  const char		*error_string();
+  char			*extension(char *t, size_t tlen)
+			{ return (extension(uri_, t, tlen)); }
+  char			*gets(char *s, size_t slen);
+  hdMode		mode() { return (mode_); }
+  size_t		pos() { return (pos_); }
+  int			printf(const char *f, ...);
+  int			puts(const char *s);
+  const char		*scheme() { return (scheme(uri_)); }
+  const char		*target() { return (target(uri_)); }
+  const char		*uri() { return (uri_); }
 
   // Static (global) methods for all files...
-  static char	*basename(const char *uri, char *t, int tlen);
-  static void	cleanup(void);
-  static const char *cookies() { return (cookies_); }
-  static void	cookies(const char *c);
-  static char	*directory(const char *uri, char *t, int tlen);
-  static char	*extension(const char *uri, char *t, int tlen);
-  static char	*find(const char *path, const char *uri, char *name, int namelen);
-  static char	*localize(char *name, int namelen, const char *newcwd);
-  static const char *scheme(const char *uri);
-  static hdFile	*open(const char *uri, hdMode m, const char *path = 0);
-  static void	proxy(const char *url);
-  static const char *proxy() { return (proxy_); }
-  static void	no_local(bool b) { no_local_ = b; }
-  static bool	no_local() { return (no_local_); }
-  static const char *referer() { return (referer_); }
-  static void	referer(const char *r);
-  static const char *target(const char *uri);
-  static hdFile	*temp(const char *uri, char *name, int len);
+  static char		*basename(const char *myuri, char *t, size_t tlen);
+  static void		cleanup(void);
+  static const char	*cookies() { return (cookies_); }
+  static void		cookies(const char *cookie_data);
+  static char		*dirname(const char *myuri, char *t, size_t tlen);
+  static char		*extension(const char *myuri, char *t, size_t tlen);
+  static char		*find(const char *path, const char *myuri, char *name,
+			      size_t namelen);
+  static char		*localize(char *name, size_t namelen,
+			          const char *newcwd);
+  static hdFile		*open(const char *myuri, hdMode m,
+			      const char *path = 0);
+  static void		proxy(const char *proxy_url);
+  static const char	*proxy() { return (proxy_); }
+  static void		no_local(bool b) { no_local_ = b; }
+  static bool		no_local() { return (no_local_); }
+  static const char	*referer() { return (referer_); }
+  static void		referer(const char *r);
+  static const char	*scheme(const char *myuri);
+  static const char	*target(const char *myuri);
+  static hdFile		*temp(char *name, size_t namelen,
+			      const char *myuri = (const char *)0);
 };
 
 class hdStdFile : public hdFile		//// STDIO-based files...
 
 {
-  FILE	*fp_;				// STDIO file pointer
-  long	size_;				// Size of file
+  FILE			*fp_;		// STDIO file pointer
+  size_t		size_;		// Size of file
 
   public:
 
-  hdStdFile(const char *name, hdMode m);
-  hdStdFile(FILE *f, hdMode m);
-  hdStdFile(int fd, hdMode m);
-  virtual ~hdStdFile();
+			hdStdFile(const char *name, hdMode m);
+			hdStdFile(FILE *f, hdMode m);
+			hdStdFile(int fd, hdMode m);
+  virtual		~hdStdFile();
 
-  virtual int	get();
-  virtual int	put(int c);
-  virtual int	read(void *b, int len);
-  virtual int	seek(long p, int w);
-  virtual long	size();
-  virtual int	write(const void *b, int len);
-  virtual int	unget(int c);
+  virtual int		get();
+  virtual int		put(int c);
+  virtual ssize_t	read(void *b, size_t len);
+  virtual ssize_t	seek(ssize_t p, int w);
+  virtual size_t	size();
+  virtual ssize_t	write(const void *b, size_t len);
+  virtual int		unget(int c);
 };
 
 class hdMemFile : public hdFile		//// Memory buffer-based files...
 {
-  char	*buffer_,			// Start of buffer
-	*current_,			// Current position in buffer
-	*end_;				// End of buffer
-  long	size_,				// Current size of buffer file
-	alloc_size_,			// Allocated size of buffer
-	max_size_,			// Maximum size of buffer
-	incr_size_;			// Size increment
+  char			*buffer_,	// Start of buffer
+			*current_,	// Current position in buffer
+			*end_;		// End of buffer
+  size_t		size_,		// Current size of buffer file
+			alloc_size_,	// Allocated size of buffer
+			max_size_,	// Maximum size of buffer
+			incr_size_;	// Size increment
 
   public:
 
-  hdMemFile(char *buffer, long buflen = 0, hdMode m = HD_FILE_READ);
-  hdMemFile(long init_size, hdMode m, long max_size = 0, long incr_size = 0);
-  virtual ~hdMemFile();
+			hdMemFile(char *buffer, size_t buflen = 0,
+			          hdMode m = HD_FILE_READ);
+			hdMemFile(size_t init_size, hdMode m,
+				  size_t max_size = 0, size_t incr_size = 0);
+  virtual		~hdMemFile();
 
-  virtual int	get();
-  virtual int	put(int c);
-  virtual int	read(void *b, int len);
-  virtual int	seek(long p, int w);
-  virtual long	size();
-  virtual int	write(const void *b, int len);
-  virtual int	unget(int c);
+  virtual int		get();
+  virtual int		put(int c);
+  virtual ssize_t	read(void *b, size_t len);
+  virtual ssize_t	seek(ssize_t p, int w);
+  virtual size_t	size();
+  virtual ssize_t	write(const void *b, size_t len);
+  virtual int		unget(int c);
 };
 
 class hdASCII85Filter : public hdFile	//// Base85 encoding filter
 {
-  hdFile	*chain_;		// Pointer to next file/filter
-  unsigned char	buffer_[4];		// Buffer of up to 4 chars
-  int		bufused_;		// Used bytes in buffer
-  int		column_;		// Column in output
+  hdFile		*chain_;	// Pointer to next file/filter
+  unsigned char		buffer_[4];	// Buffer of up to 4 chars
+  int			bufused_;	// Used bytes in buffer
+  int			column_;	// Column in output
 
   public:
 
-  hdASCII85Filter(hdFile *f);
-  virtual ~hdASCII85Filter();
+			hdASCII85Filter(hdFile *f);
+  virtual		~hdASCII85Filter();
 
-  virtual int	get();
-  virtual int	put(int c);
-  virtual int	read(void *b, int len);
-  virtual int	seek(long p, int w);
-  virtual long	size();
-  virtual int	write(const void *b, int len);
-  virtual int	unget(int c);
+  virtual int		get();
+  virtual int		put(int c);
+  virtual ssize_t	read(void *b, size_t len);
+  virtual ssize_t	seek(ssize_t p, int w);
+  virtual size_t	size();
+  virtual ssize_t	write(const void *b, size_t len);
+  virtual int		unget(int c);
 };
 
 class hdASCIIHexFilter : public hdFile	//// Hex encoding filter
 {
-  hdFile	*chain_;		// Pointer to next file/filter
-  int		column_;		// Column in output
+  hdFile		*chain_;	// Pointer to next file/filter
+  int			column_;	// Column in output
 
   public:
 
-  hdASCIIHexFilter(hdFile *f);
-  virtual ~hdASCIIHexFilter();
+			hdASCIIHexFilter(hdFile *f);
+  virtual		~hdASCIIHexFilter();
 
-  virtual int	get();
-  virtual int	put(int c);
-  virtual int	read(void *b, int len);
-  virtual int	seek(long p, int w);
-  virtual long	size();
-  virtual int	write(const void *b, int len);
-  virtual int	unget(int c);
+  virtual int		get();
+  virtual int		put(int c);
+  virtual ssize_t	read(void *b, size_t len);
+  virtual ssize_t	seek(ssize_t p, int w);
+  virtual size_t	size();
+  virtual ssize_t	write(const void *b, size_t len);
+  virtual int		unget(int c);
 };
 
 class hdFlateFilter : public hdFile	//// Flate compression filter
 {
-  hdFile	*chain_;		// Pointer to next file/filter
-  char		buffer_[16384];		// Compression buffer
-  z_stream	stream_;		// Compression state
+  hdFile		*chain_;	// Pointer to next file/filter
+  char			buffer_[16384];	// Compression buffer
+  z_stream		stream_;	// Compression state
 
   public:
 
-  hdFlateFilter(hdFile *f, int level = 1);
-  virtual ~hdFlateFilter();
+			hdFlateFilter(hdFile *f, int level = 1);
+  virtual		~hdFlateFilter();
 
-  virtual int	get();
-  virtual int	put(int c);
-  virtual int	read(void *b, int len);
-  virtual int	seek(long p, int w);
-  virtual long	size();
-  virtual int	write(const void *b, int len);
-  virtual int	unget(int c);
+  virtual int		get();
+  virtual int		put(int c);
+  virtual ssize_t	read(void *b, size_t len);
+  virtual ssize_t	seek(ssize_t p, int w);
+  virtual size_t	size();
+  virtual ssize_t	write(const void *b, size_t len);
+  virtual int		unget(int c);
 };
 
 class hdJPEGFilter : public hdFile	//// JPEG compression filter
@@ -248,41 +265,43 @@ class hdJPEGFilter : public hdFile	//// JPEG compression filter
 
   public:
 
-  hdJPEGFilter(hdFile *f, int width, int height, int depth, int quality = 50);
-  virtual ~hdJPEGFilter();
+			hdJPEGFilter(hdFile *f, int width, int height,
+			             int depth, int quality = 50);
+  virtual		~hdJPEGFilter();
 
-  virtual int	get();
-  virtual int	put(int c);
-  virtual int	read(void *b, int len);
-  virtual int	seek(long p, int w);
-  virtual long	size();
-  virtual int	write(const void *b, int len);
-  virtual int	unget(int c);
+  virtual int		get();
+  virtual int		put(int c);
+  virtual ssize_t	read(void *b, size_t len);
+  virtual ssize_t	seek(ssize_t p, int w);
+  virtual size_t	size();
+  virtual ssize_t	write(const void *b, size_t len);
+  virtual int		unget(int c);
 };
 
 class hdRC4Filter : public hdFile	//// RC4 encryption filter
 {
-  hdFile	*chain_;		// Pointer to next filter or file in chain
-  unsigned char	sbox_[256];		// S boxes for encryption
-  int		si_, sj_;		// Current indices into S boxes
-  unsigned char	buffer_[16384];		// Encryption buffer
+  hdFile		*chain_;	// Pointer to next filter or file in chain
+  unsigned char		sbox_[256];	// S boxes for encryption
+  int			si_, sj_;	// Current indices into S boxes
+  unsigned char		buffer_[16384];	// Encryption buffer
 
-  void		init(const unsigned char *key, unsigned keylen);
-  void		encrypt(const unsigned char *input, unsigned char *output,
-		        unsigned len);
+  void			init(const unsigned char *key, unsigned keylen);
+  void			encrypt(const unsigned char *input,
+			        unsigned char *output, size_t len);
 
   public:
 
-  hdRC4Filter(hdFile *f, const unsigned char *key, unsigned keylen);
-  virtual ~hdRC4Filter();
+			hdRC4Filter(hdFile *f, const unsigned char *key,
+			            unsigned keylen);
+  virtual		~hdRC4Filter();
 
-  virtual int	get();
-  virtual int	put(int c);
-  virtual int	read(void *b, int len);
-  virtual int	seek(long p, int w);
-  virtual long	size();
-  virtual int	write(const void *b, int len);
-  virtual int	unget(int c);
+  virtual int		get();
+  virtual int		put(int c);
+  virtual ssize_t	read(void *b, size_t len);
+  virtual ssize_t	seek(ssize_t p, int w);
+  virtual size_t	size();
+  virtual ssize_t	write(const void *b, size_t len);
+  virtual int		unget(int c);
 };
 
 #endif // !HTMLDOC_FILE_H

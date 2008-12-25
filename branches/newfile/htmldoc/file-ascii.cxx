@@ -154,9 +154,9 @@ hdASCII85Filter::put(int c)		// I - Character to put
 // 'hdASCII85Filter::read()' - Read bytes (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
+ssize_t					// O - -1 for error (not implemented)
 hdASCII85Filter::read(void *,		// I - Bytes to read
-                      int)		// I - Number of bytes to read
+                      size_t)		// I - Number of bytes to read
 {
   return (-1);
 }
@@ -166,8 +166,8 @@ hdASCII85Filter::read(void *,		// I - Bytes to read
 // 'hdASCII85Filter::seek()' - See in the file (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
-hdASCII85Filter::seek(long,		// I - Position or offset
+ssize_t					// O - -1 for error (not implemented)
+hdASCII85Filter::seek(ssize_t,		// I - Position or offset
                       int)		// I - Whence to seek from
 {
   return (-1);
@@ -178,7 +178,7 @@ hdASCII85Filter::seek(long,		// I - Position or offset
 // 'hdASCII85Filter::size()' - Return the size of the file.
 //
 
-long					// O - Size of file in bytes
+size_t					// O - Size of file in bytes
 hdASCII85Filter::size()
 {
   return (chain_->size());
@@ -189,13 +189,13 @@ hdASCII85Filter::size()
 // 'hdASCII85Filter::write()' - Write bytes.
 //
 
-int					// O - Number of bytes written
+ssize_t					// O - Number of bytes written
 hdASCII85Filter::write(const void *b,	// I - Buffer to write
-                       int        len)	// I - Number of bytes to write
+                       size_t     len)	// I - Number of bytes to write
 {
-  int			i;		// Looping var
+  size_t		i;		// Looping var
   const unsigned char	*ptr,		// Pointer in buffer
-			*temp;		// Pointer to values
+			*tempptr;	// Pointer to values
   unsigned		val;		// 32-bit value of bytes
   char			c[5];		// Characters for output
 
@@ -209,17 +209,18 @@ hdASCII85Filter::write(const void *b,	// I - Buffer to write
     {
       // Use leftover bits from last write...
       memcpy(buffer_ + bufused_, ptr, 4 - bufused_);
-      temp     = buffer_;
+      tempptr  = buffer_;
       ptr      -= bufused_;
       bufused_ = 0;
     }
     else
     {
       // Use only what is in the incoming buffer...
-      temp = ptr;
+      tempptr = ptr;
     }
 
-    val = (((((temp[0] << 8) | temp[1]) << 8) | temp[2]) << 8) | temp[3];
+    val = (((((tempptr[0] << 8) | tempptr[1]) << 8) | tempptr[2]) << 8) |
+          tempptr[3];
 
     if (val == 0)
     {
@@ -340,9 +341,9 @@ hdASCIIHexFilter::put(int c)		// I - Character to put
 // 'hdASCIIHexFilter::read()' - Read bytes (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
+ssize_t					// O - -1 for error (not implemented)
 hdASCIIHexFilter::read(void *,		// I - Bytes to read
-                       int)		// I - Number of bytes to read
+                       size_t)		// I - Number of bytes to read
 {
   return (-1);
 }
@@ -352,8 +353,8 @@ hdASCIIHexFilter::read(void *,		// I - Bytes to read
 // 'hdASCIIHexFilter::seek()' - See in the file (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
-hdASCIIHexFilter::seek(long,		// I - Position or offset
+ssize_t					// O - -1 for error (not implemented)
+hdASCIIHexFilter::seek(ssize_t,		// I - Position or offset
                        int)		// I - Whence to seek from
 {
   return (-1);
@@ -364,7 +365,7 @@ hdASCIIHexFilter::seek(long,		// I - Position or offset
 // 'hdASCIIHexFilter::size()' - Return the size of the file.
 //
 
-long					// O - Size of file in bytes
+size_t					// O - Size of file in bytes
 hdASCIIHexFilter::size()
 {
   return (chain_->size());
@@ -375,11 +376,11 @@ hdASCIIHexFilter::size()
 // 'hdASCIIHexFilter::write()' - Write bytes.
 //
 
-int					// O - Number of bytes written
+ssize_t					// O - Number of bytes written
 hdASCIIHexFilter::write(const void *b,	// I - Buffer to write
-                        int        len)	// I - Number of bytes to write
+                        size_t    len)	// I - Number of bytes to write
 {
-  int			i;		// Looping var
+  size_t		i;		// Looping var
   const unsigned char	*ptr;		// Pointer to current byte
   static const char	*hex = "0123456789ABCDEF";
 					// Hex digits...

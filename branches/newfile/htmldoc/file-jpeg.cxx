@@ -133,9 +133,9 @@ hdJPEGFilter::put(int c)		// I - Character to put
 // 'hdJPEGFilter::read()' - Read bytes (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
+ssize_t					// O - -1 for error (not implemented)
 hdJPEGFilter::read(void *,		// I - Bytes to read
-                  int)			// I - Number of bytes to read
+                   size_t)		// I - Number of bytes to read
 {
   return (-1);
 }
@@ -145,9 +145,9 @@ hdJPEGFilter::read(void *,		// I - Bytes to read
 // 'hdJPEGFilter::seek()' - See in the file (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
-hdJPEGFilter::seek(long,		// I - Position or offset
-                  int)			// I - Whence to seek from
+ssize_t					// O - -1 for error (not implemented)
+hdJPEGFilter::seek(ssize_t,		// I - Position or offset
+                   int)			// I - Whence to seek from
 {
   return (-1);
 }
@@ -157,7 +157,7 @@ hdJPEGFilter::seek(long,		// I - Position or offset
 // 'hdJPEGFilter::size()' - Return the size of the file.
 //
 
-long					// O - Size of file in bytes
+size_t					// O - Size of file in bytes
 hdJPEGFilter::size()
 {
   return (chain_->size());
@@ -168,9 +168,9 @@ hdJPEGFilter::size()
 // 'hdJPEGFilter::write()' - Write bytes.
 //
 
-int					// O - Number of bytes written
+ssize_t					// O - Number of bytes written
 hdJPEGFilter::write(const void *b,	// I - Buffer to write
-                    int        len)	// I - Number of bytes to write
+                    size_t     len)	// I - Number of bytes to write
 {
   int		i;			// Looping var
   int		line_size;		// Size of a line
@@ -181,7 +181,7 @@ hdJPEGFilter::write(const void *b,	// I - Buffer to write
   line_size = cinfo_.image_width * cinfo_.input_components;
   i         = len / line_size;
 
-  if (len != (i * line_size))
+  if (len != (size_t)(i * line_size))
     return (-1);
 
   // Loop through the array, writing 1 line at a time...

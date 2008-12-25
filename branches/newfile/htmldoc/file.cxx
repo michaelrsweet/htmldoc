@@ -81,7 +81,7 @@ char		*hdFile::cookies_ = NULL;
 bool		hdFile::no_local_ = false;
 					// Non-zero to disable local files
 char		*hdFile::proxy_ = NULL;	// Proxy URL
-char		hdFile::proxy_host_[HD_MAX_URI] = "";
+char		*hdFile::proxy_host_ = NULL;
 					// Proxy hostname
 int		hdFile::proxy_port_ = 0;// Proxy port
 char		*hdFile::referer_ = NULL;
@@ -99,31 +99,28 @@ hdCache		*hdFile::temp_cache_ = NULL;
 char *					// O - Base filename
 hdFile::basename(const char *s,		// I - Filename or URL
                  char       *t,		// O - Base filename
-		 int        tlen)	// I - Size of filename buffer
+		 size_t     tlen)	// I - Size of filename buffer
 {
-  char		*basename;		// Pointer to directory separator
+  char		*baseptr;		// Pointer to directory separator
   char		*target;		// Pointer to target separator
 
 
-  if (s == NULL || t == NULL)
+  if (!s || !t)
     return (NULL);
 
-  if ((basename = strrchr(s, '/')) != NULL)
-    basename ++;
-  else if ((basename = strrchr(s, '\\')) != NULL)
-    basename ++;
-#ifdef MAC
-  else if ((basename = strrchr(s, ':')) != NULL)
-    basename ++;
-#endif // MAC
+  if ((baseptr = strrchr(s, '/')) != NULL)
+    baseptr ++;
+#ifdef WIN32
+  else if ((baseptr = strrchr(s, '\\')) != NULL)
+    baseptr ++;
+#endif /* WIN32 */
   else
-    basename = (char *)s;
+    baseptr = (char *)s;
 
-  if (basename[0] == '#')
+  if (baseptr[0] == '#')
     return (NULL);
 
-  strncpy(t, basename, tlen - 1);
-  t[tlen - 1] = '\0';
+  strlcpy(t, baseptr, tlen);
 
   if ((target = strchr(t, '#')) != NULL)
     *target = '\0';
@@ -201,62 +198,66 @@ hdFile::cookies(const char *c)		// I - Cookies or NULL
 
 
 //
-// 'hdFile::directory()' - Return the directory without filename or target.
+// 'hdFile::dirname()' - Return the directory without filename or target.
 //
 
 char *					// O - Directory for file
-hdFile::directory(const char *s,	// I - Filename or URL
-                  char       *t,	// O - Base filename
-		  int        tlen)	// I - Size of filename buffer
+hdFile::dirname(const char *s,		// I - Filename or URL
+                char       *t,		// O - Base filename
+		size_t     tlen)	// I - Size of filename buffer
 {
   char		*dir;			// Pointer to directory separator
 
 
-  if (s == NULL || t == NULL)
+  if (!s || !t)
     return (NULL);
 
-  if (strncmp(s, "http://", 7) == 0 || strncmp(s, "https://", 8) == 0)
+  if (!strncmp(s, "file://", 7) ||
+      !strncmp(s, "http://", 7) ||
+      !strncmp(s, "https://", 8))
   {
     // Handle URLs...
-    char	scheme[HD_MAX_URI],
+    char	myscheme[HD_MAX_URI],
 		username[HD_MAX_URI],
 		hostname[HD_MAX_URI],
 		resource[HD_MAX_URI];
     int		port;
 
 
-    hdHTTP::separate(s, scheme, sizeof(scheme), username, sizeof(username),
+    hdHTTP::separate(s, myscheme, sizeof(myscheme), username, sizeof(username),
                      hostname, sizeof(hostname), &port, resource,
 		     sizeof(resource));
-    if ((dir = strrchr(resource, '/')) != NULL)
-      *dir = '\0';
 
-    if (username[0])
-      snprintf(t, tlen, "%s://%s@%s:%d%s", scheme, username, hostname,
+    if ((dir = strrchr(resource, '/')) != NULL)
+    {
+      if (dir > resource)
+        *dir = '\0';
+      else
+        dir[1] = '\0';
+    }
+
+    if (!strcmp(myscheme, "file"))
+      strlcpy(resource, t, tlen);
+    else if (username[0]) // TODO: Replace with hdHTTP::assemble!
+      snprintf(t, tlen, "%s://%s@%s:%d%s", myscheme, username, hostname,
                port, resource);
-    else
-      snprintf(t, tlen, "%s://%s:%d%s", scheme, hostname, port,
+    else // TODO: Replace with hdHTTP::assemble!
+      snprintf(t, tlen, "%s://%s:%d%s", myscheme, hostname, port,
                resource);
   }
   else
   {
     // Normal stuff...
-    strncpy(t, s, tlen - 1);
-    t[tlen - 1] = '\0';
+    strlcpy(t, s, tlen);
 
     if ((dir = strrchr(t, '/')) != NULL)
       *dir = '\0';
+#ifdef WIN32
     else if ((dir = strrchr(t, '\\')) != NULL)
       *dir = '\0';
-#ifdef MAC
-    else if ((dir = strrchr(t, ':')) != NULL)
-      *dir = '\0';
-#endif // MAC
+#endif /* WIN32 */
     else
       return (".");
-
-    if (strncmp(t, "file:", 5) == 0)
-      strcpy(t, t + 5);
   }
 
   return (t);
@@ -270,37 +271,28 @@ hdFile::directory(const char *s,	// I - Filename or URL
 char *					// O - File extension
 hdFile::extension(const char *s,	// I - Filename or URL
                   char       *t,	// O - Base filename
-		  int        tlen)	// I - Size of filename buffer
+		  size_t     tlen)	// I - Size of filename buffer
 {
-  char		*extension;		// Pointer to directory separator
-  char		*target;		// Pointer to target separator
+  char	base[1024],			// Basename
+	*extptr,			// Pointer to extension separator
+	*target;			// Pointer to target separator
 
 
-  if (s == NULL || t == NULL)
+  if (!s || !t)
     return (NULL);
 
-  if ((extension = strrchr(s, '/')) != NULL)
-    extension ++;
-  else if ((extension = strrchr(s, '\\')) != NULL)
-    extension ++;
-#ifdef MAC
-  else if ((extension = strrchr(s, ':')) != NULL)
-    extension ++;
-#endif // MAC
-  else
-    extension = (char *)s;
+  hdFile::basename(s, base, sizeof(base));
 
-  if ((extension = strrchr(extension, '.')) == NULL)
+  if ((target = strchr(base, '#')) != NULL)
+    *target = '\0';
+
+  if ((extptr = strrchr(base, '.')) == NULL)
     t[0] = '\0';
   else
   {
-    extension ++;
+    extptr ++;
 
-    strncpy(t, extension, tlen - 1);
-    t[tlen - 1] = '\0';
-
-    if ((target = strchr(t, '#')) != NULL)
-      *target = '\0';
+    strlcpy(t, extptr, tlen);
   }
 
   return (t);
@@ -315,12 +307,12 @@ char *					// O - Pathname or NULL
 hdFile::find(const char *path,		// I - Path "dir;dir;dir"
              const char *uri,		// I - URI to find
 	     char       *name,		// O - Found filename
-	     int        namelen)	// I - Size of filename buffer
+	     size_t     namelen)	// I - Size of filename buffer
 {
   int		i;			// Looping var
   int		retry;			// Current retry
   char		*temp,			// Current position in filename
-		scheme[HD_MAX_URI],	// Method/scheme
+		myscheme[HD_MAX_URI],	// Method/scheme
 		username[HD_MAX_URI],	// Username:password
 		hostname[HD_MAX_URI],	// Hostname
 		resource[HD_MAX_URI];	// Resource
@@ -338,21 +330,21 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
   
 
   // If the filename or name buffer is NULL, return NULL...
-  if (uri == NULL || name == NULL)
+  if (!uri || !name)
     return (NULL);
 
-  if (strncmp(uri, "http:", 5) == 0 || strncmp(uri, "//", 2) == 0 ||
-      (path != NULL && strncmp(path, "http:", 5) == 0))
-    strcpy(scheme, "http");
+  if (!strncmp(uri, "http:", 5) || !strncmp(uri, "//", 2) ||
+      (path && !strncmp(path, "http:", 5)))
+    strcpy(myscheme, "http");
 #ifdef HAVE_LIBSSL
-  else if (strncmp(uri, "https:", 6) == 0 ||
-           (path != NULL && strncmp(path, "https:", 6) == 0))
-    strcpy(scheme, "https");
+  else if (!strncmp(uri, "https:", 6) ||
+           (path && !strncmp(path, "https:", 6)))
+    strcpy(myscheme, "https");
 #endif // HAVE_LIBSSL
   else
-    strcpy(scheme, "file");
+    strcpy(myscheme, "file");
 
-  if (strcmp(scheme, "file") == 0)
+  if (!strcmp(myscheme, "file"))
   {
     // If we are not allowing access to local files, return NULL...
     if (no_local_)
@@ -361,8 +353,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
       for (i = 0; i < temp_files_; i ++)
         if (strcmp(uri, temp_cache_[i].name) == 0)
 	{
-	  strncpy(name, uri, namelen - 1);
-	  name[namelen - 1] = '\0';
+	  strlcpy(name, uri, namelen);
 
 	  return (name);
 	}
@@ -371,10 +362,9 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
     }
 
     // If the path is NULL or empty, return the filename...
-    if (path == NULL || !path[0])
+    if (!path || !path[0])
     {
-      strncpy(name, uri, namelen - 1);
-      name[namelen - 1] = '\0';
+      strlcpy(name, uri, namelen);
 
       return (name);
     }
@@ -397,8 +387,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
 	*temp++ = '/';
 
       // Append the name...
-      strncpy(temp, uri, namelen - (temp - name) - 1);
-      name[namelen - 1] = '\0';
+      strlcpy(temp, uri, namelen - (temp - name));
 
       // See if the file exists...
       if (!access(name, 0))
@@ -408,8 +397,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
     // If the name exists, return the name...
     if (!access(uri, 0))
     {
-      strncpy(name, uri, namelen - 1);
-      name[namelen - 1] = '\0';
+      strlcpy(name, uri, namelen);
 
       return (name);
     }
@@ -423,31 +411,33 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
         return (temp_cache_[i].name);
 
 #ifdef HAVE_LIBSSL
-    if (strncmp(uri, "http:", 5) == 0 || strncmp(uri, "//", 2) == 0 ||
-        strncmp(uri, "https:", 6) == 0)
+    if (!strncmp(uri, "http:", 5) || !strncmp(uri, "//", 2) ||
+        !strncmp(uri, "https:", 6))
 #else
-    if (strncmp(uri, "http:", 5) == 0 || strncmp(uri, "//", 2) == 0)
+    if (!strncmp(uri, "http:", 5) || !strncmp(uri, "//", 2))
 #endif // HAVE_LIBSSL
-      hdHTTP::separate(uri, scheme, sizeof(scheme), username, sizeof(username),
-                       hostname, sizeof(hostname), &port, resource,
-		       sizeof(resource));
+      hdHTTP::separate(uri, myscheme, sizeof(myscheme),
+                       username, sizeof(username),
+                       hostname, sizeof(hostname), &port,
+		       resource, sizeof(resource));
     else if (uri[0] == '/')
     {
-      hdHTTP::separate(path, scheme, sizeof(scheme), username, sizeof(username),
-                       hostname, sizeof(hostname), &port, resource,
-		       sizeof(resource));
-      strncpy(resource, uri, sizeof(resource) - 1);
-      resource[sizeof(resource) - 1] = '\0';
+      hdHTTP::separate(path, myscheme, sizeof(myscheme),
+                       username, sizeof(username),
+                       hostname, sizeof(hostname), &port,
+		       resource, sizeof(resource));
+      strlcpy(resource, uri, sizeof(resource));
     }
     else
     {
-      if (strncmp(uri, "./", 2) == 0)
+      if (!strncmp(uri, "./", 2))
         snprintf(name, namelen, "%s/%s", path, uri + 2);
       else
         snprintf(name, namelen, "%s/%s", path, uri);
 
-      hdHTTP::separate(name, scheme, sizeof(scheme), username,
-                       sizeof(username), hostname, sizeof(hostname), &port,
+      hdHTTP::separate(name, myscheme, sizeof(myscheme),
+                       username, sizeof(username),
+		       hostname, sizeof(hostname), &port,
 		       resource, sizeof(resource));
     }
 
@@ -455,12 +445,13 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
          status == HD_HTTP_ERROR && retry < 5;
          retry ++)
     {
-      if (proxy_port_)
+      if (proxy_host_)
       {
         // Send request to proxy_ host...
         connhost = proxy_host_;
         connport = proxy_port_;
-        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", scheme,
+	// TODO: Use hdHTTP::assemble
+        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", myscheme,
                  hostname, port, resource);
       }
       else
@@ -476,7 +467,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
       atexit(hdFile::cleanup);
 
 #ifdef HAVE_LIBSSL
-      if (strcmp(scheme, "http") == 0)
+      if (!strcmp(myscheme, "http"))
         http = new hdHTTP(connhost, connport);
       else
         http = new hdHTTP(connhost, connport, HD_HTTP_ENCRYPT_ALWAYS);
@@ -499,7 +490,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
 
       http->clear_fields();
       http->set_field(HD_HTTP_FIELD_HOST, hostname);
-      http->set_field(HD_HTTP_FIELD_USER_AGENT, "HTMLDOC v" HD_SVERSION);
+      http->set_field(HD_HTTP_FIELD_USER_AGENT, "HTMLDOC v" SVERSION);
       http->set_field(HD_HTTP_FIELD_CONNECTION, "Keep-Alive");
 
       if (username[0])
@@ -521,9 +512,9 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
 
         // Grab new location from HTTP data...
 	hdHTTP::separate(http->get_field(HD_HTTP_FIELD_LOCATION),
-	                 scheme, sizeof(scheme), username, sizeof(username),
-                	 hostname, sizeof(hostname), &port, resource,
-			 sizeof(resource));
+	                 myscheme, sizeof(myscheme), username, sizeof(username),
+                	 hostname, sizeof(hostname), &port,
+			 resource, sizeof(resource));
         status = HD_HTTP_ERROR;
       }
     }
@@ -538,7 +529,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
       return (NULL);
     }
 
-    if ((fp = hdFile::temp(uri, name, namelen)) == NULL)
+    if ((fp = hdFile::temp(name, namelen, uri)) == NULL)
     {
 //      progress_hide();
 //      progress_error(HD_ERROR_WRITE_ERROR,
@@ -581,7 +572,7 @@ hdFile::find(const char *path,		// I - Path "dir;dir;dir"
 
 char *					// O  - New filename
 hdFile::localize(char       *name,	// IO - Name of file
-                 int        namelen,	// I  - Size of name buffer
+                 size_t     namelen,	// I  - Size of name buffer
                  const char *newcwd)	// I  - New directory
 {
   const char	*newslash;		// Directory separator
@@ -597,33 +588,31 @@ hdFile::localize(char       *name,	// IO - Name of file
   if (newcwd == NULL)
     newcwd = cwd;
 
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
   if (name[0] != '/' &&
       name[0] != '\\' &&
       !(isalpha(name[0]) && name[1] == ':'))
 #else
   if (name[0] != '/')
-#endif // WIN32 || __EMX__
+#endif // WIN32
   {
     for (newslash = name; strncmp(newslash, "../", 3) == 0; newslash += 3)
-#if defined(WIN32) || defined(__EMX__)
     {
+#if defined(WIN32)
       if ((slash = strrchr(cwd, '/')) == NULL)
         slash = strrchr(cwd, '\\');
       if (slash != NULL)
-        *slash = '\0';
-    }
 #else
       if ((slash = strrchr(cwd, '/')) != NULL)
+#endif // WIN32
         *slash = '\0';
-#endif // WIN32 || __EMX__
+    }
 
     snprintf(temp, sizeof(temp), "%s/%s", cwd, newslash);
   }
   else
   {
-    strncpy(temp, name, sizeof(temp) - 1);
-    temp[sizeof(temp) - 1] = '\0';
+    strlcpy(temp, name, sizeof(temp));
   }
 
   for (slash = temp, newslash = newcwd;
@@ -641,10 +630,10 @@ hdFile::localize(char       *name,	// IO - Name of file
   if (*slash == '/' || *slash == '\\')
     slash ++;
 
-#if defined(WIN32) || defined(__EMX__)
+#if defined(WIN32)
   if (isalpha(slash[0]) && slash[1] == ':')
     return (name); // Different drive letter...
-#endif // WIN32 || __EMX__
+#endif // WIN32
 
   if (*newslash != '\0')
     while (*newslash != '/' && *newslash != '\\' && newslash > newcwd)
@@ -656,12 +645,12 @@ hdFile::localize(char       *name,	// IO - Name of file
   while (*newslash != '\0')
   {
     if (*newslash == '/' || *newslash == '\\')
-      strncat(name, "../", sizeof(name) - 1);
+      strlcat(name, "../", namelen);
 
     newslash ++;
   }
 
-  strncat(name, slash, sizeof(name) - 1);
+  strlcat(name, slash, namelen);
 
   return (name);
 }
@@ -673,16 +662,16 @@ hdFile::localize(char       *name,	// IO - Name of file
 // Returns NULL if the URL is a local file.
 //
 
-const char *				// O - Method string ("http", "ftp", etc.)
-hdFile::scheme(const char *s)		// I - Filename or URL
+const char *				// O - Scheme string ("http", "ftp", etc.)
+hdFile::scheme(const char *myuri)	// I - Filename or URL
 {
-  if (strncmp(s, "http:", 5) == 0)
+  if (!strncmp(myuri, "http:", 5))
     return ("http");
-  else if (strncmp(s, "https:", 6) == 0)
+  else if (!strncmp(myuri, "https:", 6))
     return ("https");
-  else if (strncmp(s, "ftp:", 4) == 0)
+  else if (!strncmp(myuri, "ftp:", 4))
     return ("ftp");
-  else if (strncmp(s, "mailto:", 7) == 0)
+  else if (!strncmp(myuri, "mailto:", 7))
     return ("mailto");
   else
     return (NULL);
@@ -694,30 +683,32 @@ hdFile::scheme(const char *s)		// I - Filename or URL
 //
 
 void
-hdFile::proxy(const char *url)		// I - URL of proxy_ server
+hdFile::proxy(const char *proxy_url)	// I - URL of proxy_ server
 {
-  char	scheme[HD_MAX_URI],		// Method name (must be http)
+  char	myscheme[HD_MAX_URI],		// Scheme name (must be http)
 	username[HD_MAX_URI],		// Username:password information
 	hostname[HD_MAX_URI],		// Hostname
 	resource[HD_MAX_URI];		// Resource name
   int	port;				// Port number
 
 
-  if (url == NULL || url[0] == '\0')
+  if (proxy_host_)
   {
-    proxy_host_[0] = '\0';
-    proxy_port_    = 0;
+    free(proxy_host_);
+    proxy_host_ = NULL;
+    proxy_port_ = 0;
   }
-  else
-  {
-    hdHTTP::separate(url, scheme, sizeof(scheme), username, sizeof(username),
-                     hostname, sizeof(hostname), &port, resource,
-		     sizeof(resource));
 
-    if (strcmp(scheme, "http") == 0)
+  if (proxy_url  && proxy_url[0])
+  {
+    hdHTTP::separate(proxy_url, myscheme, sizeof(myscheme),
+                     username, sizeof(username),
+                     hostname, sizeof(hostname), &port,
+		     resource, sizeof(resource));
+
+    if (!strcmp(myscheme, "http"))
     {
-      strncpy(proxy_host_, hostname, sizeof(proxy_host_) - 1);
-      proxy_host_[sizeof(proxy_host_) - 1] = '\0';
+      proxy_host_ = strdup(hostname);
       proxy_port_ = port;
     }
   }
@@ -746,27 +737,25 @@ hdFile::referer(const char *r)		// I - Referer or NULL
 //
 
 const char *				// O - Target name
-hdFile::target(const char *s)		// I - Filename or URL
+hdFile::target(const char *myuri)	// I - Filename or URL
 {
-  char		*basename;		// Pointer to directory separator
-  char		*target;		// Pointer to target
+  const char	*baseptr,		// Pointer to directory separator
+		*target;		// Pointer to target
 
 
-  if (s == NULL)
+  if (!myuri)
     return (NULL);
 
-  if ((basename = strrchr(s, '/')) != NULL)
-    basename ++;
-  else if ((basename = strrchr(s, '\\')) != NULL)
-    basename ++;
-#ifdef MAC
-  else if ((basename = strrchr(s, ':')) != NULL)
-    basename ++;
-#endif // MAC
+  if ((baseptr = strrchr(myuri, '/')) != NULL)
+    baseptr ++;
+#ifdef WIN32
+  else if ((baseptr = strrchr(myuri, '\\')) != NULL)
+    baseptr ++;
+#endif // WIN32
   else
-    basename = (char *)s;
+    baseptr = (char *)myuri;
 
-  if ((target = strchr(basename, '#')) != NULL)
+  if ((target = strchr(baseptr, '#')) != NULL)
     return (target + 1);
   else
     return (NULL);
@@ -778,9 +767,10 @@ hdFile::target(const char *s)		// I - Filename or URL
 //
 
 hdFile *				// O - Temporary file
-hdFile::temp(const char *uri,		// I - URI to associate with file
-             char       *name,		// O - Filename
-             int        len)		// I - Length of filename buffer
+hdFile::temp(char       *name,		// O - Filename
+             size_t     namelen,	// I - Length of filename buffer
+             const char *myuri)		// I - URI to associate with file
+             
 {
   hdCache	*temp;			// Pointer to cache entry
   int		fd;			// File descriptor
@@ -794,7 +784,7 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
   // Allocate memory for the file cache as needed...
   if (temp_files_ >= temp_alloc_)
   {
-    temp_alloc_ += HD_ALLOC_FILES;
+    temp_alloc_ += ALLOC_FILES;
 
     temp = new hdCache[temp_alloc_];
 
@@ -821,11 +811,11 @@ hdFile::temp(const char *uri,		// I - URI to associate with file
     tmpdir = "/var/tmp";
 #endif // WIN32
 
-  snprintf(name, len, TEMPLATE, tmpdir, getpid(), temp_files_);
+  snprintf(name, namelen, TEMPLATE, tmpdir, getpid(), temp_files_);
 
   if ((fd = ::open(name, OPENMODE, OPENPERM)) >= 0)
   {
-    temp->url = uri ? strdup(uri) : NULL;
+    temp->url = myuri ? strdup(myuri) : NULL;
 
     return (new hdStdFile(fd, HD_FILE_UPDATE));
   }

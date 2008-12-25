@@ -49,8 +49,8 @@ hdFile::~hdFile()
 //
 
 char *					// O - String buffer or NULL on EOF
-hdFile::gets(char *s,			// O - String buffer
-             int  slen)			// I - Size of string buffer
+hdFile::gets(char   *s,			// O - String buffer
+             size_t slen)		// I - Size of string buffer
 {
   int		ch;			// Character from file
   char		*ptr,			// Current position in line sfer
@@ -141,14 +141,14 @@ hdFile::printf(const char *f,		// I - Printf-style format string
 {
   int		bytes;			// Number of bytes written
   char		sign,			// Sign of format width
-		size,			// Size character (h, l, L)
+		sizec,			// Size character (h, l, L)
 		type;			// Format type character
   const char	*fptr;			// Start of format
   int		width,			// Width of field
 		prec;			// Number of characters of precision
   char		tf[100],		// Temporary format string for sprintf()
-		temp[1024],		// Buffer for formatted numbers
-		*tempptr;		// Pointer into number buffer
+		buffer[1024],		// Buffer for formatted numbers
+		*bufptr;		// Pointer into number buffer
   const char	*s;			// Pointer to string
   int		slen;			// Length of string
   va_list 	ap;			// Pointer to additional arguments
@@ -204,11 +204,11 @@ hdFile::printf(const char *f,		// I - Printf-style format string
       // Get the field size...
       if (*f == 'l' && f[1] == 'l')
       {
-        size = 'L';
+        sizec = 'L';
 	f += 2;
       }
       else if (*f == 'h' || *f == 'l' || *f == 'L')
-        size = *f++;
+        sizec = *f++;
 
       if (!*f)
         break;
@@ -223,23 +223,25 @@ hdFile::printf(const char *f,		// I - Printf-style format string
 	case 'f' :
 	case 'g' :
 	    if ((f - fptr + 1) > (int)sizeof(tf) ||
-	        (width + 2) > (int)sizeof(temp))
+	        (width + 2) > (int)sizeof(buffer))
 	      break;
 
-	    strncpy(tf, fptr, f - fptr);
+	    memcpy(tf, fptr, f - fptr);
 	    tf[f - fptr] = '\0';
 
-	    sprintf(temp, tf, va_arg(ap, double));
+	    sprintf(buffer, tf, va_arg(ap, double));
 
 	    // Strip trailing zeros...
-            for (tempptr = temp + strlen(temp) - 1; tempptr > temp; tempptr --)
-	      if (*tempptr != '0')
+            for (bufptr = buffer + strlen(buffer) - 1;
+	         bufptr > buffer;
+		 bufptr --)
+	      if (*bufptr != '0')
 	        break;
 
-            if (tempptr > temp && *tempptr == '.')
-	      tempptr --;
+            if (bufptr > buffer && *bufptr == '.')
+	      bufptr --;
 
-	    if (write(temp, tempptr - temp) < 0)
+	    if (write(buffer, bufptr - buffer) < 0)
 	    {
 	      va_end(ap);
 	      return (-1);
@@ -255,15 +257,15 @@ hdFile::printf(const char *f,		// I - Printf-style format string
 	case 'u' :
 	case 'x' :
 	    if ((f - fptr + 1) > (int)sizeof(tf) ||
-	        (width + 2) > (int)sizeof(temp))
+	        (width + 2) > (int)sizeof(buffer))
 	      break;
 
-	    strncpy(tf, fptr, f - fptr);
+	    memcpy(tf, fptr, f - fptr);
 	    tf[f - fptr] = '\0';
 
-	    sprintf(temp, tf, va_arg(ap, int));
+	    sprintf(buffer, tf, va_arg(ap, int));
 
-            puts(temp);
+            puts(buffer);
 	    break;
 
         case 'c' : // Character or character array

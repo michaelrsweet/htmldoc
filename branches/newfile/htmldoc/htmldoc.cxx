@@ -199,8 +199,11 @@ main(int  argc,				/* I - Number of command-line arguments */
       if (access(bookfile, 0))
       {
         // Not found, try `dirname $PATH_TRANSLATED`/.book
+	char path_dirname[1024];
+
         snprintf(bookfile, sizeof(bookfile), "%s/.book",
-	         hdFile::directory(path_translated));
+	         hdFile::dirname(path_translated, path_dirname,
+		                 sizeof(path_dirname)));
         if (access(bookfile, 0))
 	  strlcpy(bookfile, ".book", sizeof(bookfile));
       }
@@ -815,10 +818,12 @@ main(int  argc,				/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
+        char	ext[255];		// Extension
+
         strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 0;
 
-        if ((extension = hdFile::extension(argv[i])) != NULL)
+        if ((extension = hdFile::extension(argv[i], ext, sizeof(ext))) != NULL)
         {
           if (strcasecmp(extension, "ps") == 0)
           {
@@ -1085,13 +1090,13 @@ main(int  argc,				/* I - Number of command-line arguments */
       // Make sure stdin is in binary mode.
       // (I hate Microsoft... I hate Microsoft... Everybody join in!)
       setmode(0, O_BINARY);
-#elif defined(__EMX__)
-      // OS/2 has a setmode for FILE's...
-      fflush(stdin);
-      _fsetmode(stdin, "b");
-#endif // WIN32 || __EMX__
+#endif // WIN32
 
-      htmlReadFile(file, stdin, ".");
+      hdStdFile *hdstdin = new hdStdFile(stdin, HD_FILE_READ);
+
+      htmlReadFile(file, hdstdin, ".");
+
+      delete hdstdin;
 
       if (document == NULL)
         document = file;
@@ -1283,7 +1288,7 @@ prefs_load(void)
 {
   int		pos;			// Header/footer position
   char		line[2048];		// Line from RC file
-  FILE		*fp;			// File pointer
+  hdFile	*fp;			// File pointer
 
 
   //
@@ -1297,13 +1302,10 @@ prefs_load(void)
   // Read the preferences file...
   //
 
-  if ((fp = fopen(prefs_getrc(), "r")) != NULL)
+  if ((fp = hdFile::open(prefs_getrc(), HD_FILE_READ, NULL)) != NULL)
   {
-    while (hdFile::gets(line, sizeof(line), fp) != NULL)
+    while (fp->gets(line, sizeof(line)) != NULL)
     {
-      if (line[strlen(line) - 1] == '\n')
-        line[strlen(line) - 1] = '\0';
-
       if (strncasecmp(line, "TEXTCOLOR=", 10) == 0)
 	_htmlStyleSheet->set_color(line + 10);
       else if (strncasecmp(line, "BODYCOLOR=", 10) == 0)
@@ -1420,7 +1422,7 @@ prefs_load(void)
         StrictHTML = atoi(line + 11);
     }
 
-    fclose(fp);
+    delete fp;
   }
 
   // Check header/footer formats...
@@ -1461,71 +1463,71 @@ prefs_load(void)
 void
 prefs_save(void)
 {
-  FILE	*fp;			// File pointer
+  hdFile	*fp;			// File pointer
 
 
-  if ((fp = fopen(prefs_getrc(), "w")) != NULL)
+  if ((fp = hdFile::open(prefs_getrc(), HD_FILE_WRITE, NULL)) != NULL)
   {
-    fputs("#HTMLDOCRC " SVERSION "\n", fp);
+    fp->puts("#HTMLDOCRC " SVERSION "\n");
 
-    fprintf(fp, "TEXTCOLOR=#%02X%02X%02X\n",
-            _htmlStyleSheet->def_style.color[0],
-	    _htmlStyleSheet->def_style.color[1],
-	    _htmlStyleSheet->def_style.color[2]);
-    fprintf(fp, "BODYCOLOR=%s\n", BodyColor);
-    fprintf(fp, "BODYIMAGE=%s\n", BodyImage);
-    fprintf(fp, "LINKCOLOR=%s\n", LinkColor);
-    fprintf(fp, "LINKSTYLE=%d\n", LinkStyle);
-    fprintf(fp, "BROWSERWIDTH=%.0f\n", _htmlStyleSheet->browser_width);
-    fprintf(fp, "PAGEWIDTH=%d\n", PageWidth);
-    fprintf(fp, "PAGELENGTH=%d\n", PageLength);
-    fprintf(fp, "PAGELEFT=%d\n", PageLeft);
-    fprintf(fp, "PAGERIGHT=%d\n", PageRight);
-    fprintf(fp, "PAGETOP=%d\n", PageTop);
-    fprintf(fp, "PAGEBOTTOM=%d\n", PageBottom);
-    fprintf(fp, "PAGEDUPLEX=%d\n", PageDuplex);
-    fprintf(fp, "LANDSCAPE=%d\n", Landscape);
-    fprintf(fp, "COMPRESSION=%d\n", Compression);
-    fprintf(fp, "OUTPUTCOLOR=%d\n", OutputColor);
-    fprintf(fp, "TOCNUMBERS=%d\n", TocNumbers);
-    fprintf(fp, "TOCLEVELS=%d\n", TocLevels);
-    fprintf(fp, "JPEG=%d\n", OutputJPEG);
-    fprintf(fp, "PAGEHEADER=%s\n", get_fmt(Header));
-    fprintf(fp, "PAGEFOOTER=%s\n", get_fmt(Footer));
-    fprintf(fp, "NUMBERUP=%d\n", NumberUp);
-    fprintf(fp, "TOCHEADER=%s\n", get_fmt(TocHeader));
-    fprintf(fp, "TOCFOOTER=%s\n", get_fmt(TocFooter));
-    fprintf(fp, "TOCTITLE=%s\n", TocTitle);
-    fprintf(fp, "BODYFONT=%d\n", _htmlBodyFont);
-    fprintf(fp, "HEADINGFONT=%d\n", _htmlHeadingFont);
-    fprintf(fp, "FONTSIZE=%.2f\n", _htmlStyleSheet->def_style.font_size);
-    fprintf(fp, "FONTSPACING=%.2f\n", _htmlStyleSheet->def_style.line_height /
-                                      _htmlStyleSheet->def_style.font_size);
-    fprintf(fp, "HEADFOOTTYPE=%d\n", HeadFootType);
-    fprintf(fp, "HEADFOOTSTYLE=%d\n", HeadFootStyle);
-    fprintf(fp, "HEADFOOTSIZE=%.2f\n", HeadFootSize);
-    fprintf(fp, "PDFVERSION=%d\n", PDFVersion);
-    fprintf(fp, "PSLEVEL=%d\n", PSLevel);
-    fprintf(fp, "PSCOMMANDS=%d\n", PSCommands);
-    fprintf(fp, "XRXCOMMENTS=%d\n", XRXComments);
-    fprintf(fp, "CHARSET=%s\n", _htmlStyleSheet->charset);
-    fprintf(fp, "PAGEMODE=%d\n", PDFPageMode);
-    fprintf(fp, "PAGELAYOUT=%d\n", PDFPageLayout);
-    fprintf(fp, "FIRSTPAGE=%d\n", PDFFirstPage);
-    fprintf(fp, "PAGEEFFECT=%d\n", PDFEffect);
-    fprintf(fp, "PAGEDURATION=%.0f\n", PDFPageDuration);
-    fprintf(fp, "EFFECTDURATION=%.1f\n", PDFEffectDuration);
-    fprintf(fp, "ENCRYPTION=%d\n", Encryption);
-    fprintf(fp, "PERMISSIONS=%d\n", Permissions);
-    fprintf(fp, "OWNERPASSWORD=%s\n", OwnerPassword);
-    fprintf(fp, "USERPASSWORD=%s\n", UserPassword);
-    fprintf(fp, "LINKS=%d\n", Links);
-    fprintf(fp, "EMBEDFONTS=%d\n", EmbedFonts);
-    fprintf(fp, "PATH=%s\n", Path);
-    fprintf(fp, "PROXY=%s\n", Proxy);
-    fprintf(fp, "STRICTHTML=%d\n", StrictHTML);
+    fp->printf("TEXTCOLOR=#%02X%02X%02X\n",
+	       _htmlStyleSheet->def_style.color[0],
+	       _htmlStyleSheet->def_style.color[1],
+	       _htmlStyleSheet->def_style.color[2]);
+    fp->printf("BODYCOLOR=%s\n", BodyColor);
+    fp->printf("BODYIMAGE=%s\n", BodyImage);
+    fp->printf("LINKCOLOR=%s\n", LinkColor);
+    fp->printf("LINKSTYLE=%d\n", LinkStyle);
+    fp->printf("BROWSERWIDTH=%.0f\n", _htmlStyleSheet->browser_width);
+    fp->printf("PAGEWIDTH=%d\n", PageWidth);
+    fp->printf("PAGELENGTH=%d\n", PageLength);
+    fp->printf("PAGELEFT=%d\n", PageLeft);
+    fp->printf("PAGERIGHT=%d\n", PageRight);
+    fp->printf("PAGETOP=%d\n", PageTop);
+    fp->printf("PAGEBOTTOM=%d\n", PageBottom);
+    fp->printf("PAGEDUPLEX=%d\n", PageDuplex);
+    fp->printf("LANDSCAPE=%d\n", Landscape);
+    fp->printf("COMPRESSION=%d\n", Compression);
+    fp->printf("OUTPUTCOLOR=%d\n", OutputColor);
+    fp->printf("TOCNUMBERS=%d\n", TocNumbers);
+    fp->printf("TOCLEVELS=%d\n", TocLevels);
+    fp->printf("JPEG=%d\n", OutputJPEG);
+    fp->printf("PAGEHEADER=%s\n", get_fmt(Header));
+    fp->printf("PAGEFOOTER=%s\n", get_fmt(Footer));
+    fp->printf("NUMBERUP=%d\n", NumberUp);
+    fp->printf("TOCHEADER=%s\n", get_fmt(TocHeader));
+    fp->printf("TOCFOOTER=%s\n", get_fmt(TocFooter));
+    fp->printf("TOCTITLE=%s\n", TocTitle);
+    fp->printf("BODYFONT=%d\n", _htmlBodyFont);
+    fp->printf("HEADINGFONT=%d\n", _htmlHeadingFont);
+    fp->printf("FONTSIZE=%.2f\n", _htmlStyleSheet->def_style.font_size);
+    fp->printf("FONTSPACING=%.2f\n", _htmlStyleSheet->def_style.line_height /
+                                     _htmlStyleSheet->def_style.font_size);
+    fp->printf("HEADFOOTTYPE=%d\n", HeadFootType);
+    fp->printf("HEADFOOTSTYLE=%d\n", HeadFootStyle);
+    fp->printf("HEADFOOTSIZE=%.2f\n", HeadFootSize);
+    fp->printf("PDFVERSION=%d\n", PDFVersion);
+    fp->printf("PSLEVEL=%d\n", PSLevel);
+    fp->printf("PSCOMMANDS=%d\n", PSCommands);
+    fp->printf("XRXCOMMENTS=%d\n", XRXComments);
+    fp->printf("CHARSET=%s\n", _htmlStyleSheet->charset);
+    fp->printf("PAGEMODE=%d\n", PDFPageMode);
+    fp->printf("PAGELAYOUT=%d\n", PDFPageLayout);
+    fp->printf("FIRSTPAGE=%d\n", PDFFirstPage);
+    fp->printf("PAGEEFFECT=%d\n", PDFEffect);
+    fp->printf("PAGEDURATION=%.0f\n", PDFPageDuration);
+    fp->printf("EFFECTDURATION=%.1f\n", PDFEffectDuration);
+    fp->printf("ENCRYPTION=%d\n", Encryption);
+    fp->printf("PERMISSIONS=%d\n", Permissions);
+    fp->printf("OWNERPASSWORD=%s\n", OwnerPassword);
+    fp->printf("USERPASSWORD=%s\n", UserPassword);
+    fp->printf("LINKS=%d\n", Links);
+    fp->printf("EMBEDFONTS=%d\n", EmbedFonts);
+    fp->printf("PATH=%s\n", Path);
+    fp->printf("PROXY=%s\n", Proxy);
+    fp->printf("STRICTHTML=%d\n", StrictHTML);
 
-    fclose(fp);
+    delete fp;
   }
 }
 
@@ -1600,12 +1602,12 @@ prefs_set_paths(void)
  * 'compare_strings()' - Compare two command-line strings.
  */
 
-static int			/* O - -1 or 1 = no match, 0 = match */
-compare_strings(const char *s,	/* I - Command-line string */
-                const char *t,	/* I - Option string */
-                int        tmin)/* I - Minimum number of unique chars in option */
+static int				/* O - -1 or 1 = no match, 0 = match */
+compare_strings(const char *s,		/* I - Command-line string */
+                const char *t,		/* I - Option string */
+                int        tmin)	/* I - Minimum number of unique chars in option */
 {
-  int	slen;			/* Length of command-line string */
+  int	slen;				/* Length of command-line string */
 
 
   slen = strlen(s);
@@ -1643,44 +1645,42 @@ static int				// O  - 1 = success, 0 = failure
 load_book(const char   *filename,	// I  - Book file
           hdTree       **document,	// IO - Document tree
           exportfunc_t *exportfunc,	// O  - Export function
-          int          set_nolocal)	// I  - Set hdFile::no_local(true) after lookup?
+          int          set_nolocal)	// I  - Set no_local(true) after lookup?
 {
-  FILE		*fp;			// File to read from
+  hdFile	*fp;			// File to read from
   char		line[10240];		// Line from file
-  const char 	*dir;			// Directory
-  const char	*local;			// Local filename
-  char		path[2048];		// Current path
+  char		dir[1024];		// Directory path
+  char		newpath[2048];		// Updated/new path
+  const char	*path;			// Path to use
 
-
-  // See if the filename contains a path...
-  dir = hdFile::directory(filename);
-
-  if (dir != NULL)
-    snprintf(path, sizeof(path), "%s;%s", dir, Path);
-  else
-    strlcpy(path, Path, sizeof(path));
 
   // Open the file...
-  local = hdFile::find(Path, filename);
+  if ((fp = hdFile::open(filename, HD_FILE_READ, Path)) == NULL)
+  {
+    progress_error(HD_ERROR_READ_ERROR, "Unable to open book file \"%s\": %s",
+                   filename, strerror(errno));
+    return (0);
+  }
 
   if (set_nolocal)
     hdFile::no_local(true);
 
-  if (!local)
-    return (0);
-
-  if ((fp = fopen(local, "rb")) == NULL)
+  // See if the filename contains a path...
+  if (hdFile::dirname(filename, dir, sizeof(dir)))
   {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to open book file \"%s\": %s",
-                   local, strerror(errno));
-    return (0);
+    snprintf(newpath, sizeof(newpath), "%s;%s", dir, Path);
+    path = newpath;
+  }
+  else
+  {
+    dir[0] = '\0';
+    path   = Path;
   }
 
   // Get the header...
-  hdFile::gets(line, sizeof(line), fp);
-  if (strncmp(line, "#HTMLDOC", 8) != 0)
+  if (!fp->gets(line, sizeof(line)) || strncmp(line, "#HTMLDOC", 8))
   {
-    fclose(fp);
+    delete fp;
     progress_error(HD_ERROR_BAD_FORMAT,
                    "Bad or missing #HTMLDOC header in \"%s\".", filename);
     return (0);
@@ -1690,22 +1690,21 @@ load_book(const char   *filename,	// I  - Book file
   // be the file count; for new files this will be the options...
   do
   {
-    hdFile::gets(line, sizeof(line), fp);
+    if (!fp->gets(line, sizeof(line)))
+      break;
 
     if (line[0] == '-')
     {
       parse_options(line, exportfunc);
 
-      if (dir != NULL)
-	snprintf(path, sizeof(path), "%s;%s", dir, Path);
-      else
-	strlcpy(path, Path, sizeof(path));
+      if (dir[0])
+	snprintf(newpath, sizeof(newpath), "%s;%s", dir, Path);
     }
   }
   while (!line[0]);			// Skip blank lines
 
   // Get input files/options...
-  while (hdFile::gets(line, sizeof(line), fp) != NULL)
+  while (fp->gets(line, sizeof(line)))
   {
     if (!line[0])
       continue;				// Skip blank lines
@@ -1713,10 +1712,8 @@ load_book(const char   *filename,	// I  - Book file
     {
       parse_options(line, exportfunc);
 
-      if (dir != NULL)
-	snprintf(path, sizeof(path), "%s;%s", dir, Path);
-      else
-	strlcpy(path, Path, sizeof(path));
+      if (dir[0])
+	snprintf(newpath, sizeof(newpath), "%s;%s", dir, Path);
     }
     else if (line[0] == '\\')
       read_file(line + 1, document, path);
@@ -1725,7 +1722,7 @@ load_book(const char   *filename,	// I  - Book file
   }
 
   // Close the book file and return...
-  fclose(fp);
+  delete fp;
 
   return (1);
 }
@@ -2278,62 +2275,52 @@ read_file(const char *filename,		// I  - File/URL to read
           hdTree     **document,	// IO - Current document
 	  const char *path)		// I  - Search path
 {
-  FILE		*docfile;		// Document file
+  hdFile	*docfile;		// Document file
   hdTree	*file;			// HTML document file
-  const char	*realname;		// Real name of file
   char		base[1024];		// Base directory name of file
 
 
   DEBUG_printf(("read_file(filename=\"%s\", document=%p, path=\"%s\")\n",
                 filename, document, path));
 
-  if ((realname = hdFile::find(path, filename)) != NULL)
+  if ((docfile = hdFile::open(filename, HD_FILE_READ, path)) != NULL)
   {
-    if ((docfile = fopen(realname, "rb")) != NULL)
-    {
-     /*
-      * Read from a file...
-      */
+   /*
+    * Read from a file...
+    */
 
-      if (Verbosity > 0)
-        progress_error(HD_ERROR_NONE, "INFO: Reading %s...", filename);
+    if (Verbosity > 0)
+      progress_error(HD_ERROR_NONE, "INFO: Reading %s...", filename);
 
-      _htmlStyleSheet->ppi = 72.0f * _htmlStyleSheet->browser_width /
-                             (PageWidth - PageLeft - PageRight);
+    _htmlStyleSheet->ppi = 72.0f * _htmlStyleSheet->browser_width /
+			   (PageWidth - PageLeft - PageRight);
 
-      strlcpy(base, hdFile::directory(filename), sizeof(base));
+    file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
+    htmlSetAttr(file, "_HD_FILENAME",
+                (hdChar *)docfile->basename(base, sizeof(base)));
+    htmlSetAttr(file, "_HD_BASE",
+                (hdChar *)docfile->dirname(base, sizeof(base)));
 
-      file = htmlAddTree(NULL, HD_ELEMENT_FILE, NULL);
-      htmlSetAttr(file, "_HD_FILENAME", (hdChar *)hdFile::basename(filename));
-      htmlSetAttr(file, "_HD_BASE", (hdChar *)base);
+    htmlReadFile(file, docfile, base);
 
-      htmlReadFile(file, docfile, base);
+    delete docfile;
 
-      fclose(docfile);
-
-      if (*document == NULL)
-        *document = file;
-      else
-      {
-        while ((*document)->next != NULL)
-          *document = (*document)->next;
-
-        (*document)->next = file;
-        file->prev        = *document;
-      }
-    }
+    if (*document == NULL)
+      *document = file;
     else
     {
-      file = NULL;
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open \"%s\" for reading...", filename);
+      while ((*document)->next != NULL)
+	*document = (*document)->next;
+
+      (*document)->next = file;
+      file->prev        = *document;
     }
   }
   else
   {
     file = NULL;
-    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find \"%s\"...",
-                   filename);
+    progress_error(HD_ERROR_FILE_NOT_FOUND,
+		   "Unable to open \"%s\" for reading...", filename);
   }
 
   return (file != NULL);

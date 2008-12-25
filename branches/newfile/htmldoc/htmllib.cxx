@@ -81,15 +81,15 @@ extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
 }
 
-static int	write_file(hdTree *t, FILE *fp, int col);
+static int	write_file(hdTree *t, hdFile *fp, int col);
 static int	compare_variables(hdTreeAttr *v0, hdTreeAttr *v1);
 static void	delete_node(hdTree *t);
 static void	insert_space(hdTree *parent, hdTree *t);
-static int	parse_markup(hdTree *t, FILE *fp, int *linenum);
-static int	parse_variable(hdTree *t, FILE *fp, int *linenum);
+static int	parse_markup(hdTree *t, hdFile *fp, int *linenum);
+static int	parse_variable(hdTree *t, hdFile *fp, int *linenum);
 static int	compute_size(hdTree *t);
 static const char *fix_filename(char *path, const char *base);
-static int	utf8_getc(int ch, FILE *fp);
+static int	utf8_getc(int ch, hdFile *fp);
 
 #define issuper(x)	((x) == HD_ELEMENT_CENTER || (x) == HD_ELEMENT_DIV ||\
 			 (x) == HD_ELEMENT_BLOCKQUOTE)
@@ -106,7 +106,7 @@ static int	utf8_getc(int ch, FILE *fp);
 			 (x) == HD_ELEMENT_TFOOT || (x) == HD_ELEMENT_TR)
 #define istentry(x)	((x) == HD_ELEMENT_TD || (x) == HD_ELEMENT_TH)
 
-static FILE	*debug_file = NULL;
+static hdFile	*debug_file = NULL;
 static int	debug_indent = 0;
 
 
@@ -115,7 +115,7 @@ static int	debug_indent = 0;
 //
 
 void
-htmlSetDebugFile(FILE *fp)		// I - File to send debug info or NULL
+htmlSetDebugFile(hdFile *fp)		// I - File to send debug info or NULL
 {
   debug_file   = fp;
   debug_indent = 0;
@@ -128,7 +128,7 @@ htmlSetDebugFile(FILE *fp)		// I - File to send debug info or NULL
 
 hdTree *				// O - Pointer to top of file tree
 htmlReadFile(hdTree     *parent,	// I - Parent tree entry
-             FILE       *fp,		// I - File pointer
+             hdFile     *fp,		// I - File pointer
 	     const char *base)		// I - Base directory for file
 {
   int		ch;			// Character from file
@@ -140,7 +140,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 		*prev,			// Previous tree entry
 		*temp;			// Temporary looping var
   int		descend;		// Descend into node?
-  FILE		*embed;			// File pointer for EMBED
+  hdFile	*embed;			// File pointer for EMBED
   char		newbase[1024];		// New base directory for EMBED
   hdChar	*filename,		// Filename for EMBED tag
 		*type;			// Type for EMBED tag
@@ -849,7 +849,7 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 
 static int				// I - New column
 write_file(hdTree *t,			// I - Tree entry
-           FILE   *fp,			// I - File to write to
+           hdFile *fp,			// I - File to write to
            int    col)			// I - Current column
 {
   int		i;			// Looping var
@@ -1023,7 +1023,7 @@ write_file(hdTree *t,			// I - Tree entry
 
 int				// O - Write status: 0 = success, -1 = fail
 htmlWriteFile(hdTree *parent,	// I - Parent tree entry
-              FILE   *fp)	// I - File to write to
+              hdFile *fp)	// I - File to write to
 {
   if (write_file(parent, fp, 0) < 0)
     return (-1);
@@ -1457,7 +1457,7 @@ insert_space(hdTree *parent,	// I - Parent node
 
 static int				// O - -1 on error, HD_ELEMENT_nnnn otherwise
 parse_markup(hdTree *t,			// I - Current tree entry
-             FILE   *fp,		// I - Input file
+             hdFile *fp,		// I - Input file
 	     int    *linenum)		// O - Current line number
 {
   int		ch, ch2;		// Characters from file
@@ -1642,7 +1642,7 @@ parse_markup(hdTree *t,			// I - Current tree entry
 
 static int				// O - -1 on error, 0 on success
 parse_variable(hdTree *t,		// I - Current tree entry
-               FILE   *fp,		// I - Input file
+               hdFile *fp,		// I - Input file
 	       int    *linenum)		// I - Current line number
 {
   hdChar	name[1024],		// Name of variable
@@ -2499,8 +2499,8 @@ htmlDeleteStyleSheet(void)
 void
 htmlInitStyleSheet(void)
 {
-  char	filename[1024];			// Stylesheet filename
-  FILE	*fp;				// Standard stylesheet
+  char		filename[1024];		// Stylesheet filename
+  hdFile	*fp;			// Standard stylesheet
 
 
   // Check if we have already been called...
@@ -2854,8 +2854,8 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
 //
 
 static int				// O - Unicode equivalent
-utf8_getc(int  ch,			// I - Initial character
-          FILE *fp)			// I - File to read from
+utf8_getc(int    ch,			// I - Initial character
+          hdFile *fp)			// I - File to read from
 {
   int	ch2 = -1, ch3 = -1;		// Temporary characters
   int	unicode;			// Unicode character

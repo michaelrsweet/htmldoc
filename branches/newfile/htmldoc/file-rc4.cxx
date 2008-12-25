@@ -52,12 +52,10 @@
 // 'hdRC4Filter::hdRC4Filter()' - Construct an RC4 encryption filter.
 //
 
-hdRC4Filter::hdRC4Filter(hdFile              *f,
-					// I - File or filter
-                         const unsigned char *key,
-					// I - Key
-			 unsigned            keylen)
-					// I - Length of key
+hdRC4Filter::hdRC4Filter(
+    hdFile              *f,		// I - File or filter
+    const unsigned char *key,		// I - Key
+    unsigned            keylen)		// I - Length of key
 {
   chain_ = f;
 
@@ -108,9 +106,9 @@ hdRC4Filter::put(int c)			// I - Character to put
 // 'hdRC4Filter::read()' - Read bytes (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
+ssize_t					// O - -1 for error (not implemented)
 hdRC4Filter::read(void *,		// I - Bytes to read
-                  int)			// I - Number of bytes to read
+                  size_t)		// I - Number of bytes to read
 {
   return (-1);
 }
@@ -120,8 +118,8 @@ hdRC4Filter::read(void *,		// I - Bytes to read
 // 'hdRC4Filter::seek()' - See in the file (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
-hdRC4Filter::seek(long,			// I - Position or offset
+ssize_t					// O - -1 for error (not implemented)
+hdRC4Filter::seek(ssize_t,		// I - Position or offset
                   int)			// I - Whence to seek from
 {
   return (-1);
@@ -132,7 +130,7 @@ hdRC4Filter::seek(long,			// I - Position or offset
 // 'hdRC4Filter::size()' - Return the size of the file.
 //
 
-long					// O - Size of file in bytes
+size_t					// O - Size of file in bytes
 hdRC4Filter::size()
 {
   return (chain_->size());
@@ -143,13 +141,13 @@ hdRC4Filter::size()
 // 'hdRC4Filter::write()' - Write bytes.
 //
 
-int					// O - Number of bytes written
+ssize_t					// O - Number of bytes written
 hdRC4Filter::write(const void *b,	// I - Buffer to write
-                   int        len)	// I - Number of bytes to write
+                   size_t     len)	// I - Number of bytes to write
 {
   const unsigned char	*in;		// Input pointer for encryption...
-  unsigned		bytes;		// Bytes to encrypt/write
-  int			total;		// Total bytes written
+  size_t		bytes,		// Bytes to encrypt/write
+			total;		// Total bytes written
 
 
   // Encrypt the entire output array, breaking up into buffer-sized
@@ -187,10 +185,9 @@ hdRC4Filter::unget(int c)		// I - Character to unget
 //
 
 void
-hdRC4Filter::init(const unsigned char *key,
-					// I - Key
-                  unsigned            keylen)
-					// I - Length of key
+hdRC4Filter::init(
+    const unsigned char *key,		// I - Key
+    unsigned            keylen)		// I - Length of key
 {
   int		i, j;			// Looping vars
   unsigned char	tmp;			// Temporary variable
@@ -222,12 +219,10 @@ hdRC4Filter::init(const unsigned char *key,
 //
 
 void
-hdRC4Filter::encrypt(const unsigned char *input,
-					// I - Input buffer
-	             unsigned char       *output,
-					// O - Output buffer
-	             unsigned            len)
-					// I - Size of buffers
+hdRC4Filter::encrypt(
+    const unsigned char *input,		// I - Input buffer
+    unsigned char       *output,	// O - Output buffer
+    size_t              len)		// I - Size of buffers
 {
   int		i, j;			// Looping vars
   unsigned char	tmp;			// Swap variable

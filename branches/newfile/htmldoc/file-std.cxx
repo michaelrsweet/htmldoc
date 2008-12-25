@@ -188,11 +188,11 @@ hdStdFile::put(int c)			// I - Character to put
 // 'hdStdFile::read()' - Read data from a file.
 //
 
-int					// O - Number of bytes read
-hdStdFile::read(void *b,		// O - Buffer to read into
-                int  len)		// I - Number of bytes to read
+ssize_t					// O - Number of bytes read
+hdStdFile::read(void    *b,		// O - Buffer to read into
+                size_t  len)		// I - Number of bytes to read
 {
-  int	bytes;				// Number of bytes read
+  ssize_t	bytes;			// Number of bytes read
 
 
   if (!fp_)
@@ -214,9 +214,9 @@ hdStdFile::read(void *b,		// O - Buffer to read into
 // 'hdStdFile::seek()' - Seek to a position in the file.
 //
 
-int					// O - 0 on success, -1 on error
-hdStdFile::seek(long p,			// I - Position
-                int  w)			// I - Where to seek from
+ssize_t					// O - File position on success, -1 on error
+hdStdFile::seek(ssize_t p,		// I - Position
+                int     w)		// I - Where to seek from
 {
   if (!fp_)
     return (-1);
@@ -229,7 +229,7 @@ hdStdFile::seek(long p,			// I - Position
 
   pos(ftell(fp_));
 
-  return (0);
+  return (pos());
 }
 
 
@@ -237,11 +237,11 @@ hdStdFile::seek(long p,			// I - Position
 // 'hdStdFile::size()' - Return the total size of the file.
 //
 
-long					// O - Size of file in bytes
+size_t					// O - Size of file in bytes
 hdStdFile::size()
 {
   if (!fp_)
-    return (-1);
+    return (0);
   else
     return (size_);
 }
@@ -251,11 +251,11 @@ hdStdFile::size()
 // 'hdStdFile::write()' - Write data to a file.
 //
 
-int					// O - Number of bytes written
+ssize_t					// O - Number of bytes written
 hdStdFile::write(const void *b,		// I - Buffer to write
-                 int        len)	// I - Number of bytes to write
+                 size_t     len)	// I - Number of bytes to write
 {
-  int	bytes;				// Number of bytes written
+  ssize_t	bytes;			// Number of bytes written
 
 
   if (!fp_)

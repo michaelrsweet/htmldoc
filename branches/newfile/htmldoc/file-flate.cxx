@@ -121,9 +121,9 @@ hdFlateFilter::put(int c)		// I - Character to put
 // 'hdFlateFilter::read()' - Read bytes (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
+ssize_t					// O - -1 for error (not implemented)
 hdFlateFilter::read(void *,		// I - Bytes to read
-                    int)		// I - Number of bytes to read
+                    size_t)		// I - Number of bytes to read
 {
   return (-1);
 }
@@ -133,8 +133,8 @@ hdFlateFilter::read(void *,		// I - Bytes to read
 // 'hdFlateFilter::seek()' - See in the file (not implemented)
 //
 
-int					// O - -1 for error (not implemented)
-hdFlateFilter::seek(long,		// I - Position or offset
+ssize_t					// O - -1 for error (not implemented)
+hdFlateFilter::seek(ssize_t,		// I - Position or offset
                     int)		// I - Whence to seek from
 {
   return (-1);
@@ -145,7 +145,7 @@ hdFlateFilter::seek(long,		// I - Position or offset
 // 'hdFlateFilter::size()' - Return the size of the file.
 //
 
-long					// O - Size of file in bytes
+size_t					// O - Size of file in bytes
 hdFlateFilter::size()
 {
   return (chain_->size());
@@ -156,9 +156,9 @@ hdFlateFilter::size()
 // 'hdFlateFilter::write()' - Write bytes.
 //
 
-int					// O - Number of bytes written
+ssize_t					// O - Number of bytes written
 hdFlateFilter::write(const void *b,	// I - Buffer to write
-                     int        len)	// I - Number of bytes to write
+                     size_t     len)	// I - Number of bytes to write
 {
   // Loop until all bytes are compressed...
   stream_.next_in  = (Bytef *)b;

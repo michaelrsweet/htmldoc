@@ -47,7 +47,7 @@
 //
 
 hdMemFile::hdMemFile(char   *buffer,	// I - Memory buffer
-                     long   buflen,	// I - Number of bytes in buffer
+                     size_t buflen,	// I - Number of bytes in buffer
                      hdMode m)		// I - Open mode
 {
   mode(m);
@@ -73,10 +73,10 @@ hdMemFile::hdMemFile(char   *buffer,	// I - Memory buffer
 // 'hdMemFile::hdMemFile()' - Open a new memory buffer.
 //
 
-hdMemFile::hdMemFile(long   init_size,	// I - Initial size of buffer
+hdMemFile::hdMemFile(size_t init_size,	// I - Initial size of buffer
                      hdMode m,		// I - Open mode
-		     long   max_size,	// I - Maximum size of buffer
-		     long   incr_size)	// I - Reallocation increment
+		     size_t max_size,	// I - Maximum size of buffer
+		     size_t incr_size)	// I - Reallocation increment
 {
   mode(m);
   pos(0);
@@ -139,22 +139,22 @@ hdMemFile::put(int c)			// I - Character to put
     if (alloc_size_ && (alloc_size_ < max_size_ || max_size_ == 0))
     {
       // Realloc the memory buffer...
-      char	*temp;		// New buffer
-      long	tempsize;	// New buffer size
+      char	*buffer;		// New buffer
+      size_t	bufsize;		// New buffer size
 
 
-      tempsize = alloc_size_ + incr_size_;
-      if (tempsize > max_size_ && max_size_ > 0)
-        tempsize = max_size_;
+      bufsize = alloc_size_ + incr_size_;
+      if (bufsize > max_size_ && max_size_ > 0)
+        bufsize = max_size_;
 
-      temp = new char[tempsize];
+      buffer = new char[bufsize];
 
-      memcpy(temp, buffer_, alloc_size_);
+      memcpy(buffer, buffer_, alloc_size_);
 
       delete[] buffer_;
 
-      alloc_size_ = tempsize;
-      buffer_     = temp;
+      alloc_size_ = bufsize;
+      buffer_     = buffer;
       end_        = buffer_ + alloc_size_;
       current_    = buffer_ + pos();
     }
@@ -177,11 +177,11 @@ hdMemFile::put(int c)			// I - Character to put
 // 'hdMemFile::read()' - Read data from a file.
 //
 
-int					// O - Number of bytes read
-hdMemFile::read(void *b,		// O - Buffer to read into
-                int  len)		// I - Number of bytes to read
+ssize_t					// O - Number of bytes read
+hdMemFile::read(void   *b,		// O - Buffer to read into
+                size_t len)		// I - Number of bytes to read
 {
-  int	bytes;				// Number of bytes read
+  size_t	bytes;			// Number of bytes read
 
 
   if (len > (size_ - pos()))
@@ -205,9 +205,9 @@ hdMemFile::read(void *b,		// O - Buffer to read into
 // 'hdMemFile::seek()' - Seek to a position in the file.
 //
 
-int					// O - 0 on success, -1 on error
-hdMemFile::seek(long p,			// I - Position
-                int  w)			// I - Where to seek from
+ssize_t					// O - 0 on success, -1 on error
+hdMemFile::seek(ssize_t p,		// I - Position
+                int     w)		// I - Where to seek from
 {
   switch (w)
   {
@@ -225,14 +225,14 @@ hdMemFile::seek(long p,			// I - Position
 
   if (p < 0)
     pos(0);
-  else if (p > size_)
+  else if ((size_t)p > size_)
     pos(size_);
   else
     pos(p);
 
   current_ = buffer_ + pos();
 
-  return (0);
+  return (pos());
 }
 
 
@@ -240,7 +240,7 @@ hdMemFile::seek(long p,			// I - Position
 // 'hdMemFile::size()' - Return the total size of the file.
 //
 
-long					// O - Size of file in bytes
+size_t					// O - Size of file in bytes
 hdMemFile::size()
 {
   return (size_);
@@ -251,11 +251,11 @@ hdMemFile::size()
 // 'hdMemFile::write()' - Write data to a file.
 //
 
-int					// O - Number of bytes written
+ssize_t					// O - Number of bytes written
 hdMemFile::write(const void *b,		// I - Buffer to write
-                 int        len)	// I - Number of bytes to write
+                 size_t     len)	// I - Number of bytes to write
 {
-  int	bytes;				// Number of bytes written
+  size_t	bytes;			// Number of bytes written
 
 
   if (alloc_size_)
@@ -266,28 +266,28 @@ hdMemFile::write(const void *b,		// I - Buffer to write
     if (bytes < len && (alloc_size_ < max_size_ || max_size_ == 0))
     {
       // Realloc the memory buffer...
-      char	*temp;		// New buffer
-      long	tempsize;	// New buffer size
+      char	*buffer;		// New buffer
+      size_t	bufsize;		// New buffer size
 
 
       do
       {
-        tempsize = alloc_size_ + incr_size_;
-        if (tempsize > max_size_ && max_size_ > 0)
-          tempsize = max_size_;
+        bufsize = alloc_size_ + incr_size_;
+        if (bufsize > max_size_ && max_size_ > 0)
+          bufsize = max_size_;
 
-	bytes = tempsize - pos();
+	bytes = bufsize - pos();
       }
-      while (bytes < len && (tempsize < max_size_ || max_size_ == 0));
+      while (bytes < len && (bufsize < max_size_ || max_size_ == 0));
 
-      temp = new char[tempsize];
+      buffer = new char[bufsize];
 
-      memcpy(temp, buffer_, alloc_size_);
+      memcpy(buffer, buffer_, alloc_size_);
 
       delete[] buffer_;
 
-      alloc_size_ = tempsize;
-      buffer_     = temp;
+      alloc_size_ = bufsize;
+      buffer_     = buffer;
       end_        = buffer_ + alloc_size_;
       current_    = buffer_ + pos();
     }

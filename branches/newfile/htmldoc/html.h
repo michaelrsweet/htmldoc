@@ -3,7 +3,7 @@
  *
  *   HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2008 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -85,8 +85,8 @@ extern hdStyleSheet	*_htmlStyleSheet;
  * Prototypes...
  */
 
-extern hdTree	*htmlReadFile(hdTree *parent, FILE *fp, const char *base);
-extern int	htmlWriteFile(hdTree *parent, FILE *fp);
+extern hdTree	*htmlReadFile(hdTree *parent, hdFile *fp, const char *base);
+extern int	htmlWriteFile(hdTree *parent, hdFile *fp);
 
 extern hdTree	*htmlAddTree(hdTree *parent, hdElement element, hdChar *data);
 extern int	htmlDeleteTree(hdTree *parent);
@@ -110,7 +110,7 @@ extern void	htmlUpdateStyle(hdTree *t, const char *base);
 extern void	htmlDeleteStyleSheet(void);
 extern void	htmlInitStyleSheet(void);
 
-extern void	htmlSetDebugFile(FILE *fp);
+extern void	htmlSetDebugFile(hdFile *fp);
 extern void	htmlDebugStats(const char *title, hdTree *t);
 extern void	htmlDebugStyleStats(void);
 
