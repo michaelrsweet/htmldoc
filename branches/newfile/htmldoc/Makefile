@@ -48,6 +48,11 @@ BASEOBJS =	\
 		http.o \
 		http-md5.o \
 		image.o \
+		image-bmp.o \
+		image-gif.o \
+		image-jpeg.o \
+		image-png.o \
+		image-reduce.o \
 		index.o \
 		margin.o \
 		md5.o \

@@ -1,42 +1,42 @@
-/*
- * "$Id$"
- *
- *   Main entry for HTMLDOC, a HTML document processing program.
- *
- *   Copyright 1997-2008 by Easy Software Products.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: HTMLDOC Licensing Information
- *       Easy Software Products
- *       516 Rio Grand Ct
- *       Morgan Hill, CA 95037 USA
- *
- *       http://www.htmldoc.org/
- *
- * Contents:
- *
- *   main()            - Main entry for HTMLDOC.
- *   prefs_getrc()     - Get the rc file for preferences...
- *   prefs_load()      - Load HTMLDOC preferences...
- *   prefs_save()      - Save HTMLDOC preferences...
- *   compare_strings() - Compare two command-line strings.
- *   load_book()       - Load a book file...
- *   parse_options()   - Parse options from a book file...
- *   read_file()       - Read a file into the current document.
- *   set_permissions() - Set the PDF permission bits...
- *   term_handler()    - Handle CTRL-C or kill signals...
- *   usage()           - Show program version and command-line options.
- */
+//
+// "$Id$"
+//
+// Main entry for HTMLDOC, a HTML document processing program.
+//
+// Copyright 1997-2008 Easy Software Products.
+//
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
+//
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
+//
+//     http://www.htmldoc.org/
+//
+// Contents:
+//
+//   main()            - Main entry for HTMLDOC.
+//   prefs_getrc()     - Get the rc file for preferences...
+//   prefs_load()      - Load HTMLDOC preferences...
+//   prefs_save()      - Save HTMLDOC preferences...
+//   compare_strings() - Compare two command-line strings.
+//   load_book()       - Load a book file...
+//   parse_options()   - Parse options from a book file...
+//   read_file()       - Read a file into the current document.
+//   set_permissions() - Set the PDF permission bits...
+//   term_handler()    - Handle CTRL-C or kill signals...
+//   usage()           - Show program version and command-line options.
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 #define _HTMLDOC_CXX_
 #include "htmldoc.h"
@@ -123,6 +123,8 @@ main(int  argc,				/* I - Number of command-line arguments */
 
 #ifdef WIN32
 #else
+  signal(SIGHUP, term_handler);
+  signal(SIGINT, term_handler);
   signal(SIGTERM, term_handler);
 #endif // WIN32
 
@@ -131,6 +133,12 @@ main(int  argc,				/* I - Number of command-line arguments */
   */
 
   prefs_set_paths();
+
+ /*
+  * Register image handlers...
+  */
+
+  hdImage::register_standard();
 
  /*
   * Load preferences...
@@ -287,7 +295,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strlcpy((char *)BodyImage, argv[i], sizeof(BodyImage));
+        BodyImage = hdImage::find(argv[i], !OutputColor, Path);
       else
         usage(argv[i - 1]);
     }
@@ -700,7 +708,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       if (i >= argc)
         usage(argv[i - 1]);
 
-      strlcpy(HFImage[hfimgnum], argv[i], sizeof(HFImage[0]));
+      HFImage[hfimgnum] = hdImage::find(argv[i], !OutputColor, Path);
     }
     else if (compare_strings(argv[i], "--jpeg", 3) == 0 ||
              strncmp(argv[i], "--jpeg=", 7) == 0)
@@ -749,7 +757,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strlcpy(LogoImage, argv[i], sizeof(LogoImage));
+        LogoImage = hdImage::find(argv[i], !OutputColor, Path);
       else
         usage(argv[i - 1]);
     }
@@ -818,7 +826,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        char	ext[255];		// Extension
+        char	ext[256];		// Extension
 
         strlcpy(OutputPath, argv[i], sizeof(OutputPath));
         OutputFiles = 0;
@@ -984,7 +992,10 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       i ++;
       if (i < argc)
-        strlcpy(TitleImage, argv[i], sizeof(TitleImage));
+      {
+        strlcpy(TitleFile, argv[i], sizeof(TitleFile));
+        TitleImage = hdImage::find(argv[i], !OutputColor, Path);
+      }
       else
         usage(argv[i - 1]);
 
@@ -1225,7 +1236,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   htmlDeleteTree(toc);
 
   hdFile::cleanup();
-  image_flush_cache();
+  hdImage::flush();
 
   return (Errors);
 }
@@ -1311,7 +1322,7 @@ prefs_load(void)
       else if (strncasecmp(line, "BODYCOLOR=", 10) == 0)
 	strlcpy(BodyColor, line + 10, sizeof(BodyColor));
       else if (strncasecmp(line, "BODYIMAGE=", 10) == 0)
-	strlcpy(BodyImage, line + 10, sizeof(BodyImage));
+        BodyImage = hdImage::find(line + 10, !OutputColor, Path);
       else if (strncasecmp(line, "LINKCOLOR=", 10) == 0)
         strlcpy(LinkColor, line + 10, sizeof(LinkColor));
       else if (strncasecmp(line, "LINKSTYLE=", 10) == 0)
@@ -1980,12 +1991,13 @@ parse_options(const char   *line,	// I - Options from book file
     }
     else if (strcmp(temp, "--logo") == 0 ||
              strcmp(temp, "--logoimage") == 0)
-      strlcpy(LogoImage, temp2, sizeof(LogoImage));
+      LogoImage = hdImage::find(temp2, !OutputColor, Path);
     else if (strcmp(temp, "--titlefile") == 0 ||
              strcmp(temp, "--titleimage") == 0)
     {
       TitlePage = 1;
-      strlcpy(TitleImage, temp2, sizeof(TitleImage));
+      strlcpy(TitleFile, temp2, sizeof(TitleFile));
+      TitleImage = hdImage::find(temp2, !OutputColor, Path);
     }
     else if (strcmp(temp, "-f") == 0 && !CGIMode)
     {
@@ -2020,7 +2032,7 @@ parse_options(const char   *line,	// I - Options from book file
     else if (strcmp(temp, "--bodycolor") == 0)
       strlcpy(BodyColor, temp2, sizeof(BodyColor));
     else if (strcmp(temp, "--bodyimage") == 0)
-      strlcpy(BodyImage, temp2, sizeof(BodyImage));
+      BodyImage = hdImage::find(temp2, !OutputColor, Path);
     else if (strcmp(temp, "--textcolor") == 0)
       _htmlStyleSheet->set_color(temp2);
     else if (strcmp(temp, "--linkcolor") == 0)
@@ -2395,7 +2407,7 @@ term_handler(int signum)	// I - Signal number
   REF(signum);
 
   hdFile::cleanup();
-  image_flush_cache();
+  hdImage::flush();
   exit(1);
 }
 #endif // !WIN32
@@ -2546,6 +2558,6 @@ usage(const char *arg)			// I - Bad argument string
 }
 
 
-/*
- * End of "$Id$".
- */
+//
+// End of "$Id$".
+//

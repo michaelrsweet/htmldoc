@@ -1,23 +1,22 @@
 //
 // "$Id$"
 //
-//   Hyper-Text Transport Protocol class routines for HTMLDOC.
+// Hyper-Text Transport Protocol class routines for HTMLDOC.
 //
-//   Copyright 1997-2008 Easy Software Products.
+// Copyright 1997-2008 Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
@@ -888,10 +887,10 @@ hdHTTP::send_trace(const char *uri)	// I - URI for trace
 void
 hdHTTP::flush()
 {
-  char	buffer[8192];	// Junk buffer
+  char	junk[8192];	// Junk buffer
 
 
-  while (read(buffer, sizeof(buffer)) > 0);
+  while (read(junk, sizeof(junk)) > 0);
 }
 
 
@@ -1370,7 +1369,6 @@ hdHTTP::update()
 		*value;			// Pointer to value on line
   hdHTTPField	field;			// Field index
   int		major, minor;		// HTTP version numbers
-  hdHTTPStatus	status;			// Authorization status
 #ifdef HAVE_LIBSSL
   SSL_CTX	*context;		// Context for encryption
   SSL		*conn;			// Connection for encryption
@@ -1473,7 +1471,6 @@ hdHTTP::update()
         return (HD_HTTP_ERROR);
 
       version = (hdHTTPVersion)(major * 100 + minor);
-      status  = status;
     }
     else if ((value = strchr(line, ':')) != NULL)
     {
