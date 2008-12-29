@@ -32,6 +32,7 @@ include ../Makedefs
 #
 
 BASEOBJS =	\
+		array.o \
 		entity.o \
 		file.o \
 		file-ascii.o \

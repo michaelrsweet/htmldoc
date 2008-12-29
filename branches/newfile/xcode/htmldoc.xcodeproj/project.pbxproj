@@ -32,6 +32,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		27CD4E3B0F09992100E552E8 /* array.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27CD4E390F09992100E552E8 /* array.cxx */; };
 		27DD25500EC01A3300B76D4E /* entity.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252B0EC01A3300B76D4E /* entity.cxx */; };
 		27DD25520EC01A3300B76D4E /* html.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252F0EC01A3300B76D4E /* html.cxx */; };
 		27DD25530EC01A3300B76D4E /* htmldoc.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25310EC01A3300B76D4E /* htmldoc.cxx */; };
@@ -373,6 +374,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		27CD4E390F09992100E552E8 /* array.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = array.cxx; path = ../htmldoc/array.cxx; sourceTree = SOURCE_ROOT; };
+		27CD4E3A0F09992100E552E8 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = ../htmldoc/array.h; sourceTree = SOURCE_ROOT; };
 		27DD25290EC019F500B76D4E /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		27DD252A0EC01A3300B76D4E /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = ../htmldoc/debug.h; sourceTree = SOURCE_ROOT; };
 		27DD252B0EC01A3300B76D4E /* entity.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entity.cxx; path = ../htmldoc/entity.cxx; sourceTree = SOURCE_ROOT; };
@@ -631,6 +634,8 @@
 		08FB7795FE84155DC02AAC07 /* htmldoc */ = {
 			isa = PBXGroup;
 			children = (
+				27CD4E390F09992100E552E8 /* array.cxx */,
+				27CD4E3A0F09992100E552E8 /* array.h */,
 				27EB2FAF0F07B8200034DB3C /* file-ascii.cxx */,
 				27EB2FB00F07B8200034DB3C /* file-common.cxx */,
 				27EB2FB10F07B8200034DB3C /* file-flate.cxx */,
@@ -1101,6 +1106,7 @@
 				27EB2FCE0F07B8200034DB3C /* image-png.cxx in Sources */,
 				27EB2FCF0F07B8200034DB3C /* image-reduce.cxx in Sources */,
 				27EB2FD00F07B8200034DB3C /* md5.cxx in Sources */,
+				27CD4E3B0F09992100E552E8 /* array.cxx in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
