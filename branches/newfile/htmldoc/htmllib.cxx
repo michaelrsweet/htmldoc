@@ -1936,8 +1936,11 @@ compute_size(hdTree *t)		// I - Tree entry
     width_ptr  = htmlGetAttr(t, "WIDTH");
     height_ptr = htmlGetAttr(t, "HEIGHT");
 
-    img = hdImage::find((char *)htmlGetAttr(t, "_HD_SRC"),
-                        _htmlStyleSheet->grayscale);
+    if ((img = hdImage::find((char *)htmlGetAttr(t, "_HD_SRC"),
+                             _htmlStyleSheet->grayscale)) == NULL)
+      progress_error(HD_ERROR_FILE_NOT_FOUND,
+                     "Unable to open image file \"%s\"",
+		     (char *)htmlGetAttr(t, "SRC"));
 
     if (width_ptr != NULL && height_ptr != NULL)
     {

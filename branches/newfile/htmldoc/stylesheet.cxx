@@ -55,7 +55,7 @@ hdStyleSheet::hdStyleSheet()
 {
   char	filename[1024];			// Filename
   FILE	*fp;				// psglyph file
-  int	unicode;			// Unicode character
+  int	unich;				// Unicode character
   char	glyph[64];			// Glyph name
 
 
@@ -87,15 +87,15 @@ hdStyleSheet::hdStyleSheet()
   snprintf(filename, sizeof(filename), "%s/data/psglyphs", _htmlData);
   if ((fp = fopen(filename, "r")) != NULL)
   {
-    while (fscanf(fp, "%x%63s", &unicode, glyph) == 2)
+    while (fscanf(fp, "%x%63s", &unich, glyph) == 2)
     {
-      if (unicode < 0 ||
-          unicode >= (int)(sizeof(uniglyphs) / sizeof(uniglyphs[0])))
+      if (unich < 0 ||
+          unich >= (int)(sizeof(uniglyphs) / sizeof(uniglyphs[0])))
         progress_error(HD_ERROR_BAD_FORMAT,
 	               "Bad Unicode character %x in psglyphs data file!",
-	               unicode);
+	               unich);
       else
-        uniglyphs[unicode] = strdup(glyph);
+        uniglyphs[unich] = strdup(glyph);
     }
 
     fclose(fp);

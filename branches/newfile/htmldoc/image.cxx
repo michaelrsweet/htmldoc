@@ -272,19 +272,11 @@ hdImage::find(const char *p,		// I - Name of image file
 
   // Nope, see if we can load it...
   if ((fp = hdFile::open(filename, HD_FILE_READ)) == NULL)
-  {
-    perror(filename);
     return (NULL);
-  }
 
   // Read the first 16 bytes of the file...
   fp->read(header, sizeof(header));
   delete fp;
-
-  printf("First 16 bytes of \"%s\" are:\n   ", filename);
-  for (i = 0; i < 16; i ++)
-    printf(" %02X", (hdByte)header[i]);
-  putchar('\n');
 
   // See if any of the registered image classes can load it...
   for (i = 0, img = (hdImage *)0, f = formats_; i < num_formats_; i ++, f ++)
