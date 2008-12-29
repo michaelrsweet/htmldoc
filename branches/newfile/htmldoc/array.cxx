@@ -399,8 +399,10 @@ hdArray::remove(void *e)		// I - Element
   if (temp <= current_)
     current_ --;
 
-  if (temp <= insert_)
+  if (temp < insert_)
     insert_ --;
+  else if (temp == insert_)
+    insert_ = -1;
 
   for (i = 0; i < num_saved_; i ++)
     if (temp <= saved_[i])
