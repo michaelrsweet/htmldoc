@@ -1,60 +1,65 @@
-/*
- * "$Id$"
- *
- * HTML exporting functions for HTMLDOC, a HTML document processing program.
- *
- * Copyright 1997-2008 by Easy Software Products.
- *
- * These coded instructions, statements, and computer programs are the
- * property of Easy Software Products and are protected by Federal
- * copyright law.  Distribution and use rights are outlined in the file
- * "COPYING.txt" which should have been included with this file.  If this
- * file is missing or damaged please contact Easy Software Products
- * at:
- *
- *     Attn: HTMLDOC Licensing Information
- *     Easy Software Products
- *     516 Rio Grand Ct
- *     Morgan Hill, CA 95037 USA
- *
- *     http://www.htmldoc.org/
- *
- * Contents:
- *
- *   html_export()   - Export to HTML...
- *   count_headers() - Count the number of first and second level headings
- *                     in a document tree.
- *   write_header()  - Output the standard "header" for a HTML file.
- *   write_footer()  - Output the standard "footer" for a HTML file.
- *   write_all()     - Write all markup text for the given tree.
- *   get_title()     - Get the title string for the given document...
- *   add_link()      - Add a named link...
- *   find_link()     - Find a named link...
- *   compare_links() - Compare two named links.
- */
+//
+// "$Id$"
+//
+// HTML exporting functions for HTMLDOC, a HTML document processing program.
+//
+// Copyright 1997-2008 by Easy Software Products.
+//
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
+//
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
+//
+//     http://www.htmldoc.org/
+//
+// Contents:
+//
+//   html_export()     - Export to HTML.
+//   write_header()    - Output the standard "header" for a HTML file.
+//   write_footer()    - Output the standard "footer" for a HTML file.
+//   write_title()     - Write a title page.
+//   write_all()       - Write all markup text for the given tree.
+//   write_node()      - Write a single tree node.
+//   write_nodeclose() - Close a single tree node.
+//   write_toc()       - Write all markup text for the given table-of-contents.
+//   get_title()       - Get the title string for the given document.
+//   add_link()        - Add a named link.
+//   find_link()       - Find a named link.
+//   compare_links()   - Compare two named links.
+//   scan_links()      - Scan a document for link targets, and keep track of the
+//                       files they are in.
+//   update_links()    - Update links as needed.
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 #include "htmldoc.h"
 #include <ctype.h>
 
 
-/*
- * Named link structure...
- */
+//
+// Named link structure...
+//
 
 typedef struct
 {
-  hdChar		*filename;	/* File for link */
-  hdChar		name[124];	/* Reference name */
+  hdChar		*filename;	// File for link
+  hdChar		name[124];	// Reference name
 } hdLink;
 
 
-/*
- * Local globals...
- */
+//
+// Local globals...
+//
 
 
 static int	num_links = 0,
@@ -62,54 +67,51 @@ static int	num_links = 0,
 static hdLink	*links;
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
 }
 
-static void	write_header(FILE **out, hdChar *filename, hdChar *title,
-		             hdChar *author, hdChar *copyright, hdChar *docnumber,
-			     hdTree *t);
-static void	write_footer(FILE **out, hdTree *t);
-static void	write_title(FILE *out, hdChar *title, hdChar *author,
+static void	write_header(hdFile *&out, hdChar *filename, hdChar *title,
+		             hdChar *author, hdChar *copyright,
+			     hdChar *docnumber, hdTree *t);
+static void	write_footer(hdFile *&out, hdTree *t);
+static void	write_title(hdFile *out, hdChar *title, hdChar *author,
 		            hdChar *copyright, hdChar *docnumber);
-static int	write_all(FILE *out, hdTree *t, int col);
-static int	write_node(FILE *out, hdTree *t, int col);
-static int	write_nodeclose(FILE *out, hdTree *t, int col);
-static int	write_toc(FILE *out, hdTree *t, int col);
+static int	write_all(hdFile *out, hdTree *t, int col);
+static int	write_node(hdFile *out, hdTree *t, int col);
+static int	write_nodeclose(hdFile *out, hdTree *t, int col);
+static int	write_toc(hdFile *out, hdTree *t, int col);
 static hdChar	*get_title(hdTree *doc);
 
 static void	add_link(hdChar *name, hdChar *filename);
-static hdLink	*find_link(hdChar *name);
 static int	compare_links(hdLink *n1, hdLink *n2);
+static hdLink	*find_link(hdChar *name);
 static void	scan_links(hdTree *t, hdChar *filename);
 static void	update_links(hdTree *t, hdChar *filename);
 
 
-/*
- * 'html_export()' - Export to HTML...
- */
+//
+// 'html_export()' - Export to HTML.
+//
 
-int					/* O - 0 = success, -1 = failure */
-html_export(hdTree *document,		/* I - Document to export */
-            hdTree *toc,		/* I - Table of contents for document */
+int					// O - 0 = success, -1 = failure
+html_export(hdTree *document,		// I - Document to export
+            hdTree *toc,		// I - Table of contents for document
 	    hdTree *ind)		// I - Index of document
 {
-  hdChar	*title,			/* Title text */
-		*author,		/* Author name */
-		*copyright,		/* Copyright text */
-		*docnumber;		/* Document number */
-  FILE		*out;			/* Output file */
-  char		temp[1024];		/* Temporary buffer for find */
+  hdChar	*title,			// Title text
+		*author,		// Author name
+		*copyright,		// Copyright text
+		*docnumber;		// Document number
+  hdFile	*out;			// Output file
+  char		temp[1024];		// Temporary buffer for find
 
 
- /*
-  * Copy logo and title images...
-  */
-
+  // Copy logo and title images...
   if (OutputFiles)
   {
     if (LogoImage)
@@ -123,19 +125,13 @@ html_export(hdTree *document,		/* I - Document to export */
   if (OutputFiles && TitleImage && TitlePage)
     TitleImage->copy(OutputPath, temp, sizeof(temp));
 
- /*
-  * Get document strings...
-  */
-
+  // Get document strings...
   title     = get_title(document);
   author    = htmlGetMeta(document, "author");
   copyright = htmlGetMeta(document, "copyright");
   docnumber = htmlGetMeta(document, "docnumber");
 
- /*
-  * Scan for all links in the document, and then update them...
-  */
-
+  // Scan for all links in the document, and then update them...
   num_links   = 0;
   alloc_links = 0;
   links       = NULL;
@@ -144,62 +140,56 @@ html_export(hdTree *document,		/* I - Document to export */
   update_links(document, NULL);
   update_links(toc, NULL);
 
- /*
-  * Generate title pages and a table of contents...
-  */
-
+  // Generate title pages and a table of contents...
   out = NULL;
   if (TitlePage)
   {
-    write_header(&out, (hdChar *)"index.html", title, author, copyright,
+    write_header(out, (hdChar *)"index.html", title, author, copyright,
                  docnumber, NULL);
-    if (out != NULL)
+    if (out)
       write_title(out, title, author, copyright, docnumber);
 
-    write_footer(&out, NULL);
-    write_header(&out, (hdChar *)"toc.html", title, author, copyright,
+    write_footer(out, NULL);
+    write_header(out, (hdChar *)"toc.html", title, author, copyright,
                  docnumber, NULL);
   }
   else
-    write_header(&out, (hdChar *)"index.html", title, author, copyright,
+    write_header(out, (hdChar *)"index.html", title, author, copyright,
                  docnumber, NULL);
 
-  if (out != NULL)
+  if (out)
     write_toc(out, toc, 0);
-  write_footer(&out, NULL);
+  write_footer(out, NULL);
 
- /*
-  * Then write each output file...
-  */
-
+  // Then write each output file...
   while (document != NULL)
   {
-    write_header(&out, htmlGetAttr(document, "_HD_FILENAME"),
+    write_header(out, htmlGetAttr(document, "_HD_FILENAME"),
                  title, author, copyright, docnumber, document);
-    if (out != NULL)
+    if (out)
       write_all(out, document->child, 0);
-    write_footer(&out, document);
+    write_footer(out, document);
 
     document = document->next;
   }
 
   if (ind)
   {
-    write_header(&out, (hdChar *)"idx.html", title, author, copyright,
+    write_header(out, (hdChar *)"idx.html", title, author, copyright,
         	 docnumber, ind);
     if (out)
       write_all(out, ind->child, 0);
-    write_footer(&out, ind);
+    write_footer(out, ind);
   }
 
-  if (!OutputFiles && out != stdout && out != NULL)
+  if (!OutputFiles && out)
   {
-    fputs("</BODY>\n", out);
-    fputs("</HTML>\n", out);
+    out->puts("</BODY>\n");
+    out->puts("</HTML>\n");
 
-    progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
+    progress_error(HD_ERROR_NONE, "BYTES: %ld", (long)out->size());
 
-    fclose(out);
+    delete out;
   }
 
   if (title != NULL)
@@ -214,27 +204,27 @@ html_export(hdTree *document,		/* I - Document to export */
     links       = NULL;
   }
 
-  return (out == NULL);
+  return (out == NULL ? -1 : 0);
 }
 
 
-/*
- * 'write_header()' - Output the standard "header" for a HTML file.
- */
+//
+// 'write_header()' - Output the standard "header" for a HTML file.
+//
 
 static void
-write_header(FILE   **out,		/* IO - Output file */
-             hdChar *filename,		/* I - Output filename */
-	     hdChar *title,		/* I - Title for document */
-             hdChar *author,		/* I - Author for document */
-             hdChar *copyright,		/* I - Copyright for document */
-             hdChar *docnumber,		/* I - ID number for document */
-	     hdTree *t)			/* I - Current document file */
+write_header(hdFile *&out,		// IO - Output file
+             hdChar *filename,		// I - Output filename
+	     hdChar *title,		// I - Title for document
+             hdChar *author,		// I - Author for document
+             hdChar *copyright,		// I - Copyright for document
+             hdChar *docnumber,		// I - ID number for document
+	     hdTree *t)			// I - Current document file
 {
-  char		realname[1024];		/* Real filename */
-  char		base[1024];		/* Filename without directory */
-  int		newfile;		/* Non-zero if this is a new file */
-  static const char *families[] =	/* Typeface names */
+  char		realname[1024];		// Real filename
+  char		base[1024];		// Filename without directory
+  int		newfile;		// Non-zero if this is a new file
+  static const char *families[] =	// Typeface names
 		{
 		  "monospace",
 		  "serif",
@@ -254,13 +244,13 @@ write_header(FILE   **out,		/* IO - Output file */
 
     snprintf(realname, sizeof(realname), "%s/%s", OutputPath, base);
 
-    *out = fopen(realname, "wb");
+    out = hdFile::open(realname, HD_FILE_WRITE);
   }
   else if (OutputPath[0])
   {
-    if (*out == NULL)
+    if (!out)
     {
-      *out    = fopen(OutputPath, "wb");
+      out     = hdFile::open(OutputPath, HD_FILE_WRITE);
       newfile = 1;
     }
     else
@@ -268,16 +258,16 @@ write_header(FILE   **out,		/* IO - Output file */
   }
   else
   {
-    if (*out == NULL)
+    if (!out)
     {
-      *out    = stdout;
+      out     = new hdStdFile(stdout, HD_FILE_WRITE);
       newfile = 1;
     }
     else
       newfile = 0;
   }
 
-  if (*out == NULL)
+  if (!out)
   {
     progress_error(HD_ERROR_WRITE_ERROR,
                    "Unable to create output file \"%s\" - %s.\n",
@@ -288,183 +278,184 @@ write_header(FILE   **out,		/* IO - Output file */
 
   if (newfile)
   {
-    fputs("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "
-          "\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n", *out);
-    fputs("<HTML>\n", *out);
-    fputs("<HEAD>\n", *out);
+    out->puts("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "
+          "\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n");
+    out->puts("<HTML>\n");
+    out->puts("<HEAD>\n");
     if (title != NULL)
-      fprintf(*out, "<TITLE>%s</TITLE>\n", title);
+      out->printf("<TITLE>%s</TITLE>\n", title);
     if (author != NULL)
-      fprintf(*out, "<META NAME=\"author\" CONTENT=\"%s\">\n", author);
+      out->printf("<META NAME=\"author\" CONTENT=\"%s\">\n", author);
     if (copyright != NULL)
-      fprintf(*out, "<META NAME=\"copyright\" CONTENT=\"%s\">\n", copyright);
+      out->printf("<META NAME=\"copyright\" CONTENT=\"%s\">\n", copyright);
     if (docnumber != NULL)
-      fprintf(*out, "<META NAME=\"docnumber\" CONTENT=\"%s\">\n", docnumber);
-    fprintf(*out, "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; CHARSET=iso-%s\">\n",
+      out->printf("<META NAME=\"docnumber\" CONTENT=\"%s\">\n", docnumber);
+    out->printf("<META HTTP-EQUIV=\"Content-Type\" "
+                  "CONTENT=\"text/html; CHARSET=iso-%s\">\n",
             _htmlStyleSheet->charset);
 
     if (OutputFiles)
     {
-      fputs("<LINK REL=\"Start\" HREF=\"index.html\">\n", *out);
+      out->puts("<LINK REL=\"Start\" HREF=\"index.html\">\n");
 
       if (TitlePage)
-	fputs("<LINK REL=\"Contents\" HREF=\"toc.html\">\n", *out);
+	out->puts("<LINK REL=\"Contents\" HREF=\"toc.html\">\n");
       else
-	fputs("<LINK REL=\"Contents\" HREF=\"index.html\">\n", *out);
+	out->puts("<LINK REL=\"Contents\" HREF=\"index.html\">\n");
 
       if (t)
       {
 	if (t->prev != NULL)
-	  fprintf(*out, "<LINK REL=\"Prev\" HREF=\"%s\">\n",
+	  out->printf("<LINK REL=\"Prev\" HREF=\"%s\">\n",
         	  hdFile::basename((char *)htmlGetAttr(t->prev, "_HD_FILENAME"),
 		                   base, sizeof(base)));
 
 	if (t->next != NULL)
-	  fprintf(*out, "<LINK REL=\"Next\" HREF=\"%s\">\n",
+	  out->printf("<LINK REL=\"Next\" HREF=\"%s\">\n",
         	  hdFile::basename((char *)htmlGetAttr(t->next, "_HD_FILENAME"),
 		                   base, sizeof(base)));
       }
     }
 
-    fputs("<STYLE TYPE=\"text/css\"><!--\n", *out);
-    fprintf(*out, "BODY { font-family: %s }\n", families[_htmlBodyFont]);
-    fprintf(*out, "H1 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H2 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H3 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H4 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H5 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fprintf(*out, "H6 { font-family: %s }\n", families[_htmlHeadingFont]);
-    fputs("SUB { font-size: smaller }\n", *out);
-    fputs("SUP { font-size: smaller }\n", *out);
-    fputs("PRE { font-family: monospace }\n", *out);
+    out->puts("<STYLE TYPE=\"text/css\"><!--\n");
+    out->printf("BODY { font-family: %s }\n", families[_htmlBodyFont]);
+    out->printf("H1 { font-family: %s }\n", families[_htmlHeadingFont]);
+    out->printf("H2 { font-family: %s }\n", families[_htmlHeadingFont]);
+    out->printf("H3 { font-family: %s }\n", families[_htmlHeadingFont]);
+    out->printf("H4 { font-family: %s }\n", families[_htmlHeadingFont]);
+    out->printf("H5 { font-family: %s }\n", families[_htmlHeadingFont]);
+    out->printf("H6 { font-family: %s }\n", families[_htmlHeadingFont]);
+    out->puts("SUB { font-size: smaller }\n");
+    out->puts("SUP { font-size: smaller }\n");
+    out->puts("PRE { font-family: monospace }\n");
 
     if (!LinkStyle)
-      fputs("A { text-decoration: none }\n", *out);
+      out->puts("A { text-decoration: none }\n");
 
-    fputs("--></STYLE>\n", *out);
-    fputs("</HEAD>\n", *out);
-    fputs("<BODY", *out);
+    out->puts("--></STYLE>\n");
+    out->puts("</HEAD>\n");
+    out->puts("<BODY");
 
     if (BodyImage)
-      fprintf(*out, " BACKGROUND=\"%s\"", BodyImage->uri());
+      out->printf(" BACKGROUND=\"%s\"", BodyImage->uri());
     if (BodyColor[0])
-      fprintf(*out, " BGCOLOR=\"%s\"", BodyColor);
+      out->printf(" BGCOLOR=\"%s\"", BodyColor);
 
-    fprintf(*out, " TEXT=\"#%02X%02X%02X\"",
+    out->printf(" TEXT=\"#%02X%02X%02X\"",
             _htmlStyleSheet->def_style.color[0],
             _htmlStyleSheet->def_style.color[1],
             _htmlStyleSheet->def_style.color[2]);
 
     if (LinkColor[0])
-      fprintf(*out, " LINK=\"%s\" VLINK=\"%s\" ALINK=\"%s\"", LinkColor,
+      out->printf(" LINK=\"%s\" VLINK=\"%s\" ALINK=\"%s\"", LinkColor,
               LinkColor, LinkColor);
 
-    fputs(">\n", *out);
+    out->puts(">\n");
   }
   else
-    fputs("<HR NOSHADE>\n", *out);
+    out->puts("<HR NOSHADE>\n");
 
   if (OutputFiles && t != NULL && (t->prev != NULL || t->next != NULL))
   {
     if (LogoImage)
-      fprintf(*out, "<IMG SRC=\"%s\">\n", LogoImage->uri());
+      out->printf("<IMG SRC=\"%s\">\n", LogoImage->uri());
 
     for (int hfi = 0; hfi < MAX_HF_IMAGES; ++hfi)
       if (HFImage[hfi])
-        fprintf(*out, "<IMG SRC=\"%s\">\n", HFImage[hfi]->uri());
+        out->printf("<IMG SRC=\"%s\">\n", HFImage[hfi]->uri());
 
     if (TitlePage)
-      fputs("<A HREF=\"toc.html\">Contents</A>\n", *out);
+      out->puts("<A HREF=\"toc.html\">Contents</A>\n");
     else
-      fputs("<A HREF=\"index.html\">Contents</A>\n", *out);
+      out->puts("<A HREF=\"index.html\">Contents</A>\n");
 
     if (t->prev != NULL)
-      fprintf(*out, "<A HREF=\"%s\">Previous</A>\n",
+      out->printf("<A HREF=\"%s\">Previous</A>\n",
               hdFile::basename((char *)htmlGetAttr(t->prev, "_HD_FILENAME"),
 	                       base, sizeof(base)));
 
     if (t->next != NULL)
-      fprintf(*out, "<A HREF=\"%s\">Next</A>\n",
+      out->printf("<A HREF=\"%s\">Next</A>\n",
               hdFile::basename((char *)htmlGetAttr(t->next, "_HD_FILENAME"),
 	                       base, sizeof(base)));
 
-    fputs("<HR NOSHADE>\n", *out);
+    out->puts("<HR NOSHADE>\n");
   }
 }
 
 
-/*
- * 'write_footer()' - Output the standard "footer" for a HTML file.
- */
+//
+// 'write_footer()' - Output the standard "footer" for a HTML file.
+//
 
 static void
-write_footer(FILE   **out,		/* IO - Output file pointer */
-	     hdTree *t)			/* I - Current document file */
+write_footer(hdFile *&out,		// IO - Output file pointer
+	     hdTree *t)			// I - Current document file
 {
-  char	base[1024];			/* Base name of file */
+  char	base[1024];			// Base name of file
 
 
-  if (*out == NULL)
+  if (!out)
     return;
 
   if (OutputFiles && t != NULL && (t->prev != NULL || t->next != NULL))
   {
-    fputs("<HR NOSHADE>\n", *out);
+    out->puts("<HR NOSHADE>\n");
 
     if (LogoImage)
-      fprintf(*out, "<IMG SRC=\"%s\">\n",
+      out->printf("<IMG SRC=\"%s\">\n",
               hdFile::basename(LogoImage->uri(), base, sizeof(base)));
 
     for (int hfi = 0; hfi < MAX_HF_IMAGES; ++hfi)
       if (HFImage[hfi])
-        fprintf(*out, "<IMG SRC=\"%s\">\n",
+        out->printf("<IMG SRC=\"%s\">\n",
 	        hdFile::basename(HFImage[hfi]->uri(), base, sizeof(base)));
 
     if (TitlePage)
-      fputs("<A HREF=\"toc.html\">Contents</A>\n", *out);
+      out->puts("<A HREF=\"toc.html\">Contents</A>\n");
     else
-      fputs("<A HREF=\"index.html\">Contents</A>\n", *out);
+      out->puts("<A HREF=\"index.html\">Contents</A>\n");
 
 
     if (t->prev != NULL)
-      fprintf(*out, "<A HREF=\"%s\">Previous</A>\n",
+      out->printf("<A HREF=\"%s\">Previous</A>\n",
               hdFile::basename((char *)htmlGetAttr(t->prev, "_HD_FILENAME"),
 	                       base, sizeof(base)));
 
     if (t->next != NULL)
-      fprintf(*out, "<A HREF=\"%s\">Next</A>\n",
+      out->printf("<A HREF=\"%s\">Next</A>\n",
               hdFile::basename((char *)htmlGetAttr(t->next, "_HD_FILENAME"),
 	                       base, sizeof(base)));
   }
 
   if (OutputFiles)
   {
-    fputs("</BODY>\n", *out);
-    fputs("</HTML>\n", *out);
+    out->puts("</BODY>\n");
+    out->puts("</HTML>\n");
 
-    progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(*out));
+    progress_error(HD_ERROR_NONE, "BYTES: %ld", out->size());
 
-    fclose(*out);
-    *out = NULL;
+    delete out;
+    out = NULL;
   }
 }
 
 
-/*
- * 'write_title()' - Write a title page...
- */
+//
+// 'write_title()' - Write a title page.
+//
 
 static void
-write_title(FILE   *out,		/* I - Output file */
-            hdChar *title,		/* I - Title for document */
-            hdChar *author,		/* I - Author for document */
-            hdChar *copyright,		/* I - Copyright for document */
-            hdChar *docnumber)		/* I - ID number for document */
+write_title(hdFile *out,		// I - Output file
+            hdChar *title,		// I - Title for document
+            hdChar *author,		// I - Author for document
+            hdChar *copyright,		// I - Copyright for document
+            hdChar *docnumber)		// I - ID number for document
 {
-  hdFile	*fp;			/* Title file */
-  hdTree	*t;			/* Title file document tree */
-  char		base[1024],		/* Base filename of file */
-		temp[1024];		/* Temporary filename buffer */
+  hdFile	*fp;			// Title file
+  hdTree	*t;			// Title file document tree
+  char		base[1024],		// Base filename of file
+		temp[1024];		// Temporary filename buffer
 
 
   if (out == NULL)
@@ -499,52 +490,52 @@ write_title(FILE   *out,		/* I - Output file */
   {
     // Write a "standard" title page with image...
     if (OutputFiles)
-      fputs("<CENTER><A HREF=\"toc.html\">", out);
+      out->puts("<CENTER><A HREF=\"toc.html\">");
     else
-      fputs("<CENTER><A HREF=\"#CONTENTS\">", out);
+      out->puts("<CENTER><A HREF=\"#CONTENTS\">");
 
     if (TitleImage)
     {
       if (OutputFiles)
-	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\" "
+	out->printf("<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\" "
 	             "ALT=\"%s\"><BR>\n",
         	hdFile::basename((char *)TitleImage->uri(), base, sizeof(base)),
 		TitleImage->width(), TitleImage->height(),
 		title ? (char *)title : "");
       else
-	fprintf(out, "<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\" "
+	out->printf("<IMG SRC=\"%s\" BORDER=\"0\" WIDTH=\"%d\" HEIGHT=\"%d\" "
 	             "ALT=\"%s\"><BR>\n",
         	TitleImage->uri(), TitleImage->width(), TitleImage->height(),
 		title ? (char *)title : "");
     }
 
     if (title != NULL)
-      fprintf(out, "<H1>%s</H1></A><BR>\n", title);
+      out->printf("<H1>%s</H1></A><BR>\n", title);
     else
-      fputs("</A>\n", out);
+      out->puts("</A>\n");
 
     if (docnumber != NULL)
-      fprintf(out, "%s<BR>\n", docnumber);
+      out->printf("%s<BR>\n", docnumber);
 
     if (author != NULL)
-      fprintf(out, "%s<BR>\n", author);
+      out->printf("%s<BR>\n", author);
 
     if (copyright != NULL)
-      fprintf(out, "%s<BR>\n", copyright);
+      out->printf("%s<BR>\n", copyright);
 
-    fputs("</CENTER>\n", out);
+    out->puts("</CENTER>\n");
   }
 }
 
 
-/*
- * 'write_all()' - Write all markup text for the given tree.
- */
+//
+// 'write_all()' - Write all markup text for the given tree.
+//
 
-static int				/* O - Current column */
-write_all(FILE   *out,			/* I - Output file */
-          hdTree *t,			/* I - Document tree */
-          int    col)			/* I - Current column */
+static int				// O - Current column
+write_all(hdFile *out,			// I - Output file
+          hdTree *t,			// I - Document tree
+          int    col)			// I - Current column
 {
   if (out == NULL)
     return (0);
@@ -565,21 +556,21 @@ write_all(FILE   *out,			/* I - Output file */
 }
 
 
-/*
- * 'write_node()' - Write a single tree node.
- */
+//
+// 'write_node()' - Write a single tree node.
+//
 
-static int				/* O - Current column */
-write_node(FILE   *out,			/* I - Output file */
-           hdTree *t,			/* I - Document tree node */
-           int    col)			/* I - Current column */
+static int				// O - Current column
+write_node(hdFile *out,			// I - Output file
+           hdTree *t,			// I - Document tree node
+           int    col)			// I - Current column
 {
-  int		i;			/* Looping var */
-  const hdChar	*ptr,			/* Pointer to output string */
-		*src,			/* Source image */
-		*realsrc;		/* Real source image */
-  hdChar	newsrc[1024];		/* New source image filename */
-  const char	*entity;		/* Entity string */
+  int		i;			// Looping var
+  const hdChar	*ptr,			// Pointer to output string
+		*src,			// Source image
+		*realsrc;		// Real source image
+  hdChar	newsrc[1024];		// New source image filename
+  const char	*entity;		// Entity string
 
 
   if (out == NULL)
@@ -594,7 +585,7 @@ write_node(FILE   *out,			/* I - Output file */
 	if (t->style->white_space == HD_WHITE_SPACE_PRE)
 	{
           for (ptr = t->data; *ptr; ptr ++)
-            fputs(_htmlStyleSheet->get_entity(*ptr), out);
+            out->puts(_htmlStyleSheet->get_entity(*ptr));
 
 	  if (t->data[strlen((char *)t->data) - 1] == '\n')
             col = 0;
@@ -606,18 +597,18 @@ write_node(FILE   *out,			/* I - Output file */
 	  if ((col + strlen((char *)t->data)) > 72 && col > 0 &&
 	      isspace(t->data[0] & 255))
 	  {
-            putc('\n', out);
+            out->put('\n');
             col = 0;
 	  }
 
           for (ptr = t->data; *ptr; ptr ++)
-            fputs(_htmlStyleSheet->get_entity(*ptr), out);
+            out->puts(_htmlStyleSheet->get_entity(*ptr));
 
 	  col += strlen((char *)t->data);
 
 	  if (col > 72 && isspace(t->data[strlen((char *)t->data) - 1] & 255))
 	  {
-            putc('\n', out);
+            out->put('\n');
             col = 0;
 	  }
 	}
@@ -625,10 +616,10 @@ write_node(FILE   *out,			/* I - Output file */
 
     case HD_ELEMENT_COMMENT :
     case HD_ELEMENT_UNKNOWN :
-        fputs("\n<!--", out);
+        out->puts("\n<!--");
 	for (ptr = t->data; *ptr; ptr ++)
-	  fputs(_htmlStyleSheet->get_entity(*ptr), out);
-	fputs("-->\n", out);
+	  out->puts(_htmlStyleSheet->get_entity(*ptr));
+	out->puts("-->\n");
 	col = 0;
 	break;
 
@@ -674,7 +665,7 @@ write_node(FILE   *out,			/* I - Output file */
     case HD_ELEMENT_UL :
         if (col > 0)
         {
-          putc('\n', out);
+          out->put('\n');
           col = 0;
         }
 
@@ -682,10 +673,7 @@ write_node(FILE   *out,			/* I - Output file */
 	if (OutputFiles && (src = htmlGetAttr(t, "SRC")) != NULL &&
             (realsrc = htmlGetAttr(t, "_HD_SRC")) != NULL)
 	{
-	 /*
-          * Update and copy local images...
-          */
-
+	  // Update and copy local images...
           if (hdFile::scheme((char *)src) == NULL &&
               src[0] != '/' && src[0] != '\\' &&
 	      (!isalpha(src[0]) || src[1] != ':'))
@@ -700,7 +688,7 @@ write_node(FILE   *out,			/* I - Output file */
     default :
         if (t->element != HD_ELEMENT_EMBED)
 	{
-	  col += fprintf(out, "<%s", _htmlStyleSheet->get_element(t->element));
+	  col += out->printf("<%s", _htmlStyleSheet->get_element(t->element));
 	  for (i = 0; i < t->nattrs; i ++)
 	  {
             if (strncasecmp((char *)t->attrs[i].name, "_HD_", 4) == 0)
@@ -708,40 +696,40 @@ write_node(FILE   *out,			/* I - Output file */
 
 	    if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE)
 	    {
-              putc('\n', out);
+              out->put('\n');
               col = 0;
 	    }
 
             if (col > 0)
             {
-              putc(' ', out);
+              out->put(' ');
               col ++;
             }
 
 	    if (t->attrs[i].value == NULL)
-              col += fprintf(out, "%s", t->attrs[i].name);
+              col += out->printf("%s", t->attrs[i].name);
 	    else
 	    {
-	      col += fprintf(out, "%s=\"", t->attrs[i].name);
+	      col += out->printf("%s=\"", t->attrs[i].name);
 	      for (ptr = t->attrs[i].value; *ptr; ptr ++)
 	      {
 		entity = _htmlStyleSheet->get_entity(*ptr);
-		fputs(entity, out);
+		out->puts(entity);
 		col += strlen(entity);
 	      }
 
-	      putc('\"', out);
+	      out->put('\"');
 	      col ++;
 	    }
 	  }
 
-	  putc('>', out);
+	  out->put('>');
 	  col ++;
 
 	  if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE &&
 	      t->style->display != HD_DISPLAY_INLINE)
 	  {
-	    putc('\n', out);
+	    out->put('\n');
 	    col = 0;
 	  }
 	}
@@ -752,14 +740,14 @@ write_node(FILE   *out,			/* I - Output file */
 }
 
 
-/*
- * 'write_nodeclose()' - Close a single tree node.
- */
+//
+// 'write_nodeclose()' - Close a single tree node.
+//
 
-static int			/* O - Current column */
-write_nodeclose(FILE   *out,	/* I - Output file */
-                hdTree *t,	/* I - Document tree node */
-                int    col)	/* I - Current column */
+static int				// O - Current column
+write_nodeclose(hdFile *out,		// I - Output file
+                hdTree *t,		// I - Document tree node
+                int    col)		// I - Current column
 {
   if (out == NULL)
     return (0);
@@ -769,7 +757,7 @@ write_nodeclose(FILE   *out,	/* I - Output file */
     if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE &&
         t->style->display != HD_DISPLAY_INLINE)
     {
-      putc('\n', out);
+      out->put('\n');
       col = 0;
     }
 
@@ -827,12 +815,12 @@ write_nodeclose(FILE   *out,	/* I - Output file */
       case HD_ELEMENT_TABLE :
       case HD_ELEMENT_TR :
       case HD_ELEMENT_UL :
-          fprintf(out, "</%s>\n", _htmlStyleSheet->get_element(t->element));
+          out->printf("</%s>\n", _htmlStyleSheet->get_element(t->element));
           col = 0;
           break;
 
       default :
-          col += fprintf(out, "</%s>", _htmlStyleSheet->get_element(t->element));
+          col += out->printf("</%s>", _htmlStyleSheet->get_element(t->element));
 	  break;
     }
   }
@@ -841,14 +829,14 @@ write_nodeclose(FILE   *out,	/* I - Output file */
 }
 
 
-/*
- * 'write_toc()' - Write all markup text for the given table-of-contents.
- */
+//
+// 'write_toc()' - Write all markup text for the given table-of-contents.
+//
 
-static int			/* O - Current column */
-write_toc(FILE   *out,		/* I - Output file */
-          hdTree *t,		/* I - Document tree */
-          int    col)		/* I - Current column */
+static int				// O - Current column
+write_toc(hdFile *out,			// I - Output file
+          hdTree *t,			// I - Document tree
+          int    col)			// I - Current column
 {
   if (out == NULL)
     return (0);
@@ -872,40 +860,15 @@ write_toc(FILE   *out,		/* I - Output file */
 }
 
 
-/*
- * 'get_title()' - Get the title string for the given document...
- */
-
-static hdChar *		/* O - Title string */
-get_title(hdTree *doc)	/* I - Document tree */
-{
-  hdChar	*temp;		/* Temporary pointer to title */
-
-
-  while (doc != NULL)
-  {
-    if (doc->element == HD_ELEMENT_TITLE)
-      return (htmlGetText(doc->child));
-    else if (doc->child != NULL)
-      if ((temp = get_title(doc->child)) != NULL)
-        return (temp);
-
-    doc = doc->next;
-  }
-
-  return (NULL);
-}
-
-
-/*
- * 'add_link()' - Add a named link...
- */
+//
+// 'add_link()' - Add a named link.
+//
 
 static void
-add_link(hdChar *name,		/* I - Name of link */
-         hdChar *filename)	/* I - File for link */
+add_link(hdChar *name,			// I - Name of link
+         hdChar *filename)		// I - File for link
 {
-  hdLink	*temp;		/* New name */
+  hdLink	*temp;			// New name
 
 
   if ((temp = find_link(name)) != NULL)
@@ -948,16 +911,28 @@ add_link(hdChar *name,		/* I - Name of link */
 }
 
 
-/*
- * 'find_link()' - Find a named link...
- */
+//
+// 'compare_links()' - Compare two named links.
+//
 
-static hdLink *
-find_link(hdChar *name)		/* I - Name to find */
+static int				// O - 0 = equal, -1 or 1 = not equal
+compare_links(hdLink *n1,		// I - First name
+              hdLink *n2)		// I - Second name
 {
-  hdChar		*target;	/* Pointer to target name portion */
-  hdLink	key,		/* Search key */
-		*match;		/* Matching name entry */
+  return (strcasecmp((char *)n1->name, (char *)n2->name));
+}
+
+
+//
+// 'find_link()' - Find a named link.
+//
+
+static hdLink *				// O - Link or NULL
+find_link(hdChar *name)			// I - Name to find
+{
+  hdChar	*target;		// Pointer to target name portion
+  hdLink	key,			// Search key
+		*match;			// Matching name entry
 
 
   if (name == NULL || num_links == 0)
@@ -974,29 +949,43 @@ find_link(hdChar *name)		/* I - Name to find */
 }
 
 
-/*
- * 'compare_links()' - Compare two named links.
- */
+//
+// 'get_title()' - Get the title string for the given document.
+//
 
-static int			/* O - 0 = equal, -1 or 1 = not equal */
-compare_links(hdLink *n1,	/* I - First name */
-              hdLink *n2)	/* I - Second name */
+static hdChar *				// O - Title string
+get_title(hdTree *doc)			// I - Document tree
 {
-  return (strcasecmp((char *)n1->name, (char *)n2->name));
+  hdChar	*temp;			// Temporary pointer to title
+
+
+  while (doc != NULL)
+  {
+    if (doc->element == HD_ELEMENT_TITLE)
+      return (htmlGetText(doc->child));
+    else if (doc->child != NULL)
+      if ((temp = get_title(doc->child)) != NULL)
+        return (temp);
+
+    doc = doc->next;
+  }
+
+  return (NULL);
 }
 
 
-/*
- * 'scan_links()' - Scan a document for link targets, and keep track of
- *                  the files they are in...
- */
+//
+// 'scan_links()' - Scan a document for link targets, and keep track of
+//                  the files they are in.
+//
 
 static void
-scan_links(hdTree *t,			/* I - Document tree */
-           hdChar  *filename)		/* I - Filename */
+scan_links(hdTree *t,			// I - Document tree
+           hdChar  *filename)		// I - Filename
 {
-  hdChar	*name;			/* Name of link */
-  char		base[1024];		/* Base name for link */
+  hdChar	*name;			// Name of link
+  char		base[1024];		// Base name for link
+
 
   while (t != NULL)
   {
@@ -1018,37 +1007,31 @@ scan_links(hdTree *t,			/* I - Document tree */
 }
 
 
-/*
- * 'update_links()' - Update links as needed.
- */
+//
+// 'update_links()' - Update links as needed.
+//
 
 static void
-update_links(hdTree *t,			/* I - Document tree */
-             hdChar  *filename)		/* I - Current filename */
+update_links(hdTree *t,			// I - Document tree
+             hdChar  *filename)		// I - Current filename
 {
-  hdLink	*link;			/* Link */
-  hdChar	*href;			/* Reference name */
-  hdChar	newhref[1024];		/* New reference name */
-  char		base[1024];		/* Base filename */
+  hdLink	*link;			// Link
+  hdChar	*href;			// Reference name
+  hdChar	newhref[1024];		// New reference name
+  char		base[1024];		// Base filename
 
 
   filename = (hdChar *)hdFile::basename((char *)filename, base, sizeof(base));
 
   if (OutputFiles)
   {
-   /*
-    * Need to preserve/add filenames.
-    */
-
+    // Need to preserve/add filenames.
     while (t != NULL)
     {
       if (t->element == HD_ELEMENT_A &&
           (href = htmlGetAttr(t, "HREF")) != NULL)
       {
-       /*
-        * Update this link as needed...
-	*/
-
+        // Update this link as needed...
         if (href[0] == '#' &&
 	    (link = find_link(href)) != NULL)
 	{
@@ -1058,7 +1041,7 @@ update_links(hdTree *t,			/* I - Document tree */
 #else
           if (filename == NULL ||
 	      strcmp((char *)filename, (char *)link->filename) != 0)
-#endif /* WIN32 || __EMX__ */
+#endif // WIN32 || __EMX__
 	  {
 	    snprintf((char *)newhref, sizeof(newhref), "%s%s",
 	             link->filename, href);
@@ -1080,19 +1063,13 @@ update_links(hdTree *t,			/* I - Document tree */
   }
   else
   {
-   /*
-    * Need to strip filenames.
-    */
-
+    // Need to strip filenames.
     while (t != NULL)
     {
       if (t->element == HD_ELEMENT_A &&
           (href = htmlGetAttr(t, "HREF")) != NULL)
       {
-       /*
-        * Update this link as needed...
-	*/
-
+        // Update this link as needed...
         if (href[0] != '#' && hdFile::scheme((char *)href) == NULL &&
 	    (link = find_link(href)) != NULL)
 	{
@@ -1110,6 +1087,6 @@ update_links(hdTree *t,			/* I - Document tree */
 }
 
 
-/*
- * End of "$Id$".
- */
+//
+// End of "$Id$".
+//

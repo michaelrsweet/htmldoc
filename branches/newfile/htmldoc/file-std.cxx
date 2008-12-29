@@ -129,7 +129,7 @@ hdStdFile::hdStdFile(int    fd,		// I - File descriptor
 
 hdStdFile::~hdStdFile()
 {
-  if (fp_ && fp_ != stdin && fp_ != stdout)
+  if (fp_ && fp_ != stdin && fp_ != stdout && fp_ != stderr)
     fclose(fp_);
 }
 
