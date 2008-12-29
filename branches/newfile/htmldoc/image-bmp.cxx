@@ -61,7 +61,7 @@ static unsigned int	read_dword(hdFile *fp);
 //
 
 hdBMPImage::hdBMPImage(const char *p,	// I - URI for image
-                       int        gs)	// I - Load as grayscale?
+                       bool       gs)	// I - Load as grayscale?
 {
   uri(p);
 
@@ -75,10 +75,10 @@ hdBMPImage::hdBMPImage(const char *p,	// I - URI for image
 
 hdImage *
 hdBMPImage::check(const char *p,	// I - URI for image file
-                  int        gs,	// I - 1 = grayscale, 0 = color
+                  bool       gs,	// I - 1 = grayscale, 0 = color
 		  const char *header)	// I - First 16 bytes of file
 {
-  if (memcmp(header, "BM", 2) == 0)	// BMP file
+  if (!memcmp(header, "BM", 2))		// BMP header
     return (new hdBMPImage(p, gs));
   else
     return (NULL);
@@ -101,8 +101,8 @@ hdBMPImage::load()
 //
 
 int				// O - 0 = success, -1 = fail
-hdBMPImage::real_load(int img,	// I - Load image data?
-                      int gs)	// I - Load as grayscale?
+hdBMPImage::real_load(int  img,	// I - Load image data?
+                      bool gs)	// I - Load as grayscale?
 {
   hdFile	*fp;		// File pointer
   int		info_size,	// Size of info header

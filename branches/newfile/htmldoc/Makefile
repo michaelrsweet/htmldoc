@@ -58,6 +58,7 @@ BASEOBJS =	\
 		md5.o \
 		progress.o \
 		ps-pdf.o \
+		rc4.o \
 		snprintf.o \
 		string.o \
 		style.o \

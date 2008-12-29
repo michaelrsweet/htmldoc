@@ -21,6 +21,11 @@
 //
 // Contents:
 //
+//   hdPNGImage::hdPNGImage() - Create a new PNG image.
+//   hdPNGImage::check()      - Try to load an image file as a PNG.
+//   hdPNGImage::load()       - Load a PNG image...
+//   hdPNGImage::real_load()  - Load a PNG image file.
+//   png_read()               - Read data from a PNG image file...
 //
 
 //
@@ -44,7 +49,7 @@ static void	png_read(png_structp pp, png_bytep data, png_uint_32 length);
 //
 
 hdPNGImage::hdPNGImage(const char *p,	// I - URI for image file
-                       int        gs)	// I - 0 for color, 1 for grayscale
+                       bool       gs)	// I - 0 for color, 1 for grayscale
 {
   uri(p);
 
@@ -58,7 +63,7 @@ hdPNGImage::hdPNGImage(const char *p,	// I - URI for image file
 
 hdImage *
 hdPNGImage::check(const char *p,	// I - URI for image file
-                  int        gs,	// I - 1 = grayscale, 0 = color
+                  bool       gs,	// I - 1 = grayscale, 0 = color
 		  const char *header)	// I - First 16 bytes of file
 {
   if (memcmp(header, "\211PNG", 4) == 0)
@@ -83,19 +88,19 @@ hdPNGImage::load()
 // 'hdPNGImage::real_load()' - Load a PNG image file.
 //
 
-int				// O - 0 = success, -1 = fail
-hdPNGImage::real_load(int img,	// I - 1 = load image data, 0 = just info
-                      int gs)	// I - 0 = color, 1 = grayscale
+int					// O - 0 = success, -1 = fail
+hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
+                      bool gs)		// I - 0 = color, 1 = grayscale
 {
-  hdFile	*fp;		// File pointer
-  int		i, j;		// Looping vars
-  png_structp	pp;		// PNG read pointer
-  png_infop	info;		// PNG info pointers
-  int		d;		// Depth of image
-  png_bytep	*rows;		// PNG row pointers
-  png_bytep	local;		// Local image data...
-  png_bytep	localptr;	// Pointer to local image data...
-  hdByte	*pixelptr;	// Pointer to final image data...
+  hdFile	*fp;			// File pointer
+  int		i, j;			// Looping vars
+  png_structp	pp;			// PNG read pointer
+  png_infop	info;			// PNG info pointers
+  int		d;			// Depth of image
+  png_bytep	*rows;			// PNG row pointers
+  png_bytep	local;			// Local image data...
+  png_bytep	localptr;		// Pointer to local image data...
+  hdByte	*pixelptr;		// Pointer to final image data...
 
 
   // Open the file...

@@ -1,23 +1,23 @@
 //
 // "$Id$"
 //
-//   Basic stylesheet routines for HTMLDOC, a HTML document processing program.
+// Basic stylesheet routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2008 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
@@ -740,7 +740,7 @@ hdStyleSheet::get_glyph(const char *s)	// I - Glyph name
 //
 
 bool					// O - True on success, false on failure
-hdStyleSheet::load(FILE       *f,	// I - File to read from
+hdStyleSheet::load(hdFile     *f,	// I - File to read from
                    const char *path)	// I - Search path for included files
 {
   int			i, j;		// Looping vars...
@@ -763,7 +763,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 			props_p[256];	// Property pattern
   char			import[1024],	// Import string
 			*import_ptr;	// Pointer into import string
-  FILE			*import_f;	// Import file pointer
+  hdFile		*import_f;	// Import file pointer
   char			cssmedia[256];	// Current media type
 
 
@@ -777,7 +777,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
   status      = true;
   cssmedia[0] = '\0';
 
-  while ((ch = getc(f)) != EOF)
+  while ((ch = f->get()) != EOF)
   {
     // Skip whitespace...
     if (isspace(ch))
@@ -792,7 +792,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
     if (ch == '/')
     {
       // Check for C-style comment...
-      if ((ch = getc(f)) != '*')
+      if ((ch = f->get()) != '*')
       {
         progress_error(HD_ERROR_CSS_ERROR,
 	               "Bad sequence \"/%c\" in stylesheet!", ch);
@@ -801,13 +801,13 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
       }
 
       // OK, now read chars until EOF or "*/"...
-      while ((ch = getc(f)) != EOF)
+      while ((ch = f->get()) != EOF)
         if (ch == '*')
 	{
-	  if ((ch = getc(f)) == '/')
+	  if ((ch = f->get()) == '/')
 	    break;
 	  else
-	    ungetc(ch, f);
+	    f->unget(ch);
 	}
 
       if (ch != '/')
@@ -835,13 +835,13 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 	break;
       }
 
-      while ((ch = getc(f)) >= 0)
+      while ((ch = f->get()) >= 0)
         if (!isspace(ch))
 	  break;
 
       if (ch != '}')
       {
-        ungetc(ch, f);
+        f->unget(ch);
 	progress_error(HD_ERROR_CSS_ERROR,
 	               "Missing } for style properties!");
       }
@@ -949,7 +949,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
     }
 
     // Read the selector string...
-    ungetc(ch, f);
+    f->unget(ch);
 
     read(f, sel_p, sel_s, sizeof(sel_s));
 
@@ -957,11 +957,11 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
     if (sel_s[0] == '@')
     {
       // @ selector, skip trailing whitespace...
-      while ((ch = getc(f)) >= 0)
+      while ((ch = f->get()) >= 0)
 	if (!isspace(ch))
 	  break;
 
-      ungetc(ch, f);
+      f->unget(ch);
 
       // Process...
       if (!strcmp(sel_s, "@import"))
@@ -970,7 +970,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 	import_ptr = import;
 
         // Read the URL and potentially a media selector...
-	while ((ch = getc(f)) >= 0)
+	while ((ch = f->get()) >= 0)
 	{
 	  // Stop at ';'...
 	  if (ch == ';')
@@ -982,7 +982,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 
 	  if (ch == '\"')
 	  {
-	    while ((ch = getc(f)) >= 0)
+	    while ((ch = f->get()) >= 0)
 	    {
 	      if (import_ptr < (import + sizeof(import) - 1))
 		*import_ptr++ = ch;
@@ -1026,7 +1026,7 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 	    strstr(import_ptr, "all"))
 	{
 	  // Import the file...
-	  if ((import_f = fopen(import, "r")) != NULL)
+	  if ((import_f = hdFile::open(import, HD_FILE_READ)) != NULL)
 	  {
 	    load(import_f, path);
 
@@ -1047,13 +1047,13 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 	read(f, sel_p, cssmedia, sizeof(cssmedia));
 
         // Read up to the first {...
-	while ((ch = getc(f)) >= 0)
+	while ((ch = f->get()) >= 0)
           if (!isspace(ch))
 	    break;
 
 	if (ch != '{')
 	{
-          ungetc(ch, f);
+          f->unget(ch);
 	  progress_error(HD_ERROR_CSS_ERROR,
 	                 "Missing { for media selector \"%s\"!", cssmedia);
 	}
@@ -1069,12 +1069,12 @@ hdStyleSheet::load(FILE       *f,	// I - File to read from
 
         int braces = 0;
 
-	while ((ch = getc(f)) >= 0)
+	while ((ch = f->get()) >= 0)
 	{
 	  if (ch == '\"')
 	  {
 	    // Skip quoted string...
-	    while ((ch = getc(f)) >= 0)
+	    while ((ch = f->get()) >= 0)
 	      if (ch == '\"')
 	        break;
 	  }
@@ -1264,7 +1264,7 @@ hdStyleSheet::pattern(const char *r,	// I - Regular expression pattern
 //
 
 char *					// O - String or NULL on EOF
-hdStyleSheet::read(FILE       *f,	// I - File to read from
+hdStyleSheet::read(hdFile     *f,	// I - File to read from
                    const char *p,	// I - Allowed chars pattern buffer
 		   char       *s,	// O - String buffer
 		   int        slen)	// I - Number of bytes in string buffer
@@ -1279,12 +1279,12 @@ hdStyleSheet::read(FILE       *f,	// I - File to read from
   end = s + slen - 1;
 
   // Loop until we hit EOF or a character that is not allowed...
-  while (ptr < end && (ch = getc(f)) != EOF)
+  while (ptr < end && (ch = f->get()) != EOF)
     if (p[ch])
       *ptr++ = ch;
     else
     {
-      ungetc(ch, f);
+      f->unget(ch);
       break;
     }
 

@@ -52,7 +52,7 @@
 //
 
 hdGIFImage::hdGIFImage(const char *p,	// I - URI of image
-                       int        gs)	// I - 0 = color, 1 = grayscale
+                       bool       gs)	// I - 0 = color, 1 = grayscale
 {
   uri(p);
 
@@ -66,7 +66,7 @@ hdGIFImage::hdGIFImage(const char *p,	// I - URI of image
 
 hdImage *
 hdGIFImage::check(const char *p,	// I - URI for image file
-                  int        gs,	// I - 1 = grayscale, 0 = color
+                  bool       gs,	// I - 1 = grayscale, 0 = color
 		  const char *header)	// I - First 16 bytes of file
 {
   if (memcmp(header, "GIF87a", 6) == 0 ||
@@ -83,7 +83,7 @@ hdGIFImage::check(const char *p,	// I - URI for image file
 
 int					// O - Number characters read
 hdGIFImage::get_block(hdFile *fp,	// I - File to read from
-		      hdByte  *buf)	// I - Input buffer
+		      hdByte *buf)	// I - Input buffer
 {
   int	count;				// Number of character to read
 
@@ -213,7 +213,7 @@ int					// O  - 0 on success, -1 on error
 hdGIFImage::read_cmap(hdFile *fp,	// I  - File to read from
   		      int    ncolors,	// I  - Number of colors
 		      cmap_t cmap,	// IO - Colormap array
-		      int    *gray)	// IO - 1 = grayscale
+		      bool   *gray)	// IO - 1 = grayscale
 {
   int	i;				// Looping var
 
@@ -475,7 +475,7 @@ hdGIFImage::read_lzw(hdFile *fp,	// I - File to read from
 
 int				// O - 0 = success, -1 = fail
 hdGIFImage::real_load(int img,	// I - 1 = load image data, 0 = just info
-                      int gs)	// I - 0 = color, 1 = grayscale
+                      bool gs)	// I - 0 = color, 1 = grayscale
 {
   hdFile	*fp;		// File to load from
   hdByte	buf[1024];	// Input buffer

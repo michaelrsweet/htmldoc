@@ -20,9 +20,9 @@
 //     http://www.htmldoc.org/
 //
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,16 +42,16 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-/*
- * Macro to get rid of "unreferenced variable xyz" warnings...
- */
+//
+// Macro to get rid of "unreferenced variable xyz" warnings...
+//
 
 #define REF(x)		(void)x;
 
 
-/*
- * Output type...
- */
+//
+// Output type...
+//
 
 enum
 {
@@ -61,9 +61,9 @@ enum
 };
 
 
-/*
- * PDF constants...
- */
+//
+// PDF constants...
+//
 
 enum	/* PDF page mode */
 {
@@ -117,9 +117,9 @@ enum	/* PDF document permissions */
 };
 
 
-/*
- * Globals...
- */
+//
+// Globals...
+//
 
 #ifdef _HTMLDOC_CXX_
 #  define VAR
@@ -236,9 +236,9 @@ VAR const char	*PDFEffects[17]			/* Effect strings */
 ;
 
 
-/*
- * Prototypes...
- */
+//
+// Prototypes...
+//
 
 extern int	pspdf_export(hdTree *document, hdTree *toc, hdTree *idx);
 

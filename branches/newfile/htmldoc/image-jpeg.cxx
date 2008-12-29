@@ -74,7 +74,7 @@ static void		jpg_term(j_decompress_ptr cinfo);
 //
 
 hdJPEGImage::hdJPEGImage(const char *p,	// I - URI for image file
-                         int        gs)	// I - 0 for color, 1 for grayscale
+                         bool       gs)	// I - 0 for color, 1 for grayscale
 {
   uri(p);
 
@@ -88,7 +88,7 @@ hdJPEGImage::hdJPEGImage(const char *p,	// I - URI for image file
 
 hdImage *
 hdJPEGImage::check(const char *p,	// I - URI for image file
-                   int        gs,	// I - 1 = grayscale, 0 = color
+                   bool       gs,	// I - 1 = grayscale, 0 = color
 		   const char *header)	// I - First 16 bytes of file
 {
   if (memcmp(header, "\377\330\377", 3) == 0)
@@ -114,8 +114,8 @@ hdJPEGImage::load()
 //
 
 int					// O - 0 = success, -1 = fail
-hdJPEGImage::real_load(int img,		// I - Load image data?
-                       int gs)		// I - 0 = color, 1 = grayscale
+hdJPEGImage::real_load(int  img,	// I - Load image data?
+                       bool gs)		// I - 0 = color, 1 = grayscale
 {
   hdFile		*fp;		// File to read from
   jpeg_decompress_struct cinfo;		// Decompressor info

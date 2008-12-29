@@ -4,7 +4,7 @@
 // Image management definitions for HTMLDOC, a HTML document processing
 // program.
 //
-// Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2008 Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -13,14 +13,12 @@
 // file is missing or damaged please contact Easy Software Products
 // at:
 //
-//     Attn: ESP Licensing Information
+//     Attn: HTMLDOC Licensing Information
 //     Easy Software Products
-//     44141 Airport View Drive, Suite 204
-//     Hollywood, Maryland 20636-3111 USA
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//     Voice: (301) 373-9600
-//     EMail: info@easysw.com
-//       WWW: http://www.easysw.com
+//     http://www.htmldoc.org/
 //
 
 #ifndef HTMLDOC_IMAGE_H
@@ -58,7 +56,7 @@ enum hdImageType
 
 class hdImage;
 
-typedef hdImage *(*hdImageCheck)(const char *uri, int gs, const char *header);
+typedef hdImage *(*hdImageCheck)(const char *uri, bool gs, const char *header);
 
 class hdImage			//// Image class
 {
@@ -117,10 +115,12 @@ class hdImage			//// Image class
   virtual int		save(const char *path, char *d, int dlen);
   hdImageType		type() { return type_; }
   const char		*uri() { return uri_; }
+  int			use() { return use_; }
   int			width() { return width_; }
 
   // Global methods for caching of image files...
-  static hdImage	*find(const char *uri, int gs, const char *path = 0);
+  static hdImage	*find(const char *uri, bool gs = false,
+			      const char *path = (char *)0);
   static hdImage	**images() { return images_; }
   static int		num_images() { return num_images_; }
   static void		flush();
@@ -135,30 +135,29 @@ class hdImage			//// Image class
 
 class hdBMPImage : public hdImage
 {
-  int		real_load(int img, int gs);
+  int		real_load(int img, bool gs);
 
   public:
 
-  hdBMPImage(const char *uri, int grayscale);
+  hdBMPImage(const char *uri, bool grayscale);
 
-  virtual int	load();
-
-  static hdImage	*check(const char *uri, int gs, const char *header);
+  virtual int		load();
+  static hdImage	*check(const char *uri, bool gs, const char *header);
 };
 
 class hdEPSImage : public hdImage
 {
-  int		real_load(int img, int gs);
+  int		real_load(int img, bool gs);
 
   public:
 
-  hdEPSImage(const char *uri, int grayscale);
+  hdEPSImage(const char *uri, bool grayscale);
 
   virtual int		load();
   virtual int		save(char *path, char *d, int dlen);
   virtual hdImageType	type();
 
-  static hdImage	*check(const char *uri, int gs, const char *header);
+  static hdImage	*check(const char *uri, bool gs, const char *header);
 };
 
 class hdGIFImage : public hdImage
@@ -169,83 +168,83 @@ class hdGIFImage : public hdImage
 
   int	get_block(hdFile *fp, hdByte *buffer);
   int	get_code(hdFile *fp, int code_size, int first_time);
-  int	read_cmap(hdFile *fp, int ncolors, cmap_t cmap, int *gray);
+  int	read_cmap(hdFile *fp, int ncolors, cmap_t cmap, bool *gray);
   int	read_image(hdFile *fp, cmap_t cmap, int interlace, int transparent);
   int	read_lzw(hdFile *fp, int first_time, int input_code_size);
-  int	real_load(int img, int gs);
+  int	real_load(int img, bool gs);
 
   public:
 
-  hdGIFImage(const char *uri, int grayscale);
+  hdGIFImage(const char *uri, bool grayscale);
 
-  virtual int	load();
+  virtual int		load();
 
-  static hdImage	*check(const char *uri, int gs, const char *header);
+  static hdImage	*check(const char *uri, bool gs, const char *header);
 };
 
 class hdJPEGImage : public hdImage
 {
-  int		real_load(int img, int gs);
+  int		real_load(int img, bool gs);
 
   public:
 
-  hdJPEGImage(const char *uri, int grayscale);
+  hdJPEGImage(const char *uri, bool grayscale);
 
-  virtual int	load();
+  virtual int		load();
 
-  static hdImage	*check(const char *uri, int gs, const char *header);
+  static hdImage	*check(const char *uri, bool gs, const char *header);
 };
 
 class hdPNGImage : public hdImage
 {
-  int		real_load(int img, int gs);
+  int		real_load(int img, bool gs);
 
   public:
 
-  hdPNGImage(const char *uri, int grayscale);
+  hdPNGImage(const char *uri, bool grayscale);
 
-  virtual int	load();
+  virtual int		load();
 
-  static hdImage	*check(const char *uri, int gs, const char *header);
+  static hdImage	*check(const char *uri, bool gs, const char *header);
 };
 
 class hdPNMImage : public hdImage
 {
-  int		real_load(int img, int gs);
+  int		real_load(int img, bool gs);
 
   public:
 
-  hdPNMImage(const char *uri, int grayscale);
+  hdPNMImage(const char *uri, bool grayscale);
 
-  virtual int	load();
+  virtual int		load();
 
-  static hdImage	*check(const char *uri, int gs, const char *header);
+  static hdImage	*check(const char *uri, bool gs, const char *header);
 };
 
 class hdXBMImage : public hdImage
 {
-  int		real_load(int img, int gs);
+  int		real_load(int img, bool gs);
 
   public:
 
-  hdXBMImage(const char *uri, int grayscale);
+  hdXBMImage(const char *uri, bool grayscale);
 
-  virtual int	load();
+  virtual int		load();
 
-  static hdImage	*check(const char *uri, int gs, const char *header);
+  static hdImage	*check(const char *uri, bool gs, const char *header);
 };
 
 class hdXPMImage : public hdImage
 {
-  int		real_load(int img, int gs);
+  int		real_load(int img, bool gs);
 
   public:
 
-  hdXPMImage(const char *uri, int grayscale);
+  hdXPMImage(const char *uri, bool grayscale);
 
-  virtual int	load();
+  virtual int		load();
 
-  static hdImage	*check(const char *uri, int gs, const char *header);
+  static hdImage	*check(const char *uri, bool gs, const char *header);
 };
 
 #endif // !HTMLDOC_IMAGE_H

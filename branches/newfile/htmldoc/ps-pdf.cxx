@@ -1,36 +1,36 @@
-/*
- * "$Id$"
- *
- *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
- *   program.
- *
- *   Just in case you didn't notice it, this file is too big; it will be
- *   broken into more manageable pieces once we make all of the output
- *   "drivers" into classes...
- *
- *   Copyright 1997-2008 by Easy Software Products.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: HTMLDOC Licensing Information
- *       Easy Software Products
- *       516 Rio Grand Ct
- *       Morgan Hill, CA 95037 USA
- *
- *       http://www.htmldoc.org/
- *
- * Contents:
- *
- */
+//
+// "$Id$"
+//
+// PostScript + PDF output routines for HTMLDOC, a HTML document processing
+// program.
+//
+// Just in case you didn't notice it, this file is too big; it will be
+// broken into more manageable pieces once we make all of the output
+// "drivers" into classes...
+//
+// Copyright 1997-2008 Easy Software Products.
+//
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
+//
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
+//
+//     http://www.htmldoc.org/
+//
+// Contents:
+//
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 /*#define DEBUG*/
 #include "htmldoc.h"
@@ -65,9 +65,9 @@ extern "C" {		/* Workaround for JPEG header problems... */
 //#define HTMLDOC_INTERPOLATION
 
 
-/*
- * Constants...
- */
+//
+// Constants...
+//
 
 #define HD_RENDER_TEXT	0		/* Text fragment */
 #define HD_RENDER_IMAGE	1		/* Image */
@@ -76,9 +76,9 @@ extern "C" {		/* Workaround for JPEG header problems... */
 #define HD_RENDER_BG	4		/* Background */
 
 
-/*
- * Structures...
- */
+//
+// Structures...
+//
 
 struct hdRender				/**** Render entity structure ****/
 {
@@ -137,7 +137,7 @@ struct hdPage				//// Page information
   int		media_position;		// Media position
   char		page_text[64];		// Page number for TOC
   hdStyle	*background;		// Background style
-  hdImage	*background_image;	// Background image
+  hdImage	*BodyImage;	// Background image
   float		background_color[3];	// Background color
 
   // Number-up support
@@ -154,9 +154,9 @@ struct hdOutPage			//// Output page info
 };
 
 
-/*
- * Timezone offset for dates, below...
- */
+//
+// Timezone offset for dates, below...
+//
 
 #ifdef HAVE_TM_GMTOFF
 #  define timezone (doc_date->tm_gmtoff)
@@ -165,9 +165,9 @@ struct hdOutPage			//// Output page info
 #endif /* HAVE_TM_GMTOFF */
 
 
-/*
- * Local globals...
- */
+//
+// Local globals...
+//
 
 static time_t	doc_time;		// Current time
 static struct tm *doc_date;		// Current date
@@ -213,16 +213,13 @@ static int	num_objects = 0,
 		font_objects[HD_FONT_FACE_MAX * HD_FONT_INTERNAL_MAX];
 
 static hdChar	*doc_title = NULL;
-static hdImage	*logo_image = NULL;
 static float	logo_width,
 		logo_height;
 
-static hdImage	*hfimage[MAX_HF_IMAGES];
-static float	hfimage_width[MAX_HF_IMAGES],
-		hfimage_height[MAX_HF_IMAGES];
+static float	hdimage_width[MAX_HF_IMAGES],
+		hdimage_height[MAX_HF_IMAGES];
 static float    maxhfheight;
 
-static hdImage	*background_image = NULL;
 static float	background_color[3] = { 1.0, 1.0, 1.0 },
 		link_color[3] = { 0.0, 0.0, 1.0 };
 
@@ -241,7 +238,7 @@ static hdChar		comp_buffer[8192];
 static hdChar		encrypt_key[16];
 static int		encrypt_len;
 static rc4_context_t	encrypt_state;
-static md5_byte_t	file_id[16];
+static hdByte		file_id[16];
 
 
 inline bool				// O - true if base font, false otherwise
@@ -251,9 +248,9 @@ is_base_font(int face)			// I - Font face */
 }
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
@@ -381,7 +378,8 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 	     hdTree *ind)		// I - Index of document
 {
   int		i, j;			/* Looping vars */
-  const char	*title_file;		/* Location of title image/file */
+  char		title_file[1024],	/* Location of title file */
+		title_dirname[1024];	/* Directory of title file */
   hdChar	*author,		/* Author of document */
 		*creator,		/* HTML file creator (Netscape, etc) */
 		*copyright,		/* File copyright */
@@ -389,7 +387,7 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 		*keywords,		/* Search keywords */
 		*subject;		/* Subject */
   hdTree	*t;			/* Title page document tree */
-  FILE		*fp;			/* Title page file */
+  hdFile	*fp;			/* Title page file */
   float		x, y;			/* Current page position */
   float		width,			/* Width of title, author, etc */
 		height;			/* Height of title page area */
@@ -405,7 +403,6 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 		toc_right,
 		toc_bottom,
 		toc_top;
-  hdImage	*timage;		/* Title image */
   float		timage_width,		/* Title image width */
 		timage_height;		/* Title image height */
   hdStyle	*temp,			/* Current style for title page */
@@ -452,13 +449,12 @@ pspdf_export(hdTree *document,		/* I - Document to export */
   docnumber   = htmlGetMeta(document, "docnumber");
   keywords    = htmlGetMeta(document, "keywords");
   subject     = htmlGetMeta(document, "subject");
-  logo_image  = image_load(LogoImage, !OutputColor);
   maxhfheight = 0.0f;
 
-  if (logo_image != NULL)
+  if (LogoImage)
   {
-    logo_width  = logo_image->width * PagePrintWidth / _htmlStyleSheet->browser_width;
-    logo_height = logo_width * logo_image->height / logo_image->width;
+    logo_width  = LogoImage->width() * PagePrintWidth / _htmlStyleSheet->browser_width;
+    logo_height = logo_width * LogoImage->height() / LogoImage->width();
 
     if (logo_height > maxhfheight)
       maxhfheight = logo_height;
@@ -467,22 +463,18 @@ pspdf_export(hdTree *document,		/* I - Document to export */
     logo_width = logo_height = 0.0f;
 
   for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
-  {
-    hfimage[hfi] = image_load(HFImage[hfi], !OutputColor);
-
-    if (hfimage[hfi])
+    if (HFImage[hfi])
     {
-      hfimage_width[hfi]  = hfimage[hfi]->width * PagePrintWidth /
+      hdimage_width[hfi]  = HFImage[hfi]->width() * PagePrintWidth /
                             _htmlStyleSheet->browser_width;
-      hfimage_height[hfi] = hfimage_width[hfi] * hfimage[hfi]->height /
-                            hfimage[hfi]->width;
+      hdimage_height[hfi] = hdimage_width[hfi] * HFImage[hfi]->height() /
+                            HFImage[hfi]->width();
 
-      if (hfimage_height[hfi] > maxhfheight)
-        maxhfheight = hfimage_height[hfi];
+      if (hdimage_height[hfi] > maxhfheight)
+        maxhfheight = hdimage_height[hfi];
     }
     else
-      hfimage_width[hfi] = hfimage_height[hfi] = 0.0f;
-  }
+      hdimage_width[hfi] = hdimage_height[hfi] = 0.0f;
 
   find_background(document);
   get_color((hdChar *)LinkColor, link_color);
@@ -514,35 +506,32 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 
   if (TitlePage)
   {
-    if (TitleImage[0] &&
-        strcasecmp(file_extension(TitleImage), "bmp") != 0 &&
-	strcasecmp(file_extension(TitleImage), "gif") != 0 &&
-	strcasecmp(file_extension(TitleImage), "jpg") != 0 &&
-	strcasecmp(file_extension(TitleImage), "png") != 0)
+    if (TitleFile[0] && !TitleImage)
     {
       DEBUG_printf(("pspdf_export: Generating a titlepage using \"%s\"\n",
-                    TitleImage));
+                    TitleFile));
 
       // Find the title file...
-      if ((title_file = file_find(Path, TitleImage)) == NULL)
+      if (!hdFile::find(Path, TitleFile, title_file, sizeof(title_file)))
       {
 	progress_error(HD_ERROR_FILE_NOT_FOUND,
-	               "Unable to find title file \"%s\"!", TitleImage);
+	               "Unable to find title file \"%s\"!", TitleFile);
 	return (1);
       }
 
       // Write a title page from HTML source...
-      if ((fp = fopen(title_file, "rb")) == NULL)
+      if ((fp = hdFile::open(title_file, HD_FILE_READ)) == NULL)
       {
 	progress_error(HD_ERROR_FILE_NOT_FOUND,
 	               "Unable to open title file \"%s\" - %s!",
-                       TitleImage, strerror(errno));
+                       TitleFile, strerror(errno));
 	return (1);
       }
 
-      t = htmlReadFile(NULL, fp, file_directory(TitleImage));
-      htmlFixLinks(t, t, file_directory(TitleImage));
-      fclose(fp);
+      t = htmlReadFile(NULL, fp, hdFile::dirname(TitleFile, title_dirname,
+                                                 sizeof(title_dirname)));
+      htmlFixLinks(t, t, title_dirname);
+      delete fp;
 
       title_page      = 1;
       current_heading = NULL;
@@ -567,10 +556,12 @@ pspdf_export(hdTree *document,		/* I - Document to export */
       * Create a standard title page...
       */
 
-      if ((timage = image_load(TitleImage, !OutputColor)) != NULL)
+      if (TitleImage)
       {
-	timage_width  = timage->width * PagePrintWidth / _htmlStyleSheet->browser_width;
-	timage_height = timage_width * timage->height / timage->width;
+	timage_width  = TitleImage->width() * PagePrintWidth /
+	                _htmlStyleSheet->browser_width;
+	timage_height = timage_width * TitleImage->height() /
+	                TitleImage->width();
       }
       else
         timage_width = timage_height = 0.0f;
@@ -595,7 +586,7 @@ pspdf_export(hdTree *document,		/* I - Document to export */
       p_title->inherit(temp);
       _htmlStyleSheet->add_style(p_title);
 
-      if (timage != NULL)
+      if (TitleImage)
 	height += timage_height + p_title->line_height;
       if (doc_title != NULL)
 	height += h1_title->line_height + p_title->line_height;
@@ -608,10 +599,10 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 
       y = 0.5f * (PagePrintLength + height);
 
-      if (timage != NULL)
+      if (TitleImage)
       {
 	new_render(0, HD_RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
-                   y - timage_height, timage_width, timage_height, timage);
+                   y - timage_height, timage_width, timage_height, TitleImage);
 	y -= timage_height + p_title->line_height;
       }
 
@@ -1527,16 +1518,16 @@ pspdf_prepare_heading(int    page,	// I - Page number
 
     temp = NULL;
 
-    if (strncasecmp((char *)*format, "$LOGOIMAGE", 10) == 0 && logo_image)
+    if (strncasecmp((char *)*format, "$LOGOIMAGE", 10) == 0 && LogoImage)
     {
       // Insert the logo image...
       if (y < (PagePrintLength / 2))
 	temp = new_render(page, HD_RENDER_IMAGE, 0, y, logo_width,
-	                  logo_height, logo_image);
+	                  logo_height, LogoImage);
       else // Offset from top
 	temp = new_render(page, HD_RENDER_IMAGE, 0,
 	                  y + HeadFootSize - logo_height,
-	                  logo_width, logo_height, logo_image);
+	                  logo_width, logo_height, LogoImage);
     }
     else if (strncasecmp((char *)*format, "$HFIMAGE", 8) == 0)
     {
@@ -1552,13 +1543,13 @@ pspdf_prepare_heading(int    page,	// I - Page number
       else
       {
         if (y < (PagePrintLength / 2))
-          temp = new_render(page, HD_RENDER_IMAGE, 0, y, hfimage_width[hfi],
-                            hfimage_height[hfi], hfimage[hfi]);
+          temp = new_render(page, HD_RENDER_IMAGE, 0, y, hdimage_width[hfi],
+                            hdimage_height[hfi], HFImage[hfi]);
         else
           temp = new_render(page, HD_RENDER_IMAGE, 0,
-                            y + HeadFootSize - hfimage_height[hfi],
-                            hfimage_width[hfi], hfimage_height[hfi],
-			    hfimage[hfi]);
+                            y + HeadFootSize - hdimage_height[hfi],
+                            hdimage_width[hfi], hdimage_height[hfi],
+			    HFImage[hfi]);
       }
     }
     else
@@ -2184,21 +2175,21 @@ ps_write_background(FILE *out)		/* I - Output file */
 	pwidth;				/* Pixel width */
 
 
-  if (!background_image->pixels)
-    image_load(background_image->filename, !OutputColor, 1);
+  if (!BodyImage->pixels())
+    BodyImage->load();
 
-  pwidth = background_image->width * background_image->depth;
+  pwidth = BodyImage->width() * BodyImage->depth();
 
   fputs("/BG[", out);
-  for (y = 0; y < background_image->height; y ++)
+  for (y = 0; y < BodyImage->height(); y ++)
   {
     putc('<', out);
-    ps_hex(out, background_image->pixels + y * pwidth, pwidth);
+    ps_hex(out, BodyImage->pixels() + y * pwidth, pwidth);
     putc('>', out);
   }
   fputs("]def", out);
 
-  image_unload(background_image);
+  BodyImage->free();
 }
 
 
@@ -2244,7 +2235,8 @@ pdf_write_document(hdChar  *author,	// I - Author of document
   write_prolog(out, num_outpages, author, creator, copyright, keywords, subject);
 
   // Write images as needed...
-  num_images = image_getlist(&images);
+  num_images = hdImage::num_images();
+  images     = hdImage::images();
 
   for (i = 0; i < num_images; i ++)
   {
@@ -2252,16 +2244,16 @@ pdf_write_document(hdChar  *author,	// I - Author of document
 
 
     for (hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
-      if (images[i] == hfimage[hfi])
+      if (images[i] == HFImage[hfi])
         break;
 
-    if (images[i]->use > 1 || images[i]->mask ||
-        (images[i]->width * images[i]->height * images[i]->depth) > 65536 ||
-	images[i] == background_image ||
-	images[i] == logo_image ||
+    if (images[i]->use() > 1 || images[i]->mask() ||
+        (images[i]->width() * images[i]->height() * images[i]->depth()) > 65536 ||
+	images[i] == BodyImage ||
+	images[i] == LogoImage ||
 	hfi < MAX_HF_IMAGES)
     {
-      progress_show("Writing image %d (%s)...", i + 1, images[i]->filename);
+      progress_show("Writing image %d (%s)...", i + 1, images[i]->uri());
       progress_update(100 * i / num_images);
 
       temp.data.image = images[i];
@@ -2415,7 +2407,7 @@ pdf_write_resources(FILE *out,		/* I - Output file */
 
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  images_used = background_image != NULL;
+  images_used = BodyImage != NULL;
   text_used   = 0;
 
   op = outpages + outpage;
@@ -2474,13 +2466,13 @@ pdf_write_resources(FILE *out,		/* I - Output file */
     p = pages + op->pages[i];
 
     for (r = p->start; r != NULL; r = r->next)
-      if (r->type == HD_RENDER_IMAGE && r->data.image->obj)
-	fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
+      if (r->type == HD_RENDER_IMAGE && r->data.image->obj())
+	fprintf(out, "/I%d %d 0 R", r->data.image->obj(), r->data.image->obj());
   }
 
-  if (background_image)
-    fprintf(out, "/I%d %d 0 R", background_image->obj,
-            background_image->obj);
+  if (BodyImage)
+    fprintf(out, "/I%d %d 0 R", BodyImage->obj(),
+            BodyImage->obj());
 
   fputs(">>>>", out);
 
@@ -3382,13 +3374,17 @@ pdf_write_links(FILE *out)		/* I - Output file */
             pdf_start_object(out);
 
 	    if (PDFVersion >= 12 &&
-        	file_method((char *)r->data.link) == NULL)
+        	hdFile::scheme((char *)r->data.link) == NULL)
 	    {
+	      char ext[256];		// Extension
+
 #ifdef WIN32
-              if (strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
+              if (!strcasecmp(hdFile::extension((char *)r->data.link, ext,
+	                                        sizeof(ext)), "pdf"))
 #else
-              if (strcmp(file_extension((char *)r->data.link), "pdf") == 0)
-#endif /* WIN32 */
+              if (!strcmp(hdFile::extension((char *)r->data.link, ext,
+					    sizeof(ext)), "pdf"))
+#endif // WIN32
               {
 	       /*
 		* Link to external PDF file...
@@ -3470,7 +3466,7 @@ static void
 pdf_write_names(FILE *out)		/* I - Output file */
 {
   int		i;			/* Looping var */
-  hdChar		*s;			/* Current character in name */
+  hdChar	*s;			/* Current character in name */
   hdRenderLink	*link;			/* Local link */
 
 
@@ -3676,9 +3672,9 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
       * Add a page link...
       */
 
-      if (file_method((char *)link) == NULL &&
-	  file_target((char *)link) != NULL)
-	link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+      if (hdFile::scheme((char *)link) == NULL &&
+	  hdFile::target((char *)link) != NULL)
+	link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 
       new_render(*page, HD_RENDER_LINK, x, *y, temp->width,
 	         temp->height, link);
@@ -3726,7 +3722,7 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
       case HD_ELEMENT_IMG :
 	  update_image_size(temp);
 	  new_render(*page, HD_RENDER_IMAGE, x, *y, temp->width, temp->height,
-		     image_find((char *)htmlGetAttr(temp, "_HD_SRC")));
+		     hdImage::find((char *)htmlGetAttr(temp, "_HD_SRC")));
 	  break;
 
       default :
@@ -4738,7 +4734,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
         new_render(*page, HD_RENDER_IMAGE, margins->left() + borderspace,
 	           temp_y - temp->height, temp->width, temp->height,
-		   image_find((char *)htmlGetAttr(temp, "_HD_SRC")));
+		   hdImage::find((char *)htmlGetAttr(temp, "_HD_SRC")));
 
         if (temp->link &&
 	    (link = htmlGetAttr(temp->link, "_HD_FULL_HREF")) != NULL)
@@ -4747,12 +4743,15 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	  * Add a page link...
 	  */
 
-	  if (file_method((char *)link) == NULL)
+	  char baselink[1024];		// Basename of link
+
+	  if (hdFile::scheme((char *)link) == NULL)
 	  {
-	    if (file_target((char *)link) != NULL)
-	      link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+	    if (hdFile::target((char *)link) != NULL)
+	      link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 	    else
-	      link = (hdChar *)file_basename((char *)link);
+	      link = (hdChar *)hdFile::basename((char *)link, baselink,
+	                                        sizeof(baselink));
 	  }
 
 	  new_render(*page, HD_RENDER_LINK, margins->left() + borderspace,
@@ -4832,7 +4831,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         new_render(*page, HD_RENDER_IMAGE,
 	           margins->right() - borderspace - temp->width,
 	           temp_y - temp->height, temp->width, temp->height,
-		   image_find((char *)htmlGetAttr(temp, "_HD_SRC")));
+		   hdImage::find((char *)htmlGetAttr(temp, "_HD_SRC")));
 
         if (temp->link &&
 	    (link = htmlGetAttr(temp->link, "_HD_FULL_HREF")) != NULL)
@@ -4841,12 +4840,15 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	  * Add a page link...
 	  */
 
-	  if (file_method((char *)link) == NULL)
+          char baselink[1024];		// Base name of link
+
+	  if (hdFile::scheme((char *)link) == NULL)
 	  {
-	    if (file_target((char *)link) != NULL)
-	      link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+	    if (hdFile::target((char *)link) != NULL)
+	      link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 	    else
-	      link = (hdChar *)file_basename((char *)link);
+	      link = (hdChar *)hdFile::basename((char *)link, baselink,
+	                                        sizeof(baselink));
 	  }
 
 	  new_render(*page, HD_RENDER_LINK, margins->right() + borderspace,
@@ -4992,9 +4994,11 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         num_chars += strlen((char *)temp->data);
 
       if (temp->height > height &&
-          (temp->element != HD_ELEMENT_IMG || temp->style->vertical_align != HD_VERTICAL_ALIGN_MIDDLE))
+          (temp->element != HD_ELEMENT_IMG ||
+	   temp->style->vertical_align != HD_VERTICAL_ALIGN_MIDDLE))
         height = temp->height;
-      else if ((0.5 * temp->height) > height && temp->element == HD_ELEMENT_IMG &&
+      else if ((0.5 * temp->height) > height &&
+               temp->element == HD_ELEMENT_IMG &&
                temp->style->vertical_align == HD_VERTICAL_ALIGN_MIDDLE)
         height = 0.5 * temp->height;
     }
@@ -5116,7 +5120,8 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
       case HD_TEXT_ALIGN_JUSTIFY :
           linex = margins->left();
-	  if (flat != NULL && flat->prev->element != HD_ELEMENT_BR && num_chars > 1)
+	  if (flat != NULL && flat->prev->element != HD_ELEMENT_BR &&
+	      num_chars > 1)
 	    char_spacing = (margins->width() - width) / (num_chars - 1);
 	  break;
     }
@@ -5241,8 +5246,10 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
             temp_width = temp->width + char_spacing * strlen((char *)lineptr);
 
-	    if (temp->style->text_decoration == HD_TEXT_DECORATION_UNDERLINE || (temp->link && LinkStyle && PSLevel == 0))
-	      new_render(*page, HD_RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
+	    if (temp->style->text_decoration == HD_TEXT_DECORATION_UNDERLINE ||
+	        (temp->link && LinkStyle && PSLevel == 0))
+	      new_render(*page, HD_RENDER_BOX, linex, *y + offset - 1,
+	                 temp_width, 0, rgb);
 
 	    if (temp->style->text_decoration == HD_TEXT_DECORATION_LINE_THROUGH)
 	      new_render(*page, HD_RENDER_BOX, linex, *y + offset + temp->height * 0.25f,
@@ -5313,7 +5320,8 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
               new_render(*page, HD_RENDER_BOX, linex, *y + offset,
                 	 borderspace, temp->height + 2 * borderspace, rgb);
 	      // Right
-              new_render(*page, HD_RENDER_BOX, linex + temp->width + borderspace,
+              new_render(*page, HD_RENDER_BOX,
+	                 linex + temp->width + borderspace,
 	                 *y + offset, borderspace,
 			 temp->height + 2 * borderspace, rgb);
 	      // Bottom
@@ -5323,7 +5331,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
 	    new_render(*page, HD_RENDER_IMAGE, linex + borderspace,
 	               *y + offset + borderspace, temp->width, temp->height,
-		       image_find((char *)htmlGetAttr(temp, "_HD_SRC")));
+		       hdImage::find((char *)htmlGetAttr(temp, "_HD_SRC")));
             whitespace = 0;
 	    temp_width = temp->width + 2 * borderspace;
 	    break;
@@ -5336,12 +5344,15 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	* Add a page link...
 	*/
 
-	if (file_method((char *)link) == NULL)
+        char baselink[1024];		// Base name of link
+
+	if (hdFile::scheme((char *)link) == NULL)
 	{
-	  if (file_target((char *)link) != NULL)
-	    link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+	  if (hdFile::target((char *)link) != NULL)
+	    link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 	  else
-	    link = (hdChar *)file_basename((char *)link);
+	    link = (hdChar *)hdFile::basename((char *)link, baselink,
+	                                      sizeof(baselink));
 	}
 
 	new_render(*page, HD_RENDER_LINK, linex, *y + offset, temp->width,
@@ -5511,12 +5522,15 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 	* Add a page link...
 	*/
 
-	if (file_method((char *)link) == NULL)
+        char	baselink[1024];		// Base name of link
+
+	if (hdFile::scheme((char *)link) == NULL)
 	{
-	  if (file_target((char *)link) != NULL)
-	    link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+	  if (hdFile::target((char *)link) != NULL)
+	    link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 	  else
-	    link = (hdChar *)file_basename((char *)link);
+	    link = (hdChar *)hdFile::basename((char *)link, baselink,
+	                                      sizeof(baselink));
 	}
 
 	new_render(*page, HD_RENDER_LINK, *x, *y, start->width,
@@ -5587,7 +5601,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 
 	case HD_ELEMENT_IMG :
 	    new_render(*page, HD_RENDER_IMAGE, *x, *y, start->width, start->height,
-		       image_find((char *)htmlGetAttr(start, "_HD_SRC")));
+		       hdImage::find((char *)htmlGetAttr(start, "_HD_SRC")));
 
             *x += start->width;
             col ++;
@@ -8601,29 +8615,24 @@ find_background(hdTree *t)	/* I - Document to search */
   * specified...
   */
 
-  if (BodyImage[0] != '\0')
-  {
-    background_image = image_load(BodyImage, !OutputColor);
-    return;
-  }
-  else if (BodyColor[0] != '\0')
-  {
+  if (BodyColor[0] != '\0')
     get_color((hdChar *)BodyColor, background_color, 0);
+
+  if (BodyImage || BodyColor[0])
     return;
-  }
 
  /*
   * If not, search the document tree...
   */
 
-  while (t != NULL && background_image == NULL &&
+  while (t != NULL && BodyImage == NULL &&
          background_color[0] == 1.0 && background_color[1] == 1.0 &&
 	 background_color[2] == 1.0)
   {
     if (t->element == HD_ELEMENT_BODY)
     {
       if ((var = htmlGetAttr(t, "BACKGROUND")) != NULL)
-        background_image = image_load((char *)var, !OutputColor);
+        BodyImage = hdImage::find((char *)var, !OutputColor, Path);
 
       if ((var = htmlGetAttr(t, "BGCOLOR")) != NULL)
         get_color(var, background_color, 0);
@@ -8680,10 +8689,10 @@ write_background(int  page,	/* I - Page we are writing for */
     }
   }
 
-  if (background_image != NULL)
+  if (BodyImage)
   {
-    width  = background_image->width * 72.0f / _htmlStyleSheet->ppi;
-    height = background_image->height * 72.0f / _htmlStyleSheet->ppi;
+    width  = BodyImage->width() * 72.0f / _htmlStyleSheet->ppi;
+    height = BodyImage->height() * 72.0f / _htmlStyleSheet->ppi;
 
     if (width < 1.0f)
       width = 1.0f;
@@ -8697,8 +8706,9 @@ write_background(int  page,	/* I - Page we are writing for */
             for (y = page_length; y >= 0.0f;)
             {
 	      y -= height;
-  	      flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
-              flate_printf(out, "/I%d Do\n", background_image->obj);
+  	      flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height,
+	                   x, y);
+              flate_printf(out, "/I%d Do\n", BodyImage->obj());
 	      flate_puts("Q\n", out);
             }
 	  break;
@@ -8710,11 +8720,11 @@ write_background(int  page,	/* I - Page we are writing for */
 	          width, page_width);
           fprintf(out, "GS[%.1f 0 0 %.1f x y]CM/iy -1 def\n", width, height);
 	  fprintf(out, "%d %d 8[%d 0 0 %d 0 %d]",
-	          background_image->width, background_image->height,
-                  background_image->width, -background_image->height,
-		  background_image->height);
+	          BodyImage->width(), BodyImage->height(),
+                  BodyImage->width(), -BodyImage->height(),
+		  BodyImage->height());
           fputs("{/iy iy 1 add def BG iy get}", out);
-	  if (background_image->depth == 1)
+	  if (BodyImage->depth() == 1)
 	    fputs("image\n", out);
 	  else
 	    fputs("false 3 colorimage\n", out);
@@ -8924,7 +8934,7 @@ check_pages(int page)	// I - Current page
 
       memcpy(temp->background_color, background_color,
              sizeof(temp->background_color));
-      temp->background_image = background_image;
+      temp->BodyImage = BodyImage;
     }
   }
 }
@@ -9747,7 +9757,7 @@ update_image_size(hdTree *t)	/* I - Tree entry */
     return;
   }
 
-  img = image_find((char *)htmlGetAttr(t, "_HD_SRC"));
+  img = hdImage::find((char *)htmlGetAttr(t, "_HD_SRC"));
 
   if (img == NULL)
     return;
@@ -9759,7 +9769,7 @@ update_image_size(hdTree *t)	/* I - Tree entry */
     else
       t->width = atoi((char *)width) * PagePrintWidth / _htmlStyleSheet->browser_width;
 
-    t->height = t->width * img->height / img->width;
+    t->height = t->width * img->height() / img->width();
   }
   else if (height != NULL)
   {
@@ -9768,12 +9778,12 @@ update_image_size(hdTree *t)	/* I - Tree entry */
     else
       t->height = atoi((char *)height) * PagePrintWidth / _htmlStyleSheet->browser_width;
 
-    t->width = t->height * img->width / img->height;
+    t->width = t->height * img->width() / img->height();
   }
   else
   {
-    t->width  = img->width * PagePrintWidth / _htmlStyleSheet->browser_width;
-    t->height = img->height * PagePrintWidth / _htmlStyleSheet->browser_width;
+    t->width  = img->width() * PagePrintWidth / _htmlStyleSheet->browser_width;
+    t->height = img->height() * PagePrintWidth / _htmlStyleSheet->browser_width;
   }
 }
 
@@ -9832,7 +9842,12 @@ open_file(void)
   else if (OutputPath[0] != '\0')
     return (fopen(OutputPath, "wb+"));
   else if (PSLevel == 0)
-    return (file_temp(stdout_filename, sizeof(stdout_filename)));
+  {
+    // TODO: Replace me!
+    snprintf(stdout_filename, sizeof(stdout_filename), "/tmp/htmldoc-%d.pdf",
+             (int)getpid());
+    return (fopen(stdout_filename, "w"));
+  }
   else
     return (stdout);
 }
@@ -10238,10 +10253,10 @@ jpg_setup(FILE           *out,	/* I - Output file */
   jpg_dest.empty_output_buffer = jpg_empty;
   jpg_dest.term_destination    = jpg_term;
 
-  cinfo->image_width      = img->width;
-  cinfo->image_height     = img->height;
-  cinfo->input_components = img->depth;
-  cinfo->in_color_space   = img->depth == 1 ? JCS_GRAYSCALE : JCS_RGB;
+  cinfo->image_width      = img->width();
+  cinfo->image_height     = img->height();
+  cinfo->input_components = img->depth();
+  cinfo->in_color_space   = img->depth() == 1 ? JCS_GRAYSCALE : JCS_RGB;
 
   jpeg_set_defaults(cinfo);
   jpeg_set_quality(cinfo, OutputJPEG, TRUE);
@@ -10250,7 +10265,7 @@ jpg_setup(FILE           *out,	/* I - Output file */
   if (PSLevel)
   {
     // Adobe uses sampling == 1
-    for (i = 0; i < img->depth; i ++)
+    for (i = 0; i < img->depth(); i ++)
     {
       cinfo->comp_info[i].h_samp_factor = 1;
       cinfo->comp_info[i].v_samp_factor = 1;
@@ -10314,8 +10329,8 @@ write_image(FILE     *out,		/* I - Output file */
   indices  = NULL;
   indwidth = 0;
 
-  if (!img->pixels && !img->obj)
-    image_load(img->filename, !OutputColor, 1);
+  if (!img->pixels() && !img->obj())
+    img->load();
 
   // Note: Acrobat 6 tries to decrypt the colormap of indexed in-line images twice, which
   //       is 1) not consistent with prior Acrobat releases and 2) in violation of their
@@ -10324,9 +10339,9 @@ write_image(FILE     *out,		/* I - Output file */
   //
   //       We are filing a bug on this with Adobe, but if history is any indicator, we are
   //       stuck with this workaround forever...
-  if (PSLevel != 1 && PDFVersion >= 12 && img->obj == 0 && (img->use > 1 || !Encryption))
+  if (PSLevel != 1 && PDFVersion >= 12 && img->obj() == 0 && (img->use() > 1 || !Encryption))
   {
-    if (img->depth == 1)
+    if (img->depth() == 1)
     {
      /*
       * Greyscale image...
@@ -10334,7 +10349,7 @@ write_image(FILE     *out,		/* I - Output file */
 
       memset(grays, 0, sizeof(grays));
 
-      for (i = img->width * img->height, pixel = img->pixels;
+      for (i = img->width() * img->height(), pixel = img->pixels();
 	   i > 0;
 	   i --, pixel ++)
 	if (!grays[*pixel])
@@ -10370,7 +10385,7 @@ write_image(FILE     *out,		/* I - Output file */
       else
         max_colors = 256;
 
-      for (i = img->width * img->height, pixel = img->pixels, match = NULL;
+      for (i = img->width() * img->height(), pixel = img->pixels(), match = NULL;
 	   i > 0;
 	   i --, pixel += 3)
       {
@@ -10406,7 +10421,7 @@ write_image(FILE     *out,		/* I - Output file */
 
   if (ncolors > 0)
   {
-    if (PSLevel == 3 && img->mask)
+    if (PSLevel == 3 && img->mask())
       indbits = 8;
     else if (ncolors <= 2)
       indbits = 1;
@@ -10417,10 +10432,10 @@ write_image(FILE     *out,		/* I - Output file */
     else
       indbits = 8;
 
-    indwidth = (img->width * indbits + 7) / 8;
-    indices  = (hdChar *)calloc(indwidth, img->height);
+    indwidth = (img->width() * indbits + 7) / 8;
+    indices  = (hdChar *)calloc(indwidth, img->height());
 
-    if (img->depth == 1)
+    if (img->depth() == 1)
     {
      /*
       * Convert a grayscale image...
@@ -10429,11 +10444,11 @@ write_image(FILE     *out,		/* I - Output file */
       switch (indbits)
       {
         case 1 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 7; j > 0; j --, k = (k + 7) & 7, pixel ++)
+	      for (j = img->width(), k = 7; j > 0; j --, k = (k + 7) & 7, pixel ++)
 		switch (k)
 		{
 		  case 7 :
@@ -10453,11 +10468,11 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 2 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0; j > 0; j --, k = (k + 1) & 3, pixel ++)
+	      for (j = img->width(), k = 0; j > 0; j --, k = (k + 1) & 3, pixel ++)
 		switch (k)
 		{
 		  case 0 :
@@ -10480,11 +10495,11 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 4 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0; j > 0; j --, k ^= 1, pixel ++)
+	      for (j = img->width(), k = 0; j > 0; j --, k ^= 1, pixel ++)
 		if (k)
 		  *indptr++ |= grays[*pixel];
 		else
@@ -10505,12 +10520,12 @@ write_image(FILE     *out,		/* I - Output file */
       switch (indbits)
       {
         case 1 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices,
 	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 7;
+	      for (j = img->width(), k = 7;
 	           j > 0;
 		   j --, k = (k + 7) & 7, pixel += 3)
 	      {
@@ -10542,12 +10557,12 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 2 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices,
 	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0;
+	      for (j = img->width(), k = 0;
 	           j > 0;
 		   j --, k = (k + 1) & 3, pixel += 3)
 	      {
@@ -10582,12 +10597,12 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 4 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices,
 	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0; j > 0; j --, k ^= 1, pixel += 3)
+	      for (j = img->width(), k = 0; j > 0; j --, k ^= 1, pixel += 3)
 	      {
                 key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
 
@@ -10609,12 +10624,12 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 8 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices,
 	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width; j > 0; j --, pixel += 3, indptr ++)
+	      for (j = img->width(); j > 0; j --, pixel += 3, indptr ++)
 	      {
                 key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
 
@@ -10653,37 +10668,33 @@ write_image(FILE     *out,		/* I - Output file */
 	  flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width, r->height,
 	               r->x, r->y);
 
-        if (img->obj)
+        if (img->obj())
 	{
-	  if (img->mask && PDFVersion < 13)
+	  if (img->mask() && PDFVersion < 13)
 	    write_imagemask(out, r);
 
-	  flate_printf(out, "/I%d Do Q\n", img->obj);
+	  flate_printf(out, "/I%d Do Q\n", img->obj());
 	  break;
 	}
 
-        if (img->mask && write_obj && PDFVersion >= 13)
+        if (img->mask() && write_obj && PDFVersion >= 13)
 	{
 	  // We have a mask image, write it!
           pdf_start_object(out);
 	  fputs("/Type/XObject/Subtype/Image", out);
           fputs("/ColorSpace/DeviceGray", out);
-	  if (img->maskscale == 8)
+	  if (img->maskwidth() == img->width())
 	    fprintf(out, "/Width %d/Height %d/BitsPerComponent 8",
-	            img->width, img->height);
+	            img->width(), img->height());
           else
 	    fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
-	            img->width * img->maskscale, img->height * img->maskscale);
+	            img->width(), img->height());
           if (Compression)
             fputs("/Filter/FlateDecode", out);
 
           pdf_start_stream(out);
           flate_open_stream(out);
-	  if (img->maskscale == 8)
-  	    flate_write(out, img->mask, img->width * img->height);
-	  else
-  	    flate_write(out, img->mask,
-	                img->maskwidth * img->height * img->maskscale);
+	  flate_write(out, img->mask(), img->maskwidth() * img->height());
 	  flate_close_stream(out);
 
           pdf_end_object(out);
@@ -10692,15 +10703,15 @@ write_image(FILE     *out,		/* I - Output file */
         if (write_obj)
 	{
 	  // Write an image object...
-	  img->obj = pdf_start_object(out);
+	  img->obj(pdf_start_object(out));
 
 	  fputs("/Type/XObject/Subtype/Image", out);
-	  if (img->mask && PDFVersion >= 13)
+	  if (img->mask() && PDFVersion >= 13)
 	  {
-	    if (img->maskscale == 8)
-	      fprintf(out, "/SMask %d 0 R", img->obj - 1);
+	    if (img->maskwidth() == img->width())
+	      fprintf(out, "/SMask %d 0 R", img->obj() - 1);
 	    else
-	      fprintf(out, "/Mask %d 0 R", img->obj - 1);
+	      fprintf(out, "/Mask %d 0 R", img->obj() - 1);
 	  }
 
 	  if (ncolors > 0)
@@ -10725,7 +10736,7 @@ write_image(FILE     *out,		/* I - Output file */
 	              cmap[i][2]);
 	    fputs(">]", out);
           }
-	  else if (img->depth == 1)
+	  else if (img->depth() == 1)
             fputs("/ColorSpace/DeviceGray", out);
           else
             fputs("/ColorSpace/DeviceRGB", out);
@@ -10746,7 +10757,7 @@ write_image(FILE     *out,		/* I - Output file */
 	  }
 
   	  fprintf(out, "/Width %d/Height %d/BitsPerComponent %d",
-	          img->width, img->height, indbits);
+	          img->width(), img->height(), indbits);
           pdf_start_stream(out);
           flate_open_stream(out);
 
@@ -10754,9 +10765,9 @@ write_image(FILE     *out,		/* I - Output file */
 	  {
 	    jpg_setup(out, img, &cinfo);
 
-	    for (i = img->height, pixel = img->pixels;
+	    for (i = img->height(), pixel = img->pixels();
 	         i > 0;
-	         i --, pixel += img->width * img->depth)
+	         i --, pixel += img->width() * img->depth())
 	      jpeg_write_scanlines(&cinfo, &pixel, 1);
 
 	    jpeg_finish_compress(&cinfo);
@@ -10765,10 +10776,10 @@ write_image(FILE     *out,		/* I - Output file */
           else
 	  {
 	    if (ncolors > 0)
-   	      flate_write(out, indices, indwidth * img->height);
+   	      flate_write(out, indices, indwidth * img->height());
 	    else
-  	      flate_write(out, img->pixels,
-	                  img->width * img->height * img->depth);
+  	      flate_write(out, img->pixels(),
+	                  img->width() * img->height() * img->depth());
           }
 
           flate_close_stream(out);
@@ -10787,7 +10798,7 @@ write_image(FILE     *out,		/* I - Output file */
 	        	   (colors[i] >> 8) & 255, colors[i] & 255);
 	    flate_puts(">]", out);
           }
-	  else if (img->depth == 1)
+	  else if (img->depth() == 1)
             flate_puts("/CS/G", out);
           else
             flate_puts("/CS/RGB", out);
@@ -10795,12 +10806,13 @@ write_image(FILE     *out,		/* I - Output file */
           if (ncolors != 2)
             flate_puts("/I true", out);
 
-  	  flate_printf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits); 
+  	  flate_printf(out, "/W %d/H %d/BPC %d", img->width(), img->height(),
+	               indbits); 
 
 	  if (ncolors > 0)
 	  {
   	    flate_puts(" ID\n", out);
-  	    flate_write(out, indices, indwidth * img->height, 1);
+  	    flate_write(out, indices, indwidth * img->height(), 1);
 	  }
 	  else if (OutputJPEG)
 	  {
@@ -10808,9 +10820,9 @@ write_image(FILE     *out,		/* I - Output file */
 
 	    jpg_setup(out, img, &cinfo);
 
-	    for (i = img->height, pixel = img->pixels;
+	    for (i = img->height(), pixel = img->pixels();
 	         i > 0;
-	         i --, pixel += img->width * img->depth)
+	         i --, pixel += img->width() * img->depth())
 	      jpeg_write_scanlines(&cinfo, &pixel, 1);
 
 	    jpeg_finish_compress(&cinfo);
@@ -10819,7 +10831,8 @@ write_image(FILE     *out,		/* I - Output file */
 	  else
 	  {
   	    flate_puts(" ID\n", out);
-  	    flate_write(out, img->pixels, img->width * img->height * img->depth, 1);
+  	    flate_write(out, img->pixels(),
+	                img->width() * img->height() * img->depth(), 1);
           }
 
 	  flate_write(out, (hdChar *)"\nEI\nQ\n", 6, 1);
@@ -10831,23 +10844,23 @@ write_image(FILE     *out,		/* I - Output file */
 	fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	        r->x, r->y);
 
-	if (img->mask)
+	if (img->mask())
 	  write_imagemask(out, r);
 
-	fprintf(out, "/picture %d string def\n", img->width * img->depth);
+	fprintf(out, "/picture %d string def\n", img->width() * img->depth());
 
-	if (img->depth == 1)
+	if (img->depth() == 1)
 	  fprintf(out, "%d %d 8 [%d 0 0 %d 0 %d] {currentfile picture readhexstring pop} image\n",
-        	  img->width, img->height,
-        	  img->width, -img->height,
-        	  img->height); 
+        	  img->width(), img->height(),
+        	  img->width(), -img->height(),
+        	  img->height()); 
 	else
 	  fprintf(out, "%d %d 8 [%d 0 0 %d 0 %d] {currentfile picture readhexstring pop} false 3 colorimage\n",
-        	  img->width, img->height,
-        	  img->width, -img->height,
-        	  img->height); 
+        	  img->width(), img->height(),
+        	  img->width(), -img->height(),
+        	  img->height()); 
 
-	ps_hex(out, img->pixels, img->width * img->height * img->depth);
+	ps_hex(out, img->pixels(), img->width() * img->height() * img->depth());
 
 	fputs("GR\n", out);
         break;
@@ -10855,13 +10868,13 @@ write_image(FILE     *out,		/* I - Output file */
         // Fallthrough to Level 2 output if compression is disabled and
 	// we aren't doing transparency...
         if ((Compression && (!OutputJPEG || ncolors > 0)) ||
-	    (img->mask && img->maskscale == 8))
+	    (img->mask() && img->maskwidth() == img->width()))
 	{
           fputs("GS", out);
 	  fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	          r->x, r->y);
 
-	  if (img->mask && img->maskscale != 8)
+	  if (img->mask() && img->maskwidth() != img->width())
 	    write_imagemask(out, r);
 
           if (ncolors > 0)
@@ -10879,7 +10892,7 @@ write_image(FILE     *out,		/* I - Output file */
             }
 	    fputs(">]setcolorspace\n", out);
 
-	    if (img->mask && img->maskscale == 8)
+	    if (img->mask() && img->maskwidth() == img->width())
 	      fprintf(out, "<<"
 	                   "/ImageType 3"
 			   "/InterleaveType 1"
@@ -10892,8 +10905,8 @@ write_image(FILE     *out,		/* I - Output file */
 			   "/Decode[0 1]"
 	                   ">>\n"
 			   "/DataDict",
-	            img->width, img->height,
-        	    img->width, -img->height, img->height);
+	            img->width(), img->height(),
+        	    img->width(), -img->height(), img->height());
 
 	    fprintf(out, "<<"
 	                 "/ImageType 1"
@@ -10902,8 +10915,8 @@ write_image(FILE     *out,		/* I - Output file */
 	                 "/BitsPerComponent %d"
 	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
 	                 "/Decode[0 %d]",
-	            img->width, img->height, indbits,
-        	    img->width, -img->height, img->height,
+	            img->width(), img->height(), indbits,
+        	    img->width(), -img->height(), img->height(),
         	    (1 << indbits) - 1);
 
 #ifdef HTMLDOC_INTERPOLATION
@@ -10922,45 +10935,45 @@ write_image(FILE     *out,		/* I - Output file */
 
 	    fputs(">>\n", out);
 
-	    if (img->mask && img->maskscale == 8)
+	    if (img->mask() && img->maskwidth() == img->width())
 	      fputs(">>\n", out);
 
 	    fputs("image\n", out);
 
             flate_open_stream(out);
 
-	    if (img->mask && img->maskscale == 8)
+	    if (img->mask() && img->maskwidth() == img->width())
 	    {
-	      data = (hdChar *)malloc(img->width * 2);
+	      data = (hdChar *)malloc(img->width() * 2);
 
-	      for (i = 0, maskptr = img->mask, indptr = indices;
-	           i < img->height;
+	      for (i = 0, maskptr = img->mask(), indptr = indices;
+	           i < img->height();
 		   i ++)
 	      {
-	        for (j = img->width, dataptr = data; j > 0; j --)
+	        for (j = img->width(), dataptr = data; j > 0; j --)
 		{
 		  *dataptr++ = *maskptr++;
 		  *dataptr++ = *indptr++;
 		}
 
-		flate_write(out, data, img->width * 2);
+		flate_write(out, data, img->width() * 2);
 	      }
 
 	      free(data);
 	    }
 	    else
-	      flate_write(out, indices, indwidth * img->height);
+	      flate_write(out, indices, indwidth * img->height());
 
 	    flate_close_stream(out);
           }
           else
           {
-	    if (img->depth == 1)
+	    if (img->depth() == 1)
 	      fputs("/DeviceGray setcolorspace", out);
 	    else
 	      fputs("/DeviceRGB setcolorspace", out);
 
-	    if (img->mask && img->maskscale == 8)
+	    if (img->mask() && img->maskwidth() == img->width())
 	      fprintf(out, "<<"
 	                   "/ImageType 3"
 			   "/InterleaveType 1"
@@ -10973,8 +10986,8 @@ write_image(FILE     *out,		/* I - Output file */
 			   "/Decode[0 1]"
 	                   ">>\n"
 			   "/DataDict",
-	            img->width, img->height,
-        	    img->width, -img->height, img->height);
+	            img->width(), img->height(),
+        	    img->width(), -img->height(), img->height());
 
 	    fprintf(out, "<<"
 	                 "/ImageType 1"
@@ -10983,9 +10996,9 @@ write_image(FILE     *out,		/* I - Output file */
 	                 "/BitsPerComponent 8"
 	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
 	                 "/Decode[%s]",
-	            img->width, img->height,
-        	    img->width, -img->height, img->height,
-        	    img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+	            img->width(), img->height(),
+        	    img->width(), -img->height(), img->height(),
+        	    img->depth() == 1 ? "0 1" : "0 1 0 1 0 1");
 
 #ifdef HTMLDOC_INTERPOLATION
 	    fputs("/Interpolate true", out);
@@ -11002,24 +11015,24 @@ write_image(FILE     *out,		/* I - Output file */
 
 	    fputs(">>\n", out);
 
-	    if (img->mask && img->maskscale == 8)
+	    if (img->mask() && img->maskwidth() == img->width())
 	      fputs(">>\n", out);
 
 	    fputs("image\n", out);
 
             flate_open_stream(out);
 
-	    if (img->mask && img->maskscale == 8)
+	    if (img->mask() && img->maskwidth() == img->width())
 	    {
-	      data = (hdChar *)malloc(img->width * (img->depth + 1));
+	      data = (hdChar *)malloc(img->width() * (img->depth() + 1));
 
-	      for (i = 0, maskptr = img->mask, pixel = img->pixels;
-	           i < img->height;
+	      for (i = 0, maskptr = img->mask(), pixel = img->pixels();
+	           i < img->height();
 		   i ++)
 	      {
-	        if (img->depth == 1)
+	        if (img->depth() == 1)
 		{
-	          for (j = img->width, dataptr = data; j > 0; j --)
+	          for (j = img->width(), dataptr = data; j > 0; j --)
 		  {
 		    *dataptr++ = *maskptr++;
 		    *dataptr++ = *pixel++;
@@ -11027,7 +11040,7 @@ write_image(FILE     *out,		/* I - Output file */
 		}
 		else
 		{
-	          for (j = img->width, dataptr = data; j > 0; j --)
+	          for (j = img->width(), dataptr = data; j > 0; j --)
 		  {
 		    *dataptr++ = *maskptr++;
 		    *dataptr++ = *pixel++;
@@ -11036,14 +11049,14 @@ write_image(FILE     *out,		/* I - Output file */
 		  }
 		}
 
-		flate_write(out, data, img->width * (img->depth + 1));
+		flate_write(out, data, img->width() * (img->depth() + 1));
 	      }
 
 	      free(data);
 	    }
 	    else
-	      flate_write(out, img->pixels,
-	                  img->width * img->height * img->depth);
+	      flate_write(out, img->pixels(),
+	                  img->width() * img->height() * img->depth());
 
 	    flate_close_stream(out);
           }
@@ -11057,7 +11070,7 @@ write_image(FILE     *out,		/* I - Output file */
 	fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
 	        r->x, r->y);
 
-	if (img->mask)
+	if (img->mask())
 	  write_imagemask(out, r);
 
         if (ncolors > 0)
@@ -11080,8 +11093,8 @@ write_image(FILE     *out,		/* I - Output file */
 	               "/BitsPerComponent %d"
 	               "/ImageMatrix[%d 0 0 %d 0 %d]"
 	               "/Decode[0 %d]",
-	          img->width, img->height, indbits,
-        	  img->width, -img->height, img->height,
+	          img->width(), img->height(), indbits,
+        	  img->width(), -img->height(), img->height(),
         	  (1 << indbits) - 1);
 
 #ifdef HTMLDOC_INTERPOLATION
@@ -11092,18 +11105,18 @@ write_image(FILE     *out,		/* I - Output file */
 #ifdef HTMLDOC_ASCII85
 	  fputs("/DataSource currentfile/ASCII85Decode filter>>image\n", out);
 
-	  ps_ascii85(out, indices, indwidth * img->height, 1);
+	  ps_ascii85(out, indices, indwidth * img->height(), 1);
 #else
 	  fputs("/DataSource currentfile/ASCIIHexDecode filter>>image\n", out);
 
-	  ps_hex(out, indices, indwidth * img->height);
+	  ps_hex(out, indices, indwidth * img->height());
 	  // End of data marker...
 	  fputs(">\n", out);
 #endif /* HTMLDOC_ASCII85 */
         }
 	else if (OutputJPEG)
 	{
-	  if (img->depth == 1)
+	  if (img->depth() == 1)
 	    fputs("/DeviceGray setcolorspace\n", out);
 	  else
 	    fputs("/DeviceRGB setcolorspace\n", out);
@@ -11115,9 +11128,9 @@ write_image(FILE     *out,		/* I - Output file */
 	               "/BitsPerComponent 8"
 	               "/ImageMatrix[%d 0 0 %d 0 %d]"
 	               "/Decode[%s]",
-	          img->width, img->height,
-        	  img->width, -img->height, img->height,
-        	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+	          img->width(), img->height(),
+        	  img->width(), -img->height(), img->height(),
+        	  img->depth() == 1 ? "0 1" : "0 1 0 1 0 1");
 
 #ifdef HTMLDOC_INTERPOLATION
 	  fputs("/Interpolate true", out);
@@ -11133,9 +11146,9 @@ write_image(FILE     *out,		/* I - Output file */
 
 	  jpg_setup(out, img, &cinfo);
 
-	  for (i = img->height, pixel = img->pixels;
+	  for (i = img->height(), pixel = img->pixels();
 	       i > 0;
-	       i --, pixel += img->width * img->depth)
+	       i --, pixel += img->width() * img->depth())
 	    jpeg_write_scanlines(&cinfo, &pixel, 1);
 
 	  jpeg_finish_compress(&cinfo);
@@ -11150,7 +11163,7 @@ write_image(FILE     *out,		/* I - Output file */
         }
         else
         {
-	  if (img->depth == 1)
+	  if (img->depth() == 1)
 	    fputs("/DeviceGray setcolorspace\n", out);
 	  else
 	    fputs("/DeviceRGB setcolorspace\n", out);
@@ -11162,21 +11175,22 @@ write_image(FILE     *out,		/* I - Output file */
 	               "/BitsPerComponent 8"
 	               "/ImageMatrix[%d 0 0 %d 0 %d]"
 	               "/Decode[%s]",
-	          img->width, img->height,
-        	  img->width, -img->height, img->height,
-        	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+	          img->width(), img->height(),
+        	  img->width(), -img->height(), img->height(),
+        	  img->depth() == 1 ? "0 1" : "0 1 0 1 0 1");
 
 #ifdef HTMLDOC_ASCII85
           fputs("/DataSource currentfile/ASCII85Decode filter"
 	        ">>image\n", out);
 
-	  ps_ascii85(out, img->pixels, img->width * img->height *
-	                               img->depth, 1);
+	  ps_ascii85(out, img->pixels(),
+	             img->width() * img->height() * img->depth(), 1);
 #else
           fputs("/DataSource currentfile/ASCIIHexDecode filter"
 	        ">>image\n", out);
 
-	  ps_hex(out, img->pixels, img->width * img->depth * img->height);
+	  ps_hex(out, img->pixels(),
+	         img->width() * img->depth() * img->height());
 	  // End of data marker...
 	  fputs(">\n", out);
 #endif // HTMLDOC_ASCII85
@@ -11189,7 +11203,7 @@ write_image(FILE     *out,		/* I - Output file */
   if (ncolors > 0)
     free(indices);
 
-  image_unload(img);
+  img->free();
 }
 
 
@@ -11212,8 +11226,8 @@ write_imagemask(FILE     *out,		/* I - Output file */
 
 
   img    = r->data.image;
-  width  = img->width * img->maskscale;
-  height = img->height * img->maskscale;
+  width  = img->width();
+  height = img->height();
   scalex = 1.0f / width;
   scaley = 1.0f / height;
 
@@ -11229,7 +11243,7 @@ write_imagemask(FILE     *out,		/* I - Output file */
 
   for (y = 0; y < height; y ++)
   {
-    for (x = 0, ptr = img->mask + (height - y - 1) * img->maskwidth,
+    for (x = 0, ptr = img->mask() + (height - y - 1) * img->maskwidth(),
              bit = 128, byte = *ptr++, startx = 0, count = 0;
          x < width;
 	 x ++)
@@ -11333,8 +11347,8 @@ write_prolog(FILE  *out,		/* I - Output file */
   int		font_desc[HD_FONT_FACE_MAX][HD_FONT_INTERNAL_MAX];
 					/* Font descriptor objects */
   char		temp[1024];		/* Temporary string */
-  md5_state_t	md5;			/* MD5 state */
-  md5_byte_t	digest[16];		/* MD5 digest value */
+  hdMD5		md5;			/* MD5 state */
+  hdByte	digest[16];		/* MD5 digest value */
   rc4_context_t	rc4;			/* RC4 context */
   hdByte	owner_pad[32],		/* Padded owner password */
 		owner_key[32],		/* Owner key */
@@ -11719,7 +11733,7 @@ write_prolog(FILE  *out,		/* I - Output file */
       }
     }
 
-    if (background_image != NULL)
+    if (BodyImage != NULL)
       ps_write_background(out);
 
     fputs("%%EndProlog\n", out);
@@ -11738,10 +11752,10 @@ write_prolog(FILE  *out,		/* I - Output file */
     * Compute the file ID...
     */
 
-    md5_init(&md5);
-    md5_append(&md5, (md5_byte_t *)OutputPath, sizeof(OutputPath));
-    md5_append(&md5, (md5_byte_t *)&doc_time, sizeof(doc_time));
-    md5_finish(&md5, file_id);
+    md5.init();
+    md5.append((hdByte *)OutputPath, sizeof(OutputPath));
+    md5.append((hdByte *)&doc_time, sizeof(doc_time));
+    md5.finish(file_id);
 
    /*
     * Setup encryption stuff as necessary...
@@ -11797,18 +11811,18 @@ write_prolog(FILE  *out,		/* I - Output file */
       * Compute the owner key...
       */
 
-      md5_init(&md5);
-      md5_append(&md5, owner_pad, 32);
-      md5_finish(&md5, digest);
+      md5.init();
+      md5.append(owner_pad, 32);
+      md5.finish(digest);
 
       if (encrypt_len > 5)
       {
         // MD5 the result 50 more times...
 	for (i = 0; i < 50; i ++)
 	{
-          md5_init(&md5);
-          md5_append(&md5, digest, 16);
-          md5_finish(&md5, digest);
+          md5.init();
+          md5.append(digest, 16);
+          md5.finish(digest);
 	}
 
         // Copy the padded user password...
@@ -11850,27 +11864,27 @@ write_prolog(FILE  *out,		/* I - Output file */
       * Compute the encryption key...
       */
 
-      md5_init(&md5);
-      md5_append(&md5, user_pad, 32);
-      md5_append(&md5, owner_key, 32);
+      md5.init();
+      md5.append(user_pad, 32);
+      md5.append(owner_key, 32);
 
       perm_bytes[0] = perm_value;
       perm_bytes[1] = perm_value >> 8;
       perm_bytes[2] = perm_value >> 16;
       perm_bytes[3] = perm_value >> 24;
 
-      md5_append(&md5, perm_bytes, 4);
-      md5_append(&md5, file_id, 16);
-      md5_finish(&md5, digest);
+      md5.append(perm_bytes, 4);
+      md5.append(file_id, 16);
+      md5.finish(digest);
 
       if (encrypt_len > 5)
       {
         // MD5 the result 50 times..
         for (i = 0; i < 50; i ++)
 	{
-	  md5_init(&md5);
-	  md5_append(&md5, digest, 16);
-	  md5_finish(&md5, digest);
+	  md5.init();
+	  md5.append(digest, 16);
+	  md5.finish(digest);
 	}
       }
 
@@ -11882,10 +11896,10 @@ write_prolog(FILE  *out,		/* I - Output file */
 
       if (encrypt_len > 5)
       {
-        md5_init(&md5);
-        md5_append(&md5, pad, 32);
-        md5_append(&md5, file_id, 16);
-        md5_finish(&md5, user_key);
+        md5.init();
+        md5.append(pad, 32);
+        md5.append(file_id, 16);
+        md5.finish(user_key);
 
         memset(user_key + 16, 0, 16);
 
@@ -12719,8 +12733,8 @@ encrypt_init(void)
   int		i;			/* Looping var */
   hdChar	data[21],		/* Key data */
 		*dataptr;		/* Pointer to key data */
-  md5_state_t	md5;			/* MD5 state */
-  md5_byte_t	digest[16];		/* MD5 digest value */
+  hdMD5		md5;			/* MD5 state */
+  hdByte	digest[16];		/* MD5 digest value */
 
 
  /*
@@ -12740,9 +12754,9 @@ encrypt_init(void)
   * Hash it...
   */
 
-  md5_init(&md5);
-  md5_append(&md5, data, encrypt_len + 5);
-  md5_finish(&md5, digest);
+  md5.init();
+  md5.append(data, encrypt_len + 5);
+  md5.finish(digest);
 
  /*
   * Initialize the RC4 context using the first N+5 bytes of the digest...
@@ -13054,6 +13068,6 @@ update_index(hdTree *t,			// I - Index tree
 }
 
 
-/*
- * End of "$Id$".
- */
+//
+// End of "$Id$".
+//
