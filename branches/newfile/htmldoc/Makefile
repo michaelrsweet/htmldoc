@@ -45,7 +45,6 @@ BASEOBJS =	\
 		file-std.o \
 		html.o \
 		htmllib.o \
-		htmlsep.o \
 		http.o \
 		http-md5.o \
 		image.o \

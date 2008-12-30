@@ -37,7 +37,6 @@
 		27DD25520EC01A3300B76D4E /* html.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252F0EC01A3300B76D4E /* html.cxx */; };
 		27DD25530EC01A3300B76D4E /* htmldoc.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25310EC01A3300B76D4E /* htmldoc.cxx */; };
 		27DD25540EC01A3300B76D4E /* htmllib.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25330EC01A3300B76D4E /* htmllib.cxx */; };
-		27DD25550EC01A3300B76D4E /* htmlsep.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25340EC01A3300B76D4E /* htmlsep.cxx */; };
 		27DD255A0EC01A3300B76D4E /* image.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD253B0EC01A3300B76D4E /* image.cxx */; };
 		27DD255B0EC01A3300B76D4E /* index.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD253D0EC01A3300B76D4E /* index.cxx */; };
 		27DD255C0EC01A3300B76D4E /* margin.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD253E0EC01A3300B76D4E /* margin.cxx */; };
@@ -386,7 +385,6 @@
 		27DD25310EC01A3300B76D4E /* htmldoc.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmldoc.cxx; path = ../htmldoc/htmldoc.cxx; sourceTree = SOURCE_ROOT; };
 		27DD25320EC01A3300B76D4E /* htmldoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = htmldoc.h; path = ../htmldoc/htmldoc.h; sourceTree = SOURCE_ROOT; };
 		27DD25330EC01A3300B76D4E /* htmllib.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmllib.cxx; path = ../htmldoc/htmllib.cxx; sourceTree = SOURCE_ROOT; };
-		27DD25340EC01A3300B76D4E /* htmlsep.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmlsep.cxx; path = ../htmldoc/htmlsep.cxx; sourceTree = SOURCE_ROOT; };
 		27DD253A0EC01A3300B76D4E /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http.h; path = ../htmldoc/http.h; sourceTree = SOURCE_ROOT; };
 		27DD253B0EC01A3300B76D4E /* image.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = image.cxx; path = ../htmldoc/image.cxx; sourceTree = SOURCE_ROOT; };
 		27DD253C0EC01A3300B76D4E /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../htmldoc/image.h; sourceTree = SOURCE_ROOT; };
@@ -667,7 +665,6 @@
 				27DD25310EC01A3300B76D4E /* htmldoc.cxx */,
 				27DD25320EC01A3300B76D4E /* htmldoc.h */,
 				27DD25330EC01A3300B76D4E /* htmllib.cxx */,
-				27DD25340EC01A3300B76D4E /* htmlsep.cxx */,
 				27DD253A0EC01A3300B76D4E /* http.h */,
 				27DD253B0EC01A3300B76D4E /* image.cxx */,
 				27DD253C0EC01A3300B76D4E /* image.h */,
@@ -1074,7 +1071,6 @@
 				27DD25520EC01A3300B76D4E /* html.cxx in Sources */,
 				27DD25530EC01A3300B76D4E /* htmldoc.cxx in Sources */,
 				27DD25540EC01A3300B76D4E /* htmllib.cxx in Sources */,
-				27DD25550EC01A3300B76D4E /* htmlsep.cxx in Sources */,
 				27DD255A0EC01A3300B76D4E /* image.cxx in Sources */,
 				27DD255B0EC01A3300B76D4E /* index.cxx in Sources */,
 				27DD255C0EC01A3300B76D4E /* margin.cxx in Sources */,
