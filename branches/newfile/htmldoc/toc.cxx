@@ -81,7 +81,7 @@ toc_build(hdTree *tree,			/* I - Document tree */
   htmlUpdateStyle(title, ".");
 
   link = htmlAddTree(title, HD_ELEMENT_A, NULL);
-  htmlSetAttr(link, "name", (hdChar *)"CONTENTS");
+  htmlSetAttr(link, "name", (hdChar *)"HD_CONTENTS");
   htmlSetAttr(link, "class", (hdChar *)"HD_TOC");
   htmlUpdateStyle(link, ".");
 
