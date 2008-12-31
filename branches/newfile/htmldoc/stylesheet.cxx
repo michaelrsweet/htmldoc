@@ -81,6 +81,9 @@ hdStyleSheet::hdStyleSheet()
   memset(glyphs, 0, sizeof(glyphs));
   memset(unichars, 0, sizeof(unichars));
 
+  for (unich = 0; unich < 128; unich ++)
+    unichars[unich] = unicode[unich] = unich;
+
   // Load unicode glyphs...
   memset(uniglyphs, 0, sizeof(uniglyphs));
 
@@ -1330,6 +1333,9 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
   memset(unicode, 0, sizeof(unicode));
   memset(unichars, 0, sizeof(unichars));
 
+  for (ch = 0; ch < 128; ch ++)
+    unichars[ch] = unicode[ch] = ch;
+
   // Initialize the character set as needed...
   if (!strcasecmp(cs, "utf-8"))
   {
@@ -1338,10 +1344,6 @@ hdStyleSheet::set_charset(const char *cs)// I - Character set name
     encoding = HD_FONT_ENCODING_UTF8;
 
     memcpy(glyphs, uniglyphs, 128 * sizeof(char *));
-
-    for (ch = 32; ch < 127; ch ++)
-      unichars[ch] = unicode[ch] = ch;
-
     return;
   }
 

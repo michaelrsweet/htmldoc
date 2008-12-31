@@ -959,7 +959,7 @@ write_node(hdFile *out,			// I - Output file
 	if (t->style->white_space == HD_WHITE_SPACE_PRE)
 	{
           for (ptr = t->data; *ptr; ptr ++)
-            out->puts(_htmlStyleSheet->get_entity(*ptr));
+	    out->puts(_htmlStyleSheet->get_entity(*ptr));
 
 	  if (t->data[strlen((char *)t->data) - 1] == '\n')
             col = 0;
@@ -1065,7 +1065,7 @@ write_node(hdFile *out,			// I - Output file
 	  col += out->printf("<%s", _htmlStyleSheet->get_element(t->element));
 	  for (i = 0; i < t->nattrs; i ++)
 	  {
-            if (strncasecmp((char *)t->attrs[i].name, "_HD_", 4) == 0)
+            if (!strncasecmp((char *)t->attrs[i].name, "_HD_", 4))
 	      continue;
 
 	    if (col > 72 && t->style->white_space != HD_WHITE_SPACE_PRE)
