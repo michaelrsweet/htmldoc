@@ -32,7 +32,6 @@
 #    include <winsock.h>
 #  else
 #    include <unistd.h>
-#    include <sys/types.h>
 #    include <sys/time.h>
 #    include <sys/socket.h>
 #    include <netdb.h>
@@ -50,32 +49,32 @@
 // Limits...
 //
 
-#  define HD_MAX_URI	1024	// Max length of URI string
-#  define HD_MAX_HOST	256	// Max length of hostname string
-#  define HD_MAX_BUFFER	2048	// Max length of data buffer
-#  define HD_MAX_VALUE	256	// Max header field value length
+#  define HD_MAX_URI	1024		// Max length of URI string
+#  define HD_MAX_HOST	256		// Max length of hostname string
+#  define HD_MAX_BUFFER	2048		// Max length of data buffer
+#  define HD_MAX_VALUE	256		// Max header field value length
 
 
 //
 // HTTP state values...
 //
 
-typedef enum			// States are server-oriented
+typedef enum				// States are server-oriented
 {
-  HD_HTTP_WAITING,		// Waiting for command
-  HD_HTTP_OPTIONS,		// OPTIONS command, waiting for blank line
-  HD_HTTP_GET,			// GET command, waiting for blank line
-  HD_HTTP_GET_SEND,		// GET command, sending data
-  HD_HTTP_HEAD,			// HEAD command, waiting for blank line
-  HD_HTTP_POST,			// POST command, waiting for blank line
-  HD_HTTP_POST_RECV,		// POST command, receiving data
-  HD_HTTP_POST_SEND,		// POST command, sending data
-  HD_HTTP_PUT,			// PUT command, waiting for blank line
-  HD_HTTP_PUT_RECV,		// PUT command, receiving data
-  HD_HTTP_DELETE,		// DELETE command, waiting for blank line
-  HD_HTTP_TRACE,		// TRACE command, waiting for blank line
-  HD_HTTP_CLOSE,		// CLOSE command, waiting for blank line
-  HD_HTTP_STATUS		// Command complete, sending status
+  HD_HTTP_WAITING,			// Waiting for command
+  HD_HTTP_OPTIONS,			// OPTIONS command, waiting for blank line
+  HD_HTTP_GET,				// GET command, waiting for blank line
+  HD_HTTP_GET_SEND,			// GET command, sending data
+  HD_HTTP_HEAD,				// HEAD command, waiting for blank line
+  HD_HTTP_POST,				// POST command, waiting for blank line
+  HD_HTTP_POST_RECV,			// POST command, receiving data
+  HD_HTTP_POST_SEND,			// POST command, sending data
+  HD_HTTP_PUT,				// PUT command, waiting for blank line
+  HD_HTTP_PUT_RECV,			// PUT command, receiving data
+  HD_HTTP_DELETE,			// DELETE command, waiting for blank line
+  HD_HTTP_TRACE,			// TRACE command, waiting for blank line
+  HD_HTTP_CLOSE,			// CLOSE command, waiting for blank line
+  HD_HTTP_STATUS			// Command complete, sending status
 } hdHTTPState;
 
 
@@ -85,9 +84,9 @@ typedef enum			// States are server-oriented
 
 typedef enum
 {
-  HD_HTTP_0_9 = 9,		// HTTP/0.9
-  HD_HTTP_1_0 = 100,		// HTTP/1.0
-  HD_HTTP_1_1 = 101		// HTTP/1.1
+  HD_HTTP_0_9 = 9,			// HTTP/0.9
+  HD_HTTP_1_0 = 100,			// HTTP/1.0
+  HD_HTTP_1_1 = 101			// HTTP/1.1
 } hdHTTPVersion;
 
 
@@ -108,8 +107,8 @@ typedef enum
 
 typedef enum
 {
-  HD_HTTP_ENCODE_LENGTH,	// Data is sent with Content-Length
-  HD_HTTP_ENCODE_CHUNKED	// Data is chunked
+  HD_HTTP_ENCODE_LENGTH,		// Data is sent with Content-Length
+  HD_HTTP_ENCODE_CHUNKED		// Data is chunked
 } hdHTTPEncoding;
 
 
@@ -119,10 +118,10 @@ typedef enum
 
 typedef enum
 {
-  HD_HTTP_ENCRYPT_IF_REQUESTED,	// Encrypt if requested (TLS upgrade)
-  HD_HTTP_ENCRYPT_NEVER,	// Never encrypt
-  HD_HTTP_ENCRYPT_REQUIRED,	// Encryption is required (TLS upgrade)
-  HD_HTTP_ENCRYPT_ALWAYS	// Always encrypt (SSL)
+  HD_HTTP_ENCRYPT_IF_REQUESTED,		// Encrypt if requested (TLS upgrade)
+  HD_HTTP_ENCRYPT_NEVER,		// Never encrypt
+  HD_HTTP_ENCRYPT_REQUIRED,		// Encryption is required (TLS upgrade)
+  HD_HTTP_ENCRYPT_ALWAYS		// Always encrypt (SSL)
 } hdHTTPEncryption;
 
 
@@ -132,12 +131,12 @@ typedef enum
 
 typedef enum
 {
-  HD_HTTP_AUTH_NONE,		// No authentication in use
-  HD_HTTP_AUTH_BASIC,		// Basic authentication in use
-  HD_HTTP_AUTH_MD5,		// Digest authentication in use
-  HD_HTTP_AUTH_MD5_SESS,	// MD5-session authentication in use
-  HD_HTTP_AUTH_MD5_INT,		// Digest authentication in use for body
-  HD_HTTP_AUTH_MD5_SESS_INT	// MD5-session authentication in use for body
+  HD_HTTP_AUTH_NONE,			// No authentication in use
+  HD_HTTP_AUTH_BASIC,			// Basic authentication in use
+  HD_HTTP_AUTH_MD5,			// Digest authentication in use
+  HD_HTTP_AUTH_MD5_SESS,		// MD5-session authentication in use
+  HD_HTTP_AUTH_MD5_INT,			// Digest authentication in use for body
+  HD_HTTP_AUTH_MD5_SESS_INT		// MD5-session authentication in use for body
 } hdHTTPAuth;
 
 
@@ -147,50 +146,50 @@ typedef enum
 
 typedef enum
 {
-  HD_HTTP_ERROR = -1,		// An error response from httpXxxx()
+  HD_HTTP_ERROR = -1,			// An error response from httpXxxx()
 
-  HD_HTTP_CONTINUE = 100,	// Everything OK, keep going...
-  HD_HTTP_SWITCHING_PROTOCOLS,	// HTTP upgrade to TLS/SSL
+  HD_HTTP_CONTINUE = 100,		// Everything OK, keep going...
+  HD_HTTP_SWITCHING_PROTOCOLS,		// HTTP upgrade to TLS/SSL
 
-  HD_HTTP_OK = 200,		// OPTIONS/GET/HEAD/POST/TRACE command was successful
-  HD_HTTP_CREATED,		// PUT command was successful
-  HD_HTTP_ACCEPTED,		// DELETE command was successful
-  HD_HTTP_NOT_AUTHORITATIVE,	// Information isn't authoritative
-  HD_HTTP_NO_CONTENT,		// Successful command, no new data
-  HD_HTTP_RESET_CONTENT,	// Content was reset/recreated
-  HD_HTTP_PARTIAL_CONTENT,	// Only a partial file was recieved/sent
+  HD_HTTP_OK = 200,			// OPTIONS/GET/HEAD/POST/TRACE command was successful
+  HD_HTTP_CREATED,			// PUT command was successful
+  HD_HTTP_ACCEPTED,			// DELETE command was successful
+  HD_HTTP_NOT_AUTHORITATIVE,		// Information isn't authoritative
+  HD_HTTP_NO_CONTENT,			// Successful command, no new data
+  HD_HTTP_RESET_CONTENT,		// Content was reset/recreated
+  HD_HTTP_PARTIAL_CONTENT,		// Only a partial file was recieved/sent
 
-  HD_HTTP_MULTIPLE_CHOICES = 300,// Multiple files match request
-  HD_HTTP_MOVED_PERMANENTLY,	// Document has moved permanently
-  HD_HTTP_MOVED_TEMPORARILY,	// Document has moved temporarily
-  HD_HTTP_SEE_OTHER,		// See this other link...
-  HD_HTTP_NOT_MODIFIED,		// File not modified
-  HD_HTTP_USE_PROXY,		// Must use a proxy to access this URI
+  HD_HTTP_MULTIPLE_CHOICES = 300,	// Multiple files match request
+  HD_HTTP_MOVED_PERMANENTLY,		// Document has moved permanently
+  HD_HTTP_MOVED_TEMPORARILY,		// Document has moved temporarily
+  HD_HTTP_SEE_OTHER,			// See this other link...
+  HD_HTTP_NOT_MODIFIED,			// File not modified
+  HD_HTTP_USE_PROXY,			// Must use a proxy to access this URI
 
-  HD_HTTP_BAD_REQUEST = 400,	// Bad request
-  HD_HTTP_UNAUTHORIZED,		// Unauthorized to access host
-  HD_HTTP_PAYMENT_REQUIRED,	// Payment required
-  HD_HTTP_FORBIDDEN,		// Forbidden to access this URI
-  HD_HTTP_NOT_FOUND,		// URI was not found
-  HD_HTTP_METHOD_NOT_ALLOWED,	// Method is not allowed
-  HD_HTTP_NOT_ACCEPTABLE,	// Not Acceptable
-  HD_HTTP_PROXY_AUTHENTICATION,	// Proxy Authentication is Required
-  HD_HTTP_REQUEST_TIMEOUT,	// Request timed out
-  HD_HTTP_CONFLICT,		// Request is self-conflicting
-  HD_HTTP_GONE,			// Server has gone away
-  HD_HTTP_LENGTH_REQUIRED,	// A content length or encoding is required
-  HD_HTTP_PRECONDITION,		// Precondition failed
-  HD_HTTP_REQUEST_TOO_LARGE,	// Request entity too large
-  HD_HTTP_URI_TOO_LONG,		// URI too long
-  HD_HTTP_UNSUPPORTED_MEDIATYPE,// The requested media type is unsupported
-  HD_HTTP_UPGRADE_REQUIRED = 426,// Upgrade to SSL/TLS required
+  HD_HTTP_BAD_REQUEST = 400,		// Bad request
+  HD_HTTP_UNAUTHORIZED,			// Unauthorized to access host
+  HD_HTTP_PAYMENT_REQUIRED,		// Payment required
+  HD_HTTP_FORBIDDEN,			// Forbidden to access this URI
+  HD_HTTP_NOT_FOUND,			// URI was not found
+  HD_HTTP_METHOD_NOT_ALLOWED,		// Method is not allowed
+  HD_HTTP_NOT_ACCEPTABLE,		// Not Acceptable
+  HD_HTTP_PROXY_AUTHENTICATION,		// Proxy Authentication is Required
+  HD_HTTP_REQUEST_TIMEOUT,		// Request timed out
+  HD_HTTP_CONFLICT,			// Request is self-conflicting
+  HD_HTTP_GONE,				// Server has gone away
+  HD_HTTP_LENGTH_REQUIRED,		// A content length or encoding is required
+  HD_HTTP_PRECONDITION,			// Precondition failed
+  HD_HTTP_REQUEST_TOO_LARGE,		// Request entity too large
+  HD_HTTP_URI_TOO_LONG,			// URI too long
+  HD_HTTP_UNSUPPORTED_MEDIATYPE,	// The requested media type is unsupported
+  HD_HTTP_UPGRADE_REQUIRED = 426,	// Upgrade to SSL/TLS required
 
-  HD_HTTP_SERVER_ERROR = 500,	// Internal server error
-  HD_HTTP_NOT_IMPLEMENTED,	// Feature not implemented
-  HD_HTTP_BAD_GATEWAY,		// Bad gateway
-  HD_HTTP_SERVICE_UNAVAILABLE,	// Service is unavailable
-  HD_HTTP_GATEWAY_TIMEOUT,	// Gateway connection timed out
-  HD_HTTP_NOT_SUPPORTED		// HTTP version not supported
+  HD_HTTP_SERVER_ERROR = 500,		// Internal server error
+  HD_HTTP_NOT_IMPLEMENTED,		// Feature not implemented
+  HD_HTTP_BAD_GATEWAY,			// Bad gateway
+  HD_HTTP_SERVICE_UNAVAILABLE,		// Service is unavailable
+  HD_HTTP_GATEWAY_TIMEOUT,		// Gateway connection timed out
+  HD_HTTP_NOT_SUPPORTED			// HTTP version not supported
 } hdHTTPStatus;
 
 

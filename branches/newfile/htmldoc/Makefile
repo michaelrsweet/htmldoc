@@ -91,6 +91,11 @@ SRCS	=	\
 		http.cxx \
 		http-md5.cxx \
 		image.cxx \
+		image-bmp.cxx \
+		image-gif.cxx \
+		image-jpeg.cxx \
+		image-png.cxx \
+		image-reduce.cxx \
 		index.cxx \
 		margin.cxx \
 		md5.cxx \

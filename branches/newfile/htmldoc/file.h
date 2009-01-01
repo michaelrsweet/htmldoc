@@ -3,7 +3,7 @@
 //
 // File class definitions for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2008 Easy Software Products.
+// Copyright 1997-2009 Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -30,6 +30,7 @@
 #  include <stdio.h>
 #  include <errno.h>
 #  include "http.h"
+#  include "rc4.h"
 #  include <zlib.h>
 
 extern "C"
@@ -104,7 +105,7 @@ class hdFile				//// Base file class...
   const char		*error_string();
   char			*extension(char *t, size_t tlen)
 			{ return (extension(uri_, t, tlen)); }
-  char			*gets(char *s, size_t slen);
+  char			*gets(char *s, size_t slen, bool keep_crlf = false);
   hdMode		mode() { return (mode_); }
   size_t		pos() { return (pos_); }
   int			printf(const char *f, ...);
@@ -281,18 +282,13 @@ class hdJPEGFilter : public hdFile	//// JPEG compression filter
 class hdRC4Filter : public hdFile	//// RC4 encryption filter
 {
   hdFile		*chain_;	// Pointer to next filter or file in chain
-  hdByte		sbox_[256];	// S boxes for encryption
-  int			si_, sj_;	// Current indices into S boxes
   hdByte		buffer_[16384];	// Encryption buffer
-
-  void			init(const hdByte *key, unsigned keylen);
-  void			encrypt(const hdByte *input, hdByte *output,
-			        size_t len);
+  hdRC4			rc4_;		// RC4 context
 
   public:
 
 			hdRC4Filter(hdFile *f, const hdByte *key,
-			            unsigned keylen);
+			            size_t keylen);
   virtual		~hdRC4Filter();
 
   virtual int		get();

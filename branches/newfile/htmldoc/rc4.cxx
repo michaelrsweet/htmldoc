@@ -1,7 +1,7 @@
 //
 // "$Id$"
 //
-// RC4 definitions for HTMLDOC, a HTML document processing program.
+// RC4 code for HTMLDOC, a HTML document processing program.
 //
 // Copyright 2001-2009 Easy Software Products.
 //
@@ -39,36 +39,94 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 // OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //
-
-#ifndef _HTMLDOC_RC4_H_
-#  define _HTMLDOC_RC4_H_
+// Contents:
+//
+//   hdRC4::encrypt() - Encrypt the given buffer.
+//   hdRC4::init()    - Initialize the RC4 context with the specified key.
+//
 
 //
 // Include necessary headers...
 //
 
-#  include "types.h"
+#include "rc4.h"
 
 
 //
-// RC4 context...
+// 'hdRC4::encrypt()' - Encrypt the given buffer.
 //
 
-class hdRC4
+void
+hdRC4::encrypt(const hdByte *input,	// I - Input buffer
+	       hdByte       *output,	// O - Output buffer
+	       size_t       len)	// I - Size of buffers
 {
-  hdByte	sbox_[256];		// S boxes for encryption
-  int		si_, sj_;		// Current indices into S boxes
+  int		i, j;			// Looping vars
+  hdByte	tmp;			// Swap variable
+  int		t;			// Current S box
 
-  public:
 
-		hdRC4() {}
-		hdRC4(const hdByte *key, size_t keylen) { init(key, keylen); }
+  // Loop through the entire buffer...
+  i = si_;
+  j = sj_;
 
-  void		encrypt(const hdByte *input, hdByte *output, size_t len);
-  void		init(const hdByte *key, size_t keylen);
-};
+  while (len > 0)
+  {
+    // Get the next S box indices...
+    i = (i + 1) & 255;
+    j = (j + sbox_[i]) & 255;
 
-#endif /* !_HTMLDOC_RC4_H_ */
+    // Swap Si and Sj...
+    tmp      = sbox_[i];
+    sbox_[i] = sbox_[j];
+    sbox_[j] = tmp;
+
+    // Get the S box index for this byte...
+    t = (sbox_[i] + sbox_[j]) & 255;
+
+    // Encrypt using the S box...
+    *output++ = *input++ ^ sbox_[t];
+    len --;
+  }
+
+  // Copy current S box indices back to context...
+  si_ = i;
+  sj_ = j;
+}
+
+
+//
+// 'hdRC4::init()' - Initialize the RC4 context with the specified key.
+//
+
+void
+hdRC4::init(const hdByte *key,		// I - Key
+    	    size_t       keylen)	// I - Length of key
+{
+  int		i, j;			// Looping vars
+  hdByte	tmp;			// Temporary variable
+
+
+  // Fill in linearly s0=0, s1=1, ...
+  for (i = 0; i < 256; i ++)
+    sbox_[i] = i;
+
+  for (i = 0, j = 0; i < 256; i ++)
+  {
+    // j = (j + Si + Ki) mod 256
+    j = (j + sbox_[i] + key[i % keylen]) & 255;
+
+    // Swap Si and Sj...
+    tmp     = sbox_[i];
+    sbox_[i] = sbox_[j];
+    sbox_[j] = tmp;
+  }
+
+  // Initialized counters to 0 and return...
+  si_ = 0;
+  sj_ = 0;
+}
+
 
 //
 // End of "$Id$".

@@ -32,6 +32,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		277634030F0D1227007E194E /* rc4.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 277634020F0D1227007E194E /* rc4.cxx */; };
 		27CD4E3B0F09992100E552E8 /* array.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27CD4E390F09992100E552E8 /* array.cxx */; };
 		27DD25500EC01A3300B76D4E /* entity.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252B0EC01A3300B76D4E /* entity.cxx */; };
 		27DD25520EC01A3300B76D4E /* html.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252F0EC01A3300B76D4E /* html.cxx */; };
@@ -42,7 +43,6 @@
 		27DD255C0EC01A3300B76D4E /* margin.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD253E0EC01A3300B76D4E /* margin.cxx */; };
 		27DD255E0EC01A3300B76D4E /* progress.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25420EC01A3300B76D4E /* progress.cxx */; };
 		27DD255F0EC01A3300B76D4E /* ps-pdf.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25440EC01A3300B76D4E /* ps-pdf.cxx */; };
-		27DD25600EC01A3300B76D4E /* rc4.c in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25450EC01A3300B76D4E /* rc4.c */; };
 		27DD25610EC01A3300B76D4E /* style.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25470EC01A3300B76D4E /* style.cxx */; };
 		27DD25620EC01A3300B76D4E /* stylefont.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25490EC01A3300B76D4E /* stylefont.cxx */; };
 		27DD25630EC01A3300B76D4E /* stylemedia.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD254A0EC01A3300B76D4E /* stylemedia.cxx */; };
@@ -373,6 +373,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		277634020F0D1227007E194E /* rc4.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rc4.cxx; path = ../htmldoc/rc4.cxx; sourceTree = SOURCE_ROOT; };
 		27CD4E390F09992100E552E8 /* array.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = array.cxx; path = ../htmldoc/array.cxx; sourceTree = SOURCE_ROOT; };
 		27CD4E3A0F09992100E552E8 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = ../htmldoc/array.h; sourceTree = SOURCE_ROOT; };
 		27DD25290EC019F500B76D4E /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
@@ -395,7 +396,6 @@
 		27DD25420EC01A3300B76D4E /* progress.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = progress.cxx; path = ../htmldoc/progress.cxx; sourceTree = SOURCE_ROOT; };
 		27DD25430EC01A3300B76D4E /* progress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = progress.h; path = ../htmldoc/progress.h; sourceTree = SOURCE_ROOT; };
 		27DD25440EC01A3300B76D4E /* ps-pdf.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "ps-pdf.cxx"; path = "../htmldoc/ps-pdf.cxx"; sourceTree = SOURCE_ROOT; };
-		27DD25450EC01A3300B76D4E /* rc4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rc4.c; path = ../htmldoc/rc4.c; sourceTree = SOURCE_ROOT; };
 		27DD25460EC01A3300B76D4E /* rc4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rc4.h; path = ../htmldoc/rc4.h; sourceTree = SOURCE_ROOT; };
 		27DD25470EC01A3300B76D4E /* style.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = style.cxx; path = ../htmldoc/style.cxx; sourceTree = SOURCE_ROOT; };
 		27DD25480EC01A3300B76D4E /* style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = style.h; path = ../htmldoc/style.h; sourceTree = SOURCE_ROOT; };
@@ -632,6 +632,7 @@
 		08FB7795FE84155DC02AAC07 /* htmldoc */ = {
 			isa = PBXGroup;
 			children = (
+				277634020F0D1227007E194E /* rc4.cxx */,
 				27CD4E390F09992100E552E8 /* array.cxx */,
 				27CD4E3A0F09992100E552E8 /* array.h */,
 				27EB2FAF0F07B8200034DB3C /* file-ascii.cxx */,
@@ -675,7 +676,6 @@
 				27DD25420EC01A3300B76D4E /* progress.cxx */,
 				27DD25430EC01A3300B76D4E /* progress.h */,
 				27DD25440EC01A3300B76D4E /* ps-pdf.cxx */,
-				27DD25450EC01A3300B76D4E /* rc4.c */,
 				27DD25460EC01A3300B76D4E /* rc4.h */,
 				27DD25470EC01A3300B76D4E /* style.cxx */,
 				27DD25480EC01A3300B76D4E /* style.h */,
@@ -1076,7 +1076,6 @@
 				27DD255C0EC01A3300B76D4E /* margin.cxx in Sources */,
 				27DD255E0EC01A3300B76D4E /* progress.cxx in Sources */,
 				27DD255F0EC01A3300B76D4E /* ps-pdf.cxx in Sources */,
-				27DD25600EC01A3300B76D4E /* rc4.c in Sources */,
 				27DD25610EC01A3300B76D4E /* style.cxx in Sources */,
 				27DD25620EC01A3300B76D4E /* stylefont.cxx in Sources */,
 				27DD25630EC01A3300B76D4E /* stylemedia.cxx in Sources */,
@@ -1103,6 +1102,7 @@
 				27EB2FCF0F07B8200034DB3C /* image-reduce.cxx in Sources */,
 				27EB2FD00F07B8200034DB3C /* md5.cxx in Sources */,
 				27CD4E3B0F09992100E552E8 /* array.cxx in Sources */,
+				277634030F0D1227007E194E /* rc4.cxx in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -3,7 +3,7 @@
 //
 //   Common file routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2008 Easy Software Products.
+//   Copyright 1997-2009 Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -50,7 +50,8 @@ hdFile::~hdFile()
 
 char *					// O - String buffer or NULL on EOF
 hdFile::gets(char   *s,			// O - String buffer
-             size_t slen)		// I - Size of string buffer
+             size_t slen,		// I - Size of string buffer
+	     bool   keep_crlf)		// I - Keep newlines on end?
 {
   int		ch;			// Character from file
   char		*ptr,			// Current position in line sfer
@@ -81,7 +82,13 @@ hdFile::gets(char   *s,			// O - String buffer
       * See if we have CR or CR LF...
       */
 
+      if (keep_crlf && ptr < end)
+	*ptr++ = ch;
+
       int nextch = get();
+
+      if (keep_crlf && nextch == '\n' && ptr < end)
+	*ptr++ = nextch;
 
       if (nextch == EOF || nextch == '\n')
         break;
@@ -95,7 +102,12 @@ hdFile::gets(char   *s,			// O - String buffer
       break;
     }
     else if (ch == '\n')
+    {
+      if (keep_crlf && ptr < end)
+	*ptr++ = ch;
+
       break;
+    }
     else if (ch == '\\')
     {
      /*

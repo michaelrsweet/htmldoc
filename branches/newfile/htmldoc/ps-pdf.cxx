@@ -8,7 +8,7 @@
 // broken into more manageable pieces once we make all of the output
 // "drivers" into classes...
 //
-// Copyright 1997-2008 Easy Software Products.
+// Copyright 1997-2009 Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -10478,19 +10478,27 @@ write_image(hdFile   *out,		/* I - Output file */
 	      cmap[i][2] = colors[i];
 	    }
 
-#if 0
 	    if (Encryption)
 	    {
-	      // TODO: Fix this
 	      // Encrypt the colormap...
-	      encrypt_init();
-	      rc4_encrypt(&encrypt_state, cmap[0], cmap[0], ncolors * 3);
+	      filter = encrypt_init(out);
+	      filters.add(filter);
 	    }
-#endif /* 0 */
+	    else
+	      filter = out;
 
 	    out->printf("/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
-	    for (i = 0; i < ncolors; i ++)
-	      out->printf("%02X%02X%02X", cmap[i][0], cmap[i][1], cmap[i][2]);
+
+	    filter = new hdASCIIHexFilter(filter);
+	    filters.add(filter);
+	    filter->write(cmap, 3 * ncolors);
+
+	    while ((filter = (hdFile *)filters.last()) != NULL)
+	    {
+	      filters.remove(filter);
+	      delete filter;
+	    }
+
 	    out->puts(">]");
           }
 	  else if (img->depth() == 1)
@@ -11156,8 +11164,8 @@ write_prolog(hdFile *out,		/* I - Output file */
 					/* Font descriptor objects */
   char		temp[1024];		/* Temporary string */
   hdMD5		md5;			/* MD5 state */
+  hdRC4		rc4;			// RC4 context
   hdByte	digest[16];		/* MD5 digest value */
-  rc4_context_t	rc4;			/* RC4 context */
   hdByte	owner_pad[32],		/* Padded owner password */
 		owner_key[32],		/* Owner key */
 		user_pad[32],		/* Padded user password */
@@ -11643,14 +11651,14 @@ write_prolog(hdFile *out,		/* I - Output file */
 	  for (j = 0; j < encrypt_len; j ++)
 	    encrypt_key[j] = digest[j] ^ i;
 
-          rc4_init(&rc4, encrypt_key, encrypt_len);
-          rc4_encrypt(&rc4, owner_key, owner_key, 32);
+          rc4.init(encrypt_key, encrypt_len);
+          rc4.encrypt(owner_key, owner_key, 32);
 	}
       }
       else
       {
-        rc4_init(&rc4, digest, encrypt_len);
-        rc4_encrypt(&rc4, user_pad, owner_key, 32);
+        rc4.init(digest, encrypt_len);
+        rc4.encrypt(user_pad, owner_key, 32);
       }
 
      /*
@@ -11718,14 +11726,14 @@ write_prolog(hdFile *out,		/* I - Output file */
 	  for (j = 0; j < encrypt_len; j ++)
 	    digest[j] = encrypt_key[j] ^ i;
 
-          rc4_init(&rc4, digest, encrypt_len);
-          rc4_encrypt(&rc4, user_key, user_key, 16);
+          rc4.init(digest, encrypt_len);
+          rc4.encrypt(user_key, user_key, 16);
 	}
       }
       else
       {
-        rc4_init(&rc4, encrypt_key, encrypt_len);
-        rc4_encrypt(&rc4, pad, user_key, 32);
+        rc4.init(encrypt_key, encrypt_len);
+        rc4.encrypt(pad, user_key, 32);
       }
 
      /*
@@ -12300,25 +12308,25 @@ write_type1(hdFile      *out,		/* I - File to write to */
     length2 = 0;
     length3 = 0;
 
-    while (fp->gets(line, sizeof(line)))
+    while (fp->gets(line, sizeof(line), true))
     {
-      length1 += strlen(line) + 1;
+      length1 += strlen(line);
       if (strstr(line, "currentfile eexec") != NULL)
         break;
     }
 
-    while (fp->gets(line, sizeof(line)))
+    while (fp->gets(line, sizeof(line), true))
     {
       if (!strcmp(line, "00000000000000000000000000000000"
-                        "00000000000000000000000000000000"))
+                        "00000000000000000000000000000000\n"))
         break;
 
-      length2 += strlen(line) / 2;
+      length2 += (strlen(line) - 1) / 2;
     }
 
     length3 = strlen(line);
-    while (fp->gets(line, sizeof(line)))
-      length3 += strlen(line) + 1;
+    while (fp->gets(line, sizeof(line), true))
+      length3 += strlen(line);
 
     fp->seek(0, SEEK_SET);
 

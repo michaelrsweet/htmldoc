@@ -1,29 +1,23 @@
 //
 // "$Id$"
 //
-//   RC4 filter functions for HTMLDOC.
+// RC4 filter functions for HTMLDOC.
 //
-//   Copyright 2001-2008 Easy Software Products
+// Copyright 2001-2009 Easy Software Products
 //
-//   Original code by Tim Martin
-//   Copyright 1999 by Carnegie Mellon University, All Rights Reserved
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
 //
-//   Permission to use, copy, modify, and distribute this software and its
-//   documentation for any purpose and without fee is hereby granted,
-//   provided that the above copyright notice appear in all copies and that
-//   both that copyright notice and this permission notice appear in
-//   supporting documentation, and that the name of Carnegie Mellon
-//   University not be used in advertising or publicity pertaining to
-//   distribution of the software without specific, written prior
-//   permission.
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//   CARNEGIE MELLON UNIVERSITY DISCLAIMS ALL WARRANTIES WITH REGARD TO
-//   THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-//   FITNESS, IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE FOR
-//   ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-//   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-//   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
-//   OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
@@ -55,11 +49,12 @@
 hdRC4Filter::hdRC4Filter(
     hdFile       *f,			// I - File or filter
     const hdByte *key,			// I - Key
-    unsigned     keylen)		// I - Length of key
+    size_t       keylen)		// I - Length of key
+  : rc4_(key, keylen)
 {
   chain_ = f;
 
-  init(key, keylen);
+//  init(key, keylen);
 }
 
 
@@ -96,7 +91,7 @@ hdRC4Filter::put(int c)			// I - Character to put
 
   in[0] = (unsigned)c;
 
-  encrypt(in, buffer_, 1);
+  rc4_.encrypt(in, buffer_, 1);
 
   return (chain_->put(buffer_[0]));
 }
@@ -159,7 +154,7 @@ hdRC4Filter::write(const void *b,	// I - Buffer to write
     if ((bytes = len - total) > sizeof(buffer_))
       bytes = sizeof(buffer_);
 
-    encrypt(in, buffer_, 1);
+    rc4_.encrypt(in, buffer_, 1);
 
     if (chain_->write(buffer_, bytes) < (int)bytes)
       return (-1);
@@ -177,84 +172,6 @@ int					// O - -1 on error (not supported)
 hdRC4Filter::unget(int c)		// I - Character to unget
 {
   return (-1);
-}
-
-
-//
-// 'hdRC4Filter::init()' - Initialize the RC4 filter with the specified key.
-//
-
-void
-hdRC4Filter::init(
-    const hdByte *key,			// I - Key
-    unsigned     keylen)		// I - Length of key
-{
-  int		i, j;			// Looping vars
-  hdByte	tmp;			// Temporary variable
-
-
-  // Fill in linearly s0=0, s1=1, ...
-  for (i = 0; i < 256; i ++)
-    sbox_[i] = i;
-
-  for (i = 0, j = 0; i < 256; i ++)
-  {
-    // j = (j + Si + Ki) mod 256
-    j = (j + sbox_[i] + key[i % keylen]) & 255;
-
-    // Swap Si and Sj...
-    tmp     = sbox_[i];
-    sbox_[i] = sbox_[j];
-    sbox_[j] = tmp;
-  }
-
-  // Initialized counters to 0 and return...
-  si_ = 0;
-  sj_ = 0;
-}
-
-
-//
-// 'hdRC4Filter::encrypt()' - Encrypt the given buffer.
-//
-
-void
-hdRC4Filter::encrypt(
-    const hdByte *input,		// I - Input buffer
-    hdByte       *output,		// O - Output buffer
-    size_t       len)			// I - Size of buffers
-{
-  int		i, j;			// Looping vars
-  hdByte	tmp;			// Swap variable
-  int		t;			// Current S box
-
-
-  // Loop through the entire buffer...
-  i = si_;
-  j = sj_;
-
-  while (len > 0)
-  {
-    // Get the next S box indices...
-    i = (i + 1) & 255;
-    j = (j + sbox_[i]) & 255;
-
-    // Swap Si and Sj...
-    tmp      = sbox_[i];
-    sbox_[i] = sbox_[j];
-    sbox_[j] = tmp;
-
-    // Get the S box index for this byte...
-    t = (sbox_[i] + sbox_[j]) & 255;
-
-    // Encrypt using the S box...
-    *output++ = *input++ ^ sbox_[t];
-    len --;
-  }
-
-  // Copy current S box indices back to context...
-  si_ = i;
-  sj_ = j;
 }
 
 

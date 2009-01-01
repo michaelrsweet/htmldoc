@@ -24,6 +24,7 @@
 #  define _TYPES_H_
 
 #  include "config.h"
+#  include <sys/types.h>
 
 typedef unsigned char hdByte;
 typedef unsigned char hdChar;
