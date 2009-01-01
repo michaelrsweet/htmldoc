@@ -26,6 +26,87 @@
 //
 // Contents:
 //
+//   pspdf_export()           - Export PostScript/PDF file(s)...
+//   pspdf_debug_stats()      - Display debug statistics for render memory use.
+//   pspdf_transform_coords() - Transform page coordinates.
+//   pspdf_transform_page()   - Transform a page.
+//   pspdf_prepare_outpages() - Prepare output pages...
+//   pspdf_prepare_page()     - Add headers/footers to page before writing...
+//   pspdf_prepare_heading()  - Add headers/footers to page before writing...
+//   ps_write_document()      - Write all render entities to PostScript file(s).
+//   ps_write_outpage()       - Write an output page.
+//   ps_write_page()          - Write all render entities on a page to a
+//                              PostScript file.
+//   ps_write_background()    - Write a background image...
+//   pdf_write_document()     - Write all render entities to a PDF file.
+//   pdf_write_resources()    - Write the resources dictionary for a page.
+//   pdf_write_outpage()      - Write an output page.
+//   pdf_write_page()         - Write a page to a PDF file.
+//   pdf_write_contents()     - Write the table of contents as outline records
+//                              to a PDF file.
+//   pdf_write_files()        - Write an outline of HTML files.
+//   pdf_count_headings()     - Count the number of headings under this TOC
+//                              entry.
+//   pdf_start_object()       - Start a new PDF object...
+//   pdf_start_stream()       - Start a new PDF stream...
+//   pdf_end_object()         - End a PDF object...
+//   pdf_write_links()        - Write annotation link objects for each page in
+//                              the document.
+//   pdf_write_names()        - Write named destinations for each link.
+//   render_contents()        - Render a single heading.
+//   count_headings()         - Count the number of headings in the TOC.
+//   parse_contents()         - Parse the table of contents and produce a
+//                              rendering list...
+//   parse_doc()              - Parse a document tree and produce rendering list
+//                              output.
+//   parse_heading()          - Parse a heading tree and produce rendering list
+//                              output.
+//   parse_paragraph()        - Parse a paragraph tree and produce rendering
+//                              list output.
+//   parse_pre()              - Parse preformatted text and produce rendering
+//                              list output.
+//   render_table_row()       - Render a table row.
+//   parse_table()            - Parse a table and produce rendering output.
+//   parse_list()             - Parse a list entry and produce rendering output.
+//   init_list()              - Initialize the list type and value as necessary.
+//   parse_comment()          - Parse a comment for HTMLDOC comments.
+//   real_prev()              - Return the previous non-link markup in the tree.
+//   real_next()              - Return the next non-link markup in the tree.
+//   find_background()        - Find the background image/color for the given
+//                              document.
+//   write_background()       - Write the background image/color for to the
+//                              current page.
+//   new_render()             - Allocate memory for a new rendering structure.
+//   check_pages()            - Allocate memory for more pages as needed...
+//   add_link()               - Add a named link...
+//   find_link()              - Find a named link...
+//   compare_links()          - Compare two named links.
+//   copy_tree()              - Copy a markup tree...
+//   get_cell_size()          - Compute the minimum width of a cell.
+//   get_table_size()         - Compute the minimum width of a table.
+//   flatten_tree()           - Flatten an HTML tree to only include the text,
+//                              image, link, and break markups.
+//   update_image_size()      - Update the size of an image based upon the
+//                              printable width.
+//   get_title()              - Get the title string for a document.
+//   open_file()              - Open an output file for the current chapter.
+//   set_color()              - Set the current text color...
+//   set_font()               - Set the current text font.
+//   set_pos()                - Set the current text position.
+//   jpg_setup()              - Setup the JPEG compressor for writing an image.
+//   compare_rgb()            - Compare two RGB colors...
+//   write_image()            - Write an image to the given output file...
+//   write_imagemask()        - Write an imagemask to the output file...
+//   write_prolog()           - Write the file prolog...
+//   write_string()           - Write a text entity.
+//   write_text()             - Write a text entity.
+//   write_trailer()          - Write the file trailer.
+//   write_type1()            - Write an embedded Type 1 font.
+//   write_utf16()            - Write a UTF-16 string...
+//   encrypt_init()           - Initialize the RC4 encryption context for the
+//                              current object.
+//   update_index()           - Update the index to use page numbers instead of
+//                              link numbers.
 //
 
 //
@@ -11382,7 +11463,7 @@ write_prolog(hdFile *out,		/* I - Output file */
     else
       out->printf("%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     out->printf("%%%%LanguageLevel: %d\n", PSLevel);
-    out->puts("%%Creator: htmldoc " SVERSION " Copyright 1997-2006 Easy Software Products, All Rights Reserved.\n");
+    out->puts("%%Creator: htmldoc " SVERSION " " COPYRIGHT "\n");
     out->printf("%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%+03d%02d\n",
 		doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
 		doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
@@ -11770,9 +11851,7 @@ write_prolog(hdFile *out,		/* I - Output file */
     info_object = pdf_start_object(out);
 
     out->puts("/Producer");
-    write_string(out, (hdChar *)"htmldoc " SVERSION
-                 " Copyright 1997-2008 Easy Software Products, "
-		 "All Rights Reserved.");
+    write_string(out, (hdChar *)"htmldoc " SVERSION " " COPYRIGHT);
     out->puts("/CreationDate");
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
@@ -12308,14 +12387,14 @@ write_type1(hdFile      *out,		/* I - File to write to */
     length2 = 0;
     length3 = 0;
 
-    while (fp->gets(line, sizeof(line), true))
+    while (fp->gets(line, sizeof(line)))
     {
       length1 += strlen(line);
       if (strstr(line, "currentfile eexec") != NULL)
         break;
     }
 
-    while (fp->gets(line, sizeof(line), true))
+    while (fp->gets(line, sizeof(line)))
     {
       if (!strcmp(line, "00000000000000000000000000000000"
                         "00000000000000000000000000000000\n"))
@@ -12325,7 +12404,7 @@ write_type1(hdFile      *out,		/* I - File to write to */
     }
 
     length3 = strlen(line);
-    while (fp->gets(line, sizeof(line), true))
+    while (fp->gets(line, sizeof(line)))
       length3 += strlen(line);
 
     fp->seek(0, SEEK_SET);
@@ -12344,7 +12423,7 @@ write_type1(hdFile      *out,		/* I - File to write to */
 
     pdf_start_stream(out);
 
-    while (fp->gets(line, sizeof(line), true))
+    while (fp->gets(line, sizeof(line)))
     {
       filter->puts(line);
 
@@ -12352,10 +12431,10 @@ write_type1(hdFile      *out,		/* I - File to write to */
         break;
     }
 
-    while (fp->gets(line, sizeof(line), true))
+    while (fp->gets(line, sizeof(line)))
     {
       if (!strcmp(line, "00000000000000000000000000000000"
-                        "00000000000000000000000000000000"))
+                        "00000000000000000000000000000000\n"))
         break;
 
       for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
@@ -12377,7 +12456,7 @@ write_type1(hdFile      *out,		/* I - File to write to */
     }
 
     filter->puts(line);
-    while (fp->gets(line, sizeof(line), true))
+    while (fp->gets(line, sizeof(line)))
       filter->puts(line);
 
     if (filter != out)

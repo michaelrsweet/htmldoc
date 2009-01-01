@@ -3,7 +3,7 @@
 //
 // Main entry for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2008 Easy Software Products.
+// Copyright 1997-2009 Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -1315,7 +1315,7 @@ prefs_load(void)
 
   if ((fp = hdFile::open(prefs_getrc(), HD_FILE_READ, NULL)) != NULL)
   {
-    while (fp->gets(line, sizeof(line)) != NULL)
+    while (fp->getline(line, sizeof(line)) != NULL)
     {
       if (strncasecmp(line, "TEXTCOLOR=", 10) == 0)
 	_htmlStyleSheet->set_color(line + 10);
@@ -1689,7 +1689,7 @@ load_book(const char   *filename,	// I  - Book file
   }
 
   // Get the header...
-  if (!fp->gets(line, sizeof(line)) || strncmp(line, "#HTMLDOC", 8))
+  if (!fp->getline(line, sizeof(line)) || strncmp(line, "#HTMLDOC", 8))
   {
     delete fp;
     progress_error(HD_ERROR_BAD_FORMAT,
@@ -1701,7 +1701,7 @@ load_book(const char   *filename,	// I  - Book file
   // be the file count; for new files this will be the options...
   do
   {
-    if (!fp->gets(line, sizeof(line)))
+    if (!fp->getline(line, sizeof(line)))
       break;
 
     if (line[0] == '-')
@@ -1715,7 +1715,7 @@ load_book(const char   *filename,	// I  - Book file
   while (!line[0]);			// Skip blank lines
 
   // Get input files/options...
-  while (fp->gets(line, sizeof(line)))
+  while (fp->getline(line, sizeof(line)))
   {
     if (!line[0])
       continue;				// Skip blank lines

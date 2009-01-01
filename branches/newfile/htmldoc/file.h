@@ -105,11 +105,13 @@ class hdFile				//// Base file class...
   const char		*error_string();
   char			*extension(char *t, size_t tlen)
 			{ return (extension(uri_, t, tlen)); }
-  char			*gets(char *s, size_t slen, bool keep_crlf = false);
+  char			*getline(char *s, size_t slen);
+  char			*gets(char *s, size_t slen);
   hdMode		mode() { return (mode_); }
   size_t		pos() { return (pos_); }
-  int			printf(const char *f, ...);
-  int			puts(const char *s);
+  ssize_t		printf(const char *f, ...);
+  ssize_t		putline(const char *s);
+  ssize_t		puts(const char *s);
   const char		*scheme() { return (scheme(uri_)); }
   const char		*target() { return (target(uri_)); }
   const char		*uri() { return (uri_); }

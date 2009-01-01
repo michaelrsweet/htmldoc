@@ -1,23 +1,23 @@
 /*
  * "$Id$"
  *
- *   Visual C++ 2008 configuration file for HTMLDOC.
+ * Visual C++ configuration file for HTMLDOC.
  *
- *   Copyright 1997-2008 by Easy Software Products.
+ * Copyright 1997-2009 by Easy Software Products.
  *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
+ * These coded instructions, statements, and computer programs are the
+ * property of Easy Software Products and are protected by Federal
+ * copyright law.  Distribution and use rights are outlined in the file
+ * "COPYING.txt" which should have been included with this file.  If this
+ * file is missing or damaged please contact Easy Software Products
+ * at:
  *
- *       Attn: HTMLDOC Licensing Information
- *       Easy Software Products
- *       516 Rio Grand Ct
- *       Morgan Hill, CA 95037 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       http://www.htmldoc.org/
+ *     http://www.htmldoc.org/
  */
 
 /*
@@ -79,6 +79,7 @@
  */
 
 #define SVERSION	"1.9svn"
+#define COPYRIGHT	"Copyright 1997-2009 Easy Software Products. All rights reserved."
 
 
 /*
@@ -111,12 +112,9 @@
 
 
 /*
- * Which encryption libraries do we have?
+ * Do we have OpenSSL?
  */
 
-#undef HAVE_CDSASSL
-#undef HAVE_GNUTLS
-#define HAVE_LIBSSL
 #define HAVE_SSL
 
 

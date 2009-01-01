@@ -1,29 +1,32 @@
 //
 // "$Id$"
 //
-//   Common file routines for HTMLDOC, a HTML document processing program.
+// Common file routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2009 Easy Software Products.
+// Copyright 1997-2009 Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
-//   hdFile::gets()   - Read a line from a file.
-//   hdFile::printf() - Write formatted text.
-//   hdFile::puts()   - Write a line from a file.
+//   hdFile::~hdFile() - Close a file...
+//   hdFile::getline() - Read a logical line from a file.
+//   hdFile::gets()    - Read a line from a file.
+//   hdFile::printf()  - Write formatted text.
+//   hdFile::putline() - Write a logical line to a file.
+//   hdFile::puts()    - Write a string to a file.
 //
 
 //
@@ -45,25 +48,17 @@ hdFile::~hdFile()
 
 
 //
-// 'hdFile::gets()' - Read a line from a file.
+// 'hdFile::getline()' - Read a logical line from a file.
 //
 
 char *					// O - String buffer or NULL on EOF
-hdFile::gets(char   *s,			// O - String buffer
-             size_t slen,		// I - Size of string buffer
-	     bool   keep_crlf)		// I - Keep newlines on end?
+hdFile::getline(char   *s,		// O - String buffer
+                size_t slen)		// I - Size of string buffer
 {
   int		ch;			// Character from file
   char		*ptr,			// Current position in line sfer
 		*end;			// End of line sfer
 
-
- /*
-  * Range check everything...
-  */
-
-  if (s == NULL || slen < 2)
-    return (NULL);
 
  /*
   * Now loop until we have a valid line...
@@ -76,38 +71,8 @@ hdFile::gets(char   *s,			// O - String buffer
   {
     if ((ch = get()) == EOF)
       break;
-    else if (ch == '\r')
-    {
-     /*
-      * See if we have CR or CR LF...
-      */
-
-      if (keep_crlf && ptr < end)
-	*ptr++ = ch;
-
-      int nextch = get();
-
-      if (keep_crlf && nextch == '\n' && ptr < end)
-	*ptr++ = nextch;
-
-      if (nextch == EOF || nextch == '\n')
-        break;
-
-     /*
-      * No LF, so save the next char for later...
-      */
-
-      unget(nextch);
-
-      break;
-    }
     else if (ch == '\n')
-    {
-      if (keep_crlf && ptr < end)
-	*ptr++ = ch;
-
       break;
-    }
     else if (ch == '\\')
     {
      /*
@@ -118,15 +83,6 @@ hdFile::gets(char   *s,			// O - String buffer
 
       if (nextch == EOF)
         break;
-      else if (nextch == '\r')
-      {
-        nextch = get();
-
-	if (nextch == EOF)
-	  break;
-	else if (nextch != '\n')
-	  unget(nextch);
-      }
       else if (nextch != '\n' && ptr < end)
         *ptr++ = nextch;
     }
@@ -136,7 +92,46 @@ hdFile::gets(char   *s,			// O - String buffer
 
   *ptr = '\0';
 
-  if (ch != EOF || ptr > s)
+  if (ch != EOF)
+    return (s);
+  else
+    return (NULL);
+}
+
+
+//
+// 'hdFile::gets()' - Read a line from a file.
+//
+
+char *					// O - String buffer or NULL on EOF
+hdFile::gets(char   *s,			// O - String buffer
+             size_t slen)		// I - Size of string buffer
+{
+  int		ch;			// Character from file
+  char		*ptr,			// Current position in line sfer
+		*end;			// End of line sfer
+
+
+ /*
+  * Now loop until we have a valid line...
+  */
+
+  ptr = s;
+  end = s + slen - 1;
+
+  for (;;)
+  {
+    if ((ch = get()) == EOF)
+      break;
+    else if (ch == '\n')
+      break;
+    else if (ptr < end)
+      *ptr++ = ch;
+  }
+
+  *ptr = '\0';
+
+  if (ch != EOF)
     return (s);
   else
     return (NULL);
@@ -147,11 +142,11 @@ hdFile::gets(char   *s,			// O - String buffer
 // 'hdFile::printf()' - Write formatted text.
 //
 
-int					// O - Number of bytes written or -1 on error
+ssize_t					// O - Number of bytes written or -1 on error
 hdFile::printf(const char *f,		// I - Printf-style format string
                ...)			// I - Additional args as needed...
 {
-  int		bytes;			// Number of bytes written
+  ssize_t	bytes;			// Number of bytes written
   char		sign,			// Sign of format width
 		sizec,			// Size character (h, l, L)
 		type;			// Format type character
@@ -165,10 +160,6 @@ hdFile::printf(const char *f,		// I - Printf-style format string
   int		slen;			// Length of string
   va_list 	ap;			// Pointer to additional arguments
 
-
-  // Return immediately if format is NULL...
-  if (!f)
-    return (0);
 
   // Loop through the format string, formatting as needed...
   va_start(ap, f);
@@ -327,16 +318,61 @@ hdFile::printf(const char *f,		// I - Printf-style format string
 
 
 //
+// 'hdFile::putline()' - Write a logical line to a file.
+//
+
+ssize_t					// O - Number of bytes written
+hdFile::putline(const char *s)		// I - Line to write
+{
+  ssize_t	bytes,			// Bytes written
+		total;			// Total bytes written
+  const char	*start,			// Start of unescaped line
+		*current;		// Current position in line
+
+
+  for (total = 0, start = s, current = s; *current; current ++)
+  {
+    if (*current == '\\' || *current == '\n')
+    {
+      if (current > start)
+      {
+        if ((bytes = write(start, current - start)) < 0)
+	  return (-1);
+
+	total += bytes;
+      }
+
+      if (put('\\') < 0)
+        return (-1);
+
+      total ++;
+      start = current;
+    }
+  }
+
+  if (current > start)
+  {
+    if ((bytes = write(start, current - start)) < 0)
+      return (-1);
+
+    total += bytes;
+  }
+
+  if (put('\n') < 0)
+    return (-1);
+  else
+    return (total + 1);
+}
+
+
+//
 // 'hdFile::puts()' - Write a string to a file.
 //
 
-int					// O - Number of bytes written
+ssize_t					// O - Number of bytes written
 hdFile::puts(const char *s)		// I - String to write
 {
-  if (s)
-    return (write(s, strlen(s)));
-  else
-    return (0);
+  return (write(s, strlen(s)));
 }
 
 
