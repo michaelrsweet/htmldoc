@@ -241,7 +241,7 @@ static hdByte		file_id[16];
 inline bool				// O - true if base font, false otherwise
 is_base_font(int face)			// I - Font face */
 {
-  return (face <= HD_FONT_FACE_TIMES || face == HD_FONT_FACE_SYMBOL);
+  return (face <= HD_FONT_FACE_MONOSPACE || face == HD_FONT_FACE_SYMBOL);
 }
 
 
