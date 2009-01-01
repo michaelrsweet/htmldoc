@@ -64,7 +64,7 @@ hdStdFile::hdStdFile(const char *name,	// I - Name of file to open
         fp_ = fopen(name, "wb");
 	break;
     case HD_FILE_UPDATE :
-        fp_ = fopen(name, "wb+");
+        fp_ = fopen(name, "w+b");
 	break;
   }
 
@@ -114,7 +114,7 @@ hdStdFile::hdStdFile(int    fd,		// I - File descriptor
         fp_ = fdopen(fd, "wb");
 	break;
     case HD_FILE_UPDATE :
-        fp_ = fdopen(fd, "wb+");
+        fp_ = fdopen(fd, "w+b");
 	break;
   }
 
@@ -169,7 +169,7 @@ hdStdFile::put(int c)			// I - Character to put
   if (!fp_)
     return (-1);
 
-  if (putc(c, fp_))
+  if (putc(c, fp_) < 0)
   {
     error(ferror(fp_));
     return (-1);
@@ -220,6 +220,9 @@ hdStdFile::seek(ssize_t p,		// I - Position
 {
   if (!fp_)
     return (-1);
+
+  if (mode() != HD_FILE_READ)
+    fflush(fp_);
 
   if (fseek(fp_, p, w))
   {

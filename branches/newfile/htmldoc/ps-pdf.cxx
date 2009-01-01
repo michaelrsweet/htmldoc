@@ -3113,11 +3113,10 @@ pdf_start_stream(hdFile *out)		// I - File to write to
 {
   // Write the "/Length " string, get the position, and then write 10
   // zeroes to cover the maximum size of a stream.
-
   out->puts("/Length ");
-  pdf_stream_length = out->size();
+  pdf_stream_length = out->pos();
   out->puts("0000000000>>stream\n");
-  pdf_stream_start = out->size();
+  pdf_stream_start = out->pos();
 }
 
 
@@ -3135,12 +3134,11 @@ pdf_end_object(hdFile *out)		// I - File to write to
   {
     // For streams, go back and update the length field in the
     // object dictionary...
-    length = out->size() - pdf_stream_start;
+    length = out->pos() - pdf_stream_start;
 
     out->seek(pdf_stream_length, SEEK_SET);
     out->printf("%-10ld", (long)length);
     out->seek(0, SEEK_END);
-
     pdf_stream_start = 0;
 
     out->puts("endstream\n");
@@ -12340,7 +12338,7 @@ write_type1(hdFile      *out,		/* I - File to write to */
 
     while (fp->gets(line, sizeof(line)))
     {
-      out->printf("%s\n", line);
+      filter->printf("%s\n", line);
 
       if (strstr(line, "currentfile eexec") != NULL)
         break;
@@ -12367,12 +12365,12 @@ write_type1(hdFile      *out,		/* I - File to write to */
         *dataptr++ = ch;
       }
 
-      out->write((hdChar *)line, dataptr - line);
+      filter->write((hdChar *)line, dataptr - line);
     }
 
-    out->printf("%s\n", line);
+    filter->printf("%s\n", line);
     while (fp->gets(line, sizeof(line)))
-      out->printf("%s\n", line);
+      filter->printf("%s\n", line);
 
     if (filter != out)
       delete filter;
