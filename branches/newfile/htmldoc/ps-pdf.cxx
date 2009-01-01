@@ -12344,15 +12344,15 @@ write_type1(hdFile      *out,		/* I - File to write to */
 
     pdf_start_stream(out);
 
-    while (fp->gets(line, sizeof(line)))
+    while (fp->gets(line, sizeof(line), true))
     {
-      filter->printf("%s\n", line);
+      filter->puts(line);
 
       if (strstr(line, "currentfile eexec") != NULL)
         break;
     }
 
-    while (fp->gets(line, sizeof(line)))
+    while (fp->gets(line, sizeof(line), true))
     {
       if (!strcmp(line, "00000000000000000000000000000000"
                         "00000000000000000000000000000000"))
@@ -12376,9 +12376,9 @@ write_type1(hdFile      *out,		/* I - File to write to */
       filter->write((hdChar *)line, dataptr - line);
     }
 
-    filter->printf("%s\n", line);
-    while (fp->gets(line, sizeof(line)))
-      filter->printf("%s\n", line);
+    filter->puts(line);
+    while (fp->gets(line, sizeof(line), true))
+      filter->puts(line);
 
     if (filter != out)
       delete filter;
