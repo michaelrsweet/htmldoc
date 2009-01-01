@@ -53,9 +53,9 @@
 //
 
 hdRC4Filter::hdRC4Filter(
-    hdFile              *f,		// I - File or filter
-    const unsigned char *key,		// I - Key
-    unsigned            keylen)		// I - Length of key
+    hdFile       *f,			// I - File or filter
+    const hdByte *key,			// I - Key
+    unsigned     keylen)		// I - Length of key
 {
   chain_ = f;
 
@@ -91,7 +91,7 @@ hdRC4Filter::get()
 int					// O - -1 on error, 0 on success
 hdRC4Filter::put(int c)			// I - Character to put
 {
-  unsigned char	in[1];			// Input array for encryption...
+  hdByte	in[1];			// Input array for encryption...
 
 
   in[0] = (unsigned)c;
@@ -145,14 +145,14 @@ ssize_t					// O - Number of bytes written
 hdRC4Filter::write(const void *b,	// I - Buffer to write
                    size_t     len)	// I - Number of bytes to write
 {
-  const unsigned char	*in;		// Input pointer for encryption...
-  size_t		bytes,		// Bytes to encrypt/write
-			total;		// Total bytes written
+  const hdByte	*in;			// Input pointer for encryption...
+  size_t	bytes,			// Bytes to encrypt/write
+		total;			// Total bytes written
 
 
   // Encrypt the entire output array, breaking up into buffer-sized
   // chunks as needed...
-  for (total = 0, in = (const unsigned char *)b;
+  for (total = 0, in = (const hdByte *)b;
        total < len;
        total += (int)bytes, in += bytes)
   {
@@ -186,11 +186,11 @@ hdRC4Filter::unget(int c)		// I - Character to unget
 
 void
 hdRC4Filter::init(
-    const unsigned char *key,		// I - Key
-    unsigned            keylen)		// I - Length of key
+    const hdByte *key,			// I - Key
+    unsigned     keylen)		// I - Length of key
 {
   int		i, j;			// Looping vars
-  unsigned char	tmp;			// Temporary variable
+  hdByte	tmp;			// Temporary variable
 
 
   // Fill in linearly s0=0, s1=1, ...
@@ -220,12 +220,12 @@ hdRC4Filter::init(
 
 void
 hdRC4Filter::encrypt(
-    const unsigned char *input,		// I - Input buffer
-    unsigned char       *output,	// O - Output buffer
-    size_t              len)		// I - Size of buffers
+    const hdByte *input,		// I - Input buffer
+    hdByte       *output,		// O - Output buffer
+    size_t       len)			// I - Size of buffers
 {
   int		i, j;			// Looping vars
-  unsigned char	tmp;			// Swap variable
+  hdByte	tmp;			// Swap variable
   int		t;			// Current S box
 
 

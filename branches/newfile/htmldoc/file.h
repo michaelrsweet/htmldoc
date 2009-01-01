@@ -281,17 +281,17 @@ class hdJPEGFilter : public hdFile	//// JPEG compression filter
 class hdRC4Filter : public hdFile	//// RC4 encryption filter
 {
   hdFile		*chain_;	// Pointer to next filter or file in chain
-  unsigned char		sbox_[256];	// S boxes for encryption
+  hdByte		sbox_[256];	// S boxes for encryption
   int			si_, sj_;	// Current indices into S boxes
-  unsigned char		buffer_[16384];	// Encryption buffer
+  hdByte		buffer_[16384];	// Encryption buffer
 
-  void			init(const unsigned char *key, unsigned keylen);
-  void			encrypt(const unsigned char *input,
-			        unsigned char *output, size_t len);
+  void			init(const hdByte *key, unsigned keylen);
+  void			encrypt(const hdByte *input, hdByte *output,
+			        size_t len);
 
   public:
 
-			hdRC4Filter(hdFile *f, const unsigned char *key,
+			hdRC4Filter(hdFile *f, const hdByte *key,
 			            unsigned keylen);
   virtual		~hdRC4Filter();
 
