@@ -1,28 +1,28 @@
-/*
- * "$Id$"
- *
- *   Header file for HTMLDOC, a HTML document processing program.
- *
- *   Copyright 1997-2005 by Easy Software Products.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: HTMLDOC Licensing Information
- *       Easy Software Products
- *       516 Rio Grand Ct
- *       Morgan Hill, CA 95037 USA
- *
- *       http://www.htmldoc.org/
- */
+//
+// "$Id$"
+//
+// Primary header file for HTMLDOC, a HTML document processing program.
+//
+// Copyright 1997-2008 Easy Software Products.
+//
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
+//
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
+//
+//     http://www.htmldoc.org/
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,16 +42,16 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-/*
- * Macro to get rid of "unreferenced variable xyz" warnings...
- */
+//
+// Macro to get rid of "unreferenced variable xyz" warnings...
+//
 
 #define REF(x)		(void)x;
 
 
-/*
- * Output type...
- */
+//
+// Output type...
+//
 
 enum
 {
@@ -61,9 +61,9 @@ enum
 };
 
 
-/*
- * PDF constants...
- */
+//
+// PDF constants...
+//
 
 enum	/* PDF page mode */
 {
@@ -117,9 +117,9 @@ enum	/* PDF document permissions */
 };
 
 
-/*
- * Globals...
- */
+//
+// Globals...
+//
 
 #ifdef _HTMLDOC_CXX_
 #  define VAR
@@ -162,7 +162,7 @@ VAR int		Encryption	VALUE(0),	/* Encrypt the PDF file? */
 		Permissions	VALUE(-4);	/* File permissions? */
 VAR char	OwnerPassword[33] VALUE(""),	/* Owner password */
 		UserPassword[33] VALUE("");	/* User password */
-VAR int		EmbedFonts	VALUE(1);	/* Embed fonts? */
+VAR int		EmbedFonts	VALUE(0);	/* Embed fonts? */
 VAR int		PSLevel		VALUE(2),	/* Language level (0 for PDF) */
 		PSCommands	VALUE(0),	/* Output PostScript commands? */
 		XRXComments	VALUE(0);	/* Output Xerox comments? */
@@ -191,20 +191,21 @@ VAR char	*Header[3]	NULL3,		/* Header for regular pages */
 		*TocFooter[3]	NULL3,		/* Footer for TOC pages */
 		TocTitle[1024]	VALUE("Table of Contents"),
 						/* TOC title string */
-		IndexTitle[1024] VALUE("Index");
+		IndexTitle[1024] VALUE("Index"),
 						/* Index title string */
+		TitleFile[1024]	VALUE("");	/* Title page file */
 
-VAR char	TitleImage[1024] VALUE(""),	/* Title page image */
-		LogoImage[1024]	VALUE(""),	/* Logo image */
-		BodyColor[255]	VALUE(""),	/* Body color */
-		BodyImage[1024]	VALUE(""),	/* Body image */
-		LinkColor[255]	VALUE("");	/* Link color */
-
-VAR char	HFImage[MAX_HF_IMAGES][1024]	/* Header/footer images */
+VAR hdImage	*TitleImage	VALUE(NULL),	/* Title page image */
+		*LogoImage	VALUE(NULL),	/* Logo image */
+		*BodyImage	VALUE(NULL),	/* Body image */
+		*HFImage[MAX_HF_IMAGES]		/* Header/footer images */
 #  ifdef _HTMLDOC_CXX_
-= { "" }
+= { NULL }
 #  endif /* _HTMLDOC_CXX_ */
 ;
+
+VAR char	BodyColor[255]	VALUE(""),	/* Body color */
+		LinkColor[255]	VALUE("");	/* Link color */
 
 VAR int		LinkStyle	VALUE(1);	/* 1 = underline, 0 = plain */
 VAR int		Links		VALUE(1);	/* 1 = generate links, 0 = no links */
@@ -235,9 +236,9 @@ VAR const char	*PDFEffects[17]			/* Effect strings */
 ;
 
 
-/*
- * Prototypes...
- */
+//
+// Prototypes...
+//
 
 extern int	pspdf_export(hdTree *document, hdTree *toc, hdTree *idx);
 
@@ -265,6 +266,6 @@ extern char	*format_number(int n, char f);
 }
 #endif /* __cplusplus */
 
-/*
- * End of "$Id$".
- */
+//
+// End of "$Id$".
+//

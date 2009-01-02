@@ -1,28 +1,26 @@
 //
 // "$Id$"
 //
-//   Separated HTML export functions for HTMLDOC, a HTML document processing
-//   program.
+// Separated HTML export functions for HTMLDOC, a HTML document processing
+// program.
 //
-//   Copyright 1997-2006 by Easy Software Products.
+// Copyright 1997-2008 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
-//   htmlsep_export() - Export to separated HTML files.
 //
 
 //
@@ -99,13 +97,14 @@ htmlsep_export(hdTree *document,	// I - Document to export
                hdTree *toc,		// I - Table of contents for document
 	       hdTree *ind)		// I - Index of document
 {
-  int	i;				// Looping var
-  int	heading;			// Current heading number
-  hdChar	*title,				// Title text
-	*author,			// Author name
-	*copyright,			// Copyright text
-	*docnumber;			// Document number
-  FILE	*out;				// Output file
+  int		i;			// Looping var
+  int		heading;		// Current heading number
+  hdChar	*title,			// Title text
+		*author,		// Author name
+		*copyright,		// Copyright text
+		*docnumber;		// Document number
+  FILE		*out;			// Output file
+  char		buffer[1024];		// String buffer
 
 
   // We only support writing to a directory...
@@ -116,26 +115,15 @@ htmlsep_export(hdTree *document,	// I - Document to export
   }
 
   // Copy logo and title images...
-  if (LogoImage[0])
-    image_copy(LogoImage, file_find(LogoImage, Path), OutputPath);
+  if (LogoImage)
+    LogoImage->copy(OutputPath, buffer, sizeof(buffer));
 
   for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
-    if (HFImage[hfi][0])
-      image_copy(HFImage[hfi], file_find(HFImage[hfi], Path), OutputPath);
+    if (HFImage[hfi])
+      HFImage[hfi]->copy(OutputPath, buffer, sizeof(buffer));
 
-  if (TitleImage[0] && TitlePage &&
-#ifdef WIN32
-      stricmp(file_extension(TitleImage), "bmp") == 0 ||
-      stricmp(file_extension(TitleImage), "gif") == 0 ||
-      stricmp(file_extension(TitleImage), "jpg") == 0 ||
-      stricmp(file_extension(TitleImage), "png") == 0)
-#else
-      strcmp(file_extension(TitleImage), "bmp") == 0 ||
-      strcmp(file_extension(TitleImage), "gif") == 0 ||
-      strcmp(file_extension(TitleImage), "jpg") == 0 ||
-      strcmp(file_extension(TitleImage), "png") == 0)
-#endif // WIN32
-    image_copy(TitleImage, file_find(TitleImage, Path), OutputPath);
+  if (TitleImage && TitlePage)
+    TitleImage->copy(OutputPath, buffer, sizeof(buffer));
 
   // Get document strings...
   title     = get_title(document);
@@ -231,15 +219,15 @@ htmlsep_export(hdTree *document,	// I - Document to export
 
 static void
 write_header(FILE   **out,		/* IO - Output file */
-             hdChar  *filename,		/* I - Output filename */
-	     hdChar  *title,		/* I - Title for document */
-             hdChar  *author,		/* I - Author for document */
-             hdChar  *copyright,	/* I - Copyright for document */
-             hdChar  *docnumber,	/* I - ID number for document */
+             hdChar *filename,		/* I - Output filename */
+	     hdChar *title,		/* I - Title for document */
+             hdChar *author,		/* I - Author for document */
+             hdChar *copyright,		/* I - Copyright for document */
+             hdChar *docnumber,		/* I - ID number for document */
 	     int    heading)		/* I - Current heading */
 {
-  char		realname[1024];		/* Real filename */
-  const char	*basename;		/* Filename without directory */
+  char		realname[1024],		/* Real filename */
+		base[1024];		/* Filename without directory */
   static const char *families[] =	/* Typeface names */
 		{
 		  "monospace",
@@ -253,9 +241,9 @@ write_header(FILE   **out,		/* IO - Output file */
 		};
 
 
-  basename = file_basename((char *)filename);
+  hdFile::basename((char *)filename, base, sizeof(base));
 
-  snprintf(realname, sizeof(realname), "%s/%s", OutputPath, basename);
+  snprintf(realname, sizeof(realname), "%s/%s", OutputPath, base);
 
   *out = fopen(realname, "wb");
 
@@ -316,12 +304,13 @@ write_header(FILE   **out,		/* IO - Output file */
   fputs("--></STYLE>\n", *out);
   fputs("</HEAD>\n", *out);
 
-  if (BodyImage[0])
-    fprintf(*out, "<BODY BACKGROUND=\"%s\"", file_basename(BodyImage));
-  else if (BodyColor[0])
-    fprintf(*out, "<BODY BGCOLOR=\"%s\"", BodyColor);
-  else
-    fputs("<BODY", *out);
+  fputs("<BODY", *out);
+
+  if (BodyImage)
+    fprintf(*out, " BACKGROUND=\"%s\"", BodyImage->uri());
+
+  if (BodyColor[0])
+    fprintf(*out, " BGCOLOR=\"%s\"", BodyColor);
 
   fprintf(*out, " TEXT=\"#%02X%02X%02X\"",
           _htmlStyleSheet->def_style.color[0],
@@ -336,12 +325,14 @@ write_header(FILE   **out,		/* IO - Output file */
 
   if (heading >= 0)
   {
-    if (LogoImage[0])
-      fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
+    if (LogoImage)
+      fprintf(*out, "<IMG SRC=\"%s\">\n",
+              hdFile::basename(LogoImage->uri(), base, sizeof(base)));
 
     for (int hfi = 0; hfi < MAX_HF_IMAGES; ++hfi)
-      if (HFImage[hfi][0])
-        fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(HFImage[hfi]));
+      if (HFImage[hfi])
+        fprintf(*out, "<IMG SRC=\"%s\">\n",
+                hdFile::basename(HFImage[hfi]->uri(), base, sizeof(base)));
 
     if (TitlePage)
       fputs("<A HREF=\"toc.html\">Contents</A>\n", *out);
@@ -367,6 +358,9 @@ static void
 write_footer(FILE **out,		/* IO - Output file pointer */
 	     int  heading)		/* I  - Current heading */
 {
+  char	base[1024];			/* Base filename */
+
+
   if (*out == NULL)
     return;
 
@@ -374,12 +368,14 @@ write_footer(FILE **out,		/* IO - Output file pointer */
 
   if (heading >= 0)
   {
-    if (LogoImage[0])
-      fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(LogoImage));
+    if (LogoImage)
+      fprintf(*out, "<IMG SRC=\"%s\">\n",
+              hdFile::basename(LogoImage->uri(), base, sizeof(base)));
 
     for (int hfi = 0; hfi < MAX_HF_IMAGES; ++hfi)
-      if (HFImage[hfi][0])
-        fprintf(*out, "<IMG SRC=\"%s\">\n", file_basename(HFImage[hfi]));
+      if (HFImage[hfi])
+        fprintf(*out, "<IMG SRC=\"%s\">\n",
+		hdFile::basename(HFImage[hfi]->uri(), base, sizeof(base)));
 
     if (TitlePage)
       fputs("<A HREF=\"toc.html\">Contents</A>\n", *out);
@@ -414,48 +410,38 @@ write_title(FILE  *out,			/* I - Output file */
             hdChar *copyright,		/* I - Copyright for document */
             hdChar *docnumber)		/* I - ID number for document */
 {
-  FILE		*fp;			/* Title file */
-  const char	*title_file;		/* Location of title file */
+  hdFile	*fp;			/* Title file */
+  char		title_file[1024],	/* Location of title file */
+		buffer[1024];		/* String file */
   hdTree	*t;			/* Title file document tree */
 
 
   if (out == NULL)
     return;
 
-#ifdef WIN32
-  if (TitleImage[0] &&
-      stricmp(file_extension(TitleImage), "bmp") != 0 &&
-      stricmp(file_extension(TitleImage), "gif") != 0 &&
-      stricmp(file_extension(TitleImage), "jpg") != 0 &&
-      stricmp(file_extension(TitleImage), "png") != 0)
-#else
-  if (TitleImage[0] &&
-      strcmp(file_extension(TitleImage), "bmp") != 0 &&
-      strcmp(file_extension(TitleImage), "gif") != 0 &&
-      strcmp(file_extension(TitleImage), "jpg") != 0 &&
-      strcmp(file_extension(TitleImage), "png") != 0)
-#endif // WIN32
+  if (TitleFile[0] && !TitleImage)
   {
     // Find the title page file...
-    if ((title_file = file_find(Path, TitleImage)) == NULL)
+    if (!hdFile::find(Path, TitleFile, title_file, sizeof(title_file)))
     {
       progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to find title file \"%s\"!", TitleImage);
+                     "Unable to find title file \"%s\"!", TitleFile);
       return;
     }
 
     // Write a title page from HTML source...
-    if ((fp = fopen(title_file, "rb")) == NULL)
+    if ((fp = hdFile::open(title_file, HD_FILE_READ)) == NULL)
     {
       progress_error(HD_ERROR_FILE_NOT_FOUND,
                      "Unable to open title file \"%s\" - %s!",
-                     TitleImage, strerror(errno));
+                     TitleFile, strerror(errno));
       return;
     }
 
-    t = htmlReadFile(NULL, fp, file_directory(TitleImage));
-    htmlFixLinks(t, t, file_directory(TitleImage));
-    fclose(fp);
+    t = htmlReadFile(NULL, fp,
+                     hdFile::dirname(TitleFile, buffer, sizeof(buffer)));
+    htmlFixLinks(t, t, buffer);
+    delete fp;
 
     write_all(out, t, 0);
     htmlDeleteTree(t);
@@ -465,13 +451,12 @@ write_title(FILE  *out,			/* I - Output file */
     // Write a "standard" title page with image...
     fputs("<CENTER>", out);
 
-    if (TitleImage[0])
+    if (TitleImage)
     {
-      hdImage *img = image_load(TitleImage, !OutputColor);
-
       fprintf(out, "<IMG SRC=\"%s\" WIDTH=\"%d\" HEIGHT=\"%d\" "
 	           "ALT=\"%s\"><BR>\n",
-              file_basename((char *)TitleImage), img->width, img->height,
+              hdFile::basename((char *)TitleFile, buffer, sizeof(buffer)),
+	      TitleImage->width(), TitleImage->height(),
 	      title ? (char *)title : "");
     }
 
@@ -528,10 +513,10 @@ write_all(FILE   *out,			/* I - Output file */
  */
 
 static int				// O - Current column
-write_doc(FILE   **out,			// I - Output file
-          hdTree *t,			// I - Document tree
-          int    col,			// I - Current column
-          int    *heading,		// IO - Current heading
+write_doc(FILE    **out,		// I - Output file
+          hdTree  *t,			// I - Document tree
+          int     col,			// I - Current column
+          int     *heading,		// IO - Current heading
 	  hdChar  *title,		// I  - Title
           hdChar  *author,		// I  - Author
 	  hdChar  *copyright,		// I  - Copyright
@@ -587,7 +572,7 @@ write_node(FILE   *out,			/* I - Output file */
   const hdChar	*ptr,			/* Pointer to output string */
 		*src,			/* Source image */
 		*realsrc;		/* Real source image */
-  hdChar	newsrc[1024];		/* New source image filename */
+  char		newsrc[1024];		/* New source image filename */
   const char	*entity;		/* Entity string */
 
 
@@ -687,25 +672,27 @@ write_node(FILE   *out,			/* I - Output file */
           col = 0;
         }
 
-    default :
-	if (t->element == HD_ELEMENT_IMG && OutputFiles &&
-            (src = htmlGetAttr(t, "SRC")) != NULL &&
+    case HD_ELEMENT_IMG :
+	if (OutputFiles && (src = htmlGetAttr(t, "SRC")) != NULL &&
             (realsrc = htmlGetAttr(t, "_HD_SRC")) != NULL)
 	{
 	 /*
           * Update and copy local images...
           */
 
-          if (file_method((char *)src) == NULL &&
+          if (!hdFile::scheme((char *)src) &&
               src[0] != '/' && src[0] != '\\' &&
 	      (!isalpha(src[0]) || src[1] != ':'))
           {
-            image_copy((char *)src, (char *)realsrc, OutputPath);
-            strlcpy((char *)newsrc, file_basename((char *)src), sizeof(newsrc));
-            htmlSetAttr(t, "SRC", newsrc);
+	    hdImage *img = hdImage::find((char *)realsrc, !OutputColor);
+            img->copy(OutputPath, newsrc, sizeof(newsrc));
+            htmlSetAttr(t, "SRC",
+	                (hdChar *)hdFile::basename((char *)src, newsrc,
+	                                           sizeof(newsrc)));
           }
 	}
 
+    default :
         if (t->element != HD_ELEMENT_EMBED)
 	{
 	  col += fprintf(out, "<%s", _htmlStyleSheet->get_element(t->element));
@@ -1059,7 +1046,7 @@ find_link(hdChar *name)			/* I - Name to find */
   if (name == NULL || num_links == 0)
     return (NULL);
 
-  if ((target = (hdChar *)file_target((char *)name)) == NULL)
+  if ((target = (hdChar *)hdFile::target((char *)name)) == NULL)
     return (NULL);
 
   strlcpy((char *)key.name, (char *)target, sizeof(key.name));

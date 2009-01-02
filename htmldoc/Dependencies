@@ -1,48 +1,58 @@
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-entity.o: entity.cxx hdstring.h style.h types.h
-file.o: file.c file.h hdstring.h http.h md5.h progress.h debug.h
-html.o: html.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h
-htmldoc.o: htmldoc.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h
-htmllib.o: htmllib.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h
-htmlsep.o: htmlsep.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h
-http.o: http.c http-private.h hdstring.h http.h md5.h debug.h
-http-addr.o: http-addr.c http-private.h hdstring.h http.h md5.h debug.h
-http-addrlist.o: http-addrlist.c http-private.h hdstring.h http.h md5.h \
-  debug.h
-http-support.o: http-support.c debug.h http-private.h hdstring.h http.h \
-  md5.h
-image.o: image.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h
-index.o: index.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h
-margin.o: margin.cxx margin.h
-md5.o: md5.c md5.h hdstring.h
-progress.o: progress.cxx htmldoc.h html.h file.h hdstring.h style.h \
-  types.h image.h debug.h progress.h
-ps-pdf.o: ps-pdf.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h margin.h md5.h rc4.h
-rc4.o: rc4.c rc4.h
-snprintf.o: snprintf.c hdstring.h
-string.o: string.c hdstring.h
-style.o: style.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h
-stylefont.o: stylefont.cxx htmldoc.h html.h file.h hdstring.h style.h \
-  types.h image.h debug.h progress.h
-stylemedia.o: stylemedia.cxx htmldoc.h html.h file.h hdstring.h style.h \
-  types.h image.h debug.h progress.h
-stylesheet.o: stylesheet.cxx htmldoc.h html.h file.h hdstring.h style.h \
-  types.h image.h debug.h progress.h
-styletree.o: styletree.cxx htmldoc.h html.h file.h hdstring.h style.h \
-  types.h image.h debug.h progress.h
-testhtml.o: testhtml.cxx htmldoc.h html.h file.h hdstring.h style.h \
-  types.h image.h debug.h progress.h
-teststyle.o: teststyle.cxx htmldoc.h html.h file.h hdstring.h style.h \
-  types.h image.h debug.h progress.h
-toc.o: toc.cxx htmldoc.h html.h file.h hdstring.h style.h types.h image.h \
-  debug.h progress.h
-util.o: util.cxx htmldoc.h html.h file.h hdstring.h style.h types.h \
-  image.h debug.h progress.h
+
+entity.o: hdstring.h ../config.h style.h file.h http.h md5.h types.h rc4.h
+file.o: file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+file-ascii.o: file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+file-common.o: file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+file-flate.o: file.h http.h md5.h types.h ../config.h rc4.h
+file-jpeg.o: file.h http.h md5.h types.h ../config.h rc4.h
+file-mem.o: file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+file-open.o: file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+file-rc4.o: file.h http.h md5.h types.h ../config.h rc4.h
+file-std.o: file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+html.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+html.o: hdstring.h style.h image.h debug.h progress.h
+htmldoc.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+htmldoc.o: hdstring.h style.h image.h debug.h progress.h
+htmllib.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+htmllib.o: hdstring.h style.h image.h debug.h progress.h
+htmlsep.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+htmlsep.o: hdstring.h style.h image.h debug.h progress.h
+http.o: http.h md5.h types.h ../config.h hdstring.h debug.h
+http-md5.o: http.h md5.h types.h ../config.h hdstring.h
+image.o: image.h file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+image-bmp.o: image.h file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+image-gif.o: image.h file.h http.h md5.h types.h ../config.h rc4.h hdstring.h
+image-jpeg.o: image.h file.h http.h md5.h types.h ../config.h rc4.h
+image-jpeg.o: hdstring.h
+image-png.o: image.h file.h http.h md5.h types.h ../config.h rc4.h
+image-reduce.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h
+image-reduce.o: rc4.h hdstring.h style.h image.h debug.h progress.h
+index.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+index.o: hdstring.h style.h image.h debug.h progress.h
+margin.o: margin.h
+md5.o: md5.h types.h ../config.h hdstring.h
+progress.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+progress.o: hdstring.h style.h image.h debug.h progress.h
+ps-pdf.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+ps-pdf.o: hdstring.h style.h image.h debug.h progress.h margin.h array.h
+snprintf.o: hdstring.h ../config.h
+string.o: hdstring.h ../config.h
+style.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+style.o: hdstring.h style.h image.h debug.h progress.h
+stylefont.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+stylefont.o: hdstring.h style.h image.h debug.h progress.h
+stylemedia.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+stylemedia.o: hdstring.h style.h image.h debug.h progress.h
+stylesheet.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+stylesheet.o: hdstring.h style.h image.h debug.h progress.h
+styletree.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+styletree.o: hdstring.h style.h image.h debug.h progress.h
+testhtml.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+testhtml.o: hdstring.h style.h image.h debug.h progress.h
+teststyle.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+teststyle.o: hdstring.h style.h image.h debug.h progress.h
+toc.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+toc.o: hdstring.h style.h image.h debug.h progress.h
+util.o: htmldoc.h html.h file.h http.h md5.h types.h ../config.h rc4.h
+util.o: hdstring.h style.h image.h debug.h progress.h

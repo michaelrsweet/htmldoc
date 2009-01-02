@@ -1,26 +1,28 @@
 //
 // "$Id: teststyle.cxx,v 1.1.2.5 2005/05/07 03:02:38 mike Exp $"
 //
-//   Stylesheet test program for HTMLDOC, a HTML document processing program.
+// Stylesheet test program for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2006 by Easy Software Products.
+// Copyright 1997-2008 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
+//   main()       - Test the stylesheet loading code.
+//   show_style() - Show a single style...
 //
 
 //
@@ -46,7 +48,7 @@ int					// O - Exit status
 main(int  argc,				// I - Number of command-line args
      char *argv[])			// I - Command-line arguments
 {
-  FILE		*fp;			// Stylesheet file
+  hdFile	*fp;			// Stylesheet file
   hdStyleSheet	*css;			// Stylesheet data
   hdStyle	*style;			// Style data
   int		i;			// Looping var
@@ -60,7 +62,7 @@ main(int  argc,				// I - Number of command-line args
   }
 
   // Load the stylesheet...
-  if ((fp = fopen(argv[1], "r")) == NULL)
+  if ((fp = hdFile::open(argv[1], HD_FILE_READ)) == NULL)
   {
     perror(argv[1]);
     return (1);
@@ -72,7 +74,7 @@ main(int  argc,				// I - Number of command-line args
   css->load(fp, ".");
   css->update_styles();
 
-  fclose(fp);
+  delete fp;
 
   // Show all of the styles...
   printf("\"%s\": %d styles...\n\n", argv[1], css->num_styles);

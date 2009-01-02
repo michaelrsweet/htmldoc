@@ -1,23 +1,23 @@
 //
 // "$Id$"
 //
-//   Stylesheet definitions for HTMLDOC, a HTML document processing program.
+// Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2008 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 
 #ifndef _HTMLDOC_STYLE_H_
@@ -27,6 +27,7 @@
 // Include necessary headers...
 //
 
+#  include "file.h"
 #  include "types.h"
 
 
@@ -575,20 +576,20 @@ struct hdStyleFont
  /**
   * The <tt>read_afm()</tt> method loads font widths from an AFM file.
   *
-  * @param fp FILE* The file to read from.
+  * @param fp hdFile* The file to read from.
   * @param css hdStyleSheet* The stylesheet.
   * @return 0 on success, -1 on error.
   */
-  int		read_afm(FILE *fp, hdStyleSheet *css);
+  int		read_afm(hdFile *fp, hdStyleSheet *css);
 
  /**
   * The <tt>read_ttf()</tt> method loads font widths from a TTF file.
   *
-  * @param fp FILE* The file to read from.
+  * @param fp hdFile* The file to read from.
   * @param css hdStyleSheet* The stylesheet.
   * @return 0 on success, -1 on error.
   */
-  int		read_ttf(FILE *fp, hdStyleSheet *css);
+  int		read_ttf(hdFile *fp, hdStyleSheet *css);
 };
 
 /**
@@ -1305,11 +1306,11 @@ struct hdStyleSheet
  /**
   * The <tt>load()</tt> method loads a stylesheet from a file stream.
   *
-  * @param f FILE* A pointer to the file stream.
+  * @param f hdFile* A pointer to the file stream.
   * @param path const&nbsp;char* A search path to be used by any included files.
   * @return True on success, false on failure.
   */
-  bool		load(FILE *f, const char *path = (const char *)0);
+  bool		load(hdFile *f, const char *path = (const char *)0);
 
  /**
   * The <tt>pattern()</tt> method initializes a regex character pattern that is used
@@ -1325,7 +1326,7 @@ struct hdStyleSheet
   * The <tt>read()</tt> method reads a single string from a file stream using the
   * specified pattern initialized by the pattern()</tt> method.
   *
-  * @param f FILE* The file stream to read from.
+  * @param f hdFile* The file stream to read from.
   * @param p const&nbsp;char* The pattern array initialized by the pattern()
   * method.
   * @param s char* The string buffer.
@@ -1333,7 +1334,7 @@ struct hdStyleSheet
   * @return A pointer to the string that was read or NULL if no string
   * could be read that matched the input pattern.
   */
-  char		*read(FILE *f, const char *p, char *s, int slen);
+  char		*read(hdFile *f, const char *p, char *s, int slen);
 
  /**
   * The <tt>set_charset()</tt> method sets the current character encoding to the named

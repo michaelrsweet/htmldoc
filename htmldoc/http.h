@@ -1,45 +1,36 @@
-/*
- * "$Id$"
- *
- *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
- *   System (CUPS).
- *
- *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: HTMLDOC Licensing Information
- *       Easy Software Products
- *       516 Rio Grand Ct
- *       Morgan Hill, CA 95037 USA
- *
- *       http://www.htmldoc.org/
- */
+//
+// "$Id$"
+//
+//   Hyper-Text Transport Protocol class definitions for HTMLDOC.
+//
+//   Copyright 1997-2008 Easy Software Products.
+//
+//   These coded instructions, statements, and computer programs are the
+//   property of Easy Software Products and are protected by Federal
+//   copyright law.  Distribution and use rights are outlined in the file
+//   "COPYING.txt" which should have been included with this file.  If this
+//   file is missing or damaged please contact Easy Software Products
+//   at:
+//
+//       Attn: HTMLDOC Licensing Information
+//       Easy Software Products
+//       516 Rio Grand Ct
+//       Morgan Hill, CA 95037 USA
+//
+//       http://www.htmldoc.org/
+//
 
-#ifndef _CUPS_HTTP_H_
-#  define _CUPS_HTTP_H_
+#ifndef _HTMLDOC_HTTP_H_
+#  define _HTMLDOC_HTTP_H_
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
-#  include <string.h>
 #  include <time.h>
-#  include <sys/types.h>
-#  ifdef WIN32
-/* Windows does not support the ssize_t type, so map it to off_t... */
-typedef off_t ssize_t;			/* @private@ */
-#    include <winsock2.h>
-#    include <ws2tcpip.h>
+#  if defined(WIN32)
+#    include <winsock.h>
 #  else
-#    ifdef __sgi /* IRIX needs this for IPv6 support!?! */
-#      define INET6
-#    endif /* __sgi */
 #    include <unistd.h>
 #    include <sys/time.h>
 #    include <sys/socket.h>
@@ -48,451 +39,296 @@ typedef off_t ssize_t;			/* @private@ */
 #    include <arpa/inet.h>
 #    include <netinet/in_systm.h>
 #    include <netinet/ip.h>
-#    if !defined(__APPLE__) || !defined(TCP_NODELAY)
-#      include <netinet/tcp.h>
-#    endif /* !__APPLE__ || !TCP_NODELAY */
-#    ifdef AF_LOCAL
-#      include <sys/un.h>
-#    endif /* AF_LOCAL */
-#  endif /* WIN32 */
+#    include <netinet/tcp.h>
+#  endif // WIN32
 
 #  include "md5.h"
 
-/*
- * With GCC 3.0 and higher, we can mark old APIs "deprecated" so you get
- * a warning at compile-time.
- */
 
-#  if defined(__GNUC__) && __GNUC__ > 2
-#    define _HTTP_DEPRECATED __attribute__ ((__deprecated__))
-#  else
-#    define _HTTP_DEPRECATED
-#  endif /* __GNUC__ && __GNUC__ > 2 */
+//
+// Limits...
+//
 
-
-/*
- * C++ magic...
- */
-
-#  ifdef __cplusplus
-extern "C" {
-#  endif /* __cplusplus */
+#  define HD_MAX_URI	1024		// Max length of URI string
+#  define HD_MAX_HOST	256		// Max length of hostname string
+#  define HD_MAX_BUFFER	2048		// Max length of data buffer
+#  define HD_MAX_VALUE	256		// Max header field value length
 
 
-/*
- * Oh, the wonderful world of IPv6 compatibility.  Apparently some
- * implementations expose the (more logical) 32-bit address parts
- * to everyone, while others only expose it to kernel code...  To
- * make supporting IPv6 even easier, each vendor chose different
- * core structure and union names, so the same defines or code
- * can't be used on all platforms.
- *
- * The following will likely need tweaking on new platforms that
- * support IPv6 - the "s6_addr32" define maps to the 32-bit integer
- * array in the in6_addr union, which is named differently on various
- * platforms.
- */
+//
+// HTTP state values...
+//
 
-#if defined(AF_INET6) && !defined(s6_addr32)
-#  if defined(__sun)
-#    define s6_addr32	_S6_un._S6_u32
-#  elif defined(__FreeBSD__) || defined(__APPLE__)
-#    define s6_addr32	__u6_addr.__u6_addr32
-#  elif defined(__osf__)
-#    define s6_addr32	s6_un.sa6_laddr
-#  elif defined(WIN32)
-/*
- * Windows only defines byte and 16-bit word members of the union and
- * requires special casing of all raw address code...
- */
-#    define s6_addr32	error_need_win32_specific_code
-#  endif /* __sun */
-#endif /* AF_INET6 && !s6_addr32 */
-
-
-/*
- * Limits...
- */
-
-#  define HTTP_MAX_URI		1024	/* Max length of URI string */
-#  define HTTP_MAX_HOST		256	/* Max length of hostname string */
-#  define HTTP_MAX_BUFFER	2048	/* Max length of data buffer */
-#  define HTTP_MAX_VALUE	256	/* Max header field value length */
-
-
-/*
- * Types and structures...
- */
-
-typedef enum http_auth_e		/**** HTTP authentication types ****/
+typedef enum				// States are server-oriented
 {
-  HTTP_AUTH_NONE,			/* No authentication in use */
-  HTTP_AUTH_BASIC,			/* Basic authentication in use */
-  HTTP_AUTH_MD5,			/* Digest authentication in use */
-  HTTP_AUTH_MD5_SESS,			/* MD5-session authentication in use */
-  HTTP_AUTH_MD5_INT,			/* Digest authentication in use for body */
-  HTTP_AUTH_MD5_SESS_INT		/* MD5-session authentication in use for body */
-} http_auth_t;
+  HD_HTTP_WAITING,			// Waiting for command
+  HD_HTTP_OPTIONS,			// OPTIONS command, waiting for blank line
+  HD_HTTP_GET,				// GET command, waiting for blank line
+  HD_HTTP_GET_SEND,			// GET command, sending data
+  HD_HTTP_HEAD,				// HEAD command, waiting for blank line
+  HD_HTTP_POST,				// POST command, waiting for blank line
+  HD_HTTP_POST_RECV,			// POST command, receiving data
+  HD_HTTP_POST_SEND,			// POST command, sending data
+  HD_HTTP_PUT,				// PUT command, waiting for blank line
+  HD_HTTP_PUT_RECV,			// PUT command, receiving data
+  HD_HTTP_DELETE,			// DELETE command, waiting for blank line
+  HD_HTTP_TRACE,			// TRACE command, waiting for blank line
+  HD_HTTP_CLOSE,			// CLOSE command, waiting for blank line
+  HD_HTTP_STATUS			// Command complete, sending status
+} hdHTTPState;
 
-typedef enum http_encoding_e		/**** HTTP transfer encoding values ****/
+
+//
+// HTTP version numbers...
+//
+
+typedef enum
 {
-  HTTP_ENCODE_LENGTH,			/* Data is sent with Content-Length */
-  HTTP_ENCODE_CHUNKED			/* Data is chunked */
-} http_encoding_t;
+  HD_HTTP_0_9 = 9,			// HTTP/0.9
+  HD_HTTP_1_0 = 100,			// HTTP/1.0
+  HD_HTTP_1_1 = 101			// HTTP/1.1
+} hdHTTPVersion;
 
-typedef enum http_encryption_e		/**** HTTP encryption values ****/
+
+//
+// HTTP keep-alive values...
+//
+
+typedef enum
 {
-  HTTP_ENCRYPT_IF_REQUESTED,		/* Encrypt if requested (TLS upgrade) */
-  HTTP_ENCRYPT_NEVER,			/* Never encrypt */
-  HTTP_ENCRYPT_REQUIRED,		/* Encryption is required (TLS upgrade) */
-  HTTP_ENCRYPT_ALWAYS			/* Always encrypt (SSL) */
-} http_encryption_t;
+  HD_HTTP_KEEPALIVE_OFF = 0,
+  HD_HTTP_KEEPALIVE_ON
+} hdHTTPKeepAlive;
 
-typedef enum http_field_e		/**** HTTP field names ****/
+
+//
+// HTTP transfer encoding values...
+//
+
+typedef enum
 {
-  HTTP_FIELD_UNKNOWN = -1,		/* Unknown field */
-  HTTP_FIELD_ACCEPT_LANGUAGE,		/* Accept-Language field */
-  HTTP_FIELD_ACCEPT_RANGES,		/* Accept-Ranges field */
-  HTTP_FIELD_AUTHORIZATION,		/* Authorization field */
-  HTTP_FIELD_CONNECTION,		/* Connection field */
-  HTTP_FIELD_CONTENT_ENCODING,		/* Content-Encoding field */
-  HTTP_FIELD_CONTENT_LANGUAGE,		/* Content-Language field */
-  HTTP_FIELD_CONTENT_LENGTH,		/* Content-Length field */
-  HTTP_FIELD_CONTENT_LOCATION,		/* Content-Location field */
-  HTTP_FIELD_CONTENT_MD5,		/* Content-MD5 field */
-  HTTP_FIELD_CONTENT_RANGE,		/* Content-Range field */
-  HTTP_FIELD_CONTENT_TYPE,		/* Content-Type field */
-  HTTP_FIELD_CONTENT_VERSION,		/* Content-Version field */
-  HTTP_FIELD_DATE,			/* Date field */
-  HTTP_FIELD_HOST,			/* Host field */
-  HTTP_FIELD_IF_MODIFIED_SINCE,		/* If-Modified-Since field */
-  HTTP_FIELD_IF_UNMODIFIED_SINCE,	/* If-Unmodified-Since field */
-  HTTP_FIELD_KEEP_ALIVE,		/* Keep-Alive field */
-  HTTP_FIELD_LAST_MODIFIED,		/* Last-Modified field */
-  HTTP_FIELD_LINK,			/* Link field */
-  HTTP_FIELD_LOCATION,			/* Location field */
-  HTTP_FIELD_RANGE,			/* Range field */
-  HTTP_FIELD_REFERER,			/* Referer field */
-  HTTP_FIELD_RETRY_AFTER,		/* Retry-After field */
-  HTTP_FIELD_TRANSFER_ENCODING,		/* Transfer-Encoding field */
-  HTTP_FIELD_UPGRADE,			/* Upgrade field */
-  HTTP_FIELD_USER_AGENT,		/* User-Agent field */
-  HTTP_FIELD_WWW_AUTHENTICATE,		/* WWW-Authenticate field */
-  HTTP_FIELD_MAX			/* Maximum field index */
-} http_field_t;
+  HD_HTTP_ENCODE_LENGTH,		// Data is sent with Content-Length
+  HD_HTTP_ENCODE_CHUNKED		// Data is chunked
+} hdHTTPEncoding;
 
-typedef enum http_keepalive_e		/**** HTTP keep-alive values ****/
+
+//
+// HTTP encryption values...
+//
+
+typedef enum
 {
-  HTTP_KEEPALIVE_OFF = 0,		/* No keep alive support */
-  HTTP_KEEPALIVE_ON			/* Use keep alive */
-} http_keepalive_t;
+  HD_HTTP_ENCRYPT_IF_REQUESTED,		// Encrypt if requested (TLS upgrade)
+  HD_HTTP_ENCRYPT_NEVER,		// Never encrypt
+  HD_HTTP_ENCRYPT_REQUIRED,		// Encryption is required (TLS upgrade)
+  HD_HTTP_ENCRYPT_ALWAYS		// Always encrypt (SSL)
+} hdHTTPEncryption;
 
-typedef enum http_state_e		/**** HTTP state values; states
-					 **** are server-oriented...
-					 ****/
+
+//
+// HTTP authentication types...
+//
+
+typedef enum
 {
-  HTTP_WAITING,				/* Waiting for command */
-  HTTP_OPTIONS,				/* OPTIONS command, waiting for blank line */
-  HTTP_GET,				/* GET command, waiting for blank line */
-  HTTP_GET_SEND,			/* GET command, sending data */
-  HTTP_HEAD,				/* HEAD command, waiting for blank line */
-  HTTP_POST,				/* POST command, waiting for blank line */
-  HTTP_POST_RECV,			/* POST command, receiving data */
-  HTTP_POST_SEND,			/* POST command, sending data */
-  HTTP_PUT,				/* PUT command, waiting for blank line */
-  HTTP_PUT_RECV,			/* PUT command, receiving data */
-  HTTP_DELETE,				/* DELETE command, waiting for blank line */
-  HTTP_TRACE,				/* TRACE command, waiting for blank line */
-  HTTP_CLOSE,				/* CLOSE command, waiting for blank line */
-  HTTP_STATUS				/* Command complete, sending status */
-} http_state_t;
+  HD_HTTP_AUTH_NONE,			// No authentication in use
+  HD_HTTP_AUTH_BASIC,			// Basic authentication in use
+  HD_HTTP_AUTH_MD5,			// Digest authentication in use
+  HD_HTTP_AUTH_MD5_SESS,		// MD5-session authentication in use
+  HD_HTTP_AUTH_MD5_INT,			// Digest authentication in use for body
+  HD_HTTP_AUTH_MD5_SESS_INT		// MD5-session authentication in use for body
+} hdHTTPAuth;
 
-typedef enum http_status_e		/**** HTTP status codes ****/
+
+//
+// HTTP status codes...
+//
+
+typedef enum
 {
-  HTTP_ERROR = -1,			/* An error response from httpXxxx() */
+  HD_HTTP_ERROR = -1,			// An error response from httpXxxx()
 
-  HTTP_CONTINUE = 100,			/* Everything OK, keep going... */
-  HTTP_SWITCHING_PROTOCOLS,		/* HTTP upgrade to TLS/SSL */
+  HD_HTTP_CONTINUE = 100,		// Everything OK, keep going...
+  HD_HTTP_SWITCHING_PROTOCOLS,		// HTTP upgrade to TLS/SSL
 
-  HTTP_OK = 200,			/* OPTIONS/GET/HEAD/POST/TRACE command was successful */
-  HTTP_CREATED,				/* PUT command was successful */
-  HTTP_ACCEPTED,			/* DELETE command was successful */
-  HTTP_NOT_AUTHORITATIVE,		/* Information isn't authoritative */
-  HTTP_NO_CONTENT,			/* Successful command, no new data */
-  HTTP_RESET_CONTENT,			/* Content was reset/recreated */
-  HTTP_PARTIAL_CONTENT,			/* Only a partial file was recieved/sent */
+  HD_HTTP_OK = 200,			// OPTIONS/GET/HEAD/POST/TRACE command was successful
+  HD_HTTP_CREATED,			// PUT command was successful
+  HD_HTTP_ACCEPTED,			// DELETE command was successful
+  HD_HTTP_NOT_AUTHORITATIVE,		// Information isn't authoritative
+  HD_HTTP_NO_CONTENT,			// Successful command, no new data
+  HD_HTTP_RESET_CONTENT,		// Content was reset/recreated
+  HD_HTTP_PARTIAL_CONTENT,		// Only a partial file was recieved/sent
 
-  HTTP_MULTIPLE_CHOICES = 300,		/* Multiple files match request */
-  HTTP_MOVED_PERMANENTLY,		/* Document has moved permanently */
-  HTTP_MOVED_TEMPORARILY,		/* Document has moved temporarily */
-  HTTP_SEE_OTHER,			/* See this other link... */
-  HTTP_NOT_MODIFIED,			/* File not modified */
-  HTTP_USE_PROXY,			/* Must use a proxy to access this URI */
+  HD_HTTP_MULTIPLE_CHOICES = 300,	// Multiple files match request
+  HD_HTTP_MOVED_PERMANENTLY,		// Document has moved permanently
+  HD_HTTP_MOVED_TEMPORARILY,		// Document has moved temporarily
+  HD_HTTP_SEE_OTHER,			// See this other link...
+  HD_HTTP_NOT_MODIFIED,			// File not modified
+  HD_HTTP_USE_PROXY,			// Must use a proxy to access this URI
 
-  HTTP_BAD_REQUEST = 400,		/* Bad request */
-  HTTP_UNAUTHORIZED,			/* Unauthorized to access host */
-  HTTP_PAYMENT_REQUIRED,		/* Payment required */
-  HTTP_FORBIDDEN,			/* Forbidden to access this URI */
-  HTTP_NOT_FOUND,			/* URI was not found */
-  HTTP_METHOD_NOT_ALLOWED,		/* Method is not allowed */
-  HTTP_NOT_ACCEPTABLE,			/* Not Acceptable */
-  HTTP_PROXY_AUTHENTICATION,		/* Proxy Authentication is Required */
-  HTTP_REQUEST_TIMEOUT,			/* Request timed out */
-  HTTP_CONFLICT,			/* Request is self-conflicting */
-  HTTP_GONE,				/* Server has gone away */
-  HTTP_LENGTH_REQUIRED,			/* A content length or encoding is required */
-  HTTP_PRECONDITION,			/* Precondition failed */
-  HTTP_REQUEST_TOO_LARGE,		/* Request entity too large */
-  HTTP_URI_TOO_LONG,			/* URI too long */
-  HTTP_UNSUPPORTED_MEDIATYPE,		/* The requested media type is unsupported */
-  HTTP_REQUESTED_RANGE,			/* The requested range is not satisfiable */
-  HTTP_EXPECTATION_FAILED,		/* The expectation given in an Expect header field was not met */
-  HTTP_UPGRADE_REQUIRED = 426,		/* Upgrade to SSL/TLS required */
+  HD_HTTP_BAD_REQUEST = 400,		// Bad request
+  HD_HTTP_UNAUTHORIZED,			// Unauthorized to access host
+  HD_HTTP_PAYMENT_REQUIRED,		// Payment required
+  HD_HTTP_FORBIDDEN,			// Forbidden to access this URI
+  HD_HTTP_NOT_FOUND,			// URI was not found
+  HD_HTTP_METHOD_NOT_ALLOWED,		// Method is not allowed
+  HD_HTTP_NOT_ACCEPTABLE,		// Not Acceptable
+  HD_HTTP_PROXY_AUTHENTICATION,		// Proxy Authentication is Required
+  HD_HTTP_REQUEST_TIMEOUT,		// Request timed out
+  HD_HTTP_CONFLICT,			// Request is self-conflicting
+  HD_HTTP_GONE,				// Server has gone away
+  HD_HTTP_LENGTH_REQUIRED,		// A content length or encoding is required
+  HD_HTTP_PRECONDITION,			// Precondition failed
+  HD_HTTP_REQUEST_TOO_LARGE,		// Request entity too large
+  HD_HTTP_URI_TOO_LONG,			// URI too long
+  HD_HTTP_UNSUPPORTED_MEDIATYPE,	// The requested media type is unsupported
+  HD_HTTP_UPGRADE_REQUIRED = 426,	// Upgrade to SSL/TLS required
 
-  HTTP_SERVER_ERROR = 500,		/* Internal server error */
-  HTTP_NOT_IMPLEMENTED,			/* Feature not implemented */
-  HTTP_BAD_GATEWAY,			/* Bad gateway */
-  HTTP_SERVICE_UNAVAILABLE,		/* Service is unavailable */
-  HTTP_GATEWAY_TIMEOUT,			/* Gateway connection timed out */
-  HTTP_NOT_SUPPORTED			/* HTTP version not supported */
-} http_status_t;
+  HD_HTTP_SERVER_ERROR = 500,		// Internal server error
+  HD_HTTP_NOT_IMPLEMENTED,		// Feature not implemented
+  HD_HTTP_BAD_GATEWAY,			// Bad gateway
+  HD_HTTP_SERVICE_UNAVAILABLE,		// Service is unavailable
+  HD_HTTP_GATEWAY_TIMEOUT,		// Gateway connection timed out
+  HD_HTTP_NOT_SUPPORTED			// HTTP version not supported
+} hdHTTPStatus;
 
-typedef enum http_uri_status_e		/**** URI separation status @since CUPS1.2@ ****/
+
+//
+// HTTP field names...
+//
+
+typedef enum
 {
-  HTTP_URI_OVERFLOW = -8,		/* URI buffer for httpAssembleURI is too small */
-  HTTP_URI_BAD_ARGUMENTS = -7,		/* Bad arguments to function (error) */
-  HTTP_URI_BAD_RESOURCE = -6,		/* Bad resource in URI (error) */
-  HTTP_URI_BAD_PORT = -5,		/* Bad port number in URI (error) */
-  HTTP_URI_BAD_HOSTNAME = -4,		/* Bad hostname in URI (error) */
-  HTTP_URI_BAD_USERNAME = -3,		/* Bad username in URI (error) */
-  HTTP_URI_BAD_SCHEME = -2,		/* Bad scheme in URI (error) */
-  HTTP_URI_BAD_URI = -1,		/* Bad/empty URI (error) */
-  HTTP_URI_OK = 0,			/* URI decoded OK */
-  HTTP_URI_MISSING_SCHEME,		/* Missing scheme in URI (warning) */
-  HTTP_URI_UNKNOWN_SCHEME,		/* Unknown scheme in URI (warning) */
-  HTTP_URI_MISSING_RESOURCE		/* Missing resource in URI (warning) */
-} http_uri_status_t;
+  HD_HTTP_FIELD_UNKNOWN = -1,
+  HD_HTTP_FIELD_ACCEPT_LANGUAGE,
+  HD_HTTP_FIELD_ACCEPT_RANGES,
+  HD_HTTP_FIELD_AUTHORIZATION,
+  HD_HTTP_FIELD_CONNECTION,
+  HD_HTTP_FIELD_CONTENT_ENCODING,
+  HD_HTTP_FIELD_CONTENT_LANGUAGE,
+  HD_HTTP_FIELD_CONTENT_LENGTH,
+  HD_HTTP_FIELD_CONTENT_LOCATION,
+  HD_HTTP_FIELD_CONTENT_MD5,
+  HD_HTTP_FIELD_CONTENT_RANGE,
+  HD_HTTP_FIELD_CONTENT_TYPE,
+  HD_HTTP_FIELD_CONTENT_VERSION,
+  HD_HTTP_FIELD_COOKIE,
+  HD_HTTP_FIELD_DATE,
+  HD_HTTP_FIELD_EXPECT,
+  HD_HTTP_FIELD_HOST,
+  HD_HTTP_FIELD_IF_MODIFIED_SINCE,
+  HD_HTTP_FIELD_IF_UNMODIFIED_SINCE,
+  HD_HTTP_FIELD_KEEP_ALIVE,
+  HD_HTTP_FIELD_LAST_MODIFIED,
+  HD_HTTP_FIELD_LINK,
+  HD_HTTP_FIELD_LOCATION,
+  HD_HTTP_FIELD_RANGE,
+  HD_HTTP_FIELD_REFERER,
+  HD_HTTP_FIELD_RETRY_AFTER,
+  HD_HTTP_FIELD_SET_COOKIE,
+  HD_HTTP_FIELD_TRANSFER_ENCODING,
+  HD_HTTP_FIELD_UPGRADE,
+  HD_HTTP_FIELD_USER_AGENT,
+  HD_HTTP_FIELD_WWW_AUTHENTICATE,
+  HD_HTTP_FIELD_MAX
+} hdHTTPField;
+  
 
-typedef enum http_uri_coding_e		/**** URI en/decode flags ****/
+//
+// HTTP connection structure...
+//
+
+class hdHTTP
 {
-  HTTP_URI_CODING_NONE = 0,		/* Don't en/decode anything */
-  HTTP_URI_CODING_USERNAME = 1,		/* En/decode the username portion */
-  HTTP_URI_CODING_HOSTNAME = 2,		/* En/decode the hostname portion */
-  HTTP_URI_CODING_RESOURCE = 4,		/* En/decode the resource portion */
-  HTTP_URI_CODING_MOST = 7,		/* En/decode all but the query */
-  HTTP_URI_CODING_QUERY = 8,		/* En/decode the query portion */
-  HTTP_URI_CODING_ALL = 15		/* En/decode everything */
-} http_uri_coding_t;
+  int			fd;		// File descriptor for this socket
+  int			blocking;	// To block or not to block
+  int			error;		// Last error on read
+  time_t		activity;	// Time since last read/write
+  hdHTTPState		state;		// State of client
+  hdHTTPStatus		status;		// Status of last request
+  hdHTTPVersion		version;	// Protocol version
+  hdHTTPKeepAlive	keep_alive;	// Keep-alive supported?
+  struct sockaddr_in	hostaddr;	// Address of connected host
+  char			hostname[HD_MAX_HOST],
+  					// Name of connected host
+			fields[HD_HTTP_FIELD_MAX][HD_MAX_VALUE];
+					// Field values
+  char			*data;		// Pointer to data buffer
+  hdHTTPEncoding	data_encoding;	// Chunked or not
+  int			data_remaining;	// Number of bytes left
+  int			used;		// Number of bytes used in buffer
+  char			buffer[HD_MAX_BUFFER];
+					// Buffer for messages
+  int			authtype;	// Authentication in use
+  hdMD5			md5_state;	// MD5 state
+  char			nonce[HD_MAX_VALUE];
+					// Nonce value
+  int			nonce_count;	// Nonce count
+  void			*tls;		// TLS state information
+  hdHTTPEncryption	encryption;	// Encryption requirements
 
-typedef enum http_version_e		/**** HTTP version numbers ****/
-{
-  HTTP_0_9 = 9,				/* HTTP/0.9 */
-  HTTP_1_0 = 100,			/* HTTP/1.0 */
-  HTTP_1_1 = 101			/* HTTP/1.1 */
-} http_version_t;
+  int			send(hdHTTPState request, const char *uri);
+  int			upgrade();
 
-typedef union _http_addr_u		/**** Socket address union, which
-					 **** makes using IPv6 and other
-					 **** address types easier and
-					 **** more portable. @since CUPS 1.2@
-					 ****/
-{
-  struct sockaddr	addr;		/* Base structure for family value */
-  struct sockaddr_in	ipv4;		/* IPv4 address */
-#ifdef AF_INET6
-  struct sockaddr_in6	ipv6;		/* IPv6 address */
-#endif /* AF_INET6 */
-#ifdef AF_LOCAL
-  struct sockaddr_un	un;		/* Domain socket file */
-#endif /* AF_LOCAL */
-  char			pad[256];	/* Padding to ensure binary compatibility */
-} http_addr_t;
+  static void		initialize();
 
-typedef struct http_addrlist_s		/**** Socket address list, which is
-					 **** used to enumerate all of the
-					 **** addresses that are associated
-					 **** with a hostname. @since CUPS 1.2@
-					 ****/
-{
-  struct http_addrlist_s *next;		/* Pointer to next address in list */
-  http_addr_t		addr;		/* Address */
-} http_addrlist_t;
+  public:
 
-typedef struct _http_s			/**** HTTP connection structure. ****/
-{
-  int			fd;		/* File descriptor for this socket */
-  int			blocking;	/* To block or not to block */
-  int			error;		/* Last error on read */
-  time_t		activity;	/* Time since last read/write */
-  http_state_t		state;		/* State of client */
-  http_status_t		status;		/* Status of last request */
-  http_version_t	version;	/* Protocol version */
-  http_keepalive_t	keep_alive;	/* Keep-alive supported? */
-  struct sockaddr_in	_hostaddr;	/* Address of connected host @deprecated@ */
-  char			hostname[HTTP_MAX_HOST],
-  					/* Name of connected host */
-			fields[HTTP_FIELD_MAX][HTTP_MAX_VALUE];
-					/* Field values */
-  char			*data;		/* Pointer to data buffer */
-  http_encoding_t	data_encoding;	/* Chunked or not */
-  int			_data_remaining;/* Number of bytes left @deprecated@ */
-  int			used;		/* Number of bytes used in buffer */
-  char			buffer[HTTP_MAX_BUFFER];
-					/* Buffer for incoming data */
-  int			auth_type;	/* Authentication in use */
-  md5_state_t		md5_state;	/* MD5 state */
-  char			nonce[HTTP_MAX_VALUE];
-					/* Nonce value */
-  int			nonce_count;	/* Nonce count */
-  void			*tls;		/* TLS state information */
-  http_encryption_t	encryption;	/* Encryption requirements */
-  /**** New in CUPS 1.1.19 ****/
-  fd_set		*input_set;	/* select() set for httpWait() @since CUPS 1.1.19@ */
-  http_status_t		expect;		/* Expect: header @since CUPS 1.1.19@ */
-  char			*cookie;	/* Cookie value(s) @since CUPS 1.1.19@ */
-  /**** New in CUPS 1.1.20 ****/
-  char			authstring[HTTP_MAX_VALUE],
-					/* Current Authentication value @since CUPS 1.1.20@ */
-			userpass[HTTP_MAX_VALUE];
-					/* Username:password string @since CUPS 1.1.20@ */
-  int			digest_tries;	/* Number of tries for digest auth @since CUPS 1.1.20@ */
-  /**** New in CUPS 1.2 ****/
-  off_t			data_remaining;	/* Number of bytes left @since CUPS 1.2@ */
-  http_addr_t		*hostaddr;	/* Current host address and port @since CUPS 1.2@ */
-  http_addrlist_t	*addrlist;	/* List of valid addresses @since CUPS 1.2@ */
-  char			wbuffer[HTTP_MAX_BUFFER];
-					/* Buffer for outgoing data */
-  int			wused;		/* Write buffer bytes used @since CUPS 1.2@ */
-} http_t;
+  hdHTTP(const char *h, int port = 80, hdHTTPEncryption e = HD_HTTP_ENCRYPT_IF_REQUESTED);
+  ~hdHTTP();
+
+  int			check();
+  void			clear_fields();
+  void			flush();
+  int			get_blocking() { return blocking; }
+  hdHTTPEncryption	get_encryption() { return encryption; }
+  int			get_error() { return error; }
+  int			get_fd() { return fd; }
+  const char		*get_field(hdHTTPField field) { return fields[field]; }
+  int			get_content_length();
+  const char		*get_hostname() { return hostname; }
+  hdHTTPState		get_state() { return state; }
+  hdHTTPStatus		get_status() { return status; }
+  char			*get_sub_field(hdHTTPField field, const char *name,
+			               char *value, int length);
+  char			*gets(char *line, int length);
+  int			printf(const char *format, ...);
+  int			read(char *buffer, int length);
+  int			reconnect();
+  int			send_delete(const char *uri);
+  int			send_get(const char *uri);
+  int			send_head(const char *uri);
+  int			send_options(const char *uri);
+  int			send_post(const char *uri);
+  int			send_put(const char *uri);
+  int			send_trace(const char *uri);
+  void			set_blocking(int b) { blocking = b; }
+  int			set_encryption(hdHTTPEncryption e);
+  void			set_field(hdHTTPField field, const char *value);
+  hdHTTPStatus		update();
+  int			write(const char *buffer, int length);
+
+  static char		*decode64(char *out, int outlen, const char *in);
+  static char		*encode64(char *out, int outlen, const char *in);
+  static hdHTTPField	field_number(const char *name);
+  static const char	*get_date_string(time_t t);
+  static time_t		get_date_time(const char *s);
+  static char		*md5(const char *username, const char *realm,
+			     const char *passwd, char *s, int slen);
+  static char		*md5_final(const char *nonce, const char *scheme,
+			           const char *resource, char *s, int slen);
+  static char		*md5_string(const hdByte *sum, char *s, int slen);
+  static void		separate(const char *uri, char *scheme, int schemelen,
+			         char *username, int usernamelen,
+				 char *host, int hostlen,
+				 int *port,
+				 char *resource, int resourcelen);
+  static const char	*status_string(hdHTTPStatus status);
+};
 
 
-/*
- * Prototypes...
- */
+#endif // !_HTMLDOC_HTTP_H_
 
-extern void		httpBlocking(http_t *http, int b);
-extern int		httpCheck(http_t *http);
-extern void		httpClearFields(http_t *http);
-extern void		httpClose(http_t *http);
-extern http_t		*httpConnect(const char *host, int port);
-extern http_t		*httpConnectEncrypt(const char *host, int port,
-			                    http_encryption_t encryption);
-extern int		httpDelete(http_t *http, const char *uri);
-extern int		httpEncryption(http_t *http, http_encryption_t e);
-extern int		httpError(http_t *http);
-extern void		httpFlush(http_t *http);
-extern int		httpGet(http_t *http, const char *uri);
-extern char		*httpGets(char *line, int length, http_t *http);
-extern const char	*httpGetDateString(time_t t);
-extern time_t		httpGetDateTime(const char *s);
-extern const char	*httpGetField(http_t *http, http_field_t field);
-extern struct hostent	*httpGetHostByName(const char *name);
-extern char		*httpGetSubField(http_t *http, http_field_t field,
-			                 const char *name, char *value);
-extern int		httpHead(http_t *http, const char *uri);
-extern void		httpInitialize(void);
-extern int		httpOptions(http_t *http, const char *uri);
-extern int		httpPost(http_t *http, const char *uri);
-extern int		httpPrintf(http_t *http, const char *format, ...)
-#  ifdef __GNUC__
-__attribute__ ((__format__ (__printf__, 2, 3)))
-#  endif /* __GNUC__ */
-;
-extern int		httpPut(http_t *http, const char *uri);
-extern int		httpRead(http_t *http, char *buffer, int length) _HTTP_DEPRECATED;
-extern int		httpReconnect(http_t *http);
-extern void		httpSeparate(const char *uri, char *method,
-			             char *username, char *host, int *port,
-				     char *resource) _HTTP_DEPRECATED;
-extern void		httpSetField(http_t *http, http_field_t field,
-			             const char *value);
-extern const char	*httpStatus(http_status_t status);
-extern int		httpTrace(http_t *http, const char *uri);
-extern http_status_t	httpUpdate(http_t *http);
-extern int		httpWrite(http_t *http, const char *buffer, int length) _HTTP_DEPRECATED;
-extern char		*httpEncode64(char *out, const char *in) _HTTP_DEPRECATED;
-extern char		*httpDecode64(char *out, const char *in) _HTTP_DEPRECATED;
-extern int		httpGetLength(http_t *http) _HTTP_DEPRECATED;
-extern char		*httpMD5(const char *, const char *, const char *,
-			         char [33]);
-extern char		*httpMD5Final(const char *, const char *, const char *,
-			              char [33]);
-extern char		*httpMD5String(const unsigned char *, char [33]);
-
-/**** New in CUPS 1.1.19 ****/
-extern void		httpClearCookie(http_t *http);
-extern const char	*httpGetCookie(http_t *http);
-extern void		httpSetCookie(http_t *http, const char *cookie);
-extern int		httpWait(http_t *http, int msec);
-
-/**** New in CUPS 1.1.21 ****/
-extern char		*httpDecode64_2(char *out, int *outlen, const char *in);
-extern char		*httpEncode64_2(char *out, int outlen, const char *in,
-			                int inlen);
-extern void		httpSeparate2(const char *uri,
-			              char *method, int methodlen,
-			              char *username, int usernamelen,
-				      char *host, int hostlen, int *port,
-				      char *resource, int resourcelen) _HTTP_DEPRECATED;
-
-/**** New in CUPS 1.2 ****/
-extern int		httpAddrAny(const http_addr_t *addr);
-extern http_addrlist_t	*httpAddrConnect(http_addrlist_t *addrlist, int *sock);
-extern int		httpAddrEqual(const http_addr_t *addr1,
-			              const http_addr_t *addr2);
-extern void		httpAddrFreeList(http_addrlist_t *addrlist);
-extern http_addrlist_t	*httpAddrGetList(const char *hostname, int family,
-			                 const char *service);
-extern int		httpAddrLength(const http_addr_t *addr);
-extern int		httpAddrLocalhost(const http_addr_t *addr);
-extern char		*httpAddrLookup(const http_addr_t *addr,
-                                        char *name, int namelen);
-extern char		*httpAddrString(const http_addr_t *addr,
-			                char *s, int slen);
-extern http_uri_status_t httpAssembleURI(http_uri_coding_t encoding,
-			                 char *uri, int urilen,
-			        	 const char *scheme,
-					 const char *username,
-					 const char *host, int port,
-					 const char *resource);
-extern http_uri_status_t httpAssembleURIf(http_uri_coding_t encoding,
-			                  char *uri, int urilen,
-			        	  const char *scheme,
-					  const char *username,
-					  const char *host, int port,
-					  const char *resourcef, ...);
-extern int		httpFlushWrite(http_t *http);
-extern int		httpGetBlocking(http_t *http);
-extern const char	*httpGetDateString2(time_t t, char *s, int slen);
-extern int		httpGetFd(http_t *http);
-extern const char	*httpGetHostname(http_t *http, char *s, int slen);
-extern off_t		httpGetLength2(http_t *http);
-extern http_status_t	httpGetStatus(http_t *http);
-extern char		*httpGetSubField2(http_t *http, http_field_t field,
-			                  const char *name, char *value,
-					  int valuelen);
-extern ssize_t		httpRead2(http_t *http, char *buffer, size_t length);
-extern http_uri_status_t httpSeparateURI(http_uri_coding_t decoding,
-			                 const char *uri,
-			        	 char *scheme, int schemelen,
-			        	 char *username, int usernamelen,
-					 char *host, int hostlen, int *port,
-					 char *resource, int resourcelen);
-extern void		httpSetExpect(http_t *http, http_status_t expect);
-extern void		httpSetLength(http_t *http, size_t length);
-extern ssize_t		httpWrite2(http_t *http, const char *buffer,
-			           size_t length);
-
-
-/*
- * C++ magic...
- */
-
-#  ifdef __cplusplus
-}
-#  endif /* __cplusplus */
-#endif /* !_CUPS_HTTP_H_ */
-
-/*
- * End of "$Id$".
- */
+//
+// End of "$Id$".
+//
