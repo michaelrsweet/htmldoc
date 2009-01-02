@@ -449,7 +449,7 @@ hdStyleFont::read_afm(hdFile       *fp,	// I - File to read from
   // Loop through the AFM file...
   alloc_kerns = 0;
 
-  while (fp->gets(line, sizeof(line)))
+  while (fp->getline(line, sizeof(line)))
   {
     // Get the initial keyword...
     if ((lineptr = strchr(line, ' ')) != NULL)

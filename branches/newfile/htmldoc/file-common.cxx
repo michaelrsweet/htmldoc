@@ -123,10 +123,11 @@ hdFile::gets(char   *s,			// O - String buffer
   {
     if ((ch = get()) == EOF)
       break;
-    else if (ch == '\n')
-      break;
     else if (ptr < end)
       *ptr++ = ch;
+
+    if (ch == '\n')
+      break;
   }
 
   *ptr = '\0';
@@ -234,17 +235,7 @@ hdFile::printf(const char *f,		// I - Printf-style format string
 
 	    sprintf(buffer, tf, va_arg(ap, double));
 
-	    // Strip trailing zeros...
-            for (bufptr = buffer + strlen(buffer) - 1;
-	         bufptr > buffer;
-		 bufptr --)
-	      if (*bufptr != '0')
-	        break;
-
-            if (bufptr > buffer && *bufptr == '.')
-	      bufptr --;
-
-	    if (write(buffer, bufptr - buffer) < 0)
+	    if (puts(buffer) < 0)
 	    {
 	      va_end(ap);
 	      return (-1);

@@ -3,7 +3,7 @@
 //
 //   Flate filter functions for HTMLDOC.
 //
-//   Copyright 1997-2008 Easy Software Products.
+//   Copyright 1997-2009 Easy Software Products.
 //
 //   These coded instructions, statements, and computer programs are the
 //   property of Easy Software Products and are protected by Federal
@@ -37,6 +37,7 @@
 //
 
 #include "file.h"
+#include "progress.h"
 
 
 //
@@ -69,10 +70,19 @@ hdFlateFilter::hdFlateFilter(hdFile *f,	// I - File or filter
 
 hdFlateFilter::~hdFlateFilter()
 {
+  int	status;				// Deflate status
+
+
   // Make sure all compressed data is written...
   stream_.avail_in = 0;
-  while (deflate(&stream_, Z_FINISH) != Z_STREAM_END)
+  while ((status = deflate(&stream_, Z_FINISH)) != Z_STREAM_END)
   {
+    if (status < Z_OK && status != Z_BUF_ERROR)
+    {
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "deflate() failed (%d)", status);
+      break;
+    }
+
     chain_->write(buffer_, (char *)stream_.next_out - buffer_);
 
     stream_.next_out  = (Bytef *)buffer_;
@@ -160,6 +170,9 @@ ssize_t					// O - Number of bytes written
 hdFlateFilter::write(const void *b,	// I - Buffer to write
                      size_t     len)	// I - Number of bytes to write
 {
+  int	status;				// Deflate status
+
+
   // Loop until all bytes are compressed...
   stream_.next_in  = (Bytef *)b;
   stream_.avail_in = len;
@@ -175,7 +188,13 @@ hdFlateFilter::write(const void *b,	// I - Buffer to write
       stream_.avail_out = sizeof(buffer_);
     }
 
-    deflate(&stream_, Z_NO_FLUSH);
+    status = deflate(&stream_, Z_NO_FLUSH);
+
+    if (status < Z_OK && status != Z_BUF_ERROR)
+    {
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "deflate() failed (%d)", status);
+      return (-1);
+    }
   }
 
   return (len);

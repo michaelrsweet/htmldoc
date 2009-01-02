@@ -2098,7 +2098,7 @@ ps_write_outpage(hdFile *out,		/* I - Output file */
 
           p = pages + op->pages[i];
 
-          out->printf("GS[%.3f %.3f %.3f %.3f %.3f %.3f]CM\n",
+          out->printf("GS[%g %g %g %g %g %g]CM\n",
 	              p->outmatrix[0][0], p->outmatrix[1][0],
 	              p->outmatrix[0][1], p->outmatrix[1][1],
 	              p->outmatrix[0][2], p->outmatrix[1][2]);
@@ -2631,7 +2631,7 @@ pdf_write_outpage(hdFile *out,		/* I - Output file */
 
           p = pages + op->pages[i];
 
-          filter->printf("q %.3f %.3f %.3f %.3f %.3f %.3f cm\n",
+          filter->printf("q %g %g %g %g %g %g cm\n",
 	                 p->outmatrix[0][0], p->outmatrix[1][0],
 	                 p->outmatrix[0][1], p->outmatrix[1][1],
 	                 p->outmatrix[0][2], p->outmatrix[1][2]);
@@ -2681,6 +2681,7 @@ pdf_write_page(hdFile *out,		/* I - Output file */
   render_rgb[2]   = -1.0f;
   render_x        = -1.0f;
   render_y        = -1.0f;
+  render_startx   = 0.0f;
 
  /*
   * Output the page header...
@@ -2721,10 +2722,11 @@ pdf_write_page(hdFile *out,		/* I - Output file */
 	      box[1] = r->data.box[1];
 	      box[2] = r->data.box[2];
 
-	      if (OutputColor)
-        	out->printf("%.2f %.2f %.2f RG\n", box[0], box[1], box[2]);
+	      if (OutputColor &&
+	          (box[0] != box[1] || box[1] != box[2] || box[0] != box[2]))
+        	out->printf("%g %g %g RG\n", box[0], box[1], box[2]);
               else
-        	out->printf("%.2f G\n",
+        	out->printf("%g G\n",
 		             box[0] * 0.31f + box[1] * 0.61f + box[2] * 0.08f);
             }
 
@@ -2734,7 +2736,7 @@ pdf_write_page(hdFile *out,		/* I - Output file */
 	  else
 	  {
             set_color(out, r->data.box);
-            out->printf("%.1f %.1f %.1f %.1f re f\n",
+            out->printf("%g %g %g %g re f\n",
                 	 r->x, r->y, r->width, r->height);
 	  }
 	  break;
@@ -2746,12 +2748,13 @@ pdf_write_page(hdFile *out,		/* I - Output file */
 
   out->puts("BT\n");
 
+  render_x        = -1.0f;
+  render_y        = -1.0f;
+  render_startx   = 0.0f;
+  render_spacing  = -1.0f;
   render_typeface = -1;
   render_style    = -1;
   render_size     = -1;
-  render_x        = -1.0f;
-  render_y        = -1.0f;
-  render_spacing  = -1.0f;
 
   for (r = p->start, next = NULL; r != NULL; r = next)
   {
@@ -9924,21 +9927,21 @@ set_color(hdFile  *out,			/* I - File to write to */
   render_rgb[1] = rgb[1];
   render_rgb[2] = rgb[2];
 
-  if (OutputColor)
+  if (OutputColor && (rgb[0] != rgb[1] || rgb[1] != rgb[2] || rgb[0] != rgb[2]))
   {
     // Output RGB color...
     if (PSLevel > 0)
-      out->printf("%.2f %.2f %.2f C ", rgb[0], rgb[1], rgb[2]);
+      out->printf("%g %g %g C ", rgb[0], rgb[1], rgb[2]);
     else
-      out->printf("%.2f %.2f %.2f rg ", rgb[0], rgb[1], rgb[2]);
+      out->printf("%g %g %g rg ", rgb[0], rgb[1], rgb[2]);
   }
   else
   {
     // Output grayscale...
     if (PSLevel > 0)
-      out->printf("%.2f G ", rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
+      out->printf("%g G ", rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
     else
-      out->printf("%.2f g ",
+      out->printf("%g g ",
                   rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
   }
 }
@@ -9954,26 +9957,10 @@ set_font(hdFile *out,			/* I - File to write to */
          int    style,			/* I - Style code */
          float  size)			/* I - Size */
 {
-  char	sizes[255],			/* Formatted string for size... */
-	*s;				/* Pointer to end of string */
-
-
   if (typeface == render_typeface &&
       style == render_style &&
       size == render_size)
     return;
-
- /*
-  * Format size and strip trailing 0's and decimals...
-  */
-
-  sprintf(sizes, "%.1f", size);
-
-  for (s = sizes + strlen(sizes) - 1; s > sizes && *s == '0'; s --)
-    *s = '\0';
-
-  if (*s == '.')
-    *s = '\0';
 
  /*
   * Set the new typeface, style, and size.
@@ -9982,12 +9969,12 @@ set_font(hdFile *out,			/* I - File to write to */
   if (PSLevel > 0)
   {
     if (size != render_size)
-      out->printf("%s FS", sizes);
+      out->printf("%g FS", size);
 
     out->printf("/F%x SF ", typeface * 4 + style);
   }
   else
-    out->printf("/F%x %s Tf ", typeface * 4 + style, sizes);
+    out->printf("/F%x %g Tf ", typeface * 4 + style, size);
 
   render_typeface = typeface;
   render_style    = style;
@@ -10004,11 +9991,6 @@ set_pos(hdFile *out,			/* I - File to write to */
         float  x,			/* I - X position */
         float  y)			/* I - Y position */
 {
-  char	xs[255],			/* Formatted string for X... */
-	ys[255],			/* Formatted string for Y... */
-	*s;				/* Pointer to end of string */
-
-
   if (fabs(render_x - x) < 0.1 && fabs(render_y - y) < 0.1)
     return;
 
@@ -10016,37 +9998,12 @@ set_pos(hdFile *out,			/* I - File to write to */
   * Format X and Y...
   */
 
-  if (PSLevel > 0 || render_x == -1.0)
-  {
-    sprintf(xs, "%.3f", x);
-    sprintf(ys, "%.3f", y);
-  }
-  else
-  {
-    sprintf(xs, "%.3f", x - render_startx);
-    sprintf(ys, "%.3f", y - render_y);
-  }
-
- /*
-  * Strip trailing 0's and decimals...
-  */
-
-  for (s = xs + strlen(xs) - 1; s > xs && *s == '0'; s --)
-    *s = '\0';
-
-  if (*s == '.')
-    *s = '\0';
-
-  for (s = ys + strlen(ys) - 1; s > ys && *s == '0'; s --)
-    *s = '\0';
-
-  if (*s == '.')
-    *s = '\0';
-
   if (PSLevel > 0)
-    out->printf("%s %s M", xs, ys);
+    out->printf("%g %g M", x, y);
+  else if (render_x == -1.0)
+     out->printf("%g %g Td", x, y);
   else
-    out->printf("%s %s Td", xs, ys);
+     out->printf("%g %g Td", x - render_startx, y - render_y);
 
   render_x = render_startx = x;
   render_y = y;
@@ -11495,7 +11452,7 @@ write_prolog(hdFile *out,		/* I - Output file */
           if (fonts_used[i][j] && is_base_font(i) &&
 	      _htmlStyleSheet->fonts[i][j])
             out->printf("%%%%+ font %s\n",
-	            _htmlStyleSheet->fonts[i][j]->ps_name);
+	                _htmlStyleSheet->fonts[i][j]->ps_name);
     }
 
     out->puts("%%DocumentProvidedResources:\n");
@@ -12047,10 +12004,10 @@ write_text(hdFile   *out,	/* I - Output file */
   if (PSLevel > 0)
   {
     if (r->data.text.spacing > 0.0f)
-      out->printf(" %.3f", r->data.text.spacing);
+      out->printf(" %g", r->data.text.spacing);
   }
   else if (r->data.text.spacing != render_spacing)
-    out->printf(" %.3f Tc", render_spacing = r->data.text.spacing);
+    out->printf(" %g Tc", render_spacing = r->data.text.spacing);
 
   write_string(out, r->data.text.buffer);
 
@@ -12368,7 +12325,7 @@ write_type1(hdFile      *out,		/* I - File to write to */
     line[0] = '\0';
 
     while (fp->gets(line, sizeof(line)))
-      out->printf("%s\n", line);
+      out->puts(line);
 
     out->puts("%%EndResource\n");
 
