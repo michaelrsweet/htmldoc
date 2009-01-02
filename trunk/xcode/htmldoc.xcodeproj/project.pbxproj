@@ -32,23 +32,17 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		277634030F0D1227007E194E /* rc4.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 277634020F0D1227007E194E /* rc4.cxx */; };
+		27CD4E3B0F09992100E552E8 /* array.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27CD4E390F09992100E552E8 /* array.cxx */; };
 		27DD25500EC01A3300B76D4E /* entity.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252B0EC01A3300B76D4E /* entity.cxx */; };
-		27DD25510EC01A3300B76D4E /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252C0EC01A3300B76D4E /* file.c */; };
 		27DD25520EC01A3300B76D4E /* html.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252F0EC01A3300B76D4E /* html.cxx */; };
 		27DD25530EC01A3300B76D4E /* htmldoc.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25310EC01A3300B76D4E /* htmldoc.cxx */; };
 		27DD25540EC01A3300B76D4E /* htmllib.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25330EC01A3300B76D4E /* htmllib.cxx */; };
-		27DD25550EC01A3300B76D4E /* htmlsep.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25340EC01A3300B76D4E /* htmlsep.cxx */; };
-		27DD25560EC01A3300B76D4E /* http-addr.c in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25350EC01A3300B76D4E /* http-addr.c */; };
-		27DD25570EC01A3300B76D4E /* http-addrlist.c in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25360EC01A3300B76D4E /* http-addrlist.c */; };
-		27DD25580EC01A3300B76D4E /* http-support.c in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25380EC01A3300B76D4E /* http-support.c */; };
-		27DD25590EC01A3300B76D4E /* http.c in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25390EC01A3300B76D4E /* http.c */; };
 		27DD255A0EC01A3300B76D4E /* image.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD253B0EC01A3300B76D4E /* image.cxx */; };
 		27DD255B0EC01A3300B76D4E /* index.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD253D0EC01A3300B76D4E /* index.cxx */; };
 		27DD255C0EC01A3300B76D4E /* margin.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD253E0EC01A3300B76D4E /* margin.cxx */; };
-		27DD255D0EC01A3300B76D4E /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25400EC01A3300B76D4E /* md5.c */; };
 		27DD255E0EC01A3300B76D4E /* progress.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25420EC01A3300B76D4E /* progress.cxx */; };
 		27DD255F0EC01A3300B76D4E /* ps-pdf.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25440EC01A3300B76D4E /* ps-pdf.cxx */; };
-		27DD25600EC01A3300B76D4E /* rc4.c in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25450EC01A3300B76D4E /* rc4.c */; };
 		27DD25610EC01A3300B76D4E /* style.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25470EC01A3300B76D4E /* style.cxx */; };
 		27DD25620EC01A3300B76D4E /* stylefont.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25490EC01A3300B76D4E /* stylefont.cxx */; };
 		27DD25630EC01A3300B76D4E /* stylemedia.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD254A0EC01A3300B76D4E /* stylemedia.cxx */; };
@@ -217,6 +211,23 @@
 		27DD27020EC0297800B76D4E /* prolog.ps in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27DD26E90EC0297800B76D4E /* prolog.ps */; };
 		27DD27030EC0297800B76D4E /* psglyphs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27DD26EA0EC0297800B76D4E /* psglyphs */; };
 		27DD27040EC0297800B76D4E /* standard.css in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27DD26EB0EC0297800B76D4E /* standard.css */; };
+		27EB2FC00F07B8200034DB3C /* file-ascii.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FAF0F07B8200034DB3C /* file-ascii.cxx */; };
+		27EB2FC10F07B8200034DB3C /* file-common.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB00F07B8200034DB3C /* file-common.cxx */; };
+		27EB2FC20F07B8200034DB3C /* file-flate.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB10F07B8200034DB3C /* file-flate.cxx */; };
+		27EB2FC30F07B8200034DB3C /* file-jpeg.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB20F07B8200034DB3C /* file-jpeg.cxx */; };
+		27EB2FC40F07B8200034DB3C /* file-mem.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB30F07B8200034DB3C /* file-mem.cxx */; };
+		27EB2FC50F07B8200034DB3C /* file-open.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB40F07B8200034DB3C /* file-open.cxx */; };
+		27EB2FC60F07B8200034DB3C /* file-rc4.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB50F07B8200034DB3C /* file-rc4.cxx */; };
+		27EB2FC70F07B8200034DB3C /* file-std.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB60F07B8200034DB3C /* file-std.cxx */; };
+		27EB2FC80F07B8200034DB3C /* file.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB70F07B8200034DB3C /* file.cxx */; };
+		27EB2FC90F07B8200034DB3C /* http-md5.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB80F07B8200034DB3C /* http-md5.cxx */; };
+		27EB2FCA0F07B8200034DB3C /* http.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FB90F07B8200034DB3C /* http.cxx */; };
+		27EB2FCB0F07B8200034DB3C /* image-bmp.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FBA0F07B8200034DB3C /* image-bmp.cxx */; };
+		27EB2FCC0F07B8200034DB3C /* image-gif.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FBB0F07B8200034DB3C /* image-gif.cxx */; };
+		27EB2FCD0F07B8200034DB3C /* image-jpeg.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FBC0F07B8200034DB3C /* image-jpeg.cxx */; };
+		27EB2FCE0F07B8200034DB3C /* image-png.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FBD0F07B8200034DB3C /* image-png.cxx */; };
+		27EB2FCF0F07B8200034DB3C /* image-reduce.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FBE0F07B8200034DB3C /* image-reduce.cxx */; };
+		27EB2FD00F07B8200034DB3C /* md5.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27EB2FBF0F07B8200034DB3C /* md5.cxx */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -362,10 +373,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		277634020F0D1227007E194E /* rc4.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rc4.cxx; path = ../htmldoc/rc4.cxx; sourceTree = SOURCE_ROOT; };
+		27CD4E390F09992100E552E8 /* array.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = array.cxx; path = ../htmldoc/array.cxx; sourceTree = SOURCE_ROOT; };
+		27CD4E3A0F09992100E552E8 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = ../htmldoc/array.h; sourceTree = SOURCE_ROOT; };
 		27DD25290EC019F500B76D4E /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		27DD252A0EC01A3300B76D4E /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = ../htmldoc/debug.h; sourceTree = SOURCE_ROOT; };
 		27DD252B0EC01A3300B76D4E /* entity.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entity.cxx; path = ../htmldoc/entity.cxx; sourceTree = SOURCE_ROOT; };
-		27DD252C0EC01A3300B76D4E /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file.c; path = ../htmldoc/file.c; sourceTree = SOURCE_ROOT; };
 		27DD252D0EC01A3300B76D4E /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file.h; path = ../htmldoc/file.h; sourceTree = SOURCE_ROOT; };
 		27DD252E0EC01A3300B76D4E /* hdstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hdstring.h; path = ../htmldoc/hdstring.h; sourceTree = SOURCE_ROOT; };
 		27DD252F0EC01A3300B76D4E /* html.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = html.cxx; path = ../htmldoc/html.cxx; sourceTree = SOURCE_ROOT; };
@@ -373,24 +386,16 @@
 		27DD25310EC01A3300B76D4E /* htmldoc.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmldoc.cxx; path = ../htmldoc/htmldoc.cxx; sourceTree = SOURCE_ROOT; };
 		27DD25320EC01A3300B76D4E /* htmldoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = htmldoc.h; path = ../htmldoc/htmldoc.h; sourceTree = SOURCE_ROOT; };
 		27DD25330EC01A3300B76D4E /* htmllib.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmllib.cxx; path = ../htmldoc/htmllib.cxx; sourceTree = SOURCE_ROOT; };
-		27DD25340EC01A3300B76D4E /* htmlsep.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmlsep.cxx; path = ../htmldoc/htmlsep.cxx; sourceTree = SOURCE_ROOT; };
-		27DD25350EC01A3300B76D4E /* http-addr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "http-addr.c"; path = "../htmldoc/http-addr.c"; sourceTree = SOURCE_ROOT; };
-		27DD25360EC01A3300B76D4E /* http-addrlist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "http-addrlist.c"; path = "../htmldoc/http-addrlist.c"; sourceTree = SOURCE_ROOT; };
-		27DD25370EC01A3300B76D4E /* http-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "http-private.h"; path = "../htmldoc/http-private.h"; sourceTree = SOURCE_ROOT; };
-		27DD25380EC01A3300B76D4E /* http-support.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "http-support.c"; path = "../htmldoc/http-support.c"; sourceTree = SOURCE_ROOT; };
-		27DD25390EC01A3300B76D4E /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = ../htmldoc/http.c; sourceTree = SOURCE_ROOT; };
 		27DD253A0EC01A3300B76D4E /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http.h; path = ../htmldoc/http.h; sourceTree = SOURCE_ROOT; };
 		27DD253B0EC01A3300B76D4E /* image.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = image.cxx; path = ../htmldoc/image.cxx; sourceTree = SOURCE_ROOT; };
 		27DD253C0EC01A3300B76D4E /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../htmldoc/image.h; sourceTree = SOURCE_ROOT; };
 		27DD253D0EC01A3300B76D4E /* index.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = index.cxx; path = ../htmldoc/index.cxx; sourceTree = SOURCE_ROOT; };
 		27DD253E0EC01A3300B76D4E /* margin.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = margin.cxx; path = ../htmldoc/margin.cxx; sourceTree = SOURCE_ROOT; };
 		27DD253F0EC01A3300B76D4E /* margin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = margin.h; path = ../htmldoc/margin.h; sourceTree = SOURCE_ROOT; };
-		27DD25400EC01A3300B76D4E /* md5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = md5.c; path = ../htmldoc/md5.c; sourceTree = SOURCE_ROOT; };
 		27DD25410EC01A3300B76D4E /* md5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = md5.h; path = ../htmldoc/md5.h; sourceTree = SOURCE_ROOT; };
 		27DD25420EC01A3300B76D4E /* progress.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = progress.cxx; path = ../htmldoc/progress.cxx; sourceTree = SOURCE_ROOT; };
 		27DD25430EC01A3300B76D4E /* progress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = progress.h; path = ../htmldoc/progress.h; sourceTree = SOURCE_ROOT; };
 		27DD25440EC01A3300B76D4E /* ps-pdf.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "ps-pdf.cxx"; path = "../htmldoc/ps-pdf.cxx"; sourceTree = SOURCE_ROOT; };
-		27DD25450EC01A3300B76D4E /* rc4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rc4.c; path = ../htmldoc/rc4.c; sourceTree = SOURCE_ROOT; };
 		27DD25460EC01A3300B76D4E /* rc4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rc4.h; path = ../htmldoc/rc4.h; sourceTree = SOURCE_ROOT; };
 		27DD25470EC01A3300B76D4E /* style.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = style.cxx; path = ../htmldoc/style.cxx; sourceTree = SOURCE_ROOT; };
 		27DD25480EC01A3300B76D4E /* style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = style.h; path = ../htmldoc/style.h; sourceTree = SOURCE_ROOT; };
@@ -562,6 +567,23 @@
 		27DD26E90EC0297800B76D4E /* prolog.ps */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = prolog.ps; path = ../data/prolog.ps; sourceTree = SOURCE_ROOT; };
 		27DD26EA0EC0297800B76D4E /* psglyphs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = psglyphs; path = ../data/psglyphs; sourceTree = SOURCE_ROOT; };
 		27DD26EB0EC0297800B76D4E /* standard.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = standard.css; path = ../data/standard.css; sourceTree = SOURCE_ROOT; };
+		27EB2FAF0F07B8200034DB3C /* file-ascii.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "file-ascii.cxx"; path = "../htmldoc/file-ascii.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB00F07B8200034DB3C /* file-common.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "file-common.cxx"; path = "../htmldoc/file-common.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB10F07B8200034DB3C /* file-flate.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "file-flate.cxx"; path = "../htmldoc/file-flate.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB20F07B8200034DB3C /* file-jpeg.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "file-jpeg.cxx"; path = "../htmldoc/file-jpeg.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB30F07B8200034DB3C /* file-mem.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "file-mem.cxx"; path = "../htmldoc/file-mem.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB40F07B8200034DB3C /* file-open.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "file-open.cxx"; path = "../htmldoc/file-open.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB50F07B8200034DB3C /* file-rc4.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "file-rc4.cxx"; path = "../htmldoc/file-rc4.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB60F07B8200034DB3C /* file-std.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "file-std.cxx"; path = "../htmldoc/file-std.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB70F07B8200034DB3C /* file.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = file.cxx; path = ../htmldoc/file.cxx; sourceTree = SOURCE_ROOT; };
+		27EB2FB80F07B8200034DB3C /* http-md5.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "http-md5.cxx"; path = "../htmldoc/http-md5.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FB90F07B8200034DB3C /* http.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http.cxx; path = ../htmldoc/http.cxx; sourceTree = SOURCE_ROOT; };
+		27EB2FBA0F07B8200034DB3C /* image-bmp.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "image-bmp.cxx"; path = "../htmldoc/image-bmp.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FBB0F07B8200034DB3C /* image-gif.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "image-gif.cxx"; path = "../htmldoc/image-gif.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FBC0F07B8200034DB3C /* image-jpeg.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "image-jpeg.cxx"; path = "../htmldoc/image-jpeg.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FBD0F07B8200034DB3C /* image-png.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "image-png.cxx"; path = "../htmldoc/image-png.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FBE0F07B8200034DB3C /* image-reduce.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "image-reduce.cxx"; path = "../htmldoc/image-reduce.cxx"; sourceTree = SOURCE_ROOT; };
+		27EB2FBF0F07B8200034DB3C /* md5.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = md5.cxx; path = ../htmldoc/md5.cxx; sourceTree = SOURCE_ROOT; };
 		8DD76F6C0486A84900D96B5E /* htmldoc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = htmldoc; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -610,6 +632,26 @@
 		08FB7795FE84155DC02AAC07 /* htmldoc */ = {
 			isa = PBXGroup;
 			children = (
+				277634020F0D1227007E194E /* rc4.cxx */,
+				27CD4E390F09992100E552E8 /* array.cxx */,
+				27CD4E3A0F09992100E552E8 /* array.h */,
+				27EB2FAF0F07B8200034DB3C /* file-ascii.cxx */,
+				27EB2FB00F07B8200034DB3C /* file-common.cxx */,
+				27EB2FB10F07B8200034DB3C /* file-flate.cxx */,
+				27EB2FB20F07B8200034DB3C /* file-jpeg.cxx */,
+				27EB2FB30F07B8200034DB3C /* file-mem.cxx */,
+				27EB2FB40F07B8200034DB3C /* file-open.cxx */,
+				27EB2FB50F07B8200034DB3C /* file-rc4.cxx */,
+				27EB2FB60F07B8200034DB3C /* file-std.cxx */,
+				27EB2FB70F07B8200034DB3C /* file.cxx */,
+				27EB2FB80F07B8200034DB3C /* http-md5.cxx */,
+				27EB2FB90F07B8200034DB3C /* http.cxx */,
+				27EB2FBA0F07B8200034DB3C /* image-bmp.cxx */,
+				27EB2FBB0F07B8200034DB3C /* image-gif.cxx */,
+				27EB2FBC0F07B8200034DB3C /* image-jpeg.cxx */,
+				27EB2FBD0F07B8200034DB3C /* image-png.cxx */,
+				27EB2FBE0F07B8200034DB3C /* image-reduce.cxx */,
+				27EB2FBF0F07B8200034DB3C /* md5.cxx */,
 				27DD26450EC024FA00B76D4E /* string.c */,
 				27DD263C0EC024AA00B76D4E /* libcrypto.dylib */,
 				27DD263E0EC024CB00B76D4E /* libssl.dylib */,
@@ -617,7 +659,6 @@
 				8DD76F6C0486A84900D96B5E /* htmldoc */,
 				27DD252A0EC01A3300B76D4E /* debug.h */,
 				27DD252B0EC01A3300B76D4E /* entity.cxx */,
-				27DD252C0EC01A3300B76D4E /* file.c */,
 				27DD252D0EC01A3300B76D4E /* file.h */,
 				27DD252E0EC01A3300B76D4E /* hdstring.h */,
 				27DD252F0EC01A3300B76D4E /* html.cxx */,
@@ -625,24 +666,16 @@
 				27DD25310EC01A3300B76D4E /* htmldoc.cxx */,
 				27DD25320EC01A3300B76D4E /* htmldoc.h */,
 				27DD25330EC01A3300B76D4E /* htmllib.cxx */,
-				27DD25340EC01A3300B76D4E /* htmlsep.cxx */,
-				27DD25350EC01A3300B76D4E /* http-addr.c */,
-				27DD25360EC01A3300B76D4E /* http-addrlist.c */,
-				27DD25370EC01A3300B76D4E /* http-private.h */,
-				27DD25380EC01A3300B76D4E /* http-support.c */,
-				27DD25390EC01A3300B76D4E /* http.c */,
 				27DD253A0EC01A3300B76D4E /* http.h */,
 				27DD253B0EC01A3300B76D4E /* image.cxx */,
 				27DD253C0EC01A3300B76D4E /* image.h */,
 				27DD253D0EC01A3300B76D4E /* index.cxx */,
 				27DD253E0EC01A3300B76D4E /* margin.cxx */,
 				27DD253F0EC01A3300B76D4E /* margin.h */,
-				27DD25400EC01A3300B76D4E /* md5.c */,
 				27DD25410EC01A3300B76D4E /* md5.h */,
 				27DD25420EC01A3300B76D4E /* progress.cxx */,
 				27DD25430EC01A3300B76D4E /* progress.h */,
 				27DD25440EC01A3300B76D4E /* ps-pdf.cxx */,
-				27DD25450EC01A3300B76D4E /* rc4.c */,
 				27DD25460EC01A3300B76D4E /* rc4.h */,
 				27DD25470EC01A3300B76D4E /* style.cxx */,
 				27DD25480EC01A3300B76D4E /* style.h */,
@@ -1035,22 +1068,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				27DD25500EC01A3300B76D4E /* entity.cxx in Sources */,
-				27DD25510EC01A3300B76D4E /* file.c in Sources */,
 				27DD25520EC01A3300B76D4E /* html.cxx in Sources */,
 				27DD25530EC01A3300B76D4E /* htmldoc.cxx in Sources */,
 				27DD25540EC01A3300B76D4E /* htmllib.cxx in Sources */,
-				27DD25550EC01A3300B76D4E /* htmlsep.cxx in Sources */,
-				27DD25560EC01A3300B76D4E /* http-addr.c in Sources */,
-				27DD25570EC01A3300B76D4E /* http-addrlist.c in Sources */,
-				27DD25580EC01A3300B76D4E /* http-support.c in Sources */,
-				27DD25590EC01A3300B76D4E /* http.c in Sources */,
 				27DD255A0EC01A3300B76D4E /* image.cxx in Sources */,
 				27DD255B0EC01A3300B76D4E /* index.cxx in Sources */,
 				27DD255C0EC01A3300B76D4E /* margin.cxx in Sources */,
-				27DD255D0EC01A3300B76D4E /* md5.c in Sources */,
 				27DD255E0EC01A3300B76D4E /* progress.cxx in Sources */,
 				27DD255F0EC01A3300B76D4E /* ps-pdf.cxx in Sources */,
-				27DD25600EC01A3300B76D4E /* rc4.c in Sources */,
 				27DD25610EC01A3300B76D4E /* style.cxx in Sources */,
 				27DD25620EC01A3300B76D4E /* stylefont.cxx in Sources */,
 				27DD25630EC01A3300B76D4E /* stylemedia.cxx in Sources */,
@@ -1059,6 +1084,25 @@
 				27DD25660EC01A3300B76D4E /* toc.cxx in Sources */,
 				27DD25670EC01A3300B76D4E /* util.cxx in Sources */,
 				27DD26460EC024FA00B76D4E /* string.c in Sources */,
+				27EB2FC00F07B8200034DB3C /* file-ascii.cxx in Sources */,
+				27EB2FC10F07B8200034DB3C /* file-common.cxx in Sources */,
+				27EB2FC20F07B8200034DB3C /* file-flate.cxx in Sources */,
+				27EB2FC30F07B8200034DB3C /* file-jpeg.cxx in Sources */,
+				27EB2FC40F07B8200034DB3C /* file-mem.cxx in Sources */,
+				27EB2FC50F07B8200034DB3C /* file-open.cxx in Sources */,
+				27EB2FC60F07B8200034DB3C /* file-rc4.cxx in Sources */,
+				27EB2FC70F07B8200034DB3C /* file-std.cxx in Sources */,
+				27EB2FC80F07B8200034DB3C /* file.cxx in Sources */,
+				27EB2FC90F07B8200034DB3C /* http-md5.cxx in Sources */,
+				27EB2FCA0F07B8200034DB3C /* http.cxx in Sources */,
+				27EB2FCB0F07B8200034DB3C /* image-bmp.cxx in Sources */,
+				27EB2FCC0F07B8200034DB3C /* image-gif.cxx in Sources */,
+				27EB2FCD0F07B8200034DB3C /* image-jpeg.cxx in Sources */,
+				27EB2FCE0F07B8200034DB3C /* image-png.cxx in Sources */,
+				27EB2FCF0F07B8200034DB3C /* image-reduce.cxx in Sources */,
+				27EB2FD00F07B8200034DB3C /* md5.cxx in Sources */,
+				27CD4E3B0F09992100E552E8 /* array.cxx in Sources */,
+				277634030F0D1227007E194E /* rc4.cxx in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

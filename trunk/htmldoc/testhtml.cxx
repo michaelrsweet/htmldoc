@@ -1,28 +1,28 @@
 //
 // "$Id$"
 //
-//   Test program for HTML parsing routines for HTMLDOC, an HTML document
-//   processing program.
+// Test program for HTML parsing routines for HTMLDOC, an HTML document
+// processing program.
 //
-//   Copyright 1997-2006 by Easy Software Products.
+// Copyright 1997-2008 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
-//   main() - Main entry for test program.
+// main() - Main entry for test program.
 //
 
 //
@@ -46,11 +46,12 @@ main(int  argc,			/* I - Number of command-line arguments */
      char *argv[])		/* I - Command-line arguments */
 {
   int		i;		/* Looping var */
-  FILE		*fp;		/* Input file */
+  hdFile	*fp;		/* Input file */
   hdTree	*t,		/* HTML markup tree */
 		*doc,		/* HTML document */
 		*toc;		/* Table of contents */
-  char		base[1024];	/* Base directory */
+  char		base[1024],	/* Base directory */
+		found[1024];	/* Found file */
 
 
 #ifdef DEBUG
@@ -144,19 +145,16 @@ main(int  argc,			/* I - Number of command-line arguments */
   _htmlData = "..";
 
   htmlInitStyleSheet();
+
+  hdStdFile *hdstdout = new hdStdFile(stdout, HD_FILE_WRITE);
   htmlSetDebugFile(stdout);
 
   for (i = 1, doc = NULL; i < argc; i ++)
-    if ((fp = fopen(file_find("", argv[i]), "r")) != NULL)
+    if ((fp = hdFile::open(hdFile::find("", argv[i], found, sizeof(found)),
+                           HD_FILE_READ)) != NULL)
     {
-      strlcpy(base, argv[i], sizeof(base));
-      if (strrchr(base, '/') != NULL)
-        *strrchr(base, '/') = '\0';
-      else
-        base[0] = '\0';
-
-      t = htmlReadFile(NULL, fp, base);
-      fclose(fp);
+      t = htmlReadFile(NULL, fp, hdFile::dirname(found, base, sizeof(base)));
+      delete fp;
 
       if (t != NULL)
         if (doc == NULL)
@@ -172,10 +170,10 @@ main(int  argc,			/* I - Number of command-line arguments */
 
   if (doc != NULL)
   {
-    htmlWriteFile(doc, stdout);
+    htmlWriteFile(doc, hdstdout);
     toc = toc_build(doc, NULL);
     puts("---- TABLE OF CONTENTS ----");
-    htmlWriteFile(toc, stdout);
+    htmlWriteFile(toc, hdstdout);
   }
 
   return (doc == NULL);

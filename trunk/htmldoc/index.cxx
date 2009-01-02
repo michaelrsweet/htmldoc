@@ -1,23 +1,22 @@
 //
 // "$Id$"
 //
-//   Indexing methods for HTMLDOC, a HTML document processing program.
+// Indexing methods for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2006 by Easy Software Products.
+// Copyright 1997-2008 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
@@ -98,7 +97,7 @@ hdTree *				// O - Index tree
 index_build(hdTree     *doc,		// I - Document
             const char *words)		// I - File containing phrases
 {
-  FILE		*fp;			// File pointer
+  hdFile	*fp;			// File pointer
   int		i,			// Looping var
 		num_phrases,		// Number of phrases
 		alloc_phrases;		// Allocated phrases
@@ -113,10 +112,10 @@ index_build(hdTree     *doc,		// I - Document
   num_phrases   = 0;
   alloc_phrases = 0;
 
-  if ((fp = fopen(words, "rb")) == NULL)
+  if ((fp = hdFile::open(words, HD_FILE_READ)) == NULL)
     return (NULL);
 
-  while (file_gets(phrase, sizeof(phrase), fp))
+  while (fp->gets(phrase, sizeof(phrase)))
   {
     if (num_phrases >= alloc_phrases)
     {
@@ -135,6 +134,8 @@ index_build(hdTree     *doc,		// I - Document
     phrases[num_phrases] = strdup(phrase);
     num_phrases ++;
   }
+
+  delete fp;
 
   // Build the index...
   ind = index_doc(doc, num_phrases, phrases);
@@ -380,11 +381,11 @@ hdIndex::scan(hdTree *t)		// I - Document to scan
   for (target = NULL, number = 0; t; t = htmlRealNext(t))
   {
     // This method basically uses a "brute force" searching algorithm.
-    // The only optimizations we use use are a hash table that tells us
+    // The only optimizations we use are a hash table that tells us
     // where to start looking for matches, and we exit early if we
     // find a phrase that appears later in the comparison.
     //
-    // Index entries point to the most resent link target (<a name="foo">)
+    // Index entries point to the most recent link target (<a name="foo">)
     // and we make an attempt to update this link when a match is found.
     // (i.e. if a paragraph contains a target, we use that target...)
 

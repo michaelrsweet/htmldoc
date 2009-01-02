@@ -1,23 +1,22 @@
 //
 // "$Id$"
 //
-//   CSS font routines for HTMLDOC, a HTML document processing program.
+// CSS font routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2008 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
@@ -378,7 +377,7 @@ void
 hdStyleFont::load_widths(
     hdStyleSheet *css)			// I - Stylesheet
 {
-  FILE	*fp;				// File to read from
+  hdFile	*fp;			// File to read from
 
 
   // Free old font width data...
@@ -417,13 +416,13 @@ hdStyleFont::load_widths(
 
   memset(widths, 0, sizeof(float) * num_widths);
 
-  if ((fp = fopen(width_file, "rb")) != NULL)
+  if ((fp = hdFile::open(width_file, HD_FILE_READ)) != NULL)
   {
 //    printf("    filename=\"%s\"\n", filename);
 
     // Read the AFM file...
     read_afm(fp, css);
-    fclose(fp);
+    delete fp;
   }
 }
 
@@ -433,7 +432,7 @@ hdStyleFont::load_widths(
 //
 
 int					// O - 0 on success, -1 on error
-hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
+hdStyleFont::read_afm(hdFile       *fp,	// I - File to read from
                       hdStyleSheet *css)// I - Stylesheet
 {
   char		line[255],		// Line from file
@@ -450,7 +449,7 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
   // Loop through the AFM file...
   alloc_kerns = 0;
 
-  while (file_gets(line, sizeof(line), fp) != NULL)
+  while (fp->getline(line, sizeof(line)))
   {
     // Get the initial keyword...
     if ((lineptr = strchr(line, ' ')) != NULL)
@@ -590,7 +589,7 @@ hdStyleFont::read_afm(FILE         *fp,	// I - File to read from
 //
 
 int					// O - 0 on success, -1 on error
-hdStyleFont::read_ttf(FILE       *fp,	// I - File to read from
+hdStyleFont::read_ttf(hdFile       *fp,	// I - File to read from
                       hdStyleSheet *css)// I - Stylesheet
 {
   return (0);

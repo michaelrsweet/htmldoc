@@ -1,23 +1,23 @@
 #
-#   "$Id$"
+# "$Id$"
 #
-#   Makefile for HTMLDOC, an HTML document processing program.
+# Makefile for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2005 by Easy Software Products.
+# Copyright 1997-2008 by Easy Software Products.
 #
-#   These coded instructions, statements, and computer programs are the
-#   property of Easy Software Products and are protected by Federal
-#   copyright law.  Distribution and use rights are outlined in the file
-#   "COPYING.txt" which should have been included with this file.  If this
-#   file is missing or damaged please contact Easy Software Products
-#   at:
+# These coded instructions, statements, and computer programs are the
+# property of Easy Software Products and are protected by Federal
+# copyright law.  Distribution and use rights are outlined in the file
+# "COPYING.txt" which should have been included with this file.  If this
+# file is missing or damaged please contact Easy Software Products
+# at:
 #
-#       Attn: HTMLDOC Licensing Information
-#       Easy Software Products
-#       516 Rio Grand Ct
-#       Morgan Hill, CA 95037 USA
+#     Attn: HTMLDOC Licensing Information
+#     Easy Software Products
+#     516 Rio Grand Ct
+#     Morgan Hill, CA 95037 USA
 #
-#       http://www.htmldoc.org/
+#     http://www.htmldoc.org/
 #
 
 #
@@ -32,16 +32,27 @@ include ../Makedefs
 #
 
 BASEOBJS =	\
+		array.o \
 		entity.o \
 		file.o \
+		file-ascii.o \
+		file-common.o \
+		file-flate.o \
+		file-jpeg.o \
+		file-mem.o \
+		file-open.o \
+		file-rc4.o \
+		file-std.o \
 		html.o \
 		htmllib.o \
-		htmlsep.o \
 		http.o \
-		http-addr.o \
-		http-addrlist.o \
-		http-support.o \
+		http-md5.o \
 		image.o \
+		image-bmp.o \
+		image-gif.o \
+		image-jpeg.o \
+		image-png.o \
+		image-reduce.o \
 		index.o \
 		margin.o \
 		md5.o \
@@ -64,22 +75,32 @@ OBJS	=	\
 		teststyle.o
 SRCS	=	\
 		entity.cxx \
-		file.c \
+		file.cxx \
+		file-ascii.cxx \
+		file-common.cxx \
+		file-flate.cxx \
+		file-jpeg.cxx \
+		file-mem.cxx \
+		file-open.cxx \
+		file-rc4.cxx \
+		file-std.cxx \
 		html.cxx \
 		htmldoc.cxx \
 		htmllib.cxx \
 		htmlsep.cxx \
-		http.c \
-		http-addr.c \
-		http-addrlist.c \
-		http-support.c \
+		http.cxx \
+		http-md5.cxx \
 		image.cxx \
+		image-bmp.cxx \
+		image-gif.cxx \
+		image-jpeg.cxx \
+		image-png.cxx \
+		image-reduce.cxx \
 		index.cxx \
 		margin.cxx \
-		md5.c \
+		md5.cxx \
 		progress.cxx \
 		ps-pdf.cxx \
-		rc4.c \
 		snprintf.c \
 		string.c \
 		style.cxx \

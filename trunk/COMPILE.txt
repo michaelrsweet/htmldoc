@@ -1,4 +1,4 @@
-COMPILE.txt - 06/18/2006
+COMPILE.txt - 2009-01-02
 ------------------------
 
 REQUIREMENTS
@@ -7,11 +7,13 @@ REQUIREMENTS
     compilers (gcc is fine, most vendor compilers work, too). 
     The JPEG, PNG, and ZLIB libraries are provided with HTMLDOC.
 
+    The OpenSSL library is required for SSL (https) support.
+
 
 COMPILING HTMLDOC UNDER WINDOWS
 
     For the Windows version we have included Visual C++.NET
-    solution and project files under the "vcnet" directory. You
+    solution and project files under the "vcnet" directory.  You
     must add the OpenSSL include and library directories to your
     VC++ environment options.
 

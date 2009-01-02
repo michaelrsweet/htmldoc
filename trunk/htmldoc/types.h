@@ -3,7 +3,7 @@
  *
  *   Common data types for HTMLDOC, an HTML document processing program.
  *
- *   Copyright 1997-2005 by Easy Software Products.
+ *   Copyright 1997-2008 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -24,10 +24,12 @@
 #  define _TYPES_H_
 
 #  include "config.h"
+#  include <sys/types.h>
 
 typedef unsigned char hdByte;
 typedef unsigned char hdChar;
 typedef hdChar *hdUTF8;
+typedef unsigned int hdWord;
 
 
 //

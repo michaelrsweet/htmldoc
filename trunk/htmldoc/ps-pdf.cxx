@@ -1,42 +1,124 @@
-/*
- * "$Id$"
- *
- *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
- *   program.
- *
- *   Just in case you didn't notice it, this file is too big; it will be
- *   broken into more manageable pieces once we make all of the output
- *   "drivers" into classes...
- *
- *   Copyright 1997-2008 by Easy Software Products.
- *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *       Attn: HTMLDOC Licensing Information
- *       Easy Software Products
- *       516 Rio Grand Ct
- *       Morgan Hill, CA 95037 USA
- *
- *       http://www.htmldoc.org/
- *
- * Contents:
- *
- */
+//
+// "$Id$"
+//
+// PostScript + PDF output routines for HTMLDOC, a HTML document processing
+// program.
+//
+// Just in case you didn't notice it, this file is too big; it will be
+// broken into more manageable pieces once we make all of the output
+// "drivers" into classes...
+//
+// Copyright 1997-2009 Easy Software Products.
+//
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
+//
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
+//
+//     http://www.htmldoc.org/
+//
+// Contents:
+//
+//   pspdf_export()           - Export PostScript/PDF file(s)...
+//   pspdf_debug_stats()      - Display debug statistics for render memory use.
+//   pspdf_transform_coords() - Transform page coordinates.
+//   pspdf_transform_page()   - Transform a page.
+//   pspdf_prepare_outpages() - Prepare output pages...
+//   pspdf_prepare_page()     - Add headers/footers to page before writing...
+//   pspdf_prepare_heading()  - Add headers/footers to page before writing...
+//   ps_write_document()      - Write all render entities to PostScript file(s).
+//   ps_write_outpage()       - Write an output page.
+//   ps_write_page()          - Write all render entities on a page to a
+//                              PostScript file.
+//   ps_write_background()    - Write a background image...
+//   pdf_write_document()     - Write all render entities to a PDF file.
+//   pdf_write_resources()    - Write the resources dictionary for a page.
+//   pdf_write_outpage()      - Write an output page.
+//   pdf_write_page()         - Write a page to a PDF file.
+//   pdf_write_contents()     - Write the table of contents as outline records
+//                              to a PDF file.
+//   pdf_write_files()        - Write an outline of HTML files.
+//   pdf_count_headings()     - Count the number of headings under this TOC
+//                              entry.
+//   pdf_start_object()       - Start a new PDF object...
+//   pdf_start_stream()       - Start a new PDF stream...
+//   pdf_end_object()         - End a PDF object...
+//   pdf_write_links()        - Write annotation link objects for each page in
+//                              the document.
+//   pdf_write_names()        - Write named destinations for each link.
+//   render_contents()        - Render a single heading.
+//   count_headings()         - Count the number of headings in the TOC.
+//   parse_contents()         - Parse the table of contents and produce a
+//                              rendering list...
+//   parse_doc()              - Parse a document tree and produce rendering list
+//                              output.
+//   parse_heading()          - Parse a heading tree and produce rendering list
+//                              output.
+//   parse_paragraph()        - Parse a paragraph tree and produce rendering
+//                              list output.
+//   parse_pre()              - Parse preformatted text and produce rendering
+//                              list output.
+//   render_table_row()       - Render a table row.
+//   parse_table()            - Parse a table and produce rendering output.
+//   parse_list()             - Parse a list entry and produce rendering output.
+//   init_list()              - Initialize the list type and value as necessary.
+//   parse_comment()          - Parse a comment for HTMLDOC comments.
+//   real_prev()              - Return the previous non-link markup in the tree.
+//   real_next()              - Return the next non-link markup in the tree.
+//   find_background()        - Find the background image/color for the given
+//                              document.
+//   write_background()       - Write the background image/color for to the
+//                              current page.
+//   new_render()             - Allocate memory for a new rendering structure.
+//   check_pages()            - Allocate memory for more pages as needed...
+//   add_link()               - Add a named link...
+//   find_link()              - Find a named link...
+//   compare_links()          - Compare two named links.
+//   copy_tree()              - Copy a markup tree...
+//   get_cell_size()          - Compute the minimum width of a cell.
+//   get_table_size()         - Compute the minimum width of a table.
+//   flatten_tree()           - Flatten an HTML tree to only include the text,
+//                              image, link, and break markups.
+//   update_image_size()      - Update the size of an image based upon the
+//                              printable width.
+//   get_title()              - Get the title string for a document.
+//   open_file()              - Open an output file for the current chapter.
+//   set_color()              - Set the current text color...
+//   set_font()               - Set the current text font.
+//   set_pos()                - Set the current text position.
+//   jpg_setup()              - Setup the JPEG compressor for writing an image.
+//   compare_rgb()            - Compare two RGB colors...
+//   write_image()            - Write an image to the given output file...
+//   write_imagemask()        - Write an imagemask to the output file...
+//   write_prolog()           - Write the file prolog...
+//   write_string()           - Write a text entity.
+//   write_text()             - Write a text entity.
+//   write_trailer()          - Write the file trailer.
+//   write_type1()            - Write an embedded Type 1 font.
+//   write_utf16()            - Write a UTF-16 string...
+//   encrypt_init()           - Initialize the RC4 encryption context for the
+//                              current object.
+//   update_index()           - Update the index to use page numbers instead of
+//                              link numbers.
+//
 
-/*
- * Include necessary headers.
- */
+//
+// Include necessary headers.
+//
 
 /*#define DEBUG*/
 #include "htmldoc.h"
 #include "margin.h"
 #include "md5.h"
 #include "rc4.h"
+#include "array.h"
 #include <stdarg.h>
 #include <ctype.h>
 #include <time.h>
@@ -65,9 +147,9 @@ extern "C" {		/* Workaround for JPEG header problems... */
 //#define HTMLDOC_INTERPOLATION
 
 
-/*
- * Constants...
- */
+//
+// Constants...
+//
 
 #define HD_RENDER_TEXT	0		/* Text fragment */
 #define HD_RENDER_IMAGE	1		/* Image */
@@ -76,9 +158,9 @@ extern "C" {		/* Workaround for JPEG header problems... */
 #define HD_RENDER_BG	4		/* Background */
 
 
-/*
- * Structures...
- */
+//
+// Structures...
+//
 
 struct hdRender				/**** Render entity structure ****/
 {
@@ -154,9 +236,9 @@ struct hdOutPage			//// Output page info
 };
 
 
-/*
- * Timezone offset for dates, below...
- */
+//
+// Timezone offset for dates, below...
+//
 
 #ifdef HAVE_TM_GMTOFF
 #  define timezone (doc_date->tm_gmtoff)
@@ -165,9 +247,9 @@ struct hdOutPage			//// Output page info
 #endif /* HAVE_TM_GMTOFF */
 
 
-/*
- * Local globals...
- */
+//
+// Local globals...
+//
 
 static time_t	doc_time;		// Current time
 static struct tm *doc_date;		// Current date
@@ -213,16 +295,13 @@ static int	num_objects = 0,
 		font_objects[HD_FONT_FACE_MAX * HD_FONT_INTERNAL_MAX];
 
 static hdChar	*doc_title = NULL;
-static hdImage	*logo_image = NULL;
 static float	logo_width,
 		logo_height;
 
-static hdImage	*hfimage[MAX_HF_IMAGES];
-static float	hfimage_width[MAX_HF_IMAGES],
-		hfimage_height[MAX_HF_IMAGES];
+static float	hdimage_width[MAX_HF_IMAGES],
+		hdimage_height[MAX_HF_IMAGES];
 static float    maxhfheight;
 
-static hdImage	*background_image = NULL;
 static float	background_color[3] = { 1.0, 1.0, 1.0 },
 		link_color[3] = { 0.0, 0.0, 1.0 };
 
@@ -235,25 +314,21 @@ static float	render_size,
 		render_startx,
 		render_spacing;
 
-static int		compressor_active = 0;
-static z_stream		compressor;
-static hdChar		comp_buffer[8192];
 static hdChar		encrypt_key[16];
 static int		encrypt_len;
-static rc4_context_t	encrypt_state;
-static md5_byte_t	file_id[16];
+static hdByte		file_id[16];
 
 
 inline bool				// O - true if base font, false otherwise
 is_base_font(int face)			// I - Font face */
 {
-  return (face <= HD_FONT_FACE_TIMES || face == HD_FONT_FACE_SYMBOL);
+  return (face < HD_FONT_FACE_MONOSPACE || face == HD_FONT_FACE_SYMBOL);
 }
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
@@ -271,35 +346,30 @@ static void	pspdf_prepare_heading(int page, int print_page, hdChar **format,
 static void	ps_write_document(hdChar *author, hdChar *creator,
 		                  hdChar *copyright, hdChar *keywords,
 				  hdChar *subject);
-static void	ps_write_outpage(FILE *out, int outpage);
-static void	ps_write_page(FILE *out, int page);
-static void	ps_write_background(FILE *out);
+static void	ps_write_outpage(hdFile *out, int outpage);
+static void	ps_write_page(hdFile *out, int page);
+static void	ps_write_background(hdFile *out);
 static void	pdf_write_document(hdChar *author, hdChar *creator,
 		                   hdChar *copyright, hdChar *keywords,
 				   hdChar *subject, hdTree *doc, hdTree *toc);
-static void	pdf_write_outpage(FILE *out, int outpage);
-static void	pdf_write_page(FILE *out, int page);
-static void	pdf_write_resources(FILE *out, int page);
+static void	pdf_write_outpage(hdFile *out, int outpage);
+static void	pdf_write_page(hdFile *out, int page);
+static void	pdf_write_resources(hdFile *out, int page);
 #ifdef DEBUG_TOC
-static void	pdf_text_contents(FILE *out, hdTree *toc, int indent = 0);
+static void	pdf_text_contents(hdFile *out, hdTree *toc, int indent = 0);
 #endif // DEBUG_TOC
-static void	pdf_write_contents(FILE *out, hdTree *toc, int parent,
+static void	pdf_write_contents(hdFile *out, hdTree *toc, int parent,
 		                   int prev, int next, int *heading);
-static void	pdf_write_files(FILE *out, hdTree *doc);
-static void	pdf_write_links(FILE *out);
-static void	pdf_write_names(FILE *out);
+static void	pdf_write_files(hdFile *out, hdTree *doc);
+static void	pdf_write_links(hdFile *out);
+static void	pdf_write_names(hdFile *out);
 static int	pdf_count_headings(hdTree *toc);
 
-static int	pdf_start_object(FILE *out, int array = 0);
-static void	pdf_start_stream(FILE *out);
-static void	pdf_end_object(FILE *out);
+static int	pdf_start_object(hdFile *out, int array = 0);
+static void	pdf_start_stream(hdFile *out);
+static void	pdf_end_object(hdFile *out);
 
-static void	encrypt_init(void);
-static void	flate_open_stream(FILE *out);
-static void	flate_close_stream(FILE *out);
-static void	flate_puts(const char *s, FILE *out);
-static void	flate_printf(FILE *out, const char *format, ...);
-static void	flate_write(FILE *out, hdChar *inbuf, int length, int flush=0);	
+static hdRC4Filter	*encrypt_init(hdFile *out);
 
 static void	parse_contents(hdTree *t, hdMargin *margins, float *y, int *page, int *heading,
 			       hdTree *chap);
@@ -329,7 +399,7 @@ static hdRenderLink	*find_link(hdChar *name);
 static int	compare_links(hdRenderLink *n1, hdRenderLink *n2);
 
 static void	find_background(hdTree *t);
-static void	write_background(int page, FILE *out);
+static void	write_background(hdFile *out, int page);
 
 static hdRender	*new_render(int page, int type, float x, float y,
 		            float width, float height, void *data,
@@ -344,30 +414,22 @@ static float	get_table_size(hdTree *t, float left, float right,
 static hdTree	*flatten_tree(hdTree *t);
 static void	update_image_size(hdTree *t);
 static hdChar	*get_title(hdTree *doc);
-static FILE	*open_file(void);
-static void	set_color(FILE *out, float *rgb);
-static void	set_font(FILE *out, int typeface, int style, float size);
-static void	set_pos(FILE *out, float x, float y);
-static void	write_prolog(FILE *out, int pages, hdChar *author,
+static hdFile	*open_file(void);
+static void	set_color(hdFile *out, float *rgb);
+static void	set_font(hdFile *out, int typeface, int style, float size);
+static void	set_pos(hdFile *out, float x, float y);
+static void	write_prolog(hdFile *out, int pages, hdChar *author,
 		             hdChar *creator, hdChar *copyright,
 			     hdChar *keywords, hdChar *subject);
-static void	ps_hex(FILE *out, hdChar *data, int length);
-#ifdef HTMLDOC_ASCII85
-static void	ps_ascii85(FILE *out, hdChar *data, int length, int eod = 0);
-#endif /* HTMLDOC_ASCII85 */
-static void	jpg_init(j_compress_ptr cinfo);
-static boolean	jpg_empty(j_compress_ptr cinfo);
-static void	jpg_term(j_compress_ptr cinfo);
-static void	jpg_setup(FILE *out, hdImage *img, j_compress_ptr cinfo);
 static int	compare_rgb(unsigned *rgb1, unsigned *rgb2);
-static void	write_image(FILE *out, hdRender *r, int write_obj = 0);
-static void	write_imagemask(FILE *out, hdRender *r);
-static void	write_string(FILE *out, hdChar *s, int compress);
-static void	write_text(FILE *out, hdRender *r);
-static void	write_trailer(FILE *out, int pages);
-static int	write_type1(FILE *out, hdFontFace typeface,
+static void	write_image(hdFile *out, hdRender *r, int write_obj = 0);
+static void	write_imagemask(hdFile *out, hdRender *r);
+static void	write_string(hdFile *out, hdChar *s);
+static void	write_text(hdFile *out, hdRender *r);
+static void	write_trailer(hdFile *out, int pages);
+static int	write_type1(hdFile *out, hdFontFace typeface,
 			    hdFontStyle style);
-static void	write_utf16(FILE *out, hdChar *s);
+static void	write_utf16(hdFile *out, hdChar *s);
 static int	update_index(hdTree *t, int last_page = -1);
 
 
@@ -381,7 +443,8 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 	     hdTree *ind)		// I - Index of document
 {
   int		i, j;			/* Looping vars */
-  const char	*title_file;		/* Location of title image/file */
+  char		title_file[1024],	/* Location of title file */
+		title_dirname[1024];	/* Directory of title file */
   hdChar	*author,		/* Author of document */
 		*creator,		/* HTML file creator (Netscape, etc) */
 		*copyright,		/* File copyright */
@@ -389,7 +452,7 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 		*keywords,		/* Search keywords */
 		*subject;		/* Subject */
   hdTree	*t;			/* Title page document tree */
-  FILE		*fp;			/* Title page file */
+  hdFile	*fp;			/* Title page file */
   float		x, y;			/* Current page position */
   float		width,			/* Width of title, author, etc */
 		height;			/* Height of title page area */
@@ -405,7 +468,6 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 		toc_right,
 		toc_bottom,
 		toc_top;
-  hdImage	*timage;		/* Title image */
   float		timage_width,		/* Title image width */
 		timage_height;		/* Title image height */
   hdStyle	*temp,			/* Current style for title page */
@@ -452,13 +514,12 @@ pspdf_export(hdTree *document,		/* I - Document to export */
   docnumber   = htmlGetMeta(document, "docnumber");
   keywords    = htmlGetMeta(document, "keywords");
   subject     = htmlGetMeta(document, "subject");
-  logo_image  = image_load(LogoImage, !OutputColor);
   maxhfheight = 0.0f;
 
-  if (logo_image != NULL)
+  if (LogoImage)
   {
-    logo_width  = logo_image->width * PagePrintWidth / _htmlStyleSheet->browser_width;
-    logo_height = logo_width * logo_image->height / logo_image->width;
+    logo_width  = LogoImage->width() * PagePrintWidth / _htmlStyleSheet->browser_width;
+    logo_height = logo_width * LogoImage->height() / LogoImage->width();
 
     if (logo_height > maxhfheight)
       maxhfheight = logo_height;
@@ -467,22 +528,18 @@ pspdf_export(hdTree *document,		/* I - Document to export */
     logo_width = logo_height = 0.0f;
 
   for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
-  {
-    hfimage[hfi] = image_load(HFImage[hfi], !OutputColor);
-
-    if (hfimage[hfi])
+    if (HFImage[hfi])
     {
-      hfimage_width[hfi]  = hfimage[hfi]->width * PagePrintWidth /
+      hdimage_width[hfi]  = HFImage[hfi]->width() * PagePrintWidth /
                             _htmlStyleSheet->browser_width;
-      hfimage_height[hfi] = hfimage_width[hfi] * hfimage[hfi]->height /
-                            hfimage[hfi]->width;
+      hdimage_height[hfi] = hdimage_width[hfi] * HFImage[hfi]->height() /
+                            HFImage[hfi]->width();
 
-      if (hfimage_height[hfi] > maxhfheight)
-        maxhfheight = hfimage_height[hfi];
+      if (hdimage_height[hfi] > maxhfheight)
+        maxhfheight = hdimage_height[hfi];
     }
     else
-      hfimage_width[hfi] = hfimage_height[hfi] = 0.0f;
-  }
+      hdimage_width[hfi] = hdimage_height[hfi] = 0.0f;
 
   find_background(document);
   get_color((hdChar *)LinkColor, link_color);
@@ -514,35 +571,32 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 
   if (TitlePage)
   {
-    if (TitleImage[0] &&
-        strcasecmp(file_extension(TitleImage), "bmp") != 0 &&
-	strcasecmp(file_extension(TitleImage), "gif") != 0 &&
-	strcasecmp(file_extension(TitleImage), "jpg") != 0 &&
-	strcasecmp(file_extension(TitleImage), "png") != 0)
+    if (TitleFile[0] && !TitleImage)
     {
       DEBUG_printf(("pspdf_export: Generating a titlepage using \"%s\"\n",
-                    TitleImage));
+                    TitleFile));
 
       // Find the title file...
-      if ((title_file = file_find(Path, TitleImage)) == NULL)
+      if (!hdFile::find(Path, TitleFile, title_file, sizeof(title_file)))
       {
 	progress_error(HD_ERROR_FILE_NOT_FOUND,
-	               "Unable to find title file \"%s\"!", TitleImage);
+	               "Unable to find title file \"%s\"!", TitleFile);
 	return (1);
       }
 
       // Write a title page from HTML source...
-      if ((fp = fopen(title_file, "rb")) == NULL)
+      if ((fp = hdFile::open(title_file, HD_FILE_READ)) == NULL)
       {
 	progress_error(HD_ERROR_FILE_NOT_FOUND,
 	               "Unable to open title file \"%s\" - %s!",
-                       TitleImage, strerror(errno));
+                       TitleFile, strerror(errno));
 	return (1);
       }
 
-      t = htmlReadFile(NULL, fp, file_directory(TitleImage));
-      htmlFixLinks(t, t, file_directory(TitleImage));
-      fclose(fp);
+      t = htmlReadFile(NULL, fp, hdFile::dirname(TitleFile, title_dirname,
+                                                 sizeof(title_dirname)));
+      htmlFixLinks(t, t, title_dirname);
+      delete fp;
 
       title_page      = 1;
       current_heading = NULL;
@@ -567,10 +621,12 @@ pspdf_export(hdTree *document,		/* I - Document to export */
       * Create a standard title page...
       */
 
-      if ((timage = image_load(TitleImage, !OutputColor)) != NULL)
+      if (TitleImage)
       {
-	timage_width  = timage->width * PagePrintWidth / _htmlStyleSheet->browser_width;
-	timage_height = timage_width * timage->height / timage->width;
+	timage_width  = TitleImage->width() * PagePrintWidth /
+	                _htmlStyleSheet->browser_width;
+	timage_height = timage_width * TitleImage->height() /
+	                TitleImage->width();
       }
       else
         timage_width = timage_height = 0.0f;
@@ -595,7 +651,7 @@ pspdf_export(hdTree *document,		/* I - Document to export */
       p_title->inherit(temp);
       _htmlStyleSheet->add_style(p_title);
 
-      if (timage != NULL)
+      if (TitleImage)
 	height += timage_height + p_title->line_height;
       if (doc_title != NULL)
 	height += h1_title->line_height + p_title->line_height;
@@ -608,10 +664,10 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 
       y = 0.5f * (PagePrintLength + height);
 
-      if (timage != NULL)
+      if (TitleImage)
       {
 	new_render(0, HD_RENDER_IMAGE, 0.5f * (PagePrintWidth - timage_width),
-                   y - timage_height, timage_width, timage_height, timage);
+                   y - timage_height, timage_width, timage_height, TitleImage);
 	y -= timage_height + p_title->line_height;
       }
 
@@ -1527,16 +1583,16 @@ pspdf_prepare_heading(int    page,	// I - Page number
 
     temp = NULL;
 
-    if (strncasecmp((char *)*format, "$LOGOIMAGE", 10) == 0 && logo_image)
+    if (strncasecmp((char *)*format, "$LOGOIMAGE", 10) == 0 && LogoImage)
     {
       // Insert the logo image...
       if (y < (PagePrintLength / 2))
 	temp = new_render(page, HD_RENDER_IMAGE, 0, y, logo_width,
-	                  logo_height, logo_image);
+	                  logo_height, LogoImage);
       else // Offset from top
 	temp = new_render(page, HD_RENDER_IMAGE, 0,
 	                  y + HeadFootSize - logo_height,
-	                  logo_width, logo_height, logo_image);
+	                  logo_width, logo_height, LogoImage);
     }
     else if (strncasecmp((char *)*format, "$HFIMAGE", 8) == 0)
     {
@@ -1552,13 +1608,13 @@ pspdf_prepare_heading(int    page,	// I - Page number
       else
       {
         if (y < (PagePrintLength / 2))
-          temp = new_render(page, HD_RENDER_IMAGE, 0, y, hfimage_width[hfi],
-                            hfimage_height[hfi], hfimage[hfi]);
+          temp = new_render(page, HD_RENDER_IMAGE, 0, y, hdimage_width[hfi],
+                            hdimage_height[hfi], HFImage[hfi]);
         else
           temp = new_render(page, HD_RENDER_IMAGE, 0,
-                            y + HeadFootSize - hfimage_height[hfi],
-                            hfimage_width[hfi], hfimage_height[hfi],
-			    hfimage[hfi]);
+                            y + HeadFootSize - hdimage_height[hfi],
+                            hdimage_width[hfi], hdimage_height[hfi],
+			    HFImage[hfi]);
       }
     }
     else
@@ -1776,7 +1832,7 @@ ps_write_document(hdChar *author,	/* I - Author of document */
                   hdChar *keywords,	/* I - Search keywords */
 		  hdChar *subject)	/* I - Subject */
 {
-  FILE		*out;			/* Output file */
+  hdFile	*out;			/* Output file */
   int		page;			/* Current page # */
   int		first;			/* First chapter */
 
@@ -1823,9 +1879,9 @@ ps_write_document(hdChar *author,	/* I - Author of document */
     {
       write_trailer(out, 0);
 
-      progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
+      progress_error(HD_ERROR_NONE, "BYTES: %ld", (long)out->size());
 
-      fclose(out);
+      delete out;
     }
   }
 
@@ -1861,9 +1917,9 @@ ps_write_document(hdChar *author,	/* I - Author of document */
     {
       write_trailer(out, 0);
 
-      progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
+      progress_error(HD_ERROR_NONE, "BYTES: %ld", (long)out->size());
 
-      fclose(out);
+      delete out;
     }
   }
 
@@ -1875,10 +1931,9 @@ ps_write_document(hdChar *author,	/* I - Author of document */
   {
     write_trailer(out, 0);
 
-    progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
+    progress_error(HD_ERROR_NONE, "BYTES: %ld", (long)out->size());
 
-    if (out != stdout)
-      fclose(out);
+    delete out;
   }
 
   if (Verbosity)
@@ -1891,13 +1946,13 @@ ps_write_document(hdChar *author,	/* I - Author of document */
  */
 
 static void
-ps_write_outpage(FILE *out,	/* I - Output file */
-                 int  outpage)	/* I - Output page number */
+ps_write_outpage(hdFile *out,		/* I - Output file */
+                 int    outpage)	/* I - Output page number */
 {
-  int		file_page;	/* Current page # in document */
-  hdPage	*p;		/* Current page */
-  hdOutPage	*op;		/* Current output page */
-  int		i;		/* Looping var */
+  int		file_page;		/* Current page # in document */
+  hdPage	*p;			/* Current page */
+  hdOutPage	*op;			/* Current output page */
+  int		i;			/* Looping var */
 
 
   if (outpage < 0 || outpage >= num_outpages)
@@ -1945,85 +2000,84 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   * Output the page prolog...
   */
 
-  fprintf(out, "%%%%Page: (%s) %d\n", p->page_text, file_page);
+  out->printf("%%%%Page: (%s) %d\n", p->page_text, file_page);
   if (op->nup == 1)
   {
     if (p->duplex && !(file_page & 1))
-      fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
-              p->right, p->bottom, p->width - p->left, p->length - p->top);
+      out->printf("%%%%PageBoundingBox: %d %d %d %d\n",
+                  p->right, p->bottom, p->width - p->left, p->length - p->top);
     else
-      fprintf(out, "%%%%PageBoundingBox: %d %d %d %d\n",
-              p->left, p->bottom, p->width - p->right, p->length - p->top);
+      out->printf("%%%%PageBoundingBox: %d %d %d %d\n",
+                  p->left, p->bottom, p->width - p->right, p->length - p->top);
   }
   else
-    fprintf(out, "%%%%PageBoundingBox: 0 0 %d %d\n", p->width, p->length);
+    out->printf("%%%%PageBoundingBox: 0 0 %d %d\n", p->width, p->length);
 
   if (PSLevel > 1 && PSCommands)
   {
-    fputs("%%BeginPageSetup\n", out);
+    out->puts("%%BeginPageSetup\n");
 
     if (p->width == 612 && p->length == 792)
-      fputs("%%BeginFeature: *PageSize Letter\n", out);
+      out->puts("%%BeginFeature: *PageSize Letter\n");
     else if (p->width == 612 && p->length == 1008)
-      fputs("%%BeginFeature: *PageSize Legal\n", out);
+      out->puts("%%BeginFeature: *PageSize Legal\n");
     else if (p->width == 792 && p->length == 1224)
-      fputs("%%BeginFeature: *PageSize Tabloid\n", out);
+      out->puts("%%BeginFeature: *PageSize Tabloid\n");
     else if (p->width == 842 && p->length == 1190)
-      fputs("%%BeginFeature: *PageSize A3\n", out);
+      out->puts("%%BeginFeature: *PageSize A3\n");
     else if (p->width == 595 && p->length == 842)
-      fputs("%%BeginFeature: *PageSize A4\n", out);
+      out->puts("%%BeginFeature: *PageSize A4\n");
     else
-      fprintf(out, "%%%%BeginFeature: *PageSize w%dh%d\n", p->width,
-	      p->length);
+      out->printf("%%%%BeginFeature: *PageSize w%dh%d\n", p->width, p->length);
 
-    fprintf(out, "%d %d SetPageSize\n", p->width, p->length);
-    fputs("%%EndFeature\n", out);
+    out->printf("%d %d SetPageSize\n", p->width, p->length);
+    out->puts("%%EndFeature\n");
 
     if (p->duplex)
     {
       if (p->landscape)
       {
-	fputs("%%BeginFeature: *Duplex DuplexTumble\n", out);
-	fputs("true true SetDuplexMode\n", out);
-        fputs("%%EndFeature\n", out);
+	out->puts("%%BeginFeature: *Duplex DuplexTumble\n");
+	out->puts("true true SetDuplexMode\n");
+        out->puts("%%EndFeature\n");
       }
       else
       {
-	fputs("%%BeginFeature: *Duplex DuplexNoTumble\n", out);
-	fputs("true false SetDuplexMode\n", out);
-        fputs("%%EndFeature\n", out);
+	out->puts("%%BeginFeature: *Duplex DuplexNoTumble\n");
+	out->puts("true false SetDuplexMode\n");
+        out->puts("%%EndFeature\n");
       }
     }
     else
     {
-      fputs("%%BeginFeature: *Duplex None\n", out);
-      fputs("false false SetDuplexMode\n", out);
-      fputs("%%EndFeature\n", out);
+      out->puts("%%BeginFeature: *Duplex None\n");
+      out->puts("false false SetDuplexMode\n");
+      out->puts("%%EndFeature\n");
     }
 
     if (p->media_color[0])
     {
-      fprintf(out, "%%%%BeginFeature: *MediaColor %s\n", p->media_color);
-      fprintf(out, "(%s) SetMediaColor\n", p->media_color);
-      fputs("%%EndFeature\n", out);
+      out->printf("%%%%BeginFeature: *MediaColor %s\n", p->media_color);
+      out->printf("(%s) SetMediaColor\n", p->media_color);
+      out->puts("%%EndFeature\n");
     }
 
     if (p->media_position)
     {
-      fprintf(out, "%%%%BeginFeature: *InputSlot Tray%d\n",
+      out->printf("%%%%BeginFeature: *InputSlot Tray%d\n",
               p->media_position);
-      fprintf(out, "%d SetMediaPosition\n", p->media_position);
-      fputs("%%EndFeature\n", out);
+      out->printf("%d SetMediaPosition\n", p->media_position);
+      out->puts("%%EndFeature\n");
     }
 
     if (p->media_type[0])
     {
-      fprintf(out, "%%%%BeginFeature: *MediaType %s\n", p->media_type);
-      fprintf(out, "(%s) SetMediaType\n", p->media_type);
-      fputs("%%EndFeature\n", out);
+      out->printf("%%%%BeginFeature: *MediaType %s\n", p->media_type);
+      out->printf("(%s) SetMediaType\n", p->media_type);
+      out->puts("%%EndFeature\n");
     }
 
-    fputs("%%EndPageSetup\n", out);
+    out->puts("%%EndPageSetup\n");
   }
 
  /*
@@ -2044,12 +2098,12 @@ ps_write_outpage(FILE *out,	/* I - Output file */
 
           p = pages + op->pages[i];
 
-          fprintf(out, "GS[%.3f %.3f %.3f %.3f %.3f %.3f]CM\n",
-	          p->outmatrix[0][0], p->outmatrix[1][0],
-	          p->outmatrix[0][1], p->outmatrix[1][1],
-	          p->outmatrix[0][2], p->outmatrix[1][2]);
+          out->printf("GS[%g %g %g %g %g %g]CM\n",
+	              p->outmatrix[0][0], p->outmatrix[1][0],
+	              p->outmatrix[0][1], p->outmatrix[1][1],
+	              p->outmatrix[0][2], p->outmatrix[1][2]);
           ps_write_page(out, op->pages[i]);
-	  fputs("GR\n", out);
+	  out->puts("GR\n");
 	}
 	break;
   }
@@ -2058,8 +2112,7 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   * Output the page trailer...
   */
 
-  fputs("SP\n", out);
-  fflush(out);
+  out->puts("SP\n");
 }
 
 
@@ -2068,13 +2121,13 @@ ps_write_outpage(FILE *out,	/* I - Output file */
  */
 
 static void
-ps_write_page(FILE  *out,	/* I - Output file */
-              int   page)	/* I - Page number */
+ps_write_page(hdFile *out,		/* I - Output file */
+              int    page)		/* I - Page number */
 {
-  hdRender	*r,		/* Render pointer */
-		*next;		/* Next render */
-  hdPage	*p;		/* Current page */
-  const char	*debug;		/* HTMLDOC_DEBUG environment variable */
+  hdRender	*r,			/* Render pointer */
+		*next;			/* Next render */
+  hdPage	*p;			/* Current page */
+  const char	*debug;			/* HTMLDOC_DEBUG environment variable */
 
 
   if (page < 0 || page >= alloc_pages)
@@ -2102,22 +2155,22 @@ ps_write_page(FILE  *out,	/* I - Output file */
   * Setup the page...
   */
 
-  fputs("GS\n", out);
+  out->puts("GS\n");
 
   if (p->landscape)
   {
     if (p->duplex && (page & 1))
-      fprintf(out, "0 %d T -90 RO\n", p->length);
+      out->printf("0 %d T -90 RO\n", p->length);
     else
-      fprintf(out, "%d 0 T 90 RO\n", p->width);
+      out->printf("%d 0 T 90 RO\n", p->width);
   }
 
-  write_background(page, out);
+  write_background(out, page);
 
   if (p->duplex && (page & 1))
-    fprintf(out, "%d %d T\n", p->right, p->bottom);
+    out->printf("%d %d T\n", p->right, p->bottom);
   else
-    fprintf(out, "%d %d T\n", p->left, p->bottom);
+    out->printf("%d %d T\n", p->left, p->bottom);
 
  /*
   * Render all graphics elements...
@@ -2130,9 +2183,9 @@ ps_write_page(FILE  *out,	/* I - Output file */
 	  set_color(out, r->data.box);
 	  set_pos(out, r->x, r->y);
 	  if (r->height > 0.0f)
-            fprintf(out, " %.1f %.1f F\n", r->width, r->height);
+            out->printf(" %.1f %.1f F\n", r->width, r->height);
 	  else
-            fprintf(out, " %.1f L\n", r->width);
+            out->printf(" %.1f L\n", r->width);
 
 	  render_x = -1.0f;
 	  break;
@@ -2161,15 +2214,15 @@ ps_write_page(FILE  *out,	/* I - Output file */
   if ((debug = getenv("HTMLDOC_DEBUG")) != NULL && strstr(debug, "margin"))
   {
     // Show printable area...
-    fprintf(out, "1 0 1 C 0 0 %d %d B\n", p->width - p->right - p->left,
-        	 p->length - p->top - p->bottom);
+    out->printf("1 0 1 C 0 0 %d %d B\n", p->width - p->right - p->left,
+        	p->length - p->top - p->bottom);
   }
 
  /*
   * Output the page trailer...
   */
 
-  fputs("GR\n", out);
+  out->puts("GR\n");
 }
 
 
@@ -2178,27 +2231,29 @@ ps_write_page(FILE  *out,	/* I - Output file */
  */
 
 static void
-ps_write_background(FILE *out)		/* I - Output file */
+ps_write_background(hdFile *out)	/* I - Output file */
 {
   int	y,				/* Current line */
 	pwidth;				/* Pixel width */
 
 
-  if (!background_image->pixels)
-    image_load(background_image->filename, !OutputColor, 1);
+  if (!BodyImage->pixels())
+    BodyImage->load();
 
-  pwidth = background_image->width * background_image->depth;
+  pwidth = BodyImage->width() * BodyImage->depth();
 
-  fputs("/BG[", out);
-  for (y = 0; y < background_image->height; y ++)
+  out->puts("/BG[");
+  for (y = 0; y < BodyImage->height(); y ++)
   {
-    putc('<', out);
-    ps_hex(out, background_image->pixels + y * pwidth, pwidth);
-    putc('>', out);
+    out->put('<');
+    hdASCIIHexFilter *hex = new hdASCIIHexFilter(out);
+    hex->write(BodyImage->pixels() + y * pwidth, pwidth);
+    delete hex;
+    out->put('>');
   }
-  fputs("]def", out);
+  out->puts("]def");
 
-  image_unload(background_image);
+  BodyImage->free();
 }
 
 
@@ -2216,7 +2271,7 @@ pdf_write_document(hdChar  *author,	// I - Author of document
                    hdTree *toc)		// I - Table of contents tree
 {
   int		i;			// Looping variable
-  FILE		*out;			// Output file
+  hdFile	*out;			// Output file
   int		outpage,		// Current page #
 		heading;		// Current heading #
   int		bytes;			// Number of bytes
@@ -2241,10 +2296,12 @@ pdf_write_document(hdChar  *author,	// I - Author of document
   objects       = NULL;
 
   // Write the prolog...
-  write_prolog(out, num_outpages, author, creator, copyright, keywords, subject);
+  write_prolog(out, num_outpages, author, creator, copyright, keywords,
+               subject);
 
   // Write images as needed...
-  num_images = image_getlist(&images);
+  num_images = hdImage::num_images();
+  images     = hdImage::images();
 
   for (i = 0; i < num_images; i ++)
   {
@@ -2252,16 +2309,17 @@ pdf_write_document(hdChar  *author,	// I - Author of document
 
 
     for (hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
-      if (images[i] == hfimage[hfi])
+      if (images[i] == HFImage[hfi])
         break;
 
-    if (images[i]->use > 1 || images[i]->mask ||
-        (images[i]->width * images[i]->height * images[i]->depth) > 65536 ||
-	images[i] == background_image ||
-	images[i] == logo_image ||
+    if (images[i]->use() > 1 || images[i]->mask() ||
+        (images[i]->width() * images[i]->height() *
+	 images[i]->depth()) > 65536 ||
+	images[i] == BodyImage ||
+	images[i] == LogoImage ||
 	hfi < MAX_HF_IMAGES)
     {
-      progress_show("Writing image %d (%s)...", i + 1, images[i]->filename);
+      progress_show("Writing image %d (%s)...", i + 1, images[i]->uri());
       progress_update(100 * i / num_images);
 
       temp.data.image = images[i];
@@ -2281,14 +2339,12 @@ pdf_write_document(hdChar  *author,	// I - Author of document
     progress_error(HD_ERROR_INTERNAL_ERROR,
                    "Internal error: pages_object != num_objects");
 
-  fputs("/Type/Pages", out);
-  fprintf(out, "/Count %d", num_outpages);
-  fputs("/Kids[", out);
+  out->printf("/Type/Pages/Count %d/Kids[", num_outpages);
 
   for (outpage = 0; outpage < num_outpages; outpage ++)
-    fprintf(out, "%d 0 R\n", pages_object + outpage * 2 + 1);
+    out->printf("%d 0 R\n", pages_object + outpage * 2 + 1);
 
-  fputs("]", out);
+  out->puts("]");
   pdf_end_object(out);
 
   for (outpage = 0; outpage < num_outpages; outpage ++)
@@ -2321,20 +2377,7 @@ pdf_write_document(hdChar  *author,	// I - Author of document
 
   write_trailer(out, 0);
 
-  progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
-
-  if (CGIMode)
-  {
-    // In CGI mode, we only produce PDF output to stdout...
-    printf("Content-Type: application/pdf\r\n"
-	   "Content-Length: %ld\r\n"
-	   "Content-Disposition: inline; filename=\"htmldoc.pdf\"\r\n"
-	   "Accept-Ranges: none\r\n"
-	   "X-Creator: HTMLDOC " SVERSION "\r\n"
-	   "\r\n", ftell(out));
-  }
-
-  fclose(out);
+  progress_error(HD_ERROR_NONE, "BYTES: %ld", (long)out->size());
 
   //
   // If we are sending the output to stdout, copy the temp file now...
@@ -2345,21 +2388,30 @@ pdf_write_document(hdChar  *author,	// I - Author of document
 #ifdef WIN32
     // Make sure we are in binary mode...  stupid Microsoft!
     setmode(1, O_BINARY);
-#elif defined(__EMX__)
-   // OS/2 has a setmode for FILE's...
-   fflush(stdout);
-   _fsetmode(stdout, "b");
-#endif // WIN32 || __EMX__
+#endif // WIN32
 
-    // Open the temporary file and copy it to stdout...
-    out = fopen(stdout_filename, "rb");
+    if (CGIMode)
+    {
+      // In CGI mode, we only produce PDF output to stdout...
+      printf("Content-Type: application/pdf\r\n"
+	     "Content-Length: %ld\r\n"
+	     "Content-Disposition: inline; filename=\"htmldoc.pdf\"\r\n"
+	     "Accept-Ranges: none\r\n"
+	     "X-Creator: HTMLDOC " SVERSION "\r\n"
+	     "\r\n", (long)out->size());
+    }
 
-    while ((bytes = fread(buffer, 1, sizeof(buffer), out)) > 0)
+    // Copy the temporary file to stdout...
+    out->seek(0, SEEK_SET);
+
+    while ((bytes = out->read(buffer, sizeof(buffer))) > 0)
       fwrite(buffer, 1, bytes, stdout);
 
-    // Close the temporary file (it is removed when the program exits...)
-    fclose(out);
+    // Remove the temporary file...
+    unlink(stdout_filename);
   }
+
+  delete out;
 
   // Clear the objects array...
   if (alloc_objects)
@@ -2381,8 +2433,8 @@ pdf_write_document(hdChar  *author,	// I - Author of document
  */
 
 static void
-pdf_write_resources(FILE *out,		/* I - Output file */
-                    int  outpage)	/* I - Output page for resources */
+pdf_write_resources(hdFile *out,	/* I - Output file */
+                    int    outpage)	/* I - Output page for resources */
 {
   int		i;			/* Looping var */
   hdOutPage	*op;			/* Current output page */
@@ -2415,7 +2467,7 @@ pdf_write_resources(FILE *out,		/* I - Output file */
 
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  images_used = background_image != NULL;
+  images_used = BodyImage != NULL;
   text_used   = 0;
 
   op = outpages + outpage;
@@ -2436,35 +2488,35 @@ pdf_write_resources(FILE *out,		/* I - Output file */
       }
   }
 
-  fputs("/Resources<<", out);
+  out->puts("/Resources<<");
 
   if (!images_used)
-    fputs("/ProcSet[/PDF/Text]", out);
+    out->puts("/ProcSet[/PDF/Text]");
   else if (PDFVersion >= 12)
   {
     if (OutputColor)
-      fputs("/ProcSet[/PDF/Text/ImageB/ImageC/ImageI]", out);
+      out->puts("/ProcSet[/PDF/Text/ImageB/ImageC/ImageI]");
     else
-      fputs("/ProcSet[/PDF/Text/ImageB/ImageI]", out);
+      out->puts("/ProcSet[/PDF/Text/ImageB/ImageI]");
   }
   else
   {
     if (OutputColor)
-      fputs("/ProcSet[/PDF/Text/ImageB/ImageC]", out);
+      out->puts("/ProcSet[/PDF/Text/ImageB/ImageC]");
     else
-      fputs("/ProcSet[/PDF/Text/ImageB]", out);
+      out->puts("/ProcSet[/PDF/Text/ImageB]");
   }
 
   if (text_used)
   {
-    fputs("/Font<<", out);
+    out->puts("/Font<<");
     for (i = 0; i < (HD_FONT_FACE_MAX * HD_FONT_INTERNAL_MAX); i ++)
       if (fonts_used[i] && font_objects[i])
-	fprintf(out, "/F%x %d 0 R", i, font_objects[i]);
-    fputs(">>", out);
+	out->printf("/F%x %d 0 R", i, font_objects[i]);
+    out->puts(">>");
   }
 
-  fputs("/XObject<<", out);
+  out->puts("/XObject<<");
 
   for (i = 0; i < op->nup; i ++)
   {
@@ -2474,18 +2526,17 @@ pdf_write_resources(FILE *out,		/* I - Output file */
     p = pages + op->pages[i];
 
     for (r = p->start; r != NULL; r = r->next)
-      if (r->type == HD_RENDER_IMAGE && r->data.image->obj)
-	fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
+      if (r->type == HD_RENDER_IMAGE && r->data.image->obj())
+	out->printf("/I%d %d 0 R", r->data.image->obj(), r->data.image->obj());
   }
 
-  if (background_image)
-    fprintf(out, "/I%d %d 0 R", background_image->obj,
-            background_image->obj);
+  if (BodyImage)
+    out->printf("/I%d %d 0 R", BodyImage->obj(), BodyImage->obj());
 
-  fputs(">>>>", out);
+  out->puts(">>>>");
 
   if (PDFEffect)
-    fprintf(out, "/Dur %.0f/Trans<</Type/Trans/D %.1f%s>>", PDFPageDuration,
+    out->printf("/Dur %.0f/Trans<</Type/Trans/D %.1f%s>>", PDFPageDuration,
             PDFEffectDuration, effects[PDFEffect]);
 }
 
@@ -2495,12 +2546,13 @@ pdf_write_resources(FILE *out,		/* I - Output file */
  */
 
 static void
-pdf_write_outpage(FILE *out,	/* I - Output file */
-                  int  outpage)	/* I - Output page number */
+pdf_write_outpage(hdFile *out,		/* I - Output file */
+                  int    outpage)	/* I - Output page number */
 {
-  int		i;		/* Looping var */
-  hdPage	*p;		/* Current page */
-  hdOutPage	*op;		/* Output page */
+  int		i;			/* Looping var */
+  hdPage	*p;			/* Current page */
+  hdOutPage	*op;			/* Output page */
+  hdFile	*filter;		/* Output stream */
 
 
   DEBUG_printf(("pdf_write_outpage(out = %p, outpage = %d)\n", out, outpage));
@@ -2530,13 +2582,13 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
 
   pdf_start_object(out);
 
-  fputs("/Type/Page", out);
-  fprintf(out, "/Parent %d 0 R", pages_object);
-  fprintf(out, "/Contents %d 0 R", num_objects + 1);
+  out->puts("");
+  out->printf("/Type/Page/Parent %d 0 R/Contents %d 0 R", pages_object,
+              num_objects + 1);
   if (p->landscape)
-    fprintf(out, "/MediaBox[0 0 %d %d]", p->length, p->width);
+    out->printf("/MediaBox[0 0 %d %d]", p->length, p->width);
   else
-    fprintf(out, "/MediaBox[0 0 %d %d]", p->width, p->length);
+    out->printf("/MediaBox[0 0 %d %d]", p->width, p->length);
 
   pdf_write_resources(out, outpage);
 
@@ -2545,18 +2597,21 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
   */
 
   if (op->annot_object > 0)
-    fprintf(out, "/Annots %d 0 R", op->annot_object);
+    out->printf("/Annots %d 0 R", op->annot_object);
 
   pdf_end_object(out);
 
   pdf_start_object(out);
 
   if (Compression)
-    fputs("/Filter/FlateDecode", out);
+  {
+    out->puts("/Filter/FlateDecode");
+    filter = new hdFlateFilter(out, Compression);
+  }
+  else
+    filter = out;
 
   pdf_start_stream(out);
-
-  flate_open_stream(out);
 
  /*
   * Render all of the pages...
@@ -2565,7 +2620,7 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
   switch (op->nup)
   {
     case 1 :
-        pdf_write_page(out, op->pages[0]);
+        pdf_write_page(filter, op->pages[0]);
 	break;
 
     default :
@@ -2576,12 +2631,12 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
 
           p = pages + op->pages[i];
 
-          flate_printf(out, "q %.3f %.3f %.3f %.3f %.3f %.3f cm\n",
-	               p->outmatrix[0][0], p->outmatrix[1][0],
-	               p->outmatrix[0][1], p->outmatrix[1][1],
-	               p->outmatrix[0][2], p->outmatrix[1][2]);
-          pdf_write_page(out, op->pages[i]);
-	  flate_puts("Q\n", out);
+          filter->printf("q %g %g %g %g %g %g cm\n",
+	                 p->outmatrix[0][0], p->outmatrix[1][0],
+	                 p->outmatrix[0][1], p->outmatrix[1][1],
+	                 p->outmatrix[0][2], p->outmatrix[1][2]);
+          pdf_write_page(filter, op->pages[i]);
+	  filter->puts("Q\n");
 	}
 	break;
   }
@@ -2590,7 +2645,8 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
   * Close out the page...
   */
 
-  flate_close_stream(out);
+  if (filter != out)
+    delete filter;
 
   pdf_end_object(out);
 }
@@ -2601,14 +2657,14 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
  */
 
 static void
-pdf_write_page(FILE  *out,	/* I - Output file */
-               int   page)	/* I - Page number */
+pdf_write_page(hdFile *out,		/* I - Output file */
+               int    page)		/* I - Page number */
 {
-  hdRender	*r,		/* Render pointer */
-		*next;		/* Next render */
-  float		box[3];		/* RGB color for boxes */
-  hdPage	*p;		/* Current page */
-  const char	*debug;		/* HTMLDOC_DEBUG environment variable */
+  hdRender	*r,			/* Render pointer */
+		*next;			/* Next render */
+  float		box[3];			/* RGB color for boxes */
+  hdPage	*p;			/* Current page */
+  const char	*debug;			/* HTMLDOC_DEBUG environment variable */
 
 
   if (page < 0 || page >= alloc_pages)
@@ -2625,20 +2681,19 @@ pdf_write_page(FILE  *out,	/* I - Output file */
   render_rgb[2]   = -1.0f;
   render_x        = -1.0f;
   render_y        = -1.0f;
+  render_startx   = 0.0f;
 
  /*
   * Output the page header...
   */
 
-  flate_puts("q\n", out);
-  write_background(page, out);
+  out->puts("q\n");
+  write_background(out, page);
 
   if (p->duplex && (page & 1))
-    flate_printf(out, "1 0 0 1 %d %d cm\n", p->right,
-                 p->bottom);
+    out->printf("1 0 0 1 %d %d cm\n", p->right, p->bottom);
   else
-    flate_printf(out, "1 0 0 1 %d %d cm\n", p->left,
-                 p->bottom);
+    out->printf("1 0 0 1 %d %d cm\n", p->left, p->bottom);
 
  /*
   * Render all graphics elements...
@@ -2667,20 +2722,21 @@ pdf_write_page(FILE  *out,	/* I - Output file */
 	      box[1] = r->data.box[1];
 	      box[2] = r->data.box[2];
 
-	      if (OutputColor)
-        	flate_printf(out, "%.2f %.2f %.2f RG\n", box[0], box[1], box[2]);
+	      if (OutputColor &&
+	          (box[0] != box[1] || box[1] != box[2] || box[0] != box[2]))
+        	out->printf("%g %g %g RG\n", box[0], box[1], box[2]);
               else
-        	flate_printf(out, "%.2f G\n",
+        	out->printf("%g G\n",
 		             box[0] * 0.31f + box[1] * 0.61f + box[2] * 0.08f);
             }
 
-            flate_printf(out, "%.1f %.1f m %.1f %.1f l S\n",
+            out->printf("%.1f %.1f m %.1f %.1f l S\n",
                 	 r->x, r->y, r->x + r->width, r->y);
 	  }
 	  else
 	  {
             set_color(out, r->data.box);
-            flate_printf(out, "%.1f %.1f %.1f %.1f re f\n",
+            out->printf("%g %g %g %g re f\n",
                 	 r->x, r->y, r->width, r->height);
 	  }
 	  break;
@@ -2690,14 +2746,15 @@ pdf_write_page(FILE  *out,	/* I - Output file */
   * Render all text elements, freeing used memory as we go...
   */
 
-  flate_puts("BT\n", out);
+  out->puts("BT\n");
 
+  render_x        = -1.0f;
+  render_y        = -1.0f;
+  render_startx   = 0.0f;
+  render_spacing  = -1.0f;
   render_typeface = -1;
   render_style    = -1;
   render_size     = -1;
-  render_x        = -1.0f;
-  render_y        = -1.0f;
-  render_spacing  = -1.0f;
 
   for (r = p->start, next = NULL; r != NULL; r = next)
   {
@@ -2710,26 +2767,26 @@ pdf_write_page(FILE  *out,	/* I - Output file */
 
   p->start = NULL;
 
-  flate_puts("ET\n", out);
+  out->puts("ET\n");
 
   if ((debug = getenv("HTMLDOC_DEBUG")) != NULL && strstr(debug, "margin"))
   {
     // Show printable area...
-    flate_printf(out, "1 0 1 RG 0 0 %d %d re S\n", p->width - p->right - p->left,
-        	 p->length - p->top - p->bottom);
+    out->printf("1 0 1 RG 0 0 %d %d re S\n", p->width - p->right - p->left,
+		p->length - p->top - p->bottom);
   }
 
  /*
   * Output the page trailer...
   */
 
-  flate_puts("Q\n", out);
+  out->puts("Q\n");
 }
 
 
 #ifdef DEBUG_TOC
 static void
-pdf_text_contents(FILE *out, hdTree *toc, int indent)
+pdf_text_contents(hdFile *out, hdTree *toc, int indent)
 {
   static const char *spaces = "                                "
                               "                                ";
@@ -2739,8 +2796,8 @@ pdf_text_contents(FILE *out, hdTree *toc, int indent)
 
   while (toc)
   {
-    fprintf(out, "%% %s<%s>", spaces + 64 - 4 * indent,
-            _htmlStyleSheet->get_element(toc->element));
+    out->printf("%% %s<%s>", spaces + 64 - 4 * indent,
+                _htmlStyleSheet->get_element(toc->element));
 
     switch (toc->element)
     {
@@ -2748,17 +2805,17 @@ pdf_text_contents(FILE *out, hdTree *toc, int indent)
           hdTree *temp;
 
           for (temp = toc->child; temp; temp = temp->next)
-	    fputs((char *)temp->data, out);
+	    out->puts((char *)temp->data);
           break;
 
       default :
-          fputs("\n", out);
+          out->puts("\n");
 	  pdf_text_contents(out, toc->child, indent + 1);
-	  fprintf(out, "%% %s", spaces + 64 - 4 * indent);
+	  out->printf("%% %s", spaces + 64 - 4 * indent);
           break;
     }
 
-    fprintf(out, "</%s>\n", _htmlStyleSheet->get_element(toc->element));
+    out->printf("</%s>\n", _htmlStyleSheet->get_element(toc->element));
 
     toc = toc->next;
   }
@@ -2772,23 +2829,23 @@ pdf_text_contents(FILE *out, hdTree *toc, int indent)
  */
 
 static void
-pdf_write_contents(FILE   *out,			/* I - Output file */
-                   hdTree *toc,			/* I - Table of contents tree */
-                   int    parent,		/* I - Parent outline object */
-                   int    prev,			/* I - Previous outline object */
-                   int    next,			/* I - Next outline object */
-                   int    *heading)		/* IO - Current heading # */
+pdf_write_contents(hdFile *out,		/* I - Output file */
+                   hdTree *toc,		/* I - Table of contents tree */
+                   int    parent,	/* I - Parent outline object */
+                   int    prev,		/* I - Previous outline object */
+                   int    next,		/* I - Next outline object */
+                   int    *heading)	/* IO - Current heading # */
 {
-  int		i,				/* Looping var */
-		thisobj,			/* This object */
-		entry,				/* TOC entry object */
-		count;				/* Number of entries at this level */
-  hdChar		*text;				/* Entry text */
-  hdTree	*temp;				/* Looping var */
-  int		*entry_counts,			/* Number of sub-entries for this entry */
-		*entry_objects;			/* Objects for each entry */
-  hdTree	**entries;			/* Pointers to each entry */
-  float		x, y;				/* Position of link */
+  int		i,			/* Looping var */
+		thisobj,		/* This object */
+		entry,			/* TOC entry object */
+		count;			/* Number of entries at this level */
+  hdChar	*text;			/* Entry text */
+  hdTree	*temp;			/* Looping var */
+  int		*entry_counts,		/* Number of sub-entries for this entry */
+		*entry_objects;		/* Objects for each entry */
+  hdTree	**entries;		/* Pointers to each entry */
+  float		x, y;			/* Position of link */
 
 
  /*
@@ -2803,23 +2860,23 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
     thisobj = pdf_start_object(out);
 
-    fprintf(out, "/Parent %d 0 R", parent);
+    out->printf("/Parent %d 0 R", parent);
 
-    fputs("/Title", out);
+    out->puts("/Title");
     write_utf16(out, (hdChar *)TocTitle);
 
     x = 0.0f;
     y = PagePrintLength + PageBottom;
     pspdf_transform_coords(pages + chapter_starts[0], x, y);
 
-    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
-            pages_object + 2 * chapter_outstarts[0] + 1, x, y);
+    out->printf("/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+                pages_object + 2 * chapter_outstarts[0] + 1, x, y);
 
     if (prev > 0)
-      fprintf(out, "/Prev %d 0 R", prev);
+      out->printf("/Prev %d 0 R", prev);
 
     if (next > 0)
-      fprintf(out, "/Next %d 0 R", next);
+      out->printf("/Next %d 0 R", next);
 
     pdf_end_object(out);
     return;
@@ -2877,7 +2934,8 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   * Find and count the children (entries)...
   */
 
-  if (toc->element == HD_ELEMENT_B && toc->next && toc->next->element == HD_ELEMENT_UL)
+  if (toc->element == HD_ELEMENT_B && toc->next &&
+      toc->next->element == HD_ELEMENT_UL)
     temp = toc->next->child;
   else if (toc->element == HD_ELEMENT_LI && toc->last_child &&
            toc->last_child->element == HD_ELEMENT_UL)
@@ -2924,20 +2982,18 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   if (parent == 0)
     outline_object = thisobj;
   else
-    fprintf(out, "/Parent %d 0 R", parent);
+    out->printf("/Parent %d 0 R", parent);
 
   if (count > 0)
-  {
-    fprintf(out, "/Count %d", parent == 0 ? count : -count);
-    fprintf(out, "/First %d 0 R", entry_objects[0]);
-    fprintf(out, "/Last %d 0 R", entry_objects[count - 1]);
-  }
+    out->printf("/Count %d/First %d 0 R/Last %d 0 R",
+                parent == 0 ? count : -count, entry_objects[0],
+		entry_objects[count - 1]);
 
   if (parent > 0 && toc->child && toc->child->element == HD_ELEMENT_A)
   {
     if ((text = htmlGetText(toc->child->child)) != NULL)
     {
-      fputs("/Title", out);
+      out->puts("/Title");
       write_utf16(out, text);
       free(text);
     }
@@ -2947,17 +3003,17 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     y = heading_tops[*heading] + pages[i].bottom;
     pspdf_transform_coords(pages + i, x, y);
 
-    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+    out->printf("/Dest[%d 0 R/XYZ %.0f %.0f 0]",
             pages_object + 2 * pages[i].outpage + 1, x, y);
 
     (*heading) ++;
   }
 
   if (prev > 0)
-    fprintf(out, "/Prev %d 0 R", prev);
+    out->printf("/Prev %d 0 R", prev);
 
   if (next > 0)
-    fprintf(out, "/Next %d 0 R", next);
+    out->printf("/Next %d 0 R", next);
 
   pdf_end_object(out);
 
@@ -2977,14 +3033,14 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 //
 
 static void
-pdf_write_files(FILE   *out,		// I - Output file
+pdf_write_files(hdFile *out,		// I - Output file
                 hdTree *doc)		// I - Document tree
 {
   int		i,			// Looping var
 		num_files,		// Number of FILE elements
 		entry,			// Entry object
 		alloc_text;		// Allocated text?
-  hdChar		*text;			// Entry text
+  hdChar	*text;			// Entry text
   hdTree	*temp;			// Current node
   hdRenderLink	*link;			// Link to file...
   float		x, y;			// Position of link
@@ -3006,9 +3062,8 @@ pdf_write_files(FILE   *out,		// I - Output file
   // Write the outline dictionary...
   outline_object = pdf_start_object(out);
 
-  fprintf(out, "/Count %d", num_files);
-  fprintf(out, "/First %d 0 R", outline_object + 1);
-  fprintf(out, "/Last %d 0 R", outline_object + num_files);
+  out->printf("/Count %d/First %d 0 R/Last %d 0 R", num_files,
+              outline_object + 1, outline_object + num_files);
 
   pdf_end_object(out);
 
@@ -3025,9 +3080,9 @@ pdf_write_files(FILE   *out,		// I - Output file
 
       entry = pdf_start_object(out);
       
-      fprintf(out, "/Parent %d 0 R", outline_object);
+      out->printf("/Parent %d 0 R", outline_object);
 
-      fputs("/Title", out);
+      out->puts("/Title");
       write_utf16(out, text);
       if (alloc_text)
         free(text);
@@ -3038,15 +3093,15 @@ pdf_write_files(FILE   *out,		// I - Output file
 	y = link->top + pages[link->page].bottom;
 	pspdf_transform_coords(pages + link->page, x, y);
 
-	fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+	out->printf("/Dest[%d 0 R/XYZ %.0f %.0f 0]",
         	pages_object + 2 * pages[link->page].outpage + 1, x, y);
       }
 
       if (i > 0)
-        fprintf(out, "/Prev %d 0 R", outline_object + i);
+        out->printf("/Prev %d 0 R", outline_object + i);
  
       if (i < (num_files - 1))
-        fprintf(out, "/Next %d 0 R", outline_object + i + 2);
+        out->printf("/Next %d 0 R", outline_object + i + 2);
 
       pdf_end_object(out);
 
@@ -3060,10 +3115,10 @@ pdf_write_files(FILE   *out,		// I - Output file
  *                          entry.
  */
 
-static int			/* O - Number of headings found */
-pdf_count_headings(hdTree *toc)	/* I - TOC entry */
+static int				/* O - Number of headings found */
+pdf_count_headings(hdTree *toc)		/* I - TOC entry */
 {
-  int	nheadings;		/* Number of headings */
+  int	nheadings;			/* Number of headings */
 
 
   for (nheadings = 0; toc != NULL; toc = toc->next)
@@ -3082,8 +3137,8 @@ pdf_count_headings(hdTree *toc)	/* I - TOC entry */
  * PDF object state variables...
  */
 
-static int	pdf_stream_length = 0;
-static int	pdf_stream_start = 0;
+static size_t	pdf_stream_length = 0;
+static size_t	pdf_stream_start = 0;
 static int	pdf_object_type = 0;
 
 
@@ -3091,11 +3146,11 @@ static int	pdf_object_type = 0;
  * 'pdf_start_object()' - Start a new PDF object...
  */
 
-static int			// O - Object number
-pdf_start_object(FILE *out,	// I - File to write to
-                 int  array)	// I - 1 = array, 0 = dictionary
+static int				// O - Object number
+pdf_start_object(hdFile *out,		// I - File to write to
+                 int    array)		// I - 1 = array, 0 = dictionary
 {
-  int	*temp;			// Temporary integer pointer
+  int	*temp;				// Temporary integer pointer
 
 
   num_objects ++;
@@ -3122,12 +3177,12 @@ pdf_start_object(FILE *out,	// I - File to write to
     objects = temp;
   }
 
-  objects[num_objects] = ftell(out);
-  fprintf(out, "%d 0 obj", num_objects);
+  objects[num_objects] = out->size();
+  out->printf("%d 0 obj", num_objects);
 
   pdf_object_type = array;
 
-  fputs(pdf_object_type ? "[" : "<<", out);
+  out->puts(pdf_object_type ? "[" : "<<");
 
   return (num_objects);
 }
@@ -3138,15 +3193,14 @@ pdf_start_object(FILE *out,	// I - File to write to
  */
 
 static void
-pdf_start_stream(FILE *out)	// I - File to write to
+pdf_start_stream(hdFile *out)		// I - File to write to
 {
   // Write the "/Length " string, get the position, and then write 10
   // zeroes to cover the maximum size of a stream.
-
-  fputs("/Length ", out);
-  pdf_stream_length = ftell(out);
-  fputs("0000000000>>stream\n", out);
-  pdf_stream_start = ftell(out);
+  out->puts("/Length ");
+  pdf_stream_length = out->pos();
+  out->puts("0000000000>>stream\n");
+  pdf_stream_start = out->pos();
 }
 
 
@@ -3155,29 +3209,28 @@ pdf_start_stream(FILE *out)	// I - File to write to
  */
 
 static void
-pdf_end_object(FILE *out)	// I - File to write to
+pdf_end_object(hdFile *out)		// I - File to write to
 {
-  int	length;			// Total length of stream
+  size_t	length;			// Total length of stream
   
 
   if (pdf_stream_start)
   {
     // For streams, go back and update the length field in the
     // object dictionary...
-    length = ftell(out) - pdf_stream_start;
+    length = out->pos() - pdf_stream_start;
 
-    fseek(out, pdf_stream_length, SEEK_SET);
-    fprintf(out, "%-10d", length);
-    fseek(out, 0, SEEK_END);
-
+    out->seek(pdf_stream_length, SEEK_SET);
+    out->printf("%-10ld", (long)length);
+    out->seek(0, SEEK_END);
     pdf_stream_start = 0;
 
-    fputs("endstream\n", out);
+    out->puts("endstream\n");
   }
   else
-    fputs(pdf_object_type ? "]" : ">>", out);
+    out->puts(pdf_object_type ? "]" : ">>");
 
-  fputs("endobj\n", out);
+  out->puts("endobj\n");
 }
 
 
@@ -3187,7 +3240,7 @@ pdf_end_object(FILE *out)	// I - File to write to
  */
 
 static void
-pdf_write_links(FILE *out)		/* I - Output file */
+pdf_write_links(hdFile *out)		/* I - Output file */
 {
   int		i,			/* Looping var */
 		outpage,		/* Current page */
@@ -3342,7 +3395,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
             lobjs[num_lobjs ++] = pdf_start_object(out);
 
-            fputs("/Subtype/Link", out);
+            out->puts("/Subtype/Link");
 
             if (PageDuplex && (op->pages[i] & 1))
 	    {
@@ -3361,14 +3414,14 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
             pspdf_transform_coords(p, x1, y1);
             pspdf_transform_coords(p, x2, y2);
-            fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]", x1, y1, x2, y2);
+            out->printf("/Rect[%.1f %.1f %.1f %.1f]", x1, y1, x2, y2);
 
-            fputs("/Border[0 0 0]", out);
+            out->puts("/Border[0 0 0]");
 
             x1 = 0.0f;
 	    y1 = link->top + pages[link->page].bottom;
             pspdf_transform_coords(pages + link->page, x1, y1);
-	    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
+	    out->printf("/Dest[%d 0 R/XYZ %.0f %.0f 0]",
         	    pages_object + 2 * pages[link->page].outpage + 1,
         	    x1, y1);
 	    pdf_end_object(out);
@@ -3382,22 +3435,26 @@ pdf_write_links(FILE *out)		/* I - Output file */
             pdf_start_object(out);
 
 	    if (PDFVersion >= 12 &&
-        	file_method((char *)r->data.link) == NULL)
+        	hdFile::scheme((char *)r->data.link) == NULL)
 	    {
+	      char ext[256];		// Extension
+
 #ifdef WIN32
-              if (strcasecmp(file_extension((char *)r->data.link), "pdf") == 0)
+              if (!strcasecmp(hdFile::extension((char *)r->data.link, ext,
+	                                        sizeof(ext)), "pdf"))
 #else
-              if (strcmp(file_extension((char *)r->data.link), "pdf") == 0)
-#endif /* WIN32 */
+              if (!strcmp(hdFile::extension((char *)r->data.link, ext,
+					    sizeof(ext)), "pdf"))
+#endif // WIN32
               {
 	       /*
 		* Link to external PDF file...
 		*/
 
-        	fputs("/S/GoToR", out);
-        	fputs("/D[0/XYZ null null 0]", out);
-        	fputs("/F", out);
-		write_string(out, r->data.link, 0);
+        	out->puts("/S/GoToR");
+        	out->puts("/D[0/XYZ null null 0]");
+        	out->puts("/F");
+		write_string(out, r->data.link);
               }
 	      else
               {
@@ -3405,9 +3462,9 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		* Link to external filename...
 		*/
 
-        	fputs("/S/Launch", out);
-        	fputs("/F", out);
-		write_string(out, r->data.link, 0);
+        	out->puts("/S/Launch");
+        	out->puts("/F");
+		write_string(out, r->data.link);
 
 		if (StrictHTML)
 		  progress_error(HD_ERROR_UNRESOLVED_LINK,
@@ -3421,26 +3478,26 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	      * Link to web file...
 	      */
 
-              fputs("/S/URI", out);
-              fputs("/URI", out);
-	      write_string(out, r->data.link, 0);
+              out->puts("/S/URI");
+              out->puts("/URI");
+	      write_string(out, r->data.link);
 	    }
 
             pdf_end_object(out);
 
             lobjs[num_lobjs ++] = pdf_start_object(out);
 
-            fputs("/Subtype/Link", out);
+            out->puts("/Subtype/Link");
             if (PageDuplex && (outpage & 1))
-              fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
+              out->printf("/Rect[%.1f %.1f %.1f %.1f]",
                       r->x + PageRight, r->y + PageBottom,
                       r->x + r->width + PageRight, r->y + r->height + PageBottom);
             else
-              fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]",
+              out->printf("/Rect[%.1f %.1f %.1f %.1f]",
                       r->x + PageLeft, r->y + PageBottom - 2,
                       r->x + r->width + PageLeft, r->y + r->height + PageBottom);
-            fputs("/Border[0 0 0]", out);
-	    fprintf(out, "/A %d 0 R", num_objects - 1);
+            out->puts("/Border[0 0 0]");
+	    out->printf("/A %d 0 R", num_objects - 1);
             pdf_end_object(out);
 	  }
 	}
@@ -3451,7 +3508,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
       outpages[outpage].annot_object = pdf_start_object(out, 1);
 
       for (lobj = 0; lobj < num_lobjs; lobj ++)
-        fprintf(out, "%d 0 R%s", lobjs[lobj],
+        out->printf("%d 0 R%s", lobjs[lobj],
 	        lobj < (num_lobjs - 1) ? "\n" : "");
 
       pdf_end_object(out);
@@ -3467,10 +3524,10 @@ pdf_write_links(FILE *out)		/* I - Output file */
  */
 
 static void
-pdf_write_names(FILE *out)		/* I - Output file */
+pdf_write_names(hdFile *out)		/* I - Output file */
 {
   int		i;			/* Looping var */
-  hdChar		*s;			/* Current character in name */
+  hdChar	*s;			/* Current character in name */
   hdRenderLink	*link;			/* Local link */
 
 
@@ -3487,7 +3544,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
   */
 
   names_object = pdf_start_object(out);
-  fprintf(out, "/Dests %d 0 R", num_objects + 1);
+  out->printf("/Dests %d 0 R", num_objects + 1);
   pdf_end_object(out);
 
  /*
@@ -3495,7 +3552,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
   */
 
   pdf_start_object(out);
-  fprintf(out, "/Kids[%d 0 R]", num_objects + 1);
+  out->printf("/Kids[%d 0 R]", num_objects + 1);
   pdf_end_object(out);
 
  /*
@@ -3504,18 +3561,18 @@ pdf_write_names(FILE *out)		/* I - Output file */
 
   pdf_start_object(out);
 
-  fputs("/Limits[", out);
-  write_string(out, links[0].name, 0);
-  write_string(out, links[num_links - 1].name, 0);
-  fputs("]", out);
+  out->puts("/Limits[");
+  write_string(out, links[0].name);
+  write_string(out, links[num_links - 1].name);
+  out->puts("]");
 
-  fputs("/Names[", out);
+  out->puts("/Names[");
   for (i = 1, link = links; i <= num_links; i ++, link ++)
   {
-    write_string(out, link->name, 0);
-    fprintf(out, "%d 0 R", num_objects + i);
+    write_string(out, link->name);
+    out->printf("%d 0 R", num_objects + i);
   }
-  fputs("]", out);
+  out->puts("]");
 
   pdf_end_object(out);
 
@@ -3527,7 +3584,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
     x = 0.0f;
     y = link->top + pages[link->page].bottom;
     pspdf_transform_coords(pages + link->page, x, y);
-    fprintf(out, "/D[%d 0 R/XYZ %.0f %.0f 0]", 
+    out->printf("/D[%d 0 R/XYZ %.0f %.0f 0]", 
             pages_object + 2 * pages[link->page].outpage + 1, x, y);
     pdf_end_object(out);
   }
@@ -3676,9 +3733,9 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
       * Add a page link...
       */
 
-      if (file_method((char *)link) == NULL &&
-	  file_target((char *)link) != NULL)
-	link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+      if (hdFile::scheme((char *)link) == NULL &&
+	  hdFile::target((char *)link) != NULL)
+	link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 
       new_render(*page, HD_RENDER_LINK, x, *y, temp->width,
 	         temp->height, link);
@@ -3726,7 +3783,7 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
       case HD_ELEMENT_IMG :
 	  update_image_size(temp);
 	  new_render(*page, HD_RENDER_IMAGE, x, *y, temp->width, temp->height,
-		     image_find((char *)htmlGetAttr(temp, "_HD_SRC")));
+		     hdImage::find((char *)htmlGetAttr(temp, "_HD_SRC")));
 	  break;
 
       default :
@@ -4738,7 +4795,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
         new_render(*page, HD_RENDER_IMAGE, margins->left() + borderspace,
 	           temp_y - temp->height, temp->width, temp->height,
-		   image_find((char *)htmlGetAttr(temp, "_HD_SRC")));
+		   hdImage::find((char *)htmlGetAttr(temp, "_HD_SRC")));
 
         if (temp->link &&
 	    (link = htmlGetAttr(temp->link, "_HD_FULL_HREF")) != NULL)
@@ -4747,12 +4804,15 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	  * Add a page link...
 	  */
 
-	  if (file_method((char *)link) == NULL)
+	  char baselink[1024];		// Basename of link
+
+	  if (hdFile::scheme((char *)link) == NULL)
 	  {
-	    if (file_target((char *)link) != NULL)
-	      link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+	    if (hdFile::target((char *)link) != NULL)
+	      link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 	    else
-	      link = (hdChar *)file_basename((char *)link);
+	      link = (hdChar *)hdFile::basename((char *)link, baselink,
+	                                        sizeof(baselink));
 	  }
 
 	  new_render(*page, HD_RENDER_LINK, margins->left() + borderspace,
@@ -4832,7 +4892,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         new_render(*page, HD_RENDER_IMAGE,
 	           margins->right() - borderspace - temp->width,
 	           temp_y - temp->height, temp->width, temp->height,
-		   image_find((char *)htmlGetAttr(temp, "_HD_SRC")));
+		   hdImage::find((char *)htmlGetAttr(temp, "_HD_SRC")));
 
         if (temp->link &&
 	    (link = htmlGetAttr(temp->link, "_HD_FULL_HREF")) != NULL)
@@ -4841,12 +4901,15 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	  * Add a page link...
 	  */
 
-	  if (file_method((char *)link) == NULL)
+          char baselink[1024];		// Base name of link
+
+	  if (hdFile::scheme((char *)link) == NULL)
 	  {
-	    if (file_target((char *)link) != NULL)
-	      link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+	    if (hdFile::target((char *)link) != NULL)
+	      link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 	    else
-	      link = (hdChar *)file_basename((char *)link);
+	      link = (hdChar *)hdFile::basename((char *)link, baselink,
+	                                        sizeof(baselink));
 	  }
 
 	  new_render(*page, HD_RENDER_LINK, margins->right() + borderspace,
@@ -4992,9 +5055,11 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
         num_chars += strlen((char *)temp->data);
 
       if (temp->height > height &&
-          (temp->element != HD_ELEMENT_IMG || temp->style->vertical_align != HD_VERTICAL_ALIGN_MIDDLE))
+          (temp->element != HD_ELEMENT_IMG ||
+	   temp->style->vertical_align != HD_VERTICAL_ALIGN_MIDDLE))
         height = temp->height;
-      else if ((0.5 * temp->height) > height && temp->element == HD_ELEMENT_IMG &&
+      else if ((0.5 * temp->height) > height &&
+               temp->element == HD_ELEMENT_IMG &&
                temp->style->vertical_align == HD_VERTICAL_ALIGN_MIDDLE)
         height = 0.5 * temp->height;
     }
@@ -5116,7 +5181,8 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
       case HD_TEXT_ALIGN_JUSTIFY :
           linex = margins->left();
-	  if (flat != NULL && flat->prev->element != HD_ELEMENT_BR && num_chars > 1)
+	  if (flat != NULL && flat->prev->element != HD_ELEMENT_BR &&
+	      num_chars > 1)
 	    char_spacing = (margins->width() - width) / (num_chars - 1);
 	  break;
     }
@@ -5241,8 +5307,10 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
             temp_width = temp->width + char_spacing * strlen((char *)lineptr);
 
-	    if (temp->style->text_decoration == HD_TEXT_DECORATION_UNDERLINE || (temp->link && LinkStyle && PSLevel == 0))
-	      new_render(*page, HD_RENDER_BOX, linex, *y + offset - 1, temp_width, 0, rgb);
+	    if (temp->style->text_decoration == HD_TEXT_DECORATION_UNDERLINE ||
+	        (temp->link && LinkStyle && PSLevel == 0))
+	      new_render(*page, HD_RENDER_BOX, linex, *y + offset - 1,
+	                 temp_width, 0, rgb);
 
 	    if (temp->style->text_decoration == HD_TEXT_DECORATION_LINE_THROUGH)
 	      new_render(*page, HD_RENDER_BOX, linex, *y + offset + temp->height * 0.25f,
@@ -5313,7 +5381,8 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
               new_render(*page, HD_RENDER_BOX, linex, *y + offset,
                 	 borderspace, temp->height + 2 * borderspace, rgb);
 	      // Right
-              new_render(*page, HD_RENDER_BOX, linex + temp->width + borderspace,
+              new_render(*page, HD_RENDER_BOX,
+	                 linex + temp->width + borderspace,
 	                 *y + offset, borderspace,
 			 temp->height + 2 * borderspace, rgb);
 	      // Bottom
@@ -5323,7 +5392,7 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 
 	    new_render(*page, HD_RENDER_IMAGE, linex + borderspace,
 	               *y + offset + borderspace, temp->width, temp->height,
-		       image_find((char *)htmlGetAttr(temp, "_HD_SRC")));
+		       hdImage::find((char *)htmlGetAttr(temp, "_HD_SRC")));
             whitespace = 0;
 	    temp_width = temp->width + 2 * borderspace;
 	    break;
@@ -5336,12 +5405,15 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
 	* Add a page link...
 	*/
 
-	if (file_method((char *)link) == NULL)
+        char baselink[1024];		// Base name of link
+
+	if (hdFile::scheme((char *)link) == NULL)
 	{
-	  if (file_target((char *)link) != NULL)
-	    link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+	  if (hdFile::target((char *)link) != NULL)
+	    link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 	  else
-	    link = (hdChar *)file_basename((char *)link);
+	    link = (hdChar *)hdFile::basename((char *)link, baselink,
+	                                      sizeof(baselink));
 	}
 
 	new_render(*page, HD_RENDER_LINK, linex, *y + offset, temp->width,
@@ -5511,12 +5583,15 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 	* Add a page link...
 	*/
 
-	if (file_method((char *)link) == NULL)
+        char	baselink[1024];		// Base name of link
+
+	if (hdFile::scheme((char *)link) == NULL)
 	{
-	  if (file_target((char *)link) != NULL)
-	    link = (hdChar *)file_target((char *)link) - 1; // Include # sign
+	  if (hdFile::target((char *)link) != NULL)
+	    link = (hdChar *)hdFile::target((char *)link) - 1; // Include # sign
 	  else
-	    link = (hdChar *)file_basename((char *)link);
+	    link = (hdChar *)hdFile::basename((char *)link, baselink,
+	                                      sizeof(baselink));
 	}
 
 	new_render(*page, HD_RENDER_LINK, *x, *y, start->width,
@@ -5587,7 +5662,7 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
 
 	case HD_ELEMENT_IMG :
 	    new_render(*page, HD_RENDER_IMAGE, *x, *y, start->width, start->height,
-		       image_find((char *)htmlGetAttr(start, "_HD_SRC")));
+		       hdImage::find((char *)htmlGetAttr(start, "_HD_SRC")));
 
             *x += start->width;
             col ++;
@@ -8601,29 +8676,24 @@ find_background(hdTree *t)	/* I - Document to search */
   * specified...
   */
 
-  if (BodyImage[0] != '\0')
-  {
-    background_image = image_load(BodyImage, !OutputColor);
-    return;
-  }
-  else if (BodyColor[0] != '\0')
-  {
+  if (BodyColor[0] != '\0')
     get_color((hdChar *)BodyColor, background_color, 0);
+
+  if (BodyImage || BodyColor[0])
     return;
-  }
 
  /*
   * If not, search the document tree...
   */
 
-  while (t != NULL && background_image == NULL &&
+  while (t != NULL && BodyImage == NULL &&
          background_color[0] == 1.0 && background_color[1] == 1.0 &&
 	 background_color[2] == 1.0)
   {
     if (t->element == HD_ELEMENT_BODY)
     {
       if ((var = htmlGetAttr(t, "BACKGROUND")) != NULL)
-        background_image = image_load((char *)var, !OutputColor);
+        BodyImage = hdImage::find((char *)var, !OutputColor, Path);
 
       if ((var = htmlGetAttr(t, "BGCOLOR")) != NULL)
         get_color(var, background_color, 0);
@@ -8643,12 +8713,13 @@ find_background(hdTree *t)	/* I - Document to search */
  */
 
 static void
-write_background(int  page,	/* I - Page we are writing for */
-                 FILE *out)	/* I - File to write to */
+write_background(hdFile *out,		/* I - File to write to */
+		 int    page)		/* I - Page we are writing for */
+                 
 {
-  float	x, y;
-  float	width, height;
-  int	page_width, page_length;
+  float	x, y;				// Current position
+  float	width, height;			// Width and height of image
+  int	page_width, page_length;	// Width and height of page
 
 
   if (Landscape)
@@ -8671,19 +8742,19 @@ write_background(int  page,	/* I - Page we are writing for */
       render_x = -1.0;
       render_y = -1.0;
       set_color(out, background_color);
-      fprintf(out, "0 0 M %d %d F\n", page_width, page_length);
+      out->printf("0 0 M %d %d F\n", page_width, page_length);
     }
     else
     {
       set_color(out, background_color);
-      flate_printf(out, "0 0 %d %d re f\n", page_width, page_length);
+      out->printf("0 0 %d %d re f\n", page_width, page_length);
     }
   }
 
-  if (background_image != NULL)
+  if (BodyImage)
   {
-    width  = background_image->width * 72.0f / _htmlStyleSheet->ppi;
-    height = background_image->height * 72.0f / _htmlStyleSheet->ppi;
+    width  = BodyImage->width() * 72.0f / _htmlStyleSheet->ppi;
+    height = BodyImage->height() * 72.0f / _htmlStyleSheet->ppi;
 
     if (width < 1.0f)
       width = 1.0f;
@@ -8697,28 +8768,29 @@ write_background(int  page,	/* I - Page we are writing for */
             for (y = page_length; y >= 0.0f;)
             {
 	      y -= height;
-  	      flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm", width, height, x, y);
-              flate_printf(out, "/I%d Do\n", background_image->obj);
-	      flate_puts("Q\n", out);
+  	      out->printf("q %.1f 0 0 %.1f %.1f %.1f cm", width, height,
+	                   x, y);
+              out->printf("/I%d Do\n", BodyImage->obj());
+	      out->puts("Q\n");
             }
 	  break;
 
       default :
-          fprintf(out, "0 %.1f %d{/y exch neg %d add def\n",
-	          height, page_length + (int)height - 1, page_length);
-	  fprintf(out, "0 %.1f %d{/x exch def\n",
-	          width, page_width);
-          fprintf(out, "GS[%.1f 0 0 %.1f x y]CM/iy -1 def\n", width, height);
-	  fprintf(out, "%d %d 8[%d 0 0 %d 0 %d]",
-	          background_image->width, background_image->height,
-                  background_image->width, -background_image->height,
-		  background_image->height);
-          fputs("{/iy iy 1 add def BG iy get}", out);
-	  if (background_image->depth == 1)
-	    fputs("image\n", out);
+          out->printf("0 %.1f %d{/y exch neg %d add def\n",
+	              height, page_length + (int)height - 1, page_length);
+	  out->printf("0 %.1f %d{/x exch def\n",
+	              width, page_width);
+          out->printf("GS[%.1f 0 0 %.1f x y]CM/iy -1 def\n", width, height);
+	  out->printf("%d %d 8[%d 0 0 %d 0 %d]",
+	              BodyImage->width(), BodyImage->height(),
+                      BodyImage->width(), -BodyImage->height(),
+		      BodyImage->height());
+          out->puts("{/iy iy 1 add def BG iy get}");
+	  if (BodyImage->depth() == 1)
+	    out->puts("image\n");
 	  else
-	    fputs("false 3 colorimage\n", out);
-	  fputs("GR}for}for\n", out);
+	    out->puts("false 3 colorimage\n");
+	  out->puts("GR}for}for\n");
           break;
     }
   }
@@ -8924,7 +8996,7 @@ check_pages(int page)	// I - Current page
 
       memcpy(temp->background_color, background_color,
              sizeof(temp->background_color));
-      temp->background_image = background_image;
+      temp->background_image = BodyImage;
     }
   }
 }
@@ -9747,7 +9819,7 @@ update_image_size(hdTree *t)	/* I - Tree entry */
     return;
   }
 
-  img = image_find((char *)htmlGetAttr(t, "_HD_SRC"));
+  img = hdImage::find((char *)htmlGetAttr(t, "_HD_SRC"));
 
   if (img == NULL)
     return;
@@ -9759,7 +9831,7 @@ update_image_size(hdTree *t)	/* I - Tree entry */
     else
       t->width = atoi((char *)width) * PagePrintWidth / _htmlStyleSheet->browser_width;
 
-    t->height = t->width * img->height / img->width;
+    t->height = t->width * img->height() / img->width();
   }
   else if (height != NULL)
   {
@@ -9768,12 +9840,12 @@ update_image_size(hdTree *t)	/* I - Tree entry */
     else
       t->height = atoi((char *)height) * PagePrintWidth / _htmlStyleSheet->browser_width;
 
-    t->width = t->height * img->width / img->height;
+    t->width = t->height * img->width() / img->height();
   }
   else
   {
-    t->width  = img->width * PagePrintWidth / _htmlStyleSheet->browser_width;
-    t->height = img->height * PagePrintWidth / _htmlStyleSheet->browser_width;
+    t->width  = img->width() * PagePrintWidth / _htmlStyleSheet->browser_width;
+    t->height = img->height() * PagePrintWidth / _htmlStyleSheet->browser_width;
   }
 }
 
@@ -9806,10 +9878,10 @@ get_title(hdTree *doc)	/* I - Document */
  * 'open_file()' - Open an output file for the current chapter.
  */
 
-static FILE *		/* O - File pointer */
+static hdFile *				/* O - File pointer */
 open_file(void)
 {
-  char	filename[255];	/* Filename */
+  char	filename[1024];			/* Filename */
 
 
   if (OutputFiles && PSLevel > 0)
@@ -9821,20 +9893,20 @@ open_file(void)
     else
       snprintf(filename, sizeof(filename), "%s/doc%d.ps", OutputPath, chapter);
 
-    return (fopen(filename, "wb+"));
+    return (hdFile::open(filename, HD_FILE_UPDATE));
   }
   else if (OutputFiles)
   {
     snprintf(filename, sizeof(filename), "%s/doc.pdf", OutputPath);
 
-    return (fopen(filename, "wb+"));
+    return (hdFile::open(filename, HD_FILE_UPDATE));
   }
   else if (OutputPath[0] != '\0')
-    return (fopen(OutputPath, "wb+"));
+    return (hdFile::open(OutputPath, HD_FILE_UPDATE));
   else if (PSLevel == 0)
-    return (file_temp(stdout_filename, sizeof(stdout_filename)));
+    return (hdFile::temp(stdout_filename, sizeof(stdout_filename)));
   else
-    return (stdout);
+    return (new hdStdFile(stdout, HD_FILE_WRITE));
 }
 
 
@@ -9843,8 +9915,8 @@ open_file(void)
  */
 
 static void
-set_color(FILE  *out,	/* I - File to write to */
-          float *rgb)	/* I - RGB color */
+set_color(hdFile  *out,			/* I - File to write to */
+          float   *rgb)			/* I - RGB color */
 {
   if (rgb[0] == render_rgb[0] &&
       rgb[1] == render_rgb[1] &&
@@ -9855,23 +9927,22 @@ set_color(FILE  *out,	/* I - File to write to */
   render_rgb[1] = rgb[1];
   render_rgb[2] = rgb[2];
 
-  if (OutputColor)
+  if (OutputColor && (rgb[0] != rgb[1] || rgb[1] != rgb[2] || rgb[0] != rgb[2]))
   {
     // Output RGB color...
     if (PSLevel > 0)
-      fprintf(out, "%.2f %.2f %.2f C ", rgb[0], rgb[1], rgb[2]);
+      out->printf("%g %g %g C ", rgb[0], rgb[1], rgb[2]);
     else
-      flate_printf(out, "%.2f %.2f %.2f rg ", rgb[0], rgb[1], rgb[2]);
+      out->printf("%g %g %g rg ", rgb[0], rgb[1], rgb[2]);
   }
   else
   {
     // Output grayscale...
     if (PSLevel > 0)
-      fprintf(out, "%.2f G ",
-              rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
+      out->printf("%g G ", rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
     else
-      flate_printf(out, "%.2f g ",
-                   rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
+      out->printf("%g g ",
+                  rgb[0] * 0.31f + rgb[1] * 0.61f + rgb[2] * 0.08f);
   }
 }
 
@@ -9881,31 +9952,15 @@ set_color(FILE  *out,	/* I - File to write to */
  */
 
 static void
-set_font(FILE  *out,			/* I - File to write to */
-         int   typeface,		/* I - Typeface code */
-         int   style,			/* I - Style code */
-         float size)			/* I - Size */
+set_font(hdFile *out,			/* I - File to write to */
+         int    typeface,		/* I - Typeface code */
+         int    style,			/* I - Style code */
+         float  size)			/* I - Size */
 {
-  char	sizes[255],	/* Formatted string for size... */
-	*s;		/* Pointer to end of string */
-
-
   if (typeface == render_typeface &&
       style == render_style &&
       size == render_size)
     return;
-
- /*
-  * Format size and strip trailing 0's and decimals...
-  */
-
-  sprintf(sizes, "%.1f", size);
-
-  for (s = sizes + strlen(sizes) - 1; s > sizes && *s == '0'; s --)
-    *s = '\0';
-
-  if (*s == '.')
-    *s = '\0';
 
  /*
   * Set the new typeface, style, and size.
@@ -9914,12 +9969,12 @@ set_font(FILE  *out,			/* I - File to write to */
   if (PSLevel > 0)
   {
     if (size != render_size)
-      fprintf(out, "%s FS", sizes);
+      out->printf("%g FS", size);
 
-    fprintf(out, "/F%x SF ", typeface * 4 + style);
+    out->printf("/F%x SF ", typeface * 4 + style);
   }
   else
-    flate_printf(out, "/F%x %s Tf ", typeface * 4 + style, sizes);
+    out->printf("/F%x %g Tf ", typeface * 4 + style, size);
 
   render_typeface = typeface;
   render_style    = style;
@@ -9932,15 +9987,10 @@ set_font(FILE  *out,			/* I - File to write to */
  */
 
 static void
-set_pos(FILE  *out,			/* I - File to write to */
-        float x,			/* I - X position */
-        float y)			/* I - Y position */
+set_pos(hdFile *out,			/* I - File to write to */
+        float  x,			/* I - X position */
+        float  y)			/* I - Y position */
 {
-  char	xs[255],			/* Formatted string for X... */
-	ys[255],			/* Formatted string for Y... */
-	*s;				/* Pointer to end of string */
-
-
   if (fabs(render_x - x) < 0.1 && fabs(render_y - y) < 0.1)
     return;
 
@@ -9948,274 +9998,19 @@ set_pos(FILE  *out,			/* I - File to write to */
   * Format X and Y...
   */
 
-  if (PSLevel > 0 || render_x == -1.0)
-  {
-    sprintf(xs, "%.3f", x);
-    sprintf(ys, "%.3f", y);
-  }
-  else
-  {
-    sprintf(xs, "%.3f", x - render_startx);
-    sprintf(ys, "%.3f", y - render_y);
-  }
-
- /*
-  * Strip trailing 0's and decimals...
-  */
-
-  for (s = xs + strlen(xs) - 1; s > xs && *s == '0'; s --)
-    *s = '\0';
-
-  if (*s == '.')
-    *s = '\0';
-
-  for (s = ys + strlen(ys) - 1; s > ys && *s == '0'; s --)
-    *s = '\0';
-
-  if (*s == '.')
-    *s = '\0';
-
   if (PSLevel > 0)
-    fprintf(out, "%s %s M", xs, ys);
+    out->printf("%g %g M", x, y);
+  else if (render_x == -1.0)
+     out->printf("%g %g Td", x, y);
   else
-    flate_printf(out, "%s %s Td", xs, ys);
+     out->printf("%g %g Td", x - render_startx, y - render_y);
 
   render_x = render_startx = x;
   render_y = y;
 }
 
 
-/*
- * 'ps_hex()' - Print binary data as a series of hexadecimal numbers.
- */
-
-static void
-ps_hex(FILE  *out,			/* I - File to print to */
-       hdChar *data,			/* I - Data to print */
-       int   length)			/* I - Number of bytes to print */
-{
-  int		col;
-  static const char *hex = "0123456789ABCDEF";
-
-
-  col = 0;
-  while (length > 0)
-  {
-   /*
-    * Put the hex hdChars out to the file; note that we don't use fprintf()
-    * for speed reasons...
-    */
-
-    putc(hex[*data >> 4], out);
-    putc(hex[*data & 15], out);
-
-    data ++;
-    length --;
-
-    col = (col + 1) % 40;
-    if (col == 0)
-      putc('\n', out);
-  }
-
-  if (col > 0)
-    putc('\n', out);
-}
-
-
-#ifdef HTMLDOC_ASCII85
-/*
- * 'ps_ascii85()' - Print binary data as a series of base-85 numbers.
- */
-
-static void
-ps_ascii85(FILE  *out,			/* I - File to print to */
-	   hdChar *data,			/* I - Data to print */
-	   int   length,		/* I - Number of bytes to print */
-	   int   eod)			/* I - 1 = end-of-data */
-{
-  unsigned	b;			/* Current 32-bit word */
-  hdChar	c[5];			/* Base-85 encoded characters */
-  static int	col = 0;		/* Column */
-  static hdChar	leftdata[4];		/* Leftover data at the end */
-  static int	leftcount = 0;		/* Size of leftover data */
-
-
-  length += leftcount;
-
-  while (length > 3)
-  {
-    switch (leftcount)
-    {
-      default :
-      case 0 :
-          b = (((((data[0] << 8) | data[1]) << 8) | data[2]) << 8) | data[3];
-	  break;
-      case 1 :
-          b = (((((leftdata[0] << 8) | data[0]) << 8) | data[1]) << 8) | data[2];
-	  break;
-      case 2 :
-          b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | data[0]) << 8) | data[1];
-	  break;
-      case 3 :
-          b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) | data[0];
-	  break;
-    }
-
-    if (col >= 76)
-    {
-      col = 0;
-      putc('\n', out);
-    }
-
-    if (b == 0)
-    {
-      putc('z', out);
-      col ++;
-    }
-    else
-    {
-      c[4] = (b % 85) + '!';
-      b /= 85;
-      c[3] = (b % 85) + '!';
-      b /= 85;
-      c[2] = (b % 85) + '!';
-      b /= 85;
-      c[1] = (b % 85) + '!';
-      b /= 85;
-      c[0] = b + '!';
-
-      fwrite(c, 1, 5, out);
-      col += 5;
-    }
-
-    data      += 4 - leftcount;
-    length    -= 4 - leftcount;
-    leftcount = 0;
-  }
-
-  if (length > 0)
-  {
-    // Copy any remainder into the leftdata array...
-    if ((length - leftcount) > 0)
-      memcpy(leftdata + leftcount, data, length - leftcount);
-
-    memset(leftdata + length, 0, 4 - length);
-
-    leftcount = length;
-  }
-
-  if (eod)
-  {
-    // Do the end-of-data dance...
-    if (col >= 76)
-    {
-      col = 0;
-      putc('\n', out);
-    }
-
-    if (leftcount > 0)
-    {
-      // Write the remaining bytes as needed...
-      b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) |
-          leftdata[3];
-
-      c[4] = (b % 85) + '!';
-      b /= 85;
-      c[3] = (b % 85) + '!';
-      b /= 85;
-      c[2] = (b % 85) + '!';
-      b /= 85;
-      c[1] = (b % 85) + '!';
-      b /= 85;
-      c[0] = b + '!';
-
-      fwrite(c, leftcount + 1, 1, out);
-
-      leftcount = 0;
-    }
-
-    fputs("~>\n", out);
-    col = 0;
-  }
-}
-#endif // HTMLDOC_ASCII85
-
-
-/*
- * JPEG library destination data manager.  These routines direct
- * compressed data from libjpeg into the PDF or PostScript file.
- */
-
-static FILE			*jpg_file;	/* JPEG file */
-static hdChar			jpg_buf[8192];	/* JPEG buffer */
-static jpeg_destination_mgr	jpg_dest;	/* JPEG destination manager */
-static struct jpeg_error_mgr	jerr;		/* JPEG error handler */
-
-
-/*
- * 'jpg_init()' - Initialize the JPEG destination.
- */
-
-static void
-jpg_init(j_compress_ptr cinfo)		/* I - Compressor info */
-{
-  (void)cinfo;
-
-  jpg_dest.next_output_byte = jpg_buf;
-  jpg_dest.free_in_buffer   = sizeof(jpg_buf);
-}
-
-
-/*
- * 'jpg_empty()' - Empty the JPEG output buffer.
- */
-
-static boolean				/* O - True if buffer written OK */
-jpg_empty(j_compress_ptr cinfo)		/* I - Compressor info */
-{
-  (void)cinfo;
-
-  if (PSLevel > 0)
-#ifdef HTMLDOC_ASCII85
-    ps_ascii85(jpg_file, jpg_buf, sizeof(jpg_buf));
-#else
-    ps_hex(jpg_file, jpg_buf, sizeof(jpg_buf));
-#endif // HTMLDOC_ASCII85
-  else
-    flate_write(jpg_file, jpg_buf, sizeof(jpg_buf));
-
-  jpg_dest.next_output_byte = jpg_buf;
-  jpg_dest.free_in_buffer   = sizeof(jpg_buf);
-
-  return (TRUE);
-}
-
-
-/*
- * 'jpg_term()' - Write the last JPEG data to the file.
- */
-
-static void
-jpg_term(j_compress_ptr cinfo)		/* I - Compressor info */
-{
-  int nbytes;				/* Number of bytes to write */
-
-
-  (void)cinfo;
-
-  nbytes = sizeof(jpg_buf) - jpg_dest.free_in_buffer;
-
-  if (PSLevel > 0)
-#ifdef HTMLDOC_ASCII85
-    ps_ascii85(jpg_file, jpg_buf, nbytes);
-#else
-    ps_hex(jpg_file, jpg_buf, nbytes);
-#endif // HTMLDOC_ASCII85
-  else
-    flate_write(jpg_file, jpg_buf, nbytes);
-}
-
-
+#if 0
 /*
  * 'jpg_setup()' - Setup the JPEG compressor for writing an image.
  */
@@ -10238,10 +10033,10 @@ jpg_setup(FILE           *out,	/* I - Output file */
   jpg_dest.empty_output_buffer = jpg_empty;
   jpg_dest.term_destination    = jpg_term;
 
-  cinfo->image_width      = img->width;
-  cinfo->image_height     = img->height;
-  cinfo->input_components = img->depth;
-  cinfo->in_color_space   = img->depth == 1 ? JCS_GRAYSCALE : JCS_RGB;
+  cinfo->image_width      = img->width();
+  cinfo->image_height     = img->height();
+  cinfo->input_components = img->depth();
+  cinfo->in_color_space   = img->depth() == 1 ? JCS_GRAYSCALE : JCS_RGB;
 
   jpeg_set_defaults(cinfo);
   jpeg_set_quality(cinfo, OutputJPEG, TRUE);
@@ -10250,7 +10045,7 @@ jpg_setup(FILE           *out,	/* I - Output file */
   if (PSLevel)
   {
     // Adobe uses sampling == 1
-    for (i = 0; i < img->depth; i ++)
+    for (i = 0; i < img->depth(); i ++)
     {
       cinfo->comp_info[i].h_samp_factor = 1;
       cinfo->comp_info[i].v_samp_factor = 1;
@@ -10262,6 +10057,7 @@ jpg_setup(FILE           *out,	/* I - Output file */
 
   jpeg_start_compress(cinfo, TRUE);
 }
+#endif // 0
 
 
 /*
@@ -10281,13 +10077,13 @@ compare_rgb(unsigned *rgb1,		/* I - First color */
  */
 
 static void
-write_image(FILE     *out,		/* I - Output file */
+write_image(hdFile   *out,		/* I - Output file */
             hdRender *r,		/* I - Image to write */
 	    int      write_obj)		/* I - Write an object? */
 {
   int		i, j, k, m,		/* Looping vars */
 		ncolors;		/* Number of colors */
-  hdChar		*pixel,			/* Current pixel */
+  hdChar	*pixel,			/* Current pixel */
 		*indices,		/* New indexed pixel array */
 		*indptr;		/* Current index */
   int		indwidth,		/* Width of indexed line */
@@ -10296,13 +10092,14 @@ write_image(FILE     *out,		/* I - Output file */
   unsigned	colors[256],		/* Colormap values */
 		key,			/* Color key */
 		*match;			/* Matching color value */
-  hdChar		grays[256],		/* Grayscale usage */
+  hdChar	grays[256],		/* Grayscale usage */
 		cmap[256][3];		/* Colormap */
   hdImage 	*img;			/* Image */
-  struct jpeg_compress_struct cinfo;	/* JPEG compressor */
-  hdChar		*data,			/* PS Level 3 image data */
+  hdChar	*data,			/* PS Level 3 image data */
 		*dataptr,		/* Pointer into image data */
 		*maskptr;		/* Pointer into mask data */
+  hdFile	*filter;		/* Flate/JPEG/ASCII filter */
+  hdArray	filters(NULL);		/* Array of filters */
 
 
  /*
@@ -10314,8 +10111,8 @@ write_image(FILE     *out,		/* I - Output file */
   indices  = NULL;
   indwidth = 0;
 
-  if (!img->pixels && !img->obj)
-    image_load(img->filename, !OutputColor, 1);
+  if (!img->pixels() && !img->obj())
+    img->load();
 
   // Note: Acrobat 6 tries to decrypt the colormap of indexed in-line images twice, which
   //       is 1) not consistent with prior Acrobat releases and 2) in violation of their
@@ -10324,9 +10121,10 @@ write_image(FILE     *out,		/* I - Output file */
   //
   //       We are filing a bug on this with Adobe, but if history is any indicator, we are
   //       stuck with this workaround forever...
-  if (PSLevel != 1 && PDFVersion >= 12 && img->obj == 0 && (img->use > 1 || !Encryption))
+  if (PSLevel != 1 && PDFVersion >= 12 && img->obj() == 0 &&
+      (img->use() > 1 || !Encryption))
   {
-    if (img->depth == 1)
+    if (img->depth() == 1)
     {
      /*
       * Greyscale image...
@@ -10334,7 +10132,7 @@ write_image(FILE     *out,		/* I - Output file */
 
       memset(grays, 0, sizeof(grays));
 
-      for (i = img->width * img->height, pixel = img->pixels;
+      for (i = img->width() * img->height(), pixel = img->pixels();
 	   i > 0;
 	   i --, pixel ++)
 	if (!grays[*pixel])
@@ -10370,7 +10168,7 @@ write_image(FILE     *out,		/* I - Output file */
       else
         max_colors = 256;
 
-      for (i = img->width * img->height, pixel = img->pixels, match = NULL;
+      for (i = img->width() * img->height(), pixel = img->pixels(), match = NULL;
 	   i > 0;
 	   i --, pixel += 3)
       {
@@ -10406,7 +10204,7 @@ write_image(FILE     *out,		/* I - Output file */
 
   if (ncolors > 0)
   {
-    if (PSLevel == 3 && img->mask)
+    if (PSLevel == 3 && img->mask())
       indbits = 8;
     else if (ncolors <= 2)
       indbits = 1;
@@ -10417,10 +10215,10 @@ write_image(FILE     *out,		/* I - Output file */
     else
       indbits = 8;
 
-    indwidth = (img->width * indbits + 7) / 8;
-    indices  = (hdChar *)calloc(indwidth, img->height);
+    indwidth = (img->width() * indbits + 7) / 8;
+    indices  = (hdChar *)calloc(indwidth, img->height());
 
-    if (img->depth == 1)
+    if (img->depth() == 1)
     {
      /*
       * Convert a grayscale image...
@@ -10429,11 +10227,11 @@ write_image(FILE     *out,		/* I - Output file */
       switch (indbits)
       {
         case 1 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 7; j > 0; j --, k = (k + 7) & 7, pixel ++)
+	      for (j = img->width(), k = 7; j > 0; j --, k = (k + 7) & 7, pixel ++)
 		switch (k)
 		{
 		  case 7 :
@@ -10453,11 +10251,11 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 2 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0; j > 0; j --, k = (k + 1) & 3, pixel ++)
+	      for (j = img->width(), k = 0; j > 0; j --, k = (k + 1) & 3, pixel ++)
 		switch (k)
 		{
 		  case 0 :
@@ -10480,11 +10278,11 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 4 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices;
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0; j > 0; j --, k ^= 1, pixel ++)
+	      for (j = img->width(), k = 0; j > 0; j --, k ^= 1, pixel ++)
 		if (k)
 		  *indptr++ |= grays[*pixel];
 		else
@@ -10505,12 +10303,12 @@ write_image(FILE     *out,		/* I - Output file */
       switch (indbits)
       {
         case 1 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices,
 	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 7;
+	      for (j = img->width(), k = 7;
 	           j > 0;
 		   j --, k = (k + 7) & 7, pixel += 3)
 	      {
@@ -10542,12 +10340,12 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 2 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices,
 	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0;
+	      for (j = img->width(), k = 0;
 	           j > 0;
 		   j --, k = (k + 1) & 3, pixel += 3)
 	      {
@@ -10582,12 +10380,12 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 4 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices,
 	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width, k = 0; j > 0; j --, k ^= 1, pixel += 3)
+	      for (j = img->width(), k = 0; j > 0; j --, k ^= 1, pixel += 3)
 	      {
                 key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
 
@@ -10609,12 +10407,12 @@ write_image(FILE     *out,		/* I - Output file */
 	    break;
 
         case 8 :
-	    for (i = img->height, pixel = img->pixels, indptr = indices,
+	    for (i = img->height(), pixel = img->pixels(), indptr = indices,
 	             match = colors;
 		 i > 0;
 		 i --)
 	    {
-	      for (j = img->width; j > 0; j --, pixel += 3, indptr ++)
+	      for (j = img->width(); j > 0; j --, pixel += 3, indptr ++)
 	      {
                 key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
 
@@ -10650,41 +10448,47 @@ write_image(FILE     *out,		/* I - Output file */
   {
     case 0 : /* PDF */
         if (!write_obj)
-	  flate_printf(out, "q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width, r->height,
-	               r->x, r->y);
+	  out->printf("q %.1f 0 0 %.1f %.1f %.1f cm\n", r->width,
+	              r->height, r->x, r->y);
 
-        if (img->obj)
+        if (img->obj())
 	{
-	  if (img->mask && PDFVersion < 13)
+	  if (img->mask() && PDFVersion < 13)
 	    write_imagemask(out, r);
 
-	  flate_printf(out, "/I%d Do Q\n", img->obj);
+	  out->printf("/I%d Do Q\n", img->obj());
 	  break;
 	}
 
-        if (img->mask && write_obj && PDFVersion >= 13)
+        if (img->mask() && write_obj && PDFVersion >= 13)
 	{
 	  // We have a mask image, write it!
           pdf_start_object(out);
-	  fputs("/Type/XObject/Subtype/Image", out);
-          fputs("/ColorSpace/DeviceGray", out);
-	  if (img->maskscale == 8)
-	    fprintf(out, "/Width %d/Height %d/BitsPerComponent 8",
-	            img->width, img->height);
+	  out->puts("/Type/XObject/Subtype/Image");
+          out->puts("/ColorSpace/DeviceGray");
+	  if (img->maskwidth() == img->width())
+	    out->printf("/Width %d/Height %d/BitsPerComponent 8",
+	                img->width(), img->height());
           else
-	    fprintf(out, "/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
-	            img->width * img->maskscale, img->height * img->maskscale);
-          if (Compression)
-            fputs("/Filter/FlateDecode", out);
+	    out->printf("/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
+	                img->width(), img->height());
+	  if (Compression)
+	  {
+            out->puts("/Filter/FlateDecode");
+	    filter = new hdFlateFilter(out, Compression);
+	    filters.add(filter);
+	  }
+	  else
+	    filter = out;
 
           pdf_start_stream(out);
-          flate_open_stream(out);
-	  if (img->maskscale == 8)
-  	    flate_write(out, img->mask, img->width * img->height);
-	  else
-  	    flate_write(out, img->mask,
-	                img->maskwidth * img->height * img->maskscale);
-	  flate_close_stream(out);
+	  filter->write(img->mask(), img->maskwidth() * img->height());
+
+	  while ((filter = (hdFile *)filters.last()) != NULL)
+	  {
+	    filters.remove(filter);
+	    delete filter;
+	  }
 
           pdf_end_object(out);
 	}
@@ -10692,15 +10496,15 @@ write_image(FILE     *out,		/* I - Output file */
         if (write_obj)
 	{
 	  // Write an image object...
-	  img->obj = pdf_start_object(out);
+	  img->obj(pdf_start_object(out));
 
-	  fputs("/Type/XObject/Subtype/Image", out);
-	  if (img->mask && PDFVersion >= 13)
+	  out->puts("/Type/XObject/Subtype/Image");
+	  if (img->mask() && PDFVersion >= 13)
 	  {
-	    if (img->maskscale == 8)
-	      fprintf(out, "/SMask %d 0 R", img->obj - 1);
+	    if (img->maskwidth() == img->width())
+	      out->printf("/SMask %d 0 R", img->obj() - 1);
 	    else
-	      fprintf(out, "/Mask %d 0 R", img->obj - 1);
+	      out->printf("/Mask %d 0 R", img->obj() - 1);
 	  }
 
 	  if (ncolors > 0)
@@ -10715,153 +10519,177 @@ write_image(FILE     *out,		/* I - Output file */
 	    if (Encryption)
 	    {
 	      // Encrypt the colormap...
-	      encrypt_init();
-	      rc4_encrypt(&encrypt_state, cmap[0], cmap[0], ncolors * 3);
+	      filter = encrypt_init(out);
+	      filters.add(filter);
+	    }
+	    else
+	      filter = out;
+
+	    out->printf("/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
+
+	    filter = new hdASCIIHexFilter(filter);
+	    filters.add(filter);
+	    filter->write(cmap, 3 * ncolors);
+
+	    while ((filter = (hdFile *)filters.last()) != NULL)
+	    {
+	      filters.remove(filter);
+	      delete filter;
 	    }
 
-	    fprintf(out, "/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
-	    for (i = 0; i < ncolors; i ++)
-	      fprintf(out, "%02X%02X%02X", cmap[i][0], cmap[i][1],
-	              cmap[i][2]);
-	    fputs(">]", out);
+	    out->puts(">]");
           }
-	  else if (img->depth == 1)
-            fputs("/ColorSpace/DeviceGray", out);
+	  else if (img->depth() == 1)
+            out->puts("/ColorSpace/DeviceGray");
           else
-            fputs("/ColorSpace/DeviceRGB", out);
+            out->puts("/ColorSpace/DeviceRGB");
 
 #ifdef HTMLDOC_INTERPOLATION
           if (ncolors != 2)
-            fputs("/Interpolate true", out);
+            out->puts("/Interpolate true");
 #endif // HTMLDOC_INTERPOLATION
 
           if (Compression && (ncolors || !OutputJPEG))
-            fputs("/Filter/FlateDecode", out);
+	  {
+            out->puts("/Filter/FlateDecode");
+	    filter = new hdFlateFilter(out, Compression);
+	    filters.add(filter);
+	  }
 	  else if (OutputJPEG && ncolors == 0)
 	  {
 	    if (Compression)
-	      fputs("/Filter[/FlateDecode/DCTDecode]", out);
-	    else
-	      fputs("/Filter/DCTDecode", out);
-	  }
+	    {
+	      out->puts("/Filter[/FlateDecode/DCTDecode]");
 
-  	  fprintf(out, "/Width %d/Height %d/BitsPerComponent %d",
-	          img->width, img->height, indbits);
+	      filter = new hdJPEGFilter(out, img->width(), img->height(),
+	                                img->depth(), OutputJPEG);
+	      filters.add(filter);
+	      filter = new hdFlateFilter(filter, Compression);
+	      filters.add(filter);
+	    }
+	    else
+	    {
+	      filter = new hdJPEGFilter(out, img->width(), img->height(),
+	                                img->depth(), OutputJPEG);
+	      filters.add(filter);
+	      out->puts("/Filter/DCTDecode");
+	    }
+	  }
+	  else
+	    filter = out;
+
+  	  out->printf("/Width %d/Height %d/BitsPerComponent %d",
+	              img->width(), img->height(), indbits);
           pdf_start_stream(out);
-          flate_open_stream(out);
 
-          if (OutputJPEG && ncolors == 0)
+	  if (ncolors > 0)
+	    filter->write(indices, indwidth * img->height());
+	  else
+	    filter->write(img->pixels(),
+			  img->width() * img->height() * img->depth());
+
+	  while ((filter = (hdFile *)filters.last()) != NULL)
 	  {
-	    jpg_setup(out, img, &cinfo);
-
-	    for (i = img->height, pixel = img->pixels;
-	         i > 0;
-	         i --, pixel += img->width * img->depth)
-	      jpeg_write_scanlines(&cinfo, &pixel, 1);
-
-	    jpeg_finish_compress(&cinfo);
-	    jpeg_destroy_compress(&cinfo);
+	    filters.remove(filter);
+	    delete filter;
 	  }
-          else
-	  {
-	    if (ncolors > 0)
-   	      flate_write(out, indices, indwidth * img->height);
-	    else
-  	      flate_write(out, img->pixels,
-	                  img->width * img->height * img->depth);
-          }
 
-          flate_close_stream(out);
           pdf_end_object(out);
 	}
 	else
 	{
 	  // Put the image in-line...
-          flate_puts("BI", out);
+          out->puts("BI");
 
 	  if (ncolors > 0)
 	  {
-	    flate_printf(out, "/CS[/I/RGB %d<", ncolors - 1);
+	    out->printf("/CS[/I/RGB %d<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
-	      flate_printf(out, "%02X%02X%02X", colors[i] >> 16,
+	      out->printf("%02X%02X%02X", colors[i] >> 16,
 	        	   (colors[i] >> 8) & 255, colors[i] & 255);
-	    flate_puts(">]", out);
+	    out->puts(">]");
           }
-	  else if (img->depth == 1)
-            flate_puts("/CS/G", out);
+	  else if (img->depth() == 1)
+            out->puts("/CS/G");
           else
-            flate_puts("/CS/RGB", out);
+            out->puts("/CS/RGB");
 
           if (ncolors != 2)
-            flate_puts("/I true", out);
+            out->puts("/I true");
 
-  	  flate_printf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits); 
+  	  out->printf("/W %d/H %d/BPC %d", img->width(), img->height(),
+	               indbits); 
 
 	  if (ncolors > 0)
 	  {
-  	    flate_puts(" ID\n", out);
-  	    flate_write(out, indices, indwidth * img->height, 1);
+  	    out->puts(" ID\n");
+  	    out->write(indices, indwidth * img->height());
 	  }
 	  else if (OutputJPEG)
 	  {
-  	    flate_puts("/F/DCT ID\n", out);
+  	    out->puts("/F/DCT ID\n");
 
-	    jpg_setup(out, img, &cinfo);
+	    filter = new hdJPEGFilter(out, img->width(), img->height(),
+	                              img->depth(), OutputJPEG);
 
-	    for (i = img->height, pixel = img->pixels;
-	         i > 0;
-	         i --, pixel += img->width * img->depth)
-	      jpeg_write_scanlines(&cinfo, &pixel, 1);
+	    filter->write(img->pixels(),
+			  img->width() * img->height() * img->depth());
 
-	    jpeg_finish_compress(&cinfo);
-	    jpeg_destroy_compress(&cinfo);
+            delete filter;
           }
 	  else
 	  {
-  	    flate_puts(" ID\n", out);
-  	    flate_write(out, img->pixels, img->width * img->height * img->depth, 1);
+  	    out->puts(" ID\n");
+  	    out->write(img->pixels(),
+	               img->width() * img->height() * img->depth());
           }
 
-	  flate_write(out, (hdChar *)"\nEI\nQ\n", 6, 1);
+	  out->puts("\nEI\nQ\n");
 	}
         break;
 
     case 1 : /* PostScript, Level 1 */
-        fputs("GS", out);
-	fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
-	        r->x, r->y);
+        out->puts("GS");
+	out->printf("[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
+		    r->x, r->y);
 
-	if (img->mask)
+	if (img->mask())
 	  write_imagemask(out, r);
 
-	fprintf(out, "/picture %d string def\n", img->width * img->depth);
+	out->printf("/picture %d string def\n", img->width() * img->depth());
 
-	if (img->depth == 1)
-	  fprintf(out, "%d %d 8 [%d 0 0 %d 0 %d] {currentfile picture readhexstring pop} image\n",
-        	  img->width, img->height,
-        	  img->width, -img->height,
-        	  img->height); 
+	if (img->depth() == 1)
+	  out->printf("%d %d 8 [%d 0 0 %d 0 %d] {currentfile picture "
+	              "readhexstring pop} image\n",
+		      img->width(), img->height(),
+		      img->width(), -img->height(),
+		      img->height()); 
 	else
-	  fprintf(out, "%d %d 8 [%d 0 0 %d 0 %d] {currentfile picture readhexstring pop} false 3 colorimage\n",
-        	  img->width, img->height,
-        	  img->width, -img->height,
-        	  img->height); 
+	  out->printf("%d %d 8 [%d 0 0 %d 0 %d] {currentfile picture "
+	              "readhexstring pop} false 3 colorimage\n",
+		      img->width(), img->height(),
+		      img->width(), -img->height(),
+		      img->height()); 
 
-	ps_hex(out, img->pixels, img->width * img->height * img->depth);
+	filter = new hdASCIIHexFilter(out);
+	filter->write(img->pixels(),
+	              img->width() * img->height() * img->depth());
+        delete filter;
 
-	fputs("GR\n", out);
+	out->puts("GR\n");
         break;
+
     case 3 : /* PostScript, Level 3 */
         // Fallthrough to Level 2 output if compression is disabled and
 	// we aren't doing transparency...
         if ((Compression && (!OutputJPEG || ncolors > 0)) ||
-	    (img->mask && img->maskscale == 8))
+	    (img->mask() && img->maskwidth() == img->width()))
 	{
-          fputs("GS", out);
-	  fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
-	          r->x, r->y);
+          out->puts("GS");
+	  out->printf("[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
+	              r->x, r->y);
 
-	  if (img->mask && img->maskscale != 8)
+	  if (img->mask() && img->maskwidth() != img->width())
 	    write_imagemask(out, r);
 
           if (ncolors > 0)
@@ -10869,157 +10697,185 @@ write_image(FILE     *out,		/* I - Output file */
 	    if (ncolors <= 2)
 	      ncolors = 2; /* Adobe doesn't like 1 color images... */
 
-	    fprintf(out, "[/Indexed/DeviceRGB %d\n<", ncolors - 1);
+	    out->printf("[/Indexed/DeviceRGB %d\n<", ncolors - 1);
 	    for (i = 0; i < ncolors; i ++)
 	    {
-	      fprintf(out, "%02X%02X%02X", colors[i] >> 16,
+	      out->printf("%02X%02X%02X", colors[i] >> 16,
 	              (colors[i] >> 8) & 255, colors[i] & 255);
 	      if ((i % 13) == 12)
-	        putc('\n', out);
+	        out->put('\n');
             }
-	    fputs(">]setcolorspace\n", out);
+	    out->puts(">]setcolorspace\n");
 
-	    if (img->mask && img->maskscale == 8)
-	      fprintf(out, "<<"
-	                   "/ImageType 3"
-			   "/InterleaveType 1"
-			   "/MaskDict<<"
-	                   "/ImageType 1"
-	                   "/Width %d"
-	                   "/Height %d"
-	                   "/BitsPerComponent 8"
-	                   "/ImageMatrix[%d 0 0 %d 0 %d]"
-			   "/Decode[0 1]"
-	                   ">>\n"
-			   "/DataDict",
-	            img->width, img->height,
-        	    img->width, -img->height, img->height);
+	    if (img->mask() && img->maskwidth() == img->width())
+	      out->printf("<<"
+	                  "/ImageType 3"
+			  "/InterleaveType 1"
+			  "/MaskDict<<"
+	                  "/ImageType 1"
+	                  "/Width %d"
+	                  "/Height %d"
+	                  "/BitsPerComponent 8"
+	                  "/ImageMatrix[%d 0 0 %d 0 %d]"
+			  "/Decode[0 1]"
+	                  ">>\n"
+			  "/DataDict",
+			  img->width(), img->height(),
+			  img->width(), -img->height(), img->height());
 
-	    fprintf(out, "<<"
-	                 "/ImageType 1"
-	                 "/Width %d"
-	                 "/Height %d"
-	                 "/BitsPerComponent %d"
-	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
-	                 "/Decode[0 %d]",
-	            img->width, img->height, indbits,
-        	    img->width, -img->height, img->height,
-        	    (1 << indbits) - 1);
+	    out->printf("<<"
+	                "/ImageType 1"
+	                "/Width %d"
+	                "/Height %d"
+	                "/BitsPerComponent %d"
+	                "/ImageMatrix[%d 0 0 %d 0 %d]"
+	                "/Decode[0 %d]",
+			img->width(), img->height(), indbits,
+			img->width(), -img->height(), img->height(),
+			(1 << indbits) - 1);
 
 #ifdef HTMLDOC_INTERPOLATION
             if (ncolors != 2)
-	      fputs("/Interpolate true", out);
+	      out->puts("/Interpolate true");
 #endif // HTMLDOC_INTERPOLATION
 
 #ifdef HTMLDOC_ASCII85
-            fputs("/DataSource currentfile/ASCII85Decode filter", out);
+            out->puts("/DataSource currentfile/ASCII85Decode filter");
 #else
-            fputs("/DataSource currentfile/ASCIIHexDecode filter", out);
+            out->puts("/DataSource currentfile/ASCIIHexDecode filter");
 #endif // HTMLDOC_ASCII85
 
             if (Compression)
-	      fputs("/FlateDecode filter", out);
-
-	    fputs(">>\n", out);
-
-	    if (img->mask && img->maskscale == 8)
-	      fputs(">>\n", out);
-
-	    fputs("image\n", out);
-
-            flate_open_stream(out);
-
-	    if (img->mask && img->maskscale == 8)
 	    {
-	      data = (hdChar *)malloc(img->width * 2);
+	      out->puts("/FlateDecode filter");
+	      filter = new hdFlateFilter(out, Compression);
+	      filters.add(filter);
+	    }
+	    else
+	      filter = out;
 
-	      for (i = 0, maskptr = img->mask, indptr = indices;
-	           i < img->height;
+#ifdef HTMLDOC_ASCII85
+            filter = new hdASCII85Filter(filter);
+	    filters.add(filter);
+#else
+            filter = new hdASCIIHexFilter(filter);
+	    filters.add(filter);
+#endif // HTMLDOC_ASCII85
+
+	    out->puts(">>\n");
+
+	    if (img->mask() && img->maskwidth() == img->width())
+	      out->puts(">>\n");
+
+	    out->puts("image\n");
+
+	    if (img->mask() && img->maskwidth() == img->width())
+	    {
+	      data = (hdChar *)malloc(img->width() * 2);
+
+	      for (i = 0, maskptr = img->mask(), indptr = indices;
+	           i < img->height();
 		   i ++)
 	      {
-	        for (j = img->width, dataptr = data; j > 0; j --)
+	        for (j = img->width(), dataptr = data; j > 0; j --)
 		{
 		  *dataptr++ = *maskptr++;
 		  *dataptr++ = *indptr++;
 		}
 
-		flate_write(out, data, img->width * 2);
+		filter->write(data, img->width() * 2);
 	      }
 
 	      free(data);
 	    }
 	    else
-	      flate_write(out, indices, indwidth * img->height);
+	      filter->write(indices, indwidth * img->height());
 
-	    flate_close_stream(out);
+	    while ((filter = (hdFile *)filters.last()) != NULL)
+	    {
+	      filters.remove(filter);
+	      delete filter;
+	    }
           }
           else
           {
-	    if (img->depth == 1)
-	      fputs("/DeviceGray setcolorspace", out);
+	    if (img->depth() == 1)
+	      out->puts("/DeviceGray setcolorspace");
 	    else
-	      fputs("/DeviceRGB setcolorspace", out);
+	      out->puts("/DeviceRGB setcolorspace");
 
-	    if (img->mask && img->maskscale == 8)
-	      fprintf(out, "<<"
-	                   "/ImageType 3"
-			   "/InterleaveType 1"
-			   "/MaskDict<<"
-	                   "/ImageType 1"
-	                   "/Width %d"
-	                   "/Height %d"
-	                   "/BitsPerComponent 8"
-	                   "/ImageMatrix[%d 0 0 %d 0 %d]"
-			   "/Decode[0 1]"
-	                   ">>\n"
-			   "/DataDict",
-	            img->width, img->height,
-        	    img->width, -img->height, img->height);
+	    if (img->mask() && img->maskwidth() == img->width())
+	      out->printf("<<"
+	                  "/ImageType 3"
+			  "/InterleaveType 1"
+			  "/MaskDict<<"
+	                  "/ImageType 1"
+	                  "/Width %d"
+	                  "/Height %d"
+	                  "/BitsPerComponent 8"
+	                  "/ImageMatrix[%d 0 0 %d 0 %d]"
+			  "/Decode[0 1]"
+	                  ">>\n"
+			  "/DataDict",
+			  img->width(), img->height(),
+			  img->width(), -img->height(), img->height());
 
-	    fprintf(out, "<<"
-	                 "/ImageType 1"
-	                 "/Width %d"
-	                 "/Height %d"
-	                 "/BitsPerComponent 8"
-	                 "/ImageMatrix[%d 0 0 %d 0 %d]"
-	                 "/Decode[%s]",
-	            img->width, img->height,
-        	    img->width, -img->height, img->height,
-        	    img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+	    out->printf("<<"
+	                "/ImageType 1"
+	                "/Width %d"
+	                "/Height %d"
+	                "/BitsPerComponent 8"
+	                "/ImageMatrix[%d 0 0 %d 0 %d]"
+	                "/Decode[%s]",
+			img->width(), img->height(),
+			img->width(), -img->height(), img->height(),
+			img->depth() == 1 ? "0 1" : "0 1 0 1 0 1");
 
 #ifdef HTMLDOC_INTERPOLATION
-	    fputs("/Interpolate true", out);
+	    out->puts("/Interpolate true");
 #endif // HTMLDOC_INTERPOLATION
 
 #ifdef HTMLDOC_ASCII85
-            fputs("/DataSource currentfile/ASCII85Decode filter", out);
+            out->puts("/DataSource currentfile/ASCII85Decode filter");
 #else
-            fputs("/DataSource currentfile/ASCIIHexDecode filter", out);
+            out->puts("/DataSource currentfile/ASCIIHexDecode filter");
 #endif // HTMLDOC_ASCII85
 
             if (Compression)
-	      fputs("/FlateDecode filter", out);
-
-	    fputs(">>\n", out);
-
-	    if (img->mask && img->maskscale == 8)
-	      fputs(">>\n", out);
-
-	    fputs("image\n", out);
-
-            flate_open_stream(out);
-
-	    if (img->mask && img->maskscale == 8)
 	    {
-	      data = (hdChar *)malloc(img->width * (img->depth + 1));
+	      out->puts("/FlateDecode filter");
+	      filter = new hdFlateFilter(out, Compression);
+	      filters.add(filter);
+	    }
+	    else
+	      filter = out;
 
-	      for (i = 0, maskptr = img->mask, pixel = img->pixels;
-	           i < img->height;
+#ifdef HTMLDOC_ASCII85
+            filter = new hdASCII85Filter(filter);
+	    filters.add(filter);
+#else
+            filter = new hdASCIIHexFilter(filter);
+	    filters.add(filter);
+#endif // HTMLDOC_ASCII85
+
+	    out->puts(">>\n");
+
+	    if (img->mask() && img->maskwidth() == img->width())
+	      out->puts(">>\n");
+
+	    out->puts("image\n");
+
+	    if (img->mask() && img->maskwidth() == img->width())
+	    {
+	      data = (hdChar *)malloc(img->width() * (img->depth() + 1));
+
+	      for (i = 0, maskptr = img->mask(), pixel = img->pixels();
+	           i < img->height();
 		   i ++)
 	      {
-	        if (img->depth == 1)
+	        if (img->depth() == 1)
 		{
-	          for (j = img->width, dataptr = data; j > 0; j --)
+	          for (j = img->width(), dataptr = data; j > 0; j --)
 		  {
 		    *dataptr++ = *maskptr++;
 		    *dataptr++ = *pixel++;
@@ -11027,7 +10883,7 @@ write_image(FILE     *out,		/* I - Output file */
 		}
 		else
 		{
-	          for (j = img->width, dataptr = data; j > 0; j --)
+	          for (j = img->width(), dataptr = data; j > 0; j --)
 		  {
 		    *dataptr++ = *maskptr++;
 		    *dataptr++ = *pixel++;
@@ -11036,160 +10892,172 @@ write_image(FILE     *out,		/* I - Output file */
 		  }
 		}
 
-		flate_write(out, data, img->width * (img->depth + 1));
+		filter->write(data, img->width() * (img->depth() + 1));
 	      }
 
 	      free(data);
 	    }
 	    else
-	      flate_write(out, img->pixels,
-	                  img->width * img->height * img->depth);
+	      filter->write(img->pixels(),
+	                    img->width() * img->height() * img->depth());
 
-	    flate_close_stream(out);
+	    while ((filter = (hdFile *)filters.last()) != NULL)
+	    {
+	      filters.remove(filter);
+	      delete filter;
+	    }
           }
 
-	  fputs("GR\n", out);
+	  out->puts("GR\n");
           break;
 	}
 
     case 2 : /* PostScript, Level 2 */
-        fputs("GS", out);
-	fprintf(out, "[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
-	        r->x, r->y);
+        out->puts("GS");
+	out->printf("[%.1f 0 0 %.1f %.1f %.1f]CM", r->width, r->height,
+	            r->x, r->y);
 
-	if (img->mask)
+	if (img->mask())
 	  write_imagemask(out, r);
 
         if (ncolors > 0)
         {
-	  fprintf(out, "[/Indexed/DeviceRGB %d\n<", ncolors - 1);
+	  out->printf("[/Indexed/DeviceRGB %d\n<", ncolors - 1);
 	  for (i = 0; i < ncolors; i ++)
 	  {
-	    fprintf(out, "%02X%02X%02X", colors[i] >> 16,
+	    out->printf("%02X%02X%02X", colors[i] >> 16,
 	            (colors[i] >> 8) & 255, colors[i] & 255);
 	    if ((i % 13) == 12)
-	      putc('\n', out);
+	      out->put('\n');
           }
 
-	  fputs(">]setcolorspace\n", out);
+	  out->puts(">]setcolorspace\n");
 
-	  fprintf(out, "<<"
-	               "/ImageType 1"
-	               "/Width %d"
-	               "/Height %d"
-	               "/BitsPerComponent %d"
-	               "/ImageMatrix[%d 0 0 %d 0 %d]"
-	               "/Decode[0 %d]",
-	          img->width, img->height, indbits,
-        	  img->width, -img->height, img->height,
-        	  (1 << indbits) - 1);
+	  out->printf("<<"
+	              "/ImageType 1"
+	              "/Width %d"
+	              "/Height %d"
+	              "/BitsPerComponent %d"
+	              "/ImageMatrix[%d 0 0 %d 0 %d]"
+	              "/Decode[0 %d]",
+		      img->width(), img->height(), indbits,
+		      img->width(), -img->height(), img->height(),
+		      (1 << indbits) - 1);
 
 #ifdef HTMLDOC_INTERPOLATION
           if (ncolors != 2)
-	    fputs("/Interpolate true", out);
+	    out->puts("/Interpolate true");
 #endif // HTMLDOC_INTERPOLATION
 
 #ifdef HTMLDOC_ASCII85
-	  fputs("/DataSource currentfile/ASCII85Decode filter>>image\n", out);
+	  out->puts("/DataSource currentfile/ASCII85Decode filter>>image\n");
 
-	  ps_ascii85(out, indices, indwidth * img->height, 1);
+          filter = new hdASCII85Filter(out);
+	  filter->write(indices, indwidth * img->height());
+	  delete filter;
 #else
-	  fputs("/DataSource currentfile/ASCIIHexDecode filter>>image\n", out);
+	  out->puts("/DataSource currentfile/ASCIIHexDecode filter>>image\n");
 
-	  ps_hex(out, indices, indwidth * img->height);
-	  // End of data marker...
-	  fputs(">\n", out);
+          filter = new hdASCIIHexFilter(out);
+	  filter->write(indices, indwidth * img->height());
+	  delete filter;
 #endif /* HTMLDOC_ASCII85 */
         }
 	else if (OutputJPEG)
 	{
-	  if (img->depth == 1)
-	    fputs("/DeviceGray setcolorspace\n", out);
+	  if (img->depth() == 1)
+	    out->puts("/DeviceGray setcolorspace\n");
 	  else
-	    fputs("/DeviceRGB setcolorspace\n", out);
+	    out->puts("/DeviceRGB setcolorspace\n");
 
-	  fprintf(out, "<<"
+	  out->printf("<<"
 	               "/ImageType 1"
 	               "/Width %d"
 	               "/Height %d"
 	               "/BitsPerComponent 8"
 	               "/ImageMatrix[%d 0 0 %d 0 %d]"
 	               "/Decode[%s]",
-	          img->width, img->height,
-        	  img->width, -img->height, img->height,
-        	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+	          img->width(), img->height(),
+        	  img->width(), -img->height(), img->height(),
+        	  img->depth() == 1 ? "0 1" : "0 1 0 1 0 1");
 
 #ifdef HTMLDOC_INTERPOLATION
-	  fputs("/Interpolate true", out);
+	  out->puts("/Interpolate true");
 #endif // HTMLDOC_INTERPOLATION
 
 #ifdef HTMLDOC_ASCII85
-	  fputs("/DataSource currentfile/ASCII85Decode filter/DCTDecode filter"
-	        ">>image\n", out);
+	  out->puts("/DataSource currentfile/ASCII85Decode filter"
+	            "/DCTDecode filter>>image\n");
 #else
-	  fputs("/DataSource currentfile/ASCIIHexDecode filter/DCTDecode filter"
-	        ">>image\n", out);
+	  out->puts("/DataSource currentfile/ASCIIHexDecode filter"
+	            "/DCTDecode filter>>image\n");
 #endif // HTMLDOC_ASCII85
 
-	  jpg_setup(out, img, &cinfo);
-
-	  for (i = img->height, pixel = img->pixels;
-	       i > 0;
-	       i --, pixel += img->width * img->depth)
-	    jpeg_write_scanlines(&cinfo, &pixel, 1);
-
-	  jpeg_finish_compress(&cinfo);
-	  jpeg_destroy_compress(&cinfo);
+	  filter = new hdJPEGFilter(out, img->width(), img->height(),
+				    img->depth(), OutputJPEG);
+	  filters.add(filter);
 
 #ifdef HTMLDOC_ASCII85
-          ps_ascii85(out, (hdChar *)"", 0, 1);
+	  filter = new hdASCII85Filter(filter);
+	  filters.add(filter);
 #else
-	  // End of data marker...
-	  fputs(">\n", out);
+	  filter = new hdASCIIHexFilter(filter);
+	  filters.add(filter);
 #endif // HTMLDOC_ASCII85
+
+	  filter->write(img->pixels(),
+			img->width() * img->height() * img->depth());
+
+	  while ((filter = (hdFile *)filters.last()) != NULL)
+	  {
+	    filters.remove(filter);
+	    delete filter;
+	  }
         }
         else
         {
-	  if (img->depth == 1)
-	    fputs("/DeviceGray setcolorspace\n", out);
+	  if (img->depth() == 1)
+	    out->puts("/DeviceGray setcolorspace\n");
 	  else
-	    fputs("/DeviceRGB setcolorspace\n", out);
+	    out->puts("/DeviceRGB setcolorspace\n");
 
-	  fprintf(out, "<<"
-	               "/ImageType 1"
-	               "/Width %d"
-	               "/Height %d"
-	               "/BitsPerComponent 8"
-	               "/ImageMatrix[%d 0 0 %d 0 %d]"
-	               "/Decode[%s]",
-	          img->width, img->height,
-        	  img->width, -img->height, img->height,
-        	  img->depth == 1 ? "0 1" : "0 1 0 1 0 1");
+	  out->printf("<<"
+	              "/ImageType 1"
+	              "/Width %d"
+	              "/Height %d"
+	              "/BitsPerComponent 8"
+	              "/ImageMatrix[%d 0 0 %d 0 %d]"
+	              "/Decode[%s]",
+		      img->width(), img->height(),
+		      img->width(), -img->height(), img->height(),
+		      img->depth() == 1 ? "0 1" : "0 1 0 1 0 1");
 
 #ifdef HTMLDOC_ASCII85
-          fputs("/DataSource currentfile/ASCII85Decode filter"
-	        ">>image\n", out);
+          out->puts("/DataSource currentfile/ASCII85Decode filter"
+		    ">>image\n");
 
-	  ps_ascii85(out, img->pixels, img->width * img->height *
-	                               img->depth, 1);
+          filter = new hdASCII85Filter(out);
 #else
-          fputs("/DataSource currentfile/ASCIIHexDecode filter"
-	        ">>image\n", out);
+          out->puts("/DataSource currentfile/ASCIIHexDecode filter"
+		    ">>image\n");
 
-	  ps_hex(out, img->pixels, img->width * img->depth * img->height);
-	  // End of data marker...
-	  fputs(">\n", out);
+          filter = new hdASCIIHexFilter(out);
 #endif // HTMLDOC_ASCII85
+
+	  filter->write(img->pixels(),
+	                img->width() * img->height() * img->depth());
+
+          delete filter;
         }
 
-	fputs("GR\n", out);
+	out->puts("GR\n");
         break;
   }
 
   if (ncolors > 0)
     free(indices);
 
-  image_unload(img);
+  img->free();
 }
 
 
@@ -11198,13 +11066,13 @@ write_image(FILE     *out,		/* I - Output file */
  */
 
 static void
-write_imagemask(FILE     *out,		/* I - Output file */
+write_imagemask(hdFile   *out,		/* I - Output file */
                 hdRender *r)		/* I - Image to write */
 {
   hdImage	*img;			/* Current image */
   int		x, y;			/* Position in mask image */
   int		startx, count;		/* Start and count */
-  hdChar		*ptr,			/* Pointer into mask image */
+  hdChar	*ptr,			/* Pointer into mask image */
 		byte,			/* Current byte */
 		bit;			/* Current bit */
   float		scalex, scaley;		/* 1/(w-1) and 1/(h-1) scaling factors */
@@ -11212,8 +11080,8 @@ write_imagemask(FILE     *out,		/* I - Output file */
 
 
   img    = r->data.image;
-  width  = img->width * img->maskscale;
-  height = img->height * img->maskscale;
+  width  = img->width();
+  height = img->height();
   scalex = 1.0f / width;
   scaley = 1.0f / height;
 
@@ -11223,13 +11091,13 @@ write_imagemask(FILE     *out,		/* I - Output file */
         break;
 
     default : // PostScript
-        fputs("\nnewpath\n", out);
+        out->puts("\nnewpath\n");
         break;
   }
 
   for (y = 0; y < height; y ++)
   {
-    for (x = 0, ptr = img->mask + (height - y - 1) * img->maskwidth,
+    for (x = 0, ptr = img->mask() + (height - y - 1) * img->maskwidth(),
              bit = 128, byte = *ptr++, startx = 0, count = 0;
          x < width;
 	 x ++)
@@ -11246,19 +11114,19 @@ write_imagemask(FILE     *out,		/* I - Output file */
 	switch (PSLevel)
 	{
 	  case 0 : // PDF
-	      flate_printf(out, "%.6f %.6f %.6f %.6f re\n",
-			   (float)startx * scalex,
-			   (float)y * scaley,
-			   (float)count * scalex,
-			   1.0f * scaley);
+	      out->printf("%.6f %.6f %.6f %.6f re\n",
+			  (float)startx * scalex,
+			  (float)y * scaley,
+			  (float)count * scalex,
+			  1.0f * scaley);
               break;
 
 	  default : // PostScript
-	      fprintf(out, "%.6f %.6f %.6f %.6f re\n",
-		      (float)startx * scalex,
-		      (float)y * scaley,
-		      (float)count * scalex,
-		      1.0f * scaley);
+	      out->printf("%.6f %.6f %.6f %.6f re\n",
+			  (float)startx * scalex,
+			  (float)y * scaley,
+			  (float)count * scalex,
+			  1.0f * scaley);
               break;
 	}
 
@@ -11279,19 +11147,19 @@ write_imagemask(FILE     *out,		/* I - Output file */
       switch (PSLevel)
       {
 	case 0 : // PDF
-	    flate_printf(out, "%.6f %.6f %.6f %.6f re\n",
-			 (float)startx * scalex,
-			 (float)y * scaley,
-			 (float)count * scalex,
-			 1.0f * scaley);
+	    out->printf("%.6f %.6f %.6f %.6f re\n",
+			(float)startx * scalex,
+			(float)y * scaley,
+			(float)count * scalex,
+			1.0f * scaley);
             break;
 
 	default : // PostScript
-	    fprintf(out, "%.6f %.6f %.6f %.6f re\n",
-		    (float)startx * scalex,
-		    (float)y * scaley,
-		    (float)count * scalex,
-		    1.0f * scaley);
+	    out->printf("%.6f %.6f %.6f %.6f re\n",
+			(float)startx * scalex,
+			(float)y * scaley,
+			(float)count * scalex,
+			1.0f * scaley);
             break;
       }
     }
@@ -11300,11 +11168,11 @@ write_imagemask(FILE     *out,		/* I - Output file */
   switch (PSLevel)
   {
     case 0 : // PDF
-        flate_puts("W n\n", out);
+        out->puts("W n\n");
         break;
 
     default : // PostScript
-        fputs("clip\n", out);
+        out->puts("clip\n");
         break;
   }
 }
@@ -11315,15 +11183,15 @@ write_imagemask(FILE     *out,		/* I - Output file */
  */
 
 static void
-write_prolog(FILE  *out,		/* I - Output file */
-             int   page_count,		/* I - Number of pages (0 if not known) */
+write_prolog(hdFile *out,		/* I - Output file */
+             int    page_count,		/* I - Number of pages (0 if not known) */
              hdChar *author,		/* I - Author of document */
              hdChar *creator,		/* I - Application that generated the HTML file */
              hdChar *copyright,		/* I - Copyright (if any) on the document */
              hdChar *keywords,		/* I - Search keywords */
 	     hdChar *subject)		/* I - Subject */
 {
-  FILE		*prolog;		/* PostScript prolog file */
+  hdFile	*prolog;		/* PostScript prolog file */
   int		i, j,			/* Looping vars */
 		encoding_object;	/* Font encoding object */
   int		page;			/* Current page */
@@ -11333,9 +11201,9 @@ write_prolog(FILE  *out,		/* I - Output file */
   int		font_desc[HD_FONT_FACE_MAX][HD_FONT_INTERNAL_MAX];
 					/* Font descriptor objects */
   char		temp[1024];		/* Temporary string */
-  md5_state_t	md5;			/* MD5 state */
-  md5_byte_t	digest[16];		/* MD5 digest value */
-  rc4_context_t	rc4;			/* RC4 context */
+  hdMD5		md5;			/* MD5 state */
+  hdRC4		rc4;			// RC4 context
+  hdByte	digest[16];		/* MD5 digest value */
   hdByte	owner_pad[32],		/* Padded owner password */
 		owner_key[32],		/* Owner key */
 		user_pad[32],		/* Padded user password */
@@ -11389,10 +11257,10 @@ write_prolog(FILE  *out,		/* I - Output file */
       // The following comments are Xerox job ticket information that
       // is used on the high-end Laser Printing Systems rather than
       // embedded commands...
-      fputs("%XRXbegin: 001.0300\n", out);
-      fputs("%XRXPDLformat: PS-Adobe\n", out);
+      out->puts("%XRXbegin: 001.0300\n");
+      out->puts("%XRXPDLformat: PS-Adobe\n");
       if (doc_title)
-	fprintf(out, "%%XRXtitle: %s\n", doc_title);
+	out->printf("%%XRXtitle: %s\n", doc_title);
 
       if (OutputFiles)
       {
@@ -11417,25 +11285,25 @@ write_prolog(FILE  *out,		/* I - Output file */
       if (pages[outpages[start].pages[0]].duplex)
       {
 	if (pages[outpages[start].pages[0]].landscape)
-	  fputs("%XRXrequirements: duplex(tumble)\n", out);
+	  out->puts("%XRXrequirements: duplex(tumble)\n");
 	else
-	  fputs("%XRXrequirements: duplex\n", out);
+	  out->puts("%XRXrequirements: duplex\n");
       }
       else
-	fputs("%XRXrequirements: simplex\n", out);
+	out->puts("%XRXrequirements: simplex\n");
 
-      fputs("%XRXdisposition: PRINT\n", out);
-      fputs("%XRXsignature: False\n", out);
-      fprintf(out, "%%XRXpaperType-size: %.0f %.0f\n",
-              pages[outpages[start].pages[0]].width * 25.4f / 72.0f,
-              pages[outpages[start].pages[0]].length * 25.4f / 72.0f);
+      out->puts("%XRXdisposition: PRINT\n");
+      out->puts("%XRXsignature: False\n");
+      out->printf("%%XRXpaperType-size: %.0f %.0f\n",
+		  pages[outpages[start].pages[0]].width * 25.4f / 72.0f,
+		  pages[outpages[start].pages[0]].length * 25.4f / 72.0f);
       if (pages[outpages[start].pages[0]].media_type[0])
-	fprintf(out, "%%XRXpaperType-preFinish: %s 0 0\n",
-        	pages[start].media_type);
+	out->printf("%%XRXpaperType-preFinish: %s 0 0\n",
+		    pages[start].media_type);
       if (pages[outpages[start].pages[0]].media_color[0])
-	fprintf(out, "%%XRXdocumentPaperColors: %c%s\n",
-        	tolower(pages[start].media_color[0]),
-		pages[start].media_color + 1);
+	out->printf("%%XRXdocumentPaperColors: %c%s\n",
+		    tolower(pages[start].media_color[0]),
+		    pages[start].media_color + 1);
 
       if (OutputFiles)
       {
@@ -11463,25 +11331,25 @@ write_prolog(FILE  *out,		/* I - Output file */
 		      pages[outpages[i + count].pages[0]].duplex)
 		break;
 
-	    fprintf(out, "%%XRXpageExceptions: %d %d %.0f %.0f %c%s opaque %s 0 0\n",
-	            i + 1, i + count,
-		    pages[outpages[i].pages[0]].width * 25.4f / 72.0f,
-		    pages[outpages[i].pages[0]].length * 25.4f / 72.0f,
-		    tolower(pages[outpages[i].pages[0]].media_color[0]),
-		    pages[outpages[i].pages[0]].media_color + 1,
-		    pages[outpages[i].pages[0]].media_type[0] ?
-		        pages[outpages[i].pages[0]].media_type : "Plain");
+	    out->printf("%%XRXpageExceptions: %d %d %.0f %.0f %c%s opaque %s 0 0\n",
+			i + 1, i + count,
+			pages[outpages[i].pages[0]].width * 25.4f / 72.0f,
+			pages[outpages[i].pages[0]].length * 25.4f / 72.0f,
+			tolower(pages[outpages[i].pages[0]].media_color[0]),
+			pages[outpages[i].pages[0]].media_color + 1,
+			pages[outpages[i].pages[0]].media_type[0] ?
+			    pages[outpages[i].pages[0]].media_type : "Plain");
 
 	    if (pages[outpages[i].pages[0]].duplex &&
 	        pages[outpages[i].pages[0]].landscape)
-	      fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
-	              i + 1, i + count);
+	      out->printf("%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
+			  i + 1, i + count);
 	    else if (pages[outpages[i].pages[0]].duplex)
-	      fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex\n",
-	              i + 1, i + count);
+	      out->printf("%%XRXpageExceptions-plex: %d %d duplex\n",
+			  i + 1, i + count);
             else
-	      fprintf(out, "%%XRXpageExceptions-plex: %d %d simplex\n",
-	              i + 1, i + count);
+	      out->printf("%%XRXpageExceptions-plex: %d %d simplex\n",
+			  i + 1, i + count);
 	  }
 	  else
 	    count = 1;
@@ -11518,24 +11386,24 @@ write_prolog(FILE  *out,		/* I - Output file */
 		        pages[outpages[i + count].pages[0]].duplex)
 		  break;
 
-	      fprintf(out, "%%XRXpageExceptions: %d %d %.0f %.0f %c%s opaque %s 0 0\n",
-	              i + 1, i + count,
-		      pages[outpages[i].pages[0]].width * 25.4f / 72.0f,
-		      pages[outpages[i].pages[0]].length * 25.4f / 72.0f,
-		      tolower(pages[outpages[i].pages[0]].media_color[0]),
-		      pages[outpages[i].pages[0]].media_color + 1,
-		      pages[outpages[i].pages[0]].media_type[0] ?
-		          pages[outpages[i].pages[0]].media_type : "Plain");
+	      out->printf("%%XRXpageExceptions: %d %d %.0f %.0f %c%s opaque %s 0 0\n",
+			  i + 1, i + count,
+			  pages[outpages[i].pages[0]].width * 25.4f / 72.0f,
+			  pages[outpages[i].pages[0]].length * 25.4f / 72.0f,
+			  tolower(pages[outpages[i].pages[0]].media_color[0]),
+			  pages[outpages[i].pages[0]].media_color + 1,
+			  pages[outpages[i].pages[0]].media_type[0] ?
+			      pages[outpages[i].pages[0]].media_type : "Plain");
 
 	      if (pages[outpages[i].pages[0]].duplex && pages[outpages[i].pages[0]].landscape)
-		fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
-	        	i + 1, i + count);
+		out->printf("%%XRXpageExceptions-plex: %d %d duplex(tumble)\n",
+			    i + 1, i + count);
 	      else if (pages[outpages[i].pages[0]].duplex)
-		fprintf(out, "%%XRXpageExceptions-plex: %d %d duplex\n",
-	        	i + 1, i + count);
+		out->printf("%%XRXpageExceptions-plex: %d %d duplex\n",
+			    i + 1, i + count);
               else
-		fprintf(out, "%%XRXpageExceptions-plex: %d %d simplex\n",
-	        	i + 1, i + count);
+		out->printf("%%XRXpageExceptions-plex: %d %d simplex\n",
+			    i + 1, i + count);
 	    }
 	    else
 	      count = 1;
@@ -11543,62 +11411,62 @@ write_prolog(FILE  *out,		/* I - Output file */
 	}
       }
 
-      fputs("%XRXend\n", out);
+      out->puts("%XRXend\n");
     }
 
-    fputs("%!PS-Adobe-3.0\n", out);
+    out->puts("%!PS-Adobe-3.0\n");
     if (Landscape)
-      fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageLength, PageWidth);
+      out->printf("%%%%BoundingBox: 0 0 %d %d\n", PageLength, PageWidth);
     else
-      fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
-    fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
-    fputs("%%Creator: htmldoc " SVERSION " Copyright 1997-2006 Easy Software Products, All Rights Reserved.\n", out);
-    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%+03d%02d\n",
-            doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
-            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    (int)(-timezone / 3600),
-	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
+      out->printf("%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
+    out->printf("%%%%LanguageLevel: %d\n", PSLevel);
+    out->puts("%%Creator: htmldoc " SVERSION " " COPYRIGHT "\n");
+    out->printf("%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%+03d%02d\n",
+		doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
+		doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
+		(int)(-timezone / 3600),
+		(int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
     if (doc_title != NULL)
-      fprintf(out, "%%%%Title: %s\n", doc_title);
+      out->printf("%%%%Title: %s\n", doc_title);
     if (author != NULL)
-      fprintf(out, "%%%%Author: %s\n", author);
+      out->printf("%%%%Author: %s\n", author);
     if (creator != NULL)
-      fprintf(out, "%%%%Generator: %s\n", creator);
+      out->printf("%%%%Generator: %s\n", creator);
     if (copyright != NULL)
-      fprintf(out, "%%%%Copyright: %s\n", copyright);
+      out->printf("%%%%Copyright: %s\n", copyright);
     if (keywords != NULL)
-      fprintf(out, "%%%%Keywords: %s\n", keywords);
+      out->printf("%%%%Keywords: %s\n", keywords);
     if (subject != NULL)
-      fprintf(out, "%%%%Subject: %s\n", keywords);
+      out->printf("%%%%Subject: %s\n", keywords);
     if (page_count > 0)
-      fprintf(out, "%%%%Pages: %d\n", page_count);
+      out->printf("%%%%Pages: %d\n", page_count);
     else
-      fputs("%%Pages: (atend)\n", out);
+      out->puts("%%Pages: (atend)\n");
 
     if (!EmbedFonts)
     {
-      fputs("%%DocumentNeededResources:\n", out);
+      out->puts("%%DocumentNeededResources:\n");
 
       for (i = 0; i < HD_FONT_FACE_MAX; i ++)
         for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
           if (fonts_used[i][j] && is_base_font(i) &&
 	      _htmlStyleSheet->fonts[i][j])
-            fprintf(out, "%%%%+ font %s\n",
-	            _htmlStyleSheet->fonts[i][j]->ps_name);
+            out->printf("%%%%+ font %s\n",
+	                _htmlStyleSheet->fonts[i][j]->ps_name);
     }
 
-    fputs("%%DocumentProvidedResources:\n", out);
+    out->puts("%%DocumentProvidedResources:\n");
 
     for (i = 0; i < HD_FONT_FACE_MAX; i ++)
       for (j = 0; j < HD_FONT_INTERNAL_MAX; j ++)
         if (fonts_used[i][j] && (EmbedFonts || !is_base_font(i)) &&
 	    _htmlStyleSheet->fonts[i][j])
-          fprintf(out, "%%%%+ font %s\n",
+          out->printf("%%%%+ font %s\n",
 	          _htmlStyleSheet->fonts[i][j]->ps_name);
-    fputs("%%DocumentData: Clean7bit\n", out);
-    fputs("%%EndComments\n", out);
+    out->puts("%%DocumentData: Clean7bit\n");
+    out->puts("%%EndComments\n");
 
-    fputs("%%BeginProlog\n", out);
+    out->puts("%%BeginProlog\n");
 
    /*
     * Embed fonts?
@@ -11616,30 +11484,30 @@ write_prolog(FILE  *out,		/* I - Output file */
     * Procedures used throughout the document...
     */
 
-    fputs("%%BeginResource: procset htmldoc-page 1.9 0\n", out);
-    fputs("/BD{bind def}bind def", out);
-    fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
-          "closepath stroke}BD", out);
-    fputs("/C{setrgbcolor}BD\n", out);
-    fputs("/CM{concat}BD", out);
-    fputs("/DF{findfont dup length dict begin{1 index/FID ne{def}{pop pop}\n"
-          "ifelse}forall/Encoding fontencoding def currentdict end definefont pop}BD\n", out);
-    fputs("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n", out);
-    fputs("/FS{/hdFontSize exch def}BD", out);
-    fputs("/G{setgray}BD\n", out);
-    fputs("/GS{gsave}BD", out);
-    fputs("/GR{grestore}BD", out);
-    fputs("/J{0 exch ashow}BD\n", out);
-    fputs("/L{0 rlineto stroke}BD", out);
-    fputs("/M{moveto}BD", out);
-    fputs("/re{4 2 roll moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath}BD\n", out);
-    fputs("/RO{rotate}BD", out);
-    fputs("/S{show}BD", out);
-    fputs("/SC{dup scale}BD\n", out);
-    fputs("/SF{findfont hdFontSize scalefont setfont}BD", out);
-    fputs("/SP{showpage}BD", out);
-    fputs("/T{translate}BD\n", out);
-    fputs("%%EndResource\n", out);
+    out->puts("%%BeginResource: procset htmldoc-page 1.9 0\n");
+    out->puts("/BD{bind def}bind def");
+    out->puts("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
+	      "closepath stroke}BD");
+    out->puts("/C{setrgbcolor}BD\n");
+    out->puts("/CM{concat}BD");
+    out->puts("/DF{findfont dup length dict begin{1 index/FID ne{def}{pop pop}\n"
+	      "ifelse}forall/Encoding fontencoding def currentdict end definefont pop}BD\n");
+    out->puts("/F{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath fill}BD\n");
+    out->puts("/FS{/hdFontSize exch def}BD");
+    out->puts("/G{setgray}BD\n");
+    out->puts("/GS{gsave}BD");
+    out->puts("/GR{grestore}BD");
+    out->puts("/J{0 exch ashow}BD\n");
+    out->puts("/L{0 rlineto stroke}BD");
+    out->puts("/M{moveto}BD");
+    out->puts("/re{4 2 roll moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath}BD\n");
+    out->puts("/RO{rotate}BD");
+    out->puts("/S{show}BD");
+    out->puts("/SC{dup scale}BD\n");
+    out->puts("/SF{findfont hdFontSize scalefont setfont}BD");
+    out->puts("/SP{showpage}BD");
+    out->puts("/T{translate}BD\n");
+    out->puts("%%EndResource\n");
 
    /*
     * Output the font encoding for the current character set...  For now we
@@ -11647,7 +11515,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     * number of extra fonts that aren't normally available on a PS printer.
     */
 
-    fputs("/fontencoding[\n", out);
+    out->puts("/fontencoding[\n");
     for (i = 0, j = 0; i < 256; i ++)
     {
       if (_htmlStyleSheet->glyphs[i])
@@ -11662,17 +11530,17 @@ write_prolog(FILE  *out,		/* I - Output file */
 	else
           j = 8;
 
-        putc('\n', out);
+        out->put('\n');
       }
 	
-      putc('/', out);
+      out->put('/');
       if (_htmlStyleSheet->glyphs[i])
-        fputs(_htmlStyleSheet->glyphs[i], out);
+        out->puts(_htmlStyleSheet->glyphs[i]);
       else
-        fputs(".notdef", out);
+        out->puts(".notdef");
     }
 
-    fputs("]def\n", out);
+    out->puts("]def\n");
 
    /*
     * Fonts...
@@ -11683,22 +11551,22 @@ write_prolog(FILE  *out,		/* I - Output file */
         if (fonts_used[i][j] && _htmlStyleSheet->fonts[i][j])
         {
 	  if (i < 3)
-	    fprintf(out, "/F%x/%s DF\n", i * 4 + j,
+	    out->printf("/F%x/%s DF\n", i * 4 + j,
 	            _htmlStyleSheet->fonts[i][j]->ps_name);
 	  else
-	    fprintf(out, "/F%x/%s findfont definefont pop\n", i * 4 + j,
+	    out->printf("/F%x/%s findfont definefont pop\n", i * 4 + j,
 	            _htmlStyleSheet->fonts[i][j]->ps_name);
         }
 
     if (PSCommands)
     {
       snprintf(temp, sizeof(temp), "%s/data/prolog.ps", _htmlData);
-      if ((prolog = fopen(temp, "rb")) != NULL)
+      if ((prolog = hdFile::open(temp, HD_FILE_READ)) != NULL)
       {
-	while (fgets(temp, sizeof(temp), prolog) != NULL)
-          fputs(temp, out);
+	while (prolog->gets(temp, sizeof(temp)))
+          out->printf("%s\n", temp);
 
-	fclose(prolog);
+	delete prolog;
       }
       else
       {
@@ -11706,23 +11574,23 @@ write_prolog(FILE  *out,		/* I - Output file */
                        "Unable to open data file \"%s\" - %s", temp,
                        strerror(errno));
 
-	fputs("%%BeginResource: procset htmldoc-device 1.8 22\n", out);
-	fputs("languagelevel 1 eq{/setpagedevice{pop}BD}if\n", out);
-	fputs("/SetDuplexMode{<</Duplex 3 index/Tumble 5 index>>setpagedevice "
-              "pop pop}BD\n", out);
-	fputs("/SetMediaColor{pop}BD\n", out);
-	fputs("/SetMediaType{pop}BD\n", out);
-	fputs("/SetMediaPosition{pop}BD\n", out);
-	fputs("/SetPageSize{2 array astore<</PageSize 2 index/ImageableArea "
-              "null>>setpagedevice pop}BD\n", out);
-	fputs("%%EndResource\n", out);
+	out->puts("%%BeginResource: procset htmldoc-device 1.9 0\n");
+	out->puts("languagelevel 1 eq{/setpagedevice{pop}BD}if\n");
+	out->puts("/SetDuplexMode{<</Duplex 3 index/Tumble 5 index>>setpagedevice "
+		  "pop pop}BD\n");
+	out->puts("/SetMediaColor{pop}BD\n");
+	out->puts("/SetMediaType{pop}BD\n");
+	out->puts("/SetMediaPosition{pop}BD\n");
+	out->puts("/SetPageSize{2 array astore<</PageSize 2 index/ImageableArea "
+		  "null>>setpagedevice pop}BD\n");
+	out->puts("%%EndResource\n");
       }
     }
 
-    if (background_image != NULL)
+    if (BodyImage != NULL)
       ps_write_background(out);
 
-    fputs("%%EndProlog\n", out);
+    out->puts("%%EndProlog\n");
   }
   else
   {
@@ -11730,18 +11598,18 @@ write_prolog(FILE  *out,		/* I - Output file */
     * Write PDF prolog stuff...
     */
 
-    fprintf(out, "%%PDF-%.1f\n", 0.1 * PDFVersion);
-    fputs("%\342\343\317\323\n", out);
+    out->printf("%%PDF-%.1f\n", 0.1 * PDFVersion);
+    out->puts("%\342\343\317\323\n");
     num_objects = 0;
 
    /*
     * Compute the file ID...
     */
 
-    md5_init(&md5);
-    md5_append(&md5, (md5_byte_t *)OutputPath, sizeof(OutputPath));
-    md5_append(&md5, (md5_byte_t *)&doc_time, sizeof(doc_time));
-    md5_finish(&md5, file_id);
+    md5.init();
+    md5.append((hdByte *)OutputPath, sizeof(OutputPath));
+    md5.append((hdByte *)&doc_time, sizeof(doc_time));
+    md5.finish(file_id);
 
    /*
     * Setup encryption stuff as necessary...
@@ -11797,18 +11665,18 @@ write_prolog(FILE  *out,		/* I - Output file */
       * Compute the owner key...
       */
 
-      md5_init(&md5);
-      md5_append(&md5, owner_pad, 32);
-      md5_finish(&md5, digest);
+      md5.init();
+      md5.append(owner_pad, 32);
+      md5.finish(digest);
 
       if (encrypt_len > 5)
       {
         // MD5 the result 50 more times...
 	for (i = 0; i < 50; i ++)
 	{
-          md5_init(&md5);
-          md5_append(&md5, digest, 16);
-          md5_finish(&md5, digest);
+          md5.init();
+          md5.append(digest, 16);
+          md5.finish(digest);
 	}
 
         // Copy the padded user password...
@@ -11821,14 +11689,14 @@ write_prolog(FILE  *out,		/* I - Output file */
 	  for (j = 0; j < encrypt_len; j ++)
 	    encrypt_key[j] = digest[j] ^ i;
 
-          rc4_init(&rc4, encrypt_key, encrypt_len);
-          rc4_encrypt(&rc4, owner_key, owner_key, 32);
+          rc4.init(encrypt_key, encrypt_len);
+          rc4.encrypt(owner_key, owner_key, 32);
 	}
       }
       else
       {
-        rc4_init(&rc4, digest, encrypt_len);
-        rc4_encrypt(&rc4, user_pad, owner_key, 32);
+        rc4.init(digest, encrypt_len);
+        rc4.encrypt(user_pad, owner_key, 32);
       }
 
      /*
@@ -11850,27 +11718,27 @@ write_prolog(FILE  *out,		/* I - Output file */
       * Compute the encryption key...
       */
 
-      md5_init(&md5);
-      md5_append(&md5, user_pad, 32);
-      md5_append(&md5, owner_key, 32);
+      md5.init();
+      md5.append(user_pad, 32);
+      md5.append(owner_key, 32);
 
       perm_bytes[0] = perm_value;
       perm_bytes[1] = perm_value >> 8;
       perm_bytes[2] = perm_value >> 16;
       perm_bytes[3] = perm_value >> 24;
 
-      md5_append(&md5, perm_bytes, 4);
-      md5_append(&md5, file_id, 16);
-      md5_finish(&md5, digest);
+      md5.append(perm_bytes, 4);
+      md5.append(file_id, 16);
+      md5.finish(digest);
 
       if (encrypt_len > 5)
       {
         // MD5 the result 50 times..
         for (i = 0; i < 50; i ++)
 	{
-	  md5_init(&md5);
-	  md5_append(&md5, digest, 16);
-	  md5_finish(&md5, digest);
+	  md5.init();
+	  md5.append(digest, 16);
+	  md5.finish(digest);
 	}
       }
 
@@ -11882,10 +11750,10 @@ write_prolog(FILE  *out,		/* I - Output file */
 
       if (encrypt_len > 5)
       {
-        md5_init(&md5);
-        md5_append(&md5, pad, 32);
-        md5_append(&md5, file_id, 16);
-        md5_finish(&md5, user_key);
+        md5.init();
+        md5.append(pad, 32);
+        md5.append(file_id, 16);
+        md5.finish(user_key);
 
         memset(user_key + 16, 0, 16);
 
@@ -11896,14 +11764,14 @@ write_prolog(FILE  *out,		/* I - Output file */
 	  for (j = 0; j < encrypt_len; j ++)
 	    digest[j] = encrypt_key[j] ^ i;
 
-          rc4_init(&rc4, digest, encrypt_len);
-          rc4_encrypt(&rc4, user_key, user_key, 16);
+          rc4.init(digest, encrypt_len);
+          rc4.encrypt(user_key, user_key, 16);
 	}
       }
       else
       {
-        rc4_init(&rc4, encrypt_key, encrypt_len);
-        rc4_encrypt(&rc4, pad, user_key, 32);
+        rc4.init(encrypt_key, encrypt_len);
+        rc4.encrypt(pad, user_key, 32);
       }
 
      /*
@@ -11912,21 +11780,21 @@ write_prolog(FILE  *out,		/* I - Output file */
 
       encrypt_object = pdf_start_object(out);
 
-      fputs("/Filter/Standard/O<", out);
+      out->puts("/Filter/Standard/O<");
       for (i = 0; i < 32; i ++)
-        fprintf(out, "%02x", owner_key[i]);
-      fputs(">/U<", out);
+        out->printf("%02x", owner_key[i]);
+      out->puts(">/U<");
       for (i = 0; i < 32; i ++)
-        fprintf(out, "%02x", user_key[i]);
-      fputs(">", out);
+        out->printf("%02x", user_key[i]);
+      out->puts(">");
 
       if (encrypt_len > 5)
       {
         // N-bit encryption...
-        fprintf(out, "/P %d/V 2/R 3/Length %d", (int)perm_value, encrypt_len * 8);
+        out->printf("/P %d/V 2/R 3/Length %d", (int)perm_value, encrypt_len * 8);
       }
       else
-        fprintf(out, "/P %d/V 1/R 2", (int)perm_value);
+        out->printf("/P %d/V 1/R 2", (int)perm_value);
 
       pdf_end_object(out);
     }
@@ -11939,20 +11807,19 @@ write_prolog(FILE  *out,		/* I - Output file */
 
     info_object = pdf_start_object(out);
 
-    fputs("/Producer", out);
-    write_string(out, (hdChar *)"htmldoc " SVERSION " Copyright 1997-2006 Easy "
-                               "Software Products, All Rights Reserved.", 0);
-    fputs("/CreationDate", out);
+    out->puts("/Producer");
+    write_string(out, (hdChar *)"htmldoc " SVERSION " " COPYRIGHT);
+    out->puts("/CreationDate");
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
 	    (int)(-timezone / 3600),
 	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
-    write_string(out, (hdChar *)temp, 0);
+    write_string(out, (hdChar *)temp);
 
     if (doc_title != NULL)
     {
-      fputs("/Title", out);
+      out->puts("/Title");
       write_utf16(out, doc_title);
     }
 
@@ -11965,25 +11832,25 @@ write_prolog(FILE  *out,		/* I - Output file */
       else
         strlcpy(temp, (const char *)copyright, sizeof(temp));
 
-      fputs("/Author", out);
+      out->puts("/Author");
       write_utf16(out, (hdChar *)temp);
     }
 
     if (creator != NULL)
     {
-      fputs("/Creator", out);
+      out->puts("/Creator");
       write_utf16(out, creator);
     }
 
     if (keywords != NULL)
     {
-      fputs("/Keywords", out);
+      out->puts("/Keywords");
       write_utf16(out, keywords);
     }
 
     if (subject != NULL)
     {
-      fputs("/Subject", out);
+      out->puts("/Subject");
       write_utf16(out, subject);
     }
 
@@ -11998,8 +11865,8 @@ write_prolog(FILE  *out,		/* I - Output file */
 
     encoding_object = pdf_start_object(out);
 
-    fputs("/Type/Encoding", out);
-    fputs("/Differences[", out);
+    out->puts("/Type/Encoding");
+    out->puts("/Differences[");
     for (i = 0, j = -1; i < 256; i ++)
       if (_htmlStyleSheet->glyphs[i])
       {
@@ -12008,13 +11875,13 @@ write_prolog(FILE  *out,		/* I - Output file */
 	*/
 
         if (j != (i - 1))
-	  fprintf(out, " %d", i);
+	  out->printf(" %d", i);
 
-        fprintf(out, "/%s", _htmlStyleSheet->glyphs[i]);
+        out->printf("/%s", _htmlStyleSheet->glyphs[i]);
 	j = i;
       }
 
-    fputs("]", out);
+    out->puts("]");
     pdf_end_object(out);
 
     memset(font_desc, 0, sizeof(font_desc));
@@ -12037,21 +11904,21 @@ write_prolog(FILE  *out,		/* I - Output file */
         {
 	  font_objects[i * HD_FONT_INTERNAL_MAX + j] = pdf_start_object(out);
 
-	  fputs("/Type/Font", out);
-	  fputs("/Subtype/Type1", out);
-	  fprintf(out, "/BaseFont/%s", _htmlStyleSheet->fonts[i][j]->ps_name);
+	  out->puts("/Type/Font");
+	  out->puts("/Subtype/Type1");
+	  out->printf("/BaseFont/%s", _htmlStyleSheet->fonts[i][j]->ps_name);
 
           if (font_desc[i][j])
 	  {
 	    // Embed Type1 font...
-	    fputs("/FirstChar 0", out);
-	    fputs("/LastChar 255", out);
-	    fprintf(out, "/Widths %d 0 R", font_desc[i][j] + 1);
-	    fprintf(out, "/FontDescriptor %d 0 R", font_desc[i][j]);
+	    out->puts("/FirstChar 0");
+	    out->puts("/LastChar 255");
+	    out->printf("/Widths %d 0 R", font_desc[i][j] + 1);
+	    out->printf("/FontDescriptor %d 0 R", font_desc[i][j]);
 	  }
 
 	  if (i < HD_FONT_FACE_SYMBOL) /* Use native encoding for symbols */
-	    fprintf(out, "/Encoding %d 0 R", encoding_object);
+	    out->printf("/Encoding %d 0 R", encoding_object);
 
           pdf_end_object(out);
         }
@@ -12064,87 +11931,48 @@ write_prolog(FILE  *out,		/* I - Output file */
  */
 
 static void
-write_string(FILE   *out,		/* I - Output file */
-             hdChar *s,			/* I - String */
-	     int    compress)		/* I - Compress output? */
+write_string(hdFile *out,		/* I - Output file */
+             hdChar *s)			/* I - String */
 {
-  int	i;				/* Looping var */
-
-
-  if (Encryption && !compress && PSLevel == 0)
+  if (Encryption)
   {
-    int		len,			// Length of string
-		bytes;			// Current bytes encrypted
-    hdChar	news[1024];		// New string
-
-
    /*
     * Write an encrypted string...
     */
 
-    putc('<', out);
-    encrypt_init();
+    out->put('<');
 
-    for (len = strlen((char *)s); len > 0; len -= bytes, s += bytes)
-    {
-      if (len > (int)sizeof(news))
-        bytes = (int)sizeof(news);
-      else
-        bytes = len;
+    hdASCIIHexFilter *hex = new hdASCIIHexFilter(out);
+    hdRC4Filter *rc4 = encrypt_init(hex);
 
-      rc4_encrypt(&encrypt_state, s, news, bytes);
+    rc4->write(s, strlen((char *)s));
+    delete rc4;
+    delete hex;
 
-      for (i = 0; i < bytes; i ++)
-        fprintf(out, "%02x", news[i]);
-    }
-
-    putc('>', out);
+    out->put('>');
   }
   else
   {
-    if (compress)
-      flate_write(out, (hdChar *)"(", 1);
-    else
-      putc('(', out);
+    out->put('(');
 
-    while (*s != '\0')
+    while (*s)
     {
       if (*s == 160) /* &nbsp; */
-      {
-	if (compress)
-          flate_write(out, (hdChar *)" ", 1);
-	else
-          putc(' ', out);
-      }
+	out->put(' ');
       else if (*s < 32 || *s > 126)
+	out->printf("\\%o", *s);
+      else if (*s == '(' || *s == ')' || *s == '\\')
       {
-	if (compress)
-          flate_printf(out, "\\%o", *s);
-	else
-          fprintf(out, "\\%o", *s);
-      }
-      else if (compress)
-      {
-	if (*s == '(' || *s == ')' || *s == '\\')
-          flate_write(out, (hdChar *)"\\", 1);
-
-	flate_write(out, s, 1);
+	out->put('\\');
+	out->put(*s);
       }
       else
-      {
-	if (*s == '(' || *s == ')' || *s == '\\')
-          putc('\\', out);
-
-	putc(*s, out);
-      }
+	out->put(*s);
 
       s ++;
     }
 
-    if (compress)
-      flate_write(out, (hdChar *)")", 1);
-    else
-      putc(')', out);
+    out->put(')');
   }
 }
 
@@ -12154,7 +11982,7 @@ write_string(FILE   *out,		/* I - Output file */
  */
 
 static void
-write_text(FILE     *out,	/* I - Output file */
+write_text(hdFile   *out,	/* I - Output file */
            hdRender *r)		/* I - Text entity */
 {
   hdChar	*ptr;			/* Pointer into text */
@@ -12176,28 +12004,22 @@ write_text(FILE     *out,	/* I - Output file */
   if (PSLevel > 0)
   {
     if (r->data.text.spacing > 0.0f)
-      fprintf(out, " %.3f", r->data.text.spacing);
+      out->printf(" %g", r->data.text.spacing);
   }
   else if (r->data.text.spacing != render_spacing)
-    flate_printf(out, " %.3f Tc", render_spacing = r->data.text.spacing);
+    out->printf(" %g Tc", render_spacing = r->data.text.spacing);
 
-#if 0
-  char dummy[1024];
-  snprintf(dummy, sizeof(dummy), "%.1f %s", r->width, r->data.text.buffer);
-  write_string(out, (hdChar *)dummy, PSLevel == 0);
-#else
-  write_string(out, r->data.text.buffer, PSLevel == 0);
-#endif // 0
+  write_string(out, r->data.text.buffer);
 
   if (PSLevel > 0)
   {
     if (r->data.text.spacing > 0.0f)
-      fputs("J\n", out);
+      out->puts("J\n");
     else
-      fputs("S\n", out);
+      out->puts("S\n");
   }
   else
-    flate_puts("Tj\n", out);
+    out->puts("Tj\n");
 
   render_x += r->width;
 }
@@ -12208,13 +12030,13 @@ write_text(FILE     *out,	/* I - Output file */
  */
 
 static void
-write_trailer(FILE *out,		/* I - Output file */
-              int  num_file_pages)	/* I - Number of pages in file */
+write_trailer(hdFile *out,		/* I - Output file */
+              int    num_file_pages)	/* I - Number of pages in file */
 {
   int		i, j, k,		/* Looping vars */
 		type,			/* Type of number */
-		offset,			/* Offset to xref table in PDF file */
 		start;			/* Start page number */
+  size_t	offset;			/* Offset to xref table in PDF file */
   hdPage	*page;			/* Start page of chapter */
   char		prefix[64],		/* Prefix string */
 		*prefptr;		/* Pointer into prefix string */
@@ -12239,11 +12061,11 @@ write_trailer(FILE *out,		/* I - Output file */
     * PostScript...
     */
 
-    fputs("%%Trailer\n", out);
+    out->puts("%%Trailer\n");
     if (num_file_pages > 0)
-      fprintf(out, "%%%%Pages: %d\n", num_file_pages);
+      out->printf("%%%%Pages: %d\n", num_file_pages);
 
-    fputs("%%EOF\n", out);
+    out->puts("%%EOF\n");
   }
   else
   {
@@ -12253,63 +12075,63 @@ write_trailer(FILE *out,		/* I - Output file */
 
     root_object = pdf_start_object(out);
 
-    fputs("/Type/Catalog", out);
-    fprintf(out, "/Pages %d 0 R", pages_object);
+    out->puts("/Type/Catalog");
+    out->printf("/Pages %d 0 R", pages_object);
 
     if (PDFVersion >= 12)
     {
       if (names_object)
-        fprintf(out, "/Names %d 0 R", names_object);
+        out->printf("/Names %d 0 R", names_object);
 
-      fprintf(out, "/PageLayout/%s", layouts[PDFPageLayout]);
+      out->printf("/PageLayout/%s", layouts[PDFPageLayout]);
     }
 
     if (outline_object > 0)
-      fprintf(out, "/Outlines %d 0 R", outline_object);
+      out->printf("/Outlines %d 0 R", outline_object);
 
     switch (PDFFirstPage)
     {
       case HD_PDF_PAGE_1 :
           if (TitlePage)
 	  {
-            fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
-                    pages_object + 1);
+            out->printf("/OpenAction[%d 0 R/XYZ null null 0]",
+			pages_object + 1);
             break;
 	  }
           break;
       case HD_PDF_TOC :
           if (TocLevels > 0)
 	  {
-            fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
-                    pages_object + 2 * chapter_outstarts[0] + 1);
+            out->printf("/OpenAction[%d 0 R/XYZ null null 0]",
+			pages_object + 2 * chapter_outstarts[0] + 1);
 	    break;
 	  }
           break;
       case HD_PDF_CHAPTER_1 :
-          fprintf(out, "/OpenAction[%d 0 R/XYZ null null 0]",
-                  pages_object + 2 * chapter_outstarts[1] + 1);
+          out->printf("/OpenAction[%d 0 R/XYZ null null 0]",
+		      pages_object + 2 * chapter_outstarts[1] + 1);
           break;
     }
 
-    fprintf(out, "/PageMode/%s", modes[PDFPageMode]);
+    out->printf("/PageMode/%s", modes[PDFPageMode]);
 
     if (PDFVersion > 12 && NumberUp == 1)
     {
       // Output the PageLabels tree...
-      fputs("/PageLabels<</Nums[", out);
+      out->puts("/PageLabels<</Nums[");
 
       i = 0;
 
       if (TitlePage)
       {
-        fputs("0<</P", out);
-	write_string(out, (hdChar *)"title", 0);
-	fputs(">>", out);
+        out->puts("0<</P");
+	write_string(out, (hdChar *)"title");
+	out->puts(">>");
 	if (PageDuplex)
 	{
-	  fputs("1<</P", out);
-	  write_string(out, (hdChar *)"eltit", 0);
-	  fputs(">>", out);
+	  out->puts("1<</P");
+	  write_string(out, (hdChar *)"eltit");
+	  out->puts(">>");
 	}
 	i += PageDuplex + 1;
       }
@@ -12332,7 +12154,7 @@ write_trailer(FILE *out,		/* I - Output file */
 	           (TocFooter[j] && strstr(TocFooter[j], "$PAGE(A)")))
 	    type = 'A';
 
-        fprintf(out, "%d<</S/%c>>", i, type);
+        out->printf("%d<</S/%c>>", i, type);
 
         i += chapter_ends[0] - chapter_starts[0] + 1;
       }
@@ -12372,51 +12194,51 @@ write_trailer(FILE *out,		/* I - Output file */
 
         if ((prefptr = strstr(prefix, "$PAGE")) == NULL)
 	  prefptr = strstr(prefix, "$CHAPTERPAGE");
-	fprintf(out, "%d<</S/%c/St %d", i, type, start);
+	out->printf("%d<</S/%c/St %d", i, type, start);
 	if (prefptr)
 	{
 	  *prefptr = '\0';
-	  fputs("/P", out);
-	  write_string(out, (hdChar *)prefix, 0);
+	  out->puts("/P");
+	  write_string(out, (hdChar *)prefix);
 	}
-	fputs(">>", out);
+	out->puts(">>");
 
         i += chapter_ends[j] - chapter_starts[j] + 1;
       }
 
-      fputs("]>>", out);
+      out->puts("]>>");
     }
 
     pdf_end_object(out);
 
-    offset = ftell(out);
+    offset = out->size();
 
-    fputs("xref\n", out);
-    fprintf(out, "0 %d \n", num_objects + 1);
-    fputs("0000000000 65535 f \n", out);
+    out->puts("xref\n");
+    out->printf("0 %d \n", num_objects + 1);
+    out->puts("0000000000 65535 f \n");
     for (i = 1; i <= num_objects; i ++)
-      fprintf(out, "%010d 00000 n \n", objects[i]);
+      out->printf("%010d 00000 n \n", objects[i]);
 
-    fputs("trailer\n", out);
-    fputs("<<", out);
-    fprintf(out, "/Size %d", num_objects + 1);
-    fprintf(out, "/Root %d 0 R", root_object);
-    fprintf(out, "/Info %d 0 R", info_object);
-    fputs("/ID[<", out);
+    out->puts("trailer\n");
+    out->puts("<<");
+    out->printf("/Size %d", num_objects + 1);
+    out->printf("/Root %d 0 R", root_object);
+    out->printf("/Info %d 0 R", info_object);
+    out->puts("/ID[<");
     for (i = 0; i < 16; i ++)
-      fprintf(out, "%02x", file_id[i]);
-    fputs("><", out);
+      out->printf("%02x", file_id[i]);
+    out->puts("><");
     for (i = 0; i < 16; i ++)
-      fprintf(out, "%02x", file_id[i]);
-    fputs(">]", out);
+      out->printf("%02x", file_id[i]);
+    out->puts(">]");
 
     if (Encryption)
-      fprintf(out, "/Encrypt %d 0 R", encrypt_object);
+      out->printf("/Encrypt %d 0 R", encrypt_object);
 
-    fputs(">>\n", out);
-    fputs("startxref\n", out);
-    fprintf(out, "%d\n", offset);
-    fputs("%%EOF\n", out);
+    out->puts(">>\n");
+    out->puts("startxref\n");
+    out->printf("%ld\n", (long)offset);
+    out->puts("%%EOF\n");
   }
 }
 
@@ -12426,12 +12248,12 @@ write_trailer(FILE *out,		/* I - Output file */
  */
 
 static int				/* O - Object number */
-write_type1(FILE        *out,		/* I - File to write to */
+write_type1(hdFile      *out,		/* I - File to write to */
             hdFontFace  typeface,	/* I - Typeface */
 	    hdFontStyle style)		/* I - Style */
 {
   hdStyleFont	*font;			/* Font */
-  FILE		*fp;			/* PFA file */
+  hdFile	*fp;			/* PFA file */
   int		ch;			/* Character value */
   char		line[1024],		/* Line from AFM file */
 		*lineptr,		/* Pointer into line */
@@ -12481,7 +12303,7 @@ write_type1(FILE        *out,		/* I - File to write to */
   * Try to open the PFA file for the Type1 font...
   */
 
-  if ((fp = fopen(font->font_file, "r")) == NULL)
+  if ((fp = hdFile::open(font->font_file, HD_FILE_READ)) == NULL)
   {
     progress_error(HD_ERROR_FILE_NOT_FOUND,
                    "Unable to open font file %s!", font->font_file);
@@ -12498,19 +12320,16 @@ write_type1(FILE        *out,		/* I - File to write to */
     * Embed a Type1 font in the PostScript output...
     */
 
-    fprintf(out, "%%%%BeginResource: font %s\n", font->ps_name);
+    out->printf("%%%%BeginResource: font %s\n", font->ps_name);
 
     line[0] = '\0';
 
-    while (fgets(line, sizeof(line), fp) != NULL)
-      fputs(line, out);
+    while (fp->gets(line, sizeof(line)))
+      out->puts(line);
 
-    if (line[strlen(line) - 1] != '\n')
-      fputs("\n", out);
+    out->puts("%%EndResource\n");
 
-    fputs("%%EndResource\n", out);
-
-    fclose(fp);
+    delete fp;
   }
   else
   {
@@ -12518,18 +12337,21 @@ write_type1(FILE        *out,		/* I - File to write to */
     * Embed a Type1 font object in the PDF output...
     */
 
+    hdFile	*filter;		// Output filter
+
+
     length1 = 0;
     length2 = 0;
     length3 = 0;
 
-    while (fgets(line, sizeof(line), fp) != NULL)
+    while (fp->gets(line, sizeof(line)))
     {
       length1 += strlen(line);
       if (strstr(line, "currentfile eexec") != NULL)
         break;
     }
 
-    while (fgets(line, sizeof(line), fp) != NULL)
+    while (fp->gets(line, sizeof(line)))
     {
       if (!strcmp(line, "00000000000000000000000000000000"
                         "00000000000000000000000000000000\n"))
@@ -12539,29 +12361,34 @@ write_type1(FILE        *out,		/* I - File to write to */
     }
 
     length3 = strlen(line);
-    while (fgets(line, sizeof(line), fp) != NULL)
+    while (fp->gets(line, sizeof(line)))
       length3 += strlen(line);
 
-    rewind(fp);
+    fp->seek(0, SEEK_SET);
 
     pdf_start_object(out);
-    fprintf(out, "/Length1 %d", length1);
-    fprintf(out, "/Length2 %d", length2);
-    fprintf(out, "/Length3 %d", length3);
+    out->printf("/Length1 %d", length1);
+    out->printf("/Length2 %d", length2);
+    out->printf("/Length3 %d", length3);
     if (Compression)
-      fputs("/Filter/FlateDecode", out);
-    pdf_start_stream(out);
-    flate_open_stream(out);
-
-    while (fgets(line, sizeof(line), fp) != NULL)
     {
-      flate_puts(line, out);
+      out->puts("/Filter/FlateDecode");
+      filter = new hdFlateFilter(out, Compression);
+    }
+    else
+      filter = out;
+
+    pdf_start_stream(out);
+
+    while (fp->gets(line, sizeof(line)))
+    {
+      filter->puts(line);
 
       if (strstr(line, "currentfile eexec") != NULL)
         break;
     }
 
-    while (fgets(line, sizeof(line), fp) != NULL)
+    while (fp->gets(line, sizeof(line)))
     {
       if (!strcmp(line, "00000000000000000000000000000000"
                         "00000000000000000000000000000000\n"))
@@ -12582,37 +12409,38 @@ write_type1(FILE        *out,		/* I - File to write to */
         *dataptr++ = ch;
       }
 
-      flate_write(out, (hdChar *)line, dataptr - line);
+      filter->write((hdChar *)line, dataptr - line);
     }
 
-    flate_puts(line, out);
-    while (fgets(line, sizeof(line), fp) != NULL)
-      flate_puts(line, out);
+    filter->puts(line);
+    while (fp->gets(line, sizeof(line)))
+      filter->puts(line);
 
-    flate_close_stream(out);
+    if (filter != out)
+      delete filter;
 
     pdf_end_object(out);
 
-    fclose(fp);
+    delete fp;
 
    /*
     * Write the font descriptor...
     */
 
     pdf_start_object(out);
-    fputs("/Type/FontDescriptor", out);
-    fprintf(out, "/Ascent %.0f", 1000.0 * font->ascender);
-    fprintf(out, "/Descent %.0f", 1000.0 * font->descender);
-    fprintf(out, "/CapHeight %.0f", 1000.0 * font->cap_height);
-    fprintf(out, "/XHeight %.0f", 1000.0 * font->x_height);
-    fprintf(out, "/FontBBox[%.0f %.0f %.0f %.0f]",
+    out->puts("/Type/FontDescriptor");
+    out->printf("/Ascent %.0f", 1000.0 * font->ascender);
+    out->printf("/Descent %.0f", 1000.0 * font->descender);
+    out->printf("/CapHeight %.0f", 1000.0 * font->cap_height);
+    out->printf("/XHeight %.0f", 1000.0 * font->x_height);
+    out->printf("/FontBBox[%.0f %.0f %.0f %.0f]",
             1000.0 * font->bbox[0], 1000.0 * font->bbox[1],
             1000.0 * font->bbox[2], 1000.0 * font->bbox[3]);
-    fprintf(out, "/ItalicAngle %.1f", font->italic_angle);
-    fprintf(out, "/StemV %.0f", 1000.0 * font->widths[(int)'v']);
-    fprintf(out, "/Flags %d", tflags[typeface] | sflags[style]);
-    fprintf(out, "/FontName/%s", font->ps_name);
-    fprintf(out, "/FontFile %d 0 R", num_objects - 1);
+    out->printf("/ItalicAngle %.1f", font->italic_angle);
+    out->printf("/StemV %.0f", 1000.0 * font->widths[(int)'v']);
+    out->printf("/Flags %d", tflags[typeface] | sflags[style]);
+    out->printf("/FontName/%s", font->ps_name);
+    out->printf("/FontFile %d 0 R", num_objects - 1);
     pdf_end_object(out);
 
    /*
@@ -12620,9 +12448,9 @@ write_type1(FILE        *out,		/* I - File to write to */
     */
 
     pdf_start_object(out, 1);
-    fprintf(out, "%.0f", 1000.0 * font->widths[0]);
+    out->printf("%.0f", 1000.0 * font->widths[0]);
     for (ch = 1; ch < font->num_widths; ch ++)
-      fprintf(out, " %.0f", 1000.0 * font->widths[ch]);
+      out->printf(" %.0f", 1000.0 * font->widths[ch]);
     pdf_end_object(out);
   }
 
@@ -12639,7 +12467,7 @@ write_type1(FILE        *out,		/* I - File to write to */
  */
 
 static void
-write_utf16(FILE   *out,		// I - File to write to
+write_utf16(hdFile *out,		// I - File to write to
             hdChar *s)			// I - String to write
 {
   const hdChar *sptr;			// Pointer into string
@@ -12657,7 +12485,7 @@ write_utf16(FILE   *out,		// I - File to write to
     * Write an ASCII string...
     */
 
-    write_string(out, s, 0);
+    write_string(out, s);
   }
   else if (Encryption)
   {
@@ -12666,19 +12494,17 @@ write_utf16(FILE   *out,		// I - File to write to
     */
 
     int		ch;			// Character value
-    hdChar	unicode[2],		// Unicode character
-		enicode[2];		// Encrypted unicode character
+    hdChar	unicode[2];		// Unicode character
 
+    out->put('<');
 
-    putc('<', out);
-    encrypt_init();
+    hdASCIIHexFilter *hex = new hdASCIIHexFilter(out);
+    hdRC4Filter *rc4 = encrypt_init(hex);
 
     unicode[0] = 0xfe;			// Start with BOM
     unicode[1] = 0xff;
 
-    rc4_encrypt(&encrypt_state, unicode, enicode, 2);
-
-    fprintf(out, "%02x%02x", enicode[0], enicode[1]);
+    rc4->write(unicode, 2);
 
     for (sptr = s; *sptr;)
     {
@@ -12687,12 +12513,13 @@ write_utf16(FILE   *out,		// I - File to write to
       unicode[0] = ch >> 8;
       unicode[1] = ch;
 
-      rc4_encrypt(&encrypt_state, unicode, enicode, 2);
-
-      fprintf(out, "%02x%02x", enicode[0], enicode[1]);
+      rc4->write(unicode, 2);
     }
 
-    putc('>', out);
+    delete rc4;
+    delete hex;
+
+    out->put('>');
   }
   else
   {
@@ -12700,10 +12527,10 @@ write_utf16(FILE   *out,		// I - File to write to
     * Convert the string to Unicode...
     */
 
-    fputs("<feff", out);		// Start with BOM
+    out->puts("<feff");		// Start with BOM
     for (sptr = s; *sptr;)
-      fprintf(out, "%04x", _htmlStyleSheet->unichars[*sptr++]);
-    putc('>', out);
+      out->printf("%04x", _htmlStyleSheet->unichars[*sptr++]);
+    out->put('>');
   }
 }
 
@@ -12713,14 +12540,14 @@ write_utf16(FILE   *out,		// I - File to write to
  *                    object.
  */
 
-static void
-encrypt_init(void)
+static hdRC4Filter *			// O - RC4 filter
+encrypt_init(hdFile *out)		// I - Output file
 {
   int		i;			/* Looping var */
   hdChar	data[21],		/* Key data */
 		*dataptr;		/* Pointer to key data */
-  md5_state_t	md5;			/* MD5 state */
-  md5_byte_t	digest[16];		/* MD5 digest value */
+  hdMD5		md5;			/* MD5 state */
+  hdByte	digest[16];		/* MD5 digest value */
 
 
  /*
@@ -12740,248 +12567,18 @@ encrypt_init(void)
   * Hash it...
   */
 
-  md5_init(&md5);
-  md5_append(&md5, data, encrypt_len + 5);
-  md5_finish(&md5, digest);
+  md5.init();
+  md5.append(data, encrypt_len + 5);
+  md5.finish(digest);
 
  /*
   * Initialize the RC4 context using the first N+5 bytes of the digest...
   */
 
   if (encrypt_len > 11)
-    rc4_init(&encrypt_state, digest, 16);
+    return (new hdRC4Filter(out, digest, 16));
   else
-    rc4_init(&encrypt_state, digest, encrypt_len + 5);
-}
-
-
-/*
- * 'flate_open_stream()' - Open a deflated output stream.
- */
-
-static void
-flate_open_stream(FILE *out)		/* I - Output file */
-{
-  if (Encryption && !PSLevel)
-    encrypt_init();
-
-  if (!Compression)
-    return;
-
-  compressor_active = 1;
-  compressor.zalloc = (alloc_func)0;
-  compressor.zfree  = (free_func)0;
-  compressor.opaque = (voidpf)0;
-
-  deflateInit(&compressor, Compression);
-
-  compressor.next_out  = (Bytef *)comp_buffer;
-  compressor.avail_out = sizeof(comp_buffer);
-}
-
-
-/*
- * 'flate_close_stream()' - Close a deflated output stream.
- */
-
-static void
-flate_close_stream(FILE *out)		/* I - Output file */
-{
-  int	status;				/* Deflate status */
-
-
-  if (!Compression)
-  {
-#ifdef HTMLDOC_ASCII85
-    if (PSLevel)
-      ps_ascii85(out, (hdChar *)"", 0, 1);
-#endif // HTMLDOC_ASCII85
-
-    return;
-  }
-
-  while ((status = deflate(&compressor, Z_FINISH)) != Z_STREAM_END)
-  {
-    if (status < Z_OK && status != Z_BUF_ERROR)
-    {
-      progress_error(HD_ERROR_OUT_OF_MEMORY, "deflate() failed (%d)", status);
-      return;
-    }
-
-    if (PSLevel)
-#ifdef HTMLDOC_ASCII85
-      ps_ascii85(out, comp_buffer,
-                 (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-#else
-      ps_hex(out, comp_buffer,
-             (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-#endif // HTMLDOC_ASCII85
-    else
-    {
-      if (Encryption)
-        rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
-	            (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-
-      fwrite(comp_buffer, (hdChar *)compressor.next_out - (hdChar *)comp_buffer,
-             1, out);
-    }
-
-    compressor.next_out  = (Bytef *)comp_buffer;
-    compressor.avail_out = sizeof(comp_buffer);
-  }
-
-  if ((hdChar *)compressor.next_out > (hdChar *)comp_buffer)
-  {
-    if (PSLevel)
-#ifdef HTMLDOC_ASCII85
-      ps_ascii85(out, comp_buffer,
-                 (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-#else
-      ps_hex(out, comp_buffer,
-             (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-#endif // HTMLDOC_ASCII85
-    else
-    {
-      if (Encryption)
-        rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
-	            (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-
-      fwrite(comp_buffer, (hdChar *)compressor.next_out - (hdChar *)comp_buffer,
-             1, out);
-    }
-
-  }
-
-  deflateEnd(&compressor);
-
-  compressor_active = 0;
-
-#ifdef HTMLDOC_ASCII85
-  if (PSLevel)
-    ps_ascii85(out, (hdChar *)"", 0, 1);
-#else
-  if (PSLevel)
-  {
-    // End of data marker...
-    fputs(">\n", out);
-  }
-#endif // HTMLDOC_ASCII85
-}
-
-
-/*
- * 'flate_puts()' - Write a character string to a compressed stream.
- */
-
-static void
-flate_puts(const char *s,		/* I - String to write */
-           FILE       *out)		/* I - Output file */
-{
-  flate_write(out, (hdChar *)s, strlen(s));
-}
-
-
-/*
- * 'flate_printf()' - Write a formatted character string to a compressed stream.
- */
-
-static void
-flate_printf(FILE       *out,		/* I - Output file */
-             const char *format,	/* I - Format string */
-             ...)			/* I - Additional args as necessary */
-{
-  int		length;			/* Length of output string */
-  char		buf[10240];		/* Output buffer */
-  va_list	ap;			/* Argument pointer */
-
-
-  va_start(ap, format);
-  length = vsnprintf(buf, sizeof(buf), format, ap);
-  va_end(ap);
-
-  flate_write(out, (hdChar *)buf, length);
-}
-
-
-/*
- * 'flate_write()' - Write data to a compressed stream.
- */
-
-static void
-flate_write(FILE  *out,			/* I - Output file */
-            hdChar *buf,			/* I - Buffer */
-            int   length,		/* I - Number of bytes to write */
-	    int   flush)		/* I - Flush when writing data? */
-{
-  int	status;				/* Deflate status */
-
-
-  if (compressor_active)
-  {
-    compressor.next_in  = buf;
-    compressor.avail_in = length;
-
-    while (compressor.avail_in > 0)
-    {
-      if (compressor.avail_out < (int)(sizeof(comp_buffer) / 8))
-      {
-	if (PSLevel)
-#ifdef HTMLDOC_ASCII85
-	  ps_ascii85(out, comp_buffer,
-                     (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-#else
-	  ps_hex(out, comp_buffer,
-                 (hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-#endif // HTMLDOC_ASCII85
-	else
-	{
-	  if (Encryption)
-            rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
-	        	(hdChar *)compressor.next_out - (hdChar *)comp_buffer);
-
-	  fwrite(comp_buffer,
-	         (hdChar *)compressor.next_out - (hdChar *)comp_buffer, 1, out);
-	}
-
-	compressor.next_out  = (Bytef *)comp_buffer;
-	compressor.avail_out = sizeof(comp_buffer);
-      }
-
-      status = deflate(&compressor, flush ? Z_FULL_FLUSH : Z_NO_FLUSH);
-
-      if (status < Z_OK && status != Z_BUF_ERROR)
-      {
-	progress_error(HD_ERROR_OUT_OF_MEMORY, "deflate() failed (%d)", status);
-	return;
-      }
-
-      flush = 0;
-    }
-  }
-  else if (Encryption && !PSLevel)
-  {
-    int		i,		// Looping var
-		bytes;		// Number of bytes to encrypt/write
-    hdChar	newbuf[1024];	// New encrypted data buffer
-
-
-    for (i = 0; i < length; i += sizeof(newbuf))
-    {
-      if ((bytes = length - i) > (int)sizeof(newbuf))
-        bytes = sizeof(newbuf);
-
-      rc4_encrypt(&encrypt_state, buf + i, newbuf, bytes);
-      fwrite(newbuf, bytes, 1, out);
-    }
-  }
-  else if (PSLevel)
-#ifdef HTMLDOC_ASCII85
-    ps_ascii85(out, buf, length);
-#else
-    ps_hex(out, buf, length);
-#endif // HTMLDOC_ASCII85
-  else
-    fwrite(buf, length, 1, out);
+    return (new hdRC4Filter(out, digest, encrypt_len + 5));
 }
 
 
@@ -13054,6 +12651,6 @@ update_index(hdTree *t,			// I - Index tree
 }
 
 
-/*
- * End of "$Id$".
- */
+//
+// End of "$Id$".
+//
