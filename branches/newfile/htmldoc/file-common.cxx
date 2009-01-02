@@ -155,8 +155,7 @@ hdFile::printf(const char *f,		// I - Printf-style format string
   int		width,			// Width of field
 		prec;			// Number of characters of precision
   char		tf[100],		// Temporary format string for sprintf()
-		buffer[1024],		// Buffer for formatted numbers
-		*bufptr;		// Pointer into number buffer
+		buffer[256];		// Buffer for formatted numbers
   const char	*s;			// Pointer to string
   int		slen;			// Length of string
   va_list 	ap;			// Pointer to additional arguments

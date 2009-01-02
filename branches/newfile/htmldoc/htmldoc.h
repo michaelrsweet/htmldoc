@@ -162,7 +162,7 @@ VAR int		Encryption	VALUE(0),	/* Encrypt the PDF file? */
 		Permissions	VALUE(-4);	/* File permissions? */
 VAR char	OwnerPassword[33] VALUE(""),	/* Owner password */
 		UserPassword[33] VALUE("");	/* User password */
-VAR int		EmbedFonts	VALUE(1);	/* Embed fonts? */
+VAR int		EmbedFonts	VALUE(0);	/* Embed fonts? */
 VAR int		PSLevel		VALUE(2),	/* Language level (0 for PDF) */
 		PSCommands	VALUE(0),	/* Output PostScript commands? */
 		XRXComments	VALUE(0);	/* Output Xerox comments? */
