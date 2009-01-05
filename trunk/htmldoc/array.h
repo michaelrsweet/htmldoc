@@ -58,7 +58,7 @@ class hdArray				//// Generic array container
 
   public:
 
-		hdArray(hdArrayFunc f, int min_alloc = 16);
+		hdArray(hdArrayFunc f = (hdArrayFunc)0, int min_alloc = 16);
 		hdArray(hdArray &a);
 		~hdArray();
 
