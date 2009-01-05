@@ -26,87 +26,6 @@
 //
 // Contents:
 //
-//   pspdf_export()           - Export PostScript/PDF file(s)...
-//   pspdf_debug_stats()      - Display debug statistics for render memory use.
-//   pspdf_transform_coords() - Transform page coordinates.
-//   pspdf_transform_page()   - Transform a page.
-//   pspdf_prepare_outpages() - Prepare output pages...
-//   pspdf_prepare_page()     - Add headers/footers to page before writing...
-//   pspdf_prepare_heading()  - Add headers/footers to page before writing...
-//   ps_write_document()      - Write all render entities to PostScript file(s).
-//   ps_write_outpage()       - Write an output page.
-//   ps_write_page()          - Write all render entities on a page to a
-//                              PostScript file.
-//   ps_write_background()    - Write a background image...
-//   pdf_write_document()     - Write all render entities to a PDF file.
-//   pdf_write_resources()    - Write the resources dictionary for a page.
-//   pdf_write_outpage()      - Write an output page.
-//   pdf_write_page()         - Write a page to a PDF file.
-//   pdf_write_contents()     - Write the table of contents as outline records
-//                              to a PDF file.
-//   pdf_write_files()        - Write an outline of HTML files.
-//   pdf_count_headings()     - Count the number of headings under this TOC
-//                              entry.
-//   pdf_start_object()       - Start a new PDF object...
-//   pdf_start_stream()       - Start a new PDF stream...
-//   pdf_end_object()         - End a PDF object...
-//   pdf_write_links()        - Write annotation link objects for each page in
-//                              the document.
-//   pdf_write_names()        - Write named destinations for each link.
-//   render_contents()        - Render a single heading.
-//   count_headings()         - Count the number of headings in the TOC.
-//   parse_contents()         - Parse the table of contents and produce a
-//                              rendering list...
-//   parse_doc()              - Parse a document tree and produce rendering list
-//                              output.
-//   parse_heading()          - Parse a heading tree and produce rendering list
-//                              output.
-//   parse_paragraph()        - Parse a paragraph tree and produce rendering
-//                              list output.
-//   parse_pre()              - Parse preformatted text and produce rendering
-//                              list output.
-//   render_table_row()       - Render a table row.
-//   parse_table()            - Parse a table and produce rendering output.
-//   parse_list()             - Parse a list entry and produce rendering output.
-//   init_list()              - Initialize the list type and value as necessary.
-//   parse_comment()          - Parse a comment for HTMLDOC comments.
-//   real_prev()              - Return the previous non-link markup in the tree.
-//   real_next()              - Return the next non-link markup in the tree.
-//   find_background()        - Find the background image/color for the given
-//                              document.
-//   write_background()       - Write the background image/color for to the
-//                              current page.
-//   new_render()             - Allocate memory for a new rendering structure.
-//   check_pages()            - Allocate memory for more pages as needed...
-//   add_link()               - Add a named link...
-//   find_link()              - Find a named link...
-//   compare_links()          - Compare two named links.
-//   copy_tree()              - Copy a markup tree...
-//   get_cell_size()          - Compute the minimum width of a cell.
-//   get_table_size()         - Compute the minimum width of a table.
-//   flatten_tree()           - Flatten an HTML tree to only include the text,
-//                              image, link, and break markups.
-//   update_image_size()      - Update the size of an image based upon the
-//                              printable width.
-//   get_title()              - Get the title string for a document.
-//   open_file()              - Open an output file for the current chapter.
-//   set_color()              - Set the current text color...
-//   set_font()               - Set the current text font.
-//   set_pos()                - Set the current text position.
-//   jpg_setup()              - Setup the JPEG compressor for writing an image.
-//   compare_rgb()            - Compare two RGB colors...
-//   write_image()            - Write an image to the given output file...
-//   write_imagemask()        - Write an imagemask to the output file...
-//   write_prolog()           - Write the file prolog...
-//   write_string()           - Write a text entity.
-//   write_text()             - Write a text entity.
-//   write_trailer()          - Write the file trailer.
-//   write_type1()            - Write an embedded Type 1 font.
-//   write_utf16()            - Write a UTF-16 string...
-//   encrypt_init()           - Initialize the RC4 encryption context for the
-//                              current object.
-//   update_index()           - Update the index to use page numbers instead of
-//                              link numbers.
 //
 
 //
@@ -366,8 +285,10 @@ static void	pdf_write_names(hdFile *out);
 static int	pdf_count_headings(hdTree *toc);
 
 static int	pdf_start_object(hdFile *out, int array = 0);
-static void	pdf_start_stream(hdFile *out);
+static hdFile	*pdf_start_stream(hdFile *out, hdArray &filters, int width = 0,
+				  int height = 0, int depth = 0);
 static void	pdf_end_object(hdFile *out);
+static void	pdf_end_stream(hdFile *out, hdArray &filters);
 
 static hdRC4Filter	*encrypt_init(hdFile *out);
 
@@ -2553,6 +2474,7 @@ pdf_write_outpage(hdFile *out,		/* I - Output file */
   hdPage	*p;			/* Current page */
   hdOutPage	*op;			/* Output page */
   hdFile	*filter;		/* Output stream */
+  hdArray	filters;		// Stream filters
 
 
   DEBUG_printf(("pdf_write_outpage(out = %p, outpage = %d)\n", out, outpage));
@@ -2602,16 +2524,7 @@ pdf_write_outpage(hdFile *out,		/* I - Output file */
   pdf_end_object(out);
 
   pdf_start_object(out);
-
-  if (Compression)
-  {
-    out->puts("/Filter/FlateDecode");
-    filter = new hdFlateFilter(out, Compression);
-  }
-  else
-    filter = out;
-
-  pdf_start_stream(out);
+  filter = pdf_start_stream(out, filters);
 
  /*
   * Render all of the pages...
@@ -2645,10 +2558,7 @@ pdf_write_outpage(hdFile *out,		/* I - Output file */
   * Close out the page...
   */
 
-  if (filter != out)
-    delete filter;
-
-  pdf_end_object(out);
+  pdf_end_stream(out, filters);
 }
 
 
@@ -3177,7 +3087,7 @@ pdf_start_object(hdFile *out,		// I - File to write to
     objects = temp;
   }
 
-  objects[num_objects] = out->size();
+  objects[num_objects] = out->pos();
   out->printf("%d 0 obj", num_objects);
 
   pdf_object_type = array;
@@ -3188,19 +3098,62 @@ pdf_start_object(hdFile *out,		// I - File to write to
 }
 
 
-/*
- * 'pdf_start_stream()' - Start a new PDF stream...
- */
+//
+// 'pdf_start_stream()' - Start a new PDF stream...
+//
 
-static void
-pdf_start_stream(hdFile *out)		// I - File to write to
+static hdFile *
+pdf_start_stream(hdFile  *out,		// I  - File to write to
+                 hdArray &filters,	// IO - Array of filters
+		 int     width,		// I  - Width for JPEG filter, 0 otherwise
+		 int     height,	// I  - Height for JPEG filter, 0 otherwise
+		 int     depth)		// I  - Depth for JPEG filter, 0 otherwise
 {
+  hdFile	*filter;		// Top-most filter
+
+
+  if (Encryption)
+  {
+    filter = encrypt_init(out);
+    filters.add(filter);
+  }
+  else
+    filter = out;
+
+  if (OutputJPEG && width > 0 && height > 0 && depth > 0)
+  {
+    if (Compression)
+    {
+      out->puts("/Filter[/FlateDecode/DCTDecode]");
+
+      filter = new hdJPEGFilter(filter, width, height, depth, OutputJPEG);
+      filters.add(filter);
+      filter = new hdFlateFilter(filter, Compression);
+      filters.add(filter);
+    }
+    else
+    {
+      out->puts("/Filter/DCTDecode");
+
+      filter = new hdJPEGFilter(filter, width, height, depth, OutputJPEG);
+      filters.add(filter);
+    }
+  }
+  else if (Compression)
+  {
+    out->puts("/Filter/FlateDecode");
+    filter = new hdFlateFilter(filter, Compression);
+    filters.add(filter);
+  }
+
   // Write the "/Length " string, get the position, and then write 10
   // zeroes to cover the maximum size of a stream.
   out->puts("/Length ");
   pdf_stream_length = out->pos();
   out->puts("0000000000>>stream\n");
   pdf_stream_start = out->pos();
+
+  return (filter);
 }
 
 
@@ -3211,25 +3164,39 @@ pdf_start_stream(hdFile *out)		// I - File to write to
 static void
 pdf_end_object(hdFile *out)		// I - File to write to
 {
+  out->puts(pdf_object_type ? "]" : ">>");
+  out->puts("endobj\n");
+}
+
+
+//
+// 'pdf_end_stream()' - End a PDF stream object.
+//
+
+static void
+pdf_end_stream(hdFile  *out,		// I  - Output file
+               hdArray &filters)	// IO - Array of filters
+{
+  hdFile	*filter;		// Current filter
   size_t	length;			// Total length of stream
-  
 
-  if (pdf_stream_start)
+
+  // Close out all filters, starting with the last one...
+  while ((filter = (hdFile *)filters.last()) != NULL)
   {
-    // For streams, go back and update the length field in the
-    // object dictionary...
-    length = out->pos() - pdf_stream_start;
-
-    out->seek(pdf_stream_length, SEEK_SET);
-    out->printf("%-10ld", (long)length);
-    out->seek(0, SEEK_END);
-    pdf_stream_start = 0;
-
-    out->puts("endstream\n");
+    filters.remove(filter);
+    delete filter;
   }
-  else
-    out->puts(pdf_object_type ? "]" : ">>");
 
+  // Update the length of the object...
+  length = out->pos() - pdf_stream_start;
+
+  out->seek(pdf_stream_length, SEEK_SET);
+  out->printf("%-10ld", (long)length);
+  out->seek(0, SEEK_END);
+  pdf_stream_start = 0;
+
+  out->puts("endstream\n");
   out->puts("endobj\n");
 }
 
@@ -10010,56 +9977,6 @@ set_pos(hdFile *out,			/* I - File to write to */
 }
 
 
-#if 0
-/*
- * 'jpg_setup()' - Setup the JPEG compressor for writing an image.
- */
-
-static void
-jpg_setup(FILE           *out,	/* I - Output file */
-          hdImage        *img,	/* I - Output image */
-          j_compress_ptr cinfo)	/* I - Compressor info */
-{
-  int	i;			// Looping var
-
-
-  jpg_file    = out;
-  cinfo->err  = jpeg_std_error(&jerr);
-
-  jpeg_create_compress(cinfo);
-
-  cinfo->dest = &jpg_dest;
-  jpg_dest.init_destination    = jpg_init;
-  jpg_dest.empty_output_buffer = jpg_empty;
-  jpg_dest.term_destination    = jpg_term;
-
-  cinfo->image_width      = img->width();
-  cinfo->image_height     = img->height();
-  cinfo->input_components = img->depth();
-  cinfo->in_color_space   = img->depth() == 1 ? JCS_GRAYSCALE : JCS_RGB;
-
-  jpeg_set_defaults(cinfo);
-  jpeg_set_quality(cinfo, OutputJPEG, TRUE);
-
-  // Update things when writing to PS files...
-  if (PSLevel)
-  {
-    // Adobe uses sampling == 1
-    for (i = 0; i < img->depth(); i ++)
-    {
-      cinfo->comp_info[i].h_samp_factor = 1;
-      cinfo->comp_info[i].v_samp_factor = 1;
-    }
-  }
-
-  cinfo->write_JFIF_header  = FALSE;
-  cinfo->write_Adobe_marker = TRUE;
-
-  jpeg_start_compress(cinfo, TRUE);
-}
-#endif // 0
-
-
 /*
  * 'compare_rgb()' - Compare two RGB colors...
  */
@@ -10472,25 +10389,12 @@ write_image(hdFile   *out,		/* I - Output file */
           else
 	    out->printf("/Width %d/Height %d/BitsPerComponent 1/ImageMask true",
 	                img->width(), img->height());
-	  if (Compression)
-	  {
-            out->puts("/Filter/FlateDecode");
-	    filter = new hdFlateFilter(out, Compression);
-	    filters.add(filter);
-	  }
-	  else
-	    filter = out;
 
-          pdf_start_stream(out);
+	  filter = pdf_start_stream(out, filters);
+
 	  filter->write(img->mask(), img->maskwidth() * img->height());
 
-	  while ((filter = (hdFile *)filters.last()) != NULL)
-	  {
-	    filters.remove(filter);
-	    delete filter;
-	  }
-
-          pdf_end_object(out);
+          pdf_end_stream(out, filters);
 	}
 
         if (write_obj)
@@ -10516,6 +10420,8 @@ write_image(hdFile   *out,		/* I - Output file */
 	      cmap[i][2] = colors[i];
 	    }
 
+	    out->printf("/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
+
 	    if (Encryption)
 	    {
 	      // Encrypt the colormap...
@@ -10524,8 +10430,6 @@ write_image(hdFile   *out,		/* I - Output file */
 	    }
 	    else
 	      filter = out;
-
-	    out->printf("/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
 
 	    filter = new hdASCIIHexFilter(filter);
 	    filters.add(filter);
@@ -10549,38 +10453,14 @@ write_image(hdFile   *out,		/* I - Output file */
             out->puts("/Interpolate true");
 #endif // HTMLDOC_INTERPOLATION
 
-          if (Compression && (ncolors || !OutputJPEG))
-	  {
-            out->puts("/Filter/FlateDecode");
-	    filter = new hdFlateFilter(out, Compression);
-	    filters.add(filter);
-	  }
-	  else if (OutputJPEG && ncolors == 0)
-	  {
-	    if (Compression)
-	    {
-	      out->puts("/Filter[/FlateDecode/DCTDecode]");
-
-	      filter = new hdJPEGFilter(out, img->width(), img->height(),
-	                                img->depth(), OutputJPEG);
-	      filters.add(filter);
-	      filter = new hdFlateFilter(filter, Compression);
-	      filters.add(filter);
-	    }
-	    else
-	    {
-	      filter = new hdJPEGFilter(out, img->width(), img->height(),
-	                                img->depth(), OutputJPEG);
-	      filters.add(filter);
-	      out->puts("/Filter/DCTDecode");
-	    }
-	  }
-	  else
-	    filter = out;
-
   	  out->printf("/Width %d/Height %d/BitsPerComponent %d",
 	              img->width(), img->height(), indbits);
-          pdf_start_stream(out);
+
+	  if (OutputJPEG && ncolors == 0)
+	    filter = pdf_start_stream(out, filters, img->width(), img->height(),
+	                              img->depth());
+          else
+	    filter = pdf_start_stream(out, filters);
 
 	  if (ncolors > 0)
 	    filter->write(indices, indwidth * img->height());
@@ -10588,13 +10468,7 @@ write_image(hdFile   *out,		/* I - Output file */
 	    filter->write(img->pixels(),
 			  img->width() * img->height() * img->depth());
 
-	  while ((filter = (hdFile *)filters.last()) != NULL)
-	  {
-	    filters.remove(filter);
-	    delete filter;
-	  }
-
-          pdf_end_object(out);
+          pdf_end_stream(out, filters);
 	}
 	else
 	{
@@ -12338,6 +12212,7 @@ write_type1(hdFile      *out,		/* I - File to write to */
     */
 
     hdFile	*filter;		// Output filter
+    hdArray	filters;		// Filters for this stream
 
 
     length1 = 0;
@@ -12370,15 +12245,8 @@ write_type1(hdFile      *out,		/* I - File to write to */
     out->printf("/Length1 %d", length1);
     out->printf("/Length2 %d", length2);
     out->printf("/Length3 %d", length3);
-    if (Compression)
-    {
-      out->puts("/Filter/FlateDecode");
-      filter = new hdFlateFilter(out, Compression);
-    }
-    else
-      filter = out;
 
-    pdf_start_stream(out);
+    filter = pdf_start_stream(out, filters);
 
     while (fp->gets(line, sizeof(line)))
     {
@@ -12416,10 +12284,7 @@ write_type1(hdFile      *out,		/* I - File to write to */
     while (fp->gets(line, sizeof(line)))
       filter->puts(line);
 
-    if (filter != out)
-      delete filter;
-
-    pdf_end_object(out);
+    pdf_end_stream(out, filters);
 
     delete fp;
 
