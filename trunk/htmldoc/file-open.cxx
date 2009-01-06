@@ -21,7 +21,8 @@
 //
 // Contents:
 //
-//   hdFile::open() - Open a URI...
+//   hdFile::open() - Open a URI.
+//   hdFile::uri()  - Set the URI for a file.
 //
 
 //
@@ -33,7 +34,7 @@
 
 
 //
-// 'hdFile::open()' - Open a URI...
+// 'hdFile::open()' - Open a URI.
 //
 
 hdFile *				// O - New file
@@ -73,7 +74,21 @@ hdFile::open(const char *uri,		// I - URI to open
     return ((hdFile *)0);
   }
   else
+  {
+    f->uri(uri);
     return f;
+  }
+}
+
+
+//
+// 'hdFile::uri()' - Set the URI for a file.
+//
+
+void
+hdFile::uri(const char *u)		// I - URI string
+{
+  uri_ = strdup(u);
 }
 
 
