@@ -1493,6 +1493,9 @@ pspdf_prepare_heading(int    page,	// I - Page number
   else
     style = _htmlStyleSheet->find_style(HD_ELEMENT_P, "HD_HEADER");
 
+  if (style->font_size == HD_FONT_SIZE_INHERIT)
+    style->inherit(&(_htmlStyleSheet->def_style));
+
   for (pos = 0; pos < 3; pos ++, format += dir)
   {
    /*
@@ -3126,18 +3129,14 @@ pdf_start_stream(hdFile  *out,		// I  - File to write to
     {
       out->puts("/Filter[/FlateDecode/DCTDecode]");
 
-      filter = new hdJPEGFilter(filter, width, height, depth, OutputJPEG);
-      filters.add(filter);
       filter = new hdFlateFilter(filter, Compression);
       filters.add(filter);
     }
     else
-    {
       out->puts("/Filter/DCTDecode");
 
-      filter = new hdJPEGFilter(filter, width, height, depth, OutputJPEG);
-      filters.add(filter);
-    }
+    filter = new hdJPEGFilter(filter, width, height, depth, OutputJPEG);
+    filters.add(filter);
   }
   else if (Compression)
   {
@@ -10619,22 +10618,20 @@ write_image(hdFile   *out,		/* I - Output file */
             out->puts("/DataSource currentfile/ASCIIHexDecode filter");
 #endif // HTMLDOC_ASCII85
 
+#ifdef HTMLDOC_ASCII85
+            filter = new hdASCII85Filter(out);
+	    filters.add(filter);
+#else
+            filter = new hdASCIIHexFilter(out);
+	    filters.add(filter);
+#endif // HTMLDOC_ASCII85
+
             if (Compression)
 	    {
 	      out->puts("/FlateDecode filter");
-	      filter = new hdFlateFilter(out, Compression);
+	      filter = new hdFlateFilter(filter, Compression);
 	      filters.add(filter);
 	    }
-	    else
-	      filter = out;
-
-#ifdef HTMLDOC_ASCII85
-            filter = new hdASCII85Filter(filter);
-	    filters.add(filter);
-#else
-            filter = new hdASCIIHexFilter(filter);
-	    filters.add(filter);
-#endif // HTMLDOC_ASCII85
 
 	    out->puts(">>\n");
 
@@ -10715,22 +10712,20 @@ write_image(hdFile   *out,		/* I - Output file */
             out->puts("/DataSource currentfile/ASCIIHexDecode filter");
 #endif // HTMLDOC_ASCII85
 
+#ifdef HTMLDOC_ASCII85
+            filter = new hdASCII85Filter(out);
+	    filters.add(filter);
+#else
+            filter = new hdASCIIHexFilter(out);
+	    filters.add(filter);
+#endif // HTMLDOC_ASCII85
+
             if (Compression)
 	    {
 	      out->puts("/FlateDecode filter");
-	      filter = new hdFlateFilter(out, Compression);
+	      filter = new hdFlateFilter(filter, Compression);
 	      filters.add(filter);
 	    }
-	    else
-	      filter = out;
-
-#ifdef HTMLDOC_ASCII85
-            filter = new hdASCII85Filter(filter);
-	    filters.add(filter);
-#else
-            filter = new hdASCIIHexFilter(filter);
-	    filters.add(filter);
-#endif // HTMLDOC_ASCII85
 
 	    out->puts(">>\n");
 
@@ -10867,17 +10862,17 @@ write_image(hdFile   *out,		/* I - Output file */
 	            "/DCTDecode filter>>image\n");
 #endif // HTMLDOC_ASCII85
 
-	  filter = new hdJPEGFilter(out, img->width(), img->height(),
-				    img->depth(), OutputJPEG);
-	  filters.add(filter);
-
 #ifdef HTMLDOC_ASCII85
-	  filter = new hdASCII85Filter(filter);
+	  filter = new hdASCII85Filter(out);
 	  filters.add(filter);
 #else
-	  filter = new hdASCIIHexFilter(filter);
+	  filter = new hdASCIIHexFilter(out);
 	  filters.add(filter);
 #endif // HTMLDOC_ASCII85
+
+	  filter = new hdJPEGFilter(filter, img->width(), img->height(),
+				    img->depth(), OutputJPEG);
+	  filters.add(filter);
 
 	  filter->write(img->pixels(),
 			img->width() * img->height() * img->depth());

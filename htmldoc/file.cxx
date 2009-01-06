@@ -257,7 +257,7 @@ hdFile::dirname(const char *s,		// I - Filename or URL
       *dir = '\0';
 #endif /* WIN32 */
     else
-      return (".");
+      strlcpy(t, ".", tlen);
   }
 
   return (t);

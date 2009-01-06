@@ -2090,14 +2090,14 @@ fix_filename(const char *filename,	// I - Original filename
     filename = temp;
   }
 
-  if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
+  if (!strcmp(base, ".") || strstr(filename, "//"))
     return (hdFile::find(Path, filename, buffer, bufsize));
 
   if (strncmp(filename, "./", 2) == 0 ||
       strncmp(filename, ".\\", 2) == 0)
     filename += 2;
 
-  if (strncmp(base, "http://", 7) == 0 || strncmp(base, "https://", 8) == 0)
+  if (!strncmp(base, "http://", 7) || !strncmp(base, "https://", 8))
   {
     strlcpy(newfilename, base, sizeof(newfilename));
     base = strchr(newfilename, ':') + 3;

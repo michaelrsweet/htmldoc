@@ -1,26 +1,29 @@
 //
 // "$Id: styletree.cxx,v 1.1.2.4 2005/05/06 15:28:58 mike Exp $"
 //
-//   Document tree stylesheet routines for HTMLDOC, a HTML document processing program.
+// Document tree stylesheet routines for HTMLDOC, a HTML document processing program.
 //
-//   Copyright 1997-2005 by Easy Software Products.
+// Copyright 1997-2009 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
+// These coded instructions, statements, and computer programs are the
+// property of Easy Software Products and are protected by Federal
+// copyright law.  Distribution and use rights are outlined in the file
+// "COPYING.txt" which should have been included with this file.  If this
+// file is missing or damaged please contact Easy Software Products
+// at:
 //
-//       Attn: HTMLDOC Licensing Information
-//       Easy Software Products
-//       516 Rio Grand Ct
-//       Morgan Hill, CA 95037 USA
+//     Attn: HTMLDOC Licensing Information
+//     Easy Software Products
+//     516 Rio Grand Ct
+//     Morgan Hill, CA 95037 USA
 //
-//       http://www.htmldoc.org/
+//     http://www.htmldoc.org/
 //
 // Contents:
 //
+//   hdStyleSheet::find_style()        - Find the default style for the given
+//                                       tree node.
+//   hdStyleSheet::get_private_style() - Get a private style definition.
 //
 
 //
