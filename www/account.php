@@ -13,6 +13,8 @@ include_once "phplib/db-article.php";
 include_once "phplib/db-str.php";
 include_once "phplib/db-user.php";
 
+$PAGE_MAX = 50;
+
 
 //
 // Developer terms and work interests...
@@ -302,7 +304,7 @@ switch ($op)
 
         $user->view();
 
-        print("<h1>Articles &amp; FAQs</h1>\n");
+        print("<h2>Articles &amp; FAQs</h2>\n");
 
 	$result = db_query("SELECT id FROM article WHERE "
 	                  ."create_user = '$user->name' "
@@ -334,7 +336,7 @@ switch ($op)
             $temp = htmlspecialchars($article->title);
             if ($article->is_published == 0)
 	      $temp .= " <img src='${path}images/private.gif' width='16' height='16' "
-	              ."border='0' align='middle' alt='Private'/>";
+	              ."border='0' align='absmiddle' alt='Private'>";
 
             print("<td width='67%'>$link$temp</a></td>");
 
@@ -359,7 +361,7 @@ switch ($op)
 
         db_free($result);
 
-        print("<h1>Bug and Feature Requests</h1>\n");
+        print("<h2>Bug and Feature Requests</h2>\n");
 
         if ($LOGIN_LEVEL >= AUTH_DEVEL && $LOGIN_ID == $id)
 	  $manager = "manager_user = '' OR manager_user = '$user->name'";
@@ -403,7 +405,7 @@ switch ($op)
 
             if ($str->is_published == 0)
 	      $summabbr .= " <img src='${path}images/private.gif' width='16' height='16' "
-	                  ."border='0' align='middle' alt='Private'/>";
+	                  ."border='0' align='absmiddle' alt='Private'>";
 
             print("<td nowrap>");
 	    print("$link$str->id</a></td>"
@@ -454,62 +456,6 @@ switch ($op)
 	  print("<p>No STRs found.</p>\n");
 
         db_free($result);
-        print("<h1>Links</h1>\n");
-
-	$result = db_query("SELECT id FROM link WHERE "
-	                  ."create_user = '$user->name' "
-			  ."ORDER BY modify_date DESC, name");
-	if (db_count($result) > 0)
-	{
-	  $count = db_count($result);
-	  if ($count > 5)
-	  {
-	    html_start_links();
-	    html_link("Show All $count Links", "links.php?LM");
-	    html_end_links();
-          }
-
-	  print("<ul>\n");
-
-	  for ($i = 0; $i < 5 && $row = db_next($result); $i ++)
-	  {
-            $id = $row["id"];
-	    $link = new link($id);
-
-	    $name        = htmlspecialchars($link->name);
-	    $description = html_format($link->description);
-	    $version     = htmlspecialchars($link->version);
-            $age         = (int)((time() - $link->modify_date) / 86400);
-
-            print("<li><b><a href='links.php?V$id$options'>$name $version</a></b>");
-
-	    if ($search != "")
-	    {
-	      $category = $link->get_category($link->parent_id, 1);
-	      print(" in $category");
-	    }
-
-            if (!$link->is_published)
-	      print(" <img src='images/private.gif' width='16' height='16' "
-		   ."align='middle' alt='private'/>");
-
-            if ($age == 1)
-              print(", <i>Updated 1 day ago</i>");
-	    else if ($age < 30)
-              print(", <i>Updated $age days ago</i>");
-
-	    print(" [&nbsp;<a href='links.php?UL$id+P$link->parent_id'>Edit</a>"
-		 ." | <a href='links.php?X$id+P$link->parent_id'>Delete</a>&nbsp;]\n");
-
-            print("$description</li>\n");
-	  }
-
-	  print("</ul>\n");
-	}
-	else
-	  print("<p>No listings found.</p>\n");
-
-        db_free($result);
 
 	html_footer();
       }
@@ -519,12 +465,13 @@ switch ($op)
 	account_header("Manage Accounts");
 
         print("<form method='POST' action='$PHP_SELF?L'><p align='center'>"
-	     ."Search:&nbsp;"
-	     ."<input type='text' size='60' name='SEARCH' value='$search'>"
+	     ."<input type='search' size='60' name='SEARCH' value='$search' "
+	     ."placeholder='Search Accounts' autosave='org.htmldoc.search' "
+	     ."results='20'>"
 	     ."<input type='submit' value='Search Accounts'>"
              ."</p></form>\n");
 
-	print("<hr noshade/>\n");
+	print("<hr noshade>\n");
 
         $user    = new user();
         $matches = $user->search($search, "name");
@@ -564,14 +511,14 @@ switch ($op)
 
           print("<tr><td>");
 	  if ($index > 0)
-	    print("[&nbsp;<a href='$PHP_SELF?L+I$prev+Q" . urlencode($search)
-		 ."'>Previous&nbsp;$PAGE_MAX</a>&nbsp;]");
+	    print("<a href='$PHP_SELF?L+I$prev+Q" . urlencode($search)
+		 ."'>Previous&nbsp;$PAGE_MAX</a>");
           print("</td><td align='right'>");
 	  if ($end < $count)
 	  {
 	    $next_count = min($PAGE_MAX, $count - $end);
-	    print("[&nbsp;<a href='$PHP_SELF?L+I$next+Q" . urlencode($search)
-		 ."'>Next&nbsp;$next_count</a>&nbsp;]");
+	    print("<a href='$PHP_SELF?L+I$next+Q" . urlencode($search)
+		 ."'>Next&nbsp;$next_count</a>");
           }
           print("</td></tr>\n");
 	  print("</table></p>\n");
@@ -592,12 +539,12 @@ switch ($op)
 
           if (!$user->is_published)
 	    $email .= " <img src='images/private.gif' width='16' height='16' "
-	             ."border='0' align='middle' alt='Private'/>";
+	             ."border='0' align='absmiddle' alt='Private'>";
 
 	  html_start_row();
-	  print("<td nowrap><input type='checkbox' name='ID_$user->id'/>"
+	  print("<td nowrap><input type='checkbox' name='ID_$user->id'>"
 	       ."<a href='$PHP_SELF?U$user->id$options'>$name</a>"
-	       ." [&nbsp;<a href='$PHP_SELF?L$user->id$options'>View</a>&nbsp;]</td>"
+	       ." (<a href='$PHP_SELF?L$user->id$options'>View</a>)</td>"
 	       ."<td align='center'><a href='$PHP_SELF?U$user->id$options'>"
 	       ."$email</a></td>"
 	       ."<td align='center'><a href='$PHP_SELF?U$user->id$options'>"
@@ -605,14 +552,14 @@ switch ($op)
 	  html_end_row();
 	}
 
-        html_start_row("header");
-	print("<td align='center' colspan='3'>&nbsp;<br /><select name='OP'>"
+        html_start_row("footer");
+	print("<th colspan='3'><select name='OP'>"
 	     ."<option value=''>-- Choose --</option>"
 	     ."<option value='delete'>Delete</option>"
 	     ."<option value='disable'>Disable</option>"
 	     ."<option value='enable'>Enable</option>"
 	     ."</select>"
-	     ."<input type='submit' value='Checked Accounts'/></td>");
+	     ."<input type='submit' value='Checked Accounts'></td>");
 	html_end_row();
 
 	html_end_table();
@@ -624,21 +571,21 @@ switch ($op)
 
           print("<tr><td>");
 	  if ($index > 0)
-	    print("[&nbsp;<a href='$PHP_SELF?L+I$prev+Q" . urlencode($search)
-		 ."'>Previous&nbsp;$PAGE_MAX</a>&nbsp;]");
+	    print("<a href='$PHP_SELF?L+I$prev+Q" . urlencode($search)
+		 ."'>Previous&nbsp;$PAGE_MAX</a>");
           print("</td><td align='right'>");
 	  if ($end < $count)
 	  {
 	    $next_count = min($PAGE_MAX, $count - $end);
-	    print("[&nbsp;<a href='$PHP_SELF?L+I$next+Q" . urlencode($search)
-		 ."'>Next&nbsp;$next_count</a>&nbsp;]");
+	    print("<a href='$PHP_SELF?L+I$next+Q" . urlencode($search)
+		 ."'>Next&nbsp;$next_count</a>");
           }
           print("</td></tr>\n");
 	  print("</table></p>\n");
         }
 
         print("<p><img src='images/private.gif' width='16' height='16' "
-	     ."align='middle' alt='private'/> = hidden from public view</p>\n");
+	     ."align='absmiddle' alt='private'> = hidden from public view</p>\n");
 
         html_footer();
       }
@@ -665,7 +612,7 @@ switch ($op)
 	  $id       = $row['id'];
           $title    = htmlspecialchars($row['title'], ENT_QUOTES) .
 	              " <img src='images/private.gif' width='16' height='16' "
-	             ."border='0' align='middle' alt='Private'/>";
+	             ."border='0' align='absmiddle' alt='Private'>";
           $abstract = htmlspecialchars($row['abstract'], ENT_QUOTES);
 	  $date     = date("M d, Y", $row['modify_date']);
 
@@ -710,7 +657,7 @@ switch ($op)
           $title    = htmlspecialchars($row['name'], ENT_QUOTES) . " " .
 	              htmlspecialchars($row['version'], ENT_QUOTES) .
 	              " <img src='images/private.gif' width='16' height='16' "
-	             ."border='0' align='middle' alt='Private'/>";
+	             ."border='0' align='absmiddle' alt='Private'>";
 	  $date     = date("M d, Y", $row['modify_date']);
 
           if ($row["is_category"])
@@ -759,7 +706,7 @@ switch ($op)
 
           if ($row['is_published'] == 0)
 	    $summabbr .= " <img src='images/private.gif' width='16' height='16' "
-	                ."border='0' align='middle' alt='Private'/>";
+	                ."border='0' align='absmiddle' alt='Private'>";
 
           html_start_row();
 
@@ -811,7 +758,7 @@ switch ($op)
 	       ." by $create_user on $create_date "
 	       ."[&nbsp;<a href='comment.php?U$row[id]+P$row[url]'>Edit</a> "
 	       ."| <a href='comment.php?D$row[id]+P$row[url]'>Delete</a>&nbsp;"
-	       ."]<br /><tt>$contents</tt></li>\n");
+	       ."]<br><tt>$contents</tt></li>\n");
 	}
 
         print("</ul>\n");
@@ -934,7 +881,7 @@ switch ($op)
           print("<input type='radio' name='job' value='$name'");
 	  if ($work == $name)
 	    print(" checked");
-	  print("/>$text<br />");
+	  print(">$text<br>");
 	}
 	print("</p>\n");
 
@@ -952,7 +899,7 @@ switch ($op)
 	  print("<input type='radio' name='years' value='$val'");
 	  if ($years == $val)
 	    print(" checked");
-          print("/>$val<br />");
+          print(">$val<br>");
 	}
 	print("</p>\n");
 
@@ -972,7 +919,7 @@ switch ($op)
           print("<input type='radio' name='terms' value='$name'");
 	  if ($terms == $name)
 	    print(" checked");
-	  print("/>I will $text<br />");
+	  print(">I will $text<br>");
 	}
 	print("</p>\n");
 
@@ -990,12 +937,12 @@ switch ($op)
           print("<input type='radio' name='work' value='$name'");
 	  if ($work == $name)
 	    print(" checked");
-	  print("/>I am $text<br />");
+	  print(">I am $text<br>");
 	}
 	print("</p>\n");
 
 	// Submit
-	print("<p><input type='submit' value='Request Developer Status'/></p>\n"
+	print("<p><input type='submit' value='Request Developer Status'></p>\n"
              ."</form>\n");
       }
 

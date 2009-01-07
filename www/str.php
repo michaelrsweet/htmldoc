@@ -690,8 +690,9 @@ switch ($op)
 	$htmlsearch = htmlspecialchars($search, ENT_QUOTES);
 
         print("<form method='POST' action='$PHP_SELF'><p align='center'>"
-	     ."Search&nbsp;Words: &nbsp;<input type='text' size='60' "
-	     ."name='SEARCH' value='$htmlsearch'>"
+	     ."<input type='search' size='60' name='SEARCH' "
+	     ."value='$htmlsearch' placeholder='Search Requests' "
+	     ."autosave='org.htmldoc.search' results='20'>"
 	     ."<input type='submit' value='Search Requests'><br>\n");
 
 	print("Priority:&nbsp;<select name='FPRIORITY'>");
@@ -761,7 +762,7 @@ switch ($op)
 	print("</select>\n");
 
 	print("<br><i>Search supports 'and', 'or', 'not', and parenthesis. "
-	     ."<a href='${path}search-help.php'>More info...</a></i>"
+	     ."<a href='search-help.php'>More info...</a></i>"
 	     ."</p></form>\n");
 
 	print("<hr noshade>\n");

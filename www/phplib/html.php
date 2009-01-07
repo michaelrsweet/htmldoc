@@ -145,34 +145,41 @@ html_header($title = "",		// I - Additional document title
   if ($html_show_all)
   {
     print("<table class='page' summary=''>\n"
-	 ."<tr>"
-	 ."<td class='pagelogo' rowspan='2'>"
-	 ."<a href='http://www.easysw.com/htmldoc/'>"
-	 ."<img src='${path}images/htmldoc.gif' width='64' height='64' "
-	 ."border='0' alt='&lt;HTML&gt;DOC'></a></td>"
-	 ."<td class='pagetitle' colspan='2' width='100%'>");
+	 ."<tr class='pageheader'>"
+	 ."<td width='32'><a href='http://www.easysw.com/htmldoc/'>"
+	 ."<img src='${path}images/htmldoc.gif' width='32' height='32' "
+	 ."border='0' alt='&lt;HTML&gt;DOC'></a></td>");
 
-    if ($title != "")
-      print(htmlspecialchars($title));
+    $base  = basename($PHP_SELF);
+    $pages = array(
+      "index.php" => "Home",
+      "articles.php" => "Articles &amp; FAQs",
+      "str.php" => "Bugs &amp; Features",
+      "documentation.php" => "Documentation",
+      "software.php" => "Download",
+      "newsgroups.php" => "Forums"
+    );
+
+    reset($pages);
+    foreach ($pages as $href => $label)
+    {
+      if ($href == $base)
+        $class = "sel";
+      else
+        $class = "unsel";
+
+      print("<td class='$class' nowrap>&nbsp;&nbsp;<a href='${path}$href'>"
+           ."$label</a>&nbsp;&nbsp;</td>");
+    }
+
+    print("<td class='unsel' width='100%'>&nbsp;</td>");
+
+    if ($base == "login.php" || $base == "account.php")
+      $class = "sel";
     else
-      print("&lt;HTML&gt;DOC");
+      $class = "unsel";
 
-    print("</td></tr>\n"
-         ."<tr>"
-         ."<td class='pagelinks' width='100%'>"
-	 ."<a href='${path}index.php'>Home</a>"
-	 ." &middot; "
-	 ."<a href='${path}articles.php'>Articles &amp; FAQs</a>"
-	 ." &middot; "
-	 ."<a href='${path}str.php'>Bugs &amp; Features</a>"
-	 ." &middot; "
-	 ."<a href='${path}documentation.php'>Documentation</a>"
-	 ." &middot; "
-	 ."<a href='${path}software.php'>Download</a>"
-	 ." &middot; "
-	 ."<a href='${path}newsgroups.php'>Forums</a>"
-	 ."</td>"
-	 ."<td align='right' class='pagelinks'>");
+    print("<td class='$class'>&nbsp;&nbsp;");
 
     if ($LOGIN_USER)
       print("<a href='${path}account.php'>$LOGIN_USER</a>");
@@ -190,11 +197,18 @@ html_header($title = "",		// I - Additional document title
       print("<a href='${path}login.php?PAGE=$url'>Login</a>");
     }
 
-    print("</td>"
+    print("&nbsp;&nbsp;</td>"
 	 ."</tr>\n");
 
+    if ($links != "")
+    {
+      print("<tr><td class='pagelinks' colspan='9'>");
+      html_links($links);
+      print("</td></tr>\n");
+    }
+
     print("<tr>"
-	 ."<td class='page' colspan='3'>");
+	 ."<td class='page' colspan='9'>");
   }
   else
   {
@@ -205,10 +219,13 @@ html_header($title = "",		// I - Additional document title
 	 ."<a href='${path}documentation.php'></a>"
 	 ."<a href='${path}software.php'></a>"
 	 ."<a href='${path}newsgroups.php'></a>");
+
+    if ($links != "")
+      html_links($links);
   }
 
-  if ($links != "")
-    html_links($links);
+  if ($title != "")
+    print("<h1>" . htmlspecialchars($title) . "</h1>\n");
 }
 
 
@@ -225,12 +242,10 @@ html_footer()
   if ($html_show_all)
   {
     print("</td></tr>\n"
-         ."<tr><td class='pagefooter' colspan='3'>"
-	 ."Copyright 1997-2008 by Easy Software Products. HTMLDOC and "
-	 ."&lt;HTML&gt;DOC are the trademark property of Easy Software Products. "
-	 ."HTMLDOC is free software; you can redistribute it and/or modify it "
-	 ."under the terms of the GNU General Public License as published by the "
-	 ."Free Software Foundation.</td></tr>\n"
+         ."<tr class='pagefooter'><td colspan='9'>"
+	 ."Copyright 1997-2009 Easy Software Products. All rights reserved. "
+	 ."HTMLDOC and &lt;HTML&gt;DOC are trademarks of Easy Software "
+	 ."Products.</td></tr>\n"
          ."</table>\n");
   }
 
@@ -298,9 +313,10 @@ html_link($text,			// I - Text for hyperlink
 //
 
 function
-html_links($links)			// I - Associated array of hyperlinks
+html_links($links,			// I - Associated array of hyperlinks
+           $center = 0)			// I - Center the links?
 {
-  html_start_links(1);
+  html_start_links($center);
   reset($links);
   while (list($key, $val) = each($links))
   {

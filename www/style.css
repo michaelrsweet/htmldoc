@@ -52,43 +52,44 @@ TABLE.page {
   width: 100%;
 }
 
-TD.pagelogo {
+TR.pageheader TD {
   border: none;
-  border-bottom: solid 2px #000011;
   padding: 0;
-  vertical-align: bottom;
 }
 
-TD.pagelinks, TD.pagetitle {
-  background-color: #99cccc;
+TR.pageheader TD.sel {
+  background: url(images/sel.gif);
+}
+
+TR.pageheader TD.sel A {
   color: #000011;
-  padding: 0px 10px;
-  white-space: nowrap;
-  width: 100%;
+  font-weight: normal;
 }
 
-TD.pagetitle {
-  font-size: 150%;
-  font-style: italic;
-  font-weight: bold;
-  height: 32px;
+TR.pageheader TD.unsel {
+  background: url(images/unsel.gif);
+}
+
+TR.pageheader TD.unsel A {
+  color: #ccffff;
+  font-weight: normal;
 }
 
 TD.pagelinks {
-  border-bottom: solid 2px #000011;
-  font-size: 90%;
-  height: 32px;
+  background: #e0e0f4;
+  border: none;
+  padding: 5px;
 }
 
 TD.page {
   background-color: #e0e0f4;
   height: 100%;
-  padding: 10px 20px;
+  padding: 20px;
   vertical-align: top;
   width: 100%;
 }
 
-TD.pagefooter {
+TR.pagefooter TD {
   background: #000011;
   color: #99cccc;
   font-size: 80%;
