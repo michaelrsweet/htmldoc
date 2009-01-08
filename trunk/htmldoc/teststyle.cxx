@@ -108,7 +108,7 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
 {
   int	i;				// Looping var
   static const char * const		// Enumeration strings...
-		pos[4] = { "bottom", "left", "right", "top" };
+		pos[4] = { "top", "right", "bottom", "left" };
   static const char * const
 		background_repeat[] = { "inherit", "repeat", "repeat-x",
 		                        "repeat-y", "no-repeat" };

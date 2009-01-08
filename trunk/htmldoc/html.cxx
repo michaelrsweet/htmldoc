@@ -3,7 +3,7 @@
 //
 // HTML exporting functions for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2009 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -21,6 +21,26 @@
 //
 // Contents:
 //
+//   html_export()     - Export to HTML.
+//   htmlsep_export()  - Export to separated HTML files.
+//   add_heading()     - Add a heading to the list of headings.
+//   add_link()        - Add a named link.
+//   compare_links()   - Compare two named links.
+//   do_export()       - Export to HTML.
+//   find_link()       - Find a named link.
+//   get_title()       - Get the title string for the given document.
+//   scan_links()      - Scan a document for link targets, and keep track of the
+//                       files they are in.
+//   update_links()    - Update links as needed.
+//   write_all()       - Write all markup text for the given tree.
+//   write_css()       - Write the style data.
+//   write_doc()       - Write the entire document.
+//   write_footer()    - Output the standard "footer" for a HTML file.
+//   write_header()    - Output the standard "header" for a HTML file.
+//   write_node()      - Write a single tree node.
+//   write_nodeclose() - Close a single tree node.
+//   write_title()     - Write a title page.
+//   write_toc()       - Write all markup text for the given table-of-contents.
 //
 
 //
@@ -628,7 +648,7 @@ write_css(hdFile       *out,		// I - Output file
   int		i, j;			// Looping vars
   hdStyle	*style;			// Current style
   static const char * const		// Enumeration strings...
-		pos[4] = { "bottom", "left", "right", "top" };
+		pos[4] = { "top", "right", "bottom", "left" };
   static const char * const
 		background_repeat[] = { "inherit", "repeat", "repeat-x",
 		                        "repeat-y", "no-repeat" };
@@ -731,8 +751,7 @@ write_css(hdFile       *out,		// I - Output file
 
       for (j = 0; j < 2; j ++)
 	if (style->background_position_rel[j])
-	  out->printf(" %s (%g)", style->background_position_rel[j],
-		      style->background_position[j]);
+	  out->printf(" %s", style->background_position_rel[j]);
 	else if (style->background_position[j] == HD_WIDTH_AUTO)
 	  out->printf(" auto");
 	else
@@ -782,8 +801,7 @@ write_css(hdFile       *out,		// I - Output file
       out->printf("  font-family: %s\n", style->font_family);
 
     if (style->font_size_rel)
-      out->printf("  font-size: %s (%g)\n", style->font_size_rel,
-	          style->font_size);
+      out->printf("  font-size: %s\n", style->font_size_rel);
     else if (style->font_size != HD_FONT_SIZE_INHERIT)
       out->printf("  font-size: %g\n", style->font_size);
 
@@ -816,7 +834,7 @@ write_css(hdFile       *out,		// I - Output file
 	out->printf("  margin-%s:", pos[j]);
 
 	if (style->margin_rel[j])
-	  out->printf(" %s (%g)\n", style->margin_rel[j], style->margin[j]);
+	  out->printf(" %s\n", style->margin_rel[j]);
 	else
 	  out->printf(" %g\n", style->margin[j]);
       }
@@ -827,7 +845,7 @@ write_css(hdFile       *out,		// I - Output file
 	out->printf("  padding-%s:", pos[j]);
 
 	if (style->padding_rel[j])
-	  out->printf(" %s (%g)\n", style->padding_rel[j], style->padding[j]);
+	  out->printf(" %s\n", style->padding_rel[j]);
 	else
 	  out->printf(" %g\n", style->padding[j]);
       }

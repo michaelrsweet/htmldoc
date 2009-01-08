@@ -262,6 +262,15 @@ htmlReadFile(hdTree     *parent,	// I - Parent tree entry
 	if (ch == '/')
 	{
 	  // Close markup; find matching markup...
+	  if (parent && parent->element == HD_ELEMENT_STYLE &&
+	      prev && prev->element == HD_ELEMENT_COMMENT)
+	  {
+	    // Load style data from comment...
+	    embed = new hdMemFile((char *)prev->data);
+	    _htmlStyleSheet->load(embed, base);
+	    delete embed;
+	  }
+
           for (temp = parent; temp != NULL; temp = temp->parent)
             if (temp->element == t->element)
               break;

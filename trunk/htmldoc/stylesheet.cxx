@@ -948,6 +948,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 	status = false;
       }
 
+      f->unget(ch);
       break;
     }
 
