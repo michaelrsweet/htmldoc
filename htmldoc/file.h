@@ -1,5 +1,5 @@
 //
-// "$Id: file.h 1116 2004-03-08 01:01:41Z mike $"
+// "$Id$"
 //
 // File class definitions for HTMLDOC, a HTML document processing program.
 //
@@ -305,5 +305,5 @@ class hdRC4Filter : public hdFile	//// RC4 encryption filter
 #endif // !HTMLDOC_FILE_H
 
 //
-// End of "$Id: file.h 1116 2004-03-08 01:01:41Z mike $".
+// End of "$Id$".
 //

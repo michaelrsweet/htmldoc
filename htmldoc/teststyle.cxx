@@ -1,5 +1,5 @@
 //
-// "$Id: teststyle.cxx,v 1.1.2.5 2005/05/07 03:02:38 mike Exp $"
+// "$Id$"
 //
 // Stylesheet test program for HTMLDOC, a HTML document processing program.
 //
@@ -333,5 +333,5 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
 
 
 //
-// End of "$Id: teststyle.cxx,v 1.1.2.5 2005/05/07 03:02:38 mike Exp $".
+// End of "$Id$".
 //

@@ -1,5 +1,5 @@
 /*
- * "$Id: progress.h,v 1.1.2.12.2.2 2005/05/04 18:28:50 mike Exp $"
+ * "$Id$"
  *
  *   Progress function definitions for HTMLDOC, a HTML document
  *   processing program.
@@ -73,5 +73,5 @@ extern void	progress_update(int percent);
 #endif /* !_PROGRESS_H_ */
 
 /*
- * End of "$Id: progress.h,v 1.1.2.12.2.2 2005/05/04 18:28:50 mike Exp $".
+ * End of "$Id$".
  */
