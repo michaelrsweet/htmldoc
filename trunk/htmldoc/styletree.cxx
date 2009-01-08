@@ -1,5 +1,5 @@
 //
-// "$Id: styletree.cxx,v 1.1.2.4 2005/05/06 15:28:58 mike Exp $"
+// "$Id$"
 //
 // Document tree stylesheet routines for HTMLDOC, a HTML document processing program.
 //
@@ -255,5 +255,5 @@ hdStyleSheet::get_private_style(
 
 
 //
-// End of "$Id: styletree.cxx,v 1.1.2.4 2005/05/06 15:28:58 mike Exp $".
+// End of "$Id$".
 //

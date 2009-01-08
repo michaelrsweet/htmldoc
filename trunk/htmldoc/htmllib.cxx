@@ -1,9 +1,9 @@
 //
-// "$Id: htmllib.cxx,v 1.41.2.80.2.9 2005/05/09 02:05:01 mike Exp $"
+// "$Id$"
 //
 // HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2009 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -2935,5 +2935,5 @@ utf8_getc(int    ch,			// I - Initial character
 
 
 //
-// End of "$Id: htmllib.cxx,v 1.41.2.80.2.9 2005/05/09 02:05:01 mike Exp $".
+// End of "$Id$".
 //
