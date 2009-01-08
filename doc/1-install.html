@@ -1,141 +1,152 @@
 <html>
+<head>
+	<style><!--
+	pre { margin-left: 2em; }
+	pre.command { font-weight: bold; }
+	--></style>
+</head>
 <body>
 
-<div align='justify'>
+<!-- FOOTER RIGHT "1-$CHAPTERPAGE" -->
+<h1><a name='INSTALL'>Chapter 1 - Installing HTMLDOC</a></h1>
 
-<h1 align='right'><a name='INSTALL'>Chapter 1 - Installing
-HTMLDOC</a></h1>
-
-<p>This chapter describes the steps needed to install HTMLDOC on
-your system from the source distributions.</p>
+<p>This chapter describes the steps needed to install the
+commercial version of HTMLDOC on your system. If you are
+installing HTMLDOC from source code, please see <a
+href='#COMPILE'>Appendix D, Compiling HTMLDOC from
+Source</a>.</p>
 
 <h2>Requirements</h2>
 
-<p>HTMLDOC requires ANSI C and C++ compilers - recent versions
-of GCC work fine. Secure (https) URL support can be enabled via the <A
-HREF='http://www.openssl.org/'>OpenSSL</a> library. You should
-use at least version 0.9.8a.</p>
+<p>HTMLDOC requires approximately 4MB of disk space and one of
+the following environments:</p>
 
-<h2>Compiling under UNIX/Linux</h2>
+<ul>
 
-<p>HTMLDOC uses a configuration script produced by GNU autoconf
-to configure itself for your system. If your ANSI C compiler is
-not called <var>cc</var> or <var>gcc</var>, set the
-<code>CC</code> environment variable to the name and path of
-your ANSI C compiler:</p>
+	<li>Microsoft Windows<sup>&reg;</sup> 2000 or higher</li>
 
-<pre>
-    % <kbd>setenv CC /path/to/compiler ENTER</kbd>         [C Shell]
-    % <kbd>CC=/path/to/compiler; export CC ENTER</kbd>     [Bourne/Korn Shell]
+	<li>MacOS<sup>&reg;</sup> X 10.2 or higher</li>
+
+	<li>Linux<sup>&reg;</sup> 2.4 or higher</li>
+
+	<li>Solaris<sup>&reg;</sup> 7 or higher</li>
+
+</ul>
+
+<p>HTMLDOC may run on other platforms, however we do not provide
+packages for platforms other than those listed.</p>
+
+
+<h2>Installing HTMLDOC</h2>
+
+<p>The following instructions describe how to install the
+HTMLDOC software on your system.</p>
+
+<h3>Installing HTMLDOC on Microsoft Windows</h3>
+
+<p>HTMLDOC is provided as a Microsoft installer file under
+Windows. Insert the CD or double-click on the <var>htmldoc</var>
+icon in the <var>Explorer</var> window to install HTMLDOC under
+Windows using the Microsoft software installation wizard (Figure
+1-1).</p>
+
+<p align='center'><img src='htmldoc-fig11.png' alt='The software installation wizard'/><br />
+<i>Figure 1-1: The Microsoft software installation wizard</i></p>
+
+
+<h3>Installing HTMLDOC on MacOS X</h3>
+
+<p>Double-click on the <var>Install</var> icon in the
+<var>Finder</var> window to start the software
+installation wizard (Figure 1-2) and follow the installer
+prompts.</p>
+
+<p align='center'><img src='htmldoc-fig12.png' alt='The software installation wizard'/><br />
+<i>Figure 1-2: The software installation wizard</i></p>
+
+
+<h3>Installing HTMLDOC on Linux</h3>
+
+<p>Double-click on the
+<var>htmldoc-linux-intel.rpm</var> icon or run the
+following command to install HTMLDOC on Linux:</p>
+
+<pre class='command'>
+rpm -i htmldoc-linux-intel.rpm
 </pre>
 
-<p>Similarly, if your C++ compiler is not called <var>CC</var>,
-<var>gcc</var>, <var>c++</var>, or <var>g++</var>, set the
-<code>CXX</code> environment variable to the name and path of
-your C++ compiler:</p>
 
-<pre>
-    % <kbd>setenv CXX /path/to/compiler ENTER</kbd>        [C Shell]
-    % <kbd>CXX=/path/to/compiler; export CXX ENTER</kbd>   [Bourne/Korn Shell]
+<h3>Installing HTMLDOC on Solaris</h3>
+
+<p>Run the following command to install HTMLDOC on Solaris SPARC:</p>
+
+<pre class='command'>
+pkgadd -d htmldoc-solaris-sparc.pkg
 </pre>
 
-<p>Then run the following command to configure HTMLDOC for
-installation in the default directories:</p>
+<p>Run the following command to install HTMLDOC on Solaris Intel:</p>
 
-<pre>
-    % <kbd>./configure ENTER</kbd>
+<pre class='command'>
+pkgadd -d htmldoc-solaris-intel.pkg
 </pre>
 
-<p>The default configuration will install HTMLDOC in the
-<var>/usr/bin</var> directory with the data files under
-<var>/usr/share/htmldoc</var> and the documentation and on-line
-help under <var>/usr/share/doc/htmldoc</var>. Use the
-<code>--prefix</code> option to change the installation prefix
-to a different directory such as <var>/usr/local</var>:
 
-<pre>
-    % <kbd>./configure --prefix=/usr/local ENTER</kbd>
+<h2>Licensing HTMLDOC</h2>
+
+<p>Before you can use HTMLDOC, you must license it. When you first run
+HTMLDOC, the license dialog (Figure 1-3) will appear.</p>
+
+<p align='center'><img src='htmldoc-fig13.png'><br />
+<i>Figure 1-3 - The HTMLDOC License Dialog</i></p>
+
+<p>Click on the <var>Update License</var> button to show the
+license manager window (Figure 1-4).</p>
+
+<p align='center'><img src='htmldoc-fig14.png'><br />
+<i>Figure 1-4 - The HTMLDOC License Dialog</i></p>
+
+<p>Enter the license key that was emailed to you or came on the
+inside of the HTMLDOC CD-ROM case and click on the <var>OK</var>
+button. Click on the <var>Close</var> button to start using the
+software.</p>
+
+
+<h2>Uninstalling HTMLDOC</h2>
+
+<p>The following instructions describe how to remove the HTMLDOC
+software from your system.</p>
+
+<h3>Uninstalling HTMLDOC on Microsoft Windows</h3>
+
+<p>Open the Control Panel window and double-click on the
+<var>Add/Remove Software</var> icon. When the available software
+list is displayed, select HTMLDOC and click on the
+<var>Remove</var> button.</p>
+
+
+<h3>Uninstalling HTMLDOC on MacOS X</h3>
+
+<p>Double-click on the <var>Uninstall</var> icon in the
+<var>Finder</var> and follow the prompts.</p>
+
+
+<h3>Uninstalling HTMLDOC on Linux</h3>
+
+<p>Run the following command to remove HTMLDOC from your Linux
+system:</p>
+
+<pre class='command'>
+rpm -e htmldoc
 </pre>
 
-<p>If the OpenSSL library is not installed in a standard
-location for your compilers, use the
-<code>--with-openssl-includes</code> and
-<code>--with-openssl-libs</code> options to point to the OpenSSL
-library:
 
-<pre>
-    % <kbd>./configure --with-openssl-libs=/path/to/openssl/lib \
-        --with-openssl-includes=/path/to/openssl ENTER</kbd>
+<h3>Uninstalling HTMLDOC on Solaris</h3>
+
+<p>Run the following command to remove HTMLDOC from Solaris:</p>
+
+<pre class='command'>
+pkgrm htmldoc
 </pre>
-
-<p>HTMLDOC is built from a Makefile in the distribution's main
-directory. Simply run the "make" command to build HTMLDOC:
-
-<pre>
-    % <kbd>make ENTER</kbd>
-</pre>
-
-<p>If you get any fatal errors, please report them on the
-<code>htmldoc.general</code> newsgroup at:</p>
-
-<pre>
-    <a href='http://www.easysw.com/newsgroups.php'>http://www.easysw.com/newsgroups.php</a>
-</pre>
-
-<p>Please note the version of HTMLDOC that you are using as well
-as any pertinent system information such as the operating
-system, OS version, compiler, and so forth. Omitting this
-information may delay or prevent a solution to your problem.</p>
-
-<p>Once you have compiled the software successfully, you may
-install HTMLDOC by running the following command:</p>
-
-<pre>
-    % <kbd>make install ENTER</kbd>
-</pre>
-
-<p>If you are installing in a restricted directory like
-<var>/usr</var> then you'll need to be logged in as root.</p>
-
-
-<h2>Compiling on Windows Using Visual C++.NET</h2>
-
-<p>A Visual C++.NET solution file and associated project files are
-included in the source distribution under the "visualc" directory. Open
-the solution file "htmldoc.sln" and then build the HTMLDOC target.
-
-<center><table width='80%' border='1' cellpadding='5' cellspacing='0' bgcolor='#cccccc'>
-<tr>
-	<td><b>Note:</b>
-
-	<p>You also need to download the OpenSSL library in order
-	to compile HTMLDOC with Visual C++.NET.</p>
-
-	</td>
-</tr>
-</table></center>
-
-<h2>Installing with Visual C++.NET</h2>
-
-<p>To install HTMLDOC with Visual C++.NET, create an installation
-directory and copy the <var>htmldoc.exe</var> executable, the
-<var>fonts</var> directory, the <var>data</var> directory, and
-the <var>doc</var> directory to it.</p>
-
-<p>Then use the <var>regedit</var> program to create the
-following two string entries:</p>
-
-<dl>
-
-	<dt><code>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\data</code>
-	<dd>C:\installation\directory
-
-	<dt><code>HKEY_LOCAL_MACHINE\Software\Easy Software Products\HTMLDOC\doc</code>
-	<dd>C:\installation\directory\doc
-
-</dl>
-
-</div>
 
 </body>
 </html>

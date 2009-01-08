@@ -1,9 +1,8 @@
 <HTML>
 <BODY>
 
-<DIV ALIGN="justify">
-
-<H1 ALIGN="RIGHT"><A NAME="CMDREF">Chapter 8 - Command-Line Reference</A></H1>
+<!-- FOOTER RIGHT "8-$CHAPTERPAGE" -->
+<H1><A NAME="CMDREF">Chapter 8 - Command-Line Reference</A></H1>
 
 <P>This chapter describes all of the command-line options supported by
 HTMLDOC.
@@ -12,10 +11,10 @@ HTMLDOC.
 
 <p>The basic command-line usage for HTMLDOC is:
 
-<UL><PRE>
-% <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
-% <KBD>htmldoc <I>options</I> filename.book <I>ENTER</I></KBD>
-</PRE></UL>
+<pre class='command'>
+htmldoc <I>options</I> filename1.html ... filenameN.html
+htmldoc <I>options</I> filename.book
+</pre>
 
 <p>The first form converts the named HTML files to the specified output format
 immediately. The second form loads the specified <CODE>.book</CODE> file and
@@ -74,10 +73,10 @@ sent/displayed to the standard error file.
 generate without the GUI popping up. This option can be combined with other
 options to generate the same book in different formats and sizes:
 
-<UL><PRE>
-% <KBD>htmldoc --batch filename.book -f filename.ps <I>ENTER</I></KBD>
-% <KBD>htmldoc --batch filename.book -f filename.pdf <I>ENTER</I></KBD>
-</PRE></UL>
+<pre class='command'>
+htmldoc --batch filename.book -f filename.ps
+htmldoc --batch filename.book -f filename.pdf
+</pre>
 
 <H3>--bodycolor color</H3>
 
@@ -167,6 +166,7 @@ HTMLDOC comes with the following character set files:</P>
 <TR><TD>iso-8859-14</TD><TD>ISO-8859-14</TD></TR>
 <TR><TD>iso-8859-15</TD><TD>ISO-8859-15</TD></TR>
 <TR><TD>koi8-r</TD><TD>KOI8-R</TD></TR>
+<TR><TD>utf-8</TD><TD>Unicode (UTF-8)</TD></TR>
 </TABLE></CENTER>
 
 <H3>--color</H3>
@@ -685,9 +685,9 @@ server paths to load.
 and URLs can be specified.  Quotes around the directory parameter are
 optional.  They are usually used when the directory string contains spaces.
 
-<UL><PRE>
+<pre class='command'>
 <KBD>--path "dir1;dir2;dir3;...;dirN"</KBD>
-</PRE></UL>
+</pre>
 
 <!-- NEED 5in -->
 <H3>--permissions permission[,permission,...]</H3>
@@ -712,15 +712,15 @@ The available permission parameters are listed below:</P>
 <P>The <CODE>--encryption</CODE> option must be used in
 conjunction with the <CODE>--permissions</CODE> parameter.
 
-<UL><PRE>
+<pre class='command'>
 <KBD>--permissions no-print --encryption</KBD>
-</PRE></UL>
+</pre>
 
 <P>Multiple options can be specified by separating them with commas:</p> 
 
-<UL><PRE>
+<pre class='command'>
 <KBD>--permissions no-print,no-copy --encryption</KBD>
-</PRE></UL>
+</pre>
 
 <P>This option is only available when generating PDF files.</P>
 
@@ -1045,8 +1045,6 @@ and total time in seconds for the current command. This message
 is only displayed if the <CODE>HTMLDOC_DEBUG</CODE> environment
 variable has the keyword <CODE>timing</CODE> or
 <CODE>all</CODE>.</P>
-
-</DIV>
 
 </BODY>
 </HTML>

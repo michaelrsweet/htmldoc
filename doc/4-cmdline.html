@@ -1,10 +1,12 @@
 <HTML>
+<HEAD>
+	<STYLE><!--
+	PRE.command { font-weight: bold; margin-left: 2em; }
+	--></STYLE>
 <BODY>
 
-<DIV ALIGN="justify">
-
-<H1 ALIGN="RIGHT"><A NAME="CMDLINE">Chapter 4 - HTMLDOC from the
-Command-Line</A></H1>
+<!-- FOOTER RIGHT "4-$CHAPTERPAGE" -->
+<H1><A NAME="CMDLINE">Chapter 4 - HTMLDOC from the Command-Line</A></H1>
 
 <p>This chapter describes how to use HTMLDOC from the
 command-line to convert web pages and generate books.</p>
@@ -29,32 +31,31 @@ command-line to convert web pages and generate books.</p>
 <p> After you have clicked command prompt, your screen should
 look something like Figure 4-1.</p>
 
-<p align='center'><!-- <img src='htmldoc-fig41.png'
-alt='Command prompt window'> --><br>
+<p align='center'><img src='htmldoc-fig41.png'
+alt='Command prompt window'><br>
 <i>Figure 4-1: Command prompt window</i></p>
 
 <p>To see what's in this directory, type the following command:</p>
 
-<pre>
-    <kbd>dir ENTER<kbd>
+<pre class='command'>
+dir ENTER
 </pre>
 
 <p>You now have a list of available files and directories that you can
-use. To access a different directory simply type <kbd>cd</kbd>
+use. To access a different directory simply type cd
 and the name of the new directory. For example, type the following
 if you want to access a directory called <var>Steve</var>:</p>
 
-<pre>
-    <kbd>cd Steve ENTER</kbd>
+<pre class='command'>
+cd Steve
 </pre>
 
 <h2>The Basics of Command-Line Access</h2>
 
 <p>To convert a single web page type:
 
-<pre>
-    <kbd>htmldoc --webpage -f output.pdf filename.html ENTER</kbd>
-    <kbd>htmldoc --webpage -f output.ps filename.html ENTER</kbd>
+<pre class='command'>
+htmldoc --webpage -f output.pdf filename.html
 </pre>
 
 <h3>What Are All These Commands?</h3>
@@ -79,8 +80,8 @@ it's answered for you on the next line. But try first.)</p>
 
 <p>To accomplish this type:</p>
 
-<pre>
-    <kbd>htmldoc --webpage -f mypdf.pdf myhtml.html ENTER</kbd>
+<pre class='command'>
+htmldoc --webpage -f mypdf.pdf myhtml.html
 </pre>
 
 <h2>Converting Multiple HTML Files</h2>
@@ -88,9 +89,8 @@ it's answered for you on the next line. But try first.)</p>
 <p>To convert more than one web page with page breaks between
 each HTML file, type:
 
-<pre>
-    <kbd>htmldoc --webpage -f output.pdf file1.html file2.html ENTER</kbd>
-    <kbd>htmldoc --webpage -f output.ps file1.html file2.html ENTER</kbd>
+<pre class='command'>
+htmldoc --webpage -f output.pdf file1.html file2.html
 </pre>
 
 <p>All we are doing is adding another file. In this example we
@@ -103,16 +103,15 @@ Again, the answer is on the next line.</p>
 
 <p>Your line command should look like this:</p>
 
-<pre>
-    <kbd>htmldoc --webpage -f 12pdf.pdf one.html two.html ENTER</kbd>
+<pre class='command'>
+htmldoc --webpage -f 12pdf.pdf one.html two.html
 </pre>
 
 <p>We've been using HTML files, but you can also use URLs. For
 example:</p>
 
-<pre>
-    <kbd>htmldoc --webpage -f output.pdf http://slashdot.org/ ENTER</kbd>
-    <kbd>htmldoc --webpage -f output.ps http://freshmeat.net/ http://easysw.com/ ENTER</kbd>
+<pre class='command'>
+htmldoc --webpage -f output.pdf http://slashdot.org/
 </pre>
 
 <!-- NEED 4in -->
@@ -121,10 +120,10 @@ example:</p>
 <p>Type one of the following commands to generate a book from
 one or more HTML files:
 
-<pre>
-    <kbd>htmldoc --book -f output.html file1.html file2.html ENTER</kbd>
-    <kbd>htmldoc --book -f output.pdf file1.html file2.html ENTER</kbd>
-    <kbd>htmldoc --book -f output.ps file1.html file2.html ENTER</kbd>
+<pre class='command'>
+htmldoc --book -f output.html file1.html file2.html
+htmldoc --book -f output.pdf file1.html file2.html
+htmldoc --book -f output.ps file1.html file2.html
 </pre>
 
 <h3>What are all these commands?</h3>
@@ -166,17 +165,18 @@ variables that are supported.</p>
 </tr>
 </table></center>
 
+<!-- NEED 2in -->
 <h2>Setting the Title File</h2>
 
 <p>The <code>--titlefile</code> option sets the HTML file or
 image to use on the title page:
 
-<pre>
-    <kbd>htmldoc --titlefile filename.bmp ... ENTER</kbd>
-    <kbd>htmldoc --titlefile filename.gif ... ENTER</kbd>
-    <kbd>htmldoc --titlefile filename.jpg ... ENTER</kbd>
-    <kbd>htmldoc --titlefile filename.png ... ENTER</kbd>
-    <kbd>htmldoc --titlefile filename.html ... ENTER</kbd>
+<pre class='command'>
+htmldoc --titlefile filename.bmp ...
+htmldoc --titlefile filename.gif ...
+htmldoc --titlefile filename.jpg ...
+htmldoc --titlefile filename.png ...
+htmldoc --titlefile filename.html ...
 </pre>
 
 <p>HTMLDOC supports BMP, GIF, JPEG, and PNG images, as well as
@@ -184,8 +184,8 @@ generic HTML text you supply for the title page(s).</p>
 
 <h3>Putting It All Together</h3>
 
-<pre>
-    <kbd>htmldoc --book -f 12book.pdf 1book.html 2book.html --titlefile bookcover.jpg ENTER</kbd>
+<pre class='command'>
+htmldoc --book -f 12book.pdf 1book.html 2book.html --titlefile bookcover.jpg
 </pre>
 
 <p>Take a look at the entire command line. Dissect the
@@ -201,8 +201,6 @@ image file <var>bookcover.jpg</var>.</p>
 <p><a href="#HTMLREF">Chapter 8 - Command Line Reference</a>
 digs deeper into what you can do with the the command line
 prompt.</p>
-
-</div>
 
 </body>
 </html>

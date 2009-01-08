@@ -137,7 +137,8 @@ epm:
 .PHONY: clang
 clang:
 	$(RM) -r clang
-	cd htmldoc; scan-build -V -k $(MAKE) $(MFLAGS) \
+	cd htmldoc; scan-build -V -k -o ../clang $(MAKE) $(MFLAGS) \
+		LIBS="$(LIBS) -lstdc++" \
 		CC=ccc-analyzer CXX=ccc-analyzer clean all
 
 
