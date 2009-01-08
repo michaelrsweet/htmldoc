@@ -21,25 +21,6 @@
 //
 // Contents:
 //
-//   html_export()     - Export to HTML.
-//   htmlsep_export()  - Export to separated HTML files.
-//   add_heading()     - Add a heading to the list of headings.
-//   add_link()        - Add a named link.
-//   compare_links()   - Compare two named links.
-//   do_export()       - Export to HTML.
-//   find_link()       - Find a named link.
-//   get_title()       - Get the title string for the given document.
-//   scan_links()      - Scan a document for link targets, and keep track of the
-//                       files they are in.
-//   update_links()    - Update links as needed.
-//   write_header()    - Output the standard "header" for a HTML file.
-//   write_footer()    - Output the standard "footer" for a HTML file.
-//   write_title()     - Write a title page.
-//   write_all()       - Write all markup text for the given tree.
-//   write_doc()       - Write the entire document.
-//   write_node()      - Write a single tree node.
-//   write_nodeclose() - Close a single tree node.
-//   write_toc()       - Write all markup text for the given table-of-contents.
 //
 
 //
@@ -82,29 +63,29 @@ extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
 }
 
+static void	add_heading(hdTree *t);
+static void	add_link(hdChar *name, hdChar *filename);
+static int	compare_links(hdLink *n1, hdLink *n2);
 static int	do_export(hdTree *document, hdTree *toc, hdTree *ind,
 		          bool use_headings);
+static hdLink	*find_link(hdChar *name);
+static hdChar	*get_title(hdTree *doc);
+static void	scan_links(hdTree *t, hdChar *filename, bool use_headings);
+static void	update_links(hdTree *t, hdChar *filename, int *heading);
+static int	write_all(hdFile *out, hdTree *t, int col);
+static void	write_css(hdFile *out, hdStyleSheet *css);
+static int	write_doc(hdFile *&out, hdTree *t, int col, int *heading,
+		          hdChar *title, hdChar *author, hdChar *copyright,
+			  hdChar *docnumber);
 static void	write_header(hdFile *&out, hdChar *filename, hdChar *title,
 		             hdChar *author, hdChar *copyright,
 			     hdChar *docnumber, hdTree *t, int heading);
 static void	write_footer(hdFile *&out, hdTree *t, int heading);
-static void	write_title(hdFile *out, hdChar *title, hdChar *author,
-		            hdChar *copyright, hdChar *docnumber);
-static int	write_all(hdFile *out, hdTree *t, int col);
-static int	write_doc(hdFile *&out, hdTree *t, int col, int *heading,
-		          hdChar *title, hdChar *author, hdChar *copyright,
-			  hdChar *docnumber);
 static int	write_node(hdFile *out, hdTree *t, int col);
 static int	write_nodeclose(hdFile *out, hdTree *t, int col);
+static void	write_title(hdFile *out, hdChar *title, hdChar *author,
+		            hdChar *copyright, hdChar *docnumber);
 static int	write_toc(hdFile *out, hdTree *t, int col);
-static hdChar	*get_title(hdTree *doc);
-
-static void	add_heading(hdTree *t);
-static void	add_link(hdChar *name, hdChar *filename);
-static int	compare_links(hdLink *n1, hdLink *n2);
-static hdLink	*find_link(hdChar *name);
-static void	scan_links(hdTree *t, hdChar *filename, bool use_headings);
-static void	update_links(hdTree *t, hdChar *filename, int *heading);
 
 
 //
@@ -313,6 +294,13 @@ do_export(hdTree *document,		// I - Document to export
     for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
       if (HFImage[hfi])
         HFImage[hfi]->copy(OutputPath, temp, sizeof(temp));
+
+    snprintf(temp, sizeof(temp), "%s/style.css", OutputPath);
+    if ((out = hdFile::open(temp, HD_FILE_WRITE)) != NULL)
+    {
+      write_css(out, _htmlStyleSheet);
+      delete out;
+    }
   }
 
   if (OutputFiles && TitleImage && TitlePage)
@@ -630,6 +618,256 @@ write_all(hdFile *out,			// I - Output file
 
 
 //
+// 'write_css()' - Write the style data.
+//
+
+static void
+write_css(hdFile       *out,		// I - Output file
+          hdStyleSheet *css)		// I - Style sheet
+{
+  int		i, j;			// Looping vars
+  hdStyle	*style;			// Current style
+  static const char * const		// Enumeration strings...
+		pos[4] = { "bottom", "left", "right", "top" };
+  static const char * const
+		background_repeat[] = { "inherit", "repeat", "repeat-x",
+		                        "repeat-y", "no-repeat" };
+  static const char * const
+		border_style[] = { "inherit", "none", "dotted", "dashed",
+		                   "solid", "double", "groove", "ridge",
+				   "inset", "outset" };
+  static const char * const
+		caption_side[] = { "top", "bottom" };
+  static const char * const
+		clear[] = { "inherit", "none", "left", "right", "both" };
+  static const char * const
+		display[] = { "inherit", "none", "block", "compact", "inline",
+		              "inline-table", "list-item", "marker",
+			      "run-in", "table", "table-caption", "table-cell",
+			      "table-column", "table-column-group",
+			      "table-footer-group", "table-header-group",
+			      "table-row", "table-row-group" };
+  static const char * const
+		float_[] = { "inherit", "none", "left", "right" };
+  static const char * const
+		font_style[] = { "inherit", "normal", "italic", "oblique" };
+  static const char * const
+		font_variant[] = { "inherit", "normal", "small-caps" };
+  static const char * const
+		font_weight[] = { "inherit", "normal", "bold" };
+  static const char * const
+		list_style_position[] = { "inherit", "inside", "outside" };
+  static const char * const
+		list_style_type[] = { "inherit", "none", "disc",
+				      "circle", "square",
+				      "decimal", "lower-roman",
+				      "upper-roman",
+				      "lower-alpha",
+				      "upper-alpha" };
+  static const char * const
+		page_break[] = { "inherit", "auto", "always", "avoid", "left", "right" };
+  static const char * const
+		text_align[] = { "inherit", "left", "center", "right", "justify" };
+  static const char * const
+		text_decoration[] = { "inherit", "none", "underline", "overline",
+		                      "line-through" };
+  static const char * const
+		text_transform[] = { "inherit", "none", "capitalize", "uppercase",
+		                     "lowercase"};
+  static const char * const
+		vertical_align[] = { "inherit", "baseline", "sub", "super", "top",
+		                     "text-top", "middle", "bottom",
+				     "text-bottom" };
+  static const char * const
+		white_space[] = { "inherit", "normal", "nowrap", "pre",
+		                  "pre-wrap", "pre-line" };
+
+
+
+  for (i = 0; i < css->num_styles; i ++)
+  {
+    style = css->styles[i];
+
+    if (style->selectors[0].id && !strncmp(style->selectors[0].id, "_HD", 3))
+      continue;
+
+    for (j = style->num_selectors - 1; j >= 0; j --)
+    {
+      out->puts(css->get_element(style->selectors[j].element));
+
+      if (style->selectors[j].class_)
+	out->printf(".%s", style->selectors[j].class_);
+
+      if (style->selectors[j].pseudo)
+	out->printf(":%s", style->selectors[j].pseudo);
+
+      if (style->selectors[j].id)
+	out->printf("#%s", style->selectors[j].id);
+
+      out->put(' ');
+    }
+
+    out->puts("{\n");
+
+    if (style->background_color_set != HD_COLOR_INHERIT ||
+	style->background_image ||
+	style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT ||
+	style->background_position[0] != HD_WIDTH_AUTO ||
+	style->background_position[1] != HD_WIDTH_AUTO)
+    {
+      out->printf("  background:");
+
+      if (style->background_color_set == HD_COLOR_TRANSPARENT)
+	out->puts(" transparent");
+      else if (style->background_color_set == HD_COLOR_SET)
+	out->printf(" rgb(%d,%d,%d)", style->background_color[0],
+	            style->background_color[1], style->background_color[2]);
+
+      if (style->background_image)
+	out->printf("  url(%s)", style->background_image);
+
+      if (style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT)
+	out->printf(" %s", background_repeat[style->background_repeat]);
+
+      for (j = 0; j < 2; j ++)
+	if (style->background_position_rel[j])
+	  out->printf(" %s (%g)", style->background_position_rel[j],
+		      style->background_position[j]);
+	else if (style->background_position[j] == HD_WIDTH_AUTO)
+	  out->printf(" auto");
+	else
+	  out->printf(" %g", style->background_position[j]);
+
+      out->put('\n');
+    }
+
+    for (j = 0; j < 4; j ++)
+      if (style->border[j].color_set ||
+	  style->border[j].style != HD_BORDER_STYLE_NONE ||
+	  style->border[j].width != HD_WIDTH_AUTO)
+      {
+	out->printf("  border-%s:", pos[j]);
+
+	if (style->border[j].color_set == HD_COLOR_TRANSPARENT)
+	  out->puts(" transparent");
+	else if (style->border[j].color_set == HD_COLOR_SET)
+	  out->printf(" rgb(%d,%d,%d)", style->border[j].color[0],
+		      style->border[j].color[1], style->border[j].color[2]);
+
+	out->printf(" %s", border_style[style->border[j].style]);
+
+	if (style->border[j].width != HD_WIDTH_AUTO)
+	  out->printf(" %g\n", style->border[j].width);
+	else
+	  out->put('\n');
+      }
+
+    if (style->selectors[0].element == HD_ELEMENT_TABLE)
+      out->printf("  caption-side: %s\n", caption_side[style->caption_side]);
+
+    if (style->clear != HD_CLEAR_NONE)
+      out->printf("  clear: %s\n", clear[style->clear]);
+
+    if (style->color_set == HD_COLOR_SET)
+      out->printf("  color: rgb(%d,%d,%d)\n", style->color[0],
+	     style->color[1], style->color[2]);
+
+    if (style->display != HD_DISPLAY_INLINE)
+      out->printf("  display: %s\n", display[style->display]);
+
+    if (style->float_ != HD_FLOAT_NONE)
+      out->printf("  float: %s\n", float_[style->float_]);
+
+    if (style->font_family)
+      out->printf("  font-family: %s\n", style->font_family);
+
+    if (style->font_size_rel)
+      out->printf("  font-size: %s (%g)\n", style->font_size_rel,
+	          style->font_size);
+    else if (style->font_size != HD_FONT_SIZE_INHERIT)
+      out->printf("  font-size: %g\n", style->font_size);
+
+    if (style->font_style)
+      out->printf("  font-style: %s\n", font_style[style->font_style]);
+
+    if (style->font_variant)
+      out->printf("  font-variant: %s\n", font_variant[style->font_variant]);
+
+    if (style->font_weight)
+      out->printf("  font-weight: %s\n", font_weight[style->font_weight]);
+
+    if (style->line_height_rel)
+      out->printf("  line-height: %s (%g)\n", style->line_height_rel,
+	          style->line_height);
+    else if (style->line_height != HD_LINE_HEIGHT_INHERIT)
+      out->printf("  line-height: %g\n", style->line_height);
+
+    if (style->list_style_position != HD_LIST_STYLE_POSITION_INHERIT)
+      out->printf("  list-style-position: %s\n",
+	          list_style_position[style->list_style_position]);
+
+    if (style->list_style_type != HD_LIST_STYLE_TYPE_INHERIT)
+      out->printf("  list-style-type: %s\n",
+	          list_style_type[style->list_style_type]);
+
+    for (j = 0; j < 4; j ++)
+      if (style->margin[j] != HD_WIDTH_AUTO || style->margin_rel[j])
+      {
+	out->printf("  margin-%s:", pos[j]);
+
+	if (style->margin_rel[j])
+	  out->printf(" %s (%g)\n", style->margin_rel[j], style->margin[j]);
+	else
+	  out->printf(" %g\n", style->margin[j]);
+      }
+
+    for (j = 0; j < 4; j ++)
+      if (style->padding[j] != HD_WIDTH_AUTO || style->padding_rel[j])
+      {
+	out->printf("  padding-%s:", pos[j]);
+
+	if (style->padding_rel[j])
+	  out->printf(" %s (%g)\n", style->padding_rel[j], style->padding[j]);
+	else
+	  out->printf(" %g\n", style->padding[j]);
+      }
+
+    if (style->page_break_after)
+      out->printf("  page-break-after: %s\n",
+                  page_break[style->page_break_after]);
+
+    if (style->page_break_before)
+      out->printf("  page-break-before: %s\n",
+                  page_break[style->page_break_before]);
+
+    if (style->page_break_inside)
+      out->printf("  page-break-inside: %s\n",
+                  page_break[style->page_break_inside]);
+
+    if (style->text_align != HD_TEXT_ALIGN_INHERIT)
+      out->printf("  text-align: %s\n", text_align[style->text_align]);
+
+    if (style->text_decoration != HD_TEXT_DECORATION_INHERIT)
+      out->printf("  text-decoration: %s\n",
+                  text_decoration[style->text_decoration]);
+
+    if (style->text_transform != HD_TEXT_TRANSFORM_INHERIT)
+      out->printf("  text-transform: %s\n",
+                  text_transform[style->text_transform]);
+
+    if (style->vertical_align != HD_VERTICAL_ALIGN_INHERIT)
+      out->printf("  vertical-align: %s\n",
+                  vertical_align[style->vertical_align]);
+
+    if (style->white_space != HD_WHITE_SPACE_INHERIT)
+      out->printf("  white-space: %s\n", white_space[style->white_space]);
+
+    out->puts("}\n");
+  }
+}
+
+
+//
 // 'write_doc()' - Write the entire document.
 //
 
@@ -754,17 +992,6 @@ write_header(hdFile *&out,		// IO - Output file
   char		base[1024],		// Base path for images
 		realname[1024];		// Real filename
   int		newfile;		// Non-zero if this is a new file
-  static const char *families[] =	// Typeface names
-		{
-		  "monospace",
-		  "serif",
-		  "sans-serif",
-		  "monospace",
-		  "serif",
-		  "sans-serif",
-		  "symbol",
-		  "dingbats"
-		};
 
 
   if (OutputFiles)
@@ -825,7 +1052,9 @@ write_header(hdFile *&out,		// IO - Output file
 
     if (OutputFiles)
     {
-      out->puts("<LINK REL=\"Start\" HREF=\"index.html\">\n"
+      out->puts("<LINK REL=\"stylesheet\" TYPE=\"text/css\" "
+                "HREF=\"style.css\">\n"
+		"<LINK REL=\"Start\" HREF=\"index.html\">\n"
                 "<LINK REL=\"Contents\" HREF=\"index.html#HD_CONTENTS\">\n");
 
       if (heading >= 0)
@@ -849,26 +1078,13 @@ write_header(hdFile *&out,		// IO - Output file
 		      htmlGetAttr(t->next, "_HD_FILENAME"));
       }
     }
+    else
+    {
+      out->puts("<STYLE TYPE=\"text/css\"><!--\n");
+      write_css(out, _htmlStyleSheet);
+      out->puts("--></STYLE>\n");
+    }
 
-    out->puts("<STYLE TYPE=\"text/css\"><!--\n");
-    out->printf("BODY { font-family: %s }\n", families[_htmlBodyFont]);
-    out->printf("H1 { font-family: %s }\n", families[_htmlHeadingFont]);
-    out->printf("H2 { font-family: %s }\n", families[_htmlHeadingFont]);
-    out->printf("H3 { font-family: %s }\n", families[_htmlHeadingFont]);
-    out->printf("H4 { font-family: %s }\n", families[_htmlHeadingFont]);
-    out->printf("H5 { font-family: %s }\n", families[_htmlHeadingFont]);
-    out->printf("H6 { font-family: %s }\n", families[_htmlHeadingFont]);
-    out->puts("SUB { font-size: smaller }\n");
-    out->puts("SUP { font-size: smaller }\n");
-    out->puts("PRE { font-family: monospace }\n");
-
-    if (!LinkStyle)
-      out->puts("A { text-decoration: none }\n");
-
-    out->puts("DIV.HD_NAV { background: #eeeeee; border: dotted thin black; "
-              "font-size: 90%; padding: 5px; }\n");
-
-    out->puts("--></STYLE>\n");
     out->puts("</HEAD>\n");
     out->puts("<BODY");
 
@@ -884,7 +1100,7 @@ write_header(hdFile *&out,		// IO - Output file
 
     if (LinkColor[0])
       out->printf(" LINK=\"%s\" VLINK=\"%s\" ALINK=\"%s\"", LinkColor,
-              LinkColor, LinkColor);
+		  LinkColor, LinkColor);
 
     out->puts(">\n");
   }
@@ -902,7 +1118,7 @@ write_header(hdFile *&out,		// IO - Output file
     for (int hfi = 0; hfi < MAX_HF_IMAGES; ++hfi)
       if (HFImage[hfi])
         out->printf("<IMG SRC=\"%s\">\n",
-	        hdFile::basename(HFImage[hfi]->uri(), base, sizeof(base)));
+	            hdFile::basename(HFImage[hfi]->uri(), base, sizeof(base)));
 
     out->puts("<A HREF=\"index.html#HD_CONTENTS\">Contents</A>\n");
 

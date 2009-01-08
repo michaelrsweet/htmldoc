@@ -3,7 +3,7 @@
  *
  * Standard stylesheet for HTMLDOC.
  *
- * Copyright 1997-2008 by Easy Software Products.
+ * Copyright 1997-2009 by Easy Software Products.
  *
  * These coded instructions, statements, and computer programs are the
  * property of Easy Software Products and are protected by Federal
@@ -273,6 +273,13 @@ a:active img {
   white-space: inherit;
 }
 
+/* This style is used for HTML output */
+DIV.HD_NAV {
+  background: #eeeeee;
+  border: dotted thin black;
+  font-size: 90%;
+  padding: 5px;
+}
 
 /*
  * End of "$Id$".
