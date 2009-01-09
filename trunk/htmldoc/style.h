@@ -3,7 +3,7 @@
 //
 // Stylesheet definitions for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2009 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -1234,11 +1234,16 @@ struct hdStyleSheet
   * The <tt>find_style()</tt> method finds the matching style for the given element.
   *
   * @param e hdElement The element to find.
+  * @param c const&nbsp;char* The class name.
+  * @param i const&nbsp;char* The ID name.
+  * @param p const&nbsp;char* The pseudo-selector name.
+  * @param exact int 1 if an exact match is needed, 0 for a close match.
   * @return A pointer to the matching style, or NULL if no matching style
   * is available.
   */
   hdStyle	*find_style(hdElement e, const char *c = 0,
-		            const char *i = 0, const char *p = 0);
+		            const char *i = 0, const char *p = 0,
+			    bool exact = false);
 
  /**
   * The <tt>get_element()</tt> method returns the enumeration for the
@@ -1293,6 +1298,29 @@ struct hdStyleSheet
   * @return A pointer to a new, private style record.
   */
   hdStyle	*get_private_style(hdTree *t, bool force = false);
+
+ /**
+  * The <tt>get_style()</tt> method finds the matching style for the given
+  * selectors, creating it as needed.
+  *
+  * @param nsels int The number of selectors.
+  * @param sels hdStyleSelector* The selector array.
+  * @return A pointer to the matching style.
+  */
+  hdStyle	*get_style(int nsels, hdStyleSelector *sels);
+
+ /**
+  * The <tt>get_style()</tt> method finds the matching style for the given
+  * element, creatng it as needed.
+  *
+  * @param e hdElement The element to find.
+  * @param c const&nbsp;char* The class name.
+  * @param i const&nbsp;char* The ID name.
+  * @param p const&nbsp;char* The pseudo-selector name.
+  * @return A pointer to the matching style.
+  */
+  hdStyle	*get_style(hdElement e, const char *c = 0,
+		           const char *i = 0, const char *p = 0);
 
  /**
   * The <tt>get_uniglyph()</tt> method returns the character code for the given character

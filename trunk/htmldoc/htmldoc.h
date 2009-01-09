@@ -3,7 +3,7 @@
 //
 // Primary header file for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2008 Easy Software Products.
+// Copyright 1997-2009 Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -177,12 +177,6 @@ VAR int		PageWidth	VALUE(595),	/* Page width in points */
 		PageDuplex	VALUE(0),	/* Adjust margins/pages for duplexing? */
 		Landscape	VALUE(0),	/* Landscape orientation? */
 		NumberUp	VALUE(1);	/* Number-up pages */
-
-VAR hdFontFace	HeadFootType	VALUE(HD_FONT_FACE_SANS_SERIF);
-						/* Typeface for header & footer */
-VAR hdFontInternal HeadFootStyle VALUE(HD_FONT_INTERNAL_NORMAL);
-						/* Type style */
-VAR float	HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
 
 VAR char	*Header[3]	NULL3,		/* Header for regular pages */
 		*Header1[3]	NULL3,		/* Header for first pages */
