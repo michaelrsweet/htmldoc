@@ -219,7 +219,8 @@ static float	logo_width,
 
 static float	hdimage_width[MAX_HF_IMAGES],
 		hdimage_height[MAX_HF_IMAGES];
-static float    maxhfheight;
+static float    maxhfheight,
+		max_hfsize;
 
 static float	background_color[3] = { 1.0, 1.0, 1.0 },
 		link_color[3] = { 0.0, 0.0, 1.0 };
@@ -688,10 +689,23 @@ pspdf_export(hdTree *document,		/* I - Document to export */
   // Adjust top margin as needed...
   float adjust, image_adjust, temp_adjust;
 
-  if (maxhfheight > HeadFootSize)
-    image_adjust = maxhfheight + HeadFootSize;
+  hdStyle *header_style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
+  if (header_style->font_size == HD_FONT_SIZE_INHERIT)
+    header_style->inherit(&(_htmlStyleSheet->def_style));
+
+  hdStyle *footer_style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
+  if (footer_style->font_size == HD_FONT_SIZE_INHERIT)
+    footer_style->inherit(&(_htmlStyleSheet->def_style));
+
+  if (header_style->font_size > footer_style->font_size)
+    max_hfsize = header_style->font_size;
   else
-    image_adjust = 2 * HeadFootSize;
+    max_hfsize = footer_style->font_size;
+
+  if (maxhfheight > max_hfsize)
+    image_adjust = maxhfheight + max_hfsize;
+  else
+    image_adjust = 2 * max_hfsize;
 
   for (adjust = 0.0, pos = 0; pos < 3; pos ++)
   {
@@ -701,7 +715,7 @@ pspdf_export(hdTree *document,		/* I - Document to export */
           strstr(Header[pos], "$HFIMAGE") != NULL)
         temp_adjust = image_adjust;
       else
-        temp_adjust = 2 * HeadFootSize;
+        temp_adjust = 2 * max_hfsize;
 
       if (temp_adjust > adjust)
         adjust = temp_adjust;
@@ -713,7 +727,7 @@ pspdf_export(hdTree *document,		/* I - Document to export */
           strstr(Header1[pos], "$HFIMAGE") != NULL)
         temp_adjust = image_adjust;
       else
-        temp_adjust = 2 * HeadFootSize;
+        temp_adjust = 2 * max_hfsize;
 
       if (temp_adjust > adjust)
         adjust = temp_adjust;
@@ -731,7 +745,7 @@ pspdf_export(hdTree *document,		/* I - Document to export */
           strstr(Footer[pos], "$HFIMAGE") != NULL)
         temp_adjust = image_adjust;
       else
-        temp_adjust = 2 * HeadFootSize;
+        temp_adjust = 2 * max_hfsize;
 
       if (temp_adjust > adjust)
         adjust = temp_adjust;
@@ -808,10 +822,10 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 
     if (pos < 3)
     {
-      if (maxhfheight > HeadFootSize)
-	margins->adjust_top(-(maxhfheight + HeadFootSize));
+      if (maxhfheight > max_hfsize)
+	margins->adjust_top(-(maxhfheight + max_hfsize));
       else
-	margins->adjust_top(-2 * HeadFootSize);
+	margins->adjust_top(-2 * max_hfsize);
     }
 
     // Adjust bottom margin as needed...
@@ -821,10 +835,10 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 
     if (pos < 3)
     {
-      if (maxhfheight > HeadFootSize)
-	margins->adjust_bottom(maxhfheight + HeadFootSize);
+      if (maxhfheight > max_hfsize)
+	margins->adjust_bottom(maxhfheight + max_hfsize);
       else
-	margins->adjust_bottom(2 * HeadFootSize);
+	margins->adjust_bottom(2 * max_hfsize);
     }
 
     y                 = 0.0;
@@ -1410,7 +1424,7 @@ pspdf_prepare_page(int page)		/* I - Page number */
     PagePrintLength = pages[page].length - pages[page].top - pages[page].bottom;
   }
 
-  top = (int)(PagePrintLength - HeadFootSize);
+  top = (int)(PagePrintLength - max_hfsize);
 
   if (chapter == 0)
   {
@@ -1489,9 +1503,9 @@ pspdf_prepare_heading(int    page,	// I - Page number
     dir = 1;
 
   if (y == 0)
-    style = _htmlStyleSheet->find_style(HD_ELEMENT_P, "HD_FOOTER");
+    style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
   else
-    style = _htmlStyleSheet->find_style(HD_ELEMENT_P, "HD_HEADER");
+    style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
 
   if (style->font_size == HD_FONT_SIZE_INHERIT)
     style->inherit(&(_htmlStyleSheet->def_style));
@@ -1515,7 +1529,7 @@ pspdf_prepare_heading(int    page,	// I - Page number
 	                  logo_height, LogoImage);
       else // Offset from top
 	temp = new_render(page, HD_RENDER_IMAGE, 0,
-	                  y + HeadFootSize - logo_height,
+	                  y + max_hfsize - logo_height,
 	                  logo_width, logo_height, LogoImage);
     }
     else if (strncasecmp((char *)*format, "$HFIMAGE", 8) == 0)
@@ -1536,7 +1550,7 @@ pspdf_prepare_heading(int    page,	// I - Page number
                             hdimage_height[hfi], HFImage[hfi]);
         else
           temp = new_render(page, HD_RENDER_IMAGE, 0,
-                            y + HeadFootSize - hdimage_height[hfi],
+                            y + max_hfsize - hdimage_height[hfi],
                             hdimage_width[hfi], hdimage_height[hfi],
 			    HFImage[hfi]);
       }
@@ -8265,10 +8279,10 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       // Adjust top margin as needed...
       float adjust, image_adjust, temp_adjust;
 
-      if (maxhfheight > HeadFootSize)
-	image_adjust = maxhfheight + HeadFootSize;
+      if (maxhfheight > max_hfsize)
+	image_adjust = maxhfheight + max_hfsize;
       else
-	image_adjust = 2 * HeadFootSize;
+	image_adjust = 2 * max_hfsize;
 
       for (adjust = 0.0, pos = 0; pos < 3; pos ++)
       {
@@ -8278,7 +8292,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	      strstr(Header[pos], "$HFIMAGE") != NULL)
 	    temp_adjust = image_adjust;
 	  else
-	    temp_adjust = 2 * HeadFootSize;
+	    temp_adjust = 2 * max_hfsize;
 
 	  if (temp_adjust > adjust)
 	    adjust = temp_adjust;
@@ -8290,7 +8304,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	      strstr(Header1[pos], "$HFIMAGE") != NULL)
 	    temp_adjust = image_adjust;
 	  else
-	    temp_adjust = 2 * HeadFootSize;
+	    temp_adjust = 2 * max_hfsize;
 
 	  if (temp_adjust > adjust)
 	    adjust = temp_adjust;
@@ -8374,10 +8388,10 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       // Adjust top margin as needed...
       float adjust, image_adjust, temp_adjust;
 
-      if (maxhfheight > HeadFootSize)
-	image_adjust = maxhfheight + HeadFootSize;
+      if (maxhfheight > max_hfsize)
+	image_adjust = maxhfheight + max_hfsize;
       else
-	image_adjust = 2 * HeadFootSize;
+	image_adjust = 2 * max_hfsize;
 
       for (adjust = 0.0, pos = 0; pos < 3; pos ++)
       {
@@ -8387,7 +8401,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	      strstr(Header[pos], "$HFIMAGE") != NULL)
 	    temp_adjust = image_adjust;
 	  else
-	    temp_adjust = 2 * HeadFootSize;
+	    temp_adjust = 2 * max_hfsize;
 
 	  if (temp_adjust > adjust)
 	    adjust = temp_adjust;
@@ -8399,7 +8413,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	      strstr(Header1[pos], "$HFIMAGE") != NULL)
 	    temp_adjust = image_adjust;
 	  else
-	    temp_adjust = 2 * HeadFootSize;
+	    temp_adjust = 2 * max_hfsize;
 
 	  if (temp_adjust > adjust)
 	    adjust = temp_adjust;
@@ -8497,10 +8511,10 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
       // Adjust bottom margin as needed...
       float adjust, image_adjust, temp_adjust;
 
-      if (maxhfheight > HeadFootSize)
-	image_adjust = maxhfheight + HeadFootSize;
+      if (maxhfheight > max_hfsize)
+	image_adjust = maxhfheight + max_hfsize;
       else
-	image_adjust = 2 * HeadFootSize;
+	image_adjust = 2 * max_hfsize;
 
       for (adjust = 0.0, pos = 0; pos < 3; pos ++)
       {
@@ -8510,7 +8524,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 	      strstr(Footer[pos], "$HFIMAGE") != NULL)
 	    temp_adjust = image_adjust;
 	  else
-	    temp_adjust = 2 * HeadFootSize;
+	    temp_adjust = 2 * max_hfsize;
 
 	  if (temp_adjust > adjust)
 	    adjust = temp_adjust;

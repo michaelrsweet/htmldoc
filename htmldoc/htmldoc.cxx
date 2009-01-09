@@ -105,6 +105,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 		load_time,		/* Load time */
 		end_time;		/* End time */
   const char	*debug;			/* HTMLDOC_DEBUG environment variable */
+  hdStyle	*style;			// Current style
 
 
   start_time = get_seconds();
@@ -518,132 +519,173 @@ main(int  argc,				/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        if (!strcasecmp(argv[i], "courier"))
+	const char	*font_family;	// Font family
+	hdFontStyle	font_style;	// Font style
+	hdFontWeight	font_weight;	// Font weight
+
+
+	if (!strcasecmp(argv[i], "courier"))
 	{
-	  HeadFootType  = HD_FONT_FACE_COURIER;
-	  HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	  font_family = "courier";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "courier-bold"))
+	else if (!strcasecmp(argv[i], "courier-bold"))
 	{
-	  HeadFootType  = HD_FONT_FACE_COURIER;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	  font_family = "courier";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "courier-oblique"))
+	else if (!strcasecmp(argv[i], "courier-oblique"))
 	{
-	  HeadFootType  = HD_FONT_FACE_COURIER;
-	  HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	  font_family = "courier";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "courier-boldoblique"))
+	else if (!strcasecmp(argv[i], "courier-boldoblique"))
 	{
-	  HeadFootType  = HD_FONT_FACE_COURIER;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	  font_family = "courier";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "times") ||
-	         !strcasecmp(argv[i], "times-roman"))
+	else if (!strcasecmp(argv[i], "times") ||
+		 !strcasecmp(argv[i], "times-roman"))
 	{
-	  HeadFootType  = HD_FONT_FACE_TIMES;
-	  HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	  font_family = "times";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "times-bold"))
+	else if (!strcasecmp(argv[i], "times-bold"))
 	{
-	  HeadFootType  = HD_FONT_FACE_TIMES;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	  font_family = "times";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "times-italic"))
+	else if (!strcasecmp(argv[i], "times-italic"))
 	{
-	  HeadFootType  = HD_FONT_FACE_TIMES;
-	  HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	  font_family = "times";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "times-bolditalic"))
+	else if (!strcasecmp(argv[i], "times-bolditalic"))
 	{
-	  HeadFootType  = HD_FONT_FACE_TIMES;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	  font_family = "times";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "helvetica"))
+	else if (!strcasecmp(argv[i], "helvetica"))
 	{
-	  HeadFootType  = HD_FONT_FACE_HELVETICA;
-	  HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	  font_family = "helvetica";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "helvetica-bold"))
+	else if (!strcasecmp(argv[i], "helvetica-bold"))
 	{
-	  HeadFootType  = HD_FONT_FACE_HELVETICA;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	  font_family = "helvetica";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "helvetica-oblique"))
+	else if (!strcasecmp(argv[i], "helvetica-oblique"))
 	{
-	  HeadFootType  = HD_FONT_FACE_HELVETICA;
-	  HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	  font_family = "helvetica";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "helvetica-boldoblique"))
+	else if (!strcasecmp(argv[i], "helvetica-boldoblique"))
 	{
-	  HeadFootType  = HD_FONT_FACE_HELVETICA;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	  font_family = "helvetica";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "monospace"))
+	else if (!strcasecmp(argv[i], "monospace"))
 	{
-	  HeadFootType  = HD_FONT_FACE_MONOSPACE;
-	  HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	  font_family = "monospace";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "monospace-bold"))
+	else if (!strcasecmp(argv[i], "monospace-bold"))
 	{
-	  HeadFootType  = HD_FONT_FACE_MONOSPACE;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	  font_family = "monospace";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "monospace-oblique"))
+	else if (!strcasecmp(argv[i], "monospace-oblique"))
 	{
-	  HeadFootType  = HD_FONT_FACE_MONOSPACE;
-	  HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	  font_family = "monospace";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "monospace-boldoblique"))
+	else if (!strcasecmp(argv[i], "monospace-boldoblique"))
 	{
-	  HeadFootType  = HD_FONT_FACE_MONOSPACE;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	  font_family = "monospace";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "serif") ||
-	         !strcasecmp(argv[i], "serif-roman"))
+	else if (!strcasecmp(argv[i], "serif") ||
+		 !strcasecmp(argv[i], "serif-roman"))
 	{
-	  HeadFootType  = HD_FONT_FACE_SERIF;
-	  HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	  font_family = "serif";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "serif-bold"))
+	else if (!strcasecmp(argv[i], "serif-bold"))
 	{
-	  HeadFootType  = HD_FONT_FACE_SERIF;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	  font_family = "serif";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "serif-italic"))
+	else if (!strcasecmp(argv[i], "serif-italic"))
 	{
-	  HeadFootType  = HD_FONT_FACE_SERIF;
-	  HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	  font_family = "serif";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "serif-bolditalic"))
+	else if (!strcasecmp(argv[i], "serif-bolditalic"))
 	{
-	  HeadFootType  = HD_FONT_FACE_SERIF;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	  font_family = "serif";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "sans-serif") ||
-	         !strcasecmp(argv[i], "sans"))
+	else if (!strcasecmp(argv[i], "sans-serif") ||
+		 !strcasecmp(argv[i], "sans"))
 	{
-	  HeadFootType  = HD_FONT_FACE_SANS_SERIF;
-	  HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	  font_family = "sans-serif";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "sans-serif-bold") ||
-	         !strcasecmp(argv[i], "sans-bold"))
+	else if (!strcasecmp(argv[i], "sans-serif-bold") ||
+		 !strcasecmp(argv[i], "sans-bold"))
 	{
-	  HeadFootType  = HD_FONT_FACE_SANS_SERIF;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	  font_family = "sans-serif";
+	  font_style  = HD_FONT_STYLE_NORMAL;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
-        else if (!strcasecmp(argv[i], "sans-serif-oblique") ||
-	         !strcasecmp(argv[i], "sans-oblique"))
+	else if (!strcasecmp(argv[i], "sans-serif-oblique") ||
+		 !strcasecmp(argv[i], "sans-oblique"))
 	{
-	  HeadFootType  = HD_FONT_FACE_SANS_SERIF;
-	  HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	  font_family = "sans-serif";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_NORMAL;
 	}
-        else if (!strcasecmp(argv[i], "sans-serif-boldoblique") ||
-	         !strcasecmp(argv[i], "sans-boldoblique"))
+	else if (!strcasecmp(argv[i], "sans-serif-boldoblique") ||
+		 !strcasecmp(argv[i], "sans-boldoblique"))
 	{
-	  HeadFootType  = HD_FONT_FACE_SANS_SERIF;
-	  HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	  font_family = "sans-serif";
+	  font_style  = HD_FONT_STYLE_ITALIC;
+	  font_weight = HD_FONT_WEIGHT_BOLD;
 	}
+
+	style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
+	style->set_string(font_family, style->font_family);
+	style->font_style  = font_style;
+	style->font_weight = font_weight;
+	style->updated     = false;
+
+	style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
+	style->set_string(font_family, style->font_family);
+	style->font_style  = font_style;
+	style->font_weight = font_weight;
+	style->updated     = false;
       }
       else
         usage(argv[i - 1]);
@@ -653,12 +695,22 @@ main(int  argc,				/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        HeadFootSize = atof(argv[i]);
+        float font_size = atof(argv[i]);
 
-	if (HeadFootSize < 6.0f)
-	  HeadFootSize = 6.0f;
-	else if (HeadFootSize > 24.0f)
-	  HeadFootSize = 24.0f;
+	if (font_size < 6.0f)
+	  font_size = 6.0f;
+	else if (font_size > 24.0f)
+	  font_size = 24.0f;
+
+        style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
+	style->font_size = font_size;
+	style->set_string(NULL, style->font_size_rel);
+	style->updated = false;
+
+        style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
+	style->font_size = font_size;
+	style->set_string(NULL, style->font_size_rel);
+	style->updated = false;
       }
       else
         usage(argv[i - 1]);
@@ -1300,6 +1352,16 @@ prefs_load(void)
   int		pos;			// Header/footer position
   char		line[2048];		// Line from RC file
   hdFile	*fp;			// File pointer
+  hdStyle	*style;			// Stylesheet data
+  static const char * const families[] =// Font families
+  {
+    "courier",
+    "times",
+    "helvetica",
+    "monospace",
+    "serif",
+    "sans-serif"
+  };
 
 
   //
@@ -1379,11 +1441,37 @@ prefs_load(void)
       else if (strncasecmp(line, "FONTSPACING=", 12) == 0)
 	_htmlStyleSheet->set_line_height(line + 12);
       else if (strncasecmp(line, "HEADFOOTTYPE=", 13) == 0)
-	HeadFootType = (hdFontFace)atoi(line + 13);
+      {
+        style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
+	style->set_string(families[atoi(line + 13)], style->font_family);
+	style->updated = false;
+
+        style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
+	style->set_string(families[atoi(line + 13)], style->font_family);
+	style->updated = false;
+      }
       else if (strncasecmp(line, "HEADFOOTSTYLE=", 14) == 0)
-        HeadFootStyle = (hdFontInternal)atoi(line + 14);
+      {
+        style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
+	style->font_style = (hdFontStyle)atoi(line + 14);
+	style->updated = false;
+
+        style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
+	style->font_style = (hdFontStyle)atoi(line + 14);
+	style->updated = false;
+      }
       else if (strncasecmp(line, "HEADFOOTSIZE=", 13) == 0)
-	HeadFootSize = atof(line + 13);
+      {
+        style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
+	style->font_size = atof(line + 13);
+	style->set_string(NULL, style->font_size_rel);
+	style->updated = false;
+
+        style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
+	style->font_size = atof(line + 13);
+	style->set_string(NULL, style->font_size_rel);
+	style->updated = false;
+      }
       else if (strncasecmp(line, "PDFVERSION=", 11) == 0)
       {
         if (strchr(line + 11, '.') != NULL)
@@ -1514,9 +1602,9 @@ prefs_save(void)
     fp->printf("FONTSIZE=%.2f\n", _htmlStyleSheet->def_style.font_size);
     fp->printf("FONTSPACING=%.2f\n", _htmlStyleSheet->def_style.line_height /
                                      _htmlStyleSheet->def_style.font_size);
-    fp->printf("HEADFOOTTYPE=%d\n", HeadFootType);
-    fp->printf("HEADFOOTSTYLE=%d\n", HeadFootStyle);
-    fp->printf("HEADFOOTSIZE=%.2f\n", HeadFootSize);
+//    fp->printf("HEADFOOTTYPE=%d\n", HeadFootType);
+//    fp->printf("HEADFOOTSTYLE=%d\n", HeadFootStyle);
+//    fp->printf("HEADFOOTSIZE=%.2f\n", HeadFootSize);
     fp->printf("PDFVERSION=%d\n", PDFVersion);
     fp->printf("PSLEVEL=%d\n", PSLevel);
     fp->printf("PSCOMMANDS=%d\n", PSCommands);
@@ -1752,6 +1840,7 @@ parse_options(const char   *line,	// I - Options from book file
   char		temp[1024],		// Option name
 		temp2[1024],		// Option value
 		*tempptr;		// Pointer into option
+  hdStyle	*style;			// Current style
 
 
   // Parse the input line...
@@ -2089,131 +2178,193 @@ parse_options(const char   *line,	// I - Options from book file
         _htmlBodyFont = HD_FONT_FACE_HELVETICA;
     }
     else if (strcmp(temp, "--headfootsize") == 0)
-      HeadFootSize = atof(temp2);
+    {
+      float font_size = atof(temp2);
+
+      if (font_size < 6.0f)
+	font_size = 6.0f;
+      else if (font_size > 24.0f)
+	font_size = 24.0f;
+
+      style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
+      style->font_size = font_size;
+      style->set_string(NULL, style->font_size_rel);
+      style->updated = false;
+
+      style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
+      style->font_size = font_size;
+      style->set_string(NULL, style->font_size_rel);
+      style->updated = false;
+    }
     else if (strcmp(temp, "--headfootfont") == 0)
     {
-      if (!strcasecmp(temp2, "monospace"))
+      const char	*font_family;	// Font family
+      hdFontStyle	font_style;	// Font style
+      hdFontWeight	font_weight;	// Font weight
+
+
+      if (!strcasecmp(temp2, "courier"))
       {
-	HeadFootType  = HD_FONT_FACE_MONOSPACE;
-	HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
-      }
-      else if (!strcasecmp(temp2, "monospace-bold"))
-      {
-	HeadFootType  = HD_FONT_FACE_MONOSPACE;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD;
-      }
-      else if (!strcasecmp(temp2, "monospace-oblique"))
-      {
-	HeadFootType  = HD_FONT_FACE_MONOSPACE;
-	HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
-      }
-      else if (!strcasecmp(temp2, "monospace-boldoblique"))
-      {
-	HeadFootType  = HD_FONT_FACE_MONOSPACE;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
-      }
-      else if (!strcasecmp(temp2, "serif") ||
-	       !strcasecmp(temp2, "serif-roman"))
-      {
-	HeadFootType  = HD_FONT_FACE_SERIF;
-	HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
-      }
-      else if (!strcasecmp(temp2, "serif-bold"))
-      {
-	HeadFootType  = HD_FONT_FACE_SERIF;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD;
-      }
-      else if (!strcasecmp(temp2, "serif-italic"))
-      {
-	HeadFootType  = HD_FONT_FACE_SERIF;
-	HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
-      }
-      else if (!strcasecmp(temp2, "serif-bolditalic"))
-      {
-	HeadFootType  = HD_FONT_FACE_SERIF;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
-      }
-      else if (!strcasecmp(temp2, "sans"))
-      {
-	HeadFootType  = HD_FONT_FACE_SANS_SERIF;
-	HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
-      }
-      else if (!strcasecmp(temp2, "sans-bold"))
-      {
-	HeadFootType  = HD_FONT_FACE_SANS_SERIF;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD;
-      }
-      else if (!strcasecmp(temp2, "sans-oblique"))
-      {
-	HeadFootType  = HD_FONT_FACE_SANS_SERIF;
-	HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
-      }
-      else if (!strcasecmp(temp2, "sans-boldoblique"))
-      {
-	HeadFootType  = HD_FONT_FACE_SANS_SERIF;
-        HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
-      }
-      else if (!strcasecmp(temp2, "courier"))
-      {
-	HeadFootType  = HD_FONT_FACE_COURIER;
-	HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	font_family = "courier";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
       }
       else if (!strcasecmp(temp2, "courier-bold"))
       {
-	HeadFootType  = HD_FONT_FACE_COURIER;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	font_family = "courier";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_BOLD;
       }
       else if (!strcasecmp(temp2, "courier-oblique"))
       {
-	HeadFootType  = HD_FONT_FACE_COURIER;
-	HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	font_family = "courier";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
       }
       else if (!strcasecmp(temp2, "courier-boldoblique"))
       {
-	HeadFootType  = HD_FONT_FACE_COURIER;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	font_family = "courier";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_BOLD;
       }
       else if (!strcasecmp(temp2, "times") ||
 	       !strcasecmp(temp2, "times-roman"))
       {
-	HeadFootType  = HD_FONT_FACE_TIMES;
-	HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	font_family = "times";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
       }
       else if (!strcasecmp(temp2, "times-bold"))
       {
-	HeadFootType  = HD_FONT_FACE_TIMES;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	font_family = "times";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_BOLD;
       }
       else if (!strcasecmp(temp2, "times-italic"))
       {
-	HeadFootType  = HD_FONT_FACE_TIMES;
-	HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	font_family = "times";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
       }
       else if (!strcasecmp(temp2, "times-bolditalic"))
       {
-	HeadFootType  = HD_FONT_FACE_TIMES;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	font_family = "times";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_BOLD;
       }
       else if (!strcasecmp(temp2, "helvetica"))
       {
-	HeadFootType  = HD_FONT_FACE_HELVETICA;
-	HeadFootStyle = HD_FONT_INTERNAL_NORMAL;
+	font_family = "helvetica";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
       }
       else if (!strcasecmp(temp2, "helvetica-bold"))
       {
-	HeadFootType  = HD_FONT_FACE_HELVETICA;
-	HeadFootStyle = HD_FONT_INTERNAL_BOLD;
+	font_family = "helvetica";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_BOLD;
       }
       else if (!strcasecmp(temp2, "helvetica-oblique"))
       {
-	HeadFootType  = HD_FONT_FACE_HELVETICA;
-	HeadFootStyle = HD_FONT_INTERNAL_ITALIC;
+	font_family = "helvetica";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
       }
       else if (!strcasecmp(temp2, "helvetica-boldoblique"))
       {
-	HeadFootType  = HD_FONT_FACE_HELVETICA;
-        HeadFootStyle = HD_FONT_INTERNAL_BOLD_ITALIC;
+	font_family = "helvetica";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_BOLD;
       }
+      else if (!strcasecmp(temp2, "monospace"))
+      {
+	font_family = "monospace";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
+      }
+      else if (!strcasecmp(temp2, "monospace-bold"))
+      {
+	font_family = "monospace";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_BOLD;
+      }
+      else if (!strcasecmp(temp2, "monospace-oblique"))
+      {
+	font_family = "monospace";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
+      }
+      else if (!strcasecmp(temp2, "monospace-boldoblique"))
+      {
+	font_family = "monospace";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_BOLD;
+      }
+      else if (!strcasecmp(temp2, "serif") ||
+	       !strcasecmp(temp2, "serif-roman"))
+      {
+	font_family = "serif";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
+      }
+      else if (!strcasecmp(temp2, "serif-bold"))
+      {
+	font_family = "serif";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_BOLD;
+      }
+      else if (!strcasecmp(temp2, "serif-italic"))
+      {
+	font_family = "serif";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
+      }
+      else if (!strcasecmp(temp2, "serif-bolditalic"))
+      {
+	font_family = "serif";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_BOLD;
+      }
+      else if (!strcasecmp(temp2, "sans-serif") ||
+	       !strcasecmp(temp2, "sans"))
+      {
+	font_family = "sans-serif";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
+      }
+      else if (!strcasecmp(temp2, "sans-serif-bold") ||
+	       !strcasecmp(temp2, "sans-bold"))
+      {
+	font_family = "sans-serif";
+	font_style  = HD_FONT_STYLE_NORMAL;
+	font_weight = HD_FONT_WEIGHT_BOLD;
+      }
+      else if (!strcasecmp(temp2, "sans-serif-oblique") ||
+	       !strcasecmp(temp2, "sans-oblique"))
+      {
+	font_family = "sans-serif";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_NORMAL;
+      }
+      else if (!strcasecmp(temp2, "sans-serif-boldoblique") ||
+	       !strcasecmp(temp2, "sans-boldoblique"))
+      {
+	font_family = "sans-serif";
+	font_style  = HD_FONT_STYLE_ITALIC;
+	font_weight = HD_FONT_WEIGHT_BOLD;
+      }
+
+      style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
+      style->set_string(font_family, style->font_family);
+      style->font_style  = font_style;
+      style->font_weight = font_weight;
+      style->updated     = false;
+
+      style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
+      style->set_string(font_family, style->font_family);
+      style->font_style  = font_style;
+      style->font_weight = font_weight;
+      style->updated     = false;
     }
     else if (strcmp(temp, "--charset") == 0)
       _htmlStyleSheet->set_charset(temp2);

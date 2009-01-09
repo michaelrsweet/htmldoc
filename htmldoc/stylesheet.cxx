@@ -3,7 +3,7 @@
 //
 // Basic stylesheet routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2009 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -30,6 +30,8 @@
 //   hd_compare_elements()         - Compare two element strings...
 //   hdStyleSheet::get_element()   - Get the element string for an enumeration.
 //   hdStyleSheet::get_glyph()     - Find the index for the named glyph...
+//   hdStyleSheet::get_style()     - Find the default style for the given
+//                                   element, creating it as needed.
 //   hdStyleSheet::load()          - Load a stylesheet from the given file.
 //   hdStyleSheet::pattern()       - Initialize a regex pattern buffer...
 //   hdStyleSheet::read()          - Read a string from the given file.
@@ -534,10 +536,12 @@ hdStyleSheet::find_style(
 //
 
 hdStyle *				// O - Style record
-hdStyleSheet::find_style(hdElement e,	// I - Element
-                         const char *c,	// I - Class name, if any
-                         const char *i,	// I - ID, if any
-                         const char *p)	// I - Pseudo target, if any
+hdStyleSheet::find_style(
+    hdElement  e,			// I - Element
+    const char *c,			// I - Class name, if any
+    const char *i,			// I - ID, if any
+    const char *p,			// I - Pseudo target, if any
+    bool       exact)			// I - Exact match?
 {
   hdStyleSelector	sel;		// Selector...
 
@@ -549,7 +553,7 @@ hdStyleSheet::find_style(hdElement e,	// I - Element
   sel.pseudo  = (char *)p;
 
   // Do the search...
-  return (find_style(1, &sel));
+  return (find_style(1, &sel, exact));
 }
 
 
@@ -739,6 +743,71 @@ hdStyleSheet::get_glyph(const char *s)	// I - Glyph name
 
 
 //
+// 'hdStyleSheet::get_style()' - Find the default style for the given
+//                               selectors, creating it as needed.
+//
+
+hdStyle *				// O - Style record
+hdStyleSheet::get_style(
+    int             nsels,		// I - Number of selectors
+    hdStyleSelector *sels)		// I - Selectors
+{
+  hdStyle		*style;		// Matching style
+  hdStyleSelector	parent;		// Parent style
+
+
+  if ((style = find_style(nsels, sels, true)) == NULL)
+  {
+    if (sels->class_ || sels->pseudo || sels->id)
+    {
+      parent.element = sels->element;
+      parent.class_  = NULL;
+      parent.id      = NULL;
+      parent.pseudo  = NULL;
+
+      style = new hdStyle(nsels, sels, find_style(1, &parent, true));
+    }
+    else if (sels->element == HD_ELEMENT_HTML ||
+             sels->element == HD_ELEMENT_HEAD ||
+	     sels->element == HD_ELEMENT_BODY)
+      style = new hdStyle(nsels, sels, &def_style);
+    else
+      style = new hdStyle(nsels, sels, NULL);
+
+    add_style(style);
+  }
+
+  return (style);
+}
+
+
+//
+// 'hdStyleSheet::get_style()' - Find the default style for the given
+//                                element, creating it as needed.
+//
+
+hdStyle *				// O - Style record
+hdStyleSheet::get_style(
+    hdElement  e,			// I - Element
+    const char *c,			// I - Class name, if any
+    const char *i,			// I - ID, if any
+    const char *p)			// I - Pseudo target, if any
+{
+  hdStyleSelector	sel;		// Selector...
+
+
+  // Build the selector for this node...
+  sel.element = e;
+  sel.class_  = (char *)c;
+  sel.id      = (char *)i;
+  sel.pseudo  = (char *)p;
+
+  // Do the search...
+  return (get_style(1, &sel));
+}
+
+
+//
 // 'hdStyleSheet::load()' - Load a stylesheet from the given file.
 //
 
@@ -871,15 +940,8 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 	  for (j = HD_ELEMENT_A; j < HD_ELEMENT_MAX; j ++)
 	  {
 	    selectors[i]->element = (hdElement)j;
-            parent.element        = selectors[i]->element;
 
-            if ((style = find_style(num_selectors[i], selectors[i], 1)) == NULL)
-            {
-	      style = new hdStyle(num_selectors[i], selectors[i],
-	                	  find_style(1, &parent, 1));
-              add_style(style);
-	    }
-
+            style  = get_style(num_selectors[i], selectors[i]);
             status = status && style->load(this, props);
 	  }
 
@@ -888,26 +950,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 	else
 	{
 	  // Apply to just the selected element...
-          if ((style = find_style(num_selectors[i], selectors[i], 1)) == NULL)
-          {
-	    if (selectors[i]->class_ || selectors[i]->pseudo ||
-	        selectors[i]->id)
-            {
-	      parent.element = selectors[i]->element;
-
-	      style = new hdStyle(num_selectors[i], selectors[i],
-	                	  find_style(1, &parent, 1));
-            }
-	    else if (selectors[i]->element == HD_ELEMENT_HTML ||
-		     selectors[i]->element == HD_ELEMENT_HEAD ||
-		     selectors[i]->element == HD_ELEMENT_BODY)
-	      style = new hdStyle(num_selectors[i], selectors[i], &def_style);
-	    else
-	      style = new hdStyle(num_selectors[i], selectors[i], NULL);
-
-            add_style(style);
-	  }
-
+          style  = get_style(num_selectors[i], selectors[i]);
           status = status && style->load(this, props);
         }
 
