@@ -149,7 +149,7 @@ hdStyleSheet::~hdStyleSheet()
     for (i = num_styles, s = styles; i > 0; i --, s ++)
       delete *s;
 
-    delete[] styles;
+    free(styles);
   }
 
   // Free all fonts...
@@ -196,13 +196,14 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
   // Allocate more memory as needed...
   if (num_styles >= alloc_styles)
   {
-    temp = new hdStyle *[alloc_styles + 32];
+    if (alloc_styles == 0)
+      temp = (hdStyle **)malloc(sizeof(hdStyle *) * 32);
+    else
+      temp = (hdStyle **)realloc(styles,
+                                 sizeof(hdStyle *) * (alloc_styles + 32));
 
-    if (alloc_styles)
-    {
-      memcpy(temp, styles, alloc_styles * sizeof(hdStyle *));
-      delete[] styles;
-    }
+    if (!temp)
+      return;
 
     alloc_styles += 32;
     styles       = temp;

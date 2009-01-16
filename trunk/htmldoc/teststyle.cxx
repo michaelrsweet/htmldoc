@@ -3,7 +3,7 @@
 //
 // Stylesheet test program for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2008 by Easy Software Products.
+// Copyright 1997-2009 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -256,7 +256,7 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
   if (style->font_size_rel)
     printf("  font-size: %s (%.1f)\n", style->font_size_rel,
            style->font_size);
-  else
+  else if (style->font_size != HD_FONT_SIZE_INHERIT)
     printf("  font-size: %.1f\n", style->font_size);
 
   if (style->font_style)
@@ -271,7 +271,7 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
   if (style->line_height_rel)
     printf("  line-height: %s (%.1f)\n", style->line_height_rel,
            style->line_height);
-  else
+  else if (style->line_height != HD_LINE_HEIGHT_INHERIT)
     printf("  line-height: %.1f\n", style->line_height);
 
   if (style->list_style_position != HD_LIST_STYLE_POSITION_INHERIT)
