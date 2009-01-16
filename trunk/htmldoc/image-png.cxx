@@ -129,7 +129,7 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
 
   if (!img)
   {
-    png_read_destroy(pp, info, NULL);
+    png_destroy_read_struct(&pp, &info, NULL);
     delete fp;
     return (0);
   }
@@ -226,7 +226,7 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
     delete[] local;
 
   png_read_end(pp, info);
-  png_read_destroy(pp, info, NULL);
+  png_destroy_read_struct(&pp, &info, NULL);
 
   delete fp;
 
