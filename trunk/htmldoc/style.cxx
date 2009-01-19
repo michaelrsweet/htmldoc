@@ -21,32 +21,35 @@
 //
 // Contents:
 //
-//   hdStyleSelector::hdStyleSelector() - Initialize a selector with the given
-//                                        values.
-//   hdStyleSelector::set()             - Set selector values.
-//   hdStyleSelector::clear()           - Free selector strings.
-//   hdStyle::hdStyle()                 - Create a new style record.
-//   hdStyle::~hdStyle()                - Destroy a style record.
-//   hdStyle::copy()                    - Copy style properties from an original
-//                                        style.
-//   hdStyle::get_border_style()        - Get a border style value.
-//   hdStyle::get_border_width()        - Get a border width value.
-//   hdStyle::get_color()               - Get a floating point color value.
-//   hdStyle::get_length()              - Get a length/measurement value...
-//   hdStyle::get_list_style_type()     - Get a list style type value.
-//   hdStyle::get_page_break()          - Get a page break value.
-//   hdStyle::get_pos()                 - Get a margin/position/padding/border
-//                                        index.
-//   hdStyle::get_subvalue()            - Get a subvalue from a property value.
-//   hdStyle::get_width()               - Get width of string in points.
-//   hdStyle::inherit()                 - Inherit style properties from a parent
-//                                        style.
-//   hdStyle::init()                    - Initialize the style data to defaults.
-//   hdStyle::load()                    - Load a style definition from a string.
-//   hdStyle::set_font_size()           - Set the font size.
-//   hdStyle::set_line_height()         - Set the line height.
-//   hdStyle::set_string()              - Copy and set a string value.
-//   hdStyle::update()                  - Update relative style definitions.
+//   hdStyleSelector::hdStyleSelector()  - Initialize a selector with the given
+//                                         values.
+//   hdStyleSelector::~hdStyleSelector() - Free a selector.
+//   hdStyleSelector::clear()            - Free selector strings.
+//   hdStyleSelector::set()              - Set selector values.
+//   hdStyle::hdStyle()                  - Create a new style record.
+//   hdStyle::~hdStyle()                 - Destroy a style record.
+//   hdStyle::copy()                     - Copy style properties from an
+//                                         original style.
+//   hdStyle::get_border_style()         - Get a border style value.
+//   hdStyle::get_border_width()         - Get a border width value.
+//   hdStyle::get_color()                - Get a floating point color value.
+//   hdStyle::get_length()               - Get a length/measurement value...
+//   hdStyle::get_list_style_type()      - Get a list style type value.
+//   hdStyle::get_page_break()           - Get a page break value.
+//   hdStyle::get_pos()                  - Get a margin/position/padding/border
+//                                         index.
+//   hdStyle::get_subvalue()             - Get a subvalue from a property value.
+//   hdStyle::get_width()                - Get width of string in points.
+//   hdStyle::inherit()                  - Inherit style properties from a
+//                                         parent style.
+//   hdStyle::init()                     - Initialize the style data to
+//                                         defaults.
+//   hdStyle::load()                     - Load a style definition from a
+//                                         string.
+//   hdStyle::set_font_size()            - Set the font size.
+//   hdStyle::set_line_height()          - Set the line height.
+//   hdStyle::set_string()               - Copy and set a string value.
+//   hdStyle::update()                   - Update relative style definitions.
 //
 
 //
@@ -88,32 +91,12 @@ hdStyleSelector::hdStyleSelector(
 
 
 //
-// 'hdStyleSelector::set()' - Set selector values.
+// 'hdStyleSelector::~hdStyleSelector()' - Free a selector.
 //
 
-void
-hdStyleSelector::set(hdElement  e,	// I - Element
-                     const char *c,	// I - Class string
-                     const char *p,	// I - Pseudo-selector string
-		     const char *i)	// I - ID string
+hdStyleSelector::~hdStyleSelector()
 {
-  // Set/allocate the new values...
-  element = e;
-
-  if (c)
-    class_ = strdup(c);
-  else
-    class_ = NULL;
-
-  if (p)
-    pseudo = strdup(p);
-  else
-    pseudo = NULL;
-
-  if (i)
-    id = strdup(i);
-  else
-    id = NULL;
+  clear();
 }
 
 
@@ -145,6 +128,36 @@ hdStyleSelector::clear()
 
 
 //
+// 'hdStyleSelector::set()' - Set selector values.
+//
+
+void
+hdStyleSelector::set(hdElement  e,	// I - Element
+                     const char *c,	// I - Class string
+                     const char *p,	// I - Pseudo-selector string
+		     const char *i)	// I - ID string
+{
+  // Set/allocate the new values...
+  element = e;
+
+  if (c)
+    class_ = strdup(c);
+  else
+    class_ = NULL;
+
+  if (p)
+    pseudo = strdup(p);
+  else
+    pseudo = NULL;
+
+  if (i)
+    id = strdup(i);
+  else
+    id = NULL;
+}
+
+
+//
 // 'hdStyle::hdStyle()' - Create an empty style record.
 //
 
@@ -169,6 +182,9 @@ hdStyle::hdStyle(int             nsels,	// I - Number of selectors
 		 hdStyleSelector *sels,	// I - Selectors
                  hdStyle         *p)	// I - Parent style
 {
+  int	i;				// Looping var
+
+
   // Initialize everything to defaults...
   init();
 
@@ -177,7 +193,8 @@ hdStyle::hdStyle(int             nsels,	// I - Number of selectors
   num_selectors = nsels;
   selectors     = new hdStyleSelector[nsels];
 
-  memcpy(selectors, sels, nsels * sizeof(hdStyleSelector));
+  for (i = 0; i < nsels; i ++, sels ++)
+    selectors->set(sels->element, sels->class_, sels->pseudo, sels->id);
 
   // Now copy the parent attributes...
   copy(p);
@@ -193,25 +210,20 @@ hdStyle::~hdStyle()
   int	i;				// Looping var
 
 
+  fprintf(stderr, "hdStyle::~hdStyle() this=%p\n", this);
+  fprintf(stderr, "    %s", _htmlStyleSheet->get_element(selectors[0].element));
+  if  (selectors[0].class_)
+    fprintf(stderr, ".%s", selectors[0].class_);
+  if  (selectors[0].id)
+    fprintf(stderr, "#%s", selectors[0].id);
+  if  (selectors[0].pseudo)
+    fprintf(stderr, ":%s\n", selectors[0].pseudo);
+  else
+    putc('\n', stderr);
+
   // Free the selectors as needed...
-  if (num_selectors)
-  {
-    for (i = 0; i < num_selectors; i ++)
-    {
-      // Free selector strings as needed; these are allocated using
-      // the strdup() function, so free() must be used...
-      if (selectors[i].class_)
-        free(selectors[i].class_);
-
-      if (selectors[i].pseudo)
-        free(selectors[i].pseudo);
-
-      if (selectors[i].id)
-        free(selectors[i].id);
-    }
-
+  if (selectors)
     delete[] selectors;
-  }
 
   // Then free any string values that we have...
   if (background_image)

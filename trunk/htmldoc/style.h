@@ -643,6 +643,12 @@ struct hdStyleSelector
   hdStyleSelector(hdElement e, const char *c, const char *p, const char *i);
 
  /**
+  * The destructor clears the selector values and frees all memory.
+  */
+
+  ~hdStyleSelector();
+
+ /**
   * The <tt>set()</tt> method sets the selector values.
   *
   * @param e hdElement The HTML element.
@@ -1252,7 +1258,7 @@ struct hdStyleSheet
   * @param s const&nbsp;char* The element name string.
   * @return The enumeration value.
   */
-  hdElement	get_element(const char *s);
+  static hdElement	get_element(const char *s);
 
  /**
   * The <tt>get_element()</tt> method returns the enumeration for the
@@ -1261,7 +1267,7 @@ struct hdStyleSheet
   * @param e The enumeration value.
   * @return const&nbsp;char* The element name string.
   */
-  const char	*get_element(hdElement e);
+  static const char	*get_element(hdElement e);
 
  /**
   * The <tt>get_entity(const char *)</tt> method returns the character
