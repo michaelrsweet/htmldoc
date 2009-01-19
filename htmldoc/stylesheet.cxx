@@ -553,17 +553,12 @@ hdStyleSheet::find_style(
     const char *p,			// I - Pseudo target, if any
     bool       exact)			// I - Exact match?
 {
-  hdStyleSelector	sel;		// Selector...
+  hdStyleSelector	sel(e, (char *)c, (char *)p, (char *)i);
+					// Selector...
 
 
-  // Build the selector for this node...
-  sel.element = e;
-  sel.class_  = (char *)c;
-  sel.id      = (char *)i;
-  sel.pseudo  = (char *)p;
-
-  // Do the search...
-  return (find_style(1, &sel, exact));
+  // Get the style...
+  return (find_style(1, &sel));
 }
 
 

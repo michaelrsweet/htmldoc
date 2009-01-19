@@ -58,20 +58,11 @@ hdStyleSheet::find_style(hdTree *t)	// I - Tree node
 
   // Build the selectors for this node...
   for (i = 0, p = t; p && i < nsels; i ++, p = t->parent)
-  {
-    if (p->element < HD_ELEMENT_A)
-      sels[i].element = HD_ELEMENT_P;
-    else
-      sels[i].element = p->element;
-
-    sels[i].class_ = (char *)htmlGetAttr(p, "CLASS");
-    sels[i].id     = (char *)htmlGetAttr(p, "ID");
-
-    if (sels[i].element == HD_ELEMENT_A && htmlGetAttr(p, "HREF") != NULL)
-      sels[i].pseudo = (char *)"link";
-    else
-      sels[i].pseudo = NULL;
-  }
+    sels[i].set(p->element < HD_ELEMENT_A ? HD_ELEMENT_P : p->element,
+                (char *)htmlGetAttr(p, "CLASS"),
+		sels[i].element == HD_ELEMENT_A &&
+		    htmlGetAttr(p, "HREF") != NULL ? (char *)"link" : NULL,
+	        (char *)htmlGetAttr(p, "ID"));
 
   // Do the search...
   return (find_style(i, sels));
