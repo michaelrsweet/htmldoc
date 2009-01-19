@@ -210,17 +210,6 @@ hdStyle::~hdStyle()
   int	i;				// Looping var
 
 
-  fprintf(stderr, "hdStyle::~hdStyle() this=%p\n", this);
-  fprintf(stderr, "    %s", _htmlStyleSheet->get_element(selectors[0].element));
-  if  (selectors[0].class_)
-    fprintf(stderr, ".%s", selectors[0].class_);
-  if  (selectors[0].id)
-    fprintf(stderr, "#%s", selectors[0].id);
-  if  (selectors[0].pseudo)
-    fprintf(stderr, ":%s\n", selectors[0].pseudo);
-  else
-    putc('\n', stderr);
-
   // Free the selectors as needed...
   if (selectors)
     delete[] selectors;
