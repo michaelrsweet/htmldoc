@@ -212,6 +212,15 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
   // Cache the primary selector element...
   e = s->selectors[0].element;
 
+  // Check for dupes...
+  for (i = 0; i < num_styles; i ++)
+    if (styles[i] == s)
+    {
+      printf("Tried to add style %p(%s) more than once!\n", s,
+             get_element(e));
+      return;
+    }
+
   // Find where to insert the style...
   if (elements[e] >= 0)
     i = elements[e];	 // Already added this element to the table...
@@ -794,16 +803,11 @@ hdStyleSheet::get_style(
     const char *i,			// I - ID, if any
     const char *p)			// I - Pseudo target, if any
 {
-  hdStyleSelector	sel;		// Selector...
+  hdStyleSelector	sel(e, (char *)c, (char *)i, (char *)p);
+					// Selector...
 
 
-  // Build the selector for this node...
-  sel.element = e;
-  sel.class_  = (char *)c;
-  sel.id      = (char *)i;
-  sel.pseudo  = (char *)p;
-
-  // Do the search...
+  // Get the style...
   return (get_style(1, &sel));
 }
 
@@ -1165,7 +1169,7 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
       *sel_id++ = '\0';
 
     if (get_element(sel_s) == HD_ELEMENT_UNKNOWN)
-      printf("UNKNOWN ELEMENT %s!\n", sel_s);
+      progress_error(HD_ERROR_CSS_ERROR, "UNKNOWN ELEMENT %s!\n", sel_s);
 
     // Insert the new selector before any existing ones...
     if (num_selectors[cur_fstyle] > 0)
@@ -1180,12 +1184,8 @@ hdStyleSheet::load(hdFile     *f,	// I - File to read from
 
   // Clear any selectors still in memory...
   for (i = 0; i < num_fstyles; i ++)
-  {
-    for (j = 0; j < num_selectors[i]; j ++)
-      selectors[i]->clear();
-
-    delete[] selectors[i];
-  }
+    if (num_selectors[i] > 0)
+      delete[] selectors[i];
 
   // Update all style data...
   update_styles();
