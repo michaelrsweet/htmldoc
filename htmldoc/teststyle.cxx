@@ -61,6 +61,10 @@ main(int  argc,				// I - Number of command-line args
     return (1);
   }
 
+  // Set data dir...
+  if (getenv("HTMLDOC_DATA"))
+    _htmlData = getenv("HTMLDOC_DATA");
+
   // Load the stylesheet...
   if ((fp = hdFile::open(argv[1], HD_FILE_READ)) == NULL)
   {

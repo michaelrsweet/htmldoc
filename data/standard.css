@@ -274,7 +274,7 @@ a:active img {
 }
 
 /* This style is used for HTML output */
-DIV.HD_NAV {
+div.HD_NAV {
   background: #eeeeee;
   border: dotted thin black;
   font-size: 90%;

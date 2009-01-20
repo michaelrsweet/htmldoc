@@ -296,20 +296,20 @@ static hdRC4Filter	*encrypt_init(hdFile *out);
 static void	parse_contents(hdTree *t, hdMargin *margins, float *y, int *page, int *heading,
 			       hdTree *chap);
 static void	parse_doc(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			  hdTree *cpara, int *needspace);
+			  hdTree *cpara, float *needspace);
 static void	parse_heading(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			      int needspace);
+			      float *needspace);
 static void	parse_paragraph(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			        int needspace);
+			        float *needspace);
 static void	parse_pre(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			  int needspace);
+			  float *needspace);
 static void	parse_table(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			    int needspace);
+			    float *needspace);
 static void	parse_list(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			   int needspace);
+			   float *needspace);
 static void	init_list(hdTree *t);
 static void	parse_comment(hdTree *t, hdMargin *margins, float *x, float *y, int *page,
-			      hdTree *para, int needspace);
+			      hdTree *para, float *needspace);
 
 static hdTree	*real_prev(hdTree *t);
 static hdTree	*real_next(hdTree *t);
@@ -398,7 +398,7 @@ pspdf_export(hdTree *document,		/* I - Document to export */
 		*p_title;		/* Paragraph style for title page */
   hdRender	*r;			/* Rendering structure... */
   float		rgb[3];			/* Text color */
-  int		needspace;		/* Need whitespace */
+  float		needspace;		/* Needed whitespace */
 
 
  /*
@@ -3949,7 +3949,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
           float    *y,			/* IO - Y position */
           int      *page,		/* IO - Page # */
 	  hdTree   *cpara,		/* I - Current paragraph */
-	  int      *needspace)		/* I - Need whitespace before this element */
+	  float    *needspace)		/* I - Needed whitespace before this */
 {
   int		i;			/* Looping var */
   hdTree	*para,			/* Phoney paragraph tree entry */
@@ -3961,7 +3961,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 		rgb[3];			/* RGB color of rule */
 
 
-  DEBUG_printf(("parse_doc(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, cpara=%p, needspace=%d\n",
+  DEBUG_printf(("parse_doc(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, cpara=%p, needspace=%g\n",
                 t, margins->left(), margins->right(), margins->bottom(),
 		margins->top(), *x, *y, *page, cpara, *needspace));
   DEBUG_printf(("    title_page = %d, chapter = %d\n", title_page, chapter));
@@ -3980,7 +3980,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
       // New page on H1 in book mode or file in webpage mode...
       if (para->child != NULL && chapter > 0)
       {
-        parse_paragraph(para, margins, x, y, page, *needspace);
+        parse_paragraph(para, margins, x, y, page, needspace);
         htmlDeleteTree(para->child);
         para->child = para->last_child = NULL;
       }
@@ -4065,12 +4065,10 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
     {
       // Need to handle page comments before the first heading...
       if (t->element == HD_ELEMENT_COMMENT)
-        parse_comment(t, margins, x, y, page, para,
-	              *needspace);
+        parse_comment(t, margins, x, y, page, para, needspace);
 
       if (t->child != NULL)
-        parse_doc(t->child, margins, x, y, page, para,
-	          needspace);
+        parse_doc(t->child, margins, x, y, page, para, needspace);
 
       t = t->next;
       continue;
@@ -4134,13 +4132,12 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
       case HD_ELEMENT_TABLE :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
 
-          parse_table(t, margins, x, y, page, *needspace);
-	  *needspace = 0;
+          parse_table(t, margins, x, y, page, needspace);
           break;
 
       case HD_ELEMENT_H1 :
@@ -4160,75 +4157,63 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
       case HD_ELEMENT_H15 :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-
-	    *needspace = 1;
           }
 
-          parse_heading(t, margins, x, y, page, *needspace);
-	  *needspace = 1;
+          parse_heading(t, margins, x, y, page, needspace);
           break;
 
       case HD_ELEMENT_BLOCKQUOTE :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-
-	    *needspace = 1;
           }
 
-          margins->adjust_left(36.0f);
-	  margins->adjust_right(-36.0f);
+          margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
 
           parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-          margins->adjust_left(-36.0f);
-	  margins->adjust_right(36.0f);
+          margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
 
-          *x         = margins->left();
-          *needspace = 1;
+          *x = margins->left();
           break;
 
       case HD_ELEMENT_CENTER :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-
-            *needspace = 1;
           }
 
           parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-          *x         = margins->left();
-          *needspace = 1;
+          *x = margins->left();
           break;
 
       case HD_ELEMENT_P :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-
-	    *needspace = 1;
           }
 
           parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-          *x         = margins->left();
-          *needspace = 1;
+          *x = margins->left();
           break;
 
       case HD_ELEMENT_DIV :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
@@ -4237,7 +4222,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
@@ -4246,17 +4231,14 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
       case HD_ELEMENT_PRE :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-
-	    *needspace = 1;
           }
 
-          parse_pre(t, margins, x, y, page, *needspace);
+          parse_pre(t, margins, x, y, page, needspace);
 
-          *x         = margins->left();
-          *needspace = 1;
+          *x = margins->left();
           break;
 
       case HD_ELEMENT_DIR :
@@ -4267,88 +4249,83 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
       case HD_ELEMENT_DL :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
 
-          *needspace = 1;
-
-	  margins->adjust_left(36.0f);
+          margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
 
           *x = margins->left();
 
           parse_doc(t->child, margins, x, y, page, para, needspace);
 
-          margins->adjust_left(-36.0f);
+          margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
 
           if ((t->element == HD_ELEMENT_DIR ||
 	       t->element == HD_ELEMENT_MENU ||
 	       t->element == HD_ELEMENT_UL ||
 	       t->element == HD_ELEMENT_OL) && list_indent > 0)
 	    list_indent --;
-
-	  *needspace = 1;
           break;
 
       case HD_ELEMENT_LI :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-
-	    *needspace = 0;
           }
 
-          parse_list(t, margins, x, y, page, *needspace);
+          parse_list(t, margins, x, y, page, needspace);
 
-          *x         = margins->left();
-          *needspace = t->next && t->next->element != HD_ELEMENT_LI &&
-	               t->next->element != HD_ELEMENT_UL &&
-		       t->next->element != HD_ELEMENT_OL;
+          *x = margins->left();
           break;
 
       case HD_ELEMENT_DT :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-
-	    *needspace = 0;
           }
 
-	  margins->adjust_left(-36.0f);
+          margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
           *x = margins->left();
 
           parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-	  margins->adjust_left(36.0f);
-          *x         = margins->left();
-          *needspace = 0;
+          margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
+          *x = margins->left();
           break;
 
       case HD_ELEMENT_DD :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
-
-	    *needspace = 0;
           }
+
+          margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
+          *x = margins->left();
 
           parse_doc(t->child, margins, x, y, page, NULL, needspace);
 
-          *x         = margins->left();
-          *needspace = 0;
+          margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
+          *x = margins->left();
           break;
 
       case HD_ELEMENT_HR :
           if (para->child != NULL)
           {
-            parse_paragraph(para, margins, x, y, page, *needspace);
+            parse_paragraph(para, margins, x, y, page, needspace);
             htmlDeleteTree(para->child);
             para->child = para->last_child = NULL;
           }
@@ -4411,12 +4388,12 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 	             width, height, rgb);
 
           *x         = margins->left();
-          *needspace = 0;
+	  *needspace = t->style->margin[HD_POS_BOTTOM];
           break;
 
       case HD_ELEMENT_COMMENT :
           // Check comments for commands...
-          parse_comment(t, margins, x, y, page, para, *needspace);
+          parse_comment(t, margins, x, y, page, para, needspace);
           break;
 
       case HD_ELEMENT_HEAD : // Ignore document HEAD section
@@ -4492,10 +4469,9 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
   if (para->child != NULL && cpara != para)
   {
-    parse_paragraph(para, margins, x, y, page, *needspace);
+    parse_paragraph(para, margins, x, y, page, needspace);
     htmlDeleteTree(para->child);
     para->child = para->last_child = NULL;
-    *needspace  = 0;
   }
 
   if (cpara != para)
@@ -4511,27 +4487,29 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
  */
 
 static void
-parse_heading(hdTree   *t,		/* I - Tree to parse */
-              hdMargin *margins,	/* I - Margins */
+parse_heading(hdTree   *t,		/* I  - Tree to parse */
+              hdMargin *margins,	/* I  - Margins */
               float    *x,		/* IO - X position */
               float    *y,		/* IO - Y position */
               int      *page,		/* IO - Page # */
-              int      needspace)	/* I - Need whitespace? */
+              float    *needspace)	/* IO - Needed whitespace? */
 {
   int	*temp;				// Temporary integer array pointer
 
 
-  DEBUG_printf(("parse_heading(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, needspace=%d\n",
+  DEBUG_printf(("parse_heading(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, needspace=%g\n",
                 t, margins->left(), margins->right(), margins->bottom(),
-		margins->top(), *x, *y, *page, needspace));
+		margins->top(), *x, *y, *page, *needspace));
 
-  if (((t->element - HD_ELEMENT_H1) < TocLevels || TocLevels == 0) && !title_page)
+  if (((t->element - HD_ELEMENT_H1) < TocLevels || TocLevels == 0) &&
+      !title_page)
     current_heading = t->child;
 
   if (*y < (5 * t->style->line_height + margins->bottom0()))
   {
     (*page) ++;
     *y = margins->top();
+
     if (Verbosity)
       progress_show("Formatting page %d", *page);
   }
@@ -4632,12 +4610,12 @@ parse_heading(hdTree   *t,		/* I - Tree to parse */
  */
 
 static void
-parse_paragraph(hdTree   *t,		/* I - Tree to parse */
-                hdMargin *margins,	/* I - Margins */
+parse_paragraph(hdTree   *t,		/* I  - Tree to parse */
+                hdMargin *margins,	/* I  - Margins */
         	float    *x,		/* IO - X position */
         	float    *y,		/* IO - Y position */
         	int      *page,		/* IO - Page # */
-        	int      needspace)	/* I - Need whitespace? */
+        	float    *needspace)	/* IO - Needed whitespace? */
 {
   int		whitespace;		/* Non-zero if a fragment ends in whitespace */
   hdTree	*flat,
@@ -4683,10 +4661,21 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     DEBUG_puts("parse_paragraph: flat == NULL!");
 
   // Add leading whitespace...
-  if (*y < margins->top() && needspace)
-    *y -= t->style->line_height;
+  if (*needspace < t->style->margin[HD_POS_TOP])
+    *needspace = t->style->margin[HD_POS_TOP];
+
+  printf("%s.needspace=%g, font-size=%g(%s), margin-top=%g(%s), margin-bottom=%g(%s)\n",
+         _htmlStyleSheet->get_element(t->element), *needspace,
+	 t->style->font_size, t->style->font_size_rel,
+	 t->style->margin[HD_POS_TOP], t->style->margin_rel[HD_POS_TOP],
+	 t->style->margin[HD_POS_BOTTOM], t->style->margin_rel[HD_POS_BOTTOM]);
+
+  if (*y < margins->top() && *needspace)
+    *y -= *needspace;
 
   margins->clear(*y, *page);
+  margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
 
  /*
   * First scan for images with left/right alignment tags...
@@ -5459,7 +5448,11 @@ parse_paragraph(hdTree   *t,		/* I - Tree to parse */
     margins->clear(*y, *page);
   }
 
+  margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
+
   *x = margins->left();
+  *needspace = t->style->margin[HD_POS_BOTTOM];
 
   DEBUG_printf(("LEAVING parse_paragraph(), x = %.1f, y = %.1f, page = %d\n",
                 *x, *y, *page));
@@ -5476,10 +5469,10 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
           float    *x,			/* IO - X position */
           float    *y,			/* IO - Y position */
           int      *page,		/* IO - Page # */
-          int      needspace)		/* I - Need whitespace? */
+          float    *needspace)		/* I - Need whitespace? */
 {
   hdTree	*flat, *start, *next;
-  hdChar		*link,
+  hdChar	*link,
 		line[10240],
 		*lineptr,
 		*dataptr;
@@ -5497,8 +5490,16 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
   if (t->child == NULL)
     return;
 
-  if (*y < margins->top() && needspace)
-    *y -= t->style->line_height;
+  // Add leading whitespace...
+  if (*needspace < t->style->margin[HD_POS_TOP])
+    *needspace = t->style->margin[HD_POS_TOP];
+
+  if (*y < margins->top() && *needspace)
+    *y -= *needspace;
+
+  margins->clear(*y, *page);
+  margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
 
   flat = flatten_tree(t->child);
 
@@ -5666,7 +5667,11 @@ parse_pre(hdTree   *t,			/* I - Tree to parse */
     *y -= t->style->line_height - t->style->font_size;
   }
 
+  margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
+
   *x = margins->left();
+  *needspace = t->style->margin[HD_POS_BOTTOM];
 }
 
 
@@ -5728,7 +5733,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
             float    *x,		// IO - X position
             float    *y,		// IO - Y position
             int      *page,		// IO - Page #
-            int      needspace)		// I - Need whitespace?
+            float    *needspace)	// I - Need whitespace?
 {
   int		col,			// Current column
 		row,			// Current row
@@ -5739,7 +5744,6 @@ parse_table(hdTree   *t,		// I - Tree to parse
 		num_rows,		// Number of rows
 		alloc_rows,		// Allocated rows
 		regular_cols,		// Number of regular-size columns
-		tempspace,		// Temporary spacing
 		header_row;		// Header row
   hdTableColumn	columns[MAX_COLUMNS],	// Normal columns
 		headers[MAX_COLUMNS];	// Header columns
@@ -5761,6 +5765,7 @@ parse_table(hdTree   *t,		// I - Tree to parse
 		table_height,		// Requested table height
 		min_width,		// Minimum table width
 		temp_width,		// Current width
+		tempspace,		// Temporary spacing
 		table_y,		// Table start position
 		row_y,			// Row end position
 		row_starty,		// Row start position
@@ -5805,6 +5810,17 @@ parse_table(hdTree   *t,		// I - Tree to parse
     table_debug = 1;
   else
     table_debug = 0;
+
+  // Add leading whitespace...
+  if (*needspace < t->style->margin[HD_POS_TOP])
+    *needspace = t->style->margin[HD_POS_TOP];
+
+  if (*y < margins->top() && *needspace)
+    *y -= *needspace;
+
+  margins->clear(*y, *page);
+  margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
 
  /*
   * Figure out the # of rows, columns, and the desired widths...
@@ -5909,8 +5925,8 @@ parse_table(hdTree   *t,		// I - Tree to parse
         * Show caption at top...
 	*/
 
+        *needspace = 0;
         parse_paragraph(temprow, margins, x, y, page, needspace);
-        needspace = 1;
       }
       else
       {
@@ -7164,19 +7180,23 @@ parse_table(hdTree   *t,		// I - Tree to parse
   margins->adjust_bottom(cellpadding);
   margins->adjust_top(-cellpadding);
 
-  *x = margins->left();
-
-  margins->clear(*y, *page);
-
   if (caption)
   {
    /*
     * Show caption at bottom...
     */
 
+    *needspace = 0;
     parse_paragraph(caption, margins, x, y, page, needspace);
-    needspace = 1;
   }
+
+  margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
+
+  margins->clear(*y, *page);
+
+  *x = margins->left();
+  *needspace = t->style->margin[HD_POS_BOTTOM];
 
  /*
   * Free memory for the table...
@@ -7209,7 +7229,7 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
            float    *x,			/* IO - X position */
            float    *y,			/* IO - Y position */
            int      *page,		/* IO - Page # */
-           int      needspace)		/* I - Need whitespace? */
+           float    *needspace)		/* I - Need whitespace? */
 {
   hdChar	number[255];		/* List number (for numbered types) */
   hdChar	*value;			/* VALUE= variable */
@@ -7225,10 +7245,14 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
                 t, margins->left(), margins->right(), margins->bottom(),
 		margins->top(), *x, *y, *page));
 
-  if (needspace && *y < margins->top())
+  // Add leading whitespace...
+  if (*needspace < t->style->margin[HD_POS_TOP])
+    *needspace = t->style->margin[HD_POS_TOP];
+
+  if (*y < margins->top() && *needspace)
   {
-    *y        -= t->style->line_height;
-    needspace = 0;
+    *y -= *needspace;
+    *needspace = 0;
   }
 
   margins->clear(*y, *page);
@@ -7240,7 +7264,7 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
   r       = pages[*page].end;
   tempx   = *x;
 
-  parse_doc(t->child, margins, &tempx, y, page, NULL, &needspace);
+  parse_doc(t->child, margins, &tempx, y, page, NULL, needspace);
 
   // Handle when paragraph wrapped to new page...
   if (*page != oldpage)
@@ -7253,7 +7277,7 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
       oldy    = margins->top();
     }
   }
-    
+
   if ((value = htmlGetAttr(t, "VALUE")) != NULL)
   {
     if (isdigit(value[0]))
@@ -7367,7 +7391,7 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
               float    *y,		/* IO - Y position */
               int      *page,		/* IO - Page # */
 	      hdTree   *para,		/* I - Current paragraph */
-	      int      needspace)	/* I - Need whitespace? */
+	      float    *needspace)	/* I - Need whitespace? */
 {
   int		i;			/* Looping var */
   const char	*comment;		/* Comment text */
@@ -7379,9 +7403,9 @@ parse_comment(hdTree   *t,		/* I - Tree to parse */
 		top;			// Top margin
 
 
-  DEBUG_printf(("parse_comment(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, para=%p, needspace=%d\n",
+  DEBUG_printf(("parse_comment(t=%p, margins=(%.1f, %.1f, %.1f, %.1f), x=%.1f, y=%.1f, page=%d, para=%p, needspace=%g\n",
                 t, margins->left(), margins->right(), margins->bottom(),
-		margins->top(), *x, *y, *page, para, needspace));
+		margins->top(), *x, *y, *page, para, *needspace));
 
   if (t->data == NULL)
     return;
