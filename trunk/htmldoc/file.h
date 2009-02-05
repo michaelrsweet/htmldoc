@@ -40,6 +40,15 @@ extern "C"
 
 
 //
+// Windows isn't POSIX...
+//
+
+#  ifdef WIN32
+typedef long ssize_t;
+#  endif // WIN32
+
+
+//
 // Types, structures, and classes...
 //
 
