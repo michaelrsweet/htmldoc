@@ -58,11 +58,11 @@
  */
 
 #define access		_access
-#define close		_close
+//#define close		_close
 #define fdopen		_fdopen
-#define getcwd		_getcwd
-#define open		_open
-#define read	        _read
+//#define getcwd		_getcwd
+//#define open		_open
+//#define read	        _read
 #define setmode		_setmode
 #define snprintf 	_snprintf
 #define strdup		_strdup
@@ -71,7 +71,7 @@
 #define timezone	_timezone
 #define unlink		_unlink
 #define vsnprintf 	_vsnprintf
-#define write		_write
+//#define write		_write
 
 
 /*
