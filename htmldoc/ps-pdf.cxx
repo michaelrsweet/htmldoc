@@ -690,11 +690,13 @@ pspdf_export(hdTree *document,		/* I - Document to export */
   float adjust, image_adjust, temp_adjust;
 
   hdStyle *header_style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
-  if (header_style->font_size == HD_FONT_SIZE_INHERIT)
+  if (header_style->font_size_rel &&
+      !strcmp(header_style->font_size_rel, "inherit"))
     header_style->inherit(&(_htmlStyleSheet->def_style));
 
   hdStyle *footer_style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_FOOTER");
-  if (footer_style->font_size == HD_FONT_SIZE_INHERIT)
+  if (footer_style->font_size_rel &&
+      !strcmp(footer_style->font_size_rel, "inherit"))
     footer_style->inherit(&(_htmlStyleSheet->def_style));
 
   if (header_style->font_size > footer_style->font_size)
@@ -1507,7 +1509,8 @@ pspdf_prepare_heading(int    page,	// I - Page number
   else
     style = _htmlStyleSheet->get_style(HD_ELEMENT_P, "HD_HEADER");
 
-  if (style->font_size == HD_FONT_SIZE_INHERIT)
+  if (style->font_size_rel &&
+      !strcmp(style->font_size_rel, "inherit"))
     style->inherit(&(_htmlStyleSheet->def_style));
 
   for (pos = 0; pos < 3; pos ++, format += dir)
@@ -6418,9 +6421,11 @@ parse_table(hdTree   *t,		// I - Tree to parse
                 width, t->style->margin[HD_POS_LEFT],
 		t->style->margin[HD_POS_RIGHT]));
 
-  if (t->style->margin[HD_POS_LEFT] != HD_MARGIN_AUTO)
+  if (!t->style->margin_rel[HD_POS_LEFT] ||
+      strcmp(t->style->margin_rel[HD_POS_LEFT], "auto"))
     *x = margins->left() + cellpadding;
-  else if (t->style->margin[HD_POS_RIGHT] != HD_MARGIN_AUTO)
+  else if (!t->style->margin_rel[HD_POS_RIGHT] ||
+	   strcmp(t->style->margin_rel[HD_POS_RIGHT], "auto"))
     *x = margins->right() - width + cellpadding;
   else
     *x = margins->left() + 0.5f * (margins->width() - width) + cellpadding;

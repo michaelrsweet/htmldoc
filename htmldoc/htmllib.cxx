@@ -2712,9 +2712,9 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
   // the "auto" value...
   if (center)
   {
-    t->style->margin[HD_POS_LEFT] = HD_MARGIN_AUTO;
+    t->style->margin[HD_POS_LEFT] = 0.0f;
     t->style->set_string("auto", t->style->margin_rel[HD_POS_LEFT]);
-    t->style->margin[HD_POS_RIGHT] = HD_MARGIN_AUTO;
+    t->style->margin[HD_POS_RIGHT] = 0.0f;
     t->style->set_string("auto", t->style->margin_rel[HD_POS_RIGHT]);
   }
 
