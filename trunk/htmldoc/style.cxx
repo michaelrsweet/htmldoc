@@ -390,7 +390,7 @@ hdStyle::get_border_width(
   else if (!strcasecmp(value, "thick"))
     return (3.0f * 72.0f / css->ppi);
   else if (!strcasecmp(value, "inherit"))
-    return (HD_BORDER_WIDTH_INHERIT);
+    return (0.0f);
   else
     return (get_length(value, css->ppi, 72.0f / css->ppi, css));
 }
@@ -600,10 +600,13 @@ hdStyle::get_length(
     *relative = false;
 
   // Check early for "auto" and "inherit" values...
-  if (!strcasecmp(length, "auto"))
-    return (HD_WIDTH_AUTO);
-  else if (!strcasecmp(length, "inherit"))
-    return (HD_WIDTH_INHERIT);
+  if (!strcasecmp(length, "auto") || !strcasecmp(length, "inherit"))
+  {
+    if (relative)
+      *relative = true;
+
+    return (0.0f);
+  }
 
   // Get the floating point value of "length" and skip to the units portion...
   val = (float)strtod(length, &units);
@@ -861,7 +864,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
     if (p->border[i].style != HD_BORDER_STYLE_INHERIT)
       border[i].style = p->border[i].style;
 
-    if (p->border[i].width != HD_BORDER_WIDTH_INHERIT)
+    if (!p->border[i].width_rel || strcmp(p->border[i].width_rel, "inherit"))
     {
       set_string(NULL, border[i].width_rel);
       border[i].width = p->border[i].width;
@@ -891,7 +894,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
   if (p->font_family)
     set_string(p->font_family, font_family);
 
-  if (p->font_size != HD_FONT_SIZE_INHERIT)
+  if (!p->font_size_rel || strcmp(p->font_size_rel, "inherit"))
   {
     set_string(NULL, font_size_rel);
     font_size = p->font_size;
@@ -906,7 +909,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
   if (p->font_weight != HD_FONT_WEIGHT_INHERIT)
     font_weight = p->font_weight;
 
-  if (p->height != HD_HEIGHT_INHERIT)
+  if (!p->height_rel || strcmp(p->height_rel, "inherit"))
   {
     set_string(NULL, height_rel);
     height = p->height;
@@ -915,7 +918,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
   if (p->letter_spacing != HD_LETTER_SPACING_INHERIT)
     letter_spacing = p->letter_spacing;
 
-  if (p->line_height != HD_LINE_HEIGHT_INHERIT)
+  if (!p->line_height_rel || strcmp(p->line_height_rel, "inherit"))
   {
     set_string(NULL, line_height_rel);
     line_height = p->line_height;
@@ -931,7 +934,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
     list_style_type = p->list_style_type;
 
   for (i = 0; i < 4; i ++)
-    if (p->margin[i] != HD_MARGIN_INHERIT)
+    if (!p->margin_rel[i] || strcmp(p->margin_rel[i], "inherit"))
     {
       set_string(NULL, margin_rel[i]);
       margin[i] = p->margin[i];
@@ -941,7 +944,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
     orphans = p->orphans;
 
   for (i = 0; i < 4; i ++)
-    if (p->padding[i] != HD_PADDING_INHERIT)
+    if (!p->padding_rel[i] || strcmp(p->padding_rel[i], "inherit"))
     {
       set_string(NULL, padding_rel[i]);
       padding[i] = p->padding[i];
@@ -962,7 +965,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
   if (p->text_decoration != HD_TEXT_DECORATION_INHERIT)
     text_decoration = p->text_decoration;
 
-  if (p->text_indent != HD_TEXT_INDENT_INHERIT)
+  if (!p->text_indent_rel || strcmp(p->text_indent_rel, "inherit"))
   {
     set_string(NULL, text_indent_rel);
     text_indent = p->text_indent;
@@ -983,7 +986,7 @@ hdStyle::inherit(hdStyle *p)		// I - Parent style
   if (p->widows != HD_WIDOWS_INHERIT)
     widows = p->widows;
 
-  if (p->width != HD_WIDTH_INHERIT)
+  if (!p->width_rel || strcmp(p->width_rel, "inherit"))
   {
     set_string(NULL, width_rel);
     width = p->width;
@@ -1038,16 +1041,16 @@ hdStyle::init()
   float_              = HD_FLOAT_NONE;
   font                = NULL;
   font_family         = NULL;
-  font_size           = HD_FONT_SIZE_INHERIT;
-  font_size_rel       = NULL;
+  font_size           = 0.0f;
+  font_size_rel       = strdup("inherit");
   font_style          = HD_FONT_STYLE_INHERIT;
   font_variant        = HD_FONT_VARIANT_INHERIT;
   font_weight         = HD_FONT_WEIGHT_INHERIT;
-  height              = HD_WIDTH_AUTO;
-  height_rel          = NULL;
+  height              = 0.0f;
+  height_rel          = strdup("auto");
   letter_spacing      = HD_LETTER_SPACING_INHERIT;
-  line_height         = HD_LINE_HEIGHT_INHERIT;
-  line_height_rel     = NULL;
+  line_height         = 0.0;
+  line_height_rel     = strdup("inherit");
   list_style_image    = NULL;
   list_style_position = HD_LIST_STYLE_POSITION_INHERIT;
   list_style_type     = HD_LIST_STYLE_TYPE_INHERIT;
@@ -1067,15 +1070,15 @@ hdStyle::init()
 
   text_align      = HD_TEXT_ALIGN_INHERIT;
   text_decoration = HD_TEXT_DECORATION_NONE;
-  text_indent     = HD_TEXT_INDENT_INHERIT;
-  text_indent_rel = NULL;
+  text_indent     = 0.0f;
+  text_indent_rel = strdup("inherit");
   text_transform  = HD_TEXT_TRANSFORM_INHERIT;
   unicode_bidi    = HD_UNICODE_BIDI_NORMAL;
   vertical_align  = HD_VERTICAL_ALIGN_BASELINE;
   white_space     = HD_WHITE_SPACE_NORMAL;
   widows          = HD_WIDOWS_INHERIT;
-  width           = HD_WIDTH_AUTO;
-  width_rel       = NULL;
+  width           = 0.0f;
+  width_rel       = strdup("auto");
   word_spacing    = 0.0f;
 }
 
@@ -1608,7 +1611,8 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	{
 	  border[pos].color_set = HD_COLOR_INHERIT;
 	  border[pos].style     = HD_BORDER_STYLE_INHERIT;
-	  border[pos].width     = HD_BORDER_WIDTH_INHERIT;
+	  border[pos].width     = 0.0f;
+	  border[pos].width_rel = strdup("inherit");
 	}
 	else
 	{
@@ -1785,7 +1789,8 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	{
 	  border[pos].color_set = HD_COLOR_INHERIT;
 	  border[pos].style     = HD_BORDER_STYLE_INHERIT;
-	  border[pos].width     = HD_BORDER_WIDTH_INHERIT;
+	  border[pos].width     = 0.0f;
+	  border[pos].width_rel = strdup("inherit");
 	}
 	else
 	{
@@ -2845,8 +2850,10 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
     hdStyle	*body_style;		// BODY element style
 
 
-    if (selectors[0].element == HD_ELEMENT_BODY ||
-        (body_style = css->find_style(HD_ELEMENT_BODY)) == NULL)
+    if (!strcmp(font_size_rel, "inherit"))
+      font_size = css->def_style.font_size;
+    else if (selectors[0].element == HD_ELEMENT_BODY ||
+             (body_style = css->find_style(HD_ELEMENT_BODY)) == NULL)
       font_size = get_length(font_size_rel, css->def_style.font_size,
                              css->def_style.font_size, css);
     else
@@ -2858,8 +2865,6 @@ hdStyle::update(hdStyleSheet *css)	// I - Stylesheet
                              body_style->font_size, css);
     }
   }
-  else if (font_size == HD_FONT_SIZE_INHERIT)
-    font_size = css->def_style.font_size;
 
   font = css->find_font(this);
 

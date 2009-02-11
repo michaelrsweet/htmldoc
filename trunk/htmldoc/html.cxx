@@ -731,9 +731,7 @@ write_css(hdFile       *out,		// I - Output file
 
     if (style->background_color_set != HD_COLOR_INHERIT ||
 	style->background_image ||
-	style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT ||
-	style->background_position[0] != HD_WIDTH_AUTO ||
-	style->background_position[1] != HD_WIDTH_AUTO)
+	style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT)
     {
       out->printf("  background:");
 
@@ -752,8 +750,6 @@ write_css(hdFile       *out,		// I - Output file
       for (j = 0; j < 2; j ++)
 	if (style->background_position_rel[j])
 	  out->printf(" %s", style->background_position_rel[j]);
-	else if (style->background_position[j] == HD_WIDTH_AUTO)
-	  out->printf(" auto");
 	else
 	  out->printf(" %g", style->background_position[j]);
 
@@ -762,8 +758,7 @@ write_css(hdFile       *out,		// I - Output file
 
     for (j = 0; j < 4; j ++)
       if (style->border[j].color_set ||
-	  style->border[j].style != HD_BORDER_STYLE_NONE ||
-	  style->border[j].width != HD_WIDTH_AUTO)
+	  style->border[j].style != HD_BORDER_STYLE_NONE)
       {
 	out->printf("  border-%s:", pos[j]);
 
@@ -775,10 +770,7 @@ write_css(hdFile       *out,		// I - Output file
 
 	out->printf(" %s", border_style[style->border[j].style]);
 
-	if (style->border[j].width != HD_WIDTH_AUTO)
-	  out->printf(" %g\n", style->border[j].width);
-	else
-	  out->put('\n');
+	out->printf(" %g\n", style->border[j].width);
       }
 
     if (style->selectors[0].element == HD_ELEMENT_TABLE)
@@ -802,7 +794,7 @@ write_css(hdFile       *out,		// I - Output file
 
     if (style->font_size_rel)
       out->printf("  font-size: %s\n", style->font_size_rel);
-    else if (style->font_size != HD_FONT_SIZE_INHERIT)
+    else
       out->printf("  font-size: %g\n", style->font_size);
 
     if (style->font_style)
@@ -817,7 +809,7 @@ write_css(hdFile       *out,		// I - Output file
     if (style->line_height_rel)
       out->printf("  line-height: %s (%g)\n", style->line_height_rel,
 	          style->line_height);
-    else if (style->line_height != HD_LINE_HEIGHT_INHERIT)
+    else
       out->printf("  line-height: %g\n", style->line_height);
 
     if (style->list_style_position != HD_LIST_STYLE_POSITION_INHERIT)
@@ -829,26 +821,24 @@ write_css(hdFile       *out,		// I - Output file
 	          list_style_type[style->list_style_type]);
 
     for (j = 0; j < 4; j ++)
-      if (style->margin[j] != HD_WIDTH_AUTO || style->margin_rel[j])
-      {
-	out->printf("  margin-%s:", pos[j]);
+    {
+      out->printf("  margin-%s:", pos[j]);
 
-	if (style->margin_rel[j])
-	  out->printf(" %s\n", style->margin_rel[j]);
-	else
-	  out->printf(" %g\n", style->margin[j]);
-      }
+      if (style->margin_rel[j])
+	out->printf(" %s\n", style->margin_rel[j]);
+      else
+	out->printf(" %g\n", style->margin[j]);
+    }
 
     for (j = 0; j < 4; j ++)
-      if (style->padding[j] != HD_WIDTH_AUTO || style->padding_rel[j])
-      {
-	out->printf("  padding-%s:", pos[j]);
+    {
+      out->printf("  padding-%s:", pos[j]);
 
-	if (style->padding_rel[j])
-	  out->printf(" %s\n", style->padding_rel[j]);
-	else
-	  out->printf(" %g\n", style->padding[j]);
-      }
+      if (style->padding_rel[j])
+	out->printf(" %s\n", style->padding_rel[j]);
+      else
+	out->printf(" %g\n", style->padding[j]);
+    }
 
     if (style->page_break_after)
       out->printf("  page-break-after: %s\n",

@@ -156,23 +156,10 @@ enum hdElement
 // Stylesheet attribute values...
 //
 
-// "Auto" values
-#define HD_HEIGHT_AUTO			-65536.0f
-#define HD_MARGIN_AUTO			-65536.0f
-#define HD_WIDTH_AUTO			-65536.0f
-
 // "Inherit" values
-#define HD_BORDER_WIDTH_INHERIT		65536.0f
-#define HD_FONT_SIZE_INHERIT		65536.0f
-#define HD_HEIGHT_INHERIT		65536.0f
 #define HD_LETTER_SPACING_INHERIT	65536.0f
-#define HD_LINE_HEIGHT_INHERIT		65536.0f
-#define HD_MARGIN_INHERIT		65536.0f
 #define HD_ORPHANS_INHERIT		65536
-#define HD_PADDING_INHERIT		65536.0f
-#define HD_TEXT_INDENT_INHERIT		65536.0f
 #define HD_WIDOWS_INHERIT		65536
-#define HD_WIDTH_INHERIT		65536.0f
 #define HD_WORD_SPACING_INHERIT		65536.0f
 
 // Indices for individual margins, padding, etc.
@@ -819,10 +806,7 @@ struct hdStyle
   */
   float		get_border(int p)
 		{
-		  if (border[p].width == HD_WIDTH_AUTO)
-		    return (0.0f);
-		  else
-		    return (border[p].width);
+		  return (border[p].width);
 		}
 
  /**
@@ -912,10 +896,7 @@ struct hdStyle
   */
   float		get_margin(int p)
 		{
-		  if (margin[p] == HD_WIDTH_AUTO)
-		    return (0.0f);
-		  else
-		    return (margin[p]);
+		  return (margin[p]);
 		}
 
  /**
@@ -928,10 +909,7 @@ struct hdStyle
   */
   float		get_padding(int p)
 		{
-		  if (padding[p] == HD_WIDTH_AUTO)
-		    return (0.0f);
-		  else
-		    return (padding[p]);
+		  return (padding[p]);
 		}
 
  /**

@@ -187,9 +187,7 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
 
   if (style->background_color_set != HD_COLOR_INHERIT ||
       style->background_image ||
-      style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT ||
-      style->background_position[0] != HD_WIDTH_AUTO ||
-      style->background_position[1] != HD_WIDTH_AUTO)
+      style->background_repeat != HD_BACKGROUND_REPEAT_INHERIT)
   {
     printf("  background:");
 
@@ -197,7 +195,7 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
       fputs(" transparent", stdout);
     else if (style->background_color_set == HD_COLOR_SET)
       printf(" rgb(%d,%d,%d)", style->background_color[0],
-             style->background_color[1], style->background_color[2]);
+		  style->background_color[1], style->background_color[2]);
 
     if (style->background_image)
       printf("  url(%s)", style->background_image);
@@ -207,35 +205,28 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
 
     for (i = 0; i < 2; i ++)
       if (style->background_position_rel[i])
-        printf(" %s (%.1f)", style->background_position_rel[i],
-	       style->background_position[i]);
-      else if (style->background_position[i] == HD_WIDTH_AUTO)
-        printf(" auto");
+	printf(" %s", style->background_position_rel[i]);
       else
-        printf(" %.1f", style->background_position[i]);
+	printf(" %g", style->background_position[i]);
 
     putchar('\n');
   }
 
   for (i = 0; i < 4; i ++)
     if (style->border[i].color_set ||
-        style->border[i].style != HD_BORDER_STYLE_NONE ||
-        style->border[i].width != HD_WIDTH_AUTO)
+	style->border[i].style != HD_BORDER_STYLE_NONE)
     {
       printf("  border-%s:", pos[i]);
 
       if (style->border[i].color_set == HD_COLOR_TRANSPARENT)
-        fputs(" transparent", stdout);
+	fputs(" transparent", stdout);
       else if (style->border[i].color_set == HD_COLOR_SET)
 	printf(" rgb(%d,%d,%d)", style->border[i].color[0],
-	       style->border[i].color[1], style->border[i].color[2]);
+		    style->border[i].color[1], style->border[i].color[2]);
 
       printf(" %s", border_style[style->border[i].style]);
 
-      if (style->border[i].width != HD_WIDTH_AUTO)
-        printf(" %.1f\n", style->border[i].width);
-      else
-        putchar('\n');
+      printf(" %g\n", style->border[i].width);
     }
 
   if (style->selectors[0].element == HD_ELEMENT_TABLE)
@@ -258,10 +249,9 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
     printf("  font-family: %s\n", style->font_family);
 
   if (style->font_size_rel)
-    printf("  font-size: %s (%.1f)\n", style->font_size_rel,
-           style->font_size);
-  else if (style->font_size != HD_FONT_SIZE_INHERIT)
-    printf("  font-size: %.1f\n", style->font_size);
+    printf("  font-size: %s\n", style->font_size_rel);
+  else
+    printf("  font-size: %g\n", style->font_size);
 
   if (style->font_style)
     printf("  font-style: %s\n", font_style[style->font_style]);
@@ -273,61 +263,65 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
     printf("  font-weight: %s\n", font_weight[style->font_weight]);
 
   if (style->line_height_rel)
-    printf("  line-height: %s (%.1f)\n", style->line_height_rel,
-           style->line_height);
-  else if (style->line_height != HD_LINE_HEIGHT_INHERIT)
-    printf("  line-height: %.1f\n", style->line_height);
+    printf("  line-height: %s (%g)\n", style->line_height_rel,
+		style->line_height);
+  else
+    printf("  line-height: %g\n", style->line_height);
 
   if (style->list_style_position != HD_LIST_STYLE_POSITION_INHERIT)
     printf("  list-style-position: %s\n",
-           list_style_position[style->list_style_position]);
+		list_style_position[style->list_style_position]);
 
   if (style->list_style_type != HD_LIST_STYLE_TYPE_INHERIT)
     printf("  list-style-type: %s\n",
-           list_style_type[style->list_style_type]);
+		list_style_type[style->list_style_type]);
 
   for (i = 0; i < 4; i ++)
-    if (style->margin[i] != HD_WIDTH_AUTO || style->margin_rel[i])
-    {
-      printf("  margin-%s:", pos[i]);
+  {
+    printf("  margin-%s:", pos[i]);
 
-      if (style->margin_rel[i])
-	printf(" %s (%.1f)\n", style->margin_rel[i], style->margin[i]);
-      else
-        printf(" %.1f\n", style->margin[i]);
-    }
+    if (style->margin_rel[i])
+      printf(" %s\n", style->margin_rel[i]);
+    else
+      printf(" %g\n", style->margin[i]);
+  }
 
   for (i = 0; i < 4; i ++)
-    if (style->padding[i] != HD_WIDTH_AUTO || style->padding_rel[i])
-    {
-      printf("  padding-%s:", pos[i]);
+  {
+    printf("  padding-%s:", pos[i]);
 
-      if (style->padding_rel[i])
-	printf(" %s (%.1f)\n", style->padding_rel[i], style->padding[i]);
-      else
-        printf(" %.1f\n", style->padding[i]);
-    }
+    if (style->padding_rel[i])
+      printf(" %s\n", style->padding_rel[i]);
+    else
+      printf(" %g\n", style->padding[i]);
+  }
 
   if (style->page_break_after)
-    printf("  page-break-after: %s\n", page_break[style->page_break_after]);
+    printf("  page-break-after: %s\n",
+		page_break[style->page_break_after]);
 
   if (style->page_break_before)
-    printf("  page-break-before: %s\n", page_break[style->page_break_before]);
+    printf("  page-break-before: %s\n",
+		page_break[style->page_break_before]);
 
   if (style->page_break_inside)
-    printf("  page-break-inside: %s\n", page_break[style->page_break_inside]);
+    printf("  page-break-inside: %s\n",
+		page_break[style->page_break_inside]);
 
   if (style->text_align != HD_TEXT_ALIGN_INHERIT)
     printf("  text-align: %s\n", text_align[style->text_align]);
 
   if (style->text_decoration != HD_TEXT_DECORATION_INHERIT)
-    printf("  text-decoration: %s\n", text_decoration[style->text_decoration]);
+    printf("  text-decoration: %s\n",
+		text_decoration[style->text_decoration]);
 
   if (style->text_transform != HD_TEXT_TRANSFORM_INHERIT)
-    printf("  text-transform: %s\n", text_transform[style->text_transform]);
+    printf("  text-transform: %s\n",
+		text_transform[style->text_transform]);
 
   if (style->vertical_align != HD_VERTICAL_ALIGN_INHERIT)
-    printf("  vertical-align: %s\n", vertical_align[style->vertical_align]);
+    printf("  vertical-align: %s\n",
+		vertical_align[style->vertical_align]);
 
   if (style->white_space != HD_WHITE_SPACE_INHERIT)
     printf("  white-space: %s\n", white_space[style->white_space]);
