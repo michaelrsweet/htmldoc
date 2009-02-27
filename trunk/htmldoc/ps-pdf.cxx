@@ -83,13 +83,13 @@ extern "C" {		/* Workaround for JPEG header problems... */
 
 struct hdRender				/**** Render entity structure ****/
 {
-  struct hdRender	*prev;		/* Previous rendering entity */
-  struct hdRender	*next;		/* Next rendering entity */
-  int	type;				/* Type of entity */
-  float	x,				/* Position in points */
-	y,				/* ... */
-	width,				/* Size in points */
-	height;				/* ... */
+  struct hdRender *prev;		/* Previous rendering entity */
+  struct hdRender *next;		/* Next rendering entity */
+  int		type;			/* Type of entity */
+  float		x,			/* Position in points */
+		y,			/* ... */
+		width,			/* Size in points */
+		height;			/* ... */
   union
   {
     struct
@@ -105,7 +105,7 @@ struct hdRender				/**** Render entity structure ****/
     float	box[3];			/* Box color */
     hdChar	link[1];		/* Link URL */
     hdStyle	*bg;			/* Background style */
-  }	data;
+  }		data;
 };
 
 struct hdRenderLink			/**** Named link position structure */
@@ -3970,7 +3970,15 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
   DEBUG_printf(("    title_page = %d, chapter = %d\n", title_page, chapter));
 
   if (cpara == NULL)
+  {
     para = htmlNewTree(NULL, HD_ELEMENT_P, NULL);
+    htmlUpdateStyle(para, NULL);
+
+//    printf("paragraph style: margin-top=%g(%s), margin-bottom=%g(%s)\n",
+//           para->style->margin[HD_POS_TOP], para->style->margin_rel[HD_POS_TOP],
+//	   para->style->margin[HD_POS_BOTTOM],
+//	   para->style->margin_rel[HD_POS_BOTTOM]);
+  }
   else
     para = cpara;
 
@@ -3990,7 +3998,8 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
 
 #if 0
       if ((chapter > 0 && OutputType == HD_OUTPUT_BOOK) ||
-          ((*page > 1 || *y < margins->top()) && OutputType == HD_OUTPUT_WEBPAGES))
+          ((*page > 1 || *y < margins->top()) &&
+	   OutputType == HD_OUTPUT_WEBPAGES))
 #endif //0
       if (*page > 1 || *y < margins->top())
       {
@@ -4078,7 +4087,8 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
     }
 
     // Check for some basic stylesheet stuff...
-    if (t->style->page_break_before != HD_PAGE_BREAK_AVOID &&
+    if (t->style &&
+        t->style->page_break_before != HD_PAGE_BREAK_AVOID &&
         t->style->page_break_before != HD_PAGE_BREAK_AUTO)
     {
       // Advance to the next page...
@@ -4222,13 +4232,6 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
           }
 
           parse_doc(t->child, margins, x, y, page, NULL, needspace);
-
-          if (para->child != NULL)
-          {
-            parse_paragraph(para, margins, x, y, page, needspace);
-            htmlDeleteTree(para->child);
-            para->child = para->last_child = NULL;
-          }
           break;
 
       case HD_ELEMENT_PRE :
@@ -4667,11 +4670,11 @@ parse_paragraph(hdTree   *t,		/* I  - Tree to parse */
   if (*needspace < t->style->margin[HD_POS_TOP])
     *needspace = t->style->margin[HD_POS_TOP];
 
-  printf("%s.needspace=%g, font-size=%g(%s), margin-top=%g(%s), margin-bottom=%g(%s)\n",
-         _htmlStyleSheet->get_element(t->element), *needspace,
-	 t->style->font_size, t->style->font_size_rel,
-	 t->style->margin[HD_POS_TOP], t->style->margin_rel[HD_POS_TOP],
-	 t->style->margin[HD_POS_BOTTOM], t->style->margin_rel[HD_POS_BOTTOM]);
+//  printf("%s.needspace=%g, font-size=%g(%s), margin-top=%g(%s), margin-bottom=%g(%s)\n",
+//         _htmlStyleSheet->get_element(t->element), *needspace,
+//	 t->style->font_size, t->style->font_size_rel,
+//	 t->style->margin[HD_POS_TOP], t->style->margin_rel[HD_POS_TOP],
+//	 t->style->margin[HD_POS_BOTTOM], t->style->margin_rel[HD_POS_BOTTOM]);
 
   if (*y < margins->top() && *needspace)
     *y -= *needspace;

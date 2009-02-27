@@ -1163,7 +1163,7 @@ htmlNewTree(hdTree    *parent,		/// I - Parent entry
   }
 
   if (!t->style)
-    t->style = _htmlStyleSheet->find_style(HD_ELEMENT_BODY);
+    t->style = _htmlStyleSheet->get_style(element);
 
   // Set the element code and copy the data if necessary...
   t->element = element;
@@ -2584,8 +2584,8 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
 		*bgcolor,
 		*border,
 		*bordercolor,
-		*cellpadding,
-		*cellspacing,
+//		*cellpadding,
+//		*cellspacing,
 		*color,
 		*face,
 		*hspace,
@@ -2606,8 +2606,8 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
     bgcolor     = htmlGetAttr(t, "BGCOLOR");
     border      = htmlGetAttr(t, "BORDER");
     bordercolor = NULL;
-    cellpadding = NULL;
-    cellspacing = NULL;
+//    cellpadding = NULL;
+//    cellspacing = NULL;
     color       = htmlGetAttr(t, "TEXT");
     face        = NULL;
     hspace      = NULL;
@@ -2622,8 +2622,8 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
     bgcolor     = NULL;
     border      = NULL;
     bordercolor = NULL;
-    cellpadding = NULL;
-    cellspacing = NULL;
+//    cellpadding = NULL;
+//    cellspacing = NULL;
     color       = NULL;
     face        = NULL;
     hspace      = NULL;
@@ -2638,8 +2638,8 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
     bgcolor     = NULL;
     border      = htmlGetAttr(t, "BORDER");
     bordercolor = NULL;
-    cellpadding = NULL;
-    cellspacing = NULL;
+//    cellpadding = NULL;
+//    cellspacing = NULL;
     color       = NULL;
     face        = NULL;
     size        = NULL;
@@ -2655,8 +2655,8 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
     bgcolor     = htmlGetAttr(t, "BGCOLOR");
     border      = htmlGetAttr(t, "BORDER");
     bordercolor = NULL;
-    cellpadding = htmlGetAttr(t, "CELLPADDING");
-    cellspacing = htmlGetAttr(t, "CELLSPACING");
+//    cellpadding = htmlGetAttr(t, "CELLPADDING");
+//    cellspacing = htmlGetAttr(t, "CELLSPACING");
     color       = NULL;
     face        = NULL;
     hspace      = NULL;
@@ -2671,8 +2671,8 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
     bgcolor     = NULL;
     border      = NULL;
     bordercolor = NULL;
-    cellpadding = NULL;
-    cellspacing = NULL;
+//    cellpadding = NULL;
+//    cellspacing = NULL;
     color       = htmlGetAttr(t, "COLOR");
     face        = htmlGetAttr(t, "FACE");
     hspace      = NULL;
@@ -2687,8 +2687,8 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
     bgcolor     = NULL;
     border      = NULL;
     bordercolor = NULL;
-    cellpadding = NULL;
-    cellspacing = NULL;
+//    cellpadding = NULL;
+//    cellspacing = NULL;
     color       = NULL;
     face        = NULL;
     hspace      = NULL;
@@ -2704,9 +2704,9 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
   t->style = _htmlStyleSheet->get_private_style(t,
                  center || align != NULL || background != NULL ||
 		 bgcolor != NULL || border != NULL || bordercolor != NULL ||
-		 cellpadding != NULL || cellspacing != NULL || color != NULL ||
-		 face != NULL || hspace != NULL || size != NULL ||
-		 valign != NULL || vspace != NULL);
+//		 cellpadding != NULL || cellspacing != NULL ||
+		 color != NULL || face != NULL || hspace != NULL ||
+		 size != NULL || valign != NULL || vspace != NULL);
 
   // Special case: TABLEs inherit ALIGN="CENTER" as left/right margins with
   // the "auto" value...
@@ -2774,6 +2774,7 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
                           &(t->style->border[pos].color_set));
   }
 
+#if 0
   if (cellpadding)
   {
     val = t->style->get_length((char *)cellpadding, 1,
@@ -2797,6 +2798,7 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
       t->style->margin[pos] = val;
     }
   }
+#endif // 0
 
   if (color)
     t->style->get_color((char *)color, t->style->color,
@@ -2850,6 +2852,7 @@ htmlUpdateStyle(hdTree     *t,		// I - Node to update
     t->style->margin[HD_POS_BOTTOM] = val;
   }
 
+  t->style->updated = false;
   t->style->update(_htmlStyleSheet);
 
   if (debug_file)

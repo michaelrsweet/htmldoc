@@ -70,6 +70,8 @@ hdStdFile::hdStdFile(const char *name,	// I - Name of file to open
 
   if (!fp_)
     error(errno);
+  else if (m != HD_FILE_READ)
+    setbuf(fp_, NULL);
 }
 
 

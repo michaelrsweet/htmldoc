@@ -713,7 +713,10 @@ write_css(hdFile       *out,		// I - Output file
 
     for (j = style->num_selectors - 1; j >= 0; j --)
     {
-      out->puts(css->get_element(style->selectors[j].element));
+      const char *element = css->get_element(style->selectors[j].element);
+
+      if (element)
+	out->puts(element);
 
       if (style->selectors[j].class_)
 	out->printf(".%s", style->selectors[j].class_);
