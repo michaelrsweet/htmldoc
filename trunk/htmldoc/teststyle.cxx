@@ -169,7 +169,10 @@ show_style(hdStyleSheet *css,		// I - Stylesheet
 
   for (i = style->num_selectors - 1; i >= 0; i --)
   {
-    fputs(css->get_element(style->selectors[i].element), stdout);
+    if (style->selectors[i].element == HD_ELEMENT_NONE)
+      fputs("HD_ELEMENT_NONE", stdout);
+    else
+      fputs(hdStyleSheet::get_element(style->selectors[i].element), stdout);
 
     if (style->selectors[i].class_)
       printf(".%s", style->selectors[i].class_);

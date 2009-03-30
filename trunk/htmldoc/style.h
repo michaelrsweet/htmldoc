@@ -1252,6 +1252,7 @@ struct hdStyleSheet
   * code for the given entity.
   *
   * @param name const&nbsp;char* The entity name string.
+  * @param ch int The unicode character.
   * @return The character code or 0 if the name is unknown.
   */
   int		get_entity(const char *name, int ch = 0);

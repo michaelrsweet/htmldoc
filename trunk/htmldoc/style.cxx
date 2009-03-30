@@ -137,6 +137,11 @@ hdStyleSelector::set(hdElement  e,	// I - Element
                      const char *p,	// I - Pseudo-selector string
 		     const char *i)	// I - ID string
 {
+#ifdef DEBUG
+  printf("hdStyleSelector::set(e=%s, c=\"%s\", p=\"%s\", i=\"%s\")\n",
+         hdStyleSheet::get_element(e), c, p, i);
+#endif // DEBUG
+
   // Set/allocate the new values...
   element = e;
 
@@ -185,6 +190,21 @@ hdStyle::hdStyle(int             nsels,	// I - Number of selectors
   int	i;				// Looping var
 
 
+#ifdef DEBUG
+  printf("hdStyle(nsels=%d, sels=%p, p=%p)\n", nsels, sels, p);
+  for (i = 0; i < nsels; i ++)
+  {
+    printf("hdStyle: sels[%d]=[%s%s%s%s%s%s%s]\n", i,
+           hdStyleSheet::get_element(sels[i].element),
+	   sels[i].class_ ? "." : "",
+	   sels[i].class_ ? sels[i].class_ : "",
+	   sels[i].id ? "#" : "",
+	   sels[i].id ? sels[i].id : "",
+	   sels[i].pseudo ? ":" : "",
+	   sels[i].pseudo ? sels[i].pseudo : "");
+  }
+#endif // DEBUG
+
   // Initialize everything to defaults...
   init();
 
@@ -194,7 +214,7 @@ hdStyle::hdStyle(int             nsels,	// I - Number of selectors
   selectors     = new hdStyleSelector[nsels];
 
   for (i = 0; i < nsels; i ++, sels ++)
-    selectors->set(sels->element, sels->class_, sels->pseudo, sels->id);
+    selectors[i].set(sels->element, sels->class_, sels->pseudo, sels->id);
 
   // Now copy the parent attributes...
   copy(p);
@@ -2308,7 +2328,8 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	         !strcasecmp(subvalue, "lower-roman") ||
 	         !strcasecmp(subvalue, "upper-roman") ||
 	         !strcasecmp(subvalue, "lower-alpha") ||
-	         !strcasecmp(subvalue, "upper-alpha"))
+	         !strcasecmp(subvalue, "upper-alpha") ||
+	         !strcasecmp(subvalue, "none"))
 	{
 	  list_style_type = get_list_style_type(subvalue);
 	  pos = 1;
@@ -2387,6 +2408,7 @@ hdStyle::load(hdStyleSheet *css,	// I - Stylesheet
 	  !strcasecmp(value, "upper-roman") ||
 	  !strcasecmp(value, "lower-alpha") ||
 	  !strcasecmp(value, "upper-alpha") ||
+	  !strcasecmp(value, "none") ||
 	  !strcasecmp(value, "inherit"))
 	list_style_type = get_list_style_type(value);
       else
