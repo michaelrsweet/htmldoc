@@ -1,3 +1,4 @@
+//#define DEBUG
 //
 // "$Id$"
 //
@@ -186,11 +187,18 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
 
 
 #ifdef DEBUG
-  printf("add_style(%p): %s", s, hdTree::elements[s->selectors[0].element]);
-  if  (s->selectors[0].pseudo)
-    printf(":%s\n", s->selectors[0].pseudo);
-  else
-    putchar('\n');
+  printf("add_style(s=%p)\n", s);
+  for (i = 0; i < s->num_selectors; i ++)
+  {
+    printf("add_style: s->selectors[%d]=[%s%s%s%s%s%s%s]\n", i,
+           get_element(s->selectors[i].element),
+	   s->selectors[i].class_ ? "." : "",
+	   s->selectors[i].class_ ? s->selectors[i].class_ : "",
+	   s->selectors[i].id ? "#" : "",
+	   s->selectors[i].id ? s->selectors[i].id : "",
+	   s->selectors[i].pseudo ? ":" : "",
+	   s->selectors[i].pseudo ? s->selectors[i].pseudo : "");
+  }
 #endif // DEBUG
 
   // Allocate more memory as needed...
@@ -216,8 +224,10 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
   for (i = 0; i < num_styles; i ++)
     if (styles[i] == s)
     {
-      printf("Tried to add style %p(%s) more than once!\n", s,
+#ifdef DEBUG
+      printf("add_style: Tried to add style %p(%s) more than once!\n", s,
              get_element(e));
+#endif // DEBUG
       return;
     }
 
@@ -250,7 +260,7 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
         i = k + 1;
       else
       {
-        // The midpoint is the right index...
+        // The midpoint is the left index...
         i = k;
         break;
       }
@@ -263,7 +273,7 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
 
   // Now do the insert...
 #ifdef DEBUG
-  printf("    inserting at %d, num_styles = %d\n", i, num_styles);
+  printf("add_style: Inserting at %d, num_styles=%d\n", i, num_styles);
 #endif // DEBUG
 
   if (i < num_styles)
@@ -284,7 +294,7 @@ hdStyleSheet::add_style(hdStyle *s)	// I - New style
     max_selectors[e] = s->num_selectors;
 
 #ifdef DEBUG
-  printf("    max_selectors = %d\n", max_selectors[e]);
+  printf("add_style: max_selectors=%d\n", max_selectors[e]);
 #endif // DEBUG
 }
 
@@ -453,11 +463,32 @@ hdStyleSheet::find_style(
   hdElement	e;			// Top-level element
 
 
+#ifdef DEBUG
+  printf("find_style(nsels=%d, sels=%p, exact=%s)\n", nsels, sels,
+         exact ? "true" : "false");
+  for (i = 0; i < nsels; i ++)
+  {
+    printf("find_style: sels[%d]=[%s%s%s%s%s%s%s]\n", i,
+           get_element(sels[i].element),
+	   sels[i].class_ ? "." : "",
+	   sels[i].class_ ? sels[i].class_ : "",
+	   sels[i].id ? "#" : "",
+	   sels[i].id ? sels[i].id : "",
+	   sels[i].pseudo ? ":" : "",
+	   sels[i].pseudo ? sels[i].pseudo : "");
+  }
+#endif // DEBUG
+
   // Check quickly to see if we have any style info for this element...
   e = sels[0].element;
 
   if (elements[e] < 0)
+  {
+#ifdef DEBUG
+    puts("find_style: No styles for this element!");
+#endif // DEBUG
     return ((hdStyle *)0);
+  }
 
   // Now loop through the styles for this element to find the best match...
   for (i = elements[e], best = NULL, best_score = 0;
@@ -531,8 +562,20 @@ hdStyleSheet::find_style(
       printf("find_style: A:%s matched %s:%s...\n", sels[0].pseudo,
              get_element(best->selectors[0].element),
 	     best->selectors[0].pseudo);
+    else
       printf("find_style: A:%s did not match...\n", sels[0].pseudo);
   }
+  else if (best)
+    printf("find_style: Match=[%s%s%s%s%s%s%s]\n",
+	   get_element(best->selectors[0].element),
+	   best->selectors[0].class_ ? "." : "",
+	   best->selectors[0].class_ ? best->selectors[0].class_ : "",
+	   best->selectors[0].id ? "#" : "",
+	   best->selectors[0].id ? best->selectors[0].id : "",
+	   best->selectors[0].pseudo ? ":" : "",
+	   best->selectors[0].pseudo ? best->selectors[0].pseudo : "");
+  else
+    puts("find_style: No match.");
 #endif // DEBUG
 
   // Return the best match...
@@ -761,6 +804,21 @@ hdStyleSheet::get_style(
   hdStyleSelector	parent;		// Parent style
 
 
+#ifdef DEBUG
+  printf("get_style(nsels=%d, sels=%p)\n", nsels, sels);
+  for (int i = 0; i < nsels; i ++)
+  {
+    printf("get_style: sels[%d]=[%s%s%s%s%s%s%s]\n", i,
+           get_element(sels[i].element),
+	   sels[i].class_ ? "." : "",
+	   sels[i].class_ ? sels[i].class_ : "",
+	   sels[i].id ? "#" : "",
+	   sels[i].id ? sels[i].id : "",
+	   sels[i].pseudo ? ":" : "",
+	   sels[i].pseudo ? sels[i].pseudo : "");
+  }
+#endif // DEBUG
+
   if ((style = find_style(nsels, sels, true)) == NULL)
   {
     if (sels->class_ || sels->pseudo || sels->id)
@@ -780,6 +838,10 @@ hdStyleSheet::get_style(
       style = new hdStyle(nsels, sels, NULL);
 
     add_style(style);
+
+#ifdef DEBUG
+    puts("get_style: Added style...");
+#endif // DEBUG
   }
 
   return (style);

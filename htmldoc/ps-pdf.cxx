@@ -7245,7 +7245,8 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
   hdRender	*r;			/* Render primitive */
   int		oldpage;		/* Old page value */
   float		oldy;			/* Old Y value */
-  float		tempx;			/* Temporary X value */
+  float		tempx,			/* Temporary X value */
+		numberx;		/* X position for number */
   hdStyleFont	*font;			/* Font */
 
 
@@ -7253,39 +7254,7 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
                 t, margins->left(), margins->right(), margins->bottom(),
 		margins->top(), *x, *y, *page));
 
-  // Add leading whitespace...
-  if (*needspace < t->style->margin[HD_POS_TOP])
-    *needspace = t->style->margin[HD_POS_TOP];
-
-  if (*y < margins->top() && *needspace)
-  {
-    *y -= *needspace;
-    *needspace = 0;
-  }
-
-  margins->clear(*y, *page);
-
-  check_pages(*page);
-
-  oldy    = *y;
-  oldpage = *page;
-  r       = pages[*page].end;
-  tempx   = *x;
-
-  parse_doc(t->child, margins, &tempx, y, page, NULL, needspace);
-
-  // Handle when paragraph wrapped to new page...
-  if (*page != oldpage)
-  {
-    // First see if anything was added to the old page...
-    if ((r != NULL && r->next == NULL) || pages[oldpage].end == NULL)
-    {
-      // No, put the symbol on the next page...
-      oldpage = *page;
-      oldy    = margins->top();
-    }
-  }
-
+  // Build the prefix string...
   if ((value = htmlGetAttr(t, "VALUE")) != NULL)
   {
     if (isdigit(value[0]))
@@ -7298,6 +7267,11 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
 
   switch (list_types[list_indent])
   {
+    case '\0' :
+        number[0] = '\0';
+        font = t->style->font;
+	break;
+
     case 'a' :
     case 'A' :
     case '1' :
@@ -7318,9 +7292,63 @@ parse_list(hdTree   *t,			/* I - Tree to parse */
 
   width = font->get_width(number) * t->style->font_size;
 
-  r = new_render(oldpage, HD_RENDER_TEXT, margins->left() - width,
-                 oldy - t->style->font_size, width, t->style->font_size,
-		 number);
+  // Add leading whitespace...
+  if (*needspace < t->style->margin[HD_POS_TOP])
+    *needspace = t->style->margin[HD_POS_TOP];
+
+  if (*y < margins->top() && *needspace)
+  {
+    *y -= *needspace;
+    *needspace = 0;
+  }
+
+  margins->clear(*y, *page);
+
+  // Output the list item text...
+  check_pages(*page);
+
+  margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
+
+  if (t->style &&
+      t->style->list_style_position == HD_LIST_STYLE_POSITION_INSIDE)
+  {
+    numberx = margins->left();
+    margins->push(margins->left() + width, margins->right(),
+                  *y - t->style->line_height);
+  }
+  else
+    numberx = margins->left() - width;
+
+  tempx = margins->left();
+
+  oldy    = *y;
+  oldpage = *page;
+  r       = pages[*page].end;
+
+  parse_doc(t->child, margins, &tempx, y, page, NULL, needspace);
+
+  margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
+  *x = margins->left();
+
+  // Handle when paragraph wrapped to new page...
+  if (*page != oldpage)
+  {
+    // First see if anything was added to the old page...
+    if ((r != NULL && r->next == NULL) || pages[oldpage].end == NULL)
+    {
+      // No, put the symbol on the next page...
+      oldpage = *page;
+      oldy    = margins->top();
+    }
+  }
+
+  if (!list_types[list_indent])
+    return;
+
+  r = new_render(oldpage, HD_RENDER_TEXT, numberx, oldy - t->style->font_size,
+                 width, t->style->font_size, number);
   r->data.text.typeface = font->typeface;
   r->data.text.style    = font->style;
   r->data.text.size     = t->style->font_size;
@@ -7347,7 +7375,47 @@ init_list(hdTree *t)			/* I - List entry */
   if (list_indent < (int)(sizeof(list_types) / sizeof(list_types[0])))
     list_indent ++;
 
-  if ((type = htmlGetAttr(t, "TYPE")) != NULL)
+  printf("init_list: t->style=%p\n", t->style);
+
+  if (t->style)
+  {
+    printf("list_style_type=%d\n", t->style->list_style_type);
+    printf("margin[HD_POS_LEFT]=%g\n", t->style->margin[HD_POS_LEFT]);
+    printf("margin_rel[HD_POS_LEFT]=%s\n", t->style->margin_rel[HD_POS_LEFT]);
+
+    switch (t->style->list_style_type)
+    {
+      default :
+      case HD_LIST_STYLE_TYPE_NONE :
+          list_types[list_indent] = '\0';
+          break;
+      case HD_LIST_STYLE_TYPE_DISC :
+          list_types[list_indent] = symbols[0];
+          break;
+      case HD_LIST_STYLE_TYPE_CIRCLE :
+          list_types[list_indent] = symbols[1];
+          break;
+      case HD_LIST_STYLE_TYPE_SQUARE :
+          list_types[list_indent] = symbols[2];
+          break;
+      case HD_LIST_STYLE_TYPE_DECIMAL :
+          list_types[list_indent] = '1';
+          break;
+      case HD_LIST_STYLE_TYPE_LOWER_ROMAN :
+          list_types[list_indent] = 'i';
+          break;
+      case HD_LIST_STYLE_TYPE_UPPER_ROMAN :
+          list_types[list_indent] = 'I';
+          break;
+      case HD_LIST_STYLE_TYPE_LOWER_ALPHA :
+          list_types[list_indent] = 'a';
+          break;
+      case HD_LIST_STYLE_TYPE_UPPER_ALPHA :
+          list_types[list_indent] = 'A';
+          break;
+    }
+  }
+  else if ((type = htmlGetAttr(t, "TYPE")) != NULL)
   {
     if (strlen((char *)type) == 1)
       list_types[list_indent] = type[0];

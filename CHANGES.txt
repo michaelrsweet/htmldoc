@@ -1,15 +1,16 @@
-CHANGES.txt - 2009-01-02
+CHANGES.txt - 2009-03-29
 ------------------------
 
 CHANGES IN HTMLDOC v1.9b1
 
-	- The header and footer margins no longer include the logo
-	  image height if no image is used (STR #174)
-	- The table-of-contents code did not validate the current
-	  heading number (STR #183)
-	- HTMLDOC no longer terminates comments when it sees only
-	  "->" on the end (STR #181)
+	- The list-style-position and list-style-type properties are now
+	  supported (STR #184)
+	- The header and footer margins no longer include the logo image height
+	  if no image is used (STR #174)
+	- The table-of-contents code did not validate the current heading number
+	  (STR #183)
+	- HTMLDOC no longer terminates comments when it sees only "->" on the
+	  end (STR #181)
 	- Fixed handling of percent-encoded URLs (STR #186)
-	- HTMLDOC now provides much better support for
-	  "wrapping" of text around images and new support for
-	  tables via the ALIGN attribute (STR #16)
+	- HTMLDOC now provides much better support for "wrapping" of text around
+	  images and new support for tables via the ALIGN attribute (STR #16)
