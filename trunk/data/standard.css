@@ -217,11 +217,12 @@ ul, dir {
   list-style-type: disc;
 }
 
-ol ul, ul ol, ul ul, ol ol
+/* Disable this style until we fix the lookup... */
+/*ol ul, ul ol, ul ul, ol ol
 {
   margin-top: 0;
   margin-bottom: 0;
-}
+}*/
 
 u, ins
 {
