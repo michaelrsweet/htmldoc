@@ -3703,7 +3703,9 @@ render_contents(hdTree   *t,		/* I - Tree to parse */
       if (chap != t)
       {
         *y += height;
+	margins->adjust_left(-x);
         render_contents(chap, margins, y, page, -1, 0);
+	margins->adjust_left(x);
 	*y -= t->style->line_height;
       }
     }
@@ -4260,6 +4262,7 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
+          t->style->update(_htmlStyleSheet);
           margins->adjust_left(t->style->margin[HD_POS_LEFT]);
 	  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
 
@@ -4285,8 +4288,13 @@ parse_doc(hdTree   *t,			/* I - Tree to parse */
             para->child = para->last_child = NULL;
           }
 
+          margins->adjust_left(t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(-t->style->margin[HD_POS_RIGHT]);
+
           parse_list(t, margins, x, y, page, needspace);
 
+          margins->adjust_left(-t->style->margin[HD_POS_LEFT]);
+	  margins->adjust_right(t->style->margin[HD_POS_RIGHT]);
           *x = margins->left();
           break;
 
@@ -7375,13 +7383,13 @@ init_list(hdTree *t)			/* I - List entry */
   if (list_indent < (int)(sizeof(list_types) / sizeof(list_types[0])))
     list_indent ++;
 
-  printf("init_list: t->style=%p\n", t->style);
+  DEBUG_printf(("init_list: t->style=%p\n", t->style));
 
   if (t->style)
   {
-    printf("list_style_type=%d\n", t->style->list_style_type);
-    printf("margin[HD_POS_LEFT]=%g\n", t->style->margin[HD_POS_LEFT]);
-    printf("margin_rel[HD_POS_LEFT]=%s\n", t->style->margin_rel[HD_POS_LEFT]);
+    DEBUG_printf(("list_style_type=%d\n", t->style->list_style_type));
+    DEBUG_printf(("margin[HD_POS_LEFT]=%g\n", t->style->margin[HD_POS_LEFT]));
+    DEBUG_printf(("margin_rel[HD_POS_LEFT]=%s\n", t->style->margin_rel[HD_POS_LEFT]));
 
     switch (t->style->list_style_type)
     {

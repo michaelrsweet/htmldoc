@@ -94,10 +94,12 @@ hdStyleSheet::get_private_style(
   }
 
 #ifdef DEBUG
-  printf("%s style: %s, font-family=\"%s\", font-weight=%d, font-size=%.1f...\n",
+  printf("%s style: %s, font-family=\"%s\", font-weight=%d, font-size=%.1f, "
+         "margin-left=%s(%g)...\n",
          _htmlStyleSheet->get_element(t->element),
          _htmlStyleSheet->get_element(nstyle->selectors[0].element),
-	 nstyle->font_family, nstyle->font_weight, nstyle->font_size);
+	 nstyle->font_family, nstyle->font_weight, nstyle->font_size,
+	 nstyle->margin_rel[HD_POS_LEFT], nstyle->margin[HD_POS_LEFT]);
 #endif // DEBUG
 
   // Setup a private selector ID for this node...
