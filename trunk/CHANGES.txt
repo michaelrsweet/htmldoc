@@ -1,8 +1,11 @@
-CHANGES.txt - 2009-03-29
+CHANGES.txt - 2009-12-26
 ------------------------
 
 CHANGES IN HTMLDOC v1.9b1
 
+	- Added basic suport for HTML 4 and CSS 1.
+	- Added basic support for UTF-8 encoded text.
+	- Updated the bundled version of the JPEG library to version 7.
 	- The list-style-position and list-style-type properties are now
 	  supported (STR #184)
 	- The header and footer margins no longer include the logo image height
