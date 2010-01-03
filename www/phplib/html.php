@@ -728,7 +728,7 @@ html_format($text)			// I - Original string
 	  {
 	    // Extract the URL and make this a link...
 	    for ($j = $i; $j < $len; $j ++)
-	      if (!preg_match("/[-+~a-zA-Z0-9%_/:@.?#=&]/", $text[$j]))
+	      if (!preg_match("/[-+~a-zA-Z0-9%_\\/:@.?#=&]/", $text[$j]))
 	        break;
 
 	    if ($text[$j - 1] == '.')
