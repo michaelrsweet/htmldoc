@@ -64,7 +64,10 @@ account_header($title, $id = 0)
   $links["Home"] = "account.php?L$LOGIN_ID$options";
 
   if ($LOGIN_LEVEL == AUTH_ADMIN)
+  {
+    $links["Accounts"] = "account.php?L$options";
     $links["Add"] = "account.php?U$options";
+  }
 
   $links["Change Information/Password"] = "account.php?U$LOGIN_ID$options";
 
@@ -74,7 +77,6 @@ account_header($title, $id = 0)
       $links["Delete #$id"] = "account.php?D$id$options";
 
     $links["Generate Files"] = "account.php?G$options";
-    $links["Manage Accounts"] = "account.php?L$options";
 
     if ($id)
       $links["Modify #$id"] = "account.php?L$id$options";
@@ -335,7 +337,7 @@ switch ($op)
 
             $temp = htmlspecialchars($article->title);
             if ($article->is_published == 0)
-	      $temp .= " <img src='${path}images/private.gif' width='16' height='16' "
+	      $temp .= " <img src='images/private.gif' width='16' height='16' "
 	              ."border='0' align='absmiddle' alt='Private'>";
 
             print("<td width='67%'>$link$temp</a></td>");
@@ -404,7 +406,7 @@ switch ($op)
             html_start_row();
 
             if ($str->is_published == 0)
-	      $summabbr .= " <img src='${path}images/private.gif' width='16' height='16' "
+	      $summabbr .= " <img src='images/private.gif' width='16' height='16' "
 	                  ."border='0' align='absmiddle' alt='Private'>";
 
             print("<td nowrap>");
@@ -462,7 +464,7 @@ switch ($op)
       else
       {
         // List accounts...
-	account_header("Manage Accounts");
+	account_header("Accounts");
 
         print("<form method='POST' action='$PHP_SELF?L'><p align='center'>"
 	     ."<input type='search' size='60' name='SEARCH' value='$search' "
