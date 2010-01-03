@@ -14,7 +14,8 @@ $fp   = fopen("data/software.md5", "r");
 while ($line = fgets($fp, 1024))
 {
   $data = explode(" ", trim($line));
-  if (preg_match("/^[1-9]\\.[0-9]+\\.[0-9+]\$/", $data[1]))
+  if (preg_match("/^[1-9]\\.[0-9]+\\.[0-9+]\$/", $data[1]) &&
+      preg_match("/\\.tar\\.bz2\$/", $data[2]))
     break;
 }
 fclose($fp);
