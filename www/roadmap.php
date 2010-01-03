@@ -93,7 +93,7 @@ while (list($version, $description) = each($versions))
   else
     $is_published = " AND is_published = 1";
 
-  $result = db_query("SELECT id, status FROM str WHERE "
+  $result = db_query("SELECT id, priority, status FROM str WHERE "
                     ."str_version LIKE '${version}%'"
 		    ." AND status > " . STR_STATUS_UNRESOLVED . $is_published
 		    ." ORDER BY is_published,status DESC,priority DESC,id");
