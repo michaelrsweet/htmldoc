@@ -49,8 +49,8 @@ add_file($str)				// I - STR
     // Rename file to avoid conflicts...
     for ($i = 2; $i < 1000; $i ++)
     {
-      if (ereg(".*\\..*", $filename))
-	$temp = ereg_replace("([^\\.]*)\\.(.*)",
+      if (preg_match("/.*\\..*/", $filename))
+	$temp = preg_replace("/([^\\.]*)\\.(.*)/",
                              "\\1_v$i.\\2", $filename);
       else
         $temp = "${filename}_v$i";
@@ -201,7 +201,7 @@ notify_users($str,			// I - STR
 
   // Setup the message and headers...
   $subject  = "${what}[" . $STR_PRIORITY_SHORT["$str->priority"]
-             ."] STR #$str->id: $str->summary";
+             ."] Bug #$str->id: $str->summary";
   $headers  = "From: $from\n"
              ."Reply-To: $replyto\n";
   if ($str->status >= STR_STATUS_ACTIVE)
@@ -210,7 +210,7 @@ notify_users($str,			// I - STR
   else
     $message = "";
 
-  $message .= "[STR " . substr($STR_STATUS_LONG[$str->status], 4) . "]\n"
+  $message .= "[Bug " . substr($STR_STATUS_LONG[$str->status], 4) . "]\n"
              ."\n"
              . wordwrap(trim($contents)) . "\n"
 	     ."\n"
@@ -252,20 +252,21 @@ notify_users($str,			// I - STR
   else
     $bytes = 0;
 
-  if ($bytes > 0 && $bytes <= 102400 && !eregi(".*\\.zip", $file))
+  if ($bytes > 0 && $bytes <= 102400 && !preg_match("/\\.zip\$/i", $file))
   {
     // Attach the file to the message...
-    if (eregi(".*\\.(c|cc|cpp|cxx|diff|diffs|h|hpp|htm|html|txt|patch)", $file))
+    if (preg_match("/\\.(c|cc|cpp|cxx|diff|diffs|h|hpp|htm|html|txt|patch|"
+		  ."php)\$/i", $file))
       $content_type = "text/plain";
-    else if (eregi(".*\\.bmp", $file))
+    else if (preg_match("/\\.bmp\$/i", $file))
       $content_type = "image/bmp";
-    else if (eregi(".*\\.gif", $file))
+    else if (preg_match("/\\.gif\$/i", $file))
       $content_type = "image/gif";
-    else if (eregi(".*\\.png", $file))
+    else if (preg_match("/\\.png\$/i", $file))
       $content_type = "image/png";
-    else if (eregi(".*\\.jpg", $file))
+    else if (preg_match("/\\.jpg\$/i", $file))
       $content_type = "image/jpeg";
-    else if (eregi(".*\\.pdf", $file))
+    else if (preg_match("/\\.pdf\$/i", $file))
       $content_type = "application/pdf";
     else
       $content_type = "application/octet-stream";
@@ -333,7 +334,7 @@ str_history($str,			// I - STR to show
   global $PHP_SELF, $LOGIN_LEVEL;
 
 
-  print("<hr noshade><p><b>Trouble Report Files:</b></p>\n");
+  print("<hr noshade><p><b>Bug Report Files:</b></p>\n");
   if ($str->status >= STR_STATUS_ACTIVE && $allowpost)
   {
     html_start_links();
@@ -393,7 +394,7 @@ str_history($str,			// I - STR to show
     html_end_table();
   }
 
-  print("<hr noshade><p><b>Trouble Report Dialog:</b></p>\n");
+  print("<hr noshade><p><b>Bug Report Dialog:</b></p>\n");
   if ($str->status >= STR_STATUS_ACTIVE && $allowpost)
   {
     html_start_links();
@@ -453,13 +454,13 @@ str_history($str,			// I - STR to show
 // Operations:
 //
 // B         = Batch update selected STRs
-// F#        = Post file for STR #
+// F#        = Post file for Bug #
 // L         = List all STRs
-// L#        = List STR #
-// N#        = Update notification for STR #
-// T#        = Post text for STR #
+// L#        = List Bug #
+// N#        = Update notification for Bug #
+// T#        = Post text for Bug #
 // U         = Post new STR
-// U#        = Modify STR #
+// U#        = Modify Bug #
 //
 // Options:
 //
@@ -581,13 +582,53 @@ $options = "+P$priority+S$status+C$scope+I$index+E$femail+M$PAGE_MAX+Q" .
 	   urlencode($search);
 
 // B         = Batch update selected STRs
-// F#        = Post file for STR #
+// F#        = Post file for Bug #
 // L         = List all STRs
-// L#        = List STR #
-// N#        = Update notification for STR #
-// T#        = Post text for STR #
+// L#        = List Bug #
+// N#        = Update notification for Bug #
+// T#        = Post text for Bug #
 // U         = Post new STR
-// U#        = Modify STR #
+// U#        = Modify Bug #
+
+if ($op == "L" || ($op == "U" && $id != 0))
+{
+  // Set $strlinks to point to the previous and next STRs in the
+  // current search, respectively...
+  $str     = new str();
+  $matches = $str->search($search, "is_published -status -priority id",
+			  $priority, $status, $scope, $femail);
+  $count   = sizeof($matches);
+
+  if ($id != 0 && $count > 1 && $search != "")
+  {
+    if (($me = array_search($id, $matches)) === FALSE)
+      $me = -1;
+
+    $strlinks = "<span style='float: right;'>";
+
+    if ($me > 0)
+    {
+      $previd   = $matches[$me - 1];
+      $strlinks .= "<a href='$PHP_SELF?$op$previd$options'>Prev</a>";
+    }
+    else
+      $strlinks .= "<span style='color: #cccccc;'>Prev</span>";
+
+    $strlinks .= " &middot; ";
+
+    if (($me + 1) < $count)
+    {
+      $nextid   = $matches[$me + 1];
+      $strlinks .= "<a href='$PHP_SELF?$op$nextid$options'>Next</a>";
+    }
+    else
+      $strlinks .= "<span style='color: #cccccc;'>Next</span>";
+
+    $strlinks .= "</span>";
+  }
+  else
+    $strlinks = "";
+}
 
 switch ($op)
 {
@@ -609,7 +650,7 @@ switch ($op)
         reset($_POST);
         while (list($key, $val) = each($_POST))
 	{
-          if (ereg("ID_[0-9]+", $key))
+          if (preg_match("/^ID_[0-9]+\$/", $key))
 	  {
 	    $id  = (int)substr($key, 3);
 	    $str = new str($id);
@@ -654,14 +695,15 @@ switch ($op)
 	if ($str->id != $id)
 	{
           html_header("Bugs & Features Error");
-	  print("<p><b>Error:</b> STR #$id was not found!</p>\n");
+	  print("<p><b>Error:</b> Bug #$id was not found!</p>\n");
 	  html_footer();
 	  exit();
 	}
 
-        $links = array();
-
-        $links["Return to Bugs & Features"] = "$PHP_SELF?L$options";
+        $links = array(
+	  "Roadmap" => "roadmap.php",
+	  "List" => "$PHP_SELF?L$options"
+	);
 
         if ($row['status'] >= STR_STATUS_ACTIVE)
 	{
@@ -672,7 +714,8 @@ switch ($op)
 	if ($LOGIN_LEVEL >= AUTH_DEVEL)
 	  $links["Modify STR"] = "$PHP_SELF?U$id$options";
 
-        html_header("STR #$id", "", "", $links);
+        html_header("Bug #$id: $str->summary", "", "", $links);
+	print($strlinks);
 
         $str->view($options);
 
@@ -683,8 +726,9 @@ switch ($op)
 	$bookmark  = "$PHP_URL?L+P$priority+S$status+C$scope+E$femail+"
 		    ."M$PAGE_MAX+Q" . urlencode($search);
 
-        html_header("Bugs & Features", "", "",
-	            array("Submit Bug or Feature Request" => "$PHP_SELF?U$options'",
+        html_header("Bugs & Features", "",
+	            array("Roadmap" => "roadmap.php",
+		          "New Bug Report" => "$PHP_SELF?U$options'",
 		          "Link To Search Results" => "$bookmark"));
 
 	$htmlsearch = htmlspecialchars($search, ENT_QUOTES);
@@ -851,7 +895,7 @@ switch ($op)
           $sttext   = $STR_STATUS_SHORT[$str->status];
           $sctext   = $STR_SCOPE_SHORT[$str->scope];
 	  $link     = "<a href='$PHP_SELF?$linkop$str->id$options' "
-	             ."title='STR #$str->id: $summary'>";
+	             ."title='Bug #$str->id: $summary'>";
 
           html_start_row();
 
@@ -991,20 +1035,20 @@ switch ($op)
       html_footer();
       break;
 
-  case 'F' : // Post file for STR #
+  case 'F' : // Post file for Bug #
       if ($LOGIN_USER == "")
       {
         header("Location: login.php?PAGE=str.php?F$id$options");
 	return;
       }
 
-      $action = "Post File For STR #$id";
+      $action = "Post File For Bug #$id";
       $str    = new str($id);
 
       if ($str->id != $id)
       {
         html_header($action);
-	print("<p><b>Error:</b> STR #$id was not found!</p>\n");
+	print("<p><b>Error:</b> Bug #$id was not found!</p>\n");
 	html_footer();
 	exit();
       }
@@ -1043,8 +1087,10 @@ switch ($op)
       }
       else
       {
-        html_header($action, "", "",
-	            array("Return to STR #$id" => "$PHP_SELF?L$id$options"));
+        html_header($action, "",
+	            array("Roadmap" => "roadmap.php",
+			  "List" => "$PHP_SELF?L$options",
+		          "Bug #$id" => "$PHP_SELF?L$id$options"));
 
 	print("<form action='$PHP_SELF?F$id' method='POST' "
              ."enctype='multipart/form-data'>\n"
@@ -1066,20 +1112,20 @@ switch ($op)
       }
       break;
 
-  case 'T' : // Post text for STR #
+  case 'T' : // Post text for Bug #
       if ($LOGIN_USER == "")
       {
         header("Location: login.php?PAGE=str.php?T$id$options");
 	return;
       }
 
-      $action = "Post Text For STR #$id";
+      $action = "Post Text For Bug #$id";
       $str    = new str($id);
 
       if ($str->id != $id)
       {
         html_header($action);
-	print("<p><b>Error:</b> STR #$id was not found!</p>\n");
+	print("<p><b>Error:</b> Bug #$id was not found!</p>\n");
 	html_footer();
 	exit();
       }
@@ -1120,8 +1166,10 @@ switch ($op)
       }
       else
       {
-        html_header($action, "", "",
-	            array("Return to STR #$id" => "$PHP_SELF?L$id$options"));
+        html_header($action, "",
+	            array("Roadmap" => "roadmap.php",
+		          "List" => "$PHP_SELF?L$options",
+		          "Bug #$id" => "$PHP_SELF?L$id$options"));
 
 	print("<form action='$PHP_SELF?T$id' method='POST'>\n"
 	     ."<p align='center'><table class='edit'>\n");
@@ -1159,23 +1207,29 @@ switch ($op)
       $str = new str($id);
 
       if ($id <= 0)
-	$action = "Submit Bug or Feature Request";
+      {
+	$action = "New Bug Report";
+	$title  = "New Bug Report";
+      }
       else
-	$action = "Modify STR #$id";
+      {
+	$action = "Modify Bug #$id";
+	$title  = "$action: $str->summary";
+      }
 
       if ($str->id != $id)
       {
         html_header($action);
-	print("<p><b>Error:</b> STR #$id was not found!</p>\n");
+	print("<p><b>Error:</b> Bug #$id was not found!</p>\n");
 	html_footer();
 	exit();
       }
 
       if ($LOGIN_LEVEL < AUTH_DEVEL && $id != 0)
       {
-        html_header($action);
+        html_header($title);
 	print("<p><b>Error:</b> You do not have permission to modify "
-	     ."STR #$id!</p>\n");
+	     ."Bug #$id!</p>\n");
 	html_footer();
 	exit();
       }
@@ -1232,7 +1286,7 @@ switch ($op)
       {
         if (!$str->save())
 	{
-	  html_header($action);
+	  html_header($title);
 	  print("<p>Unable to save STR!</p>\n");
 	  html_footer();
 	  exit();
@@ -1246,7 +1300,7 @@ switch ($op)
 	  // Add text...
 	  if (($contents = add_text($str)) === FALSE)
 	  {
-	    html_header($action);
+	    html_header($title);
 	    print("<p>Unable to save text to STR!</p>\n");
 	    html_footer();
 	    exit();
@@ -1260,7 +1314,7 @@ switch ($op)
 	  // Add file...
 	  if (($file = add_file($str)) === FALSE)
 	  {
-	    html_header($action);
+	    html_header($title);
 	    print("<p>Unable to save file to STR!</p>\n");
 	    html_footer();
 	    exit();
@@ -1278,12 +1332,13 @@ switch ($op)
       }
       else
       {
-        $links = array();
-	$links["Return to Bugs & Features"] = "$PHP_SELF?L$options";
+        $links = array("Roadmap" => "roadmap.php",
+		       "List" => "$PHP_SELF?L$options");
 	if ($id > 0)
-	  $links["Return to STR #$id"] = "$PHP_SELF?L$id$options";
+	  $links["Bug #$id"] = "$PHP_SELF?L$id$options";
 
-        html_header($action, "", "", $links);
+        html_header($title, "", $links);
+	print($strlinks);
 
 	if ($REQUEST_METHOD == "POST")
 	  print("<p><b>Error:</b> Please fill in the fields as "
@@ -1339,20 +1394,22 @@ switch ($op)
       $result = db_query("SELECT * FROM carboncopy WHERE "
                         ."url = 'str.php_L$id' AND email = '$email'");
 
-      html_header("STR #$id Notifications", "", "",
-                  array("Return to STR #$id" => "$PHP_SELF?L$id$options"));
+      html_header("Bug #$id Notifications", "",
+                  array("Roadmap" => "roadmap.php",
+			"List" => "$PHP_SELF?L$options",
+		        "Bug #$id" => "$PHP_SELF?L$id$options"));
 
       if ($notification == "ON")
       {
         if ($result && db_count($result) > 0)
 	  print("<p>Your email address has already been added to the "
-	       ."notification list for STR #$id!</p>\n");
+	       ."notification list for Bug #$id!</p>\n");
         else
 	{
           db_query("INSERT INTO carboncopy VALUES(NULL,'str.php?L$id','$email')");
 
 	  print("<p>Your email address has been added to the notification list "
-               ."for STR #$id.</p>\n");
+               ."for Bug #$id.</p>\n");
         }
       }
       else if ($result && db_count($result) > 0)
@@ -1361,12 +1418,12 @@ switch ($op)
 	        ."url = 'str.php?L$id' AND email = '$email'");
 
 	print("<p>Your email address has been removed from the notification list "
-             ."for STR #$id.</p>\n");
+             ."for Bug #$id.</p>\n");
       }
       else
       {
 	print("<p>Your email address is not on the notification list for "
-	     ."STR #$id!</p>\n");
+	     ."Bug #$id!</p>\n");
       }
 
       if ($result)

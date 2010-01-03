@@ -271,7 +271,7 @@ class articlefile
           $query .= "$prefix$logic (";
           $subpre = "";
 
-          if (ereg("^[0-9]+\$", $word))
+          if (preg_match("/^[0-9]+\$/", $word))
           {
             $query .= "${subpre}id = $word";
             $subpre = " OR ";

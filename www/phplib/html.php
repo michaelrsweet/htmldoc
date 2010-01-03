@@ -14,14 +14,13 @@
 //   html_end_links()           - End of series of hyperlinks.
 //   html_link()                - Show a single hyperlink.
 //   html_links()               - Show an array of links.
-//   html_start_box()           - Start a rounded, shaded box.
-//   html_end_box()             - End a rounded, shaded box.
 //   html_start_table()         - Start a rounded, shaded table.
 //   html_end_table()           - End a rounded, shaded table.
 //   html_start_row()           - Start a table row.
 //   html_end_row()             - End a table row.
 //   html_search_words()        - Generate an array of search words.
 //   html_select_is_published() - Do a <select> for the "is published" field...
+//   html_format()              - Convert plain text to HTML...
 //
 
 
@@ -29,9 +28,10 @@
 // Include necessary headers...
 //
 
-include_once "globals.php";
-include_once "common.php";
 include_once "auth.php";
+include_once "common.php";
+
+date_default_timezone_set("America/Los_Angeles");
 
 
 //
@@ -47,7 +47,7 @@ $html_keywords = array(
   "index",
   "indexing",
   "linux",
-  "macos x",
+  "mac os x",
   "pdf",
   "postscript",
   "ps",
@@ -60,12 +60,18 @@ $html_keywords = array(
 );
 
 
-// Image/link path...
-$html_path = "";
+// Figure out the base path...
+$html_path = dirname($PHP_SELF);
 
-// Show all content...
-$html_show_all = FALSE;
+if (array_key_exists("PATH_INFO", $_SERVER))
+{
+  $i = -1;
+  while (($i = strpos($_SERVER["PATH_INFO"], "/", $i + 1)) !== FALSE)
+    $html_path = dirname($html_path);
+}
 
+if ($html_path == "/")
+  $html_path = "";
 
 //
 // 'html_header()' - Show the standard page header and navbar...
@@ -73,52 +79,37 @@ $html_show_all = FALSE;
 
 function				// O - User information
 html_header($title = "",		// I - Additional document title
-            $path = "",			// I - Relative path to root
 	    $refresh = "",		// I - Refresh URL
 	    $links = "",		// I - Array of links
 	    $javascript = "")		// I - Javascript, if any
 {
-  global $html_keywords, $html_path, $argc, $argv, $PHP_SELF, $LOGIN_USER,
-	 $_SERVER, $html_show_all;
+  global $argc, $argv, $html_keywords, $html_path, $_GET, $LOGIN_USER;
+  global $PHP_SELF, $_SERVER;
 
 
-  // Save the path and see if Wget is the client...
-  $html_path = $path;
-
-  if (array_key_exists("HTTP_USER_AGENT", $_SERVER))
-    $html_show_all = !eregi("Wget.*", $_SERVER["HTTP_USER_AGENT"]);
-  else
-    $html_show_all = TRUE;
-
-  // Check for a logout on the command-line...
-  if ($argc == 1 && $argv[0] == "logout")
-  {
-    auth_logout();
-    $argc = 0;
-  }
-
-  // Common stuff...
-  header("Cache-Control: no-cache");
-
+  // Specify HTML 4.0 so that the footer is rendered at the bottom of the
+  // page; for some reason using HTML 4.01 makes browsers ignore the height
+  // property of the interior row in our outer table...
   print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "
-       ."\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n");
+       ."\"http://www.w3.org/TR/html4/loose.dtd\">\n");
   print("<html>\n");
   print("<head>\n");
 
   // Title...
   if ($title != "")
-    $html_title = htmlspecialchars("$title -");
+    $html_title = "$title -";
   else
     $html_title = "";
 
   print("  <title>$html_title &lt;HTML&gt;DOC</title>\n"
+       ."  <meta http-equiv='Pragma' content='no-cache'>\n"
        ."  <meta http-equiv='Content-Type' content='text/html; "
        ."charset=utf-8'>\n"
-       ."  <link rel='stylesheet' type='text/css' href='${path}style.css'>\n"
+       ."  <link rel='stylesheet' type='text/css' href='$html_path/style.css'>\n"
        ."  <link rel='alternate' title='HTMLDOC RSS' "
-       ."type='application/rss+xml' href='${path}index.rss'>\n"
-       ."  <link rel='shortcut icon' href='${path}images/htmldoc.gif' "
-       ."type='image/gif'>\n");
+       ."type='application/rss+xml' href='$html_path/index.rss'>\n"
+       ."  <link rel='shortcut icon' href='$html_path/images/htmldoc.png' "
+       ."type='image/png'>\n");
 
   // If refresh URL is specified, add the META tag...
   if ($refresh != "")
@@ -142,90 +133,104 @@ html_header($title = "",		// I - Additional document title
        ."<body>\n");
 
   // Standard navigation stuff...
-  if ($html_show_all)
+  if (array_key_exists("Q", $_GET))
+    $q = htmlspecialchars($_GET["Q"], ENT_QUOTES);
+  else
+    $q = "";
+
+  if (stripos($_SERVER["HTTP_USER_AGENT"], "webkit") !== FALSE)
   {
-    print("<table class='page' summary=''>\n"
-	 ."<tr class='pageheader'>"
-	 ."<td width='32'><a href='http://www.easysw.com/htmldoc/'>"
-	 ."<img src='${path}images/htmldoc.gif' width='32' height='32' "
-	 ."border='0' alt='&lt;HTML&gt;DOC'></a></td>");
+    // Use Safari search box...
+    $search = "<input type='search' name='Q' value='$q' size='25' "
+	     ."autosave='org.htmldoc.search' results='5' "
+             ."placeholder='Search'>";
+  }
+  else
+  {
+    // Use standard HTML text field...
+    $search = "<input type='text' name='Q' value='$q' size='15' "
+             ."title='Search'><input type='submit' value='Search'>";
+  }
 
-    $base  = basename($PHP_SELF);
-    $pages = array(
-      "index.php" => "Home",
-      "articles.php" => "Articles &amp; FAQs",
-      "str.php" => "Bugs &amp; Features",
-      "documentation.php" => "Documentation",
-      "software.php" => "Download",
-      "newsgroups.php" => "Forums"
-    );
+  if (strpos($PHP_SELF, "/documentation.php/") !== FALSE)
+    $base = "documentation.php";
+  else
+    $base = basename($PHP_SELF);
 
-    reset($pages);
-    foreach ($pages as $href => $label)
+  $pages = array(
+    "Bugs &amp; Features" => array("roadmap.php", "str.php"),
+    "Documentation" => array("documentation.php", "articles.php", "comment.php",
+                             "htmldoc-cmp.php", "search-help.php"),
+    "Download" => array("software.php"),
+    "Forums" => array("newsgroups.php")
+  );
+
+  if ($base == "index.php")
+    $class = "sel";
+  else
+    $class = "unsel";
+
+  print("<table width='100%' style='height: 100%;' border='0' cellspacing='0' "
+       ."cellpadding='0' summary=''>\n"
+       ."<tr>"
+       ."<td class='$class'><a href='index.php'><img "
+       ."src='$html_path/images/htmldoc.jpg' width='32' height='32' border='0' "
+       ."alt='&lt;HTML&gt;DOC'></a></td>");
+
+  if ($base == "login.php" || $base == "account.php")
+    $class = "sel";
+  else
+    $class = "unsel";
+
+  if ($LOGIN_USER)
+  {
+    print("<td class='$class'><a href='$html_path/account.php'>$LOGIN_USER"
+	 ."</a>");
+  }
+  else
+  {
+    // Show login link which redirects back to the current page...
+    $url    = urlencode($PHP_SELF);
+    $prefix = "?";
+    for ($i = 0; $i < $argc; $i ++)
     {
-      if ($href == $base)
-        $class = "sel";
-      else
-        $class = "unsel";
-
-      print("<td class='$class' nowrap>&nbsp;&nbsp;<a href='${path}$href'>"
-           ."$label</a>&nbsp;&nbsp;</td>");
+      $url    .= $prefix . urlencode($argv[$i]);
+      $prefix = "+";
     }
 
-    print("<td class='unsel' width='100%'>&nbsp;</td>");
+    print("<td class='$class'><a href='$html_path/login.php?PAGE=$url'>Login"
+         ."</a>");
+  }
+  print("</td>");
 
-    if ($base == "login.php" || $base == "account.php")
+  reset($pages);
+  foreach ($pages as $label => $hrefs)
+  {
+    if (in_array($base, $hrefs))
       $class = "sel";
     else
       $class = "unsel";
 
-    print("<td class='$class'>&nbsp;&nbsp;");
-
-    if ($LOGIN_USER)
-      print("<a href='${path}account.php'>$LOGIN_USER</a>");
-    else
-    {
-      // Show login link which redirects back to the current page...
-      $url    = urlencode($PHP_SELF);
-      $prefix = "?";
-      for ($i = 0; $i < $argc; $i ++)
-      {
-	$url    .= $prefix . urlencode($argv[$i]);
-	$prefix = "+";
-      }
-
-      print("<a href='${path}login.php?PAGE=$url'>Login</a>");
-    }
-
-    print("&nbsp;&nbsp;</td>"
-	 ."</tr>\n");
-
-    if ($links != "")
-    {
-      print("<tr><td class='pagelinks' colspan='9'>");
-      html_links($links);
-      print("</td></tr>\n");
-    }
-
-    print("<tr>"
-	 ."<td class='page' colspan='9'>");
+    print("<td class='$class' nowrap><a href='$html_path/$hrefs[0]'>"
+	 ."$label</a></td>");
   }
-  else
-  {
-    // Just show hidden links for Wget to follow...
-    print("<a href='${path}index.php'></a>"
-	 ."<a href='${path}articles.php'></a>"
-	 ."<a href='${path}str.php'></a>"
-	 ."<a href='${path}documentation.php'></a>"
-	 ."<a href='${path}software.php'></a>"
-	 ."<a href='${path}newsgroups.php'></a>");
 
-    if ($links != "")
-      html_links($links);
+  print("<td class='unsel' align='right' width='100%'>"
+       ."<form action='$html_path/search.php' method='GET'>"
+       ."$search</form></td>"
+       ."</tr>\n"
+       ."<tr>"
+       ."<td class='page' colspan='7'>");
+
+  if ($links != "")
+  {
+    html_start_links(TRUE);
+    html_links($links);
+    html_end_links();
   }
 
   if ($title != "")
-    print("<h1>" . htmlspecialchars($title) . "</h1>\n");
+    print("<h1>$title</h1>\n");
 }
 
 
@@ -236,20 +241,13 @@ html_header($title = "",		// I - Additional document title
 function
 html_footer()
 {
-  global $html_show_all;
-
-
-  if ($html_show_all)
-  {
-    print("</td></tr>\n"
-         ."<tr class='pagefooter'><td colspan='9'>"
-	 ."Copyright 1997-2009 Easy Software Products. All rights reserved. "
-	 ."HTMLDOC and &lt;HTML&gt;DOC are trademarks of Easy Software "
-	 ."Products.</td></tr>\n"
-         ."</table>\n");
-  }
-
-  print("</body>\n"
+  print("</td></tr>\n"
+       ."<tr><td class='footer' colspan='7'>"
+       ."Copyright 1997-2010 Easy Software Products. All rights reserved. "
+       ."HTMLDOC and &lt;HTML&gt;DOC are trademarks of Easy Software "
+       ."Products.</td></tr>\n"
+       ."</table>\n"
+       ."</body>\n"
        ."</html>\n");
 }
 
@@ -266,7 +264,7 @@ html_start_links($center = 0)		// I - 1 for centered, 0 for in-line
   $html_firstlink = 1;
 
   if ($center)
-    print("<p class='center' align='center'>");
+    print("<p class='links'>");
   else
     print("<p>");
 }
@@ -313,10 +311,8 @@ html_link($text,			// I - Text for hyperlink
 //
 
 function
-html_links($links,			// I - Associated array of hyperlinks
-           $center = 0)			// I - Center the links?
+html_links($links)			// I - Associated array of hyperlinks
 {
-  html_start_links($center);
   reset($links);
   while (list($key, $val) = each($links))
   {
@@ -327,7 +323,6 @@ html_links($links,			// I - Associated array of hyperlinks
     else
       html_link($key, $val);
   }
-  html_end_links();
 }
 
 
@@ -338,14 +333,13 @@ html_links($links,			// I - Associated array of hyperlinks
 function
 html_start_table($headings)		// I - Array of heading strings
 {
-  global $html_row, $html_cols;
+  global $html_row;
 
 
   print("<table class='standard' summary=''>"
        ."<tr class='header'>");
 
-  $html_row  = 0;
-  $html_cols = count($headings);
+  $html_row = 0;
 
   for ($i = 0; $i < count($headings); $i ++)
   {
@@ -383,6 +377,8 @@ html_start_row($classname = "")		// I - HTML class to use
 
   if ($classname == "")
     $classname = "data$html_row";
+  else
+    $html_row = 1 - $html_row;
 
   print("<tr class='$classname'>");
 }
@@ -421,7 +417,7 @@ html_search_words($search = "")		// I - Search string
       case "\"" :
           if ($temp != "")
 	  {
-	    $words[sizeof($words)] = db_escape(strtolower($temp));
+	    $words[sizeof($words)] = strtolower($temp);
 	    $temp = "";
 	  }
 
@@ -433,7 +429,7 @@ html_search_words($search = "")		// I - Search string
 	    $i ++;
 	  }
 
-	  $words[sizeof($words)] = db_escape(strtolower($temp));
+	  $words[sizeof($words)] = strtolower($temp);
 	  $temp = "";
           break;
 
@@ -442,7 +438,7 @@ html_search_words($search = "")		// I - Search string
       case "\n" :
           if ($temp != "")
 	  {
-	    $words[sizeof($words)] = db_escape(strtolower($temp));
+	    $words[sizeof($words)] = strtolower($temp);
 	    $temp = "";
 	  }
 	  break;
@@ -454,7 +450,7 @@ html_search_words($search = "")		// I - Search string
   }
 
   if ($temp != "")
-    $words[sizeof($words)] = db_escape(strtolower($temp));
+    $words[sizeof($words)] = strtolower($temp);
 
   return ($words);
 }
@@ -480,6 +476,295 @@ html_select_is_published($is_published = 1)
     print("<option value='1'>Yes</option>");
   }
   print("</select>");
+}
+
+
+//
+// 'html_format()' - Convert plain text to HTML...
+//
+
+function				// O - Quoted string
+html_format($text)			// I - Original string
+{
+  $len    = strlen($text);
+  $col    = 0;
+  $list   = 0;
+  $bold   = 0;
+  $pre    = 0;
+  $inlink = 0;
+  $inpre  = 0;
+
+  if (!strncasecmp($text, "<p>", 3))
+    $ftext = "";
+  else
+    $ftext = "<p>";
+
+  for ($i = 0; $i < $len; $i ++)
+  {
+    switch ($text[$i])
+    {
+      case '<' :
+          $col ++;
+	  if (strtolower(substr($text, $i, 2)) == "<a" ||
+	      strtolower(substr($text, $i, 8)) == "<a name=" ||
+	      strtolower(substr($text, $i, 4)) == "</a>" ||
+	      strtolower(substr($text, $i, 3)) == "<b>" ||
+	      strtolower(substr($text, $i, 4)) == "</b>" ||
+	      strtolower(substr($text, $i, 12)) == "<blockquote>" ||
+	      strtolower(substr($text, $i, 13)) == "</blockquote>" ||
+	      strtolower(substr($text, $i, 4)) == "<br>" ||
+	      strtolower(substr($text, $i, 5)) == "<br/>" ||
+	      strtolower(substr($text, $i, 6)) == "<br />" ||
+	      strtolower(substr($text, $i, 6)) == "<code>" ||
+	      strtolower(substr($text, $i, 7)) == "</code>" ||
+	      strtolower(substr($text, $i, 4)) == "<em>" ||
+	      strtolower(substr($text, $i, 5)) == "</em>" ||
+	      strtolower(substr($text, $i, 4)) == "<h1>" ||
+	      strtolower(substr($text, $i, 5)) == "</h1>" ||
+	      strtolower(substr($text, $i, 4)) == "<h2>" ||
+	      strtolower(substr($text, $i, 5)) == "</h2>" ||
+	      strtolower(substr($text, $i, 4)) == "<h3>" ||
+	      strtolower(substr($text, $i, 5)) == "</h3>" ||
+	      strtolower(substr($text, $i, 4)) == "<h4>" ||
+	      strtolower(substr($text, $i, 5)) == "</h4>" ||
+	      strtolower(substr($text, $i, 4)) == "<h5>" ||
+	      strtolower(substr($text, $i, 5)) == "</h5>" ||
+	      strtolower(substr($text, $i, 4)) == "<h6>" ||
+	      strtolower(substr($text, $i, 5)) == "</h6>" ||
+	      strtolower(substr($text, $i, 3)) == "<i>" ||
+	      strtolower(substr($text, $i, 4)) == "</i>" ||
+	      strtolower(substr($text, $i, 5)) == "<img " ||
+	      strtolower(substr($text, $i, 4)) == "<li>" ||
+	      strtolower(substr($text, $i, 5)) == "</li>" ||
+	      strtolower(substr($text, $i, 4)) == "<ol>" ||
+	      strtolower(substr($text, $i, 4)) == "<ol " ||
+	      strtolower(substr($text, $i, 5)) == "</ol>" ||
+	      strtolower(substr($text, $i, 3)) == "<p>" ||
+	      strtolower(substr($text, $i, 4)) == "</p>" ||
+	      strtolower(substr($text, $i, 4)) == "<pre" ||
+	      strtolower(substr($text, $i, 6)) == "</pre>" ||
+	      strtolower(substr($text, $i, 5)) == "<sub>" ||
+	      strtolower(substr($text, $i, 6)) == "</sub>" ||
+	      strtolower(substr($text, $i, 5)) == "<sup>" ||
+	      strtolower(substr($text, $i, 6)) == "</sup>" ||
+	      strtolower(substr($text, $i, 4)) == "<tt>" ||
+	      strtolower(substr($text, $i, 5)) == "</tt>" ||
+	      strtolower(substr($text, $i, 3)) == "<u>" ||
+	      strtolower(substr($text, $i, 4)) == "</u>" ||
+	      strtolower(substr($text, $i, 4)) == "<ul>" ||
+	      strtolower(substr($text, $i, 5)) == "</ul>" ||
+	      strtolower(substr($text, $i, 5)) == "<var>" ||
+	      strtolower(substr($text, $i, 6)) == "</var>")
+          {
+            if (preg_match("/\\<a\\s+href=/i", substr($text, $i, 32)))
+	    {
+	      $inlink = 1;
+	      $ftext .= "<a rel='nofollow'";
+	      $i += 2;
+	    }
+	    else if (strtolower(substr($text, $i, 4)) == "</a>")
+	      $inlink = 0;
+	    else if (strtolower(substr($text, $i, 4)) == "<pre")
+	      $inpre = 1;
+	    else if (strtolower(substr($text, $i, 6)) == "</pre>")
+	      $inpre = 0;
+
+	    while ($i < $len && $text[$i] != '>')
+	    {
+	      $ftext .= $text[$i];
+	      $i ++;
+	    }
+
+	    $ftext .= ">";
+	  }
+	  else
+            $ftext .= "&lt;";
+	  break;
+
+      case '>' :
+          $col ++;
+          $ftext .= "&gt;";
+	  break;
+
+      case '&' :
+          $col ++;
+	  $temp = substr($text, $i);
+	  if (preg_match("/^&([a-z]+|#[0-9]+|#x[0-9a-f]+);/i", $temp))
+	    $ftext .= "&";
+	  else
+            $ftext .= "&amp;";
+	  break;
+
+      case "\n" :
+          if ($inpre)
+	  {
+	    $ftext .= "\n";
+	  }
+	  else if (($i + 1) < $len &&
+	           ($text[$i + 1] == "\n" || $text[$i + 1] == "\r"))
+	  {
+	    while (($i + 1) < $len &&
+	           ($text[$i + 1] == "\n" || $text[$i + 1] == "\r"))
+	      $i ++;
+
+            if ($pre)
+	    {
+	      $ftext .= "</pre>";
+	      $pre = 0;
+	    }
+
+            if (($i + 1) < $len && $text[$i + 1] != '-' && $list)
+	    {
+	      $ftext .= "\n</ul>\n<p>";
+	      $list  = 0;
+	    }
+	    else
+	      $ftext .= "\n<p>";
+	  }
+          else if (($i + 1) < $len &&
+	           ($text[$i + 1] == " " || $text[$i + 1] == "\t"))
+          {
+            if ($pre)
+	    {
+	      $ftext .= "</pre>";
+	      $pre = 0;
+	    }
+	    else if (!$inpre)
+	      $ftext .= "<br />\n";
+	  }
+	  else
+	    $ftext .= "\n";
+
+          $col = 0;
+	  break;
+
+      case "\r" :
+	  break;
+
+      case "\t" :
+          if ($col == 0)
+	    $ftext .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+	  else
+            $ftext .= " ";
+	  break;
+
+      case " " :
+          if ($col == 0 && !$pre && !$inpre)
+	  {
+	    for ($j = $i + 1; $j < $len; $j ++)
+	      if ($text[$j] != " " && $text[$j] != "\t")
+	        break;
+
+            if ($j < $len && $text[$j] == '%' && !$inpre)
+	    {
+	      $ftext .= "\n<pre>";
+	      $pre   = 1;
+	    }
+
+	    $ftext .= "&nbsp;";
+	  }
+	  else if (($i + 1) < $len && $text[$i + 1] == " ")
+	    $ftext .= "&nbsp;";
+	  else
+            $ftext .= " ";
+
+          if ($col > 0)
+	    $col ++;
+	  break;
+
+      case '*' :
+          if ($col == 0 && $text[$i + 1] == " ")
+	  {
+	    if (!$list)
+	    {
+	      $ftext .= "\n<ul>";
+	      $list  = 1;
+	    }
+
+	    $ftext .= "\n<li>";
+	    
+	    while (($i + 1) < $len && $text[$i + 1] == " ")
+	      $i ++;
+
+	    break;
+	  }
+	  else if ($inpre)
+	    $ftext .= "*";
+	  else if ($bold)
+	    $ftext .= "*</b>";
+	  else
+	    $ftext .= "<b>*";
+
+	  $bold = 1 - $bold;
+	  break;
+
+      case '-' :
+          // Possible list...
+	  if ($col == 0 && $text[$i + 1] == " " && !$inpre)
+	  {
+	    if (!$list)
+	    {
+	      $ftext .= "\n<ul>";
+	      $list  = 1;
+	    }
+
+	    $ftext .= "\n<li>";
+	    
+	    while (($i + 1) < $len && $text[$i + 1] == " ")
+	      $i ++;
+	    break;
+	  }
+
+          $col ++;
+          $ftext .= $text[$i];
+	  break;
+
+      case 'f' :
+      case 'h' :
+          if (!$inlink &&
+	      (substr($text, $i, 7) == "http://" ||
+               substr($text, $i, 8) == "https://" ||
+               substr($text, $i, 6) == "ftp://"))
+	  {
+	    // Extract the URL and make this a link...
+	    for ($j = $i; $j < $len; $j ++)
+	      if (!preg_match("/[-+~a-zA-Z0-9%_/:@.?#=&]/", $text[$j]))
+	        break;
+
+	    if ($text[$j - 1] == '.')
+	      $j --;
+
+            $count = $j - $i;
+            $url   = substr($text, $i, $count);
+	    $ftext .= "<a href='$url' rel='nofollow'>$url</a>";
+	    $col   += $count;
+	    $i     = $j - 1;
+	    break;
+	  }
+
+      default :
+          $col ++;
+          $ftext .= $text[$i];
+	  break;
+    }
+
+    if ($col >= 80 && $pre)
+    {
+      $ftext .= "\n";
+      $col = 0;
+    }
+  }
+
+  if ($bold)
+    $ftext .= "</b>";
+
+  if ($list)
+    $ftext .= "</ul>";
+
+  if ($pre)
+    $ftext .= "</pre>";
+
+  return ($ftext);
 }
 
 

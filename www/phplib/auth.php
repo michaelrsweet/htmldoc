@@ -17,6 +17,7 @@
 // Include necessary headers...
 //
 
+include_once "globals.php";
 include_once "db.php";
 
 
@@ -44,7 +45,14 @@ $LOGIN_LEVEL = 0;
 $LOGIN_USER  = "";
 $LOGIN_EMAIL = "";
 
-auth_current();
+// Check for a logout on the command-line...
+if ($argc == 1 && $argv[0] == "logout")
+{
+  auth_logout();
+  $argc = 0;
+}
+else
+  auth_current();
 
 
 //

@@ -88,7 +88,7 @@ account_header($title, $id = 0)
   if ($LOGIN_LEVEL < AUTH_DEVEL)
     $links["Request Developer Status"] = "account.php?R$options";
 
-  html_header($title, "", "", $links);
+  html_header($title, "", $links);
 }
 
 

@@ -29,16 +29,15 @@ $STR_MESSAGES = array(
   "Fixed in SVN" =>
       "Fixed in Subversion repository.",
   "No Support" =>
-      "General support is not available via the STR form. Please post to the "
+      "General support is not available via the bug form. Please post to the "
      ."$PROJECT_NAME forums and/or mailing lists for general support.",
   "Old STR" =>
-      "This STR has not been updated by the submitter for two or more weeks "
-     ."and has been closed as required by the $PROJECT_NAME Configuration Management "
-     ."Plan. If the issue still requires resolution, please re-submit a new "
-     ."STR.",
+      "This bug has not been updated by the submitter for two or more weeks "
+     ."and has been closed as required by the $PROJECT_NAME Developer Guide. "
+     ."If the issue still requires resolution, please re-submit a new bug.",
   "Unresolvable" =>
       "We are unable to resolve this problem with the information provided. "
-     ."If you discover new information, please file a new STR referencing "
+     ."If you discover new information, please file a new bug referencing "
      ."this one."
 );
     
@@ -66,14 +65,14 @@ $STR_SUBSYSTEMS = array(
 
 // Version numbers...
 $STR_VERSIONS = array(
-  "2.0-feature",
-  "+2.0-current",
+  "-feature",
   "1.10-feature",
   "+1.10-current",
   "1.9-feature",
   "1.9-current",
   "+1.9b1",
   "1.8-current",
+  "+1.8.28",
   "1.8.27",
   "1.8.26",
   "1.8.25",
@@ -814,7 +813,7 @@ class str
           $query .= "$prefix$logic (";
           $subpre = "";
 
-          if (ereg("^[0-9]+\$", $word))
+          if (preg_match("/^[0-9]+\$/", $word))
           {
             $query .= "${subpre}id = $word";
             $subpre = " OR ";

@@ -1,22 +1,21 @@
 <?php
 
-include_once "phplib/html.php";
+include_once "phplib/doc.php";
 
-html_header("Configuration Management Plan");
+doc_header("Developer Guide");
 
 ?>
 
-<p><i>Last Modified: February 18, 2008</i></p>
+<p><i>Last Modified: January 2, 2010</i></p>
 
-<p>The HTMLDOC configuration management plan defines how
+<p>The HTMLDOC developer guide defines how
 releases are done, how bugs and feature requests are handled,
-and how the HTMLDOC code is formatted and documented. This plan
+and how the HTMLDOC code is formatted and documented. This guide
 is based upon the policies we have developed over the years for
 our other software projects and has been tailored to
 HTMLDOC.</p>
 
-<p>This document is organized into the
-following sections:
+<p>This document is organized into the following sections:
 
 <ul>
 
@@ -100,22 +99,21 @@ password.</p>
 <h2><a name='BUG_FEATURE_REQUEST_PROCESSING'>Bug &amp; Feature
 Request Processing</a></h2>
 
-<p>A Software Trouble Report ("STR") shall be filed every time a
-user or vendor experiences a problem with or wants a new feature
-in the HTMLDOC software. Trouble reports are maintained in a
-database with one of the following states:</p>
+<p>A bug report shall be filed every time a user or vendor experiences a
+problem with or wants a new feature in the HTMLDOC software. Trouble reports
+are maintained in a database with one of the following states:</p>
 
 <ol>
 
-	<li>STR is closed with complete resolution</li>
+	<li>Bug is closed with complete resolution</li>
 
-	<li>STR is closed without resolution</li>
+	<li>Bug is closed without resolution</li>
 
-	<li>STR is active</li>
+	<li>Bug is active</li>
 
-	<li>STR is pending</li>
+	<li>Bug is pending</li>
 
-	<li>STR is new</li>
+	<li>Bug is new</li>
 </ol>
 
 <p>Trouble reports shall be processed using the following
@@ -203,9 +201,9 @@ if the problem was caused by user error.</p>
 
 <p>There are two types of software releases: feature releases
 and patch releases. Feature releases implement new features as
-defined in priority 1 (request for enhancement) STRs. Patch
+defined in priority 1 (request for enhancement) bugs. Patch
 releases implement bug fixes as defined in priority 2-5
-STRs.</p>
+bugs.</p>
 
 <h3>Version Numbering</h3>
 
@@ -230,7 +228,7 @@ number:</p>
     MAJOR.MINOR.PATCHbBUILD
     1.9.0b1
     1.9.0b2
-    2.0.0b1
+    1.10.0b1
 </pre>
 
 <p>Release candidates are created before feature releases and
@@ -240,20 +238,20 @@ build number:</p>
 <pre>
     MAJOR.MINOR.PATCHrcBUILD
     1.9.0rc1
-    2.0.0rc1
-    2.0.0rc2
+    1.10.0rc1
+    1.10.0rc2
 </pre>
 
-<p>Patch releases are only issued to correct priority 2-5 STRs.
-Minor feature releases are created when a priority 1 STR
+<p>Patch releases are only issued to correct priority 2-5 bugs.
+Minor feature releases are created when a priority 1 bug
 requires only minor changes to the software. Major feature
-releases are created when a priority 1 STR requires a
+releases are created when a priority 1 bug requires a
 redesign.</p>
 
 <h3>Generation</h3>
 
 <p>Software patch releases shall be generated for each
-successfully completed priority 2-5 STR. All object and
+successfully completed priority 2-5 bug. All object and
 executable files shall be deleted prior to performing a full
 build to ensure that source files can be recompiled
 successfully.</p>
@@ -261,7 +259,7 @@ successfully.</p>
 <h3>Testing</h3>
 
 <p>Software testing shall be conducted according to the HTMLDOC
-Software Test Plan (TBD). Failed tests cause STRs to be
+Software Test Plan (TBD). Failed tests cause bugs to be
 generated to correct the problems found.</p>
 
 <h3>Releases</h3>
@@ -320,7 +318,7 @@ candidate, distributed using the following basic schedule:</p>
 every release and uses the version number, for example:</p>
 
 <pre>
-    <kbd>svn copy https://svn.easysw.com/public/htmldoc/branches/1.8 \
+    <kbd>svn copy https://svn.easysw.com/public/htmldoc/branches/branch-1.8 \
         https://svn.easysw.com/public/htmldoc/tags/release-1.8.24 \
         -m "1.8.24 release by Developer Name" ENTER</kbd>
 
@@ -368,7 +366,7 @@ suitable for all users.</p>
 
 <h4>Patch Releases</h4>
 
-<p>Patch releases are generated as needed to resolve STRs
+<p>Patch releases are generated as needed to resolve bugs
 against a feature release and represent the latest stable
 release of the software suitable for all users. No functional or
 design changes can be introduced in a patch release.</p>
@@ -406,7 +404,7 @@ the SVN "&#36;Id$" tag:</p>
      *
      *   Description of file contents.
      *
-     *   Copyright 1997-2008 by Easy Software Products.
+     *   Copyright 1997-2010 by Easy Software Products.
      *
      *   These coded instructions, statements, and computer programs are
      *   the property of Easy Software Products and are protected by
@@ -833,6 +831,6 @@ information as well:</p>
 
 <?php
 
-html_footer();
+doc_footer();
 
 ?>

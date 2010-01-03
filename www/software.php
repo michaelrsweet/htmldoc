@@ -43,17 +43,7 @@ if (array_key_exists("FILE", $_GET))
 else
   $file = "";
 
-if (array_key_exists("SITE", $_GET) &&
-    array_key_exists($_GET["SITE"], $PROJECT_SITELIST))
-{
-  $site = $_GET["SITE"];
-  setcookie("SITE", $site, time() + 90 * 86400, "/");
-}
-else if (array_key_exists("SITE", $_COOKIE) &&
-         array_key_exists($_COOKIE["SITE"], $MIRRORS))
-  $site = $_COOKIE["SITE"];
-else
-  $site = mirror_closest();
+$site = mirror_closest();
 
 if (array_key_exists("VERSION", $_GET))
   $version = $_GET["VERSION"];
@@ -85,38 +75,15 @@ $links["Subversion"] = "$PHP_SELF#SVN";
 
 // Show the standard header...
 if ($site != "" && $file != "")
-  html_header("Download", "", "$site/$file", $links);
+  html_header("Download", "$site/$file", $links);
 else
-  html_header("Download", "", "", $links);
+  html_header("Download", "", $links);
 
 // Show files or sites...
 if ($file != "")
 {
   print("<p>Your download should begin shortly. If not, please "
-       ."<a href='$site/$file'>click here</a> to download the file "
-       ."from the current mirror.</p>\n"
-       ."<h2>Change Mirror Site:</h2>\n"
-       ."<form action='$PHP_SELF' method='GET' name='download'>\n"
-       ."<input type='hidden' name='FILE' value='"
-       . htmlspecialchars($file, ENT_QUOTES) . "'>\n"
-       ."<input type='hidden' name='VERSION' value='"
-       . htmlspecialchars($version, ENT_QUOTES) . "'>\n");
-
-  if ($site == "")
-    print("<input type='radio' name='SITE' value='' checked>None<br>\n");
-
-  reset($MIRRORS);
-  while (list($key, $val) = each($MIRRORS))
-  {
-    print("<input type='radio' name='SITE' value='$key' "
-         ."onClick='document.download.submit();'");
-    if ($site == $key)
-      print("  checked");
-    print(">$val[0]<br>\n");
-  }
-
-  print("<input type='submit' value='Change Mirror Site'>\n"
-       ."</form>\n");
+       ."<a href='$site/$file'>click here</a> to download the file.</p>\n");
 }
 else
 {
@@ -153,7 +120,7 @@ else
     {
       if ($curversion != "")
       {
-	print("<td colspan='4'></td>");
+	print("<td colspan='4'>&nbsp;</td>");
 	html_end_row();
 	html_start_row();
       }
@@ -190,14 +157,16 @@ else
        ."<h2><a name='SVN'>Subversion Access</a></h2>\n"
        ."<p>The $PROJECT_NAME software is available via Subversion "
        ."using the following URL:</p>\n"
-       ."<pre>\n"
-       ."    <a href='http://svn.easysw.com/public/$PROJECT_MODULE/'>"
+       ."<pre class='example'>\n"
+       ."<a href='http://svn.easysw.com/public/$PROJECT_MODULE/'>"
        ."http://svn.easysw.com/public/$PROJECT_MODULE/</a>\n"
        ."</pre>\n"
        ."<p>The following command can be used to checkout the current "
        ."$PROJECT_NAME source from Subversion:</p>\n"
-       ."<pre>\n"
-       ."    <kbd>svn co http://svn.easysw.com/public/$PROJECT_MODULE/trunk/ $PROJECT_MODULE</kbd>\n"
+       ."<pre class='command'>\n"
+       ."svn co http://svn.easysw.com/public/$PROJECT_MODULE/trunk/ $PROJECT_MODULE\n"
+       ."cd $PROJECT_MODULE\n"
+       ."autoconf\n"
        ."</pre>\n");
 }
 

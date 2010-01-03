@@ -488,7 +488,7 @@ switch ($op)
 	    $what  = $link->name;
 	    $email = auth_user_email($link->create_user);
           }
-	  else if (ereg(".*\\.html", $urlpath))
+	  else if (preg_match("/\\.html\$/i", $urlpath))
 	  {
 	    $what  = $urlpath;
 	    $email = "webmaster@easysw.com";

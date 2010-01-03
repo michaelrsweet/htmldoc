@@ -171,7 +171,7 @@ nntp_error($text,			// I - Human-readable message
   if ($group != "")
     $links["Back to $group"] = "newsgroups.php?g$group";
 
-  html_header("Error", "", "", $links);
+  html_header("Error", "", $links);
 
   print("<p>$text</p>\n"
        ."<blockquote>$status</blockquote>\n");
@@ -258,7 +258,7 @@ nntp_search($stream,			// I - Socket stream
     for ($i = 0; $i < sizeof($matches); $i ++)
     {
       $fields  = explode("\t", $matches[$i]);
-      $subject = eregi_replace("(re:|\\[[a-z]+\\.[a-z]+\\]) ", "", $fields[1]);
+      $subject = preg_replace("/(re:|\\[[a-z]+\\.[a-z]+\\]) /i", "", $fields[1]);
 
       if (array_key_exists($subject, $parents))
         $threads[$i] = sprintf("%06d%06d", $parents[$subject], $i);
@@ -312,7 +312,7 @@ show_prevnext_page($group,		// I - Group
 
   print("</td><td align='center' width='50%'>");
   html_start_links();
-  if (!ereg(".*\.announce", $group) && !ereg(".*\.commit", $group))
+  if (!preg_match("/\\.(announce|commit)\$/", $group))
     html_link("New Message", "$PHP_SELF?s$start+g$group+n$options");
   if ($threaded)
     html_link("Sort by Date",
@@ -411,7 +411,7 @@ show_messages($group,			// I - Group
     $end = $count;
 
   // Show the standard header...
-  html_header("$group ($start - $end of $count)", "", "",
+  html_header("$group ($start - $end of $count)", "",
               array("All Forums" => "$PHP_SELF?g$options"));
 
   $temp = htmlspecialchars($search, ENT_QUOTES);
@@ -431,8 +431,8 @@ show_messages($group,			// I - Group
     for ($i = $start; $i <= $end; $i ++)
     {
       $fields  = explode("\t", $matches[$i - 1]);
-      $subject = htmlspecialchars(eregi_replace("\\[[a-z]+\\.[a-z]+\\] ", "",
-                                                $fields[1]), ENT_QUOTES);
+      $subject = htmlspecialchars(preg_replace("/\\[[a-z]+\\.[a-z]+\\] /i", "",
+					       $fields[1]), ENT_QUOTES);
       $author  = sanitize_email($fields[2]);
       $date    = format_date($fields[3]);
 
@@ -467,7 +467,7 @@ show_groups($group_filter,		// I - Group filter
   global $PHP_SELF, $_COOKIE, $options;
 
 
-  html_header("Forums", "", "",
+  html_header("Forums", "",
               array("All Forums" => "$PHP_SELF?g$options"));
 
   // Figure out which messages to show...
@@ -504,10 +504,10 @@ show_groups($group_filter,		// I - Group filter
 
   while (list($key, $group) = each($groups))
   {
-    if (ereg("(linuxprinting|private)\\..*", $group))
+    if (preg_match("/^(linuxprinting|private)\\..*\$/", $group))
       continue;
 
-    if ($group_filter && !ereg("${group_filter}\\.*", $group))
+    if ($group_filter && !preg_match("/${group_filter}\\..*\$/", $group))
       continue;
 
     $status = nntp_command($stream, "GROUP $group", 211);
@@ -547,7 +547,7 @@ show_groups($group_filter,		// I - Group filter
     print("</td><td>");
     html_start_links();
     html_link("View", "$PHP_SELF?g$group$options");
-    if (!ereg(".*\.announce", $group) && !ereg(".*\.commit", $group))
+    if (!preg_match("/\\.(announce|commit)\$/", $group))
       html_link("New Message", "$PHP_SELF?g$group+n$options");
     html_end_links();
     print("</td>");
@@ -604,7 +604,7 @@ show_prevnext_msg($group,		// I - Group
   }
 
   print("</td><td align='center' width='50%'>");
-  if (!ereg(".*\.announce", $group) && !ereg(".*\.commit", $group))
+  if (!preg_match("/\\.(announce|commit)\$/", $group))
   {
     html_start_links();
     html_link("New Message", "$PHP_SELF?s$start+g$group+n$options");
@@ -692,8 +692,8 @@ show_message($group,			// I - Group
 //  print("-->\n");
 
   $msgnum  = (int)$fields[0];
-  $subject = htmlspecialchars(eregi_replace("\\[[a-z]+\\.[a-z]+\\] ", "",
-                                            $fields[1]), ENT_QUOTES);
+  $subject = htmlspecialchars(preg_replace("/\\[[a-z]+\\.[a-z]+\\] /i", "",
+                                           $fields[1]), ENT_QUOTES);
   $author  = sanitize_email($fields[2]);
   $date    = format_date($fields[3]);
 
@@ -730,7 +730,7 @@ show_message($group,			// I - Group
 
   $body = quote_text($body);
 
-  html_header("$subject", "", "",
+  html_header("$subject", "",
               array("All Forums" => "$PHP_SELF?g$options",
 	            "Back to $group" => "$PHP_SELF?g$group+s$start$options"));
 
@@ -843,7 +843,7 @@ post_message($group,			// I - Group
     if (pclose($p))
     {
       // Message is spam...
-      html_header("$group Error", "", "",
+      html_header("$group Error", "",
         	  array("All Forums" => "$PHP_SELF?g$options",
 	        	"Back to $group" => "$PHP_SELF?g$group+s$start$options"));
 
@@ -917,7 +917,7 @@ reply_message($group,			// I - Group to reply to
 
   $fields  = explode("\t", $matches[$msg - 1]);
   $msgnum  = (int)$fields[0];
-  $subject = eregi_replace("\\[[a-z]+\\.[a-z]+\\] ", "", $fields[1]);
+  $subject = preg_replace("/\\[[a-z]+\\.[a-z]+\\] /", "", $fields[1]);
   $author  = sanitize_email($fields[2]);
   $date    = htmlspecialchars($fields[3], ENT_QUOTES);
 
@@ -969,7 +969,7 @@ new_message($group,			// I - Group to post to
   $sender  = htmlspecialchars($sender, ENT_QUOTES);
   $body    = htmlspecialchars($body, ENT_QUOTES);
 
-  html_header("Post Message to $group", "", "",
+  html_header("Post Message to $group", "",
               array("All Forums" => "$PHP_SELF?g$options",
 	            "Back to $group" => "$PHP_SELF?g$group+s$start$options"));
 
@@ -1094,9 +1094,9 @@ switch ($op)
 	return;
       }
 
-      if (ereg(".*\.announce", $group) || ereg(".*\.commit", $group))
+      if (preg_match("/\\.(announce|commit)\$/", $group))
       {
-	html_header("Forum Posting Error", "", "",
+	html_header("Forum Posting Error", "",
         	    array("All Forums" => "$PHP_SELF?g$options",
 	        	  "Back to $group" => "$PHP_SELF?g$group+s$start$options"));
 

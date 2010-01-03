@@ -58,7 +58,7 @@ if ($REQUEST_METHOD == "POST")
   else
     $register = "";
 
-  if ($username != "" && !eregi("^[-a-z0-9._]+\$", $username))
+  if ($username != "" && !preg_match("/^[-a-z0-9._]+\$/i", $username))
     $usererror = "Bad username - only letters, numbers, '.', '-', and '_' "
                 ."are allowed!";
   else if ($argc == 1 && $argv[0] == "A" && $username != "" &&
@@ -102,7 +102,7 @@ if ($REQUEST_METHOD == "POST")
 		   ."You will then be able to access your account.\n"),
 	   "From: $PROJECT_EMAIL\r\n");
 
-      html_header("Login Registration", "", "",
+      html_header("Login Registration", "",
                   array("Login" => "$PHP_SELF",
 		        "Enable Account" => "$PHP_SELF?E"));
 
@@ -190,7 +190,7 @@ if ($REQUEST_METHOD == "POST")
 		   ."You will then be able to access your account.\n"),
 	   "From: $PROJECT_EMAIL\r\n");
 
-      html_header("Forgot Username or Password", "", "",
+      html_header("Forgot Username or Password", "",
                   array("Login" => "$PHP_SELF",
 		        "Reset Password" => "$PHP_SELF?E"));
 
@@ -225,7 +225,7 @@ if ($LOGIN_USER != "")
 else if ($argc == 0 || $argv[0] != "E")
 {
   // Header + start of table...
-  html_header("Login", "", "",
+  html_header("Login", "",
               array("Login" => "$PHP_SELF", "Enable Account" => "$PHP_SELF?E"));
 
   print("<p><table width='100%' height='100%' border='0' cellpadding='0' "
@@ -336,7 +336,7 @@ else if ($argc == 0 || $argv[0] != "E")
 }
 else
 {
-  html_header("Enable Account", "", "",
+  html_header("Enable Account", "",
               array("Login" => "$PHP_SELF", "Enable Account" => "$PHP_SELF?E"));
 
   if ($usererror != NULL)

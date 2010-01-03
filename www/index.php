@@ -6,21 +6,44 @@
 //
 
 include_once "phplib/db-article.php";
-include_once "phplib/common.php";
-include_once "phplib/poll.php";
-include_once "data/revisions.php";
+include_once "phplib/mirrors.php";
 
 html_header();
 
+$fp   = fopen("data/software.md5", "r");
+while ($line = fgets($fp, 1024))
+{
+  $data = explode(" ", trim($line));
+  if (preg_match("/^[1-9]\\.[0-9]+\\.[0-9+]\$/", $data[1]))
+    break;
+}
+fclose($fp);
+
+$mirror  = mirror_closest();
+$url     = "$mirror/$data[2]";
+$version = $data[1];
+$file    = "/home/ftp.easysw.com/pub/$data[2]";
+if (file_exists($file))
+  $size = sprintf("%.1fM", filesize($file) / 1024 / 1024);
+else
+  $size = "?.?M";
+
 ?>
 
-<h1>HTMLDOC Open Source Home Page</h1>
+<h1><img src='images/htmldoc.jpg' width='128' height='128'
+align='right'>HTMLDOC Open Source Home Page</h1>
 
 <p>HTMLDOC converts Hyper-Text Markup Language ("HTML") files and web pages into
 indexed HTML, Adobe<sup>&reg;</sup> PostScript<sup>&reg;</sup>, or Adobe
 Portable Document Format ("PDF") files. HTMLDOC is available in both
 <a href='http://www.easysw.com/htmldoc/'>commercial</a> and
 <a href='software.php'>open source</a> versions.</p>
+
+<table border='0' cellspacing='0' cellpadding='0' summary='Download' background='images/download.jpg'>
+<tr><td class='download'><?
+print("<a href='$url'>Download v$version ($size)</a>");
+?></td></tr>
+</table>
 
 <p>&nbsp;</p>
 

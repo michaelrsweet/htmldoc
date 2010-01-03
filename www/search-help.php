@@ -5,9 +5,9 @@
 // Search help page...
 //
 
-include_once "phplib/html.php";
+include_once "phplib/doc.php";
 
-html_header("Search Help");
+doc_header("Search Help");
 
 ?>
 
@@ -104,7 +104,7 @@ creator:jane
 
 <?
 
-html_footer();
+doc_footer();
 
 //
 // End of "$Id: search-help.php 3 2007-04-11 15:10:22Z mike $".

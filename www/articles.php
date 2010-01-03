@@ -229,8 +229,9 @@ switch ($op)
       }
       else
       {
-	html_header("Delete Article #$id", "", "",
-	            array("Return to Articles" => "$PHP_SELF?L$options",
+	html_header("Delete Article #$id", "",
+	            array("Documentation" => "documentation.php",
+		          "Return to Articles" => "$PHP_SELF?L$options",
 		          "View Article #$id" => "$PHP_SELF?L$id$options",
 			  "Modify Article #$id" => "$PHP_SELF?U$id$options"));
 
@@ -248,8 +249,9 @@ switch ($op)
       make_rdf_file("index.rss", "http://www.htmldoc.org/", "HTMLDOC",
 		    "HTMLDOC News");
 
-      html_header("Update RSS File", "", "$PHP_SELF?L$options",
-                  array("Return to Articles" => "$PHP_SELF?L$options"));
+      html_header("Update RSS File", "$PHP_SELF?L$options",
+                  array("Documentation" => "documentation.php",
+			"Return to Articles" => "$PHP_SELF?L$options"));
 
       print("<p>RSS file updated!</p>\n");
       html_footer();
@@ -268,7 +270,8 @@ switch ($op)
 	  exit();
 	}
 
-	$links = array("Return to Articles" => "$PHP_SELF?L$options",
+	$links = array("Documentation" => "documentation.php",
+		       "Return to Articles" => "$PHP_SELF?L$options",
 		       "Show Comments" => "#_USER_COMMENTS",
 		       "Submit Comment" => "comment.php?U+Particles.php_L$id");
 
@@ -279,7 +282,7 @@ switch ($op)
 	  $links["Delete Article"] = "$PHP_SELF?D$id$options";
 	}
 
-	html_header("Article #$id: $article->title", "", "", $links);
+	html_header("Article #$id: $article->title", "", $links);
 
 	$article->view();
       }
@@ -288,12 +291,13 @@ switch ($op)
 	$bookmark  = "$PHP_URL?L+T" . urlencode($stype) .
 		     "+Q" . urlencode($search);
 
-	$links = array("Submit Article" => "$PHP_SELF?U$options",
+	$links = array("Documentation" => "documentation.php",
+		       "New Article" => "$PHP_SELF?U$options",
 	               "Link To Search Results" => $bookmark);
 	if ($LOGIN_LEVEL >= AUTH_DEVEL)
 	  $links["Update RSS File"] = "$PHP_SELF?G$options";
 
-	html_header("Articles", "", "", $links);
+	html_header("Articles", "", $links);
 
 	$htmlsearch = htmlspecialchars($search, ENT_QUOTES);
 
@@ -462,14 +466,15 @@ switch ($op)
       }
       else
       {
-	$links = array("Return to Articles" => "$PHP_SELF?L$options");
+	$links = array("Documentation" => "documentation.php",
+		       "Return to Articles" => "$PHP_SELF?L$options");
 	if ($id)
 	  $links["Article #$id"] = "$PHP_SELF?L$id$options";
 
 	if ($id)
-	  html_header("Modify Article #$id", "", "", $links);
+	  html_header("Modify Article #$id", "", $links);
 	else
-	  html_header("Submit Article", "", "", $links);
+	  html_header("New Article", "", $links);
 
 	if ($REQUEST_METHOD == "POST" && !$havedata)
 	  print("<p><b>Error:</b> Please fill in the fields marked "

@@ -9,134 +9,129 @@
 // Include necessary headers...
 //
 
-include_once "phplib/html.php";
+include_once "phplib/doc.php";
 
-
-//
-// Get the web server path information and serve the named file as needed...
-//
+if (array_key_exists("SEARCH", $_GET))
+  $search = $_GET["SEARCH"];
+else
+  $search = "";
 
 if (array_key_exists("PATH_INFO", $_SERVER))
-  $PATH_INFO = $_SERVER["PATH_INFO"];
-else
-  $PATH_INFO = "";
-
-if ($PATH_INFO != "/" && $PATH_INFO != "")
 {
-  $path = substr($PATH_INFO, 1);
-
-  if (strstr($path, ".gif"))
-    $type = "gif";
-  else if (strstr($path, ".jpg"))
-    $type = "jpeg";
-  else if (strstr($path, ".png"))
-    $type = "png";
-  else
-    $type = "html";
-
-  if (strstr($path, ".."))
-  {
-    if ($type == "html")
-    {
-      html_header("Documentation Error", "../");
-
-      print("<p>The path '$path' is bad.</p>\n");
-
-      html_footer();
-    }
-  }
-  else
-  {
-    $fp = fopen("docfiles/$path", "rb");
-    if (!$fp)
-    {
-      if ($type == "html")
-      {
-	html_header("Documentation Error", "../");
-
-	print("<p>Unable to open path '$path'.</p>\n");
-
-	html_footer();
-      }
-    }
-    else if ($type == "html")
-    {
-      $saw_body = 0;
-      $last_nav = 0;
-
-      while ($line = fgets($fp, 1024))
-      {
-        if (strstr($line, "<TITLE>"))
-	{
-	  $start = strpos($line, "<TITLE>") + 7;
-	  $end   = strpos($line, "</TITLE>");
-
-          html_header(substr($line, $start, $end - $start), "../");
-        }
-        else if (strstr($line, "<BODY"))
-	{
-	  $saw_body = 1;
-	}
-	else if (strstr($line, "</BODY>"))
-	{
-	  break;
-	}
-	else if ($saw_body)
-	{
-	  if (strstr($line, "Contents</A") ||
-	      strstr($line, "Previous</A>") ||
-	      strstr($line, "Next</A>"))
-	  {
-	    if ($last_nav)
-	      print("|\n");
-	    else
-	      print("<p align='center'>[ <a href='#_USER_COMMENTS'>Comments</a> |\n");
-
-            $last_nav = 1;
-	  }
-	  else if (strstr($line, "<HR NOSHADE>"))
-	  {
-	    if ($last_nav)
-	      print("]</p>\n");
-
-	    $last_nav = 0;
-	  }
-
-	  print($line);
-	}
-      }
-
-      fclose($fp);
-
-      if ($last_nav)
-        print("]\n");
-
-      print("<hr noshade/>\n"
-           ."<h2><a name='_USER_COMMENTS'>User Comments</a> [&nbsp;"
-	   ."<a href='../../comment.php?U+Pdocumentation.php$path'>Add&nbsp;Comment</a>"
-	   ."&nbsp;]</h2>\n");
-
-      $num_comments = show_comments("documentation.php$path");
-
-      if ($num_comments == 0)
-        print("<p>No comments for this page.</p>\n");
-
-      html_footer();
-    }
-    else
-    {
-      header("Content-Type: image/$type");
-      
-      print(fread($fp, filesize("docfiles/$path")));
-
-      fclose($fp);
-    }
-  }
+  $filename = $_SERVER["PATH_INFO"];
+  if (strpos($filename, "..") !== FALSE ||
+      !preg_match("/^(\\/docfiles\\/|\\/).*\\..*/", $filename))
+    $filename = "";
 }
 else
-{
-  html_header("Documentation");
+  $filename = "";
 
+function
+show_search()
+{
+  global $search;
+
+  $html = htmlspecialchars($search, ENT_QUOTES);
+
+  print("<form action='documentation.php' method='GET'>\n"
+       ."<p align='center'><input type='search' name='SEARCH' value='$html' "
+       ."size='80' placeholder='Search Documentation' "
+       ."autosave='org.htmldoc.search' results='20'>"
+       ."<input type='submit' value='Search'></p>\n"
+       ."</form>\n"
+       ."<hr>\n");
+}
+
+
+if ($filename != "")
+{
+  if (strpos($filename, "/", 1) === FALSE)
+    $filename = "docfiles$filename";
+  else
+    $filename = substr($filename, 1);
+
+  if (!file_exists($filename))
+  {
+    header("Status: 404");
+    exit();
+  }
+  else if (preg_match("/\\.html\$/", $filename))
+  {
+    // HTML files get the standard header/footer treatment...
+    $fp     = fopen($filename, "r");
+    $title  = "";
+    $inbody = FALSE;
+
+    while ($line = fgets($fp, 1024))
+    {
+      if (preg_match("/<title>(.*)<\\/title>/i", $line, $matches))
+      {
+        if ($title == "")
+	{
+	  $title = $matches[1];
+	  doc_header($title);
+	  show_search();
+        }
+      }
+      else if (preg_match("/<body/i", $line))
+      {
+	$inbody = TRUE;
+
+	if ($title == "")
+	{
+	  $title = htmlspecialchars(basename($filename));
+	  doc_header($title);
+	  show_search();
+	}
+      }
+      else if (preg_match("/<\\/body>/i", $line))
+        break;
+      else if ($inbody)
+        print($line);
+    }
+
+    fclose($fp);
+
+    doc_footer();
+  }
+  else if (preg_match("/\\.txt\$/", $filename))
+  {
+    // Text files get the standard header/footer treatment...
+    $title = htmlspecialchars(basename($filename));
+    doc_header($title);
+    show_search();
+
+    print("<pre>");
+    print(htmlspecialchars(file_get_contents($filename)));
+    print("</pre>");
+
+    doc_footer();
+  }
+  else
+  {
+    // Other files get tagged appropriately...
+    if (preg_match("/\\.gif\$/", $filename))
+      header("Content-Type: image/gif");
+    else if (preg_match("/\\.jpg\$/", $filename))
+      header("Content-Type: image/jpeg");
+    else if (preg_match("/\\.pdf\$/", $filename))
+      header("Content-Type: application/pdf");
+    else if (preg_match("/\\.png\$/", $filename))
+      header("Content-Type: image/png");
+    else
+      header("Content-Type: application/octet-stream");
+
+    readfile($filename);
+  }
+
+  exit();
+}
+
+doc_header();
+show_search();
+
+if ($search == "")
+{
 ?>
 
 <p>You can view the HTMLDOC Software Users Manual in a number of
@@ -212,10 +207,7 @@ formats on-line:</p>
 
 <ul>
 
-	<li><a href='htmldoc-cmp.php'>Configuration Management Plan</a></li>
-
-	<li><a href='roadmap.php'>Development Roadmap</a></li>
-
+	<li><a href='htmldoc-cmp.php'>Developer Guide</a></li>
 
 <!--
 	<li><a href='htmldoc-sdd.php'>Software Design Description</a></li>
@@ -226,9 +218,30 @@ formats on-line:</p>
 </ul>
 
 <?php
-
-  html_footer();
 }
+else
+{
+  $list  = doc_search($search);
+  $count = sizeof($list);
+  if ($count > 0)
+  {
+    if ($count == 1)
+      $count = "1 match";
+    else
+      $count = "$count matches";
+
+    print("<p>Found $count:</p>\n"
+         ."<ul class='compact'>\n");
+    reset($list);
+    foreach ($list as $url => $text)
+      print("<li><a href='documentation.php/$url'>$text</a></li>\n");
+    print("</ul>\n");
+  }
+  else
+    print("<p>No matches found.</p>\n");
+}
+
+doc_footer();
 
 //
 // End of "$Id: documentation.php,v 1.7 2005/11/18 22:01:43 mike Exp $".
