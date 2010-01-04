@@ -4,10 +4,21 @@
  *   Test program for HTML parsing routines for HTMLDOC, an HTML document
  *   processing program.
  *
- *   Copyright 1997-2005 by Michael Sweet.
+ *   Copyright 1997-2010 by Easy Software Products.
  *
- *   HTMLDOC is distributed under the terms of the Aladdin Free Public License
- *   which is described in the file "LICENSE.txt".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Easy Software Products and are protected by Federal
+ *   copyright law.  Distribution and use rights are outlined in the file
+ *   "COPYING.txt" which should have been included with this file.  If this
+ *   file is missing or damaged please contact Easy Software Products
+ *   at:
+ *
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
+ *
+ *     http://www.htmldoc.org/
  *
  * Contents:
  *

@@ -8,7 +8,7 @@
  *   broken into more manageable pieces once we make all of the output
  *   "drivers" into classes...
  *
- *   Copyright 1997-2006 by Easy Software Products.
+ *   Copyright 1997-2010 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -17,14 +17,12 @@
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: ESP Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: info@easysw.com
- *         WWW: http://www.easysw.com
+ *     http://www.htmldoc.org/
  *
  * Contents:
  *
@@ -5937,6 +5935,29 @@ parse_table(tree_t *t,			// I - Tree to parse
 
 	    if (col_min > col_smins[col])
 	      col_smins[col] = col_min;
+
+	    temp_width = col_width / colspan;
+	    for (int i = 0; i < colspan; i ++)
+	    {
+	      if (temp_width > col_widths[col + i])
+	        col_widths[col + i] = temp_width;
+	    }
+
+#if 0
+	    temp_width = col_pref / colspan;
+	    for (int i = 0; i < colspan; i ++)
+	    {
+	      if (temp_width > col_prefs[col + i])
+	        col_prefs[col + i] = temp_width;
+	    }
+
+	    temp_width = col_width / colspan;
+	    for (int i = 0; i < colspan; i ++)
+	    {
+	      if (temp_width > col_widths[col + i])
+	        col_widths[col + i] = temp_width;
+	    }
+#endif // 0
           }
 	  else
 	  {

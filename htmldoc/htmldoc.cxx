@@ -3,7 +3,7 @@
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2006 by Easy Software Products.
+ *   Copyright 1997-2010 by Easy Software Products.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
@@ -12,14 +12,12 @@
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: ESP Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: info@easysw.com
- *         WWW: http://www.easysw.com
+ *     http://www.htmldoc.org/
  *
  * Contents:
  *
@@ -2562,7 +2560,7 @@ usage(const char *arg)			// I - Bad argument string
   if (CGIMode)
     puts("Content-Type: text/plain\r\n\r");
 
-  puts("HTMLDOC Version " SVERSION " Copyright 1997-2006 Easy Software Products, All Rights Reserved.");
+  puts("HTMLDOC Version " SVERSION " Copyright 1997-2010 Easy Software Products, All Rights Reserved.");
   puts("This software is based in part on the work of the Independent JPEG Group.");
   puts("");
 

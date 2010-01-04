@@ -3,7 +3,7 @@
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 1997-2006 by Easy Software Products.
+#   Copyright 1997-2010 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -12,14 +12,12 @@
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
-#       Attn: ESP Licensing Information
-#       Easy Software Products
-#       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636 USA
+#     Attn: HTMLDOC Licensing Information
+#     Easy Software Products
+#     516 Rio Grand Ct
+#     Morgan Hill, CA 95037 USA
 #
-#       Voice: (301) 373-9600
-#       EMail: info@easysw.com
-#         WWW: http://www.easysw.com
+#     http://www.htmldoc.org/
 #
 
 AC_INIT(htmldoc/htmldoc.h)
@@ -27,8 +25,8 @@ AC_CONFIG_HEADER(config.h)
 AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
-SVERSION="1.8.27"
-NVERSION=10802600
+SVERSION="1.8.28"
+NVERSION=10802800
 AC_SUBST(SVERSION)
 AC_SUBST(NVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
@@ -123,11 +121,11 @@ LARGEFILE=""
 if test x$enable_largefile != xno; then
 	LARGEFILE="-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"
 
-	if test $ac_cv_sys_large_files = 1; then
+	if test x$ac_cv_sys_large_files = x1; then
 		LARGEFILE="$LARGEFILE -D_LARGE_FILES"
 	fi
 
-	if test $ac_cv_sys_file_offset_bits = 64; then
+	if test x$ac_cv_sys_file_offset_bits = x64; then
 		LARGEFILE="$LARGEFILE -D_FILE_OFFSET_BITS=64"
 	fi
 fi
@@ -316,43 +314,31 @@ if test "$bindir" = "\${exec_prefix}/bin"; then
     bindir="$exec_prefix/bin"
 fi
 
-AC_DEFINE_UNQUOTED(DOCUMENTATION, "$prefix/share/doc/htmldoc")
-AC_DEFINE_UNQUOTED(HTML_DATA, "$prefix/share/htmldoc")
+dnl Fix "datarootdir" variable if it hasn't been specified...
+if test "$datarootdir" = "\${prefix}/share"; then
+	if test "$prefix" = "/"; then
+		datarootdir="/usr/share"
+	else
+		datarootdir="$prefix/share"
+	fi
+fi
+
+dnl Fix "datadir" variable if it hasn't been specified...
+if test "$datadir" = "\${prefix}/share"; then
+	if test "$prefix" = "/"; then
+		datadir="/usr/share"
+	else
+		datadir="$prefix/share"
+	fi
+elif test "$datadir" = "\${datarootdir}"; then
+	datadir="$datarootdir"
+fi
+
+AC_DEFINE_UNQUOTED(DOCUMENTATION, "$datadir/doc/htmldoc")
+AC_DEFINE_UNQUOTED(HTML_DATA, "$datadir/htmldoc")
 
 dnl Update compiler options...
 if test -n "$GXX"; then
-    dnl Starting with GCC 3.0, you must link C++ programs against either
-    dnl libstdc++ (shared by default), or libsupc++ (always static).  If
-    dnl you care about binary portability between Linux distributions,
-    dnl you need to either 1) build your own GCC with static C++ libraries
-    dnl or 2) link using gcc and libsupc++.  We choose the latter since
-    dnl CUPS doesn't (currently) use any of the stdc++ library.
-    dnl
-    dnl Also, GCC 3.0.x still has problems compiling some code.  You may
-    dnl or may not have success with it.  USE 3.0.x WITH EXTREME CAUTION!
-    dnl
-    dnl Previous versions of GCC do not have the reliance on the stdc++
-    dnl or g++ libraries, so the extra supc++ library is not needed.
-
-    AC_MSG_CHECKING(if libsupc++ is required)
-
-    SUPC="`$CXX -print-file-name=libsupc++.a 2>/dev/null`"
-    case "$SUPC" in
-    	libsupc++.a*)
-	    dnl Library not found, so this is and older GCC...
-	    AC_MSG_RESULT(no)
-	    ;;
-	*)
-            dnl This is gcc 3.x, and it knows of libsupc++, so we need it
-            LIBS="$LIBS -lsupc++"
-            AC_MSG_RESULT(yes)
-	    ;;
-    esac
-
-    if test "x$uname" != xDarwin; then
-	CXX="$CC"
-    fi
-
     dnl Set optimization flags...
     if test -z "$OPTIM"; then
         OPTIM="-Os -g"
