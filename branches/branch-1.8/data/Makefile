@@ -1,9 +1,9 @@
 #
-# "$Id: Makefile,v 1.4.2.6 2004/05/10 01:14:53 mike Exp $"
+# "$Id$"
 #
 #   Makefile for HTMLDOC data files.
 #
-#   Copyright 1997-2001 by Easy Software Products.
+#   Copyright 1997-2010 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -12,14 +12,12 @@
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
-#       Attn: ESP Licensing Information
-#       Easy Software Products
-#       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3142 USA
+#     Attn: HTMLDOC Licensing Information
+#     Easy Software Products
+#     516 Rio Grand Ct
+#     Morgan Hill, CA 95037 USA
 #
-#       Voice: (301) 373-9600
-#       EMail: info@easysw.com
-#         WWW: http://www.easysw.com
+#     http://www.htmldoc.org/
 #
 
 #
@@ -67,5 +65,5 @@ install:
 clean:
 
 #
-# End of "$Id: Makefile,v 1.4.2.6 2004/05/10 01:14:53 mike Exp $".
+# End of "$Id$".
 #

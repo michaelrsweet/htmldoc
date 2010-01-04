@@ -7,7 +7,7 @@
 #
 
 %product HTMLDOC
-%copyright 1997-2006 by Easy Software Products, All Rights Reserved.
+%copyright 1997-2010 by Easy Software Products, All Rights Reserved.
 %vendor Easy Software Products
 %license htmldoc.eula
 %readme htmldoc.readme
@@ -20,6 +20,7 @@ $exec_prefix=@exec_prefix@
 $bindir=@bindir@
 $mandir=@mandir@
 $datadir=@datadir@
+$datarootdir=@datarootdir@
 
 # Program
 %system darwin
