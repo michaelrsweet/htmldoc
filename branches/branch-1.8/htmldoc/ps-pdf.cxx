@@ -9543,7 +9543,7 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
           break;
     }
 
-    if (t->child != NULL)
+    if (t->child != NULL && t->markup != MARKUP_UNKNOWN)
     {
       temp = flatten_tree(t->child);
 
@@ -12411,7 +12411,8 @@ write_type1(FILE       *out,		/* I - File to write to */
 
     while (fgets(line, sizeof(line), fp) != NULL)
     {
-      if (strlen(line) == 65)
+      if (!strcmp(line, "00000000000000000000000000000000"
+                        "00000000000000000000000000000000\n"))
         break;
 
       length2 += (strlen(line) - 1) / 2;
@@ -12442,7 +12443,8 @@ write_type1(FILE       *out,		/* I - File to write to */
 
     while (fgets(line, sizeof(line), fp) != NULL)
     {
-      if (strlen(line) == 65)
+      if (!strcmp(line, "00000000000000000000000000000000"
+                        "00000000000000000000000000000000\n"))
         break;
 
       for (lineptr = line, dataptr = line; isxdigit(*lineptr); lineptr += 2)
