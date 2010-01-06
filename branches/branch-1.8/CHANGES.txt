@@ -1,5 +1,24 @@
-CHANGES.txt - 08/01/2006
+CHANGES.txt - 2010-01-05
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.28
+
+    CHANGES
+
+	- Updated local zlib to version 1.2.3.
+	- Updated local PNG library to version ???.
+	- Updated local JPEG library to version 7.
+
+    BUG FIXES
+
+	- Fixed a table formatting problem when a column has multiple colspan
+	  values (PR #6709)
+	- Fixed parsing of HTML comments (STR #181)
+	- Fixed potential out-of-bounds read in table-of-contents rendering
+	  code (STR #183)
+        - Fixed handling of image URLs with ampersands in them (STR #186)
+	- Fixed top/bottom margins for logo and header/footer images (STR #174)
+
 
 CHANGES IN HTMLDOC v1.8.27
 
