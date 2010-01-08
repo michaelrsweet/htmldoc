@@ -12581,7 +12581,7 @@ write_type1(FILE       *out,		/* I - File to write to */
 	  * assigned charset...
 	  */
 
-	  if (sscanf(line, "%*s%*s%*s%*s%d%*s%*s%s", &width, glyph) != 2)
+	  if (sscanf(line, "%*s%*s%*s%*s%d%*s%*s%63s", &width, glyph) != 2)
 	    continue;
 
 	  for (ch = 0; ch < 256; ch ++)
