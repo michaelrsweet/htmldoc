@@ -32,6 +32,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		27422F1110E7311E0095C134 /* jaricom.c in Sources */ = {isa = PBXBuildFile; fileRef = 27422F0E10E7311E0095C134 /* jaricom.c */; };
+		27422F1210E7311E0095C134 /* jcarith.c in Sources */ = {isa = PBXBuildFile; fileRef = 27422F0F10E7311E0095C134 /* jcarith.c */; };
+		27422F1310E7311E0095C134 /* jdarith.c in Sources */ = {isa = PBXBuildFile; fileRef = 27422F1010E7311E0095C134 /* jdarith.c */; };
 		277634030F0D1227007E194E /* rc4.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 277634020F0D1227007E194E /* rc4.cxx */; };
 		27CD4E3B0F09992100E552E8 /* array.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27CD4E390F09992100E552E8 /* array.cxx */; };
 		27DD25500EC01A3300B76D4E /* entity.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252B0EC01A3300B76D4E /* entity.cxx */; };
@@ -373,6 +376,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		27422F0E10E7311E0095C134 /* jaricom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jaricom.c; path = ../jpeg/jaricom.c; sourceTree = SOURCE_ROOT; };
+		27422F0F10E7311E0095C134 /* jcarith.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jcarith.c; path = ../jpeg/jcarith.c; sourceTree = SOURCE_ROOT; };
+		27422F1010E7311E0095C134 /* jdarith.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jdarith.c; path = ../jpeg/jdarith.c; sourceTree = SOURCE_ROOT; };
 		277634020F0D1227007E194E /* rc4.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rc4.cxx; path = ../htmldoc/rc4.cxx; sourceTree = SOURCE_ROOT; };
 		27CD4E390F09992100E552E8 /* array.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = array.cxx; path = ../htmldoc/array.cxx; sourceTree = SOURCE_ROOT; };
 		27CD4E3A0F09992100E552E8 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = ../htmldoc/array.h; sourceTree = SOURCE_ROOT; };
@@ -694,6 +700,9 @@
 		1AB674ADFE9D54B511CA2CBB /* libjpeg */ = {
 			isa = PBXGroup;
 			children = (
+				27422F0E10E7311E0095C134 /* jaricom.c */,
+				27422F0F10E7311E0095C134 /* jcarith.c */,
+				27422F1010E7311E0095C134 /* jdarith.c */,
 				27DD258C0EC01C4200B76D4E /* libjpeg.a */,
 				27DD259A0EC01D1200B76D4E /* jcapimin.c */,
 				27DD259B0EC01D1200B76D4E /* jcapistd.c */,
@@ -1038,6 +1047,9 @@
 				27DD26080EC01D1200B76D4E /* jquant1.c in Sources */,
 				27DD26090EC01D1200B76D4E /* jquant2.c in Sources */,
 				27DD260A0EC01D1200B76D4E /* jutils.c in Sources */,
+				27422F1110E7311E0095C134 /* jaricom.c in Sources */,
+				27422F1210E7311E0095C134 /* jcarith.c in Sources */,
+				27422F1310E7311E0095C134 /* jdarith.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
