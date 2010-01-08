@@ -482,7 +482,7 @@ set_page_size(const char *size)	/* I - Page size string */
     PageWidth  = 595;
     PageLength = 792;
   }
-  else if (sscanf(size, "%fx%f%s", &width, &length, units) >= 2)
+  else if (sscanf(size, "%fx%f%254s", &width, &length, units) >= 2)
   {
    /*
     * Custom size...
