@@ -2150,7 +2150,7 @@ htmlLoadFontWidths(void)
 	  * assigned charset...
 	  */
 
-          if (sscanf(line, "%*s%*s%*s%*s%f%*s%*s%s", &width, glyph) != 2)
+          if (sscanf(line, "%*s%*s%*s%*s%f%*s%*s%63s", &width, glyph) != 2)
 	    continue;
 
           for (ch = 0; ch < 256; ch ++)

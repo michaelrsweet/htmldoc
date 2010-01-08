@@ -1,4 +1,4 @@
-CHANGES.txt - 2010-01-05
+CHANGES.txt - 2010-01-07
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.28
@@ -11,6 +11,8 @@ CHANGES IN HTMLDOC v1.8.28
 
     BUG FIXES
 
+	- SECURITY: Fixed three buffer overflow issues when reading AFM files
+	  and parsing page sizes.
 	- Fixed a table formatting problem when a column has multiple colspan
 	  values (PR #6709)
 	- Fixed parsing of HTML comments (STR #181)
