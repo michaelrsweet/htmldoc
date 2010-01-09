@@ -282,7 +282,7 @@ switch ($op)
 	if ($LOGIN_LEVEL >= AUTH_DEVEL)
 	  $links["Modify STR"] = "$PHP_SELF?U$id$options";
 
-        html_header("Bug #$id: $str->summary", "", "", $links);
+        html_header("Bug #$id: $str->summary", "", $links);
 	print($strlinks);
 
         $str->view($options);
