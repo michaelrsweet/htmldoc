@@ -1,11 +1,9 @@
 #
 # "$Id$"
 #
-#   PNG library Makefile for the HTMLDOC software.
+#   PNG library makefile for the HTMLDOC software.
 #
-#   Makefile copyright 1997-2001 by Easy Software Products, all rights reserved.
-#   PNG library copyright 1995 Guy Eric Schalnat, Group 42, Inc.
-#   For conditions of distribution and use, see copyright notice in png.h
+#   Copyright 1997-2010 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -14,12 +12,12 @@
 #   file is missing or damaged please contact Easy Software Products
 #   at:
 #
-#       Attn: HTMLDOC Licensing Information
-#       Easy Software Products
-#       516 Rio Grand Ct
-#       Morgan Hill, CA 95037 USA
+#     Attn: HTMLDOC Licensing Information
+#     Easy Software Products
+#     516 Rio Grand Ct
+#     Morgan Hill, CA 95037 USA
 #
-#       http://www.htmldoc.org/
+#     http://www.htmldoc.org/
 #
 
 include ../Makedefs
@@ -56,7 +54,7 @@ libpng.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@  $(OBJS)
 	$(RANLIB) $@
 
-$(OBJS):	png.h pngconf.h ../Makedefs
+$(OBJS):	png.h pngpriv.h pngconf.h ../Makedefs
 
 #
 # End of "$Id$".
