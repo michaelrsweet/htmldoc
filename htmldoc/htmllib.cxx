@@ -251,7 +251,7 @@ int		_htmlStandardFonts[TYPE_MAX] =
 		  0,	// Sans
 		  0,	// Serif
 		  1,	// Symbol
-		  0	// Dingbats
+		  1	// Dingbats
 		};
 
 
