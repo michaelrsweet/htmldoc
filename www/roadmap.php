@@ -264,7 +264,7 @@ while (list($version, $description) = each($versions))
     db_free($result);
   }
   else
-    print("<h2><a name='$version'>HTMLDOC $version (planned)</a></h2>\n"
+    print("<h2><a name='$version'>HTMLDOC $version (No Features or Bugs)</a></h2>\n"
 	 ."<p>$description</p>\n");
 }
 
