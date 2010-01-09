@@ -1,4 +1,4 @@
-README.txt - 08/01/2006
+README.txt - 2010-01-08
 -----------------------
 
 INTRODUCTION
@@ -11,7 +11,7 @@ INTRODUCTION
     **** SUPPORT STYLE SHEETS!  PLEASE READ THE DOCUMENTATION  ****
     **** BEFORE ASKING QUESTIONS.                              ****
 
-    HTMLDOC is copyright 1997-2006 by Easy Software Products.
+    HTMLDOC is copyright 1997-2010 by Easy Software Products.
     The source code is available under the GNU General Public
     License, version 2.  Binaries are provided under a typical
     commercial End-User License Agreement. See the LEGAL STUFF
@@ -26,17 +26,9 @@ INTRODUCTION
     will be compliant with HTML 4.0 and support style sheets.
 
     Please support continued HTMLDOC development by purchasing
-    HTMLDOC on CD-ROM from the following page:
+    commercial HTMLDOC licenses from the following page:
 
         http://www.easysw.com/htmldoc/
-
-    HTMLDOC Basic is available for $49.95 and provides the
-    software on CD-ROM and 30 days of installation support via
-    email, telephone, and WWW.
-
-    HTMLDOC Professional is available for $499.95 and provides
-    the software on CD-ROM and one year of general support via
-    email, telephone, and WWW.
 
 
 INTERNET RESOURCES
@@ -159,7 +151,7 @@ ENCRYPTION SUPPORT
 
 LEGAL STUFF
 
-    The Adobe Portable Document Format is Copyright 1985-2003 by
+    The Adobe Portable Document Format is Copyright 1985-2005 by
     Adobe Systems Incorporated. Adobe, FrameMaker, and
     PostScript are registered trademarks of Adobe Systems,
     Incorporated.
@@ -169,12 +161,9 @@ LEGAL STUFF
 
     Intel is a registered trademark of Intel Corporation.
 
-    IRIX and sgi are registered trademarks of Silicon Graphics,
-    Inc.
-
     Linux is a registered trademark of Linus Torvalds.
 
-    MacOS is a registered trademark of Apple Computer, Inc.
+    Mac OS is a registered trademark of Apple Inc.
 
     Microsoft and Windows are registered trademarks of Microsoft
     Corporation.
@@ -185,10 +174,9 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC and <HTML>DOC are the trademark property of Easy
-    Software Products.
+    HTMLDOC and <HTML>DOC are trademarks of Easy Software Products.
 
-    HTMLDOC is copyright 1997-2006 by Easy Software Products.
+    HTMLDOC is copyright 1997-2010 by Easy Software Products.
     See Appendix A of the HTMLDOC Software Users Manual and the
     files "COPYING.txt" and "htmldoc.eula" for the terms of use.
 
