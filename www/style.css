@@ -59,25 +59,25 @@ INPUT[TYPE="TEXT"], INPUT[TYPE="PASSWORD"], INPUT[TYPE="SEARCH"], TEXTAREA {
 A:link {
   font-family: sans-serif;
   text-decoration: none;
-  color: #0000cc;
+  color: #0060A0;
 }
 
 A:visited {
   font-family: sans-serif;
   text-decoration: none;
-  color: #000099;
+  color: #003050;
 }
 
 A:hover {
   font-family: sans-serif;
   text-decoration: none;
-  color: #ff0099;
+  color: #00A060;
 }
 
 A:active {
   font-family: sans-serif;
   text-decoration: underline;
-  color: #ff0000;
+  color: #005030;
 }
 
 DL {
@@ -135,7 +135,7 @@ TD.page {
 }
 
 TD.footer {
-  border-top: solid thin #666666;
+  border-top: solid thin #999999;
   color: #666666;
   font-size: 80%;
   padding: 5px;
@@ -177,7 +177,7 @@ P.links A:hover {
 }
 
 TABLE.standard {
-  border-bottom: solid thin black;
+  border-bottom: solid thin #999999;
   border-collapse: collapse;
   margin-left: auto;
   margin-right: auto;
@@ -185,7 +185,8 @@ TABLE.standard {
 }
 
 TR.header TH {
-  border-bottom: solid thin black;
+  border-bottom: solid thin #999999;
+  color: #333333;
   padding: 0px 5px;
   vertical-align: bottom;
   white-space: nowrap;

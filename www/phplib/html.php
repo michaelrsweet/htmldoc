@@ -30,6 +30,7 @@
 
 include_once "auth.php";
 include_once "common.php";
+include_once "phplib/db-str.php";
 
 date_default_timezone_set("America/Los_Angeles");
 
@@ -84,7 +85,7 @@ html_header($title = "",		// I - Additional document title
 	    $javascript = "")		// I - Javascript, if any
 {
   global $argc, $argv, $html_keywords, $html_path, $_GET, $LOGIN_USER;
-  global $PHP_SELF, $_SERVER;
+  global $LOGIN_LEVEL, $PHP_SELF, $_SERVER;
 
 
   // Specify HTML 4.0 so that the footer is rendered at the bottom of the
@@ -178,14 +179,16 @@ html_header($title = "",		// I - Additional document title
        ."alt='&lt;HTML&gt;DOC'></a></td>");
 
   if ($base == "login.php" || $base == "account.php")
-    $class = "sel";
+    print("<td class='sel'");
   else
-    $class = "unsel";
+    print("<td class='unsel'>");
 
   if ($LOGIN_USER)
   {
-    print("<td class='$class'><a href='$html_path/account.php'>$LOGIN_USER"
-	 ."</a>");
+    print("<a href='$html_path/account.php'>$LOGIN_USER</a>"
+         ."<a href='$html_path/account.php?X' style='padding-left: 0px'><img "
+	 ."src='$html_path/images/logout.png' width='16' height='16' "
+	 ."align='absmiddle' alt='Logout' title='Log Out'></a>");
   }
   else
   {
@@ -198,8 +201,7 @@ html_header($title = "",		// I - Additional document title
       $prefix = "+";
     }
 
-    print("<td class='$class'><a href='$html_path/login.php?PAGE=$url'>Login"
-         ."</a>");
+    print("<a href='$html_path/login.php?PAGE=$url'>Login</a>");
   }
   print("</td>");
 
@@ -211,7 +213,30 @@ html_header($title = "",		// I - Additional document title
     else
       $class = "unsel";
 
-    print("<td class='$class' nowrap><a href='$html_path/$hrefs[0]'>"
+    $url = $hrefs[0];
+    if ($url == "roadmap.php" && $LOGIN_USER != "")
+    {
+      // See if there are pending bugs for the current user...
+      $duser = db_escape($LOGIN_USER);
+
+      if ($LOGIN_LEVEL == AUTH_USER)
+        $result = db_query("SELECT id FROM str WHERE status = "
+	                  . STR_STATUS_ACTIVE
+			  ." AND create_user = '$duser'");
+      else
+        $result = db_query("SELECT id FROM str WHERE (status = "
+	                  . STR_STATUS_PENDING
+			  ." AND manager_user = '$duser')"
+			  ." OR status = " . STR_STATUS_NEW);
+
+      if (($count = db_count($result)) > 0)
+      {
+        $label .= " ($count)";
+	$url   = "str.php?L+E1";
+      }
+    }
+
+    print("<td class='$class' nowrap><a href='$html_path/$url'>"
 	 ."$label</a></td>");
   }
 

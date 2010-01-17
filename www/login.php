@@ -163,14 +163,12 @@ if ($REQUEST_METHOD == "POST")
     db_free($result);
   }
   else if ($argc == 1 && $argv[0] == "F" &&
-           ($username != "" || ($email != "" && validate_email($email))))
+           $email != "" && validate_email($email))
   {
     // Good "forgot account/password" request so far; see if account already
     // exists...
-    $dusername = db_escape($username);
-    $demail    = db_escape($email);
-    $result    = db_query("SELECT * FROM user WHERE "
-                         ."name='$dusername' OR email LIKE '%<$demail>'");
+    $demail = db_escape($email);
+    $result = db_query("SELECT * FROM user WHERE email LIKE '%<$demail>'");
     if (db_count($result) == 1)
     {
       // Found the account, send an email...
@@ -201,7 +199,7 @@ if ($REQUEST_METHOD == "POST")
     }
 
     // Account and email not found...
-    $usererror = "No matching username or email address was found!";
+    $usererror = "No matching email address was found!";
 
     db_free($result);
   }
@@ -222,15 +220,17 @@ else
 
 if ($LOGIN_USER != "")
   header("Location: $page");
-else if ($argc == 0 || $argv[0] != "E")
+else if ($argc == 0 || ($argv[0] != "E" && $argv[0] != "F"))
 {
-  // Header + start of table...
+  // Login or create account...
   html_header("Login", "",
-              array("Login" => "$PHP_SELF", "Enable Account" => "$PHP_SELF?E"));
+              array("Login" => "$PHP_SELF",
+	            "Enable Account" => "$PHP_SELF?E",
+		    "Forgot Username or Password" => "$PHP_SELF?F"));
 
-  print("<p><table width='100%' height='100%' border='0' cellpadding='0' "
-       ."cellspacing='0'>\n"
-       ."<tr><td valign='top'>\n");
+  print("<p><table width='100%' border='0' cellpadding='0' cellspacing='0'>\n"
+       ."<tr><td valign='top' width='50%' "
+       ."style='border-right: solid thin #999999; padding-right: 10px;'>\n");
 
   // Existing user...
   print("<h2>Current Users</h2>\n");
@@ -243,30 +243,26 @@ else if ($argc == 0 || $argv[0] != "E")
   print("<p>If you are a registered $PROJECT_NAME user or developer, "
        ."please enter your username and password to login:</p>\n"
        ."<form method='POST' action='$PHP_SELF'>"
-       ."<input type='hidden' name='PAGE' value='$page'/>"
-       ."<p><table width='100%'>\n"
-       ."<tr><th align='right'>Username:</th>"
+       ."<input type='hidden' name='PAGE' value='$page'>"
+       ."<p><table width='100%' summary='Login form'>\n"
+       ."<tr><th align='right' width='50%'>Username:</th>"
        ."<td><input type='text' name='USERNAME' size='16' maxsize='255'");
 
   if (array_key_exists("USERNAME", $_POST))
     print(" value='" . htmlspecialchars($_POST["USERNAME"], ENT_QUOTES) . "'");
 
-  print("/></td></tr>\n"
+  print("></td></tr>\n"
        ."<tr><th align='right'>Password:</th>"
-       ."<td><input type='password' name='PASSWORD' size='16' maxsize='255'/>"
+       ."<td><input type='password' name='PASSWORD' size='16' maxsize='255'>"
        ."</td></tr>\n"
-       ."<tr><th></th><td><input type='submit' value='Login'/></td></tr>\n"
+       ."<tr><th></th><td><input type='submit' value='Login'> "
+       ."<a href='$PHP_SELF?F'>I Forgot</a></td></tr>\n"
        ."</table></p></form>\n");
 
-  // Separator...
-  print("</td>"
-       ."<td>&nbsp;&nbsp;&nbsp;&nbsp;"
-       ."<img src='images/black.gif' width='1' height='80%' alt=''/>"
-       ."&nbsp;&nbsp;&nbsp;&nbsp;</td>"
-       ."<td valign='top'>\n");
-
   // New user...
-  print("<h2>New Users</h2>\n");
+  print("</td>\n"
+       ."<td valign='top' width='50%' style='padding-left: 10px;'>\n"
+       ."<h2>New Users</h2>\n");
 
   if ($argc == 1 && $argv[0] == "A" && $usererror != "")
     print("<p><b>$usererror</b></p>\n");
@@ -283,49 +279,17 @@ else if ($argc == 0 || $argv[0] != "E")
        ."<p><table width='100%'>\n"
        ."<tr><th align='right'>Username:</th>"
        ."<td><input type='text' name='USERNAME' size='16' maxsize='255' "
-       ." value='$username'/></td></tr>\n"
+       ." value='$username'></td></tr>\n"
        ."<tr><th align='right'>Real Name:</th>"
        ."<td><input type='text' name='REALNAME' size='16' maxsize='255' "
-       ." value='$realname'/></td></tr>\n"
+       ." value='$realname'></td></tr>\n"
        ."<tr><th align='right'>EMail:</th>"
        ."<td><input type='text' name='EMAIL' size='16' maxsize='255' "
-       ." value='$email'/></td></tr>\n"
+       ." value='$email'></td></tr>\n"
        ."<tr><th align='right'>EMail Again:</th>"
        ."<td><input type='text' name='EMAIL2' size='16' maxsize='255' "
-       ." value='$email2'/></td></tr>\n"
-       ."<tr><th></th><td><input type='submit' value='Request Account'/></td></tr>\n"
-       ."</table></p></form>\n");
-
-  // Separator...
-  print("</td>"
-       ."<td>&nbsp;&nbsp;&nbsp;&nbsp;"
-       ."<img src='images/black.gif' width='1' height='80%' alt=''/>"
-       ."&nbsp;&nbsp;&nbsp;&nbsp;</td>"
-       ."<td valign='top'>\n");
-
-  // Forgot password...
-  print("<h2>Did You Forget Your Username or Password?</h2>\n");
-
-  if ($argc == 1 && $argv[0] == "F" && $usererror != "")
-    print("<p><b>$usererror</b></p>\n");
-
-  $username = htmlspecialchars($username, ENT_QUOTES);
-  $realname = htmlspecialchars($realname, ENT_QUOTES);
-  $email    = htmlspecialchars($email, ENT_QUOTES);
-
-  print("<p>If you are a registered $PROJECT_NAME user or developer "
-       ."but have forgotten your username or password, please fill in "
-       ."the form below to reset your password. An email will be sent to the "
-       ."address you supply with instructions:</p>\n"
-       ."<form method='POST' action='$PHP_SELF?F'>"
-       ."<p><table width='100%'>\n"
-       ."<tr><th align='right'>Username:</th>"
-       ."<td><input type='text' name='USERNAME' size='16' maxsize='255' "
-       ." value='$username'/></td></tr>\n"
-       ."<tr><th align='right'>EMail:</th>"
-       ."<td><input type='text' name='EMAIL' size='16' maxsize='255' "
-       ." value='$email'/></td></tr>\n"
-       ."<tr><th></th><td><input type='submit' value='Forgot Username or Password'/></td></tr>\n"
+       ." value='$email2'></td></tr>\n"
+       ."<tr><th></th><td><input type='submit' value='Request Account'></td></tr>\n"
        ."</table></p></form>\n");
 
   // End table
@@ -334,10 +298,38 @@ else if ($argc == 0 || $argv[0] != "E")
 
   html_footer();
 }
+else if ($argv[0] == "F")
+{
+  // Forgot password...
+  html_header("Forgot Username or Password", "",
+              array("Login" => "$PHP_SELF",
+	            "Enable Account" => "$PHP_SELF?E",
+		    "Forgot Username or Password" => "$PHP_SELF?F"));
+
+  if ($usererror != "")
+    print("<p><b>$usererror</b></p>\n");
+
+  $email = htmlspecialchars($email, ENT_QUOTES);
+
+  print("<p>Please enter your email address to request your username and a new "
+       ."password:</p>\n"
+       ."<form method='POST' action='$PHP_SELF?F'>"
+       ."<p><table width='100%' summary='Forgot Username or Password form'>\n"
+       ."<tr><th align='right' width='50%'>EMail:</th>"
+       ."<td><input type='text' name='EMAIL' size='16' maxsize='255' "
+       ." value='$email'></td></tr>\n"
+       ."<tr><th></th><td><input type='submit' "
+       ."value='Forgot Username or Password'></td></tr>\n"
+       ."</table></p></form>\n");
+
+}
 else
 {
+  // Enable account
   html_header("Enable Account", "",
-              array("Login" => "$PHP_SELF", "Enable Account" => "$PHP_SELF?E"));
+              array("Login" => "$PHP_SELF",
+	            "Enable Account" => "$PHP_SELF?E",
+		    "Forgot Username or Password" => "$PHP_SELF?F"));
 
   if ($usererror != NULL)
     print("<p><b>$usererror</b></p>\n");
@@ -351,18 +343,18 @@ else
        ."<center><table width='100%'>\n"
        ."<tr><th align='right'>Registration Code:</th>"
        ."<td><input type='text' name='REGISTER' size='32' maxsize='32' "
-       ."value = '$register'/>"
+       ."value = '$register'>"
        ."</td></tr>\n"
        ."<tr><th align='right'>Username:</th>"
        ."<td><input type='text' name='USERNAME' size='16' maxsize='255' "
-       ."value='$username'/></td></tr>\n"
+       ."value='$username'></td></tr>\n"
        ."<tr><th align='right'>Password:</th>"
-       ."<td><input type='password' name='PASSWORD' size='16' maxsize='255'/>"
+       ."<td><input type='password' name='PASSWORD' size='16' maxsize='255'>"
        ."</td></tr>\n"
        ."<tr><th align='right'>Password Again:</th>"
-       ."<td><input type='password' name='PASSWORD2' size='16' maxsize='255'/>"
+       ."<td><input type='password' name='PASSWORD2' size='16' maxsize='255'>"
        ."</td></tr>\n"
-       ."<tr><th></th><td><input type='submit' value='Enable Account'/></td></tr>\n"
+       ."<tr><th></th><td><input type='submit' value='Enable Account'></td></tr>\n"
        ."</table></center></form>\n");
 
   html_footer();
