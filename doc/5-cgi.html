@@ -34,7 +34,8 @@ and programs. Examples are provided for PHP and Java.</p>
 	risks. Always be sure to "sanitize" any input from the
 	web browser so that filenames, URLs, and options passed
 	to HTMLDOC are not acted on by the shell program or
-	other processes.</p>
+	other processes. Filenames with spaces must usually be
+	enclosed with quotes.</p>
 
 	</td>
 </tr>
@@ -402,12 +403,9 @@ to the HTTP client:</p>
 
 <h3>Calling HTMLDOC from PHP</h3>
 
-<p>PHP is quickly becoming the most popular server-side
-scripting language available. PHP provides a
-<code>passthru()</code> function that can be used to run
-HTMLDOC. This combined with the <code>header()</code>
-function can be used to provide on-the-fly reports in PDF
-format.</p>
+<p>PHP provides a <code>passthru()</code> function that can be used to run
+HTMLDOC. This combined with the <code>header()</code> function can be used to
+provide on-the-fly reports in PDF format.</p>
 
 <p>Here is a simple PHP function that can be used to convert a HTML report
 to PDF and send it to the HTTP client:</p>

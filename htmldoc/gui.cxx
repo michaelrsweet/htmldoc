@@ -974,7 +974,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
   browserWidth = new Fl_Value_Slider(140, 75, 345, 20, "Browser Width: ");
   browserWidth->align(FL_ALIGN_LEFT);
   browserWidth->type(FL_HOR_NICE_SLIDER);
-  browserWidth->minimum(400.0);
+  browserWidth->minimum(300.0);
   browserWidth->maximum(1200.0);
   browserWidth->value(_htmlBrowserWidth);
   browserWidth->step(5.0);
@@ -4106,6 +4106,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
                       (uchar *)file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
+      _htmlCurrentFile = gui->inputFiles->text(i);
       htmlReadFile(file, docfile, base);
 
       fclose(docfile);
@@ -4180,12 +4181,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   else if (fl_choice("%d error%s occurred while generating document.\n"
                      "Would you like to see the list?", "Continue",
 		     "View Error List", NULL, Errors, Errors == 1 ? "" : "s"))
-  {
     gui->error_window->show();
-
-    while (gui->error_window->shown())
-      Fl::wait();
-  }
 
   gui->controls->activate();
   gui->window->cursor(FL_CURSOR_DEFAULT);
@@ -4250,7 +4246,7 @@ GUI::showAboutCB(void)
 
 
   about = new Fl_Window(410, 300, "About HTMLDOC");
-  about->modal();
+  about->set_modal();
   about->hotspot(about);
 
   group = new Fl_Group(10, 10, 390, 245, "About HTMLDOC");
@@ -4264,7 +4260,7 @@ GUI::showAboutCB(void)
   label->image(&logo);
 
   label = new Fl_Box(60, 45, 330, 35,
-          "HTMLDOC " SVERSION "\nCopyright 1997-2006 by Easy Software Products"
+          "HTMLDOC " SVERSION "\nCopyright 1997-2010 by Easy Software Products"
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 
@@ -4273,10 +4269,9 @@ GUI::showAboutCB(void)
     "HTMLDOC converts HTML files and web pages to PDF and PostScript.\n\n"
     "<p>HTMLDOC is available both as free software under the terms of "
     "the GNU General Public License and as commercial software via "
-    "the HTMLDOC Basic product which provides the HTMLDOC software in "
-    "convenient, installable packages for your operating system of "
-    "choice. Commercial support is also available in 1-year "
-    "increments. All products provide financial support for the "
+    "the HTMLDOC Basic, Developer, and Site products which provide the "
+    "HTMLDOC software in convenient, installable packages for your operating "
+    "system of choice. All products provide financial support for the "
     "continued development of HTMLDOC as an open source product.\n\n"
     "<p>For more information, please visit us on the web at the following "
     "URL:\n"

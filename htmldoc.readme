@@ -6,10 +6,10 @@ REQUIREMENTS
     HTMLDOC requires an average of 2MB of disk space for
     installation. The following platforms are supported:
 
-	- Linux 2.4 or higher (Intel only)
-	- MacOS X 10.2 or higher
-	- Microsoft Windows 95 or higher
-	- Solaris 7 or higher (SPARC and Intel)
+	- Linux 2.6 or higher (Intel only)
+	- MacOS X 10.5 or higher (Intel and PowerPC)
+	- Microsoft Windows 2000 or higher
+	- Solaris 10 or higher (SPARC and Intel)
 
 
 INSTALLING HTMLDOC ON MICROSOFT WINDOWS
@@ -21,9 +21,8 @@ INSTALLING HTMLDOC ON MICROSOFT WINDOWS
 
 INSTALLING HTMLDOC ON MACOS X
 
-    HTMLDOC for MacOS X is provided in a compressed archive.
-    Open the file using StuffIt Expander to create a folder
-    called "htmldoc-1.8.24-macosx".  Open this folder and
+    HTMLDOC for MacOS X is provided in a compressed disk image.
+    Double-click on the file to mount the disk image and then
     double-click on the "Install" icon to start the installation
     wizard.
 
@@ -34,9 +33,14 @@ INSTALLING HTMLDOC ON LINUX
     install this software.
 
     HTMLDOC for Linux is provided in a RPM package file. Type the
-    following command to install HTMLDOC:
+    following command to install HTMLDOC on a 32-bit Intel system:
 
-        rpm -i htmldoc-1.8.24-linux-intel.rpm ENTER
+        rpm -i htmldoc-1.8.28-linux-intel.rpm ENTER
+
+    Type the following command to install HTMLDOC on a 64-bit Intel
+    system:
+
+        rpm -i htmldoc-1.8.28-linux-x86_64.rpm ENTER
 
 
 INSTALLING HTMLDOC ON SOLARIS
@@ -45,6 +49,10 @@ INSTALLING HTMLDOC ON SOLARIS
     install this software.
 
     HTMLDOC for Solaris is provided in a PKG package file. Type the
-    following command to install HTMLDOC:
+    following command to install HTMLDOC on a SPARC system:
 
-        pkgadd -d htmldoc-1.8.24-linux-intel.pkg ENTER
+        pkgadd -d htmldoc-1.8.28-linux-sparc.pkg ENTER
+
+    Type the following command to install HTMLDOC on an Intel system:
+
+        pkgadd -d htmldoc-1.8.28-linux-intel.pkg ENTER

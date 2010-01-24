@@ -142,6 +142,20 @@
 
 
 /*
+ * Do we have res_init()?
+ */
+
+#undef HAVE_RES_INIT
+
+
+/*
+ * Do we have poll()?
+ */
+
+#undef HAVE_POLL
+
+
+/*
  * Do we have the long long type?
  */
 

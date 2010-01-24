@@ -1,33 +1,30 @@
 /*
  * "$Id$"
  *
- *   HTTP routines for the Common UNIX Printing System (CUPS).
+ *   HTTP routines for HTMLDOC.
  *
- *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
  *   copyright law.  Distribution and use rights are outlined in the file
- *   "LICENSE.txt" which should have been included with this file.  If this
+ *   "COPYING.txt" which should have been included with this file.  If this
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: CUPS Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: cups-info@cups.org
- *         WWW: http://www.cups.org
- *
- *   This file is subject to the Apple OS-Developed Software exception.
+ *     http://www.htmldoc.org/
  *
  * Contents:
  *
+ *   _httpBIOMethods()    - Get the OpenSSL BIO methods for HTTP connections.
  *   httpBlocking()       - Set blocking/non-blocking behavior on a connection.
- *   httpCheck()          - Check to see if there is a pending response from
- *                          the server.
+ *   httpCheck()          - Check to see if there is a pending response from the
+ *                          server.
  *   httpClearCookie()    - Clear the cookie value(s).
  *   httpClearFields()    - Clear HTTP request fields.
  *   httpClose()          - Close an HTTP connection...
@@ -50,6 +47,7 @@
  *                          content-length or transfer-encoding fields.
  *   httpGetStatus()      - Get the status of the last HTTP request.
  *   httpGetSubField()    - Get a sub-field value.
+ *   httpGetSubField2()   - Get a sub-field value.
  *   httpGets()           - Get a line of text from a HTTP connection.
  *   httpHead()           - Send a HEAD request to the server.
  *   httpInitialize()     - Initialize the HTTP interface library and set the
@@ -60,27 +58,36 @@
  *   httpPut()            - Send a PUT request to the server.
  *   httpRead()           - Read data from a HTTP connection.
  *   httpRead2()          - Read data from a HTTP connection.
- *   _httpReadCDSA()      - Read function for CDSA decryption code.
- *   httpReconnect()      - Reconnect to a HTTP server...
+ *   _httpReadCDSA()      - Read function for the CDSA library.
+ *   _httpReadGNUTLS()    - Read function for the GNU TLS library.
+ *   httpReconnect()      - Reconnect to a HTTP server.
  *   httpSetCookie()      - Set the cookie value(s)...
  *   httpSetExpect()      - Set the Expect: header in a request.
  *   httpSetField()       - Set the value of an HTTP header.
- *   httpSetLength()      - Set the content-length and transfer-encoding.
+ *   httpSetLength()      - Set the content-length and content-encoding.
  *   httpTrace()          - Send an TRACE request to the server.
  *   httpUpdate()         - Update the current HTTP state for incoming data.
  *   httpWait()           - Wait for data available on a connection.
  *   httpWrite()          - Write data to a HTTP connection.
  *   httpWrite2()         - Write data to a HTTP connection.
- *   _httpWriteCDSA()     - Write function for CDSA encryption code.
+ *   _httpWriteCDSA()     - Write function for the CDSA library.
+ *   _httpWriteGNUTLS()   - Write function for the GNU TLS library.
+ *   http_bio_ctrl()      - Control the HTTP connection.
+ *   http_bio_free()      - Free OpenSSL data.
+ *   http_bio_new()       - Initialize an OpenSSL BIO structure.
+ *   http_bio_puts()      - Send a string for OpenSSL.
+ *   http_bio_read()      - Read data for OpenSSL.
+ *   http_bio_write()     - Write data for OpenSSL.
  *   http_field()         - Return the field index for a field name.
  *   http_read_ssl()      - Read from a SSL/TLS connection.
  *   http_send()          - Send a request with all fields and the trailing
  *                          blank line.
- *   http_setup_ssl()     - Set up SSL/TLS on a connection.
+ *   http_setup_ssl()     - Set up SSL/TLS support on a connection.
  *   http_shutdown_ssl()  - Shut down SSL/TLS on a connection.
  *   http_upgrade()       - Force upgrade to TLS encryption.
  *   http_wait()          - Wait for data available on a connection.
- *   http_write()         - Write data to a connection.
+ *   http_write()         - Write a buffer to a HTTP connection.
+ *   http_write_chunk()   - Write a chunked buffer.
  *   http_write_ssl()     - Write to a SSL/TLS connection.
  */
 
@@ -98,6 +105,9 @@
 #  include <sys/time.h>
 #  include <sys/resource.h>
 #endif /* !WIN32 */
+#ifdef HAVE_POLL
+#  include <sys/poll.h>
+#endif /* HAVE_POLL */
 
 
 /*
@@ -117,7 +127,7 @@
 static http_field_t	http_field(const char *name);
 static int		http_send(http_t *http, http_state_t request,
 			          const char *uri);
-static int		http_wait(http_t *http, int msec);
+static int		http_wait(http_t *http, int msec, int usessl);
 static int		http_write(http_t *http, const char *buffer,
 			           int length);
 static int		http_write_chunk(http_t *http, const char *buffer,
@@ -165,6 +175,45 @@ static const char * const http_fields[] =
 			  "User-Agent",
 			  "WWW-Authenticate"
 			};
+
+
+#if defined(HAVE_SSL) && defined(HAVE_LIBSSL)
+/*
+ * BIO methods for OpenSSL...
+ */
+
+static int		http_bio_write(BIO *h, const char *buf, int num);
+static int		http_bio_read(BIO *h, char *buf, int size);
+static int		http_bio_puts(BIO *h, const char *str);
+static long		http_bio_ctrl(BIO *h, int cmd, long arg1, void *arg2);
+static int		http_bio_new(BIO *h);
+static int		http_bio_free(BIO *data);
+
+static BIO_METHOD	http_bio_methods =
+			{
+			  BIO_TYPE_SOCKET,
+			  "http",
+			  http_bio_write,
+			  http_bio_read,
+			  http_bio_puts,
+			  NULL, /* http_bio_gets, */
+			  http_bio_ctrl,
+			  http_bio_new,
+			  http_bio_free,
+			  NULL,
+			};
+
+
+/*
+ * '_httpBIOMethods()' - Get the OpenSSL BIO methods for HTTP connections.
+ */
+
+BIO_METHOD *				/* O - BIO methods for OpenSSL */
+_httpBIOMethods(void)
+{
+  return (&http_bio_methods);
+}
+#endif /* HAVE_SSL && HAVE_LIBSSL */
 
 
 /*
@@ -221,7 +270,10 @@ httpClearFields(http_t *http)		/* I - HTTP connection */
   if (http)
   {
     memset(http->fields, 0, sizeof(http->fields));
-    httpSetField(http, HTTP_FIELD_HOST, http->hostname);
+    if (http->hostname[0] == '/')
+      httpSetField(http, HTTP_FIELD_HOST, "localhost");
+    else
+      httpSetField(http, HTTP_FIELD_HOST, http->hostname);
 
     http->expect = (http_status_t)0;
   }
@@ -241,9 +293,6 @@ httpClose(http_t *http)			/* I - HTTP connection */
     return;
 
   httpAddrFreeList(http->addrlist);
-
-  if (http->input_set)
-    free(http->input_set);
 
   if (http->cookie)
     free(http->cookie);
@@ -642,8 +691,18 @@ httpGetLength2(http_t *http)		/* I - HTTP connection */
     * after the transfer is complete...
     */
 
-    if (http->fields[HTTP_FIELD_CONTENT_LENGTH][0] == '\0')
-      http->data_remaining = 2147483647;
+    if (!http->fields[HTTP_FIELD_CONTENT_LENGTH][0])
+    {
+     /*
+      * Default content length is 0 for errors and 2^31-1 for other
+      * successful requests...
+      */
+
+      if (http->status >= HTTP_MULTIPLE_CHOICES)
+        http->data_remaining = 0;
+      else
+        http->data_remaining = 2147483647;
+    }
     else
       http->data_remaining = strtoll(http->fields[HTTP_FIELD_CONTENT_LENGTH],
                                      NULL, 10);
@@ -843,9 +902,10 @@ httpGets(char   *line,			/* I - Line to read into */
   * Read a line from the buffer...
   */
     
-  lineptr = line;
-  lineend = line + length - 1;
-  eol     = 0;
+  http->error = 0;
+  lineptr     = line;
+  lineend     = line + length - 1;
+  eol         = 0;
 
   while (lineptr < lineend)
   {
@@ -865,10 +925,14 @@ httpGets(char   *line,			/* I - Line to read into */
       * No newline; see if there is more data to be read...
       */
 
-      if (!http->blocking && !http_wait(http, 10000))
+      if (!http->blocking && !http_wait(http, 10000, 1))
       {
         DEBUG_puts("httpGets: Timed out!");
+#ifdef WIN32
+        http->error = WSAETIMEDOUT;
+#else
         http->error = ETIMEDOUT;
+#endif /* WIN32 */
         return (NULL);
       }
 
@@ -900,7 +964,7 @@ httpGets(char   *line,			/* I - Line to read into */
 #else
         DEBUG_printf(("httpGets: recv() error %d!\n", errno));
 
-        if (errno == EINTR)
+        if (errno == EINTR || errno == EAGAIN)
 	  continue;
 	else if (errno != http->error)
 	{
@@ -944,7 +1008,7 @@ httpGets(char   *line,			/* I - Line to read into */
 	*lineptr++ = *bufptr++;
     }
 
-    http->used -= bufptr - http->buffer;
+    http->used -= (int)(bufptr - http->buffer);
     if (http->used > 0)
       memmove(http->buffer, bufptr, http->used);
 
@@ -1037,11 +1101,11 @@ httpInitialize(void)
   * it is the best we can do (on others, this seed isn't even used...)
   */
 
-#ifdef WIN32
-#else
+#  ifdef WIN32
+#  else
   gettimeofday(&curtime, NULL);
   srand(curtime.tv_sec + curtime.tv_usec);
-#endif /* WIN32 */
+#  endif /* WIN32 */
 
   for (i = 0; i < sizeof(data); i ++)
     data[i] = rand(); /* Yes, this is a poor source of random data... */
@@ -1099,15 +1163,20 @@ httpPrintf(http_t     *http,		/* I - HTTP connection */
 
   DEBUG_printf(("httpPrintf: %s", buf));
 
-  if (http->wused)
+  if (http->data_encoding == HTTP_ENCODE_FIELDS)
+    return (httpWrite2(http, buf, bytes));
+  else
   {
-    DEBUG_puts("    flushing existing data...");
+    if (http->wused)
+    {
+      DEBUG_puts("    flushing existing data...");
 
-    if (httpFlushWrite(http) < 0)
-      return (-1);
+      if (httpFlushWrite(http) < 0)
+	return (-1);
+    }
+
+    return (http_write(http, buf, bytes));
   }
-
-  return (http_write(http, buf, bytes));
 }
 
 
@@ -1163,6 +1232,7 @@ httpRead2(http_t *http,			/* I - HTTP connection */
     return (-1);
 
   http->activity = time(NULL);
+  http->error    = 0;
 
   if (length <= 0)
     return (0);
@@ -1212,8 +1282,8 @@ httpRead2(http_t *http,			/* I - HTTP connection */
 
     return (0);
   }
-  else if (length > http->data_remaining)
-    length = http->data_remaining;
+  else if (length > (size_t)http->data_remaining)
+    length = (size_t)http->data_remaining;
 
   if (http->used == 0 && length <= 256)
   {
@@ -1252,7 +1322,7 @@ httpRead2(http_t *http,			/* I - HTTP connection */
       http->error = WSAGetLastError();
       return (-1);
 #else
-      if (errno != EINTR)
+      if (errno != EINTR && errno != EAGAIN)
       {
         http->error = errno;
         return (-1);
@@ -1268,15 +1338,15 @@ httpRead2(http_t *http,			/* I - HTTP connection */
 
   if (http->used > 0)
   {
-    if (length > http->used)
-      length = http->used;
+    if (length > (size_t)http->used)
+      length = (size_t)http->used;
 
-    bytes = length;
+    bytes = (ssize_t)length;
 
     DEBUG_printf(("httpRead2: grabbing %d bytes from input buffer...\n", bytes));
 
     memcpy(buffer, http->buffer, length);
-    http->used -= length;
+    http->used -= (int)length;
 
     if (http->used > 0)
       memmove(http->buffer, http->buffer + length, http->used);
@@ -1287,7 +1357,7 @@ httpRead2(http_t *http,			/* I - HTTP connection */
     if (!http->blocking && !httpWait(http, 10000))
       return (0);
 
-    bytes = http_read_ssl(http, buffer, length);
+    bytes = (ssize_t)http_read_ssl(http, buffer, (int)length);
   }
 #endif /* HAVE_SSL */
   else
@@ -1297,9 +1367,13 @@ httpRead2(http_t *http,			/* I - HTTP connection */
 
     DEBUG_printf(("httpRead2: reading %d bytes from socket...\n", length));
 
+#ifdef WIN32
+    bytes = (ssize_t)recv(http->fd, buffer, (int)length, 0);
+#else
     while ((bytes = recv(http->fd, buffer, length, 0)) < 0)
-      if (errno != EINTR)
+      if (errno != EINTR && errno != EAGAIN)
         break;
+#endif /* WIN32 */
 
     DEBUG_printf(("httpRead2: read %d bytes from socket...\n", bytes));
   }
@@ -1318,7 +1392,7 @@ httpRead2(http_t *http,			/* I - HTTP connection */
 #ifdef WIN32
     http->error = WSAGetLastError();
 #else
-    if (errno == EINTR)
+    if (errno != EINTR && errno != EAGAIN)
       bytes = 0;
     else
       http->error = errno;
@@ -1382,7 +1456,7 @@ httpRead2(http_t *http,			/* I - HTTP connection */
 
 #if defined(HAVE_SSL) && defined(HAVE_CDSASSL)
 /*
- * '_httpReadCDSA()' - Read function for CDSA decryption code.
+ * '_httpReadCDSA()' - Read function for the CDSA library.
  */
 
 OSStatus				/* O  - -1 on error, 0 on success */
@@ -1391,19 +1465,36 @@ _httpReadCDSA(
     void             *data,		/* I  - Data buffer */
     size_t           *dataLength)	/* IO - Number of bytes */
 {
-  OSStatus	  result;		/* Return value */
-  ssize_t	  bytes;		/* Number of bytes read */
-  cdsa_conn_ref_t u;			/* Connection reference union */
+  OSStatus	result;			/* Return value */
+  ssize_t	bytes;			/* Number of bytes read */
+  http_t	*http;			/* HTTP connection */
 
 
-  u.connection = connection;
+  http = (http_t *)connection;
+
+  if (!http->blocking)
+  {
+   /*
+    * Make sure we have data before we read...
+    */
+
+    if (!http_wait(http, 10000, 0))
+    {
+      http->error = ETIMEDOUT;
+      return (-1);
+    }
+  }
 
   do
-    bytes = recv(u.sock, data, *dataLength, 0);
-  while (bytes == -1 && errno == EINTR);
+  {
+    bytes = recv(http->fd, data, *dataLength, 0);
+  }
+  while (bytes == -1 && (errno == EINTR || errno == EAGAIN));
 
   if (bytes == *dataLength)
+  {
     result = 0;
+  }
   else if (bytes > 0)
   {
     *dataLength = bytes;
@@ -1421,9 +1512,43 @@ _httpReadCDSA(
       result = errSSLClosedAbort;
   }
 
-  return result;
+  return (result);
 }
 #endif /* HAVE_SSL && HAVE_CDSASSL */
+
+
+#if defined(HAVE_SSL) && defined(HAVE_GNUTLS)
+/*
+ * '_httpReadGNUTLS()' - Read function for the GNU TLS library.
+ */
+
+ssize_t					/* O - Number of bytes read or -1 on error */
+_httpReadGNUTLS(
+    gnutls_transport_ptr ptr,		/* I - HTTP connection */
+    void                 *data,		/* I - Buffer */
+    size_t               length)	/* I - Number of bytes to read */
+{
+  http_t	*http;			/* HTTP connection */
+
+
+  http = (http_t *)ptr;
+
+  if (!http->blocking)
+  {
+   /*
+    * Make sure we have data before we read...
+    */
+
+    if (!http_wait(http, 10000, 0))
+    {
+      http->error = ETIMEDOUT;
+      return (-1);
+    }
+  }
+
+  return (recv(http->fd, data, length, 0));
+}
+#endif /* HAVE_SSL && HAVE_GNUTLS */
 
 
 /*
@@ -1494,11 +1619,11 @@ httpReconnect(http_t *http)		/* I - HTTP connection */
 
     if (http_setup_ssl(http) != 0)
     {
-#ifdef WIN32
+#  ifdef WIN32
       closesocket(http->fd);
-#else
+#  else
       close(http->fd);
-#endif /* WIN32 */
+#  endif /* WIN32 */
 
       return (-1);
     }
@@ -1567,6 +1692,45 @@ httpSetField(http_t       *http,	/* I - HTTP connection */
     return;
 
   strlcpy(http->fields[field], value, HTTP_MAX_VALUE);
+
+  if (field == HTTP_FIELD_HOST)
+  {
+   /*
+    * Special-case for Host: as we don't want a trailing "." on the hostname and
+    * need to bracket IPv6 numeric addresses.
+    */
+
+    char *ptr = strchr(value, ':');
+
+    if (value[0] != '[' && ptr && strchr(ptr + 1, ':'))
+    {
+     /*
+      * Bracket IPv6 numeric addresses...
+      *
+      * This is slightly inefficient (basically copying twice), but is an edge
+      * case and not worth optimizing...
+      */
+
+      snprintf(http->fields[HTTP_FIELD_HOST],
+               sizeof(http->fields[HTTP_FIELD_HOST]), "[%s]", value);
+    }
+    else
+    {
+     /*
+      * Check for a trailing dot on the hostname...
+      */
+
+      ptr = http->fields[HTTP_FIELD_HOST];
+
+      if (*ptr)
+      {
+	ptr += strlen(ptr) - 1;
+
+	if (*ptr == '.')
+	  *ptr = '\0';
+      }
+    }
+  }
 }
 
 
@@ -1707,7 +1871,7 @@ httpUpdate(http_t *http)		/* I - HTTP connection */
 
       return (http->status);
     }
-    else if (strncmp(line, "HTTP/", 5) == 0)
+    else if (!strncmp(line, "HTTP/", 5))
     {
      /*
       * Got the beginning of a response...
@@ -1808,10 +1972,20 @@ httpWait(http_t *http,			/* I - HTTP connection */
     return (1);
 
  /*
+  * Flush pending data, if any...
+  */
+
+  if (http->wused)
+  {
+    if (httpFlushWrite(http) < 0)
+      return (0);
+  }
+
+ /*
   * If not, check the SSL/TLS buffers and do a select() on the connection...
   */
 
-  return (http_wait(http, msec));
+  return (http_wait(http, msec, 1));
 }
 
 
@@ -1877,7 +2051,8 @@ httpWrite2(http_t     *http,		/* I - HTTP connection */
       httpFlushWrite(http);
     }
 
-    if ((length + http->wused) <= sizeof(http->wbuffer))
+    if ((length + http->wused) <= sizeof(http->wbuffer) &&
+        length < sizeof(http->wbuffer))
     {
      /*
       * Write to buffer...
@@ -1886,8 +2061,8 @@ httpWrite2(http_t     *http,		/* I - HTTP connection */
       DEBUG_printf(("    copying %d bytes to wbuffer...\n", length));
 
       memcpy(http->wbuffer + http->wused, buffer, length);
-      http->wused += length;
-      bytes = length;
+      http->wused += (int)length;
+      bytes = (ssize_t)length;
     }
     else
     {
@@ -1898,9 +2073,9 @@ httpWrite2(http_t     *http,		/* I - HTTP connection */
       DEBUG_printf(("    writing %d bytes to socket...\n", length));
 
       if (http->data_encoding == HTTP_ENCODE_CHUNKED)
-	bytes = http_write_chunk(http, buffer, length);
+	bytes = (ssize_t)http_write_chunk(http, buffer, (int)length);
       else
-	bytes = http_write(http, buffer, length);
+	bytes = (ssize_t)http_write(http, buffer, (int)length);
 
       DEBUG_printf(("    wrote %d bytes...\n", bytes));
     }
@@ -1958,7 +2133,7 @@ httpWrite2(http_t     *http,		/* I - HTTP connection */
 
 #if defined(HAVE_SSL) && defined(HAVE_CDSASSL)
 /*
- * '_httpWriteCDSA()' - Write function for CDSA encryption code.
+ * '_httpWriteCDSA()' - Write function for the CDSA library.
  */
 
 OSStatus				/* O  - -1 on error, 0 on success */
@@ -1967,19 +2142,23 @@ _httpWriteCDSA(
     const void       *data,		/* I  - Data buffer */
     size_t           *dataLength)	/* IO - Number of bytes */
 {
-  OSStatus	  result;		/* Return value */
-  ssize_t	  bytes;		/* Number of bytes read */
-  cdsa_conn_ref_t u;			/* Connection reference union */
+  OSStatus	result;			/* Return value */
+  ssize_t	bytes;			/* Number of bytes read */
+  http_t	*http;			/* HTTP connection */
 
 
-  u.connection = connection;
+  http = (http_t *)connection;
 
   do
-    bytes = write(u.sock, data, *dataLength);
-  while (bytes == -1 && errno == EINTR);
+  {
+    bytes = write(http->fd, data, *dataLength);
+  }
+  while (bytes == -1 && (errno == EINTR || errno == EAGAIN));
 
   if (bytes == *dataLength)
+  {
     result = 0;
+  }
   else if (bytes >= 0)
   {
     *dataLength = bytes;
@@ -1988,16 +2167,178 @@ _httpWriteCDSA(
   else
   {
     *dataLength = 0;
-  
+
     if (errno == EAGAIN)
       result = errSSLWouldBlock;
     else
       result = errSSLClosedAbort;
   }
 
-  return result;
+  return (result);
 }
 #endif /* HAVE_SSL && HAVE_CDSASSL */
+
+
+#if defined(HAVE_SSL) && defined(HAVE_GNUTLS)
+/*
+ * '_httpWriteGNUTLS()' - Write function for the GNU TLS library.
+ */
+
+ssize_t					/* O - Number of bytes written or -1 on error */
+_httpWriteGNUTLS(
+    gnutls_transport_ptr ptr,		/* I - HTTP connection */
+    const void           *data,		/* I - Data buffer */
+    size_t               length)	/* I - Number of bytes to write */
+{
+  return (send(((http_t *)ptr)->fd, data, length, 0));
+}
+#endif /* HAVE_SSL && HAVE_GNUTLS */
+
+
+#if defined(HAVE_SSL) && defined(HAVE_LIBSSL)
+/*
+ * 'http_bio_ctrl()' - Control the HTTP connection.
+ */
+
+static long				/* O - Result/data */
+http_bio_ctrl(BIO  *h,			/* I - BIO data */
+              int  cmd,			/* I - Control command */
+	      long arg1,		/* I - First argument */
+	      void *arg2)		/* I - Second argument */
+{
+  switch (cmd)
+  {
+    default :
+        return (0);
+
+    case BIO_CTRL_RESET :
+        h->ptr = NULL;
+	return (0);
+
+    case BIO_C_SET_FILE_PTR :
+        h->ptr  = arg2;
+	h->init = 1;
+	return (1);
+
+    case BIO_C_GET_FILE_PTR :
+        if (arg2)
+	{
+	  *((void **)arg2) = h->ptr;
+	  return (1);
+	}
+	else
+	  return (0);
+
+    case BIO_CTRL_DUP :
+    case BIO_CTRL_FLUSH :
+        return (1);
+  }
+}
+
+
+/*
+ * 'http_bio_free()' - Free OpenSSL data.
+ */
+
+static int				/* O - 1 on success, 0 on failure */
+http_bio_free(BIO *h)			/* I - BIO data */
+{
+  if (!h)
+    return (0);
+
+  if (h->shutdown)
+  {
+    h->init  = 0;
+    h->flags = 0;
+  }
+
+  return (1);
+}
+
+
+/*
+ * 'http_bio_new()' - Initialize an OpenSSL BIO structure.
+ */
+
+static int				/* O - 1 on success, 0 on failure */
+http_bio_new(BIO *h)			/* I - BIO data */
+{
+  if (!h)
+    return (0);
+
+  h->init  = 0;
+  h->num   = 0;
+  h->ptr   = NULL;
+  h->flags = 0;
+
+  return (1);
+}
+
+
+/*
+ * 'http_bio_puts()' - Send a string for OpenSSL.
+ */
+
+static int				/* O - Bytes written */
+http_bio_puts(BIO        *h,		/* I - BIO data */
+              const char *str)		/* I - String to write */
+{
+#ifdef WIN32
+  return (send(((http_t *)h->ptr)->fd, str, (int)strlen(str), 0));
+#else
+  return (send(((http_t *)h->ptr)->fd, str, strlen(str), 0));
+#endif /* WIN32 */
+}
+
+
+/*
+ * 'http_bio_read()' - Read data for OpenSSL.
+ */
+
+static int				/* O - Bytes read */
+http_bio_read(BIO  *h,			/* I - BIO data */
+              char *buf,		/* I - Buffer */
+	      int  size)		/* I - Number of bytes to read */
+{
+  http_t	*http;			/* HTTP connection */
+
+
+  http = (http_t *)h->ptr;
+
+  if (!http->blocking)
+  {
+   /*
+    * Make sure we have data before we read...
+    */
+
+    if (!http_wait(http, 10000, 0))
+    {
+#ifdef WIN32
+      http->error = WSAETIMEDOUT;
+#else
+      http->error = ETIMEDOUT;
+#endif /* WIN32 */
+
+      return (-1);
+    }
+  }
+
+  return (recv(http->fd, buf, size, 0));
+}
+
+
+/*
+ * 'http_bio_write()' - Write data for OpenSSL.
+ */
+
+static int				/* O - Bytes written */
+http_bio_write(BIO        *h,		/* I - BIO data */
+               const char *buf,		/* I - Buffer to write */
+	       int        num)		/* I - Number of bytes to write */
+{
+  return (send(((http_t *)h->ptr)->fd, buf, num, 0));
+}
+#endif /* HAVE_SSL && HAVE_LIBSSL */
 
 
 /*
@@ -2032,7 +2373,36 @@ http_read_ssl(http_t *http,		/* I - HTTP connection */
   return (SSL_read((SSL *)(http->tls), buf, len));
 
 #  elif defined(HAVE_GNUTLS)
-  return (gnutls_record_recv(((http_tls_t *)(http->tls))->session, buf, len));
+  ssize_t	result;			/* Return value */
+
+
+  result = gnutls_record_recv(((http_tls_t *)(http->tls))->session, buf, len);
+
+  if (result < 0 && !errno)
+  {
+   /*
+    * Convert GNU TLS error to errno value...
+    */
+
+    switch (result)
+    {
+      case GNUTLS_E_INTERRUPTED :
+	  errno = EINTR;
+	  break;
+
+      case GNUTLS_E_AGAIN :
+          errno = EAGAIN;
+          break;
+
+      default :
+          errno = EPIPE;
+          break;
+    }
+
+    result = -1;
+  }
+
+  return ((int)result);
 
 #  elif defined(HAVE_CDSASSL)
   int		result;			/* Return value */
@@ -2099,7 +2469,7 @@ http_send(http_t       *http,	/* I - HTTP connection */
 		  "TRACE",
 		  "CLOSE"
 		};
-  static const char hex[] = "0123456789ABCDEF";
+  static const char const hex[] = "0123456789ABCDEF";
 				/* Hex digits */
 
 
@@ -2144,10 +2514,23 @@ http_send(http_t       *http,	/* I - HTTP connection */
       return (-1);
 
  /*
+  * Flush any written data that is pending...
+  */
+
+  if (http->wused)
+  {
+    if (httpFlushWrite(http) < 0)
+      if (httpReconnect(http))
+        return (-1);
+  }
+
+ /*
   * Send the request header...
   */
 
-  http->state = request;
+  http->state         = request;
+  http->data_encoding = HTTP_ENCODE_FIELDS;
+
   if (request == HTTP_POST || request == HTTP_PUT)
     http->state ++;
 
@@ -2200,6 +2583,9 @@ http_send(http_t       *http,	/* I - HTTP connection */
     return (-1);
   }
 
+  if (httpFlushWrite(http) < 0)
+    return (-1);
+
   httpGetLength2(http);
   httpClearFields(http);
 
@@ -2218,6 +2604,7 @@ http_setup_ssl(http_t *http)		/* I - HTTP connection */
 #  ifdef HAVE_LIBSSL
   SSL_CTX	*context;		/* Context for encryption */
   SSL		*conn;			/* Connection for encryption */
+  BIO		*bio;			/* BIO data */
 #  elif defined(HAVE_GNUTLS)
   http_tls_t	*conn;			/* TLS session object */
   gnutls_certificate_client_credentials *credentials;
@@ -2225,7 +2612,6 @@ http_setup_ssl(http_t *http)		/* I - HTTP connection */
 #  elif defined(HAVE_CDSASSL)
   OSStatus	error;			/* Error code */
   http_tls_t	*conn;			/* CDSA connection information */
-  cdsa_conn_ref_t u;			/* Connection reference union */
 #  endif /* HAVE_LIBSSL */
 
 
@@ -2236,9 +2622,12 @@ http_setup_ssl(http_t *http)		/* I - HTTP connection */
 
   SSL_CTX_set_options(context, SSL_OP_NO_SSLv2); /* Only use SSLv3 or TLS */
 
-  conn = SSL_new(context);
+  bio = BIO_new(_httpBIOMethods());
+  BIO_ctrl(bio, BIO_C_SET_FILE_PTR, 0, (char *)http);
 
-  SSL_set_fd(conn, http->fd);
+  conn = SSL_new(context);
+  SSL_set_bio(conn, bio, bio);
+
   if (SSL_connect(conn) != 1)
   {
 #    ifdef DEBUG
@@ -2287,13 +2676,19 @@ http_setup_ssl(http_t *http)		/* I - HTTP connection */
   gnutls_init(&(conn->session), GNUTLS_CLIENT);
   gnutls_set_default_priority(conn->session);
   gnutls_credentials_set(conn->session, GNUTLS_CRD_CERTIFICATE, *credentials);
-  gnutls_transport_set_ptr(conn->session,
-                           (gnutls_transport_ptr)((long)http->fd));
+  gnutls_transport_set_ptr(conn->session, (gnutls_transport_ptr)http);
+  gnutls_transport_set_pull_function(conn->session, _httpReadGNUTLS);
+  gnutls_transport_set_push_function(conn->session, _httpWriteGNUTLS);
 
   if ((gnutls_handshake(conn->session)) != GNUTLS_E_SUCCESS)
   {
     http->error  = errno;
     http->status = HTTP_ERROR;
+
+    gnutls_deinit(conn->session);
+    gnutls_certificate_free_credentials(*credentials);
+    free(credentials);
+    free(conn);
 
     return (-1);
   }
@@ -2319,9 +2714,7 @@ http_setup_ssl(http_t *http)		/* I - HTTP connection */
   * Use a union to resolve warnings about int/pointer size mismatches...
   */
 
-  u.connection = NULL;
-  u.sock       = http->fd;
-  error        = SSLSetConnection(conn->session, u.connection);
+  error = SSLSetConnection(conn->session, http);
 
   if (!error)
     error = SSLSetIOFuncs(conn->session, _httpReadCDSA, _httpWriteCDSA);
@@ -2432,6 +2825,13 @@ http_upgrade(http_t *http)		/* I - HTTP connection */
   DEBUG_printf(("http_upgrade(%p)\n", http));
 
  /*
+  * Flush the connection to make sure any previous "Upgrade" message
+  * has been read.
+  */
+
+  httpFlush(http);
+
+ /*
   * Copy the HTTP data to a local variable so we can do the OPTIONS
   * request without interfering with the existing request data...
   */
@@ -2443,43 +2843,28 @@ http_upgrade(http_t *http)		/* I - HTTP connection */
   * encryption on the link...
   */
 
-  httpClearFields(&myhttp);
-  httpSetField(&myhttp, HTTP_FIELD_CONNECTION, "upgrade");
-  httpSetField(&myhttp, HTTP_FIELD_UPGRADE, "TLS/1.0, SSL/2.0, SSL/3.0");
+  httpClearFields(http);
+  httpSetField(http, HTTP_FIELD_CONNECTION, "upgrade");
+  httpSetField(http, HTTP_FIELD_UPGRADE, "TLS/1.0, SSL/2.0, SSL/3.0");
 
-  if ((ret = httpOptions(&myhttp, "*")) == 0)
+  if ((ret = httpOptions(http, "*")) == 0)
   {
    /*
     * Wait for the secure connection...
     */
 
-    while (httpUpdate(&myhttp) == HTTP_CONTINUE);
+    while (httpUpdate(http) == HTTP_CONTINUE);
   }
 
-  httpFlush(&myhttp);
-
  /*
-  * Copy the HTTP data back over, if any...
+  * Restore the HTTP request data...
   */
 
-  http->fd         = myhttp.fd;
-  http->error      = myhttp.error;
-  http->activity   = myhttp.activity;
-  http->status     = myhttp.status;
-  http->version    = myhttp.version;
-  http->keep_alive = myhttp.keep_alive;
-  http->used       = myhttp.used;
-
-  if (http->used)
-    memcpy(http->buffer, myhttp.buffer, http->used);
-
-  http->auth_type   = myhttp.auth_type;
-  http->nonce_count = myhttp.nonce_count;
-
-  memcpy(http->nonce, myhttp.nonce, sizeof(http->nonce));
-
-  http->tls        = myhttp.tls;
-  http->encryption = myhttp.encryption;
+  memcpy(http->fields, myhttp.fields, sizeof(http->fields));
+  http->data_encoding   = myhttp.data_encoding;
+  http->data_remaining  = myhttp.data_remaining;
+  http->_data_remaining = myhttp._data_remaining;
+  http->expect          = myhttp.expect;
 
  /*
   * See if we actually went secure...
@@ -2515,17 +2900,19 @@ http_upgrade(http_t *http)		/* I - HTTP connection */
 
 static int				/* O - 1 if data is available, 0 otherwise */
 http_wait(http_t *http,			/* I - HTTP connection */
-          int    msec)			/* I - Milliseconds to wait */
+          int    msec,			/* I - Milliseconds to wait */
+	  int    usessl)		/* I - Use SSL context? */
 {
-#ifndef WIN32
-  struct rlimit		limit;          /* Runtime limit */
-  int			set_size;	/* Size of select set */
-#endif /* !WIN32 */
+#ifdef HAVE_POLL
+  struct pollfd		pfd;		/* Polled file descriptor */
+#else
+  fd_set		input_set;	/* select() input set */
   struct timeval	timeout;	/* Timeout */
-  int			nfds;		/* Result from select() */
+#endif /* HAVE_POLL */
+  int			nfds;		/* Result from select()/poll() */
 
 
-  DEBUG_printf(("http_wait(http=%p, msec=%d)\n", http, msec));
+  DEBUG_printf(("4_httpWait(http=%p, msec=%d, usessl=%d)", http, msec, usessl));
 
   if (http->fd < 0)
     return (0);
@@ -2535,7 +2922,7 @@ http_wait(http_t *http,			/* I - HTTP connection */
   */
 
 #ifdef HAVE_SSL
-  if (http->tls)
+  if (http->tls && usessl)
   {
 #  ifdef HAVE_LIBSSL
     if (SSL_pending((SSL *)(http->tls)))
@@ -2546,72 +2933,52 @@ http_wait(http_t *http,			/* I - HTTP connection */
 #  elif defined(HAVE_CDSASSL)
     size_t bytes;			/* Bytes that are available */
 
-    if (!SSLGetBufferedReadSize(((http_tls_t *)http->tls)->session, &bytes) && bytes > 0)
+    if (!SSLGetBufferedReadSize(((http_tls_t *)(http->tls))->session, &bytes) &&
+        bytes > 0)
       return (1);
 #  endif /* HAVE_LIBSSL */
   }
 #endif /* HAVE_SSL */
 
  /*
-  * Then try doing a select() to poll the socket...
+  * Then try doing a select() or poll() to poll the socket...
   */
 
-  if (!http->input_set)
-  {
-#ifdef WIN32
-   /*
-    * Windows has a fixed-size select() structure, different (surprise,
-    * surprise!) from all UNIX implementations.  Just allocate this
-    * fixed structure...
-    */
+#ifdef HAVE_POLL
+  pfd.fd     = http->fd;
+  pfd.events = POLLIN;
 
-    http->input_set = calloc(1, sizeof(fd_set));
+  while ((nfds = poll(&pfd, 1, msec)) < 0 &&
+         (errno == EINTR || errno == EAGAIN));
+
 #else
-   /*
-    * Allocate the select() input set based upon the max number of file
-    * descriptors available for this process...
-    */
-
-    getrlimit(RLIMIT_NOFILE, &limit);
-
-    set_size = (limit.rlim_cur + 31) / 8 + 4;
-    if (set_size < sizeof(fd_set))
-      set_size = sizeof(fd_set);
-
-    http->input_set = calloc(1, set_size);
-#endif /* WIN32 */
-
-    if (!http->input_set)
-      return (0);
-  }
-
   do
   {
-    FD_SET(http->fd, http->input_set);
+    FD_ZERO(&input_set);
+    FD_SET(http->fd, &input_set);
 
-    DEBUG_printf(("http_wait: msec=%d, http->fd=%d\n", msec, http->fd));
+    DEBUG_printf(("6_httpWait: msec=%d, http->fd=%d", msec, http->fd));
 
     if (msec >= 0)
     {
       timeout.tv_sec  = msec / 1000;
       timeout.tv_usec = (msec % 1000) * 1000;
 
-      nfds = select(http->fd + 1, http->input_set, NULL, NULL, &timeout);
+      nfds = select(http->fd + 1, &input_set, NULL, NULL, &timeout);
     }
     else
-      nfds = select(http->fd + 1, http->input_set, NULL, NULL, NULL);
+      nfds = select(http->fd + 1, &input_set, NULL, NULL, NULL);
 
-    DEBUG_printf(("http_wait: select() returned %d...\n", nfds));
+    DEBUG_printf(("6_httpWait: select() returned %d...", nfds));
   }
-#ifdef WIN32
+#  ifdef WIN32
   while (nfds < 0 && WSAGetLastError() == WSAEINTR);
-#else
-  while (nfds < 0 && errno == EINTR);
-#endif /* WIN32 */
+#  else
+  while (nfds < 0 && (errno == EINTR || errno == EAGAIN));
+#  endif /* WIN32 */
+#endif /* HAVE_POLL */
 
-  FD_CLR(http->fd, http->input_set);
-
-  DEBUG_printf(("http_wait: returning with nfds=%d...\n", nfds));
+  DEBUG_printf(("5_httpWait: returning with nfds=%d...", nfds));
 
   return (nfds > 0);
 }
@@ -2630,7 +2997,8 @@ http_write(http_t     *http,		/* I - HTTP connection */
 	bytes;				/* Bytes sent */
 
 
-  tbytes = 0;
+  http->error = 0;
+  tbytes      = 0;
 
   while (length > 0)
   {
@@ -2650,7 +3018,7 @@ http_write(http_t     *http,		/* I - HTTP connection */
 	continue;
       }
 #else
-      if (errno == EINTR)
+      if (errno == EINTR || errno == EAGAIN)
         continue;
       else if (errno != http->error && errno != ECONNRESET)
       {
@@ -2725,7 +3093,7 @@ http_write_chunk(http_t     *http,	/* I - HTTP connection */
   */
 
   sprintf(header, "%x\r\n", length);
-  if (http_write(http, header, strlen(header)) < 0)
+  if (http_write(http, header, (int)strlen(header)) < 0)
   {
     DEBUG_puts("    http_write of length failed!");
     return (-1);
@@ -2761,7 +3129,36 @@ http_write_ssl(http_t     *http,	/* I - HTTP connection */
   return (SSL_write((SSL *)(http->tls), buf, len));
 
 #  elif defined(HAVE_GNUTLS)
-  return (gnutls_record_send(((http_tls_t *)(http->tls))->session, buf, len));
+  ssize_t	result;			/* Return value */
+
+  result = gnutls_record_send(((http_tls_t *)(http->tls))->session, buf, len);
+
+  if (result < 0 && !errno)
+  {
+   /*
+    * Convert GNU TLS error to errno value...
+    */
+
+    switch (result)
+    {
+      case GNUTLS_E_INTERRUPTED :
+	  errno = EINTR;
+	  break;
+
+      case GNUTLS_E_AGAIN :
+          errno = EAGAIN;
+          break;
+
+      default :
+          errno = EPIPE;
+          break;
+    }
+
+    result = -1;
+  }
+
+  return ((int)result);
+
 #  elif defined(HAVE_CDSASSL)
   int		result;			/* Return value */
   OSStatus	error;			/* Error info */
@@ -2784,11 +3181,11 @@ http_write_ssl(http_t     *http,	/* I - HTTP connection */
 	else
 	{
 	  result = -1;
-	  errno = EINTR;
+	  errno  = EINTR;
 	}
 	break;
     default :
-	errno = EPIPE;
+	errno  = EPIPE;
 	result = -1;
 	break;
   }

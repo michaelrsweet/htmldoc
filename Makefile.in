@@ -139,9 +139,9 @@ htmldoc.list:	htmldoc.list.in configure
 
 
 #
-# Make a portable binary distribution using EPM.
+# Make binary distributions using EPM.
 #
-# EPM = ESP Package Manager, available at "http://www.easysw.com/epm/".
+# EPM = ESP Package Manager, available at "http://www.epmhome.org/".
 #
 
 epm:
