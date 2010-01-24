@@ -40,7 +40,7 @@ SOURCES	=	intro.html 1-install.html 2-starting.html \
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	help.html htmldoc.pdf
 
-HTMLDOC	=	../htmldoc/htmldoc$(EXEEXT) --datadir .. --strict --verbose
+HTMLDOC	=	../htmldoc/htmldoc$(EXEEXT) --datadir .. --strict
 
 
 #
