@@ -275,6 +275,7 @@ typedef struct tree_str
  * Globals...
  */
 
+extern const char	*_htmlCurrentFile;
 extern const char	*_htmlMarkups[];
 extern const char	*_htmlData;
 extern float		_htmlPPI;

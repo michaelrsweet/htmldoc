@@ -1,28 +1,23 @@
 /*
  * "$Id$"
  *
- *   Hyper-Text Transport Protocol definitions for the Common UNIX Printing
- *   System (CUPS).
+ *   Hyper-Text Transport Protocol definitions for HTMLDOC.
  *
- *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
  *   copyright law.  Distribution and use rights are outlined in the file
- *   "LICENSE.txt" which should have been included with this file.  If this
+ *   "COPYING.txt" which should have been included with this file.  If this
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: CUPS Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: cups-info@cups.org
- *         WWW: http://www.cups.org
- *
- *   This file is subject to the Apple OS-Developed Software exception.
+ *     http://www.htmldoc.org/
  */
 
 #ifndef _CUPS_HTTP_H_
@@ -36,13 +31,16 @@
 #  include <time.h>
 #  include <sys/types.h>
 #  ifdef WIN32
+#    ifndef __CUPS_SSIZE_T_DEFINED
+#      define __CUPS_SSIZE_T_DEFINED
 /* Windows does not support the ssize_t type, so map it to off_t... */
 typedef off_t ssize_t;			/* @private@ */
+#    endif /* !__CUPS_SSIZE_T_DEFINED */
 #    include <winsock2.h>
 #    include <ws2tcpip.h>
 #  else
-#    ifdef __sgi /* IRIX needs this for IPv6 support!?! */
-#      define INET6
+#    ifdef __sgi
+#      define INET6			/* IRIX IPv6 support... */
 #    endif /* __sgi */
 #    include <unistd.h>
 #    include <sys/time.h>
@@ -100,7 +98,7 @@ extern "C" {
 #if defined(AF_INET6) && !defined(s6_addr32)
 #  if defined(__sun)
 #    define s6_addr32	_S6_un._S6_u32
-#  elif defined(__FreeBSD__) || defined(__APPLE__)
+#  elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
 #    define s6_addr32	__u6_addr.__u6_addr32
 #  elif defined(__osf__)
 #    define s6_addr32	s6_un.sa6_laddr
@@ -141,7 +139,8 @@ typedef enum http_auth_e		/**** HTTP authentication types ****/
 typedef enum http_encoding_e		/**** HTTP transfer encoding values ****/
 {
   HTTP_ENCODE_LENGTH,			/* Data is sent with Content-Length */
-  HTTP_ENCODE_CHUNKED			/* Data is chunked */
+  HTTP_ENCODE_CHUNKED,			/* Data is chunked */
+  HTTP_ENCODE_FIELDS			/* Sending HTTP fields */
 } http_encoding_t;
 
 typedef enum http_encryption_e		/**** HTTP encryption values ****/
@@ -324,6 +323,14 @@ typedef struct http_addrlist_s		/**** Socket address list, which is
 
 typedef struct _http_s			/**** HTTP connection structure. ****/
 {
+ /*
+  * DO NOT ACCESS MEMBERS OF THIS STRUCTURE DIRECTLY; INSTEAD, USE THE
+  * PROVIDED APIS FOR ACCESSING THE VALUES INSTEAD.
+  *
+  * This structure definition will be removed from the public headers in
+  * CUPS 1.3.
+  */
+
   int			fd;		/* File descriptor for this socket */
   int			blocking;	/* To block or not to block */
   int			error;		/* Last error on read */
@@ -351,7 +358,7 @@ typedef struct _http_s			/**** HTTP connection structure. ****/
   void			*tls;		/* TLS state information */
   http_encryption_t	encryption;	/* Encryption requirements */
   /**** New in CUPS 1.1.19 ****/
-  fd_set		*input_set;	/* select() set for httpWait() @since CUPS 1.1.19@ */
+  fd_set		*input_set;	/* select() set for httpWait() @deprecated@ */
   http_status_t		expect;		/* Expect: header @since CUPS 1.1.19@ */
   char			*cookie;	/* Cookie value(s) @since CUPS 1.1.19@ */
   /**** New in CUPS 1.1.20 ****/

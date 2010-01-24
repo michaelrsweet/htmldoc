@@ -1,27 +1,23 @@
 /*
  * "$Id$"
  *
- *   Private HTTP definitions for the Common UNIX Printing System (CUPS).
+ *   Private HTTP definitions for HTMLDOC.
  *
- *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
  *   copyright law.  Distribution and use rights are outlined in the file
- *   "LICENSE.txt" which should have been included with this file.  If this
+ *   "COPYING.txt" which should have been included with this file.  If this
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: CUPS Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: cups-info@cups.org
- *         WWW: http://www.cups.org
- *
- *   This file is subject to the Apple OS-Developed Software exception.
+ *     http://www.htmldoc.org/
  */
 
 #ifndef _CUPS_HTTP_PRIVATE_H_
@@ -32,6 +28,9 @@
  */
 
 #  include "hdstring.h"
+#  ifdef __sun
+#    include <sys/select.h>
+#  endif /* __sun */
 #  include <limits.h>
 #  ifdef WIN32
 #    include <io.h>
@@ -57,7 +56,8 @@ typedef int socklen_t;
 #  if defined HAVE_LIBSSL
 /*
  * The OpenSSL library provides its own SSL/TLS context structure for its
- * IO and protocol management...
+ * IO and protocol management.  However, we need to provide our own BIO
+ * (basic IO) implementation to do timeouts...
  */
 
 #    include <openssl/err.h>
@@ -65,6 +65,8 @@ typedef int socklen_t;
 #    include <openssl/ssl.h>
 
 typedef SSL http_tls_t;
+
+extern BIO_METHOD *_httpBIOMethods(void);
 
 #  elif defined HAVE_GNUTLS
 /*
@@ -77,6 +79,11 @@ typedef struct
   gnutls_session	session;	/* GNU TLS session object */
   void			*credentials;	/* GNU TLS credentials object */
 } http_tls_t;
+
+extern ssize_t	_httpReadGNUTLS(gnutls_transport_ptr ptr, void *data,
+		                size_t length);
+extern ssize_t	_httpWriteGNUTLS(gnutls_transport_ptr ptr, const void *data,
+		                 size_t length);
 
 #  elif defined(HAVE_CDSASSL)
 /*
@@ -91,15 +98,6 @@ typedef struct				/**** CDSA connection information ****/
   SSLContextRef		session;	/* CDSA session object */
   CFArrayRef		certsArray;	/* Certificates array */
 } http_tls_t;
-
-typedef union _cdsa_conn_ref_u		/**** CDSA Connection reference union
-					 **** used to resolve 64-bit casting
-					 **** warnings.
-					 ****/
-{
-  SSLConnectionRef connection;		/* SSL connection pointer */
-  int		   sock;		/* Socket */
-} cdsa_conn_ref_t;
 
 extern OSStatus	_httpReadCDSA(SSLConnectionRef connection, void *data,
 		              size_t *dataLength);

@@ -1,25 +1,23 @@
 /*
  * "$Id$"
  *
- *   HTTP address routines for the Common UNIX Printing System (CUPS).
+ *   HTTP address routines for HTMLDOC.
  *
- *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
  *   copyright law.  Distribution and use rights are outlined in the file
- *   "LICENSE.txt" which should have been included with this file.  If this
+ *   "COPYING.txt" which should have been included with this file.  If this
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: CUPS Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: cups-info@cups.org
- *         WWW: http://www.cups.org
+ *     http://www.htmldoc.org/
  *
  * Contents:
  *
@@ -206,17 +204,22 @@ httpAddrLookup(
 #endif /* AF_LOCAL */
 #ifdef HAVE_GETNAMEINFO
   {
-    if (getnameinfo(&addr->addr, httpAddrLength(addr), name, namelen,
-                    NULL, 0, 0))
+   /*
+    * CUPS STR #2486: httpAddrLookup() fails when getnameinfo() returns EAI_AGAIN
+    *
+    * FWIW, I think this is really a bug in the implementation of
+    * getnameinfo(), but falling back on httpAddrString() is easy to
+    * do...
+    */
+
+    if (getnameinfo(&addr->addr, httpAddrLength(addr), name, namelen, NULL, 0,
+                    0))
     {
-     /*
-      * If we get an error back, then the address type is not supported
-      * and we should zero out the buffer...
-      */
+#ifdef HAVE_RES_INIT
+      res_init();
+#endif /* HAVE_RES_INIT */
 
-      name[0] = '\0';
-
-      return (NULL);
+      return (httpAddrString(addr, name, namelen));
     }
   }
 #else
@@ -239,8 +242,12 @@ httpAddrLookup(
       * No hostname, so return the raw address...
       */
 
-      httpAddrString(addr, name, namelen);
-      return (NULL);
+#ifdef HAVE_RES_INIT
+      if (h_errno == NO_RECOVERY)
+        res_init();
+#endif /* HAVE_RES_INIT */
+
+      return (httpAddrString(addr, name, namelen));
     }
 
     strlcpy(name, host->h_name, namelen);

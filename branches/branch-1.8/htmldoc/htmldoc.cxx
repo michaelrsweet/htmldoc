@@ -1149,6 +1149,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       _fsetmode(stdin, "b");
 #endif // WIN32 || __EMX__
 
+      _htmlCurrentFile = "(stdin)";
       htmlReadFile(file, stdin, ".");
 
       if (document == NULL)
@@ -2443,6 +2444,7 @@ read_file(const char *filename,		// I  - File/URL to read
                       (uchar *)file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
+      _htmlCurrentFile = filename;
       htmlReadFile(file, docfile, base);
 
       fclose(docfile);
@@ -2560,8 +2562,10 @@ usage(const char *arg)			// I - Bad argument string
   if (CGIMode)
     puts("Content-Type: text/plain\r\n\r");
 
-  puts("HTMLDOC Version " SVERSION " Copyright 1997-2010 Easy Software Products, All Rights Reserved.");
-  puts("This software is based in part on the work of the Independent JPEG Group.");
+  puts("HTMLDOC Version " SVERSION " Copyright 1997-2010 Easy Software "
+       "Products. All rights reserved.");
+  puts("This software is based in part on the work of the Independent JPEG "
+       "Group.");
   puts("");
 
   if (CGIMode)
@@ -2598,7 +2602,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --book");
     puts("  --bottom margin{in,cm,mm}");
     puts("  --browserwidth pixels");
-    puts("  --charset {cp-874...1258,iso-8859-1...8859-15,koi8-r}");
+    puts("  --charset {cp-874...1258,iso-8859-1...-15,koi8-r}");
     puts("  --color");
     puts("  --compression[=level]");
     puts("  --continuous");

@@ -1,27 +1,23 @@
 /*
  * "$Id$"
  *
- *   HTTP support routines for the Common UNIX Printing System (CUPS) scheduler.
+ *   HTTP support routines for HTMLDOC.
  *
- *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
  *   copyright law.  Distribution and use rights are outlined in the file
- *   "LICENSE.txt" which should have been included with this file.  If this
+ *   "COPYING.txt" which should have been included with this file.  If this
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: CUPS Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: cups-info@cups.org
- *         WWW: http://www.cups.org
- *
- *   This file is subject to the Apple OS-Developed Software exception.
+ *     http://www.htmldoc.org/
  *
  * Contents:
  *
@@ -64,7 +60,8 @@
 
 static const char * const http_days[7] =
 			{
-			  "Sun",			  "Mon",
+			  "Sun",
+			  "Mon",
 			  "Tue",
 			  "Wed",
 			  "Thu",
@@ -149,7 +146,7 @@ httpAssembleURI(
   if (!ptr)
     goto assemble_overflow;
 
-  if (!strcmp(scheme, "mailto:"))
+  if (!strcmp(scheme, "mailto"))
   {
    /*
     * mailto: only has :, no //...
@@ -202,15 +199,17 @@ httpAssembleURI(
 
    /*
     * Then add the hostname.  Since IPv6 is a particular pain to deal
-    * with, we have several special cases to deal with...  If we get
+    * with, we have several special cases to deal with.  If we get
     * an IPv6 address with brackets around it, assume it is already in
-    * URI format...
+    * URI format.  Since DNS-SD service names can sometimes look like
+    * raw IPv6 addresses, we specifically look for "._tcp" in the name,
+    * too...
     */
 
-    if (host[0] != '[' && strchr(host, ':'))
+    if (host[0] != '[' && strchr(host, ':') && !strstr(host, "._tcp"))
     {
      /*
-      * We have an IPv6 address...
+      * We have a raw IPv6 address...
       */
 
       if (strchr(host, '%'))
@@ -270,7 +269,7 @@ httpAssembleURI(
       * Otherwise, just copy the host string...
       */
 
-      ptr = http_copy_encode(ptr, host, end, NULL, NULL,
+      ptr = http_copy_encode(ptr, host, end, ":/?#[]@\\", NULL,
                              encoding & HTTP_URI_CODING_HOSTNAME);
 
       if (!ptr)
@@ -549,7 +548,7 @@ char *					/* O - Encoded string */
 httpEncode64(char       *out,		/* I - String to write to */
              const char *in)		/* I - String to read from */
 {
-  return (httpEncode64_2(out, 512, in, strlen(in)));
+  return (httpEncode64_2(out, 512, in, (int)strlen(in)));
 }
 
 
@@ -595,8 +594,14 @@ httpEncode64_2(char       *out,		/* I - String to write to */
 
     if (outptr < outend)
       *outptr ++ = base64[(in[0] & 255) >> 2];
+
     if (outptr < outend)
-      *outptr ++ = base64[(((in[0] & 255) << 4) | ((in[1] & 255) >> 4)) & 63];
+    {
+      if (inlen > 1)
+        *outptr ++ = base64[(((in[0] & 255) << 4) | ((in[1] & 255) >> 4)) & 63];
+      else
+        *outptr ++ = base64[((in[0] & 255) << 4) & 63];
+    }
 
     in ++;
     inlen --;
@@ -610,7 +615,12 @@ httpEncode64_2(char       *out,		/* I - String to write to */
     }
 
     if (outptr < outend)
-      *outptr ++ = base64[(((in[0] & 255) << 2) | ((in[1] & 255) >> 6)) & 63];
+    {
+      if (inlen > 1)
+        *outptr ++ = base64[(((in[0] & 255) << 2) | ((in[1] & 255) >> 6)) & 63];
+      else
+        *outptr ++ = base64[((in[0] & 255) << 2) & 63];
+    }
 
     in ++;
     inlen --;
@@ -1014,7 +1024,7 @@ httpSeparateURI(
 			 "0123456789"
 	        	 "-._~"
 			 "%"
-			 "!$&'()*+,;=", *ptr))
+			 "!$&'()*+,;=\\", *ptr))
 	{
 	  *host = '\0';
 	  return (HTTP_URI_BAD_HOSTNAME);
@@ -1054,6 +1064,12 @@ httpSeparateURI(
      /*
       * Yes, collect the port number...
       */
+
+      if (!isdigit(uri[1] & 255))
+      {
+        *port = 0;
+        return (HTTP_URI_BAD_PORT);
+      }
 
       *port = strtol(uri + 1, (char **)&uri, 10);
 
@@ -1101,7 +1117,7 @@ httpSeparateURI(
 
       char *resptr = resource + strlen(resource);
 
-      uri = http_copy_decode(resptr, uri, resourcelen - (resptr - resource),
+      uri = http_copy_decode(resptr, uri, resourcelen - (int)(resptr - resource),
                              NULL, decoding & HTTP_URI_CODING_QUERY);
     }
   }
@@ -1280,7 +1296,7 @@ http_copy_encode(char       *dst,	/* O - Destination buffer */
 		 const char *term,	/* I - Terminating characters */
 		 int        encode)	/* I - %-encode reserved chars? */
 {
-  static const char *hex = "0123456789ABCDEF";
+  static const char hex[] = "0123456789ABCDEF";
 
 
   while (*src && dst < dstend)
@@ -1307,6 +1323,8 @@ http_copy_encode(char       *dst,	/* O - Destination buffer */
     else
       *dst++ = *src++;
   }
+
+  *dst = '\0';
 
   if (*src)
     return (NULL);

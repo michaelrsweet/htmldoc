@@ -1,25 +1,23 @@
 /*
  * "$Id$"
  *
- *   HTTP address list routines for the Common UNIX Printing System (CUPS).
+ *   HTTP address list routines for HTMLDOC.
  *
- *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   These coded instructions, statements, and computer programs are the
  *   property of Easy Software Products and are protected by Federal
  *   copyright law.  Distribution and use rights are outlined in the file
- *   "LICENSE.txt" which should have been included with this file.  If this
+ *   "COPYING.txt" which should have been included with this file.  If this
  *   file is missing or damaged please contact Easy Software Products
  *   at:
  *
- *       Attn: CUPS Licensing Information
- *       Easy Software Products
- *       44141 Airport View Drive, Suite 204
- *       Hollywood, Maryland 20636 USA
+ *     Attn: HTMLDOC Licensing Information
+ *     Easy Software Products
+ *     516 Rio Grand Ct
+ *     Morgan Hill, CA 95037 USA
  *
- *       Voice: (301) 373-9600
- *       EMail: cups-info@cups.org
- *         WWW: http://www.cups.org
+ *     http://www.htmldoc.org/
  *
  * Contents:
  *
@@ -35,6 +33,10 @@
 #include "http-private.h"
 #include "debug.h"
 #include <stdlib.h>
+#include <errno.h>
+#ifdef HAVE_RESOLV_H
+#  include <resolv.h>
+#endif /* HAVE_RESOLV_H */
 
 
 /*
@@ -51,6 +53,12 @@ httpAddrConnect(
   int	val;				/* Socket option value */
 
 
+  if (!sock)
+  {
+    errno = EINVAL;
+    return (NULL);
+  }
+
  /*
   * Loop through each address until we connect or run out of addresses...
   */
@@ -61,7 +69,7 @@ httpAddrConnect(
     * Create the socket...
     */
 
-    if ((*sock = socket(addrlist->addr.addr.sa_family, SOCK_STREAM, 0)) < 0)
+    if ((*sock = (int)socket(addrlist->addr.addr.sa_family, SOCK_STREAM, 0)) < 0)
     {
      /*
       * Don't abort yet, as this could just be an issue with the local
@@ -133,6 +141,7 @@ httpAddrConnect(
     close(*sock);
 #endif /* WIN32 */
 
+    *sock    = -1;
     addrlist = addrlist->next;
   }
 
@@ -188,9 +197,6 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
   printf("httpAddrGetList(hostname=\"%s\", family=AF_%s, service=\"%s\")\n",
          hostname ? hostname : "(nil)",
 	 family == AF_UNSPEC ? "UNSPEC" :
-#  ifdef AF_LOCAL
-	     family == AF_LOCAL ? "LOCAL" :
-#  endif /* AF_LOCAL */
 #  ifdef AF_INET6
 	     family == AF_INET6 ? "INET6" :
 #  endif /* AF_INET6 */
@@ -203,19 +209,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 
   first = addr = NULL;
 
-#ifdef AF_LOCAL
-  if (hostname && hostname[0] == '/')
-  {
-   /*
-    * Domain socket address...
-    */
-
-    first = (http_addrlist_t *)calloc(1, sizeof(http_addrlist_t));
-    first->addr.un.sun_family = AF_LOCAL;
-    strlcpy(first->addr.un.sun_path, hostname, sizeof(first->addr.un.sun_path));
-  }
-  else
-#endif /* AF_LOCAL */
+  if (!hostname || strcasecmp(hostname, "localhost"))
   {
 #ifdef HAVE_GETADDRINFO
     struct addrinfo	hints,		/* Address lookup hints */
@@ -247,7 +241,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 	*/
 
 	strlcpy(ipv6, hostname + 4, sizeof(ipv6));
-	if ((ipv6len = strlen(ipv6) - 1) >= 0 && ipv6[ipv6len] == ']')
+	if ((ipv6len = (int)strlen(ipv6) - 1) >= 0 && ipv6[ipv6len] == ']')
 	{
           ipv6[ipv6len] = '\0';
 	  hostname      = ipv6;
@@ -267,7 +261,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 	*/
 
 	strlcpy(ipv6, hostname + 1, sizeof(ipv6));
-	if ((ipv6len = strlen(ipv6) - 1) >= 0 && ipv6[ipv6len] == ']')
+	if ((ipv6len = (int)strlen(ipv6) - 1) >= 0 && ipv6[ipv6len] == ']')
 	{
           ipv6[ipv6len] = '\0';
 	  hostname      = ipv6;
@@ -321,6 +315,10 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 
       freeaddrinfo(results);
     }
+#  ifdef HAVE_RES_INIT
+    else
+      res_init();
+#  endif /* HAVE_RES_INIT */
 #else
     if (hostname)
     {
@@ -437,6 +435,10 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 	  addr = temp;
 	}
       }
+#  ifdef HAVE_RES_INIT
+      else if (h_errno == NO_RECOVERY)
+        res_init();
+#  endif /* HAVE_RES_INIT */
     }
 #endif /* HAVE_GETADDRINFO */
   }
@@ -465,16 +467,10 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
       portnum = 80;
     else if (!strcmp(service, "https"))
       portnum = 443;
-    else if (!strcmp(service, "ipp"))
-      portnum = 631;
-    else if (!strcmp(service, "lpd"))
-      portnum = 515;
-    else if (!strcmp(service, "socket"))
-      portnum = 9100;
     else
       return (NULL);
 
-    if (hostname && !strcmp(hostname, "localhost"))
+    if (hostname && !strcasecmp(hostname, "localhost"))
     {
      /*
       * Unfortunately, some users ignore all of the warnings in the
@@ -534,8 +530,6 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 
         if (addr)
 	  addr->next = temp;
-	else
-          addr = temp;
       }
     }
     else if (!hostname)
@@ -589,8 +583,6 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 
         if (addr)
 	  addr->next = temp;
-	else
-          addr = temp;
       }
     }
   }

@@ -111,7 +111,7 @@ add_heading(tree_t *toc,	/* I - Table of contents */
 {
   while (heading != NULL)
   {
-    if (heading->child != NULL)
+    if (heading->markup != MARKUP_UNKNOWN && heading->child != NULL)
       add_heading(toc, heading->child);
     else if (heading->markup == MARKUP_NONE && heading->data != NULL)
       htmlAddTree(toc, MARKUP_NONE, heading->data);
