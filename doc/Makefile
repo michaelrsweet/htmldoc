@@ -3,7 +3,7 @@
 #
 #   Makefile for HTMLDOC documentation files.
 #
-#   Copyright 1997-2006 by Easy Software Products.
+#   Copyright 1997-2010 by Easy Software Products.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -57,7 +57,7 @@ SOURCES	=	\
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	htmldoc.pdf
 
-HTMLDOC	=	HTMLDOC_DATA=".." ../htmldoc/htmldoc$(EXEEXT) --strict --verbose
+HTMLDOC	=	HTMLDOC_DATA=".." ../htmldoc/htmldoc$(EXEEXT) --strict
 
 
 #
