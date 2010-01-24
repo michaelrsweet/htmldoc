@@ -114,7 +114,7 @@ AC_SEARCH_LIBS(hstrerror, nsl socket resolv, AC_DEFINE(HAVE_HSTRERROR))
 AC_SEARCH_LIBS(__res_init, resolv bind, AC_DEFINE(HAVE_RES_INIT),
 	AC_SEARCH_LIBS(res_9_init, resolv bind, AC_DEFINE(HAVE_RES_INIT),
 	AC_SEARCH_LIBS(res_init, resolv bind, AC_DEFINE(HAVE_RES_INIT))))
-AC_CHECK_HEADER(resolv.h)
+AC_CHECK_HEADER(resolv.h, AC_DEFINE(HAVE_RESOLV_H))
 
 dnl Check for largefile support...
 AC_SYS_LARGEFILE
