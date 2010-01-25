@@ -39,6 +39,9 @@
 #include "debug.h"
 #include <stdlib.h>
 #include <stddef.h>
+#ifdef HAVE_RESOLV_H
+#  include <resolv.h>
+#endif /* HAVE_RESOLV_H */
 
 
 /*
