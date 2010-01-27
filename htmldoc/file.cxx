@@ -108,10 +108,10 @@ hdFile::basename(const char *s,		// I - Filename or URL
   if (!s || !t)
     return (NULL);
 
-  if ((baseptr = strrchr(s, '/')) != NULL)
+  if ((baseptr = (char *)strrchr(s, '/')) != NULL)
     baseptr ++;
 #ifdef WIN32
-  else if ((baseptr = strrchr(s, '\\')) != NULL)
+  else if ((baseptr = (char *)strrchr(s, '\\')) != NULL)
     baseptr ++;
 #endif /* WIN32 */
   else
@@ -122,7 +122,7 @@ hdFile::basename(const char *s,		// I - Filename or URL
 
   strlcpy(t, baseptr, tlen);
 
-  if ((target = strchr(t, '#')) != NULL)
+  if ((target = (char *)strchr(t, '#')) != NULL)
     *target = '\0';
 
   return (t);
@@ -250,10 +250,10 @@ hdFile::dirname(const char *s,		// I - Filename or URL
     // Normal stuff...
     strlcpy(t, s, tlen);
 
-    if ((dir = strrchr(t, '/')) != NULL)
+    if ((dir = (char *)strrchr(t, '/')) != NULL)
       *dir = '\0';
 #ifdef WIN32
-    else if ((dir = strrchr(t, '\\')) != NULL)
+    else if ((dir = (char *)strrchr(t, '\\')) != NULL)
       *dir = '\0';
 #endif /* WIN32 */
     else
@@ -283,10 +283,10 @@ hdFile::extension(const char *s,	// I - Filename or URL
 
   hdFile::basename(s, base, sizeof(base));
 
-  if ((target = strchr(base, '#')) != NULL)
+  if ((target = (char *)strchr(base, '#')) != NULL)
     *target = '\0';
 
-  if ((extptr = strrchr(base, '.')) == NULL)
+  if ((extptr = (char *)strrchr(base, '.')) == NULL)
     t[0] = '\0';
   else
   {
@@ -599,11 +599,11 @@ hdFile::localize(char       *name,	// IO - Name of file
     for (newslash = name; strncmp(newslash, "../", 3) == 0; newslash += 3)
     {
 #if defined(WIN32)
-      if ((slash = strrchr(cwd, '/')) == NULL)
-        slash = strrchr(cwd, '\\');
+      if ((slash = (char *)strrchr(cwd, '/')) == NULL)
+        slash = (char *)strrchr(cwd, '\\');
       if (slash != NULL)
 #else
-      if ((slash = strrchr(cwd, '/')) != NULL)
+      if ((slash = (char *)strrchr(cwd, '/')) != NULL)
 #endif // WIN32
         *slash = '\0';
     }
@@ -746,16 +746,16 @@ hdFile::target(const char *myuri)	// I - Filename or URL
   if (!myuri)
     return (NULL);
 
-  if ((baseptr = strrchr(myuri, '/')) != NULL)
+  if ((baseptr = (char *)strrchr(myuri, '/')) != NULL)
     baseptr ++;
 #ifdef WIN32
-  else if ((baseptr = strrchr(myuri, '\\')) != NULL)
+  else if ((baseptr = (char *)strrchr(myuri, '\\')) != NULL)
     baseptr ++;
 #endif // WIN32
   else
     baseptr = (char *)myuri;
 
-  if ((target = strchr(baseptr, '#')) != NULL)
+  if ((target = (char *)strchr(baseptr, '#')) != NULL)
     return (target + 1);
   else
     return (NULL);
