@@ -150,6 +150,7 @@ main(int  argc,			/* I - Number of command-line arguments */
   htmlSetDebugFile(stdout);
 
   for (i = 1, doc = NULL; i < argc; i ++)
+  {
     if ((fp = hdFile::open(hdFile::find("", argv[i], found, sizeof(found)),
                            HD_FILE_READ)) != NULL)
     {
@@ -157,16 +158,23 @@ main(int  argc,			/* I - Number of command-line arguments */
       delete fp;
 
       if (t != NULL)
+      {
         if (doc == NULL)
-          doc = t;
-        else
+        {
+	  doc = t;
+        }
+	else
         {
           doc->next = t;
           t->prev   = doc;
-        };
+        }
+      }
     }
     else
+    {
       fprintf(stderr, "testhtml: Unable to open input file \'%s\'!\n", argv[i]);
+    }
+  }
 
   if (doc != NULL)
   {
