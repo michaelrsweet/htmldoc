@@ -1,4 +1,4 @@
-CHANGES.txt - 2010-01-24
+CHANGES.txt - 2010-03-07
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.28
@@ -8,6 +8,7 @@ CHANGES IN HTMLDOC v1.8.28
 	- Updated local zlib to version 1.2.3.
 	- Updated local PNG library to version 1.4.0.
 	- Updated local JPEG library to version 7.
+	- Updated default PDF version to 1.4.
 
     BUG FIXES
 

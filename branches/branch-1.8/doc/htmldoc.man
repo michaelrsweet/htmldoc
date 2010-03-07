@@ -3,12 +3,12 @@
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
-.\"   Copyright 1997-2005 by Easy Software Products.
+.\"   Copyright 1997-2010 by Easy Software Products.
 .\"
 .\"   HTMLDOC is distributed under the terms of the GNU General Public License
 .\"   which is described in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.25" "3 November 2005" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.28" "7 March 2010" "Easy Software Products"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -588,9 +588,8 @@ a registered trademark of Adobe Systems Incorporated.
 .SH COPYRIGHTS
 Portable Document Format Copyright 1993-1999 by Adobe Systems Incorporated.
 .LP
-HTMLDOC and <HTML>DOC are the trademark property of Easy Software
-Products. HTMLDOC is copyright 1997-2005 by Easy Software
-Products.
+HTMLDOC and <HTML>DOC are trademarks of Easy Software Products. HTMLDOC is
+copyright 1997-2010 Easy Software Products. All rights reserved.
 .LP
 This program is based in part on the work of the Independent JPEG Group.
 .SH NO WARRANTY
