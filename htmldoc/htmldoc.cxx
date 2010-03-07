@@ -189,7 +189,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     document      = NULL;
     exportfunc    = (exportfunc_t)pspdf_export;
     PSLevel       = 0;
-    PDFVersion    = 13;
+    PDFVersion    = 14;
     PDFPageMode   = PDF_DOCUMENT;
     PDFFirstPage  = PDF_PAGE_1;
 
@@ -500,14 +500,14 @@ main(int  argc,				/* I - Number of command-line arguments */
 	  exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 3;
 	}
-        else if (strcasecmp(argv[i], "pdf14") == 0)
+        else if (strcasecmp(argv[i], "pdf14") == 0 ||
+	         strcasecmp(argv[i], "pdf") == 0)
 	{
           exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 0;
 	  PDFVersion = 14;
 	}
-        else if (strcasecmp(argv[i], "pdf13") == 0 ||
-	         strcasecmp(argv[i], "pdf") == 0)
+        else if (strcasecmp(argv[i], "pdf13") == 0)
 	{
           exportfunc = (exportfunc_t)pspdf_export;
 	  PSLevel    = 0;
@@ -2086,14 +2086,14 @@ parse_options(const char   *line,	// I - Options from book file
 	PSLevel     = 0;
 	PDFVersion  = 12;
       }
-      else if (strcmp(temp2, "pdf") == 0 ||
-               strcmp(temp2, "pdf13") == 0)
+      else if (strcmp(temp2, "pdf13") == 0)
       {
         *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
 	PDFVersion  = 13;
       }
-      else if (strcmp(temp2, "pdf14") == 0)
+      else if (strcmp(temp2, "pdf") == 0 ||
+               strcmp(temp2, "pdf14") == 0)
       {
         *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
