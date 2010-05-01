@@ -3,7 +3,7 @@
 //
 // Hyper-Text Transport Protocol class routines for HTMLDOC.
 //
-// Copyright 1997-2008 Easy Software Products.
+// Copyright 1997-2010 Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -191,7 +191,7 @@ hdHTTP::initialize(void)
   unsigned char		data[1024];	// Seed data
 #endif // HAVE_LIBSSL
 
-  if (!initialized)
+  if (initialized)
     return;
 
   initialized = 1;
@@ -200,9 +200,11 @@ hdHTTP::initialize(void)
   WSADATA	winsockdata;		// WinSock data
 
 
-  WSAStartup(MAKEWORD(1,1), &winsockdata);
+  WSAStartup(MAKEWORD(2,2), &winsockdata);
+
 #elif defined(HAVE_SIGSET)
   sigset(SIGPIPE, SIG_IGN);
+
 #elif defined(HAVE_SIGACTION)
   struct sigaction	action;		// POSIX sigaction data
 
@@ -214,6 +216,7 @@ hdHTTP::initialize(void)
   memset(&action, 0, sizeof(action));
   action.sa_handler = SIG_IGN;
   sigaction(SIGPIPE, &action, NULL);
+
 #else
   signal(SIGPIPE, SIG_IGN);
 #endif // WIN32
@@ -233,6 +236,7 @@ hdHTTP::initialize(void)
   gettimeofday(&curtime, NULL);
   srand(curtime.tv_sec + curtime.tv_usec);
 #  endif // WIN32
+
   for (i = 0; i < (int)sizeof(data); i ++)
     data[i] = rand(); // Yes, this is a poor source of random data...
 
