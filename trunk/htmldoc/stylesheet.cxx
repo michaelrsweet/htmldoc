@@ -4,7 +4,7 @@
 //
 // Basic stylesheet routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 1997-2009 by Easy Software Products.
+// Copyright 1997-2010 by Easy Software Products.
 //
 // These coded instructions, statements, and computer programs are the
 // property of Easy Software Products and are protected by Federal
@@ -766,7 +766,10 @@ hdStyleSheet::get_element(const char *s)// I - Element name
 const char *				// O - Element name
 hdStyleSheet::get_element(hdElement e)	// I - Element enumeration
 {
-  return (hd_elements[e]);
+  if (e < 0)
+    return (NULL);
+  else
+    return (hd_elements[e]);
 }
 
 
