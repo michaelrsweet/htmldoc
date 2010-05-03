@@ -3,7 +3,7 @@
 #
 #   JPEG library Makefile for the HTMLDOC software.
 #
-#   Copyright 1997-2001 by Easy Software Products, all rights reserved.
+#   Copyright 1997-2010 by Easy Software Products, all rights reserved.
 #
 #   These coded instructions, statements, and computer programs are the
 #   property of Easy Software Products and are protected by Federal
@@ -41,7 +41,6 @@ OBJS	=	\
 		jcmaster.o \
 		jcomapi.o \
 		jcparam.o \
-		jcphuff.o \
 		jcprepct.o \
 		jcsample.o \
 		jctrans.o \
@@ -59,7 +58,6 @@ OBJS	=	\
 		jdmarker.o \
 		jdmaster.o \
 		jdmerge.o \
-		jdphuff.o \
 		jdpostct.o \
 		jdsample.o \
 		jdtrans.o \
@@ -70,7 +68,6 @@ OBJS	=	\
 		jidctflt.o \
 		jidctfst.o \
 		jidctint.o \
-		jidctred.o \
 		jmemmgr.o \
 		jmemnobs.o \
 		jquant1.o \
@@ -102,7 +99,7 @@ libjpeg.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
-$(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
+$(OBJS):	jdct.h jerror.h jinclude.h jmemsys.h \
 		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
 
 #
