@@ -231,44 +231,58 @@ fi
 AC_SUBST(SSLFLAGS)
 AC_SUBST(SSLLIBS)
 
+dnl Check for GUI libraries...
+POST=:
+if test "x$with_gui" != xno; then
+    if test "x$FLTKCONFIG" != x; then
+	LIBS="$LIBS `$FLTKCONFIG --use-images --ldflags`"
+	OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
+	AC_DEFINE(HAVE_LIBFLTK)
+	POST="$FLTKCONFIG --post"
+
+	AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
+    else
+        AC_MSG_WARN(FLTK not available so no GUI will be built.)
+    fi
+fi
+
+AC_SUBST(POST)
+
 dnl Check for image libraries...
 NEWLIBS=""
 
 AC_ARG_ENABLE(localjpeg, [  --enable-localjpeg      use local JPEG library, default=auto],
-    [if eval "test x$enable_localjpeg = xyes"; then
+    [if test x$enable_localjpeg = xyes; then
 	ac_cv_lib_jpeg_jpeg_CreateCompress=no
     fi])
 
-AC_CHECK_LIB(jpeg,jpeg_CreateCompress,
+AC_SEARCH_LIBS(jpeg_CreateCompress,jpeg,
     JPEGINC=""
-    JPEG=""
-    LIBS="-ljpeg $LIBS",
+    JPEG="",
     JPEGINC="-I../jpeg"
     JPEG="jpeg"
     NEWLIBS="../jpeg/libjpeg.a $NEWLIBS")
 
 AC_ARG_ENABLE(localzlib, [  --enable-localzlib      use local ZLIB library, default=auto],
-    [if eval "test x$enable_localzlib = xyes"; then
+    [if test x$enable_localzlib = xyes; then
 	ac_cv_lib_z_gzgets=no
     fi])
 
-AC_CHECK_LIB(z,gzgets,
+AC_SEARCH_LIBS(gzgets,z,
     ZLIBINC=""
-    ZLIB=""
-    LIBS="-lz $LIBS",
+    ZLIB="",
     ZLIBINC="-I../zlib"
     ZLIB="zlib"
     NEWLIBS="../zlib/libz.a $NEWLIBS")
 
 AC_ARG_ENABLE(localpng, [  --enable-localpng       use local PNG library, default=auto],
-    [if eval "test x$enable_localpng = xyes"; then
+    [if test x$enable_localpng = xyes; then
 	ac_cv_lib_png_png_set_tRNS_to_alpha=no
     fi])
 
-AC_CHECK_LIB(png,png_set_tRNS_to_alpha,
+AC_SEARCH_LIBS(png_set_tRNS_to_alpha,png,
     PNGINC=""
-    PNG=""
-    LIBS="-lpng $LIBS",
+    PNG="",
     PNGINC="-I../png"
     PNG="png"
     NEWLIBS="../png/libpng.a $NEWLIBS")
@@ -283,23 +297,6 @@ AC_SUBST(ZLIBINC)
 AC_DEFINE(HAVE_LIBJPEG)
 AC_DEFINE(HAVE_LIBPNG)
 AC_DEFINE(HAVE_LIBZ)
-
-dnl Check for GUI libraries...
-POST=:
-if test "x$with_gui" != xno; then
-    if test "x$FLTKCONFIG" != x; then
-	LIBS="$LIBS `$FLTKCONFIG --use-images --ldflags`"
-	OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
-	AC_DEFINE(HAVE_LIBFLTK)
-	POST="$FLTKCONFIG --post"
-
-        AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
-    else
-        AC_MSG_WARN(FLTK not available so no GUI will be built.)
-    fi
-fi
-
-AC_SUBST(POST)
 
 LIBS="$NEWLIBS $LIBS"
 
