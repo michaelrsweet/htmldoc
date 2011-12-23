@@ -3,21 +3,11 @@
  *
  *   Image handling routines for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 1997-2010 by Easy Software Products.
+ *   Copyright 2011 by Michael R Sweet.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   These coded instructions, statements, and computer programs are the
- *   property of Easy Software Products and are protected by Federal
- *   copyright law.  Distribution and use rights are outlined in the file
- *   "COPYING.txt" which should have been included with this file.  If this
- *   file is missing or damaged please contact Easy Software Products
- *   at:
- *
- *     Attn: HTMLDOC Licensing Information
- *     Easy Software Products
- *     516 Rio Grand Ct
- *     Morgan Hill, CA 95037 USA
- *
- *     http://www.htmldoc.org/
+ *   This program is free software.  Distribution and use rights are outlined in
+ *   the file "COPYING.txt".
  *
  * Contents:
  *
@@ -1497,7 +1487,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   rows = NULL;
 
-  if (setjmp(pp->jmpbuf)) 
+  if (setjmp(png_jmpbuf(pp))) 
   {
     progress_error(HD_ERROR_BAD_FORMAT, "PNG file contains errors!");
 
@@ -1524,7 +1514,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   png_read_info(pp, info);
 
-  if (info->color_type & PNG_COLOR_MASK_PALETTE)
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_PALETTE)
   {
     png_set_expand(pp);
 
@@ -1533,15 +1523,15 @@ image_load_png(image_t *img,	/* I - Image pointer */
     if (Encryption)
       img->use ++;
   }
-  else if (info->bit_depth < 8)
+  else if (png_get_bit_depth(pp, info) < 8)
   {
     png_set_packing(pp);
     png_set_expand(pp);
   }
-  else if (info->bit_depth == 16)
+  else if (png_get_bit_depth(pp, info) == 16)
     png_set_strip_16(pp);
 
-  if (info->color_type & PNG_COLOR_MASK_COLOR)
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_COLOR)
   {
     depth      = 3;
     img->depth = gray ? 1 : 3;
@@ -1552,10 +1542,10 @@ image_load_png(image_t *img,	/* I - Image pointer */
     img->depth = 1;
   }
 
-  img->width  = info->width;
-  img->height = info->height;
+  img->width  = png_get_image_width(pp, info);
+  img->height = png_get_image_height(pp, info);
 
-  if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_ALPHA)
   {
     if ((PSLevel == 0 && PDFVersion >= 14) || PSLevel == 3)
       image_need_mask(img, 8);
@@ -1569,14 +1559,14 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
 #ifdef DEBUG
   printf("color_type=0x%04x, depth=%d, img->width=%d, img->height=%d, img->depth=%d\n",
-         info->color_type, depth, img->width, img->height, img->depth);
-  if (info->color_type & PNG_COLOR_MASK_COLOR)
+         png_get_color_type(pp, info), depth, img->width, img->height, img->depth);
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_COLOR)
     puts("    COLOR");
   else
     puts("    GRAYSCALE");
-  if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_ALPHA)
     puts("    ALPHA");
-  if (info->color_type & PNG_COLOR_MASK_PALETTE)
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_PALETTE)
     puts("    PALETTE");
 #endif // DEBUG
 
@@ -1592,9 +1582,9 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Allocate pointers...
   */
 
-  rows = (png_bytep *)calloc(info->height, sizeof(png_bytep));
+  rows = (png_bytep *)calloc(png_get_image_height(pp, info), sizeof(png_bytep));
 
-  for (i = 0; i < (int)info->height; i ++)
+  for (i = 0; i < (int)png_get_image_height(pp, info); i ++)
     rows[i] = img->pixels + i * img->width * depth;
 
  /*
@@ -1608,7 +1598,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Generate the alpha mask as necessary...
   */
 
-  if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_ALPHA)
   {
 #ifdef DEBUG
     for (inptr = img->pixels, i = 0; i < img->height; i ++)
@@ -1637,7 +1627,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Reformat the data as necessary for the reader...
   */
 
-  if (gray && info->color_type & PNG_COLOR_MASK_COLOR)
+  if (gray && png_get_color_type(pp, info) & PNG_COLOR_MASK_COLOR)
   {
    /*
     * Greyscale output needed...
@@ -1718,7 +1708,7 @@ image_need_mask(image_t *img,	/* I - Image to add mask to */
   {
     // Alpha mask
     img->maskwidth = (img->width * scaling + 7) / 8;
-    size           = img->maskwidth * img->height * scaling;
+    size           = img->maskwidth * img->height * scaling + 1;
   }
 
   img->mask = (uchar *)calloc(size, 1);

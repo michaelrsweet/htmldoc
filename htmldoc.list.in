@@ -3,13 +3,16 @@
 #
 #   ESP Package Manager (EPM) file list for HTMLDOC.
 #
-#   EPM can be found at "http://www.easysw.com/epm/".
+#   Copyright 2011 by Michael R Sweet.
+#
+#   This program is free software.  Distribution and use rights are outlined in
+#   the file "COPYING.txt".
 #
 
 %product HTMLDOC
-%copyright 1997-2010 by Easy Software Products, All Rights Reserved.
-%vendor Easy Software Products
-%license htmldoc.eula
+%copyright 1997-2011 by Michael R Sweet, All Rights Reserved.
+%vendor Michael R Sweet
+%license COPYING.txt
 %readme htmldoc.readme
 %version @SVERSION@ @NVERSION@
 %description HTMLDOC converts HTML files and web pages to PDF and PostScript.

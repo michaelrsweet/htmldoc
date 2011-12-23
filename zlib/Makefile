@@ -1,28 +1,13 @@
 #
-# "$Id: Makefile,v 1.6.2.5 2004/09/24 03:21:10 mike Exp $"
+# "$Id$"
 #
 #   ZIP library Makefile for the HTMLDOC software.
 #
-#   Makefile copyright 1997-2001 by Easy Software Products, all rights
-#   reserved.
-#   ZIP library copyright 1995-1998 Jean-loup Gailly.
-#   For conditions of distribution and use, see copyright notice in zlib.h 
+#   Copyright 2011 by Michael R Sweet.
+#   Copyright 1997-2010 by Easy Software Products.
 #
-#   These coded instructions, statements, and computer programs are the
-#   property of Easy Software Products and are protected by Federal
-#   copyright law.  Distribution and use rights are outlined in the file
-#   "LICENSE.txt" which should have been included with this file.  If this
-#   file is missing or damaged please contact Easy Software Products
-#   at:
-#
-#       Attn: HTMLDOC Licensing Information
-#       Easy Software Products
-#       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3142 USA
-#
-#       Voice: (301) 373-9600
-#       EMail: info@easysw.com
-#         WWW: http://www.easysw.com
+#   This program is free software.  Distribution and use rights are outlined in
+#   the file "COPYING.txt".
 #
 
 include ../Makedefs
@@ -69,5 +54,5 @@ inftrees.o:	zutil.h inftrees.h
 inffast.o:	zutil.h inftrees.h inflate.h inffast.h
 
 #
-# End of "$Id: Makefile,v 1.6.2.5 2004/09/24 03:21:10 mike Exp $".
+# End of "$Id$".
 #
