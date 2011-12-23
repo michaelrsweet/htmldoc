@@ -3,6 +3,7 @@
 //
 // MD5 support code for HTMLDOC.
 //
+// Copyright 2011 by Michael R Sweet.
 // Copyright 2001-2008 Easy Software Products.
 // Copyright 1999 Aladdin Enterprises.  All rights reserved.
 //
