@@ -51,8 +51,8 @@ INSTALLING HTMLDOC ON SOLARIS
     HTMLDOC for Solaris is provided in a PKG package file. Type the
     following command to install HTMLDOC on a SPARC system:
 
-        pkgadd -d htmldoc-1.8.28-linux-sparc.pkg ENTER
+        pkgadd -d htmldoc-1.8.28-solaris-sparc.pkg ENTER
 
     Type the following command to install HTMLDOC on an Intel system:
 
-        pkgadd -d htmldoc-1.8.28-linux-intel.pkg ENTER
+        pkgadd -d htmldoc-1.8.28-solaris-intel.pkg ENTER

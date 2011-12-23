@@ -1,90 +1,15 @@
-                          HTMLDOC License Agreement
-
-                Copyright 1997-2010 by Easy Software Products
-                              516 Rio Grand Ct
-                          Morgan Hill, CA 95037 USA
-
-                           Email: info@easysw.com
-                         WWW: http://www.htmldoc.org
+			       HTMLDOC License
+			      December 21, 2011
 
 
-INTRODUCTION
+HTMLDOC is provides under the terms of version 2 of the GNU General Public
+License with the following exception:
 
-HTMLDOC is distributed in both source code and binary
-(executable) forms. The source code is provided under the terms
-of the GNU General Public License ("GPL") with a license
-exception for the OpenSSL toolkit. A copy of the exception and
-license follows this introduction.
+1. HTMLDOC may be compiled against and distributed with the OpenSSL Toolkit.
+   No developer is required to provide this exception in a derived work.
 
-The binaries are provided under a typical commercial software
-end-user license agreement which is more restrictive than the
-GNU GPL.
+--------------------------------------------------------------------------------
 
-
-SOURCE CODE AND THE GNU GPL
-
-For those not familiar with the GNU GPL, the license basically
-allows you to:
-
-   - Use the HTMLDOC software at no charge.
-   - Distribute verbatim copies of the software in source form
-     or as binaries you create.
-   - Sell verbatim copies of the software for a media fee, or
-     sell support for the software.
-   - Distribute or sell your own modified version of HTMLDOC so
-     long as the source code is made available under the GPL.
-
-What this license *does not* allow you to do is make changes or
-add features to HTMLDOC and then sell a binary distribution
-without source code. You must provide source for any changes or
-additions to the software, and all code must be provided under
-the GPL.
-
-
-TRADEMARKS
-
-Easy Software Products has trademarked the HTMLDOC name. You may
-use the name in any direct port or binary distribution of
-HTMLDOC. Please contact Easy Software Products for written
-permission to use the name in derivative products. Our intention
-is to protect the value of this trademark and ensure that any
-derivative product meets the same high-quality standards as the
-original.
-
-
-BINARY DISTRIBUTION RIGHTS
-
-Easy Software Products also sells rights to the HTMLDOC source
-code under a binary distribution license for vendors that are
-unable to release source code for their additions and
-modifications to HTMLDOC under the GNU GPL. For information
-please contact us at the address shown above.
-
-
-BINARIES AND SUPPORT
-
-Easy Software Products sells commercial HTMLDOC binaries and
-support. You can find out more at the HTMLDOC commercial home
-page:
-
-     http://www.easysw.com/htmldoc/
-
-LICENSE EXCEPTIONS
-
-In addition to the terms and conditions of the GNU General
-Public License that follows, and as the copyright holder of
-HTMLDOC, Easy Software Products grants the following special
-exception:
-
-     1. OpenSSL Toolkit License Exception;
-
-	a. Easy Software Products explicitly allows the
-	   compilation and distribution of the HTMLDOC software
-	   with the OpenSSL Toolkit.
-
-No developer is required to provide this exception in a derived
-work.
-
 		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
 

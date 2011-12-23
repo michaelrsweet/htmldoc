@@ -1,4 +1,4 @@
-README.txt - 2010-01-08
+README.txt - 2011-12-21
 -----------------------
 
 INTRODUCTION
@@ -25,11 +25,6 @@ INTRODUCTION
     well as BMP, GIF, JPEG, and PNG images.  Eventually HTMLDOC
     will be compliant with HTML 4.0 and support style sheets.
 
-    Please support continued HTMLDOC development by purchasing
-    commercial HTMLDOC licenses from the following page:
-
-        http://www.easysw.com/htmldoc/
-
 
 INTERNET RESOURCES
 
@@ -41,31 +36,6 @@ INTERNET RESOURCES
     The HTMLDOC open source home page is located at:
 
         http://www.htmldoc.org/
-
-    The HTMLDOC commercial home page is located at:
-
-        http://www.easysw.com/htmldoc/
-
-    Commercial support is provided by Easy Software Products.
-    Submit commercial support requests using the form at:
-
-	http://www.easysw.com/support.php
-
-    or to the following email address:
-
-        htmldoc-support@easysw.com
-
-
-REQUIREMENTS
-
-    HTMLDOC requires an average of 2MB of disk space for
-    installation. Binary distributions are available to any
-    HTMLDOC commercial user at the commercial download page:
-
-        http://www.easysw.com/htmldoc/software.php
-
-    See the file "COMPILE.txt" for instructions on compiling
-    HTMLDOC from the source code.
 
 
 USING HTMLDOC
@@ -176,9 +146,9 @@ LEGAL STUFF
 
     HTMLDOC and <HTML>DOC are trademarks of Easy Software Products.
 
-    HTMLDOC is copyright 1997-2010 by Easy Software Products.
-    See Appendix A of the HTMLDOC Software Users Manual and the
-    files "COPYING.txt" and "htmldoc.eula" for the terms of use.
+    HTMLDOC is copyright 2011 by Michael R Sweet.  This program is free
+    software.  Distribution and use rights are outlined in the file
+    "COPYING.txt".
 
-    This software is based in part on the work of the
-    Independent JPEG Group and FLTK project.
+    This software is based in part on the work of the Independent JPEG Group
+    and FLTK project.
