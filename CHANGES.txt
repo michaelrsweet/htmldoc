@@ -1,4 +1,4 @@
-CHANGES.txt - 2010-01-08
+CHANGES.txt - 2011-12-22
 ------------------------
 
 CHANGES IN HTMLDOC v1.9b1
