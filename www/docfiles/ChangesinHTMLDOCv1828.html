@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="AppendixCReleaseNotes.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1827.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="AppendixCReleaseNotes.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1827.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_1">Changes in HTMLDOC v1.8.28</A></H2>
+<UL>
+<H3><A NAME="12_1_1">Changes</A></H3>
+<LI>Updated local zlib to version 1.2.3.</LI>
+<LI>Updated local PNG library to version 1.4.0.</LI>
+<LI>Updated local JPEG library to version 7.</LI>
+<LI>Updated default PDF version to 1.4.</LI>
+<H3><A NAME="12_1_2">Bug Fixes</A></H3>
+<LI>SECURITY: Fixed three buffer overflow issues when reading AFM files
+ and parsing page sizes.</LI>
+<LI>Fixed incompatibility with Fortify's version of strcpy, which does
+ not work properly with variable-length arrays (STR #235)</LI>
+<LI>Fixed documentation errors (PR #6593, PR #6595)</LI>
+<LI>Marked Zapf-Dingbats as a standard font (STR #198)</LI>
+<LI>Fixed GPL license text in GUI (STR #222)</LI>
+<LI>Fixed a table formatting problem when a column has multiple colspan
+ values (PR #6709)</LI>
+<LI>Fixed parsing of HTML comments (STR #181)</LI>
+<LI>Fixed potential out-of-bounds read in table-of-contents rendering
+ code (STR #183)</LI>
+<LI>Fixed handling of image URLs with ampersands in them (STR #186)</LI>
+<LI>Fixed top/bottom margins for logo and header/footer images (STR
+ #174)</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="AppendixCReleaseNotes.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1827.html">Next</A>
+</BODY>
+</HTML>

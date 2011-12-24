@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1813.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv188.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1813.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv188.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_17">Changes in HTMLDOC v1.8.12</A></H2>
+<UL>
+<H3><A NAME="12_17_1">New Features</A></H3>
+<LI>Added new &quot;--batch&quot; option to convert HTMLDOC book files from the
+ command-line.</LI>
+<LI>Added support for the &quot;-display&quot; option on systems that use X11.</LI>
+<LI>Now use image objects in PDF output for images when the image width
+ * height * depth &gt; 32k.</LI>
+<LI>Now use JPEG compression when the number of colors would be &gt; 32
+ colors or 16 gray shades.</LI>
+<LI>True transparency support for GIF files in PDF 1.3 output!</LI>
+<LI>The GUI now automatically changes the extension of the output
+ filename as needed.</LI>
+<LI>The GUI now collects all error messages and shows them once after
+ the document is generated.</LI>
+<LI>Added support for HSPACE and VSPACE attributes for images with
+ ALIGN=&quot;LEFT&quot; or ALIGN=&quot;RIGHT&quot;.</LI>
+<LI>Added new Java interface to HTMLDOC.</LI>
+<H3><A NAME="12_17_2">Changes</A></H3>
+<LI>Consolidated temporary file management into new file_temp()
+ function. The new function also makes use of the Windows &quot;short lived&quot;
+ open option which may improve performance with small temporary files.</LI>
+<LI>Updated book file format and added an appendix describing the
+ format.</LI>
+<LI>Now default to PDF 1.3 (Acrobat 4.0) output format.</LI>
+<LI>Now output length of PDF streams with the stream object; this offers
+ a modest reduction in file size.</LI>
+<LI>The HTTP file cache now keeps track of previous URLs that were
+ downloaded.</LI>
+<LI>The HTTP code now supports redirections (status codes 301 to 303) to
+ alternate URLs.</LI>
+<LI>Limit the height check for table rows to 1/8th of the page length;
+ this seems to provide fairly consistent wrapping of tables without
+ leaving huge expanses of blank space at the bottom of pages.</LI>
+<LI>The HTML output now also includes a font-family style for PRE text;
+ otherwise the body font would override the PRE font with some browsers.</LI>
+<LI>The snprintf/vsnprintf emulation functions were not included in the
+ HTMLDOC makefile.</LI>
+<LI>RGB hex colors are now recognized with or without the leading #.
+ This breaks HTML standards compliance but should reduce the number of
+ problem reports from buggy HTML.</LI>
+<LI>The stylesheet generated with the HTML output no longer contains
+ absolute font sizes, just the typefaces and a relative size for
+ SUB/SUP.</LI>
+<LI>The title image is no longer scaled to 100% in the HTML output.</LI>
+<H3><A NAME="12_17_3">Bug Fixes</A></H3>
+<LI>The web page output was not divided into chapters for each input
+ file.</LI>
+<LI>The &quot;make install&quot; target did a clean.</LI>
+<LI>The configure script would remove the image libraries if you did not
+ have FLTK installed.</LI>
+<LI>The fix_filename() function didn't handle relative URLs for images
+ (e.g. SRC=&quot;../images/filename.gif&quot;)</LI>
+<LI>Comments in the source document were being closed by a &quot;.</LI>
+<LI>The command-line and GUI interfaces looked for &quot;outlines&quot; instead of
+ &quot;outline&quot; for the page mode.</LI>
+<LI>The HTML output code didn't output closing tags for empty elements.</LI>
+<LI>The GUI interface started with the compression slider enabled, even
+ for HTML output.</LI>
+<LI>The beginnings of some lines could start with whitespace.</LI>
+<LI>Wasn't aligning images and text on lines based on the line height.</LI>
+<LI>The compression slider was enabled in the GUI even though HTML
+ output was selected.</LI>
+<LI>The Perl example code was incorrect.</LI>
+<LI>Fixed the check for whether or not pages were generated.</LI>
+<LI>htmlSetCharSet() wasn't reloading the character set data if the data
+ directory changed.</LI>
+<LI>The GUI did not reset the default background color.</LI>
+<LI>The 'C' page number style (chapter page numbers) started at 3
+ instead of 1.</LI>
+<LI>The chapter links were off by 1 or 2 pages when no title page was
+ included.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1813.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv188.html">Next</A>
+</BODY>
+</HTML>

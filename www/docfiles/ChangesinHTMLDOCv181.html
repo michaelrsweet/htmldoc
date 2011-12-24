@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv182.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv18.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv182.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv18.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_25">Changes in HTMLDOC v1.8.1</A></H2>
+<UL>
+<H3><A NAME="12_25_1">Changes</A></H3>
+<LI>The configure script didn't update the ARFLAGS variable for *BSD
+ operating systems (no &quot;s&quot; option to build the symbol table...)</LI>
+<LI>Changed the installation commands to only create the installation
+ directory if it does not exist. This prevents installation errors on
+ some platforms the second time around.</LI>
+<LI>Now use the Microsoft definitions for characters 128 through 159
+ that are otherwise unused by the ISO-8859-x character sets.</LI>
+<LI>Now set optimization settings when we know the compiler.</LI>
+<LI>Now always quote attribute values in HTML output to make HTML lint
+ programs happy.</LI>
+<H3><A NAME="12_25_2">Bug Fixes</A></H3>
+<LI>Wasn't using TOC title string in PDF document outline.</LI>
+<LI>Preformatted text in tables didn't force the column width.</LI>
+<LI>Cells using COLSPAN &gt; 1 didn't contribute to the width of columns.</LI>
+<LI>The table code didn't enforce the per-column minimums under certain
+ circumstances, causing &quot;scrambled&quot; columns.</LI>
+<LI>The configure script and makefiles didn't work when FLTK was not
+ available. They now only build the &quot;gui&quot; library when it is available.</LI>
+<LI>The Windows distribution was installing files under PROGRAMDIR
+ instead of TARGETDIR. This prevented users from customizing the
+ installation directory.</LI>
+<LI>The configure script overrode the LDFLAGS environment variable,
+ preventing FLTK from being located in a non- default directory.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv182.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv18.html">Next</A>
+</BODY>
+</HTML>

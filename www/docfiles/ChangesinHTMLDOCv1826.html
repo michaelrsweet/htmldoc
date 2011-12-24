@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1827.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1825.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1827.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1825.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_3">Changes in HTMLDOC v1.8.26</A></H2>
+<UL>
+<H3><A NAME="12_3_1">Bug Fixes</A></H3>
+<LI>Outline and keyword strings in PDF files are now stored as Unicode
+ (STR #113)</LI>
+<LI>The Flate compression code could get in an infinite loop if it ran
+ out of memory (STR #101)</LI>
+<LI>Book files saved from the GUI did not handle filenames with spaces
+ (STR #105)</LI>
+<LI>Fixed and re-enabled the ASCII85Device filter support in PostScript
+ Level 2/3 output (STR #116)</LI>
+<LI>Character entities in the first word of a file were not rendered
+ properly (STR #111)</LI>
+<LI>Fixed-size table columns were incorrectly resized when a table width
+ was also specified and there was extra space to distribute (PR #6062)</LI>
+<LI>Text could &quot;walk&quot; up or down when in-line images were used (PR
+ #6034)</LI>
+<LI>Row backgrounds incorrectly replaced cell backgrounds when the first
+ cell in a row used ROWSPAN (PR #6033, PR #6036)</LI>
+<LI>HTMLDOC did not correctly parse FONT FACE attributes (PR #6006)</LI>
+<LI>Images in Level 2/3 PostScript output did not work on some printers
+ (PR #6000)</LI>
+<LI>The GUI did not use the first page header (PR #5978)</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1827.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1825.html">Next</A>
+</BODY>
+</HTML>

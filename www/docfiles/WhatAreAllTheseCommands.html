@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="GeneratingBooks.html">
+<LINK REL="Next" HREF="SettingtheTitleFile.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="GeneratingBooks.html">Previous</A>
+<A HREF="SettingtheTitleFile.html">Next</A>
+<HR NOSHADE>
+<H3><A NAME="5_4_1">What are all these commands?</A></H3>
+<P><TT>htmldoc</TT> is the name of the sofware.</P>
+<P><TT>--book</TT> is a type of document that specifies that the input
+ files are structured with headings.</P>
+<P><TT>-f output.html</TT> is where you want the converted files to go
+ to. In this case, we requested the file be a HTML file. We could have
+ made it a PDF (<TT>-f output.pdf</TT>) or Postscript (<TT>-f ouput.ps</TT>
+), too.</P>
+<P><TT>file1.html</TT> and <TT>file2.html</TT> are the files you want to
+ convert.</P>
+<P>HTMLDOC will build a table of contents for the book using the heading
+ elements (<CODE>H1</CODE>, <CODE>H2</CODE>, etc.) in your HTML files.
+ It will also add a title page using the document <CODE>TITLE</CODE>
+ text (you're going to learn about title files shortly) and other <CODE>
+META</CODE> information you supply in your HTML files. See <A HREF="Chapter6HTMLReference.html#HTMLREF">
+Chapter 6 - HTML Reference</A> for more information on the <CODE>META</CODE>
+ variables that are supported.</P>
+<CENTER>
+<TABLE bgcolor="#cccccc" border="1" cellpadding="5" cellspacing="0" width="80%">
+<TR><TD><B>Note:</B>
+<P>When using book mode, HTMLDOC starts rendering with the first <CODE>
+H1</CODE> element. Any text, images, tables, and other viewable elements
+ that precede the first <CODE>H1</CODE> element are silently ignored.
+ Because of this, make sure you have an <CODE>H1</CODE> element in your
+ HTML file, otherwise HTMLDOC will not convert anything!</P>
+</TD></TR>
+</TABLE>
+</CENTER>
+
+<!-- NEED 2in -->
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="GeneratingBooks.html">Previous</A>
+<A HREF="SettingtheTitleFile.html">Next</A>
+</BODY>
+</HTML>

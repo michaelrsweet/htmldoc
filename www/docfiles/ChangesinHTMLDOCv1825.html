@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1826.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1824.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1826.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1824.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_4">Changes in HTMLDOC v1.8.25</A></H2>
+<UL>
+<H3><A NAME="12_4_1">New Features</A></H3>
+<LI>Added &quot;--overflow&quot; and &quot;--no-overflow&quot; command-line options to show
+ or hide the content-too-large errors; the default is &quot;--no-overflow&quot;.</LI>
+<LI>Added &quot;--header1&quot; command-line option and &quot;HEADER1&quot; page comments to
+ set the page header for the first page of each chapter.</LI>
+<LI>Added &quot;timing&quot; and &quot;remotebytes&quot; debug data generation.</LI>
+<LI>Added DejaVu font collection to better support Cyrillic and Greek
+ text; the new fonts are available under the generic names &quot;monospace&quot;,
+ &quot;sans&quot;, and &quot;serif&quot;.</LI>
+<LI>Added &quot;--referer&quot; command-line option and corresponding CGI-mode
+ support to pass Referer: information in HTTP requests (STR #91)</LI>
+<H3><A NAME="12_4_2">Changes</A></H3>
+<LI>On Windows, HTMLDOC now logs CGI mode errors to a file called
+ &quot;htmldoc.log&quot; in the Windows temporary directory.</LI>
+<LI>HTMLDOC no longer uses Base-85 encoding for image data when
+ producing Level 2 and 3 PostScript output. It appears that many
+ printers and PostScript interpreters cannot properly decode this data
+ when the original image data is not a multiple of 8 bits.</LI>
+<LI>HTMLDOC now renders STRONG elements in boldface instead of
+ bold-italic to match the W3C recommendations.</LI>
+<LI>HTMLDOC now automatically inserts a TR element before a TD or TH
+ element as needed to improve web site compatibility; this also triggers
+ a HTML error in --strict mode.</LI>
+<H3><A NAME="12_4_3">Bug Fixes</A></H3>
+<LI>&quot;$HFIMAGEn&quot; didn't work in a header/footer string.</LI>
+<LI>HTMLDOC could crash when rendering a table.</LI>
+<LI>Book files were not used in CGI mode (STR #69)</LI>
+<LI>Cookies were not sent in HTTP requests (STR #71)</LI>
+<LI>Table cells were not aligned properly when the ROWSPAN attribute was
+ set to 1 (STR #73)</LI>
+<LI>HTMLDOC crashed when rendering unresolved hyperlinks in aligned
+ images (STR #62)</LI>
+<LI>Documented the HTMLDOC_NOCGI environment variable (STR #63)</LI>
+<LI>HTMLDOC sometimes crashed when rendering tables with background
+ colors (STR #65)</LI>
+<LI>HTMLDOC would crash when writing encrypted strings longer than 1024
+ bytes (STR #66)</LI>
+<LI>HTMLDOC didn't set the data directory when running in CGI mode on
+ Windows.</LI>
+<LI>HTMLDOC could crash when loading the Symbol.afm file (STR #93)</LI>
+<LI>HTMLDOC did not always honor HEIGHT attributes in table rows.</LI>
+<LI>Tables with a mix of colspan and rowspan sometimes caused cells to
+ be moved vertically outside the cell.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1826.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1824.html">Next</A>
+</BODY>
+</HTML>

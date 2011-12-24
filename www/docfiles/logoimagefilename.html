@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="linkstylestyle.html">
+<LINK REL="Next" HREF="nocompression.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="linkstylestyle.html">Previous</A>
+<A HREF="nocompression.html">Next</A>
+<HR NOSHADE>
+<H3><A NAME="9_2_40">--logoimage filename</A></H3>
+<P>The <CODE>--logoimage</CODE> option specifies the logo image for the
+ HTML navigation bar and page headers and footers for PostScript and PDF
+ files. The supported formats are BMP, GIF, JPEG, and PNG.
+<CENTER>
+<TABLE BGCOLOR="#cccccc" BORDER="1" CELLPADDING="5" CELLSPACING="0" WIDTH="80%">
+<TR><TD><B>Note:</B>
+<P>You need to use the <CODE>--header</CODE> and/or <CODE>--footer</CODE>
+ options with the <CODE>l</CODE> parameter or use the corresponding HTML
+ page comments to display the logo image in the header or footer.</P>
+<P>The following example uses the <CODE>--header</CODE> option:</P>
+<PRE>
+    htmldoc --logoimage image.png --header lt. -f file.pdf file.html
+</PRE>
+</TD></TR>
+</TABLE>
+</CENTER>
+</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="linkstylestyle.html">Previous</A>
+<A HREF="nocompression.html">Next</A>
+</BODY>
+</HTML>

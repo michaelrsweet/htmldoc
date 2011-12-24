@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1812.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv187.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1812.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv187.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_18">Changes in HTMLDOC v1.8.8</A></H2>
+<UL>
+<H3><A NAME="12_18_1">New Features</A></H3>
+<LI>Added support for PDF security/encryption!</LI>
+<LI>Now support TABLE height attribute.</LI>
+<LI>Now generate an error message if no pages are generated (with a
+ suggestion to use the webpage option.)</LI>
+<LI>New &quot;paths&quot; option to specify additional directories to search for
+ files. This is useful when the source files use absolute server paths.</LI>
+<H3><A NAME="12_18_2">Changes</A></H3>
+<LI>Added missing casts in htmllib.cxx that were causing a compile
+ warning with some compilers.</LI>
+<LI>No longer draw borders around empty cells in tables...</LI>
+<LI>Now disable the TOC tab when using webpage mode.</LI>
+<LI>Now scale title image to 100% in HTML output.</LI>
+<LI>Now handle comments with missing whitespace after the &quot;&lt;!--&quot;.</LI>
+<H3><A NAME="12_18_3">Bug Fixes</A></H3>
+<LI>Nested tables didn't take into account the table border width,
+ spacing, or padding values.</LI>
+<LI>HTMLDOC crashed under Solaris when reading HTML files from the
+ standard input.</LI>
+<LI>&lt;ELEM&gt;text&lt;/ELEM&gt; &lt;MELE&gt;text&lt;/MELE&gt; was rendered without an
+ intervening space.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1812.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv187.html">Next</A>
+</BODY>
+</HTML>

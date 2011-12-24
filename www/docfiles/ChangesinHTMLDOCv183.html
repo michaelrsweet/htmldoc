@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv184.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv182.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv184.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv182.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_23">Changes in HTMLDOC v1.8.3</A></H2>
+<UL>
+<H3><A NAME="12_23_1">New Features</A></H3>
+<LI>New &quot;--browserwidth&quot; option to control scaling of images and tables
+ that use fixed pixel widths.</LI>
+<H3><A NAME="12_23_2">Changes</A></H3>
+<LI>The configure script now looks for the OpenGL library (required if
+ you use a shared FLTK library with OpenGL support.)</LI>
+<LI>Increased the max number of chapters to 1000.</LI>
+<H3><A NAME="12_23_3">Bug Fixes</A></H3>
+<LI>Page break comments didn't force a paragraph break.</LI>
+<LI>--no-toc prevented chapters from being output in PS and PDF files.</LI>
+<LI>Filenames didn't always get updated properly when doing a &quot;save
+ as&quot;...</LI>
+<LI>Fixed some more leading/trailing whitespace problems.</LI>
+<LI>Wasn't freeing page headings after the document was generated.</LI>
+<LI>Wasn't range checking the current chapter number; now limits the
+ number of chapters to MAX_CHAPTERS and issues an error message whenever
+ the limit is exceeded.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv184.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv182.html">Next</A>
+</BODY>
+</HTML>

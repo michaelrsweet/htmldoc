@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv188.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv186.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv188.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv186.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_19">Changes in HTMLDOC v1.8.7</A></H2>
+<UL>
+<H3><A NAME="12_19_1">New Features</A></H3>
+<LI>The configure script now uses the local PNG, ZLIB, and/or JPEG
+ libraries when they are new enough.</LI>
+<LI>The configure script now uses the -fno-rtti, -fno-exceptions, and
+ -fpermissive options as needed with GCC (smaller, faster executables,
+ works around X header bugs in Solaris.)</LI>
+<LI>Added a --toctitle option to set the table-of-contents title from
+ the command-line (was only available in the GUI in previous
+ releases...)</LI>
+<LI>New &quot;&lt;!-- NEED amount --&gt;&quot; comment to force a page feed if there is
+ not sufficient room on the page for the following text.</LI>
+<LI>Page comments are now supported in tables.</LI>
+<LI>Table rows are now allocated dynamically, MAX_ROWS at a time.</LI>
+<H3><A NAME="12_19_2">Changes</A></H3>
+<LI>Increased default MAX_PAGES to 10000 (was 5000.)</LI>
+<LI>File links in book files now point to the top of the next page.</LI>
+<LI>&lt;TABLE ALIGN=xyz&gt; now aligns the table (previously it just set the
+ default alignment of cells.)</LI>
+<LI>Transparent GIFs now use the body color instead of white for the
+ transparent color.</LI>
+<LI>Updated to LIBPNG 1.0.6 in source distribution.</LI>
+<LI>Updated the default cellpadding to be 1 pixel to match Netscape
+ output.</LI>
+<LI>Updated line and block spacing to match Netscape.</LI>
+<LI>DL/DT/DD output now matches browsers (was indented from browser
+ output.)</LI>
+<LI>Now only output link (A) style if it is set to &quot;none&quot;. Otherwise
+ Netscape would underline all targets as well as links.</LI>
+<LI>Increased the MAX_COLUMNS constant to 200, and dropped MAX_ROWS to
+ 200. Note that the new table code now allocates rows in increments of
+ MAX_ROWS rows, so the actual maximum number of rows depends on
+ available memory.</LI>
+<H3><A NAME="12_19_3">Bug Fixes</A></H3>
+<LI>Now ignore illegal HTML in tables.</LI>
+<LI>The VALIGN code didn't handle empty cells properly.</LI>
+<LI>Wasn't offsetting the start of each row by the cell padding.</LI>
+<LI>The JPEG image loading code didn't work for some JPEG images,
+ particularly those from digital cameras (JPEG but not JFIF format.)</LI>
+<LI>The strikethrough line was not being drawn in the correct position.</LI>
+<LI>Wasn't setting the height of BR elements, so &lt;BR&gt;&lt;BR&gt; didn't insert
+ a blank line.</LI>
+<LI>The table of contents would show the wrong page numbers if no title
+ page was generated.</LI>
+<LI>Cell widths did not subtract any border, padding, or spacing from
+ the &quot;preferred&quot; width, causing formatting differences between web
+ browsers and HTMLDOC.</LI>
+<LI>The PNG loading code did not handle interlacing or transparency.</LI>
+<LI>The HTML parsing code did not prevent elements in embedded files
+ from completing elements in the parent file.</LI>
+<LI>The table CELLSPACING amount was being applied twice in the table
+ sizing calculations.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv188.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv186.html">Next</A>
+</BODY>
+</HTML>

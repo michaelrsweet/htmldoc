@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1814.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1812.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1814.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1812.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_16">Changes in HTMLDOC v1.8.13</A></H2>
+<UL>
+<H3><A NAME="12_16_1">New Features</A></H3>
+<LI>Added support for secure (https) URLs via the OpenSSL library.</LI>
+<LI>Added support for Acrobat 5.0 (PDF 1.4).</LI>
+<LI>Added support for transparency in PostScript and PDF 1.1 and 1.2
+ output.</LI>
+<LI>Added a --no-jpeg option (same as --jpeg=0)</LI>
+<LI>Added support for the CSS2 page-break-before and page-break-after
+ properties.</LI>
+<LI>Added a PHP example.</LI>
+<H3><A NAME="12_16_2">Changes</A></H3>
+<LI>External file references to non-PDF files now use the &quot;Launch&quot;
+ action so they can be opened/executed/saved as allowed by the OS and
+ PDF viewer.</LI>
+<LI>Changed the indexed/JPEG'd transition point to 256 colors when using
+ Flate compression. This makes PDF files much smaller in general.</LI>
+<LI>Changed the in-line image size limit to 64k.</LI>
+<LI>Now allow &quot;&lt;&quot; followed by whitespace, &quot;=&quot;, or &quot;&lt;&quot;. This violates the
+ HTML specification, but we're sick of people complaining about it.</LI>
+<LI>Preferences are now stored in a user-specific file under Windows,
+ just like UNIX. This provides user-specific preferences and allows
+ preferences to be kept when upgrading to new versions of HTMLDOC.</LI>
+<LI>The book loading code now allows for blank lines, even though these
+ are not a part of the format. (added to support some scripted apps that
+ include extra newlines...)</LI>
+<LI>Changed the leading space handling of blocks to more closely match
+ the standard browser behavior.</LI>
+<H3><A NAME="12_16_3">Bug Fixes</A></H3>
+<LI>The table formatting code adding the border width to the cell width,
+ while Netscape and MSIE don't. This caused some interesting formatting
+ glitches...</LI>
+<LI>The table formatting code didn't account for the preferred width of
+ colspan'd cells.</LI>
+<LI>The table formatting code tried to enforce the minimum cell width
+ when squeezing a table to fit on the page; this caused the table to
+ still exceed the width of the page.</LI>
+<LI>The PDF catalog object could contain a reference to a /Names object
+ of &quot;0 0 R&quot;, which is invalid. This would happen when the &quot;--no-links&quot;
+ option was used.</LI>
+<LI>Several HTML elements were incorrectly written with closing tags.</LI>
+<LI>When piping PDF output, the temporary file that is created needed to
+ be open for reading and writing, but HTMLDOC only opened the file for
+ writing.</LI>
+<LI>Image links did not work.</LI>
+<LI>The JPEG image loading code did not correctly handle grayscale JPEG
+ images.</LI>
+<LI>JPEG images were not encrypted when writing a document with
+ encryption enabled.</LI>
+<LI>The user password was not properly encrypted.</LI>
+<LI>The colormap of indexed images were not encrypted when writing a
+ document with encryption enabled.</LI>
+<LI>The temporary file creation and cleanup functions did not use the
+ same template under Windows, causing multiple conversions to fail when
+ temporary files were used.</LI>
+<LI>Paragraphs could end up with one extra text fragment, causing the
+ line to be too long.</LI>
+<LI>The command-line program would clear the error count after reading
+ all the files/URLs on the command-line, but before generating the
+ document. If there were problems reading the files/URLs, HTMLDOC would
+ return a 0 exit status instead of 1.</LI>
+<LI>Image objects that were both JPEG and Flate compressed would not
+ display (filters specified in the wrong order.)</LI>
+<LI>Images with more than 256 colors would cause a segfault on some
+ systems.</LI>
+<LI>Background images would generate the error message &quot;XObject 'Innn'
+ is unknown&quot;.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1814.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1812.html">Next</A>
+</BODY>
+</HTML>

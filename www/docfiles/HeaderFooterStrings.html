@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Comments.html">
+<LINK REL="Next" HREF="FONTAttributes.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Comments.html">Previous</A>
+<A HREF="FONTAttributes.html">Next</A>
+<HR NOSHADE>
+<H3><A NAME="7_3_1">Header/Footer Strings</A></H3>
+<P>The <CODE>HEADER</CODE> and <CODE>FOOTER</CODE> comments allow you to
+ set an arbitrary string of text for the left, center, and right headers
+ and footers. Each string consists of plain text; special values or
+ strings can be inserted using the dollar sign (<CODE>$</CODE>):</P>
+<DL>
+<!-- NEED 1in -->
+<DT><CODE>$$</CODE></DT>
+<DD>Inserts a single dollar sign in the header.
+<!-- NEED 1in -->
+</DD>
+<DT><CODE>$CHAPTER</CODE></DT>
+<DD>Inserts the current chapter heading.
+<!-- NEED 1.5in -->
+</DD>
+<DT><CODE>$CHAPTERPAGE</CODE></DT>
+<DT><CODE>$CHAPTERPAGE(format)</CODE></DT>
+<DD>Inserts the current page number within a chapter or file. When a
+ format is specified, uses that numeric format (1 = decimal, i =
+ lowercase roman numerals, I = uppercase roman numerals, a = lowercase
+ ascii, A = uppercase ascii) for the page numbers.
+<!-- NEED 1.5in -->
+</DD>
+<DT><CODE>$CHAPTERPAGES</CODE></DT>
+<DT><CODE>$CHAPTERPAGES(format)</CODE></DT>
+<DD>Inserts the total page count within a chapter or file. When a format
+ is specified, uses that numeric format (1 = decimal, i = lowercase
+ roman numerals, I = uppercase roman numerals, a = lowercase ascii, A =
+ uppercase ascii) for the page count.
+<!-- NEED 1in -->
+</DD>
+<DT><CODE>$DATE</CODE></DT>
+<DD>Inserts the current date.
+<!-- NEED 1in -->
+</DD>
+<DT><CODE>$HEADING</CODE></DT>
+<DD>Inserts the current heading.
+<!-- NEED 1in -->
+</DD>
+<DT><CODE>$LOGOIMAGE</CODE></DT>
+<DD>Inserts the logo image; all other text in the string will be
+ ignored.
+<!-- NEED 1in -->
+</DD>
+<DT><CODE>$PAGE</CODE></DT>
+<DT><CODE>$PAGE(format)</CODE></DT>
+<DD>Inserts the current page number. When a format is specified, uses
+ that numeric format (1 = decimal, i = lowercase roman numerals, I =
+ uppercase roman numerals, a = lowercase ascii, A = uppercase ascii) for
+ the page numbers.
+<!-- NEED 1.5in -->
+</DD>
+<DT><CODE>$PAGES</CODE></DT>
+<DT><CODE>$PAGES(format)</CODE></DT>
+<DD>Inserts the total page count. When a format is specified, uses that
+ numeric format (1 = decimal, i = lowercase roman numerals, I =
+ uppercase roman numerals, a = lowercase ascii, A = uppercase ascii) for
+ the page count.
+<!-- NEED 1in -->
+</DD>
+<DT><CODE>$TIME</CODE></DT>
+<DD>Inserts the current time.
+<!-- NEED 1in -->
+</DD>
+<DT><CODE>$TITLE</CODE></DT>
+<DD>Inserts the document title.</DD>
+</DL>
+
+<!-- NEED 5in -->
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Comments.html">Previous</A>
+<A HREF="FONTAttributes.html">Next</A>
+</BODY>
+</HTML>

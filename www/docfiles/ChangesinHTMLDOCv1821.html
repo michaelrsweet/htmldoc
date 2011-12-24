@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1822.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1820.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1822.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1820.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_8">Changes in HTMLDOC v1.8.21</A></H2>
+<UL>
+<H3><A NAME="12_8_1">New Features</A></H3>
+<LI>HTMLDOC now supports heading levels 1 to 15.</LI>
+<LI>HTMLDOC now allows the author to omit headings from the TOC using
+ the _HD_OMIT_TOC attribute.</LI>
+<LI>HTMLDOC now supports remote book files when running from the
+ command-line.</LI>
+<LI>HTMLDOC now supports hexadecimal character constants (&amp;#xFF)
+<H3><A NAME="12_8_2">Changes</A></H3>
+</LI>
+<LI>HTMLDOC now calculates the resolution of the body image using the
+ printable width instead of the page width.</LI>
+<LI>HTMLDOC should now compile out-of-the-box using the Cygwin tools.</LI>
+<LI>HTMLDOC no longer inserts whitespace between text inside DIV
+ elements.</LI>
+<LI>HTMLDOC now supports quoted usernames and passwords in URLs.</LI>
+<LI>HTMLDOC now defaults unknown colors to white for background colors
+ and black for foreground colors. This should make documents that use
+ non-standard color names still appear readable.
+<H3><A NAME="12_8_3">Bug Fixes</A></H3>
+</LI>
+<LI>&quot;make install&quot; didn't work in the fonts directory.</LI>
+<LI>&quot;&amp;euro;&quot; didn't work, while &quot;&amp;#128;&quot; did: the character name table
+ was not sorted properly...</LI>
+<LI>Links didn't always point to the right page in PDF output.</LI>
+<LI>XRX comment output could crash HTMLDOC.</LI>
+<LI>Fixed-width columns in tables could be resized by HTMLDOC.</LI>
+<LI>When writing PostScript commands, some printers reset their
+ duplexing state when a new setpagedevice command is received; we now
+ cache the current duplex state and change it only as needed.</LI>
+<LI>The MEDIA SIZE comment didn't adjust the printable size for the
+ current landscape setting.</LI>
+<LI>HTMLDOC placed the header one line too high.</LI>
+<LI>When continuing a chapter onto the next page, H3 and higher headings
+ would be indented the wrong amount.</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1822.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1820.html">Next</A>
+</BODY>
+</HTML>

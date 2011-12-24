@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ChangesinHTMLDOCv1825.html">
+<LINK REL="Next" HREF="ChangesinHTMLDOCv1823.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1825.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1823.html">Next</A>
+<HR NOSHADE>
+<H2><A NAME="12_5">Changes in HTMLDOC v1.8.24</A></H2>
+<UL>
+<H3><A NAME="12_5_1">New Features</A></H3>
+<LI>HTMLDOC now provides limited cookie support via the &quot;--cookies&quot;
+ command-line option and via the cookies passed by a browser in CGI
+ mode.</LI>
+<LI>HTMLDOC now features a CGI mode which provides PDF conversion
+ functionality for web servers.</LI>
+<LI>HTMLDOC now generates a document outline for each input file or URL
+ in webpage mode; the outline shows the title for the file and links to
+ the first page containing that file.</LI>
+<LI>HTMLDOC now offers an &quot;htmlsep&quot; output type which generates HTML
+ output with a separate file for each heading in the table of contents.</LI>
+<LI>HTMLDOC now includes LINK elements in generated HTML so that
+ intelligent browsers like Mozilla can show next/prev/contents/top
+ buttons.</LI>
+<LI>HTMLDOC now supports the BORDERCOLOR attribute for tables, a MSIE
+ extension.</LI>
+<LI>The &quot;strict HTML&quot; mode now reports unresolved local links.</LI>
+<LI>Added support for HP LaserJet 5000 and Xerox DocuPrint 2000/100
+ printer commands.</LI>
+<LI>Added multiple header/footer image support.</LI>
+<LI>Links to external URLs are now resolved so that the output file can
+ be moved without affecting them.</LI>
+<H3><A NAME="12_5_2">Changes</A></H3>
+<LI>The command-line now allows --fontsize values from 4 to 26 to match
+ the GUI.</LI>
+<LI>Now use a 0.001 point tolerance when checking for content that
+ overflows the page/cell.</LI>
+<LI>HTMLDOC no longer enables interpolation of 2-color images.</LI>
+<LI>The default vertical alignment of images is &quot;BOTTOM&quot; to match the
+ HTML specification.</LI>
+<LI>Paragraph spacing is only applied to the first table after a
+ paragraph.</LI>
+<LI>The tabloid media size was 10 points too short in length.</LI>
+<LI>The table formatter now subtracts the outside border and padding
+ widths for percentage-based widths. This helps to eliminate &quot;truncation
+ or overlapping&quot; errors.</LI>
+<LI>Dropped support for FLTK 1.0.x when building the GUI.</LI>
+<LI>The default vertical alignment is now &quot;bottom&quot; inside paragraphs to
+ correctly align different sized text and images to the baseline.</LI>
+<LI>Indexed images are now written as PDF image objects when encryption
+ is enabled; this works around a serious bug in Acrobat 6 which tries to
+ decrypt the colormap of in-line images twice, causing some very strange
+ colors!</LI>
+<LI>Table captions can now be bottom aligned.</LI>
+<LI>Blocks now break at the bottom of a page if the current line height
+ + standard line height goes below the bottom of the page; this prevents
+ images with captions from getting erroneously moved to the top of the
+ next page.</LI>
+<LI>Character entities are now supported in HTML attributes and unknown
+ or invalid character entities are left as plain text.</LI>
+<LI>Changed handling of NOWRAP for some tables.</LI>
+<LI>The --permissions option now supports multiple permission keywords
+ in a single invocation.</LI>
+<LI>Dropped support for MacOS 9 and earlier.</LI>
+<LI>HTMLDOC now breaks between images that are too large to fit on a
+ single line, to match the behavior of Mozilla/Netscape (STR #7).</LI>
+<LI>HTMLDOC now handles XHTML input more cleanly.</LI>
+<LI>HTMLDOC no longer specifies an interpolation preference for images
+ in PostScript or PDF output (STR #8)</LI>
+<LI>The DT element no longer applies an italic style (PR #5178)</LI>
+<LI>HTMLDOC now ignores content inside a STYLE element (PR #5183)</LI>
+<H3><A NAME="12_5_3">Bug Fixes</A></H3>
+<LI>Switching between landscape and portrait orientations would cause
+ margin creepage.</LI>
+<LI>Images did not default to align=bottom, and the align=bottom line
+ spacing calculation was incorrect.</LI>
+<LI>Whitespace before a link was underlined.</LI>
+<LI>Fixed a table column sizing bug.</LI>
+<LI>HTMLDOC didn't read back the HTTP response properly in all
+ situations.</LI>
+<LI>Fixed some more PNG transparency cases.</LI>
+<LI>The PageBoundingBox comments in PostScript output did not account
+ for the back page when duplexing was enabled.</LI>
+<LI>HTMLDOC generated an incorrect image mask for some images.</LI>
+<LI>The first page of each chapter did not use the custom page number if
+ it was placed inside the heading.</LI>
+<LI>HTMLDOC did not reset the rendering cache before each page when
+ producing N-up output; this caused font errors in some cases that
+ prevented the document from printing or displaying properly.</LI>
+<LI>Eliminated a common cause of &quot;table too wide&quot; formatting errors,</LI>
+<LI>Fixed a bug when applying a table background color to a cell without
+ a border that cross a page boundary.</LI>
+<LI>Fixed some calls to strcpy with overlapping arguments.</LI>
+<LI>The names object was never set when the name objects were written.</LI>
+<LI>Character entities were not decoded/encoded inside HTML comments.</LI>
+<LI>The current heading was not always correctly substituted when used
+ in the page header or footer.</LI>
+<LI>When converting web pages from the GUI, the table-of-contents page
+ number preferences were incorrectly used.</LI>
+<LI>PDF page effects/transitions were not put in the right part of the
+ page dictionary, causing them not to be used by the PDF reader
+ application.</LI>
+<LI>The _HD_OMIT_TOC attribute was not being honored for HTML output.</LI>
+<LI>HTMLDOC now handles &quot;open&quot; messages from the MacOS X Finder (STR #3)</LI>
+<LI>The GUI did not load or save the &quot;strict HTML&quot; setting (STR #6)</LI>
+<LI>The HTML version of the title page did not set the ALT attribute for
+ the title image (STR #10)</LI>
+<LI>The HTML version of the table of contents did not correctly nest the
+ lists in the parent items (STR #10)</LI>
+<LI>Borders around left and right-aligned images were not drawn properly
+ (PR #5112)</LI>
+<LI>Grayscale PDF output was not truly grayscale (STR #32)</LI>
+<LI>Fixed a table-of-contents bug introduced in 1.8.24rc1 which caused
+ the PDF document outline and actual TOC pages were not rendered
+ properly (STR #37)</LI>
+<LI>Links were not rendered due to a bug that was introduced in
+ 1.8.24rc2 (STR #41)</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ChangesinHTMLDOCv1825.html">Previous</A>
+<A HREF="ChangesinHTMLDOCv1823.html">Next</A>
+</BODY>
+</HTML>

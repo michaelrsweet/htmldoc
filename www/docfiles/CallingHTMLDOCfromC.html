@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>HTMLDOC 1.8.28 Software Users Manual</TITLE>
+<META NAME="author" CONTENT="Michael R Sweet">
+<META NAME="copyright" CONTENT="Copyright 2011, All Rights Reserved.">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=iso-iso-8859-1">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="CallingHTMLDOCfromPHP.html">
+<LINK REL="Next" HREF="CallingHTMLDOCfromJava.html">
+<STYLE TYPE="text/css"><!--
+BODY { font-family: serif }
+H1 { font-family: sans-serif }
+H2 { font-family: sans-serif }
+H3 { font-family: sans-serif }
+H4 { font-family: sans-serif }
+H5 { font-family: sans-serif }
+H6 { font-family: sans-serif }
+SUB { font-size: smaller }
+SUP { font-size: smaller }
+PRE { font-family: monospace }
+--></STYLE>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="CallingHTMLDOCfromPHP.html">Previous</A>
+<A HREF="CallingHTMLDOCfromJava.html">Next</A>
+<HR NOSHADE>
+<H3><A NAME="6_3_4">Calling HTMLDOC from C</A></H3>
+<P>C programs offer the best flexibility and easily supports on-the-fly
+ report generation without the need for temporary files.</P>
+<P>Here are some simple C functions that can be used to generate a PDF
+ report to the HTTP client from a temporary file or pipe:</P>
+<PRE>
+    #include &lt;stdio.h&gt;
+    #include &lt;stdlib.h&gt;
+
+
+    /* topdf() - convert a HTML file to PDF */
+    FILE *topdf(const char *filename)           /* I - HTML file to convert */
+    {
+      char	command[1024];			/* Command to execute */
+
+
+     /*
+      * Tell HTMLDOC not to run in CGI mode...
+      */
+
+      putenv(&quot;HTMLDOC_NOCGI=1&quot;);
+
+     /*
+      * Write the content type to the client...
+      */
+
+      puts(&quot;Content-Type: application/pdf\n&quot;);
+
+     /*
+      * Run HTMLDOC to provide the PDF file to the user...
+      */
+
+      sprintf(command, &quot;htmldoc --quiet -t pdf --webpage %s&quot;, filename);
+
+      return (popen(command, &quot;w&quot;));
+    }
+
+
+    /* topdf2() - pipe HTML output to HTMLDOC for conversion to PDF */
+    FILE *topdf2(void)
+    {
+     /*
+      * Tell HTMLDOC not to run in CGI mode...
+      */
+
+      putenv(&quot;HTMLDOC_NOCGI=1&quot;);
+
+     /*
+      * Write the content type to the client...
+      */
+
+      puts(&quot;Content-Type: application/pdf\n&quot;);
+
+     /*
+      * Open a pipe to HTMLDOC...
+      */
+
+      return (popen(&quot;htmldoc --quiet -t pdf --webpage -&quot;, &quot;w&quot;));
+    }
+</PRE>
+
+<!-- NEED 5in -->
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="CallingHTMLDOCfromPHP.html">Previous</A>
+<A HREF="CallingHTMLDOCfromJava.html">Next</A>
+</BODY>
+</HTML>
