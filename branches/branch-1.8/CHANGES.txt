@@ -1,4 +1,4 @@
-CHANGES.txt - 2011-12-22
+CHANGES.txt - 2011-12-24
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.28
@@ -14,6 +14,8 @@ CHANGES IN HTMLDOC v1.8.28
 
 	- SECURITY: Fixed three buffer overflow issues when reading AFM files
 	  and parsing page sizes.
+	- Fixed incompatibility with Fortify's version of strcpy, which does
+	  not work properly with variable-length arrays (STR #235)
 	- Fixed compilation against PNG library 1.5 or later (STR #243)
 	- Fixed documentation errors (PR #6593, PR #6595)
 	- Marked Zapf-Dingbats as a standard font (STR #198)

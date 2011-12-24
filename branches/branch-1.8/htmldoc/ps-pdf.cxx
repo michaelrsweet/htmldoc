@@ -8627,6 +8627,7 @@ new_render(int      page,		/* I - Page number (0-n) */
 	   render_t *insert)		/* I - Insert before here... */
 {
   render_t		*r;		/* New render primitive */
+  size_t		datalen = 0;	/* Length of data */
   static render_t	dummy;		/* Dummy var for errors... */
 
 
@@ -8647,7 +8648,10 @@ new_render(int      page,		/* I - Page number (0-n) */
   if ((type != RENDER_TEXT && type != RENDER_LINK) || data == NULL)
     r = (render_t *)calloc(sizeof(render_t), 1);
   else
-    r = (render_t *)calloc(sizeof(render_t) + strlen((char *)data), 1);
+  {
+    datalen = strlen((char *)data);
+    r       = (render_t *)calloc(sizeof(render_t) + datalen, 1);
+  }
 
   if (r == NULL)
   {
@@ -8672,7 +8676,7 @@ new_render(int      page,		/* I - Page number (0-n) */
           return (NULL);
         }
 	// Safe because buffer is allocated...
-        strcpy((char *)r->data.text.buffer, (char *)data);
+        memcpy((char *)r->data.text.buffer, (char *)data, datalen);
         get_color(_htmlTextColor, r->data.text.rgb);
         break;
     case RENDER_IMAGE :
@@ -8693,7 +8697,8 @@ new_render(int      page,		/* I - Page number (0-n) */
           return (NULL);
         }
 	// Safe because buffer is allocated...
-        strcpy((char *)r->data.link, (char *)data);
+        memcpy((char *)r->data.text.buffer, (char *)data, datalen);
+//        fprintf(stderr, "RENDER_LINK(%s) = %d bytes\n", (char *)r->data.text.buffer, (int)datalen);
         break;
   }
 
