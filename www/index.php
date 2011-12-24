@@ -32,13 +32,11 @@ else
 ?>
 
 <h1><img src='images/htmldoc.jpg' width='128' height='128'
-align='right'>HTMLDOC Open Source Home Page</h1>
+align='right'>HTMLDOC Home Page</h1>
 
 <p>HTMLDOC converts Hyper-Text Markup Language ("HTML") files and web pages into
 indexed HTML, Adobe<sup>&reg;</sup> PostScript<sup>&reg;</sup>, or Adobe
-Portable Document Format ("PDF") files. HTMLDOC is available in both
-<a href='http://www.easysw.com/htmldoc/'>commercial</a> and
-<a href='software.php'>open source</a> versions.</p>
+Portable Document Format ("PDF") files. HTMLDOC is provided under the terms of <a href="COPYING.txt">version 2 of the GNU General Public License</a> with an exception to allow building against OpenSSL.</p>
 
 <table border='0' cellspacing='0' cellpadding='0' summary='Download' background='images/download.jpg'>
 <tr><td class='download'><?
