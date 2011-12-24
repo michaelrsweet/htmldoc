@@ -146,15 +146,7 @@ else
 
   html_end_table();
 
-  print("<h2><a name='BINARIES'>Binaries</a></h2>\n"
-       ."<p>Binaries for $PROJECT_NAME are available on the "
-       ."<a href='http://www.easysw.com/htmldoc/software.php'>Easy "
-       ."Software Products download page</a> to users that "
-       ."have <a href='http://www.easysw.com/htmldoc/'>purchased a "
-       ."commercial license</a> for the software. Free binaries may be available "
-       ."elsewhere - search <a href='http://www.google.com/search?"
-       ."q=htmldoc+binary+package&btnG=Search'>Google</a> to find them.</p>\n"
-       ."<h2><a name='SVN'>Subversion Access</a></h2>\n"
+  print("<h2><a name='SVN'>Subversion Access</a></h2>\n"
        ."<p>The $PROJECT_NAME software is available via Subversion "
        ."using the following URL:</p>\n"
        ."<pre class='example'>\n"
