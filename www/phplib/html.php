@@ -268,9 +268,7 @@ html_footer()
 {
   print("</td></tr>\n"
        ."<tr><td class='footer' colspan='7'>"
-       ."Copyright 1997-2010 Easy Software Products. All rights reserved. "
-       ."HTMLDOC and &lt;HTML&gt;DOC are trademarks of Easy Software "
-       ."Products.</td></tr>\n"
+       ."Copyright 2011 by Michael R Sweet. All rights reserved.</td></tr>\n"
        ."</table>\n"
        ."</body>\n"
        ."</html>\n");
