@@ -45,12 +45,12 @@ all: $(DOCUMENTS)
 #
 
 install: $(DOCUMENTS)
-	if [ ! -d $(datadir)/doc/htmldoc ]; then\
+	if test ! -d $(datadir)/doc/htmldoc; then\
 		$(MKDIR) $(datadir)/doc/htmldoc;\
 	fi
 	$(CP) $(DOCFILES) $(datadir)/doc/htmldoc
 	$(CHMOD) ugo+r $(datadir)/doc/htmldoc/*
-	if [ ! -d $(mandir)/man1 ]; then\
+	if test ! -d $(mandir)/man1; then\
 		$(MKDIR) $(mandir)/man1;\
 	fi
 	$(CP) htmldoc.man $(mandir)/man1/htmldoc.1
@@ -71,6 +71,20 @@ clean:
 
 ../htmldoc/htmldoc$(EXEEXT):
 	echo Rebuilding documentation...
+
+
+#
+# htmldoc.d (directory)
+#
+
+.PHONY: htmldoc.d
+htmldoc.d:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
+	echo Formatting htmldoc.d...
+	if test -d htmldoc.d; then \
+		$(RM) -r htmldoc.d; \
+	fi
+	$(MKDIR) htmldoc.d
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -t htmlsep -d htmldoc.d
 
 
 #
