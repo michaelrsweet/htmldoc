@@ -8889,8 +8889,9 @@ new_render(int      page,	/* I - Page number (0-n) */
            void     *data,	/* I - Data */
 	   hdRender *insert)	/* I - Insert before here... */
 {
-  hdRender		*r;	/* New render primitive */
-  static hdRender	dummy;	/* Dummy var for errors... */
+  hdRender	*r;		/* New render primitive */
+  size_t	datalen = 0;	/* Length of text/link */
+  static hdRender dummy;	/* Dummy var for errors... */
 
 
   DEBUG_printf(("new_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%p)\n",
@@ -8910,7 +8911,10 @@ new_render(int      page,	/* I - Page number (0-n) */
   if ((type != HD_RENDER_TEXT && type != HD_RENDER_LINK) || data == NULL)
     r = (hdRender *)calloc(sizeof(hdRender), 1);
   else
-    r = (hdRender *)calloc(sizeof(hdRender) + strlen((char *)data), 1);
+  {
+    datalen = strlen((char *)data);
+    r       = (hdRender *)calloc(sizeof(hdRender) + datalen, 1);
+  }
 
   if (r == NULL)
   {
@@ -8935,7 +8939,7 @@ new_render(int      page,	/* I - Page number (0-n) */
           return (NULL);
         }
 	// Safe because buffer is allocated...
-        strcpy((char *)r->data.text.buffer, (char *)data);
+        memcpy((char *)r->data.text.buffer, (char *)data, datalen);
         r->data.text.rgb[0] = _htmlStyleSheet->def_style.color[0] / 255.0;
         r->data.text.rgb[1] = _htmlStyleSheet->def_style.color[1] / 255.0;
         r->data.text.rgb[2] = _htmlStyleSheet->def_style.color[2] / 255.0;
@@ -8958,7 +8962,7 @@ new_render(int      page,	/* I - Page number (0-n) */
           return (NULL);
         }
 	// Safe because buffer is allocated...
-        strcpy((char *)r->data.link, (char *)data);
+        memcpy((char *)r->data.link, (char *)data, datalen);
         break;
   }
 
