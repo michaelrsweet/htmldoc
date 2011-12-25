@@ -406,8 +406,8 @@ the SVN "&#36;Id$" tag:</p>
      *
      *   Copyright YYYY by First M Last.
      *
-	 *   This program is free software.  Distribution and use rights are outlined in
-	 *   the file "COPYING.txt".
+     *   This program is free software.  Distribution and use rights are outlined in
+     *   the file "COPYING.txt".
      *
      * Contents:
      *
