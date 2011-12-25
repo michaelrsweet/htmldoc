@@ -6,7 +6,7 @@ doc_header("Developer Guide");
 
 ?>
 
-<p><i>Last Modified: January 2, 2010</i></p>
+<p><i>Last Modified: December 24, 2011</i></p>
 
 <p>The HTMLDOC developer guide defines how
 releases are done, how bugs and feature requests are handled,
@@ -404,21 +404,10 @@ the SVN "&#36;Id$" tag:</p>
      *
      *   Description of file contents.
      *
-     *   Copyright 1997-2010 by Easy Software Products.
+     *   Copyright YYYY by First M Last.
      *
-     *   These coded instructions, statements, and computer programs are
-     *   the property of Easy Software Products and are protected by
-     *   Federal copyright law.  Distribution and use rights are outlined
-     *   in the file "COPYING.txt" which should have been included with
-     *   this file.  If this file is missing or damaged please contact
-     *   Easy Software Products at:
-     *
-     *       Attn: HTMLDOC Licensing Information
-     *       Easy Software Products
-     *       516 Rio Grand Ct
-     *       Morgan Hill, CA 95037 USA
-     *
-     *       http://www.htmldoc.org/
+	 *   This program is free software.  Distribution and use rights are outlined in
+	 *   the file "COPYING.txt".
      *
      * Contents:
      *
