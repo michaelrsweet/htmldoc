@@ -102,7 +102,7 @@ html_header($title = "",		// I - Additional document title
   else
     $html_title = "";
 
-  print("  <title>$html_title &lt;HTML&gt;DOC</title>\n"
+  print("  <title>$html_title HTMLDOC</title>\n"
        ."  <meta http-equiv='Pragma' content='no-cache'>\n"
        ."  <meta http-equiv='Content-Type' content='text/html; "
        ."charset=utf-8'>\n"
