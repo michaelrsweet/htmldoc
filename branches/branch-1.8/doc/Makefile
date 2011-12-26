@@ -24,8 +24,7 @@ include ../Makedefs
 SOURCES	=	intro.html 1-install.html 2-starting.html \
 		3-books.html 4-cmdline.html 5-cgi.html \
 		6-htmlref.html 7-guiref.html 8-cmdref.html \
-		a-license.html b-book.html c-relnotes.html \
-		d-compile.html
+		a-license.html b-book.html c-relnotes.html
 
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	help.html htmldoc.pdf
