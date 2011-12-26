@@ -8697,8 +8697,7 @@ new_render(int      page,		/* I - Page number (0-n) */
           return (NULL);
         }
 	// Safe because buffer is allocated...
-        memcpy((char *)r->data.text.buffer, (char *)data, datalen);
-//        fprintf(stderr, "RENDER_LINK(%s) = %d bytes\n", (char *)r->data.text.buffer, (int)datalen);
+        memcpy((char *)r->data.link, (char *)data, datalen);
         break;
   }
 
