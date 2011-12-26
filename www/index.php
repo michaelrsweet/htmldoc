@@ -36,7 +36,7 @@ align='right'>HTMLDOC Home Page</h1>
 
 <p>HTMLDOC converts Hyper-Text Markup Language ("HTML") files and web pages into
 indexed HTML, Adobe<sup>&reg;</sup> PostScript<sup>&reg;</sup>, or Adobe
-Portable Document Format ("PDF") files. HTMLDOC is provided under the terms of <a href="COPYING.txt">version 2 of the GNU General Public License</a> with an exception to allow building against OpenSSL.</p>
+Portable Document Format ("PDF") files. HTMLDOC is provided under the terms of <a href="COPYING.html">version 2 of the GNU General Public License</a> with an exception to allow building against OpenSSL.</p>
 
 <table border='0' cellspacing='0' cellpadding='0' summary='Download' background='images/download.jpg'>
 <tr><td class='download'><?
@@ -59,8 +59,7 @@ from the Command-Line</a></p>
 <p><a href='documentation.php/Chapter5UsingHTMLDOConaWebServer.html'>Using
 HTMLDOC on a Web Server</a></p>
 
-<p><a href='documentation.php/AppendixALicenseAgreement.html'>License
-Agreement</a></p>
+<p><a href='documentation.php/AppendixALicenseAgreement.html'>License Agreement</a></p>
 
 <p><a href='documentation.php/AppendixCReleaseNotes.html'>Release Notes</a></p>
 

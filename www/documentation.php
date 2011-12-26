@@ -191,10 +191,6 @@ formats on-line:</p>
 		href='documentation.php/AppendixCReleaseNotes.html'>Appendix
 		C - Release Notes</a></li>
 
-		<li><a
-		href='documentation.php/AppendixDCompilingHTMLDOCfromSource.html'>Appendix
-		D - Compiling HTMLDOC from Source</a></li>
-
 	</ul></li>
 
 	<li><a href='htmldoc.html'>HTML in one file (217k)</a></li>
