@@ -230,10 +230,7 @@ html_header($title = "",		// I - Additional document title
 			  ." OR status = " . STR_STATUS_NEW);
 
       if (($count = db_count($result)) > 0)
-      {
         $label .= " ($count)";
-	$url   = "str.php?L+E1";
-      }
     }
 
     print("<td class='$class' nowrap><a href='$html_path/$url'>"
