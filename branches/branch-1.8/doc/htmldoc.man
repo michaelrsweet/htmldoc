@@ -3,12 +3,13 @@
 .\"
 .\"   Manual page for HTMLDOC, a HTML document processing program.
 .\"
+.\"   Copyright 2011 by Michael R Sweet.
 .\"   Copyright 1997-2010 by Easy Software Products.
 .\"
-.\"   HTMLDOC is distributed under the terms of the GNU General Public License
-.\"   which is described in the file "COPYING.txt".
+.\"   This program is free software.  Distribution and use rights are outlined
+.\"   in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.28" "7 March 2010" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.28" "25 December 2011" "Michael R Sweet"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -579,19 +580,21 @@ program.
 .SH SEE ALSO
 HTMLDOC Software Users Manual
 .LP
-http://www.easysw.com/htmldoc/
+http://www.htmldoc.org/
 .SH AUTHOR
-Michael Sweet, Easy Software Products
-.SH TRADEMARKS
-PostScript is a trademark that may be registered in some countries and Adobe is
-a registered trademark of Adobe Systems Incorporated.
-.SH COPYRIGHTS
-Portable Document Format Copyright 1993-1999 by Adobe Systems Incorporated.
+Michael R Sweet
+.SH COPYRIGHTS AND TRADEMARKS
+HTMLDOC is copyright 2011 by Michael R Sweet.  This program is free
+software.  Distribution and use rights are outlined in the file
+"COPYING.txt".
 .LP
-HTMLDOC and <HTML>DOC are trademarks of Easy Software Products. HTMLDOC is
-copyright 1997-2010 Easy Software Products. All rights reserved.
+The Adobe Portable Document Format is Copyright 1985-2005 by
+Adobe Systems Incorporated. Adobe, FrameMaker, and
+PostScript are registered trademarks of Adobe Systems,
+Incorporated.
 .LP
-This program is based in part on the work of the Independent JPEG Group.
+This software is based in part on the work of the Independent JPEG Group
+and FLTK project.
 .SH NO WARRANTY
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
