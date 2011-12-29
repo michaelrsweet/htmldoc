@@ -31,7 +31,6 @@ OBJS	=	\
 		jcmaster.o \
 		jcomapi.o \
 		jcparam.o \
-		jcphuff.o \
 		jcprepct.o \
 		jcsample.o \
 		jctrans.o \
@@ -49,7 +48,6 @@ OBJS	=	\
 		jdmarker.o \
 		jdmaster.o \
 		jdmerge.o \
-		jdphuff.o \
 		jdpostct.o \
 		jdsample.o \
 		jdtrans.o \
@@ -60,7 +58,6 @@ OBJS	=	\
 		jidctflt.o \
 		jidctfst.o \
 		jidctint.o \
-		jidctred.o \
 		jmemmgr.o \
 		jmemnobs.o \
 		jquant1.o \
@@ -74,6 +71,7 @@ OBJS	=	\
 
 all:	libjpeg.a
 
+
 #
 # Clean all targets and object files...
 #
@@ -81,6 +79,15 @@ all:	libjpeg.a
 clean:
 	$(RM) $(OBJS)
 	$(RM) libjpeg.a
+
+
+#
+# Update dependencies...
+#
+
+depend:
+	makedepend -Y -I.. -fDependencies $(OBJS:.o=.c) >/dev/null 2>&1
+
 
 #
 # libjpeg.a
@@ -92,8 +99,9 @@ libjpeg.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
-$(OBJS):	jchuff.h jdhuff.h jdct.h jerror.h jinclude.h jmemsys.h \
-		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
+$(OBJS):	../Makedefs
+include Dependencies
+
 
 #
 # End of "$Id$".
