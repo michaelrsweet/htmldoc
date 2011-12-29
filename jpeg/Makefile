@@ -1,13 +1,13 @@
 #
 # "$Id$"
 #
-# JPEG library Makefile for the HTMLDOC software.
+#   JPEG library Makefile for the HTMLDOC software.
 #
-# Copyright 2011 by Michael R Sweet.
-# Copyright 1997-2010 by Easy Software Products.
+#   Copyright 2011 by Michael R Sweet.
+#   Copyright 1997-2010 by Easy Software Products.
 #
-# This program is free software.  Distribution and use rights are outlined in
-# the file "COPYING.txt".
+#   This program is free software.  Distribution and use rights are outlined in
+#   the file "COPYING.txt".
 #
 
 include ../Makedefs
@@ -71,6 +71,7 @@ OBJS	=	\
 
 all:	libjpeg.a
 
+
 #
 # Clean all targets and object files...
 #
@@ -78,6 +79,15 @@ all:	libjpeg.a
 clean:
 	$(RM) $(OBJS)
 	$(RM) libjpeg.a
+
+
+#
+# Update dependencies...
+#
+
+depend:
+	makedepend -Y -I.. -fDependencies $(OBJS:.o=.c) >/dev/null 2>&1
+
 
 #
 # libjpeg.a
@@ -89,8 +99,9 @@ libjpeg.a:	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
-$(OBJS):	jdct.h jerror.h jinclude.h jmemsys.h \
-		jmorecfg.h jpegint.h jpeglib.h jversion.h ../Makedefs
+$(OBJS):	../Makedefs
+include Dependencies
+
 
 #
 # End of "$Id$".
