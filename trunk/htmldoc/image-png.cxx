@@ -86,6 +86,7 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
   int		i, j;			// Looping vars
   png_structp	pp;			// PNG read pointer
   png_infop	info;			// PNG info pointers
+  int		info_width, info_height;// Dimensions of image
   int		d;			// Depth of image
   png_bytep	*rows;			// PNG row pointers
   png_bytep	local;			// Local image data...
@@ -107,15 +108,25 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
   // Get the image dimensions and convert to grayscale or RGB...
   png_read_info(pp, info);
 
-  if (info->color_type == PNG_COLOR_TYPE_PALETTE)
-    png_set_expand(pp);
+  info_width  = (int)png_get_image_width(pp, info);
+  info_height = (int)png_get_image_height(pp, info);
 
-  if (info->color_type & PNG_COLOR_MASK_COLOR)
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_PALETTE)
+    png_set_expand(pp);
+  else if (png_get_bit_depth(pp, info) < 8)
+  {
+    png_set_packing(pp);
+    png_set_expand(pp);
+  }
+  else if (png_get_bit_depth(pp, info) == 16)
+    png_set_strip_16(pp);
+
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_COLOR)
     d = 3;
   else
     d = 1;
 
-  set_size(info->width, info->height, gs ? 1 : d);
+  set_size(info_width, info_height, gs ? 1 : d);
 
   if (!img)
   {
@@ -126,19 +137,11 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
 
   alloc_pixels();
 
-  if ((info->color_type & PNG_COLOR_MASK_ALPHA) || info->num_trans)
+  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_ALPHA)
     d ++;
 
   if (!(d & 1))
     alloc_mask();
-
-  if (info->bit_depth < 8)
-  {
-    png_set_packing(pp);
-    png_set_expand(pp);
-  }
-  else if (info->bit_depth == 16)
-    png_set_strip_16(pp);
 
   // Handle transparency...
   if (png_get_valid(pp, info, PNG_INFO_tRNS))
@@ -146,19 +149,19 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
 
   // Allocate a local copy of the image as needed...
   if (depth() != d)
-    local = new png_byte[info->width * info->height * d];
+    local = new png_byte[info_width * info_height * d];
   else
     local = (png_bytep)pixels();
 
   // Allocate memory and setup the pointers for the whole image...
-  rows = new png_bytep[info->height];
+  rows = new png_bytep[info_height];
 
-  for (i = 0; i < (int)info->height; i ++)
-    rows[i] = local + i * info->width * d;
+  for (i = 0; i < (int)info_height; i ++)
+    rows[i] = local + i * info_width * d;
 
   // Read the image, handling interlacing as needed...
   for (i = png_set_interlace_handling(pp); i > 0; i --)
-    png_read_rows(pp, rows, NULL, info->height);
+    png_read_rows(pp, rows, NULL, info_height);
 
   // Reformat the data as necessary for the reader...
   if (local != pixels())
@@ -166,22 +169,18 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
     if (d == 3)
     {
       // Convert to grayscale...
-      for (i = (int)info->height, pixelptr = pixels(), localptr = local;
-           i > 0;
-	   i --)
-	for (j = (int)info->width; j > 0; j --, localptr += 3)
+      for (i = info_height, pixelptr = pixels(), localptr = local; i > 0; i --)
+	for (j = info_width; j > 0; j --, localptr += 3)
           *pixelptr++ = (31 * localptr[0] + 61 * localptr[1] +
 	                 8 * localptr[2]) / 100;
     }
     else
     {
       // Handle transparency and possibly convert to grayscale...
-      for (i = 0, pixelptr = pixels(), localptr = local;
-           i < (int)info->height;
-	   i ++)
+      for (i = 0, pixelptr = pixels(), localptr = local; i < info_height; i ++)
         if (d == 2)
 	{
-	  for (j = 0; j < (int)info->width; j ++, localptr += 2)
+	  for (j = 0; j < info_width; j ++, localptr += 2)
 	  {
             *pixelptr++ = localptr[0];
 	    set_mask(j, i, localptr[1]);
@@ -189,7 +188,7 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
         }
 	else if (gs)
 	{
-	  for (j = 0; j < (int)info->width; j ++, localptr += 4)
+	  for (j = 0; j < info_width; j ++, localptr += 4)
 	  {
             *pixelptr++ = (31 * localptr[0] + 61 * localptr[1] +
 	                   8 * localptr[2]) / 100;
@@ -198,7 +197,7 @@ hdPNGImage::real_load(int  img,		// I - 1 = load image data, 0 = just info
 	}
 	else
 	{
-	  for (j = 0; j < (int)info->width; j ++)
+	  for (j = 0; j < info_width; j ++)
 	  {
             *pixelptr++ = *localptr++;
             *pixelptr++ = *localptr++;
