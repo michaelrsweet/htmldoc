@@ -68,7 +68,8 @@
 
 #undef HAVE_CDSASSL
 #undef HAVE_GNUTLS
-#define HAVE_LIBSSL
+#undef HAVE_LIBSSL
+#define HAVE_SSPISSL
 #define HAVE_SSL
 
 

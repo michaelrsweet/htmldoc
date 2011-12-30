@@ -104,6 +104,7 @@
  */
 
 #include "http-private.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <math.h>
 #ifdef WIN32
@@ -592,7 +593,11 @@ httpError(http_t *http)			/* I - Connection to server */
   if (http)
     return (http->error);
   else
+#ifdef WIN32
+    return (WSAEINVAL);
+#else
     return (EINVAL);
+#endif /* WIN32 */
 }
 
 
@@ -1167,7 +1172,6 @@ httpGets(char   *line,			/* I - Line to read into */
       else if (bytes == 0)
       {
 	http->error = EPIPE;
-
         return (NULL);
       }
 

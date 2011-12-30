@@ -37,7 +37,7 @@
  */
 
 #include "sspi-private.h"
-#include "debug-private.h"
+#include "http-private.h"
 
 
 /* required to link this library for certificate functions */
