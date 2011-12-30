@@ -461,7 +461,8 @@ file_find_check(const char *filename)	/* I - File or URL */
         strlcpy(connpath, resource, sizeof(connpath));
       }
 
-      if (http != NULL && strcasecmp(http->hostname, hostname) != 0)
+      if (strcasecmp(httpGetHostname(http, tempname, sizeof(tempname)),
+                     hostname))
       {
         httpClose(http);
         http = NULL;

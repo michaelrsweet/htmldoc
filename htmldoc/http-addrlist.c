@@ -1,13 +1,16 @@
 /*
  * "$Id$"
  *
- *   HTTP address list routines for HTMLDOC.
+ *   HTTP address list routines for CUPS.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ *   Copyright 2007-2011 by Apple Inc.
+ *   Copyright 1997-2007 by Easy Software Products, all rights reserved.
  *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Apple Inc. and are protected by Federal copyright
+ *   law.  Distribution and use rights are outlined in the file "LICENSE.txt"
+ *   which should have been included with this file.  If this file is
+ *   file is missing or damaged, see the license at "http://www.cups.org/".
  *
  * Contents:
  *
@@ -21,9 +24,6 @@
  */
 
 #include "http-private.h"
-#include "debug.h"
-#include <stdlib.h>
-#include <errno.h>
 #ifdef HAVE_RESOLV_H
 #  include <resolv.h>
 #endif /* HAVE_RESOLV_H */
@@ -32,7 +32,7 @@
 /*
  * 'httpAddrConnect()' - Connect to any of the addresses in the list.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 http_addrlist_t *			/* O - Connected address or NULL on failure */
@@ -40,8 +40,16 @@ httpAddrConnect(
     http_addrlist_t *addrlist,		/* I - List of potential addresses */
     int             *sock)		/* O - Socket */
 {
-  int	val;				/* Socket option value */
+  int			val;		/* Socket option value */
+#ifdef __APPLE__
+  struct timeval	timeout;	/* Socket timeout value */
+#endif /* __APPLE__ */
+#ifdef DEBUG
+  char			temp[256];	/* Temporary address string */
+#endif /* DEBUG */
 
+
+  DEBUG_printf(("httpAddrConnect(addrlist=%p, sock=%p)", addrlist, sock));
 
   if (!sock)
   {
@@ -59,7 +67,12 @@ httpAddrConnect(
     * Create the socket...
     */
 
-    if ((*sock = (int)socket(addrlist->addr.addr.sa_family, SOCK_STREAM, 0)) < 0)
+    DEBUG_printf(("2httpAddrConnect: Trying %s:%d...",
+		  httpAddrString(&(addrlist->addr), temp, sizeof(temp)),
+		  _httpAddrPort(&(addrlist->addr))));
+
+    if ((*sock = (int)socket(_httpAddrFamily(&(addrlist->addr)), SOCK_STREAM,
+                             0)) < 0)
     {
      /*
       * Don't abort yet, as this could just be an issue with the local
@@ -92,6 +105,17 @@ httpAddrConnect(
     setsockopt(*sock, SOL_SOCKET, SO_NOSIGPIPE, &val, sizeof(val));
 #endif /* SO_NOSIGPIPE */
 
+#ifdef __APPLE__
+   /*
+    * Use a 30-second read timeout when connecting to limit the amount of time
+    * we block...
+    */
+
+    timeout.tv_sec  = 30;
+    timeout.tv_usec = 0;
+    setsockopt(*sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+#endif /* __APPLE__ */
+
    /*
     * Using TCP_NODELAY improves responsiveness, especially on systems
     * with a slow loopback interface...
@@ -100,9 +124,9 @@ httpAddrConnect(
     val = 1;
 #ifdef WIN32
     setsockopt(*sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&val,
-               sizeof(val)); 
+               sizeof(val));
 #else
-    setsockopt(*sock, IPPROTO_TCP, TCP_NODELAY, &val, sizeof(val)); 
+    setsockopt(*sock, IPPROTO_TCP, TCP_NODELAY, &val, sizeof(val));
 #endif /* WIN32 */
 
 #ifdef FD_CLOEXEC
@@ -119,7 +143,16 @@ httpAddrConnect(
 
     if (!connect(*sock, &(addrlist->addr.addr),
                  httpAddrLength(&(addrlist->addr))))
+    {
+      DEBUG_printf(("1httpAddrConnect: Connected to %s:%d...",
+		    httpAddrString(&(addrlist->addr), temp, sizeof(temp)),
+		    _httpAddrPort(&(addrlist->addr))));
       break;
+    }
+
+    DEBUG_printf(("1httpAddrConnect: Unable to connect to %s:%d: %s",
+		  httpAddrString(&(addrlist->addr), temp, sizeof(temp)),
+		  _httpAddrPort(&(addrlist->addr)), strerror(errno)));
 
    /*
     * Close this socket and move to the next address...
@@ -135,6 +168,9 @@ httpAddrConnect(
     addrlist = addrlist->next;
   }
 
+  if (!addrlist)
+    _cupsSetError(IPP_SERVICE_UNAVAILABLE, strerror(errno), 0);
+
   return (addrlist);
 }
 
@@ -142,7 +178,7 @@ httpAddrConnect(
 /*
  * 'httpAddrFreeList()' - Free an address list.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 void
@@ -170,7 +206,7 @@ httpAddrFreeList(
 /*
  * 'httpAddrGetList()' - Get a list of addresses for a hostname.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 http_addrlist_t	*			/* O - List of addresses or NULL */
@@ -181,17 +217,32 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
   http_addrlist_t	*first,		/* First address in list */
 			*addr,		/* Current address in list */
 			*temp;		/* New address */
+#ifdef HAVE_RES_INIT
+  static int	need_res_init = 0;	/* Do we need to do a res_init? */
+#endif /* HAVE_RES_INIT */
 
 
-#ifdef DEBUG
-  printf("httpAddrGetList(hostname=\"%s\", family=AF_%s, service=\"%s\")\n",
-         hostname ? hostname : "(nil)",
-	 family == AF_UNSPEC ? "UNSPEC" :
-#  ifdef AF_INET6
-	     family == AF_INET6 ? "INET6" :
-#  endif /* AF_INET6 */
-	     family == AF_INET ? "INET" : "???", service);
-#endif /* DEBUG */
+#ifdef HAVE_RES_INIT
+ /*
+  * STR #2920: Initialize resolver after failure in cups-polld
+  *
+  * If the previous lookup failed, re-initialize the resolver to prevent
+  * temporary network errors from persisting.  This *should* be handled by
+  * the resolver libraries, but apparently the glibc folks do not agree.
+  *
+  * We set a flag at the end of this function if we encounter an error that
+  * requires reinitialization of the resolver functions.  We then call
+  * res_init() if the flag is set on the next call here or in httpAddrLookup().
+  */
+
+  if (need_res_init)
+  {
+    res_init();
+
+    need_res_init = 0;
+  }
+#endif /* HAVE_RES_INIT */
+
 
  /*
   * Lookup the address the best way we can...
@@ -199,15 +250,32 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 
   first = addr = NULL;
 
-  if (!hostname || strcasecmp(hostname, "localhost"))
+#ifdef AF_LOCAL
+  if (hostname && hostname[0] == '/')
+  {
+   /*
+    * Domain socket address...
+    */
+
+    if ((first = (http_addrlist_t *)calloc(1, sizeof(http_addrlist_t))) != NULL)
+    {
+      first->addr.un.sun_family = AF_LOCAL;
+      strlcpy(first->addr.un.sun_path, hostname, sizeof(first->addr.un.sun_path));
+    }
+  }
+  else
+#endif /* AF_LOCAL */
+  if (!hostname || _cups_strcasecmp(hostname, "localhost"))
   {
 #ifdef HAVE_GETADDRINFO
     struct addrinfo	hints,		/* Address lookup hints */
 			*results,	/* Address lookup results */
 			*current;	/* Current result */
-    char		ipv6[1024],	/* IPv6 address */
+    char		ipv6[64],	/* IPv6 address */
 			*ipv6zone;	/* Pointer to zone separator */
     int			ipv6len;	/* Length of IPv6 address */
+    int			error;		/* getaddrinfo() error */
+
 
    /*
     * Lookup the address as needed...
@@ -259,7 +327,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
       }
     }
 
-    if (!getaddrinfo(hostname, service, &hints, &results))
+    if ((error = getaddrinfo(hostname, service, &hints, &results)) == 0)
     {
      /*
       * Copy the results to our own address list structure...
@@ -305,10 +373,9 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 
       freeaddrinfo(results);
     }
-#  ifdef HAVE_RES_INIT
-    else
-      res_init();
-#  endif /* HAVE_RES_INIT */
+    else if (error == EAI_FAIL)
+      need_res_init = 1;
+
 #else
     if (hostname)
     {
@@ -334,7 +401,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
         portnum = 80;
       else if (!strcmp(service, "https"))
         portnum = 443;
-      else if (!strcmp(service, "ipp"))
+      else if (!strcmp(service, "ipp") || !strcmp(service, "ipps"))
         portnum = 631;
       else if (!strcmp(service, "lpd"))
         portnum = 515;
@@ -425,10 +492,8 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 	  addr = temp;
 	}
       }
-#  ifdef HAVE_RES_INIT
       else if (h_errno == NO_RECOVERY)
-        res_init();
-#  endif /* HAVE_RES_INIT */
+        need_res_init = 1;
     }
 #endif /* HAVE_GETADDRINFO */
   }
@@ -437,7 +502,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
   * Detect some common errors and handle them sanely...
   */
 
-  if (!addr && (!hostname || !strcmp(hostname, "localhost")))
+  if (!addr && (!hostname || !_cups_strcasecmp(hostname, "localhost")))
   {
     struct servent	*port;		/* Port number for service */
     int			portnum;	/* Port number */
@@ -457,10 +522,19 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
       portnum = 80;
     else if (!strcmp(service, "https"))
       portnum = 443;
+    else if (!strcmp(service, "ipp") || !strcmp(service, "ipps"))
+      portnum = 631;
+    else if (!strcmp(service, "lpd"))
+      portnum = 515;
+    else if (!strcmp(service, "socket"))
+      portnum = 9100;
     else
+    {
+      httpAddrFreeList(first);
       return (NULL);
+    }
 
-    if (hostname && !strcasecmp(hostname, "localhost"))
+    if (hostname && !_cups_strcasecmp(hostname, "localhost"))
     {
      /*
       * Unfortunately, some users ignore all of the warnings in the

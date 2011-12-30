@@ -1,13 +1,16 @@
 /*
  * "$Id$"
  *
- *   HTTP address routines for HTMLDOC.
+ *   HTTP address routines for CUPS.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ *   Copyright 2007-2011 by Apple Inc.
+ *   Copyright 1997-2006 by Easy Software Products, all rights reserved.
  *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Apple Inc. and are protected by Federal copyright
+ *   law.  Distribution and use rights are outlined in the file "LICENSE.txt"
+ *   which should have been included with this file.  If this file is
+ *   file is missing or damaged, see the license at "http://www.cups.org/".
  *
  * Contents:
  *
@@ -15,6 +18,8 @@
  *   httpAddrEqual()     - Compare two addresses.
  *   httpAddrLocalhost() - Check for the local loopback address.
  *   httpAddrLookup()    - Lookup the hostname associated with the address.
+ *   _httpAddrPort()     - Get the port number associated with an address.
+ *   _httpAddrSetPort()  - Set the port number associated with an address.
  *   httpAddrString()    - Convert an IP address to a dotted string.
  *   httpGetHostByName() - Lookup a hostname or IP address, and return
  *                         address records for the specified name.
@@ -26,18 +31,21 @@
  */
 
 #include "http-private.h"
-#include "debug.h"
-#include <stdlib.h>
-#include <stddef.h>
 #ifdef HAVE_RESOLV_H
 #  include <resolv.h>
 #endif /* HAVE_RESOLV_H */
+#ifdef HAVE_COREFOUNDATION
+#  include <CoreFoundation/CoreFoundation.h>
+#endif /* HAVE_COREFOUNDATION */
+#ifdef HAVE_SYSTEMCONFIGURATION
+#  include <SystemConfiguration/SystemConfiguration.h>
+#endif /* HAVE_SYSTEMCONFIGURATION */
 
 
 /*
  * 'httpAddrAny()' - Check for the "any" address.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 int					/* O - 1 if "any", 0 otherwise */
@@ -63,7 +71,7 @@ httpAddrAny(const http_addr_t *addr)	/* I - Address to check */
 /*
  * 'httpAddrEqual()' - Compare two addresses.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 int						/* O - 1 if equal, 0 if not */
@@ -96,7 +104,7 @@ httpAddrEqual(const http_addr_t *addr1,		/* I - First address */
 /*
  * 'httpAddrLength()' - Return the length of the address in bytes.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 int					/* O - Length in bytes */
@@ -127,7 +135,7 @@ httpAddrLength(const http_addr_t *addr)	/* I - Address */
 /*
  * 'httpAddrLocalhost()' - Check for the local loopback address.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 int					/* O - 1 if local host, 0 otherwise */
@@ -149,7 +157,7 @@ httpAddrLocalhost(
 #endif /* AF_LOCAL */
 
   if (addr->addr.sa_family == AF_INET &&
-      ntohl(addr->ipv4.sin_addr.s_addr) == 0x7f000001)
+      (ntohl(addr->ipv4.sin_addr.s_addr) & 0xff000000) == 0x7f000000)
     return (1);
 
   return (0);
@@ -166,7 +174,7 @@ httpAddrLocalhost(
 /*
  * 'httpAddrLookup()' - Lookup the hostname associated with the address.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 char *					/* O - Host name */
@@ -175,8 +183,13 @@ httpAddrLookup(
     char              *name,		/* I - Host name buffer */
     int               namelen)		/* I - Size of name buffer */
 {
-  DEBUG_printf(("httpAddrLookup(addr=%p, name=%p, namelen=%d)\n",
-                addr, name, namelen));
+#ifdef HAVE_RES_INIT
+  static int	need_res_init = 0;	/* Do we need to do a res_init? */
+#endif /* HAVE_RES_INIT */
+
+
+  DEBUG_printf(("httpAddrLookup(addr=%p, name=%p, namelen=%d)", addr, name,
+		namelen));
 
  /*
   * Range check input...
@@ -192,25 +205,60 @@ httpAddrLookup(
 
 #ifdef AF_LOCAL
   if (addr->addr.sa_family == AF_LOCAL)
+  {
     strlcpy(name, addr->un.sun_path, namelen);
-  else
+    return (name);
+  }
 #endif /* AF_LOCAL */
+
+ /*
+  * Optimize lookups for localhost/loopback addresses...
+  */
+
+  if (httpAddrLocalhost(addr))
+  {
+    strlcpy(name, "localhost", namelen);
+    return (name);
+  }
+
+#ifdef HAVE_RES_INIT
+ /*
+  * STR #2920: Initialize resolver after failure in cups-polld
+  *
+  * If the previous lookup failed, re-initialize the resolver to prevent
+  * temporary network errors from persisting.  This *should* be handled by
+  * the resolver libraries, but apparently the glibc folks do not agree.
+  *
+  * We set a flag at the end of this function if we encounter an error that
+  * requires reinitialization of the resolver functions.  We then call
+  * res_init() if the flag is set on the next call here or in httpAddrLookup().
+  */
+
+  if (need_res_init)
+  {
+    res_init();
+
+    need_res_init = 0;
+  }
+#endif /* HAVE_RES_INIT */
+
 #ifdef HAVE_GETNAMEINFO
   {
    /*
-    * CUPS STR #2486: httpAddrLookup() fails when getnameinfo() returns EAI_AGAIN
+    * STR #2486: httpAddrLookup() fails when getnameinfo() returns EAI_AGAIN
     *
     * FWIW, I think this is really a bug in the implementation of
     * getnameinfo(), but falling back on httpAddrString() is easy to
     * do...
     */
 
-    if (getnameinfo(&addr->addr, httpAddrLength(addr), name, namelen, NULL, 0,
-                    0))
+    int error = getnameinfo(&addr->addr, httpAddrLength(addr), name, namelen,
+		            NULL, 0, 0);
+
+    if (error)
     {
-#ifdef HAVE_RES_INIT
-      res_init();
-#endif /* HAVE_RES_INIT */
+      if (error == EAI_FAIL)
+        need_res_init = 1;
 
       return (httpAddrString(addr, name, namelen));
     }
@@ -235,10 +283,8 @@ httpAddrLookup(
       * No hostname, so return the raw address...
       */
 
-#ifdef HAVE_RES_INIT
       if (h_errno == NO_RECOVERY)
-        res_init();
-#endif /* HAVE_RES_INIT */
+        need_res_init = 1;
 
       return (httpAddrString(addr, name, namelen));
     }
@@ -247,14 +293,57 @@ httpAddrLookup(
   }
 #endif /* HAVE_GETNAMEINFO */
 
+  DEBUG_printf(("1httpAddrLookup: returning \"%s\"...", name));
+
   return (name);
+}
+
+
+/*
+ * '_httpAddrPort()' - Get the port number associated with an address.
+ */
+
+int					/* O - Port number */
+_httpAddrPort(http_addr_t *addr)	/* I - Address */
+{
+  if (!addr)
+    return (80);
+#ifdef AF_INET6
+  else if (addr->addr.sa_family == AF_INET6)
+    return (ntohs(addr->ipv6.sin6_port));
+#endif /* AF_INET6 */
+  else if (addr->addr.sa_family == AF_INET)
+    return (ntohs(addr->ipv4.sin_port));
+  else
+    return (80);
+}
+
+
+/*
+ * '_httpAddrSetPort()' - Set the port number associated with an address.
+ */
+
+void
+_httpAddrSetPort(http_addr_t *addr,	/* I - Address */
+                 int         port)	/* I - Port */
+{
+  if (!addr || port <= 0)
+    return;
+
+#ifdef AF_INET6
+  if (addr->addr.sa_family == AF_INET6)
+    addr->ipv6.sin6_port = htons(port);
+  else
+#endif /* AF_INET6 */
+  if (addr->addr.sa_family == AF_INET)
+    addr->ipv4.sin_port = htons(port);
 }
 
 
 /*
  * 'httpAddrString()' - Convert an address to a numeric string.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 char *					/* O - Numeric address string */
@@ -262,8 +351,7 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
                char              *s,	/* I - String buffer */
 	       int               slen)	/* I - Length of string */
 {
-  DEBUG_printf(("httpAddrString(addr=%p, s=%p, slen=%d)\n",
-                addr, s, slen));
+  DEBUG_printf(("httpAddrString(addr=%p, s=%p, slen=%d)", addr, s, slen));
 
  /*
   * Range check input...
@@ -279,7 +367,12 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
 
 #ifdef AF_LOCAL
   if (addr->addr.sa_family == AF_LOCAL)
-    strlcpy(s, addr->un.sun_path, slen);
+  {
+    if (addr->un.sun_path[0] == '/')
+      strlcpy(s, addr->un.sun_path, slen);
+    else
+      strlcpy(s, "localhost", slen);
+  }
   else
 #endif /* AF_LOCAL */
   if (addr->addr.sa_family == AF_INET)
@@ -295,8 +388,11 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
 #ifdef AF_INET6
   else if (addr->addr.sa_family == AF_INET6)
   {
+    char	*sptr,			/* Pointer into string */
+		temps[64];		/* Temporary string for address */
+
 #  ifdef HAVE_GETNAMEINFO
-    if (getnameinfo(&addr->addr, httpAddrLength(addr), s, slen,
+    if (getnameinfo(&addr->addr, httpAddrLength(addr), temps, sizeof(temps),
                     NULL, 0, NI_NUMERICHOST))
     {
      /*
@@ -308,29 +404,36 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
 
       return (NULL);
     }
+    else if ((sptr = strchr(temps, '%')) != NULL)
+    {
+     /*
+      * Convert "%zone" to "+zone" to match URI form...
+      */
+
+      *sptr = '+';
+    }
+
 #  else
-    char	*sptr;			/* Pointer into string */
     int		i;			/* Looping var */
     unsigned	temp;			/* Current value */
     const char	*prefix;		/* Prefix for address */
 
 
     prefix = "";
-    for (sptr = s, i = 0; i < 4 && addr->ipv6.sin6_addr.s6_addr32[i]; i ++)
+    for (sptr = temps, i = 0; i < 4 && addr->ipv6.sin6_addr.s6_addr32[i]; i ++)
     {
       temp = ntohl(addr->ipv6.sin6_addr.s6_addr32[i]);
 
-      snprintf(sptr, slen, "%s%x", prefix, (temp >> 16) & 0xffff);
+      snprintf(sptr, sizeof(temps) - (sptr - temps), "%s%x", prefix,
+               (temp >> 16) & 0xffff);
       prefix = ":";
-      slen -= strlen(sptr);
       sptr += strlen(sptr);
 
       temp &= 0xffff;
 
       if (temp || i == 3 || addr->ipv6.sin6_addr.s6_addr32[i + 1])
       {
-        snprintf(sptr, slen, "%s%x", prefix, temp);
-	slen -= strlen(sptr);
+        snprintf(sptr, sizeof(temps) - (sptr - temps), "%s%x", prefix, temp);
 	sptr += strlen(sptr);
       }
     }
@@ -342,24 +445,24 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
 
       if (i < 4)
       {
-        snprintf(sptr, slen, "%s:", prefix);
+        snprintf(sptr, sizeof(temps) - (sptr - temps), "%s:", prefix);
 	prefix = ":";
-	slen -= strlen(sptr);
 	sptr += strlen(sptr);
 
 	for (; i < 4; i ++)
 	{
           temp = ntohl(addr->ipv6.sin6_addr.s6_addr32[i]);
 
-          if ((temp & 0xffff0000) || addr->ipv6.sin6_addr.s6_addr32[i - 1])
+          if ((temp & 0xffff0000) ||
+	      (i > 0 && addr->ipv6.sin6_addr.s6_addr32[i - 1]))
 	  {
-            snprintf(sptr, slen, "%s%x", prefix, (temp >> 16) & 0xffff);
-	    slen -= strlen(sptr);
+            snprintf(sptr, sizeof(temps) - (sptr - temps), "%s%x", prefix,
+	             (temp >> 16) & 0xffff);
 	    sptr += strlen(sptr);
           }
 
-          snprintf(sptr, slen, "%s%x", prefix, temp & 0xffff);
-	  slen -= strlen(sptr);
+          snprintf(sptr, sizeof(temps) - (sptr - temps), "%s%x", prefix,
+	           temp & 0xffff);
 	  sptr += strlen(sptr);
 	}
       }
@@ -369,9 +472,7 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
         * Empty address...
 	*/
 
-        strlcpy(s, "::", slen);
-	sptr = s + 2;
-	slen -= 2;
+        strlcpy(temps, "::", sizeof(temps));
       }
       else
       {
@@ -379,18 +480,22 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
 	* Empty at end...
 	*/
 
-        strlcpy(sptr, "::", slen);
-	sptr += 2;
-	slen -= 2;
+        strlcpy(sptr, "::", sizeof(temps) - (sptr - temps));
       }
     }
 #  endif /* HAVE_GETNAMEINFO */
+
+   /*
+    * Add "[v1." and "]" around IPv6 address to convert to URI form.
+    */
+
+    snprintf(s, slen, "[v1.%s]", temps);
   }
 #endif /* AF_INET6 */
   else
     strlcpy(s, "UNKNOWN", slen);
 
-  DEBUG_printf(("httpAddrString: returning \"%s\"...\n", s));
+  DEBUG_printf(("1httpAddrString: returning \"%s\"...", s));
 
   return (s);
 }
@@ -413,7 +518,7 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
   static struct hostent	hostent;	/* Host entry for IP address */
 
 
-  DEBUG_printf(("httpGetHostByName(name=\"%s\")\n", name));
+  DEBUG_printf(("httpGetHostByName(name=\"%s\")", name));
 
  /*
   * Avoid lookup delays and configuration problems when connecting
@@ -431,7 +536,31 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
   * We then pack the components into an IPv4 address manually,
   * since the inet_aton() function is deprecated.  We use the
   * htonl() macro to get the right byte order for the address.
+  *
+  * We also support domain sockets when supported by the underlying
+  * OS...
   */
+
+#ifdef AF_LOCAL
+  if (name[0] == '/')
+  {
+   /*
+    * A domain socket address, so make an AF_LOCAL entry and return it...
+    */
+
+    hostent.h_name      = (char *)name;
+    hostent.h_aliases   = NULL;
+    hostent.h_addrtype  = AF_LOCAL;
+    hostent.h_length    = strlen(name) + 1;
+    hostent.h_addr_list = ip_ptrs;
+    ip_ptrs[0]          = (char *)name;
+    ip_ptrs[1]          = NULL;
+
+    DEBUG_puts("1httpGetHostByName: returning domain socket address...");
+
+    return (&hostent);
+  }
+#endif /* AF_LOCAL */
 
   for (nameptr = name; isdigit(*nameptr & 255) || *nameptr == '.'; nameptr ++);
 
@@ -449,7 +578,7 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
       return (NULL);			/* Invalid byte ranges! */
 
     ip_addr = htonl(((((((ip[0] << 8) | ip[1]) << 8) | ip[2]) << 8) |
-                     ip[3]));
+		     ip[3]));
 
    /*
     * Fill in the host entry and return it...
@@ -460,10 +589,10 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
     hostent.h_addrtype  = AF_INET;
     hostent.h_length    = 4;
     hostent.h_addr_list = ip_ptrs;
-    ip_ptrs[0]          = (char *)&(ip_addr);
+    ip_ptrs[0]          = (char *)&ip_addr;
     ip_ptrs[1]          = NULL;
 
-    DEBUG_puts("httpGetHostByName: returning IPv4 address...");
+    DEBUG_puts("1httpGetHostByName: returning IPv4 address...");
 
     return (&hostent);
   }
@@ -474,7 +603,7 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
     * the name...
     */
 
-    DEBUG_puts("httpGetHostByName: returning domain lookup address(es)...");
+    DEBUG_puts("1httpGetHostByName: returning domain lookup address(es)...");
 
     return (gethostbyname(name));
   }
@@ -489,7 +618,7 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
  * Otherwise, return the FQDN for the local system using both gethostname()
  * and gethostbyname() to get the local hostname with domain.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 const char *				/* O - FQDN for connection or system */
@@ -497,9 +626,6 @@ httpGetHostname(http_t *http,		/* I - HTTP connection or NULL */
                 char   *s,		/* I - String buffer for name */
                 int    slen)		/* I - Size of buffer */
 {
-  struct hostent	*host;		/* Host entry to get FQDN */
-
-
   if (!s || slen <= 1)
     return (NULL);
 
@@ -521,12 +647,50 @@ httpGetHostname(http_t *http,		/* I - HTTP connection or NULL */
 
     if (!strchr(s, '.'))
     {
+#ifdef HAVE_SCDYNAMICSTORECOPYCOMPUTERNAME
+     /*
+      * The hostname is not a FQDN, so use the local hostname from the
+      * SystemConfiguration framework...
+      */
+
+      SCDynamicStoreRef	sc = SCDynamicStoreCreate(kCFAllocatorDefault,
+                                                  CFSTR("libcups"), NULL, NULL);
+					/* System configuration data */
+      CFStringRef	local = sc ? SCDynamicStoreCopyLocalHostName(sc) : NULL;
+					/* Local host name */
+      char		localStr[1024];	/* Local host name C string */
+
+      if (local && CFStringGetCString(local, localStr, sizeof(localStr),
+                                      kCFStringEncodingUTF8))
+      {
+       /*
+        * Append ".local." to the hostname we get...
+	*/
+
+        snprintf(s, slen, "%s.local.", localStr);
+      }
+
+      if (local)
+        CFRelease(local);
+      if (sc)
+        CFRelease(sc);
+
+#else
      /*
       * The hostname is not a FQDN, so look it up...
       */
 
+      struct hostent	*host;		/* Host entry to get FQDN */
+
       if ((host = gethostbyname(s)) != NULL && host->h_name)
+      {
+       /*
+        * Use the resolved hostname...
+	*/
+
 	strlcpy(s, host->h_name, slen);
+      }
+#endif /* HAVE_SCDYNAMICSTORECOPYCOMPUTERNAME */
     }
   }
 

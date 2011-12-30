@@ -123,7 +123,12 @@
 
 /*#define DEBUG*/
 #include "htmldoc.h"
-#include "md5.h"
+#include "md5-private.h"
+#define md5_append _cupsMD5Append
+#define md5_finish _cupsMD5Finish
+#define md5_init _cupsMD5Init
+typedef unsigned char md5_byte_t;
+#define md5_state_t _cups_md5_state_t
 #include "rc4.h"
 #include <stdarg.h>
 #include <ctype.h>

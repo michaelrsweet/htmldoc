@@ -1,13 +1,18 @@
 /*
  * "$Id$"
  *
- *   HTTP support routines for HTMLDOC.
+ *   HTTP support routines for CUPS.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ *   Copyright 2007-2011 by Apple Inc.
+ *   Copyright 1997-2007 by Easy Software Products, all rights reserved.
  *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ *   These coded instructions, statements, and computer programs are the
+ *   property of Apple Inc. and are protected by Federal copyright
+ *   law.  Distribution and use rights are outlined in the file "LICENSE.txt"
+ *   which should have been included with this file.  If this file is
+ *   file is missing or damaged, see the license at "http://www.cups.org/".
+ *
+ *   This file is subject to the Apple OS-Developed Software exception.
  *
  * Contents:
  *
@@ -29,8 +34,10 @@
  *   httpSeparateURI()    - Separate a Universal Resource Identifier into its
  *                          components.
  *   httpStatus()         - Return a short string describing a HTTP status code.
- *   _hd_hstrerror()    - hstrerror() emulation function for Solaris and
- *                          others...
+ *   _cups_hstrerror()    - hstrerror() emulation function for Solaris and
+ *                          others.
+ *   _httpDecodeURI()     - Percent-decode a HTTP request URI.
+ *   _httpEncodeURI()     - Percent-encode a HTTP request URI.
  *   http_copy_decode()   - Copy and decode a URI.
  *   http_copy_encode()   - Copy and encode a URI.
  */
@@ -39,9 +46,29 @@
  * Include necessary headers...
  */
 
-#include "debug.h"
 #include "http-private.h"
-#include <stdlib.h>
+#ifdef HAVE_DNSSD
+#  include <dns_sd.h>
+#  ifdef WIN32
+#    include <io.h>
+#  elif defined(HAVE_POLL)
+#    include <poll.h>
+#  else
+#    include <sys/select.h>
+#  endif /* WIN32 */
+#endif /* HAVE_DNSSD */
+
+
+/*
+ * Local types...
+ */
+
+typedef struct _http_uribuf_s		/* URI buffer */
+{
+  char		*buffer;		/* Pointer to buffer */
+  size_t	bufsize;		/* Size of buffer */
+  int		options;		/* Options passed to _httpResolveURI */
+} _http_uribuf_t;
 
 
 /*
@@ -96,7 +123,7 @@ static char		*http_copy_encode(char *dst, const char *src,
  * place of traditional string functions whenever you need to create a
  * URI string.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 http_uri_status_t			/* O - URI status */
@@ -175,7 +202,7 @@ httpAssembleURI(
       * Add username@ first...
       */
 
-      ptr = http_copy_encode(ptr, username, end, "/?@", NULL,
+      ptr = http_copy_encode(ptr, username, end, "/?#[]@", NULL,
                              encoding & HTTP_URI_CODING_USERNAME);
 
       if (!ptr)
@@ -259,7 +286,7 @@ httpAssembleURI(
       * Otherwise, just copy the host string...
       */
 
-      ptr = http_copy_encode(ptr, host, end, ":/?#[]@\\", NULL,
+      ptr = http_copy_encode(ptr, host, end, ":/?#[]@\\\"", NULL,
                              encoding & HTTP_URI_CODING_HOSTNAME);
 
       if (!ptr)
@@ -346,7 +373,7 @@ httpAssembleURI(
  * this function in place of traditional string functions whenever
  * you need to create a URI string.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 http_uri_status_t			/* O - URI status */
@@ -426,7 +453,7 @@ httpDecode64(char       *out,		/* I - String to write to */
 /*
  * 'httpDecode64_2()' - Base64-decode a string.
  *
- * @since CUPS 1.1.21@
+ * @since CUPS 1.1.21/Mac OS X 10.4@
  */
 
 char *					/* O  - Decoded string */
@@ -545,7 +572,7 @@ httpEncode64(char       *out,		/* I - String to write to */
 /*
  * 'httpEncode64_2()' - Base64-encode a string.
  *
- * @since CUPS 1.1.21@
+ * @since CUPS 1.1.21/Mac OS X 10.4@
  */
 
 char *					/* O - Encoded string */
@@ -644,7 +671,7 @@ httpEncode64_2(char       *out,		/* I - String to write to */
 const char *				/* O - Date/time string */
 httpGetDateString(time_t t)		/* I - UNIX time */
 {
-  static char	http_date[256];		/* Date+time buffer */
+  static char	http_date[256];		/* Static buffer */
 
 
   return (httpGetDateString2(t, http_date, sizeof(http_date)));
@@ -654,7 +681,7 @@ httpGetDateString(time_t t)		/* I - UNIX time */
 /*
  * 'httpGetDateString2()' - Get a formatted date/time string from a time value.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 const char *				/* O - Date/time string */
@@ -693,7 +720,7 @@ httpGetDateTime(const char *s)		/* I - Date/time string */
 		{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
 
 
-  DEBUG_printf(("httpGetDateTime(s=\"%s\")\n", s));
+  DEBUG_printf(("2httpGetDateTime(s=\"%s\")", s));
 
  /*
   * Extract the date and time from the formatted string...
@@ -702,21 +729,21 @@ httpGetDateTime(const char *s)		/* I - Date/time string */
   if (sscanf(s, "%*s%d%15s%d%d:%d:%d", &day, mon, &year, &hour, &min, &sec) < 6)
     return (0);
 
-  DEBUG_printf(("    day=%d, mon=\"%s\", year=%d, hour=%d, min=%d, sec=%d\n",
-                day, mon, year, hour, min, sec));
+  DEBUG_printf(("4httpGetDateTime: day=%d, mon=\"%s\", year=%d, hour=%d, "
+                "min=%d, sec=%d", day, mon, year, hour, min, sec));
 
  /*
   * Convert the month name to a number from 0 to 11.
   */
 
   for (i = 0; i < 12; i ++)
-    if (!strcasecmp(mon, http_months[i]))
+    if (!_cups_strcasecmp(mon, http_months[i]))
       break;
 
   if (i >= 12)
     return (0);
 
-  DEBUG_printf(("    i=%d\n", i));
+  DEBUG_printf(("4httpGetDateTime: i=%d", i));
 
  /*
   * Now convert the date and time to a UNIX time value in seconds since
@@ -729,14 +756,14 @@ httpGetDateTime(const char *s)		/* I - Date/time string */
   else
     days = normal_days[i] + day - 1;
 
-  DEBUG_printf(("    days=%d\n", days));
+  DEBUG_printf(("4httpGetDateTime: days=%d", days));
 
   days += (year - 1970) * 365 +		/* 365 days per year (normally) */
           ((year - 1) / 4 - 492) -	/* + leap days */
 	  ((year - 1) / 100 - 19) +	/* - 100 year days */
           ((year - 1) / 400 - 4);	/* + 400 year days */
 
-  DEBUG_printf(("    days=%d\n", days));
+  DEBUG_printf(("4httpGetDateTime: days=%d\n", days));
 
   return (days * 86400 + hour * 3600 + min * 60 + sec);
 }
@@ -771,7 +798,7 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
  *
  * This function is deprecated; use the httpSeparateURI() function instead.
  *
- * @since CUPS 1.1.21@
+ * @since CUPS 1.1.21/Mac OS X 10.4@
  * @deprecated@
  */
 
@@ -796,7 +823,7 @@ httpSeparate2(const char *uri,		/* I - Universal Resource Identifier */
  * 'httpSeparateURI()' - Separate a Universal Resource Identifier into its
  *                       components.
  *
- * @since CUPS 1.2@
+ * @since CUPS 1.2/Mac OS X 10.5@
  */
 
 http_uri_status_t			/* O - Result of separation */
@@ -882,7 +909,9 @@ httpSeparateURI(
 
     for (ptr = scheme, end = scheme + schemelen - 1;
          *uri && *uri != ':' && ptr < end;)
-      if (isalnum(*uri & 255) || *uri == '-' || *uri == '+' || *uri == '.')
+      if (strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                 "abcdefghijklmnopqrstuvwxyz"
+		 "0123456789-+.", *uri) != NULL)
         *ptr++ = *uri++;
       else
         break;
@@ -906,9 +935,9 @@ httpSeparateURI(
     *port = 80;
   else if (!strcmp(scheme, "https"))
     *port = 443;
-  else if (!strcmp(scheme, "ipp"))
+  else if (!strcmp(scheme, "ipp") || !strcmp(scheme, "ipps"))
     *port = 631;
-  else if (!strcasecmp(scheme, "lpd"))
+  else if (!_cups_strcasecmp(scheme, "lpd"))
     *port = 515;
   else if (!strcmp(scheme, "socket"))	/* Not yet registered with IANA... */
     *port = 9100;
@@ -1128,65 +1157,106 @@ httpSeparateURI(
 
 /*
  * 'httpStatus()' - Return a short string describing a HTTP status code.
+ *
+ * The returned string is localized to the current POSIX locale and is based
+ * on the status strings defined in RFC 2616.
  */
 
-const char *				/* O - String or NULL */
+const char *				/* O - Localized status string */
 httpStatus(http_status_t status)	/* I - HTTP status code */
 {
+  const char	*s;			/* Status string */
+
+
   switch (status)
   {
     case HTTP_CONTINUE :
-        return ("Continue");
+        s = _("Continue");
+	break;
     case HTTP_SWITCHING_PROTOCOLS :
-        return ("Switching Protocols");
+        s = _("Switching Protocols");
+	break;
     case HTTP_OK :
-        return ("OK");
+        s = _("OK");
+	break;
     case HTTP_CREATED :
-        return ("Created");
+        s = _("Created");
+	break;
     case HTTP_ACCEPTED :
-        return ("Accepted");
+        s = _("Accepted");
+	break;
     case HTTP_NO_CONTENT :
-        return ("No Content");
+        s = _("No Content");
+	break;
     case HTTP_MOVED_PERMANENTLY :
-        return ("Moved Permanently");
+        s = _("Moved Permanently");
+	break;
     case HTTP_SEE_OTHER :
-        return ("See Other");
+        s = _("See Other");
+	break;
     case HTTP_NOT_MODIFIED :
-        return ("Not Modified");
+        s = _("Not Modified");
+	break;
     case HTTP_BAD_REQUEST :
-        return ("Bad Request");
+        s = _("Bad Request");
+	break;
     case HTTP_UNAUTHORIZED :
-        return ("Unauthorized");
+    case HTTP_AUTHORIZATION_CANCELED :
+        s = _("Unauthorized");
+	break;
     case HTTP_FORBIDDEN :
-        return ("Forbidden");
+        s = _("Forbidden");
+	break;
     case HTTP_NOT_FOUND :
-        return ("Not Found");
+        s = _("Not Found");
+	break;
     case HTTP_REQUEST_TOO_LARGE :
-        return ("Request Entity Too Large");
+        s = _("Request Entity Too Large");
+	break;
     case HTTP_URI_TOO_LONG :
-        return ("URI Too Long");
+        s = _("URI Too Long");
+	break;
     case HTTP_UPGRADE_REQUIRED :
-        return ("Upgrade Required");
+        s = _("Upgrade Required");
+	break;
     case HTTP_NOT_IMPLEMENTED :
-        return ("Not Implemented");
+        s = _("Not Implemented");
+	break;
     case HTTP_NOT_SUPPORTED :
-        return ("Not Supported");
+        s = _("Not Supported");
+	break;
     case HTTP_EXPECTATION_FAILED :
-        return ("Expectation Failed");
+        s = _("Expectation Failed");
+	break;
+    case HTTP_SERVICE_UNAVAILABLE :
+        s = _("Service Unavailable");
+	break;
+    case HTTP_SERVER_ERROR :
+        s = _("Internal Server Error");
+	break;
+    case HTTP_PKI_ERROR :
+        s = _("SSL/TLS Negotiation Error");
+	break;
+    case HTTP_WEBIF_DISABLED :
+        s = _("Web Interface is Disabled");
+	break;
 
     default :
-        return ("Unknown");
+        s = _("Unknown");
+	break;
   }
+
+  return (s);
 }
 
 
 #ifndef HAVE_HSTRERROR
 /*
- * '_hd_hstrerror()' - hstrerror() emulation function for Solaris and others...
+ * '_cups_hstrerror()' - hstrerror() emulation function for Solaris and others.
  */
 
 const char *				/* O - Error string */
-_hd_hstrerror(int error)		/* I - Error number */
+_cups_hstrerror(int error)		/* I - Error number */
 {
   static const char * const errors[] =	/* Error strings */
 		{
@@ -1207,11 +1277,41 @@ _hd_hstrerror(int error)		/* I - Error number */
 
 
 /*
+ * '_httpDecodeURI()' - Percent-decode a HTTP request URI.
+ */
+
+char *					/* O - Decoded URI or NULL on error */
+_httpDecodeURI(char       *dst,		/* I - Destination buffer */
+               const char *src,		/* I - Source URI */
+	       size_t     dstsize)	/* I - Size of destination buffer */
+{
+  if (http_copy_decode(dst, src, (int)dstsize, NULL, 1))
+    return (dst);
+  else
+    return (NULL);
+}
+
+
+/*
+ * '_httpEncodeURI()' - Percent-encode a HTTP request URI.
+ */
+
+char *					/* O - Encoded URI */
+_httpEncodeURI(char       *dst,		/* I - Destination buffer */
+               const char *src,		/* I - Source URI */
+	       size_t     dstsize)	/* I - Size of destination buffer */
+{
+  http_copy_encode(dst, src, dst + dstsize - 1, NULL, NULL, 1);
+  return (dst);
+}
+
+
+/*
  * 'http_copy_decode()' - Copy and decode a URI.
  */
 
 static const char *			/* O - New source pointer or NULL on error */
-http_copy_decode(char       *dst,	/* O - Destination buffer */ 
+http_copy_decode(char       *dst,	/* O - Destination buffer */
                  const char *src,	/* I - Source pointer */
 		 int        dstsize,	/* I - Destination size */
 		 const char *term,	/* I - Terminating characters */
@@ -1279,7 +1379,7 @@ http_copy_decode(char       *dst,	/* O - Destination buffer */
  */
 
 static char *				/* O - End of current URI */
-http_copy_encode(char       *dst,	/* O - Destination buffer */ 
+http_copy_encode(char       *dst,	/* O - Destination buffer */
                  const char *src,	/* I - Source pointer */
 		 char       *dstend,	/* I - End of destination buffer */
                  const char *reserved,	/* I - Extra reserved characters */
