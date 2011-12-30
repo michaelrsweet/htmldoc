@@ -183,9 +183,7 @@ httpAddrLookup(
     char              *name,		/* I - Host name buffer */
     int               namelen)		/* I - Size of name buffer */
 {
-#ifdef HAVE_RES_INIT
   static int	need_res_init = 0;	/* Do we need to do a res_init? */
-#endif /* HAVE_RES_INIT */
 
 
   DEBUG_printf(("httpAddrLookup(addr=%p, name=%p, namelen=%d)", addr, name,

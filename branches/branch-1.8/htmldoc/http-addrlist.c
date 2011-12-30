@@ -53,7 +53,12 @@ httpAddrConnect(
 
   if (!sock)
   {
+#ifdef WIN32
+    errno = WSAEINVAL;
+#else
     errno = EINVAL;
+#endif /* WIN32 */
+
     return (NULL);
   }
 
@@ -217,9 +222,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
   http_addrlist_t	*first,		/* First address in list */
 			*addr,		/* Current address in list */
 			*temp;		/* New address */
-#ifdef HAVE_RES_INIT
   static int	need_res_init = 0;	/* Do we need to do a res_init? */
-#endif /* HAVE_RES_INIT */
 
 
 #ifdef HAVE_RES_INIT

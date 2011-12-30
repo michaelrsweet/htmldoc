@@ -22,7 +22,7 @@
  * Include necessary headers...
  */
 
-#  include "config.h"
+#  include "hdstring.h"
 #  include <stddef.h>
 #  include <stdlib.h>
 
@@ -143,8 +143,13 @@ typedef int socklen_t;
 #  define DEBUG_puts(x)
 #  define _(x) x
 #  define _cups_isspace(ch) isspace((ch) & 255)
-#  define _cups_strcasecmp(s,t) strcasecmp(s,t)
-#  define _cups_strncasecmp(s,t,n) strncasecmp(s,t,n)
+#  ifdef WIN32
+#    define _cups_strcasecmp(s,t) stricmp(s,t)
+#    define _cups_strncasecmp(s,t,n) strnicmp(s,t,n)
+#  else
+#    define _cups_strcasecmp(s,t) strcasecmp(s,t)
+#    define _cups_strncasecmp(s,t,n) strncasecmp(s,t,n)
+#  endif /* WIN32 */
 #  define _cupsGlobalLock()
 #  define _cupsGlobalUnlock()
 #  define _cupsSetError(x,y,z)
