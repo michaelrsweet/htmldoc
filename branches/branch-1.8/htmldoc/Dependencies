@@ -1,0 +1,35 @@
+# DO NOT DELETE
+
+file.o: file.h hdstring.h ../config.h http.h progress.h debug.h
+http.o: http-private.h ../config.h http.h md5-private.h
+http-addr.o: http-private.h ../config.h http.h md5-private.h
+http-addrlist.o: http-private.h ../config.h http.h md5-private.h
+http-support.o: http-private.h ../config.h http.h md5-private.h
+md5.o: hdstring.h ../config.h
+rc4.o: rc4.h
+snprintf.o: hdstring.h ../config.h
+string.o: hdstring.h ../config.h
+gui.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+gui.o: image.h debug.h progress.h gui.h ../desktop/htmldoc.xpm
+gui.o: ../desktop/htmldoc.xbm
+html.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+html.o: image.h debug.h progress.h gui.h
+htmldoc.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+htmldoc.o: image.h debug.h progress.h gui.h http.h
+htmllib.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+htmllib.o: image.h debug.h progress.h gui.h
+htmlsep.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+htmlsep.o: image.h debug.h progress.h gui.h
+image.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+image.o: image.h debug.h progress.h gui.h
+iso8859.o: html.h file.h hdstring.h ../config.h iso8859.h types.h
+license.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+license.o: image.h debug.h progress.h gui.h
+progress.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+progress.o: image.h debug.h progress.h gui.h
+ps-pdf.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+ps-pdf.o: image.h debug.h progress.h gui.h rc4.h
+toc.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+toc.o: image.h debug.h progress.h gui.h
+util.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
+util.o: image.h debug.h progress.h gui.h
