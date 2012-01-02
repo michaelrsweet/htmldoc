@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="ghtmldoc"
 	ProjectGUID="{A45127A6-7A50-48AE-820A-E0D821516AD4}"
+	RootNamespace="ghtmldoc"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
