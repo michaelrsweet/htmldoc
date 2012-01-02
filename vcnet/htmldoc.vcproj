@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="htmldoc"
 	ProjectGUID="{287D2FB4-9941-4B64-B973-55A6EC04EAFC}"
+	RootNamespace="htmldoc"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -105,6 +106,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Generate HTMLDOC Users Manual"
+				CommandLine="htmldoc.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf"
 			/>
 		</Configuration>
 		<Configuration
@@ -198,6 +201,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Generate HTMLDOC Users Manual"
+				CommandLine="htmldocd.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf"
 			/>
 		</Configuration>
 	</Configurations>

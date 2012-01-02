@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:701"
-"ProjectType" = "8:{2C2AF0D9-9B47-4FE5-BEF2-169778172667}"
+"VSVersion" = "3:800"
+"ProjectType" = "8:{978C614F-708E-4E1A-B201-565925725DBA}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:htmldoc-installer"
 "LanguageId" = "3:1033"
@@ -39,12 +39,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0A15F401B7764274ABBB1FA23EDBC161"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0AE58E0664F74C5EA6CBBCC90A8CDB54"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -52,12 +46,6 @@
         "Entry"
         {
         "MsmKey" = "8:_0B1A029091D44A21A6571D9D4C9EE1A9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_13A171F05FE444F683D4554A6374049B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -87,12 +75,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_239C6D042175438FADE155220524A816"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_27EB70361227442292B801E3A2A3C004"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -101,6 +83,18 @@
         {
         "MsmKey" = "8:_29B9C8759E8D4E1CAD3F538B4E004CFE"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_29C139277B37DB491AD79DE8738E0FE3"
+        "OwnerKey" = "8:_995D1108656C44C3B97AD885CD41F40D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_29C139277B37DB491AD79DE8738E0FE3"
+        "OwnerKey" = "8:_7AAAB64D407642C4A6D8D3EB50840053"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -137,6 +131,18 @@
         {
         "MsmKey" = "8:_3AC94D794EBF4ADD82D352BE249EB2A9"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3B75AD52B74546848763CDA68F2676FC"
+        "OwnerKey" = "8:_B20D23809FD44347B3DB1975D5FEA3FD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3B9595E1B0EC2EFC44C0F558577C8838"
+        "OwnerKey" = "8:_995D1108656C44C3B97AD885CD41F40D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -195,19 +201,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4FA76CD2B721458A9B05E9DDE101F17D"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_50A624BB36935D7C525B1CB380C2D916"
+        "OwnerKey" = "8:_995D1108656C44C3B97AD885CD41F40D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_50A624BB36935D7C525B1CB380C2D916"
+        "OwnerKey" = "8:_7AAAB64D407642C4A6D8D3EB50840053"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_520795BAB8E94FCDBCB2F61A181AF09D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_535326D367294909886E6624AB3F8DFE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -255,12 +261,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6B5142BC11724E80A36055AFDEB4BEB3"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_6B9AA07C80EF44898DE4BF2974052A5B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -286,6 +286,18 @@
         "Entry"
         {
         "MsmKey" = "8:_74FB5CE9BCBB4869BDA82055A7F1B6C2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_75FAF22F9762426BB570311F670D54E5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7AAAB64D407642C4A6D8D3EB50840053"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -357,12 +369,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8EC91C18B08A4ED28F322268B0314967"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_96C479D9BF1B4B268C911A1BF4F9EB57"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -370,6 +376,12 @@
         "Entry"
         {
         "MsmKey" = "8:_993191556BD64C0E9E1600D97AFABD79"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_995D1108656C44C3B97AD885CD41F40D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -424,6 +436,24 @@
         "Entry"
         {
         "MsmKey" = "8:_B14C867D678D40EEA893026D140E6870"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B20D23809FD44347B3DB1975D5FEA3FD"
+        "OwnerKey" = "8:_995D1108656C44C3B97AD885CD41F40D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B20D23809FD44347B3DB1975D5FEA3FD"
+        "OwnerKey" = "8:_7AAAB64D407642C4A6D8D3EB50840053"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B30C1488F03D4A0EB8587FE7F43CC821"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -537,7 +567,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:htmldoc-1.8.25b7-windows.msi"
+        "OutputFilename" = "8:htmldoc-windows.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -547,13 +577,34 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:1"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:FALSE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5.SP1"
+                    {
+                    "Name" = "8:.NET Framework 3.5 SP1"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5.SP1"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
+            }
         }
         "Release"
         {
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:htmldoc-1.8.27-windows.msi"
+        "OutputFilename" = "8:htmldoc-windows.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -563,6 +614,27 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:1"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:FALSE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5.SP1"
+                    {
+                    "Name" = "8:.NET Framework 3.5 SP1"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5.SP1"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
+            }
         }
     }
     "Deployable"
@@ -582,12 +654,9 @@
             {
             }
         }
-        "Feature"
-        {
-        }
         "File"
         {
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_01E549493E444791953726871AD02D83"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_01E549493E444791953726871AD02D83"
             {
             "SourcePath" = "8:..\\fonts\\Dingbats.pfa"
             "TargetName" = "8:Dingbats.pfa"
@@ -607,7 +676,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_044F1F06F1254244AACD6FCCCB2D4D1C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_044F1F06F1254244AACD6FCCCB2D4D1C"
             {
             "SourcePath" = "8:..\\fonts\\Monospace-Oblique.afm"
             "TargetName" = "8:Monospace-Oblique.afm"
@@ -627,7 +696,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_049D8A1AD3474551B6C25491837BA5E6"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_049D8A1AD3474551B6C25491837BA5E6"
             {
             "SourcePath" = "8:..\\data\\psglyphs"
             "TargetName" = "8:psglyphs"
@@ -647,7 +716,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_091950EC68B64225A57DC3FD437AE0E3"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_091950EC68B64225A57DC3FD437AE0E3"
             {
             "SourcePath" = "8:..\\data\\iso-8859-7"
             "TargetName" = "8:iso-8859-7"
@@ -667,27 +736,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_0A15F401B7764274ABBB1FA23EDBC161"
-            {
-            "SourcePath" = "8:htmldoc-installer.rtf"
-            "TargetName" = "8:htmldoc-installer.rtf"
-            "Tag" = "8:"
-            "Folder" = "8:_1DF47B3105D141B7ADAACA06B1FD1C0E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_0AE58E0664F74C5EA6CBBCC90A8CDB54"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0AE58E0664F74C5EA6CBBCC90A8CDB54"
             {
             "SourcePath" = "8:..\\fonts\\Sans.pfa"
             "TargetName" = "8:Sans.pfa"
@@ -707,7 +756,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_0B1A029091D44A21A6571D9D4C9EE1A9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0B1A029091D44A21A6571D9D4C9EE1A9"
             {
             "SourcePath" = "8:..\\fonts\\Monospace.pfa"
             "TargetName" = "8:Monospace.pfa"
@@ -727,27 +776,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_13A171F05FE444F683D4554A6374049B"
-            {
-            "SourcePath" = "8:..\\..\\..\\openssl-0.9.7d\\out32dll\\ssleay32.dll"
-            "TargetName" = "8:ssleay32.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_157FE9F7CC1141F6A41E807C33D22339"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_157FE9F7CC1141F6A41E807C33D22339"
             {
             "SourcePath" = "8:..\\doc\\help.html"
             "TargetName" = "8:help.html"
@@ -767,7 +796,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_160F73C8419C451585BB3D950467DEB6"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_160F73C8419C451585BB3D950467DEB6"
             {
             "SourcePath" = "8:..\\fonts\\Serif-Bold.pfa"
             "TargetName" = "8:Serif-Bold.pfa"
@@ -787,7 +816,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_1F6C9A25E4D4431D9D89F38DAC1E76B4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1F6C9A25E4D4431D9D89F38DAC1E76B4"
             {
             "SourcePath" = "8:..\\fonts\\Monospace-Oblique.pfa"
             "TargetName" = "8:Monospace-Oblique.pfa"
@@ -807,7 +836,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_1FD959618FB64159BE75A85F3333EEF1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1FD959618FB64159BE75A85F3333EEF1"
             {
             "SourcePath" = "8:..\\data\\iso-8859-2"
             "TargetName" = "8:iso-8859-2"
@@ -827,27 +856,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_239C6D042175438FADE155220524A816"
-            {
-            "SourcePath" = "8:htmldoc-installer.jpg"
-            "TargetName" = "8:htmldoc-installer.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_1DF47B3105D141B7ADAACA06B1FD1C0E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_27EB70361227442292B801E3A2A3C004"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_27EB70361227442292B801E3A2A3C004"
             {
             "SourcePath" = "8:..\\fonts\\Sans-BoldOblique.afm"
             "TargetName" = "8:Sans-BoldOblique.afm"
@@ -867,7 +876,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_29B9C8759E8D4E1CAD3F538B4E004CFE"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_29B9C8759E8D4E1CAD3F538B4E004CFE"
             {
             "SourcePath" = "8:..\\fonts\\Serif-BoldOblique.afm"
             "TargetName" = "8:Serif-BoldOblique.afm"
@@ -887,7 +896,27 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_2AC0D36AC4C5437F8517B75462F4F679"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_29C139277B37DB491AD79DE8738E0FE3"
+            {
+            "SourcePath" = "8:CRYPT32.dll"
+            "TargetName" = "8:CRYPT32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2AC0D36AC4C5437F8517B75462F4F679"
             {
             "SourcePath" = "8:..\\fonts\\Courier-Oblique.afm"
             "TargetName" = "8:Courier-Oblique.afm"
@@ -907,7 +936,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_36D3DE791BBF46BB8500E494CFD4BD1C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_36D3DE791BBF46BB8500E494CFD4BD1C"
             {
             "SourcePath" = "8:..\\fonts\\Sans-BoldOblique.pfa"
             "TargetName" = "8:Sans-BoldOblique.pfa"
@@ -927,7 +956,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_377662CCD58646F4A2BE6B72A03E0F85"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_377662CCD58646F4A2BE6B72A03E0F85"
             {
             "SourcePath" = "8:..\\fonts\\Times-Italic.pfa"
             "TargetName" = "8:Times-Italic.pfa"
@@ -947,7 +976,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_38B0FC4AB6764A4CBC6D2127D7FDC077"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38B0FC4AB6764A4CBC6D2127D7FDC077"
             {
             "SourcePath" = "8:..\\fonts\\Times-Roman.afm"
             "TargetName" = "8:Times-Roman.afm"
@@ -967,7 +996,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3982B7F31DEE4F339B75A9DA5E7D54D4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3982B7F31DEE4F339B75A9DA5E7D54D4"
             {
             "SourcePath" = "8:..\\fonts\\Monospace-Bold.afm"
             "TargetName" = "8:Monospace-Bold.afm"
@@ -987,7 +1016,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3AC94D794EBF4ADD82D352BE249EB2A9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3AC94D794EBF4ADD82D352BE249EB2A9"
             {
             "SourcePath" = "8:..\\fonts\\Times-Bold.pfa"
             "TargetName" = "8:Times-Bold.pfa"
@@ -1007,7 +1036,27 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3BE3172AA67C42039C69BE078C21D8BA"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B9595E1B0EC2EFC44C0F558577C8838"
+            {
+            "SourcePath" = "8:COMDLG32.dll"
+            "TargetName" = "8:COMDLG32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3BE3172AA67C42039C69BE078C21D8BA"
             {
             "SourcePath" = "8:..\\fonts\\Courier.pfa"
             "TargetName" = "8:Courier.pfa"
@@ -1027,7 +1076,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3F8F410B095B4E39921C637D40CE2C0B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F8F410B095B4E39921C637D40CE2C0B"
             {
             "SourcePath" = "8:..\\fonts\\Monospace.afm"
             "TargetName" = "8:Monospace.afm"
@@ -1047,7 +1096,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_435A6FF3C5224188A2BC3D93EC3228D2"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_435A6FF3C5224188A2BC3D93EC3228D2"
             {
             "SourcePath" = "8:..\\fonts\\Times-Roman.pfa"
             "TargetName" = "8:Times-Roman.pfa"
@@ -1067,7 +1116,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_4734F1FB9D78490DB1D9E2FA27050733"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4734F1FB9D78490DB1D9E2FA27050733"
             {
             "SourcePath" = "8:..\\fonts\\Helvetica-BoldOblique.afm"
             "TargetName" = "8:Helvetica-BoldOblique.afm"
@@ -1087,7 +1136,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_4960D709667244E6BD1BAE9BADF1DA9A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4960D709667244E6BD1BAE9BADF1DA9A"
             {
             "SourcePath" = "8:..\\data\\cp-1250"
             "TargetName" = "8:cp-1250"
@@ -1107,7 +1156,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_498F20572E0F47C1803AA40A31407A8F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_498F20572E0F47C1803AA40A31407A8F"
             {
             "SourcePath" = "8:..\\fonts\\Serif-Bold.afm"
             "TargetName" = "8:Serif-Bold.afm"
@@ -1127,7 +1176,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_4B917E4B1D08412791623677148C35C2"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4B917E4B1D08412791623677148C35C2"
             {
             "SourcePath" = "8:..\\fonts\\Times-Italic.afm"
             "TargetName" = "8:Times-Italic.afm"
@@ -1147,7 +1196,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_4E1AF4DFDDBB48DBA0C85B0C91322238"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E1AF4DFDDBB48DBA0C85B0C91322238"
             {
             "SourcePath" = "8:..\\fonts\\Courier-Bold.pfa"
             "TargetName" = "8:Courier-Bold.pfa"
@@ -1167,7 +1216,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_4F27B5C9C2024BF689EA635987D30D6E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4F27B5C9C2024BF689EA635987D30D6E"
             {
             "SourcePath" = "8:..\\fonts\\Courier-Oblique.pfa"
             "TargetName" = "8:Courier-Oblique.pfa"
@@ -1187,10 +1236,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_4FA76CD2B721458A9B05E9DDE101F17D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_50A624BB36935D7C525B1CB380C2D916"
             {
-            "SourcePath" = "8:htmldoc.exe"
-            "TargetName" = "8:htmldoc.exe"
+            "SourcePath" = "8:Secur32.dll"
+            "TargetName" = "8:Secur32.dll"
             "Tag" = "8:"
             "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
             "Condition" = "8:"
@@ -1204,10 +1253,10 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_520795BAB8E94FCDBCB2F61A181AF09D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_520795BAB8E94FCDBCB2F61A181AF09D"
             {
             "SourcePath" = "8:..\\fonts\\Serif-BoldOblique.pfa"
             "TargetName" = "8:Serif-BoldOblique.pfa"
@@ -1227,27 +1276,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_535326D367294909886E6624AB3F8DFE"
-            {
-            "SourcePath" = "8:ghtmldoc.exe"
-            "TargetName" = "8:ghtmldoc.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_54413CCB27CD47A4BF2BA66F807177A3"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_54413CCB27CD47A4BF2BA66F807177A3"
             {
             "SourcePath" = "8:..\\data\\cp-1254"
             "TargetName" = "8:cp-1254"
@@ -1267,7 +1296,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_56B27060E64A421DA0C25D20946B0EE7"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_56B27060E64A421DA0C25D20946B0EE7"
             {
             "SourcePath" = "8:..\\data\\prolog.ps"
             "TargetName" = "8:prolog.ps"
@@ -1287,7 +1316,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_5B2287F872F640E6863A9DF665135404"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B2287F872F640E6863A9DF665135404"
             {
             "SourcePath" = "8:..\\fonts\\Sans-Oblique.afm"
             "TargetName" = "8:Sans-Oblique.afm"
@@ -1307,7 +1336,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_5B5FB375F9CA453FBD177EF519EC04C2"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B5FB375F9CA453FBD177EF519EC04C2"
             {
             "SourcePath" = "8:..\\fonts\\Symbol.afm"
             "TargetName" = "8:Symbol.afm"
@@ -1327,7 +1356,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_63D88A5D3677444E9B88C7245D7E1824"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_63D88A5D3677444E9B88C7245D7E1824"
             {
             "SourcePath" = "8:..\\fonts\\Monospace-BoldOblique.afm"
             "TargetName" = "8:Monospace-BoldOblique.afm"
@@ -1347,7 +1376,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_668E0F45D9EF40FBB7E7E440EF430948"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_668E0F45D9EF40FBB7E7E440EF430948"
             {
             "SourcePath" = "8:..\\fonts\\Helvetica-Oblique.afm"
             "TargetName" = "8:Helvetica-Oblique.afm"
@@ -1367,7 +1396,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6818B70273444889A8EFC321A3DE2C46"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6818B70273444889A8EFC321A3DE2C46"
             {
             "SourcePath" = "8:..\\fonts\\Helvetica-Oblique.pfa"
             "TargetName" = "8:Helvetica-Oblique.pfa"
@@ -1387,27 +1416,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6B5142BC11724E80A36055AFDEB4BEB3"
-            {
-            "SourcePath" = "8:..\\..\\..\\openssl-0.9.7d\\out32dll\\libeay32.dll"
-            "TargetName" = "8:libeay32.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6B9AA07C80EF44898DE4BF2974052A5B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B9AA07C80EF44898DE4BF2974052A5B"
             {
             "SourcePath" = "8:..\\data\\koi8-r"
             "TargetName" = "8:koi8-r"
@@ -1427,7 +1436,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6C101A4336E24C26B1C49F52D574B137"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6C101A4336E24C26B1C49F52D574B137"
             {
             "SourcePath" = "8:..\\fonts\\Times-BoldItalic.pfa"
             "TargetName" = "8:Times-BoldItalic.pfa"
@@ -1447,7 +1456,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6ECF3DACF7384FD8BFE8CF437E27D637"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6ECF3DACF7384FD8BFE8CF437E27D637"
             {
             "SourcePath" = "8:..\\fonts\\Sans-Bold.afm"
             "TargetName" = "8:Sans-Bold.afm"
@@ -1467,7 +1476,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6FBEDF2C7B954404BE12AD059A193580"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6FBEDF2C7B954404BE12AD059A193580"
             {
             "SourcePath" = "8:..\\fonts\\Dingbats.afm"
             "TargetName" = "8:Dingbats.afm"
@@ -1487,7 +1496,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_74FB5CE9BCBB4869BDA82055A7F1B6C2"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74FB5CE9BCBB4869BDA82055A7F1B6C2"
             {
             "SourcePath" = "8:..\\data\\iso-8859-4"
             "TargetName" = "8:iso-8859-4"
@@ -1507,7 +1516,27 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_7BD7836FA77C4AADB127FE38646DF612"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_75FAF22F9762426BB570311F670D54E5"
+            {
+            "SourcePath" = "8:htmldoc-installer.jpg"
+            "TargetName" = "8:htmldoc-installer.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_1DF47B3105D141B7ADAACA06B1FD1C0E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7BD7836FA77C4AADB127FE38646DF612"
             {
             "SourcePath" = "8:..\\fonts\\Sans.afm"
             "TargetName" = "8:Sans.afm"
@@ -1527,7 +1556,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_827171AAE05F4E648CFE443852F7C042"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_827171AAE05F4E648CFE443852F7C042"
             {
             "SourcePath" = "8:..\\desktop\\htmldoc.ico"
             "TargetName" = "8:htmldoc.ico"
@@ -1547,7 +1576,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_831744D086CA4D8DBF25D3505960D395"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_831744D086CA4D8DBF25D3505960D395"
             {
             "SourcePath" = "8:..\\fonts\\Courier-Bold.afm"
             "TargetName" = "8:Courier-Bold.afm"
@@ -1567,7 +1596,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_83800715C73C4B048E7C559560865C9C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_83800715C73C4B048E7C559560865C9C"
             {
             "SourcePath" = "8:..\\data\\iso-8859-6"
             "TargetName" = "8:iso-8859-6"
@@ -1587,7 +1616,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_860CFCAA1EF64AC5BE129447E1CA8302"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_860CFCAA1EF64AC5BE129447E1CA8302"
             {
             "SourcePath" = "8:..\\fonts\\Times-Bold.afm"
             "TargetName" = "8:Times-Bold.afm"
@@ -1607,7 +1636,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_87B58F18B6C3463DB15598CF3799E0C1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_87B58F18B6C3463DB15598CF3799E0C1"
             {
             "SourcePath" = "8:..\\fonts\\Serif-Roman.afm"
             "TargetName" = "8:Serif-Roman.afm"
@@ -1627,7 +1656,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_898571714E2849DC98D01D682BD2F42A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_898571714E2849DC98D01D682BD2F42A"
             {
             "SourcePath" = "8:..\\fonts\\Times-BoldItalic.afm"
             "TargetName" = "8:Times-BoldItalic.afm"
@@ -1647,7 +1676,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_8A01627A656E47448C2C6B57242C6C94"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A01627A656E47448C2C6B57242C6C94"
             {
             "SourcePath" = "8:..\\fonts\\Helvetica-Bold.afm"
             "TargetName" = "8:Helvetica-Bold.afm"
@@ -1667,7 +1696,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_8B3D061FC2F94AD5AA11C264FDCF2D6E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8B3D061FC2F94AD5AA11C264FDCF2D6E"
             {
             "SourcePath" = "8:..\\fonts\\Symbol.pfa"
             "TargetName" = "8:Symbol.pfa"
@@ -1687,7 +1716,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_8C3F47CBFBCB4919BC8EC08A7B0DD8C1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8C3F47CBFBCB4919BC8EC08A7B0DD8C1"
             {
             "SourcePath" = "8:..\\data\\cp-1252"
             "TargetName" = "8:cp-1252"
@@ -1707,7 +1736,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_8D257160650C4E22A2475C0AB6CCA8DE"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8D257160650C4E22A2475C0AB6CCA8DE"
             {
             "SourcePath" = "8:..\\fonts\\Sans-Oblique.pfa"
             "TargetName" = "8:Sans-Oblique.pfa"
@@ -1727,27 +1756,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_8EC91C18B08A4ED28F322268B0314967"
-            {
-            "SourcePath" = "8:C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Visual Studio .NET Professional 2003 - English\\MSVCR71.DLL"
-            "TargetName" = "8:msvcr71.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_96C479D9BF1B4B268C911A1BF4F9EB57"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_96C479D9BF1B4B268C911A1BF4F9EB57"
             {
             "SourcePath" = "8:..\\data\\cp-1255"
             "TargetName" = "8:cp-1255"
@@ -1767,7 +1776,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_993191556BD64C0E9E1600D97AFABD79"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_993191556BD64C0E9E1600D97AFABD79"
             {
             "SourcePath" = "8:..\\fonts\\Monospace-Bold.pfa"
             "TargetName" = "8:Monospace-Bold.pfa"
@@ -1787,7 +1796,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_9BDE16C5685C4A18BFB8EC500D755FAD"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9BDE16C5685C4A18BFB8EC500D755FAD"
             {
             "SourcePath" = "8:..\\doc\\htmldoc.pdf"
             "TargetName" = "8:htmldoc.pdf"
@@ -1807,7 +1816,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_9CF353F65B6947E1909E6973FFDDA38E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9CF353F65B6947E1909E6973FFDDA38E"
             {
             "SourcePath" = "8:..\\fonts\\Helvetica.pfa"
             "TargetName" = "8:Helvetica.pfa"
@@ -1827,7 +1836,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_9F50758E78D64F8DA7202CDB513C8290"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9F50758E78D64F8DA7202CDB513C8290"
             {
             "SourcePath" = "8:..\\fonts\\Monospace-BoldOblique.pfa"
             "TargetName" = "8:Monospace-BoldOblique.pfa"
@@ -1847,7 +1856,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_A1F46BF4BE8440A194F8379B0ED96B5F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A1F46BF4BE8440A194F8379B0ED96B5F"
             {
             "SourcePath" = "8:..\\data\\cp-1251"
             "TargetName" = "8:cp-1251"
@@ -1867,7 +1876,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_A30A3EE6C0B94C699BC7FC90873B6A75"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A30A3EE6C0B94C699BC7FC90873B6A75"
             {
             "SourcePath" = "8:..\\fonts\\Courier-BoldOblique.pfa"
             "TargetName" = "8:Courier-BoldOblique.pfa"
@@ -1887,7 +1896,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_A66EE6CA30324277868059E0005FCBD5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A66EE6CA30324277868059E0005FCBD5"
             {
             "SourcePath" = "8:..\\fonts\\Helvetica.afm"
             "TargetName" = "8:Helvetica.afm"
@@ -1907,7 +1916,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_AA30839FBF64442891C18C70CD6AB730"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AA30839FBF64442891C18C70CD6AB730"
             {
             "SourcePath" = "8:..\\data\\cp-1257"
             "TargetName" = "8:cp-1257"
@@ -1927,7 +1936,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_AB620617848B4C37B00277016FFE803F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AB620617848B4C37B00277016FFE803F"
             {
             "SourcePath" = "8:..\\fonts\\Serif-Roman.pfa"
             "TargetName" = "8:Serif-Roman.pfa"
@@ -1947,7 +1956,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_B14C867D678D40EEA893026D140E6870"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B14C867D678D40EEA893026D140E6870"
             {
             "SourcePath" = "8:..\\data\\cp-1253"
             "TargetName" = "8:cp-1253"
@@ -1967,7 +1976,27 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_B9F8CEEC3D1F4566B8DE732C07FCE5F4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B30C1488F03D4A0EB8587FE7F43CC821"
+            {
+            "SourcePath" = "8:COPYING.rtf"
+            "TargetName" = "8:COPYING.rtf"
+            "Tag" = "8:"
+            "Folder" = "8:_1DF47B3105D141B7ADAACA06B1FD1C0E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B9F8CEEC3D1F4566B8DE732C07FCE5F4"
             {
             "SourcePath" = "8:..\\fonts\\Courier.afm"
             "TargetName" = "8:Courier.afm"
@@ -1987,7 +2016,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_BA4CAA217DE24BAABB93A164AABED236"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA4CAA217DE24BAABB93A164AABED236"
             {
             "SourcePath" = "8:..\\data\\iso-8859-15"
             "TargetName" = "8:iso-8859-15"
@@ -2007,7 +2036,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_BC4C8CBA993745CDB526905CB4D29C7C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BC4C8CBA993745CDB526905CB4D29C7C"
             {
             "SourcePath" = "8:..\\fonts\\Serif-Oblique.afm"
             "TargetName" = "8:Serif-Oblique.afm"
@@ -2027,7 +2056,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_BCC1DABEAE9D41C0AD10D9DA05FC61C6"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BCC1DABEAE9D41C0AD10D9DA05FC61C6"
             {
             "SourcePath" = "8:..\\fonts\\Helvetica-Bold.pfa"
             "TargetName" = "8:Helvetica-Bold.pfa"
@@ -2047,7 +2076,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_BD4FF27445DE4A038781137761422D15"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BD4FF27445DE4A038781137761422D15"
             {
             "SourcePath" = "8:..\\fonts\\Serif-Oblique.pfa"
             "TargetName" = "8:Serif-Oblique.pfa"
@@ -2067,7 +2096,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_C24281AB85E14758B77D28AFF3F60225"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C24281AB85E14758B77D28AFF3F60225"
             {
             "SourcePath" = "8:..\\data\\iso-8859-8"
             "TargetName" = "8:iso-8859-8"
@@ -2087,7 +2116,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_CEC601C56F6B4C37888C6CA0BC616822"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CEC601C56F6B4C37888C6CA0BC616822"
             {
             "SourcePath" = "8:..\\data\\iso-8859-14"
             "TargetName" = "8:iso-8859-14"
@@ -2107,7 +2136,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_E50CC8F36FED4EF1A4B6EE182126C90F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E50CC8F36FED4EF1A4B6EE182126C90F"
             {
             "SourcePath" = "8:..\\fonts\\Helvetica-BoldOblique.pfa"
             "TargetName" = "8:Helvetica-BoldOblique.pfa"
@@ -2127,7 +2156,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_EC7CC80B24914AEF866CA32F69F4A634"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EC7CC80B24914AEF866CA32F69F4A634"
             {
             "SourcePath" = "8:..\\fonts\\Courier-BoldOblique.afm"
             "TargetName" = "8:Courier-BoldOblique.afm"
@@ -2147,7 +2176,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F1850E55DA5F42F58AB1191AC0D2CD40"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F1850E55DA5F42F58AB1191AC0D2CD40"
             {
             "SourcePath" = "8:..\\data\\cp-1258"
             "TargetName" = "8:cp-1258"
@@ -2167,7 +2196,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F413B15D80C54522A688FABD6EA99345"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F413B15D80C54522A688FABD6EA99345"
             {
             "SourcePath" = "8:..\\data\\cp-1256"
             "TargetName" = "8:cp-1256"
@@ -2187,7 +2216,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F5BAFB5E05DD464792AF653A0054072D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F5BAFB5E05DD464792AF653A0054072D"
             {
             "SourcePath" = "8:..\\data\\iso-8859-1"
             "TargetName" = "8:iso-8859-1"
@@ -2207,7 +2236,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F935B2EC113C4FCEB23BDDA3E10AB8E6"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F935B2EC113C4FCEB23BDDA3E10AB8E6"
             {
             "SourcePath" = "8:..\\data\\iso-8859-9"
             "TargetName" = "8:iso-8859-9"
@@ -2227,7 +2256,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F9A585B4F27A4BCA8AF623160B9D6E7D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F9A585B4F27A4BCA8AF623160B9D6E7D"
             {
             "SourcePath" = "8:..\\data\\iso-8859-3"
             "TargetName" = "8:iso-8859-3"
@@ -2247,7 +2276,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_FC41C784C73240C8A80A56AFBD4FF389"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FC41C784C73240C8A80A56AFBD4FF389"
             {
             "SourcePath" = "8:..\\fonts\\Sans-Bold.pfa"
             "TargetName" = "8:Sans-Bold.pfa"
@@ -2267,7 +2296,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_FE86CCBA4ECE4B80A30F9DCA7DC0B077"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FE86CCBA4ECE4B80A30F9DCA7DC0B077"
             {
             "SourcePath" = "8:..\\data\\cp-874"
             "TargetName" = "8:cp-874"
@@ -2287,7 +2316,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_FEF50CFBD3774F1EA3F0EFC9AC09B97E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FEF50CFBD3774F1EA3F0EFC9AC09B97E"
             {
             "SourcePath" = "8:..\\data\\iso-8859-5"
             "TargetName" = "8:iso-8859-5"
@@ -2310,7 +2339,7 @@
         }
         "FileType"
         {
-            "{9300C6CA-4CE0-41D6-A6CD-70E04FD37067}:_8473E8C08DE14202BBA6936FA1F3DAA5"
+            "{5EB83D71-FA18-4901-BE56-DE22E13CC478}:_8473E8C08DE14202BBA6936FA1F3DAA5"
             {
             "Name" = "8:HTMLDOC Book"
             "Description" = "8:HTMLDOC Book File"
@@ -2320,11 +2349,11 @@
             "IconIndex" = "3:0"
                 "Command"
                 {
-                "Command" = "8:_535326D367294909886E6624AB3F8DFE"
+                "Command" = "8:_995D1108656C44C3B97AD885CD41F40D"
                 }
                 "Verbs"
                 {
-                    "{9D28A334-2E55-48EE-AD7D-2DF3F0641A76}:_D133A69E7EFE454AA8D47FE33B5716E6"
+                    "{95C0C507-CBF0-42B8-B119-07219E384A4A}:_D133A69E7EFE454AA8D47FE33B5716E6"
                     {
                     "Command" = "8:&Open"
                     "Verb" = "8:open"
@@ -2336,7 +2365,7 @@
         }
         "Folder"
         {
-            "{58C0ADA3-3CEA-43BD-A3B3-2EA121BC8217}:_5252EA99E5084868A7B00751189D56B2"
+            "{3C67513D-01DD-4637-8A68-80971EB9504F}:_5252EA99E5084868A7B00751189D56B2"
             {
             "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
@@ -2346,7 +2375,7 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_1DF47B3105D141B7ADAACA06B1FD1C0E"
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_1DF47B3105D141B7ADAACA06B1FD1C0E"
                     {
                     "Name" = "8:doc"
                     "AlwaysCreate" = "11:FALSE"
@@ -2357,7 +2386,7 @@
                         {
                         }
                     }
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_5A613699128445CBAFB2225076662C29"
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_5A613699128445CBAFB2225076662C29"
                     {
                     "Name" = "8:fonts"
                     "AlwaysCreate" = "11:FALSE"
@@ -2368,7 +2397,7 @@
                         {
                         }
                     }
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_76A4241D73FB4DB3B556DF946F48907D"
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_76A4241D73FB4DB3B556DF946F48907D"
                     {
                     "Name" = "8:data"
                     "AlwaysCreate" = "11:FALSE"
@@ -2381,7 +2410,7 @@
                     }
                 }
             }
-            "{78BAF5CE-F2E5-45BE-83BC-DB6AF387E941}:_7490DC83C48E45D2851C945147CA7590"
+            "{1525181F-901A-416C-8A58-119130FE478E}:_7490DC83C48E45D2851C945147CA7590"
             {
             "Name" = "8:#1916"
             "AlwaysCreate" = "11:FALSE"
@@ -2392,7 +2421,7 @@
                 {
                 }
             }
-            "{78BAF5CE-F2E5-45BE-83BC-DB6AF387E941}:_7FDBBD19621E460499E9ED44FE4D8EC0"
+            "{1525181F-901A-416C-8A58-119130FE478E}:_7FDBBD19621E460499E9ED44FE4D8EC0"
             {
             "Name" = "8:#1919"
             "AlwaysCreate" = "11:FALSE"
@@ -2401,7 +2430,7 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_32F43164B77549918BADF642F014BD27"
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_32F43164B77549918BADF642F014BD27"
                     {
                     "Name" = "8:HTMLDOC"
                     "AlwaysCreate" = "11:FALSE"
@@ -2417,7 +2446,7 @@
         }
         "LaunchCondition"
         {
-            "{E4DE4623-56CB-424E-96A0-1AD21D5ECA20}:_D79A63746ABE469896499719C82218C5"
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_D79A63746ABE469896499719C82218C5"
             {
             "Name" = "8:Windows 2000 or higher"
             "Condition" = "8:VersionNT>=500"
@@ -2431,6 +2460,7 @@
         "MsiBootstrapper"
         {
         "LangId" = "3:1033"
+        "RequiresElevation" = "11:FALSE"
         }
         "Product"
         {
@@ -2442,6 +2472,7 @@
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
+        "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.8.2700"
         "Manufacturer" = "8:Michael R Sweet"
         "ARPHELPTELEPHONE" = "8:"
@@ -2456,6 +2487,10 @@
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
+        "TargetPlatform" = "3:0"
+        "PreBuildEvent" = "8:"
+        "PostBuildEvent" = "8:"
+        "RunPostBuildEvent" = "3:0"
         }
         "Registry"
         {
@@ -2463,7 +2498,7 @@
             {
                 "Keys"
                 {
-                    "{6A471EEF-D31B-40F8-BCF6-C9E8EC783F36}:_634292BE693249519210613B63EDE1C7"
+                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_634292BE693249519210613B63EDE1C7"
                     {
                     "Name" = "8:Software"
                     "Condition" = "8:"
@@ -2472,48 +2507,34 @@
                     "Transitive" = "11:FALSE"
                         "Keys"
                         {
-                            "{6A471EEF-D31B-40F8-BCF6-C9E8EC783F36}:_CB8B767246374CF68B32DD179C963A32"
+                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_3D2E7F119F3540EDAC3B953923A11D07"
                             {
-                            "Name" = "8:[Manufacturer]"
+                            "Name" = "8:HTMLDOC"
                             "Condition" = "8:"
                             "AlwaysCreate" = "11:FALSE"
                             "DeleteAtUninstall" = "11:FALSE"
                             "Transitive" = "11:FALSE"
                                 "Keys"
                                 {
-                                    "{6A471EEF-D31B-40F8-BCF6-C9E8EC783F36}:_452B43EC9A4A44599ACD8661A20A9CFB"
-                                    {
-                                    "Name" = "8:HTMLDOC"
-                                    "Condition" = "8:"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "DeleteAtUninstall" = "11:FALSE"
-                                    "Transitive" = "11:FALSE"
-                                        "Keys"
-                                        {
-                                        }
-                                        "Values"
-                                        {
-                                            "{35AE352C-BC79-4EF9-ABD8-61F467188583}:_31805AE16530410F85ACD750CB6DD764"
-                                            {
-                                            "Name" = "8:data"
-                                            "Condition" = "8:"
-                                            "Transitive" = "11:FALSE"
-                                            "ValueTypes" = "3:1"
-                                            "Value" = "8:[TARGETDIR]"
-                                            }
-                                            "{35AE352C-BC79-4EF9-ABD8-61F467188583}:_5740ABAD61BB4435B5195C1DD3126781"
-                                            {
-                                            "Name" = "8:doc"
-                                            "Condition" = "8:"
-                                            "Transitive" = "11:FALSE"
-                                            "ValueTypes" = "3:1"
-                                            "Value" = "8:[TARGETDIR]doc"
-                                            }
-                                        }
-                                    }
                                 }
                                 "Values"
                                 {
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_31805AE16530410F85ACD750CB6DD764"
+                                    {
+                                    "Name" = "8:data"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:[TARGETDIR]"
+                                    }
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_5740ABAD61BB4435B5195C1DD3126781"
+                                    {
+                                    "Name" = "8:doc"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:[TARGETDIR]doc"
+                                    }
                                 }
                             }
                         }
@@ -2527,34 +2548,6 @@
             {
                 "Keys"
                 {
-                    "{6A471EEF-D31B-40F8-BCF6-C9E8EC783F36}:_6C6C9BD036C143189FB6125A0E2403C9"
-                    {
-                    "Name" = "8:Software"
-                    "Condition" = "8:"
-                    "AlwaysCreate" = "11:FALSE"
-                    "DeleteAtUninstall" = "11:FALSE"
-                    "Transitive" = "11:FALSE"
-                        "Keys"
-                        {
-                            "{6A471EEF-D31B-40F8-BCF6-C9E8EC783F36}:_238F57B4AFD64619921BE64ED05488B4"
-                            {
-                            "Name" = "8:[Manufacturer]"
-                            "Condition" = "8:"
-                            "AlwaysCreate" = "11:FALSE"
-                            "DeleteAtUninstall" = "11:FALSE"
-                            "Transitive" = "11:FALSE"
-                                "Keys"
-                                {
-                                }
-                                "Values"
-                                {
-                                }
-                            }
-                        }
-                        "Values"
-                        {
-                        }
-                    }
                 }
             }
             "HKCR"
@@ -2581,7 +2574,7 @@
         }
         "Shortcut"
         {
-            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_5CF07166B60841C58EB0AEBE50FBF752"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_5CF07166B60841C58EB0AEBE50FBF752"
             {
             "Name" = "8:Users Manual"
             "Arguments" = "8:"
@@ -2595,7 +2588,7 @@
             "Icon" = "8:"
             "Feature" = "8:"
             }
-            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_6DFF901264794DBE9DB78C55324F3D76"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_6DFF901264794DBE9DB78C55324F3D76"
             {
             "Name" = "8:HTMLDOC"
             "Arguments" = "8:"
@@ -2603,13 +2596,13 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_535326D367294909886E6624AB3F8DFE"
+            "Target" = "8:_995D1108656C44C3B97AD885CD41F40D"
             "Folder" = "8:_32F43164B77549918BADF642F014BD27"
             "WorkingFolder" = "8:_7490DC83C48E45D2851C945147CA7590"
             "Icon" = "8:_827171AAE05F4E648CFE443852F7C042"
             "Feature" = "8:"
             }
-            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_F36CE4677FBA4DEAB3AFB17E992F360B"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_F36CE4677FBA4DEAB3AFB17E992F360B"
             {
             "Name" = "8:HTMLDOC"
             "Arguments" = "8:"
@@ -2617,7 +2610,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_535326D367294909886E6624AB3F8DFE"
+            "Target" = "8:_995D1108656C44C3B97AD885CD41F40D"
             "Folder" = "8:_7490DC83C48E45D2851C945147CA7590"
             "WorkingFolder" = "8:_7490DC83C48E45D2851C945147CA7590"
             "Icon" = "8:_827171AAE05F4E648CFE443852F7C042"
@@ -2626,26 +2619,26 @@
         }
         "UserInterface"
         {
-            "{B654A020-6903-4E6A-A86C-75DC463DB54B}:_23985EDABB8445F8A47D66760B168614"
+            "{2479F3F5-0309-486D-8047-8187E2CE5BA0}:_23985EDABB8445F8A47D66760B168614"
             {
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:<VsdDialogDir>\\VsdBasicDialogs.wim"
             }
-            "{B654A020-6903-4E6A-A86C-75DC463DB54B}:_2B52BB4C06494A2DA297148C0EE3D612"
+            "{2479F3F5-0309-486D-8047-8187E2CE5BA0}:_2B52BB4C06494A2DA297148C0EE3D612"
             {
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:<VsdDialogDir>\\VsdUserInterface.wim"
             }
-            "{8D9DEE8B-DD8B-4F48-9072-C4364E4F4011}:_8EE3DBFFD19B4BBA8A0227DED6B4ACA7"
+            "{DF760B10-853B-4699-99F2-AFF7185B4A62}:_8EE3DBFFD19B4BBA8A0227DED6B4ACA7"
             {
             "Name" = "8:#1900"
             "Sequence" = "3:2"
             "Attributes" = "3:1"
                 "Dialogs"
                 {
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_1038A8F6DBAB493084813F4C067435F0"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_1038A8F6DBAB493084813F4C067435F0"
                     {
                     "Sequence" = "3:400"
                     "DisplayName" = "8:Confirm Installation"
@@ -2663,12 +2656,12 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
                     }
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_2A727EBF766542F29F8345439000EDFB"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_2A727EBF766542F29F8345439000EDFB"
                     {
                     "Sequence" = "3:200"
                     "DisplayName" = "8:License Agreement"
@@ -2686,7 +2679,7 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "EulaText"
@@ -2698,7 +2691,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:_0A15F401B7764274ABBB1FA23EDBC161"
+                            "Value" = "8:_B30C1488F03D4A0EB8587FE7F43CC821"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "Sunken"
@@ -2716,7 +2709,7 @@
                             }
                         }
                     }
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_5404F553CEC34B91B80E58787B4B4EBD"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_5404F553CEC34B91B80E58787B4B4EBD"
                     {
                     "Sequence" = "3:100"
                     "DisplayName" = "8:Welcome"
@@ -2734,7 +2727,7 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -2745,8 +2738,8 @@
                             "Type" = "3:3"
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
-                            "Setting" = "3:1"
-                            "Value" = "8:#1202"
+                            "Setting" = "3:2"
+                            "Value" = "8:This program is free software. Distribution and use rights are outlined in the license agreement."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -2765,7 +2758,7 @@
                             }
                         }
                     }
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_749EE6E9679F46CDA3550674BE8E941B"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_749EE6E9679F46CDA3550674BE8E941B"
                     {
                     "Sequence" = "3:300"
                     "DisplayName" = "8:Installation Folder"
@@ -2783,21 +2776,21 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
                     }
                 }
             }
-            "{8D9DEE8B-DD8B-4F48-9072-C4364E4F4011}:_ADFA3C49AAE141D4B0BE414AFAA8F307"
+            "{DF760B10-853B-4699-99F2-AFF7185B4A62}:_ADFA3C49AAE141D4B0BE414AFAA8F307"
             {
             "Name" = "8:#1901"
             "Sequence" = "3:2"
             "Attributes" = "3:2"
                 "Dialogs"
                 {
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_1087B89540344DE697312579F2F85BCE"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_1087B89540344DE697312579F2F85BCE"
                     {
                     "Sequence" = "3:100"
                     "DisplayName" = "8:Progress"
@@ -2815,7 +2808,7 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -2835,14 +2828,14 @@
                     }
                 }
             }
-            "{8D9DEE8B-DD8B-4F48-9072-C4364E4F4011}:_C12B07F3120840389B9F0338F569DD41"
+            "{DF760B10-853B-4699-99F2-AFF7185B4A62}:_C12B07F3120840389B9F0338F569DD41"
             {
             "Name" = "8:#1900"
             "Sequence" = "3:1"
             "Attributes" = "3:1"
                 "Dialogs"
                 {
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_4B4334063CBC41478AE8FFD2F586694F"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_4B4334063CBC41478AE8FFD2F586694F"
                     {
                     "Sequence" = "3:100"
                     "DisplayName" = "8:Welcome"
@@ -2860,7 +2853,7 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -2871,8 +2864,8 @@
                             "Type" = "3:3"
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
-                            "Setting" = "3:1"
-                            "Value" = "8:#1202"
+                            "Setting" = "3:2"
+                            "Value" = "8:This program is free software. Distribution and use rights are outlined in the license agreement."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -2891,7 +2884,7 @@
                             }
                         }
                     }
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_5AF59657AFCE4AC199ADBA304C45F3E9"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_5AF59657AFCE4AC199ADBA304C45F3E9"
                     {
                     "Sequence" = "3:300"
                     "DisplayName" = "8:Installation Folder"
@@ -2909,12 +2902,25 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "InstallAllUsersVisible"
+                            {
+                            "Name" = "8:InstallAllUsersVisible"
+                            "DisplayName" = "8:#1059"
+                            "Description" = "8:#1159"
+                            "Type" = "3:5"
+                            "ContextData" = "8:1;True=1;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:1"
+                            "DefaultValue" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
                     }
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_AF95746C06C44FA49884064432D3569D"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_AF95746C06C44FA49884064432D3569D"
                     {
                     "Sequence" = "3:400"
                     "DisplayName" = "8:Confirm Installation"
@@ -2932,12 +2938,12 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
                     }
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_C7CD27FB078E48B7809CBE4E5E38CD5B"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_C7CD27FB078E48B7809CBE4E5E38CD5B"
                     {
                     "Sequence" = "3:200"
                     "DisplayName" = "8:License Agreement"
@@ -2955,7 +2961,7 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "EulaText"
@@ -2967,7 +2973,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:_0A15F401B7764274ABBB1FA23EDBC161"
+                            "Value" = "8:_B30C1488F03D4A0EB8587FE7F43CC821"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "Sunken"
@@ -2987,14 +2993,14 @@
                     }
                 }
             }
-            "{8D9DEE8B-DD8B-4F48-9072-C4364E4F4011}:_DB9EAFAF39624E4B8C9F8FA3255FBECC"
+            "{DF760B10-853B-4699-99F2-AFF7185B4A62}:_DB9EAFAF39624E4B8C9F8FA3255FBECC"
             {
             "Name" = "8:#1901"
             "Sequence" = "3:1"
             "Attributes" = "3:2"
                 "Dialogs"
                 {
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_55E120CDC2B440689D751A38087F0DDA"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_55E120CDC2B440689D751A38087F0DDA"
                     {
                     "Sequence" = "3:100"
                     "DisplayName" = "8:Progress"
@@ -3012,7 +3018,7 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -3032,14 +3038,14 @@
                     }
                 }
             }
-            "{8D9DEE8B-DD8B-4F48-9072-C4364E4F4011}:_F28C7062AB93492EAC2AA05DA6F17FFD"
+            "{DF760B10-853B-4699-99F2-AFF7185B4A62}:_F28C7062AB93492EAC2AA05DA6F17FFD"
             {
             "Name" = "8:#1902"
             "Sequence" = "3:2"
             "Attributes" = "3:3"
                 "Dialogs"
                 {
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_99040555BBB04CA482707B7E360D9D5C"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_99040555BBB04CA482707B7E360D9D5C"
                     {
                     "Sequence" = "3:100"
                     "DisplayName" = "8:Finished"
@@ -3057,21 +3063,21 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
                     }
                 }
             }
-            "{8D9DEE8B-DD8B-4F48-9072-C4364E4F4011}:_FFA6BB2E1D6F40EB994A70C53873016E"
+            "{DF760B10-853B-4699-99F2-AFF7185B4A62}:_FFA6BB2E1D6F40EB994A70C53873016E"
             {
             "Name" = "8:#1902"
             "Sequence" = "3:1"
             "Attributes" = "3:3"
                 "Dialogs"
                 {
-                    "{18ADD6EC-89FE-4ED7-AD3E-211C40278470}:_56294F4A4C4B4DE3BA0430C6B511A30B"
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_56294F4A4C4B4DE3BA0430C6B511A30B"
                     {
                     "Sequence" = "3:100"
                     "DisplayName" = "8:Finished"
@@ -3089,7 +3095,7 @@
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
-                            "Value" = "8:_239C6D042175438FADE155220524A816"
+                            "Value" = "8:_75FAF22F9762426BB570311F670D54E5"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "UpdateText"
@@ -3112,9 +3118,93 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3B75AD52B74546848763CDA68F2676FC"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:microsoft_vc90_debugcrt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_B20D23809FD44347B3DB1975D5FEA3FD"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7AAAB64D407642C4A6D8D3EB50840053"
+            {
+            "SourcePath" = "8:htmldocd.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{287D2FB4-9941-4B64-B973-55A6EC04EAFC}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_995D1108656C44C3B97AD885CD41F40D"
+            {
+            "SourcePath" = "8:ghtmldocd.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5252EA99E5084868A7B00751189D56B2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{A45127A6-7A50-48AE-820A-E0D821516AD4}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
         }
     }
 }
