@@ -337,7 +337,8 @@ if test -n "$GXX"; then
 
     dnl The following additional warnings are useful for tracking down problems...
     if test -d .svn; then
-	OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
+#	OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
+	OPTIM="-Werror $OPTIM"
     fi
 
     dnl See if GCC supports -fno-rtti...
