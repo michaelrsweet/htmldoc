@@ -3,7 +3,7 @@
  *
  *   HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 2011 by Michael R Sweet.
+ *   Copyright 2011-2013 by Michael R Sweet.
  *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   This program is free software.  Distribution and use rights are outlined in
@@ -110,15 +110,15 @@ html_export(tree_t *document,	/* I - Document to export */
 
   if (OutputFiles && TitleImage[0] && TitlePage &&
 #ifdef WIN32
-      stricmp(file_extension(TitleImage), "bmp") == 0 ||
-      stricmp(file_extension(TitleImage), "gif") == 0 ||
-      stricmp(file_extension(TitleImage), "jpg") == 0 ||
-      stricmp(file_extension(TitleImage), "png") == 0)
+      (stricmp(file_extension(TitleImage), "bmp") == 0 ||
+       stricmp(file_extension(TitleImage), "gif") == 0 ||
+       stricmp(file_extension(TitleImage), "jpg") == 0 ||
+       stricmp(file_extension(TitleImage), "png") == 0))
 #else
-      strcmp(file_extension(TitleImage), "bmp") == 0 ||
-      strcmp(file_extension(TitleImage), "gif") == 0 ||
-      strcmp(file_extension(TitleImage), "jpg") == 0 ||
-      strcmp(file_extension(TitleImage), "png") == 0)
+      (strcmp(file_extension(TitleImage), "bmp") == 0 ||
+       strcmp(file_extension(TitleImage), "gif") == 0 ||
+       strcmp(file_extension(TitleImage), "jpg") == 0 ||
+       strcmp(file_extension(TitleImage), "png") == 0))
 #endif // WIN32
     image_copy(TitleImage, file_find(TitleImage, Path), OutputPath);
 

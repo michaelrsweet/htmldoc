@@ -1,13 +1,13 @@
-CHANGES.txt - 2011-12-24
+CHANGES.txt - 2013-08-09
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.28
 
     CHANGES
 
-	- Updated local zlib to version 1.2.5.
-	- Updated local PNG library to version 1.5.7.
-	- Updated local JPEG library to version 8c.
+	- Updated local zlib to version 1.2.8.
+	- Updated local PNG library to version 1.6.3.
+	- Updated local JPEG library to version 9.
 	- Updated default PDF version to 1.4.
 
     BUG FIXES
@@ -372,7 +372,7 @@ CHANGES IN HTMLDOC v1.8.21
 	- HTMLDOC now supports quoted usernames and passwords in
 	  URLs.
 	- HTMLDOC now defaults unknown colors to white for
-	  background colors and black for foreground colors. 
+	  background colors and black for foreground colors.
 	  This should make documents that use non-standard color
 	  names still appear readable.
 
@@ -538,7 +538,7 @@ CHANGES IN HTMLDOC v1.8.17
 	  CR's from PRE text.
 	- Now support inserting the current chapter and heading
 	  in the table-of-contents headers and footers.
-	  
+
     BUG FIXES
 
 	- The table cell border and background were offset by
@@ -708,7 +708,7 @@ CHANGES IN HTMLDOC v1.8.13
 	  colors when using Flate compression.  This makes PDF
 	  files much smaller in general.
 	- Changed the in-line image size limit to 64k.
-	- Now allow "<" followed by whitespace, "=", or "<". 
+	- Now allow "<" followed by whitespace, "=", or "<".
 	  This violates the HTML specification, but we're sick
 	  of people complaining about it.
 	- Preferences are now stored in a user-specific file
@@ -1294,7 +1294,7 @@ CHANGES IN HTMLDOC v1.8.1
 	- Now use the Microsoft definitions for characters 128
 	  through 159 that are otherwise unused by the
 	  ISO-8859-x character sets.
-	- Now set optimization settings when we know the compiler.	
+	- Now set optimization settings when we know the compiler.
 	- Now always quote attribute values in HTML output to make
 	  HTML lint programs happy.
 

@@ -3,6 +3,7 @@
  *
  *   HTTP routines for CUPS.
  *
+ *   Copyright 2013 by Michael R Sweet
  *   Copyright 2007-2011 by Apple Inc.
  *   Copyright 1997-2007 by Easy Software Products, all rights reserved.
  *
@@ -2662,8 +2663,11 @@ _httpWait(http_t *http,			/* I - Connection to server */
   pfd.fd     = http->fd;
   pfd.events = POLLIN;
 
-  while ((nfds = poll(&pfd, 1, msec)) < 0 &&
-         (errno == EINTR || errno == EAGAIN));
+  do
+  {
+    nfds = poll(&pfd, 1, msec);
+  }
+  while (nfds < 0 && (errno == EINTR || errno == EAGAIN));
 
 #else
   do
@@ -3983,8 +3987,11 @@ http_write(http_t     *http,		/* I - Connection to server */
 	pfd.fd     = http->fd;
 	pfd.events = POLLOUT;
 
-	while ((nfds = poll(&pfd, 1, http->wait_value)) < 0 &&
-	       (errno == EINTR || errno == EAGAIN));
+	do
+	{
+	  nfds = poll(&pfd, 1, http->wait_value);
+	}
+	while (nfds < 0 && (errno == EINTR || errno == EAGAIN));
 
 #else
 	do

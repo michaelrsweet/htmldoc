@@ -8,7 +8,7 @@
  *   broken into more manageable pieces once we make all of the output
  *   "drivers" into classes...
  *
- *   Copyright 2011 by Michael R Sweet.
+ *   Copyright 2011-2013 by Michael R Sweet.
  *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   This program is free software.  Distribution and use rights are outlined in
@@ -55,8 +55,6 @@
  *   parse_list()             - Parse a list entry and produce rendering output.
  *   init_list()              - Initialize the list type and value as necessary.
  *   parse_comment()          - Parse a comment for HTMLDOC comments.
- *   real_prev()              - Return the previous non-link markup in the tree.
- *   real_next()              - Return the next non-link markup in the tree.
  *   find_background()        - Find the background image/color for the given
  *                              document.
  *   write_background()       - Write the background image/color for to the
@@ -66,7 +64,6 @@
  *   add_link()               - Add a named link...
  *   find_link()              - Find a named link...
  *   compare_links()          - Compare two named links.
- *   copy_tree()              - Copy a markup tree...
  *   get_cell_size()          - Compute the minimum width of a cell.
  *   get_table_size()         - Compute the minimum width of a table.
  *   flatten_tree()           - Flatten an HTML tree to only include the text,
@@ -386,7 +383,7 @@ static void	flate_open_stream(FILE *out);
 static void	flate_close_stream(FILE *out);
 static void	flate_puts(const char *s, FILE *out);
 static void	flate_printf(FILE *out, const char *format, ...);
-static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);	
+static void	flate_write(FILE *out, uchar *inbuf, int length, int flush=0);
 
 static void	parse_contents(tree_t *t, float left, float width, float bottom,
 		               float length, float *y, int *page, int *heading,
@@ -414,9 +411,6 @@ static void	parse_comment(tree_t *t, float *left, float *width, float *bottom,
 		              float *length, float *x, float *y, int *page,
 			      tree_t *para, int needspace);
 
-static tree_t	*real_prev(tree_t *t);
-static tree_t	*real_next(tree_t *t);
-
 static void	check_pages(int page);
 
 static void	add_link(uchar *name, int page, int top);
@@ -429,7 +423,6 @@ static void	write_background(int page, FILE *out);
 static render_t	*new_render(int page, int type, float x, float y,
 		            float width, float height, void *data,
 			    render_t *insert = 0);
-static void	copy_tree(tree_t *parent, tree_t *t);
 static float	get_cell_size(tree_t *t, float left, float right,
 		              float *minwidth, float *prefwidth,
 			      float *minheight);
@@ -3044,7 +3037,7 @@ pdf_write_files(FILE   *out,		// I - Output file
   {
     // No files to outline...
     outline_object = 0;
-  
+
     return;
   }
 
@@ -3069,7 +3062,7 @@ pdf_write_files(FILE   *out,		// I - Output file
         text = (uchar *)"Unknown";
 
       pdf_start_object(out);
-      
+
       fprintf(out, "/Parent %d 0 R", outline_object);
 
       fputs("/Title", out);
@@ -3089,7 +3082,7 @@ pdf_write_files(FILE   *out,		// I - Output file
 
       if (i > 0)
         fprintf(out, "/Prev %d 0 R", outline_object + i);
- 
+
       if (i < (num_files - 1))
         fprintf(out, "/Next %d 0 R", outline_object + i + 2);
 
@@ -3203,7 +3196,7 @@ static void
 pdf_end_object(FILE *out)	// I - File to write to
 {
   int	length;			// Total length of stream
-  
+
 
   if (pdf_stream_start)
   {
@@ -3572,7 +3565,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
     x = 0.0f;
     y = link->top + pages[link->page].bottom;
     pspdf_transform_coords(pages + link->page, x, y);
-    fprintf(out, "/D[%d 0 R/XYZ %.0f %.0f 0]", 
+    fprintf(out, "/D[%d 0 R/XYZ %.0f %.0f 0]",
             pages_object + 2 * pages[link->page].outpage + 1, x, y);
     pdf_end_object(out);
   }
@@ -4990,7 +4983,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         prev       = temp;
         temp       = temp->next;
         temp_width += prev->width;
-        
+
         if ((temp_width >= format_width && prev->markup == MARKUP_IMG) ||
 	    prev->markup == MARKUP_BR)
 	  break;
@@ -5861,7 +5854,7 @@ parse_table(tree_t *t,			// I - Tree to parse
                          "Unable to allocate memory for table!");
 	  return;
 	}
-      }	
+      }
 
       if ((cells[num_rows] = (tree_t **)calloc(sizeof(tree_t *), MAX_COLUMNS)) == NULL)
       {
@@ -7148,7 +7141,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
       oldy    = *top;
     }
   }
-    
+
   if ((value = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
   {
     if (isdigit(value[0]))
@@ -7529,7 +7522,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       *x = *left;
 
       check_pages(*page);
-      
+
       // Get color...
       if (*comment == '\"')
       {
@@ -7636,7 +7629,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       *x = *left;
 
       check_pages(*page);
-      
+
       // Get type...
       if (*comment == '\"')
       {
@@ -8429,56 +8422,6 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
 
 /*
- * 'real_prev()' - Return the previous non-link markup in the tree.
- */
-
-static tree_t *		/* O - Pointer to previous markup */
-real_prev(tree_t *t)	/* I - Current markup */
-{
-  if (t == NULL)
-    return (NULL);
-
-  if (t->prev != NULL &&
-      (t->prev->markup == MARKUP_A || t->prev->markup == MARKUP_COMMENT))
-    t = t->prev;
-
-  if (t->prev != NULL)
-    return (t->prev);
-
-  t = t->parent;
-  if (t == NULL)
-    return (NULL);
-
-  if (t->markup != MARKUP_A && t->markup != MARKUP_EMBED &&
-      t->markup != MARKUP_COMMENT)
-    return (t);
-  else
-    return (real_prev(t));
-}
-
-
-/*
- * 'real_next()' - Return the next non-link markup in the tree.
- */
-
-static tree_t *		/* O - Pointer to next markup */
-real_next(tree_t *t)	/* I - Current markup */
-{
-  if (t == NULL)
-    return (NULL);
-
-  if (t->next != NULL &&
-      (t->next->markup == MARKUP_A || t->next->markup == MARKUP_COMMENT))
-    t = t->next;
-
-  if (t->next != NULL)
-    return (t->next);
-
-  return (real_next(t->parent));
-}
-
-
-/*
  * 'find_background()' - Find the background image/color for the given document.
  */
 
@@ -8920,47 +8863,6 @@ compare_links(link_t *n1,	/* I - First name */
               link_t *n2)	/* I - Second name */
 {
   return (strcasecmp((char *)n1->name, (char *)n2->name));
-}
-
-
-/*
- * 'copy_tree()' - Copy a markup tree...
- */
-
-static void
-copy_tree(tree_t *parent,	/* I - Source tree */
-          tree_t *t)		/* I - Destination tree */
-{
-  int		i;		/* I - Looping var */
-  tree_t	*temp;		/* I - New tree entry */
-  var_t		*var;		/* I - Current markup variable */
-
-
-  while (t != NULL)
-  {
-    if ((temp = htmlAddTree(parent, t->markup, t->data)) != NULL)
-    {
-      temp->link          = t->link;
-      temp->typeface      = t->typeface;
-      temp->style         = t->style;
-      temp->size          = t->size;
-      temp->halignment    = t->halignment;
-      temp->valignment    = t->valignment;
-      temp->red           = t->red;
-      temp->green         = t->green;
-      temp->blue          = t->blue;
-      temp->underline     = t->underline;
-      temp->strikethrough = t->strikethrough;
-      temp->superscript   = t->superscript;
-      temp->subscript     = t->subscript;
-      for (i = 0, var = t->vars; i < t->nvars; i ++, var ++)
-        htmlSetVariable(temp, var->name, var->value);
-
-      copy_tree(temp, t->child);
-    }
-
-    t = t->next;
-  }
 }
 
 
@@ -10726,7 +10628,7 @@ write_image(FILE     *out,		/* I - Output file */
           if (ncolors != 2)
             flate_puts("/I true", out);
 
-  	  flate_printf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits); 
+  	  flate_printf(out, "/W %d/H %d/BPC %d", img->width, img->height, indbits);
 
 	  if (ncolors > 0)
 	  {
@@ -10771,12 +10673,12 @@ write_image(FILE     *out,		/* I - Output file */
 	  fprintf(out, "%d %d 8 [%d 0 0 %d 0 %d] {currentfile picture readhexstring pop} image\n",
         	  img->width, img->height,
         	  img->width, -img->height,
-        	  img->height); 
+        	  img->height);
 	else
 	  fprintf(out, "%d %d 8 [%d 0 0 %d 0 %d] {currentfile picture readhexstring pop} false 3 colorimage\n",
         	  img->width, img->height,
         	  img->width, -img->height,
-        	  img->height); 
+        	  img->height);
 
 	ps_hex(out, img->pixels, img->width * img->height * img->depth);
 
@@ -11597,7 +11499,7 @@ write_prolog(FILE  *out,		/* I - Output file */
 
         putc('\n', out);
       }
-	
+
       putc('/', out);
       if (_htmlGlyphs[i])
         fputs(_htmlGlyphs[i], out);
