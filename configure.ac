@@ -3,7 +3,7 @@
 #
 #   Configuration script for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 2011 by Michael R Sweet.
+#   Copyright 2011-2013 by Michael R Sweet.
 #   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 #
 #   This program is free software.  Distribution and use rights are outlined in
@@ -45,8 +45,8 @@ AC_ARG_WITH(gui, [  --with-gui              compile the GUI version of HTMLDOC, 
 
 dnl Checks for programs...
 AC_PROG_AWK
-AC_PROG_CC
-AC_PROG_CXX
+AC_PROG_CC(clang cc gcc)
+AC_PROG_CXX(clang++ c++ g++)
 AC_PROG_CPP
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)

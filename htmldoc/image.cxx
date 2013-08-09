@@ -1380,7 +1380,7 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
   cinfo.err = &jerr;
   jpeg_create_decompress(&cinfo);
   jpeg_stdio_src(&cinfo, fp);
-  jpeg_read_header(&cinfo, 1);
+  jpeg_read_header(&cinfo, (boolean)1);
 
   cinfo.quantize_colors = 0;
 
@@ -1399,7 +1399,7 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
 		   file_rlookup(img->filename));
     return (-1);
   }
-  else             
+  else
   {
     cinfo.out_color_space      = JCS_RGB;
     cinfo.out_color_components = 3;
@@ -1487,7 +1487,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   rows = NULL;
 
-  if (setjmp(png_jmpbuf(pp))) 
+  if (setjmp(png_jmpbuf(pp)))
   {
     progress_error(HD_ERROR_BAD_FORMAT, "PNG file contains errors!");
 
@@ -1691,7 +1691,7 @@ image_need_mask(image_t *img,	/* I - Image to add mask to */
   if (img == NULL || img->mask != NULL)
     return;
 
- /* 
+ /*
   * Figure out the size of the mask image, and then allocate and set all the
   * bits needed...
   */
