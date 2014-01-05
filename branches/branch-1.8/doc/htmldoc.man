@@ -1,15 +1,15 @@
 .\"
 .\" "$Id$"
 .\"
-.\"   Manual page for HTMLDOC, a HTML document processing program.
+.\" Manual page for HTMLDOC, a HTML document processing program.
 .\"
-.\"   Copyright 2011 by Michael R Sweet.
-.\"   Copyright 1997-2010 by Easy Software Products.
+.\" Copyright 2011-2014 by Michael R Sweet.
+.\" Copyright 1997-2010 by Easy Software Products.
 .\"
-.\"   This program is free software.  Distribution and use rights are outlined
-.\"   in the file "COPYING.txt".
+.\" This program is free software.  Distribution and use rights are outlined
+.\" in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.28" "25 December 2011" "Michael R Sweet"
+.TH htmldoc 1 "HTMLDOC 1.8.28" "5 January 2014" "Michael R Sweet"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .sp
@@ -580,11 +580,11 @@ program.
 .SH SEE ALSO
 HTMLDOC Software Users Manual
 .LP
-http://www.htmldoc.org/
+http://www.msweet.org/projects.php/HTMLDOC
 .SH AUTHOR
 Michael R Sweet
 .SH COPYRIGHTS AND TRADEMARKS
-HTMLDOC is copyright 2011 by Michael R Sweet.  This program is free
+HTMLDOC is copyright 1997-2014 by Michael R Sweet.  This program is free
 software.  Distribution and use rights are outlined in the file
 "COPYING.txt".
 .LP
