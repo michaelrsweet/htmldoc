@@ -26,9 +26,9 @@ else
 	rev="1"
 	version=$1
 	fileversion=$1
-	url="https://svn.easysw.com/public/htmldoc/tags/release-$version"
+	url="svn+ssh://msweet.org/var/svn/htmldoc/tags/release-$version"
 
-	svn copy https://svn.easysw.com/public/htmldoc/branches/branch-1.8 \
+	svn copy svn+ssh://msweet.org/var/svn/htmldoc/branches/branch-1.8 \
 		 "$url" -m "Tag $version" || exit 1
 fi
 
@@ -58,7 +58,7 @@ echo -n ...zip
 zip -r9 htmldoc-$fileversion-source.zip htmldoc-$version
 echo "..."
 
-echo "Done!"
+echo "Done."
 
 #
 # End of "$Id$".
