@@ -1,4 +1,4 @@
-README.txt - 2011-12-25
+README.txt - 2014-01-05
 -----------------------
 
 INTRODUCTION
@@ -14,10 +14,10 @@ INTRODUCTION
     ****                                                                    ****
     ****************************************************************************
 
-    HTMLDOC is copyright 2011 by Michael R Sweet and is provided under the terms
-    of version 2 of the GNU General Public License with an exception that allows
-    distribution of binaries that are linked against OpenSSL.  See the LEGAL
-    STUFF section below for details.
+    HTMLDOC is copyright 1997-2014 by Michael R Sweet and is provided under the
+    terms of version 2 of the GNU General Public License with an exception that
+    allows distribution of binaries that are linked against OpenSSL.  See the
+    LEGAL STUFF section below for details.
 
     Documentation for HTMLDOC is available in the "doc" subdirectory and is
     generated from HTML "source" files into HTML, PostScript, and PDF using
@@ -31,14 +31,14 @@ INTRODUCTION
 INTERNET RESOURCES
 
     For general discussions about HTMLDOC, subscribe to the HTMLDOC mailing list
-    referenced from the HTMLDOC web site:
+    referenced from the HTMLDOC project page:
 
-        http://www.htmldoc.org/
+        https://www.msweet.org/projects.php/HTMLDOC
 
 
 USING HTMLDOC
 
-    COMPLETE DOCUMENTATION FOR HTMLDOC IS AVAILABLE IN THE "doc" SUBDIRECTORY. 
+    COMPLETE DOCUMENTATION FOR HTMLDOC IS AVAILABLE IN THE "doc" SUBDIRECTORY.
     THE FOLLOWING PROVIDES BASIC INFORMATION ON USING HTMLDOC AT THE
     COMMAND-LINE AND DOES NOT DISCUSS THE GUI OR WEB SERVER FUNCTIONALITY.
 
@@ -48,7 +48,7 @@ USING HTMLDOC
 
         htmldoc --help
 
-    HTMLDOC normally expects "structured" documents, with chapters, etc. 
+    HTMLDOC normally expects "structured" documents, with chapters, etc.
     Chapters begin with a <H1> markup and continue to the end of the listed HTML
     files or the next <H1> markup, whichever comes first.  To convert
     unstructured documents such as web pages, use the "--webpage" option to
@@ -112,7 +112,7 @@ ENCRYPTION SUPPORT
 
 LEGAL STUFF
 
-    HTMLDOC is copyright 2011 by Michael R Sweet.  This program is free
+    HTMLDOC is copyright 1997-2014 by Michael R Sweet.  This program is free
     software.  Distribution and use rights are outlined in the file
     "COPYING.txt".
 

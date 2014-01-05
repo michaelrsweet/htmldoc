@@ -1,13 +1,13 @@
 /*
  * "$Id$"
  *
- *   Configuration file for HTMLDOC.
+ * Configuration file for HTMLDOC.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ * Copyright 2011-2014 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING.txt".
  */
 
 /*
@@ -91,6 +91,8 @@
 #undef HAVE_STRDUP
 #undef HAVE_STRCASECMP
 #undef HAVE_STRNCASECMP
+#undef HAVE_STRLCAT
+#undef HAVE_STRLCPY
 
 
 /*
