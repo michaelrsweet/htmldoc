@@ -1,103 +1,22 @@
 /*
  * "$Id$"
  *
- *   HTTP routines for CUPS.
+ * HTTP routines for HTMLDOC.
  *
- *   Copyright 2013 by Michael R Sweet
- *   Copyright 2007-2011 by Apple Inc.
- *   Copyright 1997-2007 by Easy Software Products, all rights reserved.
+ * Copyright 2013-2014 by Michael R Sweet
+ * Copyright 2007-2011 by Apple Inc.
+ * Copyright 1997-2007 by Easy Software Products, all rights reserved.
  *
- *   This file contains Kerberos support code, copyright 2006 by
- *   Jelmer Vernooij.
+ * This file contains Kerberos support code, copyright 2006 by
+ * Jelmer Vernooij.
  *
- *   These coded instructions, statements, and computer programs are the
- *   property of Apple Inc. and are protected by Federal copyright
- *   law.  Distribution and use rights are outlined in the file "LICENSE.txt"
- *   which should have been included with this file.  If this file is
- *   file is missing or damaged, see the license at "http://www.cups.org/".
+ * These coded instructions, statements, and computer programs are the
+ * property of Apple Inc. and are protected by Federal copyright
+ * law.  Distribution and use rights are outlined in the file "LICENSE.txt"
+ * which should have been included with this file.  If this file is
+ * file is missing or damaged, see the license at "http://www.cups.org/".
  *
- *   This file is subject to the Apple OS-Developed Software exception.
- *
- * Contents:
- *
-﻿ *   _httpBIOMethods()	  - Get the OpenSSL BIO methods for HTTP connections.
- *   httpBlocking()	  - Set blocking/non-blocking behavior on a connection.
- *   httpCheck()	  - Check to see if there is a pending response from
- *			    the server.
- *   httpClearCookie()	  - Clear the cookie value(s).
- *   httpClearFields()	  - Clear HTTP request fields.
- *   httpClose()	  - Close an HTTP connection.
- *   httpConnect()	  - Connect to a HTTP server.
- *   httpConnectEncrypt() - Connect to a HTTP server using encryption.
- *   _httpCreate()	  - Create an unconnected HTTP connection.
- *   httpDelete()	  - Send a DELETE request to the server.
- *   _httpDisconnect()	  - Disconnect a HTTP connection.
- *   httpEncryption()	  - Set the required encryption on the link.
- *   httpError()	  - Get the last error on a connection.
- *   httpFlush()	  - Flush data from a HTTP connection.
- *   httpFlushWrite()	  - Flush data in write buffer.
- *   httpGet()		  - Send a GET request to the server.
- *   httpGetAuthString()  - Get the current authorization string.
- *   httpGetBlocking()	  - Get the blocking/non-block state of a connection.
- *   httpGetCookie()	  - Get any cookie data from the response.
- *   httpGetFd()	  - Get the file descriptor associated with a
- *			    connection.
- *   httpGetField()	  - Get a field value from a request/response.
- *   httpGetLength()	  - Get the amount of data remaining from the
- *			    content-length or transfer-encoding fields.
- *   httpGetLength2()	  - Get the amount of data remaining from the
- *			    content-length or transfer-encoding fields.
- *   httpGetStatus()	  - Get the status of the last HTTP request.
- *   httpGetSubField()	  - Get a sub-field value.
- *   httpGetSubField2()   - Get a sub-field value.
- *   httpGets() 	  - Get a line of text from a HTTP connection.
- *   httpHead() 	  - Send a HEAD request to the server.
- *   httpInitialize()	  - Initialize the HTTP interface library and set the
- *			    default HTTP proxy (if any).
- *   httpOptions()	  - Send an OPTIONS request to the server.
- *   _httpPeek()	  - Peek at data from a HTTP connection.
- *   httpPost() 	  - Send a POST request to the server.
- *   httpPrintf()	  - Print a formatted string to a HTTP connection.
- *   httpPut()		  - Send a PUT request to the server.
- *   httpRead() 	  - Read data from a HTTP connection.
- *   httpRead2()	  - Read data from a HTTP connection.
- *   _httpReadCDSA()	  - Read function for the CDSA library.
- *   _httpReadGNUTLS()	  - Read function for the GNU TLS library.
- *   httpReconnect()	  - Reconnect to a HTTP server.
- *   httpSetAuthString()  - Set the current authorization string.
- *   httpSetCookie()	  - Set the cookie value(s).
- *   httpSetExpect()	  - Set the Expect: header in a request.
- *   httpSetField()	  - Set the value of an HTTP header.
- *   httpSetLength()	  - Set the content-length and content-encoding.
- *   httpSetTimeout()	  - Set read/write timeouts and an optional callback.
- *   httpTrace()	  - Send an TRACE request to the server.
- *   _httpUpdate()	  - Update the current HTTP status for incoming data.
- *   httpUpdate()	  - Update the current HTTP state for incoming data.
- *   _httpWait()	  - Wait for data available on a connection (no flush).
- *   httpWait() 	  - Wait for data available on a connection.
- *   httpWrite()	  - Write data to a HTTP connection.
- *   httpWrite2()	  - Write data to a HTTP connection.
- *   _httpWriteCDSA()	  - Write function for the CDSA library.
- *   _httpWriteGNUTLS()   - Write function for the GNU TLS library.
- *   http_bio_ctrl()	  - Control the HTTP connection.
- *   http_bio_free()	  - Free OpenSSL data.
- *   http_bio_new()	  - Initialize an OpenSSL BIO structure.
- *   http_bio_puts()	  - Send a string for OpenSSL.
- *   http_bio_read()	  - Read data for OpenSSL.
- *   http_bio_write()	  - Write data for OpenSSL.
- *   http_debug_hex()	  - Do a hex dump of a buffer.
- *   http_field()	  - Return the field index for a field name.
- *   http_read_ssl()	  - Read from a SSL/TLS connection.
- *   http_send()	  - Send a request with all fields and the trailing
- *			    blank line.
- *   http_set_timeout()   - Set the socket timeout values.
- *   http_set_wait()	  - Set the default wait value for reads.
- *   http_setup_ssl()	  - Set up SSL/TLS support on a connection.
- *   http_shutdown_ssl()  - Shut down SSL/TLS on a connection.
- *   http_upgrade()	  - Force upgrade to TLS encryption.
- *   http_write()	  - Write a buffer to a HTTP connection.
- *   http_write_chunk()   - Write a chunked buffer.
- *   http_write_ssl()	  - Write to a SSL/TLS connection.
+ * This file is subject to the Apple OS-Developed Software exception.
  */
 
 /*
@@ -3608,9 +3527,10 @@ http_setup_ssl(http_t *http)		/* I - Connection to server */
   http->tls_credentials = credentials;
 
 #  elif defined(HAVE_CDSASSL)
-  if ((error = SSLNewContext(false, &http->tls)))
+  if ((http->tls = SSLCreateContext(kCFAllocatorDefault, kSSLClientSide,
+                                    kSSLStreamType)) == NULL)
   {
-    http->error  = errno;
+    http->error  = errno = ENOMEM;
     http->status = HTTP_ERROR;
     _cupsSetHTTPError(HTTP_ERROR);
 
@@ -3627,13 +3547,8 @@ http_setup_ssl(http_t *http)		/* I - Connection to server */
   }
 
   if (!error)
-    error = SSLSetAllowsAnyRoot(http->tls, 1);
-
-  if (!error)
-    error = SSLSetAllowsExpiredCerts(http->tls, 1);
-
-  if (!error)
-    error = SSLSetAllowsExpiredRoots(http->tls, 1);
+    error = SSLSetSessionOption(http->tls, kSSLSessionOptionBreakOnServerAuth,
+                                true);
 
 #    ifdef HAVE_SSLSETPROTOCOLVERSIONMAX
   if (!error)
@@ -3643,18 +3558,6 @@ http_setup_ssl(http_t *http)		/* I - Connection to server */
                   "error=%d", (int)error));
   }
 #    endif /* HAVE_SSLSETPROTOCOLVERSIONMAX */
-
- /*
-  * In general, don't verify certificates since things like the common name
-  * often do not match...
-  */
-
-  if (!error)
-  {
-    error = SSLSetEnableCertVerify(http->tls, false);
-    DEBUG_printf(("4http_setup_ssl: SSLSetEnableCertVerify, error=%d",
-                  (int)error));
-  }
 
  /*
   * Let the server know which hostname/domain we are trying to connect to
@@ -3746,7 +3649,7 @@ http_setup_ssl(http_t *http)		/* I - Connection to server */
     http->status = HTTP_ERROR;
     errno        = ECONNREFUSED;
 
-    SSLDisposeContext(http->tls);
+    CFRelease(http->tls);
     http->tls = NULL;
 
    /*
@@ -3848,7 +3751,7 @@ http_shutdown_ssl(http_t *http)		/* I - Connection to server */
   while (SSLClose(http->tls) == errSSLWouldBlock)
     usleep(1000);
 
-  SSLDisposeContext(http->tls);
+  CFRelease(http->tls);
 
   if (http->tls_credentials)
     CFRelease(http->tls_credentials);

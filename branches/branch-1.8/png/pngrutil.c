@@ -1,7 +1,7 @@
 
 /* pngrutil.c - utilities to read a PNG file
  *
- * Last changed in libpng 1.6.3 [July 18, 2013]
+ * Last changed in libpng 1.6.8 [December 19, 2013]
  * Copyright (c) 1998-2013 Glenn Randers-Pehrson
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
@@ -278,6 +278,10 @@ png_crc_error(png_structrp png_ptr)
       return (0);
 }
 
+#if defined(PNG_READ_iCCP_SUPPORTED) || defined(PNG_READ_iTXt_SUPPORTED) ||\
+    defined(PNG_READ_pCAL_SUPPORTED) || defined(PNG_READ_sCAL_SUPPORTED) ||\
+    defined(PNG_READ_sPLT_SUPPORTED) || defined(PNG_READ_tEXt_SUPPORTED) ||\
+    defined(PNG_READ_zTXt_SUPPORTED) || defined(PNG_SEQUENTIAL_READ_SUPPORTED)
 /* Manage the read buffer; this simply reallocates the buffer if it is not small
  * enough (or if it is not allocated).  The routine returns a pointer to the
  * buffer; if an error occurs and 'warn' is set the routine returns NULL, else
@@ -325,6 +329,7 @@ png_read_buffer(png_structrp png_ptr, png_alloc_size_t new_size, int warn)
 
    return buffer;
 }
+#endif /* PNG_READ_iCCP|iTXt|pCAL|sCAL|sPLT|tEXt|zTXt|SEQUENTIAL_READ */
 
 /* png_inflate_claim: claim the zstream for some nefarious purpose that involves
  * decompression.  Returns Z_OK on success, else a zlib error code.  It checks
@@ -2932,9 +2937,8 @@ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
          }
 #     endif
       }
-#  else /* no store support! */
+#  else /* no store support: the chunk must be handled by the user callback */
       PNG_UNUSED(info_ptr)
-#     error untested code (reading unknown chunks with no store support)
 #  endif
 
    /* Regardless of the error handling below the cached data (if any) can be
@@ -3872,7 +3876,6 @@ png_read_filter_row_paeth_multibyte_pixel(png_row_infop row_info, png_bytep row,
       if (pb < pa) pa = pb, a = b;
       if (pc < pa) a = c;
 
-      c = b;
       a += *row;
       *row++ = (png_byte)a;
    }
@@ -3880,7 +3883,8 @@ png_read_filter_row_paeth_multibyte_pixel(png_row_infop row_info, png_bytep row,
 
 static void
 png_init_filter_functions(png_structrp pp)
-   /* This function is called once for every PNG image to set the
+   /* This function is called once for every PNG image (except for PNG images
+    * that only use PNG_FILTER_VALUE_NONE for all rows) to set the
     * implementations required to reverse the filtering of PNG rows.  Reversing
     * the filter is the first transformation performed on the row data.  It is
     * performed in place, therefore an implementation can be selected based on
@@ -3922,10 +3926,13 @@ png_read_filter_row(png_structrp pp, png_row_infop row_info, png_bytep row,
     * PNG_FILTER_OPTIMIZATIONS to a function that overrides the generic
     * implementations.  See png_init_filter_functions above.
     */
-   if (pp->read_filter[0] == NULL)
-      png_init_filter_functions(pp);
    if (filter > PNG_FILTER_VALUE_NONE && filter < PNG_FILTER_VALUE_LAST)
+   {
+      if (pp->read_filter[0] == NULL)
+         png_init_filter_functions(pp);
+
       pp->read_filter[filter-1](row_info, row, prev_row);
+   }
 }
 
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED

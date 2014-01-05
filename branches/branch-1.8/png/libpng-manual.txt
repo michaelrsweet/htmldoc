@@ -1,6 +1,6 @@
 libpng-manual.txt - A description on how to use and modify libpng
 
- libpng version 1.6.3 - July 18, 2013
+ libpng version 1.6.8 - December 19, 2013
  Updated and distributed by Glenn Randers-Pehrson
  <glennrp at users.sourceforge.net>
  Copyright (c) 1998-2013 Glenn Randers-Pehrson
@@ -11,7 +11,7 @@ libpng-manual.txt - A description on how to use and modify libpng
 
  Based on:
 
- libpng versions 0.97, January 1998, through 1.6.3 - July 18, 2013
+ libpng versions 0.97, January 1998, through 1.6.8 - December 19, 2013
  Updated and distributed by Glenn Randers-Pehrson
  Copyright (c) 1998-2013 Glenn Randers-Pehrson
 
@@ -740,7 +740,7 @@ situations:
                      encoding.
 
 You would use the linear (unencoded) value if you need to process the pixel
-values further because this avoids the need to decode and reencode each
+values further because this avoids the need to decode and re-encode each
 component value whenever arithmetic is performed.  A lot of graphics software
 uses linear values for this reason, often with higher precision component values
 to preserve overall accuracy.
@@ -3535,7 +3535,7 @@ The simplified API, which became available in libpng-1.6.0, hides the details
 of both libpng and the PNG file format itself.
 It allows PNG files to be read into a very limited number of
 in-memory bitmap formats or to be written from the same formats.  If these
-formats do not accomodate your needs then you can, and should, use the more
+formats do not accommodate your needs then you can, and should, use the more
 sophisticated APIs above - these support a wide variety of in-memory formats
 and a wide variety of sophisticated transformations to those formats as well
 as a wide variety of APIs to manipulate ancilliary information.
@@ -4609,7 +4609,7 @@ it has not been well tested and doesn't actually "dither".
 The code was not
 removed, however, and could be enabled by building libpng with
 PNG_READ_DITHER_SUPPORTED defined.  In libpng-1.4.2, this support
-was reenabled, but the function was renamed png_set_quantize() to
+was re-enabled, but the function was renamed png_set_quantize() to
 reflect more accurately what it actually does.  At the same time,
 the PNG_DITHER_[RED,GREEN_BLUE]_BITS macros were also renamed to
 PNG_QUANTIZE_[RED,GREEN,BLUE]_BITS, and PNG_READ_DITHER_SUPPORTED
@@ -4622,11 +4622,11 @@ XI.  Changes to Libpng from version 1.4.x to 1.5.x
 From libpng-1.4.0 until 1.4.4, the png_get_uint_16 macro (but not the
 function) incorrectly returned a value of type png_uint_32.
 
-Checking for invalid palette index on read or write was added at libpng
-1.5.10.  When an invalid index is found, libpng issues a benign error.
-This is enabled by default because this condition is an error according
-to the PNG specification, Clause 11.3.2, but the error can be ignored in
-each png_ptr with
+Checking for invalid palette index on write was added at libpng
+1.5.10.  If a pixel contains an invalid (out-of-range) index libpng issues
+a benign error.  This is enabled by default because this condition is an
+error according to the PNG specification, Clause 11.3.2, but the error can
+be ignored in each png_ptr with
 
    png_set_check_for_invalid_index(png_ptr, allowed);
 
@@ -4753,7 +4753,7 @@ did not exist.)
 Applications can now choose whether to use these macros or to call the
 corresponding function by defining PNG_USE_READ_MACROS or
 PNG_NO_USE_READ_MACROS before including png.h.  Notice that this is
-only supported from 1.5.0 -defining PNG_NO_USE_READ_MACROS prior to 1.5.0
+only supported from 1.5.0; defining PNG_NO_USE_READ_MACROS prior to 1.5.0
 will lead to a link failure.
 
 Prior to libpng-1.5.4, the zlib compressor used the same set of parameters
@@ -4788,6 +4788,9 @@ limits are now
    png_user_height_max       0x7fffffff    1,000,000
    png_user_chunk_cache_max  0 (unlimited)   128
    png_user_chunk_malloc_max 0 (unlimited) 8,000,000
+
+The png_set_option() function (and the "options" member of the png struct) was
+added to libpng-1.5.15.
 
 B. Changes to the build and configuration of libpng
 
@@ -5012,10 +5015,11 @@ where "rp" indicates a "restricted pointer".
 
 Error detection in some chunks has improved; in particular the iCCP chunk
 reader now does pretty complete validation of the basic format.  Some bad
-profiles that were previously accepted are now rejected, in particular the
-very old broken Microsoft/HP sRGB profile.  The PNG spec requirement that
-only grayscale profiles may appear in images with color type 0 or 4 and that
-even if the image only contains gray pixels, only RGB profiles may appear
+profiles that were previously accepted are now accepted with a warning or
+rejected, depending upon the png_set_benign_errors() setting, in particular the
+very old broken Microsoft/HP 3144-byte sRGB profile.  The PNG spec requirement
+that only grayscale profiles may appear in images with color type 0 or 4 and
+that even if the image only contains gray pixels, only RGB profiles may appear
 in images with color type 2, 3, or 6, is now enforced.  The sRGB chunk
 is allowed to appear in images with any color type.
 
@@ -5024,7 +5028,9 @@ an empty language field or an empty translated keyword.  Both of these
 are allowed by the PNG specification, so these warnings are no longer issued.
 
 The library now issues an error if the application attempts to set a
-transform after it calls png_read_update_info().
+transform after it calls png_read_update_info() or if it attempts to call
+both png_read_update_info() and png_start_read_image() or to call either
+of them more than once.
 
 The default condition for benign_errors is now to treat benign errors as
 warnings while reading and as errors while writing.
@@ -5045,14 +5051,19 @@ The machine-generated configure files are no longer included in branches
 libpng16 and later of the GIT repository.  They continue to be included
 in the tarball releases, however.
 
-Libpng-1.6.0 and later use the CMF bytes at the beginning of the IDAT stream
-to set the size of the sliding window for reading instead of using the default
-32-kbyte sliding window size.  It was discovered that there are hundreds of PNG
-files in the wild that have incorrect CMF bytes that cause libpng to now issue
-a "too far back" error and reject the file.  Libpng-1.6.3 provides a way to
-revert to the libpng-1.5.x behavior (ignoring the CMF bytes and using a
-32-kbyte sliding window), and provides a tool
-(contrib/tools/png-fix-too-far-back) for optimizing the CMF bytes
+Libpng-1.6.0 through 1.6.2 used the CMF bytes at the beginning of the IDAT
+stream to set the size of the sliding window for reading instead of using the
+default 32-kbyte sliding window size.  It was discovered that there are
+hundreds of PNG files in the wild that have incorrect CMF bytes that caused
+libpng to issue a "too far back" error and reject the file.  Libpng-1.6.3 and
+later calculate their own safe CMF from the image dimensions, provide a way
+to revert to the libpng-1.5.x behavior (ignoring the CMF bytes and using a
+32-kbyte sliding window), by using
+
+    png_set_option(png_ptr, PNG_MAXIMUM_INFLATE_WINDOW,
+        PNG_OPTION_ON);
+
+and provide a tool (contrib/tools/pngfix) for optimizing the CMF bytes
 correctly.
 
 Libpng-1.6.0 and libpng-1.6.1 wrote uncompressed iTXt chunks with the wrong
@@ -5222,13 +5233,13 @@ Other rules can be inferred by inspecting the libpng source.
 
 XVI. Y2K Compliance in libpng
 
-July 18, 2013
+December 19, 2013
 
 Since the PNG Development group is an ad-hoc body, we can't make
 an official declaration.
 
 This is your unofficial assurance that libpng from version 0.71 and
-upward through 1.6.3 are Y2K compliant.  It is my belief that earlier
+upward through 1.6.8 are Y2K compliant.  It is my belief that earlier
 versions were also Y2K compliant.
 
 Libpng only has two year fields.  One is a 2-byte unsigned integer

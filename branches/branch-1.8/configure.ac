@@ -1,18 +1,17 @@
 #
 # "$Id$"
 #
-#   Configuration script for HTMLDOC, an HTML document processing program.
+# Configuration script for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 2011-2013 by Michael R Sweet.
-#   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+# Copyright 2011-2014 by Michael R Sweet.
+# Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 #
-#   This program is free software.  Distribution and use rights are outlined in
-#   the file "COPYING.txt".
+# This program is free software.  Distribution and use rights are outlined in
+# the file "COPYING.txt".
 #
 
 AC_INIT(htmldoc/htmldoc.h)
 AC_CONFIG_HEADER(config.h)
-AC_PREFIX_DEFAULT(/usr)
 
 dnl Define the version number...
 SVERSION="1.8.28"
@@ -291,7 +290,7 @@ LIBS="$NEWLIBS $LIBS"
 
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
-    prefix="/usr"
+    prefix="/usr/local"
 fi
 
 if test "$exec_prefix" = "NONE"; then
