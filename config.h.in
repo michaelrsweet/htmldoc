@@ -3,8 +3,8 @@
  *
  * Configuration file for HTMLDOC.
  *
- * Copyright 2011 by Michael R Sweet.
- * Copyright 1997-2010 by Easy Software Products.
+ * Copyright 2011-2014 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING.txt".
@@ -14,8 +14,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9svn"
-#define COPYRIGHT	"Copyright 2011 by Michael R Sweet. All rights reserved."
+#define SVERSION	"1.8.28"
 
 
 /*
@@ -43,14 +42,31 @@
  * Locations of files...
  */
 
-#define HTMLDOC_DOCDIR	"/usr/share/doc/htmldoc"
-#define HTMLDOC_DATA	"/usr/share/htmldoc"
+#define DOCUMENTATION	"/usr/share/doc/htmldoc"
+#define HTML_DATA	"/usr/share/htmldoc"
 
 
 /*
- * Do we have OpenSSL?
+ * Do we have the FLTK library?
  */
 
+#undef HAVE_LIBFLTK
+
+
+/*
+ * Do we have the Xpm library?
+ */
+
+#undef HAVE_LIBXPM
+
+
+/*
+ * Which encryption libraries do we have?
+ */
+
+#undef HAVE_CDSASSL
+#undef HAVE_GNUTLS
+#undef HAVE_LIBSSL
 #undef HAVE_SSL
 
 
@@ -72,12 +88,11 @@
  * Do we have some of the "standard" string functions?
  */
 
-#undef HAVE_STRCASECMP
 #undef HAVE_STRDUP
-#undef HAVE_STRDUPF
+#undef HAVE_STRCASECMP
+#undef HAVE_STRNCASECMP
 #undef HAVE_STRLCAT
 #undef HAVE_STRLCPY
-#undef HAVE_STRNCASECMP
 
 
 /*
@@ -114,6 +129,21 @@
  */
 
 #undef HAVE_GETNAMEINFO
+
+
+/*
+ * Do we have the <resolv.h> header file and/or res_init()?
+ */
+
+#undef HAVE_RESOLV_H
+#undef HAVE_RES_INIT
+
+
+/*
+ * Do we have poll()?
+ */
+
+#undef HAVE_POLL
 
 
 /*

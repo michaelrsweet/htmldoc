@@ -1,13 +1,13 @@
 #
 # "$Id$"
 #
-# Makefile for HTMLDOC documentation files.
+#   Makefile for HTMLDOC documentation files.
 #
-# Copyright 2011 by Michael R Sweet.
-# Copyright 1997-2010 by Easy Software Products.
+#   Copyright 2011 by Michael R Sweet.
+#   Copyright 1997-2010 by Easy Software Products.
 #
-# This program is free software.  Distribution and use rights are outlined in
-# the file "COPYING.txt".
+#   This program is free software.  Distribution and use rights are outlined in
+#   the file "COPYING.txt".
 #
 
 #
@@ -21,33 +21,15 @@ include ../Makedefs
 # Documentation files...
 #
 
-SOURCES	=	\
-		intro.html \
-		1-install.html \
-		2-starting.html \
-		3-books.html \
-		4-cmdline.html \
-		5-cgi.html \
-		6-htmlref.html \
-		8-cmdref.html \
-		a-license.html \
-		b-book.html \
-		c-relnotes.html \
-		htmldoc-fig51.png \
-		htmldoc-fig52.png \
-		htmldoc-fig53.png \
-		htmldoc-fig54.png \
-		htmldoc-fig55.png \
-		htmldoc-fig56.png \
-		htmldoc-fig57.png \
-		htmldoc-fig58.png \
-		htmldoc.book \
-		htmldoc.words
+SOURCES	=	intro.html 1-install.html 2-starting.html \
+		3-books.html 4-cmdline.html 5-cgi.html \
+		6-htmlref.html 7-guiref.html 8-cmdref.html \
+		a-license.html b-book.html c-relnotes.html
 
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
-DOCFILES =	htmldoc.pdf
+DOCFILES =	help.html htmldoc.pdf
 
-HTMLDOC	=	HTMLDOC_DATA=".." ../htmldoc/htmldoc$(EXEEXT) --strict
+HTMLDOC	=	../htmldoc/htmldoc$(EXEEXT) --datadir .. --strict
 
 
 #
@@ -62,12 +44,12 @@ all: $(DOCUMENTS)
 #
 
 install: $(DOCUMENTS)
-	if [ ! -d $(datadir)/doc/htmldoc ]; then\
+	if test ! -d $(datadir)/doc/htmldoc; then\
 		$(MKDIR) $(datadir)/doc/htmldoc;\
 	fi
 	$(CP) $(DOCFILES) $(datadir)/doc/htmldoc
 	$(CHMOD) ugo+r $(datadir)/doc/htmldoc/*
-	if [ ! -d $(mandir)/man1 ]; then\
+	if test ! -d $(mandir)/man1; then\
 		$(MKDIR) $(mandir)/man1;\
 	fi
 	$(CP) htmldoc.man $(mandir)/man1/htmldoc.1
@@ -91,12 +73,26 @@ clean:
 
 
 #
+# htmldoc.d (directory)
+#
+
+.PHONY: htmldoc.d
+htmldoc.d:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
+	echo Formatting htmldoc.d...
+	if test -d htmldoc.d; then \
+		$(RM) -r htmldoc.d; \
+	fi
+	$(MKDIR) htmldoc.d
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -t htmlsep -d htmldoc.d
+
+
+#
 # htmldoc.html
 #
 
 htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.html...
-	$(HTMLDOC) --batch htmldoc.book -f htmldoc.html
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -f htmldoc.html
 
 
 #
@@ -105,7 +101,7 @@ htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.pdf...
-	$(HTMLDOC) --batch htmldoc.book -f htmldoc.pdf
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -f htmldoc.pdf
 
 
 #
@@ -114,7 +110,7 @@ htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.ps...
-	$(HTMLDOC) --batch htmldoc.book -f htmldoc.ps
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -f htmldoc.ps
 
 
 #

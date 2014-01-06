@@ -4,7 +4,7 @@
  *   Utility functions for HTMLDOC, a HTML document processing program.
  *
  *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   This program is free software.  Distribution and use rights are outlined in
  *   the file "COPYING.txt".
@@ -125,16 +125,16 @@ format_number(int  n,		/* I - Number */
  */
 
 void
-get_color(const hdChar *color,	/* I - Color attribute */
+get_color(const uchar *color,	/* I - Color attribute */
           float       *rgb,	/* O - RGB value */
 	  int         defblack)	/* I - Default color is black? */
 {
   int		i;		/* Looping vars */
-  static hdChar	tempcolor[8];	/* Temporary holding place for hex colors */
+  static uchar	tempcolor[8];	/* Temporary holding place for hex colors */
   static struct
   {
     const char	*name;		/* Color name */
-    hdChar	red,		/* Red value */
+    uchar	red,		/* Red value */
 		green,		/* Green value */
 		blue;		/* Blue value */
   }		colors[] =	/* Color "database" */

@@ -5,7 +5,7 @@
  *   processing program.
  *
  *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   This program is free software.  Distribution and use rights are outlined in
  *   the file "COPYING.txt".
@@ -42,16 +42,15 @@ typedef enum
   HD_ERROR_CONTENT_TOO_LARGE,
   HD_ERROR_UNRESOLVED_LINK,
   HD_ERROR_BAD_HF_STRING,
-  HD_ERROR_CSS_ERROR,
   HD_ERROR_HTTPBASE = 100
-} hdError;
+} HDerror;
 
 
 /*
  * Prototypes...
  */
 
-extern void	progress_error(hdError error, const char *format, ...);
+extern void	progress_error(HDerror error, const char *format, ...);
 extern void	progress_hide(void);
 extern void	progress_show(const char *format, ...);
 extern void	progress_update(int percent);

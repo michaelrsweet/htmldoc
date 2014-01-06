@@ -1,29 +1,29 @@
 #
 # "$Id$"
 #
-# ESP Package Manager (EPM) file list for HTMLDOC.
+#   ESP Package Manager (EPM) file list for HTMLDOC.
 #
-# Copyright 2011 by Michael R Sweet.
-# Copyright 1997-2010 by Easy Software Products.
+#   Copyright 2011 by Michael R Sweet.
 #
-# This program is free software.  Distribution and use rights are outlined in
-# the file "COPYING.txt".
+#   This program is free software.  Distribution and use rights are outlined in
+#   the file "COPYING.txt".
 #
 
 %product HTMLDOC
-%copyright 2011 by Michael R Sweet, All Rights Reserved.
-%vendor Easy Software Products
-%license htmldoc.eula
+%copyright 1997-2011 by Michael R Sweet, All Rights Reserved.
+%vendor Michael R Sweet
+%license COPYING.txt
 %readme htmldoc.readme
-%version @SVERSION@
+%version @SVERSION@ @NVERSION@
+%description HTMLDOC converts HTML files and web pages to PDF and PostScript.
 
 # Directories...
 $prefix=@prefix@
 $exec_prefix=@exec_prefix@
 $bindir=@bindir@
-$mandir=@mandir@
 $datarootdir=@datarootdir@
 $datadir=@datadir@
+$mandir=@mandir@
 
 # Program
 %system darwin
@@ -66,9 +66,9 @@ f 0444 root sys $datadir/htmldoc/data/iso-8859-9 data/iso-8859-9
 f 0444 root sys $datadir/htmldoc/data/koi8-r data/koi8-r
 f 0444 root sys $datadir/htmldoc/data/prolog.ps data/prolog.ps
 f 0444 root sys $datadir/htmldoc/data/psglyphs data/psglyphs
-f 0444 root sys $datadir/htmldoc/data/standard.css data/standard.css
 
 # Documentation
+f 0444 root sys $mandir/cat1/htmldoc.1 doc/htmldoc.1
 f 0444 root sys $mandir/man1/htmldoc.1 doc/htmldoc.man
 %system all
 

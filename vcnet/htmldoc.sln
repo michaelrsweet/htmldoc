@@ -1,5 +1,13 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ghtmldoc", "ghtmldoc.vcproj", "{A45127A6-7A50-48AE-820A-E0D821516AD4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1132A142-F8A1-4464-881C-7F50D77A1CD2} = {1132A142-F8A1-4464-881C-7F50D77A1CD2}
+		{07169A72-08A9-4EC8-BC6C-CCBC1F01EA58} = {07169A72-08A9-4EC8-BC6C-CCBC1F01EA58}
+		{287D2FB4-9941-4B64-B973-55A6EC04EAFC} = {287D2FB4-9941-4B64-B973-55A6EC04EAFC}
+		{F4B8B6F3-8198-4FC3-92A3-C944644B570A} = {F4B8B6F3-8198-4FC3-92A3-C944644B570A}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "htmldoc", "htmldoc.vcproj", "{287D2FB4-9941-4B64-B973-55A6EC04EAFC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1132A142-F8A1-4464-881C-7F50D77A1CD2} = {1132A142-F8A1-4464-881C-7F50D77A1CD2}
@@ -13,12 +21,22 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "libpng.vcproj", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib.vcproj", "{F4B8B6F3-8198-4FC3-92A3-C944644B570A}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "htmldoc-installer", "htmldoc-installer.vdproj", "{CE7334CB-F82B-4F29-8648-D959871BBC71}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A45127A6-7A50-48AE-820A-E0D821516AD4} = {A45127A6-7A50-48AE-820A-E0D821516AD4}
+		{287D2FB4-9941-4B64-B973-55A6EC04EAFC} = {287D2FB4-9941-4B64-B973-55A6EC04EAFC}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A45127A6-7A50-48AE-820A-E0D821516AD4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A45127A6-7A50-48AE-820A-E0D821516AD4}.Debug|Win32.Build.0 = Debug|Win32
+		{A45127A6-7A50-48AE-820A-E0D821516AD4}.Release|Win32.ActiveCfg = Release|Win32
+		{A45127A6-7A50-48AE-820A-E0D821516AD4}.Release|Win32.Build.0 = Release|Win32
 		{287D2FB4-9941-4B64-B973-55A6EC04EAFC}.Debug|Win32.ActiveCfg = Debug|Win32
 		{287D2FB4-9941-4B64-B973-55A6EC04EAFC}.Debug|Win32.Build.0 = Debug|Win32
 		{287D2FB4-9941-4B64-B973-55A6EC04EAFC}.Release|Win32.ActiveCfg = Release|Win32
@@ -35,6 +53,10 @@ Global
 		{F4B8B6F3-8198-4FC3-92A3-C944644B570A}.Debug|Win32.Build.0 = Debug|Win32
 		{F4B8B6F3-8198-4FC3-92A3-C944644B570A}.Release|Win32.ActiveCfg = Release|Win32
 		{F4B8B6F3-8198-4FC3-92A3-C944644B570A}.Release|Win32.Build.0 = Release|Win32
+		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Debug|Win32.ActiveCfg = Debug
+		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Debug|Win32.Build.0 = Debug
+		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Release|Win32.ActiveCfg = Release
+		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Release|Win32.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

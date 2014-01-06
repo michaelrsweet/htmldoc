@@ -1,4 +1,4 @@
-COMPILE.txt - 2011-12-25
+COMPILE.txt - 2014-01-05
 ------------------------
 
 REQUIREMENTS
@@ -16,8 +16,8 @@ REQUIREMENTS
 COMPILING HTMLDOC UNDER WINDOWS
 
     For the Windows version we have included Visual C++ workspace and project
-    files under the "visualc" and "vcnet" directories. You must add the FLTK
-    include and library directories to your VC++ environment options.
+    files under the "vcnet" directory. You must add the FLTK include and library
+    directories to your VC++ environment options.
 
 
 INSTALLING HTMLDOC UNDER WINDOWS

@@ -1,5 +1,5 @@
 //
-// "$Id: viewfti.cxx,v 1.2 2004/10/23 07:06:19 mike Exp $"
+// "$Id: viewfti.cxx,v 1.1.2.3 2004/06/14 16:03:10 mike Exp $"
 //
 // FTI file viewer.
 //
@@ -86,5 +86,5 @@ main(int  argc,				// I - Number of command-line arguments
 
 
 //
-// End of "$Id: viewfti.cxx,v 1.2 2004/10/23 07:06:19 mike Exp $".
+// End of "$Id: viewfti.cxx,v 1.1.2.3 2004/06/14 16:03:10 mike Exp $".
 //

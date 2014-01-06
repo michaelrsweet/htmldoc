@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# "$Id$"
+#
+# makesrcdist - make a source distribution of HTMLDOC.
+#
+
+# Make sure we are running in the right directory...
+if test ! -f tools/makesrcdist; then
+        echo "Run this script from the top-level HTMLDOC source directory, e.g.:"
+        echo ""
+        echo "    tools/makesrcdist $*"
+        echo ""
+        exit 1
+fi
+
+if test $# = 0; then
+	echo Updating for snapshot...
+	svn up
+	rev=`svnversion . | sed -e '1,$s/[a-zA-Z]//g'`
+	version="1.8svn"
+	fileversion="1.8svn-r$rev"
+	url="."
+else
+	echo Creating tag for release...
+	rev="1"
+	version=$1
+	fileversion=$1
+	url="svn+ssh://msweet.org/var/svn/htmldoc/tags/release-$version"
+
+	svn copy svn+ssh://msweet.org/var/svn/htmldoc/branches/branch-1.8 \
+		 "$url" -m "Tag $version" || exit 1
+fi
+
+echo Exporting $fileversion...
+rm -rf /tmp/htmldoc-$version
+svn export $url /tmp/htmldoc-$version
+
+echo Updating version information...
+cd /tmp/htmldoc-$version
+
+sed -e '1,$s/^SVERSION=.*/SVERSION="'$version'"/' \
+	<configure.in >configure.in.new
+mv configure.in.new configure.in
+
+echo Configuring...
+autoconf -f
+rm -rf autom4te*.cache
+rm -rf standards
+rm -rf tools
+cd ..
+
+echo -n Archiving...gz
+tar czf htmldoc-$fileversion-source.tar.gz htmldoc-$version
+echo -n ...bz2
+tar cjf htmldoc-$fileversion-source.tar.bz2 htmldoc-$version
+echo -n ...zip
+zip -r9 htmldoc-$fileversion-source.zip htmldoc-$version
+echo "..."
+
+echo "Done."
+
+#
+# End of "$Id$".
+#

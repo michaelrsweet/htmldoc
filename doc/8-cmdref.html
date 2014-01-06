@@ -2,7 +2,9 @@
 <BODY>
 
 <!-- FOOTER RIGHT "8-$CHAPTERPAGE" -->
-<H1><A NAME="CMDREF">Chapter 8 - Command-Line Reference</A></H1>
+<DIV ALIGN="justify">
+
+<H1 ALIGN="RIGHT"><A NAME="CMDREF">Chapter 8 - Command-Line Reference</A></H1>
 
 <P>This chapter describes all of the command-line options supported by
 HTMLDOC.
@@ -11,10 +13,10 @@ HTMLDOC.
 
 <p>The basic command-line usage for HTMLDOC is:
 
-<pre class='command'>
-htmldoc <I>options</I> filename1.html ... filenameN.html
-htmldoc <I>options</I> filename.book
-</pre>
+<UL><PRE>
+% <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
+% <KBD>htmldoc <I>options</I> filename.book <I>ENTER</I></KBD>
+</PRE></UL>
 
 <p>The first form converts the named HTML files to the specified output format
 immediately. The second form loads the specified <CODE>.book</CODE> file and
@@ -51,11 +53,11 @@ can be one of the following:</P>
 <TR><TD>html</TD><TD>Generate one or more indexed HTML files.</TD></TR>
 <TR><TD>htmlsep</TD><TD>Generate separate HTML files for each heading in
 the table-of-contents.</TD></TR>
-<TR><TD>pdf</TD><TD>Generate a PDF file (default version - 1.3).</TD></TR>
-<TR><TD>pdf11</TD><TD>Generate a PDF 1.1 file for Acrobat Reader 2.0.</TD></TR>
-<TR><TD>pdf12</TD><TD>Generate a PDF 1.2 file for Acrobat Reader 3.0.</TD></TR>
-<TR><TD>pdf13</TD><TD>Generate a PDF 1.3 file for Acrobat Reader 4.0.</TD></TR>
-<TR><TD>pdf14</TD><TD>Generate a PDF 1.4 file for Acrobat Reader 5.0.</TD></TR>
+<TR><TD>pdf</TD><TD>Generate a PDF file (default version - 1.4).</TD></TR>
+<TR><TD>pdf11</TD><TD>Generate a PDF 1.1 file for Acrobat Reader 2.0 and later.</TD></TR>
+<TR><TD>pdf12</TD><TD>Generate a PDF 1.2 file for Acrobat Reader 3.0 and later.</TD></TR>
+<TR><TD>pdf13</TD><TD>Generate a PDF 1.3 file for Acrobat Reader 4.0 and later.</TD></TR>
+<TR><TD>pdf14</TD><TD>Generate a PDF 1.4 file for Acrobat Reader 5.0 and later.</TD></TR>
 <TR><TD>ps</TD><TD>Generate one or more PostScript files (default level - 2).</TD></TR>
 <TR><TD>ps1</TD><TD>Generate one or more Level 1 PostScript files.</TD></TR>
 <TR><TD>ps2</TD><TD>Generate one or more Level 2 PostScript files.</TD></TR>
@@ -73,10 +75,10 @@ sent/displayed to the standard error file.
 generate without the GUI popping up. This option can be combined with other
 options to generate the same book in different formats and sizes:
 
-<pre class='command'>
-htmldoc --batch filename.book -f filename.ps
-htmldoc --batch filename.book -f filename.pdf
-</pre>
+<UL><PRE>
+% <KBD>htmldoc --batch filename.book -f filename.ps <I>ENTER</I></KBD>
+% <KBD>htmldoc --batch filename.book -f filename.pdf <I>ENTER</I></KBD>
+</PRE></UL>
 
 <H3>--bodycolor color</H3>
 
@@ -166,7 +168,6 @@ HTMLDOC comes with the following character set files:</P>
 <TR><TD>iso-8859-14</TD><TD>ISO-8859-14</TD></TR>
 <TR><TD>iso-8859-15</TD><TD>ISO-8859-15</TD></TR>
 <TR><TD>koi8-r</TD><TD>KOI8-R</TD></TR>
-<TR><TD>utf-8</TD><TD>Unicode (UTF-8)</TD></TR>
 </TABLE></CENTER>
 
 <H3>--color</H3>
@@ -311,11 +312,11 @@ can be one of the following:</P>
 <TR><TD>html</TD><TD>Generate one or more indexed HTML files.</TD></TR>
 <TR><TD>htmlsep</TD><TD>Generate separate HTML files for each heading in
 the table-of-contents.</TD></TR>
-<TR><TD>pdf</TD><TD>Generate a PDF file (default version - 1.3).</TD></TR>
-<TR><TD>pdf11</TD><TD>Generate a PDF 1.1 file for Acrobat Reader 2.0.</TD></TR>
-<TR><TD>pdf12</TD><TD>Generate a PDF 1.2 file for Acrobat Reader 3.0.</TD></TR>
-<TR><TD>pdf13</TD><TD>Generate a PDF 1.3 file for Acrobat Reader 4.0.</TD></TR>
-<TR><TD>pdf14</TD><TD>Generate a PDF 1.4 file for Acrobat Reader 5.0.</TD></TR>
+<TR><TD>pdf</TD><TD>Generate a PDF file (default version - 1.4).</TD></TR>
+<TR><TD>pdf11</TD><TD>Generate a PDF 1.1 file for Acrobat Reader 2.0 and later.</TD></TR>
+<TR><TD>pdf12</TD><TD>Generate a PDF 1.2 file for Acrobat Reader 3.0 and later.</TD></TR>
+<TR><TD>pdf13</TD><TD>Generate a PDF 1.3 file for Acrobat Reader 4.0 and later.</TD></TR>
+<TR><TD>pdf14</TD><TD>Generate a PDF 1.4 file for Acrobat Reader 5.0 and later.</TD></TR>
 <TR><TD>ps</TD><TD>Generate one or more PostScript files (default level - 2).</TD></TR>
 <TR><TD>ps1</TD><TD>Generate one or more Level 1 PostScript files.</TD></TR>
 <TR><TD>ps2</TD><TD>Generate one or more Level 2 PostScript files.</TD></TR>
@@ -685,9 +686,9 @@ server paths to load.
 and URLs can be specified.  Quotes around the directory parameter are
 optional.  They are usually used when the directory string contains spaces.
 
-<pre class='command'>
+<UL><PRE>
 <KBD>--path "dir1;dir2;dir3;...;dirN"</KBD>
-</pre>
+</PRE></UL>
 
 <!-- NEED 5in -->
 <H3>--permissions permission[,permission,...]</H3>
@@ -712,15 +713,15 @@ The available permission parameters are listed below:</P>
 <P>The <CODE>--encryption</CODE> option must be used in
 conjunction with the <CODE>--permissions</CODE> parameter.
 
-<pre class='command'>
+<UL><PRE>
 <KBD>--permissions no-print --encryption</KBD>
-</pre>
+</PRE></UL>
 
 <P>Multiple options can be specified by separating them with commas:</p> 
 
-<pre class='command'>
+<UL><PRE>
 <KBD>--permissions no-print,no-copy --encryption</KBD>
-</pre>
+</PRE></UL>
 
 <P>This option is only available when generating PDF files.</P>
 
@@ -914,7 +915,7 @@ disable CGI mode.</p>
 
 <p>This environment variable specifies the location of HTMLDOC's <VAR>data</VAR>
 and <VAR>fonts</VAR> directories, normally <VAR>/usr/share/htmldoc</VAR> or
-<VAR>C:\Program Files\Easy Software Products\HTMLDOC</VAR>.</p>
+<VAR>C:\Program Files\HTMLDOC</VAR>.</p>
 
 <H3>HTMLDOC_DEBUG</H3>
 
@@ -1045,6 +1046,8 @@ and total time in seconds for the current command. This message
 is only displayed if the <CODE>HTMLDOC_DEBUG</CODE> environment
 variable has the keyword <CODE>timing</CODE> or
 <CODE>all</CODE>.</P>
+
+</DIV>
 
 </BODY>
 </HTML>

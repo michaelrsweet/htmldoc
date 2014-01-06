@@ -3,8 +3,8 @@
 #
 # Configuration script for HTMLDOC, an HTML document processing program.
 #
-# Copyright 2011 by Michael R Sweet.
-# Copyright 1997-2010 by Easy Software Products.
+# Copyright 2011-2014 by Michael R Sweet.
+# Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 #
 # This program is free software.  Distribution and use rights are outlined in
 # the file "COPYING.txt".
@@ -12,15 +12,12 @@
 
 AC_INIT(htmldoc/htmldoc.h)
 AC_CONFIG_HEADER(config.h)
-AC_PREFIX_DEFAULT(/)
 
 dnl Define the version number...
-if test -d .svn; then
-    SVERSION="1.9svn-r`svnversion . | awk -F: '{print $NF}' | sed -e '1,$s/[[a-zA-Z]]*//g'`"
-else
-    SVERSION="1.9svn"
-fi
+SVERSION="1.8.28"
+NVERSION=10802800
 AC_SUBST(SVERSION)
+AC_SUBST(NVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
 
 dnl Get the operating system and version number...
@@ -43,10 +40,12 @@ AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging, default=no],
 	OPTIM="-g "
     fi])
 
+AC_ARG_WITH(gui, [  --with-gui              compile the GUI version of HTMLDOC, default=yes])
+
 dnl Checks for programs...
 AC_PROG_AWK
-AC_PROG_CC
-AC_PROG_CXX
+AC_PROG_CC(clang cc gcc)
+AC_PROG_CXX(clang++ c++ g++)
 AC_PROG_CPP
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
@@ -75,7 +74,7 @@ AC_CHECK_HEADER(strings.h, AC_DEFINE(HAVE_STRINGS_H))
 AC_CHECK_HEADER(locale.h, AC_DEFINE(HAVE_LOCALE_H))
 
 dnl Checks for string functions.
-AC_CHECK_FUNCS(strcasecmp strdup strdupf strlcat strlcpy strncasecmp)
+AC_CHECK_FUNCS(strdup strcasecmp strncasecmp strlcat strlcpy)
 if test "$uname" = "HP-UX" -a "$uversion" = "1020"; then
     AC_MSG_WARN(Forcing snprintf emulation for HP-UX...)
 else
@@ -95,13 +94,16 @@ LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
 AC_CHECK_LIB(m,pow)
-
-dnl Networking stuff...
+AC_CHECK_FUNC(poll, AC_DEFINE(HAVE_POLL))
 AC_SEARCH_LIBS(socket, socket)
 AC_SEARCH_LIBS(gethostbyaddr, nsl)
 AC_SEARCH_LIBS(getaddrinfo, nsl, AC_DEFINE(HAVE_GETADDRINFO))
 AC_SEARCH_LIBS(getnameinfo, nsl, AC_DEFINE(HAVE_GETNAMEINFO))
 AC_SEARCH_LIBS(hstrerror, nsl socket resolv, AC_DEFINE(HAVE_HSTRERROR))
+AC_SEARCH_LIBS(__res_init, resolv bind, AC_DEFINE(HAVE_RES_INIT),
+	AC_SEARCH_LIBS(res_9_init, resolv bind, AC_DEFINE(HAVE_RES_INIT),
+	AC_SEARCH_LIBS(res_init, resolv bind, AC_DEFINE(HAVE_RES_INIT))))
+AC_CHECK_HEADER(resolv.h, AC_DEFINE(HAVE_RESOLV_H))
 
 dnl Check for largefile support...
 AC_SYS_LARGEFILE
@@ -127,8 +129,8 @@ AC_CACHE_CHECK(for long long int, ac_cv_c_long_long,
 	ac_cv_c_long_long=yes
     else
 	AC_TRY_COMPILE(,[long long int i;],
-		ac_cv_c_long_long=yes,
-		ac_cv_c_long_long=no)
+		       ac_cv_c_long_long=yes,
+		       ac_cv_c_long_long=no)
     fi])
 
 if test $ac_cv_c_long_long = yes; then
@@ -139,6 +141,9 @@ AC_CHECK_FUNC(strtoll, AC_DEFINE(HAVE_STRTOLL))
 
 dnl Check for OpenSSL libraries...
 AC_ARG_ENABLE(ssl, [  --enable-ssl            turn on SSL/TLS support, default=yes])
+AC_ARG_ENABLE(openssl, [  --enable-openssl        use OpenSSL for SSL/TLS support, default=yes])
+AC_ARG_ENABLE(gnutls, [  --enable-gnutls         use GNU TLS for SSL/TLS support, default=yes])
+AC_ARG_ENABLE(cdsassl, [  --enable-cdsassl        use CDSA for SSL/TLS support, default=yes])
 AC_ARG_WITH(openssl-libs, [  --with-openssl-libs     set directory for OpenSSL library],
     LDFLAGS="-L$withval $LDFLAGS"
     DSOFLAGS="-L$withval $DSOFLAGS",)
@@ -151,115 +156,153 @@ SSLFLAGS=""
 SSLLIBS=""
 
 if test x$enable_ssl != xno; then
-AC_CHECK_HEADER(openssl/ssl.h,
-    dnl Save the current libraries so the crypto stuff isn't always
-    dnl included...
-    SAVELIBS="$LIBS"
-
-    dnl Some ELF systems can't resolve all the symbols in libcrypto
-    dnl if libcrypto was linked against RSAREF, and fail to link the
-    dnl test program correctly, even though a correct installation
-    dnl of OpenSSL exists.  So we test the linking three times in
-    dnl case the RSAREF libraries are needed.
-
-    for libcrypto in \
-	"-lcrypto" \
-	"-lcrypto -lrsaref" \
-	"-lcrypto -lRSAglue -lrsaref"
-    do
-	AC_CHECK_LIB(ssl,SSL_new,
-	    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT -DOPENSSL_NO_KRB5"
-	     SSLLIBS="-lssl $libcrypto"
-	     AC_DEFINE(HAVE_SSL)],,
-	    $libcrypto)
-
-	if test "x${SSLLIBS}" != "x"; then
-	    break
+    dnl Look for CDSA first...
+    if test "x${SSLLIBS}" = "x" -a "x${enable_cdsassl}" != "xno"; then
+	if test $uname = Darwin; then
+	    AC_CHECK_HEADER(Security/SecureTransport.h,
+		[SSLLIBS="-framework CoreFoundation -framework Security"
+		 AC_DEFINE(HAVE_SSL)
+		 AC_DEFINE(HAVE_CDSASSL)])
 	fi
-    done
+    fi
 
-    LIBS="$SAVELIBS")
+    dnl Then look for GNU TLS...
+    if test "x${SSLLIBS}" = "x" -a "x${enable_gnutls}" != "xno"; then
+	AC_CHECK_HEADER(gnutls/gnutls.h,
+	    dnl Save the current libraries so the crypto stuff isn't always
+	    dnl included...
+	    SAVELIBS="$LIBS"
+
+	    TEST_GNUTLS_LIBS=`libgnutls-config --libs`
+	    AC_CHECK_LIB(gnutls, gnutls_init,
+		[SSLLIBS=$TEST_GNUTLS_LIBS
+		 AC_DEFINE(HAVE_SSL)
+		 AC_DEFINE(HAVE_GNUTLS)],,
+		$TEST_GNUTLS_LIBS)
+
+	    LIBS="$SAVELIBS")
+    fi
+
+    dnl Check for the OpenSSL library last...
+    if test "x${SSLLIBS}" = "x" -a "x${enable_openssl}" != "xno"; then
+	AC_CHECK_HEADER(openssl/ssl.h,
+	    dnl Save the current libraries so the crypto stuff isn't always
+	    dnl included...
+	    SAVELIBS="$LIBS"
+
+	    dnl Some ELF systems can't resolve all the symbols in libcrypto
+	    dnl if libcrypto was linked against RSAREF, and fail to link the
+	    dnl test program correctly, even though a correct installation
+	    dnl of OpenSSL exists.  So we test the linking three times in
+	    dnl case the RSAREF libraries are needed.
+
+	    for libcrypto in \
+	        "-lcrypto" \
+	        "-lcrypto -lrsaref" \
+	        "-lcrypto -lRSAglue -lrsaref"
+	    do
+		AC_CHECK_LIB(ssl,SSL_new,
+		    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT -DOPENSSL_NO_KRB5"
+		     SSLLIBS="-lssl $libcrypto"
+		     AC_DEFINE(HAVE_SSL)
+		     AC_DEFINE(HAVE_LIBSSL)],,
+		    $libcrypto)
+
+		if test "x${SSLLIBS}" != "x"; then
+		    break
+		fi
+	    done
+
+	    LIBS="$SAVELIBS")
+    fi
 fi
 
 AC_SUBST(SSLFLAGS)
 AC_SUBST(SSLLIBS)
 
+dnl Check for GUI libraries...
+POST=:
+if test "x$with_gui" != xno; then
+    if test "x$FLTKCONFIG" != x; then
+	LIBS="$LIBS `$FLTKCONFIG --use-images --ldflags`"
+	AC_DEFINE(HAVE_LIBFLTK)
+	POST="$FLTKCONFIG --post"
+
+	AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
+	AC_CHECK_LIB(X11,XCreateBitmapFromData)
+    else
+        AC_MSG_WARN(FLTK not available so no GUI will be built.)
+    fi
+fi
+
+AC_SUBST(POST)
+
 dnl Check for image libraries...
+NEWLIBS=""
+
 AC_ARG_ENABLE(localjpeg, [  --enable-localjpeg      use local JPEG library, default=auto],
-    [if eval "test x$enable_localjpeg = xyes"; then
+    [if test x$enable_localjpeg = xyes; then
 	ac_cv_lib_jpeg_jpeg_CreateCompress=no
     fi])
 
-AC_CHECK_LIB(jpeg,jpeg_CreateCompress,
-    JPEGDEP=""
-    JPEGDIR=""
+AC_SEARCH_LIBS(jpeg_CreateCompress,jpeg,
     JPEGINC=""
-    LIBS="-ljpeg $LIBS",
-    JPEGDEP="../jpeg/libjpeg.a"
-    JPEGDIR="jpeg"
-    JPEGINC="-I../jpeg")
+    JPEG="",
+    JPEGINC="-I../jpeg"
+    JPEG="jpeg"
+    NEWLIBS="../jpeg/libjpeg.a $NEWLIBS")
 
 AC_ARG_ENABLE(localzlib, [  --enable-localzlib      use local ZLIB library, default=auto],
-    [if eval "test x$enable_localzlib = xyes"; then
+    [if test x$enable_localzlib = xyes; then
 	ac_cv_lib_z_gzgets=no
     fi])
 
-AC_CHECK_LIB(z,gzgets,
-    ZLIBDEP=""
-    ZLIBDIR=""
+AC_SEARCH_LIBS(gzgets,z,
     ZLIBINC=""
-    LIBS="-lz $LIBS",
-    ZLIBDEP="../zlib/libz.a"
-    ZLIBDIR="zlib"
-    ZLIBINC="-I../zlib")
+    ZLIB="",
+    ZLIBINC="-I../zlib"
+    ZLIB="zlib"
+    NEWLIBS="../zlib/libz.a $NEWLIBS")
 
 AC_ARG_ENABLE(localpng, [  --enable-localpng       use local PNG library, default=auto],
-    [if eval "test x$enable_localpng = xyes"; then
+    [if test x$enable_localpng = xyes; then
 	ac_cv_lib_png_png_set_tRNS_to_alpha=no
     fi])
 
-AC_CHECK_LIB(png,png_set_tRNS_to_alpha,
-    PNGDEP=""
-    PNGDIR=""
+AC_SEARCH_LIBS(png_set_tRNS_to_alpha,png,
     PNGINC=""
-    LIBS="-lpng $LIBS",
-    PNGDEP="../png/libpng.a"
-    PNGDIR="png"
-    PNGINC="-I../png")
+    PNG="",
+    PNGINC="-I../png"
+    PNG="png"
+    NEWLIBS="../png/libpng.a $NEWLIBS")
 
-AC_SUBST(JPEGDEP)
-AC_SUBST(JPEGDIR)
+AC_SUBST(JPEG)
 AC_SUBST(JPEGINC)
-
-AC_SUBST(PNGDEP)
-AC_SUBST(PNGDIR)
+AC_SUBST(PNG)
 AC_SUBST(PNGINC)
-
-AC_SUBST(ZLIBDEP)
-AC_SUBST(ZLIBDIR)
+AC_SUBST(ZLIB)
 AC_SUBST(ZLIBINC)
 
 AC_DEFINE(HAVE_LIBJPEG)
 AC_DEFINE(HAVE_LIBPNG)
 AC_DEFINE(HAVE_LIBZ)
 
+LIBS="$NEWLIBS $LIBS"
+
 dnl Directories for config.h...
 if test "$prefix" = "NONE"; then
-    prefix="/"
+    prefix="/usr/local"
 fi
 
 if test "$exec_prefix" = "NONE"; then
-    if test "$prefix" = "/"; then
-	exec_prefix="/usr"
-    else
-	exec_prefix="$prefix"
-    fi
+    exec_prefix="$prefix"
 fi
 
 if test "$bindir" = "\${exec_prefix}/bin"; then
     bindir="$exec_prefix/bin"
 fi
 
+dnl Fix "datarootdir" variable if it hasn't been specified...
 if test "$datarootdir" = "\${prefix}/share"; then
     if test "$prefix" = "/"; then
 	datarootdir="/usr/share"
@@ -268,6 +311,7 @@ if test "$datarootdir" = "\${prefix}/share"; then
     fi
 fi
 
+dnl Fix "datadir" variable if it hasn't been specified...
 if test "$datadir" = "\${prefix}/share"; then
     if test "$prefix" = "/"; then
 	datadir="/usr/share"
@@ -278,27 +322,8 @@ elif test "$datadir" = "\${datarootdir}"; then
     datadir="$datarootdir"
 fi
 
-AC_DEFINE_UNQUOTED(HTMLDOC_DATA, "$datadir/htmldoc")
-
-if test "$sysconfdir" = "\${prefix}/etc"; then
-    if test "$prefix" = "/"; then
-	if test "$uname" = Darwin; then
-	    sysconfdir="/private/etc"
-	else
-	    sysconfdir="/etc"
-	fi
-    else
-	sysconfdir="$prefix/etc"
-    fi
-fi
-
-AC_ARG_WITH(docdir, [  --with-docdir           set path for documentation],docdir="$withval",docdir="")
-
-if test x$docdir = x; then
-    docdir="$datadir/doc/htmldoc"
-fi
-
-AC_DEFINE_UNQUOTED(HTMLDOC_DOCDIR, "$docdir")
+AC_DEFINE_UNQUOTED(DOCUMENTATION, "$datadir/doc/htmldoc")
+AC_DEFINE_UNQUOTED(HTML_DATA, "$datadir/htmldoc")
 
 dnl Update compiler options...
 if test -n "$GXX"; then
@@ -308,11 +333,12 @@ if test -n "$GXX"; then
     fi
 
     dnl Show all standard warnings + unused variables when compiling...
-    OPTIM="-Wall -Wunused -Wno-char-subscripts $OPTIM"
+    OPTIM="-Wall -Wunused -Wno-char-subscripts -Wno-format-y2k $OPTIM"
 
+    dnl The following additional warnings are useful for tracking down problems...
     if test -d .svn; then
-	dnl The following additional warnings are useful for tracking down problems...
-	OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
+#	OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
+	OPTIM="-Werror $OPTIM"
     fi
 
     dnl See if GCC supports -fno-rtti...
@@ -375,8 +401,12 @@ else
     esac
 fi
 
+if test "x$FLTKCONFIG" != x; then
+	OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
+fi
+
 dnl Generate the top-level Makefile and Makedefs file...
-AC_OUTPUT(Makedefs htmldoc.list)
+AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
 
 #
 # End of "$Id$".
