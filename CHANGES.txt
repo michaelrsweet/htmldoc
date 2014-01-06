@@ -27,6 +27,7 @@ CHANGES IN HTMLDOC v1.8.28
 	  code (STR #183)
         - Fixed handling of image URLs with ampersands in them (STR #186)
 	- Fixed top/bottom margins for logo and header/footer images (STR #174)
+	- Fixed image alignment bug (Bug #231)
 
 
 CHANGES IN HTMLDOC v1.8.27
