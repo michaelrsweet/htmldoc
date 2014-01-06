@@ -5025,12 +5025,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       if (temp->markup == MARKUP_NONE)
         num_chars += strlen((char *)temp->data);
 
-      if (temp->height > height &&
-          (temp->markup != MARKUP_IMG || temp->valignment != ALIGN_MIDDLE))
+      if (temp->height > height)
         height = temp->height;
-      else if ((0.5 * temp->height) > height && temp->markup == MARKUP_IMG &&
-               temp->valignment == ALIGN_MIDDLE)
-        height = 0.5 * temp->height;
     }
 
     for (spacing = 0.0, temp = prev = start;
