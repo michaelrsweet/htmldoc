@@ -229,6 +229,7 @@ if test "x$with_gui" != xno; then
 	POST="$FLTKCONFIG --post"
 
 	AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
+	AC_CHECK_LIB(X11,XCreateBitmapFromData)
     else
         AC_MSG_WARN(FLTK not available so no GUI will be built.)
     fi
