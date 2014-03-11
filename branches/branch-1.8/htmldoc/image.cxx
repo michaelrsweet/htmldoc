@@ -1382,7 +1382,7 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
   jpeg_stdio_src(&cinfo, fp);
   jpeg_read_header(&cinfo, (boolean)1);
 
-  cinfo.quantize_colors = 0;
+  cinfo.quantize_colors = FALSE;
 
   if (gray || cinfo.num_components == 1)
   {

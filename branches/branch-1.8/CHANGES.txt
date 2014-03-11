@@ -1,5 +1,12 @@
-CHANGES.txt - 2014-01-05
+CHANGES.txt - 2014-03-10
 ------------------------
+
+CHANGES IN HTMLDOC v1.8.29
+
+    BUG FIXES
+
+	- Fixed reported build issues (Bug #500)
+
 
 CHANGES IN HTMLDOC v1.8.28
 
