@@ -11,6 +11,7 @@ CHANGES IN HTMLDOC v1.8.29
     BUG FIXES
 
 	- Fixed reported build issues (Bug #500)
+	- The configure script's --enable-local* options did not work.
 
 
 CHANGES IN HTMLDOC v1.8.28
