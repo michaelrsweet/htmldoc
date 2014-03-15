@@ -248,7 +248,7 @@ if test x$enable_localjpeg = xyes; then
     JPEG="jpeg"
     NEWLIBS="../jpeg/libjpeg.a $NEWLIBS"
 else
-    AC_SEARCH_LIBS(jpeg_CreateCompress,jpeg,
+    AC_SEARCH_LIBS(jpeg_CreateCompress,turbojpeg jpeg,
 	JPEGINC=""
 	JPEG="",
 	JPEGINC="-I../jpeg"
