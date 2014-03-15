@@ -1,7 +1,12 @@
-CHANGES.txt - 2014-03-10
+CHANGES.txt - 2014-03-14
 ------------------------
 
 CHANGES IN HTMLDOC v1.8.29
+
+    CHANGES
+
+	- Updated local PNG library to version 1.6.10.
+	- Updated local JPEG library to libjpeg-turbo 1.3.0.
 
     BUG FIXES
 

@@ -240,41 +240,53 @@ AC_SUBST(POST)
 dnl Check for image libraries...
 NEWLIBS=""
 
-AC_ARG_ENABLE(localjpeg, [  --enable-localjpeg      use local JPEG library, default=auto],
-    [if test x$enable_localjpeg = xyes; then
-	ac_cv_lib_jpeg_jpeg_CreateCompress=no
-    fi])
-
-AC_SEARCH_LIBS(jpeg_CreateCompress,jpeg,
-    JPEGINC=""
-    JPEG="",
+AC_ARG_ENABLE(localjpeg, [  --enable-localjpeg      use local JPEG library, default=auto])
+if test x$enable_localjpeg = xyes; then
+    AC_MSG_CHECKING([for library containing jpeg_CreateCompress])
+    AC_MSG_RESULT([local libjpeg])
     JPEGINC="-I../jpeg"
     JPEG="jpeg"
-    NEWLIBS="../jpeg/libjpeg.a $NEWLIBS")
+    NEWLIBS="../jpeg/libjpeg.a $NEWLIBS"
+else
+    AC_SEARCH_LIBS(jpeg_CreateCompress,jpeg,
+	JPEGINC=""
+	JPEG="",
+	JPEGINC="-I../jpeg"
+	JPEG="jpeg"
+	NEWLIBS="../jpeg/libjpeg.a $NEWLIBS")
+fi
 
-AC_ARG_ENABLE(localzlib, [  --enable-localzlib      use local ZLIB library, default=auto],
-    [if test x$enable_localzlib = xyes; then
-	ac_cv_lib_z_gzgets=no
-    fi])
-
-AC_SEARCH_LIBS(gzgets,z,
-    ZLIBINC=""
-    ZLIB="",
+AC_ARG_ENABLE(localzlib, [  --enable-localzlib      use local ZLIB library, default=auto])
+if test x$enable_localzlib = xyes; then
+    AC_MSG_CHECKING([for library containing gzgets])
+    AC_MSG_RESULT([local libz])
     ZLIBINC="-I../zlib"
     ZLIB="zlib"
-    NEWLIBS="../zlib/libz.a $NEWLIBS")
+    NEWLIBS="../zlib/libz.a $NEWLIBS"
+else
+    AC_SEARCH_LIBS(gzgets,z,
+	ZLIBINC=""
+	ZLIB="",
+	ZLIBINC="-I../zlib"
+	ZLIB="zlib"
+	NEWLIBS="../zlib/libz.a $NEWLIBS")
+fi
 
-AC_ARG_ENABLE(localpng, [  --enable-localpng       use local PNG library, default=auto],
-    [if test x$enable_localpng = xyes; then
-	ac_cv_lib_png_png_set_tRNS_to_alpha=no
-    fi])
-
-AC_SEARCH_LIBS(png_set_tRNS_to_alpha,png,
-    PNGINC=""
-    PNG="",
+AC_ARG_ENABLE(localpng, [  --enable-localpng       use local PNG library, default=auto])
+if test x$enable_localpng = xyes; then
+    AC_MSG_CHECKING([for library containing png_set_tRNS_to_alpha])
+    AC_MSG_RESULT([local libpng])
     PNGINC="-I../png"
     PNG="png"
-    NEWLIBS="../png/libpng.a $NEWLIBS")
+    NEWLIBS="../png/libpng.a $NEWLIBS"
+else
+    AC_SEARCH_LIBS(png_set_tRNS_to_alpha,png,
+	PNGINC=""
+	PNG="",
+	PNGINC="-I../png"
+	PNG="png"
+	NEWLIBS="../png/libpng.a $NEWLIBS")
+fi
 
 AC_SUBST(JPEG)
 AC_SUBST(JPEGINC)
