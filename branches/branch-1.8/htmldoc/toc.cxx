@@ -4,7 +4,7 @@
  *   Table of contents generator for HTMLDOC, a HTML document processing
  *   program.
  *
- *   Copyright 2011 by Michael R Sweet.
+ *   Copyright 2011, 2014 by Michael R Sweet.
  *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   This program is free software.  Distribution and use rights are outlined in
@@ -28,6 +28,7 @@
  * Local functions...
  */
 
+static void	add_heading(tree_t *toc, tree_t *heading);
 static void	parse_tree(tree_t *t);
 
 
@@ -95,7 +96,7 @@ toc_build(tree_t *tree)		/* I - Document tree */
  * 'add_heading()' - Add heading records to the given toc entry...
  */
 
-void
+static void
 add_heading(tree_t *toc,	/* I - Table of contents */
             tree_t *heading)	/* I - Heading entry */
 {
