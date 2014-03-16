@@ -3,7 +3,7 @@
  *
  *   Filename definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 2011 by Michael R Sweet.
+ *   Copyright 2011, 2014 by Michael R Sweet.
  *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   This program is free software.  Distribution and use rights are outlined in
@@ -37,7 +37,7 @@ extern const char	*file_find(const char *path, const char *s);
 extern char		*file_gets(char *buf, int buflen, FILE *fp);
 extern const char	*file_localize(const char *filename, const char *newcwd);
 extern const char	*file_method(const char *s);
-extern void		file_nolocal();
+extern void		file_nolocal(void);
 extern void		file_proxy(const char *url);
 extern void		file_referer(const char *referer);
 extern const char	*file_rlookup(const char *filename);

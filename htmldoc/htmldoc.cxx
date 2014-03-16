@@ -3,7 +3,7 @@
  *
  *   Main entry for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 2011 by Michael R Sweet.
+ *   Copyright 2011, 2014 by Michael R Sweet.
  *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   This program is free software.  Distribution and use rights are outlined in
@@ -71,6 +71,7 @@ static double	get_seconds(void);
 static int	load_book(const char *filename, tree_t **document,
 		          exportfunc_t *exportfunc, int set_nolocal = 0);
 static void	parse_options(const char *line, exportfunc_t *exportfunc);
+static const char *prefs_getrc(void);
 static int	read_file(const char *filename, tree_t **document,
 		          const char *path);
 static void	set_permissions(const char *p);
@@ -1312,7 +1313,7 @@ main(int  argc,				/* I - Number of command-line arguments */
  * 'prefs_getrc()' - Get the rc file for preferences...
  */
 
-const char *
+static const char *
 prefs_getrc(void)
 {
 #ifdef WIN32
