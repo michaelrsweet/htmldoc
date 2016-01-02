@@ -3,18 +3,18 @@
 #
 # Configuration script for HTMLDOC, an HTML document processing program.
 #
-# Copyright 2011-2014 by Michael R Sweet.
+# Copyright 2011-2016 by Michael R Sweet.
 # Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 #
 # This program is free software.  Distribution and use rights are outlined in
 # the file "COPYING.txt".
 #
 
-AC_INIT(htmldoc/htmldoc.h)
+AC_INIT([HTMLDOC], [1.8.29], [https://www.msweet.org/bugs.php/HTMLDOC], [htmldoc],  [https://www.msweet.org/projects.php/HTMLDOC])
 AC_CONFIG_HEADER(config.h)
 
 dnl Define the version number...
-SVERSION="1.8.29"
+SVERSION="AC_PACKAGE_VERSION"
 NVERSION=10802900
 AC_SUBST(SVERSION)
 AC_SUBST(NVERSION)
@@ -81,6 +81,9 @@ else
     AC_CHECK_FUNCS(snprintf vsnprintf)
 fi
 
+dnl Check for random number functions...
+AC_CHECK_FUNCS(random lrand48 arc4random)
+
 dnl See if the tm structure has the tm_gmtoff member...
 AC_MSG_CHECKING(for tm_gmtoff member in tm structure)
 AC_TRY_COMPILE([#include <time.h>],[struct tm t;
@@ -141,81 +144,69 @@ AC_CHECK_FUNC(strtoll, AC_DEFINE(HAVE_STRTOLL))
 
 dnl Check for OpenSSL libraries...
 AC_ARG_ENABLE(ssl, [  --enable-ssl            turn on SSL/TLS support, default=yes])
-AC_ARG_ENABLE(openssl, [  --enable-openssl        use OpenSSL for SSL/TLS support, default=yes])
 AC_ARG_ENABLE(gnutls, [  --enable-gnutls         use GNU TLS for SSL/TLS support, default=yes])
 AC_ARG_ENABLE(cdsassl, [  --enable-cdsassl        use CDSA for SSL/TLS support, default=yes])
-AC_ARG_WITH(openssl-libs, [  --with-openssl-libs     set directory for OpenSSL library],
-    LDFLAGS="-L$withval $LDFLAGS"
-    DSOFLAGS="-L$withval $DSOFLAGS",)
-AC_ARG_WITH(openssl-includes, [  --with-openssl-includes set directory for OpenSSL includes],
-    CFLAGS="-I$withval $CFLAGS"
-    CXXFLAGS="-I$withval $CXXFLAGS"
-    CPPFLAGS="-I$withval $CPPFLAGS",)
 
 SSLFLAGS=""
 SSLLIBS=""
+have_ssl=0
 
 if test x$enable_ssl != xno; then
-    dnl Look for CDSA first...
-    if test "x${SSLLIBS}" = "x" -a "x${enable_cdsassl}" != "xno"; then
+    dnl Look for CDSA...
+    if test $have_ssl = 0 -a "x$enable_cdsassl" != "xno"; then
 	if test $uname = Darwin; then
-	    AC_CHECK_HEADER(Security/SecureTransport.h,
-		[SSLLIBS="-framework CoreFoundation -framework Security"
-		 AC_DEFINE(HAVE_SSL)
-		 AC_DEFINE(HAVE_CDSASSL)])
+	    AC_CHECK_HEADER(Security/SecureTransport.h, [
+	    	have_ssl=1
+		AC_DEFINE(HAVE_SSL)
+		AC_DEFINE(HAVE_CDSASSL)
+		SSLLIBS="-framework Security"
+
+		dnl Check for the various security headers...
+		AC_CHECK_HEADER(Security/SecCertificate.h,
+		    AC_DEFINE(HAVE_SECCERTIFICATE_H))
+		AC_CHECK_HEADER(Security/SecItem.h,
+		    AC_DEFINE(HAVE_SECITEM_H))
+		AC_CHECK_HEADER(Security/SecPolicy.h,
+		    AC_DEFINE(HAVE_SECPOLICY_H))
+
+		AC_DEFINE(HAVE_CSSMERRORSTRING)
+		AC_DEFINE(HAVE_SECKEYCHAINOPEN)])
+
+		if test $uversion -ge 150; then
+			AC_DEFINE(HAVE_SSLSETENABLEDCIPHERS)
+		fi
 	fi
     fi
 
     dnl Then look for GNU TLS...
-    if test "x${SSLLIBS}" = "x" -a "x${enable_gnutls}" != "xno"; then
-	AC_CHECK_HEADER(gnutls/gnutls.h,
-	    dnl Save the current libraries so the crypto stuff isn't always
-	    dnl included...
+    if test $have_ssl = 0 -a "x$enable_gnutls" != "xno" -a "x$PKGCONFIG" != x; then
+    	AC_PATH_TOOL(LIBGNUTLSCONFIG,libgnutls-config)
+    	AC_PATH_TOOL(LIBGCRYPTCONFIG,libgcrypt-config)
+	if $PKGCONFIG --exists gnutls; then
+	    have_ssl=1
+	    SSLLIBS=`$PKGCONFIG --libs gnutls`
+	    SSLFLAGS=`$PKGCONFIG --cflags gnutls`
+	    AC_DEFINE(HAVE_SSL)
+	    AC_DEFINE(HAVE_GNUTLS)
+	elif test "x$LIBGNUTLSCONFIG" != x; then
+	    have_ssl=1
+	    SSLLIBS=`$LIBGNUTLSCONFIG --libs`
+	    SSLFLAGS=`$LIBGNUTLSCONFIG --cflags`
+	    AC_DEFINE(HAVE_SSL)
+	    AC_DEFINE(HAVE_GNUTLS)
+	fi
+
+	if test $have_ssl = 1; then
 	    SAVELIBS="$LIBS"
-
-	    TEST_GNUTLS_LIBS=`libgnutls-config --libs`
-	    AC_CHECK_LIB(gnutls, gnutls_init,
-		[SSLLIBS=$TEST_GNUTLS_LIBS
-		 AC_DEFINE(HAVE_SSL)
-		 AC_DEFINE(HAVE_GNUTLS)],,
-		$TEST_GNUTLS_LIBS)
-
-	    LIBS="$SAVELIBS")
-    fi
-
-    dnl Check for the OpenSSL library last...
-    if test "x${SSLLIBS}" = "x" -a "x${enable_openssl}" != "xno"; then
-	AC_CHECK_HEADER(openssl/ssl.h,
-	    dnl Save the current libraries so the crypto stuff isn't always
-	    dnl included...
-	    SAVELIBS="$LIBS"
-
-	    dnl Some ELF systems can't resolve all the symbols in libcrypto
-	    dnl if libcrypto was linked against RSAREF, and fail to link the
-	    dnl test program correctly, even though a correct installation
-	    dnl of OpenSSL exists.  So we test the linking three times in
-	    dnl case the RSAREF libraries are needed.
-
-	    for libcrypto in \
-	        "-lcrypto" \
-	        "-lcrypto -lrsaref" \
-	        "-lcrypto -lRSAglue -lrsaref"
-	    do
-		AC_CHECK_LIB(ssl,SSL_new,
-		    [SSLFLAGS="-DOPENSSL_DISABLE_OLD_DES_SUPPORT -DOPENSSL_NO_KRB5"
-		     SSLLIBS="-lssl $libcrypto"
-		     AC_DEFINE(HAVE_SSL)
-		     AC_DEFINE(HAVE_LIBSSL)],,
-		    $libcrypto)
-
-		if test "x${SSLLIBS}" != "x"; then
-		    break
-		fi
-	    done
-
-	    LIBS="$SAVELIBS")
+	    LIBS="$LIBS $SSLLIBS"
+	    AC_CHECK_FUNC(gnutls_transport_set_pull_timeout_function, AC_DEFINE(HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION))
+	    AC_CHECK_FUNC(gnutls_priority_set_direct, AC_DEFINE(HAVE_GNUTLS_PRIORITY_SET_DIRECT))
+	    LIBS="$SAVELIBS"
+	fi
     fi
 fi
+
+AC_MSG_NOTICE([Using SSLFLAGS="$SSLFLAGS", SSLLIBS="$SSLLIBS"])
 
 AC_SUBST(SSLFLAGS)
 AC_SUBST(SSLLIBS)
@@ -385,32 +376,6 @@ if test -n "$GXX"; then
 	    AC_MSG_RESULT(no))
 	CFLAGS="$OLDCFLAGS"
     fi
-else
-    case $uname in
-       	IRIX*)
-	    if test -z "$OPTIM"; then
-		if test `uname -r | sed -e '1,$s/\.//g'` -ge 62; then
-		    OPTIM="-O3 -OPT:Olimit=5000"
-        	else
-		    OPTIM="-O2"
-		fi
-	    fi
-	    ;;
-	HP-UX*)
-	    if test -z "$OPTIM"; then
-		OPTIM="+O2 +DAportable"
-	    fi
-	    ;;
-	SunOS*)
-	    dnl Solaris
-	    if test -z "$OPTIM"; then
-		OPTIM="-xO4 -xarch=generic"
-	    fi
-	    ;;
-	UNIX_SV*)
-	    dnl NCR SVR4 MP-RAS
-	    CXXFLAGS="-Hcppext=cxx $CXXFLAGS"
-    esac
 fi
 
 if test "x$FLTKCONFIG" != x; then

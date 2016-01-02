@@ -4,7 +4,7 @@
  *
  * Configuration file for HTMLDOC.
  *
- * Copyright 2011-2014 by Michael R Sweet.
+ * Copyright 2011-2016 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -109,6 +109,29 @@
  */
 
 #define HAVE_TM_GMTOFF 1
+
+
+/*
+ * Which random number generator function to use...
+ */
+
+#define HAVE_ARC4RANDOM 1
+#define HAVE_RANDOM 1
+#define HAVE_LRAND48 1
+
+#ifdef HAVE_ARC4RANDOM
+#  define HTMLDOC_RAND() arc4random()
+#  define HTMLDOC_SRAND(v)
+#elif defined(HAVE_RANDOM)
+#  define HTMLDOC_RAND() random()
+#  define HTMLDOC_SRAND(v) srandom(v)
+#elif defined(HAVE_LRAND48)
+#  define HTMLDOC_RAND() lrand48()
+#  define HTMLDOC_SRAND(v) srand48(v)
+#else
+#  define HTMLDOC_RAND() rand()
+#  define HTMLDOC_SRAND(v) srand(v)
+#endif /* HAVE_ARC4RANDOM */
 
 
 /*
