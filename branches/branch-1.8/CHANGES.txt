@@ -5,13 +5,13 @@ CHANGES IN HTMLDOC v1.8.29
 
     CHANGES
 
-	- Updated local PNG library to version 1.6.??.
+	- Updated local PNG library to version 1.6.20.
 	- Added configure script support for libjpeg-turbo.
 	- Updated HTTP code to latest CUPS/ippsample sources.
 
     BUG FIXES
 
-	- Fixed reported build issues (Bug #500, Bug #510)
+	- Fixed reported build issues (Bug #500, Bug #507, Bug #510, Bug #533)
 	- The configure script's --enable-local* options did not work.
 
 
