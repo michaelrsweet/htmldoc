@@ -2521,6 +2521,8 @@ set_permissions(const char *p)		// I - Permission string
 
   if (Permissions != -4)
     Encryption = 1;
+
+  free(copyp);
 }
 
 
