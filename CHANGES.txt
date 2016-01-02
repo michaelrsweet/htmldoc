@@ -6,6 +6,7 @@ CHANGES IN HTMLDOC v1.8.29
     CHANGES
 
 	- Updated local PNG library to version 1.6.20.
+	- Updated local JPEG library to version 9b.
 	- Added configure script support for libjpeg-turbo.
 	- Updated HTTP code to latest CUPS/ippsample sources.
 
