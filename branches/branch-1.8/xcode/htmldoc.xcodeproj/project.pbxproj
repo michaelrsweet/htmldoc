@@ -50,6 +50,8 @@
 		27A9F6F718D527E400804DE9 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27A9F6F618D527E400804DE9 /* libresolv.dylib */; };
 		27A9F6FB18D528C200804DE9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27A9F6FA18D528C200804DE9 /* libz.dylib */; };
 		27A9F6FE18D5450C00804DE9 /* htmldoc.man in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27A9F6FD18D5294000804DE9 /* htmldoc.man */; };
+		27D5714A1C3863E200D93F41 /* tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 27D571461C3863E200D93F41 /* tls.c */; };
+		27D5714E1C386EFF00D93F41 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = 27D5714C1C386EFF00D93F41 /* array.c */; };
 		27DD25520EC01A3300B76D4E /* html.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252F0EC01A3300B76D4E /* html.cxx */; };
 		27DD25530EC01A3300B76D4E /* htmldoc.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25310EC01A3300B76D4E /* htmldoc.cxx */; };
 		27DD25540EC01A3300B76D4E /* htmllib.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25330EC01A3300B76D4E /* htmllib.cxx */; };
@@ -368,6 +370,13 @@
 		27A9F6F618D527E400804DE9 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
 		27A9F6FA18D528C200804DE9 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		27A9F6FD18D5294000804DE9 /* htmldoc.man */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = htmldoc.man; path = ../doc/htmldoc.man; sourceTree = "<group>"; };
+		27D571431C3863E200D93F41 /* tls-darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "tls-darwin.c"; path = "../htmldoc/tls-darwin.c"; sourceTree = "<group>"; };
+		27D571441C3863E200D93F41 /* tls-gnutls.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "tls-gnutls.c"; path = "../htmldoc/tls-gnutls.c"; sourceTree = "<group>"; };
+		27D571451C3863E200D93F41 /* tls-sspi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "tls-sspi.c"; path = "../htmldoc/tls-sspi.c"; sourceTree = "<group>"; };
+		27D571461C3863E200D93F41 /* tls.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tls.c; path = ../htmldoc/tls.c; sourceTree = "<group>"; };
+		27D5714B1C386EFF00D93F41 /* array-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "array-private.h"; path = "../htmldoc/array-private.h"; sourceTree = "<group>"; };
+		27D5714C1C386EFF00D93F41 /* array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = array.c; path = ../htmldoc/array.c; sourceTree = "<group>"; };
+		27D5714D1C386EFF00D93F41 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = ../htmldoc/array.h; sourceTree = "<group>"; };
 		27DD25290EC019F500B76D4E /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		27DD252A0EC01A3300B76D4E /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = ../htmldoc/debug.h; sourceTree = SOURCE_ROOT; };
 		27DD252D0EC01A3300B76D4E /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file.h; path = ../htmldoc/file.h; sourceTree = SOURCE_ROOT; };
@@ -585,8 +594,9 @@
 		08FB7795FE84155DC02AAC07 /* htmldoc */ = {
 			isa = PBXGroup;
 			children = (
-				27A9F6FD18D5294000804DE9 /* htmldoc.man */,
-				8DD76F6C0486A84900D96B5E /* htmldoc */,
+				27D5714B1C386EFF00D93F41 /* array-private.h */,
+				27D5714C1C386EFF00D93F41 /* array.c */,
+				27D5714D1C386EFF00D93F41 /* array.h */,
 				27DD25290EC019F500B76D4E /* config.h */,
 				27DD252A0EC01A3300B76D4E /* debug.h */,
 				27A9F6DB18D527AC00804DE9 /* file.c */,
@@ -594,8 +604,10 @@
 				27DD252E0EC01A3300B76D4E /* hdstring.h */,
 				27DD252F0EC01A3300B76D4E /* html.cxx */,
 				27DD25300EC01A3300B76D4E /* html.h */,
+				8DD76F6C0486A84900D96B5E /* htmldoc */,
 				27DD25310EC01A3300B76D4E /* htmldoc.cxx */,
 				27DD25320EC01A3300B76D4E /* htmldoc.h */,
+				27A9F6FD18D5294000804DE9 /* htmldoc.man */,
 				27DD25330EC01A3300B76D4E /* htmllib.cxx */,
 				27A9F6DC18D527AC00804DE9 /* htmlsep.cxx */,
 				27A9F6DD18D527AC00804DE9 /* http-addr.c */,
@@ -617,6 +629,10 @@
 				27A9F6E718D527AC00804DE9 /* rc4.c */,
 				27DD25460EC01A3300B76D4E /* rc4.h */,
 				27DD26450EC024FA00B76D4E /* string.c */,
+				27D571431C3863E200D93F41 /* tls-darwin.c */,
+				27D571441C3863E200D93F41 /* tls-gnutls.c */,
+				27D571451C3863E200D93F41 /* tls-sspi.c */,
+				27D571461C3863E200D93F41 /* tls.c */,
 				27DD254D0EC01A3300B76D4E /* toc.cxx */,
 				27DD254E0EC01A3300B76D4E /* types.h */,
 				27DD254F0EC01A3300B76D4E /* util.cxx */,
@@ -906,7 +922,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0720;
 			};
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "htmldoc" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1015,11 +1031,13 @@
 				27DD255A0EC01A3300B76D4E /* image.cxx in Sources */,
 				27DD255E0EC01A3300B76D4E /* progress.cxx in Sources */,
 				27A9F6EE18D527AC00804DE9 /* iso8859.cxx in Sources */,
+				27D5714A1C3863E200D93F41 /* tls.c in Sources */,
 				27A9F6F018D527AC00804DE9 /* md5.c in Sources */,
 				27A9F6ED18D527AC00804DE9 /* http.c in Sources */,
 				27A9F6E818D527AC00804DE9 /* file.c in Sources */,
 				27DD255F0EC01A3300B76D4E /* ps-pdf.cxx in Sources */,
 				27DD25660EC01A3300B76D4E /* toc.cxx in Sources */,
+				27D5714E1C386EFF00D93F41 /* array.c in Sources */,
 				27A9F6EA18D527AC00804DE9 /* http-addr.c in Sources */,
 				27DD25670EC01A3300B76D4E /* util.cxx in Sources */,
 				27A9F6E918D527AC00804DE9 /* htmlsep.cxx in Sources */,

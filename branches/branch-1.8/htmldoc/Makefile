@@ -1,13 +1,13 @@
 #
-#   "$Id$"
+# "$Id$"
 #
-#   Makefile for HTMLDOC, an HTML document processing program.
+# Makefile for HTMLDOC, an HTML document processing program.
 #
-#   Copyright 2011 by Michael R Sweet.
-#   Copyright 1997-2010 by Easy Software Products.
+# Copyright 2011-2016 by Michael R Sweet.
+# Copyright 1997-2010 by Easy Software Products.
 #
-#   This program is free software.  Distribution and use rights are outlined in
-#   the file "COPYING.txt".
+# This program is free software.  Distribution and use rights are outlined in
+# the file "COPYING.txt".
 #
 
 #
@@ -21,10 +21,10 @@ include ../Makedefs
 # Object files...
 #
 
-OBJS	=	gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o \
+OBJS	=	array.o gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o \
 		http.o http-addr.o http-addrlist.o http-support.o image.o \
 		iso8859.o license.o md5.o progress.o ps-pdf.o rc4.o \
-		snprintf.o string.o toc.o util.o
+		snprintf.o string.o tls.o toc.o util.o
 
 
 #

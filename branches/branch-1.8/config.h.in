@@ -14,7 +14,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.28"
+#define SVERSION	"1.8.29"
 
 
 /*
@@ -108,6 +108,29 @@
  */
 
 #undef HAVE_TM_GMTOFF
+
+
+/*
+ * Which random number generator function to use...
+ */
+
+#undef HAVE_ARC4RANDOM
+#undef HAVE_RANDOM
+#undef HAVE_LRAND48
+
+#ifdef HAVE_ARC4RANDOM
+#  define HTMLDOC_RAND() arc4random()
+#  define HTMLDOC_SRAND(v)
+#elif defined(HAVE_RANDOM)
+#  define HTMLDOC_RAND() random()
+#  define HTMLDOC_SRAND(v) srandom(v)
+#elif defined(HAVE_LRAND48)
+#  define HTMLDOC_RAND() lrand48()
+#  define HTMLDOC_SRAND(v) srand48(v)
+#else
+#  define HTMLDOC_RAND() rand()
+#  define HTMLDOC_SRAND(v) srand(v)
+#endif /* HAVE_ARC4RANDOM */
 
 
 /*
