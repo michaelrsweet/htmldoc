@@ -9,9 +9,13 @@ CHANGES IN HTMLDOC v1.8.29
 	- Updated local JPEG library to version 9b.
 	- Added configure script support for libjpeg-turbo.
 	- Updated HTTP code to latest CUPS/ippsample sources.
+	- Duplex PDF output incorrectly forced an even number of pages
+	  (Bug #525)
 
     BUG FIXES
 
+	- The table of contents showed the wrong page numbers after headings
+	  containing the _HD_OMIT_TOC attribute.
 	- Fixed reported build issues (Bug #500, Bug #507, Bug #510, Bug #533)
 	- The configure script's --enable-local* options did not work.
 

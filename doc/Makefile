@@ -1,13 +1,13 @@
 #
 # "$Id$"
 #
-#   Makefile for HTMLDOC documentation files.
+# Makefile for HTMLDOC documentation files.
 #
-#   Copyright 2011 by Michael R Sweet.
-#   Copyright 1997-2010 by Easy Software Products.
+# Copyright 2011-2016 by Michael R Sweet.
+# Copyright 1997-2010 by Easy Software Products.
 #
-#   This program is free software.  Distribution and use rights are outlined in
-#   the file "COPYING.txt".
+# This program is free software.  Distribution and use rights are outlined in
+# the file "COPYING.txt".
 #
 
 #
@@ -24,7 +24,8 @@ include ../Makedefs
 SOURCES	=	intro.html 1-install.html 2-starting.html \
 		3-books.html 4-cmdline.html 5-cgi.html \
 		6-htmlref.html 7-guiref.html 8-cmdref.html \
-		a-license.html b-book.html c-relnotes.html
+		a-license.html b-book.html c-relnotes.html \
+		d-compile.html
 
 DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	help.html htmldoc.pdf

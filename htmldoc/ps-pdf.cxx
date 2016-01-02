@@ -1,106 +1,18 @@
 /*
  * "$Id$"
  *
- *   PostScript + PDF output routines for HTMLDOC, a HTML document processing
- *   program.
+ * PostScript + PDF output routines for HTMLDOC, a HTML document processing
+ * program.
  *
- *   Just in case you didn't notice it, this file is too big; it will be
- *   broken into more manageable pieces once we make all of the output
- *   "drivers" into classes...
+ * Just in case you didn't notice it, this file is too big; it will be
+ * broken into more manageable pieces once we make all of the output
+ * "drivers" into classes...
  *
- *   Copyright 2011-2013 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ * Copyright 2011-2016 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   pspdf_export()           - Export PostScript/PDF file(s)...
- *   pspdf_debug_stats()      - Display debug statistics for render memory use.
- *   pspdf_transform_coords() - Transform page coordinates.
- *   pspdf_transform_page()   - Transform a page.
- *   pspdf_prepare_outpages() - Prepare output pages...
- *   pspdf_prepare_page()     - Add headers/footers to page before writing...
- *   pspdf_prepare_heading()  - Add headers/footers to page before writing...
- *   ps_write_document()      - Write all render entities to PostScript file(s).
- *   ps_write_outpage()       - Write an output page.
- *   ps_write_page()          - Write all render entities on a page to a
- *                              PostScript file.
- *   ps_write_background()    - Write a background image...
- *   pdf_write_document()     - Write all render entities to a PDF file.
- *   pdf_write_resources()    - Write the resources dictionary for a page.
- *   pdf_write_outpage()      - Write an output page.
- *   pdf_write_page()         - Write a page to a PDF file.
- *   pdf_write_contents()     - Write the table of contents as outline records
- *                              to a PDF file.
- *   pdf_write_files()        - Write an outline of HTML files.
- *   pdf_count_headings()     - Count the number of headings under this TOC
- *   pdf_write_links()        - Write annotation link objects for each page in
- *                              the document.
- *   pdf_write_names()        - Write named destinations for each link.
- *   pdf_start_object()       - Start a new PDF object...
- *   pdf_start_stream()       - Start a new PDF stream...
- *   pdf_end_object()         - End a PDF object...
- *   parse_contents()         - Parse the table of contents and produce a
- *   parse_doc()              - Parse a document tree and produce rendering
- *                              list output.
- *   parse_heading()          - Parse a heading tree and produce rendering list
- *                              output.
- *   parse_paragraph()        - Parse a paragraph tree and produce rendering
- *                              list output.
- *   parse_pre()              - Parse preformatted text and produce rendering
- *                              list output.
- *   parse_table()            - Parse a table and produce rendering output.
- *   parse_list()             - Parse a list entry and produce rendering output.
- *   init_list()              - Initialize the list type and value as necessary.
- *   parse_comment()          - Parse a comment for HTMLDOC comments.
- *   find_background()        - Find the background image/color for the given
- *                              document.
- *   write_background()       - Write the background image/color for to the
- *                              current page.
- *   new_render()             - Allocate memory for a new rendering structure.
- *   check_pages()            - Allocate memory for more pages as needed...
- *   add_link()               - Add a named link...
- *   find_link()              - Find a named link...
- *   compare_links()          - Compare two named links.
- *   get_cell_size()          - Compute the minimum width of a cell.
- *   get_table_size()         - Compute the minimum width of a table.
- *   flatten_tree()           - Flatten an HTML tree to only include the text,
- *                              image, link, and break markups.
- *   update_image_size()      - Update the size of an image based upon the
- *   get_width()              - Get the width of a string in points.
- *   get_title()              - Get the title string for a document.
- *   open_file()              - Open an output file for the current chapter.
- *   set_color()              - Set the current text color...
- *   set_font()               - Set the current text font.
- *   set_pos()                - Set the current text position.
- *   ps_hex()                 - Print binary data as a series of hexadecimal
- *                              numbers.
- *   ps_ascii85()             - Print binary data as a series of base-85
- *                              numbers.
- *   jpg_init()               - Initialize the JPEG destination.
- *   jpg_empty()              - Empty the JPEG output buffer.
- *   jpg_term()               - Write the last JPEG data to the file.
- *   jpg_setup()              - Setup the JPEG compressor for writing an image.
- *   compare_rgb()            - Compare two RGB colors...
- *   write_image()            - Write an image to the given output file...
- *   write_imagemask()        - Write an imagemask to the output file...
- *   write_prolog()           - Write the file prolog...
- *   write_string()           - Write a text entity.
- *   write_text()             - Write a text entity.
- *   write_trailer()          - Write the file trailer.
- *   type1_decrypt()          - Decrypt Type 1 font data.
- *   type1_encrypt()          - Encrypt Type 1 font data.
- *   write_type1()            - Write an embedded Type 1 font.
- *   encrypt_init()           - Initialize the RC4 encryption context for
- *                              the current object.
- *   flate_open_stream()      - Open a deflated output stream.
- *   flate_close_stream()     - Close a deflated output stream.
- *   flate_puts()             - Write a character string to a compressed stream.
- *   flate_printf()           - Write a formatted character string to a
- *                              compressed stream.
- *   flate_write()            - Write data to a compressed stream.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING.txt".
  */
 
 /*
@@ -840,12 +752,27 @@ pspdf_export(tree_t *document,	/* I - Document to export */
             &needspace);
 
   if (PageDuplex && (num_pages & 1))
+  {
+    if (PSLevel == 0)
+      chapter_ends[chapter] = num_pages - 1;
+
     check_pages(num_pages);
-  chapter_ends[chapter] = num_pages - 1;
+
+    if (PSLevel > 0)
+      chapter_ends[chapter] = num_pages - 1;
+  }
+  else
+    chapter_ends[chapter] = num_pages - 1;
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
+  {
     for (page = chapter_starts[chapter]; page <= chapter_ends[chapter]; page ++)
+    {
       pspdf_prepare_page(page);
+      if (chapter == TocDocCount)
+        fprintf(stderr, "page %d: %s\n", page, pages[page].page_text);
+    }
+  }
 
  /*
   * Parse the table-of-contents if necessary...
@@ -3638,6 +3565,8 @@ render_contents(tree_t *t,		/* I - Tree to parse */
     numberwidth = get_width((uchar *)pages[hpage].page_text,
                             t->typeface, t->style, t->size) +
 	          3.0f * dot_width;
+
+    fprintf(stderr, "heading %d on page %d: %s\n", heading, hpage, pages[hpage].page_text);
   }
   else
   {
@@ -3911,7 +3840,8 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
 	    (*heading) += count_headings(t->child) + 1;
 	  }
-
+	  else
+	    (*heading) ++;
           break;
 
       default :
@@ -4581,6 +4511,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   {
     DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
                   num_headings, *page - 1));
+    fprintf(stderr, "H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1, num_headings, *page - 1);
 
     // See if we need to resize the headings arrays...
     if (num_headings >= alloc_headings)
