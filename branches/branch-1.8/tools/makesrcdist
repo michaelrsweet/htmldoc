@@ -40,8 +40,8 @@ echo Updating version information...
 cd /tmp/htmldoc-$version
 
 sed -e '1,$s/^SVERSION=.*/SVERSION="'$version'"/' \
-	<configure.in >configure.in.new
-mv configure.in.new configure.in
+	<configure.ac >configure.ac.new
+mv configure.ac.new configure.ac
 
 echo Configuring...
 autoconf -f
