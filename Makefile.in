@@ -1,0 +1,153 @@
+#
+# "$Id$"
+#
+#   Makefile for HTMLDOC, an HTML document processing program.
+#
+#   Copyright 2011 by Michael R Sweet.
+#   Copyright 1997-2010 by Easy Software Products.
+#
+#   This program is free software.  Distribution and use rights are outlined in
+#   the file "COPYING.txt".
+#
+
+#
+# Include common definitions...
+#
+
+include Makedefs
+
+
+#
+# Software packaging...
+#
+
+EPM	=	epm -v --output-dir dist
+
+
+#
+# Subdirectories...
+#
+
+DIRS	=	@JPEG@ @ZLIB@ @PNG@ htmldoc doc
+INSTALLDIRS =	fonts data doc htmldoc
+
+
+#
+# Make all targets...
+#
+
+all:	Makedefs Makefile config.h htmldoc.list
+	for dir in $(DIRS); do\
+		echo Making all in $$dir...;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
+	done
+
+
+#
+# Remove object and target files...
+#
+
+clean:
+	for dir in $(DIRS); do\
+		echo Cleaning in $$dir...;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS) clean) || break;\
+	done
+	$(RM) *.bak
+	$(RM) *.bck
+	$(RM) core
+	$(RM) core.* 
+	$(RM) -r autom4te*.cache
+	$(RM) config.h config.log config.status
+
+
+#
+# Clean everything
+#
+
+distclean:	clean
+	$(RM) Makefile Makedefs htmldoc.list desktop/htmldoc.dt
+	$(RM) desktop/htmldoc.ftr desktop/htmldoc.plist
+
+
+#
+# Install object and target files...
+#
+
+install:
+	$(MAKE) all
+	for dir in $(INSTALLDIRS); do\
+		echo Installing in $$dir...;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS) install) || break;\
+	done
+
+
+#
+# Makedefs
+#
+
+Makedefs:	Makedefs.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# Makefile
+#
+
+Makefile:	Makefile.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# config.h
+#
+
+config.h:	config.h.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# htmldoc.list
+#
+
+htmldoc.list:	htmldoc.list.in configure
+	if test -f config.status; then \
+		./config.status --recheck; \
+		./config.status; \
+	else \
+		./configure; \
+	fi
+	touch config.h
+
+
+#
+# Make binary distributions using EPM.
+#
+# EPM = ESP Package Manager, available at "http://www.epmhome.org/".
+#
+
+epm:
+	$(RM) -r dist
+	$(EPM) htmldoc
+
+
+#
+# End of "$Id$".
+#

@@ -176,7 +176,23 @@
 			>
 		</File>
 		<File
-			RelativePath="..\zlib\gzio.c"
+			RelativePath="..\zlib\gzclose.c"
+			>
+		</File>
+		<File
+			RelativePath="..\zlib\gzlib.c"
+			>
+		</File>
+		<File
+			RelativePath="..\zlib\gzread.c"
+			>
+		</File>
+		<File
+			RelativePath="..\zlib\gzwrite.c"
+			>
+		</File>
+		<File
+			RelativePath="..\zlib\infback.c"
 			>
 		</File>
 		<File

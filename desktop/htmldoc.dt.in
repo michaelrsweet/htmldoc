@@ -1,28 +1,18 @@
 #
-# "$Id: htmldoc.dt.in,v 1.2 2004/10/23 07:06:18 mike Exp $"
+# "$Id$"
 #
-#   CDE Action and DataType Definitions for HTMLDOC.
+# CDE Action and DataType Definitions for HTMLDOC.
 #
-#   This file adds an additional 'Print' action that allows users to set
-#   printer options (and choose printers) prior to printing a file.
+# This file adds an additional 'Print' action that allows users to set
+# printer options (and choose printers) prior to printing a file.
 #
-#   Copyright 1997-2004 by Easy Software Products.
+# Copyright 2014 by Michael R Sweet
+# Copyright 1997-2010 by Easy Software Products.
 #
-#   These coded instructions, statements, and computer programs are the
-#   property of Easy Software Products and are protected by Federal
-#   copyright law.  Distribution and use rights are outlined in the file
-#   "COPYING.txt" which should have been included with this file.  If this
-#   file is missing or damaged please contact Easy Software Products
-#   at:
-#
-#       Attn: ESP Licensing Information
-#       Easy Software Products
-#       44141 Airport View Drive, Suite 204
-#       Hollywood, Maryland 20636-3142 USA
-#
-#       Voice: (301) 373-9600
-#       EMail: info@easysw.com
-#         WWW: http://www.easysw.com
+# These coded instructions, statements, and computer programs are the
+# property of Easy Software Products and are protected by Federal
+# copyright law.  Distribution and use rights are outlined in the file
+# "COPYING.txt" which should have been included with this file.
 #
 
 set DtDbVersion=1.0
@@ -84,5 +74,5 @@ ACTION Open
 
 
 #
-# End of "$Id: htmldoc.dt.in,v 1.2 2004/10/23 07:06:18 mike Exp $".
+# End of "$Id$".
 #

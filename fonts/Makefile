@@ -1,13 +1,13 @@
 #
 # "$Id$"
 #
-# Makefile for HTMLDOC font files.
+#   Makefile for HTMLDOC font files.
 #
-# Copyright 2011 by Michael R Sweet.
-# Copyright 1997-2010 by Easy Software Products.
+#   Copyright 2011 by Michael R Sweet.
+#   Copyright 1997-2010 by Easy Software Products.
 #
-# This program is free software.  Distribution and use rights are outlined in
-# the file "COPYING.txt".
+#   This program is free software.  Distribution and use rights are outlined in
+#   the file "COPYING.txt".
 #
 
 #
@@ -63,7 +63,7 @@ all:
 
 install:
 	echo "Installing font files in $(datadir)/htmldoc/fonts..."
-	if test ! -d $(datadir)/htmldoc/fonts; then\
+	if [ ! -d $(datadir)/htmldoc/fonts ]; then\
 		$(MKDIR) $(datadir)/htmldoc/fonts;\
 	fi
 	for font in $(FONTS); do \
@@ -79,6 +79,10 @@ install:
 
 uninstall:
 	echo "Uninstalling font files from $(datadir)/htmldoc/fonts..."
+	for font in $(FONTS); do \
+		$(RM) $(datadir)/htmldoc/fonts/$$font.afm; \
+		$(RM) $(datadir)/htmldoc/fonts/$$font.pfa; \
+	done
 	-$(RMDIR) $(datadir)/htmldoc/fonts
 
 

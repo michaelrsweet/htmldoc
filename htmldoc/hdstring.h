@@ -1,13 +1,13 @@
 /*
  * "$Id$"
  *
- *   String definitions for HTMLDOC, a HTML document processing program.
+ * String definitions for HTMLDOC, a HTML document processing program.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.
+ * Copyright 2011-2014 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING.txt".
  */
 
 #ifndef _HDSTRING_H_
@@ -17,7 +17,7 @@
  * Include necessary headers...
  */
 
-#  include <config.h>
+#  include "config.h"
 
 #  include <stdio.h>
 #  include <stdlib.h>
