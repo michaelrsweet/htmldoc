@@ -29,8 +29,6 @@
  * Local globals...
  */
 
-static int		tls_auto_create = 0;
-					/* Auto-create self-signed certs? */
 static char		*tls_common_name = NULL;
 					/* Default common name */
 static char		*tls_keypath = NULL;
@@ -347,7 +345,7 @@ httpLoadCredentials(
   if ((fp = fopen(filename, "r")) == NULL)
     return (-1);
 
-  while (fgets(fp, line, sizeof(line)))
+  while (fgets(line, sizeof(line), fp))
   {
     if (!strcmp(line, "-----BEGIN CERTIFICATE-----\n"))
     {
@@ -474,7 +472,7 @@ httpSaveCredentials(
   if ((fp = fopen(nfilename, "w")) == NULL)
     return (-1);
 
-  fchmod(cupsFileNumber(fp), 0600);
+  fchmod(fileno(fp), 0600);
 
   for (cred = (http_credential_t *)cupsArrayFirst(credentials);
        cred;
@@ -788,13 +786,6 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
 
   DEBUG_printf(("3_httpTLSStart(http=%p)", http));
 
-  if (tls_options < 0)
-  {
-    DEBUG_puts("4_httpTLSStart: Setting defaults.");
-    _cupsSetDefaults();
-    DEBUG_printf(("4_httpTLSStart: tls_options=%x", tls_options));
-  }
-
   if (http->mode == _HTTP_MODE_SERVER && !tls_keypath)
   {
     DEBUG_puts("4_httpTLSStart: cupsSetServerCredentials not called.");
@@ -871,7 +862,6 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
 
     char	crtfile[1024],		/* Certificate file */
 		keyfile[1024];		/* Private key file */
-    int		have_creds = 0;		/* Have credentials? */
 
     if (http->fields[HTTP_FIELD_HOST][0])
     {
