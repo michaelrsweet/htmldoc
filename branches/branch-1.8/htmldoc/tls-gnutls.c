@@ -159,8 +159,6 @@ httpCredentialsGetTrust(
 					/* Trusted? */
   gnutls_x509_crt_t	cert;		/* Certificate */
   cups_array_t		*tcreds = NULL;	/* Trusted credentials */
-  _cups_globals_t	*cg = _cupsGlobals();
-					/* Per-thread globals */
 
 
   if (!common_name)
@@ -168,9 +166,6 @@ httpCredentialsGetTrust(
 
   if ((cert = http_gnutls_create_credential((http_credential_t *)cupsArrayFirst(credentials))) == NULL)
     return (HTTP_TRUST_UNKNOWN);
-
-  if (cg->any_root < 0)
-    _cupsSetDefaults();
 
  /*
   * Look this common name up in the default keychains...
@@ -217,10 +212,10 @@ httpCredentialsGetTrust(
 
     httpFreeCredentials(tcreds);
   }
-  else if (cg->validate_certs && !httpCredentialsAreValidForName(credentials, common_name))
+  else if (!httpCredentialsAreValidForName(credentials, common_name))
     trust = HTTP_TRUST_INVALID;
 
-  if (trust == HTTP_TRUST_OK && !cg->expired_certs)
+  if (trust == HTTP_TRUST_OK)
   {
     time_t	curtime;		/* Current date/time */
 
@@ -229,9 +224,6 @@ httpCredentialsGetTrust(
         curtime > gnutls_x509_crt_get_expiration_time(cert))
       trust = HTTP_TRUST_EXPIRED;
   }
-
-  if (trust == HTTP_TRUST_OK && !cg->any_root && cupsArrayCount(credentials) == 1)
-    trust = HTTP_TRUST_INVALID;
 
   gnutls_x509_crt_deinit(cert);
 
@@ -280,7 +272,7 @@ httpCredentialsString(
   gnutls_x509_crt_t	cert;		/* Certificate */
 
 
-  DEBUG_printf(("httpCredentialsString(credentials=%p, buffer=%p, bufsize=" CUPS_LLFMT ")", credentials, buffer, CUPS_LLCAST bufsize));
+  DEBUG_printf(("httpCredentialsString(credentials=%p, buffer=%p, bufsize=" HTMLDOC_LLFMT ")", credentials, buffer, HTMLDOC_LLCAST bufsize));
 
   if (!buffer)
     return (0);
@@ -332,7 +324,7 @@ httpLoadCredentials(
     cups_array_t **credentials,		/* IO - Credentials */
     const char   *common_name)		/* I  - Common name for credentials */
 {
-  cups_file_t		*fp;		/* Certificate file */
+  FILE			*fp;		/* Certificate file */
   char			filename[1024],	/* filename.crt */
 			temp[1024],	/* Temporary string */
 			line[256];	/* Base64-encoded line */
@@ -352,12 +344,12 @@ httpLoadCredentials(
 
   http_gnutls_make_path(filename, sizeof(filename), path, common_name, "crt");
 
-  if ((fp = cupsFileOpen(filename, "r")) == NULL)
+  if ((fp = fopen(filename, "r")) == NULL)
     return (-1);
 
-  while (cupsFileGets(fp, line, sizeof(line)))
+  while (fgets(fp, line, sizeof(line)))
   {
-    if (!strcmp(line, "-----BEGIN CERTIFICATE-----"))
+    if (!strcmp(line, "-----BEGIN CERTIFICATE-----\n"))
     {
       if (num_data)
       {
@@ -370,7 +362,7 @@ httpLoadCredentials(
         break;
       }
     }
-    else if (!strcmp(line, "-----END CERTIFICATE-----"))
+    else if (!strcmp(line, "-----END CERTIFICATE-----\n"))
     {
       if (!num_data)
       {
@@ -427,7 +419,7 @@ httpLoadCredentials(
     }
   }
 
-  cupsFileClose(fp);
+  fclose(fp);
 
   if (num_data)
   {
@@ -458,7 +450,7 @@ httpSaveCredentials(
     cups_array_t *credentials,		/* I - Credentials */
     const char   *common_name)		/* I - Common name for credentials */
 {
-  cups_file_t		*fp;		/* Certificate file */
+  FILE			*fp;		/* Certificate file */
   char			filename[1024],	/* filename.crt */
 			nfilename[1024],/* filename.crt.N */
 			temp[1024],	/* Temporary string */
@@ -479,7 +471,7 @@ httpSaveCredentials(
   http_gnutls_make_path(filename, sizeof(filename), path, common_name, "crt");
   snprintf(nfilename, sizeof(nfilename), "%s.N", filename);
 
-  if ((fp = cupsFileOpen(nfilename, "w")) == NULL)
+  if ((fp = fopen(nfilename, "w")) == NULL)
     return (-1);
 
   fchmod(cupsFileNumber(fp), 0600);
@@ -488,16 +480,16 @@ httpSaveCredentials(
        cred;
        cred = (http_credential_t *)cupsArrayNext(credentials))
   {
-    cupsFilePuts(fp, "-----BEGIN CERTIFICATE-----\n");
+    fputs("-----BEGIN CERTIFICATE-----\n", fp);
     for (ptr = cred->data, remaining = (ssize_t)cred->datalen; remaining > 0; remaining -= 45, ptr += 45)
     {
       httpEncode64_2(line, sizeof(line), (char *)ptr, remaining > 45 ? 45 : remaining);
-      cupsFilePrintf(fp, "%s\n", line);
+      fprintf(fp, "%s\n", line);
     }
-    cupsFilePuts(fp, "-----END CERTIFICATE-----\n");
+    fputs("-----END CERTIFICATE-----\n", fp);
   }
 
-  cupsFileClose(fp);
+  fclose(fp);
 
   return (rename(nfilename, filename));
 }
@@ -578,7 +570,7 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
     }
   }
   else
-    strlcpy(buffer, CUPS_SERVERROOT "/ssl", bufsize);
+    strlcpy(buffer, "/etc/htmldoc" "/ssl", bufsize);
 
   DEBUG_printf(("1http_gnutls_default_path: Using default path \"%s\".", buffer));
 

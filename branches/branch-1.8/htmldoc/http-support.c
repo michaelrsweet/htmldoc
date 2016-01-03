@@ -1559,8 +1559,8 @@ _httpResolveURI(
 
 
   DEBUG_printf(("4_httpResolveURI(uri=\"%s\", resolved_uri=%p, "
-                "resolved_size=" CUPS_LLFMT ")", uri, resolved_uri,
-		CUPS_LLCAST resolved_size));
+                "resolved_size=" HTMLDOC_LLFMT ")", uri, resolved_uri,
+		HTMLDOC_LLCAST resolved_size));
 
  /*
   * Get the device URI...

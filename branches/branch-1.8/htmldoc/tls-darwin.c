@@ -345,7 +345,7 @@ httpCredentialsString(
   SecCertificateRef	secCert;	/* Certificate reference */
 
 
-  DEBUG_printf(("httpCredentialsString(credentials=%p, buffer=%p, bufsize=" CUPS_LLFMT ")", credentials, buffer, CUPS_LLCAST bufsize));
+  DEBUG_printf(("httpCredentialsString(credentials=%p, buffer=%p, bufsize=" HTMLDOC_LLFMT ")", credentials, buffer, HTMLDOC_LLCAST bufsize));
 
   if (!buffer)
     return (0);
