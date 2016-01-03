@@ -1,4 +1,4 @@
-README.txt - 2014-03-15
+README.txt - 2016-01-02
 -----------------------
 
 INTRODUCTION
@@ -14,10 +14,9 @@ INTRODUCTION
     ****                                                                    ****
     ****************************************************************************
 
-    HTMLDOC is copyright 1997-2014 by Michael R Sweet and is provided under the
-    terms of version 2 of the GNU General Public License with an exception that
-    allows distribution of binaries that are linked against OpenSSL.  See the
-    LEGAL STUFF section below for details.
+    HTMLDOC is copyright 1997-2016 by Michael R Sweet and is provided under the
+    terms of version 2 of the GNU General Public License.  See the LEGAL STUFF
+    section below for details.
 
     Documentation for HTMLDOC is available in the "doc" subdirectory and is
     generated from HTML "source" files into HTML, PostScript, and PDF using
@@ -112,7 +111,7 @@ ENCRYPTION SUPPORT
 
 LEGAL STUFF
 
-    HTMLDOC is copyright 1997-2014 by Michael R Sweet.  This program is free
+    HTMLDOC is copyright 1997-2016 by Michael R Sweet.  This program is free
     software.  Distribution and use rights are outlined in the file
     "COPYING.txt".
 
