@@ -1063,7 +1063,7 @@ cups_array_add(cups_array_t *a,		/* I - Array */
       temp = realloc(a->elements, (size_t)count * sizeof(void *));
     }
 
-    DEBUG_printf(("9cups_array_add: count=" CUPS_LLFMT, CUPS_LLCAST count));
+    DEBUG_printf(("9cups_array_add: count=" HTMLDOC_LLFMT, HTMLDOC_LLCAST count));
 
     if (!temp)
     {
@@ -1162,11 +1162,11 @@ cups_array_add(cups_array_t *a,		/* I - Array */
       if (a->saved[i] >= current)
 	a->saved[i] ++;
 
-    DEBUG_printf(("9cups_array_add: insert element at index " CUPS_LLFMT, CUPS_LLCAST current));
+    DEBUG_printf(("9cups_array_add: insert element at index " HTMLDOC_LLFMT, HTMLDOC_LLCAST current));
   }
 #ifdef DEBUG
   else
-    DEBUG_printf(("9cups_array_add: append element at " CUPS_LLFMT, CUPS_LLCAST current));
+    DEBUG_printf(("9cups_array_add: append element at " HTMLDOC_LLFMT, HTMLDOC_LLCAST current));
 #endif /* DEBUG */
 
   if (a->copyfunc)
@@ -1185,7 +1185,7 @@ cups_array_add(cups_array_t *a,		/* I - Array */
 
 #ifdef DEBUG
   for (current = 0; current < a->num_elements; current ++)
-    DEBUG_printf(("9cups_array_add: a->elements[" CUPS_LLFMT "]=%p", CUPS_LLCAST current, a->elements[current]));
+    DEBUG_printf(("9cups_array_add: a->elements[" HTMLDOC_LLFMT "]=%p", HTMLDOC_LLCAST current, a->elements[current]));
 #endif /* DEBUG */
 
   DEBUG_puts("9cups_array_add: returning 1");

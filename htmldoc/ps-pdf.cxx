@@ -765,14 +765,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     chapter_ends[chapter] = num_pages - 1;
 
   for (chapter = 1; chapter <= TocDocCount; chapter ++)
-  {
     for (page = chapter_starts[chapter]; page <= chapter_ends[chapter]; page ++)
-    {
       pspdf_prepare_page(page);
-      if (chapter == TocDocCount)
-        fprintf(stderr, "page %d: %s\n", page, pages[page].page_text);
-    }
-  }
 
  /*
   * Parse the table-of-contents if necessary...
@@ -3565,8 +3559,6 @@ render_contents(tree_t *t,		/* I - Tree to parse */
     numberwidth = get_width((uchar *)pages[hpage].page_text,
                             t->typeface, t->style, t->size) +
 	          3.0f * dot_width;
-
-    fprintf(stderr, "heading %d on page %d: %s\n", heading, hpage, pages[hpage].page_text);
   }
   else
   {
@@ -4511,7 +4503,6 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   {
     DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
                   num_headings, *page - 1));
-    fprintf(stderr, "H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1, num_headings, *page - 1);
 
     // See if we need to resize the headings arrays...
     if (num_headings >= alloc_headings)
