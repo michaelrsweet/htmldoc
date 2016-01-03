@@ -3,13 +3,13 @@
 .\"
 .\" Manual page for HTMLDOC, a HTML document processing program.
 .\"
-.\" Copyright 2011-2014 by Michael R Sweet.
+.\" Copyright 2011-2016 by Michael R Sweet.
 .\" Copyright 1997-2010 by Easy Software Products.
 .\"
 .\" This program is free software.  Distribution and use rights are outlined
 .\" in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.29" "15 March 2014" "Michael R Sweet"
+.TH htmldoc 1 "HTMLDOC 1.8.29" "2 January 2016" "Michael R Sweet"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .SH SYNOPSIS
@@ -407,7 +407,7 @@ http://www.msweet.org/projects.php/HTMLDOC
 .SH AUTHOR
 Michael R Sweet
 .SH COPYRIGHTS AND TRADEMARKS
-HTMLDOC is copyright 1997-2014 by Michael R Sweet. This program is free software. Distribution and use rights are outlined in the file "COPYING.txt".
+HTMLDOC is copyright 1997-2016 by Michael R Sweet. This program is free software. Distribution and use rights are outlined in the file "COPYING.txt".
 .LP
 The Adobe Portable Document Format is Copyright 1985-2005 by Adobe Systems Incorporated. Adobe, FrameMaker, and PostScript are registered trademarks of Adobe Systems, Incorporated.
 .LP
