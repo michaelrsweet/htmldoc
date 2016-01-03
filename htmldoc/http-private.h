@@ -26,6 +26,7 @@
 #  include "hdstring.h"
 #  include <stddef.h>
 #  include <stdlib.h>
+#  include <errno.h>
 
 #  ifdef __sun
 #    include <sys/select.h>
@@ -149,6 +150,7 @@ extern CFAbsoluteTime SecCertificateNotValidAfter(SecCertificateRef certificate)
 #    define DEBUG_puts(x)
 #  endif /* !DEBUG_printf */
 #  define _(x) x
+#  define _cups_isalnum(ch) isalnum((ch) & 255)
 #  define _cups_isspace(ch) isspace((ch) & 255)
 #  ifdef WIN32
 #    define _cups_strcasecmp(s,t) stricmp(s,t)

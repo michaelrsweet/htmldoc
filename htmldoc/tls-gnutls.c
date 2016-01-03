@@ -35,8 +35,6 @@ static char		*tls_common_name = NULL;
 					/* Default common name */
 static char		*tls_keypath = NULL;
 					/* Server cert keychain path */
-static _cups_mutex_t	tls_mutex = _CUPS_MUTEX_INITIALIZER;
-					/* Mutex for keychain/certs */
 static int		tls_options = _HTTP_TLS_NONE;/* Options for TLS connections */
 
 
@@ -931,21 +929,6 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
       http_gnutls_make_path(keyfile, sizeof(keyfile), tls_keypath, tls_common_name, "key");
 
       have_creds = !access(crtfile, 0) && !access(keyfile, 0);
-    }
-
-    if (!have_creds && tls_auto_create && (hostname[0] || tls_common_name))
-    {
-      DEBUG_printf(("4_httpTLSStart: Auto-create credentials for \"%s\".", hostname[0] ? hostname : tls_common_name));
-
-      if (!cupsMakeServerCredentials(tls_keypath, hostname[0] ? hostname : tls_common_name, 0, NULL, time(NULL) + 365 * 86400))
-      {
-	DEBUG_puts("4_httpTLSStart: cupsMakeServerCredentials failed.");
-	http->error  = errno = EINVAL;
-	http->status = HTTP_STATUS_ERROR;
-	_cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Unable to create server credentials."), 1);
-
-	return (-1);
-      }
     }
 
     DEBUG_printf(("4_httpTLSStart: Using certificate \"%s\" and private key \"%s\".", crtfile, keyfile));

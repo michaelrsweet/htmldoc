@@ -9793,7 +9793,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
 	   int   length,		/* I - Number of bytes to print */
 	   int   eod)			/* I - 1 = end-of-data */
 {
-  unsigned	b;			/* Current 32-bit word */
+  unsigned	b = 0;			/* Current 32-bit word */
   uchar		c[5];			/* Base-85 encoded characters */
   static int	col = 0;		/* Column */
   static uchar	leftdata[4];		/* Leftover data at the end */

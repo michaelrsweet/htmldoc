@@ -21,6 +21,7 @@
  */
 
 #include "http-private.h"
+#include <errno.h>
 #ifdef HAVE_DNSSD
 #  include <dns_sd.h>
 #  ifdef WIN32
