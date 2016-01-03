@@ -1,0 +1,87 @@
+COMPILE.txt - 2016-01-02
+------------------------
+
+REQUIREMENTS
+
+    To compile HTMLDOC you'll need C and C++ compilers (gcc is fine, most vendor
+    compilers work, too).  The JPEG, PNG, and ZLIB libraries are provided with
+    HTMLDOC.
+
+    For the GUI support you'll need FLTK 1.1.x or 1.3.x.  FLTK is a LGPL'd
+    cross-platform GUI toolkit and can be downloaded from:
+
+        http://www.fltk.org/
+
+
+COMPILING HTMLDOC UNDER WINDOWS
+
+    For the Windows version we have included Visual C++ workspace and project
+    files under the "vcnet" directory. You must add the FLTK include and library
+    directories to your VC++ environment options.
+
+
+INSTALLING HTMLDOC UNDER WINDOWS
+
+    We highly recommend installing the software using the VC++ MSI file as
+    provided in the project files under the "vcnet" directory.
+
+    If you want to install the software by hand, create a directory for the
+    software and copy the HTMLDOC executable, the "fonts" directory, the "data"
+    directory, and the "doc" directory to it.
+
+    Then create the following registry entries with REGEDIT:
+
+        HKEY_LOCAL_MACHINE\Software\HTMLDOC\doc = C:\install\dir\doc
+        HKEY_LOCAL_MACHINE\Software\HTMLDOC\data = C:\install\dir
+
+
+CONFIGURING HTMLDOC UNDER UNIX
+
+    To compile the software under UNIX you just need to run the "configure"
+    script in this directory.  Usually this is just:
+
+        ./configure
+
+    If the "configure" script does not exist in your copy of the sources, run
+    "autoconf" to create it:
+
+        autoconf
+        ./configure
+
+    If you don't want to install HTMLDOC in the default directories (/usr/bin,
+    /usr/man/man1, etc.), use the "--prefix" option when you run the configure
+    script:
+
+        ./configure --prefix=/some/directory
+
+    If you aren't using "cc" or "gcc" for your ANSI C compiler, you'll need to
+    set the CC environment variable prior to running the configure script:
+
+        CC=compiler; export CC
+
+    for Bourne and Korn shells, and:
+
+        setenv CC "compiler"
+
+    for C shell.
+
+    If you aren't using "gcc", "g++", "c++", or "CC" for your C++ compiler,
+    you'll also need to set the CXX environment variable:
+
+        CXX=compiler; export CXX
+
+    for Bourne and Korn shells, and:
+
+        setenv CXX "compiler"
+
+    for C shell.
+
+
+COMPILING HTMLDOC UNDER UNIX
+
+    Just run "make" to build the software and generate the documentation.
+
+
+INSTALLING HTMLDOC UNDER UNIX
+
+    Run "make install" as root to install the software.

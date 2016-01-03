@@ -1,0 +1,201 @@
+/*
+ * "$Id$"
+ *
+ * Configuration file for HTMLDOC.
+ *
+ * Copyright 2011-2014 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ *
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING.txt".
+ */
+
+/*
+ * What is the version number for this software?
+ */
+
+#define SVERSION	"1.8.29"
+
+
+/*
+ * Limits for the output "engines"...
+ */
+
+#define MAX_CHAPTERS	1000	/* Maximum number of chapters or files */
+#define MAX_COLUMNS	200	/* Maximum number of columns in a table */
+#define MAX_HF_IMAGES	10	/* Maximum number of header/footer images */
+
+
+/*
+ * Memory allocation units for other stuff...
+ */
+
+#define ALLOC_FILES	10	/* Temporary/image files */
+#define ALLOC_HEADINGS	50	/* Headings */
+#define ALLOC_LINKS	100	/* Web links */
+#define ALLOC_OBJECTS	100	/* PDF objects */
+#define ALLOC_PAGES	10	/* PS/PDF pages */
+#define ALLOC_ROWS	20	/* Table rows */
+
+
+/*
+ * Locations of files...
+ */
+
+#define DOCUMENTATION	"/usr/share/doc/htmldoc"
+#define HTML_DATA	"/usr/share/htmldoc"
+
+
+/*
+ * Do we have the FLTK library?
+ */
+
+#undef HAVE_LIBFLTK
+
+
+/*
+ * Do we have the Xpm library?
+ */
+
+#undef HAVE_LIBXPM
+
+
+/*
+ * Which encryption libraries do we have?
+ */
+
+#undef HAVE_CDSASSL
+#undef HAVE_GNUTLS
+#undef HAVE_LIBSSL
+#undef HAVE_SSL
+
+
+/*
+ * Do we need to use <strings.h>?
+ */
+
+#undef HAVE_STRINGS_H
+
+
+/*
+ * Do we have the <locale.h> header file?
+ */
+
+#undef HAVE_LOCALE_H
+
+
+/*
+ * Do we have some of the "standard" string functions?
+ */
+
+#undef HAVE_STRDUP
+#undef HAVE_STRCASECMP
+#undef HAVE_STRNCASECMP
+#undef HAVE_STRLCAT
+#undef HAVE_STRLCPY
+
+
+/*
+ * How about snprintf() and vsnprintf()?
+ */
+
+#undef HAVE_SNPRINTF
+#undef HAVE_VSNPRINTF
+
+
+/*
+ * Does the "tm" structure contain the "tm_gmtoff" member?
+ */
+
+#undef HAVE_TM_GMTOFF
+
+
+/*
+ * Which random number generator function to use...
+ */
+
+#undef HAVE_ARC4RANDOM
+#undef HAVE_RANDOM
+#undef HAVE_LRAND48
+
+#ifdef HAVE_ARC4RANDOM
+#  define HTMLDOC_RAND() arc4random()
+#  define HTMLDOC_SRAND(v)
+#elif defined(HAVE_RANDOM)
+#  define HTMLDOC_RAND() random()
+#  define HTMLDOC_SRAND(v) srandom(v)
+#elif defined(HAVE_LRAND48)
+#  define HTMLDOC_RAND() lrand48()
+#  define HTMLDOC_SRAND(v) srand48(v)
+#else
+#  define HTMLDOC_RAND() rand()
+#  define HTMLDOC_SRAND(v) srand(v)
+#endif /* HAVE_ARC4RANDOM */
+
+
+/*
+ * Do we have hstrerror()?
+ */
+
+#undef HAVE_HSTRERROR
+
+
+/*
+ * Do we have getaddrinfo()?
+ */
+
+#undef HAVE_GETADDRINFO
+
+
+/*
+ * Do we have getnameinfo()?
+ */
+
+#undef HAVE_GETNAMEINFO
+
+
+/*
+ * Do we have the <resolv.h> header file and/or res_init()?
+ */
+
+#undef HAVE_RESOLV_H
+#undef HAVE_RES_INIT
+
+
+/*
+ * Do we have poll()?
+ */
+
+#undef HAVE_POLL
+
+
+/*
+ * Do we have the long long type?
+ */
+
+#undef HAVE_LONG_LONG
+
+#ifdef HAVE_LONG_LONG
+#  define HTMLDOC_LLFMT		"%lld"
+#  define HTMLDOC_LLCAST	(long long)
+#else
+#  define HTMLDOC_LLFMT		"%ld"
+#  define HTMLDOC_LLCAST	(long)
+#endif /* HAVE_LONG_LONG */
+
+
+/*
+ * Do we have the strtoll() function?
+ */
+
+#undef HAVE_STRTOLL
+
+#ifndef HAVE_STRTOLL
+#  define strtoll(nptr,endptr,base) strtol((nptr), (endptr), (base))
+#endif /* !HAVE_STRTOLL */
+
+
+/*
+ * End of "$Id$".
+ */
+
