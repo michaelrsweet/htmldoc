@@ -902,15 +902,11 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
     {
       http_gnutls_make_path(crtfile, sizeof(crtfile), tls_keypath, hostname, "crt");
       http_gnutls_make_path(keyfile, sizeof(keyfile), tls_keypath, hostname, "key");
-
-      have_creds = !access(crtfile, 0) && !access(keyfile, 0);
     }
     else if (tls_common_name)
     {
       http_gnutls_make_path(crtfile, sizeof(crtfile), tls_keypath, tls_common_name, "crt");
       http_gnutls_make_path(keyfile, sizeof(keyfile), tls_keypath, tls_common_name, "key");
-
-      have_creds = !access(crtfile, 0) && !access(keyfile, 0);
     }
 
     DEBUG_printf(("4_httpTLSStart: Using certificate \"%s\" and private key \"%s\".", crtfile, keyfile));
