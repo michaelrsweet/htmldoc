@@ -55,6 +55,7 @@ AC_PATH_PROG(FLTKCONFIG,fltk-config)
 AC_PATH_PROG(MV,mv)
 AC_PATH_PROG(MKDIR,mkdir)
 AC_PATH_PROG(RM,rm)
+AC_PATH_TOOL(PKGCONFIG, pkg-config)
 
 dnl See if we need a .exe extension on executables...
 AC_EXEEXT
@@ -142,7 +143,7 @@ fi
 
 AC_CHECK_FUNC(strtoll, AC_DEFINE(HAVE_STRTOLL))
 
-dnl Check for OpenSSL libraries...
+dnl Check for TLS/SSL libraries...
 AC_ARG_ENABLE(ssl, [  --enable-ssl            turn on SSL/TLS support, default=yes])
 AC_ARG_ENABLE(gnutls, [  --enable-gnutls         use GNU TLS for SSL/TLS support, default=yes])
 AC_ARG_ENABLE(cdsassl, [  --enable-cdsassl        use CDSA for SSL/TLS support, default=yes])
