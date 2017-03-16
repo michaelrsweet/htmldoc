@@ -1,13 +1,11 @@
 #
-#   "$Id$"
+# Makefile definitions for HTMLDOC, an HTML document processing program.
 #
-#   Makefile definitions for HTMLDOC, an HTML document processing program.
+# Copyright 2011-2017 by Michael R Sweet.
+# Copyright 1997-2010 by Easy Software Products.
 #
-#   Copyright 2011 by Michael R Sweet.
-#   Copyright 1997-2010 by Easy Software Products.
-#
-#   This program is free software.  Distribution and use rights are outlined in
-#   the file "COPYING.txt".
+# This program is free software.  Distribution and use rights are outlined in
+# the file "COPYING".
 #
 
 #
@@ -78,7 +76,3 @@ OPTIM		=	@OPTIM@ @SSLFLAGS@
 .cxx.o:
 	echo Compiling $<...
 	$(CXX) $(CXXFLAGS) -c $<
-
-#
-# End of "$Id$".
-#

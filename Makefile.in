@@ -1,13 +1,11 @@
 #
-# "$Id$"
+# Makefile for HTMLDOC, an HTML document processing program.
 #
-#   Makefile for HTMLDOC, an HTML document processing program.
+# Copyright 2011-2017 by Michael R Sweet.
+# Copyright 1997-2010 by Easy Software Products.
 #
-#   Copyright 2011 by Michael R Sweet.
-#   Copyright 1997-2010 by Easy Software Products.
-#
-#   This program is free software.  Distribution and use rights are outlined in
-#   the file "COPYING.txt".
+# This program is free software.  Distribution and use rights are outlined in
+# the file "COPYING".
 #
 
 #
@@ -15,13 +13,6 @@
 #
 
 include Makedefs
-
-
-#
-# Software packaging...
-#
-
-EPM	=	epm -v --output-dir dist
 
 
 #
@@ -55,7 +46,7 @@ clean:
 	$(RM) *.bak
 	$(RM) *.bck
 	$(RM) core
-	$(RM) core.* 
+	$(RM) core.*
 	$(RM) -r autom4te*.cache
 	$(RM) config.h config.log config.status
 
@@ -65,8 +56,8 @@ clean:
 #
 
 distclean:	clean
-	$(RM) Makefile Makedefs htmldoc.list desktop/htmldoc.dt
-	$(RM) desktop/htmldoc.ftr desktop/htmldoc.plist
+	$(RM) Makefile Makedefs desktop/htmldoc.dt
+	$(RM) desktop/htmldoc.plist
 
 
 #
@@ -121,33 +112,3 @@ config.h:	config.h.in configure
 		./configure; \
 	fi
 	touch config.h
-
-
-#
-# htmldoc.list
-#
-
-htmldoc.list:	htmldoc.list.in configure
-	if test -f config.status; then \
-		./config.status --recheck; \
-		./config.status; \
-	else \
-		./configure; \
-	fi
-	touch config.h
-
-
-#
-# Make binary distributions using EPM.
-#
-# EPM = ESP Package Manager, available at "http://www.epmhome.org/".
-#
-
-epm:
-	$(RM) -r dist
-	$(EPM) htmldoc
-
-
-#
-# End of "$Id$".
-#

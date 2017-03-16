@@ -32,6 +32,19 @@ HTMLDOC is no longer in active development but *is* being maintained to address
 security, build, and formatting issues.
 
 
+# Resources
+
+The following HTMLDOC resources are available online:
+
+- Official web site and online documentation:
+
+    https://michaelrsweet.github.io/htmldoc
+
+- Issue tracker and questions:
+
+    https://github.com/michaelrsweet/htmldoc/issues
+
+
 # Using HTMLDOC
 
 Note: Complete documentation for HTMLDOC is available in the "doc" subdirectory.

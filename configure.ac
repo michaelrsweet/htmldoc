@@ -1,23 +1,19 @@
 #
-# "$Id$"
-#
 # Configuration script for HTMLDOC, an HTML document processing program.
 #
-# Copyright 2011-2016 by Michael R Sweet.
+# Copyright 2011-2017 by Michael R Sweet.
 # Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 #
 # This program is free software.  Distribution and use rights are outlined in
-# the file "COPYING.txt".
+# the file "COPYING".
 #
 
-AC_INIT([HTMLDOC], [1.8.29], [https://www.msweet.org/bugs.php/HTMLDOC], [htmldoc],  [https://www.msweet.org/projects.php/HTMLDOC])
+AC_INIT([HTMLDOC], [1.8.30], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc],  [https://michaelrsweet.github.io/htmldoc])
 AC_CONFIG_HEADER(config.h)
 
 dnl Define the version number...
 SVERSION="AC_PACKAGE_VERSION"
-NVERSION=10802900
 AC_SUBST(SVERSION)
-AC_SUBST(NVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
 
 dnl Get the operating system and version number...
@@ -339,12 +335,6 @@ if test -n "$GXX"; then
     dnl Show all standard warnings + unused variables when compiling...
     OPTIM="-Wall -Wunused -Wno-char-subscripts -Wno-format-y2k $OPTIM"
 
-    dnl The following additional warnings are useful for tracking down problems...
-    if test -d .svn; then
-#	OPTIM="-Wshadow -Wconversion -Winline $OPTIM"
-	OPTIM="-Werror $OPTIM"
-    fi
-
     dnl See if GCC supports -fno-rtti...
     AC_MSG_CHECKING(if GCC supports -fno-rtti)
     OLDCFLAGS="$CFLAGS"
@@ -384,8 +374,4 @@ if test "x$FLTKCONFIG" != x; then
 fi
 
 dnl Generate the top-level Makefile and Makedefs file...
-AC_OUTPUT(Makedefs Makefile htmldoc.list desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
-
-#
-# End of "$Id$".
-#
+AC_OUTPUT(Makedefs Makefile desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
