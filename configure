@@ -5650,7 +5650,7 @@ if test "x$FLTKCONFIG" != x; then
 	OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
 fi
 
-ac_config_files="$ac_config_files Makedefs Makefile desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist"
+ac_config_files="$ac_config_files Makedefs Makefile desktop/htmldoc.plist"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6346,8 +6346,6 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "Makedefs") CONFIG_FILES="$CONFIG_FILES Makedefs" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "desktop/htmldoc.dt") CONFIG_FILES="$CONFIG_FILES desktop/htmldoc.dt" ;;
-    "desktop/htmldoc.ftr") CONFIG_FILES="$CONFIG_FILES desktop/htmldoc.ftr" ;;
     "desktop/htmldoc.plist") CONFIG_FILES="$CONFIG_FILES desktop/htmldoc.plist" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

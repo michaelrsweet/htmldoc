@@ -27,7 +27,7 @@ INSTALLDIRS =	fonts data doc htmldoc
 # Make all targets...
 #
 
-all:	Makedefs Makefile config.h htmldoc.list
+all:
 	for dir in $(DIRS); do\
 		echo Making all in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
@@ -43,12 +43,6 @@ clean:
 		echo Cleaning in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS) clean) || break;\
 	done
-	$(RM) *.bak
-	$(RM) *.bck
-	$(RM) core
-	$(RM) core.*
-	$(RM) -r autom4te*.cache
-	$(RM) config.h config.log config.status
 
 
 #
@@ -56,8 +50,14 @@ clean:
 #
 
 distclean:	clean
-	$(RM) Makefile Makedefs desktop/htmldoc.dt
+	$(RM) -r autom4te*.cache
+	$(RM) config.h
+	$(RM) config.log
+	$(RM) config.status
+	$(RM) desktop/htmldoc.dt
 	$(RM) desktop/htmldoc.plist
+	$(RM) Makedefs
+	$(RM) Makefile
 
 
 #
@@ -70,45 +70,3 @@ install:
 		echo Installing in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS) install) || break;\
 	done
-
-
-#
-# Makedefs
-#
-
-Makedefs:	Makedefs.in configure
-	if test -f config.status; then \
-		./config.status --recheck; \
-		./config.status; \
-	else \
-		./configure; \
-	fi
-	touch config.h
-
-
-#
-# Makefile
-#
-
-Makefile:	Makefile.in configure
-	if test -f config.status; then \
-		./config.status --recheck; \
-		./config.status; \
-	else \
-		./configure; \
-	fi
-	touch config.h
-
-
-#
-# config.h
-#
-
-config.h:	config.h.in configure
-	if test -f config.status; then \
-		./config.status --recheck; \
-		./config.status; \
-	else \
-		./configure; \
-	fi
-	touch config.h

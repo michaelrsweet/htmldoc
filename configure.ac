@@ -374,4 +374,4 @@ if test "x$FLTKCONFIG" != x; then
 fi
 
 dnl Generate the top-level Makefile and Makedefs file...
-AC_OUTPUT(Makedefs Makefile desktop/htmldoc.dt desktop/htmldoc.ftr desktop/htmldoc.plist)
+AC_OUTPUT(Makedefs Makefile desktop/htmldoc.plist)

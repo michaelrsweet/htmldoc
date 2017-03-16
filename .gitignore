@@ -1,0 +1,14 @@
+*.o
+autom4te.cache
+Makedefs
+Makefile
+config.h
+config.log
+config.status
+desktop/htmldoc.plist
+doc/htmldoc.html
+doc/htmldoc.pdf
+doc/htmldoc.ps
+htmldoc/htmldoc
+htmldoc/htmldoc.app
+htmldoc/htmldoc.exe

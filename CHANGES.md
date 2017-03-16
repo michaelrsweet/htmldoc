@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.8.30
 
 - Updated documentation to reflect new project page on Github.
+- Dropped old CDE and IRIX desktop integration files.
 
 
 # Changes in HTMLDOC v1.8.29
