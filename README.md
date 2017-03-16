@@ -28,7 +28,7 @@ servers.  However, it does not support many things in "the modern web", such as:
   to format Arabic, Chinese, Hebrew, Japanese, or other languages that are not
   based on latin-based alphabets that read left-to-right.
 
-HTMLDOC is no longer in active development but /is/ being maintained to address
+HTMLDOC is no longer in active development but *is* being maintained to address
 security, build, and formatting issues.
 
 
