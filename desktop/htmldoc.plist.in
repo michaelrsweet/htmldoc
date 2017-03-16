@@ -17,7 +17,7 @@
 	<string>English</string>
 
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 1997-2004 by Easy Software Products (http://www.easysw.com/)</string>
+	<string>Copyright 1997-2010 by Easy Software Products (http://www.easysw.com/)</string>
 
 	<key>CFAppleHelpAnchor</key>
 	<string>help</string>
@@ -38,7 +38,7 @@
 	<string>@SVERSION@</string>
 
 	<key>CFBundleGetInfoString</key>
-	<string>@SVERSION@, Copyright Easy Software Products 1997-2004</string>
+	<string>@SVERSION@, Copyright Easy Software Products 1997-2010</string>
 
 	<key>CFBundleDocumentTypes</key>
 	<array>

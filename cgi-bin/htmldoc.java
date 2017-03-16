@@ -1,25 +1,13 @@
 //
-// "$Id: htmldoc.java,v 1.2 2004/03/31 07:01:55 mike Exp $"
+// "$Id$"
 //
 //   Java interface to HTMLDOC.
 //
+//   Copyright 2011 by Michael R Sweet
 //   Copyright 2001 by Easy Software Products.
 //
-//   These coded instructions, statements, and computer programs are the
-//   property of Easy Software Products and are protected by Federal
-//   copyright law.  Distribution and use rights are outlined in the file
-//   "COPYING.txt" which should have been included with this file.  If this
-//   file is missing or damaged please contact Easy Software Products
-//   at:
-//
-//       Attn: ESP Licensing Information
-//       Easy Software Products
-//       44141 Airport View Drive, Suite 204
-//       Hollywood, Maryland 20636-3111 USA
-//
-//       Voice: (301) 373-9600
-//       EMail: info@easysw.com
-//         WWW: http://www.easysw.com
+//   This program is free software.  Distribution and use rights are outlined in
+//   the file "COPYING.txt".
 //
 
 
@@ -112,5 +100,5 @@ class htmldoc
 
 
 //
-// End of "$Id: htmldoc.java,v 1.2 2004/03/31 07:01:55 mike Exp $".
+// End of "$Id$".
 //

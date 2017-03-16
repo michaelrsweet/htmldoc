@@ -1,31 +1,21 @@
+/* config.h.  Generated from config.h.in by configure.  */
 /*
  * "$Id$"
  *
- * Xcode configuration file for HTMLDOC.
+ * Configuration file for HTMLDOC.
  *
- * Copyright 1997-2009 by Easy Software Products.
+ * Copyright 2011-2016 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- * These coded instructions, statements, and computer programs are the
- * property of Easy Software Products and are protected by Federal
- * copyright law.  Distribution and use rights are outlined in the file
- * "COPYING.txt" which should have been included with this file.  If this
- * file is missing or damaged please contact Easy Software Products
- * at:
- *
- *     Attn: HTMLDOC Licensing Information
- *     Easy Software Products
- *     516 Rio Grand Ct
- *     Morgan Hill, CA 95037 USA
- *
- *     http://www.htmldoc.org/
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING.txt".
  */
 
 /*
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9svn"
-#define COPYRIGHT	"Copyright 1997-2009 Easy Software Products. All rights reserved."
+#define SVERSION "1.8.29"
 
 
 /*
@@ -53,14 +43,31 @@
  * Locations of files...
  */
 
-#define HTMLDOC_DOCDIR "/usr/share/doc/htmldoc"
-#define HTMLDOC_DATA "/usr/share/htmldoc"
+#define DOCUMENTATION "/usr/local/share/doc/htmldoc"
+#define HTML_DATA "/usr/local/share/htmldoc"
 
 
 /*
- * Do we have OpenSSL?
+ * Do we have the FLTK library?
  */
 
+/* #undef HAVE_LIBFLTK */
+
+
+/*
+ * Do we have the Xpm library?
+ */
+
+/* #undef HAVE_LIBXPM */
+
+
+/*
+ * Which encryption libraries do we have?
+ */
+
+#define HAVE_CDSASSL 1
+/* #undef HAVE_GNUTLS */
+/* #undef HAVE_LIBSSL */
 #define HAVE_SSL 1
 
 
@@ -82,12 +89,11 @@
  * Do we have some of the "standard" string functions?
  */
 
-#define HAVE_STRCASECMP 1
 #define HAVE_STRDUP 1
-/* #undef HAVE_STRDUPF */
+#define HAVE_STRCASECMP 1
+#define HAVE_STRNCASECMP 1
 #define HAVE_STRLCAT 1
 #define HAVE_STRLCPY 1
-#define HAVE_STRNCASECMP 1
 
 
 /*
@@ -103,6 +109,29 @@
  */
 
 #define HAVE_TM_GMTOFF 1
+
+
+/*
+ * Which random number generator function to use...
+ */
+
+#define HAVE_ARC4RANDOM 1
+#define HAVE_RANDOM 1
+#define HAVE_LRAND48 1
+
+#ifdef HAVE_ARC4RANDOM
+#  define HTMLDOC_RAND() arc4random()
+#  define HTMLDOC_SRAND(v)
+#elif defined(HAVE_RANDOM)
+#  define HTMLDOC_RAND() random()
+#  define HTMLDOC_SRAND(v) srandom(v)
+#elif defined(HAVE_LRAND48)
+#  define HTMLDOC_RAND() lrand48()
+#  define HTMLDOC_SRAND(v) srand48(v)
+#else
+#  define HTMLDOC_RAND() rand()
+#  define HTMLDOC_SRAND(v) srand(v)
+#endif /* HAVE_ARC4RANDOM */
 
 
 /*
@@ -124,6 +153,21 @@
  */
 
 #define HAVE_GETNAMEINFO 1
+
+
+/*
+ * Do we have the <resolv.h> header file and/or res_init()?
+ */
+
+#define HAVE_RESOLV_H 1
+#define HAVE_RES_INIT 1
+
+
+/*
+ * Do we have poll()?
+ */
+
+#define HAVE_POLL 1
 
 
 /*

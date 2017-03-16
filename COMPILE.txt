@@ -1,4 +1,4 @@
-COMPILE.txt - 2011-12-25
+COMPILE.txt - 2016-01-02
 ------------------------
 
 REQUIREMENTS
@@ -16,8 +16,8 @@ REQUIREMENTS
 COMPILING HTMLDOC UNDER WINDOWS
 
     For the Windows version we have included Visual C++ workspace and project
-    files under the "visualc" and "vcnet" directories. You must add the FLTK
-    include and library directories to your VC++ environment options.
+    files under the "vcnet" directory. You must add the FLTK include and library
+    directories to your VC++ environment options.
 
 
 INSTALLING HTMLDOC UNDER WINDOWS
@@ -53,12 +53,6 @@ CONFIGURING HTMLDOC UNDER UNIX
     script:
 
         ./configure --prefix=/some/directory
-
-    If the OpenSSL library is in a non-standard location you can specify it
-    using:
-
-        ./configure --with-openssl-includes=/some/directory/include \
-            --with-openssl-libs=/some/directory/lib
 
     If you aren't using "cc" or "gcc" for your ANSI C compiler, you'll need to
     set the CC environment variable prior to running the configure script:

@@ -1,4 +1,4 @@
-README.txt - 2011-12-22
+README.txt - 2016-01-02
 -----------------------
 
 INTRODUCTION
@@ -6,47 +6,44 @@ INTRODUCTION
     This README file describes HTMLDOC, a HTML processing program that generates
     HTML, PostScript, and PDF files with a table of contents.
 
-    HTMLDOC is copyright 2011 by Michael R Sweet. The source code is provided
-    under version 2 of the GNU General Public License.  See the LEGAL STUFF
+    ****************************************************************************
+    ****                                                                    ****
+    ****   HTMLDOC CURRENTLY ONLY SUPPORTS HTML 3.2 AND DOES NOT SUPPORT    ****
+    ****   STYLE SHEETS!  PLEASE READ THE DOCUMENTATION BEFORE ASKING       ****
+    ****   QUESTIONS.                                                       ****
+    ****                                                                    ****
+    ****************************************************************************
+
+    HTMLDOC is copyright 1997-2016 by Michael R Sweet and is provided under the
+    terms of version 2 of the GNU General Public License.  See the LEGAL STUFF
     section below for details.
 
     Documentation for HTMLDOC is available in the "doc" subdirectory and is
     generated from HTML "source" files into HTML, PostScript, and PDF using
     HTMLDOC.
 
-    HTMLDOC supports most HTML 4.0 elements, CSS1 and some CSS2 stylesheet
-    properties, and BMP, GIF, JPEG, and PNG images.  The documentation in the
-    "doc" directory provides details about the HTML and CSS supoprt in HTMLDOC.
+    HTMLDOC supports most HTML 3.2 and some HTML 4.0 markup as well as BMP, GIF,
+    JPEG, and PNG images.  Eventually HTMLDOC will be compliant with HTML 4.0
+    and support CSS.
 
 
 INTERNET RESOURCES
 
-    For general discussions about HTMLDOC, subscribe to the
-    HTMLDOC mailing list by opening the following page:
+    For general discussions about HTMLDOC, subscribe to the HTMLDOC mailing list
+    referenced from the HTMLDOC project page:
 
-	http://lists.easysw.com/mailman/listinfo/htmldoc
-
-    The HTMLDOC open source home page is located at:
-
-        http://www.htmldoc.org/
-
-
-REQUIREMENTS
-
-    HTMLDOC requires an average of 2MB of disk space for installation.  See the
-    file "COMPILE.txt" for instructions on compiling HTMLDOC from the source
-    code.
+        https://www.msweet.org/projects.php/HTMLDOC
 
 
 USING HTMLDOC
 
     COMPLETE DOCUMENTATION FOR HTMLDOC IS AVAILABLE IN THE "doc" SUBDIRECTORY.
-    THE FOLLOWING PROVIDES BASIC INFORMATION ON USING HTMLDOC AT THE COMMAND-
-    LINE AND DOES NOT DISCUSS THE GUI OR WEB SERVER FUNCTIONALITY.
+    THE FOLLOWING PROVIDES BASIC INFORMATION ON USING HTMLDOC AT THE
+    COMMAND-LINE AND DOES NOT DISCUSS THE GUI OR WEB SERVER FUNCTIONALITY.
 
     HTMLDOC accepts a list of HTML "source" files and will generate HTML,
-    PostScript, or PDF output via command-line options.  A summary of command-
-    line options can be shown with the "--help" option:
+    PostScript, or PDF output via command-line options.  A summary of
+    command-line options can be shown with the "--help" option:
 
         htmldoc --help
 
@@ -66,8 +63,8 @@ USING HTMLDOC
 
         htmldoc -f outfile.pdf chapter1.html ... chapterN.html
 
-    Finally, to generate HTML files for viewing (with a linked table-of-
-    contents) do the following:
+    Finally, to generate HTML files for viewing (with a linked table-
+    of-contents) do the following:
 
         htmldoc -t html -d outdir chapter1.html ... chapterN.html
 
@@ -81,12 +78,17 @@ USING HTMLDOC
 
 CURRENT LIMITATIONS
 
+    - No support for style sheets.
     - No support for HTML forms.
-    - HTML 4.0 table elements and attributes are not supported
-      (rules, THEAD, TFOOT, etc.)
+    - HTML 4.0 table elements and attributes are not supported (background,
+      rules, THEAD, TFOOT, etc.)
+    - No support for encrypting PDFs with 256-bit AES.
 
 
 CREDITS
+
+    Many thanks to Leonard Rosenthol for providing changes to support a Mac OS
+    version of HTMLDOC.
 
     The table VALIGN and "HALF PAGE" code was contributed by D. Richard Hipp.
 
@@ -102,14 +104,18 @@ CREDITS
 ENCRYPTION SUPPORT
 
     HTMLDOC includes code to encrypt PDF document files using the RC4 algorithm
-    with up to a 128-bit key.  While this software and code may be freely used
+    with up to a 128-bit key. While this software and code may be freely used
     and exported under current US laws, other countries may restrict your use
     and possession of this code and software.
 
 
 LEGAL STUFF
 
-    The Adobe Portable Document Format is Copyright 1985-2003 by Adobe Systems
+    HTMLDOC is copyright 1997-2016 by Michael R Sweet.  This program is free
+    software.  Distribution and use rights are outlined in the file
+    "COPYING.txt".
+
+    The Adobe Portable Document Format is Copyright 1985-2005 by Adobe Systems
     Incorporated. Adobe, FrameMaker, and PostScript are registered trademarks of
     Adobe Systems, Incorporated.
 
@@ -117,8 +123,6 @@ LEGAL STUFF
     property of CompuServe Incorporated.
 
     Intel is a registered trademark of Intel Corporation.
-
-    IRIX and sgi are registered trademarks of Silicon Graphics, Inc.
 
     Linux is a registered trademark of Linus Torvalds.
 
@@ -132,8 +136,5 @@ LEGAL STUFF
 
     UNIX is a registered trademark of the X/Open Company, Ltd.
 
-    HTMLDOC is copyright 2011 by Michael R Sweet.  See Appendix A of the HTMLDOC
-    Software Users Manual or the files "COPYING.txt" and "htmldoc.eula" for the
-    terms of use.
-
-    This software is based in part on the work of the Independent JPEG Group.
+    This software is based in part on the work of the Independent JPEG Group and
+    FLTK project.

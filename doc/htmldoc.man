@@ -1,602 +1,419 @@
 .\"
 .\" "$Id$"
 .\"
-.\"   Manual page for HTMLDOC, a HTML document processing program.
+.\" Manual page for HTMLDOC, a HTML document processing program.
 .\"
-.\"   Copyright 1997-2005 by Easy Software Products.
+.\" Copyright 2011-2016 by Michael R Sweet.
+.\" Copyright 1997-2010 by Easy Software Products.
 .\"
-.\"   HTMLDOC is distributed under the terms of the GNU General Public License
-.\"   which is described in the file "COPYING.txt".
+.\" This program is free software.  Distribution and use rights are outlined
+.\" in the file "COPYING.txt".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.9" "3 November 2005" "Easy Software Products"
+.TH htmldoc 1 "HTMLDOC 1.8.29" "2 January 2016" "Michael R Sweet"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
-.sp
 .SH SYNOPSIS
 htmldoc [options] filename1.html [ ... filenameN.html ]
 .LP
 htmldoc [options] -
 .LP
 htmldoc [filename.book]
-.sp
 .SH DESCRIPTION
-\fIHTMLDOC\fR converts HTML source files into indexed HTML, PostScript, or
-Portable Document Format (PDF) files that can be viewed online or printed.
-With no options a HTML document is produced on stdout.
+.BR Htmldoc (1)
+converts HTML source files into indexed HTML, PostScript, or Portable Document Format (PDF) files that can be viewed online or printed. With no options a HTML document is produced on stdout.
 .LP
-The second form of \fIHTMLDOC\fR reads HTML source from stdin, which allows
-you to use \fIHTMLDOC\fR as a filter.
+The second form of
+.B htmldoc
+reads HTML source from stdin, which allows you to use
+.B htmldoc
+as a filter.
 .LP
-The third form of \fIHTMLDOC\fR launches a graphical interface that allows you
-to change options and generate documents interactively.
+The third form of
+.B htmldoc
+launches a graphical interface that allows you to change options and generate documents interactively.
 .SH COMMON MISTAKES
-There are two types of HTML files - structured documents using
-headings (H1, H2, etc.) which \fIHTMLDOC\fR calls "books", and
-unstructured documents that do not use headings which \fIHTMLDOC\fR
+There are two types of HTML files - structured documents using headings (H1, H2, etc.) which
+.B htmldoc
+calls "books", and unstructured documents that do not use headings which
+.B htmldoc
 calls "web pages".
 .LP
 A very common mistake is to try converting a web page using:
-.TP 5
-htmldoc -f filename.pdf filename.html
-.LP
-which will likely produce a PDF file with no pages. To convert web
-page files you \fBmust\fR use the \fI--webpage\fR or \fI--continuous\fR
-options at the command-line or choose \fIWeb Page\fR or \fIContinuous\fR
+.nf
+    htmldoc -f filename.pdf filename.html
+.fi
+which will likely produce a PDF file with no pages. To convert web page files you
+.B must
+use the
+.I --webpage
+or
+.I --continuous
+options at the command-line or choose
+.I Web Page
+or
+.I Continuous
 in the input tab of the GUI.
 .SH OPTIONS
-The following command-line options are supported by \fIHTMLDOC\fR:
-
+The following command-line options are supported by
+.BR htmldoc :
 .TP 5
---batch \fIfilename.book\fR
-.br
+.BI --batch " filename.book"
 Generates the specified book file without opening the GUI.
-
 .TP 5
---bodycolor \fIcolor\fR
-.br
+.BI --bodycolor " color"
 Specifies the background color for all pages.
-
 .TP 5
---bodyfont \fI{courier,helvetica,monospace,sans,serif,times}\fR
+.BI --bodyfont " {courier,helvetica,monospace,sans,serif,times}"
 .TP 5
---textfont \fI{courier,helvetica,monospace,sans,serif,times}\fR
-.br
+.BI --textfont " {courier,helvetica,monospace,sans,serif,times}"
 Specifies the default typeface for all normal text.
-
 .TP 5
---bodyimage \fIfilename\fR
-.br
+.BI --bodyimage " filename"
 Specifies the background image that is tiled on all pages.
-
 .TP 5
---book
-.br
+.B --book
 Specifies that the HTML sources are structured (headings, chapters, etc.)
-
 .TP 5
---bottom \fImargin\fR
-.br
-Specifies the bottom margin in points (no suffix or ##pt), inches
-(##in), centimeters (##cm), or millimeters (##mm).
-
+.BI --bottom " margin"
+Specifies the bottom margin in points (no suffix or ##pt), inches (##in), centimeters (##cm), or millimeters (##mm).
 .TP 5
---charset \fI{8859-1...8859-15}\fR
-.br
+.BI --charset " {cp-nnnn,iso-8859-1,...,iso-8859-15}"
 Specifies the ISO character set to use for the output.
-
 .TP 5
---color
-.br
+.B --color
 Specifies that PostScript or PDF output should be in color.
-
 .TP 5
---continuous
-.br
-Specifies that the HTML sources are unstructured (plain web pages.)
-No page breaks are inserted between each file or URL in the output.
-
+.B --continuous
+Specifies that the HTML sources are unstructured (plain web pages.) No page breaks are inserted between each file or URL in the output.
 .TP 5
---datadir \fIdirectory\fR
-.br
-Specifies the location of the \fIHTMLDOC\fR data files, usually
-\fI/usr/share/htmldoc\fR or \fIC:\\Program Files\\HTMLDOC\fR.
-
+.BI --datadir " directory"
+Specifies the location of the
+.B htmldoc
+data files, usually
+.I /usr/share/htmldoc
+or
+.I C:/Program Files/HTMLDOC.
 .TP 5
---duplex
-.br
+.B --duplex
 Specifies that the output should be formatted for double-sided printing.
-
 .TP 5
---effectduration \fI{ 0.1..10.0 }\fR
-.br
+.BI --effectduration " {0.1...10.0}"
 Specifies the duration in seconds of PDF page transition effects.
-
 .TP 5
---embedfonts
-.br
+.B --embedfonts
 Specifies that fonts should be embedded in PDF and PostScript output.
-
 .TP 5
---encryption
-.br
+.B --encryption
 Enables encryption of PDF files.
-
 .TP 5
---fontsize \fIsize\fR
-.br
+.BI --fontsize " size"
 Specifies the default font size for body text.
-
 .TP 5
---fontspacing \fIspacing\fR
-.br
-Specifies the default line spacing for body text. The line spacing is
-a multiplier for the font size, so a value of 1.2 will provide an
-additional 20% of space between the lines.
-
+.BI --fontspacing " spacing"
+Specifies the default line spacing for body text. The line spacing is a multiplier for the font size, so a value of 1.2 will provide an additional 20% of space between the lines.
 .TP 5
---footer \fIfff\fR
-.br
-Sets the page footer to use on body pages. See the \fIHEADERS/FOOTERS FORMATS\fR
+.BI --footer " fff"
+Sets the page footer to use on body pages. See the
+.B HEADERS/FOOTERS FORMATS
 section below.
-
 .TP 5
---format \fIformat\fR
+.BI --format " format"
 .TP 5
--t \fIformat\fR
-.br
-Specifies the output format: html, htmlsep (separate HTML files for each
-heading in the table-of-contents), ps or ps2 (PostScript Level
-2), ps1 (PostScript Level 1), ps3 (PostScript Level 3), pdf11
-(PDF 1.1/Acrobat 2.0), pdf12 (PDF 1.2/Acrobat 3.0), pdf or pdf13
-(PDF 1.3/Acrobat 4.0), or pdf14 (PDF 1.4/Acrobat 5.0).
-
+.BI -t " format"
+Specifies the output format: html, htmlsep (separate HTML files for each heading in the table-of-contents), ps or ps2 (PostScript Level 2), ps1 (PostScript Level 1), ps3 (PostScript Level 3), pdf11 (PDF 1.1/Acrobat 2.0), pdf12 (PDF 1.2/Acrobat 3.0), pdf or pdf13 (PDF 1.3/Acrobat 4.0), or pdf14 (PDF 1.4/Acrobat 5.0).
 .TP 5
---gray
-.br
+.B --gray
 Specifies that PostScript or PDF output should be grayscale.
-
 .TP 5
---header \fIfff\fR
-.br
-Sets the page header to use on body pages. See the \fIHEADERS/FOOTERS FORMATS\fR
+.BI --header " fff"
+Sets the page header to use on body pages. See the
+.B HEADERS/FOOTERS FORMATS
 section below.
-
 .TP 5
---headfootfont \fIfont\fR
-.br
+.BI --header1 " fff"
+Sets the page header to use on the first body/chapter page. See the
+.B HEADERS/FOOTERS FORMATS
+section below.
+.TP 5
+.BI --headfootfont " font"
 Sets the font to use on headers and footers.
-
 .TP 5
---headfootsize \fIsize\fR
-.br
+.BI --headfootsize " size"
 Sets the size of the font to use on headers and footers.
-
 .TP 5
---headingfont \fItypeface\fR
-.br
+.BI --headingfont " typeface"
 Sets the typeface to use for headings.
-
 .TP 5
---help
-.br
+.B --help
 Displays a summary of command-line options.
-
 .TP 5
---helpdir \fIdirectory\fR
-.br
-Specifies the location of the \fIHTMLDOC\fR on-line help files, usually
-\fI/usr/share/doc/htmldoc\fR or \fIC:\\Program Files\\HTMLDOC\\DOC\fR.
-
+.BI --helpdir " directory"
+Specifies the location of the
+.B htmldoc
+online help files, usually
+.I /usr/share/doc/htmldoc
+or
+.I C:/Program Files/HTMLDOC/DOC.
 .TP 5
---jpeg\fI[=quality]\fR
-.br
-Sets the JPEG compression level to use for large images. A value of 0
-disables JPEG compression.
-
+.BI --jpeg [=quality]
+Sets the JPEG compression level to use for large images. A value of 0 disables JPEG compression.
 .TP 5
---left \fImargin\fR
-.br
-Specifies the left margin in points (no suffix or ##pt), inches
-(##in), centimeters (##cm), or millimeters (##mm).
-
+.BI --left " margin"
+Specifies the left margin in points (no suffix or ##pt), inches (##in), centimeters (##cm), or millimeters (##mm).
 .TP 5
---linkcolor \fIcolor\fR
-.br
+.BI --linkcolor " color"
 Sets the color of links.
-
 .TP 5
---links
-.br
+.B --links
 Enables generation of links in PDF files (default).
-
 .TP 5
---linkstyle \fI{plain,underline}\fR
-.br
+.BI --linkstyle " {plain,underline}"
 Sets the style of links.
-
 .TP 5
---logoimage \fIfilename\fR
-.br
-Specifies an image to be used as a logo in the header or footer in a
-PostScript or PDF document, and in the navigation bar of a HTML document.
+.BI --logoimage " filename"
+Specifies an image to be used as a logo in the header or footer in a PostScript or PDF document, and in the navigation bar of a HTML document.
 
-Note that you need to use the \fI--header\fR and/or
-\fI--footer\fR options with the \fIl\fR parameter or use the
-corresponding HTML page comments to display the logo image in
-the header or footer.
-
+Note that you need to use the
+.I --header, --header1,
+and/or
+.I --footer
+options with the
+.I l
+parameter or use the corresponding HTML page comments to display the logo image inthe header or footer.
 .TP 5
---no-compression
-.br
+.B --no-compression
 Disables compression of PostScript or PDF files.
-
 .TP 5
---no-duplex
-.br
+.B --no-duplex
 Disables double-sided printing.
-
 .TP 5
---no-embedfonts
+.B --no-embedfonts
 .br
 Specifies that fonts should not be embedded in PDF and PostScript output.
-
 .TP 5
---no-encryption
-.br
+.B --no-encryption
 Disables document encryption.
-
 .TP 5
---no-jpeg
-.br
+.B --no-jpeg
 Disables JPEG compression of large images.
-
 .TP 5
---no-links
-.br
+.B --no-links
 Disables generation of links in a PDF document.
-
 .TP 5
---no-numbered
-.br
+.B --no-numbered
 Disables automatic heading numbering.
-
 .TP 5
---no-pscommands
-.br
+.B --no-pscommands
 Disables generation of PostScript setpagedevice commands.
-
 .TP 5
---no-strict
-.br
+.B --no-strict
 Disables strict HTML input checking.
-
 .TP 5
---no-title
-.br
+.B --no-title
 Disables generation of a title page.
-
 .TP 5
---no-toc
-.br
+.B --no-toc
 Disables generation of a table of contents.
-
 .TP 5
---numbered
-.br
+.B --numbered
 Numbers all headings in a document.
-
 .TP 5
---nup \fIpages\fR
-.br
-Sets the number of pages that are placed on each output page.
-Valid values are 1, 2, 4, 6, 9, and 16.
-
+.BI --nup " pages"
+Sets the number of pages that are placed on each output page. Valid values are 1, 2, 4, 6, 9, and 16.
 .TP 5
---outdir \fIdirectory\fR
+.BI --outdir " directory"
 .TP 5
--d \fIdirectory\fR
-.br
-Specifies that output should be sent to a directory in multiple files.
-(Not compatible with PDF output)
-
+.BI -d " directory"
+Specifies that output should be sent to a directory in multiple files. (Not compatible with PDF output)
 .TP 5
---outfile \fIfilename\fR
+.BI --outfile " filename"
 .TP 5
--f \fIfilename\fR
-.br
+.BI -f " filename"
 Specifies that output should be sent to a single file.
-
 .TP 5
---owner-password \fIpassword\fR
-.br
+.BI --owner-password " password"
 Sets the owner password for encrypted PDF files.
-
 .TP 5
---pageduration \fI{1.0..60.0}\fR
-.br
+.BI --pageduration " I{1.0...60.0}"
 Sets the view duration of a page in a PDF document.
-
 .TP 5
---pageeffect \fIeffect\fR
-.br
-Specifies the page transition effect for all pages; this attribute
-is ignored by all Adobe PDF viewers...
-
+.BI --pageeffect " effect"
+Specifies the page transition effect for all pages; this attribute is ignored by all Adobe PDF viewers.
 .TP 5
---pagelayout \fI{single,one,twoleft,tworight}\fR
-.br
+.BI --pagelayout " {single,one,twoleft,tworight}"
 Specifies the initial layout of pages for a PDF file.
-
 .TP 5
---pagemode \fI{document,outlines,fullscreen}\fR
-.br
+.BI --pagemode " {document,outlines,fullscreen}"
 Specifies the initial viewing mode for a PDF file.
-
 .TP 5
---path \fI\"dir1;dir2;dir3;...;dirN\"\fR
-.br
+.BI --path " \"dir1;dir2;dir3;...;dirN\""
 Specifies a search path for files in a document.
-
 .TP 5
---permissions \fIpermission[,permission,...]\fR
-.br
-Specifies document permissions for encrypted PDF files. The
-following permissions are understood: all, none, annotate,
-no-annotate, copy, no-copy, modify, no-modify, print, and
-no-print. Separate multiple permissions with commas.
-
+.BI --permissions " permission[,permission,...]"
+Specifies document permissions for encrypted PDF files. The following permissions are understood: all, none, annotate, no-annotate, copy, no-copy, modify, no-modify, print, and no-print. Separate multiple permissions with commas.
 .TP 5
---pscommands
-.br
-Specifies that PostScript setpagedevice commands should be included
-in the output.
-
+.B --pscommands
+Specifies that PostScript setpagedevice commands should be included in the output.
 .TP 5
---quiet
-.br
+.B --quiet
 Suppresses all messages, even error messages.
-
 .TP 5
---referer \fIurl\fR
-.br
-Specifies the URL that is passed in the Referer: field of HTTP
-requests.
-
+.BI --referer " url"
+Specifies the URL that is passed in the Referer: field of HTTP requests.
 .TP 5
---right \fImargin\fR
-.br
-Specifies the right margin in points (no suffix or ##pt), inches
-(##in), centimeters (##cm), or millimeters (##mm).
-
+.BI --right " margin"
+Specifies the right margin in points (no suffix or ##pt), inches (##in), centimeters (##cm), or millimeters (##mm).
 .TP 5
---size \fIpagesize\fR
-.br
-Specifies the page size using a standard name or in points (no
-suffix or ##x##pt), inches (##x##in), centimeters (##x##cm), or
-millimeters (##x##mm). The standard sizes that are currently
-recognized are "letter" (8.5x11in), "legal" (8.5x14in), "a4"
-(210x297mm), and "universal" (8.27x11in).
-
+.BI --size " pagesize"
+Specifies the page size using a standard name or in points (no suffix or ##x##pt), inches (##x##in), centimeters (##x##cm), or millimeters (##x##mm). The standard sizes that are currently recognized are "letter" (8.5x11in), "legal" (8.5x14in), "a4" (210x297mm), and "universal" (8.27x11in).
 .TP 5
---strict
-.br
+.B --strict
 Enables strict HTML input checking.
-
 .TP 5
---textcolor \fIcolor\fR
-.br
+.BI --textcolor " color"
 Specifies the default color of all text.
-
 .TP 5
---title
-.br
+.B --title
 Enables the generation of a title page.
-
 .TP 5
---titlefile \fIfilename\fR
+.BI --titlefile " filename"
 .TP 5
---titleimage \fIfilename\fR
-.br
-Specifies the file to use for the title page. If the file is an image then
-the title page is automatically generated using the document meta data and
-title image.
-
+.BI --titleimage " filename"
+Specifies the file to use for the title page. If the file is an image then the title page is automatically generated using the document meta data and title image.
 .TP 5
---tocfooter \fIfff\fR
-.br
+.BI --tocfooter " fff"
 Sets the page footer to use on table-of-contents pages. See the
-\fIHEADERS/FOOTERS FORMATS\fR section below.
-
+.B HEADERS/FOOTERS FORMATS
+section below.
 .TP 5
---tocheader \fIfff\fR
-.br
+.BI --tocheader " fff"
 Sets the page header to use on table-of-contents pages. See the
-\fIHEADERS/FOOTERS FORMATS\fR section below.
-
+.B HEADERS/FOOTERS FORMATS
+section below.
 .TP 5
---toclevels \fIlevels\fR
-.br
+.BI --toclevels " levels"
 Sets the number of levels in the table-of-contents.
-
 .TP 5
---toctitle \fIstring\fR
-.br
+.BI --toctitle " string"
 Sets the title for the table-of-contents.
-
 .TP 5
---top \fImargin\fR
-.br
-Specifies the top margin in points (no suffix or ##pt), inches
-(##in), centimeters (##cm), or millimeters (##mm).
-
+.BI --top " margin"
+Specifies the top margin in points (no suffix or ##pt), inches (##in), centimeters (##cm), or millimeters (##mm).
 .TP 5
---user-password \fIpassword\fR
-.br
+.BI --user-password " password"
 Specifies the user password for encryption of PDF files.
-
 .TP 5
---verbose
+.B --verbose
 .TP 5
--v
-.br
+.B -v
 Provides verbose messages.
-
 .TP 5
---version
-.br
+.B --version
 Displays the current version number.
-
 .TP 5
---webpage
-.br
-Specifies that the HTML sources are unstructured (plain web pages.)
-A page break is inserted between each file or URL in the output.
-
+.B --webpage
+Specifies that the HTML sources are unstructured (plain web pages.) A page break is inserted between each file or URL in the output.
+.SH EXIT STATUS
+.B Htmldoc
+returns a non-zero exit status if any errors are seen, zero otherwise.
 .SH HEADER/FOOTER FORMATS
-The header and footer of each page can contain up to three preformatted
-values. These values are specified using a single character for the
-left, middle, and right of the page, resulting in the \fIfff\fR notation
-shown previously.
+The header and footer of each page can contain up to three preformatted values. These values are specified using a single character for the left, middle, and right of the page, resulting in the
+.I fff
+notation shown previously.
 .LP
 Each character can be one of the following:
-
 .TP 5
-\.
-.br
+.B .
 blank
-
 .TP 5
-/
-.br
+.B /
 n/N arabic page numbers (1/3, 2/3, 3/3)
-
 .TP 5
-:
-.br
+.B :
 c/C arabic chapter page numbers (1/2, 2/2, 1/4, 2/4, ...)
-
 .TP 5
-1
-.br
+.B 1
 arabic numbers (1, 2, 3, ...)
-
 .TP 5
-a
-.br
+.B a
 lowercase letters
-
 .TP 5
-A
-.br
+.B A
 uppercase letters
-
 .TP 5
-c
-.br
+.B c
 current chapter heading
-
 .TP 5
-C
-.br
+.B C
 current chapter page number (arabic)
-
 .TP 5
-d
-.br
+.B d
 current date
-
 .TP 5
-D
-.br
+.B D
 current date and time
-
 .TP 5
-h
-.br
+.B h
 current heading
-
 .TP 5
-i
-.br
+.B i
 lowercase roman numerals
-
 .TP 5
-I
-.br
+.B I
 uppercase roman numerals
-
 .TP 5
-l
-.br
+.B l
 logo image
-
 .TP 5
-t
-.br
+.B t
 title text
-
 .TP 5
-T
-.br
+.B T
 current time
 
-.SH ENVIRONMENT VARIABLES
-HTMLDOC looks for several environment variables which can override
-the default directories, display additional debugging information, and
-disable CGI mode:
-
+.SH ENVIRONMENT
+HTMLDOC looks for several environment variables which can override the default directories, display additional debugging information, and disable CGI mode:
 .TP 5
-HTMLDOC_DATA
-.br
-This environment variable specifies the location of HTMLDOC's data
-and fonts directories, normally /usr/share/htmldoc or
-C:\\Program Files\\Easy Software Products\\HTMLDOC.
-
+.B HTMLDOC_DATA
+This environment variable specifies the location of
+.BR htmldoc 's
+data and fonts directories, normally /usr/share/htmldoc or C:/Program Files/Easy Software Products/HTMLDOC.
 .TP 5
-HTMLDOC_DEBUG
-.br
-This environment variable enables debugging information that is
-sent to stderr. The value is a list of any of the following
-keywords separated by spaces: "all", "links", "memory",
-"remotebytes", "table", "tempfiles", and/or "timing".
-
+.B HTMLDOC_DEBUG
+This environment variable enables debugging information that is sent to stderr. The value is a list of any of the following keywords separated by spaces: "all", "links", "memory", "remotebytes", "table", "tempfiles", and/or "timing".
 .TP 5
-HTMLDOC_HELP
-.br
-This environment variable specifies the location of HTMLDOC's
-documentation directory, normally
-/usr/share/doc/htmldoc or C:\\Program Files\\Easy
-Software Products\\HTMLDOC\\doc.
-
+.B HTMLDOC_HELP
+This environment variable specifies the location of
+.BR htmldoc 's
+documentation directory, normally /usr/share/doc/htmldoc or C:/Program Files/Easy Software Products/HTMLDOC/doc.
 .TP 5
-HTMLDOC_NOCGI
-.br
-This environment variable, when set (the value doesn't
-matter), disables CGI mode. It is most useful for using HTMLDOC
-on a web server from a scripting language or invocation from a
-program.
-
+.B HTMLDOC_NOCGI
+This environment variable, when set (the value doesn't matter), disables CGI mode. It is most useful for using
+.B htmldoc
+on a web server from a scripting language or invocation from a program.
+.SH EXAMPLES
+Create a PDF file from a web site:
+.nf
+    htmldoc --webpage -f example.pdf http://www.example.com/
+.fi
+Create a PostScript book from a directory of HTML files
+.nf
+    htmldoc --book -f example.pdf *.html
+.fi
 .SH SEE ALSO
 HTMLDOC Software Users Manual
 .LP
-http://www.easysw.com/htmldoc/
+http://www.msweet.org/projects.php/HTMLDOC
 .SH AUTHOR
-Michael Sweet, Easy Software Products
-.SH TRADEMARKS
-PostScript is a trademark that may be registered in some countries and Adobe is
-a registered trademark of Adobe Systems Incorporated.
-.SH COPYRIGHTS
-Portable Document Format Copyright 1993-1999 by Adobe Systems Incorporated.
+Michael R Sweet
+.SH COPYRIGHTS AND TRADEMARKS
+HTMLDOC is copyright 1997-2016 by Michael R Sweet. This program is free software. Distribution and use rights are outlined in the file "COPYING.txt".
 .LP
-HTMLDOC and <HTML>DOC are the trademark property of Easy Software
-Products. HTMLDOC is copyright 1997-2005 by Easy Software
-Products.
+The Adobe Portable Document Format is Copyright 1985-2005 by Adobe Systems Incorporated. Adobe, FrameMaker, and PostScript are registered trademarks of Adobe Systems, Incorporated.
 .LP
-This program is based in part on the work of the Independent JPEG Group.
+This software is based in part on the work of the Independent JPEG Group and FLTK project.
 .SH NO WARRANTY
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .\"
 .\" End of "$Id$".
 .\"

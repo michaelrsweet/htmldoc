@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="htmldoc"
 	ProjectGUID="{287D2FB4-9941-4B64-B973-55A6EC04EAFC}"
+	RootNamespace="htmldoc"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -73,12 +74,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib comctl32.lib ws2_32.lib"
+				AdditionalDependencies="comctl32.lib ws2_32.lib"
 				OutputFile="htmldoc.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames="libcmt.lib;OLDNAMES.lib"
+				IgnoreDefaultLibraryNames="libcmt.lib"
 				ProgramDatabaseFile=".\Release/htmldoc.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -105,6 +106,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Generate HTMLDOC Users Manual"
+				CommandLine="htmldoc.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf"
 			/>
 		</Configuration>
 		<Configuration
@@ -165,12 +168,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libeay32.lib ssleay32.lib comctl32.lib ws2_32.lib"
-				OutputFile="htmldoc.exe"
+				AdditionalDependencies="comctl32.lib ws2_32.lib"
+				OutputFile="htmldocd.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames="libcmtd.lib;OLDNAMES.lib"
+				IgnoreDefaultLibraryNames="libcmtd.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/htmldocd.pdb"
 				SubSystem="1"
@@ -198,6 +201,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Generate HTMLDOC Users Manual"
+				CommandLine="htmldocd.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf"
 			/>
 		</Configuration>
 	</Configurations>
@@ -209,44 +214,28 @@
 			Filter="c,cxx"
 			>
 			<File
-				RelativePath="..\htmldoc\entity.cxx"
+				RelativePath="..\htmldoc\file.c"
 				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file-ascii.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file-common.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file-flate.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file-jpeg.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file-mem.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file-open.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file-rc4.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file-std.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\file.cxx"
-				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\htmldoc\html.cxx"
@@ -321,32 +310,104 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\htmldoc\http-md5.cxx"
+				RelativePath="..\htmldoc\htmlsep.cxx"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\htmldoc\http-addr.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\htmldoc\http-addrlist.c"
 				>
 			</File>
 			<File
-				RelativePath="..\htmldoc\http.cxx"
+				RelativePath="..\htmldoc\http-support.c"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\htmldoc\image-bmp.cxx"
+				RelativePath="..\htmldoc\http.c"
 				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\image-gif.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\image-jpeg.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\image-png.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\image-reduce.cxx"
-				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\htmldoc\image.cxx"
@@ -373,16 +434,52 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\htmldoc\index.cxx"
+				RelativePath="..\htmldoc\iso8859.cxx"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\htmldoc\margin.cxx"
+				RelativePath="..\htmldoc\md5.c"
 				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\md5.cxx"
-				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\htmldoc\progress.cxx"
@@ -433,7 +530,31 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\htmldoc\rc4.cxx"
+				RelativePath="..\htmldoc\rc4.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FavorSizeOrSpeed="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\htmldoc\sspi.c"
 				>
 			</File>
 			<File
@@ -459,26 +580,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\htmldoc\style.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\stylefont.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\stylemedia.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\stylesheet.cxx"
-				>
-			</File>
-			<File
-				RelativePath="..\htmldoc\styletree.cxx"
-				>
 			</File>
 			<File
 				RelativePath="..\htmldoc\toc.cxx"
@@ -534,10 +635,6 @@
 			Filter="h"
 			>
 			<File
-				RelativePath="..\htmldoc\array.h"
-				>
-			</File>
-			<File
 				RelativePath="config.h"
 				>
 			</File>
@@ -558,11 +655,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\htmldoc\http-private.h"
+				>
+			</File>
+			<File
 				RelativePath="..\htmldoc\image.h"
 				>
 			</File>
 			<File
 				RelativePath="..\htmldoc\iso8859.h"
+				>
+			</File>
+			<File
+				RelativePath="..\htmldoc\md5-private.h"
+				>
+			</File>
+			<File
+				RelativePath="..\htmldoc\sspi-private.h"
 				>
 			</File>
 			<File
@@ -574,10 +683,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\htmldoc\array.cxx"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

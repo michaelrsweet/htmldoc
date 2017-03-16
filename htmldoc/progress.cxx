@@ -4,7 +4,7 @@
  *   Progress functions for HTMLDOC, a HTML document processing program.
  *
  *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.
+ *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  *   This program is free software.  Distribution and use rights are outlined in
  *   the file "COPYING.txt".
@@ -23,6 +23,10 @@
 
 #include "htmldoc.h"
 #include <stdarg.h>
+
+#ifdef HAVE_LIBFLTK
+#  include <FL/fl_ask.H>
+#endif // HAVE_LIBFLTK
 
 #ifdef WIN32
 #  define getpid	GetCurrentProcessId
@@ -44,7 +48,7 @@ static int	progress_visible = 0;
  */
 
 void
-progress_error(hdError    error,	/* I - Error number */
+progress_error(HDerror    error,	/* I - Error number */
                const char *format,	/* I - Printf-style format string */
                ...)			/* I - Additional args as needed */
 {
@@ -61,6 +65,16 @@ progress_error(hdError    error,	/* I - Error number */
   va_start(ap, format);
   vsnprintf(text, sizeof(text), format, ap);
   va_end(ap);
+
+#ifdef HAVE_LIBFLTK
+  if (BookGUI != NULL)
+  {
+    if (error)
+      BookGUI->add_error(text);
+
+    return;
+  }
+#endif /* HAVE_LIBFLTK */
 
 #ifdef WIN32
   // IIS doesn't separate stderr from stdout, so we have to send CGI errors
@@ -121,6 +135,14 @@ progress_error(hdError    error,	/* I - Error number */
 void
 progress_hide(void)
 {
+#ifdef HAVE_LIBFLTK
+  if (BookGUI != NULL)
+  {
+    BookGUI->progress(0, "HTMLDOC " SVERSION " Ready.");
+    return;
+  }
+#endif /* HAVE_LIBFLTK */
+
   if (CGIMode)
     return;
 
@@ -150,6 +172,14 @@ progress_show(const char *format,	/* I - Printf-style format string */
   vsnprintf(text, sizeof(text), format, ap);
   va_end(ap);
 
+#ifdef HAVE_LIBFLTK
+  if (BookGUI != NULL)
+  {
+    BookGUI->progress(0, text);
+    return;
+  }
+#endif /* HAVE_LIBFLTK */
+
   if (CGIMode)
   {
     if (Verbosity > 0)
@@ -178,6 +208,13 @@ progress_show(const char *format,	/* I - Printf-style format string */
 void
 progress_update(int percent)	/* I - Percent complete */
 {
+#ifdef HAVE_LIBFLTK
+  if (BookGUI != NULL)
+  {
+    BookGUI->progress(percent);
+    return;
+  }
+#endif /* HAVE_LIBFLTK */
 }
 
 
