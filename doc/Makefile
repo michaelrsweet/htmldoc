@@ -19,14 +19,14 @@ include ../Makedefs
 # Documentation files...
 #
 
-SOURCES	=	intro.html \
-		1-starting.html \
-		2-books.html \
-		3-cmdline.html \
-		4-cgi.html \
-		5-htmlref.html \
-		6-guiref.html \
-		7-cmdref.html \
+SOURCES	=	1-intro.html \
+		2-starting.html \
+		3-books.html \
+		4-cmdline.html \
+		5-cgi.html \
+		6-htmlref.html \
+		7-guiref.html \
+		8-cmdref.html \
 		a-license.html \
 		b-book.html
 
