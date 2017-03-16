@@ -91,7 +91,7 @@ of Ghostscript, among other things).
 # Legal Stuff
 
 HTMLDOC is copyright 1997-2017 by Michael R Sweet.  This program is free
-software.  Distribution and use rights are outlined in the file "COPYING.txt".
+software.  Distribution and use rights are outlined in the file "COPYING".
 
 HTMLDOC includes code to encrypt PDF document files using the RC4 algorithm
 with up to a 128-bit key. While this software and code may be freely used
