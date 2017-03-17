@@ -1,36 +1,11 @@
 /*
- * "$Id$"
+ * Image handling routines for HTMLDOC, a HTML document processing program.
  *
- *   Image handling routines for HTMLDOC, a HTML document processing program.
+ * Copyright 2011-2017 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   gif_read_cmap()      - Read the colormap from a GIF file...
- *   gif_get_block()      - Read a GIF data block...
- *   gif_get_code()       - Get a LZW code from the file...
- *   gif_read_image()     - Read a GIF image stream...
- *   gif_read_lzw()       - Read a byte from the LZW stream...
- *   image_compare()      - Compare two image filenames...
- *   image_copy()         - Copy image files to the destination directory...
- *   image_flush_cache()  - Flush the image cache...
- *   image_getlist()      - Get the list of images that are loaded.
- *   image_load()         - Load an image file from disk...
- *   image_load_bmp()     - Read a BMP image file.
- *   image_load_gif()     - Load a GIF image file...
- *   image_load_jpeg()    - Load a JPEG image file.
- *   image_load_png()     - Load a PNG image file.
- *   image_need_mask()    - Allocate memory for the image mask...
- *   image_set_mask()     - Set a bit in the image mask.
- *   jpeg_error_handler() - Handle JPEG errors by not exiting.
- *   read_word()          - Read a 16-bit unsigned integer.
- *   read_dword()         - Read a 32-bit unsigned integer.
- *   read_long()          - Read a 32-bit signed integer.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -1459,6 +1434,8 @@ image_load_png(image_t *img,	/* I - Image pointer */
   png_bytep	*rows;		/* PNG row pointers */
   uchar		*inptr,		/* Input pixels */
 		*outptr;	/* Output pixels */
+  int		color_type,	/* PNG color mode */
+		bit_depth;	/* PNG bit depth */
 
 
  /*
@@ -1513,24 +1490,38 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   png_read_info(pp, info);
 
-  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_PALETTE)
+  bit_depth  = png_get_bit_depth(pp, info);
+  color_type = png_get_color_type(pp, info);
+
+  if (png_get_valid(pp, info, PNG_INFO_tRNS))
   {
-    png_set_expand(pp);
+    png_set_tRNS_to_alpha(pp);
+    color_type |= PNG_COLOR_MASK_ALPHA;
+  }
+
+  if (color_type & PNG_COLOR_MASK_PALETTE)
+  {
+    png_set_palette_to_rgb(pp);
 
     // If we are writing an encrypted PDF file, bump the use count so we create
     // an image object (Acrobat 6 bug workaround)
     if (Encryption)
       img->use ++;
   }
-  else if (png_get_bit_depth(pp, info) < 8)
+  else if (!(color_type & PNG_COLOR_MASK_COLOR) && bit_depth < 8)
   {
-    png_set_packing(pp);
-    png_set_expand(pp);
+    png_set_expand_gray_1_2_4_to_8(pp);
   }
-  else if (png_get_bit_depth(pp, info) == 16)
+  else if (bit_depth == 16)
+  {
+#if PNG_LIBPNG_VER >= 10504
+    png_set_scale_16(pp);
+#else
     png_set_strip_16(pp);
+#endif // PNG_LIBPNG_VER >= 10504
+  }
 
-  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_COLOR)
+  if (color_type & PNG_COLOR_MASK_COLOR)
   {
     depth      = 3;
     img->depth = gray ? 1 : 3;
@@ -1544,7 +1535,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   img->width  = png_get_image_width(pp, info);
   img->height = png_get_image_height(pp, info);
 
-  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_ALPHA)
+  if (color_type & PNG_COLOR_MASK_ALPHA)
   {
     if ((PSLevel == 0 && PDFVersion >= 14) || PSLevel == 3)
       image_need_mask(img, 8);
@@ -1557,15 +1548,14 @@ image_load_png(image_t *img,	/* I - Image pointer */
   }
 
 #ifdef DEBUG
-  printf("color_type=0x%04x, depth=%d, img->width=%d, img->height=%d, img->depth=%d\n",
-         png_get_color_type(pp, info), depth, img->width, img->height, img->depth);
-  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_COLOR)
+  printf("bit_depth=%d, color_type=0x%04x, depth=%d, img->width=%d, img->height=%d, img->depth=%d\n", bit_depth, color_type, depth, img->width, img->height, img->depth);
+  if (color_type & PNG_COLOR_MASK_COLOR)
     puts("    COLOR");
   else
     puts("    GRAYSCALE");
-  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_ALPHA)
+  if (color_type & PNG_COLOR_MASK_ALPHA)
     puts("    ALPHA");
-  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_PALETTE)
+  if (color_type & PNG_COLOR_MASK_PALETTE)
     puts("    PALETTE");
 #endif // DEBUG
 
@@ -1597,7 +1587,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Generate the alpha mask as necessary...
   */
 
-  if (png_get_color_type(pp, info) & PNG_COLOR_MASK_ALPHA)
+  if (color_type & PNG_COLOR_MASK_ALPHA)
   {
 #ifdef DEBUG
     for (inptr = img->pixels, i = 0; i < img->height; i ++)
@@ -1626,10 +1616,10 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Reformat the data as necessary for the reader...
   */
 
-  if (gray && png_get_color_type(pp, info) & PNG_COLOR_MASK_COLOR)
+  if (gray && (color_type & PNG_COLOR_MASK_COLOR))
   {
    /*
-    * Greyscale output needed...
+    * Grayscale output needed...
     */
 
     for (inptr = img->pixels, outptr = img->pixels, i = img->width * img->height;
