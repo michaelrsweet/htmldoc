@@ -1,13 +1,11 @@
 /*
- * "$Id$"
- *
  * String definitions for HTMLDOC, a HTML document processing program.
  *
  * Copyright 2011-2014 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING.txt".
+ * the file "COPYING".
  */
 
 #ifndef _HDSTRING_H_
@@ -101,7 +99,3 @@ extern int	hd_vsnprintf(char *, size_t, const char *, va_list);
 #  endif /* __cplusplus */
 
 #endif /* !_HDSTRING_H_ */
-
-/*
- * End of "$Id$".
- */

@@ -1,18 +1,11 @@
 /*
- * "$Id$"
+ * (v)snprintf functions for HTMLDOC.
  *
- *   (v)snprintf functions for HTMLDOC.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   hd_vsnprintf() - Format a string into a fixed size buffer.
- *   hd_snprintf()  - Format a string into a fixed size buffer.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -169,7 +162,7 @@ hd_vsnprintf(char       *buffer,	/* O - Output buffer */
 	      }
 	    }
 	    break;
-	    
+
 	case 'p' : /* Pointer value */
 	    if ((format - bufformat + 1) > sizeof(tformat) ||
 	        (width + 2) > sizeof(temp))
@@ -320,9 +313,3 @@ hd_snprintf(char       *buffer,		/* O - Output buffer */
   return (bytes);
 }
 #endif /* !HAVE_SNPRINTF */
-
-
-/*
- * End of "$Id$".
- */
-

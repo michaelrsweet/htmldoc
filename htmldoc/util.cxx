@@ -1,24 +1,11 @@
 /*
- * "$Id$"
+ * Utility functions for HTMLDOC, a HTML document processing program.
  *
- *   Utility functions for HTMLDOC, a HTML document processing program.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   format_number()   - Format a number into arabic numerals, roman numerals,
- *                       or letters.
- *   get_color()       - Get a standard color value...
- *   get_format()      - Convert an old "fff" format string to the new format.
- *   get_fmt()         - Convert a new format string to the old "fff" format.
- *   get_measurement() - Get a size measurement in inches, points, centimeters,
- *                       or millimeters.
- *   set_page_size()   - Set the output page size.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -500,8 +487,3 @@ set_page_size(const char *size)	/* I - Page size string */
     }
   }
 }
-
-
-/*
- * End of "$Id$".
- */

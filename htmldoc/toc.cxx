@@ -1,20 +1,12 @@
 /*
- * "$Id$"
+ * Table of contents generator for HTMLDOC, a HTML document processing
+ * program.
  *
- *   Table of contents generator for HTMLDOC, a HTML document processing
- *   program.
+ * Copyright 2011, 2014 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011, 2014 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   toc_build()   - Build a table of contents of the given HTML tree.
- *   add_heading() - Add heading records to the given toc entry...
- *   parse_tree()  - Parse headings from the given tree...
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -385,8 +377,3 @@ parse_tree(tree_t *t)		/* I - Document tree */
     t = t->next;
   }
 }
-
-
-/*
- * End of "$Id$".
- */

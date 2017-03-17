@@ -1,19 +1,12 @@
 /*
- * "$Id$"
- *
  * TLS support for HTMLDOC on Windows using the Security Support Provider
  * Interface (SSPI).
  *
- * Copyright 2016 by Michael R Sweet.
+ * Copyright 2016-2017 by Michael R Sweet.
  * Copyright 2010-2015 by Apple Inc.
  *
- * These coded instructions, statements, and computer programs are the
- * property of Apple Inc. and are protected by Federal copyright
- * law.  Distribution and use rights are outlined in the file "LICENSE.txt"
- * which should have been included with this file.  If this file is
- * file is missing or damaged, see the license at "http://www.cups.org/".
- *
- * This file is subject to the Apple OS-Developed Software exception.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /**** This file is included from tls.c ****/
@@ -55,7 +48,7 @@
  * Local globals...
  */
 
-static int		tls_options = _HTTP_TLS_NONE;/* Options for TLS connections */
+static int		tls_options = -1;/* Options for TLS connections */
 
 
 /*
@@ -79,7 +72,7 @@ static DWORD	http_sspi_verify(PCCERT_CONTEXT cert, const char *common_name, DWOR
  * 'httpCopyCredentials()' - Copy the credentials associated with the peer in
  *                           an encrypted connection.
  *
- * @since CUPS 1.5/OS X 10.7@
+ * @since CUPS 1.5/macOS 10.7@
  */
 
 int					/* O - Status of call (0 = success) */
@@ -2367,8 +2360,3 @@ http_sspi_verify(
 
   return (status);
 }
-
-
-/*
- * End of "$Id$".
- */

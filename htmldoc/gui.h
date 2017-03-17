@@ -1,13 +1,11 @@
 /*
- * "$Id$"
+ * GUI definitions for HTMLDOC, an HTML document processing program.
  *
- *   GUI definitions for HTMLDOC, an HTML document processing program.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -284,8 +282,3 @@ class GUI
   void	show();
   int	visible() { return (window->visible()); }
 };
-
-
-/*
- * End of "$Id$".
- */

@@ -1,23 +1,17 @@
-//
-// "$Id$"
-//
-//   Separated HTML export functions for HTMLDOC, a HTML document processing
-//   program.
-//
-//   Copyright 2011-2013 by Michael R Sweet.
-//   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
-//
-//   This program is free software.  Distribution and use rights are outlined in
-//   the file "COPYING.txt".
-//
-// Contents:
-//
-//   htmlsep_export() - Export to separated HTML files.
-//
+/*
+ * Separated HTML export functions for HTMLDOC, a HTML document processing
+ * program.
+ *
+ * Copyright 2011-2013 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ *
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
+ */
 
-//
-// Include necessary headers.
-//
+/*
+ * Include necessary headers.
+ */
 
 #include "htmldoc.h"
 #include <ctype.h>
@@ -1149,8 +1143,3 @@ update_links(tree_t *t,		/* I - Document tree */
     t = t->next;
   }
 }
-
-
-//
-// End of "$Id$".
-//

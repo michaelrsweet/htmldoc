@@ -1,6 +1,4 @@
 /*
- * "$Id$"
- *
  * TLS routines for HTMLDOC.
  *
  * Copyright 2016 by Michael R Sweet.
@@ -10,13 +8,8 @@
  * This file contains Kerberos support code, copyright 2006 by
  * Jelmer Vernooij.
  *
- * These coded instructions, statements, and computer programs are the
- * property of Apple Inc. and are protected by Federal copyright
- * law.  Distribution and use rights are outlined in the file "LICENSE.txt"
- * which should have been included with this file.  If this file is
- * file is missing or damaged, see the license at "http://www.cups.org/".
- *
- * This file is subject to the Apple OS-Developed Software exception.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -106,8 +99,3 @@ httpSaveCredentials(const char *path, cups_array_t *credentials, const char *com
   return (-1);
 }
 #endif /* HAVE_SSL */
-
-
-/*
- * End of "$Id$".
- */

@@ -1,35 +1,11 @@
 /*
- * "$Id$"
+ * Filename routines for HTMLDOC, a HTML document processing program.
  *
- *   Filename routines for HTMLDOC, a HTML document processing program.
+ * Copyright 2011, 2014 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011, 2014 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   file_basename()    - Return the base filename without directory or target.
- *   file_cleanup()     - Close an open HTTP connection and remove
- *                        temporary files...
- *   file_cookies()     - Set the HTTP cookies for remote accesses.
- *   file_directory()   - Return the directory without filename or target.
- *   file_extension()   - Return the extension of a file without the target.
- *   file_find_check()  - Check to see if the specified file or URL exists...
- *   file_find()        - Find a file in one of the path directories.
- *   file_gets()        - Read a line from a file terminated with CR, LF,
- *                        or CR LF.
- *   file_localize()    - Localize a filename for the new working directory.
- *   file_method()      - Return the method for a filename or URL.
- *   file_nolocal()     - Disable access to local files.
- *   file_proxy()       - Set the proxy host for all HTTP requests.
- *   file_referer()     - Set the HTTP referer for remote accesses.
- *   file_rlookup()     - Lookup a filename to find the original URL, if
- *                        applicable.
- *   file_target()      - Return the target of a link.
- *   file_temp()        - Create and open a temporary file.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -1103,8 +1079,3 @@ file_temp(char *name,			/* O - Filename */
 
   return (fp);
 }
-
-
-/*
- * End of "$Id$".
- */

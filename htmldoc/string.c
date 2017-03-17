@@ -1,22 +1,11 @@
 /*
- * "$Id$"
+ * String functions for HTMLDOC.
  *
- *   String functions for HTMLDOC.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   hd_strcpy()      - Copy a string allowing for overlapping strings.
- *   hd_strdup()      - Duplicate a string.
- *   hd_strcasecmp()  - Do a case-insensitive comparison.
- *   hd_strncasecmp() - Do a case-insensitive comparison on up to N chars.
- *   hd_strlcat()     - Safely concatenate two strings.
- *   hd_strlcpy()     - Safely copy two strings.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -205,8 +194,3 @@ hd_strlcpy(char       *dst,	/* O - Destination string */
   return (srclen);
 }
 #endif /* !HAVE_STRLCPY */
-
-
-/*
- * End of "$Id$".
- */

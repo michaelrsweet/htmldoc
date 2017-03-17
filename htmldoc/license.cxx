@@ -1,19 +1,12 @@
 //
-// "$Id$"
+// GUI license dialog routines for HTMLDOC, an HTML document processing
+// program.
 //
-//   GUI license dialog routines for HTMLDOC, an HTML document processing
-//   program.
+// Copyright 2011-2017 by Michael R Sweet.
+// Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 //
-//   Copyright 2011 by Michael R Sweet.
-//   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
-//
-//   This program is free software.  Distribution and use rights are outlined in
-//   the file "COPYING.txt".
-//
-// Contents:
-//
-//   GUI::showLicenseCB() - Show the current license.
-//   closeLicenseCB()     - Close the license window.
+// This program is free software.  Distribution and use rights are outlined in
+// the file "COPYING".
 //
 
 #include "htmldoc.h"
@@ -66,13 +59,11 @@ GUI::showLicenseCB(void)
   group->labelsize(18);
 
   box = new Fl_Box(20, 45, 440, 110,
-    "You are using the free, unsupported version of HTMLDOC which is "
-    "provided under the terms of the GNU General Public License shown "
-    "below. Commercial versions of HTMLDOC, which financially "
-    "support the continued development of HTMLDOC, may be purchased at the "
-    "following URL:\n"
-    "\n"
-    "                http://www.easysw.com/htmldoc/"
+    "Copyright (c) 2011-2017 by Michael R Sweet.\n\n"
+    "HTMLDOC is provided under the terms of the GNU General Public License and "
+    "comes with absolutely no warranty.  Please report problems on the Github "
+    "issues page at:\n\n"
+    "    https://github.com/michaelrsweet/htmldoc/issues\n"
   );
 
   box->align((Fl_Align)(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP));
@@ -414,7 +405,3 @@ closeLicenseCB(Fl_Widget *w)		// I - Close button
 
 
 #endif // HAVE_LIBFLTK
-
-//
-// End of "$Id$".
-//

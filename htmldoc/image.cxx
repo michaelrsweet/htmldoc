@@ -1847,8 +1847,3 @@ read_long(FILE *fp)               /* I - File to read from */
 
   return ((int)(((((b3 << 8) | b2) << 8) | b1) << 8) | b0);
 }
-
-
-/*
- * End of "$Id$".
- */

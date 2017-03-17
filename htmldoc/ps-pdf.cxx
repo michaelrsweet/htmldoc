@@ -1,6 +1,4 @@
 /*
- * "$Id$"
- *
  * PostScript + PDF output routines for HTMLDOC, a HTML document processing
  * program.
  *
@@ -12,7 +10,7 @@
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING.txt".
+ * the file "COPYING".
  */
 
 /*
@@ -12813,8 +12811,3 @@ flate_write(FILE  *out,			/* I - Output file */
   else
     fwrite(buf, length, 1, out);
 }
-
-
-/*
- * End of "$Id$".
- */

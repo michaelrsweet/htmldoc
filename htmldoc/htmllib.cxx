@@ -1,45 +1,11 @@
 /*
- * "$Id$"
+ * HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
- *   HTML parsing routines for HTMLDOC, a HTML document processing program.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   htmlReadFile()       - Read a file for HTML markup codes.
- *   write_file()         - Write a tree entry to a file...
- *   htmlWriteFile()      - Write an HTML markup tree to a file.
- *   htmlAddTree()        - Add a tree node to the parent.
- *   htmlDeleteTree()     - Free all memory associated with a tree...
- *   htmlInsertTree()     - Insert a tree node to the parent.
- *   htmlNewTree()        - Create a new tree node for the parent.
- *   htmlGetText()        - Get all text from the given tree.
- *   htmlGetMeta()        - Get document "meta" data...
- *   htmlGetStyle()       - Get a style value from a node's STYLE attribute.
- *   htmlGetVariable()    - Get a variable value from a markup entry.
- *   htmlLoadFontWidths() - Load all of the font width files.
- *   htmlSetVariable()    - Set a variable for a markup entry.
- *   htmlSetBaseSize()    - Set the font sizes and spacings...
- *   htmlSetCharSet()     - Set the character set for output.
- *   htmlSetTextColor()   - Set the default text color.
- *   compare_variables()  - Compare two markup variables.
- *   compare_markups()    - Compare two markup strings...
- *   delete_node()        - Free all memory associated with a node...
- *   insert_space()       - Insert a whitespace character before the
- *                          specified node.
- *   parse_markup()       - Parse a markup string.
- *   parse_variable()     - Parse a markup variable string.
- *   compute_size()       - Compute the width and height of a tree entry.
- *   compute_color()      - Compute the red, green, blue color from the given
- *   get_alignment()      - Get horizontal & vertical alignment values.
- *   fix_filename()       - Fix a filename to be relative to the base directory.
- *   html_memory_used()   - Figure out the amount of memory that was used.
- *   htmlDebugStats()     - Display debug statistics for HTML tree memory use.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -708,7 +674,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	      t->underline     = parent->underline;
 	      t->strikethrough = parent->strikethrough;
 	    }
-	    
+
           }
 	}
 	else if (ch == '/')
@@ -1442,7 +1408,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       parent = t;
       prev   = NULL;
     }
-  }  
+  }
 
   return (tree);
 }
@@ -1577,7 +1543,7 @@ write_file(tree_t *t,		/* I - Tree entry */
 	  putc('\n', fp);
 	  col = 0;
 	}
-	
+
         col += fprintf(fp, "</%s>", _htmlMarkups[t->markup]);
         switch (t->markup)
         {
@@ -1620,8 +1586,8 @@ write_file(tree_t *t,		/* I - Tree entry */
 
   return (col);
 }
-        
-  
+
+
 /*
  * 'htmlWriteFile()' - Write an HTML markup tree to a file.
  */
@@ -3456,8 +3422,3 @@ htmlFixLinks(tree_t *doc,		// I - Top node
     tree = tree->next;
   }
 }
-
-
-/*
- * End of "$Id$".
- */

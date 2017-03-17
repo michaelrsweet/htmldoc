@@ -1,20 +1,11 @@
 /*
- * "$Id$"
+ * Progress functions for HTMLDOC, a HTML document processing program.
  *
- *   Progress functions for HTMLDOC, a HTML document processing program.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   progress_error()  - Display an error message.
- *   progress_hide()   - Hide the current run status.
- *   progress_show()   - Show the current run status.
- *   progress_update() - Update the current run status.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -216,8 +207,3 @@ progress_update(int percent)	/* I - Percent complete */
   }
 #endif /* HAVE_LIBFLTK */
 }
-
-
-/*
- * End of "$Id$".
- */

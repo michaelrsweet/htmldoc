@@ -1,13 +1,11 @@
 /*
- * "$Id$"
+ * Header file for HTMLDOC, a HTML document processing program.
  *
- *   Header file for HTMLDOC, a HTML document processing program.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -264,7 +262,3 @@ extern char	*format_number(int n, char f);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-/*
- * End of "$Id$".
- */

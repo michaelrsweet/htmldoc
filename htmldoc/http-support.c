@@ -1,19 +1,12 @@
 /*
- * "$Id$"
- *
  * HTTP support routines for HTMLDOC.
  *
- * Copyright 2016 by Michael R Sweet.
- * Copyright 2007-2015 by Apple Inc.
+ * Copyright 2016-2017 by Michael R Sweet.
+ * Copyright 2007-2016 by Apple Inc.
  * Copyright 1997-2007 by Easy Software Products, all rights reserved.
  *
- * These coded instructions, statements, and computer programs are the
- * property of Apple Inc. and are protected by Federal copyright
- * law.  Distribution and use rights are outlined in the file "LICENSE.txt"
- * which should have been included with this file.  If this file is
- * file is missing or damaged, see the license at "http://www.cups.org/".
- *
- * This file is subject to the Apple OS-Developed Software exception.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -154,7 +147,7 @@ static void	http_resolve_cb(AvahiServiceResolver *resolver,
  * place of traditional string functions whenever you need to create a
  * URI string.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 http_uri_status_t			/* O - URI status */
@@ -434,7 +427,7 @@ httpAssembleURI(
  * this function in place of traditional string functions whenever
  * you need to create a URI string.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 http_uri_status_t			/* O - URI status */
@@ -494,7 +487,7 @@ httpAssembleURIf(
  *
  * The buffer needs to be at least 46 bytes in size.
  *
- * @since CUPS 1.7/OS X 10.9@
+ * @since CUPS 1.7/macOS 10.9@
  */
 
 char *					/* I - UUID string */
@@ -570,7 +563,7 @@ httpDecode64(char       *out,		/* I - String to write to */
 /*
  * 'httpDecode64_2()' - Base64-decode a string.
  *
- * @since CUPS 1.1.21/OS X 10.4@
+ * @since CUPS 1.1.21/macOS 10.4@
  */
 
 char *					/* O  - Decoded string */
@@ -689,7 +682,7 @@ httpEncode64(char       *out,		/* I - String to write to */
 /*
  * 'httpEncode64_2()' - Base64-encode a string.
  *
- * @since CUPS 1.1.21/OS X 10.4@
+ * @since CUPS 1.1.21/macOS 10.4@
  */
 
 char *					/* O - Encoded string */
@@ -798,7 +791,7 @@ httpGetDateString(time_t t)		/* I - UNIX time */
 /*
  * 'httpGetDateString2()' - Get a formatted date/time string from a time value.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 const char *				/* O - Date/time string */
@@ -915,7 +908,7 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
  *
  * This function is deprecated; use the httpSeparateURI() function instead.
  *
- * @since CUPS 1.1.21/OS X 10.4@
+ * @since CUPS 1.1.21/macOS 10.4@
  * @deprecated@
  */
 
@@ -940,7 +933,7 @@ httpSeparate2(const char *uri,		/* I - Universal Resource Identifier */
  * 'httpSeparateURI()' - Separate a Universal Resource Identifier into its
  *                       components.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 http_uri_status_t			/* O - Result of separation */
@@ -2519,8 +2512,3 @@ http_resolve_cb(
   avahi_simple_poll_quit(uribuf->poll);
 }
 #endif /* HAVE_DNSSD */
-
-
-/*
- * End of "$Id$".
- */

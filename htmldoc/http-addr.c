@@ -1,19 +1,12 @@
 /*
- * "$Id$"
- *
  * HTTP address routines for HTMLDOC.
  *
- * Copyright 2016 by Michael R Sweet.
+ * Copyright 2016-2017 by Michael R Sweet.
  * Copyright 2007-2014 by Apple Inc.
  * Copyright 1997-2006 by Easy Software Products, all rights reserved.
  *
- * These coded instructions, statements, and computer programs are the
- * property of Apple Inc. and are protected by Federal copyright
- * law.  Distribution and use rights are outlined in the file "LICENSE.txt"
- * which should have been included with this file.  If this file is
- * file is missing or damaged, see the license at "http://www.cups.org/".
- *
- * This file is subject to the Apple OS-Developed Software exception.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -34,7 +27,7 @@
 /*
  * 'httpAddrAny()' - Check for the "any" address.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 int					/* O - 1 if "any", 0 otherwise */
@@ -91,7 +84,7 @@ httpAddrClose(http_addr_t *addr,		/* I - Listen address or @code NULL@ */
 /*
  * 'httpAddrEqual()' - Compare two addresses.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 int						/* O - 1 if equal, 0 if not */
@@ -124,7 +117,7 @@ httpAddrEqual(const http_addr_t *addr1,		/* I - First address */
 /*
  * 'httpAddrLength()' - Return the length of the address in bytes.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 int					/* O - Length in bytes */
@@ -155,7 +148,7 @@ httpAddrLength(const http_addr_t *addr)	/* I - Address */
  * 'httpAddrListen()' - Create a listening socket bound to the specified
  *                      address and port.
  *
- * @since CUPS 1.7/OS X 10.9@
+ * @since CUPS 1.7/macOS 10.9@
  */
 
 int					/* O - Socket or -1 on error */
@@ -281,7 +274,7 @@ httpAddrListen(http_addr_t *addr,	/* I - Address to bind to */
 /*
  * 'httpAddrLocalhost()' - Check for the local loopback address.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 int					/* O - 1 if local host, 0 otherwise */
@@ -313,7 +306,7 @@ httpAddrLocalhost(
 /*
  * 'httpAddrLookup()' - Lookup the hostname associated with the address.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 char *					/* O - Host name */
@@ -423,7 +416,7 @@ httpAddrFamily(http_addr_t *addr)	/* I - Address */
 /*
  * 'httpAddrPort()' - Get the port number associated with an address.
  *
- * @since CUPS 1.7/OS X 10.9@
+ * @since CUPS 1.7/macOS 10.9@
  */
 
 int					/* O - Port number */
@@ -466,7 +459,7 @@ _httpAddrSetPort(http_addr_t *addr,	/* I - Address */
 /*
  * 'httpAddrString()' - Convert an address to a numeric string.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 char *					/* O - Numeric address string */
@@ -756,7 +749,7 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
  * Otherwise, return the FQDN for the local system using both gethostname()
  * and gethostbyname() to get the local hostname with domain.
  *
- * @since CUPS 1.2/OS X 10.5@
+ * @since CUPS 1.2/macOS 10.5@
  */
 
 const char *				/* O - FQDN for connection or system */
@@ -847,6 +840,18 @@ httpGetHostname(http_t *http,		/* I - HTTP connection or NULL */
   }
 
  /*
+  * Convert the hostname to lowercase as needed...
+  */
+
+  if (s[0] != '/')
+  {
+    char	*ptr;			/* Pointer into string */
+
+    for (ptr = s; *ptr; ptr ++)
+      *ptr = (char)tolower((int)*ptr & 255);
+  }
+
+ /*
   * Return the hostname with as much domain info as we have...
   */
 
@@ -893,8 +898,3 @@ httpResolveHostname(http_t *http,	/* I - HTTP connection */
   else
     return (http->hostname);
 }
-
-
-/*
- * End of "$Id$".
- */

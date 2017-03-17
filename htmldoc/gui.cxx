@@ -1,65 +1,11 @@
 //
-// "$Id$"
+// GUI routines for HTMLDOC, an HTML document processing program.
 //
-//   GUI routines for HTMLDOC, an HTML document processing program.
+// Copyright 2011-2017 by Michael R Sweet.
+// Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 //
-//   Copyright 2011 by Michael R Sweet.
-//   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
-//
-//   This program is free software.  Distribution and use rights are outlined in
-//   the file "COPYING.txt".
-//
-// Contents:
-//
-//   GUI()                 - Build the HTMLDOC GUI and load the indicated book
-//                           as necessary.
-//   ~GUI()                - Destroy the HTMLDOC GUI.
-//   GUI::show()           - Display the window.
-//   GUI::progress()       - Update the progress bar on the GUI.
-//   GUI::title()          - Set the title bar of the window.
-//   GUI::loadSettings()   - Load the current settings into the HTMLDOC globals.
-//   GUI::newBook()        - Clear out the current GUI settings for a new book.
-//   GUI::loadBook()       - Load a book file from disk.
-//   GUI::parseOptions()   - Parse options in a book file...
-//   GUI::appleOpenCB()    - Handle open file events from Finder.
-//   GUI::saveBook()       - Save a book to disk.
-//   GUI::checkSave()      - Check to see if a save is needed.
-//   GUI::changeCB()       - Mark the current book as changed.
-//   GUI::docTypeCB()      - Handle input on the document type buttons.
-//   GUI::inputFilesCB()   - Handle selections in the input files browser.
-//   GUI::addFileCB()      - Add a file to the input files list.
-//   GUI::addURLCB()       - Add a URL to the input files list.
-//   GUI::editFilesCB()    - Edit one or more files in the input files list.
-//   GUI::deleteFileCB()   - Delete one or more files from the input files list.
-//   GUI::moveUpFileCB()   - Move one or more files up in the input files list.
-//   GUI::moveDownFileCB() - Move one or more files down in the input files list.
-//   GUI::logoImageCB()    - Change the logo image file.
-//   GUI::titleImageCB()   - Change the title image file.
-//   GUI::outputTypeCB()   - Set the output file type.
-//   GUI::outputPathCB()   - Set the output path.
-//   GUI::outputFormatCB() - Set the output format.
-//   GUI::jpegCB()         - Handle JPEG changes.
-//   GUI::sizeCB()         - Change the page size based on the menu selection.
-//   GUI::tocCB()          - Handle Table-of-Contents changes.
-//   GUI::pdfCB()          - Handle PDF version changes.
-//   GUI::effectCB()       - Handle PDF effect changes.
-//   GUI::psCB()           - Handle PS language level changes.
-//   GUI::htmlEditorCB()   - Change the HTML editor.
-//   GUI::saveOptionsCB()  - Save preferences...
-//   GUI::bodyColorCB()    - Set the body color.
-//   GUI::bodyImageCB()    - Set the body image.
-//   GUI::textColorCB()    - Set the text color.
-//   GUI::linkColorCB()    - Set the link color.
-//   GUI::helpCB()         - Show on-line help...
-//   GUI::newBookCB()      - Create a new book.
-//   GUI::openBookCB()     - Open an existing book.
-//   GUI::saveBookCB()     - Save the current book to disk.
-//   GUI::saveAsBookCB()   - Save the current book to disk to a new file.
-//   GUI::generateBookCB() - Generate the current book.
-//   GUI::closeBookCB()    - Close the current book.
-//   GUI::errorCB()        - Close the error window.
-//   aboutCloseCB()        - Close the about window.
-//   GUI::showAboutCB()    - Show the about window.
+// This program is free software.  Distribution and use rights are outlined in
+// the file "COPYING".
 //
 
 #include "htmldoc.h"
@@ -2618,8 +2564,8 @@ GUI::saveBook(const char *filename)	// I - Name of book file
     else
       fputs(" --permissions none", fp);
 
-    fprintf(fp, "  --owner-password \"%s\"", ownerPassword->value());    
-    fprintf(fp, "  --user-password \"%s\"", userPassword->value());    
+    fprintf(fp, "  --owner-password \"%s\"", ownerPassword->value());
+    fprintf(fp, "  --user-password \"%s\"", userPassword->value());
   }
 
   fprintf(fp, " --browserwidth %.0f", browserWidth->value());
@@ -2676,7 +2622,7 @@ GUI::checkSave(void)
       case 0 : /* Cancel */
           return (0);
 
-      case 1 : /* Save */          
+      case 1 : /* Save */
 	  if (book_filename[0] != '\0')
             return (saveBook(book_filename));
 	  else
@@ -4250,23 +4196,18 @@ GUI::showAboutCB(void)
   label->image(&logo);
 
   label = new Fl_Box(60, 45, 330, 35,
-          "HTMLDOC " SVERSION "\nCopyright 1997-2010 by Easy Software Products"
+          "HTMLDOC " SVERSION "\nCopyright 2011-2017 by Michael R Sweet."
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 
   text = new Fl_Help_View(20, 90, 370, 155);
   text->value(
     "HTMLDOC converts HTML files and web pages to PDF and PostScript.\n\n"
-    "<p>HTMLDOC is available both as free software under the terms of "
-    "the GNU General Public License and as commercial software via "
-    "the HTMLDOC Basic, Developer, and Site products which provide the "
-    "HTMLDOC software in convenient, installable packages for your operating "
-    "system of choice. All products provide financial support for the "
-    "continued development of HTMLDOC as an open source product.\n\n"
-    "<p>For more information, please visit us on the web at the following "
-    "URL:\n"
+    "<p>HTMLDOC is provided under the terms of the GNU General Public License "
+    "and comes with absolutely no warranty.  Please report problems on the "
+    "Github issues page at:\n"
     "<pre>\n\n"
-    "    http://www.easysw.com/htmldoc/\n"
+    "    https://github.com/michaelrsweet/htmldoc/issues\n"
     "</pre>\n"
     );
   text->textsize(FL_NORMAL_SIZE);
@@ -4285,7 +4226,3 @@ GUI::showAboutCB(void)
 }
 
 #endif // HAVE_LIBFLTK
-
-//
-// End of "$Id$".
-//

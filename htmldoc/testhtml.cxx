@@ -1,18 +1,12 @@
 /*
- * "$Id$"
+ * Test program for HTML parsing routines for HTMLDOC, an HTML document
+ * processing program.
  *
- *   Test program for HTML parsing routines for HTMLDOC, an HTML document
- *   processing program.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   main() - Main entry for test program.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -165,8 +159,3 @@ main(int  argc,			/* I - Number of command-line arguments */
 
   return (doc == NULL);
 }
-
-
-/*
- * End of "$Id$".
- */

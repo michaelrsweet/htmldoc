@@ -1,26 +1,11 @@
 /*
- * "$Id$"
+ * HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
- *   HTML exporting functions for HTMLDOC, a HTML document processing program.
+ * Copyright 2011-2013 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011-2013 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   html_export()   - Export to HTML...
- *   count_headers() - Count the number of first and second level headings
- *                     in a document tree.
- *   write_header()  - Output the standard "header" for a HTML file.
- *   write_footer()  - Output the standard "footer" for a HTML file.
- *   write_all()     - Write all markup text for the given tree.
- *   get_title()     - Get the title string for the given document...
- *   add_link()      - Add a named link...
- *   find_link()     - Find a named link...
- *   compare_links() - Compare two named links.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -1100,8 +1085,3 @@ update_links(tree_t *t,		/* I - Document tree */
     }
   }
 }
-
-
-/*
- * End of "$Id$".
- */

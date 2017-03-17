@@ -1,20 +1,12 @@
 /*
- * "$Id$"
+ * ISO-8859-1 conversion routines for HTMLDOC, an HTML document
+ * processing program.
  *
- *   ISO-8859-1 conversion routines for HTMLDOC, an HTML document
- *   processing program.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   iso8859()     - Return the 8-bit character value of a glyph name.
- *   iso8859()     - Return the glyph name of an 8-bit character value.
- *   compare_lut() - Compare two glyphs.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -455,8 +447,3 @@ compare_lut(lut_t *a,	/* I - First glyph */
 {
   return (strcmp((char *)a->name, (char *)b->name));
 }
-
-
-/*
- * End of "$Id$".
- */

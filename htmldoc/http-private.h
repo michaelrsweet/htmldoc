@@ -1,19 +1,12 @@
 /*
- * "$Id$"
- *
  * Private HTTP definitions for HTMLDOC.
  *
- * Copyright 2016 by Michael R Sweet.
- * Copyright 2007-2015 by Apple Inc.
+ * Copyright 2016-2017 by Michael R Sweet.
+ * Copyright 2007-2016 by Apple Inc.
  * Copyright 1997-2007 by Easy Software Products, all rights reserved.
  *
- * These coded instructions, statements, and computer programs are the
- * property of Apple Inc. and are protected by Federal copyright
- * law.  Distribution and use rights are outlined in the file "LICENSE.txt"
- * which should have been included with this file.  If this file is
- * file is missing or damaged, see the license at "http://www.cups.org/".
- *
- * This file is subject to the Apple OS-Developed Software exception.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 #ifndef _CUPS_HTTP_PRIVATE_H_
@@ -63,7 +56,7 @@
 
 #  if defined(__APPLE__) && !defined(_SOCKLEN_T)
 /*
- * MacOS X 10.2.x does not define socklen_t, and in fact uses an int instead of
+ * macOS 10.2.x does not define socklen_t, and in fact uses an int instead of
  * unsigned type for length values...
  */
 
@@ -99,9 +92,28 @@ typedef int socklen_t;
 #      ifdef __cplusplus
 extern "C" {
 #      endif /* __cplusplus */
+#      ifndef _SECURITY_VERSION_GREATER_THAN_57610_
+typedef CF_OPTIONS(uint32_t, SecKeyUsage) {
+    kSecKeyUsageAll              = 0x7FFFFFFF
+};
+#       endif /* !_SECURITY_VERSION_GREATER_THAN_57610_ */
+extern const void * kSecCSRChallengePassword;
+extern const void * kSecSubjectAltName;
+extern const void * kSecCertificateKeyUsage;
+extern const void * kSecCSRBasicContraintsPathLen;
+extern const void * kSecCertificateExtensions;
+extern const void * kSecCertificateExtensionsEncoded;
+extern const void * kSecOidCommonName;
+extern const void * kSecOidCountryName;
+extern const void * kSecOidStateProvinceName;
+extern const void * kSecOidLocalityName;
+extern const void * kSecOidOrganization;
+extern const void * kSecOidOrganizationalUnit;
 extern SecCertificateRef SecCertificateCreateWithBytes(CFAllocatorRef allocator, const UInt8 *bytes, CFIndex length);
 extern bool SecCertificateIsValid(SecCertificateRef certificate, CFAbsoluteTime verifyTime);
 extern CFAbsoluteTime SecCertificateNotValidAfter(SecCertificateRef certificate);
+extern SecCertificateRef SecGenerateSelfSignedCertificate(CFArrayRef subject, CFDictionaryRef parameters, SecKeyRef publicKey, SecKeyRef privateKey);
+extern SecIdentityRef SecIdentityCreate(CFAllocatorRef allocator, SecCertificateRef certificate, SecKeyRef privateKey);
 #      ifdef __cplusplus
 }
 #      endif /* __cplusplus */
@@ -463,7 +475,3 @@ extern int		_httpWait(http_t *http, int msec, int usessl);
 #  endif /* __cplusplus */
 
 #endif /* !_CUPS_HTTP_PRIVATE_H_ */
-
-/*
- * End of "$Id$".
- */

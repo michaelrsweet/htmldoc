@@ -1,13 +1,11 @@
 /*
- * "$Id$"
+ * Debugging macros for HTMLDOC, a HTML document processing program.
  *
- *   Debugging macros for HTMLDOC, a HTML document processing program.
+ * Copyright 2011 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 #ifndef _DEBUG_H_
@@ -28,7 +26,3 @@
 #  endif /* DEBUG */
 
 #endif /* !_DEBUG_H_ */
-
-/*
- * End of "$Id$".
- */

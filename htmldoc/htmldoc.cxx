@@ -1,28 +1,11 @@
 /*
- * "$Id$"
+ * Main entry for HTMLDOC, a HTML document processing program.
  *
- *   Main entry for HTMLDOC, a HTML document processing program.
+ * Copyright 2011-2017 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011, 2014 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
- *
- * Contents:
- *
- *   main()            - Main entry for HTMLDOC.
- *   prefs_getrc()     - Get the rc file for preferences...
- *   prefs_load()      - Load HTMLDOC preferences...
- *   prefs_save()      - Save HTMLDOC preferences...
- *   prefs_set_paths() - Set HTMLDOC data/help paths...
- *   compare_strings() - Compare two command-line strings.
- *   load_book()       - Load a book file...
- *   parse_options()   - Parse options from a book file...
- *   read_file()       - Read a file into the current document.
- *   set_permissions() - Set the PDF permission bits...
- *   term_handler()    - Handle CTRL-C or kill signals...
- *   usage()           - Show program version and command-line options.
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
@@ -53,7 +36,7 @@ extern "C" {
 const char *__XOS2RedirRoot(const char *);
 }
 #endif
- 
+
 
 /*
  * Local types...
@@ -160,7 +143,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     const char	*path_translated;	// PATH_TRANSLATED env var
     char	bookfile[1024];		// Book filename
 
-	
+
     // CGI mode implies the following options:
     //
     // --no-localfiles
@@ -1243,7 +1226,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     return (i);
   }
 #endif /* HAVE_LIBFLTK */
-    
+
  /*
   * We *must* have a document to process...
   */
@@ -2553,10 +2536,10 @@ usage(const char *arg)			// I - Bad argument string
   if (CGIMode)
     puts("Content-Type: text/plain\r\n\r");
 
-  puts("HTMLDOC Version " SVERSION " Copyright 1997-2010 Easy Software "
-       "Products. All rights reserved.");
-  puts("This software is based in part on the work of the Independent JPEG "
-       "Group.");
+  puts("HTMLDOC Version " SVERSION " Copyright 2011-2017 by Michael R Sweet.");
+  puts("HTMLDOC is provided under the terms of the GNU General Public License and");
+  puts("comes with absolutely no warranty.  This software is based in part on the work");
+  puts("of the Independent JPEG Group.");
   puts("");
 
   if (CGIMode)
@@ -2701,8 +2684,3 @@ usage(const char *arg)			// I - Bad argument string
 
   exit(1);
 }
-
-
-/*
- * End of "$Id$".
- */
