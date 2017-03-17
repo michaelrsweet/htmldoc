@@ -12,3 +12,7 @@ doc/htmldoc.ps
 htmldoc/htmldoc
 htmldoc/htmldoc.app
 htmldoc/htmldoc.exe
+jpeg/libjpeg.a
+png/libpng.a
+scratch
+zlib/libz.a
