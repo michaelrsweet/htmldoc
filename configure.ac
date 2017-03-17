@@ -36,7 +36,7 @@ AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging, default=no],
 	OPTIM="-g "
     fi])
 
-AC_ARG_WITH(gui, [  --with-gui              compile the GUI version of HTMLDOC, default=yes])
+AC_ARG_WITH(gui, [  --without-gui           do not compile the GUI version of HTMLDOC, default=yes])
 
 dnl Checks for programs...
 AC_PROG_AWK
@@ -156,7 +156,7 @@ if test x$enable_ssl != xno; then
 	    	have_ssl=1
 		AC_DEFINE(HAVE_SSL)
 		AC_DEFINE(HAVE_CDSASSL)
-		SSLLIBS="-framework Security"
+		SSLLIBS="-framework Security -framework CoreFoundation"
 
 		dnl Check for the various security headers...
 		AC_CHECK_HEADER(Security/SecCertificate.h,
@@ -369,8 +369,10 @@ if test -n "$GXX"; then
     fi
 fi
 
-if test "x$FLTKCONFIG" != x; then
-	OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
+if test "x$with_gui" != xno; then
+    if test "x$FLTKCONFIG" != x; then
+	    OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
+    fi
 fi
 
 dnl Generate the top-level Makefile and Makedefs file...

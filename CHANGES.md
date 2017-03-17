@@ -2,6 +2,7 @@
 
 - Updated documentation to reflect new project page on Github.
 - Dropped old CDE and IRIX desktop integration files.
+- Fixed build issue on macOS (Issue #291)
 
 
 # Changes in HTMLDOC v1.8.29
