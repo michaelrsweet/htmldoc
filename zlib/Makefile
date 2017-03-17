@@ -1,13 +1,11 @@
 #
-# "$Id$"
+# ZIP library Makefile for the HTMLDOC software.
 #
-#   ZIP library Makefile for the HTMLDOC software.
+# Copyright 2011 by Michael R Sweet.
+# Copyright 1997-2010 by Easy Software Products.
 #
-#   Copyright 2011 by Michael R Sweet.
-#   Copyright 1997-2010 by Easy Software Products.
-#
-#   This program is free software.  Distribution and use rights are outlined in
-#   the file "COPYING.txt".
+# This program is free software.  Distribution and use rights are outlined in
+# the file "COPYING".
 #
 
 include ../Makedefs
@@ -70,8 +68,3 @@ libz.a:	$(OBJS)
 
 $(OBJS):	../Makedefs
 include Dependencies
-
-
-#
-# End of "$Id$".
-#

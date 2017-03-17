@@ -158,13 +158,23 @@ if test x$enable_ssl != xno; then
 		AC_DEFINE(HAVE_CDSASSL)
 		SSLLIBS="-framework Security -framework CoreFoundation"
 
-		dnl Check for the various security headers...
+		AC_CHECK_HEADER(Security/SecureTransportPriv.h,
+		    AC_DEFINE(HAVE_SECURETRANSPORTPRIV_H))
 		AC_CHECK_HEADER(Security/SecCertificate.h,
 		    AC_DEFINE(HAVE_SECCERTIFICATE_H))
 		AC_CHECK_HEADER(Security/SecItem.h,
 		    AC_DEFINE(HAVE_SECITEM_H))
+		AC_CHECK_HEADER(Security/SecItemPriv.h,
+		    AC_DEFINE(HAVE_SECITEMPRIV_H),,
+		    [#include <Security/SecItem.h>])
 		AC_CHECK_HEADER(Security/SecPolicy.h,
 		    AC_DEFINE(HAVE_SECPOLICY_H))
+		AC_CHECK_HEADER(Security/SecPolicyPriv.h,
+		    AC_DEFINE(HAVE_SECPOLICYPRIV_H))
+		AC_CHECK_HEADER(Security/SecBasePriv.h,
+		    AC_DEFINE(HAVE_SECBASEPRIV_H))
+		AC_CHECK_HEADER(Security/SecIdentitySearchPriv.h,
+		    AC_DEFINE(HAVE_SECIDENTITYSEARCHPRIV_H))
 
 		AC_DEFINE(HAVE_CSSMERRORSTRING)
 		AC_DEFINE(HAVE_SECKEYCHAINOPEN)])

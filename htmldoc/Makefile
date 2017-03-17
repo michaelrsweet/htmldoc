@@ -1,13 +1,11 @@
 #
-# "$Id$"
-#
 # Makefile for HTMLDOC, an HTML document processing program.
 #
 # Copyright 2011-2016 by Michael R Sweet.
 # Copyright 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
-# the file "COPYING.txt".
+# the file "COPYING".
 #
 
 #
@@ -72,8 +70,3 @@ htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 
 $(OBJS):	../Makedefs
 include Dependencies
-
-
-#
-# End of "$Id$".
-#

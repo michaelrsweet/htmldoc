@@ -4885,7 +4885,14 @@ if test "x$ac_cv_header_Security_SecureTransport_h" = xyes; then :
 
 		SSLLIBS="-framework Security -framework CoreFoundation"
 
-				ac_fn_c_check_header_mongrel "$LINENO" "Security/SecCertificate.h" "ac_cv_header_Security_SecCertificate_h" "$ac_includes_default"
+		ac_fn_c_check_header_mongrel "$LINENO" "Security/SecureTransportPriv.h" "ac_cv_header_Security_SecureTransportPriv_h" "$ac_includes_default"
+if test "x$ac_cv_header_Security_SecureTransportPriv_h" = xyes; then :
+  $as_echo "#define HAVE_SECURETRANSPORTPRIV_H 1" >>confdefs.h
+
+fi
+
+
+		ac_fn_c_check_header_mongrel "$LINENO" "Security/SecCertificate.h" "ac_cv_header_Security_SecCertificate_h" "$ac_includes_default"
 if test "x$ac_cv_header_Security_SecCertificate_h" = xyes; then :
   $as_echo "#define HAVE_SECCERTIFICATE_H 1" >>confdefs.h
 
@@ -4899,9 +4906,38 @@ if test "x$ac_cv_header_Security_SecItem_h" = xyes; then :
 fi
 
 
+		ac_fn_c_check_header_compile "$LINENO" "Security/SecItemPriv.h" "ac_cv_header_Security_SecItemPriv_h" "#include <Security/SecItem.h>
+"
+if test "x$ac_cv_header_Security_SecItemPriv_h" = xyes; then :
+  $as_echo "#define HAVE_SECITEMPRIV_H 1" >>confdefs.h
+
+fi
+
+
 		ac_fn_c_check_header_mongrel "$LINENO" "Security/SecPolicy.h" "ac_cv_header_Security_SecPolicy_h" "$ac_includes_default"
 if test "x$ac_cv_header_Security_SecPolicy_h" = xyes; then :
   $as_echo "#define HAVE_SECPOLICY_H 1" >>confdefs.h
+
+fi
+
+
+		ac_fn_c_check_header_mongrel "$LINENO" "Security/SecPolicyPriv.h" "ac_cv_header_Security_SecPolicyPriv_h" "$ac_includes_default"
+if test "x$ac_cv_header_Security_SecPolicyPriv_h" = xyes; then :
+  $as_echo "#define HAVE_SECPOLICYPRIV_H 1" >>confdefs.h
+
+fi
+
+
+		ac_fn_c_check_header_mongrel "$LINENO" "Security/SecBasePriv.h" "ac_cv_header_Security_SecBasePriv_h" "$ac_includes_default"
+if test "x$ac_cv_header_Security_SecBasePriv_h" = xyes; then :
+  $as_echo "#define HAVE_SECBASEPRIV_H 1" >>confdefs.h
+
+fi
+
+
+		ac_fn_c_check_header_mongrel "$LINENO" "Security/SecIdentitySearchPriv.h" "ac_cv_header_Security_SecIdentitySearchPriv_h" "$ac_includes_default"
+if test "x$ac_cv_header_Security_SecIdentitySearchPriv_h" = xyes; then :
+  $as_echo "#define HAVE_SECIDENTITYSEARCHPRIV_H 1" >>confdefs.h
 
 fi
 

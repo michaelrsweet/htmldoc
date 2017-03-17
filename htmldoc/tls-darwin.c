@@ -887,6 +887,7 @@ _httpTLSStart(http_t *http)		/* I - HTTP connection */
 #  if HAVE_SSLSETENABLEDCIPHERS
   if (!error)
   {
+    int			i;		/* Looping var */
     SSLCipherSuite	supported[100];	/* Supported cipher suites */
     size_t		num_supported;	/* Number of supported cipher suites */
     SSLCipherSuite	enabled[100];	/* Cipher suites to enable */

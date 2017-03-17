@@ -1,21 +1,19 @@
 /* config.h.  Generated from config.h.in by configure.  */
 /*
- * "$Id$"
- *
  * Configuration file for HTMLDOC.
  *
- * Copyright 2011-2016 by Michael R Sweet.
+ * Copyright 2011-2017 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING.txt".
+ * the file "COPYING".
  */
 
 /*
  * What is the version number for this software?
  */
 
-#define SVERSION "1.8.29"
+#define SVERSION "1.8.30"
 
 
 /*
@@ -69,6 +67,63 @@
 /* #undef HAVE_GNUTLS */
 /* #undef HAVE_LIBSSL */
 #define HAVE_SSL 1
+
+
+/*
+ * Do we have the gnutls_transport_set_pull_timeout_function function?
+ */
+
+/* #undef HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION */
+
+
+/*
+ * Do we have the gnutls_priority_set_direct function?
+ */
+
+/* #undef HAVE_GNUTLS_PRIORITY_SET_DIRECT */
+
+
+/*
+ * What Security framework headers do we have?
+ */
+
+/* #undef HAVE_AUTHORIZATION_H */
+/* #undef HAVE_SECBASEPRIV_H */
+#define HAVE_SECCERTIFICATE_H 1
+/* #undef HAVE_SECIDENTITYSEARCHPRIV_H */
+#define HAVE_SECITEM_H 1
+/* #undef HAVE_SECITEMPRIV_H */
+#define HAVE_SECPOLICY_H 1
+/* #undef HAVE_SECPOLICYPRIV_H */
+/* #undef HAVE_SECURETRANSPORTPRIV_H */
+
+
+/*
+ * Do we have the cssmErrorString function?
+ */
+
+#define HAVE_CSSMERRORSTRING 1
+
+
+/*
+ * Do we have the SecGenerateSelfSignedCertificate function?
+ */
+
+/* #undef HAVE_SECGENERATESELFSIGNEDCERTIFICATE */
+
+
+/*
+ * Do we have the SecKeychainOpen function?
+ */
+
+#define HAVE_SECKEYCHAINOPEN 1
+
+
+/*
+ * Do we have (a working) SSLSetEnabledCiphers function?
+ */
+
+#define HAVE_SSLSETENABLEDCIPHERS 1
 
 
 /*
@@ -194,9 +249,3 @@
 #ifndef HAVE_STRTOLL
 #  define strtoll(nptr,endptr,base) strtol((nptr), (endptr), (base))
 #endif /* !HAVE_STRTOLL */
-
-
-/*
- * End of "$Id$".
- */
-
