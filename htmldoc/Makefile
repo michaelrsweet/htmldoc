@@ -69,4 +69,5 @@ htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	$(POST) htmldoc$(EXEEXT)
 
 $(OBJS):	../Makedefs
+tls.o:		tls-darwin.c tls-gnutls.c tls-sspi.c
 include Dependencies

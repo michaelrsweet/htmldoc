@@ -22,9 +22,9 @@
  * Local globals...
  */
 
-static int		tls_auto_create = 0;
+//static int		tls_auto_create = 0;
 					/* Auto-create self-signed certs? */
-static char		*tls_common_name = NULL;
+//static char		*tls_common_name = NULL;
 					/* Default common name */
 static gnutls_x509_crl_t tls_crl = NULL;/* Certificate revocation list */
 static char		*tls_keypath = NULL;
@@ -38,7 +38,7 @@ static int		tls_options = -1;/* Options for TLS connections */
 
 static gnutls_x509_crt_t http_gnutls_create_credential(http_credential_t *credential);
 static const char	*http_gnutls_default_path(char *buffer, size_t bufsize);
-static void		http_gnutls_load_crl(void);
+//static void		http_gnutls_load_crl(void);
 static const char	*http_gnutls_make_path(char *buffer, size_t bufsize, const char *dirname, const char *filename, const char *ext);
 static ssize_t		http_gnutls_read(gnutls_transport_ptr_t ptr, void *data, size_t length);
 static ssize_t		http_gnutls_write(gnutls_transport_ptr_t ptr, const void *data, size_t length);
@@ -183,8 +183,6 @@ httpCredentialsGetTrust(
 					/* Trusted? */
   gnutls_x509_crt_t	cert;		/* Certificate */
   cups_array_t		*tcreds = NULL;	/* Trusted credentials */
-  _cups_globals_t	*cg = _cupsGlobals();
-					/* Per-thread globals */
 
 
   if (!common_name)
@@ -199,11 +197,13 @@ httpCredentialsGetTrust(
     return (HTTP_TRUST_UNKNOWN);
   }
 
+#if 0
   if (cg->any_root < 0)
   {
     _cupsSetDefaults();
     http_gnutls_load_crl();
   }
+#endif // 0
 
  /*
   * Look this common name up in the default keychains...
@@ -226,6 +226,7 @@ httpCredentialsGetTrust(
       * credentials and allow if the new ones have a later expiration...
       */
 
+#if 0
       if (!cg->trust_first)
       {
        /*
@@ -236,7 +237,9 @@ httpCredentialsGetTrust(
 
         trust = HTTP_TRUST_INVALID;
       }
-      else if (httpCredentialsGetExpiration(credentials) <= httpCredentialsGetExpiration(tcreds))
+      else
+#endif // 0
+      if (httpCredentialsGetExpiration(credentials) <= httpCredentialsGetExpiration(tcreds))
       {
        /*
         * The new credentials are not newly issued...
@@ -270,11 +273,12 @@ httpCredentialsGetTrust(
 
     httpFreeCredentials(tcreds);
   }
-  else if (cg->validate_certs && !httpCredentialsAreValidForName(credentials, common_name))
+  else if (/*cg->validate_certs &&*/ !httpCredentialsAreValidForName(credentials, common_name))
   {
     _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("No stored credentials, not valid for name."), 1);
     trust = HTTP_TRUST_INVALID;
   }
+#if 0
   else if (!cg->trust_first)
   {
    /*
@@ -318,8 +322,9 @@ httpCredentialsGetTrust(
       trust = HTTP_TRUST_INVALID;
     }
   }
+#endif // 0
 
-  if (trust == HTTP_TRUST_OK && !cg->expired_certs)
+  if (trust == HTTP_TRUST_OK /*&& !cg->expired_certs*/)
   {
     time_t	curtime;		/* Current date/time */
 
@@ -332,11 +337,13 @@ httpCredentialsGetTrust(
     }
   }
 
+#if 0
   if (trust == HTTP_TRUST_OK && !cg->any_root && cupsArrayCount(credentials) == 1)
   {
     _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Self-signed credentials are blocked."), 1);
     trust = HTTP_TRUST_INVALID;
   }
+#endif // 0
 
   gnutls_x509_crt_deinit(cert);
 
@@ -437,10 +444,11 @@ httpLoadCredentials(
     cups_array_t **credentials,		/* IO - Credentials */
     const char   *common_name)		/* I  - Common name for credentials */
 {
-  cups_file_t		*fp;		/* Certificate file */
+  FILE			*fp;		/* Certificate file */
   char			filename[1024],	/* filename.crt */
 			temp[1024],	/* Temporary string */
-			line[256];	/* Base64-encoded line */
+			line[256],	/* Base64-encoded line */
+			*lineptr;	/* Pointer into line */
   unsigned char		*data = NULL;	/* Buffer for cert data */
   size_t		alloc_data = 0,	/* Bytes allocated */
 			num_data = 0;	/* Bytes used */
@@ -459,11 +467,14 @@ httpLoadCredentials(
 
   http_gnutls_make_path(filename, sizeof(filename), path, common_name, "crt");
 
-  if ((fp = cupsFileOpen(filename, "r")) == NULL)
+  if ((fp = fopen(filename, "r")) == NULL)
     return (-1);
 
-  while (cupsFileGets(fp, line, sizeof(line)))
+  while (fgets(line, sizeof(line), fp))
   {
+    if ((lineptr = line + strlen(line) - 1) >= line && *lineptr == '\n')
+      *lineptr = '\0';
+
     if (!strcmp(line, "-----BEGIN CERTIFICATE-----"))
     {
       if (in_certificate)
@@ -537,7 +548,7 @@ httpLoadCredentials(
     }
   }
 
-  cupsFileClose(fp);
+  fclose(fp);
 
   if (in_certificate)
   {
@@ -568,7 +579,7 @@ httpSaveCredentials(
     cups_array_t *credentials,		/* I - Credentials */
     const char   *common_name)		/* I - Common name for credentials */
 {
-  cups_file_t		*fp;		/* Certificate file */
+  FILE			*fp;		/* Certificate file */
   char			filename[1024],	/* filename.crt */
 			nfilename[1024],/* filename.crt.N */
 			temp[1024],	/* Temporary string */
@@ -589,25 +600,25 @@ httpSaveCredentials(
   http_gnutls_make_path(filename, sizeof(filename), path, common_name, "crt");
   snprintf(nfilename, sizeof(nfilename), "%s.N", filename);
 
-  if ((fp = cupsFileOpen(nfilename, "w")) == NULL)
+  if ((fp = fopen(nfilename, "w")) == NULL)
     return (-1);
 
-  fchmod(cupsFileNumber(fp), 0600);
+  fchmod(fileno(fp), 0600);
 
   for (cred = (http_credential_t *)cupsArrayFirst(credentials);
        cred;
        cred = (http_credential_t *)cupsArrayNext(credentials))
   {
-    cupsFilePuts(fp, "-----BEGIN CERTIFICATE-----\n");
+    fputs("-----BEGIN CERTIFICATE-----\n", fp);
     for (ptr = cred->data, remaining = (ssize_t)cred->datalen; remaining > 0; remaining -= 45, ptr += 45)
     {
       httpEncode64_2(line, sizeof(line), (char *)ptr, remaining > 45 ? 45 : remaining);
-      cupsFilePrintf(fp, "%s\n", line);
+      fprintf(fp, "%s\n", line);
     }
-    cupsFilePuts(fp, "-----END CERTIFICATE-----\n");
+    fputs("-----END CERTIFICATE-----\n", fp);
   }
 
-  cupsFileClose(fp);
+  fclose(fp);
 
   return (rename(nfilename, filename));
 }
@@ -665,7 +676,7 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
 
   if (getuid() && home)
   {
-    snprintf(buffer, bufsize, "%s/.cups", home);
+    snprintf(buffer, bufsize, "%s/.htmldoc", home);
     if (access(buffer, 0))
     {
       DEBUG_printf(("1http_gnutls_default_path: Making directory \"%s\".", buffer));
@@ -676,7 +687,7 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
       }
     }
 
-    snprintf(buffer, bufsize, "%s/.cups/ssl", home);
+    snprintf(buffer, bufsize, "%s/.htmldoc/ssl", home);
     if (access(buffer, 0))
     {
       DEBUG_printf(("1http_gnutls_default_path: Making directory \"%s\".", buffer));
@@ -688,7 +699,7 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
     }
   }
   else
-    strlcpy(buffer, CUPS_SERVERROOT "/ssl", bufsize);
+    strlcpy(buffer, "/etc/htmldoc/ssl", bufsize);
 
   DEBUG_printf(("1http_gnutls_default_path: Using default path \"%s\".", buffer));
 
@@ -696,6 +707,7 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
 }
 
 
+#if 0
 /*
  * 'http_gnutls_load_crl()' - Load the certificate revocation list, if any.
  */
@@ -705,9 +717,10 @@ http_gnutls_load_crl(void)
 {
   if (!gnutls_x509_crl_init(&tls_crl))
   {
-    cups_file_t		*fp;		/* CRL file */
+    FILE		*fp;		/* CRL file */
     char		filename[1024],	/* site.crl */
-			line[256];	/* Base64-encoded line */
+			line[256],	/* Base64-encoded line */
+			*lineptr;	/* Pointer into line */
     unsigned char	*data = NULL;	/* Buffer for cert data */
     size_t		alloc_data = 0,	/* Bytes allocated */
 			num_data = 0;	/* Bytes used */
@@ -715,12 +728,15 @@ http_gnutls_load_crl(void)
     gnutls_datum_t	datum;		/* Data record */
 
 
-    http_gnutls_make_path(filename, sizeof(filename), CUPS_SERVERROOT, "site", "crl");
+    http_gnutls_make_path(filename, sizeof(filename), "/etc/htmldoc", "site", "crl");
 
-    if ((fp = cupsFileOpen(filename, "r")) != NULL)
+    if ((fp = fopen(filename, "r")) != NULL)
     {
-      while (cupsFileGets(fp, line, sizeof(line)))
+      while (fgets(line, sizeof(line), fp))
       {
+        if ((lineptr = line + strlen(line) - 1) >= line && *lineptr == '\n')
+          *lineptr = '\0';
+
 	if (!strcmp(line, "-----BEGIN X509 CRL-----"))
 	{
 	  if (num_data)
@@ -778,13 +794,14 @@ http_gnutls_load_crl(void)
 	}
       }
 
-      cupsFileClose(fp);
+      fclose(fp);
 
       if (data)
 	free(data);
     }
   }
 }
+#endif // 0
 
 
 /*
@@ -1000,7 +1017,8 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
   if (tls_options < 0)
   {
     DEBUG_puts("4_httpTLSStart: Setting defaults.");
-    _cupsSetDefaults();
+//    _cupsSetDefaults();
+    tls_options = _HTTP_TLS_NONE;
     DEBUG_printf(("4_httpTLSStart: tls_options=%x", tls_options));
   }
 
@@ -1075,162 +1093,14 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
   else
   {
    /*
-    * Server: get certificate and private key...
+    * Server: not supported
     */
 
-    char	crtfile[1024],		/* Certificate file */
-		keyfile[1024];		/* Private key file */
-    int		have_creds = 0;		/* Have credentials? */
+    http->error  = errno = EINVAL;
+    http->status = HTTP_STATUS_ERROR;
+    _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Unable to create server credentials."), 1);
 
-    if (http->fields[HTTP_FIELD_HOST][0])
-    {
-     /*
-      * Use hostname for TLS upgrade...
-      */
-
-      strlcpy(hostname, http->fields[HTTP_FIELD_HOST], sizeof(hostname));
-    }
-    else
-    {
-     /*
-      * Resolve hostname from connection address...
-      */
-
-      http_addr_t	addr;		/* Connection address */
-      socklen_t		addrlen;	/* Length of address */
-
-      addrlen = sizeof(addr);
-      if (getsockname(http->fd, (struct sockaddr *)&addr, &addrlen))
-      {
-	DEBUG_printf(("4_httpTLSStart: Unable to get socket address: %s", strerror(errno)));
-	hostname[0] = '\0';
-      }
-      else if (httpAddrLocalhost(&addr))
-	hostname[0] = '\0';
-      else
-      {
-	httpAddrLookup(&addr, hostname, sizeof(hostname));
-        DEBUG_printf(("4_httpTLSStart: Resolved socket address to \"%s\".", hostname));
-      }
-    }
-
-    if (isdigit(hostname[0] & 255) || hostname[0] == '[')
-      hostname[0] = '\0';		/* Don't allow numeric addresses */
-
-    if (hostname[0])
-    {
-     /*
-      * First look in the CUPS keystore...
-      */
-
-      http_gnutls_make_path(crtfile, sizeof(crtfile), tls_keypath, hostname, "crt");
-      http_gnutls_make_path(keyfile, sizeof(keyfile), tls_keypath, hostname, "key");
-
-      if (access(crtfile, R_OK) || access(keyfile, R_OK))
-      {
-       /*
-        * No CUPS-managed certs, look for CA certs...
-        */
-
-        char cacrtfile[1024], cakeyfile[1024];	/* CA cert files */
-
-        snprintf(cacrtfile, sizeof(cacrtfile), "/etc/letsencrypt/live/%s/fullchain.pem", hostname);
-        snprintf(cakeyfile, sizeof(cakeyfile), "/etc/letsencrypt/live/%s/privkey.pem", hostname);
-
-        if ((access(cacrtfile, R_OK) || access(cakeyfile, R_OK)) && (hostptr = strchr(hostname, '.')) != NULL)
-        {
-         /*
-          * Try just domain name...
-          */
-
-          hostptr ++;
-          if (strchr(hostptr, '.'))
-          {
-            snprintf(cacrtfile, sizeof(cacrtfile), "/etc/letsencrypt/live/%s/fullchain.pem", hostptr);
-            snprintf(cakeyfile, sizeof(cakeyfile), "/etc/letsencrypt/live/%s/privkey.pem", hostptr);
-          }
-        }
-
-        if (!access(cacrtfile, R_OK) && !access(cakeyfile, R_OK))
-        {
-         /*
-          * Use the CA certs...
-          */
-
-          strlcpy(crtfile, cacrtfile, sizeof(crtfile));
-          strlcpy(keyfile, cakeyfile, sizeof(keyfile));
-        }
-      }
-
-      have_creds = !access(crtfile, R_OK) && !access(keyfile, R_OK);
-    }
-    else if (tls_common_name)
-    {
-     /*
-      * First look in the CUPS keystore...
-      */
-
-      http_gnutls_make_path(crtfile, sizeof(crtfile), tls_keypath, tls_common_name, "crt");
-      http_gnutls_make_path(keyfile, sizeof(keyfile), tls_keypath, tls_common_name, "key");
-
-      if (access(crtfile, R_OK) || access(keyfile, R_OK))
-      {
-       /*
-        * No CUPS-managed certs, look for CA certs...
-        */
-
-        char cacrtfile[1024], cakeyfile[1024];	/* CA cert files */
-
-        snprintf(cacrtfile, sizeof(cacrtfile), "/etc/letsencrypt/live/%s/fullchain.pem", tls_common_name);
-        snprintf(cakeyfile, sizeof(cakeyfile), "/etc/letsencrypt/live/%s/privkey.pem", tls_common_name);
-
-        if ((access(cacrtfile, R_OK) || access(cakeyfile, R_OK)) && (hostptr = strchr(tls_common_name, '.')) != NULL)
-        {
-         /*
-          * Try just domain name...
-          */
-
-          hostptr ++;
-          if (strchr(hostptr, '.'))
-          {
-            snprintf(cacrtfile, sizeof(cacrtfile), "/etc/letsencrypt/live/%s/fullchain.pem", hostptr);
-            snprintf(cakeyfile, sizeof(cakeyfile), "/etc/letsencrypt/live/%s/privkey.pem", hostptr);
-          }
-        }
-
-        if (!access(cacrtfile, R_OK) && !access(cakeyfile, R_OK))
-        {
-         /*
-          * Use the CA certs...
-          */
-
-          strlcpy(crtfile, cacrtfile, sizeof(crtfile));
-          strlcpy(keyfile, cakeyfile, sizeof(keyfile));
-        }
-      }
-
-      have_creds = !access(crtfile, R_OK) && !access(keyfile, R_OK);
-    }
-
-    if (!have_creds && tls_auto_create && (hostname[0] || tls_common_name))
-    {
-      DEBUG_printf(("4_httpTLSStart: Auto-create credentials for \"%s\".", hostname[0] ? hostname : tls_common_name));
-
-      if (!cupsMakeServerCredentials(tls_keypath, hostname[0] ? hostname : tls_common_name, 0, NULL, time(NULL) + 365 * 86400))
-      {
-	DEBUG_puts("4_httpTLSStart: cupsMakeServerCredentials failed.");
-	http->error  = errno = EINVAL;
-	http->status = HTTP_STATUS_ERROR;
-	_cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Unable to create server credentials."), 1);
-
-	return (-1);
-      }
-    }
-
-    DEBUG_printf(("4_httpTLSStart: Using certificate \"%s\" and private key \"%s\".", crtfile, keyfile));
-
-    if (!status)
-      status = gnutls_certificate_set_x509_key_file(*credentials, crtfile, keyfile, GNUTLS_X509_FMT_PEM);
+    return (-1);
   }
 
   if (!status)
