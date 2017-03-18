@@ -30,7 +30,7 @@ INSTALLDIRS =	fonts data doc htmldoc
 all:
 	for dir in $(DIRS); do\
 		echo Making all in $$dir...;\
-		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || break;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS)) || exit 1;\
 	done
 
 
@@ -41,7 +41,7 @@ all:
 clean:
 	for dir in $(DIRS); do\
 		echo Cleaning in $$dir...;\
-		(cd $$dir; $(MAKE) -$(MAKEFLAGS) clean) || break;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS) clean) || exit 1;\
 	done
 
 
@@ -68,5 +68,5 @@ install:
 	$(MAKE) all
 	for dir in $(INSTALLDIRS); do\
 		echo Installing in $$dir...;\
-		(cd $$dir; $(MAKE) -$(MAKEFLAGS) install) || break;\
+		(cd $$dir; $(MAKE) -$(MAKEFLAGS) install) || exit 1;\
 	done
