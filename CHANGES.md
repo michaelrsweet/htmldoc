@@ -3,6 +3,7 @@
 - Updated documentation to reflect new project page on Github.
 - Dropped old CDE and IRIX desktop integration files.
 - Cleaned up the GUI and adopted new default text editors for Linux and macOS.
+- PAGE BREAK comments at the end of a file in web page mode would lose the first page (Issue #251)
 - Fixed the scaling of header/footer images to limit them to the height of the header or footer (Issue #273)
 - Fixed an issue with the top-level makefile not exiting with an error as needed (Issue #282)
 - Fixed a URL referencing bug when the same hostname but a different port was used (Issue #290)

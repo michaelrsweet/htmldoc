@@ -544,7 +544,7 @@
 		27DD26E80EC0297800B76D4E /* koi8-r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "koi8-r"; path = "../data/koi8-r"; sourceTree = SOURCE_ROOT; };
 		27DD26E90EC0297800B76D4E /* prolog.ps */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = prolog.ps; path = ../data/prolog.ps; sourceTree = SOURCE_ROOT; };
 		27DD26EA0EC0297800B76D4E /* psglyphs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = psglyphs; path = ../data/psglyphs; sourceTree = SOURCE_ROOT; };
-		8DD76F6C0486A84900D96B5E /* htmldoc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = htmldoc; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD76F6C0486A84900D96B5E /* htmldoc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = htmldoc; path = /Users/mike/c/htmldoc/xcode/build/Debug/htmldoc; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -586,6 +586,9 @@
 				C6859E8C029090F304C91782 /* libpng */,
 				27DD26CB0EC028FD00B76D4E /* Data Files */,
 				27DD25790EC01C0F00B76D4E /* Fonts */,
+				275491F61E7DF17C002398B4 /* Products */,
+				27DD25950EC01C4E00B76D4E /* libpng.a */,
+				27DD258C0EC01C4200B76D4E /* libjpeg.a */,
 				27A9F6FC18D528CB00804DE9 /* Frameworks */,
 			);
 			name = htmldoc;
@@ -604,7 +607,6 @@
 				27DD252E0EC01A3300B76D4E /* hdstring.h */,
 				27DD252F0EC01A3300B76D4E /* html.cxx */,
 				27DD25300EC01A3300B76D4E /* html.h */,
-				8DD76F6C0486A84900D96B5E /* htmldoc */,
 				27DD25310EC01A3300B76D4E /* htmldoc.cxx */,
 				27DD25320EC01A3300B76D4E /* htmldoc.h */,
 				27A9F6FD18D5294000804DE9 /* htmldoc.man */,
@@ -646,7 +648,6 @@
 				27422F0E10E7311E0095C134 /* jaricom.c */,
 				27422F0F10E7311E0095C134 /* jcarith.c */,
 				27422F1010E7311E0095C134 /* jdarith.c */,
-				27DD258C0EC01C4200B76D4E /* libjpeg.a */,
 				27DD259A0EC01D1200B76D4E /* jcapimin.c */,
 				27DD259B0EC01D1200B76D4E /* jcapistd.c */,
 				27DD259C0EC01D1200B76D4E /* jccoefct.c */,
@@ -701,6 +702,13 @@
 				27DD25D20EC01D1200B76D4E /* jversion.h */,
 			);
 			name = libjpeg;
+			sourceTree = "<group>";
+		};
+		275491F61E7DF17C002398B4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		27A9F6FC18D528CB00804DE9 /* Frameworks */ = {
@@ -807,7 +815,6 @@
 		C6859E8C029090F304C91782 /* libpng */ = {
 			isa = PBXGroup;
 			children = (
-				27DD25950EC01C4E00B76D4E /* libpng.a */,
 				27DD260C0EC01D5700B76D4E /* png.c */,
 				27DD260D0EC01D5700B76D4E /* png.h */,
 				27DD260E0EC01D5700B76D4E /* pngconf.h */,

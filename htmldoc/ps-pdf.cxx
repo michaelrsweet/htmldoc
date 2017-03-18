@@ -6,7 +6,7 @@
  * broken into more manageable pieces once we make all of the output
  * "drivers" into classes...
  *
- * Copyright 2011-2016 by Michael R Sweet.
+ * Copyright 2011-2017 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -67,6 +67,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
 
 #define HTMLDOC_ASCII85
 //#define HTMLDOC_INTERPOLATION
+#define HTMLDOC_PRODUCER "htmldoc " SVERSION " Copyright 2011-2017 by Michael R Sweet"
 
 
 /*
@@ -3899,7 +3900,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       }
 
       if ((chapter > 0 && OutputType == OUTPUT_BOOK) ||
-          ((*page > 1 || *y < *top) && OutputType == OUTPUT_WEBPAGES))
+          ((*page > 0 || *y < *top) && OutputType == OUTPUT_WEBPAGES))
       {
         if (*y < *top)
           (*page) ++;
@@ -11292,8 +11293,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     else
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
-    fputs("%%Creator: htmldoc " SVERSION " Copyright 2011 by Michael R Sweet, "
-          "All Rights Reserved.\n", out);
+    fputs("%%Creator: " HTMLDOC_PRODUCER "\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%+03d%02d\n",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
             doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
@@ -11353,7 +11353,9 @@ write_prolog(FILE  *out,		/* I - Output file */
     * Procedures used throughout the document...
     */
 
-    fputs("%%BeginResource: procset htmldoc-page 1.8 25\n", out);
+    const char *version = SVERSION;
+
+    fprintf(out, "%%%%BeginResource: procset htmldoc-page 1.8 %s\n", version + 4);
     fputs("/BD{bind def}bind def", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
           "closepath stroke}BD", out);
@@ -11442,7 +11444,7 @@ write_prolog(FILE  *out,		/* I - Output file */
                        "Unable to open data file \"%s\" - %s", temp,
                        strerror(errno));
 
-	fputs("%%BeginResource: procset htmldoc-device 1.8 22\n", out);
+	fprintf(out, "%%%%BeginResource: procset htmldoc-device 1.8 %s\n", version + 4);
 	fputs("languagelevel 1 eq{/setpagedevice{pop}BD}if\n", out);
 	fputs("/SetDuplexMode{<</Duplex 3 index/Tumble 5 index>>setpagedevice "
               "pop pop}BD\n", out);
@@ -11676,8 +11678,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     info_object = pdf_start_object(out);
 
     fputs("/Producer", out);
-    write_string(out, (uchar *)"htmldoc " SVERSION " Copyright 1997-2006 Easy "
-                               "Software Products, All Rights Reserved.", 0);
+    write_string(out, (uchar *)HTMLDOC_PRODUCER, 0);
     fputs("/CreationDate", out);
     sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
