@@ -2,9 +2,10 @@
 
 - Updated documentation to reflect new project page on Github.
 - Dropped old CDE and IRIX desktop integration files.
+- Cleaned up the GUI and adopted new default text editors for Linux and macOS.
 - Fixed build issue on macOS (Issue #291)
 - Fixed handling of indexed+alpha PNG images (Issue #295)
-
+-
 
 # Changes in HTMLDOC v1.8.29
 
