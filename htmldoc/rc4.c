@@ -43,7 +43,7 @@ rc4_init(rc4_context_t       *text,	/* IO - Context */
   */
 
   for (i = 0; i < 256; i ++)
-    text->sbox[i] = i;
+    text->sbox[i] = (unsigned char)i;
 
   for (i = 0, j = 0; i < 256; i ++)
   {
@@ -51,7 +51,7 @@ rc4_init(rc4_context_t       *text,	/* IO - Context */
     * j = (j + Si + Ki) mod 256
     */
 
-    j = (j + text->sbox[i] + key[i % keylen]) & 255;
+    j = (j + text->sbox[i] + key[(unsigned)i % keylen]) & 255;
 
    /*
     * Swap Si and Sj...

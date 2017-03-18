@@ -65,7 +65,7 @@ typedef struct		/* Cache for all temporary files */
 char	proxy_host[HTTP_MAX_URI] = "";	/* Proxy hostname */
 int	proxy_port = 0;			/* Proxy port */
 http_t	*http = NULL;			/* Connection to remote server */
-int	web_files = 0,			/* Number of temporary files */
+size_t	web_files = 0,			/* Number of temporary files */
 	web_alloc = 0;			/* Number of allocated files */
 cache_t	*web_cache = NULL;		/* Cache array */
 int	no_local = 0;			/* Non-zero to disable local files */
@@ -115,7 +115,7 @@ file_basename(const char *s)	/* I - Filename or URL */
 void
 file_cleanup(void)
 {
-  int		i;			/* Looping var */
+  size_t	i;			/* Looping var */
   char		filename[1024];		/* Temporary file */
   struct stat	fileinfo;		/* File information */
   size_t	remotebytes;		/* Size of remote data */
@@ -155,10 +155,9 @@ file_cleanup(void)
     for (i = 0, remotebytes = 0; i < web_files; i ++)
       if (web_cache[i].url)
       {
-	snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
-        	 (long)getpid(), i + 1);
+	snprintf(filename, sizeof(filename), TEMPLATE, tmpdir, (long)getpid(), (int)(i + 1));
         if (!stat(filename, &fileinfo))
-	  remotebytes += fileinfo.st_size;
+	  remotebytes += (size_t)fileinfo.st_size;
       }
 
     progress_error(HD_ERROR_NONE, "REMOTEBYTES: %ld", (long)remotebytes);
@@ -183,10 +182,8 @@ file_cleanup(void)
 
     for (i = 0; i < web_files; i ++)
     {
-      snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
-               (long)getpid(), i + 1);
-      progress_error(HD_ERROR_NONE, "DEBUG: %-31.31s %s\n",
-                     web_cache[i].url ? web_cache[i].url : "none", filename);
+      snprintf(filename, sizeof(filename), TEMPLATE, tmpdir, (long)getpid(), (int)(i + 1));
+      progress_error(HD_ERROR_NONE, "DEBUG: %-31.31s %s\n", web_cache[i].url ? web_cache[i].url : "none", filename);
     }
 
     progress_error(HD_ERROR_NONE, "DEBUG:");
@@ -196,8 +193,7 @@ file_cleanup(void)
 
   while (web_files > 0)
   {
-    snprintf(filename, sizeof(filename), TEMPLATE, tmpdir,
-             (long)getpid(), web_files);
+    snprintf(filename, sizeof(filename), TEMPLATE, tmpdir, (long)getpid(), (int)web_files);
 
     if (unlink(filename))
       progress_error(HD_ERROR_DELETE_ERROR,
@@ -365,13 +361,13 @@ file_find_check(const char *filename)	/* I - File or URL */
   DEBUG_printf(("file_find_check(filename=\"%s\")\n", filename));
 
   if (strncmp(filename, "http:", 5) == 0 || strncmp(filename, "//", 2) == 0)
-    strcpy(scheme, "http");
+    strlcpy(scheme, "http", sizeof(scheme));
 #ifdef HAVE_SSL
   else if (strncmp(filename, "https:", 6) == 0)
-    strcpy(scheme, "https");
+    strlcpy(scheme, "https", sizeof(scheme));
 #endif /* HAVE_SSL */
   else
-    strcpy(scheme, "file");
+    strlcpy(scheme, "file", sizeof(scheme));
 
   if (strcmp(scheme, "file") == 0)
   {
@@ -399,7 +395,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     * from the remote system...
     */
 
-    for (i = 0; i < web_files; i ++)
+    for (i = 0; i < (int)web_files; i ++)
       if (web_cache[i].url && strcmp(web_cache[i].url, filename) == 0)
       {
         DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\"!\n",
@@ -539,7 +535,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     {
       count += bytes;
       progress_update((100 * count / total) % 101);
-      fwrite(resource, 1, bytes, fp);
+      fwrite(resource, 1, (size_t)bytes, fp);
     }
 
     progress_hide();
@@ -588,7 +584,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   * See if this is a cached remote file...
   */
 
-  for (i = 0; i < web_files; i ++)
+  for (i = 0; i < (int)web_files; i ++)
     if (strcmp(s, web_cache[i].name) == 0)
     {
       DEBUG_printf(("file_find: Returning cache file \"%s\"!\n", s));
@@ -624,7 +620,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 	else
 	  ch |= sptr[2] - '0';
 
-	*temp++ = ch;
+	*temp++ = (char)ch;
 
 	sptr += 3;
       }
@@ -682,7 +678,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
           basename[0] != '/')
 	*temp++ = '/';
 
-      strlcpy(temp, basename, sizeof(filename) - (temp - filename));
+      strlcpy(temp, basename, sizeof(filename) - (size_t)(temp - filename));
 
      /*
       * See if the file or URL exists...
@@ -770,10 +766,10 @@ file_gets(char  *buf,		/* I - Line buffer */
 	  ungetc(nextch, fp);
       }
       else if (nextch != '\n' && ptr < end)
-        *ptr++ = nextch;
+        *ptr++ = (char)nextch;
     }
     else if (ptr < end)
-      *ptr++ = ch;
+      *ptr++ = (char)ch;
   }
 
   *ptr = '\0';
@@ -1065,7 +1061,7 @@ file_temp(char *name,			/* O - Filename */
     tmpdir = "/var/tmp";
 #endif /* WIN32 */
 
-  snprintf(name, (size_t)len, TEMPLATE, tmpdir, (long)getpid(), web_files);
+  snprintf(name, (size_t)len, TEMPLATE, tmpdir, (long)getpid(), (int)web_files);
 
   if ((fd = open(name, OPENMODE, OPENPERM)) >= 0)
     fp = fdopen(fd, "w+b");

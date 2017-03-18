@@ -181,20 +181,20 @@ static int	chapter,
 		chapter_starts[MAX_CHAPTERS],
 		chapter_ends[MAX_CHAPTERS];
 
-static int	num_headings = 0,
-		alloc_headings = 0,
-		*heading_pages = NULL,
+static size_t	num_headings = 0,
+		alloc_headings = 0;
+static int	*heading_pages = NULL,
 		*heading_tops = NULL;
 
-static int	num_pages = 0,
+static size_t	num_pages = 0,
 		alloc_pages = 0;
 static page_t	*pages = NULL;
 static tree_t	*current_heading;
 
-static int	num_outpages = 0;
+static size_t	num_outpages = 0;
 static outpage_t *outpages = NULL;
 
-static int	num_links = 0,
+static size_t	num_links = 0,
 		alloc_links = 0;
 static link_t	*links = NULL;
 
@@ -202,9 +202,9 @@ static uchar	list_types[16];
 static int	list_values[16];
 
 static char	stdout_filename[256];
-static int	num_objects = 0,
-		alloc_objects = 0,
-		*objects = NULL,
+static size_t	num_objects = 0,
+		alloc_objects = 0;
+static int	*objects = NULL,
 		root_object,
 		info_object,
 		outline_object,
@@ -330,8 +330,8 @@ static int	compare_links(link_t *n1, link_t *n2);
 static void	find_background(tree_t *t);
 static void	write_background(int page, FILE *out);
 
-static render_t	*new_render(int page, int type, float x, float y,
-		            float width, float height, void *data,
+static render_t	*new_render(int page, int type, double x, double y,
+		            double width, double height, void *data,
 			    render_t *insert = 0);
 static float	get_cell_size(tree_t *t, float left, float right,
 		              float *minwidth, float *prefwidth,
@@ -392,8 +392,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 		bottom, top,	/* Bottom and top margins */
 		width,		/* Width of , author, etc */
 		height;		/* Height of  area */
-  int		pos,		/* Current header/footer position */
-		page,		/* Current page # */
+  int		page,		/* Current page # */
+		pos,		/* Current header/footer position */
 		heading,	/* Current heading # */
 		toc_duplex,	/* Duplex TOC pages? */
 		toc_landscape,	/* Do TOC in landscape? */
@@ -451,8 +451,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (logo_image != NULL)
   {
-    logo_width  = logo_image->width * PagePrintWidth / _htmlBrowserWidth;
-    logo_height = logo_width * logo_image->height / logo_image->width;
+    logo_width  = (float)(logo_image->width * PagePrintWidth / _htmlBrowserWidth);
+    logo_height = (float)(logo_width * logo_image->height / logo_image->width);
 
     if (logo_height > maxhfheight)
       maxhfheight = logo_height;
@@ -466,10 +466,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
     if (hfimage[hfi])
     {
-      hfimage_width[hfi]  = hfimage[hfi]->width * PagePrintWidth /
-                            _htmlBrowserWidth;
-      hfimage_height[hfi] = hfimage_width[hfi] * hfimage[hfi]->height /
-                            hfimage[hfi]->width;
+      hfimage_width[hfi]  = (float)(hfimage[hfi]->width * PagePrintWidth / _htmlBrowserWidth);
+      hfimage_height[hfi] = (float)(hfimage_width[hfi] * hfimage[hfi]->height / hfimage[hfi]->width);
 
       if (hfimage_height[hfi] > maxhfheight)
         maxhfheight = hfimage_height[hfi];
@@ -559,8 +557,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       left            = 0.0f;
       right           = PagePrintWidth;
 
-      parse_doc(t, &left, &right, &bottom, &top, &x, &y, &page, NULL,
-                &needspace);
+      parse_doc(t, &left, &right, &bottom, &top, &x, &y, &page, NULL, &needspace);
 
       if (PageDuplex && (num_pages & 1))
 	check_pages(num_pages);
@@ -575,8 +572,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
       if ((timage = image_load(TitleImage, !OutputColor)) != NULL)
       {
-	timage_width  = timage->width * PagePrintWidth / _htmlBrowserWidth;
-	timage_height = timage_width * timage->height / timage->width;
+	timage_width  = (float)(timage->width * PagePrintWidth / _htmlBrowserWidth);
+	timage_height = (float)(timage_width * timage->height / timage->width);
       }
       else
         timage_width = timage_height = 0.0f;
@@ -618,7 +615,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
 	r->data.text.typeface = _htmlHeadingFont;
 	r->data.text.style    = STYLE_BOLD;
-	r->data.text.size     = _htmlSizes[SIZE_H1];
+	r->data.text.size     = (float)_htmlSizes[SIZE_H1];
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	y -= _htmlSpacings[SIZE_H1];
@@ -632,7 +629,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
 	  r->data.text.typeface = _htmlBodyFont;
 	  r->data.text.style    = STYLE_NORMAL;
-	  r->data.text.size     = _htmlSizes[SIZE_P];
+	  r->data.text.size     = (float)_htmlSizes[SIZE_P];
           memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	  y -= _htmlSpacings[SIZE_P];
@@ -650,7 +647,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
 	r->data.text.typeface = _htmlBodyFont;
 	r->data.text.style    = STYLE_NORMAL;
-	r->data.text.size     = _htmlSizes[SIZE_P];
+	r->data.text.size     = (float)_htmlSizes[SIZE_P];
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	y -= _htmlSpacings[SIZE_P];
@@ -665,14 +662,13 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
 	r->data.text.typeface = _htmlBodyFont;
 	r->data.text.style    = STYLE_NORMAL;
-	r->data.text.size     = _htmlSizes[SIZE_P];
+	r->data.text.size     = (float)_htmlSizes[SIZE_P];
 	memcpy(r->data.text.rgb, rgb, sizeof(rgb));
       }
     }
 
-    for (page = 0; page < num_pages; page ++)
-      // Safe because page_text is more than 6 chars
-      strcpy((char *)pages[page].page_text, (page & 1) ? "eltit" : "title");
+    for (page = 0; page < (int)num_pages; page ++)
+      strlcpy((char *)pages[page].page_text, (page & 1) ? "eltit" : "title", sizeof(pages[page].page_text));
   }
   else
     page = 0;
@@ -701,9 +697,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   float adjust, image_adjust, temp_adjust;
 
   if (maxhfheight > HeadFootSize)
-    image_adjust = maxhfheight + HeadFootSize;
+    image_adjust = (float)(maxhfheight + HeadFootSize);
   else
-    image_adjust = 2 * HeadFootSize;
+    image_adjust = (float)(2 * HeadFootSize);
 
   for (adjust = 0.0, pos = 0; pos < 3; pos ++)
   {
@@ -716,7 +712,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 	      strstr(Header1[pos], "$HFIMAGE") != NULL))
       temp_adjust = image_adjust;
     else if (Header[pos] || Header1[pos])
-      temp_adjust = 2 * HeadFootSize;
+      temp_adjust = (float)(2 * HeadFootSize);
     else
       temp_adjust = 0.0;
 
@@ -734,7 +730,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 	 strstr(Footer[pos], "$HFIMAGE") != NULL))
       temp_adjust = image_adjust;
     else if (Footer[pos])
-      temp_adjust = 2 * HeadFootSize;
+      temp_adjust = (float)(2 * HeadFootSize);
     else
       temp_adjust = 0.0;
 
@@ -746,8 +742,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   y = top;
 
-  parse_doc(document, &left, &right, &bottom, &top, &x, &y, &page, NULL,
-            &needspace);
+  parse_doc(document, &left, &right, &bottom, &top, &x, &y, &page, NULL, &needspace);
 
   if (PageDuplex && (num_pages & 1))
   {
@@ -801,9 +796,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     if (pos == 3)
       top = PagePrintLength;
     else if (maxhfheight > HeadFootSize)
-      top = PagePrintLength - maxhfheight - HeadFootSize;
+      top = (float)(PagePrintLength - maxhfheight - HeadFootSize);
     else
-      top = PagePrintLength - 2 * HeadFootSize;
+      top = (float)(PagePrintLength - 2 * HeadFootSize);
 
     // Adjust bottom margin as needed...
     for (pos = 0; pos < 3; pos ++)
@@ -813,9 +808,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     if (pos == 3)
       bottom = 0.0f;
     else if (maxhfheight > HeadFootSize)
-      bottom = maxhfheight + HeadFootSize;
+      bottom = (float)(maxhfheight + HeadFootSize);
     else
-      bottom = 2 * HeadFootSize;
+      bottom = (float)(2 * HeadFootSize);
 
     y                 = 0.0;
     page              = num_pages - 1;
@@ -885,7 +880,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     links        = NULL;
   }
 
-  for (i = 0; i < num_pages; i ++)
+  for (i = 0; i < (int)num_pages; i ++)
   {
     if ((i == 0 || pages[i].chapter != pages[i - 1].chapter) &&
         pages[i].chapter)
@@ -981,7 +976,7 @@ pspdf_debug_stats()
   bytes = alloc_headings * sizeof(int) * 2;
 
   bytes += alloc_pages * sizeof(page_t);
-  for (i = 0; i < num_pages; i ++)
+  for (i = 0; i < (int)num_pages; i ++)
   {
     for (r = pages[i].start; r != NULL; r = r->next)
     {
@@ -1033,9 +1028,9 @@ pspdf_transform_page(int outpage,	// I - Output page
   page_t	*bp;			// Current base page
   page_t	*p;			// Current input page
   int		x, y;			// Position on output page
-  float		w, l,			// Width and length of subpage
+  double	w, l,			// Width and length of subpage
 		tx, ty;			// Translation values for subpage
-  float		pw, pl;			// Printable width and length of full page
+  double	pw, pl;			// Printable width and length of full page
 
 
   DEBUG_printf(("pspdf_transform_page(outpage = %d, pos = %d, page = %d)\n",
@@ -1082,11 +1077,11 @@ pspdf_transform_page(int outpage,	// I - Output page
         ty = 0.5 * (pw - l);
 
         p->outmatrix[0][0] = 0.0f;
-        p->outmatrix[1][0] = w / p->width;
-        p->outmatrix[0][1] = -w / p->width;
+        p->outmatrix[1][0] = (float)(w / p->width);
+        p->outmatrix[0][1] = (float)(-w / p->width);
         p->outmatrix[1][1] = 0.0f;
-        p->outmatrix[0][2] = ty + pl * w / p->width;
-        p->outmatrix[1][2] = tx + x * pl / 2;
+        p->outmatrix[0][2] = (float)(ty + pl * w / p->width);
+        p->outmatrix[1][2] = (float)(tx + x * pl / 2);
 	break;
 
     case 4 :
@@ -1105,12 +1100,12 @@ pspdf_transform_page(int outpage,	// I - Output page
         tx = 0.5 * (pw * 0.5 - w);
         ty = 0.5 * (pl * 0.5 - l);
 
-        p->outmatrix[0][0] = w / p->width;
+        p->outmatrix[0][0] = (float)(w / p->width);
         p->outmatrix[1][0] = 0.0f;
         p->outmatrix[0][1] = 0.0f;
-        p->outmatrix[1][1] = w / p->width;
-        p->outmatrix[0][2] = tx + x * pw / 2;
-        p->outmatrix[1][2] = ty + y * pl / 2;
+        p->outmatrix[1][1] = (float)(w / p->width);
+        p->outmatrix[0][2] = (float)(tx + x * pw / 2);
+        p->outmatrix[1][2] = (float)(ty + y * pl / 2);
 	break;
 
     case 6 :
@@ -1130,11 +1125,11 @@ pspdf_transform_page(int outpage,	// I - Output page
         ty = 0.5 * (pw * 0.5 - l);
 
         p->outmatrix[0][0] = 0.0f;
-        p->outmatrix[1][0] = w / p->width;
-        p->outmatrix[0][1] = -w / p->width;
+        p->outmatrix[1][0] = (float)(w / p->width);
+        p->outmatrix[0][1] = (float)(-w / p->width);
         p->outmatrix[1][1] = 0.0f;
-        p->outmatrix[0][2] = ty + y * pw / 2 + pl * w / p->width;
-        p->outmatrix[1][2] = tx + x * pl / 3;
+        p->outmatrix[0][2] = (float)(ty + y * pw / 2 + pl * w / p->width);
+        p->outmatrix[1][2] = (float)(tx + x * pl / 3);
 	break;
 
     case 9 :
@@ -1153,12 +1148,12 @@ pspdf_transform_page(int outpage,	// I - Output page
         tx = 0.5 * (pw * 0.333 - w);
         ty = 0.5 * (pl * 0.333 - l);
 
-        p->outmatrix[0][0] = w / p->width;
+        p->outmatrix[0][0] = (float)(w / p->width);
         p->outmatrix[1][0] = 0.0f;
         p->outmatrix[0][1] = 0.0f;
-        p->outmatrix[1][1] = w / p->width;
-        p->outmatrix[0][2] = tx + x * pw / 3;
-        p->outmatrix[1][2] = ty + y * pl / 3;
+        p->outmatrix[1][1] = (float)(w / p->width);
+        p->outmatrix[0][2] = (float)(tx + x * pw / 3);
+        p->outmatrix[1][2] = (float)(ty + y * pl / 3);
 	break;
 
     case 16 :
@@ -1177,12 +1172,12 @@ pspdf_transform_page(int outpage,	// I - Output page
         tx = 0.5 * (pw * 0.25 - w);
         ty = 0.5 * (pl * 0.25 - l);
 
-        p->outmatrix[0][0] = w / p->width;
+        p->outmatrix[0][0] = (float)(w / p->width);
         p->outmatrix[1][0] = 0.0f;
         p->outmatrix[0][1] = 0.0f;
-        p->outmatrix[1][1] = w / p->width;
-        p->outmatrix[0][2] = tx + x * pw / 4;
-        p->outmatrix[1][2] = ty + y * pl / 4;
+        p->outmatrix[1][1] = (float)(w / p->width);
+        p->outmatrix[0][2] = (float)(tx + x * pw / 4);
+        p->outmatrix[1][2] = (float)(ty + y * pl / 4);
 	break;
   }
 }
@@ -1553,7 +1548,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	      formatptr += 4;
 	    }
 
-            strlcpy(bufptr, number, sizeof(buffer) - (bufptr - buffer));
+            strlcpy(bufptr, number, sizeof(buffer) - (size_t)(bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 5 && strncasecmp(formatptr, "PAGES", 5) == 0)
@@ -1571,7 +1566,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	      formatptr += 5;
 	    }
 
-            strlcpy(bufptr, number, sizeof(buffer) - (bufptr - buffer));
+            strlcpy(bufptr, number, sizeof(buffer) - (size_t)(bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 11 && strncasecmp(formatptr, "CHAPTERPAGE", 11) == 0)
@@ -1592,7 +1587,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	      formatptr += 11;
 	    }
 
-            strlcpy(bufptr, number, sizeof(buffer) - (bufptr - buffer));
+            strlcpy(bufptr, number, sizeof(buffer) - (size_t)(bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 12 && strncasecmp(formatptr, "CHAPTERPAGES", 12) == 0)
@@ -1611,7 +1606,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	      formatptr += 12;
 	    }
 
-            strlcpy(bufptr, number, sizeof(buffer) - (bufptr - buffer));
+            strlcpy(bufptr, number, sizeof(buffer) - (size_t)(bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 5 && strncasecmp(formatptr, "TITLE", 5) == 0)
@@ -1619,8 +1614,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
             formatptr += 5;
 	    if (doc_title)
 	    {
-              strlcpy(bufptr, (char *)doc_title,
-	              sizeof(buffer) - (bufptr - buffer));
+              strlcpy(bufptr, (char *)doc_title, sizeof(buffer) - (size_t)(bufptr - buffer));
 	      bufptr += strlen(bufptr);
 	    }
 	  }
@@ -1629,8 +1623,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
             formatptr += 7;
 	    if (pages[page].chapter)
 	    {
-              strlcpy(bufptr, (char *)(pages[page].chapter),
-	              sizeof(buffer) - (bufptr - buffer));
+              strlcpy(bufptr, (char *)(pages[page].chapter), sizeof(buffer) - (size_t)(bufptr - buffer));
 	      bufptr += strlen(bufptr);
 	    }
 	  }
@@ -1639,31 +1632,27 @@ pspdf_prepare_heading(int   page,	// I - Page number
             formatptr += 7;
 	    if (pages[page].heading)
 	    {
-              strlcpy(bufptr, (char *)(pages[page].heading),
-	              sizeof(buffer) - (bufptr - buffer));
+              strlcpy(bufptr, (char *)(pages[page].heading), sizeof(buffer) - (size_t)(bufptr - buffer));
 	      bufptr += strlen(bufptr);
 	    }
 	  }
 	  else if (formatlen == 4 && strncasecmp(formatptr, "TIME", 4) == 0)
 	  {
             formatptr += 4;
-            strftime(bufptr, sizeof(buffer) - 1 - (bufptr - buffer), "%X",
-	             doc_date);
+            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%X", doc_date);
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 4 && strncasecmp(formatptr, "DATE", 4) == 0)
 	  {
             formatptr += 4;
-            strftime(bufptr, sizeof(buffer) - 1 - (bufptr - buffer), "%x",
-	             doc_date);
+            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%x", doc_date);
 	    bufptr += strlen(bufptr);
 	  }
 	  else
 	  {
-            progress_error(HD_ERROR_BAD_HF_STRING,
-	        	   "Bad header/footer $ command on page %d.", page + 1);
+            progress_error(HD_ERROR_BAD_HF_STRING, "Bad header/footer $ command on page %d.", page + 1);
 
-            strlcpy(bufptr, formatptr - 1, sizeof(buffer) - (bufptr - buffer));
+            strlcpy(bufptr, formatptr - 1, sizeof(buffer) - (size_t)(bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	    formatptr += formatlen;
 	  }
@@ -1684,7 +1673,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 
       if (strstr((char *)*format, "$PAGE") ||
           strstr((char *)*format, "$CHAPTERPAGE"))
-        strlcpy(page_text, buffer, page_len);
+        strlcpy(page_text, buffer, (size_t)page_len);
     }
 
     if (temp == NULL)
@@ -1699,7 +1688,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
       case 0 : /* Left justified */
           break;
       case 1 : /* Centered */
-          temp->x = (PagePrintWidth - temp->width) * 0.5;
+          temp->x = (float)((PagePrintWidth - temp->width) * 0.5);
           break;
       case 2 : /* Right justified */
           temp->x = PagePrintWidth - temp->width;
@@ -1714,7 +1703,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
     {
       temp->data.text.typeface = HeadFootType;
       temp->data.text.style    = HeadFootStyle;
-      temp->data.text.size     = HeadFootSize;
+      temp->data.text.size     = (float)HeadFootSize;
 
       get_color(_htmlTextColor, temp->data.text.rgb);
     }
@@ -1857,7 +1846,7 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   int		i;		/* Looping var */
 
 
-  if (outpage < 0 || outpage >= num_outpages)
+  if (outpage < 0 || outpage >= (int)num_outpages)
     return;
 
   op = outpages + outpage;
@@ -1872,7 +1861,7 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   if (Verbosity)
   {
     progress_show("Writing page %s...", p->page_text);
-    progress_update(100 * outpage / num_outpages);
+    progress_update(100 * outpage / (int)num_outpages);
   }
 
  /*
@@ -2034,7 +2023,7 @@ ps_write_page(FILE  *out,	/* I - Output file */
   const char	*debug;		/* HTMLDOC_DEBUG environment variable */
 
 
-  if (page < 0 || page >= alloc_pages)
+  if (page < 0 || page >= (int)alloc_pages)
     return;
 
   p = pages + page;
@@ -2234,21 +2223,21 @@ pdf_write_document(uchar  *author,	// I - Author of document
   // Verify that everything is working so far...
   pdf_start_object(out);
 
-  if (pages_object != num_objects)
+  if (pages_object != (int)num_objects)
     progress_error(HD_ERROR_INTERNAL_ERROR,
                    "Internal error: pages_object != num_objects");
 
   fputs("/Type/Pages", out);
-  fprintf(out, "/Count %d", num_outpages);
+  fprintf(out, "/Count %d", (int)num_outpages);
   fputs("/Kids[", out);
 
-  for (outpage = 0; outpage < num_outpages; outpage ++)
+  for (outpage = 0; outpage < (int)num_outpages; outpage ++)
     fprintf(out, "%d 0 R\n", pages_object + outpage * 2 + 1);
 
   fputs("]", out);
   pdf_end_object(out);
 
-  for (outpage = 0; outpage < num_outpages; outpage ++)
+  for (outpage = 0; outpage < (int)num_outpages; outpage ++)
     pdf_write_outpage(out, outpage);
 
   if (OutputType == OUTPUT_BOOK && TocLevels > 0)
@@ -2312,7 +2301,7 @@ pdf_write_document(uchar  *author,	// I - Author of document
     out = fopen(stdout_filename, "rb");
 
     while ((bytes = fread(buffer, 1, sizeof(buffer), out)) > 0)
-      fwrite(buffer, 1, bytes, stdout);
+      fwrite(buffer, 1, (size_t)bytes, stdout);
 
     // Close the temporary file (it is removed when the program exits...)
     fclose(out);
@@ -2463,7 +2452,7 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
 
   DEBUG_printf(("pdf_write_outpage(out = %p, outpage = %d)\n", out, outpage));
 
-  if (outpage < 0 || outpage >= num_outpages)
+  if (outpage < 0 || outpage >= (int)num_outpages)
     return;
 
   op = outpages + outpage;
@@ -2479,7 +2468,7 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
   if (Verbosity)
   {
     progress_show("Writing page %s...", p->page_text);
-    progress_update(100 * outpage / num_outpages);
+    progress_update(100 * outpage / (int)num_outpages);
   }
 
  /*
@@ -2490,7 +2479,7 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
 
   fputs("/Type/Page", out);
   fprintf(out, "/Parent %d 0 R", pages_object);
-  fprintf(out, "/Contents %d 0 R", num_objects + 1);
+  fprintf(out, "/Contents %d 0 R", (int)num_objects + 1);
   if (p->landscape)
     fprintf(out, "/MediaBox[0 0 %d %d]", p->length, p->width);
   else
@@ -2569,7 +2558,7 @@ pdf_write_page(FILE  *out,	/* I - Output file */
   const char	*debug;		/* HTMLDOC_DEBUG environment variable */
 
 
-  if (page < 0 || page >= alloc_pages)
+  if (page < 0 || page >= (int)alloc_pages)
     return;
 
   p = pages + page;
@@ -2843,7 +2832,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   else
     temp = toc->child;
 
-  for (; temp && count <= num_headings; temp = temp->next)
+  for (; temp && count <= (int)num_headings; temp = temp->next)
   {
     if (temp->markup == MARKUP_B)
     {
@@ -3080,7 +3069,7 @@ pdf_start_object(FILE *out,	// I - File to write to
   }
 
   objects[num_objects] = ftell(out);
-  fprintf(out, "%d 0 obj", num_objects);
+  fprintf(out, "%d 0 obj", (int)num_objects);
 
   pdf_object_type = array;
 
@@ -3165,7 +3154,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
   * First combine adjacent, identical links...
   */
 
-  for (outpage = 0, op = outpages; outpage < num_outpages; outpage ++, op ++)
+  for (outpage = 0, op = outpages; outpage < (int)num_outpages; outpage ++, op ++)
   {
     for (i = 0; i < op->nup; i ++)
     {
@@ -3228,7 +3217,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
   */
 
   for (outpage = 0, op = outpages, alloc_lobjs = 0;
-       outpage < num_pages;
+       outpage < (int)num_pages;
        outpage ++, op ++)
   {
     num_lobjs = 0;
@@ -3264,7 +3253,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
   * Allocate memory for the links...
   */
 
-  if ((lobjs = (int *)malloc(sizeof(int) * alloc_lobjs)) == NULL)
+  if ((lobjs = (int *)malloc(sizeof(int) * (size_t)alloc_lobjs)) == NULL)
   {
     progress_error(HD_ERROR_OUT_OF_MEMORY,
                    "Unable to allocate memory for %d link objects - %s",
@@ -3276,7 +3265,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
   * Then generate annotation objects for all the links...
   */
 
-  for (outpage = 0, op = outpages; outpage < num_pages; outpage ++, op ++)
+  for (outpage = 0, op = outpages; outpage < (int)num_pages; outpage ++, op ++)
   {
     num_lobjs = 0;
 
@@ -3397,7 +3386,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
                       r->x + PageLeft, r->y + PageBottom - 2,
                       r->x + r->width + PageLeft, r->y + r->height + PageBottom);
             fputs("/Border[0 0 0]", out);
-	    fprintf(out, "/A %d 0 R", num_objects - 1);
+	    fprintf(out, "/A %d 0 R", (int)num_objects - 1);
             pdf_end_object(out);
 	  }
 	}
@@ -3437,14 +3426,14 @@ pdf_write_names(FILE *out)		/* I - Output file */
 
   for (i = num_links, link = links; i > 0; i --, link ++)
     for (s = link->name; *s != '\0'; s ++)
-      *s = tolower(*s);
+      *s = (uchar)tolower(*s);
 
  /*
   * Write the root name tree entry...
   */
 
   names_object = pdf_start_object(out);
-  fprintf(out, "/Dests %d 0 R", num_objects + 1);
+  fprintf(out, "/Dests %d 0 R", (int)num_objects + 1);
   pdf_end_object(out);
 
  /*
@@ -3452,7 +3441,7 @@ pdf_write_names(FILE *out)		/* I - Output file */
   */
 
   pdf_start_object(out);
-  fprintf(out, "/Kids[%d 0 R]", num_objects + 1);
+  fprintf(out, "/Kids[%d 0 R]", (int)num_objects + 1);
   pdf_end_object(out);
 
  /*
@@ -3467,10 +3456,10 @@ pdf_write_names(FILE *out)		/* I - Output file */
   fputs("]", out);
 
   fputs("/Names[", out);
-  for (i = 1, link = links; i <= num_links; i ++, link ++)
+  for (i = 1, link = links; i <= (int)num_links; i ++, link ++)
   {
     write_string(out, link->name, 0);
-    fprintf(out, "%d 0 R", num_objects + i);
+    fprintf(out, "%d 0 R", (int)num_objects + i);
   }
   fputs("]", out);
 
@@ -3551,12 +3540,10 @@ render_contents(tree_t *t,		/* I - Tree to parse */
   * Get the width of the page number, leave room for three dots...
   */
 
-  if (heading >= 0 && heading < num_headings)
+  if (heading >= 0 && heading < (int)num_headings)
   {
     hpage       = heading_pages[heading];
-    numberwidth = get_width((uchar *)pages[hpage].page_text,
-                            t->typeface, t->style, t->size) +
-	          3.0f * dot_width;
+    numberwidth = (float)(get_width((uchar *)pages[hpage].page_text, t->typeface, t->style, t->size) + 3.0f * dot_width);
   }
   else
   {
@@ -3587,12 +3574,12 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 	progress_show("Formatting page %d", *page);
 
       width = get_width((uchar *)TocTitle, _htmlHeadingFont, STYLE_BOLD, SIZE_H1);
-      *y = top - _htmlSpacings[SIZE_H1];
-      x  = left + 0.5f * (right - left - width);
+      *y = (float)(top - _htmlSpacings[SIZE_H1]);
+      x  = (float)(left + 0.5f * (right - left - width));
       r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, TocTitle);
       r->data.text.typeface = _htmlHeadingFont;
       r->data.text.style    = STYLE_BOLD;
-      r->data.text.size     = _htmlSizes[SIZE_H1];
+      r->data.text.size     = (float)_htmlSizes[SIZE_H1];
       get_color(_htmlTextColor, r->data.text.rgb);
 
       *y -= _htmlSpacings[SIZE_H1];
@@ -3629,9 +3616,9 @@ render_contents(tree_t *t,		/* I - Tree to parse */
       {
         memcpy(rgb, link_color, sizeof(rgb));
 
-	temp->red   = (int)(link_color[0] * 255.0);
-	temp->green = (int)(link_color[1] * 255.0);
-	temp->blue  = (int)(link_color[2] * 255.0);
+	temp->red   = (uchar)(link_color[0] * 255.0);
+	temp->green = (uchar)(link_color[1] * 255.0);
+	temp->blue  = (uchar)(link_color[2] * 255.0);
 
         if (LinkStyle)
 	  new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0,
@@ -3666,7 +3653,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
           r = new_render(*page, RENDER_TEXT, x, *y, 0, 0, temp->data);
           r->data.text.typeface = temp->typeface;
           r->data.text.style    = temp->style;
-          r->data.text.size     = _htmlSizes[temp->size];
+          r->data.text.size     = (float)_htmlSizes[temp->size];
           memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
           if (temp->superscript)
@@ -3697,7 +3684,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
     * Draw dots leading up to the page number...
     */
 
-    width = numberwidth - 3.0 * dot_width + x;
+    width = (float)(numberwidth - 3.0 * dot_width + x);
 
     for (nptr = number;
          nptr < (number + sizeof(number) - 1) && width < right;
@@ -3705,13 +3692,12 @@ render_contents(tree_t *t,		/* I - Tree to parse */
       *nptr++ = '.';
     nptr --;
 
-    strlcpy((char *)nptr, pages[hpage].page_text,
-            sizeof(number) - (nptr - number));
+    strlcpy((char *)nptr, pages[hpage].page_text, sizeof(number) - (size_t)(nptr - number));
 
     r = new_render(*page, RENDER_TEXT, right - width + x, *y, 0, 0, number);
     r->data.text.typeface = t->typeface;
     r->data.text.style    = t->style;
-    r->data.text.size     = _htmlSizes[t->size];
+    r->data.text.size     = (float)_htmlSizes[t->size];
     memcpy(r->data.text.rgb, rgb, sizeof(rgb));
   }
 }
@@ -4290,13 +4276,13 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	      if (strchr((char *)name, '%') != NULL)
 	        width = atoi((char *)name) * (*right - *left) / 100;
 	      else
-                width = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
+                width = (float)(atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth);
             }
 
             if ((name = htmlGetVariable(t, (uchar *)"SIZE")) == NULL)
 	      height = 2;
 	    else
-	      height = atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth;
+	      height = (float)(atoi((char *)name) * PagePrintWidth / _htmlBrowserWidth);
 
             switch (t->halignment)
 	    {
@@ -4642,7 +4628,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         (align = htmlGetVariable(temp, (uchar *)"ALIGN")))
     {
       if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
-	borderspace = atof((char *)border);
+	borderspace = (float)atof((char *)border);
       else if (temp->link)
 	borderspace = 1;
       else
@@ -4889,7 +4875,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         if (temp->markup == MARKUP_IMG)
 	{
 	  if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
-	    borderspace = atof((char *)border);
+	    borderspace = (float)atof((char *)border);
 	  else if (temp->link)
 	    borderspace = 1;
 	  else
@@ -4956,11 +4942,11 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       prev = temp;
 
       if (temp->markup != MARKUP_IMG)
-        temp_height = temp->height * _htmlSpacings[0] / _htmlSizes[0];
+        temp_height = (float)(temp->height * _htmlSpacings[0] / _htmlSizes[0]);
       else
       {
 	if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
-	  borderspace = atof((char *)border);
+	  borderspace = (float)atof((char *)border);
 	else if (temp->link)
 	  borderspace = 1;
 	else
@@ -5001,8 +4987,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         *dataptr = dataptr[1];
       *dataptr = '\0';
 
-      temp_width = _htmlWidths[temp->typeface][temp->style][' '] *
-                   _htmlSizes[temp->size];
+      temp_width = (float)(_htmlWidths[temp->typeface][temp->style][' '] * _htmlSizes[temp->size]);
       temp->width -= temp_width;
       num_chars --;
     }
@@ -5064,9 +5049,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       if (temp->link != NULL && PSLevel == 0 && Links &&
           temp->markup == MARKUP_NONE)
       {
-	temp->red   = (int)(link_color[0] * 255.0);
-	temp->green = (int)(link_color[1] * 255.0);
-	temp->blue  = (int)(link_color[2] * 255.0);
+	temp->red   = (uchar)(link_color[0] * 255.0);
+	temp->green = (uchar)(link_color[1] * 255.0);
+	temp->blue  = (uchar)(link_color[2] * 255.0);
       }
 
      /*
@@ -5089,7 +5074,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	               linewidth, linetype->height, line);
 	r->data.text.typeface = linetype->typeface;
 	r->data.text.style    = linetype->style;
-	r->data.text.size     = _htmlSizes[linetype->size];
+	r->data.text.size     = (float)_htmlSizes[linetype->size];
 	r->data.text.spacing  = char_spacing;
         memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
@@ -5139,8 +5124,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	      rgb[2] = temp->blue / 255.0f;
 	    }
 
-            strlcpy((char *)lineptr, (char *)temp->data,
-	            sizeof(line) - (lineptr - line));
+            strlcpy((char *)lineptr, (char *)temp->data, sizeof(line) - (size_t)(lineptr - line));
 
             temp_width = temp->width + char_spacing * strlen((char *)lineptr);
 
@@ -5174,7 +5158,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
             }
 
 	    if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
-	      borderspace = atof((char *)border);
+	      borderspace = (float)atof((char *)border);
 	    else if (temp->link)
 	      borderspace = 1;
 	    else
@@ -5259,7 +5243,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       r->data.text.typeface = linetype->typeface;
       r->data.text.style    = linetype->style;
       r->data.text.spacing  = char_spacing;
-      r->data.text.size     = _htmlSizes[linetype->size];
+      r->data.text.size     = (float)_htmlSizes[linetype->size];
       memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
       if (linetype->superscript)
@@ -5409,9 +5393,9 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	{
           memcpy(rgb, link_color, sizeof(rgb));
 
-	  start->red   = (int)(link_color[0] * 255.0);
-	  start->green = (int)(link_color[1] * 255.0);
-	  start->blue  = (int)(link_color[2] * 255.0);
+	  start->red   = (uchar)(link_color[0] * 255.0);
+	  start->green = (uchar)(link_color[1] * 255.0);
+	  start->blue  = (uchar)(link_color[2] * 255.0);
 
           if (LinkStyle)
 	    new_render(*page, RENDER_BOX, *x, *y - 1, start->width, 0,
@@ -5459,7 +5443,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
             r = new_render(*page, RENDER_TEXT, *x, *y, width, 0, line);
             r->data.text.typeface = start->typeface;
             r->data.text.style    = start->style;
-            r->data.text.size     = _htmlSizes[start->size];
+            r->data.text.size     = (float)_htmlSizes[start->size];
             memcpy(r->data.text.rgb, rgb, sizeof(rgb));
 
 	    if (start->underline)
@@ -5635,9 +5619,9 @@ parse_table(tree_t *t,			// I - Tree to parse
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
-      table_width = atof((char *)var) * (right - left) / 100.0f;
+      table_width = (float)(atof((char *)var) * (right - left) / 100.0f);
     else
-      table_width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      table_width = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
   }
   else
     table_width = right - left;
@@ -5645,9 +5629,9 @@ parse_table(tree_t *t,			// I - Tree to parse
   if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
-      table_height = atof((char *)var) * (top - bottom) / 100.0f;
+      table_height = (float)(atof((char *)var) * (top - bottom) / 100.0f);
     else
-      table_height = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      table_height = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
   }
   else
     table_height = -1.0f;
@@ -5666,7 +5650,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
   {
-    if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
+    if ((border = (float)atof((char *)var)) == 0.0 && var[0] != '0')
       border = 1.0f;
 
     cellpadding += border;
@@ -5760,9 +5744,9 @@ parse_table(tree_t *t,			// I - Tree to parse
         alloc_rows += ALLOC_ROWS;
 
         if (alloc_rows == ALLOC_ROWS)
-	  cells = (tree_t ***)malloc(sizeof(tree_t **) * alloc_rows);
+	  cells = (tree_t ***)malloc(sizeof(tree_t **) * (size_t)alloc_rows);
 	else
-	  cells = (tree_t ***)realloc(cells, sizeof(tree_t **) * alloc_rows);
+	  cells = (tree_t ***)realloc(cells, sizeof(tree_t **) * (size_t)alloc_rows);
 
         if (cells == (tree_t ***)0)
 	{
@@ -5948,9 +5932,9 @@ parse_table(tree_t *t,			// I - Tree to parse
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
-      width = atof((char *)var) * (right - left) / 100.0f;
+      width = (float)(atof((char *)var) * (right - left) / 100.0f);
     else
-      width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      width = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
   }
   else
   {
@@ -6263,14 +6247,14 @@ parse_table(tree_t *t,			// I - Tree to parse
     render_t *r;
     char table_text[255];
 
-    snprintf(table_text, sizeof(table_text), "t=%p", t);
+    snprintf(table_text, sizeof(table_text), "t=%p", (void *)t);
     r = new_render(*page, RENDER_TEXT, left, *y,
                    get_width((uchar *)table_text, TYPE_COURIER, STYLE_NORMAL, 3),
 		   _htmlSizes[3], table_text);
 
     r->data.text.typeface = TYPE_COURIER;
     r->data.text.style    = STYLE_NORMAL;
-    r->data.text.size     = _htmlSizes[3];
+    r->data.text.size     = (float)_htmlSizes[3];
   }
 
   memset(row_spans, 0, sizeof(row_spans));
@@ -6315,10 +6299,9 @@ parse_table(tree_t *t,			// I - Tree to parse
     {
       // Row height specified; make sure it'll fit...
       if (height_var[strlen((char *)height_var) - 1] == '%')
-	temp_height = atof((char *)height_var) * 0.01f *
-	              (PagePrintLength - 2 * cellpadding);
+	temp_height = (float)(atof((char *)height_var) * 0.01f * (PagePrintLength - 2 * cellpadding));
       else
-        temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
+        temp_height = (float)(atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth);
 
       if (table_height > 0.0f && temp_height > table_height)
         temp_height = table_height;
@@ -6328,7 +6311,7 @@ parse_table(tree_t *t,			// I - Tree to parse
     else
     {
       // Use min height computed from get_cell_size()...
-      for (col = 0, temp_height = _htmlSpacings[SIZE_P];
+      for (col = 0, temp_height = (float)_htmlSpacings[SIZE_P];
            col < num_cols;
 	   col ++)
         if (cells[row][col] != NULL &&
@@ -6455,14 +6438,14 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  char table_text[255];
 
 	  snprintf(table_text, sizeof(table_text), "cell=%p [%d,%d]",
-	           cells[row][col], row, col);
+	           (void *)cells[row][col], row, col);
 	  r = new_render(temp_page, RENDER_TEXT, *x, temp_y,
                 	 get_width((uchar *)table_text, TYPE_COURIER, STYLE_NORMAL, 1),
 			 _htmlSizes[1], table_text);
 
 	  r->data.text.typeface = TYPE_COURIER;
 	  r->data.text.style    = STYLE_NORMAL;
-	  r->data.text.size     = _htmlSizes[1];
+	  r->data.text.size     = (float)_htmlSizes[1];
 	}
 
         if (cells[row][col] != NULL && cells[row][col]->child != NULL)
@@ -6576,9 +6559,9 @@ parse_table(tree_t *t,			// I - Tree to parse
       {
         // Hardcode the row height...
         if (height_var[strlen((char *)height_var) - 1] == '%')
-	  temp_height = atof((char *)height_var) * 0.01f * PagePrintLength;
+	  temp_height = (float)(atof((char *)height_var) * 0.01f * PagePrintLength);
 	else
-          temp_height = atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth;
+          temp_height = (float)(atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth);
 
         if (table_height > 0 && temp_height > table_height)
           temp_height = table_height;
@@ -7075,9 +7058,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
     case '1' :
     case 'i' :
     case 'I' :
-        strlcpy((char *)number, format_number(list_values[t->indent],
-	                                      list_types[t->indent]),
-		sizeof(number));
+        strlcpy((char *)number, format_number(list_values[t->indent], (char)list_types[t->indent]), sizeof(number));
         strlcat((char *)number, ". ", sizeof(number));
         typeface = t->typeface;
         break;
@@ -7094,7 +7075,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
                  width, _htmlSpacings[t->size], number);
   r->data.text.typeface = typeface;
   r->data.text.style    = t->style;
-  r->data.text.size     = _htmlSizes[t->size];
+  r->data.text.size     = (float)_htmlSizes[t->size];
   r->data.text.rgb[0]   = t->red / 255.0f;
   r->data.text.rgb[1]   = t->green / 255.0f;
   r->data.text.rgb[2]   = t->blue / 255.0f;
@@ -7385,7 +7366,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	tof = (*y >= *top);
       }
 
-      if ((*y - get_measurement(comment, _htmlSpacings[SIZE_P])) < *bottom)
+      if ((*y - get_measurement(comment, (float)_htmlSpacings[SIZE_P])) < *bottom)
       {
 	(*page) ++;
 
@@ -8051,9 +8032,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       float adjust, image_adjust, temp_adjust;
 
       if (maxhfheight > HeadFootSize)
-	image_adjust = maxhfheight + HeadFootSize;
+	image_adjust = (float)(maxhfheight + HeadFootSize);
       else
-	image_adjust = 2 * HeadFootSize;
+	image_adjust = (float)(2 * HeadFootSize);
 
       for (adjust = 0.0, pos = 0; pos < 3; pos ++)
       {
@@ -8066,7 +8047,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 		  strstr(Header1[pos], "$HFIMAGE") != NULL))
 	  temp_adjust = image_adjust;
 	else if (Header[pos] || Header1[pos])
-	  temp_adjust = 2 * HeadFootSize;
+	  temp_adjust = (float)(2 * HeadFootSize);
 	else
 	  temp_adjust = 0.0;
 
@@ -8152,9 +8133,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       float adjust, image_adjust, temp_adjust;
 
       if (maxhfheight > HeadFootSize)
-	image_adjust = maxhfheight + HeadFootSize;
+	image_adjust = (float)(maxhfheight + HeadFootSize);
       else
-	image_adjust = 2 * HeadFootSize;
+	image_adjust = (float)(2 * HeadFootSize);
 
       for (adjust = 0.0, pos = 0; pos < 3; pos ++)
       {
@@ -8167,7 +8148,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 		  strstr(Header1[pos], "$HFIMAGE") != NULL))
 	  temp_adjust = image_adjust;
 	else if (Header[pos] || Header1[pos])
-	  temp_adjust = 2 * HeadFootSize;
+	  temp_adjust = (float)(2 * HeadFootSize);
 	else
 	  temp_adjust = 0.0;
 
@@ -8260,9 +8241,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       float adjust, image_adjust, temp_adjust;
 
       if (maxhfheight > HeadFootSize)
-	image_adjust = maxhfheight + HeadFootSize;
+	image_adjust = (float)(maxhfheight + HeadFootSize);
       else
-	image_adjust = 2 * HeadFootSize;
+	image_adjust = (float)(2 * HeadFootSize);
 
       for (adjust = 0.0, pos = 0; pos < 3; pos ++)
       {
@@ -8271,7 +8252,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 	     strstr(Footer[pos], "$HFIMAGE") != NULL))
 	  temp_adjust = image_adjust;
 	else if (Footer[pos])
-	  temp_adjust = 2 * HeadFootSize;
+	  temp_adjust = (float)(2 * HeadFootSize);
 	else
 	  temp_adjust = 0.0;
 
@@ -8433,8 +8414,8 @@ write_background(int  page,	/* I - Page we are writing for */
 
   if (background_image != NULL)
   {
-    width  = background_image->width * 72.0f / _htmlPPI;
-    height = background_image->height * 72.0f / _htmlPPI;
+    width  = (float)(background_image->width * 72.0f / _htmlPPI);
+    height = (float)(background_image->height * 72.0f / _htmlPPI);
 
     if (width < 1.0f)
       width = 1.0f;
@@ -8483,10 +8464,10 @@ write_background(int  page,	/* I - Page we are writing for */
 static render_t *			/* O - New render structure */
 new_render(int      page,		/* I - Page number (0-n) */
            int      type,		/* I - Type of render primitive */
-           float    x,			/* I - Horizontal position */
-           float    y,			/* I - Vertical position */
-           float    width,		/* I - Width */
-           float    height,		/* I - Height */
+           double   x,			/* I - Horizontal position */
+           double   y,			/* I - Vertical position */
+           double   width,		/* I - Width */
+           double   height,		/* I - Height */
            void     *data,		/* I - Data */
 	   render_t *insert)		/* I - Insert before here... */
 {
@@ -8500,7 +8481,7 @@ new_render(int      page,		/* I - Page number (0-n) */
 
   check_pages(page);
 
-  if (page < 0 || page >= alloc_pages)
+  if (page < 0 || page >= (int)alloc_pages)
   {
     progress_error(HD_ERROR_INTERNAL_ERROR,
                    "Page number (%d) out of range (1...%d)\n", page + 1,
@@ -8526,10 +8507,10 @@ new_render(int      page,		/* I - Page number (0-n) */
   }
 
   r->type   = type;
-  r->x      = x;
-  r->y      = y;
-  r->width  = width;
-  r->height = height;
+  r->x      = (float)x;
+  r->y      = (float)y;
+  r->width  = (float)width;
+  r->height = (float)height;
 
   switch (type)
   {
@@ -8607,10 +8588,10 @@ check_pages(int page)	// I - Current page
   DEBUG_printf(("check_pages(%d)\n", page));
 
   // See if we need to allocate memory for the page...
-  if (page >= alloc_pages)
+  if (page >= (int)alloc_pages)
   {
     // Yes, allocate enough for ALLOC_PAGES more pages...
-    while (page >= alloc_pages)
+    while (page >= (int)alloc_pages)
       alloc_pages += ALLOC_PAGES;
 
     // Do the pages pointers...
@@ -8634,7 +8615,7 @@ check_pages(int page)	// I - Current page
   }
 
   // Initialize the page data as needed...
-  for (temp = pages + num_pages; num_pages <= page; num_pages ++, temp ++)
+  for (temp = pages + num_pages; (int)num_pages <= page; num_pages ++, temp ++)
   {
     if (!temp->width)
     {
@@ -8702,8 +8683,8 @@ add_link(uchar *name,		/* I - Name of link */
 
   if ((temp = find_link(name)) != NULL)
   {
-    temp->page = page;
-    temp->top  = top;
+    temp->page = (short)page;
+    temp->top  = (short)top;
   }
   else
   {
@@ -8735,8 +8716,8 @@ add_link(uchar *name,		/* I - Name of link */
     num_links ++;
 
     strlcpy((char *)temp->name, (char *)name, sizeof(temp->name));
-    temp->page = page;
-    temp->top  = top;
+    temp->page = (short)page;
+    temp->top  = (short)top;
 
     if (num_links > 1)
       qsort(links, num_links, sizeof(link_t),
@@ -8827,7 +8808,7 @@ get_cell_size(tree_t *t,		// I - Cell
     if (var[strlen((char *)var) - 1] == '%')
       width = (right - left) * atoi((char *)var) * 0.01f;
     else
-      width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      width = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
   }
   else
     width = 0.0f;
@@ -8845,7 +8826,7 @@ get_cell_size(tree_t *t,		// I - Cell
     if (var[strlen((char *)var) - 1] == '%')
       minh = PagePrintLength * atoi((char *)var) * 0.01f;
     else
-      minh = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      minh = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
   }
   else
     minh = 0.0f;
@@ -9158,7 +9139,7 @@ get_table_size(tree_t *t,		// I - Table
     if (var[strlen((char *)var) - 1] == '%')
       width = (right - left) * atoi((char *)var) * 0.01f;
     else
-      width = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      width = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
   }
   else
     width = 0.0f;
@@ -9173,7 +9154,7 @@ get_table_size(tree_t *t,		// I - Table
     if (var[strlen((char *)var) - 1] == '%')
       minh = PagePrintLength * atoi((char *)var) * 0.01f;
     else
-      minh = atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth;
+      minh = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
   }
   else
     minh = 0.0f;
@@ -9260,7 +9241,7 @@ get_table_size(tree_t *t,		// I - Table
 
   if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
   {
-    if ((border = atof((char *)var)) == 0.0 && var[0] != '0')
+    if ((border = (float)atof((char *)var)) == 0.0 && var[0] != '0')
       border = 1.0f;
 
     cellpadding += border;
@@ -9455,14 +9436,14 @@ update_image_size(tree_t *t)	/* I - Tree entry */
   if (width != NULL && height != NULL)
   {
     if (width[strlen((char *)width) - 1] == '%')
-      t->width = atof((char *)width) * PagePrintWidth / 100.0f;
+      t->width = (float)(atof((char *)width) * PagePrintWidth / 100.0f);
     else
-      t->width = atoi((char *)width) * PagePrintWidth / _htmlBrowserWidth;
+      t->width = (float)(atoi((char *)width) * PagePrintWidth / _htmlBrowserWidth);
 
     if (height[strlen((char *)height) - 1] == '%')
-      t->height = atof((char *)height) * PagePrintWidth / 100.0f;
+      t->height = (float)(atof((char *)height) * PagePrintWidth / 100.0f);
     else
-      t->height = atoi((char *)height) * PagePrintWidth / _htmlBrowserWidth;
+      t->height = (float)(atoi((char *)height) * PagePrintWidth / _htmlBrowserWidth);
 
     return;
   }
@@ -9475,25 +9456,25 @@ update_image_size(tree_t *t)	/* I - Tree entry */
   if (width != NULL)
   {
     if (width[strlen((char *)width) - 1] == '%')
-      t->width = atof((char *)width) * PagePrintWidth / 100.0f;
+      t->width = (float)(atof((char *)width) * PagePrintWidth / 100.0f);
     else
-      t->width = atoi((char *)width) * PagePrintWidth / _htmlBrowserWidth;
+      t->width = (float)(atoi((char *)width) * PagePrintWidth / _htmlBrowserWidth);
 
     t->height = t->width * img->height / img->width;
   }
   else if (height != NULL)
   {
     if (height[strlen((char *)height) - 1] == '%')
-      t->height = atof((char *)height) * PagePrintWidth / 100.0f;
+      t->height = (float)(atof((char *)height) * PagePrintWidth / 100.0f);
     else
-      t->height = atoi((char *)height) * PagePrintWidth / _htmlBrowserWidth;
+      t->height = (float)(atoi((char *)height) * PagePrintWidth / _htmlBrowserWidth);
 
     t->width = t->height * img->width / img->height;
   }
   else
   {
-    t->width  = img->width * PagePrintWidth / _htmlBrowserWidth;
-    t->height = img->height * PagePrintWidth / _htmlBrowserWidth;
+    t->width  = (float)(img->width * PagePrintWidth / _htmlBrowserWidth);
+    t->height = (float)(img->height * PagePrintWidth / _htmlBrowserWidth);
   }
 }
 
@@ -9522,7 +9503,7 @@ get_width(uchar *s,		/* I - String to scan */
   for (width = 0.0, ptr = s; *ptr != '\0'; ptr ++)
     width += _htmlWidths[typeface][style][*ptr];
 
-  return (width * _htmlSizes[size]);
+  return ((float)(width * _htmlSizes[size]));
 }
 
 
@@ -9796,16 +9777,16 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
     switch (leftcount)
     {
       case 0 :
-          b = (((((data[0] << 8) | data[1]) << 8) | data[2]) << 8) | data[3];
+          b = (unsigned)((((((data[0] << 8) | data[1]) << 8) | data[2]) << 8) | data[3]);
 	  break;
       case 1 :
-          b = (((((leftdata[0] << 8) | data[0]) << 8) | data[1]) << 8) | data[2];
+          b = (unsigned)((((((leftdata[0] << 8) | data[0]) << 8) | data[1]) << 8) | data[2]);
 	  break;
       case 2 :
-          b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | data[0]) << 8) | data[1];
+          b = (unsigned)((((((leftdata[0] << 8) | leftdata[1]) << 8) | data[0]) << 8) | data[1]);
 	  break;
       case 3 :
-          b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) | data[0];
+          b = (unsigned)((((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) | data[0]);
 	  break;
     }
 
@@ -9830,7 +9811,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
       b /= 85;
       c[1] = (b % 85) + '!';
       b /= 85;
-      c[0] = b + '!';
+      c[0] = (uchar)(b + '!');
 
       fwrite(c, 1, 5, out);
       col += 5;
@@ -9845,9 +9826,9 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
   {
     // Copy any remainder into the leftdata array...
     if ((length - leftcount) > 0)
-      memcpy(leftdata + leftcount, data, length - leftcount);
+      memcpy(leftdata + leftcount, data, (size_t)(length - leftcount));
 
-    memset(leftdata + length, 0, 4 - length);
+    memset(leftdata + length, 0, (size_t)(4 - length));
 
     leftcount = length;
   }
@@ -9864,8 +9845,7 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
     if (leftcount > 0)
     {
       // Write the remaining bytes as needed...
-      b = (((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) |
-          leftdata[3];
+      b = (unsigned)((((((leftdata[0] << 8) | leftdata[1]) << 8) | leftdata[2]) << 8) | leftdata[3]);
 
       c[4] = (b % 85) + '!';
       b /= 85;
@@ -9875,9 +9855,9 @@ ps_ascii85(FILE  *out,			/* I - File to print to */
       b /= 85;
       c[1] = (b % 85) + '!';
       b /= 85;
-      c[0] = b + '!';
+      c[0] = (uchar)(b + '!');
 
-      fwrite(c, leftcount + 1, 1, out);
+      fwrite(c, (size_t)(leftcount + 1), 1, out);
 
       leftcount = 0;
     }
@@ -9986,8 +9966,8 @@ jpg_setup(FILE           *out,	/* I - Output file */
   jpg_dest.empty_output_buffer = jpg_empty;
   jpg_dest.term_destination    = jpg_term;
 
-  cinfo->image_width      = img->width;
-  cinfo->image_height     = img->height;
+  cinfo->image_width      = (JDIMENSION)img->width;
+  cinfo->image_height     = (JDIMENSION)img->height;
   cinfo->input_components = img->depth;
   cinfo->in_color_space   = img->depth == 1 ? JCS_GRAYSCALE : JCS_RGB;
 
@@ -10020,7 +10000,7 @@ static int				/* O - -1 if rgb1<rgb2, etc. */
 compare_rgb(unsigned *rgb1,		/* I - First color */
             unsigned *rgb2)		/* I - Second color */
 {
-  return (*rgb1 - *rgb2);
+  return ((int)*rgb1 - (int)*rgb2);
 }
 
 
@@ -10099,8 +10079,8 @@ write_image(FILE     *out,		/* I - Output file */
 	for (i = 0, j = 0; i < 256; i ++)
 	  if (grays[i])
 	  {
-	    colors[j] = (((i << 8) | i) << 8) | i;
-	    grays[i]  = j;
+	    colors[j] = (unsigned)((((i << 8) | i) << 8) | i);
+	    grays[i]  = (uchar)j;
 	    j ++;
 	  }
       }
@@ -10122,13 +10102,12 @@ write_image(FILE     *out,		/* I - Output file */
 	   i > 0;
 	   i --, pixel += 3)
       {
-        key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+        key = (unsigned)((((pixel[0] << 8) | pixel[1]) << 8) | pixel[2]);
 
 	if (!match || *match != key)
 	{
           if (ncolors > 0)
-            match = (unsigned *)bsearch(&key, colors, ncolors, sizeof(unsigned),
-                                        (compare_func_t)compare_rgb);
+            match = (unsigned *)bsearch(&key, colors, (size_t)ncolors, sizeof(unsigned), (compare_func_t)compare_rgb);
           else
             match = NULL;
         }
@@ -10142,8 +10121,7 @@ write_image(FILE     *out,		/* I - Output file */
           ncolors ++;
 
           if (ncolors > 1)
-            qsort(colors, ncolors, sizeof(unsigned),
-                  (compare_func_t)compare_rgb);
+            qsort(colors, (size_t)ncolors, sizeof(unsigned), (compare_func_t)compare_rgb);
         }
       }
 
@@ -10166,7 +10144,7 @@ write_image(FILE     *out,		/* I - Output file */
       indbits = 8;
 
     indwidth = (img->width * indbits + 7) / 8;
-    indices  = (uchar *)calloc(indwidth, img->height + 1);
+    indices  = (uchar *)calloc((size_t)indwidth, (size_t)(img->height + 1));
 					// height + 1 for PS odd-row-count bug
 
     if (img->depth == 1)
@@ -10186,13 +10164,13 @@ write_image(FILE     *out,		/* I - Output file */
 		switch (k)
 		{
 		  case 7 :
-	              *indptr = grays[*pixel] << 7;
+	              *indptr = (uchar)(grays[*pixel] << 7);
 		      break;
 		  default :
-	              *indptr |= grays[*pixel] << k;
+	              *indptr |= (uchar)(grays[*pixel] << k);
 		      break;
 		  case 0 :
-	              *indptr++ |= grays[*pixel];
+	              *indptr++ |= (uchar)grays[*pixel];
 		      break;
         	}
 
@@ -10210,16 +10188,16 @@ write_image(FILE     *out,		/* I - Output file */
 		switch (k)
 		{
 		  case 0 :
-	              *indptr = grays[*pixel] << 6;
+	              *indptr = (uchar)(grays[*pixel] << 6);
 		      break;
 		  case 1 :
-	              *indptr |= grays[*pixel] << 4;
+	              *indptr |= (uchar)(grays[*pixel] << 4);
 		      break;
 		  case 2 :
-	              *indptr |= grays[*pixel] << 2;
+	              *indptr |= (uchar)(grays[*pixel] << 2);
 		      break;
 		  case 3 :
-	              *indptr++ |= grays[*pixel];
+	              *indptr++ |= (uchar)grays[*pixel];
 		      break;
         	}
 
@@ -10237,7 +10215,7 @@ write_image(FILE     *out,		/* I - Output file */
 		if (k)
 		  *indptr++ |= grays[*pixel];
 		else
-		  *indptr = grays[*pixel] << 4;
+		  *indptr = (uchar)(grays[*pixel] << 4);
 
 	      if (k)
 		indptr ++;
@@ -10263,24 +10241,22 @@ write_image(FILE     *out,		/* I - Output file */
 	           j > 0;
 		   j --, k = (k + 7) & 7, pixel += 3)
 	      {
-                key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+                key = (unsigned)((((pixel[0] << 8) | pixel[1]) << 8) | pixel[2]);
 
 		if (*match != key)
-        	  match = (unsigned *)bsearch(&key, colors, ncolors,
-		                              sizeof(unsigned),
-                            	              (compare_func_t)compare_rgb);
+        	  match = (unsigned *)bsearch(&key, colors, (size_t)ncolors, sizeof(unsigned), (compare_func_t)compare_rgb);
 	        m = match - colors;
 
 		switch (k)
 		{
 		  case 7 :
-	              *indptr = m << 7;
+	              *indptr = (uchar)(m << 7);
 		      break;
 		  default :
-	              *indptr |= m << k;
+	              *indptr |= (uchar)(m << k);
 		      break;
 		  case 0 :
-	              *indptr++ |= m;
+	              *indptr++ |= (uchar)m;
 		      break;
         	}
 	      }
@@ -10300,27 +10276,25 @@ write_image(FILE     *out,		/* I - Output file */
 	           j > 0;
 		   j --, k = (k + 1) & 3, pixel += 3)
 	      {
-                key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+                key = (unsigned)((((pixel[0] << 8) | pixel[1]) << 8) | pixel[2]);
 
 		if (*match != key)
-        	  match = (unsigned *)bsearch(&key, colors, ncolors,
-		                              sizeof(unsigned),
-                            	              (compare_func_t)compare_rgb);
+        	  match = (unsigned *)bsearch(&key, colors, (size_t)ncolors, sizeof(unsigned), (compare_func_t)compare_rgb);
 	        m = match - colors;
 
 		switch (k)
 		{
 		  case 0 :
-	              *indptr = m << 6;
+	              *indptr = (uchar)(m << 6);
 		      break;
 		  case 1 :
-	              *indptr |= m << 4;
+	              *indptr |= (uchar)(m << 4);
 		      break;
 		  case 2 :
-	              *indptr |= m << 2;
+	              *indptr |= (uchar)(m << 2);
 		      break;
 		  case 3 :
-	              *indptr++ |= m;
+	              *indptr++ |= (uchar)m;
 		      break;
         	}
 	      }
@@ -10338,18 +10312,16 @@ write_image(FILE     *out,		/* I - Output file */
 	    {
 	      for (j = img->width, k = 0; j > 0; j --, k ^= 1, pixel += 3)
 	      {
-                key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+                key = (unsigned)((((pixel[0] << 8) | pixel[1]) << 8) | pixel[2]);
 
 		if (*match != key)
-        	  match = (unsigned *)bsearch(&key, colors, ncolors,
-		                              sizeof(unsigned),
-                            	              (compare_func_t)compare_rgb);
+        	  match = (unsigned *)bsearch(&key, colors, (size_t)ncolors, sizeof(unsigned), (compare_func_t)compare_rgb);
 	        m = match - colors;
 
 		if (k)
-		  *indptr++ |= m;
+		  *indptr++ |= (uchar)m;
 		else
-		  *indptr = m << 4;
+		  *indptr = (uchar)(m << 4);
 	      }
 
 	      if (k)
@@ -10365,13 +10337,11 @@ write_image(FILE     *out,		/* I - Output file */
 	    {
 	      for (j = img->width; j > 0; j --, pixel += 3, indptr ++)
 	      {
-                key = (((pixel[0] << 8) | pixel[1]) << 8) | pixel[2];
+                key = (unsigned)((((pixel[0] << 8) | pixel[1]) << 8) | pixel[2]);
 
 		if (*match != key)
-        	  match = (unsigned *)bsearch(&key, colors, ncolors,
-		                              sizeof(unsigned),
-                            	              (compare_func_t)compare_rgb);
-	        *indptr = match - colors;
+        	  match = (unsigned *)bsearch(&key, colors, (size_t)ncolors, sizeof(unsigned), (compare_func_t)compare_rgb);
+	        *indptr = (uchar)(match - colors);
 	      }
 	    }
 	    break;
@@ -10456,16 +10426,16 @@ write_image(FILE     *out,		/* I - Output file */
 	  {
 	    for (i = 0; i < ncolors; i ++)
 	    {
-	      cmap[i][0] = colors[i] >> 16;
-	      cmap[i][1] = colors[i] >> 8;
-	      cmap[i][2] = colors[i];
+	      cmap[i][0] = (uchar)colors[i] >> 16;
+	      cmap[i][1] = (uchar)colors[i] >> 8;
+	      cmap[i][2] = (uchar)colors[i];
 	    }
 
 	    if (Encryption)
 	    {
 	      // Encrypt the colormap...
 	      encrypt_init();
-	      rc4_encrypt(&encrypt_state, cmap[0], cmap[0], ncolors * 3);
+	      rc4_encrypt(&encrypt_state, cmap[0], cmap[0], (unsigned)(ncolors * 3));
 	    }
 
 	    fprintf(out, "/ColorSpace[/Indexed/DeviceRGB %d<", ncolors - 1);
@@ -10680,7 +10650,7 @@ write_image(FILE     *out,		/* I - Output file */
 
 	    if (img->mask && img->maskscale == 8)
 	    {
-	      data = (uchar *)malloc(img->width * 2);
+	      data = (uchar *)malloc((size_t)(img->width * 2));
 
 	      for (i = 0, maskptr = img->mask, indptr = indices;
 	           i < img->height;
@@ -10760,7 +10730,7 @@ write_image(FILE     *out,		/* I - Output file */
 
 	    if (img->mask && img->maskscale == 8)
 	    {
-	      data = (uchar *)malloc(img->width * (img->depth + 1));
+	      data = (uchar *)malloc((size_t)(img->width * (img->depth + 1)));
 
 	      for (i = 0, maskptr = img->mask, pixel = img->pixels;
 	           i < img->height;
@@ -11111,7 +11081,7 @@ write_prolog(FILE  *out,		/* I - Output file */
   memset(fonts_used, 0, sizeof(fonts_used));
   fonts_used[HeadFootType][HeadFootStyle] = 1;
 
-  for (page = 0; page < num_pages; page ++)
+  for (page = 0; page < (int)num_pages; page ++)
     for (r = pages[page].start; r != NULL; r = r->next)
       if (r->type == RENDER_TEXT)
 	fonts_used[r->data.text.typeface][r->data.text.style] = 1;
@@ -11506,7 +11476,7 @@ write_prolog(FILE  *out,		/* I - Output file */
       strlcpy((char *)user_pad, UserPassword, sizeof(user_pad));
 
       if ((i = strlen(UserPassword)) < 32)
-	memcpy(user_pad + i, pad, 32 - i);
+	memcpy(user_pad + i, pad, (size_t)(32 - i));
 
       if (OwnerPassword[0])
       {
@@ -11517,7 +11487,7 @@ write_prolog(FILE  *out,		/* I - Output file */
         strlcpy((char *)owner_pad, OwnerPassword, sizeof(owner_pad));
 
 	if ((i = strlen(OwnerPassword)) < 32)
-	  memcpy(owner_pad + i, pad, 32 - i);
+	  memcpy(owner_pad + i, pad, (size_t)(32 - i));
       }
       else
       {
@@ -11528,7 +11498,7 @@ write_prolog(FILE  *out,		/* I - Output file */
 	srand(time(NULL));
 
 	for (i = 0; i < 32; i ++)
-	  owner_pad[i] = rand();
+	  owner_pad[i] = (uchar)rand();
       }
 
      /*
@@ -11569,15 +11539,15 @@ write_prolog(FILE  *out,		/* I - Output file */
 	{
 	  // XOR each byte in the key with the loop counter...
 	  for (j = 0; j < encrypt_len; j ++)
-	    encrypt_key[j] = digest[j] ^ i;
+	    encrypt_key[j] = (uchar)(digest[j] ^ i);
 
-          rc4_init(&rc4, encrypt_key, encrypt_len);
+          rc4_init(&rc4, encrypt_key, (size_t)encrypt_len);
           rc4_encrypt(&rc4, owner_key, owner_key, 32);
 	}
       }
       else
       {
-        rc4_init(&rc4, digest, encrypt_len);
+        rc4_init(&rc4, digest, (size_t)encrypt_len);
         rc4_encrypt(&rc4, user_pad, owner_key, 32);
       }
 
@@ -11593,7 +11563,7 @@ write_prolog(FILE  *out,		/* I - Output file */
       {
         // N-bit encryption...
 	if (!(perm_value & PDF_PERM_COPY))
-	  perm_value &= ~0x00240000;	// Mask additional copy perms...
+	  perm_value &= (unsigned)~0x00240000;	// Mask additional copy perms...
       }
 
      /*
@@ -11604,10 +11574,10 @@ write_prolog(FILE  *out,		/* I - Output file */
       md5_append(&md5, user_pad, 32);
       md5_append(&md5, owner_key, 32);
 
-      perm_bytes[0] = perm_value;
-      perm_bytes[1] = perm_value >> 8;
-      perm_bytes[2] = perm_value >> 16;
-      perm_bytes[3] = perm_value >> 24;
+      perm_bytes[0] = (uchar)perm_value;
+      perm_bytes[1] = (uchar)(perm_value >> 8);
+      perm_bytes[2] = (uchar)(perm_value >> 16);
+      perm_bytes[3] = (uchar)(perm_value >> 24);
 
       md5_append(&md5, perm_bytes, 4);
       md5_append(&md5, file_id, 16);
@@ -11624,7 +11594,7 @@ write_prolog(FILE  *out,		/* I - Output file */
 	}
       }
 
-      memcpy(encrypt_key, digest, encrypt_len);
+      memcpy(encrypt_key, digest, (size_t)encrypt_len);
 
      /*
       * Compute the user key...
@@ -11644,15 +11614,15 @@ write_prolog(FILE  *out,		/* I - Output file */
 	{
 	  // XOR each byte in the key with the loop counter...
 	  for (j = 0; j < encrypt_len; j ++)
-	    digest[j] = encrypt_key[j] ^ i;
+	    digest[j] = (uchar)(encrypt_key[j] ^ i);
 
-          rc4_init(&rc4, digest, encrypt_len);
+          rc4_init(&rc4, digest, (size_t)encrypt_len);
           rc4_encrypt(&rc4, user_key, user_key, 16);
 	}
       }
       else
       {
-        rc4_init(&rc4, encrypt_key, encrypt_len);
+        rc4_init(&rc4, encrypt_key, (size_t)encrypt_len);
         rc4_encrypt(&rc4, pad, user_key, 32);
       }
 
@@ -11840,7 +11810,7 @@ write_string(FILE  *out,		/* I - Output file */
       else
         bytes = len;
 
-      rc4_encrypt(&encrypt_state, s, news, bytes);
+      rc4_encrypt(&encrypt_state, s, news, (size_t)bytes);
 
       for (i = 0; i < bytes; i ++)
         fprintf(out, "%02x", news[i]);
@@ -12134,14 +12104,14 @@ write_trailer(FILE *out,		/* I - Output file */
     offset = ftell(out);
 
     fputs("xref\n", out);
-    fprintf(out, "0 %d \n", num_objects + 1);
+    fprintf(out, "0 %d \n", (int)num_objects + 1);
     fputs("0000000000 65535 f \n", out);
-    for (i = 1; i <= num_objects; i ++)
+    for (i = 1; i <= (int)num_objects; i ++)
       fprintf(out, "%010d 00000 n \n", objects[i]);
 
     fputs("trailer\n", out);
     fputs("<<", out);
-    fprintf(out, "/Size %d", num_objects + 1);
+    fprintf(out, "/Size %d", (int)num_objects + 1);
     fprintf(out, "/Root %d 0 R", root_object);
     fprintf(out, "/Info %d 0 R", info_object);
     fputs("/ID[<", out);
@@ -12324,7 +12294,7 @@ write_type1(FILE       *out,		/* I - File to write to */
 	else
 	  ch |= tolower(lineptr[1] & 255) - 'a' + 10;
 
-        *dataptr++ = ch;
+        *dataptr++ = (char)ch;
       }
 
       flate_write(out, (uchar *)line, dataptr - line);
@@ -12441,7 +12411,7 @@ write_type1(FILE       *out,		/* I - File to write to */
     fprintf(out, "/StemV %d", widths['v']);
     fprintf(out, "/Flags %d", tflags[typeface] | sflags[style]);
     fprintf(out, "/FontName/%s", _htmlFonts[typeface][style]);
-    fprintf(out, "/FontFile %d 0 R", num_objects - 1);
+    fprintf(out, "/FontFile %d 0 R", (int)num_objects - 1);
     pdf_end_object(out);
 
    /*
@@ -12512,8 +12482,8 @@ write_utf16(FILE  *out,			// I - File to write to
     for (sptr = s; *sptr; sptr ++)
     {
       ch         = _htmlUnicode[*sptr];
-      unicode[0] = ch >> 8;
-      unicode[1] = ch;
+      unicode[0] = (uchar)(ch >> 8);
+      unicode[1] = (uchar)ch;
 
       rc4_encrypt(&encrypt_state, unicode, enicode, 2);
 
@@ -12558,9 +12528,9 @@ encrypt_init(void)
   for (i = 0, dataptr = data; i < encrypt_len; i ++)
     *dataptr++ = encrypt_key[i];
 
-  *dataptr++ = num_objects;
-  *dataptr++ = num_objects >> 8;
-  *dataptr++ = num_objects >> 16;
+  *dataptr++ = (uchar)num_objects;
+  *dataptr++ = (uchar)(num_objects >> 8);
+  *dataptr++ = (uchar)(num_objects >> 16);
   *dataptr++ = 0;
   *dataptr++ = 0;
 
@@ -12579,7 +12549,7 @@ encrypt_init(void)
   if (encrypt_len > 11)
     rc4_init(&encrypt_state, digest, 16);
   else
-    rc4_init(&encrypt_state, digest, encrypt_len + 5);
+    rc4_init(&encrypt_state, digest, (size_t)(encrypt_len + 5));
 }
 
 
@@ -12650,8 +12620,7 @@ flate_close_stream(FILE *out)		/* I - Output file */
         rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	            (uchar *)compressor.next_out - (uchar *)comp_buffer);
 
-      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer,
-             1, out);
+      fwrite(comp_buffer, (size_t)((uchar *)compressor.next_out - (uchar *)comp_buffer), 1, out);
     }
 
     compressor.next_out  = (Bytef *)comp_buffer;
@@ -12674,8 +12643,7 @@ flate_close_stream(FILE *out)		/* I - Output file */
         rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	            (uchar *)compressor.next_out - (uchar *)comp_buffer);
 
-      fwrite(comp_buffer, (uchar *)compressor.next_out - (uchar *)comp_buffer,
-             1, out);
+      fwrite(comp_buffer, (size_t)((uchar *)compressor.next_out - (uchar *)comp_buffer), 1, out);
     }
 
   }
@@ -12747,7 +12715,7 @@ flate_write(FILE  *out,			/* I - Output file */
   if (compressor_active)
   {
     compressor.next_in  = buf;
-    compressor.avail_in = length;
+    compressor.avail_in = (uint)length;
 
     while (compressor.avail_in > 0)
     {
@@ -12767,8 +12735,7 @@ flate_write(FILE  *out,			/* I - Output file */
             rc4_encrypt(&encrypt_state, comp_buffer, comp_buffer,
 	        	(uchar *)compressor.next_out - (uchar *)comp_buffer);
 
-	  fwrite(comp_buffer,
-	         (uchar *)compressor.next_out - (uchar *)comp_buffer, 1, out);
+	  fwrite(comp_buffer, (size_t)((uchar *)compressor.next_out - (uchar *)comp_buffer), 1, out);
 	}
 
 	compressor.next_out  = (Bytef *)comp_buffer;
@@ -12798,8 +12765,8 @@ flate_write(FILE  *out,			/* I - Output file */
       if ((bytes = length - i) > (int)sizeof(newbuf))
         bytes = sizeof(newbuf);
 
-      rc4_encrypt(&encrypt_state, buf + i, newbuf, bytes);
-      fwrite(newbuf, bytes, 1, out);
+      rc4_encrypt(&encrypt_state, buf + i, newbuf, (size_t)bytes);
+      fwrite(newbuf, (size_t)bytes, 1, out);
     }
   }
   else if (PSLevel)
@@ -12809,5 +12776,5 @@ flate_write(FILE  *out,			/* I - Output file */
     ps_hex(out, buf, length);
 #endif // HTMLDOC_ASCII85
   else
-    fwrite(buf, length, 1, out);
+    fwrite(buf, (size_t)length, 1, out);
 }

@@ -123,23 +123,23 @@ const char	*_htmlMarkups[] =
 const char	*_htmlCurrentFile = "UNKNOWN";
 					/* Current file */
 const char	*_htmlData = HTML_DATA;	/* Data directory */
-float		_htmlPPI = 80.0f;	/* Image resolution */
+double		_htmlPPI = 80.0;	/* Image resolution */
 int		_htmlGrayscale = 0;	/* Grayscale output? */
 uchar		_htmlTextColor[255] =	/* Default text color */
 		{ 0 };
-float		_htmlBrowserWidth = 680.0f;
+double		_htmlBrowserWidth = 680.0f;
 					/* Browser width for pixel scaling */
-float		_htmlSizes[8] =		/* Point size for each HTML size */
-		{ 6.0f, 8.0f, 9.0f, 11.0f, 14.0f, 17.0f, 20.0f, 24.0f };
-float		_htmlSpacings[8] =	/* Line height for each HTML size */
-		{ 7.2f, 9.6f, 10.8f, 13.2f, 16.8f, 20.4f, 24.0f, 28.8f };
+double		_htmlSizes[8] =		/* Point size for each HTML size */
+		{ 6.0, 8.0, 9.0, 11.0, 14.0, 17.0, 20.0, 24.0 };
+double		_htmlSpacings[8] =	/* Line height for each HTML size */
+		{ 7.2, 9.6, 10.8, 13.2, 16.8, 20.4, 24.0, 28.8 };
 typeface_t	_htmlBodyFont = TYPE_TIMES,
 		_htmlHeadingFont = TYPE_HELVETICA;
 
 int		_htmlInitialized = 0;	/* Initialized glyphs yet? */
 char		_htmlCharSet[256] = "iso-8859-1";
 					/* Character set name */
-float		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
+double		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
 					/* Character widths of fonts */
 int		_htmlUnicode[256];	/* Character to Unicode mapping */
 const char	*_htmlGlyphsAll[65536];	/* Character glyphs for Unicode */
@@ -713,7 +713,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	    if (!isalnum(ch) && ch != '#')
 	      break;
 	    else
-	      *eptr++ = ch;
+	      *eptr++ = (uchar)ch;
 
           if (ch != ';')
 	  {
@@ -729,7 +729,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = '&';
-            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (size_t)(ptr - s));
 	    ptr += strlen((char *)ptr);
 	  }
 	  else if ((ch = iso8859(entity)) == 0)
@@ -740,17 +740,17 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = '&';
-            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (size_t)(ptr - s));
 	    ptr += strlen((char *)ptr);
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = ';';
 	  }
 	  else
-	    *ptr++ = ch;
+	    *ptr++ = (uchar)ch;
         }
 	else if (ch != 0 && ch != '\r')
 	{
-          *ptr++ = ch;
+          *ptr++ = (uchar)ch;
 
           if (ch == '\n')
 	  {
@@ -796,7 +796,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	    if (!isalnum(ch) && ch != '#')
 	      break;
 	    else
-	      *eptr++ = ch;
+	      *eptr++ = (uchar)ch;
 
           *eptr = '\0';
 
@@ -813,7 +813,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = '&';
-            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (size_t)(ptr - s));
 	    ptr += strlen((char *)ptr);
 	  }
 	  else if ((ch = iso8859(entity)) == 0)
@@ -824,16 +824,16 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = '&';
-            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (ptr - s));
+            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (size_t)(ptr - s));
 	    ptr += strlen((char *)ptr);
             if (ptr < (s + sizeof(s) - 1))
 	      *ptr++ = ';';
 	  }
 	  else
-	    *ptr++ = ch;
+	    *ptr++ = (uchar)ch;
         }
 	else if (ch)
-          *ptr++ = ch;
+          *ptr++ = (uchar)ch;
 
         ch = getc(fp);
       }
@@ -974,7 +974,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	  }
 	  else
 	  {
-            t->size  = SIZE_H1 - t->markup + MARKUP_H1;
+            t->size  = (unsigned)(SIZE_H1 - t->markup + MARKUP_H1);
             t->style = STYLE_BOLD;
 	  }
 
@@ -1132,7 +1132,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
 	      for (fontptr = font; *ptr && *ptr != ',' && !isspace(*ptr); ptr ++)
 	        if (fontptr < (font + sizeof(font) - 1))
-		  *fontptr++ = *ptr;
+		  *fontptr++ = (char)*ptr;
 
               *fontptr = '\0';
 
@@ -1204,7 +1204,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
             else if (sizeval > 7)
               t->size = 7;
             else
-              t->size = sizeval;
+              t->size = (unsigned)sizeval;
           }
 
           descend = 1;
@@ -1258,7 +1258,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           if ((sizeval = t->size + SIZE_SUP) < 0)
 	    t->size = 0;
 	  else
-	    t->size = sizeval;
+	    t->size = (unsigned)sizeval;
 
           descend = 1;
           break;
@@ -1277,7 +1277,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           if ((sizeval = t->size + SIZE_SUB) < 0)
 	    t->size = 0;
 	  else
-	    t->size = sizeval;
+	    t->size = (unsigned)sizeval;
 
           descend = 1;
           break;
@@ -1443,7 +1443,7 @@ write_file(tree_t *t,		/* I - Tree entry */
       }
       else
       {
-	if ((col + strlen((char *)t->data)) > 72 && col > 0)
+	if ((col + (int)strlen((char *)t->data)) > 72 && col > 0)
 	{
           putc('\n', fp);
           col = 0;
@@ -1783,7 +1783,7 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
         get_alignment(t);
 
         t->typeface      = _htmlHeadingFont;
-        t->size          = SIZE_H1 - t->markup + MARKUP_H1;
+        t->size          = (unsigned)(SIZE_H1 - t->markup + MARKUP_H1);
         t->subscript     = 0;
         t->superscript   = 0;
         t->strikethrough = 0;
@@ -1898,7 +1898,7 @@ htmlGetText(tree_t *t)		/* I - Tree to pick */
   uchar		*s,		// String
 		*s2,		// New string
 		*tdata;		// Temporary string data
-  int		slen,		// Length of string
+  size_t	slen,		// Length of string
 		tlen;		// Length of node string
 
 
@@ -1999,7 +1999,7 @@ htmlGetStyle(tree_t *t,		// I - Node
 {
   uchar		*ptr,		// Pointer in STYLE attribute
 		*bufptr;	// Pointer in buffer
-  int		ptrlen,		// Length of STYLE attribute
+  size_t	ptrlen,		// Length of STYLE attribute
 		namelen;	// Length of name
   static uchar	buffer[1024];	// Buffer for value
 
@@ -2046,8 +2046,7 @@ htmlGetVariable(tree_t *t,	/* I - Tree entry */
 
   key.name = name;
 
-  v = (var_t *)bsearch(&key, t->vars, t->nvars, sizeof(var_t),
-                       (compare_func_t)compare_variables);
+  v = (var_t *)bsearch(&key, t->vars, (size_t)t->nvars, sizeof(var_t), (compare_func_t)compare_variables);
   if (v == NULL)
     return (NULL);
   else if (v->value == NULL)
@@ -2158,8 +2157,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
   {
     key.name = name;
 
-    v = (var_t *)bsearch(&key, t->vars, t->nvars, sizeof(var_t),
-        	         (compare_func_t)compare_variables);
+    v = (var_t *)bsearch(&key, t->vars, (size_t)t->nvars, sizeof(var_t), (compare_func_t)compare_variables);
   }
 
   if (v == NULL)
@@ -2167,7 +2165,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
     if (t->nvars == 0)
       v = (var_t *)malloc(sizeof(var_t));
     else
-      v = (var_t *)realloc(t->vars, sizeof(var_t) * (t->nvars + 1));
+      v = (var_t *)realloc(t->vars, sizeof(var_t) * (size_t)(t->nvars + 1));
 
     if (v == NULL)
     {
@@ -2192,8 +2190,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
     }
 
     if (t->nvars > 1)
-      qsort(t->vars, t->nvars, sizeof(var_t),
-            (compare_func_t)compare_variables);
+      qsort(t->vars, (size_t)t->nvars, sizeof(var_t), (compare_func_t)compare_variables);
   }
   else if (v->value != value)
   {
@@ -2214,8 +2211,8 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
  */
 
 void
-htmlSetBaseSize(float p,	/* I - Point size of paragraph font */
-                float s)	/* I - Spacing */
+htmlSetBaseSize(double p,	/* I - Point size of paragraph font */
+                double s)	/* I - Spacing */
 {
   int	i;			/* Looping var */
 
@@ -2493,7 +2490,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     }
     else
     {
-      *mptr++ = ch;
+      *mptr++ = (uchar)ch;
 
       // Handle comments without whitespace...
       if ((mptr - markup) == 3 && strncmp((const char *)markup, "!--", 3) == 0)
@@ -2549,7 +2546,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 
       if (ch == '-' && lastch == '-')
       {
-        *cptr++ = ch;
+        *cptr++ = (uchar)ch;
 
         if ((ch2 = getc(fp)) == '>')
 	{
@@ -2575,7 +2572,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 	    if (!isalnum(ch) && ch != '#')
 	      break;
 	    else
-	      *eptr++ = ch;
+	      *eptr++ = (uchar)ch;
 
 	  if (ch != ';')
 	  {
@@ -2591,8 +2588,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 
             if (cptr < (comment + sizeof(comment) - 1))
 	      *cptr++ = '&';
-            strlcpy((char *)cptr, (char *)entity,
-	            sizeof(comment) - (cptr - comment));
+            strlcpy((char *)cptr, (char *)entity, sizeof(comment) - (size_t)(cptr - comment));
 	    cptr += strlen((char *)cptr);
 	  }
 	  else if ((ch = iso8859(entity)) == 0)
@@ -2603,17 +2599,16 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 
             if (cptr < (comment + sizeof(comment) - 1))
 	      *cptr++ = '&';
-            strlcpy((char *)cptr, (char *)entity,
-	            sizeof(comment) - (cptr - comment));
+            strlcpy((char *)cptr, (char *)entity, sizeof(comment) - (size_t)(cptr - comment));
 	    cptr += strlen((char *)cptr);
             if (cptr < (comment + sizeof(comment) - 1))
 	      *cptr++ = ';';
 	  }
 	  else
-	    *cptr++ = ch;
+	    *cptr++ = (uchar)ch;
 	}
 	else
-	  *cptr++ = ch;
+	  *cptr++ = (uchar)ch;
 
         lastch = ch;
         ch     = getc(fp);
@@ -2679,7 +2674,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
     else if (ch == '/' && ptr == name)
       break;
     else if (ptr < (name + sizeof(name) - 1))
-      *ptr++ = ch;
+      *ptr++ = (uchar)ch;
 
   *ptr = '\0';
 
@@ -2726,7 +2721,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	        if (!isalnum(ch) && ch != '#')
 		  break;
 		else
-		  *eptr++ = ch;
+		  *eptr++ = (uchar)ch;
 
               if (ch != ';')
 	      {
@@ -2743,7 +2738,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
@@ -2754,17 +2749,17 @@ parse_variable(tree_t *t,		// I - Current tree entry
 
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = ';';
 	      }
 	      else if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = ch;
+	        *ptr++ = (uchar)ch;
 	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
-              *ptr++ = ch;
+              *ptr++ = (uchar)ch;
 	    else if (ch == '\n')
 	    {
 	      if (ptr < (value + sizeof(value) - 1))
@@ -2791,7 +2786,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	        if (!isalnum(ch) && ch != '#')
 		  break;
 		else
-		  *eptr++ = ch;
+		  *eptr++ = (uchar)ch;
 
               if (ch != ';')
 	      {
@@ -2807,7 +2802,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
@@ -2818,17 +2813,17 @@ parse_variable(tree_t *t,		// I - Current tree entry
 
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = ';';
 	      }
 	      else if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = ch;
+	        *ptr++ = (uchar)ch;
 	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
-              *ptr++ = ch;
+              *ptr++ = (uchar)ch;
 	    else if (ch == '\n')
 	    {
 	      if (ptr < (value + sizeof(value) - 1))
@@ -2842,7 +2837,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
         }
         else
         {
-          *ptr++ = ch;
+          *ptr++ = (uchar)ch;
           while ((ch = getc(fp)) != EOF)
 	  {
             if (isspace(ch) || ch == '>' || ch == '\r')
@@ -2856,7 +2851,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	        if (!isalnum(ch) && ch != '#')
 		  break;
 		else
-		  *eptr++ = ch;
+		  *eptr++ = (uchar)ch;
 
               if (ch != ';')
 	      {
@@ -2872,7 +2867,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
@@ -2883,16 +2878,16 @@ parse_variable(tree_t *t,		// I - Current tree entry
 
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (ptr - value));
+                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
         	if (ptr < (value + sizeof(value) - 1))
 		  *ptr++ = ';';
 	      }
 	      else if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = ch;
+	        *ptr++ = (uchar)ch;
 	    }
             else if (ptr < (value + sizeof(value) - 1))
-              *ptr++ = ch;
+              *ptr++ = (uchar)ch;
 	  }
 
 	  if (ch == '\n')
@@ -2939,8 +2934,8 @@ compute_size(tree_t *t)		/* I - Tree entry */
 
     if (width_ptr != NULL && height_ptr != NULL)
     {
-      t->width  = atoi((char *)width_ptr) / _htmlPPI * 72.0f;
-      t->height = atoi((char *)height_ptr) / _htmlPPI * 72.0f;
+      t->width  = (float)(atoi((char *)width_ptr) / _htmlPPI * 72.0f);
+      t->height = (float)(atoi((char *)height_ptr) / _htmlPPI * 72.0f);
 
       return (0);
     }
@@ -2950,8 +2945,8 @@ compute_size(tree_t *t)		/* I - Tree entry */
 
     if (width_ptr != NULL)
     {
-      t->width  = atoi((char *)width_ptr) / _htmlPPI * 72.0f;
-      t->height = t->width * img->height / img->width;
+      t->width  = (float)(atoi((char *)width_ptr) / _htmlPPI * 72.0f);
+      t->height = (float)(t->width * img->height / img->width);
 
       sprintf(number, "%d",
               atoi((char *)width_ptr) * img->height / img->width);
@@ -2961,19 +2956,18 @@ compute_size(tree_t *t)		/* I - Tree entry */
     }
     else if (height_ptr != NULL)
     {
-      t->height = atoi((char *)height_ptr) / _htmlPPI * 72.0f;
-      t->width  = t->height * img->width / img->height;
+      t->height = (float)(atoi((char *)height_ptr) / _htmlPPI * 72.0f);
+      t->width  = (float)(t->height * img->width / img->height);
 
-      sprintf(number, "%d",
-              atoi((char *)height_ptr) * img->width / img->height);
+      sprintf(number, "%d", atoi((char *)height_ptr) * img->width / img->height);
       if (strchr((char *)height_ptr, '%') != NULL)
         strlcat(number, "%", sizeof(number));
       htmlSetVariable(t, (uchar *)"WIDTH", (uchar *)number);
     }
     else
     {
-      t->width  = img->width / _htmlPPI * 72.0f;
-      t->height = img->height / _htmlPPI * 72.0f;
+      t->width  = (float)(img->width / _htmlPPI * 72.0f);
+      t->height = (float)(img->height / _htmlPPI * 72.0f);
 
       sprintf(number, "%d", img->width);
       htmlSetVariable(t, (uchar *)"WIDTH", (uchar *)number);
@@ -2992,16 +2986,16 @@ compute_size(tree_t *t)		/* I - Tree entry */
     type_ptr   = htmlGetVariable(t, (uchar *)"TYPE");
 
     if (width_ptr != NULL)
-      t->width = atoi((char *)width_ptr) / _htmlPPI * 72.0f;
+      t->width = (float)(atoi((char *)width_ptr) / _htmlPPI * 72.0f);
     else if (size_ptr != NULL)
-      t->width = atoi((char *)size_ptr) / _htmlPPI * 72.0f;
+      t->width = (float)(atoi((char *)size_ptr) / _htmlPPI * 72.0f);
     else
       t->width = 1.0f;
 
     if (height_ptr != NULL)
-      t->height = atoi((char *)height_ptr) / _htmlPPI * 72.0f;
+      t->height = (float)(atoi((char *)height_ptr) / _htmlPPI * 72.0f);
     else if (size_ptr != NULL)
-      t->height = atoi((char *)size_ptr) / _htmlPPI * 72.0f;
+      t->height = (float)(atoi((char *)size_ptr) / _htmlPPI * 72.0f);
     else
       t->height = 1.0f;
 
@@ -3018,7 +3012,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
   else if (t->markup == MARKUP_BR)
   {
     t->width  = 0.0;
-    t->height = _htmlSizes[t->size];
+    t->height = (float)_htmlSizes[t->size];
 
     return (0);
   }
@@ -3033,7 +3027,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
       else if (*ptr == '\t')
         width = (float)(((int)width + 7) & ~7);
       else
-        width += _htmlWidths[t->typeface][t->style][(int)*ptr & 255];
+        width += (float)_htmlWidths[t->typeface][t->style][(int)*ptr & 255];
 
    if (width < max_width)
      width = max_width;
@@ -3044,8 +3038,8 @@ compute_size(tree_t *t)		/* I - Tree entry */
   else
     width = 0.0f;
 
-  t->width  = width * _htmlSizes[t->size];
-  t->height = _htmlSizes[t->size];
+  t->width  = (float)(width * _htmlSizes[t->size]);
+  t->height = (float)_htmlSizes[t->size];
 
   DEBUG_printf(("%swidth = %.1f, height = %.1f\n",
                 indent, t->width, t->height));
@@ -3158,9 +3152,9 @@ fix_filename(char *filename,		/* I - Original filename */
 	if (isxdigit(filename[0] & 255) && isxdigit(filename[1] & 255))
 	{
 	  if (isdigit(filename[0] & 255))
-	    *tempptr = (filename[0] - '0') << 4;
+	    *tempptr = (char)((filename[0] - '0') << 4);
 	  else
-	    *tempptr = (tolower(filename[0]) - 'a' + 10) << 4;
+	    *tempptr = (char)((tolower(filename[0]) - 'a' + 10) << 4);
 
 	  if (isdigit(filename[1] & 255))
 	    *tempptr |= filename[1] - '0';
@@ -3196,7 +3190,7 @@ fix_filename(char *filename,		/* I - Original filename */
     if (filename[0] == '/')
     {
       if ((slash = strchr(base, '/')) != NULL)
-        strlcpy(slash, filename, sizeof(newfilename) - (slash - newfilename));
+        strlcpy(slash, filename, sizeof(newfilename) - (size_t)(slash - newfilename));
       else
         strlcat(newfilename, filename, sizeof(newfilename));
 
@@ -3269,18 +3263,18 @@ html_memory_used(tree_t *t)		// I - Tree node
   while (t != NULL)
   {
     bytes += sizeof(tree_t);
-    bytes += t->nvars * sizeof(var_t);
+    bytes += (size_t)t->nvars * sizeof(var_t);
 
     for (i = 0; i < t->nvars; i ++)
     {
-      bytes += (strlen((char *)t->vars[i].name) + 8) & ~7;
+      bytes += (strlen((char *)t->vars[i].name) + 8) & (size_t)~7;
 
       if (t->vars[i].value != NULL)
-        bytes += (strlen((char *)t->vars[i].value) + 8) & ~7;
+        bytes += (strlen((char *)t->vars[i].value) + 8) & (size_t)~7;
     }
 
     if (t->data != NULL)
-      bytes += (strlen((char *)t->data) + 8) & ~7;
+      bytes += (strlen((char *)t->data) + 8) & (size_t)~7;
 
     bytes += html_memory_used(t->child);
 

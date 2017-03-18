@@ -148,7 +148,7 @@ VAR int		PDFPageMode	VALUE(PDF_OUTLINE),
 		PDFFirstPage	VALUE(PDF_CHAPTER_1),
 						/* First page */
 		PDFEffect	VALUE(PDF_NONE);/* Page transition effect */
-VAR float	PDFEffectDuration VALUE(1.0),	/* Page effect duration */
+VAR double	PDFEffectDuration VALUE(1.0),	/* Page effect duration */
 		PDFPageDuration	VALUE(10.0);	/* Page duration */
 VAR int		Encryption	VALUE(0),	/* Encrypt the PDF file? */
 		Permissions	VALUE(-4);	/* File permissions? */
@@ -174,7 +174,7 @@ VAR typeface_t	HeadFootType	VALUE(TYPE_HELVETICA);
 						/* Typeface for header & footer */
 VAR style_t	HeadFootStyle	VALUE(STYLE_NORMAL);
 						/* Type style */
-VAR float	HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
+VAR double	HeadFootSize	VALUE(11.0f);	/* Size of header & footer */
 
 VAR char	*Header[3]	NULL3,		/* Header for regular pages */
 		*Header1[3]	NULL3,		/* Header for first pages */

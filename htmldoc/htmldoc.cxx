@@ -80,7 +80,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 		*toc;			/* Table of contents */
   exportfunc_t	exportfunc;		/* Export function */
   const char	*extension;		/* Extension of output filename */
-  float		fontsize,		/* Base font size */
+  double	fontsize,		/* Base font size */
 		fontspacing;		/* Base font spacing */
   int		num_files;		/* Number of files provided on the command-line */
   double	start_time,		/* Start time */
@@ -1689,16 +1689,16 @@ prefs_set_paths(void)
  * 'compare_strings()' - Compare two command-line strings.
  */
 
-static int			/* O - -1 or 1 = no match, 0 = match */
-compare_strings(const char *s,	/* I - Command-line string */
-                const char *t,	/* I - Option string */
-                int        tmin)/* I - Minimum number of unique chars in option */
+static int				/* O - -1 or 1 = no match, 0 = match */
+compare_strings(const char *s,		/* I - Command-line string */
+                const char *t,		/* I - Option string */
+                int        tmin)	/* I - Minimum number of unique chars in option */
 {
-  int	slen;			/* Length of command-line string */
+  size_t	slen;			/* Length of command-line string */
 
 
   slen = strlen(s);
-  if (slen < tmin)
+  if (slen < (size_t)tmin)
     return (-1);
   else
     return (strncmp(s, t, slen));
@@ -1833,7 +1833,7 @@ parse_options(const char   *line,	// I - Options from book file
   char		temp[1024],		// Option name
 		temp2[1024],		// Option value
 		*tempptr;		// Pointer into option
-  float		fontsize,		// Size of body text
+  double	fontsize,		// Size of body text
 		fontspacing;		// Spacing between lines
 
 

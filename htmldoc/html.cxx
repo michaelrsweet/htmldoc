@@ -32,7 +32,7 @@ typedef struct
  */
 
 
-static int	num_links = 0,
+static size_t	num_links = 0,
 		alloc_links = 0;
 static link_t	*links;
 
@@ -579,7 +579,7 @@ write_node(FILE   *out,		/* I - Output file */
 	}
 	else
 	{
-	  if ((col + strlen((char *)t->data)) > 72 && col > 0)
+	  if ((col + (int)strlen((char *)t->data)) > 72 && col > 0)
 	  {
             putc('\n', out);
             col = 0;

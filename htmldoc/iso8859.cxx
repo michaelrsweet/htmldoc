@@ -368,7 +368,7 @@ iso8859(uchar *name)			/* I - Glyph name */
 	  htmlLoadFontWidths();
 
 	  // Return the new character...
-	  return (newch);
+	  return ((uchar)newch);
 	}
 
       // No room, return nul...
@@ -378,7 +378,7 @@ iso8859(uchar *name)			/* I - Glyph name */
       ch = newch;
   }
 
-  return (ch);
+  return ((uchar)ch);
 }
 
 

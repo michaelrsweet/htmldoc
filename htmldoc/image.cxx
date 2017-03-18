@@ -47,7 +47,7 @@ typedef uchar	gif_cmap_t[256][3];
  * Local globals...
  */
 
-static int	num_images = 0,		/* Number of images in cache */
+static size_t	num_images = 0,		/* Number of images in cache */
 		alloc_images = 0;	/* Allocated images */
 static image_t	**images = NULL;	/* Images in cache */
 static int	gif_eof = 0;		/* Did we hit EOF? */
@@ -96,7 +96,7 @@ gif_read_cmap(FILE       *fp,		/* I  - File to read from */
   * Read the colormap...
   */
 
-  if (fread(cmap, 3, ncolors, fp) < (size_t)ncolors)
+  if (fread(cmap, 3, (size_t)ncolors, fp) < (size_t)ncolors)
   {
     progress_error(HD_ERROR_READ_ERROR,
                    "Unable to read GIF colormap: %s", strerror(errno));
@@ -152,7 +152,7 @@ gif_get_block(FILE  *fp,	/* I - File to read from */
   }
   else if (count == 0)
     gif_eof = 1;
-  else if (fread(buf, 1, count, fp) < (size_t)count)
+  else if (fread(buf, 1, (size_t)count, fp) < (size_t)count)
   {
     progress_error(HD_ERROR_READ_ERROR,
                    "Unable to read GIF block of %d bytes: %s", count,
@@ -205,7 +205,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     return (0);
   }
 
-  if ((curbit + code_size) >= lastbit)
+  if ((curbit + (unsigned)code_size) >= lastbit)
   {
    /*
     * Don't have enough bits to hold the code...
@@ -253,18 +253,18 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     */
 
     curbit    = (curbit - lastbit) + 8 * last_byte;
-    last_byte += count;
+    last_byte += (unsigned)count;
     lastbit   = last_byte * 8;
   }
 
-  for (ret = 0, i = curbit + code_size - 1, j = code_size;
+  for (ret = 0, i = curbit + (unsigned)code_size - 1, j = (unsigned)code_size;
        j > 0;
        i --, j --)
     ret = (ret << 1) | ((buf[i / 8] & bits[i & 7]) != 0);
 
-  curbit += code_size;
+  curbit += (unsigned)code_size;
 
-  return ret;
+  return (int)ret;
 }
 
 
@@ -292,7 +292,7 @@ gif_read_image(FILE       *fp,		/* I - Input file */
   xpos      = 0;
   ypos      = 0;
   pass      = 0;
-  code_size = getc(fp);
+  code_size = (uchar)getc(fp);
 
   if (gif_read_lzw(fp, 1, code_size) < 0)
     return (-1);
@@ -375,9 +375,9 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
     * Setup LZW state...
     */
 
-    set_code_size = input_code_size;
+    set_code_size = (short)input_code_size;
     code_size     = set_code_size + 1;
-    clear_code    = 1 << set_code_size;
+    clear_code    = (short)(1 << set_code_size);
     end_code      = clear_code + 1;
     max_code_size = 2 * clear_code;
     max_code      = clear_code + 2;
@@ -397,7 +397,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
     for (i = 0; i < clear_code; i ++)
     {
       table[0][i] = 0;
-      table[1][i] = i;
+      table[1][i] = (short)i;
     }
 
     for (; i < 4096; i ++)
@@ -412,7 +412,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
     fresh = 0;
 
     do
-      firstcode = oldcode = gif_get_code(fp, code_size, 0);
+      firstcode = oldcode = (short)gif_get_code(fp, code_size, 0);
     while (firstcode == clear_code);
 
     return (firstcode);
@@ -428,7 +428,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
       for (i = 0; i < clear_code; i ++)
       {
 	table[0][i] = 0;
-	table[1][i] = i;
+	table[1][i] = (short)i;
       }
 
       for (; i < 4096; i ++)
@@ -440,7 +440,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
 
       sp = stack;
 
-      firstcode = oldcode = gif_get_code(fp, code_size, 0);
+      firstcode = oldcode = (short)gif_get_code(fp, code_size, 0);
 
       return (firstcode);
     }
@@ -488,7 +488,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
       }
     }
 
-    oldcode = incode;
+    oldcode = (short)incode;
 
     if (sp > stack)
       return (*--sp);
@@ -564,7 +564,7 @@ image_copy(const char *src,		/* I - Source file */
   }
 
   while ((nbytes = fread(buffer, 1, sizeof(buffer), in)) > 0)
-    fwrite(buffer, 1, nbytes, out);
+    fwrite(buffer, 1, (size_t)nbytes, out);
 
   progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
@@ -605,7 +605,7 @@ image_find(const char *filename,/* I - Name of image file */
     strlcpy(key.filename, filename, sizeof(key.filename));
     keyptr = &key;
 
-    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
+    match = (image_t **)bsearch(&keyptr, images, (size_t)num_images, sizeof(image_t *),
                                 (int (*)(const void *, const void *))image_compare);
     if (match != NULL)
     {
@@ -627,8 +627,8 @@ image_find(const char *filename,/* I - Name of image file */
 void
 image_flush_cache(void)
 {
-  int	i;			/* Looping var */
-
+  size_t	i;			/* Looping var */
+					
 
  /*
   * Free the memory used by each image...
@@ -714,7 +714,7 @@ image_load(const char *filename,/* I - Name of image file */
     strlcpy(key.filename, filename, sizeof(key.filename));
     keyptr = &key;
 
-    match = (image_t **)bsearch(&keyptr, images, num_images, sizeof(image_t *),
+    match = (image_t **)bsearch(&keyptr, images, (size_t)num_images, sizeof(image_t *),
                                 (int (*)(const void *, const void *))image_compare);
     if (match != NULL && (!load_data || (*match)->pixels))
     {
@@ -888,16 +888,16 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   read_dword(fp);
 
   // Then the bitmap information...
-  info_size        = read_dword(fp);
+  info_size        = (int)read_dword(fp);
   img->width       = read_long(fp);
   img->height      = read_long(fp);
   read_word(fp);
   depth            = read_word(fp);
-  compression      = read_dword(fp);
+  compression      = (int)read_dword(fp);
   read_dword(fp);
   read_long(fp);
   read_long(fp);
-  colors_used      = read_dword(fp);
+  colors_used      = (int)read_dword(fp);
   read_dword(fp);
 
   if (info_size > 40)
@@ -908,7 +908,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   if (colors_used == 0 && depth <= 8)
     colors_used = 1 << depth;
 
-  fread(colormap, colors_used, 4, fp);
+  fread(colormap, (size_t)colors_used, 4, fp);
 
   // Setup image and buffers...
   img->depth  = gray ? 1 : 3;
@@ -922,7 +922,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   if (!load_data)
     return (0);
 
-  img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
+  img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth));
   if (img->pixels == NULL)
     return (-1);
 
@@ -952,7 +952,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
           for (x = img->width, bit = 128; x > 0; x --)
 	  {
 	    if (bit == 128)
-	      byte = getc(fp);
+	      byte = (uchar)getc(fp);
 
 	    if (byte & bit)
 	    {
@@ -1192,16 +1192,16 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
 	      temp = getc(fp) * 8;
 	      temp += getc(fp) * 61;
 	      temp += getc(fp) * 31;
-	      *ptr++ = temp / 100;
+	      *ptr++ = (uchar)(temp / 100);
 	    }
 	  }
 	  else
 	  {
             for (x = img->width; x > 0; x --, ptr += 3)
 	    {
-	      ptr[2] = getc(fp);
-	      ptr[1] = getc(fp);
-	      ptr[0] = getc(fp);
+	      ptr[2] = (uchar)getc(fp);
+	      ptr[1] = (uchar)getc(fp);
+	      ptr[0] = (uchar)getc(fp);
 	    }
           }
 
@@ -1264,7 +1264,7 @@ image_load_gif(image_t *img,	/* I - Image pointer */
           return (-1);		/* Early end of file */
 
       case '!' :	/* Extension record */
-          buf[0] = getc(fp);
+          buf[0] = (uchar)getc(fp);
           if (buf[0] == 0xf9)	/* Graphic Control Extension */
           {
             gif_get_block(fp, buf);
@@ -1323,7 +1323,7 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 	  if (!load_data)
 	    return (0);
 
-          img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
+          img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth));
           if (img->pixels == NULL)
             return (-1);
 
@@ -1382,9 +1382,9 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
 
   jpeg_calc_output_dimensions(&cinfo);
 
-  img->width  = cinfo.output_width;
-  img->height = cinfo.output_height;
-  img->depth  = cinfo.output_components;
+  img->width  = (int)cinfo.output_width;
+  img->height = (int)cinfo.output_height;
+  img->depth  = (int)cinfo.output_components;
 
   if (!load_data)
   {
@@ -1392,7 +1392,7 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
     return (0);
   }
 
-  img->pixels = (uchar *)malloc(img->width * img->height * img->depth);
+  img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth));
 
   if (img->pixels == NULL)
   {
@@ -1404,9 +1404,7 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
 
   while (cinfo.output_scanline < cinfo.output_height)
   {
-    row = (JSAMPROW)(img->pixels +
-                     cinfo.output_scanline * cinfo.output_width *
-                     cinfo.output_components);
+    row = (JSAMPROW)(img->pixels + (size_t)cinfo.output_scanline * (size_t)cinfo.output_width * (size_t)cinfo.output_components);
     jpeg_read_scanlines(&cinfo, &row, (JDIMENSION)1);
   }
 
@@ -1532,8 +1530,8 @@ image_load_png(image_t *img,	/* I - Image pointer */
     img->depth = 1;
   }
 
-  img->width  = png_get_image_width(pp, info);
-  img->height = png_get_image_height(pp, info);
+  img->width  = (int)png_get_image_width(pp, info);
+  img->height = (int)png_get_image_height(pp, info);
 
   if (color_type & PNG_COLOR_MASK_ALPHA)
   {
@@ -1565,7 +1563,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
     return (0);
   }
 
-  img->pixels = (uchar *)malloc(img->width * img->height * depth);
+  img->pixels = (uchar *)malloc((size_t)(img->width * img->height * depth));
 
  /*
   * Allocate pointers...
@@ -1581,7 +1579,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   */
 
   for (i = png_set_interlace_handling(pp); i > 0; i --)
-    png_read_rows(pp, rows, NULL, img->height);
+    png_read_rows(pp, rows, NULL, (png_uint_32)img->height);
 
  /*
   * Generate the alpha mask as necessary...
@@ -1671,10 +1669,10 @@ image_load_png(image_t *img,	/* I - Image pointer */
  */
 
 static void
-image_need_mask(image_t *img,	/* I - Image to add mask to */
-                int     scaling)/* I - Scaling for mask image */
+image_need_mask(image_t *img,		/* I - Image to add mask to */
+                int     scaling)	/* I - Scaling for mask image */
 {
-  int	size;			/* Byte size of mask image */
+  size_t	size;			/* Byte size of mask image */
 
 
   if (img == NULL || img->mask != NULL)
@@ -1691,13 +1689,13 @@ image_need_mask(image_t *img,	/* I - Image to add mask to */
   {
     // Alpha image
     img->maskwidth = img->width;
-    size           = img->width * img->height;
+    size           = (size_t)(img->width * img->height);
   }
   else
   {
     // Alpha mask
     img->maskwidth = (img->width * scaling + 7) / 8;
-    size           = img->maskwidth * img->height * scaling + 1;
+    size           = (size_t)(img->maskwidth * img->height * scaling + 1);
   }
 
   img->mask = (uchar *)calloc(size, 1);
@@ -1806,10 +1804,10 @@ read_word(FILE *fp)       /* I - File to read from */
 {
   unsigned char b0, b1; /* Bytes from file */
 
-  b0 = getc(fp);
-  b1 = getc(fp);
+  b0 = (uchar)getc(fp);
+  b1 = (uchar)getc(fp);
 
-  return ((b1 << 8) | b0);
+  return (unsigned short)((b1 << 8) | b0);
 }
 
 
@@ -1822,12 +1820,12 @@ read_dword(FILE *fp)              /* I - File to read from */
 {
   unsigned char b0, b1, b2, b3; /* Bytes from file */
 
-  b0 = getc(fp);
-  b1 = getc(fp);
-  b2 = getc(fp);
-  b3 = getc(fp);
+  b0 = (uchar)getc(fp);
+  b1 = (uchar)getc(fp);
+  b2 = (uchar)getc(fp);
+  b3 = (uchar)getc(fp);
 
-  return ((((((b3 << 8) | b2) << 8) | b1) << 8) | b0);
+  return (unsigned)((((((b3 << 8) | b2) << 8) | b1) << 8) | b0);
 }
 
 
@@ -1840,10 +1838,10 @@ read_long(FILE *fp)               /* I - File to read from */
 {
   unsigned char b0, b1, b2, b3; /* Bytes from file */
 
-  b0 = getc(fp);
-  b1 = getc(fp);
-  b2 = getc(fp);
-  b3 = getc(fp);
+  b0 = (uchar)getc(fp);
+  b1 = (uchar)getc(fp);
+  b2 = (uchar)getc(fp);
+  b3 = (uchar)getc(fp);
 
   return ((int)(((((b3 << 8) | b2) << 8) | b1) << 8) | b0);
 }

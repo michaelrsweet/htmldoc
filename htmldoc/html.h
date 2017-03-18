@@ -266,17 +266,17 @@ typedef struct tree_str
 extern const char	*_htmlCurrentFile;
 extern const char	*_htmlMarkups[];
 extern const char	*_htmlData;
-extern float		_htmlPPI;
+extern double		_htmlPPI;
 extern int		_htmlGrayscale;
 extern uchar		_htmlTextColor[];
-extern float		_htmlBrowserWidth;
-extern float		_htmlSizes[],
+extern double		_htmlBrowserWidth;
+extern double		_htmlSizes[],
 			_htmlSpacings[];
 extern typeface_t	_htmlBodyFont,
 			_htmlHeadingFont;
 extern int		_htmlInitialized;
 extern char		_htmlCharSet[];
-extern float		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
+extern double		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
 extern int		_htmlUnicode[];
 extern const char	*_htmlGlyphs[];
 extern const char	*_htmlGlyphsAll[];
@@ -308,7 +308,7 @@ extern int	htmlSetVariable(tree_t *t, uchar *name, uchar *value);
 
 extern uchar	*htmlGetStyle(tree_t *t, uchar *name);
 
-extern void	htmlSetBaseSize(float p, float s);
+extern void	htmlSetBaseSize(double p, double s);
 extern void	htmlSetCharSet(const char *cs);
 extern void	htmlSetTextColor(uchar *color);
 

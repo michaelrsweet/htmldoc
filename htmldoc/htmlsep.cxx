@@ -33,12 +33,12 @@ typedef struct
 //
 
 // Heading strings used for filenames...
-static int	num_headings = 0,	// Number of headings
+static size_t	num_headings = 0,	// Number of headings
 		alloc_headings = 0;	// Allocated headings
 static uchar	**headings;		// Heading strings
 
 // Links in document - used to add the correct filename to the link
-static int	num_links = 0,		// Number of links
+static size_t	num_links = 0,		// Number of links
 		alloc_links = 0;	// Allocated links
 static link_t	*links;			// Links
 
@@ -82,13 +82,13 @@ int					// O - 0 = success, -1 = failure
 htmlsep_export(tree_t *document,	// I - Document to export
                tree_t *toc)		// I - Table of contents for document
 {
-  int	i;				// Looping var
-  int	heading;			// Current heading number
-  uchar	*title,				// Title text
-	*author,			// Author name
-	*copyright,			// Copyright text
-	*docnumber;			// Document number
-  FILE	*out;				// Output file
+  size_t	i;			// Looping var
+  int		heading;		// Current heading number
+  uchar		*title,			// Title text
+		*author,		// Author name
+		*copyright,		// Copyright text
+		*docnumber;		// Document number
+  FILE		*out;			// Output file
 
 
   // We only support writing to a directory...
@@ -269,7 +269,7 @@ write_header(FILE   **out,	/* IO - Output file */
     if (heading > 0)
       fprintf(*out, "<LINK REL=\"Prev\" HREF=\"%s.html\">\n", headings[heading - 1]);
 
-    if (heading < (num_headings - 1))
+    if ((size_t)heading < (num_headings - 1))
       fprintf(*out, "<LINK REL=\"Next\" HREF=\"%s.html\">\n", headings[heading + 1]);
   }
 
@@ -324,7 +324,7 @@ write_header(FILE   **out,	/* IO - Output file */
     if (heading > 0)
       fprintf(*out, "<A HREF=\"%s.html\">Previous</A>\n", headings[heading - 1]);
 
-    if (heading < (num_headings - 1))
+    if ((size_t)heading < (num_headings - 1))
       fprintf(*out, "<A HREF=\"%s.html\">Next</A>\n", headings[heading + 1]);
 
     fputs("<HR NOSHADE>\n", *out);
@@ -362,7 +362,7 @@ write_footer(FILE **out,	/* IO - Output file pointer */
     if (heading > 0)
       fprintf(*out, "<A HREF=\"%s.html\">Previous</A>\n", headings[heading - 1]);
 
-    if (heading < (num_headings - 1))
+    if ((size_t)heading < (num_headings - 1))
       fprintf(*out, "<A HREF=\"%s.html\">Next</A>\n", headings[heading + 1]);
   }
 
@@ -585,7 +585,7 @@ write_node(FILE   *out,		/* I - Output file */
 	}
 	else
 	{
-	  if ((col + strlen((char *)t->data)) > 72 && col > 0)
+	  if ((col + (int)strlen((char *)t->data)) > 72 && col > 0)
 	  {
             putc('\n', out);
             col = 0;
@@ -890,13 +890,13 @@ get_title(tree_t *doc)	/* I - Document tree */
 static void
 add_heading(tree_t *t)			// I - Heading node
 {
-  int	i,				// Looping var
-	count;				// Count of headings with this name
-  uchar	*heading,			// Heading text for this node
-	*ptr,				// Pointer into text
-	*ptr2,				// Second pointer into text
-	s[1024],			// New text if we have a conflict
-	**temp;				// New heading array pointer
+  size_t	i,			// Looping var
+		count;			// Count of headings with this name
+  uchar		*heading,		// Heading text for this node
+		*ptr,			// Pointer into text
+		*ptr2,			// Second pointer into text
+		s[1024],		// New text if we have a conflict
+		**temp;			// New heading array pointer
 
 
   // Start by getting the heading text...
@@ -923,7 +923,7 @@ add_heading(tree_t *t)			// I - Heading node
     {
       // Create a new instance of the heading...
       count ++;
-      snprintf((char *)s, sizeof(s), "%s%d", heading, count);
+      snprintf((char *)s, sizeof(s), "%s%d", heading, (int)count);
       ptr = s;
     }
 
@@ -1112,7 +1112,7 @@ update_links(tree_t *t,		/* I - Document tree */
       (*heading) ++;
 
     // Figure out the current filename based upon the current heading number...
-    if (!heading || *heading < 0 || *heading >= num_headings)
+    if (!heading || *heading < 0 || (size_t)*heading >= num_headings)
       filename = (uchar *)"noheading";
     else
       filename = headings[*heading];

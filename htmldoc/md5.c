@@ -131,7 +131,7 @@ _cups_md5_process(_cups_md5_state_t *pms, const unsigned char *data /*[64]*/)
     int i;
 
     for (i = 0; i < 16; ++i, xp += 4)
-	X[i] = xp[0] + (xp[1] << 8) + (xp[2] << 16) + (xp[3] << 24);
+	X[i] = xp[0] + (unsigned)(xp[1] << 8) + (unsigned)(xp[2] << 16) + (unsigned)(xp[3] << 24);
 
 #else  /* !ARCH_IS_BIG_ENDIAN */
 
@@ -289,7 +289,7 @@ _cupsMD5Append(_cups_md5_state_t *pms, const unsigned char *data, int nbytes)
 	return;
 
     /* Update the message length. */
-    pms->count[1] += nbytes >> 29;
+    pms->count[1] += (unsigned)(nbytes >> 29);
     pms->count[0] += nbits;
     if (pms->count[0] < nbits)
 	pms->count[1]++;
