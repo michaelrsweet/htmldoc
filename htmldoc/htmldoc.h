@@ -234,7 +234,7 @@ VAR char	HTMLEditor[1024] VALUE("gedit %s");
 #  else
 VAR char	HTMLEditor[1024] VALUE("nedit %s");
 #  endif /* WIN32 */
-VAR int		Tooltips	VALUE(1);	/* Show tooltips? */
+VAR int		Tooltips	VALUE(0);	/* Show tooltips? */
 #endif /* HAVE_LIBFLTK */
 
 

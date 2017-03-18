@@ -224,6 +224,9 @@ GUI::GUI(const char *filename)		// Book file to load initially
   // Enable/disable tooltips...
   Fl_Tooltip::enable(Tooltips);
 
+  // Update the theme
+  Fl::scheme("gtk+");
+
   //
   // Create a dialog window...
   //
@@ -1081,9 +1084,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
     newBookCB(NULL, this);
   else
     loadBook(filename);
-
-  // Update the theme
-  Fl::scheme("gtk+");
 
   // Show the window...
   show();
