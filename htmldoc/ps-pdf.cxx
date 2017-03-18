@@ -454,6 +454,14 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     logo_width  = (float)(logo_image->width * PagePrintWidth / _htmlBrowserWidth);
     logo_height = (float)(logo_width * logo_image->height / logo_image->width);
 
+    if (logo_height > HeadFootSize)
+    {
+      // Issue #273: too large logo image will overlap the body text, so cap
+      // the height of the logo image to the header/footer size...
+      logo_height = (float)HeadFootSize;
+      logo_width  = logo_height * logo_image->width / logo_image->height;
+    }
+
     if (logo_height > maxhfheight)
       maxhfheight = logo_height;
   }
@@ -468,6 +476,14 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     {
       hfimage_width[hfi]  = (float)(hfimage[hfi]->width * PagePrintWidth / _htmlBrowserWidth);
       hfimage_height[hfi] = (float)(hfimage_width[hfi] * hfimage[hfi]->height / hfimage[hfi]->width);
+
+      if (hfimage_height[hfi] > HeadFootSize)
+      {
+        // Issue #273: too large logo image will overlap the body text, so cap
+        // the height of the logo image to the header/footer size...
+        hfimage_height[hfi] = (float)HeadFootSize;
+        hfimage_width[hfi]  = hfimage_height[hfi] * hfimage[hfi]->width / hfimage[hfi]->height;
+      }
 
       if (hfimage_height[hfi] > maxhfheight)
         maxhfheight = hfimage_height[hfi];
