@@ -2373,7 +2373,6 @@ httpReconnect2(http_t *http,		/* I - HTTP connection */
   http_addrlist_t	*addr;		/* Connected address */
 #ifdef DEBUG
   http_addrlist_t	*current;	/* Current address */
-  char			temp[256];	/* Temporary address string */
 #endif /* DEBUG */
 
 
@@ -4025,8 +4024,8 @@ http_debug_hex(const char *prefix,	/* I - Prefix for line */
 	*ptr;				/* Pointer into line */
 
 
-  if (_cups_debug_fd < 0 || _cups_debug_level < 6)
-    return;
+//  if (_cups_debug_fd < 0 || _cups_debug_level < 6)
+//    return;
 
   DEBUG_printf(("6%s: %d bytes:", prefix, bytes));
 

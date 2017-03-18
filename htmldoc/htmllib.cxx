@@ -283,7 +283,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
 
   DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
-                parent, fp, base ? base : "(null)"));
+                (void *)parent, (void *)fp, base ? base : "(null)"));
 
 #ifdef DEBUG
   indent[0] = '\0';
@@ -2148,7 +2148,7 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
 	key;			/* Search key */
 
 
-  DEBUG_printf(("%shtmlSetVariable(%p, \"%s\", \"%s\")\n", indent, t, name,
+  DEBUG_printf(("%shtmlSetVariable(%p, \"%s\", \"%s\")\n", indent, (void *)t, name,
                 value ? (const char *)value : "(null)"));
 
   if (t->nvars == 0)

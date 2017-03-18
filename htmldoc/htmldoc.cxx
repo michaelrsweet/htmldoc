@@ -2394,7 +2394,7 @@ read_file(const char *filename,		// I  - File/URL to read
 
 
   DEBUG_printf(("read_file(filename=\"%s\", document=%p, path=\"%s\")\n",
-                filename, document, path));
+                filename, (void *)document, path));
 
   if ((realname = file_find(path, filename)) != NULL)
   {

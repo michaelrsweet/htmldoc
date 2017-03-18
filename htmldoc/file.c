@@ -591,8 +591,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       return (s);
     }
 
-  DEBUG_printf(("file_find: \"%s\" not in web cache of %d files...\n",
-                s, web_files));
+  DEBUG_printf(("file_find: \"%s\" not in web cache of %d files...\n", s, (int)web_files));
 
  /*
   * Make sure the filename is not quoted...

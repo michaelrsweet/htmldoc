@@ -755,7 +755,7 @@ image_load(const char *filename,/* I - Name of image file */
 #ifdef DEBUG
   printf("Header for \"%s\" (%s): \"", filename, realname);
 
-  for (i = 0; i < sizeof(header); i ++)
+  for (i = 0; i < (int)sizeof(header); i ++)
     if (header[i] < ' ' || header[i] >= 127)
       printf("\\x%02X", header[i]);
     else
@@ -763,7 +763,7 @@ image_load(const char *filename,/* I - Name of image file */
 
   puts("\"\n");
 
-  printf("match = %p\n", match);
+  printf("match = %p\n", (void *)match);
 #endif // DEBUG
 
   rewind(fp);

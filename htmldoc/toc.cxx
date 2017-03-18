@@ -303,7 +303,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
 		    htmlAddTree(heading_parents[last_level], MARKUP_UL, NULL);
 
               DEBUG_printf(("level=%d, last_level=%d, created new UL parent %p\n",
-	                    level, last_level, heading_parents[level]));
+	                    level, last_level, (void *)heading_parents[level]));
 	    }
 
             if (level == 0)
@@ -319,7 +319,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
             else
               parent = htmlAddTree(heading_parents[level], MARKUP_LI, NULL);
 
-            DEBUG_printf(("parent=%p\n", parent));
+            DEBUG_printf(("parent=%p\n", (void *)parent));
 
             if ((var = htmlGetVariable(t, (uchar *)"_HD_OMIT_TOC")) != NULL)
 	      htmlSetVariable(parent, (uchar *)"_HD_OMIT_TOC", var);

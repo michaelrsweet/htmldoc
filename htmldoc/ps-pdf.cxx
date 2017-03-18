@@ -1305,8 +1305,8 @@ pspdf_prepare_outpages()
     printf("chapter_outstarts[%d] = %d, chapter_outends[%d] = %d\n",
            c, chapter_outstarts[c], c, chapter_outends[c]);
 
-  printf("num_outpages = %d\n", num_outpages);
-  for (i = 0, outpage = outpages; i < num_outpages; i ++, outpage ++)
+  printf("num_outpages = %d\n", (int)num_outpages);
+  for (i = 0, outpage = outpages; i < (int)num_outpages; i ++, outpage ++)
   {
     printf("outpage[%d]:\tnup=%d, pages=[", i, outpage->nup);
     for (j = 0; j < outpage->nup; j ++)
@@ -1320,13 +1320,13 @@ pspdf_prepare_outpages()
     printf("chapter_starts[%d] = %d, chapter_ends[%d] = %d\n",
            c, chapter_starts[c], c, chapter_ends[c]);
 
-  for (i = 0; i < num_pages; i ++)
+  for (i = 0; i < (int)num_pages; i ++)
     printf("pages[%d]->outpage = %d\n", i, pages[i].outpage);
 
-  for (i = 0; i < num_headings; i ++)
+  for (i = 0; i < (int)num_headings; i ++)
     printf("heading_pages[%d] = %d\n", i, heading_pages[i]);
 
-  for (i = 0; i < num_links; i ++)
+  for (i = 0; i < (int)num_links; i ++)
     printf("links[%d].name = \"%s\", page = %d\n", i,
            links[i].name, links[i].page);
 #endif // DEBUG
@@ -1453,7 +1453,7 @@ pspdf_prepare_heading(int   page,	// I - Page number
 
   DEBUG_printf(("pspdf_prepare_heading(%d, %d, [\"%s\",\"%s\",\"%s\"], %d, %p, %d)\n",
                 page, print_page, format[0], format[1], format[2], y,
-		page_text, page_len));
+		(void *)page_text, page_len));
 
  /*
   * Add page headings...
@@ -1852,7 +1852,7 @@ ps_write_outpage(FILE *out,	/* I - Output file */
   op = outpages + outpage;
   p  = pages + op->pages[0];
 
-  DEBUG_printf(("ps_write_outpage(%p, %d)\n", out, outpage));
+  DEBUG_printf(("ps_write_outpage(%p, %d)\n", (void *)out, outpage));
 
  /*
   * Let the user know which page we are writing...
@@ -2028,7 +2028,7 @@ ps_write_page(FILE  *out,	/* I - Output file */
 
   p = pages + page;
 
-  DEBUG_printf(("ps_write_page(%p, %d)\n", out, page));
+  DEBUG_printf(("ps_write_page(%p, %d)\n", (void *)out, page));
 
  /*
   * Clear the render cache...
@@ -2450,7 +2450,7 @@ pdf_write_outpage(FILE *out,	/* I - Output file */
   outpage_t	*op;		/* Output page */
 
 
-  DEBUG_printf(("pdf_write_outpage(out = %p, outpage = %d)\n", out, outpage));
+  DEBUG_printf(("pdf_write_outpage(out = %p, outpage = %d)\n", (void *)out, outpage));
 
   if (outpage < 0 || outpage >= (int)num_outpages)
     return;
@@ -3512,7 +3512,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 
 
   DEBUG_printf(("render_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
-                t, left, right, bottom, top, *y, *page, heading, chap));
+                (void *)t, left, right, bottom, top, *y, *page, heading, (void *)chap));
 
   if (!t)
     return;
@@ -3755,7 +3755,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	       tree_t *chap)		/* I - Chapter heading */
 {
   DEBUG_printf(("parse_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
-                t, left, right, bottom, top, *y, *page, *heading, chap));
+                (void *)t, left, right, bottom, top, *y, *page, *heading, (void *)chap));
 
   while (t != NULL)
   {
@@ -3859,7 +3859,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
 
   DEBUG_printf(("parse_doc(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, cpara=%p, needspace=%d\n",
-                t, *left, *right, *bottom, *top, *x, *y, *page, cpara,
+                (void *)t, *left, *right, *bottom, *top, *x, *y, *page, (void *)cpara,
 	        *needspace));
   DEBUG_printf(("    title_page = %d, chapter = %d\n", title_page, chapter));
 
@@ -4457,7 +4457,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
 
   DEBUG_printf(("parse_heading(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
-                t, left, right, bottom, top, *x, *y, *page, needspace));
+                (void *)t, left, right, bottom, top, *x, *y, *page, needspace));
 
   if (((t->markup - MARKUP_H1) < TocLevels || TocLevels == 0) && !title_page)
     current_heading = t->child;
@@ -4486,7 +4486,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
   {
     DEBUG_printf(("H%d: heading_pages[%d] = %d\n", t->markup - MARKUP_H1 + 1,
-                  num_headings, *page - 1));
+                  (int)num_headings, *page - 1));
 
     // See if we need to resize the headings arrays...
     if (num_headings >= alloc_headings)
@@ -4601,7 +4601,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
 
   DEBUG_printf(("parse_paragraph(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, needspace=%d\n",
-                t, left, right, bottom, top, *x, *y, *page, needspace));
+                (void *)t, left, right, bottom, top, *x, *y, *page, needspace));
 
   flat        = flatten_tree(t->child);
   image_left  = left;
@@ -5307,7 +5307,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
   REF(right);
 
   DEBUG_printf(("parse_pre(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
-                t, left, right, *x, *y, *page));
+                (void *)t, left, right, *x, *y, *page));
 
   if (t->child == NULL)
     return;
@@ -5586,7 +5586,7 @@ parse_table(tree_t *t,			// I - Tree to parse
   DEBUG_puts("\n\nTABLE");
 
   DEBUG_printf(("parse_table(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
-                t, left, right, *x, *y, *page));
+                (void *)t, left, right, *x, *y, *page));
 
   if (t->child == NULL)
     return;   /* Empty table... */
@@ -6389,7 +6389,7 @@ parse_table(tree_t *t,			// I - Tree to parse
       colspan --;
 
       DEBUG_printf(("    col = %d, colspan = %d, left = %.1f, right = %.1f, cell = %p\n",
-                    col, colspan, col_lefts[col], col_rights[col + colspan], cells[row][col]));
+                    col, colspan, col_lefts[col], col_rights[col + colspan], (void *)cells[row][col]));
 
       *x        = col_lefts[col];
       temp_y    = *y - cellpadding;
@@ -6424,7 +6424,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 	}
 
         DEBUG_printf(("cell_bg[%d] = %p, pages[%d].end = %p\n",
-	              col, cell_bg[col], *page, pages[*page].end));
+	              col, (void *)cell_bg[col], *page, (void *)pages[*page].end));
 
 	cell_start[col] = pages[*page].end;
 	cell_page[col]  = temp_page;
@@ -6476,7 +6476,7 @@ parse_table(tree_t *t,			// I - Tree to parse
         DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n",
 	              row, col, *y - cellpadding, temp_y, cell_height[col]));
         DEBUG_printf(("cell_start[%d] = %p, cell_end[%d] = %p\n",
-	              col, cell_start[col], col, cell_end[col]));
+	              col, (void *)cell_start[col], col, (void *)cell_end[col]));
       }
 
       if (row_spans[col] == 0 &&
@@ -6637,7 +6637,7 @@ parse_table(tree_t *t,			// I - Tree to parse
           for (; p != NULL; p = p->next)
 	  {
 	    DEBUG_printf(("aligning %p (%s), y was %.1f, now %.1f\n",
-	                  p, p->data.text.buffer, p->y, p->y - delta_y));
+	                  (void *)p, p->data.text.buffer, p->y, p->y - delta_y));
 
             p->y -= delta_y;
             if (p == cell_end[col])
@@ -6654,7 +6654,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 
           for (; p != NULL; p = p->next)
 	  {
-	    printf("NOT aligning %p\n", p);
+	    printf("NOT aligning %p\n", (void *)p);
 
             if (p == cell_end[col])
 	      break;
@@ -7004,7 +7004,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
 
 
   DEBUG_printf(("parse_list(t=%p, left=%.1f, right=%.1f, x=%.1f, y=%.1f, page=%d\n",
-                t, *left, *right, *x, *y, *page));
+                (void *)t, *left, *right, *x, *y, *page));
 
   if (needspace && *y < *top)
   {
@@ -7168,7 +7168,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
   DEBUG_printf(("parse_comment(t=%p, left=%.1f, right=%.1f, bottom=%.1f, "
                 "top=%.1f, x=%.1f, y=%.1f, page=%d, para=%p, needspace=%d\n",
-                t, *left, *right, *bottom, *top, *x, *y, *page, para,
+                (void *)t, *left, *right, *bottom, *top, *x, *y, *page, (void *)para,
 		needspace));
 
   if (t->data == NULL)
@@ -8477,7 +8477,7 @@ new_render(int      page,		/* I - Page number (0-n) */
 
 
   DEBUG_printf(("new_render(page=%d, type=%d, x=%.1f, y=%.1f, width=%.1f, height=%.1f, data=%p, insert=%p)\n",
-                page, type, x, y, width, height, data, insert));
+                page, type, x, y, width, height, (void *)data, (void *)insert));
 
   check_pages(page);
 
@@ -8569,7 +8569,7 @@ new_render(int      page,		/* I - Page number (0-n) */
     pages[page].end = r;
   }
 
-  DEBUG_printf(("    returning r = %p\n", r));
+  DEBUG_printf(("    returning r = %p\n", (void *)r));
 
   return (r);
 }
@@ -8798,7 +8798,7 @@ get_cell_size(tree_t *t,		// I - Cell
 
 
   DEBUG_printf(("get_cell_size(%p, %.1f, %.1f, %p, %p, %p)\n",
-                t, left, right, minwidth, prefwidth, minheight));
+                (void *)t, left, right, (void *)minwidth, (void *)prefwidth, (void *)minheight));
 
   // First see if the width has been specified for this cell...
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL &&
@@ -9129,7 +9129,7 @@ get_table_size(tree_t *t,		// I - Table
 
 
   DEBUG_printf(("get_table_size(%p, %.1f, %.1f, %p, %p, %p)\n",
-                t, left, right, minwidth, prefwidth, minheight));
+                (void *)t, left, right, (void *)minwidth, (void *)prefwidth, (void *)minheight));
 
   // First see if the width has been specified for this table...
   if ((var = htmlGetVariable(t, (uchar *)"WIDTH")) != NULL &&

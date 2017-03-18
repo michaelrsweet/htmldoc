@@ -83,7 +83,6 @@ httpAddrConnect2(
 #ifdef DEBUG
   socklen_t		len;		/* Length of value */
   http_addr_t		peer;		/* Peer address */
-  char			temp[256];	/* Temporary address string */
 #endif /* DEBUG */
 
 
@@ -464,10 +463,7 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 
 
 #ifdef DEBUG
-  _cups_debug_printf("httpAddrGetList(hostname=\"%s\", family=AF_%s, "
-                     "service=\"%s\")\n",
-		     hostname ? hostname : "(nil)",
-		     family == AF_UNSPEC ? "UNSPEC" :
+  printf("httpAddrGetList(hostname=\"%s\", family=AF_%s, service=\"%s\")\n", hostname ? hostname : "(nil)", family == AF_UNSPEC ? "UNSPEC" :
 #  ifdef AF_LOCAL
 	                 family == AF_LOCAL ? "LOCAL" :
 #  endif /* AF_LOCAL */
