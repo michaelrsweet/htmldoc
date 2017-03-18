@@ -1361,7 +1361,7 @@ pspdf_prepare_page(int page)		/* I - Page number */
   {
     print_page = 0;
     // Safe because page_text is more than 6 chars
-    strcpy(page_text, (page & 1) ? (char *)"eltit" : (char *)"title");
+    strlcpy(page_text, (page & 1) ? (char *)"eltit" : (char *)"title", sizeof(page_text));
   }
   else
   {

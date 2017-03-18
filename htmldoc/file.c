@@ -288,7 +288,7 @@ file_directory(const char *s)	/* I - Filename or URL */
 
     if (!buf[0])
       /* Safe because buf is more than 2 chars long */
-      strcpy(buf, "/");
+      strlcpy(buf, "/", sizeof(buf));
   }
 
   return (buf);
@@ -471,7 +471,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
       if (username[0])
       {
-        strcpy(connauth, "Basic ");
+        strlcpy(connauth, "Basic ", sizeof(connauth));
         httpEncode64_2(connauth + 6, sizeof(connauth) - 6, username,
 	               strlen(username));
         httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);

@@ -335,7 +335,7 @@ get_fmt(char **formats)			// I - New format strings
 
 
   // Safe because fmt is 4 chars long
-  strcpy(fmt, "...");
+  strlcpy(fmt, "...", sizeof(fmt));
 
   for (i = 0; i < 3; i ++)
     if (formats[i])
