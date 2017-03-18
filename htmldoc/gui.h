@@ -175,7 +175,6 @@ class GUI
   Fl_Input		*path;
   Fl_Input		*proxy;
   Fl_Check_Button	*tooltips;
-  Fl_Check_Button	*modern_skin;
   Fl_Check_Button	*strict_html;
   Fl_Check_Button	*overflow_errors;
 
@@ -244,7 +243,6 @@ class GUI
 
   static void	htmlEditorCB(Fl_Widget *w, GUI *gui);
   static void	tooltipCB(Fl_Widget *w, GUI *gui);
-  static void	skinCB(Fl_Widget *w, GUI *gui);
   static void	saveOptionsCB(Fl_Widget *w, GUI *gui);
 
   static void	helpCB(Fl_Widget *w, GUI *gui);

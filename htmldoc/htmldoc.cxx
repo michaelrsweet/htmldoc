@@ -1484,8 +1484,6 @@ prefs_load(void)
         strlcpy(HTMLEditor, line + 7, sizeof(HTMLEditor));
       else if (strncasecmp(line, "TOOLTIPS=", 9) == 0)
         Tooltips = atoi(line + 9);
-      else if (strncasecmp(line, "MODERN=", 7) == 0)
-        ModernSkin = atoi(line + 7);
 #  endif // HAVE_LIBFLTK
     }
 
@@ -1594,7 +1592,6 @@ prefs_save(void)
 #ifdef HAVE_LIBFLTK
     fprintf(fp, "EDITOR=%s\n", HTMLEditor);
     fprintf(fp, "TOOLTIPS=%d\n", Tooltips);
-    fprintf(fp, "MODERN=%d\n", ModernSkin);
 #endif // HAVE_LIBFLTK
 
     fclose(fp);

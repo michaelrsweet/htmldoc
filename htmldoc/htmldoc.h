@@ -227,11 +227,12 @@ VAR const char	*PDFEffects[17]			/* Effect strings */
 VAR GUI		*BookGUI	VALUE(NULL);	/* GUI for book files */
 #  ifdef WIN32					/* Editor for HTML files */
 VAR char	HTMLEditor[1024] VALUE("notepad.exe \"%s\"");
+#  elif defined(__APPLE__)
+VAR char	HTMLEditor[1024] VALUE("bbedit %s");
 #  else
-VAR char	HTMLEditor[1024] VALUE("nedit %s");
+VAR char	HTMLEditor[1024] VALUE("gedit %s");
 #  endif /* WIN32 */
 VAR int		Tooltips	VALUE(1);	/* Show tooltips? */
-VAR int		ModernSkin	VALUE(1);	/* Show modern skins? */
 #endif /* HAVE_LIBFLTK */
 
 

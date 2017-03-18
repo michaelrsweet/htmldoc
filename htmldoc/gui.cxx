@@ -216,7 +216,6 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {0}
 			};
 
-
 #ifdef __APPLE__
   // Support opening of books via the finder...
   fl_open_callback(appleOpenCB);
@@ -942,16 +941,11 @@ GUI::GUI(const char *filename)		// Book file to load initially
     tooltips->value(Tooltips);
     tooltips->tooltip("Check to show tooltips.");
 
-    modern_skin = new Fl_Check_Button(140, 180, 110, 20, "Modern Look");
-    modern_skin->callback((Fl_Callback *)skinCB, this);
-    modern_skin->value(ModernSkin);
-    modern_skin->tooltip("Check to show the more modern look-n-feel.");
-
-    strict_html = new Fl_Check_Button(140, 200, 100, 20, "Strict HTML");
+    strict_html = new Fl_Check_Button(140, 180, 100, 20, "Strict HTML");
     strict_html->value(StrictHTML);
     strict_html->tooltip("Check to require strict HTML conformance.");
 
-    overflow_errors = new Fl_Check_Button(140, 220, 135, 20, "Error on Overflow");
+    overflow_errors = new Fl_Check_Button(140, 200, 135, 20, "Error on Overflow");
     overflow_errors->value(OverflowErrors);
     overflow_errors->tooltip("Check to display an error when the HTML content\n"
                              "is too large to fit on the page.");
@@ -1088,13 +1082,8 @@ GUI::GUI(const char *filename)		// Book file to load initially
   else
     loadBook(filename);
 
-  // Use cheesy hardcoded "style" stuff until FLTK 2.0...
-  skinCB(0, this);
-
-#  ifdef __sgi
-  fc->color((Fl_Color)196);
-  inputFiles->color((Fl_Color)196);
-#  endif // __sgi
+  // Update the theme
+  Fl::scheme("gtk+");
 
   // Show the window...
   show();
@@ -3529,6 +3518,7 @@ GUI::tooltipCB(Fl_Widget *w,	// I - Widget
 }
 
 
+#if 0
 //
 // 'GUI::skinCB()' - Enable or disable the modern "skin".
 //
@@ -3596,6 +3586,7 @@ GUI::skinCB(Fl_Widget *,	// I - Widget
     gui->progressBar->box(FL_DOWN_BOX);
   }
 }
+#endif // 0
 
 
 //
@@ -4181,11 +4172,11 @@ GUI::showAboutCB(void)
   Fl_Pixmap	logo(htmldoc_xpm);	// Logo image
 
 
-  about = new Fl_Window(410, 300, "About HTMLDOC");
+  about = new Fl_Window(550, 300, "About HTMLDOC");
   about->set_modal();
   about->hotspot(about);
 
-  group = new Fl_Group(10, 10, 390, 245, "About HTMLDOC");
+  group = new Fl_Group(10, 10, 530, 245, "About HTMLDOC");
   group->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE);
   group->labelcolor(FL_BLUE);
   group->labelfont(FL_HELVETICA_BOLD);
@@ -4195,12 +4186,12 @@ GUI::showAboutCB(void)
   label = new Fl_Box(20, 45, 35, 35);
   label->image(&logo);
 
-  label = new Fl_Box(60, 45, 330, 35,
+  label = new Fl_Box(60, 45, 530, 35,
           "HTMLDOC " SVERSION "\nCopyright 2011-2017 by Michael R Sweet."
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 
-  text = new Fl_Help_View(20, 90, 370, 155);
+  text = new Fl_Help_View(20, 90, 510, 155);
   text->value(
     "HTMLDOC converts HTML files and web pages to PDF and PostScript.\n\n"
     "<p>HTMLDOC is provided under the terms of the GNU General Public License "
@@ -4214,7 +4205,7 @@ GUI::showAboutCB(void)
 
   group->end();
 
-  button = new Fl_Button(340, 265, 60, 25, "Close");
+  button = new Fl_Button(480, 265, 60, 25, "Close");
   button->callback((Fl_Callback *)aboutCloseCB);
 
   about->end();

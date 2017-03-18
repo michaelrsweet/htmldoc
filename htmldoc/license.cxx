@@ -47,18 +47,18 @@ GUI::showLicenseCB(void)
 
   // Create the window complete with the license agreement and
   // button to add a new license...
-  dialog = new Fl_Window(480, 480, "HTMLDOC " SVERSION " License");
+  dialog = new Fl_Window(640, 480, "HTMLDOC " SVERSION " License");
   dialog->set_modal();
   dialog->hotspot(dialog);
 
-  group = new Fl_Group(10, 10, 460, 425, "HTMLDOC " SVERSION " License");
+  group = new Fl_Group(10, 10, 620, 425, "HTMLDOC " SVERSION " License");
   group->align((Fl_Align)(FL_ALIGN_LEFT | FL_ALIGN_TOP | FL_ALIGN_INSIDE));
   group->box(FL_THIN_UP_BOX);
   group->labelcolor(FL_BLUE);
   group->labelfont(FL_HELVETICA_BOLD);
   group->labelsize(18);
 
-  box = new Fl_Box(20, 45, 440, 110,
+  box = new Fl_Box(20, 45, 600, 110,
     "Copyright (c) 2011-2017 by Michael R Sweet.\n\n"
     "HTMLDOC is provided under the terms of the GNU General Public License and "
     "comes with absolutely no warranty.  Please report problems on the Github "
@@ -68,7 +68,7 @@ GUI::showLicenseCB(void)
 
   box->align((Fl_Align)(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP));
 
-  help = new Fl_Help_View(20, 190, 440, 235, "Software License Agreement:");
+  help = new Fl_Help_View(20, 190, 600, 235, "Software License Agreement:");
   help->align(FL_ALIGN_TOP_LEFT);
   help->value(
     "<h3>GNU GENERAL PUBLIC LICENSE</h3>\n"
@@ -378,7 +378,7 @@ GUI::showLicenseCB(void)
 
   group->end();
 
-  button = new Fl_Button(405, 445, 65, 25, "Close");
+  button = new Fl_Button(565, 445, 65, 25, "Close");
   button->callback((Fl_Callback *)closeLicenseCB);
 
   // Show the window and wait...
