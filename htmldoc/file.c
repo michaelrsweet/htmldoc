@@ -1,7 +1,7 @@
 /*
  * Filename routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011, 2014 by Michael R Sweet.
+ * Copyright 2011-2017 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -433,8 +433,7 @@ file_find_check(const char *filename)	/* I - File or URL */
         strlcpy(connpath, resource, sizeof(connpath));
       }
 
-      if (strcasecmp(httpGetHostname(http, tempname, sizeof(tempname)),
-                     hostname))
+      if (connport != httpAddrPort(httpGetAddress(http)) || strcasecmp(httpGetHostname(http, tempname, sizeof(tempname)), hostname))
       {
         httpClose(http);
         http = NULL;

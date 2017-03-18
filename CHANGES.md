@@ -5,7 +5,7 @@
 - Cleaned up the GUI and adopted new default text editors for Linux and macOS.
 - Fixed build issue on macOS (Issue #291)
 - Fixed handling of indexed+alpha PNG images (Issue #295)
--
+- Fixed a URL referencing bug when the same hostname but a different port was used (Issue #290)
 
 # Changes in HTMLDOC v1.8.29
 
