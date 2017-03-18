@@ -10442,8 +10442,8 @@ write_image(FILE     *out,		/* I - Output file */
 	  {
 	    for (i = 0; i < ncolors; i ++)
 	    {
-	      cmap[i][0] = (uchar)colors[i] >> 16;
-	      cmap[i][1] = (uchar)colors[i] >> 8;
+	      cmap[i][0] = (uchar)(colors[i] >> 16);
+	      cmap[i][1] = (uchar)(colors[i] >> 8);
 	      cmap[i][2] = (uchar)colors[i];
 	    }
 
