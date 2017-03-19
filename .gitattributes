@@ -1,0 +1,3 @@
+.git* export-ignore
+testsuite export-ignore
+tools export-ignore
