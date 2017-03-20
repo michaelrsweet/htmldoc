@@ -1,5 +1,5 @@
 /* XPM */
-static char * htmldoc_xpm[] = {
+static const char * const htmldoc_xpm[] = {
 "32 32 32 1",
 " 	c None",
 ".	c #000200",

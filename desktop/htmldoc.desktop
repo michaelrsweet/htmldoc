@@ -5,6 +5,6 @@ Name=HTMLDOC
 Comment=HTML Conversion Software
 TryExec=htmldoc
 Exec=htmldoc %F
-Icon=htmldoc.png
+Icon=htmldoc
 Terminal=false
 Categories=Application;Office;X-Red-Hat-Base;

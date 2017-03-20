@@ -20,7 +20,7 @@ include Makedefs
 #
 
 DIRS	=	@JPEG@ @ZLIB@ @PNG@ htmldoc doc
-INSTALLDIRS =	fonts data doc htmldoc
+INSTALLDIRS =	fonts data desktop doc htmldoc
 
 
 #

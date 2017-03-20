@@ -18,6 +18,7 @@ CC		=	@CC@
 CXX		=	@CXX@
 CHMOD		=	@CHMOD@
 CP		=	@CP@
+INSTALL		=	@INSTALL@
 LN		=	/bin/ln -sf
 MKDIR		=	@MKDIR@ -p
 MV		=	@MV@
@@ -30,9 +31,19 @@ SHELL		=	/bin/sh
 EXEEXT		=	@EXEEXT@
 
 #
+# Installation programs...
+#
+
+INSTALL_BIN	=	$(INSTALL) -c -m 555 @INSTALL_STRIP@
+INSTALL_DATA	=	$(INSTALL) -c -m 444
+INSTALL_DIR	=	$(INSTALL) -d
+INSTALL_MAN	=	$(INSTALL) -c -m 444
+
+#
 # Directories...
 #
 
+BUILDROOT	=	$(DSTROOT)$(RPM_BUILD_ROOT)
 bindir		=	@bindir@
 datadir		=	@datadir@
 datarootdir	=	@datarootdir@

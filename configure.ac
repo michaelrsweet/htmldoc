@@ -2,7 +2,7 @@
 # Configuration script for HTMLDOC, an HTML document processing program.
 #
 # Copyright 2011-2017 by Michael R Sweet.
-# Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+# Copyright 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
 # the file "COPYING".
@@ -25,6 +25,8 @@ if test "$uname" = "IRIX64"; then
 fi
 
 dnl Clear the debugging options unless the user asks for them...
+INSTALL_STRIP="-s"
+AC_SUBST(INSTALL_STRIP)
 OPTIM="${OPTIM:=}"
 AC_SUBST(OPTIM)
 CFLAGS="${CFLAGS:=}"
@@ -33,6 +35,7 @@ LDFLAGS="${LDFLAGS:=}"
 
 AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging, default=no],
     [if eval "test x$enable_debug = xyes"; then
+	INSTALL_STRIP=""
 	OPTIM="-g "
     fi])
 
@@ -48,6 +51,10 @@ AC_PATH_PROG(AR,ar)
 AC_PATH_PROG(CHMOD,chmod)
 AC_PATH_PROG(CP,cp)
 AC_PATH_PROG(FLTKCONFIG,fltk-config)
+AC_MSG_CHECKING(for install-sh script)
+INSTALL="`pwd`/install-sh"
+AC_SUBST(INSTALL)
+AC_MSG_RESULT(using $INSTALL)
 AC_PATH_PROG(MV,mv)
 AC_PATH_PROG(MKDIR,mkdir)
 AC_PATH_PROG(RM,rm)
