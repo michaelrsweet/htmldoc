@@ -1,10 +1,10 @@
 <HTML>
 <BODY>
 
-<!-- FOOTER RIGHT "6-$CHAPTERPAGE" -->
+<!-- FOOTER RIGHT "4-$CHAPTERPAGE" -->
 <DIV ALIGN="justify">
 
-<H1 ALIGN="RIGHT"><A NAME="HTMLREF">Chapter 6 - HTML Reference</A></H1>
+<H1 ALIGN="RIGHT"><A NAME="HTMLREF">Chapter 4 - HTML Reference</A></H1>
 
 This chapter defines all of the HTML elements and attributes that are
 recognized and supported by HTMLDOC.
@@ -26,15 +26,7 @@ htmldoc -f filename.pdf filename.html
 page files you <B>must</B> use the <CODE>--webpage</CODE> option at the
 command-line or choose <VAR>Web Page</VAR> in the input tab of the GUI.
 
-<center><table width='80%' border='1' cellpadding='5' bgcolor='#cccccc'>
-<tr>
-	<td><B>Note:</B>
-
-	<P>HTMLDOC does not support HTML 4.0 elements, attributes,
-	stylesheets, or scripting.</P>
-	</td>
-</tr>
-</table></center>
+<blockquote><b>Note:</b> HTMLDOC does not support HTML 4.0 elements, attributes, stylesheets, or scripting.</blockquote>
 
 <!-- NEED 5in -->
 <H2>Elements</H2>
@@ -82,7 +74,7 @@ command-line or choose <VAR>Web Page</VAR> in the input tab of the GUI.
 <TR><TD>H5</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
 <TR><TD>H6</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
 <TR><TD>HEAD</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
-<TR><TD>HR</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#BREAKS">See Below</A></TD></TR>
+<TR><TD>HR</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>HTML</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>I</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>IMG</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#IMAGES">See Below</A></TD></TR>
@@ -380,16 +372,7 @@ headings within a chapter must be of a lower level (H2 to H15). Each
 chapter starts a new page or the next odd-numbered page if duplexing is
 selected.
 
-<CENTER><TABLE WIDTH="80%" BORDER="1" CELLPADDING="5" BGCOLOR="#cccccc">
-<TR>
-	<TD><B>Note:</B>
-
-	<P>Heading levels 7 to 15 are not standard HTML and will
-	not likely be recognized by most web browsers.
-
-	</TD>
-</TR>
-</TABLE></CENTER>
+<blockquote><b>Note:</b> Heading levels 7 to 15 are not standard HTML and will not likely be recognized by most web browsers.</blockquote>
 
 <P>The headings you use within a chapter must start at level 2 (H2). If
 you skip levels the heading will be shown under the last level that was
@@ -524,19 +507,6 @@ attributes for the title page and document information:
 	<DD>Specifies document subject.
 
 </DL>
-
-<H2><A NAME="BREAKS">Page Breaks</A></H2>
-
-HTMLDOC supports four new <A HREF="#COMMENTS">page comments</A>
-to specify page breaks. In addition, the older <CODE>BREAK</CODE> attribute
-is still supported by the <CODE>HR</CODE> element:
-
-<UL><PRE>
-&lt;HR BREAK&gt;
-</PRE></UL>
-
-Support for the <CODE>BREAK</CODE> attribute is deprecated and will be
-removed in a future release of HTMLDOC.
 
 <H2><A NAME="TABLE">Tables</A></H2>
 

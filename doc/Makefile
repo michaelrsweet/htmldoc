@@ -20,13 +20,9 @@ include ../Makedefs
 #
 
 SOURCES	=	1-intro.html \
-		2-starting.html \
-		3-books.html \
-		4-cmdline.html \
-		5-cgi.html \
-		6-htmlref.html \
-		7-guiref.html \
-		8-cmdref.html \
+		2-using.html \
+		3-cmdref.html \
+		4-htmlref.html \
 		a-license.html \
 		b-book.html
 
@@ -40,7 +36,7 @@ HTMLDOC	=	../htmldoc/htmldoc$(EXEEXT) --datadir .. --strict
 # Make everything...
 #
 
-all: $(DOCUMENTS)
+all: $(DOCUMENTS) htmldoc.1
 
 
 #
@@ -123,4 +119,4 @@ htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.1:	htmldoc.man
 	echo Formatting htmldoc.1...
-	groff -T ascii -man htmldoc.man >htmldoc.1
+	nroff -man htmldoc.man >htmldoc.1

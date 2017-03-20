@@ -1,15 +1,13 @@
 .\"
-.\" "$Id$"
-.\"
 .\" Manual page for HTMLDOC, a HTML document processing program.
 .\"
-.\" Copyright 2011-2016 by Michael R Sweet.
+.\" Copyright 2011-2017 by Michael R Sweet.
 .\" Copyright 1997-2010 by Easy Software Products.
 .\"
 .\" This program is free software.  Distribution and use rights are outlined
-.\" in the file "COPYING.txt".
+.\" in the file "COPYING".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.8.29" "2 January 2016" "Michael R Sweet"
+.TH htmldoc 1 "HTMLDOC 1.8.30" "19 March 2017" "Michael R Sweet"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .SH SYNOPSIS
@@ -20,7 +18,8 @@ htmldoc [options] -
 htmldoc [filename.book]
 .SH DESCRIPTION
 .BR Htmldoc (1)
-converts HTML source files into indexed HTML, PostScript, or Portable Document Format (PDF) files that can be viewed online or printed. With no options a HTML document is produced on stdout.
+converts HTML source files into indexed HTML, PostScript, or Portable Document Format (PDF) files that can be viewed online or printed.
+With no options a HTML document is produced on stdout.
 .LP
 The second form of
 .B htmldoc
@@ -42,7 +41,8 @@ A very common mistake is to try converting a web page using:
 .nf
     htmldoc -f filename.pdf filename.html
 .fi
-which will likely produce a PDF file with no pages. To convert web page files you
+which will likely produce a PDF file with no pages.
+To convert web page files you
 .B must
 use the
 .I --webpage
@@ -403,17 +403,20 @@ Create a PostScript book from a directory of HTML files
 .SH SEE ALSO
 HTMLDOC Software Users Manual
 .LP
-http://www.msweet.org/projects.php/HTMLDOC
+https://michaelrsweet.github.io/htmldoc
 .SH AUTHOR
 Michael R Sweet
-.SH COPYRIGHTS AND TRADEMARKS
-HTMLDOC is copyright 1997-2016 by Michael R Sweet. This program is free software. Distribution and use rights are outlined in the file "COPYING.txt".
-.LP
-The Adobe Portable Document Format is Copyright 1985-2005 by Adobe Systems Incorporated. Adobe, FrameMaker, and PostScript are registered trademarks of Adobe Systems, Incorporated.
-.LP
-This software is based in part on the work of the Independent JPEG Group and FLTK project.
-.SH NO WARRANTY
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-.\"
-.\" End of "$Id$".
-.\"
+.SH LEGAL STUFF
+HTMLDOC is copyright 1997-2017 by Michael R Sweet.
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 2 as published by the Free
+Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place, Suite 330, Boston, MA 02111-1307 USA.
