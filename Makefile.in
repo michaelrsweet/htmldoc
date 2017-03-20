@@ -70,3 +70,14 @@ install:
 		echo Installing in $$dir...;\
 		(cd $$dir; $(MAKE) -$(MAKEFLAGS) install) || exit 1;\
 	done
+
+
+#
+# Sign the HTMLDOC application bundle...
+#
+
+IDENTITY	=	"Developer ID Application: Michael Sweet (RU58A2256H)"
+
+codesign:
+	echo Signing HTMLDOC application bundle
+	codesign -s $(IDENTITY) htmldoc/htmldoc.app
