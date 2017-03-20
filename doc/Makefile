@@ -44,16 +44,12 @@ all: $(DOCUMENTS) htmldoc.1
 #
 
 install: $(DOCUMENTS)
-	if test ! -d $(datadir)/doc/htmldoc; then\
-		$(MKDIR) $(datadir)/doc/htmldoc;\
-	fi
-	$(CP) $(DOCFILES) $(datadir)/doc/htmldoc
-	$(CHMOD) ugo+r $(datadir)/doc/htmldoc/*
-	if test ! -d $(mandir)/man1; then\
-		$(MKDIR) $(mandir)/man1;\
-	fi
-	$(CP) htmldoc.man $(mandir)/man1/htmldoc.1
-	$(CHMOD) ugo+r $(mandir)/man1/htmldoc.1
+	$(INSTALL_DIR) $(BUILDROOT)$(datadir)/doc/htmldoc;
+	for file in $(DOCFILES); do \
+		$(INSTALL_DATA) $$file $(BUILDROOT)$(datadir)/doc/htmldoc; \
+	done
+	$(INSTALL_DIR) $(BUILDROOT)$(mandir)/man1;
+	$(INSTALL_MAN) htmldoc.man $(BUILDROOT)$(mandir)/man1/htmldoc.1
 
 
 #

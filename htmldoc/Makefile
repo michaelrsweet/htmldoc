@@ -1,7 +1,7 @@
 #
 # Makefile for HTMLDOC, an HTML document processing program.
 #
-# Copyright 2011-2016 by Michael R Sweet.
+# Copyright 2011-2017 by Michael R Sweet.
 # Copyright 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
@@ -36,11 +36,8 @@ all:	htmldoc$(EXEEXT)
 #
 
 install:	all
-	if [ ! -d $(bindir) ]; then\
-		$(MKDIR) $(bindir);\
-	fi
-	cp htmldoc$(EXEEXT) $(bindir)
-	chmod ugo+rx $(bindir)/htmldoc$(EXEEXT)
+	$(INSTALL_DIR) $(BUILDROOT)$(bindir)
+	$(INSTALL_BIN) htmldoc$(EXEEXT) $(BUILDROOT)$(bindir)
 
 
 #
@@ -48,7 +45,7 @@ install:	all
 #
 
 clean:
-	rm -f $(OBJS) htmldoc$(EXEEXT)
+	$(RM) $(OBJS) htmldoc$(EXEEXT)
 
 
 #
@@ -56,7 +53,8 @@ clean:
 #
 
 depend:
-	makedepend -Y -I.. -fDependencies $(OBJS:.o=.c) $(OBJS:.o=.cxx) >/dev/null 2>&1
+	$(CC) -MM $(CFLAGS) $(OBJS:.o=.c) >Dependencies
+	$(CXX) -MM $(CXXFLAGS) $(OBJS:.o=.cxx) >>Dependencies
 
 
 #
@@ -66,7 +64,35 @@ depend:
 htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
 	echo Linking $@...
 	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
-	$(POST) htmldoc$(EXEEXT)
+	if test `uname` = Darwin; then \
+		$(MAKE) -$(MAKEFLAGS) htmldoc.app || exit 1; \
+	fi
+
+htmldoc.app:	htmldoc
+	echo Creating application bundle...
+	$(RM) -r htmldoc.app
+	$(MKDIR) htmldoc.app
+	$(MKDIR) htmldoc.app/Contents
+	$(CP) ../desktop/htmldoc.plist htmldoc.app/Contents/Info.plist
+	$(MKDIR) htmldoc.app/Contents/MacOS
+	$(CP) htmldoc htmldoc.app/Contents/MacOS
+	$(MKDIR) htmldoc.app/Contents/Resources
+	$(CP) ../desktop/htmldoc.icns htmldoc.app/Contents/Resources
+	$(CP) ../doc/help.html htmldoc.app/Contents/Resources
+	$(MKDIR) htmldoc.app/Contents/Resources/data
+	$(CP) ../data/cp-* htmldoc.app/Contents/Resources/data
+	$(CP) ../data/iso-* htmldoc.app/Contents/Resources/data
+	$(CP) ../data/koi8-r htmldoc.app/Contents/Resources/data
+	$(CP) ../data/prolog.ps htmldoc.app/Contents/Resources/data
+	$(CP) ../data/psglyphs htmldoc.app/Contents/Resources/data
+	$(MKDIR) htmldoc.app/Contents/Resources/fonts
+	$(CP) ../fonts/*.afm htmldoc.app/Contents/Resources/fonts
+	$(CP) ../fonts/*.pfa htmldoc.app/Contents/Resources/fonts
+
+
+#
+# Dependencies...
+#
 
 $(OBJS):	../Makedefs
 tls.o:		tls-darwin.c tls-gnutls.c tls-sspi.c

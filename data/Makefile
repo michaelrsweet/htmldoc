@@ -1,7 +1,7 @@
 #
 # Makefile for HTMLDOC data files.
 #
-# Copyright 2011 by Michael R Sweet.
+# Copyright 2011-2017 by Michael R Sweet.
 # Copyright 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
@@ -39,11 +39,10 @@ all:
 #
 
 install:
-	if [ ! -d $(datadir)/htmldoc/data ]; then\
-		$(MKDIR) $(datadir)/htmldoc/data;\
-	fi
-	$(CP) $(FILES) $(datadir)/htmldoc/data
-	$(CHMOD) ugo+r $(datadir)/htmldoc/data/*
+	$(INSTALL_DIR) $(BUILDROOT)$(datadir)/htmldoc/data
+	for file in $(FILES); do \
+		$(INSTALL_DATA) $$file $(BUILDROOT)$(datadir)/htmldoc/data; \
+	done
 
 
 #

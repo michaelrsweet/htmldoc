@@ -1,7 +1,7 @@
 #
 # Makefile for HTMLDOC font files.
 #
-# Copyright 2011 by Michael R Sweet.
+# Copyright 2011-2017 by Michael R Sweet.
 # Copyright 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
@@ -61,14 +61,11 @@ all:
 
 install:
 	echo "Installing font files in $(datadir)/htmldoc/fonts..."
-	if [ ! -d $(datadir)/htmldoc/fonts ]; then\
-		$(MKDIR) $(datadir)/htmldoc/fonts;\
-	fi
+	$(INSTALL_DIR) $(BUILDROOT)$(datadir)/htmldoc/fonts
 	for font in $(FONTS); do \
-		$(CP) $$font.afm $(datadir)/htmldoc/fonts; \
-		$(CP) $$font.pfa $(datadir)/htmldoc/fonts; \
+		$(INSTALL_DATA) $$font.afm $(BUILDROOT)$(datadir)/htmldoc/fonts; \
+		$(INSTALL_DATA) $$font.pfa $(BUILDROOT)$(datadir)/htmldoc/fonts; \
 	done
-	$(CHMOD) ugo+r $(datadir)/htmldoc/fonts/*
 
 
 #
@@ -78,10 +75,10 @@ install:
 uninstall:
 	echo "Uninstalling font files from $(datadir)/htmldoc/fonts..."
 	for font in $(FONTS); do \
-		$(RM) $(datadir)/htmldoc/fonts/$$font.afm; \
-		$(RM) $(datadir)/htmldoc/fonts/$$font.pfa; \
+		$(RM) $(BUILDROOT)$(datadir)/htmldoc/fonts/$$font.afm; \
+		$(RM) $(BUILDROOT)$(datadir)/htmldoc/fonts/$$font.pfa; \
 	done
-	-$(RMDIR) $(datadir)/htmldoc/fonts
+	-$(RMDIR) $(BUILDROOT)$(datadir)/htmldoc/fonts
 
 
 #
