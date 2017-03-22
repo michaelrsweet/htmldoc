@@ -29,7 +29,8 @@ servers.  However, it does not support many things in "the modern web", such as:
   based on latin-based alphabets that read left-to-right.
 
 HTMLDOC is no longer in active development but *is* being maintained to address
-security, build, and formatting issues.
+security, build, and formatting issues, and to occasionally add the odd (simple)
+feature.
 
 
 # Resources
