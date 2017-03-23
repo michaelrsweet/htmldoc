@@ -1,20 +1,18 @@
 /*
- * "$Id$"
+ * Configuration file for HTMLDOC.
  *
- *   Configuration file for HTMLDOC.
+ * Copyright 2011-2017 by Michael R Sweet.
+ * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
- *   Copyright 2011 by Michael R Sweet.
- *   Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- *   This program is free software.  Distribution and use rights are outlined in
- *   the file "COPYING.txt".
+ * This program is free software.  Distribution and use rights are outlined in
+ * the file "COPYING".
  */
 
 /*
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.29"
+#define SVERSION	"1.8.30"
 
 
 /*
@@ -51,7 +49,7 @@
  */
 
 #ifndef _CONSOLE
-#  define HAVE_LIBFLTK
+#  define HAVE_LIBFLTK 1
 #endif /* !_CONSOLE */
 
 
@@ -59,84 +57,180 @@
  * Do we have the Xpm library?
  */
 
-#undef HAVE_LIBXPM
+/* #undef HAVE_LIBXPM */
 
 
 /*
  * Which encryption libraries do we have?
  */
 
-#undef HAVE_CDSASSL
-#undef HAVE_GNUTLS
-#undef HAVE_LIBSSL
-#define HAVE_SSPISSL
-#define HAVE_SSL
+/* #undef HAVE_CDSASSL */
+/* #undef HAVE_GNUTLS */
+#define HAVE_SSPISSL 1
+#define HAVE_SSL 1
+
+
+/*
+ * Do we have the gnutls_transport_set_pull_timeout_function function?
+ */
+
+/* #undef HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION */
+
+
+/*
+ * Do we have the gnutls_priority_set_direct function?
+ */
+
+/* #undef HAVE_GNUTLS_PRIORITY_SET_DIRECT */
+
+
+/*
+ * What Security framework headers do we have?
+ */
+
+/* #undef HAVE_AUTHORIZATION_H */
+/* #undef HAVE_SECBASEPRIV_H */
+/* #undef HAVE_SECCERTIFICATE_H */
+/* #undef HAVE_SECIDENTITYSEARCHPRIV_H */
+/* #undef HAVE_SECITEM_H */
+/* #undef HAVE_SECITEMPRIV_H */
+/* #undef HAVE_SECPOLICY_H */
+/* #undef HAVE_SECPOLICYPRIV_H */
+/* #undef HAVE_SECURETRANSPORTPRIV_H */
+
+
+/*
+ * Do we have the cssmErrorString function?
+ */
+
+/* #undef HAVE_CSSMERRORSTRING */
+
+
+/*
+ * Do we have the SecGenerateSelfSignedCertificate function?
+ */
+
+/* #undef HAVE_SECGENERATESELFSIGNEDCERTIFICATE */
+
+
+/*
+ * Do we have the SecKeychainOpen function?
+ */
+
+/* #undef HAVE_SECKEYCHAINOPEN */
+
+
+/*
+ * Do we have (a working) SSLSetEnabledCiphers function?
+ */
+
+/* #undef HAVE_SSLSETENABLEDCIPHERS */
 
 
 /*
  * Do we need to use <strings.h>?
  */
 
-#undef HAVE_STRINGS_H
+/* #undef HAVE_STRINGS_H */
 
 
 /*
  * Do we have the <locale.h> header file?
  */
 
-#define HAVE_LOCALE_H
+#define HAVE_LOCALE_H 1
 
 
 /*
  * Do we have some of the "standard" string functions?
  */
 
-#define HAVE_STRDUP
-#define HAVE_STRCASECMP
-#define HAVE_STRNCASECMP
+#define HAVE_STRDUP 1
+#define HAVE_STRCASECMP 1
+#define HAVE_STRNCASECMP 1
+/* #undef HAVE_STRLCAT */
+/* #undef HAVE_STRLCPY */
 
 
 /*
  * How about snprintf() and vsnprintf()?
  */
 
-#define HAVE_SNPRINTF
-#define HAVE_VSNPRINTF
+#define HAVE_SNPRINTF 1
+#define HAVE_VSNPRINTF 1
 
 
 /*
  * Does the "tm" structure contain the "tm_gmtoff" member?
  */
 
-#undef HAVE_TM_GMTOFF
+/* #undef HAVE_TM_GMTOFF */
+
+
+/*
+ * Which random number generator function to use...
+ */
+
+/* #undef HAVE_ARC4RANDOM */
+/* #undef HAVE_RANDOM */
+/* #undef HAVE_LRAND48 */
+
+#ifdef HAVE_ARC4RANDOM
+#  define HTMLDOC_RAND() arc4random()
+#  define HTMLDOC_SRAND(v)
+#elif defined(HAVE_RANDOM)
+#  define HTMLDOC_RAND() random()
+#  define HTMLDOC_SRAND(v) srandom(v)
+#elif defined(HAVE_LRAND48)
+#  define HTMLDOC_RAND() lrand48()
+#  define HTMLDOC_SRAND(v) srand48(v)
+#else
+#  define HTMLDOC_RAND() rand()
+#  define HTMLDOC_SRAND(v) srand(v)
+#endif /* HAVE_ARC4RANDOM */
 
 
 /*
  * Do we have hstrerror()?
  */
 
-#undef HAVE_HSTRERROR
+/* #undef HAVE_HSTRERROR */
 
 
 /*
  * Do we have getaddrinfo()?
  */
 
-#define HAVE_GETADDRINFO
+#define HAVE_GETADDRINFO 1
 
 
 /*
  * Do we have getnameinfo()?
  */
 
-#define HAVE_GETNAMEINFO
+#define HAVE_GETNAMEINFO 1
+
+
+/*
+ * Do we have the <resolv.h> header file and/or res_init()?
+ */
+
+/* #undef HAVE_RESOLV_H */
+/* #undef HAVE_RES_INIT */
+
+
+/*
+ * Do we have poll()?
+ */
+
+/* #undef HAVE_POLL */
 
 
 /*
  * Do we have the long long type?
  */
 
-#undef HAVE_LONG_LONG
+/* #undef HAVE_LONG_LONG */
 
 #ifdef HAVE_LONG_LONG
 #  define HTMLDOC_LLFMT		"%lld"
@@ -151,14 +245,8 @@
  * Do we have the strtoll() function?
  */
 
-#undef HAVE_STRTOLL
+/* #undef HAVE_STRTOLL */
 
 #ifndef HAVE_STRTOLL
 #  define strtoll(nptr,endptr,base) strtol((nptr), (endptr), (base))
 #endif /* !HAVE_STRTOLL */
-
-
-/*
- * End of "$Id$".
- */
-
