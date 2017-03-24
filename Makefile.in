@@ -83,5 +83,5 @@ dmg:
 	echo Signing HTMLDOC application bundle
 	codesign -s $(IDENTITY) htmldoc/htmldoc.app
 	echo Making disk image...
-        rm -f htmldoc-$(VERSION)-macos.dmg
-        hdiutil create -srcfolder htmldoc/htmldoc.app htmldoc-$(VERSION)-macos.dmg
+	rm -f htmldoc-$(VERSION)-macos.dmg
+	hdiutil create -srcfolder htmldoc/htmldoc.app htmldoc-$(VERSION)-macos.dmg
