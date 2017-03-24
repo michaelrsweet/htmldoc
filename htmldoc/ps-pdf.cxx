@@ -12732,7 +12732,7 @@ flate_write(FILE  *out,			/* I - Output file */
   if (compressor_active)
   {
     compressor.next_in  = buf;
-    compressor.avail_in = (uint)length;
+    compressor.avail_in = (unsigned)length;
 
     while (compressor.avail_in > 0)
     {

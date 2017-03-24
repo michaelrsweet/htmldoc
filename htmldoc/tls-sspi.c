@@ -136,7 +136,7 @@ httpCredentialsAreValidForName(
 
       char  *ptr = strrchr(cert_name, ',');
       if (ptr && ptr[1])
-        _cups_strcpy(cert_name, ptr + 2);
+        hd_strcpy(cert_name, ptr + 2);
     }
     else
       strlcpy(cert_name, "unknown", sizeof(cert_name));
@@ -188,7 +188,7 @@ httpCredentialsGetTrust(
   http_trust_t	trust = HTTP_TRUST_OK;	/* Level of trust */
   PCCERT_CONTEXT cert = NULL;		/* Certificate to validate */
   DWORD		certFlags = 0;		/* Cert verification flags */
-  _cups_globals_t *cg = _cupsGlobals();	/* Per-thread global data */
+//  _cups_globals_t *cg = _cupsGlobals();	/* Per-thread global data */
 
 
   if (!common_name)
@@ -198,16 +198,16 @@ httpCredentialsGetTrust(
   if (!cert)
     return (HTTP_TRUST_UNKNOWN);
 
-  if (cg->any_root < 0)
-    _cupsSetDefaults();
+//  if (cg->any_root < 0)
+//    _cupsSetDefaults();
 
-  if (cg->any_root)
+//  if (cg->any_root)
     certFlags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA;
 
-  if (cg->expired_certs)
+//  if (cg->expired_certs)
     certFlags |= SECURITY_FLAG_IGNORE_CERT_DATE_INVALID;
 
-  if (!cg->validate_certs)
+//  if (!cg->validate_certs)
     certFlags |= SECURITY_FLAG_IGNORE_CERT_CN_INVALID;
 
   if (http_sspi_verify(cert, common_name, certFlags) != SEC_E_OK)
@@ -311,7 +311,7 @@ httpCredentialsString(
 
       char  *ptr = strrchr(cert_name, ',');
       if (ptr && ptr[1])
-        _cups_strcpy(cert_name, ptr + 2);
+        hd_strcpy(cert_name, ptr + 2);
     }
     else
       strlcpy(cert_name, "unknown", sizeof(cert_name));
@@ -871,7 +871,8 @@ _httpTLSStart(http_t *http)		/* I - HTTP connection */
   if (tls_options < 0)
   {
     DEBUG_puts("4_httpTLSStart: Setting defaults.");
-    _cupsSetDefaults();
+//    _cupsSetDefaults();
+    tls_options = _HTTP_TLS_NONE;
     DEBUG_printf(("4_httpTLSStart: tls_options=%x", tls_options));
   }
 
