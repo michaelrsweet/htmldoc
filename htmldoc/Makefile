@@ -19,10 +19,30 @@ include ../Makedefs
 # Object files...
 #
 
-OBJS	=	array.o gui.o file.o html.o htmldoc.o htmllib.o htmlsep.o \
-		http.o http-addr.o http-addrlist.o http-support.o image.o \
-		iso8859.o license.o md5.o progress.o ps-pdf.o rc4.o \
-		snprintf.o string.o tls.o toc.o util.o
+OBJS	=	array.o \
+		gui.o \
+		epub.o \
+		file.o \
+		html.o \
+		htmldoc.o \
+		htmllib.o \
+		htmlsep.o \
+		http.o \
+		http-addr.o \
+		http-addrlist.o \
+		http-support.o \
+		image.o \
+		iso8859.o \
+		license.o \
+		md5.o \
+		progress.o \
+		ps-pdf.o \
+		rc4.o \
+		snprintf.o \
+		string.o \
+		tls.o \
+		toc.o \
+		util.o
 
 
 #
