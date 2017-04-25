@@ -35,6 +35,10 @@
 		27422F1110E7311E0095C134 /* jaricom.c in Sources */ = {isa = PBXBuildFile; fileRef = 27422F0E10E7311E0095C134 /* jaricom.c */; };
 		27422F1210E7311E0095C134 /* jcarith.c in Sources */ = {isa = PBXBuildFile; fileRef = 27422F0F10E7311E0095C134 /* jcarith.c */; };
 		27422F1310E7311E0095C134 /* jdarith.c in Sources */ = {isa = PBXBuildFile; fileRef = 27422F1010E7311E0095C134 /* jdarith.c */; };
+		2788A4CF1EAEF234007ED0E1 /* epub.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2788A4C81EAEF234007ED0E1 /* epub.cxx */; };
+		2788A4D01EAEF234007ED0E1 /* markdown.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2788A4C91EAEF234007ED0E1 /* markdown.cxx */; };
+		2788A4D11EAEF234007ED0E1 /* mmd.c in Sources */ = {isa = PBXBuildFile; fileRef = 2788A4CB1EAEF234007ED0E1 /* mmd.c */; };
+		2788A4D21EAEF234007ED0E1 /* zipc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2788A4CD1EAEF234007ED0E1 /* zipc.c */; };
 		27A9F6E818D527AC00804DE9 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6DB18D527AC00804DE9 /* file.c */; };
 		27A9F6E918D527AC00804DE9 /* htmlsep.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6DC18D527AC00804DE9 /* htmlsep.cxx */; };
 		27A9F6EA18D527AC00804DE9 /* http-addr.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6DD18D527AC00804DE9 /* http-addr.c */; };
@@ -352,6 +356,14 @@
 		27422F0E10E7311E0095C134 /* jaricom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jaricom.c; path = ../jpeg/jaricom.c; sourceTree = SOURCE_ROOT; };
 		27422F0F10E7311E0095C134 /* jcarith.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jcarith.c; path = ../jpeg/jcarith.c; sourceTree = SOURCE_ROOT; };
 		27422F1010E7311E0095C134 /* jdarith.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jdarith.c; path = ../jpeg/jdarith.c; sourceTree = SOURCE_ROOT; };
+		2788A4C71EAEF1B4007ED0E1 /* htmldoc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = htmldoc; sourceTree = BUILT_PRODUCTS_DIR; };
+		2788A4C81EAEF234007ED0E1 /* epub.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = epub.cxx; path = ../htmldoc/epub.cxx; sourceTree = "<group>"; };
+		2788A4C91EAEF234007ED0E1 /* markdown.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = markdown.cxx; path = ../htmldoc/markdown.cxx; sourceTree = "<group>"; };
+		2788A4CA1EAEF234007ED0E1 /* markdown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = markdown.h; path = ../htmldoc/markdown.h; sourceTree = "<group>"; };
+		2788A4CB1EAEF234007ED0E1 /* mmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mmd.c; path = ../htmldoc/mmd.c; sourceTree = "<group>"; };
+		2788A4CC1EAEF234007ED0E1 /* mmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mmd.h; path = ../htmldoc/mmd.h; sourceTree = "<group>"; };
+		2788A4CD1EAEF234007ED0E1 /* zipc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zipc.c; path = ../htmldoc/zipc.c; sourceTree = "<group>"; };
+		2788A4CE1EAEF234007ED0E1 /* zipc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zipc.h; path = ../htmldoc/zipc.h; sourceTree = "<group>"; };
 		27A9F6DB18D527AC00804DE9 /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file.c; path = ../htmldoc/file.c; sourceTree = "<group>"; };
 		27A9F6DC18D527AC00804DE9 /* htmlsep.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmlsep.cxx; path = ../htmldoc/htmlsep.cxx; sourceTree = "<group>"; };
 		27A9F6DD18D527AC00804DE9 /* http-addr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "http-addr.c"; path = "../htmldoc/http-addr.c"; sourceTree = "<group>"; };
@@ -544,7 +556,6 @@
 		27DD26E80EC0297800B76D4E /* koi8-r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "koi8-r"; path = "../data/koi8-r"; sourceTree = SOURCE_ROOT; };
 		27DD26E90EC0297800B76D4E /* prolog.ps */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = prolog.ps; path = ../data/prolog.ps; sourceTree = SOURCE_ROOT; };
 		27DD26EA0EC0297800B76D4E /* psglyphs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = psglyphs; path = ../data/psglyphs; sourceTree = SOURCE_ROOT; };
-		8DD76F6C0486A84900D96B5E /* htmldoc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = htmldoc; path = /Users/mike/c/htmldoc/xcode/build/Debug/htmldoc; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -602,6 +613,7 @@
 				27D5714D1C386EFF00D93F41 /* array.h */,
 				27DD25290EC019F500B76D4E /* config.h */,
 				27DD252A0EC01A3300B76D4E /* debug.h */,
+				2788A4C81EAEF234007ED0E1 /* epub.cxx */,
 				27A9F6DB18D527AC00804DE9 /* file.c */,
 				27DD252D0EC01A3300B76D4E /* file.h */,
 				27DD252E0EC01A3300B76D4E /* hdstring.h */,
@@ -623,8 +635,12 @@
 				27A9F6E218D527AC00804DE9 /* iso8859.cxx */,
 				27A9F6E318D527AC00804DE9 /* iso8859.h */,
 				27A9F6E418D527AC00804DE9 /* license.cxx */,
+				2788A4C91EAEF234007ED0E1 /* markdown.cxx */,
+				2788A4CA1EAEF234007ED0E1 /* markdown.h */,
 				27A9F6E518D527AC00804DE9 /* md5-private.h */,
 				27A9F6E618D527AC00804DE9 /* md5.c */,
+				2788A4CB1EAEF234007ED0E1 /* mmd.c */,
+				2788A4CC1EAEF234007ED0E1 /* mmd.h */,
 				27DD25420EC01A3300B76D4E /* progress.cxx */,
 				27DD25430EC01A3300B76D4E /* progress.h */,
 				27DD25440EC01A3300B76D4E /* ps-pdf.cxx */,
@@ -638,6 +654,8 @@
 				27DD254D0EC01A3300B76D4E /* toc.cxx */,
 				27DD254E0EC01A3300B76D4E /* types.h */,
 				27DD254F0EC01A3300B76D4E /* util.cxx */,
+				2788A4CD1EAEF234007ED0E1 /* zipc.c */,
+				2788A4CE1EAEF234007ED0E1 /* zipc.h */,
 			);
 			name = htmldoc;
 			sourceTree = "<group>";
@@ -777,6 +795,7 @@
 				27DD268C0EC028AC00B76D4E /* Times-Italic.pfa */,
 				27DD268D0EC028AC00B76D4E /* Times-Roman.afm */,
 				27DD268E0EC028AC00B76D4E /* Times-Roman.pfa */,
+				2788A4C71EAEF1B4007ED0E1 /* htmldoc */,
 			);
 			name = Fonts;
 			sourceTree = "<group>";
@@ -920,7 +939,7 @@
 			name = htmldoc;
 			productInstallPath = "$(HOME)/bin";
 			productName = htmldoc;
-			productReference = 8DD76F6C0486A84900D96B5E /* htmldoc */;
+			productReference = 2788A4C71EAEF1B4007ED0E1 /* htmldoc */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -1043,12 +1062,15 @@
 				27DD25540EC01A3300B76D4E /* htmllib.cxx in Sources */,
 				27DD255A0EC01A3300B76D4E /* image.cxx in Sources */,
 				27DD255E0EC01A3300B76D4E /* progress.cxx in Sources */,
+				2788A4D21EAEF234007ED0E1 /* zipc.c in Sources */,
 				27A9F6EE18D527AC00804DE9 /* iso8859.cxx in Sources */,
 				27D5714A1C3863E200D93F41 /* tls.c in Sources */,
 				27A9F6F018D527AC00804DE9 /* md5.c in Sources */,
 				27A9F6ED18D527AC00804DE9 /* http.c in Sources */,
 				27A9F6E818D527AC00804DE9 /* file.c in Sources */,
 				27DD255F0EC01A3300B76D4E /* ps-pdf.cxx in Sources */,
+				2788A4D01EAEF234007ED0E1 /* markdown.cxx in Sources */,
+				2788A4D11EAEF234007ED0E1 /* mmd.c in Sources */,
 				27DD25660EC01A3300B76D4E /* toc.cxx in Sources */,
 				27D5714E1C386EFF00D93F41 /* array.c in Sources */,
 				27A9F6EA18D527AC00804DE9 /* http-addr.c in Sources */,
@@ -1057,6 +1079,7 @@
 				27A9F6EF18D527AC00804DE9 /* license.cxx in Sources */,
 				27A9F6EC18D527AC00804DE9 /* http-support.c in Sources */,
 				27A9F6F118D527AC00804DE9 /* rc4.c in Sources */,
+				2788A4CF1EAEF234007ED0E1 /* epub.cxx in Sources */,
 				27A9F6EB18D527AC00804DE9 /* http-addrlist.c in Sources */,
 				27DD26460EC024FA00B76D4E /* string.c in Sources */,
 			);
