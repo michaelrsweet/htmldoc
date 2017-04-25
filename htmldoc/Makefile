@@ -35,6 +35,8 @@ OBJS	=	array.o \
 		iso8859.o \
 		license.o \
 		md5.o \
+		markdown.o \
+		mmd.o \
 		progress.o \
 		ps-pdf.o \
 		rc4.o \
@@ -42,7 +44,8 @@ OBJS	=	array.o \
 		string.o \
 		tls.o \
 		toc.o \
-		util.o
+		util.o \
+		zipc.o
 
 
 #
