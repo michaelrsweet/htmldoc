@@ -15,6 +15,7 @@
  */
 
 #  include "html.h"
+#  include "mmd.h"
 
 #  ifdef __cplusplus
 extern "C" {

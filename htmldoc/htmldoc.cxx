@@ -14,6 +14,7 @@
 
 #define _HTMLDOC_CXX_
 #include "htmldoc.h"
+#include "markdown.h"
 #include "http.h"
 #include <ctype.h>
 #include <fcntl.h>
@@ -1238,7 +1239,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   * Find the first one in the list...
   */
 
-  while (document->prev != NULL)
+  while (document && document->prev != NULL)
     document = document->prev;
 
   // Fix links...
@@ -2386,35 +2387,41 @@ read_file(const char *filename,		// I  - File/URL to read
 {
   FILE		*docfile;		// Document file
   tree_t	*file;			// HTML document file
-  const char	*realname;		// Real name of file
+  const char	*realname,		// Real name of file
+		*ext;			// Extension of filename
   char		base[1024];		// Base directory name of file
 
 
-  DEBUG_printf(("read_file(filename=\"%s\", document=%p, path=\"%s\")\n",
-                filename, (void *)document, path));
+  DEBUG_printf(("read_file(filename=\"%s\", document=%p, path=\"%s\")\n", filename, (void *)document, path));
 
   if ((realname = file_find(path, filename)) != NULL)
   {
     if ((docfile = fopen(realname, "rb")) != NULL)
     {
-     /*
-      * Read from a file...
-      */
-
+      // Prepare to read the file...
       if (Verbosity > 0)
         progress_error(HD_ERROR_NONE, "INFO: Reading %s...", filename);
 
       _htmlPPI = 72.0f * _htmlBrowserWidth / (PageWidth - PageLeft - PageRight);
 
       strlcpy(base, file_directory(filename), sizeof(base));
+      ext = file_extension(filename);
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
-      htmlSetVariable(file, (uchar *)"_HD_FILENAME",
-                      (uchar *)file_basename(filename));
+      htmlSetVariable(file, (uchar *)"_HD_FILENAME", (uchar *)file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
-      _htmlCurrentFile = filename;
-      htmlReadFile(file, docfile, base);
+      if (ext && !strcmp(ext, "md"))
+      {
+        // Read markdown from a file...
+        mdReadFile(file, docfile, base);
+      }
+      else
+      {
+        // Read HTML from a file...
+        _htmlCurrentFile = filename;
+        htmlReadFile(file, docfile, base);
+      }
 
       fclose(docfile);
 
@@ -2432,15 +2439,13 @@ read_file(const char *filename,		// I  - File/URL to read
     else
     {
       file = NULL;
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open \"%s\" for reading...", filename);
+      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open \"%s\" for reading...", filename);
     }
   }
   else
   {
     file = NULL;
-    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find \"%s\"...",
-                   filename);
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find \"%s\"...", filename);
   }
 
   return (file != NULL);

@@ -23,12 +23,4 @@ mdReadFile(tree_t     *parent,		/* I - Parent node */
            FILE       *fp,		/* I - File to read from */
            const char *base)		/* I - Base path/URL */
 {
-  tree_t	*mdblock,		/* Current block element */
-		*mdinline,		/* Current inline element */
-		*lists[8];		/* Current list elements */
-  int		num_lists = 0;		/* Number of list elements */
-  char		line[65536],		/* Line from file */
-		*lineptr;		/* Pointer into line */
-
-
 }
