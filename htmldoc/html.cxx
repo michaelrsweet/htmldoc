@@ -1,7 +1,7 @@
 /*
  * HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2013 by Michael R Sweet.
+ * Copyright 2011-2017 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -263,8 +263,7 @@ write_header(FILE   **out,	/* IO - Output file */
 
   if (newfile)
   {
-    fputs("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "
-          "\"http://www.w3.org/TR/REC-html40/loose.dtd\">\n", *out);
+    fputs("<!DOCTYPE html>\n", *out);
     fputs("<HTML>\n", *out);
     fputs("<HEAD>\n", *out);
     if (title != NULL)
@@ -275,7 +274,7 @@ write_header(FILE   **out,	/* IO - Output file */
       fprintf(*out, "<META NAME=\"copyright\" CONTENT=\"%s\">\n", copyright);
     if (docnumber != NULL)
       fprintf(*out, "<META NAME=\"docnumber\" CONTENT=\"%s\">\n", docnumber);
-    fprintf(*out, "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; CHARSET=iso-%s\">\n",
+    fprintf(*out, "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; CHARSET=%s\">\n",
             _htmlCharSet);
 
     if (OutputFiles)
