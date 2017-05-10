@@ -1114,6 +1114,7 @@
 		1DEB923208733DC60010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = RU58A2256H;
@@ -1131,6 +1132,7 @@
 		1DEB923308733DC60010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = RU58A2256H;
@@ -1251,6 +1253,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				PREBINDING = NO;
 				PRODUCT_NAME = jpeg;
+				RUN_CLANG_STATIC_ANALYZER = NO;
 				ZERO_LINK = YES;
 			};
 			name = Debug;
@@ -1269,6 +1272,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				PREBINDING = NO;
 				PRODUCT_NAME = jpeg;
+				RUN_CLANG_STATIC_ANALYZER = NO;
 				ZERO_LINK = NO;
 			};
 			name = Release;

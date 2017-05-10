@@ -356,17 +356,17 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
 		code,			/* Current code */
 		incode;			/* Input code */
   static short	fresh = 0,		/* 1 = empty buffers */
-		code_size,		/* Current code size */
-		set_code_size,		/* Initial code size set */
-		max_code,		/* Maximum code used */
-		max_code_size,		/* Maximum code size */
-		firstcode,		/* First code read */
-		oldcode,		/* Last code read */
-		clear_code,		/* Clear code for LZW input */
-		end_code,		/* End code for LZW input */
+		code_size = 0,		/* Current code size */
+		set_code_size = 0,	/* Initial code size set */
+		max_code = 0,		/* Maximum code used */
+		max_code_size = 0,	/* Maximum code size */
+		firstcode = 0,		/* First code read */
+		oldcode = 0,		/* Last code read */
+		clear_code = 0,		/* Clear code for LZW input */
+		end_code = 0,		/* End code for LZW input */
 		table[2][4096],		/* String table */
 		stack[8192],		/* Output stack */
-		*sp;			/* Current stack pointer */
+		*sp = stack;		/* Current stack pointer */
 
 
   if (first_time)

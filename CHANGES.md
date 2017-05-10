@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9
+
+- Added Markdown support (Issue #302)
+
+
 # Changes in HTMLDOC v1.8.30
 
 - Updated documentation to reflect new project page on Github.
