@@ -1,7 +1,8 @@
 # Introduction
 
-HTMLDOC is a program that reads HTML source files or web pages and generates
-corresponding HTML, PostScript, or PDF files with an optional table of contents.
+HTMLDOC is a program that reads HTML and Markdown source files or web pages and
+generates corresponding HTML, PostScript, or PDF files with an optional table of
+contents.
 
 HTMLDOC was developed in the 1990's as a documentation generator for my previous
 company, and has since seen a lot of usage as a report generator embedded in web
@@ -48,9 +49,9 @@ Note: Complete documentation for HTMLDOC is available in the "doc" subdirectory.
 The following provides basic information on using HTMLDOC at the command-line
 and does not discuss the GUI or web server functionality.
 
-HTMLDOC accepts a list of HTML "source" files and will generate HTML,
-PostScript, or PDF output via command-line options.  A summary of command-line
-options can be shown with the "--help" option:
+HTMLDOC accepts a list of HTML and/or Markdown "source" files and will generate
+HTML, PostScript, or PDF output via command-line options.  A summary of
+command-line options can be shown with the "--help" option:
 
     htmldoc --help
 

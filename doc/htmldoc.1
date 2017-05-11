@@ -6,33 +6,34 @@ NNAAMMEE
        htmldoc - convert html source files into html, postscript, or pdf.
 
 SSYYNNOOPPSSIISS
-       htmldoc [options] filename1.html [ ... filenameN.html ]
+       htmldoc [options] filename1.{html,md} [ ... filenameN.{html,md} ]
 
        htmldoc [options] -
 
        htmldoc [filename.book]
 
 DDEESSCCRRIIPPTTIIOONN
-       HHttmmllddoocc(1) converts HTML source files into indexed HTML, PostScript, or
-       Portable Document Format (PDF) files  that  can  be  viewed  online  or
-       printed.  With no options a HTML document is produced on stdout.
+       HHttmmllddoocc(1)  converts  HTML and Markdown source files into indexed HTML,
+       PostScript, or Portable Document Format (PDF) files that can be  viewed
+       online or printed.  With no options a HTML document is produced on std-
+       out.
 
-       The  second  form of hhttmmllddoocc reads HTML source from stdin, which allows
+       The second form of hhttmmllddoocc reads HTML source from stdin,  which  allows
        you to use hhttmmllddoocc as a filter.
 
-       The third form of hhttmmllddoocc launches a graphical  interface  that  allows
+       The  third  form  of hhttmmllddoocc launches a graphical interface that allows
        you to change options and generate documents interactively.
 
 CCOOMMMMOONN MMIISSTTAAKKEESS
        There are two types of HTML files - structured documents using headings
-       (H1, H2, etc.) which hhttmmllddoocc calls "books", and unstructured  documents
+       (H1,  H2, etc.) which hhttmmllddoocc calls "books", and unstructured documents
        that do not use headings which hhttmmllddoocc calls "web pages".
 
        A very common mistake is to try converting a web page using:
            htmldoc -f filename.pdf filename.html
-       which  will  likely  produce  a PDF file with no pages.  To convert web
-       page files you mmuusstt use the _-_-_w_e_b_p_a_g_e or _-_-_c_o_n_t_i_n_u_o_u_s  options  at  the
-       command-line  or  choose _W_e_b _P_a_g_e or _C_o_n_t_i_n_u_o_u_s in the input tab of the
+       which will likely produce a PDF file with no  pages.   To  convert  web
+       page  files  you  mmuusstt use the _-_-_w_e_b_p_a_g_e or _-_-_c_o_n_t_i_n_u_o_u_s options at the
+       command-line or choose _W_e_b _P_a_g_e or _C_o_n_t_i_n_u_o_u_s in the input tab  of  the
        GUI.
 
 OOPPTTIIOONNSS
@@ -53,11 +54,11 @@ OOPPTTIIOONNSS
             Specifies the background image that is tiled on all pages.
 
        ----bbooookk
-            Specifies that the HTML sources are  structured  (headings,  chap-
+            Specifies  that  the  HTML sources are structured (headings, chap-
             ters, etc.)
 
        ----bboottttoomm _m_a_r_g_i_n
-            Specifies  the bottom margin in points (no suffix or ##pt), inches
+            Specifies the bottom margin in points (no suffix or ##pt),  inches
             (##in), centimeters (##cm), or millimeters (##mm).
 
        ----cchhaarrsseett _{_c_p_-_n_n_n_n_,_i_s_o_-_8_8_5_9_-_1_,_._._._,_i_s_o_-_8_8_5_9_-_1_5_}
@@ -67,20 +68,20 @@ OOPPTTIIOONNSS
             Specifies that PostScript or PDF output should be in color.
 
        ----ccoonnttiinnuuoouuss
-            Specifies that  the  HTML  sources  are  unstructured  (plain  web
-            pages.)  No  page  breaks are inserted between each file or URL in
+            Specifies  that  the  HTML  sources  are  unstructured  (plain web
+            pages.) No page breaks are inserted between each file  or  URL  in
             the output.
 
        ----ddaattaaddiirr _d_i_r_e_c_t_o_r_y
-            Specifies  the  location  of  the  hhttmmllddoocc  data  files,   usually
+            Specifies   the  location  of  the  hhttmmllddoocc  data  files,  usually
             _/_u_s_r_/_s_h_a_r_e_/_h_t_m_l_d_o_c or _C_:_/_P_r_o_g_r_a_m _F_i_l_e_s_/_H_T_M_L_D_O_C_.
 
        ----dduupplleexx
-            Specifies  that  the  output  should be formatted for double-sided
+            Specifies that the output should  be  formatted  for  double-sided
             printing.
 
        ----eeffffeeccttdduurraattiioonn _{_0_._1_._._._1_0_._0_}
-            Specifies the duration in seconds of PDF page transition  effects.
+            Specifies  the duration in seconds of PDF page transition effects.
 
        ----eemmbbeeddffoonnttss
             Specifies that fonts should be embedded in PDF and PostScript out-
@@ -94,7 +95,7 @@ OOPPTTIIOONNSS
 
        ----ffoonnttssppaacciinngg _s_p_a_c_i_n_g
             Specifies the default line spacing for body text. The line spacing
-            is  a multiplier for the font size, so a value of 1.2 will provide
+            is a multiplier for the font size, so a value of 1.2 will  provide
             an additional 20% of space between the lines.
 
        ----ffooootteerr _f_f_f
@@ -104,10 +105,10 @@ OOPPTTIIOONNSS
        ----ffoorrmmaatt _f_o_r_m_a_t
 
        --tt _f_o_r_m_a_t
-            Specifies  the  output  format: html, htmlsep (separate HTML files
-            for each heading in the table-of-contents), ps or ps2  (PostScript
-            Level  2),  ps1  (PostScript  Level  1), ps3 (PostScript Level 3),
-            pdf11 (PDF 1.1/Acrobat 2.0), pdf12 (PDF 1.2/Acrobat 3.0),  pdf  or
+            Specifies the output format: html, htmlsep  (separate  HTML  files
+            for  each heading in the table-of-contents), ps or ps2 (PostScript
+            Level 2), ps1 (PostScript Level  1),  ps3  (PostScript  Level  3),
+            pdf11  (PDF  1.1/Acrobat 2.0), pdf12 (PDF 1.2/Acrobat 3.0), pdf or
             pdf13 (PDF 1.3/Acrobat 4.0), or pdf14 (PDF 1.4/Acrobat 5.0).
 
        ----ggrraayy
@@ -118,7 +119,7 @@ OOPPTTIIOONNSS
             FFOORRMMAATTSS section below.
 
        ----hheeaaddeerr11 _f_f_f
-            Sets the page header to use on the first  body/chapter  page.  See
+            Sets  the  page  header to use on the first body/chapter page. See
             the HHEEAADDEERRSS//FFOOOOTTEERRSS FFOORRMMAATTSS section below.
 
        ----hheeaaddffoooottffoonntt _f_o_n_t
@@ -134,15 +135,15 @@ OOPPTTIIOONNSS
             Displays a summary of command-line options.
 
        ----hheellppddiirr _d_i_r_e_c_t_o_r_y
-            Specifies  the  location of the hhttmmllddoocc online help files, usually
+            Specifies the location of the hhttmmllddoocc online help  files,  usually
             _/_u_s_r_/_s_h_a_r_e_/_d_o_c_/_h_t_m_l_d_o_c or _C_:_/_P_r_o_g_r_a_m _F_i_l_e_s_/_H_T_M_L_D_O_C_/_D_O_C_.
 
        ----jjppeegg_[_=_q_u_a_l_i_t_y_]
-            Sets the JPEG compression level to use for large images.  A  value
+            Sets  the  JPEG compression level to use for large images. A value
             of 0 disables JPEG compression.
 
        ----lleefftt _m_a_r_g_i_n
-            Specifies  the  left  margin in points (no suffix or ##pt), inches
+            Specifies the left margin in points (no suffix  or  ##pt),  inches
             (##in), centimeters (##cm), or millimeters (##mm).
 
        ----lliinnkkccoolloorr _c_o_l_o_r
@@ -156,11 +157,11 @@ OOPPTTIIOONNSS
 
        ----llooggooiimmaaggee _f_i_l_e_n_a_m_e
             Specifies an image to be used as a logo in the header or footer in
-            a  PostScript or PDF document, and in the navigation bar of a HTML
+            a PostScript or PDF document, and in the navigation bar of a  HTML
             document.
 
             Note that you need to use the _-_-_h_e_a_d_e_r_, _-_-_h_e_a_d_e_r_1_, and/or _-_-_f_o_o_t_e_r
-            options  with  the  _l parameter or use the corresponding HTML page
+            options with the _l parameter or use the  corresponding  HTML  page
             comments to display the logo image inthe header or footer.
 
        ----nnoo--ccoommpprreessssiioonn
@@ -170,7 +171,7 @@ OOPPTTIIOONNSS
             Disables double-sided printing.
 
        ----nnoo--eemmbbeeddffoonnttss
-            Specifies that fonts should not be embedded in PDF and  PostScript
+            Specifies  that fonts should not be embedded in PDF and PostScript
             output.
 
        ----nnoo--eennccrryyppttiioonn
@@ -201,13 +202,13 @@ OOPPTTIIOONNSS
             Numbers all headings in a document.
 
        ----nnuupp _p_a_g_e_s
-            Sets  the  number  of  pages  that are placed on each output page.
+            Sets the number of pages that are  placed  on  each  output  page.
             Valid values are 1, 2, 4, 6, 9, and 16.
 
        ----oouuttddiirr _d_i_r_e_c_t_o_r_y
 
        --dd _d_i_r_e_c_t_o_r_y
-            Specifies that output should be sent to a  directory  in  multiple
+            Specifies  that  output  should be sent to a directory in multiple
             files. (Not compatible with PDF output)
 
        ----oouuttffiillee _f_i_l_e_n_a_m_e
@@ -235,31 +236,31 @@ OOPPTTIIOONNSS
             Specifies a search path for files in a document.
 
        ----ppeerrmmiissssiioonnss _p_e_r_m_i_s_s_i_o_n_[_,_p_e_r_m_i_s_s_i_o_n_,_._._._]
-            Specifies document permissions for encrypted PDF files.  The  fol-
-            lowing  permissions  are understood: all, none, annotate, no-anno-
+            Specifies  document  permissions for encrypted PDF files. The fol-
+            lowing permissions are understood: all, none,  annotate,  no-anno-
             tate, copy, no-copy, modify, no-modify, print, and no-print. Sepa-
             rate multiple permissions with commas.
 
        ----ppssccoommmmaannddss
-            Specifies   that   PostScript  setpagedevice  commands  should  be
+            Specifies  that  PostScript  setpagedevice  commands   should   be
             included in the output.
 
        ----qquuiieett
             Suppresses all messages, even error messages.
 
        ----rreeffeerreerr _u_r_l
-            Specifies the URL that is passed in the  Referer:  field  of  HTTP
+            Specifies  the  URL  that  is passed in the Referer: field of HTTP
             requests.
 
        ----rriigghhtt _m_a_r_g_i_n
-            Specifies  the  right margin in points (no suffix or ##pt), inches
+            Specifies the right margin in points (no suffix or  ##pt),  inches
             (##in), centimeters (##cm), or millimeters (##mm).
 
        ----ssiizzee _p_a_g_e_s_i_z_e
-            Specifies the page size using a standard name  or  in  points  (no
-            suffix  or  ##x##pt),  inches (##x##in), centimeters (##x##cm), or
-            millimeters (##x##mm). The standard sizes that are currently  rec-
-            ognized   are   "letter"   (8.5x11in),  "legal"  (8.5x14in),  "a4"
+            Specifies  the  page  size  using a standard name or in points (no
+            suffix or ##x##pt), inches (##x##in),  centimeters  (##x##cm),  or
+            millimeters  (##x##mm). The standard sizes that are currently rec-
+            ognized  are  "letter"  (8.5x11in),   "legal"   (8.5x14in),   "a4"
             (210x297mm), and "universal" (8.27x11in).
 
        ----ssttrriicctt
@@ -274,16 +275,16 @@ OOPPTTIIOONNSS
        ----ttiittlleeffiillee _f_i_l_e_n_a_m_e
 
        ----ttiittlleeiimmaaggee _f_i_l_e_n_a_m_e
-            Specifies the file to use for the title page. If the  file  is  an
-            image  then  the  title  page is automatically generated using the
+            Specifies  the  file  to use for the title page. If the file is an
+            image then the title page is  automatically  generated  using  the
             document meta data and title image.
 
        ----ttooccffooootteerr _f_f_f
-            Sets the page footer to use on table-of-contents  pages.  See  the
+            Sets  the  page  footer to use on table-of-contents pages. See the
             HHEEAADDEERRSS//FFOOOOTTEERRSS FFOORRMMAATTSS section below.
 
        ----ttoocchheeaaddeerr _f_f_f
-            Sets  the  page  header to use on table-of-contents pages. See the
+            Sets the page header to use on table-of-contents  pages.  See  the
             HHEEAADDEERRSS//FFOOOOTTEERRSS FFOORRMMAATTSS section below.
 
        ----ttoocclleevveellss _l_e_v_e_l_s
@@ -293,7 +294,7 @@ OOPPTTIIOONNSS
             Sets the title for the table-of-contents.
 
        ----ttoopp _m_a_r_g_i_n
-            Specifies the top margin in points (no  suffix  or  ##pt),  inches
+            Specifies  the  top  margin  in points (no suffix or ##pt), inches
             (##in), centimeters (##cm), or millimeters (##mm).
 
        ----uusseerr--ppaasssswwoorrdd _p_a_s_s_w_o_r_d
@@ -307,18 +308,18 @@ OOPPTTIIOONNSS
             Displays the current version number.
 
        ----wweebbppaaggee
-            Specifies  that  the  HTML  sources  are  unstructured  (plain web
-            pages.) A page break is inserted between each file or URL  in  the
+            Specifies that  the  HTML  sources  are  unstructured  (plain  web
+            pages.)  A  page break is inserted between each file or URL in the
             output.
 
 EEXXIITT SSTTAATTUUSS
-       HHttmmllddoocc  returns  a  non-zero  exit status if any errors are seen, zero
+       HHttmmllddoocc returns a non-zero exit status if any  errors  are  seen,  zero
        otherwise.
 
 HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
        The header and footer of each page can contain up to three preformatted
-       values.  These  values  are  specified using a single character for the
-       left, middle, and right of the page,  resulting  in  the  _f_f_f  notation
+       values. These values are specified using a  single  character  for  the
+       left,  middle,  and  right  of  the page, resulting in the _f_f_f notation
        shown previously.
 
        Each character can be one of the following:
@@ -357,29 +358,29 @@ HHEEAADDEERR//FFOOOOTTEERR FFOORRMMAATTSS
 
 
 EENNVVIIRROONNMMEENNTT
-       HTMLDOC  looks for several environment variables which can override the
+       HTMLDOC looks for several environment variables which can override  the
        default directories, display additional debugging information, and dis-
        able CGI mode:
 
        HHTTMMLLDDOOCC__DDAATTAA
             This environment variable specifies the location of hhttmmllddoocc's data
-            and fonts directories, normally /usr/share/htmldoc  or  C:/Program
+            and  fonts  directories, normally /usr/share/htmldoc or C:/Program
             Files/Easy Software Products/HTMLDOC.
 
        HHTTMMLLDDOOCC__DDEEBBUUGG
-            This  environment  variable  enables debugging information that is
-            sent to stderr. The value is a list of any of the  following  key-
-            words  separated  by  spaces:  "all",  "links", "memory", "remote-
+            This environment variable enables debugging  information  that  is
+            sent  to  stderr. The value is a list of any of the following key-
+            words separated by  spaces:  "all",  "links",  "memory",  "remote-
             bytes", "table", "tempfiles", and/or "timing".
 
        HHTTMMLLDDOOCC__HHEELLPP
             This environment variable specifies the location of hhttmmllddoocc's doc-
-            umentation  directory,  normally /usr/share/doc/htmldoc or C:/Pro-
+            umentation directory, normally /usr/share/doc/htmldoc  or  C:/Pro-
             gram Files/Easy Software Products/HTMLDOC/doc.
 
        HHTTMMLLDDOOCC__NNOOCCGGII
-            This environment variable, when set (the  value  doesn't  matter),
-            disables  CGI  mode.  It is most useful for using hhttmmllddoocc on a web
+            This  environment  variable,  when set (the value doesn't matter),
+            disables CGI mode. It is most useful for using hhttmmllddoocc  on  a  web
             server from a scripting language or invocation from a program.
 
 EEXXAAMMPPLLEESS
@@ -397,10 +398,11 @@ AAUUTTHHOORR
        Michael R Sweet
 
 LLEEGGAALL SSTTUUFFFF
-       HTMLDOC is copyright 1997-2017 by Michael R  Sweet.   This  program  is
-       free software; you can redistribute it and/or modify it under the terms
-       of the GNU General Public License version 2 as published  by  the  Free
-       Software Foundation.
+       HTMLDOC is copyright (C) 1997-2017 by Michael R Sweet.
+
+       This program is free software; you can redistribute it and/or modify it
+       under the terms of the GNU General Public License  version  2  as  pub-
+       lished by the Free Software Foundation.
 
        This  program  is  distributed  in the hope that it will be useful, but
        WITHOUT ANY  WARRANTY;  without  even  the  implied  warranty  of  MER-
@@ -413,4 +415,4 @@ LLEEGGAALL SSTTUUFFFF
 
 
 
-19 March 2017                   HTMLDOC 1.8.30                      htmldoc(1)
+10 May 2017                       HTMLDOC 1.9                       htmldoc(1)

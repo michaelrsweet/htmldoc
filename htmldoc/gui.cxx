@@ -9,6 +9,7 @@
 //
 
 #include "htmldoc.h"
+#include "markdown.h"
 
 #ifdef HAVE_LIBFLTK
 
@@ -2747,9 +2748,9 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
 
   REF(w);
 
-  gui->fc->filter("WWW Files (*.{htm,html,shtml,book})");
+  gui->fc->filter("WWW Files (*.{htm,html,md,shtml,book})");
   gui->fc->type(Fl_File_Chooser::MULTI);
-  gui->fc->label("Add HTML Files?");
+  gui->fc->label("Add Input Files");
   gui->fc->show();
   while (gui->fc->shown())
     Fl::wait();
@@ -3943,7 +3944,8 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
   tree_t	*document,	// Master HTML document
 		*file,		// HTML document file
 		*toc;		// Table of contents
-  const char	*filename;	// HTML filename
+  const char	*filename,	// HTML filename
+		*ext;		// Extension of filename
   char		base[1024],	// Base directory of HTML file
 		bookbase[1024];	// Base directory of book file
 
@@ -4027,14 +4029,24 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       gui->progress(100 * i / count, temp);
 
       strlcpy(base, file_directory(gui->inputFiles->text(i)), sizeof(base));
+      ext = file_extension(filename);
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
       htmlSetVariable(file, (uchar *)"_HD_FILENAME",
                       (uchar *)file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
-      _htmlCurrentFile = gui->inputFiles->text(i);
-      htmlReadFile(file, docfile, base);
+      if (ext && !strcmp(ext, "md"))
+      {
+        // Read markdown from a file...
+        mdReadFile(file, docfile, base);
+      }
+      else
+      {
+        // Read HTML from a file...
+        _htmlCurrentFile = gui->inputFiles->text(i);
+        htmlReadFile(file, docfile, base);
+      }
 
       fclose(docfile);
 
@@ -4066,7 +4078,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
   if (document == NULL)
     progress_error(HD_ERROR_NO_FILES,
-                   "No HTML files to format, cannot generate document!");
+                   "No input files to format, cannot generate document.");
   else
   {
    /*
