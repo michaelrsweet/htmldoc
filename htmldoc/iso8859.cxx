@@ -2,7 +2,7 @@
  * ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  * processing program.
  *
- * Copyright 2011 by Michael R Sweet.
+ * Copyright 2011-2017 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -434,6 +434,73 @@ iso8859(uchar value)	/* I - ISO-8859-1 equivalent */
     sprintf((char *)buf, "&%s;", iso8859_names[value]->name);
 
   return (buf);
+}
+
+
+/*
+ * 'xhtml_entity()' - Return the UTF-8 character or XHTML entity.
+ */
+
+const uchar *                           /* O - XHTML string */
+xhtml_entity(uchar ch)                  /* I - Character */
+{
+  static uchar	buf[5];                 /* UTF-8 character buffer */
+
+
+  if (ch == '&')
+    return ((uchar *)"&amp;");
+  else if (ch == '<')
+    return ((uchar *)"&lt;");
+  else if (ch == '>')
+    return ((uchar *)"&gt;");
+  else if (ch == '\"')
+    return ((uchar *)"&quot;");
+  else if (ch >= ' ' && ch < 0x7f)
+  {
+    // US ASCII
+    buf[0] = ch;
+    buf[1] = '\0';
+
+    return (buf);
+  }
+  else
+  {
+    // Unicode -> UTF-8
+    int unich = _htmlUnicode[ch];
+
+    if (unich < 0x80)
+    {
+      // 1-byte US ASCII
+      buf[0] = (uchar)unich;
+      buf[1] = '\0';
+    }
+    else if (unich < 0x800)
+    {
+      // 2-byte UTF-8
+      buf[0] = (uchar)(0xc0 | (unich >> 6));
+      buf[1] = (uchar)(0x80 | (unich & 0x3f));
+      buf[2] = '\0';
+    }
+    else if (unich < 0x10000)
+    {
+      // 3-byte UTF-8
+      buf[0] = (uchar)(0xe0 | (unich >> 12));
+      buf[1] = (uchar)(0x80 | ((unich >> 6) & 0x3f));
+      buf[2] = (uchar)(0x80 | (unich & 0x3f));
+      buf[3] = '\0';
+    }
+    else
+    {
+      // 4-byte UTF-8
+      buf[0] = (uchar)(0xf0 | (unich >> 18));
+      buf[1] = (uchar)(0x80 | ((unich >> 12) & 0x3f));
+      buf[2] = (uchar)(0x80 | ((unich >> 6) & 0x3f));
+      buf[3] = (uchar)(0x80 | (unich & 0x3f));
+      buf[4] = '\0';
+    }
+
+    return (buf);
+  }
 }
 
 

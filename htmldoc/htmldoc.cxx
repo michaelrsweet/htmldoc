@@ -459,22 +459,12 @@ main(int  argc,				/* I - Number of command-line arguments */
       i ++;
       if (i < argc)
       {
-        if (strcasecmp(argv[i], "ps1") == 0)
-        {
-	  exportfunc = (exportfunc_t)pspdf_export;
-	  PSLevel    = 1;
-	}
-        else if (strcasecmp(argv[i], "ps2") == 0 ||
-                 strcasecmp(argv[i], "ps") == 0)
-        {
-	  exportfunc = (exportfunc_t)pspdf_export;
-	  PSLevel    = 2;
-	}
-        else if (strcasecmp(argv[i], "ps3") == 0)
-        {
-	  exportfunc = (exportfunc_t)pspdf_export;
-	  PSLevel    = 3;
-	}
+        if (strcasecmp(argv[i], "epub") == 0)
+	  exportfunc = (exportfunc_t)epub_export;
+        else if (strcasecmp(argv[i], "html") == 0)
+          exportfunc = (exportfunc_t)html_export;
+        else if (strcasecmp(argv[i], "htmlsep") == 0)
+          exportfunc = (exportfunc_t)htmlsep_export;
         else if (strcasecmp(argv[i], "pdf14") == 0 ||
 	         strcasecmp(argv[i], "pdf") == 0)
 	{
@@ -501,10 +491,22 @@ main(int  argc,				/* I - Number of command-line arguments */
 	  PDFVersion  = 11;
 	  Compression = 0;
 	}
-        else if (strcasecmp(argv[i], "html") == 0)
-          exportfunc = (exportfunc_t)html_export;
-        else if (strcasecmp(argv[i], "htmlsep") == 0)
-          exportfunc = (exportfunc_t)htmlsep_export;
+        else if (strcasecmp(argv[i], "ps1") == 0)
+        {
+	  exportfunc = (exportfunc_t)pspdf_export;
+	  PSLevel    = 1;
+	}
+        else if (strcasecmp(argv[i], "ps2") == 0 ||
+                 strcasecmp(argv[i], "ps") == 0)
+        {
+	  exportfunc = (exportfunc_t)pspdf_export;
+	  PSLevel    = 2;
+	}
+        else if (strcasecmp(argv[i], "ps3") == 0)
+        {
+	  exportfunc = (exportfunc_t)pspdf_export;
+	  PSLevel    = 3;
+	}
 	else
 	  usage(argv[i - 1]);
       }
@@ -861,20 +863,22 @@ main(int  argc,				/* I - Number of command-line arguments */
 
         if ((extension = file_extension(argv[i])) != NULL)
         {
-          if (strcasecmp(extension, "ps") == 0)
+          if (strcasecmp(extension, "epub") == 0)
+            exportfunc = (exportfunc_t)epub_export;
+	  else if (strcasecmp(extension, "html") == 0)
+            exportfunc = (exportfunc_t)html_export;
+          else if (strcasecmp(extension, "pdf") == 0)
+	  {
+            exportfunc = (exportfunc_t)pspdf_export;
+	    PSLevel    = 0;
+          }
+          else if (strcasecmp(extension, "ps") == 0)
           {
 	    exportfunc = (exportfunc_t)pspdf_export;
 
 	    if (PSLevel == 0)
 	      PSLevel = 2;
 	  }
-          else if (strcasecmp(extension, "pdf") == 0)
-	  {
-            exportfunc = (exportfunc_t)pspdf_export;
-	    PSLevel    = 0;
-          }
-	  else if (strcasecmp(extension, "html") == 0)
-            exportfunc = (exportfunc_t)html_export;
         }
       }
       else
@@ -2024,26 +2028,12 @@ parse_options(const char   *line,	// I - Options from book file
 
     if (strcmp(temp, "-t") == 0 && !CGIMode)
     {
-      if (strcmp(temp2, "html") == 0)
+      if (strcmp(temp2, "epub") == 0)
+        *exportfunc = (exportfunc_t)epub_export;
+      else if (strcmp(temp2, "html") == 0)
         *exportfunc = (exportfunc_t)html_export;
       else if (strcmp(temp2, "htmlsep") == 0)
         *exportfunc = (exportfunc_t)htmlsep_export;
-      else if (strcmp(temp2, "ps1") == 0)
-      {
-        *exportfunc = (exportfunc_t)pspdf_export;
-	PSLevel     = 1;
-      }
-      else if (strcmp(temp2, "ps") == 0 ||
-               strcmp(temp2, "ps2") == 0)
-      {
-        *exportfunc = (exportfunc_t)pspdf_export;
-	PSLevel     = 2;
-      }
-      else if (strcmp(temp2, "ps3") == 0)
-      {
-        *exportfunc = (exportfunc_t)pspdf_export;
-	PSLevel     = 3;
-      }
       else if (strcmp(temp2, "pdf11") == 0)
       {
         *exportfunc = (exportfunc_t)pspdf_export;
@@ -2068,6 +2058,22 @@ parse_options(const char   *line,	// I - Options from book file
         *exportfunc = (exportfunc_t)pspdf_export;
 	PSLevel     = 0;
 	PDFVersion  = 14;
+      }
+      else if (strcmp(temp2, "ps1") == 0)
+      {
+        *exportfunc = (exportfunc_t)pspdf_export;
+	PSLevel     = 1;
+      }
+      else if (strcmp(temp2, "ps") == 0 ||
+               strcmp(temp2, "ps2") == 0)
+      {
+        *exportfunc = (exportfunc_t)pspdf_export;
+	PSLevel     = 2;
+      }
+      else if (strcmp(temp2, "ps3") == 0)
+      {
+        *exportfunc = (exportfunc_t)pspdf_export;
+	PSLevel     = 3;
       }
     }
     else if (strcmp(temp, "--logo") == 0 ||
@@ -2592,7 +2598,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --fontsize {4.0..24.0}");
     puts("  --fontspacing {1.0..3.0}");
     puts("  --footer fff");
-    puts("  {--format, -t} {ps1,ps2,ps3,pdf11,pdf12,pdf13,pdf14,html,htmlsep}");
+    puts("  {--format, -t} {epub,html,htmlsep,pdf11,pdf12,pdf13,pdf14,ps1,ps2,ps3}");
     puts("  --gray");
     puts("  --header fff");
     puts("  --header1 fff");
@@ -2632,7 +2638,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --numbered");
     puts("  --nup {1,2,4,6,9,16}");
     puts("  {--outdir, -d} dirname");
-    puts("  {--outfile, -f} filename.{ps,pdf,html}");
+    puts("  {--outfile, -f} filename.{epub,html,pdf,ps}");
     puts("  --overflow");
     puts("  --owner-password password");
     puts("  --pageduration {1.0..60.0}");

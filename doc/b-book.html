@@ -16,27 +16,27 @@ that are part of the document. These files can be used from the
 GUI interface or from the command-line using the
 <CODE>--batch</CODE> option:
 
-<UL><PRE>
-htmldoc filename.book
-htmldoc --batch filename.book
-</PRE></UL>
+<PRE>
+    htmldoc filename.book
+    htmldoc --batch filename.book
+</PRE>
 
 <P>The first form will load the book and display the GUI interface, if configured.
 Windows users should use <VAR>ghtmldoc.exe</VAR> executable to show the GUI and
 <VAR>htmldoc.exe</VAR> for the batch mode:
 
-<UL><PRE>
-ghtmldoc.exe filename.book
-htmldoc.exe --batch filename.book
-</PRE></UL>
+<PRE>
+    ghtmldoc.exe filename.book
+    htmldoc.exe --batch filename.book
+</PRE>
 
 <H2>The Header</H2>
 
 <P>Each <VAR>.book</VAR> file starts with a line reading:
 
-<UL><PRE>
-#HTMLDOC 1.8.30
-</PRE></UL>
+<PRE>
+    #HTMLDOC 1.9
+</PRE>
 
 <P>The version number (1.8.30) is optional.
 
@@ -45,45 +45,45 @@ htmldoc.exe --batch filename.book
 <P>Following the header is a line containing the options for the book. You can
 use any valid command-line option on this line:
 
-<UL><PRE>
--f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
-</PRE></UL>
+<PRE>
+    -f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
+</PRE>
 
 <P>Long option lines can be broken using a trailing backslash (<TT>\</TT>) on
 the end of each continuation line:</P>
 
-<UL><PRE>
--f htmldoc.pdf --titleimage htmldoc.png --duplex \
---compression=9 --jpeg=90
-</PRE></UL>
+<PRE>
+    -f htmldoc.pdf --titleimage htmldoc.png --duplex \
+    --compression=9 --jpeg=90
+</PRE>
 
 <H2>The Files</H2>
 
 <P>Following the options are a list of files or URLs to include in the document:
 
-<UL><PRE>
-1-intro.html
-2-using.html
-3-cmdref.html
-4-htmlref.html
-a-license.html
-b-book.html
-</PRE></UL>
+<PRE>
+    1-intro.html
+    2-using.html
+    3-cmdref.html
+    4-htmlref.html
+    a-license.html
+    b-book.html
+</PRE>
 
 <H2>Putting It All Together</H2>
 
 <P>The following is the complete book file needed to generate this documentation:
 
-<UL><PRE>
-#HTMLDOC 1.8.30
--f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
-1-intro.html
-2-using.html
-3-cmdref.html
-4-htmlref.html
-a-license.html
-b-book.html
-</PRE></UL>
+<PRE>
+    #HTMLDOC 1.9
+    -f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
+    1-intro.html
+    2-using.html
+    3-cmdref.html
+    4-htmlref.html
+    a-license.html
+    b-book.html
+</PRE>
 
 </DIV>
 

@@ -26,7 +26,7 @@ SOURCES	=	1-intro.html \
 		a-license.html \
 		b-book.html
 
-DOCUMENTS =	htmldoc.html htmldoc.pdf htmldoc.ps
+DOCUMENTS =	htmldoc.epub htmldoc.html htmldoc.pdf htmldoc.ps
 DOCFILES =	help.html htmldoc.pdf
 
 HTMLDOC	=	../htmldoc/htmldoc$(EXEEXT) --datadir .. --strict
@@ -80,6 +80,15 @@ htmldoc.d:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	fi
 	$(MKDIR) htmldoc.d
 	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -t htmlsep -d htmldoc.d
+
+
+#
+# htmldoc.epub
+#
+
+htmldoc.epub:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
+	echo Formatting htmldoc.epub...
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -v -f htmldoc.epub
 
 
 #

@@ -1,7 +1,7 @@
 /*
  * ISO-8859-1 definitions for HTMLDOC, an HTML document processing program.
  *
- * Copyright 2011 by Michael R Sweet.
+ * Copyright 2011-2017 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -22,7 +22,8 @@
  * Prototypes...
  */
 
-extern uchar	iso8859(uchar *name);
-extern uchar	*iso8859(uchar value);
+extern uchar        iso8859(uchar *name);
+extern uchar        *iso8859(uchar value);
+extern const uchar  *xhtml_entity(uchar ch);
 
 #endif /* !_ISO8859_H_ */

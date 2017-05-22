@@ -13,10 +13,10 @@ HTMLDOC.
 
 <p>The basic command-line usage for HTMLDOC is:
 
-<UL><PRE>
-% <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
-% <KBD>htmldoc <I>options</I> filename.book <I>ENTER</I></KBD>
-</PRE></UL>
+<PRE>
+    % <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
+    % <KBD>htmldoc <I>options</I> filename.book <I>ENTER</I></KBD>
+</PRE>
 
 <p>The first form converts the named HTML files to the specified output format
 immediately. The second form loads the specified <CODE>.book</CODE> file and
@@ -50,6 +50,7 @@ can be one of the following:</P>
 
 <CENTER><TABLE BORDER="1" CELLPADDING="5">
 <TR><TH>Format</TH><TH>Description</TH></TR>
+<TR><TD>epub</TD><TD>Generate an EPUB file.</TD></TR>
 <TR><TD>html</TD><TD>Generate one or more indexed HTML files.</TD></TR>
 <TR><TD>htmlsep</TD><TD>Generate separate HTML files for each heading in
 the table-of-contents.</TD></TR>
@@ -75,10 +76,10 @@ sent/displayed to the standard error file.
 generate without the GUI popping up. This option can be combined with other
 options to generate the same book in different formats and sizes:
 
-<UL><PRE>
-% <KBD>htmldoc --batch filename.book -f filename.ps <I>ENTER</I></KBD>
-% <KBD>htmldoc --batch filename.book -f filename.pdf <I>ENTER</I></KBD>
-</PRE></UL>
+<PRE>
+    % <KBD>htmldoc --batch filename.book -f filename.ps <I>ENTER</I></KBD>
+    % <KBD>htmldoc --batch filename.book -f filename.pdf <I>ENTER</I></KBD>
+</PRE>
 
 <H3>--bodycolor color</H3>
 
@@ -493,7 +494,7 @@ to underline links.
 <P>The <CODE>--logoimage</CODE> option specifies the logo image
 for the HTML navigation bar and page headers and footers for
 PostScript and PDF files. The supported formats are BMP, GIF,
-JPEG, and PNG.
+JPEG, and PNG.</p>
 
 <blockquote><b>Note:</b> You need to use the <CODE>--header</CODE> and/or <CODE>--footer</CODE> options with the <CODE>l</CODE> parameter or use the corresponding HTML page comments to display the logo image in the header or footer.</blockquote>
 
@@ -676,9 +677,9 @@ server paths to load.
 and URLs can be specified.  Quotes around the directory parameter are
 optional.  They are usually used when the directory string contains spaces.
 
-<UL><PRE>
-<KBD>--path "dir1;dir2;dir3;...;dirN"</KBD>
-</PRE></UL>
+<PRE>
+    <KBD>--path "dir1;dir2;dir3;...;dirN"</KBD>
+</PRE>
 
 <!-- NEED 5in -->
 <H3>--permissions permission[,permission,...]</H3>
@@ -703,15 +704,15 @@ The available permission parameters are listed below:</P>
 <P>The <CODE>--encryption</CODE> option must be used in
 conjunction with the <CODE>--permissions</CODE> parameter.
 
-<UL><PRE>
-<KBD>--permissions no-print --encryption</KBD>
-</PRE></UL>
+<PRE>
+    <KBD>--permissions no-print --encryption</KBD>
+</PRE>
 
 <P>Multiple options can be specified by separating them with commas:</p>
 
-<UL><PRE>
-<KBD>--permissions no-print,no-copy --encryption</KBD>
-</PRE></UL>
+<PRE>
+    <KBD>--permissions no-print,no-copy --encryption</KBD>
+</PRE>
 
 <P>This option is only available when generating PDF files.</P>
 
