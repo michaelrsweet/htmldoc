@@ -1,5 +1,6 @@
 # Changes in HTMLDOC v1.9
 
+- Added EPUB support (Issue #301)
 - Added Markdown support (Issue #302)
 
 
