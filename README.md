@@ -1,8 +1,8 @@
 # Introduction
 
 HTMLDOC is a program that reads HTML and Markdown source files or web pages and
-generates corresponding HTML, PostScript, or PDF files with an optional table of
-contents.
+generates corresponding EPUB, HTML, PostScript, or PDF files with an optional
+table of contents.
 
 HTMLDOC was developed in the 1990's as a documentation generator for my previous
 company, and has since seen a lot of usage as a report generator embedded in web
@@ -50,7 +50,7 @@ The following provides basic information on using HTMLDOC at the command-line
 and does not discuss the GUI or web server functionality.
 
 HTMLDOC accepts a list of HTML and/or Markdown "source" files and will generate
-HTML, PostScript, or PDF output via command-line options.  A summary of
+EPUB, HTML, PostScript, or PDF output via command-line options.  A summary of
 command-line options can be shown with the "--help" option:
 
     htmldoc --help
@@ -66,7 +66,9 @@ To generate a Level 2 PostScript file you might use:
 
     htmldoc -f outfile.ps chapter1.html ... chapterN.html
 
-Similarly you can generate a PDF file of the same source files using:
+Similarly you can generate an EPUB or PDF file of the same source files using:
+
+    htmldoc -f outfile.epub chapter1.html ... chapterN.html
 
     htmldoc -f outfile.pdf chapter1.html ... chapterN.html
 
@@ -101,7 +103,7 @@ of Ghostscript, among other things).
 
 # Legal Stuff
 
-HTMLDOC is copyright 1997-2017 by Michael R Sweet.  This program is free
+HTMLDOC is copyright © 1997-2017 by Michael R Sweet.  This program is free
 software.  Distribution and use rights are outlined in the file "COPYING".
 
 HTMLDOC includes code to encrypt PDF document files using the RC4 algorithm
