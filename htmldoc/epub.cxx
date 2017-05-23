@@ -324,16 +324,17 @@ epub_export(tree_t *document,           /* I - Document to export */
  * 'write_header()' - Output the standard "header" for a HTML file.
  */
 
-static int                      /* O - 0 on success, -1 on failure */
+static int                              /* O - 0 on success, -1 on failure */
 write_header(
-    zipc_file_t *out,           /* I - Output file */
-    uchar       *title,         /* I - Title for document */
-    uchar       *author,	/* I - Author for document */
-    uchar       *copyright,	/* I - Copyright for document */
-    uchar       *docnumber,	/* I - ID number for document */
-    tree_t      *t)		/* I - Current document file */
+    zipc_file_t *out,                   /* I - Output file */
+    uchar       *title,                 /* I - Title for document */
+    uchar       *author,                /* I - Author for document */
+    uchar       *copyright,             /* I - Copyright for document */
+    uchar       *docnumber,             /* I - ID number for document */
+    tree_t      *t)                     /* I - Current document file */
 {
-  static const char *families[] =/* Typeface names */
+  int status = 0;                       /* Write status */
+  static const char *families[] =       /* Typeface names */
 		{
 		  "monospace",
 		  "serif",
@@ -346,52 +347,130 @@ write_header(
 		};
 
 
-  zipcFilePuts(out,
-               "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-               "<!DOCTYPE html>\n"
-               "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:epub=\"http://www.idpf.org/2007/ops\">\n"
-               "  <head>\n");
+  status |= zipcFilePuts(out,
+                         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                         "<!DOCTYPE html>\n"
+                         "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:epub=\"http://www.idpf.org/2007/ops\">\n"
+                         "  <head>\n");
   if (title != NULL)
-    write_xhtmlf(out, "    <title>%s</title>\n", title);
+    status |= write_xhtmlf(out, "    <title>%s</title>\n", title);
   if (author != NULL)
-    write_xhtmlf(out, "    <meta name=\"author\" content=\"%s\" />\n", author);
+    status |= write_xhtmlf(out, "    <meta name=\"author\" content=\"%s\" />\n", author);
   if (copyright != NULL)
-    write_xhtmlf(out, "    <meta name=\"copyright\" content=\"%s\" />\n", copyright);
+    status |= write_xhtmlf(out, "    <meta name=\"copyright\" content=\"%s\" />\n", copyright);
   if (docnumber != NULL)
-    write_xhtmlf(out, "    <meta name=\"docnumber\" content=\"%s\" />\n", docnumber);
-  zipcFilePrintf(out,
-                 "    <style type=\"text/css\">\n"
-                 "body { font-family: %s; }\n"
-                 "h1, h2, h3, h4, h5, h6 { font-family: %s; }\n"
-                 "sub, sup { font-size: smaller; }\n"
-                 "code, kbd, pre { font-family: monospace; }\n",
-                 families[_htmlBodyFont], families[_htmlHeadingFont]);
+    status |= write_xhtmlf(out, "    <meta name=\"docnumber\" content=\"%s\" />\n", docnumber);
+  status |= zipcFilePuts(out,
+                         "    <style type=\"text/css\"><![CDATA[\n"
+                         "body {\n");
+
+  if (BodyImage[0])
+    status |= write_xhtmlf(out, "  background: url(%s);\n", file_basename(BodyImage));
+  else if (BodyColor[0])
+    status |= zipcFilePrintf(out, "  background: #%s;\n", BodyColor);
+
+  if (_htmlTextColor[0])
+    status |= zipcFilePrintf(out, "  color: #%s;\n", _htmlTextColor);
+
+  status |= zipcFilePrintf(out, "  font-family: %s;\n", families[_htmlBodyFont]);
+
+  status |= zipcFilePuts(out, "}\n");
+
   if (!LinkStyle)
-    zipcFilePuts(out, "a:link { text-decoration: none; }\n");
-
-  if (BodyImage[0] || BodyColor[0] || _htmlTextColor[0])
-  {
-    zipcFilePuts(out, "body {\n");
-
-    if (BodyImage[0])
-      write_xhtmlf(out, "  background: url(%s);\n", file_basename(BodyImage));
-    else if (BodyColor[0])
-      zipcFilePrintf(out, "  background: #%s;\n", BodyColor);
-
-    if (_htmlTextColor[0])
-      zipcFilePrintf(out, "  color: #%s;\n", _htmlTextColor);
-
-    zipcFilePuts(out, "}\n");
-  }
-
+    status |= zipcFilePuts(out, "a:link {\n"
+                                "  text-decoration: none;\n"
+                                "}\n");
   if (LinkColor[0])
-    zipcFilePrintf(out, "a:link, a:link:visited, a:link:active { color: #%s; }\n", LinkColor);
+    status |= zipcFilePrintf(out, "a:link, a:link:visited, a:link:active {\n"
+                                  "  color: #%s;\n"
+                                  "}\n", LinkColor);
 
-  zipcFilePuts(out, "    </style>\n"
-                    "  </head>\n"
-                    "  <body>\n");
+  status |= zipcFilePrintf(out, "h1, h2, h3, h4, h5, h6 {\n"
+                                "  font-family: %s;\n"
+                                "  page-break-inside: avoid;\n"
+                                "}\n", families[_htmlHeadingFont]);
+  status |= zipcFilePuts(out, "h1 {\n"
+                              "  font-size: 250%;\n"
+                              "  font-weight: bold;\n"
+                              "  margin: 0;\n"
+                              "}\n"
+                              "h2 {\n"
+                              "  font-size: 250%;\n"
+                              "  margin: 1.5em 0 0;\n"
+                              "}\n"
+                              "h3 {\n"
+                              "  font-size: 150%;\n"
+                              "  margin: 1.5em 0 0.5em;\n"
+                              "}\n"
+                              "h4 {\n"
+                              "  font-size: 110%;\n"
+                              "  margin: 1.5em 0 0.5em;\n"
+                              "}\n"
+                              "h5, h6 {\n"
+                              "  font-size: 100%;\n"
+                              "  margin: 1.5em 0 0.5em;\n"
+                              "}\n");
 
-  return (0);
+  status |= zipcFilePuts(out, "sub, sup {\n"
+                              "  font-size: smaller;\n"
+                              "}\n");
+
+  status |= zipcFilePuts(out, "blockquote {\n"
+                              "  border: solid thin gray;\n"
+                              "  box-shadow: 3px 3px 5px rgba(0,0,0,0.5);\n"
+                              "  padding: 0px 10px;\n"
+                              "  page-break-inside: avoid;\n"
+                              "}\n");
+
+  status |= zipcFilePuts(out, "code, kbd, pre {\n"
+                              "  font-family: monospace;\n"
+                              "  font-size: 90%;\n"
+                              "}\n"
+                              "p code, li code, pre {\n"
+                              "  background: rgba(127,127,127,0.1);\n"
+                              "  border: thin dotted gray;\n"
+                              "  hyphens: manual;\n"
+                              "  -webkit-hyphens: manual;\n"
+                              "  page-break-inside: avoid;\n"
+                              "}\n"
+                              "pre {\n"
+                              "  padding: 10px;\n"
+                              "}\n"
+                              "p code, li code {\n"
+                              "  padding: 2px 5px;\n"
+                              "}\n");
+
+  status |= zipcFilePuts(out, "dl {\n"
+                              "  margin-top: 0;\n"
+                              "}\n"
+                              "dt {\n"
+                              "  font-style: italic;\n"
+                              "  margin-top: 0;\n"
+                              "}\n"
+                              "dd {\n"
+                              "  margin-bottom: 0.5em;\n"
+                              "}\n");
+
+  status |= zipcFilePuts(out, "table {\n"
+                              "  border-collapse: collapse;\n"
+                              "  page-break-inside: avoid;\n"
+                              "}\n"
+                              "td, th {\n"
+                              "  border: thin solid black;\n"
+                              "  padding: 5px;\n"
+                              "}\n"
+                              "th {\n"
+                              "  background: #444;\n"
+                              "  color: white;\n"
+                              "  font-weight: bold;\n"
+                              "  text-align: center;\n"
+                              "}\n");
+
+  status |= zipcFilePuts(out, "]]></style>\n"
+                              "  </head>\n"
+                              "  <body>\n");
+
+  return (status);
 }
 
 
@@ -539,6 +618,9 @@ write_node(zipc_file_t *out,		/* I - Output file */
         if (t->data == NULL)
 	  break;
 
+        if (!t->prev && t->parent && t->parent->markup == MARKUP_PRE && !strcmp((char *)t->data, "\n"))
+          break;                        /* Skip initial blank line */
+
         status |= write_xhtml(out, t->data);
         break;
 
@@ -594,7 +676,6 @@ write_node(zipc_file_t *out,		/* I - Output file */
     case MARKUP_LI :
     case MARKUP_OL :
     case MARKUP_P :
-    case MARKUP_PRE :
     case MARKUP_UL :
         status |= zipcFilePuts(out, "\n");
 
