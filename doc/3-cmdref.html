@@ -14,8 +14,8 @@ HTMLDOC.
 <p>The basic command-line usage for HTMLDOC is:
 
 <PRE>
-    % <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
-    % <KBD>htmldoc <I>options</I> filename.book <I>ENTER</I></KBD>
+% <KBD>htmldoc <I>options</I> filename1.html ... filenameN.html <I>ENTER</I></KBD>
+% <KBD>htmldoc <I>options</I> filename.book <I>ENTER</I></KBD>
 </PRE>
 
 <p>The first form converts the named HTML files to the specified output format
@@ -77,8 +77,8 @@ generate without the GUI popping up. This option can be combined with other
 options to generate the same book in different formats and sizes:
 
 <PRE>
-    % <KBD>htmldoc --batch filename.book -f filename.ps <I>ENTER</I></KBD>
-    % <KBD>htmldoc --batch filename.book -f filename.pdf <I>ENTER</I></KBD>
+% <KBD>htmldoc --batch filename.book -f filename.ps <I>ENTER</I></KBD>
+% <KBD>htmldoc --batch filename.book -f filename.pdf <I>ENTER</I></KBD>
 </PRE>
 
 <H3>--bodycolor color</H3>
@@ -310,6 +310,7 @@ can be one of the following:</P>
 
 <CENTER><TABLE BORDER="1" CELLPADDING="5">
 <TR><TH>Format</TH><TH>Description</TH></TR>
+<TR><TD>epub</TD><TD>Generate an EPUB file.</TD></TR>
 <TR><TD>html</TD><TD>Generate one or more indexed HTML files.</TD></TR>
 <TR><TD>htmlsep</TD><TD>Generate separate HTML files for each heading in
 the table-of-contents.</TD></TR>
@@ -678,7 +679,7 @@ and URLs can be specified.  Quotes around the directory parameter are
 optional.  They are usually used when the directory string contains spaces.
 
 <PRE>
-    <KBD>--path "dir1;dir2;dir3;...;dirN"</KBD>
+<KBD>--path "dir1;dir2;dir3;...;dirN"</KBD>
 </PRE>
 
 <!-- NEED 5in -->
@@ -705,13 +706,13 @@ The available permission parameters are listed below:</P>
 conjunction with the <CODE>--permissions</CODE> parameter.
 
 <PRE>
-    <KBD>--permissions no-print --encryption</KBD>
+<KBD>--permissions no-print --encryption</KBD>
 </PRE>
 
 <P>Multiple options can be specified by separating them with commas:</p>
 
 <PRE>
-    <KBD>--permissions no-print,no-copy --encryption</KBD>
+<KBD>--permissions no-print,no-copy --encryption</KBD>
 </PRE>
 
 <P>This option is only available when generating PDF files.</P>

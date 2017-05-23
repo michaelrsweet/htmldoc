@@ -17,8 +17,8 @@ GUI interface or from the command-line using the
 <CODE>--batch</CODE> option:
 
 <PRE>
-    htmldoc filename.book
-    htmldoc --batch filename.book
+htmldoc filename.book
+htmldoc --batch filename.book
 </PRE>
 
 <P>The first form will load the book and display the GUI interface, if configured.
@@ -26,8 +26,8 @@ Windows users should use <VAR>ghtmldoc.exe</VAR> executable to show the GUI and
 <VAR>htmldoc.exe</VAR> for the batch mode:
 
 <PRE>
-    ghtmldoc.exe filename.book
-    htmldoc.exe --batch filename.book
+ghtmldoc.exe filename.book
+htmldoc.exe --batch filename.book
 </PRE>
 
 <H2>The Header</H2>
@@ -35,7 +35,7 @@ Windows users should use <VAR>ghtmldoc.exe</VAR> executable to show the GUI and
 <P>Each <VAR>.book</VAR> file starts with a line reading:
 
 <PRE>
-    #HTMLDOC 1.9
+#HTMLDOC 1.9
 </PRE>
 
 <P>The version number (1.8.30) is optional.
@@ -46,15 +46,15 @@ Windows users should use <VAR>ghtmldoc.exe</VAR> executable to show the GUI and
 use any valid command-line option on this line:
 
 <PRE>
-    -f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
+-f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
 </PRE>
 
 <P>Long option lines can be broken using a trailing backslash (<TT>\</TT>) on
 the end of each continuation line:</P>
 
 <PRE>
-    -f htmldoc.pdf --titleimage htmldoc.png --duplex \
-    --compression=9 --jpeg=90
+-f htmldoc.pdf --titleimage htmldoc.png --duplex \
+--compression=9 --jpeg=90
 </PRE>
 
 <H2>The Files</H2>
@@ -62,12 +62,12 @@ the end of each continuation line:</P>
 <P>Following the options are a list of files or URLs to include in the document:
 
 <PRE>
-    1-intro.html
-    2-using.html
-    3-cmdref.html
-    4-htmlref.html
-    a-license.html
-    b-book.html
+1-intro.html
+2-using.html
+3-cmdref.html
+4-htmlref.html
+a-license.html
+b-book.html
 </PRE>
 
 <H2>Putting It All Together</H2>
@@ -75,14 +75,14 @@ the end of each continuation line:</P>
 <P>The following is the complete book file needed to generate this documentation:
 
 <PRE>
-    #HTMLDOC 1.9
-    -f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
-    1-intro.html
-    2-using.html
-    3-cmdref.html
-    4-htmlref.html
-    a-license.html
-    b-book.html
+#HTMLDOC 1.9
+-f htmldoc.pdf --titleimage htmldoc.png --duplex --compression=9 --jpeg=90
+1-intro.html
+2-using.html
+3-cmdref.html
+4-htmlref.html
+a-license.html
+b-book.html
 </PRE>
 
 </DIV>

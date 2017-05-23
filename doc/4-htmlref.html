@@ -19,7 +19,7 @@ calls "web pages".
 <P>A very common mistake is to try converting a web page using:
 
 <PRE>
-    htmldoc -f filename.pdf filename.html
+htmldoc -f filename.pdf filename.html
 </PRE>
 
 <P>which will likely produce a PDF file with no pages. To convert web
@@ -65,7 +65,6 @@ command-line or choose <VAR>Web Page</VAR> in the input tab of the GUI.</p>
 <TR><TD>FONT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD><A HREF="#FONT">See Below</A></TD></TR>
 <TR><TD>FORM</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>FRAME</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
-<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
 <TR><TD>FRAMESET</TD><TD ALIGN="CENTER">3.2</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>H1</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
 <TR><TD>H2</TD><TD ALIGN="CENTER">1.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Boldface, <A HREF="#HEADING">See Below</A></TD></TR>
@@ -97,7 +96,6 @@ command-line or choose <VAR>Web Page</VAR> in the input tab of the GUI.</p>
 <TR><TD>S</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Strikethrough</TD></TR>
 <TR><TD>SAMP</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>Courier</TD></TR>
 <TR><TD>SCRIPT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
-<TR><TH>Element</TH><TH>Version</TH><TH>Supported?</TH><TH>Notes</TH></TR>
 <TR><TD>SELECT</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">No</TD><TD>&nbsp;</TD></TR>
 <TR><TD>SMALL</TD><TD ALIGN="CENTER">2.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
 <TR><TD>SPACER</TD><TD ALIGN="CENTER">N3.0</TD><TD ALIGN="CENTER">Yes</TD><TD>&nbsp;</TD></TR>
@@ -379,24 +377,24 @@ you skip levels the heading will be shown under the last level that was
 known. For example, if you use the following hierarchy of headings:
 
 <PRE>
-    &lt;H1&gt;Chapter Heading&lt;/H1&gt;
-    ...
-    &lt;H2&gt;Section Heading 1&lt;/H2&gt;
-    ...
-    &lt;H2&gt;Section Heading 2&lt;/H2&gt;
-    ...
-    &lt;H3&gt;Sub-Section Heading 1&lt;/H3&gt;
-    ...
-    &lt;H4&gt;Sub-Sub-Section Heading 1&lt;/H4&gt;
-    ...
-    &lt;H4&gt;Sub-Sub-Section Heading 2&lt;/H4&gt;
-    ...
-    &lt;H3&gt;Sub-Section Heading 2&lt;/H3&gt;
-    ...
-    &lt;H2&gt;Section Heading 3&lt;/H2&gt;
-    ...
-    &lt;H4&gt;Sub-Sub-Section Heading 3&lt;/H4&gt;
-    ...
+&lt;H1&gt;Chapter Heading&lt;/H1&gt;
+...
+&lt;H2&gt;Section Heading 1&lt;/H2&gt;
+...
+&lt;H2&gt;Section Heading 2&lt;/H2&gt;
+...
+&lt;H3&gt;Sub-Section Heading 1&lt;/H3&gt;
+...
+&lt;H4&gt;Sub-Sub-Section Heading 1&lt;/H4&gt;
+...
+&lt;H4&gt;Sub-Sub-Section Heading 2&lt;/H4&gt;
+...
+&lt;H3&gt;Sub-Section Heading 2&lt;/H3&gt;
+...
+&lt;H2&gt;Section Heading 3&lt;/H2&gt;
+...
+&lt;H4&gt;Sub-Sub-Section Heading 3&lt;/H4&gt;
+...
 </PRE>
 
 the table-of-contents that is generated will show:
@@ -473,7 +471,7 @@ URL links. That is, you can directly link to another local PDF
 file from your HTML document with:
 
 <PRE>
-    &lt;A HREF="filename.pdf"&gt;...&lt;/A&gt;
+&lt;A HREF="filename.pdf"&gt;...&lt;/A&gt;
 </PRE>
 
 <!-- NEED 5in -->
