@@ -88,7 +88,7 @@ htmldoc.d:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.epub:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.epub...
-	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -v -f htmldoc.epub
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book --titleimage htmldoc-cover.png -f htmldoc.epub
 
 
 #

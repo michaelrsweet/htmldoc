@@ -145,12 +145,12 @@ epub_export(tree_t *document,           /* I - Document to export */
   */
 
   if (LogoImage[0])
-    status |= copy_image(epub, file_find(LogoImage, Path));
+    status |= copy_image(epub, file_find(Path, LogoImage));
 
   for (int hfi = 0; hfi < MAX_HF_IMAGES; hfi ++)
   {
     if (HFImage[hfi][0])
-      status |= copy_image(epub, file_find(HFImage[hfi], Path));
+      status |= copy_image(epub, file_find(Path, HFImage[hfi]));
   }
 
   title_ext = file_extension(TitleImage);
@@ -162,7 +162,7 @@ epub_export(tree_t *document,           /* I - Document to export */
       (!strcmp(title_ext, "bmp") || !strcmp(title_ext, "gif") || !strcmp(title_ext, "jpg") || !strcmp(title_ext, "png")))
 #endif // WIN32
   {
-    status |= copy_image(epub, file_find(TitleImage, Path));
+    status |= copy_image(epub, file_find(Path, TitleImage));
     cover_image = file_basename(TitleImage);
   }
 
@@ -536,7 +536,7 @@ write_title(zipc_file_t *out,           /* I - Output file */
     }
 
     if (title != NULL)
-      status |= write_xhtmlf(out, "      <h1>%s</h1>\n", title);
+      status |= write_xhtmlf(out, "      <h1 style=\"text-align: center;\">%s</h1>\n", title);
 
     const char *prefix = "      <p>";
 
@@ -1189,7 +1189,10 @@ copy_image(zipc_t     *zipc,            /* I - ZIP container */
   snprintf(epubname, sizeof(epubname), "OEBPS/%s", base);
 
   if (zipcCopyFile(zipc, epubname, filename, 0, 0))
+  {
+    progress_error(HD_ERROR_WRITE_ERROR, "Unable to copy \"%s\": %s", base, zipcError(zipc));
     return (-1);
+  }
 
  /*
   * Add it to the array of images...
