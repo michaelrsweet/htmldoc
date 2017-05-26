@@ -2414,6 +2414,7 @@ read_file(const char *filename,		// I  - File/URL to read
       ext = file_extension(filename);
 
       file = htmlAddTree(NULL, MARKUP_FILE, NULL);
+      htmlSetVariable(file, (uchar *)"_HD_URL", (uchar *)filename);
       htmlSetVariable(file, (uchar *)"_HD_FILENAME", (uchar *)file_basename(filename));
       htmlSetVariable(file, (uchar *)"_HD_BASE", (uchar *)base);
 
@@ -2688,6 +2689,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("        l = logo image");
     puts("        t = title text");
     puts("        T = current time");
+    puts("        u = current file/URL");
   }
 
   exit(1);

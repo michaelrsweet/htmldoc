@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9
 
+- Added support for embedding the current filename/URL in the header or footer
+  (Issue #50)
 - Added EPUB support (Issue #301)
 - Added Markdown support (Issue #302)
 - Documentation updates (Issue #305)

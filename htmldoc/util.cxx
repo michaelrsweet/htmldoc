@@ -293,6 +293,10 @@ get_format(const char *fmt,		// I - Old "fff" format
           formats[i] = strdup("$TIME");
           break;
 
+      case 'u' :
+          formats[i] = strdup("$URL");
+          break;
+
       default :
           formats[i] = NULL;
           break;

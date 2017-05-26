@@ -2,7 +2,7 @@
 .\" Manual page for HTMLDOC, a HTML document processing program.
 .\"
 .\" Copyright 2011-2017 by Michael R Sweet.
-.\" Copyright 1997-2010 by Easy Software Products.
+.\" Copyright 1997-2010 by msweet.org.
 .\"
 .\" This program is free software.  Distribution and use rights are outlined
 .\" in the file "COPYING".
@@ -320,7 +320,8 @@ Specifies that the HTML sources are unstructured (plain web pages.) A page break
 .B Htmldoc
 returns a non-zero exit status if any errors are seen, zero otherwise.
 .SH HEADER/FOOTER FORMATS
-The header and footer of each page can contain up to three preformatted values. These values are specified using a single character for the left, middle, and right of the page, resulting in the
+The header and footer of each page can contain up to three preformatted values.
+These values are specified using a single character for the left, middle, and right of the page, resulting in the
 .I fff
 notation shown previously.
 .LP
@@ -373,6 +374,9 @@ title text
 .TP 5
 .B T
 current time
+.TP 5
+.B u
+current filename or URL
 
 .SH ENVIRONMENT
 HTMLDOC looks for several environment variables which can override the default directories, display additional debugging information, and disable CGI mode:
@@ -380,7 +384,7 @@ HTMLDOC looks for several environment variables which can override the default d
 .B HTMLDOC_DATA
 This environment variable specifies the location of
 .BR htmldoc 's
-data and fonts directories, normally /usr/share/htmldoc or C:/Program Files/Easy Software Products/HTMLDOC.
+data and fonts directories, normally /usr/share/htmldoc or C:/Program Files/HTMLDOC.
 .TP 5
 .B HTMLDOC_DEBUG
 This environment variable enables debugging information that is sent to stderr. The value is a list of any of the following keywords separated by spaces: "all", "links", "memory", "remotebytes", "table", "tempfiles", and/or "timing".
@@ -388,7 +392,7 @@ This environment variable enables debugging information that is sent to stderr. 
 .B HTMLDOC_HELP
 This environment variable specifies the location of
 .BR htmldoc 's
-documentation directory, normally /usr/share/doc/htmldoc or C:/Program Files/Easy Software Products/HTMLDOC/doc.
+documentation directory, normally /usr/share/doc/htmldoc or C:/Program Files/HTMLDOC/doc.
 .TP 5
 .B HTMLDOC_NOCGI
 This environment variable, when set (the value doesn't matter), disables CGI mode. It is most useful for using
@@ -404,7 +408,7 @@ Create a PostScript book from a directory of HTML files
     htmldoc \-\-book -f example.pdf *.html
 .fi
 .SH SEE ALSO
-HTMLDOC Software Users Manual
+HTMLDOC Users Manual
 .LP
 https://michaelrsweet.github.io/htmldoc
 .SH AUTHOR

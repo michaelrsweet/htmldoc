@@ -130,7 +130,8 @@ typedef struct				//// Page information
 		landscape;		// Landscape orientation?
   render_t	*start,			// First render element
 		*end;			// Last render element
-  uchar		*chapter,		// Chapter text
+  uchar		*url,                   // URL/file
+                *chapter,		// Chapter text
 		*heading;		// Heading text
   tree_t	*headnode;		// Heading node
   uchar		*header[3],		// Headers for regular pages
@@ -175,6 +176,7 @@ typedef struct				//// Output page info
 static time_t	doc_time;		// Current time
 static struct tm *doc_date;		// Current date
 
+static uchar    *current_url = NULL;
 static int	title_page;
 static int	chapter,
 		chapter_outstarts[MAX_CHAPTERS],
@@ -1663,6 +1665,14 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	  {
             formatptr += 4;
             strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%x", doc_date);
+	    bufptr += strlen(bufptr);
+	  }
+	  else if (formatlen == 3 && strncasecmp(formatptr, "URL", 3) == 0)
+	  {
+            uchar *url = pages[page].url ? pages[page].url : (uchar *)"Unknown";
+
+            formatptr += 3;
+            strlcpy(bufptr, (char *)url, sizeof(buffer) - (size_t)(bufptr - buffer));
 	    bufptr += strlen(bufptr);
 	  }
 	  else
@@ -3887,6 +3897,9 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
   while (t != NULL)
   {
+    if (t->markup == MARKUP_FILE)
+      current_url = htmlGetVariable(t, (uchar *)"_HD_URL");
+
     if (((t->markup == MARKUP_H1 && OutputType == OUTPUT_BOOK) ||
          (t->markup == MARKUP_FILE && OutputType == OUTPUT_WEBPAGES)) &&
 	!title_page)
@@ -8654,6 +8667,8 @@ check_pages(int page)	// I - Current page
 	temp->start = NULL;
 	temp->end   = NULL;
       }
+
+      temp->url = current_url;
 
       if (chapter == 0)
       {
