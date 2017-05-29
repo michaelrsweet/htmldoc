@@ -5,7 +5,7 @@
 - Added EPUB support (Issue #301)
 - Added Markdown support (Issue #302)
 - Documentation updates (Issue #305)
-- Compiler fixes (Issue #306)
+- Compiler fixes (Issue #304, Issue #306)
 
 
 # Changes in HTMLDOC v1.8.30
