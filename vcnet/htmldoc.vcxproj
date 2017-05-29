@@ -258,6 +258,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\htmldoc\array.c" />
+    <ClCompile Include="..\htmldoc\epub.cxx" />
     <ClCompile Include="..\htmldoc\file.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
@@ -319,12 +320,14 @@
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
+    <ClCompile Include="..\htmldoc\markdown.cxx" />
     <ClCompile Include="..\htmldoc\md5.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
+    <ClCompile Include="..\htmldoc\mmd.c" />
     <ClCompile Include="..\htmldoc\progress.cxx">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
@@ -362,6 +365,7 @@
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Neither</FavorSizeOrSpeed>
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
+    <ClCompile Include="..\htmldoc\zipc.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\htmldoc\debug.h" />
@@ -371,10 +375,13 @@
     <ClInclude Include="..\htmldoc\http-private.h" />
     <ClInclude Include="..\htmldoc\image.h" />
     <ClInclude Include="..\htmldoc\iso8859.h" />
+    <ClInclude Include="..\htmldoc\markdown.h" />
     <ClInclude Include="..\htmldoc\md5-private.h" />
+    <ClInclude Include="..\htmldoc\mmd.h" />
     <ClInclude Include="..\htmldoc\sspi-private.h" />
     <ClInclude Include="..\htmldoc\string.h" />
     <ClInclude Include="..\htmldoc\types.h" />
+    <ClInclude Include="..\htmldoc\zipc.h" />
     <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>

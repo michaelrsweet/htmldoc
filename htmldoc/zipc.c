@@ -38,7 +38,9 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-#include <sys/time.h>
+#ifndef WIN32
+#  include <sys/time.h>
+#endif /* WIN32 */
 #include <zlib.h>
 
 
