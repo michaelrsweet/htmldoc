@@ -15,9 +15,6 @@
 #include "zipc.h"
 #include <ctype.h>
 #include <time.h>
-#ifndef WIN32
-#  include <sys/time.h>
-#endif /* WIN32 */
 
 
 /*

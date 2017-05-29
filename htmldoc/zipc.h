@@ -34,15 +34,8 @@
  * Include necessary headers...
  */
 
+#  include <stdlib.h>
 #  include <sys/types.h>
-#  ifdef WIN32
-#    include <stdio.h>
-#    include <stdlib.h>
-#    include <string.h>
-#    include <stdarg.h>
-#    include <io.h>
-#    include <direct.h>
-#  endif /* WIN32 */
 
 
 /*

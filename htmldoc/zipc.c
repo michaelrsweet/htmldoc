@@ -33,14 +33,10 @@
 
 #include "zipc.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-#ifndef WIN32
-#  include <sys/time.h>
-#endif /* WIN32 */
 #include <zlib.h>
 
 
