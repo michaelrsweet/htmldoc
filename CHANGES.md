@@ -24,6 +24,7 @@
 - Fixed build issue on macOS (Issue #291)
 - Fixed handling of indexed+alpha PNG images (Issue #295)
 
+
 # Changes in HTMLDOC v1.8.29
 
 - Updated local PNG library to version 1.6.20.
