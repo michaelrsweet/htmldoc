@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9
 
+- Added support for repeating a single header row for tables that span multiple
+  pages (Issue #16)
 - Added support for embedding the current filename/URL in the header or footer
   (Issue #50)
 - Added EPUB support (Issue #301)

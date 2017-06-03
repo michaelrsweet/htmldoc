@@ -5516,13 +5516,639 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 }
 
 
+//#define TABLE_DEBUG 1
 #ifdef TABLE_DEBUG
 #  undef DEBUG_puts
 #  define DEBUG_puts(x) puts(x)
-#  define DEBUG
+#  define DEBUG 1
 #  undef DEBUG_printf
 #  define DEBUG_printf(x) printf x
 #endif /* TABLE_DEBUG */
+
+
+typedef struct
+{
+  int           debug;
+  int           num_cols,
+                num_rows;
+  float         border,
+		border_left,
+                border_rgb[3],
+		border_size,
+                cellpadding,
+                height;
+  int		col_spans[MAX_COLUMNS],
+		row_spans[MAX_COLUMNS];
+  char		col_fixed[MAX_COLUMNS],
+		col_percent[MAX_COLUMNS];
+  float		col_lefts[MAX_COLUMNS],
+		col_rights[MAX_COLUMNS],
+		col_widths[MAX_COLUMNS],
+		col_swidths[MAX_COLUMNS],
+		col_mins[MAX_COLUMNS],
+		col_smins[MAX_COLUMNS],
+		col_prefs[MAX_COLUMNS];
+  int		cell_page[MAX_COLUMNS],	// Start page for cell
+		cell_endpage[MAX_COLUMNS];
+					// End page for cell
+  float		cell_y[MAX_COLUMNS],	// Row for each cell
+		cell_endy[MAX_COLUMNS],	// Row for each cell
+		cell_height[MAX_COLUMNS],
+					// Height of each cell in a row
+		span_heights[MAX_COLUMNS];
+					// Height of spans
+  render_t	*cell_bg[MAX_COLUMNS];	// Background rectangles
+  render_t	*cell_start[MAX_COLUMNS];
+					// Start of the content for a cell in the row
+  render_t	*cell_end[MAX_COLUMNS];	// End of the content for a cell in a row
+} hdtable_t;
+
+
+/*
+ * 'render_table_row()' - Render a table row.
+ */
+
+static void
+render_table_row(hdtable_t &table,
+                 tree_t    ***cells,
+                 int       row,
+                 uchar     *height_var,
+                 float     left,		// I - Left margin
+                 float     right,		// I - Printable width
+                 float     bottom,		// I - Bottom margin
+                 float     top,			// I - Printable top
+                 float     *x,
+                 float     *y,
+                 int       *page)
+{
+  int		col,
+		tcol,
+		colspan,
+		rowspan,
+		tempspace;
+  float		width,
+		temp_y;
+  int		temp_page;
+  uchar		*var;
+  int		do_valign;		// True if we should do vertical alignment of cells
+  int           row_page;
+  float		row_y,
+                row_starty,
+                row_height,		// Total height of the row
+		temp_height;		// Temporary holder
+  uchar		*bgcolor;
+  float		bgrgb[3];
+
+
+  do_valign  = 1;
+  row_height = 0.0f;
+  row_page   = *page;
+  row_y      = *y - table.cellpadding;
+  row_starty = row_y;
+
+  DEBUG_printf(("BEFORE row_y = %.1f, *y = %.1f, row_page = %d\n",
+                row_y, *y, row_page));
+
+  for (col = 0, rowspan = 9999; col < table.num_cols; col += colspan)
+  {
+    if (table.row_spans[col] == 0)
+    {
+      if ((var = htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN")) != NULL)
+        table.row_spans[col] = atoi((char *)var);
+
+      if (table.row_spans[col] == 1)
+        table.row_spans[col] = 0;
+
+      if (table.row_spans[col] > (table.num_rows - row))
+        table.row_spans[col] = table.num_rows - row;
+
+      table.span_heights[col] = 0.0f;
+    }
+
+    if (table.row_spans[col] < rowspan)
+      rowspan = table.row_spans[col];
+
+    for (colspan = 1; (col + colspan) < table.num_cols; colspan ++)
+      if (cells[row][col] != cells[row][col + colspan])
+        break;
+  }
+
+  if (!rowspan)
+    rowspan = 1;
+
+  for (col = 0; col < table.num_cols;)
+  {
+    for (colspan = 1; (col + colspan) < table.num_cols; colspan ++)
+      if (cells[row][col] != cells[row][col + colspan])
+        break;
+    colspan --;
+
+    DEBUG_printf(("    col = %d, colspan = %d, left = %.1f, right = %.1f, cell = %p\n", col, colspan, table.col_lefts[col], table.col_rights[col + colspan], (void *)cells[row][col]));
+
+    *x        = table.col_lefts[col];
+    temp_y    = *y - table.cellpadding;
+    temp_page = *page;
+    tempspace = 0;
+
+    if (row == 0 || cells[row][col] != cells[row - 1][col])
+    {
+      check_pages(*page);
+
+      if (cells[row][col] == NULL)
+        bgcolor = NULL;
+      else if ((bgcolor = htmlGetVariable(cells[row][col], (uchar *)"BGCOLOR")) != NULL)
+      {
+        memcpy(bgrgb, background_color, sizeof(bgrgb));
+
+        get_color(bgcolor, bgrgb, 0);
+
+        width       = table.col_rights[col + colspan] - table.col_lefts[col] + 2 * table.cellpadding;
+        table.border_left = table.col_lefts[col] - table.cellpadding;
+
+        table.cell_bg[col] = new_render(*page, RENDER_BOX, table.border_left, row_y, width + table.border, 0.0, bgrgb);
+      }
+      else
+      {
+        table.cell_bg[col] = NULL;
+
+        new_render(*page, RENDER_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
+      }
+
+      DEBUG_printf(("cell_bg[%d] = %p, pages[%d].end = %p\n", col, (void *)table.cell_bg[col], *page, (void *)pages[*page].end));
+
+      table.cell_start[col] = pages[*page].end;
+      table.cell_page[col]  = temp_page;
+      table.cell_y[col]     = temp_y;
+
+      if (table.debug)
+      {
+        check_pages(*page);
+
+        render_t *r;
+        char table_text[255];
+
+        snprintf(table_text, sizeof(table_text), "cell=%p [%d,%d]",
+                 (void *)cells[row][col], row, col);
+        r = new_render(temp_page, RENDER_TEXT, *x, temp_y,
+                       get_width((uchar *)table_text, TYPE_COURIER, STYLE_NORMAL, 1),
+                       _htmlSizes[1], table_text);
+
+        r->data.text.typeface = TYPE_COURIER;
+        r->data.text.style    = STYLE_NORMAL;
+        r->data.text.size     = (float)_htmlSizes[1];
+      }
+
+      if (cells[row][col] != NULL && cells[row][col]->child != NULL)
+      {
+        DEBUG_printf(("    parsing cell %d,%d; width = %.1f\n", row, col, table.col_rights[col + colspan] - table.col_lefts[col]));
+
+        bottom += table.cellpadding;
+        top    -= table.cellpadding;
+
+        parse_doc(cells[row][col]->child, table.col_lefts + col, table.col_rights + col + colspan, &bottom, &top, x, &temp_y, &temp_page, NULL, &tempspace);
+
+        bottom -= table.cellpadding;
+        top    += table.cellpadding;
+      }
+
+      table.cell_endpage[col] = temp_page;
+      table.cell_endy[col]    = temp_y;
+      table.cell_height[col]  = *y - table.cellpadding - temp_y;
+      table.cell_end[col]     = pages[*page].end;
+
+      if (table.cell_start[col] == NULL)
+        table.cell_start[col] = pages[*page].start;
+
+      DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n", row, col, *y - table.cellpadding, temp_y, table.cell_height[col]));
+      DEBUG_printf(("cell_start[%d] = %p, cell_end[%d] = %p\n", col, (void *)table.cell_start[col], col, (void *)table.cell_end[col]));
+    }
+
+    if (table.row_spans[col] == 0 &&
+        table.cell_page[col] == table.cell_endpage[col] &&
+        table.cell_height[col] > row_height)
+      row_height = table.cell_height[col];
+
+    if (table.row_spans[col] <= rowspan)
+    {
+      if (table.cell_page[col] != table.cell_endpage[col])
+        do_valign = 0;
+
+      if (table.cell_endpage[col] > row_page)
+      {
+        row_page = table.cell_endpage[col];
+        row_y    = table.cell_endy[col];
+      }
+      else if (table.cell_endy[col] < row_y && table.cell_endpage[col] == row_page)
+        row_y = table.cell_endy[col];
+    }
+
+    DEBUG_printf(("**** col = %d, row = %d, row_y = %.1f, row_page = %d\n", col, row, row_y, row_page));
+
+    for (col ++; colspan > 0; colspan --, col ++)
+    {
+      table.cell_start[col]   = NULL;
+      table.cell_page[col]    = table.cell_page[col - 1];
+      table.cell_y[col]       = table.cell_y[col - 1];
+      table.cell_end[col]     = NULL;
+      table.cell_endpage[col] = table.cell_endpage[col - 1];
+      table.cell_endy[col]    = table.cell_endy[col - 1];
+      table.cell_height[col]  = table.cell_height[col - 1];
+    }
+  }
+
+  DEBUG_printf(("row = %d, row_y = %.1f, row_height = %.1f\n", row, row_y, row_height));
+
+  for (col = 0; col < table.num_cols; col += colspan)
+  {
+    for (colspan = 1; (col + colspan) < table.num_cols; colspan ++)
+      if (cells[row][col] != cells[row][col + colspan])
+        break;
+
+    if (table.row_spans[col])
+      table.span_heights[col] += row_height;
+
+    DEBUG_printf(("col = %d, cell_y = %.1f, cell_page = %d, cell_endpage = %d, row_spans = %d, span_heights = %.1f, cell_height = %.1f\n", col, table.cell_y[col], table.cell_page[col], table.cell_endpage[col], table.row_spans[col], table.span_heights[col], table.cell_height[col]));
+
+    if (table.row_spans[col] == rowspan &&
+        table.cell_page[col] == table.cell_endpage[col] &&
+        table.cell_height[col] > table.span_heights[col])
+    {
+      temp_height = table.cell_height[col] - table.span_heights[col];
+      row_height  += temp_height;
+      DEBUG_printf(("Adjusting row-span height by %.1f, new row_height = %.1f\n",
+                    temp_height, row_height));
+
+      for (tcol = 0; tcol < table.num_cols; tcol ++)
+        if (table.row_spans[tcol])
+        {
+          table.span_heights[tcol] += temp_height;
+          DEBUG_printf(("col = %d, span_heights = %.1f\n", tcol, table.span_heights[tcol]));
+        }
+    }
+  }
+
+  DEBUG_printf(("AFTER row = %d, row_page = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n",
+                row, row_page, row_y, row_height, *y, do_valign));
+
+ /*
+  * Do the vertical alignment
+  */
+
+  if (do_valign)
+  {
+    height_var = NULL;
+
+    if (cells[row][0] != NULL)
+    {
+      if ((height_var = htmlGetVariable(cells[row][0]->parent, (uchar *)"HEIGHT")) == NULL)
+	for (col = 0; col < table.num_cols; col ++)
+	  if (htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") == NULL)
+	    if ((height_var = htmlGetVariable(cells[row][col], (uchar *)"HEIGHT")) != NULL)
+	      break;
+    }
+
+    if (height_var != NULL)
+    {
+      // Hardcode the row height...
+      if (height_var[strlen((char *)height_var) - 1] == '%')
+        temp_height = (float)(atof((char *)height_var) * 0.01f * PagePrintLength);
+      else
+        temp_height = (float)(atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth);
+
+      if (table.height > 0 && temp_height > table.height)
+        temp_height = table.height;
+
+      temp_height -= 2 * table.cellpadding;
+
+      if (temp_height > row_height)
+      {
+        // Only enforce the height if it is > the actual row height.
+        row_height = temp_height;
+        row_y      = *y - temp_height;
+      }
+    }
+
+    for (col = 0; col < table.num_cols; col += colspan + 1)
+    {
+      render_t	*p;
+      float		delta_y;
+
+
+      for (colspan = 1; (col + colspan) < table.num_cols; colspan ++)
+        if (cells[row][col] != cells[row][col + colspan])
+          break;
+
+      colspan --;
+
+      if (table.cell_start[col] == NULL || table.row_spans[col] > rowspan ||
+          cells[row][col] == NULL || cells[row][col]->child == NULL)
+        continue;
+
+      if (table.row_spans[col])
+        switch (cells[row][col]->valignment)
+        {
+          case ALIGN_MIDDLE :
+              delta_y = (table.span_heights[col] - table.cell_height[col]) * 0.5f;
+              break;
+
+          case ALIGN_BOTTOM :
+              delta_y = table.span_heights[col] - table.cell_height[col];
+              break;
+
+          default :
+              delta_y = 0.0f;
+              break;
+        }
+      else
+        switch (cells[row][col]->valignment)
+        {
+          case ALIGN_MIDDLE :
+              delta_y = (row_height - table.cell_height[col]) * 0.5f;
+              break;
+
+          case ALIGN_BOTTOM :
+              delta_y = row_height - table.cell_height[col];
+              break;
+
+          default :
+              delta_y = 0.0f;
+              break;
+        }
+
+      DEBUG_printf(("row = %d, col = %d, valign = %d, cell_height = %.1f, span_heights = %.1f, delta_y = %.1f\n",
+                    row, col, cells[row][col]->valignment,
+                    table.cell_height[col], table.span_heights[col], delta_y));
+
+      if (delta_y > 0.0f)
+      {
+        if (table.cell_start[col] == table.cell_end[col])
+          p = table.cell_start[col];
+        else
+          p = table.cell_start[col]->next;
+
+        for (; p != NULL; p = p->next)
+        {
+          DEBUG_printf(("aligning %p (%s), y was %.1f, now %.1f\n",
+                        (void *)p, p->data.text.buffer, p->y, p->y - delta_y));
+
+          p->y -= delta_y;
+          if (p == table.cell_end[col])
+            break;
+        }
+      }
+#ifdef DEBUG
+      else
+      {
+        if (table.cell_start[col] == table.cell_end[col])
+          p = table.cell_start[col];
+        else
+          p = table.cell_start[col]->next;
+
+        for (; p != NULL; p = p->next)
+        {
+          printf("NOT aligning %p\n", (void *)p);
+
+          if (p == table.cell_end[col])
+            break;
+        }
+      }
+#endif /* DEBUG */
+    }
+  }
+
+  // Update all current columns with ROWSPAN <= rowspan to use the same
+  // end page and row...
+  for (col = 0, temp_page = -1, temp_y = 99999999; col < table.num_cols; col ++)
+    if (table.row_spans[col] <= rowspan &&
+        cells[row][col] != NULL && cells[row][col]->child != NULL)
+    {
+      if (table.cell_endpage[col] > temp_page)
+      {
+        temp_page = table.cell_endpage[col];
+        temp_y    = table.cell_endy[col];
+      }
+      else if (table.cell_endpage[col] == temp_page && table.cell_endy[col] < temp_y)
+        temp_y = table.cell_endy[col];
+    }
+
+  for (col = 0; col < table.num_cols; col ++)
+    if (table.row_spans[col] <= rowspan &&
+        cells[row][col] != NULL && cells[row][col]->child != NULL)
+    {
+      table.cell_endpage[col] = temp_page;
+      table.cell_endy[col]    = temp_y;
+    }
+
+  row_y -= table.cellpadding;
+
+  table.border_left = table.col_lefts[0] - table.cellpadding;
+  width       = table.col_rights[table.num_cols - 1] - table.col_lefts[0] + 2 * table.cellpadding;
+
+  for (bgcolor = NULL, col = 0; col < table.num_cols; col ++)
+    if (table.row_spans[col] <= rowspan &&
+        cells[row][col] &&
+        !htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") &&
+        (bgcolor = htmlGetVariable(cells[row][col]->parent,
+                                   (uchar *)"BGCOLOR")) != NULL)
+      break;
+
+  if (bgcolor)
+  {
+    memcpy(bgrgb, background_color, sizeof(bgrgb));
+
+    get_color(bgcolor, bgrgb, 0);
+
+    if (row_page > *page)
+    {
+      // Draw background on multiple pages...
+
+      // Bottom of first page...
+      new_render(*page, RENDER_BOX, table.border_left, bottom,
+                 width, row_starty - bottom + table.cellpadding, bgrgb,
+                 pages[*page].start);
+
+      // Intervening pages...
+      for (temp_page = *page + 1; temp_page < row_page; temp_page ++)
+      {
+        new_render(temp_page, RENDER_BOX, table.border_left, bottom,
+                   width, top - bottom, bgrgb, pages[temp_page].start);
+      }
+
+      // Top of last page...
+      check_pages(*page);
+
+      new_render(row_page, RENDER_BOX, table.border_left, row_y,
+                 width, top - row_y, bgrgb,
+                 pages[row_page].start);
+    }
+    else
+    {
+      // Draw background in row...
+      new_render(row_page, RENDER_BOX, table.border_left, row_y,
+                 width, row_height + 2 * table.cellpadding, bgrgb,
+                 pages[row_page].start);
+    }
+  }
+
+  for (col = 0; col < table.num_cols; col += colspan + 1)
+  {
+    for (colspan = 0; (col + colspan) < table.num_cols; colspan ++)
+      if (cells[row][col] != cells[row][col + colspan])
+        break;
+      else if (table.row_spans[col + colspan] > 0)
+      {
+        DEBUG_printf(("row = %d, col = %d, decrementing row_spans (%d) to %d...\n", row,
+                      col, table.row_spans[col + colspan],
+                      table.row_spans[col + colspan] - rowspan));
+        table.row_spans[col + colspan] -= rowspan;
+      }
+
+    colspan --;
+
+    width = table.col_rights[col + colspan] - table.col_lefts[col] +
+            2 * table.cellpadding;
+
+    if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
+        table.row_spans[col] > 0)
+      continue;
+
+    DEBUG_printf(("DRAWING BORDER+BACKGROUND: col=%d, row=%d, cell_page=%d, cell_y=%.1f\n"
+                  "                           cell_endpage=%d, cell_endy=%.1f\n",
+                  col, row, table.cell_page[col], table.cell_y[col],
+                  table.cell_endpage[col], table.cell_endy[col]));
+
+    if ((bgcolor = htmlGetVariable(cells[row][col],
+                                   (uchar *)"BGCOLOR")) != NULL)
+    {
+      memcpy(bgrgb, background_color, sizeof(bgrgb));
+
+      get_color(bgcolor, bgrgb, 0);
+    }
+
+    table.border_left = table.col_lefts[col] - table.cellpadding;
+
+    if (table.cell_page[col] != table.cell_endpage[col])
+    {
+     /*
+      * Crossing a page boundary...
+      */
+
+      if (table.border > 0)
+      {
+       /*
+        * +---+---+---+
+        * |   |   |   |
+        */
+
+        // Top
+        new_render(table.cell_page[col], RENDER_BOX, table.border_left,
+                   table.cell_y[col] + table.cellpadding,
+                   width + table.border, table.border, table.border_rgb);
+        // Left
+        new_render(table.cell_page[col], RENDER_BOX, table.border_left, bottom,
+                   table.border, table.cell_y[col] - bottom + table.cellpadding + table.border, table.border_rgb);
+        // Right
+        new_render(table.cell_page[col], RENDER_BOX,
+                   table.border_left + width, bottom,
+                   table.border, table.cell_y[col] - bottom + table.cellpadding + table.border, table.border_rgb);
+      }
+
+      if (bgcolor != NULL)
+      {
+        table.cell_bg[col]->y      = bottom;
+        table.cell_bg[col]->height = table.cell_y[col] - bottom + table.cellpadding + table.border;
+      }
+
+      for (temp_page = table.cell_page[col] + 1; temp_page < table.cell_endpage[col]; temp_page ++)
+      {
+       /*
+        * |   |   |   |
+        * |   |   |   |
+        */
+
+        if (table.border > 0.0f)
+        {
+          // Left
+          new_render(temp_page, RENDER_BOX, table.border_left, bottom,
+                     table.border, top - bottom, table.border_rgb);
+          // Right
+          new_render(temp_page, RENDER_BOX,
+                     table.border_left + width, bottom,
+                     table.border, top - bottom, table.border_rgb);
+        }
+
+        if (bgcolor != NULL)
+          new_render(temp_page, RENDER_BOX, table.border_left, bottom,
+                     width + table.border, top - bottom, bgrgb,
+                     pages[temp_page].start);
+      }
+
+      if (table.border > 0.0f)
+      {
+       /*
+        * |   |   |   |
+        * +---+---+---+
+        */
+
+        // Left
+        new_render(table.cell_endpage[col], RENDER_BOX, table.border_left, row_y,
+                   table.border, top - row_y, table.border_rgb);
+        // Right
+        new_render(table.cell_endpage[col], RENDER_BOX,
+                   table.border_left + width, row_y,
+                   table.border, top - row_y, table.border_rgb);
+        // Bottom
+        new_render(table.cell_endpage[col], RENDER_BOX, table.border_left, row_y,
+                   width + table.border, table.border, table.border_rgb);
+      }
+
+      if (bgcolor != NULL)
+      {
+        check_pages(table.cell_endpage[col]);
+
+        new_render(table.cell_endpage[col], RENDER_BOX, table.border_left, row_y,
+                   width + table.border, top - row_y, bgrgb,
+                   pages[table.cell_endpage[col]].start);
+      }
+    }
+    else
+    {
+     /*
+      * +---+---+---+
+      * |   |   |   |
+      * +---+---+---+
+      */
+
+      if (table.border > 0.0f)
+      {
+        // Top
+        new_render(table.cell_page[col], RENDER_BOX, table.border_left,
+                   table.cell_y[col] + table.cellpadding,
+                   width + table.border, table.border, table.border_rgb);
+        // Left
+        new_render(table.cell_page[col], RENDER_BOX, table.border_left, row_y,
+                   table.border, table.cell_y[col] - row_y + table.cellpadding + table.border, table.border_rgb);
+        // Right
+        new_render(table.cell_page[col], RENDER_BOX,
+                   table.border_left + width, row_y,
+                   table.border, table.cell_y[col] - row_y + table.cellpadding + table.border, table.border_rgb);
+        // Bottom
+        new_render(table.cell_page[col], RENDER_BOX, table.border_left, row_y,
+                   width + table.border, table.border, table.border_rgb);
+      }
+
+      if (bgcolor != NULL)
+      {
+        table.cell_bg[col]->y      = row_y;
+        table.cell_bg[col]->height = table.cell_y[col] - row_y + table.cellpadding + table.border;
+      }
+    }
+  }
+
+  *page = row_page;
+  *y    = row_y;
+}
+
 
 /*
  * 'parse_table()' - Parse a table and produce rendering output.
@@ -5541,76 +6167,43 @@ parse_table(tree_t *t,			// I - Tree to parse
 {
   int		col,
 		row,
+                header_row = -1,
 		tcol,
 		colspan,
 		rowspan,
-		num_cols,
-		num_rows,
 		alloc_rows,
-		regular_cols,
-		tempspace,
-		col_spans[MAX_COLUMNS],
-		row_spans[MAX_COLUMNS];
-  char		col_fixed[MAX_COLUMNS],
-		col_percent[MAX_COLUMNS];
-  float		col_lefts[MAX_COLUMNS],
-		col_rights[MAX_COLUMNS],
-		col_width,
-		col_widths[MAX_COLUMNS],
-		col_swidths[MAX_COLUMNS],
+		regular_cols;
+  hdtable_t     table;
+  float		col_width,
 		col_min,
-		col_mins[MAX_COLUMNS],
-		col_smins[MAX_COLUMNS],
 		col_pref,
-		col_prefs[MAX_COLUMNS],
 		col_height,
-		cellpadding,
 		cellspacing,
-		border,
-		border_left,
-		border_size,
 		width,
 		pref_width,
 		span_width,
 		regular_width,
 		actual_width,
 		table_width,
-		table_height,
 		min_width,
 		temp_width,
+                header_height = 0.0,
 		table_y,
-		row_y, row_starty, temp_y,
-		temp_bottom,
+                temp_bottom,
 		temp_top;
-  int		row_page, temp_page, table_page;
+  int		temp_page, table_page;
   uchar		*var,
-		*height_var;		// Row HEIGHT variable
+		*height_var,		// Row HEIGHT variable
+                *header_height_var = NULL;
   tree_t	*temprow,
 		*tempcol,
 		*tempnext,
 		***cells,
 		*caption;		// Caption for bottom, if any
-  int		do_valign;		// True if we should do vertical alignment of cells
-  float		row_height,		// Total height of the row
-		temp_height;		// Temporary holder
-  int		cell_page[MAX_COLUMNS],	// Start page for cell
-		cell_endpage[MAX_COLUMNS];
-					// End page for cell
-  float		cell_y[MAX_COLUMNS],	// Row or each cell
-		cell_endy[MAX_COLUMNS],	// Row or each cell
-		cell_height[MAX_COLUMNS],
-					// Height of each cell in a row
-		span_heights[MAX_COLUMNS];
-					// Height of spans
-  render_t	*cell_bg[MAX_COLUMNS];	// Background rectangles
-  render_t	*cell_start[MAX_COLUMNS];
-					// Start of the content for a cell in the row
-  render_t	*cell_end[MAX_COLUMNS];	// End of the content for a cell in a row
+  float		temp_height;		// Temporary holder
   uchar		*bgcolor;
-  float		rgb[3],
-		bgrgb[3];
+  float		bgrgb[3];
   const char	*htmldoc_debug;		// HTMLDOC_DEBUG env var
-  int		table_debug;		// Do table debugging?
 
 
   DEBUG_puts("\n\nTABLE");
@@ -5621,28 +6214,21 @@ parse_table(tree_t *t,			// I - Tree to parse
   if (t->child == NULL)
     return;   /* Empty table... */
 
+  memset(&table, 0, sizeof(table));
+
  /*
   * Check debug mode...
   */
 
   if ((htmldoc_debug = getenv("HTMLDOC_DEBUG")) != NULL &&
       (strstr(htmldoc_debug, "table") || strstr(htmldoc_debug, "all")))
-    table_debug = 1;
+    table.debug = 1;
   else
-    table_debug = 0;
+    table.debug = 0;
 
  /*
   * Figure out the # of rows, columns, and the desired widths...
   */
-
-  memset(col_spans, 0, sizeof(col_spans));
-  memset(col_fixed, 0, sizeof(col_fixed));
-  memset(col_percent, 0, sizeof(col_percent));
-  memset(col_widths, 0, sizeof(col_widths));
-  memset(col_swidths, 0, sizeof(col_swidths));
-  memset(col_mins, 0, sizeof(col_mins));
-  memset(col_smins, 0, sizeof(col_smins));
-  memset(col_prefs, 0, sizeof(col_prefs));
 
   cells = NULL;
 
@@ -5659,19 +6245,19 @@ parse_table(tree_t *t,			// I - Tree to parse
   if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
   {
     if (var[strlen((char *)var) - 1] == '%')
-      table_height = (float)(atof((char *)var) * (top - bottom) / 100.0f);
+      table.height = (float)(atof((char *)var) * (top - bottom) / 100.0f);
     else
-      table_height = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
+      table.height = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
   }
   else
-    table_height = -1.0f;
+    table.height = -1.0f;
 
   DEBUG_printf(("table_width = %.1f\n", table_width));
 
   if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
-    cellpadding = atoi((char *)var);
+    table.cellpadding = atoi((char *)var);
   else
-    cellpadding = 1.0f;
+    table.cellpadding = 1.0f;
 
   if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
     cellspacing = atoi((char *)var);
@@ -5680,25 +6266,25 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
   {
-    if ((border = (float)atof((char *)var)) == 0.0 && var[0] != '0')
-      border = 1.0f;
+    if ((table.border = (float)atof((char *)var)) == 0.0 && var[0] != '0')
+      table.border = 1.0f;
 
-    cellpadding += border;
+    table.cellpadding += table.border;
   }
   else
-    border = 0.0f;
+    table.border = 0.0f;
 
-  if (table_debug && border == 0.0f)
-    border = 0.01f;
+  if (table.debug && table.border == 0.0f)
+    table.border = 0.01f;
 
-  rgb[0] = t->red / 255.0f;
-  rgb[1] = t->green / 255.0f;
-  rgb[2] = t->blue / 255.0f;
+  table.border_rgb[0] = t->red / 255.0f;
+  table.border_rgb[1] = t->green / 255.0f;
+  table.border_rgb[2] = t->blue / 255.0f;
 
   if ((var = htmlGetVariable(t, (uchar *)"BORDERCOLOR")) != NULL)
-    get_color(var, rgb, 0);
+    get_color(var, table.border_rgb, 0);
 
-  if (border == 0.0f && cellpadding > 0.0f)
+  if (table.border == 0.0f && table.cellpadding > 0.0f)
   {
    /*
     * Ah, the strange table formatting nightmare that is HTML.
@@ -5706,26 +6292,22 @@ parse_table(tree_t *t,			// I - Tree to parse
     * pixel if no border is specified...
     */
 
-    cellpadding += 1.0f;
+    table.cellpadding += 1.0f;
   }
 
-  border_size = border - 1.0f;
+  table.border_size = table.border - 1.0f;
 
   cellspacing *= PagePrintWidth / _htmlBrowserWidth;
-  cellpadding *= PagePrintWidth / _htmlBrowserWidth;
-  border      *= PagePrintWidth / _htmlBrowserWidth;
-  border_size *= PagePrintWidth / _htmlBrowserWidth;
+  table.cellpadding *= PagePrintWidth / _htmlBrowserWidth;
+  table.border      *= PagePrintWidth / _htmlBrowserWidth;
+  table.border_size *= PagePrintWidth / _htmlBrowserWidth;
 
-  DEBUG_printf(("border = %.1f, cellpadding = %.1f\n", border,
-                cellpadding));
+  DEBUG_printf(("border = %.1f, cellpadding = %.1f\n", table.border, table.cellpadding));
 
-  temp_bottom = bottom - cellpadding;
-  temp_top    = top + cellpadding;
+  temp_bottom = bottom - table.cellpadding;
+  temp_top    = top + table.cellpadding;
 
-  memset(row_spans, 0, sizeof(row_spans));
-  memset(span_heights, 0, sizeof(span_heights));
-
-  for (temprow = t->child, num_cols = 0, num_rows = 0, alloc_rows = 0, caption = NULL;
+  for (temprow = t->child, table.num_cols = 0, table.num_rows = 0, alloc_rows = 0, caption = NULL;
        temprow != NULL;
        temprow = tempnext)
   {
@@ -5756,6 +6338,9 @@ parse_table(tree_t *t,			// I - Tree to parse
              ((temprow->markup == MARKUP_TBODY || temprow->markup == MARKUP_THEAD ||
                temprow->markup == MARKUP_TFOOT) && temprow->child != NULL))
     {
+      if (temprow->markup == MARKUP_THEAD)
+        header_row = table.num_rows;
+
       // Descend into table body as needed...
       if (temprow->markup == MARKUP_TBODY || temprow->markup == MARKUP_THEAD ||
           temprow->markup == MARKUP_TFOOT)
@@ -5769,7 +6354,7 @@ parse_table(tree_t *t,			// I - Tree to parse
           tempnext = temprow->parent->next;
 
       // Allocate memory for the table as needed...
-      if (num_rows >= alloc_rows)
+      if (table.num_rows >= alloc_rows)
       {
         alloc_rows += ALLOC_ROWS;
 
@@ -5786,7 +6371,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 	}
       }
 
-      if ((cells[num_rows] = (tree_t **)calloc(sizeof(tree_t *), MAX_COLUMNS)) == NULL)
+      if ((cells[table.num_rows] = (tree_t **)calloc(sizeof(tree_t *), MAX_COLUMNS)) == NULL)
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
                        "Unable to allocate memory for table!");
@@ -5794,25 +6379,25 @@ parse_table(tree_t *t,			// I - Tree to parse
       }
 
 #ifdef DEBUG
-      printf("BEFORE row %d: num_cols = %d\n", num_rows, num_cols);
+      printf("BEFORE row %d: num_cols = %d\n", table.num_rows, table.num_cols);
 
-      if (num_rows)
-        for (col = 0; col < num_cols; col ++)
-	  printf("    col %d: row_spans[] = %d\n", col, row_spans[col]);
+      if (table.num_rows)
+        for (col = 0; col < table.num_cols; col ++)
+	  printf("    col %d: row_spans[] = %d\n", col, table.row_spans[col]);
 #endif // DEBUG
 
       // Figure out the starting column...
-      if (num_rows)
+      if (table.num_rows)
       {
-	for (col = 0, rowspan = 9999; col < num_cols; col ++)
-	  if (row_spans[col] < rowspan)
-	    rowspan = row_spans[col];
+	for (col = 0, rowspan = 9999; col < table.num_cols; col ++)
+	  if (table.row_spans[col] < rowspan)
+	    rowspan = table.row_spans[col];
 
-	for (col = 0; col < num_cols; col ++)
-	  row_spans[col] -= rowspan;
+	for (col = 0; col < table.num_cols; col ++)
+	  table.row_spans[col] -= rowspan;
 
-	for (col = 0; row_spans[col] && col < num_cols; col ++)
-          cells[num_rows][col] = cells[num_rows - 1][col];
+	for (col = 0; table.row_spans[col] && col < table.num_cols; col ++)
+          cells[table.num_rows][col] = cells[table.num_rows - 1][col];
       }
       else
         col = 0;
@@ -5820,6 +6405,10 @@ parse_table(tree_t *t,			// I - Tree to parse
       for (tempcol = temprow->child;
            tempcol != NULL && col < MAX_COLUMNS;
            tempcol = tempcol->next)
+      {
+        if (tempcol->markup == MARKUP_TH && table.num_rows == 0)
+          header_row = table.num_rows;
+
         if (tempcol->markup == MARKUP_TD || tempcol->markup == MARKUP_TH)
         {
 	  // Handle colspan and rowspan stuff...
@@ -5830,30 +6419,29 @@ parse_table(tree_t *t,			// I - Tree to parse
 
           if ((var = htmlGetVariable(tempcol, (uchar *)"ROWSPAN")) != NULL)
 	  {
-            row_spans[col] = atoi((char *)var);
+            table.row_spans[col] = atoi((char *)var);
 
-	    if (row_spans[col] == 1)
-	      row_spans[col] = 0;
+	    if (table.row_spans[col] == 1)
+	      table.row_spans[col] = 0;
 
 	    for (tcol = 1; tcol < colspan; tcol ++)
-              row_spans[col + tcol] = row_spans[col];
+              table.row_spans[col + tcol] = table.row_spans[col];
           }
 
           // Compute the cell size...
-          col_width = get_cell_size(tempcol, 0.0f, table_width, &col_min,
-	                            &col_pref, &col_height);
+          col_width = get_cell_size(tempcol, 0.0f, table_width, &col_min, &col_pref, &col_height);
           if ((var = htmlGetVariable(tempcol, (uchar *)"WIDTH")) != NULL)
 	  {
 	    if (var[strlen((char *)var) - 1] == '%')
 	    {
-              col_width -= 2.0 * cellpadding - cellspacing;
+              col_width -= 2.0 * table.cellpadding - cellspacing;
 
 	      if (colspan <= 1)
-	        col_percent[col] = 1;
+	        table.col_percent[col] = 1;
 	    }
 	    else
 	    {
-              col_width -= 2.0 * cellpadding;
+              col_width -= 2.0 * table.cellpadding;
 	    }
 	  }
 	  else
@@ -5861,89 +6449,74 @@ parse_table(tree_t *t,			// I - Tree to parse
 
           tempcol->height = col_height;
 
-	  DEBUG_printf(("%d,%d: colsp=%d, rowsp=%d, width=%.1f, minw=%.1f, prefw=%.1f, minh=%.1f\n",
-	                col, num_rows, colspan, row_spans[col], col_width,
-			col_min, col_pref, col_height));
+	  DEBUG_printf(("%d,%d: colsp=%d, rowsp=%d, width=%.1f, minw=%.1f, prefw=%.1f, minh=%.1f\n", col, table.num_rows, colspan, table.row_spans[col], col_width, col_min, col_pref, col_height));
 
           // Add widths to columns...
           if (colspan > 1)
           {
-	    if (colspan > col_spans[col])
-	      col_spans[col] = colspan;
+	    if (colspan > table.col_spans[col])
+	      table.col_spans[col] = colspan;
 
-	    if (col_width > col_swidths[col])
-	      col_swidths[col] = col_width;
+	    if (col_width > table.col_swidths[col])
+	      table.col_swidths[col] = col_width;
 
-	    if (col_min > col_smins[col])
-	      col_smins[col] = col_min;
-
-	    temp_width = col_width / colspan;
-	    for (int i = 0; i < colspan; i ++)
-	    {
-	      if (temp_width > col_widths[col + i])
-	        col_widths[col + i] = temp_width;
-	    }
-
-#if 0
-	    temp_width = col_pref / colspan;
-	    for (int i = 0; i < colspan; i ++)
-	    {
-	      if (temp_width > col_prefs[col + i])
-	        col_prefs[col + i] = temp_width;
-	    }
+	    if (col_min > table.col_smins[col])
+	      table.col_smins[col] = col_min;
 
 	    temp_width = col_width / colspan;
 	    for (int i = 0; i < colspan; i ++)
 	    {
-	      if (temp_width > col_widths[col + i])
-	        col_widths[col + i] = temp_width;
+	      if (temp_width > table.col_widths[col + i])
+	        table.col_widths[col + i] = temp_width;
 	    }
-#endif // 0
           }
 	  else
 	  {
 	    if (col_width > 0.0f)
-	      col_fixed[col] = 1;
+	      table.col_fixed[col] = 1;
 
-	    if (col_width > col_widths[col])
-	      col_widths[col] = col_width;
+	    if (col_width > table.col_widths[col])
+	      table.col_widths[col] = col_width;
 
-	    if (col_pref > col_prefs[col])
-	      col_prefs[col] = col_pref;
+	    if (col_pref > table.col_prefs[col])
+	      table.col_prefs[col] = col_pref;
 
-	    if (col_min > col_mins[col])
-	      col_mins[col] = col_min;
+	    if (col_min > table.col_mins[col])
+	      table.col_mins[col] = col_min;
           }
 
 	  while (colspan > 0 && col < MAX_COLUMNS)
 	  {
-            cells[num_rows][col] = tempcol;
+            cells[table.num_rows][col] = tempcol;
             col ++;
             colspan --;
           }
 
-          while (row_spans[col] && col < num_cols)
+          while (table.row_spans[col] && col < table.num_cols)
 	  {
-            cells[num_rows][col] = cells[num_rows - 1][col];
+            cells[table.num_rows][col] = cells[table.num_rows - 1][col];
 	    col ++;
 	  }
         }
+      }
 
-      if (col > num_cols)
-        num_cols = col;
+      DEBUG_printf(("header_row=%d\n", header_row));
+
+      if (col > table.num_cols)
+        table.num_cols = col;
 
 #ifdef DEBUG
-      printf("AFTER row %d: num_cols = %d\n", num_rows, num_cols);
+      printf("AFTER row %d: num_cols = %d\n", table.num_rows, table.num_cols);
 
-      for (col = 0; col < num_cols; col ++)
-        printf("    col %d: row_spans[] = %d\n", col, row_spans[col]);
+      for (col = 0; col < table.num_cols; col ++)
+        printf("    col %d: row_spans[] = %d\n", col, table.row_spans[col]);
 #endif // DEBUG
 
-      num_rows ++;
+      table.num_rows ++;
 
-      for (col = 0; col < num_cols; col ++)
-        if (row_spans[col])
-	  row_spans[col] --;
+      for (col = 0; col < table.num_cols; col ++)
+        if (table.row_spans[col])
+	  table.row_spans[col] --;
     }
   }
 
@@ -5952,7 +6525,7 @@ parse_table(tree_t *t,			// I - Tree to parse
   * rows...  If this happened, return immediately...
   */
 
-  if (num_cols == 0)
+  if (table.num_cols == 0)
     return;
 
  /*
@@ -5968,10 +6541,10 @@ parse_table(tree_t *t,			// I - Tree to parse
   }
   else
   {
-    for (col = 0, width = 0.0; col < num_cols; col ++)
-      width += col_prefs[col];
+    for (col = 0, width = 0.0; col < table.num_cols; col ++)
+      width += table.col_prefs[col];
 
-    width += (2 * cellpadding + cellspacing) * num_cols - cellspacing;
+    width += (2 * table.cellpadding + cellspacing) * table.num_cols - cellspacing;
 
     if (width > (right - left))
       width = right - left;
@@ -5981,11 +6554,11 @@ parse_table(tree_t *t,			// I - Tree to parse
   * Compute the width of each column based on the printable width.
   */
 
-  DEBUG_printf(("\nTABLE: %dx%d\n\n", num_cols, num_rows));
+  DEBUG_printf(("\nTABLE: %dx%d\n\n", table.num_cols, table.num_rows));
 
-  actual_width  = (2 * cellpadding + cellspacing) * num_cols -
+  actual_width  = (2 * table.cellpadding + cellspacing) * table.num_cols -
                   cellspacing;
-  regular_width = (width - actual_width) / num_cols;
+  regular_width = (width - actual_width) / table.num_cols;
 
   DEBUG_printf(("    width = %.1f, actual_width = %.1f, regular_width = %.1f\n\n",
                 width, actual_width, regular_width));
@@ -5993,10 +6566,8 @@ parse_table(tree_t *t,			// I - Tree to parse
   DEBUG_puts("    ---  ------  ------  ------  ------  --------");
 
 #ifdef DEBUG
-  for (col = 0; col < num_cols; col ++)
-    printf("    %-3d  %-6.1f  %-6.1f  %-6.1f  %-6s  %s\n", col, col_widths[col],
-           col_mins[col], col_prefs[col], col_fixed[col] ? "YES" : "NO",
-	   col_percent[col] ? "YES" : "NO");
+  for (col = 0; col < table.num_cols; col ++)
+    printf("    %-3d  %-6.1f  %-6.1f  %-6.1f  %-6s  %s\n", col, table.col_widths[col], table.col_mins[col], table.col_prefs[col], table.col_fixed[col] ? "YES" : "NO", table.col_percent[col] ? "YES" : "NO");
 
   puts("");
 #endif /* DEBUG */
@@ -6007,28 +6578,26 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   DEBUG_puts("PASS 1: fixed width handling\n");
 
-  for (col = 0, regular_cols = 0; col < num_cols; col ++)
-    if (col_widths[col] > 0.0f)
+  for (col = 0, regular_cols = 0; col < table.num_cols; col ++)
+    if (table.col_widths[col] > 0.0f)
     {
-      if (col_mins[col] > col_widths[col])
+      if (table.col_mins[col] > table.col_widths[col])
       {
-        DEBUG_printf(("    updating column %d to width=%.1f\n", col,
-	              col_mins[col]));
+        DEBUG_printf(("    updating column %d to width=%.1f\n", col, table.col_mins[col]));
 
-        col_widths[col] = col_mins[col];
+        table.col_widths[col] = table.col_mins[col];
       }
 
-      actual_width += col_widths[col];
+      actual_width += table.col_widths[col];
     }
     else
     {
       regular_cols ++;
 
-      actual_width += col_mins[col];
+      actual_width += table.col_mins[col];
     }
 
-  DEBUG_printf(("    actual_width = %.1f, regular_cols = %d\n\n", actual_width,
-                regular_cols));
+  DEBUG_printf(("    actual_width = %.1f, regular_cols = %d\n\n", actual_width,regular_cols));
 
  /*
   * Pass two uses the "preferred" width whenever possible, and the
@@ -6037,9 +6606,9 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   DEBUG_puts("PASS 2: preferred width handling\n");
 
-  for (col = 0, pref_width = 0.0f; col < num_cols; col ++)
-    if (col_widths[col] == 0.0f)
-      pref_width += col_prefs[col] - col_mins[col];
+  for (col = 0, pref_width = 0.0f; col < table.num_cols; col ++)
+    if (table.col_widths[col] == 0.0f)
+      pref_width += table.col_prefs[col] - table.col_mins[col];
 
   DEBUG_printf(("    pref_width = %.1f\n", pref_width));
 
@@ -6052,24 +6621,24 @@ parse_table(tree_t *t,			// I - Tree to parse
 
     DEBUG_printf(("    regular_width = %.1f\n", regular_width));
 
-    for (col = 0; col < num_cols; col ++)
-      if (col_widths[col] == 0.0f)
+    for (col = 0; col < table.num_cols; col ++)
+      if (table.col_widths[col] == 0.0f)
       {
-	pref_width = (col_prefs[col] - col_mins[col]) * regular_width;
+	pref_width = (table.col_prefs[col] - table.col_mins[col]) * regular_width;
 
 	if ((actual_width + pref_width) > width)
 	{
-          if (col == (num_cols - 1) && (width - actual_width) >= col_mins[col])
-	    col_widths[col] = width - actual_width;
+          if (col == (table.num_cols - 1) && (width - actual_width) >= table.col_mins[col])
+	    table.col_widths[col] = width - actual_width;
 	  else
-	    col_widths[col] = col_mins[col];
+	    table.col_widths[col] = table.col_mins[col];
 	}
 	else
-          col_widths[col] = pref_width + col_mins[col];
+          table.col_widths[col] = pref_width + table.col_mins[col];
 
-        DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+        DEBUG_printf(("    col_widths[%d] = %.1f\n", col, table.col_widths[col]));
 
-	actual_width += col_widths[col] - col_mins[col];
+	actual_width += table.col_widths[col] - table.col_mins[col];
       }
   }
   else
@@ -6078,9 +6647,9 @@ parse_table(tree_t *t,			// I - Tree to parse
     * Assign min widths for all cells...
     */
 
-    for (col = 0; col < num_cols; col ++)
-      if (col_widths[col] == 0.0f)
-        col_widths[col] = col_mins[col];
+    for (col = 0; col < table.num_cols; col ++)
+      if (table.col_widths[col] == 0.0f)
+        table.col_widths[col] = table.col_mins[col];
   }
 
   DEBUG_printf(("    actual_width = %.1f\n\n", actual_width));
@@ -6092,31 +6661,30 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   DEBUG_puts("PASS 3: colspan handling\n\n");
 
-  for (col = 0; col < num_cols; col ++)
+  for (col = 0; col < table.num_cols; col ++)
   {
-    DEBUG_printf(("    col %d, colspan %d\n", col, col_spans[col]));
+    DEBUG_printf(("    col %d, colspan %d\n", col, table.col_spans[col]));
 
-    if (col_spans[col] > 1)
+    if (table.col_spans[col] > 1)
     {
-      for (colspan = 0, span_width = 0.0f; colspan < col_spans[col]; colspan ++)
-        span_width += col_widths[col + colspan];
+      for (colspan = 0, span_width = 0.0f; colspan < table.col_spans[col]; colspan ++)
+        span_width += table.col_widths[col + colspan];
 
       pref_width = 0.0f;
 
-      if (span_width < col_swidths[col])
-        pref_width = col_swidths[col];
-      if (span_width < col_smins[col] && pref_width < col_smins[col])
-        pref_width = col_smins[col];
+      if (span_width < table.col_swidths[col])
+        pref_width = table.col_swidths[col];
+      if (span_width < table.col_smins[col] && pref_width < table.col_smins[col])
+        pref_width = table.col_smins[col];
 
-      for (colspan = 0; colspan < col_spans[col]; colspan ++)
-        if (col_fixed[col + colspan])
+      for (colspan = 0; colspan < table.col_spans[col]; colspan ++)
+        if (table.col_fixed[col + colspan])
 	{
-          span_width -= col_widths[col + colspan];
-	  pref_width -= col_widths[col + colspan];
+          span_width -= table.col_widths[col + colspan];
+	  pref_width -= table.col_widths[col + colspan];
 	}
 
-      DEBUG_printf(("    col_swidths=%.1f, col_smins=%.1f, span_width=%.1f, pref_width=%.1f\n",
-                    col_swidths[col], col_smins[col], span_width, pref_width));
+      DEBUG_printf(("    col_swidths=%.1f, col_smins=%.1f, span_width=%.1f, pref_width=%.1f\n", table.col_swidths[col], table.col_smins[col], span_width, pref_width));
 
       if (pref_width > 0.0f && pref_width > span_width)
       {
@@ -6125,15 +6693,14 @@ parse_table(tree_t *t,			// I - Tree to parse
           // Expand cells proportionately...
 	  regular_width = pref_width / span_width;
 
-	  for (colspan = 0; colspan < col_spans[col]; colspan ++)
-	    if (!col_fixed[col + colspan])
+	  for (colspan = 0; colspan < table.col_spans[col]; colspan ++)
+	    if (!table.col_fixed[col + colspan])
 	    {
-	      actual_width -= col_widths[col + colspan];
-	      col_widths[col + colspan] *= regular_width;
-	      actual_width += col_widths[col + colspan];
+	      actual_width -= table.col_widths[col + colspan];
+	      table.col_widths[col + colspan] *= regular_width;
+	      actual_width += table.col_widths[col + colspan];
 
-              DEBUG_printf(("    col_widths[%d] = %.1f\n", col + colspan,
-	                    col_widths[col + colspan]));
+              DEBUG_printf(("    col_widths[%d] = %.1f\n", col + colspan, table.col_widths[col + colspan]));
 	    }
         }
 	else
@@ -6143,14 +6710,14 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  // to you by Yahoo! and their single cell tables with
 	  // colspan=2 :)
 
-	  regular_width = pref_width / col_spans[col];
+	  regular_width = pref_width / table.col_spans[col];
 
-	  for (colspan = 0; colspan < col_spans[col]; colspan ++)
+	  for (colspan = 0; colspan < table.col_spans[col]; colspan ++)
 	  {
 	    actual_width += regular_width;
-	    col_widths[col + colspan] += regular_width;
+	    table.col_widths[col + colspan] += regular_width;
 
-            DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+            DEBUG_printf(("    col_widths[%d] = %.1f\n", col, table.col_widths[col]));
 	  }
 	}
       }
@@ -6167,19 +6734,19 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   if (width > actual_width)
   {
-    for (col = 0, colspan = 0; col < num_cols; col ++)
-      if (!col_fixed[col] || col_percent[col])
+    for (col = 0, colspan = 0; col < table.num_cols; col ++)
+      if (!table.col_fixed[col] || table.col_percent[col])
         colspan ++;
 
     if (colspan > 0)
     {
-      regular_width = (width - actual_width) / num_cols;
+      regular_width = (width - actual_width) / table.num_cols;
 
-      for (col = 0; col < num_cols; col ++)
-        if (!col_fixed[col])
+      for (col = 0; col < table.num_cols; col ++)
+        if (!table.col_fixed[col])
 	{
-	  col_widths[col] += regular_width;
-	  DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+	  table.col_widths[col] += regular_width;
+	  DEBUG_printf(("    col_widths[%d] = %.1f\n", col, table.col_widths[col]));
 	}
     }
   }
@@ -6201,11 +6768,10 @@ parse_table(tree_t *t,			// I - Tree to parse
     * as determined at the beginning...
     */
 
-    for (col = 0, min_width = -cellspacing; col < num_cols; col ++)
-      min_width += col_mins[col] + 2 * cellpadding + cellspacing;
+    for (col = 0, min_width = -cellspacing; col < table.num_cols; col ++)
+      min_width += table.col_mins[col] + 2 * table.cellpadding + cellspacing;
 
-    DEBUG_printf(("    table_width = %.1f, width = %.1f, min_width = %.1f\n",
-                  table_width, width, min_width));
+    DEBUG_printf(("    table_width = %.1f, width = %.1f, min_width = %.1f\n", table_width, width, min_width));
 
     temp_width = table_width - min_width;
     if (temp_width < 0.0f)
@@ -6215,52 +6781,46 @@ parse_table(tree_t *t,			// I - Tree to parse
     if (width < 1.0f)
       width = 1.0f;
 
-    for (col = 0; col < num_cols; col ++)
+    for (col = 0; col < table.num_cols; col ++)
     {
-      col_widths[col] = col_mins[col] +
-                        temp_width * (col_widths[col] - col_mins[col]) / width;
+      table.col_widths[col] = table.col_mins[col] + temp_width * (table.col_widths[col] - table.col_mins[col]) / width;
 
-      DEBUG_printf(("    col_widths[%d] = %.1f\n", col, col_widths[col]));
+      DEBUG_printf(("    col_widths[%d] = %.1f\n", col, table.col_widths[col]));
     }
 
-    for (col = 0, width = -cellspacing; col < num_cols; col ++)
-      width += col_widths[col] + 2 * cellpadding + cellspacing;
+    for (col = 0, width = -cellspacing; col < table.num_cols; col ++)
+      width += table.col_widths[col] + 2 * table.cellpadding + cellspacing;
 
-    DEBUG_printf(("    new width = %.1f, max width = %.1f\n", width,
-                  right - left));
+    DEBUG_printf(("    new width = %.1f, max width = %.1f\n", width, right - left));
   }
 
   if ((width - right + left) > 0.001f && OverflowErrors)
-    progress_error(HD_ERROR_CONTENT_TOO_LARGE,
-                   "Table on page %d too wide - "
-		   "truncation or overlapping may occur!", *page + 1);
+    progress_error(HD_ERROR_CONTENT_TOO_LARGE, "Table on page %d too wide - truncation or overlapping may occur!", *page + 1);
 
   DEBUG_puts("");
 
-  DEBUG_printf(("Final table width = %.1f, alignment = %d\n",
-                width, t->halignment));
+  DEBUG_printf(("Final table width = %.1f, alignment = %d\n", width, t->halignment));
 
   switch (t->halignment)
   {
     case ALIGN_LEFT :
-        *x = left + cellpadding;
+        *x = left + table.cellpadding;
         break;
     case ALIGN_CENTER :
-        *x = left + 0.5f * (right - left - width) + cellpadding;
+        *x = left + 0.5f * (right - left - width) + table.cellpadding;
         break;
     case ALIGN_RIGHT :
-        *x = right - width + cellpadding;
+        *x = right - width + table.cellpadding;
         break;
   }
 
-  for (col = 0; col < num_cols; col ++)
+  for (col = 0; col < table.num_cols; col ++)
   {
-    col_lefts[col]  = *x;
-    col_rights[col] = *x + col_widths[col];
-    *x = col_rights[col] + 2 * cellpadding + cellspacing;
+    table.col_lefts[col]  = *x;
+    table.col_rights[col] = *x + table.col_widths[col];
+    *x = table.col_rights[col] + 2 * table.cellpadding + cellspacing;
 
-    DEBUG_printf(("left[%d] = %.1f, right[%d] = %.1f\n", col, col_lefts[col], col,
-                  col_rights[col]));
+    DEBUG_printf(("left[%d] = %.1f, right[%d] = %.1f\n", col, table.col_lefts[col], col, table.col_rights[col]));
   }
 
  /*
@@ -6270,7 +6830,7 @@ parse_table(tree_t *t,			// I - Tree to parse
   if (*y < top && needspace)
     *y -= _htmlSpacings[SIZE_P];
 
-  if (table_debug)
+  if (table.debug)
   {
     check_pages(*page);
 
@@ -6287,16 +6847,10 @@ parse_table(tree_t *t,			// I - Tree to parse
     r->data.text.size     = (float)_htmlSizes[3];
   }
 
-  memset(row_spans, 0, sizeof(row_spans));
-  memset(cell_start, 0, sizeof(cell_start));
-  memset(cell_end, 0, sizeof(cell_end));
-  memset(cell_height, 0, sizeof(cell_height));
-  memset(cell_bg, 0, sizeof(cell_bg));
-
   table_page = *page;
   table_y    = *y;
 
-  for (row = 0; row < num_rows; row ++)
+  for (row = 0; row < table.num_rows; row ++)
   {
     height_var = NULL;
 
@@ -6308,53 +6862,52 @@ parse_table(tree_t *t,			// I - Tree to parse
 
       if (cells[row][0]->parent->prev != NULL &&
           cells[row][0]->parent->prev->markup == MARKUP_COMMENT)
-        parse_comment(cells[row][0]->parent->prev,
-                      &left, &right, &temp_bottom, &temp_top, x, y,
-		      page, NULL, 0);
+        parse_comment(cells[row][0]->parent->prev, &left, &right, &temp_bottom, &temp_top, x, y, page, NULL, 0);
 
      /*
       * Get height...
       */
 
-      if ((height_var = htmlGetVariable(cells[row][0]->parent,
-                           	        (uchar *)"HEIGHT")) == NULL)
-	for (col = 0; col < num_cols; col ++)
+      if ((height_var = htmlGetVariable(cells[row][0]->parent, (uchar *)"HEIGHT")) == NULL)
+	for (col = 0; col < table.num_cols; col ++)
 	  if (htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") == NULL)
-	    if ((height_var = htmlGetVariable(cells[row][col],
-                                              (uchar *)"HEIGHT")) != NULL)
+	    if ((height_var = htmlGetVariable(cells[row][col], (uchar *)"HEIGHT")) != NULL)
 	      break;
     }
+
+    if (height_var != NULL && row == header_row)
+      header_height_var = height_var;
 
     if (cells[row][0] != NULL && height_var != NULL)
     {
       // Row height specified; make sure it'll fit...
       if (height_var[strlen((char *)height_var) - 1] == '%')
-	temp_height = (float)(atof((char *)height_var) * 0.01f * (PagePrintLength - 2 * cellpadding));
+	temp_height = (float)(atof((char *)height_var) * 0.01f * (PagePrintLength - 2 * table.cellpadding));
       else
         temp_height = (float)(atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth);
 
-      if (table_height > 0.0f && temp_height > table_height)
-        temp_height = table_height;
+      if (table.height > 0.0f && temp_height > table.height)
+        temp_height = table.height;
 
-      temp_height -= 2 * cellpadding;
+      temp_height -= 2 * table.cellpadding;
     }
     else
     {
       // Use min height computed from get_cell_size()...
       for (col = 0, temp_height = (float)_htmlSpacings[SIZE_P];
-           col < num_cols;
+           col < table.num_cols;
 	   col ++)
         if (cells[row][col] != NULL &&
 	    cells[row][col]->height > temp_height &&
 	    !htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN"))
 	  temp_height = cells[row][col]->height;
 
-      if (table_height > 0.0)
+      if (table.height > 0.0)
       {
 	// Table height specified; make sure it'll fit...
-	if (temp_height > table_height)
-          temp_height = table_height;
-	temp_height -= 2 * cellpadding;
+	if (temp_height > table.height)
+          temp_height = table.height;
+	temp_height -= 2 * table.cellpadding;
       }
       else if (temp_height > (PageLength / 8) && height_var == NULL)
 	temp_height = PageLength / 8;
@@ -6363,574 +6916,52 @@ parse_table(tree_t *t,			// I - Tree to parse
     DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f, *page = %d\n",
                   row, temp_height, *y, *page));
 
-    if (*y < (bottom + 2 * cellpadding + temp_height) &&
-        temp_height <= (top - bottom - 2 * cellpadding))
+    if (*y < (bottom + 2 * table.cellpadding + temp_height) &&
+        temp_height <= (top - bottom - 2 * table.cellpadding))
     {
       DEBUG_puts("NEW PAGE");
 
-      *y = top;
+      *y = top - header_height;
       (*page) ++;
 
       if (Verbosity)
         progress_show("Formatting page %d", *page);
+
+      if (row > 0 && header_row >= 0)
+      {
+        // Render header row...
+        render_table_row(table, cells, header_row, header_height_var, left, right, bottom, top, x, y, page);
+      }
     }
 
-    do_valign  = 1;
-    row_y      = *y - cellpadding;
-    row_starty = row_y;
-    row_page   = *page;
-    row_height = 0.0f;
-
-    DEBUG_printf(("BEFORE row_y = %.1f, *y = %.1f, row_page = %d\n",
-                  row_y, *y, row_page));
-
-    for (col = 0, rowspan = 9999; col < num_cols; col += colspan)
+    float start_y = *y;
+    temp_page = *page;
+    render_table_row(table, cells, row, height_var, left, right, bottom, top, x, y, page);
+    if (header_row >= 0 && row == header_row)
     {
-      if (row_spans[col] == 0)
-      {
-        if ((var = htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN")) != NULL)
-          row_spans[col] = atoi((char *)var);
-
-        if (row_spans[col] == 1)
-	  row_spans[col] = 0;
-
-        if (row_spans[col] > (num_rows - row))
-	  row_spans[col] = num_rows - row;
-
-	span_heights[col] = 0.0f;
-      }
-
-      if (row_spans[col] < rowspan)
-	rowspan = row_spans[col];
-
-      for (colspan = 1; (col + colspan) < num_cols; colspan ++)
-        if (cells[row][col] != cells[row][col + colspan])
-          break;
+      header_height = *y - start_y;
+      top += header_height;
     }
-
-    if (!rowspan)
-      rowspan = 1;
-
-    for (col = 0; col < num_cols;)
+    else if (temp_page != *page && header_row >= 0)
     {
-      for (colspan = 1; (col + colspan) < num_cols; colspan ++)
-        if (cells[row][col] != cells[row][col + colspan])
-          break;
-      colspan --;
-
-      DEBUG_printf(("    col = %d, colspan = %d, left = %.1f, right = %.1f, cell = %p\n",
-                    col, colspan, col_lefts[col], col_rights[col + colspan], (void *)cells[row][col]));
-
-      *x        = col_lefts[col];
-      temp_y    = *y - cellpadding;
-      temp_page = *page;
-      tempspace = 0;
-
-      if (row == 0 || cells[row][col] != cells[row - 1][col])
+      // Render header row on new page(s)...
+      do
       {
-        check_pages(*page);
+        float temp_y = top - header_height;
 
-        if (cells[row][col] == NULL)
-	  bgcolor = NULL;
-	else if ((bgcolor = htmlGetVariable(cells[row][col],
-                                            (uchar *)"BGCOLOR")) != NULL)
-	{
-	  memcpy(bgrgb, background_color, sizeof(bgrgb));
-
-          get_color(bgcolor, bgrgb, 0);
-
-	  width       = col_rights[col + colspan] - col_lefts[col] +
-        	        2 * cellpadding;
-	  border_left = col_lefts[col] - cellpadding;
-
-          cell_bg[col] = new_render(*page, RENDER_BOX, border_left, row_y,
-                                    width + border, 0.0, bgrgb);
-	}
-	else
-	{
-	  cell_bg[col] = NULL;
-
-          new_render(*page, RENDER_TEXT, -1.0f, -1.0f, 0.0, 0.0, (void *)"");
-	}
-
-        DEBUG_printf(("cell_bg[%d] = %p, pages[%d].end = %p\n",
-	              col, (void *)cell_bg[col], *page, (void *)pages[*page].end));
-
-	cell_start[col] = pages[*page].end;
-	cell_page[col]  = temp_page;
-	cell_y[col]     = temp_y;
-
-        if (table_debug)
-	{
-	  check_pages(*page);
-
-	  render_t *r;
-	  char table_text[255];
-
-	  snprintf(table_text, sizeof(table_text), "cell=%p [%d,%d]",
-	           (void *)cells[row][col], row, col);
-	  r = new_render(temp_page, RENDER_TEXT, *x, temp_y,
-                	 get_width((uchar *)table_text, TYPE_COURIER, STYLE_NORMAL, 1),
-			 _htmlSizes[1], table_text);
-
-	  r->data.text.typeface = TYPE_COURIER;
-	  r->data.text.style    = STYLE_NORMAL;
-	  r->data.text.size     = (float)_htmlSizes[1];
-	}
-
-        if (cells[row][col] != NULL && cells[row][col]->child != NULL)
-	{
-	  DEBUG_printf(("    parsing cell %d,%d; width = %.1f\n", row, col,
-	                col_rights[col + colspan] - col_lefts[col]));
-
-          bottom += cellpadding;
-	  top    -= cellpadding;
-
-          parse_doc(cells[row][col]->child,
-                    col_lefts + col, col_rights + col + colspan,
-                    &bottom, &top,
-                    x, &temp_y, &temp_page, NULL, &tempspace);
-
-          bottom -= cellpadding;
-	  top    += cellpadding;
-        }
-
-        cell_endpage[col] = temp_page;
-        cell_endy[col]    = temp_y;
-        cell_height[col]  = *y - cellpadding - temp_y;
-        cell_end[col]     = pages[*page].end;
-
-        if (cell_start[col] == NULL)
-	  cell_start[col] = pages[*page].start;
-
-        DEBUG_printf(("row = %d, col = %d, y = %.1f, cell_y = %.1f, cell_height = %.1f\n",
-	              row, col, *y - cellpadding, temp_y, cell_height[col]));
-        DEBUG_printf(("cell_start[%d] = %p, cell_end[%d] = %p\n",
-	              col, (void *)cell_start[col], col, (void *)cell_end[col]));
+        temp_page ++;
+        render_table_row(table, cells, header_row, header_height_var, left, right, bottom, top, x, &temp_y, &temp_page);
       }
-
-      if (row_spans[col] == 0 &&
-          cell_page[col] == cell_endpage[col] &&
-	  cell_height[col] > row_height)
-        row_height = cell_height[col];
-
-      if (row_spans[col] <= rowspan)
-      {
-	if (cell_page[col] != cell_endpage[col])
-	  do_valign = 0;
-
-        if (cell_endpage[col] > row_page)
-	{
-	  row_page = cell_endpage[col];
-	  row_y    = cell_endy[col];
-	}
-	else if (cell_endy[col] < row_y && cell_endpage[col] == row_page)
-	  row_y = cell_endy[col];
-      }
-
-      DEBUG_printf(("**** col = %d, row = %d, row_y = %.1f, row_page = %d\n",
-                    col, row, row_y, row_page));
-
-      for (col ++; colspan > 0; colspan --, col ++)
-      {
-        cell_start[col]   = NULL;
-        cell_page[col]    = cell_page[col - 1];
-        cell_y[col]       = cell_y[col - 1];
-	cell_end[col]     = NULL;
-        cell_endpage[col] = cell_endpage[col - 1];
-        cell_endy[col]    = cell_endy[col - 1];
-	cell_height[col]  = cell_height[col - 1];
-      }
+      while (temp_page < *page);
     }
 
-    DEBUG_printf(("row = %d, row_y = %.1f, row_height = %.1f\n", row, row_y, row_height));
-
-    for (col = 0; col < num_cols; col += colspan)
-    {
-      for (colspan = 1; (col + colspan) < num_cols; colspan ++)
-        if (cells[row][col] != cells[row][col + colspan])
-          break;
-
-      if (row_spans[col])
-        span_heights[col] += row_height;
-
-      DEBUG_printf(("col = %d, cell_y = %.1f, cell_page = %d, cell_endpage = %d, row_spans = %d, span_heights = %.1f, cell_height = %.1f\n",
-                    col, cell_y[col], cell_page[col], cell_endpage[col],
-		    row_spans[col], span_heights[col], cell_height[col]));
-
-      if (row_spans[col] == rowspan &&
-          cell_page[col] == cell_endpage[col] &&
-	  cell_height[col] > span_heights[col])
-      {
-        temp_height = cell_height[col] - span_heights[col];
-	row_height  += temp_height;
-	DEBUG_printf(("Adjusting row-span height by %.1f, new row_height = %.1f\n",
-	              temp_height, row_height));
-
-	for (tcol = 0; tcol < num_cols; tcol ++)
-	  if (row_spans[tcol])
-	  {
-	    span_heights[tcol] += temp_height;
-	    DEBUG_printf(("col = %d, span_heights = %.1f\n", tcol, span_heights[tcol]));
-	  }
-      }
-    }
-
-    DEBUG_printf(("AFTER row = %d, row_page = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n",
-                  row, row_page, row_y, row_height, *y, do_valign));
-
-   /*
-    * Do the vertical alignment
-    */
-
-    if (do_valign)
-    {
-      if (height_var != NULL)
-      {
-        // Hardcode the row height...
-        if (height_var[strlen((char *)height_var) - 1] == '%')
-	  temp_height = (float)(atof((char *)height_var) * 0.01f * PagePrintLength);
-	else
-          temp_height = (float)(atof((char *)height_var) * PagePrintWidth / _htmlBrowserWidth);
-
-        if (table_height > 0 && temp_height > table_height)
-          temp_height = table_height;
-
-        temp_height -= 2 * cellpadding;
-
-        if (temp_height > row_height)
-	{
-	  // Only enforce the height if it is > the actual row height.
-	  row_height = temp_height;
-          row_y      = *y - temp_height;
-	}
-      }
-
-      for (col = 0; col < num_cols; col += colspan + 1)
-      {
-        render_t	*p;
-        float		delta_y;
-
-
-        for (colspan = 1; (col + colspan) < num_cols; colspan ++)
-          if (cells[row][col] != cells[row][col + colspan])
-            break;
-
-        colspan --;
-
-        if (cell_start[col] == NULL || row_spans[col] > rowspan ||
-	    cells[row][col] == NULL || cells[row][col]->child == NULL)
-	  continue;
-
-        if (row_spans[col])
-          switch (cells[row][col]->valignment)
-	  {
-            case ALIGN_MIDDLE :
-        	delta_y = (span_heights[col] - cell_height[col]) * 0.5f;
-        	break;
-
-            case ALIGN_BOTTOM :
-        	delta_y = span_heights[col] - cell_height[col];
-        	break;
-
-            default :
-        	delta_y = 0.0f;
-        	break;
-          }
-	else
-          switch (cells[row][col]->valignment)
-	  {
-            case ALIGN_MIDDLE :
-        	delta_y = (row_height - cell_height[col]) * 0.5f;
-        	break;
-
-            case ALIGN_BOTTOM :
-        	delta_y = row_height - cell_height[col];
-        	break;
-
-            default :
-        	delta_y = 0.0f;
-        	break;
-          }
-
-	DEBUG_printf(("row = %d, col = %d, valign = %d, cell_height = %.1f, span_heights = %.1f, delta_y = %.1f\n",
-	              row, col, cells[row][col]->valignment,
-		      cell_height[col], span_heights[col], delta_y));
-
-        if (delta_y > 0.0f)
-	{
-	  if (cell_start[col] == cell_end[col])
-	    p = cell_start[col];
-	  else
-	    p = cell_start[col]->next;
-
-          for (; p != NULL; p = p->next)
-	  {
-	    DEBUG_printf(("aligning %p (%s), y was %.1f, now %.1f\n",
-	                  (void *)p, p->data.text.buffer, p->y, p->y - delta_y));
-
-            p->y -= delta_y;
-            if (p == cell_end[col])
-	      break;
-          }
-        }
-#ifdef DEBUG
-        else
-	{
-	  if (cell_start[col] == cell_end[col])
-	    p = cell_start[col];
-	  else
-	    p = cell_start[col]->next;
-
-          for (; p != NULL; p = p->next)
-	  {
-	    printf("NOT aligning %p\n", (void *)p);
-
-            if (p == cell_end[col])
-	      break;
-          }
-	}
-#endif /* DEBUG */
-      }
-    }
-
-    // Update all current columns with ROWSPAN <= rowspan to use the same
-    // end page and row...
-    for (col = 0, temp_page = -1, temp_y = 99999999; col < num_cols; col ++)
-      if (row_spans[col] <= rowspan &&
-          cells[row][col] != NULL && cells[row][col]->child != NULL)
-      {
-        if (cell_endpage[col] > temp_page)
-	{
-          temp_page = cell_endpage[col];
-	  temp_y    = cell_endy[col];
-	}
-        else if (cell_endpage[col] == temp_page && cell_endy[col] < temp_y)
-	  temp_y = cell_endy[col];
-      }
-
-    for (col = 0; col < num_cols; col ++)
-      if (row_spans[col] <= rowspan &&
-          cells[row][col] != NULL && cells[row][col]->child != NULL)
-      {
-        cell_endpage[col] = temp_page;
-	cell_endy[col]    = temp_y;
-      }
-
-    row_y -= cellpadding;
-
-    border_left = col_lefts[0] - cellpadding;
-    width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
-
-    for (bgcolor = NULL, col = 0; col < num_cols; col ++)
-      if (row_spans[col] <= rowspan &&
-          cells[row][col] &&
-	  !htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN") &&
-          (bgcolor = htmlGetVariable(cells[row][col]->parent,
-                                     (uchar *)"BGCOLOR")) != NULL)
-        break;
-
-    if (bgcolor)
-    {
-      memcpy(bgrgb, background_color, sizeof(bgrgb));
-
-      get_color(bgcolor, bgrgb, 0);
-
-      if (row_page > *page)
-      {
-        // Draw background on multiple pages...
-
-	// Bottom of first page...
-        new_render(*page, RENDER_BOX, border_left, bottom,
-	           width, row_starty - bottom + cellpadding, bgrgb,
-		   pages[*page].start);
-
-        // Intervening pages...
-        for (temp_page = *page + 1; temp_page < row_page; temp_page ++)
-	{
-          new_render(temp_page, RENDER_BOX, border_left, bottom,
-                     width, top - bottom, bgrgb, pages[temp_page].start);
-        }
-
-        // Top of last page...
-	check_pages(*page);
-
-        new_render(row_page, RENDER_BOX, border_left, row_y,
-	           width, top - row_y, bgrgb,
-		   pages[row_page].start);
-      }
-      else
-      {
-        // Draw background in row...
-        new_render(row_page, RENDER_BOX, border_left, row_y,
-	           width, row_height + 2 * cellpadding, bgrgb,
-		   pages[row_page].start);
-      }
-    }
-
-    for (col = 0; col < num_cols; col += colspan + 1)
-    {
-      for (colspan = 0; (col + colspan) < num_cols; colspan ++)
-        if (cells[row][col] != cells[row][col + colspan])
-          break;
-	else if (row_spans[col + colspan] > 0)
-	{
-          DEBUG_printf(("row = %d, col = %d, decrementing row_spans (%d) to %d...\n", row,
-	        	col, row_spans[col + colspan],
-			row_spans[col + colspan] - rowspan));
-          row_spans[col + colspan] -= rowspan;
-	}
-
-      colspan --;
-
-      width = col_rights[col + colspan] - col_lefts[col] +
-              2 * cellpadding;
-
-      if (cells[row][col] == NULL || cells[row][col]->child == NULL ||
-          row_spans[col] > 0)
-        continue;
-
-      DEBUG_printf(("DRAWING BORDER+BACKGROUND: col=%d, row=%d, cell_page=%d, cell_y=%.1f\n"
-                    "                           cell_endpage=%d, cell_endy=%.1f\n",
-		    col, row, cell_page[col], cell_y[col],
-		    cell_endpage[col], cell_endy[col]));
-
-      if ((bgcolor = htmlGetVariable(cells[row][col],
-                                     (uchar *)"BGCOLOR")) != NULL)
-      {
-        memcpy(bgrgb, background_color, sizeof(bgrgb));
-
-        get_color(bgcolor, bgrgb, 0);
-      }
-
-      border_left = col_lefts[col] - cellpadding;
-
-      if (cell_page[col] != cell_endpage[col])
-      {
-       /*
-        * Crossing a page boundary...
-        */
-
-        if (border > 0)
-	{
-	 /*
-	  * +---+---+---+
-	  * |   |   |   |
-	  */
-
-	  // Top
-          new_render(cell_page[col], RENDER_BOX, border_left,
-                     cell_y[col] + cellpadding,
-		     width + border, border, rgb);
-	  // Left
-          new_render(cell_page[col], RENDER_BOX, border_left, bottom,
-                     border, cell_y[col] - bottom + cellpadding + border, rgb);
-	  // Right
-          new_render(cell_page[col], RENDER_BOX,
-	             border_left + width, bottom,
-		     border, cell_y[col] - bottom + cellpadding + border, rgb);
-        }
-
-        if (bgcolor != NULL)
-        {
-	  cell_bg[col]->y      = bottom;
-	  cell_bg[col]->height = cell_y[col] - bottom + cellpadding + border;
-	}
-
-        for (temp_page = cell_page[col] + 1; temp_page < cell_endpage[col]; temp_page ++)
-	{
-	 /*
-	  * |   |   |   |
-	  * |   |   |   |
-	  */
-
-	  if (border > 0.0f)
-	  {
-	    // Left
-            new_render(temp_page, RENDER_BOX, border_left, bottom,
-                       border, top - bottom, rgb);
-	    // Right
-            new_render(temp_page, RENDER_BOX,
-	               border_left + width, bottom,
-		       border, top - bottom, rgb);
-          }
-
-	  if (bgcolor != NULL)
-            new_render(temp_page, RENDER_BOX, border_left, bottom,
-                       width + border, top - bottom, bgrgb,
-		       pages[temp_page].start);
-        }
-
-        if (border > 0.0f)
-	{
-	 /*
-	  * |   |   |   |
-	  * +---+---+---+
-	  */
-
-	  // Left
-          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
-                     border, top - row_y, rgb);
-	  // Right
-          new_render(cell_endpage[col], RENDER_BOX,
-	             border_left + width, row_y,
-                     border, top - row_y, rgb);
-	  // Bottom
-          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
-                     width + border, border, rgb);
-        }
-
-        if (bgcolor != NULL)
-	{
-	  check_pages(cell_endpage[col]);
-
-          new_render(cell_endpage[col], RENDER_BOX, border_left, row_y,
-	             width + border, top - row_y, bgrgb,
-		     pages[cell_endpage[col]].start);
-	}
-      }
-      else
-      {
-       /*
-	* +---+---+---+
-	* |   |   |   |
-	* +---+---+---+
-	*/
-
-        if (border > 0.0f)
-	{
-	  // Top
-          new_render(cell_page[col], RENDER_BOX, border_left,
-                     cell_y[col] + cellpadding,
-		     width + border, border, rgb);
-	  // Left
-          new_render(cell_page[col], RENDER_BOX, border_left, row_y,
-                     border, cell_y[col] - row_y + cellpadding + border, rgb);
-	  // Right
-          new_render(cell_page[col], RENDER_BOX,
-	             border_left + width, row_y,
-                     border, cell_y[col] - row_y + cellpadding + border, rgb);
-	  // Bottom
-          new_render(cell_page[col], RENDER_BOX, border_left, row_y,
-                     width + border, border, rgb);
-	}
-
-        if (bgcolor != NULL)
-	{
-	  cell_bg[col]->y      = row_y;
-	  cell_bg[col]->height = cell_y[col] - row_y + cellpadding + border;
-	}
-      }
-    }
-
-    *page = row_page;
-    *y    = row_y;
-
-    if (row < (num_rows - 1))
+    if (row < (table.num_rows - 1))
       (*y) -= cellspacing;
 
     DEBUG_printf(("END row = %d, *y = %.1f, *page = %d\n", row, *y, *page));
   }
+
+  top -= header_height;
 
  /*
   * Handle table background color...
@@ -6942,35 +6973,35 @@ parse_table(tree_t *t,			// I - Tree to parse
 
     get_color(bgcolor, bgrgb, 0);
 
-    border_left = col_lefts[0] - cellpadding;
-    width       = col_rights[num_cols - 1] - col_lefts[0] + 2 * cellpadding;
+    table.border_left = table.col_lefts[0] - table.cellpadding;
+    width       = table.col_rights[table.num_cols - 1] - table.col_lefts[0] + 2 * table.cellpadding;
 
     if (table_page != *page)
     {
       // Draw background on multiple pages...
 
       // Bottom of first page...
-      new_render(table_page, RENDER_BOX, border_left, bottom,
+      new_render(table_page, RENDER_BOX, table.border_left, bottom,
 	         width, table_y - bottom, bgrgb,
 		 pages[table_page].start);
 
       // Intervening pages...
       for (temp_page = table_page + 1; temp_page < *page; temp_page ++)
       {
-        new_render(temp_page, RENDER_BOX, border_left, bottom,
+        new_render(temp_page, RENDER_BOX, table.border_left, bottom,
                    width, top - bottom, bgrgb, pages[temp_page].start);
       }
 
       // Top of last page...
       check_pages(*page);
 
-      new_render(*page, RENDER_BOX, border_left, *y,
+      new_render(*page, RENDER_BOX, table.border_left, *y,
 	         width, top - *y, bgrgb, pages[*page].start);
     }
     else
     {
       // Draw background in row...
-      new_render(table_page, RENDER_BOX, border_left, *y,
+      new_render(table_page, RENDER_BOX, table.border_left, *y,
 	         width, table_y - *y, bgrgb, pages[table_page].start);
     }
   }
@@ -6991,9 +7022,9 @@ parse_table(tree_t *t,			// I - Tree to parse
   * Free memory for the table...
   */
 
-  if (num_rows > 0)
+  if (table.num_rows > 0)
   {
-    for (row = 0; row < num_rows; row ++)
+    for (row = 0; row < table.num_rows; row ++)
       free(cells[row]);
 
     free(cells);
