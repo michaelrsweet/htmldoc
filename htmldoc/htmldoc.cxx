@@ -32,6 +32,10 @@
 #  include <sys/time.h>
 #endif // WIN32
 
+#ifdef __APPLE__
+#  include <libproc.h>
+#endif // __APPLE__
+
 #ifdef __EMX__
 extern "C" {
 const char *__XOS2RedirRoot(const char *);
@@ -1611,20 +1615,17 @@ prefs_save(void)
 void
 prefs_set_paths(void)
 {
+  //
+  // Get the installed directories...
+  //
+
 #ifdef WIN32			//// Do registry magic...
   HKEY		key;		// Registry key
   DWORD		size;		// Size of string
   static char	data[1024];	// Data directory
   static char	doc[1024];	// Documentation directory
   static char	path[4096];	// PATH environment variable
-#endif // WIN32
 
-
-  //
-  // Get the installed directories...
-  //
-
-#ifdef WIN32
   // Open the registry...
   if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\HTMLDOC", 0, KEY_READ, &key))
   {
@@ -1662,15 +1663,40 @@ prefs_set_paths(void)
         RegSetValueEx(key, "Path", 0, REG_EXPAND_SZ, (unsigned char *)path, strlen(path) + 1);
       }
   }
-#endif // WIN32
 
-#if defined(__EMX__) && defined(HAVE_LIBFLTK)
+#elif defined(__EMX__) && defined(HAVE_LIBFLTK)
   // If being installed within XFree86 OS/2 Environment
   // we can use those values which are overwritten by
   // the according environment variables.
   _htmlData = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc"));
   GUI::help_dir = strdup(__XOS2RedirRoot("/XFree86/lib/X11/htmldoc/doc"));
-#endif // __EMX__ && HAVE_LIBFLTK
+
+#elif defined(__APPLE__) && defined(HAVE_LIBFLTK)
+  char          path[PROC_PIDPATHINFO_MAXSIZE + 1];
+                                	// Process path
+  int           pathlen;                // Length of path string
+  static char	resources[1024];	// Resources directory
+
+  if ((pathlen = proc_pidpath(getpid(), path, sizeof(path) - 1)) >= 0)
+  {
+    char        *ptr;           // Pointer into path
+
+    path[pathlen] = '\0';
+//    printf("proc_pidpath returned \"%s\"\n", path);
+
+    if ((ptr = strstr(path, "/Contents/MacOS")) != NULL)
+    {
+      *ptr = '\0';
+//      printf("Bundle path is \"%s\"\n", path);
+
+      snprintf(resources, sizeof(resources), "%s/Contents/Resources", path);
+      _htmlData     = resources;
+      GUI::help_dir = resources;
+    }
+  }
+//  else
+//    perror("proc_pidpath failed");
+#endif // WIN32
 
   //
   // See if the installed directories have been overridden by
