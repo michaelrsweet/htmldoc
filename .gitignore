@@ -16,6 +16,15 @@ htmldoc/htmldoc.app
 htmldoc/htmldoc.exe
 jpeg/libjpeg.a
 png/libpng.a
+vcnet/*.exe
+vcnet/*.lib
+vcnet/*.opensdf
+vcnet/*.suo
+vcnet/Debug
+vcnet/Release
+vcnet/gDebug
+vcnet/gRelease
+vcnet/x64
 xcode/htmldoc.xcodeproj/project.xcworkspace/
 xcode/htmldoc.xcodeproj/xcuserdata/
 zlib/libz.a
