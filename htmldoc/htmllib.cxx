@@ -1918,7 +1918,7 @@ htmlGetText(tree_t *t)		/* I - Tree to pick */
       // Add the text to this string...
       tlen = strlen((char *)tdata);
 
-      if (slen)
+      if (s)
         s2 = (uchar *)realloc(s, 1 + slen + tlen);
       else
         s2 = (uchar *)malloc(1 + tlen);
@@ -3139,6 +3139,10 @@ fix_filename(char *filename,		/* I - Original filename */
 
   if (filename == NULL)
     return (NULL);
+
+#ifdef DEBUG // to silence Clang static analyzer, totally unnecessary
+  memset(temp, 0, sizeof(temp));
+#endif // DEBUG
 
   // Unescape filenames as needed...
   if (strchr(filename, '%') && !strstr(filename, "//"))

@@ -1563,7 +1563,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
     return (0);
   }
 
-  img->pixels = (uchar *)malloc((size_t)(img->width * img->height * depth));
+  img->pixels = (uchar *)calloc(1,(size_t)(img->width * img->height * depth));
 
  /*
   * Allocate pointers...
