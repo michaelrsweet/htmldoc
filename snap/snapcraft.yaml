@@ -1,6 +1,6 @@
 
 name: htmldoc19
-version: '1.9'
+version: 1.9
 summary: HTML and Markdown conversion utility
 description: |
   HTMLDOC is a program that reads HTML and Markdown source files or web pages
@@ -9,8 +9,17 @@ description: |
 
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: devmode # use 'strict' once you have the right plugs and slots
+icon: htmldoc-128.png
+
+apps:
+    htmldoc:
+        command: usr/bin/htmldoc
+        desktop: usr/share/applications/htmldoc.desktop
+        plugs: [home x11]
 
 parts:
-  my-part:
-    # See 'snapcraft plugins'
-    plugin: nil
+    main:
+        plugin: autotools
+        source: .
+
+build-packages: [libfltk1.3-dev]
