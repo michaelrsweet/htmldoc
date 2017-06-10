@@ -18,7 +18,7 @@ jpeg/libjpeg.a
 png/libpng.a
 vcnet/*.exe
 vcnet/*.lib
-vcnet/*.mdi
+vcnet/*.msi
 vcnet/*.opensdf
 vcnet/*.suo
 vcnet/*.user
