@@ -6,8 +6,10 @@
   (Issue #50)
 - Added EPUB support (Issue #301)
 - Added Markdown support (Issue #302)
+- Fixed a regression in header/footer image scaling (Issue #303)
 - Documentation updates (Issue #305)
 - Compiler fixes (Issue #304, Issue #306)
+- Fixed a bug when running HTMLDOC as a macOS application.
 
 
 # Changes in HTMLDOC v1.8.30
