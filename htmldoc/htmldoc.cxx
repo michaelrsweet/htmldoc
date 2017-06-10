@@ -1696,6 +1696,25 @@ prefs_set_paths(void)
   }
 //  else
 //    perror("proc_pidpath failed");
+
+#elif defined(__linux)
+  const char    *snap;                  // SNAP environment variable
+
+  // Support HTMLDOC as a snap package...
+  if ((snap = getenv("SNAP")) != NULL)
+  {
+    static char datadir[1024];          // Data directory
+
+    snprintf(datadir, sizeof(datadir), "%s/share/htmldoc", snap);
+    _htmlData = datadir;
+
+#  ifdef HAVE_LIBFLTK
+    static char docdir[1024];           // Documentation directory
+
+    snprintf(docdir, sizeof(docdir), "%s/share/doc/htmldoc", snap);
+    GUI::help_dir = docdir;
+#  endif // HAVE_LIBFLTK
+  }
 #endif // WIN32
 
   //
