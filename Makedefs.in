@@ -43,7 +43,7 @@ INSTALL_MAN	=	$(INSTALL) -c -m 444
 # Directories...
 #
 
-BUILDROOT	=	$(DSTROOT)$(RPM_BUILD_ROOT)
+BUILDROOT	=	$(DSTROOT)$(RPM_BUILD_ROOT)$(DESTDIR)
 bindir		=	@bindir@
 datadir		=	@datadir@
 datarootdir	=	@datarootdir@

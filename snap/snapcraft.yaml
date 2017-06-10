@@ -9,12 +9,12 @@ description: |
 
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: devmode # use 'strict' once you have the right plugs and slots
-icon: htmldoc-128.png
+icon: desktop/htmldoc-128.png
 
 apps:
     htmldoc:
-        command: usr/bin/htmldoc
-        desktop: usr/share/applications/htmldoc.desktop
+        command: bin/htmldoc
+        desktop: share/applications/htmldoc.desktop
         plugs: [home x11]
 
 parts:
