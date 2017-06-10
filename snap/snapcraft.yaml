@@ -1,0 +1,16 @@
+
+name: htmldoc19
+version: '1.9'
+summary: HTML and Markdown conversion utility
+description: |
+  HTMLDOC is a program that reads HTML and Markdown source files or web pages
+  and generates corresponding EPUB, HTML, PostScript, or PDF files with an
+  optional table of contents.
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: devmode # use 'strict' once you have the right plugs and slots
+
+parts:
+  my-part:
+    # See 'snapcraft plugins'
+    plugin: nil
