@@ -20,10 +20,7 @@ vcnet/*.exe
 vcnet/*.lib
 vcnet/*.opensdf
 vcnet/*.suo
-vcnet/Debug
-vcnet/Release
-vcnet/gDebug
-vcnet/gRelease
+vcnet/Win32
 vcnet/x64
 xcode/htmldoc.xcodeproj/project.xcworkspace/
 xcode/htmldoc.xcodeproj/xcuserdata/
