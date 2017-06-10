@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{c7ca2e74-31a3-4536-a36d-91f3c34f648e}</UniqueIdentifier>
+      <Extensions>c,cxx</Extensions>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{6d5f0e2e-804d-4c00-8307-6021e69f7392}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\htmldoc\file.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\html.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\htmldoc.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\htmllib.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\htmlsep.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\http-addr.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\http-addrlist.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\http-support.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\http.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\image.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\iso8859.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\md5.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\progress.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\ps-pdf.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\rc4.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\string.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\toc.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\util.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\tls.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\array.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\zipc.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\epub.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\markdown.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\mmd.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\debug.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\file.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\html.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\htmldoc.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\http-private.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\image.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\iso8859.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\md5-private.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\sspi-private.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\string.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\types.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\markdown.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\mmd.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\htmldoc\zipc.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

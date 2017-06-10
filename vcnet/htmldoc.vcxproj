@@ -67,8 +67,8 @@
     <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>.\Release\</OutDir>
-    <IntDir>.\Release\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\htmldoc\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\htmldoc\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Users\msweet\Desktop\XpdfPrint\xpdf-lib;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\FLTK\win32;C:\Program Files\zlib\x86;C:\Users\msweet\Desktop\XpdfPrint\Win32\Debug;C:\Program Files\Bonjour SDK\Lib\Win32;$(LibraryPath)</LibraryPath>
@@ -77,10 +77,12 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\FLTK\x64;C:\Program Files\zlib\x64;C:\Program Files\Bonjour SDK\Lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\htmldoc\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\htmldoc\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>.\Debug\</OutDir>
-    <IntDir>.\Debug\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\htmldoc\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\htmldoc\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Users\msweet\Desktop\XpdfPrint\xpdf-lib;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\FLTK\win32;C:\Program Files\zlib\x86;C:\Users\msweet\Desktop\XpdfPrint\Win32\Debug;C:\Program Files\Bonjour SDK\Lib\Win32;$(LibraryPath)</LibraryPath>
@@ -89,6 +91,8 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\FLTK\x64;C:\Program Files\zlib\x64;C:\Program Files\Bonjour SDK\Lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\htmldoc\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\htmldoc\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -125,6 +129,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>setargv.obj %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
@@ -167,6 +172,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+      <AdditionalOptions>setargv.obj %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
@@ -208,6 +214,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>setargv.obj %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
@@ -250,6 +257,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+      <AdditionalOptions>setargv.obj %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>

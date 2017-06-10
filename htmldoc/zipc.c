@@ -38,6 +38,9 @@
 #include <errno.h>
 #include <time.h>
 #include <zlib.h>
+#ifdef WIN32
+#  define snprintf 	_snprintf
+#endif /* WIN32 */
 
 
 /*

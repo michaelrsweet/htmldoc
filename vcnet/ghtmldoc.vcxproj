@@ -67,8 +67,8 @@
     <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>.\gDebug\</OutDir>
-    <IntDir>.\gDebug\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\ghtmldoc\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\ghtmldoc\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Users\msweet\Desktop\XpdfPrint\xpdf-lib;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\FLTK\win32;C:\Program Files\zlib\x86;C:\Users\msweet\Desktop\XpdfPrint\Win32\Debug;C:\Program Files\Bonjour SDK\Lib\Win32;$(LibraryPath)</LibraryPath>
@@ -77,10 +77,12 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\FLTK\x64;C:\Program Files\zlib\x64;C:\Program Files\Bonjour SDK\Lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\ghtmldoc\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\ghtmldoc\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>.\gRelease\</OutDir>
-    <IntDir>.\gRelease\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\ghtmldoc\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\ghtmldoc\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Users\msweet\Desktop\XpdfPrint\xpdf-lib;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\FLTK\win32;C:\Program Files\zlib\x86;C:\Users\msweet\Desktop\XpdfPrint\Win32\Debug;C:\Program Files\Bonjour SDK\Lib\Win32;$(LibraryPath)</LibraryPath>
@@ -89,6 +91,8 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\FLTK\x64;C:\Program Files\zlib\x64;C:\Program Files\Bonjour SDK\Lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\ghtmldoc\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\ghtmldoc\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>

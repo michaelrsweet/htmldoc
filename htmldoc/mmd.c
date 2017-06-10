@@ -35,6 +35,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#ifdef WIN32
+#  define snprintf 	_snprintf
+#endif /* WIN32 */
 
 
 /*
