@@ -18,8 +18,10 @@ jpeg/libjpeg.a
 png/libpng.a
 vcnet/*.exe
 vcnet/*.lib
+vcnet/*.mdi
 vcnet/*.opensdf
 vcnet/*.suo
+vcnet/*.user
 vcnet/Win32
 vcnet/x64
 xcode/htmldoc.xcodeproj/project.xcworkspace/
