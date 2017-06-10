@@ -15,7 +15,7 @@ apps:
     htmldoc:
         command: bin/htmldoc
         desktop: share/applications/htmldoc.desktop
-        plugs: [home x11]
+        plugs: [home, x11]
 
 parts:
     main:
