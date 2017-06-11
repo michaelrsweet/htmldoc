@@ -92,64 +92,61 @@ formatted documents.
 
 <H1>The Input Tab</H1>
 
-The input tab lists all of the HTML source files that are used to
-generate the document. You can also specify the type of document (book
-or web page) and the title and logo images.
+The input tab lists all of the source files that are used to generate the
+document. You can also specify the type of document (book or web page) and the
+title and logo images.
 
 <H2>Setting the Document Type</H2>
 
-Normally HTMLDOC generates indexed documents from your
-structured HTML files. To convert a single unstructured document
-(or "web page") click on the <I>Continuous</I> or <I>Web
-Page</I> radio buttons. The <I>Web Page</I> type inserts page
-breaks between each file or URL, while the <I>Continuous</I>
-type does not.
+Normally HTMLDOC generates indexed documents from your structured source files.
+To convert a single unstructured document (or "web page") click on the
+<I>Continuous</I> or <I>Web Page</I> radio buttons. The <I>Web Page</I> type
+inserts page breaks between each file or URL, while the <I>Continuous</I> type
+does not.
 
-<P>Structured HTML files use heading elements (<CODE>H1</CODE>,
-<CODE>H2</CODE>, etc.) to delineate chapters and headings within a
-document.
+<P>Structured HTML files use heading elements (<CODE>H1</CODE>, <CODE>H2</CODE>,
+etc.) to delineate chapters and headings within a document.
 
-<H2>Adding HTML Input Files</H2>
+<H2>Adding Input Files</H2>
 
-<P>Click on the <I>Add File(s)...</I> button to add one or more
-HTML files to your <CODE>.BOOK</CODE> file.
+<P>Click on the <I>Add File(s)...</I> button to add one or more HTML or Markdown
+files to your <CODE>.BOOK</CODE> file.
 
 <H2>Adding URLs</H2>
 
-<P>Click on the <I>Add URL(s)...</I> button to add one or more URLs
-to your <CODE>.BOOK</CODE> file.
+<P>Click on the <I>Add URL(s)...</I> button to add one or more URLs to your
+<CODE>.BOOK</CODE> file.
 
-<H2>Deleting HTML Input Files</H2>
+<H2>Deleting Input Files</H2>
 
-Highlight the file(s) in the input file list and then click on
-the <I>Delete</I> button to remove one or more HTML files from your
-document . The files are removed from your document but are <I>not</I>
-deleted from disk.
+<p>Highlight the file(s) in the input file list and then click on the
+<I>Delete</I> button to remove one or more source files from your document. The
+files are removed from your document but are <I>not</I> deleted from disk.</p>
 
-<H2>Editing HTML Input Files</H2>
+<H2>Editing Input Files</H2>
 
-Hightlight the file(s) in the input file list and then click on the
-<I>Edit...</I> button to edit one or more HTML files in your document.
-By default this starts the <I>nedit</I> editor under UNIX and the
-<I>Notepad</I> editor under Windows.
+<p>Highlight the file(s) in the input file list and then click on the
+<I>Edit...</I> button to edit one or more source files in your document. By
+default this starts the <I>gedit</I> editor under Linux, the <i>bbedit</i>
+editor under macOS, and the <I>Notepad</I> editor under Windows.</p>
 
 <P>The editor can be changed in the <A HREF="#OPTIONS">Options Tab</A>.
 
-<H2>Moving HTML Input Files</H2>
+<H2>Reordering Input Files</H2>
 
 Highlight the file(s) in the input file list and then click on the <I>Move
 Up</I> or <I>Move Down</I> buttons to change the order of the input files.
 
 <H2>Selecting a Logo Image</H2>
 
-The logo image can be shown in the header or footer of pages in the
-PostScript and PDF output files.  Click on the <I>Browse</I> button
-to select a logo image file using the file chooser.
+<p>The logo image can be shown in the header or footer of pages in the
+PostScript and PDF output files. Click on the <I>Browse</I> button to select a
+logo image file using the file chooser.</p>
 
 <H3>Selecting a Title File or Image</H3>
 
-The title file or image is used for the title page. Click on the
-<I>Browse</I> button to select a title file using the file chooser.
+<p>The title file or image is used for the title page. Click on the
+<I>Browse</I> button to select a title file using the file chooser.</p>
 
 <HR>
 
@@ -158,73 +155,70 @@ The title file or image is used for the title page. Click on the
 
 <H1>The Output Tab</H1>
 
-The output tab specifies where your document will be generated, the output
-format, and some of the output options.
+<p>The output tab specifies where your document will be generated, the output
+format, and some of the output options.</p>
 
 <H2>Selecting File or Directory Generation</H2>
 
-HTMLDOC can generate a single HTML, PDF, or PostScript file,
-or a series of files to a directory when generating HTML or PostScript
-output.
+<p>HTMLDOC can generate a single EPUB, HTML, PDF, or PostScript file, or a
+series of files to a directory when generating HTML or PostScript output.</p>
 
 <P>Click on the <I>File</I> radio button to select single file output.
 Click on the <I>Directory</I> radio button to generate multiple files
-to a directory.
+to a directory.</p>
 
 <H2>Selecting an Output File or Directory</H2>
 
-The output file is the HTML, PostScript, or PDF file you wish to
-generate from your HTML files. Click on the <I>Browse</I> button
-to select an output file using the file chooser.
+<p>The output file is the EPUB, HTML, PostScript, or PDF file you wish to
+generate from your source files. Click on the <I>Browse</I> button to select an
+output file using the file chooser.</p>
 
 <H2>Selecting the Output Format</H2>
 
-Click on the corresponding <I>Output Type</I> radio button to
-select an output format. You can select the PostScript language level in
-the <A HREF="#PS">PS Tab</A> and the PDF version in the <A HREF="#PDF">PDF
-Tab</A>.
+<p>Click on the corresponding <I>Output Type</I> radio button to select an
+output format. You can select the PostScript language level in the
+<A HREF="#PS">PS Tab</A> and the PDF version in the <A HREF="#PDF">PDF Tab</A>.
 
 <H2>Selecting Grayscale Output</H2>
 
-When generating PostScript or PDF files you can choose to convert all images
-to grayscale.  This is necessary for many Level 1 printers that do not support
-color images and can reduce the size of output files considerably.
+<p>When generating PostScript or PDF files you can choose to convert all images
+to grayscale. This is necessary for many Level 1 printers that do not support
+color images and can reduce the size of output files considerably.</p>
 
 <P>Click in the <I>Grayscale</I> check box to enable or disable grayscale
-output.
+output.</p>
 
 <H2>Title Page</H2>
 
-The title page is the first page in your generated file.  Click in the
-<I>Title Page</I> check box to turn the title page on or off.
+<p>The title page is the first page in your generated file.  Click in the
+<I>Title Page</I> check box to turn the title page on or off.</p>
 
 <H2>JPEG Big Images</H2>
 
-JPEG compression is a great way to reduce the size of large photographic
+<p>JPEG compression is a great way to reduce the size of large photographic
 or continuous-tone images. It is supported when generating PDF, PostScript
-Level 2, and PostScript Level 3 output. HTMLDOC uses JPEG
-compression when the output image cannot be reduced to 256 colors or less.
+Level 2, and PostScript Level 3 output. HTMLDOC uses JPEG compression when the
+output image cannot be reduced to 256 colors or less.</p>
 
 <P>Click in the <I>JPEG Big Images</I> check box to enable or disable
-JPEG compression.
+JPEG compression.</p>
 
 <H2>JPEG Quality</H2>
 
-Drag the <I>JPEG Quality</I> slider to change the JPEG quality setting.
+<p>Drag the <I>JPEG Quality</I> slider to change the JPEG quality setting.
 The JPEG quality setting determines the relative quality of the compressed
 image. Since JPEG is a <I>lossy</I> compression algorithm, higher
 compression generally yields lower quality. Typically a quality of 75 or
-higher provides excellent image quality with a high amount of compression.
+higher provides excellent image quality with a high amount of compression.</p>
 
 <H2>Compression</H2>
 
-PDF 1.2, PDF 1.3, PDF 1.4, and Level 3 PostScript files can be
-compressed using Flate (a.k.a. ZIP) compression to substantially
-reduce the size of files. Drag the <I>Compression</I> slider to
-set the amount of compression to use.
+<p>PDF 1.2, PDF 1.3, PDF 1.4, and Level 3 PostScript files can be compressed
+using Flate (a.k.a. ZIP) compression to substantially reduce the size of files.
+Drag the <I>Compression</I> slider to set the amount of compression to use.</p>
 
 <P>Unlike JPEG, the Flate algorithm is lossless and will not cause any
-loss of visual quality at any level of compression.
+loss of visual quality at any level of compression.</p>
 
 <HR>
 
@@ -580,9 +574,6 @@ the current settings as defaults.
 Type in the program name in the <I>HTML Editor</I> field or click on the
 <I>Browse...</I> button to change the HTML editor that is used.  The "%s"
 is required and is replaced by the file to edit.
-
-<P><B>NOTE:</B> To use Netscape Communicator as your HTML editor you need to
-add the "-edit" option before the "%s".
 
 <H2>Browser Width</H2>
 
