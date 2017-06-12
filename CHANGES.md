@@ -10,6 +10,7 @@
 - Documentation updates (Issue #305)
 - Compiler fixes (Issue #304, Issue #306)
 - Fixed a bug when running HTMLDOC as a macOS application.
+- Updated the bundled libpng to v1.6.29.
 
 
 # Changes in HTMLDOC v1.8.30
