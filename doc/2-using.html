@@ -14,14 +14,13 @@ Markdown files into PostScript and PDF files.</p>
 
 <h2>Using the HTMLDOC GUI</h2>
 
-<p>After opening the HTMLDOC application, the HTMLDOC window will appear with the <var>Input</var> tab selected. Click on the <var>Web Page</var> radio button to specify that you will be converting a HTML web page file. Then choose a file for conversion by clicking on the <var>Add Files...</var> button.</p>
+<p>After opening the HTMLDOC application, the HTMLDOC window will appear with the <var>Input</var> tab selected. Click on the <var>Web Page</var> radio button to specify that you will be converting a web page file. Then choose a file for conversion by clicking on the <var>Add Files...</var> button.</p>
 
-<p>Now that you've chosen a HTML file to be converted, click on the <var>Output</var> tab to set the output file and format. Finally, click on the <var>Generate</var> button at the bottom of the HTMLDOC window to convert the HTML file.</p>
+<p>Now that you've chosen a file to be converted, click on the <var>Output</var> tab to set the output file and format. Finally, click on the <var>Generate</var> button at the bottom of the HTMLDOC window to convert the HTML file.</p>
 
 <h3>Generating Books</h3>
 
-<p>While HTMLDOC can convert web pages into PostScript and PDF files, its real strength is generating EPUB, indexed HTML, PostScript, or PDF books. HTMLDOC
-uses HTML heading elements to delineate chapters and headings in a book.  The <CODE>H1</CODE> element is used for chapters:</p>
+<p>While HTMLDOC can convert web pages into PostScript and PDF files, its real strength is generating EPUB, indexed HTML, PostScript, or PDF books. HTMLDOC uses heading elements to delineate chapters and headings in a book. The <CODE>H1</CODE> element is used for chapters:</p>
 
 <PRE>
 &lt;HTML&gt;
@@ -42,9 +41,9 @@ uses HTML heading elements to delineate chapters and headings in a book.  The <C
 <!-- NEED 2in -->
 <blockquote><b>Note:</b> When using book mode, HTMLDOC starts rendering with the first <CODE>H1</CODE> element.  Any text, images, tables, and other viewable elements that precede the first <CODE>H1</CODE> element are silently ignored. Because of this, make sure you have an <CODE>H1</CODE> element in your HTML file, otherwise HTMLDOC will not convert anything.</blockquote>
 
-<p>Start by clicking on the <VAR>Book</VAR> radio button to specify you'll be converting one or more HTML files into a book. Then add one or more HTML files by clicking on the <var>Add Files...</var> button.</p>
+<p>Start by clicking on the <VAR>Book</VAR> radio button to specify you'll be converting one or more files into a book. Then add one or more HTML or Markdown files by clicking on the <var>Add Files...</var> button.</p>
 
-<p>HTMLDOC will automatically create a title page for you unless you specify a <var>Title File/Image</var>. When the title file is HTML, the contents are formatted to produce title page(s). When the title file is an image, the image is centered on the title page with automatically generate content based on the title and other metadata.</p>
+<p>HTMLDOC will automatically create a title page for you unless you specify a <var>Title File/Image</var>. When the title file is HTML or Markdown, the contents are formatted to produce title page(s). When the title file is an image, the image is centered on the title page with automatically generate content based on the title and other metadata.</p>
 
 <p>After providing all of the input files, click on the <var>Output</var> tab to select the output format and file. Finally, click on the <var>Generate</var> button to generate the book.</p>
 
@@ -65,7 +64,7 @@ uses HTML heading elements to delineate chapters and headings in a book.  The <C
 
 <p><tt>Filename.html</tt> is the name of the file that you want to be converted.</p>
 
-<p>To convert more than one web page with page breaks between each HTML file, list each of the HTML files on the end:
+<p>To convert more than one web page with page breaks between each file, list each of the files on the end:
 
 <pre>
 <kbd>htmldoc --webpage -f output.pdf file1.html file2.html ENTER</kbd>
@@ -80,7 +79,7 @@ uses HTML heading elements to delineate chapters and headings in a book.  The <C
 <!-- NEED 4in -->
 <h2>Generating Books</h2>
 
-<p>Type one of the following commands to generate a book from one or more HTML files:
+<p>Type one of the following commands to generate a book from one or more files:
 
 <pre>
 <kbd>htmldoc --book -f output.html file1.html file2.html ENTER</kbd>
@@ -94,13 +93,13 @@ uses HTML heading elements to delineate chapters and headings in a book.  The <C
 
 <p><tt>File1.html</tt> and <tt>file2.html</tt> are the files you want to convert.</p>
 
-<p>HTMLDOC will build a table of contents for the book using the heading elements (<code>H1</code>, <code>H2</code>, etc.) in your HTML files. It will also add a title page using the document <code>TITLE</code> text and other <code>META</code> information you supply in your HTML files. See <A HREF="#HTMLREF">Chapter 4 - HTML Reference</A> for more information on the <code>META</code> variables that are supported.</p>
+<p>HTMLDOC will build a table of contents for the book using the heading elements (<code>H1</code>, <code>H2</code>, etc.) in your input files. It will also add a title page using the document <code>TITLE</code> text and other <code>META</code> information you supply in your files. See <A HREF="#HTMLREF">Chapter 4 - HTML Reference</A> for more information on the <code>META</code> variables that are supported.</p>
 
 <blockquote><b>Note:</b> When using book mode, HTMLDOC starts rendering with the first <code>H1</code> element.  Any text, images, tables, and other viewable elements that precede the  first <code>H1</code> element are silently ignored. Because of this, make sure you have an <code>H1</code> element in your HTML file, otherwise HTMLDOC will not convert anything.</blockquote>
 
 <h3>Setting the Title File</h3>
 
-<p>The <tt>--titlefile</tt> option sets the HTML file or image to use on the title page:</p>
+<p>The <tt>--titlefile</tt> option sets the HTML, Markdown, or image file to use on the title page:</p>
 
 <pre>
 <kbd>htmldoc --titlefile filename.bmp ... ENTER</kbd>
@@ -110,7 +109,7 @@ uses HTML heading elements to delineate chapters and headings in a book.  The <C
 <kbd>htmldoc --titlefile filename.html ... ENTER</kbd>
 </pre>
 
-<p>HTMLDOC supports BMP, GIF, JPEG, and PNG images, as well as generic HTML text you supply for the title page(s).</p>
+<p>HTMLDOC supports BMP, GIF, JPEG, and PNG images, as well as generic HTML or Markdown text you supply for the title page(s).</p>
 
 
 <h2><a name='CGI'>Using HTMLDOC on a Web Server</a></h2>
