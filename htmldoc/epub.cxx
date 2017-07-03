@@ -85,6 +85,7 @@ epub_export(tree_t *document,           /* I - Document to export */
               *docnumber;               /* Document number */
   zipc_t      *epub;                    /* EPUB output file */
   zipc_file_t *epubf;                   /* File in container */
+  struct stat epubinfo;                 /* EPUB file information */
   const char  *title_ext;               /* Extension of title image */
   const char  *cover_image = NULL;      /* Do we have a cover image? */
   int         status = 0;               /* Return status */
@@ -301,7 +302,8 @@ epub_export(tree_t *document,           /* I - Document to export */
 
   status |= zipcClose(epub);
 
-//  progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
+  if (!stat(OutputPath, &epubinfo))
+    progress_error(HD_ERROR_NONE, "BYTES: %ld", (long)epubinfo.st_size);
 
   if (title != NULL)
     free(title);
