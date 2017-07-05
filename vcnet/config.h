@@ -81,7 +81,7 @@ typedef long ssize_t;
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.8.30"
+#define SVERSION	"1.9"
 
 
 /*

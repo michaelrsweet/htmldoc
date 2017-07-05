@@ -133,7 +133,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
-      <Command>htmldoc.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf</Command>
+      <Command>$(OutDir)htmldoc.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -176,7 +176,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
-      <Command>htmldoc.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf</Command>
+      <Command>$(OutDir)htmldoc.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -218,7 +218,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
-      <Command>htmldocd.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf</Command>
+      <Command>$(OutDir)htmldocd.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -261,7 +261,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
-      <Command>htmldocd.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf</Command>
+      <Command>$(OutDir)htmldocd.exe --verbose --datadir .. --path ../doc --batch ../doc/htmldoc.book -f ../doc/htmldoc.pdf</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
