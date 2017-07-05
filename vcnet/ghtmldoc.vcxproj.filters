@@ -77,10 +77,18 @@
     <ClCompile Include="..\htmldoc\array.c">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\htmldoc\epub.cxx" />
-    <ClCompile Include="..\htmldoc\markdown.cxx" />
-    <ClCompile Include="..\htmldoc\mmd.c" />
-    <ClCompile Include="..\htmldoc\zipc.c" />
+    <ClCompile Include="..\htmldoc\epub.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\markdown.cxx">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\mmd.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\htmldoc\zipc.c">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">

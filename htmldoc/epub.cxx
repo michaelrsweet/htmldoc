@@ -15,6 +15,7 @@
 #include "zipc.h"
 #include <ctype.h>
 #include <time.h>
+#include <sys/stat.h>
 
 
 /*
