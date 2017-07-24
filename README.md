@@ -1,3 +1,5 @@
+[![Snap Status](https://build.snapcraft.io/badge/michaelrsweet/htmldoc.svg)](https://build.snapcraft.io/user/michaelrsweet/htmldoc)
+
 # Introduction
 
 HTMLDOC is a program that reads HTML and Markdown source files or web pages and
