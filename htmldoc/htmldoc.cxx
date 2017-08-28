@@ -2630,7 +2630,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --book");
     puts("  --bottom margin{in,cm,mm}");
     puts("  --browserwidth pixels");
-    puts("  --charset {cp-874...1258,iso-8859-1...-15,koi8-r}");
+    puts("  --charset {cp-874...1258,iso-8859-1...-15,koi8-r,utf-8}");
     puts("  --color");
     puts("  --compression[=level]");
     puts("  --continuous");

@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.1
+
+- Added (extremely limited) UTF-8 support for input files (Issue #314)
+
+
 # Changes in HTMLDOC v1.9
 
 - Added support for repeating a single header row for tables that span multiple

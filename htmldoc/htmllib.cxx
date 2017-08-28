@@ -141,7 +141,11 @@ char		_htmlCharSet[256] = "iso-8859-1";
 					/* Character set name */
 double		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
 					/* Character widths of fonts */
+double          _htmlWidthsAll[TYPE_MAX][STYLE_MAX][65536];
+                                        /* Unicode widths of fonts */
 int		_htmlUnicode[256];	/* Character to Unicode mapping */
+uchar           _htmlCharacters[65536]; /* Unicode to character mapping */
+int             _htmlUTF8 = 0;          /* Doing UTF-8? */
 const char	*_htmlGlyphsAll[65536];	/* Character glyphs for Unicode */
 const char	*_htmlGlyphs[256];	/* Character glyphs for charset */
 int		_htmlNumSorted = 0;	/* Number of sorted glyphs */
@@ -230,6 +234,7 @@ static int	compute_size(tree_t *t);
 static int	compute_color(tree_t *t, uchar *color);
 static int	get_alignment(tree_t *t);
 static const char *fix_filename(char *path, char *base);
+static int      utf8_getc(int ch, FILE *fp);
 
 #define issuper(x)	((x) == MARKUP_CENTER || (x) == MARKUP_DIV ||\
 			 (x) == MARKUP_BLOCKQUOTE)
@@ -748,6 +753,14 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	  else
 	    *ptr++ = (uchar)ch;
         }
+        else if ((ch & 0x80) && _htmlUTF8)
+        {
+          // Collect UTF-8 value...
+          ch = utf8_getc(ch, fp);
+
+          if (ch)
+            *ptr++ = (uchar)ch;
+        }
 	else if (ch != 0 && ch != '\r')
 	{
           *ptr++ = (uchar)ch;
@@ -832,8 +845,17 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	  else
 	    *ptr++ = (uchar)ch;
         }
-	else if (ch)
-          *ptr++ = (uchar)ch;
+        else
+        {
+          if ((ch & 0x80) && _htmlUTF8)
+          {
+            // Collect UTF-8 value...
+            ch = utf8_getc(ch, fp);
+          }
+
+          if (ch)
+            *ptr++ = (uchar)ch;
+        }
 
         ch = getc(fp);
       }
@@ -2077,10 +2099,13 @@ htmlLoadFontWidths(void)
   */
 
   for (i = 0; i < TYPE_MAX; i ++)
+  {
     for (j = 0; j < STYLE_MAX; j ++)
     {
       for (ch = 0; ch < 256; ch ++)
         _htmlWidths[i][j][ch] = 0.6f;
+      for (ch = 0; ch < 65536; ch ++)
+        _htmlWidthsAll[i][j][ch] = 0.6f;
 
       snprintf(filename, sizeof(filename), "%s/fonts/%s.afm", _htmlData,
                _htmlFonts[i][j]);
@@ -2111,6 +2136,10 @@ htmlLoadFontWidths(void)
           for (ch = 0; ch < 256; ch ++)
 	    if (_htmlGlyphs[ch] && !strcmp(_htmlGlyphs[ch], glyph))
 	      _htmlWidths[i][j][ch] = width * 0.001f;
+
+          for (ch = 0; ch < 65536; ch ++)
+            if (_htmlGlyphsAll[ch] && !strcmp(_htmlGlyphsAll[ch], glyph))
+              _htmlWidthsAll[i][j][ch] = width * 0.001f;
 	}
 	else
 	{
@@ -2122,7 +2151,10 @@ htmlLoadFontWidths(void)
 	    continue;
 
           if (ch < 256 && ch >= 0)
-	    _htmlWidths[i][j][ch] = width * 0.001f;
+          {
+            _htmlWidths[i][j][ch]    = width * 0.001f;
+            _htmlWidthsAll[i][j][ch] = width * 0.001f;
+          }
 	}
       }
 
@@ -2130,8 +2162,10 @@ htmlLoadFontWidths(void)
 
       // Make sure that non-breaking space has the same width as
       // a breaking space...
-      _htmlWidths[i][j][160] = _htmlWidths[i][j][32];
+      _htmlWidths[i][j][160]    = _htmlWidths[i][j][32];
+      _htmlWidthsAll[i][j][160] = _htmlWidthsAll[i][j][32];
     }
+  }
 }
 
 
@@ -2270,6 +2304,26 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
   }
 
   memset(_htmlGlyphs, 0, sizeof(_htmlGlyphs));
+
+  if (!strcmp(cs, "utf-8"))
+  {
+    // Generate a dynamic mapping of Unicode to an 8-bit charset with the
+    // bottom 128 characters matching US ASCII...
+    _htmlUTF8 = 0x80;
+
+    for (i = 0; i < 128; i ++)
+    {
+     /*
+      * Add the glyph to the charset array...
+      */
+
+      _htmlGlyphs[i]  = _htmlGlyphsAll[i];
+      _htmlUnicode[i] = i;
+    }
+
+    htmlLoadFontWidths();
+    return;
+  }
 
   if (strncmp(cs, "8859-", 5) == 0)
     snprintf(filename, sizeof(filename), "%s/data/iso-%s", _htmlData, cs);
@@ -2490,7 +2544,14 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     }
     else
     {
-      *mptr++ = (uchar)ch;
+      if ((ch & 0x80) && _htmlUTF8)
+      {
+        // Collect UTF-8 value...
+        ch = utf8_getc(ch, fp);
+      }
+
+      if (ch)
+        *mptr++ = (uchar)ch;
 
       // Handle comments without whitespace...
       if ((mptr - markup) == 3 && strncmp((const char *)markup, "!--", 3) == 0)
@@ -2608,7 +2669,16 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 	    *cptr++ = (uchar)ch;
 	}
 	else
-	  *cptr++ = (uchar)ch;
+        {
+          if ((ch & 0x80) && _htmlUTF8)
+          {
+            // Collect UTF-8 value...
+            ch = utf8_getc(ch, fp);
+          }
+
+          if (ch)
+            *cptr++ = (uchar)ch;
+        }
 
         lastch = ch;
         ch     = getc(fp);
@@ -2674,7 +2744,16 @@ parse_variable(tree_t *t,		// I - Current tree entry
     else if (ch == '/' && ptr == name)
       break;
     else if (ptr < (name + sizeof(name) - 1))
-      *ptr++ = (uchar)ch;
+    {
+      if ((ch & 0x80) && _htmlUTF8)
+      {
+        // Collect UTF-8 value...
+        ch = utf8_getc(ch, fp);
+      }
+
+      if (ch)
+        *ptr++ = (uchar)ch;
+    }
 
   *ptr = '\0';
 
@@ -2759,7 +2838,16 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
-              *ptr++ = (uchar)ch;
+            {
+              if ((ch & 0x80) && _htmlUTF8)
+              {
+                // Collect UTF-8 value...
+                ch = utf8_getc(ch, fp);
+              }
+
+              if (ch)
+                *ptr++ = (uchar)ch;
+            }
 	    else if (ch == '\n')
 	    {
 	      if (ptr < (value + sizeof(value) - 1))
@@ -2823,7 +2911,16 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	    }
             else if (ptr < (value + sizeof(value) - 1) &&
 	             ch != '\n' && ch != '\r')
-              *ptr++ = (uchar)ch;
+            {
+              if ((ch & 0x80) && _htmlUTF8)
+              {
+                // Collect UTF-8 value...
+                ch = utf8_getc(ch, fp);
+              }
+
+              if (ch)
+                *ptr++ = (uchar)ch;
+            }
 	    else if (ch == '\n')
 	    {
 	      if (ptr < (value + sizeof(value) - 1))
@@ -2887,7 +2984,16 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	        *ptr++ = (uchar)ch;
 	    }
             else if (ptr < (value + sizeof(value) - 1))
-              *ptr++ = (uchar)ch;
+            {
+              if ((ch & 0x80) && _htmlUTF8)
+              {
+                // Collect UTF-8 value...
+                ch = utf8_getc(ch, fp);
+              }
+
+              if (ch)
+                *ptr++ = (uchar)ch;
+            }
 	  }
 
 	  if (ch == '\n')
@@ -3420,3 +3526,99 @@ htmlFixLinks(tree_t *doc,		// I - Top node
     tree = tree->next;
   }
 }
+
+
+//
+// 'utf8_getc()' - Get a UTF-8 encoded character.
+//
+
+static int                              // O - Unicode equivalent
+utf8_getc(int  ch,                      // I - Initial character
+          FILE *fp)                     // I - File to read from
+{
+  int  ch2 = -1, ch3 = -1;              // Temporary characters
+  int  unicode;                         // Unicode character
+
+
+  if ((ch & 0xe0) == 0xc0)
+  {
+   /*
+    * Two-byte sequence for 0x80 to 0x7ff...
+    */
+
+    ch  = (ch & 0x1f) << 6;
+    ch2 = getc(fp);
+
+    if ((ch2 & 0xc0) == 0x80)
+      ch |= ch2 & 0x3f;
+    else
+      goto bad_sequence;
+  }
+  else if ((ch & 0xf0) == 0xe0)
+  {
+   /*
+    * Three-byte sequence from 0x800 to 0xffff...
+    */
+
+    ch  = (ch & 0x0f) << 12;
+    ch2 = getc(fp);
+
+    if ((ch2 & 0xc0) == 0x80)
+      ch |= (ch2 & 0x3f) << 6;
+    else
+      goto bad_sequence;
+
+    ch3 = getc(fp);
+
+    if ((ch3 & 0xc0) == 0x80)
+      ch |= ch3 & 0x3f;
+    else
+      goto bad_sequence;
+  }
+  else if (ch & 0x80)
+    goto bad_sequence;
+
+  if (ch == 0xfeff)
+  {
+    // BOMs are invalid in UTF-8 text, but Microsoft insists on still using
+    // them...  Try reading another character...
+    //
+    // TODO: Emit a warning about this...
+    if ((ch = utf8_getc(getc(fp), fp)) == 0)
+      return (0);
+  }
+
+  // If we already have a mapping for this character, return it...
+  if (_htmlCharacters[ch])
+    return (_htmlCharacters[ch]);
+
+  if (_htmlUTF8 >= 0x100)
+  {
+    progress_error(HD_ERROR_READ_ERROR, "Too many Unicode code points.");
+    return (0);
+  }
+
+  unicode = _htmlUTF8++;
+
+  _htmlCharacters[ch]   = (uchar)unicode;
+  _htmlUnicode[unicode] = ch;
+  _htmlGlyphs[unicode]  = _htmlGlyphsAll[ch];
+
+  for (int i = 0; i < TYPE_MAX; i ++)
+    for (int j = 0; j < STYLE_MAX; j ++)
+      _htmlWidths[i][j][unicode] = _htmlWidthsAll[i][j][ch];
+
+  return (unicode);
+
+  bad_sequence:
+
+  if (ch3 >= 0)
+    progress_error(HD_ERROR_READ_ERROR, "Bad UTF-8 character sequence %02X %02X %02X.", ch, ch2, ch3);
+  else if (ch2 >= 0)
+    progress_error(HD_ERROR_READ_ERROR, "Bad UTF-8 character sequence %02X %02X.", ch, ch2);
+  else
+    progress_error(HD_ERROR_READ_ERROR, "Bad UTF-8 character sequence %02X.", ch);
+
+  return (0);
+}
+

@@ -171,6 +171,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"iso-8859-14", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"iso-8859-15", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"koi8-r",      0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"utf-8",       0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {0}
 			};
   static Fl_Menu	modeMenu[] =	// Menu items for mode chooser
