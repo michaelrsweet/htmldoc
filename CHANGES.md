@@ -1,5 +1,6 @@
 # Changes in HTMLDOC v1.9.1
 
+- Added limited support for the HTML 4.0 SPAN element (Issue #311)
 - Added (extremely limited) UTF-8 support for input files (Issue #314)
 
 

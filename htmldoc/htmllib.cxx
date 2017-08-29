@@ -99,6 +99,7 @@ const char	*_htmlMarkups[] =
 		  "select",
 		  "small",
 		  "spacer",
+		  "span",
 		  "strike",
 		  "strong",
 		  "style",
@@ -280,7 +281,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 		*face,			// Typeface for FONT tag
 		*color,			// Color for FONT tag
 		*size,			// Size for FONT tag
-		*type;			// Type for EMBED tag
+		*type,			// Type for EMBED tag
+		*span;			// Value for SPAN tag
   int		sizeval;		// Size value from FONT tag
   int		linenum;		// Line number in file
   static uchar	s[10240];		// String from file
@@ -1125,6 +1127,137 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	  get_alignment(t);
 
           t->style = STYLE_NORMAL;
+
+          descend = 1;
+          break;
+
+      case MARKUP_SPAN :
+          // Pull style data, if present...
+          if (have_whitespace)
+	  {
+	    // Insert a space before this element...
+	    insert_space(parent, t);
+
+	    have_whitespace = 0;
+	  }
+
+          get_alignment(t);
+
+          if ((color = htmlGetStyle(t, (uchar *)"color:")) != NULL)
+            compute_color(t, color);
+
+          if ((face = htmlGetStyle(t, (uchar *)"font-family:")) != NULL)
+          {
+	    char	font[255],	// Font name
+			*fontptr;	// Pointer into font name
+
+            for (ptr = face; *ptr;)
+	    {
+	      while (isspace(*ptr) || *ptr == ',')
+	        ptr ++;
+
+              if (!*ptr)
+	        break;
+
+	      for (fontptr = font; *ptr && *ptr != ',' && !isspace(*ptr); ptr ++)
+	        if (fontptr < (font + sizeof(font) - 1))
+		  *fontptr++ = (char)*ptr;
+
+              *fontptr = '\0';
+
+              if (!strcasecmp(font, "serif"))
+	      {
+        	t->typeface = TYPE_SERIF;
+		break;
+	      }
+              else if (!strcasecmp(font, "sans-serif") ||
+	               !strcasecmp(font, "sans"))
+	      {
+        	t->typeface = TYPE_SANS_SERIF;
+		break;
+	      }
+              else if (!strcasecmp(font, "monospace"))
+	      {
+        	t->typeface = TYPE_MONOSPACE;
+		break;
+	      }
+              else if (!strcasecmp(font, "arial") ||
+	               !strcasecmp(font, "helvetica"))
+              {
+        	t->typeface = TYPE_HELVETICA;
+		break;
+	      }
+              else if (!strcasecmp(font, "times"))
+	      {
+        	t->typeface = TYPE_TIMES;
+		break;
+	      }
+              else if (!strcasecmp(font, "courier"))
+	      {
+        	t->typeface = TYPE_COURIER;
+		break;
+	      }
+	      else if (!strcasecmp(font, "symbol"))
+	      {
+        	t->typeface = TYPE_SYMBOL;
+		break;
+	      }
+	      else if (!strcasecmp(font, "dingbat"))
+	      {
+        	t->typeface = TYPE_DINGBATS;
+		break;
+	      }
+	    }
+          }
+
+          if ((size = htmlGetStyle(t, (uchar *)"font-size:")) != NULL)
+          {
+            // Find the closest size to the fixed sizes...
+            int i;
+            double fontsize = atof((char *)size);
+
+            for (i = 0; i < 7; i ++)
+              if (fontsize <= _htmlSizes[i])
+                break;
+
+	    t->size = i;
+          }
+
+          if ((span = htmlGetStyle(t, (uchar *)"font-style:")) != NULL)
+          {
+            if (!strcmp((char *)span, "normal"))
+              t->style &= ~STYLE_ITALIC;
+            else if (!strcmp((char *)span, "italic") || !strcmp((char *)span, "oblique"))
+              t->style |= STYLE_ITALIC;
+          }
+
+          if ((span = htmlGetStyle(t, (uchar *)"font-weight:")) != NULL)
+          {
+            if (!strcmp((char *)span, "bold") || !strcmp((char *)span, "bolder") || !strcmp((char *)span, "700") || !strcmp((char *)span, "800") || !strcmp((char *)span, "900"))
+              t->style |= STYLE_BOLD;
+            else if (strcmp((char *)span, "inherit"))
+              t->style &= ~STYLE_BOLD;
+          }
+
+          if ((span = htmlGetStyle(t, (uchar *)"text-decoration:")) != NULL)
+          {
+            if (!strcmp((char *)span, "underline"))
+              t->underline = 1;
+            else if (!strcmp((char *)span, "line-through"))
+              t->strikethrough = 1;
+            else if (strcmp((char *)span, "inherit"))
+              t->underline = t->strikethrough = 0;
+          }
+
+          if ((span = htmlGetStyle(t, (uchar *)"vertical-align:")) != NULL)
+          {
+            if (!strcmp((char *)span, "sub"))
+              t->subscript = 1;
+            else if (!strcmp((char *)span, "super"))
+              t->superscript = 1;
+            else if (strcmp((char *)span, "inherit"))
+              t->subscript = t->superscript = 0;
+          }
 
           descend = 1;
           break;
