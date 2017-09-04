@@ -29,6 +29,8 @@ servers.  However, it does not support many things in "the modern web", such as:
   to format Arabic, Chinese, Hebrew, Japanese, or other languages that are not
   based on latin-based alphabets that read left-to-right.
 
+- Emoji: The fonts bundled with HTMLDOC do not include Unicode Emoji characters.
+
 
 # Resources
 

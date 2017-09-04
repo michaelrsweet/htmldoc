@@ -1,4 +1,3 @@
-/* config.h.  Generated from config.h.in by configure.  */
 /*
  * Configuration file for HTMLDOC.
  *
@@ -13,7 +12,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION "1.8.30"
+#define SVERSION "1.9.1"
 
 
 /*
@@ -65,7 +64,7 @@
 
 #define HAVE_CDSASSL 1
 /* #undef HAVE_GNUTLS */
-/* #undef HAVE_LIBSSL */
+/* #undef HAVE_SSPISSL */
 #define HAVE_SSL 1
 
 
