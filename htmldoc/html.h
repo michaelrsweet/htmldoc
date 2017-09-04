@@ -277,7 +277,10 @@ extern typeface_t	_htmlBodyFont,
 extern int		_htmlInitialized;
 extern char		_htmlCharSet[];
 extern double		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
+extern double           _htmlWidthsAll[TYPE_MAX][STYLE_MAX][65536];
 extern int		_htmlUnicode[];
+extern uchar            _htmlCharacters[];
+extern int              _htmlUTF8;
 extern const char	*_htmlGlyphs[];
 extern const char	*_htmlGlyphsAll[];
 extern const char	*_htmlFonts[TYPE_MAX][STYLE_MAX];

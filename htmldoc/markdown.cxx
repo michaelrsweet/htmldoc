@@ -13,6 +13,7 @@
 
 #  include "markdown.h"
 #  include "mmd.h"
+#  include "progress.h"
 
 
 /*
@@ -21,6 +22,7 @@
 
 static void       add_block(tree_t *hparent, mmd_t *parent);
 static void       add_leaf(tree_t *hparent, mmd_t *node);
+static uchar      *get_text(mmd_t *node);
 static uchar      *make_anchor(mmd_t *block);
 static uchar      *make_anchor(const uchar *text);
 
@@ -142,7 +144,7 @@ add_block(tree_t *html,                 /* I - Parent HTML node */
         block = htmlAddTree(html, MARKUP_PRE, NULL);
 
         for (node = mmdGetFirstChild(parent); node; node = mmdGetNextSibling(node))
-          htmlAddTree(block, MARKUP_NONE, (uchar *)mmdGetText(node));
+          htmlAddTree(block, MARKUP_NONE, get_text(node));
         return;
 
     case MMD_TYPE_THEMATIC_BREAK :
@@ -194,7 +196,7 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
                 *url;                   /* URL to write */
 
 
-  text = (uchar *)mmdGetText(node);
+  text = get_text(node);
   url  = (uchar *)mmdGetURL(node);
 
   switch (mmdGetType(node))
@@ -268,6 +270,109 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
   }
 
   htmlAddTree(parent, MARKUP_NONE, text);
+}
+
+
+/*
+ * 'get_text()' - Get Markdown text in HTMLDOC's charset.
+ */
+
+static uchar *                          /* O - Encoded text */
+get_text(mmd_t *node)                   /* I - Markdown node */
+{
+  uchar         *text,                  /* Text from Markdown node */
+                *bufptr,                /* Pointer into buffer */
+                *bufend;                /* End of buffer */
+  int           unich;                  /* Unicode character */
+  static uchar  buffer[8192];           /* Temporary buffer */
+
+
+  text = (uchar *)mmdGetText(node);
+
+  if (!_htmlUTF8)
+    return (text);
+
+  bufptr = buffer;
+  bufend = buffer + sizeof(buffer) - 1;
+
+  while (*text && bufptr < bufend)
+  {
+    if (*text & 0x80)
+    {
+      unich = 0;
+
+      if ((*text & 0xe0) == 0xc0)
+      {
+        if ((text[1] & 0xc0) != 0x80)
+        {
+          progress_error(HD_ERROR_READ_ERROR, "Bad UTF-8 character sequence %02X %02X.", *text, text[1]);
+          *bufptr++ = '?';
+          text ++;
+        }
+        else
+        {
+          unich = ((*text & 0x1f) << 6) | (text[1] & 0x3f);
+          text += 2;
+        }
+      }
+      else if ((*text & 0xf0) == 0xe0)
+      {
+        if ((text[1] & 0xc0) != 0x80 || (text[2] & 0xc0) != 0x80)
+        {
+          progress_error(HD_ERROR_READ_ERROR, "Bad UTF-8 character sequence %02X %02X %02X.", *text, text[1], text[2]);
+          *bufptr++ = '?';
+          text ++;
+        }
+        else
+        {
+          unich = ((*text & 0x0f) << 12) | ((text[1] & 0x3f) << 6) | (text[1] & 0x3f);
+          text += 3;
+        }
+      }
+      else
+      {
+        progress_error(HD_ERROR_READ_ERROR, "Bad UTF-8 character sequence %02X.", *text);
+        *bufptr++ = '?';
+        text ++;
+      }
+
+      if (unich)
+      {
+        if (_htmlCharacters[unich])
+        {
+          *bufptr++ = _htmlCharacters[unich];
+        }
+        else
+        {
+          uchar ch;                     /* 8-bit character */
+
+          if (_htmlUTF8 >= 0x100)
+          {
+            progress_error(HD_ERROR_READ_ERROR, "Too many Unicode code points.");
+            return (0);
+          }
+
+          ch = (uchar)_htmlUTF8++;
+
+          _htmlCharacters[unich] = ch;
+          _htmlUnicode[ch]       = unich;
+          _htmlGlyphs[ch]        = _htmlGlyphsAll[unich];
+
+          for (int i = 0; i < TYPE_MAX; i ++)
+            for (int j = 0; j < STYLE_MAX; j ++)
+              _htmlWidths[i][j][ch] = _htmlWidthsAll[i][j][unich];
+
+          *bufptr++ = ch;
+        }
+      }
+    }
+    else
+      *bufptr++ = *text++;
+  }
+
+  *bufptr = '\0';
+
+  return (buffer);
 }
 
 
