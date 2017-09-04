@@ -20,8 +20,8 @@ servers.  However, it does not support many things in "the modern web", such as:
   many requests to add support for PDF forms over the years, I have not found a
   satisfactory way to do so.
 
-- Tables: HTMLDOC supports HTML 3.2 tables, which means no support for TBODY,
-  THEAD, or TFOOT.  I have looked at supporting THEAD and TBODY...
+- Tables: HTMLDOC supports HTML 3.2 tables with basic support for TBODY and
+  THEAD.
 
 - Unicode: While HTMLDOC does support UTF-8 for "Western" languages, there is
   absolutely no support for languages that require dynamic rewriting or
