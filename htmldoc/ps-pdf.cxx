@@ -4201,8 +4201,12 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	    *needspace = 1;
           }
 
+          *left += 36.0f;
+          *x    = *left;
+
           parse_pre(t, *left, *right, *bottom, *top, x, y, page, *needspace);
 
+          *left      -= 36.0f;
           *x         = *left;
           *needspace = 1;
           break;
