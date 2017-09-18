@@ -1458,7 +1458,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
           t->typeface = _htmlBodyFont >= TYPE_MONOSPACE ? TYPE_MONOSPACE
 	                                                : TYPE_COURIER;
-          if (t->size > 0)
+          if (t->size > 0 && t->typeface == TYPE_COURIER)
             t->size --;
 
           descend = 1;
