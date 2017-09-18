@@ -159,17 +159,6 @@ typedef struct				//// Output page info
 
 
 /*
- * Timezone offset for dates, below...
- */
-
-#ifdef HAVE_TM_GMTOFF
-#  define timezone (doc_date->tm_gmtoff)
-#elif defined(__CYGWIN__)
-#  define timezone _timezone
-#endif /* HAVE_TM_GMTOFF */
-
-
-/*
  * Local globals...
  */
 
@@ -517,8 +506,17 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   memset(chapter_starts, -1, sizeof(chapter_starts));
   memset(chapter_ends, -1, sizeof(chapter_starts));
 
-  doc_time       = time(NULL);
-  doc_date       = localtime(&doc_time);
+ /*
+  * Get the current date, using the SOURCE_DATE_EPOCH environment variable, if
+  * present, for the number of seconds since the epoch - this enables
+  * reproducible builds (Issue #310).
+  */
+
+  const char *source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+  if (!source_date_epoch || (doc_time = (time_t)strtol(source_date_epoch, NULL, 10)) <= 0)
+    doc_time = time(NULL);
+
+  doc_date       = gmtime(&doc_time);
   num_headings   = 0;
   alloc_headings = 0;
   heading_pages  = NULL;
@@ -7135,7 +7133,7 @@ parse_list(tree_t *t,		/* I - Tree to parse */
         break;
 
     default :
-        sprintf((char *)number, "%c ", list_types[t->indent]);
+        snprintf((char *)number, sizeof(number), "%c ", list_types[t->indent]);
         typeface = TYPE_SYMBOL;
         break;
   }
@@ -9701,7 +9699,7 @@ set_font(FILE  *out,			/* I - File to write to */
   * Format size and strip trailing 0's and decimals...
   */
 
-  sprintf(sizes, "%.1f", size);
+  snprintf(sizes, sizeof(sizes), "%.1f", size);
 
   for (s = sizes + strlen(sizes) - 1; s > sizes && *s == '0'; s --)
     *s = '\0';
@@ -9752,13 +9750,13 @@ set_pos(FILE  *out,			/* I - File to write to */
 
   if (PSLevel > 0 || render_x == -1.0)
   {
-    sprintf(xs, "%.3f", x);
-    sprintf(ys, "%.3f", y);
+    snprintf(xs, sizeof(xs), "%.3f", x);
+    snprintf(ys, sizeof(ys), "%.3f", y);
   }
   else
   {
-    sprintf(xs, "%.3f", x - render_startx);
-    sprintf(ys, "%.3f", y - render_y);
+    snprintf(xs, sizeof(xs), "%.3f", x - render_startx);
+    snprintf(ys, sizeof(ys), "%.3f", y - render_y);
   }
 
  /*
@@ -11350,11 +11348,9 @@ write_prolog(FILE  *out,		/* I - Output file */
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
     fputs("%%Creator: " HTMLDOC_PRODUCER "\n", out);
-    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%+03d%02d\n",
+    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d+0000\n",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
-            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    (int)(-timezone / 3600),
-	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
+            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec);
     if (doc_title != NULL)
       fprintf(out, "%%%%Title: %s\n", doc_title);
     if (author != NULL)
@@ -11736,11 +11732,9 @@ write_prolog(FILE  *out,		/* I - Output file */
     fputs("/Producer", out);
     write_string(out, (uchar *)HTMLDOC_PRODUCER, 0);
     fputs("/CreationDate", out);
-    sprintf(temp, "D:%04d%02d%02d%02d%02d%02d%+03d%02d",
+    snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02d+0000",
             doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
-            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec,
-	    (int)(-timezone / 3600),
-	    (int)(((timezone < 0 ? -timezone : timezone) / 60) % 60));
+            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec);
     write_string(out, (uchar *)temp, 0);
 
     if (doc_title != NULL)
