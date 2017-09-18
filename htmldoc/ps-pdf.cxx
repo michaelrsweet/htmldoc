@@ -382,6 +382,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 {
   int		i, j;		/* Looping vars */
   const char	*title_file;	/* Location of title image/file */
+  const char	*source_date_epoch;	/* SOURCE_DATE_EPOCH environment variable */
   uchar		*author,	/* Author of document */
 		*creator,	/* HTML file creator (Netscape, etc) */
 		*copyright,	/* File copyright */
@@ -517,8 +518,10 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   memset(chapter_starts, -1, sizeof(chapter_starts));
   memset(chapter_ends, -1, sizeof(chapter_starts));
 
-  doc_time       = time(NULL);
-  doc_date       = localtime(&doc_time);
+  if ((source_date_epoch = getenv("SOURCE_DATE_EPOCH")) == NULL ||
+    (doc_time = (time_t)strtoull(source_date_epoch, NULL, 10)) <= 0)
+    doc_time     = time(NULL);
+  doc_date       = gmtime(&doc_time);
   num_headings   = 0;
   alloc_headings = 0;
   heading_pages  = NULL;
