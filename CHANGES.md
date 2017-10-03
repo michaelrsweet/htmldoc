@@ -5,6 +5,8 @@
 - Added limited support for the HTML 4.0 SPAN element (Issue #311)
 - Added (extremely limited) UTF-8 support for input files (Issue #314)
 - Now indent PRE text, by popular request.
+- EPUB output now makes sure that `<element property>` is written as
+  `<element property="property">`.
 
 
 # Changes in HTMLDOC v1.9

@@ -698,7 +698,7 @@ write_node(zipc_file_t *out,		/* I - Output file */
 	      continue;
 
 	    if (t->vars[i].value == NULL)
-              status |= write_xhtmlf(out, " %ls", t->vars[i].name);
+              status |= write_xhtmlf(out, " %ls=\"%ls\"", t->vars[i].name, t->vars[i].name);
             else if (t->markup == MARKUP_A && !strcasecmp((char *)t->vars[i].name, "NAME"))
               status |= write_xhtmlf(out, " id=\"%s\"", t->vars[i].value);
             else if (!strcasecmp((char *)t->vars[i].name, "ALIGN"))
