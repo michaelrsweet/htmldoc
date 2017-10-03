@@ -2,7 +2,7 @@
  * Test program for HTML parsing routines for HTMLDOC, an HTML document
  * processing program.
  *
- * Copyright 2011 by Michael R Sweet.
+ * Copyright 2011-2017 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -20,6 +20,8 @@
 void	prefs_load(void) { }
 void	prefs_save(void) { }
 
+static void     show_tree(tree_t *t, int indent);
+
 
 /*
  * 'main()' - Main entry for test program.
@@ -35,6 +37,7 @@ main(int  argc,			/* I - Number of command-line arguments */
 		*doc,		/* HTML document */
 		*toc;		/* Table of contents */
   char		base[1024];	/* Base directory */
+  int           tree = 0;       /* Show parsing tree */
 
 
 #ifdef DEBUG
@@ -121,12 +124,21 @@ main(int  argc,			/* I - Number of command-line arguments */
 
   if (argc < 2)
   {
-    fputs("Usage: testhtml filename.html\n", stderr);
-    return(1);
+    fputs("Usage: testhtml [--tree] filename.html\n", stderr);
+    return (1);
   };
 
   for (i = 1, doc = NULL; i < argc; i ++)
-    if ((fp = fopen(file_find("", argv[i]), "r")) != NULL)
+  {
+    if (!strcmp(argv[i], "--tree"))
+      tree = 1;
+    else if (argv[i][0] == '-')
+    {
+      fprintf(stderr, "Unknown option '%s'.\n", argv[i]);
+      fputs("Usage: testhtml [--tree] filename.html\n", stderr);
+      return (1);
+    }
+    else if ((fp = fopen(file_find("", argv[i]), "r")) != NULL)
     {
       strlcpy(base, argv[i], sizeof(base));
       if (strrchr(base, '/') != NULL)
@@ -138,24 +150,75 @@ main(int  argc,			/* I - Number of command-line arguments */
       fclose(fp);
 
       if (t != NULL)
+      {
         if (doc == NULL)
+        {
           doc = t;
+        }
         else
         {
           doc->next = t;
           t->prev   = doc;
-        };
+        }
+      }
     }
     else
+    {
       fprintf(stderr, "testhtml: Unable to open input file \'%s\'!\n", argv[i]);
+    }
+  }
 
   if (doc != NULL)
   {
-    htmlWriteFile(doc, stdout);
     toc = toc_build(doc);
-    puts("---- TABLE OF CONTENTS ----");
-    htmlWriteFile(toc, stdout);
+
+    if (tree)
+    {
+      show_tree(doc, 0);
+      puts("---- TABLE OF CONTENTS ----");
+      show_tree(toc, 0);
+    }
+    else
+    {
+      htmlWriteFile(doc, stdout);
+      puts("---- TABLE OF CONTENTS ----");
+      htmlWriteFile(toc, stdout);
+    }
   }
 
   return (doc == NULL);
 }
+
+
+/*
+ * 'show_tree()' - Show the parsing tree...
+ */
+
+static void
+show_tree(tree_t *t,                    /* I - Parent node */
+          int    indent)                /* I - Indentation */
+{
+  while (t)
+  {
+    if (t->markup == MARKUP_NONE)
+      printf("%*s\"%s\"\n", indent, "", t->data);
+    else
+      printf("%*s%s\n", indent, "", _htmlMarkups[t->markup]);
+
+    if (t->child)
+      show_tree(t->child, indent + 2);
+
+    t = t->next;
+  }
+}
+
+
+#ifdef HAVE_LIBFLTK
+void
+GUI::progress(int        percent,	// I - Percent complete
+              const char *text)		// I - Text prompt
+{
+  (void)percent;
+  (void)text;
+}
+#endif /* HAVE_LIBFLTK */

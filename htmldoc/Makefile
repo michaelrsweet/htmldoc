@@ -19,40 +19,43 @@ include ../Makedefs
 # Object files...
 #
 
-OBJS	=	array.o \
-		gui.o \
-		epub.o \
+COMMONOBJS =	array.o \
 		file.o \
-		html.o \
-		htmldoc.o \
 		htmllib.o \
-		htmlsep.o \
 		http.o \
 		http-addr.o \
 		http-addrlist.o \
 		http-support.o \
 		image.o \
 		iso8859.o \
-		license.o \
 		md5.o \
-		markdown.o \
-		mmd.o \
 		progress.o \
-		ps-pdf.o \
-		rc4.o \
 		snprintf.o \
 		string.o \
 		tls.o \
 		toc.o \
-		util.o \
+		util.o
+
+HTMLDOCOBJS =	gui.o \
+		epub.o \
+		htmldoc.o \
+		htmlsep.o \
+		license.o \
+		markdown.o \
+		mmd.o \
+		ps-pdf.o \
+		rc4.o \
 		zipc.o
+TESTOBJS =	testhtml.o
+OBJS	=	$(COMMONOBJS) $(HTMLDOCOBJS) $(TESTOBJS)
 
 
 #
 # Make everything...
 #
 
-all:	htmldoc$(EXEEXT)
+all:	htmldoc$(EXEEXT) testhtml$(EXEEXT)
+
 
 #
 # Install everything...
@@ -84,9 +87,9 @@ depend:
 # htmldoc
 #
 
-htmldoc$(EXEEXT):	$(OBJS) ../Makedefs
+htmldoc$(EXEEXT):	$(HTMLDOCOBJS) $(COMMONOBJS) ../Makedefs
 	echo Linking $@...
-	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(OBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o htmldoc$(EXEEXT) $(HTMLDOCOBJS) $(COMMONOBJS) $(LIBS)
 	if test `uname` = Darwin; then \
 		$(MAKE) -$(MAKEFLAGS) htmldoc.app || exit 1; \
 	fi
@@ -111,6 +114,15 @@ htmldoc.app:	htmldoc
 	$(MKDIR) htmldoc.app/Contents/Resources/fonts
 	$(CP) ../fonts/*.afm htmldoc.app/Contents/Resources/fonts
 	$(CP) ../fonts/*.pfa htmldoc.app/Contents/Resources/fonts
+
+
+#
+# testhtml
+#
+
+testhtml$(EXEEXT):	$(TESTOBJS) $(COMMONOBJS)
+	echo Linking $@...
+	$(CXX) $(LDFLAGS) -o testhtml$(EXEEXT) $(TESTOBJS) $(COMMONOBJS) $(LIBS)
 
 
 #
