@@ -38,6 +38,7 @@ COMMONOBJS =	array.o \
 
 HTMLDOCOBJS =	gui.o \
 		epub.o \
+		html.o \
 		htmldoc.o \
 		htmlsep.o \
 		license.o \
