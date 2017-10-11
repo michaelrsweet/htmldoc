@@ -273,19 +273,19 @@ write_header(FILE   **out,	/* IO - Output file */
   }
 
   fputs("<STYLE TYPE=\"text/css\"><!--\n", *out);
-  fprintf(*out, "BODY { font-family: %s }\n", families[_htmlBodyFont]);
-  fprintf(*out, "H1 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H2 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H3 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H4 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H5 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fprintf(*out, "H6 { font-family: %s }\n", families[_htmlHeadingFont]);
-  fputs("SUB { font-size: smaller }\n", *out);
-  fputs("SUP { font-size: smaller }\n", *out);
-  fputs("PRE { font-family: monospace }\n", *out);
+  fprintf(*out, "BODY { font-family: %s; }\n", families[_htmlBodyFont]);
+  fprintf(*out, "H1 { font-family: %s; }\n", families[_htmlHeadingFont]);
+  fprintf(*out, "H2 { font-family: %s; }\n", families[_htmlHeadingFont]);
+  fprintf(*out, "H3 { font-family: %s; }\n", families[_htmlHeadingFont]);
+  fprintf(*out, "H4 { font-family: %s; }\n", families[_htmlHeadingFont]);
+  fprintf(*out, "H5 { font-family: %s; }\n", families[_htmlHeadingFont]);
+  fprintf(*out, "H6 { font-family: %s; }\n", families[_htmlHeadingFont]);
+  fputs("SUB { font-size: smaller; }\n", *out);
+  fputs("SUP { font-size: smaller; }\n", *out);
+  fputs("PRE { font-family: monospace; margin-left: 36pt; }\n", *out);
 
   if (!LinkStyle)
-    fputs("A { text-decoration: none }\n", *out);
+    fputs("A { text-decoration: none; }\n", *out);
 
   fputs("--></STYLE>\n", *out);
   fputs("</HEAD>\n", *out);
