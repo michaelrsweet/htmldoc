@@ -2729,7 +2729,6 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
   {
     int lastch = ch;			// Last character seen
 
-
     while (ch != EOF && cptr < (comment + sizeof(comment) - 2))
     {
       if (ch == '>' && temp == NULL)
@@ -2746,6 +2745,9 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 	{
 	  // Erase trailing -->
 	  cptr -= 2;
+
+          if (cptr < comment)
+            cptr = comment; // Issue #316: buffer underflow
 	  break;
         }
 	else
