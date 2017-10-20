@@ -1213,7 +1213,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           if ((size = htmlGetStyle(t, (uchar *)"font-size:")) != NULL)
           {
             // Find the closest size to the fixed sizes...
-            int i;
+            unsigned i;
             double fontsize = atof((char *)size);
 
             for (i = 0; i < 7; i ++)
