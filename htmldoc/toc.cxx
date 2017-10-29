@@ -254,17 +254,28 @@ parse_tree(tree_t *t)		/* I - Document tree */
           }
 
          /*
-	  * See if we have an existing <A NAME=...> for this heading...
+	  * See if we have an existing <A NAME=...> or <A ID=...> for this
+	  * heading...
 	  */
 
           existing = NULL;
 
           if (t->parent != NULL && t->parent->markup == MARKUP_A)
+          {
 	    existing = htmlGetVariable(t->parent, (uchar *)"NAME");
+
+	    if (!existing)
+              existing = htmlGetVariable(t->parent, (uchar *)"ID");
+          }
 
 	  if (existing == NULL &&
               t->child != NULL && t->child->markup == MARKUP_A)
+          {
 	    existing = htmlGetVariable(t->child, (uchar *)"NAME");
+
+	    if (!existing)
+              existing = htmlGetVariable(t->child, (uchar *)"ID");
+          }
 
           if (existing != NULL &&
 	      strlen((char *)existing) >= 124)	/* Max size of link name */

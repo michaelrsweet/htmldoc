@@ -8,6 +8,7 @@
 - Now indent PRE text, by popular request.
 - EPUB output now makes sure that `<element property>` is written as
   `<element property="property">`.
+- Now support both NAME and ID for table-of-contents targets.
 
 
 # Changes in HTMLDOC v1.9
