@@ -13,7 +13,7 @@ icon: desktop/htmldoc-128.png
 
 apps:
     htmldoc:
-        command: bin/htmldoc
+        command: desktop-launch bin/htmldoc
         desktop: share/applications/htmldoc.desktop
         plugs: [home, network, unity7, x11]
 
