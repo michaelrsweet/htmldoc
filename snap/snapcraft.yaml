@@ -7,7 +7,7 @@ description: |
   and generates corresponding EPUB, HTML, PostScript, or PDF files with an
   optional table of contents.
 
-grade: devel # must be 'stable' to release into candidate/stable channels
+grade: stable
 confinement: strict
 icon: desktop/htmldoc-128.png
 
