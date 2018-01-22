@@ -8,14 +8,14 @@ description: |
   optional table of contents.
 
 grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+confinement: strict
 icon: desktop/htmldoc-128.png
 
 apps:
     htmldoc:
-        command: desktop-launch bin/htmldoc
+        command: desktop-launch $SNAP/bin/htmldoc
         desktop: share/applications/htmldoc.desktop
-        plugs: [home, network, unity7, x11]
+        plugs: [home, network, x11]
 
 parts:
     main:
