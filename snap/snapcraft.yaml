@@ -1,4 +1,3 @@
-
 name: htmldoc
 version: 1.9.1
 summary: HTML and Markdown conversion utility
@@ -7,8 +6,12 @@ description: |
   and generates corresponding EPUB, HTML, PostScript, or PDF files with an
   optional table of contents.
 
+#grade: devel
+#confinement: devmode
+
 grade: stable
 confinement: strict
+
 icon: desktop/htmldoc-128.png
 
 apps:
