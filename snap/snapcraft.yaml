@@ -1,16 +1,16 @@
 name: htmldoc
-version: 1.9.1
+version: 1.9.2
 summary: HTML and Markdown conversion utility
 description: |
   HTMLDOC is a program that reads HTML and Markdown source files or web pages
   and generates corresponding EPUB, HTML, PostScript, or PDF files with an
   optional table of contents.
 
-#grade: devel
 #confinement: devmode
-
-grade: stable
 confinement: strict
+
+grade: devel
+#grade: stable
 
 icon: desktop/htmldoc-128.png
 
