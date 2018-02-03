@@ -206,9 +206,15 @@ add_block(tree_t *html,                 /* I - Parent HTML node */
       block->halignment = ALIGN_RIGHT;
   }
   else if (element == MARKUP_TH)
+  {
     block->halignment = ALIGN_CENTER;
+    htmlSetVariable(block, (uchar *)"bgcolor", (uchar *)"#cccccc");
+  }
   else if (element == MARKUP_TABLE)
+  {
     htmlSetVariable(block, (uchar *)"border", (uchar *)"1");
+    htmlSetVariable(block, (uchar *)"cellpadding", (uchar *)"2");
+  }
 
   if (type >= MMD_TYPE_HEADING_1 && type <= MMD_TYPE_HEADING_6)
   {
