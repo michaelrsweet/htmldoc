@@ -1,8 +1,8 @@
 /*
  * Configuration file for HTMLDOC.
  *
- * Copyright 2011-2017 by Michael R Sweet.
- * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ * Copyright © 2011-2018 by Michael R Sweet.
+ * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -12,7 +12,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION "1.9.1"
+#define SVERSION "1.9.2"
 
 
 /*
