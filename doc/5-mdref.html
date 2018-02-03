@@ -1,0 +1,141 @@
+<html>
+  <body><!-- FOOTER RIGHT "5-$CHAPTERPAGE" -->
+    <div align="justify">
+      <h1 align="right"><a name="MDREF">Chapter 5 - Markdown Reference</a></h1>
+
+      <p>This chapter describes the markdown syntax that is recognized and supported by HTMLDOC.</p>
+
+
+      <h2>General Syntax</h2>
+
+      <p>Markdown is a simple plain-text format that uses formatting conventions that are commonly used in email and other text-based communications. Markdown is used by most of the major blogging, web site, and project hosting platforms and is supported by many standalone text editors.</p>
+
+      <p>HTMLDOC supports the <a href="http://spec.commonmark.org/">CommonMark</a> version of markdown syntax with the following exceptions:</p>
+
+      <ul>
+	<li>Metadata as used by Jekyll and other web markdown solutions can be placed at the beginning of the file;</li>
+	<li>"@" links can be used which resolve to headings within the file;</li>
+	<li>Tables can be embedded using the "|" separator;</li>
+        <li>Embedded HTML markup and entities are explicitly not supported or allowed;</li>
+	<li>Link reference definitions are not supported;</li>
+	<li>Link titles are silently ignored; and</li>
+	<li>Thematic breaks using a mix of whitespace and the separator character are not supported - "* * * *", "-- -- -- --", etc.</li>
+      </ul>
+
+      <blockquote><b>Note:</b> HTMLDOC does not support embedded HTML in markdown documents because the version of HTML (or XHTML) cannot be reliably determined, making support of certain character entities and language elements problematic.</blockquote>
+
+
+      <h2>Metadata Syntax</h2>
+
+      <p>Metadata is specified at the top of a markdown file between two lines containing three hyphens, for example:</p>
+
+      <pre>
+---
+title: My Great Novel
+author: John Doe
+copyright: Copyright &copy; 2018 by John Doe
+version: 1.0
+---
+
+# Preamble
+
+...
+</pre>
+
+      <p>HTMLDOC supports the "title", "author", "copyright", and "version" metadata and silently ignores everything else.</p>
+
+
+      <h2>Link Targets and @ Links</h2>
+
+      <p>CommonMark defines no standard for how implementations generate anchors or identifiers for headings in a markdown file - this makes hyperlinking to a named section within a document basically impossible. Jekyll and other markdown implementations allow the special link "@" to be used, which HTMLDOC supports:</p>
+
+      <pre>
+See [Screwing in a Light Bulb](@) for instructions on installing a
+light bulb.
+
+...
+
+# Screwing in a Light Bulb
+
+...
+</pre>
+
+      <p>To reference a markdown heading from a HTML file, convert the heading to lowercase, replace spaces with the hyphen ("-"), and remove any special characters. Thus, a HTML file would reference the previous heading using the following HTML:</p>
+
+      <pre>
+&lt;a href="#screwing-in-a-light-bulb"&gt; ... &lt;/a&gt;
+</pre>
+
+
+      <!-- NEED 5in -->
+      <h2>Table Syntax</h2>
+
+      <p>CommonMark does not define a syntax for plain-text tables, instead relying on embedded HTML which HTMLDOC does not support. Both Github and Jekyll support a common markdown extension for plain text tables that uses the vertical pipe ("|") character to specify column separations. The first line contains the table header, the second line is a horizontal separator, and the remaining lines contain the table body. For example:</p>
+
+      <pre>
+| Heading 1 | Heading 2 | Heading 3 |
+| --------- | --------- | --------- |
+| Cell 1,1  | Cell 1,2  | Cell 1,3  |
+| Cell 2,1  | Cell 2,2  | Cell 2,3  |
+| Cell 3,1  | Cell 3,2  | Cell 3,3  |
+</pre>
+
+      <p>will produce:</p>
+
+      <table border="1" cellpadding="2">
+        <thead>
+          <tr><th bgcolor="#cccccc">Heading 1</th><th bgcolor="#cccccc">Heading 2</th><th bgcolor="#cccccc">Heading 3</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Cell 1,1</td><td>Cell 1,2</td><td>Cell 1,3</td></tr>
+          <tr><td>Cell 2,1</td><td>Cell 2,2</td><td>Cell 2,3</td></tr>
+          <tr><td>Cell 3,1</td><td>Cell 3,2</td><td>Cell 3,3</td></tr>
+        </tbody>
+      </table>
+
+      <p>The outer pipes can be omitted, for example:</p>
+
+      <pre>
+Heading 1 | Heading 2 | Heading 3
+--------- | --------- | ---------
+Cell 1,1  | Cell 1,2  | Cell 1,3
+Cell 2,1  | Cell 2,2  | Cell 2,3
+Cell 3,1  | Cell 3,2  | Cell 3,3
+</pre>
+
+      <p>While table headings are always centered, you can control the alignment of the body cells by using the colon (":") character in the separator line. Put a leading colon to specify left alignment (the default), a trailing colon for right alignment, or both to specify centering.  For example:<p>
+
+      <pre>
+Left Alignment | Center Alignment | Right Alignment
+:------------- | :--------------: | --------------:
+Cell 1,1       |     Cell 1,2     |               1
+Cell 2,1       |     Cell 2,2     |              12
+Cell 3,1       |     Cell 3,2     |             123
+</pre>
+
+      <p>will produce:</p>
+
+      <table border="1" cellpadding="2">
+        <thead>
+          <tr><th bgcolor="#cccccc">Left Alignment</th><th bgcolor="#cccccc">Center Alignment</th><th bgcolor="#cccccc">Right Alignment</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Cell 1,1</td><td align="center">Cell 1,2</td><td align="right">1</td></tr>
+          <tr><td>Cell 2,1</td><td align="center">Cell 2,2</td><td align="right">12</td></tr>
+          <tr><td>Cell 3,1</td><td align="center">Cell 3,2</td><td align="right">123</td></tr>
+        </tbody>
+      </table>
+
+      <p>Table columns do not need to be padded so that they line up - the following (less readable) example is perfectly valid:</p>
+
+      <pre>
+Left Alignment|Center Alignment|Right Alignment
+:--|:--:|--:
+Cell 1,1|Cell 1,2|1
+Cell 2,1|Cell 2,2|12
+Cell 3,1|Cell 3,2|123
+</pre>
+
+    </div>
+  </body>
+</html>

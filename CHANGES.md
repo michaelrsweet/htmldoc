@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.2
 
 - Added Markdown table support.
+- Fixed parsing of TBODY, TFOOT, and THEAD elements in HTML files.
 
 
 # Changes in HTMLDOC v1.9.1

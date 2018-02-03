@@ -550,12 +550,10 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	      break;
 	    }
 	}
-	else if (istable(t->markup))
+	else if (t->markup == MARKUP_THEAD || t->markup == MARKUP_TBODY || t->markup == MARKUP_TFOOT)
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
-            if (istable(temp->markup))
-	      break;
-	    else if (temp->markup == MARKUP_TABLE || temp->markup == MARKUP_EMBED)
+	    if (temp->markup == MARKUP_TABLE || temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
               break;
