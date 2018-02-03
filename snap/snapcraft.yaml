@@ -9,8 +9,8 @@ description: |
 #confinement: devmode
 confinement: strict
 
-grade: devel
-#grade: stable
+#grade: devel
+grade: stable
 
 icon: desktop/htmldoc-128.png
 
