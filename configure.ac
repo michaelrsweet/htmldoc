@@ -1,14 +1,14 @@
 #
 # Configuration script for HTMLDOC, an HTML document processing program.
 #
-# Copyright 2011-2017 by Michael R Sweet.
-# Copyright 1997-2010 by Easy Software Products.
+# Copyright © 2011-2018 by Michael R Sweet.
+# Copyright © 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
 # the file "COPYING".
 #
 
-AC_INIT([HTMLDOC], [1.9.1], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc],  [https://michaelrsweet.github.io/htmldoc])
+AC_INIT([HTMLDOC], [1.9.2], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc],  [https://michaelrsweet.github.io/htmldoc])
 AC_CONFIG_HEADER(config.h)
 
 dnl Define the version number...

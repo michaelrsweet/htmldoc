@@ -1,7 +1,7 @@
 /*
  * Markdown parsing definitions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2017 by Michael R Sweet.
+ * Copyright © 2017-2018 by Michael R Sweet.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -92,6 +92,7 @@ add_block(tree_t *html,                 /* I - Parent HTML node */
   mmd_t         *node;                  /* Current child node */
   mmd_type_t    type;                   /* Node type */
   tree_t        *block;                 /* Block node */
+  const char	*align = NULL;		/* Alignment */
 
 
   switch (type = mmdGetType(parent))
@@ -151,6 +152,40 @@ add_block(tree_t *html,                 /* I - Parent HTML node */
         htmlAddTree(html, MARKUP_HR, NULL);
         return;
 
+    case MMD_TYPE_TABLE :
+        element = MARKUP_TABLE;
+        break;
+
+    case MMD_TYPE_TABLE_HEADER :
+        element = MARKUP_THEAD;
+        break;
+
+    case MMD_TYPE_TABLE_BODY :
+        element = MARKUP_TBODY;
+        break;
+
+    case MMD_TYPE_TABLE_ROW :
+        element = MARKUP_TR;
+        break;
+
+    case MMD_TYPE_TABLE_HEADER_CELL :
+        element = MARKUP_TH;
+        break;
+
+    case MMD_TYPE_TABLE_BODY_CELL_LEFT :
+        element = MARKUP_TD;
+        break;
+
+    case MMD_TYPE_TABLE_BODY_CELL_CENTER :
+        element = MARKUP_TD;
+        align   = "center";
+        break;
+
+    case MMD_TYPE_TABLE_BODY_CELL_RIGHT :
+        element = MARKUP_TD;
+        align   = "right";
+        break;
+
     default :
         element = MARKUP_NONE;
         break;
@@ -160,6 +195,20 @@ add_block(tree_t *html,                 /* I - Parent HTML node */
     block = htmlAddTree(html, element, NULL);
   else
     block = html;
+
+  if (align)
+  {
+    htmlSetVariable(block, (uchar *)"align", (uchar *)align);
+
+    if (!strcmp(align, "center"))
+      block->halignment = ALIGN_CENTER;
+    else
+      block->halignment = ALIGN_RIGHT;
+  }
+  else if (element == MARKUP_TH)
+    block->halignment = ALIGN_CENTER;
+  else if (element == MARKUP_TABLE)
+    htmlSetVariable(block, (uchar *)"border", (uchar *)"1");
 
   if (type >= MMD_TYPE_HEADING_1 && type <= MMD_TYPE_HEADING_6)
   {

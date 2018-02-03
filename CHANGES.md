@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.2
+
+- Added Markdown table support.
+
+
 # Changes in HTMLDOC v1.9.1
 
 - Fixed monospace font size issue (Issue #309)
