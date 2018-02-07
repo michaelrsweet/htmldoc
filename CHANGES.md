@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.3
 
 - Fixed formatting bug with aligned images (Issue #322)
+- Fixed support for three digit "#RGB" color values (Issue #323)
 
 
 # Changes in HTMLDOC v1.9.2

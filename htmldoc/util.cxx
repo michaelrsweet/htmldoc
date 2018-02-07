@@ -1,8 +1,8 @@
 /*
  * Utility functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011 by Michael R Sweet.
- * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ * Copyright © 2011-2018 by Michael R Sweet.
+ * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -155,7 +155,7 @@ get_color(const uchar *color,	/* I - Color attribute */
       if (!isxdigit(color[i]))
         break;
 
-    if (i == 6)
+    if (i == 3 || i == 6)
     {
       // Update the color name to be #RRGGBB instead of RRGGBB...
       tempcolor[0] = '#';
@@ -186,10 +186,29 @@ get_color(const uchar *color,	/* I - Color attribute */
     * RGB value in hex...
     */
 
-    i = strtol((char *)color + 1, NULL, 16);
-    rgb[0] = (i >> 16) / 255.0f;
-    rgb[1] = ((i >> 8) & 255) / 255.0f;
-    rgb[2] = (i & 255) / 255.0f;
+    i = (int)strlen((char *)color + 1);
+    if (i == 3)
+    {
+      i      = strtol((char *)color + 1, NULL, 16);
+      rgb[0] = (i >> 8) / 15.0f;
+      rgb[1] = ((i >> 4) & 15) / 15.0f;
+      rgb[2] = (i & 15) / 15.0f;
+    }
+    else if (i == 6)
+    {
+      i      = strtol((char *)color + 1, NULL, 16);
+      rgb[0] = (i >> 16) / 255.0f;
+      rgb[1] = ((i >> 8) & 255) / 255.0f;
+      rgb[2] = (i & 255) / 255.0f;
+    }
+    else if (defblack)
+    {
+      rgb[0] = rgb[1] = rgb[2] = 0.0f;
+    }
+    else
+    {
+      rgb[0] = rgb[1] = rgb[2] = 1.0f;
+    }
   }
   else
   {
