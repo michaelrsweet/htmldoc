@@ -1,5 +1,5 @@
 name: htmldoc
-version: 1.9.2
+version: 1.9.3
 summary: HTML and Markdown conversion utility
 description: |
   HTMLDOC is a program that reads HTML and Markdown source files or web pages

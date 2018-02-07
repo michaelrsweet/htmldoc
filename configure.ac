@@ -8,7 +8,7 @@
 # the file "COPYING".
 #
 
-AC_INIT([HTMLDOC], [1.9.2], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc],  [https://michaelrsweet.github.io/htmldoc])
+AC_INIT([HTMLDOC], [1.9.3], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc],  [https://michaelrsweet.github.io/htmldoc])
 AC_CONFIG_HEADER(config.h)
 
 dnl Define the version number...
