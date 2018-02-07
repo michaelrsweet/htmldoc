@@ -11,11 +11,13 @@ fi
 version=$1
 
 echo Creating tag for release...
-git tag -m "Tag $version" v$version
+git tag -s -m "Tag $version" v$version
 git push origin v$version
 
 echo Creating htmldoc-$version-source.tar.gz...
-git archive --format tar HEAD | gzip -v9 >htmldoc-$version-source.tar.gz
+git archive --format tar HEAD | gzip -v9 >~/Desktop/htmldoc-$version-source.tar.gz
+gpg --detach-sign ~/Desktop/htmldoc-$version-source.tar.gz
 
 echo Creating htmldoc-$version-source.zip...
-git archive --format zip -9 HEAD >htmldoc-$version-source.zip
+git archive --format zip -9 HEAD >~/Desktop/htmldoc-$version-source.zip
+gpg --detach-sign ~/Desktop/htmldoc-$version-source.zip

@@ -76,12 +76,12 @@ install:
 # Sign the HTMLDOC application bundle and make a disk image...
 #
 
-IDENTITY	=	"Developer ID Application: Michael Sweet (RU58A2256H)"
+IDENTITY	=	"Developer ID Application"
 VERSION		=	@SVERSION@
 
 dmg:
 	echo Signing HTMLDOC application bundle
 	codesign -s $(IDENTITY) htmldoc/htmldoc.app
 	echo Making disk image...
-	rm -f htmldoc-$(VERSION)-macos.dmg
-	hdiutil create -srcfolder htmldoc/htmldoc.app htmldoc-$(VERSION)-macos.dmg
+	rm -f ~/Desktop/htmldoc-$(VERSION)-macos.dmg
+	hdiutil create -srcfolder htmldoc/htmldoc.app ~/Desktop/htmldoc-$(VERSION)-macos.dmg
