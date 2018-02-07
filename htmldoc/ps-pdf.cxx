@@ -4588,6 +4588,13 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   }
 }
 
+#if defined(PARA_DEBUG) && !defined(DEBUG)
+#  undef DEBUG_printf
+#  undef DEBUG_puts
+#  define DEBUG_printf(x) printf x
+#  define DEBUG_puts(x) puts(x)
+#endif /* PARA_DEBUG && !defined(DEBUG) */
+
 
 /*
  * 'parse_paragraph()' - Parse a paragraph tree and produce rendering list
@@ -5300,6 +5307,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     if (*y < image_y)
     {
+      image_y      = 0.0f;
       image_left   = left;
       image_right  = right;
       format_width = image_right - image_left;
@@ -5310,9 +5318,16 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   if (*y > image_y && image_y > 0.0f)
     *y = image_y;
 
-  DEBUG_printf(("LEAVING parse_paragraph(), x = %.1f, y = %.1f, page = %d\n",
-                *x, *y, *page));
+  DEBUG_printf(("LEAVING parse_paragraph(), x = %.1f, y = %.1f, page = %d, image_y = %.1f\n", *x, *y, *page, image_y));
 }
+
+
+#if defined(PARA_DEBUG) && !defined(DEBUG)
+#  undef DEBUG_printf
+#  undef DEBUG_puts
+#  define DEBUG_printf(x)
+#  define DEBUG_puts(x)
+#endif /* PARA_DEBUG && !DEBUG */
 
 
 /*

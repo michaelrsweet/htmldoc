@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.3
+
+- Fixed formatting bug with aligned images (Issue #322)
+
+
 # Changes in HTMLDOC v1.9.2
 
 - Added Markdown table support.
