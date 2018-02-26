@@ -22,7 +22,7 @@
 
 static void       add_block(tree_t *hparent, mmd_t *parent);
 static void       add_leaf(tree_t *hparent, mmd_t *node);
-static uchar      *get_text(mmd_t *node);
+static uchar      *get_text(uchar *text);
 static uchar      *make_anchor(mmd_t *block);
 static uchar      *make_anchor(const uchar *text);
 
@@ -50,25 +50,25 @@ mdReadFile(tree_t     *parent,		/* I - Parent node */
   if ((meta = mmdGetMetadata(doc, "title")) != NULL)
   {
     temp = htmlAddTree(head, MARKUP_TITLE, NULL);
-    htmlAddTree(temp, MARKUP_NONE, (uchar *)meta);
+    htmlAddTree(temp, MARKUP_NONE, get_text((uchar *)meta));
   }
   if ((meta = mmdGetMetadata(doc, "author")) != NULL)
   {
     temp = htmlAddTree(head, MARKUP_META, NULL);
     htmlSetVariable(temp, (uchar *)"name", (uchar *)"author");
-    htmlSetVariable(temp, (uchar *)"content", (uchar *)meta);
+    htmlSetVariable(temp, (uchar *)"content", get_text((uchar *)meta));
   }
   if ((meta = mmdGetMetadata(doc, "copyright")) != NULL)
   {
     temp = htmlAddTree(head, MARKUP_META, NULL);
     htmlSetVariable(temp, (uchar *)"name", (uchar *)"copyright");
-    htmlSetVariable(temp, (uchar *)"content", (uchar *)meta);
+    htmlSetVariable(temp, (uchar *)"content", get_text((uchar *)meta));
   }
   if ((meta = mmdGetMetadata(doc, "version")) != NULL)
   {
     temp = htmlAddTree(head, MARKUP_META, NULL);
     htmlSetVariable(temp, (uchar *)"name", (uchar *)"version");
-    htmlSetVariable(temp, (uchar *)"content", (uchar *)meta);
+    htmlSetVariable(temp, (uchar *)"content", get_text((uchar *)meta));
   }
 
   body = htmlAddTree(html, MARKUP_BODY, NULL);
@@ -145,7 +145,7 @@ add_block(tree_t *html,                 /* I - Parent HTML node */
         block = htmlAddTree(html, MARKUP_PRE, NULL);
 
         for (node = mmdGetFirstChild(parent); node; node = mmdGetNextSibling(node))
-          htmlAddTree(block, MARKUP_NONE, get_text(node));
+          htmlAddTree(block, MARKUP_NONE, get_text((uchar *)mmdGetText(node)));
         return;
 
     case MMD_TYPE_THEMATIC_BREAK :
@@ -251,7 +251,7 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
                 *url;                   /* URL to write */
 
 
-  text = get_text(node);
+  text = get_text((uchar *)mmdGetText(node));
   url  = (uchar *)mmdGetURL(node);
 
   switch (mmdGetType(node))
@@ -333,16 +333,13 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
  */
 
 static uchar *                          /* O - Encoded text */
-get_text(mmd_t *node)                   /* I - Markdown node */
+get_text(uchar *text)                   /* I - Markdown text */
 {
-  uchar         *text,                  /* Text from Markdown node */
-                *bufptr,                /* Pointer into buffer */
+  uchar         *bufptr,                /* Pointer into buffer */
                 *bufend;                /* End of buffer */
   int           unich;                  /* Unicode character */
   static uchar  buffer[8192];           /* Temporary buffer */
 
-
-  text = (uchar *)mmdGetText(node);
 
   if (!_htmlUTF8)
     return (text);
