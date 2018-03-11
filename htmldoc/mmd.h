@@ -77,6 +77,7 @@ typedef struct _mmd_s mmd_t;
 extern "C" {
 #  endif /* __cplusplus */
 
+extern char       *mmdCopyAllText(mmd_t *node);
 extern void       mmdFree(mmd_t *node);
 extern mmd_t      *mmdGetFirstChild(mmd_t *node);
 extern mmd_t      *mmdGetLastChild(mmd_t *node);
