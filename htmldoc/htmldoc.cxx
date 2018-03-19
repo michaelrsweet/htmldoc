@@ -825,7 +825,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       TocLevels = 0;
     else if (compare_strings(argv[i], "--no-truetype", 7) == 0)
     {
-      fputs("htmldoc: Warning, --no-truetype option superceded by --no-embedfonts!\n", stderr);
+      fputs("htmldoc: Warning, --no-truetype option superseded by --no-embedfonts!\n", stderr);
       EmbedFonts = 0;
     }
     else if (compare_strings(argv[i], "--no-xrxcomments", 6) == 0)
@@ -1084,7 +1084,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--truetype", 4) == 0)
     {
-      fputs("htmldoc: Warning, --truetype option superceded by --embedfonts!\n", stderr);
+      fputs("htmldoc: Warning, --truetype option superseded by --embedfonts!\n", stderr);
 
       EmbedFonts = 1;
     }
