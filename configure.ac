@@ -86,7 +86,10 @@ else
 fi
 
 dnl Check for random number functions...
-AC_CHECK_FUNCS(random lrand48 arc4random)
+AC_CHECK_FUNC(arc4random, AC_DEFINE([HTMLDOC_RAND()], [arc4random()], [use arc4random]) AC_DEFINE([HTMLDOC_SRAND(v)], [srand for arc4random]),
+  AC_CHECK_FUNC(random, AC_DEFINE([HTMLDOC_RAND()], [random()], [use random]) AC_DEFINE([HTMLDOC_SRAND(v)], [srandom(v)], [srand for random]),
+    AC_CHECK_FUNC(lrand48, AC_DEFINE([HTMLDOC_RAND()], [lrand48()], [use lrand48]) AC_DEFINE([HTMLDOC_SRAND(v)], [srand48(v)], [srand for lrand48]),
+      AC_DEFINE([HTMLDOC_RAND()], [rand()], [fallback to rand]) AC_DEFINE([HTMLDOC_SRAND(v)], [srand(v)], [fallback to srand]))))
 
 dnl See if the tm structure has the tm_gmtoff member...
 AC_MSG_CHECKING(for tm_gmtoff member in tm structure)
@@ -142,6 +145,11 @@ AC_CACHE_CHECK(for long long int, ac_cv_c_long_long,
 
 if test $ac_cv_c_long_long = yes; then
     AC_DEFINE([HAVE_LONG_LONG], [], [long long support])
+	AC_DEFINE([HTMLDOC_LLFMT], ["%lld"], [long long format])
+	AC_DEFINE([HTMLDOC_LLCAST], [(long long)], [long long cast])
+else
+	AC_DEFINE([HTMLDOC_LLFMT], ["%ld"], [long long format])
+	AC_DEFINE([HTMLDOC_LLCAST], [(long)], [long long cast])
 fi
 
 AC_CHECK_FUNC(strtoll, AC_DEFINE([HAVE_STRTOLL], [], [strtoll support]))
@@ -337,6 +345,17 @@ if test "$datadir" = "\${prefix}/share"; then
 elif test "$datadir" = "\${datarootdir}"; then
     datadir="$datarootdir"
 fi
+
+AC_DEFINE([MAX_CHAPTERS], [1000], [max number of chapters or files])
+AC_DEFINE([MAX_COLUMNS], [200], [max number of columns in a table])
+AC_DEFINE([MAX_HF_IMAGES], [10], [max number of header/footer images])
+
+AC_DEFINE([ALLOC_FILES], [10], [temporary/image files])
+AC_DEFINE([ALLOC_HEADINGS], [50], [headings])
+AC_DEFINE([ALLOC_LINKS], [100], [web links])
+AC_DEFINE([ALLOC_OBJECTS], [100], [pdf objects])
+AC_DEFINE([ALLOC_PAGES], [10], [ps/pdf pages])
+AC_DEFINE([ALLOC_ROWS], [20], [table rows])
 
 AC_DEFINE_UNQUOTED([DOCUMENTATION], ["$datadir/doc/htmldoc"], [documentation directory])
 AC_DEFINE_UNQUOTED([HTML_DATA], ["$datadir/htmldoc"], [data directory])
