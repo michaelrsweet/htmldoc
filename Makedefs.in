@@ -83,7 +83,7 @@ OPTIM		=	@OPTIM@ @SSLFLAGS@
 .SUFFIXES:	.a .c .cxx .h .o
 .c.o:
 	echo Compiling $<...
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
 .cxx.o:
 	echo Compiling $<...
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
