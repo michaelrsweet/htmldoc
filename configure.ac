@@ -14,7 +14,7 @@ AC_CONFIG_HEADER(config.h)
 dnl Define the version number...
 SVERSION="AC_PACKAGE_VERSION"
 AC_SUBST(SVERSION)
-AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
+AC_DEFINE_UNQUOTED([SVERSION], ["$SVERSION"], [version number])
 
 dnl Get the operating system and version number...
 uname=`uname`
@@ -74,8 +74,8 @@ AC_SUBST(ARFLAGS)
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADER(strings.h, AC_DEFINE(HAVE_STRINGS_H))
-AC_CHECK_HEADER(locale.h, AC_DEFINE(HAVE_LOCALE_H))
+AC_CHECK_HEADER(strings.h, AC_DEFINE([HAVE_STRINGS_H], [], [strings.h support]))
+AC_CHECK_HEADER(locale.h, AC_DEFINE([HAVE_LOCALE_H], [], [locale.h support]))
 
 dnl Checks for string functions.
 AC_CHECK_FUNCS(strdup strcasecmp strncasecmp strlcat strlcpy)
@@ -93,7 +93,7 @@ AC_MSG_CHECKING(for tm_gmtoff member in tm structure)
 AC_TRY_COMPILE([#include <time.h>],[struct tm t;
     int o = t.tm_gmtoff;],
     AC_MSG_RESULT(yes)
-    AC_DEFINE(HAVE_TM_GMTOFF),
+    AC_DEFINE([HAVE_TM_GMTOFF], [], [tm_gmtoff support]),
     AC_MSG_RESULT(no))
 
 dnl Check for libraries...
@@ -101,16 +101,16 @@ LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
 AC_CHECK_LIB(m,pow)
-AC_CHECK_FUNC(poll, AC_DEFINE(HAVE_POLL))
+AC_CHECK_FUNC(poll, AC_DEFINE([HAVE_POLL], [], [poll support]))
 AC_SEARCH_LIBS(socket, socket)
 AC_SEARCH_LIBS(gethostbyaddr, nsl)
-AC_SEARCH_LIBS(getaddrinfo, nsl, AC_DEFINE(HAVE_GETADDRINFO))
-AC_SEARCH_LIBS(getnameinfo, nsl, AC_DEFINE(HAVE_GETNAMEINFO))
-AC_SEARCH_LIBS(hstrerror, nsl socket resolv, AC_DEFINE(HAVE_HSTRERROR))
-AC_SEARCH_LIBS(__res_init, resolv bind, AC_DEFINE(HAVE_RES_INIT),
+AC_SEARCH_LIBS(getaddrinfo, nsl, AC_DEFINE([HAVE_GETADDRINFO], [], [getaddrinfo support]))
+AC_SEARCH_LIBS(getnameinfo, nsl, AC_DEFINE([HAVE_GETNAMEINFO], [], [getnameinfo support]))
+AC_SEARCH_LIBS(hstrerror, nsl socket resolv, AC_DEFINE([HAVE_HSTRERROR], [], [hstrerror support]))
+AC_SEARCH_LIBS(__res_init, resolv bind, AC_DEFINE([HAVE_RES_INIT], [], [__res_init support]),
 	AC_SEARCH_LIBS(res_9_init, resolv bind, AC_DEFINE(HAVE_RES_INIT),
 	AC_SEARCH_LIBS(res_init, resolv bind, AC_DEFINE(HAVE_RES_INIT))))
-AC_CHECK_HEADER(resolv.h, AC_DEFINE(HAVE_RESOLV_H))
+AC_CHECK_HEADER(resolv.h, AC_DEFINE([HAVE_RESOLV_H], [], [resolv.h support]))
 
 dnl Check for largefile support...
 AC_SYS_LARGEFILE
@@ -141,10 +141,10 @@ AC_CACHE_CHECK(for long long int, ac_cv_c_long_long,
     fi])
 
 if test $ac_cv_c_long_long = yes; then
-    AC_DEFINE(HAVE_LONG_LONG)
+    AC_DEFINE([HAVE_LONG_LONG], [], [long long support])
 fi
 
-AC_CHECK_FUNC(strtoll, AC_DEFINE(HAVE_STRTOLL))
+AC_CHECK_FUNC(strtoll, AC_DEFINE([HAVE_STRTOLL], [], [strtoll support]))
 
 dnl Check for TLS/SSL libraries...
 AC_ARG_ENABLE(ssl, [  --enable-ssl            turn on SSL/TLS support, default=yes])
@@ -161,33 +161,32 @@ if test x$enable_ssl != xno; then
 	if test $uname = Darwin; then
 	    AC_CHECK_HEADER(Security/SecureTransport.h, [
 	    	have_ssl=1
-		AC_DEFINE(HAVE_SSL)
-		AC_DEFINE(HAVE_CDSASSL)
+		AC_DEFINE([HAVE_SSL], [], [ssl support])
+		AC_DEFINE([HAVE_CDSASSL], [], [cdsassl support])
 		SSLLIBS="-framework Security -framework CoreFoundation"
 
 		AC_CHECK_HEADER(Security/SecureTransportPriv.h,
-		    AC_DEFINE(HAVE_SECURETRANSPORTPRIV_H))
+		    AC_DEFINE([HAVE_SECURETRANSPORTPRIV_H], [], [SecureTransportPriv.h support]))
 		AC_CHECK_HEADER(Security/SecCertificate.h,
-		    AC_DEFINE(HAVE_SECCERTIFICATE_H))
+		    AC_DEFINE([HAVE_SECCERTIFICATE_H], [], [SecCertificate.h support]))
 		AC_CHECK_HEADER(Security/SecItem.h,
-		    AC_DEFINE(HAVE_SECITEM_H))
+		    AC_DEFINE([HAVE_SECITEM_H], [], [SecItem.h support]))
 		AC_CHECK_HEADER(Security/SecItemPriv.h,
-		    AC_DEFINE(HAVE_SECITEMPRIV_H),,
-		    [#include <Security/SecItem.h>])
+		    AC_DEFINE([HAVE_SECITEMPRIV_H], [], [SecItemPriv.h support]))
 		AC_CHECK_HEADER(Security/SecPolicy.h,
-		    AC_DEFINE(HAVE_SECPOLICY_H))
+		    AC_DEFINE([HAVE_SECPOLICY_H], [], [SecPolicy.h support]))
 		AC_CHECK_HEADER(Security/SecPolicyPriv.h,
-		    AC_DEFINE(HAVE_SECPOLICYPRIV_H))
+		    AC_DEFINE([HAVE_SECPOLICYPRIV_H], [], [SecPolicyPriv.h support]))
 		AC_CHECK_HEADER(Security/SecBasePriv.h,
-		    AC_DEFINE(HAVE_SECBASEPRIV_H))
+		    AC_DEFINE([HAVE_SECBASEPRIV_H], [], [SecBasePriv.h support]))
 		AC_CHECK_HEADER(Security/SecIdentitySearchPriv.h,
-		    AC_DEFINE(HAVE_SECIDENTITYSEARCHPRIV_H))
+		    AC_DEFINE([HAVE_SECIDENTITYSEARCHPRIV_H], [], [SecIdentitySearchPriv.h support]))
 
-		AC_DEFINE(HAVE_CSSMERRORSTRING)
-		AC_DEFINE(HAVE_SECKEYCHAINOPEN)])
+		AC_DEFINE([HAVE_CSSMERRORSTRING], [], [cssmerrorstring support])
+		AC_DEFINE([HAVE_SECKEYCHAINOPEN], [], [seckeychainopen support])])
 
 		if test $uversion -ge 150; then
-			AC_DEFINE(HAVE_SSLSETENABLEDCIPHERS)
+			AC_DEFINE([HAVE_SSLSETENABLEDCIPHERS], [], [ssl setenabledciphers support])
 		fi
 	fi
     fi
@@ -201,7 +200,7 @@ if test x$enable_ssl != xno; then
 	    SSLLIBS=`$PKGCONFIG --libs gnutls`
 	    SSLFLAGS=`$PKGCONFIG --cflags gnutls`
 	    AC_DEFINE(HAVE_SSL)
-	    AC_DEFINE(HAVE_GNUTLS)
+	    AC_DEFINE([HAVE_GNUTLS], [], [gnutls support])
 	elif test "x$LIBGNUTLSCONFIG" != x; then
 	    have_ssl=1
 	    SSLLIBS=`$LIBGNUTLSCONFIG --libs`
@@ -213,8 +212,8 @@ if test x$enable_ssl != xno; then
 	if test $have_ssl = 1; then
 	    SAVELIBS="$LIBS"
 	    LIBS="$LIBS $SSLLIBS"
-	    AC_CHECK_FUNC(gnutls_transport_set_pull_timeout_function, AC_DEFINE(HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION))
-	    AC_CHECK_FUNC(gnutls_priority_set_direct, AC_DEFINE(HAVE_GNUTLS_PRIORITY_SET_DIRECT))
+	    AC_CHECK_FUNC(gnutls_transport_set_pull_timeout_function, AC_DEFINE([HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION], [], [gnutls transport_set_pull_timeout_function support]))
+	    AC_CHECK_FUNC(gnutls_priority_set_direct, AC_DEFINE([HAVE_GNUTLS_PRIORITY_SET_DIRECT], [], [gnutls priority_set_direct support]))
 	    LIBS="$SAVELIBS"
 	fi
     fi
@@ -230,7 +229,7 @@ POST=:
 if test "x$with_gui" != xno; then
     if test "x$FLTKCONFIG" != x; then
 	LIBS="$LIBS `$FLTKCONFIG --use-images --ldflags`"
-	AC_DEFINE(HAVE_LIBFLTK)
+	AC_DEFINE([HAVE_LIBFLTK], [], [libfltk support])
 	POST="$FLTKCONFIG --post"
 
 	AC_CHECK_LIB(Xpm,XpmCreatePixmapFromData)
@@ -300,9 +299,9 @@ AC_SUBST(PNGINC)
 AC_SUBST(ZLIB)
 AC_SUBST(ZLIBINC)
 
-AC_DEFINE(HAVE_LIBJPEG)
-AC_DEFINE(HAVE_LIBPNG)
-AC_DEFINE(HAVE_LIBZ)
+AC_DEFINE([HAVE_LIBJPEG], [], [libjpeg support])
+AC_DEFINE([HAVE_LIBPNG], [], [libpng support])
+AC_DEFINE([HAVE_LIBZ], [], [libz support])
 
 LIBS="$NEWLIBS $LIBS"
 
@@ -339,8 +338,8 @@ elif test "$datadir" = "\${datarootdir}"; then
     datadir="$datarootdir"
 fi
 
-AC_DEFINE_UNQUOTED(DOCUMENTATION, "$datadir/doc/htmldoc")
-AC_DEFINE_UNQUOTED(HTML_DATA, "$datadir/htmldoc")
+AC_DEFINE_UNQUOTED([DOCUMENTATION], ["$datadir/doc/htmldoc"], [documentation directory])
+AC_DEFINE_UNQUOTED([HTML_DATA], ["$datadir/htmldoc"], [data directory])
 
 dnl Update compiler options...
 if test -n "$GXX"; then
