@@ -72,7 +72,7 @@ install:	all
 #
 
 clean:
-	$(RM) $(OBJS) htmldoc$(EXEEXT)
+	$(RM) $(OBJS) htmldoc$(EXEEXT) testhtml$(EXEEXT)
 
 
 #
