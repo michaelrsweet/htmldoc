@@ -124,7 +124,7 @@ Intel is a registered trademark of Intel Corporation.
 
 Linux is a registered trademark of Linus Torvalds.
 
-Mac OS is a registered trademark of Apple Inc.
+macOS is a registered trademark of Apple Inc.
 
 Microsoft and Windows are registered trademarks of Microsoft Corporation.
 
