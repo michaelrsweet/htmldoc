@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Type=Application
 Name=HTMLDOC
 Comment=HTML Conversion Software
@@ -8,3 +7,4 @@ Exec=htmldoc %F
 Icon=htmldoc
 Terminal=false
 Categories=Application;Office;X-Red-Hat-Base;
+Keywords=HTML;PDF;EPUB;Converter
