@@ -4627,6 +4627,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 		temp_width,
 		temp_height;
   float		format_width, image_y, image_left, image_right;
+  int		image_page = *page;
   float		char_spacing;
   int		num_chars;
   render_t	*r;
@@ -4755,6 +4756,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         image_left += temp->width + 2 * borderspace;
 	temp_y     = *y - temp->height;
+	image_page = *page;
 
 	if (temp_y < image_y || image_y == 0)
 	  image_y = temp_y;
@@ -4785,6 +4787,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         }
 
         image_right -= temp->width + 2 * borderspace;
+	image_page = *page;
 
         if (borderspace > 0.0f)
 	{
@@ -5053,8 +5056,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     *y -= height;
 
-    DEBUG_printf(("    y = %.1f, width = %.1f, height = %.1f\n", *y, width,
-                  height));
+    DEBUG_printf(("    page=%d, y=%.1f, width=%.1f, height=%.1f\n", *page, *y, width, height));
 
     if (Verbosity)
       progress_update(100 - (int)(100 * (*y) / PagePrintLength));
@@ -5305,7 +5307,16 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     *y -= spacing - height;
 
-    if (*y < image_y)
+    if (*y < (spacing + bottom))
+    {
+      (*page) ++;
+      *y = top;
+
+      if (Verbosity)
+        progress_show("Formatting page %d", *page);
+    }
+
+    if (*y < image_y || *page > image_page)
     {
       image_y      = 0.0f;
       image_left   = left;
@@ -5315,7 +5326,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
   }
 
   *x = left;
-  if (*y > image_y && image_y > 0.0f)
+  if (*y > image_y && image_y > 0.0f && image_page == *page)
     *y = image_y;
 
   DEBUG_printf(("LEAVING parse_paragraph(), x = %.1f, y = %.1f, page = %d, image_y = %.1f\n", *x, *y, *page, image_y));
