@@ -3,6 +3,7 @@
 - Fixed formatting bug with aligned images (Issue #322)
 - Fixed support for three digit "#RGB" color values (Issue #323)
 - Fixed character set support for markdown metadata.
+- Updated libpng to v1.6.34 (Issue #326)
 
 
 # Changes in HTMLDOC v1.9.2
