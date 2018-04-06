@@ -1,8 +1,8 @@
 #
 # Makefile definitions for HTMLDOC, an HTML document processing program.
 #
-# Copyright 2011-2017 by Michael R Sweet.
-# Copyright 1997-2010 by Easy Software Products.
+# Copyright © 2011-2018 by Michael R Sweet.
+# Copyright © 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
 # the file "COPYING".
@@ -70,6 +70,7 @@ top_srcdir	=	@top_srcdir@
 
 ARFLAGS		=	@ARFLAGS@
 CFLAGS		=	-I.. -DHAVE_CONFIG_H @CFLAGS@ @LARGEFILE@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
+CPPFLAGS	=	@CPPFLAGS@
 CXXFLAGS	=	-I.. -DHAVE_CONFIG_H @CXXFLAGS@ @LARGEFILE@ $(OPTIM) @JPEGINC@ @PNGINC@ @ZLIBINC@
 LDFLAGS		=	@LDFLAGS@ $(OPTIM)
 LIBS		=	@SSLLIBS@ @LIBS@

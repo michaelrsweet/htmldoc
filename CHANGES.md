@@ -4,6 +4,7 @@
 - Fixed support for three digit "#RGB" color values (Issue #323)
 - Fixed character set support for markdown metadata.
 - Updated libpng to v1.6.34 (Issue #326)
+- The makefiles did not use the CPPFLAGS value (Issue #328)
 
 
 # Changes in HTMLDOC v1.9.2
