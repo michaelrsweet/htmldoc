@@ -37,7 +37,7 @@ HTMLDOC	=	../htmldoc/htmldoc$(EXEEXT) --datadir .. --strict
 # Make everything...
 #
 
-all: $(DOCUMENTS) htmldoc.1
+all: $(DOCUMENTS)
 
 
 #
@@ -117,12 +117,3 @@ htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.ps...
 	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -f htmldoc.ps
-
-
-#
-# htmldoc.1
-#
-
-htmldoc.1:	htmldoc.man
-	echo Formatting htmldoc.1...
-	nroff -man htmldoc.man >htmldoc.1
