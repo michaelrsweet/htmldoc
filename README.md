@@ -89,12 +89,13 @@ found in the software users manual in the "doc" directory.
 
 # Credits
 
-Many thanks to Leonard Rosenthol for providing changes to support a macOS
-version of HTMLDOC.
+Many thanks to Leonard Rosenthol for providing the original changes to support
+a macOS (9) version of HTMLDOC.
 
-The table VALIGN and "HALF PAGE" code was contributed by D. Richard Hipp.
+The original table VALIGN and "HALF PAGE" code was contributed by D. Richard
+Hipp.
 
-The multiple header/footer image code was contributed by Lynn Pye.
+The original multiple header/footer image code was contributed by Lynn Pye.
 
 The RC4 encryption code is from librc4 1.1 by the folks at Carnegie Mellon
 University.
