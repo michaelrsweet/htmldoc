@@ -84,4 +84,4 @@ dmg:
 	codesign -s $(IDENTITY) htmldoc/htmldoc.app
 	echo Making disk image...
 	rm -f ~/Desktop/htmldoc-$(VERSION)-macos.dmg
-	hdiutil create -srcfolder htmldoc/htmldoc.app ~/Desktop/htmldoc-$(VERSION)-macos.dmg
+	dmgbuild -s dmgbuild.py "HTMLDOC $(VERSION)" ~/Desktop/htmldoc-$(VERSION)-macos.dmg
