@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.4
+
+- Optimized initialization of font width data (Issue #334)
+
+
 # Changes in HTMLDOC v1.9.3
 
 - Fixed formatting bugs with aligned images (Issue #322, Issue #324)
