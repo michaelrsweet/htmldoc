@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9.4
 
+- Inline fixed-width text is no longer reduced in size automatically
+  (Issue #309)
 - Optimized initialization of font width data (Issue #334)
 
 
