@@ -181,9 +181,10 @@ typedef enum
   TYPE_SERIF,
   TYPE_SANS_SERIF,
   TYPE_SYMBOL,
-  TYPE_DINGBATS,
-  TYPE_MAX
+  TYPE_DINGBATS
 } typeface_t;
+#define TYPE_MAX (typeface_t)(TYPE_DINGBATS + 1)
+
 
 /*
  * Style...
@@ -194,9 +195,10 @@ typedef enum
   STYLE_NORMAL = 0,
   STYLE_BOLD,
   STYLE_ITALIC,
-  STYLE_BOLD_ITALIC,
-  STYLE_MAX
+  STYLE_BOLD_ITALIC
 } style_t;
+#define STYLE_MAX (style_t)(STYLE_BOLD_ITALIC + 1)
+
 
 /*
  * Sizes...

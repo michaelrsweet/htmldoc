@@ -84,7 +84,7 @@ mmdCopyAllText(mmd_t *node)		/* I - Parent node */
 
       if (allsize == 0)
       {
-        allsize = textlen + current->whitespace + 1;
+        allsize = textlen + (size_t)current->whitespace + 1;
         all     = malloc(allsize);
         allptr  = all;
 
@@ -93,7 +93,7 @@ mmdCopyAllText(mmd_t *node)		/* I - Parent node */
       }
       else
       {
-        allsize += textlen + current->whitespace;
+        allsize += textlen + (size_t)current->whitespace;
         temp    = realloc(all, allsize);
 
         if (!temp)
@@ -131,7 +131,8 @@ mmdCopyAllText(mmd_t *node)		/* I - Parent node */
     current = next;
   }
 
-  *allptr = '\0';
+  if (allptr)
+    *allptr = '\0';
 
   return (all);
 }
