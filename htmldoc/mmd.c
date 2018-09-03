@@ -381,7 +381,8 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
                 *lineend;               /* End of line */
   int           blank_code = 0;         /* Saved indented blank code line */
   mmd_type_t	columns[256];		/* Alignment of table columns */
-  int		rows = 0;		/* Number of rows in table */
+  int		num_columns = 0,	/* Number of columns in table */
+		rows = 0;		/* Number of rows in table */
 
 
  /*
@@ -550,7 +551,8 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
         for (col = 0; col < (int)(sizeof(columns) / sizeof(columns[0])); col ++)
           columns[col] = MMD_TYPE_TABLE_BODY_CELL_LEFT;
 
-        rows = -1;
+        num_columns = 0;
+        rows        = -1;
       }
       else if (rows > 0)
       {
@@ -566,8 +568,14 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
       if (*lineptr == '|')
         lineptr ++;			/* Skip leading pipe */
 
-      if ((end = lineptr + strlen(lineptr) - 1) > lineptr && *end == '|')
-        *end = '\0';			/* Truncate trailing pipe */
+      if ((end = lineptr + strlen(lineptr) - 1) > lineptr)
+      {
+        while ((*end == '\n' || *end == 'r') && end > lineptr)
+          end --;
+
+        if (end > lineptr && *end == '|')
+	  *end = '\0';			/* Truncate trailing pipe */
+      }
 
       for (col = 0; lineptr && *lineptr && col < (int)(sizeof(columns) / sizeof(columns[0])); col ++)
       {
@@ -609,6 +617,23 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
             columns[col] = MMD_TYPE_TABLE_BODY_CELL_RIGHT;
 
 //          fprintf(stderr, "COLUMN %d SEPARATOR=\"%s\", TYPE=%d\n", col, start, columns[col]);
+        }
+      }
+
+     /*
+      * Make sure the table is balanced...
+      */
+
+      if (col > num_columns)
+      {
+        num_columns = col;
+      }
+      else if (block && block->type != MMD_TYPE_TABLE_HEADER)
+      {
+        while (col < num_columns)
+        {
+          mmd_add(row, columns[col], 0, NULL, NULL);
+          col ++;
         }
       }
 

@@ -2048,7 +2048,8 @@ htmlGetText(tree_t *t)		/* I - Tree to pick */
 {
   uchar		*s,		// String
 		*s2,		// New string
-		*tdata = NULL;	// Temporary string data
+		*tdata = NULL,	// Temporary string data
+		*talloc = NULL;	// Allocated string data
   size_t	slen,		// Length of string
 		tlen;		// Length of node string
 
@@ -2060,7 +2061,7 @@ htmlGetText(tree_t *t)		/* I - Tree to pick */
   while (t != NULL)
   {
     if (t->child)
-      tdata = htmlGetText(t->child);
+      tdata = talloc = htmlGetText(t->child);
     else
       tdata = t->data;
 
@@ -2083,10 +2084,10 @@ htmlGetText(tree_t *t)		/* I - Tree to pick */
 
       slen += tlen;
 
-      if (t->child)
+      if (talloc)
       {
-	free(tdata);
-	tdata = NULL;
+	free(talloc);
+	talloc = NULL;
       }
     }
 
@@ -2096,8 +2097,8 @@ htmlGetText(tree_t *t)		/* I - Tree to pick */
   if (slen)
     s[slen] = '\0';
 
-  if (tdata)
-    free(tdata);
+  if (talloc)
+    free(talloc);
 
   return (s);
 }
