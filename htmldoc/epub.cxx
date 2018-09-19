@@ -1,7 +1,7 @@
 /*
  * EPUB exporting functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2017 by Michael R Sweet.
+ * Copyright 2017-2018 by Michael R Sweet.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -177,6 +177,8 @@ epub_export(tree_t *document,           /* I - Document to export */
   author    = htmlGetMeta(document, (uchar *)"author");
   copyright = htmlGetMeta(document, (uchar *)"copyright");
   docnumber = htmlGetMeta(document, (uchar *)"docnumber");
+  if (!docnumber)
+    docnumber = htmlGetMeta(document, (uchar *)"version");
 
  /*
   * Scan for all links in the document, and then update them...
