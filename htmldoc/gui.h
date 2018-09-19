@@ -1,7 +1,7 @@
 /*
  * GUI definitions for HTMLDOC, an HTML document processing program.
  *
- * Copyright 2011 by Michael R Sweet.
+ * Copyright 2011-2018 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -68,7 +68,8 @@ class GUI
 			*outputDirectory;
   Fl_Input		*outputPath;
   Fl_Button		*outputBrowse;
-  Fl_Round_Button	*typeHTML,
+  Fl_Round_Button	*typeEPUB,
+			*typeHTML,
 			*typeHTMLSep,
 			*typePS,
 			*typePDF;

@@ -1,7 +1,7 @@
 //
 // GUI routines for HTMLDOC, an HTML document processing program.
 //
-// Copyright 2011-2017 by Michael R Sweet.
+// Copyright 2011-2018 by Michael R Sweet.
 // Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -354,25 +354,30 @@ GUI::GUI(const char *filename)		// Book file to load initially
   outputBrowse->callback((Fl_Callback *)outputPathCB, this);
   outputBrowse->tooltip("Choose an output file.");
 
-  group = new Fl_Group(140, 100, 255, 20, "Output Format: ");
+  group = new Fl_Group(140, 100, 325, 20, "Output Format: ");
   group->align(FL_ALIGN_LEFT);
-    typeHTML = new Fl_Round_Button(140, 100, 65, 20, "HTML");
+    typeEPUB = new Fl_Round_Button(140, 100, 65, 20, "EPUB");
+    typeEPUB->type(FL_RADIO_BUTTON);
+    typeEPUB->callback((Fl_Callback *)outputFormatCB, this);
+    typeEPUB->tooltip("Generate EPUB file(s).");
+
+    typeHTML = new Fl_Round_Button(205, 100, 65, 20, "HTML");
     typeHTML->type(FL_RADIO_BUTTON);
     typeHTML->setonly();
     typeHTML->callback((Fl_Callback *)outputFormatCB, this);
     typeHTML->tooltip("Generate HTML file(s).");
 
-    typeHTMLSep = new Fl_Round_Button(205, 100, 135, 20, "Separated HTML");
+    typeHTMLSep = new Fl_Round_Button(270, 100, 95, 20, "Split HTML");
     typeHTMLSep->type(FL_RADIO_BUTTON);
     typeHTMLSep->callback((Fl_Callback *)outputFormatCB, this);
     typeHTMLSep->tooltip("Generate separate HTML files for each TOC heading.");
 
-    typePS = new Fl_Round_Button(340, 100, 45, 20, "PS");
+    typePS = new Fl_Round_Button(365, 100, 45, 20, "PS");
     typePS->type(FL_RADIO_BUTTON);
     typePS->callback((Fl_Callback *)outputFormatCB, this);
     typePS->tooltip("Generate Adobe PostScript(r) file(s).");
 
-    typePDF = new Fl_Round_Button(385, 100, 55, 20, "PDF");
+    typePDF = new Fl_Round_Button(410, 100, 55, 20, "PDF");
     typePDF->type(FL_RADIO_BUTTON);
     typePDF->callback((Fl_Callback *)outputFormatCB, this);
     typePDF->tooltip("Generate an Adobe Acrobat file.");
@@ -1966,7 +1971,12 @@ GUI::parseOptions(const char *line)	// I - Line from file
 
     if (strcmp(temp, "-t") == 0)
     {
-      if (strcmp(temp2, "html") == 0)
+      if (strcmp(temp2, "epub") == 0)
+      {
+        typeEPUB->setonly();
+	outputFormatCB(typeEPUB, this);
+      }
+      else if (strcmp(temp2, "html") == 0)
       {
         typeHTML->setonly();
 	outputFormatCB(typeHTML, this);
@@ -2342,7 +2352,9 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   fputs("#HTMLDOC " SVERSION "\n", fp);
 
   // Write the options...
-  if (typeHTML->value())
+  if (typeEPUB->value())
+    fputs("-t epub", fp);
+  else if (typeHTML->value())
     fputs("-t html", fp);
   else if (typeHTMLSep->value())
     fputs("-t htmlsep", fp);
@@ -2420,7 +2432,7 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   if (bodyImage->size() > 0)
     fprintf(fp, " --bodyimage %s", bodyImage->value());
 
-  if (!typeHTML->value() && !typeHTMLSep->value())
+  if (!typeEPUB->value() && !typeHTML->value() && !typeHTMLSep->value())
   {
     if (pageSize->size() > 0)
       fprintf(fp, " --size %s", pageSize->value());
@@ -2657,6 +2669,7 @@ GUI::docTypeCB(Fl_Widget *w,	// I - Toggle button widget
 
   if (w == gui->typeBook)
   {
+    gui->typeEPUB->activate();
     gui->typeHTML->activate();
     gui->typeHTMLSep->activate();
 
@@ -2670,10 +2683,11 @@ GUI::docTypeCB(Fl_Widget *w,	// I - Toggle button widget
   }
   else
   {
+    gui->typeEPUB->deactivate();
     gui->typeHTML->deactivate();
     gui->typeHTMLSep->deactivate();
 
-    if (gui->typeHTML->value() || gui->typeHTMLSep->value())
+    if (gui->typeEPUB->value() || gui->typeHTML->value() || gui->typeHTMLSep->value())
     {
       gui->typePDF->setonly();
       outputFormatCB(gui->typePDF, gui);
@@ -3108,7 +3122,9 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
     {
       gui->fc->type(Fl_File_Chooser::CREATE);
 
-      if (gui->typeHTML->value())
+      if (gui->typeEPUB->value())
+	gui->fc->filter("EPUB Files (*.epub)");
+      else if (gui->typeHTML->value() || gui->typeHTMLSep->value())
 	gui->fc->filter("WWW Files (*.htm*)");
       else if (gui->typePDF->value())
 	gui->fc->filter("PDF Files (*.pdf)");
@@ -3148,7 +3164,9 @@ GUI::outputPathCB(Fl_Widget *w,		// I - Widget
       else if (gui->outputFile->value())
       {
         // No extension - add one!
-	if (gui->typeHTML->value())
+	if (gui->typeEPUB->value())
+	  strlcat(filename, ".epub", sizeof(filename));
+	else if (gui->typeHTML->value() || gui->typeHTMLSep->value())
 	  strlcat(filename, ".html", sizeof(filename));
 	else if (gui->typePS->value())
 	  strlcat(filename, ".ps", sizeof(filename));
@@ -3175,12 +3193,10 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
 {
   char		filename[1024],		// Output filename
 		*ptr;			// Pointer to extension
-  const char	*ext;			// Extension
+  const char	*ext = NULL;		// Extension
 
 
   gui->title(gui->book_filename, 1);
-
-  ext = NULL; // To make GCC happy...
 
   if (w == gui->typePDF)
   {
@@ -3206,7 +3222,7 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
   else
     gui->outputFile->activate();
 
-  if (w == gui->typeHTML || w == gui->typeHTMLSep)
+  if (w == gui->typeEPUB || w == gui->typeHTML || w == gui->typeHTMLSep)
   {
     gui->compression->value(0);
 
@@ -3227,7 +3243,10 @@ GUI::outputFormatCB(Fl_Widget *w,	// I - Widget
     gui->tocFooterCenter->deactivate();
     gui->tocFooterRight->deactivate();
 
-    ext = ".html";
+    if (w == gui->typeEPUB)
+      ext = ".epub";
+    else
+      ext = ".html";
   }
   else
   {
@@ -3885,6 +3904,11 @@ GUI::saveAsBookCB(Fl_Widget *w,		// I - Widget
         gui->typePDF->setonly();
 	outputFormatCB(gui->typePDF, gui);
       }
+      else if (strcasecmp(extension, "epub") == 0)
+      {
+        gui->typeEPUB->setonly();
+	outputFormatCB(gui->typeEPUB, gui);
+      }
       else if (strcasecmp(extension, "html") == 0)
       {
         gui->typeHTML->setonly();
@@ -4102,7 +4126,9 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       toc = NULL;
 
     // Generate the output file(s).
-    if (gui->typeHTML->value())
+    if (gui->typeEPUB->value())
+      epub_export(document, toc);
+    else if (gui->typeHTML->value())
       html_export(document, toc);
     else if (gui->typeHTMLSep->value())
       htmlsep_export(document, toc);

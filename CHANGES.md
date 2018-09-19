@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.5
+
+- The GUI did not support EPUB output.
+
+
 # Changes in HTMLDOC v1.9.4
 
 - Inline fixed-width text is no longer reduced in size automatically
