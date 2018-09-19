@@ -226,12 +226,20 @@ add_block(tree_t *html,                 /* I - Parent HTML node */
     htmlSetVariable(block, (uchar *)"id", make_anchor(parent));
   }
 
-  for (node = mmdGetFirstChild(parent); node; node = mmdGetNextSibling(node))
+  if (type >= MMD_TYPE_TABLE_BODY_CELL_LEFT && type <= MMD_TYPE_TABLE_BODY_CELL_RIGHT && !mmdGetFirstChild(parent))
   {
-    if (mmdIsBlock(node))
-      add_block(block, node);
-    else
-      add_leaf(block, node);
+    // Make sure table body cells have at least a non-breaking space...
+    htmlAddTree(block, MARKUP_NONE, (uchar *)" ");
+  }
+  else
+  {
+    for (node = mmdGetFirstChild(parent); node; node = mmdGetNextSibling(node))
+    {
+      if (mmdIsBlock(node))
+	add_block(block, node);
+      else
+	add_leaf(block, node);
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.5
 
 - The GUI did not support EPUB output.
+- Empty markdown table cells were not rendered in PDF or PostScript output.
 
 
 # Changes in HTMLDOC v1.9.4
