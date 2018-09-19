@@ -2,6 +2,8 @@
 
 - The GUI did not support EPUB output.
 - Empty markdown table cells were not rendered in PDF or PostScript output.
+- The automatically-generated title page now supports both "docnumber" and
+  "version" metadata.
 
 
 # Changes in HTMLDOC v1.9.4

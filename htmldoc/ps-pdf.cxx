@@ -441,6 +441,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   logo_image  = image_load(LogoImage, !OutputColor);
   maxhfheight = 0.0f;
 
+  if (docnumber == NULL)
+    docnumber = htmlGetMeta(document, (uchar *)"version");
+
   if (logo_image != NULL)
   {
     logo_width  = (float)(logo_image->width * PagePrintWidth / _htmlBrowserWidth);
