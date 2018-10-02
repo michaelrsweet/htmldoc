@@ -83,7 +83,9 @@ epub_export(tree_t *document,           /* I - Document to export */
   uchar       *title,                   /* Title text */
               *author,                  /* Author name */
               *copyright,               /* Copyright text */
-              *docnumber;               /* Document number */
+              *docnumber,               /* Document number */
+              *language,		/* Language */
+              *subject;			/* Subject/category */
   zipc_t      *epub;                    /* EPUB output file */
   zipc_file_t *epubf;                   /* File in container */
   struct stat epubinfo;                 /* EPUB file information */
@@ -177,8 +179,17 @@ epub_export(tree_t *document,           /* I - Document to export */
   author    = htmlGetMeta(document, (uchar *)"author");
   copyright = htmlGetMeta(document, (uchar *)"copyright");
   docnumber = htmlGetMeta(document, (uchar *)"docnumber");
+  language  = htmlGetMeta(document, (uchar *)"lang");
+  subject   = htmlGetMeta(document, (uchar *)"keywords");
+
   if (!docnumber)
     docnumber = htmlGetMeta(document, (uchar *)"version");
+
+  if (!language)
+    language = (uchar *)"en-US";
+
+  if (!subject)
+    subject = (uchar *)"Unknown";
 
  /*
   * Scan for all links in the document, and then update them...
@@ -236,11 +247,12 @@ epub_export(tree_t *document,           /* I - Document to export */
                            "    <dc:title>%s</dc:title>\n"
                            "    <dc:creator>%s</dc:creator>\n"
                            "    <meta property=\"dcterms:modified\">%s</meta>\n"
-                           "    <dc:language>en-US</dc:language>\n"
+                           "    <dc:language>%s</dc:language>\n"
+                           "    <dc:subject>%s</dc:subject>\n"
                            "    <dc:rights>%s</dc:rights>\n"
                            "    <dc:publisher>htmldoc</dc:publisher>\n"
                            "    <dc:identifier id=\"%s\">%s</dc:identifier>\n",
-                           uid, title, author, get_iso_date(time(NULL)), copyright, uid, uid);
+                           uid, title, author, get_iso_date(time(NULL)), language, subject, copyright, uid, uid);
 
     if (cover_image)
       status |= write_xhtmlf(epubf, "    <meta name=\"cover\" content=\"%s\" />\n", cover_image);

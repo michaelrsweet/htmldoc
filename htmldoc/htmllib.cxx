@@ -2125,8 +2125,14 @@ htmlGetMeta(tree_t *tree,	/* I - Document tree */
     if (tree->markup == MARKUP_META &&
         (tname = htmlGetVariable(tree, (uchar *)"NAME")) != NULL &&
         (tcontent = htmlGetVariable(tree, (uchar *)"CONTENT")) != NULL)
+    {
       if (strcasecmp((char *)name, (char *)tname) == 0)
         return (tcontent);
+    }
+    else if (tree->markup == MARKUP_HTML && !strcasecmp((char *)name, "LANG") && (tcontent = htmlGetVariable(tree, (uchar *)"LANG")) != NULL)
+    {
+      return (tcontent);
+    }
 
    /*
     * Check child entries...

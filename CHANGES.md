@@ -4,6 +4,9 @@
 - Empty markdown table cells were not rendered in PDF or PostScript output.
 - The automatically-generated title page now supports both "docnumber" and
   "version" metadata.
+- Added support for dc:subject and dc:language metadata in EPUB output from the
+  HTML keywords and lang values.
+- Added support for the subject and language metadata in markdown input.
 
 
 # Changes in HTMLDOC v1.9.4

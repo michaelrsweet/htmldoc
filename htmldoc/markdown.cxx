@@ -70,6 +70,16 @@ mdReadFile(tree_t     *parent,		/* I - Parent node */
     htmlSetVariable(temp, (uchar *)"name", (uchar *)"version");
     htmlSetVariable(temp, (uchar *)"content", get_text((uchar *)meta));
   }
+  if ((meta = mmdGetMetadata(doc, "language")) != NULL)
+  {
+    htmlSetVariable(temp, (uchar *)"lang", get_text((uchar *)meta));
+  }
+  if ((meta = mmdGetMetadata(doc, "subject")) != NULL)
+  {
+    temp = htmlAddTree(head, MARKUP_META, NULL);
+    htmlSetVariable(temp, (uchar *)"name", (uchar *)"keywords");
+    htmlSetVariable(temp, (uchar *)"content", get_text((uchar *)meta));
+  }
 
   body = htmlAddTree(html, MARKUP_BODY, NULL);
   add_block(body, doc);
