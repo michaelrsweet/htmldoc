@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ghtmldoc", "ghtmldoc.vcxproj", "{A45127A6-7A50-48AE-820A-E0D821516AD4}"
 EndProject
@@ -11,12 +11,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "libpng.vcxproj", "{1132A142-F8A1-4464-881C-7F50D77A1CD2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib.vcxproj", "{F4B8B6F3-8198-4FC3-92A3-C944644B570A}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "htmldoc-installer", "htmldoc-installer.vdproj", "{CE7334CB-F82B-4F29-8648-D959871BBC71}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A45127A6-7A50-48AE-820A-E0D821516AD4} = {A45127A6-7A50-48AE-820A-E0D821516AD4}
-		{287D2FB4-9941-4B64-B973-55A6EC04EAFC} = {287D2FB4-9941-4B64-B973-55A6EC04EAFC}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,16 +60,11 @@ Global
 		{F4B8B6F3-8198-4FC3-92A3-C944644B570A}.Release|Win32.Build.0 = Release|Win32
 		{F4B8B6F3-8198-4FC3-92A3-C944644B570A}.Release|x64.ActiveCfg = Release|x64
 		{F4B8B6F3-8198-4FC3-92A3-C944644B570A}.Release|x64.Build.0 = Release|x64
-		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Debug|Win32.ActiveCfg = Debug
-		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Debug|Win32.Build.0 = Debug
-		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Debug|x64.ActiveCfg = Debug
-		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Debug|x64.Build.0 = Debug
-		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Release|Win32.ActiveCfg = Release
-		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Release|Win32.Build.0 = Release
-		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Release|x64.ActiveCfg = Release
-		{CE7334CB-F82B-4F29-8648-D959871BBC71}.Release|x64.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {89508E4D-2CC3-41ED-B9FF-AA5C4E6E8CE7}
 	EndGlobalSection
 EndGlobal

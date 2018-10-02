@@ -20,12 +20,10 @@ htmldoc/testhtml.exe
 jpeg/libjpeg.a
 png/libpng.a
 testsuite/commonmark.md
-vcnet/*.exe
-vcnet/*.lib
-vcnet/*.msi
-vcnet/*.opensdf
-vcnet/*.suo
-vcnet/*.user
+vcnet/.vs
+vcnet/packages
+vcnet/Debug
+vcnet/Release
 vcnet/Win32
 vcnet/x64
 xcode/htmldoc.xcodeproj/project.xcworkspace/

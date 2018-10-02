@@ -143,4 +143,7 @@
   <ItemGroup>
     <ResourceCompile Include="icons.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>
