@@ -8,7 +8,7 @@
   HTML keywords and lang values.
 - Added support for the subject and language metadata in markdown input.
 - Fixed a buffer underflow bug (Issue #338)
-
+- Fixed an issue with HTML title pages and EPUB output.
 
 # Changes in HTMLDOC v1.9.4
 

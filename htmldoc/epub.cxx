@@ -51,7 +51,7 @@ typedef int	(*compare_func_t)(const void *, const void *);
 }
 
 static int	write_header(zipc_file_t *out, uchar *title, uchar *author, uchar *copyright, uchar *docnumber, tree_t *t);
-static int	write_title(zipc_file_t *out, uchar *title, uchar *author, uchar *copyright, uchar *docnumber);
+static int	write_title(zipc_file_t *out, tree_t *title_tree, uchar *title, uchar *author, uchar *copyright, uchar *docnumber);
 static int	write_all(zipc_file_t *out, tree_t *t);
 static int	write_node(zipc_file_t *out, tree_t *t);
 static int	write_nodeclose(zipc_file_t *out, tree_t *t);
@@ -90,6 +90,7 @@ epub_export(tree_t *document,           /* I - Document to export */
   zipc_file_t *epubf;                   /* File in container */
   struct stat epubinfo;                 /* EPUB file information */
   const char  *title_ext;               /* Extension of title image */
+  tree_t      *title_tree = NULL;	/* Title file document tree */
   const char  *cover_image = NULL;      /* Do we have a cover image? */
   int         status = 0;               /* Return status */
   static const char *mimetype =		/* mimetype file as a string */
@@ -158,15 +159,44 @@ epub_export(tree_t *document,           /* I - Document to export */
 
   title_ext = file_extension(TitleImage);
 
-  if (TitleImage[0] && TitlePage &&
-#ifdef WIN32
-      (!stricmp(title_ext, "bmp") || !stricmp(title_ext, "gif") || !stricmp(title_ext, "jpg") || !stricmp(title_ext, "png")))
-#else
-      (!strcmp(title_ext, "bmp") || !strcmp(title_ext, "gif") || !strcmp(title_ext, "jpg") || !strcmp(title_ext, "png")))
-#endif // WIN32
+  if (TitleImage[0] && TitlePage)
   {
-    status |= copy_image(epub, file_find(Path, TitleImage));
-    cover_image = file_basename(TitleImage);
+#ifdef WIN32
+    if (!stricmp(title_ext, "bmp") || !stricmp(title_ext, "gif") || !stricmp(title_ext, "jpg") || !stricmp(title_ext, "png"))
+#else
+    if (!strcmp(title_ext, "bmp") || !strcmp(title_ext, "gif") || !strcmp(title_ext, "jpg") || !strcmp(title_ext, "png"))
+#endif // WIN32
+    {
+      status |= copy_image(epub, file_find(Path, TitleImage));
+      cover_image = file_basename(TitleImage);
+    }
+    else
+    {
+      FILE	*fp;			/* Title file */
+      const char *title_file;		/* Location of title file */
+
+      // Find the title page file...
+      if ((title_file = file_find(Path, TitleImage)) == NULL)
+      {
+	progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find title file \"%s\".", TitleImage);
+	return (-1);
+      }
+
+      // Read a HTML title page...
+      if ((fp = fopen(title_file, "rb")) == NULL)
+      {
+	progress_error(HD_ERROR_FILE_NOT_FOUND,
+		       "Unable to open title file \"%s\" - %s!",
+		       TitleImage, strerror(errno));
+	return (-1);
+      }
+
+      title_tree = htmlReadFile(NULL, fp, file_directory(TitleImage));
+      htmlFixLinks(title_tree, title_tree, (uchar *)file_directory(TitleImage));
+      fclose(fp);
+
+      status |= copy_images(epub, title_tree);
+    }
   }
 
   status |= copy_images(epub, document);
@@ -175,19 +205,30 @@ epub_export(tree_t *document,           /* I - Document to export */
   * Get document strings...
   */
 
-  title     = get_title(document);
-  author    = htmlGetMeta(document, (uchar *)"author");
-  copyright = htmlGetMeta(document, (uchar *)"copyright");
-  docnumber = htmlGetMeta(document, (uchar *)"docnumber");
-  language  = htmlGetMeta(document, (uchar *)"lang");
-  subject   = htmlGetMeta(document, (uchar *)"keywords");
+  if ((title = get_title(title_tree)) == NULL)
+    title = get_title(document);
 
+  if ((author = htmlGetMeta(title_tree, (uchar *)"author")) == NULL)
+    author = htmlGetMeta(document, (uchar *)"author");
+
+  if ((copyright = htmlGetMeta(title_tree, (uchar *)"copyright")) == NULL)
+    copyright = htmlGetMeta(document, (uchar *)"copyright");
+
+  if ((docnumber = htmlGetMeta(title_tree, (uchar *)"docnumber")) == NULL)
+    docnumber = htmlGetMeta(document, (uchar *)"docnumber");
   if (!docnumber)
-    docnumber = htmlGetMeta(document, (uchar *)"version");
+  {
+    if ((docnumber = htmlGetMeta(title_tree, (uchar *)"version")) == NULL)
+      docnumber = htmlGetMeta(document, (uchar *)"version");
+  }
 
+  if ((language = htmlGetMeta(title_tree, (uchar *)"lang")) == NULL)
+    language = htmlGetMeta(document, (uchar *)"lang");
   if (!language)
     language = (uchar *)"en-US";
 
+  if ((subject = htmlGetMeta(title_tree, (uchar *)"keywords")) == NULL)
+    subject = htmlGetMeta(document, (uchar *)"keywords");
   if (!subject)
     subject = (uchar *)"Unknown";
 
@@ -214,7 +255,7 @@ epub_export(tree_t *document,           /* I - Document to export */
     {
       progress_show("Copying title page to EPUB container...");
 
-      status |= write_title(epubf, title, author, copyright, docnumber);
+      status |= write_title(epubf, title_tree, title, author, copyright, docnumber);
     }
 
     while (document != NULL)
@@ -322,6 +363,9 @@ epub_export(tree_t *document,           /* I - Document to export */
 
   if (title != NULL)
     free(title);
+
+  if (title_tree)
+    htmlDeleteTree(title_tree);
 
   if (alloc_links)
   {
@@ -496,48 +540,19 @@ write_header(
 
 static int                              /* O - 0 on success, -1 on failure */
 write_title(zipc_file_t *out,           /* I - Output file */
+            tree_t      *title_tree,	/* I - Title tree, if any */
             uchar       *title,         /* I - Title for document */
             uchar       *author,	/* I - Author for document */
             uchar       *copyright,	/* I - Copyright for document */
             uchar       *docnumber)	/* I - ID number for document */
 {
   int           status = 0;             /* Write status */
-  FILE		*fp;                    /* Title file */
-  const char	*title_file,            /* Location of title file */
-                *title_ext;             /* Extension of title file */
-  tree_t	*t;                     /* Title file document tree */
 
 
-  title_ext = file_extension(TitleImage);
-
-#ifdef WIN32
-  if (TitleImage[0] && stricmp(title_ext, "bmp") && stricmp(title_ext, "gif") && stricmp(title_ext, "jpg") && stricmp(title_ext, "png"))
-#else
-  if (TitleImage[0] && strcmp(title_ext, "bmp") && strcmp(title_ext, "gif") && strcmp(title_ext, "jpg") && strcmp(title_ext, "png"))
-#endif // WIN32
+  if (title_tree)
   {
-    // Find the title page file...
-    if ((title_file = file_find(Path, TitleImage)) == NULL)
-    {
-      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find title file \"%s\".", TitleImage);
-      return (-1);
-    }
-
-    // Write a title page from HTML source...
-    if ((fp = fopen(title_file, "rb")) == NULL)
-    {
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open title file \"%s\" - %s!",
-                     TitleImage, strerror(errno));
-      return (-1);
-    }
-
-    t = htmlReadFile(NULL, fp, file_directory(TitleImage));
-    htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
-    fclose(fp);
-
-    status |= write_all(out, t);
-    htmlDeleteTree(t);
+    // Write a custom HTML title page...
+    status |= write_all(out, title_tree);
   }
   else
   {
