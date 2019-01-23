@@ -1,4 +1,5 @@
-# Introduction
+Introduction
+------------
 
 HTMLDOC is a program that reads HTML and Markdown source files or web pages and
 generates corresponding EPUB, HTML, PostScript, or PDF files with an optional
@@ -32,20 +33,22 @@ servers.  However, it does not support many things in "the modern web", such as:
 - Emoji: The fonts bundled with HTMLDOC do not include Unicode Emoji characters.
 
 
-# Resources
+Resources
+---------
 
 The following HTMLDOC resources are available online:
 
 - Official web site and online documentation:
 
-    https://michaelrsweet.github.io/htmldoc
+    https://www.msweet.org/htmldoc
 
 - Issue tracker and questions:
 
     https://github.com/michaelrsweet/htmldoc/issues
 
 
-# Using HTMLDOC
+Using HTMLDOC
+-------------
 
 Note: Complete documentation for HTMLDOC is available in the "doc" subdirectory.
 The following provides basic information on using HTMLDOC at the command-line
@@ -87,7 +90,8 @@ A complete description of all command-line options and HTML guidelines can be
 found in the software users manual in the "doc" directory.
 
 
-# Credits
+Credits
+-------
 
 Many thanks to Leonard Rosenthol for providing the original changes to support
 a macOS (9) version of HTMLDOC.
@@ -104,13 +108,14 @@ The MD5 hash code is from L. Peter Deutsch at Aladdin Enterprises (creators
 of Ghostscript, among other things).
 
 
-# Legal Stuff
+Legal Stuff
+-----------
 
-HTMLDOC is copyright © 1997-2018 by Michael R Sweet.  This program is free
+HTMLDOC is copyright © 1997-2019 by Michael R Sweet.  This program is free
 software.  Distribution and use rights are outlined in the file "COPYING".
 
 HTMLDOC includes code to encrypt PDF document files using the RC4 algorithm
-with up to a 128-bit key. While this software and code may be freely used
+with up to a 128-bit key.  While this software and code may be freely used
 and exported under current US laws, other countries may restrict your use
 and possession of this code and software.
 
