@@ -15,9 +15,9 @@ git tag -s -m "Tag $version" v$version
 git push origin v$version
 
 echo Creating htmldoc-$version-source.tar.gz...
-git archive --format tar --prefix=htmldoc-$version HEAD | gzip -v9 >~/Desktop/htmldoc-$version-source.tar.gz
+git archive --format tar --prefix=htmldoc-$version/ HEAD | gzip -v9 >~/Desktop/htmldoc-$version-source.tar.gz
 gpg --detach-sign ~/Desktop/htmldoc-$version-source.tar.gz
 
 echo Creating htmldoc-$version-source.zip...
-git archive --format zip -9 --prefix=htmldoc-$version HEAD >~/Desktop/htmldoc-$version-source.zip
+git archive --format zip -9 --prefix=htmldoc-$version/ HEAD >~/Desktop/htmldoc-$version-source.zip
 gpg --detach-sign ~/Desktop/htmldoc-$version-source.zip
