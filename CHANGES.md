@@ -1,3 +1,9 @@
+# Changes in HTMLDOC v1.9.6
+
+- HTMLDOC no longer includes a PDF table of contents when converting a single
+  web page (Issue #344)
+
+
 # Changes in HTMLDOC v1.9.5
 
 - The GUI did not support EPUB output.
@@ -10,6 +16,7 @@
 - Fixed a buffer underflow bug (Issue #338)
 - `htmldoc --help` now reports whether HTTPS URLs are supported (Issue #339)
 - Fixed an issue with HTML title pages and EPUB output.
+
 
 # Changes in HTMLDOC v1.9.4
 

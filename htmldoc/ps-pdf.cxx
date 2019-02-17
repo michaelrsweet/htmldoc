@@ -2975,7 +2975,7 @@ pdf_write_files(FILE   *out,		// I - Output file
     if (temp->markup == MARKUP_FILE)
       num_files ++;
 
-  if (!num_files)
+  if (num_files < 2)
   {
     // No files to outline...
     outline_object = 0;
