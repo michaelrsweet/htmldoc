@@ -2,6 +2,8 @@
 
 - HTMLDOC no longer includes a PDF table of contents when converting a single
   web page (Issue #344)
+- Updated the markdown support with external links, additional inline markup,
+  and hard line breaks.
 
 
 # Changes in HTMLDOC v1.9.5
